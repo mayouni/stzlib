@@ -1,0 +1,22 @@
+{
+ "brief": "Captures every message instead of sending it, so a magic link or a one-time code lands in an inbox a test can read.",
+ "detail": "A mail port is any object with Send(to, subject, body). This sandbox is the development stand-in: free, deterministic and offline, it records what would have gone out and never delivers, so an agent set loose with only a sandbox port causes no real effect. The captured messages live in a shared sink keyed by an id, so a copy of the object, which Ring makes when it is stored in another object, reads and writes the same sink. At deploy you bind your own adapter behind the same one-method contract. It does not validate addresses or text.",
+ "receiver": "o1 = new stzMailSandbox()",
+ "example": [
+  "o1.Send(\"aicha@example.com\", \"Your code\", \"Code 492039\")",
+  "o1.Send(\"zin@example.com\", \"Hello\", \"Hi Zin\")",
+  "? o1.Count()",
+  "#--> 2",
+  "? o1.LastTo()",
+  "#--> zin@example.com",
+  "? o1.InboxOf(\"aicha@example.com\")[1][:body]",
+  "#--> Code 492039",
+  "? o1.IsSandbox()",
+  "#--> 1"
+ ],
+ "see": [
+  "stzSmsSandbox",
+  "stzServiceRegistry",
+  "stzAuth"
+ ]
+}

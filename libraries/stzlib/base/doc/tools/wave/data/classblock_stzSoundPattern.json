@@ -1,0 +1,27 @@
+{
+ "brief": "Holds rhythm written as a string, Tidal's mini-notation, as a function of time that answers the events of any cycle.",
+ "detail": "A pattern is not a list of notes but a function from a cycle number to the events in that cycle, so the verbs compose. In the string a b c is a sequence sharing the cycle, ~ a rest, [a b] a group sharing one step, [a, b] a stack, <a b> an alternation by cycle, a*2 twice as fast, a/2 half as fast, a? sometimes, a!3 three times and a@3 three steps long. A word is a note name or a stroke, with bd, sn and hh stored as kick, snare and hihat. ToScoreQ turns cycles into a stzSoundScore, four beats a cycle, which is data a player can render; nothing here opens an audio device or plays. Not here: euclidean rhythms, fractional factors, sample banks and jux. The output has not been heard by a person (UNPERCEIVED): it is checked by the events it holds.",
+ "receiver": "o1 = StzSoundPatternQ(\"bd ~ sn [hh hh]\")",
+ "example": [
+  "? o1.IsAllStrokes()",
+  "#--> 1",
+  "? o1.HasStroke(\"kick\")",
+  "#--> 1",
+  "? o1.HasStroke(\"crash\")",
+  "#--> 0",
+  "oS = o1.ToScoreQ(2)",
+  "? oS.NumberOfEvents()",
+  "#--> 8",
+  "? oS.Beats()",
+  "#--> 8",
+  "? oS.Events()[3][1]",
+  "#--> 3",
+  "? oS.Events()[3][6]",
+  "#--> hihat"
+ ],
+ "see": [
+  "stzPattern",
+  "stzSoundScore",
+  "stzSoundTranscriber"
+ ]
+}

@@ -1,0 +1,10 @@
+{
+ "brief": "Is meant to hold named objects and fetch one by name or position; it can not be built with a list today.",
+ "detail": "Building it with a list raises R14, because init calls IsListOfNamedObjects on a stzList and that method does not exist, so Copy raises as well. A holder built without parentheses is empty; Content and Value return its empty list. NamedObject looks a name up and raises for an unknown one; its number branch tests the wrong variable and raises. stzNamedObjects is another name of it.",
+ "receiver": "o1 = new stzListOfNamedObjects",
+ "example": [
+  "? len(o1.Content())",
+  "#--> 0"
+ ],
+ "see": ["stzListOfObjects", "stzNamedObjects", "stzNamedObject"]
+}

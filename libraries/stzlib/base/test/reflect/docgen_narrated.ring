@@ -66,6 +66,17 @@ Scenario("Is...NamedParam: the keyword is the name, an Or makes two")
 	Then("and that one passes too", ScoreOk(aL[1], "IsAfterSubstringsWXTOrAfterSubstringsWhereXTNamedParam"), TRUE)
 EndScenario()
 
+Scenario("The parameter reader: a default value is not part of the name, and a one-line body is not a parameter")
+	aP = _StzDocParamsOf('def init(pcImage = "", pa = [ 1, 2 ], pn = 3)')
+	Then("three parameters", len(aP), 3)
+	Then("the first is named without its default", aP[1], "pcImage")
+	Then("a comma inside brackets stays in the default", aP[2], "pa")
+	Then("the last is named too", aP[3], "pn")
+	Then("a quoted comma stays in the default", len(_StzDocParamsOf('def f(pc = "a,b", pn)')), 2)
+	Then("a one-line method does not take its body for a parameter", len(_StzDocParamsOf("def Width()   return @oStyle.Width()")), 0)
+	Then("a plain list is unchanged", _StzDocParamsOf("def Find(pcSub, pnFrom)")[2], "pnFrom")
+EndScenario()
+
 Summary()
 
 func ScoreOk(cBrief, cName)

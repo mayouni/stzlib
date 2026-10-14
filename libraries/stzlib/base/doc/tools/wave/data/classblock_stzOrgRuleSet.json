@@ -1,0 +1,18 @@
+{
+ "brief": "Holds the four universal rules an organisation chart must keep, as the set an org chart judges itself with.",
+ "detail": "The set carries no-self-report and no-cyclic-reporting as errors, and no-orphan-position and span-of-control as warnings, in the org-governance set of the orgchart domain. The compliance bases in stzOrgChart carry the same universal tier. Use the set directly to add a rule of your own before checking a graph.",
+ "receiver": "o1 = new stzOrgRuleSet()",
+ "example": [
+  "? o1.Name()",
+  "#--> org-governance",
+  "? o1.Domain()",
+  "#--> orgchart",
+  "? len(o1.Rules())",
+  "#--> 4"
+ ],
+ "see": [
+  "stzOrgChart",
+  "stzOrgRule",
+  "stzGraphRuleSet"
+ ]
+}

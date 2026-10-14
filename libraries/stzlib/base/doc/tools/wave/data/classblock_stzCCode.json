@@ -1,0 +1,12 @@
+{
+ "brief": "Holds a piece of conditional code, the Ring expression of a W or WXT condition, and rewrites it to its basic form.",
+ "detail": "The code is written with the keywords @i and This[@i], or with friendlier words such as @CurrentItem, @NextItem and @PreviousItem. Transpiled turns the friendly words into the basic forms; ExecutableSection says over which positions of a list the code can run without reading outside it.",
+ "receiver": "o1 = new stzCCode(\"{ @CurrentItem = @NextItem }\")",
+ "example": [
+  "? o1.Transpiled()",
+  "#--> This[@i] = This[@i + 1]",
+  "? o1.Content()",
+  "#--> @CurrentItem = @NextItem"
+ ],
+ "see": ["stzConstraint", "stzString"]
+}

@@ -1,0 +1,8 @@
+# w15 stzOtelBatch
+init | Builds an empty span batch for a service name. | nothing; the object is built | pcServiceName=the service name written once at the top of the envelope, as service.name | AddSpan, ToJson | a name holding a double quote or a backslash is written into the JSON as it is and makes ToJson invalid JSON, though span names are escaped | StzOtelBatch builds the same object
+ServiceName | Returns the service name the batch was built with. | the name as text | | init, ToJson |
+AddSpan | Renders a stopwatch as one OTLP span and adds it to the batch. | the batch itself, so calls chain | poStopwatch=a stzStopwatch, stopped or running | AddSpanJson, SpanCount | | the span is rendered when added, so later changes to the stopwatch do not reach the batch; stopwatches that joined a trace share its traceId, so a collector rebuilds the tree
+AddSpanJson | Adds a span that is already rendered as a JSON object. | the batch itself, so calls chain | pcSpanJson=the JSON text of one span | AddSpan, ToJson | | the text is placed in the envelope as given and is not checked
+SpanCount | Returns how many spans the batch holds. | a number | | AddSpan, Clear |
+Clear | Empties the batch for the next shipment. | the batch itself, so calls chain | | SpanCount, ToJson | | the service name is kept
+ToJson | Returns the OTLP resourceSpans envelope with every collected span inside, ready for an OTLP collector's traces endpoint. | a JSON text: the service identity once at the top, the scope softanza.perf, then the spans | | AddSpan, Clear | | an empty batch gives the envelope with an empty list of spans; the spans keep the order they were added in

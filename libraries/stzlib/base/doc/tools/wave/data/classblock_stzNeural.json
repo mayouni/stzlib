@@ -1,0 +1,10 @@
+{
+ "brief": "Is the common base of the neural classes, which carries what they share: access to the vendored ggml backend.",
+ "detail": "It is not meant to be built for its own sake; stzNeuralEngine and stzNeuralModel derive from it. It answers two questions every neural class depends on: which ggml build is linked, and whether the backend computes. The data-returning shortcuts StzGgmlVersion() and StzGgmlReady() do the same without an object.",
+ "receiver": "o1 = new stzNeural",
+ "example": [
+  "? o1.GgmlReady()",
+  "#--> 1"
+ ],
+ "see": ["stzNeuralEngine", "stzNeuralModel", "StzGgmlVersion"]
+}

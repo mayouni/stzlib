@@ -1,0 +1,20 @@
+{
+ "brief": "Moves a text in and out: saves it to a file, loads it from one, and renders it as a JSON, CSV, XML or HTML value.",
+ "detail": "Build one with new stzStringIO(\"text\"). ToFile (also SaveTo, ExportTo), AppendToFile and PrependToFile write the text held; FromFile (also LoadFrom) replaces it with a file's content, read as UTF-8, and raises when the file is missing. ToJSON, ToCSV, ToXML and ToHTML only return a rendering. IsFilePath, IsURL, IsEmail and IsBase64 are quick shape tests, not validations. FromClipboard is a placeholder that always raises. Use an invented path of your own when you try the file methods.",
+ "receiver": "o1 = new stzStringIO(\"say \" + char(34) + \"hi\" + char(34) + \", שלום\")",
+ "example": [
+  "? o1.ToJSON()",
+  "#--> \"say \\\"hi\\\", שלום\"",
+  "? o1.ToCSV()",
+  "#--> \"say \"\"hi\"\", שלום\"",
+  "? o1.ToXML()",
+  "#--> say &quot;hi&quot;, שלום",
+  "? o1.IsURL()",
+  "#--> 0"
+ ],
+ "see": [
+  "stzString",
+  "stzFile",
+  "stzStringCode"
+ ]
+}

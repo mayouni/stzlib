@@ -1,0 +1,25 @@
+{
+ "brief": "Holds a timer in pure Ring that calls a function every interval, or once, advanced by a timer manager's loop.",
+ "detail": "The same contract as stzReactiveTimer, with an owner object kept for the caller: CheckAndTick fires the function when the interval has passed since the last firing on the engine's clock, answers 1 while the timer stays active and 0 when it is stopped or has just fired as a one-shot. It decides whether to stop a one-shot before it calls the function, because the function may stop the whole timer system.",
+ "receiver": "$nFired = 0\no1 = new stzRingTimer(\"once\", 20, func { $nFired++ }, new stzReactive(), 1, \"\")",
+ "example": [
+  "o1.Start()",
+  "? o1.CheckAndTick()",
+  "#--> 1",
+  "? $nFired",
+  "#--> 0",
+  "StzEngineTimeSleepMs(50)",
+  "? o1.CheckAndTick()",
+  "#--> 0",
+  "? $nFired",
+  "#--> 1",
+  "? o1.CheckAndTick()",
+  "#--> 0",
+  "? $nFired",
+  "#--> 1"
+ ],
+ "see": [
+  "stzReactiveTimer",
+  "stzTimerManager"
+ ]
+}

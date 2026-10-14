@@ -1,0 +1,18 @@
+{
+ "brief": "Holds two lists side by side and pairs their items by position.",
+ "detail": "Build one with new stzPairOfLists(aList1, aList2) or StzPairOfListsQ(aList1, aList2). Associate zips the lists into [ first, second ] pairs and stops at the shorter one; AssociateQRT(:stzHashList) answers the pairs as a hash list. Alternate is meant to interleave the two lists and raises error R24 today for any non-empty pair. The file marks the class as a candidate for generalisation into stzListOfLists.",
+ "receiver": "o1 = new stzPairOfLists([ \"a\", \"b\", \"c\" ], [ 1, 2, 3 ])",
+ "example": [
+  "? @@( o1.Associate() )",
+  "#--> [ [ \"a\", 1 ], [ \"b\", 2 ], [ \"c\", 3 ] ]",
+  "? @@( o1.FirstList() )",
+  "#--> [ \"a\", \"b\", \"c\" ]",
+  "? @@( o1.SecondList() )",
+  "#--> [ 1, 2, 3 ]"
+ ],
+ "see": [
+  "stzListOfLists",
+  "stzPair",
+  "stzHashList"
+ ]
+}

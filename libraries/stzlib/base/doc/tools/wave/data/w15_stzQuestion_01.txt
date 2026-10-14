@@ -1,0 +1,13 @@
+init | Opens a question frame with its illocutionary force: what, howmany or is; the force is not validated. | nothing; the object is built | pcForce=the force word: what for a wh-question, howmany for a count, is for a polar comparison | WhatQ, HowManyQ, IsQ
+TheQ | Adds the article the to the sentence and changes nothing, so a chain reads as English. | the question itself, so the chain goes on | | AQ, AnQ
+AQ | Adds the article a to the sentence and changes nothing, so a chain reads as English. | the question itself, so the chain goes on | | TheQ, AnQ
+AnQ | Adds the article an to the sentence and changes nothing, so a chain reads as English. | the question itself, so the chain goes on | | TheQ, AQ
+NumberOfQ | Puts the current side of the question in count mode, as in the number of letters in ring. | the question itself, so the chain goes on | | HowManyQ, Of
+TheSameAsQ | Opens the right-hand side of a comparison that asks whether the two aspects are equal. | the question itself, so the chain goes on | | DifferentFromQ, MoreThanQ, OrNot
+DifferentFromQ | Opens the right-hand side of a comparison that asks whether the two aspects differ, the way English negates a comparison. | the question itself, so the chain goes on | | TheSameAsQ, LessThanQ
+MoreThanQ | Opens the right-hand side of a comparison that asks whether the left aspect is greater than the right. | the question itself, so the chain goes on | | LessThanQ, TheSameAsQ
+LessThanQ | Opens the right-hand side of a comparison that asks whether the left aspect is smaller than the right. | the question itself, so the chain goes on | | MoreThanQ, TheSameAsQ
+Of | Closes the question with its last host and returns the answer as data; OfQ and InQ record the host and keep the frame open. | the answer: the value asked for, a count, or 1 or 0 for a comparison | pHost=the value the aspect is taken of, such as Ring | OrNot, Is, Why | raises when no aspect was named, such as FirstCharQ | on the right-hand side it supplies the second host; In and InQ are the locative spelling
+OrNot | Closes a polar question with the tag or not; it does not negate, it answers the question already asked. | the answer, 1 or 0 for a comparison, the value for a wh-question | | Of, Is, TheSameAsQ | raises when no host was given at all
+Is | Closes a question whose host is already given, as in what the first char of Ring is. | the answer: the value asked for, a count, or 1 or 0 | | Of, OrNot | raises when no host was given
+Why | Returns the reason of the last answer this question gave, such as yes: 4 is the same as 4. | a text; empty until the question has been answered | | Of, Is

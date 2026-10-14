@@ -1,0 +1,22 @@
+{
+ "brief": "Holds the four best-practice rules of a business process and judges a workflow against them.",
+ "detail": "The set, named BPM Best Practices in the bpm domain, carries bpm_no_orphans (a step with no connection in or out), bpm_single_start (exactly one start), bpm_decision_branches (a decision has at least two ways out) and bpm_assignment_required (a step is assigned to an actor), each of severity error. Check(oWorkflow) answers the findings in the house shape and IsSound answers whether none is an error.",
+ "receiver": "oWf = new stzWorkflow(\"order\")\noWf.AddStepXT(\"receive\", \"Receive order\")\noWf.AddStepXT(\"pack\", \"Pack\")\noWf.AddStepXT(\"lone\", \"Lone\")\noWf.ConnectSteps(\"receive\", \"pack\")\no1 = new stzBPMRuleBase()",
+ "example": [
+  "? o1.Name()",
+  "#--> BPM Best Practices",
+  "? len(o1.Rules())",
+  "#--> 4",
+  "? o1.Check(oWf)[1][:rule]",
+  "#--> bpm_no_orphans",
+  "? o1.Check(oWf)[1][:where]",
+  "#--> lone",
+  "? o1.IsSound(oWf)",
+  "#--> 0"
+ ],
+ "see": [
+  "stzWorkflow",
+  "stzSLARuleBase",
+  "stzGraphRuleSet"
+ ]
+}

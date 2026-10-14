@@ -1,0 +1,20 @@
+{
+ "brief": "Counts words over text fed in chunks, keeping only the table of distinct words in the engine, so a very large input costs only its vocabulary.",
+ "detail": "Build one with new stzWordStream(), or StzWordStreamCSQ(1) for a case-sensitive count. Feed or FeedMany add chunks at any time; TopWords, WordsAndTheirCounts, MostFrequentWord and the totals can be asked between feeds and the feeding goes on. Words are cut by Unicode word rules (punctuation dropped, emoji not words, Hebrew and Arabic whole) and, by default, counted without regard to case. The counter lives in the engine: call Free when done. SetCaseSensitive discards what was fed, so set the case mode first.",
+ "receiver": "o1 = new stzWordStream()",
+ "example": [
+  "o1.Feed(\"the cat and the hat\")",
+  "? o1.TotalWords()",
+  "#--> 5",
+  "o1.Feed(\"THE end\")",
+  "? @@( o1.TopWords(2) )",
+  "#--> [ [ \"the\", 3 ], [ \"cat\", 1 ] ]",
+  "? o1.DistinctWords()",
+  "#--> 5",
+  "o1.Free()"
+ ],
+ "see": [
+  "stzStringWords",
+  "stzCorpus"
+ ]
+}

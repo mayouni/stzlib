@@ -1,0 +1,22 @@
+{
+ "brief": "Inspects a text holding Ring source: spots functions and classes, lists their names, counts lines of code, and can run it.",
+ "detail": "Build one with new stzStringCode(cSource). The inspection works line by line on the text and never changes it: FunctionNames, ClassNames, NumberOfFunctions, NumberOfClasses, ContainsFunctions, ContainsClasses, LinesOfCode, IsComment and IsBlankLine. IsRingCode is a guess by keyword substring and gives false positives on prose. Execute and ExecuteAndReturn run the text with eval: only give them code you trust, and note that a variable assigned by Execute stays inside the call.",
+ "receiver": "o1 = new stzStringCode(\"func Add(a, b)\" + char(10) + \" return a + b\" + char(10) + \"# note\" + char(10) + \"class Pt\")",
+ "example": [
+  "? @@( o1.FunctionNames() )",
+  "#--> [ \"Add\" ]",
+  "? @@( o1.ClassNames() )",
+  "#--> [ \"Pt\" ]",
+  "? o1.LinesOfCode()",
+  "#--> 3",
+  "? o1.ContainsComments()",
+  "#--> 1",
+  "o2 = new stzStringCode(\"(2 + 3) * 4\")",
+  "? o2.ExecuteAndReturn()",
+  "#--> 20"
+ ],
+ "see": [
+  "stzString",
+  "stzStringFinder"
+ ]
+}

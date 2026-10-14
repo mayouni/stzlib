@@ -1,0 +1,24 @@
+{
+ "brief": "Makes and checks RFC 6238 time-based one-time passwords, the second factor of an authenticator app, with the hashing done in the engine.",
+ "detail": "The shared secret is base32, the text a user types into an app; the class decodes it to hex for the engine call, so no raw key bytes cross the text boundary. The defaults, SHA1, 6 digits and a 30-second step, are what Google Authenticator, Authy, 1Password and FreeOTP expect. Verify tolerates a small clock drift, and compares in constant time. A code is not consumed by a check: the same code verifies again within its window, so the caller must remember the last step it accepted to refuse a reuse. The secret itself is shown by Show and Secret and carried in the provisioning address, so treat all three as sensitive. The examples use the public RFC 6238 test secret.",
+ "receiver": "o1 = new stzTotp()\no1.SetSecret(\"GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ\")",
+ "example": [
+  "o1.SetDigits(8)",
+  "? o1.CodeAt(59)",
+  "#--> 94287082",
+  "o1.SetDigits(6)",
+  "? o1.CodeAt(59)",
+  "#--> 287082",
+  "? o1.VerifyAt(\"287082\", 59)",
+  "#--> 1",
+  "? o1.VerifyAt(\"287082\", 119)",
+  "#--> 0",
+  "? o1.ProvisioningUri(\"alice\", \"Softanza\")",
+  "#--> otpauth://totp/Softanza:alice?secret=GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ&issuer=Softanza&algorithm=SHA1&digits=6&period=30"
+ ],
+ "see": [
+  "stzAuth",
+  "stzPasskeyServer",
+  "stzRequestSigner"
+ ]
+}

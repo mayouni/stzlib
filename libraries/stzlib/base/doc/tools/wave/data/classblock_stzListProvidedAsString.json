@@ -1,0 +1,13 @@
+{
+ "brief": "Holds a list that was provided as text, such as '[ 1, 2, \"A\" ]', to tell values from variable names; unfinished today.",
+ "detail": "The idea, from the comment in its file: a list written as text can hold values (1, \"A\", [ 5, \"V\" ]) or variable names (n1, aList1), and a search must be able to look for a value wherever it is hosted or for a variable whatever its value. Today the class does not deliver it: Items answers an empty list for every text, ContainsOnlyValues and IsListOfValues raise error R12, and the three other tests are empty stubs answering an empty text. To evaluate a list written as text use stzListInString, which turns it into a real list.",
+ "receiver": "o1 = new stzListProvidedAsString('[ 1, 2, \"A\" ]')",
+ "example": [
+  "? @@( o1.Items() )",
+  "#--> [ ]"
+ ],
+ "see": [
+  "stzListInString",
+  "stzList"
+ ]
+}

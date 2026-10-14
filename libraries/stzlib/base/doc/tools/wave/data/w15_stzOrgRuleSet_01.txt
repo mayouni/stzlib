@@ -1,0 +1,1 @@
+init | Builds the set of the four universal organisation rules, in the org-governance set. | nothing; the object is built | | | | the rules are no-self-report and no-cyclic-reporting as errors, and no-orphan-position and span-of-control as warnings; it is the set stzOrgChart judges its own graph with

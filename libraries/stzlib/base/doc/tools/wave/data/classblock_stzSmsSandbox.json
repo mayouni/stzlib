@@ -1,0 +1,24 @@
+{
+ "brief": "Captures text messages instead of sending them, validates the number, and counts the billable segments a carrier would charge.",
+ "detail": "A capture sink with the shape of stzMailSandbox, whose point is the bill. SMS is charged per segment, and the segment count depends on the alphabet: text within the GSM 7-bit alphabet takes 160 characters in one segment and 153 per part, and one character outside it, such as an Arabic letter or an emoji, makes the whole message UCS-2 with 70 and 67; nine characters of the extension table cost two septets each. Send names the encoding and the segments, and TotalSegments lets a test assert the cost. Numbers must be E.164. An outage is refused and recorded nowhere, while a bad number is rejected, so retrying and fixing the data are told apart. The honest limit: a sink shows what you would have sent, not that a carrier would accept it. The outbox is shared by copies of the object.",
+ "receiver": "o1 = new stzSmsSandbox()",
+ "example": [
+  "? o1.Send(\"+22790123456\", \"Your code is 482910\")[:segments]",
+  "#--> 1",
+  "? o1.LastEncoding()",
+  "#--> gsm7",
+  "? o1.Send(\"+22790123456\", \"Salut, code 482910 😀\")[:encoding]",
+  "#--> ucs2",
+  "? o1.Send(\"0612345678\", \"hi\")[:status]",
+  "#--> rejected",
+  "? o1.TotalSegments()",
+  "#--> 2",
+  "? o1.WasSentTo(\"+22790123456\")",
+  "#--> 1"
+ ],
+ "see": [
+  "stzMailSandbox",
+  "stzServiceRegistry",
+  "StzSmsSegments"
+ ]
+}

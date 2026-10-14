@@ -1,0 +1,10 @@
+{
+ "brief": "Runs a snippet of Julia from Ring and brings its answer back as a Ring value, through a result file.",
+ "detail": "You set the code, which must assign its answer to a variable named res; Execute wraps it with a translator, runs it with the language's program in the current folder and writes the answer as Ring text, and Result reads that text back, so numbers, texts and nested lists cross the boundary. The files temp.<ext>, a run script, the result file and log.txt are written in the current folder. It is a thin face over stzExterCode, which has the full set of controls (runtime path, result variable, log file). The Julia program is the one configured in $aStzLibConfig[:JuliaPath], d:/julia/julia-1.11.7/bin/julia.exe by default. It was absent on the machine of this documentation run, so only the failure path was seen: Execute raised the not-created error.",
+ "receiver": "o1 = new stzJuliaCode",
+ "see": [
+  "stzExterCode",
+  "stzPythonCode",
+  "stzRCode"
+ ]
+}

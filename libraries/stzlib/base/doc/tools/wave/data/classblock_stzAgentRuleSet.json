@@ -1,0 +1,18 @@
+{
+ "brief": "Holds the agent guardrails as one set of graph rules, reproducing the hand-written governance checks.",
+ "detail": "It is born with six rules: no-llm-effectful, effects-guarded, open-text-contained, effects-traced, effects-dominated (every path to an effect passes through a guardian) and external-data-contained. A project adds its own with AddRule. It judges an agent graph the way StzCheckAgentGraph does, on the same nodes.",
+ "receiver": "o1 = new stzAgentRuleSet()",
+ "example": [
+  "? o1.NumberOfRules()",
+  "#--> 6",
+  "? o1.Name()",
+  "#--> agent-guardrails",
+  "? o1.RuleNamed(\"effects-dominated\").Name()",
+  "#--> effects-dominated"
+ ],
+ "see": [
+  "stzAgentRule",
+  "stzAgentGraph",
+  "stzGraphRuleSet"
+ ]
+}

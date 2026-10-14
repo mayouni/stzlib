@@ -1,0 +1,26 @@
+{
+ "brief": "Judges passkey registrations and logins as the relying party: the ceremony, the challenge, the origin, the signature, user presence and the counter.",
+ "detail": "A passkey replaces the password with a key pair that the user's device holds. The cryptography and the parsing of the binary formats are the engine's; this class makes the relying party's decisions, which is where implementations fail. Registration and login both check the browser's client data: the ceremony type, the challenge this server issued and the origin, which is what makes a passkey unphishable. Login then verifies the signature under the stored key, requires user presence, and refuses a signature counter that did not advance, noted as a suspected clone. Two settings fail open and must never be empty: an empty expected challenge and an empty server origin each switch their check off. Every refusal returns a reason and is noted. Use stzPasskeySandbox as the virtual authenticator for development.",
+ "receiver": "o1 = new stzPasskeyServer(\"example.com\", \"https://example.com\")\no2 = new stzPasskeySandbox(\"example.com\")",
+ "example": [
+  "c1 = o1.NewChallenge()",
+  "a1 = o2.CreateCredential(c1, \"https://example.com\")",
+  "a2 = o1.RegisterCredential(a1[:attestationObject], a1[:clientData], c1)",
+  "? a2[:ok]",
+  "#--> 1",
+  "c2 = o1.NewChallenge()",
+  "a3 = o2.Assert(c2, \"https://example.com\")",
+  "a4 = [ :keyType = a2[:keyType], :key1 = a2[:key1], :key2 = a2[:key2], :signCount = 0 ]",
+  "? o1.VerifyAssertion(a4, a3[:authenticatorData], a3[:clientData], a3[:signature], c2)[:ok]",
+  "#--> 1",
+  "a5 = o2.AssertForOrigin(c2, \"https://evil.example\")",
+  "a6 = o1.VerifyAssertion(a4, a5[:authenticatorData], a5[:clientData], a5[:signature], c2)",
+  "? a6[:ok]",
+  "#--> 0"
+ ],
+ "see": [
+  "stzPasskeySandbox",
+  "stzSecurityLedger",
+  "stzTotp"
+ ]
+}

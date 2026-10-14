@@ -1,0 +1,12 @@
+{
+ "brief": "Watches a folder in a worker thread of the engine and hands back the files added, modified or deleted since the last look.",
+ "detail": "Watch starts the worker, which polls the folder about every 250 ms. Drain, called on your own schedule, returns the queued events as [ kind, name ] pairs, kind being ADD, MOD or DEL, and empties the queue. Stop ends the worker. Events carry the file name inside the folder, not a full path.",
+ "receiver": "o1 = new stzFolderWatcher",
+ "example": [
+  "? o1.IsRunning()",
+  "#--> 0",
+  "? len(o1.Drain())",
+  "#--> 0"
+ ],
+ "see": ["stzFolder", "stzFile", "stzReactiveTimer"]
+}

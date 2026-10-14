@@ -1,0 +1,1 @@
+init | Builds the service-invariants rule set, already loaded with its four rules. | nothing; the object is built | | stzServiceRule, stzGraphRuleSet | | the rules are production-part-uses-sandbox, production-part-uses-ephemeral, production-part-uses-conformance and part-uses-undeclared-service

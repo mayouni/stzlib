@@ -1,0 +1,1 @@
+init | Builds an organisation rule with the given name, in the orgchart domain. | nothing; the object is built | pcName=the name of the rule, such as no-self-report | | | a stzGraphRule whose domain is set to orgchart; the four universal org rules are made this way

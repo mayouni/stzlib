@@ -1,0 +1,12 @@
+Connect | Raises error R3 today instead of opening a WebSocket connection. | nothing; it raises | cUrl=the ws or wss address meant to be opened | IsOpen | raises error R3 because it calls curl_easy_init, a libcurl function that the library no longer loads; the class still wraps libcurl while the rest of the network layer moved to the engine, and even with libcurl the later calls would not see the handle, which Connect keeps in a local variable | nothing in the class can be used to talk to a server today
+SendText | Sets LastError to Not connected, because no connection can be opened today. | the object itself, so calls chain | cText=the text meant to be sent | Connect, SendBinary | the send itself calls curl_ws_send, which is not loaded either | it would raise error R3 if a connection could be marked open
+SendBinary | Sets LastError to Not connected, because no connection can be opened today. | the object itself, so calls chain | aData=a list of byte values meant to be sent | Connect, SendText | the send itself calls curl_ws_send, which is not loaded either | it would raise error R3 if a connection could be marked open
+Receive | Sets LastError to Not connected, because no connection can be opened today. | the object itself, so calls chain | | Connect, LastMessage | the receive itself calls curl_ws_recv, which is not loaded either | it would raise error R3 if a connection could be marked open
+Close | Does nothing today, because no connection can be open. | the object itself, so calls chain | | Connect, IsOpen
+IsOpen | TRUE if the connection is open; always FALSE today. | TRUE or FALSE | | Connect
+OnMessage | Stores the name of a function meant to run when a message arrives. | the object itself, so calls chain | cCallback=the name of a function | OnOpen | | never called today
+OnOpen | Stores the name of a function meant to run when the connection opens. | the object itself, so calls chain | cCallback=the name of a function | OnMessage | | never called today
+OnClose | Stores the name of a function meant to run when the connection closes. | the object itself, so calls chain | cCallback=the name of a function | OnOpen | | never called today
+OnError | Stores the name of a function meant to run on a failure. | the object itself, so calls chain | cCallback=the name of a function | OnOpen | | never called today
+LastMessage | Returns the text of the last received message. | a text; empty today | | Receive
+MessageType | Returns the type of the last received message. | a text; empty before a receive, and TEXT after one | | LastMessage

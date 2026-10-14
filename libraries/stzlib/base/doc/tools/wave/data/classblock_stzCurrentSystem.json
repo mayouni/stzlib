@@ -1,0 +1,12 @@
+{
+ "brief": "A system profile of the machine this program is running on, read live: operating system, architecture, memory, CPU count and capabilities.",
+ "detail": "It is a stzSystemProfile filled at construction from the operating system, the environment, the engine's memory readings and the Ring version, with the role runtime. Compare it with stzDevSystem, which reads the same machine with the role development. Only reads are made; nothing on the machine changes.",
+ "receiver": "o1 = new stzCurrentSystem()",
+ "example": [
+  "? o1.Role()",
+  "#--> runtime",
+  "? o1.Name()",
+  "#--> this-machine"
+ ],
+ "see": ["stzDevSystem", "stzSystemProfile", "stzSystemCapabilities"]
+}

@@ -1,0 +1,1 @@
+init | Builds the whole-project rule set: the five house rules plus no-dead-code, which needs the call graph of the whole project. | nothing; the object is built | | stzCodeDeepRuleSet, stzCodeRuleSet | | it leaves out no-cyclic-calls on purpose, measured at about 36 seconds over base/graph

@@ -28,10 +28,36 @@ func StzBoxedString(str)
  ///   CLASS   ///
 /////////////////
 
+# Draws a text inside a box made of Unicode line characters, the whole text in one box or each character in its own cell.
+#
+# Build one with new stzStringBoxed("hello"); Boxed and BoxedChars return the drawing as a text and
+# print nothing, and the text held never changes. The global function StzBoxedString(text) (also
+# BoxedString) is the one-call form of Boxed. Several lines of text give several rows in the box,
+# padded to the longest. BoxedChars draws a single row and its borders are mis-sized today, see its
+# warning.
+#
+#   receiver   o1 = new stzStringBoxed("hello")
+#   example    ? o1.Boxed()
+#              #--> ╭───────╮
+#              #--> │ hello │
+#              #--> ╰───────╯
+#              o2 = new stzStringBoxed("שלום")
+#              ? o2.Boxed()
+#              #--> ╭──────╮
+#              #--> │ שלום │
+#              #--> ╰──────╯
+#   see        stzString, stzStringVisualizer, stzTile
 class stzStringBoxed from stzObject
 
 	@oString
 
+	# Builds a boxed-text helper over a text or over a stzString object.
+	#
+	#   pStrOrStzStrObj   a text, or a stzString object, to draw in a box
+	#   returns           nothing; the object is built
+	#   warning           any other kind of value raises "Can't create stzStringBoxed! Parameter
+	#                     must be a string or stzString object."
+	#   see               Boxed, BoxedChars
 	def init(pStrOrStzStrObj)
 		if isString(pStrOrStzStrObj)
 			@oString = new stzString(pStrOrStzStrObj)
@@ -41,9 +67,18 @@ class stzStringBoxed from stzObject
 			StzRaise("Can't create stzStringBoxed! Parameter must be a string or stzString object.")
 		ok
 
+	# Returns the text the helper holds, unchanged by drawing.
+	#
+	#   returns    a text
+	#   note       Boxed and BoxedChars only return drawings, they never change it
+	#   see        NumberOfChars
 	def Content()
 		return @oString.Content()
 
+	# Returns how many characters the text holds, counting letters and not bytes.
+	#
+	#   returns    a number
+	#   see        Content
 	def NumberOfChars()
 		return @oString.NumberOfChars()
 
@@ -51,6 +86,13 @@ class stzStringBoxed from stzObject
 	 #   BOXED -- FULL STRING IN A BOX                      #
 	#======================================================#
 
+	# Returns the whole text drawn inside one box of Unicode lines, one row per line of the text, padded to the longest line.
+	#
+	#   returns    a text of several lines, with no newline at the end
+	#   note       a text with no content draws an empty box of two lines; the width is counted in
+	#              characters, so Hebrew, Arabic and emoji are measured by letter, and a wide emoji
+	#              may still look misaligned on a console
+	#   see        BoxedChars, Content
 	def Boxed()
 		_cContent_ = @oString.Content()
 
@@ -95,6 +137,14 @@ class stzStringBoxed from stzObject
 	 #   BOXED CHARS -- EACH CHAR IN ITS OWN CELL           #
 	#======================================================#
 
+	# Returns the text drawn with each character in its own cell of a single row.
+	#
+	#   returns    a text of three lines: top border, the cells, bottom border
+	#   note       the drawing needs a UTF-8 console
+	#   warning    The borders do not match the cells today: each border cell is 4 dashes wide while
+	#              each text cell is 3 characters wide, so the top and bottom lines are longer than
+	#              the middle one and the dividers do not line up; an empty text falls back to Boxed
+	#   see        Boxed
 	def BoxedChars()
 		_cContent_ = @oString.Content()
 		if _cContent_ = ""

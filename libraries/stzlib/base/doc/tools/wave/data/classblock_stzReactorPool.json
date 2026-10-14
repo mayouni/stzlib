@@ -1,0 +1,20 @@
+{
+ "brief": "Holds several reactors, each an event loop on its own thread, and sends a batch of TCP requests across them at once.",
+ "detail": "A pool is libuv's multi-loop scaling model: work is round-robined across the loops, each loop multiplexes many connections, and Ring stays synchronous, submitting a batch and then awaiting the answers in order. A handful of loops is plenty for most uses. FetchAll takes a list of [ host, port, payload ] and answers the response texts in the same order. The requests reach the network and were not run for this reference.",
+ "receiver": "o1 = StzReactorPool(3)",
+ "example": [
+  "? o1.Count()",
+  "#--> 3",
+  "? @@( o1.FetchAll([ ], 100) )",
+  "#--> [ ]",
+  "o1.Destroy()",
+  "? o1.Count()",
+  "#--> 0",
+  "? StzReactorPool(0).Count()",
+  "#--> 1"
+ ],
+ "see": [
+  "stzReactor",
+  "stzReactiveHttp"
+ ]
+}

@@ -1,0 +1,16 @@
+{
+ "brief": "Holds the limits of a whole number the way C# int.MinValue and int.MaxValue name them, for porting C# code to Ring.",
+ "detail": "The global int is one of these. The limits are the library's calculable-integer limits, 15 nines, and they come back as text with underscores, so they print well and do not compare. Build one without parentheses: new IntObject() raises R3.",
+ "receiver": "o1 = new IntObject",
+ "example": [
+  "? o1.getMaxValue()",
+  "#--> 999_999_999_999_999",
+  "? o1.getMinValue()",
+  "#--> -999_999_999_999_999"
+ ],
+ "see": [
+  "RingMaxIntegerXT",
+  "RingMinIntegerXT",
+  "console"
+ ]
+}

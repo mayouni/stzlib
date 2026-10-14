@@ -1,0 +1,26 @@
+{
+ "brief": "Hangs an interface panel as a quad in a 3D scene and turns a click on the screen into a click on the panel.",
+ "detail": "Two conversions in opposite directions. Out: the panel is drawn to pixels, uploaded as a texture and worn by a quad lying flat at the origin. In: a screen pixel becomes a ray from the camera, the ray meets the quad's plane, the hit becomes a texture point and the texture point becomes panel pixels, so the panel itself knows nothing of a scene. The camera is copied in and not shared, so call LooksThrough beside Refresh when the camera moves. VerifyAgainstProjection checks the ray against the engine's own projection. The mapping is arithmetic and needs no device; Mount and Refresh upload a texture and need one, but no window is opened.",
+ "receiver": "oDoc = new stzUiDocument('DEFINE PANEL console ( SIZE [400, 300], DIRECTION column, BACKGROUND \"#101820\", PADDING 40, CHILDREN [row] ) RATIONALE \"A control surface.\"' + char(10) + 'DEFINE BOX row ( DIRECTION row, HEIGHT 90, GAP 20, CHILDREN [fire, abort] ) RATIONALE \"The two commands.\"' + char(10) + 'DEFINE BOX fire ( WIDTH 140, BACKGROUND \"#b03030\", FOCUSABLE yes, ROLE button, LABEL \"Fire\" ) RATIONALE \"The one that does the thing.\"' + char(10) + 'DEFINE BOX abort ( WIDTH 140, BACKGROUND \"#3a4450\", FOCUSABLE yes, ROLE button, LABEL \"Abort\" ) RATIONALE \"The one that does not.\"')\noPanel = oDoc.ToPanel()\noScene = new stzScene(800, 600)\noScene.SetCamera(0, 3, 4, 0, 0, 0)\noScene.SetLens(60, 0.1, 100)\no1 = new stzScenePanel(oPanel, oScene, 2.0)",
+ "example": [
+  "? @@( o1.UvAtScreen(400, 300) )",
+  "#--> [ 0.50, 0.50 ]",
+  "? @@( o1.PanelPointAtScreen(400, 300) )",
+  "#--> [ 200, 150 ]",
+  "? @@( o1.UvAtScreen(5, 5) )",
+  "#--> [ ]",
+  "? o1.ClickAtScreen(5, 5)",
+  "#--> 0",
+  "? o1.VerifyAgainstProjection(5) < 0.000001",
+  "#--> 1",
+  "? o1.IsMounted()",
+  "#--> 0",
+  "? @@( o1.ViewportInUse() )",
+  "#--> [ 800, 600 ]"
+ ],
+ "see": [
+  "stzPanel",
+  "stzScene",
+  "stzUiDocument"
+ ]
+}

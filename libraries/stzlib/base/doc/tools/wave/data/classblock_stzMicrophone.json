@@ -1,0 +1,27 @@
+{
+ "brief": "Records from an input device and hands back the recording as an ordinary stzSound.",
+ "detail": "RecordFor records for a number of seconds in one call; StartRecording, Collect and StopRecording let you drive it and watch the level as it goes. Collect is not optional: the device fills a ring of about 250 ms and, if nobody drains it, the newest frames are dropped and counted as overruns, never written over unread audio. A machine with no input or no device library is a supported configuration and IsAvailable answers 0. For this reference the microphone was never opened and no device was queried, so the example uses only what touches none: the settings, the counters at rest and the refusals. Nothing was recorded or heard (UNPERCEIVED).",
+ "receiver": "o1 = new stzMicrophone()",
+ "example": [
+  "? o1.IsRecording()",
+  "#--> 0",
+  "? o1.SecondsRecorded()",
+  "#--> 0",
+  "? o1.FramesRecorded()",
+  "#--> 0",
+  "? o1.Overruns()",
+  "#--> 0",
+  "? o1.Collect()",
+  "#--> 0",
+  "o1.SetChannels(2)",
+  "o1.SetSampleRate(44100)",
+  "oNone = o1.StopRecording()",
+  "? o1.LastError()",
+  "#--> not recording"
+ ],
+ "see": [
+  "stzSound",
+  "stzSoundLive",
+  "stzListener"
+ ]
+}

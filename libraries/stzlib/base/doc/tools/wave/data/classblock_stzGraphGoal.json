@@ -1,0 +1,21 @@
+{
+ "brief": "Holds a wanted state of a graph, that every instance of a type has an outgoing edge of a given label, and reports who breaks it.",
+ "detail": "A goal is declarative: RequireEveryHas(type, relation) or FromMeans(\"every :Type Has(:relation)\") sets the pattern, and GapOn(graph) returns the instances that do not meet it. An instance is a node joined to the type's node by an edge labelled isa. The goal never stores a graph, it judges the live one passed in. Time qualifiers such as Within are not evaluated; a sentence without the every and Has clauses is refused with an error.",
+ "receiver": "o1 = new stzGraphGoal(\"priced\")\no1.RequireEveryHas(\"Dish\", \"Price\")\noG = new stzGraph(\"menu\")\noG.AddNode(\"dish\")\noG.AddNode(\"tajine\")\noG.AddNode(\"couscous\")\noG.AddNode(\"price\")\noG.AddEdgeXT(\"tajine\", \"dish\", \"isa\")\noG.AddEdgeXT(\"couscous\", \"dish\", \"isa\")\noG.AddEdgeXT(\"tajine\", \"price\", \"price\")",
+ "example": [
+  "? o1.Narrate()",
+  "#--> goal priced: every dish has(price)",
+  "? @@( o1.GapOn(oG) )",
+  "#--> [ \"couscous\" ]",
+  "? o1.SatisfiedOn(oG)",
+  "#--> 0",
+  "oG.AddEdgeXT(\"couscous\", \"price\", \"price\")",
+  "? o1.SatisfiedOn(oG)",
+  "#--> 1"
+ ],
+ "see": [
+  "stzGraph",
+  "stzApp",
+  "stzWorldGraph"
+ ]
+}

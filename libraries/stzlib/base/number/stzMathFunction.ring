@@ -31,12 +31,40 @@
 # variables, and four fifths of it is not differentiable. Sharing the infix syntax
 # without sharing the domain is the honest arrangement.
 
+# Holds a formula of named variables and gives its value and its exact derivatives at any point, by automatic differentiation.
+#
+# Build one with new stzMathFunction("x^2 + 3*x*y", [ "x", "y" ]). The engine compiles the formula
+# once and walks it backwards to get the derivative with respect to every variable in one pass,
+# exactly and not within a step size, which is what an optimiser or a check of a hand-derived
+# gradient needs. The syntax is infix: + - * / ^ (right-associative), parentheses, exp, log, sqrt,
+# sin, cos, tan, tanh, abs, min, max, pow, and the constants pi and e. A point is a list with one
+# value per variable, in declared order. This is not the W() expression language of lists. Call Free
+# when done with it.
+#
+#   receiver   o1 = new stzMathFunction("x^2 + 3*x*y", [ "x", "y" ])
+#   example    ? o1.ValueAt([ 2, 3 ])
+#              #--> 22
+#              ? @@( o1.GradientAt([ 2, 3 ]) )
+#              #--> [ 13, 6 ]
+#              ? o1.DerivativeAt("y", [ 2, 3 ])
+#              #--> 6
+#   see        stzObjective, stzNumber
 class stzMathFunction from stzObject
 
 	@cExpr = ""
 	@acVars = []
 	@pProg = ""
 
+	# Compiles a formula of named variables, such as "x^2 + 3*x*y", so its value and exact derivatives can be asked at any point.
+	#
+	#   pcExpression   the formula as text, with + - * / ^ , parentheses and the functions exp, log,
+	#                  sqrt, sin, cos, tan, tanh, abs, min, max, pow, and the constants pi and e
+	#   pacVariables   the names of the variables, in the order points will be given
+	#   returns        nothing; the object is built
+	#   warning        an empty formula, an empty variable list, a formula with a character it
+	#                  cannot use, or a name that is not a listed variable raises an error saying
+	#                  why
+	#   see            ValueAt, GradientAt
 	def init(pcExpression, pacVariables)
 		if NOT isString(pcExpression) or ring_trim(pcExpression) = ""
 			stzraise("Give me an expression to differentiate.")
@@ -67,21 +95,49 @@ class stzMathFunction from stzObject
 			stzraise("Can't read '" + @cExpr + "': " + StzEngineGradWhy() + ".")
 		ok
 
+	# Returns the formula text as it was given.
+	#
+	#   returns    a text
+	#   see        Variables
 	def Expression()
 		return @cExpr
 
+	# Returns the variable names in the order they were declared, which is the order of every point and gradient.
+	#
+	#   returns    a list of texts
+	#   see        NumberOfVariables
 	def Variables()
 		return @acVars
 
+	# Returns how many variables the formula has.
+	#
+	#   returns    a number
+	#   see        Variables
 	def NumberOfVariables()
 		return len(@acVars)
 
-	# the value alone -- no tape walk, which is what a line search wants
+	# Returns the value of the formula at a point, without computing derivatives.
+	#
+	#   paPoint    the values of the variables, one per variable in declared order, such as [ 2, 3 ]
+	#   returns    a number
+	#   note       "x^2 + 3*x*y" at [ 2, 3 ] is 22
+	#   warning    a point with the wrong number of values raises "This function has 2 variable(s);
+	#              the point has 1."; a point outside the domain gives inf, -inf or nan, not an
+	#              error; after Free it answers 0
+	#   see        GradientAt, ValueAndGradientAt
+	#@ aka  the value alone -- no tape walk, which is what a line search wants
 	def ValueAt(paPoint)
 		This._CheckPoint(paPoint)
 		return StzEngineGradValueAt(@pProg, paPoint)
 
-	# the gradient: one entry per variable, in the order they were named
+	# Returns the exact partial derivatives at a point, one per variable in declared order, by reverse-mode automatic differentiation.
+	#
+	#   paPoint    the values of the variables, one per variable in declared order
+	#   returns    a list of numbers
+	#   note       not a finite difference: the derivatives are exact; at [ 2, 3 ] the gradient of
+	#              x^2 + 3*x*y is [ 13, 6 ]
+	#   see        DerivativeAt, ValueAndGradientAt
+	#@ aka  the gradient: one entry per variable, in the order they were named
 	def GradientAt(paPoint)
 		This._CheckPoint(paPoint)
 		_a_ = StzEngineGradAt(@pProg, paPoint)
@@ -94,8 +150,12 @@ class stzMathFunction from stzObject
 		next
 		return _aG_
 
-	# value and gradient together, because the backward pass computes both and
-	# asking for them separately evaluates the expression twice
+	# Returns the value and the gradient at a point from one backward pass, cheaper than asking for each.
+	#
+	#   paPoint    the values of the variables, one per variable in declared order
+	#   returns    a hash list [ :value = number, :gradient = list of numbers ]
+	#   see        ValueAt, GradientAt
+	#@ aka  value and gradient together, because the backward pass computes both and asking for them separately evaluates the expression twice
 	def ValueAndGradientAt(paPoint)
 		This._CheckPoint(paPoint)
 		_a_ = StzEngineGradAt(@pProg, paPoint)
@@ -108,7 +168,14 @@ class stzMathFunction from stzObject
 		next
 		return [ :value = _a_[1], :gradient = _aG_ ]
 
-	# the partial derivative with respect to one named variable
+	# Returns the partial derivative with respect to one named variable at a point.
+	#
+	#   pcVar      the name of the variable, in any case
+	#   paPoint    the values of all the variables, in declared order
+	#   returns    a number
+	#   note       a name that is not a variable raises an error listing the variables
+	#   see        GradientAt
+	#@ aka  the partial derivative with respect to one named variable
 	def DerivativeAt(pcVar, paPoint)
 		_nAt_ = 0
 		_n_ = len(@acVars)
@@ -135,6 +202,11 @@ class stzMathFunction from stzObject
 	def _Program()
 		return @pProg
 
+	# Releases the compiled formula held by the engine, which Ring cannot do by itself.
+	#
+	#   returns    nothing
+	#   note       after it the object answers 0 to ValueAt instead of raising: do not use it again
+	#   see        init
 	def Free()
 		if @pProg != ""
 			StzEngineGradFree(@pProg)

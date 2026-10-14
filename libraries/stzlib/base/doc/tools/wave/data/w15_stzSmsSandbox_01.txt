@@ -1,0 +1,18 @@
+init | Builds an SMS capture sink with an empty outbox, a shared slot that copies of the object also use. | nothing; the object is built | | Send, Sent
+IsSandbox | TRUE if the object is a test double; here it always is, so the registry can refuse it in production. | TRUE | | stzServiceRegistry
+Send | Records a text message that would have been sent, counting the segments a carrier would bill, and delivers nothing. | a hash list [ :ok, :id, :segments, :encoding, :status, :why ]; status is sent, rejected for bad data, or refused for an outage | pcNumber=the destination in E.164 form, + then 8 to 15 digits; pcText=the message, which may not be empty | FailNext, RejectNumber, TotalSegments | a number that is not E.164, a number marked by RejectNumber and an empty text are rejected, and an outage set by FailNext is refused with nothing recorded; the rejection reason quotes the number as given, without escaping, so show it as text and not as markup | rejected means fix the data and refused means retry; the text is kept as given
+FailNext | Makes the next Send fail once as an outage, so the retry path can be tested. | nothing; use FailNextQ to chain | | Send, RejectNumber | | the failure is refused and not recorded in the outbox
+RejectNumber | Marks a number as unreachable, so every Send to it is rejected. | nothing; use RejectNumberQ to chain | pcNumber=the number to refuse, as sent | Send, FailNext | | the match is on the number as given after trimming
+Sent | Returns every recorded message, in order. | a list of rows [ id, number, text, segments, encoding, units ] | | Last, InboxOf
+NumberOfMessages | Returns how many messages are recorded. | a number | | Sent, TotalSegments
+IsEmpty | TRUE if nothing has been recorded. | TRUE or FALSE | | NumberOfMessages
+Last | Returns the last recorded message. | a row [ id, number, text, segments, encoding, units ]; an empty list when none | | LastText, LastTo, Sent
+LastText | Returns the text of the last message. | a text; empty when none | | Last
+LastTo | Returns the destination of the last message. | a text; empty when none | | Last
+LastSegments | Returns how many billable segments the last message takes. | a number; 0 when none | | TotalSegments, LastEncoding
+LastEncoding | Returns the alphabet the last message was billed in: gsm7 or ucs2. | the text gsm7 or ucs2; none when nothing was sent | | LastSegments
+InboxOf | Returns the recorded messages addressed to one number. | a list of message rows | pcNumber=the destination number, trimmed | WasSentTo, Sent
+WasSentTo | TRUE if at least one message was recorded for that number. | TRUE or FALSE | pcNumber=the destination number, trimmed | InboxOf
+TotalSegments | Returns the billable segments of everything recorded, the bill a test can assert. | a number | | LastSegments, Send | | a message is one segment up to 160 GSM characters or 70 UCS-2 units, then 153 or 67 per part
+Clear | Empties the outbox; the failure and rejection rules stay. | nothing; use ClearQ to chain | | Sent
+Show | Prints one line with the number of messages and of billable segments. | nothing; it prints | | TotalSegments

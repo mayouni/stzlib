@@ -1,0 +1,22 @@
+{
+ "brief": "Collects the findings of every rule domain into one list and gives one verdict, the single gate a build can fail on.",
+ "detail": "Rule sets of different domains, code, agents, security, schemas, networks, all report findings in one shape: a hash list with rule, subject, where, severity and message, the subject being the domain. A report gathers them with Run for a rule set and a graph, Collect for an object that checks itself, Ingest for findings already in that shape and IngestLegacy for the older checkers' shapes. IsSound is true when no finding of severity error was collected; warnings advise. Explain returns the report as text lines grouped by subject and Report prints them.",
+ "receiver": "o1 = new stzRuleReport(\"ci\")\no1.Ingest([ [ :rule = \"entity_has_key\", :subject = \"er\", :where = \"b\", :severity = \"error\", :message = \"entity B has no key\" ] ])\no1.IngestLegacy([ [ :invariant = \"unguarded\", :node = \"api\", :severity = \"warning\", :message = \"no check\" ] ], \"agentic\")",
+ "example": [
+  "? o1.NumberOfFindings()",
+  "#--> 2",
+  "? @@( o1.Subjects() )",
+  "#--> [ \"er\", \"agentic\" ]",
+  "? o1.IsSound()",
+  "#--> 0",
+  "? len(o1.Warnings())",
+  "#--> 1",
+  "? o1.Explain()[1]",
+  "#--> Rule report 'ci': 2 finding(s), 1 error(s), 1 warning(s) -> UNSOUND (errors present)"
+ ],
+ "see": [
+  "stzRuleGovernance",
+  "stzGraphRule",
+  "stzErDiagram"
+ ]
+}

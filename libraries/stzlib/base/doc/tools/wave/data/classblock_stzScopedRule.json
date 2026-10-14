@@ -1,0 +1,22 @@
+{
+ "brief": "Holds a rule as a triple, the subjects it governs, the claim it makes about them and the subjects it must not govern.",
+ "detail": "Most rules are one function that both selects its subjects and judges them, so a rule that selects the wrong subjects and judges them correctly reports a pass. A scoped rule separates the two: SetScope says which subjects, SetClaimCheck says what must hold of one, SetCounter says which subjects it must leave alone, and SetClaim writes the sentence in words. SetReads, SetWrites and SetOrder let a governance find a stale read from declarations. A subject key is any text or number the scope returns. Check judges one case and returns findings in the house shape; stzRuleGovernance judges a set of rules over many cases. StzPlasticRule is the graph plane's spelling of the same class.",
+ "receiver": "o1 = new stzScopedRule(\"evens_small\")\no1.SetClaim(\"an even number is below 10\")\no1.SetScope(func oL { _a_ = []  for i = 1 to len(oL)  if oL[i] % 2 = 0  _a_ + oL[i]  ok  next  return _a_ })\no1.SetCounter(func oL { _a_ = []  for i = 1 to len(oL)  if oL[i] % 2 = 1  _a_ + oL[i]  ok  next  return _a_ })\no1.SetClaimCheck(func oL, n { if n < 10  return [ 1, \"\" ]  ok  return [ 0, \"it is \" + n ] })",
+ "example": [
+  "? @@( o1.SubjectsIn([ 1, 2, 3, 12 ]) )",
+  "#--> [ 2, 12 ]",
+  "? @@( o1.CounterSubjectsIn([ 1, 2, 3, 12 ]) )",
+  "#--> [ 1, 3 ]",
+  "? o1.Check([ 1, 2, 3, 12 ], \"list one\")[1][:message]",
+  "#--> an even number is below 10 -- it is 12",
+  "? o1.Check([ 1, 2, 3, 12 ], \"list one\")[1][:where]",
+  "#--> list one / 12",
+  "? len(o1.Check([ 4, 6 ], \"list two\"))",
+  "#--> 0"
+ ],
+ "see": [
+  "stzRuleGovernance",
+  "stzGraphRule",
+  "stzRuleReport"
+ ]
+}

@@ -1,0 +1,12 @@
+{
+ "brief": "Tells in plain sentences what a median-polish fit and its rule report found, without computing a single number of its own.",
+ "detail": "Every number in the prose is read from the fit (the common value, the effects, the residual scale, the sweeps) or from a finding's message. IsHonest proves it on the story itself: each number in the text must be one the sources carry. The story has a paragraph on the fit, one on the effects, one on the findings when there are some, and a verdict. There is no language-model face on purpose, since templated prose reads well enough. Build it with StzTukeyStoryQ(oFit, oReport) after oFit.Polish().",
+ "receiver": "oFit = StzTukeyFitQ([ [ 11, 12, 13 ], [ 21, 22, 23 ], [ 31, 32, 33 ] ])\noFit.Polish()\no1 = StzTukeyStoryQ(oFit, StzTukeyReportQ(\"exact\", [ oFit ]))",
+ "example": [
+  "? len(o1.Paragraphs())",
+  "#--> 3",
+  "? o1.IsHonest()",
+  "#--> 1"
+ ],
+ "see": ["stzTukeyFit", "stzTranscript", "stzRuleReport"]
+}

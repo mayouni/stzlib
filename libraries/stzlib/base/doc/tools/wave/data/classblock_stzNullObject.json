@@ -1,0 +1,14 @@
+{
+ "brief": "Is an object that does nothing and holds nothing, for samples that need an object without writing a class.",
+ "detail": "Its content is an empty text, its Where answers an empty text, and it is equal to nothing, not even to itself. NullObject(), ANullObject(), Null(), NullQ() and StzNullObjectQ() all return one. Build it without parentheses: new stzNullObject. Its counterpart that is equal to everything is stzTrueObject.",
+ "receiver": "o1 = new stzNullObject",
+ "example": [
+  "? o1.IsEqualTo(\"\")",
+  "#--> 0",
+  "? isString(o1.Where(\"x > 1\"))",
+  "#--> 1",
+  "? o1.StzType()",
+  "#--> stznullobject"
+ ],
+ "see": ["stzTrueObject", "stzFalseObject", "NullObject"]
+}

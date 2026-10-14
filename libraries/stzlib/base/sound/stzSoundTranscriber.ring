@@ -22,6 +22,37 @@
 func StzSoundTranscriberQ()
 	return new stzSoundTranscriber()
 
+# Turns a sound into a score by finding the onsets, reading the pitch of each, and keeping how clear each pitch was.
+#
+# Onsets are found in the sample domain, a jump in the energy of the first difference in 5 ms hops,
+# and refined to the sample. The pitch is read at each onset, past its attack, by the engine's
+# unguided reader (McLeod, 50 to 2000 Hz) and its clarity becomes the note's confidence. What comes
+# back is an ordinary stzSoundScore. It is monophonic and cannot say which stroke a drum hit was: an
+# onset with no pitch is kept in Unpitched with its time. It works on a sound in memory and opens no
+# audio device or microphone. The results have not been heard by a person (UNPERCEIVED): they are
+# checked by pitch against the known notes.
+#
+#   receiver   oScore = StzSoundScoreOfQ("C4 E4 G4 C5") oScore.Tempo(96) oSound = oScore.ToSound()
+#              o1 = StzSoundTranscriberQ() oBack = o1.TranscribeQ(oSound, 96)
+#   example    ? oBack.NumberOfEvents()
+#              #--> 4
+#              ? oBack.Events()[1][1]
+#              #--> 0.00
+#              ? oBack.Events()[2][1]
+#              #--> 1
+#              ? floor(oBack.Events()[3][3] + 0.5)
+#              #--> 392
+#              ? len(o1.Confidences())
+#              #--> 4
+#              ? min(o1.Confidences()) > 0.9
+#              #--> 1
+#              ? @@( o1.Unpitched() )
+#              #--> [ ]
+#              o2 = StzSoundTranscriberQ()
+#              oNone = o2.TranscribeQ(0, 96)
+#              ? o2.LastError()
+#              #--> TranscribeQ: nothing to transcribe
+#   see        stzSoundScore, stzSound, stzSoundNotationReader
 class stzSoundTranscriber
 
 	@nRate = 48000
@@ -31,27 +62,75 @@ class stzSoundTranscriber
 	@cInstrument = "piano"
 	@cLastError = ""
 
-	# present on purpose: "new X()" WITH parentheses calls init, and fails
-	# when there is none ("Calling Function without definition: init")
+	# Builds a transcriber with the piano as the instrument, a minimum clarity of 0.6 and no result yet.
+	#
+	#   returns    nothing; the object is built
+	#   note       StzSoundTranscriberQ builds the same object
+	#   see        TranscribeQ, SetInstrument
+	#@ aka  present on purpose: "new X()" WITH parentheses calls init, and fails when there is none ("Calling Function without definition: init")
 	def init()
 
+	# Sets the instrument the transcribed notes are given.
+	#
+	#   pcName     the instrument name, kept in lower case, such as piano or harp
+	#   returns    the transcriber itself, so calls chain
+	#   note       the name is not checked
+	#   see        TranscribeQ, SetMinClarity
 	def SetInstrument(pcName)
 		@cInstrument = lower("" + pcName)
 		return This
 
+	# Sets how clear a pitch must be for an onset to become a note.
+	#
+	#   pn         the least clarity, from 0 to 1
+	#   returns    the transcriber itself, so calls chain
+	#   note       at 0.6 a rendered C4 E4 G4 C5 gave four notes, and at 0.99 only one was kept and
+	#              three went to Unpitched
+	#   see        Confidences, Unpitched
 	def SetMinClarity(pn)
 		@nMinClarity = pn
 		return This
 
+	# Returns how sure the last transcription was of each note, in the order of the score.
+	#
+	#   returns    a list of numbers from 0 to 1, the clarity of the pitch read; [ ] before a
+	#              transcription
+	#   note       the values are measured from the sound, so assert ranges: rendered C4 E4 G4 C5
+	#              gave all four above 0.9
+	#   see        Unpitched, SetMinClarity
 	def Confidences()
 		return @aConf
 
+	# Returns the onsets the last transcription kept but could not give a pitch.
+	#
+	#   returns    a list of [ seconds, clarity ]; [ ] when every onset had a pitch
+	#   note       a drum hit lands here with its time: which stroke it was cannot be recovered, and
+	#              it is not guessed
+	#   see        Confidences, SetMinClarity
 	def Unpitched()
 		return @aUnpitched
 
+	# Returns why the last transcription produced nothing.
+	#
+	#   returns    the reason as text; an empty text when nothing went wrong
+	#   note       for a missing sound it reads TranscribeQ: nothing to transcribe
+	#   see        TranscribeQ
 	def LastError()
 		return @cLastError
 
+	# Turns a sound into a stzSoundScore: finds the onsets, reads the pitch of each and keeps its clarity as the confidence.
+	#
+	#   poSound    the stzSound to read, which is not changed
+	#   pnBpm      the tempo, in beats a minute, that turns seconds into beats
+	#   returns    a stzSoundScore at the given tempo with one note for each onset that had a clear
+	#              pitch; an empty score when the sound is missing or empty, with the reason in
+	#              LastError
+	#   note       it is monophonic: two notes at once are not separated; a rendered C4 E4 G4 C5 at
+	#              96 beats a minute came back as notes starting at beats 0, 1, 2 and 3 at 261.63,
+	#              329.56, 391.83 and 523.19 hertz, against the true 261.63, 329.63, 392.00 and
+	#              523.25; the length of a note runs to the next onset, so the last one includes its
+	#              ring-out; the sound is read in a mono copy made by the engine
+	#   see        Confidences, Unpitched, SetInstrument
 	def TranscribeQ(poSound, pnBpm)
 		_oS_ = StzSoundScoreQ().Tempo(pnBpm)
 		_oS_.On(@cInstrument)

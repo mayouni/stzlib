@@ -9,6 +9,25 @@
 #   ? oNB.Classify("lovely evening, great dishes")   #--> "positive"
 #   ? oNB.Why()
 
+# Classifies a text from the words of labelled texts, with Laplace smoothing and a score for every label.
+#
+# Your labelled texts train it: no download and no model file. The model is multinomial naive Bayes
+# over word counts, kept in the engine, which tokenizes by Unicode word segmentation and folds case,
+# so text in any script is counted the same way. Classify returns the label with the highest log-
+# score, and Why lists the score of every label so that the decision can be read. A text made of
+# words never seen is decided by the label proportions alone.
+#
+#   receiver   o1 = new stzNaiveBayes()
+#   example    o1.Train("great food and lovely staff", "positive")
+#              o1.Train("cold soup, rude waiter", "negative")
+#              o1.Train("lovely evening and great dishes", "positive")
+#              ? o1.Classify("lovely evening, great dishes")
+#              #--> positive
+#              ? o1.Classify("rude cold waiter")
+#              #--> negative
+#              ? o1.NumberOfDocuments()
+#              #--> 3
+#   see        stzTrainingSet, stzLogisticRegression, stzText
 class stzNaiveBayes from stzObject
 
 	# THE MODEL LIVES IN THE ENGINE (numeric phase 5, second pass).
@@ -39,12 +58,24 @@ class stzNaiveBayes from stzObject
 	@pModel = ""
 	@cWhy = ""
 
+	# Builds an empty multinomial naive Bayes text classifier whose model lives in the engine.
+	#
+	#   returns    nothing; the object is built
+	#   see        Train, Classify
 	def init()
 		@pModel = StzEngineBayesNew()
 		if @pModel = ""
 			stzraise("The engine refused to create the model.")
 		ok
 
+	# Adds one labelled text to the model, counting its words under the label.
+	#
+	#   pcText     the document
+	#   pcLabel    its class, trimmed and folded to lower case
+	#   returns    the classifier itself, so calls chain
+	#   note       words are found by Unicode word segmentation and folded to lower case, so Hebrew,
+	#              Arabic and CJK text work; an empty label is accepted as a label of its own
+	#   see        Classify, Labels
 	def Train(pcText, pcLabel)
 		# the label is folded HERE, once per document, because that is where it was
 		# folded before -- StzLower(ring_trim(...)) -- and the engine is given the
@@ -55,17 +86,37 @@ class stzNaiveBayes from stzObject
 		ok
 		return This
 
+	# Returns the labels seen so far, in the order they were first trained.
+	#
+	#   returns    a list of text in lower case; empty before any Train
+	#   see        Train, NumberOfDocuments
 	def Labels()
 		return StzEngineBayesLabels(@pModel)
 
+	# Returns how many texts were trained.
+	#
+	#   returns    a number
+	#   see        Train, VocabularySize
 	def NumberOfDocuments()
 		_a_ = StzEngineBayesStats(@pModel)
 		return _a_[1]
 
+	# Returns how many distinct words the model has seen.
+	#
+	#   returns    a number
+	#   see        NumberOfDocuments
 	def VocabularySize()
 		_a_ = StzEngineBayesStats(@pModel)
 		return _a_[2]
 
+	# Returns the label whose Laplace-smoothed log-score is highest for a text.
+	#
+	#   pcText     the text to classify
+	#   returns    a text, the best label
+	#   note       a tie goes to the label trained first; a text of unseen words is decided by the
+	#              label priors alone
+	#   warning    raises an error telling to train first
+	#   see        Why, Train
 	def Classify(pcText)
 		_aSt_ = StzEngineBayesStats(@pModel)
 		if _aSt_[1] = 0
@@ -102,6 +153,11 @@ class stzNaiveBayes from stzObject
 		$cStzLastWhyB = @cWhy
 		return _cBest_
 
+	# Returns the log-score of every label for the last text and the best one.
+	#
+	#   returns    a text such as log-scores: 'positive' -9.00, 'negative' -11.93 -- best:
+	#              'positive'; empty before the first Classify
+	#   see        Classify
 	def Why()
 		return @cWhy
 

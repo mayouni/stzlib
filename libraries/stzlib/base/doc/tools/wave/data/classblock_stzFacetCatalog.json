@@ -1,0 +1,19 @@
+{
+ "brief": "Registers the facets a cluster knows: logical competences such as graph or nlp, with their capabilities and the modules that realize them.",
+ "detail": "A facet is a competence a cluster routes along, not a physical module. A fresh catalog holds the 18 standard facets; Define and DefinePolyglot add or override one and Drop removes one. The catalog belongs to its instance, so two clusters in one process can have different facets. MappingKindOf says whether a facet is grounded in one module, composed from several, external (served by a tool such as python) or purely logical.",
+ "receiver": "o1 = new stzFacetCatalog()",
+ "example": [
+  "? o1.NumberOf()",
+  "#--> 18",
+  "? @@( o1.CapabilitiesOf(\"graph\") )",
+  "#--> [ \"paths\", \"centrality\", \"planner\", \"rules\", \"orgchart\" ]",
+  "? o1.MappingKindOf(\"vision\")",
+  "#--> external",
+  "? o1.MappingKindOf(\"knowledge\")",
+  "#--> composed",
+  "o1.Define(\"audio\", [ \"transcribe\" ], [])",
+  "? o1.MappingKindOf(\"audio\")",
+  "#--> logical"
+ ],
+ "see": ["stzComputePipeline", "stzClusterSupervisor", "stzRequestClassifier"]
+}

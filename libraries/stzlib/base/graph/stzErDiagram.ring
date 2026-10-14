@@ -390,6 +390,35 @@ func _ErParticipationBacking(oGraph, pcA, pcB)
 #  THE DIAGRAM                                                         #
 #---------------------------------------------------------------------#
 
+# Holds a database schema as entities, keys and relations, draws it in crow's-foot notation and checks its rules about keys.
+#
+# An entity is a box with a name band and a compartment of attributes shown as PK, FK and plain
+# columns; a relation is an undirected line whose ends carry the cardinality. Relate reads the kind
+# from the first entity: OneToMany, ManyToOne, OneToOne or ManyToMany. Four rules judge the schema
+# through GovernanceFindings: every entity declares a primary key, every foreign key names an entity
+# of the diagram, every relation is backed by a foreign key (a junction for a many-to-many), and a
+# participation declared at a key's target end agrees with the column's nullability. A note is drawn
+# but is not an entity and owes no key. Weak entities, inheritance and Chen's diamonds are not here.
+# ToCanvasXT draws the diagram.
+#
+#   receiver   o1 = new stzErDiagram("shop") o1.AddEntity("customer", "Customer")
+#              o1.AddKey("customer", "id") o1.AddEntity("order", "Order") o1.AddKey("order", "id")
+#              o1.AddForeignKey("order", "customer_id", "customer")
+#   example    o1.Relate("customer", "order", :OneToMany)
+#              ? len(o1.Entities())
+#              #--> 2
+#              ? o1.Relations()[1][:kind]
+#              #--> onetomany
+#              ? @@( o1.GovernanceFindings() )
+#              #--> [ ]
+#              ? o1.GovernanceIsSound()
+#              #--> 1
+#              o1.AddEntity("tag", "Tag")
+#              ? len(o1.GovernanceFindings())
+#              #--> 1
+#              ? o1.GovernanceIsSound()
+#              #--> 0
+#   see        stzDiagram, stzErRuleSet, stzUmlDiagram
 class stzErDiagram from stzDiagram
 
 	# [ [ :id, :name, :attrs ] ] with attrs [ [ :name, :key, :fk ] ]
@@ -399,6 +428,12 @@ class stzErDiagram from stzDiagram
 	@aRelations = []
 	@aNotes = []
 
+	# Builds an empty entity-relationship diagram that reads left to right with the er notation, under a title.
+	#
+	#   pcTitle    the title of the diagram
+	#   returns    nothing; the object is built
+	#   note       relations are drawn undirected and with orthogonal lines
+	#   see        AddEntity, Relate
 	def init(pcTitle)
 		super.init(pcTitle)
 		# the notation declares its edges undirected: a relation carries
@@ -406,8 +441,16 @@ class stzErDiagram from stzDiagram
 		# schema does not have
 		This.SetNotation(StzErNotation())
 
-	#-- entities and their attributes ----------------------------------
-
+	# Declares an entity, a table drawn as a box with a name band and a compartment of attributes.
+	#
+	#   pcId       the entity's identifier, which must be new in the diagram
+	#   pcName     the name shown in the box
+	#   returns    the diagram itself, so calls chain
+	#   note       AddEntityQ returns the diagram too
+	#   warning    an identifier already in the diagram, in any letter case, raises error
+	#              stzErDiagram: ... is already an entity of this diagram
+	#   see        AddJunction, AddKey, Relate
+	#@ aka  -- entities and their attributes ----------------------------------
 	def AddEntity(pcId, pcName)
 		This._ErNoEntity(pcId)
 		@aEntities + [ :id = "" + pcId, :name = "" + pcName, :attrs = [] ]
@@ -417,14 +460,28 @@ class stzErDiagram from stzDiagram
 		def AddEntityQ(pcId, pcName)
 			return This.AddEntity(pcId, pcName)
 
-	# a junction is an entity drawn for a many-to-many: it holds a
-	# foreign key to each side
+	# Declares an entity drawn for a many-to-many, which is meant to hold a key to each side.
+	#
+	#   pcId       the junction's identifier, which must be new in the diagram
+	#   pcName     the name shown in the box
+	#   returns    the diagram itself, so calls chain
+	#   note       the rules treat a junction like any entity; only the drawing tells it apart
+	#   warning    an identifier already in the diagram raises the same error as AddEntity
+	#   see        AddEntity, AddKeyReferencing
+	#@ aka  a junction is an entity drawn for a many-to-many: it holds a foreign key to each side
 	def AddJunction(pcId, pcName)
 		This._ErNoEntity(pcId)
 		@aEntities + [ :id = "" + pcId, :name = "" + pcName, :attrs = [] ]
 		This.AddNodeXTT(pcId, pcName, [ :type = "junction", :attributes = [] ])
 		return This
 
+	# Adds a free note to the drawing; it is not an entity and owes no key.
+	#
+	#   pcId       the note's identifier
+	#   pcText     the text of the note
+	#   returns    the diagram itself, so calls chain
+	#   note       the rules skip a note, and it is not in Entities()
+	#   see        AddEntity
 	def AddNote(pcId, pcText)
 		# parenthesised: `@aNotes + "" + pcId` is two appends, the first
 		# of an empty string -- found as a phantom note in the rule graph
@@ -432,14 +489,43 @@ class stzErDiagram from stzDiagram
 		This.AddNodeXTT(pcId, pcText, [ :type = "note" ])
 		return This
 
+	# Adds a primary-key column to an entity, shown prefixed PK.
+	#
+	#   pcEntity   the identifier of an entity already added
+	#   pcAttr     the name of the column
+	#   returns    the diagram itself, so calls chain
+	#   note       primary-key columns are listed before the others in the box
+	#   warning    an entity that was not added first raises error stzErDiagram: ... is not an
+	#              entity of this diagram -- add it first
+	#   see        AddAttribute, AddKeyReferencing, AddForeignKey
 	def AddKey(pcEntity, pcAttr)
 		This._ErAddAttr(pcEntity, pcAttr, 1, "", 0)
 		return This
 
+	# Adds an ordinary column to an entity, neither key nor reference.
+	#
+	#   pcEntity   the identifier of an entity already added
+	#   pcAttr     the name of the column
+	#   returns    the diagram itself, so calls chain
+	#   warning    an entity that was not added first raises error stzErDiagram: ... is not an
+	#              entity of this diagram -- add it first
+	#   see        AddKey, AddForeignKey
 	def AddAttribute(pcEntity, pcAttr)
 		This._ErAddAttr(pcEntity, pcAttr, 0, "", 0)
 		return This
 
+	# Adds a column to an entity that refers to another entity, shown as FK column -> target.
+	#
+	#   pcEntity   the identifier of the entity that holds the column
+	#   pcAttr     the name of the column
+	#   pcTarget   the identifier of the entity it refers to
+	#   returns    the diagram itself, so calls chain
+	#   note       AddForeignKeyXT takes a fourth option [ :Nullable = 1 ] for a column that may be
+	#              empty
+	#   warning    an entity that was not added first raises error stzErDiagram: ... is not an
+	#              entity of this diagram -- add it first; a target that is not an entity is
+	#              accepted here and reported by the rule foreign_key_resolves
+	#   see        AddKeyReferencing, Relate
 	def AddForeignKey(pcEntity, pcAttr, pcTarget)
 		This._ErAddAttr(pcEntity, pcAttr, 0, "" + pcTarget, 0)
 		return This
@@ -455,9 +541,17 @@ class stzErDiagram from stzDiagram
 		This._ErAddAttr(pcEntity, pcAttr, 0, "" + pcTarget, _n_)
 		return This
 
-	# a key that is also a reference -- what a junction's columns are: the
-	# primary key of ProductTag is the pair (product_id, tag_id), and each
-	# half names the entity it points at
+	# Adds a column that is both part of the primary key and a reference, as a junction holds.
+	#
+	#   pcEntity   the identifier of the entity that holds the column
+	#   pcAttr     the name of the column
+	#   pcTarget   the identifier of the entity it points at
+	#   returns    the diagram itself, so calls chain
+	#   note       it is shown as PK FK column -> target
+	#   warning    an entity that was not added first raises error stzErDiagram: ... is not an
+	#              entity of this diagram -- add it first
+	#   see        AddForeignKey, AddJunction
+	#@ aka  a key that is also a reference -- what a junction's columns are: the primary key of ProductTag is the pair (product_id, tag_id), and each half names the entity it points at
 	def AddKeyReferencing(pcEntity, pcAttr, pcTarget)
 		This._ErAddAttr(pcEntity, pcAttr, 1, "" + pcTarget, 0)
 		return This
@@ -505,10 +599,19 @@ class stzErDiagram from stzDiagram
 			stzraise("stzErDiagram: '" + pcId + "' is already an entity of this diagram.")
 		ok
 
-	#-- relations -------------------------------------------------------
-
-	# Relate(from, to, kind): kind is :OneToMany, :ManyToOne, :OneToOne or
-	# :ManyToMany, read from the FROM side -- "Customer one to many Order"
+	# Draws a relation between two entities with a cardinality read from the first one.
+	#
+	#   pcFrom     the identifier of the first entity
+	#   pcTo       the identifier of the second entity
+	#   pcKind     OneToMany, ManyToOne, OneToOne or ManyToMany, in any letter case
+	#   returns    the diagram itself, so calls chain
+	#   note       RelateXT takes a fourth option [ :from = :Optional, :to = :Mandatory ] for the
+	#              participation of each end
+	#   warning    a kind such as ManyToFew raises error stzErDiagram: ... is not a cardinality; an
+	#              identifier that is not an entity raises error stzErDiagram: a relation joins two
+	#              entities of this diagram
+	#   see        RelateXT, AddForeignKey, GovernanceFindings
+	#@ aka  -- relations -------------------------------------------------------
 	def Relate(pcFrom, pcTo, pcKind)
 		return This.RelateXT(pcFrom, pcTo, pcKind, [])
 
@@ -557,14 +660,29 @@ class stzErDiagram from stzDiagram
 		stzraise("stzErDiagram: '" + paOpt[pcEnd] + "' is not a participation -- " +
 			"Optional or Mandatory.")
 
+	# Returns the entities declared so far, each with its id, name and attributes.
+	#
+	#   returns    a list of hash lists with the keys id, name and attrs; notes are not in it
+	#   note       each attribute carries name, key, fk and nullable
+	#   see        Relations, AsRuleGraph
 	def Entities()
 		return @aEntities
 
+	# Returns the relations declared so far, each with its two ends, its kind and its participations.
+	#
+	#   returns    a list of hash lists with the keys from, to, kind, frompart and topart
+	#   note       the kind is stored in lower case, such as onetomany; a participation is optional,
+	#              mandatory or an empty text when nothing was declared
+	#   see        Entities, Relate
 	def Relations()
 		return @aRelations
 
-	#-- the projection the rules read ------------------------------------
-
+	# Returns the diagram projected onto a plain stzGraph that the rules read, with keys and foreign keys as node properties.
+	#
+	#   returns    a stzGraph with one node per entity and note, and one edge per relation
+	#   note       a second relation between the same two entities adds no second edge
+	#   see        GovernanceFindings, Entities
+	#@ aka  -- the projection the rules read ------------------------------------
 	def AsRuleGraph()
 		_oG_ = new stzGraph("er-rules")
 		for _i_ = 1 to len(@aEntities)
@@ -596,13 +714,23 @@ class stzErDiagram from stzDiagram
 		next
 		return _oG_
 
+	# Returns every finding of the four schema rules, such as a missing key or a relation no foreign key backs.
+	#
+	#   returns    a list of findings, each a hash list with rule, subject, where, severity and
+	#              message; [ ] when there is none
+	#   note       CheckRules gives the same list; a many-to-many with no junction is a warning, an
+	#              entity with no key is an error
+	#   see        GovernanceIsSound, AsRuleGraph
 	def GovernanceFindings()
 		return StzErRuleSetQ().Check(This.AsRuleGraph())
 
-	# SOUND IS NO ERROR, not no finding: this schema's rules set their
-	# severity deliberately, and a warning says the picture may stand.
-	# StzFindingsAreSound is the house's one answer; GovernanceFindings()
-	# is still every finding, warnings included, for a caller who wants them.
+	# TRUE if the schema rules report no finding of severity error.
+	#
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   note       warnings do not make it false: a many-to-many with no junction still answers 1,
+	#              an entity with no key answers 0; RulesAreSound is the same call
+	#   see        GovernanceFindings
+	#@ aka  SOUND IS NO ERROR, not no finding: this schema's rules set their severity deliberately, and a warning says the picture may stand. StzFindingsAreSound is the house's one answer; GovernanceFindings() is still every finding, warnings included, for a caller who wants them.
 	def GovernanceIsSound()
 		return StzFindingsAreSound(This.GovernanceFindings())
 
@@ -612,12 +740,52 @@ class stzErDiagram from stzDiagram
 	def RulesAreSound()
 		return This.GovernanceIsSound()
 
+# Holds one rule about an entity-relationship schema, a stzGraphRule that belongs to the er domain.
+#
+# The four built-in schema rules are stzErRule objects made by stzErRuleSet: entity_has_key,
+# foreign_key_resolves, relation_backed_by_key and participation_matches_nullability. Build one
+# yourself with a name, set its severity, message and checker like any stzGraphRule, and add it to a
+# stzErRuleSet.
+#
+#   receiver   o1 = new stzErRule("every_entity_named")
+#   example    ? o1.Name()
+#              #--> every_entity_named
+#              ? o1.Domain()
+#              #--> er
+#   see        stzGraphRule, stzErRuleSet, stzErDiagram
 class stzErRule from stzGraphRule
+	# Builds a schema rule with the given name, in the er domain.
+	#
+	#   pcName     the name of the rule, such as entity_has_key
+	#   returns    nothing; the object is built
+	#   note       a stzGraphRule whose domain is set to er; the four built-in schema rules are made
+	#              this way
 	def init(pcName)
 		super.init(pcName)
 		This.SetDomainQ("er")
 
+# Holds the four rules a schema must keep and judges a graph made from an entity-relationship diagram.
+#
+# The set carries entity_has_key and foreign_key_resolves as errors, relation_backed_by_key and
+# participation_matches_nullability as warnings, in the er-governance set of the er domain.
+# stzErDiagram builds one for GovernanceFindings and hands it the graph from AsRuleGraph; use the
+# set directly to add a rule of your own before checking.
+#
+#   receiver   o1 = new stzErRuleSet()
+#   example    ? o1.Name()
+#              #--> er-governance
+#              ? o1.Domain()
+#              #--> er
+#              ? len(o1.Rules())
+#              #--> 4
+#   see        stzErDiagram, stzErRule, stzGraphRuleSet
 class stzErRuleSet from stzGraphRuleSet
+	# Builds the set of the four schema rules of an entity-relationship diagram, in the er-governance set.
+	#
+	#   returns    nothing; the object is built
+	#   note       the rules are entity_has_key, foreign_key_resolves, relation_backed_by_key and
+	#              participation_matches_nullability; Check(oGraph) judges a graph made by
+	#              AsRuleGraph
 	def init()
 		super.init("er-governance")
 		This.SetDomainQ("er")

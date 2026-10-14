@@ -56,19 +56,69 @@ func StzSoundGmInstrument(pnProg)
 	next
 	return ""
 
+# Writes a score as notation and as a MIDI file, and says what each format could not carry.
+#
+# Notation is a rendering of the score and never its source: ABC 2.1 text, MusicXML and a Standard
+# MIDI File, type 1, are written from the same stzSoundScore. Quarter tones are written in each
+# format's own terms, ^/ and _/ in ABC and decimal alterations in MusicXML; a pitch further than 5
+# cents from the nearest quarter tone, and a duration rounded by more than a hundredth of a beat,
+# are counted in Losses. MIDI has no quarter tones, so every pitched note gets a pitch bend on a
+# channel of its own, and strokes go to the drum channel. Everything is text or bytes: no audio
+# device is opened and nothing is played. The files have not been heard or read by a musician
+# (UNPERCEIVED): they are checked by their bytes and text.
+#
+#   receiver   oS = StzSoundScoreOfQ("C4 D4 E4 C4") oS.Tempo(90) o1 = StzSoundNotationQ(oS)
+#   example    ? left(o1.ToABC("Tiny study"), 3)
+#              #--> X:1
+#              ? StzFindFirst("Q:1/4=90", o1.ToABC("Tiny study")) > 0
+#              #--> 1
+#              ? StzFindFirst("C4 D4 E4 C4", o1.ToABC("Tiny study")) > 0
+#              #--> 1
+#              ? StzFindFirst("<step>E</step>", o1.ToMusicXML("Tiny study")) > 0
+#              #--> 1
+#              ? left(o1.ToMidiBytes(), 4)
+#              #--> MThd
+#              ? len(o1.ToMidiBytes())
+#              #--> 569
+#              ? @@( o1.Losses() )
+#              #--> [ ]
+#   see        stzSoundScore, stzSoundNotationReader, stzMusic
 class stzSoundNotation
 
 	@oS = NULL
 	@aLosses = []
 
+	# Builds a notation writer over a score; the formats are written from the score, which stays the source.
+	#
+	#   poScore    the stzSoundScore to write out
+	#   returns    nothing; the object is built
+	#   note       StzSoundNotationQ builds the same object
+	#   see        Losses, ToABC
 	def init(poScore)
 		@oS = poScore
 
+	# Returns what the last format written could not carry.
+	#
+	#   returns    a list of sentences; [ ] when nothing was lost
+	#   note       each ToABC and ToMusicXML starts the list afresh; strokes are not written in ABC
+	#              or MusicXML, so a score with a stroke leaves strokes are not written in ABC or
+	#              MusicXML here (MIDI carries them); a pitch more than 5 cents from the nearest
+	#              quarter tone, and a rounding of more than a hundredth of a beat, are counted too
+	#   see        ToABC, ToMusicXML
 	def Losses()
 		return @aLosses
 
-	#-- ABC 2.1 ---------------------------------------------------------------
-
+	# Writes the score as ABC 2.1 text, one voice per instrument.
+	#
+	#   pcTitle    the title written on the T line
+	#   returns    the ABC text, with header lines X, T, M, L, Q and K, a V line naming each voice
+	#              and one line of notes per voice
+	#   note       a note is its letter, an octave mark and a length in sixteenths of a beat, so C4
+	#              is middle C lasting one beat; a quarter tone is written ^/A or _/B; a rest is z;
+	#              long notes are tied across barlines; for a four-note piano score at 90 beats a
+	#              minute it gives Q:1/4=90 and the line [V:1] C4 D4 E4 C4 followed by a closing bar
+	#   see        ToMusicXML, Losses
+	#@ aka  -- ABC 2.1 ---------------------------------------------------------------
 	def ToABC(pcTitle)
 		@aLosses = []
 		_aV_ = This._Voices()
@@ -164,8 +214,14 @@ class stzSoundNotation
 		ok
 		return _acc_ + _letter_
 
-	#-- MusicXML (partwise) -----------------------------------------------------
-
+	# Writes the score as MusicXML text, with quarter tones as decimal alterations.
+	#
+	#   pcTitle    the title written in the document
+	#   returns    the MusicXML text, with one part for each instrument
+	#   note       durations use four divisions to the quarter note; a quarter tone is an alter of
+	#              0.5 or -0.5; strokes are not written
+	#   see        ToABC, Losses
+	#@ aka  -- MusicXML (partwise) -----------------------------------------------------
 	def ToMusicXML(pcTitle)
 		@aLosses = []
 		_aV_ = This._Voices()
@@ -296,13 +352,29 @@ class stzSoundNotation
 		next
 		return _s_
 
-	#-- MIDI (Standard MIDI File, type 1) ---------------------------------------
-
+	# Writes the score as a Standard MIDI File, type 1, to a file.
+	#
+	#   pcPath     the path of the file to write
+	#   returns    the number of bytes written
+	#   note       the same bytes as ToMidiBytes; an existing file is overwritten
+	#   see        ToMidiBytes, Losses
+	#@ aka  -- MIDI (Standard MIDI File, type 1) ---------------------------------------
 	def ToMidiFile(pcPath)
 		_b_ = This.ToMidiBytes()
 		write(pcPath, _b_)
 		return len(_b_)
 
+	# Returns the score as the bytes of a Standard MIDI File, type 1, with 480 ticks to the quarter note.
+	#
+	#   returns    the bytes as text, starting with MThd; for a four-note piano score 3 tracks and
+	#              569 bytes
+	#   note       every pitched note gets its own channel and a pitch bend, because MIDI has no
+	#              quarter tones, with the bend range set to plus or minus 12 semitones; channels
+	#              rotate and a note needing a channel when all fifteen are busy is counted in
+	#              Losses; strokes go to the drum channel with General MIDI numbers; the note events
+	#              for C4 D4 E4 C4 at velocity 0.8 were checked by hand: 60, 62, 64 and 60 at
+	#              velocity 102
+	#   see        ToMidiFile, Losses
 	def ToMidiBytes()
 		@aLosses = []
 		_ppq_ = 480

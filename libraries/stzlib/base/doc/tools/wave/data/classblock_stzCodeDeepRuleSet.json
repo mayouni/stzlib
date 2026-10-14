@@ -1,0 +1,15 @@
+{
+ "brief": "Holds the project rules plus no-cyclic-calls, the opt-in set for a deeper and slower audit.",
+ "detail": "no-cyclic-calls needs call edges and finds a pair of methods in one class that call each other. Its cost grows with the square of the calls times the methods, so it is opt-in through StzCheckProjectDeep, and the default gate documents that it omits it.",
+ "receiver": "o1 = new stzCodeDeepRuleSet()",
+ "example": [
+  "? o1.NumberOfRules()",
+  "#--> 7",
+  "? o1.RuleNames()[7]",
+  "#--> no-cyclic-calls"
+ ],
+ "see": [
+  "stzCodeProjectRuleSet",
+  "stzCodeRuleSet"
+ ]
+}

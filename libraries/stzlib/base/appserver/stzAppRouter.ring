@@ -7,18 +7,51 @@
 # match wins. Attributes carry the @ scope sigil (bare class-head attrs
 # capture same-named user globals in Ring 1.27, verified 2026-07-14).
 
+# Holds the route table of the application server and finds the handler for a method and a path.
+#
+# Routes are matched exactly first, then by pattern: a :name segment captures one path segment and a
+# trailing * captures the rest of the path. Among patterns the first registered wins, and the method
+# must match too. The router returns the handler and the captured parameters and never calls the
+# handler. Build it without parentheses, as in new stzAppRouter: with () the call raises R19.
+#
+#   receiver   o1 = new stzAppRouter
+#   example    o1.AddRoute("get", "/user/:id", "showUser")
+#              ? o1.MatchRoute("GET", "/user/42")[2][2]
+#              #--> showUser
+#              ? o1.MatchRoute("GET", "/user/42")[3][2][1][2]
+#              #--> 42
+#              ? o1.MatchRoute("GET", "/nothing")[1][2]
+#              #--> 0
+#   see        stzAppServer, stzAppRequest, stzAppResponse
 class stzAppRouter from stzObject
 	@aRoutes = []           # [ method, path-pattern, handler ]
 	@aMiddleware = []
 	@aStaticRoutes = []
 
+	# Registers a handler for a method and a path pattern; the method is stored in upper case.
+	#
+	#   cMethod    the HTTP method in any case
+	#   cPath      the path or pattern, such as /user/:id or /static/*
+	#   fHandler   the handler to return on a match, a function or any value
+	#   returns    nothing
+	#   see        Routes, MatchRoute, HasRoute
 	def AddRoute(cMethod, cPath, fHandler)
 		@aRoutes + [ StzUpper("" + cMethod), "" + cPath, fHandler ]
 
+	# Returns every registered route as [ method, pattern, handler ], in registration order.
+	#
+	#   returns    a list of three-item lists
+	#   see        AddRoute, MatchRoute
 	def Routes()
 		return @aRoutes
 
-	# Exact-only presence check (kept for back-compat / introspection).
+	# TRUE if a route with exactly that method and exactly that path text was registered; a pattern is not matched, only compared.
+	#
+	#   cMethod    the HTTP method in any case
+	#   cPath      the path text, compared as written
+	#   returns    1 or 0, numbers
+	#   see        MatchRoute, GetHandler
+	#@ aka  Exact-only presence check (kept for back-compat / introspection).
 	def HasRoute(cMethod, cPath)
 		_cM_ = StzUpper("" + cMethod)
 		_nLen_ = len(@aRoutes)
@@ -29,6 +62,12 @@ class stzAppRouter from stzObject
 		next
 		return 0
 
+	# Returns the handler registered for exactly that method and path text, an empty text when there is none; patterns are not matched.
+	#
+	#   cMethod    the HTTP method in any case
+	#   cPath      the path text, compared as written
+	#   returns    the handler, or an empty text
+	#   see        MatchRoute, HasRoute
 	def GetHandler(cMethod, cPath)
 		_cM_ = StzUpper("" + cMethod)
 		_nLen_ = len(@aRoutes)
@@ -39,8 +78,17 @@ class stzAppRouter from stzObject
 		next
 		return ""
 
-	# THE MATCHER: try exact, then patterns. Returns a hashlist
-	#   [ :matched = TRUE/FALSE, :handler = f, :params = [ [name,val], ... ] ]
+	# Returns the route for a request: the exact path first, then :name and trailing * patterns, the first registered winning.
+	#
+	#   cMethod    the HTTP method in any case
+	#   cPath      the request path without its query
+	#   returns    a list [ matched, handler, params ]: matched is 1 or 0, params the list of [
+	#              name, value ] pairs, with the key * for a wildcard
+	#   note       the request path is read by its non-empty segments, so a trailing slash does not
+	#              matter; a wildcard also matches nothing after its prefix and then captures an
+	#              empty text
+	#   see        AddRoute, GetHandler
+	#@ aka  THE MATCHER: try exact, then patterns. Returns a hashlist [ :matched = TRUE/FALSE, :handler = f, :params = [ [name,val], ... ] ]
 	def MatchRoute(cMethod, cPath)
 		_cM_ = StzUpper("" + cMethod)
 		# exact first (fast path, no capture)
@@ -108,6 +156,13 @@ class stzAppRouter from stzObject
 		ok
 		return _aParams_
 
+	# Stores a middleware function for a path prefix; nothing in the router or the server ever reads the list, so it never runs.
+	#
+	#   cPath         the path the middleware should cover
+	#   fMiddleware   the function meant to run before the routes
+	#   returns       nothing; use AddMiddlewareQ to chain
+	#   note          stored and never applied; see stzAppServer.Use
+	#   see           AddStaticRoute
 	def AddMiddleware(cPath, fMiddleware)
 		@aMiddleware + [ cPath, fMiddleware ]
 
@@ -115,6 +170,13 @@ class stzAppRouter from stzObject
 			This.AddMiddleware(cPath, fMiddleware)
 			return This
 
+	# Stores a URL path and a folder for static files; nothing in the router or the server ever reads the list, so no file is served.
+	#
+	#   cPath        the URL path meant to map to the folder
+	#   cDirectory   the folder of files
+	#   returns      nothing; use AddStaticRouteQ to chain
+	#   note         stored and never applied; see stzAppServer.Static
+	#   see          AddMiddleware
 	def AddStaticRoute(cPath, cDirectory)
 		@aStaticRoutes + [ cPath, cDirectory ]
 

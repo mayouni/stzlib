@@ -87,11 +87,28 @@ func _StzAwsType(poReq)
  #  RESOURCE SPEC       #
 #=====================#
 
-# A resource footprint -- memory (MB), compute (vCPU), storage (GB). ONE shape,
-# TWO roles: a part's REQUIREMENT (what it needs to run) and a host's CAPACITY
-# (what it provides). Feasibility is just Capacity.Meets(sum-of-requirements) --
-# the same admission check a CI runner label or a K8s scheduler performs. Extend
-# with gpu / os / region as real backends need them.
+# Holds an amount of resources, memory, virtual processors, disk and a GPU, either as the need of a part or as the capacity of a host.
+#
+# The same class plays two roles. As a requirement it says what a part needs, including a GPU that
+# is required or optional. As a capacity it says what a host offers, including whether a GPU is
+# present. Meets asks whether a capacity covers a requirement; Plus adds requirements, as for
+# several parts on one host. Nothing is validated: set numbers.
+#
+#   receiver   o1 = new stzResourceSpec() o1.SetMemory(2048) o1.SetCompute(2) o1.SetStorage(20)
+#   example    ? o1.Text()
+#              #--> 2048MB / 2 vCPU / 20GB
+#              oNeed = new stzResourceSpec()
+#              oNeed.SetMemory(1024)
+#              oNeed.SetCompute(1)
+#              ? o1.Meets(oNeed)
+#              #--> 1
+#              oNeed.SetGpuRequired()
+#              ? o1.Meets(oNeed)
+#              #--> 0
+#              o1.SetGpuPresent(1)
+#              ? o1.Meets(oNeed)
+#              #--> 1
+#   see        stzDeployment, stzDeploymentSite
 class stzResourceSpec from stzObject
 
 	@nMem = 0    # MB
@@ -102,9 +119,19 @@ class stzResourceSpec from stzObject
 	@cGpu = ""
 	@bGpuPresent = 0
 
+	# Creates an empty resource spec: no memory, no processors, no disk and no GPU need.
+	#
+	#   returns    nothing; the object is built
+	#   see        SetMemory, IsEmpty
 	def init()
 		@nMem = 0
 
+	# Sets the memory in megabytes, as a need of a part or as the capacity of a host.
+	#
+	#   pnMB       the memory in megabytes
+	#   returns    nothing; use SetMemoryQ to chain
+	#   warning    the value is not checked: a text is stored as given
+	#   see        MemoryMB, Meets
 	def SetMemory(pnMB)
 		This.SetMemoryQ(pnMB)
 
@@ -112,6 +139,12 @@ class stzResourceSpec from stzObject
 		@nMem = pnMB
 		return This
 
+	# Sets the number of virtual processors.
+	#
+	#   pnVCPU     the number of virtual processors
+	#   returns    nothing; use SetComputeQ to chain
+	#   warning    the value is not checked
+	#   see        ComputeVCPU, Meets
 	def SetCompute(pnVCPU)
 		This.SetComputeQ(pnVCPU)
 
@@ -119,6 +152,12 @@ class stzResourceSpec from stzObject
 		@nCpu = pnVCPU
 		return This
 
+	# Sets the disk space in gigabytes.
+	#
+	#   pnGB       the disk space in gigabytes
+	#   returns    nothing; use SetStorageQ to chain
+	#   warning    the value is not checked
+	#   see        StorageGB, Meets
 	def SetStorage(pnGB)
 		This.SetStorageQ(pnGB)
 
@@ -126,7 +165,12 @@ class stzResourceSpec from stzObject
 		@nDisk = pnGB
 		return This
 
-	# requirement role: this part MUST have a GPU (Deploy refuses without one)
+	# Declares that the part must have a GPU, so a deployment onto a host without one is refused.
+	#
+	#   returns    nothing; use SetGpuRequiredQ to chain
+	#   warning    this is the requirement role: it says what the part needs, not what a host has
+	#   see        SetGpuOptional, Meets
+	#@ aka  requirement role: this part MUST have a GPU (Deploy refuses without one)
 	def SetGpuRequired()
 		This.SetGpuRequiredQ()
 
@@ -134,8 +178,12 @@ class stzResourceSpec from stzObject
 		@cGpu = "required"
 		return This
 
-	# requirement role: this part USES a GPU when present, falls back to CPU
-	# otherwise (Deploy proceeds and logs the degrade)
+	# Declares that the part uses a GPU when there is one and falls back to the CPU otherwise.
+	#
+	#   returns    nothing; use SetGpuOptionalQ to chain
+	#   warning    requirement role, replacing an earlier required or optional
+	#   see        SetGpuRequired, GpuNeed
+	#@ aka  requirement role: this part USES a GPU when present, falls back to CPU otherwise (Deploy proceeds and logs the degrade)
 	def SetGpuOptional()
 		This.SetGpuOptionalQ()
 
@@ -143,7 +191,13 @@ class stzResourceSpec from stzObject
 		@cGpu = "optional"
 		return This
 
-	# capacity role: this host HAS a GPU
+	# Declares whether this host has a GPU, which is the capacity role.
+	#
+	#   bFlag      1 if the host has a GPU, 0 if not
+	#   returns    nothing; use SetGpuPresentQ to chain
+	#   warning    the flag is kept as given, so a text is not turned into 1 or 0
+	#   see        HasGpu, Meets
+	#@ aka  capacity role: this host HAS a GPU
 	def SetGpuPresent(bFlag)
 		This.SetGpuPresentQ(bFlag)
 
@@ -151,30 +205,68 @@ class stzResourceSpec from stzObject
 		@bGpuPresent = bFlag
 		return This
 
+	# Returns the GPU need of a part: required, optional, or an empty text for none.
+	#
+	#   returns    a text
+	#   see        SetGpuRequired, SetGpuOptional
 	def GpuNeed()
 		return @cGpu
 
+	# Returns whether the host was declared to have a GPU.
+	#
+	#   returns    the flag as set; 0 by default
+	#   see        SetGpuPresent, Meets
 	def HasGpu()
 		return @bGpuPresent
 
+	# Returns the memory in megabytes; 0 by default.
+	#
+	#   returns    a number
+	#   see        SetMemory
 	def MemoryMB()
 		return @nMem
+	# Returns the number of virtual processors; 0 by default.
+	#
+	#   returns    a number
+	#   see        SetCompute
 	def ComputeVCPU()
 		return @nCpu
+	# Returns the disk space in gigabytes; 0 by default.
+	#
+	#   returns    a number
+	#   see        SetStorage
 	def StorageGB()
 		return @nDisk
 
+	# TRUE if no memory, processor, disk or GPU need is set.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Text
 	def IsEmpty()
 		return @nMem = 0 and @nCpu = 0 and @nDisk = 0 and @cGpu = ""
 
-	# does THIS capacity meet the given REQUIREMENT (every dimension covered)?
+	# TRUE if this capacity covers the given requirement on every dimension.
+	#
+	#   poReq      the requirement to cover, another stzResourceSpec
+	#   returns    TRUE or FALSE
+	#   warning    a required GPU is met only when this spec was declared with a GPU present; an
+	#              optional GPU never blocks
+	#   see        Plus, SetGpuPresent
+	#@ aka  does THIS capacity meet the given REQUIREMENT (every dimension covered)?
 	def Meets(poReq)
 		if poReq.GpuNeed() = "required" and NOT @bGpuPresent
 			return 0
 		ok
 		return @nMem >= poReq.MemoryMB() and @nCpu >= poReq.ComputeVCPU() and @nDisk >= poReq.StorageGB()
 
-	# aggregate: sum two requirements (many parts on one host)
+	# Returns a new spec that adds the memory, processors and disk of two specs, as for several parts on one host.
+	#
+	#   poOther    the spec to add
+	#   returns    a new stzResourceSpec
+	#   warning    the merged GPU need is the stronger of the two; the GPU presence of the result is
+	#              not carried over; neither original changes
+	#   see        Meets
+	#@ aka  aggregate: sum two requirements (many parts on one host)
 	def Plus(poOther)
 		_r_ = new stzResourceSpec()
 		_r_.SetMemory(@nMem + poOther.MemoryMB())
@@ -188,6 +280,11 @@ class stzResourceSpec from stzObject
 		ok
 		return _r_
 
+	# Returns the spec as one line such as 2048MB / 2 vCPU / 20GB / gpu required.
+	#
+	#   returns    a text
+	#   warning    the line ends with +gpu when a GPU is present
+	#   see        Show
 	def Text()
 		_c_ = "" + @nMem + "MB / " + @nCpu + " vCPU / " + @nDisk + "GB"
 		if @cGpu != ""
@@ -198,6 +295,10 @@ class stzResourceSpec from stzObject
 		ok
 		return _c_
 
+	# Prints the line that Text gives.
+	#
+	#   returns    nothing; it prints
+	#   see        Text
 	def Show()
 		? This.Text()
 
@@ -936,11 +1037,35 @@ class stzDeploymentSite from stzObject
  #  DEPLOYMENT     #
 #================#
 
-# The act of placing a solution onto sites: bind each part to a target site, then
-# store / launch / report -- GOVERNED. Reality-touching ops (Store/Launch) require
-# an actor that Can("effectful"); an inference-only actor (an LLM) may rehearse the
-# plan but commits nothing. This is the same governance crossing the rest of the
-# System Foundation uses: expression is free, admission is governed.
+# Sends each part of a delivery plan to its site, stores it, launches it and reports back, all governed by the actor's authority.
+#
+# Bind parts to stzDeploymentSite objects with SetTarget, order them with RunAfter, attach real
+# build outputs with Artifact, and set an actor. Only an effectful actor commits: with no actor, or
+# with a language-model actor, Store, Launch and Run are rehearsals that touch nothing and say so in
+# their rows. Steps gives the ordered plan (provision, store, launch, verify per part), Run executes
+# it with a verify gate and rolls the completed steps back in reverse on a failure, and Feasibility
+# asks whether each host has room. Explain and Plan are pure reading. With an effectful actor Store,
+# Launch and Run write to sites, start parts and can provision hosts: the documentation run used
+# only the rehearsing path.
+#
+#   receiver   oD = new stzDelivery("bistro") oD.AddBackend(:api, :LinuxServer) oS = new
+#              stzDeploymentSite("local-api")
+#              oS.SetKindQ(:LocalRepo).SetStoreAtQ("deploy_demo/site_api") o1 = new
+#              stzDeployment(oD) o1.SetTarget(:api, oS) o1.SetActor(LLMActor("assistant"))
+#   example    ? o1.MayCommit()
+#              #--> 0
+#              ? len(o1.Steps())
+#              #--> 3
+#              ? @@( o1.Store() )
+#              #--> [ 0, [ [ "api", "local-api", "rehearsed (not committed)" ] ] ]
+#              aRun = o1.Run()
+#              ? aRun[1]
+#              #--> 0
+#              ? o1.WasRun()
+#              #--> 1
+#              ? o1.WasCommitted()
+#              #--> 0
+#   see        stzDeploymentSite, stzDelivery, stzSystemActor, stzResourceSpec
 class stzDeployment from stzObject
 
 	@oDelivery = ""
@@ -952,21 +1077,43 @@ class stzDeployment from stzObject
 	@bRan = 0     # did Run() actually execute? (a refused deploy never runs)
 	@bCommitted = 0  # ...and did it COMMIT, or only rehearse?
 
+	# Creates a deployment of a delivery plan, with a structured trace log that records everything it does.
+	#
+	#   poDelivery   the stzDelivery whose parts are to be deployed
+	#   returns      nothing; the object is built
+	#   see          SetTarget, Run
 	def init(poDelivery)
 		@oDelivery = poDelivery
 		@oLog = new stzLog("deployment")
 		@oLog.SetLevelQ(:trace)   # a deployment records everything it does
 
-	# the structured log of the deployment run -- queryable and renderable
-	# (oDep.Log().EntriesOfLevel(:error), oDep.Log().AsJson()). Populated by Run().
+	# Returns the structured log of the deployment, filled by Run.
+	#
+	#   returns    a stzLog
+	#   warning    entries carry a sequence number, a time, a level, a category and fields
+	#   see        Run
+	#@ aka  the structured log of the deployment run -- queryable and renderable (oDep.Log().EntriesOfLevel(:error), oDep.Log().AsJson()). Populated by Run().
 	def Log()
 		return @oLog
 
-	# bind a part to its target site. For many at once, use SetTargets.
+	# Binds a part of the solution to the site it will be stored on and launched from.
+	#
+	#   pcPart     the part's name, stored in lower case
+	#   poSite     the stzDeploymentSite that receives the part
+	#   returns    the deployment itself, so calls chain
+	#   warning    binding a part twice keeps both bindings, and SiteFor answers the first
+	#   see        SetTargets, Plan
+	#@ aka  bind a part to its target site. For many at once, use SetTargets.
 	def SetTarget(pcPart, poSite)
 		@aBindings + [ StzLower("" + pcPart), poSite ]
 		return This
 
+	# Binds many parts at once.
+	#
+	#   paList     a list of [ part, site ] pairs
+	#   returns    the deployment itself, so calls chain
+	#   warning    a value that is not a list changes nothing
+	#   see        SetTarget
 	def SetTargets(paList)
 		if isList(paList)
 			_n_ = len(paList)
@@ -976,8 +1123,15 @@ class stzDeployment from stzObject
 		ok
 		return This
 
-	# order the plan: pcPart runs AFTER pcDependsOn is verified (a plan-DAG edge).
-	# Simple deployments declare none; complex ones (a frontend after its backend) do.
+	# Orders the plan: a part is stored only after another part has been verified.
+	#
+	#   pcPart        the part that must wait
+	#   pcDependsOn   the part that must be verified first
+	#   returns       the deployment itself, so calls chain
+	#   warning       the edge appears in Steps as the first step of pcPart waiting on verify of
+	#                 pcDependsOn
+	#   see           Steps
+	#@ aka  order the plan: pcPart runs AFTER pcDependsOn is verified (a plan-DAG edge). Simple deployments declare none; complex ones (a frontend after its backend) do.
 	def RunAfter(pcPart, pcDependsOn)
 		@aAfter + [ StzLower("" + pcPart), StzLower("" + pcDependsOn) ]
 		return This
@@ -993,26 +1147,48 @@ class stzDeployment from stzObject
 		next
 		return _out_
 
-	# attach a REAL build output to ship for a part (the per-part stz_<part>.wasm, the
-	# app bundle, the native binary...). pcRelName is its name at the destination;
-	# pcPath is the built file on disk. Shipped byte-for-byte alongside the manifest.
+	# Attaches a real build output to ship with a part, under a name at the destination.
+	#
+	#   pcPart      the part that ships it
+	#   pcRelName   its name at the destination
+	#   pcPath      the built file on disk
+	#   returns     the deployment itself, so calls chain
+	#   warning     the file is not read here: a path that does not exist is recorded as given
+	#   see         ArtifactsAttached, AttachBundle
+	#@ aka  attach a REAL build output to ship for a part (the per-part stz_<part>.wasm, the app bundle, the native binary...). pcRelName is its name at the destination; pcPath is the built file on disk. Shipped byte-for-byte alongside the manifest.
 	def Artifact(pcPart, pcRelName, pcPath)
 		@aArtifacts + [ StzLower("" + pcPart), "" + pcRelName, "" + pcPath ]
 		return This
 
+	# Returns the attached artifacts as [ part, name, path ] rows.
+	#
+	#   returns    a list of lists
+	#   see        Artifact
 	def ArtifactsAttached()
 		return @aArtifacts
 
-	# wire an emulator's built bundle DIRECTORY straight in as a part's production
-	# artifact -- the SAME tree you emulated becomes what ships. Accepts a stzEmulator
-	# (built on demand) or a bundle directory path; the bundle lands under the
-	# solution name.
+	# Attaches a whole emulator bundle folder as a part's production artifact, so the tree that was emulated is what ships.
+	#
+	#   pcPart     the part that ships it
+	#   pBundle    a stzEmulator, which is built on demand, or the folder path of a built bundle
+	#   returns    the deployment itself, so calls chain
+	#   note       with a folder path it only records the folder; with an emulator it writes the
+	#              bundle
+	#   warning    the bundle is shipped under the delivery's name
+	#   see        AttachSlice, Artifact
+	#@ aka  wire an emulator's built bundle DIRECTORY straight in as a part's production artifact -- the SAME tree you emulated becomes what ships. Accepts a stzEmulator (built on demand) or a bundle directory path; the bundle lands under the solution name.
 	def AttachBundle(pcPart, pBundle)
 		return This.Artifact(pcPart, @oDelivery.Name(), This._BundleDirOf(pBundle))
 
-	# ship a part's OWN slice from an emulator bundle -- its app (as index.html), its
-	# engine subset (stz_<part>.wasm), and the bridge (stz.js) -- NOT the whole
-	# mission-control. A frontend part deploys only what it needs to run.
+	# Attaches only a part's own slice of a bundle: its app as index.html, its engine subset and the bridge, those that exist.
+	#
+	#   pcPart     the part whose slice is shipped
+	#   pBundle    a stzEmulator or the folder path of a built bundle
+	#   returns    the deployment itself, so calls chain
+	#   warning    files that are missing are skipped silently: a folder with no app_<part>.html
+	#              attaches nothing
+	#   see        AttachBundle
+	#@ aka  ship a part's OWN slice from an emulator bundle -- its app (as index.html), its engine subset (stz_<part>.wasm), and the bridge (stz.js) -- NOT the whole mission-control. A frontend part deploys only what it needs to run.
 	def AttachSlice(pcPart, pBundle)
 		_dir_ = This._BundleDirOf(pBundle)
 		_app_ = _dir_ + "/app_" + pcPart + ".html"
@@ -1038,16 +1214,36 @@ class stzDeployment from stzObject
 		ok
 		return "" + pBundle
 
+	# Sets the actor under whose authority the deployment acts; only an effectful actor commits.
+	#
+	#   poActor    a stzSystemActor, such as a human or a language-model actor
+	#   returns    the deployment itself, so calls chain
+	#   warning    without an actor, or with a language-model actor, every action is a rehearsal
+	#              that touches nothing
+	#   see        MayCommit, Run
 	def SetActor(poActor)
 		@oActor = poActor
 		return This
 
+	# Returns the part-to-site bindings as [ part, site ] rows.
+	#
+	#   returns    a list of lists
+	#   see        SetTarget
 	def Bindings()
 		return @aBindings
 
+	# Returns how many bindings there are.
+	#
+	#   returns    a number
+	#   see        Bindings
 	def NumberOfBindings()
 		return len(@aBindings)
 
+	# Returns the site bound to a part; an empty text when the part is unbound.
+	#
+	#   pcPart     the part's name, matched without regard to case
+	#   returns    a stzDeploymentSite, or an empty text
+	#   see        SetTarget, Plan
 	def SiteFor(pcPart)
 		_c_ = StzLower("" + pcPart)
 		_n_ = len(@aBindings)
@@ -1058,16 +1254,24 @@ class stzDeployment from stzObject
 		next
 		return ""
 
-	# the governance gate: may this deployment cross to reality?
+	# TRUE if the actor is effectful, so that Store, Launch and Run would really act.
+	#
+	#   returns    TRUE or FALSE
+	#   warning    FALSE without an actor
+	#   see        SetActor
+	#@ aka  the governance gate: may this deployment cross to reality?
 	def MayCommit()
 		if @oActor = ""
 			return 0
 		ok
 		return @oActor.Can("effectful")
 
-	  #-- the deployment plan (rehearsal) --------------------
-
-	# each part -> [ part, kind, target, siteName, siteKind, protocol ]
+	# Returns each part of the delivery with its binding: [ part, kind, target, site name, site kind, protocol ].
+	#
+	#   returns    a list of lists
+	#   warning    an unbound part shows (unbound) for its site
+	#   see        Steps, Explain
+	#@ aka  -- the deployment plan (rehearsal) --------------------
 	def Plan()
 		_oPlan_ = @oDelivery.Plan()
 		_aParts_ = _oPlan_.Parts()
@@ -1084,6 +1288,11 @@ class stzDeployment from stzObject
 		next
 		return _out_
 
+	# Returns the rehearsal as lines of text: the actor, each part with its site, reach and storage, the host feasibility and the ordered steps.
+	#
+	#   returns    a list of strings
+	#   warning    pure reading: nothing runs
+	#   see        Show, Plan
 	def Explain()
 		_c_ = "Deployment of '" + @oDelivery.Name() + "' -- from definition to launch (rehearsal)" + nl
 		_c_ += "==============================================================================" + nl
@@ -1138,6 +1347,10 @@ class stzDeployment from stzObject
 		_c_ += "  Governed: only an effectful actor commits." + nl
 		return StzSplit(_c_, nl)   # a list of lines -- caller formats; Show() prints
 
+	# Prints the lines that Explain returns.
+	#
+	#   returns    nothing; it prints
+	#   see        Explain
 	def Show()
 		_aLines_ = This.Explain()
 		_n_ = len(_aLines_)
@@ -1145,10 +1358,15 @@ class stzDeployment from stzObject
 			? _aLines_[_i_]
 		next
 
-	  #-- perform (governed) ---------------------------------
-
-	# store each part's deploy artifact on its bound site.
-	# returns [ committed(0/1), [ [part, site, outcome], ... ] ]
+	# Stores each bound part's artifact on its site when the actor may commit, else only rehearses.
+	#
+	#   returns    a list [ committed, rows ], each row [ part, site, outcome ] with stored, store-
+	#              failed or rehearsed (not committed)
+	#   warning    effectful with an effectful actor: it writes into the site's storage; it was run
+	#              here only without an actor and with a language-model actor, where every row read
+	#              rehearsed (not committed) and nothing was written
+	#   see        Launch, Run
+	#@ aka  -- perform (governed) ---------------------------------
 	def Store()
 		_bMay_ = This.MayCommit()
 		_recs_ = []
@@ -1168,6 +1386,14 @@ class stzDeployment from stzObject
 		next
 		return [ This._CommitFlag(_bMay_), _recs_ ]
 
+	# Launches each bound part on its site when the actor may commit, else only rehearses.
+	#
+	#   returns    a list [ committed, rows ], each row [ part, site, outcome ] with launched,
+	#              launch-failed or rehearsed (not committed)
+	#   warning    effectful with an effectful actor: it starts the part on its site; it was run
+	#              here only without an actor and with a language-model actor, where nothing was
+	#              launched
+	#   see        Store, Run
 	def Launch()
 		_bMay_ = This.MayCommit()
 		_recs_ = []
@@ -1187,6 +1413,13 @@ class stzDeployment from stzObject
 		next
 		return [ This._CommitFlag(_bMay_), _recs_ ]
 
+	# Returns the state of each bound site as [ part, site, state ] rows.
+	#
+	#   returns    a list of lists
+	#   warning    asks each site for its state: a local site reads its folder, a git site runs git,
+	#              any other kind answers absent; it was run on local sites whose folder does not
+	#              exist, where every state read absent
+	#   see        Run
 	def Status()
 		_recs_ = []
 		_n_ = len(@aBindings)
@@ -1195,12 +1428,13 @@ class stzDeployment from stzObject
 		next
 		return _recs_
 
-	  #-- the plan of steps (order, gates, rollback) ---------
-
-	# the deployment PLAN as ordered steps. A simple deployment is the default chain
-	# per part -- provision? -> store -> launch -> verify; After() edges add cross-part
-	# ordering (a frontend after its backend). Returns [ [name, op, part, siteName,
-	# [needs]], ... ], topologically ordered so every dependency precedes its dependants.
+	# Returns the ordered plan as [ name, op, part, site, needs ] rows: provision if scriptable, then store, launch and verify.
+	#
+	#   returns    a list of lists
+	#   warning    the order is topological; a cycle of RunAfter edges is appended unordered instead
+	#              of refused
+	#   see        Run, RunAfter
+	#@ aka  -- the plan of steps (order, gates, rollback) ---------
 	def Steps()
 		_raw_ = []
 		_n_ = len(@aBindings)
@@ -1278,20 +1512,34 @@ class stzDeployment from stzObject
 		end
 		return _ordered_
 
-	# EXECUTE the ordered plan (governed). Each step runs its op; the verify step is a
-	# GATE (the site must be launched). On any failure, the completed store/launch steps
-	# are ROLLED BACK in reverse -- the deployment is transactional. Returns
-	# [ committed(0/1), [ [stepName, outcome], ... ] ]. No effectful actor -> rehearse.
-	# Did Run() execute at all? A deployment REFUSED upstream -- by the service
-	# gate in stzDelivery, say -- comes back untouched, and "nothing happened" is
-	# then assertable without reading the log.
+	# TRUE if Run was called, whether it committed or only rehearsed.
+	#
+	#   returns    TRUE or FALSE
+	#   warning    a deployment refused upstream stays FALSE
+	#   see        Run, WasCommitted
+	#@ aka  EXECUTE the ordered plan (governed). Each step runs its op; the verify step is a GATE (the site must be launched). On any failure, the completed store/launch steps are ROLLED BACK in reverse -- the deployment is transactional. Returns [ committed(0/1), [ [stepName, outcome], ... ] ]. No effectful actor -> rehearse. Did Run() execute at all? A deployment REFUSED upstream -- by the service gate in s
 	def WasRun()
 		return @bRan
 
-	# Did it commit, or only rehearse? Rehearsed steps touch nothing.
+	# TRUE if Run really committed, which is not so for a rehearsal or a failed and rolled back run.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Run, WasRun
+	#@ aka  Did it commit, or only rehearse? Rehearsed steps touch nothing.
 	def WasCommitted()
 		return @bCommitted
 
+	# Executes the ordered plan under the actor's authority, with a verify gate and rollback on failure, and returns each step's outcome.
+	#
+	#   returns    a list [ committed, rows ], each row [ step, outcome ] with done, rehearsed,
+	#              FAILED or skipped
+	#   note       a failed step makes the later steps skipped
+	#   warning    effectful with an effectful actor: it stores, launches and may provision hosts
+	#              and roll back; it was run here only without an actor and with a language-model
+	#              actor, where every step read rehearsed and nothing happened; a part whose
+	#              requirement declares a GPU is checked before its first step, and on a local site
+	#              that probes this machine's GPU, which was not exercised
+	#   see        Steps, Store, Launch
 	def Run()
 		@bRan = 1
 		_bMay_ = This.MayCommit()
@@ -1435,12 +1683,13 @@ class stzDeployment from stzObject
 		next
 		return _s_
 
-	  #-- feasibility (host resources) -----------------------
-
-	# Per-site admission check: sum the requirements of the parts bound to each site
-	# and test the site's capacity (or its ability to PROVISION one). Returns
-	# [ [siteName, requiredText, capacityText, fits(0/1), note], ... ]. This is the
-	# same "does the host have room?" question a K8s scheduler / CI runner answers.
+	# Returns, per site, whether it can host the parts bound to it: [ site, required, capacity, fits, note ] rows.
+	#
+	#   returns    a list of lists, fits being 1 or 0
+	#   warning    the requirements of the parts on one site are added up; a site with no declared
+	#              capacity is assumed to fit, and a scriptable site is assumed to be provisioned
+	#   see        Feasible, Explain
+	#@ aka  -- feasibility (host resources) -----------------------
 	def Feasibility()
 		_out_ = []
 		_seen_ = []
@@ -1479,7 +1728,12 @@ class stzDeployment from stzObject
 		ok
 		return [ _sn_, _reqT_, "(undeclared)", 1, "capacity not declared -- assumed ok" ]
 
-	# TRUE only if every site can host its parts (fits or can provision).
+	# TRUE if every site can host its parts, by its capacity or by being provisioned.
+	#
+	#   returns    TRUE or FALSE
+	#   warning    Run does not check it: a deployment with a shortfall still rehearses
+	#   see        Feasibility
+	#@ aka  TRUE only if every site can host its parts (fits or can provision).
 	def Feasible()
 		_f_ = This.Feasibility()
 		_n_ = len(_f_)

@@ -1,0 +1,14 @@
+{
+ "brief": "Reads an optimization problem said as a sentence and builds the same stzOptimModel a hand-written model would give.",
+ "detail": "The vocabulary is small and closed: maximize or minimize an expression, where a variable is between two numbers, at least or at most one, a whole number or binary, and keeping an expression under, over or at a number. An ambiguity is refused with a finding rather than guessed. The sentence calls the model's own methods, so there is one model class and one expression compiler. StzOptimNaturally(text) reads and builds in one call.",
+ "receiver": "o1 = new stzOptimSentence(\"maximize 3*x + 2*y\" + char(10) + \"where x is between 0 and 40\" + char(10) + \"and y is a whole number at least 0\" + char(10) + \"keeping x + y under 50\")",
+ "example": [
+  "? o1.IsValid()",
+  "#--> 1",
+  "? o1.ToModel().VarNames()[2]",
+  "#--> y",
+  "? o1.ToModel().ConstraintAt(1)[5]",
+  "#--> x + y <= 50"
+ ],
+ "see": ["stzOptimModel", "stzOptimFile", "StzOptimNaturally"]
+}

@@ -1,0 +1,24 @@
+{
+ "brief": "Gives an agent a safe world to rehearse file changes in: writes land in memory, and only an update plan leads toward the disk.",
+ "detail": "A workbench is an in-memory virtual file system kept in a process-wide table and reached through faces that carry only its id, so copies of a face all reach the one live twin. The rehearsal verbs record operations, and the inspection methods read the twin and never the disk. ReadThrough answers from the twin first, an empty text for a path the rehearsal deleted, and the real disk otherwise. The only export toward reality is GenerateUpdatePlan, which a committing actor executes under the plan's scope, capability and governance gates. Open one with StzOpenAgentWorkbench, or give it to an agent with GiveWorkbench; the owner closes it with StzCloseAgentWorkbench.",
+ "receiver": "o1 = StzAgentWorkbenchQ(StzOpenAgentWorkbench())",
+ "example": [
+  "o1.SetActor(\"kitchen-bot\")",
+  "o1.CreateFile(\"/shop/orders.txt\", \"milk\")",
+  "o1.WriteFile(\"/shop/orders.txt\", \"milk, eggs\")",
+  "? o1.ContentOf(\"/shop/orders.txt\")",
+  "#--> milk, eggs",
+  "? o1.NumberOfOperations()",
+  "#--> 2",
+  "o1.DeleteFile(\"/shop/orders.txt\")",
+  "? len(o1.ReadThrough(\"/shop/orders.txt\"))",
+  "#--> 0",
+  "? o1.WasDeleted(\"/shop/orders.txt\")",
+  "#--> 1"
+ ],
+ "see": [
+  "stzPIAgent",
+  "stzVirtualFileSystem",
+  "stzUpdatePlan"
+ ]
+}

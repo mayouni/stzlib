@@ -1,0 +1,14 @@
+{
+ "brief": "Creates, extends, lists and unpacks a zip archive named by a path.",
+ "detail": "CreateFrom builds an archive from a list of files and AddFile and AddFiles extend an existing one; each file is stored under the path as given, so give relative paths. ListContents, FileCount and Contains read the entry names, and ExtractTo, ExtractHere and ExtractToNewFolder unpack them. CopyTo, MoveTo and Delete act on the archive file itself. Three things do not work today and are warned on their methods: AddString, CreateFromDirectory and a correct Size. Extracting an archive whose entry names are absolute paths ends the Ring process.",
+ "receiver": "o1 = new stzZipFile(\"demo_not_made.zip\")",
+ "example": [
+  "? o1.Exists()",
+  "#--> 0",
+  "? o1.FileCount()",
+  "#--> 0",
+  "? o1.IsEmpty()",
+  "#--> 1"
+ ],
+ "see": ["ZipFile", "stzFile", "stzFolder"]
+}

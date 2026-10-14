@@ -102,6 +102,24 @@ func _StzWebManifest(pcName, paFiles, pcMain)
  #  STZWEBBUNDLE  #
 #===============#
 
+# Assembles a deployable web folder from wasm modules: the modules, the stz.js bridge, an HTML shell and a manifest.
+#
+# The web is a composite target, not one binary. stzBuilder compiles the wasm parts; stzWebBundle
+# copies them into one folder together with the bridge that lets JavaScript own the linear memory
+# and call the module's exports, a page that loads the first module and calls its stz_main, and
+# bundle.json. Add modules by path (or hand over a stzBuilder, which is built first), set the title
+# and the output folder, then Build. The default folder is <name>_web in the current folder.
+#
+#   receiver   o1 = new stzWebBundle("app") o1.SetTitle("My App") o1.SetOutDir("web_demo_unused")
+#   example    ? o1.IsBuilt()
+#              #--> 0
+#              ? o1.ShellPath()
+#              #--> web_demo_unused/index.html
+#              ? o1.ManifestPath()
+#              #--> web_demo_unused/bundle.json
+#              ? o1.NumberOfParts()
+#              #--> 0
+#   see        stzBuilder, stzEmulator, stzDeployment
 class stzWebBundle from stzObject
 
 	@cName = ""
@@ -111,10 +129,21 @@ class stzWebBundle from stzObject
 	@aFiles = []
 	@bBuilt = 0
 
+	# Creates a web bundle with a name, which is also its page title until SetTitle changes it.
+	#
+	#   pcName     the bundle's name
+	#   returns    nothing; the object is built
+	#   see        AddWasm, Build
 	def init(pcName)
 		@cName = "" + pcName
 		@cTitle = "" + pcName
 
+	# Sets the title of the generated HTML page.
+	#
+	#   pcTitle    the title text
+	#   returns    nothing; use SetTitleQ to chain
+	#   warning    the title is placed in the page as written, without escaping
+	#   see        Build
 	def SetTitle(pcTitle)
 		This.SetTitleQ(pcTitle)
 
@@ -122,6 +151,12 @@ class stzWebBundle from stzObject
 		@cTitle = "" + pcTitle
 		return This
 
+	# Chooses the folder the bundle is assembled in, in place of the default <name>_web in the current folder.
+	#
+	#   pcDir      the folder to assemble in, created by Build if missing
+	#   returns    nothing; use SetOutDirQ to chain
+	#   warning    Build writes there: point it at a scratch folder
+	#   see        BundleDir, Build
 	def SetOutDir(pcDir)
 		This.SetOutDirQ(pcDir)
 
@@ -129,7 +164,16 @@ class stzWebBundle from stzObject
 		@cOutDir = "" + pcDir
 		return This
 
-	# Add a wasm part -- a prebuilt .wasm path, or a stzBuilder (which is built).
+	# Adds a wasm module to the bundle, by the path of a prebuilt file or by a stzBuilder that is built on the spot.
+	#
+	#   pcName     the module's name, which becomes <name>.wasm in the bundle
+	#   pWasm      the path of a prebuilt .wasm file, or a stzBuilder
+	#   returns    nothing; use AddWasmQ to chain
+	#   note       run here with the path of a prebuilt stand-in file only
+	#   warning    the first module added is the one the page runs; given a stzBuilder it runs that
+	#              builder's compiler
+	#   see        Build, NumberOfParts
+	#@ aka  Add a wasm part -- a prebuilt .wasm path, or a stzBuilder (which is built).
 	def AddWasm(pcName, pWasm)
 		This.AddWasmQ(pcName, pWasm)
 
@@ -144,12 +188,24 @@ class stzWebBundle from stzObject
 		@aParts + [ "" + pcName, _cPath_ ]
 		return This
 
+	# Returns the folder the bundle is or will be assembled in.
+	#
+	#   returns    a text
+	#   see        SetOutDir, ShellPath
 	def BundleDir()
 		if @cOutDir != ""
 			return @cOutDir
 		ok
 		return @cName + "_web"
 
+	# Copies the wasm modules into the bundle folder and writes the bridge stz.js, the page index.html and the manifest bundle.json.
+	#
+	#   returns    the bundle itself, so calls chain
+	#   note       the manifest lists the files except bundle.json itself
+	#   warning    writes files and replaces those of the same names; a wasm path that does not
+	#              exist raises error R35; a bundle with no module is still written, with a page
+	#              that loads nothing
+	#   see        Files, IsBuilt, BundleDir
 	def Build()
 		_cDir_ = This.BundleDir()
 		StzEngineDirCreatePath(_cDir_)
@@ -184,24 +240,53 @@ class stzWebBundle from stzObject
 			This.Build()
 			return This
 
+	# Returns the files the last Build wrote, relative to the bundle folder, in the order written.
+	#
+	#   returns    a list of texts
+	#   warning    empty before the first Build
+	#   see        Build
 	def Files()
 		return @aFiles
 
+	# Returns how many wasm modules were added.
+	#
+	#   returns    a number
+	#   see        AddWasm
 	def NumberOfParts()
 		return len(@aParts)
 
+	# TRUE if Build has run on this bundle.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Build, Files
 	def IsBuilt()
 		return @bBuilt
 
+	# Returns the path of the bundle's page, index.html.
+	#
+	#   returns    a text
+	#   see        BundleDir, BridgePath
 	def ShellPath()
 		return This.BundleDir() + "/index.html"
 
+	# Returns the path of the bridge file stz.js in the bundle.
+	#
+	#   returns    a text
+	#   see        ShellPath, ManifestPath
 	def BridgePath()
 		return This.BundleDir() + "/stz.js"
 
+	# Returns the path of the manifest bundle.json in the bundle.
+	#
+	#   returns    a text
+	#   see        ShellPath, BridgePath
 	def ManifestPath()
 		return This.BundleDir() + "/bundle.json"
 
+	# Prints the bundle's name, number of modules and folder, and, once built, its files.
+	#
+	#   returns    nothing; it prints
+	#   see        Files, Build
 	def Show()
 		? "WebBundle '" + @cName + "' (" + This.NumberOfParts() + " wasm part(s))"
 		? "  dir:   " + This.BundleDir()

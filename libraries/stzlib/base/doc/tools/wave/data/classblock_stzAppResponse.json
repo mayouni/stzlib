@@ -1,0 +1,14 @@
+{
+ "brief": "Holds one HTTP response that a handler fills and the server renders to bytes; it does no socket work itself.",
+ "detail": "Status, Header, Text, Html and Json compose it. Send buffers the body once and marks it sent; HttpBytes renders the HTTP/1.1 wire form with CRLF line endings and a Content-Length counted in bytes. Json uses a simple serializer in which a flat [ key, value, ... ] list is an object; see its warning for the shapes it gets wrong.",
+ "receiver": "o1 = new stzAppResponse(\"\")",
+ "example": [
+  "o1.Status(201, \"Created\")",
+  "o1.Json([ \"id\", 7, \"name\", \"Ana\" ])",
+  "? o1.Body()",
+  "#--> {\"id\":7,\"name\":\"Ana\"}",
+  "? o1.StatusCode()",
+  "#--> 201"
+ ],
+ "see": ["stzAppRequest", "stzAppRouter", "stzAppServer"]
+}

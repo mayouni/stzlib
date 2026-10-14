@@ -1,0 +1,17 @@
+init | Creates an empty resource spec: no memory, no processors, no disk and no GPU need. | nothing; the object is built | | SetMemory, IsEmpty
+SetMemory | Sets the memory in megabytes, as a need of a part or as the capacity of a host. | nothing; use SetMemoryQ to chain | pnMB=the memory in megabytes | MemoryMB, Meets | the value is not checked: a text is stored as given
+SetCompute | Sets the number of virtual processors. | nothing; use SetComputeQ to chain | pnVCPU=the number of virtual processors | ComputeVCPU, Meets | the value is not checked
+SetStorage | Sets the disk space in gigabytes. | nothing; use SetStorageQ to chain | pnGB=the disk space in gigabytes | StorageGB, Meets | the value is not checked
+SetGpuRequired | Declares that the part must have a GPU, so a deployment onto a host without one is refused. | nothing; use SetGpuRequiredQ to chain | | SetGpuOptional, Meets | this is the requirement role: it says what the part needs, not what a host has
+SetGpuOptional | Declares that the part uses a GPU when there is one and falls back to the CPU otherwise. | nothing; use SetGpuOptionalQ to chain | | SetGpuRequired, GpuNeed | requirement role, replacing an earlier required or optional
+SetGpuPresent | Declares whether this host has a GPU, which is the capacity role. | nothing; use SetGpuPresentQ to chain | bFlag=1 if the host has a GPU, 0 if not | HasGpu, Meets | the flag is kept as given, so a text is not turned into 1 or 0
+GpuNeed | Returns the GPU need of a part: required, optional, or an empty text for none. | a text | | SetGpuRequired, SetGpuOptional
+HasGpu | Returns whether the host was declared to have a GPU. | the flag as set; 0 by default | | SetGpuPresent, Meets
+MemoryMB | Returns the memory in megabytes; 0 by default. | a number | | SetMemory
+ComputeVCPU | Returns the number of virtual processors; 0 by default. | a number | | SetCompute
+StorageGB | Returns the disk space in gigabytes; 0 by default. | a number | | SetStorage
+IsEmpty | TRUE if no memory, processor, disk or GPU need is set. | TRUE or FALSE | | Text
+Meets | TRUE if this capacity covers the given requirement on every dimension. | TRUE or FALSE | poReq=the requirement to cover, another stzResourceSpec | Plus, SetGpuPresent | a required GPU is met only when this spec was declared with a GPU present; an optional GPU never blocks
+Plus | Returns a new spec that adds the memory, processors and disk of two specs, as for several parts on one host. | a new stzResourceSpec | poOther=the spec to add | Meets | the merged GPU need is the stronger of the two; the GPU presence of the result is not carried over; neither original changes
+Text | Returns the spec as one line such as 2048MB / 2 vCPU / 20GB / gpu required. | a text | | Show | the line ends with +gpu when a GPU is present
+Show | Prints the line that Text gives. | nothing; it prints | | Text

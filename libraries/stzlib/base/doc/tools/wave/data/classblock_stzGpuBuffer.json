@@ -1,0 +1,12 @@
+{
+ "brief": "A vector that lives on the GPU, so that kernels can be chained on it with no transfer until it is downloaded once.",
+ "detail": "Obtain one from stzGpu.UploadQ, chain single-input kernels with ApplyQ, read the result with Download, and call Free when done. The object holds two numbers, the generation-keyed engine id and the element count, so a copy shares the same device buffer and a stale id after Free or eviction is reported as stale and never answers with another buffer's data. Every method except init, Id_, Count and IsAlive needs the GPU, which sleeps on this machine, so they were read from the code and not run.",
+ "receiver": "o1 = new stzGpuBuffer([ 0, 5 ])",
+ "example": [
+  "? o1.Count()",
+  "#--> 5",
+  "? o1.IsAlive()",
+  "#--> 0"
+ ],
+ "see": ["stzGpu", "stzKernelMaker"]
+}

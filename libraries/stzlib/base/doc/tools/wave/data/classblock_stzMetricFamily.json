@@ -1,0 +1,26 @@
+{
+ "brief": "Holds one metric name over declared labels, with one child metric for every combination of label values and a bound on how many.",
+ "detail": "A family such as http.checkout.ms with labels route and method gives each combination its own child with its own percentiles: Child([\"/menu\", \"GET\"]).Record(12.5). The registry of children lives in the engine, so a child created after the server copied its monitor is reached by every copy. Cardinality is bounded by design: when the family is full, new label sets are routed to a reserved overflow child whose labels are all _overflow, so data is never dropped and a growing overflow bucket shows in the exposition. The overflow child takes one of the slots from birth, so HasOverflowed answers 1 for a new family. A family has no single value, mean or percentile: ask a child. PromText and OtelMetricJson write one metric with every child.",
+ "receiver": "o1 = StzMetricFamily(\"http.checkout.ms\", :Timer, [ \"route\", \"method\" ])\no1.Child([ \"/menu\", \"GET\" ]).Record(10)\no1.Child([ \"/menu\", \"GET\" ]).Record(30)\no1.Child([ \"/pay\", \"POST\" ]).Record(48)",
+ "example": [
+  "? o1.ChildCount()",
+  "#--> 3",
+  "? o1.Child([ \"/menu\", \"GET\" ]).Count()",
+  "#--> 2",
+  "? o1.Child([ \"/pay\", \"POST\" ]).Value()",
+  "#--> 48",
+  "? o1.Keys()[2]",
+  "#--> /menu|GET",
+  "? o1.PromName()",
+  "#--> http_checkout_ms",
+  "? o1.Kind()",
+  "#--> timer",
+  "? left(o1.PromText(), 6)",
+  "#--> # TYPE"
+ ],
+ "see": [
+  "stzMetric",
+  "stzSla",
+  "stzPerfMonitor"
+ ]
+}

@@ -1,0 +1,28 @@
+{
+ "brief": "Holds a spoken syllable on a note: the speech voice's own timbre with its pitch replaced by the engine's period-synchronous retuner.",
+ "detail": "SAPI says the syllable slowly into memory and the engine's PSOLA lays its glottal periods back at the note's period, so the timbre is the speech voice's and the pitch is the engine's, held. Large shifts from the voice's own pitch, about 166 hertz for Zira, sound processed. Syllable holds one syllable, LineQ lays syllables on notes a beat each, and Sing does the same at 90 beats a minute when StzSoundSingingVerdict records the retuned voice as SINGING, which it does, ruled by the Principal on 2026-09-27. Everything is rendered to memory and checked by frame count, sample rate and peak; no audio device is opened. This run was not heard by a person (UNPERCEIVED).",
+ "receiver": "o1 = StzSoundRetunedVoiceQ()\noS = o1.Syllable(\"la\", \"A3\", 1.2)",
+ "example": [
+  "? o1.IsUsable()",
+  "#--> 1",
+  "? oS.SampleRate()",
+  "#--> 48000",
+  "? oS.Frames() > 57600 and oS.Frames() < 66000",
+  "#--> 1",
+  "? oS.Peak() > 0.1 and oS.Peak() <= 1",
+  "#--> 1",
+  "? o1.Marks() > 50",
+  "#--> 1",
+  "oL = o1.LineQ(\"la la la\", \"c4 e4 g4\", 90)",
+  "? oL.Frames()",
+  "#--> 124800",
+  "oBad = o1.Syllable(\"la\", \"Zzz9\", 1)",
+  "? o1.LastError()",
+  "#--> a pitch is a note name (A3, C#4) or Hz"
+ ],
+ "see": [
+  "stzSoundFormantVoice",
+  "stzVoice",
+  "stzSoundScore"
+ ]
+}

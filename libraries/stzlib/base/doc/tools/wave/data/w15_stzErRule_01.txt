@@ -1,0 +1,1 @@
+init | Builds a schema rule with the given name, in the er domain. | nothing; the object is built | pcName=the name of the rule, such as entity_has_key | | | a stzGraphRule whose domain is set to er; the four built-in schema rules are made this way

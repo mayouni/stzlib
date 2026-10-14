@@ -1,0 +1,15 @@
+{
+ "brief": "Holds a list of hash lists, such as the rows of a small record set, and wraps or prints them.",
+ "detail": "Build one with new stzListOfHashLists(aList) or StzListOfHashListsQ(aList); it is a stzList, so every list method is available, and init refuses anything but a list of hash lists or an empty list. ToListOfStzHashLists wraps each row in a stzHashList to ask its keys and values, and Show prints the rows. ToSetOfHashLists is meant to remove repeated rows and does not today.",
+ "receiver": "o1 = new stzListOfHashLists([ [ :name = \"Ali\", :age = 30 ], [ :name = \"שלום\", :age = 5 ] ])",
+ "example": [
+  "? o1.NumberOfItems()",
+  "#--> 2",
+  "? @@( o1.ToListOfStzHashLists()[2].Keys() )",
+  "#--> [ \"name\", \"age\" ]"
+ ],
+ "see": [
+  "stzList",
+  "stzHashList"
+ ]
+}

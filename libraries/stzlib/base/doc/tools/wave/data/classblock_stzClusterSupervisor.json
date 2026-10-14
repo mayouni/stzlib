@@ -1,0 +1,12 @@
+{
+ "brief": "Keeps a cluster of worker processes healthy and sized to its load: restarts dead workers, scales up under high load, drains under low.",
+ "detail": "Set a Policy (a minimum and a maximum per tag), the water marks, and report the demand with ReportLoad or FeedLoadFrom. Decide is a pure function from fleet metrics to a list of actions and touches nothing; Supervise applies those actions to the live cluster and Cycle is Supervise as a tickable job for an agent host. Dead workers are restarted before any scaling; scaling stops at the policy bounds. Only Decide is safe to call on its own; Supervise and Cycle start and stop processes.",
+ "receiver": "o1 = new stzClusterSupervisor(\"\")\no1.Policy(\"nlp\", 1, 4)\no1.SetWaterMarks(0.25, 0.75)\no1.ReportLoad(\"nlp\", 0.9)",
+ "example": [
+  "? @@( o1.Decide([ [ :tag = \"nlp\", :ready = 2, :dead = 1 ] ]) )",
+  "#--> [ [ \"restart\", \"nlp\" ], [ \"scaleup\", \"nlp\" ] ]",
+  "? o1.LoadOf(\"nlp\")",
+  "#--> 0.90"
+ ],
+ "see": ["stzClusterTelemetry", "stzNodeSupervisor", "stzAppCluster"]
+}

@@ -494,6 +494,24 @@ func _StzEmuJs(pcS)
  #  STZEMULATOR   #
 #===============#
 
+# Builds a static web bundle that emulates a delivery plan, each part of the solution rendering its own app, with no server needed.
+#
+# From a stzDelivery it writes index.html, the web assets, one app page per mobile part, the plan-
+# derived engine map, the app data of a stzAppTopology and a manifest. With the engine on, each
+# mobile part also gets its own wasm subset of the Softanza engine, built with Zig and shared
+# between parts that need the same subset; CompileEngine(0) skips that for a fast, toolchain-free
+# build. The bundle folder is the same tree that a deployment can ship with AttachBundle. Build
+# writes files: point SetOutDir at a scratch folder.
+#
+#   receiver   oD = new stzDelivery("bistro") oD.AddBackend(:api, :LinuxServer) o1 = new
+#              stzEmulator(oD) o1.SetOutDir("emu_demo_unused")
+#   example    ? o1.IsBuilt()
+#              #--> 0
+#              ? o1.BundleDir()
+#              #--> emu_demo_unused
+#              ? o1.ShellPath()
+#              #--> emu_demo_unused/index.html
+#   see        stzDeployment, stzDelivery, stzAppTopology
 class stzEmulator from stzObject
 
 	@oDelivery = ""
@@ -502,9 +520,20 @@ class stzEmulator from stzObject
 	@bBuilt = 0
 	@bEngine = 1   # compile each part's stz.wasm subset (off = wiring only, fast)
 
+	# Creates an emulator for a delivery plan: it will build a static web bundle in which each part of the solution renders its own app.
+	#
+	#   poDelivery   the stzDelivery whose plan is emulated
+	#   returns      nothing; the object is built
+	#   see          Build, SetOutDir
 	def init(poDelivery)
 		@oDelivery = poDelivery
 
+	# Chooses the folder in which the bundle is built, in place of the default <delivery name>_emulator in the current folder.
+	#
+	#   pcDir      the folder to build in, created by Build if missing
+	#   returns    nothing; use SetOutDirQ to chain
+	#   warning    build into a scratch folder: Build writes there and replaces the files it finds
+	#   see        BundleDir, Build
 	def SetOutDir(pcDir)
 		This.SetOutDirQ(pcDir)
 
@@ -512,9 +541,15 @@ class stzEmulator from stzObject
 		@cOutDir = "" + pcDir
 		return This
 
-	# Toggle the per-part engine compilation. Default ON (device consoles run the
-	# real engine). CompileEngineQ(FALSE) emits the plan map + graceful fallback without
-	# invoking Zig -- for fast, toolchain-free generation (and guards).
+	# Turns on or off the compilation of each mobile part's own engine subset, which invokes the Zig toolchain.
+	#
+	#   pbOn       1 to compile each part's stz_<part>.wasm, 0 for wiring only
+	#   returns    nothing; use CompileEngineQ to chain
+	#   note       Build was run here only with 0
+	#   warning    on by default; with 0 Build is fast and needs no toolchain, and the page falls
+	#              back gracefully without the wasm files
+	#   see        Build
+	#@ aka  Toggle the per-part engine compilation. Default ON (device consoles run the real engine). CompileEngineQ(FALSE) emits the plan map + graceful fallback without invoking Zig -- for fast, toolchain-free generation (and guards).
 	def CompileEngine(pbOn)
 		This.CompileEngineQ(pbOn)
 
@@ -522,12 +557,26 @@ class stzEmulator from stzObject
 		@bEngine = pbOn
 		return This
 
+	# Returns the folder the bundle is or will be built in.
+	#
+	#   returns    a text
+	#   see        SetOutDir, ShellPath
 	def BundleDir()
 		if @cOutDir != ""
 			return @cOutDir
 		ok
 		return @oDelivery.Name() + "_emulator"
 
+	# Writes the emulator bundle: index.html, the web assets, one app page per mobile part, the plan map, the app data and the manifest.
+	#
+	#   returns    the emulator itself, so calls chain
+	#   note       run here with the engine off and the folder in a scratch area; the engine-on path
+	#              was not run
+	#   warning    writes files into the bundle folder; with the engine on it also runs the Zig
+	#              build for each distinct engine subset and writes stz_<part>.wasm; raises an error
+	#              when the web assets are not found next to the library; the emulator stays a
+	#              static page set that needs no server
+	#   see        Files, IsBuilt, BundleDir
 	def Build()
 		_oPlan_ = @oDelivery.Plan()
 		_cDir_ = This.BundleDir()
@@ -614,11 +663,26 @@ class stzEmulator from stzObject
 			This.Build()
 			return This
 
+	# Returns the names of the files the last Build wrote, relative to the bundle folder, in the order written.
+	#
+	#   returns    a list of texts
+	#   warning    empty before the first Build; a wasm file appears only if it exists on disk
+	#   see        Build, BundleDir
 	def Files()
 		return @aFiles
 
+	# TRUE if Build has run on this emulator.
+	#
+	#   returns    TRUE or FALSE
+	#   warning    it is not reset if the bundle folder is deleted afterwards
+	#   see        Build, Files
 	def IsBuilt()
 		return @bBuilt
 
+	# Returns the path of the bundle's index.html, the page to open in a browser.
+	#
+	#   returns    a text
+	#   warning    the file exists only after Build
+	#   see        BundleDir, Build
 	def ShellPath()
 		return This.BundleDir() + "/index.html"

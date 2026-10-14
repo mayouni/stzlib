@@ -1,0 +1,11 @@
+{
+ "brief": "The doorway to the GPU plane: describe a computation with stzKernelMaker, hand it data, get data back, and calibrate where the GPU pays.",
+ "detail": "Run is data in, data out; UploadQ and ApplyOnQ keep vectors resident to chain kernels without transfers. A one-shot Run pays upload, dispatch and readback, and for elementwise work the CPU usually wins: the GPU pays in the resident form and in compute-dense work. The device opens lazily on the first call that needs it; on a machine with no GPU IsAvailable answers FALSE and the data paths raise a clear error, while kernel authoring needs no device. Calibrate, CalibrateShaped, the Foundry methods and Verify measure the machine and persist their findings in the calibration file that later sessions load. Wake lifts an idle laptop GPU out of its power state before a timing. Only FirstError, LastError and ClearErrors were run for this documentation: the GPU sleeps on this machine and was left alone, so every other method was read from the code.",
+ "receiver": "o1 = new stzGpu",
+ "example": [
+  "o1.ClearErrors()",
+  "? len(o1.FirstError())",
+  "#--> 0"
+ ],
+ "see": ["stzKernelMaker", "stzGpuBuffer"]
+}

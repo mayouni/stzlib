@@ -1,0 +1,16 @@
+init | Builds an agent with a name, an empty memory, a governance record and no skills. | nothing; the object is built | pcName=the agent's name, also the actor named in governance decisions | AddSkill, Cycle
+Name_ | Returns the name the agent was built with. | a text | | init
+MemoryQ | Returns the agent's memory, where the skills perceive and learn. | a stzAgentMemory | | stzAgentMemory
+GovernanceQ | Returns the agent's governance record: risks, permissions, authority and decisions. | a stzGovernance | | AddGovernedSkill, DecisionLog
+Trace | Returns what happened to each skill on every cycle so far, in order. | a list of hash lists [ :skill, :decision, :verified, :why ]; decision is skipped, refused or ran | | DecisionLog, Cycle | | the trace grows with every cycle and is never cleared
+Why | Returns the sentence that sums up the last Pursue. | a text; empty before the first Pursue | Pursue, Trace
+GiveWorkbench | Opens a rehearsal workbench for the agent, if it has none, so that its file writes land in memory. | nothing; use GiveWorkbenchQ to chain | | WorkbenchQ, GenerateUpdatePlan | | during Cycle the workbench is the ambient one, reached by a ring function through StzActiveWorkbenchQ; calling it again keeps the same workbench
+HasWorkbench | TRUE if the agent was given a workbench. | TRUE or FALSE | | GiveWorkbench, WorkbenchQ
+WorkbenchQ | Returns a face onto the agent's workbench. | a stzAgentWorkbench | | GiveWorkbench, HasWorkbench | raises an error naming the agent when it holds no workbench | the face reaches the one live workbench, so changes through it are the agent's own
+GenerateUpdatePlan | Returns the agent's rehearsed file changes as an update plan, its only export toward reality. | a stzUpdatePlan | | WorkbenchQ, GiveWorkbench | raises the no-workbench error when the agent holds none | the plan is executed by a committing actor, never by the agent
+AddSkill | Adds a skill that runs whenever its precondition holds, without asking governance. | nothing; use AddSkillQ to chain | poSkill=a stzAgentSkill | AddGovernedSkill, Cycle
+AddGovernedSkill | Adds a skill whose action must first pass the governance gate, which asks about the action by its lower-case name. | nothing; use AddGovernedSkillQ to chain | poSkill=a stzAgentSkill; pcAction=the governed action the skill performs | AddSkill, GovernanceQ | | the gate refuses an action with no declared risk tier, and each refusal is traced
+NumberOfSkills | Returns how many skills the agent holds. | a number | | AddSkill, AddGovernedSkill
+Cycle | Runs one pass over all skills: tests each precondition, asks governance for governed ones, then applies and verifies. | a number, how many skills ran and were verified | | Pursue, Trace | | a skill whose precondition stays true fires again on every cycle
+Pursue | Repeats Cycle until a cycle verifies nothing or 20 rounds are done. | a number, the total of skill-firings that were verified | | Cycle, Why | | a skill that leaves its own precondition true runs to the 20-round limit; the sentence for it is kept for Why
+DecisionLog | Returns the governed decisions taken so far: every trace row that ran or was refused. | a list of hash lists [ :skill, :decision, :verified, :why ] | | Trace, GovernanceQ | | skipped rows, where a precondition did not hold, are left out

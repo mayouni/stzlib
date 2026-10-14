@@ -1,0 +1,14 @@
+{
+ "brief": "Builds a static web bundle that emulates a delivery plan, each part of the solution rendering its own app, with no server needed.",
+ "detail": "From a stzDelivery it writes index.html, the web assets, one app page per mobile part, the plan-derived engine map, the app data of a stzAppTopology and a manifest. With the engine on, each mobile part also gets its own wasm subset of the Softanza engine, built with Zig and shared between parts that need the same subset; CompileEngine(0) skips that for a fast, toolchain-free build. The bundle folder is the same tree that a deployment can ship with AttachBundle. Build writes files: point SetOutDir at a scratch folder.",
+ "receiver": "oD = new stzDelivery(\"bistro\")\noD.AddBackend(:api, :LinuxServer)\no1 = new stzEmulator(oD)\no1.SetOutDir(\"emu_demo_unused\")",
+ "example": [
+  "? o1.IsBuilt()",
+  "#--> 0",
+  "? o1.BundleDir()",
+  "#--> emu_demo_unused",
+  "? o1.ShellPath()",
+  "#--> emu_demo_unused/index.html"
+ ],
+ "see": ["stzDeployment", "stzDelivery", "stzAppTopology"]
+}

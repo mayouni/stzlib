@@ -1,0 +1,16 @@
+{
+ "brief": "Holds one rule about an entity-relationship schema, a stzGraphRule that belongs to the er domain.",
+ "detail": "The four built-in schema rules are stzErRule objects made by stzErRuleSet: entity_has_key, foreign_key_resolves, relation_backed_by_key and participation_matches_nullability. Build one yourself with a name, set its severity, message and checker like any stzGraphRule, and add it to a stzErRuleSet.",
+ "receiver": "o1 = new stzErRule(\"every_entity_named\")",
+ "example": [
+  "? o1.Name()",
+  "#--> every_entity_named",
+  "? o1.Domain()",
+  "#--> er"
+ ],
+ "see": [
+  "stzGraphRule",
+  "stzErRuleSet",
+  "stzErDiagram"
+ ]
+}

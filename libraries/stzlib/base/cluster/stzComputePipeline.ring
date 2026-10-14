@@ -32,6 +32,27 @@
 func StzComputePipelineQ(pcName)
 	return new stzComputePipeline(pcName)
 
+# Declares a workflow as a chain of facet stages, each transforming the running value, and runs inputs through the chain.
+#
+# A stage is a function tagged with the facet that handles it, so a document flow such as vision,
+# nlp, knowledge, search is declared and not hand-wired. Run threads an input through every stage;
+# RunBatch does it for many inputs. When a worker pool is attached with SetPool, each stage is
+# admitted into its own facet's budget, so a heavy facet cannot starve a light one. A stage that
+# raises stops the run and is reported by Failed and Why. The stages run in-process; running a stage
+# on a fleet worker needs a worker that implements the facet.
+#
+#   receiver   o1 = new stzComputePipeline("doc-intake") o1.Stage("vision", "ocr", func x { return
+#              StzReplace(x, "scan:", "") }) o1.Stage("nlp", "entities", func x { return x + "
+#              [entities]" })
+#   example    ? o1.Run("scan:acme invoice")
+#              #--> acme invoice [entities]
+#              ? o1.Narrate()
+#              #--> pipeline doc-intake: vision -> nlp
+#              ? o1.Failed()
+#              #--> 0
+#              ? @@( o1.ValidateAgainst(new stzFacetCatalog()) )
+#              #--> [ ]
+#   see        stzFacetCatalog, stzClusterSupervisor, stzClusterTelemetry
 class stzComputePipeline from stzObject
 
 	@cName = ""
@@ -43,23 +64,46 @@ class stzComputePipeline from stzObject
 	@bFailed = 0   # did the last Run hit a failing stage?
 	@cWhy = ""
 
+	# Creates an empty pipeline of facet stages, under a name.
+	#
+	#   pcName     the pipeline's name, shown by Narrate
+	#   returns    nothing; the object is built
+	#   see        Stage, Run
 	def init(pcName)
 		@cName = "" + pcName
 
+	# Returns the pipeline's name.
+	#
+	#   returns    a text
+	#   see        init
 	def Name_()
 		return @cName
 
-	#-- declaring the pipeline --------------------------------------------
-
-	# Add a stage: fWork(input) -> output, handled by the FACET pcFacet.
+	# Appends a stage: a function that transforms the running value, tagged with the facet that handles it.
+	#
+	#   pcFacet       the facet that handles the stage, stored in lower case
+	#   pcStageName   the stage's name, shown in traces and failures
+	#   fWork         a function that takes the running value and returns the new one
+	#   returns       the pipeline itself, so calls chain
+	#   warning       stages run in the order they were added
+	#   see           Run, ValidateAgainst
+	#@ aka  -- declaring the pipeline --------------------------------------------
 	def Stage(pcFacet, pcStageName, fWork)
 		@aStages + [ StzLower("" + pcFacet), "" + pcStageName, fWork ]
 		return This
 
+	# Returns how many stages the pipeline holds.
+	#
+	#   returns    a number
+	#   see        Stage, Stages
 	def NumberOfStages()
 		return len(@aStages)
 
-	# The ordered facet sequence (the routing contract).
+	# Returns the facet of each stage, in order; a facet repeats when two stages share it.
+	#
+	#   returns    a list of texts
+	#   see        Stages, ValidateAgainst
+	#@ aka  The ordered facet sequence (the routing contract).
 	def Facets()
 		_a_ = []
 		_n_ = len(@aStages)
@@ -68,6 +112,10 @@ class stzComputePipeline from stzObject
 		next
 		return _a_
 
+	# Returns the name of each stage, in order.
+	#
+	#   returns    a list of texts
+	#   see        Facets, Trace
 	def Stages()
 		_a_ = []
 		_n_ = len(@aStages)
@@ -76,20 +124,32 @@ class stzComputePipeline from stzObject
 		next
 		return _a_
 
-	# Attach a worker pool so each stage is admitted into its facet's
-	# budget (load isolation across the pipeline; R8.1). Facets not in the
-	# pool run unbudgeted. NOTE: the pipeline works on ITS pool (Ring stores
-	# a copy) -- read metrics via PoolQ(), not the caller's original.
+	# Attaches a worker pool, so that each stage is admitted into the budget of its facet before it runs.
+	#
+	#   poPool     an object that answers HasProfile(facet), Acquire(facet) and Release(facet), such
+	#              as a stzWorkerPool
+	#   returns    the pipeline itself, so calls chain
+	#   warning    the pipeline keeps a copy of the pool object; a stage whose facet the pool has no
+	#              profile for runs without admission
+	#   see        PoolQ, Run
+	#@ aka  Attach a worker pool so each stage is admitted into its facet's budget (load isolation across the pipeline; R8.1). Facets not in the pool run unbudgeted. NOTE: the pipeline works on ITS pool (Ring stores a copy) -- read metrics via PoolQ(), not the caller's original.
 	def SetPool(poPool)
 		@oPool = poPool
 		return This
 
+	# Returns the attached pool; an empty text when none was attached.
+	#
+	#   returns    the pool object
+	#   see        SetPool
 	def PoolQ()
 		return @oPool
 
-	# Check every stage's facet is offered by a catalog (the deployment's
-	# competences, R8.2). Returns [] when all known, else the unknown
-	# facets -- so a pipeline is validated against what a cluster can run.
+	# Returns the facets of the pipeline that a catalog does not know, each once, in order.
+	#
+	#   poCatalog   a stzFacetCatalog, or any object that answers Has(facet)
+	#   returns     a list of texts; empty when every facet is known
+	#   see         Facets, Run
+	#@ aka  Check every stage's facet is offered by a catalog (the deployment's competences, R8.2). Returns [] when all known, else the unknown facets -- so a pipeline is validated against what a cluster can run.
 	def ValidateAgainst(poCatalog)
 		_aUnknown_ = []
 		_n_ = len(@aStages)
@@ -102,13 +162,15 @@ class stzComputePipeline from stzObject
 		next
 		return _aUnknown_
 
-	#-- running ------------------------------------------------------------
-
-	# Thread pInput through every stage in order; each stage's output feeds
-	# the next. Returns the final output. Records a per-stage trace. A stage
-	# that RAISES is CONTAINED: the failure is traced, the facet slot is
-	# released (no leak), the pipeline HALTS and returns NULL, and Why()/
-	# Failed() explain -- one bad stage never crashes the whole pipeline.
+	# Threads an input through every stage in order, each stage's output being the next stage's input, and returns the final value.
+	#
+	#   pInput     the value that enters the first stage
+	#   returns    the final value; an empty text if a stage failed
+	#   note       each stage is timed on the monotonic clock
+	#   warning    a stage that raises stops the run: the output is empty, Failed answers TRUE and
+	#              Why names the stage and the cause; a run replaces the trace of the one before
+	#   see        RunBatch, Failed, Trace
+	#@ aka  -- running ------------------------------------------------------------
 	def Run(pInput)
 		@aTrace = []
 		@bFailed = 0
@@ -144,14 +206,27 @@ class stzComputePipeline from stzObject
 		@xLast = _v_
 		return _v_
 
+	# TRUE if the last Run stopped because a stage raised.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Why, Run
 	def Failed()
 		return @bFailed
 
+	# Returns the reason the last Run failed, naming the stage, its facet and the error; empty after a clean run.
+	#
+	#   returns    a text
+	#   see        Failed
 	def Why()
 		return @cWhy
 
-	# Run many inputs through the WHOLE pipeline; returns a result list
-	# (same order). The trace reflects the LAST input.
+	# Runs a list of inputs one after the other through the whole pipeline and returns the outputs in the same order.
+	#
+	#   paInputs   the inputs to run, one value per item
+	#   returns    a list of final values
+	#   warning    the trace and the last output reflect the last input only
+	#   see        Run
+	#@ aka  Run many inputs through the WHOLE pipeline; returns a result list (same order). The trace reflects the LAST input.
 	def RunBatch(paInputs)
 		_aOut_ = []
 		_n_ = len(paInputs)
@@ -160,11 +235,18 @@ class stzComputePipeline from stzObject
 		next
 		return _aOut_
 
+	# Returns what the last Run did, one [ facet, stage, value, ms ] list per stage; a failed stage shows ERROR in place of the value.
+	#
+	#   returns    a list of lists
+	#   see        StageDurations, TotalMs
 	def Trace()
 		return @aTrace
 
-	# Per-stage costs from the last Run: [ [ stageName, durMs ], ... ].
-	# The slowest stage is the pipeline's bottleneck candidate.
+	# Returns the cost of each stage of the last Run as [ stage, ms ] pairs.
+	#
+	#   returns    a list of lists
+	#   see        TotalMs, Trace
+	#@ aka  Per-stage costs from the last Run: [ [ stageName, durMs ], ... ]. The slowest stage is the pipeline's bottleneck candidate.
 	def StageDurations()
 		_a_ = []
 		_n_ = len(@aTrace)
@@ -173,7 +255,11 @@ class stzComputePipeline from stzObject
 		next
 		return _a_
 
-	# Total cost of the last Run (sum of its stage durations, ms).
+	# Returns the total of the stage durations of the last Run, in milliseconds.
+	#
+	#   returns    a number
+	#   see        StageDurations
+	#@ aka  Total cost of the last Run (sum of its stage durations, ms).
 	def TotalMs()
 		_nSum_ = 0
 		_n_ = len(@aTrace)
@@ -182,9 +268,17 @@ class stzComputePipeline from stzObject
 		next
 		return _nSum_
 
+	# Returns the final value of the last Run; empty after a failed run.
+	#
+	#   returns    the last value
+	#   see        Run
 	def LastOutput()
 		return @xLast
 
+	# Returns one line that gives the pipeline's name and its facets joined by arrows.
+	#
+	#   returns    a text
+	#   see        Facets
 	def Narrate()
 		_cR_ = "pipeline " + @cName + ": " + This._Join(This.Facets(), " -> ")
 		return _cR_

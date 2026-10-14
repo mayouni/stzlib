@@ -1,0 +1,21 @@
+{
+ "brief": "Draws a text inside a box made of Unicode line characters, the whole text in one box or each character in its own cell.",
+ "detail": "Build one with new stzStringBoxed(\"hello\"); Boxed and BoxedChars return the drawing as a text and print nothing, and the text held never changes. The global function StzBoxedString(text) (also BoxedString) is the one-call form of Boxed. Several lines of text give several rows in the box, padded to the longest. BoxedChars draws a single row and its borders are mis-sized today, see its warning.",
+ "receiver": "o1 = new stzStringBoxed(\"hello\")",
+ "example": [
+  "? o1.Boxed()",
+  "#--> ╭───────╮",
+  "#--> │ hello │",
+  "#--> ╰───────╯",
+  "o2 = new stzStringBoxed(\"שלום\")",
+  "? o2.Boxed()",
+  "#--> ╭──────╮",
+  "#--> │ שלום │",
+  "#--> ╰──────╯"
+ ],
+ "see": [
+  "stzString",
+  "stzStringVisualizer",
+  "stzTile"
+ ]
+}

@@ -33,6 +33,24 @@
 func StzRequestClassifierQ()
 	return new stzRequestClassifier()
 
+# Maps an incoming request to a facet, the routing target, in three tiers: operator rules, capability-lexical scoring and an optional model.
+#
+# Rules on content type, path prefix and method are tried first and win; then the lexical tier
+# scores the request against each facet's own capability vocabulary and a synonym lexicon; then an
+# optional model function, installed with SetModelClassifier, is asked. It only routes to facets the
+# bound catalog knows. Why() says which tier decided. The lexical tier is deterministic and offline.
+#
+#   receiver   o1 = new stzRequestClassifier() o1.RouteWhenPath("/api/risk", :math)
+#              o1.RouteWhenContentType("application/pdf", :vision)
+#   example    ? o1.Classify("POST", "/api/analyze", "application/pdf", "review this NDA")
+#              #--> vision
+#              ? o1.Why()
+#              #--> rule: content-type 'application/pdf' -> vision
+#              ? o1.ClassifyText("find the shortest path between two nodes")
+#              #--> graph
+#              ? o1.ClassifyPath("/api/risk/score")
+#              #--> math
+#   see        stzFacetCatalog, stzComputePipeline, stzClusterSupervisor
 class stzRequestClassifier from stzObject
 
 	@oCatalog = ""       # the facet vocabulary this router classifies to
@@ -43,42 +61,82 @@ class stzRequestClassifier from stzObject
 	@fModel = ""         # optional tier-3 engine classifier: f(text)->facet
 	@cWhy = ""
 
+	# Creates a classifier with a standard facet catalog and a seeded keyword lexicon, and no rules.
+	#
+	#   returns    nothing; the object is built
+	#   see        Classify, SetCatalog
 	def init()
 		@oCatalog = new stzFacetCatalog()
 		This._SeedKeywords()
 
-	# Bind to a specific (e.g. a cluster's) catalog -- so the router routes
-	# to exactly the facets THAT deployment offers.
+	# Binds the classifier to a deployment's own facet catalog, so it only routes to facets that catalog knows.
+	#
+	#   poCatalog   a stzFacetCatalog, or any object that answers Has(facet)
+	#   returns     the classifier itself, so calls chain
+	#   warning     a model's answer naming a facet the catalog lacks is ignored
+	#   see         CatalogQ, Classify
+	#@ aka  Bind to a specific (e.g. a cluster's) catalog -- so the router routes to exactly the facets THAT deployment offers.
 	def SetCatalog(poCatalog)
 		@oCatalog = poCatalog
 		return This
 
+	# Returns the facet catalog the classifier routes against.
+	#
+	#   returns    a stzFacetCatalog
+	#   see        SetCatalog
 	def CatalogQ()
 		return @oCatalog
 
+	# Returns the reason for the last decision, naming the rule, the lexical hits or the model; empty before the first call.
+	#
+	#   returns    a text
+	#   warning    for an undecidable request it says undecidable
+	#   see        Classify, ClassifyText
 	def Why()
 		return @cWhy
 
-	#-- TIER 1: deterministic rules ----------------------------------------
-
-	# A path whose start matches pcPrefix routes to pcFacet.
+	# Adds a rule: a request whose path starts with a prefix goes to a facet.
+	#
+	#   pcPrefix   the path prefix, matched at the start of the path without regard to case
+	#   pcFacet    the facet to route to, stored in lower case
+	#   returns    the classifier itself, so calls chain
+	#   warning    rules are tried in the order content type, path, method, and the first match wins
+	#   see        RouteWhenContentType, Classify
+	#@ aka  -- TIER 1: deterministic rules ----------------------------------------
 	def RouteWhenPath(pcPrefix, pcFacet)
 		@aPathRules + [ StzLower("" + pcPrefix), StzLower("" + pcFacet) ]
 		return This
 
-	# A request whose Content-Type CONTAINS pcType routes to pcFacet.
+	# Adds a rule: a request whose content type contains a text goes to a facet.
+	#
+	#   pcType     the text the content type must contain, such as application/pdf
+	#   pcFacet    the facet to route to, stored in lower case
+	#   returns    the classifier itself, so calls chain
+	#   warning    a content type that carries parameters still matches
+	#   see        RouteWhenPath, Classify
+	#@ aka  A request whose Content-Type CONTAINS pcType routes to pcFacet.
 	def RouteWhenContentType(pcType, pcFacet)
 		@aTypeRules + [ StzLower("" + pcType), StzLower("" + pcFacet) ]
 		return This
 
+	# Adds a rule: a request with a given HTTP method goes to a facet.
+	#
+	#   pcMethod   the method, such as DELETE, matched without regard to case
+	#   pcFacet    the facet to route to, stored in lower case
+	#   returns    the classifier itself, so calls chain
+	#   see        RouteWhenPath, Classify
 	def RouteWhenMethod(pcMethod, pcFacet)
 		@aMethodRules + [ StzUpper("" + pcMethod), StzLower("" + pcFacet) ]
 		return This
 
-	#-- TIER 2: the capability-lexical vocabulary --------------------------
-
-	# Extend the synonym lexicon (a word that hints a facet). Capability
-	# names are matched automatically; keywords add natural phrasing.
+	# Teaches the lexical tier a word or phrase that hints at a facet.
+	#
+	#   pcKeyword   the word that hints a facet, stored in lower case
+	#   pcFacet     the facet it hints at, stored in lower case
+	#   returns     nothing; use AddKeywordQ to chain
+	#   warning     capability names are matched automatically; keywords add natural phrasing
+	#   see         ClassifyText
+	#@ aka  -- TIER 2: the capability-lexical vocabulary --------------------------
 	def AddKeyword(pcKeyword, pcFacet)
 		@aKeywords + [ StzLower("" + pcKeyword), StzLower("" + pcFacet) ]
 
@@ -90,14 +148,26 @@ class stzRequestClassifier from stzObject
 			This.AddKeyword(pcKeyword, pcFacet)
 			return This
 
+	# Installs an optional classifier function, used only when the rules and the lexicon abstain.
+	#
+	#   fClassify   a function that takes the text and returns a facet name, or an empty text
+	#   returns     the classifier itself, so calls chain
+	#   warning     its answer is used only when the catalog knows the facet
+	#   see         ClassifyText, Why
 	def SetModelClassifier(fClassify)
 		@fModel = fClassify
 		return This
 
-	#-- classification -----------------------------------------------------
-
-	# Route a full request to a facet ("" if undecidable). Rules first,
-	# then lexical, then the model seam. Why() explains the decision.
+	# Routes a request to a facet in three tiers: rules first, then capability-lexical scoring, then the model; returns the facet name.
+	#
+	#   pcMethod        the HTTP method
+	#   pcPath          the request path
+	#   pcContentType   the content type, may be empty
+	#   pcBody          the request body text
+	#   returns         the facet name as lower-case text; empty when undecidable
+	#   warning         Why says which tier decided
+	#   see             ClassifyPath, ClassifyText, Why
+	#@ aka  -- classification -----------------------------------------------------
 	def Classify(pcMethod, pcPath, pcContentType, pcBody)
 		_cPath_ = StzLower("" + pcPath)
 		_cType_ = StzLower("" + pcContentType)
@@ -153,9 +223,19 @@ class stzRequestClassifier from stzObject
 		@cWhy = "undecidable: no rule, lexical, or model match"
 		return ""
 
+	# Routes a request known only by its path, as a GET without body.
+	#
+	#   pcPath     the request path
+	#   returns    the facet name; empty when undecidable
+	#   see        Classify
 	def ClassifyPath(pcPath)
 		return This.Classify("GET", pcPath, "", "")
 
+	# Routes free text to a facet, by the lexicon and then the model, with no rules.
+	#
+	#   pcText     the text to route
+	#   returns    the facet name; empty when undecidable
+	#   see        Classify, AddKeyword, SetModelClassifier
 	def ClassifyText(pcText)
 		_cFacet_ = This._LexicalFacet(StzLower("" + pcText))
 		if _cFacet_ != ""  return _cFacet_  ok
@@ -169,8 +249,13 @@ class stzRequestClassifier from stzObject
 		@cWhy = "undecidable"
 		return ""
 
-	# COMPAT (retires the pre-engine classifier in place): the old
-	# The fleet router calls this with an stzAppRequest.
+	# Routes a request object by its method, path and body.
+	#
+	#   oRequest   an object that answers Method(), Path() and Body(), such as an HTTP request
+	#   returns    the facet name; empty when undecidable
+	#   warning    the content type is not read, so content-type rules do not apply
+	#   see        Classify
+	#@ aka  COMPAT (retires the pre-engine classifier in place): the old The fleet router calls this with an stzAppRequest.
 	def ClassifyComputationalDomain(oRequest)
 		return This.Classify(oRequest.Method(), oRequest.Path(), "", oRequest.Body())
 

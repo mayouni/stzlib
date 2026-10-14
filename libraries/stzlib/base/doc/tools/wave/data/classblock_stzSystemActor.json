@@ -1,0 +1,17 @@
+{
+ "brief": "Stands for whoever acts on a system and carries the capability kinds that decide what it may commit.",
+ "detail": "An actor holds a set of capability kinds from one lattice: effectful, sensing, compute and inference, the same lattice as stzSystemCapabilities and stzAgentGraph. Whether a plan may commit is decided against it, and the load-bearing rule is that a language-model actor holds only inference: it can propose, but Can(effectful) is FALSE so it can commit nothing that touches reality. Expression is free, admission is governed. The posture (trusted, external or sandboxed) is the second axis of the same gate.",
+ "receiver": "o1 = new stzSystemActor(\"planner\", [ \"sensing\", \"compute\" ])",
+ "example": [
+  "? o1.Can(\"sensing\")",
+  "#--> 1",
+  "? o1.IsEffectful()",
+  "#--> 0",
+  "o1.GrantKind(\"effectful\")",
+  "? o1.IsEffectful()",
+  "#--> 1",
+  "? o1.Posture()",
+  "#--> trusted"
+ ],
+ "see": ["stzSystemCapabilities", "stzSystemProfile", "stzNode"]
+}

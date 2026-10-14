@@ -1,0 +1,18 @@
+{
+ "brief": "Applies an expression to the items of a list, to all of them or to some, either rewriting the list (Perform) or only reading the results (Yield).",
+ "detail": "Build one with new stzListPerformer(aList) or over a stzList object; it keeps its own copy, so what you passed in is not changed, and Content gives the result of the Perform calls. An expression is text in which @item is the current item and @i its position, such as \"2*@item\" or \"upper(@item)\"; braces around it are accepted. The W forms (PerformW, YieldW) choose the items by a condition written the same way, and the On forms by positions. Inside an expression len() counts bytes, not letters. YieldPairs does not return pairs today.",
+ "receiver": "o1 = new stzListPerformer([ 3, 1, 4, 1, 5 ])",
+ "example": [
+  "? @@( o1.Yield(\"2*@item\") )",
+  "#--> [ 6, 2, 8, 2, 10 ]",
+  "? @@( o1.YieldW(\"@item > 2\", \"10*@item\") )",
+  "#--> [ 30, 40, 50 ]",
+  "o1.PerformOn([ 1, 5 ], \"@item + 100\")",
+  "? @@( o1.Content() )",
+  "#--> [ 103, 1, 4, 1, 105 ]"
+ ],
+ "see": [
+  "stzList",
+  "stzListWalker"
+ ]
+}

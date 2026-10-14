@@ -1,0 +1,18 @@
+{
+ "brief": "Tells the facts of the running program (identity, uptime, memory, machine) and manages one child process: spawn, stream, wait, kill.",
+ "detail": "Without a child, an object reads the running program: its id, uptime on a monotonic clock, memory, processor time, architecture, operating system and byte order, all delegated to the engine. Spawn starts a child through the platform shell and SpawnIn starts one from an argument list with no shell; both are effectful and start a real program. The usage contract avoids a pipe deadlock: read the child's output to its end, then Wait, then Free. Kill ends the child whose handle the object holds and never looks a process up by name. WaitFor, IsRunning and SpawnIn need an engine built from the current source; an older stz_system.dll lacks them and raises R3.",
+ "receiver": "o1 = new stzProcess()",
+ "example": [
+  "? o1.HasChild()",
+  "#--> 0",
+  "? o1.BitSize()",
+  "#--> 64",
+  "o2 = SpawnProcess(\"echo hello\")",
+  "? trim(o2.ReadOutputAll())",
+  "#--> hello",
+  "? o2.Wait()",
+  "#--> 0",
+  "o2.Free()"
+ ],
+ "see": ["stzEnvironment", "stzCurrentSystem", "stzSystemCall"]
+}

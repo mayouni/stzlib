@@ -67,6 +67,25 @@ func StzDec2Hex(_nNum_)
 # BASE NETWORK CLASS -- foundation for HTTP-style I/O
 # =============================================================================
 
+# Holds the connection state shared by the library's network clients: the last request, the last error and the timeout.
+#
+# It is the base of stzHttpClient, stzTcpClient, stzTcpServer and stzWebSocket and keeps no socket
+# itself. Its state is plain attributes: the address and status of the last recorded request, the
+# last error text and code, and a timeout in seconds. The engine HTTP client is request-scoped, so
+# IsConnected only says that a request has run. Subclasses override IsConnected to report an open
+# socket. The class makes no request by itself.
+#
+#   receiver   o1 = new stzNetwork()
+#   example    ? o1.Timeout()
+#              #--> 30
+#              o1.SetTimeout(5)
+#              ? o1.Timeout()
+#              #--> 5
+#              ? o1.IsConnected()
+#              #--> 0
+#              ? o1.HasError()
+#              #--> 0
+#   see        stzHttpClient, stzTcpClient, stzTcpServer
 class stzNetwork from stzObject
 	# Connection state (was curl_handle in the libcurl era).
 	@cLastUrl = ""             # most-recently-used URL
@@ -75,18 +94,34 @@ class stzNetwork from stzObject
 	@error_code = 0
 	@timeout_seconds = 30
 
+	# Builds the base state of a network object: no request yet, no error and a 30-second timeout.
+	#
+	#   returns    nothing; the object is built
+	#   see        SetTimeout, ConnectionInfo
 	def init()
-		# No global init required for the engine HTTP client.
-
+	# TRUE if a request has been recorded; the engine HTTP client keeps no connection open between requests.
+	#
+	#   returns    TRUE or FALSE
+	#   see        ConnectionInfo, IsSecure
+	#@ aka  No global init required for the engine HTTP client.
 	def IsConnected()
 		# Engine HTTP is request-scoped; we report "connected" iff
 		# a request has run.
 		return @cLastUrl != ""
 
+	# TRUE if the last recorded request used https.
+	#
+	#   returns    TRUE or FALSE; FALSE before any request
+	#   see        IsConnected, ConnectionInfo
 	def IsSecure()
 		if @cLastUrl = "" return False ok
 		return StzLeft(@cLastUrl, 8) = "https://"
 
+	# Returns the last recorded request: its address, its status code and the timeout in force.
+	#
+	#   returns    a hash list [ :url, :response_code, :timeout_seconds ]; an empty list before any
+	#              request
+	#   see        IsConnected, LastError
 	def ConnectionInfo()
 		if @cLastUrl = "" return [] ok
 		return [
@@ -95,21 +130,43 @@ class stzNetwork from stzObject
 			:timeout_seconds = @timeout_seconds
 		]
 
+	# Returns the text of the last error, empty when there is none.
+	#
+	#   returns    a text
+	#   see        HasError, ClearErrors
 	def LastError()
 		return @last_error
 
+	# TRUE if an error text is held.
+	#
+	#   returns    TRUE or FALSE
+	#   see        LastError, ClearErrors
 	def HasError()
 		return @last_error != ""
 
+	# Forgets the last error text and code.
+	#
+	#   returns    the object itself, so calls chain
+	#   see        LastError
 	def ClearErrors()
 		@last_error = ""
 		@error_code = 0
 		return This
 
+	# Sets the timeout, in seconds, that ConnectionInfo reports and requests use.
+	#
+	#   nSeconds   the timeout in seconds
+	#   returns    the object itself, so calls chain
+	#   note       the value is not checked, so a negative or non-number value is kept as given
+	#   see        Timeout
 	def SetTimeout(nSeconds)
 		@timeout_seconds = nSeconds
 		return This
 
+	# Returns the timeout in seconds; 30 by default.
+	#
+	#   returns    a number
+	#   see        SetTimeout
 	def Timeout()
 		return @timeout_seconds
 

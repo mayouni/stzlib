@@ -1,0 +1,19 @@
+{
+ "brief": "Holds a blocking TCP client connection that connects, sends text, reads text and closes, through the in-tree engine.",
+ "detail": "Every call is synchronous: Connect, Send and Receive return when the operation has finished, and the callbacks set with OnConnect, OnReceive, OnClose and OnError run synchronously just after it. A failure never raises; the client records it in LastError and calls the error callback. Receive and ReceiveWithMax block with no timeout until data arrives or the peer closes, so call them only when data is expected. The documentation was run against a listener started in the same process on the loopback address and stopped afterwards, never against another machine.",
+ "receiver": "o1 = new stzTcpClient()",
+ "example": [
+  "? o1.IsConnected()",
+  "#--> 0",
+  "o1.Send(\"hello\")",
+  "? o1.LastError()",
+  "#--> Not connected",
+  "? o1.LocalAddress()",
+  "#--> 127.0.0.1"
+ ],
+ "see": [
+  "stzTcpServer",
+  "stzNetwork",
+  "stzHttpClient"
+ ]
+}

@@ -1,0 +1,15 @@
+{
+ "brief": "Resolves node names to addresses and carries location-transparent Send and Ask, so the caller's code is the same whether a node is local or remote.",
+ "detail": "Register a name with a host and a port; Send then hands a message over without waiting and Ask waits for a reply, with a mandatory time limit (a limit of 0 or less is refused, never an infinite wait). Delivery is at most once, unreachable and dead are the same status, down, and links are cached by name and re-dialed after a close. LastStatus says which outcome the last call had. The plane the bare Send, Ask and NodeRegister functions ride is the one returned by StzNodePlane(). The documentation run exercised only the calls that do not dial: unknown names and refused time limits.",
+ "receiver": "o1 = new stzNodeRegistry()",
+ "example": [
+  "? o1.Send(\"ghost\", [ \"warm\" ])",
+  "#--> 0",
+  "? o1.LastStatus()",
+  "#--> unknown",
+  "o1.Ask(\"ghost\", [ \"x\" ], 0)",
+  "? o1.LastStatus()",
+  "#--> badtimeout"
+ ],
+ "see": ["stzNode", "stzNodeSupervisor", "stzNodeApp"]
+}

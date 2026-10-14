@@ -36,22 +36,74 @@ func StzPasskeyServerQ(pcRpId, pcOrigin)
 	return new stzPasskeyServer(pcRpId, pcOrigin)
 
 
+# Judges passkey registrations and logins as the relying party: the ceremony, the challenge, the origin, the signature, user presence and the counter.
+#
+# A passkey replaces the password with a key pair that the user's device holds. The cryptography and
+# the parsing of the binary formats are the engine's; this class makes the relying party's
+# decisions, which is where implementations fail. Registration and login both check the browser's
+# client data: the ceremony type, the challenge this server issued and the origin, which is what
+# makes a passkey unphishable. Login then verifies the signature under the stored key, requires user
+# presence, and refuses a signature counter that did not advance, noted as a suspected clone. Two
+# settings fail open and must never be empty: an empty expected challenge and an empty server origin
+# each switch their check off. Every refusal returns a reason and is noted. Use stzPasskeySandbox as
+# the virtual authenticator for development.
+#
+#   receiver   o1 = new stzPasskeyServer("example.com", "https://example.com") o2 = new
+#              stzPasskeySandbox("example.com")
+#   example    c1 = o1.NewChallenge()
+#              a1 = o2.CreateCredential(c1, "https://example.com")
+#              a2 = o1.RegisterCredential(a1[:attestationObject], a1[:clientData], c1)
+#              ? a2[:ok]
+#              #--> 1
+#              c2 = o1.NewChallenge()
+#              a3 = o2.Assert(c2, "https://example.com")
+#              a4 = [ :keyType = a2[:keyType], :key1 = a2[:key1], :key2 = a2[:key2], :signCount = 0 ]
+#              ? o1.VerifyAssertion(a4, a3[:authenticatorData], a3[:clientData], a3[:signature], c2)[:ok]
+#              #--> 1
+#              a5 = o2.AssertForOrigin(c2, "https://evil.example")
+#              a6 = o1.VerifyAssertion(a4, a5[:authenticatorData], a5[:clientData], a5[:signature], c2)
+#              ? a6[:ok]
+#              #--> 0
+#   see        stzPasskeySandbox, stzSecurityLedger, stzTotp
 class stzPasskeyServer from stzObject
 
 	@cRpId = ""       # the registrable domain a credential is bound to
 	@cOrigin = ""     # the exact origin the browser will report
 	@cWhy = ""
 
+	# Builds the relying party for passkeys, bound to a domain and to the exact origin a browser will report.
+	#
+	#   pcRpId     the registrable domain the credentials are bound to, such as example.com
+	#   pcOrigin   the exact origin, such as https://example.com
+	#   returns    nothing; the object is built
+	#   warning    an empty origin switches the origin check off, so any site's response is
+	#              accepted: always give one
+	#   see        RegisterCredential, VerifyAssertion
 	def init(pcRpId, pcOrigin)
 		@cRpId = ring_trim("" + pcRpId)
 		@cOrigin = ring_trim("" + pcOrigin)
 
+	# Returns the domain the credentials are bound to, trimmed.
+	#
+	#   returns    a text
+	#   see        Origin
 	def RpId()
 		return @cRpId
 
+	# Returns the origin the server demands from the browser, trimmed.
+	#
+	#   returns    a text
+	#   see        SetOrigin, RpId
 	def Origin()
 		return @cOrigin
 
+	# Replaces the origin the server demands.
+	#
+	#   pcOrigin   the exact origin, such as https://example.com
+	#   returns    nothing; use SetOriginQ to chain
+	#   note       the text is kept as given, without trimming
+	#   warning    setting an empty origin switches the origin check off
+	#   see        Origin
 	def SetOrigin(pcOrigin)
 		This.SetOriginQ(pcOrigin)
 
@@ -59,18 +111,40 @@ class stzPasskeyServer from stzObject
 		@cOrigin = "" + pcOrigin
 		return This
 
+	# Returns the reason for the last refusal, or an empty text after a success.
+	#
+	#   returns    a text
+	#   warning    the reason can quote the origin the browser reported, without escaping, so show
+	#              it as text and never as markup
+	#   see        RegisterCredential, VerifyAssertion
 	def Why()
 		return @cWhy
 
-	# a fresh, unguessable challenge. The app keeps it for the one exchange it
-	# belongs to -- that is what stops a captured assertion being replayed.
+	# Returns a fresh random challenge of 64 hexadecimal characters from the engine's secure generator.
+	#
+	#   returns    a text
+	#   note       keep it for the one exchange it belongs to and refuse a second use: that is what
+	#              stops a replay
+	#   see        RegisterCredential, VerifyAssertion
+	#@ aka  a fresh, unguessable challenge. The app keeps it for the one exchange it belongs to -- that is what stops a captured assertion being replayed.
 	def NewChallenge()
 		return StzEngineCryptoRandomHex(32)
 
-	  #-- registration ----------------------------------------------------
-
-	# Validate + parse what the authenticator returned ->
-	# [ :ok, :credentialId, :keyType, :key1, :key2, :signCount, :why ].
+	# Judges the response of a device that creates a credential, and returns the credential to store.
+	#
+	#   pcAttObjB64           the attestation object, base64url
+	#   pcClientDataB64       the client data JSON, base64url
+	#   pcExpectedChallenge   the challenge this server issued for this exchange
+	#   returns               a hash list [ :ok, :credentialId, :keyType, :key1, :key2, :signCount,
+	#                         :why ]; :ok is 1 only when every check passed, and :why says what
+	#                         failed
+	#   note                  the checks are the ceremony type webauthn.create, the challenge, the
+	#                         origin and the user-presence flag
+	#   warning               an empty expected challenge skips the challenge check, so a response
+	#                         to any earlier challenge is accepted; an empty server origin skips the
+	#                         origin check; it never raises, a refusal is returned
+	#   see                   VerifyAssertion, NewChallenge
+	#@ aka  -- registration ----------------------------------------------------
 	def RegisterCredential(pcAttObjB64, pcClientDataB64, pcExpectedChallenge)
 		if NOT This._ClientDataIsSound(pcClientDataB64, "webauthn.create", pcExpectedChallenge)
 			return [ :ok = 0, :credentialId = "", :keyType = "", :key1 = "",
@@ -94,10 +168,24 @@ class stzPasskeyServer from stzObject
 		return [ :ok = 1, :credentialId = _a_[1], :keyType = _a_[2],
 		         :key1 = _a_[3], :key2 = _a_[4], :signCount = 0 + _a_[5], :why = "" ]
 
-	  #-- login -----------------------------------------------------------
-
-	# Verify an assertion against a STORED credential
-	# ([ :keyType, :key1, :key2, :signCount ]) -> [ :ok, :signCount, :why ].
+	# Judges a login response against a stored credential: client data, signature, user presence and the signature counter.
+	#
+	#   paCredential          the stored credential as a hash list [ :keyType, :key1, :key2,
+	#                         :signCount ]
+	#   pcAuthDataB64         the authenticator data, base64url
+	#   pcClientDataB64       the client data JSON, base64url
+	#   pcSigB64              the signature, base64url
+	#   pcExpectedChallenge   the challenge issued for this login
+	#   returns               a hash list [ :ok, :signCount, :why ]; :signCount is the new counter
+	#                         to store
+	#   note                  every refusal is noted as auth.passkey.failed; a refusal returns, it
+	#                         never raises
+	#   warning               an empty expected challenge skips the challenge check, so a captured
+	#                         assertion could be replayed; an empty server origin skips the origin
+	#                         check; a counter that does not advance past the stored one is refused
+	#                         and noted as a suspected clone, while a counter of 0 is allowed
+	#   see                   RegisterCredential, NewChallenge
+	#@ aka  -- login -----------------------------------------------------------
 	def VerifyAssertion(paCredential, pcAuthDataB64, pcClientDataB64, pcSigB64, pcExpectedChallenge)
 		# A clientData failure is an origin or challenge mismatch -- the
 		# anti-phishing check. It used to return before the refusal
@@ -137,6 +225,10 @@ class stzPasskeyServer from stzObject
 		@cWhy = ""
 		return [ :ok = 1, :signCount = _count_, :why = "" ]
 
+	# Prints one line with the domain and the origin.
+	#
+	#   returns    nothing; it prints
+	#   see        Origin
 	def Show()
 		? "stzPasskeyServer(rp=" + @cRpId + ", origin=" + @cOrigin + ")"
 

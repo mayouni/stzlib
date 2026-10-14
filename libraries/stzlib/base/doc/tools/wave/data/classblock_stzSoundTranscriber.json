@@ -1,0 +1,30 @@
+{
+ "brief": "Turns a sound into a score by finding the onsets, reading the pitch of each, and keeping how clear each pitch was.",
+ "detail": "Onsets are found in the sample domain, a jump in the energy of the first difference in 5 ms hops, and refined to the sample. The pitch is read at each onset, past its attack, by the engine's unguided reader (McLeod, 50 to 2000 Hz) and its clarity becomes the note's confidence. What comes back is an ordinary stzSoundScore. It is monophonic and cannot say which stroke a drum hit was: an onset with no pitch is kept in Unpitched with its time. It works on a sound in memory and opens no audio device or microphone. The results have not been heard by a person (UNPERCEIVED): they are checked by pitch against the known notes.",
+ "receiver": "oScore = StzSoundScoreOfQ(\"C4 E4 G4 C5\")\noScore.Tempo(96)\noSound = oScore.ToSound()\no1 = StzSoundTranscriberQ()\noBack = o1.TranscribeQ(oSound, 96)",
+ "example": [
+  "? oBack.NumberOfEvents()",
+  "#--> 4",
+  "? oBack.Events()[1][1]",
+  "#--> 0.00",
+  "? oBack.Events()[2][1]",
+  "#--> 1",
+  "? floor(oBack.Events()[3][3] + 0.5)",
+  "#--> 392",
+  "? len(o1.Confidences())",
+  "#--> 4",
+  "? min(o1.Confidences()) > 0.9",
+  "#--> 1",
+  "? @@( o1.Unpitched() )",
+  "#--> [ ]",
+  "o2 = StzSoundTranscriberQ()",
+  "oNone = o2.TranscribeQ(0, 96)",
+  "? o2.LastError()",
+  "#--> TranscribeQ: nothing to transcribe"
+ ],
+ "see": [
+  "stzSoundScore",
+  "stzSound",
+  "stzSoundNotationReader"
+ ]
+}

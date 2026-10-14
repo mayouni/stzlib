@@ -1,0 +1,21 @@
+{
+ "brief": "Holds one writing system, with its name, its four-letter code, its default language and the languages written in it.",
+ "detail": "The identifier may be a script name (Arabic), a code (Arab, Latn), or a text whose first character decides, so a Han ideograph gives han. The accessors read the locale tables: the name, the number, the code, the default language and its country, and the list of languages written in the script. A script has one default language in the data, so Latin answers english, and the matching Languages list is a separate table that does not always contain it.",
+ "receiver": "o1 = new stzScript(\"Arabic\")",
+ "example": [
+  "? o1.Abbreviation()",
+  "#--> Arab",
+  "? o1.DefaultLanguage()",
+  "#--> arabic",
+  "? o1.DefaultCountry()",
+  "#--> egypt",
+  "o2 = new stzScript(\"Latn\")",
+  "? o2.Name()",
+  "#--> latin"
+ ],
+ "see": [
+  "stzLanguage",
+  "stzChar",
+  "stzLocale"
+ ]
+}

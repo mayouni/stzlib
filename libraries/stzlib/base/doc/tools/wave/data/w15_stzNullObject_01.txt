@@ -1,0 +1,7 @@
+Content | Returns an empty text, which is the null object's content. | an empty text | | Value, Where
+Value | Returns the same empty text as Content. | an empty text | | Content
+Where | Returns an empty text whatever the condition says; the condition is not evaluated. | an empty text | pcCondition=a condition, ignored | W, stzTrueObject
+W | Returns an empty text whatever the condition says, like Where. | an empty text | pcCondition=a condition, ignored | Where
+IsEqualTo | Returns 0 for every argument, even for the null object itself: null is equal to nothing. | 0, a number | p=the value to compare, ignored | Equals, IsEqualToQ | | IsEqualToCS gives the same answer, and IsEqualToQ and IsEqualToCSQ return the null object so a chain goes on
+Equals | Returns 0 for every argument, as IsEqualTo does. | 0, a number | p=the value to compare, ignored | IsEqualTo | | EqualsQ returns the null object so a chain goes on
+StzType | Returns the type name of the object, stzNullObject, as a symbol. | the symbol stznullobject | | Content

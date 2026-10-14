@@ -1,0 +1,18 @@
+init | Creates an empty pipeline of facet stages, under a name. | nothing; the object is built | pcName=the pipeline's name, shown by Narrate | Stage, Run
+Name_ | Returns the pipeline's name. | a text | | init
+Stage | Appends a stage: a function that transforms the running value, tagged with the facet that handles it. | the pipeline itself, so calls chain | pcFacet=the facet that handles the stage, stored in lower case; pcStageName=the stage's name, shown in traces and failures; fWork=a function that takes the running value and returns the new one | Run, ValidateAgainst | stages run in the order they were added
+NumberOfStages | Returns how many stages the pipeline holds. | a number | | Stage, Stages
+Facets | Returns the facet of each stage, in order; a facet repeats when two stages share it. | a list of texts | | Stages, ValidateAgainst
+Stages | Returns the name of each stage, in order. | a list of texts | | Facets, Trace
+SetPool | Attaches a worker pool, so that each stage is admitted into the budget of its facet before it runs. | the pipeline itself, so calls chain | poPool=an object that answers HasProfile(facet), Acquire(facet) and Release(facet), such as a stzWorkerPool | PoolQ, Run | the pipeline keeps a copy of the pool object; a stage whose facet the pool has no profile for runs without admission
+PoolQ | Returns the attached pool; an empty text when none was attached. | the pool object | | SetPool
+ValidateAgainst | Returns the facets of the pipeline that a catalog does not know, each once, in order. | a list of texts; empty when every facet is known | poCatalog=a stzFacetCatalog, or any object that answers Has(facet) | Facets, Run
+Run | Threads an input through every stage in order, each stage's output being the next stage's input, and returns the final value. | the final value; an empty text if a stage failed | pInput=the value that enters the first stage | RunBatch, Failed, Trace | a stage that raises stops the run: the output is empty, Failed answers TRUE and Why names the stage and the cause; a run replaces the trace of the one before | each stage is timed on the monotonic clock
+Failed | TRUE if the last Run stopped because a stage raised. | TRUE or FALSE | | Why, Run
+Why | Returns the reason the last Run failed, naming the stage, its facet and the error; empty after a clean run. | a text | | Failed
+RunBatch | Runs a list of inputs one after the other through the whole pipeline and returns the outputs in the same order. | a list of final values | paInputs=the inputs to run, one value per item | Run | the trace and the last output reflect the last input only
+Trace | Returns what the last Run did, one [ facet, stage, value, ms ] list per stage; a failed stage shows ERROR in place of the value. | a list of lists | | StageDurations, TotalMs
+StageDurations | Returns the cost of each stage of the last Run as [ stage, ms ] pairs. | a list of lists | | TotalMs, Trace
+TotalMs | Returns the total of the stage durations of the last Run, in milliseconds. | a number | | StageDurations
+LastOutput | Returns the final value of the last Run; empty after a failed run. | the last value | | Run
+Narrate | Returns one line that gives the pipeline's name and its facets joined by arrows. | a text | | Facets

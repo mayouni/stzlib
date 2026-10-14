@@ -274,6 +274,28 @@ func StzBuildEngineWasm()
  #  STZBUILDER   #
 #===============#
 
+# Describes what to build and for which system, then compiles it with Zig's drop-in C compiler, cross-compiling with one target flag.
+#
+# Declare sources, language (C, C++, Zig or Ring), executable or library, target, optimisation,
+# definitions, includes and libraries, with the fluent Q forms. The target can be a
+# stzSystemProfile, a friendly name such as :LinuxServer or :ESP32, or a raw Zig triple. Args and
+# ToCommand show the command before anything runs, which is the rehearsal. Build then runs the
+# compiler in a managed child process and keeps the output, the error output and the exit code.
+# TargetWeb builds a freestanding wasm module for stzWebBundle. Build starts the Zig compiler and
+# writes the output and the compiler cache: the documentation run declared and read builders only
+# and did not run any Build.
+#
+#   receiver   o1 = new stzBuilder("hello") o1.AddSource("hello.c") o1.SetTarget("x86_64-linux-gnu")
+#              o1.OptimizeFast()
+#   example    ? @@( o1.Args() )
+#              #--> [ "cc", "hello.c", "-o", "hello", "-target", "x86_64-linux-gnu", "-O3" ]
+#              ? o1.Target()
+#              #--> x86_64-linux-gnu
+#              ? o1.IsWeb()
+#              #--> 0
+#              ? o1.Failed()
+#              #--> 1
+#   see        stzWebBundle, stzDeployment, stzSystemProfile
 class stzBuilder from stzObject
 
 	@cName = ""
@@ -305,11 +327,22 @@ class stzBuilder from stzObject
 	@bWeb = 0
 	@aExports = []
 
+	# Creates a build description with a name, which also names the default output file.
+	#
+	#   pcName     the name of the thing to build
+	#   returns    nothing; the object is built
+	#   note       nothing is compiled until Build
+	#   see        AddSource, Build
 	def init(pcName)
 		@cName = "" + pcName
 
-	  #-- the declarative spec (fluent) ----------------------
-
+	# Adds a source file to compile.
+	#
+	#   pcFile     the path of a source file
+	#   returns    nothing; use AddSourceQ to chain
+	#   warning    the order given is the order on the command line; the file is not checked
+	#   see        AddSources, Args
+	#@ aka  -- the declarative spec (fluent) ----------------------
 	def AddSource(pcFile)
 		This.AddSourceQ(pcFile)
 
@@ -317,6 +350,12 @@ class stzBuilder from stzObject
 		@aSources + ("" + pcFile)
 		return This
 
+	# Adds several source files at once.
+	#
+	#   paFiles    a list of source file paths
+	#   returns    nothing; use AddSourcesQ to chain
+	#   warning    a value that is not a list changes nothing
+	#   see        AddSource
 	def AddSources(paFiles)
 		This.AddSourcesQ(paFiles)
 
@@ -329,6 +368,14 @@ class stzBuilder from stzObject
 		ok
 		return This
 
+	# Sets the language of the sources: c, cpp, zig or ring; c is the default.
+	#
+	#   pcLang     c, cpp, zig or ring
+	#   returns    nothing; use SetLanguageQ to chain
+	#   warning    c, cpp and ring use zig cc and zig takes build-exe or build-lib; any other word
+	#              is treated as c; ring lowers the first source to C with ring -geo when Args or
+	#              Build is called
+	#   see        InC, InZig, Args
 	def SetLanguage(pcLang)
 		This.SetLanguageQ(pcLang)
 
@@ -336,27 +383,50 @@ class stzBuilder from stzObject
 		@cLanguage = StzLower(ring_trim("" + pcLang))
 		return This
 
+		# Sets the language to C, the default.
+		#
+		#   returns    nothing; use InCQ to chain
+		#   see        SetLanguage, InCpp
 		def InC()
 			This.InCQ()
 
 		def InCQ()
 			return This.SetLanguageQ("c")
+		# Sets the language to C++.
+		#
+		#   returns    nothing; use InCppQ to chain
+		#   warning    the command line is the same as for C
+		#   see        SetLanguage, InC
 		def InCpp()
 			This.InCppQ()
 
 		def InCppQ()
 			return This.SetLanguageQ("cpp")
+		# Sets the language to Zig, built with build-exe or build-lib.
+		#
+		#   returns    nothing; use InZigQ to chain
+		#   see        SetLanguage, InC
 		def InZig()
 			This.InZigQ()
 
 		def InZigQ()
 			return This.SetLanguageQ("zig")
+		# Sets the language to Ring, which is lowered to C and compiled with the Ring VM sources.
+		#
+		#   returns    nothing; use InRingQ to chain
+		#   warning    Args and Build then run ring -geo on the first source and write a generated C
+		#              file beside it
+		#   see        SetLanguage, SetRingRoot
 		def InRing()
 			This.InRingQ()
 
 		def InRingQ()
 			return This.SetLanguageQ("ring")
 
+	# Asks for an executable, the default.
+	#
+	#   returns    nothing; use EmitExeQ to chain
+	#   see        EmitLib, OutputPath
 	def EmitExe()
 		This.EmitExeQ()
 
@@ -364,6 +434,11 @@ class stzBuilder from stzObject
 		@cKind = "exe"
 		return This
 
+	# Asks for a shared library instead of an executable.
+	#
+	#   returns    nothing; use EmitLibQ to chain
+	#   warning    the default output name then has no extension, not .dll: set one with SetOutput
+	#   see        EmitExe, OutputPath
 	def EmitLib()
 		This.EmitLibQ()
 
@@ -371,8 +446,14 @@ class stzBuilder from stzObject
 		@cKind = "lib"
 		return This
 
-	# Set the build target -- a stzSystemProfile (a deployment system), a friendly
-	# name (:LinuxServer, :ESP32), or a raw Zig triple ("x86_64-linux-gnu").
+	# Sets what to build for: a stzSystemProfile, a friendly name such as :LinuxServer or :ESP32, or a raw Zig triple such as x86_64-linux-gnu.
+	#
+	#   pTarget    a system profile object, a name, or a triple (any text with a dash)
+	#   returns    nothing; use SetTargetQ to chain
+	#   warning    a value that is neither an object nor a text is ignored; setting a target does
+	#              not undo TargetWeb
+	#   see        Target, TargetHost, TargetWeb
+	#@ aka  Set the build target -- a stzSystemProfile (a deployment system), a friendly name (:LinuxServer, :ESP32), or a raw Zig triple ("x86_64-linux-gnu").
 	def SetTarget(pTarget)
 		This.SetTargetQ(pTarget)
 
@@ -393,6 +474,12 @@ class stzBuilder from stzObject
 		ok
 		return This
 
+	# Clears the target so that the build is for this machine.
+	#
+	#   returns    nothing; use TargetHostQ to chain
+	#   warning    it clears only the triple: if TargetWeb was called, IsWeb stays TRUE and the
+	#              freestanding flags and the small optimisation stay
+	#   see        SetTarget, Target
 	def TargetHost()
 		This.TargetHostQ()
 
@@ -400,9 +487,13 @@ class stzBuilder from stzObject
 		@cTriple = ""
 		return This
 
-	# Build FOR the web: a freestanding wasm module that stz.js instantiates.
-	# JS owns the memory (imported); listed exports are callable from JS; small
-	# by default. Pair with stzWebBundle to assemble the page.
+	# Builds for the web: the triple wasm32-freestanding, optimised small, with no libc and no start function.
+	#
+	#   returns    nothing; use TargetWebQ to chain
+	#   warning    use AddExport to name the functions JavaScript may call; pair with stzWebBundle
+	#              to assemble the page
+	#   see        AddExport, IsWeb
+	#@ aka  Build FOR the web: a freestanding wasm module that stz.js instantiates. JS owns the memory (imported); listed exports are callable from JS; small by default. Pair with stzWebBundle to assemble the page.
 	def TargetWeb()
 		This.TargetWebQ()
 
@@ -412,6 +503,12 @@ class stzBuilder from stzObject
 		@cOptimize = "small"
 		return This
 
+	# Adds a function that a web build exports to JavaScript.
+	#
+	#   pcName     the name of the function to export
+	#   returns    nothing; use AddExportQ to chain
+	#   warning    exports are passed to the linker only for a web build
+	#   see        AddExports, TargetWeb
 	def AddExport(pcName)
 		This.AddExportQ(pcName)
 
@@ -419,6 +516,12 @@ class stzBuilder from stzObject
 		@aExports + ("" + pcName)
 		return This
 
+	# Adds several exported functions at once.
+	#
+	#   paNames    a list of function names
+	#   returns    nothing; use AddExportsQ to chain
+	#   warning    a value that is not a list changes nothing
+	#   see        AddExport
 	def AddExports(paNames)
 		This.AddExportsQ(paNames)
 
@@ -431,12 +534,27 @@ class stzBuilder from stzObject
 		ok
 		return This
 
+	# TRUE if the build is for the web.
+	#
+	#   returns    TRUE or FALSE
+	#   see        TargetWeb, Target
 	def IsWeb()
 		return @bWeb
 
+	# Returns the Zig target triple, or an empty text for this machine.
+	#
+	#   returns    a text
+	#   see        SetTarget, TargetHost
 	def Target()
 		return @cTriple
 
+	# Sets the optimisation mode: debug, safe, fast or small.
+	#
+	#   pcMode     debug, safe, fast or small, matched without regard to case
+	#   returns    nothing; use SetOptimizationQ to chain
+	#   warning    any other word acts as debug; for cc the flags are -O0, -O2, -O3 and -Os, for zig
+	#              Debug, ReleaseSafe, ReleaseFast and ReleaseSmall
+	#   see        OptimizeFast, Args
 	def SetOptimization(pcMode)
 		This.SetOptimizationQ(pcMode)
 
@@ -444,27 +562,49 @@ class stzBuilder from stzObject
 		@cOptimize = StzLower(ring_trim("" + pcMode))
 		return This
 
+		# Sets the mode to debug, the default.
+		#
+		#   returns    nothing; use OptimizeDebugQ to chain
+		#   see        SetOptimization
 		def OptimizeDebug()
 			This.OptimizeDebugQ()
 
 		def OptimizeDebugQ()
 			return This.SetOptimizationQ("debug")
+		# Sets the mode to fast, for speed.
+		#
+		#   returns    nothing; use OptimizeFastQ to chain
+		#   see        SetOptimization
 		def OptimizeFast()
 			This.OptimizeFastQ()
 
 		def OptimizeFastQ()
 			return This.SetOptimizationQ("fast")
+		# Sets the mode to small, for size.
+		#
+		#   returns    nothing; use OptimizeSmallQ to chain
+		#   see        SetOptimization
 		def OptimizeSmall()
 			This.OptimizeSmallQ()
 
 		def OptimizeSmallQ()
 			return This.SetOptimizationQ("small")
+		# Sets the mode to safe, optimised with checks kept.
+		#
+		#   returns    nothing; use OptimizeSafeQ to chain
+		#   see        SetOptimization
 		def OptimizeSafe()
 			This.OptimizeSafeQ()
 
 		def OptimizeSafeQ()
 			return This.SetOptimizationQ("safe")
 
+	# Sets the path of the file to produce, in place of the default name.
+	#
+	#   pcPath     the path of the output file
+	#   returns    nothing; use SetOutputQ to chain
+	#   warning    the folder is not created
+	#   see        OutputPath, Build
 	def SetOutput(pcPath)
 		This.SetOutputQ(pcPath)
 
@@ -472,12 +612,25 @@ class stzBuilder from stzObject
 		@cOutput = "" + pcPath
 		return This
 
+	# Returns the path of the file the build produces: the one set, or the name plus .exe, .wasm or nothing by target.
+	#
+	#   returns    a text
+	#   warning    the default adds .exe for an executable for Windows, .wasm for wasm32 and nothing
+	#              otherwise
+	#   see        SetOutput, OutputExists
 	def OutputPath()
 		if @cOutput != ""
 			return @cOutput
 		ok
 		return @cName + This._DefaultExt()
 
+	# Adds a preprocessor definition NAME=value for a C or C++ build.
+	#
+	#   pcName     the macro's name
+	#   pcVal      its value
+	#   returns    nothing; use AddDefineQ to chain
+	#   warning    ignored for a Zig build
+	#   see        AddInclude, Args
 	def AddDefine(pcName, pcVal)
 		This.AddDefineQ(pcName, pcVal)
 
@@ -485,6 +638,12 @@ class stzBuilder from stzObject
 		@aDefines + [ "" + pcName, "" + pcVal ]
 		return This
 
+	# Adds a folder to the C include path.
+	#
+	#   pcDir      the include folder
+	#   returns    nothing; use AddIncludeQ to chain
+	#   warning    ignored for a Zig build
+	#   see        AddDefine, Args
 	def AddInclude(pcDir)
 		This.AddIncludeQ(pcDir)
 
@@ -492,6 +651,12 @@ class stzBuilder from stzObject
 		@aIncludes + ("" + pcDir)
 		return This
 
+	# Adds a library to link, as -l<name>.
+	#
+	#   pcLib      the library's name, without the -l
+	#   returns    nothing; use AddLinkQ to chain
+	#   warning    ignored for a Zig build
+	#   see        AddInclude, Args
 	def AddLink(pcLib)
 		This.AddLinkQ(pcLib)
 
@@ -499,6 +664,12 @@ class stzBuilder from stzObject
 		@aLibs + ("" + pcLib)
 		return This
 
+	# Sets the path of the zig executable, in place of the one found by the search.
+	#
+	#   pcPath     the path of zig
+	#   returns    nothing; use SetZigQ to chain
+	#   warning    the path is not checked
+	#   see        ZigPath
 	def SetZig(pcPath)
 		This.SetZigQ(pcPath)
 
@@ -506,14 +677,24 @@ class stzBuilder from stzObject
 		@cZig = "" + pcPath
 		return This
 
+	# Returns the zig executable: the one set, else the file named by the ZIG variable, else a known install path, else the name zig.
+	#
+	#   returns    a text
+	#   warning    the search reads the environment and the file system and starts nothing
+	#   see        SetZig, ToCommand
 	def ZigPath()
 		if @cZig != ""
 			return @cZig
 		ok
 		return _StzFindZig()
 
-	  #-- Ring parts: lower to C, then compile through Zig ---
-
+	# Sets the folder of the Ring installation that a Ring build compiles the VM from.
+	#
+	#   pcPath     the Ring root, the folder holding language/include/ring.h
+	#   returns    nothing; use SetRingRootQ to chain
+	#   warning    the path is not checked
+	#   see        RingRoot, InRing
+	#@ aka  -- Ring parts: lower to C, then compile through Zig ---
 	def SetRingRoot(pcPath)
 		This.SetRingRootQ(pcPath)
 
@@ -521,6 +702,11 @@ class stzBuilder from stzObject
 		@cRingRoot = "" + pcPath
 		return This
 
+	# Returns the Ring root: the one set, else the RING variable, else a known install folder, else an empty text.
+	#
+	#   returns    a text
+	#   warning    reads the environment and the file system and starts nothing
+	#   see        SetRingRoot
 	def RingRoot()
 		if @cRingRoot != ""
 			return @cRingRoot
@@ -596,11 +782,13 @@ class stzBuilder from stzObject
 			@aLoweredLibs = [ "m" ]
 		ok
 
-	  #-- the resolved build command -------------------------
-
-	# The zig argument list (data -- display with @@). For a Ring part this
-	# resolves the -geo lowering first, so the args reflect the REAL compile:
-	# the generated C + the Ring VM source, cc-compiled by Zig.
+	# Returns the compiler arguments as a list: the zig command, sources, output, target, optimisation, definitions, includes and libraries.
+	#
+	#   returns    a list of texts
+	#   warning    pure for the C, C++ and Zig languages; for ring it first runs ring -geo on the
+	#              first source, which writes a C file, so it was not run for ring
+	#   see        ToCommand, Build
+	#@ aka  -- the resolved build command -------------------------
 	def Args()
 		This._EnsureLowered()
 		_a_ = []
@@ -685,8 +873,12 @@ class stzBuilder from stzObject
 		ok
 		return _a_
 
-	# The full command line, as one string (rehearsable -- see it before you run
-	# it, the way the twin shows a plan before it commits).
+	# Returns the full command line as one text, so that it can be read before it is run.
+	#
+	#   returns    a text
+	#   warning    uses backslashes in the zig path on Windows; it starts nothing
+	#   see        Args, Build
+	#@ aka  The full command line, as one string (rehearsable -- see it before you run it, the way the twin shows a plan before it commits).
 	def ToCommand()
 		_cZig_ = This.ZigPath()
 		_oOS_ = new stzOperatingSystem()
@@ -701,8 +893,14 @@ class stzBuilder from stzObject
 		next
 		return _c_
 
-	  #-- the build (through the engine-backed managed child) --
-
+	# Runs the compiler on the description in a managed child process and keeps its output and exit code.
+	#
+	#   returns    the builder itself, so calls chain
+	#   note       not run: it starts the Zig compiler, which this documentation pass did not do
+	#   warning    effectful: it starts the zig compiler, which writes the output file and fills the
+	#              zig cache; a failure shows in ExitCode and the log, not as an error
+	#   see        Succeeded, BuildLog, ToCommand
+	#@ aka  -- the build (through the engine-backed managed child) --
 	def Build()
 		_oChild_ = SpawnProcess(This.ToCommand())
 		@cStdout = _oChild_.ReadOutputAll()
@@ -716,25 +914,55 @@ class stzBuilder from stzObject
 			This.Build()
 			return This
 
+	# Returns the exit code of the last Build; -1 before any Build.
+	#
+	#   returns    a number
+	#   see        Succeeded, Build
 	def ExitCode()
 		return @nExit
 
+	# TRUE if the output file exists on disk.
+	#
+	#   returns    TRUE or FALSE
+	#   warning    true also for a file left by an earlier build
+	#   see        OutputPath, Succeeded
 	def OutputExists()
 		return StzEngineFileExists(This.OutputPath()) = 1
 
+	# TRUE if Build ran, exited with 0 and left the output file.
+	#
+	#   returns    TRUE or FALSE
+	#   warning    FALSE before any Build
+	#   see        Failed, Build
 	def Succeeded()
 		return @bBuilt and @nExit = 0 and This.OutputExists()
 
+	# TRUE if the build did not succeed, which is also so before any Build.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Succeeded
 	def Failed()
 		return NOT This.Succeeded()
 
+	# Returns what the compiler printed on its standard output during the last Build; empty before a Build.
+	#
+	#   returns    a text
+	#   see        Stderr, BuildLog
 	def Stdout()
 		return @cStdout
 
+	# Returns what the compiler printed on its error output during the last Build; empty before a Build.
+	#
+	#   returns    a text
+	#   see        Stdout, BuildLog
 	def Stderr()
 		return @cStderr
 
-	# Everything the compiler said (zig writes diagnostics to stderr).
+	# Returns the standard output of the last Build followed by its error output.
+	#
+	#   returns    a text
+	#   see        Stdout, Stderr
+	#@ aka  Everything the compiler said (zig writes diagnostics to stderr).
 	def BuildLog()
 		_c_ = @cStdout
 		if @cStderr != ""
@@ -780,6 +1008,12 @@ class stzBuilder from stzObject
 		ok
 		return "Debug"
 
+	# Prints the builder's name, target, output path and command line.
+	#
+	#   returns    nothing; it prints
+	#   warning    for the ring language it would lower the first source, so use it on c or zig
+	#              builders
+	#   see        ToCommand, Args
 	def Show()
 		? "Builder '" + @cName + "'"
 		if @cTriple = ""

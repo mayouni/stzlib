@@ -1,0 +1,21 @@
+{
+ "brief": "Holds a complex number, a real part plus an imaginary part, and does its arithmetic: sum, product, quotient, modulus, argument, conjugate.",
+ "detail": "Build one with new stzComplex(re, im). It follows the Softanza forms: an active verb (Conjugate, Negate) changes the number in place; the passive form (Conjugated, Negated, Plus, Times ...) returns the result as a [ re, im ] pair and leaves the number alone; the Q twin (ConjugatedQ, PlusQ ...) returns a new stzComplex to chain on. The other operand of Plus, Minus, Times, DividedBy and Equals may be a number, a pair or another stzComplex. Log, inverse trigonometry and general powers are absent on purpose. The factory function StzComplexQ(re, im) written at the end of the file is not reachable as a function today (error R3).",
+ "receiver": "o1 = new stzComplex(3, 4)",
+ "example": [
+  "? o1.Content()",
+  "#--> 3+4i",
+  "? o1.Modulus()",
+  "#--> 5",
+  "? @@( o1.Times([ 0, 1 ]) )",
+  "#--> [ -4, 3 ]",
+  "? o1.PlusQ([ 1, 1 ]).Content()",
+  "#--> 4+5i",
+  "? o1.IsReal()",
+  "#--> 0"
+ ],
+ "see": [
+  "stzNumber",
+  "stzMatrix"
+ ]
+}

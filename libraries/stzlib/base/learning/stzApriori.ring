@@ -8,12 +8,36 @@
 #   ? oA.FrequentItemsets(2)
 #   ? oA.Rules(2, 0.6)
 
+# Finds items that occur together in baskets and states them as readable if-then rules with their support and confidence.
+#
+# Transactions are lists of items. The analyser counts the frequent itemsets of one, two and three
+# items, which are the classic basket sizes, and turns the pairs and triples into rules such as IF
+# jam THEN bread (confidence 1). The count runs in the engine. Items are compared in lower case. A
+# rule's support is the number of transactions that hold all its items and its confidence is that
+# number over the transactions that hold the if part, so every rule can be read back as knowledge.
+#
+#   receiver   o1 = new stzApriori([ ["bread", "butter"], ["bread", "jam"], ["bread", "butter",
+#              "jam"], ["milk", "bread"], ["butter"], ["bread"] ])
+#   example    ? o1.NumberOfTransactions()
+#              #--> 6
+#              ? @@( o1.FrequentItemsets(3) )
+#              #--> [ [ [ "bread" ], 5 ], [ [ "butter" ], 3 ] ]
+#              aRules = o1.Rules(2, 0.9)
+#              ? aRules[1][:if][1] + " -> " + aRules[1][:then]
+#              #--> jam -> bread
+#   see        stzKnowledgeGraph, stzNaiveBayes
 class stzApriori from stzObject
 
 	@aTx = []       # transactions: lists of lowered item strings
 	@acKeys = []          # keys parallel to the pairs _CountAll returns
 	@acItems = []         # distinct items in strcmp order -- position = code + 1
 
+	# Builds a basket analyser from a list of transactions, each a list of items, folded to lower case with repeats dropped.
+	#
+	#   paTransactions   a list of lists of items
+	#   returns          nothing; the object is built
+	#   warning          an argument that is not a list builds an analyser with no transactions
+	#   see              FrequentItemsets, Rules
 	def init(paTransactions)
 		if isList(paTransactions)
 			_n_ = len(paTransactions)
@@ -32,11 +56,21 @@ class stzApriori from stzObject
 			next
 		ok
 
+	# Returns how many transactions were kept.
+	#
+	#   returns    a number
+	#   see        init
 	def NumberOfTransactions()
 		return len(@aTx)
 
-	# [ [ items(list), count ] ... ] with count >= nMinCount,
-	# itemset sizes 1..3 (the floor; larger sets = engine tier later)
+	# Returns every set of one, two or three items that occurs in at least that many transactions, with its count.
+	#
+	#   nMinCount   the smallest number of transactions an itemset must appear in
+	#   returns     a list of [ items, count ] pairs, the items a list in alphabetical order; larger
+	#               sets are not searched
+	#   note        itemsets come in the order they were first counted, not by size or count
+	#   see         Rules
+	#@ aka  [ [ items(list), count ] ... ] with count >= nMinCount, itemset sizes 1..3 (the floor; larger sets = engine tier later)
 	def FrequentItemsets(nMinCount)
 		_aC_ = This._CountAll()
 		_aOut_ = []
@@ -48,8 +82,17 @@ class stzApriori from stzObject
 		next
 		return _aOut_
 
-	# association rules [ :if, :then, :support, :confidence ] from the
-	# frequent pairs and triples, confidence-filtered
+	# Returns if-then rules from the frequent pairs and triples, keeping those whose confidence reaches the threshold.
+	#
+	#   nMinCount   the smallest number of transactions an itemset must appear in
+	#   nMinConf    the smallest confidence, from 0 to 1
+	#   returns     a list of hash lists [ :if, :then, :support, :confidence ]; :if is a list of
+	#               items, :then one item, :support the itemset's count, :confidence its count
+	#               divided by the count of the :if items
+	#   note        every item of a frequent set takes a turn as the consequent, so a pair gives two
+	#               candidate rules
+	#   see         FrequentItemsets
+	#@ aka  association rules [ :if, :then, :support, :confidence ] from the frequent pairs and triples, confidence-filtered
 	def Rules(nMinCount, nMinConf)
 		_aC_ = This._CountAll()
 		_aRules_ = []

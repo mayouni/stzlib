@@ -1,0 +1,18 @@
+{
+ "brief": "Finds where a formula of named variables is smallest or largest, starting from a point, and reports how the search ended.",
+ "detail": "Build one with new stzObjective(\"(x-1)^2 + (y-2)^2\", [ \"x\", \"y\" ]). The search is L-BFGS on the exact gradient of the formula, with no constraints; for linear constraints use stzLinearSolver. MinimizeFrom and MaximizeFrom answer a record, not a bare point, because a bare point cannot say it did not converge: read :status and :why, and :evaluations for the real cost. The result is a local extremum, so different starts can end at different points. SetMaxIterations and SetGradientTolerance tune the stop. Status words are lowercase: converged, settled, maxiterations, linesearchfailed, notfinite.",
+ "receiver": "o1 = new stzObjective(\"(x-1)^2 + (y-2)^2\", [ \"x\", \"y\" ])",
+ "example": [
+  "aR = o1.MinimizeFrom([ -5, 8 ])",
+  "? @@( aR[:point] )",
+  "#--> [ 1, 2 ]",
+  "? aR[:status]",
+  "#--> converged",
+  "? o1.ValueAt([ 0, 0 ])",
+  "#--> 5"
+ ],
+ "see": [
+  "stzMathFunction",
+  "stzLinearSolver"
+ ]
+}

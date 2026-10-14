@@ -1,0 +1,2 @@
+log | Prints the value on its own line, as the C# call of the same name does. | nothing; it prints | str=the value to print; a list prints one item per line | WriteLine
+WriteLine | Prints the value on its own line, as the C# call of the same name does. | nothing; it prints | str=the value to print; a list prints one item per line | log

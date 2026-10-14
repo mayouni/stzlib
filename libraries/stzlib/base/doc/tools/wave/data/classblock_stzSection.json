@@ -1,0 +1,20 @@
+{
+ "brief": "Holds a section, the start and end positions of a stretch of a list or a string, checked against the size of that host.",
+ "detail": "Build one with new stzSection(n1, n2, nSize) or StzSectionQ(n1, n2, nSize); the global Section(n1, n2, nSize) answers just the [ start, end ] list and IsSection(n1, n2, nSize) tells whether the three numbers make a valid section. The positions may be keywords (:First, :Last) or named places ([ :From, 3 ], [ :To, 6 ]). Positions count from 1 and negative ones are refused. The check is incomplete: a start past the size is accepted when the end is inside, and nothing orders the two positions.",
+ "receiver": "o1 = new stzSection(2, 5, 10)",
+ "example": [
+  "? @@( o1.Content() )",
+  "#--> [ 2, 5 ]",
+  "? o1.StartPosition()",
+  "#--> 2",
+  "? o1.EndPosition()",
+  "#--> 5",
+  "? IsSection(1, 11, 10)",
+  "#--> 0"
+ ],
+ "see": [
+  "stzSetOfSections",
+  "stzListSections",
+  "stzList"
+ ]
+}

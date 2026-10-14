@@ -1,0 +1,1 @@
+init | Builds a service rule of that name in the services domain; it is a graph rule over a delivery that joins parts and services. | nothing; the object is built | pcName=the rule's name | stzServiceRuleSet, stzGraphRule

@@ -1,0 +1,18 @@
+{
+ "brief": "Holds the five rules a network topology must keep and judges a graph made from a network diagram.",
+ "detail": "The set carries every_device_is_linked, addresses_are_unique and address_in_its_subnet as errors, and switches_form_no_loop and the_edge_is_guarded as warnings, in the network-governance set of the network domain. stzNetworkDiagram builds one for GovernanceFindings and hands it the graph from AsRuleGraph; use the set directly to add a rule of your own before checking.",
+ "receiver": "o1 = new stzNetworkRuleSet()",
+ "example": [
+  "? o1.Name()",
+  "#--> network-governance",
+  "? o1.Domain()",
+  "#--> network",
+  "? len(o1.Rules())",
+  "#--> 5"
+ ],
+ "see": [
+  "stzNetworkDiagram",
+  "stzNetworkRule",
+  "stzGraphRuleSet"
+ ]
+}

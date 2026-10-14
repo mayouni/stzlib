@@ -1,0 +1,22 @@
+{
+ "brief": "Trims a text: white space at its ends, or a chosen character repeated at its start, its end or both.",
+ "detail": "Build one with new stzStringTrimmer(\"  text  \"). Trim, TrimLeft and TrimRight (and their aliases TrimStart and TrimEnd) strip white space; TrimChar, TrimCharFromStart and TrimCharFromEnd strip one given character, whole letters, so Hebrew, Arabic and emoji work. Each in-place verb changes the text held and has a passive twin that returns the trimmed text (Trimmed, TrimmedLeft, CharTrimmed ...). The Left and Right forms of TrimChar are meant to follow the writing direction and do not today. Do not pass a stzString object you still need: the first in-place trim empties it.",
+ "receiver": "o1 = new stzStringTrimmer(\"  hello world  \")",
+ "example": [
+  "? o1.Trimmed()",
+  "#--> hello world",
+  "? o1.TrimmedLeft()",
+  "#--> hello world  ",
+  "o2 = new stzStringTrimmer(\"--a-b--\")",
+  "? o2.CharTrimmed(\"-\")",
+  "#--> a-b",
+  "o3 = new stzStringTrimmer(\"😀😀שלום😀\")",
+  "? o3.CharTrimmed(\"😀\")",
+  "#--> שלום"
+ ],
+ "see": [
+  "stzString",
+  "stzListTrimmer",
+  "stzStringAligner"
+ ]
+}

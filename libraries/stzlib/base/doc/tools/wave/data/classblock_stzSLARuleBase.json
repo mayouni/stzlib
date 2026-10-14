@@ -1,0 +1,20 @@
+{
+ "brief": "Holds the two service-level rules of a business process and judges a workflow against them.",
+ "detail": "The set, named SLA Compliance in the sla domain, carries sla_defined, which wants a step marked critical to have an sla above 0, and sla_compliance, which flags a step whose duration exceeds its sla. A step with no sla is outside the second rule. Check(oWorkflow) answers the findings in the house shape.",
+ "receiver": "oWf = new stzWorkflow(\"order\")\noWf.AddStepXT(\"pack\", \"Pack\")\noWf.SetStepDuration(\"pack\", 30)\noWf.SetStepSLA(\"pack\", 20)\no1 = new stzSLARuleBase()",
+ "example": [
+  "? o1.Name()",
+  "#--> SLA Compliance",
+  "? len(o1.Rules())",
+  "#--> 2",
+  "? o1.Check(oWf)[1][:rule]",
+  "#--> sla_compliance",
+  "? o1.Check(oWf)[1][:message]",
+  "#--> duration 30 exceeds SLA 20: pack"
+ ],
+ "see": [
+  "stzWorkflow",
+  "stzBPMRuleBase",
+  "stzGraphRuleSet"
+ ]
+}

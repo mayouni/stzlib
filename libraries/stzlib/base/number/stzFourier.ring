@@ -38,11 +38,35 @@ func StzFourierQ(paSequence)
 func StzFourier(paSequence)
 	return new stzFourier(paSequence)
 
+# Holds a sequence of samples and answers what frequencies it is made of: its spectrum, magnitudes, phases, dominant frequency and convolution.
+#
+# Build one with new stzFourier(aSamples), numbers or [ re, im ] pairs. Any length is transformed
+# exactly, with a radix-2 FFT for a power of two and Bluestein's algorithm for the others, and never
+# padded. The convention is NumPy's: the forward transform is unscaled, the inverse carries the 1/n.
+# The Transform, Magnitudes, Phases and PowerSpectrum answers have one entry per bin; bin 1 holds
+# the mean. Content, Real and Imaginary give back the samples. InverseTransform inverts the sequence
+# it holds, which is the spectrum when you built the object from one.
+#
+#   receiver   o1 = new stzFourier([ 1, 2, 3, 4 ])
+#   example    ? o1.Count()
+#              #--> 4
+#              ? @@( o1.Magnitudes() )
+#              #--> [ 10, 2.83, 2, 2.83 ]
+#              ? o1.DominantBin()
+#              #--> 2
+#   see        stzPolynomial, stzComplex, stzSequence
 class stzFourier from stzObject
 
 	@aReal = []
 	@aImag = []
 
+	# Builds a sequence for frequency analysis from a list of numbers, or of [ re, im ] pairs for complex samples.
+	#
+	#   paSequence   the samples, numbers or [ re, im ] pairs
+	#   returns      nothing; the object is built
+	#   warning      anything but a list raises "give me a list of numbers (or of [re, im] pairs)",
+	#                and a sample of another kind raises an error naming its position
+	#   see          Transform, StzFourier
 	def init(paSequence)
 		if NOT isList(paSequence)
 			StzRaise("stzFourier: give me a list of numbers (or of [re, im] pairs).")
@@ -68,20 +92,41 @@ class stzFourier from stzObject
 			ok
 		next
 
+	# Returns the real parts of the samples as a list of numbers.
+	#
+	#   returns    a list of numbers
+	#   note       the imaginary parts are not in it, ask Imaginary; Real is the same method
+	#   see        Real, Imaginary
 	def Content()
 		return @aReal
 
+		# Returns the real parts of the samples as a list of numbers.
+		#
+		#   returns    a list of numbers
+		#   see        Content, Imaginary
 		def Real()
 			return @aReal
 
+	# Returns the imaginary parts of the samples as a list of numbers, 0 for plain numbers.
+	#
+	#   returns    a list of numbers
+	#   see        Real
 	def Imaginary()
 		return @aImag
 
+	# Returns how many samples the sequence has.
+	#
+	#   returns    a number
+	#   see        IsRadix2Length
 	def Count()
 		return len(@aReal)
 
-	# TRUE when the length is a power of two, i.e. when the plain radix-2 path
-	# applies. Informational only -- Transform() works either way.
+	# TRUE if the number of samples is a power of two, the case that takes the plain radix-2 path.
+	#
+	#   returns    TRUE or FALSE; FALSE for an empty sequence
+	#   note       informational only: any length is transformed exactly, never padded
+	#   see        Count
+	#@ aka  TRUE when the length is a power of two, i.e. when the plain radix-2 path applies. Informational only -- Transform() works either way.
 	def IsRadix2Length()
 		_n_ = len(@aReal)
 		if _n_ = 0
@@ -89,9 +134,14 @@ class stzFourier from stzObject
 		ok
 		return (_n_ & (_n_ - 1)) = 0
 
+	# Returns the spectrum of the sequence: one [ re, im ] pair per frequency bin, unscaled, with the NumPy sign convention.
+	#
+	#   returns    a list of [ re, im ] pairs; [ ] for an empty sequence
+	#   note       Spectrum and DFT are the same method; a 5-sample sequence gets the 5-point
+	#              transform, not a padded one
+	#   see        InverseTransform, Magnitudes
 	# ---- the transform ---------------------------------------------------
-
-	# The spectrum, as a list of [re, im] pairs, one per frequency bin.
+	#@ aka  The spectrum, as a list of [re, im] pairs, one per frequency bin.
 	def Transform()
 		return This._Fft(0)
 
@@ -101,7 +151,14 @@ class stzFourier from stzObject
 		def DFT()
 			return This.Transform()
 
-	# Back to the time domain. InverseTransform(Transform()) is the identity.
+	# Treats the sequence as a spectrum and returns the signal it comes from, as [ re, im ] pairs scaled by 1/n.
+	#
+	#   returns    a list of [ re, im ] pairs; [ ] for an empty sequence
+	#   note       it inverts THIS sequence, not its transform: to round-trip build a new object,
+	#              new stzFourier(o.Transform()).InverseTransform() gives back 1 2 3 4 with zero
+	#              imaginary parts; InverseDFT is the same method
+	#   see        Transform
+	#@ aka  Back to the time domain. InverseTransform(Transform()) is the identity.
 	def InverseTransform()
 		return This._Fft(1)
 
@@ -123,40 +180,49 @@ class stzFourier from stzObject
 		next
 		return _aOut_
 
-	# ---- reading a spectrum ----------------------------------------------
+	# Returns the size of each frequency bin, how much of that frequency is present, ignoring phase.
 	#
-	# EACH OF THESE IS ONE ENGINE CALL, not a transform this class then walks. The
-	# readings are what callers actually want -- raw complex bins are rarely the
-	# answer -- so they belong to the engine and every language over it, not to a
-	# loop written once per binding.
-
-	# |X_k| per bin: "how much of this frequency is present". Phase-blind, which is
-	# what you want when looking for a periodicity.
+	#   returns    a list of numbers, one per bin
+	#   see        Phases, PowerSpectrum
+	# ---- reading a spectrum ----------------------------------------------
+	#@ aka  EACH OF THESE IS ONE ENGINE CALL, not a transform this class then walks. The readings are what callers actually want -- raw complex bins are rarely the answer -- so they belong to the engine and every language over it, not to a loop written once per binding.
 	def Magnitudes()
 		return This._Read("mag")
 
-	# The phase angle of each bin, in radians.
+	# Returns the phase angle of each frequency bin, in radians.
+	#
+	#   returns    a list of numbers, one per bin
+	#   see        Magnitudes
+	#@ aka  The phase angle of each bin, in radians.
 	def Phases()
 		return This._Read("phase")
 
-	# |X_k|^2 -- energy per bin, the quantity Parseval's theorem is about.
+	# Returns the energy of each frequency bin, the square of its size.
+	#
+	#   returns    a list of numbers, one per bin
+	#   see        Magnitudes
+	#@ aka  |X_k|^2 -- energy per bin, the quantity Parseval's theorem is about.
 	def PowerSpectrum()
 		return This._Read("power")
 
-	# The bin carrying the most energy, 1-based for Ring.
+	# Returns the bin, counted from 1, that carries the most energy; bin 1, the mean, and the mirrored second half are left out.
 	#
-	# The engine excludes bin 0 and searches only the first half, and both matter:
-	# bin 0 holds the mean rather than a frequency and usually dominates, while a
-	# real signal's spectrum is conjugate-symmetric so the second half is a mirror.
-	# Getting either wrong names the wrong frequency; neither is a caller's problem.
+	#   returns    a number from 2; 0 for a sequence of fewer than 2 samples
+	#   note       a pure sine of 3 cycles over 16 samples answers 4, because bin 1 is the mean
+	#   see        DominantFrequency, PowerSpectrum
+	#@ aka  The bin carrying the most energy, 1-based for Ring.
 	def DominantBin()
 		if len(@aReal) < 2
 			return 0
 		ok
 		return StzEngineFftDominantBin(@aReal, @aImag) + 1
 
-	# The dominant frequency in cycles per sample-interval; multiply by a sample
-	# rate to get Hz.
+	# Returns the dominant frequency in cycles per sample interval, the dominant bin minus 1 over the number of samples.
+	#
+	#   returns    a number; 0 for fewer than 2 samples
+	#   note       multiply by the sampling rate to get hertz; 3 cycles in 16 samples gives 0.1875
+	#   see        DominantBin
+	#@ aka  The dominant frequency in cycles per sample-interval; multiply by a sample rate to get Hz.
 	def DominantFrequency()
 		_nB_ = This.DominantBin()
 		if _nB_ = 0
@@ -180,13 +246,16 @@ class stzFourier from stzObject
 		ok
 		return _aR_
 
-	# ---- convolution -----------------------------------------------------
-
-	# The LINEAR convolution of this sequence with another, computed through the
-	# transform: O(n log n) rather than the O(n*m) of the direct double loop.
+	# Returns the linear convolution of the real parts with another list of numbers, which is also the product of two polynomials' coefficients.
 	#
-	# This is also POLYNOMIAL MULTIPLICATION -- the coefficients of a product are
-	# the convolution of the coefficients -- which is why stzPolynomial uses it.
+	#   paOther    the other list of numbers, not empty
+	#   returns    a list of numbers, as long as both lists together minus 1
+	#   note       an empty list raises "give me a non-empty list of numbers"; ConvolvedWithQ
+	#              answers a stzFourier to chain on; 1 2 3 4 convolved with 1 1 is 1 3 5 7 4, up to
+	#              rounding
+	#   see        Transform
+	# ---- convolution -----------------------------------------------------
+	#@ aka  The LINEAR convolution of this sequence with another, computed through the transform: O(n log n) rather than the O(n*m) of the direct double loop.
 	def ConvolvedWith(paOther)
 		if NOT isList(paOther) or len(paOther) = 0
 			StzRaise("ConvolvedWith: give me a non-empty list of numbers.")

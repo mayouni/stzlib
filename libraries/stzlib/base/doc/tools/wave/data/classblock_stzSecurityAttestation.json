@@ -1,0 +1,20 @@
+{
+ "brief": "Exports a security ledger to a sealed file under an actor's name and states who exported what, when and how to verify it.",
+ "detail": "The ledger's hash chain makes the file tamper-evident; the attestation adds the custody statement an auditor needs: the attestor, the time, the number of entries, the head of the chain and the key kind. Exporting is governed by the sensing capability, so an inference-only actor may analyse an incident in the process and may not write the evidence out. Both a refusal and an export are recorded as events, so the ledger carries its own custody history. A keyed seal needs the same key to verify with StzVerifyAttestation. Use invented keys in examples; real ones belong in a secret store.",
+ "receiver": "o1 = StzSecurityAttestation(\"nightly-evidence\")",
+ "example": [
+  "? o1.WasWritten()",
+  "#--> 0",
+  "? o1.MayAttest(HumanActor(\"alice\"))",
+  "#--> 1",
+  "? o1.MayAttest(LLMActor(\"bot\"))",
+  "#--> 0",
+  "? o1.Statement()",
+  "#--> Attestation nightly-evidence: nothing written yet."
+ ],
+ "see": [
+  "stzSecurityLedger",
+  "StzVerifyAttestation",
+  "stzSecurityPosture"
+ ]
+}

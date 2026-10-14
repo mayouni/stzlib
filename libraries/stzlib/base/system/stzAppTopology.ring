@@ -34,6 +34,25 @@ func StzAppTopologyQ(pcName)
  #  STZSOLUTIONAPP #
 #=================#
 
+# The application model of a solution: named datasets, the role each part plays over them, and device models, all held as data.
+#
+# A solution holds datasets (a menu, an order history) and gives each part a role over them: menu,
+# dashboard, api or device. One model drives both the emulator, where each part renders its own app,
+# and the real deployed app. The dashboard figures are genuine computations: orders joined with the
+# menu prices and aggregated by the engine. Names of datasets and parts are stored in lower case.
+# The Q forms (AddDatasetQ, SetPartRoleQ and so on) return the model so that calls chain; the plain
+# forms return nothing. Attach a model to a delivery with SetAppTopology.
+#
+#   receiver   o1 = new stzAppTopology("bistro") o1.AddDataset("menu", [ [ "Couscous", "semolina",
+#              12 ], [ "Tea", "mint", 3 ] ]) o1.AddDataset("orders", [ [ "Couscous", 2 ], [ "Tea", 4
+#              ] ]) o1.SetPartRole("admin", "dashboard", "orders")
+#   example    ? o1.RoleOf("admin")
+#              #--> dashboard
+#              ? @@( o1.DashboardOf("admin") )
+#              #--> [ [ [ "Couscous", 2, 24 ], [ "Tea", 4, 12 ] ], 36, "Couscous", 24 ]
+#              ? @@( o1.ColumnsOf("orders") )
+#              #--> [ "c1", "c2" ]
+#   see        stzDeployment, stzEmulator
 class stzAppTopology from stzObject
 
 	@cName = ""
@@ -42,13 +61,23 @@ class stzAppTopology from stzObject
 	@aDevices = []     # [ [ partName, [ pins ], [ rule ] ], ... ]  -- firmware parts
 	@aColumns = []     # [ [ datasetName, [ colNames ] ], ... ]  -- the LIVE backend's schema
 
+	# Creates an empty application model, with a name, that will hold datasets, part roles and device models.
+	#
+	#   pcName     the model's name
+	#   returns    nothing; the object is built
+	#   see        AddDataset, SetPartRole
 	def init(pcName)
 		@cName = "" + pcName
 
-	  #-- define the model (Q-fluent) -------------------------------------
-
-	# a named dataset -- the solution's real domain data. A menu dataset is
-	# [ [ name, desc, price ], ... ]; an orders dataset is [ [ dish, qty ], ... ].
+	# Adds a named dataset of rows, or replaces the one of that name; names are stored in lower case.
+	#
+	#   pcName     the dataset's name, matched without regard to case
+	#   paRows     the rows, a list of lists, such as [ dish, qty ] for orders or [ name,
+	#              description, price ] for a menu
+	#   returns    nothing; use AddDatasetQ to chain
+	#   warning    replacing a dataset keeps its place in the order of declaration
+	#   see        SetPartRole, Dataset
+	#@ aka  -- define the model (Q-fluent) -------------------------------------
 	def AddDataset(pcName, paRows)
 		This.AddDatasetQ(pcName, paRows)
 
@@ -62,7 +91,16 @@ class stzAppTopology from stzObject
 		ok
 		return This
 
-	# give a part an app ROLE + the dataset it works over.
+	# Gives a part of the solution an app role and the dataset it works over, replacing any earlier role of that part.
+	#
+	#   pcPart      the part's name, stored in lower case
+	#   pcRole      the role, such as menu, dashboard, api or device
+	#   pcDataset   the name of the dataset the part works over
+	#   returns     nothing; use SetPartRoleQ to chain
+	#   warning     the dataset name is not checked: a part pointing at a missing dataset reads an
+	#               empty list
+	#   see         RoleOf, DatasetOf
+	#@ aka  give a part an app ROLE + the dataset it works over.
 	def SetPartRole(pcPart, pcRole, pcDataset)
 		This.SetPartRoleQ(pcPart, pcRole, pcDataset)
 
@@ -77,10 +115,15 @@ class stzAppTopology from stzObject
 		ok
 		return This
 
-	# the dataset's COLUMN NAMES. Only the live backend needs them (it
-	# materialises each dataset as a real sqlite table, and a part POSTs
-	# "dish=Couscous&qty=2" -- form keys ARE column names). Optional: when
-	# unset, ColumnsOf() derives c1..cN, so the static model is unaffected.
+	# Declares the column names of a dataset, which the live backend needs to build its table.
+	#
+	#   pcName     the dataset's name
+	#   paCols     the column names, a list of texts
+	#   returns    nothing; use SetDatasetColumnsQ to chain
+	#   note       declared for a dataset that does not exist yet, the names are still kept
+	#   warning    optional: without it ColumnsOf derives c1 to cN
+	#   see        ColumnsOf
+	#@ aka  the dataset's COLUMN NAMES. Only the live backend needs them (it materialises each dataset as a real sqlite table, and a part POSTs "dish=Couscous&qty=2" -- form keys ARE column names). Optional: when unset, ColumnsOf() derives c1..cN, so the static model is unaffected.
 	def SetDatasetColumns(pcName, paCols)
 		This.SetDatasetColumnsQ(pcName, paCols)
 
@@ -94,13 +137,19 @@ class stzAppTopology from stzObject
 		ok
 		return This
 
-	  #-- reads -----------------------------------------------------------
-
+	# Returns the name of the model.
+	#
+	#   returns    a text
+	#   see        init
+	#@ aka  -- reads -----------------------------------------------------------
 	def Name()
 		return @cName
 
-	# every dataset's name, in declaration order (the live backend
-	# materialises one table per entry).
+	# Returns the dataset names in the order they were declared, lower-cased.
+	#
+	#   returns    a list of texts
+	#   see        Dataset, PartNames
+	#@ aka  every dataset's name, in declaration order (the live backend materialises one table per entry).
 	def DatasetNames()
 		_out_ = []
 		_n_ = len(@aDatasets)
@@ -109,8 +158,11 @@ class stzAppTopology from stzObject
 		next
 		return _out_
 
-	# every part that has been given a role, in declaration order (the remote
-	# backend serialises these so a hosting PROCESS can rebuild the model).
+	# Returns the parts that have a role, in the order they were declared, lower-cased.
+	#
+	#   returns    a list of texts
+	#   see        RoleOf, DatasetNames
+	#@ aka  every part that has been given a role, in declaration order (the remote backend serialises these so a hosting PROCESS can rebuild the model).
 	def PartNames()
 		_out_ = []
 		_n_ = len(@aRoles)
@@ -119,7 +171,12 @@ class stzAppTopology from stzObject
 		next
 		return _out_
 
-	# declared column names, or derived c1..cN from the dataset's widest row.
+	# Returns the declared column names of a dataset, or c1 to cN derived from its widest row.
+	#
+	#   pcName     the dataset's name, matched without regard to case
+	#   returns    a list of texts
+	#   see        SetDatasetColumns, Dataset
+	#@ aka  declared column names, or derived c1..cN from the dataset's widest row.
 	def ColumnsOf(pcName)
 		_nm_ = StzLower(ring_trim("" + pcName))
 		_i_ = This._ColumnsIndex(_nm_)
@@ -146,6 +203,11 @@ class stzAppTopology from stzObject
 	def DashboardFromOrders(paOrders)
 		return This._DashboardFromOrders(paOrders)
 
+	# Returns the rows of a dataset; an empty list when there is none of that name.
+	#
+	#   pcName     the dataset's name, matched without regard to case
+	#   returns    a list of lists
+	#   see        DatasetOf, AddDataset
 	def Dataset(pcName)
 		_i_ = This._DatasetIndex(StzLower(ring_trim("" + pcName)))
 		if _i_ = 0
@@ -153,9 +215,19 @@ class stzAppTopology from stzObject
 		ok
 		return @aDatasets[_i_][2]
 
+	# TRUE if the part has been given a role.
+	#
+	#   pcPart     the part's name, matched without regard to case
+	#   returns    TRUE or FALSE
+	#   see        RoleOf, SetPartRole
 	def HasRoleFor(pcPart)
 		return This._RoleIndex(StzLower(ring_trim("" + pcPart))) > 0
 
+	# Returns the role of a part, such as menu or dashboard; an empty text when it has none.
+	#
+	#   pcPart     the part's name, matched without regard to case
+	#   returns    a text
+	#   see        HasRoleFor, DatasetNameOf
 	def RoleOf(pcPart)
 		_i_ = This._RoleIndex(StzLower(ring_trim("" + pcPart)))
 		if _i_ = 0
@@ -163,8 +235,12 @@ class stzAppTopology from stzObject
 		ok
 		return @aRoles[_i_][2]   # [ part, ROLE, dataset ]
 
-	# the NAME of the part's dataset (DatasetOf returns its rows). The live
-	# backend needs the name to address the running server's REST resource.
+	# Returns the name of the dataset a part works over; an empty text when the part has no role.
+	#
+	#   pcPart     the part's name, matched without regard to case
+	#   returns    a text
+	#   see        DatasetOf, RoleOf
+	#@ aka  the NAME of the part's dataset (DatasetOf returns its rows). The live backend needs the name to address the running server's REST resource.
 	def DatasetNameOf(pcPart)
 		_i_ = This._RoleIndex(StzLower(ring_trim("" + pcPart)))
 		if _i_ = 0
@@ -172,6 +248,11 @@ class stzAppTopology from stzObject
 		ok
 		return @aRoles[_i_][3]
 
+	# Returns the rows of the dataset a part works over; an empty list when the part has no role.
+	#
+	#   pcPart     the part's name, matched without regard to case
+	#   returns    a list of lists
+	#   see        DatasetNameOf, Dataset
 	def DatasetOf(pcPart)
 		_i_ = This._RoleIndex(StzLower(ring_trim("" + pcPart)))
 		if _i_ = 0
@@ -183,10 +264,16 @@ class stzAppTopology from stzObject
 	def MenuOf(pcPart)
 		return This.DatasetOf(pcPart)
 
-	# the REAL dashboard for a "dashboard"-role part: join the part's orders
-	# dataset ([ dish, qty ]) with the "menu" dataset (for prices), compute
-	# revenue per dish, and aggregate via the engine (stzTable). Returns
-	# [ [ [dish, qty, revenue], ... ], total, topDish, topRevenue ].
+	# Computes the dashboard of a part from its orders joined with the menu prices: revenue per row, the total, the top dish and its revenue.
+	#
+	#   pcPart     the name of a part whose dataset holds [ dish, qty ] rows
+	#   returns    a list [ rows, total, topDish, topRevenue ], each row [ dish, qty, revenue ]
+	#   note       the top dish is the single largest order row
+	#   warning    needs a dataset named menu with prices; with none, or for an unknown part, it
+	#              answers [ [ ], 0, empty, 0 ]; the engine does the sums, a row per order and not
+	#              per dish
+	#   see        ApiEndpointsFor, Dataset
+	#@ aka  the REAL dashboard for a "dashboard"-role part: join the part's orders dataset ([ dish, qty ]) with the "menu" dataset (for prices), compute revenue per dish, and aggregate via the engine (stzTable). Returns [ [ [dish, qty, revenue], ... ], total, topDish, topRevenue ].
 	def DashboardOf(pcPart)
 		return This._DashboardFromOrders(This.DatasetOf(pcPart))
 
@@ -217,11 +304,14 @@ class stzAppTopology from stzObject
 		_top_ = This._DishWithRevenue(_topRev_, _rows_)
 		return [ _rows_, _total_, _top_, _topRev_ ]
 
-	  #-- the API a backend part serves (real endpoints over the data) ----
-
-	# the endpoints an "api"-role part exposes: GET /<dataset> for each dataset,
-	# plus GET /stats (the engine aggregation) when there are orders to total.
-	# Each entry: [ req, count, statsOrEmpty ] -- count = -1 marks the stats one.
+	# Returns the endpoints a backend part serves over the data: GET for each dataset, plus GET /stats when orders and menu exist.
+	#
+	#   pcPart     the name of the api part
+	#   returns    a list of [ request, count, stats ] entries; the stats entry has count -1 and
+	#              holds [ total, topDish, topRevenue ]
+	#   warning    the answer is the same for every part name: the part is not looked up
+	#   see        DashboardOf
+	#@ aka  -- the API a backend part serves (real endpoints over the data) ----
 	def ApiEndpointsFor(pcPart)
 		_eps_ = []
 		_nd_ = len(@aDatasets)
@@ -234,9 +324,15 @@ class stzAppTopology from stzObject
 		ok
 		return _eps_
 
-	  #-- a firmware part's DEVICE model (pins + an automation rule) -------
-
-	# pins: [ [ pinNo, label, role, value ], ... ]  role = "sensor" | "actuator".
+	# Adds a firmware part with its pins, or replaces the pins of a part already there.
+	#
+	#   pcPart     the part's name, stored in lower case
+	#   paPins     the pins, a list of [ pinNumber, label, role, value ] with role sensor or
+	#              actuator
+	#   returns    nothing; use AddDeviceQ to chain
+	#   warning    replacing the pins keeps the rule
+	#   see        SetRule, DeviceOf
+	#@ aka  -- a firmware part's DEVICE model (pins + an automation rule) -------
 	def AddDevice(pcPart, paPins)
 		This.AddDeviceQ(pcPart, paPins)
 
@@ -250,8 +346,16 @@ class stzAppTopology from stzObject
 		ok
 		return This
 
-	# an automation rule: actuator ON when sensor < threshold (the real firmware
-	# logic the emulator applies -- not a blind toggle).
+	# Sets the automation rule of a firmware part: the actuator goes on when the sensor reads under the threshold.
+	#
+	#   pcPart        the part's name
+	#   pcSensor      the label of the sensor pin
+	#   pnThreshold   the reading under which the actuator goes on
+	#   pcActuator    the label of the actuator pin
+	#   returns       nothing; use SetRuleQ to chain
+	#   warning       for a part with no device it creates one with no pins
+	#   see           AddDevice, DeviceOf
+	#@ aka  an automation rule: actuator ON when sensor < threshold (the real firmware logic the emulator applies -- not a blind toggle).
 	def SetRule(pcPart, pcSensor, pnThreshold, pcActuator)
 		This.SetRuleQ(pcPart, pcSensor, pnThreshold, pcActuator)
 
@@ -265,10 +369,20 @@ class stzAppTopology from stzObject
 		@aDevices[_i_][3] = [ "" + pcSensor, pnThreshold, "" + pcActuator ]
 		return This
 
+	# TRUE if the part has a device model.
+	#
+	#   pcPart     the part's name, matched without regard to case
+	#   returns    TRUE or FALSE
+	#   see        AddDevice, DeviceOf
 	def HasDevice(pcPart)
 		return This._DeviceIndex(StzLower(ring_trim("" + pcPart))) > 0
 
-	# [ pins, rule ] for a device part; [ [], [] ] if none.
+	# Returns [ pins, rule ] for a device part, with the rule as [ sensor, threshold, actuator ]; [ [ ], [ ] ] when it has none.
+	#
+	#   pcPart     the part's name, matched without regard to case
+	#   returns    a list of two lists
+	#   see        AddDevice, SetRule
+	#@ aka  [ pins, rule ] for a device part; [ [], [] ] if none.
 	def DeviceOf(pcPart)
 		_i_ = This._DeviceIndex(StzLower(ring_trim("" + pcPart)))
 		if _i_ = 0

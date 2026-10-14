@@ -1,0 +1,19 @@
+{
+ "brief": "Is meant to hold a grid of rows and columns with a current cell that moves, but no object of it can be built today.",
+ "detail": "The class wraps the engine's grid navigation module: a position, moves that refuse to leave the grid, a neighbour count, a validity test and a Manhattan distance. Today new stzGridNav always raises Can't create stzGridNav! Engine returned error, because the wrapper hands the engine a grid name that the engine does not take, so every row and column is read one argument too late; the direction constants of the class also disagree with the engine's. The engine functions themselves work when called directly with their own arguments, as StzEngineGridCreate(3, 4).",
+ "receiver": "nOk = StzEngineGridCreate(3, 4)",
+ "example": [
+  "? nOk",
+  "#--> 0",
+  "try",
+  "o1 = new stzGridNav(\"g\", 3, 4)",
+  "catch",
+  "? \"raised\"",
+  "#--> raised",
+  "done"
+ ],
+ "see": [
+  "stzObject",
+  "stzGraph"
+ ]
+}

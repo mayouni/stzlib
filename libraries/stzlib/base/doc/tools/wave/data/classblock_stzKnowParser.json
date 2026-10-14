@@ -1,0 +1,15 @@
+{
+ "brief": "Reads the text or file of a knowledge document and builds the stzKnowledgeGraph it records.",
+ "detail": "The document is a knowledge header with the quoted id of the graph, then sections: facts, one subject | relation | object line each, ontology, provenance and contradictions. The parser keeps no state, and it is what ImportKnow uses behind the scenes. A document with sections but no header raises error R13, and a fact line that does not hold exactly three parts is skipped.",
+ "receiver": "o1 = new stzKnowParser()\ncText = 'knowledge \"pantry\"' + char(10) + \"facts\" + char(10) + \"rice | isa | grain\" + char(10) + \"tea | isa | leaf\"",
+ "example": [
+  "oKg = o1.Parse(cText)",
+  "? oKg.Id()",
+  "#--> pantry",
+  "? @@( oKg.Facts() )",
+  "#--> [ [ \"rice\", \"isa\", \"grain\" ], [ \"tea\", \"isa\", \"leaf\" ] ]"
+ ],
+ "see": [
+  "stzKnowledgeGraph"
+ ]
+}

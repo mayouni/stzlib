@@ -42,13 +42,49 @@ func _StzPathHasGuardian(oGraph, paPath)
 	next
 	return 0
 
+# Holds one guardrail over an agent graph as a declared rule, in the agentic domain.
+#
+# An agent rule is a stzGraphRule whose domain is set to agentic; the library's governance
+# invariants are declared with it inside stzAgentRuleSet, and a project can add its own without
+# editing library code.
+#
+#   receiver   o1 = new stzAgentRule("no-llm-effectful")
+#   example    ? o1.Name()
+#              #--> no-llm-effectful
+#              ? o1.Domain()
+#              #--> agentic
+#   see        stzAgentRuleSet, stzGraphRule, stzAgentGraph
 class stzAgentRule from stzGraphRule
+	# Builds a guardrail rule of that name in the agentic domain; it is a graph rule, so the clauses of stzGraphRule apply.
+	#
+	#   pcName     the rule's name
+	#   returns    nothing; the object is built
+	#   see        stzAgentRuleSet, stzGraphRule
 	def init(pcName)
 		super.init(pcName)
 		This.SetDomainQ("agentic")
 
 
+# Holds the agent guardrails as one set of graph rules, reproducing the hand-written governance checks.
+#
+# It is born with six rules: no-llm-effectful, effects-guarded, open-text-contained, effects-traced,
+# effects-dominated (every path to an effect passes through a guardian) and external-data-contained.
+# A project adds its own with AddRule. It judges an agent graph the way StzCheckAgentGraph does, on
+# the same nodes.
+#
+#   receiver   o1 = new stzAgentRuleSet()
+#   example    ? o1.NumberOfRules()
+#              #--> 6
+#              ? o1.Name()
+#              #--> agent-guardrails
+#              ? o1.RuleNamed("effects-dominated").Name()
+#              #--> effects-dominated
+#   see        stzAgentRule, stzAgentGraph, stzGraphRuleSet
 class stzAgentRuleSet from stzGraphRuleSet
+	# Builds the agent-guardrails rule set, already loaded with its six rules.
+	#
+	#   returns    nothing; the object is built
+	#   see        stzAgentRule, stzGraphRuleSet
 	def init()
 		super.init("agent-guardrails")
 		This.SetDomainQ("agentic")

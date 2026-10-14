@@ -1,0 +1,2 @@
+GgmlVersion | Returns the build version of the vendored ggml library, the same for every neural class. | a text such as 0.0.0-stz | | GgmlReady, stzNeuralEngine
+GgmlReady | TRUE if the ggml backend is compiled in and runs a small tensor computation end to end. | 1 or 0, numbers | | GgmlVersion, stzNeuralEngine

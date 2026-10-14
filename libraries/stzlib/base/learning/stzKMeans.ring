@@ -10,6 +10,24 @@
 #   ? oKM.Centroids()
 #   ? oKM.ClusterOf([7.5, 8.0])
 
+# Groups numeric vectors into k clusters by Lloyd's k-means, deterministically, with the whole run done in the engine.
+#
+# Centroids are seeded from the first k distinct points, so two runs agree and nothing is random;
+# shuffle the vectors upstream for randomised restarts. Each iteration assigns every point to its
+# nearest centroid and moves the centroids, stopping when no assignment changes or the iteration
+# limit is reached. An empty cluster keeps its centroid. Because the seeding is fixed, an unlucky
+# order can settle in a poor local minimum, which Inertia shows.
+#
+#   receiver   o1 = new stzKMeans([ [1, 1], [1.2, 0.9], [8, 8], [7.9, 8.1] ])
+#   example    o1.SetK(2)
+#              o1.Run(50)
+#              ? @@( o1.Clusters() )
+#              #--> [ [ 1, 2 ], [ 3, 4 ] ]
+#              ? o1.ClusterOf([ 7.5, 8.0 ])
+#              #--> 2
+#              ? o1.Iterations()
+#              #--> 3
+#   see        stzKnn, stzTrainingSet
 class stzKMeans from stzObject
 
 	@aVecs = []
@@ -20,6 +38,11 @@ class stzKMeans from stzObject
 	@nInertia = 0
 	@cWhy = ""
 
+	# Builds a clusterer over a list of numeric vectors; the number of clusters defaults to 2.
+	#
+	#   paVectors   a list of lists of numbers
+	#   returns     nothing; the object is built
+	#   see         SetK, Run
 	def init(paVectors)
 		if isList(paVectors)
 			_n_ = len(paVectors)
@@ -30,12 +53,28 @@ class stzKMeans from stzObject
 			next
 		ok
 
+	# Sets how many clusters to find.
+	#
+	#   n          the number of clusters, 1 or more
+	#   returns    the clusterer itself, so calls chain
+	#   note       a value below 1 is ignored without a message and the earlier value stays
+	#   see        Run
 	def SetK(n)
 		if n >= 1
 			@nK = n
 		ok
 		return This
 
+	# Computes the clusters by Lloyd's k-means, seeding the centroids with the first k distinct points, and stops when no assignment changes.
+	#
+	#   nMaxIter   the most iterations allowed
+	#   returns    the clusterer itself, so calls chain
+	#   note       deterministic: two runs on the same data agree, and a point equidistant from two
+	#              centroids goes to the lower-numbered one; with a poor seed the result can be a
+	#              poor local minimum
+	#   warning    raises an error when there are fewer vectors than clusters, when the vectors
+	#              differ in width, or when there are fewer distinct points than clusters
+	#   see        Clusters, Centroids, Inertia
 	def Run(nMaxIter)
 		_nV_ = len(@aVecs)
 		if _nV_ < @nK
@@ -113,8 +152,11 @@ class stzKMeans from stzObject
 		$nStzLastCertainty = 1
 		return This
 
-	# one pass over the assignments, not one per cluster: k scans of n were
-	# 1.28 M steps at 20,000 points into 64 (256 ms); one scan is 20,000
+	# Returns the members of each cluster, as positions in the input list.
+	#
+	#   returns    a list with one list of numbers per cluster; empty lists before Run
+	#   see        Centroids, ClusterOf
+	#@ aka  one pass over the assignments, not one per cluster: k scans of n were 1.28 M steps at 20,000 points into 64 (256 ms); one scan is 20,000
 	def Clusters()
 		_aOut_ = []
 		for _c_ = 1 to @nK
@@ -129,9 +171,21 @@ class stzKMeans from stzObject
 		next
 		return _aOut_
 
+	# Returns the centre of each cluster.
+	#
+	#   returns    a list of vectors, one per cluster; empty before Run
+	#   see        Clusters, ClusterOf
 	def Centroids()
 		return @aCentroids
 
+	# Returns the number of the nearest cluster for a new vector, by Euclidean distance to the centroids.
+	#
+	#   paVector   the vector to place
+	#   returns    a number from 1 to k
+	#   note       a vector shorter or longer than the centroids is compared over their common
+	#              length
+	#   warning    raises an error telling to call Run first
+	#   see        Centroids, Run
 	def ClusterOf(paVector)
 		if len(@aCentroids) = 0
 			stzraise("Run() me first.")
@@ -147,14 +201,25 @@ class stzKMeans from stzObject
 		next
 		return _nBest_
 
-	# total within-cluster squared distance -- the quality number, computed by
-	# the engine at the end of the run over the same distance (cluster.zig)
+	# Returns the total squared distance of the points to their centroids, the quality number of the run.
+	#
+	#   returns    a number; 0 before Run
+	#   see        Iterations, Why
+	#@ aka  total within-cluster squared distance -- the quality number, computed by the engine at the end of the run over the same distance (cluster.zig)
 	def Inertia()
 		return @nInertia
 
+	# Returns how many iterations the last Run took.
+	#
+	#   returns    a number
+	#   see        Run, Inertia
 	def Iterations()
 		return @nIterations
 
+	# Returns a sentence saying how the last Run ended, with the iteration count and the inertia.
+	#
+	#   returns    a text; empty before Run
+	#   see        Iterations, Inertia
 	def Why()
 		return @cWhy
 

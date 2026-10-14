@@ -1,0 +1,19 @@
+{
+ "brief": "Makes a text visible: prints it, marks where a character or substring occurs, frames it in a box, or wraps matches in markers.",
+ "detail": "Build one with new stzStringVisualizer(\"text\"); it only reads, so a stzString passed in is never changed. Show, ShowShort and ShowNL print; VizFindChar, VizFind, Boxed, BoxedRounded, Stringify and Highlight return a text; EachCharBoxed returns a list of small boxes. The boxes use plain ASCII characters (dots, dashes and bars), so they print on any console, unlike the Unicode frames of stzStringBoxed. Widths count characters, so Hebrew, Arabic and emoji are measured by letter.",
+ "receiver": "o1 = new stzStringVisualizer(\"banana band\")",
+ "example": [
+  "? o1.VizFind(\"an\")",
+  "#--> \"banana band\"",
+  "#-->  -^^^^---^^-",
+  "? o1.Highlight(\"an\", \"*\")",
+  "#--> b*an**an*a b*an*d",
+  "? o1.Stringify()",
+  "#--> \"banana band\""
+ ],
+ "see": [
+  "stzStringBoxed",
+  "stzString",
+  "stzStringFinder"
+ ]
+}

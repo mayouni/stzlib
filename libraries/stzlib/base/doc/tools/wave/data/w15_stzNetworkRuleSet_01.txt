@@ -1,0 +1,1 @@
+init | Builds the set of the five network rules, in the network-governance set. | nothing; the object is built | | | | the rules are every_device_is_linked, addresses_are_unique, address_in_its_subnet, switches_form_no_loop and the_edge_is_guarded; Check(oGraph) judges a graph made by AsRuleGraph

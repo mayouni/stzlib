@@ -1,0 +1,27 @@
+{
+ "brief": "Holds the expectations a service must meet, stated in operational terms, and judges them against measured numbers.",
+ "detail": "An SLA is part of the design and not a dashboard threshold added after an incident. Expect names a well-known subject, response time percentiles, throughput, error rate, availability, CPU, memory, and a closer, Under, AtMost, AtLeast or Over, gives the bound; ExpectP95, ExpectMean, ExpectValue, ExpectRate and ExpectStable do the same for a metric of your own. CheckAgainst judges them against a stzPerfMonitor and returns the breaches as findings in the unified shape, subject perf, ready for stzRuleReport. An expectation over a metric the monitor does not carry is an error finding, never a silent pass. AsWarning softens the last expectation to advice. Judged values that depend on the clock, rates and CPU, should be asserted by range.",
+ "receiver": "oMon = StzPerfMonitor(\"api\")\noT = oMon.NewTimer(\"http.request.ms\")\noT.Record(20)\noT.Record(40)\noT.Record(60)\noT.Record(80)\noT.Record(400)\noReq = oMon.NewCounter(\"http.requests\")\noReq.IncrementBy(200)\noErr = oMon.NewCounter(\"http.errors\")\noErr.IncrementBy(1)\noDepth = oMon.NewGauge(\"queue.depth\")\noDepth.Set(120)\no1 = StzSla(\"restolean-api\")\no1.Expect(:ResponseTimeP95).Under(200)\no1.Expect(:ResponseTimeP50).AtMost(100)\no1.Expect(:Availability).AtLeast(99.9)\no1.ExpectValue(\"queue.depth\").AtMost(100)",
+ "example": [
+  "? o1.NumberOfExpectations()",
+  "#--> 4",
+  "aF = o1.CheckAgainst(oMon)",
+  "? len(aF)",
+  "#--> 3",
+  "? aF[1][:rule]",
+  "#--> response-time-p95-under-200",
+  "? aF[1][:message]",
+  "#--> response-time-p95-under-200: measured 400 (must be <= 200)",
+  "? o1.Verdicts()[2][:ok]",
+  "#--> 1",
+  "? o1.Passed()",
+  "#--> 0",
+  "? o1.BreachCount()",
+  "#--> 3"
+ ],
+ "see": [
+  "stzPerfMonitor",
+  "stzPerfSentinel",
+  "stzRuleReport"
+ ]
+}

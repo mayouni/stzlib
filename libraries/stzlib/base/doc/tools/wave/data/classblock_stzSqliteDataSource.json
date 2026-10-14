@@ -1,0 +1,23 @@
+{
+ "brief": "Holds a local SQLite database as the data port of the service plane: a real database in a file you own, not a fake.",
+ "detail": "A data port is any object with Exec, Rows and Value, the surface stzDatabase already has. This source is local-real: SQLite is not a pretend database, so it may ship, and registering it with BindLocal says so. The one dangerous case is the :memory: path, a genuine database that loses every row at restart and is one character away from a file path, so IsEphemeral reports it and the registry treats it as an error in a production phase. The three port methods run the SQL text as written; the small conveniences, TableExists, Tables and RowCount, build their own SQL. At deploy a hosted client such as Postgres is bound behind the same three methods.",
+ "receiver": "o1 = StzMemoryDataSourceQ()",
+ "example": [
+  "o1.Exec(\"CREATE TABLE people (id INTEGER, name TEXT)\")",
+  "? o1.Exec(\"INSERT INTO people VALUES (1, 'Aicha'), (2, 'Zin')\")",
+  "#--> 2",
+  "? o1.Value(\"SELECT name FROM people WHERE id = 2\")",
+  "#--> Zin",
+  "? o1.RowCount(\"people\")",
+  "#--> 2",
+  "? @@( o1.Tables() )",
+  "#--> [ \"people\" ]",
+  "? o1.IsEphemeral()",
+  "#--> 1"
+ ],
+ "see": [
+  "stzServiceRegistry",
+  "stzDatabase",
+  "stzMailSandbox"
+ ]
+}

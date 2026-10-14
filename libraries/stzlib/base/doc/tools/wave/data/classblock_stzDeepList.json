@@ -1,0 +1,19 @@
+{
+ "brief": "Navigates a nested list by paths: lists every location, finds an item wherever it hides, and reads the item at a path.",
+ "detail": "A path is a list of 1-based positions that locates an item: [2,3,1] is the 1st item of the 3rd item of the 2nd item. stzDeepList is a stzList, so every list method is still there; this subclass adds the path vocabulary, and the recursive work runs in the Zig engine. Build one with new stzDeepList(aList) or DeepListQ(aList). The path utilities that do not need a list (IsSubPathOf, CommonPath, SortPaths) are globals in stzListPaths.ring.",
+ "receiver": "o1 = new stzDeepList([ \"A\", [ \"x\", \"B\", [ \"C\", \"x\" ], \"x\" ], \"E\" ])",
+ "example": [
+  "? @@( o1.DeepFind(\"x\") )",
+  "#--> [ [ 2, 1 ], [ 2, 3, 2 ], [ 2, 4 ] ]",
+  "? o1.ItemAtPath([2,3,1])",
+  "#--> C",
+  "? @@( o1.PathsAtDepth(3) )",
+  "#--> [ [ 2, 3, 1 ], [ 2, 3, 2 ] ]",
+  "? o1.DeepContains(\"E\")",
+  "#--> 1"
+ ],
+ "see": [
+  "stzList",
+  "stzListOfLists"
+ ]
+}

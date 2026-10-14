@@ -32,6 +32,25 @@ func StzLibDocQ(paClasses)
 func _StzDefaultDocClasses()
 	return [ "stzText", "stzListOfTexts" ]
 
+# Indexes the methods and doc blocks of many classes at once, so a plain-English question finds the method and the class that holds it.
+#
+# It harvests each named class with its inherited methods from the source, files every method under
+# the class that defines it, and adds the intent recipes, small units that answer a how-do-I
+# question with a runnable snippet. Ask ranks the entries by the meaning of the words: a lexical
+# match first, with a loaded embedding or reranker model rescuing questions that share no word.
+# Nothing is generated; the answer is always something the library already holds. Keep the class
+# list short, since a large list costs index time when an embedding model is loaded.
+#
+#   receiver   o1 = new stzLibDoc([ "stzAgentSkill", "stzAgentMemory" ])
+#   example    ? o1.NumberOfClasses()
+#              #--> 2
+#              ? o1.NumberOfRecipes() > 0
+#              #--> 1
+#              ? o1.BestMethodFor("remember a fact")
+#              #--> stzAgentMemory.Fact
+#              ? o1.Ask("detect the language of a text")[1][1]
+#              #--> (recipe)
+#   see        stzSelfDoc, StzLibDocQ
 class stzLibDoc from stzObject
 
 	@aEntries = []    # [ ownerOrKind, name, description ] (kind "(recipe)" for recipes)
@@ -41,6 +60,15 @@ class stzLibDoc from stzObject
 	@nRecipes = 0     # how many entries are intent recipes
 	@nSamples = 0     # how many entries are harvested test samples
 
+	# Reads the methods and doc blocks of several classes, with those they inherit, into one searchable index, and adds the intent recipes.
+	#
+	#   paClasses   a list of class names
+	#   returns     nothing; the object is built
+	#   note        each method is filed under the class that defines it, so a question can tell
+	#               which class has it
+	#   warning     the recipes are added even for an empty list, but not when the argument is not a
+	#               list
+	#   see         Ask, NumberOfEntries
 	def init(paClasses)
 		if NOT isList(paClasses) return ok
 		_nC_ = len(paClasses)
@@ -72,9 +100,17 @@ class stzLibDoc from stzObject
 			@nRecipes++
 		next
 
+	# Returns how many entries the index holds, methods, recipes and test samples together.
+	#
+	#   returns    a number
+	#   see        NumberOfClasses, NumberOfRecipes, NumberOfSamples
 	def NumberOfEntries()
 		return len(@aEntries)
 
+	# Returns how many distinct classes own the harvested methods, ancestors that define some included.
+	#
+	#   returns    a number
+	#   see        NumberOfEntries
 	def NumberOfClasses()
 		_aSeen_ = []
 		_nE_ = len(@aEntries)
@@ -85,9 +121,14 @@ class stzLibDoc from stzObject
 		next
 		return len(_aSeen_)
 
-# Union in the TEST SAMPLES of the given test topics (L3): every narrated
-	# Then("desc", code, expected) becomes an "(example)" record -- a natural
-	# query can surface a REAL verified call. Chainable; re-index on next Ask.
+	# Adds the verified calls of the given test topics to the index, so a question can surface a call that is known to run.
+	#
+	#   paTopics   a list of test topic names, such as agentic
+	#   returns    nothing; use AddTestSamplesQ to chain
+	#   note       a topic that does not exist adds nothing; the index is rebuilt at the next
+	#              question
+	#   see        NumberOfSamples, Ask
+	#@ aka  Union in the TEST SAMPLES of the given test topics (L3): every narrated Then("desc", code, expected) becomes an "(example)" record -- a natural query can surface a REAL verified call. Chainable; re-index on next Ask.
 	def AddTestSamples(paTopics)
 		if NOT isList(paTopics) return This ok
 		_nT_ = len(paTopics)
@@ -107,17 +148,40 @@ class stzLibDoc from stzObject
 			This.AddTestSamples(paTopics)
 			return This
 
+	# Returns how many test samples were added.
+	#
+	#   returns    a number
+	#   see        AddTestSamples
 	def NumberOfSamples()
 		return @nSamples
 
+	# Returns how many intent recipes are in the index.
+	#
+	#   returns    a number
+	#   see        NumberOfEntries
 	def NumberOfRecipes()
 		return @nRecipes
 
-	# Ask(question) -- which methods, ACROSS the harvested classes, best match the
-	# question by MEANING: [ [class, method, score, description], ... ] best first.
+	# Returns the five entries that best match a plain-English question across all the classes, best first.
+	#
+	#   pcQuestion   the question in plain English
+	#   returns      a list of [ class, method, score, description ] rows; the class is (recipe),
+	#                (example) or (world) for those kinds of entry
+	#   note         a question with no content word, or no shared word, gives an empty list
+	#   see          AskFor, BestMethodFor
+	#@ aka  Ask(question) -- which methods, ACROSS the harvested classes, best match the question by MEANING: [ [class, method, score, description], ... ] best first.
 	def Ask(pcQuestion)
 		return This.AskFor(pcQuestion, 5)
 
+	# Returns the entries that best match a question across all the classes, up to a number asked for, best first.
+	#
+	#   pcQuestion   the question in plain English
+	#   n            how many entries to return, 5 when below 1
+	#   returns      a list of [ class, method, score, description ] rows
+	#   note         a question about an entity of the world, such as what is X, puts a (world) row
+	#                first; a loaded embedding or reranker model is used when present, and otherwise
+	#                the word match runs alone
+	#   see          Ask, BestMethodFor
 	def AskFor(pcQuestion, n)
 		# THE WORLD DOOR (see stzSelfDoc.AskFor): entity-world answers
 		# join the ranked results as "(world)" entries, best first
@@ -186,7 +250,14 @@ class stzLibDoc from stzObject
 		next
 		return _aOut_
 
-	# The single best "class.method" for a question (DATA, a string).
+	# Returns the single best match for a question as class.method.
+	#
+	#   pcQuestion   the question in plain English
+	#   returns      a text such as stzAgentMemory.Fact; empty when nothing matches
+	#   note         a recipe or a sample can come first, and then the text is its class kind and
+	#                its title
+	#   see          Ask
+	#@ aka  The single best "class.method" for a question (DATA, a string).
 	def BestMethodFor(pcQuestion)
 		_aR_ = This._AskForMethods(pcQuestion, 1)
 		if len(_aR_) = 0 return "" ok
@@ -210,6 +281,10 @@ class stzLibDoc from stzObject
 		next
 		return _aOut_
 
+	# Prints one line with the number of classes and entries.
+	#
+	#   returns    the index itself
+	#   see        NumberOfEntries
 	def Show()
 		? "stzLibDoc [ " + This.NumberOfClasses() + " classes, " + len(@aEntries) + " methods ]"
 		return This

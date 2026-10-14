@@ -1,0 +1,20 @@
+{
+ "brief": "Describes how a surface should look, as declared colours, scalars and textures and one fragment expression, and has the engine write the shader.",
+ "detail": "You declare what the material takes, TakesColor, TakesScalar and TakesTexture, and write the body once as @out = expression, where the expression uses the declared names, numbers, the arithmetic operators, a whitelist of functions and the fragment builtins @normal, @position, @uv, @lambert and @color. ToWGSL has the engine transpile it to a complete shader and refuses a bad description with a message naming the offender. ParamsFrom and TexturesFrom flatten the values a scene binds. Authoring needs no GPU: only rendering the material wants hardware, and this class never renders.",
+ "receiver": "o1 = new stzMaterialMaker\no1.TakesColor(:base)\no1.TakesScalar(:glow)\no1.ForEachFragment('{ @out = base * (1.0 + glow * @normal.y) }')",
+ "example": [
+  "? @@( o1.ColorNames() )",
+  "#--> [ \"base\" ]",
+  "? o1.Spec()",
+  "#--> color base\nscalar glow\nbody { @out = base * (1.0 + glow * @normal.y) }",
+  "? len(o1.ParamsFrom([ :base = \"#e0a030\", :glow = 0.6 ]))",
+  "#--> 5",
+  "? left(o1.ToWGSL(), 6)",
+  "#--> struct"
+ ],
+ "see": [
+  "stzScene",
+  "stzMesh",
+  "stzKernelMaker"
+ ]
+}

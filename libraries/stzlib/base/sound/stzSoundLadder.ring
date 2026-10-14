@@ -26,6 +26,39 @@
 func StzSoundLadderQ(pUniverse, pMode)
 	return new stzSoundLadder(pUniverse, pMode)
 
+# Draws a mode as a ladder, one rung for each degree, spaced by cents, so where the notes sit is visible and not only named.
+#
+# A mode is shown when the question is where its notes sit and not what the melody is. Each degree
+# is a rung whose height is its pitch and whose distance from the next is the step, so on the ladder
+# a half-flat third sits half way between the minor and the major third, which a staff cannot show.
+# Everything drawn is declared by the universe: a degree lowered going down is a dashed rung, a
+# degree the sources disagree on is dotted with its source named, ajnas are brackets beside the
+# rails. Rungs gives the numbers, ToText a text, ToSVG and SaveAs the picture. A mode name the
+# universe does not declare falls back to its default mode without an error. No sound is played; the
+# SVG was rendered by a headless browser and read by a model, not by a person (UNPERCEIVED).
+#
+#   receiver   o1 = StzSoundLadderQ(:tunisian, :dhil)
+#   example    ? o1.IsUsable()
+#              #--> 1
+#              ? o1.ModeName()
+#              #--> dhil
+#              ? len(o1.Rungs())
+#              #--> 8
+#              ? o1.Rungs()[3][2]
+#              #--> e-half-flat
+#              ? o1.Rungs()[3][3]
+#              #--> 350
+#              ? o1.Rungs()[3][4]
+#              #--> 320.24
+#              ? @@( o1.Steps() )
+#              #--> [ 200, 150, 150, 200, 200, 150, 150 ]
+#              ? o1.Ajnas()[2][1]
+#              #--> rast
+#              ? left(o1.ToSVG(), 4)
+#              #--> <svg
+#              ? StzSoundLadderQ(:nowhere, :x).IsUsable()
+#              #--> 0
+#   see        stzSoundUniverse, stzSoundStaff, stzSoundScore
 class stzSoundLadder
 
 	@oU = NULL
@@ -33,6 +66,18 @@ class stzSoundLadder
 	@cLastError = ""
 	@nPx = 0.55                 # pixels a cent
 
+	# Reads one mode of a declared universe and prepares to show its degrees as a ladder.
+	#
+	#   pUniverse   the universe name or object, such as :tunisian or :maqam
+	#   pMode       the name of a mode of that universe, or an empty text for its first
+	#   returns     nothing; the ladder is usable if the universe and a mode with degrees were found
+	#   note        StzSoundLadderQ builds the same object
+	#   warning     an unknown universe is not raised: the ladder is not usable and LastError lists
+	#               the declared universes; a mode name the universe does not declare is not refused
+	#               either: the ladder shows the universe default mode instead, without any error,
+	#               so :tunisian with :rast and :maqam with :zzz gave the modes dhil and rast with
+	#               IsUsable 1
+	#   see         IsUsable, Rungs
 	def init(pUniverse, pMode)
 		@oU = StzSoundUniverseQ(pUniverse)
 		if NOT @oU.IsUsable()
@@ -47,33 +92,79 @@ class stzSoundLadder
 			@cLastError = "a ladder needs a mode with degrees: " + @oU.Name() + " / '" + pMode + "' declares none"
 		ok
 
+	# Sets the note the ladder is built on.
+	#
+	#   pcNote     a note name such as D4
+	#   returns    the ladder itself, so calls chain
+	#   note       the cents stay the same and the hertz of every rung move with the tonic: for the
+	#              dhil mode on D4 the first rung is 293.66 hertz
+	#   see        Rungs, TonicName
 	def Tonic(pcNote)
 		@oU.Tonic(pcNote)
 		return This
 
+	# TRUE if the ladder has a mode with degrees to show.
+	#
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   see        LastError, init
 	def IsUsable()
 		return @cLastError = ""
 
+	# Returns why the ladder is not usable.
+	#
+	#   returns    the reason as text; an empty text when it is usable
+	#   see        IsUsable
 	def LastError()
 		return @cLastError
 
+	# Returns the name of the mode on show.
+	#
+	#   returns    the mode name as text, in lower case
+	#   note       it is the default mode of the universe when the requested name was not found
+	#   see        TonicName, init
 	def ModeName()
 		return @oU.ModeName()
 
+	# Returns the note the ladder is built on.
+	#
+	#   returns    the note as text, such as C4
+	#   note       C4 until Tonic or the mode sets another
+	#   see        Tonic, ModeName
 	def TonicName()
 		return @oU.TonicName()
 
-	# [ degree, name, cents, Hz, step to the next rung ] -- the octave included
+	# Returns every degree of the mode as a rung, the octave included, with its pitch and the step to the next rung.
+	#
+	#   returns    a list of [ degree, name, cents above the tonic, hertz, step to the next rung in
+	#              cents ]; the last, octave rung has a step of 0
+	#   note       rungs are spaced by cents, so a half-flat third sits half way between the minor
+	#              and the major third; for the dhil mode on C4 the degrees are at 0, 200, 350, 500,
+	#              700, 900 and 1050 cents and the third is 320.24 hertz, checked by hand as 261.63
+	#              times 2 to the power of 350 over 1200; a mode that declares no names shows its
+	#              degree numbers
+	#   see        DescendingRungs, Steps
+	#@ aka  [ degree, name, cents, Hz, step to the next rung ] -- the octave included
 	def Rungs()
 		return This._RungsOf(This._Get(@aMode, :degrees, []))
 
-	# the same for the descending form, or [] when the mode declares none that differs
+	# Returns the degrees of the descending form of the mode, when it differs from the ascending one.
+	#
+	#   returns    the same rows as Rungs; [ ] when the mode declares no descending form or it
+	#              equals the ascending one
+	#   note       in the maqam rast the seventh degree is 1050 cents going up and 1000 coming down
+	#   see        Rungs, ToText
+	#@ aka  the same for the descending form, or [] when the mode declares none that differs
 	def DescendingRungs()
 		_aD_ = This._Get(@aMode, :descending, [])
 		if len(_aD_) = 0  return [] ok
 		if This._Same(_aD_, This._Get(@aMode, :degrees, []))  return [] ok
 		return This._RungsOf(_aD_)
 
+	# Returns the distances between neighbouring rungs, in cents.
+	#
+	#   returns    a list of numbers, one fewer than the rungs
+	#   note       for the dhil mode 200, 150, 150, 200, 200, 150, 150
+	#   see        Rungs
 	def Steps()
 		_a_ = []
 		for _r_ in This.Rungs()
@@ -81,7 +172,15 @@ class stzSoundLadder
 		next
 		return _a_
 
-	# [ name, lowest cents, highest cents, the jins's own cents above the tonic ]
+	# Returns the ajnas, the small scales a mode is built from, with the cents each spans.
+	#
+	#   returns    a list of [ name, lowest cents, highest cents, the list of its cents above the
+	#              tonic ]
+	#   note       a jins counts its cents from its own first degree, unless they begin below zero,
+	#              when the declaration counted them from the tonic; the dhil mode has a rast on the
+	#              tonic, 0 to 500, and one below it, minus 500 to 0
+	#   see        Rungs, ToText
+	#@ aka  [ name, lowest cents, highest cents, the jins's own cents above the tonic ]
 	def Ajnas()
 		_aD_ = This._Get(@aMode, :degrees, [])
 		_a_ = []
@@ -99,6 +198,13 @@ class stzSoundLadder
 		next
 		return _a_
 
+	# Returns the ladder as plain text, the highest rung first, with the cents, the hertz and the steps.
+	#
+	#   returns    a multi-line text
+	#   note       a step is named when it falls on the quarter-tone grid, such as 150 (3/4 tone),
+	#              and a step off the grid has no name; descending forms and ajnas are listed after
+	#              the rungs
+	#   see        ToSVG, Rungs
 	def ToText()
 		_t_ = This._Get(@aMode, :name, "") + " (" + @oU.Name() + ") -- tonic " + @oU.TonicName() + ", " +
 		      This._Fmt(StzNoteToHz(@oU.TonicName()), 2) + " Hz" + nl
@@ -128,6 +234,12 @@ class stzSoundLadder
 		next
 		return _t_
 
+	# Writes the ladder to a file: SVG when the name ends in .svg, an HTML page otherwise.
+	#
+	#   pcPath     the path of the file
+	#   returns    the number of characters written
+	#   note       an existing file is overwritten
+	#   see        ToSVG, ToHTML
 	def SaveAs(pcPath)
 		_c_ = ""
 		if lower(right(pcPath, 4)) = ".svg"
@@ -138,6 +250,10 @@ class stzSoundLadder
 		write(pcPath, _c_)
 		return len(_c_)
 
+	# Returns the ladder as a complete HTML page with the SVG inside.
+	#
+	#   returns    the HTML text, starting with the doctype
+	#   see        ToSVG, SaveAs
 	def ToHTML()
 		_q_ = char(34)
 		return "<!DOCTYPE html>" + nl + "<html lang=" + _q_ + "en" + _q_ + "><head><meta charset=" + _q_ + "utf-8" + _q_ + ">" +
@@ -146,6 +262,15 @@ class stzSoundLadder
 		       "background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.18)}</style></head><body>" + nl +
 		       This.ToSVG() + nl + "</body></html>" + nl
 
+	# Returns the ladder as SVG text: rails, rungs spaced by cents, a faint quarter-tone grid, steps, and brackets for the ajnas.
+	#
+	#   returns    the SVG text, starting with <svg
+	#   note       a degree the mode lowers going down is a dashed rung, a degree the sources
+	#              disagree on is dotted with its source named, and a degree left out going down is
+	#              marked; seen in a rendered picture of the dhil mode on D4: eight rungs from 0 to
+	#              1200 cents, the half-flat third between two dotted variants at 300 and 400, the
+	#              steps beside the rails and the rast bracket
+	#   see        ToHTML, ToText
 	def ToSVG()
 		_q_ = char(34)
 		_aR_ = This.Rungs()

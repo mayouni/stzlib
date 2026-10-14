@@ -1,0 +1,10 @@
+{
+ "brief": "Meant to run a snippet of R from Ring and bring its answer back as a Ring value, but Execute always raises today.",
+ "detail": "You set the code, which must assign its answer to a variable named res; Execute wraps it with a translator, runs it with the language's program in the current folder and writes the answer as Ring text, and Result reads that text back, so numbers, texts and nested lists cross the boundary. The files temp.<ext>, a run script, the result file and log.txt are written in the current folder. It is a thin face over stzExterCode, which has the full set of controls (runtime path, result variable, log file). WARNING: with R 4.5.1 the translator that Execute puts in front of your code is rejected by R (unexpected symbol at the identifier _items_), so every run raises the not-created error with that message in its log. The R program is the one configured in $aStzLibConfig[:RPath], d:/r/r-4.5.1/bin/rscript.exe by default, which exists on this machine.",
+ "receiver": "o1 = new stzRCode",
+ "see": [
+  "stzExterCode",
+  "stzPythonCode",
+  "stzJuliaCode"
+ ]
+}

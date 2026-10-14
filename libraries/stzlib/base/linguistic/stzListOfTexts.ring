@@ -23,25 +23,37 @@
 func StzListOfTextsQ(paList)
 	return new stzListOfTexts(paList)
 
-# A list of texts IS a list of strings PLUS meaning ops, so it extends
-# stzStringList -- inheriting Content/NthString/Joined/ThatContain/Longest/
-# MostSimilarTo (Jaro-Winkler) etc. -- and adds the natural layer below.
+# Holds a list of sentences or documents and selects among them by meaning: closest to a query, ranked for a query, or by sentiment.
+#
+# A list of texts is a list of strings that carries meaning, so it inherits everything of
+# stzStringList (Content, NthString, Joined, ThatContain, Longest) and adds the natural layer. Build
+# one with new stzListOfTexts(aList) or StzListOfTextsQ(aList); the sentence splitters of stzText
+# answer a plain stzList, so wrap their result. Without a neural model the meaning methods fall back
+# to word overlap, and the sentiment scorer reads English only; a model loaded through
+# StzNeuralModelQ upgrades the similarity and ranking.
+#
+#   receiver   o1 = new stzListOfTexts([ "The cat sat on the mat.", "I love this wonderful sunny
+#              day!", "This is terrible and I hate it." ])
+#   example    ? o1.MostSimilarByMeaning("a cat on a mat")
+#              #--> The cat sat on the mat.
+#              ? @@( o1.ThatAre("positive") )
+#              #--> [ "I love this wonderful sunny day!" ]
+#              ? o1.MostRelevantTo("wonderful day")
+#              #--> I love this wonderful sunny day!
+#   see        stzStringList, stzText, stzListOfStrings
 class stzListOfTexts from stzStringList
 
 	  #==========================================================#
 	 #   MEANING-BASED SELECTION (natural processing)          #
 	#==========================================================#
-	# These are what make a list of TEXTS more than a list of strings. They read
-	# the MEANING of each fragment (semantic similarity, sentiment), so a fluent
-	# chain like Q(text).SentencesQ().MostSimilarByMeaning(query) / .ThatAre(
-	# :Positive) works. Semantic ops upgrade to neural embeddings when a model is
-	# loaded (StzNeuralModelQ(path)), else degrade to lexical -- see
-	# StzSemanticSimilarity().
-
-	# The text most similar to pcQuery by MEANING. Uses the loaded neural model's
-	# sentence embeddings when one is present, else lexical WORD-OVERLAP cosine --
-	# the right notion for sentences/documents. (The inherited MostSimilarTo() uses
-	# Jaro-Winkler CHARACTER similarity, better for fuzzy word/typo matching.)
+	# Returns the text of the list closest in meaning to a query: by neural sentence embeddings when a model is loaded, else by shared words.
+	#
+	#   pcQuery    the sentence or phrase to compare with
+	#   returns    a text; "" when the list is empty or the query is not a text
+	#   note       the word-overlap fallback knows nothing of synonyms: "a cat on a mat" finds the
+	#              cat sentence and "feline" would not; ties go to the earlier text
+	#   see        MostRelevantTo, RankedForQuery
+	#@ aka  These are what make a list of TEXTS more than a list of strings. They read the MEANING of each fragment (semantic similarity, sentiment), so a fluent chain like Q(text).SentencesQ().MostSimilarByMeaning(query) / .ThatAre( :Positive) works. Semantic ops upgrade to neural embeddings when a model is loaded (StzNeuralModelQ(path)), else degrade to lexical -- see StzSemanticSimilarity().
 	def MostSimilarByMeaning(pcQuery)
 		if NOT isString(pcQuery) return "" ok
 		_nMsN_ = len(@acContent)
@@ -60,7 +72,16 @@ class stzListOfTexts from stzStringList
 		def MostSimilarByMeaningQ(pcQuery)
 			return new stzText(This.MostSimilarByMeaning(pcQuery))
 
-	# The texts whose sentiment label matches "positive"/"negative"/"neutral".
+	# Returns the texts of the list whose sentiment is the given polarity.
+	#
+	#   pcPolarity   the sentiment label to keep: "positive", "negative" or "neutral", in any case
+	#   returns      a list of texts, in their order; [ ] when none match or the polarity is not a
+	#                text
+	#   warning      the sentiment scorer is English (VADER): clearly positive French, Arabic and
+	#                German sentences all come out neutral, so ThatAre("positive") finds none of
+	#                them
+	#   see          MostSimilarByMeaning
+	#@ aka  The texts whose sentiment label matches "positive"/"negative"/"neutral".
 	def ThatAre(pcPolarity)
 		if NOT isString(pcPolarity) return [] ok
 		_cTaWant_ = StzLower(pcPolarity)
@@ -80,12 +101,14 @@ class stzListOfTexts from stzStringList
 	  #==========================================================#
 	 #   CROSS-ENCODER RERANKING                               #
 	#==========================================================#
-	# Rank these texts (candidate documents) by relevance to a query. Uses a
-	# CROSS-ENCODER (joint query+doc scoring) when a reranker GGUF is loaded
-	# (StzUseNeuralModel with e.g. jina-reranker), else bi-encoder/lexical
-	# similarity. The accurate second stage of retrieve-then-rerank.
-
-	# RankedForQuery(query) -- [[doc, score], ...] sorted by descending relevance.
+	# Returns every text with its relevance score to a query, the most relevant first.
+	#
+	#   pcQuery    the question or keywords the texts are ranked for
+	#   returns    a list of [ text, score ] pairs; [ ] for an empty list
+	#   note       a cross-encoder is used when a reranker model is loaded, else lexical similarity,
+	#              where texts sharing no word with the query all score 0
+	#   see        MostRelevantTo, MostSimilarByMeaning
+	#@ aka  Rank these texts (candidate documents) by relevance to a query. Uses a CROSS-ENCODER (joint query+doc scoring) when a reranker GGUF is loaded (StzUseNeuralModel with e.g. jina-reranker), else bi-encoder/lexical similarity. The accurate second stage of retrieve-then-rerank.
 	def RankedForQuery(pcQuery)
 		return StzRerank(pcQuery, @acContent)
 
@@ -96,12 +119,20 @@ class stzListOfTexts from stzStringList
 		def RankedForQueryQQ(pcQuery)
 			return new stzListOfPairs(This.RankedForQuery(pcQuery))
 
-	# The single most relevant text to the query (DATA, a string).
+	# Returns the single text of the list best ranked for a query.
+	#
+	#   pcQuery    the question or keywords to rank for
+	#   returns    a text; "" when the list is empty
+	#   see        RankedForQuery
+	#@ aka  The single most relevant text to the query (DATA, a string).
 	def MostRelevantTo(pcQuery)
 		_aMrR_ = This.RankedForQuery(pcQuery)
 		if len(_aMrR_) = 0 return "" ok
 		return _aMrR_[1][1]
 
-	# A copy stays a list of TEXTS (override the base, which returns stzStringList).
+	# Returns an independent copy of the list that is still a list of texts, so its meaning methods stay available.
+	#
+	#   returns    a new stzListOfTexts
+	#@ aka  A copy stays a list of TEXTS (override the base, which returns stzStringList).
 	def Copy()
 		return new stzListOfTexts(@acContent)

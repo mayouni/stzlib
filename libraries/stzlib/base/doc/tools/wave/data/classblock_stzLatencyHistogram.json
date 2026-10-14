@@ -1,0 +1,14 @@
+{
+ "brief": "Tallies latency samples in an engine histogram and reads percentiles from it, such as the median and the 99th.",
+ "detail": "Record samples in milliseconds, then ask for P50, P95, P99 or any Percentile. The histogram is bucketed: a percentile is answered as the upper bound of the bucket it falls in, so it is an approximation and never an interpolated value. Count and Sum are exact.",
+ "receiver": "o1 = new stzLatencyHistogram()\no1.Record(10)\no1.Record(20)\no1.Record(30)\no1.Record(40)\no1.Record(200)",
+ "example": [
+  "? o1.Count()",
+  "#--> 5",
+  "? o1.Sum()",
+  "#--> 300",
+  "? o1.P99()",
+  "#--> 200"
+ ],
+ "see": ["stzRateLimiter", "stzEngineTimeline"]
+}

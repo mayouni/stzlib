@@ -1,0 +1,1 @@
+init | Builds the set of the four schema rules of an entity-relationship diagram, in the er-governance set. | nothing; the object is built | | | | the rules are entity_has_key, foreign_key_resolves, relation_backed_by_key and participation_matches_nullability; Check(oGraph) judges a graph made by AsRuleGraph

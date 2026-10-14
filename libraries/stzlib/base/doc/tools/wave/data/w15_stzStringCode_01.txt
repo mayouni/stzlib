@@ -1,0 +1,19 @@
+init | Builds a code helper over a text or over a stzString object holding Ring source. | nothing; the object is built | pStrOrStzStrObj=a text, or a stzString object, holding the code | IsRingCode, FunctionNames | any other kind of value raises "Can't create stzStringCode! Parameter must be a string or stzString object." | the methods read the text and never change it, so a stzString passed in is safe
+Content | Returns the text the helper holds. | a text | | NumberOfChars | |
+NumberOfChars | Returns how many characters the text holds, counting letters and not bytes. | a number | | Content | |
+IsEmpty | TRUE if the text is empty. | TRUE or FALSE | | NumberOfChars | |
+IsRingCode | TRUE if the text contains a Ring keyword such as func, class, if, for, return or new, in any case. | TRUE or FALSE | | IsRingFunction, IsRingClass | A guess by substring, not a parse: ordinary words that contain a keyword answer TRUE, such as "a gift" (if), "Brendan" (end) and "Seeing it" (see); "good morning" and the Hebrew "שלום עולם" answer FALSE | do not use it to tell prose from code
+IsRingFunction | TRUE if the text, ignoring leading spaces, begins with "func " in any case. | TRUE or FALSE | | IsRingClass, FunctionNames | | "funcs are fun" is FALSE
+IsRingClass | TRUE if the text, ignoring leading spaces, begins with "class " in any case. | TRUE or FALSE | | IsRingFunction, ClassNames | |
+Execute | Runs the text as Ring code and returns nothing. | nothing | | ExecuteAndReturn | | the code runs inside the method, so a variable it assigns, such as x = 1 + 2, is not visible to the caller afterwards; only run code you trust
+ExecuteAndReturn | Evaluates the text as a Ring expression and returns its value. | the value of the expression | | Execute | | "(2 + 3) * 4" answers 20; the text must be an expression, and only code you trust should be run
+ContainsFunctions | TRUE if the text has a "func " anywhere, in any case. | TRUE or FALSE | | NumberOfFunctions, FunctionNames | |
+ContainsClasses | TRUE if the text has a "class " anywhere, in any case. | TRUE or FALSE | | NumberOfClasses, ClassNames | |
+NumberOfFunctions | Returns how many lines of the text begin with "func ". | a number | | FunctionNames | | a line is counted after its leading spaces are removed
+NumberOfClasses | Returns how many lines of the text begin with "class ". | a number | | ClassNames | |
+FunctionNames | Returns the names of the functions declared in the text, in order, the first word after "func " up to a space or an opening bracket. | a list of texts | | NumberOfFunctions, ClassNames | | keeps the case of the source: "func Add(a, b)" gives Add
+ClassNames | Returns the names of the classes declared in the text, in order, the first word after "class ". | a list of texts | | NumberOfClasses, FunctionNames | | "Class Foo from Bar" gives Foo
+IsComment | TRUE if the text, ignoring leading spaces, starts with # or //. | TRUE or FALSE | | ContainsComments, IsBlankLine | | meant for a single line; on a longer text it only looks at the start
+IsBlankLine | TRUE if the text holds nothing but spaces. | TRUE or FALSE | | IsComment | |
+ContainsComments | TRUE if the text has a # or a // anywhere, comment or not. | TRUE or FALSE | | IsComment, LinesOfCode | | a # inside a quoted text counts too
+LinesOfCode | Returns how many lines are neither blank nor comments. | a number | | ContainsComments | | the lines are those of the text; a line with code and a trailing comment counts

@@ -1,0 +1,19 @@
+{
+ "brief": "Asks whether a list is a named parameter, a pair such as [ :At, 3 ] whose first item is a keyword of the library.",
+ "detail": "The library lets a caller pass a value with a keyword, as in Insert(x, [ :After, 2 ]), and each method tells the pair apart with a test. This class holds a list and carries more than 1,300 such tests, one per keyword, named Is<Keyword>NamedParam; they are generated or hand-written one-liners, and only the dozen hand-written ones are described here. For a new test, prefer IsANamedParam (is it any known pair) or IsOneOfTheseNamedParams over adding another method. Build one with new stzListNamedParams(aList) or over a stzList object. Ring keeps symbols in lowercase, so [ :At, 3 ] is stored as [ \"at\", 3 ]; the comparison ignores case.",
+ "receiver": "o1 = new stzListNamedParams([ :At, 3 ])",
+ "example": [
+  "? o1.IsANamedParam()",
+  "#--> 1",
+  "? o1.IsOneOfTheseNamedParams([ \"At\", \"Before\" ])",
+  "#--> 1",
+  "? o1.IsNNamedParam()",
+  "#--> 0",
+  "? o1.IsHashList()",
+  "#--> 0"
+ ],
+ "see": [
+  "stzList",
+  "stzHashList"
+ ]
+}

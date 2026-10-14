@@ -1,0 +1,15 @@
+{
+ "brief": "Tells a boolean narrative about a value, claim by claim, and folds it once into a certain yes or no with its reason.",
+ "detail": "TruthOf(value) opens the chain; IsA, AndIsA and OrIsA add claims about its kind, and Containing and its And and Or forms add claims about what it holds. Holds folds the claims from left to right, so a and b or c reads as (a and b) or c, with no evaluated user text: each kind is a descriptor resolved to an @is predicate. Why() narrates the verdict. Start the chain with exactly one IsA, IsNotA or Containing.",
+ "receiver": "o1 = TruthOf(\"ring\")",
+ "example": [
+  "o1.IsA(:Lowercase).AndIsA(:Latin).AndContaining(\"g\")",
+  "? o1.Holds()",
+  "#--> 1",
+  "? o1.Why()",
+  "#--> yes: \"ring\" is lowercase and is latin and containing \"g\"",
+  "? TruthOf(\"Ring\").IsA(:Lowercase).OrIsA(:Uppercase).Holds()",
+  "#--> 0"
+ ],
+ "see": ["TruthOf", "stzCan", "stzQuestion"]
+}

@@ -1,0 +1,16 @@
+{
+ "brief": "Holds one guardrail over an agent graph as a declared rule, in the agentic domain.",
+ "detail": "An agent rule is a stzGraphRule whose domain is set to agentic; the library's governance invariants are declared with it inside stzAgentRuleSet, and a project can add its own without editing library code.",
+ "receiver": "o1 = new stzAgentRule(\"no-llm-effectful\")",
+ "example": [
+  "? o1.Name()",
+  "#--> no-llm-effectful",
+  "? o1.Domain()",
+  "#--> agentic"
+ ],
+ "see": [
+  "stzAgentRuleSet",
+  "stzGraphRule",
+  "stzAgentGraph"
+ ]
+}

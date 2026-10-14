@@ -64,6 +64,26 @@ func StzAgentFolderQ(pcPath)
 func _StzAgentFolderEntryName(pcBase)
 	return "" + pcBase + "Agent"
 
+# Reads a folder of agent files, gates each one, and mounts the accepted agents on a host so that dropping a file in the folder deploys it.
+#
+# A .pia file is data: it is judged by stzAgentDeclaration and turned into an agent. A .ring file is
+# a program: the folder does not execute it, the application loads it, and the folder finds its
+# <name>Agent() function and holds the object to the same four gates (it must answer Name_, Cycle,
+# CoverageStatement and ReversibilityClass). A bad file does not stop the others: it is refused,
+# kept in Refusals with the file that caused it, and ReadAgents counts only the accepted. Rescan
+# compares a SHA-256 of each file, since a modification time is not available in this build. The
+# folder does not watch the disk; whoever owns the cadence calls Rescan.
+#
+#   receiver   o1 = new stzAgentFolder("../agentic/agents")
+#   example    ? o1.ReadAgents()
+#              #--> 2
+#              ? @@( o1.Names() )
+#              #--> [ "kitchen-bot", "summarizer" ]
+#              ? o1.NotationOf("kitchen-bot")
+#              #--> pia
+#              ? o1.NumberOfRefusedFiles()
+#              #--> 2
+#   see        stzAgentDeclaration, stzAgentHost, stzPIAgent
 class stzAgentFolder from stzObject
 
 	@cPath = ""
@@ -72,19 +92,38 @@ class stzAgentFolder from stzObject
 	@aRefusedFiles = []  # [ file, count ]
 	@cWhy = ""
 
+	# Builds a folder reader on a path; nothing is read until ReadAgents is called.
+	#
+	#   pcPath     the folder that holds the agent files (.pia declarations and .ring agents)
+	#   returns    nothing; the object is built
+	#   see        ReadAgents, Path
 	def init(pcPath)
 		@cPath = "" + pcPath
 
+	# Returns the folder path given at construction, unchanged.
+	#
+	#   returns    a text
+	#   see        init, ReadAgents
 	def Path()
 		return @cPath
 
+	# Returns a one-line account of the last read or mount: how many agents were loaded or mounted, or why nothing was.
+	#
+	#   returns    a text; empty before the first ReadAgents
+	#   see        ReadAgents, MountOn, Describe
 	def Why()
 		return @cWhy
 
-	#-- loading --------------------------------------------------------
-
-	# Read every agent file in the folder. Returns the number ACCEPTED;
-	# whatever was refused is in Refusals(), never swallowed.
+	# Reads and gates every .pia and .ring file of the folder, and returns how many were accepted; the rest go to Refusals.
+	#
+	#   returns    a number, the agents accepted; 0 when the folder does not exist, with the cause
+	#              in Why
+	#   note       every call starts from empty, so it is also the way to reload
+	#   warning    a .ring file is not executed: the program must already have loaded it, or the
+	#              file is refused with rule ring-agent-entry; a second file claiming a loaded name
+	#              is refused as pia-duplicate-name
+	#   see        Refusals, Rescan, MountOn
+	#@ aka  -- loading --------------------------------------------------------
 	def ReadAgents()
 		@aLoaded = []
 		@aRefusals = []
@@ -102,12 +141,24 @@ class stzAgentFolder from stzObject
 			"', refused " + len(@aRefusedFiles) + " file(s)"
 		return len(@aLoaded)
 
+	# Returns how many agents the last read accepted.
+	#
+	#   returns    a number
+	#   see        ReadAgents, Names
 	def NumberOfAgents()
 		return len(@aLoaded)
 
+	# Returns how many files the last read refused.
+	#
+	#   returns    a number
+	#   see        RefusedFiles, Refusals
 	def NumberOfRefusedFiles()
 		return len(@aRefusedFiles)
 
+	# Returns the names of the accepted agents, in lower case, in file-name order.
+	#
+	#   returns    a list of text
+	#   see        Has, AgentQ
 	def Names()
 		_ac_ = []
 		_n_ = len(@aLoaded)
@@ -116,14 +167,26 @@ class stzAgentFolder from stzObject
 		next
 		return _ac_
 
+	# TRUE if an agent of that name was loaded; the match ignores case and surrounding blanks.
+	#
+	#   pcName     the agent's name
+	#   returns    TRUE or FALSE
+	#   see        Names, AgentQ
 	def Has(pcName)
 		if This._IndexOf(pcName) = 0
 			return 0
 		ok
 		return 1
 
-	# The live agent object. Configure it through this face BEFORE
-	# MountOn() -- afterwards the host's copy is the one that ticks.
+	# Returns the live agent object loaded under that name, so it can be configured before it is mounted.
+	#
+	#   pcName     the agent's name, matched without regard to case
+	#   returns    an agent object
+	#   note       after MountOn the host ticks its own copy, so configure through this face before
+	#              mounting
+	#   warning    raises an error naming the folder for a name that was not loaded
+	#   see        MountOn, Has
+	#@ aka  The live agent object. Configure it through this face BEFORE MountOn() -- afterwards the host's copy is the one that ticks.
 	def AgentQ(pcName)
 		_n_ = This._IndexOf(pcName)
 		if _n_ = 0
@@ -132,6 +195,13 @@ class stzAgentFolder from stzObject
 		ok
 		return @aLoaded[_n_][:agent]
 
+	# Returns when the agent runs, as declared in its file.
+	#
+	#   pcName     the agent's name
+	#   returns    a list [ :mode, :timer, :channel ]; mode, timer and channel are empty or 0 for an
+	#              unknown name
+	#   note       a Ring agent without a Schedule method gets mode timer, 50
+	#   see        NotationOf, MountOn
 	def ScheduleOf(pcName)
 		_n_ = This._IndexOf(pcName)
 		if _n_ = 0
@@ -139,6 +209,11 @@ class stzAgentFolder from stzObject
 		ok
 		return @aLoaded[_n_][:schedule]
 
+	# Returns which notation the agent was written in.
+	#
+	#   pcName     the agent's name
+	#   returns    the text pia or ring; an empty text for an unknown name
+	#   see        ScheduleOf, Names
 	def NotationOf(pcName)
 		_n_ = This._IndexOf(pcName)
 		if _n_ = 0
@@ -146,15 +221,29 @@ class stzAgentFolder from stzObject
 		ok
 		return @aLoaded[_n_][:notation]
 
+	# Returns every reason a file was refused, in the library's finding shape.
+	#
+	#   returns    a list of [ :rule, :subject, :where, :severity, :message ] rows; where names the
+	#              file
+	#   note       a rescan adds a ring-agent-restart row for a changed .ring file
+	#   see        CiteRefusals, RefusedFiles
 	def Refusals()
 		return @aRefusals
 
+	# Returns the refused files with how many findings each one carries.
+	#
+	#   returns    a list of [ file, number ] pairs
+	#   see        Refusals, NumberOfRefusedFiles
 	def RefusedFiles()
 		return @aRefusedFiles
 
-	# The refusals, printable. Empty when the folder loaded whole -- and
-	# a caller that prints this after every ReadAgents() cannot mistake a
-	# partially-loaded folder for a healthy one.
+	# Returns the refusals as printable lines, one per finding, as [rule @ where] message.
+	#
+	#   returns    a text; empty when the folder loaded whole
+	#   note       printing it after every read keeps a partly loaded folder from passing for a
+	#              healthy one
+	#   see        Refusals, Describe
+	#@ aka  The refusals, printable. Empty when the folder loaded whole -- and a caller that prints this after every ReadAgents() cannot mistake a partially-loaded folder for a healthy one.
 	def CiteRefusals()
 		if len(@aRefusals) = 0
 			return ""
@@ -170,6 +259,10 @@ class stzAgentFolder from stzObject
 		next
 		return _c_
 
+	# Returns a multi-line summary: the folder, the counts, each agent with its notation and kind, then the refusals.
+	#
+	#   returns    a text
+	#   see        CiteRefusals, Why
 	def Describe()
 		_c_ = "folder '" + @cPath + "' -- " + len(@aLoaded) + " agent(s), " +
 			len(@aRefusedFiles) + " refused file(s)" + char(10)
@@ -183,10 +276,13 @@ class stzAgentFolder from stzObject
 		ok
 		return _c_
 
-	#-- change -----------------------------------------------------------
-
-	# What is different on disk since the last ReadAgents(), without loading it:
-	# [ :added, :changed, :removed ], each a list of file names.
+	# Returns what differs on disk since the last read, without loading it; files are compared by the SHA-256 of their bytes, not by time.
+	#
+	#   returns    a list [ :added, :changed, :removed ], each a list of file names
+	#   note       a file that was refused and has not changed is not reported as added again; a
+	#              missing folder reports every loaded file as removed
+	#   see        HasChanged, Rescan
+	#@ aka  -- change -----------------------------------------------------------
 	def Changes()
 		_aAdd_ = []
 		_aChg_ = []
@@ -220,6 +316,10 @@ class stzAgentFolder from stzObject
 		next
 		return [ :added = _aAdd_, :changed = _aChg_, :removed = _aRem_ ]
 
+	# TRUE if any file was added, changed or removed since the last read.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Changes, Rescan
 	def HasChanged()
 		_a_ = This.Changes()
 		if len(_a_[:added]) + len(_a_[:changed]) + len(_a_[:removed]) > 0
@@ -227,16 +327,14 @@ class stzAgentFolder from stzObject
 		ok
 		return 0
 
-	# Re-read the folder whole. Returns what moved, so a host can mount
-	# what arrived and retire what left rather than guessing.
+	# Reads the folder again whole and returns what moved since the previous read, so a host can mount what arrived and retire what left.
 	#
-	# AND ONE THING IT CANNOT DO, REPORTED RATHER THAN HIDDEN: a changed
-	# .pia file is re-read, because it is data. A changed .ring file is
-	# NOT re-evaluated, because Ring cannot unload a function and
-	# re-loading it is a C22 redefinition that takes the library down. So
-	# the old code keeps running and this rescan says so, as a refusal
-	# carrying the file's name. A reload that quietly kept stale code
-	# would be the worst of the three available outcomes.
+	#   returns    a list [ :added, :changed, :removed ], as Changes answered before the read
+	#   note       a changed .pia file is re-read
+	#   warning    a changed .ring file is not re-evaluated, because Ring cannot unload a function:
+	#              the old code keeps running and a ring-agent-restart refusal names the file
+	#   see        Changes, MountOn
+	#@ aka  Re-read the folder whole. Returns what moved, so a host can mount what arrived and retire what left rather than guessing.
 	def Rescan()
 		_a_ = This.Changes()
 		_acStale_ = []
@@ -260,16 +358,14 @@ class stzAgentFolder from stzObject
 		next
 		return _a_
 
-	#-- mounting ---------------------------------------------------------
-
-	# Supervise every loaded agent on the host, each on the schedule its
-	# own file declared. Returns the number supervised.
+	# Supervises every loaded agent on a host, each on the schedule its own file declared, and returns how many were mounted.
 	#
-	# Declare() is called for each even though a declared agent answers
-	# CoverageStatement() and ReversibilityClass() for itself: a Ring
-	# agent may answer only one of them, and the host's declared table is
-	# the fallback the engine gate reads. Saying it twice costs nothing;
-	# saying it never is a refusal at RunFor() time.
+	#   poHost     an agent host
+	#   returns    a number
+	#   note       the agents' own coverage statement and reversibility class are declared on the
+	#              host first
+	#   see        ReadAgents, AgentQ
+	#@ aka  -- mounting ---------------------------------------------------------
 	def MountOn(poHost)
 		_nUp_ = 0
 		_n_ = len(@aLoaded)

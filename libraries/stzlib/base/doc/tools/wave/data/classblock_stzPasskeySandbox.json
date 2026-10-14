@@ -1,0 +1,21 @@
+{
+ "brief": "Acts as a virtual passkey authenticator in software, with real keys and real signatures, so passkey flows are tested with no hardware or browser.",
+ "detail": "It is not a mock that answers ok. It generates a real P-256 key, emits a genuine attestation object with a COSE key inside, and produces real ECDSA signatures over the WebAuthn message, so the relying party runs its true parsing and verification. It also does what an attacker's device would do and no real authenticator will do on request: sign for the wrong origin, or write a counter that does not advance, so the refusals can be tested. The key comes from the engine's generator, or from a seed given to CreateCredentialXT for a reproducible suite. Its keys are sandbox keys and never real ones.",
+ "receiver": "o1 = new stzPasskeySandbox(\"example.com\")",
+ "example": [
+  "? o1.IsSandbox()",
+  "#--> 1",
+  "a1 = o1.CreateCredential(\"challenge-1\", \"https://example.com\")",
+  "? len(a1[:credentialId]) > 0",
+  "#--> 1",
+  "a2 = o1.Assert(\"challenge-2\", \"https://example.com\")",
+  "? o1.SignCount()",
+  "#--> 1",
+  "? len(a2[:signature]) > 0",
+  "#--> 1"
+ ],
+ "see": [
+  "stzPasskeyServer",
+  "stzServiceRegistry"
+ ]
+}

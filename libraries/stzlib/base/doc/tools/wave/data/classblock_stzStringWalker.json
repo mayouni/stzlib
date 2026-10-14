@@ -1,0 +1,21 @@
+{
+ "brief": "Walks through the characters of a text by position: forwards or backwards, with a step, with code run on each, or along named walkers.",
+ "detail": "Build one with new stzStringWalker(\"abcdefghij\"); it only reads, so a stzString passed in is never changed. CharsFromTo and CharsWithStep answer lists of characters; WalkAndYield runs a piece of code on each visited character. AddWalker keeps a named walker of numbers, whose steps are given as a list, and Walker gives back the numbers it visits. A step of 0 in CharsWithStep or WalkAndYield never ends, so never give one. Positions count from 1 in characters.",
+ "receiver": "o1 = new stzStringWalker(\"abcdefghij\")",
+ "example": [
+  "? @@( o1.CharsFromTo(5, 2) )",
+  "#--> [ \"e\", \"d\", \"c\", \"b\" ]",
+  "? @@( o1.CharsWithStep(1, 3) )",
+  "#--> [ \"a\", \"d\", \"g\", \"j\" ]",
+  "? @@( o1.CharsWithStep(10, -3) )",
+  "#--> [ \"j\", \"g\", \"d\", \"a\" ]",
+  "o1.AddWalker(\"w\", 1, 10, [ 4 ])",
+  "? @@( o1.Walker(\"w\") )",
+  "#--> [ 1, 5, 9 ]"
+ ],
+ "see": [
+  "stzString",
+  "stzWalker",
+  "stzStringGetter"
+ ]
+}

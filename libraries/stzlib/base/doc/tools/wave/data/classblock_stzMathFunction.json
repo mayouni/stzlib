@@ -1,0 +1,17 @@
+{
+ "brief": "Holds a formula of named variables and gives its value and its exact derivatives at any point, by automatic differentiation.",
+ "detail": "Build one with new stzMathFunction(\"x^2 + 3*x*y\", [ \"x\", \"y\" ]). The engine compiles the formula once and walks it backwards to get the derivative with respect to every variable in one pass, exactly and not within a step size, which is what an optimiser or a check of a hand-derived gradient needs. The syntax is infix: + - * / ^ (right-associative), parentheses, exp, log, sqrt, sin, cos, tan, tanh, abs, min, max, pow, and the constants pi and e. A point is a list with one value per variable, in declared order. This is not the W() expression language of lists. Call Free when done with it.",
+ "receiver": "o1 = new stzMathFunction(\"x^2 + 3*x*y\", [ \"x\", \"y\" ])",
+ "example": [
+  "? o1.ValueAt([ 2, 3 ])",
+  "#--> 22",
+  "? @@( o1.GradientAt([ 2, 3 ]) )",
+  "#--> [ 13, 6 ]",
+  "? o1.DerivativeAt(\"y\", [ 2, 3 ])",
+  "#--> 6"
+ ],
+ "see": [
+  "stzObjective",
+  "stzNumber"
+ ]
+}

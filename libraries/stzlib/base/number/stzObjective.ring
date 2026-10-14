@@ -30,6 +30,25 @@
 # for linear constraints the library has a simplex (stzLinearSolver), and that is a
 # different problem with a different method, not a worse version of this one.
 
+# Finds where a formula of named variables is smallest or largest, starting from a point, and reports how the search ended.
+#
+# Build one with new stzObjective("(x-1)^2 + (y-2)^2", [ "x", "y" ]). The search is L-BFGS on the
+# exact gradient of the formula, with no constraints; for linear constraints use stzLinearSolver.
+# MinimizeFrom and MaximizeFrom answer a record, not a bare point, because a bare point cannot say
+# it did not converge: read :status and :why, and :evaluations for the real cost. The result is a
+# local extremum, so different starts can end at different points. SetMaxIterations and
+# SetGradientTolerance tune the stop. Status words are lowercase: converged, settled, maxiterations,
+# linesearchfailed, notfinite.
+#
+#   receiver   o1 = new stzObjective("(x-1)^2 + (y-2)^2", [ "x", "y" ])
+#   example    aR = o1.MinimizeFrom([ -5, 8 ])
+#              ? @@( aR[:point] )
+#              #--> [ 1, 2 ]
+#              ? aR[:status]
+#              #--> converged
+#              ? o1.ValueAt([ 0, 0 ])
+#              #--> 5
+#   see        stzMathFunction, stzLinearSolver
 class stzObjective from stzObject
 
 	@oFunc = ""
@@ -37,29 +56,63 @@ class stzObjective from stzObject
 	@nMaxIterations = 500
 	@nGradientTolerance = 0
 
+	# Builds an objective from a formula of named variables, such as "(x-1)^2 + (y-2)^2", to be minimised or maximised.
+	#
+	#   pcExpression   the formula as text, in the syntax of stzMathFunction
+	#   pacVariables   the names of its variables, in the order points will be given
+	#   returns        nothing; the object is built
+	#   warning        the formula is compiled at once, so a bad formula or variable list raises the
+	#                  error of stzMathFunction here
+	#   see            MinimizeFrom, MaximizeFrom
 	def init(pcExpression, pacVariables)
 		@oFunc = new stzMathFunction(pcExpression, pacVariables)
 
+	# Returns the formula text as it was given.
+	#
+	#   returns    a text
+	#   see        Variables
 	def Expression()
 		return @oFunc.Expression()
 
+	# Returns the variable names in declared order, which is the order of every point.
+	#
+	#   returns    a list of texts
+	#   see        Expression
 	def Variables()
 		return @oFunc.Variables()
 
-	# NOT `Function()`: Ring accepts `function` as a synonym for `func`, so a method
-	# by that name is a C6 "Error in function name" at load time. Same family as
-	# naming a variable `oR`, which folds onto the `or` keyword.
-	# an OBJECT accessor, so it is Q-only -- a plain twin would return an object,
-	# which is exactly what the plain form must never do
+	# Returns the stzMathFunction that holds the compiled formula, to ask its derivatives directly.
+	#
+	#   returns    a stzMathFunction
+	#   note       there is no plain form because it would return an object; the Q is the name
+	#   see        ValueAt, GradientAt
+	#@ aka  NOT `Function()`: Ring accepts `function` as a synonym for `func`, so a method by that name is a C6 "Error in function name" at load time. Same family as naming a variable `oR`, which folds onto the `or` keyword. an OBJECT accessor, so it is Q-only -- a plain twin would return an object, which is exactly what the plain form must never do
 	def MathFunctionQ()
 		return @oFunc
 
+	# Returns the value of the formula at a point.
+	#
+	#   paPoint    the values of the variables, one per variable in declared order
+	#   returns    a number
+	#   note       the same as stzMathFunction.ValueAt; a point of the wrong length raises an error
+	#   see        GradientAt, MinimizeFrom
 	def ValueAt(paPoint)
 		return @oFunc.ValueAt(paPoint)
 
+	# Returns the exact partial derivatives of the formula at a point, one per variable.
+	#
+	#   paPoint    the values of the variables, one per variable in declared order
+	#   returns    a list of numbers
+	#   see        ValueAt
 	def GradientAt(paPoint)
 		return @oFunc.GradientAt(paPoint)
 
+	# Sets how many iterations the search may take before it gives up; the default is 500.
+	#
+	#   n          the limit, a number above 0
+	#   returns    nothing; use SetMaxIterationsQ to chain
+	#   note       a value of 0 or less is ignored without a message and the limit stays as it was
+	#   see        SetGradientTolerance, MinimizeFrom
 	def SetMaxIterations(n)
 		if n > 0
 			@nMaxIterations = n
@@ -69,8 +122,14 @@ class stzObjective from stzObject
 			This.SetMaxIterations(n)
 			return This
 
-	# How small the gradient must get before the search calls it done. Left at the
-	# engine's default when unset, rather than guessed at here.
+	# Sets how small the gradient must become for the search to call itself done; unset, the engine's default applies.
+	#
+	#   n          the tolerance, a number above 0
+	#   returns    nothing; use SetGradientToleranceQ to chain
+	#   note       a value of 0 or less is ignored without a message; a large tolerance stops the
+	#              search early, away from the minimum
+	#   see        SetMaxIterations
+	#@ aka  How small the gradient must get before the search calls it done. Left at the engine's default when unset, rather than guessed at here.
 	def SetGradientTolerance(n)
 		if n > 0
 			@nGradientTolerance = n
@@ -80,10 +139,17 @@ class stzObjective from stzObject
 			This.SetGradientTolerance(n)
 			return This
 
-	# THE ANSWER IS A RECORD, NOT A POINT, for the same reason the hypothesis tests
-	# return one: a bare answer cannot tell you it did not converge. :status says how
-	# it stopped, :evaluations is the honest cost (an iteration that line-searched
-	# twelve times is not one unit of work), and :why says it in words.
+	# Searches downhill from a starting point with L-BFGS and returns the point it reached with a record of how the search ended.
+	#
+	#   paStart    the starting values of the variables, one per variable in declared order
+	#   returns    a hash list with :point, :value, :status, :iterations, :evaluations,
+	#              :gradientNorm and :why
+	#   note       check :status, which is "converged", "settled", "maxiterations",
+	#              "linesearchfailed" or "notfinite" (lowercase, since Ring folds the case of
+	#              symbols): a point is returned even when the search did not converge; it finds a
+	#              local minimum, so the start matters
+	#   see        MaximizeFrom, SetMaxIterations
+	#@ aka  THE ANSWER IS A RECORD, NOT A POINT, for the same reason the hypothesis tests return one: a bare answer cannot tell you it did not converge. :status says how it stopped, :evaluations is the honest cost (an iteration that line-searched twelve times is not one unit of work), and :why says it in words.
 	def MinimizeFrom(paStart)
 		if NOT isList(paStart) or len(paStart) != len(@oFunc.Variables())
 			stzraise("This objective has " + len(@oFunc.Variables()) +
@@ -129,10 +195,15 @@ class stzObjective from stzObject
 			:why = _cWhy_
 		]
 
-	# THE LARGEST value, by minimising the negative. Doing it here rather than
-	# telling you to rewrite the expression is the point: -f has the same maximiser
-	# as f has minimiser, but the VALUE comes back negated, and forgetting to flip it
-	# back is the obvious way to get this wrong.
+	# Searches uphill from a starting point and returns the record of MinimizeFrom, holding the formula's own value, not its negative.
+	#
+	#   paStart    the starting values of the variables, one per variable in declared order
+	#   returns    a hash list with :point, :value, :status, :iterations, :evaluations,
+	#              :gradientNorm and :why
+	#   note       a formula with no maximum ends with :status "linesearchfailed": maximising
+	#              (x-1)^2 + (y-2)^2 from [ 0, 0 ] returns the start
+	#   see        MinimizeFrom
+	#@ aka  THE LARGEST value, by minimising the negative. Doing it here rather than telling you to rewrite the expression is the point: -f has the same maximiser as f has minimiser, but the VALUE comes back negated, and forgetting to flip it back is the obvious way to get this wrong.
 	def MaximizeFrom(paStart)
 		_oNeg_ = new stzObjective("-(" + @oFunc.Expression() + ")", @oFunc.Variables())
 		_oNeg_.SetMaxIterations(@nMaxIterations)

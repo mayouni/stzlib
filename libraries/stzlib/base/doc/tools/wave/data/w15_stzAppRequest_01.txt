@@ -1,0 +1,14 @@
+init | Builds a request from its method, path, header pairs and body, and splits any query string off the path. | nothing; the object is built | cMethodVal=the HTTP method as sent, such as GET; cPathVal=the request target, possibly with a ?query part, which is removed from Path; aHeadersVal=a list of [ name, value ] pairs; cBodyVal=the body text | Path, Query, Header
+Method | Returns the HTTP method exactly as it was given, without changing its case. | a text such as GET | | Path, Protocol
+Path | Returns the path with the query string already removed. | a text such as /users/42 | | Query, Param
+Headers | Returns every header as a list of [ name, value ] pairs, in the order they arrived. | a list of [ text, text ] pairs | | Header
+Header | Returns the value of the first header whose name matches, ignoring case. | a text; an empty text when the header is absent | cName=the header name, in any case | Headers, WantsClose
+Body | Returns the body text as it was given. | a text | | Method
+Protocol | Returns the protocol version of the request, HTTP/1.1 until SetProtocol says otherwise. | a text such as HTTP/1.1 | | SetProtocol, WantsClose
+SetProtocol | Sets the protocol version that WantsClose reads. | the request itself, so calls chain | cProtocolVal=the protocol text, such as HTTP/1.0 | Protocol, WantsClose
+WantsClose | TRUE if the peer asked for the connection to close after the response, by Connection: close or by being HTTP/1.0 without keep-alive. | 1 or 0, numbers | | Header, SetProtocol
+ParseQuery | Moves the ?key=value&key=value part of the path into the query pairs; init already did it, so a second call finds nothing to do. | nothing | | Query, Path | a pair without an equals sign is dropped; values are kept as sent, percent escapes are not decoded | the first occurrence wins when a key is repeated, as for Query
+Query | Returns the value of a query key, or every query pair when the key is empty. | a text, an empty text for an absent key; a list of [ key, value ] pairs for the empty key | cKey=the query key, matched with its exact case, or an empty text for all pairs | ParseQuery, Param | | a value is returned as it was sent: a%20b stays a%20b
+SetParams | Stores the path parameters that the router bound for this request, such as the id of /user/:id. | the request itself, so calls chain | paParams=a list of [ name, value ] pairs | Params, Param
+Params | Returns the path parameters the router bound, as the list of [ name, value ] pairs. | a list of [ text, text ] pairs; empty until SetParams is called | | Param, SetParams
+Param | Returns the value of a path parameter by its exact name. | a text; an empty text for an absent name | cKey=the parameter name, matched with its exact case | Params, Query

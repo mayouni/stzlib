@@ -39,12 +39,47 @@ func StzScreenReaderBridgeQ(poWindow)
 func StzScreenReaderAvailable()
 	return StzA11yReady()
 
+# Hands the accessibility tree of a window to the operating system's screen-reader service and counts whether anything read it.
+#
+# The class carries no accessibility knowledge: the tree is built and judged by
+# stzAccessibilityTree, and its JSON crosses unchanged. The bridge owns a platform connection
+# through AccessKit and a lifetime. A machine with no runtime, or a window with no platform handle,
+# is not an error, the bridge is simply not live and LastError says why. TimesAnnounced counts what
+# the program did and TimesRead counts the times an assistive technology asked, which stays 0 on a
+# quiet machine. Attaching to a window hides and re-shows it. The live path needs a real window and
+# was not run for this reference: the example uses an object with no platform handle.
+#
+#   receiver   eval("class StzNoHandleWindow" + char(10) + "def NativeHandle()" + char(10) + "return
+#              0") o1 = new stzScreenReaderBridge(new StzNoHandleWindow)
+#   example    ? o1.IsLive()
+#              #--> 0
+#              ? o1.LastError()
+#              #--> the window has no platform handle
+#              ? o1.Announce("{}")
+#              #--> 0
+#              ? o1.TimesAnnounced()
+#              #--> 0
+#              ? @@( o1.Stats() )
+#              #--> [ ]
+#   see        stzAccessibilityTree, stzWindow, stzPanel
 class stzScreenReaderBridge from stzObject
 
 	@nId = 0
 	@nAnnounced = 0
 	@cLastError = ""
 
+	# Connects a window to the operating system's accessibility service, or records why it could not.
+	#
+	#   poWindow   the stzWindow whose platform handle is handed to the accessibility runtime
+	#   returns    nothing; the bridge is live only if the platform accepted the window
+	#   note       no runtime, a window with no platform handle, or a platform that refuses is not
+	#              an error: the bridge is simply not live and LastError says why; read from the
+	#              code, attaching hides and re-shows the window, so it blinks;
+	#              StzScreenReaderAvailable tells beforehand whether a runtime exists; not run with
+	#              a real window
+	#   warning    a value that is not an object raises error stzScreenReaderBridge: give an
+	#              stzWindow
+	#   see        IsLive, LastError, Announce
 	def init(poWindow)
 		if NOT isObject(poWindow)
 			StzRaise("stzScreenReaderBridge: give an stzWindow.")
@@ -71,23 +106,37 @@ class stzScreenReaderBridge from stzObject
 		ok
 		@nId = _n_
 
+	# TRUE if the platform accepted the window and a tree can be handed over.
+	#
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   note       it is 0 for an object whose window had no platform handle, as the one tried here
+	#   see        LastError, Announce
 	def IsLive()
 		if @nId = 0
 			return FALSE
 		ok
 		return StzEngineA11yIsLive(@nId) = 1
 
+	# Returns why the bridge is not live, or why the last tree was refused.
+	#
+	#   returns    the reason as text, such as the window has no platform handle or no accessibility
+	#              runtime on this machine; an empty text when nothing went wrong
+	#   see        IsLive, Announce
 	def LastError()
 		return @cLastError
 
-	#-- the one verb ---------------------------------------------------------
-
-	# Hand over a tree. Call it once at startup and again whenever the
-	# interface changed -- a new screen, a focus move, a value edited.
+	# Hands the accessibility tree to the platform, to be called again whenever the interface changes.
 	#
-	# Takes an stzAccessibilityTree, or the JSON itself, because the JSON
-	# is the contract and a caller that already has one should not have to
-	# rebuild the object to say it.
+	#   pTree      a stzAccessibilityTree, or its JSON as text
+	#   returns    TRUE if the platform took the tree, FALSE when the bridge is not live or the
+	#              platform refused it; AnnounceQ returns the bridge for chaining
+	#   note       on a bridge that is not live it answers FALSE without looking at the argument and
+	#              changes no count
+	#   warning    read from the code, a value that is neither a tree nor text raises error
+	#              stzScreenReaderBridge.Announce: give a tree or its JSON, but only on a live
+	#              bridge; not run on a live bridge
+	#   see        TimesAnnounced, IsLive
+	#@ aka  -- the one verb ---------------------------------------------------------
 	def Announce(pTree)
 		if NOT This.IsLive()
 			return FALSE
@@ -111,14 +160,20 @@ class stzScreenReaderBridge from stzObject
 		This.Announce(pTree)
 		return This
 
-	#-- what actually happened -----------------------------------------------
-
-	# How many times WE handed a tree over.
+	# Returns how many times a tree was handed over and accepted.
+	#
+	#   returns    a number; 0 on a bridge that is not live
+	#   see        TimesRead, Announce
+	#@ aka  -- what actually happened -----------------------------------------------
 	def TimesAnnounced()
 		return @nAnnounced
 
-	# How many times an assistive technology ASKED for one. This is the
-	# number that distinguishes a working bridge from a hopeful one.
+	# Returns how many times an assistive technology actually asked for the tree.
+	#
+	#   returns    a number; 0 on a quiet machine or a bridge that is not live
+	#   note       it is the number that tells a working bridge from a hopeful one
+	#   see        TimesAnnounced, IsBeingRead
+	#@ aka  How many times an assistive technology ASKED for one. This is the number that distinguishes a working bridge from a hopeful one.
 	def TimesRead()
 		_a_ = This.Stats()
 		if len(_a_) < 2
@@ -126,7 +181,11 @@ class stzScreenReaderBridge from stzObject
 		ok
 		return _a_[2]
 
-	# How many nodes the platform currently holds.
+	# Returns how many nodes the platform currently holds.
+	#
+	#   returns    a number; 0 on a bridge that is not live
+	#   see        Stats, TimesAnnounced
+	#@ aka  How many nodes the platform currently holds.
 	def NodeCount()
 		_a_ = This.Stats()
 		if len(_a_) < 3
@@ -134,18 +193,31 @@ class stzScreenReaderBridge from stzObject
 		ok
 		return _a_[3]
 
-	# [ announced, read, nodes ] straight from the bridge, or [].
+	# Returns the three counters straight from the bridge.
+	#
+	#   returns    a list [ announced, read, nodes ]; [ ] on a bridge that is not live
+	#   see        TimesRead, NodeCount
+	#@ aka  [ announced, read, nodes ] straight from the bridge, or [].
 	def Stats()
 		if @nId = 0
 			return []
 		ok
 		return StzEngineA11yStats(@nId)
 
-	# TRUE when something has read the tree at least once -- which is the
-	# only evidence available in-process that a screen reader is there.
+	# TRUE if something has read the tree at least once.
+	#
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   note       it is the only in-process evidence that a screen reader is there
+	#   see        TimesRead
+	#@ aka  TRUE when something has read the tree at least once -- which is the only evidence available in-process that a screen reader is there.
 	def IsBeingRead()
 		return This.TimesRead() > 0
 
+	# Detaches the bridge from the window.
+	#
+	#   returns    nothing; the bridge is no longer live
+	#   note       freeing a bridge that is not live does nothing
+	#   see        IsLive, init
 	def Free()
 		if @nId != 0
 			StzEngineA11yDetach(@nId)

@@ -1,0 +1,14 @@
+init | Opens a SQLite database as the library's data port: a file path, or :memory: for one that vanishes at restart. | nothing; the object is built | pcPath=the database file, created when missing, or the text :memory: | Exec, IsEphemeral | raises an error when the path is empty after trimming
+Exec | Runs one SQL statement that changes data or structure and returns how many rows it changed. | a number; 0 for a statement such as CREATE TABLE | pcSql=the statement to run | Rows, Value | raises an error with SQLite's message for invalid SQL, and after Close; the text is run as written, so build it with fixed parts and never by joining untrusted input
+Rows | Runs a query and returns all its rows. | a list of rows, each a list of the column values as text, so 1 comes back as "1"; an empty list for no rows | pcSql=the query to run | Value, Exec | raises an error with SQLite's message for invalid SQL, and after Close; the text is run as written
+Value | Runs a query and returns the first column of its first row. | a text; an empty text when the query gives no row | pcSql=the query to run | Rows | raises an error with SQLite's message for invalid SQL, and after Close; the text is run as written
+IsLocalReal | TRUE if the source is a real database and not a fake, so it may ship; it always is for SQLite. | TRUE | | IsEphemeral
+IsEphemeral | TRUE if the path is :memory:, a real database that loses every row at restart, which the registry refuses in production. | TRUE or FALSE | | IsLocalReal, Path
+Path | Returns the path given at construction, trimmed. | a text | | IsEphemeral
+IsOpen | TRUE if the database is open. | TRUE or FALSE | | Close
+DatabaseQ | Returns the stzDatabase underneath, for code that needs more than the three-method port. | a stzDatabase | | Exec, Rows | | named so its use shows up in a search
+TableExists | TRUE if a table of that exact name exists; the match is case-sensitive. | TRUE or FALSE | pcTable=the table name; a quote in it is doubled before use | Tables, RowCount | raises an error after Close
+Tables | Returns the names of the tables, in alphabetical order. | a list of text | | TableExists
+RowCount | Returns how many rows a table holds, 0 for a table that does not exist. | a number | pcTable=the table name | TableExists | a table whose name needs quoting, such as my-table, raises a SQL error, because the name is put into the query bare once it is known to exist; a name that is not an existing table, even with SQL in it, answers 0 and runs nothing | raises an error after Close
+Close | Shuts the database; an in-memory one loses its rows. | the source itself, so calls chain | | IsOpen
+Show | Prints one line with the path, marked EPHEMERAL for an in-memory source. | nothing; it prints | | IsEphemeral

@@ -51,6 +51,34 @@ func StzSoundSingingVerdict()
 func StzSoundFormantVoiceQ()
 	return new stzSoundFormantVoice()
 
+# Sings the five vowels at a pitch with a formant voice built in the engine, a glottal pulse through five resonators.
+#
+# The voice is a Rosenberg glottal pulse through formant resonators taken from the Csound tenor and
+# soprano tables, and holds a pitch to a fraction of a cent. Vowel gives one vowel at a note,
+# VowelGlide a gliding pitch, VowelsQ a line of vowels at a tempo. It sings vowels only: a consonant
+# needs a model or the neural tier. Sing is present and gated by StzSoundSingingVerdict, and refuses
+# while the formant voice is recorded as UNPERCEIVED. Everything is rendered to memory and checked
+# by frame count, sample rate, peak and measured pitch; no audio device is opened. It has not been
+# heard by a person (UNPERCEIVED), so whether it reads as a voice is not claimed.
+#
+#   receiver   o1 = StzSoundFormantVoiceQ() oV = o1.Vowel("a", "A3", 1.5)
+#   example    ? oV.SampleRate()
+#              #--> 48000
+#              ? oV.Frames()
+#              #--> 79200
+#              ? oV.Peak() > 0.1 and oV.Peak() <= 1
+#              #--> 1
+#              ? abs(StzEngineSoundPitchOf(oV.BufferId(), 24001, 4096, 50, 2000) - 220) < 2
+#              #--> 1
+#              ? @@( o1.FormantsOf("a", 220) )
+#              #--> [ 650, 1080 ]
+#              oBad = o1.Vowel("y", "A3", 1)
+#              ? o1.LastError()
+#              #--> 'y' is not one of the five vowels a e i o u
+#              oS = o1.Sing("la la", "c4 e4")
+#              ? o1.Refusals()
+#              #--> 2
+#   see        stzSoundRetunedVoice, stzVoice, stzSoundScore
 class stzSoundFormantVoice
 
 	@nRate = 48000
@@ -60,11 +88,25 @@ class stzSoundFormantVoice
 	@cLastError = ""
 	@nRefusals = 0
 
+	# Builds a formant voice that sings the five vowels, noting whether the sound engine is loaded.
+	#
+	#   returns    nothing; the object is built
+	#   note       StzSoundFormantVoiceQ builds the same object; without the sound engine LastError
+	#              says stz_sound.dll is not loaded
+	#   see        Vowel, Sing
 	def init()
 		if NOT StzSoundEngineLoaded()
 			@cLastError = "stz_sound.dll is not loaded"
 		ok
 
+	# Sets how much breath noise is mixed into the voice.
+	#
+	#   pn         the breath, from 0 for none to 1 for all
+	#   returns    the voice itself, so calls chain
+	#   note       the default is 0.2
+	#   warning    a value outside 0 to 1 or not a number is refused: it counts a refusal, sets
+	#              LastError to SetBreath: 0 to 1, and the old value stays
+	#   see        SetVibrato, Vowel
 	def SetBreath(pn)
 		if NOT isNumber(pn) or pn < 0 or pn > 1
 			This._Refuse("SetBreath: 0 to 1")
@@ -73,6 +115,14 @@ class stzSoundFormantVoice
 		@nBreath = pn
 		return This
 
+	# Sets the depth of the vibrato, in cents above and below the pitch.
+	#
+	#   pnCents    the depth in cents, from 0, which holds the pitch still, to 100
+	#   returns    the voice itself, so calls chain
+	#   note       the default is 25 cents
+	#   warning    a value outside 0 to 100 or not a number is refused as SetBreath is, with the
+	#              error SetVibrato: 0 to 100 cents
+	#   see        SetBreath, Vowel
 	def SetVibrato(pnCents)
 		if NOT isNumber(pnCents) or pnCents < 0 or pnCents > 100
 			This._Refuse("SetVibrato: 0 to 100 cents")
@@ -81,20 +131,57 @@ class stzSoundFormantVoice
 		@nVibrato = pnCents
 		return This
 
-	# The five vowels, and the first two formants each sits on at a pitch --
-	# what the guard holds the rendered spectrum against.
+	# Returns the five vowels the voice can sing.
+	#
+	#   returns    the list a, e, i, o, u
+	#   see        FormantsOf, Vowel
+	#@ aka  The five vowels, and the first two formants each sits on at a pitch -- what the guard holds the rendered spectrum against.
 	def Vowels()
 		return [ "a", "e", "i", "o", "u" ]
 
+	# Returns the two lowest formants a vowel sits on at a pitch, in hertz.
+	#
+	#   pcVowel    one of a, e, i, o or u
+	#   pnHz       the pitch in hertz
+	#   returns    a list of two numbers; [ ] for a name that is not one of the five vowels
+	#   note       for the vowel a at 220 hertz they are 650 and 1080, and for i 290 and 1870, from
+	#              the Csound formant tables
+	#   see        Vowels, Vowel
 	def FormantsOf(pcVowel, pnHz)
 		_i_ = This._VowelIndex(pcVowel)
 		if _i_ = 0  return [] ok
 		return [ StzEngineSoundVowelFormant(_i_, pnHz, 1), StzEngineSoundVowelFormant(_i_, pnHz, 2) ]
 
-	# One vowel at a pitch (a note name or Hz) for `pnSeconds`.
+	# Renders one sung vowel at a pitch as a sound.
+	#
+	#   pcVowel     one of a, e, i, o or u
+	#   pNote       a note name such as A3 or a frequency in hertz
+	#   pnSeconds   how long to hold it, in seconds
+	#   returns     a mono stzSound at 48000 hertz; an empty text when the vowel or the pitch is
+	#               refused, with the reason in LastError
+	#   note        the sound runs 0.15 s longer than asked, a release: 1.5 s gave 79200 frames; A3
+	#               read back at 219.73 hertz by the engine's pitch reader, against 220; the peak
+	#               was 0.56
+	#   warning     a vowel that is not one of the five, such as y, gives an empty text and the
+	#               error ... is not one of the five vowels a e i o u; a pitch that is neither a
+	#               note name nor a number gives the error a pitch is a note name (A3, C#4) or Hz
+	#   see         VowelGlide, FormantsOf
+	#@ aka  One vowel at a pitch (a note name or Hz) for `pnSeconds`.
 	def Vowel(pcVowel, pNote, pnSeconds)
 		return This.VowelGlide(pcVowel, pNote, pNote, pnSeconds)
 
+	# Renders one sung vowel whose pitch glides from one note to another.
+	#
+	#   pcVowel     one of a, e, i, o or u
+	#   pFrom       the note or frequency it starts on
+	#   pTo         the note or frequency it ends on
+	#   pnSeconds   how long the glide lasts, in seconds
+	#   returns     a mono stzSound at 48000 hertz; an empty text when refused, with the reason in
+	#               LastError
+	#   note        the pitch rises or falls through the sound: from A3 to A4 over 1 s it read about
+	#               233 hertz early on and 400 hertz near the end; the tail adds 0.15 s as in Vowel
+	#   warning     the same refusals as Vowel
+	#   see         Vowel
 	def VowelGlide(pcVowel, pFrom, pTo, pnSeconds)
 		_i_ = This._VowelIndex(pcVowel)
 		if _i_ = 0
@@ -135,8 +222,19 @@ class stzSoundFormantVoice
 		next
 		return _o_
 
-	# SINGING -- gated by the verdict. Refused, with the reason, until the
-	# author has heard the formant voice and called it singing.
+	# Sings lyrics, each syllable as its first vowel, if the voice has been ruled to sing.
+	#
+	#   pcLyrics   the syllables, separated by spaces
+	#   pcNotes    the notes, separated by spaces
+	#   returns    a sound, as VowelsQ gives, one vowel for each note at 90 beats a minute; an empty
+	#              text while the ruling is not SINGING
+	#   note       it sings vowels only: a consonant model does not exist, so la is sung as a; Vowel
+	#              and VowelsQ are what the voice honestly does
+	#   warning    refused today: StzSoundSingingVerdict records the formant voice as UNPERCEIVED,
+	#              so it returns an empty text and the error Sing is not available YET: the formant
+	#              voice has not been heard by the author
+	#   see        Vowel, StzSoundSingingVerdict
+	#@ aka  SINGING -- gated by the verdict. Refused, with the reason, until the author has heard the formant voice and called it singing.
 	def Sing(pcLyrics, pcNotes)
 		_aAll_ = StzSoundSingingVerdict()
 		_aV_ = This._Get(_aAll_, :formant, [])
@@ -168,9 +266,18 @@ class stzSoundFormantVoice
 		next
 		return This.VowelsQ(_cV_, pcNotes, 90)
 
+	# Returns the reason of the last refusal.
+	#
+	#   returns    the reason as text; an empty text when the last call went well
+	#   see        Refusals
 	def LastError()
 		return @cLastError
 
+	# Returns how many calls were refused.
+	#
+	#   returns    a number
+	#   note       it counts a bad vowel, a bad pitch, a refused Sing and a bad breath or vibrato
+	#   see        LastError
 	def Refusals()
 		return @nRefusals
 

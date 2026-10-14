@@ -1,0 +1,14 @@
+init | Creates an actor with a name and a set of capability kinds, trusted by default. | nothing; the object is built | pcName=the actor's name; paKinds=the capability kinds to grant, from effectful, sensing, compute and inference | GrantKind, Can | an unknown kind raises an error
+Name | Returns the actor's name. | a text | | SetName
+SetName | Changes the actor's name. | the actor itself, so calls chain | pcName=the new name | Name
+KnownKinds | Returns the four capability kinds the lattice knows: effectful, sensing, compute and inference. | a list of texts | | Kinds, GrantKind
+Kinds | Returns the capability kinds this actor holds, in the order granted. | a list of texts | | KnownKinds, NumberOfKinds
+SetKinds | Replaces the actor's capability kinds with a list, granting them one by one. | the actor itself, so calls chain | paKinds=the capability kinds to hold, from effectful, sensing, compute and inference | GrantKind, Kinds | an unknown kind raises an error; a value that is not a list leaves the actor with no kinds
+GrantKind | Adds a capability kind to the actor; granting one it already holds changes nothing. | the actor itself, so calls chain | pcKind=the kind to grant, matched without regard to case | RevokeKind, Can | an unknown kind raises an error naming the four known ones
+RevokeKind | Removes a capability kind from the actor; a kind it does not hold changes nothing. | the actor itself, so calls chain | pcKind=the kind to remove, matched without regard to case | GrantKind, Can
+Can | TRUE if the actor holds a capability kind. | TRUE or FALSE | pcKind=the kind to test, matched without regard to case | IsEffectful, GrantKind
+IsEffectful | TRUE if the actor may change the outside world, that is holds the effectful kind. | TRUE or FALSE | | Can | a language-model actor holds only inference, so it can propose a plan but commit nothing
+Posture | Returns the actor's posture: trusted, external or sandboxed; trusted by default. | a text | | SetPosture
+SetPosture | Sets the actor's posture. | the actor itself, so calls chain | pcPosture=trusted, external or sandboxed, matched without regard to case | Posture | any other word raises an error
+NumberOfKinds | Returns how many capability kinds the actor holds. | a number | | Kinds
+Show | Prints three lines that describe the actor: its name and posture, its capabilities, and whether it can effect reality. | nothing; it prints | | Kinds, Posture

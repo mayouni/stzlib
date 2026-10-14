@@ -1,0 +1,7 @@
+init | Builds a watcher that is not watching anything yet. | nothing; the object is built | | Watch
+Watch | Starts the engine's polling worker on a folder; a running watcher, an empty path or a path that is not a text changes nothing. | the watcher itself, so calls chain | cPath=the folder to watch | Drain, Stop, IsRunning | a folder that does not exist is accepted as well: IsRunning becomes 1 and LastError stays empty, so check the folder first | a second Watch on a running watcher keeps the first folder
+IsRunning | TRUE if a watch is running, which Stop ends. | 1 or 0, numbers | | Watch, Stop
+Path | Returns the folder given to the last accepted Watch, an empty text before it. | a text | | Watch
+LastError | Returns the engine's last watcher error, an empty text when there is none. | a text | | Watch
+Drain | Returns the events queued since the last call, files added, modified or deleted in the folder, and empties the queue. | a list of events, each [ [ kind, ADD or MOD or DEL ], [ name, the file name ] ]; [ ] when nothing happened or no watch runs | | Watch, Stop | | poll it on your own schedule; an event appears within about a quarter of a second of the change
+Stop | Ends the polling worker and returns the watcher to the idle state; stopping an idle watcher changes nothing. | the watcher itself, so calls chain | | Watch, IsRunning

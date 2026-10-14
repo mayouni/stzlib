@@ -1,0 +1,21 @@
+{
+ "brief": "Holds a declared set of governance predicates, house code rules and agent-graph invariants, that can be saved with a seal and enforced.",
+ "detail": "The mechanism, not any particular constitution: a set names which code rules and which graph invariants apply, EnforceOnCode and EnforceOnGraph run only those, and Save writes the set as readable lines ending with a SHA-256 seal that Verify checks after LoadFrom. Names are checked against the library's lists when added or loaded, so a file cannot add a rule that does not exist. The seal is an unkeyed digest: it catches a silent edit of the rules but proves nothing about authorship, which a reviewer's signature must supply outside the file.",
+ "receiver": "o1 = new stzPredicateSet(\"house-rules\")",
+ "example": [
+  "o1.AddRule(\"no-len-method\")",
+  "o1.AddInvariant(\"no-llm-effectful\")",
+  "? @@( o1.Rules() )",
+  "#--> [ \"no-len-method\" ]",
+  "o2 = \"class Foo\" + nl + \"def Len()\" + nl + \"  return 5\" + nl",
+  "? o1.EnforceOnCode(o2)[1][:rule]",
+  "#--> no-len-method",
+  "? len(o1.Seal())",
+  "#--> 64"
+ ],
+ "see": [
+  "stzCodeRuleSet",
+  "stzAgentRuleSet",
+  "StzCheckCode"
+ ]
+}

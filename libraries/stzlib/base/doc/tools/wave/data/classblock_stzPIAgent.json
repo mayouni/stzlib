@@ -1,0 +1,23 @@
+{
+ "brief": "Holds an agent that perceives its memory, decides under governance, acts through verified skills and can say why.",
+ "detail": "A stzPIAgent is assembled from parts that already exist: a stzAgentMemory over a knowledge graph, stzAgentSkill objects (precondition, action, check) and a stzGovernance record. Cycle runs one pass over the skills: a skill whose precondition does not hold is skipped, a governed skill asks MayProceed first and is refused if it does not pass, and an admitted skill is applied and verified. Pursue repeats Cycle to a fixpoint, bounded at 20 rounds. It is deterministic and offline. GiveWorkbench binds the safe world: the agent's ring functions then rehearse file writes in memory, and GenerateUpdatePlan is the one export toward reality.",
+ "receiver": "o1 = new stzPIAgent(\"kitchen-bot\")\no2 = new stzAgentSkill(\"restock\")",
+ "example": [
+  "o2.SetWhen(func m { return m.Fact(\"stock\", \"level\", \"low\") })",
+  "o2.SetDoes(func m { m.Learn(\"stock\", \"level\", \"ordered\") return 1 })",
+  "o1.AddSkill(o2)",
+  "o1.MemoryQ().Learn(\"stock\", \"level\", \"low\")",
+  "? o1.Cycle()",
+  "#--> 1",
+  "? o1.MemoryQ().Fact(\"stock\", \"level\", \"ordered\")",
+  "#--> 1",
+  "? o1.Trace()[1][:decision]",
+  "#--> ran"
+ ],
+ "see": [
+  "stzAgentSkill",
+  "stzAgentMemory",
+  "stzGovernance",
+  "stzAgentHost"
+ ]
+}

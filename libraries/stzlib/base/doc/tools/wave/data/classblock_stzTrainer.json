@@ -1,0 +1,22 @@
+{
+ "brief": "Trains a stzNeuralNetwork by stochastic gradient descent and keeps the loss of every epoch, so the descent can be watched.",
+ "detail": "The network arrives with each Train call and is changed in place, because an attribute would hold a private copy and training would perfect a clone. The loop and the backpropagation run in the engine; the trained weights are written back through AdoptLayers. The trainer records the loss history, and Why sums the run up: the epochs, the rate, and the first and last loss. Learning is deterministic for a given seed and data.",
+ "receiver": "o1 = new stzTrainer()\no2 = new stzNeuralNetwork([ :Inputs = 2 ])",
+ "example": [
+  "o2.AddDenseLayer(4, :Tanh)",
+  "o2.AddDenseLayer(1, :Sigmoid)",
+  "o1.SetLearningRate(0.5)",
+  "o1.Train(o2, [ [0,0], [0,1], [1,0], [1,1] ], [ [0], [1], [1], [0] ], 2000)",
+  "? len(o1.LossHistory())",
+  "#--> 2000",
+  "? o1.LossHistory()[1] > o1.FinalLoss()",
+  "#--> 1",
+  "? o2.Predict([0, 1])[1] > 0.9",
+  "#--> 1"
+ ],
+ "see": [
+  "stzNeuralNetwork",
+  "stzLogisticRegression",
+  "stzTrainingSet"
+ ]
+}

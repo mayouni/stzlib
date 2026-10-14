@@ -1,0 +1,16 @@
+{
+ "brief": "Changes the settings of a table layout in batches, exports and imports them, and is meant to fire a callback on change.",
+ "detail": "It works on a copy of the config it is given, readable as its oConfig attribute: a change made through the manager does not reach the config you built it from. The change callback does not fire today and OptimizeLayout has no lasting effect; the warnings on those methods give the causes.",
+ "receiver": "o1 = new TableConfigManager(new TableDisplayConfig([ [ \"Dept\", \"2024|Q1\", \"2024|Q2\", \"Total\" ], [ \"Sales\", 100, 200, 300 ], [ \"Support\", 50, 60, 110 ], [ \"Total\", 150, 260, 410 ] ], [ \"Dept\" ], [ \"Year\", \"Quarter\" ], \"Total\"))",
+ "example": [
+  "o1.UpdateSettings([ [ :MinCellWidth, 9 ] ])",
+  "? o1.oConfig.aSettings[:MinCellWidth]",
+  "#--> 9",
+  "? len(o1.ExportConfig())",
+  "#--> 2"
+ ],
+ "see": [
+  "TableDisplayConfig",
+  "TableThemeManager"
+ ]
+}

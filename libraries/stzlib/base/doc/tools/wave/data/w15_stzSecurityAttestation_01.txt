@@ -1,0 +1,16 @@
+init | Builds a custody statement for exported evidence, with a name and nothing attested yet. | nothing; the object is built | pcName=the attestation's name, quoted in its statement | Of, WriteTo
+Name | Returns the name the attestation was built with. | a text | | init
+Of | Chooses the security ledger whose events will be exported. | the attestation itself, so calls chain | poLedger=a stzSecurityLedger, such as the process ledger | SealedWith, WriteTo | | the ledger is read when WriteTo runs
+SealedWith | Sets the key that seals the exported file with a keyed HMAC-SHA256 over the chain head and the count. | the attestation itself, so calls chain | pcKey=the sealing key, held as given | WriteTo, StzVerifyAttestation | without a key, or with an empty one, the export is sealed with no key: the chain still detects a changed entry, but anyone can recompute the seal, and Statement says so | the same key is needed to verify the file
+MayAttest | TRUE if the actor holds the sensing capability that reading the evidence out requires. | TRUE or FALSE | poActor=the actor asking | WhyNot, WriteTo | | an inference-only actor, such as an LLM actor, is refused
+WhyNot | Returns the reason an actor may not export the evidence, an empty text when it may. | a text | poActor=the actor asking | MayAttest | | the reason names the actor
+WriteTo | Seals the ledger to a file under this actor's name and records the export as an event; a refused actor writes nothing. | TRUE when the file was written, FALSE when the actor is refused | pcPath=the file to write; poActor=the actor exporting, which needs the sensing capability | MayAttest, Statement | raises an error telling to say Of first when no ledger was chosen; a refusal is noted as evidence.export_refused, a success as evidence.exported | the ledger names actors, subjects and refusals, so the file is sensitive: store it with care
+WasWritten | TRUE if a successful export has been made. | TRUE or FALSE | | WriteTo
+Path | Returns the file the last export was written to. | a text; empty before an export | | WriteTo
+Attestor | Returns the name of the actor who made the last export. | a text; empty before an export | | WriteTo
+AttestedAt | Returns when the last export was made. | a number, epoch milliseconds on the wall clock; 0 before an export | | WriteTo
+HeadDigest | Returns the digest of the last event exported, the head of the hash chain. | a text of 64 hexadecimal characters; empty before an export | | EntryCount
+EntryCount | Returns how many events the exported file holds. | a number; 0 before an export | | HeadDigest
+Statement | Returns the custody statement a person reads beside the file, as one text with a line per fact. | a multi-line text, or a sentence saying nothing is written yet | | Explain, Show
+Explain | Returns the custody statement as a list of lines: file, attestor, time, entries, chain head, seal and how to verify. | a list of text | | Statement, Show | | it states that entries are descriptors with no secret value, which holds only for the values a caller put in an event: a path with a query string, or an actor name, is recorded as received
+Show | Prints the custody statement, one line per fact. | nothing; it prints | | Explain

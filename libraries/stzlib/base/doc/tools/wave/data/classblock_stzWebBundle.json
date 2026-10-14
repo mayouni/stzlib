@@ -1,0 +1,16 @@
+{
+ "brief": "Assembles a deployable web folder from wasm modules: the modules, the stz.js bridge, an HTML shell and a manifest.",
+ "detail": "The web is a composite target, not one binary. stzBuilder compiles the wasm parts; stzWebBundle copies them into one folder together with the bridge that lets JavaScript own the linear memory and call the module's exports, a page that loads the first module and calls its stz_main, and bundle.json. Add modules by path (or hand over a stzBuilder, which is built first), set the title and the output folder, then Build. The default folder is <name>_web in the current folder.",
+ "receiver": "o1 = new stzWebBundle(\"app\")\no1.SetTitle(\"My App\")\no1.SetOutDir(\"web_demo_unused\")",
+ "example": [
+  "? o1.IsBuilt()",
+  "#--> 0",
+  "? o1.ShellPath()",
+  "#--> web_demo_unused/index.html",
+  "? o1.ManifestPath()",
+  "#--> web_demo_unused/bundle.json",
+  "? o1.NumberOfParts()",
+  "#--> 0"
+ ],
+ "see": ["stzBuilder", "stzEmulator", "stzDeployment"]
+}

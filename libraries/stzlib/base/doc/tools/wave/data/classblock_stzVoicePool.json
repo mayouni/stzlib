@@ -1,0 +1,30 @@
+{
+ "brief": "Fires a sound now, again and again, without building anything: the pool is built once and mixed into one stream.",
+ "detail": "A game fires the same footstep thirty times a minute and two overlap, and building a graph per shot would allocate inside the frame that has to draw. The pool is built once, prepared once and mixed into one stream, and firing a voice is an atomic flag the render picks up at its next block. Slots are the policy: a voice of four slots sounds four times at once and the fifth fire steals the oldest, counted and not hidden. Each voice has its own gain bus so one can be ducked with a ramp, never a jump. The pool runs on a stzSoundTransport, so its position is the plane's one device clock. There is no pitch or volume per shot and no panning. Start opens a sound card: for this reference it was never run, the example builds the pool and reads what needs no device, and nothing was heard (UNPERCEIVED).",
+ "receiver": "o1 = StzVoicePoolOfQ(48000)\noBlip = StzSoundScoreQ().Note(880, 0.2).ToSound()\no1.AddVoice(:blip, oBlip, 4)\no1.AddToneVoice(:coin, :Square, 880, 0.05, 3)",
+ "example": [
+  "? @@( o1.VoiceNames() )",
+  "#--> [ \"blip\", \"coin\" ]",
+  "? o1.SlotsOf(:blip)",
+  "#--> 4",
+  "? o1.SlotsOf(:coin)",
+  "#--> 3",
+  "? o1.IsStarted()",
+  "#--> 0",
+  "? o1.FiresOf(:blip)",
+  "#--> 0",
+  "o1.Fire(:blip)",
+  "? o1.LastError()",
+  "#--> Fire: call Start() first",
+  "? o1.Refusals()",
+  "#--> 1",
+  "? o1.VoiceGain(:blip)",
+  "#--> -1"
+ ],
+ "see": [
+  "stzSoundTransport",
+  "stzSoundGraph",
+  "stzSoundLive",
+  "stzSoundScheduler"
+ ]
+}

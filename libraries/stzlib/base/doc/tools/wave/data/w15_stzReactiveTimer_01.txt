@@ -1,0 +1,7 @@
+# w15 stzReactiveTimer
+Init | Builds a timer that calls a function every interval, or once, when started and driven by a timer manager. | nothing; the timer is built stopped | id=the timer's identifier; intervalMs=the time between calls in milliseconds; f=the function to call; engine=the reactive engine it belongs to; oneTime=1 for a timer that fires once and stops, 0 or an empty text for one that repeats | Start, CheckAndTick, stzTimerManager | | it does not run by itself: a stzTimerManager loop calls CheckAndTick
+Start | Starts the timer, taking the time now as its starting point. | nothing; the timer becomes active | | Stop, CheckAndTick | | starting an active timer does nothing, and the interval counts from the start
+Stop | Stops the timer, so CheckAndTick no longer fires it. | nothing; the timer becomes inactive | | Start, Cleanup | |
+Tick | Calls the timer's function now, whatever the clock says. | nothing | | CheckAndTick | | it fires even when the timer is stopped and does not change the timer's state
+CheckAndTick | Calls the function if the interval has passed since the last call, for a manager's loop to call. | 1 while the timer stays active, 0 when it is stopped or has just fired as a one-shot | | Start, Tick | | a repeating timer measures from the time of its last firing; a call before the interval has passed does nothing and answers 1; a one-shot stops itself after firing
+Cleanup | Stops the timer when its owner lets go of it. | nothing | | Stop |

@@ -1,0 +1,19 @@
+{
+ "brief": "Classifies a point by the majority label of its k nearest training examples, with no training step and a full explanation.",
+ "detail": "The purest explainable classifier: nothing is fitted, and Why lists the neighbours that voted with their distances. The search is exact by default and runs in the engine; the resident index rebuilds when examples have been added through TrainingSetQ. Approximate search is an opt-in switch because the library cannot know how many queries will follow, and because it may change an answer; AgreementWithExact measures the cost on your own queries. Features are compared by Euclidean distance, so scale them first when their units differ.",
+ "receiver": "o1 = new stzKnn(new stzTrainingSet([ [[5.1, 3.5], \"setosa\"], [[4.9, 3.0], \"setosa\"], [[5.0, 3.4], \"setosa\"], [[6.5, 2.8], \"virginica\"], [[6.3, 3.3], \"virginica\"], [[6.7, 3.0], \"virginica\"] ]))",
+ "example": [
+  "o1.SetK(3)",
+  "? o1.Classify([5.0, 3.4])",
+  "#--> setosa",
+  "? o1.Classify([6.4, 3.0])",
+  "#--> virginica",
+  "? o1.Why()",
+  "#--> the 3 nearest examples were: #4 'virginica' (d=0.22), #6 'virginica' (d=0.30), #5 'virginica' (d=0.32) -- majority: 'virginica' (3/3)"
+ ],
+ "see": [
+  "stzTrainingSet",
+  "stzKMeans",
+  "stzNaiveBayes"
+ ]
+}

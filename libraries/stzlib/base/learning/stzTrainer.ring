@@ -14,6 +14,26 @@
 # stayed untouched. PARAMS are by-reference, so the network arrives
 # per-call and its AdoptLayers() write-back reaches the real object.
 
+# Trains a stzNeuralNetwork by stochastic gradient descent and keeps the loss of every epoch, so the descent can be watched.
+#
+# The network arrives with each Train call and is changed in place, because an attribute would hold
+# a private copy and training would perfect a clone. The loop and the backpropagation run in the
+# engine; the trained weights are written back through AdoptLayers. The trainer records the loss
+# history, and Why sums the run up: the epochs, the rate, and the first and last loss. Learning is
+# deterministic for a given seed and data.
+#
+#   receiver   o1 = new stzTrainer() o2 = new stzNeuralNetwork([ :Inputs = 2 ])
+#   example    o2.AddDenseLayer(4, :Tanh)
+#              o2.AddDenseLayer(1, :Sigmoid)
+#              o1.SetLearningRate(0.5)
+#              o1.Train(o2, [ [0,0], [0,1], [1,0], [1,1] ], [ [0], [1], [1], [0] ], 2000)
+#              ? len(o1.LossHistory())
+#              #--> 2000
+#              ? o1.LossHistory()[1] > o1.FinalLoss()
+#              #--> 1
+#              ? o2.Predict([0, 1])[1] > 0.9
+#              #--> 1
+#   see        stzNeuralNetwork, stzLogisticRegression, stzTrainingSet
 class stzTrainer from stzObject
 
 	@nLr = 0.1
@@ -21,45 +41,39 @@ class stzTrainer from stzObject
 	@nEpochs = 0
 	@cWhy = ""
 
+	# Builds a trainer with the learning rate at 0.1 and no history.
+	#
+	#   returns    nothing; the object is built
+	#   see        SetLearningRate, Train
 	def init()
 
+	# Sets the step size of the gradient descent.
+	#
+	#   n          the learning rate, above 0
+	#   returns    the trainer itself, so calls chain
+	#   note       a value of 0 or less is ignored without a message
+	#   see        Train
 	def SetLearningRate(n)
 		if n > 0
 			@nLr = n
 		ok
 		return This
 
-	# paInputs = [ [x...] ... ], paTargets = [ [y...] ... ]
-	# THE TRAINING LOOP RUNS IN THE ENGINE (numeric phase 6, slice 3).
+	# Trains a network in place by backpropagation in the engine, recording the loss of every epoch.
 	#
-	# The plan's line for this phase says "rewire the trainer and logistic
-	# regression to use gradients rather than hand-derived updates". The
-	# measurement says otherwise, so this does something else and records why:
-	#
-	#   1. THE HAND-DERIVED GRADIENTS WERE ALREADY EXACT. Slice 1's autodiff tape
-	#      was used to check them -- the honest use of an autodiff -- and on a
-	#      1-tanh-1-sigmoid network the two agree to eight decimals on every
-	#      weight. There was no correctness debt here to pay off.
-	#   2. A TAPE IS SLOWER THAN DERIVED CODE FOR A FIXED ARCHITECTURE. Reverse
-	#      mode earns its overhead when the expression is arbitrary; a dense MLP
-	#      is not, and its derivative is known in closed form.
-	#   3. IT WOULD HAVE CHANGED THE ANSWERS. This trainer minimises binary
-	#      cross-entropy for a sigmoid output while REPORTING squared error (see
-	#      the delta rules below, kept verbatim in nn.zig). Rebuilding it around
-	#      "the gradient of the reported loss" reintroduces the a(1-a) factor that
-	#      the original comment records as strangling gradients into the
-	#      constant-0.5 XOR saddle.
-	#
-	# So the tape stays where it belongs -- arbitrary objectives and L-BFGS -- and
-	# nn.zig is this same derivation, compiled. Measured on 400 samples x 10
-	# features through a 16-8-1 network, 100 epochs: 11.14 s -> 0.06 s.
-	#
-	# THE DELTA RULES ARE UNCHANGED and are worth restating because they are a
-	# choice, not a detail:
-	#   softmax + categorical cross-entropy -> delta = a - y, loss = -sum y*log(a)
-	#   sigmoid + binary cross-entropy      -> delta = a - y, loss REPORTED as
-	#                                          squared error
-	#   anything else                       -> the squared-error derivative
+	#   poNet       the stzNeuralNetwork to train, which is changed
+	#   paInputs    a list of input lists
+	#   paTargets   a list of target lists, as wide as the output layer
+	#   nEpochs     the number of passes, at least 1
+	#   returns     the trainer itself, so calls chain
+	#   note        the update rule is the output-layer delta of a minus y, whatever the loss
+	#               reported; a softmax output uses cross-entropy and the other outputs report
+	#               squared error
+	#   warning     raises an error naming the cause when inputs and targets differ in number, the
+	#               epochs are below 1, the network has no layers, or a sample or target has the
+	#               wrong width
+	#   see         LossHistory, Why
+	#@ aka  paInputs = [ [x...] ... ], paTargets = [ [y...] ... ] THE TRAINING LOOP RUNS IN THE ENGINE (numeric phase 6, slice 3).
 	def Train(poNet, paInputs, paTargets, nEpochs)
 		_nN_ = len(paInputs)
 		if _nN_ = 0 or len(paTargets) != _nN_
@@ -188,14 +202,27 @@ class stzTrainer from stzObject
 		next
 		return [ :activations = _aActs_, :zs = _aZs_ ]
 
+	# Returns the loss at every epoch of the last Train, in order.
+	#
+	#   returns    a list of numbers; empty before Train
+	#   see        FinalLoss, Why
 	def LossHistory()
 		return @aLossHistory
 
+	# Returns the loss at the last epoch of the last Train.
+	#
+	#   returns    a number; 0 before Train
+	#   see        LossHistory
 	def FinalLoss()
 		if len(@aLossHistory) = 0
 			return 0
 		ok
 		return @aLossHistory[len(@aLossHistory)]
 
+	# Returns a sentence with the epochs, the learning rate and the first and last loss of the last Train.
+	#
+	#   returns    a text such as trained 2000 epoch(s), lr 0.50: loss 0.40 -> 0.00; empty before
+	#              Train
+	#   see        LossHistory, FinalLoss
 	def Why()
 		return @cWhy

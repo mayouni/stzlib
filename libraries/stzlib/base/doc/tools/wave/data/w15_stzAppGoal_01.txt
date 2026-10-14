@@ -1,0 +1,4 @@
+init | Builds a goal snapshot with the given name, the default profile planning and no means, window or respected rules. | nothing; the object is built | pcName=the goal's name | Name, Profile
+Name | Returns the goal's name as it was declared. | a text | | Profile, Narrate
+Profile | Returns how the goal is reached, planning unless the declaration said otherwise. | a text such as planning | | Name, Narrate
+Narrate | Returns the goal as one sentence, with its window when it has one and the way it is reached. | a text such as wants Visited within a week -> reached by planning | | Name, Profile

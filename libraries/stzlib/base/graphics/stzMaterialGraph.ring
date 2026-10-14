@@ -78,6 +78,33 @@ func StzMaterialGraphOps()
 		[ :Lit,        1, "(@lambert * (1.0 - $1) + $1)" ]
 	]
 
+# Holds a surface material as a graph of operations, derives the order and the reuse, proves it, and emits the shader body.
+#
+# Declare what the material takes, colours, scalars and textures, then nodes, each an operation on
+# named inputs, in any order, and name the output with Emits. Compile derives the emission order by
+# topological sort, counts how many nodes read each node so a node read twice is emitted once, and
+# proves the graph: every input resolves, no cycle, no node computed for nobody. Because the graph
+# is an ordinary stzGraph, Affects and ImpactOf answer what a node influences. ToW emits the
+# material-language body, ToMaterial a stzMaterialMaker and ToWGSL the shader. Today a node that
+# reads the same node in two inputs, such as a squared value, raises at Compile. Rendering is not
+# done here.
+#
+#   receiver   o1 = new stzMaterialGraph() o1.TakesColor(:base) o1.TakesScalar(:sharp)
+#              o1.TakesTexture(:skin) o1.AddNode(:out, [ :Op = :Mix, :In = [ :lit, :base, :rim ] ])
+#              o1.AddNode(:tex, [ :Op = :Sample, :In = [ :skin, "@uv" ] ]) o1.AddNode(:lit, [ :Op =
+#              :Multiply, :In = [ :tex, "@lambert" ] ]) o1.AddNode(:rim, [ :Op = :Fresnel, :In = [
+#              :sharp ] ]) o1.Emits(:out) o1.Compile()
+#   example    ? @@( o1.Order() )
+#              #--> [ "tex", "rim", "lit", "out" ]
+#              ? o1.ToW()
+#              #--> { let n_tex = sample(skin, @uv); let n_rim = pow(1.0 - abs(@normal.z), sharp); let n_lit = (n_tex * @lambert); @out = mix(n_lit, base, n_rim) }
+#              ? @@( o1.Affects(:tex) )
+#              #--> [ "out", "lit" ]
+#              ? o1.ImpactOf("tex")
+#              #--> 2
+#              ? o1.IsSound()
+#              #--> 1
+#   see        stzMaterialMaker, stzFrameGraph, stzRuleReport
 class stzMaterialGraph from stzObject
 
 	@aColors = []
@@ -91,10 +118,22 @@ class stzMaterialGraph from stzObject
 	@bCompiled = 0
 	@oGraph = ""
 
+	# Builds an empty material graph with no declared values, no nodes and no output.
+	#
+	#   returns    nothing; the object is built
+	#   note       StzMaterialGraphQ builds the same object; the ops are listed by
+	#              StzMaterialGraphOps
+	#   see        TakesColor, AddNode, Emits
 	def init()
 
-	#-- what the material takes from outside --------------------------------
-
+	# Declares a colour the material takes from outside, usable as a node input by name.
+	#
+	#   pcName     the name of the colour, in any letter case
+	#   returns    nothing; the name is added in lower case. TakesColorQ returns the graph for
+	#              chaining
+	#   note       the graph must be compiled again afterwards
+	#   see        TakesScalar, TakesTexture, AddNode
+	#@ aka  -- what the material takes from outside --------------------------------
 	def TakesColor(pcName)
 		@aColors + StzLower("" + pcName)
 		@bCompiled = 0
@@ -103,6 +142,12 @@ class stzMaterialGraph from stzObject
 		This.TakesColor(pcName)
 		return This
 
+	# Declares a number the material takes from outside, usable as a node input by name.
+	#
+	#   pcName     the name of the scalar, in any letter case
+	#   returns    nothing; the name is added in lower case. TakesScalarQ returns the graph for
+	#              chaining
+	#   see        TakesColor, TakesTexture, AddNode
 	def TakesScalar(pcName)
 		@aScalars + StzLower("" + pcName)
 		@bCompiled = 0
@@ -111,6 +156,12 @@ class stzMaterialGraph from stzObject
 		This.TakesScalar(pcName)
 		return This
 
+	# Declares a picture the material reads, usable as the first input of a Sample node.
+	#
+	#   pcName     the name of the texture, in any letter case
+	#   returns    nothing; the name is added in lower case. TakesTextureQ returns the graph for
+	#              chaining
+	#   see        TakesColor, AddNode
 	def TakesTexture(pcName)
 		@aTextures + StzLower("" + pcName)
 		@bCompiled = 0
@@ -119,11 +170,24 @@ class stzMaterialGraph from stzObject
 		This.TakesTexture(pcName)
 		return This
 
-	#-- declaring the graph -------------------------------------------------
-
-	# paSpec: [ :Op = :Mix, :In = [ ... ] ]
-	# An input is a NODE name, a declared colour/scalar/texture name, a
-	# builtin written "@normal.y", or a plain NUMBER.
+	# Declares a node, an operation on named inputs, in any order relative to the nodes it reads.
+	#
+	#   pcName     the name of the node, unique and not the name of a declared colour, scalar or
+	#              texture
+	#   paSpec     a hash list [ :Op = the operation, :In = a list of inputs ], each input a node
+	#              name, a declared value, a builtin such as @uv or @normal.y, or a number
+	#   returns    nothing; the node is added in lower case and the graph must be compiled again.
+	#              AddNodeQ returns the graph for chaining
+	#   note       the ops are Sample, Multiply, Add, Subtract, Mix, Smoothstep, Step, Clamp, Pow,
+	#              Fract, Abs, Sqrt, Sin, Cos, Dot, OneMinus, Fresnel and Lit; a whole number input
+	#              is written with .0 in the shader
+	#   warning    an empty name raises error stzMaterialGraph.AddNode: a node needs a name; a name
+	#              already used, or the name of a declared value, raises an error saying the node is
+	#              declared twice or cannot shadow it; an unknown operation raises error ... is not
+	#              an op, with the list of the ops; a wrong number of inputs raises error ... takes
+	#              N input(s)
+	#   see        Emits, Compile, TakesColor
+	#@ aka  -- declaring the graph -------------------------------------------------
 	def AddNode(pcName, paSpec)
 		_cN_ = StzLower("" + pcName)
 		if _cN_ = ""
@@ -171,7 +235,12 @@ class stzMaterialGraph from stzObject
 		This.AddNode(pcName, paSpec)
 		return This
 
-	# The node whose value becomes @out.
+	# Sets which node supplies the final colour of the material.
+	#
+	#   pcName     the name of the output node
+	#   returns    nothing; the name is stored in lower case. EmitsQ returns the graph for chaining
+	#   see        AddNode, OutputNode, Compile
+	#@ aka  The node whose value becomes @out.
 	def Emits(pcName)
 		@cOut = StzLower("" + pcName)
 		@bCompiled = 0
@@ -180,11 +249,32 @@ class stzMaterialGraph from stzObject
 		This.Emits(pcName)
 		return This
 
+	# Returns how many nodes have been declared.
+	#
+	#   returns    a number
+	#   see        OutputNode, AddNode
 	def NodeCount()  return len(@aNodes)
+	# Returns the name of the node declared as the output.
+	#
+	#   returns    the name as text in lower case; an empty text before Emits
+	#   see        Emits, NodeCount
 	def OutputNode() return @cOut
 
-	#-- compiling -----------------------------------------------------------
-
+	# Derives the emission order and the reuse of the graph and proves its properties.
+	#
+	#   returns    the graph itself, so calls chain
+	#   note       the findings are an unresolved_input error for an input that is no node, no
+	#              declared value and no builtin, an acyclic error for a cycle, and a dead_node
+	#              warning for a node nothing reads other than the output; a graph with a cycle has
+	#              an empty order
+	#   warning    a graph with no node raises error stzMaterialGraph.Compile: no nodes declared;
+	#              with no output, error ... no output -- say Emits(:node); with an output that is
+	#              not a node, error ... the output node ... does not exist; a node that reads the
+	#              same node in two of its inputs, such as Multiply with [ :a, :a ], raises the
+	#              stzGraph error saying parallel edges are refused, because one edge is added for
+	#              each input
+	#   see        Order, Findings, ToW
+	#@ aka  -- compiling -----------------------------------------------------------
 	def Compile()
 		@aFindings = []
 		@aOrder = []
@@ -279,17 +369,34 @@ class stzMaterialGraph from stzObject
 		@bCompiled = 1
 		return This
 
+	# Returns the nodes in the order they are emitted, derived so that a node comes after every node it reads.
+	#
+	#   returns    a list of node names in lower case; [ ] after a cycle
+	#   note       declare the nodes in any order at all
+	#   warning    calling it before Compile raises error stzMaterialGraph: call Compile() first
+	#   see        Uses, Compile
 	def Order()
 		This._RequireCompiled()
 		return @aOrder
 
-	# [ nodeName, nConsumers ] -- how many nodes read each one.
+	# Returns how many nodes read each node.
+	#
+	#   returns    a list of [ node, consumers ] pairs in declaration order; the output has 0
+	#   note       a node read by two nodes is emitted once, as one let
+	#   warning    calling it before Compile raises error stzMaterialGraph: call Compile() first
+	#   see        ReuseSaved, Order
+	#@ aka  [ nodeName, nConsumers ] -- how many nodes read each one.
 	def Uses()
 		This._RequireCompiled()
 		return @aUses
 
-	# How many `let` bindings the emission SAVED over expanding the graph as
-	# a tree: every extra consumer of a node is a subtree not re-emitted.
+	# Returns how many expressions the single emission of shared nodes saves over writing the graph out as a tree.
+	#
+	#   returns    a number, each node's consumers beyond the first added up
+	#   note       0 when no node is read twice
+	#   warning    calling it before Compile raises error stzMaterialGraph: call Compile() first
+	#   see        Uses, ToW
+	#@ aka  How many `let` bindings the emission SAVED over expanding the graph as a tree: every extra consumer of a node is a subtree not re-emitted.
 	def ReuseSaved()
 		This._RequireCompiled()
 		_n_ = 0
@@ -301,12 +408,15 @@ class stzMaterialGraph from stzObject
 		next
 		return _n_
 
-	# The question ShaderGraph cannot answer: what does this node AFFECT?
+	# Returns every node downstream of a node, that is every node that depends on it, directly or not.
 	#
-	# Reachability, answered by the same stzGraph the rest of the plane uses.
-	# Affects() lists them, ImpactOf() counts them -- the house convention,
-	# where ImpactOf is a NUMBER and ReachableFrom is a LIST that includes
-	# the node itself.
+	#   pcNode     the node to ask about, in any letter case
+	#   returns    a list of node names, the node itself not included; [ ] for an output node or an
+	#              unknown name
+	#   note       it is a reachability query on the stzGraph the compile builds
+	#   warning    calling it before Compile raises error stzMaterialGraph: call Compile() first
+	#   see        ImpactOf, Order
+	#@ aka  The question ShaderGraph cannot answer: what does this node AFFECT?
 	def Affects(pcNode)
 		This._RequireCompiled()
 		if NOT isObject(@oGraph)  return []  ok
@@ -320,34 +430,60 @@ class stzMaterialGraph from stzObject
 		next
 		return _a_
 
+	# Returns how many nodes depend on a node, directly or not.
+	#
+	#   pcNode     the node to ask about, in any letter case
+	#   returns    a number; 0 for an output node or an unknown name
+	#   note       the length of the list Affects gives
+	#   warning    calling it before Compile raises error stzMaterialGraph: call Compile() first
+	#   see        Affects
 	def ImpactOf(pcNode)
 		This._RequireCompiled()
 		if NOT isObject(@oGraph)  return 0  ok
 		return @oGraph.ImpactOf(StzLower("" + pcNode))
 
-	#-- the proofs ----------------------------------------------------------
-
+	# Returns the proofs that failed or warned, in the house finding shape.
+	#
+	#   returns    a list of hash lists with rule, subject materialgraph, where material, severity
+	#              and message; [ ] for a clean graph
+	#   warning    calling it before Compile raises error stzMaterialGraph: call Compile() first
+	#   see        IsSound, Report
+	#@ aka  -- the proofs ----------------------------------------------------------
 	def Findings()
 		This._RequireCompiled()
 		return @aFindings
 
-	# SOUND IS NO ERROR -- the house's one answer, as in stzFrameGraph, and
-	# for the same reason: the findings are NAMED now, so the report that
-	# ingests them can read a severity at all.
+	# TRUE if the compiled graph has no finding of severity error.
+	#
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   note       a dead_node warning does not make it false
+	#   warning    calling it before Compile raises error stzMaterialGraph: call Compile() first
+	#   see        Findings, ToW
+	#@ aka  SOUND IS NO ERROR -- the house's one answer, as in stzFrameGraph, and for the same reason: the findings are NAMED now, so the report that ingests them can read a severity at all.
 	def IsSound()
 		This._RequireCompiled()
 		return StzFindingsAreSound(@aFindings)
 
+	# Returns the findings as a stzRuleReport, so the graph is judged by the same gate as code and security rules.
+	#
+	#   returns    a stzRuleReport named materialgraph
+	#   warning    calling it before Compile raises error stzMaterialGraph: call Compile() first
+	#   see        Findings, IsSound
 	def Report()
 		This._RequireCompiled()
 		_o_ = new stzRuleReport("materialgraph")
 		_o_.Ingest(@aFindings)
 		return _o_
 
-	#-- emitting ------------------------------------------------------------
-
-	# The material-language BODY, in the derived order. This is the artefact:
-	# a graph that emitted text you can read is a graph you can debug.
+	# Returns the material-language body the graph emits, one let for each node in order and then the output.
+	#
+	#   returns    the text, such as { let n_a = abs(1.0); @out = (n_a + 2.0) }
+	#   note       the text can be read and debugged; the output node has no let
+	#   warning    calling it before Compile raises error stzMaterialGraph: call Compile() first; a
+	#              graph with an error finding raises error stzMaterialGraph.ToW: the graph has
+	#              ERRORS
+	#   see        ToMaterial, Order
+	#@ aka  -- emitting ------------------------------------------------------------
 	def ToW()
 		This._RequireCompiled()
 		if NOT This.IsSound()
@@ -366,7 +502,13 @@ class stzMaterialGraph from stzObject
 		_c_ += "@out = " + This._Expr(@cOut) + " }"
 		return _c_
 
-	# The material itself, ready for stzScene.SetMaterial.
+	# Builds a stzMaterialMaker with the declared colours, scalars and textures and this body, ready to give to a scene.
+	#
+	#   returns    a stzMaterialMaker
+	#   note       rendering the material was not run here
+	#   warning    the graph must have been compiled and be sound, as for ToW
+	#   see        ToW, ToWGSL
+	#@ aka  The material itself, ready for stzScene.SetMaterial.
 	def ToMaterial()
 		_o_ = new stzMaterialMaker()
 		_aC7_ = @aColors
@@ -390,6 +532,12 @@ class stzMaterialGraph from stzObject
 		_o_.ForEachFragment(This.ToW())
 		return _o_
 
+	# Returns the WGSL shader of the material, by way of the material maker the graph builds.
+	#
+	#   returns    the shader source as text
+	#   note       no device is needed to produce it
+	#   warning    the graph must have been compiled and be sound, as for ToW
+	#   see        ToMaterial, ToW
 	def ToWGSL()
 		return This.ToMaterial().ToWGSL()
 

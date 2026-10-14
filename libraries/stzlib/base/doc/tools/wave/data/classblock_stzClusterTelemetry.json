@@ -1,0 +1,16 @@
+{
+ "brief": "Records the requests a cluster routes: a bounded list of traces, and a latency histogram per facet for p50 to p99.",
+ "detail": "Each routed request gets a trace id from NewTraceId and is recorded with RecordRequest: facet, endpoint, status, duration and attempts (more than one means a failover happened). Percentiles come from the engine histogram, one per facet, so a heavy facet's tail does not smear a light one; they are bucket bounds, not exact values. The recorder keeps the latest 512 traces. It is a plain recorder: no reactor, no process.",
+ "receiver": "o1 = new stzClusterTelemetry(\"front\")\no1.RecordRequest(\"r1\", \"nlp\", \"127.0.0.1:47001\", 200, 12, 1)\no1.RecordRequest(\"r2\", \"nlp\", \"127.0.0.1:47002\", 200, 40, 2)",
+ "example": [
+  "? o1.LatencyCount(\"nlp\")",
+  "#--> 2",
+  "? o1.LatencyP99(\"nlp\")",
+  "#--> 50",
+  "? @@( o1.LastTrace() )",
+  "#--> [ \"r2\", \"nlp\", \"127.0.0.1:47002\", 200, 40, 2 ]",
+  "? len(o1.FailoverTraces())",
+  "#--> 1"
+ ],
+ "see": ["stzLatencyHistogram", "stzClusterSupervisor", "stzTraceContext"]
+}

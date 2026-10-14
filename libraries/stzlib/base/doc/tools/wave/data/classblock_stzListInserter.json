@@ -1,0 +1,18 @@
+{
+ "brief": "Inserts items into a list before or after a position, moves an item to another place and swaps two items.",
+ "detail": "Build one with new stzListInserter(aList) or over a stzList object; it keeps its own copy, so the list you passed in is not changed, and Content gives the result. Positions count from 1. Insert, InsertBeforePosition and InsertAfterPosition accept the item as a plain value and the place as a number or a named pair such as [ :After, 2 ]. Out-of-range positions are not handled the same way by every method: most ignore them without a message, InsertAt raises, and a position two or more past the end kills the process through a missing method; see the warnings.",
+ "receiver": "o1 = new stzListInserter([ \"a\", \"b\", \"c\", \"d\" ])",
+ "example": [
+  "o1.Insert(\"X\", 2)",
+  "? @@( o1.Content() )",
+  "#--> [ \"a\", \"X\", \"b\", \"c\", \"d\" ]",
+  "o1.SwapItems(1, 5)",
+  "? @@( o1.Content() )",
+  "#--> [ \"d\", \"X\", \"b\", \"c\", \"a\" ]"
+ ],
+ "see": [
+  "stzList",
+  "stzListMover",
+  "stzListCounter"
+ ]
+}

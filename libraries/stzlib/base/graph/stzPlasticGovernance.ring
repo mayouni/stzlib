@@ -67,6 +67,33 @@ func _PgSolvePicture(poDg)
 		poDg.Layout()
 	ok
 
+# Judges a set of scoped rules two ways, against the cases they govern and against the questions a rule cannot ask of itself.
+#
+# Running a rule set asks whether the claim holds where the rule looked, never whether the rule
+# looked in the right place. CheckRules asks that over a corpus of cases: a scope that selects
+# nothing (scope_empty), a scope that selects every subject everywhere (scope_vacuous), a counter no
+# case contains (boundary_unwitnessed), a rule with no claim (claim_unstated), two rules reaching
+# for one subject with no declared precedence (subject_contested) and a rule reading a quantity that
+# a later rule writes (read_is_stale). CheckCases is the ordinary half, the rules over the cases;
+# CheckAll does both. A case is any object the scopes understand, a rendered diagram, a code graph,
+# an org chart. StzPlasticGovernance is the graph plane's spelling.
+#
+#   receiver   o1 = new stzRuleGovernance("numbers") o2 = new stzScopedRule("all_small")
+#              o2.SetClaim("every number is below 10") o2.SetScope(func oL { return oL })
+#              o2.SetClaimCheck(func oL, n { if n < 10  return [ 1, "" ]  ok  return [ 0, "it is " +
+#              n ] }) o1.AddRule(o2) o1.AddCase("one", [ 1, 2, 3, 12 ]) o1.AddCase("two", [ 4, 6, 7
+#              ])
+#   example    ? @@( o1.ScopeTable() )
+#              #--> [ [ "all_small", 7, 0, 2, 2 ] ]
+#              ? o1.CheckCases()[1][:where]
+#              #--> one / 12
+#              ? o1.CheckRules()[1][:rule]
+#              #--> scope_vacuous
+#              ? o1.IsSound()
+#              #--> 1
+#              ? len(o1.CheckAll())
+#              #--> 3
+#   see        stzScopedRule, stzRuleReport, stzGraphRule
 class stzRuleGovernance from stzObject
 
 	@cName = ""
@@ -79,6 +106,12 @@ class stzRuleGovernance from stzObject
 	@aFindings = []
 	@aPrecedence = []   # [ [ cRuleA, cRuleB, cWhy ], ... ] -- A wins over B
 
+	# Builds a governance with a name, no rules and no cases.
+	#
+	#   pcName     the name of the governance
+	#   returns    nothing; the object is built
+	#   note       StzRuleGovernanceQ and StzPlasticGovernance build the same object
+	#   see        AddRule, AddCase
 	def init(pcName)
 		@cName = "" + pcName
 		@aoRules = []
@@ -86,42 +119,68 @@ class stzRuleGovernance from stzObject
 		@aFindings = []
 		@aPrecedence = []
 
+	# Returns the name the governance was built with.
+	#
+	#   returns    the name as text
+	#   see        Rules
 	def Name_()     return @cName
+	# Returns the rules added so far, in the order they were added.
+	#
+	#   returns    a list of stzScopedRule objects
+	#   see        AddRule, ScopeTable
 	def Rules()     return @aoRules
+	# Returns the findings of the last CheckRules or CheckAll.
+	#
+	#   returns    a list of findings; [ ] before either has run
+	#   note       CheckCases does not store its findings here
+	#   see        CheckAll, IsSound
 	def Findings()  return @aFindings
 
+	# Adds a rule to judge, in the order it will be listed.
+	#
+	#   poRule     a stzScopedRule
+	#   returns    the governance itself, so calls chain
+	#   see        AddCase, CheckRules
 	def AddRule(poRule)
 		@aoRules + poRule
 		return This
 
-	# A PICTURE THE RULES ARE JUDGED AGAINST. It must already be rendered:
-	# every plastic rule reads render facts, and a diagram that has not
-	# been drawn answers with empty lists -- which would read as an empty
-	# scope and convict every rule in the set of being dead.
-	# THE CASE a rule set is judged against -- a rendered picture for the
-	# graph plane, a code graph for stzCodeRule, an agent graph, an org
-	# chart. The governance never asks what kind it is; it asks the RULES
-	# what they govern in it, which is the only thing that has to be
-	# domain-specific.
+	# Adds a case the rules are judged against, under a name, whatever kind of object it is.
+	#
+	#   pcName      the name of the case, shown in findings
+	#   poSubject   the case, such as a rendered diagram, a code graph or any object the scopes
+	#               understand
+	#   returns     the governance itself, so calls chain
+	#   note        the case must already be in the state the scopes read: nothing is solved or
+	#               rendered for it
+	#   see         AddPicture, CheckCases
+	#@ aka  A PICTURE THE RULES ARE JUDGED AGAINST. It must already be rendered: every plastic rule reads render facts, and a diagram that has not been drawn answers with empty lists -- which would read as an empty scope and convict every rule in the set of being dead. THE CASE a rule set is judged against -- a rendered picture for the graph plane, a code graph for stzCodeRule, an agent graph, an org chart. T
 	def AddCase(pcName, poSubject)
 		@aoCorpus + [ "" + pcName, poSubject ]
 		return This
 
-	# A PICTURE IS SOLVED BEFORE IT IS COPIED. Ring copies an object into
-	# a list, and a copy of an unsolved picture solves itself again the
-	# first time a scope asks it anything -- so a corpus of 52 unsolved
-	# pictures paid 52 layouts at its first question, 26 seconds of the
-	# gate's governor, and the caller's own picture paid the same again
-	# when it was asked. Solved here, in the caller's hand (a parameter is
-	# a reference), the copy carries the solution and every later copy of
-	# the caller's picture does too.
+	# Adds a diagram as a case after solving its layout in place, so copies of it carry the solution.
+	#
+	#   pcName     the name of the case
+	#   poDg       the diagram
+	#   returns    the governance itself, so calls chain
+	#   note       solving before the copy avoids a second layout when the first scope asks
+	#   see        AddCase, CheckCases
+	#@ aka  A PICTURE IS SOLVED BEFORE IT IS COPIED. Ring copies an object into a list, and a copy of an unsolved picture solves itself again the first time a scope asks it anything -- so a corpus of 52 unsolved pictures paid 52 layouts at its first question, 26 seconds of the gate's governor, and the caller's own picture paid the same again when it was asked. Solved here, in the caller's hand (a parameter is
 	def AddPicture(pcName, poDg)
 		_PgSolvePicture(poDg)
 		return This.AddCase(pcName, poDg)
 
-	# A DECLARED PRECEDENCE between two rules that reach for one subject.
-	# The reason is required: a precedence without one is a coin toss that
-	# somebody will later reverse in good faith.
+	# Declares which of two rules wins where both govern one subject, with the reason.
+	#
+	#   pcWins     the name of the rule that wins
+	#   pcYields   the name of the rule that yields
+	#   pcWhy      the reason, kept with the declaration
+	#   returns    the governance itself, so calls chain
+	#   note       it silences subject_contested for that pair in either order; a pair that write
+	#              nothing in common is never reported as contested
+	#   see        CheckRules, AddRule
+	#@ aka  A DECLARED PRECEDENCE between two rules that reach for one subject. The reason is required: a precedence without one is a coin toss that somebody will later reverse in good faith.
 	def DeclarePrecedence(pcWins, pcYields, pcWhy)
 		@aPrecedence + [ StzLower("" + pcWins), StzLower("" + pcYields),
 			"" + pcWhy ]
@@ -135,6 +194,12 @@ class stzRuleGovernance from stzObject
 	def CheckPictures()
 		return This.CheckCases()
 
+	# Judges every case against every rule and returns the findings of the rules.
+	#
+	#   returns    a list of findings, each a hash list with rule, subject, where, severity and
+	#              message; [ ] when all hold
+	#   note       where reads case name, a slash, then the subject; CheckPictures is the same call
+	#   see        CheckRules, CheckAll
 	def CheckCases()
 		_aF_ = []
 		_nC_ = len(@aoCorpus)
@@ -151,11 +216,15 @@ class stzRuleGovernance from stzObject
 		next
 		return _aF_
 
-	  #-- the rules against themselves -------------------------------------
-
-	# The five questions. Every finding here is about a RULE, so :where is
-	# the rule's name and the corpus is the evidence, which is the inverse
-	# of CheckPictures and the reason both exist.
+	# Asks the questions a rule cannot ask of itself, over the cases, and returns the findings about the rules.
+	#
+	#   returns    a list of findings whose rule is scope_empty, scope_vacuous,
+	#              boundary_unwitnessed, claim_unstated, subject_contested or read_is_stale
+	#   note       the findings are kept for Findings and IsSound; where is the rule's name;
+	#              scope_empty and claim_unstated are errors, the rest warnings except
+	#              read_is_stale, an error
+	#   see        CheckCases, CheckAll
+	#@ aka  -- the rules against themselves -------------------------------------
 	def CheckRules()
 		_aF_ = []
 		_nR_ = len(@aoRules)
@@ -389,10 +458,12 @@ class stzRuleGovernance from stzObject
 		next
 		return 0
 
-	  #-- both halves, and the verdict --------------------------------------
-
-	# Everything: what the rules say about the pictures, and what the
-	# governor says about the rules.
+	# Runs the questions about the rules, then the rules over the cases, and returns every finding.
+	#
+	#   returns    a list of findings, those about the rules first
+	#   note       the whole list is kept for Findings and IsSound
+	#   see        CheckRules, CheckCases
+	#@ aka  -- both halves, and the verdict --------------------------------------
 	def CheckAll()
 		_aF_ = This.CheckRules()
 		_aP_ = This.CheckCases()
@@ -403,11 +474,21 @@ class stzRuleGovernance from stzObject
 		@aFindings = _aF_
 		return _aF_
 
+	# TRUE if the last CheckRules or CheckAll found nothing of severity error.
+	#
+	#   returns    TRUE or FALSE, as 1 or 0; 1 before either has run
+	#   note       warnings do not make it false
+	#   see        CheckAll, Findings
 	def IsSound()
 		return StzFindingsAreSound(@aFindings)
 
-	# How much of the corpus each rule actually governs -- the number that
-	# turns "is this scope right" from an opinion into a reading.
+	# Returns for each rule how much it governs and how much it excludes over the cases.
+	#
+	#   returns    a list of rows [ name, subjects governed, subjects excluded, cases where it
+	#              governs something, number of cases ]
+	#   note       it calls every scope and counter again, so it costs a pass over the cases
+	#   see        CheckRules, Rules
+	#@ aka  How much of the corpus each rule actually governs -- the number that turns "is this scope right" from an opinion into a reading.
 	def ScopeTable()
 		_a_ = []
 		_nR_ = len(@aoRules)

@@ -1,0 +1,28 @@
+{
+ "brief": "Gives access to the engine's process-wide event bus: named channels, subscribers, and payloads emitted to them.",
+ "detail": "Channels live in the engine and are global to the process, so an emitter and an agent host in the same process communicate through two handles on one bus. An agent supervised on a channel has its perceive-and-act loop driven by emitted events and not only by a timer. Emit counts the event and keeps the payload even with no subscriber and answers how many were delivered. A consumer polls EventCount to detect new work; because DestroyChannel and ClearAll restart the count, it compares ChannelGeneration, which never repeats, to notice a channel that was remade. ClearAll resets channels other code may be watching.",
+ "receiver": "o1 = StzEventBus()\no1.ClearAll()\no1.Channel(\"orders\")\nnSub = o1.Subscribe(\"orders\")",
+ "example": [
+  "? o1.SubscriberCount(\"orders\")",
+  "#--> 1",
+  "? o1.Emit(\"orders\", \"burger\")",
+  "#--> 1",
+  "? o1.EventCount(\"orders\")",
+  "#--> 1",
+  "? o1.LastEvent(\"orders\")",
+  "#--> burger",
+  "? o1.Unsubscribe(nSub)",
+  "#--> 0",
+  "? o1.Emit(\"orders\", \"tajine\")",
+  "#--> 0",
+  "? o1.EventCount(\"orders\")",
+  "#--> 2",
+  "? o1.EventCount(\"nowhere\")",
+  "#--> -2"
+ ],
+ "see": [
+  "stzAgentHost",
+  "stzPerfSentinel",
+  "stzReactiveTask"
+ ]
+}

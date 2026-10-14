@@ -1,0 +1,16 @@
+{
+ "brief": "Builds a question word by word and returns its answer as data when the first plain-form word closes it.",
+ "detail": "A question is a frame: a force word opens it (WhatQ, HowManyQ, IsQ), articles and nouns fill its slots, and the first closer without a Q (Of, Is, OrNot) computes the answer. A comparison opens the right-hand side with TheSameAsQ, DifferentFromQ, MoreThanQ or LessThanQ. Nouns such as FirstCharQ, VowelsQ or LengthQ are generated from the semantic lexicon and only record the aspect; the computation happens at the closer, through the accountable dispatcher. Every answer is certain, records its reason in Why() and joins the session ask-record. The frame has no stzObject parent on purpose.",
+ "receiver": "o1 = WhatQ()",
+ "example": [
+  "? o1.TheQ().FirstCharQ().Of(\"Ring\")",
+  "#--> R",
+  "? HowManyQ().VowelsQ().Of(\"Ring\")",
+  "#--> 1",
+  "? IsQ().TheQ().LengthQ().OfQ(\"Ringo\").MoreThanQ().TheQ().LengthQ().Of(\"Ruby\")",
+  "#--> 1",
+  "? Why()",
+  "#--> yes: 5 is more than 4"
+ ],
+ "see": ["WhatQ", "HowManyQ", "IsQ", "Why"]
+}

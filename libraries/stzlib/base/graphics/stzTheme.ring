@@ -83,10 +83,43 @@ func StzThemeTokenOf(paTokens, pcName)
 	next
 	return ""
 
+# Holds a named colour theme as plain data, with every role resolved to hex, and exports it as CSS, JSON or a Ring list.
+#
+# A theme fills in eight roles: primary, success, warning, danger, info, muted, neutral and
+# background. Each role except background carries four steps, surface, border, solid and text, and
+# the colour that reads best on its solid step. Tokens flattens the theme to 43 name and colour
+# pairs and ToCSS, ToJSON and ToRing all write from that one list, so the exports cannot disagree. A
+# misspelt theme raises an error rather than exporting wrong colours. The themes are neutral, light,
+# dark, vibrant, pro, access, print, gray, lightgray and darkgray.
+#
+#   receiver   o1 = new stzTheme(:pro)
+#   example    ? o1.Name()
+#              #--> pro
+#              ? o1.ColorOf(:Primary)
+#              #--> #4D4DC9
+#              ? o1.StepOf(:Primary, :Surface)
+#              #--> #EAEDFF
+#              ? len(o1.Tokens())
+#              #--> 43
+#              ? o1.Tokens()[1][1]
+#              #--> primary
+#              ? StzThemeTokenOf(StzThemeFromCSS(o1.ToCSS()), "primary")
+#              #--> #4D4DC9
+#   see        stzColor, stzCanvas, stzGraphCanvas
 class stzTheme from stzObject
 
 	@cName = ""
 
+	# Builds a theme by name, keeping its name in lower case.
+	#
+	#   pcName     the theme name, in any letter case, one of neutral, light, dark, vibrant, pro,
+	#              access, print, gray, lightgray or darkgray
+	#   returns    nothing; the object is built
+	#   note       StzThemeQ builds the same object
+	#   warning    an empty name raises error stzTheme: name a theme, and an unknown name such as
+	#              nope raises error stzTheme: ... is not a theme, with the list of the ten themes,
+	#              so a misspelt theme never exports plausible wrong colours
+	#   see        Name, Roles
 	def init(pcName)
 		_c_ = StzLower("" + pcName)
 		if _c_ = ""
@@ -102,24 +135,44 @@ class stzTheme from stzObject
 		ok
 		@cName = _c_
 
+	# Returns the lower-case name of the theme.
+	#
+	#   returns    the name as text, such as pro
+	#   see        Roles
 	def Name()
 		return @cName
 
-	# The roles a theme fills in. Background is one of them and is NOT a
-	# standalone colour -- see StzThemeRoles vs StzSemanticColors.
+	# Returns the roles a theme fills in: primary, success, warning, danger, info, muted, neutral and background.
+	#
+	#   returns    a list of eight role names as text
+	#   note       background is a surface: it has a colour but no steps and no on-colour
+	#   see        ColorOf, Tokens
+	#@ aka  The roles a theme fills in. Background is one of them and is NOT a standalone colour -- see StzThemeRoles vs StzSemanticColors.
 	def Roles()
 		return StzThemeRoles()
 
-	#-- reading it ----------------------------------------------------------
-
-	# RESOLVED to hex, never left as an expression. The far side of an
-	# export has no resolver.
+	# Returns the colour a theme gives to a role, as a hex code.
+	#
+	#   pcRole     the role, as a symbol or a text such as :Danger
+	#   returns    the colour as text such as #4D4DC9; an empty text for a role the theme does not
+	#              have
+	#   note       it is always resolved to hex, never left as an expression, because the far side
+	#              of an export has no resolver
+	#   see        StepOf, OnColorOf, Tokens
+	#@ aka  -- reading it ----------------------------------------------------------
 	def ColorOf(pcRole)
 		_e_ = StzThemeColor(@cName, pcRole)
 		if _e_ = ""  return ""  ok
 		return StzResolveColor(_e_)
 
-	# The C2 step of a role, through this theme's colour for it.
+	# Returns one of the four steps of a role's colour, Surface, Border, Solid or Text, as a hex code.
+	#
+	#   pcRole     the role, such as :Danger
+	#   pcStep     the step, one of :Surface, :Border, :Solid or :Text
+	#   returns    the colour as text; an empty text for an unknown role or step
+	#   note       the steps are the same hue at four lightnesses, from palest to deepest text
+	#   see        ColorOf, OnColorOf
+	#@ aka  The C2 step of a role, through this theme's colour for it.
 	def StepOf(pcRole, pcStep)
 		_e_ = StzThemeColor(@cName, pcRole)
 		if _e_ = ""  return ""  ok
@@ -127,15 +180,26 @@ class stzTheme from stzObject
 		if _l_ < 0  return ""  ok
 		return StzColorAtLightness(_e_, _l_)
 
-	# What can be READ on that role's solid -- measured, not guessed.
+	# Returns the colour that reads best as text on the solid step of a role.
+	#
+	#   pcRole     the role whose solid step is the background
+	#   returns    the colour as a hex code chosen for contrast; an empty text for an unknown role
+	#   note       the choice is measured against the solid step, not guessed
+	#   see        StepOf, ColorOf
+	#@ aka  What can be READ on that role's solid -- measured, not guessed.
 	def OnColorOf(pcRole)
 		_s_ = This.StepOf(pcRole, :Solid)
 		if _s_ = ""  return ""  ok
 		return StzResolveColor(StzBestTextOn(_s_)[1])
 
-	# [ [ name, hex ], ... ] -- the whole theme flattened, and the ONE place
-	# that decides what an export contains. CSS, JSON and Ring all read it,
-	# so the three cannot disagree about which tokens exist.
+	# Returns the whole theme flattened to name and colour pairs, the list every export is written from.
+	#
+	#   returns    a list of [ name, hex ] pairs: 43 for a theme, each role as role, role-surface,
+	#              role-border, role-solid, role-text and on-role, and background alone
+	#   note       CSS, JSON and Ring all read this one list, so the three cannot disagree about
+	#              which tokens exist
+	#   see        ToCSS, ToJSON, ToRing
+	#@ aka  [ [ name, hex ], ... ] -- the whole theme flattened, and the ONE place that decides what an export contains. CSS, JSON and Ring all read it, so the three cannot disagree about which tokens exist.
 	def Tokens()
 		_a_ = []
 		_aR2_ = This.Roles()
@@ -160,8 +224,13 @@ class stzTheme from stzObject
 		next
 		return _a_
 
-	#-- exporting -----------------------------------------------------------
-
+	# Returns the theme as CSS custom properties in a :root block, every token under the --stz- prefix.
+	#
+	#   returns    a text starting with a comment naming the theme
+	#   note       StzThemeFromCSS reads the text back as [ name, hex ] pairs, and StzThemeTokenOf
+	#              reads one token from them
+	#   see        Tokens, ToJSON
+	#@ aka  -- exporting -----------------------------------------------------------
 	def ToCSS()
 		_p_ = StzThemeCssPrefix()
 		_c_ = "/* Softanza theme: " + @cName + " */" + char(10)
@@ -175,6 +244,10 @@ class stzTheme from stzObject
 		_c_ += "}" + char(10)
 		return _c_
 
+	# Returns the theme as a JSON object with the theme name and a tokens table, for design tools.
+	#
+	#   returns    a text holding a theme key and a tokens object
+	#   see        Tokens, ToCSS
 	def ToJSON()
 		_c_ = "{" + char(10) + '  "theme": "' + @cName + '",' + char(10)
 		_c_ += '  "tokens": {' + char(10)
@@ -188,6 +261,12 @@ class stzTheme from stzObject
 		_c_ += "  }" + char(10) + "}" + char(10)
 		return _c_
 
+	# Returns the theme as the source of a Ring list literal that can be written to a file and loaded.
+	#
+	#   returns    a text starting with a comment and an assignment named aTheme followed by the
+	#              capitalised name
+	#   note       a dash in a token name becomes an underscore, as in :primary_surface
+	#   see        Tokens, ToCSS
 	def ToRing()
 		_c_ = "# Softanza theme: " + @cName + char(10)
 		_c_ += "aTheme" + StzUpper(StzSubStr(@cName, 1, 1)) +

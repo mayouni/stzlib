@@ -1,0 +1,19 @@
+{
+ "brief": "Indexes the methods and doc blocks of many classes at once, so a plain-English question finds the method and the class that holds it.",
+ "detail": "It harvests each named class with its inherited methods from the source, files every method under the class that defines it, and adds the intent recipes, small units that answer a how-do-I question with a runnable snippet. Ask ranks the entries by the meaning of the words: a lexical match first, with a loaded embedding or reranker model rescuing questions that share no word. Nothing is generated; the answer is always something the library already holds. Keep the class list short, since a large list costs index time when an embedding model is loaded.",
+ "receiver": "o1 = new stzLibDoc([ \"stzAgentSkill\", \"stzAgentMemory\" ])",
+ "example": [
+  "? o1.NumberOfClasses()",
+  "#--> 2",
+  "? o1.NumberOfRecipes() > 0",
+  "#--> 1",
+  "? o1.BestMethodFor(\"remember a fact\")",
+  "#--> stzAgentMemory.Fact",
+  "? o1.Ask(\"detect the language of a text\")[1][1]",
+  "#--> (recipe)"
+ ],
+ "see": [
+  "stzSelfDoc",
+  "StzLibDocQ"
+ ]
+}

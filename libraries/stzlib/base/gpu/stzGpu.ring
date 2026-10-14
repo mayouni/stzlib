@@ -60,16 +60,52 @@ func _StzUnitVector(pnI, pnD)
 func StzGpuQ()
 	return new stzGpu
 
+# The doorway to the GPU plane: describe a computation with stzKernelMaker, hand it data, get data back, and calibrate where the GPU pays.
+#
+# Run is data in, data out; UploadQ and ApplyOnQ keep vectors resident to chain kernels without
+# transfers. A one-shot Run pays upload, dispatch and readback, and for elementwise work the CPU
+# usually wins: the GPU pays in the resident form and in compute-dense work. The device opens lazily
+# on the first call that needs it; on a machine with no GPU IsAvailable answers FALSE and the data
+# paths raise a clear error, while kernel authoring needs no device. Calibrate, CalibrateShaped, the
+# Foundry methods and Verify measure the machine and persist their findings in the calibration file
+# that later sessions load. Wake lifts an idle laptop GPU out of its power state before a timing.
+# Only FirstError, LastError and ClearErrors were run for this documentation: the GPU sleeps on this
+# machine and was left alone, so every other method was read from the code.
+#
+#   receiver   o1 = new stzGpu
+#   example    o1.ClearErrors()
+#              ? len(o1.FirstError())
+#              #--> 0
+#   see        stzKernelMaker, stzGpuBuffer
 class stzGpu from stzObject
 
 	@bTriedInit_ = 0
 
+	# Creates a handle on the GPU plane; the device itself is opened lazily by the first call that needs it.
+	#
+	#   returns    nothing; the object is built
+	#   note       nothing touches the device here
+	#   see        IsAvailable
 	def init()
 
+	# TRUE if a GPU device was found and initialised, which the first call pays for once.
+	#
+	#   returns    TRUE or FALSE
+	#   note       not run: it uses the GPU, which sleeps on this machine and was left alone; read
+	#              from the code
+	#   warning    initialises the device on its first use, which can wake a sleeping GPU
+	#   see        DeviceName, AdapterCount
 	def IsAvailable()
 		This._EnsureInit()
 		return StzEngineGpuIsAvailable() = 1
 
+	# Returns the name of the selected GPU adapter, or an empty text when there is none.
+	#
+	#   returns    a text
+	#   note       not run: it uses the GPU, which sleeps on this machine and was left alone; read
+	#              from the code
+	#   warning    initialises the device on its first use
+	#   see        IsAvailable, AdapterCount
 	def DeviceName()
 		This._EnsureInit()
 		if StzEngineGpuIsAvailable() = 0
@@ -77,14 +113,29 @@ class stzGpu from stzObject
 		ok
 		return StzEngineGpuAdapterName(StzEngineGpuSelectedAdapter())
 
+	# Returns how many GPU adapters the engine found.
+	#
+	#   returns    a number
+	#   note       not run: it uses the GPU, which sleeps on this machine and was left alone; read
+	#              from the code
+	#   warning    initialises the device on its first use
+	#   see        DeviceName
 	def AdapterCount()
 		This._EnsureInit()
 		return StzEngineGpuAdapterCount()
 
+	# Uploads a list of numbers to the device as one resident buffer and returns the buffer.
+	#
+	#   paNumbers   a non-empty list of numbers, stored as f32
+	#   returns     a stzGpuBuffer
+	#   note        not run: it uses the GPU, which sleeps on this machine and was left alone; read
+	#               from the code
+	#   warning     a buffer lives on the device until Free is called, or until the engine evicts it
+	#               under pressure; raises an error when no GPU device is available on the machine;
+	#               an empty or non-list argument raises an error
+	#   see         Run, ApplyOnQ
 	# ---- the data paths -------------------------------------------------
-
-	# Upload a vector; it lives on the device until Free() (or eviction
-	# under VRAM pressure -- bounded, counted, never silent).
+	#@ aka  Upload a vector; it lives on the device until Free() (or eviction under VRAM pressure -- bounded, counted, never silent).
 	def UploadQ(paNumbers)
 		This._RequireDevice()
 		if NOT isList(paNumbers) or len(paNumbers) = 0
@@ -100,8 +151,20 @@ class stzGpu from stzObject
 		ok
 		return new stzGpuBuffer([_nId_, ring_len(paNumbers)])
 
-	# One-shot convenience: upload the bound vectors, run the kernel, read
-	# the result back, free everything temporary. Data in, DATA out.
+	# Runs an elementwise kernel over bound vectors and returns the result as a list of numbers, freeing every temporary.
+	#
+	#   poKernel     the stzKernelMaker that describes the computation
+	#   paBindings   a list such as [ :A = aNumbers, :alpha = 2.5 ] that binds each declared vector
+	#                to a list and each scalar to a number
+	#   returns      a list of numbers
+	#   note         not run: it uses the GPU, which sleeps on this machine and was left alone; read
+	#                from the code
+	#   warning      a one-shot run pays upload, dispatch and readback, so for elementwise work the
+	#                CPU usually wins; a missing binding or vectors of unequal lengths raise an
+	#                error naming them; raises an error when no GPU device is available on the
+	#                machine
+	#   see          ApplyOnQ, UploadQ
+	#@ aka  One-shot convenience: upload the bound vectors, run the kernel, read the result back, free everything temporary. Data in, DATA out.
 	def Run(poKernel, paBindings)
 		_oOut_ = This.RunQ(poKernel, paBindings)
 		_aOut_ = _oOut_.Download()
@@ -179,9 +242,18 @@ class stzGpu from stzObject
 		ok
 		return new stzGpuBuffer([_nOut_, _nElems_])
 
-	# Multi-input kernels over ALREADY-RESIDENT buffers: no transfer at all.
-	# paBindings binds vector names to stzGpuBuffer objects (plus scalars):
-	#     oG.ApplyOnQ(k, [ :A = oBuf1, :B = oBuf2, :alpha = 2 ])
+	# Runs a multi-input kernel over buffers that are already resident, with no transfer, and returns the result as a new resident buffer.
+	#
+	#   poKernel     the stzKernelMaker that describes the computation
+	#   paBindings   a list such as [ :A = oBuf1, :B = oBuf2, :alpha = 2 ] that binds each vector to
+	#                a stzGpuBuffer and each scalar to a number
+	#   returns      a stzGpuBuffer
+	#   note         not run: it uses the GPU, which sleeps on this machine and was left alone; read
+	#                from the code
+	#   warning      buffers of different lengths, or a vector not bound to a buffer, raise an
+	#                error; raises an error when no GPU device is available on the machine
+	#   see          Run, UploadQ
+	#@ aka  Multi-input kernels over ALREADY-RESIDENT buffers: no transfer at all. paBindings binds vector names to stzGpuBuffer objects (plus scalars): oG.ApplyOnQ(k, [ :A = oBuf1, :B = oBuf2, :alpha = 2 ])
 	def ApplyOnQ(poKernel, paBindings)
 		This._RequireDevice()
 		_aNames_ = poKernel.InputNames()
@@ -221,18 +293,29 @@ class stzGpu from stzObject
 		ok
 		return new stzGpuBuffer([_nOut_, _nElems_])
 
+	# Measures where the GPU starts to beat the CPU on this machine for pairwise distances, stores the crossover and saves it.
+	#
+	#   returns    a list [ nThreshold, report ], the report holding [ size, cpuMs, gpuMs ] per rung
+	#   note       not run: it uses the GPU, which sleeps on this machine and was left alone; read
+	#              from the code
+	#   warning    writes the calibration file, which later sessions load; wakes the device with
+	#              heavy work; takes seconds
+	#   see        CalibrateWith, CalibrateShaped
 	# ---- calibration (G5) -----------------------------------------------
-
-	# Measure where the GPU actually starts winning ON THIS MACHINE, store
-	# the crossover in the calibration store, and persist it (the faces
-	# auto-load it in later sessions). Warm-min discipline throughout --
-	# G0's clock inversion means sustained numbers flatter the GPU.
-	# Returns [ nThreshold, [ [nProblemSize, nCpuMs, nGpuMs], ... ] ].
+	#@ aka  Measure where the GPU actually starts winning ON THIS MACHINE, store the crossover in the calibration store, and persist it (the faces auto-load it in later sessions). Warm-min discipline throughout -- G0's clock inversion means sustained numbers flatter the GPU. Returns [ nThreshold, [ [nProblemSize, nCpuMs, nGpuMs], ... ] ].
 	def Calibrate()
 		return This.CalibrateWith([1000, 2000, 4000, 8000, 16000])
 
-	# The same, on a caller-chosen ladder of corpus sizes (d fixed at 64:
-	# a representative embedding width; problem size = n*d).
+	# Does the same as the call without arguments, on a ladder of corpus sizes chosen by the caller, the dimension being fixed at 64.
+	#
+	#   paRungs    the corpus sizes to measure, as a list of numbers, from small to large
+	#   returns    a list [ nThreshold, report ]
+	#   note       not run: it uses the GPU, which sleeps on this machine and was left alone; read
+	#              from the code
+	#   warning    the crossover is the first rung where the GPU wins by 30 percent; if it never
+	#              wins, everything routes to the CPU; writes the calibration file
+	#   see        Calibrate
+	#@ aka  The same, on a caller-chosen ladder of corpus sizes (d fixed at 64: a representative embedding width; problem size = n*d).
 	def CalibrateWith(paRungs)
 		This._RequireDevice()
 		_nDim_ = 64
@@ -256,23 +339,37 @@ class stzGpu from stzObject
 		StzGpuSaveCalibration(["pairdist"])
 		return [ _nCross_, _aReport_ ]
 
+	# Checks a candidate kernel against a reference kernel on the same inputs and on a hidden second shape, and returns a report.
+	#
+	#   poRef        the reference stzKernelMaker
+	#   pCand        the candidate, a stzKernelMaker on the same declarations or raw WGSL on the
+	#                same binding contract
+	#   paBindings   a list that binds the vectors and scalars, as for Run
+	#   returns      a hashlist with :verdict among verified, mismatch, mismatch-hidden, impossible,
+	#                reference-impossible and error
+	#   note         not run: it uses the GPU, which sleeps on this machine and was left alone; read
+	#                from the code
+	#   warning      timing is taken by the engine, never by this face, and a time faster than the
+	#                measured bus is refused as impossible; raises an error when no GPU device is
+	#                available on the machine
+	#   see          VerifyWith, VerifyJudge
 	# ---- GK0: the checker -----------------------------------------------
-	# Verify a CANDIDATE kernel against a REFERENCE one: same inputs, same
-	# device, plus a HIDDEN second shape over DIFFERENT data the candidate
-	# was never shown; both timed the same way by the ENGINE (never by this
-	# face); and a refusal for any time faster than the measured bus. The
-	# report is DATA -- the verdict is the engine's, this face only reads it.
-	#
-	#   aR = oG.Verify(kRef, kCand, [ :a = aData ])
-	#   ? aR[:verdict]   # "verified" | "mismatch" | "mismatch-hidden" |
-	#                    # "impossible" | "reference-impossible" | "error"
-	#
-	# pCand may be an stzKernelMaker on the SAME declarations, or raw WGSL
-	# on the same binding contract (how a hand-written variant -- or a
-	# cheat -- gets checked). Options: [ :reps = 7, :band = 0.000001 ].
+	#@ aka  Verify a CANDIDATE kernel against a REFERENCE one: same inputs, same device, plus a HIDDEN second shape over DIFFERENT data the candidate was never shown; both timed the same way by the ENGINE (never by this face); and a refusal for any time faster than the measured bus. The report is DATA -- the verdict is the engine's, this face only reads it.
 	def Verify(poRef, pCand, paBindings)
 		return This.VerifyWith(poRef, pCand, paBindings, [])
 
+	# Does the same as the call without options, with the repetitions and the numeric band chosen by the caller.
+	#
+	#   poRef        the reference stzKernelMaker
+	#   pCand        the candidate, a stzKernelMaker or raw WGSL
+	#   paBindings   a list that binds the vectors and scalars
+	#   paOptions    a list such as [ :reps = 7, :band = 0.000001 ]
+	#   returns      a hashlist with :verdict and the measurements
+	#   note         not run: it uses the GPU, which sleeps on this machine and was left alone; read
+	#                from the code
+	#   warning      reps below 3 become 7; raises an error when no GPU device is available on the
+	#                machine
+	#   see          Verify
 	def VerifyWith(poRef, pCand, paBindings, paOptions)
 		This._RequireDevice()
 		_nReps_ = _BindingValue(paOptions, "reps")
@@ -410,14 +507,32 @@ class stzGpu from stzObject
 			:hiddensize = _nB_
 		]
 
-	# The roofline alone: could a dispatch touching nBytes finish in nMs on
-	# this device? Pure judgement over the MEASURED floors -- exposed so a
-	# guard can hand it an impossible number and watch it refuse.
+	# Judges whether a dispatch touching nBytes could finish in nMs on this device, against the measured floors.
+	#
+	#   nBytes     the bytes the dispatch touches
+	#   nMs        the time it claims, in milliseconds
+	#   returns    a text among verified, mismatch, mismatch-hidden, impossible, reference-
+	#              impossible and error
+	#   note       not run: it uses the GPU, which sleeps on this machine and was left alone; read
+	#              from the code
+	#   warning    pure judgement over floors measured on the device, exposed so that a guard can
+	#              hand it an impossible number and watch it refuse; raises an error when no GPU
+	#              device is available on the machine
+	#   see        VerifyFloors, Verify
+	#@ aka  The roofline alone: could a dispatch touching nBytes finish in nMs on this device? Pure judgement over the MEASURED floors -- exposed so a guard can hand it an impossible number and watch it refuse.
 	def VerifyJudge(nBytes, nMs)
 		This._RequireDevice()
 		return This._VerdictName(StzEngineGpuVerifyJudge(nBytes, nMs))
 
-	# The measured floors themselves: [ :floorgbs, :submitfloorms ]
+	# Returns the device's measured floors: the copy speed in GB per second and the fixed cost of a submit in milliseconds.
+	#
+	#   returns    a hashlist [ :floorgbs, :submitfloorms ]
+	#   note       not run: it uses the GPU, which sleeps on this machine and was left alone; read
+	#              from the code
+	#   warning    runs a tiny judgement to refresh the floors; raises an error when no GPU device
+	#              is available on the machine
+	#   see        VerifyJudge
+	#@ aka  The measured floors themselves: [ :floorgbs, :submitfloorms ]
 	def VerifyFloors()
 		This._RequireDevice()
 		StzEngineGpuVerifyJudge(1, 1)
@@ -442,61 +557,90 @@ class stzGpu from stzObject
 			return "error"
 		off
 
+	# Loads the calibration store, the default one and the one of the selected adapter, so that the faces route by measured thresholds.
+	#
+	#   returns    nothing
+	#   note       not run: it uses the GPU, which sleeps on this machine and was left alone; read
+	#              from the code
+	#   warning    initialises the device to learn the adapter
+	#   see        Calibrate
 	def LoadCalibration()
 		StzGpuLoadCalibrationDefault()
 		This._EnsureInit()
 		StzGpuLoadCalibrationForAdapter()
 
-	# one rung: warm-min per-query ms through the REAL seam, both routes
+	# Returns the first GPU error since the last clear, the cause where LastError is the symptom that followed it.
+	#
+	#   returns    a text; empty when there is none
+	#   note       run: it answered an empty text on a fresh process, with no device opened
+	#   warning    reads the engine's error buffer and does not touch the device
+	#   see        LastError, ClearErrors
 	# ---- the device's power state -----------------------------------------
-	# Measured 2026-09-09 on this laptop's RTX 3050: after ~10 s idle, every
-	# submit pays a fixed ~2 ms and the copy floor reads 13 GB/s instead of
-	# 85 -- and hundreds of tiny queries never lift it, while ~150 ms of
-	# heavy work does. Wake() is that work, ADAPTIVE: it copies until a
-	# copy runs at full speed, settles, and stops -- the budget is a cap.
-	# Every timing this face takes calls it first; a caller measuring on
-	# its own should too. Returns the copies it took (an awake device
-	# answers in ~20).
-	# THE CAUSE AND THE SYMPTOM. A shader that fails validation raises two
-	# errors: the parser's, with the offending name and line, and then the
-	# pipeline's, which only says the module is invalid. FirstError() is the
-	# parser's; LastError() is whatever came last. A compile clears both first.
+	#@ aka  one rung: warm-min per-query ms through the REAL seam, both routes Measured 2026-09-09 on this laptop's RTX 3050: after ~10 s idle, every submit pays a fixed ~2 ms and the copy floor reads 13 GB/s instead of 85 -- and hundreds of tiny queries never lift it, while ~150 ms of heavy work does. Wake() is that work, ADAPTIVE: it copies until a copy runs at full speed, settles, and stops -- the budget i
 	def FirstError()
 		return StzEngineGpuFirstError()
 
+	# Returns the latest GPU error since the last clear, which is the symptom of the first one.
+	#
+	#   returns    a text; empty when there is none
+	#   note       run: it answered an empty text on a fresh process, with no device opened
+	#   warning    reads the engine's error buffer and does not touch the device
+	#   see        FirstError, ClearErrors
 	def LastError()
 		return StzEngineGpuLastError()
 
+	# Forgets the recorded GPU errors, the first and the last.
+	#
+	#   returns    the object itself, so calls chain
+	#   note       run: it touches only the engine's error buffer
+	#   warning    a kernel compile clears both by itself
+	#   see        FirstError, LastError
 	def ClearErrors()
 		StzEngineGpuErrorClear()
 		return This
 
+	# Wakes a sleeping device with copy work until a copy runs at full speed, and returns how many copies it took.
+	#
+	#   nBudgetMs   the most time to spend, in milliseconds, a cap and not a target
+	#   returns     a number; about 20 on a device that was already awake
+	#   note        not run: it uses the GPU, which sleeps on this machine and was left alone; read
+	#               from the code
+	#   warning     an idle laptop GPU runs at a fraction of its speed, so every timing must call it
+	#               first; raises an error when no GPU device is available on the machine
+	#   see         Calibrate
 	def Wake(nBudgetMs)
 		This._RequireDevice()
 		return StzEngineGpuWake(nBudgetMs)
 
-	# ---- GS4: calibrating the semantic index's seam -------------------------
-	# The semantic index (stzSemanticIndex) routes its resident corpus to the
-	# GPU under the key "knn_resident" -- ITS OWN line, because a line is a
-	# comparison against a CPU alternative and this face's alternative is
-	# the multicore SIMD top-k (cluster.topK), not the vector index's scan
-	# the "pairdist" line was measured against. This pass walks corpus sizes
-	# at one dimension through the REAL face on synthetic unit vectors (no
-	# model needed), both routes, search-by-vector (the query embedding
-	# excluded), warm-min, the device woken before every GPU timing, the
-	# first rung re-measured last as the control. It stores a shaped class
-	# per rung and the flat line from the most conservative crossover, and
-	# persists both -- unless the control moved, in which case nothing is.
+	# Measures where the resident nearest-neighbour search wins on the GPU, on synthetic vectors of 384 dimensions, and saves the result.
 	#
-	# Measured 2026-09-09 on the RTX 3050 laptop at 384 dims: the GPU loses
-	# at 1,000 (0.39x) and 4,000 (0.98x) and wins at 16,000 (1.42x); the
-	# multicore top-k switches on at n*d >= 8M and the window may close
-	# again above it -- which is why the rung above that gate is measured
-	# too, and why the store is SHAPED: a class that wins carries its win,
-	# and the flat line stays beyond the ladder where a class lost.
+	#   returns    a hashlist of cells, the flat line and the reason
+	#   note       not run: it uses the GPU, which sleeps on this machine and was left alone; read
+	#              from the code
+	#   warning    writes the calibration file; the result is not stored when the control rung
+	#              moved; takes minutes
+	#   see        CalibrateKnnResidentWith, CalibrateShaped
+	# ---- GS4: calibrating the semantic index's seam -------------------------
+	#@ aka  The semantic index (stzSemanticIndex) routes its resident corpus to the GPU under the key "knn_resident" -- ITS OWN line, because a line is a comparison against a CPU alternative and this face's alternative is the multicore SIMD top-k (cluster.topK), not the vector index's scan the "pairdist" line was measured against. This pass walks corpus sizes at one dimension through the REAL face on syntheti
 	def CalibrateKnnResident()
+		# Measured 2026-09-09 on the RTX 3050 laptop at 384 dims: the GPU loses
+		# at 1,000 (0.39x) and 4,000 (0.98x) and wins at 16,000 (1.42x); the
+		# multicore top-k switches on at n*d >= 8M and the window may close
+		# again above it -- which is why the rung above that gate is measured
+		# too, and why the store is SHAPED: a class that wins carries its win,
+		# and the flat line stays beyond the ladder where a class lost.
 		return This.CalibrateKnnResidentWith([1000, 4000, 16000, 32000], 384)
 
+	# Does the same as the call without arguments, for corpus sizes and a dimension chosen by the caller.
+	#
+	#   paCounts   the corpus sizes to measure, as a list of numbers
+	#   nDim       the vector width of the synthetic corpus
+	#   returns    a hashlist with :cells, :flat and :flatwhy
+	#   note       not run: it uses the GPU, which sleeps on this machine and was left alone; read
+	#              from the code
+	#   warning    the first rung is measured again at the end as a control; writes the calibration
+	#              file
+	#   see        CalibrateKnnResident
 	def CalibrateKnnResidentWith(paCounts, nDim)
 		This._RequireDevice()
 		_cKey_ = "knn_resident"
@@ -615,16 +759,18 @@ class stzGpu from stzObject
 		next
 		return _nBest_
 
-	# ---- GS1: FFT convolution on the GPU -----------------------------------
-	# The linear convolution of two real signals -- convolution reverb's
-	# arithmetic -- as ONE batched pass on the device: both operands packed
-	# and transformed (Stockham radix-2, twiddles from a table computed in
-	# f64), multiplied pointwise, transformed back, the real part scaled.
-	# SN0 measured it at 19-23x over fft.zig for 60 s of audio on the 3050.
+	# Convolves two real signals on the device in one batched FFT pass and returns the linear convolution as a list of numbers.
 	#
-	# This is the ONE-SHOT doorway: upload, run, download. A plane holding
-	# its signal on the device uses the buffer form (StzEngineGpuOpConvolveReal
-	# over buffer ids) and pays no marshalling -- the sound desk's route.
+	#   paA        the first signal, a non-empty list of numbers
+	#   paB        the second signal, a non-empty list of numbers
+	#   returns    a list of numbers of length len(A) + len(B) - 1
+	#   note       not run: it uses the GPU, which sleeps on this machine and was left alone; read
+	#              from the code
+	#   warning    one-shot: it uploads, runs and downloads; empty or non-list signals raise an
+	#              error; raises an error when no GPU device is available on the machine
+	#   see        UploadQ
+	# ---- GS1: FFT convolution on the GPU -----------------------------------
+	#@ aka  The linear convolution of two real signals -- convolution reverb's arithmetic -- as ONE batched pass on the device: both operands packed and transformed (Stockham radix-2, twiddles from a table computed in f64), multiplied pointwise, transformed back, the real part scaled. SN0 measured it at 19-23x over fft.zig for 60 s of audio on the 3050.
 	def ConvolveReal(paA, paB)
 		This._RequireDevice()
 		if NOT isList(paA) or NOT isList(paB) or ring_len(paA) = 0 or ring_len(paB) = 0
@@ -653,24 +799,33 @@ class stzGpu from stzObject
 		_FreeIds([_hA_, _hB_, _hO_])
 		return _aOut_
 
-	# ---- GK2: the foundry -- op variants by enumeration ------------------
-	# The op library carries VARIANTS of pairdist (a straight row kernel, a
-	# vec4 one, one with the query staged in workgroup memory) beside the
-	# generic 16x16 tile. This pass lets the ENGINE enumerate them under
-	# GK0's checker: each is verified against the generic on the same device
-	# buffers at the visible shape AND a hidden one (different size, different
-	# data), timed on the GPU clock with the device awake, and the winner --
-	# if it beats the generic by 1.3x -- is recorded for the SHAPE CLASS in
-	# the variant table the op consults at dispatch, and persisted. A variant
-	# the checker refuses cannot win, whatever it timed. Scope: m <= 16, the
-	# single-query family the seams dispatch.
+	# Lets the engine try the variants of the pairwise-distance kernel at a shape and record the winner if it beats the generic one by 1.3 times.
 	#
-	# Report: [ :m, :n, :d, :hiddenn, :clocks, :refgpums, :refwallms,
-	#           :variants = [ [name, verified, gpums, wallms, ratio, ratiowall], ... ],
-	#           :winner = name, :ratio = generic/winner on the GPU clock, :stored = bool ]
+	#   m          the number of queries, from 1 to 16
+	#   n          the corpus size
+	#   d          the vector width
+	#   returns    a hashlist report: :m, :n, :d, :variants, :winner, :ratio, :stored
+	#   note       not run: it uses the GPU, which sleeps on this machine and was left alone; read
+	#              from the code
+	#   warning    writes the variant table to the calibration file; the foundry refuses m above 16
+	#              with an error
+	#   see        FoundryPairdistWith, FoundryPairdistGrid
+	# ---- GK2: the foundry -- op variants by enumeration ------------------
+	#@ aka  The op library carries VARIANTS of pairdist (a straight row kernel, a vec4 one, one with the query staged in workgroup memory) beside the generic 16x16 tile. This pass lets the ENGINE enumerate them under GK0's checker: each is verified against the generic on the same device buffers at the visible shape AND a hidden one (different size, different data), timed on the GPU clock with the device awake
 	def FoundryPairdist(m, n, d)
 		return This.FoundryPairdistWith(m, n, d, 7)
 
+	# Does the same as the call without repetitions, with the number of timed repetitions chosen by the caller.
+	#
+	#   m          the number of queries, from 1 to 16
+	#   n          the corpus size
+	#   d          the vector width
+	#   nReps      how many repetitions to time
+	#   returns    a hashlist report as FoundryPairdist returns
+	#   note       not run: it uses the GPU, which sleeps on this machine and was left alone; read
+	#              from the code
+	#   warning    an invalid shape raises an error quoting the engine status
+	#   see        FoundryPairdist
 	def FoundryPairdistWith(m, n, d, nReps)
 		This._RequireDevice()
 		_nSt_ = StzEngineGpuFoundryPairdist(m, n, d, nReps, 0)
@@ -707,15 +862,32 @@ class stzGpu from stzObject
 			:stored = _bStored_
 		]
 
-	# THE ATTENTION FOUNDRY (GK2c). The backbone's fused attention -- one
-	# workgroup per (head, query row) -- against three reduction-form variants
-	# at workgroup widths 64, 128 and 256, under the checker on the neural
-	# DLL's device; the winner recorded for the (tokens, width, head_dim) class
-	# under the op name "attention", persisted, and pushed into the neural
-	# DLL's table so the next forward dispatches it.
+	# Lets the engine try three workgroup widths of the fused attention kernel at a shape and record the winner.
+	#
+	#   nTok       the tokens, from 2 to 256
+	#   nEmbd      the model width, a multiple of the head count
+	#   nHeads     the number of attention heads
+	#   returns    a hashlist report with the winner and its ratio
+	#   note       not run: it uses the GPU, which sleeps on this machine and was left alone; read
+	#              from the code
+	#   warning    writes the variant table to the calibration file and pushes it into the neural
+	#              engine; a refused shape raises an error
+	#   see        FoundryAttentionWith, FoundryMatmul
+	#@ aka  THE ATTENTION FOUNDRY (GK2c). The backbone's fused attention -- one workgroup per (head, query row) -- against three reduction-form variants at workgroup widths 64, 128 and 256, under the checker on the neural DLL's device; the winner recorded for the (tokens, width, head_dim) class under the op name "attention", persisted, and pushed into the neural DLL's table so the next forward dispatches it.
 	def FoundryAttention(nTok, nEmbd, nHeads)
 		return This.FoundryAttentionWith(nTok, nEmbd, nHeads, 7)
 
+	# Does the same as the call without repetitions, with the number of timed repetitions chosen by the caller.
+	#
+	#   nTok       the tokens, from 2 to 256
+	#   nEmbd      the model width, a multiple of the head count
+	#   nHeads     the number of attention heads
+	#   nReps      how many repetitions to time
+	#   returns    a hashlist report as FoundryAttention returns
+	#   note       not run: it uses the GPU, which sleeps on this machine and was left alone; read
+	#              from the code
+	#   warning    a refused shape raises an error
+	#   see        FoundryAttention
 	def FoundryAttentionWith(nTok, nEmbd, nHeads, nReps)
 		_nSt_ = StzEngineNeuralAttentionFoundry(nTok, nEmbd, nHeads, nReps, 0)
 		if _nSt_ != 0
@@ -750,14 +922,31 @@ class stzGpu from stzObject
 			:stored = _bStored_
 		]
 
-	# THE MATMUL FOUNDRY (GK2b's matmul leg). C(m x n) = A(m x k) B(k x n):
-	# tile16 (the generic), tile8, reg2, reg4 under the checker at the asked
-	# shape and a hidden one; the winner recorded for the (m, n, k) class under
-	# the op name "matmul" and persisted. The backbone compiles the table's
-	# winner for its own shapes with the bias fused.
+	# Lets the engine try the matrix-multiply variants tile16, tile8, reg2 and reg4 at a shape and record the winner.
+	#
+	#   m          the rows of A
+	#   k          the columns of A and the rows of B
+	#   n          the columns of B
+	#   returns    a hashlist report with the winner and its ratio
+	#   note       not run: it uses the GPU, which sleeps on this machine and was left alone; read
+	#              from the code
+	#   warning    writes the variant table to the calibration file; a refused shape raises an error
+	#   see        FoundryMatmulWith, FoundryAttention
+	#@ aka  THE MATMUL FOUNDRY (GK2b's matmul leg). C(m x n) = A(m x k) B(k x n): tile16 (the generic), tile8, reg2, reg4 under the checker at the asked shape and a hidden one; the winner recorded for the (m, n, k) class under the op name "matmul" and persisted. The backbone compiles the table's winner for its own shapes with the bias fused.
 	def FoundryMatmul(m, k, n)
 		return This.FoundryMatmulWith(m, k, n, 7)
 
+	# Does the same as the call without repetitions, with the number of timed repetitions chosen by the caller.
+	#
+	#   m          the rows of A
+	#   k          the columns of A and the rows of B
+	#   n          the columns of B
+	#   nReps      how many repetitions to time
+	#   returns    a hashlist report as FoundryMatmul returns
+	#   note       not run: it uses the GPU, which sleeps on this machine and was left alone; read
+	#              from the code
+	#   warning    a refused shape raises an error
+	#   see        FoundryMatmul
 	def FoundryMatmulWith(m, k, n, nReps)
 		This._RequireDevice()
 		_nSt_ = StzEngineGpuFoundryMatmul(m, k, n, nReps, 0)
@@ -791,14 +980,32 @@ class stzGpu from stzObject
 			:stored = _bStored_
 		]
 
-	# THE k-NN FOUNDRY (GS6e). The UMAP k-NN kernel lives in the stats DLL on
-	# its own device, so its enumeration runs there; the verdict is recorded in
-	# that DLL's variant table AND persisted here under the op name "umap_knn",
-	# beside pairdist's rows, so the next session finds it. The stats DLL reads
-	# the persisted rows back through StzUmapKnnVariantsSync() at its first fit.
+	# Lets the engine try the variants of the UMAP nearest-neighbour kernel at a shape and record the winner for the next session.
+	#
+	#   n          the number of points
+	#   d          the vector width
+	#   k          the neighbours, from 1 to 64 and below n
+	#   returns    a hashlist report with the winner and its ratio
+	#   note       not run: it uses the GPU, which sleeps on this machine and was left alone; read
+	#              from the code
+	#   warning    writes the variant table to the calibration file under umap_knn; a refused shape
+	#              raises an error
+	#   see        FoundryUmapKnnWith, FoundryPairdist
+	#@ aka  THE k-NN FOUNDRY (GS6e). The UMAP k-NN kernel lives in the stats DLL on its own device, so its enumeration runs there; the verdict is recorded in that DLL's variant table AND persisted here under the op name "umap_knn", beside pairdist's rows, so the next session finds it. The stats DLL reads the persisted rows back through StzUmapKnnVariantsSync() at its first fit.
 	def FoundryUmapKnn(n, d, k)
 		return This.FoundryUmapKnnWith(n, d, k, 7)
 
+	# Does the same as the call without repetitions, with the number of timed repetitions chosen by the caller.
+	#
+	#   n          the number of points
+	#   d          the vector width
+	#   k          the neighbours, from 1 to 64 and below n
+	#   nReps      how many repetitions to time
+	#   returns    a hashlist report as FoundryUmapKnn returns
+	#   note       not run: it uses the GPU, which sleeps on this machine and was left alone; read
+	#              from the code
+	#   warning    a refused shape raises an error
+	#   see        FoundryUmapKnn
 	def FoundryUmapKnnWith(n, d, k, nReps)
 		This._RequireDevice()
 		_nSt_ = StzEngineUmapKnnFoundry(n, d, k, nReps, 0)
@@ -856,8 +1063,17 @@ class stzGpu from stzObject
 		ok
 		return _aOps_
 
-	# The kill line, per adapter: a grid of single-query shapes; TRUE if any
-	# class found a variant worth the margin.
+	# Runs the pairwise-distance foundry over a grid of corpus sizes and widths and says whether any shape found a variant worth the margin.
+	#
+	#   paCounts   the corpus sizes to try, as a list of numbers
+	#   paDims     the vector widths to try, as a list of numbers
+	#   returns    a hashlist [ :cells, :anywin, :adapter ]
+	#   note       not run: it uses the GPU, which sleeps on this machine and was left alone; read
+	#              from the code
+	#   warning    one single-query run per cell, so the cost grows with the grid; writes the
+	#              calibration file
+	#   see        FoundryPairdist
+	#@ aka  The kill line, per adapter: a grid of single-query shapes; TRUE if any class found a variant worth the margin.
 	def FoundryPairdistGrid(paCounts, paDims)
 		This._RequireDevice()
 		_aCells_ = []
@@ -875,27 +1091,29 @@ class stzGpu from stzObject
 		next
 		return [ :cells = _aCells_, :anywin = _bAny_, :adapter = This.DeviceName() ]
 
-	# ---- GK1: the SHAPED calibration --------------------------------------
-	# The flat pass above walks one dimension (d = 64) and stores one number.
-	# GK1's probe (gk1_shape_probe.ring, 2026-09-09) measured that the number
-	# on disk routed half the grid WRONG, and that on the Intel iGPU the
-	# crossover moves 4x with the dimension. So this pass walks a GRID of
-	# dimensions x corpus sizes through the real seam, both routes forced,
-	# records the measured cpu/gpu RATIO per shape class (powers-of-two
-	# buckets -- the engine's store), keeps the whole LADDER as the trace,
-	# sets the flat line to the most conservative crossover the grid saw
-	# (unmeasured classes fall back to it), and then CHECKS ITSELF at two
-	# shapes that were NOT on the grid: one inside a measured class, one in
-	# an unmeasured class. A threshold is trusted only if a shape it was not
-	# calibrated on agrees with it.
+	# Times CPU and GPU over a grid of widths and corpus sizes, records the ratio per shape class, and checks itself on two unmeasured shapes.
 	#
-	# Report: [ :cells = [[d, n, cpuMs, gpuMs, ratio], ...],
-	#           :flat = the flat line stored, :flatwhy = "crossover" | "beyond-ladder",
-	#           :hidden = [ [d, n, cpuMs, gpuMs, predicted, measured, agree], ... ],
-	#           :adapter = name ]
+	#   returns    a hashlist report: :cells, :flat, :flatwhy, :hidden, :adapter
+	#   note       not run: it uses the GPU, which sleeps on this machine and was left alone; read
+	#              from the code
+	#   warning    writes the calibration file unless the control cell moved, in which case the grid
+	#              is reported as confounded and not saved; takes minutes
+	#   see        CalibrateShapedWith, Calibrate
+	# ---- GK1: the SHAPED calibration --------------------------------------
+	#@ aka  The flat pass above walks one dimension (d = 64) and stores one number. GK1's probe (gk1_shape_probe.ring, 2026-09-09) measured that the number on disk routed half the grid WRONG, and that on the Intel iGPU the crossover moves 4x with the dimension. So this pass walks a GRID of dimensions x corpus sizes through the real seam, both routes forced, records the measured cpu/gpu RATIO per shape class (
 	def CalibrateShaped()
 		return This.CalibrateShapedWith([16, 64, 256, 1024], [1000, 4000, 16000])
 
+	# Does the same as the call without arguments, on a grid of widths and corpus sizes chosen by the caller.
+	#
+	#   paDims     the vector widths to measure, as a list of numbers
+	#   paCounts   the corpus sizes to measure, as a list of numbers
+	#   returns    a hashlist report as CalibrateShaped returns
+	#   note       not run: it uses the GPU, which sleeps on this machine and was left alone; read
+	#              from the code
+	#   warning    a width whose ladder never crossed sends unknown shapes to the CPU; writes the
+	#              calibration file unless confounded
+	#   see        CalibrateShaped
 	def CalibrateShapedWith(paDims, paCounts)
 		This._RequireDevice()
 		_nBudget_ = 4200000

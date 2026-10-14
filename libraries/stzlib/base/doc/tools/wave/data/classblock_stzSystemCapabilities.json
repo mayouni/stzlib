@@ -1,0 +1,16 @@
+{
+ "brief": "Holds what a system can do, as names from a closed catalog, each mapped to one of four lattice kinds.",
+ "detail": "The catalog has nine capabilities: filesystem, process, network, environment, dynamic_load and gpio are effectful, threads is compute, clock is sensing and inference is inference. The kinds are the same lattice an actor holds in stzSystemActor, so ForActorKinds answers which of the system's capabilities an actor may exercise. A name outside the catalog raises an error.",
+ "receiver": "o1 = new stzSystemCapabilities([ \"filesystem\", \"clock\", \"threads\" ])",
+ "example": [
+  "? o1.Can(\"clock\")",
+  "#--> 1",
+  "? o1.KindOf(\"network\")",
+  "#--> effectful",
+  "? @@( o1.Kinds() )",
+  "#--> [ \"effectful\", \"sensing\", \"compute\" ]",
+  "? @@( o1.ForActorKinds([ \"sensing\" ]) )",
+  "#--> [ \"clock\" ]"
+ ],
+ "see": ["stzSystemActor", "stzSystemProfile"]
+}

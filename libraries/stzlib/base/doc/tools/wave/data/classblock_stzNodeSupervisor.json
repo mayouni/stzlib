@@ -1,0 +1,15 @@
+{
+ "brief": "Supervises node processes by declaration: it restarts the dead under a strategy and a budget, and escalates instead of looping.",
+ "detail": "Declare children with Child, then the Strategy (:OneForOne or :AllForOne), the RestartBudget and optionally a Heartbeat and Monitor subscriptions. A death is a process exit or, with heartbeats on, a silent node. Each restart is counted per child and in a sliding window; beyond the budget the supervisor stops, reports through Escalated and EscalationReason, and leaves the child down. It keeps the house contract Name_() and Cycle(), so it can be hosted on an agent host. StartAll spawns real processes; the documentation run declared children and called the read methods only.",
+ "receiver": "o1 = new stzNodeSupervisor()\no1.Child(\"indexer\", \"my_indexer.ring\", 45810)\no1.Strategy(:AllForOne)\no1.RestartBudget(2, 5000)",
+ "example": [
+  "? o1.Escalated()",
+  "#--> 0",
+  "? o1.RestartsOf(\"indexer\")",
+  "#--> 0",
+  "? o1.RestartsOf(\"nobody\")",
+  "#--> -1",
+  "o1.Destroy()"
+ ],
+ "see": ["stzNode", "stzNodeApp", "stzClusterSupervisor"]
+}

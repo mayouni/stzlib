@@ -1,0 +1,4 @@
+init | Starts the declaration of constraints for a kind of value, such as score; the kind is trimmed and lowercased. | nothing; the object is built | pcKind=the name of the kind to constrain | ToBeQ, Kind
+ToBeQ | Declares that values of the kind must satisfy a descriptor, such as Number or Positive; declaring the same descriptor twice keeps one. | the declaration itself, so calls chain | pcDesc=the descriptor, matched to a predicate named @is followed by it | AndQ, Kind, stzCan | an unknown descriptor is not refused here: it raises Unknown constraint descriptor later, when a value is checked against it | the constraints of a kind are global to the process, read in the order declared
+AndQ | Returns the declaration itself, so that ToBeQ can be chained after it for readability. | the declaration itself | | ToBeQ
+Kind | Returns the kind this declaration constrains, trimmed and in lower case. | a text such as score | | ToBeQ

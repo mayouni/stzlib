@@ -1,0 +1,21 @@
+init | Builds a trimmer over a list or over a stzList object, working on its own copy, so the list passed in is never changed. | nothing; the object is built | pListOrObj=a list, or a stzList object, to be trimmed | Content | any other kind of value raises "Can't create stzListTrimmer! Parameter must be a list or stzList object." |
+Content | Returns the items the trimmer holds, after any trim made through it. | a list | | Trimmed | |
+NumberOfItems | Returns how many items the list holds now. | a number | | Content | |
+IsEmpty | TRUE if the list holds no item. | TRUE or FALSE | | NumberOfItems | |
+Trim | Removes the empty items at both ends of the list, in place; the number 0 and blank texts count as empty. | nothing; use TrimQ to chain | | Trimmed, TrimLeft, TrimRight | | the number 0 counts as empty, so 0 0 a becomes a; a list made only of empty items keeps one item
+Trimmed | Returns a copy of the list without the empty items at both ends, leaving the object unchanged. | a list | | Trim | | empty means the number 0, an empty or blank text, an empty sublist or a false object
+TrimLeft | Removes the empty items at the start of the list, in place. | nothing | | TrimmedLeft, Trim, TrimRight | | the number 0, an empty or blank text and an empty sublist count as empty; the last item is never removed
+TrimmedLeft | Returns a copy of the list without the empty items at its start, leaving the object unchanged. | a list | | TrimLeft | |
+TrimRight | Removes the empty items at the end of the list, in place. | nothing | | TrimmedRight, Trim, TrimLeft | | the number 0, an empty or blank text and an empty sublist count as empty; the first item is never removed
+TrimmedRight | Returns a copy of the list without the empty items at its end, leaving the object unchanged. | a list | | TrimRight | |
+TrimItem | Removes every repeat of one given item at both ends of the list, in place, comparing case-sensitively. | nothing; use TrimItemQ to chain | pItem=the item to strip from both ends | TrimItemFromLeft, TrimItemFromRight | | TrimItem("x") on x X a x b x X removes only the first x: a trailing X is another item; TrimItemCS(pItem, 0) ignores case
+TrimItemFromLeft | Removes every repeat of one given item from the start of the list, in place, comparing case-sensitively. | nothing | pItem=the item to strip from the start | TrimItem, TrimItemFromRight | | TrimItemFromLeftCS(pItem, 0) ignores case; a list of only that item is emptied
+TrimItemFromRight | Removes every repeat of one given item from the end of the list, in place, comparing case-sensitively. | nothing | pItem=the item to strip from the end | TrimItem, TrimItemFromLeft | | TrimItemFromRightCS(pItem, 0) ignores case; a list of only that item is emptied
+Compact | Removes from the whole list the blank texts and the empty sublists, in place, and keeps everything else. | nothing; use CompactQ to chain | | Compacted, StripNulls | | the number 0 is kept, unlike Trim
+Compacted | Returns a copy of the list without its blank texts and empty sublists, leaving the object unchanged. | a list | | Compact | |
+Squeeze | Reduces each run of blank texts to the first of them, in place. | nothing; use SqueezeQ to chain | | Squeezed, Compact | | only texts count; a run mixing "" and "  " keeps the first one as it is
+Squeezed | Returns a copy of the list with each run of blank texts reduced to one, leaving the object unchanged. | a list | | Squeeze | |
+StripNulls | Removes the empty texts from the whole list, in place; a text of spaces is kept. | nothing; use StripNullsQ to chain | | NullsStripped, Compact | | Compact removes blank texts too
+NullsStripped | Returns a copy of the list without its empty texts, leaving the object unchanged. | a list | | StripNulls | |
+TrimToSize | Keeps only the first n items of the list, in place. | nothing; use TrimToSizeQ to chain | n=how many items to keep | TrimmedToSize | | an n larger than the list changes nothing; 0 or a negative n empties the list without an error
+TrimmedToSize | Returns the first n items of the list, leaving the object unchanged. | a list; the whole list when n is larger | n=how many items to keep | TrimToSize | |

@@ -1,0 +1,21 @@
+{
+ "brief": "Sends each part of a delivery plan to its site, stores it, launches it and reports back, all governed by the actor's authority.",
+ "detail": "Bind parts to stzDeploymentSite objects with SetTarget, order them with RunAfter, attach real build outputs with Artifact, and set an actor. Only an effectful actor commits: with no actor, or with a language-model actor, Store, Launch and Run are rehearsals that touch nothing and say so in their rows. Steps gives the ordered plan (provision, store, launch, verify per part), Run executes it with a verify gate and rolls the completed steps back in reverse on a failure, and Feasibility asks whether each host has room. Explain and Plan are pure reading. With an effectful actor Store, Launch and Run write to sites, start parts and can provision hosts: the documentation run used only the rehearsing path.",
+ "receiver": "oD = new stzDelivery(\"bistro\")\noD.AddBackend(:api, :LinuxServer)\noS = new stzDeploymentSite(\"local-api\")\noS.SetKindQ(:LocalRepo).SetStoreAtQ(\"deploy_demo/site_api\")\no1 = new stzDeployment(oD)\no1.SetTarget(:api, oS)\no1.SetActor(LLMActor(\"assistant\"))",
+ "example": [
+  "? o1.MayCommit()",
+  "#--> 0",
+  "? len(o1.Steps())",
+  "#--> 3",
+  "? @@( o1.Store() )",
+  "#--> [ 0, [ [ \"api\", \"local-api\", \"rehearsed (not committed)\" ] ] ]",
+  "aRun = o1.Run()",
+  "? aRun[1]",
+  "#--> 0",
+  "? o1.WasRun()",
+  "#--> 1",
+  "? o1.WasCommitted()",
+  "#--> 0"
+ ],
+ "see": ["stzDeploymentSite", "stzDelivery", "stzSystemActor", "stzResourceSpec"]
+}

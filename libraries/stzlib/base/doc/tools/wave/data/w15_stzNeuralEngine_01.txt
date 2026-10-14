@@ -1,0 +1,4 @@
+init | Builds the facade over the inference backend; it holds no state. | nothing; the object is built | | IsReady, Content
+Backend | Returns the name of the inference backend that runs the models. | a text, ggml (CPU) today | | IsReady, Content
+Content | Returns a snapshot of what the engine is: its backend, its ggml version and whether it is ready. | a list of [ key, value ] pairs for backend, version and ready | | Show, Backend
+Show | Prints one line that shows the engine's backend, version and readiness. | the engine itself, so calls chain; it prints | | Content

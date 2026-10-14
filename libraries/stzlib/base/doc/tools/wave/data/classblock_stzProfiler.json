@@ -1,0 +1,28 @@
+{
+ "brief": "Answers where the time goes by recording the frames you bracket as a call tree with calls, total and self time, and by sampling.",
+ "detail": "Mark frames around the work you care about with Enter and Leave; the profiler keeps, for each path such as checkout;charge, the number of calls, the total time and the self time, which is the total minus the children. StartSampling starts an engine thread that photographs the active path at a fixed cadence, a statistical view with constant cost. Instrumented numbers are exact for what you bracketed; sampled numbers are statistical. Folded writes the folded-stacks format that flamegraph.pl and speedscope read. The frame stack lives in the engine, bounded by the maximum number of paths, and frames are cooperative: only what you bracket is seen. Times depend on the clock, so assert ranges and signs.",
+ "receiver": "o1 = StzProfiler(16)\no1.Enter(\"checkout\")\no1.Enter(\"validate\")\nStzEngineTimeSleepMs(20)\no1.Leave()\no1.Enter(\"charge\")\nStzEngineTimeSleepMs(40)\no1.Leave()\no1.Leave()",
+ "example": [
+  "? o1.Depth()",
+  "#--> 0",
+  "? o1.PathCount()",
+  "#--> 3",
+  "? o1.Paths()[1][:path]",
+  "#--> checkout;validate",
+  "? o1.Paths()[3][:calls]",
+  "#--> 1",
+  "? o1.HotSpots(1)[1][:path]",
+  "#--> checkout;charge",
+  "? o1.Paths()[3][:totalMs] > o1.Paths()[2][:totalMs]",
+  "#--> 1",
+  "? o1.Paths()[3][:selfMs] < o1.Paths()[3][:totalMs]",
+  "#--> 1",
+  "? o1.IsSampling()",
+  "#--> 0"
+ ],
+ "see": [
+  "stzStopwatch",
+  "stzPerfMonitor",
+  "stzPerfSeries"
+ ]
+}

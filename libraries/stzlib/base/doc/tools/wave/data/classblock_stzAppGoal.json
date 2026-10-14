@@ -1,0 +1,12 @@
+{
+ "brief": "Holds a readable snapshot of one goal of an application, as oApp.GoalQ returns it.",
+ "detail": "It carries the goal's name and the attributes assigned in the AddGoalQ brace: Means, ReachedBy (the profile, planning by default), Within and Respecting. It evaluates nothing: the measuring of a goal's gap happens on the stzApp, which holds the live graph.",
+ "receiver": "o1 = new stzAppGoal(\"Visited\")",
+ "example": [
+  "? o1.Name()",
+  "#--> Visited",
+  "? o1.Narrate()",
+  "#--> wants Visited -> reached by planning"
+ ],
+ "see": ["stzApp", "stzAppBody", "stzGraphGoal"]
+}

@@ -1,0 +1,10 @@
+init | Builds a currency object from the name of a country, written as in the locale data: lower case with underscores. | nothing; the object is built | pcCurrencyIdentifier=a country name such as niger or united_states; the currency that country uses is looked up | Currency, Country | a currency name such as euro, a symbol such as XOF or a locale abbreviation such as fr-NE is not understood today: the currency-name test compares against country names, so the name is refused with error R3 (the error function stzCurrencyError is not loaded), and a locale abbreviation is accepted but builds an empty object whose Currency answers N | spelling and case are free for a country that is in the data, so Niger and niger are the same
+ISOSymbol | Returns the international three-letter code of the currency, as the country's locale spells it. | a text such as XOF | | NativeSymbol, Currency
+NativeSymbol | Returns the symbol the country's locale writes for the currency. | a text such as CFA or the pound sign | | ISOSymbol, NativeName
+Currency | Returns the currency's name in the library's spelling, lower case joined by underscores. | a text such as west_african_cfa_franc | | NativeName, Value
+NativeName | Returns the currency's name as the country's own locale words it, with spaces. | a text such as west african cfa franc | | Currency, ISOSymbol
+Value | Returns the currency name, the value of the object. | a text, as Currency answers | | Currency
+FractionalUnit | Returns the name of the currency's fractional unit. | a text such as Centime | | Base
+Base | Returns how many fractional units make one unit of the currency. | a number, such as 100 | | FractionalUnit
+Country | Returns the country the object was built from. | a text in lower case | | CountryLocaleAbbreviation, Currency | | a country name is exact; for a currency shared by many countries, such as the euro, this is why the object remembers the country it started from
+CountryLocaleAbbreviation | Returns the locale code of the country, language and region joined by a hyphen. | a text such as fr-NE | | Country, ISOSymbol

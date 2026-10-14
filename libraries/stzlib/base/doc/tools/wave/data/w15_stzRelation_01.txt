@@ -1,0 +1,10 @@
+init | Opens the engine's relation store, one list of weighted subject-relation-object triples that every stzRelation object shares. | nothing; the object is built | | Clear | the store is global to the process: relations added through one object are seen by every other
+Add | Appends a weighted relation such as alice knows bob to the store. | nothing | cSubject=the subject, a text; cRelationType=the kind of relation, a text; cObject=the object, a text; nWeight=the strength of the relation, a number | AddSimple, Count | a non-text subject, type or object and a non-number weight raise an error | positions are counted from 0, in the order of adding
+AddSimple | Appends a relation with the weight 1. | nothing | cSubject=the subject, a text; cRelationType=the kind of relation, a text; cObject=the object, a text | Add
+Subject | Returns the subject of the relation at a position, counted from 0. | a text; empty when nothing is stored there | nIndex=the position of the relation, starting at 0 | Object, RelationType, Weight
+Object | Returns the object of the relation at a position, counted from 0. | a text; empty when nothing is stored there | nIndex=the position of the relation, starting at 0 | Subject, RelationType
+RelationType | Returns the kind of the relation at a position, counted from 0. | a text; empty when nothing is stored there | nIndex=the position of the relation, starting at 0 | Subject, Object
+Weight | Returns the weight of the relation at a position, counted from 0. | a number; 0 when nothing is stored there | nIndex=the position of the relation, starting at 0 | Add, Subject
+Count | Returns how many relations are stored. | a number | | Add, Remove
+Remove | Removes the relation at a position; the others keep their positions and the removed one reads empty. | nothing | nIndex=the position of the relation to remove, starting at 0 | Clear, Count | Count drops by one but no position shifts, so after Remove(1) of three relations, positions 0 and 2 still answer and position 1 is empty; a position with nothing stored is ignored
+Clear | Empties the store for every object that shares it. | nothing | | Remove, Count

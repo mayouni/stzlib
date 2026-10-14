@@ -1,0 +1,12 @@
+{
+ "brief": "Holds a readable snapshot of where an application's world is kept, as oApp.BodyQ returns it.",
+ "detail": "It carries the kinds of body (graph database, files...) and the paths named in the SetBody brace: Graph, Files and Keep. Saving happens on the stzApp, never here.",
+ "receiver": "o1 = new stzAppBody([ :graph, :files ])",
+ "example": [
+  "? o1.Label()",
+  "#--> graph + files",
+  "? o1.HasKind(:files)",
+  "#--> 1"
+ ],
+ "see": ["stzApp", "stzAppGoal"]
+}

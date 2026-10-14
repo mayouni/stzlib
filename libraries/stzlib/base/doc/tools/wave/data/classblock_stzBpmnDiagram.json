@@ -1,0 +1,20 @@
+{
+ "brief": "Lays a stzWorkflow out by the BPMN layout law and emits the conformance digest that two implementations are held to.",
+ "detail": "It no longer draws: the shared renderer does that. What it keeps is the law, a column, a row and an arrow class for every step, and LayoutDigest, the text record compared cell by cell with the second implementation. The spine, the happy path, takes row 0; steps off it go below; each arrival at an ending gets its own marker. It reads the workflow's Steps(), so a workflow built only with AddStateXTT yields an empty digest. MarkEnding and MarkResume declare the endings before the layout is computed.",
+ "receiver": "oWf = new stzWorkflow(\"order\")\noWf.AddStep_(\"receive\")\noWf.AddStep_(\"check\")\noWf.AddStep_(\"done\")\noWf.ConnectSteps(\"receive\", \"check\")\noWf.ConnectSteps(\"check\", \"done\")\no1 = new stzBpmnDiagram(oWf)",
+ "example": [
+  "o1.MarkEnding(\"done\", :terminal, :success)",
+  "? o1.EntryStep()",
+  "#--> receive",
+  "? o1.IsEnding(\"done\")",
+  "#--> 1",
+  "? o1.EndingId(\"done\", 2)",
+  "#--> terminal_done__2",
+  "? o1.KindOf(\"check\")",
+  "#--> invoke"
+ ],
+ "see": [
+  "stzWorkflow",
+  "stzDiagram"
+ ]
+}

@@ -1,0 +1,18 @@
+{
+ "brief": "Finds items that occur together in baskets and states them as readable if-then rules with their support and confidence.",
+ "detail": "Transactions are lists of items. The analyser counts the frequent itemsets of one, two and three items, which are the classic basket sizes, and turns the pairs and triples into rules such as IF jam THEN bread (confidence 1). The count runs in the engine. Items are compared in lower case. A rule's support is the number of transactions that hold all its items and its confidence is that number over the transactions that hold the if part, so every rule can be read back as knowledge.",
+ "receiver": "o1 = new stzApriori([ [\"bread\", \"butter\"], [\"bread\", \"jam\"], [\"bread\", \"butter\", \"jam\"], [\"milk\", \"bread\"], [\"butter\"], [\"bread\"] ])",
+ "example": [
+  "? o1.NumberOfTransactions()",
+  "#--> 6",
+  "? @@( o1.FrequentItemsets(3) )",
+  "#--> [ [ [ \"bread\" ], 5 ], [ [ \"butter\" ], 3 ] ]",
+  "aRules = o1.Rules(2, 0.9)",
+  "? aRules[1][:if][1] + \" -> \" + aRules[1][:then]",
+  "#--> jam -> bread"
+ ],
+ "see": [
+  "stzKnowledgeGraph",
+  "stzNaiveBayes"
+ ]
+}

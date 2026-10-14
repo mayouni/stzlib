@@ -1,0 +1,28 @@
+{
+ "brief": "Holds a piece of 3D geometry in the engine, a primitive, an OBJ file or your own vertex layout, and reports its counts and format.",
+ "detail": "A mesh knows its own attribute layout and the pipeline that draws it is derived from that layout, so a new attribute needs no change in the renderer; Format is that layout made visible. A cube is 24 vertices and not 8, because a shared corner cannot carry three face normals. The mesh lives in the engine and is released with Free; after that its counts answer -1. Building a mesh draws nothing and opens no window.",
+ "receiver": "o1 = new stzMesh(:Cube)",
+ "example": [
+  "? o1.VertexCount()",
+  "#--> 24",
+  "? o1.TriangleCount()",
+  "#--> 12",
+  "? o1.Format()",
+  "#--> 3,3,2",
+  "? o1.Stride()",
+  "#--> 8",
+  "o2 = new stzMesh([ :Sphere, 1.0, 8, 4 ])",
+  "? o2.VertexCount()",
+  "#--> 45",
+  "? o2.TriangleCount()",
+  "#--> 64",
+  "o1.Free()",
+  "? o1.IsAlive()",
+  "#--> 0"
+ ],
+ "see": [
+  "stzScene",
+  "stzMaterialMaker",
+  "stzMaterialGraph"
+ ]
+}

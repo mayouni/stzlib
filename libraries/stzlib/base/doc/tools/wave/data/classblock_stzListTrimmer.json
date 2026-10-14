@@ -1,0 +1,18 @@
+{
+ "brief": "Trims a list: empty items at its ends, a given item at its ends, blank texts throughout, runs of blanks, or everything past a size.",
+ "detail": "Build one with new stzListTrimmer(aList) or over a stzList object; it keeps its own copy, so what you passed in is not changed, and Content gives the result. Each verb that changes the list has a passive twin that returns a trimmed copy instead (Trim and Trimmed, Compact and Compacted ...). Empty, for Trim, TrimLeft and TrimRight, means the number 0, an empty or blank text, an empty sublist or a false object, so a list of numbers loses its zeros at the ends; Compact, Squeeze and StripNulls look at texts and sublists only. The Q forms (TrimQ, CompactQ ...) return the trimmer to chain on.",
+ "receiver": "o1 = new stzListTrimmer([ 0, \"\", \"  \", \"a\", 0, \"b\", \"\", \"שלום\" ])",
+ "example": [
+  "? @@( o1.Compacted() )",
+  "#--> [ 0, \"a\", 0, \"b\", \"שלום\" ]",
+  "? @@( o1.Trimmed() )",
+  "#--> [ \"a\", 0, \"b\", \"\", \"שלום\" ]",
+  "? @@( o1.TrimmedToSize(2) )",
+  "#--> [ 0, \"\" ]"
+ ],
+ "see": [
+  "stzList",
+  "stzListLeadTrail",
+  "stzListRemover"
+ ]
+}

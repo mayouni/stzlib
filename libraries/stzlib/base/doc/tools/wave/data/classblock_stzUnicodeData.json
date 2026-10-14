@@ -1,0 +1,14 @@
+{
+ "brief": "Looks up characters by their Unicode name and names by their code point, through the engine's Unicode database.",
+ "detail": "A name is the full Unicode name, such as LATIN SMALL LETTER A, compared without regard to case. A code point is given as a decimal number or as hexadecimal text with or without 0x. The search methods take a part of a name and return the matches: names, characters or code points. The database is inside the engine and nothing is loaded from a file.",
+ "receiver": "o1 = new stzUnicodeData",
+ "example": [
+  "? o1.CharUnicodeByName(\"LATIN SMALL LETTER A\")",
+  "#--> 97",
+  "? o1.CharNameByHexCode(\"0x41\")",
+  "#--> LATIN CAPITAL LETTER A",
+  "? o1.UnicodesOfCharsContaining(\"BLACK HEART SUIT\")[1]",
+  "#--> 9829"
+ ],
+ "see": ["stzChar", "StzCharNameByUnicode", "StzUnicodeFindByName"]
+}

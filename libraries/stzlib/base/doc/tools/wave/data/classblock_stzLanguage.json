@@ -1,0 +1,22 @@
+{
+ "brief": "Holds one human language, with its names, its codes, its default country and the scripts it is the default for, from the locale data.",
+ "detail": "The identifier may be a language name (French), a short or long code (fr, fra), or the name of a country, which picks the first language of the data at home in that country, so it is a convenience and not a lookup of every language spoken there. The accessors read the locale tables: the English name in lower case, the native name in its own script, the number, the codes and the default country. The script accessors answer the scripts for which this language is the default language of the data, which is not the same as every script the language is written in. EngineField and EngineFieldByAbbr call functions that do not exist today and raise error R3.",
+ "receiver": "o1 = new stzLanguage(\"Hausa\")",
+ "example": [
+  "? o1.Name()",
+  "#--> hausa",
+  "? o1.ShortAbbreviation()",
+  "#--> ha",
+  "? o1.LongAbbreviation()",
+  "#--> hau",
+  "? o1.DefaultCountry()",
+  "#--> nigeria",
+  "? o1.DefaultScript()",
+  "#--> boko"
+ ],
+ "see": [
+  "stzScript",
+  "stzCurrency",
+  "stzLocale"
+ ]
+}

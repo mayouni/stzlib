@@ -1,0 +1,19 @@
+init | Builds one node of a parse tree with a label: a phrase label such as NP, VP, PP or S, or the part-of-speech tag on a leaf. | nothing; the node is built, empty and without children | pcLabel=the phrase label or, on a leaf, the part-of-speech tag, such as NN | SetWord, AddChild | | a number is accepted and turned into its text; by hand, a leaf is made with a tag and SetWord, a phrase with a label and AddChild
+SetWord | Sets the word of a leaf node and returns the node, so calls chain. | the same node | pcWord=the token the leaf stands for | Word, AddChild | | the parser itself builds trees from the bottom up with it
+AddChild | Appends a node under this one as its last child and returns this node, so calls chain. | the same node (the parent) | oNode=the stzParseTree to attach | SetWord, Children | | Ring copies the child on appending, so changes made to the child object afterwards do not reach the tree
+Label | Returns the label of the node: its phrase label, or the part-of-speech tag on a leaf. | a text | | Word | |
+Word | Returns the word held by a leaf node; a phrase node holds none. | a text; "" on a phrase node | | Label, Leaves | |
+IsLeaf | TRUE if the node has no child, which is how a word-bearing node ends the tree. | TRUE or FALSE | | NumberOfChildren | | a node just built with init is a leaf until a child is added
+Children | Returns the labels of the direct children, left to right. | a list of texts | | ChildrenQ, NumberOfChildren | | ChildrenQ answers the child nodes themselves, as objects
+NumberOfChildren | Returns how many direct children the node has. | a number | | Children, IsLeaf | |
+Leaves | Returns the words at the ends of the tree, left to right, which is the sentence the tree spells. | a list of texts | | Text, Word | |
+Text | Returns the words of the tree joined by single spaces. | a text | | Leaves | |
+Height | Returns the number of levels from this node down to its deepest leaf, a lone leaf counting 1. | a number | | NumberOfChildren | |
+Subtrees | Returns every node of the tree, this one included, whose label equals the given one. | a list of stzParseTree nodes; [ ] when none match | pcLabel=the phrase label to search for, in any case and with spaces around it ignored | Phrases | | the answer holds objects, not text; Phrases gives their words
+Phrases | Returns the words of every phrase of one kind, as texts, in tree order. | a list of texts; [ ] when the label is absent | pcLabel=the phrase label to collect, such as NP or VP, in any case | NounPhrases, VerbPhrases, PrepositionalPhrases | | a phrase that contains another of the same kind is listed beside it
+NounPhrases | Returns the words of every noun phrase (NP) of the tree. | a list of texts | | Phrases | |
+VerbPhrases | Returns the words of every verb phrase (VP) of the tree. | a list of texts | | Phrases | |
+PrepositionalPhrases | Returns the words of every prepositional phrase (PP) of the tree. | a list of texts | | Phrases | |
+ToBracket | Returns the tree in Penn Treebank bracket notation, with each leaf written word/TAG. | a text on one line | | ToTreeString | | a node with no child and no word gives "/NP": only a leaf with a word prints as a leaf should
+ToTreeString | Returns the tree as indented lines, one node per line, two spaces per level. | a text on several lines | | Show, ToBracket | |
+Show | Prints the indented tree on the console. | nothing | | ToTreeString | |

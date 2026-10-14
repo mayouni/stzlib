@@ -1,0 +1,16 @@
+{
+ "brief": "Declares a WebSocket client built on libcurl, which cannot open a connection today because libcurl is no longer loaded.",
+ "detail": "The rest of the network layer moved to the in-tree engine, but this class still calls curl functions (curl_easy_init, curl_ws_send, curl_ws_recv) that the library does not define. Connect therefore raises error R3, no connection is ever open, and every other call answers as an unconnected client: the send and receive calls set LastError to Not connected. The callback setters store names that are never called. Use stzTcpClient for a raw socket until the class is rewired to the engine.",
+ "receiver": "o1 = new stzWebSocket()",
+ "example": [
+  "? o1.IsOpen()",
+  "#--> 0",
+  "o1.SendText(\"hi\")",
+  "? o1.LastError()",
+  "#--> Not connected"
+ ],
+ "see": [
+  "stzTcpClient",
+  "stzNetwork"
+ ]
+}

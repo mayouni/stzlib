@@ -1,0 +1,13 @@
+init | Creates a web bundle with a name, which is also its page title until SetTitle changes it. | nothing; the object is built | pcName=the bundle's name | AddWasm, Build
+SetTitle | Sets the title of the generated HTML page. | nothing; use SetTitleQ to chain | pcTitle=the title text | Build | the title is placed in the page as written, without escaping
+SetOutDir | Chooses the folder the bundle is assembled in, in place of the default <name>_web in the current folder. | nothing; use SetOutDirQ to chain | pcDir=the folder to assemble in, created by Build if missing | BundleDir, Build | Build writes there: point it at a scratch folder
+AddWasm | Adds a wasm module to the bundle, by the path of a prebuilt file or by a stzBuilder that is built on the spot. | nothing; use AddWasmQ to chain | pcName=the module's name, which becomes <name>.wasm in the bundle; pWasm=the path of a prebuilt .wasm file, or a stzBuilder | Build, NumberOfParts | the first module added is the one the page runs; given a stzBuilder it runs that builder's compiler | run here with the path of a prebuilt stand-in file only
+BundleDir | Returns the folder the bundle is or will be assembled in. | a text | | SetOutDir, ShellPath
+Build | Copies the wasm modules into the bundle folder and writes the bridge stz.js, the page index.html and the manifest bundle.json. | the bundle itself, so calls chain | | Files, IsBuilt, BundleDir | writes files and replaces those of the same names; a wasm path that does not exist raises error R35; a bundle with no module is still written, with a page that loads nothing | the manifest lists the files except bundle.json itself
+Files | Returns the files the last Build wrote, relative to the bundle folder, in the order written. | a list of texts | | Build | empty before the first Build
+NumberOfParts | Returns how many wasm modules were added. | a number | | AddWasm
+IsBuilt | TRUE if Build has run on this bundle. | TRUE or FALSE | | Build, Files
+ShellPath | Returns the path of the bundle's page, index.html. | a text | | BundleDir, BridgePath
+BridgePath | Returns the path of the bridge file stz.js in the bundle. | a text | | ShellPath, ManifestPath
+ManifestPath | Returns the path of the manifest bundle.json in the bundle. | a text | | ShellPath, BridgePath
+Show | Prints the bundle's name, number of modules and folder, and, once built, its files. | nothing; it prints | | Files, Build

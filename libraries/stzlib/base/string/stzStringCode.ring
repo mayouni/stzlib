@@ -13,10 +13,41 @@
 #--------------------------------------------------------------#
 
 
+# Inspects a text holding Ring source: spots functions and classes, lists their names, counts lines of code, and can run it.
+#
+# Build one with new stzStringCode(cSource). The inspection works line by line on the text and never
+# changes it: FunctionNames, ClassNames, NumberOfFunctions, NumberOfClasses, ContainsFunctions,
+# ContainsClasses, LinesOfCode, IsComment and IsBlankLine. IsRingCode is a guess by keyword
+# substring and gives false positives on prose. Execute and ExecuteAndReturn run the text with eval:
+# only give them code you trust, and note that a variable assigned by Execute stays inside the call.
+#
+#   receiver   o1 = new stzStringCode("func Add(a, b)" + char(10) + " return a + b" + char(10) + "#
+#              note" + char(10) + "class Pt")
+#   example    ? @@( o1.FunctionNames() )
+#              #--> [ "Add" ]
+#              ? @@( o1.ClassNames() )
+#              #--> [ "Pt" ]
+#              ? o1.LinesOfCode()
+#              #--> 3
+#              ? o1.ContainsComments()
+#              #--> 1
+#              o2 = new stzStringCode("(2 + 3) * 4")
+#              ? o2.ExecuteAndReturn()
+#              #--> 20
+#   see        stzString, stzStringFinder
 class stzStringCode from stzObject
 
 	@oString
 
+	# Builds a code helper over a text or over a stzString object holding Ring source.
+	#
+	#   pStrOrStzStrObj   a text, or a stzString object, holding the code
+	#   returns           nothing; the object is built
+	#   note              the methods read the text and never change it, so a stzString passed in is
+	#                     safe
+	#   warning           any other kind of value raises "Can't create stzStringCode! Parameter must
+	#                     be a string or stzString object."
+	#   see               IsRingCode, FunctionNames
 	def init(pStrOrStzStrObj)
 		if isString(pStrOrStzStrObj)
 			@oString = new stzString(pStrOrStzStrObj)
@@ -26,12 +57,24 @@ class stzStringCode from stzObject
 			StzRaise("Can't create stzStringCode! Parameter must be a string or stzString object.")
 		ok
 
+	# Returns the text the helper holds.
+	#
+	#   returns    a text
+	#   see        NumberOfChars
 	def Content()
 		return @oString.Content()
 
+	# Returns how many characters the text holds, counting letters and not bytes.
+	#
+	#   returns    a number
+	#   see        Content
 	def NumberOfChars()
 		return @oString.NumberOfChars()
 
+	# TRUE if the text is empty.
+	#
+	#   returns    TRUE or FALSE
+	#   see        NumberOfChars
 	def IsEmpty()
 		return @oString.IsEmpty()
 
@@ -39,6 +82,14 @@ class stzStringCode from stzObject
 	 #     RING CODE DETECTION       #
 	#===============================#
 
+	# TRUE if the text contains a Ring keyword such as func, class, if, for, return or new, in any case.
+	#
+	#   returns    TRUE or FALSE
+	#   note       do not use it to tell prose from code
+	#   warning    A guess by substring, not a parse: ordinary words that contain a keyword answer
+	#              TRUE, such as "a gift" (if), "Brendan" (end) and "Seeing it" (see); "good
+	#              morning" and the Hebrew "שלום עולם" answer FALSE
+	#   see        IsRingFunction, IsRingClass
 	def IsRingCode()
 		_cContent_ = StzCaseFold(@oString.Content())
 		_acKeywords_ = [
@@ -57,10 +108,19 @@ class stzStringCode from stzObject
 		next
 		return 0
 
+	# TRUE if the text, ignoring leading spaces, begins with "func " in any case.
+	#
+	#   returns    TRUE or FALSE
+	#   note       "funcs are fun" is FALSE
+	#   see        IsRingClass, FunctionNames
 	def IsRingFunction()
 		_cTrimmed_ = trim(@oString.Content())
 		return StzLeft(StzCaseFold(_cTrimmed_), 5) = "func "
 
+	# TRUE if the text, ignoring leading spaces, begins with "class " in any case.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsRingFunction, ClassNames
 	def IsRingClass()
 		_cTrimmed_ = trim(@oString.Content())
 		return StzLeft(StzCaseFold(_cTrimmed_), 6) = "class "
@@ -69,9 +129,21 @@ class stzStringCode from stzObject
 	 #     CODE EXECUTION            #
 	#===============================#
 
+	# Runs the text as Ring code and returns nothing.
+	#
+	#   returns    nothing
+	#   note       the code runs inside the method, so a variable it assigns, such as x = 1 + 2, is
+	#              not visible to the caller afterwards; only run code you trust
+	#   see        ExecuteAndReturn
 	def Execute()
 		eval(@oString.Content())
 
+	# Evaluates the text as a Ring expression and returns its value.
+	#
+	#   returns    the value of the expression
+	#   note       "(2 + 3) * 4" answers 20; the text must be an expression, and only code you trust
+	#              should be run
+	#   see        Execute
 	def ExecuteAndReturn()
 		_cCode_ = "_result_ = " + @oString.Content()
 		eval(_cCode_)
@@ -81,14 +153,27 @@ class stzStringCode from stzObject
 	 #     CODE STRUCTURE            #
 	#===============================#
 
+	# TRUE if the text has a "func " anywhere, in any case.
+	#
+	#   returns    TRUE or FALSE
+	#   see        NumberOfFunctions, FunctionNames
 	def ContainsFunctions()
 		_oFinder_ = new stzStringFinder(StzCaseFold(@oString.Content()))
 		return _oFinder_.Contains("func ")
 
+	# TRUE if the text has a "class " anywhere, in any case.
+	#
+	#   returns    TRUE or FALSE
+	#   see        NumberOfClasses, ClassNames
 	def ContainsClasses()
 		_oFinder_ = new stzStringFinder(StzCaseFold(@oString.Content()))
 		return _oFinder_.Contains("class ")
 
+	# Returns how many lines of the text begin with "func ".
+	#
+	#   returns    a number
+	#   note       a line is counted after its leading spaces are removed
+	#   see        FunctionNames
 	def NumberOfFunctions()
 		_cContent_ = StzCaseFold(@oString.Content())
 		_acLines_ = split(_cContent_, nl)
@@ -104,6 +189,10 @@ class stzStringCode from stzObject
 
 		return _nCount_
 
+	# Returns how many lines of the text begin with "class ".
+	#
+	#   returns    a number
+	#   see        ClassNames
 	def NumberOfClasses()
 		_cContent_ = StzCaseFold(@oString.Content())
 		_acLines_ = split(_cContent_, nl)
@@ -119,6 +208,11 @@ class stzStringCode from stzObject
 
 		return _nCount_
 
+	# Returns the names of the functions declared in the text, in order, the first word after "func " up to a space or an opening bracket.
+	#
+	#   returns    a list of texts
+	#   note       keeps the case of the source: "func Add(a, b)" gives Add
+	#   see        NumberOfFunctions, ClassNames
 	def FunctionNames()
 		_cContent_ = @oString.Content()
 		_acLines_ = split(_cContent_, nl)
@@ -152,6 +246,11 @@ class stzStringCode from stzObject
 
 		return _acNames_
 
+	# Returns the names of the classes declared in the text, in order, the first word after "class ".
+	#
+	#   returns    a list of texts
+	#   note       "Class Foo from Bar" gives Foo
+	#   see        NumberOfClasses, FunctionNames
 	def ClassNames()
 		_cContent_ = @oString.Content()
 		_acLines_ = split(_cContent_, nl)
@@ -189,6 +288,11 @@ class stzStringCode from stzObject
 	 #     LINE ANALYSIS             #
 	#===============================#
 
+	# TRUE if the text, ignoring leading spaces, starts with # or //.
+	#
+	#   returns    TRUE or FALSE
+	#   note       meant for a single line; on a longer text it only looks at the start
+	#   see        ContainsComments, IsBlankLine
 	def IsComment()
 		_cTrimmed_ = trim(@oString.Content())
 		if StzLeft(_cTrimmed_, 1) = "#"
@@ -199,10 +303,19 @@ class stzStringCode from stzObject
 		ok
 		return 0
 
+	# TRUE if the text holds nothing but spaces.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsComment
 	def IsBlankLine()
 		_cTrimmed_ = trim(@oString.Content())
 		return StzLen(_cTrimmed_) = 0
 
+	# TRUE if the text has a # or a // anywhere, comment or not.
+	#
+	#   returns    TRUE or FALSE
+	#   note       a # inside a quoted text counts too
+	#   see        IsComment, LinesOfCode
 	def ContainsComments()
 		_oFinder_ = new stzStringFinder(@oString)
 		if _oFinder_.Contains("#")
@@ -213,6 +326,11 @@ class stzStringCode from stzObject
 		ok
 		return 0
 
+	# Returns how many lines are neither blank nor comments.
+	#
+	#   returns    a number
+	#   note       the lines are those of the text; a line with code and a trailing comment counts
+	#   see        ContainsComments
 	def LinesOfCode()
 		_cContent_ = @oString.Content()
 		_acLines_ = split(_cContent_, nl)

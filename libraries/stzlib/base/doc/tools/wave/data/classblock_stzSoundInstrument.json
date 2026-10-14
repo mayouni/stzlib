@@ -1,0 +1,31 @@
+{
+ "brief": "Renders one note of any of twenty instruments as a stzSound, in tune to the cent, from a note name, a frequency, a glide or a stroke.",
+ "detail": "A note is data: a stzSound rendered offline by the engine, so every verb of the sound plane applies to it, loudness, onsets, filters, a WAV. Nothing here plays. Strings, bows and winds tune themselves: each plays a probe, measures the pitch it made and corrects, and RawCents and TuningCents report what that took. FM and membrane instruments are in tune by construction. Each instrument has an honest fallback name decided before anyone listened. Strokes belong to membranes, hand drums and the drum kit, and a plucked or FM voice cannot glide. An unknown instrument does not raise: it is not usable and LastError lists the twenty. Rendered notes are checked by frame count, sample rate, peak and measured pitch and have not been heard by a person (UNPERCEIVED).",
+ "receiver": "o1 = StzSoundInstrumentQ(:Oud)\noNote = o1.ToSoundOfNote(\"D4\", 1.0)",
+ "example": [
+  "? o1.IsUsable()",
+  "#--> 1",
+  "? o1.HonestName()",
+  "#--> darkpluck",
+  "? o1.Engine()",
+  "#--> pluck",
+  "? @@( o1.Range() )",
+  "#--> [ 70, 700 ]",
+  "? oNote.SampleRate()",
+  "#--> 48000",
+  "? oNote.Frames()",
+  "#--> 60000",
+  "? abs(StzEngineSoundPitchOf(oNote.BufferId(), 12001, 4096, 50, 2000) - 293.66) < 1",
+  "#--> 1",
+  "oBad = o1.ToSoundOfStroke(\"tak\", 180, 0.5)",
+  "? o1.LastError()",
+  "#--> ToSoundOfStroke: oud is not struck -- it has no strokes",
+  "? StzSoundInstrumentQ(\"kazoo\").IsUsable()",
+  "#--> 0"
+ ],
+ "see": [
+  "stzSound",
+  "stzSoundScore",
+  "stzSoundLadder"
+ ]
+}

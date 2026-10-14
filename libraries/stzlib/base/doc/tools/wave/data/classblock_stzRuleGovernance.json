@@ -1,0 +1,22 @@
+{
+ "brief": "Judges a set of scoped rules two ways, against the cases they govern and against the questions a rule cannot ask of itself.",
+ "detail": "Running a rule set asks whether the claim holds where the rule looked, never whether the rule looked in the right place. CheckRules asks that over a corpus of cases: a scope that selects nothing (scope_empty), a scope that selects every subject everywhere (scope_vacuous), a counter no case contains (boundary_unwitnessed), a rule with no claim (claim_unstated), two rules reaching for one subject with no declared precedence (subject_contested) and a rule reading a quantity that a later rule writes (read_is_stale). CheckCases is the ordinary half, the rules over the cases; CheckAll does both. A case is any object the scopes understand, a rendered diagram, a code graph, an org chart. StzPlasticGovernance is the graph plane's spelling.",
+ "receiver": "o1 = new stzRuleGovernance(\"numbers\")\no2 = new stzScopedRule(\"all_small\")\no2.SetClaim(\"every number is below 10\")\no2.SetScope(func oL { return oL })\no2.SetClaimCheck(func oL, n { if n < 10  return [ 1, \"\" ]  ok  return [ 0, \"it is \" + n ] })\no1.AddRule(o2)\no1.AddCase(\"one\", [ 1, 2, 3, 12 ])\no1.AddCase(\"two\", [ 4, 6, 7 ])",
+ "example": [
+  "? @@( o1.ScopeTable() )",
+  "#--> [ [ \"all_small\", 7, 0, 2, 2 ] ]",
+  "? o1.CheckCases()[1][:where]",
+  "#--> one / 12",
+  "? o1.CheckRules()[1][:rule]",
+  "#--> scope_vacuous",
+  "? o1.IsSound()",
+  "#--> 1",
+  "? len(o1.CheckAll())",
+  "#--> 3"
+ ],
+ "see": [
+  "stzScopedRule",
+  "stzRuleReport",
+  "stzGraphRule"
+ ]
+}

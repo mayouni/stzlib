@@ -1,0 +1,26 @@
+{
+ "brief": "Writes a score as notation and as a MIDI file, and says what each format could not carry.",
+ "detail": "Notation is a rendering of the score and never its source: ABC 2.1 text, MusicXML and a Standard MIDI File, type 1, are written from the same stzSoundScore. Quarter tones are written in each format's own terms, ^/ and _/ in ABC and decimal alterations in MusicXML; a pitch further than 5 cents from the nearest quarter tone, and a duration rounded by more than a hundredth of a beat, are counted in Losses. MIDI has no quarter tones, so every pitched note gets a pitch bend on a channel of its own, and strokes go to the drum channel. Everything is text or bytes: no audio device is opened and nothing is played. The files have not been heard or read by a musician (UNPERCEIVED): they are checked by their bytes and text.",
+ "receiver": "oS = StzSoundScoreOfQ(\"C4 D4 E4 C4\")\noS.Tempo(90)\no1 = StzSoundNotationQ(oS)",
+ "example": [
+  "? left(o1.ToABC(\"Tiny study\"), 3)",
+  "#--> X:1",
+  "? StzFindFirst(\"Q:1/4=90\", o1.ToABC(\"Tiny study\")) > 0",
+  "#--> 1",
+  "? StzFindFirst(\"C4 D4 E4 C4\", o1.ToABC(\"Tiny study\")) > 0",
+  "#--> 1",
+  "? StzFindFirst(\"<step>E</step>\", o1.ToMusicXML(\"Tiny study\")) > 0",
+  "#--> 1",
+  "? left(o1.ToMidiBytes(), 4)",
+  "#--> MThd",
+  "? len(o1.ToMidiBytes())",
+  "#--> 569",
+  "? @@( o1.Losses() )",
+  "#--> [ ]"
+ ],
+ "see": [
+  "stzSoundScore",
+  "stzSoundNotationReader",
+  "stzMusic"
+ ]
+}

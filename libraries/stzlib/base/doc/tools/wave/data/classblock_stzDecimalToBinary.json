@@ -1,0 +1,17 @@
+{
+ "brief": "Converts a decimal number, given as text, into its binary form such as 0b1010.101.",
+ "detail": "It is the converter behind ToBinaryForm of stzNumber. Build one with new stzDecimalToBinary(\"10.625\") or StzDecimalToBinary(\"10.625\"); the number must be a text, and a number or a text that is not a decimal raises an error. The integer part is converted through the engine and the fractional part by repeated doubling, cut at 19 binary digits. A negative number is converted as its positive twin with a minus sign in front. StzBinaryNumber hands the result to a stzBinaryNumber.",
+ "receiver": "o1 = new stzDecimalToBinary(\"10.625\")",
+ "example": [
+  "? o1.ToBinaryForm()",
+  "#--> 0b1010.101",
+  "? o1.IntegerPartToBinaryForm()",
+  "#--> 1010",
+  "? o1.FractionalPartToBinaryForm()",
+  "#--> 101"
+ ],
+ "see": [
+  "stzNumber",
+  "stzBinaryNumber"
+ ]
+}

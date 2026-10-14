@@ -1,0 +1,26 @@
+{
+ "brief": "Binds {name} placeholders in a document's texts to values, so setting a value changes the screen without rebuilding it.",
+ "detail": "A placeholder is an ordinary string with braces in it, so the document format is unchanged. Set gives a name a value and re-renders only the elements that mention it; SetMany does several at once and updates each affected element once; Apply pushes everything. The document survives an update, so there is no re-parse, no new font registration and no rebuilt accessibility tree, and focus and hover stay where they were. Text changes still re-shape the whole document, style changes through SetStyle are surgical. The class substitutes text and sets style properties and computes no meanings. Layout needs the engine and a font, no window.",
+ "receiver": "oDoc = new stzUiDocument('DEFINE PANEL console ( SIZE [400, 200], DIRECTION column, PADDING 10, CHILDREN [title, readout] ) RATIONALE \"A console.\"' + char(10) + 'DEFINE TEXT title ( CONTENT \"NAV - {mode}\", SIZE 20 ) RATIONALE \"The mode.\"' + char(10) + 'DEFINE TEXT readout ( CONTENT \"BEARING {bearing} RANGE {range} km\", SIZE 16 ) RATIONALE \"The numbers.\"')\noDoc.UseFont(\"C:/Windows/Fonts/segoeui.ttf\")\noPanel = oDoc.ToPanel()\no1 = new stzUiBindings(oDoc, oPanel)",
+ "example": [
+  "? @@( o1.Names() )",
+  "#--> [ \"mode\", \"bearing\", \"range\" ]",
+  "o1.Set(:bearing, \"042.9\")",
+  "? o1.RenderOf(\"readout\")",
+  "#--> BEARING 042.9 RANGE  km",
+  "? @@( o1.Unset() )",
+  "#--> [ \"mode\", \"range\" ]",
+  "o1.SetMany([ :mode = \"TRACK\", :range = \"8.20\" ])",
+  "? o1.RenderOf(\"title\")",
+  "#--> NAV - TRACK",
+  "? o1.ValueOf(\"range\")",
+  "#--> 8.20",
+  "? o1.TimesApplied()",
+  "#--> 3"
+ ],
+ "see": [
+  "stzUiDocument",
+  "stzPanel",
+  "stzScenePanel"
+ ]
+}

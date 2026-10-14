@@ -1,0 +1,20 @@
+{
+ "brief": "Learns a decision tree over categorical features by ID3 and explains each answer as the path it followed.",
+ "detail": "The tree splits on the feature with the greatest information gain and ends in the majority label. It is the most explainable learner of the module: Why narrates the exact path of the last classification, and ToGraph returns the tree as a real stzGraph that the rest of the library can query. Feature values compare without regard to case. A value never seen during training falls to the majority label of the node it reached, and Why says so. The build runs in the engine; the choices are deterministic, with the first feature to reach the highest gain winning a tie. Numeric features are treated as categories, so each distinct number is its own value.",
+ "receiver": "o1 = new stzDecisionTree(new stzTrainingSet([ [[\"sunny\", \"high\"], \"no\"], [[\"sunny\", \"normal\"], \"yes\"], [[\"rainy\", \"high\"], \"no\"], [[\"overcast\", \"high\"], \"yes\"], [[\"rainy\", \"normal\"], \"yes\"] ]))",
+ "example": [
+  "o1.SetFeatureNames([ \"outlook\", \"humidity\" ])",
+  "o1.Train()",
+  "? o1.Classify([ \"sunny\", \"high\" ])",
+  "#--> no",
+  "? o1.Why()",
+  "#--> humidity='high' -> outlook='sunny' -> 'no'",
+  "? o1.Classify([ \"Rainy\", \"normal\" ])",
+  "#--> yes"
+ ],
+ "see": [
+  "stzTrainingSet",
+  "stzGraph",
+  "stzNaiveBayes"
+ ]
+}

@@ -1,0 +1,27 @@
+{
+ "brief": "Holds a network topology of typed devices, links and subnets, draws it top-down and checks its rules about addresses and wiring.",
+ "detail": "A device is a cloud, firewall, router, switch, accesspoint, server or host, drawn as the trade draws it; a link is an undirected line; a subnet is a cluster with an IPv4 range. Reading back answers who is wired to whom, how many hops apart two devices are and whether one reaches the other. Five rules judge the topology through GovernanceFindings: every device is linked, addresses are unique, an address lies in its subnet's range, switches form no loop, and the internet enters through a firewall. Addresses are checked and not drawn. VLANs, routes and link speeds are not here. ToCanvasXT draws the diagram.",
+ "receiver": "o1 = new stzNetworkDiagram(\"office\")\no1.AddDevice(\"net\", \"Internet\", :cloud)\no1.AddDeviceXT(\"fw\", \"Firewall\", :firewall, \"10.0.0.1\")\no1.AddDeviceXT(\"sw\", \"Switch\", :switch, \"10.0.1.2\")\no1.AddDeviceXT(\"pc\", \"Desk PC\", :host, \"10.0.1.10\")\no1.Link(\"net\", \"fw\")\no1.Link(\"fw\", \"sw\")\no1.Link(\"sw\", \"pc\")\no1.AddSubnet(\"lan\", \"LAN\", \"10.0.1.0/24\", [ \"sw\", \"pc\" ])",
+ "example": [
+  "? o1.HopsBetween(\"net\", \"pc\")",
+  "#--> 3",
+  "? @@( o1.NeighboursOf(\"sw\") )",
+  "#--> [ \"fw\", \"pc\" ]",
+  "? o1.SubnetOf(\"pc\")",
+  "#--> lan",
+  "? o1.CidrOf(\"lan\")",
+  "#--> 10.0.1.0/24",
+  "? @@( o1.GovernanceFindings() )",
+  "#--> [ ]",
+  "o1.AddDevice(\"lone\", \"Lonely\", :host)",
+  "? o1.IsReachable(\"net\", \"lone\")",
+  "#--> 0",
+  "? o1.GovernanceFindings()[1][:rule]",
+  "#--> every_device_is_linked"
+ ],
+ "see": [
+  "stzDiagram",
+  "stzNetworkRuleSet",
+  "stzErDiagram"
+ ]
+}

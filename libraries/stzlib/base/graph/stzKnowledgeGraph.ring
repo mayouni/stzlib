@@ -1355,16 +1355,54 @@ class stzKnowledgeGraph from stzGraph
 	        @aContradictions + paC
 	    ok
 
+# Reads the text or file of a knowledge document and builds the stzKnowledgeGraph it records.
+#
+# The document is a knowledge header with the quoted id of the graph, then sections: facts, one
+# subject | relation | object line each, ontology, provenance and contradictions. The parser keeps
+# no state, and it is what ImportKnow uses behind the scenes. A document with sections but no header
+# raises error R13, and a fact line that does not hold exactly three parts is skipped.
+#
+#   receiver   o1 = new stzKnowParser() cText = 'knowledge "pantry"' + char(10) + "facts" + char(10)
+#              + "rice | isa | grain" + char(10) + "tea | isa | leaf"
+#   example    oKg = o1.Parse(cText)
+#              ? oKg.Id()
+#              #--> pantry
+#              ? @@( oKg.Facts() )
+#              #--> [ [ "rice", "isa", "grain" ], [ "tea", "isa", "leaf" ] ]
+#   see        stzKnowledgeGraph
 class stzKnowParser from stzObject
+    # Builds a parser for knowledge files; it keeps no state between parses.
+    #
+    #   returns    nothing; the object is built
+    #   note       one parser can read any number of texts and files
+    #   see        Parse, ParseFile
     def init()
-        # stateless parser; shields stzObject's 1-arg init so
-        # `new stzKnowParser()` works (R1 fix, 2026-07-14 -- the
-        # ImportKnow path was dead with R19 before this)
-
+    # Reads a .zknw knowledge file from disk and builds the knowledge graph it describes.
+    #
+    #   pcFilename   the path of the file to read
+    #   returns      a stzKnowledgeGraph; an empty text for a file with no content
+    #   note         the file is read whole and handed to Parse; it does not check the extension
+    #   warning      a path that cannot be opened raises error R35 Can't create/open the file; a
+    #                file with no knowledge header raises error R13 Object is required, as Parse
+    #                does
+    #   see          Parse, ImportKnow
+    #@ aka  stateless parser; shields stzObject's 1-arg init so `new stzKnowParser()` works (R1 fix, 2026-07-14 -- the ImportKnow path was dead with R19 before this)
     def ParseFile(pcFilename)
         _cContent_ = read(pcFilename)
         return This.Parse(_cContent_)
     
+    # Reads the text of a knowledge file and builds the knowledge graph it describes.
+    #
+    #   pcContent   the text, a header line such as knowledge "name" followed by sections facts,
+    #               ontology, provenance and contradictions
+    #   returns     a stzKnowledgeGraph named by the quoted id in the header; an empty text when the
+    #               text has no content
+    #   note        blank lines and lines starting with # are ignored; the text of an empty or
+    #               comment-only file answers an empty text, not a graph
+    #   warning     text with facts but no knowledge header raises error R13 Object is required,
+    #               because the graph is only made when the header is met; a fact line with other
+    #               than three parts is skipped without a message
+    #   see         ParseFile, ExportToKnow
     def Parse(pcContent)
         _oKG_ = ""
         _acLines_ = split(pcContent, char(10))

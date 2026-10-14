@@ -5,6 +5,23 @@ func StzListInStringQ(pcString)
 func StringIsListInString(pcString)
 	return StzStringQ(pcString).IsListInString()
 
+# Holds a list written as text, such as '[ "a", 2 ]', evaluates it, and gives the real list back.
+#
+# Build one with new stzListInString(cText) or StzListInStringQ(cText); StringIsListInString(cText)
+# tells whether a text qualifies. It is a stzString, so the source text answers every string method,
+# and the evaluated list is available as List, Content, Value and ToStzList. The text is evaluated
+# as Ring code, which lets names stand for global variables. The analysis methods (Items, Values,
+# VarNames, Types, VariablesAndTheirTypes) are broken today and the four Contains... methods are
+# empty; see their warnings.
+#
+#   receiver   o1 = new stzListInString('[ "a", 2, "שלום", 5 ]')
+#   example    ? @@( o1.List() )
+#              #--> [ "a", 2, "שלום", 5 ]
+#              ? o1.ListInString()
+#              #--> [ "a", 2, "שלום", 5 ]
+#              ? @@( o1.ToStzList().Content() )
+#              #--> [ "a", 2, "שלום", 5 ]
+#   see        stzString, stzList
 class stzListInString from stzString
 	@cListInString
 	@aList
@@ -12,6 +29,16 @@ class stzListInString from stzString
 	@aVarNames
 	@aValues
 
+	# Builds the object from a text that spells a Ring list, such as '[ "a", 2, "שלום" ]', and evaluates it into a real list.
+	#
+	#   pcListInString   the text that spells the list, in square brackets
+	#   returns          nothing; the object is built
+	#   note             a stzListInString is a stzString too, so every string method works on the
+	#                    source text
+	#   warning          a text that is not a list raises "Syntax error! The list is not correct.";
+	#                    the text is evaluated as Ring code, so names in it are read as global
+	#                    variables
+	#   see              List, ListInString
 	def init(pcListInString)
 		if NOT StringIsListInString(pcListInString)
 			StzRaise("Syntax error! The list is not correct.")
@@ -22,9 +49,17 @@ class stzListInString from stzString
 		ok
 
 	
+	# Returns the source text that spells the list, exactly as it was given.
+	#
+	#   returns    a text
+	#   see        List
 	def ListInString()
 		return @cListInString
 
+	# Returns the list that the source text spells, as a real list.
+	#
+	#   returns    a list
+	#   see        ListInString, Content, ToStzList
 	def List()
 		return @aList
 
@@ -46,9 +81,17 @@ class stzListInString from stzString
 	def Content()
 		return This.List()
 
+		# Returns the list that the source text spells, the same answer as List and Content.
+		#
+		#   returns    a list
+		#   see        List
 		def Value()
 			return Content()
 
+	# Returns a new stzListInString built from the same source text.
+	#
+	#   returns    a new stzListInString
+	#   see        ToStzList
 	def Copy()
 		# init expects the ORIGINAL string-form of the list, not the
 		# parsed Ring list. Was passing This.Content() (= List(), the
@@ -57,9 +100,22 @@ class stzListInString from stzString
 		# preserved source string instead.
 		return new stzListInString( This.ListInString() )
 
+	# Returns the evaluated list wrapped in a stzList, ready for the list methods.
+	#
+	#   returns    a stzList
+	#   see        List
 	def ToStzList()
 		return new stzList( This.List() )
 
+	# Returns the source text cut at its commas into pieces of text, spaces dropped, brackets still attached to the ends.
+	#
+	#   returns    a list of texts
+	#   note       this is what makes ItemsXT, Values, VarNames, Types and VariablesAndTheirTypes
+	#              fail
+	#   warning    The brackets stay on the first and last pieces today, and a comma or space inside
+	#              a quoted text splits or shrinks it: '[1,2,3]' answers [ "[1", "2", "3]" ] and '[
+	#              "a b", "c,d" ]' answers [ '["ab"', '"c', 'd"]' ]
+	#   see        ItemsXT
 	def Items()
 		return StzStringQ(This.ListInString()).RemoveAllQ([ "[", "]" ]).RemoveSpacesQ().SplitQ(",").Content()
 		
@@ -110,6 +166,14 @@ class stzListInString from stzString
 
 		return _aResult_
 
+	# Returns the items of the source text that are written as values rather than as variable names.
+	#
+	#   returns    nothing today: it raises an error
+	#   note       the first step, ItemsXT, breaks on the bracketed first piece that Items gives
+	#   warning    Raises error R42 (Error in eval()) on a list of several items and R20 on a list
+	#              of one item or none, today instead of the list of values; it fails on every list
+	#              tried
+	#   see        VarNames, ItemsXT
 	def Values()
 		_aResult_ = []
 
@@ -124,6 +188,14 @@ class stzListInString from stzString
 
 		return _aResult_
 
+	# Returns the items of the source text that are variable names rather than quoted texts, numbers or :names.
+	#
+	#   returns    nothing today: it raises an error
+	#   note       Variables is the same method under another name
+	#   warning    Raises error R42 (Error in eval()) on a list of several items and R20 on a list
+	#              of one item or none, today instead of the list of names; it fails on every list
+	#              tried, because Items leaves a bracket on the first piece
+	#   see        Values, Types
 	def VarNames()
 
 		_aResult_ = []
@@ -158,6 +230,12 @@ class stzListInString from stzString
 			return This.VarNames()
 
 
+	# Returns the Ring type of each variable named in the source text, in order.
+	#
+	#   returns    nothing today: it raises an error
+	#   warning    Raises error R42 or R20 today instead of the list of types, through VarNames,
+	#              which fails on every list tried
+	#   see        VarNames, VariablesAndTheirTypes
 	def Types()
 		_acResult_ = []
 		_aThisVarNames1_ = This.VarNames()
@@ -171,6 +249,12 @@ class stzListInString from stzString
 
 		return _acResult_
 
+	# Returns each variable named in the source text paired with its Ring type.
+	#
+	#   returns    nothing today: it raises an error
+	#   warning    Raises error R42 or R20 today instead of a list of [ name, type ] pairs, through
+	#              VarNames, which fails on every list tried
+	#   see        VarNames, Types
 	def VariablesAndTheirTypes()
 		_aResult_ = []
 
@@ -186,12 +270,36 @@ class stzListInString from stzString
 		def VarNamesAndTheirTypes()
 			return This.VariablesAndTheirTypes()
 
+	# Does nothing yet: the body is empty and the answer is an empty text.
+	#
+	#   returns    an empty text, never TRUE or FALSE
+	#   warning    Not implemented: it answers "" whatever the list holds, so a test on it is always
+	#              false
+	#   see        ContainsVariables
 	def ContainsValues()
 
+	# Does nothing yet: the body is empty and the answer is an empty text.
+	#
+	#   returns    an empty text, never TRUE or FALSE
+	#   warning    Not implemented: it answers "" whatever the list holds, so a test on it is always
+	#              false
+	#   see        ContainsValues
 	def ContainsVariables()
 
+	# Does nothing yet: the body is empty and the answer is an empty text.
+	#
+	#   returns    an empty text, never TRUE or FALSE
+	#   warning    Not implemented: it answers "" whatever the list holds, so a test on it is always
+	#              false
+	#   see        ContainsValues
 	def ContainsOnlyValues()
 
+	# Does nothing yet: the body is empty and the answer is an empty text.
+	#
+	#   returns    an empty text, never TRUE or FALSE
+	#   warning    Not implemented: it answers "" whatever the list holds, so a test on it is always
+	#              false
+	#   see        ContainsVariables
 	def ContainsValuesAndVariables()
 
 		

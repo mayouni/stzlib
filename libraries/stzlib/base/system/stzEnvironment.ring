@@ -56,8 +56,35 @@ func UserName()
  #  STZENVIRONMENT   #
 #===================#
 
+# Reads and changes the environment of the running process: variables, working folder, host name, user name and CPU count.
+#
+# It holds no state; every call goes to the operating system through the engine. SetVar and UnsetVar
+# change the environment of this process only and of the processes it starts, never the machine's
+# saved settings. ChangeDirectory moves the whole process, and Ring's load resolves relative paths
+# against the working folder. A variable set to an empty text counts as not set for HasVar.
+# Variables can contain secrets, so print names, not values.
+#
+#   receiver   o1 = new stzEnvironment()
+#   example    ? o1.HasVar("STZ_DOC_INVENTED")
+#              #--> 0
+#              ? o1.SetVar("STZ_DOC_INVENTED", "hello")
+#              #--> 1
+#              ? o1.Var("STZ_DOC_INVENTED")
+#              #--> hello
+#              ? o1.UnsetVar("STZ_DOC_INVENTED")
+#              #--> 1
+#              ? o1.HasVar("STZ_DOC_INVENTED")
+#              #--> 0
+#              ? o1.CpuCount() > 0
+#              #--> 1
+#   see        stzProcess, stzCurrentSystem
 class stzEnvironment from stzObject
 
+	# Opens a view on the environment of the running process: its variables, working folder, host name, user and CPU count.
+	#
+	#   returns    nothing; the object is built
+	#   warning    the object holds no state, so every method reads the process itself
+	#   see        Var, WorkingDirectory
 	def init()
 		# Stateless: every method reads or writes the live OS environment
 		# through the engine. There is nothing to hold.
@@ -66,7 +93,14 @@ class stzEnvironment from stzObject
 	 #  VARIABLES (sensing)  #
 	#-----------------------#
 
-	# The value of an environment variable, or "" if it is not set.
+	# Returns the value of an environment variable; an empty text when it is not set.
+	#
+	#   pcName     the variable's name
+	#   returns    a text
+	#   warning    a name that is not a text raises an error; on Windows the name is matched without
+	#              regard to case
+	#   see        HasVar, SetVar
+	#@ aka  The value of an environment variable, or "" if it is not set.
 	def Var(pcName)
 		if NOT isString(pcName)
 			StzRaise("Incorrect param type! pcName must be a string.")
@@ -79,16 +113,25 @@ class stzEnvironment from stzObject
 		def ValueOf(pcName)
 			return This.Var(pcName)
 
-	# TRUE if the variable is set (even to an empty string is reported as
-	# unset by the OS get, which returns "" for both -- so Has means
-	# "get returns a non-empty value").
+	# TRUE if the variable is set to a non-empty value.
+	#
+	#   pcName     the variable's name
+	#   returns    TRUE or FALSE
+	#   warning    a variable set to an empty text counts as not set
+	#   see        Var, SetVar
+	#@ aka  TRUE if the variable is set (even to an empty string is reported as unset by the OS get, which returns "" for both -- so Has means "get returns a non-empty value").
 	def HasVar(pcName)
 		return StzEngineSystemEnvGet(pcName) != ""
 
 		def Has(pcName)
 			return This.HasVar(pcName)
 
-	# The whole environment as a list of [ name, value ] pairs.
+	# Returns all the variables of the process as a list of [ name, value ] pairs.
+	#
+	#   returns    a list of pairs
+	#   warning    the values can hold secrets: do not print the whole list
+	#   see        VariableNames, NumberOfVariables
+	#@ aka  The whole environment as a list of [ name, value ] pairs.
 	def Variables()
 		_aRaw_ = StzEngineSystemEnvList()
 		_aResult_ = []
@@ -108,7 +151,11 @@ class stzEnvironment from stzObject
 		def All()
 			return This.Variables()
 
-	# Just the variable NAMES.
+	# Returns just the names of all the variables of the process.
+	#
+	#   returns    a list of texts
+	#   see        Variables, NumberOfVariables
+	#@ aka  Just the variable NAMES.
 	def VariableNames()
 		_aPairs_ = This.Variables()
 		_aNames_ = []
@@ -121,6 +168,10 @@ class stzEnvironment from stzObject
 		def Names()
 			return This.VariableNames()
 
+	# Returns how many variables the process has.
+	#
+	#   returns    a number
+	#   see        Variables
 	def NumberOfVariables()
 		return len(StzEngineSystemEnvList())
 
@@ -131,9 +182,15 @@ class stzEnvironment from stzObject
 	 #  VARIABLES (effectful) #
 	#------------------------#
 
-	# EFFECTFUL. Sets a variable for THIS process and every child spawned
-	# afterwards. Returns TRUE on success. The value is visible to a
-	# subsequent Var() -- get and set share the OS-authoritative store.
+	# Sets a variable for this process and the processes it starts; the change ends with the process.
+	#
+	#   pcName     the variable's name
+	#   pcValue    its new value
+	#   returns    TRUE if set
+	#   warning    both must be texts, else an error is raised; the real environment of the machine
+	#              is not changed
+	#   see        UnsetVar, Var
+	#@ aka  EFFECTFUL. Sets a variable for THIS process and every child spawned afterwards. Returns TRUE on success. The value is visible to a subsequent Var() -- get and set share the OS-authoritative store.
 	def SetVar(pcName, pcValue)
 		if NOT (isString(pcName) and isString(pcValue))
 			StzRaise("Incorrect param type! pcName and pcValue must be strings.")
@@ -147,7 +204,13 @@ class stzEnvironment from stzObject
 			This.SetVar(pcName, pcValue)
 			return This
 
-	# EFFECTFUL. Removes a variable.
+	# Removes a variable from this process; one that was never set also answers TRUE.
+	#
+	#   pcName     the variable's name
+	#   returns    TRUE
+	#   warning    a name that is not a text raises an error
+	#   see        SetVar, HasVar
+	#@ aka  EFFECTFUL. Removes a variable.
 	def UnsetVar(pcName)
 		if NOT isString(pcName)
 			StzRaise("Incorrect param type! pcName must be a string.")
@@ -164,7 +227,12 @@ class stzEnvironment from stzObject
 	 #  WORKING DIRECTORY      #
 	#-------------------------#
 
-	# The REAL process working directory (not a virtual cursor). Sensing.
+	# Returns the folder the process is working in.
+	#
+	#   returns    a text
+	#   warning    relative paths, and files written without a path, land here
+	#   see        ChangeDirectory
+	#@ aka  The REAL process working directory (not a virtual cursor). Sensing.
 	def WorkingDirectory()
 		return StzEngineSystemCwdGet()
 
@@ -174,8 +242,14 @@ class stzEnvironment from stzObject
 		def CurrentDirectory()
 			return This.WorkingDirectory()
 
-	# EFFECTFUL. Changes the real process working directory. Returns TRUE on
-	# success (FALSE if the path does not exist or is not a directory).
+	# Moves the process to another folder.
+	#
+	#   pcPath     the folder to move to
+	#   returns    TRUE if it moved, FALSE if the folder does not exist
+	#   warning    a failed move leaves the folder as it was; the move affects the whole process,
+	#              including how load resolves relative paths
+	#   see        WorkingDirectory
+	#@ aka  EFFECTFUL. Changes the real process working directory. Returns TRUE on success (FALSE if the path does not exist or is not a directory).
 	def ChangeDirectory(pcPath)
 		if NOT isString(pcPath)
 			StzRaise("Incorrect param type! pcPath must be a string.")
@@ -196,6 +270,10 @@ class stzEnvironment from stzObject
 	 #  HOST / USER IDENTITY   #
 	#-------------------------#
 
+	# Returns the name of the machine.
+	#
+	#   returns    a text
+	#   see        UserName
 	def HostName()
 		return StzEngineSystemHostname()
 
@@ -205,6 +283,10 @@ class stzEnvironment from stzObject
 		def MachineName()
 			return This.HostName()
 
+	# Returns the name of the user running the process.
+	#
+	#   returns    a text
+	#   see        HostName
 	def UserName()
 		return StzEngineSystemUsername()
 
@@ -215,6 +297,10 @@ class stzEnvironment from stzObject
 	 #  MACHINE                #
 	#-------------------------#
 
+	# Returns how many logical processors the machine has.
+	#
+	#   returns    a number
+	#   see        HostName
 	def CpuCount()
 		return StzEngineSystemCpuCount()
 

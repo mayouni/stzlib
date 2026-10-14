@@ -1,0 +1,19 @@
+{
+ "brief": "Holds a list that stays sorted: it sorts at creation and every item added goes to its place.",
+ "detail": "Build one with new stzSortedList(aList) or StzSortedListQ(aList); it is a stzList, so every list method also works on the sorted content (Content, NumberOfItems, Contains ...). Numbers sort before texts; texts sort by character code, so \"Apple\" comes before \"apple\", which comes before \"banana\". Add, Append and the + operator insert one item at its place. The Q forms AddQ and AppendQ do not insert today.",
+ "receiver": "o1 = new stzSortedList([ 5, 2, 9, 1 ])",
+ "example": [
+  "? @@( o1.Content() )",
+  "#--> [ 1, 2, 5, 9 ]",
+  "o1.Add(4)",
+  "? @@( o1.Content() )",
+  "#--> [ 1, 2, 4, 5, 9 ]",
+  "o2 = new stzSortedList([ \"pear\", \"Apple\", \"שלום\" ])",
+  "? @@( o2.Content() )",
+  "#--> [ \"Apple\", \"pear\", \"שלום\" ]"
+ ],
+ "see": [
+  "stzList",
+  "stzSet"
+ ]
+}

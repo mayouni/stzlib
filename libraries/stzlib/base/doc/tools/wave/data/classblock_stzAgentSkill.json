@@ -1,0 +1,17 @@
+{
+ "brief": "Holds one capability of an agent: a precondition, an action and a check that the action worked.",
+ "detail": "A skill runs only when its precondition holds, and its result counts only when the check confirms it, so no effect goes unchecked. Algorithmic (pi) and prompted (llm) skills share one interface. Apply never throws for the three ordinary outcomes: it answers ran and verified as 0 or 1 with a sentence saying why, so a caller can log all three the same way. The check runs after the action and cannot undo it.",
+ "receiver": "o1 = new stzAgentSkill(\"restock\")\no2 = new stzAgentMemory(\"shop\")",
+ "example": [
+  "o2.Learn(\"stock\", \"level\", \"low\")",
+  "o1.SetWhen(func oM { return oM.Fact(\"stock\", \"level\", \"low\") })",
+  "o1.SetDoes(func oM { oM.Learn(\"stock\", \"level\", \"ordered\") return 1 })",
+  "o1.SetVerifiedBy(func oM { return oM.Fact(\"stock\", \"level\", \"ordered\") })",
+  "? o1.Apply(o2)[:why]",
+  "#--> skill 'restock' ran and VERIFIED"
+ ],
+ "see": [
+  "stzAgentMemory",
+  "stzPIAgent"
+ ]
+}

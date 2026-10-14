@@ -1,0 +1,21 @@
+{
+ "brief": "Classifies a text from the words of labelled texts, with Laplace smoothing and a score for every label.",
+ "detail": "Your labelled texts train it: no download and no model file. The model is multinomial naive Bayes over word counts, kept in the engine, which tokenizes by Unicode word segmentation and folds case, so text in any script is counted the same way. Classify returns the label with the highest log-score, and Why lists the score of every label so that the decision can be read. A text made of words never seen is decided by the label proportions alone.",
+ "receiver": "o1 = new stzNaiveBayes()",
+ "example": [
+  "o1.Train(\"great food and lovely staff\", \"positive\")",
+  "o1.Train(\"cold soup, rude waiter\", \"negative\")",
+  "o1.Train(\"lovely evening and great dishes\", \"positive\")",
+  "? o1.Classify(\"lovely evening, great dishes\")",
+  "#--> positive",
+  "? o1.Classify(\"rude cold waiter\")",
+  "#--> negative",
+  "? o1.NumberOfDocuments()",
+  "#--> 3"
+ ],
+ "see": [
+  "stzTrainingSet",
+  "stzLogisticRegression",
+  "stzText"
+ ]
+}

@@ -1,0 +1,9 @@
+init | Builds the base state of a network object: no request yet, no error and a 30-second timeout. | nothing; the object is built | | SetTimeout, ConnectionInfo
+IsConnected | TRUE if a request has been recorded; the engine HTTP client keeps no connection open between requests. | TRUE or FALSE | | ConnectionInfo, IsSecure
+IsSecure | TRUE if the last recorded request used https. | TRUE or FALSE; FALSE before any request | | IsConnected, ConnectionInfo
+ConnectionInfo | Returns the last recorded request: its address, its status code and the timeout in force. | a hash list [ :url, :response_code, :timeout_seconds ]; an empty list before any request | | IsConnected, LastError
+LastError | Returns the text of the last error, empty when there is none. | a text | | HasError, ClearErrors
+HasError | TRUE if an error text is held. | TRUE or FALSE | | LastError, ClearErrors
+ClearErrors | Forgets the last error text and code. | the object itself, so calls chain | | LastError
+SetTimeout | Sets the timeout, in seconds, that ConnectionInfo reports and requests use. | the object itself, so calls chain | nSeconds=the timeout in seconds | Timeout | | the value is not checked, so a negative or non-number value is kept as given
+Timeout | Returns the timeout in seconds; 30 by default. | a number | | SetTimeout

@@ -1,0 +1,20 @@
+{
+ "brief": "Reads and changes the environment of the running process: variables, working folder, host name, user name and CPU count.",
+ "detail": "It holds no state; every call goes to the operating system through the engine. SetVar and UnsetVar change the environment of this process only and of the processes it starts, never the machine's saved settings. ChangeDirectory moves the whole process, and Ring's load resolves relative paths against the working folder. A variable set to an empty text counts as not set for HasVar. Variables can contain secrets, so print names, not values.",
+ "receiver": "o1 = new stzEnvironment()",
+ "example": [
+  "? o1.HasVar(\"STZ_DOC_INVENTED\")",
+  "#--> 0",
+  "? o1.SetVar(\"STZ_DOC_INVENTED\", \"hello\")",
+  "#--> 1",
+  "? o1.Var(\"STZ_DOC_INVENTED\")",
+  "#--> hello",
+  "? o1.UnsetVar(\"STZ_DOC_INVENTED\")",
+  "#--> 1",
+  "? o1.HasVar(\"STZ_DOC_INVENTED\")",
+  "#--> 0",
+  "? o1.CpuCount() > 0",
+  "#--> 1"
+ ],
+ "see": ["stzProcess", "stzCurrentSystem"]
+}

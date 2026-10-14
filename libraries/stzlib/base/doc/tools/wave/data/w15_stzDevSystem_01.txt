@@ -1,0 +1,1 @@
+init | Describes the machine this program is being developed on, filled live as stzCurrentSystem is but with the role development. | nothing; the object is built | | Role, CapabilityList | the same live reading as stzCurrentSystem, with the role development in place of runtime

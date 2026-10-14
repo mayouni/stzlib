@@ -1,0 +1,1 @@
+init | Builds a guardrail rule of that name in the agentic domain; it is a graph rule, so the clauses of stzGraphRule apply. | nothing; the object is built | pcName=the rule's name | stzAgentRuleSet, stzGraphRule

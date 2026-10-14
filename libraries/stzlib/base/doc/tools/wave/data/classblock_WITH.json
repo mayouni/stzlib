@@ -1,0 +1,14 @@
+{
+ "brief": "Names the intermediate table of an SQL statement so that later code can read it, as a SQL WITH clause does.",
+ "detail": "WITH(name).As(...) stores the current intermediate result under the name, as the rows and as the table. The SQL emulation is a set of functions on global state: CREATE_TABLE, INSERT_INTO, VALUES, SELECT, FROM_, WHERE_ and ORDER_BY. Only the registration is shown here, from an intermediate table set directly. See the warning of As for what is broken today.",
+ "receiver": "o1 = new WITH(\"big\")",
+ "example": [
+  "_oIntermediateTable = new stzTable([ :ID = [1, 2], :NAME = [ \"a\", \"b\" ] ])",
+  "o1.As([ 1 ])",
+  "? v(\"big\")[2][2]",
+  "#--> b"
+ ],
+ "see": [
+  "stzTable"
+ ]
+}

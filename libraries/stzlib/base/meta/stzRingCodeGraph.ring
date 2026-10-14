@@ -26,12 +26,42 @@ func StzRingCodeGraphFromSource(pcSource)
 	return oG
 
 
+# Holds Ring source as a code graph: classes with their parent, methods and a name-based graph of the calls between them.
+#
+# Its parser reads the Ring source itself: class headers with a single parent, def lines, and the
+# calls in method bodies, found as an identifier before an open parenthesis once string literals and
+# comments are stripped. A call is an edge only when some class defines a method of that name, so
+# the graph is name-based and honest about it. DeadCode is scoped to private helpers that nothing
+# references, and CyclicCalls to two methods of one class that call each other, the signals a name-
+# based graph can assert without guessing. The query surface of the family (classes, owners,
+# ancestry, impact, cascade) is inherited from stzCodeGraph. Build one from a folder with new
+# stzRingCodeGraph(path) or from text with StzRingCodeGraphFromSource.
+#
+#   receiver   o1 = StzRingCodeGraphFromSource("class Animal" + nl + "def Speak()" + nl + "return
+#              This._Sound()" + nl + "def _Sound()" + nl + "return 1" + nl + "def _Unused()" + nl +
+#              "return 2" + nl + "class Dog from Animal" + nl + "def Fetch()" + nl + "return
+#              This.Speak()" + nl)
+#   example    ? @@( o1.AncestryOf("Dog") )
+#              #--> [ "Dog", "Animal" ]
+#              ? @@( o1.CallEdges() )
+#              #--> [ [ "Animal", "Speak", "_Sound" ], [ "Dog", "Fetch", "Speak" ] ]
+#              ? @@( o1.CalleesOf("Dog", "Fetch") )
+#              #--> [ "Speak" ]
+#              ? o1.DeadCode()[1][:method]
+#              #--> _Unused
+#   see        stzCodeGraph, stzPyCodeGraph, stzCodeRuleSet
 class stzRingCodeGraph from stzCodeGraph
 
 	@aRawCalls = []      # [ callerClass, callerMethod, candidateName, line ] pre-resolve
 	@acMethodNames = []  # unique lowercase method names (resolution set)
 	@acCalleeNames = []  # unique lowercase names that ARE called (for DeadCode)
 
+	# Builds a Ring code graph, scanning every .ring file of a folder, or an empty graph when the path is empty.
+	#
+	#   pcRootPath   the folder to scan, below which every sub-folder is scanned too
+	#   returns      nothing; the object is built
+	#   warning      a path that is not a folder raises the file-system error of dir
+	#   see          ScanSource, StzRingCodeGraphFromSource
 	def init(pcRootPath)
 		super.init(pcRootPath)
 		@aRawCalls = []
@@ -43,9 +73,17 @@ class stzRingCodeGraph from stzCodeGraph
 			This._ResolveCalls()
 		ok
 
+	# Returns the name of the language this graph models.
+	#
+	#   returns    the text ring
+	#   see        FileExtension
 	def Language()
 		return "ring"
 
+	# Returns the file extension of the source files it scans, with the dot.
+	#
+	#   returns    the text .ring
+	#   see        Language
 	def FileExtension()
 		return ".ring"
 
@@ -70,9 +108,16 @@ class stzRingCodeGraph from stzCodeGraph
 	def _ScanFile(pcFile)
 		This.ScanSource(StzReplace(read(pcFile), char(13), ""), pcFile)
 
-	# Parse one Ring source string: class headers (with single-inheritance
-	# 'from X', stored in the shared MULTIPLE-inheritance shape as [X] or []),
-	# 'def' method registry, and body-line call candidates.
+	# Scans one Ring source text: class headers with their parent, methods, and the calls found in method bodies.
+	#
+	#   pcContent   the Ring source text
+	#   pcFile      the file name recorded for what it finds
+	#   returns     nothing
+	#   note        call edges appear only after BuildGraph and the private resolve step that
+	#               StzRingCodeGraphFromSource and the folder constructor run, so a graph filled by
+	#               hand through ScanSource shows none
+	#   see         init, CallEdges
+	#@ aka  Parse one Ring source string: class headers (with single-inheritance 'from X', stored in the shared MULTIPLE-inheritance shape as [X] or []), 'def' method registry, and body-line call candidates.
 	def ScanSource(pcContent, pcFile)
 		_acLines_ = StzSplit("" + pcContent, char(10))
 		_nLen_ = len(_acLines_)
@@ -226,25 +271,39 @@ class stzRingCodeGraph from stzCodeGraph
 		next
 		@bHasCalls = 1
 
-	#-- Ring-specific call queries (a class-qualified 3-tuple model) -------
-
+	# Returns the resolved calls between defined methods, as the class, the calling method and the name called.
+	#
+	#   returns    a list of [ class, method, callee ] triples, without repeats
+	#   note       a call to something no class defines, such as a builtin, is not an edge
+	#   see        RawCallEntries, CallersOf, CalleesOf
+	#@ aka  -- Ring-specific call queries (a class-qualified 3-tuple model) -------
 	def CallEdges()
 		return @aCalls
 
+	# Returns how many call edges were resolved.
+	#
+	#   returns    a number
+	#   see        CallEdges
 	def NumberOfCallEdges()
 		return len(@aCalls)
 
-	# The UNRESOLVED call targets, [ class, method, callee, line ] -- every
-	# identifier called in a method body, builtins included. CallEdges() keeps
-	# only calls to DEFINED methods (so it drops builtins like substr); a rule
-	# like engine-first needs to SEE the builtin calls, so it reads these. The
-	# line is the CALL SITE, and a `def substr(` is a definition (not harvested
-	# here), so this distinguishes a call from a definition -- which a text scan
-	# of "substr(" cannot.
+	# Returns every call found in a method body, defined or not, builtins included, with the line of the call.
+	#
+	#   returns    a list of [ class, method, callee, line ] rows
+	#   note       strings and comments are stripped first, so a name in a message is not a call; a
+	#              definition is not a call
+	#   see        CallEdges
+	#@ aka  The UNRESOLVED call targets, [ class, method, callee, line ] -- every identifier called in a method body, builtins included. CallEdges() keeps only calls to DEFINED methods (so it drops builtins like substr); a rule like engine-first needs to SEE the builtin calls, so it reads these. The line is the CALL SITE, and a `def substr(` is a definition (not harvested here), so this distinguishes a call f
 	def RawCallEntries()
 		return @aRawCalls
 
-	# Every (class, method) whose body CALLS pcMethod (by name).
+	# Returns the methods whose body calls the named method, by name.
+	#
+	#   pcMethod   the name of the method that is called
+	#   returns    a list of hash lists [ :class, :method ], without repeats
+	#   note       the name is matched without regard to case
+	#   see        CalleesOf, CallEdges
+	#@ aka  Every (class, method) whose body CALLS pcMethod (by name).
 	def CallersOf(pcMethod)
 		_cM_ = StzLower("" + pcMethod)
 		_aOut_ = []
@@ -261,7 +320,15 @@ class stzRingCodeGraph from stzCodeGraph
 		next
 		return _aOut_
 
-	# The method NAMES called from pcClass.pcMethod's body.
+	# Returns the names of the defined methods that one method calls.
+	#
+	#   pcClass    the class of the calling method
+	#   pcMethod   the calling method
+	#   returns    a list of text
+	#   note       the class and method are matched without regard to case; an unknown pair answers
+	#              an empty list
+	#   see        CallersOf, CallEdges
+	#@ aka  The method NAMES called from pcClass.pcMethod's body.
 	def CalleesOf(pcClass, pcMethod)
 		_cC_ = StzLower("" + pcClass)
 		_cM_ = StzLower("" + pcMethod)
@@ -276,9 +343,13 @@ class stzRingCodeGraph from stzCodeGraph
 		next
 		return _aOut_
 
-	# DEAD CODE (honest scope): PRIVATE helpers (name starts "_") whose name
-	# is never referenced by any call in the scanned tree. Public methods are
-	# excluded -- they may be entry points called from outside this tree.
+	# Returns the private helpers, whose names start with an underscore, that no call in the scanned tree reaches.
+	#
+	#   returns    a list of hash lists [ :class, :method, :file, :line ]
+	#   note       public methods are never reported, since they may be entry points called from
+	#              outside the tree; calls through a variable are invisible to a name-based graph
+	#   see        CallersOf, CyclicCalls
+	#@ aka  DEAD CODE (honest scope): PRIVATE helpers (name starts "_") whose name is never referenced by any call in the scanned tree. Public methods are excluded -- they may be entry points called from outside this tree.
 	def DeadCode()
 		_aOut_ = []
 		_n_ = len(@aMethods)
@@ -293,9 +364,12 @@ class stzRingCodeGraph from stzCodeGraph
 		next
 		return _aOut_
 
-	# CYCLIC CALLS (honest scope): intra-class MUTUAL RECURSION -- method A
-	# and B in the same class each call the other (a 2-cycle). Self-recursion
-	# (A calls A) is legitimate and not reported. Name-based within one class.
+	# Returns pairs of methods of one class that call each other, a mutual recursion.
+	#
+	#   returns    a list of hash lists [ :class, :cycle = [ a, b ] ]
+	#   note       a method calling itself is legitimate and not reported
+	#   see        CallersOf, DeadCode
+	#@ aka  CYCLIC CALLS (honest scope): intra-class MUTUAL RECURSION -- method A and B in the same class each call the other (a 2-cycle). Self-recursion (A calls A) is legitimate and not reported. Name-based within one class.
 	def CyclicCalls()
 		_aOut_ = []
 		_aSeen_ = []
@@ -339,6 +413,11 @@ class stzRingCodeGraph from stzCodeGraph
 		next
 		return 0
 
+	# Returns the size of the graph: root, language, classes, methods, inheritance edges and call edges.
+	#
+	#   returns    a hash list; its keys come back in lower case, such as inheritsedges and
+	#              calledges
+	#   see        NumberOfCallEdges
 	def Stats()
 		return [
 			:root = @cRoot,

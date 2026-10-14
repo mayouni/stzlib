@@ -1,0 +1,19 @@
+{
+ "brief": "Holds an in-memory reference vault resolver, the contract between a vault-sourced secret and an external secret manager.",
+ "detail": "A vault resolver is any object with Resolve(locator), which returns the value or raises, and ideally Has(locator). A secret whose source is a vault is fetched through one, passed at reveal time to RevealVia, so nothing holds a live backend handle. This class satisfies the contract for development and tests: you seed it with values. In production replace it with an object that calls your real vault, such as stzVaultHttpResolver; the secret, the store and the actor gate do not change. Locators are written path#field.",
+ "receiver": "o1 = new stzVaultResolver(\"dev-vault\")",
+ "example": [
+  "o1.Register(\"secret/data/prod/db#password\", \"invented-db-pass\")",
+  "? o1.Has(\"secret/data/prod/db#password\")",
+  "#--> 1",
+  "? o1.Resolve(\"secret/data/prod/db#password\")",
+  "#--> invented-db-pass",
+  "? o1.NumberOfEntries()",
+  "#--> 1"
+ ],
+ "see": [
+  "stzVaultHttpResolver",
+  "stzSecret",
+  "stzSecretStore"
+ ]
+}

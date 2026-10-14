@@ -412,6 +412,37 @@ func _StzAddNetworkRules(poSet)
 #  THE TOPOLOGY                                                        #
 #---------------------------------------------------------------------#
 
+# Holds a network topology of typed devices, links and subnets, draws it top-down and checks its rules about addresses and wiring.
+#
+# A device is a cloud, firewall, router, switch, accesspoint, server or host, drawn as the trade
+# draws it; a link is an undirected line; a subnet is a cluster with an IPv4 range. Reading back
+# answers who is wired to whom, how many hops apart two devices are and whether one reaches the
+# other. Five rules judge the topology through GovernanceFindings: every device is linked, addresses
+# are unique, an address lies in its subnet's range, switches form no loop, and the internet enters
+# through a firewall. Addresses are checked and not drawn. VLANs, routes and link speeds are not
+# here. ToCanvasXT draws the diagram.
+#
+#   receiver   o1 = new stzNetworkDiagram("office") o1.AddDevice("net", "Internet", :cloud)
+#              o1.AddDeviceXT("fw", "Firewall", :firewall, "10.0.0.1") o1.AddDeviceXT("sw",
+#              "Switch", :switch, "10.0.1.2") o1.AddDeviceXT("pc", "Desk PC", :host, "10.0.1.10")
+#              o1.Link("net", "fw") o1.Link("fw", "sw") o1.Link("sw", "pc") o1.AddSubnet("lan",
+#              "LAN", "10.0.1.0/24", [ "sw", "pc" ])
+#   example    ? o1.HopsBetween("net", "pc")
+#              #--> 3
+#              ? @@( o1.NeighboursOf("sw") )
+#              #--> [ "fw", "pc" ]
+#              ? o1.SubnetOf("pc")
+#              #--> lan
+#              ? o1.CidrOf("lan")
+#              #--> 10.0.1.0/24
+#              ? @@( o1.GovernanceFindings() )
+#              #--> [ ]
+#              o1.AddDevice("lone", "Lonely", :host)
+#              ? o1.IsReachable("net", "lone")
+#              #--> 0
+#              ? o1.GovernanceFindings()[1][:rule]
+#              #--> every_device_is_linked
+#   see        stzDiagram, stzNetworkRuleSet, stzErDiagram
 class stzNetworkDiagram from stzDiagram
 
 	# [ [ :id, :name, :kind, :address ] ]
@@ -422,12 +453,30 @@ class stzNetworkDiagram from stzDiagram
 	@aSubnets = []
 	@aNotes = []
 
+	# Builds an empty network topology that draws top-down with the network notation, under a title.
+	#
+	#   pcTitle    the title of the diagram
+	#   returns    nothing; the object is built
+	#   note       links are drawn undirected and with orthogonal lines
+	#   see        AddDevice, Link
 	def init(pcTitle)
 		super.init(pcTitle)
 		This.SetNotation(StzNetworkNotation())
 
-	#-- the devices ----------------------------------------------------------
-
+	# Declares a device of one of the seven kinds, drawn as the trade draws it with its name beneath.
+	#
+	#   pcId       the device's identifier, which must be new in the diagram
+	#   pcName     the name drawn with the device
+	#   pcKind     cloud, firewall, router, switch, accesspoint, server or host, in any letter case,
+	#              as a text or a symbol
+	#   returns    the diagram itself, so calls chain
+	#   note       AddDeviceXT takes a fourth argument, an IPv4 address; a bad address such as
+	#              999.1.1.1 raises error ... is not an IPv4 address
+	#   warning    an identifier already in the diagram raises error stzNetworkDiagram: ... is
+	#              already on this network; a kind such as toaster raises error stzNetworkDiagram:
+	#              ... is not a device kind
+	#   see        AddNote, Link, KindOf
+	#@ aka  -- the devices ----------------------------------------------------------
 	def AddDevice(pcId, pcName, pcKind)
 		This._NwAddDevice(pcId, pcName, pcKind, "")
 		return This
@@ -440,6 +489,13 @@ class stzNetworkDiagram from stzDiagram
 		This._NwAddDevice(pcId, pcName, pcKind, _cA_)
 		return This
 
+	# Adds a free note to the drawing; it is not a device and is judged by no rule.
+	#
+	#   pcId       the note's identifier
+	#   pcText     the text of the note
+	#   returns    the diagram itself, so calls chain
+	#   note       a note is not in Devices() and needs no link
+	#   see        AddDevice
 	def AddNote(pcId, pcText)
 		@aNotes + ("" + pcId)
 		This.AddNodeXTT(pcId, pcText, [ :type = "note" ])
@@ -462,8 +518,19 @@ class stzNetworkDiagram from stzDiagram
 		@aDevices + [ :id = "" + pcId, :name = "" + pcName, :kind = _k_, :address = "" + pcAddress ]
 		This.AddNodeXTT(pcId, pcName, [ :type = _k_ ])
 
-	#-- the subnets ------------------------------------------------------------
-
+	# Declares a subnet with an address range and draws it as a cluster around its member devices.
+	#
+	#   pcId         the subnet's identifier
+	#   pcName       the name drawn at the top of the cluster
+	#   pcCidr       the range as an address and a prefix, such as 10.0.1.0/24
+	#   pacMembers   the identifiers of devices already added, a list of text
+	#   returns      the diagram itself, so calls chain
+	#   note         the rule address_in_its_subnet holds each member's address to the range
+	#   warning      a range that is not an address and a prefix, such as 10.0.0.0/33, raises error
+	#                stzNetworkDiagram: ... is not a subnet; a member that is not a device raises
+	#                error stzNetworkDiagram: ... is not a device of this network
+	#   see          DevicesIn, SubnetOf, CidrOf
+	#@ aka  -- the subnets ------------------------------------------------------------
 	def AddSubnet(pcId, pcName, pcCidr, pacMembers)
 		if NOT StzIsCidr(pcCidr)
 			stzraise("stzNetworkDiagram: '" + pcCidr + "' is not a subnet -- an address and a prefix, as 10.0.1.0/24.")
@@ -479,8 +546,20 @@ class stzNetworkDiagram from stzDiagram
 		This.AddClusterXTT(pcId, "" + pcName + "  " + ring_trim("" + pcCidr), _aM_, "#546E7A")
 		return This
 
-	#-- the links --------------------------------------------------------------
-
+	# Wires two devices together with an undirected link.
+	#
+	#   pcA        the identifier of one device
+	#   pcB        the identifier of the other
+	#   returns    the diagram itself, so calls chain
+	#   note       LinkXT takes a third argument, a label drawn on the link, such as trunk; linking
+	#              the pair in the other order is accepted and draws a second line
+	#   warning    an identifier that is not a device, or a device linked to itself, raises error
+	#              stzNetworkDiagram: ... is not a device of this network, or ... cannot be linked
+	#              to itself; linking the same pair again in the same order raises a stzGraph error
+	#              saying parallel edges are refused, but only after the link was already added to
+	#              Links() and NeighboursOf, so those two then list a link the drawing does not hold
+	#   see        NeighboursOf, IsReachable, Devices
+	#@ aka  -- the links --------------------------------------------------------------
 	def Link(pcA, pcB)
 		return This.LinkXT(pcA, pcB, "")
 
@@ -498,27 +577,60 @@ class stzNetworkDiagram from stzDiagram
 		This.AddEdgeXTT(pcA, pcB, "" + pcLabel, [ :type = "link" ])
 		return This
 
+	# Returns the devices declared so far, each with its id, name, kind and address.
+	#
+	#   returns    a list of hash lists with the keys id, name, kind and address; the address is an
+	#              empty text when none was given
+	#   note       the kind is stored in lower case; notes are not in it
+	#   see        Links, Subnets, KindOf
 	def Devices()
 		return @aDevices
 
+	# Returns the links declared so far, each with its two ends and its label.
+	#
+	#   returns    a list of hash lists with the keys a, b and label; the label is an empty text
+	#              when none was given
+	#   note       after a refused repeated Link it lists the repeat
+	#   see        Devices, NeighboursOf
 	def Links()
 		return @aLinks
 
+	# Returns the subnets declared so far, each with its id, name, range and members.
+	#
+	#   returns    a list of hash lists with the keys id, name, cidr and members
+	#   see        Devices, DevicesIn
 	def Subnets()
 		return @aSubnets
 
-	#-- read back --------------------------------------------------------------
-
+	# Returns the kind of a device.
+	#
+	#   pcId       the device's identifier
+	#   returns    the kind as text in lower case, such as switch; an empty text for an identifier
+	#              that is not a device
+	#   see        Devices, AddressOf
+	#@ aka  -- read back --------------------------------------------------------------
 	def KindOf(pcId)
 		_i_ = This._NwDeviceIndex(pcId)
 		if _i_ = 0  return ""  ok
 		return @aDevices[_i_][:kind]
 
+	# Returns the IPv4 address a device was given.
+	#
+	#   pcId       the device's identifier
+	#   returns    the address as text; an empty text when none was given or the identifier is not a
+	#              device
+	#   see        KindOf, SubnetOf
 	def AddressOf(pcId)
 		_i_ = This._NwDeviceIndex(pcId)
 		if _i_ = 0  return ""  ok
 		return @aDevices[_i_][:address]
 
+	# Returns the identifier of the subnet a device is a member of.
+	#
+	#   pcId       the device's identifier
+	#   returns    the subnet's identifier as text; an empty text when it is in none
+	#   note       the first subnet that lists the device is answered
+	#   see        CidrOf, DevicesIn
 	def SubnetOf(pcId)
 		_c_ = StzLower("" + pcId)
 		for _i_ = 1 to len(@aSubnets)
@@ -528,6 +640,12 @@ class stzNetworkDiagram from stzDiagram
 		next
 		return ""
 
+	# Returns the address range of a subnet.
+	#
+	#   pcSubnet   the subnet's identifier
+	#   returns    the range as text, such as 10.0.1.0/24; an empty text for an identifier that is
+	#              not a subnet
+	#   see        SubnetOf, DevicesIn
 	def CidrOf(pcSubnet)
 		_c_ = StzLower("" + pcSubnet)
 		for _i_ = 1 to len(@aSubnets)
@@ -535,6 +653,12 @@ class stzNetworkDiagram from stzDiagram
 		next
 		return ""
 
+	# Returns the identifiers of the devices that belong to a subnet.
+	#
+	#   pcSubnet   the subnet's identifier
+	#   returns    a list of text, in the order they were given; [ ] for an identifier that is not a
+	#              subnet
+	#   see        SubnetOf, CidrOf
 	def DevicesIn(pcSubnet)
 		_c_ = StzLower("" + pcSubnet)
 		for _i_ = 1 to len(@aSubnets)
@@ -542,6 +666,13 @@ class stzNetworkDiagram from stzDiagram
 		next
 		return []
 
+	# Returns the devices wired directly to a device, whichever end of the link it is.
+	#
+	#   pcId       the device's identifier
+	#   returns    a list of identifiers, in the order the links were declared; [ ] when none or
+	#              when the identifier is not a device
+	#   note       after a refused repeated Link it lists the same neighbour twice
+	#   see        HopsBetween, Link
 	def NeighboursOf(pcId)
 		_r_ = []
 		_c_ = StzLower("" + pcId)
@@ -551,8 +682,16 @@ class stzNetworkDiagram from stzDiagram
 		next
 		return _r_
 
-	# the fewest links from one device to another, or -1 where no path
-	# joins them
+	# Returns the fewest links on a path from one device to another.
+	#
+	#   pcA        the identifier of the device the path starts from
+	#   pcB        the identifier of the device it ends at
+	#   returns    a number; 0 for a device and itself, and -1 when no path joins them
+	#   note       the search follows links in both directions
+	#   warning    an identifier that is not a device raises error stzNetworkDiagram: both ends must
+	#              be devices of this network
+	#   see        IsReachable, NeighboursOf
+	#@ aka  the fewest links from one device to another, or -1 where no path joins them
 	def HopsBetween(pcA, pcB)
 		if This._NwDeviceIndex(pcA) = 0 or This._NwDeviceIndex(pcB) = 0
 			stzraise("stzNetworkDiagram: both ends must be devices of this network.")
@@ -582,11 +721,23 @@ class stzNetworkDiagram from stzDiagram
 		end
 		return -1
 
+	# TRUE if some path of links joins one device to another.
+	#
+	#   pcA        the identifier of the device the path starts from
+	#   pcB        the identifier of the device it ends at
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   warning    an identifier that is not a device raises the same error as HopsBetween
+	#   see        HopsBetween
 	def IsReachable(pcA, pcB)
 		return This.HopsBetween(pcA, pcB) >= 0
 
-	#-- the projection the rules read --------------------------------------
-
+	# Returns the network projected onto a plain stzGraph that the rules read, with kind, address and subnet as node properties.
+	#
+	#   returns    a stzGraph with one node per device and note, and one edge per pair of linked
+	#              devices
+	#   note       a pair linked in both orders makes two edges
+	#   see        GovernanceFindings, Devices
+	#@ aka  -- the projection the rules read --------------------------------------
 	def AsRuleGraph()
 		_oG_ = new stzGraph("network-rules")
 		for _i_ = 1 to len(@aDevices)
@@ -611,13 +762,24 @@ class stzNetworkDiagram from stzDiagram
 		next
 		return _oG_
 
+	# Returns every finding of the five network rules, such as a lone device or a duplicated address.
+	#
+	#   returns    a list of findings, each a hash list with rule, subject, where, severity and
+	#              message; [ ] when there is none
+	#   note       CheckRules gives the same list; the rules are every_device_is_linked,
+	#              addresses_are_unique, address_in_its_subnet, switches_form_no_loop and
+	#              the_edge_is_guarded
+	#   see        GovernanceIsSound, AsRuleGraph
 	def GovernanceFindings()
 		return StzNetworkRuleSetQ().Check(This.AsRuleGraph())
 
-	# SOUND IS NO ERROR, not no finding: this network's rules set their
-	# severity deliberately, and a warning says the picture may stand.
-	# StzFindingsAreSound is the house's one answer; GovernanceFindings()
-	# is still every finding, warnings included, for a caller who wants them.
+	# TRUE if the network rules report no finding of severity error.
+	#
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   note       warnings such as an internet link that goes around the firewall do not make it
+	#              false; RulesAreSound is the same call
+	#   see        GovernanceFindings
+	#@ aka  SOUND IS NO ERROR, not no finding: this network's rules set their severity deliberately, and a warning says the picture may stand. StzFindingsAreSound is the house's one answer; GovernanceFindings() is still every finding, warnings included, for a caller who wants them.
 	def GovernanceIsSound()
 		return StzFindingsAreSound(This.GovernanceFindings())
 
@@ -643,12 +805,52 @@ class stzNetworkDiagram from stzDiagram
 		next
 		return ""
 
+# Holds one rule about a network topology, a stzGraphRule that belongs to the network domain.
+#
+# The five built-in network rules are stzNetworkRule objects made by stzNetworkRuleSet:
+# every_device_is_linked, addresses_are_unique, address_in_its_subnet, switches_form_no_loop and
+# the_edge_is_guarded. Build one yourself with a name, set its severity, message and checker like
+# any stzGraphRule, and add it to a stzNetworkRuleSet.
+#
+#   receiver   o1 = new stzNetworkRule("every_switch_named")
+#   example    ? o1.Name()
+#              #--> every_switch_named
+#              ? o1.Domain()
+#              #--> network
+#   see        stzGraphRule, stzNetworkRuleSet, stzNetworkDiagram
 class stzNetworkRule from stzGraphRule
+	# Builds a network rule with the given name, in the network domain.
+	#
+	#   pcName     the name of the rule, such as addresses_are_unique
+	#   returns    nothing; the object is built
+	#   note       a stzGraphRule whose domain is set to network; the five built-in network rules
+	#              are made this way
 	def init(pcName)
 		super.init(pcName)
 		This.SetDomainQ("network")
 
+# Holds the five rules a network topology must keep and judges a graph made from a network diagram.
+#
+# The set carries every_device_is_linked, addresses_are_unique and address_in_its_subnet as errors,
+# and switches_form_no_loop and the_edge_is_guarded as warnings, in the network-governance set of
+# the network domain. stzNetworkDiagram builds one for GovernanceFindings and hands it the graph
+# from AsRuleGraph; use the set directly to add a rule of your own before checking.
+#
+#   receiver   o1 = new stzNetworkRuleSet()
+#   example    ? o1.Name()
+#              #--> network-governance
+#              ? o1.Domain()
+#              #--> network
+#              ? len(o1.Rules())
+#              #--> 5
+#   see        stzNetworkDiagram, stzNetworkRule, stzGraphRuleSet
 class stzNetworkRuleSet from stzGraphRuleSet
+	# Builds the set of the five network rules, in the network-governance set.
+	#
+	#   returns    nothing; the object is built
+	#   note       the rules are every_device_is_linked, addresses_are_unique,
+	#              address_in_its_subnet, switches_form_no_loop and the_edge_is_guarded;
+	#              Check(oGraph) judges a graph made by AsRuleGraph
 	def init()
 		super.init("network-governance")
 		This.SetDomainQ("network")

@@ -1,0 +1,16 @@
+{
+ "brief": "Answers a whole-object condition after a type guard such as IsAPairQ has passed.",
+ "detail": "A passing type guard returns this guard instead of a true value, so that Where can test a condition against the whole object once: in o.IsAPairQ().Where('isString(@pair[1]) and isNumber(@pair[2])') the keyword @pair stands for the pair itself, not for each of its items. A failing guard returns a stzFalseObject whose Where answers 0. Content and Value give back the guarded object's content, and Object the object.",
+ "receiver": "oL = new stzList([ :x, 5 ])\no1 = oL.IsAPairQ()",
+ "example": [
+  "? o1.Where('isString(@pair[1]) and isNumber(@pair[2])')",
+  "#--> 1",
+  "? o1.Where('@pair[2] > 10')",
+  "#--> 0"
+ ],
+ "see": [
+  "stzFalseObject",
+  "stzTrueObject",
+  "stzList"
+ ]
+}

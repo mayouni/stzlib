@@ -1,0 +1,24 @@
+{
+ "brief": "Loads the declared world of a project, its symbols and the references between them, and says whether every reference resolves.",
+ "detail": "A world artifact is one derived JSON file with two flat tables: the symbols each court declares, with kind, name and span, and the references between them. The class reads it and never writes it, collects every refusal as a diagnostic instead of raising on the first, and hands back an ordinary stzGraph with one node per symbol and one edge per referenced pair. Kinds are a closed set, ids are the lower-case kind:name, and two symbols that differ only by case are refused. IsLawful is the gate. The class is not loaded by stzlib.ring: load graph/stzWorldGraph.ring first.",
+ "receiver": "load \"../../graph/stzWorldGraph.ring\"\ncJ = '{\"world\":\"bank\",\"contract\":\"1.0\",\"symbols\":[{\"kind\":\"entity\",\"name\":\"member\",\"span\":{\"file\":\"a.zql\",\"line\":3}},{\"kind\":\"entity\",\"name\":\"deposit\",\"span\":{\"file\":\"a.zql\",\"line\":9}},{\"kind\":\"flow\",\"name\":\"accept_deposit\",\"span\":{\"file\":\"f.zql\",\"line\":1}}],\"refs\":[{\"from\":\"flow:accept_deposit\",\"to\":\"entity:deposit\",\"kind\":\"routes_to\",\"span\":{\"file\":\"f.zql\",\"line\":2}},{\"from\":\"flow:accept_deposit\",\"to\":\"entity:deposit\",\"kind\":\"calls\",\"span\":{\"file\":\"f.zql\",\"line\":5}}]}'\no1 = new stzWorldGraph(cJ)",
+ "example": [
+  "? o1.World()",
+  "#--> bank",
+  "? o1.SymbolCount()",
+  "#--> 3",
+  "? @@( o1.NamesOfKind(:entity) )",
+  "#--> [ \"member\", \"deposit\" ]",
+  "? len(o1.ReferencesTo(\"entity:deposit\"))",
+  "#--> 2",
+  "? len(o1.Graph().Edges())",
+  "#--> 1",
+  "? o1.IsLawful()",
+  "#--> 1"
+ ],
+ "see": [
+  "stzGraph",
+  "stzGraphGoal",
+  "stzApp"
+ ]
+}

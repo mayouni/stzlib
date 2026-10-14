@@ -297,16 +297,53 @@ func _StzRolesConflict(paRoles)
 	return _bApprove_ and _bExecute_
 
 
+# Holds one rule about an organisation chart, a stzGraphRule that belongs to the orgchart domain.
+#
+# The four universal rules of stzOrgRuleSet are stzOrgRule objects: no-self-report, no-cyclic-
+# reporting, no-orphan-position and span-of-control. Build one yourself with a name, set its
+# severity, message and checker like any stzGraphRule, and add it to a stzOrgRuleSet or to a
+# compliance base.
+#
+#   receiver   o1 = new stzOrgRule("every_head_named")
+#   example    ? o1.Name()
+#              #--> every_head_named
+#              ? o1.Domain()
+#              #--> orgchart
+#   see        stzGraphRule, stzOrgRuleSet, stzOrgChart
 class stzOrgRule from stzGraphRule
+	# Builds an organisation rule with the given name, in the orgchart domain.
+	#
+	#   pcName     the name of the rule, such as no-self-report
+	#   returns    nothing; the object is built
+	#   note       a stzGraphRule whose domain is set to orgchart; the four universal org rules are
+	#              made this way
 	def init(pcName)
 		super.init(pcName)
 		This.SetDomainQ("orgchart")
 
 
-# The universal org-integrity set, standalone (stzOrgChart.GovernanceFindings
-# uses it). The compliance bases in stzOrgChart.ring carry the same universal
-# tier via _StzAddUniversalOrgRules.
+# Holds the four universal rules an organisation chart must keep, as the set an org chart judges itself with.
+#
+# The set carries no-self-report and no-cyclic-reporting as errors, and no-orphan-position and span-
+# of-control as warnings, in the org-governance set of the orgchart domain. The compliance bases in
+# stzOrgChart carry the same universal tier. Use the set directly to add a rule of your own before
+# checking a graph.
+#
+#   receiver   o1 = new stzOrgRuleSet()
+#   example    ? o1.Name()
+#              #--> org-governance
+#              ? o1.Domain()
+#              #--> orgchart
+#              ? len(o1.Rules())
+#              #--> 4
+#   see        stzOrgChart, stzOrgRule, stzGraphRuleSet
 class stzOrgRuleSet from stzGraphRuleSet
+	# Builds the set of the four universal organisation rules, in the org-governance set.
+	#
+	#   returns    nothing; the object is built
+	#   note       the rules are no-self-report and no-cyclic-reporting as errors, and no-orphan-
+	#              position and span-of-control as warnings; it is the set stzOrgChart judges its
+	#              own graph with
 	def init()
 		super.init("org-governance")
 		This.SetDomainQ("orgchart")

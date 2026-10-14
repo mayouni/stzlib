@@ -1,0 +1,12 @@
+{
+ "brief": "A system profile of the machine this program is being developed on, read live, with the role development.",
+ "detail": "It reads the same facts as stzCurrentSystem (operating system, architecture, memory, CPU count, default capabilities) and differs only in the role it carries, which lets a plan compare the development machine with the machine that runs the program. Only reads are made.",
+ "receiver": "o1 = new stzDevSystem()",
+ "example": [
+  "? o1.Role()",
+  "#--> development",
+  "? o1.Name()",
+  "#--> this-machine"
+ ],
+ "see": ["stzCurrentSystem", "stzSystemProfile"]
+}

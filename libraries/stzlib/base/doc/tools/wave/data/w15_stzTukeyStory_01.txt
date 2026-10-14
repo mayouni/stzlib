@@ -1,0 +1,11 @@
+init | Builds the story of a polished median-polish fit and the rule report about it; nothing is computed. | nothing; the object is built | poFit=the stzTukeyFit, already polished; poReport=the stzRuleReport built from it, as StzTukeyReportQ returns | Text, IsHonest | raises when the first argument is not a stzTukeyFit, when the fit has not been polished, and when the second is not a stzRuleReport
+Fit | Returns the fit the story is told about. | the stzTukeyFit | | Report, Paragraphs
+Report | Returns the rule report whose findings the story repeats. | the stzRuleReport | | Fit, Paragraphs
+Paragraphs | Returns the story as a list of paragraphs: the fit, the effects, the findings when there are any, and the verdict. | a list of text, three or four items | | Text, Transcript
+Text | Returns the whole story as one text, one paragraph per line. | a text | | Paragraphs, Transcript, IsHonest
+Transcript | Returns the story told on a stzTranscript: each paragraph a system line and the verdict a verdict line of certainty 1. | a stzTranscript | | Text, stzTranscript
+SourceNumerals | Returns every number that the fit and the report carry, written the way the prose writes them. | a list of text | | Numerals, Unsourced
+Numerals | Returns the numbers that appear in the prose, in order, as text without signs. | a list of text | | SourceNumerals, Unsourced
+Unsourced | Returns the numbers of the prose that no source carries, an empty list when the story is honest. | a list of text; [ ] when every number is sourced | | IsHonest, Numerals
+IsHonest | TRUE if every number in the story is one that the fit or a finding carries, which proves the story did no arithmetic of its own. | 1 or 0, numbers | | Unsourced, Why
+Why | Returns one sentence that counts the paragraphs and numbers and says whether each number was read from a source. | a text such as a Tukey story of 4 paragraph(s) and 27 numeral(s), every one read from the fit or a finding | | IsHonest, Unsourced

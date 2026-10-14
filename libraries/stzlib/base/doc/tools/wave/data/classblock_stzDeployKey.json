@@ -1,0 +1,17 @@
+{
+ "brief": "Holds a deploy or SSH private key as a secret that the deployment backend reads only through the governed reveal.",
+ "detail": "A stzSecret of kind deploykey. KeyMaterial reveals the key to an effectful actor and refuses an LLM actor. A real backend writes the material to a private file readable only by its owner. Use invented values in code and tests.",
+ "receiver": "o1 = new stzDeployKey(\"ci-deploy\")\no1.FromLiteral(\"invented-private-key-material\")",
+ "example": [
+  "? o1.Kind()",
+  "#--> deploykey",
+  "? o1.Descriptor()",
+  "#--> <secret 'ci-deploy' (deploykey) from literal>",
+  "? len(o1.KeyMaterial(HumanActor(\"alice\")))",
+  "#--> 29"
+ ],
+ "see": [
+  "stzSecret",
+  "stzSecretStore"
+ ]
+}

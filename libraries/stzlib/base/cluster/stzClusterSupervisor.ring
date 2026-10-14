@@ -28,6 +28,22 @@
 func StzClusterSupervisorQ(poCluster)
 	return new stzClusterSupervisor(poCluster)
 
+# Keeps a cluster of worker processes healthy and sized to its load: restarts dead workers, scales up under high load, drains under low.
+#
+# Set a Policy (a minimum and a maximum per tag), the water marks, and report the demand with
+# ReportLoad or FeedLoadFrom. Decide is a pure function from fleet metrics to a list of actions and
+# touches nothing; Supervise applies those actions to the live cluster and Cycle is Supervise as a
+# tickable job for an agent host. Dead workers are restarted before any scaling; scaling stops at
+# the policy bounds. Only Decide is safe to call on its own; Supervise and Cycle start and stop
+# processes.
+#
+#   receiver   o1 = new stzClusterSupervisor("") o1.Policy("nlp", 1, 4) o1.SetWaterMarks(0.25, 0.75)
+#              o1.ReportLoad("nlp", 0.9)
+#   example    ? @@( o1.Decide([ [ :tag = "nlp", :ready = 2, :dead = 1 ] ]) )
+#              #--> [ [ "restart", "nlp" ], [ "scaleup", "nlp" ] ]
+#              ? o1.LoadOf("nlp")
+#              #--> 0.90
+#   see        stzClusterTelemetry, stzNodeSupervisor, stzAppCluster
 class stzClusterSupervisor from stzObject
 
 	@cName = "cluster-supervisor"
@@ -38,22 +54,47 @@ class stzClusterSupervisor from stzObject
 	@nHigh = 0.75
 	@aLastActions = []     # actions taken on the last Supervise()
 
+	# Builds a supervisor for a cluster of worker processes; it reads the cluster's health and scales it, and does nothing until it is asked.
+	#
+	#   poCluster   the cluster to supervise, an object with HealthCheck, FleetMetrics, RestartDead,
+	#               ScaleUp and ScaleDown, such as a stzAppCluster
+	#   returns     nothing; the object is built
+	#   see         Policy, Supervise
 	def init(poCluster)
 		@oCluster = poCluster
 
+	# Returns the supervisor's name, 'cluster-supervisor' unless SetName changed it.
+	#
+	#   returns    a text
+	#   see        SetName, Cycle
 	def Name_()
 		return @cName
 
+	# Sets the name by which an agent host knows the supervisor.
+	#
+	#   pcName     the new name, as text
+	#   returns    the supervisor itself, so calls chain
+	#   see        Name_
 	def SetName(pcName)
 		@cName = "" + pcName
 		return This
 
+	# Returns the cluster the supervisor was given.
+	#
+	#   returns    the cluster object
+	#   see        init
 	def ClusterQ()
 		return @oCluster
 
-	#-- policy -------------------------------------------------------------
-
-	# Bound a profile's fleet size: never below nMin, never above nMax.
+	# Sets how many workers a tag may have, at least nMin and at most nMax; the tag is matched without regard to case.
+	#
+	#   pcTag      the facet or profile tag the policy covers
+	#   nMin       the fewest workers to keep, raised to 1 if smaller
+	#   nMax       the most workers to start, raised to nMin if smaller
+	#   returns    the supervisor itself, so calls chain
+	#   warning    a second call for the same tag replaces the bounds
+	#   see        Decide, SetWaterMarks
+	#@ aka  -- policy -------------------------------------------------------------
 	def Policy(pcTag, nMin, nMax)
 		if nMin < 1  nMin = 1  ok
 		if nMax < nMin  nMax = nMin  ok
@@ -67,14 +108,25 @@ class stzClusterSupervisor from stzObject
 		ok
 		return This
 
+	# Sets the two load ratios that trigger scaling: below nLow the supervisor scales down, above nHigh it scales up.
+	#
+	#   nLow       the low-water load ratio, 0.25 by default
+	#   nHigh      the high-water load ratio, 0.75 by default
+	#   returns    the supervisor itself, so calls chain
+	#   warning    one pair of marks serves every tag
+	#   see        Decide, ReportLoad
 	def SetWaterMarks(nLow, nHigh)
 		@nLow = nLow
 		@nHigh = nHigh
 		return This
 
-	# The app's observed demand for a profile (0..1: e.g. latency/SLA or
-	# in-flight/capacity). This is the honest load signal -- the app
-	# measures it; the supervisor enforces the policy.
+	# Records the demand observed for a tag, as a ratio from 0 to 1, replacing the earlier figure.
+	#
+	#   pcTag      the facet or profile tag, matched without regard to case
+	#   nRatio     the observed load from 0 to 1
+	#   returns    the supervisor itself, so calls chain
+	#   see        LoadOf, FeedLoadFrom, Decide
+	#@ aka  The app's observed demand for a profile (0..1: e.g. latency/SLA or in-flight/capacity). This is the honest load signal -- the app measures it; the supervisor enforces the policy.
 	def ReportLoad(pcTag, nRatio)
 		_c_ = StzLower("" + pcTag)
 		_i_ = This._LoadIndex(_c_)
@@ -85,25 +137,36 @@ class stzClusterSupervisor from stzObject
 		ok
 		return This
 
+	# Returns the last load ratio reported for a tag; 0 when none was reported.
+	#
+	#   pcTag      the tag to look up, matched without regard to case
+	#   returns    a number
+	#   see        ReportLoad
 	def LoadOf(pcTag)
 		_i_ = This._LoadIndex(StzLower("" + pcTag))
 		if _i_ = 0  return 0  ok
 		return @aLoad[_i_][2]
 
-	# The perf-P6 closing of the loop: the load signal MEASURED instead
-	# of hand-fed. A stzPerfProfile's LoadRatio() is X/Xmax -- how close
-	# the observed workload is to its CPU ceiling -- read from the same
-	# engine instruments everything else trusts. Call it before each
-	# Supervise()/Cycle() pass (or from the same host tick).
+	# Reads the load ratio from a performance profile and reports it for a tag, so the signal is measured and not typed in.
+	#
+	#   pcTag       the tag the load belongs to
+	#   poProfile   an object that answers LoadRatio(), such as a stzPerfProfile
+	#   returns     the supervisor itself, so calls chain
+	#   see         ReportLoad, LoadOf
+	#@ aka  The perf-P6 closing of the loop: the load signal MEASURED instead of hand-fed. A stzPerfProfile's LoadRatio() is X/Xmax -- how close the observed workload is to its CPU ceiling -- read from the same engine instruments everything else trusts. Call it before each Supervise()/Cycle() pass (or from the same host tick).
 	def FeedLoadFrom(pcTag, poProfile)
 		return This.ReportLoad(pcTag, poProfile.LoadRatio())
 
-	#-- the decision (PURE policy) -----------------------------------------
-
-	# Given the current fleet metrics + reported load, return the actions
-	# to take: [ [ :restart, tag ], [ :scaleup, tag ], [ :scaledown, tag ] ].
-	# Dead-worker restart takes precedence; then load-driven scaling within
-	# the [min, max] bounds. No side effects -- Supervise() applies these.
+	# Returns the actions the policy calls for given the fleet metrics, without touching the cluster.
+	#
+	#   aMetrics   the fleet metrics, a list of hashlists such as [ :tag = 'nlp', :ready = 2, :dead
+	#              = 1 ]
+	#   returns    a list of [ kind, tag ] pairs, kind being :restart, :scaleup or :scaledown
+	#   note       read from the code and run with invented metrics; no cluster was involved
+	#   warning    a tag with a policy but no entry in the metrics is skipped; a dead worker gives a
+	#              restart first, then the load decides; a tag at its bound gives no scaling
+	#   see        Supervise, Policy
+	#@ aka  -- the decision (PURE policy) -----------------------------------------
 	def Decide(aMetrics)
 		_aActions_ = []
 		_nP_ = len(@aPolicy)
@@ -128,10 +191,15 @@ class stzClusterSupervisor from stzObject
 		next
 		return _aActions_
 
-	#-- applying the decision to the live cluster --------------------------
-
-	# One supervision pass: refresh health, decide, apply. Returns the
-	# actions taken.
+	# Runs one pass: checks the cluster's health, reads its metrics, decides, and applies the actions to the cluster.
+	#
+	#   returns    the list of actions taken, as Decide returns it
+	#   note       one restart call heals every dead worker, however many restart actions there are
+	#   warning    it calls HealthCheck, RestartDead, ScaleUp and ScaleDown on the cluster, so it
+	#              changes a live fleet; it was run here only against an invented stand-in object,
+	#              never a real cluster
+	#   see        Decide, Cycle, LastActions
+	#@ aka  -- applying the decision to the live cluster --------------------------
 	def Supervise()
 		@oCluster.HealthCheck()
 		_aM_ = @oCluster.FleetMetrics()
@@ -158,13 +226,20 @@ class stzClusterSupervisor from stzObject
 			ok
 		next
 
+	# Returns the actions taken by the last Supervise pass; empty before the first.
+	#
+	#   returns    a list of [ kind, tag ] pairs
+	#   see        Supervise
 	def LastActions()
 		return @aLastActions
 
-	#-- R5 composition: a supervised job on stzAgentHost -------------------
-	# stzAgentHost ticks Cycle() on any supervised object. So the cluster
-	# supervisor runs on the SAME reactor loop the fleet runs on. Returns
-	# the number of actions taken this tick (0 -> quiescent).
+	# Runs one Supervise pass and returns how many actions it took, so an agent host can tick the supervisor as a job.
+	#
+	#   returns    a number; 0 when the fleet was quiescent
+	#   note       run here only against an invented stand-in object
+	#   warning    same warning as Supervise: it acts on the cluster it was given
+	#   see        Supervise, Name_
+	#@ aka  -- R5 composition: a supervised job on stzAgentHost ------------------- stzAgentHost ticks Cycle() on any supervised object. So the cluster supervisor runs on the SAME reactor loop the fleet runs on. Returns the number of actions taken this tick (0 -> quiescent).
 	def Cycle()
 		return len(This.Supervise())
 

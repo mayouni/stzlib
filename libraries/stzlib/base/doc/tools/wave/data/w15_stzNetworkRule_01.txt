@@ -1,0 +1,1 @@
+init | Builds a network rule with the given name, in the network domain. | nothing; the object is built | pcName=the name of the rule, such as addresses_are_unique | | | a stzGraphRule whose domain is set to network; the five built-in network rules are made this way

@@ -1,0 +1,17 @@
+init | Creates a set of system capabilities from a list of names such as filesystem, clock or threads. | nothing; the object is built | paInit=a list of capability names, each from the closed catalog | SetList, Grant | an unknown name raises an error
+Catalog | Returns the closed catalog: nine pairs [ capability, lattice kind ], such as [ network, effectful ] and [ clock, sensing ]. | a list of pairs | | KnownCapabilities, KindOf | the kinds are effectful, sensing, compute and inference
+KnownCapabilities | Returns the names of the nine capabilities the catalog knows. | a list of texts | | Catalog, IsKnown
+IsKnown | TRUE if a name is in the catalog, whatever the letter case. | TRUE or FALSE | pCap=the capability name to test | KnownCapabilities, Grant
+SetList | Replaces the held capabilities with a list, granting them one by one. | the set itself, so calls chain | paCaps=a list of capability names, each from the catalog | Grant, List | an unknown name raises an error; a value that is not a list leaves the set empty
+Grant | Adds a capability to the set; one it already holds changes nothing. | the set itself, so calls chain | pCap=the capability name to add, matched without regard to case | Revoke, Can | an unknown name raises an error that lists the known ones
+Revoke | Removes a capability from the set; one it does not hold changes nothing. | the set itself, so calls chain | pCap=the capability name to remove, matched without regard to case | Grant, Can
+Can | TRUE if the set holds a capability. | TRUE or FALSE | pCap=the capability name to test, matched without regard to case | Lacks, Grant
+Lacks | TRUE if the set does not hold a capability. | TRUE or FALSE | pCap=the capability name to test, matched without regard to case | Can
+List | Returns the held capabilities, lower-cased, in the order granted. | a list of texts | | NumberOfCapabilities, Kinds
+NumberOfCapabilities | Returns how many capabilities the set holds. | a number | | List
+KindOf | Returns the lattice kind of a capability: effectful, sensing, compute or inference; unknown for a name outside the catalog. | a text | pCap=the capability name, matched without regard to case | Catalog, Kinds
+Kinds | Returns the distinct lattice kinds of the held capabilities, in the order first met. | a list of texts | | KindOf, IsEffectful
+IsEffectful | TRUE if any held capability is of the effectful kind. | TRUE or FALSE | | Kinds, Can
+Minus | Returns the capabilities held here that another set does not hold. | a list of texts, not a set | poOther=another stzSystemCapabilities | List, ForActorKinds | it answers a plain list, so chaining a set method after it fails
+ForActorKinds | Returns the held capabilities whose lattice kind an actor holds. | a list of texts | paActorKinds=the kinds the actor holds, a list from effectful, sensing, compute and inference | KindOf, Minus | the actor with an empty list may exercise none
+Show | Prints two lines: the held capabilities with their number, and their kinds. | nothing; it prints | | List, Kinds

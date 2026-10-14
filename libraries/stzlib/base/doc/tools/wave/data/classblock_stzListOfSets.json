@@ -1,0 +1,15 @@
+{
+ "brief": "Holds a list of sets, each a list without repeated items; it builds only from an empty list today.",
+ "detail": "Its init checks the argument with a method named IsListOfSets that stzList does not have (only the global function of that name exists), so new stzListOfSets(aList) raises error R14 for every non-empty list, and a value that is not a list raises R3 because the error text function is missing. Only an empty list builds. For one set use stzSet; for plain lists of lists use stzListOfLists.",
+ "receiver": "o1 = new stzListOfSets([ ])",
+ "example": [
+  "? o1.NumberOfItems()",
+  "#--> 0",
+  "? @@( o1.Sets() )",
+  "#--> [ ]"
+ ],
+ "see": [
+  "stzSet",
+  "stzListOfLists"
+ ]
+}

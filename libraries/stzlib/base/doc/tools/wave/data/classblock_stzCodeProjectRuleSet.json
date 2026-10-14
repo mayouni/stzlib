@@ -1,0 +1,15 @@
+{
+ "brief": "Holds the house rules plus no-dead-code, the set that StzCheckProject runs over a whole directory.",
+ "detail": "no-dead-code names a defined method or function that no recorded call reaches. It is name-based and cannot see a call through a variable, so it reports candidates and not proof; a graph without call edges yields nothing. The slow no-cyclic-calls rule is not here, so the set is cheap enough for a per-commit gate.",
+ "receiver": "o1 = new stzCodeProjectRuleSet()",
+ "example": [
+  "? o1.NumberOfRules()",
+  "#--> 6",
+  "? o1.RuleNames()[6]",
+  "#--> no-dead-code"
+ ],
+ "see": [
+  "stzCodeRuleSet",
+  "stzCodeDeepRuleSet"
+ ]
+}

@@ -1,0 +1,10 @@
+{
+ "brief": "Counts in cycles: it starts at a number, steps by a number, and starts over when a limit is reached or after a number of values.",
+ "detail": "Give it a hashlist of options and ask for the first N numbers. :WhenYouReach names the value at which the count restarts, :AfterYouSkip names how many values to skip before it restarts, and :RestartAt is the value it restarts from. The options :StartAt and :Step alone are not enough today: without one of the two cycle options every number comes out as 0.",
+ "receiver": "o1 = new stzCounter([ :StartAt = 1, :WhenYouReach = 4, :RestartAt = 0 ])",
+ "example": [
+  "? @@( o1.Counting(10) )",
+  "#--> [ 1, 2, 3, 0, 1, 2, 3, 0, 1, 2 ]"
+ ],
+ "see": ["stzIntSeq"]
+}

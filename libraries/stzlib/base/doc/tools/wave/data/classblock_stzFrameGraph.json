@@ -1,0 +1,26 @@
+{
+ "brief": "Holds the render passes of a frame and the resources they read and write, and derives their order, lifetimes and shared targets.",
+ "detail": "A pass declares what it reads and writes; a pass that reads what another writes must run after it, which is an edge, and the order is a topological sort over an ordinary stzGraph. A resource is live from its first write to its last read, and two resources whose lives do not overlap share one physical target, which is memory a hand-ordered frame pays for. Compile derives all of that and proves the frame: acyclic, no read before write, no resource written and never read. Findings go into a stzRuleReport. Execute runs the bodies in order inside one frame on the graphics device, with no window; without a device it answers 0.",
+ "receiver": "o1 = new stzFrameGraph(16, 8)\no1.AddPass(\"Geometry\", [ :Writes = [ \"colour\", \"depth\" ] ])\no1.AddPass(\"Blur\", [ :Reads = [ \"colour\" ], :Writes = [ \"blurred\" ] ])\no1.AddPass(\"Composite\", [ :Reads = [ \"colour\", \"blurred\" ], :Writes = [ \"screen\" ] ])\no1.Compile()",
+ "example": [
+  "? @@( o1.Order() )",
+  "#--> [ \"Geometry\", \"Blur\", \"Composite\" ]",
+  "? o1.ResourceCount()",
+  "#--> 4",
+  "? o1.PhysicalTargets()",
+  "#--> 3",
+  "? o1.TargetsSaved()",
+  "#--> 1",
+  "? @@( o1.Lifetimes()[3] )",
+  "#--> [ \"blurred\", 2, 3 ]",
+  "? o1.Findings()[1][:message]",
+  "#--> 'depth' is written but never read",
+  "? o1.IsSound()",
+  "#--> 1"
+ ],
+ "see": [
+  "stzGraph",
+  "stzRuleReport",
+  "stzMaterialGraph"
+ ]
+}

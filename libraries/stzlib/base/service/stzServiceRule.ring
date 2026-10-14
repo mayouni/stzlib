@@ -158,14 +158,55 @@ func _StzServicePartsDependingOn(poGraph, pcProp, pValue, pcMid, pcTail)
 	return _aOut_
 
 
+# Holds one rule about the services a solution depends on, as a declared graph rule in the services domain.
+#
+# A service rule is a stzGraphRule whose domain is services. It runs over a graph that joins the
+# delivery model (parts and their destinations) with the service registry (services and their
+# postures), so it can ask which part of the solution depends on a fake. The rules are declared in
+# stzServiceRuleSet.
+#
+#   receiver   o1 = new stzServiceRule("production-part-uses-sandbox")
+#   example    ? o1.Name()
+#              #--> production-part-uses-sandbox
+#              ? o1.Domain()
+#              #--> services
+#   see        stzServiceRuleSet, stzServiceRegistry, stzDelivery
 class stzServiceRule from stzGraphRule
+	# Builds a service rule of that name in the services domain; it is a graph rule over a delivery that joins parts and services.
+	#
+	#   pcName     the rule's name
+	#   returns    nothing; the object is built
+	#   see        stzServiceRuleSet, stzGraphRule
 	def init(pcName)
 		super.init(pcName)
 		This.SetDomainQ("services")
 
 
+# Holds the rules that ask which part of a solution would ship on a fake service, read from each part's destination.
+#
+# Four rules are loaded, deliberately few, since the registry already checks its own invariants and
+# restating them would let two copies drift. The first three are errors: a part bound to a real site
+# that depends on a sandbox double, on a store that lasts only until the next restart, or on a
+# protocol conformance double. The fourth, a warning, finds a part that declares a need the registry
+# has never heard of. They read a part's destination, so they fire while the phase is still
+# development, as a rehearsal of if I shipped this today.
+#
+#   receiver   o1 = new stzServiceRuleSet()
+#   example    ? o1.Name()
+#              #--> service-invariants
+#              ? o1.NumberOfRules()
+#              #--> 4
+#              ? o1.RuleNames()[4]
+#              #--> part-uses-undeclared-service
+#   see        stzServiceRule, stzServiceRegistry, stzRuleReport
 class stzServiceRuleSet from stzGraphRuleSet
 
+	# Builds the service-invariants rule set, already loaded with its four rules.
+	#
+	#   returns    nothing; the object is built
+	#   note       the rules are production-part-uses-sandbox, production-part-uses-ephemeral,
+	#              production-part-uses-conformance and part-uses-undeclared-service
+	#   see        stzServiceRule, stzGraphRuleSet
 	def init()
 		super.init("service-invariants")
 		This.SetDomainQ("services")

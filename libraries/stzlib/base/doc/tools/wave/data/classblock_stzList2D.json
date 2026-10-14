@@ -1,0 +1,16 @@
+{
+ "brief": "Holds a rectangular list of lists, every row the same length, and turns its rows into columns and back.",
+ "detail": "The rectangle is checked when the object is built: a ragged list raises an error then. It is a stzListOfLists, so the list-of-lists methods are inherited; this class adds the transposition under its many names (Transpose, Turn, SwapColsAndRows, SwitchRowsAndCols ...), which all do the same in-place turn, and Transposed for a copy. Build one with new stzList2D(aList), StzList2D(aList) or Stz2DList(aList); the global Transpose(aList) works on a bare list. Items can be of any kind, Hebrew, Arabic and emoji texts included.",
+ "receiver": "o1 = new stzList2D([ [ 1, 2, 3 ], [ 4, 5, 6 ] ])",
+ "example": [
+  "? @@( o1.Transposed() )",
+  "#--> [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]",
+  "o1.Transpose()",
+  "? @@( o1.Content() )",
+  "#--> [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]"
+ ],
+ "see": [
+  "stzListOfLists",
+  "stzList"
+ ]
+}

@@ -1,0 +1,20 @@
+{
+ "brief": "Counts the items of a list: by condition, by type, by value, and empty or not, and inserts around the items that meet a condition.",
+ "detail": "Build one with new stzListCounter(aList) or over a stzList object; it keeps its own copy, so what you passed in is never changed. A condition is written in the W notation, a text in braces where @item stands for the item under test, such as '{ @item > 5 }'. Count compares texts case-sensitively; CountCS takes a 0 or 1 flag. The insertion methods InsertAfterW and InsertBeforeW change the list the counter holds. The question forms HowManyItemsW, HowManyUniqueItemsW and the alias InsertAfterWhere raise error R24 today; see their warnings.",
+ "receiver": "o1 = new stzListCounter([ 5, \"a\", \"A\", 12, \"\", \"שלום\", 12 ])",
+ "example": [
+  "? o1.CountNumbers()",
+  "#--> 3",
+  "? o1.Count(12)",
+  "#--> 2",
+  "? o1.CountItemsW('{ isNumber(@item) and @item > 6 }')",
+  "#--> 2",
+  "? o1.CountEmptyItems()",
+  "#--> 1"
+ ],
+ "see": [
+  "stzList",
+  "stzListInserter",
+  "stzListOfStrings"
+ ]
+}

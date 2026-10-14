@@ -1,0 +1,30 @@
+{
+ "brief": "Holds a timer that calls a function every interval, or once, advanced by a timer manager's loop on the engine's clock.",
+ "detail": "The timer does not run by itself: a stzTimerManager loop calls CheckAndTick, which fires the function when the interval has passed since the last firing, on the engine's monotonic clock in milliseconds, and answers whether the timer is still active so the manager can prune finished one-shots. A one-shot timer stops itself after firing. Start takes the time now as the starting point; Tick calls the function at once whatever the clock says.",
+ "receiver": "$nFired = 0\no1 = new stzReactiveTimer(\"beat\", 30, func { $nFired++ }, new stzReactive(), 0)",
+ "example": [
+  "? o1.CheckAndTick()",
+  "#--> 0",
+  "o1.Tick()",
+  "? $nFired",
+  "#--> 1",
+  "o1.Start()",
+  "? o1.CheckAndTick()",
+  "#--> 1",
+  "? $nFired",
+  "#--> 1",
+  "StzEngineTimeSleepMs(60)",
+  "? o1.CheckAndTick()",
+  "#--> 1",
+  "? $nFired",
+  "#--> 2",
+  "o1.Stop()",
+  "? o1.CheckAndTick()",
+  "#--> 0"
+ ],
+ "see": [
+  "stzRingTimer",
+  "stzTimerManager",
+  "stzReactive"
+ ]
+}

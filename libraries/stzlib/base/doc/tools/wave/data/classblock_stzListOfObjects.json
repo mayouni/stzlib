@@ -1,0 +1,12 @@
+{
+ "brief": "Is meant to hold a list of objects as a list of its own; it can not be built with a list today.",
+ "detail": "Building it with a list of objects raises R14, because init calls IsListOfObjects on a stzList and that method does not exist; Content returns nothing; and Copy raises. Only the holder built without parentheses, as StzListOfObjectsQ() does, can be made, and it is empty. The class is a sketch whose file begins with a TODO. stzObjects is another name of it.",
+ "receiver": "o1 = StzListOfObjectsQ()",
+ "example": [
+  "? classname(o1)",
+  "#--> stzlistofobjects",
+  "? isString(o1.Content())",
+  "#--> 1"
+ ],
+ "see": ["stzListOfNamedObjects", "stzObjects", "stzList"]
+}

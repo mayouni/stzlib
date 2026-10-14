@@ -35,6 +35,28 @@ func StzPasskeySandboxQ(pcRpId)
 	return new stzPasskeySandbox(pcRpId)
 
 
+# Acts as a virtual passkey authenticator in software, with real keys and real signatures, so passkey flows are tested with no hardware or browser.
+#
+# It is not a mock that answers ok. It generates a real P-256 key, emits a genuine attestation
+# object with a COSE key inside, and produces real ECDSA signatures over the WebAuthn message, so
+# the relying party runs its true parsing and verification. It also does what an attacker's device
+# would do and no real authenticator will do on request: sign for the wrong origin, or write a
+# counter that does not advance, so the refusals can be tested. The key comes from the engine's
+# generator, or from a seed given to CreateCredentialXT for a reproducible suite. Its keys are
+# sandbox keys and never real ones.
+#
+#   receiver   o1 = new stzPasskeySandbox("example.com")
+#   example    ? o1.IsSandbox()
+#              #--> 1
+#              a1 = o1.CreateCredential("challenge-1", "https://example.com")
+#              ? len(a1[:credentialId]) > 0
+#              #--> 1
+#              a2 = o1.Assert("challenge-2", "https://example.com")
+#              ? o1.SignCount()
+#              #--> 1
+#              ? len(a2[:signature]) > 0
+#              #--> 1
+#   see        stzPasskeyServer, stzServiceRegistry
 class stzPasskeySandbox from stzObject
 
 	@cRpId = ""
@@ -43,27 +65,56 @@ class stzPasskeySandbox from stzObject
 	@cAttObj = ""
 	@nCounter = 0
 
+	# Builds a virtual authenticator for a domain, with no credential yet and its counter at 0.
+	#
+	#   pcRpId     the domain its credentials are bound to
+	#   returns    nothing; the object is built
+	#   see        CreateCredential, IsSandbox
 	def init(pcRpId)
 		@cRpId = ring_trim("" + pcRpId)
 		@nCounter = 0
 
-	# a double declares itself -- see stzServiceRegistry
+	# TRUE if the object is a test double; here it always is, so it never passes for a real device.
+	#
+	#   returns    TRUE
+	#   see        stzServiceRegistry
+	#@ aka  a double declares itself -- see stzServiceRegistry
 	def IsSandbox()
 		return 1
 
+	# Returns the domain the authenticator is bound to, trimmed.
+	#
+	#   returns    a text
+	#   see        init
 	def RpId()
 		return @cRpId
 
+	# Returns the id of the credential made last.
+	#
+	#   returns    a text; empty before CreateCredential
+	#   see        CreateCredential
 	def CredentialId()
 		return @cCredId
 
+	# Returns the signature counter, which each Assert advances.
+	#
+	#   returns    a number
+	#   note       an Assert that raises for lack of a credential has already advanced it
+	#   see        Assert, AssertAtCount
 	def SignCount()
 		return @nCounter
 
-	  #-- registration (the "create" ceremony) ----------------------------
-
-	# Make a credential the way a security key would ->
-	# [ :attestationObject, :clientData, :credentialId ].
+	# Makes a credential as a security key would, with a real P-256 key and attestation object, and returns what the browser passes on.
+	#
+	#   pcChallenge   the challenge the server issued
+	#   pcOrigin      the origin the browser would report
+	#   returns       a hash list [ :attestationObject, :clientData, :credentialId ]; the first two
+	#                 are base64url
+	#   note          a new key is generated each time unless the XT form is given a 32-byte hex
+	#                 seed; it replaces the earlier credential and resets the counter to 0; only
+	#                 invented sandbox keys, never real ones
+	#   see           Assert, ClientData
+	#@ aka  -- registration (the "create" ceremony) ----------------------------
 	def CreateCredential(pcChallenge, pcOrigin)
 		return This.CreateCredentialXT(pcChallenge, pcOrigin, "")
 
@@ -85,16 +136,29 @@ class stzPasskeySandbox from stzObject
 		         :clientData = This.ClientData("webauthn.create", pcChallenge, pcOrigin),
 		         :credentialId = @cCredId ]
 
-	  #-- login (the "get" ceremony) --------------------------------------
-
-	# Sign a challenge -> [ :credentialId, :authenticatorData, :clientData,
-	# :signature ]. The counter advances, as a real authenticator's does.
+	# Signs a challenge as the login ceremony does, advancing the counter by one.
+	#
+	#   pcChallenge   the challenge the server issued
+	#   pcOrigin      the origin the browser would report
+	#   returns       a hash list [ :credentialId, :authenticatorData, :clientData, :signature ]
+	#   warning       raises an error telling to call CreateCredential first when there is no
+	#                 credential
+	#   see           AssertAtCount, AssertForOrigin
+	#@ aka  -- login (the "get" ceremony) --------------------------------------
 	def Assert(pcChallenge, pcOrigin)
 		@nCounter = @nCounter + 1
 		return This.AssertAtCount(pcChallenge, pcOrigin, @nCounter)
 
-	# ...at an explicit counter value. Passing one that does NOT advance is how a
-	# CLONED authenticator behaves -- the relying party must refuse it.
+	# Signs a challenge with a chosen counter value, which is how a cloned authenticator behaves when it does not advance.
+	#
+	#   pcChallenge   the challenge the server issued
+	#   pcOrigin      the origin to report
+	#   pnCount       the counter to write into the authenticator data
+	#   returns       a hash list [ :credentialId, :authenticatorData, :clientData, :signature ]
+	#   note          the stored counter is not changed
+	#   warning       raises the no-credential error when there is no credential
+	#   see           Assert
+	#@ aka  ...at an explicit counter value. Passing one that does NOT advance is how a CLONED authenticator behaves -- the relying party must refuse it.
 	def AssertAtCount(pcChallenge, pcOrigin, pnCount)
 		This._RequireCredential()
 		_cd_ = This.ClientData("webauthn.get", pcChallenge, pcOrigin)
@@ -106,17 +170,40 @@ class stzPasskeySandbox from stzObject
 		return [ :credentialId = @cCredId, :authenticatorData = _a_[1],
 		         :clientData = _cd_, :signature = _a_[2] ]
 
-	# an assertion signed for a DIFFERENT origin -- what a phishing site would
-	# obtain. The relying party's origin check must reject it.
+	# Signs for another origin, as a phishing site would obtain, and advances the counter.
+	#
+	#   pcChallenge        the challenge the server issued
+	#   pcPhishingOrigin   the origin to report in its place
+	#   returns            a hash list [ :credentialId, :authenticatorData, :clientData, :signature
+	#                      ]
+	#   note               the relying party's origin check must refuse the result
+	#   warning            raises the no-credential error when there is no credential
+	#   see                Assert
+	#@ aka  an assertion signed for a DIFFERENT origin -- what a phishing site would obtain. The relying party's origin check must reject it.
 	def AssertForOrigin(pcChallenge, pcPhishingOrigin)
 		@nCounter = @nCounter + 1
 		return This.AssertAtCount(pcChallenge, pcPhishingOrigin, @nCounter)
 
-	# the clientDataJSON a browser builds, base64url-encoded.
+	# Builds the client data JSON a browser would build, base64url-encoded.
+	#
+	#   pcType        webauthn.create or webauthn.get
+	#   pcChallenge   the challenge
+	#   pcOrigin      the origin
+	#   returns       a text, base64url
+	#   note          it is a test double: real client data comes from the browser
+	#   warning       the challenge and the origin are written into the JSON without escaping, so a
+	#                 value holding a quote can add keys or break the JSON, which is useful for
+	#                 testing and wrong for real input
+	#   see           CreateCredential, Assert
+	#@ aka  the clientDataJSON a browser builds, base64url-encoded.
 	def ClientData(pcType, pcChallenge, pcOrigin)
 		return StzB64UrlEncode('{"type":"' + pcType + '","challenge":"' + pcChallenge +
 		                       '","origin":"' + pcOrigin + '","crossOrigin":false}')
 
+	# Prints one line with the domain, the credential id and the counter.
+	#
+	#   returns    nothing; it prints
+	#   see        CredentialId
 	def Show()
 		? "stzPasskeySandbox(rp=" + @cRpId + ", credential=" + @cCredId + ", count=" + @nCounter + ")"
 

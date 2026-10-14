@@ -66,9 +66,38 @@ func StzPyCodeGraphAst(pcRootPath)
 	return oG
 
 
+# Holds Python source as a code graph: its classes, methods with multiple inheritance, functions and imports.
+#
+# A sibling of stzJsCodeGraph under stzCodeGraph, which gives it the whole query surface (owners,
+# ancestry, impact, cascade, call edges, dead code, cyclic calls). It adds Python's own identity and
+# three ways to read source: the indentation floor, a structural scan with no dependency that finds
+# declarations only; tree-sitter in the engine, through StzPyCodeGraphFromSourceTS, which is the
+# preferred real parse with call edges; and Python's own ast, through a spawned interpreter, as a
+# fallback where the grammar is not built.
+#
+#   receiver   o1 = StzPyCodeGraphFromSource("class Animal:" + nl + "    def speak(self):" + nl + "
+#              return 1" + nl + "class Puppy(Animal):" + nl + "    def fetch(self):" + nl + "
+#              return 2" + nl)
+#   example    ? o1.Language()
+#              #--> python
+#              ? @@( o1.Classes() )
+#              #--> [ "Animal", "Puppy" ]
+#              ? @@( o1.AncestryOf("Puppy") )
+#              #--> [ "Puppy", "Animal" ]
+#              ? @@( o1.OwnersOf("fetch") )
+#              #--> [ "Puppy" ]
+#   see        stzCodeGraph, stzJsCodeGraph, stzRingCodeGraph
 class stzPyCodeGraph from stzCodeGraph
 
-	# the indentation floor is the default backend for a path/source ctor
+	# Builds a Python code graph, scanning a folder of .py files with the indentation floor when a path is given.
+	#
+	#   pcRootPath   the folder to scan, or an empty text for an empty graph to fill with ScanSource
+	#   returns      nothing; the object is built
+	#   note         a path that is not a folder raises the file-system error of dir
+	#   warning      the floor is a structural scan with no dependency and no call edges; use
+	#                StzPyCodeGraphFromSourceTS for a real parse with call edges
+	#   see          ScanSource, Language
+	#@ aka  the indentation floor is the default backend for a path/source ctor
 	def init(pcRootPath)
 		super.init(pcRootPath)
 		if pcRootPath != ""
@@ -76,17 +105,31 @@ class stzPyCodeGraph from stzCodeGraph
 			This.BuildGraph()
 		ok
 
+	# Returns the name of the language this graph models.
+	#
+	#   returns    the text python
+	#   see        FileExtension
 	def Language()
 		return "python"
 
+	# Returns the file extension of the source files it scans, with the dot.
+	#
+	#   returns    the text .py
+	#   see        Language
 	def FileExtension()
 		return ".py"
 
-	#-- the PYTHON-ast backend (real parse + call edges, via async spawn) --
-
-	# Parse one Python source string through Python's real ast; ingest the
-	# structured lines it emits. Raises (LAW 3) if Python is unreachable --
-	# it never silently degrades to the indentation floor.
+	# Parses a Python source text with Python's own ast, through a spawned interpreter, and adds what it finds, calls included.
+	#
+	#   pcSource   the Python source text
+	#   pcFile     the file name recorded for what it finds
+	#   returns    nothing; call BuildGraph afterwards
+	#   note       not run when this was documented: it spawns a system interpreter; the backend is
+	#              read from the code
+	#   warning    raises an error naming the exit status when no Python interpreter is reachable on
+	#              the path, and never falls back to the indentation floor
+	#   see        ScanSource, init
+	#@ aka  -- the PYTHON-ast backend (real parse + call edges, via async spawn) --
 	def ScanSourceViaAst(pcSource, pcFile)
 		_cDrv_ = tempname()
 		_cSrc_ = tempname()
@@ -196,6 +239,14 @@ class stzPyCodeGraph from stzCodeGraph
 			ok
 		next
 
+	# Scans one Python source text with the indentation floor and adds its classes, methods, functions and imports to the graph.
+	#
+	#   pcSource   the Python source text
+	#   pcFile     the file name recorded for what it finds
+	#   returns    nothing; call BuildGraph afterwards
+	#   note       reads class headers with several bases, def and async def, and import and from
+	#              lines; it records no call edges
+	#   see        ScanSourceViaAst, init
 	def ScanSource(pcSource, pcFile)
 		_acLines_ = StzSplit(StzReplace("" + pcSource, char(13), ""), char(10))
 		_nLen_ = len(_acLines_)
