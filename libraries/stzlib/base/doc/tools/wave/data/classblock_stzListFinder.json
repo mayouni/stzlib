@@ -1,0 +1,21 @@
+{
+ "brief": "Finds where an item occurs in a list, as positions: all, first, last, nth, the ones that differ, or those before or after a position.",
+ "detail": "It is the search helper of stzList, which builds one over itself for its Find methods; build one with new stzListFinder when you only need to search. It never edits the list, so a stzList passed in stays intact. Positions are 1-based, and an absent item answers 0 for the single-position verbs and [ ] for the list verbs. Items are matched whole: a text, a number or a sublist, and Hebrew, Arabic and emoji texts match as one item each. Case counts unless you call the CS form with 0. The Next verbs look strictly after a position and count ranks forward; FindPreviousNthOccurrence counts ranks backward from the position, while FindPreviousNthOccurrences counts them forward from the start. Found today: AntiFind and AntiFindAsSections answer a wrong list for an empty list, and CountItemsW raises R14.",
+ "receiver": "o1 = new stzListFinder([ \"a\", \"b\", \"a\", \"c\", \"a\" ])",
+ "example": [
+  "? @@( o1.Find(\"a\") )",
+  "#--> [ 1, 3, 5 ]",
+  "? @@( o1.AntiFind(\"a\") )",
+  "#--> [ 2, 4 ]",
+  "? o1.FindNextOccurrence(\"a\", 1)",
+  "#--> 3",
+  "o2 = new stzListFinder([ \"שלום\", \"مرحبا\", \"😀\", \"שלום\", \"😀\" ])",
+  "? @@( o2.Find(\"😀\") )",
+  "#--> [ 3, 5 ]"
+ ],
+ "see": [
+  "stzList",
+  "stzListOfNumbers",
+  "stzStringFinder"
+ ]
+}

@@ -1,0 +1,22 @@
+{
+ "brief": "Finds where a fragment, a pair of bounds, a repeat, a condition or a regular expression occurs in a text, as positions or sections.",
+ "detail": "It is the search helper of stzString, which builds one over its own engine handle for its Find methods; build one with StzStringFinderQ (or new stzStringFinder) when you only need to search. It never edits the text. Positions are 1-based and count characters, not bytes, so Hebrew, Arabic and emoji text answers as you read it. Find returns a list of positions and a section is a [start, end] pair. Case counts unless you call the CS form with 0. The rank-0 and absent cases are not uniform today: FindFirst and FindLast answer 0 for an absent fragment, IndexOf answers -1, and FindNth answers -1 for a rank past the last occurrence. FindBetweenAsSection is greedy (first opening bound to last closing bound): use FindBoundedByAsSections for one section per pair. The W searches ignore their case flag.",
+ "receiver": "o1 = StzStringFinderQ(\"banana split\")",
+ "example": [
+  "? @@( o1.Find(\"an\") )",
+  "#--> [ 2, 4 ]",
+  "? @@( o1.FindAsSections(\"an\") )",
+  "#--> [ [ 2, 3 ], [ 4, 5 ] ]",
+  "o2 = StzStringFinderQ(\"שלום עולם שלום\")",
+  "? @@( o2.Find(\"שלום\") )",
+  "#--> [ 1, 11 ]",
+  "o3 = StzStringFinderQ(\"a😀b😀\")",
+  "? @@( o3.FindAllChar(\"😀\") )",
+  "#--> [ 2, 4 ]"
+ ],
+ "see": [
+  "stzString",
+  "stzStringComparator",
+  "stzStringChecker"
+ ]
+}

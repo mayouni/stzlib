@@ -1,0 +1,22 @@
+{
+ "brief": "Compares a text with another: equality, order, shared beginnings and endings, edit distance, phonetic codes and similarity scores.",
+ "detail": "It is the comparison helper of stzString, which builds one over itself for its comparison methods; build one with StzStringComparatorQ (or new stzStringComparator) when you only need the comparisons. It never edits the text, so a stzString passed in stays intact. The other text must be a text: a number ends the Ring process without a message. Comparison is by code point and case counts unless you call the CS form with 0; the CS flag is honoured by the equality, order, contains, prefix and suffix families. Positions and lengths count characters, so Hebrew, Arabic and emoji text is measured as you read it, with three exceptions found today: the case-sensitive CommonCharsWith, CommonalityWith, DiffCharsWith and LongestCommonPrefixWith work on bytes and break such text (the CS 0 forms are right), and Soundex and Metaphone only code Latin letters. The Jaro scores are similarities scaled to 1000, and JaroDistanceWith is the same call.",
+ "receiver": "o1 = StzStringComparatorQ(\"banana\")",
+ "example": [
+  "? o1.CommonPrefixWith(\"bandit\")",
+  "#--> ban",
+  "? o1.LevenshteinDistanceWith(\"bandana\")",
+  "#--> 1",
+  "o2 = new stzStringComparator(\"שלום עולם\")",
+  "? o2.CommonPrefixWith(\"שלום יפה\")",
+  "#--> שלום ",
+  "o3 = new stzStringComparator(\"a😀b😀\")",
+  "? @@( o3.DiffWith(\"a😀c😀\") )",
+  "#--> [ 3 ]"
+ ],
+ "see": [
+  "stzString",
+  "stzStringFinder",
+  "stzStringChecker"
+ ]
+}

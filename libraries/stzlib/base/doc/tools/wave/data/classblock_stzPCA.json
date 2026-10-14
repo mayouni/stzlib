@@ -1,0 +1,20 @@
+{
+ "brief": "Finds the directions along which a table of samples varies most, by singular value decomposition of the centered data.",
+ "detail": "It is the PCA engine behind stzEmbedding; build one with new stzPCA over a list of samples, each a list of feature values (rows are samples, columns are features). You must choose how to prepare the data before Fit: Center keeps the units (covariance PCA, for comparable features) and Standardize divides each feature by its standard deviation (correlation PCA, for features in different units); Fit refuses until you have said which. The variance convention is the library's one authority: the sample one (n-1) by default, UsePopulationVariance for n. After Fit, Components are the directions (a column per component), Scores the samples in those coordinates, ExplainedVariance and its ratio say how much spread each accounts for, Transform projects new rows with the fit's mean and scale, and Inverse sends scores back, with an error equal to the variance of the dropped components. Checked by hand on four samples, [[2,0],[-2,0],[0,1],[0,-1]] under Center: singular values the square roots of 8 and 2, variances 8/3 and 2/3, ratios 0.8 and 0.2.",
+ "receiver": "o1 = new stzPCA([ [ 2, 0 ], [ -2, 0 ], [ 0, 1 ], [ 0, -1 ] ])",
+ "example": [
+  "o1.Center()",
+  "o1.Fit()",
+  "? @@( o1.ExplainedVarianceRatio() )",
+  "#--> [ 0.80, 0.20 ]",
+  "? o1.NumberOfComponentsFor(0.9)",
+  "#--> 2",
+  "? o1.Why()",
+  "#--> fitted covariance PCA on 4 sample(s) x 2 feature(s): 2 component(s), the first explaining 80% of the variance"
+ ],
+ "see": [
+  "stzEmbedding",
+  "stzNumBuffer",
+  "stzListOfNumbers"
+ ]
+}

@@ -1,0 +1,22 @@
+{
+ "brief": "Inserts a fragment into a text: at a position, around the occurrences of another fragment, or at several positions.",
+ "detail": "It is the insertion helper of stzString, which builds one over itself for its Insert methods; build one with StzStringInserterQ (or new stzStringInserter) when you only need to insert. Each verb changes the held text in place and returns nothing (the Q form returns the inserter so calls chain), and the Inserted form returns the new text and leaves the inserter alone. Read the result with Content. Positions count characters, not bytes, so Hebrew, Arabic and emoji text is cut where you expect. A position out of range changes nothing without any error. Found today: InsertAfterNth, InsertAfterFirst and InsertAfterLast put the new fragment in a wrong place when the fragment they look for is absent; InsertBetweenSubStrings replaces the text between the bounds instead of inserting; InsertSubStringBetweenPositions uses only the smaller position; and the two ManyPositions verbs raise R13 for every valid list.",
+ "receiver": "o1 = StzStringInserterQ(\"banana\")",
+ "example": [
+  "o1.InsertAfterSubString(\"an\", \"-\")",
+  "? o1.Content()",
+  "#--> ban-an-a",
+  "o2 = StzStringInserterQ(\"שלום עולם\")",
+  "o2.InsertBefore(6, \"!\")",
+  "? o2.Content()",
+  "#--> שלום !עולם",
+  "o3 = StzStringInserterQ(\"a😀b\")",
+  "? o3.InsertedAfterFirst(\"😀\", \"-\")",
+  "#--> a😀-b"
+ ],
+ "see": [
+  "stzString",
+  "stzStringRemover",
+  "stzStringReplacer"
+ ]
+}

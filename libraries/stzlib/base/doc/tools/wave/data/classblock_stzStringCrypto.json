@@ -1,0 +1,19 @@
+{
+ "brief": "Hashes, signs and ciphers a text: SHA-256, MD5, BLAKE3, HMAC, base64, and the classic toy ciphers.",
+ "detail": "It is the crypto helper of stzString. Build it with StzStringCryptoQ over a text, or with new stzStringCrypto, and keep the text and the key apart: the digests are engine-backed and match the published test vectors (abc gives ba7816bf... under SHA-256). The ciphers (ROT13, Caesar, Vigenere, Atbash, ROT47, XOR, Obfuscate) are toys that hide text from a glance and are not encryption: they only move the Latin letters or the ASCII range, so Hebrew, Arabic and emoji pass through unchanged, while the digests, base64 and XOR work on UTF-8 bytes. A verb without an ending (ROT13, Atbash) changes the held text and returns nothing, the form ending in -ed (ROT13ed, Atbashed, CaesarEncrypted) returns the new text and leaves the helper alone. Pass a plain text, not a stzString object: editing through the helper empties the stzString that was passed in. IsEncrypted answers TRUE for almost any text today.",
+ "receiver": "o1 = StzStringCryptoQ(\"abc\")",
+ "example": [
+  "? o1.Sha256()",
+  "#--> ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+  "? o1.HmacSha256(\"key\")",
+  "#--> 9c196e32dc0175f86f4b1cb89289d6619de6bee699e4c378e68309ed97a1a6ab",
+  "o2 = StzStringCryptoQ(\"שלום\")",
+  "? o2.Base64Encode()",
+  "#--> 16nXnNeV150="
+ ],
+ "see": [
+  "stzString",
+  "stzSecretStore",
+  "stzRequestSigner"
+ ]
+}

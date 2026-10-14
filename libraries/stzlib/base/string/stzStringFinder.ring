@@ -13,6 +13,30 @@
 #--------------------------------------------------------------#
 
 
+# Finds where a fragment, a pair of bounds, a repeat, a condition or a regular expression occurs in a text, as positions or sections.
+#
+# It is the search helper of stzString, which builds one over its own engine handle for its Find
+# methods; build one with StzStringFinderQ (or new stzStringFinder) when you only need to search. It
+# never edits the text. Positions are 1-based and count characters, not bytes, so Hebrew, Arabic and
+# emoji text answers as you read it. Find returns a list of positions and a section is a [start,
+# end] pair. Case counts unless you call the CS form with 0. The rank-0 and absent cases are not
+# uniform today: FindFirst and FindLast answer 0 for an absent fragment, IndexOf answers -1, and
+# FindNth answers -1 for a rank past the last occurrence. FindBetweenAsSection is greedy (first
+# opening bound to last closing bound): use FindBoundedByAsSections for one section per pair. The W
+# searches ignore their case flag.
+#
+#   receiver   o1 = StzStringFinderQ("banana split")
+#   example    ? @@( o1.Find("an") )
+#              #--> [ 2, 4 ]
+#              ? @@( o1.FindAsSections("an") )
+#              #--> [ [ 2, 3 ], [ 4, 5 ] ]
+#              o2 = StzStringFinderQ("שלום עולם שלום")
+#              ? @@( o2.Find("שלום") )
+#              #--> [ 1, 11 ]
+#              o3 = StzStringFinderQ("a😀b😀")
+#              ? @@( o3.FindAllChar("😀") )
+#              #--> [ 2, 4 ]
+#   see        stzString, stzStringComparator, stzStringChecker
 class stzStringFinder from stzObject
 
 	@oString
@@ -22,20 +46,16 @@ class stzStringFinder from stzObject
 	 #   INITIALIZATION  #
 	#===================#
 
-	# Accepts a string, an stzString, OR a bare engine handle (a number).
+	# Builds a finder over a text, given as a string, as a stzString object or as a bare engine handle.
 	#
-	# THE HANDLE FORM EXISTS BECAUSE THE OBJECT FORM COPIES. Ring duplicates an
-	# object when it is assigned to an attribute, so `new stzStringFinder(This)`
-	# copied the entire string -- and stzString creates a finder per call in 20
-	# methods, making its class surface SLOWER than the bare global functions
-	# (26.70 ms vs 12.36 for 200 finds over 180 KB) despite being the side that
-	# holds a resident engine handle.
-	#
-	# Seventeen of this class's uses of @oString are `.Engine()` -- a number.
-	# Passing that number directly costs nothing, and the full stzString is
-	# rebuilt LAZILY (from the engine's own bytes) only for the handful of
-	# methods that need more: Content, NumberOfChars, IsEmpty, StartsWithCS,
-	# EndsWithCS, SubStrings, _FindSubStr.
+	#   pStrOrStzStrObjOrHandle   the text to search, a stzString, or the number of an engine string
+	#                             handle
+	#   returns                   nothing; the object is built
+	#   note                      finding never edits the text, so a stzString passed in stays
+	#                             intact; stzString builds one over its own handle for its find
+	#                             methods
+	#   see                       Content, Find
+	#@ aka  Accepts a string, an stzString, OR a bare engine handle (a number).
 	def init(pStrOrStzStrObjOrHandle)
 		@pEngineOnly = 0
 		if isNumber(pStrOrStzStrObjOrHandle)
@@ -75,12 +95,24 @@ class stzStringFinder from stzObject
 	 #     CONTENT ACCESS            #
 	#===============================#
 
+	# Returns the text being searched.
+	#
+	#   returns    a text
+	#   see        NumberOfChars, IsEmpty
 	def Content()
 		return This._Str().Content()
 
+	# Returns how many characters the text holds, counting a Hebrew letter or an emoji as one.
+	#
+	#   returns    a number
+	#   see        Content, IsEmpty
 	def NumberOfChars()
 		return This._Str().NumberOfChars()
 
+	# TRUE if the text holds no character at all.
+	#
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   see        NumberOfChars, Content
 	def IsEmpty()
 		return This._Str().IsEmpty()
 
@@ -105,6 +137,13 @@ class stzStringFinder from stzObject
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		return StzEngineStringContainsCS(This._Engine(), pcSubStr, _bCase_)
 
+	# TRUE if the text holds the given fragment anywhere.
+	#
+	#   pcSubStr   the fragment to look for
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   note       ContainsCS(sub, 0) ignores case
+	#   warning    an empty fragment answers FALSE
+	#   see        ContainsThese, Find
 	def Contains(pcSubStr)
 		return This.ContainsCS(pcSubStr, 1)
 
@@ -127,6 +166,13 @@ class stzStringFinder from stzObject
 		next
 		return 1
 
+	# TRUE if the text holds every fragment of the list.
+	#
+	#   pacSubStrings   the list of fragments, all of which must be present
+	#   returns         TRUE or FALSE, as 1 or 0
+	#   note            despite the plural, one missing fragment makes it FALSE;
+	#                   ContainsTheseCS(list, 0) ignores case
+	#   see             Contains, StartsWithAny
 	def ContainsThese(pacSubStrings)
 		return This.ContainsTheseCS(pacSubStrings, 1)
 
@@ -179,6 +225,16 @@ class stzStringFinder from stzObject
 		# Bulk is 1.7-2.1x FASTER. Compare paths that pay the same costs.
 		return StzEngineStringFindPositionsCS(This._Engine(), pcSubStr, _bCase_)
 
+	# Returns the position of every occurrence of a fragment, as a list of numbers.
+	#
+	#   pcSubStr   the fragment to look for, or a list of fragments whose positions are merged and
+	#              sorted
+	#   returns    a list of 1-based character positions; [ ] when absent or when the fragment is
+	#              empty
+	#   note       positions count characters, not bytes, so Hebrew, Arabic and emoji text answers
+	#              as you read it; banana split ANA finds an at 2 and 4, and FindCS(sub, 0) also
+	#              finds the ANA at 14
+	#   see        FindFirst, FindNth, FindAsSections, NumberOfOccurrence
 	def Find(pcSubStr)
 		return This.FindCS(pcSubStr, 1)
 
@@ -226,6 +282,16 @@ class stzStringFinder from stzObject
 		_nResult_ = StzEngineStringFindNthCS(_pH_, pcSubStr, _n_, pCaseSensitive)
 		return _nResult_
 
+	# Returns the position of the occurrence of a fragment that has the given rank, counted from 1.
+	#
+	#   _n_        the rank of the occurrence, 1 for the first
+	#   pcSubstr   the fragment to look for
+	#   returns    a number; -1 when the rank is past the last occurrence or is 0, and 0 when the
+	#              fragment is absent
+	#   note       FindNthCS(n, sub, 0) ignores case
+	#   warning    the two failure answers differ: -1 for a bad rank, 0 for an absent fragment,
+	#              while IndexOf answers -1 for an absent fragment
+	#   see        Find, FindFirst, FindLast
 	def FindNth(_n_, pcSubstr)
 		return This.FindNthCS(_n_, pcSubstr, 1)
 
@@ -250,6 +316,12 @@ class stzStringFinder from stzObject
 
 		return _nResult_
 
+	# Returns the position of the first occurrence of a fragment.
+	#
+	#   pcSubstr   the fragment to look for
+	#   returns    a number; 0 when the fragment is absent
+	#   note       FindFirstCS(sub, 0) ignores case
+	#   see        Find, FindLast, IndexOf
 	def FindFirst(pcSubstr)
 		return This.FindFirstCS(pcSubstr, 1)
 
@@ -272,6 +344,12 @@ class stzStringFinder from stzObject
 			return 0
 		ok
 
+	# Returns the position of the last occurrence of a fragment.
+	#
+	#   pcSubStr   the fragment to look for
+	#   returns    a number; 0 when the fragment is absent
+	#   note       FindLastCS(sub, 0) ignores case
+	#   see        Find, FindFirst
 	def FindLast(pcSubStr)
 		return This.FindLastCS(pcSubStr, 1)
 
@@ -283,6 +361,13 @@ class stzStringFinder from stzObject
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		return StzEngineStringCountOfCS(This._Engine(), pcSubStr, _bCase_)
 
+	# Returns how many times a fragment occurs in the text.
+	#
+	#   pcSubStr   the fragment to count
+	#   returns    a number; 0 when absent
+	#   note       NumberOfOccurrenceCS(sub, 0) ignores case; banana split ANA holds an twice, and
+	#              three times when case is ignored
+	#   see        Find, Contains
 	def NumberOfOccurrence(pcSubStr)
 		return This.NumberOfOccurrenceCS(pcSubStr, 1)
 
@@ -346,6 +431,13 @@ class stzStringFinder from stzObject
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		return StzEngineStringStartsWithCS(This._Engine(), pcSubStr, _bCase_)
 
+	# TRUE if the text begins with the given fragment.
+	#
+	#   pcSubStr   the fragment that must come first
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   note       StartsWithCS(sub, 0) ignores case
+	#   warning    an empty fragment answers FALSE
+	#   see        EndsWith, StartsWithAny
 	def StartsWith(pcSubStr)
 		return This.StartsWithCS(pcSubStr, 1)
 
@@ -356,6 +448,13 @@ class stzStringFinder from stzObject
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		return StzEngineStringEndsWithCS(This._Engine(), pcSubStr, _bCase_)
 
+	# TRUE if the text ends with the given fragment.
+	#
+	#   pcSubStr   the fragment that must come last
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   note       EndsWithCS(sub, 0) ignores case
+	#   warning    an empty fragment answers FALSE
+	#   see        StartsWith, EndsWithAny
 	def EndsWith(pcSubStr)
 		return This.EndsWithCS(pcSubStr, 1)
 
@@ -380,6 +479,12 @@ class stzStringFinder from stzObject
 
 		return _aResult_
 
+	# Returns each occurrence of a fragment as a [start, end] section.
+	#
+	#   pcSubStr   the fragment to look for
+	#   returns    a list of [ number, number ] pairs; [ ] when absent
+	#   note       banana split ANA gives [ [ 2, 3 ], [ 4, 5 ] ] for an
+	#   see        Find, FindBetweenAsSection
 	def FindAsSections(pcSubStr)
 		return This.FindAsSectionsCS(pcSubStr, 1)
 
@@ -416,6 +521,17 @@ class stzStringFinder from stzObject
 		def FindAnyBetweenAsSectionCS(pcBound1, pcBound2, pCaseSensitive)
 			return This.FindBetweenAsSectionCS(pcBound1, pcBound2, pCaseSensitive)
 
+	# Returns the one section lying between the first occurrence of the opening bound and the last occurrence of the closing bound.
+	#
+	#   pcBound1   the opening bound
+	#   pcBound2   the closing bound
+	#   returns    a [start, end] pair, excluding the bounds; [ 0, 0 ] when either bound is absent
+	#   note       for each pair separately use FindBoundedByAsSections; FindAnyBetweenAsSection is
+	#              the same call
+	#   warning    it is greedy, so f(x) g(y) h(z) gives [ 3, 13 ], the whole run from the first (
+	#              to the last ); a closing bound found before the opening one returns a meaningless
+	#              section (c then a on abc gives [ 0, 4 ])
+	#   see        FindBoundedByAsSections, BetweenNth
 	def FindBetweenAsSection(pcBound1, pcBound2)
 		return This.FindBetweenAsSectionCS(pcBound1, pcBound2, 1)
 
@@ -461,6 +577,13 @@ class stzStringFinder from stzObject
 		def FindAnyBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
 			return This.FindBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
 
+	# Returns the section between each opening bound and the next closing bound after it.
+	#
+	#   pacBounds   a pair [ opening bound, closing bound ] of texts
+	#   returns     a list of [start, end] pairs, excluding the bounds; [ ] when none
+	#   note        f(x) g(y) h(z) with ( and ) gives [ [ 3, 3 ], [ 8, 8 ], [ 13, 13 ] ];
+	#               FindAnyBoundedByAsSections is the same call
+	#   see         FindBetweenAsSection, BetweenNth
 	def FindBoundedByAsSections(pacBounds)
 		return This.FindBoundedByAsSectionsCS(pacBounds, 1)
 
@@ -485,6 +608,14 @@ class stzStringFinder from stzObject
 
 		return _SplitNullDelimited(_cJoined_)
 
+	# Returns every substring of the text, one for each start and end position, in start-then-length order.
+	#
+	#   returns    a list of text holding n times (n+1) divided by 2 items for n characters; [ ] for
+	#              an empty text
+	#   note       repeated substrings are listed each time (abcab lists a, ab and b twice), and it
+	#              grows quadratically, so keep it to short texts; SubStringsCS(0) lists the same
+	#              items
+	#   see        Duplicates, FindW
 	def SubStrings()
 		return This.SubStringsCS(1)
 
@@ -503,6 +634,11 @@ class stzStringFinder from stzObject
 		ok
 		return _SplitNullDelimited(_cJoined_)
 
+	# Returns the substrings that occur more than once in the text, overlaps included.
+	#
+	#   returns    a list of text, in no sorted order; [ ] when nothing repeats
+	#   note       abcab gives a, ab and b; banana contains ana twice, overlapping
+	#   see        FindDuplicatesAsSections, SubStrings
 	def Duplicates()
 		return This.DuplicatesCS(1)
 
@@ -539,6 +675,12 @@ class stzStringFinder from stzObject
 
 		return _aResult_
 
+	# Returns the [start, end] sections of the second and later occurrences of every repeated substring, sorted by start.
+	#
+	#   returns    a list of [ number, number ] pairs; [ ] when nothing repeats
+	#   note       abcab gives [ [ 4, 4 ], [ 4, 5 ], [ 5, 5 ] ]; a repeated long substring also
+	#              reports its repeated pieces
+	#   see        Duplicates, FindAsSections
 	def FindDuplicatesAsSections()
 		return This.FindDuplicatesAsSectionsCS(1)
 
@@ -556,6 +698,14 @@ class stzStringFinder from stzObject
 		_cFcwResult_ = StzEngineStringFindCharsW(This._Str().Content(), pcCondition)
 		return _ParseCSVNumbers(_cFcwResult_)
 
+	# Returns the positions of the characters that satisfy a W condition written over @char.
+	#
+	#   pcCondition   the condition as text, such as @char = 'b' or Q(@char).IsDigit()
+	#   returns       a list of 1-based positions; [ ] when none
+	#   note          a1b22c333 with Q(@char).IsDigit() gives [ 2, 4, 5, 7, 8, 9 ]
+	#   warning       FindCharsWCS(cond, 0) ignores its case flag: the same positions come back for
+	#                 0 and 1
+	#   see           FindW, FindSubStringsWCS
 	def FindCharsW(pcCondition)
 		return This.FindCharsWCS(pcCondition, 1)
 
@@ -568,10 +718,17 @@ class stzStringFinder from stzObject
 		ok
 		return This.FindCharsWCS(pcCondition, pCaseSensitive)
 
-	# FindSubStringsWCS: the START positions of every SUBSTRING satisfying an
-	# @substring W-predicate. Enumerates all substrings (with their start pos),
-	# rewrites @substring -> @item (via _StzNormalizeSubStringCond) and filters
-	# with the list W-DSL, then maps the matching indices back to positions.
+	# Returns the start positions of every substring that satisfies a W condition written over @substring.
+	#
+	#   pcCondition      the condition as text, such as @substring = 'ab'
+	#   pCaseSensitive   meant to switch case on or off
+	#   returns          a list of 1-based positions, each listed once; [ ] when none
+	#   note             FindW picks this one when the condition names @substring, and FindCharsW
+	#                    otherwise; it tests every substring, so keep texts short
+	#   warning          the case flag is ignored: aAbAB with @substring = 'A' gives [ 2, 4 ] for 0
+	#                    and for 1
+	#   see              FindCharsW, SubStrings
+	#@ aka  FindSubStringsWCS: the START positions of every SUBSTRING satisfying an @substring W-predicate. Enumerates all substrings (with their start pos), rewrites @substring -> @item (via _StzNormalizeSubStringCond) and filters with the list W-DSL, then maps the matching indices back to positions.
 	def FindSubStringsWCS(pcCondition, pCaseSensitive)
 		_cNorm_ = _StzNormalizeSubStringCond(pcCondition)
 		_nN_ = This._Str().NumberOfChars()
@@ -613,6 +770,13 @@ class stzStringFinder from stzObject
 		_pH_ = This._Engine()
 		return StzEngineStringFindFirstCS(_pH_, pcSubStr, _bCase_)
 
+	# Returns the position of the first occurrence of a fragment.
+	#
+	#   pcSubStr   the fragment to look for
+	#   returns    a number; -1 when the fragment is absent
+	#   note       IndexOfCS(sub, 0) ignores case
+	#   warning    unlike FindFirst, an absent fragment answers -1 and not 0
+	#   see        FindFirst, Find
 	def IndexOf(pcSubStr)
 		return This.IndexOfCS(pcSubStr, 1)
 
@@ -620,7 +784,13 @@ class stzStringFinder from stzObject
 	 #     FIND ALL CHAR             #
 	#===============================#
 
-	# The positions of every occurrence of the given char.
+	# Returns the position of every occurrence of one character.
+	#
+	#   pcChar     the character to look for
+	#   returns    a list of 1-based positions; [ ] when absent
+	#   note       works for a Hebrew letter or an emoji: a😀b😀 with 😀 gives [ 2, 4 ]
+	#   see        Find, FindCharsW
+	#@ aka  The positions of every occurrence of the given char.
 	def FindAllChar(pcChar)
 		_pH_ = This._Engine()
 		pHChar = StzEngineString(pcChar)
@@ -657,6 +827,12 @@ class stzStringFinder from stzObject
 		next
 		return 0
 
+	# TRUE if the text begins with at least one of the given prefixes.
+	#
+	#   pcPrefixes   the list of candidate prefixes
+	#   returns      TRUE or FALSE, as 1 or 0; FALSE when the argument is not a list
+	#   note         StartsWithAnyCS(list, 0) ignores case
+	#   see          StartsWith, EndsWithAny
 	def StartsWithAny(pcPrefixes)
 		return This.StartsWithAnyCS(pcPrefixes, 1)
 
@@ -676,6 +852,12 @@ class stzStringFinder from stzObject
 		next
 		return 0
 
+	# TRUE if the text ends with at least one of the given suffixes.
+	#
+	#   pcSuffixes   the list of candidate suffixes
+	#   returns      TRUE or FALSE, as 1 or 0; FALSE when the argument is not a list
+	#   note         EndsWithAnyCS(list, 0) ignores case
+	#   see          EndsWith, StartsWithAny
 	def EndsWithAny(pcSuffixes)
 		return This.EndsWithAnyCS(pcSuffixes, 1)
 
@@ -683,6 +865,14 @@ class stzStringFinder from stzObject
 	 #     BETWEEN NTH               #
 	#===============================#
 
+	# Returns the text lying between the nth opening bound and the closing bound that follows it.
+	#
+	#   pcOpen     the opening bound
+	#   pcClose    the closing bound
+	#   _n_        the rank of the pair, 1 for the first
+	#   returns    a text; an empty text when there is no such pair or the rank is 0
+	#   note       f(x) g(y) h(z) with ( and ) gives y for rank 2
+	#   see        FindBoundedByAsSections, FindBetweenAsSection
 	def BetweenNth(pcOpen, pcClose, _n_)
 		_pH_ = This._Engine()
 		# Engine uses 0-based nth; Softanza uses 1-based
@@ -695,6 +885,14 @@ class stzStringFinder from stzObject
 	 #     CHARS BETWEEN POSITIONS   #
 	#===============================#
 
+	# Returns the characters lying strictly between two positions, neither of them included.
+	#
+	#   nFrom      the position after which the text starts
+	#   nTo        the position before which it stops
+	#   returns    a text; an empty text when the positions are not apart or the first is 0
+	#   note       positions 3 and 5 of f(x) g(y) h(z) give the one character between them, the
+	#              closing bracket; 1 and 99 give everything after the first character
+	#   see        BetweenNth, FindAsSections
 	def CharsBetween(nFrom, nTo)
 		_pH_ = This._Engine()
 		_pR_ = StzEngineStringCharsBetween(_pH_, nFrom, nTo)
@@ -706,7 +904,14 @@ class stzStringFinder from stzObject
 	 #     REGEX FIND               #
 	#===============================#
 
-	# Find the first match of the given regex pattern.
+	# Returns the position of the first match of a regular expression.
+	#
+	#   pcPattern   the regular expression
+	#   returns     a number; 0 when nothing matches or when the pattern is not valid
+	#   note        FindRegexCS(pattern, 0) ignores case; FindRegex is the same call
+	#   warning     an invalid pattern such as ( answers 0 without any message
+	#   see         FindAllRegex, FindFirst
+	#@ aka  Find the first match of the given regex pattern.
 	def FindFirstRegex(pcPattern)
 		_pH_ = This._Engine()
 		return StzEngineStringRegexFindFirst(_pH_, pcPattern, 0)
@@ -726,7 +931,14 @@ class stzStringFinder from stzObject
 		def FindRegexCS(pcPattern, pCaseSensitive)
 			return This.FindFirstRegexCS(pcPattern, pCaseSensitive)
 
-	# Find every match of the given regex pattern.
+	# Returns the start position of every match of a regular expression.
+	#
+	#   pcPattern   the regular expression
+	#   returns     a list of 1-based positions; [ ] when nothing matches
+	#   note        a1b22c333 with [0-9]+ gives [ 2, 4, 7 ], one start per run of digits;
+	#               FindAllRegexCS(pattern, 0) ignores case
+	#   see         FindFirstRegex, Find
+	#@ aka  Find every match of the given regex pattern.
 	def FindAllRegex(pcPattern)
 		_pH_ = This._Engine()
 		pResult = StzEngineStringRegexFindAll(_pH_, pcPattern, 0)

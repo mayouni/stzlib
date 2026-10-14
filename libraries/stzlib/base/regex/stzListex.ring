@@ -9,6 +9,29 @@ func StzListexQ(_cPattern_)
 func Lx(_cPattern_)
 	return StzListRegexQ(_cPattern_)
 
+# Matches a list against a regex-like pattern of typed items, such as [@N, @S] for a number then a text.
+#
+# A pattern is a list of tokens: @N a number, @S a text, @L a list, @$ any item, each with an
+# optional quantifier (+, *, ?, a count or a range such as 2-3), a set of allowed values written {a;
+# b} with a trailing U for unique values, a negation @! and a case flag @cs:. Match answers 1 or 0
+# for the whole list, and Tokens, TokensInfo and Explain show how the pattern was read. Build one
+# with StzListexQ, StzListRegexQ or Lx. Found today: the cache key of Match is the same for any
+# reordering of a list, so on one matcher a reordered list gets the stale answer of the first (use
+# ClearCache between them); the first alternative of a group never matches; sets written in single
+# quotes never match, since their closing quote is kept; the unique flag U does not enforce
+# uniqueness; a nested list with a quantifier fails for two sublists; and TokensInfo raises R41 for
+# any token with a variable count. The cause of the quote, alternation and nested defects is the
+# same as stzTimex: calls to @StzMid pass an end position where it now wants a length.
+#
+#   receiver   o1 = StzListexQ("[@N, @S]")
+#   example    ? o1.Match([ 1, "a" ])
+#              #--> 1
+#              o2 = StzListexQ("[@N, @S]")
+#              ? o2.Match([ "a", 1 ])
+#              #--> 0
+#              ? o2.Pattern()
+#              #--> [@N, @S]
+#   see        stzList, stzTimex, stzRegex
 class stzListex from stzObject
 
 	@cPattern		# The original pattern string
@@ -37,6 +60,16 @@ class stzListex from stzObject
 	 #  INITIALIZATION   #
 	#-------------------#
 
+	# Builds a list matcher from a pattern text such as [@N, @S], wrapping it in square brackets if needed.
+	#
+	#   _cPattern_   the pattern as text
+	#   returns      nothing; the object is built
+	#   note         the pattern language: @N a number, @S a text, @L a list, @$ any item; + * ? 2
+	#                and 2-3 as quantifiers; {a; b} a set of allowed values and a trailing U for
+	#                unique ones; @!N a negation; @cs:S case-sensitive; a bracketed group of tokens
+	#                joined by a vertical bar for alternatives; [@N, @S] a nested list; build with
+	#                StzListexQ, StzListRegexQ or Lx
+	#   see          Match, Pattern, Tokens
 	def init(_cPattern_)
 		if NOT isString(_cPattern_)
 			raise("Error: Pattern must be a string")
@@ -47,6 +80,12 @@ class stzListex from stzObject
 		@aTokens = This.ParsePattern(@cPattern)
 		This.OptimizeTokens()
 
+	# Returns the pattern text trimmed and wrapped in square brackets when it is not yet.
+	#
+	#   _cPattern_   the pattern as text
+	#   returns      a text
+	#   note         @N, @S gives [@N, @S], and [@N] stays [@N]
+	#   see          ParsePattern, Pattern
 	def NormalizePattern(_cPattern_)
 		_cPattern_ = @trim(_cPattern_)
 		
@@ -56,6 +95,13 @@ class stzListex from stzObject
 		
 		return _cPattern_
 
+	# Splits a bracketed pattern at its top-level commas and parses each piece into a token.
+	#
+	#   _cPattern_   the bracketed pattern
+	#   returns      a list of tokens, each a list of [ name, value ] pairs
+	#   note         [@N, @S, @L] gives 3 tokens; [@N2-3, @S?] gives a number token of 2 to 3 and a
+	#                text token of 0 to 1
+	#   see          ParseToken, SplitAtTopLevelCommas, Tokens
 	def ParsePattern(_cPattern_)
 		This.DebugLog("ParsePattern", "Input: " + _cPattern_)
 		
@@ -71,6 +117,17 @@ class stzListex from stzObject
 		This.DebugLog("ParsePattern", "Tokens created: " + len(_aTokens_))
 		return _aTokens_
 
+	# Reads a nested list pattern such as [@N, @S]+ into one nested token holding the tokens of its inside.
+	#
+	#   cNestedPattern     the nested pattern with its quantifier, such as [@N, @S]+
+	#   _bNegated_         1 if the token is negated
+	#   _bCaseSensitive_   the case flag the inner tokens inherit
+	#   returns            a token with the keyword @NESTED and its nestedTokens
+	#   note               the token has the type nested
+	#   warning            a nested token with a quantifier of + or * did not match two sublists in
+	#                      checks (the pattern [[@N]+] answered FALSE for [[1],[2]] and TRUE for
+	#                      [[1]])
+	#   see                ParseToken, ParsePattern
 	def ParseNestedPattern(cNestedPattern, _bNegated_, _bCaseSensitive_)
 		_cInner_ = @StzMid(cNestedPattern, 2, StzLen(cNestedPattern)-1)
 		_aNestedTokens_ = []
@@ -137,6 +194,19 @@ class stzListex from stzObject
     
 		return _aToken_
 
+	# Reads a bracketed group of alternatives, such as a number or a text, into one alternation token.
+	#
+	#   _cTokenStr_        the text of the group, its alternatives between round brackets and joined
+	#                      by vertical bars
+	#   _bNegated_         1 if the token is negated
+	#   _bCaseSensitive_   the case flag the alternatives inherit
+	#   returns            a token with the keyword @ALT and its alternatives
+	#   note               the later alternatives are read correctly
+	#   warning            the first alternative loses its keyword, type and pattern (in a group of
+	#                      @N and @S the @N becomes an empty token), so a matching list for the
+	#                      first alternative answers FALSE: a pattern with @N or @S in one group
+	#                      matches a but not 1
+	#   see                ParseToken, Match
 	def ParseAlternationToken(_cTokenStr_, _bNegated_, _bCaseSensitive_)
 		_aParts_ = @split(_cTokenStr_, "|")
 		_nLen_ = len(_aParts_)
@@ -173,6 +243,17 @@ class stzListex from stzObject
 		
 		return _aToken_
 
+	# Reads one piece of a pattern, such as @N2-3, @S{"a"; "b"}, @!N or @cs:S, into a token.
+	#
+	#   _cTokenStr_   the text of one piece
+	#   returns       a token as a list of [ name, value ] pairs: keyword, type, pattern, min, max,
+	#                 quantifier, hasset, setvalues, requireunique, negated, casesensitive
+	#   note          @N+ gives min 1 and a huge max, @N2-4 gives 2 and 4, @!N sets negated, @cs:S
+	#                 sets casesensitive
+	#   warning       an unknown keyword such as @A returns a token with no keyword, type or
+	#                 pattern; set values written between single quotes keep their closing quote
+	#                 (the set of a and b read as a' and b'), so such sets never match
+	#   see           ParsePattern, ParseSetValues
 	def ParseToken(_cTokenStr_)
 		This.DebugLog("ParseToken", "Input: " + _cTokenStr_)
 		
@@ -356,6 +437,12 @@ class stzListex from stzObject
 		This.DebugLog("ParseToken", "Type: " + _cKeyword_ + " CaseSens: " + _bCaseSensitive_)
 		return _aToken_
 
+	# Cuts a text at the commas that are outside square brackets.
+	#
+	#   cStr       the text to cut
+	#   returns    a list of text, each piece trimmed
+	#   note       @N, [@S, @N], @L gives @N, [@S, @N] and @L
+	#   see        ParsePattern, ParseNestedPattern
 	def SplitAtTopLevelCommas(cStr)
 		_acParts_ = []
 		_cCurrent_ = ""
@@ -390,6 +477,17 @@ class stzListex from stzObject
 	 #  PATTERN HANDLING  #
 	#--------------------#
 
+	# Reads the inside of a set such as {1; 2; 3} into a list of values of the given type.
+	#
+	#   _cSetContent_   the set text, with or without its braces, values separated by semicolons
+	#   _cType_         number, string, list or any
+	#   bCheckUnique    1 to refuse repeated values
+	#   returns         a list of values: numbers for number, double-quoted texts for string
+	#   note            {1; 2; 3} gives 1, 2 and 3
+	#   warning         raises Error: Duplicate value in unique set when bCheckUnique is 1 and a
+	#                   value repeats, and Error: Invalid number in set for a non-number; a value
+	#                   written between single quotes keeps its closing quote ('a' gives "a'")
+	#   see             ParseToken, JoinSetValues
 	def ParseSetValues(_cSetContent_, _cType_, bCheckUnique)
 		_cSetContent_ = StzReplace(_cSetContent_, "{", "")
 		_cSetContent_ = StzReplace(_cSetContent_, "}", "")
@@ -472,6 +570,13 @@ class stzListex from stzObject
 		
 		return _aValues_
 
+	# Strips the quotes around a text, but keeps the closing one.
+	#
+	#   cStr       the text, possibly between single or double quotes
+	#   returns    a text
+	#   note       a text without quotes comes back as it is
+	#   warning    the closing quote stays: 'abc' gives abc' and "abc" gives abc"
+	#   see        CompareValues, ParseSetValues
 	def RemoveQuotes(cStr)
 		if (StartsWith(cStr, "'") and EndsWith(cStr, "'")) or
 		   (StartsWith(cStr, '"') and EndsWith(cStr, '"'))
@@ -480,6 +585,13 @@ class stzListex from stzObject
 		ok
 		return cStr
 
+	# Merges, in place, neighbouring tokens that have the same keyword, no set and a variable quantifier.
+	#
+	#   returns    nothing; the tokens change
+	#   note       it runs once when the matcher is built
+	#   warning    [@N+, @N*] becomes one token whose minimum is 0, which is looser than the pattern
+	#              says
+	#   see        Tokens, ParsePattern
 	def OptimizeTokens()
 		_nLen_ = len(@aTokens)
 		
@@ -509,6 +621,21 @@ class stzListex from stzObject
 	 #   MATCHING LOGIC   #
 	#--------------------#
 
+	# TRUE if the whole list matches the pattern, element by element.
+	#
+	#   paList     the list to test
+	#   returns    TRUE or FALSE, as 1 or 0; FALSE for a value that is not a list
+	#   note       with a fresh matcher or after ClearCache the answers are right for [@N, @S]: [1,
+	#              a] is TRUE, [a, 1] is FALSE; @S{"Hello"} accepts hello and @cs:S{"Hello"} does
+	#              not
+	#   warning    a repeated question returns a cached answer, and the cache key (the length and
+	#              the sum of the characters) is the same for any reordering of a list: after [1, 2,
+	#              a] matches [@N+, @S], the list [a, 2, 1] answers TRUE too on the same matcher,
+	#              though a new matcher answers FALSE; a set U does not enforce uniqueness (the
+	#              pattern [@N2{1; 2}U] accepts [2, 2]); a nested quantifier fails for two sublists;
+	#              sets written in single quotes never match; the first of several alternatives
+	#              never matches; Macth is a misspelled alias that works
+	#   see        MatchTokensToElements, Explain, Tokens
 	def Match(paList)
 		if NOT isList(paList)
 			return 0
@@ -555,12 +682,30 @@ class stzListex from stzObject
 		
 		return _bResult_
 
+	# TRUE if the tokens match the elements from the start to the end.
+	#
+	#   _aTokens_     the list of tokens, from Tokens
+	#   _aElements_   the list of elements to test
+	#   returns       TRUE or FALSE, as 1 or 0
+	#   note          the tokens of [@N, @S] match [1, a]
+	#   see           Match, BacktrackMatch
 	def MatchTokensToElements(_aTokens_, _aElements_)
 		_nLenTokens_ = len(_aTokens_)
 		_nLenElements_ = len(_aElements_)
     
 		return This.BacktrackMatch(_aTokens_, _aElements_, 1, 1, [])
 
+	# TRUE if the tokens from one token on match the elements from one element on, trying alternatives by backtracking.
+	#
+	#   _aTokens_       the list of tokens
+	#   _aElements_     the list of elements
+	#   nTokenIndex     the 1-based index of the first token
+	#   nElementIndex   the 1-based index of the first element
+	#   aUsedValues     the values already used by unique sets, [ ] to start
+	#   returns         TRUE or FALSE, as 1 or 0
+	#   note            the tokens of [@N, @S] against [1, a] from 1 and 1 give TRUE, and against
+	#                   [a, 1] give FALSE
+	#   see             MatchTokensToElements, Match
 	def BacktrackMatch(_aTokens_, _aElements_, nTokenIndex, nElementIndex, aUsedValues)
 		_nLenTokens_ = len(_aTokens_)
 		_nLenElements_ = len(_aElements_)
@@ -906,6 +1051,17 @@ class stzListex from stzObject
 		ok
 		return 0
 
+	# TRUE if two values are equal under a type: numbers by value, texts with or without case, any by its kind.
+	#
+	#   xValue1            the first value
+	#   xValue2            the second value
+	#   _cType_            number, string, list or any
+	#   _bCaseSensitive_   1 to compare with case, 0 to ignore it
+	#   returns            TRUE or FALSE, as 1 or 0
+	#   note               A against a is FALSE with 1 and TRUE with 0
+	#   warning            the types list, and any when both values are lists, raise Calling
+	#                      Function without definition: @stzreplace (R3) through NormalizeListString
+	#   see                RemoveQuotes, Match
 	def CompareValues(xValue1, xValue2, _cType_, _bCaseSensitive_)
 		switch _cType_
 		on "number"
@@ -953,6 +1109,14 @@ class stzListex from stzObject
 			ok
 		off
 
+	# Raises error R3 today instead of removing the spaces from the text of a list.
+	#
+	#   xList      the list, or its text
+	#   returns    nothing
+	#   note       strip the spaces yourself
+	#   warning    raises Calling Function without definition: @stzreplace (R3), because it calls a
+	#              function that does not exist
+	#   see        CompareValues, Match
 	def NormalizeListString(xList)
 		_cList_ = "" + xList
 		_cList_ = @StzReplace(_cList_, " ", "")
@@ -961,6 +1125,13 @@ class stzListex from stzObject
 		_cList_ = StzReplace(_cList_, Char(13), "")
 		return _cList_
 
+	# Returns a value read as the given type: a number for number, otherwise the text as it is.
+	#
+	#   _cValue_   the value as text
+	#   _cType_    number, string, list or any
+	#   returns    a number or a text
+	#   note       12 with number gives the number 12
+	#   see        ParseSetValues
 	def ConvertToType(_cValue_, _cType_)
 		switch _cType_
 		on "number"
@@ -977,6 +1148,14 @@ class stzListex from stzObject
 	 #     CACHE METHODS         #
 	#---------------------------#
 
+	# Returns a short key made of a list's length and the sum of the characters of its text, used as the cache key.
+	#
+	#   aList      the list to describe
+	#   returns    a text such as 3:550
+	#   note       an empty list gives 0:216
+	#   warning    two lists with the same elements in another order get the same key ([1, 2, 3] and
+	#              [3, 2, 1] both give 3:550), which is how Match returns a stale answer
+	#   see        Match, CacheInfo
 	def ListSignature(aList)
 		_cContent_ = @@(aList)
 		_nChecksum_ = 0
@@ -988,14 +1167,29 @@ class stzListex from stzObject
 		
 		return "" + len(aList) + ":" + _nChecksum_
 
+	# Empties the cache of past match answers.
+	#
+	#   returns    the matcher itself, so calls chain
+	#   note       call it before testing a list that is a reordering of one already tested
+	#   see        CacheInfo, SetCacheSize, Match
 	def ClearCache()
 		@aMatchCache = []
 		return self
 
+	# Sets how many answers the cache may hold.
+	#
+	#   nSize      the largest number of cached answers
+	#   returns    the matcher itself, so calls chain
+	#   note       CacheInfo reads it back as maxsize, 100 on a new matcher
+	#   see        CacheInfo, ClearCache
 	def SetCacheSize(nSize)
 		@nMaxCacheSize = nSize
 		return self
 
+	# Returns how many answers the cache holds and its limit.
+	#
+	#   returns    a list of [ entries, n ] and [ maxsize, n ] pairs
+	#   see        ClearCache, SetCacheSize
 	def CacheInfo()
 		return [
 			["entries", len(@aMatchCache)],
@@ -1006,23 +1200,50 @@ class stzListex from stzObject
 	 #     DEBUG METHODS         #
 	#---------------------------#
 
+	# Prints a titled debug message when the debug flag is on, and does nothing otherwise.
+	#
+	#   cMethod    the title
+	#   cMessage   the message
+	#   returns    nothing
+	#   see        EnableDebug, DisableDebug
 	def DebugLog(cMethod, cMessage)
 		if @bDebugMode
 			? "=== " + cMethod + " ==="
 			? cMessage
 		ok
 
+	# Turns on the debug printing of the parser and the matcher.
+	#
+	#   returns    the matcher itself, so calls chain
+	#   see        DisableDebug, DebugLog
 	def EnableDebug()
 		@bDebugMode = 1
 		return self
 
+	# Turns off the debug printing.
+	#
+	#   returns    the matcher itself, so calls chain
+	#   see        EnableDebug, DebugLog
 	def DisableDebug()
 		@bDebugMode = 0
 		return self
 
+	# Returns the tokens parsed from the pattern, after merging.
+	#
+	#   returns    a list of tokens, each a list of [ name, value ] pairs
+	#   note       TokensXT is the same call
+	#   see        TokensInfo, Explain, ParsePattern
 	def Tokens()
 		return @aTokens
 
+	# Returns one line of text per token: its number, keyword, quantifier and set.
+	#
+	#   returns    a list of text such as Token #1: @N
+	#   note       MatchInfo is the same call; @N{1;2} gives Token #1: @N {1; 2}
+	#   warning    raises Invalid numeric string (R41) for every token whose minimum differs from
+	#              its maximum (@N+, @N2-3 and @S? all raise), because it adds a number to a text;
+	#              only tokens with a fixed count work
+	#   see        Tokens, Explain
 	def TokensInfo()
 		_aInfo_ = []
 		
@@ -1058,6 +1279,12 @@ class stzListex from stzObject
 		
 		return _aInfo_
 
+	# Returns the set values joined as one text, separated by semicolons and a space.
+	#
+	#   _aValues_   the list of values
+	#   returns     a text
+	#   note        1, b and 3 give 1; b; 3
+	#   see         ParseSetValues, TokensInfo
 	def JoinSetValues(_aValues_)
 		_cResult_ = ""
 		
@@ -1071,9 +1298,20 @@ class stzListex from stzObject
 		
 		return _cResult_
 
+	# Returns the pattern text as stored, wrapped in square brackets.
+	#
+	#   returns    a text
+	#   note       DomainPattern is the same call
+	#   see        NormalizePattern, Tokens
 	def Pattern()
 		return @cPattern
 
+	# Returns a summary of the pattern: its text, token count, cache entries and one record per token.
+	#
+	#   returns    a list of [ name, value ] pairs
+	#   note       each token record holds Index, Keyword, Type, Min, Max, HasSet, SetValues,
+	#              Unique, Negated and CaseSensitive; ExplainXT is the same call
+	#   see        Tokens, TokensInfo
 	def Explain()
 		_aInfo_ = [
 			["Pattern", @cPattern],
