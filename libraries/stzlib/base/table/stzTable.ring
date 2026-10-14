@@ -5754,9 +5754,9 @@ func _NormalizeColLookupKey(pVal)
 
 		for i = 1 to _nLen_
 			_aTemp_ = This.FindCellCS(paValues[i], pCaseSensitive)
-			_nLen_ = len(_aTemp_)
+			_nLenTemp_ = len(_aTemp_)
 
-			for j = 1 to _nLen_
+			for j = 1 to _nLenTemp_
 				_aResult_ + _aTemp_[j]
 			next
 		next
