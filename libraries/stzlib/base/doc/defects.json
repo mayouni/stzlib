@@ -1,5 +1,5 @@
 {
- "count": 383,
+ "count": 426,
  "defects": [
   {
    "class": "stzAppServer",
@@ -16,6 +16,150 @@
    "line": 504,
    "symptom": "Leaves a folder unserved today instead of serving its files under a path; a request for a file in it answers 404.",
    "cause": "The static routes are stored in the router but nothing ever reads the list (checked with paths /files and /)"
+  },
+  {
+   "class": "stzCache",
+   "file": "common/stzCache.ring",
+   "method": "init",
+   "line": 127,
+   "symptom": "Raises error R11 today instead of building a cache that stores its entries in a file.",
+   "cause": "it builds a stzCacheStorage, which builds a stzStorage; that class sits in the future folder and is not loaded, so the error names class stzstorage not found; with the class loaded the next error is the call to the undefined TextFileCreateIfInexistant; no cache can be built today"
+  },
+  {
+   "class": "stzCache",
+   "file": "common/stzCache.ring",
+   "method": "StorageType",
+   "line": 136,
+   "symptom": "Raises error R13 today instead of returning where the cache keeps its entries.",
+   "cause": "the storage object it asks is never built, because init raises"
+  },
+  {
+   "class": "stzCache",
+   "file": "common/stzCache.ring",
+   "method": "CacheOpen",
+   "line": 172,
+   "symptom": "Raises error R13 today instead of opening the cache's file or database.",
+   "cause": "it starts by asking StorageType, which raises; the file and database calls it would make (TextFileOpen, DatabaseConnect) are not defined anywhere"
+  },
+  {
+   "class": "stzCache",
+   "file": "common/stzCache.ring",
+   "method": "CacheFileHandler",
+   "line": 186,
+   "symptom": "Raises error R13 today instead of returning the handle of the cache's file.",
+   "cause": "the storage object it asks is never built, because init raises"
+  },
+  {
+   "class": "stzCache",
+   "file": "common/stzCache.ring",
+   "method": "CacheFileColse",
+   "line": 195,
+   "symptom": "Raises error R3 today instead of closing the cache's file.",
+   "cause": "the name is misspelled (Colse for Close) and no such function exists under either spelling"
+  },
+  {
+   "class": "stzCache",
+   "file": "common/stzCache.ring",
+   "method": "CacheFindEntry",
+   "line": 206,
+   "symptom": "Raises error R13 today instead of returning the line number of the entry for a function call.",
+   "cause": "it reads the cache file through the storage object that init never builds"
+  },
+  {
+   "class": "stzCache",
+   "file": "common/stzCache.ring",
+   "method": "CacheGetCachedResult",
+   "line": 229,
+   "symptom": "Raises error R13 today instead of returning the cached result of a function call.",
+   "cause": "it starts with CacheFindEntry, which raises"
+  },
+  {
+   "class": "stzCache",
+   "file": "common/stzCache.ring",
+   "method": "CacheGetResultInLineNumber",
+   "line": 243,
+   "symptom": "Raises error R13 today instead of returning the result stored on one line of the cache file.",
+   "cause": "it reads the cache file through the storage object that init never builds"
+  },
+  {
+   "class": "stzCache",
+   "file": "common/stzCache.ring",
+   "method": "CacheFileLines",
+   "line": 254,
+   "symptom": "Raises error R13 today instead of returning the lines of the cache file.",
+   "cause": "it needs the file name from the storage object that init never builds"
+  },
+  {
+   "class": "stzCache",
+   "file": "common/stzCache.ring",
+   "method": "CacheFileLineNumber",
+   "line": 282,
+   "symptom": "Raises error R13 today instead of returning one line of the cache file.",
+   "cause": "it starts with CacheFileLines, which raises"
+  },
+  {
+   "class": "stzCache",
+   "file": "common/stzCache.ring",
+   "method": "CacheFileNumberOfLines",
+   "line": 290,
+   "symptom": "Raises error R13 today instead of returning how many lines the cache file holds.",
+   "cause": "it starts with CacheFileLines, which raises"
+  },
+  {
+   "class": "stzCache",
+   "file": "common/stzCache.ring",
+   "method": "ComposeLine",
+   "line": 299,
+   "symptom": "Raises error R3 today instead of joining the parts of an entry into one line with a bar between them.",
+   "cause": "the function it calls is not defined anywhere in the library"
+  },
+  {
+   "class": "stzCache",
+   "file": "common/stzCache.ring",
+   "method": "AddLine",
+   "line": 310,
+   "symptom": "Raises error R13 today instead of appending an entry to the cache file.",
+   "cause": "it starts by asking StorageType; the file call it would make (TextFileAddLine) is not defined, and the :InMemomry and :InDatabase branches are empty TODOs, the first misspelled"
+  },
+  {
+   "class": "stzCacheStorage",
+   "file": "common/stzCache.ring",
+   "method": "init",
+   "line": 349,
+   "symptom": "Raises error R11 today instead of building the storage behind a cache.",
+   "cause": "it builds a stzStorage, which sits in the future folder and is not loaded, so the error names class stzstorage not found; with that class loaded the next error is the call to the undefined TextFileCreateIfInexistant; a stzCacheStorage cannot be built today"
+  },
+  {
+   "class": "stzCacheStorage",
+   "file": "common/stzCache.ring",
+   "method": "FileHandler",
+   "line": 357,
+   "symptom": "Raises error R13 today instead of returning the handle of the storage file.",
+   "cause": "it forwards to a stzStorage that init never builds"
+  },
+  {
+   "class": "stzCacheStorage",
+   "file": "common/stzCache.ring",
+   "method": "FileName",
+   "line": 365,
+   "symptom": "Raises error R13 today instead of returning the storage file's name.",
+   "cause": "it forwards to a stzStorage that init never builds"
+  },
+  {
+   "class": "stzCacheStorage",
+   "file": "common/stzCache.ring",
+   "method": "CompleteFileName",
+   "line": 373,
+   "symptom": "Raises error R13 today instead of returning the storage file's name with its folder.",
+   "cause": "it forwards to a stzStorage that init never builds"
+  },
+  {
+   "class": "stzCacheStorage",
+   "file": "common/stzCache.ring",
+   "method": "StorageType",
+   "line": 381,
+   "symptom": "Raises error R13 today instead of returning where the storage keeps its entries.",
+   "cause": "it forwards to a stzStorage that init never builds"
   },
   {
    "class": "stzCalendar",
@@ -1258,6 +1402,14 @@
    "cause": "it calls InsertAfterItemsCSQ on the list, a method stzList does not have, so every call raises R14"
   },
   {
+   "class": "stzListBounder",
+   "file": "list/stzListBounder.ring",
+   "method": "AreBoundsOf",
+   "line": 312,
+   "symptom": "Raises error R14 today instead of telling whether the list's two items are the bounds of a text.",
+   "cause": "it raises error R14 Calling Method without definition: isboundedbyin, because the stzString method it calls does not exist; tried on a pair of bounds, on a list of pairs and with the case flag; a list that is neither a pair nor a list of pairs raises Can't check bounds! List must be a pair or a list of pairs instead"
+  },
+  {
    "class": "stzListChecker",
    "file": "list/stzListChecker.ring",
    "method": "ContainsItem",
@@ -1288,6 +1440,14 @@
    "line": 703,
    "symptom": "Raises error R3 today instead of telling whether an item satisfies the condition.",
    "cause": "defect: the method calls StzCCodeToRingCode, which no file of the library defines, so every call raises Calling Function without definition: stzccodetoringcode"
+  },
+  {
+   "class": "stzListDuplicates",
+   "file": "list/stzListDuplicates.ring",
+   "method": "RemoveNthDuplicate",
+   "line": 487,
+   "symptom": "Leaves the list unchanged today, though it is meant to delete the nth repeat of an item.",
+   "cause": "it does nothing: the list is unchanged on a b a c b a d for the first repeat of a, again on a second call, and with an n past the last repeat, because the delete is made on a copy of the list that List returns"
   },
   {
    "class": "stzListFinder",
@@ -1328,6 +1488,54 @@
    "line": 2317,
    "symptom": "Raises an error today instead of returning the pairs as a stzSetOfSections.",
    "cause": "Raises \"You must provide a list of sections\" today for valid sections such as [ [ 1, 3 ], [ 5, 8 ] ]: the stzSetOfSections constructor refuses what stzListOfSections accepts"
+  },
+  {
+   "class": "stzListWalker",
+   "file": "list/stzListWalker.ring",
+   "method": "AddWalker",
+   "line": 123,
+   "symptom": "Raises error R24 today instead of registering a named walker for the list.",
+   "cause": "it raises error R24 Using uninitialized variable: @awalkers on any list (tried on two lists), because the class reads the attribute @aWalkers without ever declaring or filling it"
+  },
+  {
+   "class": "stzListWalker",
+   "file": "list/stzListWalker.ring",
+   "method": "Walkers",
+   "line": 161,
+   "symptom": "Raises error R24 today instead of answering the registered walkers.",
+   "cause": "it raises error R24 Using uninitialized variable: @awalkers, because the class reads the attribute @aWalkers without ever declaring or filling it (tried on two lists)"
+  },
+  {
+   "class": "stzListWalker",
+   "file": "list/stzListWalker.ring",
+   "method": "Walker",
+   "line": 172,
+   "symptom": "Raises error R24 today instead of answering the walker registered under a name.",
+   "cause": "it raises error R24 Using uninitialized variable: @awalkers, as Walkers does (tried on two lists)"
+  },
+  {
+   "class": "stzSet",
+   "file": "list/stzSet.ring",
+   "method": "Subsets",
+   "line": 505,
+   "symptom": "Returns an empty text today, because the method is only a TODO in the code.",
+   "cause": "it computes no subsets: the body is the comment TODO"
+  },
+  {
+   "class": "stzSet",
+   "file": "list/stzSet.ring",
+   "method": "SubSetsOfNElements",
+   "line": 514,
+   "symptom": "Returns an empty text today, because the method is only a TODO in the code.",
+   "cause": "it computes no subsets: the body is the comment TODO"
+  },
+  {
+   "class": "stzSet",
+   "file": "list/stzSet.ring",
+   "method": "NumberOfSubsets",
+   "line": 522,
+   "symptom": "Returns 0 today, because it counts the subsets that Subsets does not compute.",
+   "cause": "it is the length of what Subsets answers, an empty text"
   },
   {
    "class": "stzTree",
@@ -1506,6 +1714,22 @@
    "cause": "it forwards to a stzNumber method of that name, which does not exist, so every call raises R14"
   },
   {
+   "class": "stzHexNumber",
+   "file": "number/stzHexNumber.ring",
+   "method": "FractionalPart",
+   "line": 264,
+   "symptom": "Raises error R14 today instead of returning the digits after the point.",
+   "cause": "it calls HexNumberWithoutPrefix, a method that does not exist, so FractionalPart and FractPart raise for every input; init also refuses a text with a point, so there is never a fraction to return"
+  },
+  {
+   "class": "stzHexNumber",
+   "file": "number/stzHexNumber.ring",
+   "method": "ToScientificForm",
+   "line": 388,
+   "symptom": "Raises error R14 today instead of returning the value in scientific notation.",
+   "cause": "it forwards to stzNumber.ToScientificForm, a method that does not exist, and passes an undefined variable; stzNumber itself raises the same R14; confirmed with 0xFF and 0x41"
+  },
+  {
    "class": "stzListOfBytes",
    "file": "number/stzListOfBytes.ring",
    "method": "BytesOfThisChar",
@@ -1584,6 +1808,22 @@
    "line": 8946,
    "symptom": "Raises an unsupported-feature error today instead of applying a locale to the number.",
    "cause": "the call raises an unsupported-feature error today"
+  },
+  {
+   "class": "stzOctalNumber",
+   "file": "number/stzOctalNumber.ring",
+   "method": "ToBaseNForm",
+   "line": 228,
+   "symptom": "Raises error R14 today instead of writing the value in another base.",
+   "cause": "it forwards to ToBaseNForm on stzNumber, a method that does not exist there (stzNumber has IntegerPartToBaseNForm), so every base raises R14; confirmed with 0o377 and 17"
+  },
+  {
+   "class": "stzOctalNumber",
+   "file": "number/stzOctalNumber.ring",
+   "method": "ToScientificNotationForm",
+   "line": 242,
+   "symptom": "Raises error R14 today instead of writing the value in scientific notation.",
+   "cause": "it forwards to ToScientificNotationForm on stzNumber, a method that does not exist there; stzNumber raises the same R14 on its own"
   },
   {
    "class": "stzObject",
@@ -1896,6 +2136,14 @@
    "line": 1120,
    "symptom": "Raises error R3 today instead of removing the spaces from the text of a list.",
    "cause": "raises Calling Function without definition: @stzreplace (R3), because it calls a function that does not exist"
+  },
+  {
+   "class": "stzListexuter",
+   "file": "regex/stzListexUter.ring",
+   "method": "GetDependencyChain",
+   "line": 461,
+   "symptom": "Raises a stack overflow today instead of returning the triggers a trigger depends on.",
+   "cause": "every log entry lists its own trigger in dependson, so the method calls itself on that same trigger without end; confirmed with the triggers pair and t1"
   },
   {
    "class": "stzMatrex",
@@ -2234,6 +2482,14 @@
    "cause": "Raises error R24 today: after finding the group it uses the variable pcTagGroupName, which is not a parameter of this method; seen with two different group names"
   },
   {
+   "class": "stzRegexuter",
+   "file": "regex/stzRegexUter.ring",
+   "method": "GetDependencyChain",
+   "line": 410,
+   "symptom": "Raises a stack overflow today instead of returning the triggers a trigger depends on.",
+   "cause": "every log entry lists its own trigger in dependson, so the method calls itself on that same trigger without end; confirmed with the trigger num and the trigger d"
+  },
+  {
    "class": "stzTimex",
    "file": "regex/stzTimex.ring",
    "method": "SplitByOperator",
@@ -2264,6 +2520,38 @@
    "line": 526,
    "symptom": "Signs an ID token as IssueIdToken does, with the issue time you give, so that exp is pnNow plus the token lifetime.",
    "cause": "same escaping defect as IssueIdToken"
+  },
+  {
+   "class": "stzSoundGraph",
+   "file": "sound/stzSoundGraph.ring",
+   "method": "OutputNode",
+   "line": 183,
+   "symptom": "Returns the index of the node the graph hands to the world.",
+   "cause": "a node added after the graph was prepared can reset this to 0, see the defects file"
+  },
+  {
+   "class": "stzSoundLive",
+   "file": "sound/stzSoundLive.ring",
+   "method": "CaptureInsteadOfDevice",
+   "line": 191,
+   "symptom": "Chooses to drain the sound into a buffer instead of a sound card, for at most a number of seconds.",
+   "cause": "refused once the loops have started; the buffer is silent beyond what was heard; WaitCycles for longer than pnSeconds never returns, see the defects file"
+  },
+  {
+   "class": "stzSoundLive",
+   "file": "sound/stzSoundLive.ring",
+   "method": "WaitCycles",
+   "line": 410,
+   "symptom": "Lets the session run for a number of heard cycles, starting it first when needed, and then returns.",
+   "cause": "in capture mode it never returns when the wait is longer than the capture buffer, see the defects file; without capture it plays on a device, which was not run in this reference"
+  },
+  {
+   "class": "stzSoundLive",
+   "file": "sound/stzSoundLive.ring",
+   "method": "Landings",
+   "line": 580,
+   "symptom": "Returns where each definition of a loop took effect.",
+   "cause": "before the loops start every landing is cycle 0 and the heard cycle is -1; a loop redefined twice before the start and once while running is numbered v3 and then v2, so version numbers can go back, see the defects file"
   },
   {
    "class": "stzDataSet",
@@ -2426,6 +2714,14 @@
    "cause": "answers FALSE for aabaa: it is the AND of HasLeadingChars and HasTrailingChars, which are always 0"
   },
   {
+   "class": "stzStringCounter",
+   "file": "string/stzStringCounter.ring",
+   "method": "CountBetween",
+   "line": 214,
+   "symptom": "Raises an error today instead of counting a fragment inside a section of the text.",
+   "cause": "it calls the function StringNumberOfOccurrenceCS, which does not exist, so CountBetween and CountBetweenCS raise R3 for every input; confirmed with Banana banana and with xyzxyz"
+  },
+  {
    "class": "stzStringInserter",
    "file": "string/stzStringInserter.ring",
    "method": "InsertAfterManyPositions",
@@ -2464,6 +2760,46 @@
    "line": 530,
    "symptom": "Leaves the text unchanged today, because the occurrence it aims at is one past the last, in place.",
    "cause": "it asks the nth removal for a rank equal to the number of occurrences, and that rank counts from 0 in the default case-sensitive call, so nothing is removed: one two one two one, aaa bbb and its b stay as they are; RemoveLastCS(..., 0) does remove the last occurrence"
+  },
+  {
+   "class": "stzStringSplitter",
+   "file": "string/stzStringSplitter.ring",
+   "method": "Partition",
+   "line": 564,
+   "symptom": "Returns only the text before the first separator, in a one-item list, today instead of the cut into before, separator and after.",
+   "cause": "the engine hands back the three pieces in a buffer separated by NUL bytes and Ring reads only up to the first one, so key=value=more with = gives only key; confirmed with a-b, x=y=z, one two and a Hebrew text; stzString.Partition gives the real three-part cut"
+  },
+  {
+   "class": "stzStringSplitter",
+   "file": "string/stzStringSplitter.ring",
+   "method": "PartitionAfter",
+   "line": 583,
+   "symptom": "Returns only the text behind the first separator, in a one-item list, today instead of the cut that keeps the separator on the first part.",
+   "cause": "the NUL-separated engine buffer is read up to its first NUL, so key=value=more with = gives only value=more; confirmed with a-b, x=y=z and a Hebrew text"
+  },
+  {
+   "class": "stzStringSplitter",
+   "file": "string/stzStringSplitter.ring",
+   "method": "RPartition",
+   "line": 602,
+   "symptom": "Returns only the text before the last separator, in a one-item list, today instead of the cut into before, separator and after.",
+   "cause": "the NUL-separated engine buffer is read up to its first NUL, so key=value=more with = gives key=value; confirmed with x=y=z"
+  },
+  {
+   "class": "stzStringSplitter",
+   "file": "string/stzStringSplitter.ring",
+   "method": "RPartitionAfter",
+   "line": 621,
+   "symptom": "Returns only the text behind the last separator, in a one-item list, today instead of the cut that keeps the separator on the first part.",
+   "cause": "the NUL-separated engine buffer is read up to its first NUL, so key=value=more with = gives only more; confirmed with x=y=z and a Hebrew text"
+  },
+  {
+   "class": "stzStringSubStringCS",
+   "file": "string/stzStringSubString.ring",
+   "method": "Positions",
+   "line": 182,
+   "symptom": "Raises error R14 today instead of returning the position of every occurrence.",
+   "cause": "it calls FindAllCS on the finder, a method that does not exist, so Positions and Occurrences raise for every input; confirmed with Banana bandana and with banana"
   },
   {
    "class": "stzStringText",
@@ -2536,6 +2872,14 @@
    "line": 342,
    "symptom": "Raises error R14 today instead of flushing the stream.",
    "cause": "raises Calling Method without definition: flash, a misspelled call to flush on the QTextStream"
+  },
+  {
+   "class": "TableDisplayConfig",
+   "file": "table/stzPivotTableShow.ring",
+   "method": "GetDimensionGroupWidth",
+   "line": 464,
+   "symptom": "Raises error R5 today instead of returning the width of one group of columns.",
+   "cause": "it reads a variable that belongs to CalculateLayout and is empty here; the same error for 1 and for 2"
   },
   {
    "class": "stzTable",
