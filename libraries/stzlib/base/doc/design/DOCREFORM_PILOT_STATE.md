@@ -225,3 +225,14 @@ finding is ALREADY filed) and the memo. Library before wave 13: 16,625 of 21,747
 Still held back for good reason: the four sound classes (render to a file, never play), stzDeployment / stzBuilder / stzProcess /
 stzGpu (spawn, deploy, hardware), stzTour / stzLogbook (the testoor desk's files).
 
+## 2026-10-14: WAVE 13 COMPLETE AND ON MAIN (76793fbb4, both remotes); the STOP of 2026-10-09 is resolved
+
+Part A turned out to be finished when it was stopped; its entries and class blocks were copied from the stopped agent's scratch
+folder into doc/tools/wave/data/. Library 17,730 of 21,747 pass (81.5 percent); gate OK; register 383 in 67 classes. Left: 4,017
+roots in about 290 classes. Held back, unchanged: the four sound classes (stzSoundScore 49, stzSound 40, stzSoundLive 39,
+stzSoundUniverse 38, stzSoundGraph 31: render to a file, never play), stzDeployment / stzBuilder / stzProcess / stzGpu (spawn,
+deploy, hardware), stzTour / stzLogbook (testoor's). Next wave: python tools/wave/class_rank.py or the by-file ranking one-liner
+in the session history: rank unpassed roots by file; take ~1,000 in three or four file-disjoint groups; prompt =
+doc/tools/wave/WAVE_PROMPT_NEUTRAL.md with the data file prefix changed (w14_), own scratchpad subfolder per agent, kill by PID.
+Lesson: a stopped agent's scratch folder holds its entries; look there before redoing work.
+
