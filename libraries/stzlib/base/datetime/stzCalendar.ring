@@ -35,14 +35,12 @@ func IsStzCalendar(p)
 # fits (CanFit, FirstAvailableSlot), attach a stzTimeLine to look for conflicts, compare two
 # calendars, and export the facts with ToHash, ToJSON and ToCSV or draw them with Show, ShowHeatMap
 # and ShowTable. Hours are whole hours, rounded down day by day. Month and year navigation moves the
-# calendar itself. Known gaps today, each carried as a warning on its method: only the FIRST day of
-# a period is checked against the holidays when days are counted (the next days are produced as
-# dd/MM/yyyy text, while holidays are compared as text with the date as added); about twenty methods
-# are stubs that raise Not yet implemented!, or call a method that does not exist (the Between
-# families of breaks, working days and available days, GoToNext, ConflictsWithSpan,
-# ContainsBreaksBetween); AvailableHoursBetweenN overwrites the whole-calendar cache;
-# FirstAvailableSlot ends its slot from midnight; ContainsBusinessHours is always FALSE; going to
-# the next month from December raises; a year or quarter calendar cannot be drawn.
+# calendar itself, and GoTo moves a year, quarter or month calendar to the period of a date. Day
+# navigation (NextDay, GoToNextDay, PreviousDay, GoToPreviousDay) works on a calendar built from one
+# single date, because the class keeps no day cursor. Known gaps today, each carried as a warning on
+# its method: the WorkingDaysBetween family raises once working days are set; FirstAvailableSlot
+# ends its slot from midnight; ContainsBusinessHours is always FALSE; going to the next or previous
+# year from a range calendar ends in year 1 or -1.
 #
 #   receiver   o1 = new stzCalendar([ 2026, 3 ])
 #   example    ? o1.TotalDays()
@@ -1074,14 +1072,16 @@ class stzCalendar from stzObject
 		def HasBreaksBetween(pStart, pEnd)
 			return len(This.BreaksBetween(pStart, pEnd))
 
-	# Raises Not yet implemented! today instead of returning the list of available hour slots of the calendar.
+	# Returns every free one-hour slot of the calendar as date and time texts, oldest first.
 	#
-	#   returns    nothing; always raises
-	#   note       a year, quarter or range calendar printed with ToString also fails through this
-	#              stub
-	#   warning    the body is a stub that raises Not yet implemented!; the form that works is
-	#              AvailableHoursN
-	#   see        AvailableHoursN, AvailableDays
+	#   returns    a list of texts such as 2026-03-02 09:00:00, one per free whole hour
+	#   note       a holiday and a day that is not a working weekday give no slot; a slot that overlaps a
+	#              break is left out; slots start at the opening time, so hours from 09:30 to 17:30 give
+	#              slots at 09:30, 10:30 and so on up to 16:30; the date part is always yyyy-MM-dd
+	#   warning    when breaks sit in different hours the list can be shorter than AvailableHoursN, which
+	#              takes the break minutes away before rounding down (two ten-minute breaks in different
+	#              hours give 6 slots against 7 hours)
+	#   see        AvailableHoursN, AvailableHoursBetween, AvailableHoursOn
 	#@ aka  Capacity calculations
 	def AvailableHours()
 		return This.AvailableHoursBetween(This.Start(), This.End_())
@@ -1128,14 +1128,14 @@ class stzCalendar from stzObject
 		def HasAvailableHours()
 			return This.AvailableHoursN() > 0
 
-	# Raises Not yet implemented! today instead of returning the available hour slots between two dates.
+	# Returns the free one-hour slots from one date to another, both included, as date and time texts.
 	#
-	#   pStart     the first day of the range, as a date text such as 2026-03-01
-	#   pEnd       the last day of the range, as a date text such as 2026-03-31
-	#   returns    nothing; always raises
-	#   warning    the body is a stub that raises Not yet implemented!; the form that works is
-	#              AvailableHoursBetweenN
-	#   see        AvailableHoursBetweenN
+	#   pStart     the first day of the range, as a date text such as 2026-03-01 or 01/03/2026
+	#   pEnd       the last day of the range, written in the same way
+	#   returns    a list of texts such as 2026-03-02 09:00:00, oldest first; [ ] when the range holds none
+	#   note       the range may reach before or after the calendar; holidays and breaks follow the
+	#              calendar; a range whose end comes before its start gives [ ]
+	#   see        AvailableHoursOn, AvailableHoursBetweenN, AvailableHours
 	def AvailableHoursBetween(pStart, pEnd)
 		_cDate_ = This._isoDate(pStart)
 		_cEnd_ = This._isoDate(pEnd)
@@ -1211,24 +1211,25 @@ class stzCalendar from stzObject
 	def ContainsAvailableHoursBetween(pStart, pEnd)
 		return This.AvailableHoursBetweenN(pStart, pEnd) > 0
 	
-		# Raises Not yet implemented! today instead of telling whether the range holds available hours.
+		# TRUE if at least one whole working hour is free between two dates, both included.
 		#
 		#   pStart     the first day of the range, as a date text such as 2026-03-01
 		#   pEnd       the last day of the range, as a date text such as 2026-03-31
-		#   returns    nothing; always raises
-		#   note       ContainsAvailableHoursBetween answers the question
-		#   warning    calls AvailableHoursBetween, which is a stub
-		#   see        ContainsAvailableHoursBetween
+		#   returns    TRUE or FALSE
+		#   note       the same answer as ContainsAvailableHoursBetween; holidays, days off and breaks are
+		#              taken out first
+		#   see        ContainsAvailableHoursBetween, AvailableHoursBetweenN
 		def HasAvailableHoursBetween(pStart, pEnd)
 			return This.AvailableHoursBetweenN(pStart, pEnd) > 0
 
-	# Raises Not yet implemented! today instead of returning the available hour slots of one day.
+	# Returns the free one-hour slots of one day as date and time texts; [ ] on a holiday or a day off.
 	#
-	#   pDate      the day, as a date text such as 2026-03-10
-	#   returns    nothing; always raises
-	#   warning    the body is a stub that raises Not yet implemented!; the form that works is
-	#              AvailableHoursOnN
-	#   see        AvailableHoursOnN
+	#   pDate      the day, as a date text such as 2026-03-10 or 10/03/2026
+	#   returns    a list of texts such as 2026-03-11 09:00:00, one per free whole hour, oldest first
+	#   note       a slot that overlaps a break is left out; the date part is always yyyy-MM-dd
+	#   warning    a text that is no date raises; with breaks in different hours the list can be shorter
+	#              than AvailableHoursOnN, as AvailableHours explains
+	#   see        AvailableHoursOnN, AvailableHours, AddBreak
 	def AvailableHoursOn(pDate)
 		_aResult_ = []
 		if This.IsHoliday(pDate)
@@ -1310,23 +1311,22 @@ class stzCalendar from stzObject
 	def CountAvailableHoursOn(pDate)
 		return This.AvailableHoursOnN(pDate)
 
-	# Raises Not yet implemented! today instead of telling whether a day has available hours.
+	# TRUE if the day has at least one whole working hour free, holidays, days off and breaks taken out.
 	#
-	#   pDate      the day, as a date text such as 2026-03-10
-	#   returns    nothing; always raises
-	#   note       AvailableHoursOnN greater than 0 answers the question
-	#   warning    calls AvailableHoursOn, which is a stub
-	#   see        AvailableHoursOnN
+	#   pDate      the day, as a date text such as 2026-03-10 or 10/03/2026
+	#   returns    TRUE or FALSE
+	#   note       built on AvailableHoursOnN, so a day whose free time is under one hour answers FALSE;
+	#              HasAvailableHoursOn gives the same answer
+	#   see        AvailableHoursOnN, AvailableHoursOn
 	def ContainsAvailableHoursOn(pDate)
 		return This.AvailableHoursOnN(pDate) > 0
 	
-		# Raises Not yet implemented! today instead of telling whether a day has available hours.
+		# TRUE if the day has at least one whole working hour free, as ContainsAvailableHoursOn says.
 		#
-		#   pDate      the day, as a date text such as 2026-03-10
-		#   returns    nothing; always raises
-		#   note       AvailableHoursOnN greater than 0 answers the question
-		#   warning    calls AvailableHoursOn, which is a stub
-		#   see        AvailableHoursOnN
+		#   pDate      the day, as a date text such as 2026-03-10 or 10/03/2026
+		#   returns    TRUE or FALSE
+		#   note       a holiday, a day off and a day whose free time is under one hour answer FALSE
+		#   see        ContainsAvailableHoursOn, AvailableHoursOnN
 		def HasAvailableHoursOn(pDate)
 			return This.AvailableHoursOnN(pDate) > 0
 
@@ -1404,13 +1404,14 @@ class stzCalendar from stzObject
 		def HasAvailableDays()
 			return This.AvailableDaysN() > 0
 
-	# Raises Not yet implemented! today instead of returning the available days between two dates.
+	# Returns the working days that are not holidays from one date to another, both included.
 	#
-	#   pStart     the first day of the range, as a date text such as 2026-03-01
-	#   pEnd       the last day of the range, as a date text such as 2026-03-31
-	#   returns    nothing; always raises
-	#   warning    the body is a stub that raises through raise()
-	#   see        AvailableDays
+	#   pStart     the first day of the range, as a date text such as 2026-03-01 or 01/03/2026
+	#   pEnd       the last day of the range, written in the same way
+	#   returns    a list of yyyy-MM-dd texts, oldest first; [ ] when the range holds none
+	#   note       the range may reach before or after the calendar and cross a month, a year or a leap
+	#              day; a range whose end comes before its start gives [ ]
+	#   see        AvailableDaysBetweenN, AvailableDays, WeekendsBetween
 	def AvailableDaysBetween(pStart, pEnd)
 		_cDate_ = This._isoDate(pStart)
 		_cEnd_ = This._isoDate(pEnd)
@@ -1423,14 +1424,12 @@ class stzCalendar from stzObject
 			_cDate_ = _getNextDay(_cDate_)
 		next
 		return _acResult_
-	# Raises error R14 today instead of counting the available days between two dates.
+	# Returns the number of working days that are not holidays between two dates, both included.
 	#
 	#   pStart     the first day of the range, as a date text such as 2026-03-01
 	#   pEnd       the last day of the range, as a date text such as 2026-03-31
-	#   returns    nothing; always raises
-	#   warning    calls AvailabelDaysBetween, a misspelling of a method that is itself a stub
-	#   see        AvailableDaysN
-	#@ aka  returns a list of dates
+	#   returns    a number of days, 0 when the range holds none
+	#   see        AvailableDaysBetween, AvailableDaysN
 	def AvailableDaysBetweenN(pStart, pEnd)
 		return len(This.AvailableDaysBetween(pStart, pEnd))
 
@@ -1440,31 +1439,35 @@ class stzCalendar from stzObject
 	def CountAvailableDaysBetween(pStart, pEnd)
 		return this.AvailableDaysBetweenN(pStart, pEnd)
 
-	# Raises error R14 today instead of telling whether the range holds available days.
+	# TRUE if at least one working day that is not a holiday lies between two dates, both included.
 	#
 	#   pStart     the first day of the range, as a date text such as 2026-03-01
 	#   pEnd       the last day of the range, as a date text such as 2026-03-31
-	#   returns    nothing; always raises
-	#   warning    calls AvailableDaysBetweenN, which raises R14
-	#   see        AvailableDaysN
+	#   returns    TRUE or FALSE
+	#   note       HasAvailableDaysBetween gives the same answer
+	#   see        AvailableDaysBetween, AvailableDaysBetweenN
 	def ContainsAvailableDaysBetween(pStart, pEnd)
 		return This.AvailableDaysBetweenN(pStart, pEnd) > 0
 
-		# Raises error R14 today instead of telling whether the range holds available days.
+		# TRUE if at least one working day that is not a holiday lies between two dates, as ContainsAvailableDaysBetween says.
 		#
 		#   pStart     the first day of the range, as a date text such as 2026-03-01
 		#   pEnd       the last day of the range, as a date text such as 2026-03-31
-		#   returns    nothing; always raises
-		#   warning    calls AvailableDaysBetweenN, which raises R14
-		#   see        AvailableDaysN
+		#   returns    TRUE or FALSE
+		#   see        ContainsAvailableDaysBetween, AvailableDaysBetween
 		def HasAvailableDaysBetween(pStart, pEnd)
 			return This.AvailableDaysBetweenN(pStart, pEnd) > 0
 
-	# Raises Not yet implemented! today instead of returning the available weeks as pairs of dates.
+	# Returns the weeks of the calendar that hold an available day, each as its first and last available day.
 	#
-	#   returns    nothing; always raises
-	#   warning    the body is a stub that raises Not yet implemented!
-	#   see        AvailableWeeksN
+	#   returns    a list of [ first, last ] pairs of yyyy-MM-dd texts, oldest first
+	#   note       weeks run from Monday to Sunday; the pair holds the first and the last available day
+	#              of that week inside the calendar, so a week cut by the calendar edge or by holidays is
+	#              shorter (March 2026 ends with [ 2026-03-30, 2026-03-31 ]); a week with no available
+	#              day is left out
+	#   warning    the list can have a different length than AvailableWeeksN, which divides the available
+	#              days by 5 and rounds up
+	#   see        AvailableWeeksN, AvailableDays
 	#@ aka  --
 	def AvailableWeeks()
 		_aResult_ = []
@@ -1792,59 +1795,74 @@ def RangeInfo(pStart, pEnd)
 	#  NAVIGATING THE CALENDAR BACK AND FORTH  #
 	#------------------------------------------#
 
-	# Raises Not yet implemented! today instead of answering the day after the calendar's current day.
+	# Returns the day after the one day a single-date calendar covers, as yyyy-MM-dd text, without moving the calendar.
 	#
-	#   returns    nothing; always raises
-	#   note       stzDate has a working NextDay
-	#   warning    the body is a stub that raises Not yet implemented!; the calendar keeps no
-	#              current day
-	#   see        GoToNextDay, Next_
+	#   returns    a date text such as 2026-04-01
+	#   note       the step crosses month, year and leap-day boundaries (2026-12-31 gives
+	#              2027-01-01, 2024-02-28 gives 2024-02-29); the calendar must be built from one date
+	#              such as 2026-03-31, in either order of writing
+	#   warning    a year, quarter, month or range calendar has no current day, because the class
+	#              keeps no day cursor, so the call raises; what the current day of a longer period
+	#              is has not been decided
+	#   see        PreviousDay, GoToNextDay, Next_
 	#@ aka  Navigating to next/previous Day
-	def NextDay()
-		stzraise("Not yet implemented!")
-	# Raises Not yet implemented! today instead of moving the calendar to the next day.
-	#
-	#   returns    nothing; always raises
-	#   note       month and year navigation work; day navigation does not
-	#   warning    the body is a stub that raises Not yet implemented!
-	#   see        GotoNextMonth
-		#TODO// See how meonths and years are implemented
 	#@ aka  NOTE// Currently the class does not save the current day in the calendar
+	def NextDay()
+		return _getNextDay(_theOnlyDay("NextDay"))
+
+	# Moves a single-date calendar to the following day, so that its start and its end are both that day.
+	#
+	#   returns    nothing; the object changes in place
+	#   note       GotoNextDayQ answers the object so calls chain; holidays, breaks, working days and
+	#              business hours are kept; the cache of available hours and days is cleared
+	#   warning    a year, quarter, month or range calendar has no current day to move, so the call
+	#              raises and the calendar stays as it was; GotoNextMonth moves a month calendar
+	#   see        NextDay, GoToPreviousDay, GotoNextMonth
 	def GoToNextDay()
-		stzraise("Not yet implemented!")
-	
+		_cDay_ = This.NextDay()
+		@cStartDate = _cDay_
+		@cEndDate = _cDay_
+		This.InvalidateCache()
+
 		def GotoNextDayQ()
 			This.GotoNextDay()
 			return This
 
-	# Raises Not yet implemented! today instead of answering the day before the calendar's current day.
+	# Returns the day before the one day a single-date calendar covers, as yyyy-MM-dd text, without moving the calendar.
 	#
-	#   returns    nothing; always raises
-	#   note       stzDate has a working PreviousDay
-	#   warning    the body is a stub that raises Not yet implemented!; the calendar keeps no
-	#              current day
-	#   see        GoToPreviousDay, Previous
+	#   returns    a date text such as 2026-02-28
+	#   note       the step crosses month, year and leap-day boundaries (2026-01-01 gives
+	#              2025-12-31, 2024-03-01 gives 2024-02-29); the calendar must be built from one date
+	#   warning    a year, quarter, month or range calendar has no current day, because the class
+	#              keeps no day cursor, so the call raises; what the current day of a longer period
+	#              is has not been decided
+	#   see        NextDay, GoToPreviousDay, Previous
 	def PreviousDay()
-		stzraise("Not yet implemented!")
+		return _getPreviousDay(_theOnlyDay("PreviousDay"))
 
-	# Raises Not yet implemented! today instead of moving the calendar to the previous day.
+	# Moves a single-date calendar to the day before, so that its start and its end are both that day.
 	#
-	#   returns    nothing; always raises
-	#   warning    the body is a stub that raises Not yet implemented!
-	#   see        GoToPreviousMonth
+	#   returns    nothing; the object changes in place
+	#   note       GotoPreviousDayQ answers the object so calls chain; holidays, breaks, working days
+	#              and business hours are kept; the cache of available hours and days is cleared
+	#   warning    a year, quarter, month or range calendar has no current day to move, so the call
+	#              raises and the calendar stays as it was; GoToPreviousMonth moves a month calendar
+	#   see        PreviousDay, GoToNextDay, GoToPreviousMonth
 	def GoToPreviousDay()
-		stzraise("Not yet implemented!")
-	
+		_cDay_ = This.PreviousDay()
+		@cStartDate = _cDay_
+		@cEndDate = _cDay_
+		This.InvalidateCache()
+
 		def GotoPreviousDayQ()
 			This.GotoPreviousDay()
-			return THis
+			return This
 
 	# Returns the English name of the month after the calendar's month, without moving the calendar.
 	#
 	#   returns    a month name such as April, or nothing for a year, quarter or range view
-	#   note       the trailing underscore avoids the Ring word Next; NextMonth does the same
-	#   warning    raises Invalid date provided! in December, because the month number goes to 13
-	#              and is not wrapped to 1
+	#   note       NextMonth does the same; December gives January; the trailing underscore avoids
+	#              the Ring word Next
 	#   see        Previous, GotoNextMonth
 	#@ aka  Navigating to next/previous year
 	def Next_() # Does not naviaget just returns the next month
@@ -1866,10 +1884,9 @@ def RangeInfo(pStart, pEnd)
 	# Moves a month calendar to the following month and rebuilds its first and last day.
 	#
 	#   returns    nothing; the object changes in place
-	#   note       does nothing on a year, quarter or range calendar; holidays, breaks and working
-	#              days are kept; GotoNextMonthQ answers the object so calls chain
-	#   warning    raises R2 in December and leaves the calendar corrupted (month 13, year already
-	#              moved); GoToNext, an alias meant for it, raises R14
+	#   note       December moves to January of the next year; does nothing on a year, quarter or
+	#              range calendar; holidays, breaks and working days are kept; GotoNextMonthQ
+	#              answers the object so calls chain; GoToNext does the same move
 	#   see        GoToPreviousMonth, Next_
 	def GotoNextMonth()
 		if @nMonth > 0
@@ -1885,12 +1902,13 @@ def RangeInfo(pStart, pEnd)
 			This.GotoNextMonth()
 			return This
 
-		# Raises error R14 today instead of moving the calendar to the next month.
+		# Moves a month calendar to the following month and rebuilds its first and last day.
 		#
-		#   returns    nothing; always raises
-		#   note       GotoNextMonth does the move; GotoNextQ calls it and answers the object
-		#   warning    calls GoNextMonth, which exists nowhere
-		#   see        GotoNextMonth
+		#   returns    nothing; the object changes in place
+		#   note       December moves to January of the next year; GotoNextQ answers the object so calls
+		#              chain; holidays, breaks and working days are kept
+		#   warning    does nothing on a year, quarter or range calendar
+		#   see        GotoNextMonth, GoToPrevious
 		def GoToNext()
 			This.GotoNextMonth()
 
@@ -2001,12 +2019,16 @@ def RangeInfo(pStart, pEnd)
 			This.GotoPreviousYear()
 			return THis
 
-	# Raises Not yet implemented! today instead of moving the calendar to a given date.
+	# Moves a year, quarter or month calendar to the period that holds a date, keeping the kind of period.
 	#
-	#   pDate      the day to move to, as a date text such as 2026-05-01
-	#   returns    nothing; always raises
-	#   warning    the body is a stub that raises Not yet implemented!
-	#   see        GotoNextMonth
+	#   pDate      the day to reach, as a date text such as 2026-05-17 or 17/05/2026
+	#   returns    nothing; the object changes in place
+	#   note       a month calendar becomes the month of the date, a quarter calendar the quarter of the
+	#              date (2027-11-05 gives 2027-Q4) and a year calendar the year of the date; holidays,
+	#              breaks and working days are kept
+	#   warning    a range or single-date calendar has no period to move, so the call raises and the
+	#              calendar stays as it was
+	#   see        GotoNextMonth, GoToPreviousMonth, GoToNextYear
 	#@ aka  Going to a give date
 	def GoTo(pDate)
 		_oDay_ = StzDateQ(This._isoDate(pDate))
@@ -2043,21 +2065,26 @@ def RangeInfo(pStart, pEnd)
 		ok
 		return _aRes_
 
-	# Returns the day of the month of today, read from the clock and not from the calendar.
+	# Reads the day of the month from the clock, whatever period the calendar covers.
 	#
 	#   returns    a number from 1 to 31
-	#   note       follows StzFreezeClock; the same whatever period the calendar covers
-	#   see        CurrentMonth, CurrentYear
+	#   note       it is the live clock, not the calendar: a March 2026 calendar answers the day of the
+	#              present date, or the frozen date when StzFreezeClock is set; Current and CurrentXT
+	#              describe the calendar's own period
+	#   warning    what the current day of a calendar is has not been decided: the calendar keeps no day
+	#              cursor, so no method reads one
+	#   see        CurrentMonth, CurrentYear, IsToday
 	#@ aka  CurrentDay / CurrentMonth / CurrentYear: trivial accessors for the live wall-clock day/month/year. Honour the freezable clock (see StzFreezeClock).
 	def CurrentDay()
 		_aYmd_ = _TodayYMD()
 		return _aYmd_[3]
 
-	# Returns the English name of today's month, read from the clock and not from the calendar.
+	# Reads the English name of the month from the clock, whatever period the calendar covers.
 	#
-	#   returns    a month name such as March
-	#   note       follows StzFreezeClock
-	#   see        CurrentMonthN, CurrentDay
+	#   returns    a month name such as February
+	#   note       it is the live clock, not the calendar: MonthName gives the month of a month calendar;
+	#              it follows StzFreezeClock
+	#   see        CurrentMonthN, MonthName, CurrentDay
 	def CurrentMonth()
 		_aYmd_ = _TodayYMD()
 		_nMonth_ = _aYmd_[2]
@@ -2067,19 +2094,21 @@ def RangeInfo(pStart, pEnd)
 		ok
 		return "" + _nMonth_
 
-		# Returns the number of today's month, read from the clock and not from the calendar.
+		# Reads the number of the month from the clock, whatever period the calendar covers.
 		#
 		#   returns    a number from 1 to 12
-		#   note       follows StzFreezeClock
-		#   see        CurrentMonth
+		#   note       it is the live clock, not the calendar: MonthNumber gives the month of a month
+		#              calendar; it follows StzFreezeClock
+		#   see        CurrentMonth, MonthNumber
 		def CurrentMonthN()
 			_aYmd_ = _TodayYMD()
 			return _aYmd_[2]
 
-	# Returns today's year, read from the clock and not from the calendar.
+	# Reads the year from the clock, whatever period the calendar covers.
 	#
 	#   returns    a number such as 2026
-	#   note       follows StzFreezeClock
+	#   note       it is the live clock, not the calendar: Year gives the year of the calendar; it follows
+	#              StzFreezeClock
 	#   see        CurrentMonth, Year
 	def CurrentYear()
 		_aYmd_ = _TodayYMD()
@@ -2198,22 +2227,24 @@ def RangeInfo(pStart, pEnd)
 	def ContainsWeekends()
 		return len(This.Weekends()) > 0
 
-		# Answers nothing today instead of telling whether the calendar has weekend days.
+		# TRUE if at least one day of the calendar is not a working weekday, Saturday or Sunday by default.
 		#
-		#   returns    nothing
-		#   note       ContainsWeekends answers the question
-		#   warning    the method has no body
-		#   see        ContainsWeekends
+		#   returns    TRUE or FALSE
+		#   note       follows the working days set with SetWorkingDays, so a calendar whose days off are
+		#              Friday and Saturday answers on those; ContainsWeekends gives the same answer
+		#   see        ContainsWeekends, Weekends, WeekendsN
 		def HasWeekends()
 			return len(This.Weekends()) > 0
 
-	# Raises Not yet implemented! today instead of returning the weekend days between two dates.
+	# Returns the days from one date to another that are not working weekdays, both ends included.
 	#
-	#   pStart     the first day of the range, as a date text such as 2026-03-01
-	#   pEnd       the last day of the range, as a date text such as 2026-03-31
-	#   returns    nothing; always raises
-	#   warning    the body is a stub that raises Not yet implemented!
-	#   see        Weekends
+	#   pStart     the first day of the range, as a date text such as 2026-03-01 or 01/03/2026
+	#   pEnd       the last day of the range, written in the same way
+	#   returns    a list of yyyy-MM-dd texts, oldest first; [ ] when the range holds none
+	#   note       the weekend is the days off of the working days set with SetWorkingDays, Saturday and
+	#              Sunday by default; a holiday on a working weekday is not listed; a range whose end
+	#              comes before its start gives [ ]
+	#   see        WeekendsBetweenN, Weekends, SetWorkingDays
 	def WeekendsBetween(pStart, pEnd)
 		_cDate_ = This._isoDate(pStart)
 		_cEnd_ = This._isoDate(pEnd)
@@ -2226,14 +2257,13 @@ def RangeInfo(pStart, pEnd)
 			_cDate_ = _getNextDay(_cDate_)
 		next
 		return _acResult_
-	# Raises Not yet implemented! today instead of counting the weekend days between two dates.
+	# Returns the number of days between two dates that are not working weekdays, both ends included.
 	#
 	#   pStart     the first day of the range, as a date text such as 2026-03-01
 	#   pEnd       the last day of the range, as a date text such as 2026-03-31
-	#   returns    nothing; always raises
-	#   warning    calls WeekendsBetween, which is a stub
-	#   see        WeekendsN
-		#TODO// Returns a list days as datestrings
+	#   returns    a number of days, 0 when the range holds none
+	#   note       Saturday and Sunday by default, as WeekendsBetween lists them
+	#   see        WeekendsBetween, WeekendsN
 	def WeekendsBetweenN(pStart, pEnd)
 		return len(This.WeekendsBetween(pStart, pEnd))
 
@@ -2672,15 +2702,16 @@ def ConflictsWith(oTimeLine)
 	
 	return 0
 
-# Raises error R24 today instead of listing the days where a named span meets a holiday or a day off.
+# Returns the days of a named span of the attached timeline that fall on a holiday or a day off.
 #
-#   cLabel     the span label to check
+#   cLabel     the label of the span to check, written exactly as it was added to the timeline
 #   aParams    extra parameters, not read
-#   returns    nothing; always raises
-#   note       the intended answer is a list of [ date, reason ] pairs
-#   warning    tests an undefined variable oTimeLine instead of the attached timeline, so it raises
-#              Using uninitialized variable: otimeline for any label
-#   see        ConflictsWith
+#   returns    a list of [ date, reason ] pairs, oldest first; the reason is Holiday: followed by the
+#              holiday name, or Weekend; [ ] when the span meets none or no span has that label
+#   note       the span is read from the timeline attached with MarkTimeline, both end days included
+#   warning    the label is compared as written, so sprint does not find SPRINT; raises when no
+#              timeline is attached
+#   see        ConflictsWith, MarkTimeline
 def ConflictsWithSpan(cLabel, aParams)
 	if NOT (isObject(@oTimeLine) and ring_classname(@oTimeLine) = "stztimeline")
 		StzRaise("Incorrect param type! the calendar needs a stzTimeLine object attached first.")
@@ -3099,7 +3130,7 @@ def CompareWith(_oOtherCal_)
 	#   returns    nothing; it prints
 	#   note       the same text as ToString
 	#   warning    prints No calendar data to display above the table for a range or one-day
-	#              calendar, and raises Not yet implemented! for a year or quarter calendar
+	#              calendar; a year or quarter calendar prints the year overview
 	#              seen in the gallery: the summary counts disagree with ShowTable: October 2024 with a Wednesday holiday says working 23 and weekend 7 where ShowTable shows 22 working days and 8 weekend days; the legend says [D] for a holiday but the grid prints the date
 	#   see        ToString, ShowShort
 	def Show()
@@ -3110,9 +3141,8 @@ def CompareWith(_oOtherCal_)
 	#   returns    a multi-line text
 	#   note       the grid starts weeks on Monday; the statistics table repeats the holiday caveat
 	#              of AvailableDaysN; ToStringXT with [ [ :ShowTable, 0 ] ] drops the table
-	#   warning    raises Not yet implemented! for a year or quarter calendar (the overview calls
-	#              AvailableHours); a range or one-day calendar gets No calendar data to display in
-	#              place of the grid
+	#   warning    a year or quarter calendar gets the overview of its whole year, month by month;
+	#              a range or one-day calendar gets No calendar data to display in place of the grid
 	#   see        Show, ToStringShort
 	def ToString()
 		return This.ToStringXT([])
@@ -3359,8 +3389,8 @@ def CompareWith(_oOtherCal_)
 					_oCalTemp_.@cBusinessStart = This.@cBusinessStart
 					_oCalTemp_.@cBusinessEnd = This.@cBusinessEnd
 					
-					_nDays_ = _oCalTemp_.AvailableDays()
-					_nHours_ = _oCalTemp_.AvailableHours()
+					_nDays_ = _oCalTemp_.AvailableDaysN()
+					_nHours_ = _oCalTemp_.AvailableHoursN()
 					
 					_cMonthName_ = _oCalTemp_.MonthName()
 					_cResult_ += _cMonthName_ + "(" + _nDays_ + "d/" + _nHours_ + "h) "
@@ -3616,6 +3646,19 @@ def CompareWith(_oOtherCal_)
 		_oDay_ = StzDateQ(_cDate_)
 		_oDay_.AddDays(-1)
 		return _oDay_.ToISO8601()
+
+	# The one day of a calendar built from a single date, as yyyy-MM-dd text; any other period has no
+	# current day (the class keeps no day cursor), so asking for it raises.
+	def _theOnlyDay(_cMethod_)
+		if @cStartDate = "" or @cEndDate = ""
+			StzRaise(_cMethod_ + " needs a calendar of one single day: this calendar covers no date")
+		ok
+		_cFirst_ = This._isoDate(@cStartDate)
+		_cLast_ = This._isoDate(@cEndDate)
+		if _cFirst_ != _cLast_
+			StzRaise(_cMethod_ + " needs a calendar of one single day: a year, quarter, month or range has no current day")
+		ok
+		return _cFirst_
 
 	# The date as yyyy-MM-dd text whatever order it was written in (2026-03-10 or 10/03/2026); a
 	# text that is no date comes back unchanged.
