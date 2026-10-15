@@ -269,3 +269,11 @@ cleanly when each took disjoint methods. Next by size: stzObject 28, stzCalendar
 stzFileManager 15, stzListOfTimeLines 14 (python on defects.json gives the full list). Prompt shape: the stzTable batch prompts
 (this session) = chips text + 'call each first' + guard t0N in the class's test folder + no push/rebase/regeneration by agents.
 
+## 2026-10-15: the stzObject fix batch is ON MAIN (a5d8dea30, both remotes); register 410 -> 382
+
+All 28 rows were genuinely broken (none stale): 20 fixed, 8 M-suffixed leftovers documented as retired (decision owed: delete or alias to
+the Q forms, per NNL_REVIEW.md 4c), ToStzListOfObjects belongs to stzListOfObjects. Method that worked for the ancestor class: call
+every method on four receivers first, fix minimally, guard test/object/stzObject_defects_narrated.ring (186), then a 25-suite
+regression set run by the parent on the merged tree. Next by size: stzCalendar 25, stzItemCS 20, stzGeoMap 18, stzMatrex 17,
+stzFileManager 15, stzListOfTimeLines 14.
+
