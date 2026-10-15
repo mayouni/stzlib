@@ -40,8 +40,6 @@ stzhashlist.classinlistqrt
 stzhashlist.kalssinlistsqrt
 stzhashlist.klassesinlistqrt
 stzhashlist.klassesinlistsqrt
-stzitemcs.insertedafter
-stzitemcs.insertedbefore
 stzitemcs.occurrencesxtq
 stzlistnamedparams.isatsubstringswherextoratsubstringswxtnamedparams
 stzlistnamedparams.isbeforesubstringswherextorbeforesubstringswxtnamedparams
