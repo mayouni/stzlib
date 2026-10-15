@@ -17282,21 +17282,23 @@ func _NormalizeColLookupKey(pVal)
 	 #  REPLACING ALL THE COLUMNS IN THE TABLE WITH THE GIVEN COLUMNS (PROVIDED AS LISTS OF CELLS)  #
 	#----------------------------------------------------------------------------------------------#
 
-	# Raises error today instead of replacing several columns by several new column lists.
+	# Replaces the given columns by new lists of cells, one list per column and in the same order, in place.
 	#
-	#   paNewCols   the new cell lists, one per column
-	#   returns     nothing; it raises
-	#   warning     Always raises Unsupported feature in this release!
-	#   see         ReplaceTheseCols
+	#   paCols      the columns to replace, each a name or a position
+	#   paNewCols   the new lists of cells, or [ :With, lists ]
+	#   returns     nothing; the table changes
+	#   warning     Raises an error for a column that does not exist; the surplus of the longer list is ignored
+	#   see         ReplaceTheseCols, ReplaceCol
 	def ReplaceAllColsByMany(paCols, paNewCols)
 		This.ReplaceTheseColsByMany(paCols, paNewCols)
 
-		# Raises error today instead of replacing several columns by several new column lists.
+		# Replaces the given columns by new lists of cells, one list per column and in the same order, in place.
 		#
-		#   paNewCols   the new cell lists, one per column
-		#   returns     nothing; it raises
-		#   warning     Always raises Unsupported feature in this release!
-		#   see         ReplaceTheseCols
+		#   paCols      the columns to replace, each a name or a position
+		#   paNewCols   the new lists of cells, or [ :With, lists ]
+		#   returns     nothing; the table changes
+		#   warning     Raises an error for a column that does not exist; the surplus of the longer list is ignored
+		#   see         ReplaceTheseCols, ReplaceCol
 		def ReplaceAllColumsByMany(paCols, paNewCols)
 			This.ReplaceAllColsByMany(paCols, paNewCols)
 
@@ -17307,12 +17309,13 @@ func _NormalizeColLookupKey(pVal)
 	 #  REPLACING THE GIVEN COLUMNS WITH THE GIVEN COLUMNS (PROVIDED AS LISTS OF CELLS)  #
 	#-----------------------------------------------------------------------------------#
 
-	# Raises error today instead of replacing several columns by several new column lists.
+	# Replaces the given columns by new lists of cells, one list per column and in the same order, in place.
 	#
-	#   paNewCols   the new cell lists, one per column
-	#   returns     nothing; it raises
-	#   warning     Always raises Unsupported feature in this release!
-	#   see         ReplaceTheseCols
+	#   paCols      the columns to replace, each a name or a position
+	#   paNewCols   the new lists of cells, or [ :With, lists ]
+	#   returns     nothing; the table changes
+	#   warning     Raises an error for a column that does not exist; the surplus of the longer list is ignored
+	#   see         ReplaceTheseCols, ReplaceCol
 	def ReplaceTheseColsByMany(paCols, paNewCols)
 		if IsOneOfTheseNamedParamsList(paNewCols,[ :With, :By, :Using ])
 			paNewCols = paNewCols[2]
@@ -17336,31 +17339,34 @@ func _NormalizeColLookupKey(pVal)
 			This.ReplaceNthCol(_nColRc_, paNewCols[_iRc_])
 		next
 
-		# Raises error today instead of replacing several columns by several new column lists.
+		# Replaces the given columns by new lists of cells, one list per column and in the same order, in place.
 		#
-		#   paNewCols   the new cell lists, one per column
-		#   returns     nothing; it raises
-		#   warning     Always raises Unsupported feature in this release!
-		#   see         ReplaceTheseCols
+		#   paCols      the columns to replace, each a name or a position
+		#   paNewCols   the new lists of cells, or [ :With, lists ]
+		#   returns     nothing; the table changes
+		#   warning     Raises an error for a column that does not exist; the surplus of the longer list is ignored
+		#   see         ReplaceTheseCols, ReplaceCol
 		#< @FunctionAlternativeForms
 		def ReplaceTheseColumnsByMany(paCols, paNewCols)
 			This.ReplaceTheseColsByMany(paCols, paNewCols)
 
-		# Raises error today instead of replacing several columns by several new column lists.
+		# Replaces the given columns by new lists of cells, one list per column and in the same order, in place.
 		#
-		#   paNewCols   the new cell lists, one per column
-		#   returns     nothing; it raises
-		#   warning     Always raises Unsupported feature in this release!
-		#   see         ReplaceTheseCols
+		#   paCols      the columns to replace, each a name or a position
+		#   paNewCols   the new lists of cells, or [ :With, lists ]
+		#   returns     nothing; the table changes
+		#   warning     Raises an error for a column that does not exist; the surplus of the longer list is ignored
+		#   see         ReplaceTheseCols, ReplaceCol
 		def ReplaceColsByMany(paCols, paNewCols)
 			This.ReplaceTheseColsByMany(paCols, paNewCols)
 
-		# Raises error today instead of replacing several columns by several new column lists.
+		# Replaces the given columns by new lists of cells, one list per column and in the same order, in place.
 		#
-		#   paNewCols   the new cell lists, one per column
-		#   returns     nothing; it raises
-		#   warning     Always raises Unsupported feature in this release!
-		#   see         ReplaceTheseCols
+		#   paCols      the columns to replace, each a name or a position
+		#   paNewCols   the new lists of cells, or [ :With, lists ]
+		#   returns     nothing; the table changes
+		#   warning     Raises an error for a column that does not exist; the surplus of the longer list is ignored
+		#   see         ReplaceTheseCols, ReplaceCol
 		def ReplaceColumnsByMany(paCols, paNewCols)
 			This.ReplaceTheseColsByMany(paCols, paNewCols)
 
@@ -17719,14 +17725,13 @@ func _NormalizeColLookupKey(pVal)
 	 #  REPLACING THE CELLS IN THE GIVEN ROWS BY THE PTOVIDED VALUE  #
 	#===============================================================#
 
-	# Raises error R24 today instead of setting every cell of the given rows to one value.
+	# Sets every cell of the given rows to one value, in place.
 	#
-	#   paRows     the positions of the rows to change
-	#   pCell      the value put in every cell
-	#   returns    nothing; it raises
-	#   warning    Raises R24 (uninitialized variable panewrows) because the body checks a name that
-	#              is not its parameter
-	#   see        ReplaceCellsInRow
+	#   paRows    the positions of the rows to change
+	#   pCell     the value put in every cell of those rows, or [ :With, value ]
+	#   returns   nothing; the table changes
+	#   warning   A list that is not a :With pair is put in each cell as it stands
+	#   see       ReplaceCellsInRow
 	def ReplaceCellsInTheseRows(paRows, pCell)
 		if isList(pCell) and IsOneOfTheseNamedParamsList(pCell,[ :With, :By, :Using ])
 			pCell = pCell[2]
