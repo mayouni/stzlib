@@ -277,3 +277,9 @@ every method on four receivers first, fix minimally, guard test/object/stzObject
 regression set run by the parent on the merged tree. Next by size: stzCalendar 25, stzItemCS 20, stzGeoMap 18, stzMatrex 17,
 stzFileManager 15, stzListOfTimeLines 14.
 
+## 2026-10-15: the stzCalendar fix batch is ON MAIN (50eba44eb, both remotes); register 382 -> 357
+
+17 of 25 rows stale, 4 stubs implemented (NextDay, PreviousDay, GoToNextDay, GoToPreviousDay), the rest documented; design question owed to the
+author: Current* read the clock, not the calendar. Still broken, outside the batch: WorkingDaysBetween family R5, FirstAvailableSlot,
+ContainsBusinessHours, GoToNextYear on a range. Next by size: stzItemCS 20, stzGeoMap 18, stzMatrex 17, stzFileManager 15, stzListOfTimeLines 14.
+
