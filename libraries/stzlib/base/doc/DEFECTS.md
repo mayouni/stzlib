@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 410 methods in 98 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 382 methods in 97 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| object/stzObject.ring | stzObject | 28 |
 | datetime/stzCalendar.ring | stzCalendar | 25 |
 | list/stzItem.ring | stzItemCS | 20 |
 | geo/stzGeoMap.ring | stzGeoMap | 18 |
@@ -572,37 +571,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `init` (line 36): Raises error R14 today instead of building a list of objects from the given list. -- the type check calls IsListOfObjects on a stzList, a method that does not exist, so every list raises R14 Calling Method without definition: islistofobjects (tried with one object and with two); a value that is not a list raises Incorrect param type
 - `Content` (line 50): Returns an empty text today instead of the list of objects, because the method names the list and does not return it. -- the body is the bare name @aContent with no return, so the list is never handed back, even for a holder built without init
 - `Copy` (line 58): Raises error today instead of returning a copy of the list: it calls Content, which returns nothing, and init then refuses it. -- raises Incorrect param type! paoObjects must be a list of objects
-
-## stzObject -- object/stzObject.ring (28)
-
-- `Values` (line 2489): Raises error R24 today instead of returning the values of the object's attributes. -- raises R24 (uninitialized variable aresult): the list is built in a variable named _aResult_ and appended to as aResult; seen on a stzString, a stzList and a bare stzObject
-- `AttributesAndValues` (line 2511): Raises error R24 today instead of pairing each attribute name with its value. -- raises the R24 of Values, which it calls
-- `HasSameStzTypeAs` (line 2742): Answers FALSE today instead of telling whether another object has the same Softanza class. -- FALSE for a stzString against a stzString, a stzList against a stzList and a bare stzObject against another, even when the content is the class name; the test asks the other object IsStzType, which is true only when its content is a text naming a class
-- `IsListOrString` (line 2878): Raises error R4 today instead of telling whether the content is a list or a text. -- raises "Stack Overflow" (R4): the body calls IsListOrString itself, so it never ends; use IsStringOrList
-- `IsFalseObject` (line 2889): Answers FALSE today for every object, even the library's false object. -- the test compares the class name with the misspelling stzFlaseObject, which no class has; AFalseObject().IsFalseObject() answers FALSE too
-- `IsTrueObject` (line 2908): Answers FALSE today for every object, even the library's true object. -- the test compares the class name with the misspelling stzFlaseObject, which no class has; ATrueObject().IsTrueObject() answers FALSE
-- `WhichAreBoth` (line 3548): Raises error R24 today instead of checking that the content is a list of exactly two items. -- raises R24 (uninitialized variable _alist_): the body tests _aList_, a variable it never sets, where it meant _aContent_; seen on a list of two numbers
-- `OfM` (line 4174): Raises error R14 today instead of comparing and keeping the main object of the chain. -- raises R14 (calling method without definition: ofcsm), the method it forwards to
-- `OfXTM` (line 4211): Raises error R14 today instead of comparing, ignoring a filler word, and keeping the main object. -- raises R14 (calling method without definition: ofcsm)
-- `OfBM` (line 4257): Raises error R14 today instead of comparing to the last value and keeping the main object. -- raises R14 (calling method without definition: ofcsbm), the method it forwards to; its body also passes a pCaseSensitive it does not declare
-- `OfMB` (line 4267): Raises error R14 today instead of comparing to the last value and keeping the main object. -- raises R14 (calling method without definition: ofcsmb)
-- `OfXTCSB` (line 4291): Raises error R24 today instead of comparing to the last value while ignoring a filler word. -- raises R24 (uninitialized variable c): the body passes c instead of _n_
-- `OfXTCSBM` (line 4302): Raises error R14 today instead of comparing to the last value and keeping the main object. -- raises R14 (calling method without definition: ofcsbm)
-- `OfXTCSMB` (line 4314): Raises error R14 today instead of comparing to the last value and keeping the main object. -- raises R14 (calling method without definition: ofcsmb)
-- `OfXTBM` (line 4329): Raises error R24 today instead of comparing to the last value and keeping the main object. -- raises R24 (uninitialized variable cignored): the body uses a parameter it does not declare
-- `OfXTMB` (line 4340): Raises error R19 today instead of comparing to the last value and keeping the main object. -- raises R19 (fewer parameters than required): it calls OfXTCSMB with two arguments and that method wants three
-- `OfXTBQ` (line 4350): Raises error R19 today instead of returning the object when the last value equals the one given. -- raises R19 (fewer parameters than required): it calls OfXTCSBQ with two arguments
-- `IsText` (line 5694): Answers FALSE today for every object tried, a stzString holding text included. -- FALSE for Q("banana") and for a bare stzObject; use IsAString for the question it seems to ask
-- `ToPointer` (line 5704): Raises an error today instead of returning a pointer to the object. -- raises "Bad parameter type!" on a stzString and R21 (operator with incorrect type) on a stzList and on a bare stzObject, although the Ring built-in object2pointer(o) answers a pointer for the same object
-- `OccursForTheNthTime` (line 6273): Raises error R14 today instead of telling whether the content is the nth occurrence at a given position. -- raises R14: calling method without definition: nthoccurrencecs on a text and nthoccurrence on a list; seen on both with the same call
-- `OccursForTheFirstTime` (line 6303): Raises error R14 today instead of telling whether the content first appears at a given position. -- raises R14 (calling method without definition: nthoccurrencecs on a text, nthoccurrence on a list)
-- `OccursForTheLastTime` (line 6337): Raises error R14 today instead of telling whether the content last appears at a given position. -- raises R14 (calling method without definition: nthoccurrencecs on a text, nthoccurrence on a list)
-- `SizeInBytesXT32` (line 6531): Raises error R3 today instead of returning the extended 32-bit memory size. -- raises R3 (calling function without definition: @sizeinbytesxt32): the function it calls does not exist; the profiler defines @MemorySizeInBytes32XT instead
-- `SizeInBytesXT64` (line 6566): Raises error R3 today instead of returning the extended 64-bit memory size. -- raises R3 (calling function without definition: @sizeinbytesxt64): the function it calls does not exist
-- `AddTimeValue` (line 6887): Raises error R24 today instead of appending the elapsed time to a list of times. -- raises R24 (uninitialized variable _atime) even with SetKeepingTimeTo(1), because the list it appends to is never declared; without time keeping ExecutionTime raises first
-- `AddExecutionTimeValue` (line 6895): Raises error R24 today instead of appending the elapsed time to a list of times. -- raises the R24 of AddTimeValue (uninitialized variable _atime)
-- `AddExecutionTime` (line 6903): Raises error R24 today instead of appending the elapsed time to a list of times. -- raises the R24 of AddTimeValue (uninitialized variable _atime)
-- `ToStzListOfObjects` (line 8128): Raises error R14 today instead of wrapping the content in a stzListOfObjects. -- raises R14 (calling method without definition: islistofobjects) for a list of numbers and for a list of stzString objects alike
 
 ## stzMultiObjectiveSolver -- optim/stzMultiObjectiveSolver.ring (1)
 
