@@ -2479,12 +2479,11 @@ class stzObject
 	def Copy()
 		return new stzObject(@content)
 
-	# Raises error R24 today instead of returning the values of the object's attributes.
+	# Returns what each of the object's attributes holds, in the order Attributes lists them.
 	#
-	#   returns    nothing: it raises
-	#   warning    raises R24 (uninitialized variable aresult): the list is built in a variable
-	#              named _aResult_ and appended to as aResult; seen on a stzString, a stzList and a
-	#              bare stzObject
+	#   returns    a list with one entry per attribute; a list-valued attribute is one entry
+	#   note       Q("banana").Values() has 22 entries (its text among them) and a bare stzObject
+	#              has 18, the wrapped object first
 	#   see        Attributes, AttributesAndValues
 	def Values()
 		_aResult_ = []
@@ -2492,7 +2491,7 @@ class stzObject
 		_nLen_ = len(_acAttributes_)
 
 		for i = 1 to _nLen_ 
-			_cCode_ = "aResult + This." + _acAttributes_[i]
+			_cCode_ = "_aResult_ + This." + _acAttributes_[i]
 			eval(_cCode_)
 		next
 		return _aResult_
@@ -2503,10 +2502,10 @@ class stzObject
 		def ObjectValues()
 			return This.Values()
 
-	# Raises error R24 today instead of pairing each attribute name with its value.
+	# Pairs each attribute name of the object with what that attribute holds.
 	#
-	#   returns    nothing: it raises
-	#   warning    raises the R24 of Values, which it calls
+	#   returns    a list of [ name, value ] pairs, one per attribute, in the order Attributes gives
+	#   note       Q([ 1, 2, 3 ]).AttributesAndValues() has one pair per attribute of the stzList
 	#   see        Attributes, Values
 	def AttributesAndValues()
 		_aResult_ = Association([
@@ -2729,19 +2728,18 @@ class stzObject
 	def HasSameTypeAs(p)
 		return isObject(p)
 
-	# Answers FALSE today instead of telling whether another object has the same Softanza class.
+	# TRUE if the value given is a library object of the same class as this one.
 	#
-	#   p          the other object
-	#   returns    always FALSE in every case tried
-	#   note       compare the two StzType answers yourself
-	#   warning    FALSE for a stzString against a stzString, a stzList against a stzList and a bare
-	#              stzObject against another, even when the content is the class name; the test asks
-	#              the other object IsStzType, which is true only when its content is a text naming
-	#              a class
+	#   p          the value to compare with
+	#   returns    TRUE or FALSE
+	#   note       two stzString are of the same type, a stzString and a stzList are not, and a text
+	#              or a number is not an object at all
+	#   warning    the class is the one StzType answers: a stzText answers stzObject, like a bare
+	#              stzObject
 	#   see        HasSameTypeAs, StzType
 	def HasSameStzTypeAs(p)
-		if isObject(p) and Q(p).IsStzType() and
-		   Q(p).StzType() = This.StzType()
+		if isObject(p) and @IsStzObject(p) and
+		   p.StzType() = This.StzType()
 
 			return 1
 		else
@@ -2859,8 +2857,14 @@ class stzObject
 	# TRUE if the content is a text or a list.
 	#
 	#   returns    TRUE or FALSE
+	#   note       TRUE for a stzString and a stzList; FALSE for a stzNumber, which keeps its digits
+	#              as text, and for a bare stzObject, which holds an object
 	#   see        IsNumberOrString, IsListOrString
 	def IsStringOrList()
+		if This.IsANumber() = 1
+			return 0
+		ok
+
 		content = This.Content()
 
 		if isString(content) or isList(content)
@@ -2869,25 +2873,22 @@ class stzObject
 			return 0
 		ok
 
-		# Raises error R4 today instead of telling whether the content is a list or a text.
+		# TRUE if the content is a list or a text, in the other order of the same question.
 		#
-		#   returns    nothing: it raises
-		#   warning    raises "Stack Overflow" (R4): the body calls IsListOrString itself, so it
-		#              never ends; use IsStringOrList
+		#   returns    TRUE or FALSE
 		#   see        IsStringOrList
 		def IsListOrString()
-			return This.IsListOrString()
+			return This.IsStringOrList()
 
-	# Answers FALSE today for every object, even the library's false object.
+	# TRUE if the object is the library's false object, the one a failed chain hands back.
 	#
-	#   returns    always FALSE in every case tried
-	#   note       compare StzType with stzfalseobject
-	#   warning    the test compares the class name with the misspelling stzFlaseObject, which no
-	#              class has; AFalseObject().IsFalseObject() answers FALSE too
+	#   returns    TRUE or FALSE
+	#   note       AFalseObject().IsFalseObject() is TRUE; a stzString, a stzList, a stzNumber, a
+	#              bare stzObject and the true object answer FALSE
 	#   see        IsTrueObject, IsNullObject
 	#@ aka  ==
 	def IsFalseObject()
-		if This.StzType() = :stzFlaseObject
+		if This.StzType() = :stzFalseObject
 			return 1
 		else
 			return 0
@@ -2898,15 +2899,14 @@ class stzObject
 		def IsFalseObejct()
 			return This.IsFalseObject()
 
-	# Answers FALSE today for every object, even the library's true object.
+	# TRUE if the object is the library's true object, the one that holds 1 and equals everything.
 	#
-	#   returns    always FALSE in every case tried
-	#   note       compare StzType with stztrueobject
-	#   warning    the test compares the class name with the misspelling stzFlaseObject, which no
-	#              class has; ATrueObject().IsTrueObject() answers FALSE
+	#   returns    TRUE or FALSE
+	#   note       ATrueObject().IsTrueObject() is TRUE; a stzString, a stzList, a stzNumber, a
+	#              bare stzObject and the false object answer FALSE
 	#   see        IsFalseObject, IsNullObject
 	def IsTrueObject()
-		if This.StzType() = :stzFlaseObject
+		if This.StzType() = :stzTrueObject
 			return 1
 		else
 			return 0
@@ -3539,15 +3539,15 @@ class stzObject
 
 
 
-	# Raises error R24 today instead of checking that the content is a list of exactly two items.
+	# Keeps the object when its content is a list of exactly two items, the pair a natural chain speaks of.
 	#
-	#   returns    nothing: it raises
-	#   warning    raises R24 (uninitialized variable _alist_): the body tests _aList_, a variable
-	#              it never sets, where it meant _aContent_; seen on a list of two numbers
+	#   returns    the object itself, or a false object when the content is not a list of two items
+	#   note       Q([ 1, 2 ]).WhichAreBoth() answers the stzList; a list of three, a text, a number
+	#              and a bare stzObject answer a false object
 	#   see        AreBothA, WhichAre
 	def WhichAreBoth()
 		_aContent_ = This.Content()
-		if NOT (isList(_aList_) and len(_aList_) = 2)
+		if NOT (isList(_aContent_) and len(_aContent_) = 2)
 			return AFalseObjectXT(This)
 		ok
 
@@ -5685,14 +5685,19 @@ class stzObject
 		def StzClass()
 			return This.ClassName()
 
-	# Answers FALSE today for every object tried, a stzString holding text included.
+	# TRUE if the object is a stzText, the library's text class, and not merely a stzString.
 	#
-	#   returns    always FALSE in every case tried
-	#   warning    FALSE for Q("banana") and for a bare stzObject; use IsAString for the question it
-	#              seems to ask
+	#   returns    TRUE or FALSE
+	#   note       new stzText("hello").IsText() is TRUE; Q("banana").IsText() is FALSE, because a
+	#              plain text is read as a stzString and no stzString is a stzText
+	#   warning    this is not the question whether the content is a text: IsAString answers that
 	#   see        IsAString
 	def IsText()
-		return 0
+		if ring_classname(This) = "stztext"
+			return 1
+		else
+			return 0
+		ok
 
 	# Raises an error today instead of returning a pointer to the object.
 	#
