@@ -382,7 +382,7 @@ class stzScene from stzObject
 			StzRaise("stzScene.Show: no GPU on this machine -- a 3D scene " +
 				"has no vector tier to fall back to (2D does: stzCanvas).")
 		ok
-		if isWindows()
+		if sysget("STZ_NO_VIEW") != "" but isWindows()  # STZ_NO_VIEW set (a test run): written, not opened
 			system('start "" "' + _cPath_ + '"')
 		but isMacOS()
 			system('open "' + _cPath_ + '"')

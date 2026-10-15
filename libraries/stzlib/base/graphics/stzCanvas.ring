@@ -486,7 +486,7 @@ class stzCanvas from stzObject
 			_cPath_ = "stzcanvas_show.svg"
 			write(_cPath_, This.ToSVG())
 		ok
-		if isWindows()
+		if sysget("STZ_NO_VIEW") != "" but isWindows()  # STZ_NO_VIEW set (a test run): written, not opened
 			system('start "" "' + _cPath_ + '"')
 		but isMacOS()
 			system('open "' + _cPath_ + '"')
