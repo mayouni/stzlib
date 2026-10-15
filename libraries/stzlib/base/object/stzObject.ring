@@ -2965,7 +2965,9 @@ class stzObject
 		ok
 
 		for i = 1 to _nLen_
-			_cCode_ = '_bResult_ = @is' + pacStr[i] + '(' + @@(_vIsaxt_) + ')'
+			# the value is passed by name: printing it with @@ turned an object into its variable
+			# name (@noname), which the eval then read as an uninitialized variable
+			_cCode_ = '_bResult_ = @is' + pacStr[i] + '(_vIsaxt_)'
 
 			eval(_cCode_)
 			if _bResult_ = 0
@@ -3063,9 +3065,8 @@ class stzObject
 	#   pcType     a kind word such as :String or :Number, or a list of kind words that must all
 	#              hold, such as [ :Lowercase, :Latin, :String ]
 	#   returns    TRUE or FALSE
-	#   note       Q("banana").IsA(:String) is TRUE and Q("Ring").IsA([ :Lowercase, :String ]) is
-	#              FALSE
-	#   warning    on a bare stzObject it raises R24 (uninitialized variable @noname)
+	#   note       Q("banana").IsA(:String) is TRUE, Q("Ring").IsA([ :Lowercase, :String ]) is FALSE
+	#              and a bare stzObject is an :Object, whatever it wraps, and no other kind
 	#   see        Is, IsEitherA, IsOneOfTheseTypes
 	def IsA(pcType)
 		/* Example
@@ -3335,13 +3336,12 @@ class stzObject
 
 
 
-	# TRUE if the pair held is of the kind given as a whole; it does not test the two items.
+	# TRUE if each of the two items the object holds is of the kind given.
 	#
-	#   pcType     a kind word
-	#   returns    TRUE or FALSE
-	#   warning    a list of two items only; any other object answers a false object; [ "a", "b" ]
-	#              is FALSE for :String and TRUE for :List, [ 1, 2 ] is FALSE for :Number and TRUE
-	#              for :List
+	#   pcType     a kind word such as :String or :Number, or a list of kind words that must all hold
+	#   returns    TRUE or FALSE; a false object when the content is not a list of exactly two items
+	#   note       Q([ "a", "b" ]).AreBothA(:String) is TRUE and AreBothA(:List) is FALSE, Q([ 1,
+	#              "b" ]).AreBothA(:Number) is FALSE; the second item may be written :And = item
 	#   see        AreTwo, IsA
 	def AreBothA(pcType)
 
@@ -3356,9 +3356,11 @@ class stzObject
 			_item2_ = _item2_[2]
 		ok
 
-		This.UpdateWith([ _item1_, _item2_ ])
-
-		return This.IsA(pcType)
+		if Q(_item1_).IsA(pcType) = 1 and Q(_item2_).IsA(pcType) = 1
+			return 1
+		else
+			return 0
+		ok
 
 		#< @FunctionFluentForm
 
@@ -3439,10 +3441,10 @@ class stzObject
 
 
 
-		# TRUE if the pair held is of the kind given as a whole, in the other wording of AreBothA.
+		# TRUE if each of the two items the object holds is of the kind given, in the short wording.
 		#
-		#   pcType     a kind word
-		#   returns    TRUE or FALSE
+		#   pcType     a kind word such as :String or :Number, or a list of kind words that must all hold
+		#   returns    TRUE or FALSE; a false object when the content is not a list of two items
 		#   see        AreBothA, IsA
 		#@ aka  --
 		def AreTwo(pcType)
@@ -5748,12 +5750,13 @@ class stzObject
 	def TheLetterQ(c)
 		return This
 
-	# Returns the object when the condition, given as text, holds.
+	# Returns the object when the condition, given as text, holds, and a false object when it does not.
 	#
 	#   pcCondition   a Ring expression as text, such as "1 = 1"
-	#   returns       the object itself
-	#   warning       when the condition is false the call raises "Bad parameter type!" instead of
-	#                 answering a false object
+	#   returns       the object itself, or a false object
+	#   note          Q(5).IfQ("1 = 2") answers a stzFalseObject, so a chain goes on and says why it
+	#                 stopped
+	#   warning       a condition that is not a text raises "Incorrect param type!"
 	#   see           IfSo
 	def IfQ(pcCondition)
 		if NOT isString(pcCondition)
@@ -5766,8 +5769,9 @@ class stzObject
 		if _bOk_
 			return This
 		else
-			# An error message is returned:
-			#--> Error (R13) : Object is required 
+			return AFalseObjectXT(This)
+			# (before, nothing was returned and the chain ended with:
+			#--> Error (R13) : Object is required) 
 		ok
 
 	# TRUE if the content is a list holding exactly one item.
@@ -5783,14 +5787,23 @@ class stzObject
 			return 0
 		ok
 
+	# Stores a value as the content of a bare stzObject, for SwapWith to exchange two of them.
+	#
+	#   pValue     the value to hold, an object
+	#   returns    nothing
+	#   see        SwapWith, Content
+	def _SetBareContent(pValue)
+		@content = pValue
+
 	# Exchanges the content of the object with that of another object of the same kind.
 	#
 	#   pOtherStzObject   the other object, which must be a stzObject
 	#   returns           nothing
-	#   note              between two stzString: Q("abc") and Q("xyz") hold xyz and abc afterwards
-	#   warning           on a bare stzObject it raises R14 (calling method without definition:
-	#                     updatewith); a value that is not an object raises "Incorrect param type!";
-	#                     a stzNumber refuses a text with its own message
+	#   note              between two stzString: Q("abc") and Q("xyz") hold xyz and abc afterwards;
+	#                     between two bare stzObject the wrapped objects change places
+	#   warning           a bare stzObject against a stzString raises R14 (the bare one has no
+	#                     UpdateWith); a value that is not an object raises "Incorrect param
+	#                     type!"; a stzNumber refuses a text with its own message
 	#   see               SwapContentWith, UpdateWith
 	#@ aka  Swapping the content of the stzObject with an other stzObject
 	def SwapWith(pOtherStzObject)
@@ -5806,8 +5819,15 @@ class stzObject
 		_oThis_ = This.Content()
 		_oOther_ = pOtherStzObject.Content()
 
-		This.UpdateWith(_oOther_)
-		pOtherStzObject.UpdateWith(_oThis_)
+		if ring_classname(This) = "stzobject" and ring_classname(pOtherStzObject) = "stzobject"
+			# a bare stzObject holds its value in @content and has no UpdateWith
+			@content = _oOther_
+			pOtherStzObject._SetBareContent(_oThis_)
+
+		else
+			This.UpdateWith(_oOther_)
+			pOtherStzObject.UpdateWith(_oThis_)
+		ok
 
 		def SwapWithQ(pOtherStzObject)
 			This.SwapWith(pOtherStzObject)
@@ -7306,14 +7326,15 @@ class stzObject
 	# Returns the length of the content as a number, taken from whichever of characters, items or digits the object counts.
 	#
 	#   returns    a number
-	#   note       Q("softanza").ALengthN() is 8 and Q(12345).ALengthN() is 5
-	#   warning    for a stzList it counts characters and so answers 0 for [ 1, 2, 3 ] and for [
-	#              "ab", "cd" ] but 4 for [ "a", "b", "c", "d" ]; a bare stzObject raises "NNL: a
-	#              stzobject has no length to speak of."
+	#   note       Q("softanza").ALengthN() is 8, Q(12345).ALengthN() is 5 and Q([ "ab", "cd" ])
+	#              .ALengthN() is 2, its items
+	#   warning    a bare stzObject raises "NNL: a stzobject has no length to speak of."
 	#   see        Exactly, TheNth
 	# --- the article device, generic: "a length" of ANY object
 	def ALengthN()
-		if StzFindFirst("numberofchars", ring_methods(This)) > 0
+		if isList(This.Content()) and StzFindFirst("numberofitems", ring_methods(This)) > 0
+			return This.NumberOfItems()
+		but StzFindFirst("numberofchars", ring_methods(This)) > 0
 			return This.NumberOfChars()
 		but StzFindFirst("numberofitems", ring_methods(This)) > 0
 			return This.NumberOfItems()
@@ -8290,8 +8311,7 @@ class stzObject
 	# Returns the object itself when its content is an object, and a false object otherwise.
 	#
 	#   returns    the object, or a false object
-	#   warning    on a bare stzObject it raises R24 (uninitialized variable @noname);
-	#              Q("a").AnObjectQ() answers a stzFalseObject
+	#   note       a bare stzObject answers itself; Q("a").AnObjectQ() answers a stzFalseObject
 	#   see        ANumberQ, AStringQ
 	def AnObjectQ()
 		return This._NNLTypeNoun(:Object)
