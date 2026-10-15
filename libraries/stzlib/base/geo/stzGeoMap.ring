@@ -100,7 +100,16 @@ func StzGeoRamp(pName, pnClasses)
 	next
 	if len(_stops_) = 0
 		stzraise("StzGeoRamp: '" + pName + "' is not a ramp this file knows -- " +
-			"Blues, YlOrRd, YlGnBu, Greens, Oranges, Purples, Reds, BuPu or Earth.")
+		# THE LIST IS READ FROM THE TABLE, not typed again: the message once
+		# named nine ramps while the table held thirteen, because the names
+		# were copied out when there were nine.
+		_names_ = ""
+		for _i_ = 1 to len(_a_)
+			if _i_ > 1 and _i_ < len(_a_)  _names_ += ", "  ok
+			if _i_ > 1 and _i_ = len(_a_)  _names_ += " or "  ok
+			_names_ += "" + _a_[_i_][1]
+		next
+			_names_ + ".")
 	ok
 	if pnClasses < 1  return []  ok
 	if pnClasses = 1  return [ _stops_[3] ]  ok
@@ -549,9 +558,8 @@ class stzGeoMap from stzObject
 	#   pName      the ramp's name: :Blues, :YlOrRd, :YlGnBu, :Greens, :Oranges, :Purples, :Reds,
 	#              :BuPu, :Earth, :Viridis, :Magma, :Cividis or :Flow
 	#   returns    nothing; the palette is stored
-	#   note       Raises an error before the classes are set
-	#   warning    Defect: the error for an unknown name lists nine ramps although thirteen exist
-	#              (Viridis, Magma, Cividis and Flow are missing from the message).
+	#   note       Raises an error before the classes are set, and for a name that is not a ramp: the
+	#              message then lists all thirteen, read from the table StzGeoRamps returns
 	#   see        SetPalette, StzGeoRamps
 	#@ aka  the palette by the name of a ramp, in the classes already set
 	def SetRamp(pName)
