@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 357 methods in 96 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 337 methods in 95 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| list/stzItem.ring | stzItemCS | 20 |
 | geo/stzGeoMap.ring | stzGeoMap | 18 |
 | regex/stzMatrex.ring | stzMatrex | 17 |
 | file/stzFile.ring | stzFileManager | 15 |
@@ -367,29 +366,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzText -- linguistic/stzText.ring (1)
 
 - `SummarizedAbstractively` (line 1316): Raises error R19 today when no generative model is loaded, instead of falling back to the extractive summary. -- Raises error R19 without a generative model (checked on three texts): the fallback calls Summary without its sentence count
-
-## stzItemCS -- list/stzItem.ring (20)
-
-- `Sections` (line 354): Raises error R14 today instead of answering the positions of the item as runs of consecutive positions. -- it calls FindAsSectionsCS on the list, a method stzList does not have, so every call raises R14, whatever the list
-- `IsBoundedBy` (line 441): Raises error R14 today instead of telling whether the item stands between two bounding items. -- it calls ContainsItemBoundedByCS on the list, a method stzList does not have, so every call raises R14
-- `IsBetween` (line 458): Raises error R14 today instead of telling whether the item stands between two given items. -- it calls ContainsItemBetweenCSQ on the list, a method stzList does not have, so every call raises R14
-- `BoundedBy` (line 474): Raises error R14 today instead of putting two bounding items around the item in the list. -- it calls BoundItemByCSQ on the list, a method stzList does not have, so every call raises R14; its body also reads a name pacBounds that is not its parameter
-- `ReplacedWith` (line 497): Raises error R14 today instead of returning the list with the item replaced by another. -- it calls ReplaceCSQ on the list, a method stzList does not have, so every call raises R14; Replaced and ReplacedBy are the same call
-- `Removed` (line 518): Raises error R14 today instead of returning the list without the item. -- it calls RemoveCSQ on the list, a method stzList does not have, so every call raises R14
-- `Uppercased` (line 570): Raises error R14 today instead of returning the list with the item in upper case. -- it calls UppercaseItemCSQ on the list, a method stzList does not have, so every call raises R14
-- `Lowercased` (line 585): Raises error R14 today instead of returning the list with the item in lower case. -- it calls LowercaseItemCSQ on the list, a method stzList does not have, so every call raises R14
-- `InstertedBeforeCS` (line 598): Raises error R14 today instead of returning the list with a new item put before the item. -- it calls InsertBeforeCSQ on the list, a method stzList does not have, so every call raises R14; the method name is also misspelled: Instertedbefore
-- `InsertedBefore` (line 612): Raises error R14 today instead of returning the list with a new item put before the item. -- it calls InsertedBeforeCS, a name that does not exist because the real method is spelled InstertedBeforeCS, so every call raises R14; InsertedBAt is the same call
-- `InsertedBeforePosition` (line 626): Raises error R14 today instead of returning the list with the item put before a position. -- it calls InsertBeofrePositionQ, a misspelled name that does not exist, so every call raises R14; InsertedAtPosition is the same call
-- `InsertedBeforePositions` (line 640): Raises error R14 today instead of returning the list with the item put before several positions. -- it calls InsertBeofrePositionsQ, a misspelled name that does not exist, so every call raises R14
-- `InsertedBeforeItem` (line 666): Raises error R14 today instead of returning the list with another item put before the item. -- it calls InsertBeforeItemCSQ on the list, a method stzList does not have, so every call raises R14
-- `InsertedBeforeItems` (line 685): Raises error R14 today instead of returning the list with several items put before the item. -- it calls InsertBeforeItemsCSQ on the list, a method stzList does not have, so every call raises R14
-- `InstertedAfterCS` (line 707): Raises error R14 today instead of returning the list with a new item put after the item. -- it calls InsertAfterCSQ on the list, a method stzList does not have, so every call raises R14; the method name is also misspelled: Instertedafter
-- `InsertedAfter` (line 718): Raises error R14 today instead of returning the list with a new item put after the item. -- it calls InsertedAfterCS, a name that does not exist because the real method is spelled InstertedAfterCS, so every call raises R14
-- `InsertedAfterPosition` (line 730): Raises error R14 today instead of returning the list with the item put after a position. -- it calls the misspelled InsertBeofrePositionQ, which does not exist, so every call raises R14; its body is the one of the Before form, so it would insert before
-- `InsertedAfterPositions` (line 742): Raises error R14 today instead of returning the list with the item put after several positions. -- it calls the misspelled InsertBeofrePositionsQ, which does not exist, so every call raises R14; its body is the one of the Before form, so it would insert before
-- `InsertedAfterItem` (line 762): Raises error R14 today instead of returning the list with another item put after the item. -- it calls InsertAfterItemCSQ on the list, a method stzList does not have, so every call raises R14
-- `InsertedAfterItems` (line 781): Raises error R14 today instead of returning the list with several items put after the item. -- it calls InsertAfterItemsCSQ on the list, a method stzList does not have, so every call raises R14
 
 ## stzListBounder -- list/stzListBounder.ring (1)
 
