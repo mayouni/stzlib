@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 476 methods in 99 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 410 methods in 98 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| table/stzTable.ring | stzTable | 66 |
 | object/stzObject.ring | stzObject | 28 |
 | datetime/stzCalendar.ring | stzCalendar | 25 |
 | list/stzItem.ring | stzItemCS | 20 |
@@ -812,72 +811,3 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## TableDisplayConfig -- table/stzPivotTableShow.ring (1)
 
 - `GetDimensionGroupWidth` (line 464): Raises error R5 today instead of returning the width of one group of columns. -- it reads a variable that belongs to CalculateLayout and is empty here; the same error for 1 and for 2
-
-## stzTable -- table/stzTable.ring (66)
-
-- `SectionToRange` (line 2742): Raises error today instead of returning a range of the table. -- Always raises Feature not implemented yet!
-- `Range` (line 2752): Raises error today instead of returning a block of the table between two bounds. -- Always raises Feature not implemented yet!
-- `FindColsByValue` (line 6507): Raises an error today instead of returning the positions of the columns equal to any of the given cell lists. -- Raises Can't create the stzList object! for a valid list of cell lists; FindColByValue works one list at a time
-- `NumberOfOccurrencesOfSubValueInCells` (line 9215): Returns 0 today instead of the number of given cells that contain a text. -- Counts cells equal to the text, not cells containing it, so a text found inside a longer cell is missed
-- `FindLastInCell` (line 9467): Raises error today instead of returning the place of the last occurrence of a text inside one cell. -- Raises Incorrect param type! n must be a number. because it passes :Last, which the nth-occurrence finder does not read
-- `NumberOfOccurrencesInCell` (line 9526): Raises an error today instead of counting how many times a text occurs inside one cell. -- Raises Bad parameter type! for every argument tried
-- `NumberOfOccurrencesOfValueInCell` (line 9572): Raises an error today instead of counting how many times a value occurs inside one cell. -- Raises Bad parameter type! for every argument tried
-- `NumberOfOccurrencesOfSubValueInCell` (line 9625): Raises an error today instead of counting how many times a text occurs inside one cell. -- Raises Bad parameter type! for every argument tried
-- `NumberOfOccurrenceOfCellInRow` (line 10126): Raises error R14 today instead of counting the cells in one row that equal a value. -- Raises R14 because the CS helper it calls is defined nowhere
-- `FindNthInRows` (line 10432): Raises error R14 today instead of finding the nth cell in the given rows that equals a value. -- Raises R14 because RowsToNames is defined nowhere; FindNthValueInRows works
-- `FindFirstInRows` (line 10531): Raises error R14 today instead of finding the first cell in the given rows that equals a value. -- Raises R14 because RowsToNames is defined nowhere
-- `FindFirstValueInRows` (line 10561): Raises error R4 today instead of finding the first cell in the given rows that equals a value. -- Raises R4 (stack overflow) because the CS form calls itself without end
-- `FindFirstSubValueInRows` (line 10591): Raises error R4 today instead of finding the first cell in the given rows that contains a text. -- Raises R4 (stack overflow) because the CS form calls itself without end
-- `FindLastInRows` (line 10624): Raises error R24 today instead of finding the last cell in the given rows that equals a value. -- Raises R24 (uninitialized variable prow) because the body passes a name that is not its parameter
-- `FindLastValueInRows` (line 10654): Raises error R4 today instead of finding the last cell in the given rows that equals a value. -- Raises R4 (stack overflow) because the CS form calls itself without end
-- `FindLastSubValueInRows` (line 10684): Raises error R4 today instead of finding the last cell in the given rows that contains a text. -- Raises R4 (stack overflow) because the CS form calls itself without end
-- `NumberOfOccurrenceOfCellInRows` (line 10764): Raises error R14 today instead of counting the cells in the given rows that equal a value. -- Raises R14 because the CS helper it calls is defined nowhere
-- `FindFirstValueInCol` (line 11220): Raises error R4 today instead of finding the first cell in one column that equals a value. -- Raises R4 (stack overflow) because the CS form calls itself without end
-- `FindFirstSubValueInCol` (line 11255): Raises error R4 today instead of finding the first cell in one column that contains a text. -- Raises R4 (stack overflow) because the CS form calls itself without end
-- `FindLastValueInCol` (line 11338): Raises error R4 today instead of finding the last cell in one column that equals a value. -- Raises R4 (stack overflow) because the CS form calls itself without end
-- `FindLastSubValueInCol` (line 11379): Raises error R4 today instead of finding the last cell in one column that contains a text. -- Raises R4 (stack overflow) because the CS form calls itself without end
-- `NumberOfOccurrenceOfCellInCol` (line 11599): Raises error R14 today instead of counting the cells in one column that equal a value. -- Raises R14 because the CS helper it calls is defined nowhere
-- `FindNthInCols` (line 12191): Raises error R14 today instead of finding the nth cell in the given columns that equals a value. -- Raises R14 because ColsToNames is defined nowhere; FindNthValueInCols works
-- `FindFirstInCols` (line 12325): Raises error R14 today instead of finding the first cell in the given columns that equals a value. -- Raises R14 because ColsToNames is defined nowhere
-- `FindFirstValueInCols` (line 12366): Raises error R4 today instead of finding the first cell in the given columns that equals a value. -- Raises R4 (stack overflow) because the CS form calls itself without end
-- `FindFirstSubValueInCols` (line 12401): Raises error R4 today instead of finding the first cell in the given columns that contains a text. -- Raises R4 (stack overflow) because the CS form calls itself without end
-- `FindLastInCols` (line 12445): Raises error R24 today instead of finding the last cell in the given columns that equals a value. -- Raises R24 (uninitialized variable pcol) because the body passes a name that is not its parameter
-- `FindLastValueInCols` (line 12486): Raises error R4 today instead of finding the last cell in the given columns that equals a value. -- Raises R4 (stack overflow) because the CS form calls itself without end
-- `FindLastSubValueInCols` (line 12527): Raises error R4 today instead of finding the last cell in the given columns that contains a text. -- Raises R4 (stack overflow) because the CS form calls itself without end
-- `NumberOfOccurrenceOfCellInCols` (line 12740): Raises error R14 today instead of counting the cells in the given columns that equal a value. -- Raises R14 because the CS helper it calls is defined nowhere
-- `NumberOfOccurrenceOfCellInSection` (line 13578): Raises error R14 today instead of counting the cells between two [ column, row ] corners that equal a value. -- Raises R14 because the CS helper it calls is defined nowhere
-- `ReplaceOccurrencesOfCellByValue` (line 16389): Raises error R24 today instead of replacing every cell equal to a value by another value. -- Raises R24 (uninitialized variable pnewcellvalue) because the body passes a name that is not its parameter; ReplaceCellByValue works
-- `ReplaceManyCellsByValue` (line 16457): Raises error today instead of replacing the cells equal to any of several values by one value. -- Always raises Function not yet implemented!
-- `ReplaceCellsByValue` (line 16468): Raises error today instead of replacing the cells equal to any of several values by one value. -- Always raises Function not yet implemented!
-- `ReplaceByValueManyCells` (line 16479): Raises error today instead of replacing the cells equal to any of several values by one value. -- Always raises Function not yet implemented!
-- `ReplaceByValueCells` (line 16489): Raises error today instead of replacing the cells equal to any of several values by one value. -- Always raises Function not yet implemented!
-- `ReplaceManyCellsByValueByMany` (line 16545): Raises error today instead of replacing several cell values by several new values. -- Always raises Function not yet implemented!
-- `ReplaceCellsByValueByMany` (line 16556): Raises error today instead of replacing several cell values by several new values. -- Always raises Function not yet implemented!
-- `ReplaceByValueManyCellsByMany` (line 16566): Raises error today instead of replacing several cell values by several new values. -- Always raises Function not yet implemented!
-- `ReplaceByValueCellsByMany` (line 16576): Raises error today instead of replacing several cell values by several new values. -- Always raises Function not yet implemented!
-- `ReplaceAllColsByMany` (line 17294): Raises error today instead of replacing several columns by several new column lists. -- Always raises Unsupported feature in this release!
-- `ReplaceAllColumsByMany` (line 17303): Raises error today instead of replacing several columns by several new column lists. -- Always raises Unsupported feature in this release!
-- `ReplaceTheseColsByMany` (line 17319): Raises error today instead of replacing several columns by several new column lists. -- Always raises Unsupported feature in this release!
-- `ReplaceTheseColumnsByMany` (line 17349): Raises error today instead of replacing several columns by several new column lists. -- Always raises Unsupported feature in this release!
-- `ReplaceColsByMany` (line 17358): Raises error today instead of replacing several columns by several new column lists. -- Always raises Unsupported feature in this release!
-- `ReplaceColumnsByMany` (line 17367): Raises error today instead of replacing several columns by several new column lists. -- Always raises Unsupported feature in this release!
-- `ReplaceCellsInTheseRows` (line 17733): Raises error R24 today instead of setting every cell of the given rows to one value. -- Raises R24 (uninitialized variable panewrows) because the body checks a name that is not its parameter
-- `ReplaceAllOccurrencesOfCell` (line 17812): Raises error R19 today instead of replacing every cell equal to a value by another value. -- Raises R19 because it forwards to ReplaceCell with two arguments where ReplaceCell needs a column, a row and a value; ReplaceAll works
-- `ReplaceEachOccurrenceOfCell` (line 17822): Raises error R19 today instead of replacing every cell equal to a value by another value. -- Raises R19 because it forwards to ReplaceCell with two arguments where ReplaceCell needs a column, a row and a value; ReplaceAll works
-- `ReplaceEveryOccurrenceOfCell` (line 17832): Raises error R19 today instead of replacing every cell equal to a value by another value. -- Raises R19 because it forwards to ReplaceCell with two arguments where ReplaceCell needs a column, a row and a value; ReplaceAll works
-- `ReplaceAllOccurrences` (line 17843): Raises error R19 today instead of replacing every cell equal to a value by another value. -- Raises R19 because it forwards to ReplaceCell with two arguments where ReplaceCell needs a column, a row and a value; ReplaceAll works
-- `ReplaceEachOccurrence` (line 17853): Raises error R19 today instead of replacing every cell equal to a value by another value. -- Raises R19 because it forwards to ReplaceCell with two arguments where ReplaceCell needs a column, a row and a value; ReplaceAll works
-- `ReplaceEveryOccurrence` (line 17863): Raises error R19 today instead of replacing every cell equal to a value by another value. -- Raises R19 because it forwards to ReplaceCell with two arguments where ReplaceCell needs a column, a row and a value; ReplaceAll works
-- `ReplaceNth` (line 17889): Raises error R19 today instead of replacing the nth, first or last cell equal to a value. -- Raises R19 because the CS form calls ReplaceCell with a position pair where ReplaceCell needs a column, a row and a value
-- `ReplaceFirst` (line 17907): Raises error R19 today instead of replacing the nth, first or last cell equal to a value. -- Raises R19 because the CS form calls ReplaceCell with a position pair where ReplaceCell needs a column, a row and a value
-- `ReplaceLast` (line 17925): Raises error R19 today instead of replacing the nth, first or last cell equal to a value. -- Raises R19 because the CS form calls ReplaceCell with a position pair where ReplaceCell needs a column, a row and a value
-- `ReplaceInCell` (line 17953): Raises error today instead of replacing a text found inside cells. -- Always raises Function not yet implemented!
-- `ReplaceInCells` (line 17976): Raises error today instead of replacing a text found inside cells. -- Always raises Function not yet implemented!
-- `ReplaceInCellsByMany` (line 17999): Raises error today instead of replacing a text found inside cells. -- Always raises Function not yet implemented!
-- `ReplaceInSection` (line 18018): Raises error today instead of replacing a text found inside cells. -- Always raises Function not yet implemented!
-- `ReplaceInSectionByMany` (line 18036): Raises error R24 today instead of replacing several texts found inside a section. -- Raises R24 (uninitialized variable casesensitive) because the body passes a flag it does not have
-- `@` (line 18422): Returns the cell-reading code of a column in a formula, or the text itself when it names no column; a list raises today. -- A column name gives the code text ( This.Cell(n, j) ); a list raises R14 because IsHasHListOrListOfStrings is defined nowhere
-- `buildGrandTotal` (line 20854): Raises error R24 today instead of returning the grand-total line of the grid. -- Raises R24 because the body reads the grand totals, which are local to buildDataRows
-- `TransposeWithColNames` (line 21035): Raises error R14 today instead of transposing the table while keeping the column names as a first column. -- Raises R14 because the body calls TansposeXT, a misspelling; TransposeXT works
-- `ToHtml` (line 21250): Raises error R24 today instead of returning the table as an HTML table. -- Raises R24 because ToHtmlXT reads a variable named data that is never set
-- `FromHtml` (line 21325): Raises error R14 today instead of replacing the table by the content of an HTML table. -- Raises R14 because HtmlToTable is defined nowhere
