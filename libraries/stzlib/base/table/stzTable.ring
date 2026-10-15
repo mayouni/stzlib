@@ -16380,13 +16380,6 @@ func _NormalizeColLookupKey(pVal)
 	def ReplaceCellByValue(pCellValue, pNewCellValue)
 		This.ReplaceCellByValueCS(pCellValue, pNewCellValue, 1)
 
-		# Raises error R24 today instead of replacing every cell equal to a value by another value.
-		#
-		#   pNewCell   the value that takes the place
-		#   returns    nothing; it raises
-		#   warning    Raises R24 (uninitialized variable pnewcellvalue) because the body passes a
-		#              name that is not its parameter; ReplaceCellByValue works
-		#   see        ReplaceCellByValue
 		#< @FunctionAlternativeForms
 		# Replaces every cell equal to a value by another value, in place; the case counts.
 		#
@@ -16453,47 +16446,43 @@ func _NormalizeColLookupKey(pVal)
 		def ReplaceByValueCellsCS(paCellsValues, pNewCellValue, pCaseSensitive)
 			This.ReplaceManyCellsByValueCS(paCellsValues, pNewCellValue, pCaseSensitive)
 
-	# Raises error today instead of replacing the cells equal to any of several values by one value.
+	# Replaces every cell equal to any of several values by one value, in place; the case counts.
 	#
-	#   paCellsValues   the cell values to replace
-	#   pNewCellValue   the value that takes the place
-	#   returns         nothing; it raises
-	#   warning         Always raises Function not yet implemented!
-	#   see             ReplaceCellByValue
+	#   paCellsValues   the list of values to look for
+	#   pNewCellValue   the value that takes their place
+	#   returns         nothing; the table changes
+	#   see             ReplaceManyCellsByValueCS, ReplaceCellByValue
 		#>
 	#@ aka  -- WITHOUT CASESENSITIVITY
 	def ReplaceManyCellsByValue(paCellsValues, pNewCellValue)
 		This.ReplaceManyCellsByValueCS(paCellsValues, pNewCellValue, 1)
 
-		# Raises error today instead of replacing the cells equal to any of several values by one value.
+		# Replaces every cell equal to any of several values by one value, in place; the case counts.
 		#
-		#   paCellsValues   the cell values to replace
-		#   pNewCellValue   the value that takes the place
-		#   returns         nothing; it raises
-		#   warning         Always raises Function not yet implemented!
-		#   see             ReplaceCellByValue
+		#   paCellsValues   the list of values to look for
+		#   pNewCellValue   the value that takes their place
+		#   returns         nothing; the table changes
+		#   see             ReplaceManyCellsByValueCS, ReplaceCellByValue
 		#< @FunctionAlternativeForms
 		def ReplaceCellsByValue(paCellsValues, pNewCellValue)
 			This.ReplaceManyCellsByValue(paCellsValues, pNewCellValue)
 
-		# Raises error today instead of replacing the cells equal to any of several values by one value.
+		# Replaces every cell equal to any of several values by one value, in place; the case counts.
 		#
-		#   paCellsValues   the cell values to replace
-		#   pNewCellValue   the value that takes the place
-		#   returns         nothing; it raises
-		#   warning         Always raises Function not yet implemented!
-		#   see             ReplaceCellByValue
+		#   paCellsValues   the list of values to look for
+		#   pNewCellValue   the value that takes their place
+		#   returns         nothing; the table changes
+		#   see             ReplaceManyCellsByValueCS, ReplaceCellByValue
 		#@ aka  --
 		def ReplaceByValueManyCells(paCellsValues, pNewCellValue)
 			This.ReplaceManyCellsByValue(paCellsValues, pNewCellValue)
 
-		# Raises error today instead of replacing the cells equal to any of several values by one value.
+		# Replaces every cell equal to any of several values by one value, in place; the case counts.
 		#
-		#   paCellsValues   the cell values to replace
-		#   pNewCellValue   the value that takes the place
-		#   returns         nothing; it raises
-		#   warning         Always raises Function not yet implemented!
-		#   see             ReplaceCellByValue
+		#   paCellsValues   the list of values to look for
+		#   pNewCellValue   the value that takes their place
+		#   returns         nothing; the table changes
+		#   see             ReplaceManyCellsByValueCS, ReplaceCellByValue
 		def ReplaceByValueCells(paCellsValues, pNewCellValue)
 			This.ReplaceManyCellsByValue(paCellsValues, pNewCellValue)
 
@@ -16541,46 +16530,46 @@ func _NormalizeColLookupKey(pVal)
 		def ReplaceByValueCellsByManyCS(paCellsValues, pNewCellValue, pCaseSensitive)
 			This.ReplaceManyCellsByValueByManyCS(paCellsValues, pNewCellValue, pCaseSensitive)
 
-	# Raises error today instead of replacing several cell values by several new values.
+	# Replaces each cell equal to one of several values by the new value of the same rank, in place; the case counts.
 	#
-	#   paCellsValues   the cell values to replace
-	#   pNewCellValue   the new values
-	#   returns         nothing; it raises
-	#   warning         Always raises Function not yet implemented!
-	#   see             ReplaceCellByValue
+	#   paCellsValues   the list of values to look for
+	#   pNewCellValue   the list of new values, one per value to look for
+	#   returns         nothing; the table changes
+	#   warning         A swap does not cascade, and the surplus of the longer list is ignored
+	#   see             ReplaceManyCellsByValueByManyCS, ReplaceManyCellsByValueByManyXT
 		#>
 	#@ aka  -- WITHOUT CASESENSITIVITY
 	def ReplaceManyCellsByValueByMany(paCellsValues, pNewCellValue)
 		This.ReplaceManyCellsByValueByManyCS(paCellsValues, pNewCellValue, 1)
 
-		# Raises error today instead of replacing several cell values by several new values.
+		# Replaces each cell equal to one of several values by the new value of the same rank, in place; the case counts.
 		#
-		#   paCellsValues   the cell values to replace
-		#   pNewCellValue   the new values
-		#   returns         nothing; it raises
-		#   warning         Always raises Function not yet implemented!
-		#   see             ReplaceCellByValue
+		#   paCellsValues   the list of values to look for
+		#   pNewCellValue   the list of new values, one per value to look for
+		#   returns         nothing; the table changes
+		#   warning         A swap does not cascade, and the surplus of the longer list is ignored
+		#   see             ReplaceManyCellsByValueByManyCS, ReplaceManyCellsByValueByManyXT
 		#< @FunctionAlternativeForms
 		def ReplaceCellsByValueByMany(paCellsValues, pNewCellValue)
 			This.ReplaceManyCellsByValueByMany(paCellsValues, pNewCellValue)
 
-		# Raises error today instead of replacing several cell values by several new values.
+		# Replaces each cell equal to one of several values by the new value of the same rank, in place; the case counts.
 		#
-		#   paCellsValues   the cell values to replace
-		#   pNewCellValue   the new values
-		#   returns         nothing; it raises
-		#   warning         Always raises Function not yet implemented!
-		#   see             ReplaceCellByValue
+		#   paCellsValues   the list of values to look for
+		#   pNewCellValue   the list of new values, one per value to look for
+		#   returns         nothing; the table changes
+		#   warning         A swap does not cascade, and the surplus of the longer list is ignored
+		#   see             ReplaceManyCellsByValueByManyCS, ReplaceManyCellsByValueByManyXT
 		def ReplaceByValueManyCellsByMany(paCellsValues, pNewCellValue)
 			This.ReplaceManyCellsByValueByMany(paCellsValues, pNewCellValue)
 
-		# Raises error today instead of replacing several cell values by several new values.
+		# Replaces each cell equal to one of several values by the new value of the same rank, in place; the case counts.
 		#
-		#   paCellsValues   the cell values to replace
-		#   pNewCellValue   the new values
-		#   returns         nothing; it raises
-		#   warning         Always raises Function not yet implemented!
-		#   see             ReplaceCellByValue
+		#   paCellsValues   the list of values to look for
+		#   pNewCellValue   the list of new values, one per value to look for
+		#   returns         nothing; the table changes
+		#   warning         A swap does not cascade, and the surplus of the longer list is ignored
+		#   see             ReplaceManyCellsByValueByManyCS, ReplaceManyCellsByValueByManyXT
 		def ReplaceByValueCellsByMany(paCellsValues, pNewCellValue)
 			This.ReplaceManyCellsByValueByMany(paCellsValues, pNewCellValue)
 
@@ -17809,65 +17798,59 @@ func _NormalizeColLookupKey(pVal)
 	def ReplaceAll(pCellValue, pNewCellValue)
 		This.ReplaceAllCS(pCellValue, pNewCellValue, 1)
 
-		# Raises error R19 today instead of replacing every cell equal to a value by another value.
+		# Replaces every cell equal to a value by another value, in place; the case counts.
 		#
-		#   pNewCellValue   the value that takes the place
-		#   returns         nothing; it raises
-		#   warning         Raises R19 because it forwards to ReplaceCell with two arguments where
-		#                   ReplaceCell needs a column, a row and a value; ReplaceAll works
-		#   see             ReplaceAll
+		#   pCellValue      the value to look for
+		#   pNewCellValue   the value that takes its place
+		#   returns         nothing; the table changes
+		#   see             ReplaceAllCS, ReplaceCellByValue
 		#< @FunctionAlternatives
 		def ReplaceAllOccurrencesOfCell(pCellValue, pNewCellValue)
 			This.ReplaceAll(pCellValue, pNewCellValue)
 
-		# Raises error R19 today instead of replacing every cell equal to a value by another value.
+		# Replaces every cell equal to a value by another value, in place; the case counts.
 		#
-		#   pNewCellValue   the value that takes the place
-		#   returns         nothing; it raises
-		#   warning         Raises R19 because it forwards to ReplaceCell with two arguments where
-		#                   ReplaceCell needs a column, a row and a value; ReplaceAll works
-		#   see             ReplaceAll
+		#   pCellValue      the value to look for
+		#   pNewCellValue   the value that takes its place
+		#   returns         nothing; the table changes
+		#   see             ReplaceAllCS, ReplaceCellByValue
 		def ReplaceEachOccurrenceOfCell(pCellValue, pNewCellValue)
 			This.ReplaceAll(pCellValue, pNewCellValue)
 
-		# Raises error R19 today instead of replacing every cell equal to a value by another value.
+		# Replaces every cell equal to a value by another value, in place; the case counts.
 		#
-		#   pNewCellValue   the value that takes the place
-		#   returns         nothing; it raises
-		#   warning         Raises R19 because it forwards to ReplaceCell with two arguments where
-		#                   ReplaceCell needs a column, a row and a value; ReplaceAll works
-		#   see             ReplaceAll
+		#   pCellValue      the value to look for
+		#   pNewCellValue   the value that takes its place
+		#   returns         nothing; the table changes
+		#   see             ReplaceAllCS, ReplaceCellByValue
 		def ReplaceEveryOccurrenceOfCell(pCellValue, pNewCellValue)
 			This.ReplaceAll(pCellValue, pNewCellValue)
 
-		# Raises error R19 today instead of replacing every cell equal to a value by another value.
+		# Replaces every cell equal to a value by another value, in place; the case counts.
 		#
-		#   pNewCellValue   the value that takes the place
-		#   returns         nothing; it raises
-		#   warning         Raises R19 because it forwards to ReplaceCell with two arguments where
-		#                   ReplaceCell needs a column, a row and a value; ReplaceAll works
-		#   see             ReplaceAll
+		#   pCellValue      the value to look for
+		#   pNewCellValue   the value that takes its place
+		#   returns         nothing; the table changes
+		#   see             ReplaceAllCS, ReplaceCellByValue
 		#@ aka  --
 		def ReplaceAllOccurrences(pCellValue, pNewCellValue)
 			This.ReplaceAll(pCellValue, pNewCellValue)
 
-		# Raises error R19 today instead of replacing every cell equal to a value by another value.
+		# Replaces every cell equal to a value by another value, in place; the case counts.
 		#
-		#   pNewCellValue   the value that takes the place
-		#   returns         nothing; it raises
-		#   warning         Raises R19 because it forwards to ReplaceCell with two arguments where
-		#                   ReplaceCell needs a column, a row and a value; ReplaceAll works
-		#   see             ReplaceAll
+		#   pCellValue      the value to look for
+		#   pNewCellValue   the value that takes its place
+		#   returns         nothing; the table changes
+		#   see             ReplaceAllCS, ReplaceCellByValue
 		def ReplaceEachOccurrence(pCellValue, pNewCellValue)
 			This.ReplaceAll(pCellValue, pNewCellValue)
 
-		# Raises error R19 today instead of replacing every cell equal to a value by another value.
+		# Replaces every cell equal to a value by another value, in place; the case counts.
 		#
-		#   pNewCellValue   the value that takes the place
-		#   returns         nothing; it raises
-		#   warning         Raises R19 because it forwards to ReplaceCell with two arguments where
-		#                   ReplaceCell needs a column, a row and a value; ReplaceAll works
-		#   see             ReplaceAll
+		#   pCellValue      the value to look for
+		#   pNewCellValue   the value that takes its place
+		#   returns         nothing; the table changes
+		#   see             ReplaceAllCS, ReplaceCellByValue
 		def ReplaceEveryOccurrence(pCellValue, pNewCellValue)
 			This.ReplaceAll(pCellValue, pNewCellValue)
 
@@ -17885,14 +17868,13 @@ func _NormalizeColLookupKey(pVal)
 			This.ReplaceCell(_aCellPos_[1], _aCellPos_[2], pNewCellValue)
 		ok
 
-	# Raises error R19 today instead of replacing the nth, first or last cell equal to a value.
+	# Replaces the nth cell equal to a value by another value, in place; nothing changes when there is no such cell.
 	#
-	#   _n_             the position, or how many, as a number
-	#   pNewCellValue   the value that takes the place
-	#   returns         nothing; it raises
-	#   warning         Raises R19 because the CS form calls ReplaceCell with a position pair where
-	#                   ReplaceCell needs a column, a row and a value
-	#   see             ReplaceAll
+	#   _n_             the rank of the occurrence, 1 for the first
+	#   pValue          the value to look for
+	#   pNewCellValue   the value that takes its place
+	#   returns         nothing; the table changes
+	#   see             ReplaceNthCS, FindNth
 	#@ aka  -- WITHOUT CASESENSITIVITY
 	def ReplaceNth(_n_, pValue, pNewCellValue)
 		This.ReplaceNthCS(_n_, pValue, pNewCellValue, 1)
@@ -17904,13 +17886,12 @@ func _NormalizeColLookupKey(pVal)
 	def ReplaceFirstCS(pValue, pNewCellValue, pCaseSensitive)
 		This.ReplaceNthCS(1, pValue, pNewCellValue, pCaseSensitive)
 
-	# Raises error R19 today instead of replacing the nth, first or last cell equal to a value.
+	# Replaces the first cell equal to a value by another value, in place; nothing changes when no cell is equal.
 	#
-	#   pNewCellValue   the value that takes the place
-	#   returns         nothing; it raises
-	#   warning         Raises R19 because the CS form calls ReplaceCell with a position pair where
-	#                   ReplaceCell needs a column, a row and a value
-	#   see             ReplaceAll
+	#   pValue          the value to look for
+	#   pNewCellValue   the value that takes its place
+	#   returns         nothing; the table changes
+	#   see             ReplaceFirstCS, ReplaceNth
 	#@ aka  -- WITHOUT CASESENSITIVITY
 	def ReplaceFirst(pValue, pNewCellValue)
 		This.ReplaceFirstCS(pValue, pNewCellValue, 1)
@@ -17922,13 +17903,12 @@ func _NormalizeColLookupKey(pVal)
 	def ReplaceLastCS(pValue, pNewCellValue, pCaseSensitive)
 		This.ReplaceNthCS(:Last, pValue, pNewCellValue, pCaseSensitive)
 
-	# Raises error R19 today instead of replacing the nth, first or last cell equal to a value.
+	# Replaces the last cell equal to a value by another value, in place; nothing changes when no cell is equal.
 	#
-	#   pNewCellValue   the value that takes the place
-	#   returns         nothing; it raises
-	#   warning         Raises R19 because the CS form calls ReplaceCell with a position pair where
-	#                   ReplaceCell needs a column, a row and a value
-	#   see             ReplaceAll
+	#   pValue          the value to look for
+	#   pNewCellValue   the value that takes its place
+	#   returns         nothing; the table changes
+	#   see             ReplaceLastCS, ReplaceNth
 	#@ aka  -- WITHOUT CASESENSITIVITY
 	def ReplaceLast(pValue, pNewCellValue)
 		This.ReplaceLastCS(pValue, pNewCellValue, 1)
