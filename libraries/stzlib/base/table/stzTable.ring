@@ -11073,7 +11073,7 @@ func _NormalizeColLookupKey(pVal)
 			pCol = pCol[2]
 		ok
 
-		return This.FindNthInCellsCS(_n_, This.ColAsPositions(pcol), pCellValue, pCaseSensitive)
+		return This.FindNthValueInCellsCS(_n_, This.ColAsPositions(pcol), pCellValue, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
 
@@ -11210,13 +11210,15 @@ func _NormalizeColLookupKey(pVal)
 		def FindFirstOccurrenceOfValueInColumnCs(pCol, pCellValue, pCaseSensitive)
 			return This.FindFirstValueInColCS(pCol, pCellValue, pCaseSensitive)
 
-	# Raises error R4 today instead of finding the first cell in one column that equals a value.
+	# Finds the first cell of one column that equals a value.
 	#
-	#   returns    nothing; it raises
-	#   warning    Raises R4 (stack overflow) because the CS form calls itself without end
-	#   see        FindFirstInCol
+	#   pCol         the column, by name or position
+	#   pCellValue   the whole value a cell must equal: a text, a number or a list, compared with
+	#                its case
+	#   returns      a [ column, row ] pair; [ ] when there is none
+	#   warning      Raises an error when the column does not exist
+	#   see          FindFirstInCol
 		#>
-	# Returns the first cell of one column that equals a value; [ ] when there is none.
 	def FindFirstValueInCol(pCol, pCellValue)
 		return This.FindFirstValueInColCS(pCol, pCellValue, 1)
 
@@ -11245,13 +11247,14 @@ func _NormalizeColLookupKey(pVal)
 		def FindFirstOccurrenceOfSubValueInColCS(pCol, pSubValue, pCaseSensitive)
 			return This.FindFirstSubValueInColCS(pCol, pSubValue, pCaseSensitive)
 
-	# Raises error R4 today instead of finding the first cell in one column that contains a text.
+	# Finds the first cell of one column that contains a text.
 	#
-	#   returns    nothing; it raises
-	#   warning    Raises R4 (stack overflow) because the CS form calls itself without end
-	#   see        FindFirstInCol
+	#   pCol        the column, by name or position
+	#   pSubValue   the text to look for, compared with its case
+	#   returns     a [ [ column, row ], place ] pair, the place being the character position in the
+	#               cell; [ ] when there is none
+	#   see         FindFirstInCol
 		#>
-	# Returns the first occurrence of a text inside the cells of one column, as [ [ column, row ], place ].
 	def FindFirstSubValueInCol(pCol, pSubValue)
 		return This.FindFirstSubValueInColCS(pCol, pSubValue, 1)
 
@@ -11328,13 +11331,15 @@ func _NormalizeColLookupKey(pVal)
 		def FindLastOccurrenceOfValueInColumnCs(pCol, pCellValue, pCaseSensitive)
 			return This.FindLastValueInColCS(pCol, pCellValue, pCaseSensitive)
 
-	# Raises error R4 today instead of finding the last cell in one column that equals a value.
+	# Finds the last cell of one column that equals a value.
 	#
-	#   returns    nothing; it raises
-	#   warning    Raises R4 (stack overflow) because the CS form calls itself without end
-	#   see        FindLastInCol
+	#   pCol         the column, by name or position
+	#   pCellValue   the whole value a cell must equal: a text, a number or a list, compared with
+	#                its case
+	#   returns      a [ column, row ] pair; [ ] when there is none
+	#   warning      Raises an error when the column does not exist
+	#   see          FindLastInCol
 		#>
-	# Returns the last cell of one column that equals a value; [ ] when there is none.
 	def FindLastValueInCol(pCol, pCellValue)
 		return This.FindLastValueInColCS(pCol, pCellValue, 1)
 
@@ -11369,13 +11374,14 @@ func _NormalizeColLookupKey(pVal)
 		def FindLastOccurrenceOfSubValueInColumnCS(pCol, pSubValue, pCaseSensitive)
 			return This.FindLastSubValueInColCS(pCol, pSubValue, pCaseSensitive)
 
-	# Raises error R4 today instead of finding the last cell in one column that contains a text.
+	# Finds the last cell of one column that contains a text.
 	#
-	#   returns    nothing; it raises
-	#   warning    Raises R4 (stack overflow) because the CS form calls itself without end
-	#   see        FindLastInCol
+	#   pCol        the column, by name or position
+	#   pSubValue   the text to look for, compared with its case
+	#   returns     a [ [ column, row ], place ] pair, the place being the character position in the
+	#               cell; [ ] when there is none
+	#   see         FindLastInCol
 		#>
-	# Returns the last occurrence of a text inside the cells of one column, as [ [ column, row ], place ].
 	def FindLastSubValueInCol(pCol, pSubValue)
 		return This.FindLastSubValueInColCS(pCol, pSubValue, 1)
 
@@ -11589,13 +11595,15 @@ func _NormalizeColLookupKey(pVal)
 		def HowManyOccurrencesOfValueInColumnCS(pCol, pValue, pCaseSensitive)
 			return This.NumberOfOccurrenceOfCellInColCS(pCol, pValue, pCaseSensitive)
 
-	# Raises error R14 today instead of counting the cells in one column that equal a value.
+	# Counts the cells of one column that equal a value.
 	#
-	#   returns    nothing; it raises
-	#   warning    Raises R14 because the CS helper it calls is defined nowhere
-	#   see        NumberOfOccurrenceInCol
+	#   pCol         the column, by name or position
+	#   pCellValue   the whole value a cell must equal: a text, a number or a list, compared with
+	#                its case
+	#   returns      a number
+	#   warning      Raises an error when the column does not exist
+	#   see          NumberOfOccurrenceInCol
 		#>
-	# Returns how many cells of one column equal a value.
 	def NumberOfOccurrenceOfCellInCol(pCol, pCellValue)
 		return This.NumberOfOccurrenceOfCellInColCS(pCol, pCellValue, 1)
 
@@ -12177,17 +12185,16 @@ func _NormalizeColLookupKey(pVal)
 		def FindNthOccurrenceInColumsCS(_n_, paCols, pCellValueOrSubValue, pCaseSensitive)
 			return This.FindNthInColsCS(_n_, paCols, pCellValueOrSubValue, pCaseSensitive)
 
-	# Raises error R14 today instead of finding the nth cell in the given columns that equals a value.
+	# Finds the nth cell, among the given columns, that equals a value or contains a text.
 	#
-	#   _n_                    the position, or how many, as a number
-	#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside the
-	#                          cells
-	#   returns                nothing; it raises
-	#   warning                Raises R14 because ColsToNames is defined nowhere; FindNthValueInCols
-	#                          works
-	#   see                    FindNthValueInCols
+	#   _n_                    the occurrence wanted, as a number or :Last
+	#   paCols                 the columns, by name or position, read in the order given
+	#   pCellValueOrSubValue   the cell value to look for: a text, a number or, wrapped as [ :Cell,
+	#                          list ], a list; [ :SubValue, text ] looks inside the cells instead
+	#   returns                a [ column, row ] pair, or a [ [ column, row ], place ] pair with [
+	#                          :SubValue, text ]; [ ] when there is none
+	#   see                    FindNthValueInCols, FindNthSubValueInCols
 		#>
-	# Returns the nth cell of the given columns equal to a value, or the nth occurrence of a text with [ :SubValue, text ].
 	def FindNthInCols(_n_, paCols, pCellValueOrSubValue)
 		return This.FindNthInColsCS(_n_, paCols, pCellValueOrSubValue, 1)
 		
@@ -12218,7 +12225,7 @@ func _NormalizeColLookupKey(pVal)
 			paCols = paCols[2]
 		ok
 
-		return This.FindNthInCellsCS(_n_, This.ColsAsPositions(paCols), pCellValue, pCaseSensitive)
+		return This.FindNthValueInCellsCS(_n_, This.ColsAsPositions(paCols), pCellValue, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
 
@@ -12313,15 +12320,15 @@ func _NormalizeColLookupKey(pVal)
 		def FindFirstOccurrenceInColumnsCS(paCols, pCellValueOrSubValue, pCaseSensitive)
 			return This.FindFirstInColsCS(paCols, pCellValueOrSubValue, pCaseSensitive)
 
-	# Raises error R14 today instead of finding the first cell in the given columns that equals a value.
+	# Finds the first cell, among the given columns, that equals a value or contains a text.
 	#
-	#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside the
-	#                          cells
-	#   returns                nothing; it raises
-	#   warning                Raises R14 because ColsToNames is defined nowhere
-	#   see                    FindFirstValueInCols
+	#   paCols                 the columns, by name or position, read in the order given
+	#   pCellValueOrSubValue   the cell value to look for: a text, a number or, wrapped as [ :Cell,
+	#                          list ], a list; [ :SubValue, text ] looks inside the cells instead
+	#   returns                a [ column, row ] pair, or a [ [ column, row ], place ] pair with [
+	#                          :SubValue, text ]; [ ] when there is none
+	#   see                    FindFirstValueInCols, FindFirstSubValueInCols
 		#>
-	# Returns the first cell of the given columns equal to a value, or the first occurrence of a text with [ :SubValue, text ].
 	def FindFirstInCols(paCols, pCellValueOrSubValue)
 		return This.FindFirstInColsCS(paCols, pCellValueOrSubValue, 1)
 		
@@ -12356,13 +12363,14 @@ func _NormalizeColLookupKey(pVal)
 		def FindFirstOccurrenceOfValueInColumnsCs(paCols, pCellValue, pCaseSensitive)
 			return This.FindFirstValueInColsCS(paCols, pCellValue, pCaseSensitive)
 
-	# Raises error R4 today instead of finding the first cell in the given columns that equals a value.
+	# Finds the first cell, among the given columns, that equals a value.
 	#
-	#   returns    nothing; it raises
-	#   warning    Raises R4 (stack overflow) because the CS form calls itself without end
-	#   see        FindFirstInCols
+	#   paCols       the columns, by name or position, read in the order given
+	#   pCellValue   the whole value a cell must equal: a text, a number or a list, compared with
+	#                its case
+	#   returns      a [ column, row ] pair; [ ] when there is none
+	#   see          FindFirstInCols
 		#>
-	# Returns the first cell of the given columns that equals a value; [ ] when there is none.
 	def FindFirstValueInCols(paCols, pCellValue)
 		return This.FindFirstValueInColsCS(paCols, pCellValue, 1)
 
@@ -12391,13 +12399,14 @@ func _NormalizeColLookupKey(pVal)
 		def FindFirstOccurrenceOfSubValueInColsCS(paCols, pSubValue, pCaseSensitive)
 			return This.FindFirstSubValueInColsCS(paCols, pSubValue, pCaseSensitive)
 
-	# Raises error R4 today instead of finding the first cell in the given columns that contains a text.
+	# Finds the first cell, among the given columns, that contains a text.
 	#
-	#   returns    nothing; it raises
-	#   warning    Raises R4 (stack overflow) because the CS form calls itself without end
-	#   see        FindFirstInCols
+	#   paCols      the columns, by name or position, read in the order given
+	#   pSubValue   the text to look for, compared with its case
+	#   returns     a [ [ column, row ], place ] pair, the place being the character position in the
+	#               cell; [ ] when there is none
+	#   see         FindFirstInCols
 		#>
-	# Returns the first occurrence of a text inside the cells of the given columns, as [ [ column, row ], place ].
 	def FindFirstSubValueInCols(paCols, pSubValue)
 		return This.FindFirstSubValueInColsCS(paCols, pSubValue, 1)
 
@@ -12432,16 +12441,15 @@ func _NormalizeColLookupKey(pVal)
 		def FindLastOccurrenceInColumnsCS(paCols, pCellValueOrSubValue, pCaseSensitive)
 			return This.FindLastInColsCS(paCols, pCellValueOrSubValue, pCaseSensitive)
 
-	# Raises error R24 today instead of finding the last cell in the given columns that equals a value.
+	# Finds the last cell, among the given columns, that equals a value or contains a text.
 	#
-	#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside the
-	#                          cells
-	#   returns                nothing; it raises
-	#   warning                Raises R24 (uninitialized variable pcol) because the body passes a
-	#                          name that is not its parameter
-	#   see                    FindFirstInCols
+	#   paCols                 the columns, by name or position, read in the order given
+	#   pCellValueOrSubValue   the cell value to look for: a text, a number or, wrapped as [ :Cell,
+	#                          list ], a list; [ :SubValue, text ] looks inside the cells instead
+	#   returns                a [ column, row ] pair, or a [ [ column, row ], place ] pair with [
+	#                          :SubValue, text ]; [ ] when there is none
+	#   see                    FindLastValueInCols, FindLastSubValueInCols
 		#>
-	# Returns the last cell of the given columns equal to a value, or the last occurrence of a text with [ :SubValue, text ].
 	def FindLastInCols(paCols, pCellValueOrSubValue)
 		return This.FindLastInColsCS(paCols, pCellValueOrSubValue, 1)
 		
@@ -12476,13 +12484,14 @@ func _NormalizeColLookupKey(pVal)
 		def FindLastOccurrenceOfValueInColumnsCS(paCols, pCellValue, pCaseSensitive)
 			return This.FindLastValueInColsCS(paCols, pCellValue, pCaseSensitive)
 
-	# Raises error R4 today instead of finding the last cell in the given columns that equals a value.
+	# Finds the last cell, among the given columns, that equals a value.
 	#
-	#   returns    nothing; it raises
-	#   warning    Raises R4 (stack overflow) because the CS form calls itself without end
-	#   see        FindLastInCols
+	#   paCols       the columns, by name or position, read in the order given
+	#   pCellValue   the whole value a cell must equal: a text, a number or a list, compared with
+	#                its case
+	#   returns      a [ column, row ] pair; [ ] when there is none
+	#   see          FindLastInCols
 		#>
-	# Returns the last cell of the given columns that equals a value; [ ] when there is none.
 	def FindLastValueInCols(paCols, pCellValue)
 		return This.FindLastValueInColsCS(paCols, pCellValue, 1)
 
@@ -12517,13 +12526,14 @@ func _NormalizeColLookupKey(pVal)
 		def FindLastOccurrenceOfSubValueInColumnsCS(paCols, pSubValue, pCaseSensitive)
 			return This.FindLastSubValueInColsCS(paCols, pSubValue, pCaseSensitive)
 
-	# Raises error R4 today instead of finding the last cell in the given columns that contains a text.
+	# Finds the last cell, among the given columns, that contains a text.
 	#
-	#   returns    nothing; it raises
-	#   warning    Raises R4 (stack overflow) because the CS form calls itself without end
-	#   see        FindLastInCols
+	#   paCols      the columns, by name or position, read in the order given
+	#   pSubValue   the text to look for, compared with its case
+	#   returns     a [ [ column, row ], place ] pair, the place being the character position in the
+	#               cell; [ ] when there is none
+	#   see         FindLastInCols
 		#>
-	# Returns the last occurrence of a text inside the cells of the given columns, as [ [ column, row ], place ].
 	def FindLastSubValueInCols(paCols, pSubValue)
 		return This.FindLastSubValueInColsCS(paCols, pSubValue, 1)
 
@@ -12730,13 +12740,15 @@ func _NormalizeColLookupKey(pVal)
 		def HowManyOccurrencesOfValueInColumnsCS(paCols, pValue, pCaseSensitive)
 			return This.NumberOfOccurrenceOfCellInColsCS(paCols, pValue, pCaseSensitive)
 
-	# Raises error R14 today instead of counting the cells in the given columns that equal a value.
+	# Counts the cells of the given columns that equal a value.
 	#
-	#   returns    nothing; it raises
-	#   warning    Raises R14 because the CS helper it calls is defined nowhere
-	#   see        NumberOfOccurrenceInCols
+	#   paCols       the columns, by name or position, read in the order given
+	#   pCellValue   the whole value a cell must equal: a text, a number or a list, compared with
+	#                its case
+	#   returns      a number
+	#   warning      Raises an error when a column does not exist
+	#   see          NumberOfOccurrenceInCols
 		#>
-	# Returns how many cells of the given columns equal a value.
 	def NumberOfOccurrenceOfCellInCols(paCols, pCellValue)
 		return This.NumberOfOccurrenceOfCellInColsCS(paCols, pCellValue, 1)
 
