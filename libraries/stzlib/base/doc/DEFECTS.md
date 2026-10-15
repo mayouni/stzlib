@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 337 methods in 95 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 319 methods in 94 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| geo/stzGeoMap.ring | stzGeoMap | 18 |
 | regex/stzMatrex.ring | stzMatrex | 17 |
 | file/stzFile.ring | stzFileManager | 15 |
 | datetime/stzListOfTimeLines.ring | stzListOfTimeLines | 14 |
@@ -242,27 +241,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `SetRamp` (line 361): Sets the colours of the classes from a named ramp, in as many steps as there are classes. -- Defect: the error for an unknown name lists nine ramps although thirteen exist.
 - `DrawOn` (line 460): Draws the field as one image on a canvas, resampled through a projection into a box, coloured by class. -- Defect: a bilinear read of a constant field comes back one rounding step under the node value about 6 per cent of the time, so with SetClassesEvery a pixel at the first class edge draws as no data (white specks).
 - `DrawXT` (line 478): Draws the field as one image like DrawOn, with an opacity so the map underneath can show through. -- Defect: a bilinear read of a constant field comes back one rounding step under the node value about 6 per cent of the time, so with SetClassesEvery a pixel at the first class edge draws as no data (white specks).
-
-## stzGeoMap -- geo/stzGeoMap.ring (18)
-
-- `SetRamp` (line 557): Sets the class colours from a named ramp, in as many steps as there are classes. -- Defect: the error for an unknown name lists nine ramps although thirteen exist (Viridis, Magma, Cividis and Flow are missing from the message).
-- `SetPalette` (line 576): Sets the colour of each class by hand. -- Defect: before SetClasses it raises with the message -1 classes need -1 colours, because an empty edge list counts as -1 classes.
-- `SetPaper` (line 599): Tells the map the box it is drawn in, so no label is written off the sheet and the scale bar is measured over that box. -- Defect: when it is not called, the scale-bar and stream-density methods guess the sheet from the projection's scale and misjudge a country map.
-- `SetOpenTop` (line 649): Declares that the top class has no upper edge, so a value above the last edge belongs to it and the legend draws an arrow. -- Defect: an inset made by DrawInsetsOn does not copy it, so a region above the last edge shows as no data in the inset (Niamey on the Niger sheet).
-- `ClassOf` (line 794): Returns the class that feature pnI's value falls in. -- Defect: raises error R2 when values are set and the classes are not, because the class edges are an empty list read at index 0.
-- `ColourOf` (line 819): Returns the fill colour of feature pnI: its group's colour, its class's colour, or the no-data colour. -- Defect: raises error R2 when values are set and the classes are not, because the class edges are an empty list read at index 0.
-- `DrawOn` (line 841): Draws the old-style layers on a canvas: sphere, graticule every 30 degrees, regions with white edges, the world's edge. -- Defect: raises error R2 when values are set and the classes are not, because the class edges are an empty list read at index 0.
-- `DrawRegionsOn` (line 885): Draws every feature in the colour its value earns, with one edge colour. -- Defect: raises error R2 when values are set and the classes are not, because the class edges are an empty list read at index 0.
-- `DensityPointsIn` (line 1104): Returns the places per feature divided by the feature's area, ready for SetValues. -- Defect in the comment: the source says per square kilometre but the code multiplies by 10000, so the figure is per 10000 km2.
-- `LabelPointOf` (line 1152): Returns where a name goes: the area centroid of the largest part, or the roomiest inner point when the centroid is outside it. -- Defect: no range check, so a position of 0 or past the last raises error R2.
-- `DrawInsetsOn` (line 2189): Draws every inset on a canvas: its locator rectangle on the parent, its enlarged map, its frame, its title and its scale. -- Defect: the inset copies values, edges and palette but not SetOpenTop, so a value above the last edge draws as no data inside the inset while the parent paints it in the top colour (Niamey on the Niger sheet).
-- `DrawSheetOn` (line 2448): Draws the regions as a statistical map does: dark hairline borders, the no-data hatch, then the heavy outline of the selection. -- Defect: raises error R2 when values are set and the classes are not, because the class edges are an empty list read at index 0.
-- `DrawScaleBarOn` (line 2746): Draws a scale bar at a stated latitude and prints that latitude; draws nothing when the scale varies too much over the sheet. -- Defect: without SetPaper the sheet is guessed from the projection's scale as plus and minus pi times it, so a country map measures a scale variation of 57.85 instead of 1.009 and the bar is refused.
-- `ScaleVariation` (line 2793): Returns the ratio of the largest local scale to the smallest over the sheet: 1 means a scale bar is true everywhere. -- Defect: without SetPaper the sheet is guessed from the projection's scale as plus and minus pi times it, so a country map measures a scale variation of 57.85 instead of 1.009 and the bar is refused.
-- `ScaleBarAt` (line 2809): Returns the scale bar that would be drawn, without drawing it. -- Defect: without SetPaper the sheet is guessed from the projection's scale as plus and minus pi times it, so a country map measures a scale variation of 57.85 instead of 1.009 and the bar is refused.
-- `DrawStreamDensityOn` (line 3415): Draws a field's speed as a shaded raster with evenly spaced streamlines on top, the speed on the ground and the shape on the lines. -- Defect: without SetPaper the sheet is guessed from the projection's scale, so the raster covers a box thousands of pixels wide.
-- `DrawLegendOn` (line 3466): Draws the older legend: one row per class with its range, "(no region)" for a class nothing falls in, and a no-data row. -- Defect: raises error R2 when values are set and the classes are not, because the class edges are an empty list read at index 0.
-- `IsOnPaper` (line 3899): TRUE if any part of feature pnI reaches the paper at all. -- Defect: no range check, so a position of 0 or past the last raises error R2.
 
 ## stzGeoProcess -- geo/stzGeoProcess.ring (2)
 
