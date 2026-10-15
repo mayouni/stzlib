@@ -288,3 +288,8 @@ ContainsBusinessHours, GoToNextYear on a range. Next by size: stzItemCS 20, stzG
 All 20 rows broken (none stale), all fixed; 167-assertion guard. Open: ItemQ builds stzSItem (nowhere), stzItem inherits list methods that raise,
 stzListInserter kills the process past the end. Next by size: stzGeoMap 18, stzMatrex 17, stzFileManager 15, stzListOfTimeLines 14.
 
+## 2026-10-16: the stzGeoMap fix batch is ON MAIN (52a3fd1cb, both remotes); register 337 -> 319
+
+17 fixed, DensityPointsIn left as the author's decision (per 10000 km2 as coded). niger_density.png corrected and re-read. REMEMBER when committing a
+regeneration: add doc/deadforward_baseline.txt too (gate.ring --update rewrites it). Next by size: stzMatrex 17, stzFileManager 15, stzListOfTimeLines 14.
+
