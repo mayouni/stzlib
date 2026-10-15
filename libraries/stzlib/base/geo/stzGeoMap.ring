@@ -1120,10 +1120,11 @@ class stzGeoMap from stzObject
 	#   paLonLat   the places as one flat list lon, lat, lon, lat, ...
 	#   returns    a list with one number per feature: places per 10000 km2, "" for a feature with
 	#              no area
-	#   warning    Defect in the comment: the source says per square kilometre but the code
-	#              multiplies by 10000, so the figure is per 10000 km2.
+	#   note       The unit is 10000 km2 (a hundred kilometres by a hundred), not one km2: one place
+	#              in Niamey, 556.87 km2, is 17.96. Divide by 10000 for places per km2, and choose
+	#              the class edges of a map coloured with it in that unit
 	#   see        CountPointsIn, ValuesFromArea
-	#@ aka  the same counts, divided by each region's own area in square kilometres: a DENSITY, which is the number a choropleth may honestly colour. A count may not -- a big region collects more of anything -- and that is the commonest lie in the genre after the radius one.
+	#@ aka  the same counts, divided by each region's own area in square kilometres and scaled to 10000 km2: a DENSITY, which is the number a choropleth may honestly colour. A count may not -- a big region collects more of anything -- and that is the commonest lie in the genre after the radius one.
 	def DensityPointsIn(paLonLat)
 		_c_ = This.CountPointsIn(paLonLat)
 		_a_ = This.ValuesFromArea()
@@ -1133,6 +1134,8 @@ class stzGeoMap from stzObject
 				_d_ + (_c_[_i_] / _a_[_i_] * 10000)
 			else
 				_d_ + ""
+				# PER 10000 KM2, NOT PER KM2: the callers' class edges (geo_join.ring,
+				# 0 to 4000) are written for this unit, so it is kept and named.
 			ok
 		next
 		return _d_
@@ -1168,14 +1171,17 @@ class stzGeoMap from stzObject
 	# Returns where a name goes: the area centroid of the largest part, or the roomiest inner point when the centroid is outside it.
 	#
 	#   pnI        the position of the feature, from 1
-	#   returns    a list [ lon, lat ]; [ ] for a ring of fewer than 3 points
-	#   warning    Defect: no range check, so a position of 0 or past the last raises error R2.
+	#   returns    a list [ lon, lat ]; [ ] for a ring of fewer than 3 points or a position outside
+	#              the features
 	#   see        CentroidOf, PaperCentreOf
 	#@ aka  -- labels ---------------------------------------------------------------
 	def LabelPointOf(pnI)
 		_k_ = @oF.LargestPartOf(pnI)
 		_r_ = @oF.OuterRingOf(pnI, _k_)
 		_n_ = len(_r_) / 2
+		# A POSITION OUTSIDE THE FEATURES HAS NO PLACE: the same [ ] a degenerate
+		# ring gets, as ValueOf answers "" and FeatureAt answers 0 for nothing.
+		if NOT isNumber(pnI) or pnI < 1 or pnI > @oF.Count()  return []  ok
 		if _n_ < 3  return []  ok
 		# THE AREA CENTROID, never the mean of the outline's points -- see
 		# _PaperCentroid for why those differ and what it looked like when
@@ -3941,14 +3947,15 @@ class stzGeoMap from stzObject
 	#
 	#   pnI        the position of the feature, from 1
 	#   returns    TRUE or FALSE
-	#   note       Looks at the outer ring of each part
-	#   warning    Defect: no range check, so a position of 0 or past the last raises error R2.
+	#   note       Looks at the outer ring of each part. A position outside the features answers
+	#              FALSE
 	#   see        Findings, PaperBoxOf
 	#@ aka  does any point of this feature reach the paper at all?
 	def IsOnPaper(pnI)
 		_p_ = @oF.PartsOf(pnI)
 		for _k_ = 1 to len(_p_)
 			_r_ = _p_[_k_][1]
+		if NOT isNumber(pnI) or pnI < 1 or pnI > @oF.Count()  return FALSE  ok
 			_n_ = len(_r_) / 2
 			_step_ = 1
 			if _n_ > 40  _step_ = floor(_n_ / 40)  ok
