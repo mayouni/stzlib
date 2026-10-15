@@ -698,7 +698,7 @@ class stzSystemCall from stzObject
 			This.SetProgram("xdg-open")
 			This.SetArgs([_cFilePath_])
 		ok
-		This.RunSilently()
+		if sysget("STZ_NO_VIEW") = "" This.RunSilently() ok  # STZ_NO_VIEW set (a test run): nothing is opened
 
 		def OpenFileQ(_cFilePath_)
 			This.OpenFile(_cFilePath_)
