@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 382 methods in 97 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 357 methods in 96 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| datetime/stzCalendar.ring | stzCalendar | 25 |
 | list/stzItem.ring | stzItemCS | 20 |
 | geo/stzGeoMap.ring | stzGeoMap | 18 |
 | regex/stzMatrex.ring | stzMatrex | 17 |
@@ -155,34 +154,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `ReplacedWithCS` (line 113): Does nothing today: the body is empty. -- an unfinished stub with no parameters and no code; it answers an empty value
 - `Uppercased` (line 120): Does nothing today: the body is empty. -- an unfinished stub with no code; it answers an empty value
 - `Lowercased` (line 127): Does nothing today: the body is empty. -- an unfinished stub with no code; it answers an empty value
-
-## stzCalendar -- datetime/stzCalendar.ring (25)
-
-- `AvailableHours` (line 1086): Raises Not yet implemented! today instead of returning the list of available hour slots of the calendar. -- the body is a stub that raises Not yet implemented!; the form that works is AvailableHoursN
-- `AvailableHoursBetween` (line 1139): Raises Not yet implemented! today instead of returning the available hour slots between two dates. -- the body is a stub that raises Not yet implemented!; the form that works is AvailableHoursBetweenN
-- `HasAvailableHoursBetween` (line 1222): Raises Not yet implemented! today instead of telling whether the range holds available hours. -- calls AvailableHoursBetween, which is a stub
-- `AvailableHoursOn` (line 1232): Raises Not yet implemented! today instead of returning the available hour slots of one day. -- the body is a stub that raises Not yet implemented!; the form that works is AvailableHoursOnN
-- `ContainsAvailableHoursOn` (line 1320): Raises Not yet implemented! today instead of telling whether a day has available hours. -- calls AvailableHoursOn, which is a stub
-- `HasAvailableHoursOn` (line 1330): Raises Not yet implemented! today instead of telling whether a day has available hours. -- calls AvailableHoursOn, which is a stub
-- `AvailableDaysBetween` (line 1414): Raises Not yet implemented! today instead of returning the available days between two dates. -- the body is a stub that raises through raise()
-- `AvailableDaysBetweenN` (line 1434): Raises error R14 today instead of counting the available days between two dates. -- calls AvailabelDaysBetween, a misspelling of a method that is itself a stub
-- `ContainsAvailableDaysBetween` (line 1450): Raises error R14 today instead of telling whether the range holds available days. -- calls AvailableDaysBetweenN, which raises R14
-- `HasAvailableDaysBetween` (line 1460): Raises error R14 today instead of telling whether the range holds available days. -- calls AvailableDaysBetweenN, which raises R14
-- `AvailableWeeks` (line 1469): Raises Not yet implemented! today instead of returning the available weeks as pairs of dates. -- the body is a stub that raises Not yet implemented!
-- `NextDay` (line 1803): Raises Not yet implemented! today instead of answering the day after the calendar's current day. -- the body is a stub that raises Not yet implemented!; the calendar keeps no current day
-- `GoToNextDay` (line 1813): Raises Not yet implemented! today instead of moving the calendar to the next day. -- the body is a stub that raises Not yet implemented!
-- `PreviousDay` (line 1827): Raises Not yet implemented! today instead of answering the day before the calendar's current day. -- the body is a stub that raises Not yet implemented!; the calendar keeps no current day
-- `GoToPreviousDay` (line 1835): Raises Not yet implemented! today instead of moving the calendar to the previous day. -- the body is a stub that raises Not yet implemented!
-- `GoToNext` (line 1894): Raises error R14 today instead of moving the calendar to the next month. -- calls GoNextMonth, which exists nowhere
-- `GoTo` (line 2011): Raises Not yet implemented! today instead of moving the calendar to a given date. -- the body is a stub that raises Not yet implemented!
-- `CurrentDay` (line 2052): Returns the day of the month of today, read from the clock and not from the calendar.
-- `CurrentMonth` (line 2061): Returns the English name of today's month, read from the clock and not from the calendar.
-- `CurrentMonthN` (line 2075): Returns the number of today's month, read from the clock and not from the calendar.
-- `CurrentYear` (line 2084): Returns today's year, read from the clock and not from the calendar.
-- `HasWeekends` (line 2207): Answers nothing today instead of telling whether the calendar has weekend days. -- the method has no body
-- `WeekendsBetween` (line 2217): Raises Not yet implemented! today instead of returning the weekend days between two dates. -- the body is a stub that raises Not yet implemented!
-- `WeekendsBetweenN` (line 2237): Raises Not yet implemented! today instead of counting the weekend days between two dates. -- calls WeekendsBetween, which is a stub
-- `ConflictsWithSpan` (line 2684): Raises error R24 today instead of listing the days where a named span meets a holiday or a day off. -- tests an undefined variable oTimeLine instead of the attached timeline, so it raises Using uninitialized variable: otimeline for any label
 
 ## stzDate -- datetime/stzDate.ring (2)
 
