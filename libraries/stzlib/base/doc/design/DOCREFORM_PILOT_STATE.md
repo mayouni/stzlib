@@ -259,3 +259,13 @@ doc/tools/wave/WAVE_PROMPT_NEUTRAL.md. Extractor changes of this task: meta/stzD
 parenthesis, defaults stripped, :fwdargs), stzDocExport.ring (derived briefs for generated classes, findings), stzDocGate.ring
 (dead-forward ratchet, findings.json).
 
+## 2026-10-15: the stzTable fix batch is ON MAIN (a6371fceb, both remotes); register 476 -> 410
+
+stzTable's 66 register rows are 0: 60 were STALE blocks (code already fixed by the first batch, block still said 'Raises ... today'),
+6 real fixes in 9 finders (list cell searched as a named parameter) plus ToHtml / FromHtml / TransposeWithColNames / buildGrandTotal / @.
+LESSON FOR EVERY NEXT BATCH: the register counts BLOCKS, not behaviour; the agent must first CALL each listed method and sort it
+fixed-already / broken / needs-decision, and rewrite the blocks of the fixed ones. Two agents on two worktrees of the same file merged
+cleanly when each took disjoint methods. Next by size: stzObject 28, stzCalendar 25, stzItemCS 20, stzGeoMap 18, stzMatrex 17,
+stzFileManager 15, stzListOfTimeLines 14 (python on defects.json gives the full list). Prompt shape: the stzTable batch prompts
+(this session) = chips text + 'call each first' + guard t0N in the class's test folder + no push/rebase/regeneration by agents.
+
