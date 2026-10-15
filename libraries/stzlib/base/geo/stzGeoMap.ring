@@ -100,7 +100,6 @@ func StzGeoRamp(pName, pnClasses)
 		if StzLower("" + _a_[_i_][1]) = _c_  _stops_ = _a_[_i_][2]  exit  ok
 	next
 	if len(_stops_) = 0
-		stzraise("StzGeoRamp: '" + pName + "' is not a ramp this file knows -- " +
 		# THE LIST IS READ FROM THE TABLE, not typed again: the message once
 		# named nine ramps while the table held thirteen, because the names
 		# were copied out when there were nine.
@@ -110,6 +109,7 @@ func StzGeoRamp(pName, pnClasses)
 			if _i_ > 1 and _i_ = len(_a_)  _names_ += " or "  ok
 			_names_ += "" + _a_[_i_][1]
 		next
+		stzraise("StzGeoRamp: '" + pName + "' is not a ramp this file knows -- " +
 			_names_ + ".")
 	ok
 	if pnClasses < 1  return []  ok
@@ -405,12 +405,15 @@ func _GeoTagged(paFindings, pcName)
 # the no-data hatch and the selection outlined; DrawLabelsOn writes a name inside its region or
 # numbers it with a key; AddInset magnifies a place too small to label. A map judges itself
 # (Findings, IsSound): a choropleth, a membership map or hexagon bins on a projection that is not
-# equal-area is an error, as is a number with no key. Known gaps: with values set and no classes,
-# ClassOf, ColourOf and the Draw methods that colour raise error R2; an inset does not copy
-# SetOpenTop; DensityPointsIn is per 10000 km2. Pictures, each looked at by 'stzlib-docs visual pass
+# equal-area is an error, as is a number with no key. Behaviour to know: with values set and no
+# classes, ClassOf, ColourOf and the Draw methods that colour raise an error that names SetClasses
+# (the edges are the author's, so there is no default scheme); an inset takes the parent's open top;
+# with no SetPaper the scale bar and the stream-density raster use the extent of the features;
+# DensityPointsIn is per 10000 km2, not per km2. Pictures, each looked at by 'stzlib-docs visual pass
 # (a model reading the PNG)' on 2026-10-05: doc/gallery/stzGeoMap/niger_density.png, a density
-# choropleth with inset, legend, scale bar and north arrow, RIGHT except the Niamey inset, which is
-# grey instead of red (WRONG, see FINDINGS_geo.md); world_area.png, country areas on Equal Earth
+# choropleth with inset, legend, scale bar and north arrow, CORRECTED 2026-10-16 (the Niamey inset
+# was grey instead of red because DrawInsetsOn ignored SetOpenTop; redrawn after the fix, the inset
+# matches the parent, see FINDINGS_geo.md); world_area.png, country areas on Equal Earth
 # with a hatched no-data region, RIGHT; africa_blocs.png, a membership map, RIGHT;
 # daynight_world.png, the night side and twilight on 2026-10-05, RIGHT; hexbin_flows.png, hexagon
 # bins, area-true circles and great-circle routes, RIGHT; wind_streams.png and wind_arrows.png, an
@@ -584,13 +587,13 @@ class stzGeoMap from stzObject
 	#               length is refused and the message gives both numbers
 	#   see         SetRamp, SetClasses
 	def SetPalette(paColours)
-		if len(paColours) != len(@aEdges) - 1
-			stzraise("stzGeoMap: " + (len(@aEdges) - 1) + " classes need " +
-				(len(@aEdges) - 1) + " colours -- " + len(paColours) + " given.")
 		if len(@aEdges) < 2
 			stzraise("stzGeoMap.SetPalette: set the classes before the palette -- " +
 				"call SetClasses first, so the palette knows how many colours it needs.")
 		ok
+		if len(paColours) != len(@aEdges) - 1
+			stzraise("stzGeoMap: " + (len(@aEdges) - 1) + " classes need " +
+				(len(@aEdges) - 1) + " colours -- " + len(paColours) + " given.")
 		ok
 		@aPalette = paColours
 
@@ -810,9 +813,6 @@ class stzGeoMap from stzObject
 	def ClassOf(pnI)
 		_v_ = This.ValueOf(pnI)
 		if NOT isNumber(_v_)  return 0  ok
-		_n_ = len(@aEdges) - 1
-		for _c_ = 1 to _n_
-			if _v_ >= @aEdges[_c_] and _v_ < @aEdges[_c_ + 1]  return _c_  ok
 		# NO CLASSES IS A REFUSAL, NOT A GUESS. This read the edge list at index
 		# 0 and raised "Array Access (Index out of range)", which says nothing
 		# about what to do. A default scheme (quantiles, equal intervals) would
@@ -822,6 +822,9 @@ class stzGeoMap from stzObject
 			stzraise("stzGeoMap: feature " + pnI + " has a value but the map has no classes -- " +
 				"the class edges are the author's, so call SetClasses([ edge, edge, ... ]) first.")
 		ok
+		_n_ = len(@aEdges) - 1
+		for _c_ = 1 to _n_
+			if _v_ >= @aEdges[_c_] and _v_ < @aEdges[_c_ + 1]  return _c_  ok
 		next
 		if _v_ = @aEdges[_n_ + 1]  return _n_  ok
 		# ABOVE THE TOP EDGE, WHEN THE TOP IS DECLARED OPEN, IS THE TOP CLASS.
@@ -1131,11 +1134,11 @@ class stzGeoMap from stzObject
 		_d_ = []
 		for _i_ = 1 to len(_c_)
 			if _a_[_i_] > 0
+				# PER 10000 KM2, NOT PER KM2: the callers' class edges (geo_join.ring,
+				# 0 to 4000) are written for this unit, so it is kept and named.
 				_d_ + (_c_[_i_] / _a_[_i_] * 10000)
 			else
 				_d_ + ""
-				# PER 10000 KM2, NOT PER KM2: the callers' class edges (geo_join.ring,
-				# 0 to 4000) are written for this unit, so it is kept and named.
 			ok
 		next
 		return _d_
@@ -1176,12 +1179,12 @@ class stzGeoMap from stzObject
 	#   see        CentroidOf, PaperCentreOf
 	#@ aka  -- labels ---------------------------------------------------------------
 	def LabelPointOf(pnI)
-		_k_ = @oF.LargestPartOf(pnI)
-		_r_ = @oF.OuterRingOf(pnI, _k_)
-		_n_ = len(_r_) / 2
 		# A POSITION OUTSIDE THE FEATURES HAS NO PLACE: the same [ ] a degenerate
 		# ring gets, as ValueOf answers "" and FeatureAt answers 0 for nothing.
 		if NOT isNumber(pnI) or pnI < 1 or pnI > @oF.Count()  return []  ok
+		_k_ = @oF.LargestPartOf(pnI)
+		_r_ = @oF.OuterRingOf(pnI, _k_)
+		_n_ = len(_r_) / 2
 		if _n_ < 3  return []  ok
 		# THE AREA CENTROID, never the mean of the outline's points -- see
 		# _PaperCentroid for why those differ and what it looked like when
@@ -2281,6 +2284,11 @@ class stzGeoMap from stzObject
 			if len(_v_) > 0  _m_.SetValues(_v_)  ok
 			if len(@aEdges) > 1  _m_.SetClasses(@aEdges)  ok
 			if len(@aPalette) > 0  _m_.SetPalette(@aPalette)  ok
+			# THE OPEN TOP IS PART OF THE SCALE, so it travels with the edges. Without
+			# it a value above the last edge (Niamey, 1844 per km2 on a scale ending
+			# at 100) was class 0 in the inset and the top colour on the parent: the
+			# same region in two colours on one sheet.
+			_m_.SetOpenTop(@bOpenTop)
 			_m_.SetPaper(_b_[1], _b_[2], _b_[3], _b_[4])
 			# AN INSET LABELS THE WAY ITS PARENT LABELS ITS UNITS. Where the
 			# parent numbers with OFFICIAL CODES, so does the inset: 75, 92,
@@ -2290,11 +2298,6 @@ class stzGeoMap from stzObject
 			# name does not, which is the whole difficulty. Otherwise the
 			# inset writes NAMES, because it exists so that names fit and a
 			# SEQUENTIAL number inside one would need a second key; a sheet
-			# THE OPEN TOP IS PART OF THE SCALE, so it travels with the edges. Without
-			# it a value above the last edge (Niamey, 1844 per km2 on a scale ending
-			# at 100) was class 0 in the inset and the top colour on the parent: the
-			# same region in two colours on one sheet.
-			_m_.SetOpenTop(@bOpenTop)
 			# with two keys has given up.
 			if @cKeyCode != ""
 				_m_.SetKeyCodes(@cKeyCode)
@@ -3952,10 +3955,10 @@ class stzGeoMap from stzObject
 	#   see        Findings, PaperBoxOf
 	#@ aka  does any point of this feature reach the paper at all?
 	def IsOnPaper(pnI)
+		if NOT isNumber(pnI) or pnI < 1 or pnI > @oF.Count()  return FALSE  ok
 		_p_ = @oF.PartsOf(pnI)
 		for _k_ = 1 to len(_p_)
 			_r_ = _p_[_k_][1]
-		if NOT isNumber(pnI) or pnI < 1 or pnI > @oF.Count()  return FALSE  ok
 			_n_ = len(_r_) / 2
 			_step_ = 1
 			if _n_ > 40  _step_ = floor(_n_ / 40)  ok
