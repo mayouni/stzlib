@@ -2732,23 +2732,24 @@ func _NormalizeColLookupKey(pVal)
 
 	// TODO
 
-	# Raises error today instead of returning a range of the table.
+	# Turns a first and a last position into a start and a count.
 	#
-	#   _n1_       the first position
-	#   _n2_       the last position
-	#   returns    nothing; it raises
-	#   warning    Always raises Feature not implemented yet!
-	#   see        Section
+	#   _n1_      the first position
+	#   _n2_      the last position
+	#   returns   a pair [ start, count ]; the count is negative when the last position comes before
+	#             the first
+	#   see       Range, Section
 	def SectionToRange(_n1_, _n2_)
 		return @SectionToRange(_n1_, _n2_)
 
-	# Raises error today instead of returning a block of the table between two bounds.
+	# Reads the cells of a block given by its first corner and its size, row by row.
 	#
-	#   paPair     a pair of positions
-	#   paRange    the range to read
-	#   returns    nothing; it raises
-	#   warning    Always raises Feature not implemented yet!
-	#   see        Section
+	#   paPair    the first corner of the block, as [ column, row ]
+	#   paRange   the size of the block, as [ number of columns, number of rows ]
+	#   returns   a list of the cells, row by row; [ ] when a size is smaller than 1
+	#   warning   Raises an error when a pair is not made of two numbers, and when the block leaves
+	#             the table
+	#   see       Section, SectionToRange
 	def Range(paPair, paRange)
 		if NOT ( isList(paPair) and len(paPair) = 2 and isNumber(paPair[1]) and isNumber(paPair[2]) and
 		         isList(paRange) and len(paRange) = 2 and isNumber(paRange[1]) and isNumber(paRange[2]) )
@@ -6495,15 +6496,14 @@ func _NormalizeColLookupKey(pVal)
 		def FindManyColumnsByValuesCS(paManyColData, pCaseSensitive)
 			return This.FindColsByValueCS(paManyColData, pCaseSensitive)
 
-	# Raises an error today instead of returning the positions of the columns equal to any of the given cell lists.
+	# Returns the positions of the columns that equal any of the given lists of cells.
 	#
-	#   paManyColData   the cell lists to look for, each a list of cells
-	#   returns         nothing; it raises
-	#   warning         Raises Can't create the stzList object! for a valid list of cell lists;
-	#                   FindColByValue works one list at a time
+	#   paManyColData   a list of lists; each one holds the cells of a column, top to bottom,
+	#                   compared with their case
+	#   returns         a sorted list of column positions, each once; [ ] when no column matches
+	#   warning         Raises an error unless the argument is a list of lists
 	#   see             FindColByValue
 		#>
-	# Returns the positions of the columns equal to any of the given cell lists.
 	def FindColsByValue(paManyColData)
 		return This.FindColsByValueCS(paManyColData, 1)
 
@@ -8758,7 +8758,7 @@ func _NormalizeColLookupKey(pVal)
 				_n_ = 1
 
 			but StzFindFirst(_n_, [ :Last, :LastOccurrence, :LastValue ]) > 0
-				_n_ = This.NumberOfOccurrenceInCellsCS(paCells, pCellValue, pCaseSensitive)
+				_n_ = This.NumberOfOccurrencesOfValueInCellsCS(paCells, pCellValue, pCaseSensitive)
 			ok
 		ok
 
@@ -8770,7 +8770,7 @@ func _NormalizeColLookupKey(pVal)
 
 		_aResult_ = []
 
-		if len(_anPos_) > 0 and _n_ <= len(_anPos_)
+		if len(_anPos_) > 0 and _n_ >= 1 and _n_ <= len(_anPos_)
 			_aResult_ = _anPos_[_n_]
 		ok
 
@@ -9203,15 +9203,16 @@ func _NormalizeColLookupKey(pVal)
 		def NumberOfOccurrenceInCellsOfSubValueCS(paCells, pSubValue, pCaseSensitive)
 			return This.NumberOfOccurrencesOfSubValueInCellsCS(paCells, pSubValue, pCaseSensitive)
 
-	# Returns 0 today instead of the number of given cells that contain a text.
+	# Counts the places where a text occurs inside the given cells.
 	#
-	#   paCells    the cells to look in, each as a [ column, row ] position
-	#   returns    a number, 0 today
-	#   warning    Counts cells equal to the text, not cells containing it, so a text found inside a
-	#              longer cell is missed
-	#   see        NumberOfOccurrencesInCells
+	#   paCells     the cells to look in, each as a [ column, row ] position
+	#   pSubValue   the text to look for, compared with its case
+	#   returns     a number; a cell that holds the text twice counts twice, and a cell without it
+	#               counts 0
+	#   warning     Reads a number cell as its digits and searches a list cell only for a list,
+	#               where the one-cell form answers 0 for a number and finds an item in a list
+	#   see         NumberOfOccurrencesInCells, NumberOfOccurrencesOfSubValueInCell
 		#>
-	# Returns how many times a text occurs inside the given cells.
 	def NumberOfOccurrencesOfSubValueInCells(paCells, pSubValue)
 		return This.NumberOfOccurrencesOfSubValueInCellsCS(paCells, pSubValue, 1)
 
@@ -9453,17 +9454,15 @@ func _NormalizeColLookupKey(pVal)
 		def FindLastOccurrenceOfSubValueInCellCS( pCellCol, pCellRow, pSubValue, pCaseSensitive)
 			return This.FindLastInCellCS(pCellCol, pCellRow, pSubValue, pCaseSensitive)
 
-	# Raises error today instead of returning the place of the last occurrence of a text inside one cell.
+	# Finds the last place of a text inside one cell, as a character position.
 	#
 	#   pCellCol    the column of the cell, by name or position
 	#   pCellRow    the row position of the cell
-	#   pSubValue   the text to look for inside the cell
-	#   returns     nothing; it raises
-	#   warning     Raises Incorrect param type! n must be a number. because it passes :Last, which
-	#               the nth-occurrence finder does not read
-	#   see         FindNthInCell
+	#   pSubValue   the text to look for inside the cell, compared with its case; an item to look
+	#               for inside a list cell
+	#   returns     a number; 0 when the text is absent, and for a cell that is a number
+	#   see         FindNthInCell, FindFirstInCell
 		#>
-	# Returns the place of the last occurrence of a text inside one cell; 0 when it is absent.
 	def FindLastInCell(pCellCol, pCellRow, pSubValue)
 		return This.FindLastInCellCS(pCellCol, pCellRow, pSubValue, 1)
 	
@@ -9512,17 +9511,15 @@ func _NormalizeColLookupKey(pVal)
 		def CountInCellCS(pCellCol, pCellRow, pCellValueOrSubValue, pCaseSensitive)
 			return This.NumberOfOccurrencesInCellCS(pCellCol, pCellRow, pCellValueOrSubValue, pCaseSensitive)
 
-	# Raises an error today instead of counting how many times a text occurs inside one cell.
+	# Counts how many times a value, or a text inside the cell, occurs in one cell.
 	#
 	#   pCellCol               the column of the cell, by name or position
 	#   pCellRow               the row position of the cell
-	#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside the
-	#                          cells
-	#   returns                nothing; it raises
-	#   warning                Raises Bad parameter type! for every argument tried
-	#   see                    NumberOfOccurrenceInCell
+	#   pCellValueOrSubValue   the whole value the cell must equal (a list is wrapped as [ :Cell,
+	#                          list ]), or [ :SubValue, text ] for the text inside the cell
+	#   returns                a number; 1 or 0 for a whole value, the number of places for a text
+	#   see                    NumberOfOccurrencesOfValueInCell, NumberOfOccurrencesOfSubValueInCell
 		#>
-	# Returns how many times a text occurs inside one cell, or 1 when the cell equals a value.
 	def NumberOfOccurrencesInCell(pCellCol, pCellRow, pCellValueOrSubValue)
 		return This.NumberOfOccurrencesInCellCS(pCellCol, pCellRow, pCellValueOrSubValue, 1)
 	
@@ -9560,15 +9557,15 @@ func _NormalizeColLookupKey(pVal)
 		def NumberOfOccurrenceInCellOfValueCS(pCellCol, pCellRow, pCellValue, pCaseSensitive)
 			return This.NumberOfOccurrencesOfValueInCellCS(pCellCol, pCellRow, pCellValue, pCaseSensitive)
 
-	# Raises an error today instead of counting how many times a value occurs inside one cell.
+	# Counts 1 when one cell equals a value, otherwise 0.
 	#
-	#   pCellCol   the column of the cell, by name or position
-	#   pCellRow   the row position of the cell
-	#   returns    nothing; it raises
-	#   warning    Raises Bad parameter type! for every argument tried
-	#   see        NumberOfOccurrenceInCell
+	#   pCellCol     the column of the cell, by name or position
+	#   pCellRow     the row position of the cell
+	#   pCellValue   the whole value a cell must equal: a text, a number or a list, compared with
+	#                its case
+	#   returns      1 or 0
+	#   see          NumberOfOccurrencesInCell
 		#>
-	# Returns 1 when one cell equals the value, otherwise 0.
 	def NumberOfOccurrencesOfValueInCell(pCellCol, pCellRow, pCellValue)
 		return This.NumberOfOccurrencesOfValueInCellCS(pCellCol, pCellRow, pCellValue, 1)
 
@@ -9613,15 +9610,15 @@ func _NormalizeColLookupKey(pVal)
 		def NumberOfOccurrenceInCellOfSubValueCS(pCellCol, pCellRow, pSubValue, pCaseSensitive)
 			return This.NumberOfOccurrencesOfSubValueInCellCS(pCellCol, pCellRow, pSubValue, pCaseSensitive)
 
-	# Raises an error today instead of counting how many times a text occurs inside one cell.
+	# Counts the places where a text occurs inside one cell.
 	#
-	#   pCellCol   the column of the cell, by name or position
-	#   pCellRow   the row position of the cell
-	#   returns    nothing; it raises
-	#   warning    Raises Bad parameter type! for every argument tried
-	#   see        NumberOfOccurrenceInCell
+	#   pCellCol    the column of the cell, by name or position
+	#   pCellRow    the row position of the cell
+	#   pSubValue   the text to look for, compared with its case; an item to look for inside a list
+	#               cell
+	#   returns     a number; 0 when the text is absent, and for a cell that is a number
+	#   see         NumberOfOccurrencesInCell, FindSubValueInCell
 		#>
-	# Returns how many times a text occurs inside one cell.
 	def NumberOfOccurrencesOfSubValueInCell(pCellCol, pCellRow, pSubValue)
 		return This.NumberOfOccurrencesOfSubValueInCellCS(pCellCol, pCellRow, pSubValue, 1)
 
@@ -13576,15 +13573,16 @@ func _NormalizeColLookupKey(pVal)
 		def HowManyOccurrencesOfValueInSectionCS(paSection1, paSection2, pValue, pCaseSensitive)
 			return This.NumberOfOccurrenceOfCellInSectionCS(paSection1, paSection2, pValue, pCaseSensitive)
 
-		# Raises error R14 today instead of counting the cells between two [ column, row ] corners that equal a value.
+		# Counts the cells of the block between two corners that equal a value.
 		#
 		#   paSection1   the first corner of the section, as [ column, row ]
 		#   paSection2   the opposite corner of the section, as [ column, row ]
-		#   returns      nothing; it raises
-		#   warning      Raises R14 because the CS helper it calls is defined nowhere
+		#   pCellValue   the whole value a cell must equal: a text, a number or a list, compared
+		#                with its case
+		#   returns      a number
+		#   warning      Raises an error when the section leaves the table
 		#   see          NumberOfOccurrenceInSection
 		#>
-		# Returns how many cells of the block between two [ column, row ] corners equal a value.
 		def NumberOfOccurrenceOfCellInSection(paSection1, paSection2, pCellValue)
 			return This.NumberOfOccurrenceOfCellInSectionCS(paSection1, paSection2, pCellValue, 1)
 
