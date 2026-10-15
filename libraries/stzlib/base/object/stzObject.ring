@@ -4164,12 +4164,13 @@ class stzObject
 	def Of(_n_)
 		return This.OfCS(_n_, 1)
 
-		# Raises error R14 today instead of comparing and keeping the main object of the chain.
+		# Raises R14, being a leftover of the retired M family: it forwards to a method that was removed.
 		#
 		#   _n_        the value to compare with
 		#   returns    nothing: it raises
-		#   warning    raises R14 (calling method without definition: ofcsm), the method it forwards
-		#              to
+		#   warning    the author ruled the M-suffixed methods out of the library (NNL_REVIEW, section
+		#              4c) and OfCSM went with them, so this call raises R14 (calling method without
+		#              definition: ofcsm); use OfQ, which keeps the object or answers a false object
 		#   see        Of, OfQ
 		def OfM(_n_)
 			return This.OfCSM(_n_, 1)
@@ -4201,13 +4202,15 @@ class stzObject
 	def OfXT(_n_, cIgnored)
 		return This.OfCS(_n_, 1)
 
-		# Raises error R14 today instead of comparing, ignoring a filler word, and keeping the main object.
+		# Raises R14, being a leftover of the retired M family: it forwards to a method that was removed.
 		#
 		#   _n_        the value to compare with
 		#   cIgnored   a filler word that is not used
 		#   returns    nothing: it raises
-		#   warning    raises R14 (calling method without definition: ofcsm)
-		#   see        OfXT, OfQ
+		#   warning    the M-suffixed methods were ruled out of the library (NNL_REVIEW, section 4c)
+		#              and OfCSM went with them, so this call raises R14 (calling method without
+		#              definition: ofcsm); use OfXTQ
+		#   see        OfXT, OfXTQ
 		def OfXTM(_n_, cIgnored)
 			return This.OfCSM(_n_, 1)
 
@@ -4247,22 +4250,26 @@ class stzObject
 
 
 
-	# Raises error R14 today instead of comparing to the last value and keeping the main object.
+	# Raises R14, being a leftover of the retired M family: it forwards to a method that was removed.
 	#
 	#   _n_        the value to compare with
 	#   returns    nothing: it raises
-	#   warning    raises R14 (calling method without definition: ofcsbm), the method it forwards
-	#              to; its body also passes a pCaseSensitive it does not declare
+	#   warning    the M-suffixed methods were ruled out of the library (NNL_REVIEW, section 4c) and
+	#              OfCSBM went with them, so this call raises R14 (calling method without
+	#              definition: ofcsbm); its body also passes a pCaseSensitive it does not declare;
+	#              use OfBQ, which keeps the object or answers a false object
 	#   see        OfCSB, OfBQ
 	def OfBM(_n_)
 		return This.OfCSBM(_n_, pCaseSensitive)
 
 
-		# Raises error R14 today instead of comparing to the last value and keeping the main object.
+		# Raises R14, being a leftover of the retired M family: it forwards to a method that was removed.
 		#
 		#   _n_        the value to compare with
 		#   returns    nothing: it raises
-		#   warning    raises R14 (calling method without definition: ofcsmb)
+		#   warning    the M-suffixed methods were ruled out of the library (NNL_REVIEW, section 4c)
+		#              and OfCSMB went with them, so this call raises R14 (calling method without
+		#              definition: ofcsmb); use OfBQ
 		#   see        OfCSB, OfBQ
 		def OfMB(_n_)
 			return This.OfCSMB(_n_, 1)
@@ -4279,38 +4286,43 @@ class stzObject
 
 
 
-	# Raises error R24 today instead of comparing to the last value while ignoring a filler word.
+	# TRUE if the value given equals the last value remembered, with a case dial and a filler word.
 	#
-	#   _n_              the value to compare with
+	#   _n_              the value to compare with the last value
 	#   cIgnored         a filler word that is not used
 	#   pCaseSensitive   1 to compare with case, 0 to ignore case
-	#   returns          nothing: it raises
-	#   warning          raises R24 (uninitialized variable c): the body passes c instead of _n_
+	#   returns          TRUE or FALSE
+	#   note             after SetLastValue("kiwi"), Q("x").OfXTCSB("KIWI", "to", 0) is TRUE and with
+	#                    1 it is FALSE
 	#   see              OfCSB
 	#@ aka  ==
 	def OfXTCSB(_n_, cIgnored, pCaseSensitive)
-		return This.OfCSB(c, pCaseSensitive)
+		return This.OfCSB(_n_, pCaseSensitive)
 
-		# Raises error R14 today instead of comparing to the last value and keeping the main object.
+		# Raises R14, being a leftover of the retired M family: it forwards to a method that was removed.
 		#
 		#   _n_              the value to compare with
 		#   cIgnored         a filler word that is not used
 		#   pCaseSensitive   1 to compare with case, 0 to ignore case
 		#   returns          nothing: it raises
-		#   warning          raises R14 (calling method without definition: ofcsbm)
-		#   see              OfCSB
+		#   warning          the M-suffixed methods were ruled out of the library (NNL_REVIEW, section
+		#                    4c) and OfCSBM went with them, so this call raises R14 (calling method
+		#                    without definition: ofcsbm); use OfXTCSBQ
+		#   see              OfCSB, OfXTCSBQ
 		def OfXTCSBM(_n_, cIgnored, pCaseSensitive)
 			return This.OfCSBM(_n_, pCaseSensitive)
 
 
-		# Raises error R14 today instead of comparing to the last value and keeping the main object.
+		# Raises R14, being a leftover of the retired M family: it forwards to a method that was removed.
 		#
 		#   _n_              the value to compare with
 		#   cIgnored         a filler word that is not used
 		#   pCaseSensitive   1 to compare with case, 0 to ignore case
 		#   returns          nothing: it raises
-		#   warning          raises R14 (calling method without definition: ofcsmb)
-		#   see              OfCSB
+		#   warning          the M-suffixed methods were ruled out of the library (NNL_REVIEW, section
+		#                    4c) and OfCSMB went with them, so this call raises R14 (calling method
+		#                    without definition: ofcsmb); use OfXTCSBQ
+		#   see              OfCSB, OfXTCSBQ
 		def OfXTCSMB(_n_, cIgnored, pCaseSensitive)
 			return This.OfCSMB(_n_, pCaseSensitive)
 
@@ -4319,36 +4331,38 @@ class stzObject
 
 
 
-	# Raises error R24 today instead of comparing to the last value and keeping the main object.
+	# Raises R24, being a leftover of the retired M family whose body uses a name it never declares.
 	#
 	#   _n_        the value to compare with
 	#   returns    nothing: it raises
-	#   warning    raises R24 (uninitialized variable cignored): the body uses a parameter it does
-	#              not declare
-	#   see        OfCSB
+	#   warning    the M-suffixed methods were ruled out of the library (NNL_REVIEW, section 4c);
+	#              the body passes cIgnored, which this method does not declare, so the call raises
+	#              R24 (uninitialized variable cignored); use OfXTBQ
+	#   see        OfCSB, OfXTBQ
 	def OfXTBM(_n_)
 		return This.OfXTCSB(_n_, cIgnored, 1)
 
 
-		# Raises error R19 today instead of comparing to the last value and keeping the main object.
+		# Raises R19, being a leftover of the retired M family that calls a method with too few arguments.
 		#
 		#   _n_        the value to compare with
 		#   returns    nothing: it raises
-		#   warning    raises R19 (fewer parameters than required): it calls OfXTCSMB with two
-		#              arguments and that method wants three
-		#   see        OfCSB
+		#   warning    the M-suffixed methods were ruled out of the library (NNL_REVIEW, section 4c);
+		#              it calls OfXTCSMB with two arguments and that method wants three, so the call
+		#              raises R19; use OfXTBQ
+		#   see        OfCSB, OfXTBQ
 		def OfXTMB(_n_)
 			return This.OfXTCSMB(_n_, 1)
 
-		# Raises error R19 today instead of returning the object when the last value equals the one given.
+		# Returns the object when the last value remembered equals the one given, and a false object otherwise.
 		#
-		#   _n_        the value to compare with
-		#   returns    nothing: it raises
-		#   warning    raises R19 (fewer parameters than required): it calls OfXTCSBQ with two
-		#              arguments
+		#   _n_        the value to compare with the last value
+		#   returns    the object itself, or a false object
+		#   note       after SetLastValue(8): Q(8).OfXTBQ(8) answers the stzNumber and Q(8).OfXTBQ(7)
+		#              a stzFalseObject
 		#   see        OfBQ, OfCSB
 		def OfXTBQ(_n_)
-			return This.OfXTCSBQ(_n_, 1)
+			return This.OfXTCSBQ(_n_, "", 1)
 
 
 
