@@ -25,8 +25,9 @@
 # the source; this class refuses to invent one.
 #
 # WHAT IS NOT HERE, named: no automatic class breaks (quantiles, Jenks --
-# the edges are the author's, as in DN24), no label placement, no
-# projection chosen for the caller.
+# the edges are the author's, as in DN24, so values with no classes are
+# refused and named, never given a default scheme), and no projection
+# chosen for the caller. (Labels, insets and keys are here: GE3 and later.)
 
 func StzGeoMap(poProjection, poFeatures)
 	_o_ = new stzGeoMap
@@ -499,7 +500,8 @@ class stzGeoMap from stzObject
 	#   paValues   one number per feature, or "" for no data
 	#   returns    nothing; the values are stored
 	#   note       A region with no value is drawn as no data, never as zero. Set the classes before
-	#              drawing: with values and no classes the Draw methods that colour raise error R2
+	#              drawing: with values and no classes the methods that colour raise an error that
+	#              names SetClasses. The classes are the author's, so the map picks none itself
 	#   see        ValueOf, SetClasses, stzGeoAtlas.ValuesFor
 	#@ aka  -- what is being shown -------------------------------------------------
 	def SetValues(paValues)
@@ -577,14 +579,18 @@ class stzGeoMap from stzObject
 	#
 	#   paColours   one colour per class, as hex text
 	#   returns     nothing; the palette is stored
-	#   note        Set the classes first, then the palette or the ramp
-	#   warning     Defect: before SetClasses it raises with the message -1 classes need -1 colours,
-	#               because an empty edge list counts as -1 classes.
+	#   note        Set the classes first, then the palette or the ramp: before SetClasses it raises
+	#               an error that says so, like SetRamp. With the classes set, a list of the wrong
+	#               length is refused and the message gives both numbers
 	#   see         SetRamp, SetClasses
 	def SetPalette(paColours)
 		if len(paColours) != len(@aEdges) - 1
 			stzraise("stzGeoMap: " + (len(@aEdges) - 1) + " classes need " +
 				(len(@aEdges) - 1) + " colours -- " + len(paColours) + " given.")
+		if len(@aEdges) < 2
+			stzraise("stzGeoMap.SetPalette: set the classes before the palette -- " +
+				"call SetClasses first, so the palette knows how many colours it needs.")
+		ok
 		ok
 		@aPalette = paColours
 
@@ -795,16 +801,27 @@ class stzGeoMap from stzObject
 	#
 	#   pnI        the position of the feature, from 1
 	#   returns    a number from 1, or 0 for no value or a value outside the classes
-	#   note       An edge belongs to the class above it, the top edge to the top class
-	#   warning    Defect: raises error R2 when values are set and the classes are not, because the
-	#              class edges are an empty list read at index 0.
-	#   see        ColourOf, SetOpenTop
+	#   note       An edge belongs to the class above it, the top edge to the top class, and with
+	#              SetOpenTop a value above the top edge too. Raises an error that names
+	#              SetClasses when the feature has a value and no classes are set: the edges are the
+	#              author's, so there is no default scheme. A feature with no value answers 0 without
+	#              classes
+	#   see        ColourOf, SetOpenTop, SetClasses
 	def ClassOf(pnI)
 		_v_ = This.ValueOf(pnI)
 		if NOT isNumber(_v_)  return 0  ok
 		_n_ = len(@aEdges) - 1
 		for _c_ = 1 to _n_
 			if _v_ >= @aEdges[_c_] and _v_ < @aEdges[_c_ + 1]  return _c_  ok
+		# NO CLASSES IS A REFUSAL, NOT A GUESS. This read the edge list at index
+		# 0 and raised "Array Access (Index out of range)", which says nothing
+		# about what to do. A default scheme (quantiles, equal intervals) would
+		# be a boundary claim the author never made -- this class states that
+		# the edges are the author's -- so it says so and names the call.
+		if len(@aEdges) < 2
+			stzraise("stzGeoMap: feature " + pnI + " has a value but the map has no classes -- " +
+				"the class edges are the author's, so call SetClasses([ edge, edge, ... ]) first.")
+		ok
 		next
 		if _v_ = @aEdges[_n_ + 1]  return _n_  ok
 		# ABOVE THE TOP EDGE, WHEN THE TOP IS DECLARED OPEN, IS THE TOP CLASS.
@@ -820,9 +837,8 @@ class stzGeoMap from stzObject
 	#
 	#   pnI        the position of the feature, from 1
 	#   returns    the colour as hex text
-	#   note       A group outranks a class
-	#   warning    Defect: raises error R2 when values are set and the classes are not, because the
-	#              class edges are an empty list read at index 0.
+	#   note       A group outranks a class. Raises the error ClassOf raises when the feature has a
+	#              value and no classes are set; with no value the answer is the no-data colour
 	#   see        ClassOf, SetNoData
 	def ColourOf(pnI)
 		# a group is MEMBERSHIP and outranks any numeric class: a map cannot
@@ -841,9 +857,8 @@ class stzGeoMap from stzObject
 	#
 	#   poCanvas   the stzCanvas to draw on
 	#   returns    nothing; the layers are added to the canvas
-	#   note       The sheet the statistical maps use is DrawSheetOn
-	#   warning    Defect: raises error R2 when values are set and the classes are not, because the
-	#              class edges are an empty list read at index 0.
+	#   note       The sheet the statistical maps use is DrawSheetOn. Raises the error ClassOf raises
+	#              when values are set and the classes are not
 	#   see        DrawSheetOn, DrawRegionsOn
 	#@ aka  -- the layers ----------------------------------------------------------
 	def DrawOn(poCanvas)
@@ -886,8 +901,8 @@ class stzGeoMap from stzObject
 	#   pStroke     the edge colour
 	#   pnStrokeW   the edge width in pixels
 	#   returns     nothing; the polygons are added to the canvas
-	#   warning     Defect: raises error R2 when values are set and the classes are not, because the
-	#               class edges are an empty list read at index 0.
+	#   note        Raises the error ClassOf raises when values are set and the classes are not. A
+	#               map with no values draws every region in the no-data colour
 	#   see         DrawSheetOn, ColourOf
 	#@ aka  every feature, in the colour its value earns it
 	def DrawRegionsOn(poCanvas, pStroke, pnStrokeW)
@@ -2448,9 +2463,8 @@ class stzGeoMap from stzObject
 	#   pnHairline   the border width in pixels
 	#   returns      nothing; the layers are added to the canvas
 	#   note         Does not draw the sphere or the graticule. With SetInteractive each region
-	#                carries its id
-	#   warning      Defect: raises error R2 when values are set and the classes are not, because
-	#                the class edges are an empty list read at index 0.
+	#                carries its id. Raises the error ClassOf raises when values are set and the
+	#                classes are not
 	#   see          DrawNoDataHatchOn, DrawHighlightOn, DrawLabelsOn
 	#@ aka  THE REGIONS, DRAWN THE WAY A STATISTICAL MAP DRAWS THEM: dark hairline borders, the highlighted ones outlined heavily on top, and each one carrying its identity when the map is interactive.
 	def DrawSheetOn(poCanvas, pInk, pnHairline)
@@ -3466,9 +3480,8 @@ class stzGeoMap from stzObject
 	#   pnY        baseline of the title
 	#   pcTitle    the title, "" for none
 	#   returns    the y below the legend
-	#   note       DrawRampLegendOn is the statistical map's legend
-	#   warning    Defect: raises error R2 when values are set and the classes are not, because the
-	#              class edges are an empty list read at index 0.
+	#   note       DrawRampLegendOn is the statistical map's legend. Raises the error ClassOf raises
+	#              when values are set and the classes are not
 	#   see        DrawRampLegendOn, Findings
 	#@ aka  -- the legend and the caption -------------------------------------------
 	def DrawLegendOn(poCanvas, poFont, pnX, pnY, pcTitle)
