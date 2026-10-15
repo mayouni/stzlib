@@ -102,6 +102,7 @@ $aItemsMakingAListFalse = []
 $aInnerItemsMakingAListFalse = []
 
 $bNullObjectIsFalse = 1 # A Siftanza's default, confroming to Ring default
+$aStzObjectTimeValues = [] # the elapsed times AddTimeValue keeps, shared by every object
 $bObjectContentDefinesItsTruth = 0
 
 func StzEmptyStringIsConsideredFalse()
@@ -5004,12 +5005,11 @@ class stzObject
 	# Returns the content as a number, or as a list of numbers when the content is a list of numbers and numeric texts.
 	#
 	#   returns    a number, or a list of numbers
-	#   note       Q("12").Numberified() answers 12 and Q([ 1, "2", 3 ]).Numberified() answers [ 1,
-	#              2, 3 ]
-	#   warning    raises R14 (calling method without definition: isnumberinstring) on a stzNumber,
-	#              seen with 42 and 7.5; a text that is not a number raises "Incorrect value!"; a
-	#              list holding a non-numeric text raises R41; a bare stzObject raises "Objects
-	#              can't be numberified."
+	#   note       Q("12").Numberified() answers 12, a stzNumber holding 42 answers 42 and
+	#              Q([ 1, "2", 3 ]).Numberified() answers [ 1, 2, 3 ]
+	#   warning    a text that is not a number raises "Incorrect value!"; a list holding a
+	#              non-numeric text raises R41; a bare stzObject raises "Objects can't be
+	#              numberified."
 	#   see        ToNumber
 	def Numberified()
 		# Detect actual underlying content type rather than relying on
@@ -5017,6 +5017,11 @@ class stzObject
 		# bare stzObject ancestor for subclasses (e.g. stzList) that
 		# don't override them, which would route a real list value to
 		# the catch-all "can't be numberified" error.
+
+		# a stzNumber keeps its digits as a text: it is a number already, read as one
+		if This.IsANumber() = 1
+			return This.NumericValue()
+		ok
 
 		_cNfContent_ = This.Content()
 
@@ -5713,15 +5718,14 @@ class stzObject
 			return 0
 		ok
 
-	# Raises an error today instead of returning a pointer to the object.
+	# Returns a Ring pointer to the object itself, the one Ring's own object2pointer gives for it.
 	#
-	#   returns    nothing: it raises
-	#   warning    raises "Bad parameter type!" on a stzString and R21 (operator with incorrect
-	#              type) on a stzList and on a bare stzObject, although the Ring built-in
-	#              object2pointer(o) answers a pointer for the same object
+	#   returns    a pointer, of the Ring type OBJECTPOINTER
+	#   note       the pointer is to the stzString, stzList, stzNumber or stzObject being asked, not
+	#              to the value it holds
 	#   see        Copy
 	def ToPointer()
-		return object2pointer(This.Object())
+		return object2pointer(This)
 		
 
 	# Returns a list holding the content two times.
@@ -6240,25 +6244,36 @@ class stzObject
 
 		_nNthOccurrence_ = 0
 
+		# the value looked for: the content, read as a number when the object is a stzNumber
+		# (its content is the digits as text)
+		_vNeedle_ = This.Content()
+		if This.IsANumber() = 1
+			_vNeedle_ = This.NumericValue()
+		ok
+
 		if isString(pIn)
+			if isNumber(_vNeedle_)
+				_vNeedle_ = "" + _vNeedle_
+			ok
+			if NOT isString(_vNeedle_)
+				return 0
+			ok
 			_oStr_ = new stzString(pIn)
-			_nNthOccurrence_ = _oStr_.NthOccurrenceCS( _n_, This.String(), _bCaseSensitive_ )
+			_nNthOccurrence_ = _oStr_.FindNthCS( _n_, _vNeedle_, _bCaseSensitive_ )
 	
 		but isList(pIn)
 			if @IsListOfStrings(pIn)
 				_oListStr_ = new stzListOfStrings(pIn)
-				_nNthOccurrence_  = _oListStr_.NthOccurrenceCS( _n_, This.String(), _bCaseSensitive_ )
+				_nNthOccurrence_  = _oListStr_.FindNthOccurrenceCS( _n_, _vNeedle_, _bCaseSensitive_ )
 
 			else
 				if _bCaseSensitive_ = 1
 					_oList_ = new stzList(pIn)
-					_nNthOccurrence_  = _oList_.NthOccurrence( _n_, This.String() )
+					_nNthOccurrence_  = _oList_.FindNthOccurrenceCS( _n_, _vNeedle_, 1 )
 		
 				else
 					_oList_ = new stzList(pIn)
-					_oList_.Lowercase()
-
-					_nNthOccurrence_  = _oList_.NthOccurrence( _n_, This.String() )
+					_nNthOccurrence_  = _oList_.FindNthOccurrenceCS( _n_, _vNeedle_, 0 )
 		
 				ok
 			ok
@@ -6278,15 +6293,18 @@ class stzObject
 		def OccursForTheNthTimeAtCS(_n_, pIn, pnAt, pCaseSensitive)
 			return This.OccursForTheNthTimeCS(_n_, pIn, pnAt, pCaseSensitive)
 
-	# Raises error R14 today instead of telling whether the content is the nth occurrence at a given position.
+	# TRUE if the content, found for the nth time in a text or a list, is found at the position given.
 	#
-	#   _n_        which occurrence is meant
-	#   pIn        the text or list to look in
-	#   pnAt       the position the occurrence must be at
-	#   returns    nothing: it raises
-	#   warning    raises R14: calling method without definition: nthoccurrencecs on a text and
-	#              nthoccurrence on a list; seen on both with the same call
-	#   see        OccursForTheFirstTime, OccursNTimes
+	#   _n_        which occurrence is meant, counting from 1
+	#   pIn        the text or list to look in, or the named pair :In = text
+	#   pnAt       the position the occurrence must be at, or the named pair :At = position
+	#   returns    TRUE or FALSE
+	#   note       Q("*").OccursForTheNthTime(2, :In = "a*b*c*d", :AtPosition = 4) is TRUE and with
+	#              :AtPosition = 2 it is FALSE; in a list of texts Q("b") finds its 2nd occurrence
+	#              in [ "a", "b", "c", "b" ] at 4
+	#   warning    a content that is a list or an object is never found in a text, and the answer
+	#              is then FALSE; a text that is not found at all answers FALSE
+	#   see        OccursForTheFirstTime, OccursForTheLastTime, OccursNTimes
 		#>
 	#@ aka  -- WITHOUT CASESENSITIVITY
 	def OccursForTheNthTime(_n_, pIn, pnAt)
@@ -6310,13 +6328,13 @@ class stzObject
 		def OccursForTheFirstTimeAtCS(pIn, pnAt, pCaseSensitive)
 			return This.OccursForTheFirstTimeCS(pIn, pnAt, pCaseSensitive)
 
-	# Raises error R14 today instead of telling whether the content first appears at a given position.
+	# TRUE if the content is found for the first time at the position given in a text or a list.
 	#
-	#   pIn        the text or list to look in
-	#   pnAt       the position the first occurrence must be at
-	#   returns    nothing: it raises
-	#   warning    raises R14 (calling method without definition: nthoccurrencecs on a text,
-	#              nthoccurrence on a list)
+	#   pIn        the text or list to look in, or the named pair :In = text
+	#   pnAt       the position the first occurrence must be at, or the named pair :At = position
+	#   returns    TRUE or FALSE
+	#   note       Q("*").OccursForTheFirstTime(:In = "a*b*c*d", :At = 2) is TRUE and with :At = 4
+	#              it is FALSE
 	#   see        OccursForTheNthTime, OccursForTheLastTime
 	#@ aka  -- WITHOUT CASESENSITIVITY
 	def OccursForTheFirstTime(pIn, pnAt)
@@ -6335,22 +6353,36 @@ class stzObject
 			pIn = pIn[2]
 		ok
 
-		_obj_ = Q(pIn)
-		_nPos_ = _obj_.FindLastCS(This.Content(), pCaseSensitive)
-		nLast = _obj_.NumberOfOccurrenceCS(This.Content(), pCaseSensitive)
+		# how many times the content occurs: the last one is the nth, and the position asked
+		# for (pnAt) is then tested against that very occurrence
+		_vNeedle_ = This.Content()
+		if This.IsANumber() = 1
+			_vNeedle_ = This.NumericValue()
+		ok
+		if isString(pIn) and isNumber(_vNeedle_)
+			_vNeedle_ = "" + _vNeedle_
+		ok
+		if isString(pIn) and NOT isString(_vNeedle_)
+			return 0
+		ok
 
-		return This.OccursForTheNthTimeCS(nLast, pIn, _nPos_, pCaseSensitive)
+		_nLast_ = Q(pIn).NumberOfOccurrenceCS(_vNeedle_, pCaseSensitive)
+		if _nLast_ = 0
+			return 0
+		ok
+
+		return This.OccursForTheNthTimeCS(_nLast_, pIn, pnAt, pCaseSensitive)
 
 		def OccursForTheLastTimeAtCS(pIn, pnAt, pCaseSensitive)
 			return This.OccursForTheLastTimeCS(pIn, pnAt, pCaseSensitive)
 
-	# Raises error R14 today instead of telling whether the content last appears at a given position.
+	# TRUE if the content is found for the last time at the position given in a text or a list.
 	#
-	#   pIn        the text or list to look in
-	#   pnAt       the position the last occurrence must be at
-	#   returns    nothing: it raises
-	#   warning    raises R14 (calling method without definition: nthoccurrencecs on a text,
-	#              nthoccurrence on a list)
+	#   pIn        the text or list to look in, or the named pair :In = text
+	#   pnAt       the position the last occurrence must be at, or the named pair :At = position
+	#   returns    TRUE or FALSE
+	#   note       Q("*").OccursForTheLastTime(:In = "a*b*c*d", :At = 6) is TRUE and with :At = 2 or
+	#              :At = 4 it is FALSE; a content that does not occur at all answers FALSE
 	#   see        OccursForTheNthTime, OccursForTheFirstTime
 	#@ aka  -- WITHOUT CASESENSITIVITY
 	def OccursForTheLastTime(pIn, pnAt)
@@ -6540,15 +6572,15 @@ class stzObject
 		def MSizeInBytesXT()
 			return This.SizeInBytesXT()
 
-	# Raises error R3 today instead of returning the extended 32-bit memory size.
+	# Returns the memory the object takes, broken down line by line, as a 32-bit build counts it.
 	#
-	#   returns    nothing: it raises
-	#   warning    raises R3 (calling function without definition: @sizeinbytesxt32): the function
-	#              it calls does not exist; the profiler defines @MemorySizeInBytes32XT instead
-	#   see        SizeInBytesXT, SizeInBytes32
+	#   returns    a list of [ label, bytes ] pairs, the labels being the Ring structures counted
+	#   note       the first pair of Q("banana").SizeInBytesXT32() is the list structure of a 32-bit
+	#              build; SizeInBytes32 gives the total
+	#   see        SizeInBytesXT, SizeInBytesXT64, SizeInBytes32
 		#>
 	def SizeInBytesXT32()
-		return @SizeInBytesXT32(This)		
+		return @SizeInBytes32XT(This)		
 
 		#< @FunctionAlternativeForms
 
@@ -6575,15 +6607,15 @@ class stzObject
 		def MSizeInBytesXT32()
 			return This.SizeInBytesXT32()
 
-	# Raises error R3 today instead of returning the extended 64-bit memory size.
+	# Returns the memory the object takes, broken down line by line, as a 64-bit build counts it.
 	#
-	#   returns    nothing: it raises
-	#   warning    raises R3 (calling function without definition: @sizeinbytesxt64): the function
-	#              it calls does not exist
-	#   see        SizeInBytesXT, SizeInBytes64
+	#   returns    a list of [ label, bytes ] pairs, the labels being the Ring structures counted
+	#   note       the first pair of Q("banana").SizeInBytesXT64() is the list structure of a 64-bit
+	#              build; SizeInBytes64 gives the total
+	#   see        SizeInBytesXT, SizeInBytesXT32, SizeInBytes64
 		#>
 	def SizeInBytesXT64()
-		return @SizeInBytesXT64(This)		
+		return @SizeInBytes64XT(This)		
 
 		#< @FunctionAlternativeForms
 
@@ -6895,32 +6927,38 @@ class stzObject
 		def ObjectElpasedTimeInSeconds()
 			return This.ExecutionTime()
 
-	# Raises error R24 today instead of appending the elapsed time to a list of times.
+	# Appends the seconds elapsed since time keeping started to the list of times every object shares.
 	#
-	#   returns    nothing: it raises
-	#   warning    raises R24 (uninitialized variable _atime) even with SetKeepingTimeTo(1), because
-	#              the list it appends to is never declared; without time keeping ExecutionTime
-	#              raises first
-	#   see        ExecutionTime
+	#   returns    nothing; read the list back with TimeValues
+	#   warning    time keeping must be on (SetKeepingTimeTo(1)), otherwise it raises the refusal of
+	#              ExecutionTime; one list serves the whole process, as the historic values do
+	#   see        ExecutionTime, TimeValues
 		#>
 	def AddTimeValue()
-		_aTime + This.ExecutionTime()
+		$aStzObjectTimeValues + This.ExecutionTime()
 		
-		# Raises error R24 today instead of appending the elapsed time to a list of times.
+		# Appends the elapsed seconds to the shared list of times, in the longer wording.
 		#
-		#   returns    nothing: it raises
-		#   warning    raises the R24 of AddTimeValue (uninitialized variable _atime)
-		#   see        AddTimeValue, ExecutionTime
+		#   returns    nothing
+		#   see        AddTimeValue, TimeValues
 		def AddExecutionTimeValue()
 			This.AddTimeValue()
 
-		# Raises error R24 today instead of appending the elapsed time to a list of times.
+		# Appends the elapsed seconds to the shared list of times, in the shortest wording.
 		#
-		#   returns    nothing: it raises
-		#   warning    raises the R24 of AddTimeValue (uninitialized variable _atime)
-		#   see        AddTimeValue, ExecutionTime
+		#   returns    nothing
+		#   see        AddTimeValue, TimeValues
 		def AddExecutionTime()
 			This.AddTimeValue()
+
+	# Returns the elapsed times kept by AddTimeValue, in the order they were added, and keeps them.
+	#
+	#   returns    a list of numbers of seconds; [ ] when none was added
+	#   warning    one list serves the whole process: a time added on one object is read back from
+	#              another
+	#   see        AddTimeValue
+	def TimeValues()
+		return $aStzObjectTimeValues
 
 	# TRUE if the content is one of the values in a list.
 	#
@@ -8138,12 +8176,14 @@ class stzObject
 	def ToStzListOfLists()
 		return This._NNLCarry(new stzListOfLists(This.Content()))
 
-	# Raises error R14 today instead of wrapping the content in a stzListOfObjects.
+	# Wraps the content in a new stzListOfObjects, a class that cannot be built from a list today.
 	#
 	#   returns    nothing: it raises
-	#   warning    raises R14 (calling method without definition: islistofobjects) for a list of
-	#              numbers and for a list of stzString objects alike
-	#   see        ToStzList
+	#   warning    the cause is in stzListOfObjects, not here: its init calls IsListOfObjects on a
+	#              stzList, a method that does not exist, so every list raises R14 (calling method
+	#              without definition: islistofobjects), a list of objects included; a text or a
+	#              number is refused with "Incorrect param type!"
+	#   see        ToStzList, stzListOfObjects
 	def ToStzListOfObjects()
 		return This._NNLCarry(new stzListOfObjects(This.Content()))
 
