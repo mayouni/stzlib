@@ -17934,15 +17934,15 @@ func _NormalizeColLookupKey(pVal)
 			This.ReplaceCell(pnCol, pnRow, StzReplaceCS(_cCellRi_, pSubValue, pNewSubValue, pCaseSensitive))
 		ok
 
-	# Raises error today instead of replacing a text found inside cells.
+	# Replaces a text found inside the value of one cell by another text, in place; the case counts.
 	#
 	#   pnCol          the column position
 	#   pnRow          the row position, 1 for the first
-	#   pSubValue      the text to replace
-	#   pNewSubValue   the text that takes the place
-	#   returns        nothing; it raises
-	#   warning        Always raises Function not yet implemented!
-	#   see            ReplaceAll
+	#   pSubValue      the text to look for inside the cell
+	#   pNewSubValue   the text that takes its place
+	#   returns        nothing; the table changes
+	#   warning        A cell that is not a text is left as it is; both texts must be strings
+	#   see            ReplaceInCellCS, ReplaceCell
 	def ReplaceInCell(pnCol, pnRow, pSubValue, pNewSubValue)
 		This.ReplaceInCellCS(pnCol, pnRow, pSubValue, pNewSubValue, 1)
 
@@ -17958,14 +17958,14 @@ func _NormalizeColLookupKey(pVal)
 			This.ReplaceInCellCS(paCellsPos[_iRi_][1], paCellsPos[_iRi_][2], pSubValue, pNewSubValue, pCaseSensitive)
 		next
 
-	# Raises error today instead of replacing a text found inside cells.
+	# Replaces a text found inside the values of the given cells by another text, in place; the case counts.
 	#
-	#   paCellsPos     the cell positions, each as [ column, row ]
-	#   pSubValue      the text to replace
-	#   pNewSubValue   the text that takes the place
-	#   returns        nothing; it raises
-	#   warning        Always raises Function not yet implemented!
-	#   see            ReplaceAll
+	#   paCellsPos     the cells, each as [ column, row ]
+	#   pSubValue      the text to look for inside the cells
+	#   pNewSubValue   the text that takes its place
+	#   returns        nothing; the table changes
+	#   warning        A cell that is not a text is left as it is
+	#   see            ReplaceInCellsCS, ReplaceInCell
 	def ReplaceInCells(paCellsPos, pSubValue, pNewSubValue)
 		This.ReplaceInCellsCS(paCellsPos, pSubValue, pNewSubValue, 1)
 
@@ -17981,14 +17981,14 @@ func _NormalizeColLookupKey(pVal)
 			This.ReplaceInCellsCS(paCellsPos, pSubValues[_iRi_], pNewSubValue, pCaseSensitive)
 		next
 
-	# Raises error today instead of replacing a text found inside cells.
+	# Replaces each of several texts found inside the given cells by one text, in place, one text after the other; the case counts.
 	#
-	#   paCellsPos     the cell positions, each as [ column, row ]
-	#   pSubValues     the texts to replace
-	#   pNewSubValue   the text that takes the place
-	#   returns        nothing; it raises
-	#   warning        Always raises Function not yet implemented!
-	#   see            ReplaceAll
+	#   paCellsPos     the cells, each as [ column, row ]
+	#   pSubValues     the texts to look for inside the cells
+	#   pNewSubValue   the text that takes their place
+	#   returns        nothing; the table changes
+	#   warning        A text is looked for again in the result of the previous one
+	#   see            ReplaceInCellsByManyCS, ReplaceInCells
 	def ReplaceInCellsByMany(paCellsPos, pSubValues, pNewSubValue)
 		This.ReplaceInCellsByManyCS(paCellsPos, pSubValues, pNewSubValue, 1)
 
@@ -17999,15 +17999,14 @@ func _NormalizeColLookupKey(pVal)
 	def ReplaceInSectionCS(paCellPos1, paCellPos2,  pSubValue, pNewSubValue, pCaseSensitive)
 		This.ReplaceInCellsCS(This.SectionAsPositions(paCellPos1, paCellPos2), pSubValue, pNewSubValue, pCaseSensitive)
 
-	# Raises error today instead of replacing a text found inside cells.
+	# Replaces a text found inside the cells of the block between two corners by another text, in place; the case counts.
 	#
 	#   paCellPos1     the first corner, as [ column, row ]
 	#   paCellPos2     the opposite corner, as [ column, row ]
-	#   pSubValue      the text to replace
-	#   pNewSubValue   the text that takes the place
-	#   returns        nothing; it raises
-	#   warning        Always raises Function not yet implemented!
-	#   see            ReplaceAll
+	#   pSubValue      the text to look for inside the cells
+	#   pNewSubValue   the text that takes its place
+	#   returns        nothing; the table changes
+	#   see            ReplaceInSectionCS, ReplaceInCells
 	def ReplaceInSection(paCellPos1, paCellPos2,  pSubValue, pNewSubValue)
 		This.ReplaceInSectionCS(paCellPos1, paCellPos2,  pSubValue, pNewSubValue, 1)
 
@@ -18016,16 +18015,14 @@ func _NormalizeColLookupKey(pVal)
 	def ReplaceInSectionByManyCS(paCellPos1, paCellPos2,  pSubValues, pNewSubValue, pCaseSensitive)
 		This.ReplaceInCellsByManyCS(This.SectionAsPositions(paCellPos1, paCellPos2), pSubValues, pNewSubValue, pCaseSensitive)
 
-	# Raises error R24 today instead of replacing several texts found inside a section.
+	# Replaces each of several texts found inside the cells of the block between two corners by one text, in place; the case counts.
 	#
 	#   paCellPos1     the first corner, as [ column, row ]
 	#   paCellPos2     the opposite corner, as [ column, row ]
-	#   pSubValues     the texts to replace
-	#   pNewSubValue   the text that takes the place
-	#   returns        nothing; it raises
-	#   warning        Raises R24 (uninitialized variable casesensitive) because the body passes a
-	#                  flag it does not have
-	#   see            ReplaceInSection
+	#   pSubValues     the texts to look for inside the cells
+	#   pNewSubValue   the text that takes their place
+	#   returns        nothing; the table changes
+	#   see            ReplaceInSectionByManyCS, ReplaceInCellsByMany
 	def ReplaceInSectionByMany(paCellPos1, paCellPos2,  pSubValues, pNewSubValue)
 		This.ReplaceInSectionByManyCS(paCellPos1, paCellPos2,  pSubValues, pNewSubValue, 1)
 
