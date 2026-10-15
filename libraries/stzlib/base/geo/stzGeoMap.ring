@@ -605,10 +605,10 @@ class stzGeoMap from stzObject
 	#   pnX1       right edge of the sheet
 	#   pnY1       bottom edge of the sheet
 	#   returns    nothing; the box is stored
-	#   note       Call it first
-	#   warning    Defect: when it is not called, the scale-bar and stream-density methods guess the
-	#              sheet from the projection's scale and misjudge a country map.
-	#   see        DrawLabelsOn, DrawScaleBarOn
+	#   note       Call it first. When it is not called, nothing is clipped to a sheet, and the
+	#              scale-bar and stream-density methods take the sheet to be the extent the features
+	#              have on the paper, which is what a fit to those features fills
+	#   see        DrawLabelsOn, DrawScaleBarOn, ScaleVariation
 	#@ aka  where the boundaries came from and when. A map asserts where a border lies; this class will not invent the authority for it. THE BOX THE MAP WAS DRAWN IN, so a name cannot be written off the edge of it. Without this the label engine only knows where a region is, not where the sheet ends, and the first version wrote "Diffa" half into the margin beside it. Unset, nothing is clipped.
 	def SetPaper(pnX0, pnY0, pnX1, pnY1)
 		@aPaper = [ pnX0, pnY0, pnX1, pnY1 ]
@@ -2764,11 +2764,10 @@ class stzGeoMap from stzObject
 	#   pnAtLat      the latitude the bar is true at, in degrees north
 	#   pInk         the colour
 	#   returns      the y the bar ended at, or 0 when nothing was drawn
-	#   note         Refuses when the largest scale over the smallest exceeds 1.25
-	#   warning      Defect: without SetPaper the sheet is guessed from the projection's scale as
-	#                plus and minus pi times it, so a country map measures a scale variation of
-	#                57.85 instead of 1.009 and the bar is refused.
-	#   see          ScaleBarAt, ScaleVariation
+	#   note         Refuses when the largest scale over the smallest exceeds 1.25. The scale is
+	#                measured over the sheet SetPaper gave, or over the extent of the features when
+	#                none was given: a country map is then near 1 and the bar is drawn
+	#   see          ScaleBarAt, ScaleVariation, SetPaper
 	#@ aka  -- GE10: THE FURNITURE, and the two plots a field still owed ----------
 	def DrawScaleBarOn(poCanvas, poFont, pnSize, pnX, pnY, pnTargetPx, pnAtLat, pInk)
 		return This.DrawScaleBarOnXT(poCanvas, poFont, pnSize, pnX, pnY,
@@ -2810,12 +2809,11 @@ class stzGeoMap from stzObject
 
 	# Returns the ratio of the largest local scale to the smallest over the sheet: 1 means a scale bar is true everywhere.
 	#
-	#   returns    a number from 1: 1.009 for Niger on its conic with SetPaper
-	#   note       A world Mercator measures 7.9 million, because the poles are in the sheet
-	#   warning    Defect: without SetPaper the sheet is guessed from the projection's scale as plus
-	#              and minus pi times it, so a country map measures a scale variation of 57.85
-	#              instead of 1.009 and the bar is refused.
-	#   see        ScaleBarAt, DrawScaleBarOn
+	#   returns    a number from 1: 1.009 for Niger on its conic with the sheet 30, 50, 570, 470
+	#   note       Measured over the sheet SetPaper gave, or over the extent of the features when
+	#              none was given (1.006 for Niger). A world Mercator measures 7.9 million, because
+	#              the poles are in the sheet
+	#   see        ScaleBarAt, DrawScaleBarOn, SetPaper
 	#@ aka  WOULD A SCALE BAR BE HONEST ON THIS MAP? The ratio of the largest local scale on the sheet to the smallest. 1 means a bar is true everywhere; anything much above it means the bar is decoration.
 	def ScaleVariation()
 		_b_ = This._ScaleBarRaw(100, 0)
@@ -2828,11 +2826,9 @@ class stzGeoMap from stzObject
 	#   pnAtLat      the latitude the bar is true at, in degrees north
 	#   returns      a hash list [ :km, :pixels, :atLat, :variation ]: the round length in km, its
 	#                length in pixels, the latitude and the variation
-	#   note         Niger on its conic with SetPaper: 200 km is 57.6 pixels at 15 N
-	#   warning      Defect: without SetPaper the sheet is guessed from the projection's scale as
-	#                plus and minus pi times it, so a country map measures a scale variation of
-	#                57.85 instead of 1.009 and the bar is refused.
-	#   see          DrawScaleBarOn
+	#   note         Niger on its conic: 200 km is 74.3 pixels at 16 N. The variation is measured over
+	#                the sheet SetPaper gave, or over the extent of the features when none was given
+	#   see          DrawScaleBarOn, ScaleVariation, SetPaper
 	def ScaleBarAt(pnTargetPx, pnAtLat)
 		_b_ = This._ScaleBarRaw(pnTargetPx, pnAtLat)
 		if len(_b_) < 4  return []  ok
@@ -2840,26 +2836,53 @@ class stzGeoMap from stzObject
 
 	# THE SHEET IS WHAT THE VARIATION IS MEASURED OVER, so the paper
 	# rectangle has to reach the engine. SetPaper gives it where a caller
-	# set one; otherwise it is taken from the projection's own fit, which
-	# is the box the fit was asked to fill.
+	# set one; otherwise it is the extent the features take on the paper
+	# (_FitBox), which is the box the fit was asked to fill less its pad.
 	def _ScaleBarRaw(pnTargetPx, pnAtLat)
 		_p_ = @aPaper
 		if len(_p_) != 4  _p_ = This._FitBox()  ok
 		return StzEngineGeoScaleBar(@oP.Params(), pnTargetPx, pnAtLat, 0,
 			_p_[1], _p_[2], _p_[3], _p_[4])
 
-	# the box the projection was fitted into, recovered from its own
-	# translation and scale -- a projection remembers where it was put even
-	# when nobody called SetPaper
+	# THE SHEET OF A MAP THAT WAS NOT TOLD ONE: the extent its features take
+	# on the paper, as [ x0, y0, x1, y1 ]. A fit (FitFeaturesIn) puts the
+	# features in a box less a pad, so this is that box, recovered from the
+	# only thing the projection really knows, where the features land.
+	#
+	# The first version recovered the box from the projection's scale and
+	# translation as plus and minus pi (and pi/2) times the scale -- the
+	# extent of the WHOLE SPHERE, which a country is a speck of. Niger's
+	# sheet came out as [ -7092, -2071, 7822, 3711 ] instead of
+	# [ 40, 80, 680, 417 ]; the scale variation measured 57.85 where it is
+	# 1.006, so the bar was refused; and the stream-density raster was
+	# asked to cover a box thousands of pixels wide.
+	#
+	# Every point of a set of up to 6000 is projected; a larger set is
+	# sampled with a stride, which can only shrink the box by what lies
+	# between two samples. A set with no point that projects has no sheet,
+	# and the answer is the unit box the caller will see refused.
 	def _FitBox()
-		_t_ = @oP.TranslateOf()
-		_s_ = @oP.ScaleOf()
-		if len(_t_) < 2 or _s_ <= 0  return [ 0, 0, 1, 1 ]  ok
-		# a sphere of unit radius spans -pi..pi in x and -pi/2..pi/2 in y
-		# before the fit, so the fitted sheet is at most this wide
-		_w_ = 3.141592653589793 * _s_
-		_h_ = 1.570796326794897 * _s_
-		return [ _t_[1] - _w_, _t_[2] - _h_, _t_[1] + _w_, _t_[2] + _h_ ]
+		_pts_ = @oF.AllPoints()
+		_n_ = len(_pts_) / 2
+		_step_ = 1
+		if _n_ > 6000  _step_ = floor(_n_ / 6000)  ok
+		_x0_ = 0  _y0_ = 0  _x1_ = 0  _y1_ = 0
+		_got_ = 0
+		for _i_ = 1 to _n_ step _step_
+			_q_ = @oP.Project(_pts_[_i_ * 2 - 1], _pts_[_i_ * 2])
+			if len(_q_) != 2  loop  ok
+			if _got_ = 0
+				_x0_ = _q_[1]  _x1_ = _q_[1]  _y0_ = _q_[2]  _y1_ = _q_[2]
+				_got_ = 1
+				loop
+			ok
+			if _q_[1] < _x0_  _x0_ = _q_[1]  ok
+			if _q_[1] > _x1_  _x1_ = _q_[1]  ok
+			if _q_[2] < _y0_  _y0_ = _q_[2]  ok
+			if _q_[2] > _y1_  _y1_ = _q_[2]  ok
+		next
+		if _got_ = 0  return [ 0, 0, 1, 1 ]  ok
+		return [ _x0_, _y0_, _x1_, _y1_ ]
 
 	# Draws an arrow pointing where north really goes at a place, measured by projecting a step north.
 	#
@@ -3436,9 +3459,9 @@ class stzGeoMap from stzObject
 	#   pnSepDeg   the spacing of the lines in degrees
 	#   pcRamp     the ramp's name for the raster
 	#   returns    the number of streamlines drawn, 0 when the grid or the components are too short
-	#   warning    Defect: without SetPaper the sheet is guessed from the projection's scale, so the
-	#              raster covers a box thousands of pixels wide.
-	#   see        DrawFlowOn, SpeedField
+	#   note       The raster covers the sheet SetPaper gave, or the extent of the features when none
+	#              was given
+	#   see        DrawFlowOn, SpeedField, SetPaper
 	def DrawStreamDensityOn(poCanvas, paGrid, paU, paV, pnSepDeg, pcRamp)
 		return This.DrawStreamDensityOnXT(poCanvas, paGrid, paU, paV, pnSepDeg,
 			pcRamp, "#1A2A44", 20, 8, 800)
