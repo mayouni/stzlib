@@ -18402,12 +18402,11 @@ func _NormalizeColLookupKey(pVal)
 	 #  USED BY SQL EXTERNAL CODE  #
 	#=============================#
 
-	# Returns the cell-reading code of a column in a formula, or the text itself when it names no column; a list raises today.
+	# Returns the code that reads a column in a formula, or the text itself; a list of names sets the columns instead.
 	#
-	#   pacColNames   a column name as text, for a formula
-	#   returns       text
-	#   warning       A column name gives the code text ( This.Cell(n, j) ); a list raises R14
-	#                 because IsHasHListOrListOfStrings is defined nowhere
+	#   pacColNames   a column name as text, or a list of names or of [ name, type ] pairs
+	#   returns       text, ( This.Cell(n, j) ) for a column name, the text itself for any other; a list gives nothing
+	#   warning       A list replaces all the columns by the named ones, with one empty cell in each
 	#   see           AddCalculatedCol
 	def @(pacColNames)
 		/*
@@ -18422,7 +18421,7 @@ func _NormalizeColLookupKey(pVal)
 
 		if CheckingParams()
 			if NOT ( isString(pacColNames) or
-				 (isList(pacColNames) and Q(pacColNames).IsHasHListOrListOfStrings()) )
+				 @IsHashListOrListOfStrings(pacColNames) )
 
 				StzRaise("Incorrect param type! pacColNames must be a hashlist or a string containing a column name.")
 			ok
@@ -18438,28 +18437,21 @@ func _NormalizeColLookupKey(pVal)
 		ok
 
 		_nLen_ = len(pacColNames)
-		_acColNames_ = []
+		_aNewContent_ = []
 
+		# One column per name, each holding a single empty cell
 		if @IsListOfStrings(pacColNames)
 			for i = 1 to _nLen_
-				_acColNames_ + [ pacColNames[i], [ "" ] ]
+				_aNewContent_ + [ pacColNames[i], [ "" ] ]
 			next
 
 		else // IsHashList()
 			for i = 1 to _nLen_
-				_acColNames_ + [ pacColNames[i][1], [ "" ] ]
+				_aNewContent_ + [ pacColNames[i][1], [ "" ] ]
 			next
 		ok
 
-		This.AddCols(_acColNames_)
-		This.RemoveCol(1)
-
-		_aRow_ = []
-		for i = 1 to _nLen_
-			_aRow_ + ""
-		next
-
-		This.AddRow(_aRow_)
+		This.UpdateWith(_aNewContent_)
 
 	  #==============================#
 	 #  ADDING A CALCULATED COLUMN  #
@@ -20831,18 +20823,33 @@ func _NormalizeColLookupKey(pVal)
 
 		return _cOutput_
 
-	# Raises error R24 today instead of returning the grand-total line of the grid.
+	# Returns the grand-total line of the grid, the sum of each column shown, under the label GRAND-TOTAL.
 	#
 	#   _aColWidths_   the column widths
 	#   _bRowNumber_   the row-number flag, 1 or 0
 	#   _nCols_        the number of columns shown
-	#   returns        nothing; it raises
-	#   warning        Raises R24 because the body reads the grand totals, which are local to
-	#                  buildDataRows
-	#   see            buildOutput
+	#   returns        text, the separator and the total line
+	#   see            buildOutput, buildDataRows
 	#@ aka  Submethod to build grand total
 	def buildGrandTotal(_aColWidths_, _bRowNumber_, _nCols_)
 		_cOutput_ = ""
+
+		# The total of each column shown: the numbers and the numbers written as text, summed
+		_aGrandTotals_ = []
+		for i = 1 to _nCols_
+			_aGrandTotals_ + 0
+			_nDataCol_ = @if(_bRowNumber_, i - 1, i)
+			if _nDataCol_ >= 1 and _nDataCol_ <= len(@aContent)
+				_nRowsGt_ = len(@aContent[_nDataCol_][2])
+				for r = 1 to _nRowsGt_
+					_xCellGt_ = @aContent[_nDataCol_][2][r]
+					if isNumber(_xCellGt_) or (isString(_xCellGt_) and _xCellGt_ != "" and @IsNumberInString(_xCellGt_))
+						_aGrandTotals_[i] += (0 + _xCellGt_)
+					ok
+				next
+			ok
+		next
+
 		_cLine_ = @aBorder[:TeeRight]
 		for i = 1 to _nCols_
 			_cLine_ += StrFill(_aColWidths_[i], @aBorder[:Horizontal])
@@ -21016,14 +21023,12 @@ func _NormalizeColLookupKey(pVal)
 	    @anCalculatedCols = []
 	    @anCalculatedRows = []
 
-		# Raises error R14 today instead of transposing the table while keeping the column names as a first column.
+		# Turns rows into columns, in place, keeping the old column names as the first column.
 		#
-		#   returns    nothing; it raises
-		#   warning    Raises R14 because the body calls TansposeXT, a misspelling; TransposeXT
-		#              works
-		#   see        TransposeXT
+		#   returns   nothing; the table changes
+		#   see       TransposeXT, TransposeBack
 		def TransposeWithColNames()
-			This.TansposeXT()
+			This.TransposeXT()
 
 	# Restores the table turned by TransposeXT, with its column names and rows.
 	#
@@ -21231,91 +21236,250 @@ func _NormalizeColLookupKey(pVal)
 
 		This.UpdateWith(_aData_)
 
-	# Raises error R24 today instead of returning the table as an HTML table.
+	# Returns the table as a compact HTML table, with no space between the tags.
 	#
-	#   returns    nothing; it raises
-	#   warning    Raises R24 because ToHtmlXT reads a variable named data that is never set
-	#   see        ToCSV
+	#   returns    text; a number or a list in a cell is marked by a class, so that FromHtml gives it back
+	#   warning    A number is written as Ring shows it, with two decimals when it has any
+	#   see        ToHtmlXT, FromHtml
 	#---
 	def ToHtml()
-		return @Simplify(This.ToHtmlXT())
+		return This._HtmlText(0)
 
 		def ToHtmlTable()
 			return This.ToHtml()
 
+	# Returns the table as an HTML table written on several lines, one tag on each.
+	#
+	#   returns    text, marked as ToHtml marks it
+	#   see        ToHtml, FromHtml
 	def ToHtmlXT()
-	    _aContent_ = @aContent
-	    if len(_aContent_) = 0
-	        return '<table class="data"><thead><tr></tr></thead><tbody></tbody></table>'
-	    ok
-
-	    # Ensure all columns have exactly the same number of values
-	    # This is critical for the buggy parser
-	    _nLen_ = len(_aContent_)
-	    _nRows_ = 0
-	    for i = 1 to _nLen_
-	        if len(_aContent_[i][2]) > _nRows_
-	            _nRows_ = len(_aContent_[i][2])
-	        ok
-	    next
-
-	    # Pad shorter columns with empty strings to match longest column
-	    for i = 1 to _nLen_
-	        while len(_aContent_[i][2]) < _nRows_
-	            _aContent_[i][2] + ""
-	        end
-	    next
-
-	    _cHtml_ = '<table class="data" id="products">' + nl
-	    _cHtml_ += '<thead>' + nl
-	    _cHtml_ += nl
-	    _cHtml_ += '<tr>' + nl
-
-	    # Generate header row - ensure format matches parser expectations
-	    for i = 1 to _nLen_
-	        _cHtml_ += '            ' + '<th scope="col">' + data[i][1] + '</th>' + nl
-	    next
-
-	    _cHtml_ += '</tr>' + nl
-	    _cHtml_ += nl
-	    _cHtml_ += '</thead>' + nl
-	    _cHtml_ += nl
-	    _cHtml_ += '<tbody>' + nl
-	    _cHtml_ += nl
-
-	    # Generate body rows - use exact format the parser expects
-	    for nRowIndex = 1 to _nRows_
-	        _cHtml_ += '<tr class="row">' + nl
-
-	        # For each column, get the value at this row index
-	        for nColIndex = 1 to _nLen_
-	            _cValue_ = _aContent_[nColIndex][2][nRowIndex]
-	            _cHtml_ += '        ' + '<td>' + _cValue_ + '</td>' + nl
-	        next
-
-	        _cHtml_ += nl
-	        _cHtml_ += '</tr>' + nl
-	        _cHtml_ += nl
-	    next
-
-	    _cHtml_ += '</tbody>' + nl
-	    _cHtml_ += '</table>' + nl
-			return _cHtml_
+		return This._HtmlText(1)
 
 		def ToHtmlTableXT()
 			return This.ToHtmlXT()
 
-
-	# Raises error R14 today instead of replacing the table by the content of an HTML table.
+	# Returns the HTML text of the table, on one line or with one tag on each line.
 	#
-	#   pcHtmlTable   the HTML text of a table
-	#   returns       nothing; it raises
-	#   warning       Raises R14 because HtmlToTable is defined nowhere
-	#   see           FromCSV
-	def FromHtml(pcHtmlTable)
+	#   pbPretty   1 for one tag on each line, 0 for no space between the tags
+	#   returns    text
+	#   see        ToHtml, ToHtmlXT
+	def _HtmlText(pbPretty)
+		_aContent_ = @aContent
+		_nColsHt_ = len(_aContent_)
+		if _nColsHt_ = 0
+			return '<table class="data"><thead><tr></tr></thead><tbody></tbody></table>'
+		ok
 
+		_cNl_ = ""
+		_cIndTh_ = ""
+		_cIndTd_ = ""
+		if pbPretty
+			_cNl_ = char(10)
+			_cIndTh_ = "            "
+			_cIndTd_ = "        "
+		ok
+
+		# All the columns get as many cells as the longest one, the missing ones being empty
+		_nRowsHt_ = 0
+		for _iHt_ = 1 to _nColsHt_
+			if len(_aContent_[_iHt_][2]) > _nRowsHt_
+				_nRowsHt_ = len(_aContent_[_iHt_][2])
+			ok
+		next
+
+		for _iHt_ = 1 to _nColsHt_
+			while len(_aContent_[_iHt_][2]) < _nRowsHt_
+				_aContent_[_iHt_][2] + ""
+			end
+		next
+
+		_cHtml_ = '<table class="data" id="products">' + _cNl_
+		_cHtml_ += '<thead>' + _cNl_ + _cNl_
+		_cHtml_ += '<tr>' + _cNl_
+
+		for _iHt_ = 1 to _nColsHt_
+			_cHtml_ += _cIndTh_ + '<th scope="col">' + This._HtmlEscape("" + _aContent_[_iHt_][1]) + '</th>' + _cNl_
+		next
+
+		_cHtml_ += '</tr>' + _cNl_ + _cNl_
+		_cHtml_ += '</thead>' + _cNl_ + _cNl_
+		_cHtml_ += '<tbody>' + _cNl_ + _cNl_
+
+		for _iRowHt_ = 1 to _nRowsHt_
+			_cHtml_ += '<tr class="row">' + _cNl_
+
+			for _iHt_ = 1 to _nColsHt_
+				_xCellHt_ = _aContent_[_iHt_][2][_iRowHt_]
+
+				if isNumber(_xCellHt_)
+					_cHtml_ += _cIndTd_ + '<td class="number">' + ("" + _xCellHt_) + '</td>' + _cNl_
+				but isList(_xCellHt_)
+					_cHtml_ += _cIndTd_ + '<td class="list">' + This._HtmlEscape(_ValueToJsonString(_xCellHt_)) + '</td>' + _cNl_
+				but isString(_xCellHt_)
+					_cHtml_ += _cIndTd_ + '<td>' + This._HtmlEscape(_xCellHt_) + '</td>' + _cNl_
+				else
+					_cHtml_ += _cIndTd_ + '<td>' + This._HtmlEscape(@@(_xCellHt_)) + '</td>' + _cNl_
+				ok
+			next
+
+			_cHtml_ += _cNl_ + '</tr>' + _cNl_ + _cNl_
+		next
+
+		_cHtml_ += '</tbody>' + _cNl_
+		_cHtml_ += '</table>' + _cNl_
+		return _cHtml_
+
+	# Returns a text with the characters that HTML reads as markup written as entities.
+	#
+	#   pcText     the text to write
+	#   returns    text, in which & < > and " are entities
+	#   see        ToHtml
+	def _HtmlEscape(pcText)
+		_cEsc_ = StzReplace(pcText, "&", "&amp;")
+		_cEsc_ = StzReplace(_cEsc_, "<", "&lt;")
+		_cEsc_ = StzReplace(_cEsc_, ">", "&gt;")
+		_cEsc_ = StzReplace(_cEsc_, char(34), "&quot;")
+		return _cEsc_
+
+	# Replaces the table, in place, by the first table of an HTML text; each cell is a text, a number or a list.
+	#
+	#   pcHtmlTable   the HTML text of a table: the cells of its first row of th are the column names
+	#   returns       nothing; the table changes
+	#   warning       Raises an error when the text holds no table; a cell marked by a class number or
+	#                 list is given back as such, any other cell as a text, trimmed of its edge spaces
+	#   see           ToHtml, FromCSV
+	def FromHtml(pcHtmlTable)
 		if NOT isString(pcHtmlTable)
 			StzRaise("Incorrect param type! pcHtmlTable must be a string.")
 		ok
 
-		This.UpdateWith(StzStringQ(pcHtmlTable).HtmlToTable())
+		_acRowsFh_ = StzSplitCS(pcHtmlTable, "</tr>", 0)
+		_nRowsFh_ = len(_acRowsFh_)
+		_acNamesFh_ = []
+		_aBodyFh_ = []
+		_nWidthFh_ = 0
+
+		for _iFh_ = 1 to _nRowsFh_
+			_cRowFh_ = StzReplaceCS(_acRowsFh_[_iFh_], "</th>", "</td>", 0)
+			_acPiecesFh_ = StzSplitCS(_cRowFh_, "</td>", 0)
+
+			# What follows the last closing tag of a row is not a cell
+			_nCellsFh_ = len(_acPiecesFh_) - 1
+			if _nCellsFh_ < 1
+				loop
+			ok
+
+			_aCellsFh_ = []
+			for _jFh_ = 1 to _nCellsFh_
+				_aCellsFh_ + This._HtmlCellValue(_acPiecesFh_[_jFh_])
+			next
+
+			if _nCellsFh_ > _nWidthFh_
+				_nWidthFh_ = _nCellsFh_
+			ok
+
+			_bHeaderFh_ = len(StzFindCS("</th>", _acRowsFh_[_iFh_], 0)) > 0
+			if _bHeaderFh_ and len(_acNamesFh_) = 0
+				for _jFh_ = 1 to _nCellsFh_
+					if isString(_aCellsFh_[_jFh_])
+						_acNamesFh_ + _aCellsFh_[_jFh_]
+					else
+						_acNamesFh_ + @@(_aCellsFh_[_jFh_])
+					ok
+				next
+			else
+				_aBodyFh_ + _aCellsFh_
+			ok
+		next
+
+		if _nWidthFh_ = 0
+			if len(StzFindCS("<table", pcHtmlTable, 0)) = 0
+				StzRaise("Can't proceed! The text holds no HTML table.")
+			ok
+
+			This.UpdateWith([])
+			return
+		ok
+
+		# Without a row of th, the columns are named COL1, COL2 and so on
+		if len(_acNamesFh_) = 0
+			for _jFh_ = 1 to _nWidthFh_
+				_acNamesFh_ + ("COL" + _jFh_)
+			next
+		ok
+
+		_nNamesFh_ = len(_acNamesFh_)
+		_nBodyFh_ = len(_aBodyFh_)
+		_aContentFh_ = []
+
+		for _jFh_ = 1 to _nNamesFh_
+			_aColFh_ = []
+			for _iFh_ = 1 to _nBodyFh_
+				if _jFh_ <= len(_aBodyFh_[_iFh_])
+					_aColFh_ + _aBodyFh_[_iFh_][_jFh_]
+				else
+					_aColFh_ + ""
+				ok
+			next
+
+			_aContentFh_ + [ _acNamesFh_[_jFh_], _aColFh_ ]
+		next
+
+		This.UpdateWith(_aContentFh_)
+
+	# Returns the value held by a cell of an HTML table, read from the text that ends at its closing tag.
+	#
+	#   pcPiece    the HTML text from the previous closing tag to the closing tag of the cell
+	#   returns    a text, a number or a list, according to the class of the cell
+	#   see        FromHtml
+	def _HtmlCellValue(pcPiece)
+		_cText_ = ""
+		_cOpen_ = ""
+		_cTag_ = ""
+		_bInTag_ = 0
+		_nLenCv_ = len(pcPiece)
+
+		# The text of the cell is what follows its own opening tag; every other tag is dropped
+		for _iCv_ = 1 to _nLenCv_
+			_cChar_ = pcPiece[_iCv_]
+
+			if _bInTag_
+				if _cChar_ = ">"
+					_bInTag_ = 0
+					_cLow_ = StzLower(_cTag_)
+					if left(_cLow_, 3) = "<td" or left(_cLow_, 3) = "<th"
+						if len(_cLow_) = 3 or NOT isalpha(_cLow_[4])
+							_cOpen_ = _cLow_
+							_cText_ = ""
+						ok
+					ok
+				else
+					_cTag_ += _cChar_
+				ok
+
+			but _cChar_ = "<"
+				_bInTag_ = 1
+				_cTag_ = "<"
+
+			else
+				_cText_ += _cChar_
+			ok
+		next
+
+		_cText_ = ring_trim(_cText_)
+		_cText_ = StzReplace(_cText_, "&lt;", "<")
+		_cText_ = StzReplace(_cText_, "&gt;", ">")
+		_cText_ = StzReplace(_cText_, "&quot;", char(34))
+		_cText_ = StzReplace(_cText_, "&#39;", "'")
+		_cText_ = StzReplace(_cText_, "&nbsp;", " ")
+		_cText_ = StzReplace(_cText_, "&amp;", "&")
+
+		if len(StzFindCS('class="list"', _cOpen_, 1)) > 0
+			return JsonToList(_cText_)
+		ok
+
+		if len(StzFindCS('class="number"', _cOpen_, 1)) > 0 and @IsNumberInString(_cText_)
+			return 0 + _cText_
+		ok
+
+		return _cText_
