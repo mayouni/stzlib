@@ -283,3 +283,8 @@ stzFileManager 15, stzListOfTimeLines 14.
 author: Current* read the clock, not the calendar. Still broken, outside the batch: WorkingDaysBetween family R5, FirstAvailableSlot,
 ContainsBusinessHours, GoToNextYear on a range. Next by size: stzItemCS 20, stzGeoMap 18, stzMatrex 17, stzFileManager 15, stzListOfTimeLines 14.
 
+## 2026-10-16: the stzItemCS fix batch is ON MAIN (de0cdfd49, both remotes); register 357 -> 337
+
+All 20 rows broken (none stale), all fixed; 167-assertion guard. Open: ItemQ builds stzSItem (nowhere), stzItem inherits list methods that raise,
+stzListInserter kills the process past the end. Next by size: stzGeoMap 18, stzMatrex 17, stzFileManager 15, stzListOfTimeLines 14.
+
