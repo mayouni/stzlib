@@ -656,9 +656,9 @@ class stzGeoMap from stzObject
 	#
 	#   pbOn       1 to make the top class open
 	#   returns    nothing; the flag is stored
-	#   warning    Defect: an inset made by DrawInsetsOn does not copy it, so a region above the
-	#              last edge shows as no data in the inset (Niamey on the Niger sheet).
-	#   see        IsOpenTop, ClassOf, DrawRampLegendOn
+	#   note       An inset made by DrawInsetsOn takes it too, so a region above the last edge has
+	#              the same colour in the inset and on the parent (Niamey on the Niger sheet)
+	#   see        IsOpenTop, ClassOf, DrawRampLegendOn, DrawInsetsOn
 	#@ aka  IS THE TOP CLASS OPEN -- "30 and over" rather than "20 to 30". It is a statement about the SCALE, so it lives with the scale and not in the legend's argument list: the classifier and the legend both read it, and a reader must never meet an arrow the map refused to fill.
 	def SetOpenTop(pbOn)
 		@bOpenTop = pbOn
@@ -2205,9 +2205,9 @@ class stzGeoMap from stzObject
 	#   pnSize     the type size, never below 13
 	#   pInk       the text colour
 	#   returns    nothing; the pieces are added to the canvas, and InsetReports is filled
-	#   warning    Defect: the inset copies values, edges and palette but not SetOpenTop, so a value
-	#              above the last edge draws as no data inside the inset while the parent paints it
-	#              in the top colour (Niamey on the Niger sheet).
+	#   note       The inset takes the parent's values, edges, palette and open top, so a region has
+	#              the colour it has on the parent. It does not take SetNoData, SetHatch or the
+	#              groups of the parent
 	#   see        AddInset, InsetReports
 	def DrawInsetsOn(poCanvas, poFont, pnSize, pInk)
 		if len(@aInsets) = 0  return  ok
@@ -2284,6 +2284,11 @@ class stzGeoMap from stzObject
 			# name does not, which is the whole difficulty. Otherwise the
 			# inset writes NAMES, because it exists so that names fit and a
 			# SEQUENTIAL number inside one would need a second key; a sheet
+			# THE OPEN TOP IS PART OF THE SCALE, so it travels with the edges. Without
+			# it a value above the last edge (Niamey, 1844 per km2 on a scale ending
+			# at 100) was class 0 in the inset and the top colour on the parent: the
+			# same region in two colours on one sheet.
+			_m_.SetOpenTop(@bOpenTop)
 			# with two keys has given up.
 			if @cKeyCode != ""
 				_m_.SetKeyCodes(@cKeyCode)
