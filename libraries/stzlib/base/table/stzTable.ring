@@ -17876,7 +17876,7 @@ func _NormalizeColLookupKey(pVal)
 	# Replaces the nth cell equal to a value by another value, in place; nothing changes when there is no such cell.
 	#
 	#   _n_             the rank of the occurrence, 1 for the first
-	#   pValue          the value to look for
+	#   pValue          the value to look for; a list cell is given as [ :Cell, list ]
 	#   pNewCellValue   the value that takes its place
 	#   returns         nothing; the table changes
 	#   see             ReplaceNthCS, FindNth
@@ -17893,7 +17893,7 @@ func _NormalizeColLookupKey(pVal)
 
 	# Replaces the first cell equal to a value by another value, in place; nothing changes when no cell is equal.
 	#
-	#   pValue          the value to look for
+	#   pValue          the value to look for; a list cell is given as [ :Cell, list ]
 	#   pNewCellValue   the value that takes its place
 	#   returns         nothing; the table changes
 	#   see             ReplaceFirstCS, ReplaceNth
