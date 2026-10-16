@@ -316,3 +316,9 @@ A half-ported class (stzStorage lives only in future/) rebuilt on the real file 
 not activated (lookups only gated), :InMemory / :InDatabase raise. Open: the file-top StzCache / CacheActivate ... functions. Next by size: stzGraph 12,
 stzRegexMaker 12, stzOrgChart 10, stzRegex 10, stzStringChar 10.
 
+## 2026-10-16: the stzGraph fix batch is ON MAIN (aefd0fff4, both remotes); register 251 -> 239
+
+12 broken, all fixed; LongestPath is now the HOP count (changed six tests' printed numbers). After running graph tests in _wtd run
+`git checkout --` on test/_data/simple.graphml and test/graph/_add_coo.stzsim, _mycompany.stzgraf, _rt.stzgraf (they rewrite tracked fixtures).
+Next by size: stzRegexMaker 12, stzOrgChart 10, stzRegex 10, stzStringChar 10.
+
