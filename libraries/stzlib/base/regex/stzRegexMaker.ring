@@ -102,13 +102,12 @@ func NTimes(n)
 # AddAmongChars, AddCharsRange and their digit forms), a literal, a shorthand class, a group, a flag
 # or an assertion. Pattern joins the fragments in order. The calls that add ranges also record a
 # sequence, the same call in data form, so Sequences and Fragments are two views of one pattern;
-# literals and groups add a fragment and no sequence, so the two lists do not stay aligned. Groups
-# made with DefineGroup are remembered and can be reused or referred back to. The text is not
-# escaped or validated: a literal goes in as given. Several public names are broken today and raise
-# errors: NumberOfSequences and its aliases, the CommandAndFragment family, ComposePatterns in the
-# or and sequence modes, MatchSameContentAs, the named-parameter forms CanContainAChar and
-# CanContainADigit, and the five names that forward to the misspelled NumberOfFragments; each is
-# flagged in its own entry. For ready-made patterns by name use AddCommonPattern or StzRxp.
+# literals and groups add a fragment and no sequence, so the two lists have different lengths, and
+# the maker remembers which fragment each sequence made (Sequence, SequenceXT and RepeatSequence
+# follow that link, not the position). Groups made with DefineGroup are remembered and can be
+# reused or referred back to. The text is not escaped or validated: a literal goes in as given.
+# Quantifiers and QuantifiersCommands are placeholders that answer an empty text. For ready-made
+# patterns by name use AddCommonPattern or StzRxp.
 #
 #   receiver   o1 = new stzRegexMaker
 #   example    o1.AddAmongChars("abc", :repeatedExactly, 3, 0)
@@ -122,6 +121,7 @@ func NTimes(n)
 class stzRegexMaker from stzObject
 	@acFragments = []
 	@aSequences = []
+	@anSeqFrag = []	# For each sequence, the position of the fragment it made
 	@aGroups = []  	# List of [name, pattern] pairs
 
 	# Builds an empty maker, with no fragments, no sequences and no groups.
@@ -139,19 +139,25 @@ class stzRegexMaker from stzObject
 	#   cType       among for [abc], notAmong for [^abc], anything else for a range like [a-z]
 	#   _cRange_    the characters as a text or a list, where the word SPACE stands for a blank in
 	#               among and notAmong
-	#   cQuant      repeatedExactly for {n}, repeatedAtLeast for {n,}, repeatedAtMost for ?,
-	#               repeatedBetween for {n,m}, repeatedSeveralTimes or repeatedSeveral for *
+	#   cQuant      repeatedExactly for {n}, repeatedAtLeast for {n,}, repeatedAtMost for ? (one time)
+	#               or {0,n}, repeatedBetween for {n,m}, repeatedSeveralTimes or repeatedSeveral for *
 	#   nTimes1     the first count
 	#   _nTimes2_   the second count for repeatedBetween, or a pair such as [ and, 5 ]
 	#   returns     nothing; read the result with Pattern
-	#   note        repeatedAtMost ignores the count and always writes ?, so 3 and 1 give the same
-	#               pattern
-	#   warning     a cQuant it does not know adds the class with no suffix and no complaint: :zzz
-	#               gave [ab]
+	#   note        repeatedAtMost with 1 gives ?, with 3 gives {0,3}
+	#   warning     a cQuant it does not know raises Unknown repeat kind and adds nothing
 	#   see         AddAmongChars, AddCharsRange, Pattern
 	def AddRange(cType, _cRange_, cQuant, nTimes1, _nTimes2_)
 
 		# Checking params
+
+		if isString(cType)
+			cType = StzLower(cType)
+		ok
+
+		if isString(cQuant)
+			cQuant = StzLower(cQuant)
+		ok
 
 		if isString(_nTimes2_) and (_nTimes2_ = :Time or _nTimes2_ = :Times)
 			nTimes = 0
@@ -204,23 +210,31 @@ class stzRegexMaker from stzObject
 			_cQuantifier_ = "{" + nTimes1 + ",}"
 
 		but cQuant = :repeatedAtMost
-			_cQuantifier_ = "?"
+			if nTimes1 = 1
+				_cQuantifier_ = "?"
+			else
+				_cQuantifier_ = "{0," + nTimes1 + "}"
+			ok
 
 		but cQuant = :repeatedBetween
 			_cQuantifier_ = "{" + nTimes1 + "," + _nTimes2_ + "}"
 
 		but cQuant =  :repeatedSeveralTimes or cQuant = :repeatedSeveral
 			_cQuantifier_ = "*"
+
+		else
+			StzRaise("Unknown repeat kind! Use repeatedExactly, repeatedAtLeast, repeatedAtMost, repeatedBetween, repeatedSeveralTimes or repeatedSeveral.")
 		ok
 
 		# Storing the complete pattern (main string + quantifier part)
 
         	@acFragments + (_cPattern_ + _cQuantifier_)
 
-		# String the elements of the sequence applied
+		# String the elements of the sequence applied, and the fragment it made
 
         	@aSequences + [ cType, _cRange_, cQuant, nTimes1, _nTimes2_ ]
-        
+        	@anSeqFrag + len(@acFragments)
+
 
 	# Appends a class that matches any one of the given characters, repeated as asked.
 	#
@@ -350,14 +364,17 @@ class stzRegexMaker from stzObject
 	# Returns how many pieces the pattern has so far.
 	#
 	#   returns    a number
-	#   note       the name is misspelled (Fragements) and the five names that forward to the
-	#              correctly spelled NumberOfFragments do not exist: HowManyFragments,
-	#              CountFragments, NumberOfFrags, HowManyFrags and CountFrags raise R14
+	#   note       the original name is misspelled (Fragements) and is kept; NumberOfFragments,
+	#              HowManyFragments, CountFragments, NumberOfFrags, HowManyFrags and CountFrags give
+	#              the same answer
 	#   see        Fragments, Fragment
 	def NumberOfFragements()
 		return len(@acFragments)
 
 		#< @FunctionAlternativeForms
+
+		def NumberOfFragments()
+			return This.NumberOfFragements()
 
 		def HowManyFragments()
 			return This.NumberOfFragments()
@@ -391,8 +408,27 @@ class stzRegexMaker from stzObject
 		def Frag(n)
 			return This.Fragment(n)
 
+	# Returns the nth piece of the pattern together with the sequence that made it.
+	#
+	#   n          the position of the piece, from 1
+	#   returns    a list of two items: the piece, and its sequence as [ type, range, repeat kind,
+	#              count, count2 ] or an empty list when the piece was made by AddLiteral, a group or
+	#              another helper that records no sequence
+	#   note       FragXT, FragmentAndSequence, FragAndSeq, FragmentAndItsSequence, FragAndItsSeq and
+	#              FragSeq are the same call
+	#   warning    raises an error for a position past the last piece
+	#   see        Fragment, SequenceXT
 	def FragmentXT(n)
-		return [ @acFragments[n], @aSequences[n] ]
+		_aSeq_ = []
+		_nSeqs_ = len(@anSeqFrag)
+		for _iSeq_ = 1 to _nSeqs_
+			if @anSeqFrag[_iSeq_] = n
+				_aSeq_ = @aSequences[_iSeq_]
+				exit
+			ok
+		next
+
+		return [ @acFragments[n], _aSeq_ ]
 
 		#< @FunctionAlternativeForms
 
@@ -416,8 +452,20 @@ class stzRegexMaker from stzObject
 
 		#>
 
+	# Returns every piece of the pattern paired with the sequence that made it.
+	#
+	#   returns    a list of pairs, one per piece, each [ piece, sequence ] where the sequence is
+	#              [ type, range, repeat kind, count, count2 ], or an empty list for a piece that was
+	#              made by AddLiteral, a group or another helper that records no sequence
+	#   note       FragsXT is the same call; the pairs follow the pieces, so a literal in front of a
+	#              range does not shift the ranges that come after it
+	#   see        FragmentXT, SequencesXT
 	def FragmentsXT()
-		_aResult_ = @Association([ This.Fragments(), This.Sequences() ])
+		_aResult_ = []
+		_nFragments_ = len(@acFragments)
+		for _iFragment_ = 1 to _nFragments_
+			_aResult_ + This.FragmentXT(_iFragment_)
+		next
 		return _aResult_
 
 		def FragsXT()
@@ -427,19 +475,23 @@ class stzRegexMaker from stzObject
 	 #  GETTING THE QUANTIFIERS  #
 	#---------------------------#
 
-	# Returns an empty text today, because the method is an unwritten placeholder.
+	# Reserves the name for the quantifiers added so far; it computes nothing yet and answers an empty text.
 	#
-	#   returns    an empty text
-	#   warning    placeholder: the body is a TODO and nothing is computed
+	#   returns    an empty text, whatever was added
+	#   warning    placeholder: no class header, block or test says what it should return, so it is
+	#              kept as it was; the repeat kind and the counts of each range are in Sequences, items
+	#              3 to 5 of every sequence
 	#   see        QuantifiersCommands, Sequences
 	def Quantifiers()
-	# Returns an empty text today, because the method is an unwritten placeholder.
-	#
-	#   returns    an empty text
-	#   note       QuantifiersXT is the same
-	#   warning    placeholder: the body is a TODO and nothing is computed
-	#   see        Quantifiers, Sequences
 		#TODO
+
+	# Reserves the name for the quantifiers of the recorded sequences; it computes nothing yet and answers an empty text.
+	#
+	#   returns    an empty text, whatever was added
+	#   note       QuantifiersXT is the same placeholder
+	#   warning    placeholder: nothing states what it should return, so it is kept as it was; read the
+	#              repeat kinds and counts with Sequences
+	#   see        Quantifiers, Sequences
 	def QuantifiersCommands()
 		#TODO
 
@@ -465,17 +517,15 @@ class stzRegexMaker from stzObject
 		def Commands()
 			return This.Sequences()
 
-	# Raises error R24 today instead of returning how many sequences were recorded.
+	# Counts the sequences recorded by the range-adding calls.
 	#
-	#   returns    a number, when it works
-	#   note       the failure was seen with and without ranges added
-	#   warning    Raises error R24 today: the body reads len(acSequences), a variable that is never
-	#              set, where @aSequences is meant; HowManySequences, CountSequences, NumberOfSeqs,
-	#              HowManySeqs, CountSeqs, NumberOfCommands, HowManyCommands and CountCommands
-	#              forward to it and raise the same error
+	#   returns    a number; 0 for a new maker or when only literals and groups were added
+	#   note       HowManySequences, CountSequences, NumberOfSeqs, HowManySeqs, CountSeqs,
+	#              NumberOfCommands, HowManyCommands and CountCommands give the same answer; the count
+	#              of pieces is NumberOfFragements
 	#   see        Sequences, NumberOfFragements
 	def NumberOfSequences()
-		return len(acSequences)
+		return len(@aSequences)
 
 		#< @FunctionAlternativeForms
 
@@ -511,12 +561,18 @@ class stzRegexMaker from stzObject
 	#
 	#   n          the position of the sequence, from 1
 	#   returns    a list
-	#   note       Seq and Command are the same call
-	#   warning    raises an error for a position past the last sequence, which is also the case for
-	#              position 1 when only literals were added
+	#   note       Seq and Command are the same call; the sequences are numbered apart from the
+	#              pieces, because AddLiteral and the helpers that add text make a piece and no
+	#              sequence
+	#   warning    raises No sequence n for a position that is not between 1 and the number of
+	#              sequences, which includes position 1 when only literals were added
 	#   see        Sequences, SequenceXT
 		#>
 	def Sequence(n)
+		if NOT pvtHasSequence(n)
+			StzRaise("No sequence " + @@(n) + ": the maker holds " + len(@aSequences) + " sequence(s).")
+		ok
+
 		return @aSequences[n]
 
 		def Seq(n)
@@ -525,8 +581,20 @@ class stzRegexMaker from stzObject
 		def Command(n)
 			return This.Sequence(n)
 
+	# Returns the nth recorded sequence together with the piece of the pattern it made.
+	#
+	#   n          the position of the sequence, from 1
+	#   returns    a list of two items: the sequence as [ type, range, repeat kind, count, count2 ],
+	#              and its piece as a text
+	#   note       SeqXT, SequenceAndFragment, SeqAndFrag, SequenceAndItsFragment, SeqAndItsFrag and
+	#              SeqFrag are the same call; the piece is the one the sequence made, whatever
+	#              literals were added around it
+	#   warning    raises No sequence n for a position past the last sequence
+	#   see        Sequence, FragmentXT
 	def SequenceXT(n)
-		return [ @aSequences[n], @acFragments[n] ]
+		_aSeq_ = This.Sequence(n)
+		_nFrag_ = @anSeqFrag[n]
+		return [ _aSeq_, @acFragments[_nFrag_] ]
 
 		#< @FunctionAlternativeForms
 
@@ -550,52 +618,70 @@ class stzRegexMaker from stzObject
 
 		#--
 
-		def CommandXT()
-			return This.SequenceXT(n)
-
-		# Raises error R24 today instead of returning a sequence together with its fragment.
+		# Pairs the nth recorded sequence with the piece it made, under the command name.
 		#
-		#   returns    a list of the sequence and the piece, when it works
-		#   note       CommandXT, CommandAndFrag, CommandAndItsFragment and CommandAndItsFrag have
-		#              the same defect
-		#   warning    Raises error R24 today: the alias passes n to SequenceXT but declares no
-		#              parameter, so n is an unset variable; SequenceXT(1) itself works and answers
-		#              [ sequence, piece ]
+		#   n          the position of the sequence, from 1
+		#   returns    a list of the sequence and its piece
+		#   note       the same call as SequenceXT
+		#   warning    raises No sequence n for a position past the last sequence
 		#   see        SequenceXT, Fragment
-		def CommandAndFragment()
+		def CommandXT(n)
 			return This.SequenceXT(n)
 
-		# Raises error R24 today instead of returning a sequence together with its fragment.
+		# Pairs the nth recorded sequence with the piece it made, in the long command form.
 		#
-		#   returns    a list of the sequence and the piece, when it works
-		#   note       same cause as CommandAndFragment
-		#   warning    Raises error R24 today: the alias passes an unset n to SequenceXT
-		#   see        CommandAndFragment, SequenceXT
-		def CommandAndFrag()
+		#   n          the position of the sequence, from 1
+		#   returns    a list of the sequence and its piece
+		#   note       the same call as SequenceXT
+		#   warning    raises No sequence n for a position past the last sequence
+		#   see        SequenceXT, Fragment
+		def CommandAndFragment(n)
 			return This.SequenceXT(n)
 
-		# Raises error R24 today instead of returning a sequence together with its fragment.
+		# Pairs the nth recorded sequence with the piece it made, in the short command form.
 		#
-		#   returns    a list of the sequence and the piece, when it works
-		#   note       same cause as CommandAndFragment
-		#   warning    Raises error R24 today: the alias passes an unset n to SequenceXT
+		#   n          the position of the sequence, from 1
+		#   returns    a list of the sequence and its piece
+		#   note       the same call as SequenceXT
+		#   warning    raises No sequence n for a position past the last sequence
 		#   see        CommandAndFragment, SequenceXT
-		def CommandAndItsFragment()
+		def CommandAndFrag(n)
 			return This.SequenceXT(n)
 
-		# Raises error R24 today instead of returning a sequence together with its fragment.
+		# Pairs the nth recorded sequence with the piece it made, saying that the piece is its own.
 		#
-		#   returns    a list of the sequence and the piece, when it works
-		#   note       same cause as CommandAndFragment
-		#   warning    Raises error R24 today: the alias passes an unset n to SequenceXT
+		#   n          the position of the sequence, from 1
+		#   returns    a list of the sequence and its piece
+		#   note       the same call as SequenceXT
+		#   warning    raises No sequence n for a position past the last sequence
 		#   see        CommandAndFragment, SequenceXT
-		def CommandAndItsFrag()
+		def CommandAndItsFragment(n)
+			return This.SequenceXT(n)
+
+		# Pairs the nth recorded sequence with the piece it made, in the short possessive form.
+		#
+		#   n          the position of the sequence, from 1
+		#   returns    a list of the sequence and its piece
+		#   note       the same call as SequenceXT
+		#   warning    raises No sequence n for a position past the last sequence
+		#   see        CommandAndFragment, SequenceXT
+		def CommandAndItsFrag(n)
 			return This.SequenceXT(n)
 
 		#>
 
+	# Returns every recorded sequence paired with the piece it made.
+	#
+	#   returns    a list of pairs, one per sequence, each [ sequence, piece ]
+	#   note       SeqsXT and CommandsXT are the same call; only the pieces made by a range call appear,
+	#              so literals and groups do not shift the pairs
+	#   see        SequenceXT, FragmentsXT
 	def SequencesXT()
-		_aResult_ = @Association([ This.Sequences(), This.Fragments() ])
+		_aResult_ = []
+		_nSequences_ = len(@aSequences)
+		for _iSequence_ = 1 to _nSequences_
+			_aResult_ + This.SequenceXT(_iSequence_)
+		next
 		return _aResult_
 
 		def SeqsXT()
@@ -604,19 +690,27 @@ class stzRegexMaker from stzObject
 		def CommandsXT()
 			return This.SequencesXT()
 
-	# Appends a copy of the nth recorded sequence and of its piece to the end of the pattern.
+	# Appends a copy of the nth recorded sequence and of the piece it made to the end of the pattern.
 	#
 	#   n          the position of the sequence to repeat, from 1
 	#   returns    nothing; read the result with Pattern
-	#   note       the piece is taken at the same position n, which is the nth piece and not the
-	#              piece of the nth sequence once literals are mixed in; after one [a-f]{2} it gives
-	#              [a-f]{2}[a-f]{2}
-	#   warning    raises an error when there is no sequence n, as when only literals were added
+	#   note       the piece copied is the one the sequence made, whatever literals were added
+	#              around it; after AddCharsRange("a-f", :repeatedExactly, 2, 0) it gives
+	#              [a-f]{2}[a-f]{2}; the copy is a sequence of its own, so it can be repeated again
+	#   warning    raises No sequence n for a position that is not between 1 and the number of
+	#              sequences, which includes position 1 when only literals were added
 	#   see        RepeatCommand, Sequence
 	def RepeatSequence(n)
+		if NOT pvtHasSequence(n)
+			StzRaise("No sequence " + @@(n) + ": the maker holds " + len(@aSequences) + " sequence(s).")
+		ok
 
-		@aSequences + @aSequences[n]
-		@acFragments + @acFragments[n]
+		_aSeq_ = @aSequences[n]
+		_cFrag_ = @acFragments[ @anSeqFrag[n] ]
+
+		@acFragments + _cFrag_
+		@aSequences + _aSeq_
+		@anSeqFrag + len(@acFragments)
 
 		# Appends a copy of the nth recorded sequence and of its piece to the end of the pattern.
 		#
@@ -631,76 +725,67 @@ class stzRegexMaker from stzObject
 	 #  DESIGING THE PATTERN IN A DECLARATIVE STYLE  #
 	#-----------------------------------------------#
 
-	# Raises error R14 today instead of adding a character class given as a named parameter such as :Between = [ A, Z ].
+	# Appends a character class given as a named pair: between two chars, among some chars, or from one char to another.
 	#
-	#   p          the named pair: Between, Among or From with their characters
-	#   pRepeat    the repeat pair such as [ RepeatedExactly, 2 ], or a number
-	#   returns    nothing, when it works
-	#   note       CanContainACharBetween and CanContainACharAmong, which it would call, work when
-	#              called directly
-	#   warning    Raises error R14 today: it calls IsBetweenOrFromNamedParam on a stzList, a method
-	#              that does not exist; seen with the Between, Among and From forms, and a text
-	#              instead of a list raises Incorrect param type!
+	#   p          the named pair: Between or From with the two end characters, or Among with the
+	#              characters, for example [ between, [ A, [ and, Z ] ] ] or [ among, [ -, SPACE ] ]
+	#   pRepeat    a number for that many times, or a repeat pair such as [ RepeatedExactly, 2 ]
+	#   returns    nothing; read the result with Pattern
+	#   note       :Between = [ "A", :And = "Z" ] with :RepeatedExactly = 2Times() gives [A-Z]{2};
+	#              From takes the same shapes as Between; CanContaingChar is the same call
+	#   warning    a p that is not a list raises Incorrect param type!, and a pair named otherwise
+	#              than Between, Among or From raises Unknown class kind
 	#   see        CanContainACharBetween, CanContainACharAmong
 	def CanContainAChar(p, pRepeat)
-	
+
 		if NOT isList(p)
 			StzRaise("Incorrect param type! p must be a list.")
 		ok
-	
-		# Constructing the chars from the first param p
-	
-		if isList(p)
-	
-			_oTempList_ = new stzList(p)
-	
-			if _oTempList_.IsBetweenOrFromNamedParam()
-			# CanContainAChar(:Between = [ "A", :And = "Z" ], :RepeatedExactly = 2Times())
-			# CanContainAChar(:Between = "A-Z" ], :RepeatedExactly = [ 2 :Times() ])
-	
-				This.CanContainACharBetween(p[2], pRepeat)
-	
-			but _oTempList_.IsAmongNamedParam()
-			# CanContainAChar(:Among = [ "-", " " ], :RepeatdAtMost = 1Time())
-			# CanContainAChar(:Among = "- ", :RepeatdAtMost = 1Time())
 
-				This.CanContainACharAmong(p[2], pRepeat)
-	
-	
-			but _oTempList_.IsFromNamedParam()
-			# CanContainADigit(:From = [ "0", :To = "9"], :RepeatedExactly = 3Times())
-	
-				This.CanContainACharFrom(p[2], pRepeat)
-	
-			ok
-	
+		# Constructing the chars from the first param p
+
+		_cKind_ = pvtKindOf(p)
+
+		if _cKind_ = "between" or _cKind_ = "from"
+		# CanContainAChar(:Between = [ "A", :And = "Z" ], :RepeatedExactly = 2Times())
+		# CanContainAChar(:Between = "A-Z", :RepeatedExactly = 2)
+
+			This.CanContainACharBetween(p[2], pRepeat)
+
+		but _cKind_ = "among"
+		# CanContainAChar(:Among = [ "-", " " ], :RepeatedAtMost = 1Time())
+		# CanContainAChar(:Among = "- ", :RepeatedAtMost = 1Time())
+
+			This.CanContainACharAmong(p[2], pRepeat)
+
+		else
+			StzRaise("Unknown class kind! p must be a pair named Between, Among or From.")
 		ok
 
-		# Raises error R14 today instead of adding a character class given as a named parameter.
+		# Appends a character class given as a named pair, under a misspelled name.
 		#
 		#   p          the named pair: Between, Among or From with their characters
-		#   pRepeat    the repeat pair such as [ RepeatedExactly, 2 ], or a number
-		#   returns    nothing, when it works
-		#   note       the name is a misspelling of CanContainChar
-		#   warning    Raises error R14 today: it calls CanContainAChar, which calls the missing
-		#              IsBetweenOrFromNamedParam
+		#   pRepeat    a number for that many times, or a repeat pair such as [ RepeatedExactly, 2 ]
+		#   returns    nothing; read the result with Pattern
+		#   note       the same call as CanContainAChar, kept under the misspelled name
 		#   see        CanContainAChar
 		def CanContaingChar(p, pRepeat)
 			This.CanContainAChar(p, pRepeat)
 
 	# Appends a class that matches one character from the first given char to the second, repeated as asked.
 	#
-	#   paChars    the two end characters as a list such as [ A, Z ], or [ A, [ to, Z ] ]
+	#   paChars    the two end characters as a list such as [ A, Z ] or [ A, [ and, Z ] ], or as a
+	#              text such as A-Z
 	#   pRepeat    a number for that many times, or a pair such as [ RepeatedBetween, [ 2, 4 ] ]
 	#   returns    nothing; read the result with Pattern
-	#   note       [ A, Z ] with 3 gives [A-Z]{3}; RepeatedAtMost writes ? whatever the count
-	#   warning    the text form A-Z raises error R14 today because it calls a Char function that
-	#              does not exist; a repeat name it does not know, such as Zzz, drops the quantifier
-	#              without a word
+	#   note       [ A, Z ] with 3 gives [A-Z]{3}, and so does A-Z; RepeatedAtMost with 1 writes ? and
+	#              with n writes {0,n}; CanContainCharBetween is the same call
+	#   warning    anything that is not two chars raises Can't proceed! You must provide two chars;
+	#              a repeat name it does not know raises Unknown repeat kind
 	#   see        CanContainACharAmong, AddCharsRange
 	def CanContainACharBetween(paChars, pRepeat)
 		# CanContainAChar(:Between = [ "A", :And = "Z" ], :RepeatedExactly = 2Times())
-		# CanContainAChar(:Between = "A-Z" ], :RepeatedExactly = [ 2 :Times() ])
+		# CanContainAChar(:Between = "A-Z", :RepeatedExactly = 2)
 
 		# Resolving the chars param
 
@@ -710,12 +795,12 @@ class stzRegexMaker from stzObject
 
 		if isString(_between_)
 
-			_oTempStr_ = new stzString(_between_)
+			_acBetween_ = Chars(_between_)
 
-			if _oTempStr_.NumberOfChars() = 3 and _oTempStr_.Char(2) = "-"
+			if len(_acBetween_) = 3 and _acBetween_[2] = "-"
 
-				_c1_ = _oTempStr_.Char(1)
-				_c2_ = _oTempStr_.Char(2)
+				_c1_ = _acBetween_[1]
+				_c2_ = _acBetween_[3]
 
 			ok
 
@@ -725,9 +810,7 @@ class stzRegexMaker from stzObject
 
 				_c1_ = _between_[1]
 
-				if isList(_between_[2]) and len(_between_[2]) = 2 and
-				   isString(_between_[2][1]) and
-				   (_between_[2][1] = "and" or _between_[2][1] = "to")
+				if pvtIsLinkedPair(_between_[2])
 
 					_c2_ = _between_[2][2]
 
@@ -739,7 +822,7 @@ class stzRegexMaker from stzObject
 
 		ok
 
-		if _c1_ = 1 or _c2_ = ""
+		if NOT ( isString(_c1_) and isString(_c2_) and _c1_ != "" and _c2_ != "" )
 			StzRaise("Can't proceed! You must provide two chars.")
 		ok
 
@@ -767,11 +850,12 @@ class stzRegexMaker from stzObject
 	#   pRepeat    a number for that many times, or a repeat pair such as [ RepeatedAtMost, 1 ]
 	#   returns    nothing; read the result with Pattern
 	#   note       abc with [ RepeatedAtMost, 1 ] gives [abc]?; CanContainCharAmong is the same call
+	#   warning    a value that is neither a text nor a list of chars raises Incorrect param type!
 	#   see        CanContainACharBetween, AddAmongChars
 		#>
 	def CanContainACharAmong(pChars, pRepeat)
-		# CanContainACharAmong([ "A", "B", "C" ], :RepeatdAtMost = 1Time())
-		# CanContainACharAmong("ABC", :RepeatdAtMost = 1Time())
+		# CanContainACharAmong([ "A", "B", "C" ], :RepeatedAtMost = 1Time())
+		# CanContainACharAmong("ABC", :RepeatedAtMost = 1Time())
 
 
 		if NOT ( isString(pChars) or ( isList(pChars) and IsListOfChars(pChars) ) )
@@ -799,63 +883,58 @@ class stzRegexMaker from stzObject
 		def CanContainCharAmong(pChars, pRepeat)
 			return This.CanContainACharAmong(pChars, pRepeat)
 
-	# Raises error R14 today instead of adding a digit class given as a named parameter such as :Between = [ 0, 9 ].
+	# Appends a digit class given as a named pair: between two digits, among some digits, or from one digit to another.
 	#
-	#   p          the named pair: Between, Among or From with their digits
-	#   pRepeat    the repeat pair such as [ RepeatedExactly, 3 ], or a number
-	#   returns    nothing, when it works
-	#   note       CanContainADigitBetween and CanContainADigitAmong work when called directly
-	#   warning    Raises error R14 today: it calls IsBetweenOrFromNamedParam on a stzList, a method
-	#              that does not exist; seen with the Between, Among and From forms
+	#   p          the named pair: Between or From with the two end digits, or Among with the digits,
+	#              for example [ from, [ 0, [ to, 9 ] ] ] or [ among, 135 ]
+	#   pRepeat    a number for that many times, or a repeat pair such as [ RepeatedExactly, 3 ]
+	#   returns    nothing; read the result with Pattern
+	#   note       :From = [ "0", :To = "9" ] with :RepeatedExactly = 3Times() gives [0-9]{3}; Between
+	#              takes the same shapes as From
+	#   warning    a p that is not a list raises Incorrect param type!, and a pair named otherwise
+	#              than Between, Among or From raises Unknown class kind
 	#   see        CanContainADigitBetween, CanContainADigitAmong
 	#@ aka  --
 	def CanContainADigit(p, pRepeat)
-	
+
 		if NOT isList(p)
 			StzRaise("Incorrect param type! p must be a list.")
 		ok
-	
-		# Constructing the chars from the first param p
-	
-		if isList(p)
-	
-			_oTempList_ = new stzList(p)
-	
-			if _oTempList_.IsBetweenOrFromNamedParam()	
-				This.CanContainADigitBetween(p[2], pRepeat)
-	
-			but _oTempList_.IsAmongNamedParam()
-				This.CanContainAdigitAmong(p[2], pRepeat)
-	
-	
-			but _oTempList_.IsFromNamedParam()	
-				This.CanContainAdigitFrom(p[2], pRepeat)
-	
-			ok
-	
+
+		# Constructing the digits from the first param p
+
+		_cKind_ = pvtKindOf(p)
+
+		if _cKind_ = "between" or _cKind_ = "from"
+			This.CanContainADigitBetween(p[2], pRepeat)
+
+		but _cKind_ = "among"
+			This.CanContainADigitAmong(p[2], pRepeat)
+
+		else
+			StzRaise("Unknown class kind! p must be a pair named Between, Among or From.")
 		ok
 
-		# Raises error R14 today instead of adding a digit class given as a named parameter.
+		# Appends a digit class given as a named pair, under a misspelled name.
 		#
 		#   p          the named pair: Between, Among or From with their digits
-		#   pRepeat    the repeat pair such as [ RepeatedExactly, 3 ], or a number
-		#   returns    nothing, when it works
-		#   note       the name is a misspelling of CanContainDigit
-		#   warning    Raises error R14 today: it calls CanContainADigit, which calls the missing
-		#              IsBetweenOrFromNamedParam
+		#   pRepeat    a number for that many times, or a repeat pair such as [ RepeatedExactly, 3 ]
+		#   returns    nothing; read the result with Pattern
+		#   note       the same call as CanContainADigit, kept under the misspelled name
 		#   see        CanContainADigit
 		def CanContaingdigit(p, pRepeat)
 			This.CanContainADigit(p, pRepeat)
 
 	# Appends a class that matches one digit from the first given digit to the second, repeated as asked.
 	#
-	#   paDigits   the two end digits as a list such as [ 0, 9 ]
+	#   paDigits   the two end digits as a list such as [ 0, 9 ] or [ 0, [ to, 9 ] ], or as a text
+	#              such as 0-9
 	#   pRepeat    a number for that many times, or a pair such as [ RepeatedExactly, 3 ]
 	#   returns    nothing; read the result with Pattern
-	#   note       [ 0, 9 ] with 3 gives [0-9]{3}; CanContainDigitBetween is the same call
-	#   warning    the text form 0-9 raises error R14 today because it calls a Char function that
-	#              does not exist; a non-digit end raises Can't proceed! You must provide two digits
-	#              as chars.
+	#   note       [ 0, 9 ] with 3 gives [0-9]{3}, and so does 0-9; CanContainDigitBetween is the same
+	#              call
+	#   warning    an end that is not a digit raises Can't proceed! You must provide two digits as
+	#              chars; a repeat name it does not know raises Unknown repeat kind
 	#   see        CanContainADigitAmong, AddDigitsRange
 	def CanContainADigitBetween(paDigits, pRepeat)
 
@@ -867,14 +946,12 @@ class stzRegexMaker from stzObject
 
 		if isString(_between_)
 
-			_oTempStr_ = new stzString(_between_)
+			_acBetween_ = Chars(_between_)
 
-			if _oTempStr_.NumberOfChars() = 3 and _oTempStr_.Char(2) = "-" and
-			   _oTempStr_.CharQ(1).IsNumberInString() and
-			   _oTempStr_.CharQ(3).IsNumberInString()
+			if len(_acBetween_) = 3 and _acBetween_[2] = "-"
 
-				_cDigit1_ = _oTempStr_.Char(1)
-				_cDigit2_ = _oTempStr_.Char(2)
+				_cDigit1_ = _acBetween_[1]
+				_cDigit2_ = _acBetween_[3]
 
 			ok
 
@@ -884,9 +961,7 @@ class stzRegexMaker from stzObject
 
 				_cDigit1_ = _between_[1]
 
-				if isList(_between_[2]) and len(_between_[2]) = 2 and
-				   isString(_between_[2][1]) and
-				   (_between_[2][1] = "and" or _between_[2][1] = "to")
+				if pvtIsLinkedPair(_between_[2])
 
 					_cDigit2_ = _between_[2][2]
 
@@ -898,8 +973,12 @@ class stzRegexMaker from stzObject
 
 		ok
 
-		if NOT ( IsChar(_cDigit1_) and IsNumberInString(_cDigit1_) and
-			 IsChar(_cDigit2_) and IsNumberInString(_cDigit2_) )
+		# A number such as 0 or 9 stands for its digit
+
+		_cDigit1_ = pvtDigitText(_cDigit1_)
+		_cDigit2_ = pvtDigitText(_cDigit2_)
+
+		if _cDigit1_ = "" or _cDigit2_ = ""
 
 			StzRaise("Can't proceed! You must provide two digits as chars.")
 		ok
@@ -924,27 +1003,43 @@ class stzRegexMaker from stzObject
 
 	# Appends a class that matches one of the given digits, repeated as asked.
 	#
-	#   pDigits    the digits as a text such as 135
+	#   pDigits    the digits as a text such as 135, or as a list of digits such as [ 1, 3 ] or
+	#              [ "1", "3" ]
 	#   pRepeat    a number for that many times, or a repeat pair such as [ RepeatedExactly, 3 ]
 	#   returns    nothing; read the result with Pattern
-	#   note       135 with 3 gives [135]{3}; CanContainDigitAmong is the same call
-	#   warning    a list of digits such as [ 1, 3 ] raises error R3 today, because IsListOfDigits
-	#              does not exist; letters in a text raise Incorrect param type!
+	#   note       135 with 3 gives [135]{3}, and so does [ 1, 3, 5 ]; CanContainDigitAmong is the same
+	#              call
+	#   warning    anything that is not made of single digits raises Incorrect param type!
 	#   see        CanContainADigitBetween, AddAmongDigits
 		#>
 	def CanContainADigitAmong(pDigits, pRepeat)
 
-		if NOT ( (isString(pDigits) and IsNumberInString(pDigits) or
-		         ( isList(pDigits) and IsListOfDigits(pDigits) ) ) )
-
-			StzRaise("Incorrect param type! pDigits must be digits in a list or string.")
-		ok
+		_acItems_ = []
 
 		if isString(pDigits)
-			_acDigits_ = Chars(pDigits)
+			_acItems_ = Chars(pDigits)
 
-		else // isListOfChars(pChars)
-			_acDigits_ = pDigits
+		but isList(pDigits)
+			_acItems_ = pDigits
+		ok
+
+		_acDigits_ = []
+		_nItems_ = len(_acItems_)
+		_bOk_ = ( _nItems_ > 0 )
+
+		for _i_ = 1 to _nItems_
+			_item_ = pvtDigitText(_acItems_[_i_])
+
+			if _item_ != ""
+				_acDigits_ + _item_
+			else
+				_bOk_ = 0
+				exit
+			ok
+		next
+
+		if NOT _bOk_
+			StzRaise("Incorrect param type! pDigits must be digits in a list or string.")
 		ok
 
 		# Resolving the repetition params
@@ -955,7 +1050,7 @@ class stzRegexMaker from stzObject
 		_n1_ = _aRepeat_[2]
 		_n2_ = _aRepeat_[3]
 
-		This.AddAmongChars(_acdigits_, _cRepeat_, _n1_, _n2_)
+		This.AddAmongChars(_acDigits_, _cRepeat_, _n1_, _n2_)
 
 
 		def CanContainDigitAmong(pDigits, pRepeat)
@@ -1058,9 +1153,10 @@ class stzRegexMaker from stzObject
 	#
 	#   pcGroupName   the group name as a text, or the group number
 	#   returns       nothing; read the result with Pattern
-	#   note          a name gives (?P=w)
-	#   warning       a number writes two backslashes before the digit, \\1 at 3 characters, where
-	#                 one is meant: the pattern then matches a backslash followed by 1
+	#   note          a name gives (?P=w); the number 1 gives \1, with one backslash, and a number
+	#                 above 9 gives \g{12} so that it is not read as an octal code
+	#   warning       a value that is neither a text nor a number adds nothing and raises nothing; the
+	#                 name or number is not checked against the groups added so far
 	#   see           DefineGroup, AddCapturingGroup
 	def AddBackReference(pcGroupName)
 		# Example usage:
@@ -1069,9 +1165,13 @@ class stzRegexMaker from stzObject
 		# o1.AddBackreference("tag")  # Matches same tag again
 	
 		if isString(pcGroupName)
-			@acFragments + "(?P=" + pcGroupName + ")"
+			@acFragments + ("(?P=" + pcGroupName + ")")
 		but isNumber(pcGroupName)  
-			@acFragments + "\\" + pcGroupName
+			if pcGroupName > 9
+				@acFragments + ("\g{" + pcGroupName + "}")
+			else
+				@acFragments + (char(92) + pcGroupName)
+			ok
 		ok
 	
 	  #-------------------------------#
@@ -1147,13 +1247,13 @@ class stzRegexMaker from stzObject
 		# o1.AddCapturingGroup(:atomic, "[aeiou]+")  	# Atomic group
 	
 		if pcName = :nonCapturing
-			@acFragments + "(?:" + pcPattern + ")"
+			@acFragments + ("(?:" + pcPattern + ")")
 		
 		but pcName = :atomic
-			@acFragments + "(?>" + pcPattern + ")"
+			@acFragments + ("(?>" + pcPattern + ")")
 		
 		but isString(pcName)
-			@acFragments + "(?P<" + pcName + ">" + pcPattern + ")"
+			@acFragments + ("(?P<" + pcName + ">" + pcPattern + ")")
 		ok
 	
 	  #-----------------------------------------#
@@ -1182,13 +1282,13 @@ class stzRegexMaker from stzObject
 	
 		switch pcBehavior
 		on :longest    # Takes longest possible match (formerly 'greedy')
-			@acFragments + pcPattern + "+"
+			@acFragments + (pcPattern + "+")
 	
 		on :shortest   # Takes shortest possible match (formerly 'lazy')
-			@acFragments + pcPattern + "+?"
+			@acFragments + (pcPattern + "+?")
 	
 		on :complete   # Matches everything at once without backtracking (formerly 'possessive')
-			@acFragments + pcPattern + "++"
+			@acFragments + (pcPattern + "++")
 		off
 	
 	  #--------------------------------#
@@ -1210,11 +1310,11 @@ class stzRegexMaker from stzObject
 	
 		switch pcQuantifier
 		on :possessive
-			@acFragments + pcPattern + "++"
+			@acFragments + (pcPattern + "++")
 		on :lazy
-			@acFragments + pcPattern + "+?"
+			@acFragments + (pcPattern + "+?")
 		on :greedy
-			@acFragments + pcPattern + "+"
+			@acFragments + (pcPattern + "+")
 		off
 	
 	  #----------------------#
@@ -1233,7 +1333,7 @@ class stzRegexMaker from stzObject
 		# o1.AddComment("Match emails") 
 		# o1.AddCommonPattern(:email)
 	
-		@acFragments + "(?#" + pcText + ")"
+		@acFragments + ("(?#" + pcText + ")")
 	
 	  #--------------------------------#
 	 #     CASE SENSITIVITY HELPER    #
@@ -1256,25 +1356,26 @@ class stzRegexMaker from stzObject
 	
 		switch pcMode
 		on :insensitive
-			@acFragments + "(?i)" + pcPattern
+			@acFragments + ("(?i)" + pcPattern)
 		on :sensitive  
-			@acFragments + "(?-i)" + pcPattern
+			@acFragments + ("(?-i)" + pcPattern)
 		on :mixed
-			@acFragments + "(?i:" + pcPattern + ")"
+			@acFragments + ("(?i:" + pcPattern + ")")
 		off
 	
 	  #--------------------------------#
 	 #     PATTERN COMPOSITION        #
 	#--------------------------------#
 	
-	# Appends several patterns combined as all-must-match lookaheads, as alternatives or in sequence, but only the first works today.
+	# Appends several patterns combined as all-must-match look-aheads, as alternatives, or one after the other.
 	#
 	#   paPatterns   the patterns as a list of texts
-	#   pcMode       and, or or sequence
+	#   pcMode       and for look-aheads that must all hold, or for alternatives, sequence for the
+	#                patterns written one after the other
 	#   returns      nothing; read the result with Pattern
-	#   note         an unknown mode adds nothing
-	#   warning      Raises error R20 today for the or and sequence modes: they call join with two
-	#                arguments where it takes one; and works, a and b giving (?=a)(?=b)
+	#   note         a and b give (?=a)(?=b) in and mode, (a|b) in or mode and ab in sequence mode;
+	#                each call adds one piece
+	#   warning      an unknown mode adds nothing and raises nothing; the patterns are not escaped
 	#   see          DefineGroup, AddLiteral
 	def ComposePatterns(paPatterns, pcMode)
 		# Example :
@@ -1294,10 +1395,23 @@ class stzRegexMaker from stzObject
 			@acFragments + _cResult_
 			
 		on :or
-			@acFragments + "(" + join(paPatterns, "|") + ")"
+			_cResult_ = ""
+			_nPatterns1Len_ = len(paPatterns)
+			for _iLoopPatterns1_ = 1 to _nPatterns1Len_
+				if _iLoopPatterns1_ > 1
+					_cResult_ += "|"
+				ok
+				_cResult_ += paPatterns[_iLoopPatterns1_]
+			next
+			@acFragments + ("(" + _cResult_ + ")")
 			
 		on :sequence
-			@acFragments + join(paPatterns, "")
+			_cResult_ = ""
+			_nPatterns1Len_ = len(paPatterns)
+			for _iLoopPatterns1_ = 1 to _nPatterns1Len_
+				_cResult_ += paPatterns[_iLoopPatterns1_]
+			next
+			@acFragments + _cResult_
 		off
 
 	  #----------------------------------------#
@@ -1325,7 +1439,7 @@ class stzRegexMaker from stzObject
 		ok
 
 		@aGroups + [pcName, pcPattern]
-		@acFragments + "(?P<" + pcName + ">" + pcPattern + ")"
+		@acFragments + ("(?P<" + pcName + ">" + pcPattern + ")")
 		return len(@aGroups)
 
 	# Appends the pattern of a defined group again, as a non-capturing group.
@@ -1348,7 +1462,7 @@ class stzRegexMaker from stzObject
 			StzRaise("No group named '" + pcGroupName + "' has been defined")
 		ok
 
-		@acFragments + "(?:" + @aGroups[_nGroup_][2] + ")"
+		@acFragments + ("(?:" + @aGroups[_nGroup_][2] + ")")
 
 		# Appends the pattern of a defined group again, as a non-capturing group.
 		#
@@ -1359,14 +1473,13 @@ class stzRegexMaker from stzObject
 		def ReuseGroup(pcGroupName)
 			This.ReuseGroupPattern(pcGroupName)
 
-	# Raises error R24 today instead of appending a closing tag that repeats a defined group.
+	# Appends a back reference that must match the same text as a defined group, as (?P=name).
 	#
 	#   pcGroupName   the name of a group made with DefineGroup
-	#   returns       nothing, when it works
-	#   note          an unknown name raises No group named ... has been defined before that
-	#   warning       Raises error R24 today: after finding the group it uses the variable
-	#                 pcTagGroupName, which is not a parameter of this method; seen with two
-	#                 different group names
+	#   returns       nothing; read the result with Pattern
+	#   note          after DefineGroup("w", "\w+") a blank class and this call, the pattern matches a
+	#                 word twice: the closing tag form is MatchOppositeTagAs
+	#   warning       raises No group named ... has been defined for an unknown name
 	#   see           MatchOppositeTagAs, DefineGroup
 	def MatchSameContentAs(pcGroupName)
 		# Requires matching the exact same text that was matched
@@ -1384,7 +1497,7 @@ class stzRegexMaker from stzObject
 			StzRaise("No group named '" + pcGroupName + "' has been defined")
 		ok
 
-		@acFragments + "</(?P=" + pcTagGroupName + ")>"
+		@acFragments + ("(?P=" + pcGroupName + ")")
 
 	# Appends the closing tag that matches a defined group, as </(?P=name)>.
 	#
@@ -1409,7 +1522,7 @@ class stzRegexMaker from stzObject
 			StzRaise("No tag group named '" + pcTagGroupName + "' has been defined")
 		ok
 
-		@acFragments + "</(?P=" + pcTagGroupName + ")>"
+		@acFragments + ("</(?P=" + pcTagGroupName + ")>")
 
 	# Appends a lookahead that requires the pattern of a defined group to come next.
 	#
@@ -1433,7 +1546,7 @@ class stzRegexMaker from stzObject
 			StzRaise("No group named '" + pcGroupName + "' has been defined")
 		ok
 
-		@acFragments + "(?=" + @aGroups[_nGroup_][2] + ")"
+		@acFragments + ("(?=" + @aGroups[_nGroup_][2] + ")")
 
 	# Returns the position of a defined group by name, or 0.
 	#
@@ -1461,12 +1574,13 @@ class stzRegexMaker from stzObject
 	#   pRepeat    a number for exactly that many times, or a pair of a repeat name and a count or a
 	#              pair of counts
 	#   returns    a list of three values
-	#   note       a number n gives RepeatedExactly, n; a name that is not RepeatedExactly,
-	#              RepeatedAtMost, RepeatedBetween or RepeatedSeveralTimes gives an empty kind,
-	#              which is why the quantifier vanishes; anything that is not a pair raises
-	#              Incorrect param type!
+	#   note       a number n gives RepeatedExactly, n; the names it accepts are RepeatedExactly,
+	#              RepeatedAtLeast, RepeatedAtMost, RepeatedBetween, RepeatedSeveralTimes and
+	#              RepeatedSeveral
 	#   warning    private: calling it from outside raises R26, so it was read through
-	#              CanContainACharBetween
+	#              CanContainACharBetween; anything that is not a pair raises Incorrect param type!,
+	#              a name it does not know raises Unknown repeat kind, and RepeatedBetween with one
+	#              count instead of two raises Incorrect param type!
 	#   see        CanContainACharBetween
 	def pvtGetRepeat(pRepeat)
 		# [ :RepatedExactly, 3 ],
@@ -1488,15 +1602,26 @@ class stzRegexMaker from stzObject
 	
 		_aTempList_ = [
 			:RepeatedExactly,
+			:RepeatedAtLeast,
 			:RepeatedAtMost,
 			:RepeatedBetween,
-			:RepeatedSeveralTimes
+			:RepeatedSeveralTimes,
+			:RepeatedSeveral
 		]
 	
 		_cRepeat_ = ""
 
-		if StzFindFirst(pRepeat[1], _aTempList_) > 0
-			_cRepeat_ = pRepeat[1]
+		_nTempLen_ = len(_aTempList_)
+		_cWanted_ = StzLower(pRepeat[1])
+		for _i_ = 1 to _nTempLen_
+			if _cWanted_ = _aTempList_[_i_]
+				_cRepeat_ = _cWanted_
+				exit
+			ok
+		next
+
+		if _cRepeat_ = ""
+			StzRaise("Unknown repeat kind! Use RepeatedExactly, RepeatedAtLeast, RepeatedAtMost, RepeatedBetween, RepeatedSeveralTimes or RepeatedSeveral.")
 		ok
 	
 		# Checking the quantifier
@@ -1505,6 +1630,10 @@ class stzRegexMaker from stzObject
 			 isNumber(pRepeat[2][1]) and isNumber(pRepeat[2][2]) ) )
 	
 			StzRaise("Incorrect param type! pRepeat must be a pair of numbers.")
+		ok
+
+		if _cRepeat_ = :RepeatedBetween and NOT isList(pRepeat[2])
+			StzRaise("Incorrect param type! RepeatedBetween needs a pair of counts.")
 		ok
 	
 		_n1_ = 0
@@ -1519,6 +1648,88 @@ class stzRegexMaker from stzObject
 		ok
 	
 		return [ _cRepeat_, _n1_, _n2_ ]
+
+	# Returns the digit a value stands for as a one-char text, or an empty text when it is not a single digit; private.
+	#
+	#   pValue     a one-char text such as 7, or a whole number from 0 to 9
+	#   returns    a text of one char, or an empty text
+	#   warning    private: calling it from outside raises R26
+	#   see        CanContainADigitBetween, CanContainADigitAmong
+	def pvtDigitText(pValue)
+		if isNumber(pValue)
+			if pValue >= 0
+				if pValue <= 9
+					if pValue = floor(pValue)
+						return "" + pValue
+					ok
+				ok
+			ok
+			return ""
+		ok
+
+		if isString(pValue)
+			if len(pValue) = 1
+				if StzFindFirst(pValue, "0123456789") > 0
+					return pValue
+				ok
+			ok
+		ok
+
+		return ""
+
+	# Returns the lower-case name of a named pair such as [ between, x ], or an empty text for any other value; private.
+	#
+	#   pPair      the value to read
+	#   returns    a text
+	#   warning    private: calling it from outside raises R26
+	#   see        CanContainAChar, CanContainADigit
+	def pvtKindOf(pPair)
+		if isList(pPair)
+			if len(pPair) = 2
+				if isString(pPair[1])
+					return StzLower(pPair[1])
+				ok
+			ok
+		ok
+
+		return ""
+
+	# TRUE if a value is a pair that links two chars: [ and, x ] or [ to, x ], whatever the case of the link word; private.
+	#
+	#   pPair      the value to test
+	#   returns    1 or 0
+	#   warning    private: calling it from outside raises R26
+	#   see        CanContainACharBetween, CanContainADigitBetween
+	def pvtIsLinkedPair(pPair)
+		if isList(pPair)
+			if len(pPair) = 2
+				if isString(pPair[1])
+					_cLink_ = StzLower(pPair[1])
+					if _cLink_ = "and" or _cLink_ = "to"
+						return 1
+					ok
+				ok
+			ok
+		ok
+
+		return 0
+
+	# TRUE if a sequence exists at the position; private.
+	#
+	#   n          the position to test
+	#   returns    1 or 0
+	#   warning    private: calling it from outside raises R26
+	#   see        Sequence, RepeatSequence
+	def pvtHasSequence(n)
+		if isNumber(n)
+			if n >= 1
+				if n <= len(@aSequences)
+					return 1
+				ok
+			ok
+		ok
+
+		return 0
 
 #===============================#
 #  RECURSIVE REGEX MAKER CLASS  #

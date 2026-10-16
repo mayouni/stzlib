@@ -21,7 +21,7 @@ rxm() {
 	AddBackReference(1)  # Match closing tag
 
 	? Pattern()
-	#--> (?P<tag><([a-z]+)>)(?P<content>.*?)\\1
+	#--> (?P<tag><([a-z]+)>)(?P<content>.*?)\1
 }
 
 pf()
