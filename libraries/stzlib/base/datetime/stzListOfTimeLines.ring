@@ -22,16 +22,16 @@ class stzTimeLines from stzListOfTimeLines
 # Build one with new stzListOfTimeLines([ :Lanes = [ ... ], :Start = ..., :End = ... ]); it is also
 # reached as stzTimeLines, TimeLines(p) and StzTimeLinesQ(p). Each lane is a stzTimeLine over the
 # shared bounds. Lane names are stored in upper case and every lookup ignores case, and the dates
-# are read as text, a bare date meaning midnight. What works today: the lane management (AddLane,
-# RemoveLane, Lanes, HasLane), AddPointToLane (and its alias AddMomentToLane), WhatsAt,
-# SetGlobalStart and SetGlobalEnd, Duration, Content, ToTimeLine and Clear. Lane(name) returns a
-# copy of the lane's timeline, and the methods that edit through it silently keep nothing:
-# AddSpanToLane, AddSpansToLane, AddPointsToLane, AddBlockedSpanToLane, AddBlockedPointToLane,
-# RenameLabelInLane and RemovePointFromLane all do nothing, so no span can be stored and the span-
-# based reads (HasOverlapsInLane, CrossLaneOverlaps, UncoveredPeriodsPerLane) were not exercised
-# with real data. Copy keeps the lanes and bounds but not their points. BlockSpanInLane and
-# BlockPointInLane raise R14, and the whole drawing family (Show, ShowShort, ShowUncovered, VizFind)
-# raises R19; each says so in its own entry. Lane names of any script (Hebrew, Arabic, emoji) work.
+# are read as text, a bare date meaning midnight. The lane management (AddLane, RemoveLane, Lanes,
+# HasLane), the adding calls (AddPointToLane and its alias AddMomentToLane, AddPointsToLane,
+# AddSpanToLane, AddPeriodToLane, AddSpansToLane, AddBlockedSpanToLane, AddBlockedPointToLane), the
+# editing calls (RemovePointFromLane, RenameLabelInLane, BlockSpanInLane, BlockPointInLane) and the
+# reads (WhatsAt, HasOverlapsInLane, CrossLaneOverlaps, UncoveredPeriodsPerLane, ToTimeLine,
+# Content) all work on the lanes stored in the set. Lane(name) returns a copy of a lane's timeline,
+# so editing that copy changes nothing in the set. Copy gives an independent set that keeps the
+# lanes, the bounds, the points, the spans and the blocks. Show, ShowShort, ShowUncovered, ShowXT
+# and VizFind return a text drawing of every lane under its name; they print nothing. Lane names of
+# any script (Hebrew, Arabic, emoji) work.
 #
 #   receiver   o1 = new stzListOfTimeLines([ :Lanes = [ "Team A", "Team B" ], :Start = "2026-01-01",
 #              :End = "2026-12-31" ])
@@ -286,6 +286,15 @@ class stzListOfTimeLines from stzObject
 		def LaneQ(pcLane)
 			return This.Lane(pcLane)  // Already a stzTimeLine object
 
+	# the position of a lane in the stored list; every method that edits a lane goes through it and
+	# edits @aTimeLines[position] in place, because Lane() hands out a copy
+	def _laneIndex(pcLane)
+		_nIndex_ = StzFindFirst(StzUpper(pcLane), @aLanes)
+		if _nIndex_ = 0
+			StzRaise("No lane found with name: " + pcLane)
+		ok
+		return _nIndex_
+
 	# TRUE if a lane of that name exists.
 	#
 	#   pcLane     the lane name, without regard to case
@@ -335,20 +344,13 @@ class stzListOfTimeLines from stzObject
 	#   pcLabel     the label of the point, stored in upper case
 	#   pDateTime   when it happens, inside the shared bounds, otherwise an error is raised
 	#   returns     nothing; the lane changes. AddPointToLaneQ returns the set for chaining
-	#   note        AddMomentToLane is the same call; it is the one add method of this class that
-	#               really keeps what it is given
+	#   note        AddMomentToLane is the same call; the other lanes are not touched
 	#   warning     an unknown lane raises an error
 	#   see         AddMomentToLane, WhatsAt, AddPointsToLane
 	def AddPointToLane(pcLane, pcLabel, pDateTime)
-		# Was `oLaneTL = This.Lane(pcLane); oLaneTL.AddPoint(...)` --
-		# Ring returns a COPY of the stzTimeLine object from list
-		# indexing, so the mutation never persisted back into
-		# @aTimeLines. Index directly so the in-place AddPoint
-		# writes to the stored timeline.
-		_nIndex_ = StzFindFirst(StzUpper(pcLane), @aLanes)
-		if _nIndex_ = 0
-			StzRaise("No lane found with name: " + pcLane)
-		ok
+		# Ring returns a COPY of a stzTimeLine read into a local, so the
+		# stored timeline is edited in place through its index.
+		_nIndex_ = This._laneIndex(pcLane)
 		@aTimeLines[_nIndex_].AddPoint(pcLabel, pDateTime)
 
 		def AddPointToLaneQ(pcLane, pcLabel, pDateTime)
@@ -366,128 +368,154 @@ class stzListOfTimeLines from stzObject
 		def AddMomentToLane(pcLane, pcLabel, pDateTime)
 			This.AddPointToLane(pcLane, pcLabel, pDateTime)
 
-	# Does nothing today instead of adding several points to a lane at once.
+	# Adds several labelled points to one lane at once, each given as a label and a moment.
 	#
-	#   pcLane     the lane name
-	#   paPoints   a list of [ label, moment ] pairs
-	#   returns    nothing
-	#   note       add points one at a time with AddPointToLane
-	#   warning    it edits the copy that Lane returns, so the lane stays empty and no error is
-	#              raised: after AddPointsToLane("b", [ ["Alpha", "2026-07-01"] ]) the lane holds no
-	#              point, where the same call on the copy gives it
-	#   see        AddPointToLane
-	def AddPointsToLane(pcLane, paPoints)
-		_oLaneTL_ = This.Lane(pcLane)
-		_oLaneTL_.AddPoints(paPoints)
-
-	# Does nothing today instead of adding a labelled span of time to a lane.
-	#
-	#   pcLane     the lane name
-	#   pcLabel    the label of the span
-	#   pStart     when it starts
-	#   pEnd       when it ends
-	#   returns    nothing
-	#   note       AddSpanToLaneQ and AddPeriodToLane are the same call and lose the span too
-	#   warning    it edits the copy that Lane returns, so the lane stays empty and no error is
-	#              raised: AddSpanToLane("team a", "Build", "2026-04-01", "2026-05-01") leaves Spans
-	#              of the lane empty, though the same call on the copy returns the span
+	#   pcLane     the lane name, without regard to case
+	#   paPoints   a list of [ label, moment ] pairs, each moment inside the shared bounds
+	#   returns    nothing; the lane changes
+	#   note       the labels are stored in upper case; the other lanes are not touched
+	#   warning    an unknown lane raises an error; so does a moment outside the bounds or on a blocked
+	#              moment, and the pairs before it are kept
 	#   see        AddPointToLane, AddSpansToLane
+	def AddPointsToLane(pcLane, paPoints)
+		_nIndex_ = This._laneIndex(pcLane)
+		@aTimeLines[_nIndex_].AddPoints(paPoints)
+
+	# Adds a labelled span of time to one lane, between a start and an end inside the shared bounds.
+	#
+	#   pcLane     the lane name, without regard to case
+	#   pcLabel    the label of the span, kept as given (a span label is not turned to upper case)
+	#   pStart     when it starts
+	#   pEnd       when it ends, after the start
+	#   returns    nothing; the lane changes. AddSpanToLaneQ returns the set for chaining
+	#   note       AddPeriodToLane is the same call; the other lanes are not touched
+	#   warning    an unknown lane raises an error; so does an end that is not after the start, a span
+	#              outside the bounds, or one over a blocked stretch
+	#   see        AddPointToLane, AddSpansToLane, AddBlockedSpanToLane
 	def AddSpanToLane(pcLane, pcLabel, pStart, pEnd)
-		_oLaneTL_ = This.Lane(pcLane)
-		_oLaneTL_.AddSpan(pcLabel, pStart, pEnd)
+		_nIndex_ = This._laneIndex(pcLane)
+		@aTimeLines[_nIndex_].AddSpan(pcLabel, pStart, pEnd)
 
 		def AddSpanToLaneQ(pcLane, pcLabel, pStart, pEnd)
 			This.AddSpanToLane(pcLane, pcLabel, pStart, pEnd)
 			return This
 
-		# Does nothing today instead of adding a labelled period to a lane.
+		# Adds a labelled period of time to one lane; another spelling of the span-adding call.
 		#
-		#   pcLane     the lane name
-		#   pcLabel    the label of the period
+		#   pcLane     the lane name, without regard to case
+		#   pcLabel    the label of the period, kept as given
 		#   pStart     when it starts
-		#   pEnd       when it ends
-		#   returns    nothing
-		#   warning    it is AddSpanToLane, which edits a copy and keeps nothing
+		#   pEnd       when it ends, after the start
+		#   returns    nothing; the lane changes
+		#   note       it is AddSpanToLane under another name
 		#   see        AddSpanToLane
 		def AddPeriodToLane(pcLane, pcLabel, pStart, pEnd)
 			This.AddSpanToLane(pcLane, pcLabel, pStart, pEnd)
 
-	# Does nothing today instead of adding several spans to a lane at once.
+	# Adds several labelled spans to one lane at once, each given as a label, a start and an end.
 	#
-	#   pcLane     the lane name
+	#   pcLane     the lane name, without regard to case
 	#   paSpans    a list of [ label, start, end ] triples
-	#   returns    nothing
-	#   warning    it edits the copy that Lane returns, so the lane stays empty and no error is
-	#              raised
-	#   see        AddSpanToLane
+	#   returns    nothing; the lane changes
+	#   warning    an unknown lane raises an error; so does a span that fails as AddSpanToLane does, and
+	#              the triples before it are kept
+	#   see        AddSpanToLane, AddPointsToLane
 	def AddSpansToLane(pcLane, paSpans)
-		_oLaneTL_ = This.Lane(pcLane)
-		_oLaneTL_.AddSpans(paSpans)
+		_nIndex_ = This._laneIndex(pcLane)
+		@aTimeLines[_nIndex_].AddSpans(paSpans)
 
 	// Blocking in Lanes
 
-	# Does nothing today instead of blocking a labelled span of a lane.
+	# Blocks a stretch of one lane, so that no point or span can be added over it afterwards.
 	#
-	#   pcLane     the lane name
-	#   pcLabel    the label of the blocked span
+	#   pcLane     the lane name, without regard to case
+	#   pcLabel    the label of the blocked stretch, stored in upper case
 	#   pStart     when it starts
-	#   pEnd       when it ends
-	#   returns    nothing
-	#   warning    it edits the copy that Lane returns: afterwards IsBlockedInLane for a moment
-	#              inside the span answers FALSE
-	#   see        AddBlockedPointToLane, IsBlockedInLane
+	#   pEnd       when it ends, after the start
+	#   returns    nothing; the lane changes
+	#   note       points and spans already in the lane are not checked against it
+	#   warning    an unknown lane raises an error; so does an end that is not after the start or a
+	#              stretch outside the bounds
+	#   see        AddBlockedPointToLane, BlockSpanInLane, IsBlockedInLane
 	def AddBlockedSpanToLane(pcLane, pcLabel, pStart, pEnd)
-		_oLaneTL_ = This.Lane(pcLane)
-		_oLaneTL_.AddBlockedSpan(pcLabel, pStart, pEnd)
+		_nIndex_ = This._laneIndex(pcLane)
+		@aTimeLines[_nIndex_].AddBlockedSpan(pcLabel, pStart, pEnd)
 
-	# Does nothing today instead of blocking a moment of a lane.
+	# Blocks one moment of a lane, so that no point or span can be added over it afterwards.
 	#
-	#   pcLane      the lane name
-	#   pDateTime   the moment to block
-	#   returns     nothing
-	#   warning     it edits the copy that Lane returns: afterwards IsBlockedInLane for that moment
-	#               answers FALSE
-	#   see         AddBlockedSpanToLane, IsBlockedInLane
+	#   pcLane      the lane name, without regard to case
+	#   pDateTime   the moment to block, inside the shared bounds
+	#   returns     nothing; the lane changes
+	#   warning     an unknown lane raises an error; so does a moment outside the bounds
+	#   see         AddBlockedSpanToLane, BlockPointInLane, IsBlockedInLane
 	def AddBlockedPointToLane(pcLane, pDateTime)
-		_oLaneTL_ = This.Lane(pcLane)
-		_oLaneTL_.AddBlockedPoint(pDateTime)
+		_nIndex_ = This._laneIndex(pcLane)
+		@aTimeLines[_nIndex_].AddBlockedPoint(pDateTime)
 
-	# Raises error R14 today instead of blocking an existing span of a lane by its label.
+	# Blocks the stretch of every span of a lane that carries a given label.
 	#
-	#   pcLane     the lane name
-	#   pcLabel    the label of the span to block
-	#   returns    nothing; it raises
-	#   warning    it calls BlockSpan on the lane's timeline, a method stzTimeLine does not have, so
-	#              every call raises R14
-	#   see        AddBlockedSpanToLane
+	#   pcLane     the lane name, without regard to case
+	#   pcLabel    the label of the span or spans to block, without regard to case
+	#   returns    nothing; the lane changes, the spans themselves stay
+	#   note       the blocked stretch takes the label in upper case, as AddBlockedSpanToLane does
+	#   warning    an unknown lane raises an error; so does a label that no span of the lane carries
+	#   see        AddBlockedSpanToLane, BlockPointInLane, IsBlockedInLane
 	def BlockSpanInLane(pcLane, pcLabel)
-		_oLaneTL_ = This.Lane(pcLane)
-		_oLaneTL_.BlockSpan(pcLabel)
+		_nIndex_ = This._laneIndex(pcLane)
+		if NOT isString(pcLabel)
+			StzRaise("Incorrect param type! pcLabel must be a string.")
+		ok
 
-	# Raises error R14 today instead of blocking an existing point of a lane by its label.
+		_cLabel_ = StzUpper(pcLabel)
+		_aSpans_ = @aTimeLines[_nIndex_].Spans()
+		_nLen_ = ring_len(_aSpans_)
+		_nBlocked_ = 0
+		for i = 1 to _nLen_
+			if StzUpper(_aSpans_[i][1]) = _cLabel_
+				@aTimeLines[_nIndex_].AddBlockedSpan(_aSpans_[i][1], _aSpans_[i][2], _aSpans_[i][3])
+				_nBlocked_ += 1
+			ok
+		next
+
+		if _nBlocked_ = 0
+			StzRaise("No span found with label: " + pcLabel)
+		ok
+
+	# Blocks the moment of every point of a lane that carries a given label.
 	#
-	#   pcLane     the lane name
-	#   pcLabel    the label of the point to block
-	#   returns    nothing; it raises
-	#   warning    it calls BlockPoint on the lane's timeline, a method stzTimeLine does not have,
-	#              so every call raises R14
-	#   see        AddBlockedPointToLane
+	#   pcLane     the lane name, without regard to case
+	#   pcLabel    the label of the point or points to block, without regard to case
+	#   returns    nothing; the lane changes, the points themselves stay
+	#   warning    an unknown lane raises an error; so does a label that no point of the lane carries
+	#   see        AddBlockedPointToLane, BlockSpanInLane, IsBlockedInLane
 	def BlockPointInLane(pcLane, pcLabel)
-		_oLaneTL_ = This.Lane(pcLane)
-		_oLaneTL_.BlockPoint(pcLabel)
+		_nIndex_ = This._laneIndex(pcLane)
+		if NOT isString(pcLabel)
+			StzRaise("Incorrect param type! pcLabel must be a string.")
+		ok
+
+		_aMoments_ = @aTimeLines[_nIndex_].FindPoint(pcLabel)
+		_nLen_ = ring_len(_aMoments_)
+		if _nLen_ = 0
+			StzRaise("No point found with label: " + pcLabel)
+		ok
+
+		for i = 1 to _nLen_
+			@aTimeLines[_nIndex_].AddBlockedPoint(_aMoments_[i])
+		next
 
 	# TRUE if a moment is blocked in a lane.
 	#
-	#   pcLane     the lane name
+	#   pcLane     the lane name, without regard to case
 	#   p          the moment to test
 	#   returns    TRUE or FALSE, as 1 or 0
-	#   note       nothing can be blocked through this class today, so it answers FALSE for every
-	#              moment (see AddBlockedPointToLane)
+	#   note       a moment is blocked when it is a blocked point or lies inside a blocked stretch,
+	#              edges included (see AddBlockedPointToLane, AddBlockedSpanToLane)
 	#   warning    an unknown lane raises an error
-	#   see        AddBlockedPointToLane, Lane
+	#   see        AddBlockedPointToLane, BlockSpanInLane
 	def IsBlockedInLane(pcLane, p)
-		_oLaneTL_ = This.Lane(pcLane)
-		return _oLaneTL_.IsBlocked(p)
+		_nIndex_ = This._laneIndex(pcLane)
+		return @aTimeLines[_nIndex_].IsBlocked(p)
 
 	// Querying Across Lanes
 
@@ -496,8 +524,7 @@ class stzListOfTimeLines from stzObject
 	#   pDateTime   the moment to look at, a date or a date and time as text
 	#   returns     a list of [ :Lane, :Events ] pairs, each event being [ label, kind ]; empty when
 	#               nothing happens
-	#   note        a point shows as [ KICKOFF, point ]; spans cannot be stored through this class
-	#               today, so only points are ever found
+	#   note        a point shows as [ KICKOFF, point ], and a span as [ Build, span ]
 	#   see         AddPointToLane, Lane
 	def WhatsAt(pDateTime)
 		_cDateTime_ = This._normalizeDateTime(pDateTime)
@@ -517,18 +544,19 @@ class stzListOfTimeLines from stzObject
 	#
 	#   pcLane     the lane name
 	#   returns    TRUE or FALSE, as 1 or 0
-	#   note       no span can be stored in a lane today (see AddSpanToLane), so it answers FALSE
+	#   note       it answers FALSE for a lane with no span, or whose spans do not overlap
 	#   warning    an unknown lane raises an error
 	#   see        CrossLaneOverlaps, AddSpanToLane
 	def HasOverlapsInLane(pcLane)
-		_oLaneTL_ = This.Lane(pcLane)
-		return _oLaneTL_.HasOverlaps()
+		_nIndex_ = This._laneIndex(pcLane)
+		return @aTimeLines[_nIndex_].HasOverlaps()
 
 	# Returns the overlaps between spans of different lanes: the two lanes, the two labels and the overlap in seconds.
 	#
-	#   returns    a list of rows [ [ lane, lane ], label, label, seconds ]; empty today
-	#   note       it reads the spans of the lanes, and no span can be stored in a lane today (see
-	#              AddSpanToLane), so it was not exercised with real overlaps
+	#   returns    a list of rows [ [ lane, lane ], label, label, seconds ]; empty when no spans of
+	#              two lanes overlap
+	#   note       it reads the spans stored in the lanes (see AddSpanToLane); the last figure is the
+	#              length of the overlap in seconds
 	#   see        HasOverlapsInLane, UncoveredPeriodsPerLane
 	def CrossLaneOverlaps()
 		// Detect overlaps between events in different lanes at the same time
@@ -551,7 +579,7 @@ class stzListOfTimeLines from stzObject
 						_oStart2_ = new stzDateTime(_s2_[2])
 						_oEnd2_ = new stzDateTime(_s2_[3])
 						if _oStart1_ < _oEnd2_ and _oStart2_ < _oEnd1_
-							_nOverlapDur_ = min([_oEnd1_.Seconds(), _oEnd2_.Seconds()]) - max([_oStart1_.Seconds(), _oStart2_.Seconds()])
+							_nOverlapDur_ = min([_oEnd1_.ToUnixTimeStamp(), _oEnd2_.ToUnixTimeStamp()]) - max([_oStart1_.ToUnixTimeStamp(), _oStart2_.ToUnixTimeStamp()])
 							_aResult_ + [ [@aLanes[i], @aLanes[j]], _s1_[1], _s2_[1], _nOverlapDur_ ]
 						ok
 					next
@@ -564,8 +592,9 @@ class stzListOfTimeLines from stzObject
 	# Returns, for each lane, the periods of the shared bounds that no span covers.
 	#
 	#   returns    a list of [ :Lane, :Uncovered ] pairs
-	#   note       it reads spans, which cannot be stored today, so every lane answered an empty
-	#              list of uncovered periods in the test
+	#   note       it reads the spans stored in the lanes (see AddSpanToLane)
+	#   warning    a lane with no span at all answers an empty list, although all of it is uncovered;
+	#              this is how the lane's timeline answers (see stzTimeLine UncoveredPeriods)
 	#   see        CrossLaneOverlaps, Lane
 	def UncoveredPeriodsPerLane()
 		_aResult_ = []
@@ -578,122 +607,106 @@ class stzListOfTimeLines from stzObject
 
 	// Visualization (Multi-Lane)
 
-	# Raises error R19 today instead of returning a drawing of all the lanes.
+	# Returns a text drawing of every lane, one after the other, each under its name with its table of dates.
 	#
-	#   returns    nothing; it raises
-	#   note       use WhatsAt, Lane(name).Points() or Content to read the lanes
-	#   warning    it calls an internal drawing routine without the arguments it needs; the drawing
-	#              routines behind it are also unfinished stubs, so no picture exists to return
-	#   see        ShowShort, ShowUncovered, WhatsAt
+	#   returns    a text, empty when the set has no lane
+	#   note       each lane is drawn by its own timeline; nothing is printed or opened, so the text
+	#              can be written to a file; the drawing uses box characters and needs a console that
+	#              shows UTF-8
+	#   warning    the span bars of the lane drawing are known to run a few columns off (see
+	#              stzTimeLine ToString); the table of dates is right
+	#   see        ShowShort, ShowUncovered, VizFind, ShowXT
 	def Show()
-		This._buildVizCanvas()
-		return This._vizCanvasToString()
+		return This._drawLanes(:Normal, "")
 
-	# Raises error R19 today instead of returning a short drawing of all the lanes.
+	# Returns a text drawing of every lane under its name, without the tables of dates.
 	#
-	#   returns    nothing; it raises
-	#   warning    it fails as Show does, through the same internal drawing routine
+	#   returns    a text, empty when the set has no lane
+	#   note       nothing is printed
 	#   see        Show
 	def ShowShort()
-		This._buildVizCanvas(:Short)
-		return This._vizCanvasToString()
+		return This._drawLanes(:Short, "")
 
-	def ShowXT(paOptions)
-		// paOptions could include :TableType = :Statistical or :Descriptive
-		This._buildVizCanvas(:Extended, paOptions)
-		return This._vizCanvasToString() + nl + This._buildTable(paOptions)
-
-	# Raises error R19 today instead of returning a drawing that marks the uncovered periods.
+	# Returns a text drawing of every lane under its name, drawn with the options given.
 	#
-	#   returns    nothing; it raises
-	#   warning    it fails as Show does, through the same internal drawing routine
+	#   paOptions   a list of [ key, value ] pairs read by the lane timelines: :Width, :Height,
+	#               :Highlight, :ShowTable and :TableType (:Statistical for a table of figures)
+	#   returns     a text, empty when the set has no lane
+	#   note        each lane is drawn from a copy, so the options leave the stored lanes as they were;
+	#               nothing is printed
+	#   see         Show, ShowShort
+	def ShowXT(paOptions)
+		return This._drawLanes(:Extended, paOptions)
+
+	# Returns a text drawing of every lane under its name, the uncovered periods marked with slashes.
+	#
+	#   returns    a text, empty when the set has no lane
+	#   note       a lane that no gap leaves open is answered by the sentence that it is fully covered;
+	#              nothing is printed
+	#   warning    a lane with no span at all is answered by that same sentence, although nothing
+	#              covers it (the timeline's own answer)
 	#   see        Show, UncoveredPeriodsPerLane
 	def ShowUncovered()
-		This._buildVizCanvas(:Uncovered)
-		return This._vizCanvasToString()
+		return This._drawLanes(:Uncovered, "")
 
-	# Raises error R19 today instead of drawing the lanes with one label highlighted.
+	# Returns a text drawing of every lane under its name, the points or spans of one label marked.
 	#
-	#   pcLabel    the label to highlight, matched in upper case
-	#   returns    nothing; it raises
-	#   warning    it ends by calling Show, which fails: Show raises error R19
+	#   pcLabel    the label to highlight, without regard to case, a point or a span of any lane
+	#   returns    a text; a lane with no such label is drawn as Show draws it
+	#   note       a label carried by a point of a lane is marked as a point there, otherwise as a
+	#              span; nothing is printed
 	#   see        Show
 	def VizFind(pcLabel)
-		@cHighlight = StzUpper(pcLabel)
-		return This.Show()
+		return This._drawLanes(:Highlight, pcLabel)
 
 		def VizFindQ(pcLabel)
 			This.VizFind(pcLabel)
 			return This
 
-	def _buildVizCanvas(pcMode, paOptions)
-		// Clear canvas
-		@acVizCanvas = []
-
-		// Calculate global layout
-		_oGlobalLayout_ = This._calculateGlobalLayout()
-
-		// For each lane, build its timepoints and draw
-		_nLenLanes_ = len(@aLanes)
-		_nCurrentRow_ = 1  // Start row for first lane
-
-		for i = 1 to _nLenLanes_
-			// Add lane label on the left
-			This._addLaneLabelToCanvas(_nCurrentRow_, @aLanes[i])
-
-			// Get lane's timepoints
-			_aTimepoints_ = @aTimeLines[i]._buildSortedTimepoints()
-
-			// Draw axis for this lane
-			This._drawAxisForLane(_nCurrentRow_ + @nVizLaneHeight / 2, _oGlobalLayout_)  // Middle of lane height
-
-			// Draw points, spans, etc., offset to lane's section
-			This._drawForLane(i, _nCurrentRow_, _aTimepoints_, pcMode)
-
-			_nCurrentRow_ += @nVizLaneHeight + 1  // +1 for separator
-		next
-
-	def _addLaneLabelToCanvas(nRow, pcLane)
-		// Pad label to @nLabelWidth and add to canvas rows
-		_cPaddedLabel_ = pcLane + Q(" " * (@nLabelWidth - len(pcLane)))
-		// Assume canvas rows are built vertically; integrate into @acVizCanvas
-
-	def _calculateGlobalLayout()
-		// Similar to stzTimeLine's _calculateRequiredVizHeight but global
-		_nMaxHeight_ = 0
-		_nLen_ = len(@aTimeLines)
+	def _drawLanes(pcMode, pParam)
+		_cResult_ = ""
+		_nLen_ = ring_len(@aTimeLines)
 		for i = 1 to _nLen_
-			_nLaneHeight_ = @aTimeLines[i]._calculateRequiredVizHeight()
-			if _nLaneHeight_ > _nMaxHeight_
-				_nMaxHeight_ = _nLaneHeight_
+			if i > 1
+				_cResult_ += char(10) + char(10)
+			ok
+			_cResult_ += "== " + @aLanes[i] + " ==" + char(10)
+			if pcMode = :Short
+				_cResult_ += @aTimeLines[i].ToStringShort()
+			but pcMode = :Uncovered
+				_cResult_ += @aTimeLines[i].ToStringUncovered()
+			but pcMode = :Extended
+				# a copy on purpose: the :Highlight and :Height options stay on the timeline they are given to
+				_oLaneCopy_ = @aTimeLines[i]
+				_cResult_ += _oLaneCopy_.ToStringXT(pParam)
+			but pcMode = :Highlight
+				_cResult_ += This._drawLaneHighlighted(i, pParam)
+			else
+				_cResult_ += @aTimeLines[i].ToString()
 			ok
 		next
-		@nVizLaneHeight = _nMaxHeight_
+		return _cResult_
 
-		return [ :width = @nVizWidth, :lane_height = @nVizLaneHeight ]
-
-	def _drawAxisForLane(nRow, _oLayout_)
-		// Adapted from stzTimeLine's _drawAxis, but at specific row
-
-	def _drawForLane(nLaneIndex, nStartRow, _aTimepoints_, pcMode)
-		_oLaneTL_ = @aTimeLines[nLaneIndex]
-		_oLayout_ = [ :axis_row = nStartRow + 2 ]  // Example offset
-
-		// Delegate drawing to adapted stzTimeLine methods, but offset rows
-		_oLaneTL_._drawSpans(_oLayout_, _aTimepoints_)
-		_oLaneTL_._drawPoints(_oLayout_, _aTimepoints_)
-		if pcMode = :Uncovered
-			_aUncovered_ = _oLaneTL_.UncoveredPeriods()
-			_oLaneTL_._drawUncoveredRegions(_oLayout_, _aUncovered_)
+	def _drawLaneHighlighted(nLane, pcLabel)
+		if NOT isString(pcLabel)
+			StzRaise("Incorrect param type! pcLabel must be a string.")
 		ok
-		// etc. for blocks, highlights
 
-	def _vizCanvasToString()
-		// Similar to stzTimeLine's _vizCanvasToString
+		_cLabel_ = StzUpper(pcLabel)
+		if ring_len(@aTimeLines[nLane].FindPoint(_cLabel_)) > 0
+			return @aTimeLines[nLane].VizFindMoments(_cLabel_)
+		ok
 
-	def _buildTable(paOptions)
-		// Aggregate stats across lanes, similar to _buildStatisticalTable
-		// E.g., Total Points Per Lane, Cross-Lane Overlaps, etc.
+		# spans keep the case they were given, so the stored spelling is looked up
+		_aSpans_ = @aTimeLines[nLane].Spans()
+		_nLen_ = ring_len(_aSpans_)
+		for i = 1 to _nLen_
+			if StzUpper(_aSpans_[i][1]) = _cLabel_
+				return @aTimeLines[nLane].VizFindSpans(_aSpans_[i][1])
+			ok
+		next
+
+		return @aTimeLines[nLane].ToString()
 
 	// Normalization (Delegated from stzTimeLine)
 
@@ -746,31 +759,34 @@ class stzListOfTimeLines from stzObject
 	// Other Delegated Methods (with lane param)
 
 	// For example:
-	# Does nothing today instead of removing a point from a lane by label or moment.
+	# Removes the first point of a lane that carries a label.
 	#
-	#   pcLane              the lane name
-	#   pcLabelOrDateTime   the label or the moment of the point to remove
-	#   returns             nothing
-	#   warning             it edits the copy that Lane returns, so the point stays in the lane and
-	#                       no error is raised: removing KICKOFF2 or the moment 2026-02-01 leaves
-	#                       the lane unchanged
+	#   pcLane              the lane name, without regard to case
+	#   pcLabelOrDateTime   the label of the point to remove, without regard to case
+	#   returns             nothing; the lane changes
+	#   note                a label that no point carries changes nothing and raises nothing; the other
+	#                       lanes are not touched
+	#   warning             an unknown lane raises an error; a moment given instead of a label removes
+	#                       nothing, because the timeline removes by label only
 	#   see                 AddPointToLane
 	def RemovePointFromLane(pcLane, pcLabelOrDateTime)
-		_oLaneTL_ = This.Lane(pcLane)
-		_oLaneTL_.RemovePoint(pcLabelOrDateTime)
+		_nIndex_ = This._laneIndex(pcLane)
+		@aTimeLines[_nIndex_].RemovePoint(pcLabelOrDateTime)
 
-	# Does nothing today instead of renaming a point label in a lane.
+	# Gives a new name to the points of a lane that carry a label, and to its spans of that label.
 	#
-	#   pcLane       the lane name
-	#   pcLabel      the label to change
-	#   pcNewLabel   the new label
-	#   returns      nothing
-	#   warning      it edits the copy that Lane returns, so the label stays as it was and no error
-	#                is raised
+	#   pcLane       the lane name, without regard to case
+	#   pcLabel      the label to change, without regard to case
+	#   pcNewLabel   the new label, stored in upper case
+	#   returns      nothing; the lane changes
+	#   note         a label that nothing carries changes nothing and raises nothing; the other lanes
+	#                are not touched
+	#   warning      an unknown lane raises an error; a span added with a lowercase letter in its
+	#                label keeps its name, because the timeline compares span labels in upper case
 	#   see          AddPointToLane
 	def RenameLabelInLane(pcLane, pcLabel, pcNewLabel)
-		_oLaneTL_ = This.Lane(pcLane)
-		_oLaneTL_.RenameLabel(pcLabel, pcNewLabel)
+		_nIndex_ = This._laneIndex(pcLane)
+		@aTimeLines[_nIndex_].RenameLabel(pcLabel, pcNewLabel)
 
 	// Add more as needed, following the pattern
 
@@ -818,12 +834,33 @@ class stzListOfTimeLines from stzObject
 			@aTimeLines[i].Clear()
 		next
 
-	# Returns a new set built from the same lane names and bounds, without their content.
+	# Returns an independent set built from the same lane names and bounds, with their points, spans and blocks.
 	#
-	#   returns    a stzTimeLines with the same lanes and bounds
-	#   note       use Content to read everything
-	#   warning    the points of the lanes are not copied: after AddPointToLane,
-	#              Copy().Lane(name).Points() answers an empty list
+	#   returns    a stzTimeLines whose lanes hold what these lanes hold
+	#   note       changing the copy, or the original afterwards, leaves the other as it was; use
+	#              Content to read everything
 	#   see        Content, Clear
 	def Copy()
-		return new stzTimeLines(This.Content())  // Assuming Content() returns init-compatible hash
+		_oCopy_ = new stzTimeLines(This.Content())  // Content() holds the init keys :Lanes, :Start and :End
+
+		_nLen_ = ring_len(@aTimeLines)
+		for i = 1 to _nLen_
+			_cLane_ = @aLanes[i]
+			_oCopy_.AddPointsToLane(_cLane_, @aTimeLines[i].Points())
+			_oCopy_.AddSpansToLane(_cLane_, @aTimeLines[i].Spans())
+
+			# blocks go in last: adding over a block is refused
+			_aBlockedPoints_ = @aTimeLines[i].BlockedPoints()
+			_nBlockedPoints_ = ring_len(_aBlockedPoints_)
+			for j = 1 to _nBlockedPoints_
+				_oCopy_.AddBlockedPointToLane(_cLane_, _aBlockedPoints_[j])
+			next
+
+			_aBlockedSpans_ = @aTimeLines[i].BlockedSpans()
+			_nBlockedSpans_ = ring_len(_aBlockedSpans_)
+			for j = 1 to _nBlockedSpans_
+				_oCopy_.AddBlockedSpanToLane(_cLane_, _aBlockedSpans_[j][1], _aBlockedSpans_[j][2], _aBlockedSpans_[j][3])
+			next
+		next
+
+		return _oCopy_
