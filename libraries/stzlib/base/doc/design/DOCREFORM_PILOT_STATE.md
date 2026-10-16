@@ -328,3 +328,9 @@ Next by size: stzRegexMaker 12, stzOrgChart 10, stzRegex 10, stzStringChar 10.
 exited Ring with code 1. Open for the author: MatchSameContentAs meaning (same word twice vs closing tag), flat vs nested recursion levels (retired tests).
 Next by size: stzOrgChart 10, stzRegex 10, stzStringChar 10.
 
+## 2026-10-16: the stzOrgChart fix batch is ON MAIN (8b617235f, both remotes); register 224 -> 213
+
+8 broken rows fixed, ViewNodeWithProperties / ViewNodesWithTags kept as placeholders (all-or-any undecided). Guard 138 assertions.
+Open for the author: should a vacant position keep its level colour on reset (now white)? Extractor fact: a `# TODO` comment inside an empty body joins the next block into one brief.
+Next by size: stzRegex 10, stzStringChar 10, stzReactiveSystem 7.
+
