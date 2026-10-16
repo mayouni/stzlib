@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 269 methods in 87 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 251 methods in 85 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| common/stzCache.ring | stzCache | 13 |
 | graph/stzGraph.ring | stzGraph | 12 |
 | regex/stzRegexMaker.ring | stzRegexMaker | 12 |
 | graph/stzOrgChart.ring | stzOrgChart | 10 |
@@ -21,7 +20,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 | list/stzListProvidedAsString.ring | stzListProvidedAsString | 6 |
 | number/stzListOfBytes.ring | stzListOfBytes | 6 |
 | string/stzTextStream.ring | stzTextStream | 6 |
-| common/stzCache.ring | stzCacheStorage | 5 |
 | geo/stzGeoField.ring | stzGeoField | 5 |
 | geo/stzGeoSamples.ring | stzGeoSamples | 5 |
 | graph/stzDiagram.ring | stzDiagram | 5 |
@@ -101,30 +99,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 - `Use` (line 492): Leaves every request unchanged today instead of running the middleware before the routes under a path. -- The middleware is stored in the router but nothing ever reads the list, so it never runs (checked with paths /a, / and *)
 - `Static` (line 504): Leaves a folder unserved today instead of serving its files under a path; a request for a file in it answers 404. -- The static routes are stored in the router but nothing ever reads the list (checked with paths /files and /)
-
-## stzCache -- common/stzCache.ring (13)
-
-- `init` (line 127): Raises error R11 today instead of building a cache that stores its entries in a file. -- it builds a stzCacheStorage, which builds a stzStorage; that class sits in the future folder and is not loaded, so the error names class stzstorage not found; with the class loaded the next error is the call to the undefined TextFileCreateIfInexistant; no cache can be built today
-- `StorageType` (line 136): Raises error R13 today instead of returning where the cache keeps its entries. -- the storage object it asks is never built, because init raises
-- `CacheOpen` (line 172): Raises error R13 today instead of opening the cache's file or database. -- it starts by asking StorageType, which raises; the file and database calls it would make (TextFileOpen, DatabaseConnect) are not defined anywhere
-- `CacheFileHandler` (line 186): Raises error R13 today instead of returning the handle of the cache's file. -- the storage object it asks is never built, because init raises
-- `CacheFileColse` (line 195): Raises error R3 today instead of closing the cache's file. -- the name is misspelled (Colse for Close) and no such function exists under either spelling
-- `CacheFindEntry` (line 206): Raises error R13 today instead of returning the line number of the entry for a function call. -- it reads the cache file through the storage object that init never builds
-- `CacheGetCachedResult` (line 229): Raises error R13 today instead of returning the cached result of a function call. -- it starts with CacheFindEntry, which raises
-- `CacheGetResultInLineNumber` (line 243): Raises error R13 today instead of returning the result stored on one line of the cache file. -- it reads the cache file through the storage object that init never builds
-- `CacheFileLines` (line 254): Raises error R13 today instead of returning the lines of the cache file. -- it needs the file name from the storage object that init never builds
-- `CacheFileLineNumber` (line 282): Raises error R13 today instead of returning one line of the cache file. -- it starts with CacheFileLines, which raises
-- `CacheFileNumberOfLines` (line 290): Raises error R13 today instead of returning how many lines the cache file holds. -- it starts with CacheFileLines, which raises
-- `ComposeLine` (line 299): Raises error R3 today instead of joining the parts of an entry into one line with a bar between them. -- the function it calls is not defined anywhere in the library
-- `AddLine` (line 310): Raises error R13 today instead of appending an entry to the cache file. -- it starts by asking StorageType; the file call it would make (TextFileAddLine) is not defined, and the :InMemomry and :InDatabase branches are empty TODOs, the first misspelled
-
-## stzCacheStorage -- common/stzCache.ring (5)
-
-- `init` (line 349): Raises error R11 today instead of building the storage behind a cache. -- it builds a stzStorage, which sits in the future folder and is not loaded, so the error names class stzstorage not found; with that class loaded the next error is the call to the undefined TextFileCreateIfInexistant; a stzCacheStorage cannot be built today
-- `FileHandler` (line 357): Raises error R13 today instead of returning the handle of the storage file. -- it forwards to a stzStorage that init never builds
-- `FileName` (line 365): Raises error R13 today instead of returning the storage file's name. -- it forwards to a stzStorage that init never builds
-- `CompleteFileName` (line 373): Raises error R13 today instead of returning the storage file's name with its folder. -- it forwards to a stzStorage that init never builds
-- `StorageType` (line 381): Raises error R13 today instead of returning where the storage keeps its entries. -- it forwards to a stzStorage that init never builds
 
 ## stzConstraint -- common/stzConstraint.ring (4)
 
