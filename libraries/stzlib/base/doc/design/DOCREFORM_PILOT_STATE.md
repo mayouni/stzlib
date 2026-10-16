@@ -340,3 +340,8 @@ Next by size: stzRegex 10, stzStringChar 10, stzReactiveSystem 7.
 Open for the author: FindPartialMatch answers 0 on no match (was an R2); PartialMatchLength counts characters. Owed to the engine: the compile error code and offset.
 Next by size: stzStringChar 10, stzReactiveSystem 7.
 
+## 2026-10-16: the stzStringChar fix batch is ON MAIN (3db385d00, both remotes); register 203 -> 193
+
+10 rows fixed; IntroducedInUnicodeVersion only partly (emoji 6.0, rest approximate: no age data). Guard 146 assertions; 174 existing files identical. Root cause found: error/stzCharError.ring is never loaded by stzBase.ring.
+Next by size: stzReactiveSystem 7, then six classes at 6 (stzOccurrences, stzImgToAscii, stzListProvidedAsString, stzListOfBytes, stzTextStream).
+
