@@ -273,7 +273,9 @@ def ParseConjunction(_cTokenStr_)
 	#   returns       a token as a list of [ key, value ] pairs; [ ] for empty text; an ERROR token
 	#                 for a term it does not know
 	#   note          the quantifiers + * ? and n-m fill min and max, but Match never reads them; @!
-	#                 sets negated, and the type is checked after it, so @!zero is an ERROR token
+	#                 sets negated, and the type is checked after it, so @!zero is an ERROR token; a
+	#                 whole parenthesised group, such as @!(size(2x2) | shape(tall)), gives a group
+	#                 token: [ type, group ], [ tokens, the parsed inner pattern ] and [ negated, 0 or 1 ]
 	#   see           ParseConstraints, ParsePattern
 	def ParseSingleToken(_cTokenStr_)
 		_cTokenStr_ = trim(_cTokenStr_)
@@ -293,6 +295,17 @@ def ParseConjunction(_cTokenStr_)
 			ok
 		ok
 		
+		# A whole parenthesised group, negated or not, becomes one group token
+		_cTokenStr_ = trim(_cTokenStr_)
+		if This._IsWholeGroup(_cTokenStr_)
+			_cInnerGroup_ = trim(This._Mid(_cTokenStr_, 2, ring_len(_cTokenStr_) - 1))
+			return [
+				["type", "group"],
+				["tokens", This.ParsePattern("{" + _cInnerGroup_ + "}")],
+				["negated", _bNegated_]
+			]
+		ok
+
 		_cType_ = ""
 		_cValue_ = ""
 		_aConstraints_ = []
@@ -475,6 +488,39 @@ def ParseConjunction(_cTokenStr_)
 			["negated", _bNegated_]
 		]
 	
+	# TRUE if the whole text is one parenthesised group, so the first ( closes at the last ).
+	#
+	#   cStr       the text to test, already trimmed
+	#   returns    TRUE or FALSE (1 or 0)
+	#   note       (a) | (b) is not one group and (a | (b)) is
+	#   see        ParseSingleToken
+	def _IsWholeGroup(cStr)
+		_nLen_ = ring_len(cStr)
+		if _nLen_ < 2
+			return 0
+		ok
+		if cStr[1] != "("
+			return 0
+		ok
+		if cStr[_nLen_] != ")"
+			return 0
+		ok
+		_nDepth_ = 0
+		for _i_ = 1 to _nLen_
+			if cStr[_i_] = "("
+				_nDepth_++
+			but cStr[_i_] = ")"
+				_nDepth_--
+				if _nDepth_ = 0 and _i_ < _nLen_
+					return 0
+				ok
+			ok
+		next
+		if _nDepth_ = 0
+			return 1
+		ok
+		return 0
+
 	# Reads the text inside a term's parentheses into constraints: a range 1..5, a set {1;2} or one value for element; 3x3, >4 or <4 for size.
 	#
 	#   cConstraintStr   the text to read
@@ -630,6 +676,7 @@ def ParseConjunction(_cTokenStr_)
 	#   _aToken_   one parsed token
 	#   aMatrix    the matrix to test
 	#   returns    TRUE or FALSE (1 or 0)
+	#   note       a group token is tested through MatchTokens on its inner tokens
 	#   see        MatchTokens, CheckSize, CheckProperty
 	def MatchSingleToken(_aToken_, aMatrix)
 		_bResult_ = 0
@@ -679,6 +726,11 @@ def ParseConjunction(_cTokenStr_)
 			
 			but _cType_ = "sum"
 				_bResult_ = This.CheckSum(_aToken_, aMatrix)
+
+			but _cType_ = "group"
+				if HasKey(_aToken_, "tokens")
+					_bResult_ = This.MatchTokens(_aToken_["tokens"], aMatrix)
+				ok
 			ok
 		ok
 		
@@ -1551,20 +1603,47 @@ def ParseConjunction(_cTokenStr_)
 		@cPattern = "{" + _cInner_ + "}"
 		@aTokens = This.ParsePattern(@cPattern)
 	
-	# Removes the token at a position from the parsed tokens, so that Match stops testing it.
+	# Removes the term at a position from the pattern, so that Match stops testing it, and parses the pattern again.
 	#
-	#   nIndex     the position of the token, 1 is the first
-	#   returns    nothing; the tokens change
-	#   note       a non-number raises error R41
-	#   warning    known defect: the pattern text is not changed, so Pattern and Explain still show
-	#              the removed term
+	#   nIndex     the position of the term, 1 is the first; a position out of range changes nothing
+	#   returns    nothing; the pattern text and the tokens change
+	#   note       a term is one part of the pattern between ->, so a part that holds & or | goes as a
+	#              whole; the pattern text is rewritten with " -> " between the parts that remain
+	#   warning    a value that is not a number raises an error
 	#   see        AddConstraint, Tokens
 	def RemoveConstraint(nIndex)
-		# Remove a constraint by index
-		if nIndex > 0 and nIndex <= len(@aTokens)
-			del(@aTokens, nIndex)
+		if NOT isNumber(nIndex)
+			StzRaise("Incorrect param type! nIndex must be a number.")
 		ok
-	
+
+		_cInner_ = trim(This._Mid(@cPattern, 2, len(@cPattern) - 1))
+		_aParts_ = This.SplitByOperator(_cInner_, "->")
+		_aKept_ = []
+		_nLenParts_ = ring_len(_aParts_)
+		for _i_ = 1 to _nLenParts_
+			if trim(_aParts_[_i_]) != ""
+				_aKept_ + trim(_aParts_[_i_])
+			ok
+		next
+
+		if nIndex < 1 or nIndex > ring_len(_aKept_)
+			return
+		ok
+
+		del(_aKept_, nIndex)
+
+		_cNew_ = ""
+		_nLenKept_ = ring_len(_aKept_)
+		for _i_ = 1 to _nLenKept_
+			if _i_ > 1
+				_cNew_ += " -> "
+			ok
+			_cNew_ += _aKept_[_i_]
+		next
+
+		@cPattern = "{" + _cNew_ + "}"
+		@aTokens = This.ParsePattern(@cPattern)
+
 	  #-------------------------------#
 	 #  MATRIX COMPARISON METHODS    #
 	#-------------------------------#
@@ -1868,16 +1947,14 @@ def ParseConjunction(_cTokenStr_)
 
 		return new stzMatrex(_cCombined_)
 	
-		# Raises error R24 today instead of returning a pattern that holds both patterns joined by &.
+		# Returns a new matrex whose pattern holds this pattern and the other one joined by &, as And_ does.
 		#
 		#   oOtherMatrex   the matrex to combine with
-		#   returns        nothing today
-		#   note           And_ does the work
-		#   warning        known defect: it forwards the misspelled variable oOtherMatriex, which is
-		#                  uninitialized
+		#   returns        a stzMatrex; neither original changes
+		#   warning        raises an error when the argument is not a stzMatrex
 		#   see            And_
 		def Andd(oOtherMatrex)
-			return THis.And_(oOtherMatriex)
+			return This.And_(oOtherMatrex)
 
 	# Returns a new matrex whose pattern holds this pattern and the other one joined by a vertical bar, so a matrix may satisfy either.
 	#
@@ -1899,20 +1976,19 @@ def ParseConjunction(_cTokenStr_)
 
 		return new stzMatrex(_cCombined_)
 	
-	# Returns a new matrex whose pattern has @! in front of the whole pattern; this object does not change.
+	# Returns a new matrex whose pattern negates this whole pattern; this object does not change.
 	#
-	#   returns    a stzMatrex
-	#   note       the @! prefix is read as part of the first term
-	#   warning    known defect: the negation lands on the first term only, so for a pattern with
-	#              several terms the result is not the opposite of the original
+	#   returns    a stzMatrex whose pattern is {@!( ... )} around the terms of this one
+	#   note       a matrix matches the result exactly when it does not match this pattern, whatever
+	#              the terms and -> parts it has; Not_ of an empty pattern matches no matrix
 	#   see        And_, Or_
 	def Not_()
-		# Negate the entire pattern
+		# Negate the entire pattern: @! on one group that holds every term
 		_cInner_ = This._Mid(@cPattern, 2, len(@cPattern) - 1)
-		_cNegated_ = "{@!" + _cInner_ + "}"
+		_cNegated_ = "{@!(" + _cInner_ + ")}"
 		return new stzMatrex(_cNegated_)
-	
-	
+
+
 	  #-------------------------------#
 	 #  SERIALIZATION                #
 	#-------------------------------#
