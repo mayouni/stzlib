@@ -334,3 +334,9 @@ Next by size: stzOrgChart 10, stzRegex 10, stzStringChar 10.
 Open for the author: should a vacant position keep its level colour on reset (now white)? Extractor fact: a `# TODO` comment inside an empty body joins the next block into one brief.
 Next by size: stzRegex 10, stzStringChar 10, stzReactiveSystem 7.
 
+## 2026-10-16: the stzRegex fix batch is ON MAIN (de8969673, both remotes); register 213 -> 203
+
+8 fixed (the FindMatches family no longer skips a character, HasGroups reads the pattern, partial/recursive/explain corrected), LastError and PatternErrorOffset kept as placeholders (the engine drops the PCRE2 error). Guard 112 assertions; 124 existing regex test files identical.
+Open for the author: FindPartialMatch answers 0 on no match (was an R2); PartialMatchLength counts characters. Owed to the engine: the compile error code and offset.
+Next by size: stzStringChar 10, stzReactiveSystem 7.
+
