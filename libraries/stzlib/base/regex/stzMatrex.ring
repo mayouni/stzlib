@@ -550,9 +550,11 @@ def ParseConjunction(_cTokenStr_)
 	#   returns    TRUE or FALSE (1 or 0)
 	#   note       a non-matrix or an empty list raises an error; a failed match leaves the earlier
 	#              matched parts as they were
-	#   warning    known defects: the terms row, col, pattern, determinant and sum accept every
-	#              matrix, diagonal accepts every square one, quantifiers are never applied, and
-	#              size(<n), size(>n) or a size with m or n for a number accept every matrix
+	#   warning    the terms row, col, pattern, determinant and sum accept every matrix and diagonal
+	#              every square one, because nothing says what they should check; quantifiers are
+	#              parsed and never applied; and a part that mixes | and & with a group inside, such as
+	#              (size(2x2) | size(3x3)) & property(diagonal), is cut at its first operator, so a
+	#              term can be dropped without any message
 	#   see        MatchedParts, MatchingMatrices, Explain
 	def Match(paMatrix)
 		if NOT (isList(paMatrix) and @IsMatrix(paMatrix))
@@ -701,55 +703,47 @@ def ParseConjunction(_cTokenStr_)
 	 #  CHECKING METHODS      #
 	#------------------------#
 	
-	# TRUE if the matrix has the size a token states, such as 3x3.
+	# TRUE if the matrix has the size a token states: rows x cols with a number or m or n for any count, or >n or <n for both.
 	#
 	#   _aToken_   a size token
 	#   aMatrix    the matrix to test
 	#   returns    TRUE or FALSE (1 or 0)
-	#   note       only a size of two numbers, such as 3x3, is compared
-	#   warning    known defect: a size with m or n in place of a number, such as 3xn, accepts every
-	#              matrix, and the > and < forms never apply
+	#   note       3x3 needs 3 rows and 3 columns, 3xn needs 3 rows and any columns, mxn accepts every
+	#              matrix; >n needs both dimensions strictly above n and <n both strictly below n
+	#   warning    m and n are two independent wildcards, so nxn does not need a square; a size text of
+	#              any other form, such as 3 or abc, is not satisfied, and an empty size() is
 	#   see        CheckShape, Match
 	def CheckSize(_aToken_, aMatrix)
 		_nRows_ = len(aMatrix)
 		_nCols_ = len(aMatrix[1])
-		
+
 		if HasKey(_aToken_, "value")
-			_cValue_ = _aToken_["value"]
-			
-			if StzFindFirst("x", _cValue_) > 0
-				_aParts_ = @split(_cValue_, "x")
-				if len(_aParts_) = 2
-					_cRowSpec_ = trim(_aParts_[1])
-					_cColSpec_ = trim(_aParts_[2])
-					
-					if This.IsNumeric(_cRowSpec_) and This.IsNumeric(_cColSpec_)
-						return _nRows_ = (0 + _cRowSpec_) and _nCols_ = (0 + _cColSpec_)
-					but _cRowSpec_ = "m" or _cRowSpec_ = "n"
-						return 1  # Any size accepted
-					ok
+			_cValue_ = StzLower(trim(_aToken_["value"]))
+			if _cValue_ != ""
+				if NOT This._SizeTextHolds(_cValue_, _nRows_, _nCols_)
+					return 0
 				ok
 			ok
 		ok
-		
+
 		if HasKey(_aToken_, "constraints")
 			_nLenConstr_ = len(_aToken_["constraints"])
 			for _i_ = 1 to _nLenConstr_
 				_aConstraint_ = _aToken_["constraints"][_i_]
-				
+
 				if HasKey(_aConstraint_, "type")
 					_cConstrType_ = _aConstraint_["type"]
-					
+
 					if _cConstrType_ = "dimensions"
 						_cRowSpec_ = _aConstraint_["rows"]
 						_cColSpec_ = _aConstraint_["cols"]
-						
+
 						if This.IsNumeric(_cRowSpec_) and This.IsNumeric(_cColSpec_)
 							if _nRows_ != (0 + _cRowSpec_) or _nCols_ != (0 + _cColSpec_)
 								return 0
 							ok
 						ok
-					
+
 					but _cConstrType_ = "greater"
 						_nMin_ = _nRows_
 						if _nCols_ < _nMin_
@@ -758,7 +752,7 @@ def ParseConjunction(_cTokenStr_)
 						if _nMin_ <= _aConstraint_["value"]
 							return 0
 						ok
-					
+
 					but _cConstrType_ = "less"
 						_nMax_ = _nRows_
 						if _nCols_ > _nMax_
@@ -771,9 +765,69 @@ def ParseConjunction(_cTokenStr_)
 				ok
 			next
 		ok
-		
+
 		return 1
-	
+
+	# TRUE if a size text such as 3x3, 3xn, mxn, >2 or <4 holds for a matrix of the given dimensions.
+	#
+	#   cValue     the size text, lowercase and trimmed
+	#   nRows      the number of rows of the matrix
+	#   nCols      the number of columns of the matrix
+	#   returns    TRUE or FALSE (1 or 0); FALSE for a text of any other form
+	#   note       > needs both dimensions strictly above the number and < both strictly below it
+	#   see        CheckSize, _SizeDimensionHolds
+	def _SizeTextHolds(cValue, nRows, nCols)
+		_cFirst_ = cValue[1]
+		if _cFirst_ = ">" or _cFirst_ = "<"
+			_cNumber_ = trim(This._Mid(cValue, 2, ring_len(cValue)))
+			if NOT This.IsNumeric(_cNumber_)
+				return 0
+			ok
+			_nLimit_ = 0 + _cNumber_
+			_nLow_ = nRows
+			_nHigh_ = nRows
+			if nCols < _nLow_
+				_nLow_ = nCols
+			ok
+			if nCols > _nHigh_
+				_nHigh_ = nCols
+			ok
+			if _cFirst_ = ">"
+				return _nLow_ > _nLimit_
+			ok
+			return _nHigh_ < _nLimit_
+		ok
+
+		if StzFindFirst("x", cValue) > 0
+			_aParts_ = @split(cValue, "x")
+			if ring_len(_aParts_) != 2
+				return 0
+			ok
+			if NOT This._SizeDimensionHolds(trim(_aParts_[1]), nRows)
+				return 0
+			ok
+			return This._SizeDimensionHolds(trim(_aParts_[2]), nCols)
+		ok
+
+		return 0
+
+	# TRUE if one side of a size, a number or m or n, holds for a count of rows or columns.
+	#
+	#   cSpec      the side of the size, such as 3, m or n
+	#   nCount     the number of rows or of columns
+	#   returns    TRUE or FALSE (1 or 0); m and n accept any count, a number must equal it
+	#   see        _SizeTextHolds
+	def _SizeDimensionHolds(cSpec, nCount)
+		if cSpec = "m" or cSpec = "n"
+			return 1
+		ok
+		if This.IsNumeric(cSpec)
+			if nCount = (0 + cSpec)
+				return 1
+			ok
+		ok
+		return 0
+
 	# TRUE if the matrix has the named shape: square, rectangular (not square), tall, wide, row or column; any other name gives FALSE.
 	#
 	#   _cShape_   the shape name
@@ -868,37 +922,40 @@ def ParseConjunction(_cTokenStr_)
 		
 		return 1
 	
-	# Returns TRUE for every matrix today instead of testing a condition on the rows.
+	# Accepts every matrix, because no text states what a row term should check.
 	#
 	#   _aToken_   a row token
 	#   aMatrix    the matrix to test
 	#   returns    TRUE, always
-	#   warning    known defect: the body is a stub that returns 1, so a row term never rejects a
-	#              matrix
+	#   warning    stub kept on purpose: the body is return 1, so a row term never rejects a matrix;
+	#              the syntax and the meaning of a row term are missing from the header, the
+	#              blocks and the tests, and nothing was invented for them
 	#   see        CheckCols
 	def CheckRows(_aToken_, aMatrix)
 		# Check row-specific patterns
 		return 1
 	
-	# Returns TRUE for every matrix today instead of testing a condition on the columns.
+	# Accepts every matrix, because no text states what a col term should check.
 	#
-	#   _aToken_   a col token
+	#   _aToken_   a token of type col
 	#   aMatrix    the matrix to test
 	#   returns    TRUE, always
-	#   warning    known defect: the body is a stub that returns 1, so a col term never rejects a
-	#              matrix
+	#   warning    stub kept on purpose: the body is return 1, so a col term never rejects a matrix;
+	#              the syntax and the meaning of a col term are missing from the header, the
+	#              blocks and the tests, and nothing was invented for them
 	#   see        CheckRows
 	def CheckCols(_aToken_, aMatrix)
 		# Check column-specific patterns
 		return 1
 	
-	# TRUE if the matrix is square; the diagonal terms of the token are not tested.
+	# TRUE if the matrix is square; the values that a diagonal term states are not tested.
 	#
 	#   _aToken_   a diagonal token
 	#   aMatrix    the matrix to test
 	#   returns    TRUE or FALSE (1 or 0)
-	#   warning    known defect: it only tests squareness, so any square matrix passes whatever the
-	#              term asks
+	#   warning    stub kept on purpose: it only tests squareness, so diagonal(1) accepts any square
+	#              matrix; the syntax and the meaning of a diagonal term are missing from the
+	#              header, the blocks and the tests, and the parser keeps no value for it
 	#   see        CheckProperty
 	def CheckDiagonal(_aToken_, aMatrix)
 		_nRows_ = len(aMatrix)
@@ -1011,24 +1068,26 @@ def ParseConjunction(_cTokenStr_)
 		
 		return 0
 	
-	# Returns TRUE for every matrix today instead of testing a visual or structural pattern.
+	# Accepts every matrix, because no text names the patterns a pattern term could check.
 	#
 	#   _cPattern_   the pattern name
 	#   aMatrix      the matrix to test
 	#   returns      TRUE, always
-	#   warning      known defect: the body is a stub that returns 1
+	#   warning      stub kept on purpose: the body is return 1; the names of the patterns and their
+	#                meaning are missing from the header, the blocks and the tests
 	#   see          Match
 	def CheckPattern(_cPattern_, aMatrix)
 		# Check for visual/structural patterns
 		return 1
 	
-	# TRUE if the matrix is square; the determinant value that the token states is not tested.
+	# TRUE if the matrix is square; the determinant value that a term states is not tested.
 	#
 	#   _aToken_   a determinant token
 	#   aMatrix    the matrix to test
 	#   returns    TRUE or FALSE (1 or 0)
-	#   warning    known defect: the body only tests squareness, so determinant(5) accepts a matrix
-	#              whose determinant is -3
+	#   warning    stub kept on purpose: it only tests squareness, so determinant(5) accepts a square
+	#              matrix whose determinant is -3; whether determinant(5) means equal to 5 and which
+	#              comparisons exist is not stated anywhere, and the parser keeps no value for it
 	#   see        Match
 	def CheckDeterminant(_aToken_, aMatrix)
 		_nRows_ = len(aMatrix)
@@ -1041,12 +1100,14 @@ def ParseConjunction(_cTokenStr_)
 		# Would call stzMatrix determinant method
 		return 1
 	
-	# Returns TRUE for every matrix today instead of testing the sum of its elements.
+	# Accepts every matrix: the sum of its elements is added up and then ignored.
 	#
 	#   _aToken_   a sum token
 	#   aMatrix    the matrix to test
 	#   returns    TRUE, always
-	#   warning    known defect: the body adds the elements up and ignores the result
+	#   warning    stub kept on purpose: the body is return 1 after the sum is computed; whether
+	#              sum(45) means equal to 45 and which comparisons exist is not stated anywhere, and
+	#              the parser keeps no value for it
 	#   see        Match
 	def CheckSum(_aToken_, aMatrix)
 		_nSum_ = 0
@@ -1410,13 +1471,14 @@ def ParseConjunction(_cTokenStr_)
 		def FindFirstMatchingMatrixIn(paMatrices)
 			return This.FindFirstMatchingMatrix(paMatrices)
 
-	# Returns TRUE when at least one matrix of the list matches, which is the reverse of what its name promises.
+	# TRUE when at least one matrix of the list matches the pattern, whatever its name suggests; FALSE when none does.
 	#
 	#   paMatrices   a list of matrices, or [ "in", list ]
 	#   returns      TRUE if any matrix matches, FALSE if none does
-	#   note         test CountMatchingMatrices = 0 for the intended question
-	#   warning      known defect: the loop returns 1 at the first match and 0 when there is none,
-	#                the opposite of none matching
+	#   note         kept as it is, because test/matrex/27_check_if_matches_any expects FALSE for a list
+	#                where nothing matches; to ask whether none matches, test CountMatchingMatrices = 0
+	#   warning      the name reads as the reverse of the answer; whether to rename it, to add a
+	#                method for the other question or to turn it round with that test is for the author
 	#   see          MatchesAll, CountMatchingMatrices
 	def MatchesNone(paMatrices)
 
