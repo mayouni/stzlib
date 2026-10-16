@@ -1742,10 +1742,10 @@ class stzNestedRegexMaker from stzRecursiveRegexMaker
 # A level has a name, a pattern text, a parent, children and a quantifier. AddLevel adds a top
 # level, AddChildLevel adds one inside an existing level, and AddQuantifier gives a level its repeat
 # suffix. The tree can be read back with LevelNames, LevelParent, LevelChildren and Info. With named
-# recursion on, which is the state at birth, each level is meant to become a named capture group.
-# Pattern and SubPattern, which should join the levels into one regular expression, raise error R19
-# today for any maker that has a level, so the tree is readable but not yet convertible.
-# stzNestedRegexMaker is another name for this class.
+# recursion on, which is the state at birth, each level becomes a named capture group.
+# Pattern joins the top levels into one regular expression, each level nesting its children inside
+# its own group, and SubPattern does the same for one level. stzNestedRegexMaker is another name for
+# this class.
 #
 #   receiver   o1 = new stzRecursiveRegexMaker()
 #   example    o1.AddLevel("open", "\(")
@@ -1757,6 +1757,8 @@ class stzNestedRegexMaker from stzRecursiveRegexMaker
 #              #--> [ "inner" ]
 #              ? o1.LevelParent("inner")
 #              #--> open
+#              ? o1.Pattern()
+#              #--> (?P<open>\((?P<inner>[^()]*))\)
 #              o1.AddQuantifier("inner", "+")
 #              ? o1.Info()[2][:quantifier]
 #              #--> +
@@ -1764,7 +1766,7 @@ class stzNestedRegexMaker from stzRecursiveRegexMaker
 class stzRecursiveRegexMaker from stzObject
 
 	@aLevels = []
-	@bNamedRecursion = 0
+	@bNamedRecursion = 1
 	# Builds an empty maker of levelled patterns, with named recursion switched on.
 	#
 	#   returns    nothing; the object is built
@@ -1843,13 +1845,17 @@ class stzRecursiveRegexMaker from stzObject
 	def DisableNamedRecursion()
 		@bNamedRecursion = 0
 
-	# Raises error R19 today when a level exists, instead of returning the pattern joined from the root levels.
+	# Returns the regular expression joined from the top levels, each with its children nested inside it.
 	#
-	#   returns    nothing when it raises; an empty text when there is no level
-	#   warning    tested with one level, with three levels and with a quantifier, and each raised
-	#              error R19 Calling function with less number of parameters, because the helper
-	#              calls HasKey with one argument
-	#   see        SubPattern, LevelNames
+	#   returns    a text; empty when no level was added
+	#   note       with named recursion on, which is the state at birth, each level becomes a named
+	#              group (?P<name>pattern) holding its own pattern followed by its children, then its
+	#              quantifier; a child is written inside the group of its parent, not after it; a
+	#              level named close is the exception and is written as its bare pattern, with no
+	#              group, no children and no quantifier; a pattern text can refer to a group with
+	#              (?P>name), which is how a recursive pattern is made
+	#   warning    levels added with the same name are all written, and the other calls find the first
+	#   see        SubPattern, LevelNames, AddChildLevel
 	def Pattern()
 		if len(@aLevels) = 0
 			return ""
@@ -1868,12 +1874,12 @@ class stzRecursiveRegexMaker from stzObject
 
 		return _cPattern_
 
-	# Raises error R19 today for an existing level, instead of returning the pattern built from that level; an unknown level gives an empty text.
+	# Returns the regular expression of one level, with its children nested inside it; empty for an unknown level.
 	#
-	#   cLevelName   the name of a level
-	#   returns      nothing when it raises; an empty text for an unknown level
-	#   warning      tested with a top level and with a child level, and both raised error R19, for
-	#                the same cause as Pattern
+	#   cLevelName   the name of a level, matched with case
+	#   returns      a text
+	#   note         it is the part of the Pattern text that the level writes, so a child level gives
+	#                its own group and a level named close gives its bare pattern
 	#   see          Pattern, LevelChildren
 	def SubPattern(cLevelName)
 		_nLevel_ = pvtFindLevelByName(cLevelName)
@@ -2007,13 +2013,11 @@ class stzRecursiveRegexMaker from stzObject
 
 		return 0
 
-	# Raises error R19 today for any existing level, instead of returning its pattern with its children and its quantifier.
+	# Returns the pattern of the level at a position, with its children nested inside it and its quantifier after it.
 	#
 	#   _nLevel_   the position of the level
-	#   returns    nothing when it raises; an empty text for a position out of range
-	#   note       private
-	#   warning    the call HasKey(_level_[:quant]) lacks its second argument, which makes Pattern
-	#              and SubPattern raise
+	#   returns    a text; empty for a position out of range
+	#   warning    private: calling it from outside raises R26
 	#   see        Pattern, SubPattern
 	def pvtBuildPattern(_nLevel_)
 
@@ -2044,7 +2048,7 @@ class stzRecursiveRegexMaker from stzObject
 
 		# Add quantifier if present
 
-		if HasKey(_level_[:quant])
+		if _level_[:quant] != ""
 
 			if @bNamedRecursion
 
