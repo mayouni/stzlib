@@ -345,3 +345,8 @@ Next by size: stzStringChar 10, stzReactiveSystem 7.
 10 rows fixed; IntroducedInUnicodeVersion only partly (emoji 6.0, rest approximate: no age data). Guard 146 assertions; 174 existing files identical. Root cause found: error/stzCharError.ring is never loaded by stzBase.ring.
 Next by size: stzReactiveSystem 7, then six classes at 6 (stzOccurrences, stzImgToAscii, stzListProvidedAsString, stzListOfBytes, stzTextStream).
 
+## 2026-10-17: the stzReactiveSystem fix batch is ON MAIN (4da3fc77c, both remotes); register 193 -> 186
+
+7 rows fixed (the safe stop now flags the live system and the loop ends at the end of the pass; BindObjects binds the live reactive objects). Guard 38 assertions; 84 existing reactive files same exit codes. Limits kept in the blocks: a later source change does not reach the target (BindTo stores a copy), and StopSafe on a copy of the system is not seen.
+Next by size: five classes at 6 (stzOccurrences, stzImgToAscii, stzListProvidedAsString, stzListOfBytes, stzTextStream).
+
