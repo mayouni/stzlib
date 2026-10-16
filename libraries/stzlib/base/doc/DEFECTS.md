@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 302 methods in 93 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 283 methods in 88 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| file/stzFile.ring | stzFileManager | 15 |
 | datetime/stzListOfTimeLines.ring | stzListOfTimeLines | 14 |
 | common/stzCache.ring | stzCache | 13 |
 | graph/stzGraph.ring | stzGraph | 12 |
@@ -71,10 +70,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 | string/stzStringInserter.ring | stzStringInserter | 2 |
 | string/stzStringList.ring | stzStringList | 2 |
 | common/stzEngineTimeline.ring | stzEngineTimeline | 1 |
-| file/stzFile.ring | stzFileInfo | 1 |
-| file/stzFile.ring | stzFileModifier | 1 |
-| file/stzFile.ring | stzFileOverwriter | 1 |
-| file/stzFile.ring | stzFileXT | 1 |
 | geo/stzGeoProjection.ring | stzGeoProjection | 1 |
 | graph/stzGraphRule.ring | stzGraphRule | 1 |
 | graph/stzMathDiagram.ring | stzMathSubstance | 1 |
@@ -182,40 +177,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `Content` (line 157): Raises error C27 today, when the file loads, instead of returning the converted image as text, running Execute first when needed. -- same cause as init
 - `Show` (line 171): Raises error C27 today, when the file loads, instead of printing the converted image or opening the output file in the system viewer. -- same cause as init; for the svg and html formats the body would start the operating system's viewer
 - `BuildArgs` (line 202): Raises error C27 today, when the file loads, instead of building the command-line options for the im2ansi tool from the settings. -- same cause as init
-
-## stzFileInfo -- file/stzFile.ring (1)
-
-- `IsExecutable` (line 1133): Returns 0 for every file today, because the extension it compares carries a leading dot. -- defect: the extension is read as .exe or .BAT and compared with exe, bat, cmd and com, so a file named prog.exe and one named run.BAT both answer 0; the sibling stzFileManager.IsExecutable fails differently (see there)
-
-## stzFileManager -- file/stzFile.ring (15)
-
-- `CopyTo` (line 2967): Raises error R3 today instead of copying the file into a folder under its own name. -- defect: the body calls the helper _FileName, which is not a global function (a function placed between two classes belongs to the class before it), so every call raises Calling Function without definition: _filename; same cause as MoveTo, MoveAs, RenameAs, CopyAs, CreateBackup, CreateBackupAs, SafeDelete, SafeRemove, ZipBackup and IsExecutable
-- `CopyAs` (line 2988): Raises error R3 today instead of copying the file under a new name in the same folder. -- defect: the body calls the helper _FileDirPath, which is not a global function, so every call raises Calling Function without definition: _filedirpath
-- `MoveTo` (line 3023): Raises error R3 today instead of moving the file into a folder under its own name. -- defect: calls the missing helper _FileName (see CopyTo)
-- `MoveAs` (line 3044): Raises error R3 today instead of renaming the file inside its own folder. -- defect: calls the missing helper _FileDirPath (see CopyTo)
-- `RenameAs` (line 3084): Raises error R3 today instead of renaming the file inside its own folder. -- defect: calls the missing helper _FileDirPath (see CopyTo)
-- `Backup` (line 3107): Returns 1 but writes no backup today, because the name it builds contains the characters / and :. -- defect: the copy is named file.backup. followed by StzTimeStamp(), which has the form 09/10/2026 11:37:52, so the target path holds folders that do not exist and the copy fails without notice; checked twice, no file appears and the 1 is returned anyway
-- `SplitByLines` (line 3122): Raises error R13 today instead of splitting the file into parts of a fixed number of lines. -- defect: the body treats the text returned by StzFileRead as a reader object and calls Lines() on it, so every call raises Object is required; the helper names it uses (_FileCompleteBaseName and others) are missing too
-- `SplitBySize` (line 3166): Raises error R13 today instead of splitting the file into parts of a fixed number of bytes. -- defect: same cause as SplitByLines, calling a method on the text returned by StzFileRead
-- `SplitByPattern` (line 3209): Raises error R13 today instead of splitting the file at every line that contains a pattern. -- defect: same cause as SplitByLines
-- `ZipBackup` (line 3356): Raises error R3 today instead of zipping the file into a backup archive in its own folder. -- defect: calls the missing helpers _FileDirPath, or _FileCompleteBaseName for the empty text (see CopyTo)
-- `CreateBackup` (line 3380): Raises error R3 today instead of copying the file to a timestamped backup name and giving its path. -- defect: calls the missing helper _FileCompleteBaseName (see CopyTo)
-- `CreateBackupAs` (line 3407): Raises error R3 today instead of copying the file to a named backup in its folder and giving its path. -- defect: calls the missing helper _FileDirPath (see CopyTo)
-- `SafeDelete` (line 3459): Raises error R3 today instead of backing the file up and then deleting it. -- defect: it calls CreateBackup, which calls the missing helper _FileCompleteBaseName (see CopyTo); the file is left in place
-- `SafeRemove` (line 3477): Raises error R3 today instead of backing the file up and then deleting it. -- defect: same cause as SafeDelete
-- `IsExecutable` (line 3576): Raises error R3 today instead of telling whether the extension marks an executable. -- defect: calls the missing helper _FileExtension (see CopyTo)
-
-## stzFileModifier -- file/stzFile.ring (1)
-
-- `InsertLine` (line 2549): Raises error R24 today instead of inserting a line at a position. -- defect: the body passes nNewLine, a name that does not exist (the parameter is cNewLine), so every call raises Using uninitialized variable: nnewline
-
-## stzFileOverwriter -- file/stzFile.ring (1)
-
-- `PreserveAndModify` (line 2186): Raises error R12 today instead of writing the old text back and adding a change after it. -- defect: the body reads This.cOriginalContent where the attribute is @cOriginalContent, so every call raises Error in property name, property not found: coriginalcontent (checked on two files)
-
-## stzFileXT -- file/stzFile.ring (1)
-
-- `init` (line 856): Returns an empty stzFileXT object today, instead of the file object of the chosen intent. -- defect: the constructor returns the object of the chosen class, and Ring ignores the value a constructor returns, so new stzFileXT(path, "info") has no FileName and "read" answers NULL to Content; the intent erase names a class stzFileEraser that does not exist (it is stzFileEaraser) and raises Error in class name, class not found; an unknown intent raises Can't proceed! The intent you provided is not support in Softanza file API.
 
 ## stzHtmlBuilder -- file/stzHtml.ring (3)
 
