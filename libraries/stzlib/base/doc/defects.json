@@ -1,5 +1,5 @@
 {
- "count": 283,
+ "count": 269,
  "defects": [
   {
    "class": "stzAppServer",
@@ -264,118 +264,6 @@
    "line": 1901,
    "symptom": "Returns today, tomorrow or yesterday, a count of days or weeks within a month of today, else the date as dd/MM/yyyy.",
    "cause": ""
-  },
-  {
-   "class": "stzListOfTimeLines",
-   "file": "datetime/stzListOfTimeLines.ring",
-   "method": "AddPointsToLane",
-   "line": 379,
-   "symptom": "Does nothing today instead of adding several points to a lane at once.",
-   "cause": "it edits the copy that Lane returns, so the lane stays empty and no error is raised: after AddPointsToLane(\"b\", [ [\"Alpha\", \"2026-07-01\"] ]) the lane holds no point, where the same call on the copy gives it"
-  },
-  {
-   "class": "stzListOfTimeLines",
-   "file": "datetime/stzListOfTimeLines.ring",
-   "method": "AddSpanToLane",
-   "line": 395,
-   "symptom": "Does nothing today instead of adding a labelled span of time to a lane.",
-   "cause": "it edits the copy that Lane returns, so the lane stays empty and no error is raised: AddSpanToLane(\"team a\", \"Build\", \"2026-04-01\", \"2026-05-01\") leaves Spans of the lane empty, though the same call on the copy returns the span"
-  },
-  {
-   "class": "stzListOfTimeLines",
-   "file": "datetime/stzListOfTimeLines.ring",
-   "method": "AddPeriodToLane",
-   "line": 412,
-   "symptom": "Does nothing today instead of adding a labelled period to a lane.",
-   "cause": "it is AddSpanToLane, which edits a copy and keeps nothing"
-  },
-  {
-   "class": "stzListOfTimeLines",
-   "file": "datetime/stzListOfTimeLines.ring",
-   "method": "AddSpansToLane",
-   "line": 423,
-   "symptom": "Does nothing today instead of adding several spans to a lane at once.",
-   "cause": "it edits the copy that Lane returns, so the lane stays empty and no error is raised"
-  },
-  {
-   "class": "stzListOfTimeLines",
-   "file": "datetime/stzListOfTimeLines.ring",
-   "method": "AddBlockedSpanToLane",
-   "line": 439,
-   "symptom": "Does nothing today instead of blocking a labelled span of a lane.",
-   "cause": "it edits the copy that Lane returns: afterwards IsBlockedInLane for a moment inside the span answers FALSE"
-  },
-  {
-   "class": "stzListOfTimeLines",
-   "file": "datetime/stzListOfTimeLines.ring",
-   "method": "AddBlockedPointToLane",
-   "line": 451,
-   "symptom": "Does nothing today instead of blocking a moment of a lane.",
-   "cause": "it edits the copy that Lane returns: afterwards IsBlockedInLane for that moment answers FALSE"
-  },
-  {
-   "class": "stzListOfTimeLines",
-   "file": "datetime/stzListOfTimeLines.ring",
-   "method": "BlockSpanInLane",
-   "line": 463,
-   "symptom": "Raises error R14 today instead of blocking an existing span of a lane by its label.",
-   "cause": "it calls BlockSpan on the lane's timeline, a method stzTimeLine does not have, so every call raises R14"
-  },
-  {
-   "class": "stzListOfTimeLines",
-   "file": "datetime/stzListOfTimeLines.ring",
-   "method": "BlockPointInLane",
-   "line": 475,
-   "symptom": "Raises error R14 today instead of blocking an existing point of a lane by its label.",
-   "cause": "it calls BlockPoint on the lane's timeline, a method stzTimeLine does not have, so every call raises R14"
-  },
-  {
-   "class": "stzListOfTimeLines",
-   "file": "datetime/stzListOfTimeLines.ring",
-   "method": "Show",
-   "line": 588,
-   "symptom": "Raises error R19 today instead of returning a drawing of all the lanes.",
-   "cause": "it calls an internal drawing routine without the arguments it needs; the drawing routines behind it are also unfinished stubs, so no picture exists to return"
-  },
-  {
-   "class": "stzListOfTimeLines",
-   "file": "datetime/stzListOfTimeLines.ring",
-   "method": "ShowShort",
-   "line": 597,
-   "symptom": "Raises error R19 today instead of returning a short drawing of all the lanes.",
-   "cause": "it fails as Show does, through the same internal drawing routine"
-  },
-  {
-   "class": "stzListOfTimeLines",
-   "file": "datetime/stzListOfTimeLines.ring",
-   "method": "ShowUncovered",
-   "line": 611,
-   "symptom": "Raises error R19 today instead of returning a drawing that marks the uncovered periods.",
-   "cause": "it fails as Show does, through the same internal drawing routine"
-  },
-  {
-   "class": "stzListOfTimeLines",
-   "file": "datetime/stzListOfTimeLines.ring",
-   "method": "VizFind",
-   "line": 621,
-   "symptom": "Raises error R19 today instead of drawing the lanes with one label highlighted.",
-   "cause": "it ends by calling Show, which fails: Show raises error R19"
-  },
-  {
-   "class": "stzListOfTimeLines",
-   "file": "datetime/stzListOfTimeLines.ring",
-   "method": "RemovePointFromLane",
-   "line": 758,
-   "symptom": "Does nothing today instead of removing a point from a lane by label or moment.",
-   "cause": "it edits the copy that Lane returns, so the point stays in the lane and no error is raised: removing KICKOFF2 or the moment 2026-02-01 leaves the lane unchanged"
-  },
-  {
-   "class": "stzListOfTimeLines",
-   "file": "datetime/stzListOfTimeLines.ring",
-   "method": "RenameLabelInLane",
-   "line": 771,
-   "symptom": "Does nothing today instead of renaming a point label in a lane.",
-   "cause": "it edits the copy that Lane returns, so the label stays as it was and no error is raised"
   },
   {
    "class": "stzImgToAscii",
