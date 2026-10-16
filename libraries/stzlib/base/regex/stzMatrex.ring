@@ -1025,18 +1025,21 @@ def ParseConjunction(_cTokenStr_)
 		
 		return 1
 	
-	# TRUE if the matrix has the named property: symmetric, diagonal, identity, zero, upper or lower; any other name, square too, gives FALSE.
+	# TRUE if the matrix has the named property: square, symmetric, diagonal, identity, zero, upper or lower.
 	#
 	#   _cProperty_   the property name, upper and lower also as uppertriangular and lowertriangular
 	#   aMatrix       the matrix to test
-	#   returns       TRUE or FALSE (1 or 0)
+	#   returns       TRUE or FALSE (1 or 0); FALSE for any other name
 	#   see           CheckShape, IsSymmetric, IsDiagonal, IsIdentity
 	def CheckProperty(_cProperty_, aMatrix)
 		_cProperty_ = StzLower(trim(_cProperty_))
 		_nRows_ = len(aMatrix)
 		_nCols_ = len(aMatrix[1])
 		
-		if _cProperty_ = "symmetric"
+		if _cProperty_ = "square"
+			return _nRows_ = _nCols_
+
+		but _cProperty_ = "symmetric"
 			if _nRows_ != _nCols_
 				return 0
 			ok
@@ -1650,22 +1653,19 @@ def ParseConjunction(_cTokenStr_)
 	
 	# Returns the share of cells that are equal in two matrices of the same size, from 0 to 1; matrices of different sizes score 0.
 	#
-	#   aMatrix1   the first matrix
-	#   aMatrix2   the second matrix
+	#   aMatrix1   the first matrix, or [ "between", m ]
+	#   aMatrix2   the second matrix, or [ "and", m ]
 	#   returns    a number from 0 to 1
-	#   note       only two plain matrices work
-	#   warning    known defect: the wrapped forms [ "between", m ] and [ "and", m ] that the body
-	#              tries to accept raise an error, because it stores the inner matrix in a
-	#              misspelled variable
-	#   see        MostSimilarMatrix
+	#   note       the wrapped forms are what SimilarityScore(:Between = m1, :And = m2) passes
+	#   see        MostSimilarMatrix, FindMostSimilarMatrix
 	def SimilarityScore(aMatrix1, aMatrix2)
 
 		if CheckParams()
-			if isList(aMatrix1) and len(aMatrix1) = 2 and isString(aMatrix1[1]) and StzLower(aMatrix1[1]) = "between"
-				_aMatix1_ = aMatrix1[2]
+			if isList(aMatrix1) and len(aMatrix1) = 2 and isString(aMatrix1[1]) and (StzLower(aMatrix1[1]) = "between" or StzLower(aMatrix1[1]) = "and")
+				aMatrix1 = aMatrix1[2]
 			ok
-			if isList(aMatrix1) and len(aMatrix1) = 2 and isString(aMatrix1[1]) and StzLower(aMatrix1[1]) = "and"
-				_aMatix1_ = aMatrix1[2]
+			if isList(aMatrix2) and len(aMatrix2) = 2 and isString(aMatrix2[1]) and (StzLower(aMatrix2[1]) = "and" or StzLower(aMatrix2[1]) = "between")
+				aMatrix2 = aMatrix2[2]
 			ok
 		ok
 
@@ -1836,41 +1836,51 @@ def ParseConjunction(_cTokenStr_)
 	# Returns the names among square, symmetric, diagonal, identity, zero, upper and lower that every matching matrix of the list has.
 	#
 	#   paMatrices   a list of matrices
-	#   returns      a list of text
-	#   note         the answer for [ diag, identity ] is symmetric, diagonal, upper, lower
-	#   warning      known defects: square is never reported, because the property test has no such
-	#                branch, and when no matrix matches every name is returned
+	#   returns      a list of text; [ ] when no matrix of the list matches the pattern
+	#   note         the matrices that do not match the pattern are left out of the comparison; for
+	#                the matrices [ [[1,0],[0,1]] ] the answer is square, symmetric, diagonal,
+	#                identity, upper, lower
 	#   see          AnalyzeMatches, CheckProperty
 	def CommonProperties(paMatrices)
 		# Find properties common to all matching matrices
-		
+
+		_aMatching_ = []
+		_nLen_ = len(paMatrices)
+		for _i_ = 1 to _nLen_
+			if This.Match(paMatrices[_i_])
+				_aMatching_ + paMatrices[_i_]
+			ok
+		next
+
+		_nLenMatching_ = ring_len(_aMatching_)
+		if _nLenMatching_ = 0
+			return []
+		ok
+
 		_aCommon_ = []
-		_aAllProps_ = ["square", "symmetric", "diagonal", "identity", 
+		_aAllProps_ = ["square", "symmetric", "diagonal", "identity",
 		             "zero", "upper", "lower"]
-		
+
 		_nLenProps_ = len(_aAllProps_)
-		
+
 		for _i_ = 1 to _nLenProps_
 			_cProp_ = _aAllProps_[_i_]
 			_bAll_ = 1
-			
-			_nLen_ = len(paMatrices)
-			for j = 1 to _nLen_
-				if This.Match(paMatrices[j])
-					if not This.CheckProperty(_cProp_, paMatrices[j])
-						_bAll_ = 0
-						exit
-					ok
+
+			for j = 1 to _nLenMatching_
+				if not This.CheckProperty(_cProp_, _aMatching_[j])
+					_bAll_ = 0
+					exit
 				ok
 			next
-			
+
 			if _bAll_
 				_aCommon_ + _cProp_
 			ok
 		next
-		
+
 		return _aCommon_
-	
+
 	  #----------------------#
 	 #  DEBUG METHODS       #
 	#----------------------#
