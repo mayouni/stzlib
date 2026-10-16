@@ -1052,66 +1052,70 @@ func _FileWriteParts(cSource, aChunks)
 	next
 	return _aPaths_
 
-# Is meant to build the file object of an intent from its name, but returns an empty object today.
+# Holds the file object of an intent (info, read, append, create, overwrite, erase, modify, manage) built from a path.
 #
-# The constructor tries to return the object of the chosen intent (info, read, append, create,
-# overwrite, erase, modify, manage), but Ring ignores a value returned by a constructor, so the
-# result is an empty stzFileXT. Build the class of the intent yourself: stzFileInfo, stzFileReader,
-# stzFileAppender, stzFileCreator, stzFileOverwriter, stzFileModifier or stzFileManager.
+# Ring ignores a value returned by a constructor, so new stzFileXT(path, intent) is always a stzFileXT
+# and never the object of the intent itself: the object it built is kept inside, and Intent() gives it.
+# Building the object has the effect of that class (an overwrite or erase intent empties the file at
+# once, a create intent refuses an existing file). The spellings manage, manager and the old mange are
+# accepted; an unknown intent raises an error.
 #
 #   receiver   write("demo_note.txt", "alpha" + char(10) + "beta gamma" + char(10) + "end") o1 = new
 #              stzFileXT("demo_note.txt", "info")
-#   example    ? isObject(o1)
+#   example    ? o1.Intent().Exists()
 #              #--> 1
+#              ? o1.Intent().Size()
+#              #--> 20
 #   see        stzFileInfo, stzFileReader, stzFileManager
 class stzFileXT from stzObject
+	@oIntent
 
-	# Returns an empty stzFileXT object today, instead of the file object of the chosen intent.
+	# Builds the file object of the chosen intent and keeps it; an unknown intent raises an error.
 	#
 	#   pcFileName   the path of the file
-	#   pcIntent     info, read, append, create, overwrite, erase, modify or manage
-	#   returns      an empty stzFileXT object
-	#   note         build stzFileReader, stzFileAppender and the others directly
-	#   warning      defect: the constructor returns the object of the chosen class, and Ring
-	#                ignores the value a constructor returns, so new stzFileXT(path, "info") has no
-	#                FileName and "read" answers NULL to Content; the intent erase names a class
-	#                stzFileEraser that does not exist (it is stzFileEaraser) and raises Error in
-	#                class name, class not found; an unknown intent raises Can't proceed! The intent
-	#                you provided is not support in Softanza file API.
-	#   see          stzFileInfo, stzFileReader
+	#   pcIntent     info, read, append, create, overwrite, erase, modify or manage (case ignored)
+	#   returns      nothing; the object is built, and Intent() gives it
+	#   note         the error text for an unknown intent is Can't proceed! The intent you provided
+	#                is not support in Softanza file API.
+	#   see          Intent, stzFileInfo
 	def init(pcFileName, pcIntent)
 		pcIntent = StzLower(pcIntent)
 
 		if pcIntent = "info"
-			# Was `new stzFileInfo(cFileName)` -- cFileName is
-			# undefined (the param is pcFileName). R24 every call.
-			return new stzFileInfo(pcFileName)
+			@oIntent = new stzFileInfo(pcFileName)
 
 		but pcIntent = "read" or pcIntent = "reader" or pcIntent = "readonly"
-			return new stzFileReader(pcFileName)
+			@oIntent = new stzFileReader(pcFileName)
 
 		but pcIntent = "append" or pcIntent = "appender"
-			return new stzFileAppender(pcFileName)
+			@oIntent = new stzFileAppender(pcFileName)
 
 		but pcIntent = "create" or pcIntent = "creator"
-			return new stzFileCreator(pcFileName)
+			@oIntent = new stzFileCreator(pcFileName)
 
-		but pcIntent = "overwrite" or pcIntent = "overwiriter"
-			return new stzFileOverwriter(pcFileName)
+		but pcIntent = "overwrite" or pcIntent = "overwiriter" or pcIntent = "overwriter"
+			@oIntent = new stzFileOverwriter(pcFileName)
 
 		but pcIntent = "erase" or pcIntent = "eraser"
-			return new stzFileEraser(pcFileName)
+			@oIntent = new stzFileEaraser(pcFileName)
 
 		but pcIntent = "modify" or pcIntent = "modifier"
-			return new stzFileModifier(pcFileName)
+			@oIntent = new stzFileModifier(pcFileName)
 
-		but pcIntent = "mange" or pcIntent = "manager"
-			return new stzFileManager(pcFileName)
+		but pcIntent = "manage" or pcIntent = "mange" or pcIntent = "manager"
+			@oIntent = new stzFileManager(pcFileName)
 
 		else
 			StzRaise("Can't proceed! The intent you provided is not support in Softanza file API.")
 		ok
-		
+
+	# Returns the file object built for the chosen kind of use: a stzFileInfo, stzFileReader, stzFileAppender and so on.
+	#
+	#   returns    an object, a copy of the one the constructor built
+	#   note       an erase intent gives a stzFileEaraser (the class name is spelt so in the source)
+	#   see        init
+	def Intent()
+		return @oIntent
 
 #=================================================#
 # META INFORMATION ABOUT FILE WITHOUT OPENING IT  #
@@ -1130,9 +1134,8 @@ class stzFileXT from stzObject
 #
 # Reach for it to ask what a file is: Info gives a summary hash list, and the single readers (Size,
 # Suffix, BaseName, DirPath, Exists) give one fact each. The path is kept as given and nothing is
-# resolved. Two traps today: IsWritable opens the path for appending, so asking about a missing file
-# creates it empty (and Info does so too), and IsExecutable answers 0 for every file. CreationTime
-# and LastReadingTime raise an error on purpose.
+# resolved. Asking about a missing file never creates it. IsExecutable goes by the extension (exe, bat,
+# cmd, com). CreationTime and LastReadingTime raise an error on purpose.
 #
 #   receiver   write("demo_note.txt", "alpha" + char(10) + "beta gamma" + char(10) + "end") o1 = new
 #              stzFileInfo("demo_note.txt")
@@ -1190,7 +1193,7 @@ class stzFileInfo from stzObject
    #
    #   returns    a hash list
    #   note       the name stops at the first dot, so a.tar.gz gives a; for a missing file size is
-   #              -1 and, because IsWritable creates the file, the call leaves an empty file behind
+   #              -1, isWritable and isReadable are 0, and nothing is created
    #   see        Exists, Size, BaseName
    #@ aka  SUMMARISED INFO
    def Info()
@@ -1256,15 +1259,16 @@ class stzFileInfo from stzObject
     def FileName()
         return @cFileName
 
-    # Returns 1 if the file can be opened for appending, but creates an empty file when the path does not exist.
+    # Returns 1 if an existing file can be opened for appending, else 0; a missing path answers 0 and is not created.
     #
     #   returns    1 or 0
-    #   note       check Exists first
-    #   warning    warning: the test opens the file in append mode, so asking about a missing path
-    #              creates it empty (checked twice, with ghost1.txt and nope2.txt); a read-only file
-    #              answers 0
+    #   note       a read-only file answers 0; the file is opened for appending without writing a byte,
+    #              so its content is kept
     #   see        IsReadable, Exists
     def IsWritable()
+        if StzEngineFileExists(@cFileName) = 0
+            return 0
+        ok
         try
             pFile = fopen(@cFileName, "a")
             if pFile != ""
@@ -1290,17 +1294,18 @@ class stzFileInfo from stzObject
         done
         return 0
 
-    # Returns 0 for every file today, because the extension it compares carries a leading dot.
+    # Returns 1 if the extension of the file name is exe, bat, cmd or com, whatever its case, else 0.
     #
-    #   returns    0
-    #   note       read Suffix and compare it yourself until this is repaired
-    #   warning    defect: the extension is read as .exe or .BAT and compared with exe, bat, cmd and
-    #              com, so a file named prog.exe and one named run.BAT both answer 0; the sibling
-    #              stzFileManager.IsExecutable fails differently (see there)
+    #   returns    1 or 0
+    #   note       it goes by the name only: a folder name with a dot, a name with no extension or the
+    #              name exe alone answer 0, and the file need not exist
     #   see        Suffix, IsHidden
     def IsExecutable()
-        _cExt_ = StzLower(StzEnginePathExtension(@cFileName))
-        return _cExt_ = "exe" or _cExt_ = "bat" or _cExt_ = "cmd" or _cExt_ = "com"
+        _cExt_ = StzLower(_FileExtension(@cFileName))
+        if _cExt_ = "exe" or _cExt_ = "bat" or _cExt_ = "cmd" or _cExt_ = "com"
+            return 1
+        ok
+        return 0
 
     # Returns 1 if the file name starts with a dot, else 0.
     #
@@ -1751,8 +1756,8 @@ class stzFile from stzFileAppender
 #
 # Reach for it for logs and any file that only grows: Write, WriteLine, WriteLines and WriteLogEntry
 # add at the end, and the reading methods of stzFileReadingMixin are available too. The folder must
-# exist. The text must be a text: a number given to Write ends the whole Ring process silently
-# today. The class stzFile is another name for it.
+# exist. Write takes a text or a number (a number is written as Ring prints it); any other value raises
+# an error. The class stzFile is another name for it.
 #
 #   receiver   write("demo_note.txt", "alpha" + char(10) + "beta gamma" + char(10) + "end") o1 = new
 #              stzFileAppender("demo_note.txt")
@@ -1807,38 +1812,38 @@ class stzFileAppender from stzFileReadingMixin
 		def Skills()
 			return This.Capabilities()
 
-    # Adds a text at the end of the file, with no line break.
+    # Adds a text, or a number written as text, at the end of the file, with no line break.
     #
-    #   cText      the text to add
+    #   cText      the text to add, or a number such as 5 or 1.5
     #   returns    1
-    #   note       pass a text; use "" + n for a number
-    #   warning    warning: a number as argument ends the whole Ring process silently with exit code
-    #              1, checked with 5 and 1.5; a list or the empty text does not
+    #   note       a number is written as Ring prints it (5 gives 5, 1.5 gives 1.50); a list or an
+    #              object raises the error Can't write to the file! You must provide a text or a
+    #              number.; the empty text adds nothing
     #   see        WriteLine, WriteLines
     #@ aka  WRITE METHODS (intent-specific)
     def Write(cText)
-        StzEngineFileAppend(@cFileName, cText)
+        StzEngineFileAppend(@cFileName, _FileTextOf(cText))
 		return 1
 
 		# Adds a text at the end of the file and returns the appender, so calls can be chained.
 		#
-		#   cText      the text to add
+		#   cText      the text to add, or a number
 		#   returns    the appender itself
 		#   note       the name is misspelt in the source and there is no WriteQ on this class; it
-		#              ends the process for a number as Write does
+		#              takes what Write takes
 		#   see        Write, WriteLineQ
 		def WrtiteQ(cText)
 			This.Write(cText)
 			return This
     
-    # Adds a text and a line break at the end of the file.
+    # Adds a text, or a number written as text, and a line break at the end of the file.
     #
-    #   cText      the text to add
+    #   cText      the text to add, or a number
     #   returns    1
-    #   note       the same number problem as Write
+    #   note       the line break is added after a number too (7 gives 7 and a line feed)
     #   see        Write, WriteLines
     def WriteLine(cText)
-        This.Write(cText + char(10))
+        This.Write(_FileTextOf(cText) + char(10))
     	return 1
 
 		def WriteLineQ(cText)
@@ -2165,7 +2170,7 @@ class stzFileCreator from stzFileReadingMixin
 # Reach for it to rewrite a file from nothing while still being able to read what was there
 # (OriginalContent, OriginalLines). Building the object is itself the destructive step: the file is
 # emptied at once, even if you never write. Write and its kin then add to the emptied file and raise
-# an error for an empty text. PreserveAndModify raises an error today.
+# an error for an empty text. PreserveAndModify writes the old text back and adds a change after it.
 #
 #   receiver   write("demo_note.txt", "alpha" + char(10) + "beta gamma" + char(10) + "end") o1 = new
 #              stzFileOverwriter("demo_note.txt")
@@ -2342,19 +2347,22 @@ class stzFileOverwriter from stzFileReadingMixin
 			This.WriteBlankLine()
 			return This
 
-    # Raises error R12 today instead of writing the old text back and adding a change after it.
+    # Writes the old text back into the emptied file, then adds a change after it.
     #
-    #   cModification   the text to add after the old text
-    #   returns         nothing; it raises an error
-    #   note            write OriginalContent() then the change yourself
-    #   warning         defect: the body reads This.cOriginalContent where the attribute is
-    #                   @cOriginalContent, so every call raises Error in property name, property not
-    #                   found: coriginalcontent (checked on two files)
+    #   cModification   the text to add after the old text; the empty text adds nothing
+    #   returns         1
+    #   note            it appends, so text written before the call stays in front; an old text that
+    #                   was empty is not written back; a modification that is not a text raises the
+    #                   error of Write
     #   see             OriginalContent, Write
     def PreserveAndModify(cModification)
         # Write original content back, then add modification
-        This.Write(This.cOriginalContent)
-        This.Write(cModification)
+        if @cOriginalContent != ""
+            This.Write(@cOriginalContent)
+        ok
+        if NOT (isString(cModification) and cModification = "")
+            This.Write(cModification)
+        ok
 		return 1
 
 		def PreserveAndModifyQ(cModification)
@@ -2498,8 +2506,7 @@ class stzFileEaraser from stzObject
 # occurrence of a text) and ReplaceLineContaining each rewrite the file at once. The object keeps
 # its own copy of the text and lines, kept in step with its changes (OriginalContent shows the
 # latest text, not the text at open time), so use one modifier per edit session. Lines are joined
-# with a line feed and no final one is added. InsertLine and the :With form of Modify raise errors
-# today.
+# with a line feed and no final one is added. Modify takes the new text directly or as :With = text.
 #
 #   receiver   write("demo_note.txt", "alpha" + char(10) + "beta gamma" + char(10) + "end") o1 = new
 #              stzFileModifier("demo_note.txt")
@@ -2705,17 +2712,16 @@ class stzFileModifier from stzFileReadingMixin
 	        This.InsertLineAt(_nPos_, cNewLine)
 	        return This
 
-		# Raises error R24 today instead of inserting a line at a position.
+		# Inserts a new line so that it takes the given position, and rewrites the file.
 		#
-		#   _nPos_     the position of the new line
+		#   _nPos_     the position of the new line, counted from 1
 		#   cNewLine   the text of the line
-		#   returns    nothing; it raises an error
-		#   note       use InsertLineAt, which does the same
-		#   warning    defect: the body passes nNewLine, a name that does not exist (the parameter
-		#              is cNewLine), so every call raises Using uninitialized variable: nnewline
+		#   returns    1
+		#   note       it does what InsertLineAt does, including its error for an empty file
 		#   see        InsertLineAt
 		def InsertLine(_nPos_, cNewLine)
-			This.InsertLineAt(_nPos_, nNewLine)
+			This.InsertLineAt(_nPos_, cNewLine)
+			return 1
 
 			def InertLineQ(_nPos_, cNewLine)
 				return This.InsertLineAtQ(_nPos_, cNewLine)
@@ -2942,21 +2948,18 @@ class stzFileModifier from stzFileReadingMixin
     # Swaps every occurrence of a text for another in the whole file and rewrites it.
     #
     #   cOldText   the text to look for
-    #   cNewText   the text put in its place
+    #   cNewText   the text put in its place, given directly or as :With = text
     #   returns    1
-    #   note       pass the new text directly
-    #   warning    warning: the form Modify(old, :With = new) raises Incorrect param type! cNewText
-    #              must be a string., because the unwrapped value is stored in a misspelt variable
-    #              (_cNexText_) and the original list is tested
+    #   note       when the old text is absent the file is rewritten unchanged
     #   see        ReplaceInLine, ModifyLine
     def Modify(cOldText, cNewText)
+		if isList(cNewText) and IsWithNamedParamList(cNewText)
+			cNewText = cNewText[2]
+		ok
+
 		if CheckParams()
 			if NoT isString(cOldText)
 				StzRaise("Incorrect param type! cOldText must be a string.")
-			ok
-
-			if isList(cNewText) and IsWithNamedParamList(cNewText)
-				_cNexText_ = cNewText[2]
 			ok
 
 			if NoT isString(cNewText)
