@@ -2037,7 +2037,6 @@ class stzOrgChart from stzDiagram
 	#              by one property use ViewNodesWithProperty
 	#   see        ViewNodesWithProperty
 	def ViewNodeWithProperties(pacProps)
-		# TODO: not written, see the warning above
 
 	# Highlights every position carrying the given label in its list of labels, then displays the chart.
 	#
@@ -2077,7 +2076,6 @@ class stzOrgChart from stzDiagram
 	#              one tag use ViewNodesWithTag
 	#   see        ViewNodesWithTag
 	def ViewNodesWithTags(pacTags)
-		# TODO: not written, see the warning above
 
 	# Paints each position in the shade assigned to its unit when the palette knows that unit, such as risk or audit.
 	#
