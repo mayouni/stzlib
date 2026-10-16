@@ -41,9 +41,9 @@ class stzReactive from stzReactiveSystem
 # The system sits on a stzReactor when the engine library is present, and falls back to a polling
 # loop when it is not. Callbacks always run on the Ring thread. Timers are named by the id that
 # RunAfter and RunEvery answer; StopTimer and StopAllTimers end them. Reactivate wraps a function or
-# an object so that calls take success and error handlers. Known gaps today, each carried as a
-# warning on its method: StopSafe and its five aliases raise the STOPPED banner from the timer they
-# schedule, and BindObjects binds copies, so neither object you pass changes.
+# an object so that calls take success and error handlers. StopSafe and its five spellings ask the
+# loop to end at the close of the pass that is running, from inside a callback. BindObjects binds
+# the reactive objects you pass, once: the target takes the source value of the moment of binding.
 #
 #   receiver   o1 = new stzReactiveSystem()
 #   example    ? isObject( o1.ReactorQ() )
@@ -66,6 +66,9 @@ class stzReactiveSystem from stzObject
 	@streams = []
 
 	@isRunning = ENGINE_STOPPED
+
+	# Set by StopSafe on the live system and read by the loop, which is handed the system itself.
+	@bStopNext = 0
 
 	# Reactive components
 	#--------------------
@@ -103,6 +106,7 @@ class stzReactiveSystem from stzObject
 		@streams = []
 
 		@isRunning = ENGINE_STOPPED
+		@bStopNext = 0
 
 	# Returns the engine handle of the reactor behind the system, or "" when no reactor backs it.
 	#
@@ -139,6 +143,7 @@ class stzReactiveSystem from stzObject
 	    # Initiates the reactive system and runs the event loop.
 	    if @isRunning = ENGINE_STOPPED
 	        @isRunning = ENGINE_RUNNING
+	        @bStopNext = 0
 
 	        # (Removed an unconditional sleep(0.1) here -- it added a flat
 	        # 100ms to every RunLoop with no functional purpose.)
@@ -152,10 +157,11 @@ class stzReactiveSystem from stzObject
 	        next
 	
 		# Run timer-based loop for other reactive components. The
-		# LIVE http object rides along as a by-ref param so the loop
-		# can drain its async completions (an attribute copy would
-		# see a dead snapshot -- the Ring aliasing doctrine).
-	        @timerManager.RunLoop(http)
+		# LIVE system rides along as the by-ref drain param, so the loop
+		# drains the http completions (an attribute copy would see a
+		# dead snapshot -- the Ring aliasing doctrine) and reads the
+		# stop request StopSafe made on this same live object.
+	        @timerManager.RunLoop(This)
 	        @isRunning = ENGINE_STOPPED
 	    ok
 
@@ -210,6 +216,7 @@ class stzReactiveSystem from stzObject
 	def Stop()
 		# Stops the system and cleans up tasks, streams, and handlers.
 		@isRunning = ENGINE_STOPPED
+		@bStopNext = 0
 		@timerManager.Stop()
 
 		# Clean up all tasks
@@ -246,63 +253,55 @@ class stzReactiveSystem from stzObject
 		#   see        Stop
 		def StopLoopExecution()
 			This.Stop()
-	# Raises the STOPPED banner error today instead of stopping the system on the next tick, from inside the loop.
+	# Asks the running loop to stop at the end of the current pass, which is safe to call from a callback.
 	#
-	#   returns    nothing today
-	#   note       call Stop from your own callback instead, as in RunAfter(60, func { oRs.Stop() })
-	#   warning    known defect: the timer callback it schedules calls Stop without the object, so
-	#              Ring reaches the global Stop of the profiler, which raises the STOPPED banner and
-	#              the loop never ends cleanly
-	#   see        Stop
+	#   returns    nothing; a request is noted on the system
+	#   note       the loop reads the request after the timers of the pass have ticked, then does what
+	#              Stop does; a request made while no loop runs is dropped when Start begins
+	#   warning    call it on the system itself, by the name your own variable gives it: a copy of the
+	#              system (a stored attribute, an item of a list) notes the request on itself and the
+	#              loop never reads it
+	#   see        Stop, Start
 		#>
 	def StopSafe()
-		# Schedules system stop for the next tick to avoid self-reference issues.
-		SetTimeout(IMMEDIATE + 1, func() {
-			Stop()
-		})
-	
-		# Raises the STOPPED banner error today instead of stopping the system on the next tick; another spelling of the safe stop.
+		# Notes the request on this live system; the loop it is running in reads it
+		# at the end of the pass, through DrainPending. (It used to schedule a
+		# callback calling a bare Stop(): a Ring lambda is a GLOBAL function, so
+		# that Stop() was the profiler's, which raises the STOPPED banner.)
+		@bStopNext = 1
+
+		# Asks the running loop to stop at the end of the current pass; another spelling of the safe stop.
 		#
-		#   returns    nothing today
-		#   warning    known defect: it forwards to StopSafe, whose scheduled callback reaches the
-		#              profiler's global Stop and raises
+		#   returns    nothing; a request is noted on the system
 		#   see        StopSafe, Stop
 		#< @FunctionAlternativeForms
 		def SafeStopLoop()
 			This.StopSafe()
 
-		# Raises the STOPPED banner error today instead of stopping the system on the next tick; another spelling of the safe stop.
+		# Asks the running loop to stop at the end of the current pass; another spelling of the safe stop.
 		#
-		#   returns    nothing today
-		#   warning    known defect: it forwards to StopSafe, whose scheduled callback reaches the
-		#              profiler's global Stop and raises
+		#   returns    nothing; a request is noted on the system
 		#   see        StopSafe, Stop
 		def SafeStopExecution()
 			This.StopSafe()
 
-		# Raises the STOPPED banner error today instead of stopping the system on the next tick; another spelling of the safe stop.
+		# Asks the running loop to stop at the end of the current pass; another spelling of the safe stop.
 		#
-		#   returns    nothing today
-		#   warning    known defect: it forwards to StopSafe, whose scheduled callback reaches the
-		#              profiler's global Stop and raises
+		#   returns    nothing; a request is noted on the system
 		#   see        StopSafe, Stop
 		def SafeStopLoopExecution()
 			This.StopSafe()
 
-		# Raises the STOPPED banner error today instead of stopping the system on the next tick; another spelling of the safe stop.
+		# Asks the running loop to stop at the end of the current pass; another spelling of the safe stop.
 		#
-		#   returns    nothing today
-		#   warning    known defect: it forwards to StopSafe, whose scheduled callback reaches the
-		#              profiler's global Stop and raises
+		#   returns    nothing; a request is noted on the system
 		#   see        StopSafe, Stop
 		def StopNext()
 			This.StopSafe()
 
-		# Raises the STOPPED banner error today instead of stopping the system on the next tick; another spelling of the safe stop.
+		# Asks the running loop to stop at the end of the current pass; another spelling of the safe stop.
 		#
-		#   returns    nothing today
-		#   warning    known defect: it forwards to StopSafe, whose scheduled callback reaches the
-		#              profiler's global Stop and raises
+		#   returns    nothing; a request is noted on the system
 		#   see        StopSafe, Stop
 		def StopNextLoop()
 			This.StopSafe()
@@ -404,30 +403,41 @@ class stzReactiveSystem from stzObject
 		#< @FunctionAlternativeForm
 		def CreateReactiveObject()
 			return new stzReactiveObject("", self)
-	# Leaves both objects unchanged today instead of keeping an attribute of the target in step with one of the source.
+	# Binds a target attribute to a source attribute of two reactive objects, giving the target the source value at once.
 	#
-	#   poSource        the object whose attribute is read
+	#   poSource        the reactive object whose attribute is read, from ReactiveObject or ReactivateObject
 	#   pcSourceAttr    the attribute of the source, as text
-	#   poTarget        the object whose attribute should follow
-	#   pcTargetAttr    the attribute of the target, as text
-	#   _bindingMode_   the binding mode, "" for the default
-	#   returns         nothing
-	#   note            for a working binding, call BindTo on a reactive object you keep:
-	#                   oSource.BindTo(oTarget, "attr", "attr2")
-	#   warning         known defect: it wraps copies of both objects, because Ring copies an object
-	#                   it is handed, so the binding links two throwaway wrappers and neither the
-	#                   source nor the target you passed ever changes
-	#   see             ReactiveObject
+	#   poTarget        the reactive object whose attribute should follow
+	#   pcTargetAttr    the attribute of the target, as text; "" for the same name as the source
+	#   _bindingMode_   accepted and not used; pass ""
+	#   returns         1 when the binding was made; 0 when an argument is not a reactive object, and
+	#                   then nothing changes
+	#   note            the two objects YOU pass are the ones that change: the target receives the value
+	#                   and the source keeps the binding; to bind a plain object, make it reactive first
+	#                   with ReactivateObject and keep the wrapper it answers
+	#   warning         the target holds the value of the moment of binding: a later change of the source
+	#                   does not reach it, because BindTo keeps a copy of its target; a plain object
+	#                   cannot be bound, since Ring copies an object it is handed
+	#   see             ReactiveObject, ReactivateObject
 		#>
 	def BindObjects(poSource, pcSourceAttr, poTarget, pcTargetAttr, _bindingMode_)
-		# Binds attributes of two reactive objects for synchronized updates.
-		if _bindingMode_ = ""
-			_bindingMode_ = DEFAULT_BINDING_MODE
+		# Binds the reactive objects the caller passed, by calling BindTo on the
+		# PARAMETERS themselves (they reach the live objects). Wrapping them in
+		# new stzReactiveObject bound COPIES, which is what this used to do.
+		_bBothReactive_ = 0
+		if isObject(poSource) and isObject(poTarget)
+			if strcmp(ring_lower(ring_classname(poSource)), "stzreactiveobject") = 0
+				if strcmp(ring_lower(ring_classname(poTarget)), "stzreactiveobject") = 0
+					_bBothReactive_ = 1
+				ok
+			ok
 		ok
-		
-		_oXSource_ = new stzReactiveObject(poSource, self)
-		_oXTarget_ = new stzReactiveObject(poTarget, self)
-		_oXSource_.BindTo(_oXTarget_, pcSourceAttr, pcTargetAttr)
+		if NOT _bBothReactive_
+			return 0
+		ok
+
+		poSource.BindTo(poTarget, pcSourceAttr, pcTargetAttr)
+		return 1
 
 	#--------------------#
 	#  REACTIVE STREAMS  #
@@ -782,3 +792,24 @@ class stzReactiveSystem from stzObject
 	def AddTimer(_timer_)
 		# Adds a timer to the timer manager.
 		@timerManager.AddTimer(_timer_)
+
+	# Delivers the finished HTTP answers, then honours a stop asked for with StopSafe; the loop calls it once per pass.
+	#
+	#   returns    nothing
+	#   warning    internal: Start hands the system itself to the loop as its drain, so that this runs
+	#              on the live system and sees the request StopSafe noted
+	#   see        StopSafe, PendingCount, Start
+	def DrainPending()
+		http.DrainPending()
+		if @bStopNext
+			@bStopNext = 0
+			This.Stop()
+		ok
+
+	# Returns how many asynchronous HTTP requests have not been delivered yet; the loop asks it once per pass.
+	#
+	#   returns    a number; 0 when none is waiting
+	#   warning    internal: the loop treats the system as its drain, see DrainPending
+	#   see        DrainPending, HttpGet
+	def PendingCount()
+		return http.PendingCount()
