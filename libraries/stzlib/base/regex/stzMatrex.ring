@@ -1528,7 +1528,7 @@ def ParseConjunction(_cTokenStr_)
 		def FindFirstMatchingMatrixIn(paMatrices)
 			return This.FindFirstMatchingMatrix(paMatrices)
 
-	# TRUE when at least one matrix of the list matches the pattern, whatever its name suggests; FALSE when none does.
+	# TRUE if at least one matrix of the list matches the pattern, whatever its name suggests; FALSE if none does.
 	#
 	#   paMatrices   a list of matrices, or [ "in", list ]
 	#   returns      TRUE if any matrix matches, FALSE if none does
