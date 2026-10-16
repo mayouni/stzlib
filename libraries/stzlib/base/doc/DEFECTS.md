@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 283 methods in 88 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 269 methods in 87 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| datetime/stzListOfTimeLines.ring | stzListOfTimeLines | 14 |
 | common/stzCache.ring | stzCache | 13 |
 | graph/stzGraph.ring | stzGraph | 12 |
 | regex/stzRegexMaker.ring | stzRegexMaker | 12 |
@@ -151,23 +150,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 - `ToHuman` (line 1867): Returns today, tomorrow or yesterday for those days, a count of days for the next or last 7, else a long date. -- the future form starts with a capital (In 3 days) and the past form does not (3 days ago)
 - `ToRelative` (line 1901): Returns today, tomorrow or yesterday, a count of days or weeks within a month of today, else the date as dd/MM/yyyy.
-
-## stzListOfTimeLines -- datetime/stzListOfTimeLines.ring (14)
-
-- `AddPointsToLane` (line 379): Does nothing today instead of adding several points to a lane at once. -- it edits the copy that Lane returns, so the lane stays empty and no error is raised: after AddPointsToLane("b", [ ["Alpha", "2026-07-01"] ]) the lane holds no point, where the same call on the copy gives it
-- `AddSpanToLane` (line 395): Does nothing today instead of adding a labelled span of time to a lane. -- it edits the copy that Lane returns, so the lane stays empty and no error is raised: AddSpanToLane("team a", "Build", "2026-04-01", "2026-05-01") leaves Spans of the lane empty, though the same call on the copy returns the span
-- `AddPeriodToLane` (line 412): Does nothing today instead of adding a labelled period to a lane. -- it is AddSpanToLane, which edits a copy and keeps nothing
-- `AddSpansToLane` (line 423): Does nothing today instead of adding several spans to a lane at once. -- it edits the copy that Lane returns, so the lane stays empty and no error is raised
-- `AddBlockedSpanToLane` (line 439): Does nothing today instead of blocking a labelled span of a lane. -- it edits the copy that Lane returns: afterwards IsBlockedInLane for a moment inside the span answers FALSE
-- `AddBlockedPointToLane` (line 451): Does nothing today instead of blocking a moment of a lane. -- it edits the copy that Lane returns: afterwards IsBlockedInLane for that moment answers FALSE
-- `BlockSpanInLane` (line 463): Raises error R14 today instead of blocking an existing span of a lane by its label. -- it calls BlockSpan on the lane's timeline, a method stzTimeLine does not have, so every call raises R14
-- `BlockPointInLane` (line 475): Raises error R14 today instead of blocking an existing point of a lane by its label. -- it calls BlockPoint on the lane's timeline, a method stzTimeLine does not have, so every call raises R14
-- `Show` (line 588): Raises error R19 today instead of returning a drawing of all the lanes. -- it calls an internal drawing routine without the arguments it needs; the drawing routines behind it are also unfinished stubs, so no picture exists to return
-- `ShowShort` (line 597): Raises error R19 today instead of returning a short drawing of all the lanes. -- it fails as Show does, through the same internal drawing routine
-- `ShowUncovered` (line 611): Raises error R19 today instead of returning a drawing that marks the uncovered periods. -- it fails as Show does, through the same internal drawing routine
-- `VizFind` (line 621): Raises error R19 today instead of drawing the lanes with one label highlighted. -- it ends by calling Show, which fails: Show raises error R19
-- `RemovePointFromLane` (line 758): Does nothing today instead of removing a point from a lane by label or moment. -- it edits the copy that Lane returns, so the point stays in the lane and no error is raised: removing KICKOFF2 or the moment 2026-02-01 leaves the lane unchanged
-- `RenameLabelInLane` (line 771): Does nothing today instead of renaming a point label in a lane. -- it edits the copy that Lane returns, so the label stays as it was and no error is raised
 
 ## stzImgToAscii -- extercode/stzImageToAscii.ring (6)
 
