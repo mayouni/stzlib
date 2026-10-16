@@ -299,3 +299,9 @@ regeneration: add doc/deadforward_baseline.txt too (gate.ring --update rewrites 
 decision (test 27). Open: a nested group {(A | B) & C} drops C (needs a recursive parser). RULE for the regeneration chain: stop unless gate.ring prints OK
 before any commit or push (a failing gate was pushed once and repaired). Next by size: stzFileManager 15, stzListOfTimeLines 14.
 
+## 2026-10-16: the stzFileManager fix batch is ON MAIN (d87fc73b1, both remotes); register 302 -> 283
+
+All rows broken (none stale); root cause = helper functions written between two classes attach to the class above. A file-writing guard used a
+fixture under test/file/_fixture with a path guard and removed it. Open in stzFile.ring: InfoXT, CompleteSuffix, the stzFileAppender Q forms.
+Next by size: stzListOfTimeLines 14, then the 5-10 row classes.
+
