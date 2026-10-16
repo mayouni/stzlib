@@ -310,3 +310,9 @@ Next by size: stzListOfTimeLines 14, then the 5-10 row classes.
 Root cause: methods edited the COPY Lane(name) returns; fixed through _laneIndex and in-place edits. Open in stzTimeLine: UncoveredPeriods on a lane with no span,
 RenameLabel case, RemovePoint by moment, Copy of blocked items. Next by size: stzCache 13, stzGraph 12, stzRegexMaker 12, stzOrgChart 10, stzRegex 10, stzStringChar 10.
 
+## 2026-10-16: the stzCache fix batch is ON MAIN (6820f9e54, both remotes); register 269 -> 251
+
+A half-ported class (stzStorage lives only in future/) rebuilt on the real file functions; semantics chosen by the agent: entry func|args|result, a cache starts
+not activated (lookups only gated), :InMemory / :InDatabase raise. Open: the file-top StzCache / CacheActivate ... functions. Next by size: stzGraph 12,
+stzRegexMaker 12, stzOrgChart 10, stzRegex 10, stzStringChar 10.
+
