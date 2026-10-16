@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 203 methods in 79 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 193 methods in 78 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| string/stzStringChar.ring | stzStringChar | 10 |
 | reactive/stzReactive.ring | stzReactiveSystem | 7 |
 | common/stzOccurrences.ring | stzOccurrences | 6 |
 | extercode/stzImageToAscii.ring | stzImgToAscii | 6 |
@@ -447,19 +446,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzString -- string/stzString.ring (1)
 
 - `IsCurrencySymbol` (line 9373): Answers FALSE today: the currency symbol check is a stub that waits for the locale data.
-
-## stzStringChar -- string/stzStringChar.ring (10)
-
-- `CanRetrieveName` (line 967): Answers TRUE when the Unicode database holds a name for the char, and raises when it does not. -- for an unnamed code such as U+0378 it raises "Can't proceed!" instead of answering FALSE, because it asks for the name and the name request raises
-- `AsciiCode` (line 1018): Returns the ASCII code of the char, 0 to 127; for a char above 127 it raises R3 instead of a clear message. -- the failure branch calls stzCharError, which is defined nowhere, so a non-ASCII char raises R3 "Calling Function without definition"
-- `IsLeftToRightIsolate` (line 1222): Returns an empty string today instead of TRUE for the left-to-right isolate mark, U+2066. -- the body is only a comment ("Reserved for future implementation"), so the answer is always empty
-- `IsRightToLeftIsolate` (line 1230): Returns an empty string today instead of TRUE for the right-to-left isolate mark, U+2067. -- the body is only a comment ("Reserved for future implementation"), so the answer is always empty
-- `IsEuropean` (line 1443): Raises error R14 today instead of TRUE for a European number, separator or terminator. -- the body calls IsEuropeanNumber, which is defined nowhere
-- `Mirrored` (line 1735): Raises error R3 today instead of returning the mirror partner of the char. -- the body calls CharFromUnicode, which is defined nowhere
-- `IsOtherCircledChar` (line 1997): Raises error R3 today instead of testing for a circled char outside the digits and Latin letters. -- the body calls OtherCircledCharUnicodes, which is defined nowhere
-- `IntroducedInUnicodeVersion` (line 2067): Returns a rough Unicode version taken from the char's block, "0.9" for nearly every char and "3.2" for emoji. -- the version list is an approximation, marked #TODO in the data file ("Put correct values"); emoji were added in Unicode 6
-- `DefaultLanguage` (line 2155): Returns the main language of the char's script, such as english, arabic or hebrew, and undefined for chars shared by scripts. -- raises "Can not create char object!" for a char of the Inherited or Unknown script, such as a combining accent, an unassigned code or a private-use char
-- `TaiThamScript` (line 2857): Raises error R14 today instead of testing for the Tai Tham script. -- the body calls ScriptCode, which was retired; ScriptIs("taitham") is the working test
 
 ## stzStringChecker -- string/stzStringChecker.ring (3)
 

@@ -83,7 +83,6 @@ stzobject.ofxtcsbm
 stzobject.ofxtcsmb
 stzobject.ofxtm
 stzpairofnumbers.commonleastmultiplier
-stzstringchar.iseuropeandigit
 stztable.findnthoccurrenceofvalueincellcs
 stztable.firstrowxt
 stztable.lastrowxt
