@@ -293,3 +293,9 @@ stzListInserter kills the process past the end. Next by size: stzGeoMap 18, stzM
 17 fixed, DensityPointsIn left as the author's decision (per 10000 km2 as coded). niger_density.png corrected and re-read. REMEMBER when committing a
 regeneration: add doc/deadforward_baseline.txt too (gate.ring --update rewrites it). Next by size: stzMatrex 17, stzFileManager 15, stzListOfTimeLines 14.
 
+## 2026-10-16: the stzMatrex fix batch is ON MAIN (ae8b41087, both remotes); register 319 -> 302
+
+11 fixed, 6 stubs kept (no syntax stated: CheckRows/Cols/Pattern/Sum test nothing, CheckDiagonal/Determinant test squareness), MatchesNone = the author's
+decision (test 27). Open: a nested group {(A | B) & C} drops C (needs a recursive parser). RULE for the regeneration chain: stop unless gate.ring prints OK
+before any commit or push (a failing gate was pushed once and repaired). Next by size: stzFileManager 15, stzListOfTimeLines 14.
+
