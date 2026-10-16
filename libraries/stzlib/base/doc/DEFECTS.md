@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 213 methods in 80 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 203 methods in 79 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| regex/stzRegex.ring | stzRegex | 10 |
 | string/stzStringChar.ring | stzStringChar | 10 |
 | reactive/stzReactive.ring | stzReactiveSystem | 7 |
 | common/stzOccurrences.ring | stzOccurrences | 6 |
@@ -402,19 +401,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzListexuter -- regex/stzListexUter.ring (1)
 
 - `GetDependencyChain` (line 461): Raises a stack overflow today instead of returning the triggers a trigger depends on. -- every log entry lists its own trigger in dependson, so the method calls itself on that same trigger without end; confirmed with the triggers pair and t1
-
-## stzRegex -- regex/stzRegex.ring (10)
-
-- `FindMatches` (line 749): Returns the start position of each match of the pattern in the last text given to a match call. -- it continues from one character past the end of each match, so a match that starts right after the previous one is skipped: \d on 1234 answers [ 1, 3 ] while Matches finds four
-- `HasGroups` (line 954): TRUE if the last match call left captures; the whole match counts as capture 0, so it is TRUE after any successful match. -- a pattern without any parentheses also answers TRUE after a match, and a pattern with groups answers FALSE until a match succeeded
-- `FindCapture` (line 1199): Returns the start position of each match of the pattern in the last text given to a match call. -- it walks the matches like FindMatches, so a match that starts right after the previous one is skipped
-- `LastError` (line 1378): Returns an empty text today instead of the compile error of the pattern. -- the body is a stub that returns "", so an invalid pattern gives no message
-- `PatternErrorOffset` (line 1387): Returns -1 today instead of the position of the compile error in the pattern. -- the body is a stub that returns -1, even for a pattern that does not compile
-- `FindPartialMatch` (line 1509): Returns the position where a partial or complete match starts in the text; raises an error when there is no match at all. -- for a text that does not match it reads the first element of an empty section and raises error R2
-- `PartialMatchLength` (line 1535): Returns the length of the partial or complete match today minus one: the partial match 123- gives 3. -- it subtracts an inclusive start from an inclusive end without adding one, so 12 matched by \d{3} gives 1 and a complete 123 gives 2
-- `RecursiveDepth` (line 1889): Returns the number of distinct nested matches found by the last recursive match, which is the nesting depth only for a single chain. -- it counts matches, so ((x)(y)(z)) answers 4 although the nesting is 2 deep, while (((x))) answers 3
-- `NestedDepth` (line 1898): Returns the number of distinct nested matches found by the last recursive match; the same count as the recursive depth. -- it counts matches, so ((x)(y)(z)) answers 4 although the nesting is 2 deep
-- `Explain` (line 1938): Returns a one-line explanation of the pattern when the library knows it by name; any other pattern raises an error. -- for a pattern outside the library's named list it builds stzRegexAnalyzer, a class that does not exist, and raises error R11
 
 ## stzRegexuter -- regex/stzRegexUter.ring (1)
 
