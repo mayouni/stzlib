@@ -6,6 +6,11 @@ load "../_narrated.ring"
 # IsArabicNumber tested the wrong category codes or the wrong type; Update(number)
 # emptied the object; IsBasicLatin, IsBasicArabic and the circled-letter tests read
 # variables that do not exist (R24).
+#
+# Second batch (fix/sc): ten more rows -- CanRetrieveName, AsciiCode, the two isolate marks,
+# IsEuropean (and the IsEuropeanNumber it called), Mirrored, IsOtherCircledChar,
+# IntroducedInUnicodeVersion, DefaultLanguage, TaiThamScript. Driven by codepoints (Chr(n)), so the
+# console output stays ASCII.
 
 Scenario("HexUnicode keeps every hex digit")
 	o = new stzStringChar("a")
@@ -77,6 +82,147 @@ Scenario("The block tests read the right data")
 	Then("circled small a is not", GChar(9424).IsCircledLatinCapitalLetter(), 0)
 EndScenario()
 
+Scenario("CanRetrieveName: FALSE for an unnamed code, no longer a raise")
+	Then("a letter has a name", Chr(97).CanRetrieveName(), TRUE)
+	Then("a Hebrew letter has a name", Chr(0x5D0).CanRetrieveName(), TRUE)
+	Then("an emoji has a name", Chr(0x1F600).CanRetrieveName(), TRUE)
+	Then("a control char has a label as its name", Chr(9).CanRetrieveName(), TRUE)
+	Then("U+0378 is unassigned: no name, FALSE and no raise", Chr(0x378).CanRetrieveName(), FALSE)
+	Then("U+0379 is unassigned too", Chr(0x379).CanRetrieveName(), FALSE)
+	Then("Name itself still raises for the unassigned code",
+		StzFindFirst("does not exist", ErrOf("Chr(0x378).Name()")) > 0, TRUE)
+	Then("and answers for the named one", Chr(97).Name(), "LATIN SMALL LETTER A")
+EndScenario()
+
+Scenario("AsciiCode: a code for ASCII, a clear error above 127")
+	Then("A is 65", Chr(65).AsciiCode(), 65)
+	Then("the space is 32", Chr(32).AsciiCode(), 32)
+	Then("DEL is 127", Chr(127).AsciiCode(), 127)
+	Then("a char of the ASCII range gives the same as Unicode", Chr(122).AsciiCode(), Chr(122).Unicode())
+	cErr = ErrOf("Chr(0xE9).AsciiCode()")
+	Then("an accented letter raises the documented message",
+		StzFindFirst("Can't get ASCII code for this character!", cErr) > 0, TRUE)
+	Then("the message names the U+ code of the char", StzFindFirst("U+00E9", cErr) > 0, TRUE)
+	Then("the raise is the clear message, not R3 (a function without definition)",
+		StzFindFirst("without definition", cErr), 0)
+	Then("a Hebrew letter raises too", StzFindFirst("not an ASCII", ErrOf("Chr(0x5D0).AsciiCode()")) > 0, TRUE)
+	Then("an emoji raises too", StzFindFirst("U+1F600", ErrOf("Chr(0x1F600).AsciiCode()")) > 0, TRUE)
+	Then("IsAscii agrees with the raise (FALSE above 127)", Chr(0xE9).IsAscii(), FALSE)
+	Then("IsAscii agrees with the answer (TRUE up to 127)", Chr(65).IsAscii(), TRUE)
+EndScenario()
+
+Scenario("IsLeftToRightIsolate and IsRightToLeftIsolate: the isolate marks")
+	Then("U+2066 is the left-to-right isolate", Chr(0x2066).IsLeftToRightIsolate(), TRUE)
+	Then("U+2067 is not", Chr(0x2067).IsLeftToRightIsolate(), FALSE)
+	Then("U+2068, the first strong isolate, is not", Chr(0x2068).IsLeftToRightIsolate(), FALSE)
+	Then("U+2069, the pop isolate, is not", Chr(0x2069).IsLeftToRightIsolate(), FALSE)
+	Then("the left-to-right embedding U+202A is not an isolate", Chr(0x202A).IsLeftToRightIsolate(), FALSE)
+	Then("a letter is not", Chr(97).IsLeftToRightIsolate(), FALSE)
+	Then("U+2067 is the right-to-left isolate", Chr(0x2067).IsRightToLeftIsolate(), TRUE)
+	Then("U+2066 is not", Chr(0x2066).IsRightToLeftIsolate(), FALSE)
+	Then("U+2068 is not", Chr(0x2068).IsRightToLeftIsolate(), FALSE)
+	Then("the right-to-left embedding U+202B is not an isolate", Chr(0x202B).IsRightToLeftIsolate(), FALSE)
+	Then("a Hebrew letter is right-to-left but not an isolate", Chr(0x5D0).IsRightToLeftIsolate(), FALSE)
+	Then("the answer is a number 0 or 1, not an empty string", isNumber(Chr(0x2066).IsLeftToRightIsolate()), TRUE)
+	Then("the left-to-right isolate counts as left-to-right", Chr(0x2066).IsLeftToRight(), TRUE)
+	Then("the right-to-left isolate counts as right-to-left", Chr(0x2067).IsRightToLeft(), TRUE)
+EndScenario()
+
+Scenario("IsEuropeanNumber, IsEuropeanDigit and IsEuropean: the bidi classes")
+	Then("5 is a European number", Chr(53).IsEuropeanNumber(), TRUE)
+	Then("an Extended Arabic-Indic digit U+06F5 is a European number", Chr(0x6F5).IsEuropeanNumber(), TRUE)
+	Then("an Arabic-Indic digit U+0665 is an Arabic number, not European", Chr(0x665).IsEuropeanNumber(), FALSE)
+	Then("a letter is not", Chr(97).IsEuropeanNumber(), FALSE)
+	Then("the plus sign is a separator, not a number", Chr(43).IsEuropeanNumber(), FALSE)
+	Then("IsEuropeanDigit answers like IsEuropeanNumber for 5", Chr(53).IsEuropeanDigit(), TRUE)
+	Then("IsEuropeanDigit is FALSE for a letter", Chr(97).IsEuropeanDigit(), FALSE)
+	Then("IsEuropean: a digit", Chr(53).IsEuropean(), TRUE)
+	Then("IsEuropean: the plus sign, a separator", Chr(43).IsEuropean(), TRUE)
+	Then("IsEuropean: the dollar sign, a terminator", Chr(36).IsEuropean(), TRUE)
+	Then("IsEuropean: the percent sign, a terminator", Chr(37).IsEuropean(), TRUE)
+	Then("IsEuropean: a letter is not", Chr(97).IsEuropean(), FALSE)
+	Then("IsEuropean: the comma is a common separator, not European", Chr(44).IsEuropean(), FALSE)
+	Then("IsEuropean: a Hebrew letter is not", Chr(0x5D0).IsEuropean(), FALSE)
+	Then("IsEuropean: the space is not", Chr(32).IsEuropean(), FALSE)
+EndScenario()
+
+Scenario("Mirrored: the partner of a bracket, as a char")
+	Then("( mirrors to )", Chr(Chr(40).Mirrored()).Unicode(), 41)
+	Then(") mirrors to (", Chr(Chr(41).Mirrored()).Unicode(), 40)
+	Then("< mirrors to >", Chr(Chr(60).Mirrored()).Unicode(), 62)
+	Then("[ mirrors to ]", Chr(Chr(91).Mirrored()).Unicode(), 93)
+	Then("{ mirrors to }", Chr(Chr(123).Mirrored()).Unicode(), 125)
+	Then("the left guillemet U+00AB mirrors to U+00BB", Chr(Chr(0xAB).Mirrored()).Unicode(), 0xBB)
+	Then("the result is one char of text", isString(Chr(40).Mirrored()), TRUE)
+	Then("the result agrees with UnicodeOfMirrored", Chr(Chr(40).Mirrored()).Unicode(), Chr(40).UnicodeOfMirrored())
+	Then("a letter has no partner and answers itself", Chr(97).Mirrored(), "a")
+	Then("a Hebrew letter answers itself", Chr(Chr(0x5D0).Mirrored()).Unicode(), 0x5D0)
+	Then("a char with a partner is mirrored", Chr(40).IsMirrored(), TRUE)
+	Then("a char without one is not", Chr(97).IsMirrored(), FALSE)
+EndScenario()
+
+Scenario("IsOtherCircledChar: circled chars outside the digits and the Latin letters")
+	Then("circled number ten U+2469 is another circled char", Chr(0x2469).IsOtherCircledChar(), TRUE)
+	Then("circled ideograph one U+3280 is", Chr(0x3280).IsOtherCircledChar(), TRUE)
+	Then("circled plus U+2295 is", Chr(0x2295).IsOtherCircledChar(), TRUE)
+	Then("double circled digit one U+24F5 is", Chr(0x24F5).IsOtherCircledChar(), TRUE)
+	Then("circled digit one U+2460 is a circled digit, not another", Chr(0x2460).IsOtherCircledChar(), FALSE)
+	Then("the circled zero U+24EA is a circled digit, not another", Chr(0x24EA).IsOtherCircledChar(), FALSE)
+	Then("circled capital A U+24B6 is a Latin letter, not another", Chr(0x24B6).IsOtherCircledChar(), FALSE)
+	Then("circled small a U+24D0 is a Latin letter, not another", Chr(0x24D0).IsOtherCircledChar(), FALSE)
+	Then("a plain letter is not circled at all", Chr(97).IsOtherCircledChar(), FALSE)
+	Then("a plain digit is not", Chr(53).IsOtherCircledChar(), FALSE)
+	Then("an unassigned code is not", Chr(0x378).IsOtherCircledChar(), FALSE)
+	Then("the white circle U+25CB has no CIRCLED in its name", Chr(0x25CB).IsOtherCircledChar(), FALSE)
+	Then("the other circled char is not IsCircled", Chr(0x2469).IsCircled(), FALSE)
+	Then("a circled digit is IsCircled", Chr(0x2460).IsCircled(), TRUE)
+EndScenario()
+
+Scenario("IntroducedInUnicodeVersion: an approximation, with the emoji blocks corrected")
+	Then("the pictographs block starts at version 6.0 (U+1F300)", Chr(0x1F300).IntroducedInUnicodeVersion(), "6.0")
+	Then("an emoticon U+1F600 is 6.0, no longer 3.2", Chr(0x1F600).IntroducedInUnicodeVersion(), "6.0")
+	Then("the last emoticon U+1F64F is 6.0", Chr(0x1F64F).IntroducedInUnicodeVersion(), "6.0")
+	Then("U+1F650, past the emoticons, is not 6.0", Chr(0x1F650).IntroducedInUnicodeVersion(), "0.9")
+	Then("U+1F2FF, before the pictographs, is not 6.0", Chr(0x1F2FF).IntroducedInUnicodeVersion(), "0.9")
+	Then("a Latin letter is not 6.0", Chr(97).IntroducedInUnicodeVersion(), "0.9")
+	Then("Hangul keeps its table entry", Chr(0xAC00).IntroducedInUnicodeVersion(), "1.0")
+	Then("UnicodeVersion answers like IntroducedInUnicodeVersion",
+		Chr(0x1F600).UnicodeVersion(), Chr(0x1F600).IntroducedInUnicodeVersion())
+EndScenario()
+
+Scenario("DefaultLanguage: undefined, not a raise, for the inherited and unknown scripts")
+	Then("a Latin letter answers english", Chr(97).DefaultLanguage(), "english")
+	Then("a Hebrew letter answers hebrew", Chr(0x5D0).DefaultLanguage(), "hebrew")
+	Then("an Arabic letter answers arabic", Chr(0x627).DefaultLanguage(), "arabic")
+	Then("a combining acute accent (inherited script) answers undefined", Chr(0x301).DefaultLanguage(), "undefined")
+	Then("an unassigned code (unknown script) answers undefined", Chr(0x378).DefaultLanguage(), "undefined")
+	Then("a private-use char answers undefined", Chr(0xE000).DefaultLanguage(), "undefined")
+	Then("a digit (common script) answers undefined", Chr(53).DefaultLanguage(), "undefined")
+	Then("an emoji answers undefined", Chr(0x1F600).DefaultLanguage(), "undefined")
+	Then("a Tai Tham letter, a script the locale table lacks, answers undefined", Chr(0x1A20).DefaultLanguage(), "undefined")
+	Then("the combining accent is of the inherited script", Chr(0x301).Script(), "inherited")
+	Then("the Language alias follows", Chr(0x5D0).Language(), "hebrew")
+	Then("the Language alias follows for an inherited char too", Chr(0x301).Language(), "undefined")
+EndScenario()
+
+Scenario("TaiThamScript: the Tai Tham test, by the engine script name")
+	Then("U+1A20 is of the Tai Tham script", Chr(0x1A20).TaiThamScript(), TRUE)
+	Then("U+1A21 is too", Chr(0x1A21).TaiThamScript(), TRUE)
+	Then("the engine names the script taitham", Chr(0x1A20).Script(), "taitham")
+	Then("a Latin letter is not", Chr(97).TaiThamScript(), FALSE)
+	Then("a Hebrew letter is not", Chr(0x5D0).TaiThamScript(), FALSE)
+	Then("the Tai Viet letter U+AA80, a sibling script, is not", Chr(0xAA80).TaiThamScript(), FALSE)
+	Then("IsTaiThamScript answers TRUE for U+1A20", Chr(0x1A20).IsTaiThamScript(), TRUE)
+	Then("IsTaiThamScript answers FALSE for a letter", Chr(97).IsTaiThamScript(), FALSE)
+	Then("ScriptIs taitham is the same test", Chr(0x1A20).ScriptIs("taitham"), TRUE)
+EndScenario()
+
+Scenario("Building a char of the wrong type raises a clear message")
+	cErr = ErrOf("o1 = new stzStringChar([ 1, 2 ])")
+	Then("a list raises the documented message", StzFindFirst("Can't create the character object!", cErr) > 0, TRUE)
+	Then("and not a call to an undefined function", StzFindFirst("without definition", cErr), 0)
+EndScenario()
+
 Summary()
 
 func Raises(o, cCode)
@@ -88,4 +234,17 @@ func Raises(o, cCode)
 	done
 
 func GChar(p)
+	return new stzStringChar(p)
+
+# the error text of a call that must raise, "" when it does not
+func ErrOf(pcCode)
+	cErrOf = ""
+	try
+		eval(pcCode)
+	catch
+		cErrOf = cCatchError
+	done
+	return cErrOf
+
+func Chr(p)
 	return new stzStringChar(p)
