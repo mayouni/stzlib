@@ -66,8 +66,6 @@ func _CharUnicodeVersion(_nUnicode_)
 	if _nUnicode_ >= 0x4E00 and _nUnicode_ <= 0x9FFF return 1 ok
 	if _nUnicode_ >= 0xAC00 and _nUnicode_ <= 0xD7AF return 2 ok
 	if _nUnicode_ >= 0x0900 and _nUnicode_ <= 0x097F return 1 ok
-	if _nUnicode_ >= 0x1F600 and _nUnicode_ <= 0x1F64F return 6 ok
-	if _nUnicode_ >= 0x1F300 and _nUnicode_ <= 0x1F5FF return 6 ok
 	return 1
 
 #-- Public standalone functions
@@ -716,7 +714,8 @@ class stzStringChar from stzString
 	#              name, or a stzString object
 	#   returns    nothing; builds the object
 	#   note       an empty text, a text of several chars that is neither a hex form nor a name, and
-	#              a bare hex such as 61 all raise "Can not create char object!"
+	#              a bare hex such as 61 all raise "Can not create char object!"; a value of another
+	#              type, such as a list, raises "Can't create the character object!"
 	#   see        Update, Unicode
 	#@ aka  Build the char object from the given single-char string.
 	def init(pChar)
@@ -761,7 +760,7 @@ class stzStringChar from stzString
 			@oString = pChar
 
 		else
-			StzRaise(stzCharError(:CanNotCreateCharObjectForThisType))
+			StzRaise("Can't create the character object! The type of the value you provided is not correct. Provide the character as a string or as a decimal number, its unicode code point.")
 		ok
 
 		if KeepingHistory() = 1
@@ -957,19 +956,17 @@ class stzStringChar from stzString
 	 #   UNICODE NAME & METADATA             #
 	#========================================#
 
-	# Answers TRUE when the Unicode database holds a name for the char, and raises when it does not.
+	# Answers TRUE when the Unicode database holds a name for the char, and FALSE when it holds none.
 	#
-	#   returns    TRUE; it never answers FALSE
-	#   warning    known defect: for an unnamed code such as U+0378 it raises "Can't proceed!"
-	#              instead of answering FALSE, because it asks for the name and the name request
-	#              raises
+	#   returns    TRUE or FALSE; FALSE for an unassigned code such as U+0378, where Name raises
+	#   note       a control char and a private-use char count as named: their name is a label such
+	#              as <control>
 	#   see        Name
 	def CanRetrieveName()
-		if This.Name() != "@CantRetriveTheName"
+		if ring_len(StzCharNameByUnicode(This.Unicode())) > 0
 			return 1
-		else
-			return 0
 		ok
+		return 0
 
 	# Returns the official Unicode name, such as LATIN SMALL LETTER A, and raises when the database has none.
 	#
@@ -1009,18 +1006,17 @@ class stzStringChar from stzString
 		_cName_ = This.Name()
 		return BothStringsAreEqualCS(pcName, _cName_, 0)
 
-	# Returns the ASCII code of the char, 0 to 127; for a char above 127 it raises R3 instead of a clear message.
+	# Returns the ASCII code of the char, 0 to 127, and raises a clear error for a char above 127.
 	#
-	#   returns    a number
-	#   warning    known defect: the failure branch calls stzCharError, which is defined nowhere, so
-	#              a non-ASCII char raises R3 "Calling Function without definition"
-	#   see        Unicode
+	#   returns    a number from 0 to 127
+	#   note       a non-ASCII char raises "Can't get ASCII code for this character!" and names its
+	#              U+ code; IsAscii tells beforehand, and Unicode answers for any char
+	#   see        IsAscii, Unicode
 	def AsciiCode()
-		try
-			return ascii(This.Content())
-		catch
-			StzRaise(stzCharError(:CanNotGetAsciiCodeForNonAsciiChar))
-		end
+		if This.Unicode() > 127
+			StzRaise("Can't get ASCII code for this character! The character " + This.HexUnicode() + " is not an ASCII character. Provide an ASCII character, or ask Unicode for its code point.")
+		ok
+		return ascii(This.Content())
 
 	  #=====================================#
 	 #   ORIENTATION & UNICODE DIRECTION   #
@@ -1110,6 +1106,14 @@ class stzStringChar from stzString
 	#@ aka  TRUE if the char belongs to the Arabic Fraction Unicode range.
 	def IsArabicFraction()
 		return ring_find(ArabicFractionsUnicodes(), This.Unicode()) > 0
+
+	# TRUE if the bidi class is European number, as for the ASCII digits and the Extended Arabic-Indic digits.
+	#
+	#   returns    TRUE or FALSE
+	#   note       the Arabic-Indic digits U+0660 to 0669 are class Arabic number and answer FALSE
+	#   see        IsEuropean, IsEuropeanNumberSeparator, IsEuropeanNumberTerminator
+	def IsEuropeanNumber()
+		return This.UnicodeDirectionNumber() = "2"
 
 	def IsEuropeanDigit()
 		return This.IsEuropeanNumber()
@@ -1213,26 +1217,26 @@ class stzStringChar from stzString
 	def IsLeftToRightOverride()
 		return This.UnicodeDirectionNumber() = "12"
 
-	# Returns an empty string today instead of TRUE for the left-to-right isolate mark, U+2066.
+	# TRUE if the char is the left-to-right isolate mark, U+2066.
 	#
-	#   returns    an empty string
-	#   warning    known defect: the body is only a comment ("Reserved for future implementation"),
-	#              so the answer is always empty
-	#   see        IsLeftToRight
+	#   returns    TRUE or FALSE
+	#   note       the first strong isolate U+2068 and the pop directional isolate U+2069 answer FALSE
+	#   see        IsRightToLeftIsolate, IsLeftToRight
 	def IsLeftToRightIsolate()
-	# Returns an empty string today instead of TRUE for the right-to-left isolate mark, U+2067.
+		return This.UnicodeDirectionNumber() = "19"
+
+	# TRUE if the char is the right-to-left isolate mark, U+2067.
 	#
-	#   returns    an empty string
-	#   warning    known defect: the body is only a comment ("Reserved for future implementation"),
-	#              so the answer is always empty
-	#   see        IsRightToLeft
-	#@ aka  Reserved for future implementation
+	#   returns    TRUE or FALSE
+	#   note       the first strong isolate U+2068 and the pop directional isolate U+2069 answer FALSE
+	#   see        IsLeftToRightIsolate, IsRightToLeft
 	def IsRightToLeftIsolate()
+		return This.UnicodeDirectionNumber() = "20"
+
 	# TRUE if the bidi class is right-to-left Arabic, as for Arabic letters and Arabic presentation forms.
 	#
 	#   returns    TRUE or FALSE
 	#   see        IsRightToLeft, UnicodeDirection
-	#@ aka  Reserved for future implementation
 	def IsRightToLeftArabic()
 		return This.UnicodeDirectionNumber() = "13"
 
@@ -1434,11 +1438,12 @@ class stzStringChar from stzString
 		def IsSpaceOrLetterOrThisChar(pcChar)
 			return This.IsLetterOrSpaceOrThisChar(pcChar)
 
-	# Raises error R14 today instead of TRUE for a European number, separator or terminator.
+	# TRUE if the bidi class is European number, European separator or European terminator.
 	#
-	#   returns    TRUE or FALSE once repaired
-	#   warning    known defect: the body calls IsEuropeanNumber, which is defined nowhere
-	#   see        IsEuropeanNumberSeparator, IsEuropeanNumberTerminator
+	#   returns    TRUE or FALSE
+	#   note       a digit, the plus and hyphen-minus signs and the dollar and percent signs answer
+	#              TRUE; the comma and the full stop are common separators and answer FALSE
+	#   see        IsEuropeanNumber, IsEuropeanNumberSeparator, IsEuropeanNumberTerminator
 	#@ aka  TRUE if the char is a European number, separator or terminator (bidi classes).
 	def IsEuropean()
 		if This.IsEuropeanNumber() or This.IsEuropeanNumberSeparator() or
@@ -1726,15 +1731,17 @@ class stzStringChar from stzString
 	def UnicodeOfMirrored()
 		return _CharMirrored(This.Unicode())
 
-	# Raises error R3 today instead of returning the mirror partner of the char.
+	# Returns the mirror partner of the char as a char, such as ) for (, or the char itself when it has none.
 	#
-	#   returns    a string once repaired
-	#   warning    known defect: the body calls CharFromUnicode, which is defined nowhere
-	#   see        UnicodeOfMirrored
+	#   returns    a string of one char
+	#   note       the partner table is the library's own and short: 22 chars, the brackets, the
+	#              guillemets and a few more pairs. The Unicode database holds only a mirrored flag,
+	#              not the partner, so a mirrored char outside the table answers itself
+	#   see        IsMirrored, UnicodeOfMirrored
 	#@ aka  The mirrored counterpart of the char.
 	def Mirrored()
 		_nMirrorUnicode_ = _CharMirrored(This.Unicode())
-		_cChar_ = CharFromUnicode(_nMirrorUnicode_)
+		_cChar_ = StzUnicodeToChar(_nMirrorUnicode_)
 		return _cChar_
 
 	  #=========================#
@@ -1988,14 +1995,23 @@ class stzStringChar from stzString
 	def IsCircledLatinCapitalLetter()
 		return ring_find(CircledLatinCapitalLetterUnicodes(), This.Unicode()) > 0
 
-	# Raises error R3 today instead of testing for a circled char outside the digits and Latin letters.
+	# TRUE if the Unicode name has the word CIRCLED and the char is not one of the library's circled digits or Latin letters.
 	#
-	#   returns    TRUE or FALSE once repaired
-	#   warning    known defect: the body calls OtherCircledCharUnicodes, which is defined nowhere
+	#   returns    TRUE or FALSE
+	#   note       circled number ten, a circled ideograph and the circled plus answer TRUE; so do
+	#              the negative and double circled forms. The library keeps no list of these chars,
+	#              so the test reads the name from the Unicode database; an unassigned code is FALSE
 	#   see        IsCircled
-	#@ aka  TRUE if the char belongs to the Other Circled Char Unicode range.
+	#@ aka  TRUE if the char is circled but outside the circled digits and Latin letters.
 	def IsOtherCircledChar()
-		return ring_find(OtherCircledCharUnicodes(), This.Unicode()) > 0
+		if This.IsCircled()
+			return 0
+		ok
+		_cName_ = " " + StzCharNameByUnicode(This.Unicode()) + " "
+		if ring_substr1(_cName_, " CIRCLED ") > 0
+			return 1
+		ok
+		return 0
 
 	  #==============================#
 	 #   PRINTABLE / VISIBLE CHAR   #
@@ -2058,18 +2074,25 @@ class stzStringChar from stzString
 	 #   UNICODE VERSION    #
 	#======================#
 
-	# Returns a rough Unicode version taken from the char's block, "0.9" for nearly every char and "3.2" for emoji.
+	# Returns a rough guess of the Unicode version that introduced the char, from a short table of blocks; it is not exact.
 	#
-	#   returns    a string
-	#   warning    known defect: the version list is an approximation, marked #TODO in the data file
-	#              ("Put correct values"); emoji were added in Unicode 6
+	#   returns    a string such as "0.9" or "6.0"
+	#   warning    approximation: the Unicode database carries no age per char, so the answer comes
+	#              from a table of a dozen blocks. Every char outside them, and most inside, answer
+	#              "0.9", which is not a Unicode version; Hangul answers "1.0". The two emoji blocks
+	#              U+1F300 to U+1F64F answer "6.0", the version that added them, though some of their
+	#              chars came later. The version list in the data file is marked #TODO there
 	#@ aka  The Unicode version that introduced this char.
 	def IntroducedInUnicodeVersion()
-		_n_ = _CharUnicodeVersion(This.Unicode())
+		_nCpVer_ = This.Unicode()
+		if _nCpVer_ >= 0x1F300 and _nCpVer_ <= 0x1F64F
+			return "6.0"
+		ok
+		_n_ = _CharUnicodeVersion(_nCpVer_)
 		if _n_ > 0 and _n_ <= len(_acUnicodeVersions)
 			return _acUnicodeVersions[ _n_ ]
 		else
-			StzRaise(stzCharError(:CanNotDefineUnicodeVersion))
+			StzRaise("Can't define the unicode version of this character! The number returned by the engine does not fit in the range of the _acUnicodeVersions global list.")
 		ok
 
 	# Same as IntroducedInUnicodeVersion.
@@ -2146,15 +2169,21 @@ class stzStringChar from stzString
 	# Returns the main language of the char's script, such as english, arabic or hebrew, and undefined for chars shared by scripts.
 	#
 	#   returns    a string
-	#   note       greek answers ancient_greek and Devanagari answers bhojpuri
-	#   warning    known defect: raises "Can not create char object!" for a char of the Inherited or
-	#              Unknown script, such as a combining accent, an unassigned code or a private-use
-	#              char
+	#   note       greek answers ancient_greek and Devanagari answers bhojpuri. A char of the common,
+	#              inherited or unknown script (a digit, a combining accent, an unassigned code, a
+	#              private-use char), or of a script the locale table does not list, answers undefined
 	#   see        Script
 	#@ aka  The default language of the char's script.
 	def DefaultLanguage()
-		_cResult_ = StzScriptQ(This.Script()).DefaultLanguage()
-		return _cResult_
+		_cScriptDl_ = This.Script()
+		_aScriptsDl_ = LocaleScriptsXT()
+		_nScriptsDl_ = ring_len(_aScriptsDl_)
+		for _iDl_ = 1 to _nScriptsDl_
+			if StzLower(_aScriptsDl_[_iDl_][2]) = _cScriptDl_
+				return _aScriptsDl_[_iDl_][4]
+			ok
+		next
+		return "undefined"
 
 		def Language()
 			return This.DefaultLanguage()
@@ -2846,16 +2875,17 @@ class stzStringChar from stzString
 	def IsChamScript()
 		return This.ScriptIs("cham")
 
-	# Raises error R14 today instead of testing for the Tai Tham script.
+	# TRUE if the engine's Unicode data puts the char in the Tai Tham script.
 	#
-	#   returns    TRUE or FALSE once repaired
+	#   returns    TRUE or FALSE
 	#   note       the engine names the script taitham
-	#   warning    known defect: the body calls ScriptCode, which was retired; ScriptIs("taitham")
-	#              is the working test
 	#   see        ScriptIs, Script
-	#@ aka  The Tai Tham script constant.
+	#@ aka  TRUE if the char belongs to the Tai Tham script.
 	def TaiThamScript()
-		return This.ScriptCode() = 78
+		return This.ScriptIs("taitham")
+
+		def IsTaiThamScript()
+			return This.TaiThamScript()
 
 	# TRUE if the engine's Unicode data puts the char in the Tai Viet script.
 	#
