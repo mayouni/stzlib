@@ -6008,13 +6008,10 @@ class stzGraph from stzObject
 	    def ClearValidationRules()
 	        @aValidationRules = []
 	    
-	    # Removes the rule with that name from all three stores; the name is folded to upper case before the match.
+	    # Removes the rule with that name from all three stores, whatever the case of the name.
 	    #
 	    #   _cRuleName_   The name of the rule to remove, as text; case is ignored.
 	    #   returns       nothing; the graph changes
-	    #   warning       rule names registered through a group are stored in upper case, and a name
-	    #                 loaded from a file keeps its own case, so a lowercase file rule is not
-	    #                 found
 	    #   see           HasRule, ClearRules
 	    #@ aka  Remove specific rule
 	    def RemoveRule(_cRuleName_)
@@ -6030,19 +6027,16 @@ class stzGraph from stzObject
 	        _nRules1Len_ = len(_aRules_)
 	        for _iLoopRules1_ = 1 to _nRules1Len_
 	        	_aRule_ = _aRules_[_iLoopRules1_]
-	            if _aRule_[:name] != _cName_
+	            if UPPER(_aRule_[:name]) != _cName_
 	                _aNew_ + _aRule_
 	            ok
 	        next
 	        return _aNew_
 	    
-	# TRUE if a constraint rule has that name; the name is folded to upper case first.
+	# TRUE if the graph holds a constraint, derivation or validation rule with that name, whatever the case of the name.
 	#
-	#   pcRuleName   The rule name, as text.
+	#   pcRuleName   The rule name, as text; case is ignored.
 	#   returns      TRUE or FALSE
-	#   warning      known defect: derivation and validation rules are never found, because their
-	#                names are lowered before the comparison with an upper-case name, so a rule that
-	#                is loaded can still answer FALSE
 	#   see          RemoveRule, ActiveRules
 	#@ aka  Check if rule loaded
 	def HasRule(pcRuleName)
@@ -6050,12 +6044,16 @@ class stzGraph from stzObject
 			stzraise("Rule name must be a string!")
 		ok
 	
-		pcRuleName = UPPER(pcRuleName)
+		# Rule names are kept as their author wrote them (a group's are in upper
+		# case, a file's may be in any case), so the two sides are folded to
+		# the same case here; folding only the argument made every rule not
+		# stored in upper case invisible.
+		pcRuleName = StzUpper(pcRuleName)
 
 		# Check Constraint rules
 		_nLen_ = len(@aConstraintRules)
 		for i = 1 to _nLen_
-			if @aConstraintRules[i][:name] = pcRuleName
+			if StzUpper(@aConstraintRules[i][:name]) = pcRuleName
 				return 1
 			ok
 		next
@@ -6063,7 +6061,7 @@ class stzGraph from stzObject
 		# Check Derivation rules
 		_nLen_ = len(@aDerivationRules)
 		for i = 1 to _nLen_
-			if StzLower(@aDerivationRules[i][:name]) = pcRuleName
+			if StzUpper(@aDerivationRules[i][:name]) = pcRuleName
 				return 1
 			ok
 		next
@@ -6071,7 +6069,7 @@ class stzGraph from stzObject
 		# Check Validation rules
 		_nLen_ = len(@aValidationRules)
 		for i = 1 to _nLen_
-			if StzLower(@aValidationRules[i][:name]) = pcRuleName
+			if StzUpper(@aValidationRules[i][:name]) = pcRuleName
 				return 1
 			ok
 		next
@@ -6188,6 +6186,11 @@ class stzGraph from stzObject
 			ok
 		next
 		
+		# Record the verdict BEFORE the failing branch returns: it used to be
+		# recorded only on the passing path, so a failed validation was never
+		# remembered and ValidationSummary / Anomalies could never show a violation.
+		@aLastValidationResult = [ (len(_aViolations_) = 0), _aViolations_, _acRulesChecked_ ]
+
 		if len(_aViolations_) > 0
 			_acIssues_ = This._FlattenViolations(_aViolations_)
 			_acAffected_ = This._ExtractAffectedNodes(_aViolations_)
@@ -6205,10 +6208,6 @@ class stzGraph from stzObject
 				:affectedNodes = _acAffected_
 			]
 		ok
-		
-		# Add before final return in _ValidateSingle:
-		_bValid_ = (len(_aViolations_) = 0)
-		@aLastValidationResult = [_bValid_, _aViolations_, _acRulesChecked_]
 		
 		return [
 			:status = "pass",
@@ -6322,13 +6321,13 @@ class stzGraph from stzObject
 		end
 		return _acAll_
 	
-	# Returns the record of the last validation that passed; before any pass it answers that none has run.
+	# Returns the record of the last validation run, whether it passed or failed: status, the rules checked and the violations.
 	#
-	#   returns    a hash list [ :status, :rules_applied, :violations, :violation_count, :passed ]
-	#              or [ :status, :message ]
-	#   warning    known defect: a failed validation is never recorded, so after a failure the
-	#              summary still shows the older pass, or none has run, and its violations list is
-	#              always empty
+	#   returns    a hash list [ :status, :rules_applied, :violations, :violation_count, :passed ],
+	#              or [ :status, :message ] with status "not_run" before any validation
+	#   note       Validate runs several rule groups one after the other and the record is the last
+	#              run, which holds the rules of every group loaded so far; each violation is a hash
+	#              list [ :rule, :message, :severity ]
 	#   see        Validate, Anomalies
 	def ValidationSummary()
 		if len(@aLastValidationResult) = 0
@@ -6359,14 +6358,15 @@ class stzGraph from stzObject
 		def LastValidation()
 			return This.ValidationSummary()
 
-	# Returns the violations of the last recorded validation, which is always an empty list today.
+	# Returns the violations found by the last validation run as hash lists; [ ] when it passed or none has run.
 	#
-	#   returns    a list; empty text before any validation passed
-	#   warning    known defect: only passing validations are recorded, so this can never list a
-	#              violation; read the issues of Validate instead
+	#   returns    a list of hash lists [ :rule, :message, :severity ]
 	#   see        ValidationSummary, Validate
 	def Anomalies()
-		return This.ValidationSummary()[:violations]
+		if len(@aLastValidationResult) = 0
+			return []
+		ok
+		return @aLastValidationResult[2]
 
 		def Issues()
 			return This.Anomalies()
