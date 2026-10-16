@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 319 methods in 94 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 302 methods in 93 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| regex/stzMatrex.ring | stzMatrex | 17 |
 | file/stzFile.ring | stzFileManager | 15 |
 | datetime/stzListOfTimeLines.ring | stzListOfTimeLines | 14 |
 | common/stzCache.ring | stzCache | 13 |
@@ -523,26 +522,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzListexuter -- regex/stzListexUter.ring (1)
 
 - `GetDependencyChain` (line 461): Raises a stack overflow today instead of returning the triggers a trigger depends on. -- every log entry lists its own trigger in dependson, so the method calls itself on that same trigger without end; confirmed with the triggers pair and t1
-
-## stzMatrex -- regex/stzMatrex.ring (17)
-
-- `Match` (line 557): TRUE if the matrix satisfies every term of the pattern; a success also records its size, properties and matrix as the matched parts. -- known defects: the terms row, col, pattern, determinant and sum accept every matrix, diagonal accepts every square one, quantifiers are never applied, and size(<n), size(>n) or a size with m or n for a number accept every matrix
-- `CheckSize` (line 713): TRUE if the matrix has the size a token states, such as 3x3. -- a size with m or n in place of a number, such as 3xn, accepts every matrix, and the > and < forms never apply
-- `CheckRows` (line 879): Returns TRUE for every matrix today instead of testing a condition on the rows. -- the body is a stub that returns 1, so a row term never rejects a matrix
-- `CheckCols` (line 891): Returns TRUE for every matrix today instead of testing a condition on the columns. -- the body is a stub that returns 1, so a col term never rejects a matrix
-- `CheckDiagonal` (line 903): TRUE if the matrix is square; the diagonal terms of the token are not tested. -- it only tests squareness, so any square matrix passes whatever the term asks
-- `CheckPattern` (line 1021): Returns TRUE for every matrix today instead of testing a visual or structural pattern. -- the body is a stub that returns 1
-- `CheckDeterminant` (line 1033): TRUE if the matrix is square; the determinant value that the token states is not tested. -- the body only tests squareness, so determinant(5) accepts a matrix whose determinant is -3
-- `CheckSum` (line 1051): Returns TRUE for every matrix today instead of testing the sum of its elements. -- the body adds the elements up and ignores the result
-- `MatchesNone` (line 1421): Returns TRUE when at least one matrix of the list matches, which is the reverse of what its name promises. -- the loop returns 1 at the first match and 0 when there is none, the opposite of none matching
-- `RemoveConstraint` (line 1500): Removes the token at a position from the parsed tokens, so that Match stops testing it. -- the pattern text is not changed, so Pattern and Explain still show the removed term
-- `SimilarityScore` (line 1520): Returns the share of cells that are equal in two matrices of the same size, from 0 to 1; matrices of different sizes score 0. -- the wrapped forms [ "between", m ] and [ "and", m ] that the body tries to accept raise an error, because it stores the inner matrix in a misspelled variable
-- `CommonProperties` (line 1703): Returns the names among square, symmetric, diagonal, identity, zero, upper and lower that every matching matrix of the list has. -- known defects: square is never reported, because the property test has no such branch, and when no matrix matches every name is returned
-- `Andd` (line 1817): Raises error R24 today instead of returning a pattern that holds both patterns joined by &. -- it forwards the misspelled variable oOtherMatriex, which is uninitialized
-- `Not_` (line 1847): Returns a new matrex whose pattern has @! in front of the whole pattern; this object does not change. -- the negation lands on the first term only, so for a pattern with several terms the result is not the opposite of the original
-- `ToJSON` (line 1864): Raises error R21 today instead of returning the pattern and its tokens as JSON text; only the empty pattern works. -- it joins pair lists into a text, which is an operator on the wrong type, so every token raises R21
-- `TokensToJSON` (line 1878): Raises error R21 today instead of returning the tokens as a JSON array; an empty token list gives []. -- each token is a list of pairs and the body adds a pair to a text, which raises R21
-- `TokenToJSON` (line 1898): Raises error R21 today instead of returning one token as a JSON object. -- it adds a pair list to a text, which raises R21, because tokens are lists of pairs and not flat key and value lists
 
 ## stzRegex -- regex/stzRegex.ring (10)
 
