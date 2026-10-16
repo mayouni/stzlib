@@ -1,5 +1,5 @@
 {
- "count": 251,
+ "count": 239,
  "defects": [
   {
    "class": "stzAppServer",
@@ -370,106 +370,10 @@
    "cause": "known defect: with a registered rule it reads the rule's id as a field of an object (.@cRuleId) while rules are stored as hash lists, so it raises R13; without rules it answers \"No visual rules defined.\""
   },
   {
-   "class": "stzGraph",
-   "file": "graph/stzGraph.ring",
-   "method": "InsertNodesBefore",
-   "line": 715,
-   "symptom": "Raises error R20 today instead of inserting a chain of nodes in front of an existing node.",
-   "cause": "known defect: it calls InsertNodeBefore with three arguments, but that method takes two, so even a valid list of pairs raises R20"
-  },
-  {
-   "class": "stzGraph",
-   "file": "graph/stzGraph.ring",
-   "method": "InsertNodesAfter",
-   "line": 731,
-   "symptom": "Raises error R20 today instead of inserting a chain of nodes behind an existing node.",
-   "cause": "known defect: it calls InsertNodeAfter with three arguments, but that method takes two, so even a valid list of pairs raises R20"
-  },
-  {
-   "class": "stzGraph",
-   "file": "graph/stzGraph.ring",
-   "method": "ConnectEdgesXTT",
-   "line": 1484,
-   "symptom": "Raises error R19 today instead of adding edges to several nodes, each with its own label and properties.",
-   "cause": "known defect: it calls AddEdgeXTT with two arguments where four are needed, so any non-empty list raises R19, and an empty list does nothing"
-  },
-  {
-   "class": "stzGraph",
-   "file": "graph/stzGraph.ring",
-   "method": "LongestPath",
-   "line": 3296,
-   "symptom": "Returns the largest number of nodes reachable from any one node, which is not the hop count of the longest path.",
-   "cause": "known defect: the name promises a path length, but the body counts reachable nodes, so a node that reaches two branches of two nodes each answers 4, though no path is longer than 2 hops"
-  },
-  {
-   "class": "stzGraph",
-   "file": "graph/stzGraph.ring",
-   "method": "CyclicNodes",
-   "line": 3321,
-   "symptom": "Returns an empty list today instead of the ids of the nodes that lie on a cycle.",
-   "cause": "known defect: it looks for the node among the nodes it reaches, but ReachableFrom never lists the start node, so the test is never true; use HasCyclicDependencies for the graph"
-  },
-  {
-   "class": "stzGraph",
-   "file": "graph/stzGraph.ring",
-   "method": "LoadFromGraphML",
-   "line": 4951,
-   "symptom": "Raises error \"Incorrect Id\" today instead of reading a GraphML file into the graph, and leaves odd nodes behind.",
-   "cause": "known defect: the parser cuts the text at fixed positions instead of the positions it finds, so even a file written by SaveToGraphML yields garbled ids such as \"sion=\" and raises; the graph is left with those nodes"
-  },
-  {
-   "class": "stzGraph",
-   "file": "graph/stzGraph.ring",
-   "method": "LoadGraphML",
-   "line": 4965,
-   "symptom": "Raises error \"Incorrect Id\" today instead of reading a GraphML file into the graph.",
-   "cause": "known defect: it only calls LoadFromGraphML, whose parser fails on every file written by SaveToGraphML and leaves garbled nodes behind"
-  },
-  {
-   "class": "stzGraph",
-   "file": "graph/stzGraph.ring",
-   "method": "ImportFromGraphML",
-   "line": 4974,
-   "symptom": "Raises error \"Incorrect Id\" today instead of importing a GraphML file into the graph.",
-   "cause": "known defect: it only calls LoadFromGraphML, whose parser fails on every file written by SaveToGraphML and leaves garbled nodes behind"
-  },
-  {
-   "class": "stzGraph",
-   "file": "graph/stzGraph.ring",
-   "method": "ImportGraphML",
-   "line": 4983,
-   "symptom": "Raises error \"Incorrect Id\" today instead of importing a GraphML file into the graph.",
-   "cause": "known defect: it only calls LoadFromGraphML, whose parser fails on every file written by SaveToGraphML and leaves garbled nodes behind"
-  },
-  {
-   "class": "stzGraph",
-   "file": "graph/stzGraph.ring",
-   "method": "HasRule",
-   "line": 5940,
-   "symptom": "TRUE if a constraint rule has that name; the name is folded to upper case first.",
-   "cause": "known defect: derivation and validation rules are never found, because their names are lowered before the comparison with an upper-case name, so a rule that is loaded can still answer FALSE"
-  },
-  {
-   "class": "stzGraph",
-   "file": "graph/stzGraph.ring",
-   "method": "ValidationSummary",
-   "line": 6225,
-   "symptom": "Returns the record of the last validation that passed; before any pass it answers that none has run.",
-   "cause": "known defect: a failed validation is never recorded, so after a failure the summary still shows the older pass, or none has run, and its violations list is always empty"
-  },
-  {
-   "class": "stzGraph",
-   "file": "graph/stzGraph.ring",
-   "method": "Anomalies",
-   "line": 6260,
-   "symptom": "Returns the violations of the last recorded validation, which is always an empty list today.",
-   "cause": "known defect: only passing validations are recorded, so this can never list a violation; read the issues of Validate instead"
-  },
-  {
    "class": "stzGraphComparison",
    "file": "graph/stzGraph.ring",
    "method": "Content",
-   "line": 8704,
+   "line": 8811,
    "symptom": "Returns nothing today instead of the comparison data.",
    "cause": "known defect: the body is empty, so the call answers empty text; Data returns the comparison"
   },
@@ -477,7 +381,7 @@
    "class": "stzGraphComparison",
    "file": "graph/stzGraph.ring",
    "method": "WithCycles",
-   "line": 8787,
+   "line": 8894,
    "symptom": "Returns an empty list today instead of the names of the variations that contain a cycle.",
    "cause": "known defect: the rows hold the text TRUE or FALSE in the cycle field, and the body tests it against the number 1"
   },
@@ -485,7 +389,7 @@
    "class": "stzGraphComparison",
    "file": "graph/stzGraph.ring",
    "method": "WithoutCycles",
-   "line": 8807,
+   "line": 8914,
    "symptom": "Returns an empty list today instead of the names of the variations that stay acyclic.",
    "cause": "known defect: the rows hold the text TRUE or FALSE in the cycle field, and the body tests it against the number 0"
   },

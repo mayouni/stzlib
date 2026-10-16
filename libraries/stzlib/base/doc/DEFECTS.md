@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 251 methods in 85 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 239 methods in 84 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| graph/stzGraph.ring | stzGraph | 12 |
 | regex/stzRegexMaker.ring | stzRegexMaker | 12 |
 | graph/stzOrgChart.ring | stzOrgChart | 10 |
 | regex/stzRegex.ring | stzRegex | 10 |
@@ -183,26 +182,11 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `SaveToStzDiagInFolder` (line 18160): Raises error R14 today instead of writing the .stzdiag file in a folder. -- it takes no folder argument and calls WriteToDiagFileXT with a global that is never set, and that method exists nowhere, so every call raises R14
 - `Explain` (line 18425): Returns a short account of the diagram: its size, its visual rules and what they affected; raises error R13 as soon as a rule is registered. -- with a registered rule it reads the rule's id as a field of an object (.@cRuleId) while rules are stored as hash lists, so it raises R13; without rules it answers "No visual rules defined."
 
-## stzGraph -- graph/stzGraph.ring (12)
-
-- `InsertNodesBefore` (line 715): Raises error R20 today instead of inserting a chain of nodes in front of an existing node. -- it calls InsertNodeBefore with three arguments, but that method takes two, so even a valid list of pairs raises R20
-- `InsertNodesAfter` (line 731): Raises error R20 today instead of inserting a chain of nodes behind an existing node. -- it calls InsertNodeAfter with three arguments, but that method takes two, so even a valid list of pairs raises R20
-- `ConnectEdgesXTT` (line 1484): Raises error R19 today instead of adding edges to several nodes, each with its own label and properties. -- it calls AddEdgeXTT with two arguments where four are needed, so any non-empty list raises R19, and an empty list does nothing
-- `LongestPath` (line 3296): Returns the largest number of nodes reachable from any one node, which is not the hop count of the longest path. -- the name promises a path length, but the body counts reachable nodes, so a node that reaches two branches of two nodes each answers 4, though no path is longer than 2 hops
-- `CyclicNodes` (line 3321): Returns an empty list today instead of the ids of the nodes that lie on a cycle. -- it looks for the node among the nodes it reaches, but ReachableFrom never lists the start node, so the test is never true; use HasCyclicDependencies for the graph
-- `LoadFromGraphML` (line 4951): Raises error "Incorrect Id" today instead of reading a GraphML file into the graph, and leaves odd nodes behind. -- the parser cuts the text at fixed positions instead of the positions it finds, so even a file written by SaveToGraphML yields garbled ids such as "sion=" and raises; the graph is left with those nodes
-- `LoadGraphML` (line 4965): Raises error "Incorrect Id" today instead of reading a GraphML file into the graph. -- it only calls LoadFromGraphML, whose parser fails on every file written by SaveToGraphML and leaves garbled nodes behind
-- `ImportFromGraphML` (line 4974): Raises error "Incorrect Id" today instead of importing a GraphML file into the graph. -- it only calls LoadFromGraphML, whose parser fails on every file written by SaveToGraphML and leaves garbled nodes behind
-- `ImportGraphML` (line 4983): Raises error "Incorrect Id" today instead of importing a GraphML file into the graph. -- it only calls LoadFromGraphML, whose parser fails on every file written by SaveToGraphML and leaves garbled nodes behind
-- `HasRule` (line 5940): TRUE if a constraint rule has that name; the name is folded to upper case first. -- derivation and validation rules are never found, because their names are lowered before the comparison with an upper-case name, so a rule that is loaded can still answer FALSE
-- `ValidationSummary` (line 6225): Returns the record of the last validation that passed; before any pass it answers that none has run. -- a failed validation is never recorded, so after a failure the summary still shows the older pass, or none has run, and its violations list is always empty
-- `Anomalies` (line 6260): Returns the violations of the last recorded validation, which is always an empty list today. -- only passing validations are recorded, so this can never list a violation; read the issues of Validate instead
-
 ## stzGraphComparison -- graph/stzGraph.ring (3)
 
-- `Content` (line 8704): Returns nothing today instead of the comparison data. -- the body is empty, so the call answers empty text; Data returns the comparison
-- `WithCycles` (line 8787): Returns an empty list today instead of the names of the variations that contain a cycle. -- the rows hold the text TRUE or FALSE in the cycle field, and the body tests it against the number 1
-- `WithoutCycles` (line 8807): Returns an empty list today instead of the names of the variations that stay acyclic. -- the rows hold the text TRUE or FALSE in the cycle field, and the body tests it against the number 0
+- `Content` (line 8811): Returns nothing today instead of the comparison data. -- the body is empty, so the call answers empty text; Data returns the comparison
+- `WithCycles` (line 8894): Returns an empty list today instead of the names of the variations that contain a cycle. -- the rows hold the text TRUE or FALSE in the cycle field, and the body tests it against the number 1
+- `WithoutCycles` (line 8914): Returns an empty list today instead of the names of the variations that stay acyclic. -- the rows hold the text TRUE or FALSE in the cycle field, and the body tests it against the number 0
 
 ## stzGraphQuery -- graph/stzGraphQuery.ring (2)
 
