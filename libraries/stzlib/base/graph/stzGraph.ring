@@ -3323,64 +3323,123 @@ class stzGraph from stzObject
 		def DensityLevel()
 			return This.DensityCategory()
 
-	# Returns the largest number of nodes reachable from any one node, which is not the hop count of the longest path.
+	# Returns the hop count of the longest chain of edges that follow one another; 0 when the graph has no edge.
 	#
-	#   returns    a number
-	#   warning    known defect: the name promises a path length, but the body counts reachable
-	#              nodes, so a node that reaches two branches of two nodes each answers 4, though no
-	#              path is longer than 2 hops
-	#   see        ImpactOf, ShortestPathLength, Diameter
+	#   returns    a number of hops, so a chain a -> b -> c -> d answers 3 (it has four nodes)
+	#   note       exact for a graph without a cycle. A cycle lets a walk go on for ever, so the
+	#              answer then counts paths that visit no node twice, found by one depth-first
+	#              walk from each unvisited node in node order; the edge that closes a cycle is
+	#              not followed, which can leave the answer short when cycles overlap
+	#   see        ImpactOf, ShortestPathLength, Diameter, CyclicNodes
 	def LongestPath()
-		_nMax_ = 0
+		_nNodes_ = len(@aNodes)
+		if _nNodes_ = 0
+			return 0
+		ok
 
-		_nLen_ = len(@aNodes)
-		for i = 1 to _nLen_
-			_aNode_ = @aNodes[i]
-			# same correction as ImpactOf: ReachableFrom does not include
-			# the start node, so the -1 was subtracting nothing real
-			_acReachable_ = This.ReachableFrom(_aNode_["id"])
-			_nLength_ = len(_acReachable_)
+		# node id -> position, then the out-neighbours of each node as positions
+		_aPos_ = []
+		for i = 1 to _nNodes_
+			_aPos_ + [ @aNodes[i][:id], i ]
+		next
 
-			if _nLength_ > _nMax_
-				_nMax_ = _nLength_
+		_aOut_ = list(_nNodes_)
+		for i = 1 to _nNodes_
+			_aOut_[i] = []
+		next
+		_nEdges_ = len(@aEdges)
+		for i = 1 to _nEdges_
+			_nFrom_ = _aPos_[ @aEdges[i][:from] ]
+			_nTo_ = _aPos_[ @aEdges[i][:to] ]
+			_aOut_[_nFrom_] + _nTo_
+		next
+
+		# iterative depth-first walk: state 0 unseen, 1 on the walk, 2 finished.
+		# An edge to a node still on the walk closes a cycle and is not followed;
+		# every other out-neighbour is finished by the time its parent finishes,
+		# so the best hop count below a node is settled when the node is left.
+		_aState_ = list(_nNodes_)
+		_aBest_ = list(_nNodes_)
+		_aNext_ = list(_nNodes_)
+		for i = 1 to _nNodes_
+			_aState_[i] = 0
+			_aBest_[i] = 0
+			_aNext_[i] = 1
+		next
+
+		_nLongest_ = 0
+		for _nRoot_ = 1 to _nNodes_
+			if _aState_[_nRoot_] != 0
+				loop
 			ok
-		end
+			_anStack_ = [ _nRoot_ ]
+			_aState_[_nRoot_] = 1
+			while len(_anStack_) > 0
+				_nTop_ = _anStack_[len(_anStack_)]
+				if _aNext_[_nTop_] <= len(_aOut_[_nTop_])
+					_nChild_ = _aOut_[_nTop_][ _aNext_[_nTop_] ]
+					_aNext_[_nTop_] = _aNext_[_nTop_] + 1
+					if _aState_[_nChild_] = 0
+						_aState_[_nChild_] = 1
+						_anStack_ + _nChild_
+					ok
+				else
+					_nBest_ = 0
+					_nKids_ = len(_aOut_[_nTop_])
+					for j = 1 to _nKids_
+						_nKid_ = _aOut_[_nTop_][j]
+						if _aState_[_nKid_] = 2 and _aBest_[_nKid_] + 1 > _nBest_
+							_nBest_ = _aBest_[_nKid_] + 1
+						ok
+					next
+					_aBest_[_nTop_] = _nBest_
+					_aState_[_nTop_] = 2
+					if _nBest_ > _nLongest_
+						_nLongest_ = _nBest_
+					ok
+					ring_del(_anStack_, len(_anStack_))
+				ok
+			end
+		next
 
-		return _nMax_
+		return _nLongest_
 
-	# Returns an empty list today instead of the ids of the nodes that lie on a cycle.
+	# Returns the ids of the nodes that lie on a directed cycle, a node with an edge to itself included, in node order.
 	#
-	#   returns    [ ] today, even for a graph with a cycle
-	#   warning    known defect: it looks for the node among the nodes it reaches, but ReachableFrom
-	#              never lists the start node, so the test is never true; use HasCyclicDependencies
-	#              for the graph
+	#   returns    a list of text; [ ] when the graph has no cycle
+	#   note       a node that only leads into a cycle, or is reached from one, is not listed
 	#   see        HasCyclicDependencies, ReachableFrom
 	def CyclicNodes()
 		_acCyclicNodes_ = []
-		
-		_acNodes_ = This.Nodes()
-		_nLen_ = len(_acNodes_)
 
-		for i = 1 to _nLen_
-			_aNode_ = _acNodes_[i]
-			_cNodeId_ = _aNode_["id"]
-			_acReachableFromNode_ = This.ReachableFromNode(_cNodeId_)
-			
-			# Remove starting node from reachable set
-			_acReachableWithoutStart_ = []
-			_nLen2_ = len(_acReachableFromNode_)
-			for j = 1 to _nLen2_
-				_cReachable_ = _acReachableFromNode_[j]
-				if _cReachable_ != _cNodeId_
-					_acReachableWithoutStart_ + _cReachable_
+		# no cycle anywhere: the engine says so in one pass
+		if NOT This.HasCyclicDependencies()
+			return _acCyclicNodes_
+		ok
+
+		_nNodes_ = len(@aNodes)
+		for i = 1 to _nNodes_
+			_cNodeId_ = @aNodes[i][:id]
+
+			# a node is on a cycle when it can be reached again from one of its
+			# own out-neighbours; ReachableFrom never lists its start node, so a
+			# self-loop is tested on its own
+			_bOnCycle_ = 0
+			_acNeighbors_ = This.Neighbors(_cNodeId_)
+			_nNeighbors_ = len(_acNeighbors_)
+			for j = 1 to _nNeighbors_
+				if _acNeighbors_[j] = _cNodeId_
+					_bOnCycle_ = 1
+					exit
+				ok
+				if StzFindFirst(_cNodeId_, This.ReachableFrom(_acNeighbors_[j])) > 0
+					_bOnCycle_ = 1
+					exit
 				ok
 			next
-			
-			# If the node can reach itself through other nodes, it's in a cycle
-			if StzFindFirst(_cNodeId_, _acReachableWithoutStart_) > 0
-				if StzFindFirst(_cNodeId_, _acCyclicNodes_) = 0
-					_acCyclicNodes_ + _cNodeId_
-				ok
+
+			if _bOnCycle_
+				_acCyclicNodes_ + _cNodeId_
 			ok
 		next
 
@@ -5422,7 +5481,7 @@ class stzGraph from stzObject
 		
 		# Cycles section
 		if len(_acCyclic_) > 0
-			_aExplanation_[:cycles] + ("Cyclic nodes: " + join(_acCyclic_, ", "))
+			_aExplanation_[:cycles] + ("Cyclic nodes: " + joinXT(_acCyclic_, ", "))
 			_nLen_ = len(_acCyclic_)
 			for i = 1 to _nLen_
 				_cNode_ = _acCyclic_[i]
