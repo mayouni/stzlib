@@ -305,3 +305,8 @@ All rows broken (none stale); root cause = helper functions written between two 
 fixture under test/file/_fixture with a path guard and removed it. Open in stzFile.ring: InfoXT, CompleteSuffix, the stzFileAppender Q forms.
 Next by size: stzListOfTimeLines 14, then the 5-10 row classes.
 
+## 2026-10-16: the stzListOfTimeLines fix batch is ON MAIN (b5c5c1c44, both remotes); register 283 -> 269
+
+Root cause: methods edited the COPY Lane(name) returns; fixed through _laneIndex and in-place edits. Open in stzTimeLine: UncoveredPeriods on a lane with no span,
+RenameLabel case, RemovePoint by moment, Copy of blocked items. Next by size: stzCache 13, stzGraph 12, stzRegexMaker 12, stzOrgChart 10, stzRegex 10, stzStringChar 10.
+
