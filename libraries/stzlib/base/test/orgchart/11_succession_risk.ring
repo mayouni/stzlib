@@ -23,7 +23,7 @@ oOrg {
     
     SetNodeProperty("vp1", "successor", "some_person")
     
-    ? @@( SuccessionRisk() ) #--> ["ceo"] #ERROR returned [ "ceo", "vp1" ]
+    ? @@( SuccessionRisk() ) #--> ["ceo"]
 }
 
 pf()
