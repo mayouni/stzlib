@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 239 methods in 84 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 224 methods in 82 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| regex/stzRegexMaker.ring | stzRegexMaker | 12 |
 | graph/stzOrgChart.ring | stzOrgChart | 10 |
 | regex/stzRegex.ring | stzRegex | 10 |
 | string/stzStringChar.ring | stzStringChar | 10 |
@@ -37,7 +36,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 | natural/stzChainOfValue.ring | stzChainOfValue | 3 |
 | natural/stzEntity.ring | stzEntity | 3 |
 | object/stzListOfObjects.ring | stzListOfObjects | 3 |
-| regex/stzRegexMaker.ring | stzRecursiveRegexMaker | 3 |
 | regex/stzTimex.ring | stzTimex | 3 |
 | sound/stzSoundLive.ring | stzSoundLive | 3 |
 | stats/stzCoeffExtractor.ring | stzCoeffExtractor | 3 |
@@ -436,27 +434,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `RecursiveDepth` (line 1889): Returns the number of distinct nested matches found by the last recursive match, which is the nesting depth only for a single chain. -- it counts matches, so ((x)(y)(z)) answers 4 although the nesting is 2 deep, while (((x))) answers 3
 - `NestedDepth` (line 1898): Returns the number of distinct nested matches found by the last recursive match; the same count as the recursive depth. -- it counts matches, so ((x)(y)(z)) answers 4 although the nesting is 2 deep
 - `Explain` (line 1938): Returns a one-line explanation of the pattern when the library knows it by name; any other pattern raises an error. -- for a pattern outside the library's named list it builds stzRegexAnalyzer, a class that does not exist, and raises error R11
-
-## stzRecursiveRegexMaker -- regex/stzRegexMaker.ring (3)
-
-- `Pattern` (line 1642): Raises error R19 today when a level exists, instead of returning the pattern joined from the root levels. -- tested with one level, with three levels and with a quantifier, and each raised error R19 Calling function with less number of parameters, because the helper calls HasKey with one argument
-- `SubPattern` (line 1667): Raises error R19 today for an existing level, instead of returning the pattern built from that level; an unknown level gives an empty text. -- tested with a top level and with a child level, and both raised error R19, for the same cause as Pattern
-- `pvtBuildPattern` (line 1807): Raises error R19 today for any existing level, instead of returning its pattern with its children and its quantifier. -- the call HasKey(_level_[:quant]) lacks its second argument, which makes Pattern and SubPattern raise
-
-## stzRegexMaker -- regex/stzRegexMaker.ring (12)
-
-- `Quantifiers` (line 435): Returns an empty text today, because the method is an unwritten placeholder. -- placeholder: the body is a TODO and nothing is computed
-- `QuantifiersCommands` (line 443): Returns an empty text today, because the method is an unwritten placeholder. -- placeholder: the body is a TODO and nothing is computed
-- `NumberOfSequences` (line 477): Raises error R24 today instead of returning how many sequences were recorded. -- Raises error R24 today: the body reads len(acSequences), a variable that is never set, where @aSequences is meant; HowManySequences, CountSequences, NumberOfSeqs, HowManySeqs, CountSeqs, NumberOfCommands, HowManyCommands and CountCommands forward to it and raise the same error
-- `CommandAndFragment` (line 565): Raises error R24 today instead of returning a sequence together with its fragment. -- Raises error R24 today: the alias passes n to SequenceXT but declares no parameter, so n is an unset variable; SequenceXT(1) itself works and answers [ sequence, piece ]
-- `CommandAndFrag` (line 574): Raises error R24 today instead of returning a sequence together with its fragment. -- Raises error R24 today: the alias passes an unset n to SequenceXT
-- `CommandAndItsFragment` (line 583): Raises error R24 today instead of returning a sequence together with its fragment. -- Raises error R24 today: the alias passes an unset n to SequenceXT
-- `CommandAndItsFrag` (line 592): Raises error R24 today instead of returning a sequence together with its fragment. -- Raises error R24 today: the alias passes an unset n to SequenceXT
-- `CanContainAChar` (line 645): Raises error R14 today instead of adding a character class given as a named parameter such as :Between = [ A, Z ]. -- Raises error R14 today: it calls IsBetweenOrFromNamedParam on a stzList, a method that does not exist; seen with the Between, Among and From forms, and a text instead of a list raises Incorrect param type!
-- `CanContaingChar` (line 688): Raises error R14 today instead of adding a character class given as a named parameter. -- Raises error R14 today: it calls CanContainAChar, which calls the missing IsBetweenOrFromNamedParam
-- `CanContainADigit` (line 812): Raises error R14 today instead of adding a digit class given as a named parameter such as :Between = [ 0, 9 ]. -- Raises error R14 today: it calls IsBetweenOrFromNamedParam on a stzList, a method that does not exist; seen with the Between, Among and From forms
-- `CanContaingdigit` (line 847): Raises error R14 today instead of adding a digit class given as a named parameter. -- Raises error R14 today: it calls CanContainADigit, which calls the missing IsBetweenOrFromNamedParam
-- `MatchSameContentAs` (line 1371): Raises error R24 today instead of appending a closing tag that repeats a defined group. -- Raises error R24 today: after finding the group it uses the variable pcTagGroupName, which is not a parameter of this method; seen with two different group names
 
 ## stzRegexuter -- regex/stzRegexUter.ring (1)
 

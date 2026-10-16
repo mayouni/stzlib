@@ -83,11 +83,6 @@ stzobject.ofxtcsbm
 stzobject.ofxtcsmb
 stzobject.ofxtm
 stzpairofnumbers.commonleastmultiplier
-stzregexmaker.countfragments
-stzregexmaker.countfrags
-stzregexmaker.howmanyfragments
-stzregexmaker.howmanyfrags
-stzregexmaker.numberoffrags
 stzstringchar.iseuropeandigit
 stztable.findnthoccurrenceofvalueincellcs
 stztable.firstrowxt
