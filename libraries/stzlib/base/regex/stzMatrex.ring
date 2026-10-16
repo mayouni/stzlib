@@ -23,15 +23,17 @@ func IsStzMatrex(pObj)
 #
 # A pattern is text in braces made of terms: size, shape, element, property, row, col, diagonal,
 # pattern, determinant and sum, written like size(3x3) or element(0..10). Terms are joined by & (all
-# must hold), | (one must hold) and -> (a sequence, all must hold), @! negates a term, and
-# parentheses group. Match tests one matrix and, on success, records its size, properties and matrix
-# as the matched parts; MatchingMatrices, CountMatchingMatrices and the other list methods test a
-# whole list. SimilarityScore, MostSimilarMatrix and CommonProperties compare matrices. Known gaps
-# today, each carried as a warning on its method: the terms row, col, pattern, determinant and sum
-# accept every matrix and diagonal every square one, size(<n), size(>n) and sizes with m or n in
-# place of a number accept every matrix, quantifiers are parsed but never applied, MatchesNone
-# answers the opposite of its name, Not_ negates only the first term, Andd and the JSON methods
-# raise errors, and CommonProperties never reports square.
+# must hold), | (one must hold) and -> (a sequence, all must hold), @! negates a term or a whole
+# parenthesised group such as @!(size(2x2) & property(symmetric)), and parentheses group. A size is
+# rows x cols, each a number or m or n for any count (3xn, mxn), or >n or <n for both dimensions.
+# Match tests one matrix and, on success, records its size, properties and matrix as the matched
+# parts; MatchingMatrices, CountMatchingMatrices and the other list methods test a whole list.
+# SimilarityScore, MostSimilarMatrix and CommonProperties compare matrices, and ToJSON writes the
+# pattern and its tokens as JSON. Known gaps, each carried as a warning on its method: the terms row,
+# col, pattern, determinant and sum accept every matrix and diagonal every square one, because no
+# text or test says what they should check and nothing is invented for them, quantifiers are parsed
+# but never applied, and MatchesNone answers TRUE when at least one matrix matches, which the test
+# 27_check_if_matches_any expects.
 #
 #   receiver   o1 = new stzMatrex("{size(2x2) & property(symmetric)}")
 #   example    ? o1.Match([ [1,2], [2,1] ])
@@ -2003,30 +2005,28 @@ def ParseConjunction(_cTokenStr_)
 	 #  SERIALIZATION                #
 	#-------------------------------#
 	
-	# Raises error R21 today instead of returning the pattern and its tokens as JSON text; only the empty pattern works.
+	# Returns the pattern and its parsed tokens as JSON text: an object with the keys pattern and tokens.
 	#
-	#   returns    JSON text; an error for any pattern with a token
-	#   warning    known defect: it joins pair lists into a text, which is an operator on the wrong
-	#              type, so every token raises R21
+	#   returns    JSON text; {"pattern":"{}","tokens":[]} for the empty pattern
+	#   note       texts are escaped by the library JSON writer, so a quote or a backslash in the
+	#              pattern stays valid JSON
 	#   see        TokensToJSON, TokenToJSON
 	def ToJSON()
-		# Convert pattern to JSON representation
+		# Convert pattern to JSON representation, text escaped by the library JSON writer
 		_cJSON_ = '{'
-		_cJSON_ += '"pattern":"' + @cPattern + '",'
+		_cJSON_ += '"pattern":' + _ValueToJsonString(@cPattern) + ','
 		_cJSON_ += '"tokens":' + This.TokensToJSON()
 		_cJSON_ += '}'
 		return _cJSON_
-	
-	# Raises error R21 today instead of returning the tokens as a JSON array; an empty token list gives [].
+
+	# Returns the parsed tokens as a JSON array of objects, one per token; an empty pattern gives [].
 	#
-	#   returns    JSON text; an error for any pattern with a token
-	#   warning    known defect: each token is a list of pairs and the body adds a pair to a text,
-	#              which raises R21
+	#   returns    JSON text
 	#   see        ToJSON, TokenToJSON
 	def TokensToJSON()
 		# Convert tokens to JSON array
 		_cJSON_ = '['
-		_nLen_ = len(@aTokens)
+		_nLen_ = ring_len(@aTokens)
 		for _i_ = 1 to _nLen_
 			if _i_ > 1
 				_cJSON_ += ','
@@ -2035,23 +2035,50 @@ def ParseConjunction(_cTokenStr_)
 		next
 		_cJSON_ += ']'
 		return _cJSON_
-	
-	# Raises error R21 today instead of returning one token as a JSON object.
+
+	# Returns one parsed token as a JSON object; its constraints, alternatives, conditions and tokens become arrays of objects.
 	#
-	#   _aToken_   one parsed token
-	#   returns    an error for any token
-	#   warning    known defect: it adds a pair list to a text, which raises R21, because tokens are
-	#              lists of pairs and not flat key and value lists
+	#   _aToken_   one parsed token, a list of [ key, value ] pairs
+	#   returns    JSON text
+	#   note       numbers stay numbers and an empty list becomes []
 	#   see        TokensToJSON, ToJSON
 	def TokenToJSON(_aToken_)
-		# Convert single token to JSON
+		# Convert single token, a list of [ key, value ] pairs, to a JSON object
 		_cJSON_ = '{'
-		_nLen_ = len(_aToken_)
-		for _i_ = 1 to _nLen_ step 2
+		_nLen_ = ring_len(_aToken_)
+		for _i_ = 1 to _nLen_
 			if _i_ > 1
 				_cJSON_ += ','
 			ok
-			_cJSON_ += '"' + _aToken_[_i_] + '":"' + _aToken_[_i_+1] + '"'
+			_cKey_ = _aToken_[_i_][1]
+			_cJSON_ += '"' + _EscapeJsonString(_cKey_) + '":' + This._JsonOfTokenValue(_cKey_, _aToken_[_i_][2])
 		next
 		_cJSON_ += '}'
+		return _cJSON_
+
+	# Writes the value of one token key as JSON: tokens and constraints become arrays of objects, values an array.
+	#
+	#   cKey       the key of the pair
+	#   vValue     the value of the pair, text, number or list
+	#   returns    JSON text
+	#   see        TokenToJSON
+	def _JsonOfTokenValue(cKey, vValue)
+		if NOT isList(vValue)
+			return _ValueToJsonString(vValue)
+		ok
+
+		_cKey_ = StzLower(cKey)
+		_nLen_ = ring_len(vValue)
+		_cJSON_ = '['
+		for _i_ = 1 to _nLen_
+			if _i_ > 1
+				_cJSON_ += ','
+			ok
+			if _cKey_ = "alternatives" or _cKey_ = "conditions" or _cKey_ = "tokens" or _cKey_ = "constraints"
+				_cJSON_ += This.TokenToJSON(vValue[_i_])
+			else
+				_cJSON_ += _ValueToJsonString(vValue[_i_])
+			ok
+		next
+		_cJSON_ += ']'
 		return _cJSON_
