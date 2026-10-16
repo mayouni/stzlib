@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 224 methods in 82 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 213 methods in 80 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| graph/stzOrgChart.ring | stzOrgChart | 10 |
 | regex/stzRegex.ring | stzRegex | 10 |
 | string/stzStringChar.ring | stzStringChar | 10 |
 | reactive/stzReactive.ring | stzReactiveSystem | 7 |
@@ -67,7 +66,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 | geo/stzGeoProjection.ring | stzGeoProjection | 1 |
 | graph/stzGraphRule.ring | stzGraphRule | 1 |
 | graph/stzMathDiagram.ring | stzMathSubstance | 1 |
-| graph/stzOrgChart.ring | stzOrgChartReporter | 1 |
 | graph/stzOrgChart.ring | stzOrgChartSimulation | 1 |
 | linguistic/stzText.ring | stzText | 1 |
 | list/stzListBounder.ring | stzListBounder | 1 |
@@ -212,26 +210,9 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 - `SetData` (line 3317): Puts a number on an object under a key, which a style can read as name.key to drive a position or a colour. -- an undeclared object raises no error and the number is lost: HasData and DataOf then do not find it, which is a defect, seen with ghost and phantom; setting a key again replaces its value
 
-## stzOrgChart -- graph/stzOrgChart.ring (10)
-
-- `ValidateSuccession` (line 937): Fails for every filled position without a successor, one issue each; the positions are the affected nodes. -- a successor is looked for under a key that is never written, so every filled position fails
-- `SuccessionRisk` (line 1093): Returns the ids of the filled positions that have no successor; today that is every filled position. -- the successor is looked for under an attributes key that is never written, so a successor set with SetNodeProperty is not seen
-- `GenerateVacancyReport` (line 1181): Returns the vacancy report: how many positions are vacant, the rate, and the title and department of each. -- the level of each detail is always staff, since it is read from a key that is never written
-- `ResetAllNodeColors` (line 1451): Paints every position node white, which is meant to restore the level colours. -- the level colour is read from a key that is never written, so every node ends white
-- `ViewNonCompliant` (line 1759): Raises error R20 today instead of highlighting the positions named in a failing norm's issues and displaying the chart. -- it calls Validate with an argument that Validate does not take, so every call raises R20
-- `ViewNotAtRisk` (line 1852): Raises error R24 today instead of highlighting the positions that have a successor and displaying the chart. -- it reads an attribute @bShowTitle that no class defines, so every call raises R24
-- `ViewDepartment` (line 1881): Highlights the positions of one department and displays the chart; raises error R24 when the chart has a title. -- the subtitle line, written when a title is set, reads an undefined variable ppcdepartmentid; without a title it works
-- `ViewPath` (line 1918): Highlights the positions on the path between two positions and displays the chart; with a title set it also adds a stray node. -- with a title set, the subtitle line indexes the node list by id and adds a node with an empty id; without a title it works
-- `ViewNodeWithProperties` (line 1992): Does nothing today instead of highlighting the nodes that hold several properties: the body is a TODO. -- the method is an empty stub
-- `ViewNodesWithTags` (line 2029): Does nothing today instead of highlighting the nodes that hold several tags: the body is a TODO. -- the method is an empty stub
-
-## stzOrgChartReporter -- graph/stzOrgChart.ring (1)
-
-- `VacancyReport` (line 3000): Returns the vacancy report: how many positions are vacant, the rate, and the title and department of each. -- the level of each detail is always staff, since it is read from a key that is never written
-
 ## stzOrgChartSimulation -- graph/stzOrgChart.ring (1)
 
-- `ApplyChanges` (line 3246): Applies a list of changes to the copy, never to the original, then records the before and after spans and vacancy rates. -- a change_reporting change raises "Cannot add edge: one or both nodes do not exist!", since the copy has no nodes; an unknown :type is skipped without a word
+- `ApplyChanges` (line 3292): Applies a list of changes to the copy, never to the original, then records the before and after spans and vacancy rates. -- a change_reporting change raises "Cannot add edge: one or both nodes do not exist!", since the copy has no nodes; an unknown :type is skipped without a word
 
 ## stzWorkflowSimulation -- graph/stzWorkflow.ring (3)
 

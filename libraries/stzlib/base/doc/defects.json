@@ -1,5 +1,5 @@
 {
- "count": 224,
+ "count": 213,
  "defects": [
   {
    "class": "stzAppServer",
@@ -482,98 +482,10 @@
    "cause": "an undeclared object raises no error and the number is lost: HasData and DataOf then do not find it, which is a defect, seen with ghost and phantom; setting a key again replaces its value"
   },
   {
-   "class": "stzOrgChart",
-   "file": "graph/stzOrgChart.ring",
-   "method": "ValidateSuccession",
-   "line": 937,
-   "symptom": "Fails for every filled position without a successor, one issue each; the positions are the affected nodes.",
-   "cause": "known defect: a successor is looked for under a key that is never written, so every filled position fails"
-  },
-  {
-   "class": "stzOrgChart",
-   "file": "graph/stzOrgChart.ring",
-   "method": "SuccessionRisk",
-   "line": 1093,
-   "symptom": "Returns the ids of the filled positions that have no successor; today that is every filled position.",
-   "cause": "known defect: the successor is looked for under an attributes key that is never written, so a successor set with SetNodeProperty is not seen"
-  },
-  {
-   "class": "stzOrgChart",
-   "file": "graph/stzOrgChart.ring",
-   "method": "GenerateVacancyReport",
-   "line": 1181,
-   "symptom": "Returns the vacancy report: how many positions are vacant, the rate, and the title and department of each.",
-   "cause": "known defect: the level of each detail is always staff, since it is read from a key that is never written"
-  },
-  {
-   "class": "stzOrgChart",
-   "file": "graph/stzOrgChart.ring",
-   "method": "ResetAllNodeColors",
-   "line": 1451,
-   "symptom": "Paints every position node white, which is meant to restore the level colours.",
-   "cause": "known defect: the level colour is read from a key that is never written, so every node ends white"
-  },
-  {
-   "class": "stzOrgChart",
-   "file": "graph/stzOrgChart.ring",
-   "method": "ViewNonCompliant",
-   "line": 1759,
-   "symptom": "Raises error R20 today instead of highlighting the positions named in a failing norm's issues and displaying the chart.",
-   "cause": "known defect: it calls Validate with an argument that Validate does not take, so every call raises R20"
-  },
-  {
-   "class": "stzOrgChart",
-   "file": "graph/stzOrgChart.ring",
-   "method": "ViewNotAtRisk",
-   "line": 1852,
-   "symptom": "Raises error R24 today instead of highlighting the positions that have a successor and displaying the chart.",
-   "cause": "known defect: it reads an attribute @bShowTitle that no class defines, so every call raises R24"
-  },
-  {
-   "class": "stzOrgChart",
-   "file": "graph/stzOrgChart.ring",
-   "method": "ViewDepartment",
-   "line": 1881,
-   "symptom": "Highlights the positions of one department and displays the chart; raises error R24 when the chart has a title.",
-   "cause": "known defect: the subtitle line, written when a title is set, reads an undefined variable ppcdepartmentid; without a title it works"
-  },
-  {
-   "class": "stzOrgChart",
-   "file": "graph/stzOrgChart.ring",
-   "method": "ViewPath",
-   "line": 1918,
-   "symptom": "Highlights the positions on the path between two positions and displays the chart; with a title set it also adds a stray node.",
-   "cause": "known defect: with a title set, the subtitle line indexes the node list by id and adds a node with an empty id; without a title it works"
-  },
-  {
-   "class": "stzOrgChart",
-   "file": "graph/stzOrgChart.ring",
-   "method": "ViewNodeWithProperties",
-   "line": 1992,
-   "symptom": "Does nothing today instead of highlighting the nodes that hold several properties: the body is a TODO.",
-   "cause": "known defect: the method is an empty stub"
-  },
-  {
-   "class": "stzOrgChart",
-   "file": "graph/stzOrgChart.ring",
-   "method": "ViewNodesWithTags",
-   "line": 2029,
-   "symptom": "Does nothing today instead of highlighting the nodes that hold several tags: the body is a TODO.",
-   "cause": "known defect: the method is an empty stub"
-  },
-  {
-   "class": "stzOrgChartReporter",
-   "file": "graph/stzOrgChart.ring",
-   "method": "VacancyReport",
-   "line": 3000,
-   "symptom": "Returns the vacancy report: how many positions are vacant, the rate, and the title and department of each.",
-   "cause": "known defect: the level of each detail is always staff, since it is read from a key that is never written"
-  },
-  {
    "class": "stzOrgChartSimulation",
    "file": "graph/stzOrgChart.ring",
    "method": "ApplyChanges",
-   "line": 3246,
+   "line": 3292,
    "symptom": "Applies a list of changes to the copy, never to the original, then records the before and after spans and vacancy rates.",
    "cause": "known defect: a change_reporting change raises \"Cannot add edge: one or both nodes do not exist!\", since the copy has no nodes; an unknown :type is skipped without a word"
   },
