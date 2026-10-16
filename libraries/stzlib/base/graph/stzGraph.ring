@@ -72,8 +72,8 @@ func IsStzGraph(pObj)
 # ordered pair is refused. Paths, components and the centrality metrics run in the engine, on a copy
 # that is rebuilt after most changes (a few removal methods do not refresh it, see their warnings).
 # Rules come in two forms: the three typed stores filled by UseRulesFrom, and attached stzGraphRule
-# objects judged by CheckRules. The graph reads and writes .stzgraf, .stzrulz and .stzsim files and
-# writes DOT, JSON, YAML and GraphML; reading GraphML back is broken today. Many methods fold an id
+# objects judged by CheckRules. The graph reads and writes .stzgraf, .stzrulz, .stzsim and GraphML
+# files and writes DOT, JSON and YAML. Many methods fold an id
 # to lowercase and some do not (the removals, Incoming, SetNodeProperty), so ids are safest given in
 # lowercase. The file also holds stzGraphFinder, stzGraphAsciiVisualizer and stzGraphComparison,
 # which the graph builds for you. A number of methods carry a warning today.
@@ -4936,8 +4936,9 @@ class stzGraph from stzObject
 	# Returns the graph as GraphML text, with node labels, edge labels and properties written as data keys.
 	#
 	#   returns    text
-	#   note       LoadFromGraphML cannot read this text back today
-	#   see        SaveToGraphML, ExportToDOT
+	#   note       LoadFromGraphML reads this text back to the same nodes, edges, labels and
+	#              properties
+	#   see        SaveToGraphML, LoadFromGraphML, ExportToDOT
 	def ExportToGraphML()
 		_cXML_ = '<?xml version="1.0" encoding="UTF-8"?>' + char(10)
 		_cXML_ += '<graphml xmlns="http://graphml.graphdrawing.org/xmlns"' + char(10)
@@ -5035,15 +5036,15 @@ class stzGraph from stzObject
 		def SaveAsGraphML(pcPath)
 			This.SaveToGraphML(pcPath)
 	
-	# Raises error "Incorrect Id" today instead of reading a GraphML file into the graph, and leaves odd nodes behind.
+	# Replaces the content of the graph by the nodes, edges, labels and properties of a GraphML file, taking its id and type.
 	#
-	#   returns    nothing useful today
-	#   note       LoadFromStzGraf reads back a graph written by SaveToStzGraf, within the limits of
-	#              its own warning
-	#   warning    known defect: the parser cuts the text at fixed positions instead of the
-	#              positions it finds, so even a file written by SaveToGraphML yields garbled ids
-	#              such as "sion=" and raises; the graph is left with those nodes
-	#   see        ExportToGraphML, LoadFromStzGraf
+	#   pcPath     The path of the GraphML file, as text; an error is raised when there is no such file.
+	#   returns    nothing; the graph changes
+	#   note       it reads what ExportToGraphML writes, and the plain dialect of other tools: an empty
+	#              node or edge tag, a node with no label (labelled by its id)
+	#   warning    a property value is read back as a number only when it is a whole number, so 12.5
+	#              comes back as the text "12.5"; attributes must be in double quotes
+	#   see        ExportToGraphML, SaveToGraphML, LoadFromStzGraf
 	def LoadFromGraphML(pcPath)
 		if NOT fexists(pcPath)
 			stzraise("File not found: " + pcPath)
@@ -5052,168 +5053,179 @@ class stzGraph from stzObject
 		_cContent_ = read(pcPath)
 		This._ParseGraphML(_cContent_)
 	
-		# Raises error "Incorrect Id" today instead of reading a GraphML file into the graph.
+		# Replaces the content of the graph by that of a GraphML file; another spelling of the load.
 		#
-		#   returns    nothing useful today
-		#   warning    known defect: it only calls LoadFromGraphML, whose parser fails on every file
-		#              written by SaveToGraphML and leaves garbled nodes behind
+		#   pcPath     The path of the GraphML file, as text.
+		#   returns    nothing; the graph changes
 		#   see        LoadFromGraphML
 		def LoadGraphML(pcPath)
 			This.LoadFromGraphML(pcPath)
 	
-		# Raises error "Incorrect Id" today instead of importing a GraphML file into the graph.
+		# Brings a GraphML file into the graph, replacing what it held; another spelling of the load.
 		#
-		#   returns    nothing useful today
-		#   warning    known defect: it only calls LoadFromGraphML, whose parser fails on every file
-		#              written by SaveToGraphML and leaves garbled nodes behind
+		#   pcPath     The path of the GraphML file, as text.
+		#   returns    nothing; the graph changes
 		#   see        LoadFromGraphML
 		def ImportFromGraphML(pcPath)
 			This.LoadFromGraphML(pcPath)
 	
-		# Raises error "Incorrect Id" today instead of importing a GraphML file into the graph.
+		# Brings in a GraphML file in place of the current content; another spelling of the load.
 		#
-		#   returns    nothing useful today
-		#   warning    known defect: it only calls LoadFromGraphML, whose parser fails on every file
-		#              written by SaveToGraphML and leaves garbled nodes behind
+		#   pcPath     The path of the GraphML file, as text.
+		#   returns    nothing; the graph changes
 		#   see        LoadFromGraphML
 		def ImportGraphML(pcPath)
 			This.LoadFromGraphML(pcPath)
 	
 	def _ParseGraphML(_cXML_)
+		# Every cut below is made at a position the text itself gives (a marker
+		# FOUND, plus the marker's own length) -- never at a fixed offset from
+		# the start of the file. The cuts used to be fixed numbers, so the
+		# first node id came out as "sion=" and the load raised.
+
 		# Clear current graph
-		@aNodes = []
-		@aEdges = []
-		
+		This.RemoveNodes()
+
+		# Head of the file: everything before the first node
+		_nFirstNode_ = StzFindFirst('<node ', _cXML_)
+		_cHead_ = _cXML_
+		if _nFirstNode_ > 0
+			_cHead_ = StzMid(_cXML_, 1, _nFirstNode_ - 1)
+		ok
+
 		# Extract graph id
-		_nPos_ = StzFindFirst('<graph id="', _cXML_)
-		if _nPos_ > 0
-			_cRest_ = StzMid(_cXML_, 11, stzlen(_cXML_) - 10)
-			_nEnd_ = StzFindFirst('"', _cRest_)
-			if _nEnd_ > 0
-				@cId = StzMid(_cRest_, 1, _nEnd_ - 1)
-			ok
+		_cValue_ = This._GraphMLBetween(_cHead_, '<graph id="', '"')
+		if _cValue_ != ""
+			@cId = This._XMLUnescape(_cValue_)
 		ok
 
 		# Extract graph type
-		_nPos_ = StzFindFirst('<data key="type">', _cXML_)
-		if _nPos_ > 0
-			_cRest_ = StzMid(_cXML_, 17, stzlen(_cXML_) - 16)
-			_nEnd_ = StzFindFirst('</data>', _cRest_)
-			if _nEnd_ > 0
-				@cGraphType = trim(StzMid(_cRest_, 1, _nEnd_ - 1))
-			ok
+		_cValue_ = This._GraphMLBetween(_cHead_, '<data key="type">', '</data>')
+		if _cValue_ != ""
+			@cGraphType = trim(_cValue_)
 		ok
 
 		# Parse nodes
 		_cRemaining_ = _cXML_
 		while 1
-			_nNodeStart_ = StzFindFirst('<node id="', _cRemaining_)
-			if _nNodeStart_ = 0
+			_nStart_ = StzFindFirst('<node ', _cRemaining_)
+			if _nStart_ = 0
 				exit
 			ok
+			_cRemaining_ = StzMid(_cRemaining_, _nStart_ + 6, stzlen(_cRemaining_) - (_nStart_ + 5))
 
-			_cRemaining_ = StzMid(_cRemaining_, 10, stzlen(_cRemaining_) - 9)
-			_nIdEnd_ = StzFindFirst('"', _cRemaining_)
-			_cNodeId_ = StzMid(_cRemaining_, 1, _nIdEnd_ - 1)
+			_nTagEnd_ = StzFindFirst('>', _cRemaining_)
+			if _nTagEnd_ = 0
+				exit
+			ok
+			_cTag_ = StzMid(_cRemaining_, 1, _nTagEnd_ - 1)
+			_cRemaining_ = StzMid(_cRemaining_, _nTagEnd_ + 1, stzlen(_cRemaining_) - _nTagEnd_)
+			_cNodeId_ = This._GraphMLAttribute(_cTag_, "id")
 
-			_nNodeEnd_ = StzFindFirst('</node>', _cRemaining_)
-			_cNodeBlock_ = StzMid(_cRemaining_, 1, _nNodeEnd_ - 1)
+			# a node written as <node id="a"/> has no block
+			_cNodeBlock_ = ""
+			if StzRight(_cTag_, 1) != "/"
+				_nNodeEnd_ = StzFindFirst('</node>', _cRemaining_)
+				if _nNodeEnd_ = 0
+					_nNodeEnd_ = stzlen(_cRemaining_) + 1
+				ok
+				_cNodeBlock_ = StzMid(_cRemaining_, 1, _nNodeEnd_ - 1)
+				_cRemaining_ = StzMid(_cRemaining_, _nNodeEnd_ + 7, stzlen(_cRemaining_) - (_nNodeEnd_ + 6))
+			ok
 
-			# Extract label
+			# Extract label (a node with none is labelled by its id)
 			_cLabel_ = _cNodeId_
 			_nLabelPos_ = StzFindFirst('<data key="label">', _cNodeBlock_)
 			if _nLabelPos_ > 0
-				_cLabelRest_ = StzMid(_cNodeBlock_, 18, stzlen(_cNodeBlock_) - 17)
-				_nLabelEnd_ = StzFindFirst('</data>', _cLabelRest_)
-				if _nLabelEnd_ > 0
-					_cLabel_ = This._XMLUnescape(StzMid(_cLabelRest_, 1, _nLabelEnd_ - 1))
-				ok
+				_cLabel_ = This._XMLUnescape(This._GraphMLBetween(_cNodeBlock_, '<data key="label">', '</data>'))
 			ok
 
-			# Extract properties
-			_aProps_ = []
-			_cPropBlock_ = _cNodeBlock_
-			while 1
-				_nPropPos_ = StzFindFirst('<data key="prop_', _cPropBlock_)
-				if _nPropPos_ = 0
-					exit
-				ok
-
-				_cPropBlock_ = StzMid(_cPropBlock_, 16, stzlen(_cPropBlock_) - 15)
-				_nKeyEnd_ = StzFindFirst('">', _cPropBlock_)
-				_cPropKey_ = StzMid(_cPropBlock_, 1, _nKeyEnd_ - 1)
-
-				_cPropBlock_ = StzMid(_cPropBlock_, _nKeyEnd_ + 2, stzlen(_cPropBlock_) - _nKeyEnd_ - 1)
-				_nValEnd_ = StzFindFirst('</data>', _cPropBlock_)
-				_cPropVal_ = This._XMLUnescape(StzMid(_cPropBlock_, 1, _nValEnd_ - 1))
-
-				_aProps_ + [_cPropKey_, This._StringToValue(_cPropVal_)]
-			end
-
-			This.AddNodeXTT(_cNodeId_, _cLabel_, _aProps_)
-			_cRemaining_ = StzMid(_cRemaining_, 7, stzlen(_cRemaining_) - 6)
+			This.AddNodeXTT(_cNodeId_, _cLabel_, This._GraphMLProperties(_cNodeBlock_))
 		end
 
 		# Parse edges
 		_cRemaining_ = _cXML_
 		while 1
-			_nEdgeStart_ = StzFindFirst('<edge ', _cRemaining_)
-			if _nEdgeStart_ = 0
+			_nStart_ = StzFindFirst('<edge ', _cRemaining_)
+			if _nStart_ = 0
 				exit
 			ok
+			_cRemaining_ = StzMid(_cRemaining_, _nStart_ + 6, stzlen(_cRemaining_) - (_nStart_ + 5))
 
-			_cRemaining_ = StzMid(_cRemaining_, 6, stzlen(_cRemaining_) - 5)
+			_nTagEnd_ = StzFindFirst('>', _cRemaining_)
+			if _nTagEnd_ = 0
+				exit
+			ok
+			_cTag_ = StzMid(_cRemaining_, 1, _nTagEnd_ - 1)
+			_cRemaining_ = StzMid(_cRemaining_, _nTagEnd_ + 1, stzlen(_cRemaining_) - _nTagEnd_)
+			_cSource_ = This._GraphMLAttribute(_cTag_, "source")
+			_cTarget_ = This._GraphMLAttribute(_cTag_, "target")
 
-			# Extract source
-			_nSourcePos_ = StzFindFirst('source="', _cRemaining_)
-			_cRemaining_ = StzMid(_cRemaining_, 8, stzlen(_cRemaining_) - 7)
-			_nSourceEnd_ = StzFindFirst('"', _cRemaining_)
-			_cSource_ = StzMid(_cRemaining_, 1, _nSourceEnd_ - 1)
-
-			# Extract target
-			_nTargetPos_ = StzFindFirst('target="', _cRemaining_)
-			_cRemaining_ = StzMid(_cRemaining_, 8, stzlen(_cRemaining_) - 7)
-			_nTargetEnd_ = StzFindFirst('"', _cRemaining_)
-			_cTarget_ = StzMid(_cRemaining_, 1, _nTargetEnd_ - 1)
-
-			_nEdgeEnd_ = StzFindFirst('</edge>', _cRemaining_)
-			_cEdgeBlock_ = StzMid(_cRemaining_, 1, _nEdgeEnd_ - 1)
+			_cEdgeBlock_ = ""
+			if StzRight(_cTag_, 1) != "/"
+				_nEdgeEnd_ = StzFindFirst('</edge>', _cRemaining_)
+				if _nEdgeEnd_ = 0
+					_nEdgeEnd_ = stzlen(_cRemaining_) + 1
+				ok
+				_cEdgeBlock_ = StzMid(_cRemaining_, 1, _nEdgeEnd_ - 1)
+				_cRemaining_ = StzMid(_cRemaining_, _nEdgeEnd_ + 7, stzlen(_cRemaining_) - (_nEdgeEnd_ + 6))
+			ok
 
 			# Extract edge label
 			_cEdgeLabel_ = ""
 			_nLabelPos_ = StzFindFirst('<data key="edge_label">', _cEdgeBlock_)
 			if _nLabelPos_ > 0
-				_cLabelRest_ = StzMid(_cEdgeBlock_, 23, stzlen(_cEdgeBlock_) - 22)
-				_nLabelEnd_ = StzFindFirst('</data>', _cLabelRest_)
-				if _nLabelEnd_ > 0
-					_cEdgeLabel_ = This._XMLUnescape(StzMid(_cLabelRest_, 1, _nLabelEnd_ - 1))
-				ok
+				_cEdgeLabel_ = This._XMLUnescape(This._GraphMLBetween(_cEdgeBlock_, '<data key="edge_label">', '</data>'))
 			ok
 
-			# Extract edge properties
-			_aProps_ = []
-			_cPropBlock_ = _cEdgeBlock_
-			while 1
-				_nPropPos_ = StzFindFirst('<data key="prop_', _cPropBlock_)
-				if _nPropPos_ = 0
-					exit
-				ok
-
-				_cPropBlock_ = StzMid(_cPropBlock_, 16, stzlen(_cPropBlock_) - 15)
-				_nKeyEnd_ = StzFindFirst('">', _cPropBlock_)
-				_cPropKey_ = StzMid(_cPropBlock_, 1, _nKeyEnd_ - 1)
-
-				_cPropBlock_ = StzMid(_cPropBlock_, 2, stzlen(_cPropBlock_) - 1)
-				_nValEnd_ = StzFindFirst('</data>', _cPropBlock_)
-				_cPropVal_ = This._XMLUnescape(StzMid(_cPropBlock_, 1, _nValEnd_ - 1))
-
-				_aProps_ + [_cPropKey_, This._StringToValue(_cPropVal_)]
-			end
-
-			This.AddEdgeXTT(_cSource_, _cTarget_, _cEdgeLabel_, _aProps_)
-			_cRemaining_ = StzMid(_cRemaining_, 7, stzlen(_cRemaining_) - 6)
+			This.AddEdgeXTT(_cSource_, _cTarget_, _cEdgeLabel_, This._GraphMLProperties(_cEdgeBlock_))
 		end
-	
+
+	# The text between the first copy of a marker and the next copy of an end marker after it; "" when either is missing.
+	def _GraphMLBetween(_cText_, _cBegin_, _cEnd_)
+		_nBegin_ = StzFindFirst(_cBegin_, _cText_)
+		if _nBegin_ = 0
+			return ""
+		ok
+		_nAfter_ = _nBegin_ + stzlen(_cBegin_)
+		_cRest_ = StzMid(_cText_, _nAfter_, stzlen(_cText_) - (_nAfter_ - 1))
+		_nEnd_ = StzFindFirst(_cEnd_, _cRest_)
+		if _nEnd_ = 0
+			return ""
+		ok
+		return StzMid(_cRest_, 1, _nEnd_ - 1)
+
+	# The unescaped value of one attribute of a tag, written between double quotes; "" when the tag has none.
+	def _GraphMLAttribute(_cTag_, _cName_)
+		return This._XMLUnescape(This._GraphMLBetween(" " + _cTag_, " " + _cName_ + '="', '"'))
+
+	# The properties written as <data key="prop_name">value</data> in a node or edge block, as [ [ name, value ], ... ].
+	def _GraphMLProperties(_cBlock_)
+		_aProps_ = []
+		_cMarker_ = '<data key="prop_'
+		_cRest_ = _cBlock_
+		while 1
+			_nPos_ = StzFindFirst(_cMarker_, _cRest_)
+			if _nPos_ = 0
+				exit
+			ok
+			_cRest_ = StzMid(_cRest_, _nPos_ + stzlen(_cMarker_), stzlen(_cRest_) - (_nPos_ + stzlen(_cMarker_) - 1))
+			_nKeyEnd_ = StzFindFirst('">', _cRest_)
+			if _nKeyEnd_ = 0
+				exit
+			ok
+			_cPropKey_ = StzMid(_cRest_, 1, _nKeyEnd_ - 1)
+			_cRest_ = StzMid(_cRest_, _nKeyEnd_ + 2, stzlen(_cRest_) - (_nKeyEnd_ + 1))
+			_nValEnd_ = StzFindFirst('</data>', _cRest_)
+			if _nValEnd_ = 0
+				exit
+			ok
+			_cPropVal_ = This._XMLUnescape(StzMid(_cRest_, 1, _nValEnd_ - 1))
+			_aProps_ + [ _cPropKey_, This._StringToValue(_cPropVal_) ]
+			_cRest_ = StzMid(_cRest_, _nValEnd_ + 7, stzlen(_cRest_) - (_nValEnd_ + 6))
+		end
+		return _aProps_
+
 	def _XMLEscape(_cText_)
 		if NOT isString(_cText_)
 			return ""
@@ -5231,11 +5243,11 @@ class stzGraph from stzObject
 			return ""
 		ok
 
-		_cText_ = StzReplace(_cText_, "&amp;", "&")
 		_cText_ = StzReplace(_cText_, "&lt;", "<")
 		_cText_ = StzReplace(_cText_, "&gt;", ">")
 		_cText_ = StzReplace(_cText_, "&quot;", '"')
 		_cText_ = StzReplace(_cText_, "&apos;", "'")
+		_cText_ = StzReplace(_cText_, "&amp;", "&")
 		return _cText_
 	
 	def _ValueToString(pValue)
@@ -7092,8 +7104,7 @@ class stzGraph from stzObject
 	#
 	#   returns    nothing; the graph changes
 	#   warning    the extension is read as the second dot-separated piece of the path, so a path
-	#              such as ./g.graf or one with an extra dot raises "Unsupported file format"; the
-	#              graphml reader fails today
+	#              such as ./g.graf or one with an extra dot raises "Unsupported file format"
 	#   see        SaveTo, LoadFromStzGraf, LoadFromStzRulz
 	def LoadFrom(pcPath)
 		_cExtension_ = @split(pcPath, ".")[2]
