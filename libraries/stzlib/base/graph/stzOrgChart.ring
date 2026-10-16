@@ -2039,7 +2039,7 @@ class stzOrgChart from stzDiagram
 	def ViewNodeWithProperties(pacProps)
 		# TODO: not written, see the warning above
 
-	# Highlights the nodes whose tags property holds a tag and displays the chart.
+	# Highlights every position carrying the given label in its list of labels, then displays the chart.
 	#
 	#   pcTag      The tag to look for, as text
 	#   returns    nothing; the chart is displayed
@@ -2079,7 +2079,7 @@ class stzOrgChart from stzDiagram
 	def ViewNodesWithTags(pacTags)
 		# TODO: not written, see the warning above
 
-	# Paints each position with the colour of its department when the department is in the colour table, such as risk or audit.
+	# Paints each position in the shade assigned to its unit when the palette knows that unit, such as risk or audit.
 	#
 	#   returns    nothing; the chart changes
 	#   warning    the table names board, executive, management, staff, operations, treasury, risk,
