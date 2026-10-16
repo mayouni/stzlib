@@ -95,8 +95,8 @@ func StzOrgChartNotation()
 # and the chart answers vacancy, span-of-control and succession questions, validates itself (BCEAO,
 # segregation of duties, span, vacancy, succession), writes reports, highlights subsets with the
 # View calls and saves to the .stzorg text format. Records are hash lists with lowercase keys.
-# Several calls hold known defects, listed in their warnings: the succession check and the level
-# colours read a key that is never written, and a few View calls raise.
+# The limits of single calls are listed in their warnings; two View calls, ViewNodeWithProperties and
+# ViewNodesWithTags, are placeholders that do nothing.
 #
 #   receiver   o1 = new stzOrgChart("TechCo"); o1.AddExecutiveXT("ceo", "CEO");
 #              o1.AddManagerXT("vp", "VP Sales"); o1.ReportsTo("vp", "ceo")
@@ -580,8 +580,9 @@ class stzOrgChart from stzDiagram
 	#   pcPositionId   The id of the position, or a pair such as :ToPosition = "ceo"
 	#   returns        nothing; the chart changes
 	#   warning        an unknown position or person id is not refused, it leaves the other record
-	#                  pointing at nothing; the node colour is set to white, since the level colour
-	#                  is never found
+	#                  pointing at nothing; the node takes the colour of the level, gold for
+	#                  executive, blue+ for management and green- for staff, and stays white for any
+	#                  other level
 	#   see            ReassignPerson, VacantPositions
 	#---
 	def AssignPerson(pcPersonId, pcPositionId)
@@ -616,22 +617,8 @@ class stzOrgChart from stzDiagram
 		_aPosition_ = This.Position(pcPositionId)
 		_cLabel_ = _aPosition_[:title] + "\n" + _aPerson_[:name]
 
-		# Restore level color when filled
-		_aPosition_ = This.Position(pcPositionId)
-		_cLevelColor_ = "white"
-		    
-		if isList(_aPosition_[:attributes]) and HasKey(_aPosition_[:attributes], :level)
-		        _cLevel_ = _aPosition_[:attributes][:level]
-		        if _cLevel_ = "executive"
-		            _cLevelColor_ = $aOrgColors[:executive]
-		        but _cLevel_ = "management"
-		            _cLevelColor_ = $aOrgColors[:management]
-		        but _cLevel_ = "staff"
-		            _cLevelColor_ = $aOrgColors[:staff]
-		        ok
-		ok
-
-		This.SetNodeProperty(pcPositionId, "color", _cLevelColor_)
+		# A filled position takes the colour of its level
+		This.SetNodeProperty(pcPositionId, "color", This._LevelColorOf(This.Position(pcPositionId)))
 
 		# Puts a person in a position; another spelling of the assignment call.
 		#
@@ -641,6 +628,25 @@ class stzOrgChart from stzDiagram
 		#   see            AssignPerson
 		def Assign(pcPersonId, pcPositionId)
 			This.AssignPerson(pcPersonId, pcPositionId)
+
+	# Returns the colour of the level of a position record, such as gold for executive; white when it has no known level.
+	#
+	#   paPosition   A position record, as Position returns it
+	#   returns      a colour name, as text
+	#   see          AssignPerson, ResetAllNodeColors
+	def _LevelColorOf(paPosition)
+		_cColor_ = "white"
+		if isList(paPosition) and HasKey(paPosition, :level)
+			_cLevel_ = paPosition[:level]
+			if _cLevel_ = "executive"
+				_cColor_ = $aOrgColors[:executive]
+			but _cLevel_ = "management"
+				_cColor_ = $aOrgColors[:management]
+			but _cLevel_ = "staff"
+				_cColor_ = $aOrgColors[:staff]
+			ok
+		ok
+		return _cColor_
 
 	# Returns the record of a person as a hash list of id, name, position and data; [ ] when unknown.
 	#
@@ -928,11 +934,12 @@ class stzOrgChart from stzDiagram
 			:affectedNodes = _acVacant_
 		]
 
-	# Fails for every filled position without a successor, one issue each; the positions are the affected nodes.
+	# Fails when a filled position has no successor, with one issue per such position; those positions are the affected nodes.
 	#
 	#   returns    a hash list [ :status, :domain, :issueCount, :issues, :affectedNodes ]
-	#   warning    known defect: a successor is looked for under a key that is never written, so
-	#              every filled position fails
+	#   warning    a position has a successor when its node property successor, or its record key
+	#              successor, is not empty; a vacant position is not judged, and a chart with no
+	#              filled position passes
 	#   see        SuccessionRisk
 	def ValidateSuccession()
 		_acRisk_ = This.SuccessionRisk()
@@ -1084,11 +1091,11 @@ class stzOrgChart from stzDiagram
 		def PositionsByLevelN()
 			return This.NumberOfPositionsByLevel()
 
-	# Returns the ids of the filled positions that have no successor; today that is every filled position.
+	# Returns the ids of the filled positions that have no successor, in the order they were added.
 	#
 	#   returns    a list of ids
-	#   warning    known defect: the successor is looked for under an attributes key that is never
-	#              written, so a successor set with SetNodeProperty is not seen
+	#   warning    a successor is a node property successor set with SetNodeProperty, or a record
+	#              key successor, that is not empty; a vacant position is never at risk
 	#   see        ValidateSuccession, ViewAtRisk
 	def SuccessionRisk()
 	    _acRisk_ = []
@@ -1101,12 +1108,8 @@ class stzOrgChart from stzDiagram
 	        ok
 	        
 	        if NOT _bVacant_
-	            _bHasSuccessor_ = 0
-	            # Fix: Check attributes as list
-	            if isList(_aPos_[:attributes]) and HasKey(_aPos_[:attributes], :successor)
-	                _bHasSuccessor_ = 1
-	            ok
-	            
+	            _bHasSuccessor_ = This._PositionHasSuccessor(_aPos_)
+
 	            if NOT _bHasSuccessor_
 	                if HasKey(_aPos_, :id)
 	                    _acRisk_ + _aPos_[:id]
@@ -1115,6 +1118,46 @@ class stzOrgChart from stzDiagram
 	        ok
 	    end
 	    return _acRisk_
+
+	# Returns TRUE if a position record names a successor: its node property successor, or its record key successor, is not empty.
+	#
+	#   paPosition   A position record, as Position returns it
+	#   returns      TRUE or FALSE (1 or 0)
+	#   see          SuccessionRisk
+	def _PositionHasSuccessor(paPosition)
+		if NOT HasKey(paPosition, :id)
+			return 0
+		ok
+
+		if HasKey(paPosition, :successor)
+			if This._IsNotEmptyValue(paPosition[:successor])
+				return 1
+			ok
+		ok
+
+		if This.NodeExists(paPosition[:id])
+			if This._IsNotEmptyValue(This.NodeProperty(paPosition[:id], "successor"))
+				return 1
+			ok
+		ok
+		return 0
+
+	# Returns TRUE if a value is a number, a text with something in it, or a list with an item.
+	#
+	#   pValue    Any value
+	#   returns   TRUE or FALSE (1 or 0)
+	#   see       SuccessionRisk
+	def _IsNotEmptyValue(pValue)
+		if isNumber(pValue)
+			return 1
+		ok
+		if isString(pValue)
+			return ring_len(ring_trim(pValue)) > 0
+		ok
+		if isList(pValue)
+			return len(pValue) > 0
+		ok
+		return 0
 
 	#==========================#
 	#  REPORTING & ANALYTICS   #
@@ -1175,8 +1218,9 @@ class stzOrgChart from stzDiagram
 	# Returns the vacancy report: how many positions are vacant, the rate, and the title and department of each.
 	#
 	#   returns    a hash list [ :title, :vacancyCount, :vacancyRate, :details ]
-	#   warning    known defect: the level of each detail is always staff, since it is read from a
-	#              key that is never written
+	#   warning    each detail holds position, title, department and level, the level being staff
+	#              for a position with none; raises error R1 on a chart with no position, a
+	#              division by zero
 	#   see        GenerateReport, VacantPositions
 	def GenerateVacancyReport()
 		return This.GenerateReportXT("Vacancy")
@@ -1205,7 +1249,8 @@ class stzOrgChart from stzDiagram
 	# Returns the succession report: each filled position without a successor, with its title, incumbent's name and a high risk level.
 	#
 	#   returns    a hash list [ :title, :date, :highRiskCount, :details ]
-	#   warning    every filled position is listed today, because no successor is ever found
+	#   warning    a position with a successor, set with SetNodeProperty, is left out; the risk level
+	#              of each detail is always high
 	#   see        GenerateReport, SuccessionRisk
 	def GenerateSuccessionReport()
 		return This.GenerateReportXT("succession")
@@ -1442,11 +1487,11 @@ class stzOrgChart from stzDiagram
 	def FocusColor()
 	    return @cFocusColor
 	
-	# Paints every position node white, which is meant to restore the level colours.
+	# Gives every node its original colour back: the level colour of a filled position, white for a vacant one or any other node.
 	#
 	#   returns    nothing; the chart changes
-	#   warning    known defect: the level colour is read from a key that is never written, so every
-	#              node ends white
+	#   warning    the colours are gold for executive, blue+ for management and green- for staff; a
+	#              colour set by a View call or by ColorByDepartment is overwritten
 	#   see        ApplyFocusTo, ColorByDepartment
 	def ResetAllNodeColors()
 	    _aNodes_ = This.Nodes()
@@ -1455,27 +1500,25 @@ class stzOrgChart from stzDiagram
 	        _cNodeId_ = _aNodes_[i]["id"]
 	        _aPos_ = This.Position(_cNodeId_)
 	        
-	        # Restore original level color
+	        # Restore original color: the level color when filled, white while vacant
 	        _cOriginalColor_ = "white"
-	        if HasKey(_aPos_, :attributes) and HasKey(_aPos_[:attributes], :level)
-	            _cLevel_ = _aPos_[:attributes][:level]
-	            if _cLevel_ = "executive"
-	                _cOriginalColor_ = $aOrgColors[:executive]
-	            but _cLevel_ = "management"
-	                _cOriginalColor_ = $aOrgColors[:management]
-	            but _cLevel_ = "staff"
-	                _cOriginalColor_ = $aOrgColors[:staff]
+	        if len(_aPos_) > 0
+	            if HasKey(_aPos_, :isVacant)
+	                if _aPos_[:isVacant] = 0
+	                    _cOriginalColor_ = This._LevelColorOf(_aPos_)
+	                ok
 	            ok
 	        ok
 	        
 	        This.SetNodeProperty(_cNodeId_, "color", _cOriginalColor_)
 	    end
 	
-	# Paints every node white, then paints the listed positions with the focus colour.
+	# Gives every node its original colour back, then paints the listed positions with the focus colour.
 	#
 	#   acNodeIds   The ids of the positions to highlight, as a list
 	#   returns     nothing; the chart changes
-	#   warning     an id that is not a node is ignored
+	#   warning     the original colour is the level colour of a filled position and white otherwise;
+	#               an id that is not a node is ignored
 	#   see         SetFocusColor, ResetAllNodeColors
 	def ApplyFocusTo(acNodeIds)
 	    # Reset all first
@@ -1749,21 +1792,21 @@ class stzOrgChart from stzDiagram
 	    def ViewCompliantXT(pcNorm)
 		This.ViewCompliant(pcNorm)
 
-	# Raises error R20 today instead of highlighting the positions named in a failing norm's issues and displaying the chart.
+	# Validates by the named norm and highlights the positions named in its issues, none on a pass; then displays the chart.
 	#
 	#   pcNorm     The validator name, as text such as vacancy, bceao or sod
-	#   returns    nothing today
-	#   warning    known defect: it calls Validate with an argument that Validate does not take, so
-	#              every call raises R20
-	#   see        ViewCompliant
+	#   returns    nothing; the chart is displayed
+	#   warning    positions are recognised in the issue texts as words that are node ids, so a norm
+	#              whose issues name none, such as the vacancy count, highlights nothing
+	#   see        ViewCompliant, ValidateXT
 	def ViewNonCompliant(pcNorm)
 
 	    If This.Title() != ""
 		This.SetSubtitle("Non Compliant posisitions")
 	    ok
 
-	    _aResult_ = This.Validate(pcNorm)
-	    
+	    _aResult_ = This.ValidateXT(pcNorm)
+
 	    # Handle boolean results
 	    if isNumber(_aResult_)
 	        if _aResult_ = 0  # FALSE = all non-compliant
@@ -1822,8 +1865,8 @@ class stzOrgChart from stzDiagram
 	# Highlights the filled positions without a successor and displays the chart, under the subtitle At risk positions when a title is set.
 	#
 	#   returns    nothing; the chart is displayed
-	#   warning    today that is every filled position; the display needs graphviz and a viewer, so
-	#              it was not run here
+	#   warning    the display needs graphviz and a viewer; the highlight was checked with the
+	#              display call replaced, so no window was opened
 	#   see        SuccessionRisk, ViewNotAtRisk
 	#@ aka  --
 	def ViewAtRisk()
@@ -1843,15 +1886,16 @@ class stzOrgChart from stzDiagram
 	    def ViewSuccessionRisk()
 	        This.ViewAtRisk()
 	
-	# Raises error R24 today instead of highlighting the positions that have a successor and displaying the chart.
+	# Highlights every node that is not at succession risk and displays the chart.
 	#
-	#   returns    nothing today
-	#   warning    known defect: it reads an attribute @bShowTitle that no class defines, so every
-	#              call raises R24
+	#   returns    nothing; the chart is displayed
+	#   warning    vacant positions are highlighted too, since only the filled positions without a
+	#              successor are at risk; a chart with a title gets the subtitle Not-at risk
+	#              posisitions
 	#   see        ViewAtRisk, SuccessionRisk
 	def ViewNotAtRisk()
 
-	    If @bShowTitle = 1
+	    If This.Title() != ""
 		This.SetSubtitle("Not-at risk posisitions")
 	    ok
 
@@ -1870,18 +1914,19 @@ class stzOrgChart from stzDiagram
 	    This.ApplyFocusTo(_acAll_)
 	    This.View()
 
-	# Highlights the positions of one department and displays the chart; raises error R24 when the chart has a title.
+	# Highlights the positions of one department and displays the chart.
 	#
 	#   pcDepartmentId   The department name of the positions, as set by SetPositionDepartment
 	#   returns          nothing; the chart is displayed
-	#   warning          known defect: the subtitle line, written when a title is set, reads an
-	#                    undefined variable ppcdepartmentid; without a title it works
+	#   warning          a chart with a title gets the subtitle Department followed by the name in
+	#                    quotes; a position with no department gains an empty department key as a
+	#                    side effect of the lookup
 	#   see              ViewAllDepartments, SetPositionDepartment
 	#@ aka  --
 	def ViewDepartment(pcDepartmentId)
 
 	    If This.Title() != ""
-		This.SetSubtitle("Department '" + @aDepartments[PpcDepartmentId]  + "'")
+		This.SetSubtitle("Department '" + pcDepartmentId + "'")
 	    ok
 
 	    _acDeptNodes_ = []
@@ -1906,19 +1951,19 @@ class stzOrgChart from stzDiagram
 	    This.ColorByDepartment()
 	    This.View()
 
-	# Highlights the positions on the path between two positions and displays the chart; with a title set it also adds a stray node.
+	# Highlights the positions on the path between two positions and displays the chart.
 	#
 	#   pcFromId   The id of the position the path starts at
 	#   pcToId     The id of the position the path ends at
 	#   returns    nothing; the chart is displayed
-	#   warning    known defect: with a title set, the subtitle line indexes the node list by id and
-	#              adds a node with an empty id; without a title it works
+	#   warning    the path is the one PathBetween finds; a chart with a title gets the subtitle
+	#              Path from the first id to the second, both in quotes
 	#   see        ViewReportingPath, HilightPath
 	#@ aka  --
 	def ViewPath(pcFromId, pcToId)
 
 	    If This.Title() != ""
-		This.SetSubtitle("Path from '" + @aNodes[pcFromId] + "' to '" + @aNodes[pcFromId] + "'" )
+		This.SetSubtitle("Path from '" + pcFromId + "' to '" + pcToId + "'" )
 	    ok
 
 	    _acPath_ = This.PathBetween(pcFromId, pcToId)
@@ -1983,21 +2028,24 @@ class stzOrgChart from stzDiagram
 	    This.ApplyFocusTo(_acMatching_)
 	    This.View()
 	
-	# Does nothing today instead of highlighting the nodes that hold several properties: the body is a TODO.
+	# Does nothing: a placeholder for highlighting the nodes that hold several properties, not written yet.
 	#
-	#   pacProps   The property names to look for, as a list
-	#   returns    nothing today
-	#   warning    known defect: the method is an empty stub
+	#   pacProps   The property names to look for, as a list; it is not read
+	#   returns    nothing; no node is highlighted and nothing is displayed
+	#   warning    placeholder with an empty body: no header, block or test says whether a node
+	#              must hold all the properties or any of them, so none was guessed; to highlight
+	#              by one property use ViewNodesWithProperty
 	#   see        ViewNodesWithProperty
 	def ViewNodeWithProperties(pacProps)
+		# TODO: not written, see the warning above
+
 	# Highlights the nodes whose tags property holds a tag and displays the chart.
 	#
 	#   pcTag      The tag to look for, as text
 	#   returns    nothing; the chart is displayed
 	#   warning    tags is a list set with SetNodeProperty(id, "tags", [ ... ]); a node without tags
 	#              is not highlighted
-	#   see        ViewNodesWithTags, SetNodeProperty
-		#TODO
+	#   see        ViewNodesWithProperty, SetNodeProperty
 	def ViewNodesWithTag(pcTag)
 
 	    If This.Title() != ""
@@ -2020,13 +2068,17 @@ class stzOrgChart from stzDiagram
 	    This.ApplyFocusTo(_acMatching_)
 	    This.View()
 
-	# Does nothing today instead of highlighting the nodes that hold several tags: the body is a TODO.
+	# Does nothing: a placeholder for highlighting the nodes that hold several tags, not written yet.
 	#
-	#   pacTags    The tags to look for, as a list
-	#   returns    nothing today
-	#   warning    known defect: the method is an empty stub
+	#   pacTags    The tags to look for, as a list; it is not read
+	#   returns    nothing; no node is highlighted and nothing is displayed
+	#   warning    placeholder with an empty body: no header, block or test says whether a node
+	#              must hold all the tags or any of them, so none was guessed; to highlight by
+	#              one tag use ViewNodesWithTag
 	#   see        ViewNodesWithTag
 	def ViewNodesWithTags(pacTags)
+		# TODO: not written, see the warning above
+
 	# Paints each position with the colour of its department when the department is in the colour table, such as risk or audit.
 	#
 	#   returns    nothing; the chart changes
@@ -2034,7 +2086,6 @@ class stzOrgChart from stzDiagram
 	#              audit, hr, it, sales and engineering; a position with no department gains an
 	#              empty department key
 	#   see        ViewAllDepartments, SetPositionDepartment
-		#TODO
 	#@ aka  --
 	def ColorByDepartment()
 
@@ -2994,8 +3045,8 @@ class stzOrgChartReporter from stzObject
 	# Returns the vacancy report: how many positions are vacant, the rate, and the title and department of each.
 	#
 	#   returns    a hash list [ :title, :vacancyCount, :vacancyRate, :details ]
-	#   warning    known defect: the level of each detail is always staff, since it is read from a
-	#              key that is never written
+	#   warning    each detail holds position, title, department and level, the level being staff
+	#              for a position with none
 	#   see        Generate, SummaryReport
 	def VacancyReport()
 		_acVacant_ = @oOrgChart.VacantPositions()
@@ -3019,11 +3070,8 @@ class stzOrgChartReporter from stzObject
 				_cDept_ = _aPos_[:department]
 			ok
 			
-			if HasKey(_aPos_, :attributes)
-				_aAttribs_ = _aPos_[:attributes]
-				if isList(_aAttribs_) and HasKey(_aAttribs_, :level)
-					_cLevel_ = _aAttribs_[:level]
-				ok
+			if HasKey(_aPos_, :level)
+				_cLevel_ = _aPos_[:level]
 			ok
 			
 			_aDetails_ + [
@@ -3051,8 +3099,8 @@ class stzOrgChartReporter from stzObject
 	# Returns the succession report: each filled position without a successor, with its title and the incumbent's name.
 	#
 	#   returns    a hash list [ :title, :date, :highRiskCount, :details ]
-	#   warning    every filled position is listed today, because no successor is ever found; each
-	#              is marked with risk level high
+	#   warning    a position with a successor, set with SetNodeProperty, is left out; each position
+	#              listed is marked with risk level high
 	#   see        Generate, ComplianceReport
 	def SuccessionReport()
 		_acRisk_ = @oOrgChart.SuccessionRisk()

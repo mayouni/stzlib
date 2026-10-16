@@ -32,13 +32,13 @@ oOrg {
 				[ "position", "ceo" ],
 				[ "title", "CEO" ],
 				[ "department", "" ],
-				[ "level", "staff" ]
+				[ "level", "executive" ]
 			],
 			[
 				[ "position", "vp1" ],
 				[ "title", "VP Sales" ],
 				[ "department", "" ],
-				[ "level", "staff" ]
+				[ "level", "management" ]
 			]
 		]
 	]
