@@ -1,5 +1,5 @@
 {
- "count": 193,
+ "count": 186,
  "defects": [
   {
    "class": "stzAppServer",
@@ -1072,62 +1072,6 @@
    "line": 1154,
    "symptom": "Raises error R41 today instead of writing the front to a file, one row per solution.",
    "cause": "a variable value, a number, is joined to a comma with + and Ring cannot add a number to a text; it raises for the front of every problem tried (two problems, epsilon-constraint method)"
-  },
-  {
-   "class": "stzReactiveSystem",
-   "file": "reactive/stzReactive.ring",
-   "method": "StopSafe",
-   "line": 258,
-   "symptom": "Raises the STOPPED banner error today instead of stopping the system on the next tick, from inside the loop.",
-   "cause": "known defect: the timer callback it schedules calls Stop without the object, so Ring reaches the global Stop of the profiler, which raises the STOPPED banner and the loop never ends cleanly"
-  },
-  {
-   "class": "stzReactiveSystem",
-   "file": "reactive/stzReactive.ring",
-   "method": "SafeStopLoop",
-   "line": 271,
-   "symptom": "Raises the STOPPED banner error today instead of stopping the system on the next tick; another spelling of the safe stop.",
-   "cause": "known defect: it forwards to StopSafe, whose scheduled callback reaches the profiler's global Stop and raises"
-  },
-  {
-   "class": "stzReactiveSystem",
-   "file": "reactive/stzReactive.ring",
-   "method": "SafeStopExecution",
-   "line": 280,
-   "symptom": "Raises the STOPPED banner error today instead of stopping the system on the next tick; another spelling of the safe stop.",
-   "cause": "known defect: it forwards to StopSafe, whose scheduled callback reaches the profiler's global Stop and raises"
-  },
-  {
-   "class": "stzReactiveSystem",
-   "file": "reactive/stzReactive.ring",
-   "method": "SafeStopLoopExecution",
-   "line": 289,
-   "symptom": "Raises the STOPPED banner error today instead of stopping the system on the next tick; another spelling of the safe stop.",
-   "cause": "known defect: it forwards to StopSafe, whose scheduled callback reaches the profiler's global Stop and raises"
-  },
-  {
-   "class": "stzReactiveSystem",
-   "file": "reactive/stzReactive.ring",
-   "method": "StopNext",
-   "line": 298,
-   "symptom": "Raises the STOPPED banner error today instead of stopping the system on the next tick; another spelling of the safe stop.",
-   "cause": "known defect: it forwards to StopSafe, whose scheduled callback reaches the profiler's global Stop and raises"
-  },
-  {
-   "class": "stzReactiveSystem",
-   "file": "reactive/stzReactive.ring",
-   "method": "StopNextLoop",
-   "line": 307,
-   "symptom": "Raises the STOPPED banner error today instead of stopping the system on the next tick; another spelling of the safe stop.",
-   "cause": "known defect: it forwards to StopSafe, whose scheduled callback reaches the profiler's global Stop and raises"
-  },
-  {
-   "class": "stzReactiveSystem",
-   "file": "reactive/stzReactive.ring",
-   "method": "BindObjects",
-   "line": 422,
-   "symptom": "Leaves both objects unchanged today instead of keeping an attribute of the target in step with one of the source.",
-   "cause": "known defect: it wraps copies of both objects, because Ring copies an object it is handed, so the binding links two throwaway wrappers and neither the source nor the target you passed ever changes"
   },
   {
    "class": "stzReactor",

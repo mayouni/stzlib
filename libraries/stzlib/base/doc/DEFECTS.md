@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 193 methods in 78 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 186 methods in 77 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| reactive/stzReactive.ring | stzReactiveSystem | 7 |
 | common/stzOccurrences.ring | stzOccurrences | 6 |
 | extercode/stzImageToAscii.ring | stzImgToAscii | 6 |
 | list/stzListProvidedAsString.ring | stzListProvidedAsString | 6 |
@@ -377,16 +376,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzMultiObjectiveSolver -- optim/stzMultiObjectiveSolver.ring (1)
 
 - `exportParetoFrontCSV` (line 1154): Raises error R41 today instead of writing the front to a file, one row per solution. -- a variable value, a number, is joined to a comma with + and Ring cannot add a number to a text; it raises for the front of every problem tried (two problems, epsilon-constraint method)
-
-## stzReactiveSystem -- reactive/stzReactive.ring (7)
-
-- `StopSafe` (line 258): Raises the STOPPED banner error today instead of stopping the system on the next tick, from inside the loop. -- the timer callback it schedules calls Stop without the object, so Ring reaches the global Stop of the profiler, which raises the STOPPED banner and the loop never ends cleanly
-- `SafeStopLoop` (line 271): Raises the STOPPED banner error today instead of stopping the system on the next tick; another spelling of the safe stop. -- it forwards to StopSafe, whose scheduled callback reaches the profiler's global Stop and raises
-- `SafeStopExecution` (line 280): Raises the STOPPED banner error today instead of stopping the system on the next tick; another spelling of the safe stop. -- it forwards to StopSafe, whose scheduled callback reaches the profiler's global Stop and raises
-- `SafeStopLoopExecution` (line 289): Raises the STOPPED banner error today instead of stopping the system on the next tick; another spelling of the safe stop. -- it forwards to StopSafe, whose scheduled callback reaches the profiler's global Stop and raises
-- `StopNext` (line 298): Raises the STOPPED banner error today instead of stopping the system on the next tick; another spelling of the safe stop. -- it forwards to StopSafe, whose scheduled callback reaches the profiler's global Stop and raises
-- `StopNextLoop` (line 307): Raises the STOPPED banner error today instead of stopping the system on the next tick; another spelling of the safe stop. -- it forwards to StopSafe, whose scheduled callback reaches the profiler's global Stop and raises
-- `BindObjects` (line 422): Leaves both objects unchanged today instead of keeping an attribute of the target in step with one of the source. -- it wraps copies of both objects, because Ring copies an object it is handed, so the binding links two throwaway wrappers and neither the source nor the target you passed ever changes
 
 ## stzReactor -- reactive/stzReactor.ring (2)
 
