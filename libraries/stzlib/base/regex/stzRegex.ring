@@ -159,10 +159,9 @@ func StzRegexReplace(cInput, cPattern, cReplacement)
 # and the partial family serve form validation while a person is still typing, and MatchRecursive
 # handles nested brackets through (?R). A pattern that does not compile does not raise: IsValid
 # answers FALSE and every match call answers FALSE. Known gaps today, each carried as a warning on
-# its method: FindMatches and FindCapture skip a character after each match, PartialMatchLength is
-# one too small, RecursiveDepth counts matches rather than nesting, LastError and PatternErrorOffset
-# are stubs, Explain raises for a pattern the library does not know by name, and MatchWordsIn stacks
-# word boundaries on the pattern each time it is called.
+# its method: LastError and PatternErrorOffset are placeholders (the engine keeps no compile error),
+# Explain answers an empty text for a pattern the library does not know by name, MatchWordsIn stacks
+# word boundaries on the pattern each time it is called, and positions count bytes, not characters.
 #
 #   receiver   o1 = new stzRegex("\d+")
 #   example    o1.MatchFirst("a1b22c333")
@@ -740,12 +739,11 @@ class stzRegex from stzObject
 
 	# Returns the start position of each match of the pattern in the last text given to a match call.
 	#
-	#   returns    a list of numbers; [ ] when there is none
-	#   note       positions start at 1
-	#   warning    known defect: it continues from one character past the end of each match, so a
-	#              match that starts right after the previous one is skipped: \d on 1234 answers [
-	#              1, 3 ] while Matches finds four
-	#   see        Matches, MatchFirst
+	#   returns    a list of numbers, one per match as Matches finds them; [ ] when there is none
+	#   note       positions start at 1 and count bytes, so an accented letter takes two; a match
+	#              that starts right where the previous one ended is found, \d on 1234 answers [
+	#              1, 2, 3, 4 ]
+	#   see        Matches, MatchFirst, MatchesZ
 	def FindMatches()
 		_anResults_ = []
 		_nPos_ = 1
@@ -757,7 +755,7 @@ class stzRegex from stzObject
 				_nStart_ = StzEngineRegexCaptureStart(@pRegexHandle, 1)
 				_nEnd_ = StzEngineRegexCaptureEnd(@pRegexHandle, 1)
 				_anResults_ + _nStart_
-				_nPos_ = _nEnd_ + 1
+				_nPos_ = _nEnd_	# CaptureEnd is already the position just past the match, as in Matches()
 			else
 				break
 			ok
@@ -809,7 +807,7 @@ class stzRegex from stzObject
 			if _cMatch_ != ""
 				_nStart_ = StzEngineRegexCaptureStart(@pRegexHandle, 1)
 				_nEnd_ = StzEngineRegexCaptureEnd(@pRegexHandle, 1)
-				_nPos_ = _nEnd_ + 1
+				_nPos_ = _nEnd_	# CaptureEnd is already the position just past the match, as in Matches()
 				_aResults_ + [ _cMatch_, _nStart_ ]
 			else
 				break
@@ -857,7 +855,7 @@ class stzRegex from stzObject
 			if _cMatch_ != ""
 				_nStart_ = StzEngineRegexCaptureStart(@pRegexHandle, 1)
 				_nEnd_ = StzEngineRegexCaptureEnd(@pRegexHandle, 1)
-				_nPos_ = _nEnd_ + 1
+				_nPos_ = _nEnd_	# CaptureEnd is already the position just past the match, as in Matches()
 				_aResults_ + [_nStart_, _nEnd_]
 			else
 				break
@@ -904,7 +902,7 @@ class stzRegex from stzObject
 			if _cMatch_ != ""
 				_nStart_ = StzEngineRegexCaptureStart(@pRegexHandle, 1)
 				_nEnd_ = StzEngineRegexCaptureEnd(@pRegexHandle, 1)
-				_nPos_ = _nEnd_ + 1
+				_nPos_ = _nEnd_	# CaptureEnd is already the position just past the match, as in Matches()
 				_aResults_ + [ _cMatch_, [_nStart_, _nEnd_] ]
 			else
 				break
@@ -944,14 +942,138 @@ class stzRegex from stzObject
 	 #  Group Capture-related methods #
 	#--------------------------------#
 
-	# TRUE if the last match call left captures; the whole match counts as capture 0, so it is TRUE after any successful match.
+	# TRUE if the pattern declares at least one capturing group, written (...), (?<name>...), (?P<name>...) or (?'name'...).
 	#
 	#   returns    TRUE or FALSE (1 or 0)
-	#   note       CaptureGroups raises an error when this is FALSE
-	#   warning    known defect: a pattern without any parentheses also answers TRUE after a match,
-	#              and a pattern with groups answers FALSE until a match succeeded
-	#   see        CaptureCount, CaptureGroups
+	#   note       it reads the pattern, so no match is needed and a failed match changes nothing;
+	#              the whole match is not counted as a group (CaptureCount does count it), and
+	#              (?:...), lookarounds, escaped or quoted brackets and brackets inside a character
+	#              class are not groups; a pattern that does not compile has none
+	#   warning    an inline (?x) is not read: under that option a bracket inside a # comment is
+	#              counted, unlike the ExtendedSyntax match option, which is
+	#   see        CaptureCount, CaptureGroups, HasNames
 	def HasGroups()
+		if @pRegexHandle = "" or NOT isString(@cPattern)
+			return 0
+		ok
+
+		# two padding spaces let the look-ahead below read past the end without a range test
+		_cPat_ = @cPattern + "  "
+		_nPat_ = ring_len(@cPattern)
+		_bExt_ = ( (@nFlags & 8) != 0 )
+		_i_ = 1
+
+		while _i_ <= _nPat_
+			_cCh_ = _cPat_[_i_]
+
+			if _cCh_ = "\"
+				if strcmp(_cPat_[_i_ + 1], "Q") = 0
+					# a quoted run, up to \E: nothing in it is syntax
+					_i_ += 2
+					_bQuoted_ = 1
+					while _bQuoted_ and _i_ <= _nPat_
+						if _cPat_[_i_] = "\" and strcmp(_cPat_[_i_ + 1], "E") = 0
+							_bQuoted_ = 0
+						ok
+						_i_++
+					end
+					if NOT _bQuoted_
+						_i_++
+					ok
+				else
+					_i_ += 2
+				ok
+				loop
+			ok
+
+			if _cCh_ = "["
+				# a character class: a ] right after [ or [^ is a letter, and [:name:] is a POSIX name
+				_i_++
+				if _cPat_[_i_] = "^"
+					_i_++
+				ok
+				if _cPat_[_i_] = "]"
+					_i_++
+				ok
+				_bInClass_ = 1
+				while _bInClass_ and _i_ <= _nPat_
+					_cIn_ = _cPat_[_i_]
+					if _cIn_ = "\"
+						_i_ += 2
+					but _cIn_ = "[" and _cPat_[_i_ + 1] = ":"
+						_j_ = _i_ + 2
+						while _j_ < _nPat_ and NOT ( _cPat_[_j_] = ":" and _cPat_[_j_ + 1] = "]" )
+							_j_++
+						end
+						if _j_ < _nPat_
+							_i_ = _j_ + 2
+						else
+							_i_++
+						ok
+					but _cIn_ = "]"
+						_bInClass_ = 0
+						_i_++
+					else
+						_i_++
+					ok
+				end
+				loop
+			ok
+
+			if _bExt_ and _cCh_ = "#"
+				# an extended-syntax comment runs to the end of the line
+				while _i_ <= _nPat_ and _cPat_[_i_] != char(10)
+					_i_++
+				end
+				loop
+			ok
+
+			if _cCh_ = "("
+				_c1_ = _cPat_[_i_ + 1]
+
+				if _c1_ = "*"
+					# a verb such as (*UTF8)
+					_i_ += 2
+					loop
+				ok
+
+				if _c1_ != "?"
+					return 1
+				ok
+
+				_c2_ = _cPat_[_i_ + 2]
+				_c3_ = _cPat_[_i_ + 3]
+
+				if _c2_ = "#"
+					# a comment group, up to its closing bracket
+					_i_ += 3
+					while _i_ <= _nPat_ and _cPat_[_i_] != ")"
+						_i_++
+					end
+					_i_++
+					loop
+				ok
+
+				if _c2_ = "'"
+					return 1
+				ok
+				if _c2_ = "<" and _c3_ != "=" and _c3_ != "!"
+					return 1
+				ok
+				if strcmp(_c2_, "P") = 0 and _c3_ = "<"
+					return 1
+				ok
+
+				_i_ += 2
+				loop
+			ok
+
+			_i_++
+		end
+
+		return 0
+
+	def _HasCaptures()
 		return This.CaptureCount() > 0
 
 	# TRUE if the pattern holds named groups, written (?<name>...) or (?P<name>...); no match is needed to tell.
@@ -971,7 +1093,7 @@ class stzRegex from stzObject
 	#   see        CapturedGroups, CaptureCount, NamedGroups
 	def CaptureGroups()
 
-		if NOT This.HasGroups()
+		if NOT This._HasCaptures()
 			StzRaise("No capture groups found in pattern. Use groups like (xyz) to capture values.")
 		ok
 
@@ -1126,7 +1248,7 @@ class stzRegex from stzObject
 	#   warning    raises an error when no match has been made yet or the last match failed
 	#   see        CaptureGroups, CaptureCount
 	def CapturedGroups()
-		if NOT This.HasGroups()
+		if NOT This._HasCaptures()
 			StzRaise("No capture groups found in pattern. Use groups like (xyz) to capture values.")
 		ok
 
@@ -1191,10 +1313,9 @@ class stzRegex from stzObject
 
 	# Returns the start position of each match of the pattern in the last text given to a match call.
 	#
-	#   returns    a list of numbers; [ ] when there is none
-	#   note       it reports where the whole matches start, not where each group starts
-	#   warning    known defect: it walks the matches like FindMatches, so a match that starts right
-	#              after the previous one is skipped
+	#   returns    a list of numbers, one per match as FindMatches finds them; [ ] when there is none
+	#   note       it reports where the whole matches start, not where each group starts; positions
+	#              start at 1 and count bytes
 	#   see        FindMatches, CaptureGroups
 	def FindCapture()
 		_aPosZZ_ = This.FindMatchesZZ()
@@ -1232,7 +1353,7 @@ class stzRegex from stzObject
 
 	def CaptureGroupsZ()
 
-		if NOT This.HasGroups()
+		if NOT This._HasCaptures()
 			StzRaise("No capture groups found in pattern. Use groups like (xyz) to capture values.")
 		ok
 
@@ -1306,7 +1427,7 @@ class stzRegex from stzObject
 
 	def CaptureGroupsZZ()
 
-		if NOT This.HasGroups()
+		if NOT This._HasCaptures()
 			StzRaise("No capture groups found in pattern. Use groups like (xyz) to capture values.")
 		ok
 
@@ -1368,21 +1489,22 @@ class stzRegex from stzObject
 		def IsValidPattern()
 			return THis.IsValid()
 
-	# Returns an empty text today instead of the compile error of the pattern.
+	# Returns an empty text as a placeholder: the engine keeps no compile error message for a bad pattern.
 	#
 	#   returns    an empty text, always
 	#   note       test IsValid to learn that a pattern is bad
-	#   warning    known defect: the body is a stub that returns "", so an invalid pattern gives no
-	#              message
+	#   warning    placeholder, not implemented: the engine drops the compile error when a pattern
+	#              fails (stz_regex_new answers a null handle and keeps no message), so a pattern
+	#              with a missing bracket gives no message here either
 	#   see        IsValid, PatternErrorOffset
 	def LastError()
 		return ""
 
-	# Returns -1 today instead of the position of the compile error in the pattern.
+	# Returns -1 as a placeholder: the engine keeps no error position for a pattern that does not compile.
 	#
 	#   returns    -1, always
-	#   warning    known defect: the body is a stub that returns -1, even for a pattern that does
-	#              not compile
+	#   warning    placeholder, not implemented: the engine drops the error offset when a pattern
+	#              fails to compile, so -1 is the answer for a good pattern and for a bad one
 	#   see        IsValid, LastError
 	def PatternErrorOffset()
 		return -1
@@ -1499,15 +1621,16 @@ class stzRegex from stzObject
 		def MatchPartialInfo(pcStr)
 			return This.PartialMatchInfo(pcStr)
 
-	# Returns the position where a partial or complete match starts in the text; raises an error when there is no match at all.
+	# Returns the position where a partial or complete match of the pattern starts in the text, 0 when the text cannot match.
 	#
-	#   returns    a number
-	#   note       PartialMatchStart answers 0 for no match, without raising
-	#   warning    known defect: for a text that does not match it reads the first element of an
-	#              empty section and raises error R2
+	#   pcStr      the text typed so far
+	#   returns    a number, counted in bytes from 1; 0 when the text is neither the beginning of a
+	#              match nor a match (it does not raise)
+	#   note       the same answer as PartialMatchStart
 	#   see        PartialMatchStart, PartialMatchInfo
 	def FindPartialMatch(pcStr)
-		return This.PartialMAtchInfo(pcStr)[3][2][1]
+		_nStart_ = This.PartialMatchStart(pcStr)
+		return _nStart_
 
 		def FindPartialMatchZ(pcStr)
 			return This.FindPartialMatch(pcStr)
@@ -1525,17 +1648,16 @@ class stzRegex from stzObject
 	def FindPartialMatchZZ(pcStr)
 		return This.PartialMatchInfo(pcStr)[3][2]
 
-	# Returns the length of the partial or complete match today minus one: the partial match 123- gives 3.
+	# Returns how many characters of the text the partial or complete match covers: the partial match 123- gives 4.
 	#
-	#   returns    a number, one below the true length; 0 when there is no match
-	#   note       the true length is the second section value minus the first, plus 1
-	#   warning    known defect: it subtracts an inclusive start from an inclusive end without
-	#              adding one, so 12 matched by \d{3} gives 1 and a complete 123 gives 2
+	#   pcStr      the text typed so far
+	#   returns    a number of characters, not bytes; 0 when there is no match
+	#   note       12 against \d{3} gives 2 and a complete 123 gives 3
 	#   see        PartialMatchStart, PartialMatchInfo
 	def PartialMatchLength(pcStr)
 		_aInfo_ = This.PartialMatchInfo(pcStr)
 		if _aInfo_[1][2] = "none" return 0 ok
-		return _aInfo_[3][2][2] - _aInfo_[3][2][1]
+		return StzLen(_aInfo_[2][2])
 
 		def PartialMatchSize(pcStr)
 			return This.PartialMatchLength(pcStr)
@@ -1878,25 +2000,44 @@ class stzRegex from stzObject
 		def FindNestedZ()
 			return This.FindRecursiveSubStrings()
 
-	# Returns the number of distinct nested matches found by the last recursive match, which is the nesting depth only for a single chain.
+	# Returns how deep the matches found by the last recursive match are nested inside one another: ((x)(y)(z)) gives 2.
 	#
 	#   returns    a number; 0 unless the last recursive match succeeded
-	#   note       the answer is right only when each bracket holds at most one other
-	#   warning    known defect: it counts matches, so ((x)(y)(z)) answers 4 although the nesting is
-	#              2 deep, while (((x))) answers 3
-	#   see        RecursiveMatchInfo, NestedDepth
-		#>
+	#   note       it is the longest chain of matches each holding the next, so (((x))) gives 3 and
+	#              ((x)(y)(z)) gives 2 although 4 brackets match; RecursiveMatchInfo counts matches
+	#              instead
+	#   see        RecursiveMatchInfo, NestedDepth, RecursiveSubStringsZZ
 	def RecursiveDepth()
-		return This.RecursiveMatchInfo()[2][2]
+		_aMatches_ = This.RecursiveMatchInfo()[3][2]
+		_nMatches_ = ring_len(_aMatches_)
+		_nDepth_ = 0
 
-		# Returns the number of distinct nested matches found by the last recursive match; the same count as the recursive depth.
+		for _i_ = 1 to _nMatches_
+			# a match sits one level deeper than every other match that holds it
+			_nLevel_ = 1
+			_nStart_ = _aMatches_[_i_][2][1]
+			_nEnd_ = _aMatches_[_i_][2][2]
+
+			for _j_ = 1 to _nMatches_
+				if _j_ != _i_ and _aMatches_[_j_][2][1] <= _nStart_ and _aMatches_[_j_][2][2] >= _nEnd_
+					_nLevel_++
+				ok
+			next
+
+			if _nLevel_ > _nDepth_
+				_nDepth_ = _nLevel_
+			ok
+		next
+
+		return _nDepth_
+
+		# Returns how deep the matches found by the last recursive match are nested inside one another; the same answer as the recursive depth.
 		#
 		#   returns    a number; 0 unless the last recursive match succeeded
-		#   warning    known defect: it counts matches, so ((x)(y)(z)) answers 4 although the
-		#              nesting is 2 deep
+		#   note       ((x)(y)(z)) gives 2 although 4 brackets match
 		#   see        RecursiveDepth
 		def NestedDepth()
-			return This.RecursiveMatchInfo()[2][2]
+			return This.RecursiveDepth()
 
 	#-- Named Recursive Match
 
@@ -1928,47 +2069,45 @@ class stzRegex from stzObject
 	 #  Explanation methods  #
 	#-----------------------#
 
-	# Returns a one-line explanation of the pattern when the library knows it by name; any other pattern raises an error.
+	# Returns a one-line explanation of the pattern when the library knows it by name, an empty text otherwise.
 	#
-	#   returns    text
+	#   returns    text; empty for a pattern outside the named catalogue and for a catalogue
+	#              pattern that has no explanation written yet (it does not raise)
 	#   note       patterns of the named catalogue, such as ^([^\d]*)(\d+)$, are explained
-	#   warning    known defect: for a pattern outside the library's named list it builds
-	#              stzRegexAnalyzer, a class that does not exist, and raises error R11
-	#   see        ExplainXT, Pattern
+	#   warning    the library has no analyser that explains a pattern it does not know, so an empty
+	#              text means no explanation is available, not that the pattern is wrong
+	#   see        ExplainXT, Pattern, IsValid
 	def Explain()
-		_cResult_ = ""
-		_cName_ = RegexPatternName(This.Pattern())
+		return This._ExplanationPart(1)
 
-		if _cName_ != ""
-			_cResult_ = RegexPatternExplanation(_cName_)[1]
-		ok
-
-		if _cResult_ = ""
-			_oRxAnal_ = new stzRegexAnalyzer(This.Pattern())
-			_cResult_ = _oRxAnal_.Explain()
-		ok
-
-		if _cResult_ = ""
-			StzRaise("Can't explain the pattern.")
-		ok
-
-		return _cResult_
-
+	# Returns the detailed explanation of the pattern, with groups and examples, when the library knows it by name.
+	#
+	#   returns    text; empty for a pattern outside the named catalogue and for a catalogue
+	#              pattern that has no explanation written yet (it does not raise)
+	#   warning    the library has no analyser that explains a pattern it does not know, so an empty
+	#              text means no explanation is available, not that the pattern is wrong
+	#   see        Explain, Pattern
 	def ExplainXT()
-		_cResult_ = ""
+		return This._ExplanationPart(2)
+
+	def _ExplanationPart(pnPart)
 		_cName_ = RegexPatternName(This.Pattern())
 
-		if _cName_ != ""
-			_cResult_ = RegexPatternExplanation(_cName_)[2]
+		if _cName_ = ""
+			return ""
 		ok
 
-		if _cResult_ = ""
-			_oRxAnal_ = new stzRegexAnalyzer(This.Pattern())
-			_cResult_ = _oRxAnal_.ExplainXT()
-		ok
+		_cResult_ = ""
 
-		if _cResult_ = ""
-			StzRaise("Can't explain the pattern.")
+		# a catalogue name without an explanation entry makes RegexPatternExplanation raise
+		try
+			_cResult_ = RegexPatternExplanation(_cName_)[pnPart]
+		catch
+			_cResult_ = ""
+		done
+
+		if NOT isString(_cResult_)
+			return ""
 		ok
 
 		return _cResult_
