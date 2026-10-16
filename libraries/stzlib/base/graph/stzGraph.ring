@@ -703,38 +703,57 @@ class stzGraph from stzObject
 	#  INSERT MULTIPLE NODES  #
 	#-------------------------#
 	
-	# Raises error R20 today instead of inserting a chain of nodes in front of an existing node.
+	# Puts a chain of new nodes in front of an existing node, in list order, so the last new node points to it.
 	#
-	#   pcTargetId   The id of the existing node to insert next to.
-	#   paNodes      the nodes to insert, each a pair [ id, label ]
-	#   returns      nothing today
-	#   note         call InsertNodeBefore once per node instead
-	#   warning      known defect: it calls InsertNodeBefore with three arguments, but that method
-	#                takes two, so even a valid list of pairs raises R20
-	#   see          InsertNodeBefore
+	#   pcTargetId   The id of the existing node, as text; case is ignored.
+	#   paNodes      The new nodes in path order, each a pair [ id, label ] or just an id as text.
+	#   returns      nothing; the graph changes
+	#   note         a graph a -> t given [ [ "n1", "N one" ], [ "n2", "N two" ] ] becomes
+	#                a -> n1 -> n2 -> t; the re-routed edges lose their labels and properties
+	#   see          InsertNodeBefore, InsertNodesAfter
 	def InsertNodesBefore(pcTargetId, paNodes)
+		_cNext_ = StzLower(pcTargetId)
 		_nLen_ = len(paNodes)
-		for i = 1 to _nLen_
-			This.InsertNodeBefore(pcTargetId, paNodes[i][1], paNodes[i][2])
-			pcTargetId = paNodes[i][1]
-		end
-	
-	# Raises error R20 today instead of inserting a chain of nodes behind an existing node.
+		for i = _nLen_ to 1 step -1
+			if isList(paNodes[i])
+				_cNewId_ = paNodes[i][1]
+				_cLabel_ = _cNewId_
+				if len(paNodes[i]) > 1
+					_cLabel_ = paNodes[i][2]
+				ok
+			else
+				_cNewId_ = paNodes[i]
+				_cLabel_ = _cNewId_
+			ok
+			This.InsertNodeBeforeXT(_cNext_, _cNewId_, _cLabel_)
+			_cNext_ = StzLower(_cNewId_)
+		next
+
+	# Puts a chain of new nodes behind an existing node, in list order, so the first new node follows it.
 	#
-	#   pcTargetId   The id of the existing node to insert next to.
-	#   paNodes      the nodes to insert, each a pair [ id, label ]
-	#   returns      nothing today
-	#   note         call InsertNodeAfter once per node instead
-	#   warning      known defect: it calls InsertNodeAfter with three arguments, but that method
-	#                takes two, so even a valid list of pairs raises R20
-	#   see          InsertNodeAfter
+	#   pcTargetId   The id of the existing node, as text; case is ignored.
+	#   paNodes      The new nodes in path order, each a pair [ id, label ] or just an id as text.
+	#   returns      nothing; the graph changes
+	#   note         a graph t -> b given [ [ "n1", "N one" ], [ "n2", "N two" ] ] becomes
+	#                t -> n1 -> n2 -> b; the re-routed edges lose their labels and properties
+	#   see          InsertNodeAfter, InsertNodesBefore
 	def InsertNodesAfter(pcTargetId, paNodes)
 		_nLen_ = len(paNodes)
-		_cLastId_ = pcTargetId
+		_cLastId_ = StzLower(pcTargetId)
 		for i = 1 to _nLen_
-			This.InsertNodeAfter(_cLastId_, paNodes[i][1], paNodes[i][2])
-			_cLastId_ = paNodes[i][1]
-		end
+			if isList(paNodes[i])
+				_cNewId_ = paNodes[i][1]
+				_cLabel_ = _cNewId_
+				if len(paNodes[i]) > 1
+					_cLabel_ = paNodes[i][2]
+				ok
+			else
+				_cNewId_ = paNodes[i]
+				_cLabel_ = _cNewId_
+			ok
+			This.InsertNodeAfterXT(_cLastId_, _cNewId_, _cLabel_)
+			_cLastId_ = StzLower(_cNewId_)
+		next
 
 	#---------------#
 	#  NODE REMOVAL #
@@ -1343,7 +1362,7 @@ class stzGraph from stzObject
 		ok
 	
 		if isList(pcToNodeId)
-			This.AddEdgesXTT(pcFromNodeId, $paToNodesIdsAndLabelsAndProps)
+			This.AddEdgesXTT(pcFromNodeId, pcToNodeId)
 			return
 		ok
 
@@ -1464,23 +1483,41 @@ class stzGraph from stzObject
 		def ConnectXTT(pcFromNodeId, pcToNodeId, pcLabel, pacProperties)
 			This.AddEdgeXTT(pcFromNodeId, pcToNodeId, pcLabel, pacProperties)
 	
+	# Adds one edge from a node to each target in the list, each edge with its own label and properties.
+	#
+	#   pcFromNodeId                    The id of the node the edges start from.
+	#   paToNodesIdsAndLabelsAndProps   The targets, each [ id, label, properties ]; label and properties may be left out, and a target may be just an id as text.
+	#   returns                         nothing; the graph changes
+	#   see                             AddEdges, AddEdgeXTT
 	def AddEdgesXTT(pcFromNodeId, paToNodesIdsAndLabelsAndProps)
 		_nLen_ = len(paToNodesIdsAndLabelsAndProps)
 		for i = 1 to _nLen_
-			This.AddEdgeXTT(pcFromNodeId, paToNodesIdsAndLabelsAndProps[i])
+			_pItem_ = paToNodesIdsAndLabelsAndProps[i]
+			if isList(_pItem_)
+				_cTo_ = _pItem_[1]
+				_cLabel_ = ""
+				_aProps_ = []
+				if len(_pItem_) > 1
+					_cLabel_ = _pItem_[2]
+				ok
+				if len(_pItem_) > 2
+					_aProps_ = _pItem_[3]
+				ok
+			else
+				_cTo_ = _pItem_
+				_cLabel_ = ""
+				_aProps_ = []
+			ok
+			This.AddEdgeXTT(pcFromNodeId, _cTo_, _cLabel_, _aProps_)
 		next
 
-		# Raises error R19 today instead of adding edges to several nodes, each with its own label and properties.
+		# Links one node to several others, each link with its own label and properties; another spelling of the multi-edge call.
 		#
-		#   pcFromNodeId                    The id of the node the edge starts from.
-		#   paToNodesIdsAndLabelsAndProps   The target nodes, each with its label and properties.
-		#   returns                         nothing today
-		#   note                            AddEdges adds the unlabelled version; AddEdgeXTT adds
-		#                                   one edge with a label and properties
-		#   warning                         known defect: it calls AddEdgeXTT with two arguments
-		#                                   where four are needed, so any non-empty list raises R19,
-		#                                   and an empty list does nothing
-		#   see                             AddEdges
+		#   pcFromNodeId                    The id of the node the edges start from.
+		#   paToNodesIdsAndLabelsAndProps   The targets, each [ id, label, properties ]; label and properties may be left out, and a target may be just an id as text.
+		#   returns                         nothing; the graph changes
+		#   note                            an edge that already exists, or a target that is not a node, raises an error as for a single edge
+		#   see                             AddEdgesXTT, AddEdges
 		def ConnectEdgesXTT(pcFromNodeId, paToNodesIdsAndLabelsAndProps)
 			This.AddEdgesXTT(pcFromNodeId, paToNodesIdsAndLabelsAndProps)
 
