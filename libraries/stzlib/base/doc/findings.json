@@ -1,4 +1,4 @@
-{"schema": 1, "count": 159, "findings": [
+{"schema": 1, "count": 158, "findings": [
  {"rule": "doc-dead-forward", "subject": "stzDiagram.SaveDiagFile", "where": "graph/stzDiagram.ring:18044", "severity": "error", "message": "SaveDiagFile() forwards to WriteToDiagFile(), which no class of its chain defines: calling it raises"},
  {"rule": "doc-dead-forward", "subject": "stzDiagram.SaveDiagFileInFolder", "where": "graph/stzDiagram.ring:18176", "severity": "error", "message": "SaveDiagFileInFolder() forwards to WriteToDiagFileXT(), which no class of its chain defines: calling it raises"},
  {"rule": "doc-dead-forward", "subject": "stzDiagram.SaveDiagFileXT", "where": "graph/stzDiagram.ring:18115", "severity": "error", "message": "SaveDiagFileXT() forwards to WriteToDiagFileXT(), which no class of its chain defines: calling it raises"},
@@ -82,7 +82,6 @@
  {"rule": "doc-dead-forward", "subject": "stzObject.OfXTCSMB", "where": "object/stzObject.ring:4329", "severity": "error", "message": "OfXTCSMB() forwards to OfCSMB(), which no class of its chain defines: calling it raises"},
  {"rule": "doc-dead-forward", "subject": "stzObject.OfXTM", "where": "object/stzObject.ring:4217", "severity": "error", "message": "OfXTM() forwards to OfCSM(), which no class of its chain defines: calling it raises"},
  {"rule": "doc-dead-forward", "subject": "stzPairOfNumbers.CommonLeastMultiplier", "where": "number/stzPairOfNumbers.ring:226", "severity": "error", "message": "CommonLeastMultiplier() forwards to LeastCommonMuliplier(), which no class of its chain defines: calling it raises"},
- {"rule": "doc-dead-forward", "subject": "stzStringChar.IsEuropeanDigit", "where": "string/stzStringChar.ring:1114", "severity": "error", "message": "IsEuropeanDigit() forwards to IsEuropeanNumber(), which no class of its chain defines: calling it raises"},
  {"rule": "doc-dead-forward", "subject": "stzTable.FindNthOccurrenceOfValueInCellCS", "where": "table/stzTable.ring:8779", "severity": "error", "message": "FindNthOccurrenceOfValueInCellCS() forwards to FindNthValueInCellCS(), which no class of its chain defines: calling it raises"},
  {"rule": "doc-dead-forward", "subject": "stzTable.FirstRowXT", "where": "table/stzTable.ring:3465", "severity": "error", "message": "FirstRowXT() forwards to NthRowXT(), which no class of its chain defines: calling it raises"},
  {"rule": "doc-dead-forward", "subject": "stzTable.LastRowXT", "where": "table/stzTable.ring:3472", "severity": "error", "message": "LastRowXT() forwards to NthRowXT(), which no class of its chain defines: calling it raises"},

@@ -1,5 +1,5 @@
 {
- "count": 203,
+ "count": 193,
  "defects": [
   {
    "class": "stzAppServer",
@@ -1312,86 +1312,6 @@
    "line": 9373,
    "symptom": "Answers FALSE today: the currency symbol check is a stub that waits for the locale data.",
    "cause": ""
-  },
-  {
-   "class": "stzStringChar",
-   "file": "string/stzStringChar.ring",
-   "method": "CanRetrieveName",
-   "line": 967,
-   "symptom": "Answers TRUE when the Unicode database holds a name for the char, and raises when it does not.",
-   "cause": "known defect: for an unnamed code such as U+0378 it raises \"Can't proceed!\" instead of answering FALSE, because it asks for the name and the name request raises"
-  },
-  {
-   "class": "stzStringChar",
-   "file": "string/stzStringChar.ring",
-   "method": "AsciiCode",
-   "line": 1018,
-   "symptom": "Returns the ASCII code of the char, 0 to 127; for a char above 127 it raises R3 instead of a clear message.",
-   "cause": "known defect: the failure branch calls stzCharError, which is defined nowhere, so a non-ASCII char raises R3 \"Calling Function without definition\""
-  },
-  {
-   "class": "stzStringChar",
-   "file": "string/stzStringChar.ring",
-   "method": "IsLeftToRightIsolate",
-   "line": 1222,
-   "symptom": "Returns an empty string today instead of TRUE for the left-to-right isolate mark, U+2066.",
-   "cause": "known defect: the body is only a comment (\"Reserved for future implementation\"), so the answer is always empty"
-  },
-  {
-   "class": "stzStringChar",
-   "file": "string/stzStringChar.ring",
-   "method": "IsRightToLeftIsolate",
-   "line": 1230,
-   "symptom": "Returns an empty string today instead of TRUE for the right-to-left isolate mark, U+2067.",
-   "cause": "known defect: the body is only a comment (\"Reserved for future implementation\"), so the answer is always empty"
-  },
-  {
-   "class": "stzStringChar",
-   "file": "string/stzStringChar.ring",
-   "method": "IsEuropean",
-   "line": 1443,
-   "symptom": "Raises error R14 today instead of TRUE for a European number, separator or terminator.",
-   "cause": "known defect: the body calls IsEuropeanNumber, which is defined nowhere"
-  },
-  {
-   "class": "stzStringChar",
-   "file": "string/stzStringChar.ring",
-   "method": "Mirrored",
-   "line": 1735,
-   "symptom": "Raises error R3 today instead of returning the mirror partner of the char.",
-   "cause": "known defect: the body calls CharFromUnicode, which is defined nowhere"
-  },
-  {
-   "class": "stzStringChar",
-   "file": "string/stzStringChar.ring",
-   "method": "IsOtherCircledChar",
-   "line": 1997,
-   "symptom": "Raises error R3 today instead of testing for a circled char outside the digits and Latin letters.",
-   "cause": "known defect: the body calls OtherCircledCharUnicodes, which is defined nowhere"
-  },
-  {
-   "class": "stzStringChar",
-   "file": "string/stzStringChar.ring",
-   "method": "IntroducedInUnicodeVersion",
-   "line": 2067,
-   "symptom": "Returns a rough Unicode version taken from the char's block, \"0.9\" for nearly every char and \"3.2\" for emoji.",
-   "cause": "known defect: the version list is an approximation, marked #TODO in the data file (\"Put correct values\"); emoji were added in Unicode 6"
-  },
-  {
-   "class": "stzStringChar",
-   "file": "string/stzStringChar.ring",
-   "method": "DefaultLanguage",
-   "line": 2155,
-   "symptom": "Returns the main language of the char's script, such as english, arabic or hebrew, and undefined for chars shared by scripts.",
-   "cause": "known defect: raises \"Can not create char object!\" for a char of the Inherited or Unknown script, such as a combining accent, an unassigned code or a private-use char"
-  },
-  {
-   "class": "stzStringChar",
-   "file": "string/stzStringChar.ring",
-   "method": "TaiThamScript",
-   "line": 2857,
-   "symptom": "Raises error R14 today instead of testing for the Tai Tham script.",
-   "cause": "known defect: the body calls ScriptCode, which was retired; ScriptIs(\"taitham\") is the working test"
   },
   {
    "class": "stzStringChecker",
