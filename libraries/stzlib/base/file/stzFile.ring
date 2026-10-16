@@ -826,6 +826,232 @@ func StzNormalizeFilePathXT(_cName_)
 	func NormaliseFilePathXT(_cName_)
 		return StzNormalizeFilePathXT(_cName_)
 
+#==============================#
+# PATH AND DISK HELPERS        #
+#==============================#
+
+# Global functions used by stzFileManager. They are written HERE, before the first
+# class, because Ring attaches a function written between two classes to the class
+# above it: that is how they were methods of stzFileXT and every call to them from
+# stzFileManager raised R3 (Calling Function without definition).
+# They read paths through the engine (codepoint-safe), accept / and \ as separators,
+# and give the same answer for a folder name with a dot as for one without.
+
+# The last segment of the path: the file name with its extension; "" for a path ending in a separator.
+func _FileName(cPath)
+	return StzEnginePathBasename(cPath)
+
+# The folder part of the path; "." for a bare file name, "" for a file at the root (/name).
+func _FileDirPath(cPath)
+	_cDir_ = StzEnginePathDirname(cPath)
+	if _cDir_ != ""
+		return _cDir_
+	ok
+	_cFirst_ = StzLeft(cPath, 1)
+	if _cFirst_ = "/" or _cFirst_ = "\"
+		return ""
+	ok
+	return "."
+
+# The extension of the file name WITHOUT its dot ("gz" for a.tar.gz); "" when there is none.
+# A name that only starts with a dot (.hid) has no extension; a dot in a folder name does not count.
+func _FileExtension(cPath)
+	_cName_ = StzEnginePathBasename(cPath)
+	_cExt_ = StzEnginePathExtension(_cName_)
+	if _cExt_ = "" or _cExt_ = _cName_
+		return ""
+	ok
+	return StzRight(_cExt_, StzLen(_cExt_) - 1)
+
+# The file name without its last extension (a.tar.gz gives a.tar); the whole name when it has none.
+func _FileCompleteBaseName(cPath)
+	_cName_ = StzEnginePathBasename(cPath)
+	_cExt_ = StzEnginePathExtension(_cName_)
+	if _cExt_ = "" or _cExt_ = _cName_
+		return _cName_
+	ok
+	return StzLeft(_cName_, StzLen(_cName_) - StzLen(_cExt_))
+
+# A time stamp that is safe inside a file name: yyyyMMdd_HHmmss, with no / and no :.
+# It reads StzSysDate() (dd/mm/yyyy) and StzSysTime() (hh:mm:ss), so a frozen clock is honoured.
+func _FileBackupStamp()
+	_cD_ = StzSysDate()
+	_cT_ = StzSysTime()
+	_cStamp_ = StzMid(_cD_, 7, 4) + StzMid(_cD_, 4, 2) + StzMid(_cD_, 1, 2) + "_"
+	_cStamp_ += StzMid(_cT_, 1, 2) + StzMid(_cT_, 4, 2) + StzMid(_cT_, 7, 2)
+	return _cStamp_
+
+# cStem + cTail when nothing is there yet, else cStem_2 + cTail, cStem_3 + cTail ...: a path that is free.
+func _FileFreePath(cStem, cTail)
+	_cPath_ = cStem + cTail
+	_n_ = 2
+	while (StzEngineFileExists(_cPath_) = 1 or StzEngineDirExists(_cPath_) = 1) and _n_ < 10000
+		_cPath_ = cStem + "_" + _n_ + cTail
+		_n_++
+	end
+	return _cPath_
+
+# 1 when two paths name the same place by their text: separators are unified, a leading ./ dropped,
+# and the case ignored on Windows. Symbolic links and relative-against-absolute are NOT resolved.
+func _FileSamePath(cA, cB)
+	_cA_ = StzReplace(cA, "\", "/")
+	_cB_ = StzReplace(cB, "\", "/")
+	while StzLeft(_cA_, 2) = "./"
+		_cA_ = StzRight(_cA_, StzLen(_cA_) - 2)
+	end
+	while StzLeft(_cB_, 2) = "./"
+		_cB_ = StzRight(_cB_, StzLen(_cB_) - 2)
+	end
+	if isWindows()
+		_cA_ = StzLower(_cA_)
+		_cB_ = StzLower(_cB_)
+	ok
+	if _cA_ = _cB_
+		return 1
+	ok
+	return 0
+
+# Copies cSrc to cDest, or moves it (copy, check the size, then delete the original). 1 when the file
+# is at cDest afterwards, else 0 and the original is untouched. An empty destination is refused. The
+# same place for both: a copy answers 0 (nothing to copy onto itself), a move answers 1 and deletes nothing.
+func _FileTransfer(cSrc, cDest, bMove)
+	if NOT isString(cDest) or cDest = "" or NOT isString(cSrc) or cSrc = ""
+		return 0
+	ok
+	if _FileSamePath(cSrc, cDest) = 1
+		if bMove = 1 and StzEngineFileExists(cSrc) = 1
+			return 1
+		ok
+		return 0
+	ok
+	if StzEngineFileExists(cSrc) = 0
+		return 0
+	ok
+	if StzEngineFileCopy(cSrc, cDest) != 1
+		return 0
+	ok
+	if bMove = 1
+		if StzEngineFileSize(cDest) != StzEngineFileSize(cSrc)
+			return 0
+		ok
+		StzEngineFileDelete(cSrc)
+	ok
+	return 1
+
+# The text to write for a value: a text as it is, a number as Ring writes it. Anything else raises a normal error.
+func _FileTextOf(pValue)
+	if isString(pValue)
+		return pValue
+	ok
+	if isNumber(pValue)
+		return "" + pValue
+	ok
+	StzRaise("Can't write to the file! You must provide a text or a number.")
+
+# The lines of a text, each WITH its own line feed (a CR before it stays); the last one has none when
+# the text does not end with one. Joining them gives the text back byte for byte. [] for an empty text.
+func _FileLinesKeep(cText)
+	_aOut_ = []
+	if cText = ""
+		return _aOut_
+	ok
+	_aParts_ = @split(cText, char(10))
+	_nParts_ = len(_aParts_)
+	for _i_ = 1 to _nParts_ - 1
+		_aOut_ + (_aParts_[_i_] + char(10))
+	next
+	if _aParts_[_nParts_] != ""
+		_aOut_ + _aParts_[_nParts_]
+	ok
+	return _aOut_
+
+# 1 for a whole number of 1 or more.
+func _FileIsCount(pValue)
+	if NOT isNumber(pValue)
+		return 0
+	ok
+	if pValue >= 1 and pValue = floor(pValue)
+		return 1
+	ok
+	return 0
+
+# The text cut into chunks of nLines lines each (the last may be shorter), line feeds kept: joining the chunks gives the text back.
+func _FileChunksByLines(cText, nLines)
+	_aLines_ = _FileLinesKeep(cText)
+	_nTot_ = len(_aLines_)
+	_aChunks_ = []
+	_cChunk_ = ""
+	_nIn_ = 0
+	for _i_ = 1 to _nTot_
+		_cChunk_ += _aLines_[_i_]
+		_nIn_++
+		if _nIn_ = nLines
+			_aChunks_ + _cChunk_
+			_cChunk_ = ""
+			_nIn_ = 0
+		ok
+	next
+	if _nIn_ > 0
+		_aChunks_ + _cChunk_
+	ok
+	return _aChunks_
+
+# The text cut into chunks of nBytes BYTES each (the last may be shorter); a cut may fall inside a multi-byte character.
+func _FileChunksBySize(cText, nBytes)
+	_aChunks_ = []
+	_nTot_ = len(cText)
+	_nPos_ = 1
+	while _nPos_ <= _nTot_
+		_aChunks_ + substr(cText, _nPos_, nBytes)
+		_nPos_ += nBytes
+	end
+	return _aChunks_
+
+# The text cut into chunks of whole lines: a line that contains cPattern opens a new chunk (the first line never leaves an empty one before it).
+func _FileChunksByPattern(cText, cPattern)
+	_aLines_ = _FileLinesKeep(cText)
+	_nTot_ = len(_aLines_)
+	_aChunks_ = []
+	_cChunk_ = ""
+	for _i_ = 1 to _nTot_
+		if _cChunk_ != "" and StzFindFirst(cPattern, _aLines_[_i_]) > 0
+			_aChunks_ + _cChunk_
+			_cChunk_ = ""
+		ok
+		_cChunk_ += _aLines_[_i_]
+	next
+	if _cChunk_ != ""
+		_aChunks_ + _cChunk_
+	ok
+	return _aChunks_
+
+# Writes the chunks next to the source as <name>_1.<ext>, <name>_2.<ext> ... and returns their paths.
+# Nothing is written, and an error is raised, if one of the part paths is already taken.
+func _FileWriteParts(cSource, aChunks)
+	_cBase_ = _FileCompleteBaseName(cSource)
+	_cExt_ = _FileExtension(cSource)
+	_cDir_ = _FileDirPath(cSource)
+	_cTail_ = ""
+	if _cExt_ != ""
+		_cTail_ = "." + _cExt_
+	ok
+	_aPaths_ = []
+	_nChunks_ = len(aChunks)
+	for _i_ = 1 to _nChunks_
+		_aPaths_ + (_cDir_ + "/" + _cBase_ + "_" + _i_ + _cTail_)
+	next
+	for _i_ = 1 to _nChunks_
+		if StzEngineFileExists(_aPaths_[_i_]) = 1 or StzEngineDirExists(_aPaths_[_i_]) = 1
+			StzRaise("Can't split! A part already exists, nothing was written: " + _aPaths_[_i_])
+		ok
+	next
+	for _i_ = 1 to _nChunks_
+		if StzEngineFileWrite(_aPaths_[_i_], aChunks[_i_]) != 1
+			StzRaise("Can't split! A part could not be written: " + _aPaths_[_i_])
+		ok
+	next
+	return _aPaths_
+
 # Is meant to build the file object of an intent from its name, but returns an empty object today.
 #
 # The constructor tries to return the object of the chosen intent (info, read, append, create,
@@ -886,64 +1112,6 @@ class stzFileXT from stzObject
 			StzRaise("Can't proceed! The intent you provided is not support in Softanza file API.")
 		ok
 		
-
-#==============================#
-# PURE RING PATH HELPERS       #
-#==============================#
-
-func _FileName(cPath)
-	_nPos_ = 0
-	for i = StzLen(cPath) to 1 step -1
-		if cPath[i] = "/" or cPath[i] = "\"
-			_nPos_ = i
-			exit
-		ok
-	next
-	if _nPos_ > 0
-		return StzRight(cPath, StzLen(cPath) - _nPos_)
-	ok
-	return cPath
-
-func _FileDirPath(cPath)
-	_nPos_ = 0
-	for i = StzLen(cPath) to 1 step -1
-		if cPath[i] = "/" or cPath[i] = "\"
-			_nPos_ = i
-			exit
-		ok
-	next
-	if _nPos_ > 0
-		return StzLeft(cPath, _nPos_ - 1)
-	ok
-	return "."
-
-func _FileExtension(cPath)
-	_cName_ = _FileName(cPath)
-	_nDot_ = 0
-	for i = StzLen(_cName_) to 1 step -1
-		if _cName_[i] = "."
-			_nDot_ = i
-			exit
-		ok
-	next
-	if _nDot_ > 0
-		return StzRight(_cName_, StzLen(_cName_) - _nDot_)
-	ok
-	return ""
-
-func _FileCompleteBaseName(cPath)
-	_cName_ = _FileName(cPath)
-	_nDot_ = 0
-	for i = StzLen(_cName_) to 1 step -1
-		if _cName_[i] = "."
-			_nDot_ = i
-			exit
-		ok
-	next
-	if _nDot_ > 1
-		return StzLeft(_cName_, _nDot_ - 1)
-	ok
-	return _cName_
 
 #=================================================#
 # META INFORMATION ABOUT FILE WITHOUT OPENING IT  #
@@ -2876,15 +3044,15 @@ class stzFileModifier from stzFileReadingMixin
 # BETWEEN two classes is attached to the preceding class instead of being
 # registered as a global, which left FileManage() dead (R3).
 
-# Does disk operations on one existing file: copy, move, split, zip, delete and change its permission flags.
+# Does disk operations on one existing file: copy, move, rename, back up, split, zip, delete, and its permission flags.
 #
-# Reach for it to act on the file as an object on the disk rather than on its text. Working today:
-# CopyToAs, MoveToAs, the Zip... methods, Delete, Remove, MakeReadOnly, MakeWritable and the small
-# readers (Size, Exists, IsWritable). Broken today: CopyTo, CopyAs, MoveTo, MoveAs, RenameAs,
-# CreateBackup, CreateBackupAs, SafeDelete, SafeRemove, ZipBackup and IsExecutable raise error R3
-# (helpers placed between classes are not global functions), the three Split methods raise error
-# R13, and Backup returns 1 but writes nothing. The destination folder of a copy or move must
-# already exist.
+# Reach for it to act on the file as an object on the disk rather than on its text. The copy and move
+# methods answer 1 or 0 and never touch the original when they fail; a move or rename makes FileName
+# follow the new path. Backup and CreateBackup name their copy with a time stamp of the form
+# yyyyMMdd_HHmmss (no / and no :) and never replace an earlier backup. The three Split methods write
+# <name>_1.<ext>, <name>_2.<ext> ... next to the file and join back to the original byte for byte.
+# The destination folder of a copy or move must already exist. IsExecutable goes by the extension on
+# Windows only; LastModified reads the time through stzFileInfo.
 #
 #   receiver   write("demo_note.txt", "alpha" + char(10) + "beta gamma" + char(10) + "end") o1 = new
 #              stzFileManager("demo_note.txt")
@@ -2930,8 +3098,8 @@ class stzFileManager from stzObject
 	#
 	#   returns    a hash list of :Copy, :Move, :Rename, :Delete, :Backup, :Split, :Zip,
 	#              :MakeReadOnly, :MakeWritable, :MakeExecutable, :EncryptDecrypt
-	#   note       the list is a statement of intent: it does not test the disk, and several of the
-	#              listed operations raise today
+	#   note       the list is a statement of intent: it does not test the disk, and
+	#              :EncryptDecrypt names an operation this class does not have
 	#   see        Conditions
 	def Capabilities()
 		return [
@@ -2951,43 +3119,44 @@ class stzFileManager from stzObject
 		def Skills()
 			return This.Capabilities()
 
-    # Raises error R3 today instead of copying the file into a folder under its own name.
+    # Copies the file into a folder under its own name; the original stays.
     #
-    #   _cDestinationPath_   the folder to copy into
-    #   returns              nothing; it raises an error
-    #   note                 use CopyToAs, which does not call a helper
-    #   warning              defect: the body calls the helper _FileName, which is not a global
-    #                        function (a function placed between two classes belongs to the class
-    #                        before it), so every call raises Calling Function without definition:
-    #                        _filename; same cause as MoveTo, MoveAs, RenameAs, CopyAs,
-    #                        CreateBackup, CreateBackupAs, SafeDelete, SafeRemove, ZipBackup and
-    #                        IsExecutable
+    #   _cDestinationPath_   the folder to copy into, which must already exist
+    #   returns              1 if copied, 0 if not
+    #   note                 the empty text, a folder that does not exist and the folder of the file
+    #                        itself all give 0 and change nothing; a file of that name already in the
+    #                        folder is replaced
     #   see                  CopyToAs, CopyAs
     #@ aka  COPY OPERATIONS
     def CopyTo(_cDestinationPath_)
-        if not StzRight(_cDestinationPath_, 1) = "/"
+        if NOT isString(_cDestinationPath_) or _cDestinationPath_ = ""
+            return 0
+        ok
+        _cLast_ = StzRight(_cDestinationPath_, 1)
+        if _cLast_ != "/" and _cLast_ != "\"
             _cDestinationPath_ = _cDestinationPath_ + "/"
         ok
 
         _cDestFile_ = _cDestinationPath_ + _FileName(@cFileName)
-        return StzEngineFileCopy(@cFileName, _cDestFile_)
+        return _FileTransfer(@cFileName, _cDestFile_, 0)
 
         def CopyToQ(_cDestinationPath_)
             This.CopyTo(_cDestinationPath_)
             return This
 
-    # Raises error R3 today instead of copying the file under a new name in the same folder.
+    # Copies the file under a new name in the same folder; the original stays.
     #
     #   _cNewFileName_   the name of the copy
-    #   returns          nothing; it raises an error
-    #   note             use CopyToAs with the folder of the file
-    #   warning          defect: the body calls the helper _FileDirPath, which is not a global
-    #                    function, so every call raises Calling Function without definition:
-    #                    _filedirpath
-    #   see              CopyToAs
+    #   returns          1 if copied, 0 if not
+    #   note             the empty text and the file's own name give 0 and change nothing; a file of
+    #                    the new name already in the folder is replaced
+    #   see              CopyToAs, CopyTo
     def CopyAs(_cNewFileName_)
+        if NOT isString(_cNewFileName_) or _cNewFileName_ = ""
+            return 0
+        ok
         _cDestFile_ = _FileDirPath(@cFileName) + "/" + _cNewFileName_
-        return StzEngineFileCopy(@cFileName, _cDestFile_)
+        return _FileTransfer(@cFileName, _cDestFile_, 0)
 
         def CopyAsQ(_cNewFileName_)
             This.CopyAs(_cNewFileName_)
@@ -2998,53 +3167,70 @@ class stzFileManager from stzObject
     #   _cDestinationPath_   the folder to copy into, which must already exist
     #   _cNewFileName_       the name of the copy
     #   returns              1 if copied, 0 if not
-    #   note                 a folder that does not exist gives 0 and nothing is created
+    #   note                 a folder that does not exist, an empty folder or name, or a copy onto the
+    #                        file itself gives 0 and nothing is created; a file of that name is replaced
     #   see                  CopyTo, MoveToAs
     def CopyToAs(_cDestinationPath_, _cNewFileName_)
-        if not StzRight(_cDestinationPath_, 1) = "/"
+        if NOT isString(_cDestinationPath_) or _cDestinationPath_ = "" or NOT isString(_cNewFileName_) or _cNewFileName_ = ""
+            return 0
+        ok
+        _cLast_ = StzRight(_cDestinationPath_, 1)
+        if _cLast_ != "/" and _cLast_ != "\"
             _cDestinationPath_ = _cDestinationPath_ + "/"
         ok
 
         _cDestFile_ = _cDestinationPath_ + _cNewFileName_
-        return StzEngineFileCopy(@cFileName, _cDestFile_)
-    
+        return _FileTransfer(@cFileName, _cDestFile_, 0)
+
         def CopyToAsQ(_cDestinationPath_, _cNewFileName_)
             This.CopyToAs(_cDestinationPath_, _cNewFileName_)
             return This
-    
-    # Raises error R3 today instead of moving the file into a folder under its own name.
+
+    # Moves the file into a folder under its own name: it copies, deletes the original and follows the new path.
     #
-    #   _cDestinationPath_   the folder to move into
-    #   returns              nothing; it raises an error
-    #   note                 use MoveToAs
-    #   warning              defect: calls the missing helper _FileName (see CopyTo)
+    #   _cDestinationPath_   the folder to move into, which must already exist
+    #   returns              1 if moved, 0 if not
+    #   note                 on 0 the original stays where it was; the empty text and a folder that
+    #                        does not exist give 0; the folder the file is already in gives 1 and
+    #                        deletes nothing; a file of that name in the folder is replaced
     #   see                  MoveToAs, CopyTo
     #@ aka  MOVE OPERATIONS
     def MoveTo(_cDestinationPath_)
-        if not StzRight(_cDestinationPath_, 1) = "/"
+        if NOT isString(_cDestinationPath_) or _cDestinationPath_ = ""
+            return 0
+        ok
+        _cLast_ = StzRight(_cDestinationPath_, 1)
+        if _cLast_ != "/" and _cLast_ != "\"
             _cDestinationPath_ = _cDestinationPath_ + "/"
         ok
 
         _cDestFile_ = _cDestinationPath_ + _FileName(@cFileName)
-        _bResult_ = StzEngineFileCopy(@cFileName, _cDestFile_)
-        if _bResult_ StzEngineFileDelete(@cFileName) @cFileName = _cDestFile_ ok
+        _bResult_ = _FileTransfer(@cFileName, _cDestFile_, 1)
+        if _bResult_ = 1
+            @cFileName = _cDestFile_
+        ok
         return _bResult_
 
         def MoveToQ(_cDestinationPath_)
             This.MoveTo(_cDestinationPath_)
             return This
 
-    # Raises error R3 today instead of renaming the file inside its own folder.
+    # Renames the file inside its own folder: it copies, deletes the original and follows the new path.
     #
     #   _cNewFileName_   the new name
-    #   returns          nothing; it raises an error
-    #   note             use MoveToAs
-    #   warning          defect: calls the missing helper _FileDirPath (see CopyTo)
-    #   see              MoveToAs, RenameAs
+    #   returns          1 if renamed, 0 if not
+    #   note             on 0 the original stays; the empty text gives 0; the file's own name gives 1
+    #                    and deletes nothing; a file of the new name in the folder is replaced
+    #   see              RenameAs, MoveToAs
     def MoveAs(_cNewFileName_)
+        if NOT isString(_cNewFileName_) or _cNewFileName_ = ""
+            return 0
+        ok
         _cDestFile_ = _FileDirPath(@cFileName) + "/" + _cNewFileName_
-        _bResult_ = StzEngineFileCopy(@cFileName, _cDestFile_)
-        if _bResult_ StzEngineFileDelete(@cFileName) @cFileName = _cDestFile_ ok
+        _bResult_ = _FileTransfer(@cFileName, _cDestFile_, 1)
+        if _bResult_ = 1
+            @cFileName = _cDestFile_
+        ok
         return _bResult_
 
         def MoveAsQ(_cNewFileName_)
@@ -3057,209 +3243,108 @@ class stzFileManager from stzObject
     #   _cNewFileName_       the new name
     #   returns              1 if moved, 0 if not
     #   note                 afterwards FileName answers the new path; when the copy fails the
-    #                        original is kept
+    #                        original is kept; a move onto the same path gives 1 and deletes nothing
     #   see                  MoveTo, RenameAs
     def MoveToAs(_cDestinationPath_, _cNewFileName_)
-        if not StzRight(_cDestinationPath_, 1) = "/"
+        if NOT isString(_cDestinationPath_) or _cDestinationPath_ = "" or NOT isString(_cNewFileName_) or _cNewFileName_ = ""
+            return 0
+        ok
+        _cLast_ = StzRight(_cDestinationPath_, 1)
+        if _cLast_ != "/" and _cLast_ != "\"
             _cDestinationPath_ = _cDestinationPath_ + "/"
         ok
 
         _cDestFile_ = _cDestinationPath_ + _cNewFileName_
-        _bResult_ = StzEngineFileCopy(@cFileName, _cDestFile_)
-        if _bResult_ StzEngineFileDelete(@cFileName) @cFileName = _cDestFile_ ok
-        return _bResult_
-    
-        def MoveToAsQ(_cDestinationPath_, _cNewFileName_)
-            This.MoveToAs(_cDestinationPath_, _cNewFileName_)
-            return This
-    
-    # Raises error R3 today instead of renaming the file inside its own folder.
-    #
-    #   _cNewFileName_   the new name
-    #   returns          nothing; it raises an error
-    #   note             use MoveToAs
-    #   warning          defect: calls the missing helper _FileDirPath (see CopyTo)
-    #   see              MoveToAs
-    #@ aka  RENAME OPERATIONS
-    def RenameAs(_cNewFileName_)
-        _cDestFile_ = _FileDirPath(@cFileName) + "/" + _cNewFileName_
-        _bResult_ = StzEngineFileCopy(@cFileName, _cDestFile_)
-        if _bResult_
-            StzEngineFileDelete(@cFileName)
+        _bResult_ = _FileTransfer(@cFileName, _cDestFile_, 1)
+        if _bResult_ = 1
             @cFileName = _cDestFile_
         ok
         return _bResult_
-    
+
+        def MoveToAsQ(_cDestinationPath_, _cNewFileName_)
+            This.MoveToAs(_cDestinationPath_, _cNewFileName_)
+            return This
+
+    # Renames the file inside its own folder: it copies, deletes the original and follows the new path.
+    #
+    #   _cNewFileName_   the new name
+    #   returns          1 if renamed, 0 if not
+    #   note             it does what MoveAs does; on 0 the original stays where it was
+    #   see              MoveAs, MoveToAs
+    #@ aka  RENAME OPERATIONS
+    def RenameAs(_cNewFileName_)
+        return This.MoveAs(_cNewFileName_)
+
         def RenameAsQ(_cNewFileName_)
             This.RenameAs(_cNewFileName_)
             return This
-    
-	# Returns 1 but writes no backup today, because the name it builds contains the characters / and :.
+
+	# Saves a copy of the file beside it, with a time stamp yyyyMMdd_HHmmss added to its name.
 	#
-	#   returns    1
-	#   note       copy with CopyToAs and a name you choose
-	#   warning    defect: the copy is named file.backup. followed by StzTimeStamp(), which has the
-	#              form 09/10/2026 11:37:52, so the target path holds folders that do not exist and
-	#              the copy fails without notice; checked twice, no file appears and the 1 is
-	#              returned anyway
+	#   returns    1 if the backup was written, 0 if not
+	#   note       the copy is named file.backup.yyyyMMdd_HHmmss, for example
+	#              a.txt.backup.20261016_010203, a name with no / and no :; an earlier backup of the same second is kept and this one is named with _2,
+	#              _3 ...; CreateBackup gives the path of its copy, this one does not
 	#   see        CreateBackup, CopyToAs
 	#@ aka  BACKUP OPERATION
 	def Backup()
-        _cBackup_ = @cFileName + ".backup." + StzTimeStamp()
-        StzFileCopy(@cFileName, _cBackup_) #TODO // use internal methods to the object
-		return 1
+        _cBackup_ = _FileFreePath(@cFileName + ".backup." + _FileBackupStamp(), "")
+        return _FileTransfer(@cFileName, _cBackup_, 0)
 
-    # Raises error R13 today instead of splitting the file into parts of a fixed number of lines.
+    # Splits the file into parts of a fixed number of lines, written next to it, and gives their paths.
     #
-    #   nLinesPerFile   how many lines go to each part
-    #   returns         nothing; it raises an error
-    #   note            split the lines yourself with stzFileReader and stzFileCreator
-    #   warning         defect: the body treats the text returned by StzFileRead as a reader object
-    #                   and calls Lines() on it, so every call raises Object is required; the helper
-    #                   names it uses (_FileCompleteBaseName and others) are missing too
+    #   nLinesPerFile   how many lines go to each part, a whole number of 1 or more
+    #   returns         a list of texts, the paths name_1.ext, name_2.ext ... in order; [] for an empty file
+    #   note            the parts joined in order give the file back byte for byte, line breaks
+    #                   included; the original is kept; if a part path is already taken an error is
+    #                   raised before anything is written; a name with no extension gives name_1
     #   see             SplitBySize, SplitByPattern
     #@ aka  SPLIT OPERATIONS
     def SplitByLines(nLinesPerFile)
-        _oReader_ = StzFileRead(@cFileName)
-        _aLines_ = _oReader_.Lines()
-        _oReader_.Close()
-        
-        _nTotalLines_ = len(_aLines_)
-        _nFileCount_ = ceil(_nTotalLines_ / nLinesPerFile)
-        
-        _cBaseName_ = _FileCompleteBaseName(@cFileName)
-        _cSuffix_ = _FileExtension(@cFileName)
-        _cDirPath_ = _FileDirPath(@cFileName)
-        
-        _aCreatedFiles_ = []
-        
-        for nFile = 1 to _nFileCount_
-            _nStartLine_ = ((nFile - 1) * nLinesPerFile) + 1
-            _nEndLine_ = min(nFile * nLinesPerFile, _nTotalLines_)
-            
-            _cNewFileName_ = _cBaseName_ + "_" + nFile + "." + _cSuffix_
-            _cFullPath_ = _cDirPath_ + "/" + _cNewFileName_
-            
-            _oCreator_ = StzFileCreate(_cFullPath_)
-            for nLine = _nStartLine_ to _nEndLine_
-                _oCreator_.WriteLine(_aLines_[nLine])
-            next
-            _oCreator_.Close()
-            
-            _aCreatedFiles_ + _cFullPath_
-        next
-        
-        return _aCreatedFiles_
-    
+        if _FileIsCount(nLinesPerFile) = 0
+            StzRaise("Can't split! The number of lines per file must be a whole number of 1 or more.")
+        ok
+        return _FileWriteParts(@cFileName, _FileChunksByLines(StzFileRead(@cFileName), nLinesPerFile))
+
         def SplitByLinesQ(nLinesPerFile)
             This.SplitByLines(nLinesPerFile)
             return This
-    
-    # Raises error R13 today instead of splitting the file into parts of a fixed number of bytes.
+
+    # Splits the file into parts of a fixed number of bytes, written next to it, and gives their paths.
     #
-    #   nBytesPerFile   how many bytes go to each part
-    #   returns         nothing; it raises an error
-    #   note            split the text yourself
-    #   warning         defect: same cause as SplitByLines, calling a method on the text returned by
-    #                   StzFileRead
+    #   nBytesPerFile   how many bytes go to each part, a whole number of 1 or more
+    #   returns         a list of texts, the paths name_1.ext, name_2.ext ... in order; [] for an empty file
+    #   note            the cut counts bytes, so it can fall inside a multi-byte character such as a
+    #                   Hebrew letter; the parts joined in order give the file back byte for byte
     #   see             SplitByLines
     def SplitBySize(nBytesPerFile)
-        _oReader_ = StzFileRead(@cFileName)
-        _cContent_ = _oReader_.Content()
-        _oReader_.Close()
+        if _FileIsCount(nBytesPerFile) = 0
+            StzRaise("Can't split! The number of bytes per file must be a whole number of 1 or more.")
+        ok
+        return _FileWriteParts(@cFileName, _FileChunksBySize(StzFileRead(@cFileName), nBytesPerFile))
 
-        _nTotalSize_ = len(_cContent_)
-        _nFileCount_ = ceil(_nTotalSize_ / nBytesPerFile)
-
-        _cBaseName_ = _FileCompleteBaseName(@cFileName)
-        _cSuffix_ = _FileExtension(@cFileName)
-        _cDirPath_ = _FileDirPath(@cFileName)
-
-        _aCreatedFiles_ = []
-
-        for nFile = 1 to _nFileCount_
-            _nStartPos_ = ((nFile - 1) * nBytesPerFile) + 1
-            _nEndPos_ = min(nFile * nBytesPerFile, _nTotalSize_)
-
-            _cChunk_ = StzMid(_cContent_, _nStartPos_, _nEndPos_ - _nStartPos_ + 1)
-            
-            _cNewFileName_ = _cBaseName_ + "_" + nFile + "." + _cSuffix_
-            _cFullPath_ = _cDirPath_ + "/" + _cNewFileName_
-            
-            _oCreator_ = StzFileCreate(_cFullPath_)
-            _oCreator_.Write(_cChunk_)
-            _oCreator_.Close()
-            
-            _aCreatedFiles_ + _cFullPath_
-        next
-        
-        return _aCreatedFiles_
-    
         def SplitBySizeQ(nBytesPerFile)
             This.SplitBySize(nBytesPerFile)
             return This
-    
-    # Raises error R13 today instead of splitting the file at every line that contains a pattern.
+
+    # Splits the file into parts of whole lines, a new part opening at every line that contains a pattern.
     #
-    #   cPattern   the text that opens a new part
-    #   returns    nothing; it raises an error
-    #   note       split the lines yourself
-    #   warning    defect: same cause as SplitByLines
+    #   cPattern   the text that opens a new part, which must not be empty
+    #   returns    a list of texts, the paths name_1.ext, name_2.ext ... in order
+    #   note       the pattern is a plain text, case sensitive; lines before the first match form the
+    #              first part; a pattern found nowhere gives one part equal to the file; the parts
+    #              joined in order give the file back byte for byte
     #   see        SplitByLines
     def SplitByPattern(cPattern)
-        _oReader_ = StzFileRead(@cFileName)
-        _aLines_ = _oReader_.Lines()
-        _oReader_.Close()
-
-        _cBaseName_ = _FileCompleteBaseName(@cFileName)
-        _cSuffix_ = _FileExtension(@cFileName)
-        _cDirPath_ = _FileDirPath(@cFileName)
-
-        _aCreatedFiles_ = []
-        _aCurrentChunk_ = []
-        _nFileNum_ = 1
-
-        _nLen_ = len(_aLines_)
-        for i = 1 to _nLen_
-            if StzFindFirst(cPattern, _aLines_[i]) > 0 and len(_aCurrentChunk_) > 0
-                _cNewFileName_ = _cBaseName_ + "_" + _nFileNum_ + "." + _cSuffix_
-                _cFullPath_ = _cDirPath_ + "/" + _cNewFileName_
-                
-                _oCreator_ = StzFileCreate(_cFullPath_)
-                _nChunkLen_ = len(_aCurrentChunk_)
-                for j = 1 to _nChunkLen_
-                    _oCreator_.WriteLine(_aCurrentChunk_[j])
-                next
-                _oCreator_.Close()
-                
-                _aCreatedFiles_ + _cFullPath_
-                _nFileNum_ = _nFileNum_ + 1
-                _aCurrentChunk_ = []
-            ok
-            
-            _aCurrentChunk_ + _aLines_[i]
-        next
-        
-        if len(_aCurrentChunk_) > 0
-            _cNewFileName_ = _cBaseName_ + "_" + _nFileNum_ + "." + _cSuffix_
-            _cFullPath_ = _cDirPath_ + "/" + _cNewFileName_
-            
-            _oCreator_ = StzFileCreate(_cFullPath_)
-            _nChunkLen_ = len(_aCurrentChunk_)
-            for j = 1 to _nChunkLen_
-                _oCreator_.WriteLine(_aCurrentChunk_[j])
-            next
-            _oCreator_.Close()
-            
-            _aCreatedFiles_ + _cFullPath_
+        if NOT isString(cPattern) or cPattern = ""
+            StzRaise("Can't split! The pattern must be a non-empty text.")
         ok
-        
-        return _aCreatedFiles_
-    
+        return _FileWriteParts(@cFileName, _FileChunksByPattern(StzFileRead(@cFileName), cPattern))
+
         def SplitByPatternQ(cPattern)
             This.SplitByPattern(cPattern)
             return This
-    
+
     # Puts the file in a new zip archive and gives the path of the archive.
     #
     #   _cZipFileName_   the path of the zip to create
@@ -3345,49 +3430,49 @@ class stzFileManager from stzObject
             This.ZipSplitFiles(_aFiles_, _cZipFileName_)
             return This
     
-    # Raises error R3 today instead of zipping the file into a backup archive in its own folder.
+    # Puts the file in a new zip archive in its own folder, named by you or by a time stamp.
     #
-    #   _cZipFileName_   the name of the archive, or the empty text for a timestamped name
-    #   returns          nothing; it raises an error
-    #   note             use ZipAs
-    #   warning          defect: calls the missing helpers _FileDirPath, or _FileCompleteBaseName
-    #                    for the empty text (see CopyTo)
+    #   _cZipFileName_   the name of the archive, or the empty text for name_backup_yyyyMMdd_HHmmss.zip
+    #   returns          what ZipAs returns, the path of the archive
+    #   note             the stamped name has no / and no : and is made free with _2, _3 ... if taken;
+    #                    a name you give is used as it is
     #   see              ZipAs
     def ZipBackup(_cZipFileName_)
         # Create zip backup with timestamp
+        _cDirPath_ = _FileDirPath(@cFileName)
         if _cZipFileName_ = ""
             _cBaseName_ = _FileCompleteBaseName(@cFileName)
-            _cTimeStamp_ = StzTimeStamp()
-            _cZipFileName_ = _cBaseName_ + "_backup_" + _cTimeStamp_ + ".zip"
+            _cFullZipPath_ = _FileFreePath(_cDirPath_ + "/" + _cBaseName_ + "_backup_" + _FileBackupStamp(), ".zip")
+        else
+            _cFullZipPath_ = _cDirPath_ + "/" + _cZipFileName_
         ok
-        
-        _cDirPath_ = _FileDirPath(@cFileName)
-        _cFullZipPath_ = _cDirPath_ + "/" + _cZipFileName_
-        
+
         return This.ZipAs(_cFullZipPath_)
-    
+
         def ZipBackupQ(_cZipFileName_)
             This.ZipBackup(_cZipFileName_)
             return This
-    
-    # Raises error R3 today instead of copying the file to a timestamped backup name and giving its path.
+
+    # Copies the file to a stamped backup name in its own folder and gives the path of the copy.
     #
-    #   returns    nothing; it raises an error
-    #   note       use CopyToAs
-    #   warning    defect: calls the missing helper _FileCompleteBaseName (see CopyTo)
+    #   returns    a text, the path name_backup_yyyyMMdd_HHmmss.ext; the empty text if the copy failed
+    #   note       the stamp has no / and no :; a name with no extension gets no trailing dot; an
+    #              earlier backup of the same second is kept and this one ends in _2, _3 ...
     #   see        CreateBackupAs, Backup
     #@ aka  BACKUP OPERATIONS
     def CreateBackup()
         _cBaseName_ = _FileCompleteBaseName(@cFileName)
         _cSuffix_ = _FileExtension(@cFileName)
         _cDirPath_ = _FileDirPath(@cFileName)
-        
-        _cTimeStamp_ = StzTimeStamp()
-        _cBackupName_ = _cBaseName_ + "_backup_" + _cTimeStamp_ + "." + _cSuffix_
-        _cBackupPath_ = _cDirPath_ + "/" + _cBackupName_
-        
-        _bResult_ = StzEngineFileCopy(@cFileName, _cBackupPath_)
-        if _bResult_
+        _cTail_ = ""
+        if _cSuffix_ != ""
+            _cTail_ = "." + _cSuffix_
+        ok
+
+        _cStem_ = _cDirPath_ + "/" + _cBaseName_ + "_backup_" + _FileBackupStamp()
+        _cBackupPath_ = _FileFreePath(_cStem_, _cTail_)
+
+        if _FileTransfer(@cFileName, _cBackupPath_, 0) = 1
             return _cBackupPath_
         else
             return ""
@@ -3397,28 +3482,30 @@ class stzFileManager from stzObject
             This.CreateBackup()
             return This
 
-    # Raises error R3 today instead of copying the file to a named backup in its folder and giving its path.
+    # Copies the file to a backup of a chosen name in its own folder and gives the path of the copy.
     #
     #   _cBackupName_   the file name of the backup
-    #   returns         nothing; it raises an error
-    #   note            use CopyToAs
-    #   warning         defect: calls the missing helper _FileDirPath (see CopyTo)
+    #   returns         a text, the path of the copy; the empty text if the copy failed
+    #   note            the empty text and the file's own name give the empty text; a file of that
+    #                   name is replaced
     #   see             CreateBackup, CopyToAs
     def CreateBackupAs(_cBackupName_)
+        if NOT isString(_cBackupName_) or _cBackupName_ = ""
+            return ""
+        ok
         _cDirPath_ = _FileDirPath(@cFileName)
         _cBackupPath_ = _cDirPath_ + "/" + _cBackupName_
 
-        _bResult_ = StzEngineFileCopy(@cFileName, _cBackupPath_)
-        if _bResult_
+        if _FileTransfer(@cFileName, _cBackupPath_, 0) = 1
             return _cBackupPath_
         else
             return ""
         ok
-    
+
         def CreateBackupAsQ(_cBackupName_)
             This.CreateBackupAs(_cBackupName_)
             return This
-    
+
     # Deletes the file from the disk and closes the manager.
     #
     #   returns    1 if deleted
@@ -3437,7 +3524,7 @@ class stzFileManager from stzObject
         def DeleteQ()
             This.Delete()
             return This
- 
+
 			# Deletes the file from the disk and closes the manager.
 			#
 			#   returns    nothing
@@ -3449,30 +3536,29 @@ class stzFileManager from stzObject
 			def RemoveQ()
 				return This.DeleteQ()
 
-    # Raises error R3 today instead of backing the file up and then deleting it.
+    # Makes a stamped backup copy in the same folder, then deletes the file and closes the manager.
     #
-    #   returns    nothing; it raises an error
-    #   note       use Delete after a CopyToAs
-    #   warning    defect: it calls CreateBackup, which calls the missing helper
-    #              _FileCompleteBaseName (see CopyTo); the file is left in place
+    #   returns    1 if deleted
+    #   note       the backup is the one CreateBackup makes, name_backup_yyyyMMdd_HHmmss.ext; if it
+    #              cannot be made the error Cannot create backup before deletion is raised and the
+    #              file stays
     #   see        Delete, CreateBackup
     def SafeDelete()
         _cBackupPath_ = This.CreateBackup()
         if _cBackupPath_ != ""
-            return StzEngineFileDelete(@cFileName)
+            return This.Delete()
         else
             StzRaise("Cannot create backup before deletion")
         ok
-    
+
         def SafeDeleteQ()
             This.SafeDelete()
             return This
-    
-		# Raises error R3 today instead of backing the file up and then deleting it.
+
+		# Makes a stamped backup copy in the same folder, then deletes the file and closes the manager.
 		#
-		#   returns    nothing; it raises an error
-		#   note       use Remove after a CopyToAs
-		#   warning    defect: same cause as SafeDelete
+		#   returns    nothing
+		#   note       it does what SafeDelete does, with the same error when the backup fails
 		#   see        SafeDelete, Remove
 		def SafeRemove()
 			This.SafeDelete()
@@ -3550,13 +3636,16 @@ class stzFileManager from stzObject
     def IsReadOnly()
         return not This.IsWritable()
 
-    # Returns 1 if the file can be opened for appending, but creates an empty file when the path does not exist.
+    # Returns 1 if the file exists and can be opened for appending, else 0; it never creates a file.
     #
     #   returns    1 or 0
-    #   note       it opens the path in append mode, as stzFileInfo.IsWritable does, so by the code
-    #              a missing path would be created
+    #   note       a read-only file and a file that is gone (after Delete or a move) answer 0 and are
+    #              not created; nothing is written
     #   see        IsReadOnly, MakeWritable
     def IsWritable()
+        if StzEngineFileExists(@cFileName) = 0
+            return 0
+        ok
         try
             _fp_ = fopen(@cFileName, "a")
             if _fp_ != ""
@@ -3567,26 +3656,29 @@ class stzFileManager from stzObject
         done
         return 0
 
-    # Raises error R3 today instead of telling whether the extension marks an executable.
+    # Returns 1 on Windows when the extension of the file name is exe, bat, cmd or com, else 0.
     #
-    #   returns    nothing; it raises an error
-    #   note       read the extension with StzFileExtension
-    #   warning    defect: calls the missing helper _FileExtension (see CopyTo)
+    #   returns    1 or 0
+    #   note       the case is ignored; a folder name with a dot or a name with no extension answers
+    #              0; on other systems it answers 0 whatever the file
     #   see        MakeExecutable
     def IsExecutable()
         _cExt_ = StzLower(_FileExtension(@cFileName))
         if isWindows()
-            return _cExt_ = "exe" or _cExt_ = "bat" or _cExt_ = "cmd" or _cExt_ = "com"
+            if _cExt_ = "exe" or _cExt_ = "bat" or _cExt_ = "cmd" or _cExt_ = "com"
+                return 1
+            ok
         ok
         return 0
 
-    # Returns the empty text for every file; the modification time is not read.
+    # Returns the time of the last change as text such as 2026-10-09 04:34:06; the empty text when it cannot be read.
     #
     #   returns    a text
-    #   note       stzFileInfo.LastModified does read it
+    #   note       it reads the time through stzFileInfo.LastModified, so a file that is gone gives ""
     #   see        Size
     def LastModified()
-        return ""
+        _oInfo_ = new stzFileInfo(@cFileName)
+        return _oInfo_.LastModified()
 
     # Marks the manager closed; nothing is released.
     #
