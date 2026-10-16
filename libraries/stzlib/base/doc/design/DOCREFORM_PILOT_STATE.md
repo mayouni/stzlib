@@ -322,3 +322,9 @@ stzRegexMaker 12, stzOrgChart 10, stzRegex 10, stzStringChar 10.
 `git checkout --` on test/_data/simple.graphml and test/graph/_add_coo.stzsim, _mycompany.stzgraf, _rt.stzgraf (they rewrite tracked fixtures).
 Next by size: stzRegexMaker 12, stzOrgChart 10, stzRegex 10, stzStringChar 10.
 
+## 2026-10-16: the stzRegexMaker fix batch is ON MAIN (47be02dac, both remotes); register 239 -> 224
+
+13 fixed, the Quantifiers placeholders kept. Ring facts: `and` does not short-circuit; a method call inside a list literal in a return reached through a forwarding alias
+exited Ring with code 1. Open for the author: MatchSameContentAs meaning (same word twice vs closing tag), flat vs nested recursion levels (retired tests).
+Next by size: stzOrgChart 10, stzRegex 10, stzStringChar 10.
+
