@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 180 methods in 76 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 174 methods in 75 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| extercode/stzImageToAscii.ring | stzImgToAscii | 6 |
 | list/stzListProvidedAsString.ring | stzListProvidedAsString | 6 |
 | number/stzListOfBytes.ring | stzListOfBytes | 6 |
 | string/stzTextStream.ring | stzTextStream | 6 |
@@ -106,15 +105,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 - `ToHuman` (line 1867): Returns today, tomorrow or yesterday for those days, a count of days for the next or last 7, else a long date. -- the future form starts with a capital (In 3 days) and the past form does not (3 days ago)
 - `ToRelative` (line 1901): Returns today, tomorrow or yesterday, a count of days or weeks within a month of today, else the date as dd/MM/yyyy.
-
-## stzImgToAscii -- extercode/stzImageToAscii.ring (6)
-
-- `init` (line 63): Raises error C27 today, when the file loads, instead of building an image-to-text converter. -- the file extercode/stzImageToAscii.ring does not parse in Ring 1.27 (C27 Syntax Error at lines 41, 55, 56, 58, 79 and more) because it writes blocks in braces after if and in method bodies; no other file of the library loads it, so the class does not exist in a normal session
-- `EnsureDirs` (line 74): Raises error C27 today, when the file loads, instead of creating the temp and output folders. -- same cause as init; the body also calls dir_create and reads a field @cOutputDir that is never defined (the field is @cOutDir)
-- `Execute` (line 97): Raises error C27 today, when the file loads, instead of running the im2ansi tool on the image and keeping the text or file it produces. -- same cause as init; the tool path defaults to ../tools/im2ansi/im2ansi.exe, which is not in the library, and the body starts a real program
-- `Content` (line 157): Raises error C27 today, when the file loads, instead of returning the converted image as text, running Execute first when needed. -- same cause as init
-- `Show` (line 171): Raises error C27 today, when the file loads, instead of printing the converted image or opening the output file in the system viewer. -- same cause as init; for the svg and html formats the body would start the operating system's viewer
-- `BuildArgs` (line 202): Raises error C27 today, when the file loads, instead of building the command-line options for the im2ansi tool from the settings. -- same cause as init
 
 ## stzHtmlBuilder -- file/stzHtml.ring (3)
 
