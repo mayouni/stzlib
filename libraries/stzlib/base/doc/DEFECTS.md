@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 186 methods in 77 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 180 methods in 76 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| common/stzOccurrences.ring | stzOccurrences | 6 |
 | extercode/stzImageToAscii.ring | stzImgToAscii | 6 |
 | list/stzListProvidedAsString.ring | stzListProvidedAsString | 6 |
 | number/stzListOfBytes.ring | stzListOfBytes | 6 |
@@ -102,15 +101,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzEngineTimeline -- common/stzEngineTimeline.ring (1)
 
 - `Duration` (line 161): Returns 0 on every call today, whatever the events are. -- answered 0 for timestamps 100, 200, 300, then 1000 and 5000, then 2.5 and 9, then 1700000000 and 1700000060, sorted or not; the span between the first and the last event is not computed
-
-## stzOccurrences -- common/stzOccurrences.ring (6)
-
-- `SubString` (line 68): Returns an empty text today instead of the substring that was searched. -- the constructor stores the substring in @pcSubStr while this method reads @cSubStr, so the answer is always empty; checked with plain texts and with the :Of form
-- `String` (line 80): Returns an empty text today instead of the string that was searched. -- the constructor stores the string in @pcStr while this method reads @cStr, so the answer is always empty; checked with plain texts and with the :In form
-- `Removed` (line 103): Raises error R14 today instead of returning the string with the substring cut out at every occurrence. -- calls RemoveSubStringAtPositionsCSQ, a method stzString does not have; the stored string is also empty, see String
-- `ReplacedWithCS` (line 113): Does nothing today: the body is empty. -- an unfinished stub with no parameters and no code; it answers an empty value
-- `Uppercased` (line 120): Does nothing today: the body is empty. -- an unfinished stub with no code; it answers an empty value
-- `Lowercased` (line 127): Does nothing today: the body is empty. -- an unfinished stub with no code; it answers an empty value
 
 ## stzDate -- datetime/stzDate.ring (2)
 

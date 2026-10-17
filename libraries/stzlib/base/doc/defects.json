@@ -1,5 +1,5 @@
 {
- "count": 186,
+ "count": 180,
  "defects": [
   {
    "class": "stzAppServer",
@@ -56,54 +56,6 @@
    "line": 161,
    "symptom": "Returns 0 on every call today, whatever the events are.",
    "cause": "answered 0 for timestamps 100, 200, 300, then 1000 and 5000, then 2.5 and 9, then 1700000000 and 1700000060, sorted or not; the span between the first and the last event is not computed"
-  },
-  {
-   "class": "stzOccurrences",
-   "file": "common/stzOccurrences.ring",
-   "method": "SubString",
-   "line": 68,
-   "symptom": "Returns an empty text today instead of the substring that was searched.",
-   "cause": "the constructor stores the substring in @pcSubStr while this method reads @cSubStr, so the answer is always empty; checked with plain texts and with the :Of form"
-  },
-  {
-   "class": "stzOccurrences",
-   "file": "common/stzOccurrences.ring",
-   "method": "String",
-   "line": 80,
-   "symptom": "Returns an empty text today instead of the string that was searched.",
-   "cause": "the constructor stores the string in @pcStr while this method reads @cStr, so the answer is always empty; checked with plain texts and with the :In form"
-  },
-  {
-   "class": "stzOccurrences",
-   "file": "common/stzOccurrences.ring",
-   "method": "Removed",
-   "line": 103,
-   "symptom": "Raises error R14 today instead of returning the string with the substring cut out at every occurrence.",
-   "cause": "calls RemoveSubStringAtPositionsCSQ, a method stzString does not have; the stored string is also empty, see String"
-  },
-  {
-   "class": "stzOccurrences",
-   "file": "common/stzOccurrences.ring",
-   "method": "ReplacedWithCS",
-   "line": 113,
-   "symptom": "Does nothing today: the body is empty.",
-   "cause": "an unfinished stub with no parameters and no code; it answers an empty value"
-  },
-  {
-   "class": "stzOccurrences",
-   "file": "common/stzOccurrences.ring",
-   "method": "Uppercased",
-   "line": 120,
-   "symptom": "Does nothing today: the body is empty.",
-   "cause": "an unfinished stub with no code; it answers an empty value"
-  },
-  {
-   "class": "stzOccurrences",
-   "file": "common/stzOccurrences.ring",
-   "method": "Lowercased",
-   "line": 127,
-   "symptom": "Does nothing today: the body is empty.",
-   "cause": "an unfinished stub with no code; it answers an empty value"
   },
   {
    "class": "stzDate",
