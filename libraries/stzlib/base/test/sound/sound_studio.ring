@@ -14,7 +14,7 @@
 
 load "../../stzBase.ring"
 
-RATE = 48000
+$RATE = 48000
 cTmp = currentdir() + "/temp"
 if NOT direxists(cTmp)
 	system("mkdir " + '"' + cTmp + '"')
@@ -155,7 +155,7 @@ func PlayGraph nG, nSeconds
 	ok
 
 func PlayWave nWave, nHz, nSeconds
-	_g_ = StzEngineSoundGraphNew(2, RATE, 512)
+	_g_ = StzEngineSoundGraphNew(2, $RATE, 512)
 	_o_ = StzEngineSoundGraphAddOsc(_g_, nWave, nHz, 0.35)
 	_p_ = StzEngineSoundGraphAddPan(_g_, _o_, 0.5)
 	StzEngineSoundGraphSetOutput(_g_, _p_)
@@ -168,7 +168,7 @@ func DemoFilter
 	_a_ = [12000, 1200, 400]
 	for _i_ = 1 to 3
 		? "      cutoff " + _a_[_i_] + " Hz"
-		_g_ = StzEngineSoundGraphNew(2, RATE, 512)
+		_g_ = StzEngineSoundGraphNew(2, $RATE, 512)
 		_o_ = StzEngineSoundGraphAddOsc(_g_, StzSoundWaveSaw(), A3, 0.35)
 		_f_ = StzEngineSoundGraphAddFilter(_g_, _o_, StzSoundFilterLowPass(), _a_[_i_], 0.9)
 		_p_ = StzEngineSoundGraphAddPan(_g_, _f_, 0.5)
@@ -180,7 +180,7 @@ func DemoFilter
 func DemoEnvelope
 	Say("The same note twice. First a PLUCK, then a PAD.")
 	? "      A pluck is a fast attack and a fast decay -- a harp."
-	_g_ = StzEngineSoundGraphNew(2, RATE, 512)
+	_g_ = StzEngineSoundGraphNew(2, $RATE, 512)
 	_o_ = StzEngineSoundGraphAddOsc(_g_, StzSoundWaveTriangle(), A4, 0.6)
 	_e_ = StzEngineSoundGraphAddEnvelope(_g_, _o_, 0.002, 0.35, 0.0, 0.1, 0.35)
 	_p_ = StzEngineSoundGraphAddPan(_g_, _e_, 0.5)
@@ -189,7 +189,7 @@ func DemoEnvelope
 	PlayGraph(_g_, 2)
 
 	? "      A pad is a slow attack and a long release -- strings swelling."
-	_g2_ = StzEngineSoundGraphNew(2, RATE, 512)
+	_g2_ = StzEngineSoundGraphNew(2, $RATE, 512)
 	_o2_ = StzEngineSoundGraphAddOsc(_g2_, StzSoundWaveTriangle(), A4, 0.6)
 	_e2_ = StzEngineSoundGraphAddEnvelope(_g2_, _o2_, 0.8, 0.3, 0.7, 1.0, 1.6)
 	_p2_ = StzEngineSoundGraphAddPan(_g2_, _e2_, 0.5)
@@ -199,7 +199,7 @@ func DemoEnvelope
 
 func DemoDelay
 	Say("One plucked note DRY, then the same note with an echo behind it.")
-	_g_ = StzEngineSoundGraphNew(2, RATE, 512)
+	_g_ = StzEngineSoundGraphNew(2, $RATE, 512)
 	_o_ = StzEngineSoundGraphAddOsc(_g_, StzSoundWaveTriangle(), C5, 0.6)
 	_e_ = StzEngineSoundGraphAddEnvelope(_g_, _o_, 0.002, 0.25, 0.0, 0.05, 0.25)
 	_p_ = StzEngineSoundGraphAddPan(_g_, _e_, 0.5)
@@ -208,7 +208,7 @@ func DemoDelay
 	PlayGraph(_g_, 1.5)
 
 	? "      ...and now with a 300 ms echo, feeding back on itself."
-	_g2_ = StzEngineSoundGraphNew(2, RATE, 512)
+	_g2_ = StzEngineSoundGraphNew(2, $RATE, 512)
 	_o2_ = StzEngineSoundGraphAddOsc(_g2_, StzSoundWaveTriangle(), C5, 0.6)
 	_e2_ = StzEngineSoundGraphAddEnvelope(_g2_, _o2_, 0.002, 0.25, 0.0, 0.05, 0.25)
 	_d2_ = StzEngineSoundGraphAddDelay(_g2_, _e2_, 0.30, 0.55, 0.45)
@@ -223,7 +223,7 @@ func DemoPan
 	_c_ = ["hard LEFT", "CENTRE", "hard RIGHT"]
 	for _i_ = 1 to 3
 		? "      " + _c_[_i_]
-		_g_ = StzEngineSoundGraphNew(2, RATE, 512)
+		_g_ = StzEngineSoundGraphNew(2, $RATE, 512)
 		_o_ = StzEngineSoundGraphAddOsc(_g_, StzSoundWaveTriangle(), E4, 0.4)
 		_p_ = StzEngineSoundGraphAddPan(_g_, _o_, _a_[_i_])
 		StzEngineSoundGraphSetOutput(_g_, _p_)
@@ -235,7 +235,7 @@ func DemoChord
 	Say("One note alone, then the same note inside an A minor chord.")
 	PlayWave(StzSoundWaveTriangle(), A3, 1.5)
 	? "      ...now with C and E added. Same root, whole different feeling."
-	_g_ = StzEngineSoundGraphNew(2, RATE, 512)
+	_g_ = StzEngineSoundGraphNew(2, $RATE, 512)
 	_v_ = []
 	_v_ + AddVoice(_g_, StzSoundWaveTriangle(), A3, 0.22, 0, 2.2, 0.15, 0.3, 0.7, 0.6, 0.3)
 	_v_ + AddVoice(_g_, StzSoundWaveTriangle(), C4, 0.22, 0, 2.2, 0.15, 0.3, 0.7, 0.6, 0.5)
@@ -247,7 +247,7 @@ func DemoChord
 
 func DemoBell
 	Say("A bell: a fast attack, a long decay, and an echo in a big room.")
-	_g_ = StzEngineSoundGraphNew(2, RATE, 512)
+	_g_ = StzEngineSoundGraphNew(2, $RATE, 512)
 	# a bell is a fundamental plus a bright partial that dies away sooner
 	_v_ = []
 	_v_ + AddVoice(_g_, StzSoundWaveSine(), A5, 0.30, 0, 1.6, 0.001, 1.4, 0.0, 0.4, 0.45)
@@ -314,7 +314,7 @@ func BuildComposition
 	# the melody, one note per bar over the last four bars
 	_tune_ = [ E5, C5, D5, B4, C5, A4, B4, A4 ]
 
-	_g_ = StzEngineSoundGraphNew(2, RATE, 512)
+	_g_ = StzEngineSoundGraphNew(2, $RATE, 512)
 
 	# VOICES FIRST, MIXES AFTER. A mix may only take inputs that already
 	# exist -- that rule is what makes a cycle impossible to express -- so the
@@ -449,7 +449,7 @@ func SaveComposition
 		return
 	ok
 	_path_ = cTmp + "/ostinato_in_am.wav"
-	_frames_ = floor(_len_ * RATE)
+	_frames_ = floor(_len_ * $RATE)
 	_t0_ = clock()
 	if StzEngineSoundGraphToFile(_g_, _frames_, _path_, 16) = 0
 		_secs_ = (clock() - _t0_) / clockspersecond()

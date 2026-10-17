@@ -18,7 +18,7 @@ $nPass = 0
 $nFail = 0
 nSkip = 0
 
-RATE = 48000
+$RATE = 48000
 
 cTmp = currentdir() + "/temp"
 if NOT direxists(cTmp)
@@ -48,12 +48,12 @@ ok
 ? "    StzEngineSoundGraphToFile(oG, 48000, 'tone.wav', 16)"
 ? ""
 
-nG1 = StzEngineSoundGraphNew(1, RATE, 512)
+nG1 = StzEngineSoundGraphNew(1, $RATE, 512)
 nTone = StzEngineSoundGraphAddOsc(nG1, StzSoundWaveSine(), 440, 0.8)
 StzEngineSoundGraphSetOutput(nG1, nTone)
 StzEngineSoundGraphPrepare(nG1)
 cTone = cTmp + "/tone.wav"
-Chk("one second of 440 Hz is written", StzEngineSoundGraphToFile(nG1, RATE, cTone, 16) = 0)
+Chk("one second of 440 Hz is written", StzEngineSoundGraphToFile(nG1, $RATE, cTone, 16) = 0)
 
 # read it back and look at it -- this is how you inspect any sound
 nS1 = StzEngineSoundLoadFile(cTone)
@@ -61,7 +61,7 @@ nS1 = StzEngineSoundLoadFile(cTone)
   StzEngineSoundRate(nS1) + " Hz, " + StzEngineSoundChannels(nS1) + " channel"
 ? "    peak " + StzEngineSoundPeak(nS1) + ", rms " + StzEngineSoundRms(nS1)
 Chk("it is exactly one second", fabs(StzEngineSoundDuration(nS1) - 1.0) < 0.001)
-Chk("it kept its sample rate", StzEngineSoundRate(nS1) = RATE)
+Chk("it kept its sample rate", StzEngineSoundRate(nS1) = $RATE)
 Chk("the peak is the amplitude we asked for", fabs(StzEngineSoundPeak(nS1) - 0.8) < 0.01)
 # a sine's RMS is its peak / sqrt(2) -- a real property, not a vibe
 Chk("and its RMS is peak/sqrt(2), as a sine's must be",
@@ -80,7 +80,7 @@ StzEngineSoundGraphFree(nG1)
 ? "    MixAdd(oG, nMix, nA)  /  nB  /  nC"
 ? ""
 
-nG2 = StzEngineSoundGraphNew(1, RATE, 512)
+nG2 = StzEngineSoundGraphNew(1, $RATE, 512)
 nA = StzEngineSoundGraphAddOsc(nG2, StzSoundWaveSine(), 440.00, 0.3)
 nB = StzEngineSoundGraphAddOsc(nG2, StzSoundWaveSine(), 554.37, 0.3)
 nC = StzEngineSoundGraphAddOsc(nG2, StzSoundWaveSine(), 659.25, 0.3)
@@ -90,7 +90,7 @@ StzEngineSoundGraphMixAdd(nG2, nMix, nB)
 StzEngineSoundGraphMixAdd(nG2, nMix, nC)
 StzEngineSoundGraphSetOutput(nG2, nMix)
 StzEngineSoundGraphPrepare(nG2)
-nChord = StzEngineSoundGraphToBuffer(nG2, RATE / 2)
+nChord = StzEngineSoundGraphToBuffer(nG2, $RATE / 2)
 
 # EVERY oscillator starts at phase 0, so at the very first sample all three
 # are exactly 0 -- and a moment later they are NOT in step. That is what
@@ -131,19 +131,19 @@ StzEngineSoundGraphFree(nG2)
 ? "                          time  feedback wet"
 ? ""
 
-nG3 = StzEngineSoundGraphNew(1, RATE, 512)
+nG3 = StzEngineSoundGraphNew(1, $RATE, 512)
 nOsc3 = StzEngineSoundGraphAddOsc(nG3, StzSoundWaveSine(), 880, 0.9)
 nEnv3 = StzEngineSoundGraphAddEnvelope(nG3, nOsc3, 0.005, 0.30, 0.0, 0.05, 0.30)
 nEcho3 = StzEngineSoundGraphAddDelay(nG3, nEnv3, 0.25, 0.45, 0.5)
 StzEngineSoundGraphSetOutput(nG3, nEcho3)
 StzEngineSoundGraphPrepare(nG3)
-nBell = StzEngineSoundGraphToBuffer(nG3, RATE * 2)
+nBell = StzEngineSoundGraphToBuffer(nG3, $RATE * 2)
 
 # the shape of a bell, measured in four windows
 nAtStart = WindowPeak(nBell, 1, 100)                 # the attack, still rising
 nAtHit = WindowPeak(nBell, 200, 2000)                # the strike
-nAfterNote = WindowPeak(nBell, RATE * 0.5, RATE * 0.6)  # note over, echo alive
-nAtEnd = WindowPeak(nBell, RATE * 1.9, RATE * 2)     # everything decayed
+nAfterNote = WindowPeak(nBell, $RATE * 0.5, $RATE * 0.6)  # note over, echo alive
+nAtEnd = WindowPeak(nBell, $RATE * 1.9, $RATE * 2)     # everything decayed
 ? "    attack window " + nAtStart + " -> strike " + nAtHit
 ? "    after the note ends, the ECHO is still there: " + nAfterNote
 ? "    and by 1.9 s it has decayed to: " + nAtEnd
@@ -205,12 +205,12 @@ Chk("and centre is 0.707 per side, not 0.5 -- the law is constant POWER",
 ? "    nMono = StzEngineSoundToChannels(nCd, 1)          # stereo -> mono"
 ? ""
 
-nG6 = StzEngineSoundGraphNew(2, RATE, 512)
+nG6 = StzEngineSoundGraphNew(2, $RATE, 512)
 nO6 = StzEngineSoundGraphAddOsc(nG6, StzSoundWaveSine(), 1000, 0.6)
 nP6 = StzEngineSoundGraphAddPan(nG6, nO6, 0.5)
 StzEngineSoundGraphSetOutput(nG6, nP6)
 StzEngineSoundGraphPrepare(nG6)
-nSrc6 = StzEngineSoundGraphToBuffer(nG6, RATE)
+nSrc6 = StzEngineSoundGraphToBuffer(nG6, $RATE)
 
 nCd = StzEngineSoundResample(nSrc6, 44100, StzSoundQualitySinc())
 nMono = StzEngineSoundToChannels(nCd, 1)
@@ -222,7 +222,7 @@ Chk("the DURATION did not -- that is the whole point of resampling",
     fabs(StzEngineSoundDuration(nMono) - StzEngineSoundDuration(nSrc6)) < 0.001)
 Chk("and the sound is still there, at the same level",
     fabs(StzEngineSoundRms(nMono) - StzEngineSoundRms(nSrc6)) < 0.02)
-Chk("the ORIGINAL was not touched by either conversion", StzEngineSoundRate(nSrc6) = RATE)
+Chk("the ORIGINAL was not touched by either conversion", StzEngineSoundRate(nSrc6) = $RATE)
 
 cOut6 = cTmp + "/for_cd.wav"
 Chk("and it saves as a 16-bit WAV", StzEngineSoundSaveWav(nMono, cOut6, 16) = 0)
@@ -245,7 +245,7 @@ if NOT StzAudioDevEngineLoaded() or StzEngineAudioDevIsAvailable() = 0
 	nSkip++
 	? "  [skip] no audio device -- every example above still ran"
 else
-	nG7 = StzEngineSoundGraphNew(2, RATE, 256)
+	nG7 = StzEngineSoundGraphNew(2, $RATE, 256)
 	nO7 = StzEngineSoundGraphAddOsc(nG7, StzSoundWaveTriangle(), 330, 0.25)
 	nGain7 = StzEngineSoundGraphAddGain(nG7, nO7, 0.0)   # start SILENT
 	StzEngineSoundGraphSetOutput(nG7, nGain7)
@@ -304,12 +304,12 @@ func WindowPeak nId, nFrom, nTo
 	return _mx_
 
 func SawThroughLowpass nCutoff
-	_g_ = StzEngineSoundGraphNew(1, RATE, 512)
+	_g_ = StzEngineSoundGraphNew(1, $RATE, 512)
 	_o_ = StzEngineSoundGraphAddOsc(_g_, StzSoundWaveSaw(), 220, 0.7)
 	_f_ = StzEngineSoundGraphAddFilter(_g_, _o_, StzSoundFilterLowPass(), nCutoff, 0.707)
 	StzEngineSoundGraphSetOutput(_g_, _f_)
 	StzEngineSoundGraphPrepare(_g_)
-	_b_ = StzEngineSoundGraphToBuffer(_g_, RATE / 4)
+	_b_ = StzEngineSoundGraphToBuffer(_g_, $RATE / 4)
 	_r_ = StzEngineSoundRms(_b_)
 	StzEngineSoundFree(_b_)
 	StzEngineSoundGraphFree(_g_)
@@ -317,12 +317,12 @@ func SawThroughLowpass nCutoff
 
 # Returns [left rms, right rms] for a mono tone placed at nPan.
 func PanEnergy nPan
-	_g_ = StzEngineSoundGraphNew(2, RATE, 512)
+	_g_ = StzEngineSoundGraphNew(2, $RATE, 512)
 	_o_ = StzEngineSoundGraphAddOsc(_g_, StzSoundWaveSine(), 440, 1.0)
 	_p_ = StzEngineSoundGraphAddPan(_g_, _o_, nPan)
 	StzEngineSoundGraphSetOutput(_g_, _p_)
 	StzEngineSoundGraphPrepare(_g_)
-	_b_ = StzEngineSoundGraphToBuffer(_g_, RATE / 8)
+	_b_ = StzEngineSoundGraphToBuffer(_g_, $RATE / 8)
 	_n_ = StzEngineSoundFrames(_b_)
 	_sl_ = 0
 	_sr_ = 0

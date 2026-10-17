@@ -21,7 +21,7 @@
 load "../../stzBase.ring"
 decimals(2)
 
-RATE = 48000
+$RATE = 48000
 cOut = currentdir() + "/temp/showcase"
 
 # ---------------------------------------------------------------------------
@@ -139,11 +139,11 @@ func ShCatalogue
 # ---------------------------------------------------------------------------
 
 func ShNaiveSweep
-	_o_ = StzSoundOfSilenceQ(2.5, 1, RATE)
+	_o_ = StzSoundOfSilenceQ(2.5, 1, $RATE)
 	_n_ = _o_.Frames()  _ph_ = 0
 	for _i_ = 1 to _n_
 		_hz_ = 1500 + 4500 * ((_i_ - 1) / _n_)
-		_ph_ += _hz_ / RATE
+		_ph_ += _hz_ / $RATE
 		if _ph_ >= 1  _ph_ -= 1 ok
 		_o_.SetSampleAt(_i_, 1, 0.4 * (2 * _ph_ - 1))
 	next
@@ -151,16 +151,16 @@ func ShNaiveSweep
 
 func ShCleanSweep
 	# the engine's own band-limited oscillator, stepped through the same range
-	_o_ = StzSoundOfSilenceQ(2.5, 1, RATE)
+	_o_ = StzSoundOfSilenceQ(2.5, 1, $RATE)
 	_steps_ = 50
 	_per_ = 2.5 / _steps_
 	for _k_ = 0 to _steps_ - 1
 		_hz_ = 1500 + 4500 * (_k_ / _steps_)
 		_g_ = new stzSoundGraph()
-		_g_.Reshape(1, RATE)
+		_g_.Reshape(1, $RATE)
 		_g_.AddOscillator(:Saw, _hz_, 0.4)
 		_s_ = _g_.ToSound(_per_)
-		_at_ = floor(_k_ * _per_ * RATE)
+		_at_ = floor(_k_ * _per_ * $RATE)
 		for _i_ = 1 to _s_.Frames()
 			if _at_ + _i_ <= _o_.Frames()
 				_o_.SetSampleAt(_at_ + _i_, 1, _s_.SampleAt(_i_, 1))
@@ -178,18 +178,18 @@ func ShFourTimbres
 		ShTone(:Saw, 220, 0.45, 0.7) ])
 
 func ShBeats
-	_o_ = StzSoundOfSilenceQ(3, 1, RATE)
+	_o_ = StzSoundOfSilenceQ(3, 1, $RATE)
 	for _i_ = 1 to _o_.Frames()
-		_t_ = (_i_ - 1) / RATE
+		_t_ = (_i_ - 1) / $RATE
 		_o_.SetSampleAt(_i_, 1, 0.35 * sin(2 * 3.14159265358979 * 440 * _t_) +
 		                        0.35 * sin(2 * 3.14159265358979 * 443 * _t_))
 	next
 	return _o_
 
 func ShClickVsFade
-	_o_ = StzSoundOfSilenceQ(3, 1, RATE)
+	_o_ = StzSoundOfSilenceQ(3, 1, $RATE)
 	for _i_ = 1 to _o_.Frames()
-		_t_ = (_i_ - 1) / RATE
+		_t_ = (_i_ - 1) / $RATE
 		_v_ = 0.5 * sin(2 * 3.14159265358979 * 440 * _t_)
 		_g_ = 0
 		if _t_ < 1.0
@@ -207,7 +207,7 @@ func ShFilterSweep
 	_parts_ = []
 	for _k_ = 0 to 19
 		_g_ = new stzSoundGraph()
-		_g_.Reshape(1, RATE)
+		_g_.Reshape(1, $RATE)
 		# 0.20, not 0.5: a Q of 6 BOOSTS at the corner, and at 0.5 this
 		# example peaked at 1.23 with 2,100 clipped samples -- caught by the
 		# showcase's own quality report, which is what it is for.
@@ -222,7 +222,7 @@ func ShResonance
 	_a_ = []
 	for _q_ in [ 0.7, 8.0 ]
 		_g_ = new stzSoundGraph()
-		_g_.Reshape(1, RATE)
+		_g_.Reshape(1, $RATE)
 		# BOTH halves lowered equally, so the Q comparison stays fair. At 0.5
 		# the Q-8 half peaked at 1.19 and clipped 2,009 samples -- a resonant
 		# filter BOOSTS at its corner, and the showcase's own quality report
@@ -242,7 +242,7 @@ func ShEnvelopes
 	             [0.400, 0.30, 0.7, 0.60, 1.20],
 	             [0.005, 0.06, 0.0, 0.05, 0.08] ]
 		_g_ = new stzSoundGraph()
-		_g_.Reshape(1, RATE)
+		_g_.Reshape(1, $RATE)
 		_g_.AddOscillator(:Triangle, 330, 0.6)
 		_g_.NameIt(:t)
 		_g_.AddEnvelopeOn(:t, _e_[1], _e_[2], _e_[3], _e_[4], _e_[5])
@@ -254,7 +254,7 @@ func ShEnvelopes
 func ShEcho
 	_dry_ = ShBlip(880, 0.5)
 	_g_ = new stzSoundGraph()
-	_g_.Reshape(1, RATE)
+	_g_.Reshape(1, $RATE)
 	_g_.AddSound(ShBlip(880, 0.5))
 	_g_.NameIt(:b)
 	_g_.AddEchoOn(:b, 0.18, 0.55, 0.45)
@@ -262,13 +262,13 @@ func ShEcho
 
 func ShPan
 	_g_ = new stzSoundGraph()
-	_g_.Reshape(2, RATE)
+	_g_.Reshape(2, $RATE)
 	_g_.AddOscillator(:Triangle, 440, 0.5)
 	_g_.NameIt(:t)
 	_g_.AddPanOn(:t, 0.0)
 	_left_ = _g_.ToSound(0.9)
 	_g2_ = new stzSoundGraph()
-	_g2_.Reshape(2, RATE)
+	_g2_.Reshape(2, $RATE)
 	_g2_.AddOscillator(:Triangle, 440, 0.5)
 	_g2_.NameIt(:t)
 	_g2_.AddPanOn(:t, 1.0)
@@ -276,7 +276,7 @@ func ShPan
 
 func ShChord
 	_g_ = new stzSoundGraph()
-	_g_.Reshape(1, RATE)
+	_g_.Reshape(1, $RATE)
 	_a_ = []
 	for _hz_ in [ 261.63, 329.63, 392.00 ]
 		_g_.AddOscillator(:Triangle, _hz_, 0.30)
@@ -292,7 +292,7 @@ func ShChord
 
 func ShBell
 	_g_ = new stzSoundGraph()
-	_g_.Reshape(1, RATE)
+	_g_.Reshape(1, $RATE)
 	_g_.AddOscillator(:Sine, 880, 0.5)
 	_g_.NameIt(:b)
 	_g_.AddEnvelopeOn(:b, 0.001, 1.4, 0.0, 0.4, 1.6)
@@ -397,7 +397,7 @@ func ShThePiece
 	# a bass pulse under a bell melody, with an echo tail
 	for _k_ = 0 to 7
 		_g_ = new stzSoundGraph()
-		_g_.Reshape(1, RATE)
+		_g_.Reshape(1, $RATE)
 		_g_.AddOscillator(:Saw, 55, 0.34)
 		_g_.NameIt(:b)
 		_g_.AddEnvelopeOn(:b, 0.004, 0.20, 0.0, 0.06, 0.22)
@@ -408,7 +408,7 @@ func ShThePiece
 		_hz_ = [ 523.25, 659.25, 783.99, 659.25,
 		         587.33, 783.99, 880.00, 659.25 ][_k_ + 1]
 		_g2_ = new stzSoundGraph()
-		_g2_.Reshape(1, RATE)
+		_g2_.Reshape(1, $RATE)
 		_g2_.AddOscillator(:Sine, _hz_, 0.34)
 		_g2_.NameIt(:m)
 		_g2_.AddEnvelopeOn(:m, 0.002, 0.34, 0.0, 0.10, 0.36)
@@ -418,7 +418,7 @@ func ShThePiece
 	next
 	_dry_ = ShConcat(_parts_)
 	_g3_ = new stzSoundGraph()
-	_g3_.Reshape(1, RATE)
+	_g3_.Reshape(1, $RATE)
 	_g3_.AddSound(_dry_)
 	_g3_.NameIt(:d)
 	_g3_.AddEchoOn(:d, 0.21, 0.38, 0.30)
@@ -430,7 +430,7 @@ func ShThePiece
 
 func ShTone pWave, nHz, nAmp, nSecs
 	_g_ = new stzSoundGraph()
-	_g_.Reshape(1, RATE)
+	_g_.Reshape(1, $RATE)
 	_g_.AddOscillator(pWave, nHz, nAmp)
 	_g_.NameIt(:t)
 	_g_.AddEnvelopeOn(:t, 0.006, 0.02, 0.9, 0.05, nSecs - 0.06)
@@ -438,21 +438,21 @@ func ShTone pWave, nHz, nAmp, nSecs
 
 func ShBlip nHz, nSecs
 	_g_ = new stzSoundGraph()
-	_g_.Reshape(1, RATE)
+	_g_.Reshape(1, $RATE)
 	_g_.AddOscillator(:Triangle, nHz, 0.6)
 	_g_.NameIt(:b)
 	_g_.AddEnvelopeOn(:b, 0.002, 0.10, 0.0, 0.05, 0.12)
 	return _g_.ToSound(nSecs)
 
 func ShSilence nSecs
-	return StzSoundOfSilenceQ(nSecs, 1, RATE)
+	return StzSoundOfSilenceQ(nSecs, 1, $RATE)
 
 func ShConcat paSounds
 	_total_ = 0
 	for _s_ in paSounds
 		if isObject(_s_)  _total_ += _s_.Duration() ok
 	next
-	_o_ = StzSoundOfSilenceQ(_total_ + 0.02, 1, RATE)
+	_o_ = StzSoundOfSilenceQ(_total_ + 0.02, 1, $RATE)
 	_at_ = 0
 	for _s_ in paSounds
 		if NOT isObject(_s_)  loop ok
@@ -468,7 +468,7 @@ func ShConcat paSounds
 
 func ShMix2 oA, oB
 	_n_ = ShMax([ oA.Frames(), oB.Frames() ])
-	_o_ = StzSoundOfSilenceQ(_n_ / RATE, 1, RATE)
+	_o_ = StzSoundOfSilenceQ(_n_ / $RATE, 1, $RATE)
 	for _i_ = 1 to _o_.Frames()
 		_v_ = 0
 		if _i_ <= oA.Frames()  _v_ += oA.SampleAt(_i_, 1) ok

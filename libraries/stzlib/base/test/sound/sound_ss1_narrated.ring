@@ -49,7 +49,7 @@ $nFail = 0
 pr()
 decimals(2)
 
-RATE = 48000
+$RATE = 48000
 
 ? "== SS1: can four meanings be told apart, and by WHAT? =="
 ? ""
@@ -264,7 +264,7 @@ func BandOf poSound, pWhich
 		_lo_ = 700  _hi_ = 4000
 	ok
 	_g_ = new stzSoundGraph()
-	_g_.Reshape(1, RATE)
+	_g_.Reshape(1, $RATE)
 	_g_.AddSound(poSound)
 	_g_.NameIt(:src)
 	_g_.AddFilterOn(:src, :HighPass, _lo_, 0.707)
@@ -279,15 +279,15 @@ func BandOf poSound, pWhich
 func MotifOf paHz, pWave
 	_n_ = len(paHz)
 	_per_ = 0.09
-	_o_ = StzSoundOfSilenceQ(_n_ * _per_, 1, RATE)
-	_pf_ = floor(_per_ * RATE)
-	_ramp_ = floor(0.006 * RATE)
+	_o_ = StzSoundOfSilenceQ(_n_ * _per_, 1, $RATE)
+	_pf_ = floor(_per_ * $RATE)
+	_ramp_ = floor(0.006 * $RATE)
 	for _k_ = 0 to _n_ - 1
 		_hz_ = paHz[_k_ + 1]
 		for _i_ = 0 to _pf_ - 1
 			_at_ = _k_ * _pf_ + _i_ + 1
 			if _at_ > _o_.Frames()  loop ok
-			_t_ = _i_ / RATE
+			_t_ = _i_ / $RATE
 			_e_ = 1
 			if _i_ < _ramp_  _e_ = _i_ / _ramp_ ok
 			if _i_ > _pf_ - _ramp_  _e_ = (_pf_ - _i_) / _ramp_ ok
