@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 174 methods in 75 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 168 methods in 74 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| list/stzListProvidedAsString.ring | stzListProvidedAsString | 6 |
 | number/stzListOfBytes.ring | stzListOfBytes | 6 |
 | string/stzTextStream.ring | stzTextStream | 6 |
 | geo/stzGeoField.ring | stzGeoField | 5 |
@@ -226,15 +225,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `IsListOfSections` (line 1427): Answers TRUE for any list of pairs today, instead of TRUE only when every pair is made of two numbers. -- Answers TRUE whatever the pairs hold, text included: the loop records a failing pair in a variable that is never read, so the result stays at its start value
 - `AreAnagrams` (line 1564): Raises error R14 today instead of telling whether the two items are anagrams of each other. -- Raises R14 today on every call: it reads FirstValue and SecondValue, which this class does not define
 - `ToStzSetOfSections` (line 2317): Raises an error today instead of returning the pairs as a stzSetOfSections. -- Raises "You must provide a list of sections" today for valid sections such as [ [ 1, 3 ], [ 5, 8 ] ]: the stzSetOfSections constructor refuses what stzListOfSections accepts
-
-## stzListProvidedAsString -- list/stzListProvidedAsString.ring (6)
-
-- `IsListOfValues` (line 85): Raises error R12 today instead of telling whether the list text holds only values and no variable names. -- Raises error R12 (property not found: list) today instead of TRUE or FALSE, because ContainsOnlyValues reads a property that does not exist
-- `IsListOfVariables` (line 94): Returns an empty text today instead of telling whether the list text holds only variable names and no values. -- Not implemented: ContainsOnlyVariables is an empty TODO stub, so the answer is "" whatever the text, and a test on it is always false
-- `IsListOfValuesAndVariables` (line 103): Returns an empty text today instead of telling whether the list text mixes values and variable names. -- Not implemented: ContainsValuesAndVariables is an empty TODO stub, so the answer is "" whatever the text
-- `ContainsOnlyValues` (line 112): Raises error R12 today instead of telling whether the list text holds only values, such as numbers, texts and lists. -- Raises error R12 (property not found: list) today, because its first line reads This.List, a property the class does not have
-- `ContainsOnlyVariables` (line 122): Returns an empty text today instead of telling whether the list text holds only variable names. -- Not implemented: the body is a TODO comment, so the answer is "" whatever the text
-- `ContainsValuesAndVariables` (line 131): Returns an empty text today instead of telling whether the list text holds both values and variable names. -- Not implemented: the body is a TODO comment, so the answer is "" whatever the text
 
 ## stzListWalker -- list/stzListWalker.ring (3)
 

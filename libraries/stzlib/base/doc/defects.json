@@ -1,5 +1,5 @@
 {
- "count": 174,
+ "count": 168,
  "defects": [
   {
    "class": "stzAppServer",
@@ -512,54 +512,6 @@
    "line": 2317,
    "symptom": "Raises an error today instead of returning the pairs as a stzSetOfSections.",
    "cause": "Raises \"You must provide a list of sections\" today for valid sections such as [ [ 1, 3 ], [ 5, 8 ] ]: the stzSetOfSections constructor refuses what stzListOfSections accepts"
-  },
-  {
-   "class": "stzListProvidedAsString",
-   "file": "list/stzListProvidedAsString.ring",
-   "method": "IsListOfValues",
-   "line": 85,
-   "symptom": "Raises error R12 today instead of telling whether the list text holds only values and no variable names.",
-   "cause": "Raises error R12 (property not found: list) today instead of TRUE or FALSE, because ContainsOnlyValues reads a property that does not exist"
-  },
-  {
-   "class": "stzListProvidedAsString",
-   "file": "list/stzListProvidedAsString.ring",
-   "method": "IsListOfVariables",
-   "line": 94,
-   "symptom": "Returns an empty text today instead of telling whether the list text holds only variable names and no values.",
-   "cause": "Not implemented: ContainsOnlyVariables is an empty TODO stub, so the answer is \"\" whatever the text, and a test on it is always false"
-  },
-  {
-   "class": "stzListProvidedAsString",
-   "file": "list/stzListProvidedAsString.ring",
-   "method": "IsListOfValuesAndVariables",
-   "line": 103,
-   "symptom": "Returns an empty text today instead of telling whether the list text mixes values and variable names.",
-   "cause": "Not implemented: ContainsValuesAndVariables is an empty TODO stub, so the answer is \"\" whatever the text"
-  },
-  {
-   "class": "stzListProvidedAsString",
-   "file": "list/stzListProvidedAsString.ring",
-   "method": "ContainsOnlyValues",
-   "line": 112,
-   "symptom": "Raises error R12 today instead of telling whether the list text holds only values, such as numbers, texts and lists.",
-   "cause": "Raises error R12 (property not found: list) today, because its first line reads This.List, a property the class does not have"
-  },
-  {
-   "class": "stzListProvidedAsString",
-   "file": "list/stzListProvidedAsString.ring",
-   "method": "ContainsOnlyVariables",
-   "line": 122,
-   "symptom": "Returns an empty text today instead of telling whether the list text holds only variable names.",
-   "cause": "Not implemented: the body is a TODO comment, so the answer is \"\" whatever the text"
-  },
-  {
-   "class": "stzListProvidedAsString",
-   "file": "list/stzListProvidedAsString.ring",
-   "method": "ContainsValuesAndVariables",
-   "line": 131,
-   "symptom": "Returns an empty text today instead of telling whether the list text holds both values and variable names.",
-   "cause": "Not implemented: the body is a TODO comment, so the answer is \"\" whatever the text"
   },
   {
    "class": "stzListWalker",
