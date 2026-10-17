@@ -1,5 +1,5 @@
 {
- "count": 180,
+ "count": 174,
  "defects": [
   {
    "class": "stzAppServer",
@@ -72,54 +72,6 @@
    "line": 1901,
    "symptom": "Returns today, tomorrow or yesterday, a count of days or weeks within a month of today, else the date as dd/MM/yyyy.",
    "cause": ""
-  },
-  {
-   "class": "stzImgToAscii",
-   "file": "extercode/stzImageToAscii.ring",
-   "method": "init",
-   "line": 63,
-   "symptom": "Raises error C27 today, when the file loads, instead of building an image-to-text converter.",
-   "cause": "the file extercode/stzImageToAscii.ring does not parse in Ring 1.27 (C27 Syntax Error at lines 41, 55, 56, 58, 79 and more) because it writes blocks in braces after if and in method bodies; no other file of the library loads it, so the class does not exist in a normal session"
-  },
-  {
-   "class": "stzImgToAscii",
-   "file": "extercode/stzImageToAscii.ring",
-   "method": "EnsureDirs",
-   "line": 74,
-   "symptom": "Raises error C27 today, when the file loads, instead of creating the temp and output folders.",
-   "cause": "same cause as init; the body also calls dir_create and reads a field @cOutputDir that is never defined (the field is @cOutDir)"
-  },
-  {
-   "class": "stzImgToAscii",
-   "file": "extercode/stzImageToAscii.ring",
-   "method": "Execute",
-   "line": 97,
-   "symptom": "Raises error C27 today, when the file loads, instead of running the im2ansi tool on the image and keeping the text or file it produces.",
-   "cause": "same cause as init; the tool path defaults to ../tools/im2ansi/im2ansi.exe, which is not in the library, and the body starts a real program"
-  },
-  {
-   "class": "stzImgToAscii",
-   "file": "extercode/stzImageToAscii.ring",
-   "method": "Content",
-   "line": 157,
-   "symptom": "Raises error C27 today, when the file loads, instead of returning the converted image as text, running Execute first when needed.",
-   "cause": "same cause as init"
-  },
-  {
-   "class": "stzImgToAscii",
-   "file": "extercode/stzImageToAscii.ring",
-   "method": "Show",
-   "line": 171,
-   "symptom": "Raises error C27 today, when the file loads, instead of printing the converted image or opening the output file in the system viewer.",
-   "cause": "same cause as init; for the svg and html formats the body would start the operating system's viewer"
-  },
-  {
-   "class": "stzImgToAscii",
-   "file": "extercode/stzImageToAscii.ring",
-   "method": "BuildArgs",
-   "line": 202,
-   "symptom": "Raises error C27 today, when the file loads, instead of building the command-line options for the im2ansi tool from the settings.",
-   "cause": "same cause as init"
   },
   {
    "class": "stzHtmlBuilder",
