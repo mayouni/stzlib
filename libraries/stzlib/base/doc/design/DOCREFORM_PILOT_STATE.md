@@ -350,3 +350,8 @@ Next by size: stzReactiveSystem 7, then six classes at 6 (stzOccurrences, stzImg
 7 rows fixed (the safe stop now flags the live system and the loop ends at the end of the pass; BindObjects binds the live reactive objects). Guard 38 assertions; 84 existing reactive files same exit codes. Limits kept in the blocks: a later source change does not reach the target (BindTo stores a copy), and StopSafe on a copy of the system is not seen.
 Next by size: five classes at 6 (stzOccurrences, stzImgToAscii, stzListProvidedAsString, stzListOfBytes, stzTextStream).
 
+## 2026-10-17: the stzOccurrences fix batch is ON MAIN (f60addcef, both remotes); register 186 -> 180
+
+6 rows fixed (attribute-name drift; Removed, ReplacedWithCS, Uppercased, Lowercased implemented). Guard 91 assertions. The named form in the docs is the bare `:Of = x`, never the list literal.
+Next by size: four classes at 6 (stzImgToAscii, stzListProvidedAsString, stzListOfBytes, stzTextStream).
+
