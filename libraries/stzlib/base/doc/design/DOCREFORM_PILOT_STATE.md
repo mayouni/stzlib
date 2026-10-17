@@ -360,3 +360,8 @@ Next by size: four classes at 6 (stzImgToAscii, stzListProvidedAsString, stzList
 The file did not parse in Ring 1.27 (braces, default parameter values, a duplicate OutputFile); it parses and works now, tested against a stand-in tool only. Guard 85 assertions. API changes for the author: Invert/NoColor/Verbose take no argument (SetInvert/SetNoColor/SetVerbose added), SetOutputFile replaces the OutputFile setter, init requires its argument. Still loaded by no loader.
 Next by size: stzListProvidedAsString, stzListOfBytes, stzTextStream (6 each).
 
+## 2026-10-17: the stzListProvidedAsString fix batch is ON MAIN (4fa606964, both remotes); register 174 -> 168
+
+6 rows fixed on a new tokenizer; a seventh defect (Items() empty for every text) was under them. Guard 121 assertions, mutation-checked. Decisions in the class header: empty list answers 0 everywhere, TRUE/FALSE/NULL count as variable names, a nested list is a value. stzListInString has the same family of defects (not touched).
+Next by size: stzListOfBytes, stzTextStream (6 each), then stzGeoField, stzGeoSamples, stzDiagram, stzGridNav (5 each).
+
