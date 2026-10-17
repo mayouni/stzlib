@@ -355,3 +355,8 @@ Next by size: five classes at 6 (stzOccurrences, stzImgToAscii, stzListProvidedA
 6 rows fixed (attribute-name drift; Removed, ReplacedWithCS, Uppercased, Lowercased implemented). Guard 91 assertions. The named form in the docs is the bare `:Of = x`, never the list literal.
 Next by size: four classes at 6 (stzImgToAscii, stzListProvidedAsString, stzListOfBytes, stzTextStream).
 
+## 2026-10-17: the stzImgToAscii fix batch is ON MAIN (eaee41336, both remotes); register 180 -> 174
+
+The file did not parse in Ring 1.27 (braces, default parameter values, a duplicate OutputFile); it parses and works now, tested against a stand-in tool only. Guard 85 assertions. API changes for the author: Invert/NoColor/Verbose take no argument (SetInvert/SetNoColor/SetVerbose added), SetOutputFile replaces the OutputFile setter, init requires its argument. Still loaded by no loader.
+Next by size: stzListProvidedAsString, stzListOfBytes, stzTextStream (6 each).
+
