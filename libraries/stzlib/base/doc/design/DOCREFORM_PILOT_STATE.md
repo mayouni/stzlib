@@ -365,3 +365,8 @@ Next by size: stzListProvidedAsString, stzListOfBytes, stzTextStream (6 each).
 6 rows fixed on a new tokenizer; a seventh defect (Items() empty for every text) was under them. Guard 121 assertions, mutation-checked. Decisions in the class header: empty list answers 0 everywhere, TRUE/FALSE/NULL count as variable names, a nested list is a value. stzListInString has the same family of defects (not touched).
 Next by size: stzListOfBytes, stzTextStream (6 each), then stzGeoField, stzGeoSamples, stzDiagram, stzGridNav (5 each).
 
+## 2026-10-18: the stzListOfBytes fix batch is ON MAIN (0c7d57a78, both remotes); register 168 -> 162
+
+4 rows fixed, Bits and ToStzListOfBits kept as documented placeholders (no list-of-bits class). Guard 93 assertions. Engine finding: the string-engine trim empties any content holding a lone invalid-UTF-8 byte. Nine listofbytes tests already fail identically on main (not caused by this batch).
+Next by size: stzTextStream (6), then stzGeoField, stzGeoSamples, stzDiagram, stzGridNav (5 each).
+
