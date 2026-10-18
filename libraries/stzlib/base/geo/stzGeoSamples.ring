@@ -70,14 +70,15 @@ func _GeoModelName(pnK)
 # TWO fields, the estimate and its variance, together on purpose: the variance depends only on where
 # the gauges are and on the variogram, never on the values. A model must be adopted (FitAndUse)
 # before GammaAt, KrigeAt, KrigeFields and CrossValidate, which raise otherwise. Kriging expects a
-# field without a trend: for gauges whose value falls steadily to the north the fitted range is
-# longer than the window, and the estimate leaves the measured range by tens of thousands, with only
-# a warning from Findings. Pictures, each looked at by 'stzlib-docs visual pass (a model reading the
+# field without a trend: for gauges whose value rises or falls steadily the Gaussian fit makes an
+# estimate that leaves the measured range by tens of thousands. Nothing is clamped, and Findings
+# reports it as an error, so IsSound is FALSE: use a bounded model or take the trend out first.
+# Pictures, each looked at by 'stzlib-docs visual pass (a model reading the
 # PNG)' on 2026-10-05: doc/gallery/stzGeoSamples/variogram_and_fit.png, gauges over an IDW surface
 # beside the variogram and its three fitted models, RIGHT; kriging_transect.png, the estimate with
 # isohyets and the doubt along a line, RIGHT (the band pinches at gauges and swells in gaps);
 # kriging_on_a_trend.png, the same method on a trend, WRONG (white inside the country marks kriged
-# values far outside the classes, see FINDINGS_geo.md). Index: doc/gallery/INDEX_geo.md.
+# values far outside the classes, see FINDINGS_geo.md; Findings now says so as an error). Index: doc/gallery/INDEX_geo.md.
 #
 #   receiver   o1 = new stzGeoSamples([ 2.1, 13.5, 100, 8.0, 15.0, 200, 5.0, 14.0, 150 ],
 #              StzGeoFeaturesFromJson(read("../graphics/niger_adm1.geojson")))
@@ -92,6 +93,7 @@ class stzGeoSamples from stzObject
 	@aRings = []
 	@aBox = []
 	@aModel = []
+	@aKrige = []
 	@nOutside = 0
 
 	# Builds the measurements from places with values and a window; raises an error for a list not in triples, an empty window or a non-number.
@@ -176,19 +178,26 @@ class stzGeoSamples from stzObject
 	# Returns the value of measurement pnI.
 	#
 	#   pnI        the position of the measurement, from 1
-	#   returns    a number
-	#   warning    Defect: no range check, so a position of 0 or past the last raises error R2.
+	#   returns    a number, or "" for a position of 0, past the last, or not a whole number
+	#   note       An empty answer, never an error, as stzGeoMap answers for a position outside its
+	#              features: test with isNumber, and compare with Count
 	#   see        PlaceOf, Values
 	def ValueOf(pnI)
+		if NOT isNumber(pnI)  return ""  ok
+		if pnI < 1 or pnI > This.Count() or pnI != floor(pnI)  return ""  ok
 		return @aS[pnI * 3]
 
 	# Returns where measurement pnI was made.
 	#
 	#   pnI        the position of the measurement, from 1
-	#   returns    a list [ lon, lat ] in degrees
-	#   warning    Defect: no range check, so a position of 0 or past the last raises error R2.
+	#   returns    a list [ lon, lat ] in degrees; [ ] for a position of 0, past the last, or not a
+	#              whole number
+	#   note       LONGITUDE FIRST. An empty answer, never an error, as stzGeoMap answers for a
+	#              position outside its features
 	#   see        ValueOf
 	def PlaceOf(pnI)
+		if NOT isNumber(pnI)  return []  ok
+		if pnI < 1 or pnI > This.Count() or pnI != floor(pnI)  return []  ok
 		return [ @aS[pnI * 3 - 2], @aS[pnI * 3 - 1] ]
 
 	# Returns the measured values, without their places.
@@ -262,7 +271,8 @@ class stzGeoSamples from stzObject
 	#   returns    a hash list [ :model, :nugget, :sill, :range, :rss ]; model is "spherical",
 	#              "exponential" or "gaussian"
 	#   note       Raises an error for another name or for fewer than two bins. Data with a trend
-	#              fits a range longer than the window
+	#              can fit a Gaussian model that makes kriging leave the measured range; Findings
+	#              reports it once the model is adopted
 	#   see        FitAndUse, SetModel, Variogram
 	#@ aka  [ :model, :nugget, :sill, :range, :rss ] -- :Best fits all three and keeps the one with the least weighted residual
 	def FitVariogram(pcModel)
@@ -290,6 +300,7 @@ class stzGeoSamples from stzObject
 			stzraise("stzGeoSamples.SetModel: a model is what FitVariogram answers.")
 		ok
 		@aModel = paModel
+		@aKrige = []
 
 		def SetModelQ(paModel)
 			This.SetModel(paModel)
@@ -306,11 +317,12 @@ class stzGeoSamples from stzObject
 	#
 	#   pcModel    the model to fit: :Spherical, :Exponential, :Gaussian, or :Best
 	#   returns    the fitted hash list [ :model, :nugget, :sill, :range, :rss ]
-	#   note       Kriging and GammaAt raise an error until a model is adopted
-	#   warning    Defect: on gauges with a trend the Gaussian fit reaches a range longer than the
-	#              window and the estimate leaves the measured range by tens of thousands (-30825 to
-	#              29761 for gauges of 180 to 799) while Findings only warns.
-	#   see        FitVariogram, KrigeFields
+	#   note       Kriging and GammaAt raise an error until a model is adopted. The fit is not
+	#              bounded: on gauges with a trend a Gaussian fit makes kriging answer tens of
+	#              thousands outside the measured range, and nothing here clamps it
+	#   warning    Check Findings or IsSound after adopting: they now flag that estimate as an error,
+	#              and the cure is a bounded model (:Spherical or :Exponential) or a detrended set
+	#   see        FitVariogram, KrigeFields, Findings
 	#@ aka  fit and adopt in one move, which is what most callers want
 	def FitAndUse(pcModel)
 		This.SetModel(This.FitVariogram(pcModel))
@@ -343,10 +355,11 @@ class stzGeoSamples from stzObject
 	#              "kriging variance"
 	#   note       Raises an error with no model, with two gauges at one place that read
 	#              differently, or past 1200 gauges
-	#   warning    Defect: on gauges with a trend the Gaussian fit reaches a range longer than the
-	#              window and the estimate leaves the measured range by tens of thousands (-30825 to
-	#              29761 for gauges of 180 to 799) while Findings only warns.
-	#   see        KrigeAt, CrossValidate, IDWField
+	#   warning    The estimate is NOT held to the measured range. On gauges with a trend the Gaussian
+	#              fit can make it leave that range by tens of thousands, and it is returned as
+	#              computed, never clamped. Findings reports it as an error from the moment this has
+	#              run
+	#   see        KrigeAt, CrossValidate, IDWField, Findings
 	#@ aka  -- 3. the answer, with its own doubt ----------------------------------
 	def KrigeFields(pnCellKm)
 		_m_ = This._ModelNumbers()
@@ -361,6 +374,9 @@ class stzGeoSamples from stzObject
 		_e_ = StzGeoField(_g_, _r_[1])
 		_e_.SetClip(@aRings)
 		_e_.SetSource("ordinary kriging, " + @aModel[:model] + " variogram")
+		_st_ = _e_.Stats()
+		@aKrige = []
+		if _st_[:known] > 0  @aKrige = [ _st_[:min], _st_[:max] ]  ok
 		_v_ = StzGeoField(_g_, _r_[2])
 		_v_.SetClip(@aRings)
 		_v_.SetUnit("kriging variance")
@@ -390,14 +406,49 @@ class stzGeoSamples from stzObject
 		if len(_a_) < 2  return [ :bias = 0, :rmse = 0 ]  ok
 		return [ :bias = _a_[1], :rmse = _a_[2] ]
 
-	# Returns what is wrong with the set: gauges outside the window, too few gauges, a range beyond the data, a nugget that is most of the sill.
+	def _EstimateExtremes()
+		# [ min, max, how ] of the kriged estimate: from the last KrigeFields run with
+		# this model, else from kriging a 6 by 6 lattice inside the window. [ ] when
+		# there is no model, no gauges worth a probe (under 3, over 200) or no answer.
+		if len(@aModel) < 4  return []  ok
+		if len(@aKrige) = 2  return [ @aKrige[1], @aKrige[2], "the kriged field" ]  ok
+		_n_ = This.Count()
+		if _n_ < 3 or _n_ > 200  return []  ok
+		_b_ = @aBox
+		_lo_ = 0
+		_hi_ = 0
+		_got_ = 0
+		for _i_ = 0 to 5
+			_x_ = _b_[1] + (_b_[3] - _b_[1]) * (0.02 + 0.96 * _i_ / 5)
+			for _j_ = 0 to 5
+				_y_ = _b_[2] + (_b_[4] - _b_[2]) * (0.02 + 0.96 * _j_ / 5)
+				if @oW.IndexAt(_x_, _y_) = 0  loop  ok
+				_k_ = This.KrigeAt(_x_, _y_)
+				if NOT isList(_k_)  loop  ok
+				if len(_k_) < 2  loop  ok
+				if _got_ = 0
+					_lo_ = _k_[1]
+					_hi_ = _k_[1]
+				ok
+				if _k_[1] < _lo_  _lo_ = _k_[1]  ok
+				if _k_[1] > _hi_  _hi_ = _k_[1]  ok
+				_got_++
+			next
+		next
+		if _got_ = 0  return []  ok
+		return [ _lo_, _hi_, "" + _got_ + " places probed" ]
+
+	# Returns what is wrong with the set and its fit, as entries of severity warning or error.
 	#
 	#   returns    a list of [ :rule, :subject, :where, :severity, :message ]; [ ] when clean
-	#   note       The range rule is an error beyond the window's diagonal and a warning beyond half
-	#              of it; fewer than 20 gauges is a warning
-	#   warning    Defect: a kriging that leaves the measured range by tens of thousands is only a
-	#              warning (range over half the diagonal), so IsSound stays TRUE.
-	#   see        IsSound
+	#   note       Gauges outside the window and fewer than 20 gauges are warnings. The range rule is
+	#              an error beyond the window's diagonal and a warning beyond half of it. Once a model
+	#              is adopted the estimate is checked too: it is an ERROR (rule
+	#              the_estimate_is_inside_the_data) when kriging leaves the measured range by more
+	#              than the spread of the data itself, read from the last KrigeFields or else from a
+	#              6 by 6 lattice of probes (up to 200 gauges; beyond that only a KrigeFields run is
+	#              checked)
+	#   see        IsSound, FitAndUse, KrigeFields
 	#@ aka  -- what the gate owes an interpolation --------------------------------
 	def Findings()
 		_a_ = []
@@ -469,12 +520,40 @@ class stzGeoSamples from stzObject
 					"to their mean everywhere with a large variance. That is the " +
 					"data's answer, not a fault in the fit" ]
 		ok
+
+		# 5. AN ESTIMATE OUTSIDE THE DATA. Ordinary kriging weights can be
+		# negative, so it MAY overshoot a little; it may not leave the measured
+		# range by more than the whole spread of the data. A trend and a
+		# Gaussian fit do, by tens of thousands. The estimate is never
+		# clamped -- hiding it would be hiding the failure -- so it is said.
+		_x_ = This._EstimateExtremes()
+		if len(_x_) = 3
+			_lo_ = This.MinValue()
+			_hi_ = This.MaxValue()
+			_tol_ = (_hi_ - _lo_) + 0.000000001 * (1 + fabs(_lo_) + fabs(_hi_))
+			if _x_[1] < _lo_ - _tol_ or _x_[2] > _hi_ + _tol_
+				_a_ + [ :rule = "the_estimate_is_inside_the_data",
+					:subject = _c_,
+					:where = "estimate " + StzFactNumText(_x_[1]) + " to " + StzFactNumText(_x_[2]) +
+						" (" + _x_[3] + ")",
+					:severity = "error",
+					:message = "kriging with the " + @aModel[:model] + " variogram estimates " +
+						StzFactNumText(_x_[1]) + " to " + StzFactNumText(_x_[2]) +
+						" where the gauges measure " + StzFactNumText(_lo_) + " to " +
+						StzFactNumText(_hi_) + " -- further outside them than the whole " +
+						"spread of the data. Data with a trend does this to a Gaussian fit. " +
+						"Fit a bounded model (FitAndUse(:Spherical) or :Exponential), or " +
+						"take the trend out of the values and krige what is left; IDWField " +
+						"cannot leave the measured range" ]
+			ok
+		ok
 		return _a_
 
 	# TRUE if the set has no finding of severity error.
 	#
 	#   returns    TRUE or FALSE
-	#   note       Warnings do not count, so a kriging that overshoots wildly can still be sound
+	#   note       Warnings do not count. A kriging that leaves the measured range by more than the
+	#              spread of the data is an error, so such a set is not sound
 	#   see        Findings
 	def IsSound()
 		_a_ = This.Findings()
