@@ -1,5 +1,5 @@
 {
- "count": 168,
+ "count": 162,
  "defects": [
   {
    "class": "stzAppServer",
@@ -784,54 +784,6 @@
    "line": 388,
    "symptom": "Raises error R14 today instead of returning the value in scientific notation.",
    "cause": "it forwards to stzNumber.ToScientificForm, a method that does not exist, and passes an undefined variable; stzNumber itself raises the same R14; confirmed with 0xFF and 0x41"
-  },
-  {
-   "class": "stzListOfBytes",
-   "file": "number/stzListOfBytes.ring",
-   "method": "BytesOfThisChar",
-   "line": 458,
-   "symptom": "Does nothing today and answers an empty text instead of the bytes of a character.",
-   "cause": "the definition has no body, so the argument is never read; BytesOfChar answers the bytes (tried on abc with b, and on héllo with é)"
-  },
-  {
-   "class": "stzListOfBytes",
-   "file": "number/stzListOfBytes.ring",
-   "method": "FillWithAsciiCharUpToNChars",
-   "line": 585,
-   "symptom": "Raises error R21 today instead of filling the content with one ASCII character repeated for a number of characters.",
-   "cause": "raises the error R21 Using operator with values of incorrect type, because nChars is multiplied by NumberOfBytesPerChar, which answers a list of pairs and not a number (tried on abc with 2, and on abcd with 3)"
-  },
-  {
-   "class": "stzListOfBytes",
-   "file": "number/stzListOfBytes.ring",
-   "method": "ToUTF8",
-   "line": 788,
-   "symptom": "Raises error R14 today instead of answering the bytes as UTF-8.",
-   "cause": "raises the error R14 Calling Method without definition: toutf8, because it forwards to a stzString method that does not exist (tried on abc and on aé€)"
-  },
-  {
-   "class": "stzListOfBytes",
-   "file": "number/stzListOfBytes.ring",
-   "method": "Bits",
-   "line": 1148,
-   "symptom": "Does nothing today and answers an empty text: its body is a TODO that waits for a list of bits class.",
-   "cause": ""
-  },
-  {
-   "class": "stzListOfBytes",
-   "file": "number/stzListOfBytes.ring",
-   "method": "ToStzListOfBits",
-   "line": 1156,
-   "symptom": "Does nothing today and answers an empty text: its body is a TODO that waits for a list of bits class.",
-   "cause": ""
-  },
-  {
-   "class": "stzListOfBytes",
-   "file": "number/stzListOfBytes.ring",
-   "method": "Stripped",
-   "line": 1237,
-   "symptom": "Does nothing today and answers an empty text instead of the bytes without the spaces at both ends.",
-   "cause": "the definition has no body; Trimmed answers the trimmed bytes (tried on '  ab c  ' and on 'x ')"
   },
   {
    "class": "stzMatrix",

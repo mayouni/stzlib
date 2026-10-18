@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 168 methods in 74 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 162 methods in 73 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| number/stzListOfBytes.ring | stzListOfBytes | 6 |
 | string/stzTextStream.ring | stzTextStream | 6 |
 | geo/stzGeoField.ring | stzGeoField | 5 |
 | geo/stzGeoSamples.ring | stzGeoSamples | 5 |
@@ -307,15 +306,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 - `FractionalPart` (line 264): Raises error R14 today instead of returning the digits after the point. -- it calls HexNumberWithoutPrefix, a method that does not exist, so FractionalPart and FractPart raise for every input; init also refuses a text with a point, so there is never a fraction to return
 - `ToScientificForm` (line 388): Raises error R14 today instead of returning the value in scientific notation. -- it forwards to stzNumber.ToScientificForm, a method that does not exist, and passes an undefined variable; stzNumber itself raises the same R14; confirmed with 0xFF and 0x41
-
-## stzListOfBytes -- number/stzListOfBytes.ring (6)
-
-- `BytesOfThisChar` (line 458): Does nothing today and answers an empty text instead of the bytes of a character. -- the definition has no body, so the argument is never read; BytesOfChar answers the bytes (tried on abc with b, and on héllo with é)
-- `FillWithAsciiCharUpToNChars` (line 585): Raises error R21 today instead of filling the content with one ASCII character repeated for a number of characters. -- raises the error R21 Using operator with values of incorrect type, because nChars is multiplied by NumberOfBytesPerChar, which answers a list of pairs and not a number (tried on abc with 2, and on abcd with 3)
-- `ToUTF8` (line 788): Raises error R14 today instead of answering the bytes as UTF-8. -- raises the error R14 Calling Method without definition: toutf8, because it forwards to a stzString method that does not exist (tried on abc and on aé€)
-- `Bits` (line 1148): Does nothing today and answers an empty text: its body is a TODO that waits for a list of bits class.
-- `ToStzListOfBits` (line 1156): Does nothing today and answers an empty text: its body is a TODO that waits for a list of bits class.
-- `Stripped` (line 1237): Does nothing today and answers an empty text instead of the bytes without the spaces at both ends. -- the definition has no body; Trimmed answers the trimmed bytes (tried on '  ab c  ' and on 'x ')
 
 ## stzMatrix -- number/stzMatrix.ring (2)
 
