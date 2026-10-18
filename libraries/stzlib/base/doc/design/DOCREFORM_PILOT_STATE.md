@@ -370,3 +370,8 @@ Next by size: stzListOfBytes, stzTextStream (6 each), then stzGeoField, stzGeoSa
 4 rows fixed, Bits and ToStzListOfBits kept as documented placeholders (no list-of-bits class). Guard 93 assertions. Engine finding: the string-engine trim empties any content holding a lone invalid-UTF-8 byte. Nine listofbytes tests already fail identically on main (not caused by this batch).
 Next by size: stzTextStream (6), then stzGeoField, stzGeoSamples, stzDiagram, stzGridNav (5 each).
 
+## 2026-10-18: the stzTextStream fix batch is ON MAIN (0217d489b, both remotes); register 162 -> 156
+
+6 rows fixed, plus neighbours (SetStatus, SetLocale, SetFromSocket/Process). The register premise for SetEncoding was wrong: RingQt takes a codec name. Qt loads headless here (guilib.ring first). Guard 135 assertions. A copy of the class sits in future/ untouched.
+Next by size: stzGeoField, stzGeoSamples, stzDiagram, stzGridNav (5 each), then five classes at 4.
+
