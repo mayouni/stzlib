@@ -375,3 +375,8 @@ Next by size: stzTextStream (6), then stzGeoField, stzGeoSamples, stzDiagram, st
 6 rows fixed, plus neighbours (SetStatus, SetLocale, SetFromSocket/Process). The register premise for SetEncoding was wrong: RingQt takes a codec name. Qt loads headless here (guilib.ring first). Guard 135 assertions. A copy of the class sits in future/ untouched.
 Next by size: stzGeoField, stzGeoSamples, stzDiagram, stzGridNav (5 each), then five classes at 4.
 
+## 2026-10-18: the stzGeoField fix batch is ON MAIN (8d45d668b, both remotes); register 156 -> 151
+
+The speck defect is an ENGINE rounding bug (sampleAt weights, classOf exact edges), worse than the register said (about 20 percent, both directions). Fixed at the library boundary (clamp to the contributing nodes, 1e-12 edge tolerance); the engine fix is owed. Guard 51 assertions by pixel count; nobody looked at a picture; the gallery PNG is stale. gg_adversarial.ring dies at line 13663 in both trees (Plastic governance), before the geo section.
+Next by size: stzGeoSamples, stzDiagram, stzGridNav (5 each), then five at 4.
+
