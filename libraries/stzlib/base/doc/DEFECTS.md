@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 156 methods in 72 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 151 methods in 71 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| geo/stzGeoField.ring | stzGeoField | 5 |
 | geo/stzGeoSamples.ring | stzGeoSamples | 5 |
 | graph/stzDiagram.ring | stzDiagram | 5 |
 | graph/stzGridNav.ring | stzGridNav | 5 |
@@ -118,14 +117,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 - `IndicesWithin` (line 776): Returns the positions of the features whose bounding box has its middle inside a box of longitude and latitude. -- Defect: a feature across the antimeridian has a box 360 degrees wide whose middle is longitude 0, so Fiji is taken by a window around Africa.
 - `Within` (line 800): Returns a new set of the features whose bounding box has its middle inside a box of longitude and latitude. -- Defect: the same antimeridian trap as IndicesWithin: Fiji is taken by a window around Africa.
-
-## stzGeoField -- geo/stzGeoField.ring (5)
-
-- `ValueAt` (line 270): Returns the field's value at a place: bilinear between four known nodes, the nearest node where some are unknown. -- Defect: a bilinear read of a constant field comes back one rounding step under the node value about 6 per cent of the time, so with SetClassesEvery a pixel at the first class edge draws as no data (white specks).
-- `SetClassesEvery` (line 338): Sets pnHowMany equal classes between the field's lowest and highest value. -- Defect: a bilinear read of a constant field comes back one rounding step under the node value about 6 per cent of the time, so with SetClassesEvery a pixel at the first class edge draws as no data (white specks).
-- `SetRamp` (line 361): Sets the colours of the classes from a named ramp, in as many steps as there are classes. -- Defect: the error for an unknown name lists nine ramps although thirteen exist.
-- `DrawOn` (line 460): Draws the field as one image on a canvas, resampled through a projection into a box, coloured by class. -- Defect: a bilinear read of a constant field comes back one rounding step under the node value about 6 per cent of the time, so with SetClassesEvery a pixel at the first class edge draws as no data (white specks).
-- `DrawXT` (line 478): Draws the field as one image like DrawOn, with an opacity so the map underneath can show through. -- Defect: a bilinear read of a constant field comes back one rounding step under the node value about 6 per cent of the time, so with SetClassesEvery a pixel at the first class edge draws as no data (white specks).
 
 ## stzGeoProcess -- geo/stzGeoProcess.ring (2)
 

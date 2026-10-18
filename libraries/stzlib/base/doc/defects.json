@@ -1,5 +1,5 @@
 {
- "count": 156,
+ "count": 151,
  "defects": [
   {
    "class": "stzAppServer",
@@ -128,46 +128,6 @@
    "line": 800,
    "symptom": "Returns a new set of the features whose bounding box has its middle inside a box of longitude and latitude.",
    "cause": "Defect: the same antimeridian trap as IndicesWithin: Fiji is taken by a window around Africa."
-  },
-  {
-   "class": "stzGeoField",
-   "file": "geo/stzGeoField.ring",
-   "method": "ValueAt",
-   "line": 270,
-   "symptom": "Returns the field's value at a place: bilinear between four known nodes, the nearest node where some are unknown.",
-   "cause": "Defect: a bilinear read of a constant field comes back one rounding step under the node value about 6 per cent of the time, so with SetClassesEvery a pixel at the first class edge draws as no data (white specks)."
-  },
-  {
-   "class": "stzGeoField",
-   "file": "geo/stzGeoField.ring",
-   "method": "SetClassesEvery",
-   "line": 338,
-   "symptom": "Sets pnHowMany equal classes between the field's lowest and highest value.",
-   "cause": "Defect: a bilinear read of a constant field comes back one rounding step under the node value about 6 per cent of the time, so with SetClassesEvery a pixel at the first class edge draws as no data (white specks)."
-  },
-  {
-   "class": "stzGeoField",
-   "file": "geo/stzGeoField.ring",
-   "method": "SetRamp",
-   "line": 361,
-   "symptom": "Sets the colours of the classes from a named ramp, in as many steps as there are classes.",
-   "cause": "Defect: the error for an unknown name lists nine ramps although thirteen exist."
-  },
-  {
-   "class": "stzGeoField",
-   "file": "geo/stzGeoField.ring",
-   "method": "DrawOn",
-   "line": 460,
-   "symptom": "Draws the field as one image on a canvas, resampled through a projection into a box, coloured by class.",
-   "cause": "Defect: a bilinear read of a constant field comes back one rounding step under the node value about 6 per cent of the time, so with SetClassesEvery a pixel at the first class edge draws as no data (white specks)."
-  },
-  {
-   "class": "stzGeoField",
-   "file": "geo/stzGeoField.ring",
-   "method": "DrawXT",
-   "line": 478,
-   "symptom": "Draws the field as one image like DrawOn, with an opacity so the map underneath can show through.",
-   "cause": "Defect: a bilinear read of a constant field comes back one rounding step under the node value about 6 per cent of the time, so with SetClassesEvery a pixel at the first class edge draws as no data (white specks)."
   },
   {
    "class": "stzGeoProcess",
