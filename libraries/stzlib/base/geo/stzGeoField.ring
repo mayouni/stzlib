@@ -37,6 +37,85 @@
 func StzGeoField(paGrid, paValues)
 	return new stzGeoField(paGrid, paValues)
 
+# THE LOWEST AND HIGHEST KNOWN NODE THAT A READ AT (lon, lat) IS MADE OF, as
+# [ lo, hi ], or [ ] when none is known. A bilinear read is a weighted average of
+# its nodes, so it can never leave their range -- but the engine adds four
+# products and divides by the sum of the weights, and that sum is 1 only up to
+# rounding, so a field that is the same number at every node came back one step
+# above or below it (measured: about 20 per cent of the points of a fine lattice
+# over a constant field, not 6). The nodes are the four of the cell the place is
+# in, or, where none of the four is known, the 4 x 4 block around them -- the same
+# two sets the engine averages. Unknown nodes are "".
+func _GeoFieldNodeRange(paVals, paGrid, pnLon, pnLat)
+	_nx_ = paGrid[5]
+	_ny_ = paGrid[6]
+	_ci_ = floor((pnLon - paGrid[1]) / paGrid[3])
+	_cj_ = floor((pnLat - paGrid[2]) / paGrid[4])
+	if _ci_ < 0  _ci_ = 0  ok
+	if _cj_ < 0  _cj_ = 0  ok
+	if _ci_ > _nx_ - 2  _ci_ = _nx_ - 2  ok
+	if _cj_ > _ny_ - 2  _cj_ = _ny_ - 2  ok
+	_lo_ = ""
+	_hi_ = ""
+	for _pass_ = 1 to 2
+		_i0_ = _ci_
+		_i1_ = _ci_ + 1
+		_j0_ = _cj_
+		_j1_ = _cj_ + 1
+		if _pass_ = 2
+			_i0_ = _ci_ - 1
+			_i1_ = _ci_ + 2
+			_j0_ = _cj_ - 1
+			_j1_ = _cj_ + 2
+			if _i0_ < 0  _i0_ = 0  ok
+			if _j0_ < 0  _j0_ = 0  ok
+			if _i1_ > _nx_ - 1  _i1_ = _nx_ - 1  ok
+			if _j1_ > _ny_ - 1  _j1_ = _ny_ - 1  ok
+		ok
+		for _j_ = _j0_ to _j1_
+			for _i_ = _i0_ to _i1_
+				_v_ = paVals[_j_ * _nx_ + _i_ + 1]
+				if isNumber(_v_)
+					if NOT isNumber(_lo_)
+						_lo_ = _v_
+						_hi_ = _v_
+					else
+						if _v_ < _lo_  _lo_ = _v_  ok
+						if _v_ > _hi_  _hi_ = _v_  ok
+					ok
+				ok
+			next
+		next
+		if isNumber(_lo_)  return [ _lo_, _hi_ ]  ok
+	next
+	return []
+
+# THE CLASS EDGES AS THE RASTER IS ASKED TO READ THEM: every edge moved by a
+# millionth of a millionth of the larger of its own size and the whole range -- the
+# first one down, the others up. A class is (previous edge, edge], so a node whose
+# value IS an edge belongs to the class below it; the raster reads the field
+# through an interpolation that can be one rounding step either side of the node
+# value, which put a pixel of the first class's own floor outside every class and
+# let a pixel at an inner edge change colour. With the tolerance a value within
+# rounding of an edge is classed as the exact value is. If the edges are so close
+# the tolerance is a millionth of a millionth, so edges that rise still rise.
+func _GeoFieldTolerantEdges(paEdges)
+	_n_ = len(paEdges)
+	if _n_ < 2  return paEdges  ok
+	_span_ = fabs(paEdges[_n_] - paEdges[1])
+	_out_ = []
+	for _i_ = 1 to _n_
+		_m_ = fabs(paEdges[_i_])
+		if _span_ > _m_  _m_ = _span_  ok
+		_t_ = _m_ * 0.000000000001
+		if _i_ = 1
+			_out_ + (paEdges[_i_] - _t_)
+		else
+			_out_ + (paEdges[_i_] + _t_)
+		ok
+	next
+	return _out_
+
 # THE SMOOTHED INTENSITY OF A POINT PATTERN, in places per km2. cellKm is how
 # fine the answer is, bandwidthKm how far each place spreads -- and the
 # bandwidth is the choice that matters: too small and the map is the points
@@ -102,7 +181,9 @@ func StzGeoFieldFromAsciiGrid(pcText)
 # kriging and kriging variance of invented gauges, RIGHT (the variance is low at each gauge and high
 # in the gaps); density_and_contours.png, a kernel density as raster and contours, RIGHT;
 # ascii_grid_terrain.png, an ASCII grid read three ways, WRONG in one detail (a scatter of white
-# pixels in the lowest class, see FINDINGS_geo.md). Index: doc/gallery/INDEX_geo.md.
+# pixels in the lowest class, see FINDINGS_geo.md; the library no longer draws it, counted by pixels
+# on 2026-10-18, but this picture predates that and is to be redrawn and looked at again). Index:
+# doc/gallery/INDEX_geo.md.
 #
 #   receiver   o1 = new stzGeoField([ 0, 10, 1, 1, 4, 3 ], [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
 #              ])
@@ -256,19 +337,27 @@ class stzGeoField from stzObject
 	def Max()
 		return This.Stats()[:max]
 
-	# Returns the field's value at a place: bilinear between four known nodes, the nearest node where some are unknown.
+	# Returns the field's value at a place: bilinear over the known nodes round it, and never outside their range.
 	#
 	#   pnLon      longitude in degrees east
 	#   pnLat      latitude in degrees north
 	#   returns    a number, or "" off the grid or where nothing can be read
-	#   note       LONGITUDE FIRST. On 1..12 over a 4 x 3 grid, (1.5, 10.5) reads 4.5
-	#   warning    Defect: a bilinear read of a constant field comes back one rounding step under
-	#              the node value about 6 per cent of the time, so with SetClassesEvery a pixel at
-	#              the first class edge draws as no data (white specks).
+	#   note       LONGITUDE FIRST. On 1..12 over a 4 x 3 grid, (1.5, 10.5) reads 4.5. Where some of
+	#              the four nodes round the place are unknown the weights are renormalised to the
+	#              known ones, and where none is known the 4 x 4 block around them is averaged by
+	#              distance. The answer is clamped to the lowest and highest node it was made of, so
+	#              a field that is one number at every node reads as exactly that number
 	#   see        Values, Stats
-	#@ aka  the value at a place: bilinear where its four neighbours are known, nearest where they are not, "" off the grid or with nothing to read
+	#@ aka  the value at a place: bilinear over the known nodes of its cell, never outside their range, "" off the grid or with nothing to read
 	def ValueAt(pnLon, pnLat)
-		return StzEngineGeoFieldAt(@aVals, @aGrid, pnLon, pnLat)
+		_v_ = StzEngineGeoFieldAt(@aVals, @aGrid, pnLon, pnLat)
+		if NOT isNumber(_v_)  return _v_  ok
+		_r_ = _GeoFieldNodeRange(@aVals, @aGrid, pnLon, pnLat)
+		if len(_r_) = 2
+			if _v_ < _r_[1]  return _r_[1]  ok
+			if _v_ > _r_[2]  return _r_[2]  ok
+		ok
+		return _v_
 
 	# Returns pnHowMany levels spread evenly between the field's lowest and highest value, the two ends left out.
 	#
@@ -329,10 +418,9 @@ class stzGeoField from stzObject
 	#
 	#   pnHowMany   the number of classes
 	#   returns     nothing; the edges are stored
-	#   note        Raises an error when nothing is known
-	#   warning     Defect: a bilinear read of a constant field comes back one rounding step under
-	#               the node value about 6 per cent of the time, so with SetClassesEvery a pixel at
-	#               the first class edge draws as no data (white specks).
+	#   note        Raises an error when nothing is known or when every known value is the same
+	#               (the edges could not rise; use SetClasses). The first edge is the lowest value
+	#               and the last is the highest value exactly, not a computed neighbour of them
 	#   see         SetClasses, LevelsEvery
 	#@ aka  CLASS EDGES FROM THE FIELD ITSELF, evenly between its ends. Equal steps and not quantiles, because a density's story is usually its peak and a quantile scale flattens exactly that.
 	def SetClassesEvery(pnHowMany)
@@ -341,9 +429,23 @@ class stzGeoField from stzObject
 			stzraise("stzGeoField.SetClassesEvery: this field has no known value " +
 				"at all -- there is nothing to divide.")
 		ok
+		if _s_[:max] <= _s_[:min]
+			stzraise("stzGeoField.SetClassesEvery: every known value of this field is " +
+				_s_[:min] + " -- there is no range to divide into classes. Give " +
+				"SetClasses edges that enclose the value.")
+		ok
 		_a_ = []
 		for _i_ = 0 to pnHowMany
-			_a_ + (_s_[:min] + (_s_[:max] - _s_[:min]) * _i_ / pnHowMany)
+			# the ends ARE the lowest and highest value: min + (max - min) * n / n
+			# is not always max to the last bit, and an edge one step under the
+			# peak makes the peak draw as no data
+			if _i_ = 0
+				_a_ + _s_[:min]
+			but _i_ = pnHowMany
+				_a_ + _s_[:max]
+			else
+				_a_ + (_s_[:min] + (_s_[:max] - _s_[:min]) * _i_ / pnHowMany)
+			ok
 		next
 		This.SetClasses(_a_)
 
@@ -451,10 +553,8 @@ class stzGeoField from stzObject
 	#   pnY1           bottom edge of the box
 	#   returns        nothing; the image is added to the canvas
 	#   note           Raises an error until classes are set. A value outside the classes, an
-	#                  unknown node and the ground outside the clip are left unpainted
-	#   warning        Defect: a bilinear read of a constant field comes back one rounding step
-	#                  under the node value about 6 per cent of the time, so with SetClassesEvery a
-	#                  pixel at the first class edge draws as no data (white specks).
+	#                  unknown node and the ground outside the clip are left unpainted. A value within
+	#                  a millionth of a millionth of an edge is classed as the edge itself is
 	#   see            DrawXT, DrawLegendOn, DrawContoursOn
 	#@ aka  -- drawing it ---------------------------------------------------------
 	def DrawOn(poCanvas, poProjection, pnX0, pnY0, pnX1, pnY1)
@@ -470,10 +570,9 @@ class stzGeoField from stzObject
 	#   pnY1           bottom edge of the box
 	#   pnAlpha        opacity from 0 to 255, 255 being opaque
 	#   returns        nothing; the image is added to the canvas
-	#   note           Raises an error until classes are set
-	#   warning        Defect: a bilinear read of a constant field comes back one rounding step
-	#                  under the node value about 6 per cent of the time, so with SetClassesEvery a
-	#                  pixel at the first class edge draws as no data (white specks).
+	#   note           Raises an error until classes are set. A value within a millionth of a
+	#                  millionth of an edge is classed as the edge itself is, so a plateau at the
+	#                  lowest or the highest value is painted and not left as no data
 	#   see            DrawOn
 	def DrawXT(poCanvas, poProjection, pnX0, pnY0, pnX1, pnY1, pnAlpha)
 		if len(@aEdges) < 2
@@ -504,7 +603,7 @@ class stzGeoField from stzObject
 			_rgb_ + _GeoHexByte(_c_, 5)
 		next
 		_img_ = StzEngineGeoFieldImage(poProjection.Params(), @aVals, @aGrid,
-			pnX0, pnY0, _w_, _h_, @aEdges, _rgb_, pnAlpha, @aClip)
+			pnX0, pnY0, _w_, _h_, _GeoFieldTolerantEdges(@aEdges), _rgb_, pnAlpha, @aClip)
 		if len(_img_) < _w_ * _h_ * 4  return  ok
 		poCanvas.AddImage(pnX0, pnY0, _w_, _h_, _w_, _h_, _img_)
 
