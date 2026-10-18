@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 151 methods in 71 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 146 methods in 70 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| geo/stzGeoSamples.ring | stzGeoSamples | 5 |
 | graph/stzDiagram.ring | stzDiagram | 5 |
 | graph/stzGridNav.ring | stzGridNav | 5 |
 | common/stzConstraint.ring | stzConstraint | 4 |
@@ -126,14 +125,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzGeoProjection -- geo/stzGeoProjection.ring (1)
 
 - `Caption` (line 1082): Returns the projection written for a picture: its name, the parallels of a conic and the rotation if any. -- Defect: the parallels of a conic always carry an N, so 22.78 degrees south prints as -22.78N.
-
-## stzGeoSamples -- geo/stzGeoSamples.ring (5)
-
-- `ValueOf` (line 182): Returns the value of measurement pnI. -- Defect: no range check, so a position of 0 or past the last raises error R2.
-- `PlaceOf` (line 191): Returns where measurement pnI was made. -- Defect: no range check, so a position of 0 or past the last raises error R2.
-- `FitAndUse` (line 315): Fits a variogram model and adopts it in one move. -- Defect: on gauges with a trend the Gaussian fit reaches a range longer than the window and the estimate leaves the measured range by tens of thousands (-30825 to 29761 for gauges of 180 to 799) while Findings only warns.
-- `KrigeFields` (line 351): Returns the ordinary-kriging estimate and its variance as two fields, from one factorisation. -- Defect: on gauges with a trend the Gaussian fit reaches a range longer than the window and the estimate leaves the measured range by tens of thousands (-30825 to 29761 for gauges of 180 to 799) while Findings only warns.
-- `Findings` (line 402): Returns what is wrong with the set: gauges outside the window, too few gauges, a range beyond the data, a nugget that is most of the sill. -- Defect: a kriging that leaves the measured range by tens of thousands is only a warning (range over half the diagonal), so IsSound stays TRUE.
 
 ## stzDiagram -- graph/stzDiagram.ring (5)
 
