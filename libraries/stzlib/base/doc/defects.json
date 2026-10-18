@@ -1,5 +1,5 @@
 {
- "count": 162,
+ "count": 156,
  "defects": [
   {
    "class": "stzAppServer",
@@ -1240,54 +1240,6 @@
    "line": 416,
    "symptom": "Raises error R14 today instead of returning the Latin-script part of the text.",
    "cause": "raises Calling Method without definition: concatenateq on a Latin text and on a mixed text alike"
-  },
-  {
-   "class": "stzTextStream",
-   "file": "string/stzTextStream.ring",
-   "method": "SetFromFile",
-   "line": 64,
-   "symptom": "Raises error R20 today instead of attaching a file as the source of the stream.",
-   "cause": "raises Calling function with extra number of parameters (R20): it builds new stzFile(pcFile, :WriteToEnd) and stzFile takes one parameter; nothing is attached and SourceOfStream stays NULL (checked on a scratch file, twice)"
-  },
-  {
-   "class": "stzTextStream",
-   "file": "string/stzTextStream.ring",
-   "method": "SetEncoding",
-   "line": 133,
-   "symptom": "Raises error Bad parameter type! today instead of selecting the stream's text encoding by name.",
-   "cause": "raises for UTF-8, utf8 and ISO-8859-1; only an empty text passes, and it selects nothing; the underlying call wants a QTextCodec object, which this class cannot build"
-  },
-  {
-   "class": "stzTextStream",
-   "file": "string/stzTextStream.ring",
-   "method": "IsSetFromFile",
-   "line": 194,
-   "symptom": "Returns a flag meant to tell that the stream reads a file, which stays NULL or 0 whatever is attached today.",
-   "cause": "never TRUE: the setter writes _bSetFromFile_ while the getter reads _bIsSetFromFile_, two different attributes"
-  },
-  {
-   "class": "stzTextStream",
-   "file": "string/stzTextStream.ring",
-   "method": "IsSetFromSocket",
-   "line": 205,
-   "symptom": "Returns a flag meant to tell that the stream reads a socket, which stays NULL or 0 whatever is attached today.",
-   "cause": "never TRUE: after SetFromScocket it answers 0 while SourceOfStream answers socket; the setter writes _bSetFromSocket_ and the getter reads _bIsSetFromSocket_"
-  },
-  {
-   "class": "stzTextStream",
-   "file": "string/stzTextStream.ring",
-   "method": "IsSetFromProcess",
-   "line": 215,
-   "symptom": "Raises error R24 today instead of telling that the stream reads a process.",
-   "cause": "raises Using uninitialized variable: reurn, a misspelled return, before and after SetFromProcess"
-  },
-  {
-   "class": "stzTextStream",
-   "file": "string/stzTextStream.ring",
-   "method": "Flush",
-   "line": 342,
-   "symptom": "Raises error R14 today instead of flushing the stream.",
-   "cause": "raises Calling Method without definition: flash, a misspelled call to flush on the QTextStream"
   },
   {
    "class": "TableDisplayConfig",

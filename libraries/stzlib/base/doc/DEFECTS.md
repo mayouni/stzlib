@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 162 methods in 73 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 156 methods in 72 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| string/stzTextStream.ring | stzTextStream | 6 |
 | geo/stzGeoField.ring | stzGeoField | 5 |
 | geo/stzGeoSamples.ring | stzGeoSamples | 5 |
 | graph/stzDiagram.ring | stzDiagram | 5 |
@@ -450,15 +449,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `OnlyScript` (line 386): Raises error R24 today instead of returning the part of the text written in a given script. -- raises Using uninitialized variable pcscript for :Latin, :Hebrew and :Arabic alike: the anonymous function it builds does not see its own parameter
 - `OnlyArabic` (line 402): Raises error R14 today instead of returning the Arabic-script part of the text. -- raises Calling Method without definition: concatenateq on a Latin text and on an Arabic text alike
 - `OnlyLatin` (line 416): Raises error R14 today instead of returning the Latin-script part of the text. -- raises Calling Method without definition: concatenateq on a Latin text and on a mixed text alike
-
-## stzTextStream -- string/stzTextStream.ring (6)
-
-- `SetFromFile` (line 64): Raises error R20 today instead of attaching a file as the source of the stream. -- raises Calling function with extra number of parameters (R20): it builds new stzFile(pcFile, :WriteToEnd) and stzFile takes one parameter; nothing is attached and SourceOfStream stays NULL (checked on a scratch file, twice)
-- `SetEncoding` (line 133): Raises error Bad parameter type! today instead of selecting the stream's text encoding by name. -- raises for UTF-8, utf8 and ISO-8859-1; only an empty text passes, and it selects nothing; the underlying call wants a QTextCodec object, which this class cannot build
-- `IsSetFromFile` (line 194): Returns a flag meant to tell that the stream reads a file, which stays NULL or 0 whatever is attached today. -- never TRUE: the setter writes _bSetFromFile_ while the getter reads _bIsSetFromFile_, two different attributes
-- `IsSetFromSocket` (line 205): Returns a flag meant to tell that the stream reads a socket, which stays NULL or 0 whatever is attached today. -- never TRUE: after SetFromScocket it answers 0 while SourceOfStream answers socket; the setter writes _bSetFromSocket_ and the getter reads _bIsSetFromSocket_
-- `IsSetFromProcess` (line 215): Raises error R24 today instead of telling that the stream reads a process. -- raises Using uninitialized variable: reurn, a misspelled return, before and after SetFromProcess
-- `Flush` (line 342): Raises error R14 today instead of flushing the stream. -- raises Calling Method without definition: flash, a misspelled call to flush on the QTextStream
 
 ## TableDisplayConfig -- table/stzPivotTableShow.ring (1)
 
