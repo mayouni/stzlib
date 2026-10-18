@@ -396,3 +396,9 @@ RESUME = merge fix/gs (git merge --no-edit fix/gs in _wtd), run the reflect guar
 ValueOf/PlaceOf answer empty outside the set; Findings flags an estimate that leaves the data spread as an ERROR (IsSound FALSE); the fit is NOT bounded and nothing is clamped (author may overrule: a bound needs an engine guard). Limit: above 200 gauges nothing is probed. Guard 76 assertions; control byte-identical. The earlier SAVED STATE section is superseded: no batch is in flight.
 Next by size: stzDiagram, stzGridNav (5 each), then five at 4.
 
+## 2026-10-19: the stzDiagram fix batch is COMMITTED on docs/reform (d17012c6c) but NOT PUSHED: the network is down
+
+github.com and codeberg.org were unreachable on port 443 (21 s timeouts). PUSH WHEN THE NETWORK RETURNS: `git -C /d/GitHub/_wtd push origin docs/reform:main`, then `git push codeberg docs/reform:refs/heads/main` (cmdkey cure on an auth failure), then verify `git ls-remote` equals `git rev-parse docs/reform` on both.
+Register 146 -> 141 in 69 classes; 5 rows fixed (PenWidth, NodesWith, propertiesLegend, SaveToStzDiagInFolder, Explain). Guard 72 assertions. Unfixed siblings: the other SaveXxxInFolder aliases call methods that do not exist; stzGraphQuery refuses a stzDiagram (IsStzGraph tests classname).
+Next by size: stzGridNav (5), then five at 4.
+
