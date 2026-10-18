@@ -457,8 +457,8 @@ class stzGeoField from stzObject
 	#
 	#   pName      the name of a ramp, such as :Blues, :YlOrRd, :Viridis or :Earth
 	#   returns    nothing; the palette is stored
-	#   note       Raises an error before the classes are set
-	#   warning    Defect: the error for an unknown name lists nine ramps although thirteen exist.
+	#   note       Raises an error before the classes are set, and for a name that is not a ramp; that
+	#              error lists every ramp the table holds
 	#   see        SetPalette, SetClasses
 	def SetRamp(pName)
 		if len(@aEdges) < 2
