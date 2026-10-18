@@ -448,14 +448,18 @@ class stzListOfBytes from stzList
 
 		return _aResult_
 
-		# Does nothing today and answers an empty text instead of the bytes of a character.
+		# Returns the bytes of a given character, as one-byte texts, when the list holds that character.
 		#
-		#   pcChar     the character it was meant to look for
-		#   returns    an empty text
-		#   warning    the definition has no body, so the argument is never read; BytesOfChar
-		#              answers the bytes (tried on abc with b, and on héllo with é)
-		#   see        BytesOfChar
+		#   pcChar     the character to look for, as text
+		#   returns    a list of one-byte texts, 1 to 4 of them for one character; an empty list when
+		#              the character is not in the content
+		#   note       the same answer as BytesOfChar, under the longer spelling
+		#   warning    anything but a text of exactly one character raises the error Incorrect param
+		#              type! pcChar must be a char.
+		#   see        BytesOfChar, BytecodesPerChar
 		def BytesOfThisChar(pcChar)
+			_aResult_ = This.BytesOfChar(pcChar)
+			return _aResult_
 
 	# Returns how many bytes the character at a position takes.
 	#
@@ -561,7 +565,7 @@ class stzListOfBytes from stzList
 			@cData = @copy(_cChar_, This.NumberOfBytes())
 			return @cData
 		else
-			return StzRaise(stzListOfBytesError(:CanNotFillBytesWithNonAsciiChar))
+			return StzRaise("Can't fill the bytes with a character that is not ASCII!")
 		ok
 
 	# Replaces the content by one ASCII character repeated for a number of bytes.
@@ -573,18 +577,29 @@ class stzListOfBytes from stzList
 	def FillWithAsciiCharUpToNBytes(pcChar, _nBytes_)
 		@cData = @copy(StzChar(ascii(pcChar)), _nBytes_)
 
-	# Raises error R21 today instead of filling the content with one ASCII character repeated for a number of characters.
+	# Replaces the content by one ASCII character repeated for a number of characters.
 	#
 	#   pcChar     the ASCII character to repeat
-	#   nChars     the number of characters wanted
-	#   returns    nothing; it raises an error
-	#   warning    raises the error R21 Using operator with values of incorrect type, because nChars
-	#              is multiplied by NumberOfBytesPerChar, which answers a list of pairs and not a
-	#              number (tried on abc with 2, and on abcd with 3)
-	#   see        FillWithAsciiCharUpToNBytes
+	#   nChars     how many characters the new content has; an ASCII character is one byte, so this
+	#              is also its size in bytes
+	#   returns    nothing; read ToString for the result
+	#   note       zero or a negative number empties the content
+	#   warning    a character that is not ASCII, a text of several characters and an empty text
+	#              raise an error, and so does a nChars that is not a number
+	#   see        FillWithAsciiCharUpToNBytes, FillWithAsciiChar
 	def FillWithAsciiCharUpToNChars(pcChar, nChars)
-		_nBytes_ = nChars * This.NumberOfBytesPerChar()
-		@cData = @copy(StzChar(ascii(pcChar)), _nBytes_)
+		if CheckingParams()
+			if NOT isNumber(nChars)
+				StzRaise("Incorrect param type! nChars must be a number.")
+			ok
+		ok
+
+		_oCaract_ = new stzChar(pcChar)
+		if _oCaract_.IsAscii()
+			@cData = @copy(StzChar(_oCaract_.AsciiCode()), nChars)
+		else
+			StzRaise("Can't fill the bytes with a character that is not ASCII!")
+		ok
 
 	# Cuts the content to n bytes, or pads it with zero bytes up to n, changing the object.
 	#
@@ -779,14 +794,14 @@ class stzListOfBytes from stzList
 		ok
 		StzEngineBytesFree(pHandle)
 
-	# Raises error R14 today instead of answering the bytes as UTF-8.
+	# Returns the bytes as the UTF-8 text they spell, which is the content itself.
 	#
-	#   returns    nothing; it raises an error
-	#   warning    raises the error R14 Calling Method without definition: toutf8, because it
-	#              forwards to a stzString method that does not exist (tried on abc and on aé€)
+	#   returns    a text, the same bytes as ToString; a character of several bytes comes back whole
+	#   note       the content is the raw bytes of a Ring text, which Softanza reads as UTF-8, so no
+	#              conversion happens and the bytes are not checked for being well formed UTF-8
 	#   see        ToString, ToHexUTF8
 	def ToUTF8()
-		_cResult_ = This.ToStzString().ToUTF8()
+		_cResult_ = This.ToString()
 		return _cResult_
 
 	# Returns every byte as a hexadecimal text with the prefix 0x.
@@ -1138,23 +1153,22 @@ class stzListOfBytes from stzList
 		def UpdatedUsing(pcStr)
 			return This.Updated(pcStr)
 
-	# Does nothing today and answers an empty text: its body is a TODO that waits for a list of bits class.
-	#
-	#   returns    an empty text
-	#   note       tried on abc and on x
-	#   see        ToStzListOfBits, Bytecodes
 		#>
 	#---
-	def Bits()
-		// TODO: after making stzListOfBits
-
-	# Does nothing today and answers an empty text: its body is a TODO that waits for a list of bits class.
+	# Does nothing yet: the bits of the content wait for a list of bits class, which does not exist.
 	#
-	#   returns    an empty text
-	#   note       tried on abc and on x
+	#   returns    an empty text, because the body is empty
+	#   warning    a placeholder: no list of bits class exists in the library, so no shape for the
+	#              bits is fixed yet; Bytecodes answers the byte values meanwhile
+	#   see        ToStzListOfBits, Bytecodes
+	def Bits()
+
+	# Does nothing yet: the content as a list of bits waits for a list of bits class, which does not exist.
+	#
+	#   returns    an empty text, because the body is empty
+	#   warning    a placeholder: no list of bits class exists in the library to build and return
 	#   see        Bits, Bytecodes
 	def ToStzListOfBits()
-		// TODO
 
 	# Returns the bytes with the ASCII capital letters changed to small ones, leaving the object as it is.
 	#
@@ -1228,13 +1242,19 @@ class stzListOfBytes from stzList
 	def Trimmed()
 		return @trim(@cData)
 
-		# Does nothing today and answers an empty text instead of the bytes without the spaces at both ends.
+		# Returns a copy of the content without the white space at both ends; the object keeps its bytes.
 		#
-		#   returns    an empty text
-		#   warning    the definition has no body; Trimmed answers the trimmed bytes (tried on '  ab
-		#              c  ' and on 'x ')
+		#   returns    a text; empty when the content is empty or only white space
+		#   note       the same answer as Trimmed under another spelling; white space is the space, the
+		#              tab, the line feed, the vertical tab, the form feed, the carriage return and the
+		#              Unicode spaces such as the no-break space
+		#   warning    a content that is not well formed UTF-8, such as one holding the lone byte 255
+		#              or 160, trims to an empty text whatever else it holds, because the trimming is
+		#              the string engine's
 		#   see        Trimmed, Strip
 		def Stripped()
+			_cResult_ = This.Trimmed()
+			return _cResult_
 
 	# Removes the spaces at both ends of the content.
 	#
