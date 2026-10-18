@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 146 methods in 70 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 141 methods in 69 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| graph/stzDiagram.ring | stzDiagram | 5 |
 | graph/stzGridNav.ring | stzGridNav | 5 |
 | common/stzConstraint.ring | stzConstraint | 4 |
 | list/stzListChecker.ring | stzListChecker | 4 |
@@ -125,14 +124,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzGeoProjection -- geo/stzGeoProjection.ring (1)
 
 - `Caption` (line 1082): Returns the projection written for a picture: its name, the parallels of a conic and the rotation if any. -- Defect: the parallels of a conic always carry an N, so 22.78 degrees south prints as -22.78N.
-
-## stzDiagram -- graph/stzDiagram.ring (5)
-
-- `PenWidth` (line 2004): Raises error R24 today instead of returning the pen width. -- it reads the attribute @nPenWidth, which nothing declares or sets, so every call raises R24 (uninitialized variable)
-- `NodesWith` (line 2939): Raises error R20 today instead of returning the nodes whose property satisfies a comparison. -- it builds a stzGraphQuery with two arguments where its constructor takes a different number, so every call raises R20
-- `propertiesLegend` (line 3020): Raises error R13 today when a visual rule is registered, instead of returning a text legend of the rules. -- it reads fields of the rules as if they were objects (.@cConditionType) while RegisterVisualRule stores hash lists, so any rule raises R13 (object is required)
-- `SaveToStzDiagInFolder` (line 18160): Raises error R14 today instead of writing the .stzdiag file in a folder. -- it takes no folder argument and calls WriteToDiagFileXT with a global that is never set, and that method exists nowhere, so every call raises R14
-- `Explain` (line 18425): Returns a short account of the diagram: its size, its visual rules and what they affected; raises error R13 as soon as a rule is registered. -- with a registered rule it reads the rule's id as a field of an object (.@cRuleId) while rules are stored as hash lists, so it raises R13; without rules it answers "No visual rules defined."
 
 ## stzGraphComparison -- graph/stzGraph.ring (3)
 

@@ -25,7 +25,6 @@ stzdiagram.savetostzdiag
 stzdiagram.savetostzdiagfile
 stzdiagram.savetostzdiagfileinfolder
 stzdiagram.savetostzdiagfilext
-stzdiagram.savetostzdiaginfolder
 stzdiagram.savetostzdiagxt
 stzdiagram.writestzdiag
 stzdiagram.writestzdiaginfolder
