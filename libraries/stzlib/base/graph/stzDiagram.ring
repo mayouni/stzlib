@@ -405,8 +405,7 @@ func StzFactUnitText(pcUnit)
 # everything was drawn and PickAt answers what lies under a pixel. On top of that picture sits a
 # headless editor: OnPress, OnMove, OnRelease and OnCancel feed a pointer into a state machine, Edit
 # runs commands that Undo and Redo take back, and Pin fixes a node in the layout. Ids are folded to
-# lowercase. Known defects, each carried as a warning: PenWidth, NodesWith, propertiesLegend and
-# SaveToStzDiagInFolder raise; Explain raises once a visual rule is registered; ComputeMetrics
+# lowercase. Known defects, each carried as a warning: ComputeMetrics
 # divides by zero for a diagram with no path of two nodes; ToSVG and ToPNG leave the last picture
 # freed, so picking fails after them; ImportDiag into a diagram that holds the first node adds
 # duplicates; the pen-width setters are named the wrong way round. Display and View need graphviz
@@ -1994,15 +1993,16 @@ class stzDiagram from stzGraph
 	def FontSize()
 		return @nFontSize
 	
-	# Raises error R24 today instead of returning the pen width.
+	# Returns the general pen width of the diagram, the number the pen-width setter writes.
 	#
-	#   returns    nothing today
-	#   note       NodePenWidth and EdgePenWidth are the working getters
-	#   warning    known defect: it reads the attribute @nPenWidth, which nothing declares or sets,
-	#              so every call raises R24 (uninitialized variable)
-	#   see        NodePenWidth, EdgePenWidth
+	#   returns    a number, in pixels; 1 until set
+	#   note       it is the node outline width: SetPenWidth writes that width, and the edge width
+	#              is read by EdgePenWidth
+	#   warning    NodePenWidth answers a pair when the node and edge widths differ; this one always
+	#              answers a single number
+	#   see        SetPenWidth, NodePenWidth, EdgePenWidth
 	def PenWidth()
-		return @nPenWidth
+		return @nNodePenWidth
 
 	# Returns the edge routing; another spelling of the routing getter.
 	#
@@ -2926,21 +2926,108 @@ class stzDiagram from stzGraph
 		
 		return _acResult_
 	
-	# Raises error R20 today instead of returning the nodes whose property satisfies a comparison.
+	# Returns the ids of the nodes whose property satisfies a comparison with a value; a node without the property never matches.
 	#
 	#   pcProp     A property name, as text.
-	#   pcOp       The comparison, as text, such as =, > or <
-	#   pValue     The value to compare with
-	#   returns    nothing today
-	#   note       NodesWithProperty and NodesWithTag work
-	#   warning    known defect: it builds a stzGraphQuery with two arguments where its constructor
-	#              takes a different number, so every call raises R20
-	#   see        NodesWithProperty
+	#   pcOp       The comparison, as text: =, !=, <, >, <=, >=, contains, startswith, endswith, in
+	#              or not_in
+	#   pValue     The value to compare with; a list for in and not_in
+	#   returns    a list of text, in node order; [ ] when nothing matches
+	#   note       = and != compare numbers as numbers and texts exactly, case included; an order
+	#              comparison holds only between numbers; contains, startswith and endswith ignore
+	#              case and need texts
+	#   warning    any other comparison raises an error
+	#   see        NodesWithProperty, NodesWithTag
 	def NodesWith(pcProp, pcOp, pValue)
-		# Reuse graph query system
-		_oQuery_ = new stzGraphQuery(This, "nodes")
-		_oQuery_.Where(pcProp, pcOp, pValue)
-		return _oQuery_.Run()
+		_cOp_ = StzLower(pcOp)
+		if NOT (_cOp_ = "=" or _cOp_ = "!=" or _cOp_ = "<" or _cOp_ = ">" or
+		        _cOp_ = "<=" or _cOp_ = ">=" or _cOp_ = "contains" or
+		        _cOp_ = "startswith" or _cOp_ = "endswith" or _cOp_ = "in" or
+		        _cOp_ = "not_in")
+			StzRaise("Unknown comparison '" + pcOp + "' in NodesWith!")
+		ok
+		
+		_acResult_ = []
+		_aNodes_ = This.Nodes()
+		_nNodesLen_ = len(_aNodes_)
+		for _iLoopNodes_ = 1 to _nNodesLen_
+			_aNode_ = _aNodes_[_iLoopNodes_]
+			if HasKey(_aNode_, :properties) and isList(_aNode_[:properties]) and
+			   HasKey(_aNode_[:properties], pcProp)
+				if This._NodeValueSatisfies(_aNode_[:properties][pcProp], _cOp_, pValue)
+					_acResult_ + _aNode_[:id]
+				ok
+			ok
+		end
+		
+		return _acResult_
+
+	def _NodeValueSatisfies(pLeft, _cOp_, pRight)
+		_bSameKind_ = (isNumber(pLeft) and isNumber(pRight)) or
+		              (isString(pLeft) and isString(pRight))
+		
+		if _cOp_ = "="
+			if NOT _bSameKind_
+				return 0
+			ok
+			if isNumber(pLeft)
+				return pLeft = pRight
+			ok
+			return strcmp(pLeft, pRight) = 0
+		ok
+		
+		if _cOp_ = "!="
+			return NOT This._NodeValueSatisfies(pLeft, "=", pRight)
+		ok
+		
+		if _cOp_ = "<" or _cOp_ = ">" or _cOp_ = "<=" or _cOp_ = ">="
+			if NOT (isNumber(pLeft) and isNumber(pRight))
+				return 0
+			ok
+			switch _cOp_
+			on "<"
+				return pLeft < pRight
+			on ">"
+				return pLeft > pRight
+			on "<="
+				return pLeft <= pRight
+			on ">="
+				return pLeft >= pRight
+			off
+		ok
+		
+		if _cOp_ = "in" or _cOp_ = "not_in"
+			if NOT isList(pRight)
+				return 0
+			ok
+			_bFound_ = 0
+			_nRightLen_ = len(pRight)
+			for _iLoopRight_ = 1 to _nRightLen_
+				if This._NodeValueSatisfies(pLeft, "=", pRight[_iLoopRight_])
+					_bFound_ = 1
+					exit
+				ok
+			end
+			if _cOp_ = "in"
+				return _bFound_
+			ok
+			return NOT _bFound_
+		ok
+		
+		# contains, startswith, endswith: texts, case ignored
+		if NOT (isString(pLeft) and isString(pRight))
+			return 0
+		ok
+		_cLeft_ = StzLower(pLeft)
+		_cRight_ = StzLower(pRight)
+		if _cOp_ = "contains"
+			return StzFindFirst(_cRight_, _cLeft_) > 0
+		ok
+		if _cOp_ = "startswith"
+			return StzFindFirst(_cRight_, _cLeft_) = 1
+		ok
+		return StzFindFirst(_cRight_, _cLeft_) > 0 and
+		       StzRight(_cLeft_, StzLen(_cRight_)) = _cRight_
 	
 	# Returns the ids of the nodes whose :tags property lists a tag, matched exactly.
 	#
@@ -3009,27 +3096,32 @@ class stzDiagram from stzGraph
 	#  properties LEGEND  # #TODO Should be abstarcted in stzGraph!!
 	#---------------------#
 	
-	# Raises error R13 today when a visual rule is registered, instead of returning a text legend of the rules.
+	# Returns the registered visual rules as text lines: a heading, then for each rule its condition, its parameters and its effects.
 	#
-	#   returns    a list of text lines; with no rule only the heading and a blank line
-	#   note       with no rule it answers [ "=== properties LEGEND ===", "" ]
-	#   warning    known defect: it reads fields of the rules as if they were objects
-	#              (.@cConditionType) while RegisterVisualRule stores hash lists, so any rule raises
-	#              R13 (object is required)
+	#   returns    a list of text; with no rule only the heading and a blank line
+	#   note       with no rule it answers [ "=== properties LEGEND ===", "" ]; a rule adds a line
+	#              "When: <condition type>", a line "  Params: <list>" when it has parameters, one
+	#              line "  -> <effect>: <value>" per effect, and a blank line
+	#   warning    the lines name the condition, not the rule; the rule's own name is not listed
 	#   see        RegisterVisualRule, VisualRulesApplied
 	def propertiesLegend()
 		_acLegend_ = ["=== properties LEGEND ===", ""]
 		
 		_nAoVisualRules1Len_ = len(@aoVisualRules)
 		for _iLoopAoVisualRules1_ = 1 to _nAoVisualRules1Len_
-			_oRule_ = @aoVisualRules[_iLoopAoVisualRules1_]
-			_cCondition_ = _oRule_.@cConditionType
-			_aParams_ = _oRule_.@aConditionParams
-			_aEffects_ = _oRule_.Effects()
+			_cCondition_ = @aoVisualRules[_iLoopAoVisualRules1_][:conditionType]
+			_aParams_ = @aoVisualRules[_iLoopAoVisualRules1_][:conditionParams]
+			_aEffects_ = @aoVisualRules[_iLoopAoVisualRules1_][:effects]
+			if NOT isList(_aParams_)
+				_aParams_ = []
+			ok
+			if NOT isList(_aEffects_)
+				_aEffects_ = []
+			ok
 			
-			_acLegend_ + "When: " + _cCondition_
+			_acLegend_ + ("When: " + _cCondition_)
 			if len(_aParams_) > 0
-				_acLegend_ + "  Params: " + @@(_aParams_)
+				_acLegend_ + ("  Params: " + @@(_aParams_))
 			ok
 			
 			_nEffects1Len_ = len(_aEffects_)
@@ -3040,13 +3132,22 @@ class stzDiagram from stzGraph
 				# be derived (no candidate reproduces the run under any number of
 				# corruption passes, and it predates the variable's current name).
 				# ASCII "->" matches its sibling lines ("When: ", "  Params: ").
-				_acLegend_ + "  -> " + _aEffect_[1] + ": " + _aEffect_[2]
+				_acLegend_ + ("  -> " + _aEffect_[1] + ": " + This._LegendText(_aEffect_[2]))
 			next
 			
 			_acLegend_ + ""
 		end
 		
 		return _acLegend_
+
+	def _LegendText(pValue)
+		if isString(pValue)
+			return pValue
+		ok
+		if isNumber(pValue)
+			return "" + pValue
+		ok
+		return @@(pValue)
 
 	#-----------#
 	#  METRICS  # #TODO Should be abstracted in stzGraph!
@@ -18148,17 +18249,36 @@ class stzDiagram from stzGraph
 		def SaveToStzDiagFileInFolder(pcFolder)
 			return This.WriteToDiagFile(pcFolder)
 
-		# Raises error R14 today instead of writing the .stzdiag file in a folder.
+		# Writes the diagram in the .stzdiag format to a file named after it in a folder, creating the folder if it is missing.
 		#
-		#   returns    nothing today
-		#   note       WriteToFile writes the file; SaveStzDiagInFolder with a folder calls the same
-		#              missing method
-		#   warning    known defect: it takes no folder argument and calls WriteToDiagFileXT with a
-		#              global that is never set, and that method exists nowhere, so every call
-		#              raises R14
-		#   see        WriteToFile
-		def SaveToStzDiagInFolder()
-			return This.WriteToDiagFileXT($pcFolder)
+		#   pcFolder   The folder to write in, as text; a missing folder is created with its
+		#              parents, an existing one is reused
+		#   returns    text, the path of the file written: the folder, a slash, the diagram name
+		#              and .stzdiag
+		#   note       ImportDiag of the file's text rebuilds the diagram; an existing file of the
+		#              same name is replaced
+		#   warning    raises an error for an empty folder name or when the folder cannot be created;
+		#              the other SaveXxxInFolder spellings listed beside it still call a method that
+		#              does not exist
+		#   see        WriteToFile, WriteToFileXT, ImportDiag
+		def SaveToStzDiagInFolder(pcFolder)
+			if NOT (isString(pcFolder) and trim(pcFolder) != "")
+				StzRaise("Incorrect param type! pcFolder must be a non-empty string.")
+			ok
+			_cFolder_ = StzReplace(pcFolder, "\", "/")
+			while ring_len(_cFolder_) > 1 and _cFolder_[ring_len(_cFolder_)] = "/"
+				_cFolder_ = StzLeft(_cFolder_, ring_len(_cFolder_) - 1)
+			end
+			if StzDirExists(_cFolder_) = 0
+				StzMakeDir(_cFolder_)
+			ok
+			if StzDirExists(_cFolder_) = 0
+				StzRaise("The folder '" + pcFolder + "' does not exist and could not be created!")
+			ok
+			_cPath_ = _cFolder_ + "/" + This.Name() + ".stzdiag"
+			_oConv_ = new stzDiagramToStzDiag(This)
+			_oConv_.WriteToFile(_cPath_)
+			return _cPath_
 
 		#--
 
@@ -18413,14 +18533,14 @@ class stzDiagram from stzGraph
 	# Get diagram overview with rules context #
 	#-----------------------------------------#
 
-	# Returns a short account of the diagram: its size, its visual rules and what they affected; raises error R13 as soon as a rule is registered.
+	# Returns a short account of the diagram: its size, the names of its visual rules and how many elements they affected.
 	#
-	#   returns    a hash list [ :diagram, :structure, :rules, :effects ]
-	#   note       stzGraph has its own Explain
-	#   warning    known defect: with a registered rule it reads the rule's id as a field of an
-	#              object (.@cRuleId) while rules are stored as hash lists, so it raises R13;
-	#              without rules it answers "No visual rules defined."
-	#   see        RegisterVisualRule, ComputeMetrics
+	#   returns    a hash list [ :diagram, :structure, :rules, :effects ]; :rules is "No visual rules
+	#              defined." with no rule, else "Applied n visual rule(s): " and the rule names
+	#   note       stzGraph has its own Explain; :effects counts the elements the last
+	#              ApplyVisualRules matched, and says "No rules matched any elements." when none
+	#   warning    it does not apply the rules itself: call ApplyVisualRules first for the effects
+	#   see        RegisterVisualRule, ApplyVisualRules
 	#@ aka  NOTE // There also is an Explain() at the parent stzGraph level
 	def Explain()
 		_aExplanation_ = [
@@ -18440,7 +18560,7 @@ class stzDiagram from stzGraph
 		else
 			_cRules_ = "Applied " + _nRules_ + " visual rule(s): "
 			for i = 1 to _nRules_
-				_cRules_ += @aoVisualRules[i].@cRuleId
+				_cRules_ += @aoVisualRules[i][:name]
 				if i < _nRules_
 					_cRules_ += ", "
 				ok
