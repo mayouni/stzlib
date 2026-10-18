@@ -380,3 +380,11 @@ Next by size: stzGeoField, stzGeoSamples, stzDiagram, stzGridNav (5 each), then 
 The speck defect is an ENGINE rounding bug (sampleAt weights, classOf exact edges), worse than the register said (about 20 percent, both directions). Fixed at the library boundary (clamp to the contributing nodes, 1e-12 edge tolerance); the engine fix is owed. Guard 51 assertions by pixel count; nobody looked at a picture; the gallery PNG is stale. gg_adversarial.ring dies at line 13663 in both trees (Plastic governance), before the geo section.
 Next by size: stzGeoSamples, stzDiagram, stzGridNav (5 each), then five at 4.
 
+## 2026-10-18: SAVED STATE (power low) -- the stzGeoSamples fix batch is IN FLIGHT, not merged
+
+main (both remotes) = docs/reform = a68310833 plus this state commit; register 151 defects in 71 classes; gate OK.
+In flight: agent on worktree D:\GitHub\_wtf_gs, branch fix/gs (from a68310833), task stzGeoSamples (5 rows: ValueOf/PlaceOf range check; FitAndUse/KrigeFields/Findings Gaussian-fit runaway on trend gauges, prefer a principled bound, else Findings ERROR so IsSound is FALSE, never clamp). Nothing of it is pushed.
+RESUME: (1) check `git -C /d/GitHub/_wtd log fix/gs --oneline -3` and D:\GitHub\_wtf_gs for the agent commit(s); if there are none, relaunch the batch from the task text above (worktree: `git worktree add -b fix/gs2 /d/GitHub/_wtf_gs2 <main>` then copy libraries/stzlib/engine/zig-out/bin/*.dll from _wtd). (2) merge fix/gs into docs/reform, run the reflect guards + test/geo/stzGeoSamples_defects_narrated, regenerate (export_reference.ring, mk_defects.py, gate.ring --update, gate must print OK or STOP), commit with explicit paths, rebase, push origin and codeberg (cmdkey cure on codeberg failure), verify both remotes equal, file CONCLUSIONS + state + memory, remove the worktree.
+Leftover: D:\GitHub\_wtf_ts is an empty folder held open by an unknown process (harmless; delete after a restart).
+Next after stzGeoSamples: stzDiagram, stzGridNav (5 each), then stzConstraint, stzListChecker, stzListOfPairs, stzTree, stzStringSplitter (4).
+
