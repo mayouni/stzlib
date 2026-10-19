@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 132 methods in 67 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 128 methods in 66 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| list/stzListChecker.ring | stzListChecker | 4 |
 | list/stzListOfPairs.ring | stzListOfPairs | 4 |
 | list/stzTree.ring | stzTree | 4 |
 | string/stzStringSplitter.ring | stzStringSplitter | 4 |
@@ -157,13 +156,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzListBounder -- list/stzListBounder.ring (1)
 
 - `AreBoundsOf` (line 312): Raises error R14 today instead of telling whether the list's two items are the bounds of a text. -- it raises error R14 Calling Method without definition: isboundedbyin, because the stzString method it calls does not exist; tried on a pair of bounds, on a list of pairs and with the case flag; a list that is neither a pair nor a list of pairs raises Can't check bounds! List must be a pair or a list of pairs instead
-
-## stzListChecker -- list/stzListChecker.ring (4)
-
-- `ContainsItem` (line 574): Returns 0 whatever the list holds today, because the item is handed to the engine in a form it does not match. -- defect: ContainsItem(2) on [1,2,3], ContainsItem("a") on ["a","b"] and ContainsItem([3]) on [[1,2],[3]] all answer 0, and so does ContainsItemCS with either case flag; the call StzEngineListContainsCS(list, item, cs) answers 0 on its own for present items; the engine function stz_list_contains_cs expects the needle as a value handle and the class passes the raw item
-- `ContainsAllOfThese` (line 595): Returns 1 only for an empty list of items today, because every ContainsItem answers 0. -- defect: ContainsAllOfThese([1,2]) on [1,2,3] answers 0 and ContainsAllOfThese([]) answers 1; the cause is ContainsItem, which never finds an item
-- `ContainsOneOfThese` (line 614): Returns 0 today, whatever the items are, because every ContainsItem answers 0. -- defect: ContainsOneOfThese([9,2]) on [1,2,3] and ContainsOneOfThese(["z","b"]) on ["a","b"] answer 0; the cause is ContainsItem, which never finds an item
-- `ContainsW` (line 703): Raises error R3 today instead of telling whether an item satisfies the condition. -- defect: the method calls StzCCodeToRingCode, which no file of the library defines, so every call raises Calling Function without definition: stzccodetoringcode
 
 ## stzListDuplicates -- list/stzListDuplicates.ring (1)
 

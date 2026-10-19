@@ -1,5 +1,5 @@
 {
- "count": 132,
+ "count": 128,
  "defects": [
   {
    "class": "stzAppServer",
@@ -240,38 +240,6 @@
    "line": 312,
    "symptom": "Raises error R14 today instead of telling whether the list's two items are the bounds of a text.",
    "cause": "it raises error R14 Calling Method without definition: isboundedbyin, because the stzString method it calls does not exist; tried on a pair of bounds, on a list of pairs and with the case flag; a list that is neither a pair nor a list of pairs raises Can't check bounds! List must be a pair or a list of pairs instead"
-  },
-  {
-   "class": "stzListChecker",
-   "file": "list/stzListChecker.ring",
-   "method": "ContainsItem",
-   "line": 574,
-   "symptom": "Returns 0 whatever the list holds today, because the item is handed to the engine in a form it does not match.",
-   "cause": "defect: ContainsItem(2) on [1,2,3], ContainsItem(\"a\") on [\"a\",\"b\"] and ContainsItem([3]) on [[1,2],[3]] all answer 0, and so does ContainsItemCS with either case flag; the call StzEngineListContainsCS(list, item, cs) answers 0 on its own for present items; the engine function stz_list_contains_cs expects the needle as a value handle and the class passes the raw item"
-  },
-  {
-   "class": "stzListChecker",
-   "file": "list/stzListChecker.ring",
-   "method": "ContainsAllOfThese",
-   "line": 595,
-   "symptom": "Returns 1 only for an empty list of items today, because every ContainsItem answers 0.",
-   "cause": "defect: ContainsAllOfThese([1,2]) on [1,2,3] answers 0 and ContainsAllOfThese([]) answers 1; the cause is ContainsItem, which never finds an item"
-  },
-  {
-   "class": "stzListChecker",
-   "file": "list/stzListChecker.ring",
-   "method": "ContainsOneOfThese",
-   "line": 614,
-   "symptom": "Returns 0 today, whatever the items are, because every ContainsItem answers 0.",
-   "cause": "defect: ContainsOneOfThese([9,2]) on [1,2,3] and ContainsOneOfThese([\"z\",\"b\"]) on [\"a\",\"b\"] answer 0; the cause is ContainsItem, which never finds an item"
-  },
-  {
-   "class": "stzListChecker",
-   "file": "list/stzListChecker.ring",
-   "method": "ContainsW",
-   "line": 703,
-   "symptom": "Raises error R3 today instead of telling whether an item satisfies the condition.",
-   "cause": "defect: the method calls StzCCodeToRingCode, which no file of the library defines, so every call raises Calling Function without definition: stzccodetoringcode"
   },
   {
    "class": "stzListDuplicates",
