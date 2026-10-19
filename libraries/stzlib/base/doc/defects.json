@@ -1,5 +1,5 @@
 {
- "count": 136,
+ "count": 132,
  "defects": [
   {
    "class": "stzAppServer",
@@ -16,38 +16,6 @@
    "line": 504,
    "symptom": "Leaves a folder unserved today instead of serving its files under a path; a request for a file in it answers 404.",
    "cause": "The static routes are stored in the router but nothing ever reads the list (checked with paths /files and /)"
-  },
-  {
-   "class": "stzConstraint",
-   "file": "common/stzConstraint.ring",
-   "method": "init",
-   "line": 96,
-   "symptom": "Raises error R14 today instead of building a constraint from an object and a condition.",
-   "cause": "every call with an object and a text raises R14 Calling Method without definition: removefirstboundq, thrown by IsConstraint; any other argument raises Incorrect types of object params, so no stzConstraint can be built today"
-  },
-  {
-   "class": "stzConstraint",
-   "file": "common/stzConstraint.ring",
-   "method": "Name",
-   "line": 132,
-   "symptom": "Returns the name of the constraint, which nothing sets today.",
-   "cause": "always empty: the field it reads is never assigned anywhere in the class"
-  },
-  {
-   "class": "stzConstraint",
-   "file": "common/stzConstraint.ring",
-   "method": "Expression",
-   "line": 141,
-   "symptom": "Raises error R24 today instead of returning the Ring code that tests the condition.",
-   "cause": "reads a variable _cConstraint_ that is never assigned (the field is @cConstraint), so it raises R24 Using uninitialized variable on every call"
-  },
-  {
-   "class": "stzConstraint",
-   "file": "common/stzConstraint.ring",
-   "method": "CheckConstraint",
-   "line": 158,
-   "symptom": "Returns 0 on every call today, whether or not the guarded object obeys the condition.",
-   "cause": "always 0: the evaluation runs inside a try, and Expression raises first, so the failure is swallowed and reported as a broken constraint; checked on an object that obeys the condition and one that does not"
   },
   {
    "class": "stzEngineTimeline",

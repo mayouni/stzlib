@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 136 methods in 68 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 132 methods in 67 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| common/stzConstraint.ring | stzConstraint | 4 |
 | list/stzListChecker.ring | stzListChecker | 4 |
 | list/stzListOfPairs.ring | stzListOfPairs | 4 |
 | list/stzTree.ring | stzTree | 4 |
@@ -82,13 +81,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 - `Use` (line 492): Leaves every request unchanged today instead of running the middleware before the routes under a path. -- The middleware is stored in the router but nothing ever reads the list, so it never runs (checked with paths /a, / and *)
 - `Static` (line 504): Leaves a folder unserved today instead of serving its files under a path; a request for a file in it answers 404. -- The static routes are stored in the router but nothing ever reads the list (checked with paths /files and /)
-
-## stzConstraint -- common/stzConstraint.ring (4)
-
-- `init` (line 96): Raises error R14 today instead of building a constraint from an object and a condition. -- every call with an object and a text raises R14 Calling Method without definition: removefirstboundq, thrown by IsConstraint; any other argument raises Incorrect types of object params, so no stzConstraint can be built today
-- `Name` (line 132): Returns the name of the constraint, which nothing sets today. -- always empty: the field it reads is never assigned anywhere in the class
-- `Expression` (line 141): Raises error R24 today instead of returning the Ring code that tests the condition. -- reads a variable _cConstraint_ that is never assigned (the field is @cConstraint), so it raises R24 Using uninitialized variable on every call
-- `CheckConstraint` (line 158): Returns 0 on every call today, whether or not the guarded object obeys the condition. -- always 0: the evaluation runs inside a try, and Expression raises first, so the failure is swallowed and reported as a broken constraint; checked on an object that obeys the condition and one that does not
 
 ## stzEngineTimeline -- common/stzEngineTimeline.ring (1)
 
