@@ -433,3 +433,8 @@ Next by size: stzTree, stzStringSplitter (4 each), then eight at 3; stzSetOfSect
 The four rows were Not-yet-implemented stubs, now implemented from the stzList siblings: an item is a leaf, every occurrence goes, nodes and root stay, absent item is a no-op, type-strict, CS forms fold with StzLower. Guard 91 assertions. Gate lesson: a nested forwarding alias without `return` is read as an undocumented root (doc-floor error); write it with return so it folds. Unfixed siblings listed in CONCLUSIONS (FindThisItem has no return, FindTheseItemsCS indexes wrongly).
 Next by size: stzStringSplitter (4), then nine at 3.
 
+## 2026-10-19: the stzStringSplitter fix batch is ON MAIN; register 121 -> 117
+
+The register diagnosis was wrong: the engine returns ONE piece per entry (length-aware), not a NUL buffer; the wrapper took one piece for the whole cut. Fixed in the library by calling the before and after entries and rebuilding the cut. Guard 108 assertions pinned to Python partition/rpartition. stzString.Partition has its own absent-separator bug (phantom cut), not touched.
+Next by size: twelve classes at 3 (stzHtmlBuilder first).
+
