@@ -423,3 +423,8 @@ Next by size: stzListChecker, stzListOfPairs, stzTree, stzStringSplitter (4 each
 4 rows fixed at the library boundary. Root cause is the engine bridge: Ring-callable ContainsCS/FindCS/CountCS take a value handle that no Ring-reachable constructor supplies. Engine owes: list case flag, int/float tagging, Unicode folding, a Ring-callable contains for numbers and lists, and a panic on whole numbers beyond 64 bits. Guard 115 assertions; 61 existing files identical.
 Next by size: stzListOfPairs, stzTree, stzStringSplitter (4 each), then seven at 3.
 
+## 2026-10-19: the stzListOfPairs fix batch is ON MAIN; register 128 -> 125
+
+3 of 4 rows fixed (+ AreAnagramsCS); ToStzSetOfSections stays: its cause is in stzSetOfSections.ring (the constructor checks with @IsSetOfSections, an empty body, so it refuses every list). Decisions: only pairs of whole numbers expand; the empty list is a list of sections; AreAnagrams means every pair. Guard 82 assertions.
+Next by size: stzTree, stzStringSplitter (4 each), then eight at 3; stzSetOfSections is the natural follow-up.
+
