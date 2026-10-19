@@ -418,3 +418,8 @@ origin/main and codeberg/main moved from c6a4001bb to c578e50d5 with the same co
 4 rows fixed (IsConstraint called a method that no longer exists; Name never assigned; Expression read the wrong variable; CheckConstraint swallowed the error). New: SetName override, Verdict, LastError. The condition text is executed as Ring code: trusted sources only. The constraint keeps its own copy of the object. Guard 82 assertions.
 Next by size: stzListChecker, stzListOfPairs, stzTree, stzStringSplitter (4 each), then six at 3.
 
+## 2026-10-19: the stzListChecker fix batch is ON MAIN; register 132 -> 128
+
+4 rows fixed at the library boundary. Root cause is the engine bridge: Ring-callable ContainsCS/FindCS/CountCS take a value handle that no Ring-reachable constructor supplies. Engine owes: list case flag, int/float tagging, Unicode folding, a Ring-callable contains for numbers and lists, and a panic on whole numbers beyond 64 bits. Guard 115 assertions; 61 existing files identical.
+Next by size: stzListOfPairs, stzTree, stzStringSplitter (4 each), then seven at 3.
+
