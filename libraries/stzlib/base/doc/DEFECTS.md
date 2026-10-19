@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 111 methods in 62 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 108 methods in 61 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| graph/stzWorkflow.ring | stzWorkflowSimulation | 3 |
 | list/stzListWalker.ring | stzListWalker | 3 |
 | list/stzSet.ring | stzSet | 3 |
 | natural/stzChainOfTruth.ring | stzChainOfTruth | 3 |
@@ -126,12 +125,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzOrgChartSimulation -- graph/stzOrgChart.ring (1)
 
 - `ApplyChanges` (line 3292): Applies a list of changes to the copy, never to the original, then records the before and after spans and vacancy rates. -- a change_reporting change raises "Cannot add edge: one or both nodes do not exist!", since the copy has no nodes; an unknown :type is skipped without a word
-
-## stzWorkflowSimulation -- graph/stzWorkflow.ring (3)
-
-- `OptimizeStep` (line 1678): Raises error R24 Using uninitialized variable: @achanges today instead of recording a new duration for a step. -- no object of this class can record a change: the class has no @aChanges list and no init, so the first line of the method raises; building the object with a workflow, new stzWorkflowSimulation(oWf), raises the same error on the call
-- `ReassignStep` (line 1694): Raises error R24 Using uninitialized variable: @achanges today instead of recording a move of a step to another actor. -- raises the same error as OptimizeStep, because the class has no @aChanges list
-- `ParallelizeSteps` (line 1709): Raises error R24 Using uninitialized variable: @achanges today instead of recording that steps run side by side. -- raises the same error as OptimizeStep, because the class has no @aChanges list
 
 ## stzText -- linguistic/stzText.ring (1)
 

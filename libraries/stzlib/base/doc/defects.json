@@ -1,5 +1,5 @@
 {
- "count": 111,
+ "count": 108,
  "defects": [
   {
    "class": "stzAppServer",
@@ -152,30 +152,6 @@
    "line": 3292,
    "symptom": "Applies a list of changes to the copy, never to the original, then records the before and after spans and vacancy rates.",
    "cause": "known defect: a change_reporting change raises \"Cannot add edge: one or both nodes do not exist!\", since the copy has no nodes; an unknown :type is skipped without a word"
-  },
-  {
-   "class": "stzWorkflowSimulation",
-   "file": "graph/stzWorkflow.ring",
-   "method": "OptimizeStep",
-   "line": 1678,
-   "symptom": "Raises error R24 Using uninitialized variable: @achanges today instead of recording a new duration for a step.",
-   "cause": "no object of this class can record a change: the class has no @aChanges list and no init, so the first line of the method raises; building the object with a workflow, new stzWorkflowSimulation(oWf), raises the same error on the call"
-  },
-  {
-   "class": "stzWorkflowSimulation",
-   "file": "graph/stzWorkflow.ring",
-   "method": "ReassignStep",
-   "line": 1694,
-   "symptom": "Raises error R24 Using uninitialized variable: @achanges today instead of recording a move of a step to another actor.",
-   "cause": "raises the same error as OptimizeStep, because the class has no @aChanges list"
-  },
-  {
-   "class": "stzWorkflowSimulation",
-   "file": "graph/stzWorkflow.ring",
-   "method": "ParallelizeSteps",
-   "line": 1709,
-   "symptom": "Raises error R24 Using uninitialized variable: @achanges today instead of recording that steps run side by side.",
-   "cause": "raises the same error as OptimizeStep, because the class has no @aChanges list"
   },
   {
    "class": "stzText",
