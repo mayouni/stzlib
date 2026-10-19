@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 114 methods in 63 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 111 methods in 62 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| graph/stzGraph.ring | stzGraphComparison | 3 |
 | graph/stzWorkflow.ring | stzWorkflowSimulation | 3 |
 | list/stzListWalker.ring | stzListWalker | 3 |
 | list/stzSet.ring | stzSet | 3 |
@@ -105,12 +104,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzGeoProjection -- geo/stzGeoProjection.ring (1)
 
 - `Caption` (line 1082): Returns the projection written for a picture: its name, the parallels of a conic and the rotation if any. -- Defect: the parallels of a conic always carry an N, so 22.78 degrees south prints as -22.78N.
-
-## stzGraphComparison -- graph/stzGraph.ring (3)
-
-- `Content` (line 8811): Returns nothing today instead of the comparison data. -- the body is empty, so the call answers empty text; Data returns the comparison
-- `WithCycles` (line 8894): Returns an empty list today instead of the names of the variations that contain a cycle. -- the rows hold the text TRUE or FALSE in the cycle field, and the body tests it against the number 1
-- `WithoutCycles` (line 8914): Returns an empty list today instead of the names of the variations that stay acyclic. -- the rows hold the text TRUE or FALSE in the cycle field, and the body tests it against the number 0
 
 ## stzGraphQuery -- graph/stzGraphQuery.ring (2)
 

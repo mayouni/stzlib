@@ -1,5 +1,5 @@
 {
- "count": 114,
+ "count": 111,
  "defects": [
   {
    "class": "stzAppServer",
@@ -96,30 +96,6 @@
    "line": 1082,
    "symptom": "Returns the projection written for a picture: its name, the parallels of a conic and the rotation if any.",
    "cause": "Defect: the parallels of a conic always carry an N, so 22.78 degrees south prints as -22.78N."
-  },
-  {
-   "class": "stzGraphComparison",
-   "file": "graph/stzGraph.ring",
-   "method": "Content",
-   "line": 8811,
-   "symptom": "Returns nothing today instead of the comparison data.",
-   "cause": "known defect: the body is empty, so the call answers empty text; Data returns the comparison"
-  },
-  {
-   "class": "stzGraphComparison",
-   "file": "graph/stzGraph.ring",
-   "method": "WithCycles",
-   "line": 8894,
-   "symptom": "Returns an empty list today instead of the names of the variations that contain a cycle.",
-   "cause": "known defect: the rows hold the text TRUE or FALSE in the cycle field, and the body tests it against the number 1"
-  },
-  {
-   "class": "stzGraphComparison",
-   "file": "graph/stzGraph.ring",
-   "method": "WithoutCycles",
-   "line": 8914,
-   "symptom": "Returns an empty list today instead of the names of the variations that stay acyclic.",
-   "cause": "known defect: the rows hold the text TRUE or FALSE in the cycle field, and the body tests it against the number 0"
   },
   {
    "class": "stzGraphQuery",
