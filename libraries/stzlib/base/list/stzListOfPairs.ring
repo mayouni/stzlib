@@ -108,10 +108,9 @@ class stzPairs from stzListOfPairs
 # and score. It orders the pairs by the first or the second item (Sort, SortOn), exchanges the items
 # of every pair (SwapItems), lists the first and the second items apart and checks their types. Most
 # mutators change the object in place and return nothing; the Sorted, Swapped and Stringified forms
-# return a copy. Some methods are broken today: the key-expression sorts (SortBy and its forms),
-# ReplacePair, AreAnagrams, ExpandedIfPairsOfNumbers and ToStzSetOfSections; see their warnings. The
-# Reverse and Inverse families exchange the two items of each pair, they do not reverse the order of
-# the pairs.
+# return a copy. One method is broken today: ToStzSetOfSections, which cannot succeed until
+# stzSetOfSections is repaired; see its warning. The Reverse and Inverse families exchange the two
+# items of each pair, they do not reverse the order of the pairs.
 #
 #   receiver   o1 = new stzListOfPairs([ [ "b", 2 ], [ "a", 9 ], [ "c", 5 ] ])
 #   example    ? @@( o1.FirstItems() )
@@ -1214,21 +1213,36 @@ class stzListOfPairs from stzListOfLists
 	 #  RETURNING AN EXPANDED LIST OF NUMBERS OUT OF THE LIST OF PAIRS  #
 	#==================================================================#
 
-	# Raises error R14 today instead of returning the number lists that the pairs of numbers expand to.
+	# Returns the list of numbers from the first to the second item of each pair, counting down when the first is larger.
 	#
-	#   returns    nothing today; the call raises
-	#   warning    Raises R14 today on every call: it calls ExpandedIfPairOfNumbers, a method that
-	#              exists nowhere in the loaded library
+	#   returns    a list of lists of whole numbers, one list per expandable pair, in the order of
+	#              the pairs; [ [ 1, 3 ], [ 7, 5 ] ] gives [ [ 1, 2, 3 ], [ 7, 6, 5 ] ]
+	#   note       both ends are included, so an equal pair [ 2, 2 ] gives [ 2 ]; negative numbers
+	#              work. A pair that is not made of two whole numbers (a text, or a decimal such as
+	#              1.5) is left out, so the answer can hold fewer lists than there are pairs
+	#   warning    The size of the answer is the span of the pairs: [ 1, 1000000 ] builds a million
+	#              numbers
 	#   see        ToStzListOfSections, IsListOfSections
 	def ExpandedIfPairsOfNumbers()
 		_aContent_ = This.Content()
-		_nLen_ = len(_aContent_)
+		_nLen_ = ring_len(_aContent_)
 
 		_aResult_ = []
 
 		for i = 1 to _nLen_
-			if isNumber(_aContent_[i][1]) and isNumber(_aContent_[i][2])
-				_aResult_ + StzListQ(_aContent_[i]).ExpandedIfPairOfNumbers()
+			_n1_ = _aContent_[i][1]
+			_n2_ = _aContent_[i][2]
+
+			_bExpandable_ = 0
+			if isNumber(_n1_) and isNumber(_n2_)
+				if _n1_ = floor(_n1_) and _n2_ = floor(_n2_)
+					_bExpandable_ = 1
+				ok
+			ok
+
+			if _bExpandable_ = 1
+				_aRange_ = _n1_ : _n2_
+				_aResult_ + _aRange_
 			ok
 		next
 
@@ -1416,24 +1430,24 @@ class stzListOfPairs from stzListOfLists
 	  #---------------------------------------------------------------#
 	 #   CHECKING IF THE PAIRS ARE SECTIONS AND IF THEY ARE SORTED   #
 	#---------------------------------------------------------------#
-	# Answers TRUE for any list of pairs today, instead of TRUE only when every pair is made of two numbers.
+	# TRUE if every pair is made of two numbers, so that each can be read as a section [ start, end ].
 	#
 	#   returns    TRUE or FALSE
-	#   note       a list of pairs of text, [ [ "a", "b" ] ], passes
-	#   warning    Answers TRUE whatever the pairs hold, text included: the loop records a failing
-	#              pair in a variable that is never read, so the result stays at its start value
+	#   note       any two numbers pass, decimals, negatives and a start above the end included, as
+	#              in IsListOfSections of stzListOfSections; one pair with a text makes it FALSE,
+	#              wherever it stands. An empty list passes, since no pair fails
 	#   see        IsSortedListOfSections, ToStzListOfSections
 	#@ aka  --> Each pair is made of numbers
 	def IsListOfSections()
 
 		_aContent_ = This.Content()
-		_nLen_ = len(_aContent_)	
+		_nLen_ = ring_len(_aContent_)
 
 		_bResult_ = 1
 
 		for i = 1 to _nLen_
 			if NOT @IsListOfNumbers(_aContent_[i])
-				_bIsMadeOfNumbers_ = 0
+				_bResult_ = 0
 				exit
 			ok
 		next
@@ -1443,7 +1457,7 @@ class stzListOfPairs from stzListOfLists
 	# TRUE if the pairs, read as sections, are sorted in ascending order or in descending order.
 	#
 	#   returns    TRUE or FALSE
-	#   note       it is only as exact as IsListOfSections, which accepts any pairs
+	#   note       FALSE when a pair holds a text, since the pairs must pass IsListOfSections first
 	#   see        IsListOfSectionsSortedInAscending, IsListOfSectionsSortedInDescending
 	def IsSortedListOfSections()
 
@@ -1460,7 +1474,7 @@ class stzListOfPairs from stzListOfLists
 	#
 	#   returns    TRUE or FALSE
 	#   note       [ [ 5, 8 ], [ 1, 3 ] ] and overlapping sections such as [ [ 1, 5 ], [ 3, 4 ] ]
-	#              give FALSE; text pairs may pass because IsListOfSections accepts them
+	#              give FALSE, and so does a list with a text pair
 	#   see        IsListOfSectionsSortedInDescending, IsSortedListOfSections
 	def IsListOfSectionsSortedInAscending()
 
@@ -1542,25 +1556,44 @@ class stzListOfPairs from stzListOfLists
 	 #  CHECKING IF THE TWO VALUES ARE ANOGRAMS STRINGS  #
 	#===================================================#
 
+	# TRUE if every pair holds two texts made of the same characters in any order; the case flag decides if A and a differ.
+	#
+	#   pCaseSensitive   TRUE to tell A from a, FALSE to ignore the case
+	#   returns          TRUE or FALSE
+	#   note             it answers like IsAnagramOfCS of stzString: spaces count as characters, a
+	#                    text is an anagram of itself, two empty texts are anagrams. A pair with a
+	#                    number or a list makes it FALSE; an empty list of pairs gives TRUE
+	#   see              AreAnagrams, FirstItemsAreStrings
 	def AreAnagramsCS(pCaseSensitive)
 
-		_val1_ = This.FirstValue()
-		_val2_ = This.SecondValue()
+		_aContent_ = This.Content()
+		_nLen_ = ring_len(_aContent_)
 
-		if @BothAreStrings(_val1_, _val2_) and
-		   Q(_val1_).IsAnagramOfCS(_val2_, pCaseSensitive)
+		_bResult_ = 1
 
-			return 1
-		else
-			return 0
-		ok
+		for i = 1 to _nLen_
+			_bPairOk_ = 0
+			if isString(_aContent_[i][1]) and isString(_aContent_[i][2])
+				_oAnagram_ = new stzString(_aContent_[i][1])
+				if _oAnagram_.IsAnagramOfCS(_aContent_[i][2], pCaseSensitive)
+					_bPairOk_ = 1
+				ok
+			ok
 
-	# Raises error R14 today instead of telling whether the two items are anagrams of each other.
+			if _bPairOk_ = 0
+				_bResult_ = 0
+				exit
+			ok
+		next
+
+		return _bResult_
+
+	# TRUE if every pair holds two texts made of the same characters in any order, the case counted.
 	#
-	#   returns    nothing today; the call raises
-	#   warning    Raises R14 today on every call: it reads FirstValue and SecondValue, which this
-	#              class does not define
-	#   see        FirstItems
+	#   returns    TRUE or FALSE
+	#   note       listen and silent are anagrams, Listen and silent are not; use AreAnagramsCS(0)
+	#              to ignore the case
+	#   see        AreAnagramsCS
 	def AreAnagrams()
 		return This.AreAnagramsCS(1)
 
@@ -2306,13 +2339,31 @@ class stzListOfPairs from stzListOfLists
 	def ToStzListOfSections()
 		return new stzListOfSections(This.Content())
 
-	# Raises an error today instead of returning the pairs as a stzSetOfSections.
+	# Returns the pairs as a stzSetOfSections; today every call raises an error that names the cause.
 	#
-	#   returns    nothing today; the call raises
-	#   note       ToStzListOfSections accepts the same pairs
-	#   warning    Raises "You must provide a list of sections" today for valid sections such as [ [
-	#              1, 3 ], [ 5, 8 ] ]: the stzSetOfSections constructor refuses what
-	#              stzListOfSections accepts
-	#   see        ToStzListOfSections
+	#   returns    a stzSetOfSections, once the constructor works; today the call raises
+	#   note       the error says which of three causes applies: a pair that is not two numbers, a
+	#              repeated pair, or the constructor itself
+	#   warning    Not reachable today, and not fixable in this class: the constructor of
+	#              stzSetOfSections checks its argument with @IsSetOfSections, a function whose body
+	#              is empty in list/stzSetOfSections.ring, so it refuses every list, [ [ 1, 3 ], [ 5,
+	#              8 ] ] included. That function must return IsSetOfSections(paSections), and
+	#              IsSetOfSections must call @IsListOfSections, since stzList has no IsListOfSections
+	#              method. ToStzListOfSections accepts the same pairs
+	#   see        ToStzListOfSections, IsListOfSections
 	def ToStzSetOfSections()
-		return new stzSetOfSections(This.Content())
+		_aContent_ = This.Content()
+
+		if NOT This.IsListOfSections()
+			StzRaise("Can't transform the list of pairs into a stzSetOfSections! Every pair must be made of two numbers.")
+		ok
+
+		if NOT This.IsSet()
+			StzRaise("Can't transform the list of pairs into a stzSetOfSections! A set of sections holds no repeated pair.")
+		ok
+
+		if NOT @IsSetOfSections(_aContent_)
+			StzRaise("Can't transform the list of pairs into a stzSetOfSections! The stzSetOfSections constructor refuses every list: @IsSetOfSections in list/stzSetOfSections.ring has an empty body.")
+		ok
+
+		return new stzSetOfSections(_aContent_)
