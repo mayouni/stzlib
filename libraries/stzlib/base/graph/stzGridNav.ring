@@ -40,62 +40,72 @@ func IsStzGridNav(pObj)
  ///   CLASS   ///
 /////////////////
 
-# Is meant to hold a grid of rows and columns with a current cell that moves, but no object of it can be built today.
+# Holds a named grid of rows and columns with a current cell that moves, and never leaves the grid.
 #
 # The class wraps the engine's grid navigation module: a position, moves that refuse to leave the
-# grid, a neighbour count, a validity test and a Manhattan distance. Today new stzGridNav always
-# raises Can't create stzGridNav! Engine returned error, because the wrapper hands the engine a grid
-# name that the engine does not take, so every row and column is read one argument too late; the
-# direction constants of the class also disagree with the engine's. The engine functions themselves
-# work when called directly with their own arguments, as StzEngineGridCreate(3, 4).
+# grid, a neighbour count, a validity test and a Manhattan distance. Rows and columns are counted
+# from 0, so a 3 by 4 grid has rows 0 to 2 and columns 0 to 3, and a new grid starts on row 0,
+# column 0. The engine holds ONE grid at a time, so the object keeps its own size and position and
+# hands them to the engine again before every call: several objects can live side by side, and a
+# copy of an object moves on its own. The directions of the class are 0 up, 1 down, 2 left, 3 right
+# (the engine reads 0 up, 1 right, 2 down, 3 left, and the class converts).
 #
-#   receiver   nOk = StzEngineGridCreate(3, 4)
-#   example    ? nOk
+#   receiver   o1 = new stzGridNav("g", 3, 4)
+#   example    ? o1.CurrentRow()
 #              #--> 0
-#              try
-#              o1 = new stzGridNav("g", 3, 4)
-#              catch
-#              ? "raised"
-#              #--> raised
-#              done
+#              o1.MoveDown()
+#              o1.MoveRight()
+#              ? [ o1.CurrentRow(), o1.CurrentCol() ]
+#              #--> [ 1, 1 ]
+#              ? o1.NeighborCount()
+#              #--> 4
+#              ? o1.DistanceTo(2, 3)
+#              #--> 3
 #   see        stzObject, stzGraph
 class stzGridNav from stzObject
 
 	@cName = ""
+	@nRows = 0
+	@nCols = 0
+	@nRow  = 0
+	@nCol  = 0
 
 	  #--------------#
 	 #     INIT     #
 	#--------------#
 
-	# Raises error Can't create stzGridNav! Engine returned error today instead of building a named grid.
+	# Builds a named grid of rows and columns with the current cell on row 0, column 0.
 	#
-	#   cName      the name of the grid
-	#   nRows      the number of rows, a positive number
-	#   nCols      the number of columns, a positive number
-	#   returns    nothing; it always raises
-	#   note       the engine keeps one global grid with no name; an empty or non-text name, or a
-	#              size below 1, raise their own parameter errors first
-	#   warning    new stzGridNav("g", 3, 4) and new stzGridNav("g5", 5, 5) both raise, because the
-	#              engine function StzEngineGridCreate takes (rows, cols) and is handed (name, rows,
-	#              cols): the text is read as 0 rows and the call returns -1; StzEngineGridCreate(3,
-	#              4) called directly succeeds
+	#   cName      the name of the grid, a non-empty text
+	#   nRows      the number of rows, a whole number from 1 to 2147483647
+	#   nCols      the number of columns, a whole number from 1 to 2147483647
+	#   returns    nothing; the object is the grid
+	#   note       the engine keeps one grid with no name, so the name lives in the object; an empty
+	#              or non-text name, and a size that is not a whole number from 1 to 2147483647,
+	#              raise their own parameter errors before the engine is called
 	#   see        SetPosition, StzGridNavQ
 	def init(cName, nRows, nCols)
 
-		if CheckingParams()
-			if NOT isString(cName) or cName = ""
-				StzRaise("Can't create stzGridNav! cName must be a non-empty string.")
-			ok
-			if NOT isNumber(nRows) or nRows < 1
-				StzRaise("Incorrect param! nRows must be a positive number.")
-			ok
-			if NOT isNumber(nCols) or nCols < 1
-				StzRaise("Incorrect param! nCols must be a positive number.")
-			ok
+		if NOT isString(cName)
+			StzRaise("Can't create stzGridNav! cName must be a non-empty string.")
+		ok
+		if cName = ""
+			StzRaise("Can't create stzGridNav! cName must be a non-empty string.")
+		ok
+		if NOT This._GridIsSize(nRows)
+			StzRaise("Incorrect param! nRows must be a positive whole number, at most 2147483647.")
+		ok
+		if NOT This._GridIsSize(nCols)
+			StzRaise("Incorrect param! nCols must be a positive whole number, at most 2147483647.")
 		ok
 
 		@cName = cName
-		_nResult_ = StzEngineGridCreate(cName, nRows, nCols)
+		@nRows = nRows
+		@nCols = nCols
+		@nRow  = 0
+		@nCol  = 0
+
+		_nResult_ = StzEngineGridCreate(nRows, nCols)
 
 		if _nResult_ < 0
 			StzRaise("Can't create stzGridNav! Engine returned error.")
@@ -105,53 +115,52 @@ class stzGridNav from stzObject
 	 #     POSITION                  #
 	#-------------------------------#
 
-	# Moves the position to a row and a column, from 0, once a grid exists; none can be built today.
+	# Moves the current cell to a row and a column inside the grid.
 	#
 	#   nRow       the row, from 0
 	#   nCol       the column, from 0
 	#   returns    nothing; the position changes. SetPositionQ returns the object
-	#   note       the engine does not check the bounds, so the intended Out of bounds error cannot
-	#              fire
-	#   warning    unreachable today because init raises; on an object made without init,
-	#              SetPosition(2, 3) left the position at 0,2, since the grid name is passed as the
-	#              first engine argument and the engine takes none
-	#   see        CurrentRow, MoveDirection
+	#   note       a cell outside the grid raises Can't set position! Out of bounds, and the position
+	#              stays where it was; the bounds are checked by the class, since the engine does not
 	def SetPosition(nRow, nCol)
-		if CheckingParams()
-			if NOT isNumber(nRow) or NOT isNumber(nCol)
-				StzRaise("Incorrect params! nRow and nCol must be numbers.")
-			ok
+		if NOT isNumber(nRow) or NOT isNumber(nCol)
+			StzRaise("Incorrect params! nRow and nCol must be numbers.")
+		ok
+		if nRow != floor(nRow) or nCol != floor(nCol)
+			StzRaise("Incorrect params! nRow and nCol must be whole numbers.")
 		ok
 
-		_nResult_ = StzEngineGridSetPos(@cName, nRow, nCol)
-		if _nResult_ < 0
+		if NOT This.IsValidPosition(nRow, nCol)
 			StzRaise("Can't set position! Out of bounds.")
 		ok
+
+		@nRow = nRow
+		@nCol = nCol
 
 		def SetPositionQ(nRow, nCol)
 			This.SetPosition(nRow, nCol)
 			return This
 
-	# Returns the row of the current position, once a grid exists; none can be built today.
+	# Returns the row of the current cell, counted from 0.
 	#
-	#   returns    a number, from 0
+	#   returns    a number from 0 to the number of rows less one
 	#   note       Row is the same call
-	#   warning    unreachable today because init raises
 	#   see        CurrentCol, SetPosition
 	def CurrentRow()
-		return StzEngineGridGetRow(@cName)
+		This._GridSync()
+		return StzEngineGridGetRow()
 
 		def Row()
 			return This.CurrentRow()
 
-	# Returns the column of the current position, once a grid exists; none can be built today.
+	# Returns the column of the current cell, counted from 0.
 	#
-	#   returns    a number, from 0
+	#   returns    a number from 0 to the number of columns less one
 	#   note       Col is the same call
-	#   warning    unreachable today because init raises
 	#   see        CurrentRow, SetPosition
 	def CurrentCol()
-		return StzEngineGridGetCol(@cName)
+		This._GridSync()
+		return StzEngineGridGetCol()
 
 		def Col()
 			return This.CurrentCol()
@@ -160,80 +169,84 @@ class stzGridNav from stzObject
 	 #     MOVEMENT                  #
 	#-------------------------------#
 
-	# Moves the position one cell in a direction, once a grid exists; none can be built today.
+	# Moves the current cell one step in a direction.
 	#
 	#   nDirection   0 for up, 1 for down, 2 for left, 3 for right
 	#   returns      nothing; the position changes. MoveDirectionQ returns the object
-	#   note         a move off the grid is meant to raise Can't move! Would go out of bounds
-	#   warning      unreachable today because init raises; the engine also reads 0 up, 1 right, 2
-	#                down, 3 left, so down, left and right would be swapped
+	#   note         a step off the grid raises Can't move! Would go out of bounds, and the position
+	#                stays where it was; any other direction raises its own parameter error
 	#   see          MoveUp, MoveDown, MoveLeft, MoveRight
 	def MoveDirection(nDirection)
-		if CheckingParams()
-			if NOT isNumber(nDirection)
-				StzRaise("Incorrect param! nDirection must be 0-3 (up/down/left/right).")
-			ok
+		if NOT isNumber(nDirection)
+			StzRaise("Incorrect param! nDirection must be 0-3 (up/down/left/right).")
+		ok
+		if NOT This._GridIsInt(nDirection) or nDirection < 0 or nDirection > 3
+			StzRaise("Incorrect param! nDirection must be 0-3 (up/down/left/right).")
 		ok
 
-		_nResult_ = StzEngineGridMove(@cName, nDirection)
+		# the class order 0 up, 1 down, 2 left, 3 right, in the engine order 0 up, 1 right, 2 down, 3 left
+		_aEngineDir_ = [ 0, 2, 3, 1 ]
+
+		This._GridSync()
+		_nResult_ = StzEngineGridMove(_aEngineDir_[nDirection + 1])
 		if _nResult_ < 0
 			StzRaise("Can't move! Would go out of bounds.")
 		ok
+
+		@nRow = StzEngineGridGetRow()
+		@nCol = StzEngineGridGetCol()
 
 		def MoveDirectionQ(nDirection)
 			This.MoveDirection(nDirection)
 			return This
 
-	# Moves the position one row up, once a grid exists; none can be built today.
+	# Moves the current cell one row up.
 	#
 	#   returns    nothing; the position changes. MoveUpQ returns the object
-	#   note       it calls MoveDirection with the class constant for up
-	#   warning    unreachable today because init raises
+	#   note       it raises Can't move! Would go out of bounds on row 0
 	#   see        MoveDown, MoveDirection
 	def MoveUp()
-		This.MoveDirection($STZ_GRID_UP)
+		_nDir_ = 0
+		This.MoveDirection(_nDir_)
 
 		def MoveUpQ()
 			This.MoveUp()
 			return This
 
-	# Moves the position one row down, once a grid exists; none can be built today.
+	# Moves the current cell one row down.
 	#
 	#   returns    nothing; the position changes. MoveDownQ returns the object
-	#   note       it calls MoveDirection with the class constant for down
-	#   warning    unreachable today because init raises; it sends the class constant 1, which the
-	#              engine reads as right
+	#   note       it raises Can't move! Would go out of bounds on the last row
 	#   see        MoveUp, MoveDirection
 	def MoveDown()
-		This.MoveDirection($STZ_GRID_DOWN)
+		_nDir_ = 1
+		This.MoveDirection(_nDir_)
 
 		def MoveDownQ()
 			This.MoveDown()
 			return This
 
-	# Moves the position one column left, once a grid exists; none can be built today.
+	# Moves the current cell one column left.
 	#
 	#   returns    nothing; the position changes. MoveLeftQ returns the object
-	#   note       it calls MoveDirection with the class constant for left
-	#   warning    unreachable today because init raises; it sends the class constant 2, which the
-	#              engine reads as down
+	#   note       it raises Can't move! Would go out of bounds on column 0
 	#   see        MoveRight, MoveDirection
 	def MoveLeft()
-		This.MoveDirection($STZ_GRID_LEFT)
+		_nDir_ = 2
+		This.MoveDirection(_nDir_)
 
 		def MoveLeftQ()
 			This.MoveLeft()
 			return This
 
-	# Moves the position one column right, once a grid exists; none can be built today.
+	# Moves the current cell one column right.
 	#
 	#   returns    nothing; the position changes. MoveRightQ returns the object
-	#   note       it calls MoveDirection with the class constant for right
-	#   warning    unreachable today because init raises; it sends the class constant 3, which the
-	#              engine reads as left
+	#   note       it raises Can't move! Would go out of bounds on the last column
 	#   see        MoveLeft, MoveDirection
 	def MoveRight()
-		This.MoveDirection($STZ_GRID_RIGHT)
+		_nDir_ = 3
+		This.MoveDirection(_nDir_)
 
 		def MoveRightQ()
 			This.MoveRight()
@@ -243,69 +256,115 @@ class stzGridNav from stzObject
 	 #     QUERIES                   #
 	#-------------------------------#
 
-	# Returns how many cells touch the current one, up, down, left and right, inside the grid; none can be built today.
+	# Returns how many cells touch the current one, up, down, left and right, inside the grid.
 	#
-	#   returns    a number from 2 in a corner to 4 inside; NumberOfNeighbors is the same call
-	#   warning    unreachable today because init raises
+	#   returns    a number: 2 in a corner, 3 on an edge, 4 inside; a 1 by 1 grid has 0 and a single
+	#              row or column has at most 2. NumberOfNeighbors is the same call
 	#   see        IsValidPosition, DistanceTo
 	def NeighborCount()
-		return StzEngineGridNeighborCount(@cName)
+		This._GridSync()
+		return StzEngineGridNeighborCount()
 
 		def NumberOfNeighbors()
 			return This.NeighborCount()
 
-	# TRUE if a row and a column lie inside the grid, once a grid exists; none can be built today.
+	# Tells whether a row and a column name a cell inside the grid.
 	#
 	#   nRow       the row, from 0
 	#   nCol       the column, from 0
 	#   returns    TRUE or FALSE, as 1 or 0
-	#   warning    unreachable today because init raises; the grid name is passed first, so the
-	#              engine would read the column as the row
+	#   note       a number that is not whole, or too large for the engine, names no cell and answers
+	#              0; a value that is not a number raises its own parameter error
 	#   see        SetPosition, DistanceTo
 	def IsValidPosition(nRow, nCol)
-		_nResult_ = StzEngineGridIsValid(@cName, nRow, nCol)
+		if NOT isNumber(nRow) or NOT isNumber(nCol)
+			StzRaise("Incorrect params! nRow and nCol must be numbers.")
+		ok
+		if NOT This._GridIsInt(nRow) or NOT This._GridIsInt(nCol)
+			return 0
+		ok
+
+		This._GridSync()
+		_nResult_ = StzEngineGridIsValid(nRow, nCol)
 		if _nResult_ = 1
 			return 1
 		else
 			return 0
 		ok
 
-	# Returns the Manhattan distance between the current cell and another, once a grid exists; none can be built today.
+	# Returns the Manhattan distance from the current cell to another cell of the grid.
 	#
-	#   nRow       the row of the other cell
-	#   nCol       the column of the other cell
-	#   returns    a number, the rows apart plus the columns apart
-	#   note       the engine function called directly with four numbers answers 6 for (3, 3) and
-	#              (0, 0)
-	#   warning    unreachable today because init raises; it also sends 3 arguments to an engine
-	#              function that takes 4 (both cells), so the answer would not be the distance from
-	#              the current cell
+	#   nRow       the row of the other cell, from 0
+	#   nCol       the column of the other cell, from 0
+	#   returns    a number, the rows apart plus the columns apart; 0 for the current cell itself
+	#   note       a target outside the grid raises Can't measure! The target cell is outside the grid
 	#   see        IsValidPosition, NeighborCount
 	def DistanceTo(nRow, nCol)
-		return StzEngineGridDistance(@cName, nRow, nCol)
+		if NOT isNumber(nRow) or NOT isNumber(nCol)
+			StzRaise("Incorrect params! nRow and nCol must be numbers.")
+		ok
+		if NOT This.IsValidPosition(nRow, nCol)
+			StzRaise("Can't measure! The target cell is outside the grid.")
+		ok
+
+		This._GridSync()
+		return StzEngineGridDistance(StzEngineGridGetRow(), StzEngineGridGetCol(), nRow, nCol)
 
 	  #-------------------------------#
 	 #     INFO AND RESET            #
 	#-------------------------------#
 
-	# Returns the name the grid was given.
+	# Returns the label the grid was built with.
 	#
-	#   returns    the name as text
-	#   warning    unreachable today because init raises
+	#   returns    the label as text
 	#   see        init
 	def Name()
 		return @cName
 
-	# Puts the position back to row 0, column 0, and also clears the grid size, once a grid exists.
+	# Puts the current cell back on row 0, column 0 and keeps the grid.
 	#
 	#   returns    nothing; the position changes. ResetPositionQ returns the object
-	#   note       the name says position only
-	#   warning    unreachable today because init raises; the engine reset sets the grid size to 0,
-	#              so no cell is valid afterwards
+	#   note       the grid keeps its size, so every cell stays valid afterwards
 	#   see        SetPosition, CurrentRow
 	def ResetPosition()
-		StzEngineGridReset(@cName)
+		@nRow = 0
+		@nCol = 0
 
 		def ResetPositionQ()
 			This.ResetPosition()
 			return This
+
+	  #-------------------------------#
+	 #     PRIVATE                   #
+	#-------------------------------#
+
+	# Hands the engine this object's grid and position, because the engine holds one grid for all.
+	def _GridSync()
+		_nResult_ = StzEngineGridCreate(@nRows, @nCols)
+		if _nResult_ < 0
+			StzRaise("Can't use stzGridNav! Engine returned error.")
+		ok
+		StzEngineGridSetPos(@nRow, @nCol)
+
+	# Tells whether a value is a whole number the engine can read as a 32-bit integer.
+	def _GridIsInt(nValue)
+		if NOT isNumber(nValue)
+			return 0
+		ok
+		if nValue != floor(nValue)
+			return 0
+		ok
+		if nValue < -2147483648 or nValue > 2147483647
+			return 0
+		ok
+		return 1
+
+	# Tells whether a value is a whole number from 1 to 2147483647.
+	def _GridIsSize(nValue)
+		if NOT This._GridIsInt(nValue)
+			return 0
+		ok
+		if nValue < 1
+			return 0
+		ok
+		return 1
