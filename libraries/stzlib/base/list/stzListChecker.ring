@@ -23,8 +23,8 @@
 # IsListOfPairs check the shape, and HasMoreNumberOfItems compares the length with another list.
 # Most checks answer 1 or 0, a few answer TRUE or FALSE; both work in an if. A check made on the
 # empty list is true for IsListOfNumbers, IsListOfStrings and AllItemsAreEqual, and false for
-# IsListOfLists. Broken today: ContainsItem answers 0 for every item, and with it ContainsAllOfThese
-# and ContainsOneOfThese; ContainsW raises error R3.
+# IsListOfLists. ContainsItem, ContainsAllOfThese and ContainsOneOfThese look for numbers, texts and
+# lists whole; ContainsW asks the engine's W language whether some item meets a condition.
 #
 #   receiver   o1 = new stzListChecker([3, 1, 2])
 #   example    ? o1.IsListOfNumbers()
@@ -554,28 +554,139 @@ class stzListChecker from stzObject
 	def ContainsOnlyStringsCS(pCaseSensitive)
 		return This.IsListOfStrings()
 
-	def ContainsItemCS(pItem, pCaseSensitive)
-		_pCicList_ = @oList._EngineListFromContent()
-		_nCicResult_ = StzEngineListContainsCS(_pCicList_, pItem, pCaseSensitive)
-		StzEngineListFree(_pCicList_)
-		return _nCicResult_
-
-	# Returns 0 whatever the list holds today, because the item is handed to the engine in a form it does not match.
+	# Returns 1 if the list holds the item, with the case flag deciding whether A and a are the same text, else 0.
 	#
-	#   pItem      the item to look for
-	#   returns    0
-	#   note       use stzList.Contains instead, which answers 1 for the same data
-	#   warning    defect: ContainsItem(2) on [1,2,3], ContainsItem("a") on ["a","b"] and
-	#              ContainsItem([3]) on [[1,2],[3]] all answer 0, and so does ContainsItemCS with
-	#              either case flag; the call StzEngineListContainsCS(list, item, cs) answers 0 on
-	#              its own for present items; the engine function stz_list_contains_cs expects the
-	#              needle as a value handle and the class passes the raw item
-	#   see        ContainsAllOfThese, ContainsOneOfThese
-	def ContainsItem(pItem)
-		return This.ContainsItemCS(pItem, 1)
+	#   pItem            the item to look for: a number, a text or a list, matched whole
+	#   pCaseSensitive   1 to tell A from a, 0 to ignore the case; the pair [ :CaseSensitive, 0 ] is accepted too
+	#   returns          1 or 0
+	#   note             the type must agree: 2 is not found in a list holding the text "2"; a list item matches an
+	#                    equal list only, item by item, and the texts inside it follow the flag; with the flag at 0 a
+	#                    text beyond ASCII is folded for its script (a capital sigma matches a small one) while a
+	#                    text of ASCII letters is looked up by the engine, which folds those letters only; an object
+	#                    is never matched
+	#   see              ContainsItem, ContainsAllOfTheseCS, ContainsOneOfTheseCS
+	def ContainsItemCS(pItem, pCaseSensitive)
+		_nCicCs_ = 1
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+		if isNumber(pCaseSensitive) and pCaseSensitive = 0
+			_nCicCs_ = 0
+		ok
 
+		if isObject(pItem)
+			return 0
+		ok
+
+		# A text goes to the engine, which scans the text items only. Asking the engine for a
+		# number or a list is not reliable: it stores the numbers of a list as integers or as
+		# decimals by a rule of its own, so a needle stored the other way is missed (3 is not
+		# found in [ 1, 2.5, 3 ]), and it compares the texts inside a list case-sensitively
+		# whatever the flag. And a bare value handle from StzEngineValueNew* is not readable by
+		# the list module (it comes from another DLL), which is why asking
+		# StzEngineListContainsCS with one answers 0 for every item. The engine folds only the
+		# ASCII letters, so a text beyond ASCII with the flag at 0 goes through Ring as well.
+		if isString(pItem) and (_nCicCs_ = 1 or ring_len(pItem) = StzLen(pItem))
+			_pCicEng_ = @oList._Engine()
+			if _pCicEng_ != ""
+				return StzEngineListContainsStringCS(_pCicEng_, pItem, _nCicCs_)
+			ok
+		ok
+
+		# Ring comparison: the item is folded once, then each list item is compared with it
+		_aCicList_ = @oList.Content()
+		_nCicLen_ = ring_len(_aCicList_)
+		if isNumber(pItem)
+			for _iCic_ = 1 to _nCicLen_
+				if isNumber(_aCicList_[_iCic_]) and _aCicList_[_iCic_] = pItem
+					return 1
+				ok
+			next
+			return 0
+		ok
+		_xCicNeedle_ = pItem
+		if _nCicCs_ = 0
+			_xCicNeedle_ = This._LcFold(pItem)
+		ok
+
+		# A list item is checked in place, member by member, and ruled out on its first member
+		# when that is a number or a text taken as it is, so that a long list of lists is neither
+		# copied nor sent through a method once per item; only the survivors, and a list inside
+		# a list, go through the recursive compare.
+		if isList(_xCicNeedle_)
+			_nCicNeedleLen_ = ring_len(_xCicNeedle_)
+			_nCicQuick_ = 0
+			_xCicFirst_ = ""
+			if _nCicNeedleLen_ > 0
+				_xCicFirst_ = _xCicNeedle_[1]
+				if isNumber(_xCicFirst_)
+					_nCicQuick_ = 1
+				but isString(_xCicFirst_) and _nCicCs_ = 1
+					_nCicQuick_ = 2
+				ok
+			ok
+			for _iCic_ = 1 to _nCicLen_
+				if isList(_aCicList_[_iCic_]) and ring_len(_aCicList_[_iCic_]) = _nCicNeedleLen_
+					_bCicSame_ = 1
+					if _nCicQuick_ = 1
+						if NOT (isNumber(_aCicList_[_iCic_][1]) and _aCicList_[_iCic_][1] = _xCicFirst_)
+							_bCicSame_ = 0
+						ok
+					but _nCicQuick_ = 2
+						if NOT (isString(_aCicList_[_iCic_][1]) and strcmp(_aCicList_[_iCic_][1], _xCicFirst_) = 0)
+							_bCicSame_ = 0
+						ok
+					ok
+					if _bCicSame_
+						for _jCic_ = 1 to _nCicNeedleLen_
+							if NOT This._LcSame(_aCicList_[_iCic_][_jCic_], _xCicNeedle_[_jCic_], _nCicCs_)
+								_bCicSame_ = 0
+								exit
+							ok
+						next
+					ok
+					if _bCicSame_
+						return 1
+					ok
+				ok
+			next
+			return 0
+		ok
+
+		for _iCic_ = 1 to _nCicLen_
+			if This._LcSame(_aCicList_[_iCic_], _xCicNeedle_, _nCicCs_)
+				return 1
+			ok
+		next
+		return 0
+
+	# Returns 1 if the list holds the item, telling A from a, else 0.
+	#
+	#   pItem      the item to look for: a number, a text or a list, matched whole
+	#   returns    1 or 0
+	#   note       ContainsItemCS takes the case flag and states the matching rules
+	#   see        ContainsItemCS, ContainsAllOfThese, ContainsOneOfThese
+	#   example    o1 = new stzListChecker([ 1, "b", [ 3 ] ])
+	#              ? o1.ContainsItem([ 3 ])
+	#              #--> 1
+	#              ? o1.ContainsItem("B")
+	#              #--> 0
+	def ContainsItem(pItem)
+		_nCiCs_ = 1
+		return This.ContainsItemCS(pItem, _nCiCs_)
+
+	# Returns 1 if the list holds every one of the items, with the case flag applied to each, else 0.
+	#
+	#   paItems          the items to look for, a list; anything else answers 0
+	#   pCaseSensitive   1 to tell A from a, 0 to ignore the case
+	#   returns          1 or 0
+	#   note             the empty list of items answers 1, as nothing is missing
+	#   see              ContainsAllOfThese, ContainsItemCS
 	def ContainsAllOfTheseCS(paItems, pCaseSensitive)
-		_nCatLen_ = len(paItems)
+		if NOT isList(paItems)
+			return 0
+		ok
+		_nCatLen_ = ring_len(paItems)
 		for _iCat_ = 1 to _nCatLen_
 			if NOT This.ContainsItemCS(paItems[_iCat_], pCaseSensitive)
 				return 0
@@ -583,20 +694,33 @@ class stzListChecker from stzObject
 		next
 		return 1
 
-	# Returns 1 only for an empty list of items today, because every ContainsItem answers 0.
+	# Returns 1 if the list holds every one of the items, telling A from a, else 0.
 	#
-	#   paItems    the items to look for
+	#   paItems    the items to look for, a list; anything else answers 0
 	#   returns    1 or 0
-	#   note       until ContainsItem is repaired, ask stzList (Contains answers 1 for present
-	#              items)
-	#   warning    defect: ContainsAllOfThese([1,2]) on [1,2,3] answers 0 and ContainsAllOfThese([])
-	#              answers 1; the cause is ContainsItem, which never finds an item
+	#   note       the empty list of items answers 1, as nothing is missing
 	#   see        ContainsItem, ContainsOneOfThese
+	#   example    o1 = new stzListChecker([ 1, 2, 3 ])
+	#              ? o1.ContainsAllOfThese([ 1, 2 ])
+	#              #--> 1
+	#              ? o1.ContainsAllOfThese([ 1, 9 ])
+	#              #--> 0
 	def ContainsAllOfThese(paItems)
-		return This.ContainsAllOfTheseCS(paItems, 1)
+		_nCaCs_ = 1
+		return This.ContainsAllOfTheseCS(paItems, _nCaCs_)
 
+	# Returns 1 if the list holds at least one of the items, with the case flag applied to each, else 0.
+	#
+	#   paItems          the items to look for, a list; anything else answers 0
+	#   pCaseSensitive   1 to tell A from a, 0 to ignore the case
+	#   returns          1 or 0
+	#   note             the empty list of items answers 0, as nothing can be found
+	#   see              ContainsOneOfThese, ContainsItemCS
 	def ContainsOneOfTheseCS(paItems, pCaseSensitive)
-		_nCotLen_ = len(paItems)
+		if NOT isList(paItems)
+			return 0
+		ok
+		_nCotLen_ = ring_len(paItems)
 		for _iCot_ = 1 to _nCotLen_
 			if This.ContainsItemCS(paItems[_iCot_], pCaseSensitive)
 				return 1
@@ -604,15 +728,73 @@ class stzListChecker from stzObject
 		next
 		return 0
 
-	# Returns 0 today, whatever the items are, because every ContainsItem answers 0.
+	# Returns 1 if the list holds at least one of the items, telling A from a, else 0.
 	#
-	#   paItems    the items to look for
+	#   paItems    the items to look for, a list; anything else answers 0
 	#   returns    1 or 0
-	#   warning    defect: ContainsOneOfThese([9,2]) on [1,2,3] and ContainsOneOfThese(["z","b"]) on
-	#              ["a","b"] answer 0; the cause is ContainsItem, which never finds an item
+	#   note       the empty list of items answers 0, as nothing can be found
 	#   see        ContainsItem, ContainsAllOfThese
+	#   example    o1 = new stzListChecker([ "a", "b" ])
+	#              ? o1.ContainsOneOfThese([ "z", "b" ])
+	#              #--> 1
+	#              ? o1.ContainsOneOfThese([ "z", "y" ])
+	#              #--> 0
 	def ContainsOneOfThese(paItems)
-		return This.ContainsOneOfTheseCS(paItems, 1)
+		_nCoCs_ = 1
+		return This.ContainsOneOfTheseCS(paItems, _nCoCs_)
+
+	# Returns 1 if the two items are the same: numbers by value, texts by the flag, lists item by item.
+	#
+	#   pA         the item taken from the list
+	#   pB         the item looked for; already lowercased (see _LcFold) when the flag is 0
+	#   pnCs       1 to compare texts as they are, 0 to lowercase the first before comparing
+	#   returns    1 or 0
+	def _LcSame(pA, pB, pnCs)
+		_nLsOk_ = 0
+		if isNumber(pA)
+			if isNumber(pB) and pA = pB
+				_nLsOk_ = 1
+			ok
+		but isString(pA)
+			if isString(pB)
+				if pnCs = 1
+					_nLsOk_ = (strcmp(pA, pB) = 0)
+				else
+					_nLsOk_ = (strcmp(StzLower(pA), pB) = 0)
+				ok
+			ok
+		but isList(pA)
+			if isList(pB)
+				_nLsLen_ = ring_len(pA)
+				if _nLsLen_ = ring_len(pB)
+					_nLsOk_ = 1
+					for _iLs_ = 1 to _nLsLen_
+						if NOT This._LcSame(pA[_iLs_], pB[_iLs_], pnCs)
+							_nLsOk_ = 0
+							exit
+						ok
+					next
+				ok
+			ok
+		ok
+		return _nLsOk_
+
+	# Returns the item with every text lowercased, going down into the lists.
+	#
+	#   pX         the item to fold
+	#   returns    the same shape, with its texts lowercased
+	def _LcFold(pX)
+		if isString(pX)
+			return StzLower(pX)
+		but isList(pX)
+			_aLfOut_ = []
+			_nLfLen_ = ring_len(pX)
+			for _iLf_ = 1 to _nLfLen_
+				_aLfOut_ + This._LcFold(pX[_iLf_])
+			next
+			return _aLfOut_
+		ok
+		return pX
 
 	  #============================#
 	 #  NUMERIC LIST CHECKING    #
@@ -691,30 +873,21 @@ class stzListChecker from stzObject
 	 #  CONDITIONAL CONTAINMENT    #
 	#==============================#
 
-	# Raises error R3 today instead of telling whether an item satisfies the condition.
+	# Returns 1 if at least one item satisfies the condition, else 0.
 	#
-	#   pcCondition   a condition written with @item, such as @item > 2
-	#   returns       nothing; it raises an error
-	#   note          the same missing function is noted in stzListClassifier.ring
-	#   warning       defect: the method calls StzCCodeToRingCode, which no file of the library
-	#                 defines, so every call raises Calling Function without definition:
-	#                 stzccodetoringcode
-	#   see           IsListOfNumbers
+	#   pcCondition   a W condition on the item, written with @item, such as @item > 2
+	#   returns       1 or 0; the empty list answers 0
+	#   note          the condition goes to the engine's W language, which reads it and is not given to
+	#                 Ring's eval; still, take it from a trusted source, as it decides what the engine runs
+	#   see           ContainsItem, ContainsOneOfThese
+	#   example       o1 = new stzListChecker([ 1, 2, 3 ])
+	#                 ? o1.ContainsW("@item > 2")
+	#                 #--> 1
+	#                 ? o1.ContainsW("@item > 5")
+	#                 #--> 0
 	def ContainsW(pcCondition)
-		_aContent_ = This.Content()
-		_nLen_ = len(_aContent_)
-
-		_cCode_ = StzCCodeToRingCode(pcCondition)
-
-		for @i = 1 to _nLen_
-			@item = _aContent_[@i]
-			_cEval_ = StzStringReplace(_cCode_, "@item", @@(@item))
-			if eval(_cEval_)
-				return 1
-			ok
-		next
-
-		return 0
+		_anCwAt_ = @oList.FindAllItemsW(pcCondition)
+		return ring_len(_anCwAt_) > 0
 
 		def ContainsWhere(pcCondition)
 			return This.ContainsW(pcCondition)
