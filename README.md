@@ -1,32 +1,40 @@
+<p align="center">
+  <img src="docs/img/softanza-logo.png" alt="Softanza: the makers platform of the agentic age" width="320">
+</p>
+
 # Softanza
 
 **Declare what you know. A court keeps it. The AI model comes last.**
 
 Softanza is a computational platform built around a single engine written in
 [Zig](https://ziglang.org). One codebase covers text, exact numbers, tables,
-graphs, maps, images, sound, neural networks and governed AI agents. It runs
-today through its **Ring** face, kept so existing code keeps working. This
-repository, `stzlib`, is that library.
+graphs, maps, images, sound, neural networks and governed AI agents. This
+repository, `stzlib`, is the library.
+
+Softanza runs on **[Ring++](https://mayouni.github.io/ringpp/)**, a compiler and
+virtual machine of its own. Ring++ keeps a Ring facet, so the legacy code
+written in Ring keeps working until **Haro**, the Softanza project's programming
+language made for the agentic era, is adopted. Ring itself is retired from the
+project; [why Ring++ left Ring](https://mayouni.github.io/ringpp/why.html) gives
+the technical and the governance reasons.
 
 **Website: [mayouni.github.io/stzsite](https://mayouni.github.io/stzsite/index.html?lang=en)**
 (also in [French](https://mayouni.github.io/stzsite/index.html?lang=fr))
 
 ## What it looks like
 
-```ring
-load "stzLib.ring"
+```
+load "stzlib.ring"
 
-o1 = new stzList([ "A", "", "B", "", "", "C" ])
-? o1.ContainsEmptyStrings()      # 1
-
-? Q("Softanza").Boxed()
+? "sort:      " + @@( Q([ 3, 1, 2 ]).Sorted() )
+? "upper:     " + StzStringQ("ring++ runs softanza").Uppercased()
+? "words:     " + StzStringQ("one two three").NumberOfWords()
 ```
 
 ```
-1
-┌──────────┐
-│ Softanza │
-└──────────┘
+sort:      [ 1, 2, 3 ]
+upper:     RING++ RUNS SOFTANZA
+words:     3
 ```
 
 Some of what the engine does, and the website runs the rest:
@@ -75,33 +83,34 @@ Each area is described, with a worked picture, on the
 | Layer | State |
 |---|---|
 | **Engine (Zig)** | The core. A C interface lets other languages and machines share it. |
-| **Ring face** | Works today. This is what you install from this repository. |
-| **Ring++** | The bridge to Haro, under construction. |
-| **Haro** | The planned language. Not available yet; its charter is a draft. |
+| **[Ring++](https://mayouni.github.io/ringpp/)** | A compiler and virtual machine of its own. It runs Softanza today, and its Ring facet keeps the legacy code working. |
+| **Haro** | The programming language of the Softanza project, made for the agentic era. Not available yet; its charter is a draft. |
 
 ## Getting started
 
-You need:
+Softanza runs on Ring++, which ships as one binary with no other install.
 
-- **Git**
-- **Ring 1.27.0**, from [ring-lang.net](https://ring-lang.net)
-- **Windows:** the Zig engine ships as compiled libraries, so nothing to build.
-- **Linux or macOS:** the Zig engine builds from source.
+1. Download the package for your platform from the
+   [latest Ring++ release](https://github.com/mayouni/ringpp/releases/latest):
+   `ringpp-win64.zip` for Windows, `ringpp-linux-x64.tar.gz` for Linux.
+2. Unpack it, save the example above as `prog.ring`, and run it with the
+   `rnxc` binary:
+
+```bash
+ringpp-win64\bin\rnxc.exe prog.ring
+```
+
+The first run compiles the library's files, which takes about ten seconds; later
+runs start from the compiled image in about a tenth of a second. The full steps
+are on the [Ring++ start page](https://mayouni.github.io/ringpp/start.html), and
+the walk-through of a first application is on the
+[Softanza website](https://mayouni.github.io/stzsite/en/start.html).
+
+To read or change the library itself, clone this repository:
 
 ```bash
 git clone https://github.com/mayouni/stzlib.git
-cd stzlib/libraries/stzlib
 ```
-
-Create `first.ring` there, paste the example above, and run it:
-
-```bash
-ring first.ring
-```
-
-The first run takes about seven seconds while the library and engine load.
-The full walk-through is in
-[Getting started](https://mayouni.github.io/stzsite/en/start.html).
 
 ## Learn and look things up
 
@@ -110,7 +119,7 @@ The full walk-through is in
 | [Learn](https://mayouni.github.io/stzsite/en/learn.html) and the [interactive course](https://mayouni.github.io/stzsite/en/book.html) | the way of thinking, step by step |
 | [How-to](https://mayouni.github.io/stzsite/en/howto.html) | single tasks, such as removing duplicates |
 | [Reference](https://mayouni.github.io/stzsite/en/reference.html) and [Docs](https://mayouni.github.io/stzsite/en/docs.html) | exact method behaviour |
-| [Architecture](https://mayouni.github.io/stzsite/en/architecture.html) | how the engine and faces fit together |
+| [Architecture](https://mayouni.github.io/stzsite/en/architecture.html) | how the engine and Ring++ fit together |
 | [The Softanza book](https://mayouni.github.io/ayouni/books/softanza/en/) | the long form |
 | [What is proven](https://mayouni.github.io/stzsite/en/proven.html) | claims, each tied to the file that proves it |
 
@@ -119,7 +128,7 @@ The full walk-through is in
 ```
 libraries/stzlib/
   stzLib.ring     load this to use the library
-  base/           the Ring face: classes, tests, education material
+  base/           the library: classes, tests, education material
   engine/         the Zig engine
   cli/            the stz command-line tool (Zig)
   tools/          the test runner
