@@ -68,26 +68,58 @@ Softanza was written by hand. The GitHub history shows it: more than 300,000
 lines of code and tens of thousands of test samples, written over about five
 years, before AI coding tools existed.
 
-Since late 2025 it is an AI-first product. Claude Code writes all of the Zig
-code and all of the Ring++ code. Mansour Ayouni's work changed with it: he no
-longer writes the code, he governs the refinements the AI makes to it. That way
-of working is described in the narration
+AI came in two steps. In late 2025 the author started using AI by pasting its
+results into the code himself. In 2026 he moved to Claude Code Desktop, and
+Softanza became an AI-first product: Claude Code now writes all of the Zig code
+and all of the Ring++ code. Mansour Ayouni's work changed with it: he no longer
+writes the code, he governs the refinements the AI makes to it. That way of
+working is described in the narration
 [Refinement-Centered Programming](https://mayouni.github.io/stzsite/en/narrations/stzpolycode-refinement-centered-programming.html),
-and on the [refinement page](https://mayouni.github.io/stzsite/en/refinement.html).
+on the [refinement page](https://mayouni.github.io/stzsite/en/refinement.html),
+and in the second book below.
 
-## The book
+## The books
 
-<a href="https://mayouni.github.io/ayouni/books/softanza/en/">
-  <img src="docs/img/softanza-book-cover.jpg" alt="Cover of the book Softanza, the governed software platform of the AI age, by Mansour Ayouni" width="240" align="left" hspace="16">
-</a>
+<table>
+  <tr>
+    <td align="center" valign="top" width="50%">
+      <a href="https://mayouni.github.io/ayouni/books/softanza/en/">
+        <img src="docs/img/softanza-book-cover.jpg" alt="Cover of the book Softanza: The Governed Software Platform of the AI Age" width="260">
+      </a>
+      <br><br>
+      <b>Softanza</b><br>
+      <i>The Governed Software Platform of the AI Age</i><br>
+      The long form of the ideas on this page: why the world is declared, how a
+      court keeps it, and why the AI model comes last.<br><br>
+      <a href="https://mayouni.github.io/ayouni/books/softanza/en/">Read it online</a>
+    </td>
+    <td align="center" valign="top" width="50%">
+      <a href="https://mayouni.github.io/ayouni/books/refinement/en/">
+        <img src="docs/img/refinement-book-cover.jpg" alt="Cover of the book Refinement-Oriented Programming: A discipline for software in the agentic era" width="260">
+      </a>
+      <br><br>
+      <b>Refinement-Oriented Programming</b><br>
+      <i>A discipline for software in the agentic era</i><br>
+      How software is built when an AI writes the code and a person governs its
+      refinements, the way Softanza itself is built now.<br><br>
+      <a href="https://mayouni.github.io/ayouni/books/refinement/en/">Read it online</a>
+    </td>
+  </tr>
+</table>
 
-**Softanza: The Governed Software Platform of the AI Age**, by Mansour Ayouni
-(2026). The long form of the ideas on this page: why the world is declared,
-how a court keeps it, and why the AI model comes last.
+Both are by Mansour Ayouni (2026).
 
-**[Read the book online](https://mayouni.github.io/ayouni/books/softanza/en/)**
+## Sibling projects
 
-<br clear="left">
+Softanza has sibling projects that complement it. Three of them are renamed when
+Haro is adopted.
+
+| Project | What it is | Becomes |
+|---|---|---|
+| [RingServ](https://mayouni.github.io/ringserv/) | A single-file server for applications and web services: a web server, a SQL database and a JavaScript engine in one binary. | HaroServ |
+| [RingScript](https://mayouni.github.io/ringscript/) | Frontend scripting that runs the compiler and virtual machine in the browser, as WebAssembly, so page logic is not written in JavaScript. | HaroScript |
+| MicroRing | A private repository for now. | MicroHaro |
+| [Harobanda](https://mayouni.github.io/harobanda/index.html) | A sovereign operating system, built on proven Linux, for governing AI agents and for critical work that must keep running under its owner's control. Open source, MIT. | |
 
 ## The 28 areas
 
