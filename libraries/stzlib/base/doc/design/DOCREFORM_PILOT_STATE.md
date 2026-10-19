@@ -402,3 +402,10 @@ github.com and codeberg.org were unreachable on port 443 (21 s timeouts). PUSH W
 Register 146 -> 141 in 69 classes; 5 rows fixed (PenWidth, NodesWith, propertiesLegend, SaveToStzDiagInFolder, Explain). Guard 72 assertions. Unfixed siblings: the other SaveXxxInFolder aliases call methods that do not exist; stzGraphQuery refuses a stzDiagram (IsStzGraph tests classname).
 Next by size: stzGridNav (5), then five at 4.
 
+UPDATE 2026-10-19: the network returned; the stzDiagram batch is PUSHED (c6a4001bb on both remotes). No unpushed work. The stzGridNav batch is in flight on fix/gn (worktree D:\GitHub\_wtf_gn).
+
+## 2026-10-19: the stzGridNav fix batch is ON MAIN; register 141 -> 136
+
+5 rows fixed, and init had masked eight more defects (swapped direction codes, no bounds check in SetPosition, ResetPosition cleared the grid, one global engine grid shared by all objects, a panic on out-of-range numbers). Guard 156 assertions. Positions 0-based; the class keeps its documented direction order and converts to the engine's. Engine owes a bounds check in stz_grid_set_pos and a per-grid handle.
+Next by size: stzConstraint, stzListChecker, stzListOfPairs, stzTree, stzStringSplitter (4 each), then five at 3.
+
