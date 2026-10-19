@@ -1,5 +1,5 @@
 {
- "count": 117,
+ "count": 114,
  "defects": [
   {
    "class": "stzAppServer",
@@ -40,30 +40,6 @@
    "line": 1901,
    "symptom": "Returns today, tomorrow or yesterday, a count of days or weeks within a month of today, else the date as dd/MM/yyyy.",
    "cause": ""
-  },
-  {
-   "class": "stzHtmlBuilder",
-   "file": "file/stzHtml.ring",
-   "method": "AppendToCurrent",
-   "line": 498,
-   "symptom": "Adds a node as the last child of the current node and returns the builder.",
-   "cause": "defect: the current node is a copy of the root made at birth, because Ring copies an object on assignment, so the node lands in the copy and Build, Root and BuildToFile still show nothing; checked with two different nodes and after SetCurrent(Root())"
-  },
-  {
-   "class": "stzHtmlBuilder",
-   "file": "file/stzHtml.ring",
-   "method": "Build",
-   "line": 545,
-   "symptom": "Returns the HTML text of the document: the children of the root, one after the other.",
-   "cause": "defect: it answers the empty text after AppendToCurrent, whatever was appended (see AppendToCurrent)"
-  },
-  {
-   "class": "stzHtmlBuilder",
-   "file": "file/stzHtml.ring",
-   "method": "BuildToFile",
-   "line": 558,
-   "symptom": "Writes the HTML text of the document to a file and returns the builder.",
-   "cause": "defect: the file is created empty after AppendToCurrent, for the same reason as Build"
   },
   {
    "class": "stzZipFile",

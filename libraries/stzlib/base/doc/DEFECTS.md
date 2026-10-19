@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 117 methods in 64 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 114 methods in 63 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| file/stzHtml.ring | stzHtmlBuilder | 3 |
 | graph/stzGraph.ring | stzGraphComparison | 3 |
 | graph/stzWorkflow.ring | stzWorkflowSimulation | 3 |
 | list/stzListWalker.ring | stzListWalker | 3 |
@@ -87,12 +86,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 - `ToHuman` (line 1867): Returns today, tomorrow or yesterday for those days, a count of days for the next or last 7, else a long date. -- the future form starts with a capital (In 3 days) and the past form does not (3 days ago)
 - `ToRelative` (line 1901): Returns today, tomorrow or yesterday, a count of days or weeks within a month of today, else the date as dd/MM/yyyy.
-
-## stzHtmlBuilder -- file/stzHtml.ring (3)
-
-- `AppendToCurrent` (line 498): Adds a node as the last child of the current node and returns the builder. -- defect: the current node is a copy of the root made at birth, because Ring copies an object on assignment, so the node lands in the copy and Build, Root and BuildToFile still show nothing; checked with two different nodes and after SetCurrent(Root())
-- `Build` (line 545): Returns the HTML text of the document: the children of the root, one after the other. -- defect: it answers the empty text after AppendToCurrent, whatever was appended (see AppendToCurrent)
-- `BuildToFile` (line 558): Writes the HTML text of the document to a file and returns the builder. -- defect: the file is created empty after AppendToCurrent, for the same reason as Build
 
 ## stzZipFile -- file/stzZipFile.ring (2)
 
