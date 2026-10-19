@@ -448,3 +448,8 @@ Next by size: twelve classes at 3 (stzGraphComparison first).
 3 rows fixed (Content empty body; the cycle field holds TRUE/FALSE text but WithCycles/WithoutCycles tested 1/0), plus Recommend (the acyclic bonus was never given) and ByMetric (text columns raised R41). Edited only inside the class region of graph/stzGraph.ring. Guard 81 assertions. One existing test output changed on purpose (graph/72 WithoutCycles). stzGraph._GenerateExplanation has the same text-versus-number mistake, not touched.
 Next by size: twelve classes at 3 (stzWorkflowSimulation first).
 
+## 2026-10-19: the stzWorkflowSimulation fix batch is ON MAIN; register 111 -> 108
+
+The class had no init, no @aChanges and no @oGraph. Added init and a validated, atomic recording in OptimizeStep / ReassignStep / ParallelizeSteps; added Changes() and Apply() to prove effects (hand-computed on a 5-step workflow). ParallelizeSteps is recorded but has no effect: its private applier is an empty stub and the fork/join semantics are the author's decision. Guard 128 assertions.
+Next by size: twelve classes at 3 (stzListWalker first).
+
