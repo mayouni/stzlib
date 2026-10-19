@@ -1,3 +1,148 @@
-# SoftanzaLib (StzLib for short)
- A foundation library for Ring programming language
- By: Mansour Ayouni
+# Softanza
+
+**Declare what you know. A court keeps it. The AI model comes last.**
+
+Softanza is a computational platform built around a single engine written in
+[Zig](https://ziglang.org). One codebase covers text, exact numbers, tables,
+graphs, maps, images, sound, neural networks and governed AI agents. It runs
+today through its **Ring** face, kept so existing code keeps working. This
+repository, `stzlib`, is that library.
+
+**Website: [mayouni.github.io/stzsite](https://mayouni.github.io/stzsite/index.html?lang=en)**
+(also in [French](https://mayouni.github.io/stzsite/index.html?lang=fr))
+
+## What it looks like
+
+```ring
+load "stzLib.ring"
+
+o1 = new stzList([ "A", "", "B", "", "", "C" ])
+? o1.ContainsEmptyStrings()      # 1
+
+? Q("Softanza").Boxed()
+```
+
+```
+1
+┌──────────┐
+│ Softanza │
+└──────────┘
+```
+
+Some of what the engine does, and the website runs the rest:
+
+- It counts characters, not bytes. The Arabic word for "peace" is 8 bytes and
+  4 characters; the engine answers 4 and names the script.
+- Integers stay exact at any size: `Q(2).Power(64)` is `18446744073709551616`.
+- A string can list its own methods and answer "how do I remove duplicates
+  from a list?" from the library's own documentation.
+
+## The idea: declare, then govern
+
+- **Declare, then govern.** The world is declared in a language made for it, a
+  court judges the declaration at run time, and nothing is taken on trust.
+- **Agents that cannot do harm.** An agent proposes; it does not commit. It
+  rehearses every write against a virtual twin of the world, and its only
+  output is a readable plan. The court checks the plan for scope, capability
+  and reversibility, and only a governed actor commits. The website cites
+  thirty-eight guarantees, each tied to a guard that runs.
+- **Proof before promise.** Every runnable code block on the website was run
+  before it was published, and every claim points to the file that proves it.
+
+In one demonstration, an agent proposed 610 file deletions in a course folder.
+An AI helper tried to commit the plan and was refused, because it lacked the
+`effectful` capability. The folder still held all 610 files. See
+[Safe agents](https://mayouni.github.io/stzsite/en/agentic.html).
+
+## The 28 areas
+
+One engine, organised in areas:
+
+| | |
+|---|---|
+| **Core data and language** | strings, pattern matching, collections and objects, numeric and optimization, tables and data |
+| **Language and intelligence** | internationalization, NLP and linguistics, the neural tier, agents and conversation |
+| **Visual and spatial** | graphics, geo and cartography, diagrams and graphs, GPU, GUI and reactive interfaces, statistics and data-viz |
+| **Systems and runtime** | system programming, concurrency and distribution, web and app server, performance, metaprogramming and code rules |
+| **I/O, formats, media** | files and formats (JSON, CSV, XML), binary formats, security and governance, foreign code, sound |
+| **Cross-cutting** | test and quality system, documentation system, governance doctrine |
+
+Each area is described, with a worked picture, on the
+[areas page](https://mayouni.github.io/stzsite/en/areas.html).
+
+## Layers
+
+| Layer | State |
+|---|---|
+| **Engine (Zig)** | The core. A C interface lets other languages and machines share it. |
+| **Ring face** | Works today. This is what you install from this repository. |
+| **Ring++** | The bridge to Haro, under construction. |
+| **Haro** | The planned language. Not available yet; its charter is a draft. |
+
+## Getting started
+
+You need:
+
+- **Git**
+- **Ring 1.27.0**, from [ring-lang.net](https://ring-lang.net)
+- **Windows:** the Zig engine ships as compiled libraries, so nothing to build.
+- **Linux or macOS:** the Zig engine builds from source.
+
+```bash
+git clone https://github.com/mayouni/stzlib.git
+cd stzlib/libraries/stzlib
+```
+
+Create `first.ring` there, paste the example above, and run it:
+
+```bash
+ring first.ring
+```
+
+The first run takes about seven seconds while the library and engine load.
+The full walk-through is in
+[Getting started](https://mayouni.github.io/stzsite/en/start.html).
+
+## Learn and look things up
+
+| | |
+|---|---|
+| [Learn](https://mayouni.github.io/stzsite/en/learn.html) and the [interactive course](https://mayouni.github.io/stzsite/en/book.html) | the way of thinking, step by step |
+| [How-to](https://mayouni.github.io/stzsite/en/howto.html) | single tasks, such as removing duplicates |
+| [Reference](https://mayouni.github.io/stzsite/en/reference.html) and [Docs](https://mayouni.github.io/stzsite/en/docs.html) | exact method behaviour |
+| [Architecture](https://mayouni.github.io/stzsite/en/architecture.html) | how the engine and faces fit together |
+| [The Softanza book](https://mayouni.github.io/ayouni/books/softanza/en/) | the long form |
+| [What is proven](https://mayouni.github.io/stzsite/en/proven.html) | claims, each tied to the file that proves it |
+
+## In this repository
+
+```
+libraries/stzlib/
+  stzLib.ring     load this to use the library
+  base/           the Ring face: classes, tests, education material
+  engine/         the Zig engine
+  cli/            the stz command-line tool (Zig)
+  tools/          the test runner
+```
+
+## Numbers
+
+Counted on 1 October 2026, from the website's
+[platform page](https://mayouni.github.io/stzsite/en/platform.html): 28 areas,
+about 179,000 lines of Zig in the engine, about 531,000 lines of library code,
+501 scenario guards, and 575 classes with 18,561 methods, each explained by the
+library itself. They move as the code does; the website carries the current count.
+
+## Issues and security
+
+Questions and defect reports go to the
+[issue tracker](https://github.com/mayouni/stzlib/issues). Report security
+flaws privately, as described in [SECURITY.md](SECURITY.md).
+
+## Licence
+
+Code: [MIT](LICENSE), © 2020-2026 Mansour Ayouni. The books have their own
+licence, linked from the website.
+
+The website text was written with an AI assistant under the author's direction.
+The code and the figures come from this repository.
