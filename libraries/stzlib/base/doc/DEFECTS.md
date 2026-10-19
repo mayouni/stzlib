@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 125 methods in 66 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 121 methods in 65 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| list/stzTree.ring | stzTree | 4 |
 | string/stzStringSplitter.ring | stzStringSplitter | 4 |
 | file/stzHtml.ring | stzHtmlBuilder | 3 |
 | graph/stzGraph.ring | stzGraphComparison | 3 |
@@ -185,13 +184,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 - `init` (line 46): Raises error "Can't create the stzSetOfSections object" today for every argument instead of building a set of sections. -- Refuses [ [1,3], [5,7] ] and every other list: the check calls @IsSetOfSections, a function whose body is empty, so it answers an empty text and the creation is always refused; the working global IsSetOfSections itself fails with R14 (stzList has no IsListOfSections method)
 - `IntersectionWith` (line 117): Raises the error "Feature not implemented yet!" today instead of the sections shared with another set. -- Not run on an object, since none can be built; read from the code, the body is only a StzRaise call, and Intersection forwards to it
-
-## stzTree -- list/stzTree.ring (4)
-
-- `RemoveItem` (line 980): Raises error Not yet implemented! today instead of removing an item from the tree. -- the removal of items is a TODO in the class
-- `RemoveTheseItems` (line 995): Raises error Not yet implemented! today instead of removing several items from the tree. -- the removal of items is a TODO in the class
-- `RemoveItems` (line 1005): Raises error Not yet implemented! today instead of removing every item from the tree. -- the removal of items is a TODO in the class
-- `RemoveAllItems` (line 1014): Raises error Not yet implemented! today instead of removing every item from the tree. -- it calls RemoveItems, which is a TODO in the class
 
 ## stzYielder -- list/stzYielder.ring (1)
 

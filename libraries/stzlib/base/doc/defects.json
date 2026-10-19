@@ -1,5 +1,5 @@
 {
- "count": 125,
+ "count": 121,
  "defects": [
   {
    "class": "stzAppServer",
@@ -328,38 +328,6 @@
    "line": 117,
    "symptom": "Raises the error \"Feature not implemented yet!\" today instead of the sections shared with another set.",
    "cause": "Not run on an object, since none can be built; read from the code, the body is only a StzRaise call, and Intersection forwards to it"
-  },
-  {
-   "class": "stzTree",
-   "file": "list/stzTree.ring",
-   "method": "RemoveItem",
-   "line": 980,
-   "symptom": "Raises error Not yet implemented! today instead of removing an item from the tree.",
-   "cause": "the removal of items is a TODO in the class"
-  },
-  {
-   "class": "stzTree",
-   "file": "list/stzTree.ring",
-   "method": "RemoveTheseItems",
-   "line": 995,
-   "symptom": "Raises error Not yet implemented! today instead of removing several items from the tree.",
-   "cause": "the removal of items is a TODO in the class"
-  },
-  {
-   "class": "stzTree",
-   "file": "list/stzTree.ring",
-   "method": "RemoveItems",
-   "line": 1005,
-   "symptom": "Raises error Not yet implemented! today instead of removing every item from the tree.",
-   "cause": "the removal of items is a TODO in the class"
-  },
-  {
-   "class": "stzTree",
-   "file": "list/stzTree.ring",
-   "method": "RemoveAllItems",
-   "line": 1014,
-   "symptom": "Raises error Not yet implemented! today instead of removing every item from the tree.",
-   "cause": "it calls RemoveItems, which is a TODO in the class"
   },
   {
    "class": "stzYielder",
