@@ -438,3 +438,8 @@ Next by size: stzStringSplitter (4), then nine at 3.
 The register diagnosis was wrong: the engine returns ONE piece per entry (length-aware), not a NUL buffer; the wrapper took one piece for the whole cut. Fixed in the library by calling the before and after entries and rebuilding the cut. Guard 108 assertions pinned to Python partition/rpartition. stzString.Partition has its own absent-separator bug (phantom cut), not touched.
 Next by size: twelve classes at 3 (stzHtmlBuilder first).
 
+## 2026-10-19: the stzHtmlBuilder fix batch is ON MAIN; register 117 -> 114
+
+One cause: the current node was a copy. The document now lives in parallel lists inside the builder and current is a node number (CurrentPath gives child indexes). New: SetCurrentPath, CurrentPath, GoToLastChild, GoUp, GoToRoot, NodeCount. Guard 132 assertions. test/html/05 changed on purpose (empty line -> real output); stzGeoField failed once under load and passed five times after.
+Next by size: twelve classes at 3 (stzGraphComparison first).
+
