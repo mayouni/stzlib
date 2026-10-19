@@ -62,6 +62,33 @@ An AI helper tried to commit the plan and was refused, because it lacked the
 `effectful` capability. The folder still held all 610 files. See
 [Safe agents](https://mayouni.github.io/stzsite/en/agentic.html).
 
+## How it is built
+
+Softanza was written by hand. The GitHub history shows it: more than 300,000
+lines of code and tens of thousands of test samples, written over about five
+years, before AI coding tools existed.
+
+Since late 2025 it is an AI-first product. Claude Code writes all of the Zig
+code and all of the Ring++ code. Mansour Ayouni's work changed with it: he no
+longer writes the code, he governs the refinements the AI makes to it. That way
+of working is described in the narration
+[Refinement-Centered Programming](https://mayouni.github.io/stzsite/en/narrations/stzpolycode-refinement-centered-programming.html),
+and on the [refinement page](https://mayouni.github.io/stzsite/en/refinement.html).
+
+## The book
+
+<a href="https://mayouni.github.io/ayouni/books/softanza/en/">
+  <img src="docs/img/softanza-book-cover.jpg" alt="Cover of the book Softanza, the governed software platform of the AI age, by Mansour Ayouni" width="240" align="left" hspace="16">
+</a>
+
+**Softanza: The Governed Software Platform of the AI Age**, by Mansour Ayouni
+(2026). The long form of the ideas on this page: why the world is declared,
+how a court keeps it, and why the AI model comes last.
+
+**[Read the book online](https://mayouni.github.io/ayouni/books/softanza/en/)**
+
+<br clear="left">
+
 ## The 28 areas
 
 One engine, organised in areas:
