@@ -8721,9 +8721,8 @@ class stzGraphAsciiVisualizer from stzObject
 #
 # Built by stzGraph.CompareWithManyQR(..., :stzGraphComparison) or directly. It runs the comparison
 # once when built and answers from the stored rows: Summary for a text report, MostImpactful and
-# LeastImpactful, ByMetric to sort, Recommend for a suggestion, ToStzTable for a table. The cycle
-# questions (WithCycles, WithoutCycles) and the acyclic bonus of Recommend do not work today; see
-# their warnings.
+# LeastImpactful, ByMetric to sort, Recommend for a suggestion, ToStzTable for a table, WithCycles
+# and WithoutCycles to split the variations by whether their graph holds a cycle.
 #
 #   receiver   g1 = new stzGraph("g1"); g1.AddNode("a"); g1.AddNode("b"); g1.Connect("a", "b"); o1 =
 #              new stzGraphComparison(g1, [ g1 ])
@@ -8802,13 +8801,13 @@ class stzGraphComparison from stzObject
 	def Data()
 		return @aComparisonData
 	
-		# Returns nothing today instead of the comparison data.
+		# Returns the comparison data exactly as Data does: the rows, the baseline id and the count of variations.
 		#
-		#   returns    nothing today
-		#   warning    known defect: the body is empty, so the call answers empty text; Data returns
-		#              the comparison
-		#   see        Data
+		#   returns    a hash list [ :comparisons, :baseline, :count ]
+		#   see        Data, Comparisons
 		def Content()
+			_aContent_ = This.Data()
+			return _aContent_
 
 	# Returns one hash list per variation with its name and its counts of nodes and edges added and removed.
 	#
@@ -8885,11 +8884,11 @@ class stzGraphComparison from stzObject
 		
 		return _cMinName_
 	
-	# Returns an empty list today instead of the names of the variations that contain a cycle.
+	# Returns the names of the variations whose graph contains a cycle, in the order they were given; an empty list when none does.
 	#
-	#   returns    [ ] today, even when a variation has a cycle
-	#   warning    known defect: the rows hold the text TRUE or FALSE in the cycle field, and the
-	#              body tests it against the number 1
+	#   returns    a list of text; empty when every variation is acyclic
+	#   note       the rows keep the cycle field as the text TRUE or FALSE; the test reads that text
+	#              and also accepts the numbers 1 and 0
 	#   see        WithoutCycles, Recommend
 	def WithCycles()
 		# Returns names of variations that introduce cycles
@@ -8898,18 +8897,17 @@ class stzGraphComparison from stzObject
 		
 		_nLen_ = len(_aComps_)
 		for i = 1 to _nLen_
-			if _aComps_[i][:hasCycles] = 1
+			if This._RowHasCycle(_aComps_[i]) = 1
 				_acResult_ + _aComps_[i][:name]
 			ok
 		next
 		
 		return _acResult_
 	
-	# Returns an empty list today instead of the names of the variations that stay acyclic.
+	# Returns the names of the variations whose graph stays acyclic, in the order they were given; an empty list when none does.
 	#
-	#   returns    [ ] today, even when a variation is acyclic
-	#   warning    known defect: the rows hold the text TRUE or FALSE in the cycle field, and the
-	#              body tests it against the number 0
+	#   returns    a list of text; empty when every variation has a cycle
+	#   note       together with the names that WithCycles returns it covers every variation once
 	#   see        WithCycles, Recommend
 	def WithoutCycles()
 		# Returns names of variations that remain acyclic
@@ -8918,18 +8916,40 @@ class stzGraphComparison from stzObject
 		
 		_nLen_ = len(_aComps_)
 		for i = 1 to _nLen_
-			if _aComps_[i][:hasCycles] = 0
+			if This._RowHasCycle(_aComps_[i]) = 0
 				_acResult_ + _aComps_[i][:name]
 			ok
 		next
 		
 		return _acResult_
 	
+	def _RowHasCycle(paRow)
+		# The cycle field holds the text TRUE or FALSE; any case of TRUE, and the text 1, count as a cycle.
+		_xFlag_ = paRow[:hasCycles]
+		if isNumber(_xFlag_)
+			return (_xFlag_ != 0)
+		ok
+		if isString(_xFlag_)
+			_cFlag_ = ring_upper(_xFlag_)
+			if strcmp(_cFlag_, "TRUE") = 0 or strcmp(_cFlag_, "1") = 0
+				return 1
+			ok
+		ok
+		return 0
+	
+	def _SortsAbove(pxA, pxB)
+		# Numbers by value, anything else by the byte order of its text.
+		if isNumber(pxA) and isNumber(pxB)
+			return (pxA > pxB)
+		ok
+		return (strcmp("" + pxA, "" + pxB) > 0)
+	
 	# Returns the variation names from the highest to the lowest value of one column, such as :nodesAdded; an unknown column raises an error.
 	#
 	#   cMetric    The metric to sort by, such as :nodesAdded, :edgesAdded or :hasCycles.
 	#   returns    a list of text
-	#   note       on a text column such as the density change the order is the text order
+	#   note       numbers sort by value; a text column such as the density change sorts by the byte order
+	#              of its text, so :hasCycles puts the cyclic variations first
 	#   see        Comparisons, MostImpactful
 	def ByMetric(cMetric)
 		# Sort variations by specified metric
@@ -8944,7 +8964,7 @@ class stzGraphComparison from stzObject
 		_nLen_ = len(_aComps_)
 		for i = 1 to _nLen_ - 1
 			for j = i + 1 to _nLen_
-				if _aComps_[j][cMetric] > _aComps_[i][cMetric]
+				if This._SortsAbove(_aComps_[j][cMetric], _aComps_[i][cMetric]) = 1
 					_aTemp_ = _aComps_[i]
 					_aComps_[i] = _aComps_[j]
 					_aComps_[j] = _aTemp_
@@ -8960,12 +8980,10 @@ class stzGraphComparison from stzObject
 		
 		return _acResult_
 	
-	# Scores each variation and returns the best with a reason; the score rewards fewer bottlenecks, denser links and added nodes over removed.
+	# Scores each variation and returns the best with a reason; the score rewards acyclic graphs, fewer bottlenecks and denser links.
 	#
 	#   returns    a hash list [ :recommended, :reason ]
-	#   warning    the acyclic bonus of 10 points is never awarded because the cycle field holds
-	#              text, so a variation with a cycle can win, and the reason text is the same for
-	#              every answer
+	#   note       the reason text is the same for every answer
 	#   see        WithoutCycles, MostImpactful
 	def Recommend()
 		# Simple recommendation logic
@@ -8985,7 +9003,7 @@ class stzGraphComparison from stzObject
 			_nScore_ = 0
 			
 			# No cycles: +10
-			if _aComp_[:hasCycles] = 0
+			if This._RowHasCycle(_aComp_) = 0
 				_nScore_ += 10
 			ok
 			

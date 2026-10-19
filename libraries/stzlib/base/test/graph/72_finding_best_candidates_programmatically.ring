@@ -61,7 +61,7 @@ oMatrix = oBaseline.CompareWithManyQR([
 
 # VARIATIONS WITHOUT CYCLES
 ? @@( oMatrix.WithoutCycles() ) + NL
-#--> [ ]
+#--> [ "Add_COO_Layer", "Flat_Structure", "Matrix_Org" ]
 
 # SORTED BY NODES ADDED
 ? @@(oMatrix.ByMetric(:NodesAdded)) + NL
