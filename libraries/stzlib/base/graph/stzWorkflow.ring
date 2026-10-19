@@ -1644,91 +1644,191 @@ class stzSLARuleBase from stzGraphRuleSet
 #  Workflow Simulations                      #
 #============================================#
 
-# Is meant to collect changes to a workflow, a quicker step, a step moved to another actor, steps in parallel, but cannot record any today.
+# Collects changes proposed to a workflow, a quicker step, a moved step, steps side by side, and shows their effect on a copy.
 #
-# The class declares OptimizeStep, ReassignStep and ParallelizeSteps, each of which appends a change
-# to a list called @aChanges. The class never declares that list and has no init of its own, so each
-# of the three raises error R24 Using uninitialized variable: @achanges, and new
-# stzWorkflowSimulation() with empty parentheses raises error R19 because the inherited init takes
-# one parameter. The application of the changes is private and the restructuring for parallel steps
-# is an empty method.
+# The simulation is built over a workflow and keeps its own copy of it, so the workflow it was built from
+# is never touched. OptimizeStep, ReassignStep and ParallelizeSteps each record one change, checked
+# before it is stored, and Changes returns what was recorded. Apply returns a copy of the workflow with the
+# new durations and the new actors in place. Steps recorded as parallel are kept in the list but are not
+# applied: the restructuring they would need is not written, so they change nothing yet. A simulation
+# built with new stzWorkflowSimulation and no parentheses has no workflow, and each of the three
+# methods then raises an error saying so; with empty parentheses the inherited init raises error R19.
 #
-#   receiver   o1 = new stzWorkflowSimulation
-#   example    try
-#              o1.OptimizeStep("pack", 5)
-#              catch
-#              ? "raised"
-#              #--> raised
-#              done
+#   receiver   oWf = new stzWorkflow("order") oWf.AddStep_("pack") oWf.SetStepDuration("pack", 8)
+#              o1 = new stzWorkflowSimulation(oWf)
+#   example    o1.OptimizeStep("pack", 5)
+#              ? len(o1.Changes())
+#              #--> 1
+#              oRes = o1.Apply()
+#              ? oRes.TotalDuration()
+#              #--> 5
+#              ? oWf.TotalDuration()
+#              #--> 8
 #   see        stzWorkflow
 class stzWorkflowSimulation from stzObject
-	
-	# Raises error R24 Using uninitialized variable: @achanges today instead of recording a new duration for a step.
+
+	@oGraph = ""
+	@aChanges = []
+
+	# Builds a simulation over a copy of a workflow, with no change recorded yet.
 	#
-	#   pcStepId       the id of the step to speed up
-	#   nNewDuration   the duration to give it
-	#   returns        nothing; it always raises
-	#   note           new stzWorkflowSimulation() with empty parentheses raises error R19 because
-	#                  the inherited init takes one parameter; the class is a stub, and the method
-	#                  that would apply the changes is private
-	#   warning        no object of this class can record a change: the class has no @aChanges list
-	#                  and no init, so the first line of the method raises; building the object with
-	#                  a workflow, new stzWorkflowSimulation(oWf), raises the same error on the call
-	#   see            ReassignStep, ParallelizeSteps
+	#   poWorkflow   the workflow to try changes on, a stzWorkflow
+	#   returns      nothing; the object is built
+	#   note         the simulation keeps a copy, so changing the workflow afterwards does not reach it
+	#   warning      anything that is not a stzWorkflow raises an error saying a stzWorkflow is needed
+	#   see          OptimizeStep, Apply
+	def init(poWorkflow)
+		if NOT ( isObject(poWorkflow) and ring_classname(poWorkflow) = "stzworkflow" )
+			StzRaise("stzWorkflowSimulation needs a stzWorkflow to simulate over: new stzWorkflowSimulation(oWorkflow).")
+		ok
+		super.init(poWorkflow)
+		@oGraph = poWorkflow
+		@aChanges = []
+
+	# Records a new duration for a step, to be tried without changing the workflow.
+	#
+	#   pcStepId       the id of the step to speed up or slow down
+	#   nNewDuration   the duration to give it, in hours, a number of 0 or more
+	#   returns        nothing; the change is added to the recorded list
+	#   note           the id is checked against the steps of the workflow, in the way the workflow
+	#                  itself compares ids, and a failed call records nothing
+	#   warning        an unknown step, a duration that is not a number or is below 0, or a simulation
+	#                  with no workflow raises an error
+	#   see            ReassignStep, ParallelizeSteps, Changes, Apply
 	def OptimizeStep(pcStepId, nNewDuration)
+		This._CheckStep("OptimizeStep", pcStepId)
+		if NOT isNumber(nNewDuration)
+			StzRaise("stzWorkflowSimulation.OptimizeStep: the new duration of '" + pcStepId + "' must be a number.")
+		ok
+		if nNewDuration < 0
+			StzRaise("stzWorkflowSimulation.OptimizeStep: the new duration of '" + pcStepId + "' cannot be negative.")
+		ok
 		@aChanges + [
 			:type = "optimize_step",
 			:step = pcStepId,
 			:newDuration = nNewDuration
 		]
-	
-	# Raises error R24 Using uninitialized variable: @achanges today instead of recording a move of a step to another actor.
+
+	# Records a move of a step from one actor to another, to be tried without changing the workflow.
 	#
 	#   pcStepId      the id of the step to move
-	#   pcFromActor   the actor it leaves
-	#   pcToActor     the actor it goes to
-	#   returns       nothing; it always raises
-	#   note          the class is a stub
-	#   warning       raises the same error as OptimizeStep, because the class has no @aChanges list
-	#   see           OptimizeStep, ParallelizeSteps
+	#   pcFromActor   the actor it leaves, a text that is not empty
+	#   pcToActor     the actor it goes to, a text that is not empty
+	#   returns       nothing; the change is added to the recorded list
+	#   note          the step is checked to exist, the actors are not, as AssignStepTo does not check
+	#                 them; the actor it leaves is recorded as given and is not compared with the
+	#                 actor the step has now, and only the actor it goes to is applied
+	#   warning       an unknown step, an actor that is not a text or is empty, or a simulation with
+	#                 no workflow raises an error, and a failed call records nothing
+	#   see           OptimizeStep, ParallelizeSteps, Changes, Apply
 	def ReassignStep(pcStepId, pcFromActor, pcToActor)
+		This._CheckStep("ReassignStep", pcStepId)
+		This._CheckActor("ReassignStep", "from actor", pcFromActor)
+		This._CheckActor("ReassignStep", "to actor", pcToActor)
 		@aChanges + [
 			:type = "reassign_step",
 			:step = pcStepId,
 			:from = pcFromActor,
 			:to = pcToActor
 		]
-	
-	# Raises error R24 Using uninitialized variable: @achanges today instead of recording that steps run side by side.
+
+	# Records that steps run side by side instead of one after the other, to be tried without changing the workflow.
 	#
-	#   pacStepIds   the ids of the steps to run in parallel, a list of text
-	#   returns      nothing; it always raises
-	#   note         the class is a stub; the restructuring it would apply is an empty method
-	#   warning      raises the same error as OptimizeStep, because the class has no @aChanges list
-	#   see          OptimizeStep, ReassignStep
+	#   pacStepIds   the ids of the steps to run in parallel, a list of at least two texts
+	#   returns      nothing; the change is added to the recorded list
+	#   note         the change is recorded and returned by Changes, but Apply does not restructure
+	#                the workflow for it yet, so it has no effect on the copy
+	#   warning      a list of fewer than two steps, a step that is listed twice or is unknown, or a
+	#                simulation with no workflow raises an error, and a failed call records nothing
+	#   see          OptimizeStep, ReassignStep, Changes, Apply
 	def ParallelizeSteps(pacStepIds)
+		if NOT isList(pacStepIds)
+			StzRaise("stzWorkflowSimulation.ParallelizeSteps: the steps must be given as a list of step ids.")
+		ok
+		_nIds_ = ring_len(pacStepIds)
+		if _nIds_ < 2
+			StzRaise("stzWorkflowSimulation.ParallelizeSteps: at least two steps are needed to run side by side.")
+		ok
+		for _i_ = 1 to _nIds_
+			This._CheckStep("ParallelizeSteps", pacStepIds[_i_])
+			for _j_ = 1 to _i_ - 1
+				if pacStepIds[_j_] = pacStepIds[_i_]
+					StzRaise("stzWorkflowSimulation.ParallelizeSteps: the step '" + pacStepIds[_i_] + "' is listed twice.")
+				ok
+			next
+		next
 		@aChanges + [
 			:type = "parallelize",
 			:steps = pacStepIds
 		]
-	
+
+	# Returns the changes recorded so far, in the order they were recorded.
+	#
+	#   returns    a list of hash lists, each with the key type, optimize_step, reassign_step or
+	#              parallelize, and the keys of that change: step and newDuration, step, from and
+	#              to, or steps; empty when nothing was recorded
+	#   note       the list is a copy, so changing it does not change the simulation
+	#   see        OptimizeStep, ReassignStep, ParallelizeSteps, Apply
+	def Changes()
+		return @aChanges
+
+	# Returns a copy of the workflow with the recorded durations and actors put in place, leaving the original as it was.
+	#
+	#   returns    a stzWorkflow; the copy of the workflow as it was when the simulation was built
+	#              when nothing was recorded
+	#   note       the changes are applied in the order they were recorded, so the last change to a
+	#              step wins; steps recorded as parallel are not restructured yet and change nothing
+	#   warning    a simulation with no workflow raises an error
+	#   see        Changes, OptimizeStep, ReassignStep
+	def Apply()
+		if NOT isObject(@oGraph)
+			StzRaise("stzWorkflowSimulation.Apply: the simulation has no workflow; build it with new stzWorkflowSimulation(oWorkflow).")
+		ok
+		_oBase_ = @oGraph
+		This._ApplyChanges()
+		_oResult_ = @oGraph
+		@oGraph = _oBase_
+		return _oResult_
+
+	def _CheckStep(pcWho, pcStepId)
+		if NOT isObject(@oGraph)
+			StzRaise("stzWorkflowSimulation." + pcWho + ": the simulation has no workflow; build it with new stzWorkflowSimulation(oWorkflow).")
+		ok
+		if NOT isString(pcStepId)
+			StzRaise("stzWorkflowSimulation." + pcWho + ": a step id must be a text.")
+		ok
+		if ring_len(ring_trim(pcStepId)) = 0
+			StzRaise("stzWorkflowSimulation." + pcWho + ": a step id cannot be empty.")
+		ok
+		if ring_len(@oGraph.Step_(pcStepId)) = 0
+			StzRaise("stzWorkflowSimulation." + pcWho + ": unknown step '" + pcStepId + "'.")
+		ok
+
+	def _CheckActor(pcWho, pcRole, pcActor)
+		if NOT isString(pcActor)
+			StzRaise("stzWorkflowSimulation." + pcWho + ": the " + pcRole + " must be a text.")
+		ok
+		if ring_len(ring_trim(pcActor)) = 0
+			StzRaise("stzWorkflowSimulation." + pcWho + ": the " + pcRole + " cannot be empty.")
+		ok
+
 	def _ApplyChanges()
-		_nChanges1Len_ = len(@aChanges)
+		_nChanges1Len_ = ring_len(@aChanges)
 		for _iLoopChanges1_ = 1 to _nChanges1Len_
 			_aChange_ = @aChanges[_iLoopChanges1_]
 			switch _aChange_[:type]
 			on "optimize_step"
 				@oGraph.SetStepDuration(_aChange_[:step], _aChange_[:newDuration])
-				
+
 			on "reassign_step"
 				@oGraph.AssignStepTo(_aChange_[:step], _aChange_[:to])
-				
+
 			on "parallelize"
 				# Complex restructuring logic
 				This._ParallelizeSteps(_aChange_[:steps])
 			off
 		end
-	
+
 	def _ParallelizeSteps(pacSteps)
 		# Create fork/join pattern
 		# Implementation for parallel execution
