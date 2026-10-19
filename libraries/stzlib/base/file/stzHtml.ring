@@ -445,31 +445,51 @@ class stzHtmlNode from stzObject
 # A pure-Ring builder (the parser engine is read-only -- no DOM
 # mutation bridges), building a tree of stzHtmlBuildNode and
 # serialising to an HTML string.
+#
+# WHERE THE DOCUMENT LIVES. Ring has no references: an object assigned, passed or
+# returned is copied. The builder therefore never holds a node object that it later
+# expects to change in place. The document is kept as parallel lists inside the builder
+# (tag, text, attributes, parent, children of every node; node 1 is the root container),
+# and the current node is a plain node NUMBER, which a copy of the builder carries along
+# with the rest. Nodes are rebuilt from those lists when asked for (Root, Current, Build).
 
-# Is meant to assemble an HTML document from nodes, but returns an empty text today because appended nodes never reach the root.
+# Assembles an HTML document from nodes added under a current position, and gives the text or writes it to a file.
 #
-# The builder holds a root container and a current node. Because Ring copies an object on
-# assignment, the current node is a copy of the root and AppendToCurrent adds to the copy, so Build
-# and BuildToFile give nothing. Build the tree on stzHtmlBuildNode objects instead and call ToHtml
-# on the top node, which works.
+# Reach for it to build a page piece by piece: AppendToCurrent adds a node under the current
+# node, GoToLastChild or SetCurrent moves inside the node just added, GoUp comes back out, and
+# Build gives the HTML text. The document lives in the builder itself, not in node objects, so
+# chaining works: each method returns the builder itself. A node handed to AppendToCurrent is
+# copied at that moment, so changes made to the original afterwards are not seen. The position is
+# a number, readable as a path of child numbers with CurrentPath. Text and attribute values are
+# written as given, with no escaping: that is the rule of the node class.
 #
-#   receiver   o1 = new stzHtmlBuilder()
-#   example    o1.AppendToCurrent(new stzHtmlBuildNode("p"))
-#              ? o1.Build() = ""
-#              #--> 1
+#   receiver   o1 = new stzHtmlBuilder() d1 = o1.CreateNode("div") p1 = o1.CreateNode("p")
+#              p1.SetText("x") o1.AppendToCurrent(d1).GoToLastChild().AppendToCurrent(p1)
+#   example    ? o1.Build()
+#              #--> <div><p>x</p></div>
+#              ? @@( o1.CurrentPath() )
+#              #--> [ 1 ]
 #   see        stzHtmlBuildNode, stzHtml
 class stzHtmlBuilder from stzObject
 
-	@oRoot    = ""   # document fragment (tag-less container)
-	@oCurrent = ""   # node new children are appended to
+	@aTags   = [ "" ]    # tag of every node; node 1 is the tag-less root container
+	@aTexts  = [ "" ]    # text of every node
+	@aAttrs  = [ [] ]    # attributes of every node, a list of [name, value]
+	@aParent = [ 0 ]     # number of the parent of every node, 0 for the root
+	@aKids   = [ [] ]    # numbers of the children of every node, in order
+	@nCur    = 1         # number of the node new children are added to
 
 	# Starts an empty document: a tag-less root container that is also the current node.
 	#
 	#   returns    nothing; the object is built
 	#   see        Build, CreateNode
 	def init()
-		@oRoot    = new stzHtmlBuildNode("")
-		@oCurrent = @oRoot
+		@aTags   = [ "" ]
+		@aTexts  = [ "" ]
+		@aAttrs  = [ [] ]
+		@aParent = [ 0 ]
+		@aKids   = [ [] ]
+		@nCur    = 1
 
 	# Returns a new detached node with the tag; it is not part of the document until it is appended.
 	#
@@ -485,18 +505,22 @@ class stzHtmlBuilder from stzObject
 		def Node(pcTag)
 			return This.CreateNode(pcTag)
 
-	# Adds a node as the last child of the current node and returns the builder.
+	# Adds a copy of a node, with all its descendants, as the last child of the current node.
 	#
-	#   poNode     the node to add
-	#   returns    the builder itself
-	#   note       build a tree on a stzHtmlBuildNode and call its ToHtml instead
-	#   warning    defect: the current node is a copy of the root made at birth, because Ring copies
-	#              an object on assignment, so the node lands in the copy and Build, Root and
-	#              BuildToFile still show nothing; checked with two different nodes and after
-	#              SetCurrent(Root())
-	#   see        CreateNode, SetCurrent, Build
+	#   poNode     the stzHtmlBuildNode to add; it may already have children, and the same node may be
+	#              added again, which adds another copy
+	#   returns    the builder itself, so that calls can be chained
+	#   note       the current node does not move: call GoToLastChild to go inside the node just added;
+	#              changes made to the original node after the call are not seen in the document
+	#   see        CreateNode, GoToLastChild, SetCurrent, Build
 	def AppendToCurrent(poNode)
-		@oCurrent.AppendChild(poNode)
+		if NOT isObject(poNode)
+			StzRaise("Incorrect param type! poNode must be a stzHtmlBuildNode.")
+		ok
+		if NOT ring_classname(poNode) = "stzhtmlbuildnode"
+			StzRaise("Incorrect param type! poNode must be a stzHtmlBuildNode.")
+		ok
+		This._AddNode(poNode, @nCur)
 		return self
 
 		# Chainable form (returns self so .AppendToCurrentQ(a).AppendToCurrentQ(b))
@@ -504,60 +528,249 @@ class stzHtmlBuilder from stzObject
 			This.AppendToCurrent(poNode)
 			return self
 
-	# Makes a node the one that AppendToCurrent adds to, and returns the builder.
+	# Moves the current position to a node of the document, given as the node itself or as a path.
 	#
-	#   poNode     the node that becomes current
-	#   returns    the builder itself
-	#   note       the builder keeps a copy of the node, not the node itself
-	#   see        Current, AppendToCurrent
-	def SetCurrent(poNode)
-		@oCurrent = poNode
+	#   pNodeOrPath    a stzHtmlBuildNode equal to one already in the document, or a path as a list of
+	#                  child numbers counted from the root, such as [ 2, 1 ]; the empty list is the root
+	#   returns        the builder itself
+	#   note           a node is found by what it contains (tag, text, attributes and descendants), not
+	#                  by identity, because Ring copies objects: of two equal nodes the one added last
+	#                  wins, and Root() gives the root; a node that is not in the document raises an error
+	#   see            CurrentPath, GoToLastChild, AppendToCurrent
+	def SetCurrent(pNodeOrPath)
+		if isList(pNodeOrPath)
+			return This.SetCurrentPath(pNodeOrPath)
+		ok
+		if NOT isObject(pNodeOrPath)
+			StzRaise("Incorrect param type! pNodeOrPath must be a stzHtmlBuildNode or a path list.")
+		ok
+		_nId_ = This._FindNodeLike(pNodeOrPath)
+		if _nId_ = 0
+			StzRaise("Can't proceed! The node is not in the document: add it before making it current.")
+		ok
+		@nCur = _nId_
 		return self
 
-		def SetCurrentQ(poNode)
-			This.SetCurrent(poNode)
+		def SetCurrentQ(pNodeOrPath)
+			This.SetCurrent(pNodeOrPath)
 			return self
 
-	# Returns the node that new children are added to.
+	# Moves the current position to the node at a path of child numbers counted from the root.
+	#
+	#   paPath     a list of child numbers, one per level, such as [ 2, 1 ] for the first child of the
+	#              second child of the root; the empty list means the root
+	#   returns    the builder itself
+	#   note       a number that is not a child position of its level raises an error and leaves the
+	#              position where it was
+	#   see        CurrentPath, SetCurrent
+	def SetCurrentPath(paPath)
+		if NOT isList(paPath)
+			StzRaise("Incorrect param type! paPath must be a list of child numbers.")
+		ok
+		_nId_ = 1
+		_nP_ = ring_len(paPath)
+		for _i_ = 1 to _nP_
+			_nK_ = paPath[_i_]
+			if NOT isNumber(_nK_)
+				StzRaise("Incorrect param type! paPath must hold only numbers.")
+			ok
+			if _nK_ < 1 or _nK_ > ring_len(@aKids[_nId_]) or _nK_ != floor(_nK_)
+				StzRaise("Can't proceed! The path leaves the document at step " + _i_ + ".")
+			ok
+			_nId_ = @aKids[_nId_][_nK_]
+		next
+		@nCur = _nId_
+		return self
+
+	# Returns where the current node lies, as the child numbers to follow from the root.
+	#
+	#   returns    a list of numbers, empty when the current node is the root
+	#   see        SetCurrentPath, GoUp
+	def CurrentPath()
+		_aRev_ = []
+		_nId_ = @nCur
+		while _nId_ != 1
+			_nPar_ = @aParent[_nId_]
+			_aRev_ + ring_find(@aKids[_nPar_], _nId_)
+			_nId_ = _nPar_
+		end
+		_aPath_ = []
+		_nR_ = ring_len(_aRev_)
+		for _i_ = _nR_ to 1 step -1
+			_aPath_ + _aRev_[_i_]
+		next
+		return _aPath_
+
+	# Makes the last child of the current node the current one, to build inside the node just added.
+	#
+	#   returns    the builder itself
+	#   note       a current node without children raises an error and the position stays
+	#   see        GoUp, AppendToCurrent
+	def GoToLastChild()
+		_nK_ = ring_len(@aKids[@nCur])
+		if _nK_ = 0
+			StzRaise("Can't proceed! The current node has no child to go to.")
+		ok
+		@nCur = @aKids[@nCur][_nK_]
+		return self
+
+	# Makes the parent of the current node the current one; at the root it stays where it is.
+	#
+	#   returns    the builder itself
+	#   note       at the root nothing is raised, as with a path that cannot go higher
+	#   see        GoToLastChild, GoToRoot
+	def GoUp()
+		if @nCur != 1
+			@nCur = @aParent[@nCur]
+		ok
+		return self
+
+	# Makes the root the current node, so that the next node is added at the top of the document.
+	#
+	#   returns    the builder itself
+	#   see        GoUp, Root
+	def GoToRoot()
+		@nCur = 1
+		return self
+
+	# Returns a copy of the node that new children are added to, with everything below it.
 	#
 	#   returns    a stzHtmlBuildNode
-	#   note       it is a copy: a change made to it does not reach the builder
+	#   note       it is a snapshot: a change made to it does not reach the builder
 	#   see        SetCurrent, Root
 	def Current()
-		return @oCurrent
+		return This._NodeOf(@nCur)
 
-	# Returns the tag-less root container of the document.
+	# Returns a copy of the tag-less root container of the document, with everything below it.
 	#
 	#   returns    a stzHtmlBuildNode
-	#   note       because of the copying noted at AppendToCurrent its children stay empty
+	#   note       it is a snapshot taken at the call: a change made to it does not reach the builder
 	#   see        Current, Build
 	def Root()
-		return @oRoot
+		return This._NodeOf(1)
+
+	# Returns how many nodes the document holds, the root container not counted.
+	#
+	#   returns    a number
+	#   note       a node added with children counts for itself and each descendant
+	#   see        Root, AppendToCurrent
+	def NodeCount()
+		return ring_len(@aTags) - 1
 
 	# Returns the HTML text of the document: the children of the root, one after the other.
 	#
-	#   returns    a text
-	#   note       the text of a node tree built apart is available as ToHtml on the node
-	#   warning    defect: it answers the empty text after AppendToCurrent, whatever was appended
-	#              (see AppendToCurrent)
+	#   returns    a text, empty when nothing was added
+	#   note       it is the text the node class gives with ToHtml, with no escaping of its own
 	#   see        BuildToFile, Root
 	#@ aka  Serialise the whole document to an HTML string.
 	def Build()
-		return @oRoot.ChildrenHtml()
+		return This._NodeOf(1).ChildrenHtml()
 
 		def ToHtml()
 			return This.Build()
 
-	# Writes the HTML text of the document to a file and returns the builder.
+	# Writes the HTML text of the document to a file, exactly the bytes the text holds.
 	#
 	#   pcPath     the file to write, which is replaced if it exists
 	#   returns    the builder itself
-	#   warning    defect: the file is created empty after AppendToCurrent, for the same reason as
-	#              Build
+	#   note       nothing is added to the text: no byte order mark, and a line break is written as the
+	#              text holds it; a path that cannot be written raises an error
 	#   see        Build
 	def BuildToFile(pcPath)
-		write(pcPath, This.Build())
+		if NOT isString(pcPath)
+			StzRaise("Incorrect param type! pcPath must be a string.")
+		ok
+		if pcPath = ""
+			StzRaise("Incorrect param value! pcPath must not be empty.")
+		ok
+		ring_write(pcPath, This.Build())
+		if NOT fexists(pcPath)
+			StzRaise("Can't proceed! The file could not be written: " + pcPath)
+		ok
 		return self
+
+	# Copies a node and its descendants into the lists of the document and returns its number.
+	#
+	#   poNode     the stzHtmlBuildNode to copy in
+	#   pnParent   the number of the node that becomes its parent
+	#   returns    the number given to the node
+	#   see        AppendToCurrent
+	def _AddNode(poNode, pnParent)
+		_nId_ = ring_len(@aTags) + 1
+		@aTags + poNode.Tag()
+		@aTexts + poNode.Text()
+		@aAttrs + poNode.Attrs()
+		@aParent + pnParent
+		@aKids + []
+		@aKids[pnParent] + _nId_
+		_aSub_ = poNode.Children()
+		_nS_ = ring_len(_aSub_)
+		for _i_ = 1 to _nS_
+			This._AddNode(_aSub_[_i_], _nId_)
+		next
+		return _nId_
+
+	# Builds a stzHtmlBuildNode tree from the lists of the document, for one node and all below it.
+	#
+	#   pnId       the number of the node to rebuild, 1 for the whole document
+	#   returns    a stzHtmlBuildNode
+	#   note       it works from the last descendant up, so that each node is complete when its parent takes it
+	#   see        Root, Current, Build
+	def _NodeOf(pnId)
+		_aOrder_ = [ pnId ]
+		_nO_ = 1
+		while _nO_ <= ring_len(_aOrder_)
+			_aK_ = @aKids[_aOrder_[_nO_]]
+			_nK_ = ring_len(_aK_)
+			for _i_ = 1 to _nK_
+				_aOrder_ + _aK_[_i_]
+			next
+			_nO_ += 1
+		end
+		_aBuilt_ = list(ring_len(@aTags))
+		_nTop_ = ring_len(_aOrder_)
+		for _j_ = _nTop_ to 1 step -1
+			_nId_ = _aOrder_[_j_]
+			_oN_ = new stzHtmlBuildNode(@aTags[_nId_])
+			_oN_.SetText(@aTexts[_nId_])
+			_nA_ = ring_len(@aAttrs[_nId_])
+			for _i_ = 1 to _nA_
+				_oN_.SetAttr(@aAttrs[_nId_][_i_][1], @aAttrs[_nId_][_i_][2])
+			next
+			_nK_ = ring_len(@aKids[_nId_])
+			for _i_ = 1 to _nK_
+				_oN_.AppendChild(_aBuilt_[ @aKids[_nId_][_i_] ])
+				_aBuilt_[ @aKids[_nId_][_i_] ] = 0
+			next
+			_aBuilt_[_nId_] = _oN_
+		next
+		return _aBuilt_[pnId]
+
+	# Finds the number of the node of the document that equals a given node, the last added first.
+	#
+	#   poNode     the stzHtmlBuildNode to look for, compared by tag, text and written form
+	#   returns    a node number, 1 for the root, or 0 when no node equals it
+	#   see        SetCurrent
+	def _FindNodeLike(poNode)
+		_cTag_  = poNode.Tag()
+		_cText_ = poNode.Text()
+		_cHtml_ = poNode.ToHtml()
+		if strcmp(_cTag_, "") = 0
+			if strcmp(_cHtml_, This.Build()) = 0
+				return 1
+			ok
+		ok
+		_nT_ = ring_len(@aTags)
+		for _i_ = _nT_ to 2 step -1
+			if strcmp(@aTags[_i_], _cTag_) = 0
+				if strcmp(@aTexts[_i_], _cText_) = 0
+					if strcmp(This._NodeOf(_i_).ToHtml(), _cHtml_) = 0
+						return _i_
+					ok
+				ok
+			ok
+		next
+		return 0
 
 # ── stzHtmlBuildNode -- a node in a builder tree ────────────
 
@@ -631,6 +844,14 @@ class stzHtmlBuildNode from stzObject
 	def SetAttr(pcName, pcValue)
 		@aAttrs + [ pcName, pcValue ]
 		return self
+
+	# Returns the attributes of the node as a list of [ name, value ] pairs, in the order they were set.
+	#
+	#   returns    a list, empty when no attribute was set
+	#   note       it is a copy: a change made to it does not reach the node
+	#   see        SetAttr, ToHtml
+	def Attrs()
+		return @aAttrs
 
 	# Adds a node as the last child and returns the node.
 	#
