@@ -443,3 +443,8 @@ Next by size: twelve classes at 3 (stzHtmlBuilder first).
 One cause: the current node was a copy. The document now lives in parallel lists inside the builder and current is a node number (CurrentPath gives child indexes). New: SetCurrentPath, CurrentPath, GoToLastChild, GoUp, GoToRoot, NodeCount. Guard 132 assertions. test/html/05 changed on purpose (empty line -> real output); stzGeoField failed once under load and passed five times after.
 Next by size: twelve classes at 3 (stzGraphComparison first).
 
+## 2026-10-19: the stzGraphComparison fix batch is ON MAIN; register 114 -> 111
+
+3 rows fixed (Content empty body; the cycle field holds TRUE/FALSE text but WithCycles/WithoutCycles tested 1/0), plus Recommend (the acyclic bonus was never given) and ByMetric (text columns raised R41). Edited only inside the class region of graph/stzGraph.ring. Guard 81 assertions. One existing test output changed on purpose (graph/72 WithoutCycles). stzGraph._GenerateExplanation has the same text-versus-number mistake, not touched.
+Next by size: twelve classes at 3 (stzWorkflowSimulation first).
+
