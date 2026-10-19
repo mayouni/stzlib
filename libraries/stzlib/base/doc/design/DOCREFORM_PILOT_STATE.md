@@ -413,3 +413,8 @@ Next by size: stzConstraint, stzListChecker, stzListOfPairs, stzTree, stzStringS
 
 origin/main and codeberg/main moved from c6a4001bb to c578e50d5 with the same commits under new hashes (history rewrite; only five root files differ). Done without force: rebase --onto origin/main of my 3 new commits, then a fast-forward push; main = 44abd69f7 on both. Old tip kept as local branch backup/docs-reform-before-rewrite (097da0557). Hashes quoted in older sections of this file are PRE-REWRITE. reference.json header commit will refresh at the next regeneration. If a push is ever refused as non-fast-forward: fetch, check `git merge-base docs/reform origin/main` (if it is 5d784fcd7 the history was rewritten again) and use `git rebase --onto origin/main <last-known-main-commit> docs/reform`, never a plain rebase and never a force push.
 
+## 2026-10-19: the stzConstraint fix batch is ON MAIN; register 136 -> 132
+
+4 rows fixed (IsConstraint called a method that no longer exists; Name never assigned; Expression read the wrong variable; CheckConstraint swallowed the error). New: SetName override, Verdict, LastError. The condition text is executed as Ring code: trusted sources only. The constraint keeps its own copy of the object. Guard 82 assertions.
+Next by size: stzListChecker, stzListOfPairs, stzTree, stzStringSplitter (4 each), then six at 3.
+
