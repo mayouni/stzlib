@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 121 methods in 65 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 117 methods in 64 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| string/stzStringSplitter.ring | stzStringSplitter | 4 |
 | file/stzHtml.ring | stzHtmlBuilder | 3 |
 | graph/stzGraph.ring | stzGraphComparison | 3 |
 | graph/stzWorkflow.ring | stzWorkflowSimulation | 3 |
@@ -369,13 +368,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzStringReplacer -- string/stzStringReplacer.ring (1)
 
 - `RemoveLast` (line 530): Leaves the text unchanged today, because the occurrence it aims at is one past the last, in place. -- it asks the nth removal for a rank equal to the number of occurrences, and that rank counts from 0 in the default case-sensitive call, so nothing is removed: one two one two one, aaa bbb and its b stay as they are; RemoveLastCS(..., 0) does remove the last occurrence
-
-## stzStringSplitter -- string/stzStringSplitter.ring (4)
-
-- `Partition` (line 564): Returns only the text before the first separator, in a one-item list, today instead of the cut into before, separator and after. -- the engine hands back the three pieces in a buffer separated by NUL bytes and Ring reads only up to the first one, so key=value=more with = gives only key; confirmed with a-b, x=y=z, one two and a Hebrew text; stzString.Partition gives the real three-part cut
-- `PartitionAfter` (line 583): Returns only the text behind the first separator, in a one-item list, today instead of the cut that keeps the separator on the first part. -- the NUL-separated engine buffer is read up to its first NUL, so key=value=more with = gives only value=more; confirmed with a-b, x=y=z and a Hebrew text
-- `RPartition` (line 602): Returns only the text before the last separator, in a one-item list, today instead of the cut into before, separator and after. -- the NUL-separated engine buffer is read up to its first NUL, so key=value=more with = gives key=value; confirmed with x=y=z
-- `RPartitionAfter` (line 621): Returns only the text behind the last separator, in a one-item list, today instead of the cut that keeps the separator on the first part. -- the NUL-separated engine buffer is read up to its first NUL, so key=value=more with = gives only more; confirmed with x=y=z and a Hebrew text
 
 ## stzStringSubStringCS -- string/stzStringSubString.ring (1)
 

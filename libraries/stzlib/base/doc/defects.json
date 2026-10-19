@@ -1,5 +1,5 @@
 {
- "count": 121,
+ "count": 117,
  "defects": [
   {
    "class": "stzAppServer",
@@ -896,38 +896,6 @@
    "line": 530,
    "symptom": "Leaves the text unchanged today, because the occurrence it aims at is one past the last, in place.",
    "cause": "it asks the nth removal for a rank equal to the number of occurrences, and that rank counts from 0 in the default case-sensitive call, so nothing is removed: one two one two one, aaa bbb and its b stay as they are; RemoveLastCS(..., 0) does remove the last occurrence"
-  },
-  {
-   "class": "stzStringSplitter",
-   "file": "string/stzStringSplitter.ring",
-   "method": "Partition",
-   "line": 564,
-   "symptom": "Returns only the text before the first separator, in a one-item list, today instead of the cut into before, separator and after.",
-   "cause": "the engine hands back the three pieces in a buffer separated by NUL bytes and Ring reads only up to the first one, so key=value=more with = gives only key; confirmed with a-b, x=y=z, one two and a Hebrew text; stzString.Partition gives the real three-part cut"
-  },
-  {
-   "class": "stzStringSplitter",
-   "file": "string/stzStringSplitter.ring",
-   "method": "PartitionAfter",
-   "line": 583,
-   "symptom": "Returns only the text behind the first separator, in a one-item list, today instead of the cut that keeps the separator on the first part.",
-   "cause": "the NUL-separated engine buffer is read up to its first NUL, so key=value=more with = gives only value=more; confirmed with a-b, x=y=z and a Hebrew text"
-  },
-  {
-   "class": "stzStringSplitter",
-   "file": "string/stzStringSplitter.ring",
-   "method": "RPartition",
-   "line": 602,
-   "symptom": "Returns only the text before the last separator, in a one-item list, today instead of the cut into before, separator and after.",
-   "cause": "the NUL-separated engine buffer is read up to its first NUL, so key=value=more with = gives key=value; confirmed with x=y=z"
-  },
-  {
-   "class": "stzStringSplitter",
-   "file": "string/stzStringSplitter.ring",
-   "method": "RPartitionAfter",
-   "line": 621,
-   "symptom": "Returns only the text behind the last separator, in a one-item list, today instead of the cut that keeps the separator on the first part.",
-   "cause": "the NUL-separated engine buffer is read up to its first NUL, so key=value=more with = gives only more; confirmed with x=y=z and a Hebrew text"
   },
   {
    "class": "stzStringSubStringCS",
