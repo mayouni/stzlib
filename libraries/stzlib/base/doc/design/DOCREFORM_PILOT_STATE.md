@@ -428,3 +428,8 @@ Next by size: stzListOfPairs, stzTree, stzStringSplitter (4 each), then seven at
 3 of 4 rows fixed (+ AreAnagramsCS); ToStzSetOfSections stays: its cause is in stzSetOfSections.ring (the constructor checks with @IsSetOfSections, an empty body, so it refuses every list). Decisions: only pairs of whole numbers expand; the empty list is a list of sections; AreAnagrams means every pair. Guard 82 assertions.
 Next by size: stzTree, stzStringSplitter (4 each), then eight at 3; stzSetOfSections is the natural follow-up.
 
+## 2026-10-19: the stzTree fix batch is ON MAIN; register 125 -> 121
+
+The four rows were Not-yet-implemented stubs, now implemented from the stzList siblings: an item is a leaf, every occurrence goes, nodes and root stay, absent item is a no-op, type-strict, CS forms fold with StzLower. Guard 91 assertions. Gate lesson: a nested forwarding alias without `return` is read as an undocumented root (doc-floor error); write it with return so it folds. Unfixed siblings listed in CONCLUSIONS (FindThisItem has no return, FindTheseItemsCS indexes wrongly).
+Next by size: stzStringSplitter (4), then nine at 3.
+
