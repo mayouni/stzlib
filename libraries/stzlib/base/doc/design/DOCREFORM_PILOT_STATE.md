@@ -409,3 +409,7 @@ UPDATE 2026-10-19: the network returned; the stzDiagram batch is PUSHED (c6a4001
 5 rows fixed, and init had masked eight more defects (swapped direction codes, no bounds check in SetPosition, ResetPosition cleared the grid, one global engine grid shared by all objects, a panic on out-of-range numbers). Guard 156 assertions. Positions 0-based; the class keeps its documented direction order and converts to the engine's. Engine owes a bounds check in stz_grid_set_pos and a per-grid handle.
 Next by size: stzConstraint, stzListChecker, stzListOfPairs, stzTree, stzStringSplitter (4 each), then five at 3.
 
+## 2026-10-19: main was REWRITTEN on both remotes (every hash changed); docs/reform follows it
+
+origin/main and codeberg/main moved from c6a4001bb to c578e50d5 with the same commits under new hashes (history rewrite; only five root files differ). Done without force: rebase --onto origin/main of my 3 new commits, then a fast-forward push; main = 44abd69f7 on both. Old tip kept as local branch backup/docs-reform-before-rewrite (097da0557). Hashes quoted in older sections of this file are PRE-REWRITE. reference.json header commit will refresh at the next regeneration. If a push is ever refused as non-fast-forward: fetch, check `git merge-base docs/reform origin/main` (if it is 5d784fcd7 the history was rewritten again) and use `git rebase --onto origin/main <last-known-main-commit> docs/reform`, never a plain rebase and never a force push.
+
