@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 141 methods in 69 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 136 methods in 68 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| graph/stzGridNav.ring | stzGridNav | 5 |
 | common/stzConstraint.ring | stzConstraint | 4 |
 | list/stzListChecker.ring | stzListChecker | 4 |
 | list/stzListOfPairs.ring | stzListOfPairs | 4 |
@@ -139,14 +138,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzGraphRule -- graph/stzGraphRule.ring (1)
 
 - `When` (line 896): Adds a clause that selects the nodes the rule looks at: a node property tested against a value; clauses are combined with AND. -- an empty property name or an unknown operator raises an error; the ordering operators compare numbers only: on a text greaterthan and lessthan never match but greaterequal and lessequal match every node, which is a defect; an unset property reads as 0, so exists fails and missing holds for it
-
-## stzGridNav -- graph/stzGridNav.ring (5)
-
-- `init` (line 83): Raises error Can't create stzGridNav! Engine returned error today instead of building a named grid. -- new stzGridNav("g", 3, 4) and new stzGridNav("g5", 5, 5) both raise, because the engine function StzEngineGridCreate takes (rows, cols) and is handed (name, rows, cols): the text is read as 0 rows and the call returns -1; StzEngineGridCreate(3, 4) called directly succeeds
-- `CurrentRow` (line 141): Returns the row of the current position, once a grid exists; none can be built today. -- unreachable today because init raises
-- `CurrentCol` (line 153): Returns the column of the current position, once a grid exists; none can be built today. -- unreachable today because init raises
-- `NeighborCount` (line 251): Returns how many cells touch the current one, up, down, left and right, inside the grid; none can be built today. -- unreachable today because init raises
-- `DistanceTo` (line 284): Returns the Manhattan distance between the current cell and another, once a grid exists; none can be built today. -- unreachable today because init raises; it also sends 3 arguments to an engine function that takes 4 (both cells), so the answer would not be the distance from the current cell
 
 ## stzKnowledgeGraph -- graph/stzKnowledgeGraph.ring (2)
 
