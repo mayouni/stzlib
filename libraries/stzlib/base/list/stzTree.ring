@@ -975,7 +975,7 @@ class stzTree from stzList
 		This._PruneItems(_aOne_, pCaseSensitive, 0)
 
 		def RemoveThisItemCS(pItem, pCaseSensitive)
-			This.RemoveItemCS(pItem, pCaseSensitive)
+			return This.RemoveItemCS(pItem, pCaseSensitive)
 
 	# Takes every occurrence of an item out of the tree, leaves at any depth, in place.
 	#
