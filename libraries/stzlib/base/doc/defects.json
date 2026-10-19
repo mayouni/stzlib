@@ -1,5 +1,5 @@
 {
- "count": 128,
+ "count": 125,
  "defects": [
   {
    "class": "stzAppServer",
@@ -260,34 +260,10 @@
   {
    "class": "stzListOfPairs",
    "file": "list/stzListOfPairs.ring",
-   "method": "ExpandedIfPairsOfNumbers",
-   "line": 1223,
-   "symptom": "Raises error R14 today instead of returning the number lists that the pairs of numbers expand to.",
-   "cause": "Raises R14 today on every call: it calls ExpandedIfPairOfNumbers, a method that exists nowhere in the loaded library"
-  },
-  {
-   "class": "stzListOfPairs",
-   "file": "list/stzListOfPairs.ring",
-   "method": "IsListOfSections",
-   "line": 1427,
-   "symptom": "Answers TRUE for any list of pairs today, instead of TRUE only when every pair is made of two numbers.",
-   "cause": "Answers TRUE whatever the pairs hold, text included: the loop records a failing pair in a variable that is never read, so the result stays at its start value"
-  },
-  {
-   "class": "stzListOfPairs",
-   "file": "list/stzListOfPairs.ring",
-   "method": "AreAnagrams",
-   "line": 1564,
-   "symptom": "Raises error R14 today instead of telling whether the two items are anagrams of each other.",
-   "cause": "Raises R14 today on every call: it reads FirstValue and SecondValue, which this class does not define"
-  },
-  {
-   "class": "stzListOfPairs",
-   "file": "list/stzListOfPairs.ring",
    "method": "ToStzSetOfSections",
-   "line": 2317,
-   "symptom": "Raises an error today instead of returning the pairs as a stzSetOfSections.",
-   "cause": "Raises \"You must provide a list of sections\" today for valid sections such as [ [ 1, 3 ], [ 5, 8 ] ]: the stzSetOfSections constructor refuses what stzListOfSections accepts"
+   "line": 2354,
+   "symptom": "Returns the pairs as a stzSetOfSections; today every call raises an error that names the cause.",
+   "cause": "Not reachable today, and not fixable in this class: the constructor of stzSetOfSections checks its argument with @IsSetOfSections, a function whose body is empty in list/stzSetOfSections.ring, so it refuses every list, [ [ 1, 3 ], [ 5, 8 ] ] included. That function must return IsSetOfSections(paSections), and IsSetOfSections must call @IsListOfSections, since stzList has no IsListOfSections method. ToStzListOfSections accepts the same pairs"
   },
   {
    "class": "stzListWalker",

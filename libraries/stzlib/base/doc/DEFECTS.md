@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 128 methods in 66 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 125 methods in 66 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| list/stzListOfPairs.ring | stzListOfPairs | 4 |
 | list/stzTree.ring | stzTree | 4 |
 | string/stzStringSplitter.ring | stzStringSplitter | 4 |
 | file/stzHtml.ring | stzHtmlBuilder | 3 |
@@ -57,6 +56,7 @@ and each was checked with a second call on different data. **None is fixed yet.*
 | list/stzListBounder.ring | stzListBounder | 1 |
 | list/stzListDuplicates.ring | stzListDuplicates | 1 |
 | list/stzListFinder.ring | stzListFinder | 1 |
+| list/stzListOfPairs.ring | stzListOfPairs | 1 |
 | list/stzYielder.ring | stzYielder | 1 |
 | math/stzTukey.ring | stzTukeyLine | 1 |
 | natural/stzNatural.ring | stzNaturalEngine | 1 |
@@ -165,12 +165,9 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 - `CountItemsW` (line 728): Raises error R14 today instead of counting the items that satisfy a W condition. -- raises Calling Method without definition: countw for every condition (two conditions tried), because the class it calls has no CountW
 
-## stzListOfPairs -- list/stzListOfPairs.ring (4)
+## stzListOfPairs -- list/stzListOfPairs.ring (1)
 
-- `ExpandedIfPairsOfNumbers` (line 1223): Raises error R14 today instead of returning the number lists that the pairs of numbers expand to. -- Raises R14 today on every call: it calls ExpandedIfPairOfNumbers, a method that exists nowhere in the loaded library
-- `IsListOfSections` (line 1427): Answers TRUE for any list of pairs today, instead of TRUE only when every pair is made of two numbers. -- Answers TRUE whatever the pairs hold, text included: the loop records a failing pair in a variable that is never read, so the result stays at its start value
-- `AreAnagrams` (line 1564): Raises error R14 today instead of telling whether the two items are anagrams of each other. -- Raises R14 today on every call: it reads FirstValue and SecondValue, which this class does not define
-- `ToStzSetOfSections` (line 2317): Raises an error today instead of returning the pairs as a stzSetOfSections. -- Raises "You must provide a list of sections" today for valid sections such as [ [ 1, 3 ], [ 5, 8 ] ]: the stzSetOfSections constructor refuses what stzListOfSections accepts
+- `ToStzSetOfSections` (line 2354): Returns the pairs as a stzSetOfSections; today every call raises an error that names the cause. -- Not reachable today, and not fixable in this class: the constructor of stzSetOfSections checks its argument with @IsSetOfSections, a function whose body is empty in list/stzSetOfSections.ring, so it refuses every list, [ [ 1, 3 ], [ 5, 8 ] ] included. That function must return IsSetOfSections(paSections), and IsSetOfSections must call @IsListOfSections, since stzList has no IsListOfSections method. ToStzListOfSections accepts the same pairs
 
 ## stzListWalker -- list/stzListWalker.ring (3)
 
