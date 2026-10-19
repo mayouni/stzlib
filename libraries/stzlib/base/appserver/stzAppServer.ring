@@ -522,7 +522,7 @@ class stzAppServer from stzObject
 	#   see        ExposeWithKey, Get_
 	#@ aka  Expose a table of an open stzDatabase as a REST resource -- the FULL CRUD floor, keyed by the "id" column (override with ExposeWithKey): GET /api/<table> -> {"rows":[[...],...]} (list) GET /api/<table>/count -> {"count":N} GET /api/<table>/<id> -> {"row":[...]} or 404 (read one) POST /api/<table> -> body "col=val&.." inserts; 201 PUT /api/<table>/<id> -> body "col=val&.." updates; {"updated":N} DE
 	def Expose(oDb, cTable)
-		@aResources + [ cTable, oDb, "id" ]
+		@aResources + [ cTable, oDb, "id", 0 ]
 		return This
 
 	# Does the same as the id-keyed exposure but finds single rows through another key column.
@@ -534,7 +534,31 @@ class stzAppServer from stzObject
 	#   see        Expose
 	#@ aka  Same, but with a custom primary-key column (e.g. "uuid", "rowid").
 	def ExposeWithKey(oDb, cTable, cKeyCol)
-		@aResources + [ cTable, oDb, "" + cKeyCol ]
+		@aResources + [ cTable, oDb, "" + cKeyCol, 0 ]
+		return This
+
+	# Serves a table of an open stzDatabase as a REST resource that can only be read, so no route of it changes or removes a row.
+	#
+	#   oDb        the open stzDatabase that holds the table
+	#   cTable     the table to expose
+	#   returns    the server, so calls can be chained
+	#   note       Only GET is served: the list, .../count and .../<id> answer as they do under Expose,
+	#              while POST, PUT and DELETE on the table answer 405 and leave the table untouched; a
+	#              route you added yourself still wins over the same path
+	#   see        Expose, ExposeReadOnlyWithKey
+	def ExposeReadOnly(oDb, cTable)
+		@aResources + [ cTable, oDb, "id", 1 ]
+		return This
+
+	# Does the same as the read-only exposure but finds single rows through another key column.
+	#
+	#   oDb        the open stzDatabase that holds the table
+	#   cTable     the table to expose
+	#   cKeyCol    the column that names one row, such as uuid
+	#   returns    the server, so calls can be chained
+	#   see        ExposeReadOnly, ExposeWithKey
+	def ExposeReadOnlyWithKey(oDb, cTable, cKeyCol)
+		@aResources + [ cTable, oDb, "" + cKeyCol, 1 ]
 		return This
 
 	  #------------------------------------------------#
@@ -1224,11 +1248,13 @@ class stzAppServer from stzObject
 		# resolve the exposed table -> its db + key column
 		_oDb_ = ""
 		_cKey_ = "id"
+		_bReadOnly_ = 0
 		_nLen_ = len(@aResources)
 		for _i_ = 1 to _nLen_
 			if @aResources[_i_][1] = _cRest_
 				_oDb_ = @aResources[_i_][2]
 				_cKey_ = @aResources[_i_][3]
+				_bReadOnly_ = @aResources[_i_][4]
 				exit
 			ok
 		next
@@ -1236,6 +1262,13 @@ class stzAppServer from stzObject
 			return 0
 		ok
 		_cTable_ = _cRest_
+
+		# A read-only table serves GET and nothing else: the writing routes
+		# below are never reached, so no request can insert, update or delete.
+		if _bReadOnly_ = 1 and oReq.Method() != "GET"
+			oResp.Status(405, "Method Not Allowed").Json([ "error", "read-only resource" ])
+			return 1
+		ok
 
 		# ---- COLLECTION routes: /api/<table> (and /count) ------------------
 		if _cSub_ = "" or _cSub_ = "count"
