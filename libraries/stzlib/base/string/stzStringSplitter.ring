@@ -21,10 +21,8 @@
 # separators, SplitBefore and SplitAfter keep them on the piece next to them, so joining the pieces
 # gives the text back. A position names a character, not a byte, so Hebrew, Arabic and emoji text is
 # cut where you expect, and a position split drops the character at that position. The CS forms take
-# 0 to ignore case. Found today: Partition, PartitionAfter, RPartition and RPartitionAfter return a
-# single piece because a NUL-separated engine buffer is cut at its first NUL; SplitAtSubStrings also
-# cuts at a literal <<<SEP>>> in the text; and a splitter built from a stzString object reads an
-# empty text once that string is appended to.
+# 0 to ignore case. Found today: SplitAtSubStrings cuts at a literal <<<SEP>>> in the text, and a splitter built
+# from a stzString object reads an empty text once that string is appended to.
 #
 #   receiver   o1 = new stzStringSplitter("a,b,,c")
 #   example    ? @@( o1.Split(",") )
@@ -544,82 +542,138 @@ class stzStringSplitter from stzObject
 	#======================================================#
 
 	def PartitionCS(pcSep, pCaseSensitive)
-		_bCase_ = @CaseSensitive(pCaseSensitive)
-		_pH_ = @oString.Engine()
-		_pR_ = StzEngineStringPartitionCS(_pH_, pcSep, _bCase_)
-		_cResult_ = StzEngineStringData(_pR_)
-		StzEngineStringFree(_pR_)
-		return _SplitNullDelimited(_cResult_)
+		_aPartP_ = This._PartitionPieces(pcSep, pCaseSensitive, 0)
+		if _aPartP_[1] = 0
+			return [ This.Content(), "", "" ]
+		ok
+		return [ _aPartP_[2], _aPartP_[3], _aPartP_[4] ]
 
-	# Returns only the text before the first separator, in a one-item list, today instead of the cut into before, separator and after.
+	# Cuts the text into the part before the first occurrence of a separator, the separator and the part after.
 	#
-	#   pcSep      the separator
-	#   returns    a list with one text; the whole text in a list when the separator is absent
-	#   note       use stzString.Partition
-	#   warning    the engine hands back the three pieces in a buffer separated by NUL bytes and
-	#              Ring reads only up to the first one, so key=value=more with = gives only key;
-	#              confirmed with a-b, x=y=z, one two and a Hebrew text; stzString.Partition gives
-	#              the real three-part cut
-	#   see        RPartition, PartitionAfter
+	#   pcSep      the separator, matched as a literal text; an empty separator never matches
+	#   returns    a list of three texts that joins back to the original; the whole text, an empty
+	#              text and an empty text when the separator is absent
+	#   note       key=value=more at = gives key, = and value=more; with the separator at the very
+	#              start or end, the part on that side is an empty text; the separator is matched
+	#              by characters, so Hebrew, accented and emoji separators cut where they should
+	#   see        RPartition, PartitionAfter, PartitionCS
 	def Partition(pcSep)
-		return This.PartitionCS(pcSep, 1)
+		_nPartCase_ = 1
+		return This.PartitionCS(pcSep, _nPartCase_)
 
 	def PartitionAfterCS(pcSep, pCaseSensitive)
-		_bCase_ = @CaseSensitive(pCaseSensitive)
-		_pH_ = @oString.Engine()
-		_pR_ = StzEngineStringPartitionAfterCS(_pH_, pcSep, _bCase_)
-		_cResult_ = StzEngineStringData(_pR_)
-		StzEngineStringFree(_pR_)
-		return _SplitNullDelimited(_cResult_)
+		_aPartAfterP_ = This._PartitionPieces(pcSep, pCaseSensitive, 0)
+		if _aPartAfterP_[1] = 0
+			return [ This.Content(), "" ]
+		ok
+		return [ _aPartAfterP_[2] + _aPartAfterP_[3], _aPartAfterP_[4] ]
 
-	# Returns only the text behind the first separator, in a one-item list, today instead of the cut that keeps the separator on the first part.
+	# Cuts the text in two just behind the first occurrence of a separator, which stays on the first part.
 	#
-	#   pcSep      the separator
-	#   returns    a list with one text; [ ] when the separator is absent
-	#   note       use stzString.Partition
-	#   warning    the NUL-separated engine buffer is read up to its first NUL, so key=value=more
-	#              with = gives only value=more; confirmed with a-b, x=y=z and a Hebrew text
-	#   see        Partition, RPartitionAfter
+	#   pcSep      the separator, matched as a literal text; an empty separator never matches
+	#   returns    a list of two texts that joins back to the original; the whole text and an empty
+	#              text when the separator is absent
+	#   note       key=value=more at = gives key= and value=more; the second part is an empty text
+	#              when the separator ends the text
+	#   see        Partition, RPartitionAfter, PartitionAfterCS
 	def PartitionAfter(pcSep)
-		return This.PartitionAfterCS(pcSep, 1)
+		_nPartAfterCase_ = 1
+		return This.PartitionAfterCS(pcSep, _nPartAfterCase_)
 
 	def RPartitionCS(pcSep, pCaseSensitive)
-		_bCase_ = @CaseSensitive(pCaseSensitive)
-		_pH_ = @oString.Engine()
-		_pR_ = StzEngineStringRpartitionCS(_pH_, pcSep, _bCase_)
-		_cResult_ = StzEngineStringData(_pR_)
-		StzEngineStringFree(_pR_)
-		return _SplitNullDelimited(_cResult_)
+		_aRPartP_ = This._PartitionPieces(pcSep, pCaseSensitive, 1)
+		if _aRPartP_[1] = 0
+			return [ "", "", This.Content() ]
+		ok
+		return [ _aRPartP_[2], _aRPartP_[3], _aRPartP_[4] ]
 
-	# Returns only the text before the last separator, in a one-item list, today instead of the cut into before, separator and after.
+	# Cuts the text into the part before the last occurrence of a separator, the separator and the part after.
 	#
-	#   pcSep      the separator
-	#   returns    a list with one text; [ ] when the separator is absent
-	#   note       use stzString.RPartition
-	#   warning    the NUL-separated engine buffer is read up to its first NUL, so key=value=more
-	#              with = gives key=value; confirmed with x=y=z
-	#   see        Partition, RPartitionAfter
+	#   pcSep      the separator, matched as a literal text; an empty separator never matches
+	#   returns    a list of three texts that joins back to the original; an empty text, an empty
+	#              text and the whole text when the separator is absent
+	#   note       key=value=more at = gives key=value, = and more; aaa at aa cuts at the last
+	#              occurrence, which starts at the second a, giving a, aa and an empty text
+	#   see        Partition, RPartitionAfter, RPartitionCS
 	def RPartition(pcSep)
-		return This.RPartitionCS(pcSep, 1)
+		_nRPartCase_ = 1
+		return This.RPartitionCS(pcSep, _nRPartCase_)
 
 	def RPartitionAfterCS(pcSep, pCaseSensitive)
-		_bCase_ = @CaseSensitive(pCaseSensitive)
-		_pH_ = @oString.Engine()
-		_pR_ = StzEngineStringRpartitionAfterCS(_pH_, pcSep, _bCase_)
-		_cResult_ = StzEngineStringData(_pR_)
-		StzEngineStringFree(_pR_)
-		return _SplitNullDelimited(_cResult_)
+		_aRPartAfterP_ = This._PartitionPieces(pcSep, pCaseSensitive, 1)
+		if _aRPartAfterP_[1] = 0
+			return [ "", This.Content() ]
+		ok
+		return [ _aRPartAfterP_[2] + _aRPartAfterP_[3], _aRPartAfterP_[4] ]
 
-	# Returns only the text behind the last separator, in a one-item list, today instead of the cut that keeps the separator on the first part.
+	# Cuts the text in two just behind the last occurrence of a separator, which stays on the first part.
 	#
-	#   pcSep      the separator
-	#   returns    a list with one text; the whole text in a list when the separator is absent
-	#   note       use stzString.RPartition
-	#   warning    the NUL-separated engine buffer is read up to its first NUL, so key=value=more
-	#              with = gives only more; confirmed with x=y=z and a Hebrew text
-	#   see        RPartition, PartitionAfter
+	#   pcSep      the separator, matched as a literal text; an empty separator never matches
+	#   returns    a list of two texts that joins back to the original; an empty text and the whole
+	#              text when the separator is absent
+	#   note       key=value=more at = gives key=value= and more
+	#   see        RPartition, PartitionAfter, RPartitionAfterCS
 	def RPartitionAfter(pcSep)
-		return This.RPartitionAfterCS(pcSep, 1)
+		_nRPartAfterCase_ = 1
+		return This.RPartitionAfterCS(pcSep, _nRPartAfterCase_)
+
+	# Finds the first or the last occurrence of a separator and returns the three pieces around it.
+	#
+	#   pcSep            the separator; anything but a text raises
+	#   pCaseSensitive   1 to match the case, 0 to ignore it
+	#   nLast            0 for the first occurrence, 1 for the last
+	#   returns          [ 1, before, separator, after ] when found, [ 0, "", "", "" ] when absent,
+	#                    when the text is empty or when the separator is empty; the separator is the
+	#                    text's own spelling of it
+	#   note             the engine's partition entries return ONE piece per call (not a buffer of
+	#                    pieces), so the cut is rebuilt from the piece before and the piece after
+	def _PartitionPieces(pcSep, pCaseSensitive, nLast)
+		if NOT isString(pcSep)
+			StzRaise("Incorrect param type! The separator must be a string.")
+			return [ 0, "", "", "" ]
+		ok
+
+		_bPpCase_ = @CaseSensitive(pCaseSensitive)
+		_pPpH_ = @oString.Engine()
+		_nPpSize_ = StzEngineStringSize(_pPpH_)
+		if _nPpSize_ = 0 or ring_len(pcSep) = 0
+			return [ 0, "", "", "" ]
+		ok
+
+		_cPpBefore_ = ""
+		_cPpAfter_ = ""
+
+		if nLast = 0
+			# The piece before is the whole text when the separator is absent
+			_pPpB_ = StzEngineStringPartitionCS(_pPpH_, pcSep, _bPpCase_)
+			_cPpBefore_ = StzEngineStringData(_pPpB_)
+			StzEngineStringFree(_pPpB_)
+			if ring_len(_cPpBefore_) >= _nPpSize_
+				return [ 0, "", "", "" ]
+			ok
+			_pPpA_ = StzEngineStringPartitionAfterCS(_pPpH_, pcSep, _bPpCase_)
+			_cPpAfter_ = StzEngineStringData(_pPpA_)
+			StzEngineStringFree(_pPpA_)
+		else
+			# The piece after is the whole text when the separator is absent
+			_pPpA_ = StzEngineStringRpartitionAfterCS(_pPpH_, pcSep, _bPpCase_)
+			_cPpAfter_ = StzEngineStringData(_pPpA_)
+			StzEngineStringFree(_pPpA_)
+			if ring_len(_cPpAfter_) >= _nPpSize_
+				return [ 0, "", "", "" ]
+			ok
+			_pPpB_ = StzEngineStringRpartitionCS(_pPpH_, pcSep, _bPpCase_)
+			_cPpBefore_ = StzEngineStringData(_pPpB_)
+			StzEngineStringFree(_pPpB_)
+		ok
+
+		_cPpSep_ = pcSep
+		if _bPpCase_ = 0
+			# The engine cut on byte offsets it found on codepoint boundaries, so a byte slice is safe here
+			_cPpSep_ = substr(@oString.Content(), ring_len(_cPpBefore_) + 1, ring_len(pcSep))
+		ok
+
+		return [ 1, _cPpBefore_, _cPpSep_, _cPpAfter_ ]
 
 	  #==============================#
 	 #     REGEX SPLIT              #
