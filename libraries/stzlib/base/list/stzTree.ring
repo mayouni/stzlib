@@ -101,8 +101,10 @@ func IsListOfValidItemsPaths(pacList)
 # item's position in its node, as in [:root][:node2][1]. Branches and Nodes list them in depth-first
 # order, Find methods return paths, and NodeAt and ItemAt read what a path points to. Node names are
 # matched without regard to case. Adding goes through AddNodeAt and AddItemAt at the end of a node;
-# a path that does not exist changes nothing without any error. Removing items is not written:
-# RemoveItem and its kin raise Not yet implemented! and RemoveThisItemCS does nothing.
+# a path that does not exist changes nothing without any error. Removing goes through RemoveItem,
+# RemoveTheseItems and RemoveAllItems: they take every occurrence of an item out of the whole tree,
+# at any depth, and leave every node and the root in place (a node may end up empty); an item that is
+# absent changes nothing without any error, and removing a node by its name is not written.
 # FindTheseItems repeats the last path of an item that occurs several times, and FindThisItem
 # answers an empty text.
 #
@@ -956,63 +958,201 @@ class stzTree from stzList
 	#----------------------------#
 
 
-	def RemoveItemCS(pItem, pCaseSensitive) #TODO
-		stzraise("Not yet implemented!")
-
-		# Accepts an item and a case flag and does nothing, since removal is not written yet.
-		#
-		#   pItem            the item to remove
-		#   pCaseSensitive   1 to match with case, 0 to ignore case
-		#   returns          nothing
-		#   note             the TODO in the class names it
-		#   warning          the body is empty: no error is raised and the tree is unchanged, while
-		#                    RemoveItem raises Not yet implemented!
-		#   see              RemoveItem
-		def RemoveThisItemCS(pItem, pCaseSensitive)
-
-	# Raises error Not yet implemented! today instead of removing an item from the tree.
+	# Takes every occurrence of an item out of the tree, at any depth, in place, with the case rule given.
 	#
-	#   pItem      the item to remove
-	#   returns    nothing
-	#   note       do not call it
-	#   warning    the removal of items is a TODO in the class
-	#   see        RemoveThisItemCS, AddItemAt
-	def RemoveItem(pItem) #TODO
-    		This.RemoveItemCS(pItem, 1)
+	#   pItem            the item to take out, a text, a number or a list
+	#   pCaseSensitive   1 to match with case, 0 to ignore the case of texts
+	#   returns          nothing; the tree changes
+	#   note             a node is never an item: removing the text of a node name leaves that node
+	#                    where it is, and the root stays; a node left with no item is kept empty; an
+	#                    item that is absent changes nothing and raises no error; a number never
+	#                    matches a text with the same digits
+	#   warning          every occurrence goes, not only the first, as in stzList
+	#   see              RemoveItem, RemoveTheseItemsCS, FindItem
+	def RemoveItemCS(pItem, pCaseSensitive)
+		_aOne_ = []
+		_aOne_ + pItem
+		This._PruneItems(_aOne_, pCaseSensitive, 0)
+
+		def RemoveThisItemCS(pItem, pCaseSensitive)
+			This.RemoveItemCS(pItem, pCaseSensitive)
+
+	# Takes every occurrence of an item out of the tree, leaves at any depth, in place.
+	#
+	#   pItem      the item to take out, a text, a number or a list
+	#   returns    nothing; the tree changes
+	#   note       X in the sample tree goes from node1, node11 and node3 at once; nodes and the root
+	#              stay, even when emptied; an absent item changes nothing and raises no error
+	#   warning    the match is exact on case (RemoveItemCS(x, 0) ignores it) and every occurrence
+	#              goes, not only the first
+	#   see        RemoveTheseItems, RemoveAllItems, FindItem
+	def RemoveItem(pItem)
+		_aOne_ = []
+		_aOne_ + pItem
+		This._PruneItems(_aOne_, 1, 0)
 
 	#--
 
-	def RemoveTheseItemsCS(paItems, pCaseSensitive) #TODO
-		stzraise("Not yet implemented!")
-
-	# Raises error Not yet implemented! today instead of removing several items from the tree.
+	# Takes every occurrence of each given item out of the tree, in place, with the case rule given.
 	#
-	#   paItems    the list of items to remove
-	#   returns    nothing
-	#   note       do not call it
-	#   warning    the removal of items is a TODO in the class
-	#   see        RemoveItem
+	#   paItems          the list of items to take out
+	#   pCaseSensitive   1 to match with case, 0 to ignore the case of texts
+	#   returns          nothing; the tree changes
+	#   note             the tree is walked once, so the order of the items does not matter and an
+	#                    empty list changes nothing
+	#   warning          a text is not a list of items: it raises Incorrect param type!
+	#   see              RemoveTheseItems, RemoveItemCS
+	def RemoveTheseItemsCS(paItems, pCaseSensitive)
+		if NOT isList(paItems)
+			stzraise("Incorrect param type! paItems must be a list.")
+		ok
+
+		This._PruneItems(paItems, pCaseSensitive, 0)
+
+	# Takes every occurrence of each given item out of the tree, in place.
+	#
+	#   paItems    the list of items to take out
+	#   returns    nothing; the tree changes
+	#   note       the order of the items does not matter; nodes and the root stay; an item that is
+	#              absent changes nothing
+	#   warning    a text is not a list of items: it raises Incorrect param type!
+	#   see        RemoveItem, RemoveAllItems
 	def RemoveTheseItems(paItems)
-		This.RemoveTheseItemsCS(paItems, 1)
+		if NOT isList(paItems)
+			stzraise("Incorrect param type! paItems must be a list.")
+		ok
 
-	# Raises error Not yet implemented! today instead of removing every item from the tree.
+		This._PruneItems(paItems, 1, 0)
+
+	# Empties the tree of its items, in place, and keeps every node and the root.
 	#
-	#   returns    nothing
-	#   note       do not call it
-	#   warning    the removal of items is a TODO in the class
-	#   see        RemoveAllItems
+	#   returns    nothing; the tree changes
+	#   note       Items answers an empty list afterwards while Branches and Nodes answer what they
+	#              did; items can be added again at once; RemoveAllItems is the same call
+	#   see        RemoveAllItems, RemoveItem
 	#@ aka  --
-	def RemoveItems() #TODO
-		stzraise("Not yet implemented!")
+	def RemoveItems()
+		_aNone_ = []
+		This._PruneItems(_aNone_, 1, 1)
 
-	# Raises error Not yet implemented! today instead of removing every item from the tree.
+	# Strips every item from the tree, in place, while every node and the root stay where they were.
 	#
-	#   returns    nothing
-	#   note       do not call it
-	#   warning    it calls RemoveItems, which is a TODO in the class
-	#   see        RemoveItems
+	#   returns    nothing; the tree changes
+	#   note       nodes that held items stay as empty nodes, so AddItemAt works on them again
+	#   see        RemoveItems, RemoveItem
 	def RemoveAllItems()
-		This.RemoveItems()
+		_aNone_ = []
+		This._PruneItems(_aNone_, 1, 1)
+
+	# An internal method used by the removals: rebuilds the content without the matching items.
+
+	def _PruneItems(paItems, pCaseSensitive, pbAll)
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		_bCaseOk_ = 0
+		if isNumber(pCaseSensitive)
+			if pCaseSensitive = 0 or pCaseSensitive = 1
+				_bCaseOk_ = 1
+			ok
+		ok
+
+		if _bCaseOk_ = 0
+			stzraise("Incorrect param type! pCaseSensitive must be 1 or 0.")
+		ok
+
+		_aKeys_ = []
+		_nLenItems_ = len(paItems)
+		for i = 1 to _nLenItems_
+			_aKeys_ + This._ItemKey(paItems[i], pCaseSensitive)
+		next
+
+		_aNew_ = This._Content()
+		_aNew_[1][2] = This._PruneContent(_aNew_[1][2], _aKeys_, pCaseSensitive, pbAll)
+		This._SetContent(_aNew_)
+
+	# An internal method used by the removals: the key of an item is its kind and a comparable value.
+
+	def _ItemKey(pItem, pCaseSensitive)
+		if isNumber(pItem)
+			return [ "n", pItem ]
+		ok
+
+		if isString(pItem)
+			if pCaseSensitive = 0
+				return [ "s", StzLower(pItem) ]
+			ok
+			return [ "s", pItem ]
+		ok
+
+		if isList(pItem)
+			_cList_ = @@(pItem)
+			if pCaseSensitive = 0
+				_cList_ = StzLower(_cList_)
+			ok
+			return [ "l", _cList_ ]
+		ok
+
+		return [ "x", "" ]
+
+	# An internal method used by the removals: copies a node content without the matching items, and
+	# walks into nested nodes the way Items does (a node is a list of 2 or more starting with a text).
+
+	def _PruneContent(paContent, paKeys, pCaseSensitive, pbAll)
+		_aOut_ = []
+		_nLenContent_ = len(paContent)
+		_nLenKeys_ = len(paKeys)
+
+		for i = 1 to _nLenContent_
+			_bNode_ = 0
+			if isList(paContent[i])
+				if len(paContent[i]) >= 2
+					if isString(paContent[i][1])
+						_bNode_ = 1
+					ok
+				ok
+			ok
+
+			if _bNode_ = 1
+				_aNode_ = paContent[i]
+				if isList(_aNode_[2])
+					_aNode_[2] = This._PruneContent(_aNode_[2], paKeys, pCaseSensitive, pbAll)
+				ok
+				_aOut_ + _aNode_
+				loop
+			ok
+
+			# a leaf item: kept unless it matches
+
+			_bGo_ = pbAll
+			if _bGo_ = 0
+				_aKey_ = This._ItemKey(paContent[i], pCaseSensitive)
+				if _aKey_[1] != "x"
+					for j = 1 to _nLenKeys_
+						if _aKey_[1] = paKeys[j][1]
+							if _aKey_[1] = "n"
+								if _aKey_[2] = paKeys[j][2]
+									_bGo_ = 1
+									exit
+								ok
+							else
+								if strcmp(_aKey_[2], paKeys[j][2]) = 0
+									_bGo_ = 1
+									exit
+								ok
+							ok
+						ok
+					next
+				ok
+			ok
+
+			if _bGo_ = 0
+				_aOut_ + paContent[i]
+			ok
+		next
+
+		return _aOut_
 
 	# Helper functions for extracting branch and position from path
 
