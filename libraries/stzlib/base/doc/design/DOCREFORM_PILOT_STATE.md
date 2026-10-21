@@ -453,3 +453,8 @@ Next by size: twelve classes at 3 (stzWorkflowSimulation first).
 The class had no init, no @aChanges and no @oGraph. Added init and a validated, atomic recording in OptimizeStep / ReassignStep / ParallelizeSteps; added Changes() and Apply() to prove effects (hand-computed on a 5-step workflow). ParallelizeSteps is recorded but has no effect: its private applier is an empty stub and the fork/join semantics are the author's decision. Guard 128 assertions.
 Next by size: twelve classes at 3 (stzListWalker first).
 
+## 2026-10-21: the two stzWorkflowSimulation decisions are implemented (on the author's delegation)
+
+ParallelizeSteps now has its effect (side by side: member-to-member edges removed, outside predecessors and successors rewired, no duplicate edges; Apply refuses steps linked through another step and restores the graph). Q forms added for the three recorders; a chain written as one expression runs on its starting simulation, a stored Q result is a copy. Guard 128 -> 245. Found in stzGraph (not touched): the edge index goes stale after removing the last edge then adding one without EdgeExists; plain copies of a workflow share engine handles, use Copy().
+Next by size: twelve classes at 3 (stzListWalker first).
+
