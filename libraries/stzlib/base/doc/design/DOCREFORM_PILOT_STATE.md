@@ -463,3 +463,8 @@ Next by size: twelve classes at 3 (stzListWalker first).
 stzListWalker is a planner of walks, not a cursor walker; its registry holds named stzWalker objects (a list of [lowercase name, walker] pairs). @aWalkers declared; AddWalker also wrapped a number step into a list. Chained calls on a returned registry member bypass the copy (fixed by returning through a local). Guard 134 assertions.
 Next by size: twelve classes at 3 (stzSet first).
 
+## 2026-10-21: the stzSet fix batch is ON MAIN; register 105 -> 102
+
+Subsets, SubSetsOfNElements and NumberOfSubsets implemented (power set by size then position; cap 65536 subsets, Subsets raises beyond 16 items; NumberOfSubsets is 2^n without listing). stzSetError was defined nowhere and is now defined inside stzSet.ring. UnionWithMany/UnifyWithMany/IntersectionWithMany fixed. Guard 88 assertions.
+Next by size: twelve classes at 3 (stzChainOfTruth first).
+
