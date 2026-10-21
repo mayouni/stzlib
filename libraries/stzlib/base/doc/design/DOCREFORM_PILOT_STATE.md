@@ -458,3 +458,8 @@ Next by size: twelve classes at 3 (stzListWalker first).
 ParallelizeSteps now has its effect (side by side: member-to-member edges removed, outside predecessors and successors rewired, no duplicate edges; Apply refuses steps linked through another step and restores the graph). Q forms added for the three recorders; a chain written as one expression runs on its starting simulation, a stored Q result is a copy. Guard 128 -> 245. Found in stzGraph (not touched): the edge index goes stale after removing the last edge then adding one without EdgeExists; plain copies of a workflow share engine handles, use Copy().
 Next by size: twelve classes at 3 (stzListWalker first).
 
+## 2026-10-21: the stzListWalker fix batch is ON MAIN; register 108 -> 105
+
+stzListWalker is a planner of walks, not a cursor walker; its registry holds named stzWalker objects (a list of [lowercase name, walker] pairs). @aWalkers declared; AddWalker also wrapped a number step into a list. Chained calls on a returned registry member bypass the copy (fixed by returning through a local). Guard 134 assertions.
+Next by size: twelve classes at 3 (stzSet first).
+
