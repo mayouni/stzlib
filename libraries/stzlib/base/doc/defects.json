@@ -1,5 +1,5 @@
 {
- "count": 108,
+ "count": 105,
  "defects": [
   {
    "class": "stzAppServer",
@@ -192,30 +192,6 @@
    "line": 2354,
    "symptom": "Returns the pairs as a stzSetOfSections; today every call raises an error that names the cause.",
    "cause": "Not reachable today, and not fixable in this class: the constructor of stzSetOfSections checks its argument with @IsSetOfSections, a function whose body is empty in list/stzSetOfSections.ring, so it refuses every list, [ [ 1, 3 ], [ 5, 8 ] ] included. That function must return IsSetOfSections(paSections), and IsSetOfSections must call @IsListOfSections, since stzList has no IsListOfSections method. ToStzListOfSections accepts the same pairs"
-  },
-  {
-   "class": "stzListWalker",
-   "file": "list/stzListWalker.ring",
-   "method": "AddWalker",
-   "line": 123,
-   "symptom": "Raises error R24 today instead of registering a named walker for the list.",
-   "cause": "it raises error R24 Using uninitialized variable: @awalkers on any list (tried on two lists), because the class reads the attribute @aWalkers without ever declaring or filling it"
-  },
-  {
-   "class": "stzListWalker",
-   "file": "list/stzListWalker.ring",
-   "method": "Walkers",
-   "line": 161,
-   "symptom": "Raises error R24 today instead of answering the registered walkers.",
-   "cause": "it raises error R24 Using uninitialized variable: @awalkers, because the class reads the attribute @aWalkers without ever declaring or filling it (tried on two lists)"
-  },
-  {
-   "class": "stzListWalker",
-   "file": "list/stzListWalker.ring",
-   "method": "Walker",
-   "line": 172,
-   "symptom": "Raises error R24 today instead of answering the walker registered under a name.",
-   "cause": "it raises error R24 Using uninitialized variable: @awalkers, as Walkers does (tried on two lists)"
   },
   {
    "class": "stzSet",

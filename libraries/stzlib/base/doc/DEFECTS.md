@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 108 methods in 61 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 105 methods in 60 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| list/stzListWalker.ring | stzListWalker | 3 |
 | list/stzSet.ring | stzSet | 3 |
 | natural/stzChainOfTruth.ring | stzChainOfTruth | 3 |
 | natural/stzChainOfValue.ring | stzChainOfValue | 3 |
@@ -145,12 +144,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzListOfPairs -- list/stzListOfPairs.ring (1)
 
 - `ToStzSetOfSections` (line 2354): Returns the pairs as a stzSetOfSections; today every call raises an error that names the cause. -- Not reachable today, and not fixable in this class: the constructor of stzSetOfSections checks its argument with @IsSetOfSections, a function whose body is empty in list/stzSetOfSections.ring, so it refuses every list, [ [ 1, 3 ], [ 5, 8 ] ] included. That function must return IsSetOfSections(paSections), and IsSetOfSections must call @IsListOfSections, since stzList has no IsListOfSections method. ToStzListOfSections accepts the same pairs
-
-## stzListWalker -- list/stzListWalker.ring (3)
-
-- `AddWalker` (line 123): Raises error R24 today instead of registering a named walker for the list. -- it raises error R24 Using uninitialized variable: @awalkers on any list (tried on two lists), because the class reads the attribute @aWalkers without ever declaring or filling it
-- `Walkers` (line 161): Raises error R24 today instead of answering the registered walkers. -- it raises error R24 Using uninitialized variable: @awalkers, because the class reads the attribute @aWalkers without ever declaring or filling it (tried on two lists)
-- `Walker` (line 172): Raises error R24 today instead of answering the walker registered under a name. -- it raises error R24 Using uninitialized variable: @awalkers, as Walkers does (tried on two lists)
 
 ## stzSet -- list/stzSet.ring (3)
 
