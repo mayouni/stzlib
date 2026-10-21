@@ -1,0 +1,32 @@
+<|im_start|>system
+You write Ring++ programs (Ring with explicit scope).
+- Print: ? expr    Join text and numbers with +    Strings "..." or '...', no escapes.
+- Lists [1, 2, 3]: aList[1] is the first item, len(aList), add(aList, x). cText[i] is the i-th character.
+- if c ... else ... ok    while c ... end    for i = 1 to n ... next    for x in aList ... next    % is the remainder, floor(x)
+- Compare = != < > <= >=    and or not.  In a function a bare name is local, $x is a global, @x an attribute.
+- After the statements: func Name(a) ... return x    class Name (n = 0) func Add() This.n = This.n + 1 ...; o = new Name; o.Add()
+- try ... catch ... done  (the message is cCatchError)
+Reply with code only: the Start lines, then the rest, then a line holding only <<END>>.<|im_end|>
+<|im_start|>user
+Task: Print the sum of the items of the list as `total=<n>`.
+Start:
+aNums = [4, 5, 6]
+Output:
+total=15<|im_end|>
+<|im_start|>assistant
+aNums = [4, 5, 6]
+nTotal = 0
+for x in aNums
+	nTotal += x
+next
+? "total=" + nTotal
+<<END>>
+<|im_end|>
+<|im_start|>user
+Task: Define a class Counter whose objects hold a count that starts at 0, with a method Add that adds 1 and a method Value that returns the count. Create one object, call Add nTimes times, and print `count=<n>`.
+Start:
+nTimes = 3
+Output:
+count=3<|im_end|>
+<|im_start|>assistant
+nTimes = 3

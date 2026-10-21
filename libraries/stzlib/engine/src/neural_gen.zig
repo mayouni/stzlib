@@ -61,8 +61,51 @@ fn kvArchInt(suffix: []const u8, dflt: i64) i64 {
         c.GGUF_TYPE_INT32 => @intCast(c.gguf_get_val_i32(ctx, id)),
         c.GGUF_TYPE_UINT64 => @intCast(c.gguf_get_val_u64(ctx, id)),
         c.GGUF_TYPE_INT64 => c.gguf_get_val_i64(ctx, id),
+        c.GGUF_TYPE_ARRAY => uniformArrayValue(ctx, id) orelse dflt,
         else => dflt,
     };
+}
+
+// Some models (granite) store a per-layer value, e.g. head_count_kv, as an ARRAY with one entry per layer.
+// When every entry is the same it IS that value; when they differ (a hybrid or otherwise irregular stack)
+// there is no single value and null is returned - callers that cannot run such a model refuse it.
+fn uniformArrayValue(ctx: *c.gguf_context, id: i64) ?i64 {
+    const at = c.gguf_get_arr_type(ctx, id);
+    const n = c.gguf_get_arr_n(ctx, id);
+    if (n == 0) return null;
+    const data = c.gguf_get_arr_data(ctx, id) orelse return null;
+    switch (at) {
+        c.GGUF_TYPE_UINT32 => {
+            const a: [*]const u32 = @ptrCast(@alignCast(data));
+            var i: usize = 1;
+            while (i < n) : (i += 1) if (a[i] != a[0]) return null;
+            return @intCast(a[0]);
+        },
+        c.GGUF_TYPE_INT32 => {
+            const a: [*]const i32 = @ptrCast(@alignCast(data));
+            var i: usize = 1;
+            while (i < n) : (i += 1) if (a[i] != a[0]) return null;
+            return @intCast(a[0]);
+        },
+        else => return null,
+    }
+}
+
+// True when the key exists as an array whose entries differ (an irregular stack this decoder cannot run).
+fn kvArchIrregularArray(suffix: []const u8) bool {
+    const ctx = gguf() orelse return false;
+    const arch = archName();
+    if (arch.len == 0) return false;
+    var buf: [96]u8 = undefined;
+    if (arch.len + suffix.len + 1 > buf.len) return false;
+    @memcpy(buf[0..arch.len], arch);
+    @memcpy(buf[arch.len..][0..suffix.len], suffix);
+    buf[arch.len + suffix.len] = 0;
+    const key: [*:0]const u8 = @ptrCast(&buf[0]);
+    const id = c.gguf_find_key(ctx, key);
+    if (id < 0) return false;
+    if (c.gguf_get_kv_type(ctx, id) != c.GGUF_TYPE_ARRAY) return false;
+    return uniformArrayValue(ctx, id) == null;
 }
 
 fn kvArchF32(suffix: []const u8, dflt: f32) f32 {
@@ -116,11 +159,23 @@ pub export fn neural_model_has_generator() callconv(.c) c_int {
     if (gguf() == null or mctx() == null) return 0;
     const arch = archName();
     const known = std.mem.eql(u8, arch, "llama") or std.mem.eql(u8, arch, "qwen2") or
-        std.mem.eql(u8, arch, "qwen3") or std.mem.eql(u8, arch, "smollm");
+        std.mem.eql(u8, arch, "qwen3") or std.mem.eql(u8, arch, "smollm") or
+        std.mem.eql(u8, arch, "granite");
     if (!known) return 0;
     var nb: [64]u8 = undefined;
     if (getTOpt(mctx(), "blk.0.attn_norm.weight", .{}, &nb) == null) return 0;
     if (getTOpt(mctx(), "output_norm.weight", .{}, &nb) == null) return 0;
+    // This decoder is a DENSE attention stack. A mixture-of-experts model, a hybrid with state-space
+    // layers, or any stack whose layers differ in KV heads is REFUSED here, so that loading it says
+    // "not a generator" instead of aborting inside the graph (the granite family ships all of these
+    // under the same arch string).
+    if (kvArchInt(".expert_count", 0) > 0) return 0;
+    if (kvArchIrregularArray(".attention.head_count_kv")) return 0;
+    const n_layers: usize = @intCast(@max(kvArchInt(".block_count", 0), 0));
+    var li: usize = 0;
+    while (li < n_layers) : (li += 1) {
+        if (getTOpt(mctx(), "blk.{d}.attn_q.weight", .{li}, &nb) == null) return 0;
+    }
     return 1;
 }
 
@@ -157,7 +212,10 @@ var g_n_vocab: usize = 0;
 var g_bos: i32 = -1;
 var g_eos: i32 = -1;
 var g_add_bos: bool = false;
-const Special = struct { s: []const u8, id: i32 };
+// `hidden`: a CONTROL token (type 3) never appears in decoded text; a USER-DEFINED added token (type 4) is matched
+// when ENCODING (so "<think>" is ONE token, as the model was trained, not "<" "think" ">") but is still shown when
+// DECODING, as llama.cpp does.
+const Special = struct { s: []const u8, id: i32, hidden: bool = true };
 var g_specials: std.ArrayList(Special) = .{};
 var g_eog: std.ArrayList(i32) = .{}; // end-of-generation ids (eos, <|im_end|>, ...)
 
@@ -208,8 +266,8 @@ fn buildBpe() bool {
         const s = std.mem.span(c.gguf_get_arr_str(ctx, tid, i)); // stable while loaded
         g_tok_map.put(s, @intCast(i)) catch {};
         if (types) |ty| {
-            if (ty[i] == 3 and s.len > 0) { // CONTROL
-                g_specials.append(gpa, .{ .s = s, .id = @intCast(i) }) catch {};
+            if ((ty[i] == 3 or ty[i] == 4) and s.len > 0) { // CONTROL, or USER-DEFINED (added tokens: <think>, <tool_call>...)
+                g_specials.append(gpa, .{ .s = s, .id = @intCast(i), .hidden = (ty[i] == 3) }) catch {};
             }
         }
     }
@@ -344,12 +402,12 @@ fn encode(text: []const u8, out: *std.ArrayList(i32)) void {
     var seg_start: usize = 0;
     while (i < text.len) {
         var matched: ?Special = null;
+        // the LONGEST special that starts here (a short one must not shadow a longer one)
         for (g_specials.items) |sp| {
             if (sp.s.len > 0 and i + sp.s.len <= text.len and
                 std.mem.eql(u8, text[i .. i + sp.s.len], sp.s))
             {
-                matched = sp;
-                break;
+                if (matched == null or sp.s.len > matched.?.s.len) matched = sp;
             }
         }
         if (matched) |sp| {
@@ -370,7 +428,7 @@ fn decodeInto(ids: []const i32, out: *std.ArrayList(u8)) void {
         if (id < 0 or @as(usize, @intCast(id)) >= g_n_vocab) continue;
         var is_special = false;
         for (g_specials.items) |sp| {
-            if (sp.id == id) {
+            if (sp.id == id and sp.hidden) {
                 is_special = true;
                 break;
             }
@@ -406,78 +464,103 @@ fn resetKv() void {
     g_n_past = 0;
 }
 
-// One decoder forward over `ids` (n_new tokens) with the current cache;
-// leaves the last token's logits in g_logits and appends K/V to the cache.
-fn forwardDecode(ids: []const i32) bool {
-    const m = mctx() orelse return false;
-    const n_new = ids.len;
-    if (n_new == 0) return false;
+// The model's shape, read once per forward and handed to the graph builder.
+const Dims = struct {
+    n_embd: usize,
+    n_head: usize,
+    n_kv: usize,
+    n_layer: usize,
+    hd: usize,
+    grp: usize,
+    eps: f32,
+    rope_base: f32,
+    n_ctx_train: i32,
+    rope_type: c_int,
+    n_past: usize,
+    // granite: four scalars that are no-ops for every other architecture (1, 0 = use 1/sqrt(hd), 1, 1)
+    emb_scale: f32,
+    att_scale: f32,
+    res_scale: f32,
+    logit_scale: f32,
+};
 
-    const n_embd: usize = @intCast(kvArchInt(".embedding_length", 0));
-    const n_head: usize = @intCast(kvArchInt(".attention.head_count", 0));
-    const n_kv: usize = @intCast(kvArchInt(".attention.head_count_kv", @intCast(n_head)));
-    const n_layer: usize = @intCast(kvArchInt(".block_count", 0));
-    if (n_embd == 0 or n_head == 0 or n_layer == 0 or n_kv == 0) return false;
-    const hd = n_embd / n_head;
-    const grp = n_head / n_kv;
-    const eps = kvArchF32(".attention.layer_norm_rms_epsilon", 1e-5);
-    const rope_base = kvArchF32(".rope.freq_base", 10000.0);
-    const n_ctx_train: i32 = @intCast(kvArchInt(".context_length", 2048));
-    const arch = archName();
-    // llama-family GGUFs are converted with PERMUTED Q/K weights so NORMAL
-    // (interleaved) rope applies; qwen2/qwen3 use the NeoX layout.
-    const rope_type: c_int = if (std.mem.eql(u8, arch, "qwen2") or std.mem.eql(u8, arch, "qwen3"))
-        c.GGML_ROPE_TYPE_NEOX
-    else
-        c.GGML_ROPE_TYPE_NORMAL;
+const DecodeGraph = struct { graph: *c.ggml_cgraph, logits: *c.ggml_tensor };
 
-    // grow the per-layer cache lists on first use
-    if (g_kc.items.len != n_layer) {
-        resetKv();
-        for (0..n_layer) |_| {
-            g_kc.append(gpa, .{}) catch return false;
-            g_vc.append(gpa, .{}) catch return false;
-        }
+const decode_graph_nodes: usize = 8192;
+
+// What the graph needs from its context, EXACTLY: every tensor's header plus
+// the data of each tensor that owns data (a view borrows its source's), plus
+// the graph object. Read off a graph built with no_alloc, where nothing is
+// allocated but everything is sized.
+fn graphPoolBytes(ctx: *c.ggml_context) usize {
+    const align_mask: usize = c.GGML_MEM_ALIGN - 1;
+    var total: usize = c.ggml_graph_overhead_custom(decode_graph_nodes, false);
+    var t = c.ggml_get_first_tensor(ctx);
+    while (t != null) : (t = c.ggml_get_next_tensor(ctx, t)) {
+        total += c.ggml_tensor_overhead();
+        if (t.*.view_src == null) total += (c.ggml_nbytes(t) + align_mask) & ~align_mask;
     }
-    const n_past = g_n_past;
-    const kv_len = n_past + n_new;
+    return total;
+}
 
-    const mem_size: usize = 128 * 1024 * 1024 + kv_len * n_new * n_head * n_layer * 24 + n_new * n_embd * n_layer * 64;
-    const ctx = c.ggml_init(.{ .mem_size = mem_size, .mem_buffer = null, .no_alloc = false }) orelse return false;
-    defer c.ggml_free(ctx);
+// Everything one decoder forward puts in its graph. With fill == false the
+// graph is built for its SHAPE only (tensors carry no data), which is what
+// lets forwardDecode size its pool from the graph instead of from a formula.
+fn buildDecodeGraph(
+    ctx: *c.ggml_context,
+    m: ?*c.ggml_context,
+    ids: []const i32,
+    d: Dims,
+    fill: bool,
+    kouts: *std.ArrayList(*c.ggml_tensor),
+    vouts: *std.ArrayList(*c.ggml_tensor),
+) ?DecodeGraph {
+    const n_new = ids.len;
+    const n_past = d.n_past;
+    const kv_len = n_past + n_new;
+    const n_embd = d.n_embd;
+    const n_head = d.n_head;
+    const n_kv = d.n_kv;
+    const n_layer = d.n_layer;
+    const hd = d.hd;
+    const grp = d.grp;
+    const eps = d.eps;
+    const rope_base = d.rope_base;
+    const n_ctx_train = d.n_ctx_train;
+    const rope_type = d.rope_type;
 
     var nb: [96]u8 = undefined;
     var nb2: [96]u8 = undefined;
 
     const tokens = c.ggml_new_tensor_1d(ctx, c.GGML_TYPE_I32, @intCast(n_new)).?;
     const positions = c.ggml_new_tensor_1d(ctx, c.GGML_TYPE_I32, @intCast(n_new)).?;
-    const td: [*]i32 = @ptrCast(@alignCast(tokens.*.data));
-    const pd: [*]i32 = @ptrCast(@alignCast(positions.*.data));
-    for (0..n_new) |i| {
-        td[i] = ids[i];
-        pd[i] = @intCast(n_past + i);
+    if (fill) {
+        const td: [*]i32 = @ptrCast(@alignCast(tokens.*.data));
+        const pd: [*]i32 = @ptrCast(@alignCast(positions.*.data));
+        for (0..n_new) |i| {
+            td[i] = ids[i];
+            pd[i] = @intCast(n_past + i);
+        }
     }
 
     // causal mask [kv_len, n_new*grp]: query x (token t = x % n_new, global
     // position n_past+t) may attend keys 0..n_past+t
     const mask = c.ggml_new_tensor_2d(ctx, c.GGML_TYPE_F32, @intCast(kv_len), @intCast(n_new * grp)).?;
-    const mkd: [*]f32 = @ptrCast(@alignCast(mask.*.data));
-    for (0..n_new * grp) |x| {
-        const t = x % n_new;
-        for (0..kv_len) |k| {
-            mkd[x * kv_len + k] = if (k <= n_past + t) 0.0 else -1.0e9;
+    if (fill) {
+        const mkd: [*]f32 = @ptrCast(@alignCast(mask.*.data));
+        for (0..n_new * grp) |x| {
+            const t = x % n_new;
+            for (0..kv_len) |k| {
+                mkd[x * kv_len + k] = if (k <= n_past + t) 0.0 else -1.0e9;
+            }
         }
     }
 
     var cur = c.ggml_get_rows(ctx, getT(m, "token_embd.weight", .{}, &nb), tokens).?;
+    if (d.emb_scale != 1.0) cur = c.ggml_scale(ctx, cur, d.emb_scale).?;
 
-    // keep per-layer Kcur/Vcur nodes to read back into the cache after compute
-    var kouts: std.ArrayList(*c.ggml_tensor) = .{};
-    defer kouts.clearAndFree(gpa);
-    var vouts: std.ArrayList(*c.ggml_tensor) = .{};
-    defer vouts.clearAndFree(gpa);
-
-    const scale: f32 = 1.0 / @sqrt(@as(f32, @floatFromInt(hd)));
+    // granite states its attention scale; everything else uses 1/sqrt(head_dim)
+    const scale: f32 = if (d.att_scale > 0.0) d.att_scale else 1.0 / @sqrt(@as(f32, @floatFromInt(hd)));
 
     for (0..n_layer) |L| {
         const inpL = cur;
@@ -493,16 +576,22 @@ fn forwardDecode(ids: []const i32) bool {
 
         // RoPE on Q and K (shape [hd, heads, n_new] as rope expects)
         var Q3 = c.ggml_reshape_3d(ctx, Q, @intCast(hd), @intCast(n_head), @intCast(n_new)).?;
+        // qwen3 normalises each head's Q (and K) with a learned [hd] weight BEFORE rope; the tensors
+        // exist only in such models, so every other architecture takes the old path unchanged
+        if (getTOpt(m, "blk.{d}.attn_q_norm.weight", .{L}, &nb2)) |qn|
+            Q3 = c.ggml_mul(ctx, c.ggml_rms_norm(ctx, Q3, eps), qn).?;
         Q3 = c.ggml_rope_ext(ctx, Q3, positions, null, @intCast(hd), rope_type, n_ctx_train, rope_base, 1.0, 0.0, 1.0, 0.0, 0.0).?;
         var K3 = c.ggml_reshape_3d(ctx, K, @intCast(hd), @intCast(n_kv), @intCast(n_new)).?;
+        if (getTOpt(m, "blk.{d}.attn_k_norm.weight", .{L}, &nb2)) |kn|
+            K3 = c.ggml_mul(ctx, c.ggml_rms_norm(ctx, K3, eps), kn).?;
         K3 = c.ggml_rope_ext(ctx, K3, positions, null, @intCast(hd), rope_type, n_ctx_train, rope_base, 1.0, 0.0, 1.0, 0.0, 0.0).?;
 
         // Kcur/Vcur in cache-readout layout [hd, n_new, heads_kv]
         const Kcur = c.ggml_cont(ctx, c.ggml_permute(ctx, K3, 0, 2, 1, 3)).?;
         const V3 = c.ggml_reshape_3d(ctx, V, @intCast(hd), @intCast(n_kv), @intCast(n_new)).?;
         const Vcur = c.ggml_cont(ctx, c.ggml_permute(ctx, V3, 0, 2, 1, 3)).?;
-        kouts.append(gpa, Kcur) catch return false;
-        vouts.append(gpa, Vcur) catch return false;
+        kouts.append(gpa, Kcur) catch return null;
+        vouts.append(gpa, Vcur) catch return null;
 
         // K_all/V_all = cached part (input tensors) ++ current
         var K_all = Kcur;
@@ -510,15 +599,17 @@ fn forwardDecode(ids: []const i32) bool {
         if (n_past > 0) {
             const kpast = c.ggml_new_tensor_3d(ctx, c.GGML_TYPE_F32, @intCast(hd), @intCast(n_past), @intCast(n_kv)).?;
             const vpast = c.ggml_new_tensor_3d(ctx, c.GGML_TYPE_F32, @intCast(hd), @intCast(n_past), @intCast(n_kv)).?;
-            const kpd: [*]f32 = @ptrCast(@alignCast(kpast.*.data));
-            const vpd: [*]f32 = @ptrCast(@alignCast(vpast.*.data));
-            const kc = g_kc.items[L].items;
-            const vc = g_vc.items[L].items;
-            for (0..n_kv) |g| {
-                for (0..n_past) |p| {
-                    for (0..hd) |d| {
-                        kpd[d + hd * (p + n_past * g)] = kc[p * (n_kv * hd) + g * hd + d];
-                        vpd[d + hd * (p + n_past * g)] = vc[p * (n_kv * hd) + g * hd + d];
+            if (fill) {
+                const kpd: [*]f32 = @ptrCast(@alignCast(kpast.*.data));
+                const vpd: [*]f32 = @ptrCast(@alignCast(vpast.*.data));
+                const kc = g_kc.items[L].items;
+                const vc = g_vc.items[L].items;
+                for (0..n_kv) |g| {
+                    for (0..n_past) |p| {
+                        for (0..hd) |dd| {
+                            kpd[dd + hd * (p + n_past * g)] = kc[p * (n_kv * hd) + g * hd + dd];
+                            vpd[dd + hd * (p + n_past * g)] = vc[p * (n_kv * hd) + g * hd + dd];
+                        }
                     }
                 }
             }
@@ -536,10 +627,11 @@ fn forwardDecode(ids: []const i32) bool {
         var KQV = c.ggml_mul_mat(ctx, Vt, KQ).?; // [hd, n_new*grp, n_kv]
         KQV = c.ggml_reshape_3d(ctx, KQV, @intCast(hd), @intCast(n_new), @intCast(n_head)).?;
         KQV = c.ggml_cont(ctx, c.ggml_permute(ctx, KQV, 0, 2, 1, 3)).?;
-        KQV = c.ggml_reshape_2d(ctx, KQV, @intCast(n_embd), @intCast(n_new)).?;
+        KQV = c.ggml_reshape_2d(ctx, KQV, @intCast(hd * n_head), @intCast(n_new)).?;
 
         var attn = c.ggml_mul_mat(ctx, getT(m, "blk.{d}.attn_output.weight", .{L}, &nb), KQV).?;
         if (getTOpt(m, "blk.{d}.attn_output.bias", .{L}, &nb2)) |bo| attn = c.ggml_add(ctx, attn, bo).?;
+        if (d.res_scale != 1.0) attn = c.ggml_scale(ctx, attn, d.res_scale).?;
         cur = c.ggml_add(ctx, attn, inpL).?;
 
         // SwiGLU FFN
@@ -549,6 +641,7 @@ fn forwardDecode(ids: []const i32) bool {
         const up = c.ggml_mul_mat(ctx, getT(m, "blk.{d}.ffn_up.weight", .{L}, &nb2), h2).?;
         var ff = c.ggml_mul(ctx, c.ggml_silu(ctx, gate), up).?;
         ff = c.ggml_mul_mat(ctx, getT(m, "blk.{d}.ffn_down.weight", .{L}, &nb), ff).?;
+        if (d.res_scale != 1.0) ff = c.ggml_scale(ctx, ff, d.res_scale).?;
         cur = c.ggml_add(ctx, cur, ff).?;
     }
 
@@ -558,12 +651,108 @@ fn forwardDecode(ids: []const i32) bool {
     const last = c.ggml_view_2d(ctx, xF, @intCast(n_embd), 1, xF.*.nb[1], @intCast((n_new - 1) * xF.*.nb[1])).?;
     const lastc = c.ggml_cont(ctx, last).?;
     const lm_w = getTOpt(m, "output.weight", .{}, &nb) orelse getT(m, "token_embd.weight", .{}, &nb);
-    const logits = c.ggml_mul_mat(ctx, lm_w, lastc).?;
+    var logits = c.ggml_mul_mat(ctx, lm_w, lastc).?;
+    // granite divides the logits by a stated factor
+    if (d.logit_scale != 1.0 and d.logit_scale > 0.0) logits = c.ggml_scale(ctx, logits, 1.0 / d.logit_scale).?;
 
-    const graph = c.ggml_new_graph_custom(ctx, 8192, false) orelse return false;
+    const graph = c.ggml_new_graph_custom(ctx, decode_graph_nodes, false) orelse return null;
     c.ggml_build_forward_expand(graph, logits);
     for (kouts.items) |t| c.ggml_build_forward_expand(graph, t);
     for (vouts.items) |t| c.ggml_build_forward_expand(graph, t);
+    return .{ .graph = graph, .logits = logits };
+}
+
+// The pool the last forward pass asked for, in bytes (0 before any). Exposed so
+// a guard can report what a prompt of a given size costs a given model.
+var g_last_pool_bytes: usize = 0;
+
+pub export fn neural_gen_last_pool_bytes() callconv(.c) f64 {
+    return @floatFromInt(g_last_pool_bytes);
+}
+
+// One decoder forward over `ids` (n_new tokens) with the current cache;
+// leaves the last token's logits in g_logits and appends K/V to the cache.
+//
+// THE POOL IS MEASURED, NOT ESTIMATED. The graph is built twice: first in a
+// context that allocates nothing (no_alloc), which is enough to know the size
+// of every tensor in it; then in a context of exactly that many bytes. The
+// formula this replaced (128 MB + kv_len*n_new*n_head*n_layer*24 + ...) was
+// a few hundred KB short for Qwen2.5-Coder-1.5B, so that model could not
+// answer a 40-token prompt, and at 512 tokens the process ended in a
+// GGML_ASSERT. A graph cannot disagree with its own size.
+fn forwardDecode(ids: []const i32) bool {
+    const m = mctx() orelse return false;
+    const n_new = ids.len;
+    if (n_new == 0) return false;
+
+    const n_embd: usize = @intCast(kvArchInt(".embedding_length", 0));
+    const n_head: usize = @intCast(kvArchInt(".attention.head_count", 0));
+    const n_kv: usize = @intCast(kvArchInt(".attention.head_count_kv", @intCast(n_head)));
+    const n_layer: usize = @intCast(kvArchInt(".block_count", 0));
+    if (n_embd == 0 or n_head == 0 or n_layer == 0 or n_kv == 0) return false;
+    const arch = archName();
+    const dims = Dims{
+        .n_embd = n_embd,
+        .n_head = n_head,
+        .n_kv = n_kv,
+        .n_layer = n_layer,
+        // Qwen3 (and others) decouple the head dimension from hidden/heads: the 0.6B has hidden 1024,
+        // 16 heads and head_dim 128, so the attention width (n_head*hd = 2048) is NOT n_embd. The GGUF
+        // says so in `.attention.key_length`; models that omit it have hd = n_embd/n_head, as before.
+        .hd = @intCast(kvArchInt(".attention.key_length", @intCast(n_embd / n_head))),
+        .grp = n_head / n_kv,
+        .eps = kvArchF32(".attention.layer_norm_rms_epsilon", 1e-5),
+        .rope_base = kvArchF32(".rope.freq_base", 10000.0),
+        .n_ctx_train = @intCast(kvArchInt(".context_length", 2048)),
+        // llama-family GGUFs are converted with PERMUTED Q/K weights so NORMAL
+        // (interleaved) rope applies; qwen2/qwen3 use the NeoX layout.
+        .rope_type = if (std.mem.eql(u8, arch, "qwen2") or std.mem.eql(u8, arch, "qwen3"))
+            c.GGML_ROPE_TYPE_NEOX
+        else
+            c.GGML_ROPE_TYPE_NORMAL,
+        .n_past = g_n_past,
+        .emb_scale = kvArchF32(".embedding_scale", 1.0),
+        .att_scale = kvArchF32(".attention.scale", 0.0),
+        .res_scale = kvArchF32(".residual_scale", 1.0),
+        .logit_scale = kvArchF32(".logit_scale", 1.0),
+    };
+
+    // grow the per-layer cache lists on first use
+    if (g_kc.items.len != n_layer) {
+        resetKv();
+        for (0..n_layer) |_| {
+            g_kc.append(gpa, .{}) catch return false;
+            g_vc.append(gpa, .{}) catch return false;
+        }
+    }
+    // resetKv() above may have zeroed g_n_past
+    const n_past = g_n_past;
+    var dims_now = dims;
+    dims_now.n_past = n_past;
+
+    var kouts: std.ArrayList(*c.ggml_tensor) = .{};
+    defer kouts.clearAndFree(gpa);
+    var vouts: std.ArrayList(*c.ggml_tensor) = .{};
+    defer vouts.clearAndFree(gpa);
+
+    // pass 1: the graph's shape, in a context that holds headers and no data
+    var pool_bytes: usize = 0;
+    {
+        const meta = c.ggml_init(.{ .mem_size = 64 * 1024 * 1024, .mem_buffer = null, .no_alloc = true }) orelse return false;
+        defer c.ggml_free(meta);
+        if (buildDecodeGraph(meta, m, ids, dims_now, false, &kouts, &vouts) == null) return false;
+        pool_bytes = graphPoolBytes(meta);
+    }
+    kouts.clearRetainingCapacity();
+    vouts.clearRetainingCapacity();
+    g_last_pool_bytes = pool_bytes;
+
+    // pass 2: the same graph, in a pool of exactly the size pass 1 measured
+    const ctx = c.ggml_init(.{ .mem_size = pool_bytes + 64 * 1024, .mem_buffer = null, .no_alloc = false }) orelse return false;
+    defer c.ggml_free(ctx);
+    const built = buildDecodeGraph(ctx, m, ids, dims_now, true, &kouts, &vouts) orelse return false;
+    const graph = built.graph;
+    const logits = built.logits;
 
     var plan = c.ggml_graph_plan(graph, 4, null);
     var wbuf: ?[]u8 = null;
@@ -575,6 +764,7 @@ fn forwardDecode(ids: []const i32) bool {
     _ = c.ggml_graph_compute(graph, &plan);
 
     // append the new K/V ([hd, n_new, n_kv], element (d,t,g)) to the caches
+    const hd = dims.hd;
     for (0..n_layer) |L| {
         const kd: [*]const f32 = @ptrCast(@alignCast(kouts.items[L].*.data));
         const vd: [*]const f32 = @ptrCast(@alignCast(vouts.items[L].*.data));
@@ -792,7 +982,7 @@ fn sampleIdConstrained(temp: f32, top_p: f32, top_k: c_int) i32 {
             const ei: usize = @intCast(e);
             if (e < 0 or ei >= g_logits.items.len) continue;
             if (kept >= cands.len) break;
-            cands[kept] = .{ .id = e, .v = g_logits.items[ei] };
+            cands[kept] = .{ .id = e, .v = g_logits.items[ei] + g_end_bias };
             kept += 1;
         }
     }
@@ -884,6 +1074,182 @@ var g_stream_topp: f32 = 1.0;
 var g_stream_topk: c_int = 0;
 var g_chunk: std.ArrayList(u8) = .{};
 
+// ---- the prompt window ------------------------------------------------------------
+//
+// A fresh prompt used to be cut to its LAST 512 tokens, silently: a system
+// message at the head survived at 506 tokens and was gone at 514, and the only
+// symptom was a wrong answer (found by the Ring++ session's local K4,
+// 2026-10-20, ringpp haro/spike/v22/k4/ENGINE_NOTES.md). Now:
+//   - a prompt is prefilled in chunks of at most `prefill_chunk` tokens through
+//     the same append path a chat turn uses, so no part of it is dropped, and
+//     because the pool is quadratic in the chunk (kv_len * n_new), chunking is
+//     also what keeps a larger model inside memory;
+//   - the window is the model's trained context (`.context_length`), or a
+//     lower limit the caller set. A prompt that does not fit is REFUSED with a
+//     code the Ring side reads (neural_gen_last_error), never trimmed;
+//   - a generation that runs into the end of the window stops and says so
+//     (neural_gen_truncated).
+const prefill_chunk: usize = 256;
+
+// ---- termination aids ----------------------------------------------------------------
+//
+// THE DECODER GUARANTEES A VALID SHAPE, NOT AN END. A grammar that may always
+// take one more statement is satisfied by one more statement, so a small model
+// that has run out of things to say can loop inside the grammar until the token
+// cap (Qwen2.5-Coder-1.5B left 8 of its 20 Ring++ programs without their end
+// marker, repeating one line up to 48 times -- ENGINE_NOTES.md, 2026-10-20). The
+// remedies belong to the sampler, not the grammar. Three, each OFF by default and
+// each deterministic (no random draw is added; a seed still reproduces a run):
+//
+//   repeat penalty   a token this generation has already produced, within the last
+//                    `rep_last_n` tokens, has its logit divided by the penalty
+//                    (multiplied, when negative) -- llama.cpp's rule. It sees only
+//                    what THIS generation wrote, never the prompt: the prompt's own
+//                    tokens are not the loop being broken.
+//   stop on repeat   the generation ends once the same non-blank line has been
+//                    written N times running. The repeated lines stay in the text;
+//                    neural_gen_stopped_on_repeat() says it happened.
+//   end bias         while the grammar is SATISFIED, the end-of-generation logits
+//                    are raised by this much, so a model that is done is let off.
+//
+// WHAT EACH ONE HURTS is the Ring side's to publish, with the measurement: a
+// penalty also taxes legitimate repeats (indentation, `end`, `)`), stop-on-repeat
+// cuts a program that really does repeat a line N times, and an end bias can end a
+// program the moment the grammar is first satisfied.
+var g_rep_penalty: f32 = 1.0;
+var g_rep_last_n: usize = 64;
+var g_stop_repeat: usize = 0;
+var g_end_bias: f32 = 0;
+var g_stopped_on_repeat: bool = false;
+var g_hist: std.ArrayList(i32) = .{}; // tokens THIS generation has produced
+var g_seen: std.ArrayList(u8) = .{}; // scratch: one flag per vocabulary id
+var g_line_cur: std.ArrayList(u8) = .{};
+var g_line_prev: std.ArrayList(u8) = .{};
+var g_line_run: usize = 0;
+
+// Install the aids for the generations that follow. rep_penalty <= 1 and
+// stop_repeat <= 0 and end_bias == 0 mean "off" for that aid.
+pub export fn neural_gen_set_termination(rep_penalty: f64, rep_last_n: c_int, stop_repeat: c_int, end_bias: f64) callconv(.c) void {
+    g_rep_penalty = if (rep_penalty > 1.0) @floatCast(rep_penalty) else 1.0;
+    g_rep_last_n = if (rep_last_n > 0) @intCast(rep_last_n) else 64;
+    g_stop_repeat = if (stop_repeat > 0) @intCast(stop_repeat) else 0;
+    g_end_bias = @floatCast(end_bias);
+}
+
+pub export fn neural_gen_clear_termination() callconv(.c) void {
+    neural_gen_set_termination(1.0, 64, 0, 0.0);
+}
+
+// 1 when the last generation was ended by the stop-on-repeat rule.
+pub export fn neural_gen_stopped_on_repeat() callconv(.c) c_int {
+    return if (g_stopped_on_repeat) 1 else 0;
+}
+
+fn resetTermination() void {
+    g_hist.clearRetainingCapacity();
+    g_line_cur.clearRetainingCapacity();
+    g_line_prev.clearRetainingCapacity();
+    g_line_run = 0;
+    g_stopped_on_repeat = false;
+}
+
+fn applyRepeatPenalty() void {
+    const n_vocab = g_logits.items.len;
+    if (n_vocab == 0 or g_hist.items.len == 0) return;
+    if (g_seen.items.len != n_vocab) {
+        g_seen.resize(gpa, n_vocab) catch return;
+        @memset(g_seen.items, 0);
+    }
+    const from = if (g_hist.items.len > g_rep_last_n) g_hist.items.len - g_rep_last_n else 0;
+    const win = g_hist.items[from..];
+    for (win) |t| {
+        if (t < 0) continue;
+        const i: usize = @intCast(t);
+        if (i >= n_vocab or g_seen.items[i] != 0) continue;
+        g_seen.items[i] = 1;
+        const v = g_logits.items[i];
+        g_logits.items[i] = if (v > 0) v / g_rep_penalty else v * g_rep_penalty;
+    }
+    for (win) |t| {
+        if (t < 0) continue;
+        const i: usize = @intCast(t);
+        if (i < n_vocab) g_seen.items[i] = 0;
+    }
+}
+
+fn trimmedLine(line: []const u8) []const u8 {
+    return std.mem.trim(u8, line, " \t\r");
+}
+
+// Feed the text of one emitted token to the repeated-line detector.
+fn trackLines(piece: []const u8) void {
+    for (piece) |b| {
+        if (b != '\n') {
+            g_line_cur.append(gpa, b) catch return;
+            continue;
+        }
+        const cur = trimmedLine(g_line_cur.items);
+        if (cur.len > 0) {
+            if (std.mem.eql(u8, cur, trimmedLine(g_line_prev.items))) {
+                g_line_run += 1;
+            } else {
+                g_line_prev.clearRetainingCapacity();
+                g_line_prev.appendSlice(gpa, cur) catch return;
+                g_line_run = 1;
+            }
+            if (g_stop_repeat > 0 and g_line_run >= g_stop_repeat) g_stopped_on_repeat = true;
+        }
+        g_line_cur.clearRetainingCapacity();
+    }
+}
+
+const GEN_OK: c_int = 0;
+const GEN_NO_GENERATOR: c_int = 1;
+const GEN_PROMPT_TOO_LONG: c_int = 2;
+const GEN_FORWARD_FAILED: c_int = 3;
+
+var g_last_error: c_int = GEN_OK;
+var g_truncated: bool = false;
+var g_ctx_limit: usize = 0; // 0 = the model's own trained context
+var g_last_prompt_tokens: usize = 0;
+
+fn contextWindow() usize {
+    const train: usize = @intCast(@max(kvArchInt(".context_length", 2048), 1));
+    if (g_ctx_limit != 0 and g_ctx_limit < train) return g_ctx_limit;
+    return train;
+}
+
+// Tokens the loaded model can hold at once (its trained context, or the limit
+// set below).
+pub export fn neural_gen_context_window() callconv(.c) c_int {
+    if (neural_model_has_generator() == 0) return 0;
+    return @intCast(@min(contextWindow(), @as(usize, 2000000000)));
+}
+
+// Lower the window below the trained context (a caller bounding memory); 0
+// restores the trained context. Returns the window now in force.
+pub export fn neural_gen_set_context_limit(n: c_int) callconv(.c) c_int {
+    g_ctx_limit = if (n > 0) @intCast(n) else 0;
+    return neural_gen_context_window();
+}
+
+// Why the last start did not begin: 0 none, 1 no generator is loaded, 2 the
+// prompt does not fit the window, 3 a forward pass failed (out of memory).
+pub export fn neural_gen_last_error() callconv(.c) c_int {
+    return g_last_error;
+}
+
+// 1 when the LAST generation stopped because the window filled, not because
+// the model finished or the caller's token budget ran out.
+pub export fn neural_gen_truncated() callconv(.c) c_int {
+    return if (g_truncated) 1 else 0;
+}
+
+// Tokens in the last prompt handed to a start (BOS included on a fresh one).
+pub export fn neural_gen_last_prompt_tokens() callconv(.c) c_int {
+    return @intCast(@min(g_last_prompt_tokens, @as(usize, 2000000000)));
+}
+
 pub export fn neural_gen_start(text: [*c]const u8, len: usize, max_new: c_int, temp: f64, top_p: f64, top_k: c_int, seed: c_int) callconv(.c) c_int {
     return neural_gen_start_x(text, len, max_new, temp, top_p, top_k, seed, 1);
 }
@@ -893,22 +1259,41 @@ pub export fn neural_gen_start(text: [*c]const u8, len: usize, max_new: c_int, t
 // processed ONCE across a conversation, not re-fed each turn.
 pub export fn neural_gen_start_x(text: [*c]const u8, len: usize, max_new: c_int, temp: f64, top_p: f64, top_k: c_int, seed: c_int, reset: c_int) callconv(.c) c_int {
     g_stream_active = false;
-    if (neural_model_has_generator() == 0) return 0;
-    if (!buildBpe()) return 0;
+    g_last_error = GEN_OK;
+    g_truncated = false;
+    g_last_prompt_tokens = 0;
+    resetTermination();
+    if (neural_model_has_generator() == 0 or !buildBpe()) {
+        g_last_error = GEN_NO_GENERATOR;
+        return 0;
+    }
     if (text == null or len == 0) return 0;
     if (reset != 0) resetKv();
     var ids: std.ArrayList(i32) = .{};
     defer ids.clearAndFree(gpa);
     encode(text[0..len], &ids);
     if (ids.items.len == 0) return 0;
-    const cap: usize = 512;
     var prompt = ids.items;
     // a follow-up turn drops the leading BOS the encoder prepends (history
-    // already opened the sequence); cap only matters on a fresh prefill.
+    // already opened the sequence)
     if (reset == 0 and g_add_bos and prompt.len > 0 and prompt[0] == g_bos)
         prompt = prompt[1..];
-    if (reset != 0 and prompt.len > cap) prompt = prompt[prompt.len - cap ..];
-    if (!forwardDecode(prompt)) return 0;
+    g_last_prompt_tokens = prompt.len;
+    // the prompt, plus what is already cached, plus room for at least one new
+    // token, must fit the window; otherwise REFUSE (never trim)
+    if (g_n_past + prompt.len >= contextWindow()) {
+        g_last_error = GEN_PROMPT_TOO_LONG;
+        return 0;
+    }
+    var off: usize = 0;
+    while (off < prompt.len) {
+        const end = @min(off + prefill_chunk, prompt.len);
+        if (!forwardDecode(prompt[off..end])) {
+            g_last_error = GEN_FORWARD_FAILED;
+            return 0;
+        }
+        off = end;
+    }
     g_stream_max = if (max_new > 0) @intCast(max_new) else 64;
     g_stream_n = 0;
     g_stream_temp = @floatCast(temp);
@@ -935,12 +1320,51 @@ pub export fn neural_gen_start_x(text: [*c]const u8, len: usize, max_new: c_int,
     return 1;
 }
 
+// ---- reading the model's probabilities for chosen tokens (the DECISION primitive) ------------------------
+//
+// A classifier does not need to GENERATE: after the prompt, the model has a distribution over its next token,
+// and the first tokens of the candidate answers are enough to tell "bug" from "billing" from "other". This reads
+// that distribution once -- no sampling, no parsing, no grammar -- and returns true probabilities (softmax over the
+// whole vocabulary), so a caller also learns how much of the mass the candidates hold at all.
+//   neural_gen_prefill_logits  prefill the prompt (a fresh sequence) and keep the last token's logits
+//   neural_gen_logit_at        the logit of one token id (-1e30 when out of range)
+//   neural_gen_logit_lse       log-sum-exp of all logits, the softmax normaliser
+pub export fn neural_gen_prefill_logits(text: [*c]const u8, len: usize) callconv(.c) c_int {
+    const ok = neural_gen_start_x(text, len, 1, 0, 1.0, 0, 0, 1);
+    g_stream_active = false;
+    return ok;
+}
+
+pub export fn neural_gen_logit_at(id: c_int) callconv(.c) f64 {
+    if (id < 0) return -1.0e30;
+    const i: usize = @intCast(id);
+    if (i >= g_logits.items.len) return -1.0e30;
+    return g_logits.items[i];
+}
+
+pub export fn neural_gen_logit_lse() callconv(.c) f64 {
+    if (g_logits.items.len == 0) return 0;
+    var mx: f32 = -3.4e38;
+    for (g_logits.items) |v| {
+        if (v > mx) mx = v;
+    }
+    var sum: f64 = 0;
+    for (g_logits.items) |v| sum += @exp(@as(f64, v - mx));
+    return @as(f64, mx) + @log(sum);
+}
+
 pub export fn neural_gen_next() callconv(.c) c_int {
     if (!g_stream_active) return 0;
     if (g_stream_n >= g_stream_max) {
         g_stream_active = false;
         return 0;
     }
+    if (g_n_past >= contextWindow()) {
+        g_truncated = true;
+        g_stream_active = false;
+        return 0;
+    }
+    if (g_rep_penalty > 1.0) applyRepeatPenalty();
     const id = if (g_gram_on)
         sampleIdConstrained(g_stream_temp, g_stream_topp, g_stream_topk)
     else
@@ -963,8 +1387,18 @@ pub export fn neural_gen_next() callconv(.c) c_int {
         return 0;
     };
     g_stream_n += 1;
+    if (g_rep_penalty > 1.0) g_hist.append(gpa, id) catch {};
+    if (g_stop_repeat > 0 and g_chunk.items.len > 1) trackLines(g_chunk.items[0 .. g_chunk.items.len - 1]);
+    if (g_stopped_on_repeat) {
+        // the token is already drawn and is returned; the cache still takes it so a
+        // following chat turn continues from a consistent state
+        _ = forwardDecode(one[0..]);
+        g_stream_active = false;
+        return 1;
+    }
     if (!forwardDecode(one[0..])) {
         g_stream_active = false;
+        g_last_error = GEN_FORWARD_FAILED;
         return 1; // the produced chunk is still valid
     }
     return 1;

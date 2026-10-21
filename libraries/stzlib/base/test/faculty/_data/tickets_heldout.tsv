@@ -1,0 +1,36 @@
+Since the update I cannot get into the iPhone app at all, the login just spins forever and I have a client demo tomorrow morning.	app	high	bug	spins forever
+No crash, just really slow when scrolling the history list on my old Pixel. Not urgent at all.	app	low	bug	slow
+Would be lovely to have a dark mode in the Android app, my eyes hurt at night. Thanks for the great work!	app	low	other	dark mode
+Tapped subscribe inside the app and got charged twice for premium, my card is now maxed out. Please refund one today.	app	high	billing	charged twice
+The app crashes every time I open the camera scanner, so I cannot check in deliveries. Whole team is stuck on this.	app	high	bug	crashes
+Is there any way to export my notes from the mobile app to PDF? Just curious, no rush whatsoever.	app	low	other	export
+Release notes warn about a crash, but nothing crashed for me; instead the notification badge shows 3 when I have zero unread.	app	low	bug	notification badge
+push notifs stopped arriving on my android since friday, we rely on them for on-call alerts and missed two incidents	app	high	bug	push notifs
+Hi, how do I change the card used for my subscription on the iPad app? Nothing is wrong, just got a new card.	app	low	billing	change the card
+Typo on the onboarding screen, it says Welcom instead of Welcome. Purely cosmetic.	app	low	bug	onboarding screen
+URGENT: my phone was stolen and the app has our payroll data, how do I recover my account and lock it remotely?	app	high	other	recover my account
+Your store listing says $4.99 but the in-app price shows 5.49 for me. Which is right? Not a big deal.	app	low	billing	5.49
+The invoice page shows an amount ten times my plan price and auto-payment runs tomorrow. Please fix before it hits my bank.	web	high	billing	auto-payment
+The invoice PDF download button is dead and our accountant needs the file for the audit closing today.	web	high	bug	download button
+Dashboard charts load a bit sluggish in Firefox, though nothing is broken. A workaround is using Chrome, so no hurry.	web	low	bug	sluggish
+Could someone resend my receipt from last March? Lost the email, no panic, whenever you get a chance.	web	low	billing	receipt
+Password reset link says expired instantly, every single time. Locked out of the dashboard and the board report is due tomorrow.	web	high	bug	reset link
+Feature idea: let us filter the team page by role. Right now I scroll through 80 names.	web	low	other	filter
+I want to downgrade from Business to Starter at renewal, where in settings do I do that?	web	low	billing	downgrade
+Still no refund after three weeks of emails. This is my rent money and I need it back immediately.	web	high	billing	refund
+Billing page header overlaps the logo on a narrow laptop window, purely cosmetic.	web	low	bug	overlaps
+Loving the new analytics tab! Compliments to the team, would recommend it to colleagues.	web	low	other	analytics tab
+Our whole team gets a 502 Bad Gateway on the dashboard since 9am, nobody can see orders. Please advise!	web	high	bug	502 Bad Gateway
+dashbord exports CSV with semicolons instead of commas, i can fix it in excel but figured u should know	web	low	bug	CSV
+POST /v2/orders returns 500 for any payload since the deploy, production checkout is down for our shop.	api	high	bug	returns 500
+Webhook retries arrive out of order sometimes. We dedupe on our side so it is not blocking anything.	api	low	bug	out of order
+We got an overage charge of 2k for API calls our logs say never happened. Please reverse it, the card is billed tomorrow.	api	high	billing	overage
+Does the Python SDK support async natively or should we wrap it with threads? Planning for next quarter.	api	low	other	Python SDK
+Docs promise 100 req/min but I get a 429 at roughly 50 in the test environment. Which number is right? Nothing urgent.	api	low	other	429
+Token refresh endpoint rejects valid refresh tokens, so all mobile clients of ours are logged out in a loop.	api	high	bug	refresh tokens
+What is the price for the enterprise rate limit tier? Our usage will triple in spring. Just budgeting.	api	low	billing	rate limit tier
+Request: please add cursor pagination to the /users listing. Offset gets painful with 2M rows.	api	low	other	cursor pagination
+Quick question, is the v1 API being switched off tomorrow? We have not migrated and the docs email was vague.	api	high	other	v1 API
+We run a small agency and would like to discuss a reseller partnership. Who is the right contact?	other	low	other	reseller partnership
+Your support replies are always friendly and fast. Just wanted to say thank you!	other	low	other	thank you
+Do you offer a student or nonprofit discount? Our club has no budget but would love to use the tools.	other	low	billing	nonprofit discount

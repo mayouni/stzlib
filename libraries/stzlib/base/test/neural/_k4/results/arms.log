@@ -1,0 +1,145 @@
+=== ARM base  start 09:41:20  cpu: cpu 158%  battery 99%  indicator offline
+MODEL qwen2.5-coder-1.5b  ARM base  grammar enforced at the sampler: 1
+R|base|T01|26.49|33|1|0|1|1|1
+R|base|T02|19.29|28|1|0|1|0|0
+R|base|T03|664.58|320|0|0|0|0|0
+R|base|T04|15.25|12|1|0|1|1|1
+R|base|T05|18.14|18|1|0|1|0|0
+R|base|T06|297.07|320|0|0|0|0|0
+R|base|T07|28.42|26|1|0|1|0|0
+R|base|T08|32.39|31|1|0|1|1|1
+R|base|T09|46.55|62|1|0|1|0|0
+R|base|T10|212.79|320|0|0|0|0|0
+R|base|T11|24.46|22|1|0|1|0|0
+R|base|T12|994.82|320|0|0|0|0|0
+R|base|T13|17963.62|320|0|0|0|0|0
+R|base|T14|1619.02|320|0|0|0|0|0
+R|base|T15|188.46|34|1|0|1|0|0
+R|base|T16|118.28|30|1|0|1|1|1
+R|base|T17|75.86|10|1|0|1|0|0
+=== ARM base  end 16:00:19  cpu: cpu  57%  THROTTLED  battery 56%  indicator offline
+=== ARM rp11  start 16:00:27  cpu: cpu  55%  THROTTLED  battery 56%  indicator offline
+=== ARM base  start 16:16:02  cpu: cpu  42%  THROTTLED  battery 72%  indicator offline
+MODEL qwen2.5-coder-1.5b  ARM base  grammar enforced at the sampler: 1
+R|base|T01|26.49|33|1|0|1|1|1
+R|base|T02|19.29|28|1|0|1|0|0
+R|base|T03|664.58|320|0|0|0|0|0
+R|base|T04|15.25|12|1|0|1|1|1
+R|base|T05|18.14|18|1|0|1|0|0
+R|base|T06|297.07|320|0|0|0|0|0
+R|base|T07|28.42|26|1|0|1|0|0
+R|base|T08|32.39|31|1|0|1|1|1
+R|base|T09|46.55|62|1|0|1|0|0
+R|base|T10|212.79|320|0|0|0|0|0
+R|base|T11|24.46|22|1|0|1|0|0
+R|base|T12|994.82|320|0|0|0|0|0
+R|base|T13|17963.62|320|0|0|0|0|0
+R|base|T14|1619.02|320|0|0|0|0|0
+R|base|T15|188.46|34|1|0|1|0|0
+R|base|T16|118.28|30|1|0|1|1|1
+R|base|T17|75.86|10|1|0|1|0|0
+R|base|T18|928.97|320|0|0|0|0|0
+R|base|T19|1372.64|320|0|0|0|0|0
+R|base|T20|166.65|41|1|0|1|1|1
+SUMMARY qwen2.5-coder-1.5b base  tasks=20  ended=12  stopped=0  shown=5  pass=5  seconds=24813.75  tokens=2907
+=== ARM base  end 16:57:45  cpu: cpu  57%  THROTTLED  battery 99%  indicator offline
+=== ARM rp13  start 16:57:51  cpu: cpu  55%  THROTTLED  battery 99%  indicator offline
+MODEL qwen2.5-coder-1.5b  ARM rp13  grammar enforced at the sampler: 1
+R|rp13|T01|162.63|37|1|0|1|0|0
+R|rp13|T02|124.94|28|1|0|1|0|0
+R|rp13|T03|2244.77|320|0|0|0|0|0
+R|rp13|T04|43.18|12|1|0|1|1|1
+R|rp13|T05|49.88|18|1|0|1|0|0
+R|rp13|T06|391.17|320|1|0|0|0|0
+R|rp13|T07|78.00|26|1|0|1|0|0
+R|rp13|T08|68.25|35|1|0|1|0|0
+R|rp13|T09|139.78|72|1|0|1|0|0
+R|rp13|T10|132.66|115|1|0|1|0|0
+R|rp13|T11|59.81|22|1|0|1|0|0
+R|rp13|T12|1701.47|320|0|0|0|0|0
+R|rp13|T13|3699.13|320|0|0|0|0|0
+R|rp13|T14|398.35|320|0|0|0|0|0
+R|rp13|T15|41.55|36|1|0|1|0|0
+R|rp13|T16|24.80|30|1|0|1|1|1
+R|rp13|T17|16.21|10|1|0|1|0|0
+R|rp13|T18|1622.31|320|0|0|0|0|0
+R|rp13|T19|3484.96|320|0|0|0|0|0
+R|rp13|T20|21.96|36|1|0|1|0|0
+SUMMARY qwen2.5-coder-1.5b rp13  tasks=20  ended=14  stopped=0  shown=2  pass=2  seconds=14505.81  tokens=2717
+=== ARM rp13  end 21:00:48  cpu: cpu 155%  battery 99%  indicator offline
+=== ARM rp11  start 21:00:51  cpu: cpu 157%  battery 99%  indicator offline
+MODEL qwen2.5-coder-1.5b  ARM rp11  grammar enforced at the sampler: 1
+R|rp11|T01|27.64|33|1|0|1|1|1
+=== ARM endbias  start 21:03:59  cpu: cpu 142%  battery 99%  indicator offline
+MODEL qwen2.5-coder-1.5b  ARM endbias  grammar enforced at the sampler: 1
+R|endbias|T01|25.27|33|1|0|1|1|1
+R|endbias|T02|18.36|28|1|0|1|0|0
+R|endbias|T03|448.20|320|0|0|0|0|0
+R|endbias|T04|10.94|12|1|0|1|1|1
+R|endbias|T05|12.62|18|1|0|1|0|0
+R|endbias|T06|217.44|320|0|0|0|0|0
+R|endbias|T07|15.24|26|1|0|1|0|0
+R|endbias|T08|15.73|31|1|0|1|1|1
+R|endbias|T09|28.86|62|1|0|1|0|0
+R|endbias|T10|117.17|320|0|0|0|0|0
+R|endbias|T11|14.89|22|1|0|1|0|0
+R|endbias|T12|453.99|320|0|0|0|0|0
+R|endbias|T13|1752.65|320|0|0|0|0|0
+R|endbias|T14|756.18|320|0|0|0|0|0
+R|endbias|T15|87.90|34|1|0|1|0|0
+R|endbias|T16|65.62|30|1|0|1|1|1
+R|endbias|T17|57.59|10|1|0|1|0|0
+R|endbias|T18|394.00|320|0|0|0|0|0
+R|endbias|T19|757.98|320|0|0|0|0|0
+R|endbias|T20|21.04|41|1|0|1|1|1
+SUMMARY qwen2.5-coder-1.5b endbias  tasks=20  ended=12  stopped=0  shown=5  pass=5  seconds=5271.67  tokens=2907
+=== ARM endbias  end 22:32:26  cpu: cpu 180%  battery 99%  indicator offline
+=== ARM stop4  start 22:32:29  cpu: cpu 180%  battery 99%  indicator offline
+MODEL qwen2.5-coder-1.5b  ARM stop4  grammar enforced at the sampler: 1
+R|stop4|T01|24.39|33|1|0|1|1|1
+R|stop4|T02|16.45|28|1|0|1|0|0
+R|stop4|T03|112.56|96|0|1|0|0|0
+R|stop4|T04|11.86|12|1|0|1|1|1
+R|stop4|T05|12.97|18|1|0|1|0|0
+R|stop4|T06|84.16|125|0|1|0|0|0
+R|stop4|T07|16.22|26|1|0|1|0|0
+R|stop4|T08|16.90|31|1|0|1|1|1
+R|stop4|T09|29.97|62|1|0|1|0|0
+R|stop4|T10|123.61|320|0|0|0|0|0
+R|stop4|T11|15.28|22|1|0|1|0|0
+R|stop4|T12|494.55|320|0|0|0|0|0
+R|stop4|T13|147.82|114|0|1|0|0|0
+R|stop4|T14|44.21|56|0|1|0|0|0
+R|stop4|T15|21.83|34|1|0|1|0|0
+R|stop4|T16|17.26|30|1|0|1|1|1
+R|stop4|T17|10.79|10|1|0|1|0|0
+R|stop4|T18|31.69|73|0|1|0|0|0
+R|stop4|T19|55.70|78|0|1|0|0|0
+R|stop4|T20|21.33|41|1|0|1|1|1
+SUMMARY qwen2.5-coder-1.5b stop4  tasks=20  ended=12  stopped=6  shown=5  pass=5  seconds=1309.55  tokens=1529
+=== ARM stop4  end 22:54:39  cpu: cpu 181%  battery 99%  indicator offline
+=== ARM rp11  start 22:54:43  cpu: cpu 186%  battery 99%  indicator offline
+MODEL qwen2.5-coder-1.5b  ARM rp11  grammar enforced at the sampler: 1
+R|rp11|T01|27.64|33|1|0|1|1|1
+R|rp11|T02|23.24|28|1|0|1|0|0
+R|rp11|T03|445.27|320|0|0|0|0|0
+R|rp11|T04|11.52|12|1|0|1|1|1
+R|rp11|T05|13.32|18|1|0|1|0|0
+R|rp11|T06|234.33|320|0|0|0|0|0
+R|rp11|T07|16.43|26|1|0|1|0|0
+R|rp11|T08|18.17|35|1|0|1|0|0
+R|rp11|T09|36.70|90|1|0|1|0|0
+R|rp11|T10|123.89|320|0|0|0|0|0
+R|rp11|T11|15.03|22|1|0|1|0|0
+R|rp11|T12|275.60|320|0|0|0|0|0
+R|rp11|T13|292.68|320|0|0|0|0|0
+R|rp11|T14|244.62|320|0|0|0|0|0
+R|rp11|T15|21.34|31|1|0|1|0|0
+R|rp11|T16|17.21|30|1|0|1|1|1
+R|rp11|T17|10.81|10|1|0|1|0|0
+R|rp11|T18|102.02|320|0|0|0|0|0
+R|rp11|T19|251.53|320|0|0|0|0|0
+R|rp11|T20|18.46|36|1|0|1|0|0
+SUMMARY qwen2.5-coder-1.5b rp11  tasks=20  ended=12  stopped=0  shown=3  pass=3  seconds=2199.81  tokens=2931
+=== ARM rp11  end 23:31:15  cpu: cpu 180%  battery 64%  indicator offline
+=== ALL DONE

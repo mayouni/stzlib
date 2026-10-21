@@ -92,7 +92,125 @@ func StzGenerate(pcPrompt, pnMaxNewTokens)
 	if NOT isNumber(pnMaxNewTokens) or pnMaxNewTokens < 1
 		pnMaxNewTokens = 64
 	ok
-	return StzEngineNeuralGenerate(pcPrompt, pnMaxNewTokens)
+	_cOut_ = StzEngineNeuralGenerate(pcPrompt, pnMaxNewTokens)
+	_StzRefuseOverlongPrompt("StzGenerate", _cOut_)
+	return _cOut_
+
+# --- THE PROMPT WINDOW -----------------------------------------------------
+# A prompt is never trimmed. It is prefilled whole (in chunks of at most 256
+# tokens) and bounded by the model's trained context; one that does not fit is
+# REFUSED, by name, with both numbers. (Until 2026-10-21 a fresh prompt was cut
+# to its last 512 tokens, silently: the system message at the head was lost and
+# the only symptom was a wrong answer.)
+
+# Tokens the loaded generator can hold at once; 0 when none is loaded.
+func StzModelContextWindow()
+	return StzEngineNeuralGenContextWindow()
+
+# Lower the window below the model's trained context (to bound memory), or 0
+# to restore it. Returns the window now in force.
+func StzSetContextLimit(pnTokens)
+	return StzEngineNeuralGenSetContextLimit(pnTokens)
+
+# How many tokens cText is, by the generator's own tokenizer (0 with none loaded).
+func StzTokenCount(pcText)
+	if StzHasGenerativeModel() = 0
+		return 0
+	ok
+	return StzEngineNeuralGenTokenize(pcText)
+
+# 1 when the LAST generation stopped because the context window filled -- not
+# because the model finished and not because the token budget ran out.
+func StzLastGenerationTruncated()
+	return StzEngineNeuralGenTruncated()
+
+# 0 none; 1 no generator loaded; 2 the prompt does not fit the window; 3 a
+# forward pass failed (out of memory).
+func StzLastGenerationError()
+	return StzEngineNeuralGenLastError()
+
+# Tokens in the last prompt handed to a generation.
+func StzLastPromptTokens()
+	return StzEngineNeuralGenPromptTokens()
+
+# Bytes of graph pool the last forward pass needed (measured, not estimated).
+func StzLastGenerationPoolBytes()
+	return StzEngineNeuralGenLastPool()
+
+# 1 when the last generation was ended by :StopOnRepeat.
+func StzLastGenerationStoppedOnRepeat()
+	return StzEngineNeuralStoppedOnRepeat()
+
+# --- THE DECISION PRIMITIVE: probabilities for chosen answers, read -- not generated -------------------------
+# StzOptionProbabilities(pcPrompt, pacOptions) reads the loaded model's next-token distribution once, after the
+# prompt, and returns the probability of each candidate answer: no sampling, no parsing, no grammar.
+#   [ :probabilities = [ [ option, p ] ... ],   p is a true softmax probability over the WHOLE vocabulary
+#     :mass = sum of those p,                   how much of the model's belief the candidates hold at all
+#     :best = the most probable option,
+#     :normalised = [ [ option, p/mass ] ... ] the choice among the candidates ]
+# Candidates are told apart by their FIRST token, so two options that begin with the same token are REFUSED
+# (rather than silently merged). [] when no generator is loaded. An answer with low :mass is the model saying
+# "none of these" -- read it as evidence, not as a choice.
+func StzOptionProbabilities(pcPrompt, pacOptions)
+	if StzHasGenerativeModel() = 0
+		return []
+	ok
+	# an encoder may prepend a BOS to every text: detect it (the first token of two different texts is then the same)
+	StzEngineNeuralGenTokenize("a")
+	_nA_ = StzEngineNeuralGenTokenAt(0)
+	StzEngineNeuralGenTokenize("b")
+	_nB_ = StzEngineNeuralGenTokenAt(0)
+	_nSkip_ = 0
+	if _nA_ = _nB_ _nSkip_ = 1 ok
+	_aIds_ = []
+	_nOpts_ = len(pacOptions)
+	for _i_ = 1 to _nOpts_
+		_nN_ = StzEngineNeuralGenTokenize(pacOptions[_i_])
+		if _nN_ <= _nSkip_
+			stzraise("StzOptionProbabilities: the option '" + pacOptions[_i_] + "' has no token of its own.")
+		ok
+		_nId_ = StzEngineNeuralGenTokenAt(_nSkip_)
+		if len(StzFind(_nId_, _aIds_)) > 0
+			stzraise("StzOptionProbabilities: two options begin with the same token (" + pacOptions[_i_] + "); they cannot be told apart by one read.")
+		ok
+		add(_aIds_, _nId_)
+	next
+	if StzEngineNeuralPrefillLogits(pcPrompt) = 0
+		return []
+	ok
+	_nLse_ = StzEngineNeuralLogitLse()
+	_aProb_ = []
+	_nMass_ = 0
+	_cBest_ = ""
+	_nBest_ = -1
+	for _i_ = 1 to _nOpts_
+		_nP_ = exp(StzEngineNeuralLogitAt(_aIds_[_i_]) - _nLse_)
+		add(_aProb_, [ pacOptions[_i_], _nP_ ])
+		_nMass_ += _nP_
+		if _nP_ > _nBest_
+			_nBest_ = _nP_
+			_cBest_ = pacOptions[_i_]
+		ok
+	next
+	_aNorm_ = []
+	for _i_ = 1 to _nOpts_
+		if _nMass_ > 0
+			add(_aNorm_, [ pacOptions[_i_], _aProb_[_i_][2] / _nMass_ ])
+		else
+			add(_aNorm_, [ pacOptions[_i_], 0 ])
+		ok
+	next
+	return [ :probabilities = _aProb_, :mass = _nMass_, :best = _cBest_, :normalised = _aNorm_ ]
+
+func _StzRefuseOverlongPrompt(pcWho, pcOut)
+	if pcOut != ""
+		return
+	ok
+	if StzEngineNeuralGenLastError() = 2
+		stzraise(pcWho + ": the prompt (" + StzEngineNeuralGenPromptTokens() +
+			" tokens) does not fit the model's context window (" +
+			StzEngineNeuralGenContextWindow() + " tokens). It is refused, not trimmed.")
+	ok
 
 # Generation with SAMPLING knobs, as a named-options list:
 #   [ :MaxTokens = 64, :Temperature = 0, :TopP = 0.95, :TopK = 40, :Seed = 42 ]
@@ -115,12 +233,24 @@ func StzGenerateXT(pcPrompt, paOptions)
 	_nTopK_ = 40
 	_nSeed_ = 42
 	_cGrammar_ = ""
+	_nRepeatPenalty_ = 1
+	_nRepeatLastN_ = 64
+	_nStopOnRepeat_ = 0
+	_nEndBias_ = 0
 	if isList(paOptions)
 		_n_ = len(paOptions)
 		for _i_ = 1 to _n_
 			if isList(paOptions[_i_]) and len(paOptions[_i_]) = 2 and isString(paOptions[_i_][1])
 				_cK_ = lower(paOptions[_i_][1])
-				if _cK_ = "maxtokens"
+				if _cK_ = "repeatpenalty"
+					_nRepeatPenalty_ = paOptions[_i_][2]
+				but _cK_ = "repeatlastn"
+					_nRepeatLastN_ = paOptions[_i_][2]
+				but _cK_ = "stoponrepeat"
+					_nStopOnRepeat_ = paOptions[_i_][2]
+				but _cK_ = "endbias"
+					_nEndBias_ = paOptions[_i_][2]
+				but _cK_ = "maxtokens"
 					_nMax_ = paOptions[_i_][2]
 				but _cK_ = "temperature"
 					_nTemp_ = paOptions[_i_][2]
@@ -151,7 +281,25 @@ func StzGenerateXT(pcPrompt, paOptions)
 		ok
 	ok
 
+	# --- TERMINATION AIDS (all OFF unless asked; deterministic under a seed) ---
+	#   :RepeatPenalty n   > 1 divides the logit of a token this answer already
+	#                      wrote (last :RepeatLastN of them, default 64). HURTS:
+	#                      it also taxes legitimate repeats -- indentation, `end`, `)`.
+	#   :StopOnRepeat n    ends the answer after the same non-blank line n times
+	#                      running. HURTS: a program that truly repeats a line n times.
+	#   :EndBias x         while a grammar is satisfied, raises the end-of-text
+	#                      logits by x. HURTS: can end at the first satisfied point.
+	# StzLastGenerationStoppedOnRepeat() says whether StopOnRepeat fired.
+	_bTerm_ = (_nRepeatPenalty_ > 1 or _nStopOnRepeat_ > 0 or _nEndBias_ != 0)
+	if _bTerm_
+		StzEngineNeuralSetTermination(_nRepeatPenalty_, _nRepeatLastN_, _nStopOnRepeat_, _nEndBias_)
+	ok
+
 	_cOut_ = StzEngineNeuralGenerateXT(pcPrompt, _nMax_, _nTemp_, _nTopP_, _nTopK_, _nSeed_)
+
+	if _bTerm_
+		StzEngineNeuralClearTermination()
+	ok
 
 	# What masking actually did, read BEFORE the grammar is uninstalled --
 	# a caller who cannot see the numbers cannot tell a constrained run
@@ -167,6 +315,7 @@ func StzGenerateXT(pcPrompt, paOptions)
 		]
 		StzEngineNeuralClearGrammar()
 	ok
+	_StzRefuseOverlongPrompt("StzGenerateXT", _cOut_)
 	return _cOut_
 
 	func @StzGenerateXT(pcPrompt, paOptions)
@@ -310,9 +459,25 @@ func StzChatPrompt(pcSystem, pcUser)
 	if NOT isString(pcSystem) or pcSystem = ""
 		pcSystem = "You are a helpful assistant. Answer briefly."
 	ok
+	# The template follows the LOADED model's architecture: Granite has its own role markers, and Qwen3 is told
+	# not to open with a <think> block (its short answers would otherwise be spent on thinking). Every other
+	# architecture gets the ChatML it always got.
+	_cArch_ = ""
+	if StzEngineNeuralModelLoaded() = 1
+		_cArch_ = lower(StzEngineNeuralModelArch())
+	ok
+	if _cArch_ = "granite"
+		return "<|start_of_role|>system<|end_of_role|>" + pcSystem + "<|end_of_text|>" + char(10) +
+			"<|start_of_role|>user<|end_of_role|>" + StzChatSafeText(pcUser) + "<|end_of_text|>" + char(10) +
+			"<|start_of_role|>assistant<|end_of_role|>"
+	ok
+	_cTail_ = ""
+	if _cArch_ = "qwen3"
+		_cTail_ = "<think>" + char(10) + char(10) + "</think>" + char(10) + char(10)
+	ok
 	return "<|im_start|>system" + char(10) + pcSystem + "<|im_end|>" + char(10) +
 		"<|im_start|>user" + char(10) + StzChatSafeText(pcUser) + "<|im_end|>" + char(10) +
-		"<|im_start|>assistant" + char(10)
+		"<|im_start|>assistant" + char(10) + _cTail_
 
 # Untrusted text made safe to place inside a chat prompt: every control-
 # token opener "<|" -- and "<" + U+FF5C, the full-width bar some model families
@@ -325,6 +490,11 @@ func StzChatSafeText(pcText)
 	_c_ = "" + pcText
 	_c_ = StzReplace(_c_, "<|", "< |")
 	_c_ = StzReplace(_c_, "<" + char(239) + char(189) + char(156), "< " + char(239) + char(189) + char(156))
+	# Since the tokenizer matches a model's USER-DEFINED added tokens as one token (Qwen3's <think>, </think>,
+	# <tool_call> ...), those structural tags are neutralised too, or untrusted text could write the real token.
+	for _t_ in [ "<think>", "</think>", "<tool_call>", "</tool_call>", "<tool_response>", "</tool_response>" ]
+		_c_ = StzReplace(_c_, _t_, "< " + right(_t_, len(_t_) - 1))
+	next
 	return _c_
 
 # Ask the loaded instruct model a question (ChatML-wrapped, greedy).

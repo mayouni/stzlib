@@ -1,0 +1,197 @@
+@@T01
+@a
+n = 10
+@b
+n = 7
+@ea
+sum=55
+@eb
+sum=28
+@@T02
+@a
+aList = [10, 20, 30, 40]
+@b
+aList = [5, 6, 7, 8, 9]
+@ea
+third=30 last=40
+@eb
+third=7 last=9
+@@T03
+@a
+aItems = ["1", "01", "1.0", "x", 2]
+@b
+aItems = ["1", 1, "01", "1.0", "1.00", "7"]
+@ea
+count=3
+@eb
+count=5
+@@T04
+@a
+cName = "item"
+n = 5
+@b
+cName = "box"
+n = 12
+@ea
+item-5
+@eb
+box-12
+@@T05
+@a
+n = 5
+@b
+n = 8
+@ea
+1 2 3 4 5
+@eb
+1 2 3 4 5 6 7 8
+@@T06
+@a
+cText = "ring plus plus"
+@b
+cText = "banana split"
+@ea
+vowels=3
+@eb
+vowels=4
+@@T07
+@a
+aList = [1, 2, 3, 4, 5]
+@b
+aList = [9, 8, 1]
+@ea
+5 4 3 2 1
+@eb
+1 8 9
+@@T08
+@a
+n = 6
+@b
+n = 5
+@ea
+fact=720
+@eb
+fact=120
+@@T09
+@a
+n = 10
+@b
+n = 6
+@ea
+1 1 2 3 5 8 13 21 34 55
+@eb
+1 1 2 3 5 8
+@@T10
+@a
+nTimes = 3
+@b
+nTimes = 5
+@ea
+count=3
+@eb
+count=5
+@@T11
+@a
+cTag = "x"
+@b
+cTag = "yz"
+@ea
+caught-x
+done
+@eb
+caught-yz
+done
+@@T12
+@a
+aList = [3, 9, 2, 7]
+@b
+aList = [-5, -2, -9]
+@ea
+max=9
+@eb
+max=-2
+@@T13
+@a
+cText = "the quick brown fox"
+@b
+cText = "  two   words "
+@ea
+words=4
+@eb
+words=2
+@@T14
+@a
+aPeople = [["ann", 31], ["bob", 27], ["cy", 45]]
+cWho = "bob"
+@b
+aPeople = [["dee", 19], ["eli", 52]]
+cWho = "eli"
+@ea
+age=27
+@eb
+age=52
+@@T15
+@a
+n = 3
+@b
+n = 4
+@ea
+1 2 3
+2 4 6
+3 6 9
+@eb
+1 2 3 4
+2 4 6 8
+3 6 9 12
+4 8 12 16
+@@T16
+@a
+a = 7
+b = 2
+@b
+a = 9
+b = 4
+@ea
+q=3 r=1
+@eb
+q=2 r=1
+@@T17
+@a
+cPiece = "ab"
+n = 3
+@b
+cPiece = "x"
+n = 5
+@ea
+ababab
+@eb
+xxxxx
+@@T18
+@a
+a = 3
+b = 2
+@b
+a = 1
+b = 5
+@ea
+out=1
+@eb
+out=0
+@@T19
+@a
+aList = [1, 2, 2, 3, 3, 3]
+@b
+aList = [7, 8, 9, 7, 8, 1]
+@ea
+distinct=3
+@eb
+distinct=4
+@@T20
+@a
+cDigits = "12345"
+@b
+cDigits = "909"
+@ea
+sum=15
+@eb
+sum=18

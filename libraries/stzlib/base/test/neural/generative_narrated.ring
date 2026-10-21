@@ -37,12 +37,13 @@ EndScenario()
 if StzHasGenerativeModel()
 
 	Scenario("Greedy generation answers factual questions")
+		# The FACT is asserted, not one model's phrasing: this guard loads the first generative GGUF it finds, which
+		# changes whenever a model is added to models/ (Granite became one in 2026-10), and each model phrases it
+		# its own way ("Jupiter." / "The largest planet of our solar system is Jupiter.").
 		Then("capital of France",
-			StzAskModel("What is the capital of France?", 24),
-			"The capital of France is Paris.")
+			StzFindFirst("paris", lower(StzAskModel("What is the capital of France?", 24))) > 0, TRUE)
 		Then("largest planet",
-			StzAskModel("Name the largest planet of our solar system.", 24),
-			"The largest planet of our solar system is Jupiter.")
+			StzFindFirst("jupiter", lower(StzAskModel("Name the largest planet of our solar system.", 24))) > 0, TRUE)
 	EndScenario()
 
 	Scenario("Sampling knobs: variety with reproducibility")

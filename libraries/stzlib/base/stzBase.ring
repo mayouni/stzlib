@@ -196,6 +196,15 @@ ok
     load "neural/stzOutputSchema.ring"
     load "neural/stzLLMFunction.ring"
 
+    # Model flow (base/faculty/): faculties with a deterministic floor and optional model implementations,
+    # wired as a data flow whose stages pass immutable parcels (SOFTANZA_MODEL_FLOW.md)
+    load "faculty/stzParcel.ring"
+    load "faculty/stzFaculty.ring"
+    load "faculty/stzRequirement.ring"
+    load "faculty/stzModelRegistry.ring"
+    load "faculty/stzCalibration.ring"
+    load "faculty/stzFlow.ring"
+
     # Reflection: self-describing objects -- harvest a class's methods + docs from
     # source, then Ask()/ExplainMethod() via the neural tier (near-natural
     # programming, no heavy LLM). Loaded after neural (uses its globals at runtime).

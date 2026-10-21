@@ -592,6 +592,18 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralgenactive", .func = &ring_NeuralGenActive },
     .{ .name = "stzengineneuralgeneratecont", .func = &ring_NeuralGenerateCont },
     .{ .name = "stzengineneuralgencached", .func = &ring_NeuralGenCached },
+    .{ .name = "stzengineneuralgencontextwindow", .func = &ring_NeuralGenContextWindow },
+    .{ .name = "stzengineneuralgensetcontextlimit", .func = &ring_NeuralGenSetContextLimit },
+    .{ .name = "stzengineneuralgenlasterror", .func = &ring_NeuralGenLastError },
+    .{ .name = "stzengineneuralgentruncated", .func = &ring_NeuralGenTruncated },
+    .{ .name = "stzengineneuralgenprompttokens", .func = &ring_NeuralGenPromptTokens },
+    .{ .name = "stzengineneuralgenlastpool", .func = &ring_NeuralGenLastPool },
+    .{ .name = "stzengineneuralsettermination", .func = &ring_NeuralSetTermination },
+    .{ .name = "stzengineneuralcleartermination", .func = &ring_NeuralClearTermination },
+    .{ .name = "stzengineneuralstoppedonrepeat", .func = &ring_NeuralStoppedOnRepeat },
+    .{ .name = "stzengineneuralprefilllogits", .func = &ring_NeuralPrefillLogits },
+    .{ .name = "stzengineneurallogitat", .func = &ring_NeuralLogitAt },
+    .{ .name = "stzengineneurallogitlse", .func = &ring_NeuralLogitLse },
     .{ .name = "stzengineneuralggufbegin", .func = &ring_GgufBegin },
     .{ .name = "stzengineneuralggufaddtensor", .func = &ring_GgufAddTensor },
     .{ .name = "stzengineneuralggufwrite", .func = &ring_GgufWrite },
@@ -689,6 +701,75 @@ fn ring_NeuralGenerateCont(p: *anyopaque) callconv(.c) void {
 
 fn ring_NeuralGenCached(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(gen.neural_gen_cached()));
+}
+
+// StzEngineNeuralGenContextWindow() -> tokens the loaded generator can hold (0 if none)
+fn ring_NeuralGenContextWindow(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gen.neural_gen_context_window()));
+}
+
+// StzEngineNeuralGenSetContextLimit(n) -> the window now in force (0 restores the trained context)
+fn ring_NeuralGenSetContextLimit(p: *anyopaque) callconv(.c) void {
+    const n: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 1));
+    rn(p, @floatFromInt(gen.neural_gen_set_context_limit(n)));
+}
+
+// StzEngineNeuralGenLastError() -> 0 none, 1 no generator, 2 prompt does not fit the window, 3 forward pass failed
+fn ring_NeuralGenLastError(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gen.neural_gen_last_error()));
+}
+
+// StzEngineNeuralGenTruncated() -> 1 when the last generation stopped because the window filled
+fn ring_NeuralGenTruncated(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gen.neural_gen_truncated()));
+}
+
+// StzEngineNeuralGenPromptTokens() -> tokens in the last prompt handed to a start
+fn ring_NeuralGenPromptTokens(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gen.neural_gen_last_prompt_tokens()));
+}
+
+// StzEngineNeuralSetTermination(nRepeatPenalty, nRepeatLastN, nStopOnRepeat, nEndBias)
+fn ring_NeuralSetTermination(p: *anyopaque) callconv(.c) void {
+    const rp: f64 = R.ring_vm_api_getnumber(p, 1);
+    const rl: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 2));
+    const sr: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 3));
+    const eb: f64 = R.ring_vm_api_getnumber(p, 4);
+    gen.neural_gen_set_termination(rp, rl, sr, eb);
+    rn(p, 1);
+}
+
+fn ring_NeuralClearTermination(p: *anyopaque) callconv(.c) void {
+    gen.neural_gen_clear_termination();
+    rn(p, 1);
+}
+
+// StzEngineNeuralStoppedOnRepeat() -> 1 when the last generation was ended by stop-on-repeat
+fn ring_NeuralStoppedOnRepeat(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gen.neural_gen_stopped_on_repeat()));
+}
+
+// StzEngineNeuralPrefillLogits(cPrompt) -> 1 when the prompt was prefilled and its next-token logits are kept
+fn ring_NeuralPrefillLogits(p: *anyopaque) callconv(.c) void {
+    const prompt = gs(p, 1);
+    const plen: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
+    rn(p, @floatFromInt(gen.neural_gen_prefill_logits(prompt, plen)));
+}
+
+// StzEngineNeuralLogitAt(nTokenId) -> that token's logit after the last prefill
+fn ring_NeuralLogitAt(p: *anyopaque) callconv(.c) void {
+    const id: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 1));
+    rn(p, gen.neural_gen_logit_at(id));
+}
+
+// StzEngineNeuralLogitLse() -> log-sum-exp of all logits (the softmax normaliser)
+fn ring_NeuralLogitLse(p: *anyopaque) callconv(.c) void {
+    rn(p, gen.neural_gen_logit_lse());
+}
+
+// StzEngineNeuralGenLastPool() -> bytes the last forward pass's graph needed
+fn ring_NeuralGenLastPool(p: *anyopaque) callconv(.c) void {
+    rn(p, gen.neural_gen_last_pool_bytes());
 }
 
 pub fn registerAll(pState: *anyopaque) void {

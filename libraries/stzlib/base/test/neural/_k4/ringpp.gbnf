@@ -1,0 +1,43 @@
+root ::= s0* fdef* cdef* "<<END>>\n"
+name ::= [A-Za-z_] [A-Za-z0-9_]*
+pname ::= [$@]? name
+num ::= [0-9]+ ("." [0-9]+)?
+str ::= "\"" [^"\n]* "\"" | "'" [^'\n]* "'"
+expr ::= andx (" or " andx)*
+andx ::= notx (" and " notx)*
+notx ::= "not " eqx | eqx
+eqx ::= cmp ((" = " | " != ") cmp)*
+cmp ::= arith (cmpop arith)?
+cmpop ::= " <= " | " >= " | " < " | " > "
+arith ::= term (addop term)*
+addop ::= " + " | " - "
+term ::= factor (mulop factor)*
+mulop ::= " * " | " / " | " % "
+factor ::= "-" factor | atom
+atom ::= num | str | "new " name ("(" args? ")")? | chain | "[" args? "]" | "(" expr ")"
+chain ::= pname trailer*
+trailer ::= "." name | "(" args? ")" | "[" expr "]"
+args ::= expr (", " expr)*
+target ::= pname ("." name | "[" expr "]")*
+call ::= pname ("." name | "[" expr "]")* "(" args? ")"
+simple ::= target " = " expr | target augop expr | target "++" | target "--" | "return" (" " expr)? | "exit" | "loop" | "? " expr | call
+augop ::= " += " | " -= " | " *= " | " /= "
+params ::= name (", " name)*
+comment ::= "#" [^\n]* "\n"
+i1 ::= "\t"
+i2 ::= i1 "\t"
+i3 ::= i2 "\t"
+i4 ::= i3 "\t"
+s0 ::= simple "\n" | comment | "\n" | "if " expr "\n" b1 ("but " expr "\n" b1)* ("else" "\n" b1)? "ok" "\n" | "while " expr "\n" b1 "end" "\n" | "for " name " = " expr " to " expr (" step " expr)? "\n" b1 "next" "\n" | "for " name " in " expr "\n" b1 "next" "\n" | "try" "\n" b1 "catch" "\n" b1 "done" "\n"
+b1 ::= (s1)+
+s1 ::= i1 simple "\n" | i1 comment | "\n" | i1 "if " expr "\n" b2 (i1 "but " expr "\n" b2)* (i1 "else" "\n" b2)? i1 "ok" "\n" | i1 "while " expr "\n" b2 i1 "end" "\n" | i1 "for " name " = " expr " to " expr (" step " expr)? "\n" b2 i1 "next" "\n" | i1 "for " name " in " expr "\n" b2 i1 "next" "\n" | i1 "try" "\n" b2 i1 "catch" "\n" b2 i1 "done" "\n"
+b2 ::= (s2)+
+s2 ::= i2 simple "\n" | i2 comment | "\n" | i2 "if " expr "\n" b3 (i2 "but " expr "\n" b3)* (i2 "else" "\n" b3)? i2 "ok" "\n" | i2 "while " expr "\n" b3 i2 "end" "\n" | i2 "for " name " = " expr " to " expr (" step " expr)? "\n" b3 i2 "next" "\n" | i2 "for " name " in " expr "\n" b3 i2 "next" "\n" | i2 "try" "\n" b3 i2 "catch" "\n" b3 i2 "done" "\n"
+b3 ::= (s3)+
+s3 ::= i3 simple "\n" | i3 comment | "\n" | i3 "if " expr "\n" b4 (i3 "but " expr "\n" b4)* (i3 "else" "\n" b4)? i3 "ok" "\n" | i3 "while " expr "\n" b4 i3 "end" "\n" | i3 "for " name " = " expr " to " expr (" step " expr)? "\n" b4 i3 "next" "\n" | i3 "for " name " in " expr "\n" b4 i3 "next" "\n" | i3 "try" "\n" b4 i3 "catch" "\n" b4 i3 "done" "\n"
+b4 ::= (s4)+
+s4 ::= i4 simple "\n" | i4 comment | "\n"
+fdef ::= "func " name "(" params? ")" "\n" b1
+attr ::= i1 name " = " expr "\n" | "\n"
+mdef ::= i1 "func " name "(" params? ")" "\n" b2 | "\n"
+cdef ::= "class " name (" from " name)? "\n" attr* mdef*
