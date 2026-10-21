@@ -26,8 +26,10 @@
 # :WalkedItems. The condition methods (WalkW, WalkUntil, WalkWhen, WalkWhile) take a test written
 # with @item for the current item. The positions of WalkBetween and WalkFromTo are not clipped to
 # the list. A walk whose step is 0 (WalkNForward, WalkNBackward, WalkForthAndBack, WalkZigZag) never
-# ends. AddWalker, Walkers and Walker raise error R24 today because the class never declares the
-# attribute they read. WalkAccumulating is a plain map, not a running total.
+# ends. AddWalker, Walkers and Walker keep a registry of named stzWalker objects (a start, an end and
+# the steps to repeat) beside the plans: it belongs to this one walker object, a copy of the object
+# carries its own, names are folded to lowercase, and Walker answers a copy of the registered object.
+# WalkAccumulating is a plain map, not a running total.
 #
 #   receiver   o1 = new stzListWalker([ 5, 12, 7, 20, 3, 18, 9 ])
 #   example    ? @@( o1.WalkNForward(3) )
@@ -49,6 +51,7 @@
 class stzListWalker from stzObject
 
 	@oList
+	@aWalkers = []
 
 	  #===================#
 	 #   INITIALIZATION  #
@@ -107,73 +110,93 @@ class stzListWalker from stzObject
 	 #  WALKING THE LIST ITEMS  #
 	#==========================#
 
-	# Raises error R24 today instead of registering a named walker for the list.
+	# Registers a named walker, a start, an end and the steps to repeat, to be read back by name.
 	#
-	#   pcName     the name of the walker
-	#   pnStart    the position to start from
-	#   pnEnd      the position to stop at
-	#   pnStep     the step between two positions
-	#   returns    nothing
-	#   note       a name that is already registered is meant to raise
-	#              CanNotAddWalkerAlreadyExistant
-	#   warning    it raises error R24 Using uninitialized variable: @awalkers on any list (tried on
-	#              two lists), because the class reads the attribute @aWalkers without ever
-	#              declaring or filling it
+	#   pcName     the name to read it back by, or a pair such as [ :Named, "w" ]; folded to lowercase,
+	#              so "W" and "w" are the same name, accents and Hebrew included; any other value raises
+	#              an error
+	#   pnStart    the number the walk starts from
+	#   pnEnd      the number the walk stops at
+	#   pnStep     the step between two numbers, or a list of steps taken in turn such as [ 1, 3 ]
+	#   returns    nothing; the registry holds one more pair
+	#   note       the registry belongs to this object: two walkers over two lists never share it, and
+	#              nothing is added when a parameter is refused
+	#   warning    a name that is already registered, in any case, raises
+	#              CanNotAddWalkerAlreadyExistant and keeps the first walker
 	#   see        Walkers, Walker
 	def AddWalker(pcName, pnStart, pnEnd, pnStep)
-
-		if CheckingParams()
-			if isList(pcName) and IsNameOrNamedNamedParamList(pcName)
-				pcName = pcName[2]
-			ok
-
-			if NOT isString(pcName)
-				StzRaise("Incorrect param type! pcName must be a string.")
-			ok
+		_cAwName_ = pcName
+		if isList(pcName) and IsNameOrNamedNamedParamList(pcName)
+			_cAwName_ = pcName[2]
 		ok
 
-		_aWalkers_ = This.Walkers()
-		_nLenWalkers_ = len(_aWalkers_)
+		if NOT isString(_cAwName_)
+			StzRaise("Incorrect param type! pcName must be a string.")
+		ok
 
-		_bNewName_ = 1
+		_cAwKey_ = StzLower(_cAwName_)
 
-		for i = 1 to _nLenWalkers_
-			if _aWalkers_[i][1] = pcName
-				_bNewName_ = 0
-				exit
-			ok
-		next
-
-		if NOT _bNewName_
+		if This._WalkerPos_(_cAwKey_) > 0
 			StzRaise(stzListError(:CanNotAddWalkerAlreadyExistant))
-		else
-			_oWalker_ = new stzWalker(pnStart, pnEnd, pnStep)
-			@aWalkers + [ pcName, _oWalker_ ]
 		ok
 
-	# Raises error R24 today instead of answering the registered walkers.
+		_pAwSteps_ = pnStep
+		if isNumber(pnStep)
+			_pAwSteps_ = [ pnStep ]
+		ok
+
+		_oAwWalker_ = new stzWalker(pnStart, pnEnd, _pAwSteps_)
+		@aWalkers + [ _cAwKey_, _oAwWalker_ ]
+
+	# Returns the registry as a list of [ name, object ] pairs, in the order they were added.
 	#
-	#   returns    nothing
-	#   warning    it raises error R24 Using uninitialized variable: @awalkers, because the class
-	#              reads the attribute @aWalkers without ever declaring or filling it (tried on two
-	#              lists)
+	#   returns    a list of pairs, each a lowercase name and a stzWalker; [ ] when nothing is registered
+	#   note       the answer is a copy, even when a call is chained on it, so changing it never
+	#              changes the registry; the objects cannot be printed with @@, ask len() or a name
 	#   see        AddWalker, Walker
 	def Walkers()
-		return @aWalkers
+		_aWksOut_ = @aWalkers
+		return _aWksOut_
 
-	# Raises error R24 today instead of answering the walker registered under a name.
+	# Returns the object registered under a name, whatever the case of the name.
 	#
-	#   pcWalkerNamed   the name the walker was registered under
-	#   returns         nothing
-	#   note            WalkerQ is the same call
-	#   warning         it raises error R24 Using uninitialized variable: @awalkers, as Walkers does
-	#                   (tried on two lists)
+	#   pcWalkerNamed   the name the object was registered under, or a pair such as [ :Named, "w" ]
+	#   returns         a stzWalker, built over the start, the end and the steps given to AddWalker
+	#   note            WalkerQ is the same call; the answer is a COPY, even when a call is chained on
+	#                   it, so changing it with WalkNumberOfTimes for example never changes the one in
+	#                   the registry
+	#   warning         a name that was never registered raises an error that says so
 	#   see             AddWalker, Walkers
 	def Walker(pcWalkerNamed)
-		return This.Walkers()[pcWalkerNamed]
+		_cWkName_ = pcWalkerNamed
+		if isList(pcWalkerNamed) and IsNameOrNamedNamedParamList(pcWalkerNamed)
+			_cWkName_ = pcWalkerNamed[2]
+		ok
+
+		if NOT isString(_cWkName_)
+			StzRaise("Incorrect param type! pcWalkerNamed must be a string.")
+		ok
+
+		_nWkPos_ = This._WalkerPos_(StzLower(_cWkName_))
+		if _nWkPos_ = 0
+			StzRaise("Incorrect param value! pcWalkerNamed must be the name of a registered walker.")
+		ok
+
+		_oWkOut_ = @aWalkers[_nWkPos_][2]
+		return _oWkOut_
 
 		def WalkerQ(pcWalkerNamed)
 			return This.Walker(pcWalkerNamed)
+
+	#-- the position of a registered name, given in lowercase; 0 when it is not registered.
+	def _WalkerPos_(pcKey)
+		_nWpLen_ = ring_len(@aWalkers)
+		for _iWp_ = 1 to _nWpLen_
+			if strcmp(@aWalkers[_iWp_][1], pcKey) = 0
+				return _iWp_
+			ok
+		next
+		return 0
 
 	  #==========================================#
 	 #  WALKING THE LIST N ITEMS FORWARD        #
