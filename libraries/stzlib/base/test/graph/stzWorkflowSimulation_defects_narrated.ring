@@ -23,8 +23,11 @@ load "../_narrated.ring"
 # keeps the workflow, the list declared with the attributes, and a check of every argument BEFORE anything is
 # stored. The class already had a consumer, a private _ApplyChanges that reads the records by the keys type, step,
 # newDuration, to and steps; it used a workflow attribute nobody declared, so it is made reachable by Apply, which
-# works on a copy. What stays unwritten, and is checked here as a limit: the restructuring for parallel steps.
-# Run from inside this folder. ASCII only on the console.
+# works on a copy. The restructuring for parallel steps was written in a second batch (see the scenarios from
+# "the chain x y z with y and z side by side" on): the arrows between the steps of a group go, each of them waits
+# for what came before any of them, what came after any of them waits for all of them, and a group linked
+# through another step is refused by Apply. The Q forms (OptimizeStepQ, ReassignStepQ, ParallelizeStepsQ) were
+# added with it. Run from inside this folder. ASCII only on the console.
 
 oW = WsBuildDiamond()
 oL = WsBuildChain()
@@ -209,21 +212,253 @@ Scenario("ParallelizeSteps: the record has the shape the consumer reads")
 	Then("the second keeps its three ids", WsJoin(aRec[:steps]), "a d e")
 EndScenario()
 
-Scenario("ParallelizeSteps: it is recorded, and applying it changes nothing yet (the stated limit)")
+Scenario("ParallelizeSteps: the chain x y z with y and z side by side (it used to change nothing; the expected result changed on purpose)")
 	oSim = new stzWorkflowSimulation(oL)
 	oSim.ParallelizeSteps([ "y", "z" ])
 	Then("one record on the chain", len(oSim.Changes()), 1)
 	oRes = oSim.Apply()
-	Then("the chain still sums to 12, not to the 3+5 = 8 a side by side y and z would give", oRes.TotalDuration(), 12)
+	Then("the sum stays 12, only the shape of the flow moves", oRes.TotalDuration(), 12)
 	aCp = oRes.CriticalPath()
-	Then("its critical path is still x y z", WsJoin(aCp[:path]), "x y z")
-	Then("and still takes 12 hours, the restructuring is not written", aCp[:duration], 12)
-	Then("applying it does not raise", WsTryApply(oSim), "")
+	Then("the critical path is x z, y is beside z and no longer before it", WsJoin(aCp[:path]), "x z")
+	Then("and takes 3 + max(4,5) = 8 hours, the figure the old guard said it could not give", aCp[:duration], 8)
+	Then("the arrow y to z is gone", oRes.EdgeExists("y", "z"), 0)
+	Then("z now waits for x, what came before y", oRes.EdgeExists("x", "z"), 1)
+	Then("x to y is kept", oRes.EdgeExists("x", "y"), 1)
+	Then("one arrow removed and one added: 2 arrows before, 2 after", "" + len(oL.Edges()) + " " + len(oRes.Edges()), "2 2")
+	Then("the workflow it was built from still has its critical path x y z", WsCpPath(oL), "x y z")
+	Then("and still has the arrow y to z", oL.EdgeExists("y", "z"), 1)
+	Then("applying does not raise", WsTryApply(oSim), "")
+	oSimR = new stzWorkflowSimulation(oL)
+	oSimR.ParallelizeSteps([ "z", "y" ])
+	oResR = oSimR.Apply()
+	Then("the order of the ids in the list does not matter: the same path", WsCpPath(oResR), "x z")
+	Then("and the same 8 hours", WsCpDur(oResR), 8)
+	Then("and the same arrows, 2 of them", "" + len(oResR.Edges()) + " " + oResR.EdgeExists("x", "y") + oResR.EdgeExists("x", "z") + oResR.EdgeExists("y", "z"), "2 110")
 	oMix = new stzWorkflowSimulation(oL)
 	oMix.OptimizeStep("z", 1)
 	oMix.ParallelizeSteps([ "x", "y" ])
 	oMix.OptimizeStep("y", 2)
 	Then("the other changes around it are applied in order: 3+2+1 = 6", WsApplyTotal(oMix), 6)
+EndScenario()
+
+Scenario("ParallelizeSteps: the diamond, a group that already runs side by side changes nothing")
+	oSim = new stzWorkflowSimulation(oW)
+	oSim.ParallelizeSteps([ "b", "c" ])
+	oRes = oSim.Apply()
+	Then("b and c are two branches of a: the five arrows stay five", "" + len(oW.Edges()) + " " + len(oRes.Edges()), "5 5")
+	Then("a to b is kept", oRes.EdgeExists("a", "b"), 1)
+	Then("a to c is kept", oRes.EdgeExists("a", "c"), 1)
+	Then("b to d is kept", oRes.EdgeExists("b", "d"), 1)
+	Then("c to d is kept", oRes.EdgeExists("c", "d"), 1)
+	Then("d to e is kept", oRes.EdgeExists("d", "e"), 1)
+	Then("no arrow between b and c was invented, either way", "" + oRes.EdgeExists("b", "c") + oRes.EdgeExists("c", "b"), "00")
+	Then("the sum stays 15", oRes.TotalDuration(), 15)
+	aCp = oRes.CriticalPath()
+	Then("the critical path is still a c d e", WsJoin(aCp[:path]), "a c d e")
+	Then("with 12 hours", aCp[:duration], 12)
+	oSim.ParallelizeSteps([ "b", "c" ])
+	oRes2 = oSim.Apply()
+	Then("recorded twice, it is still five arrows and no doubled one", len(oRes2.Edges()), 5)
+EndScenario()
+
+Scenario("ParallelizeSteps: the diamond with a and b side by side, worked out by hand")
+	# a (2) and b (3) side by side. The arrow a to b goes. Before the group: nothing. After the group: c (after a)
+	# and d (after b). c and d now wait for both a and b, so b to c and a to d are added, a to c and b to d stay.
+	# Arrows: a>c a>d b>c b>d c>d d>e, six. Paths: a c d e 12, b c d e 13, a d e 8, b d e 9. The critical one is 13.
+	oSim = new stzWorkflowSimulation(oW)
+	oSim.ParallelizeSteps([ "a", "b" ])
+	oRes = oSim.Apply()
+	Then("five arrows, one removed, two added: six", len(oRes.Edges()), 6)
+	Then("a to b is removed", oRes.EdgeExists("a", "b"), 0)
+	Then("a to c is kept", oRes.EdgeExists("a", "c"), 1)
+	Then("b to d is kept", oRes.EdgeExists("b", "d"), 1)
+	Then("c to d is kept", oRes.EdgeExists("c", "d"), 1)
+	Then("d to e is kept", oRes.EdgeExists("d", "e"), 1)
+	Then("b to c is added, c waits for b too", oRes.EdgeExists("b", "c"), 1)
+	Then("a to d is added, d waits for a too", oRes.EdgeExists("a", "d"), 1)
+	Then("the sum stays 15", oRes.TotalDuration(), 15)
+	aCp = oRes.CriticalPath()
+	Then("the critical path is b c d e", WsJoin(aCp[:path]), "b c d e")
+	Then("it takes max(2,3) + 4 + 5 + 1 = 13 hours", aCp[:duration], 13)
+	Then("there are four paths from the two starts to e", len(oRes.AllPathsFromStartToEnd()), 4)
+	Then("the original is untouched: five arrows", len(oW.Edges()), 5)
+	Then("the original still has a to b", oW.EdgeExists("a", "b"), 1)
+	Then("and its critical path a c d e of 12 hours", WsCpPath(oW) + " " + WsCpDur(oW), "a c d e 12")
+	oSimR = new stzWorkflowSimulation(oW)
+	oSimR.ParallelizeSteps([ "b", "a" ])
+	oResR = oSimR.Apply()
+	Then("the list in the other order: six arrows", len(oResR.Edges()), 6)
+	Then("the same critical path", WsCpPath(oResR) + " " + WsCpDur(oResR), "b c d e 13")
+	Then("the same removed arrow", oResR.EdgeExists("a", "b"), 0)
+	Then("the same added arrows", "" + oResR.EdgeExists("b", "c") + oResR.EdgeExists("a", "d"), "11")
+	Then("applying again gives six arrows again, nothing is doubled", WsApplyEdges(oSim), 6)
+EndScenario()
+
+Scenario("ParallelizeSteps: a group with nothing between its steps, and a group recorded after another")
+	oTwo = WsBuildTwoChains()
+	oSim = new stzWorkflowSimulation(oTwo)
+	oSim.ParallelizeSteps([ "q", "s" ])
+	oRes = oSim.Apply()
+	# p>q and r>s, q and s not connected. Before the group: p and r. Nothing to remove. q and s both wait for p and r.
+	Then("two chains, q and s unconnected: 2 arrows become 4", "" + len(oTwo.Edges()) + " " + len(oRes.Edges()), "2 4")
+	Then("r to q is added", oRes.EdgeExists("r", "q"), 1)
+	Then("p to s is added", oRes.EdgeExists("p", "s"), 1)
+	Then("p to q is kept", oRes.EdgeExists("p", "q"), 1)
+	Then("r to s is kept", oRes.EdgeExists("r", "s"), 1)
+	Then("the sum stays 14", oRes.TotalDuration(), 14)
+	Then("the critical path is r s, 4+5 = 9 hours", WsCpPath(oRes) + " " + WsCpDur(oRes), "r s 9")
+	oIso = WsBuildIsolated()
+	oSimI = new stzWorkflowSimulation(oIso)
+	oSimI.ParallelizeSteps([ "m", "n" ])
+	Then("two steps with no arrow at all: applying does not raise", WsTryApply(oSimI), "")
+	oResI = oSimI.Apply()
+	Then("there is nothing to remove or to add: no arrow", len(oResI.Edges()), 0)
+	Then("and the sum is 5", oResI.TotalDuration(), 5)
+	oSimS = new stzWorkflowSimulation(oL)
+	oSimS.ParallelizeSteps([ "y", "z" ])
+	oSimS.ParallelizeSteps([ "x", "y" ])
+	oResS = oSimS.Apply()
+	# after y z: x>y x>z. Then x y side by side: x>y goes, nothing before, after: z (x>z). y>z is added. Arrows x>z y>z.
+	Then("a second group sees the arrows the first left: 2 arrows", len(oResS.Edges()), 2)
+	Then("x to y is gone", oResS.EdgeExists("x", "y"), 0)
+	Then("x to z is kept", oResS.EdgeExists("x", "z"), 1)
+	Then("y to z is back, y now waits for nothing and z for both", oResS.EdgeExists("y", "z"), 1)
+	Then("the critical path is y z, 4+5 = 9 hours", WsCpPath(oResS) + " " + WsCpDur(oResS), "y z 9")
+	Then("the sum is still 12", oResS.TotalDuration(), 12)
+	oSimT = new stzWorkflowSimulation(oL)
+	oSimT.ParallelizeSteps([ "y", "z" ])
+	oSimT.ParallelizeSteps([ "y", "z" ])
+	Then("the same group recorded twice is not doubled: 2 arrows", WsApplyEdges(oSimT), 2)
+EndScenario()
+
+Scenario("Apply refuses steps linked through other steps, and the simulation stays usable")
+	cWhy = "can't parallelize steps that are linked through other steps"
+	oLk = WsBuildLinked()
+	oSim = new stzWorkflowSimulation(oLk)
+	oSim.OptimizeStep("x", 10)
+	oSim.ParallelizeSteps([ "y", "z" ])
+	Then("recording the group does not raise, the check is Apply's", len(oSim.Changes()), 2)
+	cMsg = WsTryApply(oSim)
+	Then("x y m z with y and z: Apply says so", WsHas(cMsg, cWhy), 1)
+	Then("and names the two steps", WsHas(cMsg, "'y' leads to 'z'"), 1)
+	Then("and the step between them", WsHas(cMsg, "by way of 'm'"), 1)
+	Then("the message carries the class and method", WsHas(cMsg, "stzWorkflowSimulation.Apply:"), 1)
+	Then("the recorded changes are kept", len(oSim.Changes()), 2)
+	Then("the workflow it was built from is as it was: 3 arrows", len(oLk.Edges()), 3)
+	Then("and its durations: 1+2+3+4 = 10", oLk.TotalDuration(), 10)
+	Then("Apply refuses again the same way, it is not a one-off", WsHas(WsTryApply(oSim), cWhy), 1)
+	Then("the simulation still records: an unknown step is still refused by name", WsHas(WsTryOptimize(oSim, "zz", 1), "unknown step 'zz'"), 1)
+	Then("a good step is still recorded", WsTryOptimize(oSim, "m", 1), "")
+	Then("three changes now", len(oSim.Changes()), 3)
+	Then("the working state was rolled back: the optimize before the refusal did not stay (x is 1, not 10)", WsStepDur(oSim.@oGraph, "x"), 1)
+	Then("and the working state has its 3 arrows", len(oSim.@oGraph.Edges()), 3)
+	oSimOk = new stzWorkflowSimulation(oLk)
+	oSimOk.ParallelizeSteps([ "y", "m" ])
+	Then("another simulation over the same workflow works: y and m are linked directly, which is allowed", WsTryApply(oSimOk), "")
+	oResOk = oSimOk.Apply()
+	Then("y m side by side on x y m z: x>y x>m y>z m>z, 4 arrows", len(oResOk.Edges()), 4)
+	Then("its critical path is x m z, 1+3+4 = 8 hours", WsCpPath(oResOk) + " " + WsCpDur(oResOk), "x m z 8")
+	oSimC = new stzWorkflowSimulation(oL)
+	oSimC.ParallelizeSteps([ "x", "z" ])
+	Then("the chain x y z with x and z: y is between them, refused", WsHas(WsTryApply(oSimC), cWhy), 1)
+	oSimD = new stzWorkflowSimulation(oW)
+	oSimD.ParallelizeSteps([ "a", "d" ])
+	Then("the diamond with a and d: b and c are between them, refused", WsHas(WsTryApply(oSimD), cWhy), 1)
+	oSimE = new stzWorkflowSimulation(oW)
+	oSimE.ParallelizeSteps([ "a", "e" ])
+	Then("a and e: refused too, the way is longer", WsHas(WsTryApply(oSimE), cWhy), 1)
+	oSimF = new stzWorkflowSimulation(oW)
+	oSimF.ParallelizeSteps([ "b", "c", "d" ])
+	Then("b c d: d is after b and c, directly, so it is allowed", WsTryApply(oSimF), "")
+	Then("and gives b c d side by side, a before all, e after all: a>b a>c a>d b>e c>e d>e", WsApplyEdges(oSimF), 6)
+EndScenario()
+
+Scenario("The Q forms: they record what the plain forms record and return the simulation")
+	oSim = new stzWorkflowSimulation(oW)
+	oSimQ = new stzWorkflowSimulation(oW)
+	oSim.OptimizeStep("c", 1)
+	oSim.ReassignStep("b", "ana", "bob")
+	oSim.ParallelizeSteps([ "a", "b" ])
+	oSimQ.OptimizeStepQ("c", 1)
+	oSimQ.ReassignStepQ("b", "ana", "bob")
+	oSimQ.ParallelizeStepsQ([ "a", "b" ])
+	Then("three Q calls record the same three changes as three plain calls", @@(oSimQ.Changes()), @@(oSim.Changes()))
+	Then("and Apply gives the same sum", WsApplyTotal(oSimQ), WsApplyTotal(oSim))
+	Then("and the same critical path", WsApplyCpPath(oSimQ), WsApplyCpPath(oSim))
+	oBack = oSim.OptimizeStepQ("d", 2)
+	Then("a Q form gives back a simulation", ring_classname(oBack), "stzworkflowsimulation")
+	oSimN = new stzWorkflowSimulation(oW)
+	Then("a plain form gives back nothing: no object to call on", WsHas(WsTryChain(oSimN), "R13"), 1)
+	oSimM = new stzWorkflowSimulation(oW)
+	Then("a Q call that fails raises as the plain call does, here for an unknown step in the middle of a chain", WsHas(WsTryChainQ(oSimM, "zz"), "unknown step 'zz'"), 1)
+	Then("the call before it was recorded, the failing one was not", len(oSimM.Changes()), 1)
+	Then("the second Q form refuses an empty actor", WsHas(WsTryReassignQ(oSimM, "b", "ana", ""), "to actor cannot be empty"), 1)
+	Then("the third Q form refuses one step", WsHas(WsTryParallelQ(oSimM, [ "b" ]), "at least two steps"), 1)
+	Then("the first Q form refuses a negative duration", WsHas(WsTryOptimizeQ(oSimM, "b", -1), "cannot be negative"), 1)
+	Then("and none of the refused calls recorded anything", len(oSimM.Changes()), 1)
+	oBare = new stzWorkflowSimulation
+	Then("a simulation with no workflow refuses a Q call too", WsHas(WsTryChainQ(oBare, "a"), "has no workflow"), 1)
+EndScenario()
+
+Scenario("Chains: a chain in one expression sees every change, and a result kept in a variable is a copy")
+	# A chain in one expression runs on the simulation it started from: every call records into it, and the
+	# Changes or Apply at the end sees all of them. A value kept in a variable is a copy: the copy and the
+	# variable it came from stop sharing changes, each holds those recorded through its own calls.
+	oSimA = new stzWorkflowSimulation(oW)
+	nSeen = len(oSimA.OptimizeStepQ("a", 1).ReassignStepQ("b", "ana", "bob").ParallelizeStepsQ([ "b", "c" ]).Changes())
+	Then("a chain of three Q calls ending with Changes sees the three changes", nSeen, 3)
+	Then("and the variable the chain started from holds them too", len(oSimA.Changes()), 3)
+	oSimB = new stzWorkflowSimulation(oW)
+	oResB = oSimB.OptimizeStepQ("a", 1).ParallelizeStepsQ([ "a", "b" ]).Apply()
+	Then("a chain ending with Apply gives the effect of both: 15 - 2 + 1 = 14", oResB.TotalDuration(), 14)
+	Then("and a to b is gone in what it gives", oResB.EdgeExists("a", "b"), 0)
+	Then("the starting variable holds both changes", len(oSimB.Changes()), 2)
+	oSimC = new stzWorkflowSimulation(oW)
+	oKept = oSimC.OptimizeStepQ("a", 1)
+	Then("a result kept in a variable holds the change made so far", len(oKept.Changes()), 1)
+	Then("and so does the variable it came from", len(oSimC.Changes()), 1)
+	oKept.ReassignStepQ("b", "ana", "bob")
+	Then("a later call on the copy is seen by the copy", len(oKept.Changes()), 2)
+	Then("and not by the variable it came from, which holds only its own calls", len(oSimC.Changes()), 1)
+	oSimC.OptimizeStepQ("e", 3)
+	Then("a later call on the variable is seen by the variable", len(oSimC.Changes()), 2)
+	Then("and not by the copy", len(oKept.Changes()), 2)
+	Then("the two now differ: the copy has the reassign, the variable the optimize of e", WsChangeType(oKept, 2) + " " + WsChangeType(oSimC, 2), "reassign_step optimize_step")
+	nChain = len(oKept.ReassignStepQ("c", "bob", "ana").Changes())
+	Then("a chain started from the copy sees the copy's changes and its own: 3", nChain, 3)
+	Then("the variable the copy came from is not touched by it", len(oSimC.Changes()), 2)
+	Then("the workflow all of them were built from is untouched: 15 and five arrows", "" + oW.TotalDuration() + " " + len(oW.Edges()), "15 5")
+EndScenario()
+
+Scenario("All three kinds of change in one simulation, worked out by hand")
+	# Diamond: a 2, b 3, c 4, d 5, e 1. Optimize b to 6. Reassign e to bob. Parallelize a and b.
+	# Durations: a2 b6 c4 d5 e1, sum 18. Arrows after the group: a>c a>d b>c b>d c>d d>e.
+	# Paths: a c d e 12, b c d e 16, a d e 8, b d e 12. Critical b c d e, 16 hours.
+	# Load: ana = a + b = 2 + 6 = 8 (e has left her), bob = c + d + e = 4 + 5 + 1 = 10.
+	oSim = new stzWorkflowSimulation(oW)
+	oSim.OptimizeStep("b", 6)
+	oSim.ReassignStep("e", "ana", "bob")
+	oSim.ParallelizeSteps([ "a", "b" ])
+	oRes = oSim.Apply()
+	Then("the sum is 2+6+4+5+1 = 18", oRes.TotalDuration(), 18)
+	aCp = oRes.CriticalPath()
+	Then("the critical path is b c d e", WsJoin(aCp[:path]), "b c d e")
+	Then("and takes 6+4+5+1 = 16 hours", aCp[:duration], 16)
+	Then("ana carries 2+6 = 8", WsLoadOf(oRes, "ana"), 8)
+	Then("bob carries 4+5+1 = 10", WsLoadOf(oRes, "bob"), 10)
+	Then("six arrows", len(oRes.Edges()), 6)
+	Then("a to b is gone", oRes.EdgeExists("a", "b"), 0)
+	Then("the original is untouched: 15 hours, 5 arrows, ana 6 and bob 9", "" + oW.TotalDuration() + " " + len(oW.Edges()) + " " + WsLoadOf(oW, "ana") + " " + WsLoadOf(oW, "bob"), "15 5 6 9")
+	oSimO = new stzWorkflowSimulation(oW)
+	oSimO.ParallelizeSteps([ "a", "b" ])
+	oSimO.ReassignStep("e", "ana", "bob")
+	oSimO.OptimizeStep("b", 6)
+	oResO = oSimO.Apply()
+	Then("recorded in another order, the same result: 18, b c d e, 16", "" + oResO.TotalDuration() + " " + WsCpPath(oResO) + " " + WsCpDur(oResO), "18 b c d e 16")
+	Then("and the same loads, 8 and 10", "" + WsLoadOf(oResO, "ana") + " " + WsLoadOf(oResO, "bob"), "8 10")
+	oSimQ = new stzWorkflowSimulation(oW)
+	oResQ = oSimQ.OptimizeStepQ("b", 6).ReassignStepQ("e", "ana", "bob").ParallelizeStepsQ([ "a", "b" ]).Apply()
+	Then("the same three changes as one chain: 18, b c d e, 16", "" + oResQ.TotalDuration() + " " + WsCpPath(oResQ) + " " + WsCpDur(oResQ), "18 b c d e 16")
 EndScenario()
 
 Scenario("ParallelizeSteps: what it refuses, and a refusal records nothing")
@@ -324,6 +559,44 @@ func WsBuildDiamond()
 	oB.AssignStepTo("c", "bob")
 	oB.AssignStepTo("d", "bob")
 	oB.AssignStepTo("e", "ana")
+	return oB
+
+func WsBuildTwoChains()
+	oB = new stzWorkflow("twochains")
+	oB.AddStep_("p")
+	oB.AddStep_("q")
+	oB.AddStep_("r")
+	oB.AddStep_("s")
+	oB.SetStepDuration("p", 2)
+	oB.SetStepDuration("q", 3)
+	oB.SetStepDuration("r", 4)
+	oB.SetStepDuration("s", 5)
+	oB.ConnectSteps("p", "q")
+	oB.ConnectSteps("r", "s")
+	return oB
+
+func WsBuildIsolated()
+	oB = new stzWorkflow("isolated")
+	oB.AddStep_("m")
+	oB.AddStep_("n")
+	oB.SetStepDuration("m", 2)
+	oB.SetStepDuration("n", 3)
+	return oB
+
+# x (1) --> y (2) --> m (3) --> z (4)
+func WsBuildLinked()
+	oB = new stzWorkflow("linked")
+	oB.AddStep_("x")
+	oB.AddStep_("y")
+	oB.AddStep_("m")
+	oB.AddStep_("z")
+	oB.SetStepDuration("x", 1)
+	oB.SetStepDuration("y", 2)
+	oB.SetStepDuration("m", 3)
+	oB.SetStepDuration("z", 4)
+	oB.ConnectSteps("x", "y")
+	oB.ConnectSteps("y", "m")
+	oB.ConnectSteps("m", "z")
 	return oB
 
 func WsBuildChain()
@@ -432,6 +705,63 @@ func WsTryChain(poSim)
 	cMsg = ""
 	try
 		poSim.OptimizeStep("a", 1).ReassignStep("b", "ana", "bob")
+	catch
+		cMsg = cCatchError
+	done
+	return cMsg
+
+func WsCpPath(poWf)
+	aCpX = poWf.CriticalPath()
+	return WsJoin(aCpX[:path])
+
+func WsCpDur(poWf)
+	aCpY = poWf.CriticalPath()
+	return aCpY[:duration]
+
+func WsApplyEdges(poSim)
+	oAppliedE = poSim.Apply()
+	return len(oAppliedE.Edges())
+
+func WsApplyCpPath(poSim)
+	oAppliedP = poSim.Apply()
+	return WsCpPath(oAppliedP)
+
+func WsChangeType(poSim, pnAt)
+	aAllCh = poSim.Changes()
+	return aAllCh[pnAt][:type]
+
+func WsTryOptimizeQ(poSim, pcId, pnDur)
+	cMsg = ""
+	try
+		poSim.OptimizeStepQ(pcId, pnDur)
+	catch
+		cMsg = cCatchError
+	done
+	return cMsg
+
+func WsTryReassignQ(poSim, pcId, pcFrom, pcTo)
+	cMsg = ""
+	try
+		poSim.ReassignStepQ(pcId, pcFrom, pcTo)
+	catch
+		cMsg = cCatchError
+	done
+	return cMsg
+
+func WsTryParallelQ(poSim, paIds)
+	cMsg = ""
+	try
+		poSim.ParallelizeStepsQ(paIds)
+	catch
+		cMsg = cCatchError
+	done
+	return cMsg
+
+# a chain of two Q calls whose second one names a step: the first call is good, the second is the one that may fail
+func WsTryChainQ(poSim, pcSecond)
+	cMsg = ""
+	try
+		poSim.OptimizeStepQ("a", 1).OptimizeStepQ(pcSecond, 1)
 	catch
 		cMsg = cCatchError
 	done

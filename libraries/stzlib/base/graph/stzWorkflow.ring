@@ -1649,8 +1649,12 @@ class stzSLARuleBase from stzGraphRuleSet
 # The simulation is built over a workflow and keeps its own copy of it, so the workflow it was built from
 # is never touched. OptimizeStep, ReassignStep and ParallelizeSteps each record one change, checked
 # before it is stored, and Changes returns what was recorded. Apply returns a copy of the workflow with the
-# new durations and the new actors in place. Steps recorded as parallel are kept in the list but are not
-# applied: the restructuring they would need is not written, so they change nothing yet. A simulation
+# new durations, the new actors and the new order of the parallel steps in place. The three recording
+# methods return nothing; OptimizeStepQ, ReassignStepQ and ParallelizeStepsQ record the same change and
+# return the simulation, so that calls can be chained. A chain written as one expression records into
+# the simulation it started from, and a Changes or Apply at its end sees every change of the chain; a
+# result kept in a variable is a copy, and from then on the copy and the simulation it came from no
+# longer share their changes, each holds those recorded through its own calls. A simulation
 # built with new stzWorkflowSimulation and no parentheses has no workflow, and each of the three
 # methods then raises an error saying so; with empty parentheses the inherited init raises error R19.
 #
@@ -1689,7 +1693,7 @@ class stzWorkflowSimulation from stzObject
 	#
 	#   pcStepId       the id of the step to speed up or slow down
 	#   nNewDuration   the duration to give it, in hours, a number of 0 or more
-	#   returns        nothing; the change is added to the recorded list
+	#   returns        nothing; the change is added to the recorded list; use OptimizeStepQ to chain
 	#   note           the id is checked against the steps of the workflow, in the way the workflow
 	#                  itself compares ids, and a failed call records nothing
 	#   warning        an unknown step, a duration that is not a number or is below 0, or a simulation
@@ -1709,12 +1713,26 @@ class stzWorkflowSimulation from stzObject
 			:newDuration = nNewDuration
 		]
 
+		# Records a new duration for a step and returns the simulation, so that a call can be followed by another one.
+		#
+		#   pcStepId       the id of the step to speed up or slow down
+		#   nNewDuration   the duration to give it, in hours, a number of 0 or more
+		#   returns        the simulation, the one a following call of a chain runs on
+		#   note           in a chain written as one expression every call records into the simulation it
+		#                  started from; a result kept in a variable is a copy, which the later calls on
+		#                  either side do not reach
+		#   warning        the same errors as OptimizeStep, and then nothing is recorded and nothing returned
+		#   see            OptimizeStep, ReassignStepQ, ParallelizeStepsQ
+		def OptimizeStepQ(pcStepId, nNewDuration)
+			This.OptimizeStep(pcStepId, nNewDuration)
+			return This
+
 	# Records a move of a step from one actor to another, to be tried without changing the workflow.
 	#
 	#   pcStepId      the id of the step to move
 	#   pcFromActor   the actor it leaves, a text that is not empty
 	#   pcToActor     the actor it goes to, a text that is not empty
-	#   returns       nothing; the change is added to the recorded list
+	#   returns       nothing; the change is added to the recorded list; use ReassignStepQ to chain
 	#   note          the step is checked to exist, the actors are not, as AssignStepTo does not check
 	#                 them; the actor it leaves is recorded as given and is not compared with the
 	#                 actor the step has now, and only the actor it goes to is applied
@@ -1732,14 +1750,35 @@ class stzWorkflowSimulation from stzObject
 			:to = pcToActor
 		]
 
+		# Records a move of a step from one actor to another and returns the simulation, so that calls can be chained.
+		#
+		#   pcStepId      the id of the step to move
+		#   pcFromActor   the actor it leaves, a text that is not empty
+		#   pcToActor     the actor it goes to, a text that is not empty
+		#   returns       the simulation, the one a following call of a chain runs on
+		#   note          in a chain written as one expression every call records into the simulation it
+		#                 started from; a result kept in a variable is a copy, which the later calls on
+		#                 either side do not reach
+		#   warning       the same errors as ReassignStep, and then nothing is recorded and nothing returned
+		#   see           ReassignStep, OptimizeStepQ, ParallelizeStepsQ
+		def ReassignStepQ(pcStepId, pcFromActor, pcToActor)
+			This.ReassignStep(pcStepId, pcFromActor, pcToActor)
+			return This
+
 	# Records that steps run side by side instead of one after the other, to be tried without changing the workflow.
 	#
-	#   pacStepIds   the ids of the steps to run in parallel, a list of at least two texts
-	#   returns      nothing; the change is added to the recorded list
-	#   note         the change is recorded and returned by Changes, but Apply does not restructure
-	#                the workflow for it yet, so it has no effect on the copy
+	#   pacStepIds   the ids of the steps to run in parallel, a list of at least two texts, in any order
+	#   returns      nothing; the change is added to the recorded list; use ParallelizeStepsQ to chain
+	#   note         Apply puts the steps in the same place of the flow: the arrows between two of them
+	#                are removed, each of them then waits for every step that came before any of them,
+	#                and every step that came after any of them waits for all of them; an arrow that
+	#                is there already is kept as it is and never doubled, so a group that already runs
+	#                side by side changes nothing, and the total of the durations never changes, only
+	#                the longest path does
 	#   warning      a list of fewer than two steps, a step that is listed twice or is unknown, or a
-	#                simulation with no workflow raises an error, and a failed call records nothing
+	#                simulation with no workflow raises an error, and a failed call records nothing;
+	#                the shape of the flow is checked only by Apply, which refuses steps that are
+	#                linked through another step
 	#   see          OptimizeStep, ReassignStep, Changes, Apply
 	def ParallelizeSteps(pacStepIds)
 		if NOT isList(pacStepIds)
@@ -1762,6 +1801,19 @@ class stzWorkflowSimulation from stzObject
 			:steps = pacStepIds
 		]
 
+		# Records that steps run side by side and returns the simulation, so that calls can be chained.
+		#
+		#   pacStepIds   the ids of the steps to run in parallel, a list of at least two texts
+		#   returns      the simulation, the one a following call of a chain runs on
+		#   note         in a chain written as one expression every call records into the simulation it
+		#                started from; a result kept in a variable is a copy, which the later calls on
+		#                either side do not reach
+		#   warning      the same errors as ParallelizeSteps, and then nothing is recorded and nothing returned
+		#   see          ParallelizeSteps, OptimizeStepQ, ReassignStepQ
+		def ParallelizeStepsQ(pacStepIds)
+			This.ParallelizeSteps(pacStepIds)
+			return This
+
 	# Returns the changes recorded so far, in the order they were recorded.
 	#
 	#   returns    a list of hash lists, each with the key type, optimize_step, reassign_step or
@@ -1772,22 +1824,30 @@ class stzWorkflowSimulation from stzObject
 	def Changes()
 		return @aChanges
 
-	# Returns a copy of the workflow with the recorded durations and actors put in place, leaving the original as it was.
+	# Returns a copy of the workflow with the recorded durations, actors and parallel steps in place, leaving the original as it was.
 	#
 	#   returns    a stzWorkflow; the copy of the workflow as it was when the simulation was built
 	#              when nothing was recorded
 	#   note       the changes are applied in the order they were recorded, so the last change to a
-	#              step wins; steps recorded as parallel are not restructured yet and change nothing
-	#   warning    a simulation with no workflow raises an error
-	#   see        Changes, OptimizeStep, ReassignStep
+	#              step wins, and a group of parallel steps is put in place on the flow that the
+	#              changes before it left
+	#   warning    a simulation with no workflow raises an error; so does a group of parallel steps
+	#              that are linked through other steps, with the message can't parallelize steps that
+	#              are linked through other steps, and then no copy is returned, the workflow and the
+	#              simulation are as they were, and the recorded changes are kept
+	#   see        Changes, OptimizeStep, ReassignStep, ParallelizeSteps
 	def Apply()
 		if NOT isObject(@oGraph)
 			StzRaise("stzWorkflowSimulation.Apply: the simulation has no workflow; build it with new stzWorkflowSimulation(oWorkflow).")
 		ok
 		_oBase_ = @oGraph
-		This._ApplyChanges()
+		@oGraph = _oBase_.Copy()
+		_cWhy_ = This._ApplyChanges()
 		_oResult_ = @oGraph
 		@oGraph = _oBase_
+		if ring_len(_cWhy_) > 0
+			StzRaise("stzWorkflowSimulation.Apply: " + _cWhy_)
+		ok
 		return _oResult_
 
 	def _CheckStep(pcWho, pcStepId)
@@ -1813,6 +1873,7 @@ class stzWorkflowSimulation from stzObject
 		ok
 
 	def _ApplyChanges()
+		# puts every recorded change in place on the working copy; returns "" or the reason a change was refused
 		_nChanges1Len_ = ring_len(@aChanges)
 		for _iLoopChanges1_ = 1 to _nChanges1Len_
 			_aChange_ = @aChanges[_iLoopChanges1_]
@@ -1824,14 +1885,117 @@ class stzWorkflowSimulation from stzObject
 				@oGraph.AssignStepTo(_aChange_[:step], _aChange_[:to])
 
 			on "parallelize"
-				# Complex restructuring logic
-				This._ParallelizeSteps(_aChange_[:steps])
+				_cWhy_ = This._ParallelizeSteps(_aChange_[:steps])
+				if ring_len(_cWhy_) > 0
+					return _cWhy_
+				ok
 			off
 		end
+		return ""
 
 	def _ParallelizeSteps(pacSteps)
-		# Create fork/join pattern
-		# Implementation for parallel execution
+		# puts a group of steps side by side on the working copy; returns "" or the reason it cannot be done
+		# the ids are folded to lowercase, as the graph stores them, and nothing is changed before the
+		# group has been checked, so a refused group leaves the working copy as it was
+		_nGroupLen_ = ring_len(pacSteps)
+		_acGroup_ = []
+		for _iGroup_ = 1 to _nGroupLen_
+			_acGroup_ + StzLower(pacSteps[_iGroup_])
+		next
+
+		# a step of the group that leads to another one through a step outside it cannot be put beside it
+		for _iGroup_ = 1 to _nGroupLen_
+			_cLinked_ = This._LinkedThroughOthers(_acGroup_, _acGroup_[_iGroup_])
+			if ring_len(_cLinked_) > 0
+				return _cLinked_
+			ok
+		next
+
+		# the steps outside the group that come before and after it
+		_acBefore_ = []
+		_acAfter_ = []
+		for _iGroup_ = 1 to _nGroupLen_
+			_acIn_ = @oGraph.Incoming(_acGroup_[_iGroup_])
+			_nInLen_ = ring_len(_acIn_)
+			for _iIn_ = 1 to _nInLen_
+				_cNode_ = _acIn_[_iIn_]
+				if This._IsIn(_acGroup_, _cNode_) = 0 and This._IsIn(_acBefore_, _cNode_) = 0
+					_acBefore_ + _cNode_
+				ok
+			next
+			_acOut_ = @oGraph.Neighbors(_acGroup_[_iGroup_])
+			_nOutLen_ = ring_len(_acOut_)
+			for _iOut_ = 1 to _nOutLen_
+				_cNode_ = _acOut_[_iOut_]
+				if This._IsIn(_acGroup_, _cNode_) = 0 and This._IsIn(_acAfter_, _cNode_) = 0
+					_acAfter_ + _cNode_
+				ok
+			next
+		next
+
+		# the arrows between two steps of the group go, whichever way they pointed
+		for _iGroup_ = 1 to _nGroupLen_
+			for _jGroup_ = 1 to _nGroupLen_
+				if _iGroup_ != _jGroup_
+					if @oGraph.EdgeExists(_acGroup_[_iGroup_], _acGroup_[_jGroup_])
+						@oGraph.RemoveEdge(_acGroup_[_iGroup_], _acGroup_[_jGroup_])
+					ok
+				ok
+			next
+		next
+
+		# every step of the group waits for what came before it, and what came after waits for every step of it
+		_nBeforeLen_ = ring_len(_acBefore_)
+		_nAfterLen_ = ring_len(_acAfter_)
+		for _iGroup_ = 1 to _nGroupLen_
+			for _iBefore_ = 1 to _nBeforeLen_
+				@oGraph.ConnectIfAbsent(_acBefore_[_iBefore_], _acGroup_[_iGroup_])
+			next
+			for _iAfter_ = 1 to _nAfterLen_
+				@oGraph.ConnectIfAbsent(_acGroup_[_iGroup_], _acAfter_[_iAfter_])
+			next
+		next
+		return ""
+
+	def _LinkedThroughOthers(pacGroup, pcStart)
+		# returns "" or a sentence saying that the start step leads to a step of the group through steps outside it
+		_acSeen_ = []
+		_acTodo_ = []
+		_acFirst_ = @oGraph.Neighbors(pcStart)
+		_nFirstLen_ = ring_len(_acFirst_)
+		for _iFirst_ = 1 to _nFirstLen_
+			# an arrow straight to a step of the group is one of those that are removed
+			if This._IsIn(pacGroup, _acFirst_[_iFirst_]) = 0 and This._IsIn(_acSeen_, _acFirst_[_iFirst_]) = 0
+				_acSeen_ + _acFirst_[_iFirst_]
+				_acTodo_ + _acFirst_[_iFirst_]
+			ok
+		next
+		_iTodo_ = 1
+		while _iTodo_ <= ring_len(_acTodo_)
+			_cNode_ = _acTodo_[_iTodo_]
+			_iTodo_++
+			_acNext_ = @oGraph.Neighbors(_cNode_)
+			_nNextLen_ = ring_len(_acNext_)
+			for _iNext_ = 1 to _nNextLen_
+				if This._IsIn(pacGroup, _acNext_[_iNext_])
+					return "can't parallelize steps that are linked through other steps: '" + pcStart + "' leads to '" + _acNext_[_iNext_] + "' by way of '" + _cNode_ + "'."
+				ok
+				if This._IsIn(_acSeen_, _acNext_[_iNext_]) = 0
+					_acSeen_ + _acNext_[_iNext_]
+					_acTodo_ + _acNext_[_iNext_]
+				ok
+			next
+		end
+		return ""
+
+	def _IsIn(pacList, pcId)
+		_nListLen_ = ring_len(pacList)
+		for _iList_ = 1 to _nListLen_
+			if pacList[_iList_] = pcId
+				return 1
+			ok
+		next
+		return 0
 
 #============================================#
 #  stzFlowParser - *.stzflow Parser          #
