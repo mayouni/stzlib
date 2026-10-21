@@ -1,5 +1,5 @@
 {
- "count": 105,
+ "count": 102,
  "defects": [
   {
    "class": "stzAppServer",
@@ -192,30 +192,6 @@
    "line": 2354,
    "symptom": "Returns the pairs as a stzSetOfSections; today every call raises an error that names the cause.",
    "cause": "Not reachable today, and not fixable in this class: the constructor of stzSetOfSections checks its argument with @IsSetOfSections, a function whose body is empty in list/stzSetOfSections.ring, so it refuses every list, [ [ 1, 3 ], [ 5, 8 ] ] included. That function must return IsSetOfSections(paSections), and IsSetOfSections must call @IsListOfSections, since stzList has no IsListOfSections method. ToStzListOfSections accepts the same pairs"
-  },
-  {
-   "class": "stzSet",
-   "file": "list/stzSet.ring",
-   "method": "Subsets",
-   "line": 505,
-   "symptom": "Returns an empty text today, because the method is only a TODO in the code.",
-   "cause": "it computes no subsets: the body is the comment TODO"
-  },
-  {
-   "class": "stzSet",
-   "file": "list/stzSet.ring",
-   "method": "SubSetsOfNElements",
-   "line": 514,
-   "symptom": "Returns an empty text today, because the method is only a TODO in the code.",
-   "cause": "it computes no subsets: the body is the comment TODO"
-  },
-  {
-   "class": "stzSet",
-   "file": "list/stzSet.ring",
-   "method": "NumberOfSubsets",
-   "line": 522,
-   "symptom": "Returns 0 today, because it counts the subsets that Subsets does not compute.",
-   "cause": "it is the length of what Subsets answers, an empty text"
   },
   {
    "class": "stzSetOfSections",
