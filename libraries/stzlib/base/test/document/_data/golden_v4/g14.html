@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Rotating Log Files</title>
+<style>
+@page { size: A4; margin: 2cm }
+html, body { margin: 0; padding: 0; background: #fff; color: #111; }
+h1, h2, h3, h4 { margin: 0 0 0.4em 0; }
+#m { font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; line-height: 1.5; }
+#m h1 { font-size: 1.75em; }
+#m h2 { font-size: 1.25em; margin-top: 0.9em; }
+#m p { margin: 0 0 0.6em 0; }
+.listing { display: flex; border: 1px solid #bbb; background: #fafafa; margin: 0.5em 0 1em 0; }
+.listing pre { margin: 0; padding: 8px 10px; font-family: Consolas, 'Lucida Console', monospace; font-size: 12.5px; line-height: 17px; white-space: pre; }
+.listing .gutter { color: #888; text-align: right; border-right: 1px solid #bbb; background: #eee; min-width: 2.2em; }
+pre.shell { font-family: 'Courier New', monospace; font-size: 13px; line-height: 18px; background: #1e1e1e; color: #e8e8e8; padding: 10px 12px; margin: 0.5em 0 1em 0; white-space: pre; }
+</style>
+</head>
+<body>
+<main id="m">
+<h1>Rotating Log Files</h1>
+<p>The script below rotates every log file in a folder and keeps a fixed number of old copies. It was written for the quarry weighbridge, which writes a new log each day.</p>
+<div class="listing"><pre class="gutter">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19</pre><pre class="code">import os
+import shutil
+
+def rotate(folder, keep=7):
+    names = sorted(os.listdir(folder))
+    logs = [n for n in names if n.endswith(".log")]
+    for name in logs:
+        path = os.path.join(folder, name)
+        for i in range(keep - 1, 0, -1):
+            older = f"{path}.{i}"
+            if os.path.exists(older):
+                shutil.move(older, f"{path}.{i + 1}")
+        shutil.move(path, path + ".1")
+    return len(logs)
+
+if __name__ == "__main__":
+    import sys
+    count = rotate(sys.argv[1])
+    print(f"rotated {count} log files")</pre></div>
+<h2>Running the script</h2>
+<p>The transcript shows a run on the test machine. Each log was moved to a copy ending in .1, and no new log had been written yet.</p>
+<pre class="shell">$ python rotate_logs.py /var/log/weighbridge
+rotated 3 log files
+$ ls /var/log/weighbridge
+gate.log.1  scale.log.1  tickets.log.1</pre>
+<p>Run the script from the scheduler once a day, shortly after midnight.</p>
+</main>
+</body>
+</html>

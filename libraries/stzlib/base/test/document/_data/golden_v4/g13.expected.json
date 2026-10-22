@@ -1,0 +1,32 @@
+{
+  "id": "g13",
+  "difficulty": "a sentence set in small caps (font-variant: small-caps) and a letter-spaced heading",
+  "pages": 1,
+  "title": "HARBOUR COUNCIL MINUTES",
+  "headings": [
+    {
+      "level": 1,
+      "text": "HARBOUR COUNCIL MINUTES"
+    },
+    {
+      "level": 2,
+      "text": "Decisions"
+    }
+  ],
+  "key_sentences": [
+    "The council met on the fourth of March in the old customs house.",
+    "Eleven members were present and two sent apologies.",
+    "The chair opened the meeting at seven o'clock.",
+    "The council agreed to repaint the north pier before the summer season.",
+    "A proposal to extend the fish market was postponed until the budget is known.",
+    "Members thanked the volunteers who cleared the slipway after the February storm."
+  ],
+  "tables": [],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "The title is typed in UPPERCASE in the source ('HARBOUR COUNCIL MINUTES') and set with letter-spacing 0.32em, centred: the expected text has no spaces inside words. The first body sentence is rendered in small caps; its source letters are mixed case exactly as given in key_sentences (capital T and M, the rest lowercase), so the lowercase letters are drawn as small capitals. A scorer may compare that one sentence case-insensitively. The apostrophe in o'clock is ASCII U+0027."
+}

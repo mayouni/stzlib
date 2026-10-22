@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Regional Sales Summary</title>
+<style>
+@page { size: A4; margin: 2cm }
+html, body { margin: 0; padding: 0; background: #fff; color: #111; }
+h1, h2, h3, h4 { margin: 0 0 0.4em 0; }
+#m { font-family: Arial, Helvetica, sans-serif; font-size: 13.5px; line-height: 1.45; }
+#m h1 { font-size: 1.75em; }
+#m p { margin: 0 0 0.6em 0; }
+table.grid { border-collapse: collapse; margin: 0.8em 0 1.2em 0; }
+table.grid th, table.grid td { border: 1px solid #333; padding: 4px 10px; }
+table.grid th { background: #e8e8e8; text-align: center; }
+table.grid td.n { text-align: right; }
+table.grid td.rg { vertical-align: middle; font-weight: bold; }
+table.grid caption { caption-side: bottom; text-align: left; padding-top: 6px; font-style: italic; }
+</style>
+</head>
+<body>
+<main id="m">
+<h1>Regional Sales Summary</h1>
+<p>The figures below compare two years of sales at four sites. Revenue is given in thousands of euros.</p>
+<table class="grid">
+<caption>Table 3: Units sold and revenue by site, 2024 and 2025</caption>
+<thead>
+<tr><th rowspan="2">Region</th><th rowspan="2">Site</th><th colspan="2">2024</th><th colspan="2">2025</th></tr>
+<tr><th>Units</th><th>Revenue</th><th>Units</th><th>Revenue</th></tr>
+</thead>
+<tbody>
+<tr><td class="rg" rowspan="2">North</td><td>Kelmar</td><td class="n">1,204</td><td class="n">36.1</td><td class="n">1,350</td><td class="n">40.5</td></tr>
+<tr><td>Ostrand</td><td class="n">860</td><td class="n">25.8</td><td class="n">912</td><td class="n">27.4</td></tr>
+<tr><td class="rg" rowspan="2">South</td><td>Varo</td><td class="n">1,530</td><td class="n">45.9</td><td class="n">1,488</td><td class="n">44.6</td></tr>
+<tr><td>Pellis</td><td class="n">640</td><td class="n">19.2</td><td class="n">702</td><td class="n">21.1</td></tr>
+</tbody>
+</table>
+<p>Three of the four sites grew in both measures. Varo sold fewer units in 2025 but remains the largest site. The sales team will present a forecast for 2026 at the March meeting.</p>
+</main>
+</body>
+</html>

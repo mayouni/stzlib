@@ -1,0 +1,40 @@
+{
+  "id": "g15",
+  "difficulty": "French text: ligatures œ and æ, guillemets « », non-breaking spaces before : ; ? ! and inside guillemets",
+  "pages": 1,
+  "title": "Le festival des arts de Valmorin",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Le festival des arts de Valmorin"
+    },
+    {
+      "level": 2,
+      "text": "Programme"
+    },
+    {
+      "level": 2,
+      "text": "Informations pratiques"
+    }
+  ],
+  "key_sentences": [
+    "Chaque année, le festival réunit des artistes venus de toute la région.",
+    "Cette édition met à l’honneur l’œuvre d’une sculptrice du village, Lætitia Morvan.",
+    "Les sœurs Bastide présenteront leurs tapisseries dans l’ancienne école.",
+    "Quel est le thème retenu cette année ?",
+    "Les organisateurs ont choisi « le cœur des villages ».",
+    "Le programme comprend des concerts, des ateliers et un marché d’artisanat.",
+    "Les inscriptions aux ateliers se font sur place ; le nombre de places est limité.",
+    "Le curriculum vitæ de chaque exposant est affiché à l’entrée de la salle des fêtes.",
+    "Le maire l’a rappelé lors de l’ouverture : « Sans les bénévoles, rien ne serait possible. »",
+    "Venez nombreux !"
+  ],
+  "tables": [],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "œ (U+0153) and æ (U+00E6) are real characters in the source and are expected as such (cœur, œuvre, sœurs, Lætitia, vitæ). Apostrophes are U+2019. A NO-BREAK SPACE U+00A0 precedes every ? ; : ! and sits inside each pair of guillemets; the expected texts write them as ordinary spaces. 'affiché' may be drawn with an ffi ligature. Paragraphs are justified."
+}

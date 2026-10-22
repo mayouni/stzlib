@@ -1,0 +1,94 @@
+{
+  "id": "g05",
+  "difficulty": "four lists whose markers are typed in the text: arrow, bullet character, check mark, hyphen-minus",
+  "pages": 1,
+  "title": "Field Trip Preparation",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Field Trip Preparation"
+    },
+    {
+      "level": 2,
+      "text": "Before departure"
+    },
+    {
+      "level": 2,
+      "text": "What to bring"
+    },
+    {
+      "level": 2,
+      "text": "Checked on arrival"
+    },
+    {
+      "level": 2,
+      "text": "Not allowed"
+    }
+  ],
+  "key_sentences": [
+    "Pupils from Year 5 will visit the Dunmore Museum of Industry on 14 May.",
+    "Teachers should work through the four lists below in the week before the trip.",
+    "Complete these steps in the order shown.",
+    "Each pupil should pack the following items.",
+    "The group leader ticks each point at the museum gate.",
+    "The museum does not permit the following.",
+    "Buses leave the school gate at half past eight and return by four."
+  ],
+  "tables": [],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "→ Confirm the bus booking with the depot"
+    },
+    {
+      "level": 0,
+      "text": "→ Collect the signed permission forms"
+    },
+    {
+      "level": 0,
+      "text": "→ Print the route map for each group leader"
+    },
+    {
+      "level": 0,
+      "text": "• A packed lunch and a water bottle"
+    },
+    {
+      "level": 0,
+      "text": "• A waterproof jacket"
+    },
+    {
+      "level": 0,
+      "text": "• A notebook and two pencils"
+    },
+    {
+      "level": 0,
+      "text": "✓ Head count matches the register"
+    },
+    {
+      "level": 0,
+      "text": "✓ First aid kit is present"
+    },
+    {
+      "level": 0,
+      "text": "✓ Emergency contact sheet is signed"
+    },
+    {
+      "level": 0,
+      "text": "- Flash photography in the galleries"
+    },
+    {
+      "level": 0,
+      "text": "- Food outside the picnic area"
+    },
+    {
+      "level": 0,
+      "text": "- Large bags in the exhibition halls"
+    }
+  ],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "No CSS list markers are used: every marker is a character typed in the text, followed by one space: U+2192 RIGHTWARDS ARROW, U+2022 BULLET, U+2713 CHECK MARK and U+002D HYPHEN-MINUS. list_items therefore include the marker. Items have no final full stop. The check mark may be drawn from a fallback font."
+}

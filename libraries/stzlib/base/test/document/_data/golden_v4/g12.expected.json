@@ -1,0 +1,32 @@
+{
+  "id": "g12",
+  "difficulty": "a pull quote in larger italic type floated to the right of the body text",
+  "pages": 1,
+  "title": "A Year at the Kestrel Valley School",
+  "headings": [
+    {
+      "level": 1,
+      "text": "A Year at the Kestrel Valley School"
+    }
+  ],
+  "key_sentences": [
+    "Kestrel Valley School sits at the end of a gravel road, two hours from the nearest town.",
+    "It has forty-one pupils, three teachers and a cook who also drives the school bus.",
+    "Most families in the valley raise sheep or work at the timber mill.",
+    "Lessons follow the national curriculum, but the setting shapes every subject.",
+    "The headteacher likes to say that every child here learns to read the river before they read a map.",
+    "In spring the older pupils measure the water level each morning and record it on a chart in the hall.",
+    "The data has been shared with the regional flood office for six years.",
+    "Winter brings its own timetable.",
+    "When snow closes the road, lessons move online and the teachers call each family in turn.",
+    "The school hopes to install a small weather station before next autumn."
+  ],
+  "tables": [],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "The pull quote “Every child here learns to read the river before they read a map.” (curly quotes U+201C/U+201D, 22px italic, dark red, between two rules) floats on the right beside the second and third paragraphs. It repeats a body sentence and is NOT body text: it is not in key_sentences and must not be interleaved into the body's reading order. It is not furniture either. forty-one contains a typed hyphen-minus."
+}

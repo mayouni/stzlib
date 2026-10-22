@@ -167,6 +167,17 @@ golden_v3: 14 PDFs by a THIRD independent agent that saw neither reader, nor gol
 
 What golden_v3 shows, causes read off the outputs: **both** readers lose the same three things -- a word with soft hyphens in a narrow column, which Chrome draws as syllables a few points apart, so both readers write "re spon si bil i ties" (f10, 0.125 for both); the sentence ending in "(KPI)" in Hebrew, where the parentheses need mirroring (f08); the sentence holding a word broken across a column break, in a monospaced page (f09). **Only Docling** splits the two-page table (f03, 0.56; the native reader now joins it, 1.00) and loses half the code (f14, 0.50). **Only the native reader** misses typed "→" list markers (f12, lists 0.60) and a ligature it leaves as U+FB01 "ﬁ" where Docling writes "fi" (f14). Fixing these spends golden_v3: they are re-measured on a golden_v4.
 
+**Third round, the same night: golden_v3's misses fixed, then measured on golden_v4.** Fixed, each general and pinned in the guard (69 assertions): a space glyph another glyph is drawn over is an invisible soft hyphen (Chrome writes U+00AD as a space and draws the next syllable back over it) and is dropped, so words are no longer cut into syllables; brackets outside a Latin run in a right-to-left line are mirrored; prose set in a monospaced font is prose, not code; a typed arrow starts a list item; ligature code points read as their letters. Only what golden_v3 showed was fixed: the brief of golden_v4 was written by this desk, and building for its categories in advance would have been teaching to the test.
+
+golden_v4: 16 PDFs by a FOURTH independent agent (soft hyphens that do and do not break, ligatures, Arabic and Hebrew with brackets and guillemets, typed list markers, roman-numbered lists, three columns, merged and borderless tables, a two-page table, four heading levels, a pull quote, small caps, a line-numbered listing, French typography, a mixed layout). The reader was frozen before it ran; both readers ran once:
+
+| golden_v4 | text | order | headings | tables | lists | furniture | code |
+|---|---|---|---|---|---|---|---|
+| Softanza native | **0.98** | 1.00 | 0.92 | 0.70 | **0.73** | 1.00 | **0.50** |
+| Docling 2.141 | 0.69 | 1.00 | **0.97** | **0.90** | 0.13 | 1.00 | 0.00 |
+
+The native reader read every document in 6 to 31 ms; Docling took 5 to 59 s on the same run (the machine was slower that night than in the earlier rounds, for both). Docling's text falls to 0.69 on the soft hyphens and ligatures the native reader now handles. **What the native reader got wrong on golden_v4**, causes read off its output: guillemets « » are not mirrored in Hebrew (g04); typed "✓" and roman-numeral markers "i." "ii." do not start list items (g05, g06); a borderless table with right-aligned numbers collapses to two columns (g09); a table continued on page 2 is not joined when a page footer sits between its halves in reading order (g10); headings marked by italics alone are paragraphs (g11); a letter-spaced heading comes out as spaced letters (g13); a code listing with a line-number gutter breaks into seven blocks (g14); an Arabic heading is not found (g03); two sentences of a two-column section that follows a full-width table are missed (g16). These are round 4, to be measured on a golden_v5.
+
 **Not measured**: Granite-Docling-258M (not downloaded), the GPU, scanned golden pages with an expected text, PDFs from producers other than Chrome (both golden sets are Chrome-made and tagged; the native reader does not read the tags).
 
 ---
