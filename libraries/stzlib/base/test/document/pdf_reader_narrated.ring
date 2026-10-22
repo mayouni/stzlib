@@ -140,6 +140,36 @@ Scenario("In a right-to-left line, the stop after a Latin name stays after it, a
 	Then("no space before the stop", StzFindFirst("Rivulet S3 .", o.Text()), 0)
 EndScenario()
 
+# ---- the third round, pinned on golden_v3 (a development set since the reader was fixed on it) ----------------
+cJ = "_data/golden_v3/"
+
+Scenario("A soft hyphen that does not break is invisible: the word is not cut into syllables")
+	o = StzPdfQ(cJ + "f10.pdf")
+	c = o.Text()
+	Then("the word is whole", StzFindFirst("Joining a committee brings new responsibilities for every member.", c) > 0, 1)
+	Then("no syllable is left apart", StzFindFirst("re spon si", c), 0)
+EndScenario()
+
+Scenario("Prose set in a monospaced font is prose, and a word broken across its columns is whole")
+	o = StzPdfQ(cJ + "f09.pdf")
+	Then("no code block", len(o.CodeBlocks()), 0)
+	Then("the broken word is joined", StzFindFirst("could improve the interoperability of their records", StzReplace(o.Text(), char(10), " ")) > 0, 1)
+EndScenario()
+
+Scenario("In a right-to-left line, brackets around a Latin word are mirrored back")
+	o = StzPdfQ(cJ + "f08.pdf")
+	Then("the brackets open and close the right way", StzFindFirst("(KPI)", o.Text()) > 0, 1)
+	Then("not reversed", StzFindFirst(")KPI(", o.Text()), 0)
+EndScenario()
+
+Scenario("A typed arrow starts a list item; a ligature reads as its letters")
+	o = StzPdfQ(cJ + "f12.pdf")
+	Then("the arrow items are list items", StzFindFirst("Stack the chairs", "" + @@(o.ListItems())) > 0, 1)
+	o = StzPdfQ(cJ + "f14.pdf")
+	Then("fi is two letters", StzFindFirst("a small file at start-up", o.Text()) > 0, 1)
+	Then("no ligature code point is left", StzFindFirst("ﬁ", o.Text()), 0)
+EndScenario()
+
 Scenario("A file that is not a readable PDF is refused with the reason")
 	bRaised = 0
 	cWhy = ""

@@ -1180,7 +1180,15 @@ const Interp = struct {
             const adv = @abs(tx * m[0]);
             const size = @sqrt(trm[2] * trm[2] + trm[3] * trm[3]);
             const upright = m[0] > 0 and @abs(m[1]) < 0.2 * @abs(m[0]);
-            const t = f.text(code);
+            var t = f.text(code);
+            if (t.len == 3 and t[0] == 0xEF and t[1] == 0xAC and t[2] <= 0x86) t = switch (t[2]) {
+                0x80 => "ff",
+                0x81 => "fi",
+                0x82 => "fl",
+                0x83 => "ffi",
+                0x84 => "ffl",
+                else => "st",
+            };
             if (upright and t.len > 0 and size > 0.5) {
                 const t0: u32 = @intCast(it.text.items.len);
                 try it.text.appendSlice(it.a, t);
@@ -1621,7 +1629,27 @@ fn fragments(a: Allocator, pg: Page, page_no: u32, text: []const u8, out: *std.A
     }
 }
 
-fn makeFrag(a: Allocator, gl: []Glyph, ids: []u32, text: []const u8, page_no: u32) !Frag {
+fn makeFrag(a: Allocator, gl: []Glyph, ids_in: []u32, text: []const u8, page_no: u32) !Frag {
+    var kept: std.ArrayList(u32) = .empty;
+    for (ids_in) |k| {
+        const g = gl[k];
+        if (isBlankGlyph(glyphText(text, g)) and g.w > 0) {
+            var covered = false;
+            for (ids_in) |o| {
+                if (o == k) continue;
+                const h = gl[o];
+                if (isBlankGlyph(glyphText(text, h))) continue;
+                const ov = @min(g.x + g.w, h.x + h.w) - @max(g.x, h.x);
+                if (ov > 0.6 * g.w) {
+                    covered = true;
+                    break;
+                }
+            }
+            if (covered) continue;
+        }
+        try kept.append(a, k);
+    }
+    const ids: []u32 = if (kept.items.len > 0) kept.items else ids_in;
     var rtl: usize = 0;
     var ltr: usize = 0;
     var sizes: f32 = 0;
@@ -1652,6 +1680,7 @@ fn makeFrag(a: Allocator, gl: []Glyph, ids: []u32, text: []const u8, page_no: u3
     const size = sizes / @as(f32, @floatFromInt(ids.len));
     // the visual order, then the logical order for a right-to-left line
     var order = try a.dupe(u32, ids);
+    var in_ltr: []bool = &.{};
     if (rtl > ltr) {
         var vis: std.ArrayList(u32) = .empty;
         for (ids, 0..) |k, j| {
@@ -1665,6 +1694,8 @@ fn makeFrag(a: Allocator, gl: []Glyph, ids: []u32, text: []const u8, page_no: u3
         }
         order = vis.items;
         std.mem.reverse(u32, order);
+        in_ltr = try a.alloc(bool, order.len);
+        @memset(in_ltr, false);
         // runs of left-to-right letters and digits inside it read left to right again
         var k: usize = 0;
         while (k < order.len) {
@@ -1683,6 +1714,7 @@ fn makeFrag(a: Allocator, gl: []Glyph, ids: []u32, text: []const u8, page_no: u3
                     } else break;
                 }
                 std.mem.reverse(u32, order[k .. e + 1]);
+                for (k..e + 1) |q| in_ltr[q] = true;
                 k = e + 1;
             } else k += 1;
         }
@@ -1698,7 +1730,21 @@ fn makeFrag(a: Allocator, gl: []Glyph, ids: []u32, text: []const u8, page_no: u3
         const g = gl[k];
         const t = glyphText(text, g);
         if (rtl > ltr) {
-            if (!(isBlankGlyph(t) and buf.items.len > 0 and buf.items[buf.items.len - 1] == ' ')) try buf.appendSlice(a, t);
+            const qi = std.mem.indexOfScalar(u32, order, k) orelse 0;
+            const mirrored: ?[]const u8 = if (qi < in_ltr.len and !in_ltr[qi] and t.len == 1) switch (t[0]) {
+                '(' => ")",
+                ')' => "(",
+                '[' => "]",
+                ']' => "[",
+                '{' => "}",
+                '}' => "{",
+                '<' => ">",
+                '>' => "<",
+                else => null,
+            } else null;
+            if (mirrored) |m| {
+                try buf.appendSlice(a, m);
+            } else if (!(isBlankGlyph(t) and buf.items.len > 0 and buf.items[buf.items.len - 1] == ' ')) try buf.appendSlice(a, t);
             prev = g;
             continue;
         }
@@ -2210,9 +2256,24 @@ fn dehyphen(t: []const u8) usize {
     return n;
 }
 
+// A block in a monospaced font that reads as prose: at least two sentence ends, and code punctuation in under
+// one character in a hundred.
+fn isMonoProse(t: []const u8) bool {
+    var ends: usize = 0;
+    var punct: usize = 0;
+    for (t, 0..) |c, i| {
+        if ((c == '.' or c == '?' or c == '!') and (i + 1 == t.len or t[i + 1] == ' ' or t[i + 1] == '\n')) ends += 1;
+        switch (c) {
+            '{', '}', '[', ']', '(', ')', ';', '=', '<', '>', '#', '$', '_', '"', '*', '/', '\\' => punct += 1,
+            else => {},
+        }
+    }
+    return ends >= 2 and punct * 100 < t.len;
+}
+
 fn startsListMarker(t: []const u8) usize {
     // returns the byte length of the marker (with its trailing space), 0 when the text does not start a list item
-    const bullets = [_][]const u8{ "\u{2022}", "\u{25E6}", "\u{25AA}", "\u{25CF}", "\u{25CB}", "\u{25A0}", "\u{2023}", "\u{2043}", "\u{2013}", "-", "*", "\u{00B7}" };
+    const bullets = [_][]const u8{ "\u{2022}", "\u{25E6}", "\u{25AA}", "\u{25CF}", "\u{25CB}", "\u{25A0}", "\u{2023}", "\u{2043}", "\u{2013}", "\u{2192}", "-", "*", "\u{00B7}" };
     for (bullets) |b| {
         if (std.mem.startsWith(u8, t, b)) {
             var e = b.len;
@@ -2506,6 +2567,7 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
             try hsizes.append(a, b.size);
             continue;
         }
+        if (b.kind == .code and isMonoProse(b.text)) b.kind = .paragraph;
         if (b.kind != .paragraph) continue;
         const short = b.text.len <= 160;
         const ends = b.text.len > 0 and (b.text[b.text.len - 1] == '.' or b.text[b.text.len - 1] == ':' or b.text[b.text.len - 1] == ',');
