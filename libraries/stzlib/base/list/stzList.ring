@@ -5884,23 +5884,15 @@ class stzList from stzObject
 		return _aR_
 
 	def StringsW(pcExpr)
-		# Filter to string items matching pcExpr.
+		# Filter to string items matching pcExpr -- judged by the engine's W
+		# evaluator, never run as code (threat-model R17).
+		if NOT isString(pcExpr) or ring_trim(pcExpr) = "" return [] ok
 		_l_ = This.List()
-		_nL_ = len(_l_)
+		_aP_ = StzWPositions(_l_, "isString(@item) and (" + StzWLower(pcExpr) + ")")
 		_aR_ = []
-		for _i_ = 1 to _nL_
-			_v_ = _l_[_i_]
-			if NOT isString(_v_) loop ok
-			@string = _v_
-			@item = _v_
-			@i = _i_
-			_b_ = 0
-			try
-				eval("_b_ = " + pcExpr)
-			catch
-				_b_ = 0
-			done
-			if _b_ _aR_ + _v_ ok
+		_nP_ = len(_aP_)
+		for _i_ = 1 to _nP_
+			_aR_ + _l_[_aP_[_i_]]
 		next
 		return _aR_
 
@@ -5909,22 +5901,14 @@ class stzList from stzObject
 	#   returns    a list of items
 	#   see        FindW
 	def ItemsWhere(pcExpr)
+		# judged by the engine's W evaluator, never run as code (R17)
 		if NOT isString(pcExpr) return [] ok
 		_l_ = This.List()
-		_nL_ = len(_l_)
+		_aP_ = StzWPositions(_l_, pcExpr)
 		_aR_ = []
-		for _i_ = 1 to _nL_
-			@item = _l_[_i_]
-			@Item = @item
-			@i = _i_
-			@position = _i_
-			_b_ = 0
-			try
-				eval("_b_ = " + pcExpr)
-			catch
-				_b_ = 0
-			done
-			if _b_ _aR_ + _l_[_i_] ok
+		_nP_ = len(_aP_)
+		for _i_ = 1 to _nP_
+			_aR_ + _l_[_aP_[_i_]]
 		next
 		return _aR_
 
@@ -11731,6 +11715,10 @@ class stzList from stzObject
 			ok
 			_xEieI_ = pItem
 			_bEieR_ = 0
+			# both names are pasted into code: plain identifiers only (R17)
+			if NOT ( StzIsPlainIdentifier(pcType) and StzIsPlainIdentifier(_cPred_) )
+				return 0
+			ok
 			try
 				eval('_bEieR_ = Stz' + pcType + 'Q(_xEieI_).Is' + _cPred_ + '()')
 			catch

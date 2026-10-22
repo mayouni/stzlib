@@ -9597,6 +9597,12 @@ class stzString from stzObject
 			return _aTlRng_
 		ok
 		if This.IsListInString()
+			# the literal is evaluated, so it must be DATA: nothing outside
+			# quotes may name a function (threat-model R17)
+			if NOT StzIsPlainListLiteral(This.Content())
+				stzraise("ToList: this text is not a plain list literal -- it names something outside quotes, " +
+					"and a list in a string is read as data, never run.")
+			ok
 			_aTlRes_ = []
 			_cTlCode_ = "_aTlRes_ = " + This.Content()
 			eval(_cTlCode_)
@@ -12485,6 +12491,7 @@ class stzString from stzObject
 		if NOT isString(pcScript) or pcScript = "" return 0 ok
 		_kw_ = lower(pcScript)
 		if ring_left(_kw_, 1) = ":" _kw_ = StzMidToEnd(_kw_, 2) ok
+		if NOT StzIsPlainIdentifier(_kw_) return 0 ok   # pasted into code (R17)
 		try
 			eval("_b_ = This.IsScript" + _kw_ + "()")
 			return _b_
@@ -15738,22 +15745,12 @@ class stzString from stzObject
 	#              #--> FALSE
 	#@ aka  Check([pcExpr]) -- evaluate pcExpr per char (@char in scope) and return TRUE if it holds for every char. 0-arg form is the existence-check stub used by re-include narratives.
 	def Check(pcExpr)
+		# judged by the engine's W evaluator, never run as code (R17)
 		if NOT isString(pcExpr) or pcExpr = "" return 1 ok
 		_aChars_ = This.Chars()
 		_nLen_ = len(_aChars_)
-		for _i_ = 1 to _nLen_
-			@char = _aChars_[_i_]
-			@Char = @char
-			@position = _i_
-			_b_ = 0
-			try
-				eval("_b_ = " + pcExpr)
-			catch
-				_b_ = 0
-			done
-			if NOT _b_ return 0 ok
-		next
-		return 1
+		if _nLen_ = 0 return 1 ok
+		return len(StzWPositions(_aChars_, pcExpr)) = _nLen_
 
 	# SubStringsOccurringNoMoreThanNTimes is aliased to LessThanNTimes in the
 	# original (strictly < n), so NoMoreThan(1) -> [] (every substring occurs >=1).
@@ -17601,37 +17598,16 @@ class stzString from stzObject
 			_nFrom_ = This._ResolveSymPos(_nFrom_, _nLen_)
 			if NOT isNumber(_nFrom_) return 0 ok
 			if _nFrom_ < 1 _nFrom_ = 1 ok
-			for _i_ = _nFrom_ to _nLen_
-				@char = _aChars_[_i_]
-				@Char = @char
-				@position = _i_
-				_bMatch_ = 0
-				try
-					eval("_bMatch_ = " + _e_)
-				catch
-					_bMatch_ = 0
-				done
-				if _bMatch_ return _i_ - 1 ok
+			# judged by the engine's W evaluator, never run as code (R17)
+			_aHit_ = StzWPositions(_aChars_, _e_)
+			_nHit_ = len(_aHit_)
+			for _h_ = 1 to _nHit_
+				if _aHit_[_h_] >= _nFrom_ return _aHit_[_h_] - 1 ok
 			next
 			return 0
 		ok
 		# String-condition form: collect positions where pcCondition holds.
-		_aRes_ = []
-		_aChars_ = This.Chars()
-		_nLen_ = len(_aChars_)
-		for _i_ = 1 to _nLen_
-			@char = _aChars_[_i_]
-			@Char = @char
-			@position = _i_
-			_bMatch_ = 0
-			try
-				eval("_bMatch_ = " + pcCondition)
-			catch
-				_bMatch_ = 0
-			done
-			if _bMatch_ _aRes_ + _i_ ok
-		next
-		return _aRes_
+		return StzWPositions(This.Chars(), pcCondition)
 
 	# Returns the start position of each word.
 	#
@@ -20376,6 +20352,12 @@ class stzString from stzObject
 	# SAME value (the "partitioner"). The expression sees @char, @i and
 	# This, e.g. 'StzCharQ(@char).Script()' or
 	# 'StzCharQ(This[@i]).Script()'.
+	#
+	# THIS ONE TAKES RING CODE, by design: the partitioner calls methods the
+	# W engine cannot evaluate, so the expression is run as written. Pass only
+	# text the PROGRAM wrote -- never text a user, a file or a request
+	# supplied. Every other W method judges its condition instead
+	# (threat-model R17).
 	def _PartsUsingWalk(pcExpr)
 		# Returns [ sections, values ]: one [start, end] + one
 		# partitioner value per part.
@@ -20644,34 +20626,17 @@ class stzString from stzObject
 			_nFrom_ = This._ResolveSymPos(_nFrom_, _nLen_)
 			if NOT isNumber(_nFrom_) return 0 ok
 			if _nFrom_ > _nLen_ _nFrom_ = _nLen_ ok
-			for _i_ = _nFrom_ to 1 step -1
-				@char = _aChars_[_i_]
-				@Char = @char
-				@position = _i_
-				_bMatch_ = 0
-				try
-					eval("_bMatch_ = " + _e_)
-				catch
-					_bMatch_ = 0
-				done
-				if _bMatch_ return _i_ + 1 ok
+			# judged by the engine's W evaluator, never run as code (R17)
+			_aHit_ = StzWPositions(_aChars_, _e_)
+			for _h_ = len(_aHit_) to 1 step -1
+				if _aHit_[_h_] <= _nFrom_ return _aHit_[_h_] + 1 ok
 			next
 			return 0
 		ok
 		_aRes_ = []
-		_aChars_ = This.Chars()
-		_nLen_ = len(_aChars_)
-		for _i_ = _nLen_ to 1 step -1
-			@char = _aChars_[_i_]
-			@Char = @char
-			@position = _i_
-			_bMatch_ = 0
-			try
-				eval("_bMatch_ = " + pcCondition)
-			catch
-				_bMatch_ = 0
-			done
-			if _bMatch_ _aRes_ + _i_ ok
+		_aHit_ = StzWPositions(This.Chars(), pcCondition)
+		for _h_ = len(_aHit_) to 1 step -1
+			_aRes_ + _aHit_[_h_]
 		next
 		return _aRes_
 

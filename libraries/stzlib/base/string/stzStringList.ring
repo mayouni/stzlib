@@ -1320,12 +1320,8 @@ class stzStringList from stzObject
 		for _i_ = 1 to _nLen_
 			_aData_ + _aSrc_[_i_]
 		next
-		_aKeys_ = list(_nLen_)
-		for _i_ = 1 to _nLen_
-			@string = _aData_[_i_]
-			eval("_key_ = " + pcExpr)
-			_aKeys_[_i_] = _key_
-		next
+		# the keys are computed by the engine, never run as code (R17)
+		_aKeys_ = StzWValues(_aData_, pcExpr)
 		for _i_ = 2 to _nLen_
 			_curKey_ = _aKeys_[_i_]
 			_curVal_ = _aData_[_i_]
@@ -1917,16 +1913,12 @@ class stzStringList from stzObject
 		for _i_ = 1 to _nL_
 			_v_ = _l_[_i_]
 			if NOT isString(_v_) loop ok
-			@string = _v_
-			@item = _v_
-			@i = _i_
-			_b_ = 0
-			try
-				eval("_b_ = " + pcExpr)
-			catch
-				_b_ = 0
-			done
-			if _b_ _aR_ + _v_ ok
+		next
+		# judged by the engine's W evaluator, never run as code (R17)
+		_aP_ = StzWPositions(_l_, "isString(@item) and (" + StzWLower(pcExpr) + ")")
+		_nP_ = len(_aP_)
+		for _i_ = 1 to _nP_
+			_aR_ + _l_[_aP_[_i_]]
 		next
 		return _aR_
 
@@ -1947,20 +1939,13 @@ class stzStringList from stzObject
 				_aR_ + 0
 				loop
 			ok
-			@string = _v_
-			@item = _v_
-			@i = _i_
-			_b_ = 0
-			try
-				eval("_b_ = " + pcExpr)
-			catch
-				_b_ = 0
-			done
-			if _b_
-				_aR_ + 1
-			else
-				_aR_ + 0
-			ok
+			_aR_ + 0
+		next
+		# judged by the engine's W evaluator, never run as code (R17)
+		_aP_ = StzWPositions(_l_, "isString(@item) and (" + StzWLower(pcExpr) + ")")
+		_nP_ = len(_aP_)
+		for _i_ = 1 to _nP_
+			_aR_[_aP_[_i_]] = 1
 		next
 		return _aR_
 

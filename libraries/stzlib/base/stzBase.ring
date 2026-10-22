@@ -285,6 +285,7 @@ ok
     load "list/stzHashList.ring"
     load "list/stzItem.ring"
     load "list/stzList.ring"
+    load "list/stzWCondition.ring"    # a text condition is judged by the engine, never run (R17)
     load "list/stzDeepList.ring"
     load "list/stzListInString.ring"
 
