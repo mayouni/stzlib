@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lab Note 7: Estimating Energy from Mass</title>
+<style>
+@page { size: A4; margin: 2cm; }
+html, body { margin: 0; padding: 0; }
+body { font-family: Arial, Helvetica, sans-serif; font-size: 11pt; line-height: 1.45; color: #000; background: #fff; }
+h1 { font-size: 20pt; margin: 0 0 12pt 0; }
+h2 { font-size: 15pt; margin: 14pt 0 6pt 0; }
+h3 { font-size: 12.5pt; margin: 10pt 0 4pt 0; }
+p { margin: 0 0 8pt 0; text-align: left; }
+table { border-collapse: collapse; margin: 6pt 0 10pt 0; }
+th, td { border: 1px solid #000; padding: 4pt 8pt; text-align: left; vertical-align: top; }
+th { font-weight: bold; background: #e8e8e8; }
+caption { caption-side: top; text-align: left; font-weight: bold; padding-bottom: 4pt; }
+pre { font-family: Consolas, 'Courier New', monospace; font-size: 10pt; background: #f2f2f2; border: 1px solid #999; padding: 8pt; margin: 6pt 0 10pt 0; white-space: pre; }
+</style>
+</head>
+<body>
+<h1>Lab Note 7: Estimating Energy from Mass</h1>
+<p>This note shows a short program that applies the mass-energy relation E = mc^2 to a list of masses. Here E is the energy in joules, m is the mass in kilograms and c is the speed of light.</p>
+<pre><code>C = 299792458  # speed of light in m/s
+
+def energy(mass_kg):
+    &quot;&quot;&quot;Return the rest energy in joules.&quot;&quot;&quot;
+    return mass_kg * C ** 2
+
+for m in [0.001, 0.5, 2.0]:
+    print(f&quot;m = {m} kg -&gt; E = {energy(m):.3e} J&quot;)</code></pre>
+<p>The program prints one line for each mass in the list. Results are written in scientific notation with three decimal places.</p>
+<p>The ratio of two energies is simply E1/E2 = m1/m2, because the constant c^2 cancels out. For example, doubling the mass doubles the energy.</p>
+</body>
+</html>

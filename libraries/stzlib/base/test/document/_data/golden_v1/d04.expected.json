@@ -1,0 +1,74 @@
+{
+  "id": "d04",
+  "difficulty": "table with merged cells (rowspan and colspan) and a caption",
+  "pages": 1,
+  "title": "Regional Shipments, First Half of 2025",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Regional Shipments, First Half of 2025"
+    }
+  ],
+  "key_sentences": [
+    "The table below shows how many units left our two warehouses in the first two quarters of 2025.",
+    "Figures are counted at the moment of dispatch.",
+    "Shipments of pumps grew in both regions from the first quarter to the second.",
+    "The northern warehouse remains the larger of the two."
+  ],
+  "tables": [
+    {
+      "caption": "Table 2. Shipments by region and product line (units)",
+      "rows": [
+        [
+          "Region",
+          "Product line",
+          "Shipments",
+          "Shipments"
+        ],
+        [
+          "Region",
+          "Product line",
+          "Q1",
+          "Q2"
+        ],
+        [
+          "North",
+          "Pumps",
+          "120",
+          "135"
+        ],
+        [
+          "North",
+          "Valves",
+          "80",
+          "92"
+        ],
+        [
+          "South",
+          "Pumps",
+          "98",
+          "101"
+        ],
+        [
+          "South",
+          "Valves",
+          "64",
+          "70"
+        ],
+        [
+          "Total",
+          "Total",
+          "362",
+          "398"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Grid is 7 rows x 4 columns with TWO header rows (rows 1-2). Merged cells, repeated in every grid cell they span: 'Region' rowspan=2 (rows 1-2, col 1); 'Product line' rowspan=2 (rows 1-2, col 2); 'Shipments' colspan=2 (row 1, cols 3-4); 'North' rowspan=2 (rows 3-4, col 1); 'South' rowspan=2 (rows 5-6, col 1); 'Total' colspan=2 (row 7, cols 1-2). The caption is rendered above the table. Totals are arithmetically correct (column sums)."
+}

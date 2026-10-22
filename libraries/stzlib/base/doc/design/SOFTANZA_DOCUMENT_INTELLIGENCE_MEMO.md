@@ -120,20 +120,22 @@ The three slices share the `:document` parcel type; D1's golden pages can be **g
 
 ---
 
-## 6. Measured baselines — what exists, and what does not
+## 6. Measured baselines (2026-10-22)
 
-**There is no floor to measure.** Softanza cannot extract text from a PDF, so "floor first" has no number yet. What was measured, and by whom, is in §2 (`Windows.Media.Ocr` on a rendered PNG, from the vision plan). **Nothing was installed and no model was downloaded for this memo.**
+**There is still no floor**: Softanza cannot read a PDF, so the numbers below are the bar a native reader will have to meet, not a comparison.
 
-To produce baselines I need the author's yes, with these specifics:
+**The golden set** `base/test/document/_data/golden_v1/`: 10 PDFs rendered by headless Chrome from HTML, each with an `expected.json` (headings, key sentences in reading order, table grids, list items, page furniture, code). It was written by a separate agent that never ran an extractor, and the metrics in `base/test/document/_docling_baseline.py` were fixed before Docling's output on it was seen.
 
-| What | From where | Size | Why |
-|---|---|---|---|
-| Python venv in an isolated directory **outside the repository** (e.g. `D:\scratch\docling-venv`) | PyPI | `docling` + CPU PyTorch ≈ 1–2 GB (CUDA PyTorch ≈ 3+ GB more) | the oracle for D1's golden pages and the CPU/GPU baseline on this RTX 3050 |
-| `docling-layout-heron`, TableFormer, RapidOCR ONNX models | Hugging Face (fetched by Docling on first run) | ≈ 171 MB + 213 MB + tens of MB | same |
-| `ibm-granite/granite-docling-258M-GGUF` + projector | Hugging Face | 332 MB + 190 MB | a decoder-side feasibility probe through the existing engine |
-| A set of **10–20 real documents** | the author's choice (public-domain, mixed: born-digital, scanned, tabular, French, Arabic) | small | the measurement set |
+**Docling 2.141.0, OCR off, CPU** (`results/docling_baseline_golden_v1.md`): text 0.97, reading order 1.00 (the two-column page included), headings 1.00, tables 0.95, lists 1.00, furniture kept out of the body 1.00, code 0.00. 239 s for 10 documents, 83 s of them the first document's model loading. Its two failures are real, checked against its output:
 
-Until then the golden pages for D1 are the **self-generated** ones (§5), which need no download.
+- **code**: the block is found and labelled `code`, but `mass_kg` comes out as `mass _ kg`, so the text is not the code.
+- **Arabic**: every French sentence is found, but the right-to-left paragraph's lines come back reordered and spliced, so 2 of the 3 Arabic sentences are lost. **Bidi is where a Softanza reader can beat Docling**: the graphics plane already shapes and orders RTL text.
+
+**OCR on a real scan** (one page, no text layer, a French attestation supplied by the author; never committed): RapidOCR through Docling, 55 s on CPU, the whole body text recovered with its accents, one missing space. The logo, the stamp and the footer band are not in the exported text (pictures and page furniture). Perceived by Claude against the rendered page; **the author's own verdict is pending.**
+
+**How it ran**: the venv is outside the tree (`D:\GitHub\_wt_dl\docling-venv`, plus `onnxruntime` for RapidOCR), and the models were fetched beforehand with `curl -C -` and checked against the hub's SHA-256 (layout 171,658,996 B `00333a43...`, TableFormer accurate 212,758,388 B `2a7d6c92...`), because the Hugging Face client stalled on this network. Run with `--artifacts <models dir>` and `HF_HUB_OFFLINE=1`.
+
+**Not measured**: Granite-Docling-258M (not downloaded), the GPU, scanned golden pages with an expected text.
 
 ---
 

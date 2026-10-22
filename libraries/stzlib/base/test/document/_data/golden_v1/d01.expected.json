@@ -1,0 +1,26 @@
+{
+  "id": "d01",
+  "difficulty": "plain multi-paragraph letter",
+  "pages": 1,
+  "title": null,
+  "headings": [],
+  "key_sentences": [
+    "Thank you for your letter of 18 February about the water pressure at your warehouse on Quarry Road.",
+    "We have reviewed the readings from the meter on your site and from the two nearest pumping stations.",
+    "Our engineers found that a valve on the main supply line had been left partly closed after repairs in January.",
+    "The valve was fully reopened on 27 February, and the pressure at your meter has been normal since that day.",
+    "We apologise for the inconvenience this caused to your business.",
+    "As a gesture of goodwill, we will credit your account with one month of standing charges.",
+    "The credit will appear on your next quarterly bill, which is due at the end of April.",
+    "If you notice any further drop in pressure, please call our service desk on 0190 555 0142.",
+    "We will send a technician within one working day."
+  ],
+  "tables": [],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Business letter, one page. Sender block (3 lines), date, recipient block (4 lines), salutation, four body paragraphs, closing and a 2-line signature. All apostrophes are U+0027. key_sentences are every sentence of the four body paragraphs in order. Address lines are body text (not furniture) but are not sentences; they are: Halvik Water Cooperative | 14 Mill Lane | Dornsby DX4 7QP | 3 March 2026 | Ms Lena Okafor-Brandt | Ostrava Garden Supplies | 22 Quarry Road | Dornsby DX2 1LM. Salutation: 'Dear Ms Okafor-Brandt,'. Closing: 'Yours sincerely,'. Signature: Tomas Reinholt | Customer Relations Manager."
+}

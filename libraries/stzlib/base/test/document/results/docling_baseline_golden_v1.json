@@ -1,0 +1,137 @@
+{
+ "tool": "docling 2.141.0",
+ "ocr": false,
+ "golden": "golden_v1",
+ "documents": [
+  {
+   "id": "d01",
+   "difficulty": "plain multi-paragraph letter",
+   "seconds": 83.17,
+   "text": 1.0,
+   "order": 1.0,
+   "headings": null,
+   "tables": null,
+   "lists": null,
+   "furniture": null,
+   "code": null
+  },
+  {
+   "id": "d02",
+   "difficulty": "heading hierarchy (h1, h2, h3), 2 pages",
+   "seconds": 24.35,
+   "text": 1.0,
+   "order": 1.0,
+   "headings": 1.0,
+   "tables": null,
+   "lists": null,
+   "furniture": null,
+   "code": null
+  },
+  {
+   "id": "d03",
+   "difficulty": "simple table",
+   "seconds": 21.56,
+   "text": 1.0,
+   "order": 1.0,
+   "headings": 1.0,
+   "tables": 1.0,
+   "lists": null,
+   "furniture": null,
+   "code": null
+  },
+  {
+   "id": "d04",
+   "difficulty": "table with merged cells (rowspan and colspan) and a caption",
+   "seconds": 20.75,
+   "text": 1.0,
+   "order": 1.0,
+   "headings": 1.0,
+   "tables": 0.8571428571428571,
+   "lists": null,
+   "furniture": null,
+   "code": null
+  },
+  {
+   "id": "d05",
+   "difficulty": "two-column article layout (reading order)",
+   "seconds": 8.39,
+   "text": 1.0,
+   "order": 1.0,
+   "headings": 1.0,
+   "tables": null,
+   "lists": null,
+   "furniture": null,
+   "code": null
+  },
+  {
+   "id": "d06",
+   "difficulty": "bulleted and numbered lists, one nested level",
+   "seconds": 11.05,
+   "text": 1.0,
+   "order": 1.0,
+   "headings": 1.0,
+   "tables": null,
+   "lists": 1.0,
+   "furniture": null,
+   "code": null
+  },
+  {
+   "id": "d07",
+   "difficulty": "repeated page header and footer with page numbers (furniture)",
+   "seconds": 24.32,
+   "text": 1.0,
+   "order": 1.0,
+   "headings": 1.0,
+   "tables": null,
+   "lists": null,
+   "furniture": 1.0,
+   "code": null
+  },
+  {
+   "id": "d08",
+   "difficulty": "French accents and an Arabic right-to-left paragraph",
+   "seconds": 9.39,
+   "text": 0.75,
+   "order": 1.0,
+   "headings": 1.0,
+   "tables": null,
+   "lists": null,
+   "furniture": null,
+   "code": null
+  },
+  {
+   "id": "d09",
+   "difficulty": "code block (monospace) and inline formulas written as text",
+   "seconds": 14.51,
+   "text": 1.0,
+   "order": 1.0,
+   "headings": 1.0,
+   "tables": null,
+   "lists": null,
+   "furniture": null,
+   "code": 0.0
+  },
+  {
+   "id": "d10",
+   "difficulty": "mixed: heading, paragraph, small table, list, footnote",
+   "seconds": 21.69,
+   "text": 1.0,
+   "order": 1.0,
+   "headings": 1.0,
+   "tables": 1.0,
+   "lists": 1.0,
+   "furniture": null,
+   "code": null
+  }
+ ],
+ "macro": {
+  "text": 0.975,
+  "order": 1.0,
+  "headings": 1.0,
+  "tables": 0.952,
+  "lists": 1.0,
+  "furniture": 1.0,
+  "code": 0.0
+ },
+ "seconds_total": 239.2
+}

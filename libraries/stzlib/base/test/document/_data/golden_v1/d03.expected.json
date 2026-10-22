@@ -1,0 +1,74 @@
+{
+  "id": "d03",
+  "difficulty": "simple table",
+  "pages": 1,
+  "title": "Price List - Spring 2026",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Price List - Spring 2026"
+    }
+  ],
+  "key_sentences": [
+    "The prices below apply to orders placed between 1 April and 30 June 2026.",
+    "All prices exclude value added tax.",
+    "Orders above 500 euros are delivered free of charge within the mainland.",
+    "Stock levels were counted on 28 March 2026 and may change without notice."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Item code",
+          "Description",
+          "Quantity in stock",
+          "Unit price (EUR)"
+        ],
+        [
+          "A-101",
+          "Steel hinge, 80 mm",
+          "1,250",
+          "2.40"
+        ],
+        [
+          "A-102",
+          "Steel hinge, 120 mm",
+          "640",
+          "3.15"
+        ],
+        [
+          "B-210",
+          "Brass door handle",
+          "85",
+          "18.90"
+        ],
+        [
+          "B-215",
+          "Brass cabinet knob",
+          "410",
+          "4.75"
+        ],
+        [
+          "C-330",
+          "Wood screw pack (100)",
+          "2,300",
+          "6.20"
+        ],
+        [
+          "C-335",
+          "Wall plug pack (50)",
+          "1,780",
+          "3.60"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "One table, 1 header row (th cells) + 6 data rows x 4 columns, no merged cells, no caption. Numbers use a comma as thousands separator and a dot as decimal separator; cell text is exact. One paragraph before the table, one after."
+}

@@ -1,0 +1,30 @@
+{
+  "id": "d09",
+  "difficulty": "code block (monospace) and inline formulas written as text",
+  "pages": 1,
+  "title": "Lab Note 7: Estimating Energy from Mass",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Lab Note 7: Estimating Energy from Mass"
+    }
+  ],
+  "key_sentences": [
+    "This note shows a short program that applies the mass-energy relation E = mc^2 to a list of masses.",
+    "Here E is the energy in joules, m is the mass in kilograms and c is the speed of light.",
+    "The program prints one line for each mass in the list.",
+    "Results are written in scientific notation with three decimal places.",
+    "The ratio of two energies is simply E1/E2 = m1/m2, because the constant c^2 cancels out.",
+    "For example, doubling the mass doubles the energy."
+  ],
+  "tables": [],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "C = 299792458  # speed of light in m/s\n\ndef energy(mass_kg):\n    \"\"\"Return the rest energy in joules.\"\"\"\n    return mass_kg * C ** 2\n\nfor m in [0.001, 0.5, 2.0]:\n    print(f\"m = {m} kg -> E = {energy(m):.3e} J\")"
+  ],
+  "notes": "One code block (pre, Consolas/Courier monospace, grey box) of 8 lines including 2 empty lines; indentation is 4 spaces, no tabs; quotes are ASCII. The code text must keep its line breaks and leading spaces exactly (whitespace collapse does NOT apply to the code entry). Inline formulas are plain text, not superscripts: 'E = mc^2' (caret is a literal U+005E), 'E1/E2 = m1/m2' and 'c^2' (digits are on the baseline). The paragraph after the code block is the 'program prints' paragraph, then the ratio paragraph."
+}

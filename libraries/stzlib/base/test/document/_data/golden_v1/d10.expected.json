@@ -1,0 +1,65 @@
+{
+  "id": "d10",
+  "difficulty": "mixed: heading, paragraph, small table, list, footnote",
+  "pages": 1,
+  "title": "Quarterly Rainfall Bulletin, Station K-12",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Quarterly Rainfall Bulletin, Station K-12"
+    }
+  ],
+  "key_sentences": [
+    "This bulletin summarises the rainfall measured at Station K-12 during the third quarter of 2025.",
+    "The station is located on a hill farm about four kilometres north of Tarnby.",
+    "September was the wettest month of the quarter.",
+    "The next bulletin will be published in January 2026."
+  ],
+  "tables": [
+    {
+      "caption": "Monthly rainfall at Station K-12",
+      "rows": [
+        [
+          "Month",
+          "Rainfall (mm)",
+          "Rain days"
+        ],
+        [
+          "July",
+          "48",
+          "9"
+        ],
+        [
+          "August",
+          "71",
+          "12"
+        ],
+        [
+          "September",
+          "95",
+          "16"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Values are rounded to the nearest millimetre."
+    },
+    {
+      "level": 0,
+      "text": "A rain day is a day with at least 1 mm of rain."
+    },
+    {
+      "level": 0,
+      "text": "Data for 14 August were estimated from a nearby station."
+    }
+  ],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Order on the page: h1, paragraph (2 sentences), paragraph containing a footnote reference, table with caption above it, lead-in line 'Notes for readers:', bulleted list (3 items), paragraph (1 sentence), and at the bottom of the page a footnote above-ruled in 9pt. The sentence carrying the footnote marker is NOT in key_sentences because its visible text has a superscript '1' between 'average' and the full stop: base text 'Total rainfall for the quarter was 214 millimetres, well above the long-term average.' with superscript '1' before the '.'. Footnote text (body, not furniture; superscript '1' then the sentence): 'The long-term average for the third quarter is 162 millimetres, based on the years 1991 to 2020.'. A good reader links the marker to the footnote; table rainfall values sum to 214."
+}

@@ -1,0 +1,39 @@
+{
+  "id": "d08",
+  "difficulty": "French accents and an Arabic right-to-left paragraph",
+  "pages": 1,
+  "title": "Rapport annuel de la bibliothèque municipale de Valbrène",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Rapport annuel de la bibliothèque municipale de Valbrène"
+    },
+    {
+      "level": 2,
+      "text": "Fréquentation et activités"
+    },
+    {
+      "level": 2,
+      "text": "Résumé en arabe"
+    }
+  ],
+  "key_sentences": [
+    "La bibliothèque a accueilli plus de quarante mille visiteurs en 2025, soit une hausse de dix pour cent.",
+    "Les ateliers d'écriture du mercredi ont été très appréciés par les élèves du collège.",
+    "Grâce à une subvention régionale, nous avons acheté trois cents nouveaux livres à gros caractères.",
+    "Le déménagement des archives vers le sous-sol rénové s'est achevé en décembre, et la façade a été repeinte.",
+    "Nous remercions chaleureusement les bénévoles qui ont participé à ce travail.",
+    "يقدم هذا التقرير ملخصا لنشاط المكتبة البلدية خلال السنة الماضية.",
+    "ارتفع عدد الزوار بنسبة عشرة في المائة مقارنة بالسنة السابقة.",
+    "نشكر جميع الموظفين والمتطوعين على عملهم المتواصل."
+  ],
+  "tables": [],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "fr",
+    "ar"
+  ],
+  "code": [],
+  "notes": "French body with accented letters (é è à â ç), all precomposed (NFC); apostrophes are U+0027, no guillemets, no non-breaking spaces. The last paragraph is Arabic, dir=rtl, right-aligned, 3 sentences, no digits and no Latin text inside it. Arabic key_sentences are given in LOGICAL (reading/storage) order, NFC, each ending with an ASCII full stop U+002E; an extractor that outputs visual (left-to-right glyph) order or unjoined presentation forms (U+FB50-U+FEFF) has not recovered the text. The Arabic contains no harakat (vowel marks)."
+}

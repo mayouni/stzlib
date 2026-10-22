@@ -1,0 +1,75 @@
+{
+  "id": "d06",
+  "difficulty": "bulleted and numbered lists, one nested level",
+  "pages": 1,
+  "title": "Setting Up the Workshop Dust Extractor",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Setting Up the Workshop Dust Extractor"
+    }
+  ],
+  "key_sentences": [
+    "This guide explains how to install the extractor in a small workshop.",
+    "Read all the steps before you start.",
+    "Empty the filter bag when it is about two thirds full.",
+    "A full bag reduces suction and can overheat the motor."
+  ],
+  "tables": [],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "A flat floor area of at least one square metre"
+    },
+    {
+      "level": 0,
+      "text": "The following tools:"
+    },
+    {
+      "level": 1,
+      "text": "A 10 mm spanner"
+    },
+    {
+      "level": 1,
+      "text": "A Phillips screwdriver"
+    },
+    {
+      "level": 1,
+      "text": "A tape measure"
+    },
+    {
+      "level": 0,
+      "text": "A wall socket within three metres of the machine"
+    },
+    {
+      "level": 0,
+      "text": "Unpack the motor unit and the filter bag."
+    },
+    {
+      "level": 0,
+      "text": "Fit the filter bag to the outlet ring."
+    },
+    {
+      "level": 1,
+      "text": "Pull the bag over the ring until it is tight."
+    },
+    {
+      "level": 1,
+      "text": "Close the metal clamp around the bag."
+    },
+    {
+      "level": 0,
+      "text": "Connect the hose to the inlet on the front."
+    },
+    {
+      "level": 0,
+      "text": "Switch on the machine and listen for unusual noise."
+    }
+  ],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Two lists. First a bulleted list (ul, disc bullets) of 3 items whose 2nd item has a nested bulleted list of 3 items (circle bullets). Then a numbered list (ol, 1. 2. 3. 4.) of 4 items whose 2nd item has a nested numbered list of 2 items (rendered as 1. 2.). list_items text EXCLUDES the bullet glyph and the number. list_items entries 1-6 are the bulleted list (3 top-level + 3 nested), entries 7-12 the numbered list (4 top-level + 2 nested), each nested entry right after its parent. The lead-in lines 'Before you begin, make sure you have:' and 'Installation steps:' are paragraphs, not list items."
+}

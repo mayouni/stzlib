@@ -31,4 +31,4 @@
 
 ## Document tools (not model files)
 
-- **Docling 2.141.0** is installed in an isolated virtual environment outside the tree (`D:\GitHub\_wt_dl\docling-venv`), for the baselines of `SOFTANZA_DOCUMENT_INTELLIGENCE_MEMO.md`. It is a measuring tool, not a dependency of the library; its own models download from Hugging Face on first use.
+- **Docling 2.141.0** is installed in an isolated virtual environment outside the tree (`D:\GitHub\_wt_dl\docling-venv`), for the baselines of `SOFTANZA_DOCUMENT_INTELLIGENCE_MEMO.md`. It is a measuring tool, not a dependency of the library. Its models are kept in `D:\GitHub\_wt_dl\docling-models` (layout-heron, TableFormer accurate, RapidOCR ONNX), digests checked, and passed with `--artifacts`; the baseline is in section 6 of the memo.

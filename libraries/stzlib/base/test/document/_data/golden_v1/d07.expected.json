@@ -1,0 +1,49 @@
+{
+  "id": "d07",
+  "difficulty": "repeated page header and footer with page numbers (furniture)",
+  "pages": 3,
+  "title": "X200 Field Lantern User Manual",
+  "headings": [
+    {
+      "level": 1,
+      "text": "X200 Field Lantern User Manual"
+    },
+    {
+      "level": 2,
+      "text": "1 Charging"
+    },
+    {
+      "level": 2,
+      "text": "2 Using the lantern"
+    },
+    {
+      "level": 2,
+      "text": "3 Storage and care"
+    }
+  ],
+  "key_sentences": [
+    "The X200 is a rechargeable lantern for camping, fieldwork and power cuts.",
+    "This manual explains how to charge, use and store the lantern safely.",
+    "Charge the lantern fully before you use it for the first time.",
+    "A full charge takes about four hours with the supplied cable.",
+    "Press the power button once to switch on the lantern at low brightness.",
+    "Each further press raises the brightness by one step, up to four steps.",
+    "Hold the power button for two seconds to switch the lantern off.",
+    "Store the lantern in a dry place at a temperature between 5 and 25 degrees Celsius.",
+    "Recharge it at least once every three months, even when it is not in use.",
+    "Do not open the housing, because there are no parts inside that you can repair."
+  ],
+  "tables": [],
+  "list_items": [],
+  "furniture": [
+    "Vellmar Instruments - X200 Field Lantern - User Manual, Revision 3",
+    "Page 1 of 3",
+    "Page 2 of 3",
+    "Page 3 of 3"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Every page starts with the same running header line ('Vellmar Instruments - X200 Field Lantern - User Manual, Revision 3', 9pt, rule below) and ends with a centred footer 'Page N of 3' (9pt, rule above) at the bottom of the page. Header and footer are FURNITURE: they must not appear in body text, and the header must not be taken as a heading or title. The header text occurs 3 times in the PDF (once per page); each footer string occurs once, on its own page. The document title is the h1 on page 1, not the running header."
+}

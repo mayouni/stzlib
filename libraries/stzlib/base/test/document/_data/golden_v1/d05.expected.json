@@ -1,0 +1,40 @@
+{
+  "id": "d05",
+  "difficulty": "two-column article layout (reading order)",
+  "pages": 1,
+  "title": "When the River Moved: Ten Years on the Sallow Plain",
+  "headings": [
+    {
+      "level": 1,
+      "text": "When the River Moved: Ten Years on the Sallow Plain"
+    },
+    {
+      "level": 2,
+      "text": "Why the river moved"
+    },
+    {
+      "level": 2,
+      "text": "What the farmers did"
+    }
+  ],
+  "key_sentences": [
+    "In the spring of 2016, the Sallow River left the bed it had followed for more than a century.",
+    "Heavy rain in the hills sent a flood down the valley in just two days.",
+    "The water broke through a low bank near the village of Orrin and cut a new channel to the east.",
+    "Geologists later found that the old bank had been weakened by decades of gravel mining.",
+    "Within a week, the new channel was carrying almost all of the river's water.",
+    "The farmers on the plain lost about a third of their fields to the new channel.",
+    "Instead of rebuilding the old bank, they agreed to farm on both sides of the new river.",
+    "A small ferry now carries tractors across the water twice a day.",
+    "Ten years later, the soil near the new channel is among the richest in the region.",
+    "The village council plans to measure the banks every spring from now on."
+  ],
+  "tables": [],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Title and byline span the full width; below them a CSS two-column block (column-count: 2). A forced column break puts heading 'What the farmers did' at the TOP of the right-hand column, so the left column holds 'Why the river moved' and its 2 paragraphs (6 sentences), the right column holds 'What the farmers did' and its 2 paragraphs (6 sentences). Correct reading order: left column top to bottom, then right column. key_sentences lists 10 of the 12 body sentences in that order: the first 5 are from the left column, the last 5 from the right (the middle sentence of each column's second paragraph is left out); a reader that reads across both columns line by line will interleave them. Byline (body, not a sentence): 'By Ines Varga, staff writer'. The apostrophe in \"river's\" is U+0027."
+}

@@ -1,0 +1,60 @@
+{
+  "id": "d02",
+  "difficulty": "heading hierarchy (h1, h2, h3), 2 pages",
+  "pages": 2,
+  "title": "Annual Maintenance Report 2025",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Annual Maintenance Report 2025"
+    },
+    {
+      "level": 2,
+      "text": "1 Summary"
+    },
+    {
+      "level": 3,
+      "text": "1.1 Scope"
+    },
+    {
+      "level": 3,
+      "text": "1.2 Method"
+    },
+    {
+      "level": 2,
+      "text": "2 Findings"
+    },
+    {
+      "level": 3,
+      "text": "2.1 Deck"
+    },
+    {
+      "level": 3,
+      "text": "2.2 Drainage"
+    },
+    {
+      "level": 2,
+      "text": "3 Budget"
+    }
+  ],
+  "key_sentences": [
+    "This report describes the maintenance work carried out on the Fennick Bridge in 2025.",
+    "All scheduled inspections were completed, and no structural defects were found.",
+    "The report covers the deck, the two piers and the drainage system.",
+    "Inspectors walked the full length of the deck in April and again in October.",
+    "The bridge remains in good condition overall.",
+    "Minor surface cracks were sealed on the eastern approach.",
+    "The expansion joints showed normal wear for their age.",
+    "Three drains near the western pier were blocked by leaves and were cleared in November.",
+    "We recommend a second cleaning visit each autumn from 2026 onwards.",
+    "The total cost of the work was 48,200 euros, which is 6 percent below the approved budget."
+  ],
+  "tables": [],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Heading levels come from h1/h2/h3 tags and are also visible by font size (20pt / 15pt / 12.5pt, all bold). Section numbers ('1', '1.1', ...) are part of the heading text. An explicit page break puts heading '2 Findings' at the top of page 2. key_sentences are 10 of the 12 body sentences, in order; the 2 left out are 'Lighting and road markings are covered by a separate report.' and 'Each pier was examined from a boat at low tide.'"
+}
