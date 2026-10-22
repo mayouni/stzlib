@@ -103,6 +103,18 @@ func _RxCorpus()
 		[ "hebrew",     _RxCps([ 1513, 1500, 1493, 1501 ]) ]
 	]
 
+# What a text sink must hand back for an entry (RX, 2026-10-22, ruled by the
+# Principal): the five bidirectional embeddings and overrides U+202A..U+202E
+# become the visible markers [U+202A]..[U+202E]; everything else is as given.
+# Computed here with StzReplace, a different route from the engine's writer.
+func _RxWant(cText)
+	_c_ = "" + cText
+	_acHex_ = [ "A", "B", "C", "D", "E" ]
+	for _k_ = 1 to 5
+		_c_ = StzReplace(_c_, _RxUtf8(8233 + _k_), "[U+202" + _acHex_[_k_] + "]")
+	next
+	return _c_
+
 # the names of the corpus entries a .panel string cannot carry (no quote escape)
 func _RxPanelExcluded()
 	return [ "dquote", "onerror", "unbalanced" ]
@@ -237,13 +249,17 @@ func _RxJsonOk(cJson, cKey, cExpected)
 
 # runs one HTML sink over the whole corpus; pSink is a function name that
 # takes the text and returns the markup
-func _RxSweepHtml(cSink, cFunc, acDeclared, cTag, n)
+func _RxSweepHtml(cSink, cFunc, acDeclared, cTag, n, bWant)
 	_aC_ = _RxCorpus()
 	_nC_ = len(_aC_)
 	_nFail_ = 0
 	for _i_ = 1 to _nC_
 		_cOut_ = call cFunc(_aC_[_i_][2])
-		if _RxHtmlOk(_cOut_, acDeclared, cTag, n, _aC_[_i_][2]) = 0
+		_cExp_ = _aC_[_i_][2]
+		if bWant = 1
+			_cExp_ = _RxWant(_cExp_)
+		ok
+		if _RxHtmlOk(_cOut_, acDeclared, cTag, n, _cExp_) = 0
 			_nFail_++
 			_RxRed(cSink, _aC_[_i_][1])
 		ok
@@ -256,7 +272,7 @@ func _RxSweepJson(cSink, cFunc)
 	_nFail_ = 0
 	for _i_ = 1 to _nC_
 		_cOut_ = call cFunc(_aC_[_i_][2])
-		if _RxJsonOk(_cOut_, "k", _aC_[_i_][2]) = 0
+		if _RxJsonOk(_cOut_, "k", _RxWant(_aC_[_i_][2])) = 0
 			_nFail_++
 			_RxRed(cSink, _aC_[_i_][1])
 		ok
@@ -368,7 +384,7 @@ EndScenario()
 
 Scenario("The engine's own encoders pass the oracle over the whole corpus")
 	Given("every corpus entry through StzEngineHtmlEncode inside a p")
-	nF = _RxSweepHtml("engine-encode", "_RxEngineP", [ "p" ], "p", 1)
+	nF = _RxSweepHtml("engine-encode", "_RxEngineP", [ "p" ], "p", 1, 0)
 	Then("no entry fails", nF, 0)
 	Given("every corpus entry through StzEngineHtmlEncodeAttribute in a title")
 	aC = _RxCorpus()
@@ -387,7 +403,7 @@ EndScenario()
 
 Scenario("Sink 1: stzHtmlBuildNode.SetText writes the text as given")
 	Given("every corpus entry through SetText on a p node")
-	nF = _RxSweepHtml("stzHtmlBuildNode.SetText", "_RxNodeText", [ "p" ], "p", 1)
+	nF = _RxSweepHtml("stzHtmlBuildNode.SetText", "_RxNodeText", [ "p" ], "p", 1, 1)
 	Then("no entry fails (red on RX0, green since RX1: the node escapes nothing)", nF, 0)
 	Given("the same three entries through stzHtmlBuilder.Build, the same writer")
 	nF2 = 0
@@ -407,7 +423,7 @@ Scenario("Sink 1b: stzHtmlBuildNode.SetAttr writes the value between quotes as g
 	for i = 1 to nC
 		cOut = _RxNodeAttr(aC[i][2])
 		if _RxUndeclared(cOut, [ "p" ]) > 0 or _RxHandlers(cOut) > 0 or
-		   _RxEq(_RxAttrOf(cOut, "p", 1, "title"), aC[i][2]) = 0
+		   _RxEq(_RxAttrOf(cOut, "p", 1, "title"), _RxWant(aC[i][2])) = 0
 			nBad++
 			_RxRed("stzHtmlBuildNode.SetAttr", aC[i][1])
 		ok
@@ -458,7 +474,7 @@ Scenario("Sink 2: stzUiDocument projects a TEXT box to HTML, text and accessibil
 		nRun++
 		cE = aC[i][2]
 		cH = _RxPanelHtml(cE)
-		if _RxHtmlOk(cH, aDeclared, "div", nBox, cE) = 0
+		if _RxHtmlOk(cH, aDeclared, "div", nBox, _RxWant(cE)) = 0
 			nBad++
 			_RxRed("stzUiDocument.ToHtml", aC[i][1])
 		ok
@@ -500,7 +516,7 @@ Scenario("Sink 3b: stzAppServer._RowsJson escapes only the double quote of a cel
 		if StzJsonIsValid(cJ)
 			aL = StzEngineJsonParseToList(cJ)
 			if isList(aL) and len(aL) = 1 and isList(aL[1]) and len(aL[1]) = 1
-				bOk = _RxEq(aL[1][1], aC[i][2])
+				bOk = _RxEq(aL[1][1], _RxWant(aC[i][2]))
 			ok
 		ok
 		if bOk = 0
@@ -523,7 +539,7 @@ Scenario("Sink 4: stzPlatform._WebShell concatenates the world's name into the t
 	for i = 1 to nC
 		cOut = _RxShell(aC[i][2])
 		if _RxUndeclared(cOut, aDeclared) > 0 or _RxHandlers(cOut) > 0 or
-		   _RxEq(_RxTextOf(cOut, "h1", 1), aC[i][2]) = 0
+		   _RxEq(_RxTextOf(cOut, "h1", 1), _RxWant(aC[i][2])) = 0
 			nBad++
 			_RxRed("stzPlatform._WebShell", aC[i][1])
 		ok
@@ -663,9 +679,44 @@ Scenario("RX1: the engine's JSON string writer, the one every writer concatenate
 	Then("and the document round-trips", _RxJsonOk('{"k":' + cJ + '}', "k", cIn), 1)
 EndScenario()
 
+Scenario("Bidi: the five overrides become visible markers in every text sink, and nothing else moves")
+	# Ruled by the Principal on 2026-10-22 after the corpus page read abc as cba.
+	Given("a text holding all five of U+202A..U+202E around some letters")
+	cB = "x" + _RxCps([ 8234, 8235, 8236, 8237, 8238 ]) + "y"
+	cWant = "x[U+202A][U+202B][U+202C][U+202D][U+202E]y"
+	Then("the neutralizer face writes the five markers", StzBidiNeutralized(cB), cWant)
+	Then("the HTML text face does", StzHtmlEscaped(cB), cWant)
+	Then("the HTML attribute face does", StzHtmlAttrEscaped(cB), cWant)
+	Then("the JSON string face does, inside its quotes", StzJsonString(cB), char(34) + cWant + char(34))
+	Then("none of the five controls is left in any of them",
+		StzFindFirst(_RxUtf8(8238), StzHtmlEscaped(cB) + StzHtmlAttrEscaped(cB) + StzJsonString(cB)), 0)
+	Given("the same text through a builder node, read back by the oracle")
+	oBd = new stzHtmlBuildNode("p")
+	oBd.SetText(cB)
+	Then("the page carries the markers as text and no element", _RxHtmlOk(oBd.ToHtml(), [ "p" ], "p", 1, cWant), 1)
+	Given("a control beside Arabic and an ampersand")
+	cA = _RxCps([ 8238, 1605, 1585, 1581, 1576, 1575 ]) + " & x"
+	Then("the marker and the escape both apply, and the Arabic is intact",
+		StzHtmlEscaped(cA), "[U+202E]" + _RxCps([ 1605, 1585, 1581, 1576, 1575 ]) + " &amp; x")
+	Given("the NEGATIVE SIBLINGS: the isolates, the marks, a truncated sequence, plain text")
+	cIso = _RxCps([ 8294, 8295, 8296, 8297, 8206, 8207, 1605, 1585 ])
+	Then("the isolates U+2066..2069 and the marks U+200E, U+200F pass through unchanged", StzBidiNeutralized(cIso), cIso)
+	cCut = "a" + char(226) + char(128)
+	Then("a truncated sequence is not mistaken for a control", StzBidiNeutralized(cCut), cCut)
+	Then("a neighbouring code point U+202F is not a control", StzBidiNeutralized(_RxUtf8(8239)), _RxUtf8(8239))
+	Then("plain text is the same text", StzBidiNeutralized("plain text"), "plain text")
+	Then("the empty text is the empty text", StzBidiNeutralized(""), "")
+	Given("a long text of controls, past the size where a fixed buffer would cut")
+	cLongB = ""
+	for i = 1 to 3000
+		cLongB += _RxUtf8(8238)
+	next
+	Then("every one is a marker (24000 bytes, nothing cut)", len(StzBidiNeutralized(cLongB)), 24000)
+EndScenario()
+
 # ---------------------------------------------------------------- the red list
 
-? char(10) + "RED LIST -- corpus entries each sink failed on (8 of 25 on RX0; empty since RX1)"
+? char(10) + "RED LIST -- corpus entries each sink failed on (8 of 25 on RX0; empty since RX1; a bidi entry is judged against its marked text)"
 aSinks = []
 for aR in $RX_RED
 	bSeen = 0

@@ -73,6 +73,11 @@ fn ring_HtmlEncodeAttribute(p: *anyopaque) callconv(.c) void {
     htmlXform(p, html.html_encode_attribute, 6);
 }
 
+// the five bidirectional embeddings and overrides, as visible markers (RX)
+fn ring_HtmlNeutralizeBidi(p: *anyopaque) callconv(.c) void {
+    htmlXform(p, html.html_neutralize_bidi, 3);
+}
+
 // ── DOM bridge ───────────────────────────────────────────────
 
 fn ring_HtmlParse(p: *anyopaque) callconv(.c) void {
@@ -223,6 +228,7 @@ fn ring_HtmlParentOf(p: *anyopaque) callconv(.c) void {
 
 const regs = [_]R.Reg{
     .{ .name = "stzenginehtmlencode", .func = ring_HtmlEncode },
+    .{ .name = "stzenginehtmlneutralizebidi", .func = ring_HtmlNeutralizeBidi },
     .{ .name = "stzenginehtmldecode", .func = ring_HtmlDecode },
     .{ .name = "stzenginehtmlstriptags", .func = ring_HtmlStripTags },
     .{ .name = "stzenginehtmlencodeattribute", .func = ring_HtmlEncodeAttribute },

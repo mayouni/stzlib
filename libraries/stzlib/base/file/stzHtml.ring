@@ -46,12 +46,28 @@ func HtmlToText(pcHtml)
 # html_encode and html_encode_attribute, so one policy serves every sink,
 # and no Ring-side escaper stands beside them.
 
+# Returns the text with each bidirectional embedding or override (U+202A to U+202E) written as
+# a visible marker such as [U+202E], and every other character as it is.
+#
+#   returns    a text; the isolates (U+2066 to U+2069) and the marks (U+200E, U+200F) are kept,
+#              because Arabic and Hebrew text uses them
+#   note       ruled by the Principal on 2026-10-22 after a rendered page read abc as cba;
+#              the three escaping faces below apply it first, so every text sink does
+#   see        StzHtmlEscaped, StzHtmlAttrEscaped, StzJsonString
+func StzBidiNeutralized(pcText)
+	return StzEngineHtmlNeutralizeBidi("" + pcText)
+
+	func @StzBidiNeutralized(pcText)
+		return StzBidiNeutralized(pcText)
+
 # Returns the text with & < > " and ' written as entities, for an element's content.
+#
+#   note       the bidirectional overrides are neutralized first, see StzBidiNeutralized
 #
 #   example    ? StzHtmlEscaped("fish & <chips>")
 #              #--> fish &amp; &lt;chips&gt;
 func StzHtmlEscaped(pcText)
-	return StzEngineHtmlEncode("" + pcText)
+	return StzEngineHtmlEncode(StzEngineHtmlNeutralizeBidi("" + pcText))
 
 	func @StzHtmlEscaped(pcText)
 		return StzHtmlEscaped(pcText)
@@ -61,7 +77,7 @@ func StzHtmlEscaped(pcText)
 #   example    ? StzHtmlAttrEscaped('say "hi"')
 #              #--> say &quot;hi&quot;
 func StzHtmlAttrEscaped(pcText)
-	return StzEngineHtmlEncodeAttribute("" + pcText)
+	return StzEngineHtmlEncodeAttribute(StzEngineHtmlNeutralizeBidi("" + pcText))
 
 	func @StzHtmlAttrEscaped(pcText)
 		return StzHtmlAttrEscaped(pcText)

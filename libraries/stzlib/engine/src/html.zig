@@ -183,12 +183,47 @@ pub fn html_encode_attribute(ptr: [*]const u8, len: usize, out: [*]u8, max: usiz
     return @intCast(pos);
 }
 
+// -- Bidirectional controls (RX, 2026-10-22, ruled by the Principal) ------
+// A text sink writes text a person reads, and U+202A..U+202E (the embeddings and
+// overrides) steer how it reads: a perceived page showed 'abc' under U+202E
+// reading 'cba'. Escaping does not address a control, so this is its own step:
+// each of the five is replaced by a VISIBLE marker naming it, [U+202E] and so on,
+// ASCII, safe inside HTML text, an attribute and a JSON string. The isolates
+// (U+2066..U+2069) and the marks (U+200E, U+200F) are NOT touched: the library
+// writes Arabic and Hebrew and they are legitimate there.
+// Growth: 3 bytes become 8, under the 6x the bridge already allows per byte.
+pub fn html_neutralize_bidi(ptr: [*]const u8, len: usize, out: [*]u8, max: usize) callconv(.c) i32 {
+    if (len == 0) return 0;
+    const data = ptr[0..len];
+    var pos: usize = 0;
+    var i: usize = 0;
+    while (i < data.len) {
+        if (i + 2 < data.len and data[i] == 0xE2 and data[i + 1] == 0x80 and
+            data[i + 2] >= 0xAA and data[i + 2] <= 0xAE)
+        {
+            if (pos + 8 > max) return -1;
+            const hex = "ABCDE";
+            const mark = [_]u8{ '[', 'U', '+', '2', '0', '2', hex[data[i + 2] - 0xAA], ']' };
+            @memcpy(out[pos .. pos + 8], &mark);
+            pos += 8;
+            i += 3;
+        } else {
+            if (pos >= max) return -1;
+            out[pos] = data[i];
+            pos += 1;
+            i += 1;
+        }
+    }
+    return @intCast(pos);
+}
+
 // ── C ABI exports ────────────────────────────────────────────
 
 pub export fn stz_html_encode(p: [*]const u8, l: usize, o: [*]u8, m: usize) callconv(.c) i32 { return html_encode(p, l, o, m); }
 pub export fn stz_html_decode(p: [*]const u8, l: usize, o: [*]u8, m: usize) callconv(.c) i32 { return html_decode(p, l, o, m); }
 pub export fn stz_html_strip_tags(p: [*]const u8, l: usize, o: [*]u8, m: usize) callconv(.c) i32 { return html_strip_tags(p, l, o, m); }
 pub export fn stz_html_encode_attribute(p: [*]const u8, l: usize, o: [*]u8, m: usize) callconv(.c) i32 { return html_encode_attribute(p, l, o, m); }
+pub export fn stz_html_neutralize_bidi(p: [*]const u8, l: usize, o: [*]u8, m: usize) callconv(.c) i32 { return html_neutralize_bidi(p, l, o, m); }
 
 // ── Tests ────────────────────────────────────────────────────
 
