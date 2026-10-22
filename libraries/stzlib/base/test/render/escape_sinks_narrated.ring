@@ -698,8 +698,9 @@ ok
 # A rendered page a person can open (CENTRAL-PERCEPTGATE-01): the corpus, one
 # row per entry, through the builder's default door -- so what the oracle says
 # is text can also be SEEN as text. The last row goes through the raw door on
-# purpose, as the one element that should render as markup. Unperceived until
-# a named person has opened it and said what they saw.
+# purpose, as the one element that should render as markup. Perceived by the
+# Principal on 2026-10-22 ("every row reads as plain text"); the record is
+# escape_sinks_perceived.md beside this guard.
 oPg = new stzHtmlBuilder()
 oH = oPg.CreateNode("h1")
 oH.SetText("escape_sinks_narrated -- the corpus as a page")
@@ -723,7 +724,7 @@ oLi.SetMarkup("<b>markup through the raw door: this row is bold</b>")
 oPg.AppendToCurrent(oLi)
 oPg.GoToRoot()
 oPg.BuildToFile("escape_sinks_rendered.html")
-? char(10) + "PAGE: escape_sinks_rendered.html written beside this guard (unperceived until a person opens it)"
+? char(10) + "PAGE: escape_sinks_rendered.html written beside this guard (perceived 2026-10-22, see escape_sinks_perceived.md)"
 
 Summary()
 

@@ -76,8 +76,12 @@ still escape in Ring (their desks).
   one chapter in English and Arabic is byte for byte what it was (15,814 bytes, the
   same sha256), through `_ab_edu_probe.ring` beside the guard.
 - **Perception.** The guard writes `escape_sinks_rendered.html` beside itself: the
-  corpus as a page, one row per entry, for a person to open. *Unperceived* until a
-  named person has opened it and said what they saw.
+  corpus as a page, one row per entry. **Perceived** by the Principal on 2026-10-22,
+  "every row reads as plain text"; the record is `escape_sinks_perceived.md` beside the
+  guard. The eye found what no counter did: the bidi row reads `cba`, the override
+  control having passed through as text. **Open**: a policy for the bidirectional
+  controls (U+202A to U+202E, U+2066 to U+2069) in text sinks, which escaping does not
+  address; a decision for the Principal, not a defect of the escaper.
 
 ### 3.2 The twin -- **designed**
 
