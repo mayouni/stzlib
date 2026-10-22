@@ -131,7 +131,7 @@ The three slices share the `:document` parcel type; D1's golden pages can be **g
 - **code**: the block is found and labelled `code`, but `mass_kg` comes out as `mass _ kg`, so the text is not the code.
 - **Arabic**: every French sentence is found, but the right-to-left paragraph's lines come back reordered and spliced, so 2 of the 3 Arabic sentences are lost. **Bidi is where a Softanza reader can beat Docling**: the graphics plane already shapes and orders RTL text.
 
-**OCR on a real scan** (one page, no text layer, a French attestation supplied by the author; never committed): RapidOCR through Docling, 55 s on CPU, the whole body text recovered with its accents, one missing space. The logo, the stamp and the footer band are not in the exported text (pictures and page furniture). Perceived by Claude against the rendered page; **the author's own verdict is pending.**
+**OCR on a real scan** (one page, no text layer, a French attestation supplied by the author; never committed): RapidOCR through Docling, 55 s on CPU, the whole body text recovered with its accents, one missing space. The logo, the stamp and the footer band are not in the exported text (pictures and page furniture). Perceived by Claude against the rendered page, then read by the author, whose document it is: **"it's good"** (Mansour Ayouni, 2026-10-22).
 
 **How it ran**: the venv is outside the tree (`D:\GitHub\_wt_dl\docling-venv`, plus `onnxruntime` for RapidOCR), and the models were fetched beforehand with `curl -C -` and checked against the hub's SHA-256 (layout 171,658,996 B `00333a43...`, TableFormer accurate 212,758,388 B `2a7d6c92...`), because the Hugging Face client stalled on this network. Run with `--artifacts <models dir>` and `HF_HUB_OFFLINE=1`.
 
