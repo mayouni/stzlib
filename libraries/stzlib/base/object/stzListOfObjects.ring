@@ -1,59 +1,70 @@
-
-// TODO
-
 func StzListOfObjectsQ()
 	return new stzListOfObjects
 
+# Is another name of stzListOfObjects: a list whose every item is an object, with every method of it.
+#
+# The class adds nothing: it is built, read and copied exactly as a stzListOfObjects, and Copy
+# answers a stzListOfObjects.
+#
+#   receiver   o1 = new stzObjects([ new stzString("ab"), new stzString("cd") ])
+#   example    ? len(o1.Content())
+#              #--> 2
+#   see        stzListOfObjects
 class stzObjects from stzListOfObjects
 
-# Is meant to hold a list of objects as a list of its own; it can not be built with a list today.
+# Holds a list whose every item is an object of any class, and hands the list back whole.
 #
-# Building it with a list of objects raises R14, because init calls IsListOfObjects on a stzList and
-# that method does not exist; Content returns nothing; and Copy raises. Only the holder built
-# without parentheses, as StzListOfObjectsQ() does, can be made, and it is empty. The class is a
-# sketch whose file begins with a TODO. stzObjects is another name of it.
+# Reach for it when a list of objects must travel as one value that was checked once: a library
+# class and a class of your own may sit side by side. The holder keeps its own objects. Ring copies
+# an object when it is assigned, so the list given to init is copied in, and a list taken from
+# Content or Copy into a variable holds copies: a change made to one of those objects, or to the
+# caller's own list or objects afterwards, does not reach the holder. The one form that does is a
+# call chained on an element of the answer, o.Content()[1].Rename("x"), which acts on the holder's
+# own object. The empty list is a valid holder. The other methods are those of stzList.
 #
-#   receiver   o1 = StzListOfObjectsQ()
-#   example    ? classname(o1)
-#              #--> stzlistofobjects
-#              ? isString(o1.Content())
-#              #--> 1
+#   receiver   o1 = new stzListOfObjects([ new stzString("ab"), new stzString("cd") ])
+#   example    ? len(o1.Content())
+#              #--> 2
+#              ? o1.Copy().Content()[2].Content()
+#              #--> cd
 #   see        stzListOfNamedObjects, stzObjects, stzList
 class stzListOfObjects from stzList
 	@aContent = []
 
-	# Raises error R14 today instead of building a list of objects from the given list.
+	# Builds the holder from a list whose every item is an object, and raises an error for anything else.
 	#
-	#   paoObjects   the list of objects meant to be held
-	#   returns      nothing; it raises
-	#   note         new stzListOfObjects without parentheses skips init and builds an empty holder,
-	#                which is what StzListOfObjectsQ() returns
-	#   warning      the type check calls IsListOfObjects on a stzList, a method that does not
-	#                exist, so every list raises R14 Calling Method without definition:
-	#                islistofobjects (tried with one object and with two); a value that is not a
-	#                list raises Incorrect param type
+	#   paoObjects   the list of objects to hold, of any classes; the empty list is accepted
+	#   returns      nothing; the holder is built
+	#   note         a list holding one item that is not an object (a number, a text, a list, an
+	#                empty list) is refused, and so is a value that is not a list; the holder keeps
+	#                copies, so changing the caller's list afterwards leaves it alone; new
+	#                stzListOfObjects without parentheses skips this method and builds an empty
+	#                holder, which is what StzListOfObjectsQ() returns
 	#   see          Content, Copy
 	def init(paoObjects)
-		if isList(paoObjects) and Q(paoObjects).IsListOfObjects()
+		if isList(paoObjects) and IsListOfObjects(paoObjects)
 			@aContent = paoObjects
 
 		else
 			StzRaise("Incorrect param type! paoObjects must be a list of objects.")
 		ok
 
-	# Returns an empty text today instead of the list of objects, because the method names the list and does not return it.
+	# Returns the held objects as a plain Ring list, which a variable takes as copies of them.
 	#
-	#   returns    an empty text
-	#   warning    the body is the bare name @aContent with no return, so the list is never handed
-	#              back, even for a holder built without init
+	#   returns    a list of objects, empty for an empty holder
+	#   note       Ring copies an object when it is assigned: a list taken into a variable holds
+	#              copies, so renaming one of them or growing the list leaves the holder as it was;
+	#              the one exception is a call chained on an element of the answer, as in
+	#              o.Content()[1].Rename("x"), which acts on the holder's own object
 	#   see        init, Copy
 	def Content()
-		@aContent
+		return @aContent
 
-	# Raises error today instead of returning a copy of the list: it calls Content, which returns nothing, and init then refuses it.
+	# Returns a new holder of the same objects, which changing leaves this one alone.
 	#
-	#   returns    nothing; it raises
-	#   warning    raises Incorrect param type! paoObjects must be a list of objects
+	#   returns    a stzListOfObjects
+	#   note       the copy holds its own copies of the objects; a copy of a stzObjects is a
+	#              stzListOfObjects
 	#   see        Content, init
 	def Copy()
 		return new stzListOfObjects( This.Content() )
