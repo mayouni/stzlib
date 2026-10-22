@@ -1,0 +1,437 @@
+{
+  "id": "f03",
+  "difficulty": "bordered table running over two pages, header row repeated at the top of page 2",
+  "pages": 2,
+  "title": "Equipment Maintenance Log",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Equipment Maintenance Log"
+    },
+    {
+      "level": 2,
+      "text": "Summary"
+    }
+  ],
+  "key_sentences": [
+    "This log covers scheduled and unscheduled maintenance at the Dunmore pumping station.",
+    "Each line records one intervention on one asset.",
+    "Status codes follow the procedure manual of the station.",
+    "Most interventions were completed on the day they were opened.",
+    "Deferred jobs are carried over to the April schedule.",
+    "The standby generator will be replaced in the second half of the year."
+  ],
+  "tables": [
+    {
+      "caption": "Table 1. Interventions, first quarter",
+      "rows": [
+        [
+          "Job",
+          "Asset",
+          "Date",
+          "Crew",
+          "Status"
+        ],
+        [
+          "J-0101",
+          "Intake pump 1",
+          "2026-01-05",
+          "Crew North",
+          "Completed"
+        ],
+        [
+          "J-0102",
+          "Booster pump B",
+          "2026-01-06",
+          "Crew South",
+          "Deferred"
+        ],
+        [
+          "J-0103",
+          "Standby generator",
+          "2026-01-08",
+          "Crew East",
+          "In progress"
+        ],
+        [
+          "J-0104",
+          "Intake pump 2",
+          "2026-01-09",
+          "Crew North",
+          "Completed"
+        ],
+        [
+          "J-0105",
+          "Chlorine dosing unit",
+          "2026-01-11",
+          "Crew South",
+          "Completed"
+        ],
+        [
+          "J-0106",
+          "Control panel",
+          "2026-01-12",
+          "Crew East",
+          "Completed"
+        ],
+        [
+          "J-0107",
+          "Booster pump A",
+          "2026-01-14",
+          "Crew North",
+          "Completed"
+        ],
+        [
+          "J-0108",
+          "Inlet screen",
+          "2026-01-15",
+          "Crew South",
+          "Completed"
+        ],
+        [
+          "J-0109",
+          "Intake pump 1",
+          "2026-01-17",
+          "Crew East",
+          "Deferred"
+        ],
+        [
+          "J-0110",
+          "Booster pump B",
+          "2026-01-18",
+          "Crew North",
+          "In progress"
+        ],
+        [
+          "J-0111",
+          "Standby generator",
+          "2026-01-20",
+          "Crew South",
+          "Deferred"
+        ],
+        [
+          "J-0112",
+          "Intake pump 2",
+          "2026-01-21",
+          "Crew East",
+          "In progress"
+        ],
+        [
+          "J-0113",
+          "Chlorine dosing unit",
+          "2026-01-23",
+          "Crew North",
+          "Completed"
+        ],
+        [
+          "J-0114",
+          "Control panel",
+          "2026-01-24",
+          "Crew South",
+          "Completed"
+        ],
+        [
+          "J-0115",
+          "Booster pump A",
+          "2026-01-26",
+          "Crew East",
+          "Completed"
+        ],
+        [
+          "J-0116",
+          "Inlet screen",
+          "2026-01-27",
+          "Crew North",
+          "Completed"
+        ],
+        [
+          "J-0117",
+          "Intake pump 1",
+          "2026-01-29",
+          "Crew South",
+          "Completed"
+        ],
+        [
+          "J-0118",
+          "Booster pump B",
+          "2026-01-30",
+          "Crew East",
+          "Deferred"
+        ],
+        [
+          "J-0119",
+          "Standby generator",
+          "2026-02-01",
+          "Crew North",
+          "In progress"
+        ],
+        [
+          "J-0120",
+          "Intake pump 2",
+          "2026-02-02",
+          "Crew South",
+          "Completed"
+        ],
+        [
+          "J-0121",
+          "Chlorine dosing unit",
+          "2026-02-04",
+          "Crew East",
+          "In progress"
+        ],
+        [
+          "J-0122",
+          "Control panel",
+          "2026-02-05",
+          "Crew North",
+          "Completed"
+        ],
+        [
+          "J-0123",
+          "Booster pump A",
+          "2026-02-07",
+          "Crew South",
+          "Completed"
+        ],
+        [
+          "J-0124",
+          "Inlet screen",
+          "2026-02-08",
+          "Crew East",
+          "Completed"
+        ],
+        [
+          "J-0125",
+          "Intake pump 1",
+          "2026-02-10",
+          "Crew North",
+          "Deferred"
+        ],
+        [
+          "J-0126",
+          "Booster pump B",
+          "2026-02-11",
+          "Crew South",
+          "Completed"
+        ],
+        [
+          "J-0127",
+          "Standby generator",
+          "2026-02-13",
+          "Crew East",
+          "Deferred"
+        ],
+        [
+          "J-0128",
+          "Intake pump 2",
+          "2026-02-14",
+          "Crew North",
+          "In progress"
+        ],
+        [
+          "J-0129",
+          "Chlorine dosing unit",
+          "2026-02-16",
+          "Crew South",
+          "Completed"
+        ],
+        [
+          "J-0130",
+          "Control panel",
+          "2026-02-17",
+          "Crew East",
+          "Completed"
+        ],
+        [
+          "J-0131",
+          "Booster pump A",
+          "2026-02-19",
+          "Crew North",
+          "Completed"
+        ],
+        [
+          "J-0132",
+          "Inlet screen",
+          "2026-02-20",
+          "Crew South",
+          "Completed"
+        ],
+        [
+          "J-0133",
+          "Intake pump 1",
+          "2026-02-22",
+          "Crew East",
+          "Completed"
+        ],
+        [
+          "J-0134",
+          "Booster pump B",
+          "2026-02-23",
+          "Crew North",
+          "Deferred"
+        ],
+        [
+          "J-0135",
+          "Standby generator",
+          "2026-02-25",
+          "Crew South",
+          "In progress"
+        ],
+        [
+          "J-0136",
+          "Intake pump 2",
+          "2026-02-26",
+          "Crew East",
+          "Deferred"
+        ],
+        [
+          "J-0137",
+          "Chlorine dosing unit",
+          "2026-02-28",
+          "Crew North",
+          "In progress"
+        ],
+        [
+          "J-0138",
+          "Control panel",
+          "2026-03-01",
+          "Crew South",
+          "Completed"
+        ],
+        [
+          "J-0139",
+          "Booster pump A",
+          "2026-03-03",
+          "Crew East",
+          "Completed"
+        ],
+        [
+          "J-0140",
+          "Inlet screen",
+          "2026-03-04",
+          "Crew North",
+          "Completed"
+        ],
+        [
+          "J-0141",
+          "Intake pump 1",
+          "2026-03-06",
+          "Crew South",
+          "Completed"
+        ],
+        [
+          "J-0142",
+          "Booster pump B",
+          "2026-03-07",
+          "Crew East",
+          "Completed"
+        ],
+        [
+          "J-0143",
+          "Standby generator",
+          "2026-03-09",
+          "Crew North",
+          "Deferred"
+        ],
+        [
+          "J-0144",
+          "Intake pump 2",
+          "2026-03-10",
+          "Crew South",
+          "In progress"
+        ],
+        [
+          "J-0145",
+          "Chlorine dosing unit",
+          "2026-03-12",
+          "Crew East",
+          "Completed"
+        ],
+        [
+          "J-0146",
+          "Control panel",
+          "2026-03-13",
+          "Crew North",
+          "In progress"
+        ],
+        [
+          "J-0147",
+          "Booster pump A",
+          "2026-03-15",
+          "Crew South",
+          "Completed"
+        ],
+        [
+          "J-0148",
+          "Inlet screen",
+          "2026-03-16",
+          "Crew East",
+          "Completed"
+        ],
+        [
+          "J-0149",
+          "Intake pump 1",
+          "2026-03-18",
+          "Crew North",
+          "Completed"
+        ],
+        [
+          "J-0150",
+          "Booster pump B",
+          "2026-03-19",
+          "Crew South",
+          "Deferred"
+        ],
+        [
+          "J-0151",
+          "Standby generator",
+          "2026-03-21",
+          "Crew East",
+          "Completed"
+        ],
+        [
+          "J-0152",
+          "Intake pump 2",
+          "2026-03-22",
+          "Crew North",
+          "Deferred"
+        ],
+        [
+          "J-0153",
+          "Chlorine dosing unit",
+          "2026-03-24",
+          "Crew South",
+          "In progress"
+        ],
+        [
+          "J-0154",
+          "Control panel",
+          "2026-03-25",
+          "Crew East",
+          "Completed"
+        ],
+        [
+          "J-0155",
+          "Booster pump A",
+          "2026-03-27",
+          "Crew North",
+          "Completed"
+        ],
+        [
+          "J-0156",
+          "Inlet screen",
+          "2026-03-28",
+          "Crew South",
+          "Completed"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "One table: 1 header row + 56 data rows (Job J-0101 .. J-0156), 5 columns, full grid borders. The table breaks across pages 1 and 2; the browser repeats the header row (thead) at the top of page 2. The expectation lists the header ONCE and all 56 data rows in order as ONE table; a reader that returns two tables, or the header twice, is wrong. The caption appears once, above the table on page 1. The Summary heading and its paragraph are on page 2. Font Calibri."
+}

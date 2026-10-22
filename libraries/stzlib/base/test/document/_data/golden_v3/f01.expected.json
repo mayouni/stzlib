@@ -1,0 +1,77 @@
+{
+  "id": "f01",
+  "difficulty": "borderless table: columns aligned only by padding, light grey header background, no rules",
+  "pages": 1,
+  "title": "Regional Warehouse Inventory",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Regional Warehouse Inventory"
+    },
+    {
+      "level": 2,
+      "text": "Stock on Hand"
+    },
+    {
+      "level": 2,
+      "text": "Remarks"
+    }
+  ],
+  "key_sentences": [
+    "This summary lists the stock held at the northern warehouse at the close of March.",
+    "Quantities are counted by hand on the last working day of each month.",
+    "Two items fell below their reorder level during the month.",
+    "A replacement order for the wood stain was placed on 2 April.",
+    "The next count is scheduled for the end of April."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Item code",
+          "Description",
+          "Shelf",
+          "Quantity"
+        ],
+        [
+          "NW-1102",
+          "Galvanised wall brackets",
+          "A3",
+          "240"
+        ],
+        [
+          "NW-1187",
+          "Ceramic floor tiles, grey",
+          "B1",
+          "1,150"
+        ],
+        [
+          "NW-1230",
+          "Copper pipe, 15 mm",
+          "C4",
+          "86"
+        ],
+        [
+          "NW-1314",
+          "Exterior wood stain",
+          "A7",
+          "32"
+        ],
+        [
+          "NW-1452",
+          "Cordless drill batteries",
+          "D2",
+          "118"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "One table of 6 rows x 4 columns, the header row included (1 header + 5 data rows). No cell borders or rules of any kind; only the header row has a light grey (#e8e8e8) background. No caption. Font Verdana."
+}

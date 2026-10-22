@@ -1,0 +1,16 @@
+heading	1	Soil Moisture Pilot Study
+heading	1	1. Background
+paragraph	0	Farmers in the valley have reported uneven crop growth on terraced fields. The pilot study tests whether low-cost sensors can explain these differences.
+heading	1	2. Approach
+paragraph	0	The team placed sensors at three depths on twelve terraces. Readings were taken every hour from May to August.
+heading	1	2.1 Data
+paragraph	0	Each sensor stores its readings on a memory card that is collected weekly. Missing values are flagged rather than filled in.
+heading	1	2.2 Procedure
+paragraph	0	Field staff follow the same steps at each visit:
+list_item	0	Record the time of arrival and the weather conditions.
+list_item	0	Check that every sensor is still upright and undamaged.
+list_item	0	Replace the memory card and label the old card with the terrace number.
+list_item	0	Clean the solar panel with a dry cloth.
+list_item	0	Note any changes to the terrace, such as new planting or erosion.
+heading	1	3. Next Steps
+paragraph	0	The results will be shared with the farmers at a meeting in the autumn.

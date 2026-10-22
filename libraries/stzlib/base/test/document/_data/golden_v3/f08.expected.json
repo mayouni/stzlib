@@ -1,0 +1,27 @@
+{
+  "id": "f08",
+  "difficulty": "Hebrew right-to-left page, two paragraphs, the second ending with a Latin abbreviation in parentheses",
+  "pages": 1,
+  "title": "סיכום פרויקט הגינה הקהילתית",
+  "headings": [
+    {
+      "level": 1,
+      "text": "סיכום פרויקט הגינה הקהילתית"
+    }
+  ],
+  "key_sentences": [
+    "הפרויקט החל באביב עם קבוצה קטנה של מתנדבים מהשכונה.",
+    "במהלך הקיץ נשתלו יותר משלושים סוגים של ירקות ועשבי תיבול.",
+    "התושבים נפגשו מדי שבוע כדי לחלק את העבודה ביניהם.",
+    "בשנה הבאה נרחיב את השטח ונוסיף מערכת השקיה חכמה.",
+    "הוועדה תעקוב אחר ההתקדמות באמצעות מדדי ביצוע מרכזיים (KPI)"
+  ],
+  "tables": [],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "he"
+  ],
+  "code": [],
+  "notes": "Hebrew in LOGICAL order, dir=rtl. Two body paragraphs (3 and 2 sentences). The second paragraph ends with '(KPI)' and NO period after it: logically '... מרכזיים (KPI)' with the opening parenthesis before K. In the rendering the parentheses are mirrored by the bidi algorithm and '(KPI)' sits at the left end of the last line; a reader must return '(KPI)' not ')KPI(' or 'IPK'. Font Arial 13pt."
+}

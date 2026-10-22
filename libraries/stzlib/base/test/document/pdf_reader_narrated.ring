@@ -93,6 +93,53 @@ Scenario("Code keeps its lines, its blank lines and its indentation")
 	Then("prose is not code", StzFindFirst("The program prints", "" + @@(aC)), 0)
 EndScenario()
 
+# ---- the second round, pinned on golden_v2 (a development set too since the reader was fixed on it) ----------
+cH = "_data/golden_v2/"
+
+Scenario("A table drawn without lines is found from its aligned columns of short cells")
+	o = StzPdfQ(cH + "e01.pdf")
+	aT = o.Tables()
+	Then("one table", len(aT), 1)
+	Then("its header row", @@(aT[1][1]), @@([ "Variety", "Yield (kg/ha)", "Days to maturity" ]))
+	Then("a body row, cell by cell", @@(aT[1][2]), @@([ "Sahel Gold", "1,240", "84" ]))
+	Then("the line above it is its caption", @@(o.Captions()), @@([ "Table 1. Average yield per hectare by variety" ]))
+	Then("prose is not taken for a table", StzFindFirst("This summary reports", "" + @@(aT)), 0)
+EndScenario()
+
+Scenario("A table continued on the next page is one table, its repeated header dropped")
+	o = StzPdfQ(cH + "e04.pdf")
+	aT = o.Tables()
+	Then("one table across two pages", len(aT), 1)
+	Then("its header once, then every part number", len(aT[1]), 45)
+	Then("the last row comes from page 2", aT[1][45][1], "SP-1044")
+EndScenario()
+
+Scenario("Columns, a sidebar, and a heading below two columns are read in order")
+	o = StzPdfQ(cH + "e03.pdf")
+	c = o.Text()
+	Then("the sidebar is read after the main text", StzFindFirst("At a Glance", c) > StzFindFirst("The restoration group meets", c), 1)
+	o = StzPdfQ(cH + "e10.pdf")
+	c = o.Text()
+	Then("a word broken across the column break is whole again", StzFindFirst("Trinkwasserversorgungssicherheitsverordnung", c) > 0, 1)
+	Then("the heading under both columns comes after the second column", StzFindFirst("Kennzahlen", c) > StzFindFirst("Fachkräftemangel", c), 1)
+EndScenario()
+
+Scenario("A numbered heading is a heading; a one-page running header is furniture; a byline stays in place")
+	o = StzPdfQ(cH + "e06.pdf")
+	aH = o.Headings()
+	Then("the numbered heading is found as a heading", StzFindFirst("1. Introduction", "" + @@(aH)) > 0, 1)
+	Then("and not as a list item", StzFindFirst("Introduction", "" + @@(o.ListItems())), 0)
+	Then("the journal line in the top margin is furniture", StzFindFirst("Sahel Water Studies", "" + @@(o.Furniture())) > 0, 1)
+	Then("the byline comes before the first section", StzFindFirst("R. Okonjo", o.Text()) < StzFindFirst("Shallow alluvial", o.Text()), 1)
+EndScenario()
+
+Scenario("In a right-to-left line, the stop after a Latin name stays after it, and no space is invented")
+	o = StzPdfQ(cH + "e05.pdf")
+	Then("the Latin name and its full stop", StzFindFirst("Rivulet S3.", o.Text()) > 0, 1)
+	Then("no stop moved before the name", StzFindFirst(".Rivulet", o.Text()), 0)
+	Then("no space before the stop", StzFindFirst("Rivulet S3 .", o.Text()), 0)
+EndScenario()
+
 Scenario("A file that is not a readable PDF is refused with the reason")
 	bRaised = 0
 	cWhy = ""

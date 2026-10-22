@@ -1,0 +1,50 @@
+{
+  "id": "f05",
+  "difficulty": "two-page report with bottom-centre page numbers '- 1 -' / '- 2 -' and a running header carrying the report title",
+  "pages": 2,
+  "title": "Riverside Library Network: Annual Review 2025",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Riverside Library Network: Annual Review 2025"
+    },
+    {
+      "level": 2,
+      "text": "Summary"
+    },
+    {
+      "level": 2,
+      "text": "Visitor Numbers"
+    },
+    {
+      "level": 2,
+      "text": "Programmes"
+    },
+    {
+      "level": 2,
+      "text": "Outlook"
+    }
+  ],
+  "key_sentences": [
+    "The Riverside Library Network operates five branches across the eastern districts.",
+    "Membership grew steadily throughout the year, with the strongest gains among students.",
+    "The network also completed the move of its archive to a climate-controlled store.",
+    "The Canal Street branch recorded the largest increase after its refurbishment.",
+    "Weekly homework clubs ran in every branch during term time.",
+    "The digital skills course for older readers was fully booked within days.",
+    "The board plans to open a sixth branch in the harbour quarter in 2027.",
+    "Until then, the mobile library will serve the harbour quarter twice a week."
+  ],
+  "tables": [],
+  "list_items": [],
+  "furniture": [
+    "Annual Review 2025 | Riverside Library Network",
+    "- 1 -",
+    "- 2 -"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Furniture: the running header line 'Annual Review 2025 | Riverside Library Network' (8.5pt grey, with a thin rule under it) appears at the top of BOTH pages; the folio '- 1 -' is centred at the bottom of page 1 and '- 2 -' at the bottom of page 2. None of these belongs in the body. The running header repeats the title's words in another order and must not be taken as the title or as a heading. Page 1 holds the title, Summary and Visitor Numbers; page 2 holds Programmes and Outlook. Explicit page sections, page margins 0. Font Trebuchet MS."
+}

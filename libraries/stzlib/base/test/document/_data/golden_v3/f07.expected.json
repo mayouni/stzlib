@@ -1,0 +1,35 @@
+{
+  "id": "f07",
+  "difficulty": "Arabic right-to-left page; one sentence embeds a number, a Latin brand name and a percentage and ends with a period",
+  "pages": 1,
+  "title": "تقرير المبيعات الفصلي",
+  "headings": [
+    {
+      "level": 1,
+      "text": "تقرير المبيعات الفصلي"
+    },
+    {
+      "level": 2,
+      "text": "ملخص النتائج"
+    },
+    {
+      "level": 2,
+      "text": "التوصيات"
+    }
+  ],
+  "key_sentences": [
+    "يقدم هذا التقرير ملخصا لأداء قسم المبيعات خلال الربع الأخير من السنة.",
+    "ارتفعت مبيعات تطبيق Novalix إلى 4250 وحدة، أي بزيادة قدرها 12% مقارنة بالربع السابق.",
+    "وقد ساهمت الحملة الإعلانية الجديدة في جذب عملاء من مدن متعددة.",
+    "يوصي الفريق بمواصلة الاستثمار في خدمة العملاء خلال العام المقبل.",
+    "كما يقترح تدريب الموظفين الجدد على أدوات التحليل الحديثة."
+  ],
+  "tables": [],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "ar"
+  ],
+  "code": [],
+  "notes": "All text is Arabic in LOGICAL (reading) order, as typed in the HTML; the page is dir=rtl. The second key sentence embeds the Latin brand 'Novalix', the number 4250 and the percentage 12% (European digits, percent sign typed after the digits) and ends with a period, which renders to the LEFT of its last word. A reader returning visual order (reversed letters or words, period at the start) is wrong. The Arabic comma (U+060C) follows 'وحدة'. Font Segoe UI 14pt."
+}

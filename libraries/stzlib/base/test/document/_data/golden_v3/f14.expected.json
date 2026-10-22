@@ -1,0 +1,43 @@
+{
+  "id": "f14",
+  "difficulty": "headings in ALL CAPS bold at body size, two code blocks, and a blockquote",
+  "pages": 1,
+  "title": "Build Notes for the Ledger Service",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Build Notes for the Ledger Service"
+    },
+    {
+      "level": 2,
+      "text": "PROJECT SETUP"
+    },
+    {
+      "level": 2,
+      "text": "CONFIGURATION"
+    },
+    {
+      "level": 2,
+      "text": "RELEASE PROCESS"
+    }
+  ],
+  "key_sentences": [
+    "The ledger service is built from a single repository.",
+    "Install the toolchain before cloning the sources.",
+    "The service reads its settings from a small file at start-up.",
+    "Releases are cut from the main branch every second Tuesday.",
+    "Never tag a release while the nightly build is red.",
+    "The release manager signs the tag and publishes the notes."
+  ],
+  "tables": [],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "git clone https://example.org/ledger.git\ncd ledger\nmake deps\nmake test VERBOSE=1",
+    "[server]\nport = 8085\nlog_level = \"info\"\n\n[storage]\npath = \"/var/lib/ledger\"\n    # keep the path absolute"
+  ],
+  "notes": "The three section headings are typed in capitals, bold, at the SAME 11pt size as the body; only weight and case distinguish them. Two <pre> code blocks in Consolas 9.5pt on a grey background: the second contains an empty line and a final line indented by four spaces, both part of the exact code text. The sentence 'Never tag a release while the nightly build is red.' is a blockquote (indented, italic, grey left bar); it is body text and appears in key_sentences in its reading position. Body font Palatino Linotype."
+}
