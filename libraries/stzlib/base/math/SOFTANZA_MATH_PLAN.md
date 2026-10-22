@@ -1250,6 +1250,21 @@ named it.
 **Gate**: `claim_narrated.ring` 48 of 48 with the door open (64 s), 46 of 46
 with it closed (under a second); `demo_math.ring` walks the door too.
 
+**R11, 2026-10-22 -- the door runs no shell.** The threat model found
+`system('mkdir "...')` on the claims folder and `cmd.exe` running the batch
+runner: a quote in `STZ_LEAN_PROJECT` would have run code. The folder is now
+made by `StzMakeDir` (engine-backed, creates parents), and lake is spawned
+BY ARGV in the project folder through `stzProcess.SpawnIn` -- no shell
+between, the path reaches lake unparsed, `lake` found beside `lean` in the
+toolchain's bin folder. The batch runner is gone. On the way: `stzSystemCall`
+documents its `SetTimeout` as stored and not applied, and the argv runner
+has its own fixed deadline, which is where `lean exited with 143` came from
+when a cold import ran long; the process face waits on the door's deadline
+(`WaitFor`, ten minutes) and kills past it, by name. Measured: the first
+import after a 39-minute engine rebuild took 455 s cold, the next 25 s warm.
+Gates after the change and the rebuild: claim 48 of 48 (door open, 69 s),
+math 282 of 282, tukey as printed in the memo of the day.
+
 **Gate, on 2026-09-26 with the door closed**: `base/test/math/claim_narrated.ring`,
 47 of 47, five sections, under three seconds.
 

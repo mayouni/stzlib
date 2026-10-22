@@ -133,33 +133,51 @@ func _LcFirstLineWith(pcText, pcWord)
 	return ""
 
 # run one .lean text through the door: written into the project as
-# stz_claims/<name>.lean and checked with `lake env lean`; the answer carries
-# the route it took, so a closed door is never mistaken for a proof
+# stz_claims/<name>.lean and checked by lake, spawned BY ARGV in the project
+# folder with no shell between (threat model R11) -- the path reaches lake
+# unparsed, and the process is waited on with the door's own deadline, where
+# a shell-run child was killed at the runner's fixed deadline (exit 143) once
+# a cold Mathlib import outlasted it. The answer carries the route it took,
+# so a closed door is never mistaken for a proof.
 func StzLeanCheck(pcLeanText, pcName)
 	_d_ = StzLeanDoor()
 	if NOT _d_[:open]
 		return [ :route = "door closed", :proved = "", :because = _d_[:because], :file = "" ]
 	ok
 	_cDir_ = _d_[:project] + "/stz_claims"
-	if NOT direxists(_cDir_)  system('mkdir "' + _cDir_ + '"')  ok
+	if NOT direxists(_cDir_)  StzMakeDir(_cDir_)  ok
 	_cFile_ = _cDir_ + "/" + _LcSlug(pcName) + ".lean"
 	write(_cFile_, pcLeanText)
-	# THE RUNNER is a two-line batch file beside the claims, so no quoting
-	# crosses cmd: it steps into the project and hands lake the file
-	_cRun_ = _cDir_ + "/run.cmd"
-	if NOT fexists(_cRun_)
-		write(_cRun_, 'cd /d "%~dp0.."' + char(13) + char(10) + 'lake env lean "%~1"' + char(13) + char(10))
+	# lake sits beside lean in the toolchain's bin folder
+	_cLake_ = _LcLakeBeside(_d_[:lean])
+	_o_ = StzProcessQ()
+	_o_.SpawnIn(_d_[:project], [ _cLake_, "env", "lean", _cFile_ ])
+	_nExit_ = _o_.WaitFor(StzLeanTimeoutMs())
+	if _nExit_ = -2
+		_o_.Kill()
+		_o_.Close()
+		return [ :route = "lean", :proved = 0, :because = "lean did not finish within " + (StzLeanTimeoutMs() / 1000) + " s and was stopped", :file = _cFile_ ]
 	ok
-	_o_ = StzSystemCallQ("cmd.exe")
-	_o_.SetArgs([ "/c", StzReplace(_cRun_, "/", char(92)), StzReplace(_cFile_, "/", char(92)) ])
-	_o_.HideConsole()
-	# a Mathlib import takes about 25 s on this machine and more when the
-	# files are cold; the call's default timeout killed lean at exit 143
-	# (SIGTERM) once the disk cache had moved on, so the door waits ten minutes
-	_o_.SetTimeout(StzLeanTimeoutMs())
-	_o_.Run()
-	_v_ = StzLeanParseOutput(_o_.Output() + char(10) + _o_.Error(), _o_.ExitCode())
+	_cOut_ = _o_.ReadOutputAll()
+	_cErr_ = _o_.ReadErrorAll()
+	_o_.Close()
+	_v_ = StzLeanParseOutput(_cOut_ + char(10) + _cErr_, _nExit_)
 	return [ :route = "lean", :proved = _v_[:proved], :because = _v_[:because], :file = _cFile_ ]
+
+# the lake executable beside a lean executable: same folder, same suffix
+func _LcLakeBeside(pcLean)
+	_c_ = "" + pcLean
+	_cSuffix_ = ""
+	if StzLower(StzRight(_c_, 4)) = ".exe"  _cSuffix_ = ".exe"  ok
+	_nSlash_ = 0
+	for _i_ = len(_c_) to 1 step -1
+		if _c_[_i_] = "/" or _c_[_i_] = char(92)
+			_nSlash_ = _i_
+			exit
+		ok
+	next
+	if _nSlash_ = 0  return "lake" + _cSuffix_  ok
+	return StzLeft(_c_, _nSlash_) + "lake" + _cSuffix_
 
 # a theorem name from a label: lowercase, runs of anything else become one
 # underscore, and a name that would start with a digit is prefixed
