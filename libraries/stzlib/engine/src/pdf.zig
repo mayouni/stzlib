@@ -1435,6 +1435,7 @@ pub const Block = struct {
     bold: bool,
     mono: bool,
     text: []const u8,
+    italic: bool = false,
     rows: [][][]const u8 = &.{}, // a table's cells, row by row
     lines: u32 = 1,
 };
@@ -1452,6 +1453,7 @@ const Frag = struct {
     text: []const u8,
     table: i32 = -1, // >= 0: this unit is a whole table
     bullet: bool = false, // a vector bullet sits just left of it
+    italic: bool = false,
 };
 
 fn isRtlCp(cp: u21) bool {
@@ -1537,6 +1539,29 @@ fn arabicLogical(a: Allocator, t: []const u8) ![]const u8 {
     return out.items;
 }
 
+fn arabicDocFix(a: Allocator, blocks: []Block) !void {
+    var arabic = false;
+    var persian = false;
+    for (blocks) |b| {
+        var view = std.unicode.Utf8View.init(b.text) catch continue;
+        var it = view.iterator();
+        while (it.nextCodepoint()) |cp| {
+            if (cp == 0x0629 or cp == 0x0643) arabic = true;
+            switch (cp) {
+                0x067E, 0x0686, 0x0698, 0x06AF, 0x06A9, 0x06D2, 0x0679, 0x0688, 0x0691, 0x06BA => persian = true,
+                else => {},
+            }
+        }
+    }
+    if (!arabic or persian) return;
+    for (blocks) |*b| {
+        if (std.mem.indexOf(u8, b.text, "\u{06CC}") == null and std.mem.indexOf(u8, b.text, "\u{06BE}") == null) continue;
+        var t = try std.mem.replaceOwned(u8, a, b.text, "\u{06CC}", "\u{064A}");
+        t = try std.mem.replaceOwned(u8, a, t, "\u{06BE}", "\u{0647}");
+        b.text = t;
+    }
+}
+
 const Page = struct { glyphs: []Glyph, rules: []Rule, dots: []Rule, width: f32, height: f32 };
 
 fn trimSpace(t: []const u8) []const u8 {
@@ -1579,6 +1604,11 @@ fn glyphText(text: []const u8, g: Glyph) []const u8 {
 fn fragments(a: Allocator, pg: Page, page_no: u32, text: []const u8, out: *std.ArrayList(Frag)) !void {
     const gl = pg.glyphs;
     if (gl.len == 0) return;
+    var page_spaces = false;
+    for (gl) |g| if (isBlankGlyph(glyphText(text, g))) {
+        page_spaces = true;
+        break;
+    };
     const idx = try a.alloc(u32, gl.len);
     for (idx, 0..) |*v, k| v.* = @intCast(k);
     const ByY = struct {
@@ -1612,6 +1642,7 @@ fn fragments(a: Allocator, pg: Page, page_no: u32, text: []const u8, out: *std.A
     };
     for (rows.items) |*row| {
         std.mem.sort(u32, row.items, ByX{ .g = gl }, ByX.lt);
+        const row_spaces = page_spaces;
         var st: usize = 0;
         var k: usize = 1;
         while (k <= row.items.len) : (k += 1) {
@@ -1621,6 +1652,8 @@ fn fragments(a: Allocator, pg: Page, page_no: u32, text: []const u8, out: *std.A
                 const g = gl[row.items[k]];
                 const gap = g.x - (prev.x + prev.w);
                 if (gap > 1.1 * @max(prev.size, g.size)) cut = true;
+                // a producer that writes its spaces leaves no wide gap between two visible glyphs of one phrase
+                if (row_spaces and gap > 0.5 * @max(prev.size, g.size) and !isBlankGlyph(glyphText(text, prev)) and !isBlankGlyph(glyphText(text, g))) cut = true;
             }
             if (!cut) continue;
             try out.append(a, try makeFrag(a, gl, row.items[st..k], text, page_no));
@@ -1654,6 +1687,7 @@ fn makeFrag(a: Allocator, gl: []Glyph, ids_in: []u32, text: []const u8, page_no:
     var ltr: usize = 0;
     var sizes: f32 = 0;
     var nb: usize = 0;
+    var ni: usize = 0;
     var nm: usize = 0;
     var x0: f32 = 1e9;
     var x1: f32 = -1e9;
@@ -1666,6 +1700,7 @@ fn makeFrag(a: Allocator, gl: []Glyph, ids_in: []u32, text: []const u8, page_no:
         if (isLtrCp(cp)) ltr += 1;
         sizes += g.size;
         if (g.bold) nb += 1;
+        if (g.italic) ni += 1;
         if (g.mono) nm += 1;
         const gt = glyphText(text, g);
         if (!isBlankGlyph(gt)) {
@@ -1720,6 +1755,24 @@ fn makeFrag(a: Allocator, gl: []Glyph, ids_in: []u32, text: []const u8, page_no:
         }
     }
     const mono = nm * 2 > ids.len;
+    var space_gap: f32 = 0.2 * size;
+    {
+        var has_space = false;
+        var gaps: std.ArrayList(f32) = .empty;
+        for (ids, 0..) |k, j| {
+            const t0 = glyphText(text, gl[k]);
+            if (isBlankGlyph(t0)) has_space = true;
+            if (j == 0) continue;
+            const pv = gl[ids[j - 1]];
+            if (isBlankGlyph(glyphText(text, pv)) or isBlankGlyph(t0)) continue;
+            try gaps.append(a, gl[k].x - (pv.x + pv.w));
+        }
+        if (has_space and gaps.items.len >= 3) {
+            std.mem.sort(f32, gaps.items, {}, std.sort.asc(f32));
+            const lg = gaps.items[gaps.items.len / 2];
+            if (lg > 0.05 * size) space_gap = @max(space_gap, 2.0 * lg + 0.1 * size);
+        }
+    }
     var buf: std.ArrayList(u8) = .empty;
     var prev: ?Glyph = null;
     for (order) |k| {
@@ -1731,7 +1784,7 @@ fn makeFrag(a: Allocator, gl: []Glyph, ids_in: []u32, text: []const u8, page_no:
         const t = glyphText(text, g);
         if (rtl > ltr) {
             const qi = std.mem.indexOfScalar(u32, order, k) orelse 0;
-            const mirrored: ?[]const u8 = if (qi < in_ltr.len and !in_ltr[qi] and t.len == 1) switch (t[0]) {
+            const mirrored: ?[]const u8 = if (qi < in_ltr.len and !in_ltr[qi] and eq(t, "\u{00AB}")) "\u{00BB}" else if (qi < in_ltr.len and !in_ltr[qi] and eq(t, "\u{00BB}")) "\u{00AB}" else if (qi < in_ltr.len and !in_ltr[qi] and eq(t, "\u{2039}")) "\u{203A}" else if (qi < in_ltr.len and !in_ltr[qi] and eq(t, "\u{203A}")) "\u{2039}" else if (qi < in_ltr.len and !in_ltr[qi] and t.len == 1) switch (t[0]) {
                 '(' => ")",
                 ')' => "(",
                 '[' => "]",
@@ -1755,7 +1808,7 @@ fn makeFrag(a: Allocator, gl: []Glyph, ids_in: []u32, text: []const u8, page_no:
                 // code: every missing column is a space
                 const cw = 0.6 * g.size;
                 if (gap > 0.5 * cw) try buf.appendNTimes(a, ' ', @intFromFloat(@min(40, @round(gap / cw))));
-            } else if (gap > 0.2 * @max(pv.size, g.size) and !last_space and !(t.len > 0 and t[0] == ' ')) try buf.append(a, ' ');
+            } else if (gap > space_gap and !last_space and !(t.len > 0 and t[0] == ' ')) try buf.append(a, ' ');
         }
         if (mono or !(t.len == 1 and t[0] == ' ' and buf.items.len > 0 and buf.items[buf.items.len - 1] == ' ')) try buf.appendSlice(a, t);
         prev = g;
@@ -1772,6 +1825,7 @@ fn makeFrag(a: Allocator, gl: []Glyph, ids_in: []u32, text: []const u8, page_no:
         .size = size,
         .bold = nb * 2 > ids.len,
         .mono = mono,
+        .italic = ni * 2 > ids.len,
         .text = trimmed,
     };
 }
@@ -2181,9 +2235,12 @@ fn spanY(units: []Frag, ids: []u32) [2]f32 {
 }
 
 fn medSize(units: []Frag, ids: []u32) f32 {
-    var s0: f32 = 0;
-    for (ids) |k| s0 += units[k].size;
-    return if (ids.len == 0) 0 else s0 / @as(f32, @floatFromInt(ids.len));
+    if (ids.len == 0) return 0;
+    var buf: [512]f32 = undefined;
+    const n = @min(ids.len, buf.len);
+    for (ids[0..n], 0..) |k, j| buf[j] = units[k].size;
+    std.mem.sort(f32, buf[0..n], {}, std.sort.asc(f32));
+    return buf[n / 2];
 }
 
 fn gutterSplit(a: Allocator, units: []Frag, ids: []u32, med: f32, out: *std.ArrayList(u32), aside: *std.ArrayList(u32), depth: u32) anyerror!bool {
@@ -2196,26 +2253,47 @@ fn gutterSplit(a: Allocator, units: []Frag, ids: []u32, med: f32, out: *std.Arra
     const ry = spanY(units, r.items);
     // two columns stand SIDE BY SIDE: units on different rows (a centred byline above a heading) are not columns
     if (@min(ly[1], ry[1]) - @max(ly[0], ry[0]) <= 0) return false;
-    // the left column has a tail below everything on the right, set apart by a gap: the columns end above it,
-    // and what follows (a heading, a caption) is read after BOTH columns
+    // the left column runs on below everything on the right and, somewhere below the right column's end, a gap
+    // sets the rest apart: the columns end at that gap, and what follows (a heading, a caption, a table's title)
+    // is read after BOTH columns
     {
-        var top: std.ArrayList(u32) = .empty;
-        var tail: std.ArrayList(u32) = .empty;
-        for (ids) |k| if (units[k].y0 > ry[1] + 0.2 * med) try tail.append(a, k) else try top.append(a, k);
-        var tail_in_l = tail.items.len > 0;
-        for (tail.items) |k| if (units[k].x1 > at) {
-            tail_in_l = false;
+        var below: std.ArrayList(u32) = .empty;
+        for (l.items) |k| try below.append(a, k);
+        const ByTop = struct {
+            u: []Frag,
+            fn lt(ctx: @This(), x: u32, y: u32) bool {
+                return ctx.u[x].y0 < ctx.u[y].y0;
+            }
         };
-        if (tail_in_l and top.items.len > 0) {
-            const tt = spanY(units, tail.items)[0];
-            var above: f32 = -1e9;
-            for (l.items) |k| if (units[k].y0 <= ry[1] + 0.2 * med) {
-                above = @max(above, units[k].y1);
-            };
-            if (tt - above >= 1.0 * med) {
-                try xycut(a, units, top.items, out, aside, depth + 1);
-                try xycut(a, units, tail.items, out, aside, depth + 1);
-                return true;
+        std.mem.sort(u32, below.items, ByTop{ .u = units }, ByTop.lt);
+        var right_beyond = false;
+        for (r.items) |k| if (units[k].x1 > at) {
+            right_beyond = true;
+        };
+        var cut_y: ?f32 = null;
+        var prev_y1: f32 = -1e9;
+        for (below.items) |k| {
+            const u = units[k];
+            if (u.y0 > ry[1] + 0.2 * med and prev_y1 > -1e8 and u.y0 - prev_y1 >= 1.0 * med) {
+                cut_y = u.y0 - 0.1;
+                break;
+            }
+            prev_y1 = @max(prev_y1, u.y1);
+        }
+        if (right_beyond) {
+            if (cut_y) |cy| {
+                var top: std.ArrayList(u32) = .empty;
+                var tail: std.ArrayList(u32) = .empty;
+                for (ids) |k| if (units[k].y0 >= cy) try tail.append(a, k) else try top.append(a, k);
+                var tail_left = true;
+                for (tail.items) |k| if (units[k].x1 > at) {
+                    tail_left = false;
+                };
+                if (tail_left and top.items.len > 0 and tail.items.len > 0) {
+                    try xycut(a, units, top.items, out, aside, depth + 1);
+                    try xycut(a, units, tail.items, out, aside, depth + 1);
+                    return true;
+                }
             }
         }
     }
@@ -2253,7 +2331,65 @@ fn dehyphen(t: []const u8) usize {
     const c = t[e - 1];
     if (!(std.ascii.isAlphabetic(c) or c >= 0x80)) return 0;
     if (e >= 2 and t[e - 2] == ' ') return 0; // a one-letter word before a dash is not a broken word
+    if (compoundBreak(t)) return 0;
     return n;
+}
+
+// TRUE when a text ends with a compound broken after one of its own hyphens ("two-hundred-"): the hyphen is
+// part of the word and stays when the line is joined.
+fn compoundBreak(t: []const u8) bool {
+    var e = t.len;
+    while (e > 0 and t[e - 1] == ' ') e -= 1;
+    if (e < 3 or t[e - 1] != '-') return false;
+    var k = e - 1;
+    while (k > 0 and t[k - 1] != ' ' and t[k - 1] != '\n') k -= 1;
+    const word = t[k .. e - 1];
+    return word.len > 0 and std.ascii.isAlphabetic(word[word.len - 1]) and std.mem.indexOfScalar(u8, word, '-') != null;
+}
+
+fn startsQuote(t: []const u8) bool {
+    const qs = [_][]const u8{ "\"", "'", "\u{201C}", "\u{2018}", "\u{00AB}", "\u{201E}" };
+    for (qs) |q| if (std.mem.startsWith(u8, t, q)) return true;
+    return false;
+}
+
+// Line numbers in a gutter: a column of monospaced integers counting up, each beside a monospaced line of code.
+fn dropLineNumbers(frags: []Frag) void {
+    var n: usize = 0;
+    var beside: usize = 0;
+    for (frags) |f| {
+        if (!f.mono or !isInt(f.text) or f.text.len > 5) continue;
+        n += 1;
+        for (frags) |o| {
+            if (o.mono and !isInt(o.text) and @abs(o.base - f.base) < 0.3 * f.size and o.x0 > f.x1 and o.x0 - f.x1 < 12 * f.size) {
+                beside += 1;
+                break;
+            }
+        }
+    }
+    if (n < 3 or beside * 2 < n) return;
+    // the numbers, top to bottom, count up by one (a column of figures in code does not)
+    var vals: [4096][2]f32 = undefined;
+    var m: usize = 0;
+    for (frags) |f| {
+        if (!f.mono or !isInt(f.text) or f.text.len > 5 or m >= vals.len) continue;
+        vals[m] = .{ f.base, @floatFromInt(std.fmt.parseInt(u32, f.text, 10) catch 0) };
+        m += 1;
+    }
+    const ByB = struct {
+        fn lt(_: void, l: [2]f32, r: [2]f32) bool {
+            return l[0] < r[0];
+        }
+    };
+    std.mem.sort([2]f32, vals[0..m], {}, ByB.lt);
+    var steps: usize = 0;
+    for (1..m) |q| {
+        if (vals[q][1] - vals[q - 1][1] == 1) steps += 1;
+    }
+    if (steps * 10 < (m - 1) * 8) return;
+    for (frags) |*f| {
+        if (f.mono and isInt(f.text) and f.text.len <= 5) f.text = "";
+    }
 }
 
 // A block in a monospaced font that reads as prose: at least two sentence ends, and code punctuation in under
@@ -2273,7 +2409,7 @@ fn isMonoProse(t: []const u8) bool {
 
 fn startsListMarker(t: []const u8) usize {
     // returns the byte length of the marker (with its trailing space), 0 when the text does not start a list item
-    const bullets = [_][]const u8{ "\u{2022}", "\u{25E6}", "\u{25AA}", "\u{25CF}", "\u{25CB}", "\u{25A0}", "\u{2023}", "\u{2043}", "\u{2013}", "\u{2192}", "-", "*", "\u{00B7}" };
+    const bullets = [_][]const u8{ "\u{2022}", "\u{25E6}", "\u{25AA}", "\u{25CF}", "\u{25CB}", "\u{25A0}", "\u{2023}", "\u{2043}", "\u{2013}", "\u{2192}", "\u{2713}", "\u{2714}", "-", "*", "\u{00B7}" };
     for (bullets) |b| {
         if (std.mem.startsWith(u8, t, b)) {
             var e = b.len;
@@ -2283,6 +2419,13 @@ fn startsListMarker(t: []const u8) usize {
     }
     var i: usize = 0;
     while (i < t.len and i < 3 and t[i] >= '0' and t[i] <= '9') i += 1;
+    if (i == 0) {
+        // a roman numeral, all lower or all upper case: i. ii. iv) ... XII.
+        var r: usize = 0;
+        const lower = t.len > 0 and std.ascii.isLower(t[0]);
+        while (r < t.len and r < 5 and std.mem.indexOfScalar(u8, if (lower) "ivxlc" else "IVXLC", t[r]) != null) r += 1;
+        if (r >= 1 and r + 1 < t.len and (t[r] == '.' or t[r] == ')') and t[r + 1] == ' ' and !(r == 1 and !lower and t[r] == '.')) return r + 2;
+    }
     if (i == 0 and t.len >= 2 and std.ascii.isLower(t[0])) i = 1;
     if (i > 0 and i + 1 < t.len and (t[i] == '.' or t[i] == ')') and t[i + 1] == ' ') return i + 2;
     return 0;
@@ -2419,6 +2562,20 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
                 }
             }
         }
+        dropLineNumbers(frags.items);
+        for (frags.items) |*mk| {
+            if (mk.text.len == 0 or mk.text.len > 6) continue;
+            const t2 = try std.mem.concat(a, u8, &.{ mk.text, " x" });
+            if (startsListMarker(t2) != mk.text.len + 1) continue;
+            for (frags.items) |*it| {
+                if (it == mk or it.text.len == 0) continue;
+                if (@abs(it.base - mk.base) < 0.3 * mk.size and it.x0 > mk.x1 and it.x0 - mk.x1 < 3 * mk.size) {
+                    it.bullet = true;
+                    mk.text = "";
+                    break;
+                }
+            }
+        }
         var tables: std.ArrayList(TableOut) = .empty;
         try findTables(a, frags.items, pg.rules, &tables);
         try findAlignedTables(a, frags.items, &tables);
@@ -2476,7 +2633,7 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
             const item = mk > 0 or f.bullet;
             var join = false;
             if (cur) |b| {
-                const same_style = @abs(f.size - b.size) <= 0.15 * b.size and f.bold == b.bold and f.mono == b.mono;
+                const same_style = @abs(f.size - b.size) <= 0.15 * b.size and f.bold == b.bold and f.mono == b.mono and f.italic == b.italic;
                 const maxgap: f32 = if (b.mono and f.mono) 3.5 * f.size else 0.9 * f.size;
                 const below = f.page == b.page and f.y0 >= last.y0 + 0.3 * f.size and f.y0 - last.y1 <= maxgap;
                 const overlap = f.x0 < b.x1 + 1 and f.x1 > b.x0 - 1;
@@ -2495,6 +2652,8 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
                     try cur_text.appendNTimes(a, '\n', @min(blank, 4));
                     const indent: usize = @intFromFloat(@max(0, @round((f.x0 - b.x0) / (0.6 * f.size))));
                     try cur_text.appendNTimes(a, ' ', @min(indent, 40));
+                } else if (compoundBreak(cur_text.items) and f.text.len > 0 and std.ascii.isLower(f.text[0])) {
+                    while (cur_text.items.len > 0 and cur_text.items[cur_text.items.len - 1] == ' ') cur_text.shrinkRetainingCapacity(cur_text.items.len - 1);
                 } else if (dehyphen(cur_text.items) > 0 and f.text.len > 0 and std.ascii.isLower(f.text[0])) {
                     cur_text.shrinkRetainingCapacity(cur_text.items.len - dehyphen(cur_text.items));
                 } else try cur_text.append(a, ' ');
@@ -2510,7 +2669,7 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
                     kind = .list_item;
                     list_x = f.x0 + 1.0 * f.size;
                 } else if (f.mono) kind = .code;
-                cur = .{ .page = f.page, .kind = kind, .x0 = f.x0, .y0 = f.y0, .x1 = f.x1, .y1 = f.y1, .size = f.size, .bold = f.bold, .mono = f.mono, .text = "" };
+                cur = .{ .page = f.page, .kind = kind, .x0 = f.x0, .y0 = f.y0, .x1 = f.x1, .y1 = f.y1, .size = f.size, .bold = f.bold, .mono = f.mono, .italic = f.italic, .text = "" };
                 try cur_text.appendSlice(a, f.text);
             }
             last = f;
@@ -2577,6 +2736,9 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
         } else if (b.bold and short and !ends and b.size >= 0.95 * body and b.lines == 1) {
             b.kind = .heading;
             try hsizes.append(a, b.size);
+        } else if (b.italic and short and !ends and b.size >= 0.95 * body and b.lines == 1 and b.text.len <= 80 and !startsQuote(b.text)) {
+            b.kind = .heading;
+            try hsizes.append(a, b.size);
         }
     }
     // heading levels: distinct sizes, largest first
@@ -2595,6 +2757,16 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
             }
         }
         b.level = lv;
+    }
+    // an italic heading that shares its size with a bold one sits one level below it
+    for (merged.items) |*b| {
+        if (b.kind != .heading or !b.italic or b.bold) continue;
+        for (merged.items) |o| {
+            if (o.kind == .heading and o.bold and @abs(o.size - b.size) <= 0.06 * b.size) {
+                b.level = o.level + 1;
+                break;
+            }
+        }
     }
     // list levels: indentation within a run of list items
     {
@@ -2647,6 +2819,20 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
             const b1 = final.items[k];
             const b2 = final.items[k + 1];
             const cut = dehyphen(b1.text);
+            const new_column = b2.page == b1.page + 1 or (b2.page == b1.page and b2.y0 < b1.y0);
+            const runs_on = b1.text.len > 0 and std.mem.indexOfScalar(u8, ".!?:;", b1.text[b1.text.len - 1]) == null and cut == 0 and !compoundBreak(b1.text);
+            if (b1.kind == .paragraph and b2.kind == .paragraph and runs_on and new_column and b2.text.len > 0 and std.ascii.isLower(b2.text[0])) {
+                final.items[k].text = try std.mem.concat(a, u8, &.{ b1.text, " ", b2.text });
+                final.items[k].lines += b2.lines;
+                _ = final.orderedRemove(k + 1);
+                continue;
+            }
+            if (b1.kind == .paragraph and b2.kind == .paragraph and compoundBreak(b1.text) and b2.text.len > 0 and std.ascii.isLower(b2.text[0]) and b2.page <= b1.page + 1) {
+                final.items[k].text = try std.mem.concat(a, u8, &.{ std.mem.trimRight(u8, b1.text, " "), b2.text });
+                final.items[k].lines += b2.lines;
+                _ = final.orderedRemove(k + 1);
+                continue;
+            }
             if (b1.kind == .paragraph and b2.kind == .paragraph and cut > 0 and b2.text.len > 0 and std.ascii.isLower(b2.text[0]) and b2.page <= b1.page + 1) {
                 final.items[k].text = try std.mem.concat(a, u8, &.{ b1.text[0 .. b1.text.len - cut], b2.text });
                 final.items[k].lines += b2.lines;
@@ -2661,7 +2847,10 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
         var k: usize = 0;
         while (k + 1 < final.items.len) {
             const t1 = final.items[k];
-            const t2 = final.items[k + 1];
+            var j2 = k + 1;
+            while (j2 < final.items.len and (final.items[j2].kind == .page_header or final.items[j2].kind == .page_footer)) j2 += 1;
+            if (j2 >= final.items.len) break;
+            const t2 = final.items[j2];
             if (t1.kind == .table and t2.kind == .table and t2.page == t1.page + 1 and t1.rows.len > 0 and t2.rows.len > 0 and t1.rows[0].len == t2.rows[0].len) {
                 var same_head = true;
                 for (t1.rows[0], t2.rows[0]) |c1, c2| if (!eq(c1, c2)) {
@@ -2673,7 +2862,7 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
                 @memcpy(rows[t1.rows.len..], t2.rows[from..]);
                 final.items[k].rows = rows;
                 final.items[k].text = try std.mem.concat(a, u8, &.{ t1.text, " ", t2.text });
-                _ = final.orderedRemove(k + 1);
+                _ = final.orderedRemove(j2);
                 continue;
             }
             k += 1;
@@ -2696,6 +2885,7 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
             if (c.page == t.page and c.kind == .paragraph and names and c.lines <= 2 and c.y0 - t.y1 <= 2.0 * c.size) c.kind = .caption;
         }
     }
+    try arabicDocFix(a, final.items);
     res.blocks = final.items;
 
     var all: std.ArrayList(u8) = .empty;

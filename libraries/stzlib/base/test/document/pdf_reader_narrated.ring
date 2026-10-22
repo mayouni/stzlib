@@ -170,6 +170,56 @@ Scenario("A typed arrow starts a list item; a ligature reads as its letters")
 	Then("no ligature code point is left", StzFindFirst("ﬁ", o.Text()), 0)
 EndScenario()
 
+# ---- the fourth round, pinned on golden_v4 (a development set since the reader was fixed on it) ---------------
+cK = "_data/golden_v4/"
+
+Scenario("Figures in a borderless table keep their own columns, even right-aligned and close together")
+	o = StzPdfQ(cK + "g09.pdf")
+	aT = o.Tables()[1]
+	Then("five columns", len(aT[1]), 5)
+	Then("a row of figures, cell by cell", @@(aT[2]), @@([ "Rent", "850.00", "850.00", "850.00", "2,550.00" ]))
+EndScenario()
+
+Scenario("A table split by a page footer and header is still one table")
+	o = StzPdfQ(cK + "g10.pdf")
+	Then("one table across the two pages", len(o.Tables()), 1)
+	Then("the furniture between its halves is still furniture", len(o.Furniture()) >= 4, 1)
+EndScenario()
+
+Scenario("Headings marked by italics alone, or by letter-spacing, are found")
+	o = StzPdfQ(cK + "g11.pdf")
+	aH = o.Headings()
+	Then("an italic heading", StzFindFirst("Isolating the Main Switch", "" + @@(aH)) > 0, 1)
+	Then("is not glued to its paragraph", StzFindFirst("Isolating the Main Switch Turn", o.Text()), 0)
+	o = StzPdfQ(cK + "g13.pdf")
+	Then("a letter-spaced heading reads as words", StzFindFirst("HARBOUR COUNCIL MINUTES", "" + @@(o.Headings())) > 0, 1)
+	Then("not as spaced letters", StzFindFirst("H A R B O U R", o.Text()), 0)
+EndScenario()
+
+Scenario("Line numbers in a gutter are not code; typed check marks and roman numerals start list items")
+	o = StzPdfQ(cK + "g14.pdf")
+	aC = o.CodeBlocks()
+	Then("the listing is one block", StzFindFirst("import os" + char(10) + "import shutil", aC[1]) > 0, 1)
+	Then("its line numbers are gone", StzFindFirst("1" + char(10) + "import", aC[1]), 0)
+	Then("no table is made of it", len(o.Tables()), 0)
+	o = StzPdfQ(cK + "g05.pdf")
+	Then("a typed check mark starts an item", StzFindFirst("Head count matches the register", "" + @@(o.ListItems())) > 0, 1)
+	o = StzPdfQ(cK + "g06.pdf")
+	Then("a roman numeral starts an item", StzFindFirst("iii. large, twelve square metres.", "" + @@(o.ListItems())) > 0, 1)
+EndScenario()
+
+Scenario("Guillemets in Hebrew, an Arabic heading, and a sentence running on into the next column")
+	o = StzPdfQ(cK + "g04.pdf")
+	Then("the quotation opens with «", StzFindFirst("אמרה: «", o.Text()) > 0, 1)
+	o = StzPdfQ(cK + "g03.pdf")
+	Then("the Arabic heading reads with Arabic letters", StzFindFirst("التدريب والخدمات", "" + @@(o.Headings())) > 0, 1)
+	o = StzPdfQ(cK + "g16.pdf")
+	c = o.Text()
+	Then("the sentence is whole across the columns", StzFindFirst("They should arrive before the first long ride of the season.", c) > 0, 1)
+	Then("a compound keeps its own hyphen at a line break", StzFindFirst("two-hundred-kilometre", c) > 0, 1)
+	Then("the heading under both columns comes after the second", StzFindFirst("Ride Calendar", c) > StzFindFirst("annual fee", c), 1)
+EndScenario()
+
 Scenario("A file that is not a readable PDF is refused with the reason")
 	bRaised = 0
 	cWhy = ""
