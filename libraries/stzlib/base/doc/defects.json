@@ -1,5 +1,5 @@
 {
- "count": 96,
+ "count": 93,
  "defects": [
   {
    "class": "stzAppServer",
@@ -240,30 +240,6 @@
    "line": 927,
    "symptom": "Fits Tukey's three-group line, then improves it with passes over the residuals, as R's line does.",
    "cause": "Fit(0) equals R's line with iter 1 and Fit(1) equals iter 2, so the count here is one less than R's; points that all share one x give slope 0 and intercept 0 with no error, which is a defect"
-  },
-  {
-   "class": "stzEntity",
-   "file": "natural/stzEntity.ring",
-   "method": "IsOfType",
-   "line": 424,
-   "symptom": "TRUE if the entity type equals the given type.",
-   "cause": "the comparison lower-cases only the argument, so a stored type such as Person never matches (w13 defect file)"
-  },
-  {
-   "class": "stzEntity",
-   "file": "natural/stzEntity.ring",
-   "method": "HasName",
-   "line": 434,
-   "symptom": "TRUE if the entity name equals the given name.",
-   "cause": "the comparison lower-cases only the argument, so a stored name such as Ana never matches (w13 defect file)"
-  },
-  {
-   "class": "stzEntity",
-   "file": "natural/stzEntity.ring",
-   "method": "IsEmpty",
-   "line": 461,
-   "symptom": "TRUE if the entity holds nothing beyond name and type.",
-   "cause": "the test is that the size equals 2, but created is always a third property, so it can never be TRUE (w13 defect file)"
   },
   {
    "class": "stzNaturalEngine",
@@ -693,7 +669,7 @@
    "class": "stzStringList",
    "file": "string/stzStringList.ring",
    "method": "Matches",
-   "line": 1760,
+   "line": 1756,
    "symptom": "TRUE if every string matches the pattern as a whole, so \"a.\" matches ab and \"a\" does not; an empty list is TRUE.",
    "cause": "known defect: the old comment says it returns the strings that match, but it answers one verdict for the whole list"
   },

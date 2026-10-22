@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 96 methods in 57 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 93 methods in 56 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| natural/stzEntity.ring | stzEntity | 3 |
 | object/stzListOfObjects.ring | stzListOfObjects | 3 |
 | regex/stzTimex.ring | stzTimex | 3 |
 | sound/stzSoundLive.ring | stzSoundLive | 3 |
@@ -160,12 +159,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 - `Fit` (line 927): Fits Tukey's three-group line, then improves it with passes over the residuals, as R's line does. -- Fit(0) equals R's line with iter 1 and Fit(1) equals iter 2, so the count here is one less than R's; points that all share one x give slope 0 and intercept 0 with no error, which is a defect
 
-## stzEntity -- natural/stzEntity.ring (3)
-
-- `IsOfType` (line 424): TRUE if the entity type equals the given type. -- the comparison lower-cases only the argument, so a stored type such as Person never matches (w13 defect file)
-- `HasName` (line 434): TRUE if the entity name equals the given name. -- the comparison lower-cases only the argument, so a stored name such as Ana never matches (w13 defect file)
-- `IsEmpty` (line 461): TRUE if the entity holds nothing beyond name and type. -- the test is that the size equals 2, but created is always a third property, so it can never be TRUE (w13 defect file)
-
 ## stzNaturalEngine -- natural/stzNatural.ring (1)
 
 - `FindContextPlaceholders` (line 588): Returns the {...} holes of a narration, but today only when the text starts with the hole. -- Returns [ ] today for a hole that is not at the very start: {a} answers {a}, but x{a}, {a} x and Hello {name} from {c} all answer [ ]; the scan tests the character at i with StzMid(text, i, i) where the third argument is a length, so it can match only at the first character
@@ -308,7 +301,7 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzStringList -- string/stzStringList.ring (2)
 
 - `SortBy` (line 1311): Sorts the strings in place by a numeric key computed from each one, such as its length; a text key raises. -- @item is not defined here and raises R24, and a key that is text raises R41 because keys are compared with a greater-than, so only numeric keys such as len(@string) work
-- `Matches` (line 1760): TRUE if every string matches the pattern as a whole, so "a." matches ab and "a" does not; an empty list is TRUE. -- the old comment says it returns the strings that match, but it answers one verdict for the whole list
+- `Matches` (line 1756): TRUE if every string matches the pattern as a whole, so "a." matches ab and "a" does not; an empty list is TRUE. -- the old comment says it returns the strings that match, but it answers one verdict for the whole list
 
 ## stzStringPerformer -- string/stzStringPerformer.ring (3)
 
