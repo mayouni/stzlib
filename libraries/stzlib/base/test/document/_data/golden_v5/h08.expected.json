@@ -1,0 +1,77 @@
+{
+  "id": "h08",
+  "difficulty": "school newsletter: decorative blackletter masthead with a strap line, body in three justified columns with automatic hyphenation, article headings inside the columns, a coloured picture placeholder with a caption, a pull quote repeating a body sentence, a boxed dates list and a footer",
+  "pages": 1,
+  "title": "The Linden Street Gazette",
+  "headings": [
+    {
+      "level": 1,
+      "text": "The Linden Street Gazette"
+    },
+    {
+      "level": 2,
+      "text": "From the head teacher"
+    },
+    {
+      "level": 2,
+      "text": "A new library corner for Year 3"
+    },
+    {
+      "level": 2,
+      "text": "Sports day moves to June"
+    },
+    {
+      "level": 2,
+      "text": "Dates for your diary"
+    },
+    {
+      "level": 2,
+      "text": "Healthier lunches from April"
+    },
+    {
+      "level": 2,
+      "text": "Thank you, volunteers"
+    }
+  ],
+  "key_sentences": [
+    "I would like to thank every family for their patience while the new classrooms were being finished.",
+    "The inspectors praised the reading programme and the kindness of our older pupils towards the youngest children.",
+    "The pupils chose many of the titles themselves after a vote in each class.",
+    "Pupils can take two books home each week, and the class keeps a wall chart of the books everyone has finished.",
+    "Sports day will take place on Friday 12 June instead of in May, because the playing field is being reseeded.",
+    "Please sign up at the office or on the sheet by the main gate.",
+    "The menu was planned with a dietitian and tested by the school council in March.",
+    "Their support makes activities possible that the school could not otherwise afford."
+  ],
+  "tables": [],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "20 March – Spring concert, 14:00, school hall"
+    },
+    {
+      "level": 0,
+      "text": "27 March – Last day of term, school closes at 13:30"
+    },
+    {
+      "level": 0,
+      "text": "14 April – Pupils return after the Easter holidays"
+    },
+    {
+      "level": 0,
+      "text": "4 May – Bank holiday, school closed"
+    },
+    {
+      "level": 0,
+      "text": "12 June – Sports day"
+    }
+  ],
+  "furniture": [
+    "Linden Street Primary School · 3 Linden Street · office@lindenstreet-school.example"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Reading order runs down the first column, then the second, then the third. The columns are justified with hyphens: auto and a few soft hyphens (U+00AD) in long words; any word the renderer broke at a line end with a hyphen is given whole here, and soft hyphens are not part of the text. The pull quote '“Borrowing has doubled since the corner opened.”' is a display repetition of a body sentence, not a separate paragraph. The picture is a gradient box with no text; its caption 'Year 3 pupils testing the beanbags on opening day.' is body. The byline 'Mrs Joanna Pereira, Head Teacher' is body, not a heading. The strap line under the masthead is part of the masthead, not furniture. Dates-list items contain an en dash separator, not a marker."
+}

@@ -29,7 +29,9 @@ WHAT IT DOES FOR EVERY CALL
   * THE API KEY, in x-api-key, on every call.
   * mTLS, when the participant requires it (production): the client certificate and key are PEM
     FILES the engine reads; the descriptor in the secret store carries the PATH (a file-sourced
-    secret), so the private key never enters Ring. It goes through stzReactor.TlsRequest, the
+    secret), so the private key never enters Ring. A key that is a VALUE in the store (an environment
+    variable) is written for the one call by StzWritePrivateFile under the user's own profile, owner-only
+    from its first byte, and deleted on every path, a failed call included. It goes through stzReactor.TlsRequest, the
     mbedTLS client of MTLS_PLAN slice 3. stzHttpClient.SetClientCert cannot do this on Windows
     (Schannel wants a certificate-store reference, not a PEM): measured 2026-10-05, code -1.
   * JSON, schema-aware: ListToJson turns [] into {} and a one-pair array into an object, so the
@@ -741,6 +743,39 @@ class stzPispiHttpAdapter from stzObject
 		ok
 		return @cKey
 
+	# True when the mTLS key is a VALUE in the store (an environment variable, a literal) and not a file:
+	# the engine's TLS client wants a PATH, so such a key has to exist as a file for exactly one call.
+	def _KeyIsAValue()
+		if isObject(@oStore) and @cKeyName != "" and @oStore.Has(@cKeyName)
+			_cKind_ = @oStore.Secret(@cKeyName).SourceKind()
+			if _cKind_ = "env" or _cKind_ = "literal"
+				return 1
+			ok
+			if _cKind_ = "vault"
+				StzRaise("stzPispiHttpAdapter: the mTLS key '" + @cKeyName + "' is vault-sourced and the adapter holds no " +
+					"vault resolver; point the descriptor at a file, or at an environment variable.")
+			ok
+		ok
+		return 0
+
+	# Writes the key, for one call, where nobody else may read it: a folder under the user's own profile
+	# (never a shared one), a file owner-only from its first byte. Answers the path.
+	def _MaterialiseKey()
+		_cHome_ = EnvVar("USERPROFILE")
+		if _cHome_ = ""
+			_cHome_ = EnvVar("HOME")
+		ok
+		if _cHome_ = ""
+			StzRaise("stzPispiHttpAdapter: the mTLS key is a value in the store and the user has no profile folder to " +
+				"write it in for the call; the key is never written to a shared folder.")
+		ok
+		_cDir_ = _cHome_ + "/.softanza-private"
+		StzDirCreatePath(_cDir_)
+		$nPiAdapterSeq++
+		_cPath_ = _cDir_ + "/mtls-" + StzEngineTimeNowMs() + "-" + $nPiAdapterSeq + ".key"
+		StzWritePrivateFile(_cPath_, @oStore.Reveal(@cKeyName, @oActor))
+		return _cPath_
+
 	  #-- one call ----------------------------------------------------------------
 
 	def _Send(pcMethod, pcPath, paQuery, paBody, pcToken)
@@ -794,7 +829,25 @@ class stzPispiHttpAdapter from stzObject
 			if NOT isObject($oPiTlsReactor)
 				$oPiTlsReactor = new stzReactor()
 			ok
-			_cRaw_ = $oPiTlsReactor.TlsRequest(_aU_[2], _aU_[3], _cReq_, This._CertPath(), This._KeyPath(), @cCa, 1)
+			_cKeyPath_ = This._KeyPath()
+			_cTempKey_ = ""
+			if This._KeyIsAValue()
+				_cTempKey_ = This._MaterialiseKey()
+				_cKeyPath_ = _cTempKey_
+			ok
+			_cRaw_ = ""
+			_cFailure_ = ""
+			try
+				_cRaw_ = $oPiTlsReactor.TlsRequest(_aU_[2], _aU_[3], _cReq_, This._CertPath(), _cKeyPath_, @cCa, 1)
+			catch
+				_cFailure_ = cCatchError
+			done
+			if _cTempKey_ != ""
+				StzFileDelete(_cTempKey_)
+			ok
+			if _cFailure_ != ""
+				StzRaise(_cFailure_)
+			ok
 			_nSt_ = $oPiTlsReactor.TlsClientStatus()
 			if _nSt_ != 0
 				StzRaise("stzPispiHttpAdapter transport: TLS to " + _aU_[2] + ":" + _aU_[3] + " failed (engine status " + _nSt_ + ").")

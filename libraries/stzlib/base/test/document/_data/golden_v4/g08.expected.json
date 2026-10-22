@@ -1,0 +1,81 @@
+{
+  "id": "g08",
+  "difficulty": "bordered table with a merged header (colspan) and a merged first column (rowspan); caption below the table",
+  "pages": 1,
+  "title": "Regional Sales Summary",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Regional Sales Summary"
+    }
+  ],
+  "key_sentences": [
+    "The figures below compare two years of sales at four sites.",
+    "Revenue is given in thousands of euros.",
+    "Three of the four sites grew in both measures.",
+    "Varo sold fewer units in 2025 but remains the largest site.",
+    "The sales team will present a forecast for 2026 at the March meeting."
+  ],
+  "tables": [
+    {
+      "caption": "Table 3: Units sold and revenue by site, 2024 and 2025",
+      "rows": [
+        [
+          "Region",
+          "Site",
+          "2024",
+          "2024",
+          "2025",
+          "2025"
+        ],
+        [
+          "Region",
+          "Site",
+          "Units",
+          "Revenue",
+          "Units",
+          "Revenue"
+        ],
+        [
+          "North",
+          "Kelmar",
+          "1,204",
+          "36.1",
+          "1,350",
+          "40.5"
+        ],
+        [
+          "North",
+          "Ostrand",
+          "860",
+          "25.8",
+          "912",
+          "27.4"
+        ],
+        [
+          "South",
+          "Varo",
+          "1,530",
+          "45.9",
+          "1,488",
+          "44.6"
+        ],
+        [
+          "South",
+          "Pellis",
+          "640",
+          "19.2",
+          "702",
+          "21.1"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "The table has TWO header rows: 'Region' and 'Site' span both header rows (rowspan 2); '2024' and '2025' each span two columns (colspan 2). In the body, 'North' and 'South' each span two rows. Merged cells repeat their text in every grid cell they cover. The caption is BELOW the table, in italics."
+}

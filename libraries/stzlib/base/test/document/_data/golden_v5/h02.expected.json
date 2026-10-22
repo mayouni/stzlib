@@ -1,0 +1,26 @@
+{
+  "id": "h02",
+  "difficulty": "French business letter: letterhead with a right-aligned address block, recipient block indented to the right, right-aligned date, reference and subject lines, French typography with non-breaking spaces before colons and inside numbers, curly apostrophes, a signature block and a two-line legal footer",
+  "pages": 1,
+  "title": null,
+  "headings": [],
+  "key_sentences": [
+    "Suite à notre visite du 3 octobre, nous avons le plaisir de vous adresser notre devis pour le remplacement des fenêtres du bâtiment principal.",
+    "Les travaux concernent dix-huit fenêtres en bois, dont six situées au premier étage.",
+    "La pose serait réalisée pendant les vacances d’hiver afin de ne pas perturber les cours.",
+    "Le montant total s’élève à 23 940 euros TTC.",
+    "Ce devis est valable trois mois à compter de la date du présent courrier.",
+    "Un acompte de 30 % sera demandé à la signature du bon de commande."
+  ],
+  "tables": [],
+  "list_items": [],
+  "furniture": [
+    "Menuiserie Valcourt SARL au capital de 20 000 € · RCS Lyon B 812 345 678",
+    "Artisan labellisé « Bois d’ici » depuis 2011"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "A letter has no title and no headings: the 'Objet : ...' line is a subject line, not a heading, and 'MENUISERIE VALCOURT' is a letterhead logo. Non-breaking spaces (before ':', inside '23 940', '30 %', '14 octobre') are given as plain spaces. Apostrophes are U+2019. The two footer lines (company legal line and label line) are furniture; the letterhead contact block, recipient block, date, signature and the 'Pièce jointe' line are body but not key sentences."
+}

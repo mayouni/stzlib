@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AquaSense 300 datasheet</title>
+<style>
+@page { size: A4; margin: 0 }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+html, body { margin: 0; padding: 0; }
+body { font-family: "Trebuchet MS", Arial, sans-serif; font-size: 9.5pt; line-height: 1.4; color: #243038; }
+.page { width: 210mm; height: 296mm; box-sizing: border-box; display: flex; flex-direction: column; overflow: hidden; }
+.band { background: #0f4c5c; color: #fff; padding: 9mm 16mm 7mm; }
+.band .brand { font-size: 9pt; letter-spacing: 2pt; color: #9ad1d4; }
+.band h1 { font-size: 25pt; margin: 1mm 0 0; font-weight: bold; }
+.band .tag { font-size: 12pt; color: #e0f2f1; margin-top: 1mm; }
+.content { flex: 1; min-height: 0; overflow: hidden; padding: 7mm 16mm 0; display: grid; grid-template-columns: 1fr 78mm; column-gap: 9mm; align-content: start; }
+h2 { font-size: 12pt; color: #0f4c5c; border-bottom: 1.5pt solid #e36414; padding-bottom: 1mm; margin: 0 0 2.5mm; }
+.left h2 + p { margin-top: 0; }
+p { margin: 0 0 2.5mm; }
+ul.feat { list-style: none; padding: 0; margin: 0 0 4mm; }
+ul.feat li { position: relative; padding-left: 6mm; margin-bottom: 1.6mm; }
+ul.feat li::before { content: ""; position: absolute; left: 0.5mm; top: 0.9mm; width: 2mm; height: 3.6mm; border-right: 1.6pt solid #e36414; border-bottom: 1.6pt solid #e36414; transform: rotate(40deg); }
+.callout { background: #fff4e6; border: 1pt solid #e36414; border-radius: 2mm; padding: 3mm 4mm; margin: 3mm 0 4mm; }
+.callout strong { color: #e36414; }
+table { width: 100%; border-collapse: collapse; font-size: 8.8pt; }
+caption { text-align: left; font-weight: bold; color: #0f4c5c; font-size: 12pt; padding-bottom: 2mm; border-bottom: 1.5pt solid #e36414; margin-bottom: 1mm; }
+th { text-align: left; background: #0f4c5c; color: #fff; padding: 1.4mm 2mm; }
+td { padding: 1.2mm 2mm; border-bottom: 0.4pt solid #cfd8dc; vertical-align: top; }
+tr.grp td { background: #d9ecee; font-weight: bold; color: #0f4c5c; border-bottom: none; padding-top: 1.8mm; }
+td.k { width: 36mm; color: #455a64; }
+.order { margin-top: 5mm; }
+.order th { background: #e36414; }
+.ftr { display: flex; justify-content: space-between; padding: 3mm 16mm 6mm; font-size: 7.5pt; color: #607d8b; border-top: 0.4pt solid #cfd8dc; margin: 0 16mm; padding-left: 0; padding-right: 0; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="band">
+    <div class="brand">FIELDMARK INSTRUMENTS</div>
+    <h1>AquaSense 300</h1>
+    <div class="tag">Capacitive soil moisture and temperature sensor</div>
+  </div>
+  <div class="content">
+    <div class="left">
+      <h2>Overview</h2>
+      <p>The AquaSense 300 measures volumetric water content and soil temperature at the root zone of field crops, orchards and school gardens. Its sealed probe has no exposed metal electrodes, so readings stay stable for several seasons in acidic or saline soils.</p>
+      <p>The sensor is installed by pushing it into a pilot hole made with the supplied auger. A single cable carries both power and data, which keeps installation simple for irrigation contractors and extension officers.</p>
+
+      <h2>Features</h2>
+      <ul class="feat">
+        <li>Measures moisture at three depths along one probe</li>
+        <li>Built-in temperature compensation from &minus;10 to 55 &deg;C</li>
+        <li>SDI-12 and Modbus RTU outputs on the same cable</li>
+        <li>IP68 housing rated for permanent burial</li>
+        <li>Factory calibration for mineral soils, with a user table for peat</li>
+      </ul>
+
+      <div class="callout"><strong>Tip:</strong> Install the probe at least 30 cm from the nearest drip emitter. Readings taken closer than this mostly show the wetting pattern of the emitter rather than the moisture of the field.</div>
+
+      <h2>Typical applications</h2>
+      <p>Scheduling irrigation for vegetables and fruit trees, research trials on water use, and teaching soil science with live data. Several sensors can share one logger, and the logger can send readings to a phone every fifteen minutes.</p>
+    </div>
+
+    <div class="right">
+      <table>
+        <caption>Specifications</caption>
+        <thead><tr><th>Parameter</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr class="grp"><td colspan="2">Measurement</td></tr>
+          <tr><td class="k">Moisture range</td><td>0 to 60% VWC</td></tr>
+          <tr><td class="k">Accuracy</td><td>&plusmn;2% VWC after calibration</td></tr>
+          <tr><td class="k">Depths</td><td>10, 20 and 30 cm</td></tr>
+          <tr><td class="k">Temperature accuracy</td><td>&plusmn;0.5 &deg;C</td></tr>
+          <tr class="grp"><td colspan="2">Electrical</td></tr>
+          <tr><td class="k">Supply voltage</td><td>6 to 16 V DC</td></tr>
+          <tr><td class="k">Current</td><td>12 mA active, 30 &micro;A sleep</td></tr>
+          <tr><td class="k">Outputs</td><td>SDI-12 v1.4, Modbus RTU (RS-485)</td></tr>
+          <tr class="grp"><td colspan="2">Mechanical</td></tr>
+          <tr><td class="k">Probe length</td><td>380 mm</td></tr>
+          <tr><td class="k">Housing</td><td>Glass-filled polyamide, IP68</td></tr>
+          <tr><td class="k">Operating range</td><td>&minus;20 to 60 &deg;C</td></tr>
+        </tbody>
+      </table>
+
+      <table class="order">
+        <caption>Ordering information</caption>
+        <thead><tr><th>Order code</th><th>Cable</th><th>Price (EUR)</th></tr></thead>
+        <tbody>
+          <tr><td>AS300-05</td><td>5 m</td><td>214.00</td></tr>
+          <tr><td>AS300-10</td><td>10 m</td><td>229.00</td></tr>
+          <tr><td>AS300-25</td><td>25 m</td><td>262.00</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:8pt;color:#607d8b;margin-top:2mm">Prices exclude VAT and delivery. Volume discounts are available for orders of ten or more sensors.</p>
+    </div>
+  </div>
+  <div class="ftr"><span class="furn">Fieldmark Instruments &middot; Datasheet FM-AS300 &middot; Rev. C</span><span class="furn">Specifications are subject to change without notice.</span></div>
+</div>
+</body>
+</html>

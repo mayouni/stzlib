@@ -1,0 +1,70 @@
+{
+  "id": "h11",
+  "difficulty": "bilingual French and Arabic municipal notice: a header with the office name in both scripts, French and Arabic text side by side (Arabic column right-to-left with its own heading), a table whose header and first-column cells hold French and Arabic on two lines, Western digits inside Arabic sentences, Arabic diacritics, and bilingual contact and signature lines",
+  "pages": 1,
+  "title": "Avis de coupure d’eau programmée",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Avis de coupure d’eau programmée"
+    },
+    {
+      "level": 1,
+      "text": "إعلان عن انقطاع مبرمج للماء"
+    }
+  ],
+  "key_sentences": [
+    "L’Office communal de l’eau informe ses usagers que la distribution d’eau sera interrompue dans plusieurs quartiers pour des travaux de raccordement au nouveau réservoir.",
+    "Les coupures auront lieu du lundi 10 au mercredi 12 novembre 2025, selon le calendrier ci-dessous.",
+    "Nous recommandons aux habitants de constituer une réserve d’eau potable la veille de la coupure.",
+    "L’eau peut être trouble au moment du rétablissement ; laissez-la couler quelques minutes avant de la consommer.",
+    "يُعلم المكتب الجماعي للماء المواطنين بأن توزيع الماء سينقطع في عدة أحياء بسبب أشغال ربط الشبكة بالخزان الجديد.",
+    "ننصح السكان بتخزين كمية من الماء الصالح للشرب في اليوم السابق للانقطاع.",
+    "قد يكون الماء عكرًا عند عودته، لذا يُرجى تركه يسيل بضع دقائق قبل استعماله."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Quartier الحي",
+          "Date التاريخ",
+          "Horaire de la coupure توقيت الانقطاع"
+        ],
+        [
+          "Hay Ennour حي النور",
+          "10/11/2025",
+          "08:00 – 16:00"
+        ],
+        [
+          "Hay Al Massira حي المسيرة",
+          "10/11/2025",
+          "13:00 – 20:00"
+        ],
+        [
+          "Centre-ville وسط المدينة",
+          "11/11/2025",
+          "08:00 – 18:00"
+        ],
+        [
+          "Hay Al Amal حي الأمل",
+          "12/11/2025",
+          "09:00 – 15:00"
+        ],
+        [
+          "Zone industrielle المنطقة الصناعية",
+          "12/11/2025",
+          "07:00 – 19:00"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "fr",
+    "ar"
+  ],
+  "code": [],
+  "notes": "Two headings at level 1, one per language; the French one is the title. Reading order is fixed as: the French column, then the Arabic column (the two columns are translations of each other; a scorer may also accept the Arabic block first). Arabic text is given in logical order and keeps its diacritics (damma, tanwin). Each bilingual table cell is French then Arabic joined by one space. The office header lines at the top are a letterhead, not furniture. Non-breaking spaces before ';' and ':' are given as plain spaces."
+}

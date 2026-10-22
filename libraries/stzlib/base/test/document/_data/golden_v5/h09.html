@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TN-07 Logger drift in cold storage</title>
+<style>
+@page { size: A4; margin: 18mm 17mm 18mm 17mm }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+html, body { margin: 0; padding: 0; }
+body { font-family: "Cambria", "Times New Roman", serif; font-size: 9.8pt; line-height: 1.38; color: #111; }
+.series { font-family: Arial, sans-serif; font-size: 8pt; letter-spacing: 1pt; color: #8b0000; border-bottom: 0.6pt solid #8b0000; padding-bottom: 1mm; display: flex; justify-content: space-between; }
+h1 { font-size: 17pt; text-align: center; margin: 6mm 8mm 2mm; line-height: 1.2; }
+.authors { text-align: center; font-size: 10pt; margin-bottom: 0.5mm; }
+.affil { text-align: center; font-size: 8.5pt; font-style: italic; color: #444; margin-bottom: 5mm; }
+.abstract { margin: 0 10mm 5mm; font-size: 9pt; border-top: 0.4pt solid #999; border-bottom: 0.4pt solid #999; padding: 2.5mm 0; }
+.abstract h2 { display: inline; font-size: 9pt; margin: 0; font-family: Arial, sans-serif; }
+.abstract p { display: inline; }
+.kw { font-size: 8.5pt; margin: 1.5mm 0 0; }
+.cols { columns: 2; column-gap: 7mm; text-align: justify; }
+h2 { font-family: Arial, sans-serif; font-size: 10.5pt; margin: 4mm 0 1.5mm; break-after: avoid; }
+h3 { font-family: Arial, sans-serif; font-size: 9.6pt; font-style: italic; font-weight: normal; margin: 3mm 0 1mm; break-after: avoid; }
+p { margin: 0 0 2mm; }
+.eq { text-align: center; font-style: italic; margin: 2mm 0; font-family: "Cambria Math", Cambria, serif; }
+.eq .no { float: right; font-style: normal; }
+pre { font-family: Consolas, "Courier New", monospace; font-size: 7.8pt; line-height: 1.3; background: #f4f4f4; border-left: 2pt solid #8b0000; padding: 2mm 2.5mm; margin: 2mm 0 3mm; white-space: pre; text-align: left; break-inside: avoid; }
+table { border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; font-size: 8.3pt; margin: 2mm 0 3mm; break-inside: avoid; }
+caption { caption-side: top; text-align: left; font-size: 8.5pt; padding-bottom: 1.5mm; font-family: "Cambria", serif; }
+th { border-top: 1pt solid #000; border-bottom: 0.6pt solid #000; padding: 1.2mm 1.5mm; text-align: right; font-weight: bold; }
+td { padding: 1mm 1.5mm; text-align: right; }
+th:first-child, td:first-child { text-align: left; }
+tbody tr:last-child td { border-bottom: 1pt solid #000; }
+.notes { font-size: 8pt; border-top: 0.4pt solid #999; padding-top: 1.5mm; margin-top: 3mm; }
+.notes p { margin: 0 0 1mm; }
+ol.refs { list-style: none; padding: 0; margin: 0; font-size: 8.3pt; text-align: left; }
+ol.refs li { margin-bottom: 1.2mm; padding-left: 6mm; text-indent: -6mm; }
+sup { font-size: 6.5pt; line-height: 0; }
+</style>
+</head>
+<body>
+<div class="series"><span class="furn">REGIONAL VACCINE LOGISTICS UNIT &middot; TECHNICAL NOTE TN-07</span><span class="furn">ISSUED 2 JUNE 2025</span></div>
+<h1>Drift of Low-Cost Temperature Loggers in Vaccine Cold Rooms</h1>
+<div class="authors">N. Abubakar, S. Okonkwo-Reid and T. Vasquez</div>
+<div class="affil">Quality Assurance Laboratory, Regional Vaccine Logistics Unit</div>
+
+<div class="abstract"><h2>Abstract.</h2> <p>Thirty-six low-cost data loggers were kept in two vaccine cold rooms for eighteen months and compared every quarter with a calibrated reference thermometer. The mean drift was small, but six loggers drifted by more than 0.5 &deg;C and would have hidden a temperature excursion. We recommend a linear drift correction and a recalibration interval of twelve months.</p>
+<p class="kw"><b>Keywords:</b> cold chain, data logger, calibration, measurement drift</p></div>
+
+<div class="cols">
+<h2>1. Introduction</h2>
+<p>Vaccines lose potency when they are stored outside the range of 2 to 8 &deg;C, and the loss cannot be seen on the vial. District stores therefore rely on data loggers to show that a cold room stayed within range between two inspections. The cheapest loggers cost less than a tenth of a laboratory instrument, which makes them attractive for stores with small budgets.</p>
+<p>Manufacturers usually state an accuracy of &plusmn;0.5 &deg;C at the time of delivery.<sup>1</sup> Little is known about how this accuracy changes after a year or more in service. This note reports a field comparison carried out at the central store.</p>
+
+<h2>2. Method</h2>
+<h3>2.1 Loggers and reference</h3>
+<p>Three models from different suppliers were tested, with twelve loggers of each model. The reference was a platinum resistance thermometer calibrated by an accredited laboratory, with an expanded uncertainty of 0.05 &deg;C. All loggers recorded at an interval of five minutes.</p>
+<h3>2.2 Comparison procedure</h3>
+<p>Every quarter the loggers and the reference probe were placed together in a stirred water bath at 5.0 &deg;C for two hours. The difference between each logger and the reference over the last hour was taken as the error of that logger on that day. Drift was estimated by fitting a straight line to the errors of each logger against time in service:</p>
+<div class="eq">e(t) = a + b&middot;t <span class="no">(1)</span></div>
+<p>where <i>a</i> is the error at delivery and <i>b</i> is the drift rate in &deg;C per month. The correction applied to a raw reading is shown in the listing below.</p>
+<pre>def corrected(raw_c, months, a, b):
+    """Remove the fitted error from a raw reading."""
+    return raw_c - (a + b * months)
+
+# model B, logger 07: a = 0.12, b = 0.031
+print(round(corrected(7.40, 18, 0.12, 0.031), 2))  # 6.72</pre>
+
+<h2>3. Results</h2>
+<p>All thirty-six loggers completed the eighteen months of the study. The error at delivery was within the stated accuracy for every logger. The drift rate differed clearly between the three models, as shown in Table 1.</p>
+<table>
+  <caption><b>Table 1.</b> Error at delivery and drift rate by logger model (n = 12 per model)</caption>
+  <thead><tr><th>Model</th><th>Mean a (&deg;C)</th><th>Mean b (&deg;C/month)</th><th>Max |e| at 18 months (&deg;C)</th><th>Loggers &gt; 0.5 &deg;C</th></tr></thead>
+  <tbody>
+    <tr><td>A</td><td>0.04</td><td>0.004</td><td>0.21</td><td>0</td></tr>
+    <tr><td>B</td><td>0.09</td><td>0.027</td><td>0.74</td><td>5</td></tr>
+    <tr><td>C</td><td>&minus;0.06</td><td>&minus;0.009</td><td>0.52</td><td>1</td></tr>
+  </tbody>
+</table>
+<p>Model B drifted upwards in every logger, so a cold room that was too warm would have looked colder than it was. Five of the twelve model B loggers exceeded 0.5 &deg;C before the end of the study. Model A showed no meaningful drift at all.</p>
+
+<h2>4. Discussion</h2>
+<p>A positive drift is the dangerous direction for a cold room, because it hides a warm excursion rather than raising a false alarm. The linear model fitted the quarterly errors well for all three models, with residuals below 0.08 &deg;C.<sup>2</sup> A correction based on equation (1) is therefore practical when the coefficients are re-estimated at every recalibration.</p>
+<p>The study has two limitations. Only one cold room temperature was tested, and loggers used in vehicles may age differently because of vibration.</p>
+
+<h2>5. Recommendations</h2>
+<p>Stores should recalibrate every logger at least once every twelve months against a reference with a valid certificate. Loggers whose drift rate exceeds 0.02 &deg;C per month should be withdrawn from service.</p>
+
+<div class="notes">
+<p><sup>1</sup> Two of the three suppliers state this figure only for the range 0 to 10 &deg;C.</p>
+<p><sup>2</sup> Residuals were computed as the difference between each measured error and the fitted line.</p>
+</div>
+
+<h2>References</h2>
+<ol class="refs">
+  <li>[1] Abubakar N, Vasquez T. Quarterly inspection of district cold rooms: results of the 2023 round. Internal report RVLU-QA-11; 2024.</li>
+  <li>[2] Okonkwo-Reid S. Practical calibration of temperature sensors in water baths. Laboratory Methods Bulletin. 2022;8(3):41&ndash;47.</li>
+  <li>[3] Regional Vaccine Logistics Unit. Standard operating procedure for temperature monitoring, version 4. 2023.</li>
+</ol>
+</div>
+</body>
+</html>

@@ -1,0 +1,190 @@
+{
+  "id": "h06",
+  "difficulty": "two-page minutes of a housing cooperative board meeting, flowing text: numbered agenda headings, an attendance list in two CSS columns next to two short lists, a budget table with a caption and a total row, a list with typed letter markers a) b) c), a boxed decision, an action-item table and signature lines",
+  "pages": 2,
+  "title": "Minutes of the Board Meeting",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Minutes of the Board Meeting"
+    },
+    {
+      "level": 2,
+      "text": "Attendance"
+    },
+    {
+      "level": 2,
+      "text": "1. Opening and approval of the agenda"
+    },
+    {
+      "level": 2,
+      "text": "2. Minutes of the previous meeting"
+    },
+    {
+      "level": 2,
+      "text": "3. Treasurer’s report"
+    },
+    {
+      "level": 2,
+      "text": "4. Courtyard renovation"
+    },
+    {
+      "level": 2,
+      "text": "5. Any other business"
+    },
+    {
+      "level": 2,
+      "text": "6. Action items"
+    }
+  ],
+  "key_sentences": [
+    "The Chair opened the meeting at 18:35 and confirmed that a quorum was present.",
+    "The minutes of the meeting held on 21 October 2025 were approved with one correction: the roof inspection is scheduled for 4 December, not 4 November.",
+    "Spending is in line with the budget, although heating costs for the common areas are expected to rise in the last two months of the year.",
+    "The Treasurer replied that the repairs would be paid from the reserve fund if the inspection confirms the damage.",
+    "Several members felt that the cooperative’s own volunteers could look after the planting.",
+    "Hannah Brooks asked whether the bicycle shed could be lit at night.",
+    "The meeting closed at 20:10.",
+    "The next meeting will be held on Tuesday 16 December 2025 in the same room."
+  ],
+  "tables": [
+    {
+      "caption": "Budget and spending to 31 October 2025 (euros)",
+      "rows": [
+        [
+          "Account",
+          "Budget 2025",
+          "Spent to 31 Oct",
+          "Remaining"
+        ],
+        [
+          "Maintenance",
+          "48,000",
+          "39,250",
+          "8,750"
+        ],
+        [
+          "Insurance",
+          "12,500",
+          "12,500",
+          "0"
+        ],
+        [
+          "Utilities (common areas)",
+          "9,800",
+          "7,940",
+          "1,860"
+        ],
+        [
+          "Administration",
+          "6,200",
+          "4,310",
+          "1,890"
+        ],
+        [
+          "Reserve fund contribution",
+          "15,000",
+          "12,500",
+          "2,500"
+        ],
+        [
+          "Total",
+          "91,500",
+          "76,500",
+          "15,000"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "No.",
+          "Action",
+          "Responsible",
+          "Due date"
+        ],
+        [
+          "1",
+          "Arrange the site visit with Hollins & Daughters",
+          "Peter Owusu, Hannah Brooks",
+          "5 December 2025"
+        ],
+        [
+          "2",
+          "Circulate the roof inspection report to the board",
+          "Grace Adeyemi",
+          "10 December 2025"
+        ],
+        [
+          "3",
+          "Request a price for lighting the bicycle shed",
+          "Grace Adeyemi",
+          "12 December 2025"
+        ],
+        [
+          "4",
+          "Prepare the draft budget for 2026",
+          "Jonas Feld",
+          "16 December 2025"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Amara Mensah (Chair)"
+    },
+    {
+      "level": 0,
+      "text": "Jonas Feld (Treasurer)"
+    },
+    {
+      "level": 0,
+      "text": "Lucía Romero (Secretary)"
+    },
+    {
+      "level": 0,
+      "text": "Peter Owusu"
+    },
+    {
+      "level": 0,
+      "text": "Hannah Brooks"
+    },
+    {
+      "level": 0,
+      "text": "Daniel Kowalski"
+    },
+    {
+      "level": 0,
+      "text": "Fatima El Idrissi"
+    },
+    {
+      "level": 0,
+      "text": "Martin Sørensen"
+    },
+    {
+      "level": 0,
+      "text": "Grace Adeyemi (property manager, non-voting)"
+    },
+    {
+      "level": 0,
+      "text": "a) GreenYard Landscaping: 27,400 euros, work to start in March 2026."
+    },
+    {
+      "level": 0,
+      "text": "b) Hollins & Daughters: 24,850 euros, work to start in April 2026."
+    },
+    {
+      "level": 0,
+      "text": "c) Stadtgarten Services: 31,200 euros, including a five-year maintenance contract."
+    }
+  ],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "The 'Present' list flows down two CSS columns: reading order is the first column top to bottom, then the second. The quotes list has its markers 'a)', 'b)', 'c)' typed in the text. The 'Decision:' box and the 'Vote:' line are body text. 'RIVERSIDE HOUSING COOPERATIVE' above the title is an organisation line, not a heading. The page break falls where the browser put it; if a table is split by it, it is still one table with the header once. No running header or footer."
+}

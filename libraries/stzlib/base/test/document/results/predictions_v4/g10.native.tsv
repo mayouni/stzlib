@@ -1,0 +1,10 @@
+page_header	0	Chapter\t2\t·\tRegional\tLogistics
+heading	1	Regional\tLogistics
+paragraph	0	The cooperative runs two depots, one at Farrow Junction and one at Corran Basin. Each depot reports its monthly shipments to the central office. The table below records the full year, with one row per depot and month.
+caption	0	Table\t2:\tMonthly\tshipments\tby\tdepot
+table	0	MonthDepotPalletsTrucksOn\ttimeJanuaryFarrow Junction3102291%JanuaryCorran Basin3402494%FebruaryFarrow Junction3472498%FebruaryCorran Basin3932893%MarchFarrow Junction3842797%MarchCorran Basin4463192%AprilFarrow Junction3312396%AprilCorran Basin3892791%MayFarrow Junction3682695%MayCorran Basin4423198%JuneFarrow Junction3152294%JuneCorran Basin3852797%JulyFarrow Junction3522593%JulyCorran Basin4383196%
+page_footer	0	Page 1
+page_header	0	Chapter\t2\t·\tRegional\tLogistics
+table	0	MonthDepotPalletsTrucksOn\ttimeAugustFarrow Junction3892792%AugustCorran Basin3812795%SeptemberFarrow Junction3362491%SeptemberCorran Basin4343194%OctoberFarrow Junction3732698%OctoberCorran Basin3772693%NovemberFarrow Junction3202297%NovemberCorran Basin4303092%DecemberFarrow Junction3572596%DecemberCorran Basin3732691%
+paragraph	0	Both depots kept their on-time rate above ninety per cent. The central office will use these figures to plan the next fleet purchase. A third depot is under study for the northern district.
+page_footer	0	Page 2

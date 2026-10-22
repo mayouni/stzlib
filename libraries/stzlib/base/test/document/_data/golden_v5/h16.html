@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Fahrplan Linie 47</title>
+<style>
+@page { size: A4 landscape; margin: 0 }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+html, body { margin: 0; padding: 0; }
+body { font-family: "Arial Narrow", Arial, sans-serif; font-size: 9pt; line-height: 1.25; color: #111; }
+.page { width: 297mm; height: 209mm; box-sizing: border-box; padding: 8mm 12mm 6mm; display: flex; flex-direction: column; overflow: hidden; }
+.hdr { display: flex; justify-content: space-between; align-items: center; background: #ffd400; padding: 2mm 4mm; }
+.hdr .line { background: #c8102e; color: #fff; font-family: Arial, sans-serif; font-weight: bold; font-size: 20pt; padding: 0.5mm 4mm; border-radius: 1.5mm; margin-right: 4mm; }
+.hdr .op { font-size: 8.5pt; text-align: right; }
+.content { flex: 1; min-height: 0; overflow: hidden; padding-top: 3mm; }
+h1 { display: inline; font-family: Arial, sans-serif; font-size: 15pt; vertical-align: middle; }
+.intro { margin: 0 0 2mm; font-size: 8.8pt; }
+.tables { display: flex; gap: 6mm; }
+.tables > div { flex: 1; }
+table { width: 100%; border-collapse: collapse; font-size: 8.6pt; }
+caption { text-align: left; font-family: Arial, sans-serif; font-weight: bold; font-size: 10.5pt; padding: 0 0 1.5mm; }
+caption::before { content: "\2192\00a0"; color: #c8102e; }
+th { background: #333; color: #fff; padding: 1mm 1.2mm; font-weight: bold; border: 0.5pt solid #fff; }
+th.grp { background: #555; }
+th.sa, th.grp.sa { background: #8a6d00; }
+th.trip { font-size: 7.8pt; }
+td { border: 0.4pt solid #bbb; padding: 1.1mm 1.2mm; text-align: center; font-variant-numeric: tabular-nums; }
+td.stop, th.stop { text-align: left; white-space: nowrap; }
+td.sa { background: #fff8d6; }
+tbody tr:nth-child(even) td.stop { background: #f2f2f2; }
+.legend { margin-top: 3mm; display: flex; gap: 10mm; font-size: 8.5pt; }
+.legend ul { list-style: none; margin: 0; padding: 0; }
+.legend li { margin-bottom: 0.8mm; }
+.legend p { margin: 0 0 1mm; max-width: 120mm; }
+.ftr { display: flex; justify-content: space-between; font-size: 7.5pt; color: #444; border-top: 0.5pt solid #999; padding-top: 1.2mm; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="hdr">
+    <div><span class="line">47</span><h1>Kirchwangen &ndash; Hofstetten &ndash; Oberried &ndash; Talm&uuml;hle</h1></div>
+    <div class="op"><span class="furn">Regionalverkehr Wangental</span><br><span class="furn">G&uuml;ltig ab 14. Dezember 2025</span></div>
+  </div>
+  <div class="content">
+    <p class="intro">An Sonn- und Feiertagen verkehrt auf dieser Linie kein Bus. Bitte nutzen Sie dann den Rufbus, der mindestens eine Stunde vor der Fahrt bestellt werden muss.</p>
+    <div class="tables">
+      <div>
+<table>
+<caption>Richtung Talm&uuml;hle</caption>
+<thead>
+<tr><th rowspan="2" class="stop">Haltestelle</th><th colspan="6" class="grp">Montag bis Freitag</th><th colspan="3" class="grp sa">Samstag</th></tr>
+<tr><th class="trip">4701</th><th class="trip">4703 S</th><th class="trip">4705</th><th class="trip">4707</th><th class="trip">4709</th><th class="trip">4711</th><th class="trip sa">4721</th><th class="trip sa">4723</th><th class="trip sa">4725</th></tr>
+</thead>
+<tbody>
+<tr><td class="stop">Kirchwangen Bahnhof</td><td>06:12</td><td>07:05</td><td>09:12</td><td>12:12</td><td>15:12</td><td>18:12</td><td class="sa">08:40</td><td class="sa">12:40</td><td class="sa">16:40</td></tr>
+<tr><td class="stop">Kirchwangen Marktplatz</td><td>06:15</td><td>07:08</td><td>09:15</td><td>12:15</td><td>15:15</td><td>18:15</td><td class="sa">08:43</td><td class="sa">12:43</td><td class="sa">16:43</td></tr>
+<tr><td class="stop">Hofstetten Schule</td><td>06:21</td><td>07:14</td><td>09:21</td><td>12:21</td><td>15:21</td><td>18:21</td><td class="sa">&ndash;</td><td class="sa">&ndash;</td><td class="sa">&ndash;</td></tr>
+<tr><td class="stop">Hofstetten Linde</td><td>06:23</td><td>07:16</td><td>09:23</td><td>12:23</td><td>15:23</td><td>18:23</td><td class="sa">08:51</td><td class="sa">12:51</td><td class="sa">16:51</td></tr>
+<tr><td class="stop">Oberried Dorfplatz</td><td>06:28</td><td>07:21</td><td>09:28</td><td>12:28</td><td>15:28</td><td>18:28</td><td class="sa">08:56</td><td class="sa">12:56</td><td class="sa">16:56</td></tr>
+<tr><td class="stop">Oberried S&auml;gewerk (R)</td><td>06:30</td><td>07:23</td><td>09:30</td><td>12:30</td><td>15:30</td><td>18:30</td><td class="sa">08:58</td><td class="sa">12:58</td><td class="sa">16:58</td></tr>
+<tr><td class="stop">Talm&uuml;hle Wendeplatz</td><td>06:37</td><td>07:30</td><td>09:37</td><td>12:37</td><td>15:37</td><td>18:37</td><td class="sa">09:05</td><td class="sa">13:05</td><td class="sa">17:05</td></tr>
+</tbody>
+</table>
+      </div>
+      <div>
+<table>
+<caption>Richtung Kirchwangen Bahnhof</caption>
+<thead>
+<tr><th rowspan="2" class="stop">Haltestelle</th><th colspan="6" class="grp">Montag bis Freitag</th><th colspan="3" class="grp sa">Samstag</th></tr>
+<tr><th class="trip">4702</th><th class="trip">4704</th><th class="trip">4706 S</th><th class="trip">4708</th><th class="trip">4710</th><th class="trip">4712</th><th class="trip sa">4722</th><th class="trip sa">4724</th><th class="trip sa">4726</th></tr>
+</thead>
+<tbody>
+<tr><td class="stop">Talm&uuml;hle Wendeplatz</td><td>06:45</td><td>07:40</td><td>13:05</td><td>13:45</td><td>16:45</td><td>18:50</td><td class="sa">09:20</td><td class="sa">13:20</td><td class="sa">17:20</td></tr>
+<tr><td class="stop">Oberried S&auml;gewerk (R)</td><td>06:52</td><td>07:47</td><td>13:12</td><td>13:52</td><td>16:52</td><td>18:57</td><td class="sa">09:27</td><td class="sa">13:27</td><td class="sa">17:27</td></tr>
+<tr><td class="stop">Oberried Dorfplatz</td><td>06:54</td><td>07:49</td><td>13:14</td><td>13:54</td><td>16:54</td><td>18:59</td><td class="sa">09:29</td><td class="sa">13:29</td><td class="sa">17:29</td></tr>
+<tr><td class="stop">Hofstetten Linde</td><td>06:59</td><td>07:54</td><td>13:19</td><td>13:59</td><td>16:59</td><td>19:04</td><td class="sa">09:34</td><td class="sa">13:34</td><td class="sa">17:34</td></tr>
+<tr><td class="stop">Hofstetten Schule</td><td>07:01</td><td>07:56</td><td>13:21</td><td>14:01</td><td>17:01</td><td>19:06</td><td class="sa">&ndash;</td><td class="sa">&ndash;</td><td class="sa">&ndash;</td></tr>
+<tr><td class="stop">Kirchwangen Marktplatz</td><td>07:07</td><td>08:02</td><td>13:27</td><td>14:07</td><td>17:07</td><td>19:12</td><td class="sa">09:42</td><td class="sa">13:42</td><td class="sa">17:42</td></tr>
+<tr><td class="stop">Kirchwangen Bahnhof</td><td>07:10</td><td>08:05</td><td>13:30</td><td>14:10</td><td>17:10</td><td>19:15</td><td class="sa">09:45</td><td class="sa">13:45</td><td class="sa">17:45</td></tr>
+</tbody>
+</table>
+      </div>
+    </div>
+    <div class="legend">
+      <ul>
+        <li>R = Halt nur bei Bedarf</li>
+        <li>S = verkehrt nur an Schultagen</li>
+        <li>&ndash; = Haltestelle wird nicht bedient</li>
+      </ul>
+      <p>Am Samstag f&auml;hrt der Bus nicht &uuml;ber die Schule, sondern direkt &uuml;ber die Umgehungsstra&szlig;e. Fahrr&auml;der werden mitgenommen, wenn genug Platz vorhanden ist.</p>
+      <p>Fahrkarten erhalten Sie beim Fahrer, am Automaten im Bahnhof oder in der App des Verkehrsverbunds.</p>
+    </div>
+  </div>
+  <div class="ftr"><span class="furn">Rufbus-Bestellung: 07000 474747</span><span class="furn">&Auml;nderungen vorbehalten</span></div>
+</div>
+</body>
+</html>

@@ -1,0 +1,56 @@
+{
+  "id": "g06",
+  "difficulty": "numbered list typed as '1)', '2)' with a nested list typed in roman numerals 'i.', 'ii.', 'iii.'",
+  "pages": 1,
+  "title": "Registering a Community Garden Plot",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registering a Community Garden Plot"
+    }
+  ],
+  "key_sentences": [
+    "The town of Elsby offers forty garden plots each season.",
+    "Applications open on the first of February and close when every plot is taken.",
+    "To register, follow these steps.",
+    "Plots are assigned in the order in which applications are received.",
+    "A waiting list is kept for the following season."
+  ],
+  "tables": [],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1) Fill in the application form at the town hall."
+    },
+    {
+      "level": 0,
+      "text": "2) Choose one of the three plot sizes:"
+    },
+    {
+      "level": 1,
+      "text": "i. small, four square metres;"
+    },
+    {
+      "level": 1,
+      "text": "ii. medium, eight square metres;"
+    },
+    {
+      "level": 1,
+      "text": "iii. large, twelve square metres."
+    },
+    {
+      "level": 0,
+      "text": "3) Pay the seasonal fee at the cashier's desk."
+    },
+    {
+      "level": 0,
+      "text": "4) Collect your key and a copy of the garden rules."
+    }
+  ],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Markers are typed in the text ('1)' ... '4)' and 'i.', 'ii.', 'iii.'), so list_items include them. The roman items are indented under item 2) and are level 1. The apostrophe in cashier's is ASCII U+0027. 'To register, follow these steps.' is body text introducing the list."
+}

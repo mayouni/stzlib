@@ -1,0 +1,135 @@
+{
+  "id": "h03",
+  "difficulty": "supplier invoice: logo and seller block left, title and a key-value metadata grid right, two address blocks side by side, an itemised table whose totals rows put a right-aligned label in a cell spanning four columns, a superscript character in a description, two-column terms section and a footer",
+  "pages": 1,
+  "title": "INVOICE",
+  "headings": [
+    {
+      "level": 1,
+      "text": "INVOICE"
+    },
+    {
+      "level": 2,
+      "text": "PAYMENT TERMS"
+    },
+    {
+      "level": 2,
+      "text": "RETURNS"
+    }
+  ],
+  "key_sentences": [
+    "Payment is due within 30 days of the invoice date.",
+    "Please quote the invoice number INV-2025-0457 with your payment.",
+    "The education discount applies to orders placed by registered schools.",
+    "Returns are accepted within 14 days if the items are unused and in their original packaging.",
+    "Goods remain the property of Brightline Office Supplies Ltd until paid in full."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "No.",
+          "Description",
+          "Qty",
+          "Unit price (£)",
+          "Amount (£)"
+        ],
+        [
+          "1",
+          "A4 copier paper, 80 g/m², box of 5 reams",
+          "12",
+          "24.90",
+          "298.80"
+        ],
+        [
+          "2",
+          "Whiteboard markers, assorted colours, pack of 10",
+          "15",
+          "8.75",
+          "131.25"
+        ],
+        [
+          "3",
+          "Lever-arch files, blue",
+          "40",
+          "2.35",
+          "94.00"
+        ],
+        [
+          "4",
+          "Laminating pouches A4, pack of 100",
+          "6",
+          "11.40",
+          "68.40"
+        ],
+        [
+          "5",
+          "Desk organiser, recycled plastic",
+          "10",
+          "6.95",
+          "69.50"
+        ],
+        [
+          "6",
+          "Toner cartridge TX-410, black, high yield",
+          "4",
+          "89.00",
+          "356.00"
+        ],
+        [
+          "7",
+          "Stapler, heavy duty, 100 sheets",
+          "3",
+          "21.50",
+          "64.50"
+        ],
+        [
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "1,082.45"
+        ],
+        [
+          "Education discount 5%",
+          "Education discount 5%",
+          "Education discount 5%",
+          "Education discount 5%",
+          "-54.12"
+        ],
+        [
+          "Net amount",
+          "Net amount",
+          "Net amount",
+          "Net amount",
+          "1,028.33"
+        ],
+        [
+          "VAT 20%",
+          "VAT 20%",
+          "VAT 20%",
+          "VAT 20%",
+          "205.67"
+        ],
+        [
+          "Total due",
+          "Total due",
+          "Total due",
+          "Total due",
+          "£1,234.00"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "Brightline Office Supplies Ltd · Registered office: Unit 4, Canal Road Trading Estate, Westbury",
+    "Page 1 of 1"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "The five totals rows (Subtotal, Education discount 5%, Net amount, VAT 20%, Total due) belong to the item table; their label cell spans the first four columns, so the label is repeated four times in the grid. 'BILL TO' and 'DELIVER TO' are small labels, not headings; 'PAYMENT TERMS' and 'RETURNS' are headings. The metadata grid (Invoice no., Invoice date, Due date, Customer ref.) is laid out with CSS grid, not a table, and is not counted as a table. '80 g/m²' uses the character U+00B2. 'Thank you for your order!' is body text."
+}

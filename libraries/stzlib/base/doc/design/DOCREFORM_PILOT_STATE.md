@@ -503,3 +503,8 @@ Next by size: seven classes at 3 (stzSoundLive first), then seven at 2.
 WaitCycles no longer hangs in capture mode (target capped to the buffer, plus a monotonic deadline); Landings versions never go back; CaptureInsteadOfDevice validates its length. UNPERCEIVED: nobody has heard it; no device or microphone was opened. Guard 134 assertions. Open decision: restart after Stop leaves HeardCycle and the loops' counters stale. More stale-engine symptoms: the stzHtmlBuilder guard now fails on stzenginehtmlneutralizebidi (same cause as stzMatrex).
 Next by size: six classes at 3 (stzCoeffExtractor first), then eight at 2.
 
+## 2026-10-22: the stzCoeffExtractor fix batch is ON MAIN; register 84 -> 81
+
+evaluateExpression passed a list to ManyReplaced (one text): empty formula, R42. The text is now judged by the new translateExpression (exact grammar: numbers, declared variables, + - * /, parentheses, commas, pow sqrt abs min max) and rebuilt from tokens; 79 hostile strings never ran, a canary stayed 0. Guard 428 assertions. SILENT WRONG ANSWERS still open in the plain linear path of extract (x + 2*x gives 1, should be 3; xx vs x), recommended follow-up. stzSoundLive guard passes 134 but exits 139 at teardown (same on main).
+Next by size: five classes at 3 (stzDataSet first), then nine at 2.
+

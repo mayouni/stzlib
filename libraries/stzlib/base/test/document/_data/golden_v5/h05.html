@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Timetable Form 8B</title>
+<style>
+@page { size: A4 landscape; margin: 12mm 14mm }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+html, body { margin: 0; padding: 0; }
+body { font-family: Verdana, Geneva, sans-serif; font-size: 8.5pt; color: #1b1b1b; }
+.top { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2pt solid #6a1b9a; padding-bottom: 2mm; margin-bottom: 3mm; }
+h1 { font-size: 17pt; margin: 0; color: #6a1b9a; }
+.term { font-size: 10pt; color: #444; }
+.school { text-align: right; font-size: 8pt; color: #666; line-height: 1.35; }
+.intro { margin: 0 0 3mm; font-size: 9pt; }
+table.tt { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.tt th { background: #6a1b9a; color: #fff; padding: 1.8mm 1mm; font-size: 9pt; border: 0.6pt solid #fff; }
+.tt th.time { width: 25mm; }
+.tt td { border: 0.6pt solid #b9a6c7; text-align: center; vertical-align: middle; padding: 1.5mm 1mm; height: 11mm; line-height: 1.25; }
+.tt td.time { background: #f1eaf5; font-weight: bold; font-size: 8pt; }
+.tt td small { font-size: 7pt; color: #555; }
+.tt tr.brk td { height: 5mm; background: #fff3c4; font-style: italic; letter-spacing: 1pt; color: #5c4a00; }
+.tt tr.brk td.time { background: #f1eaf5; font-style: normal; letter-spacing: 0; color: #1b1b1b; }
+.dbl { background: #e8f4ea; }
+.bottom { display: flex; gap: 10mm; margin-top: 4mm; }
+.bottom > div { flex: 1; }
+h2 { font-size: 10pt; color: #6a1b9a; margin: 0 0 1mm; }
+ul { margin: 0; padding-left: 5mm; }
+li { margin-bottom: 0.6mm; }
+.key span { display: inline-block; width: 4mm; height: 3mm; background: #e8f4ea; border: 0.5pt solid #b9a6c7; vertical-align: middle; margin-right: 1.5mm; }
+.printed { margin-top: 3mm; font-size: 7pt; color: #777; text-align: right; }
+</style>
+</head>
+<body>
+<div class="top">
+  <div><h1>Timetable &ndash; Form 8B</h1><div class="term">Autumn term 2025 &middot; Form tutor: Ms R. Adebayo &middot; Base room F8</div></div>
+  <div class="school">Northgate Community School<br>Upper Mill Road, Northgate</div>
+</div>
+<p class="intro">This timetable applies from Monday 8 September 2025 until the October half-term. Lessons shaded green are double lessons and take place in the same room without a break.</p>
+
+<table class="tt">
+  <thead>
+    <tr><th class="time">Time</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th></tr>
+  </thead>
+  <tbody>
+    <tr class="brk"><td class="time">08:30&ndash;08:50</td><td colspan="5">Registration and assembly</td></tr>
+    <tr><td class="time">08:50&ndash;09:45</td><td>Mathematics<br><small>Room M4</small></td><td>English<br><small>Room E2</small></td><td rowspan="2" class="dbl">Science<br><small>Lab 2</small></td><td>French<br><small>Room L3</small></td><td>Geography<br><small>Room H1</small></td></tr>
+    <tr><td class="time">09:45&ndash;10:40</td><td>History<br><small>Room H2</small></td><td>Mathematics<br><small>Room M4</small></td><td>English<br><small>Room E2</small></td><td>Mathematics<br><small>Room M4</small></td></tr>
+    <tr class="brk"><td class="time">10:40&ndash;11:00</td><td colspan="5">Break</td></tr>
+    <tr><td class="time">11:00&ndash;11:55</td><td>English<br><small>Room E2</small></td><td rowspan="2" class="dbl">Art<br><small>Studio A1</small></td><td>Mathematics<br><small>Room M4</small></td><td rowspan="2" class="dbl">Science<br><small>Lab 1</small></td><td>Music<br><small>Main hall</small></td></tr>
+    <tr><td class="time">11:55&ndash;12:50</td><td>French<br><small>Room L3</small></td><td>Religious Education<br><small>Room H3</small></td><td>English<br><small>Room E2</small></td></tr>
+    <tr class="brk"><td class="time">12:50&ndash;13:40</td><td colspan="5">Lunch</td></tr>
+    <tr><td class="time">13:40&ndash;14:35</td><td rowspan="2" class="dbl">Physical Education<br><small>Sports hall</small></td><td>Geography<br><small>Room H1</small></td><td>English<br><small>Room E2</small></td><td>Computing<br><small>Room C1</small></td><td>Science<br><small>Lab 1</small></td></tr>
+    <tr><td class="time">14:35&ndash;15:30</td><td>Drama<br><small>Studio D1</small></td><td>History<br><small>Room H2</small></td><td>Mathematics<br><small>Room M4</small></td><td>Form tutor time<br><small>Room F8</small></td></tr>
+  </tbody>
+</table>
+
+<div class="bottom">
+  <div>
+    <h2>Notes for pupils and parents</h2>
+    <ul>
+      <li>PE kit is needed on Monday afternoons, including trainers for indoor use.</li>
+      <li>Science on Wednesday morning takes place in Lab 2 while Lab 1 is refitted.</li>
+      <li>Music on Friday is in the main hall until the music block reopens.</li>
+      <li>Homework is set in the planner and checked during Friday form tutor time.</li>
+    </ul>
+  </div>
+  <div>
+    <h2>Key</h2>
+    <p class="key"><span></span>Double lesson</p>
+    <p>Pupils who arrive after 08:50 must sign in at the main office. Changes to this timetable are announced in the weekly bulletin.</p>
+  </div>
+</div>
+<div class="printed furn">Timetable office &middot; Printed 1 September 2025</div>
+</body>
+</html>

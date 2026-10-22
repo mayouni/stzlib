@@ -1,0 +1,59 @@
+{
+  "id": "g11",
+  "difficulty": "headings at four levels; h3 and h4 have the same size and differ only by bold versus italic",
+  "pages": 1,
+  "title": "Maintenance Manual for the Orvale Grain Dryer",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Maintenance Manual for the Orvale Grain Dryer"
+    },
+    {
+      "level": 2,
+      "text": "Safety Precautions"
+    },
+    {
+      "level": 3,
+      "text": "Electrical Supply"
+    },
+    {
+      "level": 4,
+      "text": "Isolating the Main Switch"
+    },
+    {
+      "level": 4,
+      "text": "Checking the Earth Connection"
+    },
+    {
+      "level": 3,
+      "text": "Moving Parts"
+    },
+    {
+      "level": 2,
+      "text": "Routine Cleaning"
+    },
+    {
+      "level": 3,
+      "text": "Daily Tasks"
+    }
+  ],
+  "key_sentences": [
+    "This manual covers the model D4 dryer installed in farm cooperatives since 2021.",
+    "Read every section before opening the service panel.",
+    "The dryer runs on a three-phase supply and contains a gas burner.",
+    "Turn the red switch on the left side of the cabinet to the off position.",
+    "Lock it with your personal padlock before touching any wiring.",
+    "Measure the resistance between the frame and the earth bar once a month.",
+    "Keep hands clear of the auger while the drum is turning.",
+    "Empty the dust tray at the end of each shift.",
+    "Wipe the moisture sensor with a dry cloth."
+  ],
+  "tables": [],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Sizes: h1 26px bold, h2 20px bold, h3 16px BOLD upright, h4 16px ITALIC not bold; body 14px regular. h3 and h4 differ only by weight/style, not by size."
+}

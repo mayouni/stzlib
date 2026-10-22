@@ -1,0 +1,32 @@
+{
+  "id": "g07",
+  "difficulty": "three-column justified prose; a soft-hyphenated word breaks at the bottom of column 1 and another at the bottom of column 2",
+  "pages": 1,
+  "title": "The Lighthouse Keepers of Saltmere",
+  "headings": [
+    {
+      "level": 1,
+      "text": "The Lighthouse Keepers of Saltmere"
+    }
+  ],
+  "key_sentences": [
+    "For more than a century the lighthouse on Saltmere Point was tended by a single family.",
+    "He kept a detailed journal of the weather, the passing vessels and the condition of the great lamp.",
+    "The journal is now held by the county archive, where volunteers are transcribing it page by page.",
+    "Even so, the transcriptions already reveal a remarkable record of local life.",
+    "In the winter of 1893 the keeper noted that waves reached the gallery for three consecutive nights.",
+    "Shipwrecks are rarer than one might expect, and most entries record ordinary days of maintenance and quiet observation.",
+    "Visitors will be able to read selected pages alongside photographs of the keepers and their families.",
+    "Anyone with letters, pictures or stories about Saltmere Point is invited to contact the archive.",
+    "The organisers hope that the exhibition will encourage further research into the coastal history of the region.",
+    "Funding for the project comes from a local trust and from the sale of a small illustrated guide."
+  ],
+  "tables": [],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Three justified columns of Cambria prose (column-fill: auto, fixed height), read column 1 top to bottom, then column 2, then column 3. In the author's check of Chrome's layout of this same HTML (not of the PDF), 'already' breaks at the bottom of column 1 into column 2 and 'letters' breaks at the bottom of column 2 into column 3; both are expected WHOLE in key_sentences. Other soft-hyphenated words may break at ordinary line ends and are also expected whole. The PDF itself was never inspected."
+}

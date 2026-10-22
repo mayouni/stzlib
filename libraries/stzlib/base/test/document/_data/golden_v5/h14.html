@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>RB-012 Restoring the student records server</title>
+<style>
+@page { size: A4; margin: 0 }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+html, body { margin: 0; padding: 0; }
+body { font-family: "Segoe UI", Arial, sans-serif; font-size: 9.6pt; line-height: 1.42; color: #1c1c1c; }
+.page { width: 210mm; height: 296mm; box-sizing: border-box; padding: 10mm 18mm 9mm; display: flex; flex-direction: column; overflow: hidden; page-break-after: always; }
+.page:last-child { page-break-after: auto; }
+.hdr { display: flex; justify-content: space-between; font-size: 8pt; color: #5a5a5a; border-bottom: 0.6pt solid #888; padding-bottom: 1.5mm; }
+.hdr .cls { color: #b00020; font-weight: bold; letter-spacing: 0.8pt; }
+.content { flex: 1; min-height: 0; overflow: hidden; padding-top: 5mm; }
+h1 { font-size: 17pt; margin: 0 0 1mm; color: #003c71; }
+.docmeta { font-size: 8.5pt; color: #555; margin-bottom: 4mm; }
+h2 { font-size: 12pt; color: #003c71; margin: 5mm 0 1.5mm; border-bottom: 0.5pt solid #c5d3e0; padding-bottom: 0.5mm; }
+p { margin: 0 0 2.2mm; }
+ol.steps { padding-left: 6mm; margin: 1mm 0 2mm; }
+ol.steps li { margin-bottom: 1.2mm; }
+pre { font-family: Consolas, "Courier New", monospace; font-size: 8.6pt; line-height: 1.38; background: #1e1e2e; color: #e4e4ef; padding: 2.5mm 3.5mm; margin: 1.5mm 0 3mm; border-radius: 1mm; white-space: pre; }
+pre.num { counter-reset: ln; padding-left: 0; }
+pre.num span { counter-increment: ln; }
+pre.num span::before { content: counter(ln); display: inline-block; width: 7mm; padding-right: 3mm; margin-right: 2mm; text-align: right; color: #7f849c; border-right: 0.5pt solid #45475a; }
+code { font-family: Consolas, "Courier New", monospace; font-size: 8.8pt; background: #eef1f5; padding: 0 1mm; }
+.warn { border-left: 4pt solid #b00020; background: #fdecee; padding: 2.5mm 4mm; margin: 3mm 0; }
+.warn b { color: #b00020; }
+.note { border-left: 4pt solid #2e7d32; background: #edf7ee; padding: 2.5mm 4mm; margin: 3mm 0; }
+table { width: 100%; border-collapse: collapse; font-size: 8.8pt; margin: 1.5mm 0 3mm; }
+caption { text-align: left; font-size: 8.8pt; color: #555; padding-bottom: 1mm; }
+th { background: #003c71; color: #fff; text-align: left; padding: 1.4mm 2mm; }
+td { border-bottom: 0.4pt solid #c5d3e0; padding: 1.3mm 2mm; }
+td.mono { font-family: Consolas, "Courier New", monospace; }
+.ftr { display: flex; justify-content: space-between; font-size: 8pt; color: #5a5a5a; border-top: 0.6pt solid #888; padding-top: 1.5mm; }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="hdr"><span class="furn">Eastfield College IT Services</span><span class="cls furn">INTERNAL</span></div>
+  <div class="content">
+    <h1>Runbook: Restoring the Student Records Server from Backup</h1>
+    <div class="docmeta">Document RB-012 &middot; Version 1.4 &middot; Owner: Infrastructure team &middot; Last reviewed 6 November 2025</div>
+
+    <h2>1. Purpose and scope</h2>
+    <p>This runbook describes how to restore the student records service after a disk failure or data corruption on the primary server. It applies to the production server only; the test server is rebuilt from scratch instead. Follow the steps in order and record each completed step in the change ticket.</p>
+
+    <h2>2. Systems involved</h2>
+    <table>
+      <caption>Servers that take part in the backup and restore cycle</caption>
+      <thead><tr><th>Host</th><th>Role</th><th>Address</th><th>Backup window</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">rec-prod-01</td><td>Student records, primary</td><td class="mono">192.0.2.21</td><td>01:30&ndash;02:15</td></tr>
+        <tr><td class="mono">rec-db-01</td><td>Database for records</td><td class="mono">192.0.2.22</td><td>01:00&ndash;01:30</td></tr>
+        <tr><td class="mono">bak-nas-02</td><td>Backup storage</td><td class="mono">192.0.2.40</td><td>not applicable</td></tr>
+      </tbody>
+    </table>
+
+    <h2>3. Before you start</h2>
+    <ol class="steps">
+      <li>Announce the maintenance window to the registry office at least 24 hours in advance.</li>
+      <li>Check that the most recent backup completed without errors in the backup report.</li>
+      <li>Make sure you have console access to <code>rec-prod-01</code> in case the network fails.</li>
+    </ol>
+    <div class="warn"><b>Warning:</b> Do not restore while the enrolment period is open. A restore replaces every record changed since the last backup, and changes made by registry staff during the day would be lost.</div>
+
+    <h2>4. Stop the service and mount the backup</h2>
+    <p>Log in to <code>rec-prod-01</code> as an administrator and run the following commands. The last command lists the available archives so that you can choose the correct date.</p>
+<pre>sudo systemctl stop recordsd
+sudo mount /dev/sdb1 /mnt/backup
+ls -lh /mnt/backup/records/</pre>
+    <p>Archives are named by date in the form <code>records-YYYY-MM-DD.tar.gz</code>. Choose the most recent archive taken before the fault was noticed.</p>
+  </div>
+  <div class="ftr"><span class="furn">RB-012 &middot; Version 1.4</span><span class="furn">Page 1 of 2</span></div>
+</div>
+
+<div class="page">
+  <div class="hdr"><span class="furn">Eastfield College IT Services</span><span class="cls furn">INTERNAL</span></div>
+  <div class="content">
+    <h2>5. Restore the data</h2>
+    <p>Extract the chosen archive over the data directory and give the files back to the service account. Replace the date in the file name with the archive you selected.</p>
+<pre>cd /var/lib/records
+sudo tar -xzf /mnt/backup/records/records-2025-11-02.tar.gz --strip-components=1
+sudo chown -R records:records /var/lib/records
+sudo systemctl start recordsd</pre>
+
+    <h2>6. Check the backup configuration</h2>
+    <p>After a restore the backup schedule must still be active. Compare the configuration file with the reference copy below; the line numbers are shown for discussion only.</p>
+<pre class="num"><span># /etc/recordsd/backup.yaml</span>
+<span>schedule: "30 1 * * *"</span>
+<span>target: /mnt/backup/records</span>
+<span>retention_days: 21</span>
+<span>compress: gzip</span>
+<span>notify:</span>
+<span>  email: it-alerts@eastfield-college.example</span>
+<span>  on_failure_only: true</span></pre>
+    <div class="note"><b>Note:</b> The schedule uses cron syntax and runs every night at 01:30. Keeping 21 days of archives needs about 40 GB on the backup storage.</div>
+
+    <h2>7. Verify and close</h2>
+    <p>Query the health endpoint of the service. A healthy service answers with the status and the database connection state.</p>
+<pre>curl -s http://localhost:8080/health
+# expected: {"status":"ok","db":"connected"}</pre>
+    <ol class="steps">
+      <li>Ask a member of the registry office to open three recent student files and confirm that they are complete.</li>
+      <li>Unmount the backup disk with <code>sudo umount /mnt/backup</code>.</li>
+      <li>Close the change ticket and note the archive date that was restored.</li>
+    </ol>
+    <p>If the health check fails twice, stop and escalate to the on-call infrastructure engineer. Do not attempt a second restore without their approval.</p>
+  </div>
+  <div class="ftr"><span class="furn">RB-012 &middot; Version 1.4</span><span class="furn">Page 2 of 2</span></div>
+</div>
+
+</body>
+</html>

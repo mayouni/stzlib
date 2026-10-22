@@ -80,8 +80,8 @@ still escape in Ring (their desks).
   "every row reads as plain text"; the record is `escape_sinks_perceived.md` beside the
   guard. The eye found what no counter did: the bidi row reads `cba`, the override
   control having passed through as text. **Ruled and built the same day** (see the
-  bidi policy below): the page was regenerated and its new bidi row is owed a second
-  look, so it is *unperceived* again until a person has seen it.
+  bidi policy below): the page was regenerated and **perceived again by the Principal on 2026-10-22**:
+  the bidi row reads `[U+202E]abc[U+202C]` in reading order, nothing else moved.
 - **Bidi policy -- built** (ruled by the Principal, "bidi: yes", 2026-10-22; the JSON half
   refined the same day by "escape"). Escaping cannot address a control character, so it
   is its own step: the engine's `html_neutralize_bidi` (`html.zig`, Ring face

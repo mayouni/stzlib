@@ -1,0 +1,174 @@
+{
+  "id": "h12",
+  "difficulty": "four-language appliance safety leaflet (English, Spanish, German, Turkish): drawn warning triangle, four bordered language boxes flowing in two CSS columns, each with a language badge inside its heading, an intro paragraph and a numbered list, followed by a full-width four-language technical data table; Turkish dotless i, German umlauts and long German compounds",
+  "pages": 1,
+  "title": "Hearthwell KT-17 Electric Kettle",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Hearthwell KT-17 Electric Kettle"
+    },
+    {
+      "level": 2,
+      "text": "EN English"
+    },
+    {
+      "level": 2,
+      "text": "ES Español"
+    },
+    {
+      "level": 2,
+      "text": "DE Deutsch"
+    },
+    {
+      "level": 2,
+      "text": "TR Türkçe"
+    }
+  ],
+  "key_sentences": [
+    "Keep these instructions for future reference.",
+    "Use the kettle only for heating drinking water.",
+    "Guarde estas instrucciones para futuras consultas.",
+    "Utilice el hervidor solo para calentar agua potable.",
+    "Bewahren Sie diese Anleitung für spätere Fragen auf.",
+    "Verwenden Sie den Wasserkocher nur zum Erhitzen von Trinkwasser.",
+    "Bu talimatları ileride başvurmak için saklayın.",
+    "Su ısıtıcısını yalnızca içme suyu ısıtmak için kullanın."
+  ],
+  "tables": [
+    {
+      "caption": "Technical data · Datos técnicos · Technische Daten · Teknik veriler",
+      "rows": [
+        [
+          "EN",
+          "ES",
+          "DE",
+          "TR",
+          "KT-17"
+        ],
+        [
+          "Rated voltage",
+          "Tensión nominal",
+          "Nennspannung",
+          "Nominal gerilim",
+          "220–240 V ~ 50/60 Hz"
+        ],
+        [
+          "Rated power",
+          "Potencia nominal",
+          "Nennleistung",
+          "Nominal güç",
+          "1850–2200 W"
+        ],
+        [
+          "Capacity",
+          "Capacidad",
+          "Fassungsvermögen",
+          "Kapasite",
+          "1.7 L"
+        ],
+        [
+          "Cable length",
+          "Longitud del cable",
+          "Kabellänge",
+          "Kablo uzunluğu",
+          "75 cm"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Read all instructions before using the kettle for the first time."
+    },
+    {
+      "level": 0,
+      "text": "Do not immerse the kettle, the base or the cable in water or any other liquid."
+    },
+    {
+      "level": 0,
+      "text": "Fill the kettle only between the MIN and MAX marks."
+    },
+    {
+      "level": 0,
+      "text": "Unplug the base when the kettle is not in use and before cleaning."
+    },
+    {
+      "level": 0,
+      "text": "Keep children under 8 years old away from the appliance and its cable."
+    },
+    {
+      "level": 0,
+      "text": "Lea todas las instrucciones antes de usar el hervidor por primera vez."
+    },
+    {
+      "level": 0,
+      "text": "No sumerja el hervidor, la base ni el cable en agua ni en ningún otro líquido."
+    },
+    {
+      "level": 0,
+      "text": "Llene el hervidor solo entre las marcas MIN y MAX."
+    },
+    {
+      "level": 0,
+      "text": "Desenchufe la base cuando no utilice el hervidor y antes de limpiarlo."
+    },
+    {
+      "level": 0,
+      "text": "Mantenga a los niños menores de 8 años alejados del aparato y de su cable."
+    },
+    {
+      "level": 0,
+      "text": "Lesen Sie vor dem ersten Gebrauch alle Anweisungen sorgfältig durch."
+    },
+    {
+      "level": 0,
+      "text": "Tauchen Sie den Wasserkocher, den Sockel oder das Kabel niemals in Wasser oder andere Flüssigkeiten."
+    },
+    {
+      "level": 0,
+      "text": "Füllen Sie den Wasserkocher nur zwischen den Markierungen MIN und MAX."
+    },
+    {
+      "level": 0,
+      "text": "Ziehen Sie den Netzstecker, wenn das Gerät nicht benutzt wird, und vor jeder Reinigung."
+    },
+    {
+      "level": 0,
+      "text": "Kinder unter 8 Jahren sind vom Gerät und von der Anschlussleitung fernzuhalten."
+    },
+    {
+      "level": 0,
+      "text": "Su ısıtıcısını ilk kez kullanmadan önce tüm talimatları okuyun."
+    },
+    {
+      "level": 0,
+      "text": "Su ısıtıcısını, tabanını veya kablosunu suya ya da başka bir sıvıya batırmayın."
+    },
+    {
+      "level": 0,
+      "text": "Su ısıtıcısını yalnızca MIN ve MAX işaretleri arasında doldurun."
+    },
+    {
+      "level": 0,
+      "text": "Kullanılmadığında ve temizlemeden önce tabanın fişini prizden çekin."
+    },
+    {
+      "level": 0,
+      "text": "8 yaşından küçük çocukları cihazdan ve kablosundan uzak tutun."
+    }
+  ],
+  "furniture": [
+    "Hearthwell Home Appliances · KT-17 · IM-0425",
+    "CE"
+  ],
+  "languages": [
+    "en",
+    "es",
+    "de",
+    "tr"
+  ],
+  "code": [],
+  "notes": "The language boxes flow down two columns: English and Spanish in the first column, German and Turkish in the second; reading order is EN, ES, DE, TR. Each language heading contains a dark badge with the code, so the heading text is e.g. 'EN English'. Numbered warnings use CSS numbering (no typed marker). The table caption lists the four languages separated by middle dots. 'CE' at the bottom right is a mark in the footer and counts as furniture."
+}

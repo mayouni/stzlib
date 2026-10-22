@@ -1,0 +1,143 @@
+{
+  "id": "h10",
+  "difficulty": "two-page administrative application form: running header with a drawn seal and form number, footer with revision and page number, an instruction box with a numbered list, section bars, label-plus-underline fields laid out in rows, a comb of empty character boxes, typed ballot-box checkbox options flowing in two columns, a fee table with an empty column to fill in, a bordered declaration with signature lines and a dashed 'for official use only' box",
+  "pages": 2,
+  "title": "Application for a Market Stall Permit",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Application for a Market Stall Permit"
+    },
+    {
+      "level": 2,
+      "text": "Section A – Applicant details"
+    },
+    {
+      "level": 2,
+      "text": "Section B – Stall details"
+    },
+    {
+      "level": 2,
+      "text": "Section C – Previous trading"
+    }
+  ],
+  "key_sentences": [
+    "Please write in capital letters using black ink.",
+    "Incomplete applications will be returned to the applicant without being assessed.",
+    "I declare that the information given on this form is true and complete.",
+    "I understand that a permit may be withdrawn if any of this information is found to be false.",
+    "Applications are normally decided within fifteen working days.",
+    "Fees are payable monthly in advance, and the first payment is due before the permit is issued."
+  ],
+  "tables": [
+    {
+      "caption": "Monthly fees from 1 January 2026",
+      "rows": [
+        [
+          "Stall type",
+          "Size",
+          "Monthly fee",
+          "Your choice"
+        ],
+        [
+          "Small pitch",
+          "2 m × 2 m",
+          "45.00",
+          ""
+        ],
+        [
+          "Standard pitch",
+          "3 m × 3 m",
+          "80.00",
+          ""
+        ],
+        [
+          "Covered stall with electricity",
+          "3 m × 4 m",
+          "135.00",
+          ""
+        ],
+        [
+          "Refrigerated stall",
+          "3 m × 4 m",
+          "190.00",
+          ""
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Complete sections A, B and C."
+    },
+    {
+      "level": 0,
+      "text": "Attach a copy of your identity document and, for food stalls, your food hygiene certificate."
+    },
+    {
+      "level": 0,
+      "text": "Return the form to the Markets and Trading Office or post it to the address on page 2."
+    },
+    {
+      "level": 0,
+      "text": "☐ Harbour Market (Tuesday to Sunday)"
+    },
+    {
+      "level": 0,
+      "text": "☐ Saturday Square Market"
+    },
+    {
+      "level": 0,
+      "text": "☐ Fresh fruit and vegetables"
+    },
+    {
+      "level": 0,
+      "text": "☐ Fish and seafood"
+    },
+    {
+      "level": 0,
+      "text": "☐ Cooked food and drinks"
+    },
+    {
+      "level": 0,
+      "text": "☐ Clothing and textiles"
+    },
+    {
+      "level": 0,
+      "text": "☐ Crafts and household goods"
+    },
+    {
+      "level": 0,
+      "text": "☐ Other (please state below)"
+    },
+    {
+      "level": 0,
+      "text": "☐ Yes"
+    },
+    {
+      "level": 0,
+      "text": "☐ No"
+    },
+    {
+      "level": 0,
+      "text": "☐ Yes"
+    },
+    {
+      "level": 0,
+      "text": "☐ No"
+    }
+  ],
+  "furniture": [
+    "Municipality of Port Selwyn · Markets and Trading Office",
+    "Form MS-2",
+    "Form MS-2 (rev. 03/2025)",
+    "Page 1 of 2",
+    "Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Checkbox options are list items whose marker U+2610 (☐) is typed in the text; they flow in two CSS columns, so reading order is down the first column, then the second. The three checkboxes in the official-use box are drawn with CSS borders and carry no character. Field labels (Family name, Given names, ...) are followed by empty underlines; they are form labels, not sentences. The 'Your choice' column of the fee table is empty in every row. 'Declaration' and 'FOR OFFICIAL USE ONLY' are bold labels, not headings. Questions B1, B2, B3, C1, C2 are bold paragraphs, not headings."
+}

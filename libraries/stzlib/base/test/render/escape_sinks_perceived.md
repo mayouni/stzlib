@@ -21,4 +21,5 @@ What the screenshot shows beside the words, read by the render plane:
 
 | when | who | what changed | verdict |
 |---|---|---|---|
-| 2026-10-22 | the Principal ruled "bidi: yes" | the bidi row now reads `[U+202E]abc[U+202C]`: the two controls are visible markers and no longer steer the text | **not yet perceived**: the page was regenerated after the policy was built; a person opens it and says what they see |
+| 2026-10-22 | the Principal ruled "bidi: yes" | the bidi row now reads `[U+202E]abc[U+202C]`: the two controls are visible markers and no longer steer the text | **perceived** (see the row below) |
+| 2026-10-22 23:05 | the Principal (Mansour Ayouni) | Chrome, the regenerated page opened as a file | the screenshot shows the bidi row as `bidi: [U+202E]abc[U+202C]`, in reading order: the two controls are visible markers and no longer reverse the text; every other row is unchanged and reads as plain text; the last row is still bold through the raw door |

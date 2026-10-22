@@ -1,0 +1,139 @@
+{
+  "id": "h05",
+  "difficulty": "school timetable on landscape A4: a grid table with row-spanning double lessons and full-width break rows spanning five columns, two-line cells (subject plus room in smaller type), followed by a two-column area with a bullet list and a key",
+  "pages": 1,
+  "title": "Timetable – Form 8B",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Timetable – Form 8B"
+    },
+    {
+      "level": 2,
+      "text": "Notes for pupils and parents"
+    },
+    {
+      "level": 2,
+      "text": "Key"
+    }
+  ],
+  "key_sentences": [
+    "This timetable applies from Monday 8 September 2025 until the October half-term.",
+    "Lessons shaded green are double lessons and take place in the same room without a break.",
+    "Pupils who arrive after 08:50 must sign in at the main office.",
+    "Changes to this timetable are announced in the weekly bulletin."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Time",
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday"
+        ],
+        [
+          "08:30–08:50",
+          "Registration and assembly",
+          "Registration and assembly",
+          "Registration and assembly",
+          "Registration and assembly",
+          "Registration and assembly"
+        ],
+        [
+          "08:50–09:45",
+          "Mathematics Room M4",
+          "English Room E2",
+          "Science Lab 2",
+          "French Room L3",
+          "Geography Room H1"
+        ],
+        [
+          "09:45–10:40",
+          "History Room H2",
+          "Mathematics Room M4",
+          "Science Lab 2",
+          "English Room E2",
+          "Mathematics Room M4"
+        ],
+        [
+          "10:40–11:00",
+          "Break",
+          "Break",
+          "Break",
+          "Break",
+          "Break"
+        ],
+        [
+          "11:00–11:55",
+          "English Room E2",
+          "Art Studio A1",
+          "Mathematics Room M4",
+          "Science Lab 1",
+          "Music Main hall"
+        ],
+        [
+          "11:55–12:50",
+          "French Room L3",
+          "Art Studio A1",
+          "Religious Education Room H3",
+          "Science Lab 1",
+          "English Room E2"
+        ],
+        [
+          "12:50–13:40",
+          "Lunch",
+          "Lunch",
+          "Lunch",
+          "Lunch",
+          "Lunch"
+        ],
+        [
+          "13:40–14:35",
+          "Physical Education Sports hall",
+          "Geography Room H1",
+          "English Room E2",
+          "Computing Room C1",
+          "Science Lab 1"
+        ],
+        [
+          "14:35–15:30",
+          "Physical Education Sports hall",
+          "Drama Studio D1",
+          "History Room H2",
+          "Mathematics Room M4",
+          "Form tutor time Room F8"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "PE kit is needed on Monday afternoons, including trainers for indoor use."
+    },
+    {
+      "level": 0,
+      "text": "Science on Wednesday morning takes place in Lab 2 while Lab 1 is refitted."
+    },
+    {
+      "level": 0,
+      "text": "Music on Friday is in the main hall until the music block reopens."
+    },
+    {
+      "level": 0,
+      "text": "Homework is set in the planner and checked during Friday form tutor time."
+    }
+  ],
+  "furniture": [
+    "Timetable office · Printed 1 September 2025"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Each lesson cell holds two lines, subject and room; the cell text joins them with one space ('Mathematics Room M4'). Double lessons span two rows and break rows (Registration and assembly, Break, Lunch) span the five day columns; merged text is repeated in every covered grid cell. Times use an en dash (U+2013), and so does the title. The small 'Timetable office · Printed 1 September 2025' line at the bottom right is furniture."
+}

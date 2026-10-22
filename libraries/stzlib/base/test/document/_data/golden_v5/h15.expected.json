@@ -1,0 +1,65 @@
+{
+  "id": "h15",
+  "difficulty": "one-page hospital memorandum: header with a tilted bordered stamp, widely letter-spaced title, a To/Cc/From/Date/Subject block laid out as a CSS grid, a rule, a two-level nested bullet list, an indented italic block quotation with its source line, script-font initials and a footer reference",
+  "pages": 1,
+  "title": "MEMORANDUM",
+  "headings": [
+    {
+      "level": 1,
+      "text": "MEMORANDUM"
+    }
+  ],
+  "key_sentences": [
+    "Following the review of patient feedback and the advice of the infection prevention team, visiting hours on the surgical wards will change from Monday 16 February 2026.",
+    "Please brief your teams before that date and replace the notices at the ward entrances.",
+    "Visitors should not exceed two per bed at any time, and children under twelve must be accompanied by an adult.",
+    "Protected mealtimes remain in place between 12:00 and 13:00 and between 17:00 and 18:00.",
+    "During these periods visitors may stay only if they are helping a patient to eat.",
+    "Questions about the new arrangements should be sent to the Patient Advice Office, which will also answer enquiries from the public."
+  ],
+  "tables": [],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Weekdays"
+    },
+    {
+      "level": 1,
+      "text": "Afternoon visits from 14:00 to 16:00"
+    },
+    {
+      "level": 1,
+      "text": "Evening visits from 18:30 to 20:00"
+    },
+    {
+      "level": 0,
+      "text": "Weekends and public holidays"
+    },
+    {
+      "level": 1,
+      "text": "Continuous visiting from 11:00 to 19:00"
+    },
+    {
+      "level": 0,
+      "text": "Exceptions"
+    },
+    {
+      "level": 1,
+      "text": "Parents and carers of patients under 16 may stay at any time."
+    },
+    {
+      "level": 1,
+      "text": "The nurse in charge may approve other exceptions, for example for patients at the end of life."
+    }
+  ],
+  "furniture": [
+    "Lakeview District Hospital · Nursing Directorate",
+    "INTERNAL",
+    "Lakeview District Hospital · Ref. ND/2026/014"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "The memo header fields are a label/value grid, not a table. The quoted sentence (third key sentence) is printed inside curly double quotes in an indented italic block; the quote marks are omitted here. 'Infection Prevention Policy, section 4.2' is the quotation's source line. The nested list has three level-0 items and five level-1 items; markers are drawn by CSS (disc and circle). 'M.O.' in a script font is the sender's initials. The red 'INTERNAL' stamp is header furniture."
+}

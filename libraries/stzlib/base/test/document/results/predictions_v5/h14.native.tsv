@@ -1,0 +1,38 @@
+page_header	0	Eastfield College IT Services
+page_header	0	INTERNAL
+heading	1	Runbook: Restoring the Student Records Server from Backup
+paragraph	0	Document RB-012 · Version 1.4 · Owner: Infrastructure team · Last reviewed 6 November 2025
+heading	2	1. Purpose and scope
+paragraph	0	This runbook describes how to restore the student records service after a disk failure or data corruption on the primary server. It applies to the production server only; the test server is rebuilt from scratch instead. Follow the steps in order and record each completed step in the change ticket.
+heading	2	2. Systems involved
+caption	0	Servers that take part in the backup and restore cycle
+table	0	HostRoleAddressBackup windowrec-prod-01Student records, primary192.0.2.2101:30–02:15rec-db-01Database for records192.0.2.2201:00–01:30bak-nas-02Backup storage192.0.2.40not applicable
+heading	2	3. Before you start
+list_item	0	1. Announce the maintenance window to the registry office at least 24 hours in advance.
+list_item	0	2. Check that the most recent backup completed without errors in the backup report.
+list_item	0	3. Make sure you have console access to rec-prod-01 in case the network fails.
+paragraph	0	Warning: Do not restore while the enrolment period is open. A restore replaces every record changed since the last backup, and changes made by registry staff during the day would be lost.
+heading	2	4. Stop the service and mount the backup
+paragraph	0	Log in to rec-prod-01 as an administrator and run the following commands. The last command lists the available archives so that you can choose the correct date.
+code	0	sudo systemctl stop recordsd\nsudo mount /dev/sdb1 /mnt/backup\nls -lh /mnt/backup/records/
+paragraph	0	Archives are named by date in the form records-YYYY-MM-DD.tar.gz . Choose the most recent archive taken before the fault was noticed.
+page_footer	0	RB-012 · Version 1.4
+page_footer	0	Page 1 of 2
+page_header	0	Eastfield College IT Services
+page_header	0	INTERNAL
+heading	2	5. Restore the data
+paragraph	0	Extract the chosen archive over the data directory and give the files back to the service account. Replace the date in the file name with the archive you selected.
+code	0	cd /var/lib/records\nsudo tar -xzf /mnt/backup/records/records-2025-11-02.tar.gz --strip-components=1\nsudo chown -R records:records /var/lib/records\nsudo systemctl start recordsd
+heading	2	6. Check the backup configuration
+paragraph	0	After a restore the backup schedule must still be active. Compare the configuration file with the reference copy below; the line numbers are shown for discussion only.
+code	0	# /etc/recordsd/backup.yaml\nschedule: "30 1 * * *"\ntarget: /mnt/backup/records\nretention_days: 21\ncompress: gzip\nnotify:\n  email: it-alerts@eastfield-college.example\n  on_failure_only: true
+paragraph	0	Note: The schedule uses cron syntax and runs every night at 01:30. Keeping 21 days of archives needs about 40 GB on the backup storage.
+heading	2	7. Verify and close
+paragraph	0	Query the health endpoint of the service. A healthy service answers with the status and the database connection state.
+code	0	curl -s http://localhost:8080/health\n# expected: {"status":"ok","db":"connected"}
+list_item	0	1. Ask a member of the registry office to open three recent student files and confirm that they are complete.
+list_item	0	2. Unmount the backup disk with sudo umount /mnt/backup .
+list_item	0	3. Close the change ticket and note the archive date that was restored.
+paragraph	0	If the health check fails twice, stop and escalate to the on-call infrastructure engineer. Do not attempt a second restore without their approval.
+page_footer	0	RB-012 · Version 1.4
+page_footer	0	Page 2 of 2

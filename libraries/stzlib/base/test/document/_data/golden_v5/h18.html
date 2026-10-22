@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Laboratuvar Sonuç Raporu</title>
+<style>
+@page { size: A4; margin: 0 }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+html, body { margin: 0; padding: 0; }
+body { font-family: Tahoma, "Segoe UI", Arial, sans-serif; font-size: 9.4pt; line-height: 1.4; color: #1b1b1b; }
+.page { width: 210mm; height: 296mm; box-sizing: border-box; padding: 11mm 16mm 9mm; display: flex; flex-direction: column; overflow: hidden; }
+.hdr { display: flex; justify-content: space-between; align-items: center; border-bottom: 2.5pt solid #00838f; padding-bottom: 2mm; }
+.hdr .name { font-size: 13pt; font-weight: bold; color: #00838f; }
+.hdr .lab { font-size: 8.5pt; color: #555; text-align: right; }
+.content { flex: 1; min-height: 0; overflow: hidden; padding-top: 5mm; }
+h1 { font-size: 15pt; text-align: center; margin: 0 0 4mm; letter-spacing: 0.5pt; }
+.pat { display: grid; grid-template-columns: 30mm 1fr 30mm 1fr; row-gap: 1mm; column-gap: 2mm; border: 0.6pt solid #9e9e9e; padding: 2.5mm 3mm; font-size: 9pt; margin-bottom: 5mm; background: #fafafa; }
+.pat .k { color: #555; }
+.pat .v { font-weight: bold; }
+table { width: 100%; border-collapse: collapse; font-size: 9pt; }
+th { background: #00838f; color: #fff; text-align: left; padding: 1.6mm 2mm; }
+td { border-bottom: 0.4pt solid #cfd8dc; padding: 1.4mm 2mm; }
+tr.sec td { background: #e0f2f1; color: #006064; font-weight: bold; letter-spacing: 0.5pt; padding-top: 2mm; }
+td.r { text-align: right; }
+td.flag { text-align: center; font-weight: bold; color: #c62828; width: 12mm; }
+tr.abn td.res { font-weight: bold; }
+h2 { font-size: 10.5pt; margin: 6mm 0 1.5mm; color: #006064; }
+ul.legend { list-style: none; padding: 0; margin: 0 0 3mm; }
+ul.legend li { margin-bottom: 0.8mm; }
+p { margin: 0 0 2mm; }
+.approve { margin-top: 8mm; display: flex; justify-content: flex-end; }
+.approve div { width: 70mm; text-align: center; border-top: 0.6pt solid #333; padding-top: 1.5mm; font-size: 9pt; }
+.ftr { display: flex; justify-content: space-between; font-size: 7.8pt; color: #555; border-top: 0.5pt solid #9e9e9e; padding-top: 1.5mm; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="hdr"><span class="name furn">Akasya T&#305;p Merkezi</span><span class="lab furn">Merkez Laboratuvar&#305; &middot; Ak&#305;n Sokak No: 12, &#304;zmir</span></div>
+  <div class="content">
+    <h1>Laboratuvar Sonu&ccedil; Raporu</h1>
+    <div class="pat">
+      <div class="k">Hasta ad&#305;</div><div class="v">Elif Karada&#287;</div>
+      <div class="k">Protokol no</div><div class="v">2025-118274</div>
+      <div class="k">Do&#287;um tarihi</div><div class="v">14.05.1987</div>
+      <div class="k">Cinsiyet</div><div class="v">Kad&#305;n</div>
+      <div class="k">Numune al&#305;m&#305;</div><div class="v">03.11.2025 08:14</div>
+      <div class="k">Rapor tarihi</div><div class="v">03.11.2025 13:52</div>
+      <div class="k">&#304;steyen hekim</div><div class="v">Uzm. Dr. Murat Esen</div>
+      <div class="k">B&ouml;l&uuml;m</div><div class="v">&#304;&ccedil; Hastal&#305;klar&#305;</div>
+    </div>
+
+    <table>
+      <thead><tr><th>Test</th><th class="r">Sonu&ccedil;</th><th>Birim</th><th>Referans aral&#305;&#287;&#305;</th><th>Uyar&#305;</th></tr></thead>
+      <tbody>
+        <tr class="sec"><td colspan="5">Hemogram</td></tr>
+        <tr><td>L&ouml;kosit (WBC)</td><td class="r res">7,8</td><td>10&sup3;/&micro;L</td><td>4,0 &ndash; 10,0</td><td class="flag"></td></tr>
+        <tr class="abn"><td>Hemoglobin</td><td class="r res">11,2</td><td>g/dL</td><td>12,0 &ndash; 16,0</td><td class="flag">D</td></tr>
+        <tr class="abn"><td>Hematokrit</td><td class="r res">34,6</td><td>%</td><td>36,0 &ndash; 46,0</td><td class="flag">D</td></tr>
+        <tr><td>Trombosit</td><td class="r res">268</td><td>10&sup3;/&micro;L</td><td>150 &ndash; 400</td><td class="flag"></td></tr>
+        <tr class="sec"><td colspan="5">Biyokimya</td></tr>
+        <tr class="abn"><td>A&ccedil;l&#305;k kan &#351;ekeri</td><td class="r res">104</td><td>mg/dL</td><td>70 &ndash; 100</td><td class="flag">Y</td></tr>
+        <tr><td>Kreatinin</td><td class="r res">0,78</td><td>mg/dL</td><td>0,50 &ndash; 1,10</td><td class="flag"></td></tr>
+        <tr><td>ALT</td><td class="r res">22</td><td>U/L</td><td>0 &ndash; 35</td><td class="flag"></td></tr>
+        <tr class="abn"><td>Total kolesterol</td><td class="r res">212</td><td>mg/dL</td><td>&lt; 200</td><td class="flag">Y</td></tr>
+        <tr class="abn"><td>Ferritin</td><td class="r res">9</td><td>ng/mL</td><td>13 &ndash; 150</td><td class="flag">D</td></tr>
+      </tbody>
+    </table>
+
+    <h2>A&ccedil;&#305;klamalar</h2>
+    <ul class="legend">
+      <li>D: Referans aral&#305;&#287;&#305;n&#305;n alt&#305;nda</li>
+      <li>Y: Referans aral&#305;&#287;&#305;n&#305;n &uuml;st&uuml;nde</li>
+    </ul>
+    <p>Sonu&ccedil;lar, klinik bulgular ile birlikte de&#287;erlendirilmelidir. Referans aral&#305;&#287;&#305; d&#305;&#351;&#305;ndaki de&#287;erler kal&#305;n yaz&#305; ile g&ouml;sterilmi&#351;tir. A&ccedil;l&#305;k kan &#351;ekeri i&ccedil;in en az sekiz saatlik a&ccedil;l&#305;k gereklidir.</p>
+    <p>Hemoglobin ve ferritin de&#287;erlerinin birlikte d&uuml;&#351;&uuml;k olmas&#305; demir eksikli&#287;ini d&uuml;&#351;&uuml;nd&uuml;rebilir. Kesin tan&#305; i&ccedil;in hekiminize ba&#351;vurunuz.</p>
+
+    <div class="approve"><div>Onaylayan: Uzm. Dr. Selin Ayd&#305;n<br>Biyokimya Uzman&#305;</div></div>
+  </div>
+  <div class="ftr"><span class="furn">Bu rapor elektronik olarak onaylanm&#305;&#351;t&#305;r.</span><span class="furn">Sayfa 1 / 1</span></div>
+</div>
+</body>
+</html>
