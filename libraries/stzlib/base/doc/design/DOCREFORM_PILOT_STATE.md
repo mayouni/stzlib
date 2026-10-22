@@ -473,3 +473,8 @@ Next by size: twelve classes at 3 (stzChainOfTruth first).
 Containing/ContainingNo no longer build condition text (a private pvtHolds tests directly, text via stzString.Contains, list via stzListChecker.ContainsItem); Nth returns a new chain and checks the rank before calling the engine (NthLetterOf(-1, ...) crashes stz_string.dll). Ordinal suffix quirks (11st, 12nd, 13rd) documented, not changed. Several other chain methods still fail (IsNot family, IsNotA, IsA call form, _Which, _But, _@): listed in CONCLUSIONS. Guard 140 assertions.
 Next by size: stzChainOfValue (3) and eleven more at 3.
 
+## 2026-10-22: the stzChainOfValue fix batch is ON MAIN; register 99 -> 96
+
+IsANumber, IsAList and IsAnObject answer a plain 1 or 0 by the live Ring type (the convention of the working IsAString); six more failures of the same shape fixed (Q forms raised R19, _Type was read once at build time, ToStzObject on a number, Do_, ThisValue, Update). Exactly one of the four type predicates holds per value on an 18-value table. Not done: the Q / Not / alias family for list and object (new API). The initiators share flags across the process (by design). Guard 163 assertions.
+Next by size: ten classes at 3 (stzEntity first).
+
