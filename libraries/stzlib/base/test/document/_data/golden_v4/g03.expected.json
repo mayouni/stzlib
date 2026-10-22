@@ -1,0 +1,32 @@
+{
+  "id": "g03",
+  "difficulty": "Arabic right-to-left page; one sentence holds a Latin acronym in parentheses, a year and a percentage",
+  "pages": 1,
+  "title": "التقرير السنوي لجمعية المزارعين",
+  "headings": [
+    {
+      "level": 1,
+      "text": "التقرير السنوي لجمعية المزارعين"
+    },
+    {
+      "level": 2,
+      "text": "التدريب والخدمات"
+    }
+  ],
+  "key_sentences": [
+    "تأسست جمعية المزارعين في وادي النخيل قبل عشرين عاما.",
+    "وقد انضمت الجمعية إلى الشبكة الإقليمية للتنمية الزراعية (RADN) في عام 2019، وارتفع إنتاج أعضائها بنسبة 18% منذ ذلك الحين.",
+    "يزرع الأعضاء القمح والشعير والنخيل على مساحة تقارب ثلاثة آلاف هكتار.",
+    "تقدم الجمعية دورات تدريبية في الري بالتنقيط والمحافظة على التربة.",
+    "كما توفر لأعضائها مخزنا مشتركا للبذور والأسمدة.",
+    "ويأمل مجلس الإدارة أن يتضاعف عدد المستفيدين خلال السنوات الخمس المقبلة."
+  ],
+  "tables": [],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "ar"
+  ],
+  "code": [],
+  "notes": "All Arabic text is given in LOGICAL (Unicode storage) order, not visual order. The second sentence holds the Latin acronym RADN in parentheses, the year 2019 and the percentage 18% (ASCII digits, ASCII percent sign, Arabic comma U+060C after 2019). Parentheses are bidi-mirrored characters: in the RTL display the glyph that opens the acronym on the right is the logical '('. No diacritics are used."
+}

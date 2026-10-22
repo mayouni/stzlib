@@ -1,0 +1,11 @@
+heading	1	Build Notes for the Ledger Service
+heading	1	PROJECT SETUP
+paragraph	0	The ledger service is built from a single repository. Install the toolchain before cloning the sources.
+code	0	git clone https://example.org/ledger.git cd ledger make deps make test VERBOSE=1
+heading	1	CONFIGURATION
+paragraph	0	The service reads its settings from a small file at start-up.
+code	0	[server] port = 8085 log_ level = "info" [storage] path = "/var/lib/ledger" # keep the path absolute
+heading	1	RELEASE PROCESS
+paragraph	0	Releases are cut from the main branch every second Tuesday.
+paragraph	0	Never tag a release while the nightly build is red.
+paragraph	0	The release manager signs the tag and publishes the notes.

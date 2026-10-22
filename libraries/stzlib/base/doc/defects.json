@@ -1,5 +1,5 @@
 {
- "count": 87,
+ "count": 84,
  "defects": [
   {
    "class": "stzAppServer",
@@ -440,30 +440,6 @@
    "line": 183,
    "symptom": "Returns the index of the node the graph hands to the world.",
    "cause": "a node added after the graph was prepared can reset this to 0, see the defects file"
-  },
-  {
-   "class": "stzSoundLive",
-   "file": "sound/stzSoundLive.ring",
-   "method": "CaptureInsteadOfDevice",
-   "line": 191,
-   "symptom": "Chooses to drain the sound into a buffer instead of a sound card, for at most a number of seconds.",
-   "cause": "refused once the loops have started; the buffer is silent beyond what was heard; WaitCycles for longer than pnSeconds never returns, see the defects file"
-  },
-  {
-   "class": "stzSoundLive",
-   "file": "sound/stzSoundLive.ring",
-   "method": "WaitCycles",
-   "line": 410,
-   "symptom": "Lets the session run for a number of heard cycles, starting it first when needed, and then returns.",
-   "cause": "in capture mode it never returns when the wait is longer than the capture buffer, see the defects file; without capture it plays on a device, which was not run in this reference"
-  },
-  {
-   "class": "stzSoundLive",
-   "file": "sound/stzSoundLive.ring",
-   "method": "Landings",
-   "line": 580,
-   "symptom": "Returns where each definition of a loop took effect.",
-   "cause": "before the loops start every landing is cycle 0 and the heard cycle is -1; a loop redefined twice before the start and once while running is numbered v3 and then v2, so version numbers can go back, see the defects file"
   },
   {
    "class": "stzCoeffExtractor",

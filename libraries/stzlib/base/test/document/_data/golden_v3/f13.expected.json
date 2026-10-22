@@ -1,0 +1,90 @@
+{
+  "id": "f13",
+  "difficulty": "bordered table with merged cells (rowspan and colspan) inside the left column of a two-column layout",
+  "pages": 1,
+  "title": "Quarterly Shift Plan for the Eastside Clinic",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Quarterly Shift Plan for the Eastside Clinic"
+    },
+    {
+      "level": 2,
+      "text": "Rota"
+    },
+    {
+      "level": 2,
+      "text": "Notes for Staff"
+    }
+  ],
+  "key_sentences": [
+    "The clinic runs two shifts on most weekdays.",
+    "Teams rotate every quarter to share the evening work.",
+    "Each team leader confirms the rota by the last Friday of the month.",
+    "Swaps between teams must be approved by the duty manager.",
+    "The clinic is closed on Wednesdays while the staff training programme runs.",
+    "Room 3 is reserved for vaccinations on Thursdays."
+  ],
+  "tables": [
+    {
+      "caption": "Table 1. Teams on duty by day and shift",
+      "rows": [
+        [
+          "Day",
+          "Shift",
+          "Team",
+          "Room"
+        ],
+        [
+          "Monday",
+          "Morning",
+          "Team A",
+          "Room 1"
+        ],
+        [
+          "Monday",
+          "Evening",
+          "Team B",
+          "Room 2"
+        ],
+        [
+          "Tuesday",
+          "Morning",
+          "Team C",
+          "Room 1"
+        ],
+        [
+          "Tuesday",
+          "Evening",
+          "Team A",
+          "Room 2"
+        ],
+        [
+          "Wednesday",
+          "Closed for staff training",
+          "Closed for staff training",
+          "Closed for staff training"
+        ],
+        [
+          "Thursday",
+          "Morning",
+          "Team B",
+          "Room 3"
+        ],
+        [
+          "Thursday",
+          "Evening",
+          "Team C",
+          "Room 3"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Full-width title, then a two-column grid. Left column: 'Rota' heading, a paragraph, then the table (full borders). Right column: 'Notes for Staff' heading and two paragraphs, set beside the table. Reading order is the whole left column, then the right column; right-column text must not be interleaved with table rows. Merges: 'Monday', 'Tuesday', 'Thursday' each span 2 rows (rowspan); 'Room 3' spans 2 rows; 'Closed for staff training' spans 3 columns (colspan, centred, italic). In the expected grid a merged cell repeats its text in every cell it covers; grid is 8 rows x 4 columns, header first. Font Arial."
+}

@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 87 methods in 54 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 84 methods in 53 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| sound/stzSoundLive.ring | stzSoundLive | 3 |
 | stats/stzCoeffExtractor.ring | stzCoeffExtractor | 3 |
 | stats/stzDataSet.ring | stzDataSet | 3 |
 | stats/stzLinearSolver.ring | stzLinearSolver | 3 |
@@ -232,12 +231,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzSoundGraph -- sound/stzSoundGraph.ring (1)
 
 - `OutputNode` (line 183): Returns the index of the node the graph hands to the world. -- a node added after the graph was prepared can reset this to 0, see the defects file
-
-## stzSoundLive -- sound/stzSoundLive.ring (3)
-
-- `CaptureInsteadOfDevice` (line 191): Chooses to drain the sound into a buffer instead of a sound card, for at most a number of seconds. -- refused once the loops have started; the buffer is silent beyond what was heard; WaitCycles for longer than pnSeconds never returns, see the defects file
-- `WaitCycles` (line 410): Lets the session run for a number of heard cycles, starting it first when needed, and then returns. -- in capture mode it never returns when the wait is longer than the capture buffer, see the defects file; without capture it plays on a device, which was not run in this reference
-- `Landings` (line 580): Returns where each definition of a loop took effect. -- before the loops start every landing is cycle 0 and the heard cycle is -1; a loop redefined twice before the start and once while running is numbered v3 and then v2, so version numbers can go back, see the defects file
 
 ## stzCoeffExtractor -- stats/stzCoeffExtractor.ring (3)
 

@@ -1,0 +1,80 @@
+{
+  "id": "g16",
+  "difficulty": "mixed layout: centred title, a two-column section, a full-width table, then a second two-column section",
+  "pages": 1,
+  "title": "Spring Bulletin of the Wendle Vale Cycling Club",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Spring Bulletin of the Wendle Vale Cycling Club"
+    },
+    {
+      "level": 2,
+      "text": "Club News"
+    },
+    {
+      "level": 2,
+      "text": "Ride Calendar"
+    },
+    {
+      "level": 2,
+      "text": "Members' Corner"
+    }
+  ],
+  "key_sentences": [
+    "The club welcomed fourteen new members over the winter.",
+    "Most of them joined after the open day at the community centre in January.",
+    "The committee has ordered a new set of club jerseys in green and white.",
+    "They should arrive before the first long ride of the season.",
+    "Members who have not yet paid the annual fee can do so at any Tuesday meeting.",
+    "Ines Vardy finished her first two-hundred-kilometre audax in March.",
+    "She says the hardest part was the last hour in the rain.",
+    "Our workshop evenings continue on the first Thursday of each month.",
+    "Bring your own tools if you have them, and the club will provide the rest.",
+    "The next bulletin will appear in early summer."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Date",
+          "Route",
+          "Distance",
+          "Leader"
+        ],
+        [
+          "6 April",
+          "Mill Lane loop",
+          "42 km",
+          "Tomas Brill"
+        ],
+        [
+          "13 April",
+          "Coastal road to Penhallow",
+          "68 km",
+          "Ines Vardy"
+        ],
+        [
+          "20 April",
+          "Hill climb practice",
+          "25 km",
+          "Tomas Brill"
+        ],
+        [
+          "27 April",
+          "Reservoir circuit",
+          "55 km",
+          "Maud Okafor"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Reading order: the centred title; 'Club News' (two balanced columns: read the left column down, then the right); the full-width 'Ride Calendar' table (no caption; Distance right-aligned); 'Members' Corner' (two balanced columns again). Section headings span the full width above their columns. Apostrophe in Members' is ASCII U+0027; two-hundred-kilometre contains typed hyphen-minus characters."
+}

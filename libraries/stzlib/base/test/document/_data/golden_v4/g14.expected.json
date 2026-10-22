@@ -1,0 +1,34 @@
+{
+  "id": "g14",
+  "difficulty": "a code listing with line numbers in a separate gutter column, and a shell transcript",
+  "pages": 1,
+  "title": "Rotating Log Files",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Rotating Log Files"
+    },
+    {
+      "level": 2,
+      "text": "Running the script"
+    }
+  ],
+  "key_sentences": [
+    "The script below rotates every log file in a folder and keeps a fixed number of old copies.",
+    "It was written for the quarry weighbridge, which writes a new log each day.",
+    "The transcript shows a run on the test machine.",
+    "Each log was moved to a copy ending in .1, and no new log had been written yet.",
+    "Run the script from the scheduler once a day, shortly after midnight."
+  ],
+  "tables": [],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "import os\nimport shutil\n\ndef rotate(folder, keep=7):\n    names = sorted(os.listdir(folder))\n    logs = [n for n in names if n.endswith(\".log\")]\n    for name in logs:\n        path = os.path.join(folder, name)\n        for i in range(keep - 1, 0, -1):\n            older = f\"{path}.{i}\"\n            if os.path.exists(older):\n                shutil.move(older, f\"{path}.{i + 1}\")\n        shutil.move(path, path + \".1\")\n    return len(logs)\n\nif __name__ == \"__main__\":\n    import sys\n    count = rotate(sys.argv[1])\n    print(f\"rotated {count} log files\")",
+    "$ python rotate_logs.py /var/log/weighbridge\nrotated 3 log files\n$ ls /var/log/weighbridge\ngate.log.1  scale.log.1  tickets.log.1"
+  ],
+  "notes": "code[0] is the Python listing WITHOUT its line numbers: the numbers 1-19 sit in a separate grey gutter column (its own pre element, right-aligned) and are not part of the code. Line 3 and line 15 are empty and still numbered. Indentation is spaces (4 per level). code[1] is the shell transcript in Courier New on a dark background, prompts '$ ' included; its last line separates names with two spaces. Neither block is a table (tables is [])."
+}

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Build Notes for the Ledger Service</title>
+<style>
+@page { size: A4; margin: 2cm; }
+html, body { margin: 0; padding: 0; background: #fff; }
+body { font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif; font-size: 11pt; line-height: 1.5; color: #1c1c1c; }
+h1 { font-size: 19pt; margin: 0 0 14pt 0; }
+.caps { font-size: 11pt; font-weight: bold; margin: 16pt 0 4pt 0; }
+p { margin: 0 0 8pt 0; }
+pre { font-family: Consolas, 'Courier New', monospace; font-size: 9.5pt; line-height: 1.4; background: #f4f4f4; border: 0.5pt solid #cccccc; padding: 6pt 9pt; margin: 6pt 0 10pt 0; white-space: pre; }
+blockquote { margin: 8pt 0 10pt 18pt; padding: 2pt 0 2pt 10pt; border-left: 3pt solid #b0b0b0; font-style: italic; color: #333; }
+</style>
+</head>
+<body>
+<h1>Build Notes for the Ledger Service</h1>
+<div class="caps">PROJECT SETUP</div>
+<p>The ledger service is built from a single repository. Install the toolchain before cloning the sources.</p>
+<pre>git clone https://example.org/ledger.git
+cd ledger
+make deps
+make test VERBOSE=1</pre>
+<div class="caps">CONFIGURATION</div>
+<p>The service reads its settings from a small file at start-up.</p>
+<pre>[server]
+port = 8085
+log_level = "info"
+
+[storage]
+path = "/var/lib/ledger"
+    # keep the path absolute</pre>
+<div class="caps">RELEASE PROCESS</div>
+<p>Releases are cut from the main branch every second Tuesday.</p>
+<blockquote>Never tag a release while the nightly build is red.</blockquote>
+<p>The release manager signs the tag and publishes the notes.</p>
+</body>
+</html>

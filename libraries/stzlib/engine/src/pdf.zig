@@ -1180,7 +1180,15 @@ const Interp = struct {
             const adv = @abs(tx * m[0]);
             const size = @sqrt(trm[2] * trm[2] + trm[3] * trm[3]);
             const upright = m[0] > 0 and @abs(m[1]) < 0.2 * @abs(m[0]);
-            const t = f.text(code);
+            var t = f.text(code);
+            if (t.len == 3 and t[0] == 0xEF and t[1] == 0xAC and t[2] <= 0x86) t = switch (t[2]) {
+                0x80 => "ff",
+                0x81 => "fi",
+                0x82 => "fl",
+                0x83 => "ffi",
+                0x84 => "ffl",
+                else => "st",
+            };
             if (upright and t.len > 0 and size > 0.5) {
                 const t0: u32 = @intCast(it.text.items.len);
                 try it.text.appendSlice(it.a, t);
@@ -1555,6 +1563,14 @@ fn isBlankGlyph(t: []const u8) bool {
     return trimSpace(t).len == 0;
 }
 
+// a space found between two glyphs of a right-to-left line, carried through its reordering
+const space_item: u32 = std.math.maxInt(u32);
+
+fn itemText(text: []const u8, gl: []Glyph, k: u32) []const u8 {
+    if (k == space_item) return " ";
+    return glyphText(text, gl[k]);
+}
+
 fn glyphText(text: []const u8, g: Glyph) []const u8 {
     return text[g.t0 .. g.t0 + g.tn];
 }
@@ -1613,7 +1629,27 @@ fn fragments(a: Allocator, pg: Page, page_no: u32, text: []const u8, out: *std.A
     }
 }
 
-fn makeFrag(a: Allocator, gl: []Glyph, ids: []u32, text: []const u8, page_no: u32) !Frag {
+fn makeFrag(a: Allocator, gl: []Glyph, ids_in: []u32, text: []const u8, page_no: u32) !Frag {
+    var kept: std.ArrayList(u32) = .empty;
+    for (ids_in) |k| {
+        const g = gl[k];
+        if (isBlankGlyph(glyphText(text, g)) and g.w > 0) {
+            var covered = false;
+            for (ids_in) |o| {
+                if (o == k) continue;
+                const h = gl[o];
+                if (isBlankGlyph(glyphText(text, h))) continue;
+                const ov = @min(g.x + g.w, h.x + h.w) - @max(g.x, h.x);
+                if (ov > 0.6 * g.w) {
+                    covered = true;
+                    break;
+                }
+            }
+            if (covered) continue;
+        }
+        try kept.append(a, k);
+    }
+    const ids: []u32 = if (kept.items.len > 0) kept.items else ids_in;
     var rtl: usize = 0;
     var ltr: usize = 0;
     var sizes: f32 = 0;
@@ -1644,23 +1680,41 @@ fn makeFrag(a: Allocator, gl: []Glyph, ids: []u32, text: []const u8, page_no: u3
     const size = sizes / @as(f32, @floatFromInt(ids.len));
     // the visual order, then the logical order for a right-to-left line
     var order = try a.dupe(u32, ids);
+    var in_ltr: []bool = &.{};
     if (rtl > ltr) {
+        var vis: std.ArrayList(u32) = .empty;
+        for (ids, 0..) |k, j| {
+            if (j > 0) {
+                const pv = gl[ids[j - 1]];
+                const g = gl[k];
+                const gap = g.x - (pv.x + pv.w);
+                if (gap > 0.2 * @max(pv.size, g.size) and !isBlankGlyph(glyphText(text, pv)) and !isBlankGlyph(glyphText(text, g))) try vis.append(a, space_item);
+            }
+            try vis.append(a, k);
+        }
+        order = vis.items;
         std.mem.reverse(u32, order);
+        in_ltr = try a.alloc(bool, order.len);
+        @memset(in_ltr, false);
         // runs of left-to-right letters and digits inside it read left to right again
         var k: usize = 0;
         while (k < order.len) {
-            const cp = firstCp(glyphText(text, gl[order[k]]));
+            const cp = firstCp(itemText(text, gl, order[k]));
             if (isLtrCp(cp) or (cp >= '0' and cp <= '9')) {
                 var e = k;
                 while (e + 1 < order.len) {
-                    const c2 = firstCp(glyphText(text, gl[order[e + 1]]));
-                    if (isLtrCp(c2) or (c2 >= '0' and c2 <= '9') or c2 == '.' or c2 == ',' or c2 == '-' or c2 == ':' or c2 == '/') {
+                    const c2 = firstCp(itemText(text, gl, order[e + 1]));
+                    const strong = isLtrCp(c2) or (c2 >= '0' and c2 <= '9');
+                    const inner = c2 == '.' or c2 == ',' or c2 == '-' or c2 == ':' or c2 == '/';
+                    const c3: u21 = if (e + 2 < order.len) firstCp(itemText(text, gl, order[e + 2])) else 0;
+                    if (strong or (inner and (isLtrCp(c3) or (c3 >= '0' and c3 <= '9')))) {
                         e += 1;
-                    } else if (c2 == ' ' and e + 2 < order.len and (isLtrCp(firstCp(glyphText(text, gl[order[e + 2]]))))) {
+                    } else if (c2 == ' ' and e + 2 < order.len and (isLtrCp(firstCp(itemText(text, gl, order[e + 2]))))) {
                         e += 1;
                     } else break;
                 }
                 std.mem.reverse(u32, order[k .. e + 1]);
+                for (k..e + 1) |q| in_ltr[q] = true;
                 k = e + 1;
             } else k += 1;
         }
@@ -1669,8 +1723,31 @@ fn makeFrag(a: Allocator, gl: []Glyph, ids: []u32, text: []const u8, page_no: u3
     var buf: std.ArrayList(u8) = .empty;
     var prev: ?Glyph = null;
     for (order) |k| {
+        if (k == space_item) {
+            if (buf.items.len > 0 and buf.items[buf.items.len - 1] != ' ') try buf.append(a, ' ');
+            continue;
+        }
         const g = gl[k];
         const t = glyphText(text, g);
+        if (rtl > ltr) {
+            const qi = std.mem.indexOfScalar(u32, order, k) orelse 0;
+            const mirrored: ?[]const u8 = if (qi < in_ltr.len and !in_ltr[qi] and t.len == 1) switch (t[0]) {
+                '(' => ")",
+                ')' => "(",
+                '[' => "]",
+                ']' => "[",
+                '{' => "}",
+                '}' => "{",
+                '<' => ">",
+                '>' => "<",
+                else => null,
+            } else null;
+            if (mirrored) |m| {
+                try buf.appendSlice(a, m);
+            } else if (!(isBlankGlyph(t) and buf.items.len > 0 and buf.items[buf.items.len - 1] == ' ')) try buf.appendSlice(a, t);
+            prev = g;
+            continue;
+        }
         if (prev) |pv| {
             const gap = if (rtl > ltr) pv.x - (g.x + g.w) else g.x - (pv.x + pv.w);
             const last_space = buf.items.len > 0 and buf.items[buf.items.len - 1] == ' ';
@@ -1843,10 +1920,150 @@ fn findTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.ArrayList
     }
 }
 
+// A table drawn WITHOUT lines: at least three consecutive rows, each holding two or more fragments, whose
+// fragments fall into the same columns (the empty vertical bands they leave), and whose cells are short --
+// mostly three words or fewer, which is what tells a table from two or three columns of prose.
+fn wordCount(t: []const u8) usize {
+    var n: usize = 0;
+    var in_word = false;
+    for (t) |c| {
+        if (c == ' ') {
+            in_word = false;
+        } else if (!in_word) {
+            in_word = true;
+            n += 1;
+        }
+    }
+    return n;
+}
+
+fn findAlignedTables(a: Allocator, frags: []Frag, tables: *std.ArrayList(TableOut)) !void {
+    // rows: fragments outside any table, grouped by baseline
+    var idx: std.ArrayList(u32) = .empty;
+    for (frags, 0..) |f, k| if (f.table < 0 and f.text.len > 0) try idx.append(a, @intCast(k));
+    if (idx.items.len < 6) return;
+    const ByBase = struct {
+        f: []Frag,
+        fn lt(ctx: @This(), l: u32, r: u32) bool {
+            if (@abs(ctx.f[l].base - ctx.f[r].base) > 0.5) return ctx.f[l].base < ctx.f[r].base;
+            return ctx.f[l].x0 < ctx.f[r].x0;
+        }
+    };
+    std.mem.sort(u32, idx.items, ByBase{ .f = frags }, ByBase.lt);
+    var rows: std.ArrayList([]u32) = .empty;
+    {
+        var st: usize = 0;
+        var k: usize = 1;
+        while (k <= idx.items.len) : (k += 1) {
+            if (k == idx.items.len or @abs(frags[idx.items[k]].base - frags[idx.items[st]].base) > 0.3 * frags[idx.items[st]].size) {
+                try rows.append(a, idx.items[st..k]);
+                st = k;
+            }
+        }
+    }
+    var r: usize = 0;
+    while (r < rows.items.len) {
+        if (rows.items[r].len < 2) {
+            r += 1;
+            continue;
+        }
+        // grow a run of multi-cell rows close below one another
+        var e = r + 1;
+        while (e < rows.items.len and rows.items[e].len >= 2) : (e += 1) {
+            const pf = frags[rows.items[e - 1][0]];
+            const cf = frags[rows.items[e][0]];
+            if (cf.base - pf.base > 3.2 * pf.size) break;
+            if (@abs(cf.size - pf.size) > 0.05 * pf.size) break;
+        }
+        const run = rows.items[r..e];
+        if (run.len < 3) {
+            r = e;
+            continue;
+        }
+        // the cells must be short
+        var nf: usize = 0;
+        var short: usize = 0;
+        for (run) |row| for (row) |k| {
+            nf += 1;
+            if (wordCount(frags[k].text) <= 3) short += 1;
+        };
+        if (short * 10 < nf * 7) {
+            r = e;
+            continue;
+        }
+        // columns: the x bands covered by the run's fragments
+        var spans: std.ArrayList([2]f32) = .empty;
+        for (run) |row| for (row) |k| try spans.append(a, .{ frags[k].x0, frags[k].x1 });
+        const BySpan = struct {
+            fn lt(_: void, l: [2]f32, rr: [2]f32) bool {
+                return l[0] < rr[0];
+            }
+        };
+        std.mem.sort([2]f32, spans.items, {}, BySpan.lt);
+        var cols: std.ArrayList([2]f32) = .empty;
+        for (spans.items) |sp| {
+            if (cols.items.len > 0 and sp[0] <= cols.items[cols.items.len - 1][1] + 2) {
+                cols.items[cols.items.len - 1][1] = @max(cols.items[cols.items.len - 1][1], sp[1]);
+            } else try cols.append(a, sp);
+        }
+        if (cols.items.len < 2) {
+            r = e;
+            continue;
+        }
+        // every row must use at least two of the columns
+        var ok = true;
+        for (run) |row| {
+            var used: usize = 0;
+            for (cols.items) |c| {
+                for (row) |k| if ((frags[k].x0 + frags[k].x1) / 2 >= c[0] and (frags[k].x0 + frags[k].x1) / 2 <= c[1]) {
+                    used += 1;
+                    break;
+                };
+            }
+            if (used < 2) ok = false;
+        }
+        if (!ok) {
+            r = e;
+            continue;
+        }
+        const nc = cols.items.len;
+        var grid = try a.alloc([][]const u8, run.len);
+        var bx0: f32 = 1e9;
+        var by0: f32 = 1e9;
+        var bx1: f32 = -1e9;
+        var by1: f32 = -1e9;
+        var size: f32 = 0;
+        for (run, 0..) |row, ri| {
+            var cells = try a.alloc(std.ArrayList(u8), nc);
+            for (cells) |*c| c.* = .empty;
+            for (row) |k| {
+                const f = &frags[k];
+                const mx = (f.x0 + f.x1) / 2;
+                var ci: usize = 0;
+                for (cols.items, 0..) |c, j| if (mx >= c[0] and mx <= c[1]) {
+                    ci = j;
+                };
+                if (cells[ci].items.len > 0) try cells[ci].append(a, ' ');
+                try cells[ci].appendSlice(a, f.text);
+                f.table = @intCast(tables.items.len);
+                bx0 = @min(bx0, f.x0);
+                by0 = @min(by0, f.y0);
+                bx1 = @max(bx1, f.x1);
+                by1 = @max(by1, f.y1);
+                size = @max(size, f.size);
+            }
+            grid[ri] = try a.alloc([]const u8, nc);
+            for (0..nc) |j| grid[ri][j] = cells[j].items;
+        }
+        try tables.append(a, .{ .x0 = bx0, .y0 = by0, .x1 = bx1, .y1 = by1, .rows = grid, .size = size });
+        r = e;
+    }
+}
+
 // Reading order: a recursive XY cut. A vertical gutter splits columns (left first); without one, units wider
 // than most of the region (a title over two columns) become their own strips so they do not interleave the
 // columns; otherwise the region is read strip by strip from the top.
-fn xycut(a: Allocator, units: []Frag, ids: []u32, out: *std.ArrayList(u32), depth: u32) anyerror!void {
+fn xycut(a: Allocator, units: []Frag, ids: []u32, out: *std.ArrayList(u32), aside: *std.ArrayList(u32), depth: u32) anyerror!void {
     if (ids.len <= 1 or depth > 60) {
         try out.appendSlice(a, ids);
         return;
@@ -1861,7 +2078,7 @@ fn xycut(a: Allocator, units: []Frag, ids: []u32, out: *std.ArrayList(u32), dept
     }
     med /= @as(f32, @floatFromInt(ids.len));
     // vertical gutter
-    if (try gutterSplit(a, units, ids, med, out, depth)) return;
+    if (try gutterSplit(a, units, ids, med, out, aside, depth)) return;
     // spanning units
     const rw = rx1 - rx0;
     var wide: usize = 0;
@@ -1883,12 +2100,12 @@ fn xycut(a: Allocator, units: []Frag, ids: []u32, out: *std.ArrayList(u32), dept
             var seg: std.ArrayList(u32) = .empty;
             for (sorted) |k| {
                 if (units[k].x1 - units[k].x0 > 0.6 * rw) {
-                    try xycut(a, units, seg.items, out, depth + 1);
+                    try xycut(a, units, seg.items, out, aside, depth + 1);
                     seg = .empty;
                     try out.append(a, k);
                 } else try seg.append(a, k);
             }
-            try xycut(a, units, seg.items, out, depth + 1);
+            try xycut(a, units, seg.items, out, aside, depth + 1);
             return;
         }
     }
@@ -1920,8 +2137,8 @@ fn xycut(a: Allocator, units: []Frag, ids: []u32, out: *std.ArrayList(u32), dept
         try out.appendSlice(a, sorted);
         return;
     }
-    try xycut(a, units, sorted[0..k], out, depth + 1);
-    try xycut(a, units, sorted[k..], out, depth + 1);
+    try xycut(a, units, sorted[0..k], out, aside, depth + 1);
+    try xycut(a, units, sorted[k..], out, aside, depth + 1);
 }
 
 fn gutterAt(a: Allocator, units: []Frag, ids: []u32, med: f32) !?f32 {
@@ -1953,20 +2170,110 @@ fn hasGutter(a: Allocator, units: []Frag, ids: []u32, med: f32) !bool {
     return (try gutterAt(a, units, ids, med)) != null;
 }
 
-fn gutterSplit(a: Allocator, units: []Frag, ids: []u32, med: f32, out: *std.ArrayList(u32), depth: u32) anyerror!bool {
+fn spanY(units: []Frag, ids: []u32) [2]f32 {
+    var y0: f32 = 1e9;
+    var y1: f32 = -1e9;
+    for (ids) |k| {
+        y0 = @min(y0, units[k].y0);
+        y1 = @max(y1, units[k].y1);
+    }
+    return .{ y0, y1 };
+}
+
+fn medSize(units: []Frag, ids: []u32) f32 {
+    var s0: f32 = 0;
+    for (ids) |k| s0 += units[k].size;
+    return if (ids.len == 0) 0 else s0 / @as(f32, @floatFromInt(ids.len));
+}
+
+fn gutterSplit(a: Allocator, units: []Frag, ids: []u32, med: f32, out: *std.ArrayList(u32), aside: *std.ArrayList(u32), depth: u32) anyerror!bool {
     const at = (try gutterAt(a, units, ids, med)) orelse return false;
     var l: std.ArrayList(u32) = .empty;
     var r: std.ArrayList(u32) = .empty;
     for (ids) |k| if (units[k].x1 <= at) try l.append(a, k) else try r.append(a, k);
     if (l.items.len == 0 or r.items.len == 0) return false;
-    try xycut(a, units, l.items, out, depth + 1);
-    try xycut(a, units, r.items, out, depth + 1);
+    const ly = spanY(units, l.items);
+    const ry = spanY(units, r.items);
+    // two columns stand SIDE BY SIDE: units on different rows (a centred byline above a heading) are not columns
+    if (@min(ly[1], ry[1]) - @max(ly[0], ry[0]) <= 0) return false;
+    // the left column has a tail below everything on the right, set apart by a gap: the columns end above it,
+    // and what follows (a heading, a caption) is read after BOTH columns
+    {
+        var top: std.ArrayList(u32) = .empty;
+        var tail: std.ArrayList(u32) = .empty;
+        for (ids) |k| if (units[k].y0 > ry[1] + 0.2 * med) try tail.append(a, k) else try top.append(a, k);
+        var tail_in_l = tail.items.len > 0;
+        for (tail.items) |k| if (units[k].x1 > at) {
+            tail_in_l = false;
+        };
+        if (tail_in_l and top.items.len > 0) {
+            const tt = spanY(units, tail.items)[0];
+            var above: f32 = -1e9;
+            for (l.items) |k| if (units[k].y0 <= ry[1] + 0.2 * med) {
+                above = @max(above, units[k].y1);
+            };
+            if (tt - above >= 1.0 * med) {
+                try xycut(a, units, top.items, out, aside, depth + 1);
+                try xycut(a, units, tail.items, out, aside, depth + 1);
+                return true;
+            }
+        }
+    }
+    // a narrower right column in smaller type, shorter than the left one, is an aside: it is read after the flow
+    const lm = medSize(units, l.items);
+    const rm = medSize(units, r.items);
+    if (rm < 0.95 * lm and ry[1] - ry[0] < ly[1] - ly[0] and r.items.len < l.items.len) {
+        try xycut(a, units, l.items, out, aside, depth + 1);
+        try aside.appendSlice(a, r.items);
+        return true;
+    }
+    try xycut(a, units, l.items, out, aside, depth + 1);
+    try xycut(a, units, r.items, out, aside, depth + 1);
     return true;
+}
+
+// The bytes to drop when a text ends with a word broken by a hyphen ("versorgungs-" or "versorgungs -"): 0 when
+// it does not. Only a letter before the hyphen counts, so a dash after a number or a space-separated dash stays.
+fn dehyphen(t: []const u8) usize {
+    if (t.len < 3) return 0;
+    var n: usize = 0;
+    var e = t.len;
+    if (t[e - 1] == '-') {
+        n = 1;
+        e -= 1;
+    } else if (e >= 3 and t[e - 2] == 0xC2 and t[e - 1] == 0xAD) {
+        n = 2;
+        e -= 2;
+    } else return 0;
+    if (e > 0 and t[e - 1] == ' ') {
+        n += 1;
+        e -= 1;
+    }
+    if (e == 0) return 0;
+    const c = t[e - 1];
+    if (!(std.ascii.isAlphabetic(c) or c >= 0x80)) return 0;
+    if (e >= 2 and t[e - 2] == ' ') return 0; // a one-letter word before a dash is not a broken word
+    return n;
+}
+
+// A block in a monospaced font that reads as prose: at least two sentence ends, and code punctuation in under
+// one character in a hundred.
+fn isMonoProse(t: []const u8) bool {
+    var ends: usize = 0;
+    var punct: usize = 0;
+    for (t, 0..) |c, i| {
+        if ((c == '.' or c == '?' or c == '!') and (i + 1 == t.len or t[i + 1] == ' ' or t[i + 1] == '\n')) ends += 1;
+        switch (c) {
+            '{', '}', '[', ']', '(', ')', ';', '=', '<', '>', '#', '$', '_', '"', '*', '/', '\\' => punct += 1,
+            else => {},
+        }
+    }
+    return ends >= 2 and punct * 100 < t.len;
 }
 
 fn startsListMarker(t: []const u8) usize {
     // returns the byte length of the marker (with its trailing space), 0 when the text does not start a list item
-    const bullets = [_][]const u8{ "\u{2022}", "\u{25E6}", "\u{25AA}", "\u{25CF}", "\u{25CB}", "\u{25A0}", "\u{2023}", "\u{2043}", "\u{2013}", "-", "*", "\u{00B7}" };
+    const bullets = [_][]const u8{ "\u{2022}", "\u{25E6}", "\u{25AA}", "\u{25CF}", "\u{25CB}", "\u{25A0}", "\u{2023}", "\u{2043}", "\u{2013}", "\u{2192}", "-", "*", "\u{00B7}" };
     for (bullets) |b| {
         if (std.mem.startsWith(u8, t, b)) {
             var e = b.len;
@@ -2114,6 +2421,7 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
         }
         var tables: std.ArrayList(TableOut) = .empty;
         try findTables(a, frags.items, pg.rules, &tables);
+        try findAlignedTables(a, frags.items, &tables);
         // units: the fragments outside tables, plus one unit per table
         var units: std.ArrayList(Frag) = .empty;
         for (frags.items) |f| if (f.table < 0 and f.text.len > 0) try units.append(a, f);
@@ -2121,7 +2429,10 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
         const ids = try a.alloc(u32, units.items.len);
         for (ids, 0..) |*v, k| v.* = @intCast(k);
         var order: std.ArrayList(u32) = .empty;
-        try xycut(a, units.items, ids, &order, 0);
+        var aside: std.ArrayList(u32) = .empty;
+        try xycut(a, units.items, ids, &order, &aside, 0);
+        // an aside (a sidebar in smaller type beside the main text) is read after the page's main flow
+        try order.appendSlice(a, aside.items);
         for (order.items) |k| {
             const u = units.items[k];
             if (u.table >= 0) {
@@ -2184,6 +2495,8 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
                     try cur_text.appendNTimes(a, '\n', @min(blank, 4));
                     const indent: usize = @intFromFloat(@max(0, @round((f.x0 - b.x0) / (0.6 * f.size))));
                     try cur_text.appendNTimes(a, ' ', @min(indent, 40));
+                } else if (dehyphen(cur_text.items) > 0 and f.text.len > 0 and std.ascii.isLower(f.text[0])) {
+                    cur_text.shrinkRetainingCapacity(cur_text.items.len - dehyphen(cur_text.items));
                 } else try cur_text.append(a, ' ');
                 try cur_text.appendSlice(a, f.text);
                 b.lines += 1;
@@ -2242,7 +2555,19 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
                 b.kind = if (top) .page_header else .page_footer;
                 continue;
             }
+            if (b.kind == .paragraph and b.lines == 1 and body > 0 and b.size <= 0.92 * body and wordCount(b.text) <= 12) {
+                b.kind = if (top) .page_header else .page_footer;
+                continue;
+            }
         }
+        if (b.kind == .list_item and startsListMarker(b.text) > 0 and body > 0 and b.lines == 1 and b.text.len <= 120 and
+            (b.size >= 1.08 * body or (b.bold and b.text[b.text.len - 1] != '.')))
+        {
+            b.kind = .heading;
+            try hsizes.append(a, b.size);
+            continue;
+        }
+        if (b.kind == .code and isMonoProse(b.text)) b.kind = .paragraph;
         if (b.kind != .paragraph) continue;
         const short = b.text.len <= 160;
         const ends = b.text.len > 0 and (b.text[b.text.len - 1] == '.' or b.text[b.text.len - 1] == ':' or b.text[b.text.len - 1] == ',');
@@ -2315,12 +2640,55 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
         }
         try final.appendSlice(a, page_blocks.items);
     }
+    // a paragraph that ends with a broken word continues in the next paragraph (the next column or page)
+    {
+        var k: usize = 0;
+        while (k + 1 < final.items.len) {
+            const b1 = final.items[k];
+            const b2 = final.items[k + 1];
+            const cut = dehyphen(b1.text);
+            if (b1.kind == .paragraph and b2.kind == .paragraph and cut > 0 and b2.text.len > 0 and std.ascii.isLower(b2.text[0]) and b2.page <= b1.page + 1) {
+                final.items[k].text = try std.mem.concat(a, u8, &.{ b1.text[0 .. b1.text.len - cut], b2.text });
+                final.items[k].lines += b2.lines;
+                _ = final.orderedRemove(k + 1);
+                continue;
+            }
+            k += 1;
+        }
+    }
+    // a table that ends a page and one that starts the next, with as many columns, are one table
+    {
+        var k: usize = 0;
+        while (k + 1 < final.items.len) {
+            const t1 = final.items[k];
+            const t2 = final.items[k + 1];
+            if (t1.kind == .table and t2.kind == .table and t2.page == t1.page + 1 and t1.rows.len > 0 and t2.rows.len > 0 and t1.rows[0].len == t2.rows[0].len) {
+                var same_head = true;
+                for (t1.rows[0], t2.rows[0]) |c1, c2| if (!eq(c1, c2)) {
+                    same_head = false;
+                };
+                const from: usize = if (same_head) 1 else 0;
+                var rows = try a.alloc([][]const u8, t1.rows.len + t2.rows.len - from);
+                @memcpy(rows[0..t1.rows.len], t1.rows);
+                @memcpy(rows[t1.rows.len..], t2.rows[from..]);
+                final.items[k].rows = rows;
+                final.items[k].text = try std.mem.concat(a, u8, &.{ t1.text, " ", t2.text });
+                _ = final.orderedRemove(k + 1);
+                continue;
+            }
+            k += 1;
+        }
+    }
     // a caption: a short block right above a table, or one right below it that names itself
     for (final.items, 0..) |t, k| {
         if (t.kind != .table) continue;
         if (k > 0) {
             const c = &final.items[k - 1];
-            if (c.page == t.page and (c.kind == .paragraph or c.kind == .heading) and c.lines <= 2 and t.y0 - c.y1 <= 2.0 * c.size and c.x1 > t.x0 and c.x0 < t.x1) c.kind = .caption;
+            if (c.page == t.page and (c.kind == .paragraph or (c.kind == .heading and c.size <= 1.05 * t.size)) and c.lines <= 2 and t.y0 - c.y1 <= 2.0 * c.size and c.x1 > t.x0 and c.x0 < t.x1) {
+                // (a heading in larger type than the table is a section heading, not the table's caption)
+                c.kind = .caption;
+                c.level = 0;
+            }
         }
         if (k + 1 < final.items.len) {
             const c = &final.items[k + 1];

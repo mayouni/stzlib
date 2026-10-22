@@ -1,0 +1,76 @@
+{
+  "id": "f12",
+  "difficulty": "a bulleted list with square bullets (one nested level) and a list whose arrow markers are typed in the text",
+  "pages": 1,
+  "title": "Preparing the Community Hall for the Winter Fair",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Preparing the Community Hall for the Winter Fair"
+    },
+    {
+      "level": 2,
+      "text": "What to Bring"
+    },
+    {
+      "level": 2,
+      "text": "Before You Leave"
+    }
+  ],
+  "key_sentences": [
+    "The fair opens on the first Saturday of December.",
+    "Volunteers should arrive one hour before the doors open.",
+    "The caretaker will unlock the side entrance at eight o'clock.",
+    "Thank you for helping to make the fair a success.",
+    "Please report any damage to the coordinator before you go home."
+  ],
+  "tables": [],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Extension cables and a power strip"
+    },
+    {
+      "level": 0,
+      "text": "Table covers in plain colours"
+    },
+    {
+      "level": 0,
+      "text": "A cash box with small change"
+    },
+    {
+      "level": 1,
+      "text": "Coins for the raffle stall"
+    },
+    {
+      "level": 1,
+      "text": "A receipt book"
+    },
+    {
+      "level": 0,
+      "text": "Printed price labels"
+    },
+    {
+      "level": 0,
+      "text": "→ Switch off the heating in the main hall"
+    },
+    {
+      "level": 0,
+      "text": "→ Stack the chairs along the north wall"
+    },
+    {
+      "level": 0,
+      "text": "→ Return the keys to the office of the caretaker"
+    },
+    {
+      "level": 0,
+      "text": "→ Sign the volunteer sheet at the entrance"
+    }
+  ],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "First list: square bullets drawn by the browser (list-style square, also on the nested level), so those items are given WITHOUT a marker; two items are nested at level 1 under 'A cash box with small change'. Second list: list-style none, and each item's text begins with the character U+2192 '→' and a space, typed in the source, so those items are given WITH '→ '. The arrow glyph may be drawn from a fallback font. Font Tahoma 11pt."
+}

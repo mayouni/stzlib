@@ -1,0 +1,85 @@
+{
+  "id": "f02",
+  "difficulty": "borderless table with zebra-striped rows and a right-aligned numeric column",
+  "pages": 1,
+  "title": "Volunteer Hours by Programme",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Volunteer Hours by Programme"
+    },
+    {
+      "level": 2,
+      "text": "Notes"
+    }
+  ],
+  "key_sentences": [
+    "The volunteer office records every session in a shared logbook.",
+    "Hours are rounded to the nearest half hour.",
+    "Meal delivery remains the programme with the largest commitment.",
+    "The repair workshop doubled its sessions after moving to a larger room.",
+    "Coordinators are asked to submit the July figures by the tenth of August."
+  ],
+  "tables": [
+    {
+      "caption": "Table 1. Hours logged between January and June",
+      "rows": [
+        [
+          "Programme",
+          "Site",
+          "Sessions",
+          "Hours"
+        ],
+        [
+          "Reading circle",
+          "Elm Street Library",
+          "24",
+          "96.5"
+        ],
+        [
+          "Garden maintenance",
+          "Westfield Allotments",
+          "31",
+          "212.0"
+        ],
+        [
+          "Meal delivery",
+          "Central Kitchen",
+          "48",
+          "1,034.5"
+        ],
+        [
+          "Language café",
+          "Harbour Community Hall",
+          "18",
+          "54.0"
+        ],
+        [
+          "Repair workshop",
+          "Old Mill Studio",
+          "12",
+          "73.5"
+        ],
+        [
+          "Youth football",
+          "Brookside Fields",
+          "36",
+          "158.0"
+        ],
+        [
+          "Library tidying",
+          "Elm Street Library",
+          "9",
+          "22.5"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "One table, 8 rows x 4 columns (1 header + 7 data rows), no borders; data rows 1, 3, 5, 7 have a grey (#efefef) background (zebra). The Hours column (4th) is right-aligned, header included; the other columns are left-aligned. The caption is rendered above the table in italics. Font Georgia."
+}

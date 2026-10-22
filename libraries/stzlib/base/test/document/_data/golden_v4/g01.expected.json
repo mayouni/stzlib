@@ -1,0 +1,30 @@
+{
+  "id": "g01",
+  "difficulty": "justified serif text in a narrow column; several soft-hyphenated (&shy;) long words break at line ends",
+  "pages": 1,
+  "title": "Notes on Municipal Water Storage",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Notes on Municipal Water Storage"
+    }
+  ],
+  "key_sentences": [
+    "The town of Brelland draws its water from two shallow reservoirs fed by seasonal streams.",
+    "During the dry months the infrastructure struggles to keep pace with demand, and the administration has asked residents to observe conservation measures.",
+    "A survey completed last spring documented the characteristics of every storage tank in the district.",
+    "Engineers found that most tanks were built before 1970 and that their maintenance records were incomplete.",
+    "The corresponding repair estimates vary widely between neighbourhoods.",
+    "Several recommendations concern the distribution network rather than the tanks themselves.",
+    "The council will publish an intermediate report in October.",
+    "Responsibilities for environmental monitoring will remain with the regional office until a permanent arrangement is agreed."
+  ],
+  "tables": [],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Narrow justified Georgia column (234px wide). Soft hyphens (U+00AD) sit inside many long words. In the author's check of Chrome's layout of this same HTML (not of the PDF) these words broke across a line end, drawing a hyphen: characteristics, incomplete, recommendations, distribution, intermediate, Responsibilities, arrangement. Every hyphenated word is expected WHOLE, without hyphen and without soft hyphen. The PDF itself was never inspected."
+}

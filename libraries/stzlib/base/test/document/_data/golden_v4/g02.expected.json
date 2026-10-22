@@ -1,0 +1,33 @@
+{
+  "id": "g02",
+  "difficulty": "soft-hyphenated words that do NOT break (they stay whole inside a line) in a sans text, plus fi/fl/ffi ligature words",
+  "pages": 1,
+  "title": "Office Relocation: Weekly Update",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Office Relocation: Weekly Update"
+    },
+    {
+      "level": 2,
+      "text": "Practical details"
+    }
+  ],
+  "key_sentences": [
+    "The finance office will move to the third floor on Monday.",
+    "Staff are asked to affirm their new desk numbers by Friday so that the relocation can flow smoothly.",
+    "An efficient workflow depends on clear labels for every box.",
+    "The facilities team has confirmed that the official floor plan is final.",
+    "Please file any complaint about misplaced equipment with the help desk.",
+    "Coffee will be served in the lounge on the fifth floor during the transition.",
+    "The move coordinator will send a short summary every evening."
+  ],
+  "tables": [],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Calibri text with soft hyphens (U+00AD) inside relocation, facilities, equipment, transition, coordinator and summary; the author checked in Chrome's layout of this same HTML (not of the PDF) that none of them falls at a line end, so no hyphen is drawn and they must be read whole. Ligature candidates (fi, fl, ffi): Office, office, affirm, flow, efficient, workflow, confirmed, official, floor, file, fifth; expected in plain letters."
+}

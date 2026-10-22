@@ -1,0 +1,50 @@
+{
+  "id": "f11",
+  "difficulty": "two-column scientific page with a full-width title, author line and abstract above the columns",
+  "pages": 1,
+  "title": "Seasonal Variation of Salinity in a Small Tidal Estuary",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Seasonal Variation of Salinity in a Small Tidal Estuary"
+    },
+    {
+      "level": 2,
+      "text": "Abstract"
+    },
+    {
+      "level": 2,
+      "text": "1 Introduction"
+    },
+    {
+      "level": 2,
+      "text": "2 Methods"
+    },
+    {
+      "level": 2,
+      "text": "3 Results"
+    },
+    {
+      "level": 2,
+      "text": "4 Conclusion"
+    }
+  ],
+  "key_sentences": [
+    "We report twelve months of salinity measurements from a small tidal estuary.",
+    "Salinity at the upper station fell sharply during the wet season and recovered within six weeks.",
+    "Small estuaries respond quickly to changes in river flow.",
+    "Conductivity loggers were installed at three stations along the channel.",
+    "At the upper station, mean salinity dropped from 18 to 3 practical salinity units in January.",
+    "The middle station followed the upper station with a delay of about ten days.",
+    "River discharge is the dominant control on salinity in this estuary.",
+    "Future work will extend the record to a second estuary with a larger tidal range."
+  ],
+  "tables": [],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Full-width block: centred title, author line 'Ilan Duret and Mira Kostova', italic affiliation 'Institute for Coastal Hydrology, Velmar', then the 'Abstract' heading and paragraph (indented 12 mm both sides). Below it a balanced two-column body (CSS columns); reading order is ALL of the left column then the right column, which equals the order of key_sentences. The author and affiliation lines are front matter, neither headings nor furniture. Section numbers are typed in the heading text. Times New Roman 10pt, justified."
+}

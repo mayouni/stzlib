@@ -1,0 +1,30 @@
+{
+  "id": "f10",
+  "difficulty": "single narrow column (50 mm) with several words broken at line ends by soft hyphens",
+  "pages": 1,
+  "title": "Guidance for New Committee Members",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Guidance for New Committee Members"
+    }
+  ],
+  "key_sentences": [
+    "Joining a committee brings new responsibilities for every member.",
+    "The administration of the association depends on clear communication between its officers.",
+    "Members should read the minutes of previous meetings before their first session.",
+    "Good understanding of the budget is expected from the treasurer and the chair.",
+    "Every decision about the shared infrastructure requires careful consideration of its environmental impact.",
+    "Active participation in working groups is encouraged but not required.",
+    "The secretary is responsible for the implementation of agreed actions.",
+    "Questions about the organisation of meetings may be sent to the secretary at any time."
+  ],
+  "tables": [],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Ten long words carry soft hyphens (U+00AD): responsibilities, administration, communication, understanding, infrastructure, consideration, environmental, participation, implementation, organisation. In the render, these are broken at a line end with a visible hyphen: administration (adminis- / tration), communication (communi- / cation) and consideration (considera- / tion); the other seven fit on their lines and show no hyphen. These three breaks were observed on a screen render of the same HTML (same fonts, same 50 mm width), not read back from the PDF. Every key sentence gives the words WHOLE, with no hyphen and no space. Body Georgia 11pt, left-aligned, in a 50 mm column; the title above it is not narrowed."
+}

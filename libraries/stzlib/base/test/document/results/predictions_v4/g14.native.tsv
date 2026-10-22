@@ -1,0 +1,14 @@
+heading	1	Rotating Log Files
+paragraph	0	The script below rotates every log file in a folder and keeps a fixed number of old copies. It was written for the quarry weighbridge, which writes a new log each day.
+code	0	1
+code	0	import os
+code	0	2
+code	0	import shutil
+code	0	3
+table	0	4def rotate(folder, keep=7):5names = sorted(os.listdir(folder))6logs = [n for n in names if n.endswith(".log")]7for name in logs:8path = os.path.join(folder, name)9for i in range(keep - 1, 0, -1):10older = f"{path}.{i}"11if os.path.exists(older):12shutil.move(older, f"{path}.{i + 1}")13shutil.move(path, path + ".1")14return len(logs)
+code	0	15
+table	0	16if __name__ == "__main__":17import sys18count = rotate(sys.argv[1])19print(f"rotated {count} log files")
+heading	2	Running the script
+paragraph	0	The transcript shows a run on the test machine. Each log was moved to a copy ending in .1, and no new log had been written yet.
+code	0	$ python rotate_logs.py /var/log/weighbridge\nrotated 3 log files\n$ ls /var/log/weighbridge\ngate.log.1  scale.log.1  tickets.log.1
+paragraph	0	Run the script from the scheduler once a day, shortly after midnight.
