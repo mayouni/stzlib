@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 90 methods in 55 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 87 methods in 54 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| regex/stzTimex.ring | stzTimex | 3 |
 | sound/stzSoundLive.ring | stzSoundLive | 3 |
 | stats/stzCoeffExtractor.ring | stzCoeffExtractor | 3 |
 | stats/stzDataSet.ring | stzDataSet | 3 |
@@ -226,12 +225,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 - `GetDependencyChain` (line 410): Raises a stack overflow today instead of returning the triggers a trigger depends on. -- every log entry lists its own trigger in dependson, so the method calls itself on that same trigger without end; confirmed with the trigger num and the trigger d
 
-## stzTimex -- regex/stzTimex.ring (3)
-
-- `SplitByOperator` (line 177): Returns the whole text as one piece today instead of cutting it at an operator outside brackets. -- the brackets are tracked correctly, only the comparison fails
-- `MatchExact` (line 506): TRUE if the pattern matches the whole target, with nothing left over. -- because of the parser defect, only single-token patterns are meaningful; Match is the same call
-- `MatchPartial` (line 527): TRUE if the pattern matches somewhere inside the target, starting at any item. -- because of the parser defect, only single-token patterns are meaningful; any text in a list counts as an instant, so @Instant matches a list holding the text x
-
 ## stzOidcProvider -- security/stzOidcProvider.ring (1)
 
 - `IssueIdTokenAt` (line 526): Signs an ID token as IssueIdToken does, with the issue time you give, so that exp is pnNow plus the token lifetime. -- same escaping defect as IssueIdToken
@@ -266,7 +259,7 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 ## stzString -- string/stzString.ring (1)
 
-- `IsCurrencySymbol` (line 9373): Answers FALSE today: the currency symbol check is a stub that waits for the locale data.
+- `IsCurrencySymbol` (line 9370): Answers FALSE today: the currency symbol check is a stub that waits for the locale data.
 
 ## stzStringChecker -- string/stzStringChecker.ring (3)
 
