@@ -220,6 +220,52 @@ Scenario("Guillemets in Hebrew, an Arabic heading, and a sentence running on int
 	Then("the heading under both columns comes after the second", StzFindFirst("Ride Calendar", c) > StzFindFirst("annual fee", c), 1)
 EndScenario()
 
+# ---- the fifth round, pinned on golden_v5 (realistic documents; a development set since the reader was fixed on it)
+cL = "_data/golden_v5/"
+
+Scenario("An invoice's table takes its header row above and its totals rows below")
+	o = StzPdfQ(cL + "h03.pdf")
+	aT = 0
+	aAll = o.Tables()
+	for i = 1 to len(aAll)
+		if StzFindFirst("Subtotal", "" + @@(aAll[i])) > 0 aT = aAll[i] ok
+	next
+	Then("the line items and the totals are one table", isList(aT), 1)
+	Then("its header row came from above the grid", @@(aT[1]), @@([ "No.", "Description", "Qty", "Unit price (£)", "Amount (£)" ]))
+	Then("a long description stays a cell", aT[2][2], "A4 copier paper, 80 g/m², box of 5 reams")
+	Then("a totals label fills the cells it spans", @@(aT[9]), @@([ "Subtotal", "Subtotal", "Subtotal", "Subtotal", "1,082.45" ]))
+	Then("the last row is the total due", aT[len(aT)][5], "£1,234.00")
+EndScenario()
+
+Scenario("A table grows upward past a section row to its header")
+	o = StzPdfQ(cL + "h18.pdf")
+	aT = 0
+	aAll = o.Tables()
+	for i = 1 to len(aAll)
+		if StzFindFirst("Hemogram", "" + @@(aAll[i])) > 0 aT = aAll[i] ok
+	next
+	Then("the results table is found with its section", isList(aT), 1)
+	Then("its header row", aT[1][1], "Test")
+	Then("then the section row, across the table", @@(aT[2]), @@([ "Hemogram", "Hemogram", "Hemogram", "Hemogram", "Hemogram" ]))
+EndScenario()
+
+Scenario("Synthetic bold keeps its spaces, and Arabic ligatures read as letters")
+	o = StzPdfQ(cL + "h17.pdf")
+	Then("a Type3 font's widths come from its own matrix", StzFindFirst("Total revenue", "" + @@(o.Tables())) > 0, 1)
+	Then("no words run together", StzFindFirst("Totalrevenue", "" + @@(o.Tables())), 0)
+	o = StzPdfQ(cL + "h11.pdf")
+	Then("a ligature of the presentation forms is decomposed", StzFindFirst("مبرمج", o.Text()) > 0, 1)
+EndScenario()
+
+Scenario("A run-in heading, a typewriter heading, and prose beside a table")
+	o = StzPdfQ(cL + "h09.pdf")
+	Then("a bold lead-in is a heading of its own", StzFindFirst("Abstract.", "" + @@(o.Headings())) > 0, 1)
+	Then("the paragraph after it keeps its text", StzFindFirst("Thirty-six low-cost data loggers", o.Text()) > 0, 1)
+	Then("a prose line of the next column is not a table cell", StzFindFirst("central store", "" + @@(o.Tables())), 0)
+	o = StzPdfQ(cL + "h04.pdf")
+	Then("a large line in a typewriter face is a heading, not code", StzFindFirst("Farmácia Boa Esperança", "" + @@(o.Headings())) > 0, 1)
+EndScenario()
+
 Scenario("A file that is not a readable PDF is refused with the reason")
 	bRaised = 0
 	cWhy = ""

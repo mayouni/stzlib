@@ -846,6 +846,7 @@ const Font = struct {
     enc: [256]?[]const u8 = .{null} ** 256,
     widths: std.AutoHashMapUnmanaged(u32, f32) = .empty,
     dw: f32 = 500,
+    wscale: f32 = 0.001, // widths to text space: 1/1000, or a Type3 font's own FontMatrix
     bold: bool = false,
     italic: bool = false,
     mono: bool = false,
@@ -1067,6 +1068,16 @@ fn loadFont(d: *Doc, fd: *Dict) !*Font {
     if (std.mem.indexOf(u8, lower, "bold") != null or std.mem.indexOf(u8, lower, "black") != null or std.mem.indexOf(u8, lower, "heavy") != null or std.mem.indexOf(u8, lower, "semibold") != null) f.bold = true;
     if (std.mem.indexOf(u8, lower, "italic") != null or std.mem.indexOf(u8, lower, "oblique") != null) f.italic = true;
     if (std.mem.indexOf(u8, lower, "mono") != null or std.mem.indexOf(u8, lower, "courier") != null or std.mem.indexOf(u8, lower, "consol") != null or std.mem.indexOf(u8, lower, "menlo") != null) f.mono = true;
+    // a Type3 font gives its widths in glyph units, turned into text space by its own FontMatrix (Chrome draws
+    // synthetic bold this way): read as thousandths, every advance would be wrong
+    if (sub == .name and eq(sub.name, "Type3")) {
+        const fm = d.get(fd, "FontMatrix");
+        if (fm == .arr and fm.arr.len >= 1) {
+            if (numOf(d.resolve(fm.arr[0]))) |v| {
+                if (v != 0) f.wscale = @floatCast(@abs(v));
+            }
+        }
+    }
     const tu = d.resolve(fd.get("ToUnicode") orelse .nul);
     if (tu == .stream) {
         if (d.decode(tu.stream)) |data| {
@@ -1123,6 +1134,7 @@ const GState = struct {
     th: f64 = 1,
     tl: f64 = 0,
     rise: f64 = 0,
+    tr: u8 = 0, // text render mode; 2 = fill and stroke, how a browser draws a bold it has no face for
 };
 
 const Interp = struct {
@@ -1169,7 +1181,7 @@ const Interp = struct {
                 i += 2;
                 single = false;
             } else i += 1;
-            const w0: f64 = f.width(code) / 1000.0;
+            const w0: f64 = f.width(code) * f.wscale;
             const fs = it.gs.fs;
             const th = it.gs.th;
             const trm = mul(.{ fs * th, 0, 0, fs, 0, it.gs.rise }, mul(it.tm, it.gs.ctm));
@@ -1197,7 +1209,7 @@ const Interp = struct {
                     .y = @floatCast(it.page_top - trm[5]),
                     .w = @floatCast(adv),
                     .size = @floatCast(size),
-                    .bold = f.bold,
+                    .bold = f.bold or it.gs.tr == 2,
                     .mono = f.mono,
                     .italic = f.italic,
                     .t0 = t0,
@@ -1313,6 +1325,8 @@ const Interp = struct {
                 if (n.len >= 1) it.gs.th = nv(n[0]) / 100.0;
             } else if (eq(op, "TL")) {
                 if (n.len >= 1) it.gs.tl = nv(n[0]);
+            } else if (eq(op, "Tr")) {
+                if (n.len >= 1) it.gs.tr = @intFromFloat(@max(0, @min(7, nv(n[0]))));
             } else if (eq(op, "Ts")) {
                 if (n.len >= 1) it.gs.rise = nv(n[0]);
             } else if (eq(op, "Tj")) {
@@ -1438,6 +1452,7 @@ pub const Block = struct {
     italic: bool = false,
     rows: [][][]const u8 = &.{}, // a table's cells, row by row
     lines: u32 = 1,
+    runin: bool = false, // a run-in heading cut from the start of a paragraph
 };
 
 const Frag = struct {
@@ -1454,6 +1469,7 @@ const Frag = struct {
     table: i32 = -1, // >= 0: this unit is a whole table
     bullet: bool = false, // a vector bullet sits just left of it
     italic: bool = false,
+    lead_bold: usize = 0, // bytes of a bold lead-in that opens a line of regular text (a run-in heading), 0 if none
 };
 
 fn isRtlCp(cp: u21) bool {
@@ -1490,12 +1506,766 @@ const pforms_b = [_]PForm{
     .{ .start = 0xFBFC, .n = 4, .base = 0x06CC },
 };
 
+// Arabic presentation forms A and B (U+FB50-U+FDFF, U+FE70-U+FEFF) to their letters: the Unicode NFKC
+// compatibility mapping, generated from the Unicode database (Python unicodedata 15.1.0).
+const PMap = struct { cp: u21, to: []const u8 };
+const pforms_nfkc = [_]PMap{
+    .{ .cp = 0xFB50, .to = "\u{671}" },
+    .{ .cp = 0xFB51, .to = "\u{671}" },
+    .{ .cp = 0xFB52, .to = "\u{67B}" },
+    .{ .cp = 0xFB53, .to = "\u{67B}" },
+    .{ .cp = 0xFB54, .to = "\u{67B}" },
+    .{ .cp = 0xFB55, .to = "\u{67B}" },
+    .{ .cp = 0xFB56, .to = "\u{67E}" },
+    .{ .cp = 0xFB57, .to = "\u{67E}" },
+    .{ .cp = 0xFB58, .to = "\u{67E}" },
+    .{ .cp = 0xFB59, .to = "\u{67E}" },
+    .{ .cp = 0xFB5A, .to = "\u{680}" },
+    .{ .cp = 0xFB5B, .to = "\u{680}" },
+    .{ .cp = 0xFB5C, .to = "\u{680}" },
+    .{ .cp = 0xFB5D, .to = "\u{680}" },
+    .{ .cp = 0xFB5E, .to = "\u{67A}" },
+    .{ .cp = 0xFB5F, .to = "\u{67A}" },
+    .{ .cp = 0xFB60, .to = "\u{67A}" },
+    .{ .cp = 0xFB61, .to = "\u{67A}" },
+    .{ .cp = 0xFB62, .to = "\u{67F}" },
+    .{ .cp = 0xFB63, .to = "\u{67F}" },
+    .{ .cp = 0xFB64, .to = "\u{67F}" },
+    .{ .cp = 0xFB65, .to = "\u{67F}" },
+    .{ .cp = 0xFB66, .to = "\u{679}" },
+    .{ .cp = 0xFB67, .to = "\u{679}" },
+    .{ .cp = 0xFB68, .to = "\u{679}" },
+    .{ .cp = 0xFB69, .to = "\u{679}" },
+    .{ .cp = 0xFB6A, .to = "\u{6A4}" },
+    .{ .cp = 0xFB6B, .to = "\u{6A4}" },
+    .{ .cp = 0xFB6C, .to = "\u{6A4}" },
+    .{ .cp = 0xFB6D, .to = "\u{6A4}" },
+    .{ .cp = 0xFB6E, .to = "\u{6A6}" },
+    .{ .cp = 0xFB6F, .to = "\u{6A6}" },
+    .{ .cp = 0xFB70, .to = "\u{6A6}" },
+    .{ .cp = 0xFB71, .to = "\u{6A6}" },
+    .{ .cp = 0xFB72, .to = "\u{684}" },
+    .{ .cp = 0xFB73, .to = "\u{684}" },
+    .{ .cp = 0xFB74, .to = "\u{684}" },
+    .{ .cp = 0xFB75, .to = "\u{684}" },
+    .{ .cp = 0xFB76, .to = "\u{683}" },
+    .{ .cp = 0xFB77, .to = "\u{683}" },
+    .{ .cp = 0xFB78, .to = "\u{683}" },
+    .{ .cp = 0xFB79, .to = "\u{683}" },
+    .{ .cp = 0xFB7A, .to = "\u{686}" },
+    .{ .cp = 0xFB7B, .to = "\u{686}" },
+    .{ .cp = 0xFB7C, .to = "\u{686}" },
+    .{ .cp = 0xFB7D, .to = "\u{686}" },
+    .{ .cp = 0xFB7E, .to = "\u{687}" },
+    .{ .cp = 0xFB7F, .to = "\u{687}" },
+    .{ .cp = 0xFB80, .to = "\u{687}" },
+    .{ .cp = 0xFB81, .to = "\u{687}" },
+    .{ .cp = 0xFB82, .to = "\u{68D}" },
+    .{ .cp = 0xFB83, .to = "\u{68D}" },
+    .{ .cp = 0xFB84, .to = "\u{68C}" },
+    .{ .cp = 0xFB85, .to = "\u{68C}" },
+    .{ .cp = 0xFB86, .to = "\u{68E}" },
+    .{ .cp = 0xFB87, .to = "\u{68E}" },
+    .{ .cp = 0xFB88, .to = "\u{688}" },
+    .{ .cp = 0xFB89, .to = "\u{688}" },
+    .{ .cp = 0xFB8A, .to = "\u{698}" },
+    .{ .cp = 0xFB8B, .to = "\u{698}" },
+    .{ .cp = 0xFB8C, .to = "\u{691}" },
+    .{ .cp = 0xFB8D, .to = "\u{691}" },
+    .{ .cp = 0xFB8E, .to = "\u{6A9}" },
+    .{ .cp = 0xFB8F, .to = "\u{6A9}" },
+    .{ .cp = 0xFB90, .to = "\u{6A9}" },
+    .{ .cp = 0xFB91, .to = "\u{6A9}" },
+    .{ .cp = 0xFB92, .to = "\u{6AF}" },
+    .{ .cp = 0xFB93, .to = "\u{6AF}" },
+    .{ .cp = 0xFB94, .to = "\u{6AF}" },
+    .{ .cp = 0xFB95, .to = "\u{6AF}" },
+    .{ .cp = 0xFB96, .to = "\u{6B3}" },
+    .{ .cp = 0xFB97, .to = "\u{6B3}" },
+    .{ .cp = 0xFB98, .to = "\u{6B3}" },
+    .{ .cp = 0xFB99, .to = "\u{6B3}" },
+    .{ .cp = 0xFB9A, .to = "\u{6B1}" },
+    .{ .cp = 0xFB9B, .to = "\u{6B1}" },
+    .{ .cp = 0xFB9C, .to = "\u{6B1}" },
+    .{ .cp = 0xFB9D, .to = "\u{6B1}" },
+    .{ .cp = 0xFB9E, .to = "\u{6BA}" },
+    .{ .cp = 0xFB9F, .to = "\u{6BA}" },
+    .{ .cp = 0xFBA0, .to = "\u{6BB}" },
+    .{ .cp = 0xFBA1, .to = "\u{6BB}" },
+    .{ .cp = 0xFBA2, .to = "\u{6BB}" },
+    .{ .cp = 0xFBA3, .to = "\u{6BB}" },
+    .{ .cp = 0xFBA4, .to = "\u{6C0}" },
+    .{ .cp = 0xFBA5, .to = "\u{6C0}" },
+    .{ .cp = 0xFBA6, .to = "\u{6C1}" },
+    .{ .cp = 0xFBA7, .to = "\u{6C1}" },
+    .{ .cp = 0xFBA8, .to = "\u{6C1}" },
+    .{ .cp = 0xFBA9, .to = "\u{6C1}" },
+    .{ .cp = 0xFBAA, .to = "\u{6BE}" },
+    .{ .cp = 0xFBAB, .to = "\u{6BE}" },
+    .{ .cp = 0xFBAC, .to = "\u{6BE}" },
+    .{ .cp = 0xFBAD, .to = "\u{6BE}" },
+    .{ .cp = 0xFBAE, .to = "\u{6D2}" },
+    .{ .cp = 0xFBAF, .to = "\u{6D2}" },
+    .{ .cp = 0xFBB0, .to = "\u{6D3}" },
+    .{ .cp = 0xFBB1, .to = "\u{6D3}" },
+    .{ .cp = 0xFBD3, .to = "\u{6AD}" },
+    .{ .cp = 0xFBD4, .to = "\u{6AD}" },
+    .{ .cp = 0xFBD5, .to = "\u{6AD}" },
+    .{ .cp = 0xFBD6, .to = "\u{6AD}" },
+    .{ .cp = 0xFBD7, .to = "\u{6C7}" },
+    .{ .cp = 0xFBD8, .to = "\u{6C7}" },
+    .{ .cp = 0xFBD9, .to = "\u{6C6}" },
+    .{ .cp = 0xFBDA, .to = "\u{6C6}" },
+    .{ .cp = 0xFBDB, .to = "\u{6C8}" },
+    .{ .cp = 0xFBDC, .to = "\u{6C8}" },
+    .{ .cp = 0xFBDD, .to = "\u{6C7}\u{674}" },
+    .{ .cp = 0xFBDE, .to = "\u{6CB}" },
+    .{ .cp = 0xFBDF, .to = "\u{6CB}" },
+    .{ .cp = 0xFBE0, .to = "\u{6C5}" },
+    .{ .cp = 0xFBE1, .to = "\u{6C5}" },
+    .{ .cp = 0xFBE2, .to = "\u{6C9}" },
+    .{ .cp = 0xFBE3, .to = "\u{6C9}" },
+    .{ .cp = 0xFBE4, .to = "\u{6D0}" },
+    .{ .cp = 0xFBE5, .to = "\u{6D0}" },
+    .{ .cp = 0xFBE6, .to = "\u{6D0}" },
+    .{ .cp = 0xFBE7, .to = "\u{6D0}" },
+    .{ .cp = 0xFBE8, .to = "\u{649}" },
+    .{ .cp = 0xFBE9, .to = "\u{649}" },
+    .{ .cp = 0xFBEA, .to = "\u{626}\u{627}" },
+    .{ .cp = 0xFBEB, .to = "\u{626}\u{627}" },
+    .{ .cp = 0xFBEC, .to = "\u{626}\u{6D5}" },
+    .{ .cp = 0xFBED, .to = "\u{626}\u{6D5}" },
+    .{ .cp = 0xFBEE, .to = "\u{626}\u{648}" },
+    .{ .cp = 0xFBEF, .to = "\u{626}\u{648}" },
+    .{ .cp = 0xFBF0, .to = "\u{626}\u{6C7}" },
+    .{ .cp = 0xFBF1, .to = "\u{626}\u{6C7}" },
+    .{ .cp = 0xFBF2, .to = "\u{626}\u{6C6}" },
+    .{ .cp = 0xFBF3, .to = "\u{626}\u{6C6}" },
+    .{ .cp = 0xFBF4, .to = "\u{626}\u{6C8}" },
+    .{ .cp = 0xFBF5, .to = "\u{626}\u{6C8}" },
+    .{ .cp = 0xFBF6, .to = "\u{626}\u{6D0}" },
+    .{ .cp = 0xFBF7, .to = "\u{626}\u{6D0}" },
+    .{ .cp = 0xFBF8, .to = "\u{626}\u{6D0}" },
+    .{ .cp = 0xFBF9, .to = "\u{626}\u{649}" },
+    .{ .cp = 0xFBFA, .to = "\u{626}\u{649}" },
+    .{ .cp = 0xFBFB, .to = "\u{626}\u{649}" },
+    .{ .cp = 0xFBFC, .to = "\u{6CC}" },
+    .{ .cp = 0xFBFD, .to = "\u{6CC}" },
+    .{ .cp = 0xFBFE, .to = "\u{6CC}" },
+    .{ .cp = 0xFBFF, .to = "\u{6CC}" },
+    .{ .cp = 0xFC00, .to = "\u{626}\u{62C}" },
+    .{ .cp = 0xFC01, .to = "\u{626}\u{62D}" },
+    .{ .cp = 0xFC02, .to = "\u{626}\u{645}" },
+    .{ .cp = 0xFC03, .to = "\u{626}\u{649}" },
+    .{ .cp = 0xFC04, .to = "\u{626}\u{64A}" },
+    .{ .cp = 0xFC05, .to = "\u{628}\u{62C}" },
+    .{ .cp = 0xFC06, .to = "\u{628}\u{62D}" },
+    .{ .cp = 0xFC07, .to = "\u{628}\u{62E}" },
+    .{ .cp = 0xFC08, .to = "\u{628}\u{645}" },
+    .{ .cp = 0xFC09, .to = "\u{628}\u{649}" },
+    .{ .cp = 0xFC0A, .to = "\u{628}\u{64A}" },
+    .{ .cp = 0xFC0B, .to = "\u{62A}\u{62C}" },
+    .{ .cp = 0xFC0C, .to = "\u{62A}\u{62D}" },
+    .{ .cp = 0xFC0D, .to = "\u{62A}\u{62E}" },
+    .{ .cp = 0xFC0E, .to = "\u{62A}\u{645}" },
+    .{ .cp = 0xFC0F, .to = "\u{62A}\u{649}" },
+    .{ .cp = 0xFC10, .to = "\u{62A}\u{64A}" },
+    .{ .cp = 0xFC11, .to = "\u{62B}\u{62C}" },
+    .{ .cp = 0xFC12, .to = "\u{62B}\u{645}" },
+    .{ .cp = 0xFC13, .to = "\u{62B}\u{649}" },
+    .{ .cp = 0xFC14, .to = "\u{62B}\u{64A}" },
+    .{ .cp = 0xFC15, .to = "\u{62C}\u{62D}" },
+    .{ .cp = 0xFC16, .to = "\u{62C}\u{645}" },
+    .{ .cp = 0xFC17, .to = "\u{62D}\u{62C}" },
+    .{ .cp = 0xFC18, .to = "\u{62D}\u{645}" },
+    .{ .cp = 0xFC19, .to = "\u{62E}\u{62C}" },
+    .{ .cp = 0xFC1A, .to = "\u{62E}\u{62D}" },
+    .{ .cp = 0xFC1B, .to = "\u{62E}\u{645}" },
+    .{ .cp = 0xFC1C, .to = "\u{633}\u{62C}" },
+    .{ .cp = 0xFC1D, .to = "\u{633}\u{62D}" },
+    .{ .cp = 0xFC1E, .to = "\u{633}\u{62E}" },
+    .{ .cp = 0xFC1F, .to = "\u{633}\u{645}" },
+    .{ .cp = 0xFC20, .to = "\u{635}\u{62D}" },
+    .{ .cp = 0xFC21, .to = "\u{635}\u{645}" },
+    .{ .cp = 0xFC22, .to = "\u{636}\u{62C}" },
+    .{ .cp = 0xFC23, .to = "\u{636}\u{62D}" },
+    .{ .cp = 0xFC24, .to = "\u{636}\u{62E}" },
+    .{ .cp = 0xFC25, .to = "\u{636}\u{645}" },
+    .{ .cp = 0xFC26, .to = "\u{637}\u{62D}" },
+    .{ .cp = 0xFC27, .to = "\u{637}\u{645}" },
+    .{ .cp = 0xFC28, .to = "\u{638}\u{645}" },
+    .{ .cp = 0xFC29, .to = "\u{639}\u{62C}" },
+    .{ .cp = 0xFC2A, .to = "\u{639}\u{645}" },
+    .{ .cp = 0xFC2B, .to = "\u{63A}\u{62C}" },
+    .{ .cp = 0xFC2C, .to = "\u{63A}\u{645}" },
+    .{ .cp = 0xFC2D, .to = "\u{641}\u{62C}" },
+    .{ .cp = 0xFC2E, .to = "\u{641}\u{62D}" },
+    .{ .cp = 0xFC2F, .to = "\u{641}\u{62E}" },
+    .{ .cp = 0xFC30, .to = "\u{641}\u{645}" },
+    .{ .cp = 0xFC31, .to = "\u{641}\u{649}" },
+    .{ .cp = 0xFC32, .to = "\u{641}\u{64A}" },
+    .{ .cp = 0xFC33, .to = "\u{642}\u{62D}" },
+    .{ .cp = 0xFC34, .to = "\u{642}\u{645}" },
+    .{ .cp = 0xFC35, .to = "\u{642}\u{649}" },
+    .{ .cp = 0xFC36, .to = "\u{642}\u{64A}" },
+    .{ .cp = 0xFC37, .to = "\u{643}\u{627}" },
+    .{ .cp = 0xFC38, .to = "\u{643}\u{62C}" },
+    .{ .cp = 0xFC39, .to = "\u{643}\u{62D}" },
+    .{ .cp = 0xFC3A, .to = "\u{643}\u{62E}" },
+    .{ .cp = 0xFC3B, .to = "\u{643}\u{644}" },
+    .{ .cp = 0xFC3C, .to = "\u{643}\u{645}" },
+    .{ .cp = 0xFC3D, .to = "\u{643}\u{649}" },
+    .{ .cp = 0xFC3E, .to = "\u{643}\u{64A}" },
+    .{ .cp = 0xFC3F, .to = "\u{644}\u{62C}" },
+    .{ .cp = 0xFC40, .to = "\u{644}\u{62D}" },
+    .{ .cp = 0xFC41, .to = "\u{644}\u{62E}" },
+    .{ .cp = 0xFC42, .to = "\u{644}\u{645}" },
+    .{ .cp = 0xFC43, .to = "\u{644}\u{649}" },
+    .{ .cp = 0xFC44, .to = "\u{644}\u{64A}" },
+    .{ .cp = 0xFC45, .to = "\u{645}\u{62C}" },
+    .{ .cp = 0xFC46, .to = "\u{645}\u{62D}" },
+    .{ .cp = 0xFC47, .to = "\u{645}\u{62E}" },
+    .{ .cp = 0xFC48, .to = "\u{645}\u{645}" },
+    .{ .cp = 0xFC49, .to = "\u{645}\u{649}" },
+    .{ .cp = 0xFC4A, .to = "\u{645}\u{64A}" },
+    .{ .cp = 0xFC4B, .to = "\u{646}\u{62C}" },
+    .{ .cp = 0xFC4C, .to = "\u{646}\u{62D}" },
+    .{ .cp = 0xFC4D, .to = "\u{646}\u{62E}" },
+    .{ .cp = 0xFC4E, .to = "\u{646}\u{645}" },
+    .{ .cp = 0xFC4F, .to = "\u{646}\u{649}" },
+    .{ .cp = 0xFC50, .to = "\u{646}\u{64A}" },
+    .{ .cp = 0xFC51, .to = "\u{647}\u{62C}" },
+    .{ .cp = 0xFC52, .to = "\u{647}\u{645}" },
+    .{ .cp = 0xFC53, .to = "\u{647}\u{649}" },
+    .{ .cp = 0xFC54, .to = "\u{647}\u{64A}" },
+    .{ .cp = 0xFC55, .to = "\u{64A}\u{62C}" },
+    .{ .cp = 0xFC56, .to = "\u{64A}\u{62D}" },
+    .{ .cp = 0xFC57, .to = "\u{64A}\u{62E}" },
+    .{ .cp = 0xFC58, .to = "\u{64A}\u{645}" },
+    .{ .cp = 0xFC59, .to = "\u{64A}\u{649}" },
+    .{ .cp = 0xFC5A, .to = "\u{64A}\u{64A}" },
+    .{ .cp = 0xFC5B, .to = "\u{630}\u{670}" },
+    .{ .cp = 0xFC5C, .to = "\u{631}\u{670}" },
+    .{ .cp = 0xFC5D, .to = "\u{649}\u{670}" },
+    .{ .cp = 0xFC5E, .to = "\u{20}\u{64C}\u{651}" },
+    .{ .cp = 0xFC5F, .to = "\u{20}\u{64D}\u{651}" },
+    .{ .cp = 0xFC60, .to = "\u{20}\u{64E}\u{651}" },
+    .{ .cp = 0xFC61, .to = "\u{20}\u{64F}\u{651}" },
+    .{ .cp = 0xFC62, .to = "\u{20}\u{650}\u{651}" },
+    .{ .cp = 0xFC63, .to = "\u{20}\u{651}\u{670}" },
+    .{ .cp = 0xFC64, .to = "\u{626}\u{631}" },
+    .{ .cp = 0xFC65, .to = "\u{626}\u{632}" },
+    .{ .cp = 0xFC66, .to = "\u{626}\u{645}" },
+    .{ .cp = 0xFC67, .to = "\u{626}\u{646}" },
+    .{ .cp = 0xFC68, .to = "\u{626}\u{649}" },
+    .{ .cp = 0xFC69, .to = "\u{626}\u{64A}" },
+    .{ .cp = 0xFC6A, .to = "\u{628}\u{631}" },
+    .{ .cp = 0xFC6B, .to = "\u{628}\u{632}" },
+    .{ .cp = 0xFC6C, .to = "\u{628}\u{645}" },
+    .{ .cp = 0xFC6D, .to = "\u{628}\u{646}" },
+    .{ .cp = 0xFC6E, .to = "\u{628}\u{649}" },
+    .{ .cp = 0xFC6F, .to = "\u{628}\u{64A}" },
+    .{ .cp = 0xFC70, .to = "\u{62A}\u{631}" },
+    .{ .cp = 0xFC71, .to = "\u{62A}\u{632}" },
+    .{ .cp = 0xFC72, .to = "\u{62A}\u{645}" },
+    .{ .cp = 0xFC73, .to = "\u{62A}\u{646}" },
+    .{ .cp = 0xFC74, .to = "\u{62A}\u{649}" },
+    .{ .cp = 0xFC75, .to = "\u{62A}\u{64A}" },
+    .{ .cp = 0xFC76, .to = "\u{62B}\u{631}" },
+    .{ .cp = 0xFC77, .to = "\u{62B}\u{632}" },
+    .{ .cp = 0xFC78, .to = "\u{62B}\u{645}" },
+    .{ .cp = 0xFC79, .to = "\u{62B}\u{646}" },
+    .{ .cp = 0xFC7A, .to = "\u{62B}\u{649}" },
+    .{ .cp = 0xFC7B, .to = "\u{62B}\u{64A}" },
+    .{ .cp = 0xFC7C, .to = "\u{641}\u{649}" },
+    .{ .cp = 0xFC7D, .to = "\u{641}\u{64A}" },
+    .{ .cp = 0xFC7E, .to = "\u{642}\u{649}" },
+    .{ .cp = 0xFC7F, .to = "\u{642}\u{64A}" },
+    .{ .cp = 0xFC80, .to = "\u{643}\u{627}" },
+    .{ .cp = 0xFC81, .to = "\u{643}\u{644}" },
+    .{ .cp = 0xFC82, .to = "\u{643}\u{645}" },
+    .{ .cp = 0xFC83, .to = "\u{643}\u{649}" },
+    .{ .cp = 0xFC84, .to = "\u{643}\u{64A}" },
+    .{ .cp = 0xFC85, .to = "\u{644}\u{645}" },
+    .{ .cp = 0xFC86, .to = "\u{644}\u{649}" },
+    .{ .cp = 0xFC87, .to = "\u{644}\u{64A}" },
+    .{ .cp = 0xFC88, .to = "\u{645}\u{627}" },
+    .{ .cp = 0xFC89, .to = "\u{645}\u{645}" },
+    .{ .cp = 0xFC8A, .to = "\u{646}\u{631}" },
+    .{ .cp = 0xFC8B, .to = "\u{646}\u{632}" },
+    .{ .cp = 0xFC8C, .to = "\u{646}\u{645}" },
+    .{ .cp = 0xFC8D, .to = "\u{646}\u{646}" },
+    .{ .cp = 0xFC8E, .to = "\u{646}\u{649}" },
+    .{ .cp = 0xFC8F, .to = "\u{646}\u{64A}" },
+    .{ .cp = 0xFC90, .to = "\u{649}\u{670}" },
+    .{ .cp = 0xFC91, .to = "\u{64A}\u{631}" },
+    .{ .cp = 0xFC92, .to = "\u{64A}\u{632}" },
+    .{ .cp = 0xFC93, .to = "\u{64A}\u{645}" },
+    .{ .cp = 0xFC94, .to = "\u{64A}\u{646}" },
+    .{ .cp = 0xFC95, .to = "\u{64A}\u{649}" },
+    .{ .cp = 0xFC96, .to = "\u{64A}\u{64A}" },
+    .{ .cp = 0xFC97, .to = "\u{626}\u{62C}" },
+    .{ .cp = 0xFC98, .to = "\u{626}\u{62D}" },
+    .{ .cp = 0xFC99, .to = "\u{626}\u{62E}" },
+    .{ .cp = 0xFC9A, .to = "\u{626}\u{645}" },
+    .{ .cp = 0xFC9B, .to = "\u{626}\u{647}" },
+    .{ .cp = 0xFC9C, .to = "\u{628}\u{62C}" },
+    .{ .cp = 0xFC9D, .to = "\u{628}\u{62D}" },
+    .{ .cp = 0xFC9E, .to = "\u{628}\u{62E}" },
+    .{ .cp = 0xFC9F, .to = "\u{628}\u{645}" },
+    .{ .cp = 0xFCA0, .to = "\u{628}\u{647}" },
+    .{ .cp = 0xFCA1, .to = "\u{62A}\u{62C}" },
+    .{ .cp = 0xFCA2, .to = "\u{62A}\u{62D}" },
+    .{ .cp = 0xFCA3, .to = "\u{62A}\u{62E}" },
+    .{ .cp = 0xFCA4, .to = "\u{62A}\u{645}" },
+    .{ .cp = 0xFCA5, .to = "\u{62A}\u{647}" },
+    .{ .cp = 0xFCA6, .to = "\u{62B}\u{645}" },
+    .{ .cp = 0xFCA7, .to = "\u{62C}\u{62D}" },
+    .{ .cp = 0xFCA8, .to = "\u{62C}\u{645}" },
+    .{ .cp = 0xFCA9, .to = "\u{62D}\u{62C}" },
+    .{ .cp = 0xFCAA, .to = "\u{62D}\u{645}" },
+    .{ .cp = 0xFCAB, .to = "\u{62E}\u{62C}" },
+    .{ .cp = 0xFCAC, .to = "\u{62E}\u{645}" },
+    .{ .cp = 0xFCAD, .to = "\u{633}\u{62C}" },
+    .{ .cp = 0xFCAE, .to = "\u{633}\u{62D}" },
+    .{ .cp = 0xFCAF, .to = "\u{633}\u{62E}" },
+    .{ .cp = 0xFCB0, .to = "\u{633}\u{645}" },
+    .{ .cp = 0xFCB1, .to = "\u{635}\u{62D}" },
+    .{ .cp = 0xFCB2, .to = "\u{635}\u{62E}" },
+    .{ .cp = 0xFCB3, .to = "\u{635}\u{645}" },
+    .{ .cp = 0xFCB4, .to = "\u{636}\u{62C}" },
+    .{ .cp = 0xFCB5, .to = "\u{636}\u{62D}" },
+    .{ .cp = 0xFCB6, .to = "\u{636}\u{62E}" },
+    .{ .cp = 0xFCB7, .to = "\u{636}\u{645}" },
+    .{ .cp = 0xFCB8, .to = "\u{637}\u{62D}" },
+    .{ .cp = 0xFCB9, .to = "\u{638}\u{645}" },
+    .{ .cp = 0xFCBA, .to = "\u{639}\u{62C}" },
+    .{ .cp = 0xFCBB, .to = "\u{639}\u{645}" },
+    .{ .cp = 0xFCBC, .to = "\u{63A}\u{62C}" },
+    .{ .cp = 0xFCBD, .to = "\u{63A}\u{645}" },
+    .{ .cp = 0xFCBE, .to = "\u{641}\u{62C}" },
+    .{ .cp = 0xFCBF, .to = "\u{641}\u{62D}" },
+    .{ .cp = 0xFCC0, .to = "\u{641}\u{62E}" },
+    .{ .cp = 0xFCC1, .to = "\u{641}\u{645}" },
+    .{ .cp = 0xFCC2, .to = "\u{642}\u{62D}" },
+    .{ .cp = 0xFCC3, .to = "\u{642}\u{645}" },
+    .{ .cp = 0xFCC4, .to = "\u{643}\u{62C}" },
+    .{ .cp = 0xFCC5, .to = "\u{643}\u{62D}" },
+    .{ .cp = 0xFCC6, .to = "\u{643}\u{62E}" },
+    .{ .cp = 0xFCC7, .to = "\u{643}\u{644}" },
+    .{ .cp = 0xFCC8, .to = "\u{643}\u{645}" },
+    .{ .cp = 0xFCC9, .to = "\u{644}\u{62C}" },
+    .{ .cp = 0xFCCA, .to = "\u{644}\u{62D}" },
+    .{ .cp = 0xFCCB, .to = "\u{644}\u{62E}" },
+    .{ .cp = 0xFCCC, .to = "\u{644}\u{645}" },
+    .{ .cp = 0xFCCD, .to = "\u{644}\u{647}" },
+    .{ .cp = 0xFCCE, .to = "\u{645}\u{62C}" },
+    .{ .cp = 0xFCCF, .to = "\u{645}\u{62D}" },
+    .{ .cp = 0xFCD0, .to = "\u{645}\u{62E}" },
+    .{ .cp = 0xFCD1, .to = "\u{645}\u{645}" },
+    .{ .cp = 0xFCD2, .to = "\u{646}\u{62C}" },
+    .{ .cp = 0xFCD3, .to = "\u{646}\u{62D}" },
+    .{ .cp = 0xFCD4, .to = "\u{646}\u{62E}" },
+    .{ .cp = 0xFCD5, .to = "\u{646}\u{645}" },
+    .{ .cp = 0xFCD6, .to = "\u{646}\u{647}" },
+    .{ .cp = 0xFCD7, .to = "\u{647}\u{62C}" },
+    .{ .cp = 0xFCD8, .to = "\u{647}\u{645}" },
+    .{ .cp = 0xFCD9, .to = "\u{647}\u{670}" },
+    .{ .cp = 0xFCDA, .to = "\u{64A}\u{62C}" },
+    .{ .cp = 0xFCDB, .to = "\u{64A}\u{62D}" },
+    .{ .cp = 0xFCDC, .to = "\u{64A}\u{62E}" },
+    .{ .cp = 0xFCDD, .to = "\u{64A}\u{645}" },
+    .{ .cp = 0xFCDE, .to = "\u{64A}\u{647}" },
+    .{ .cp = 0xFCDF, .to = "\u{626}\u{645}" },
+    .{ .cp = 0xFCE0, .to = "\u{626}\u{647}" },
+    .{ .cp = 0xFCE1, .to = "\u{628}\u{645}" },
+    .{ .cp = 0xFCE2, .to = "\u{628}\u{647}" },
+    .{ .cp = 0xFCE3, .to = "\u{62A}\u{645}" },
+    .{ .cp = 0xFCE4, .to = "\u{62A}\u{647}" },
+    .{ .cp = 0xFCE5, .to = "\u{62B}\u{645}" },
+    .{ .cp = 0xFCE6, .to = "\u{62B}\u{647}" },
+    .{ .cp = 0xFCE7, .to = "\u{633}\u{645}" },
+    .{ .cp = 0xFCE8, .to = "\u{633}\u{647}" },
+    .{ .cp = 0xFCE9, .to = "\u{634}\u{645}" },
+    .{ .cp = 0xFCEA, .to = "\u{634}\u{647}" },
+    .{ .cp = 0xFCEB, .to = "\u{643}\u{644}" },
+    .{ .cp = 0xFCEC, .to = "\u{643}\u{645}" },
+    .{ .cp = 0xFCED, .to = "\u{644}\u{645}" },
+    .{ .cp = 0xFCEE, .to = "\u{646}\u{645}" },
+    .{ .cp = 0xFCEF, .to = "\u{646}\u{647}" },
+    .{ .cp = 0xFCF0, .to = "\u{64A}\u{645}" },
+    .{ .cp = 0xFCF1, .to = "\u{64A}\u{647}" },
+    .{ .cp = 0xFCF2, .to = "\u{640}\u{64E}\u{651}" },
+    .{ .cp = 0xFCF3, .to = "\u{640}\u{64F}\u{651}" },
+    .{ .cp = 0xFCF4, .to = "\u{640}\u{650}\u{651}" },
+    .{ .cp = 0xFCF5, .to = "\u{637}\u{649}" },
+    .{ .cp = 0xFCF6, .to = "\u{637}\u{64A}" },
+    .{ .cp = 0xFCF7, .to = "\u{639}\u{649}" },
+    .{ .cp = 0xFCF8, .to = "\u{639}\u{64A}" },
+    .{ .cp = 0xFCF9, .to = "\u{63A}\u{649}" },
+    .{ .cp = 0xFCFA, .to = "\u{63A}\u{64A}" },
+    .{ .cp = 0xFCFB, .to = "\u{633}\u{649}" },
+    .{ .cp = 0xFCFC, .to = "\u{633}\u{64A}" },
+    .{ .cp = 0xFCFD, .to = "\u{634}\u{649}" },
+    .{ .cp = 0xFCFE, .to = "\u{634}\u{64A}" },
+    .{ .cp = 0xFCFF, .to = "\u{62D}\u{649}" },
+    .{ .cp = 0xFD00, .to = "\u{62D}\u{64A}" },
+    .{ .cp = 0xFD01, .to = "\u{62C}\u{649}" },
+    .{ .cp = 0xFD02, .to = "\u{62C}\u{64A}" },
+    .{ .cp = 0xFD03, .to = "\u{62E}\u{649}" },
+    .{ .cp = 0xFD04, .to = "\u{62E}\u{64A}" },
+    .{ .cp = 0xFD05, .to = "\u{635}\u{649}" },
+    .{ .cp = 0xFD06, .to = "\u{635}\u{64A}" },
+    .{ .cp = 0xFD07, .to = "\u{636}\u{649}" },
+    .{ .cp = 0xFD08, .to = "\u{636}\u{64A}" },
+    .{ .cp = 0xFD09, .to = "\u{634}\u{62C}" },
+    .{ .cp = 0xFD0A, .to = "\u{634}\u{62D}" },
+    .{ .cp = 0xFD0B, .to = "\u{634}\u{62E}" },
+    .{ .cp = 0xFD0C, .to = "\u{634}\u{645}" },
+    .{ .cp = 0xFD0D, .to = "\u{634}\u{631}" },
+    .{ .cp = 0xFD0E, .to = "\u{633}\u{631}" },
+    .{ .cp = 0xFD0F, .to = "\u{635}\u{631}" },
+    .{ .cp = 0xFD10, .to = "\u{636}\u{631}" },
+    .{ .cp = 0xFD11, .to = "\u{637}\u{649}" },
+    .{ .cp = 0xFD12, .to = "\u{637}\u{64A}" },
+    .{ .cp = 0xFD13, .to = "\u{639}\u{649}" },
+    .{ .cp = 0xFD14, .to = "\u{639}\u{64A}" },
+    .{ .cp = 0xFD15, .to = "\u{63A}\u{649}" },
+    .{ .cp = 0xFD16, .to = "\u{63A}\u{64A}" },
+    .{ .cp = 0xFD17, .to = "\u{633}\u{649}" },
+    .{ .cp = 0xFD18, .to = "\u{633}\u{64A}" },
+    .{ .cp = 0xFD19, .to = "\u{634}\u{649}" },
+    .{ .cp = 0xFD1A, .to = "\u{634}\u{64A}" },
+    .{ .cp = 0xFD1B, .to = "\u{62D}\u{649}" },
+    .{ .cp = 0xFD1C, .to = "\u{62D}\u{64A}" },
+    .{ .cp = 0xFD1D, .to = "\u{62C}\u{649}" },
+    .{ .cp = 0xFD1E, .to = "\u{62C}\u{64A}" },
+    .{ .cp = 0xFD1F, .to = "\u{62E}\u{649}" },
+    .{ .cp = 0xFD20, .to = "\u{62E}\u{64A}" },
+    .{ .cp = 0xFD21, .to = "\u{635}\u{649}" },
+    .{ .cp = 0xFD22, .to = "\u{635}\u{64A}" },
+    .{ .cp = 0xFD23, .to = "\u{636}\u{649}" },
+    .{ .cp = 0xFD24, .to = "\u{636}\u{64A}" },
+    .{ .cp = 0xFD25, .to = "\u{634}\u{62C}" },
+    .{ .cp = 0xFD26, .to = "\u{634}\u{62D}" },
+    .{ .cp = 0xFD27, .to = "\u{634}\u{62E}" },
+    .{ .cp = 0xFD28, .to = "\u{634}\u{645}" },
+    .{ .cp = 0xFD29, .to = "\u{634}\u{631}" },
+    .{ .cp = 0xFD2A, .to = "\u{633}\u{631}" },
+    .{ .cp = 0xFD2B, .to = "\u{635}\u{631}" },
+    .{ .cp = 0xFD2C, .to = "\u{636}\u{631}" },
+    .{ .cp = 0xFD2D, .to = "\u{634}\u{62C}" },
+    .{ .cp = 0xFD2E, .to = "\u{634}\u{62D}" },
+    .{ .cp = 0xFD2F, .to = "\u{634}\u{62E}" },
+    .{ .cp = 0xFD30, .to = "\u{634}\u{645}" },
+    .{ .cp = 0xFD31, .to = "\u{633}\u{647}" },
+    .{ .cp = 0xFD32, .to = "\u{634}\u{647}" },
+    .{ .cp = 0xFD33, .to = "\u{637}\u{645}" },
+    .{ .cp = 0xFD34, .to = "\u{633}\u{62C}" },
+    .{ .cp = 0xFD35, .to = "\u{633}\u{62D}" },
+    .{ .cp = 0xFD36, .to = "\u{633}\u{62E}" },
+    .{ .cp = 0xFD37, .to = "\u{634}\u{62C}" },
+    .{ .cp = 0xFD38, .to = "\u{634}\u{62D}" },
+    .{ .cp = 0xFD39, .to = "\u{634}\u{62E}" },
+    .{ .cp = 0xFD3A, .to = "\u{637}\u{645}" },
+    .{ .cp = 0xFD3B, .to = "\u{638}\u{645}" },
+    .{ .cp = 0xFD3C, .to = "\u{627}\u{64B}" },
+    .{ .cp = 0xFD3D, .to = "\u{627}\u{64B}" },
+    .{ .cp = 0xFD50, .to = "\u{62A}\u{62C}\u{645}" },
+    .{ .cp = 0xFD51, .to = "\u{62A}\u{62D}\u{62C}" },
+    .{ .cp = 0xFD52, .to = "\u{62A}\u{62D}\u{62C}" },
+    .{ .cp = 0xFD53, .to = "\u{62A}\u{62D}\u{645}" },
+    .{ .cp = 0xFD54, .to = "\u{62A}\u{62E}\u{645}" },
+    .{ .cp = 0xFD55, .to = "\u{62A}\u{645}\u{62C}" },
+    .{ .cp = 0xFD56, .to = "\u{62A}\u{645}\u{62D}" },
+    .{ .cp = 0xFD57, .to = "\u{62A}\u{645}\u{62E}" },
+    .{ .cp = 0xFD58, .to = "\u{62C}\u{645}\u{62D}" },
+    .{ .cp = 0xFD59, .to = "\u{62C}\u{645}\u{62D}" },
+    .{ .cp = 0xFD5A, .to = "\u{62D}\u{645}\u{64A}" },
+    .{ .cp = 0xFD5B, .to = "\u{62D}\u{645}\u{649}" },
+    .{ .cp = 0xFD5C, .to = "\u{633}\u{62D}\u{62C}" },
+    .{ .cp = 0xFD5D, .to = "\u{633}\u{62C}\u{62D}" },
+    .{ .cp = 0xFD5E, .to = "\u{633}\u{62C}\u{649}" },
+    .{ .cp = 0xFD5F, .to = "\u{633}\u{645}\u{62D}" },
+    .{ .cp = 0xFD60, .to = "\u{633}\u{645}\u{62D}" },
+    .{ .cp = 0xFD61, .to = "\u{633}\u{645}\u{62C}" },
+    .{ .cp = 0xFD62, .to = "\u{633}\u{645}\u{645}" },
+    .{ .cp = 0xFD63, .to = "\u{633}\u{645}\u{645}" },
+    .{ .cp = 0xFD64, .to = "\u{635}\u{62D}\u{62D}" },
+    .{ .cp = 0xFD65, .to = "\u{635}\u{62D}\u{62D}" },
+    .{ .cp = 0xFD66, .to = "\u{635}\u{645}\u{645}" },
+    .{ .cp = 0xFD67, .to = "\u{634}\u{62D}\u{645}" },
+    .{ .cp = 0xFD68, .to = "\u{634}\u{62D}\u{645}" },
+    .{ .cp = 0xFD69, .to = "\u{634}\u{62C}\u{64A}" },
+    .{ .cp = 0xFD6A, .to = "\u{634}\u{645}\u{62E}" },
+    .{ .cp = 0xFD6B, .to = "\u{634}\u{645}\u{62E}" },
+    .{ .cp = 0xFD6C, .to = "\u{634}\u{645}\u{645}" },
+    .{ .cp = 0xFD6D, .to = "\u{634}\u{645}\u{645}" },
+    .{ .cp = 0xFD6E, .to = "\u{636}\u{62D}\u{649}" },
+    .{ .cp = 0xFD6F, .to = "\u{636}\u{62E}\u{645}" },
+    .{ .cp = 0xFD70, .to = "\u{636}\u{62E}\u{645}" },
+    .{ .cp = 0xFD71, .to = "\u{637}\u{645}\u{62D}" },
+    .{ .cp = 0xFD72, .to = "\u{637}\u{645}\u{62D}" },
+    .{ .cp = 0xFD73, .to = "\u{637}\u{645}\u{645}" },
+    .{ .cp = 0xFD74, .to = "\u{637}\u{645}\u{64A}" },
+    .{ .cp = 0xFD75, .to = "\u{639}\u{62C}\u{645}" },
+    .{ .cp = 0xFD76, .to = "\u{639}\u{645}\u{645}" },
+    .{ .cp = 0xFD77, .to = "\u{639}\u{645}\u{645}" },
+    .{ .cp = 0xFD78, .to = "\u{639}\u{645}\u{649}" },
+    .{ .cp = 0xFD79, .to = "\u{63A}\u{645}\u{645}" },
+    .{ .cp = 0xFD7A, .to = "\u{63A}\u{645}\u{64A}" },
+    .{ .cp = 0xFD7B, .to = "\u{63A}\u{645}\u{649}" },
+    .{ .cp = 0xFD7C, .to = "\u{641}\u{62E}\u{645}" },
+    .{ .cp = 0xFD7D, .to = "\u{641}\u{62E}\u{645}" },
+    .{ .cp = 0xFD7E, .to = "\u{642}\u{645}\u{62D}" },
+    .{ .cp = 0xFD7F, .to = "\u{642}\u{645}\u{645}" },
+    .{ .cp = 0xFD80, .to = "\u{644}\u{62D}\u{645}" },
+    .{ .cp = 0xFD81, .to = "\u{644}\u{62D}\u{64A}" },
+    .{ .cp = 0xFD82, .to = "\u{644}\u{62D}\u{649}" },
+    .{ .cp = 0xFD83, .to = "\u{644}\u{62C}\u{62C}" },
+    .{ .cp = 0xFD84, .to = "\u{644}\u{62C}\u{62C}" },
+    .{ .cp = 0xFD85, .to = "\u{644}\u{62E}\u{645}" },
+    .{ .cp = 0xFD86, .to = "\u{644}\u{62E}\u{645}" },
+    .{ .cp = 0xFD87, .to = "\u{644}\u{645}\u{62D}" },
+    .{ .cp = 0xFD88, .to = "\u{644}\u{645}\u{62D}" },
+    .{ .cp = 0xFD89, .to = "\u{645}\u{62D}\u{62C}" },
+    .{ .cp = 0xFD8A, .to = "\u{645}\u{62D}\u{645}" },
+    .{ .cp = 0xFD8B, .to = "\u{645}\u{62D}\u{64A}" },
+    .{ .cp = 0xFD8C, .to = "\u{645}\u{62C}\u{62D}" },
+    .{ .cp = 0xFD8D, .to = "\u{645}\u{62C}\u{645}" },
+    .{ .cp = 0xFD8E, .to = "\u{645}\u{62E}\u{62C}" },
+    .{ .cp = 0xFD8F, .to = "\u{645}\u{62E}\u{645}" },
+    .{ .cp = 0xFD92, .to = "\u{645}\u{62C}\u{62E}" },
+    .{ .cp = 0xFD93, .to = "\u{647}\u{645}\u{62C}" },
+    .{ .cp = 0xFD94, .to = "\u{647}\u{645}\u{645}" },
+    .{ .cp = 0xFD95, .to = "\u{646}\u{62D}\u{645}" },
+    .{ .cp = 0xFD96, .to = "\u{646}\u{62D}\u{649}" },
+    .{ .cp = 0xFD97, .to = "\u{646}\u{62C}\u{645}" },
+    .{ .cp = 0xFD98, .to = "\u{646}\u{62C}\u{645}" },
+    .{ .cp = 0xFD99, .to = "\u{646}\u{62C}\u{649}" },
+    .{ .cp = 0xFD9A, .to = "\u{646}\u{645}\u{64A}" },
+    .{ .cp = 0xFD9B, .to = "\u{646}\u{645}\u{649}" },
+    .{ .cp = 0xFD9C, .to = "\u{64A}\u{645}\u{645}" },
+    .{ .cp = 0xFD9D, .to = "\u{64A}\u{645}\u{645}" },
+    .{ .cp = 0xFD9E, .to = "\u{628}\u{62E}\u{64A}" },
+    .{ .cp = 0xFD9F, .to = "\u{62A}\u{62C}\u{64A}" },
+    .{ .cp = 0xFDA0, .to = "\u{62A}\u{62C}\u{649}" },
+    .{ .cp = 0xFDA1, .to = "\u{62A}\u{62E}\u{64A}" },
+    .{ .cp = 0xFDA2, .to = "\u{62A}\u{62E}\u{649}" },
+    .{ .cp = 0xFDA3, .to = "\u{62A}\u{645}\u{64A}" },
+    .{ .cp = 0xFDA4, .to = "\u{62A}\u{645}\u{649}" },
+    .{ .cp = 0xFDA5, .to = "\u{62C}\u{645}\u{64A}" },
+    .{ .cp = 0xFDA6, .to = "\u{62C}\u{62D}\u{649}" },
+    .{ .cp = 0xFDA7, .to = "\u{62C}\u{645}\u{649}" },
+    .{ .cp = 0xFDA8, .to = "\u{633}\u{62E}\u{649}" },
+    .{ .cp = 0xFDA9, .to = "\u{635}\u{62D}\u{64A}" },
+    .{ .cp = 0xFDAA, .to = "\u{634}\u{62D}\u{64A}" },
+    .{ .cp = 0xFDAB, .to = "\u{636}\u{62D}\u{64A}" },
+    .{ .cp = 0xFDAC, .to = "\u{644}\u{62C}\u{64A}" },
+    .{ .cp = 0xFDAD, .to = "\u{644}\u{645}\u{64A}" },
+    .{ .cp = 0xFDAE, .to = "\u{64A}\u{62D}\u{64A}" },
+    .{ .cp = 0xFDAF, .to = "\u{64A}\u{62C}\u{64A}" },
+    .{ .cp = 0xFDB0, .to = "\u{64A}\u{645}\u{64A}" },
+    .{ .cp = 0xFDB1, .to = "\u{645}\u{645}\u{64A}" },
+    .{ .cp = 0xFDB2, .to = "\u{642}\u{645}\u{64A}" },
+    .{ .cp = 0xFDB3, .to = "\u{646}\u{62D}\u{64A}" },
+    .{ .cp = 0xFDB4, .to = "\u{642}\u{645}\u{62D}" },
+    .{ .cp = 0xFDB5, .to = "\u{644}\u{62D}\u{645}" },
+    .{ .cp = 0xFDB6, .to = "\u{639}\u{645}\u{64A}" },
+    .{ .cp = 0xFDB7, .to = "\u{643}\u{645}\u{64A}" },
+    .{ .cp = 0xFDB8, .to = "\u{646}\u{62C}\u{62D}" },
+    .{ .cp = 0xFDB9, .to = "\u{645}\u{62E}\u{64A}" },
+    .{ .cp = 0xFDBA, .to = "\u{644}\u{62C}\u{645}" },
+    .{ .cp = 0xFDBB, .to = "\u{643}\u{645}\u{645}" },
+    .{ .cp = 0xFDBC, .to = "\u{644}\u{62C}\u{645}" },
+    .{ .cp = 0xFDBD, .to = "\u{646}\u{62C}\u{62D}" },
+    .{ .cp = 0xFDBE, .to = "\u{62C}\u{62D}\u{64A}" },
+    .{ .cp = 0xFDBF, .to = "\u{62D}\u{62C}\u{64A}" },
+    .{ .cp = 0xFDC0, .to = "\u{645}\u{62C}\u{64A}" },
+    .{ .cp = 0xFDC1, .to = "\u{641}\u{645}\u{64A}" },
+    .{ .cp = 0xFDC2, .to = "\u{628}\u{62D}\u{64A}" },
+    .{ .cp = 0xFDC3, .to = "\u{643}\u{645}\u{645}" },
+    .{ .cp = 0xFDC4, .to = "\u{639}\u{62C}\u{645}" },
+    .{ .cp = 0xFDC5, .to = "\u{635}\u{645}\u{645}" },
+    .{ .cp = 0xFDC6, .to = "\u{633}\u{62E}\u{64A}" },
+    .{ .cp = 0xFDC7, .to = "\u{646}\u{62C}\u{64A}" },
+    .{ .cp = 0xFDF0, .to = "\u{635}\u{644}\u{6D2}" },
+    .{ .cp = 0xFDF1, .to = "\u{642}\u{644}\u{6D2}" },
+    .{ .cp = 0xFDF2, .to = "\u{627}\u{644}\u{644}\u{647}" },
+    .{ .cp = 0xFDF3, .to = "\u{627}\u{643}\u{628}\u{631}" },
+    .{ .cp = 0xFDF4, .to = "\u{645}\u{62D}\u{645}\u{62F}" },
+    .{ .cp = 0xFDF5, .to = "\u{635}\u{644}\u{639}\u{645}" },
+    .{ .cp = 0xFDF6, .to = "\u{631}\u{633}\u{648}\u{644}" },
+    .{ .cp = 0xFDF7, .to = "\u{639}\u{644}\u{64A}\u{647}" },
+    .{ .cp = 0xFDF8, .to = "\u{648}\u{633}\u{644}\u{645}" },
+    .{ .cp = 0xFDF9, .to = "\u{635}\u{644}\u{649}" },
+    .{ .cp = 0xFDFA, .to = "\u{635}\u{644}\u{649}\u{20}\u{627}\u{644}\u{644}\u{647}\u{20}\u{639}\u{644}\u{64A}\u{647}\u{20}\u{648}\u{633}\u{644}\u{645}" },
+    .{ .cp = 0xFDFB, .to = "\u{62C}\u{644}\u{20}\u{62C}\u{644}\u{627}\u{644}\u{647}" },
+    .{ .cp = 0xFDFC, .to = "\u{631}\u{6CC}\u{627}\u{644}" },
+    .{ .cp = 0xFE70, .to = "\u{20}\u{64B}" },
+    .{ .cp = 0xFE71, .to = "\u{640}\u{64B}" },
+    .{ .cp = 0xFE72, .to = "\u{20}\u{64C}" },
+    .{ .cp = 0xFE74, .to = "\u{20}\u{64D}" },
+    .{ .cp = 0xFE76, .to = "\u{20}\u{64E}" },
+    .{ .cp = 0xFE77, .to = "\u{640}\u{64E}" },
+    .{ .cp = 0xFE78, .to = "\u{20}\u{64F}" },
+    .{ .cp = 0xFE79, .to = "\u{640}\u{64F}" },
+    .{ .cp = 0xFE7A, .to = "\u{20}\u{650}" },
+    .{ .cp = 0xFE7B, .to = "\u{640}\u{650}" },
+    .{ .cp = 0xFE7C, .to = "\u{20}\u{651}" },
+    .{ .cp = 0xFE7D, .to = "\u{640}\u{651}" },
+    .{ .cp = 0xFE7E, .to = "\u{20}\u{652}" },
+    .{ .cp = 0xFE7F, .to = "\u{640}\u{652}" },
+    .{ .cp = 0xFE80, .to = "\u{621}" },
+    .{ .cp = 0xFE81, .to = "\u{622}" },
+    .{ .cp = 0xFE82, .to = "\u{622}" },
+    .{ .cp = 0xFE83, .to = "\u{623}" },
+    .{ .cp = 0xFE84, .to = "\u{623}" },
+    .{ .cp = 0xFE85, .to = "\u{624}" },
+    .{ .cp = 0xFE86, .to = "\u{624}" },
+    .{ .cp = 0xFE87, .to = "\u{625}" },
+    .{ .cp = 0xFE88, .to = "\u{625}" },
+    .{ .cp = 0xFE89, .to = "\u{626}" },
+    .{ .cp = 0xFE8A, .to = "\u{626}" },
+    .{ .cp = 0xFE8B, .to = "\u{626}" },
+    .{ .cp = 0xFE8C, .to = "\u{626}" },
+    .{ .cp = 0xFE8D, .to = "\u{627}" },
+    .{ .cp = 0xFE8E, .to = "\u{627}" },
+    .{ .cp = 0xFE8F, .to = "\u{628}" },
+    .{ .cp = 0xFE90, .to = "\u{628}" },
+    .{ .cp = 0xFE91, .to = "\u{628}" },
+    .{ .cp = 0xFE92, .to = "\u{628}" },
+    .{ .cp = 0xFE93, .to = "\u{629}" },
+    .{ .cp = 0xFE94, .to = "\u{629}" },
+    .{ .cp = 0xFE95, .to = "\u{62A}" },
+    .{ .cp = 0xFE96, .to = "\u{62A}" },
+    .{ .cp = 0xFE97, .to = "\u{62A}" },
+    .{ .cp = 0xFE98, .to = "\u{62A}" },
+    .{ .cp = 0xFE99, .to = "\u{62B}" },
+    .{ .cp = 0xFE9A, .to = "\u{62B}" },
+    .{ .cp = 0xFE9B, .to = "\u{62B}" },
+    .{ .cp = 0xFE9C, .to = "\u{62B}" },
+    .{ .cp = 0xFE9D, .to = "\u{62C}" },
+    .{ .cp = 0xFE9E, .to = "\u{62C}" },
+    .{ .cp = 0xFE9F, .to = "\u{62C}" },
+    .{ .cp = 0xFEA0, .to = "\u{62C}" },
+    .{ .cp = 0xFEA1, .to = "\u{62D}" },
+    .{ .cp = 0xFEA2, .to = "\u{62D}" },
+    .{ .cp = 0xFEA3, .to = "\u{62D}" },
+    .{ .cp = 0xFEA4, .to = "\u{62D}" },
+    .{ .cp = 0xFEA5, .to = "\u{62E}" },
+    .{ .cp = 0xFEA6, .to = "\u{62E}" },
+    .{ .cp = 0xFEA7, .to = "\u{62E}" },
+    .{ .cp = 0xFEA8, .to = "\u{62E}" },
+    .{ .cp = 0xFEA9, .to = "\u{62F}" },
+    .{ .cp = 0xFEAA, .to = "\u{62F}" },
+    .{ .cp = 0xFEAB, .to = "\u{630}" },
+    .{ .cp = 0xFEAC, .to = "\u{630}" },
+    .{ .cp = 0xFEAD, .to = "\u{631}" },
+    .{ .cp = 0xFEAE, .to = "\u{631}" },
+    .{ .cp = 0xFEAF, .to = "\u{632}" },
+    .{ .cp = 0xFEB0, .to = "\u{632}" },
+    .{ .cp = 0xFEB1, .to = "\u{633}" },
+    .{ .cp = 0xFEB2, .to = "\u{633}" },
+    .{ .cp = 0xFEB3, .to = "\u{633}" },
+    .{ .cp = 0xFEB4, .to = "\u{633}" },
+    .{ .cp = 0xFEB5, .to = "\u{634}" },
+    .{ .cp = 0xFEB6, .to = "\u{634}" },
+    .{ .cp = 0xFEB7, .to = "\u{634}" },
+    .{ .cp = 0xFEB8, .to = "\u{634}" },
+    .{ .cp = 0xFEB9, .to = "\u{635}" },
+    .{ .cp = 0xFEBA, .to = "\u{635}" },
+    .{ .cp = 0xFEBB, .to = "\u{635}" },
+    .{ .cp = 0xFEBC, .to = "\u{635}" },
+    .{ .cp = 0xFEBD, .to = "\u{636}" },
+    .{ .cp = 0xFEBE, .to = "\u{636}" },
+    .{ .cp = 0xFEBF, .to = "\u{636}" },
+    .{ .cp = 0xFEC0, .to = "\u{636}" },
+    .{ .cp = 0xFEC1, .to = "\u{637}" },
+    .{ .cp = 0xFEC2, .to = "\u{637}" },
+    .{ .cp = 0xFEC3, .to = "\u{637}" },
+    .{ .cp = 0xFEC4, .to = "\u{637}" },
+    .{ .cp = 0xFEC5, .to = "\u{638}" },
+    .{ .cp = 0xFEC6, .to = "\u{638}" },
+    .{ .cp = 0xFEC7, .to = "\u{638}" },
+    .{ .cp = 0xFEC8, .to = "\u{638}" },
+    .{ .cp = 0xFEC9, .to = "\u{639}" },
+    .{ .cp = 0xFECA, .to = "\u{639}" },
+    .{ .cp = 0xFECB, .to = "\u{639}" },
+    .{ .cp = 0xFECC, .to = "\u{639}" },
+    .{ .cp = 0xFECD, .to = "\u{63A}" },
+    .{ .cp = 0xFECE, .to = "\u{63A}" },
+    .{ .cp = 0xFECF, .to = "\u{63A}" },
+    .{ .cp = 0xFED0, .to = "\u{63A}" },
+    .{ .cp = 0xFED1, .to = "\u{641}" },
+    .{ .cp = 0xFED2, .to = "\u{641}" },
+    .{ .cp = 0xFED3, .to = "\u{641}" },
+    .{ .cp = 0xFED4, .to = "\u{641}" },
+    .{ .cp = 0xFED5, .to = "\u{642}" },
+    .{ .cp = 0xFED6, .to = "\u{642}" },
+    .{ .cp = 0xFED7, .to = "\u{642}" },
+    .{ .cp = 0xFED8, .to = "\u{642}" },
+    .{ .cp = 0xFED9, .to = "\u{643}" },
+    .{ .cp = 0xFEDA, .to = "\u{643}" },
+    .{ .cp = 0xFEDB, .to = "\u{643}" },
+    .{ .cp = 0xFEDC, .to = "\u{643}" },
+    .{ .cp = 0xFEDD, .to = "\u{644}" },
+    .{ .cp = 0xFEDE, .to = "\u{644}" },
+    .{ .cp = 0xFEDF, .to = "\u{644}" },
+    .{ .cp = 0xFEE0, .to = "\u{644}" },
+    .{ .cp = 0xFEE1, .to = "\u{645}" },
+    .{ .cp = 0xFEE2, .to = "\u{645}" },
+    .{ .cp = 0xFEE3, .to = "\u{645}" },
+    .{ .cp = 0xFEE4, .to = "\u{645}" },
+    .{ .cp = 0xFEE5, .to = "\u{646}" },
+    .{ .cp = 0xFEE6, .to = "\u{646}" },
+    .{ .cp = 0xFEE7, .to = "\u{646}" },
+    .{ .cp = 0xFEE8, .to = "\u{646}" },
+    .{ .cp = 0xFEE9, .to = "\u{647}" },
+    .{ .cp = 0xFEEA, .to = "\u{647}" },
+    .{ .cp = 0xFEEB, .to = "\u{647}" },
+    .{ .cp = 0xFEEC, .to = "\u{647}" },
+    .{ .cp = 0xFEED, .to = "\u{648}" },
+    .{ .cp = 0xFEEE, .to = "\u{648}" },
+    .{ .cp = 0xFEEF, .to = "\u{649}" },
+    .{ .cp = 0xFEF0, .to = "\u{649}" },
+    .{ .cp = 0xFEF1, .to = "\u{64A}" },
+    .{ .cp = 0xFEF2, .to = "\u{64A}" },
+    .{ .cp = 0xFEF3, .to = "\u{64A}" },
+    .{ .cp = 0xFEF4, .to = "\u{64A}" },
+    .{ .cp = 0xFEF5, .to = "\u{644}\u{622}" },
+    .{ .cp = 0xFEF6, .to = "\u{644}\u{622}" },
+    .{ .cp = 0xFEF7, .to = "\u{644}\u{623}" },
+    .{ .cp = 0xFEF8, .to = "\u{644}\u{623}" },
+    .{ .cp = 0xFEF9, .to = "\u{644}\u{625}" },
+    .{ .cp = 0xFEFA, .to = "\u{644}\u{625}" },
+    .{ .cp = 0xFEFB, .to = "\u{644}\u{627}" },
+    .{ .cp = 0xFEFC, .to = "\u{644}\u{627}" },
+};
+
+fn pformOf(cp: u21) ?[]const u8 {
+    var lo: usize = 0;
+    var hi: usize = pforms_nfkc.len;
+    while (lo < hi) {
+        const m = (lo + hi) / 2;
+        if (pforms_nfkc[m].cp == cp) return pforms_nfkc[m].to;
+        if (pforms_nfkc[m].cp < cp) lo = m + 1 else hi = m;
+    }
+    return null;
+}
+
 fn arabicLogical(a: Allocator, t: []const u8) ![]const u8 {
     var cps: std.ArrayList(u21) = .empty;
     var view = std.unicode.Utf8View.init(t) catch return t;
     var it = view.iterator();
     while (it.nextCodepoint()) |cp0| {
         var cp = cp0;
+        if (pformOf(cp)) |to| {
+            var v2 = std.unicode.Utf8View.init(to) catch continue;
+            var it2 = v2.iterator();
+            while (it2.nextCodepoint()) |c2| try cps.append(a, c2);
+            continue;
+        }
         if (cp >= 0xFEF5 and cp <= 0xFEFC) {
             // lam with alef: two letters
             try cps.append(a, 0x0644);
@@ -1775,7 +2545,16 @@ fn makeFrag(a: Allocator, gl: []Glyph, ids_in: []u32, text: []const u8, page_no:
     }
     var buf: std.ArrayList(u8) = .empty;
     var prev: ?Glyph = null;
+    var lead_bold: usize = 0;
+    var all_bold = true;
     for (order) |k| {
+        if (k != space_item and rtl <= ltr) {
+            const gk = gl[k];
+            if (!isBlankGlyph(glyphText(text, gk))) {
+                if (all_bold and !gk.bold and buf.items.len >= 3) lead_bold = trimSpace(buf.items).len + (buf.items.len - std.mem.trimLeft(u8, buf.items, " ").len);
+                if (!gk.bold) all_bold = false;
+            }
+        }
         if (k == space_item) {
             if (buf.items.len > 0 and buf.items[buf.items.len - 1] != ' ') try buf.append(a, ' ');
             continue;
@@ -1826,12 +2605,13 @@ fn makeFrag(a: Allocator, gl: []Glyph, ids_in: []u32, text: []const u8, page_no:
         .bold = nb * 2 > ids.len,
         .mono = mono,
         .italic = ni * 2 > ids.len,
+        .lead_bold = if (lead_bold > 0 and lead_bold < trimmed.len and nb * 2 <= ids.len) @min(lead_bold, trimmed.len) else 0,
         .text = trimmed,
     };
 }
 
 // A table: a region boxed by ruling lines that holds several fragments on several rows. Cells come from the rulings.
-const TableOut = struct { x0: f32, y0: f32, x1: f32, y1: f32, rows: [][][]const u8, size: f32 };
+const TableOut = struct { x0: f32, y0: f32, x1: f32, y1: f32, rows: [][][]const u8, size: f32, cols: [][2]f32 = &.{} };
 
 fn clusterVals(a: Allocator, vals: []f32, tol: f32) ![]f32 {
     std.mem.sort(f32, vals, {}, std.sort.asc(f32));
@@ -1970,7 +2750,9 @@ fn findTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.ArrayList
                 rows[ri][ci] = if (cells[k].items.len > 0) cells[k].items else gtext[Find.f(cg, @intCast(k))];
             }
         }
-        try tables.append(a, .{ .x0 = bx0, .y0 = by0, .x1 = bx1, .y1 = by1, .rows = rows, .size = size });
+        var bands = try a.alloc([2]f32, nc);
+        for (0..nc) |ci| bands[ci] = .{ cx[ci], cx[ci + 1] };
+        try tables.append(a, .{ .x0 = bx0, .y0 = by0, .x1 = bx1, .y1 = by1, .rows = rows, .size = size, .cols = bands });
     }
 }
 
@@ -1992,9 +2774,16 @@ fn wordCount(t: []const u8) usize {
 }
 
 fn findAlignedTables(a: Allocator, frags: []Frag, tables: *std.ArrayList(TableOut)) !void {
+    try findAlignedTablesIn(a, frags, -1e9, 1e9, tables);
+}
+
+fn findAlignedTablesIn(a: Allocator, frags: []Frag, lane0: f32, lane1: f32, tables: *std.ArrayList(TableOut)) !void {
     // rows: fragments outside any table, grouped by baseline
     var idx: std.ArrayList(u32) = .empty;
-    for (frags, 0..) |f, k| if (f.table < 0 and f.text.len > 0) try idx.append(a, @intCast(k));
+    for (frags, 0..) |f, k| {
+        const cxm = (f.x0 + f.x1) / 2;
+        if (f.table < 0 and f.text.len > 0 and cxm >= lane0 and cxm < lane1 and !isProseLine(frags, f)) try idx.append(a, @intCast(k));
+    }
     if (idx.items.len < 6) return;
     const ByBase = struct {
         f: []Frag,
@@ -2109,8 +2898,275 @@ fn findAlignedTables(a: Allocator, frags: []Frag, tables: *std.ArrayList(TableOu
             grid[ri] = try a.alloc([]const u8, nc);
             for (0..nc) |j| grid[ri][j] = cells[j].items;
         }
-        try tables.append(a, .{ .x0 = bx0, .y0 = by0, .x1 = bx1, .y1 = by1, .rows = grid, .size = size });
+        try tables.append(a, .{ .x0 = bx0, .y0 = by0, .x1 = bx1, .y1 = by1, .rows = grid, .size = size, .cols = try a.dupe([2]f32, cols.items) });
         r = e;
+    }
+}
+
+// A line of running prose: ten words or more over at least 35 per cent of the text width. It is never a cell
+// of a borderless table, even when it shares a baseline with one in the next column.
+fn isProseLine(frags: []Frag, f: Frag) bool {
+    if (isLongProse(frags, f)) return true;
+    // the last line of a paragraph: right under a long prose line that starts where it starts
+    for (frags) |o| {
+        if (o.text.len == 0) continue;
+        if (@abs(o.x0 - f.x0) < 2 and o.y1 <= f.y0 + 1 and f.y0 - o.y1 < 0.8 * f.size and isLongProse(frags, o)) return true;
+    }
+    return false;
+}
+
+fn isLongProse(frags: []Frag, f: Frag) bool {
+    if (wordCount(f.text) < 10) return false;
+    var minx: f32 = 1e9;
+    var maxx: f32 = -1e9;
+    for (frags) |o| {
+        if (o.text.len == 0) continue;
+        minx = @min(minx, o.x0);
+        maxx = @max(maxx, o.x1);
+    }
+    return f.x1 - f.x0 >= 0.35 * (maxx - minx);
+}
+
+fn colOf(cols: [][2]f32, x: f32) usize {
+    var best: usize = 0;
+    var bd: f32 = 1e9;
+    for (cols, 0..) |c, j| {
+        if (x >= c[0] and x <= c[1]) return j;
+        const dd = @min(@abs(x - c[0]), @abs(x - c[1]));
+        if (dd < bd) {
+            bd = dd;
+            best = j;
+        }
+    }
+    return best;
+}
+
+// The free fragments of one row (one baseline) inside a table's x range, nearest to y going up (dir -1) or down.
+fn rowNear(a: Allocator, frags: []Frag, t: TableOut, dir: i32) ![]u32 {
+    var bestb: f32 = if (dir < 0) -1e9 else 1e9;
+    for (frags) |f| {
+        if (f.table >= 0 or f.text.len == 0) continue;
+        const cm = (f.x0 + f.x1) / 2;
+        if (cm < t.x0 - 5 or cm > t.x1 + 5) continue;
+        if (dir < 0 and f.y1 <= t.y0 + 1 and f.base > bestb) bestb = f.base;
+        if (dir > 0 and f.y0 >= t.y1 - 1 and f.base < bestb) bestb = f.base;
+    }
+    var out: std.ArrayList(u32) = .empty;
+    if (@abs(bestb) > 1e8) return out.items;
+    for (frags, 0..) |f, k| {
+        if (f.table >= 0 or f.text.len == 0) continue;
+        const cm = (f.x0 + f.x1) / 2;
+        if (cm < t.x0 - 5 or cm > t.x1 + 5) continue;
+        if (@abs(f.base - bestb) < 0.3 * f.size) try out.append(a, @intCast(k));
+    }
+    const ByX = struct {
+        f: []Frag,
+        fn lt(ctx: @This(), l: u32, r: u32) bool {
+            return ctx.f[l].x0 < ctx.f[r].x0;
+        }
+    };
+    std.mem.sort(u32, out.items, ByX{ .f = frags }, ByX.lt);
+    return out.items;
+}
+
+// A table grows by its header row (free fragments right above it, one per column) and by its totals rows (right
+// below it, the amount in the last column; the label fills the cells it spans, as a merged cell does).
+fn growTables(a: Allocator, frags: []Frag, tables: *std.ArrayList(TableOut)) !void {
+    for (tables.items, 0..) |*t, ti| {
+        const n = t.cols.len;
+        if (n < 2 or t.rows.len == 0) continue;
+        // header rows above, possibly several (a two-level header), possibly past one section row
+        var hguard: usize = 0;
+        while (hguard < 4) : (hguard += 1) {
+            var row = try rowNear(a, frags, t.*, -1);
+            var section: ?u32 = null;
+            if (row.len == 1 and t.y0 - frags[row[0]].y1 <= 1.8 * frags[row[0]].size and frags[row[0]].size <= 1.05 * t.size and
+                @abs(frags[row[0]].x0 - t.cols[0][0]) <= 1.5 * t.size)
+            {
+                // a section row: only taken when a header row sits right above it
+                var probe = t.*;
+                probe.y0 = frags[row[0]].y0;
+                const above = try rowNear(a, frags, probe, -1);
+                if (above.len >= 2 and probe.y0 - frags[above[0]].y1 <= 1.8 * frags[above[0]].size) {
+                    section = row[0];
+                    row = above;
+                } else break;
+            }
+            var same_size = true;
+            for (row) |k| if (frags[k].size > 1.05 * t.size) {
+                same_size = false;
+            };
+            const edge = if (section) |sk| frags[sk].y0 else t.y0;
+            if (!(row.len >= 2 and same_size and edge - frags[row[0]].y1 <= 1.8 * frags[row[0]].size)) break;
+            var cells = try a.alloc([]const u8, n);
+            for (cells) |*c| c.* = "";
+            var distinct = true;
+            for (row) |k| {
+                // a header cell covers every column whose middle lies under it
+                var placed = false;
+                for (t.cols, 0..) |c, j| {
+                    const m = (c[0] + c[1]) / 2;
+                    if (m >= frags[k].x0 - 2 and m <= frags[k].x1 + 2) {
+                        if (cells[j].len > 0) distinct = false;
+                        cells[j] = frags[k].text;
+                        placed = true;
+                    }
+                }
+                if (!placed) {
+                    const j = colOf(t.cols, (frags[k].x0 + frags[k].x1) / 2);
+                    if (cells[j].len > 0) distinct = false;
+                    cells[j] = frags[k].text;
+                }
+            }
+            if (!distinct) break;
+            const extra: usize = if (section != null) 2 else 1;
+            var rows = try a.alloc([][]const u8, t.rows.len + extra);
+            rows[0] = cells;
+            if (section) |sk| {
+                const sc = try a.alloc([]const u8, n);
+                for (sc) |*c| c.* = frags[sk].text;
+                rows[1] = sc;
+                frags[sk].table = @intCast(ti);
+            }
+            @memcpy(rows[extra..], t.rows);
+            t.rows = rows;
+            for (row) |k| {
+                frags[k].table = @intCast(ti);
+                t.y0 = @min(t.y0, frags[k].y0);
+            }
+        }
+        // totals rows below
+        var guard: usize = 0;
+        while (guard < 40) : (guard += 1) {
+            const row = try rowNear(a, frags, t.*, 1);
+            if (row.len < 2 or frags[row[0]].y0 - t.y1 > 1.8 * frags[row[0]].size) break;
+            const last = frags[row[row.len - 1]];
+            if (colOf(t.cols, (last.x0 + last.x1) / 2) != n - 1) break;
+            var cells = try a.alloc([]const u8, n);
+            for (cells) |*c| c.* = "";
+            if (row.len == 2) {
+                for (0..n - 1) |j| cells[j] = frags[row[0]].text;
+                cells[n - 1] = last.text;
+            } else {
+                var distinct = true;
+                for (row) |k| {
+                    const j = colOf(t.cols, (frags[k].x0 + frags[k].x1) / 2);
+                    if (cells[j].len > 0) distinct = false;
+                    cells[j] = frags[k].text;
+                }
+                if (!distinct) break;
+            }
+            var rows = try a.alloc([][]const u8, t.rows.len + 1);
+            @memcpy(rows[0..t.rows.len], t.rows);
+            rows[t.rows.len] = cells;
+            t.rows = rows;
+            for (row) |k| {
+                frags[k].table = @intCast(ti);
+                t.y1 = @max(t.y1, frags[k].y1);
+                t.x0 = @min(t.x0, frags[k].x0);
+            }
+        }
+    }
+}
+
+// Two tables one right above the other, sharing their x range, are one table: a section row between them (one
+// cell across the table) becomes a row of its own, its text in every cell; the lower table's cells go to the
+// upper table's columns; a repeated header row is dropped. A merged-away table keeps no rows.
+fn stackTables(a: Allocator, frags: []Frag, tables: *std.ArrayList(TableOut)) !void {
+    var changed = true;
+    var rounds: usize = 0;
+    while (changed and rounds < 20) : (rounds += 1) {
+        changed = false;
+        for (tables.items, 0..) |*t1, i| {
+            if (t1.rows.len == 0 or t1.cols.len < 2) continue;
+            for (tables.items, 0..) |*t2, j| {
+                if (i == j or t2.rows.len == 0) continue;
+                if (t2.y0 < t1.y1 - 1) continue;
+                const ov = @min(t1.x1, t2.x1) - @max(t1.x0, t2.x0);
+                if (ov < 0.6 * @min(t1.x1 - t1.x0, t2.x1 - t2.x0)) continue;
+                // the section rows between them, and nothing else
+                var between: std.ArrayList(u32) = .empty;
+                var foreign = false;
+                for (frags, 0..) |f, k| {
+                    if (f.text.len == 0 or f.table >= 0) continue;
+                    if (f.y0 >= t1.y1 - 1 and f.y1 <= t2.y0 + 1 and (f.x0 + f.x1) / 2 > t1.x0 - 5 and (f.x0 + f.x1) / 2 < t1.x1 + 5) {
+                        if (wordCount(f.text) > 8) foreign = true;
+                        try between.append(a, @intCast(k));
+                    }
+                }
+                const gap = t2.y0 - t1.y1;
+                if (foreign or gap > 3.5 * t1.size + @as(f32, @floatFromInt(between.items.len)) * 2.0 * t1.size) continue;
+                // the lower table's columns must fall on the upper table's: as many and in place, or a totals
+                // block (two columns, its amounts in the upper table's last column)
+                if (t2.cols.len > t1.cols.len or t2.cols.len == 0) continue;
+                var totals = false;
+                if (t2.cols.len == t1.cols.len) {
+                    var used = try a.alloc(bool, t1.cols.len);
+                    @memset(used, false);
+                    var inj = true;
+                    for (t2.cols) |c2| {
+                        const jj = colOf(t1.cols, (c2[0] + c2[1]) / 2);
+                        if (used[jj]) inj = false;
+                        used[jj] = true;
+                    }
+                    if (!inj) continue;
+                } else if (t2.cols.len == 2 and colOf(t1.cols, (t2.cols[1][0] + t2.cols[1][1]) / 2) == t1.cols.len - 1) {
+                    totals = true;
+                } else continue;
+                // no other table sits between them
+                var other = false;
+                for (tables.items, 0..) |t3, q| {
+                    if (q == i or q == j or t3.rows.len == 0) continue;
+                    if (t3.y0 >= t1.y1 - 1 and t3.y1 <= t2.y0 + 1) other = true;
+                }
+                if (other) continue;
+                const n = t1.cols.len;
+                var rows: std.ArrayList([][]const u8) = .empty;
+                try rows.appendSlice(a, t1.rows);
+                for (between.items) |k| {
+                    const cells = try a.alloc([]const u8, n);
+                    for (cells) |*c| c.* = frags[k].text;
+                    try rows.append(a, cells);
+                    frags[k].table = @intCast(i);
+                }
+                for (t2.rows, 0..) |r2, ri| {
+                    var cells = try a.alloc([]const u8, n);
+                    for (cells) |*c| c.* = "";
+                    if (t2.cols.len == n) {
+                        for (r2, 0..) |c, ci| cells[ci] = c;
+                    } else if (totals and r2.len == 2) {
+                        for (0..n - 1) |q| cells[q] = r2[0];
+                        cells[n - 1] = r2[1];
+                    } else if (t2.cols.len > 0) {
+                        for (r2, 0..) |c, ci| {
+                            if (ci >= t2.cols.len) break;
+                            const jj = colOf(t1.cols, (t2.cols[ci][0] + t2.cols[ci][1]) / 2);
+                            if (cells[jj].len == 0) cells[jj] = c;
+                        }
+                    }
+                    // the upper table's header repeated at the top of the lower one is dropped
+                    if (ri == 0 and t1.rows.len > 0) {
+                        var same = true;
+                        for (cells, t1.rows[0]) |c1, c2| if (!eq(c1, c2)) {
+                            same = false;
+                        };
+                        if (same) continue;
+                    }
+                    try rows.append(a, cells);
+                }
+                t1.rows = rows.items;
+                t1.y1 = t2.y1;
+                t1.x0 = @min(t1.x0, t2.x0);
+                t1.x1 = @max(t1.x1, t2.x1);
+                for (frags) |*f| if (f.table == @as(i32, @intCast(j))) {
+                    f.table = @intCast(i);
+                };
+                t2.rows = &.{};
+                changed = true;
+                break;
+            }
+            if (changed) break;
+        }
     }
 }
 
@@ -2578,11 +3634,17 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
         }
         var tables: std.ArrayList(TableOut) = .empty;
         try findTables(a, frags.items, pg.rules, &tables);
+        try growTables(a, frags.items, &tables);
         try findAlignedTables(a, frags.items, &tables);
+        try growTables(a, frags.items, &tables);
+        try stackTables(a, frags.items, &tables);
         // units: the fragments outside tables, plus one unit per table
         var units: std.ArrayList(Frag) = .empty;
         for (frags.items) |f| if (f.table < 0 and f.text.len > 0) try units.append(a, f);
-        for (tables.items, 0..) |t, ti| try units.append(a, .{ .page = @intCast(pi + 1), .x0 = t.x0, .x1 = t.x1, .base = t.y1, .y0 = t.y0, .y1 = t.y1, .size = t.size, .bold = false, .mono = false, .text = "", .table = @intCast(ti) });
+        for (tables.items, 0..) |t, ti| {
+            if (t.rows.len == 0) continue; // merged into another table
+            try units.append(a, .{ .page = @intCast(pi + 1), .x0 = t.x0, .x1 = t.x1, .base = t.y1, .y0 = t.y0, .y1 = t.y1, .size = t.size, .bold = false, .mono = false, .text = "", .table = @intCast(ti) });
+        }
         const ids = try a.alloc(u32, units.items.len);
         for (ids, 0..) |*v, k| v.* = @intCast(k);
         var order: std.ArrayList(u32) = .empty;
@@ -2670,7 +3732,13 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
                     list_x = f.x0 + 1.0 * f.size;
                 } else if (f.mono) kind = .code;
                 cur = .{ .page = f.page, .kind = kind, .x0 = f.x0, .y0 = f.y0, .x1 = f.x1, .y1 = f.y1, .size = f.size, .bold = f.bold, .mono = f.mono, .italic = f.italic, .text = "" };
-                try cur_text.appendSlice(a, f.text);
+                const lb = f.lead_bold;
+                const lead = if (lb > 0 and lb < f.text.len) trimSpace(f.text[0..lb]) else "";
+                if (kind == .paragraph and lead.len > 0 and lead.len <= 60 and wordCount(lead) <= 8) {
+                    // the bold lead-in is a heading block of its own; the rest of the line opens the paragraph
+                    try merged.append(a, .{ .page = f.page, .kind = .paragraph, .x0 = f.x0, .y0 = f.y0, .x1 = f.x1, .y1 = f.y1, .size = f.size, .bold = true, .mono = false, .text = try a.dupe(u8, lead), .runin = true });
+                    try cur_text.appendSlice(a, trimSpace(f.text[lb..]));
+                } else try cur_text.appendSlice(a, f.text);
             }
             last = f;
         }
@@ -2714,7 +3782,7 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
                 b.kind = if (top) .page_header else .page_footer;
                 continue;
             }
-            if (b.kind == .paragraph and b.lines == 1 and body > 0 and b.size <= 0.92 * body and wordCount(b.text) <= 12) {
+            if (b.kind == .paragraph and body > 0 and ((b.lines == 1 and b.size <= 0.92 * body and wordCount(b.text) <= 12) or (b.lines <= 3 and b.size <= 0.85 * body))) {
                 b.kind = if (top) .page_header else .page_footer;
                 continue;
             }
@@ -2727,6 +3795,17 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
             continue;
         }
         if (b.kind == .code and isMonoProse(b.text)) b.kind = .paragraph;
+        // one line of monospaced type, larger than the body or bold, is a heading set in a typewriter face
+        if (b.kind == .code and b.lines == 1 and body > 0 and b.text.len <= 80 and (b.size >= 1.15 * body or b.bold)) {
+            b.kind = .heading;
+            try hsizes.append(a, b.size);
+            continue;
+        }
+        if (b.kind == .paragraph and b.runin) {
+            b.kind = .heading;
+            try hsizes.append(a, b.size);
+            continue;
+        }
         if (b.kind != .paragraph) continue;
         const short = b.text.len <= 160;
         const ends = b.text.len > 0 and (b.text[b.text.len - 1] == '.' or b.text[b.text.len - 1] == ':' or b.text[b.text.len - 1] == ',');
