@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 84 methods in 53 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 81 methods in 52 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| stats/stzCoeffExtractor.ring | stzCoeffExtractor | 3 |
 | stats/stzDataSet.ring | stzDataSet | 3 |
 | stats/stzLinearSolver.ring | stzLinearSolver | 3 |
 | string/stzStringChecker.ring | stzStringChecker | 3 |
@@ -231,12 +230,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzSoundGraph -- sound/stzSoundGraph.ring (1)
 
 - `OutputNode` (line 183): Returns the index of the node the graph hands to the world. -- a node added after the graph was prepared can reset this to 0, see the defects file
-
-## stzCoeffExtractor -- stats/stzCoeffExtractor.ring (3)
-
-- `numericalDerivative` (line 268): Raises error R42 today instead of returning the slope of the expression along one variable at the test point 10. -- every call raises R42 Error in eval() function (checked on x/8 + y/4 and pow(x, 2)), because evaluateExpression builds an empty formula
-- `evaluateExpression` (line 309): Raises error R42 today instead of returning the value of an expression at a point. -- the variables are replaced by calling ManyReplaced with a list of new texts, which takes ONE new text and returns an empty text, so the evaluated formula is empty and eval fails with a syntax error (checked on x + y and x + 1)
-- `validateExpression` (line 396): Returns 0 for every expression today instead of telling whether it can be evaluated. -- it calls createTestValues with an argument that method does not take, which raises inside its try, so the answer is always 0 (checked on x + 1 and x + y)
 
 ## stzDataSet -- stats/stzDataSet.ring (3)
 

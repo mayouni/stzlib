@@ -1,5 +1,5 @@
 {
- "count": 84,
+ "count": 81,
  "defects": [
   {
    "class": "stzAppServer",
@@ -440,30 +440,6 @@
    "line": 183,
    "symptom": "Returns the index of the node the graph hands to the world.",
    "cause": "a node added after the graph was prepared can reset this to 0, see the defects file"
-  },
-  {
-   "class": "stzCoeffExtractor",
-   "file": "stats/stzCoeffExtractor.ring",
-   "method": "numericalDerivative",
-   "line": 268,
-   "symptom": "Raises error R42 today instead of returning the slope of the expression along one variable at the test point 10.",
-   "cause": "every call raises R42 Error in eval() function (checked on x/8 + y/4 and pow(x, 2)), because evaluateExpression builds an empty formula"
-  },
-  {
-   "class": "stzCoeffExtractor",
-   "file": "stats/stzCoeffExtractor.ring",
-   "method": "evaluateExpression",
-   "line": 309,
-   "symptom": "Raises error R42 today instead of returning the value of an expression at a point.",
-   "cause": "the variables are replaced by calling ManyReplaced with a list of new texts, which takes ONE new text and returns an empty text, so the evaluated formula is empty and eval fails with a syntax error (checked on x + y and x + 1)"
-  },
-  {
-   "class": "stzCoeffExtractor",
-   "file": "stats/stzCoeffExtractor.ring",
-   "method": "validateExpression",
-   "line": 396,
-   "symptom": "Returns 0 for every expression today instead of telling whether it can be evaluated.",
-   "cause": "it calls createTestValues with an argument that method does not take, which raises inside its try, so the answer is always 0 (checked on x + 1 and x + y)"
   },
   {
    "class": "stzDataSet",
