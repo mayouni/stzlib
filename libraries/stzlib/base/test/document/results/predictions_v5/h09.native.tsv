@@ -1,0 +1,53 @@
+page_header	0	REGIONAL VACCINE LOGISTICS UNIT · TECHNICAL NOTE TN-07
+page_header	0	ISSUED 2 JUNE 2025
+heading	1	Drift\tof\tLow-Cost\tTemperature\tLoggers\tin\tVaccine\tCold Rooms
+paragraph	0	N. Abubakar, S. Okonkwo-Reid and T. Vasquez
+paragraph	0	Quality\tAssurance\tLaboratory,\tRegional\tVaccine\tLogistics\tUnit
+paragraph	0	Abstract. Thirty-six low-cost data loggers were kept in two vaccine cold rooms for eighteen months and compared every quarter with a calibrated reference thermometer. The mean drift was small, but six loggers drifted by more than 0.5 °C and would have hidden a temperature excursion. We recommend a linear drift correction and a recalibration interval of twelve months. Keywords: cold chain, data logger, calibration, measurement drift
+heading	2	1. Introduction
+paragraph	0	Vaccines lose potency when they are stored outside the range of 2 to 8 °C, and the loss cannot be seen on the vial. District stores therefore rely on data loggers to show that a cold room stayed within range between two inspections. The cheapest loggers cost less than a tenth of a laboratory instrument, which makes them attractive for stores with small budgets.
+paragraph	0	Manufacturers usually state an accuracy of ±0.5 °C at the
+paragraph	0	1
+paragraph	0	time of delivery. Little is known about how this accuracy changes after a year or more in service. This note reports a field comparison carried out at the central store.
+heading	2	2. Method
+heading	3	2.1 Loggers and reference
+paragraph	0	Three models from different suppliers were tested, with twelve loggers of each model. The reference was a platinum resistance thermometer calibrated by an accredited laboratory, with an expanded uncertainty of 0.05 °C. All loggers recorded at an interval of five minutes.
+heading	3	2.2 Comparison procedure
+paragraph	0	Every quarter the loggers and the reference probe were placed together in a stirred water bath at 5.0 °C for two hours. The difference between each logger and the reference over the last hour was taken as the error of that logger on that day. Drift was estimated by fitting a straight line to the errors of each logger against time in service: e(t)=a+b·t
+paragraph	0	(1)
+paragraph	0	where a is the error at delivery and b is the drift rate in °C per month. The correction applied to a raw reading is shown in the listing below.
+code	0	def corrected(raw_c, months, a, b):\n    """Remove the fitted error from a raw reading."""\n    return raw_c - (a + b * months)\n\n# model B, logger 07: a = 0.12, b = 0.031\nprint(round(corrected(7.40, 18, 0.12, 0.031), 2))  # 6.72
+heading	2	3. Results
+paragraph	0	All thirty-six loggers completed the eighteen months of the study. The error at delivery was within the stated accuracy for every logger. The drift rate differed clearly between the three models, as shown in Table 1.
+paragraph	0	Table\t1. Error at delivery and drift rate by logger model (n = 12 per model)
+paragraph	0	Model
+paragraph	0	Mean a (°C)
+paragraph	0	A
+paragraph	0	B
+paragraph	0	C
+paragraph	0	0.04
+paragraph	0	0.09
+paragraph	0	−0.06
+paragraph	0	Mean b (°C/month)
+paragraph	0	0.004
+paragraph	0	0.027
+paragraph	0	−0.009
+paragraph	0	Max |e| at 18 months (°C)
+paragraph	0	0.21
+paragraph	0	0.74
+paragraph	0	0.52
+paragraph	0	Loggers > 0.5 °C
+paragraph	0	0
+paragraph	0	5
+paragraph	0	1
+paragraph	0	Model B drifted upwards in every logger, so a cold room that was too warm would have looked colder than it was. Five of the twelve model B loggers exceeded 0.5 °C before the end of the study. Model A showed no meaningful drift at all.
+heading	2	4. Discussion
+paragraph	0	A positive drift is the dangerous direction for a cold room, because it hides a warm excursion rather than raising a false alarm. The linear model fitted the quarterly errors well for all three models, with residuals below 0.08 °C.2 A correction based on equation (1) is therefore practical when the coefficients are re-estimated at every recalibration.
+paragraph	0	The study has two limitations. Only one cold room temperature was tested, and loggers used in vehicles may age differently because of vibration.
+heading	2	5. Recommendations
+paragraph	0	Stores should recalibrate every logger at least once every twelve months against a reference with a valid certificate. Loggers whose drift rate exceeds 0.02 °C per month should be withdrawn from service.
+paragraph	0	1 Two of the three suppliers state this figure only for the range 0 to 10 °C.
+paragraph	0	2 Residuals were computed as the difference between each measured error and the fitted line.
+heading	2	References
+paragraph	0	[1] Abubakar N, Vasquez T. Quarterly inspection of district cold rooms: results of the 2023 round. Internal report RVLU-QA-11;
+paragraph	0	2024. [2] Okonkwo-Reid S. Practical calibration of temperature sensors in water baths. Laboratory Methods Bulletin. 2022;8(3):41–47. [3] Regional Vaccine Logistics Unit. Standard operating procedure for temperature monitoring, version 4. 2023.

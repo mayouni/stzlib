@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Memorandum - visiting hours</title>
+<style>
+@page { size: A4; margin: 0 }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+html, body { margin: 0; padding: 0; }
+body { font-family: "Book Antiqua", "Palatino Linotype", Georgia, serif; font-size: 11pt; line-height: 1.45; color: #1a1a1a; }
+.page { width: 210mm; height: 296mm; box-sizing: border-box; padding: 12mm 24mm 10mm; display: flex; flex-direction: column; overflow: hidden; }
+.hdr { display: flex; justify-content: space-between; align-items: center; font-family: Arial, sans-serif; font-size: 8.5pt; color: #4a4a4a; }
+.hdr .stamp { border: 1.2pt solid #a4161a; color: #a4161a; padding: 0.8mm 2.5mm; font-weight: bold; letter-spacing: 1pt; transform: rotate(-2deg); }
+.content { flex: 1; min-height: 0; overflow: hidden; padding-top: 10mm; }
+h1 { font-family: Arial, sans-serif; font-size: 22pt; letter-spacing: 6pt; font-weight: 300; margin: 0 0 6mm; color: #333; }
+.fields { display: grid; grid-template-columns: 22mm 1fr; row-gap: 1.2mm; font-size: 10.5pt; margin-bottom: 4mm; }
+.fields .k { font-family: Arial, sans-serif; font-weight: bold; font-size: 9.5pt; padding-top: 0.4mm; }
+hr { border: none; border-top: 1.5pt solid #333; margin: 3mm 0 6mm; }
+p { margin: 0 0 3.5mm; }
+ul { margin: 0 0 4mm; padding-left: 7mm; }
+ul ul { margin: 1mm 0 1.5mm; padding-left: 7mm; list-style-type: circle; }
+li { margin-bottom: 1mm; }
+blockquote { margin: 4mm 8mm 5mm; padding: 2mm 0 2mm 5mm; border-left: 2.5pt solid #a4161a; font-style: italic; color: #333; }
+blockquote p { margin: 0 0 1.5mm; }
+blockquote .src { font-style: normal; font-family: Arial, sans-serif; font-size: 8.5pt; color: #666; margin: 0; }
+.initials { margin-top: 8mm; font-family: "Segoe Script", "Brush Script MT", cursive; font-size: 16pt; color: #1f3a93; }
+.encl { margin-top: 6mm; font-size: 9.5pt; }
+.ftr { font-family: Arial, sans-serif; font-size: 8pt; color: #666; text-align: center; border-top: 0.4pt solid #bbb; padding-top: 1.5mm; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="hdr"><span class="furn">Lakeview District Hospital &middot; Nursing Directorate</span><span class="stamp furn">INTERNAL</span></div>
+  <div class="content">
+    <h1>MEMORANDUM</h1>
+    <div class="fields">
+      <div class="k">To:</div><div>Ward managers, surgical wards S1 to S4</div>
+      <div class="k">Cc:</div><div>Head of Security; Patient Advice Office; Switchboard</div>
+      <div class="k">From:</div><div>Margaret Oyelaran, Director of Nursing</div>
+      <div class="k">Date:</div><div>3 February 2026</div>
+      <div class="k">Subject:</div><div><b>Changes to visiting hours on surgical wards</b></div>
+    </div>
+    <hr>
+    <p>Following the review of patient feedback and the advice of the infection prevention team, visiting hours on the surgical wards will change from Monday 16 February 2026. Please brief your teams before that date and replace the notices at the ward entrances.</p>
+    <p>The new arrangements are as follows:</p>
+    <ul>
+      <li>Weekdays
+        <ul>
+          <li>Afternoon visits from 14:00 to 16:00</li>
+          <li>Evening visits from 18:30 to 20:00</li>
+        </ul>
+      </li>
+      <li>Weekends and public holidays
+        <ul>
+          <li>Continuous visiting from 11:00 to 19:00</li>
+        </ul>
+      </li>
+      <li>Exceptions
+        <ul>
+          <li>Parents and carers of patients under 16 may stay at any time.</li>
+          <li>The nurse in charge may approve other exceptions, for example for patients at the end of life.</li>
+        </ul>
+      </li>
+    </ul>
+    <p>The limit on the number of visitors is unchanged. As the policy states:</p>
+    <blockquote>
+      <p>&ldquo;Visitors should not exceed two per bed at any time, and children under twelve must be accompanied by an adult.&rdquo;</p>
+      <p class="src">Infection Prevention Policy, section 4.2</p>
+    </blockquote>
+    <p>Protected mealtimes remain in place between 12:00 and 13:00 and between 17:00 and 18:00. During these periods visitors may stay only if they are helping a patient to eat.</p>
+    <p>Questions about the new arrangements should be sent to the Patient Advice Office, which will also answer enquiries from the public.</p>
+    <div class="initials">M.O.</div>
+    <div class="encl">Enclosure: revised ward entrance notice (A3)</div>
+  </div>
+  <div class="ftr furn">Lakeview District Hospital &middot; Ref. ND/2026/014</div>
+</div>
+</body>
+</html>

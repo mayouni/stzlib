@@ -1,0 +1,118 @@
+{
+  "id": "h13",
+  "difficulty": "bilingual Swahili and English clinic immunisation schedule, flowing text: two-line bilingual title, Swahili and English paragraphs side by side, a schedule table with age cells spanning two and four rows, list items and headings that carry an English gloss in grey italics, a red bordered reminder and a centred closing line",
+  "pages": 1,
+  "title": "Ratiba ya Chanjo za Watoto Child Immunisation Schedule",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Ratiba ya Chanjo za Watoto Child Immunisation Schedule"
+    },
+    {
+      "level": 2,
+      "text": "Siku za kliniki / Clinic days"
+    },
+    {
+      "level": 2,
+      "text": "Baada ya chanjo / After vaccination"
+    }
+  ],
+  "key_sentences": [
+    "Chanjo humkinga mtoto dhidi ya magonjwa hatari.",
+    "Mlete mtoto wako kliniki kwa wakati kulingana na ratiba hii.",
+    "Vaccines protect your child against dangerous diseases.",
+    "Bring your child to the clinic on time according to this schedule.",
+    "Hali hii kwa kawaida huisha baada ya siku moja au mbili.",
+    "This usually goes away after one or two days.",
+    "Chanjo zote ni bure.",
+    "All vaccines are free of charge."
+  ],
+  "tables": [
+    {
+      "caption": "Ratiba / Schedule",
+      "rows": [
+        [
+          "Umri / Age",
+          "Chanjo / Vaccine",
+          "Kinga dhidi ya / Protects against"
+        ],
+        [
+          "Wakati wa kuzaliwa / At birth",
+          "BCG",
+          "Kifua kikuu / Tuberculosis"
+        ],
+        [
+          "Wakati wa kuzaliwa / At birth",
+          "OPV 0",
+          "Polio"
+        ],
+        [
+          "Wiki 6 / 6 weeks",
+          "Pentavalent 1",
+          "Dondakoo, kifaduro, pepopunda, homa ya ini B, Hib / Diphtheria, whooping cough, tetanus, hepatitis B, Hib"
+        ],
+        [
+          "Wiki 6 / 6 weeks",
+          "OPV 1",
+          "Polio"
+        ],
+        [
+          "Wiki 6 / 6 weeks",
+          "PCV 1",
+          "Nimonia / Pneumonia"
+        ],
+        [
+          "Wiki 6 / 6 weeks",
+          "Rota 1",
+          "Kuharisha / Diarrhoea"
+        ],
+        [
+          "Wiki 10 / 10 weeks",
+          "Pentavalent 2, OPV 2, PCV 2, Rota 2",
+          "Kama wiki 6 / As at 6 weeks"
+        ],
+        [
+          "Wiki 14 / 14 weeks",
+          "Pentavalent 3, OPV 3, PCV 3",
+          "Kama wiki 6 / As at 6 weeks"
+        ],
+        [
+          "Wiki 14 / 14 weeks",
+          "IPV",
+          "Polio"
+        ],
+        [
+          "Miezi 9 / 9 months",
+          "Surua-Rubela 1 / Measles-Rubella 1",
+          "Surua na rubela / Measles and rubella"
+        ],
+        [
+          "Miezi 18 / 18 months",
+          "Surua-Rubela 2 / Measles-Rubella 2",
+          "Surua na rubela / Measles and rubella"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Jumatatu na Alhamisi: chanjo za watoto, saa 2 asubuhi hadi saa 6 mchana / Monday and Thursday: child vaccinations, 8 a.m. to 12 noon"
+    },
+    {
+      "level": 0,
+      "text": "Jumanne: kliniki ya wajawazito / Tuesday: antenatal clinic"
+    },
+    {
+      "level": 0,
+      "text": "Ijumaa: ufuatiliaji wa ukuaji na lishe / Friday: growth and nutrition monitoring"
+    }
+  ],
+  "furniture": [],
+  "languages": [
+    "sw",
+    "en"
+  ],
+  "code": [],
+  "notes": "The title is printed on two lines, Swahili above and the English translation below in italics; the title string joins them with one space. The opening paragraphs sit side by side, Swahili left and English right; reading order is Swahili first. Age cells span rows ('Wakati wa kuzaliwa / At birth' over 2 rows, 'Wiki 6 / 6 weeks' over 4, 'Wiki 14 / 14 weeks' over 2) and are repeated in every covered row. Swahili clock times count from 6 a.m. ('saa 2 asubuhi' = 8 a.m.); this is content, not an error. The top line 'ZAHANATI YA MWEMBENI · MWEMBENI DISPENSARY' is an organisation line, not a heading or furniture."
+}

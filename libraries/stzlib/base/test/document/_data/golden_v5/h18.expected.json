@@ -1,0 +1,135 @@
+{
+  "id": "h18",
+  "difficulty": "Turkish laboratory result report: header with the clinic name and address, a bordered four-column label/value grid of patient data, a result table with section rows spanning all five columns, superscript and micro-sign units, empty and filled flag cells, abnormal results in bold, a legend list with typed letter codes, an approval line and a footer with page numbering in Turkish style",
+  "pages": 1,
+  "title": "Laboratuvar Sonuç Raporu",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Laboratuvar Sonuç Raporu"
+    },
+    {
+      "level": 2,
+      "text": "Açıklamalar"
+    }
+  ],
+  "key_sentences": [
+    "Sonuçlar, klinik bulgular ile birlikte değerlendirilmelidir.",
+    "Referans aralığı dışındaki değerler kalın yazı ile gösterilmiştir.",
+    "Açlık kan şekeri için en az sekiz saatlik açlık gereklidir.",
+    "Hemoglobin ve ferritin değerlerinin birlikte düşük olması demir eksikliğini düşündürebilir.",
+    "Kesin tanı için hekiminize başvurunuz."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Test",
+          "Sonuç",
+          "Birim",
+          "Referans aralığı",
+          "Uyarı"
+        ],
+        [
+          "Hemogram",
+          "Hemogram",
+          "Hemogram",
+          "Hemogram",
+          "Hemogram"
+        ],
+        [
+          "Lökosit (WBC)",
+          "7,8",
+          "10³/µL",
+          "4,0 – 10,0",
+          ""
+        ],
+        [
+          "Hemoglobin",
+          "11,2",
+          "g/dL",
+          "12,0 – 16,0",
+          "D"
+        ],
+        [
+          "Hematokrit",
+          "34,6",
+          "%",
+          "36,0 – 46,0",
+          "D"
+        ],
+        [
+          "Trombosit",
+          "268",
+          "10³/µL",
+          "150 – 400",
+          ""
+        ],
+        [
+          "Biyokimya",
+          "Biyokimya",
+          "Biyokimya",
+          "Biyokimya",
+          "Biyokimya"
+        ],
+        [
+          "Açlık kan şekeri",
+          "104",
+          "mg/dL",
+          "70 – 100",
+          "Y"
+        ],
+        [
+          "Kreatinin",
+          "0,78",
+          "mg/dL",
+          "0,50 – 1,10",
+          ""
+        ],
+        [
+          "ALT",
+          "22",
+          "U/L",
+          "0 – 35",
+          ""
+        ],
+        [
+          "Total kolesterol",
+          "212",
+          "mg/dL",
+          "< 200",
+          "Y"
+        ],
+        [
+          "Ferritin",
+          "9",
+          "ng/mL",
+          "13 – 150",
+          "D"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "D: Referans aralığının altında"
+    },
+    {
+      "level": 0,
+      "text": "Y: Referans aralığının üstünde"
+    }
+  ],
+  "furniture": [
+    "Akasya Tıp Merkezi",
+    "Merkez Laboratuvarı · Akın Sokak No: 12, İzmir",
+    "Bu rapor elektronik olarak onaylanmıştır.",
+    "Sayfa 1 / 1"
+  ],
+  "languages": [
+    "tr"
+  ],
+  "code": [],
+  "notes": "Patient and clinic are invented. The patient block is a CSS grid of label/value pairs, not a table. Section rows 'Hemogram' and 'Biyokimya' span all five columns and are repeated in each grid cell. Units '10³/µL' use U+00B3 and U+00B5. Decimal commas; ranges use an en dash. The 'Uyarı' column is empty for normal results and holds 'D' (low) or 'Y' (high) otherwise. Legend items 'D: ...' and 'Y: ...' have no CSS marker; the letter code is part of the text. The footer sentence 'Bu rapor elektronik olarak onaylanmıştır.' is furniture, not body."
+}

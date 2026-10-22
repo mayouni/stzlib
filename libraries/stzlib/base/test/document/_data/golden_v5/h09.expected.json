@@ -1,0 +1,118 @@
+{
+  "id": "h09",
+  "difficulty": "two-page technical note set like a journal article: centred title, authors and affiliation, an abstract with a run-in heading, then body in two justified columns flowing across the page break, numbered sections and subsections, a centred numbered equation, a code listing inside a column, a booktabs-style table, superscript footnote markers with the notes collected at the end, and a reference list with typed [n] markers",
+  "pages": 2,
+  "title": "Drift of Low-Cost Temperature Loggers in Vaccine Cold Rooms",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Drift of Low-Cost Temperature Loggers in Vaccine Cold Rooms"
+    },
+    {
+      "level": 2,
+      "text": "Abstract."
+    },
+    {
+      "level": 2,
+      "text": "1. Introduction"
+    },
+    {
+      "level": 2,
+      "text": "2. Method"
+    },
+    {
+      "level": 3,
+      "text": "2.1 Loggers and reference"
+    },
+    {
+      "level": 3,
+      "text": "2.2 Comparison procedure"
+    },
+    {
+      "level": 2,
+      "text": "3. Results"
+    },
+    {
+      "level": 2,
+      "text": "4. Discussion"
+    },
+    {
+      "level": 2,
+      "text": "5. Recommendations"
+    },
+    {
+      "level": 2,
+      "text": "References"
+    }
+  ],
+  "key_sentences": [
+    "Thirty-six low-cost data loggers were kept in two vaccine cold rooms for eighteen months and compared every quarter with a calibrated reference thermometer.",
+    "We recommend a linear drift correction and a recalibration interval of twelve months.",
+    "District stores therefore rely on data loggers to show that a cold room stayed within range between two inspections.",
+    "Little is known about how this accuracy changes after a year or more in service.",
+    "Three models from different suppliers were tested, with twelve loggers of each model.",
+    "Model B drifted upwards in every logger, so a cold room that was too warm would have looked colder than it was.",
+    "A positive drift is the dangerous direction for a cold room, because it hides a warm excursion rather than raising a false alarm.",
+    "Loggers whose drift rate exceeds 0.02 °C per month should be withdrawn from service."
+  ],
+  "tables": [
+    {
+      "caption": "Table 1. Error at delivery and drift rate by logger model (n = 12 per model)",
+      "rows": [
+        [
+          "Model",
+          "Mean a (°C)",
+          "Mean b (°C/month)",
+          "Max |e| at 18 months (°C)",
+          "Loggers > 0.5 °C"
+        ],
+        [
+          "A",
+          "0.04",
+          "0.004",
+          "0.21",
+          "0"
+        ],
+        [
+          "B",
+          "0.09",
+          "0.027",
+          "0.74",
+          "5"
+        ],
+        [
+          "C",
+          "−0.06",
+          "−0.009",
+          "0.52",
+          "1"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "[1] Abubakar N, Vasquez T. Quarterly inspection of district cold rooms: results of the 2023 round. Internal report RVLU-QA-11; 2024."
+    },
+    {
+      "level": 0,
+      "text": "[2] Okonkwo-Reid S. Practical calibration of temperature sensors in water baths. Laboratory Methods Bulletin. 2022;8(3):41–47."
+    },
+    {
+      "level": 0,
+      "text": "[3] Regional Vaccine Logistics Unit. Standard operating procedure for temperature monitoring, version 4. 2023."
+    }
+  ],
+  "furniture": [
+    "REGIONAL VACCINE LOGISTICS UNIT · TECHNICAL NOTE TN-07",
+    "ISSUED 2 JUNE 2025"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "def corrected(raw_c, months, a, b):\n    \"\"\"Remove the fitted error from a raw reading.\"\"\"\n    return raw_c - (a + b * months)\n\n# model B, logger 07: a = 0.12, b = 0.031\nprint(round(corrected(7.40, 18, 0.12, 0.031), 2))  # 6.72"
+  ],
+  "notes": "Body reading order: page 1 left column, page 1 right column, page 2 left column, page 2 right column. 'Abstract.' is a run-in heading on the same line as the abstract text. The two sentences that end in footnote markers (1 and 2) are left out of key_sentences; the notes themselves follow section 5. The equation line reads 'e(t) = a + b·t (1)', where '(1)' is the equation number. Minus signs in Table 1 are U+2212. The thin top line 'REGIONAL VACCINE LOGISTICS UNIT · TECHNICAL NOTE TN-07 / ISSUED 2 JUNE 2025' appears on page 1 only and is furniture."
+}

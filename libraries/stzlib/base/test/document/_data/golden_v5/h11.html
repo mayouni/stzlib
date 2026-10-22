@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Avis de coupure d'eau</title>
+<style>
+@page { size: A4; margin: 16mm 15mm }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+html, body { margin: 0; padding: 0; }
+body { font-family: "Segoe UI", Tahoma, Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; color: #102a43; }
+.top { display: flex; justify-content: space-between; align-items: center; border-bottom: 2pt solid #0077b6; padding-bottom: 3mm; }
+.top .fr { font-size: 10pt; font-weight: 600; }
+.top .ar { font-family: "Traditional Arabic", "Arabic Typesetting", "Segoe UI", Tahoma, serif; font-size: 14pt; font-weight: bold; direction: rtl; }
+.drop { width: 10mm; height: 13mm; background: #0077b6; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; }
+.notice { display: flex; gap: 9mm; margin-top: 7mm; }
+.notice > div { flex: 1; }
+.col-ar { direction: rtl; text-align: right; font-family: "Traditional Arabic", "Arabic Typesetting", "Segoe UI", Tahoma, serif; font-size: 14pt; line-height: 1.6; }
+h1 { font-size: 18pt; color: #0077b6; margin: 0 0 4mm; line-height: 1.25; }
+.col-ar h1 { font-size: 22pt; }
+p { margin: 0 0 3mm; text-align: justify; }
+.col-ar p { text-align: justify; }
+table { width: 100%; border-collapse: collapse; margin-top: 6mm; font-size: 10pt; }
+th { background: #0077b6; color: #fff; padding: 2mm; border: 0.6pt solid #fff; line-height: 1.25; }
+td { border: 0.6pt solid #90b8d8; padding: 1.8mm 2mm; text-align: center; line-height: 1.25; }
+.arx { font-family: "Traditional Arabic", "Arabic Typesetting", "Segoe UI", Tahoma, serif; font-size: 13pt; }
+tbody tr:nth-child(odd) td { background: #eaf4fb; }
+.contact { margin-top: 7mm; display: flex; justify-content: space-between; gap: 8mm; background: #fff7e0; border: 1pt solid #f4a261; padding: 3mm 4mm; }
+.contact .ar { direction: rtl; font-family: "Traditional Arabic", "Arabic Typesetting", "Segoe UI", Tahoma, serif; font-size: 13.5pt; text-align: right; }
+.sign { margin-top: 8mm; display: flex; justify-content: space-between; font-size: 9.5pt; color: #486581; }
+.sign .ar { direction: rtl; font-family: "Traditional Arabic", "Arabic Typesetting", "Segoe UI", Tahoma, serif; font-size: 13pt; }
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="fr">Office communal de l&rsquo;eau<br>Commune de Beni Ouardane</div>
+  <div class="drop"></div>
+  <div class="ar" lang="ar">المكتب الجماعي للماء<br>جماعة بني وردان</div>
+</div>
+
+<div class="notice">
+  <div class="col-fr">
+    <h1>Avis de coupure d&rsquo;eau programm&eacute;e</h1>
+    <p>L&rsquo;Office communal de l&rsquo;eau informe ses usagers que la distribution d&rsquo;eau sera interrompue dans plusieurs quartiers pour des travaux de raccordement au nouveau r&eacute;servoir. Les coupures auront lieu du lundi 10 au mercredi 12&nbsp;novembre 2025, selon le calendrier ci-dessous.</p>
+    <p>Nous recommandons aux habitants de constituer une r&eacute;serve d&rsquo;eau potable la veille de la coupure. L&rsquo;eau peut &ecirc;tre trouble au moment du r&eacute;tablissement&nbsp;; laissez-la couler quelques minutes avant de la consommer.</p>
+    <p>Nous vous remercions de votre compr&eacute;hension.</p>
+  </div>
+  <div class="col-ar" lang="ar" dir="rtl">
+    <h1>إعلان عن انقطاع مبرمج للماء</h1>
+    <p>يُعلم المكتب الجماعي للماء المواطنين بأن توزيع الماء سينقطع في عدة أحياء بسبب أشغال ربط الشبكة بالخزان الجديد. وستتم هذه الانقطاعات من يوم الاثنين 10 إلى يوم الأربعاء 12 نوفمبر 2025، حسب الجدول أسفله.</p>
+    <p>ننصح السكان بتخزين كمية من الماء الصالح للشرب في اليوم السابق للانقطاع. قد يكون الماء عكرًا عند عودته، لذا يُرجى تركه يسيل بضع دقائق قبل استعماله.</p>
+    <p>نشكركم على تفهمكم.</p>
+  </div>
+</div>
+
+<table>
+  <thead>
+    <tr><th>Quartier<br><span class="arx" lang="ar">الحي</span></th><th>Date<br><span class="arx" lang="ar">التاريخ</span></th><th>Horaire de la coupure<br><span class="arx" lang="ar">توقيت الانقطاع</span></th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Hay Ennour<br><span class="arx" lang="ar">حي النور</span></td><td>10/11/2025</td><td>08:00 &ndash; 16:00</td></tr>
+    <tr><td>Hay Al Massira<br><span class="arx" lang="ar">حي المسيرة</span></td><td>10/11/2025</td><td>13:00 &ndash; 20:00</td></tr>
+    <tr><td>Centre-ville<br><span class="arx" lang="ar">وسط المدينة</span></td><td>11/11/2025</td><td>08:00 &ndash; 18:00</td></tr>
+    <tr><td>Hay Al Amal<br><span class="arx" lang="ar">حي الأمل</span></td><td>12/11/2025</td><td>09:00 &ndash; 15:00</td></tr>
+    <tr><td>Zone industrielle<br><span class="arx" lang="ar">المنطقة الصناعية</span></td><td>12/11/2025</td><td>07:00 &ndash; 19:00</td></tr>
+  </tbody>
+</table>
+
+<div class="contact">
+  <div>Service client&egrave;le&nbsp;: 0800 00 21 47 (appel gratuit)</div>
+  <div class="ar" lang="ar">مصلحة الزبناء: 0800 00 21 47 (مكالمة مجانية)</div>
+</div>
+
+<div class="sign">
+  <div>Beni Ouardane, le 3&nbsp;novembre 2025 &ndash; La Direction</div>
+  <div class="ar" lang="ar">بني وردان، في 3 نوفمبر 2025 – الإدارة</div>
+</div>
+</body>
+</html>

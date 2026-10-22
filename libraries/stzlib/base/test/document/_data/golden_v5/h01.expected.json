@@ -1,0 +1,239 @@
+{
+  "id": "h01",
+  "difficulty": "three-page NGO annual report built as fixed pages: running header and page-number footer on every page, numbered sections and subsections, a callout box, a footnote, a district table split across pages 2 and 3 with its header row repeated, a second table, bullet and numbered lists",
+  "pages": 3,
+  "title": "Safe Water for Rural Schools",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Safe Water for Rural Schools"
+    },
+    {
+      "level": 2,
+      "text": "1. Executive Summary"
+    },
+    {
+      "level": 2,
+      "text": "2. Programme Activities"
+    },
+    {
+      "level": 3,
+      "text": "2.1 Borehole construction"
+    },
+    {
+      "level": 3,
+      "text": "2.2 Water committees"
+    },
+    {
+      "level": 3,
+      "text": "2.3 Hygiene education in schools"
+    },
+    {
+      "level": 2,
+      "text": "3. Results by District"
+    },
+    {
+      "level": 2,
+      "text": "4. Finances"
+    },
+    {
+      "level": 2,
+      "text": "5. Outlook for 2026"
+    }
+  ],
+  "key_sentences": [
+    "In 2025 the initiative completed 42 new boreholes and rehabilitated 14 older wells across thirteen districts, bringing safe drinking water to an estimated 32,700 people.",
+    "Construction costs per borehole fell by 12 percent compared with the previous year, mainly because drilling teams were shared between neighbouring districts.",
+    "Each site was surveyed by a hydrogeologist before any equipment was moved.",
+    "Committees collect a small monthly fee that pays for spare parts and for the caretaker's time.",
+    "Hygiene clubs were set up in 26 primary schools.",
+    "A water point counts as functional when it delivered water on the day of the inspection.",
+    "Administrative costs remained below the ceiling of 10 percent set by the board.",
+    "The initiative will also test solar-powered pumps at four schools where the water table is deeper than 60 metres."
+  ],
+  "tables": [
+    {
+      "caption": "Table 1. Water points and population served by district",
+      "rows": [
+        [
+          "District",
+          "New boreholes",
+          "Rehabilitated wells",
+          "Population served",
+          "Functional at inspection"
+        ],
+        [
+          "Kerewa",
+          "5",
+          "2",
+          "3,900",
+          "7 of 7"
+        ],
+        [
+          "Dantaro",
+          "4",
+          "1",
+          "2,950",
+          "5 of 5"
+        ],
+        [
+          "Bellafou",
+          "6",
+          "0",
+          "4,400",
+          "6 of 6"
+        ],
+        [
+          "Sakoura East",
+          "3",
+          "3",
+          "3,100",
+          "5 of 6"
+        ],
+        [
+          "Sakoura West",
+          "2",
+          "1",
+          "1,700",
+          "3 of 3"
+        ],
+        [
+          "Mintoro",
+          "4",
+          "2",
+          "3,250",
+          "6 of 6"
+        ],
+        [
+          "Gabéla",
+          "3",
+          "0",
+          "2,100",
+          "3 of 3"
+        ],
+        [
+          "Tassouri",
+          "5",
+          "1",
+          "3,800",
+          "5 of 6"
+        ],
+        [
+          "Ouroukou",
+          "2",
+          "2",
+          "1,900",
+          "4 of 4"
+        ],
+        [
+          "Fandiga",
+          "3",
+          "1",
+          "2,300",
+          "4 of 4"
+        ],
+        [
+          "Koryan",
+          "2",
+          "0",
+          "1,200",
+          "2 of 2"
+        ],
+        [
+          "Bisselé",
+          "1",
+          "1",
+          "750",
+          "2 of 2"
+        ],
+        [
+          "Wandara",
+          "2",
+          "0",
+          "1,350",
+          "2 of 2"
+        ],
+        [
+          "Total",
+          "42",
+          "14",
+          "32,700",
+          "54 of 56"
+        ]
+      ]
+    },
+    {
+      "caption": "Table 2. Expenditure by category (euros)",
+      "rows": [
+        [
+          "Category",
+          "Amount",
+          "Share"
+        ],
+        [
+          "Construction and rehabilitation",
+          "293,100",
+          "71%"
+        ],
+        [
+          "Training and hygiene education",
+          "61,900",
+          "15%"
+        ],
+        [
+          "Monitoring and inspection",
+          "20,600",
+          "5%"
+        ],
+        [
+          "Administration",
+          "37,200",
+          "9%"
+        ],
+        [
+          "Total",
+          "412,800",
+          "100%"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Committees trained in 2025: 42"
+    },
+    {
+      "level": 0,
+      "text": "Committees with at least half women members: 37"
+    },
+    {
+      "level": 0,
+      "text": "Committees holding a bank or mobile-money account: 29"
+    },
+    {
+      "level": 0,
+      "text": "Extend the programme to two new districts."
+    },
+    {
+      "level": 0,
+      "text": "Replace hand pumps that are more than ten years old."
+    },
+    {
+      "level": 0,
+      "text": "Publish the inspection results every quarter."
+    }
+  ],
+  "furniture": [
+    "Tamarind Wells Initiative",
+    "Annual Report 2025",
+    "Page 1 of 3",
+    "Page 2 of 3",
+    "Page 3 of 3"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Table 1 starts on page 2 and continues on page 3 under the label 'Table 1 (continued)' with its header row printed again; it is ONE table here, header once, 13 district rows plus the Total row. The line 'Table 1 (continued)' is a continuation label, not body text and not a caption. The sentence ending in footnote marker 1 ('...before the midday meal.') is left out of key_sentences; the footnote text itself sits at the foot of page 2 above the page footer and is body text, not furniture. 'Key figure: ...' is a shaded callout box. The subtitle line under the title is not a heading. Header text repeats on all three pages; each 'Page n of 3' footer appears once."
+}

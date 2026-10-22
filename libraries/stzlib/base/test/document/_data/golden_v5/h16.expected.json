@@ -1,0 +1,272 @@
+{
+  "id": "h16",
+  "difficulty": "German regional bus timetable on landscape A4: yellow header band with a red line-number badge, two dense timetables side by side, each with a two-row header (a 'Haltestelle' cell spanning both rows and day-type groups spanning several trip columns), trip numbers with suffix letters, dashes for stops not served, a generated arrow before each caption, a legend list and footer furniture",
+  "pages": 1,
+  "title": "Kirchwangen – Hofstetten – Oberried – Talmühle",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Kirchwangen – Hofstetten – Oberried – Talmühle"
+    }
+  ],
+  "key_sentences": [
+    "An Sonn- und Feiertagen verkehrt auf dieser Linie kein Bus.",
+    "Bitte nutzen Sie dann den Rufbus, der mindestens eine Stunde vor der Fahrt bestellt werden muss.",
+    "Am Samstag fährt der Bus nicht über die Schule, sondern direkt über die Umgehungsstraße.",
+    "Fahrräder werden mitgenommen, wenn genug Platz vorhanden ist.",
+    "Fahrkarten erhalten Sie beim Fahrer, am Automaten im Bahnhof oder in der App des Verkehrsverbunds."
+  ],
+  "tables": [
+    {
+      "caption": "Richtung Talmühle",
+      "rows": [
+        [
+          "Haltestelle",
+          "Montag bis Freitag",
+          "Montag bis Freitag",
+          "Montag bis Freitag",
+          "Montag bis Freitag",
+          "Montag bis Freitag",
+          "Montag bis Freitag",
+          "Samstag",
+          "Samstag",
+          "Samstag"
+        ],
+        [
+          "Haltestelle",
+          "4701",
+          "4703 S",
+          "4705",
+          "4707",
+          "4709",
+          "4711",
+          "4721",
+          "4723",
+          "4725"
+        ],
+        [
+          "Kirchwangen Bahnhof",
+          "06:12",
+          "07:05",
+          "09:12",
+          "12:12",
+          "15:12",
+          "18:12",
+          "08:40",
+          "12:40",
+          "16:40"
+        ],
+        [
+          "Kirchwangen Marktplatz",
+          "06:15",
+          "07:08",
+          "09:15",
+          "12:15",
+          "15:15",
+          "18:15",
+          "08:43",
+          "12:43",
+          "16:43"
+        ],
+        [
+          "Hofstetten Schule",
+          "06:21",
+          "07:14",
+          "09:21",
+          "12:21",
+          "15:21",
+          "18:21",
+          "–",
+          "–",
+          "–"
+        ],
+        [
+          "Hofstetten Linde",
+          "06:23",
+          "07:16",
+          "09:23",
+          "12:23",
+          "15:23",
+          "18:23",
+          "08:51",
+          "12:51",
+          "16:51"
+        ],
+        [
+          "Oberried Dorfplatz",
+          "06:28",
+          "07:21",
+          "09:28",
+          "12:28",
+          "15:28",
+          "18:28",
+          "08:56",
+          "12:56",
+          "16:56"
+        ],
+        [
+          "Oberried Sägewerk (R)",
+          "06:30",
+          "07:23",
+          "09:30",
+          "12:30",
+          "15:30",
+          "18:30",
+          "08:58",
+          "12:58",
+          "16:58"
+        ],
+        [
+          "Talmühle Wendeplatz",
+          "06:37",
+          "07:30",
+          "09:37",
+          "12:37",
+          "15:37",
+          "18:37",
+          "09:05",
+          "13:05",
+          "17:05"
+        ]
+      ]
+    },
+    {
+      "caption": "Richtung Kirchwangen Bahnhof",
+      "rows": [
+        [
+          "Haltestelle",
+          "Montag bis Freitag",
+          "Montag bis Freitag",
+          "Montag bis Freitag",
+          "Montag bis Freitag",
+          "Montag bis Freitag",
+          "Montag bis Freitag",
+          "Samstag",
+          "Samstag",
+          "Samstag"
+        ],
+        [
+          "Haltestelle",
+          "4702",
+          "4704",
+          "4706 S",
+          "4708",
+          "4710",
+          "4712",
+          "4722",
+          "4724",
+          "4726"
+        ],
+        [
+          "Talmühle Wendeplatz",
+          "06:45",
+          "07:40",
+          "13:05",
+          "13:45",
+          "16:45",
+          "18:50",
+          "09:20",
+          "13:20",
+          "17:20"
+        ],
+        [
+          "Oberried Sägewerk (R)",
+          "06:52",
+          "07:47",
+          "13:12",
+          "13:52",
+          "16:52",
+          "18:57",
+          "09:27",
+          "13:27",
+          "17:27"
+        ],
+        [
+          "Oberried Dorfplatz",
+          "06:54",
+          "07:49",
+          "13:14",
+          "13:54",
+          "16:54",
+          "18:59",
+          "09:29",
+          "13:29",
+          "17:29"
+        ],
+        [
+          "Hofstetten Linde",
+          "06:59",
+          "07:54",
+          "13:19",
+          "13:59",
+          "16:59",
+          "19:04",
+          "09:34",
+          "13:34",
+          "17:34"
+        ],
+        [
+          "Hofstetten Schule",
+          "07:01",
+          "07:56",
+          "13:21",
+          "14:01",
+          "17:01",
+          "19:06",
+          "–",
+          "–",
+          "–"
+        ],
+        [
+          "Kirchwangen Marktplatz",
+          "07:07",
+          "08:02",
+          "13:27",
+          "14:07",
+          "17:07",
+          "19:12",
+          "09:42",
+          "13:42",
+          "17:42"
+        ],
+        [
+          "Kirchwangen Bahnhof",
+          "07:10",
+          "08:05",
+          "13:30",
+          "14:10",
+          "17:10",
+          "19:15",
+          "09:45",
+          "13:45",
+          "17:45"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "R = Halt nur bei Bedarf"
+    },
+    {
+      "level": 0,
+      "text": "S = verkehrt nur an Schultagen"
+    },
+    {
+      "level": 0,
+      "text": "– = Haltestelle wird nicht bedient"
+    }
+  ],
+  "furniture": [
+    "Regionalverkehr Wangental",
+    "Gültig ab 14. Dezember 2025",
+    "Rufbus-Bestellung: 07000 474747",
+    "Änderungen vorbehalten"
+  ],
+  "languages": [
+    "de"
+  ],
+  "code": [],
+  "notes": "Each timetable has TWO header rows; both are given, with merged cells repeated ('Haltestelle' in both rows, 'Montag bis Freitag' over six columns, 'Samstag' over three). The left table (Richtung Talmühle) precedes the right table (Richtung Kirchwangen Bahnhof). Each caption is preceded by an arrow and a space generated by CSS; the arrow is not part of the caption text. '–' (U+2013) in a cell means the stop is not served. The hyphen in 'Sonn- und' is a typed suspension hyphen and stays. The red '47' badge is not part of the heading. Header band right side and footer line are furniture."
+}

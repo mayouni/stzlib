@@ -1,0 +1,88 @@
+{
+  "id": "h04",
+  "difficulty": "Portuguese pharmacy receipt on a narrow 80 mm x 210 mm page in a monospaced font: centred shop block, dashed separators, an item table, left/right justified total lines built with flexbox (not a table), a small VAT summary table with a caption, a drawn barcode and a certification line",
+  "pages": 1,
+  "title": "Farmácia Boa Esperança",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Farmácia Boa Esperança"
+    }
+  ],
+  "key_sentences": [
+    "Obrigado pela sua preferência.",
+    "Guarde este talão para trocas e devoluções.",
+    "Os medicamentos não podem ser devolvidos depois de saírem da farmácia.",
+    "As trocas de outros artigos fazem-se no prazo de 15 dias.",
+    "Os preços incluem IVA à taxa legal em vigor."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Artigo",
+          "Qtd.",
+          "Valor €"
+        ],
+        [
+          "Paracetamol 500 mg, 20 comp.",
+          "1",
+          "2,95"
+        ],
+        [
+          "Soro fisiológico 5 ml x 30",
+          "2",
+          "7,80"
+        ],
+        [
+          "Protetor solar FPS 50",
+          "1",
+          "14,50"
+        ],
+        [
+          "Termómetro digital",
+          "1",
+          "9,90"
+        ],
+        [
+          "Pensos rápidos, 40 un.",
+          "1",
+          "3,25"
+        ]
+      ]
+    },
+    {
+      "caption": "Resumo do IVA",
+      "rows": [
+        [
+          "Taxa",
+          "Incidência",
+          "IVA"
+        ],
+        [
+          "6%",
+          "10,14",
+          "0,61"
+        ],
+        [
+          "23%",
+          "22,48",
+          "5,17"
+        ],
+        [
+          "Total",
+          "32,62",
+          "5,78"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "pt"
+  ],
+  "code": [],
+  "notes": "Page size is 80 mm x 210 mm, not A4. Decimal commas throughout. The TOTAL / Multibanco / Troco lines are label-value pairs laid out with flexbox, not table rows. 'FATURA-RECIBO FR 2025/08812' is a bold document-type line, not a heading. The green cross and the barcode are drawn with CSS and carry no text. 'Processado por programa certificado n.º 0000/AT' is the last body line, not furniture."
+}
