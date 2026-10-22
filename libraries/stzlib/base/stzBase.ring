@@ -224,6 +224,7 @@ ok
     load "meta/stzPyCodeGraph.ring"
     load "meta/stzJsCodeGraph.ring"
     load "meta/stzCodeRules.ring"
+    load "meta/stzTwinCoverage.ring"   # RX2: the twin-coverage rule over a .panel's three projections
     load "meta/stzGovernanceChecks.ring"
     load "meta/stzPredicateSet.ring"
 

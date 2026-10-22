@@ -479,6 +479,17 @@ its own folder; and a per-line `ringvm_settrace` hook costs 11.5 us per event an
 the library load alone does not finish under it in three minutes, so line tracing
 is never the default instrument.
 
+**FAST PATH for the render plane (RX2, 2026-10-22): the two render guards, one process each.**
+```bash
+cd libraries/stzlib/base/test/render && ring escape_sinks_narrated.ring && ring twin_coverage_narrated.ring
+```
+78 assertions (40 + 38): 10 to 13 s per guard warm on a quiet machine, 50 s each under three
+other sessions, and most of that is the cold start of stzBase, not the assertions. Neither
+guard renders the world; the escape guard parses its own output back with the engine, the
+twin guard judges three projections of a nine-line panel. Both are a PRE-COMMIT GATE for
+`base/file/stzHtml.ring`, `base/meta/stzTwinCoverage.ring`, the JSON faces and the GUI
+projections; develop a new section as a standalone probe first.
+
 ## Background tasks: prefer direct grep over `run_in_background`
 
 For ring-test sweeps that take >5 minutes, **don't** use
