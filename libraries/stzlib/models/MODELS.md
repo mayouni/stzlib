@@ -13,7 +13,7 @@
 | `Qwen3-0.6B-Q4_K_M.gguf` | the same, k-quantised — **proves the engine reads k-quants** | 396,705,472 | `ac2d97712095a558e31573f62f466a3f9d93990898b0ec79d7c974c1780d524a` | Apache-2.0 | `huggingface.co/unsloth/Qwen3-0.6B-GGUF` (2026-10-21) |
 | `granite-4.0-1b-Q8_0.gguf` | chat, 1B (arch **granite**, dense) — **the first model to beat a floor on a generative task** (extraction, read by probability: 0.72 vs 0.56) | 1,737,791,232 | `0660c20c3d3d3672b90f0468f62dc128a82a6e3ee2ec05d310d242969be06140` | Apache-2.0 | `huggingface.co/ibm-granite/granite-4.0-1b-GGUF` (2026-10-21; sha256 verified against the listing) |
 | `granite-4.0-350m-Q8_0.gguf` | chat, 350M (arch **granite**, dense; 12 languages incl. French and Arabic) | 378,138,016 | `9595dafb4ed15aa02512c8ea26188744192a6f09530eae0a2747bd3ada96cd36` | Apache-2.0 | `huggingface.co/ibm-granite/granite-4.0-350m-GGUF` (2026-10-21) |
-| `granite-4.2-3b-Q4_K_M.gguf` | generator (Granite dense, 3B) | 2,244,011,552 | `e0406663965846ae22a403456eb826ccce5f450840491f71952f18a7cb78e7d5` | Apache-2.0 | IBM Granite 4.2, size and digest match the publisher; loads as a dense generator and answers a capital and a sum correctly (2026-10-22); NOT yet measured against the floors |
+| `granite-4.2-3b-Q4_K_M.gguf` | generator (Granite dense, 3B) | 2,244,011,552 | `e0406663965846ae22a403456eb826ccce5f450840491f71952f18a7cb78e7d5` | Apache-2.0 | IBM Granite 4.2, size and digest match the publisher; dense; speaks ChatML with a `<think></think>` thinking-off block, NOT Granite 4.0's role markers. Measured 2026-10-22: extraction 0.69 (floor 0.56), classification 0.67 (floor 0.69), brief 0.58 (floor 0.69) |
 
 ## What was needed for each to run (engine commits, 2026-10-21)
 

@@ -37,3 +37,6 @@ triage_extract|qwen25c-1.5b|v1|0.61|36|1|21/10/2026 19:34:11|
 triage_extract|qwen25c-1.5b-choice|v1|0.64|36|1|21/10/2026 19:36:51|
 brief|first-clause|v1|0.69|36|1|21/10/2026 19:36:51|
 brief|qwen25c-1.5b|v1|0.50|36|1|21/10/2026 19:42:28|
+kind|granite42-3b-choice|v1|0.67|36|1|22/10/2026 13:08:56|summed from slices, ChatML template, 2026-10-22
+triage_extract|granite42-3b-choice|v1|0.69|36|1|22/10/2026 13:09:04|summed from slices, ChatML template, 2026-10-22
+brief|granite42-3b|v1|0.58|36|1|22/10/2026 13:09:11|summed from slices, ChatML template, 2026-10-22

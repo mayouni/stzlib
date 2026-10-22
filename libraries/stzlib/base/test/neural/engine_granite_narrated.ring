@@ -45,4 +45,31 @@ Scenario("It is deterministic, keeps the head of a long prompt")
 	Then("the secret word survives", StzFindFirst("pineapple", lower(StzGenerate(cSecret, 10))) > 0, TRUE)
 EndScenario()
 
+Scenario("The chat template follows the model's VOCABULARY, not the architecture name")
+	Given("Granite 4.0 has its role markers as tokens; Granite 4.2 shares the architecture and speaks ChatML")
+	Then("Granite 4.0: <|start_of_role|> is one token", StzChatHasToken("<|start_of_role|>"), 1)
+	Then("Granite 4.0: <|im_start|> is not", StzChatHasToken("<|im_start|>"), 0)
+	Then("Granite 4.0: the prompt uses its role markers", StzFindFirst("<|start_of_role|>", StzChatPrompt("", "hi")) > 0, TRUE)
+	Then("Granite 4.0: through the template, France's capital is Paris",
+		StzFindFirst("paris", lower(StzGenerate(StzChatPrompt("Answer with one word.", "What is the capital of France?"), 16))) > 0, TRUE)
+EndScenario()
+
+if _mpFind("granite-4.2-3b") = ""
+	Scenario("Granite 4.2 -- SKIPPED (no granite-4.2-3b GGUF in libraries/stzlib/models/)")
+	EndScenario()
+else
+	Scenario("Granite 4.2 gets ChatML and an empty thinking block, as its own template does with thinking off")
+		Then("it loads as a granite generator", _mpLoad("granite-4.2-3b") and StzEngineNeuralModelArch() = "granite", TRUE)
+		Then("<|start_of_role|> is NOT one of its tokens", StzChatHasToken("<|start_of_role|>"), 0)
+		Then("<|im_start|> is", StzChatHasToken("<|im_start|>"), 1)
+		cP = StzChatPrompt("", "hi")
+		Then("the prompt is ChatML", StzFindFirst("<|im_start|>assistant", cP) > 0, TRUE)
+		Then("and carries no Granite 4.0 marker", StzFindFirst("<|start_of_role|>", cP), 0)
+		Then("it ends with the thinking-off block", right(cP, 15), "<think></think>")
+		cAns = StzGenerate(StzChatPrompt("Answer with one word.", "What is the capital of France?"), 16)
+		Then("France's capital is Paris", StzFindFirst("paris", lower(cAns)) > 0, TRUE)
+		Then("and no marker leaks into the answer", StzFindFirst("<|", cAns), 0)
+	EndScenario()
+ok
+
 Summary()

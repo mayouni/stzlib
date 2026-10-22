@@ -459,14 +459,16 @@ func StzChatPrompt(pcSystem, pcUser)
 	if NOT isString(pcSystem) or pcSystem = ""
 		pcSystem = "You are a helpful assistant. Answer briefly."
 	ok
-	# The template follows the LOADED model's architecture: Granite has its own role markers, and Qwen3 is told
-	# not to open with a <think> block (its short answers would otherwise be spent on thinking). Every other
-	# architecture gets the ChatML it always got.
+	# The template follows the LOADED model's VOCABULARY, not its architecture name: Granite 4.0 has its own role
+	# markers, but Granite 4.2 shares the architecture and speaks ChatML (its <|start_of_role|> is plain text, and
+	# a prompt built from it was read as noise). So the Granite markers are used only when <|start_of_role|> is
+	# ONE token of the loaded model. Qwen3 is told not to open with a <think> block (its short answers would
+	# otherwise be spent on thinking). Every other model gets the ChatML it always got.
 	_cArch_ = ""
 	if StzEngineNeuralModelLoaded() = 1
 		_cArch_ = lower(StzEngineNeuralModelArch())
 	ok
-	if _cArch_ = "granite"
+	if _cArch_ = "granite" and StzChatHasToken("<|start_of_role|>") = 1
 		return "<|start_of_role|>system<|end_of_role|>" + pcSystem + "<|end_of_text|>" + char(10) +
 			"<|start_of_role|>user<|end_of_role|>" + StzChatSafeText(pcUser) + "<|end_of_text|>" + char(10) +
 			"<|start_of_role|>assistant<|end_of_role|>"
@@ -474,10 +476,25 @@ func StzChatPrompt(pcSystem, pcUser)
 	_cTail_ = ""
 	if _cArch_ = "qwen3"
 		_cTail_ = "<think>" + char(10) + char(10) + "</think>" + char(10) + char(10)
+	but StzChatHasToken("<think>") = 1
+		# a reasoning model in ChatML (Granite 4.2): its own template's thinking-off form is an empty block
+		_cTail_ = "<think></think>"
 	ok
 	return "<|im_start|>system" + char(10) + pcSystem + "<|im_end|>" + char(10) +
 		"<|im_start|>user" + char(10) + StzChatSafeText(pcUser) + "<|im_end|>" + char(10) +
 		"<|im_start|>assistant" + char(10) + _cTail_
+
+# 1 when pcMarker is a SINGLE token of the loaded generative model's vocabulary (a special token the model was
+# trained on), 0 when it would be spelled out as text. Measured against a neutral prefix so a BOS the tokenizer
+# adds is not counted.
+func StzChatHasToken(pcMarker)
+	if StzHasGenerativeModel() = 0
+		return 0
+	ok
+	if StzEngineNeuralGenTokenize("a" + pcMarker) - StzEngineNeuralGenTokenize("a") = 1
+		return 1
+	ok
+	return 0
 
 # Untrusted text made safe to place inside a chat prompt: every control-
 # token opener "<|" -- and "<" + U+FF5C, the full-width bar some model families

@@ -18,7 +18,8 @@ $aTkModels = [
 	[ "granite-350m",  "granite-4.0-350m",   "apache-2.0",  450 ],
 	[ "granite-1b",    "granite-4.0-1b",     "apache-2.0", 1800 ],
 	[ "qwen25c-0.5b",  "qwen2.5-coder-0.5b", "apache-2.0",  800 ],
-	[ "qwen25c-1.5b",  "qwen2.5-coder-1.5b", "apache-2.0", 1900 ]
+	[ "qwen25c-1.5b",  "qwen2.5-coder-1.5b", "apache-2.0", 1900 ],
+	[ "granite42-3b",  "granite-4.2-3b",     "apache-2.0", 3000 ]
 ]
 
 # THE GOLDEN SET: 36 tickets written by an INDEPENDENT author who never saw a floor (so a floor cannot be tuned to it),
