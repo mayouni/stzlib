@@ -468,3 +468,8 @@ Next by size: twelve classes at 3 (stzSet first).
 Subsets, SubSetsOfNElements and NumberOfSubsets implemented (power set by size then position; cap 65536 subsets, Subsets raises beyond 16 items; NumberOfSubsets is 2^n without listing). stzSetError was defined nowhere and is now defined inside stzSet.ring. UnionWithMany/UnifyWithMany/IntersectionWithMany fixed. Guard 88 assertions.
 Next by size: twelve classes at 3 (stzChainOfTruth first).
 
+## 2026-10-22: the stzChainOfTruth fix batch is ON MAIN; register 102 -> 99
+
+Containing/ContainingNo no longer build condition text (a private pvtHolds tests directly, text via stzString.Contains, list via stzListChecker.ContainsItem); Nth returns a new chain and checks the rank before calling the engine (NthLetterOf(-1, ...) crashes stz_string.dll). Ordinal suffix quirks (11st, 12nd, 13rd) documented, not changed. Several other chain methods still fail (IsNot family, IsNotA, IsA call form, _Which, _But, _@): listed in CONCLUSIONS. Guard 140 assertions.
+Next by size: stzChainOfValue (3) and eleven more at 3.
+
