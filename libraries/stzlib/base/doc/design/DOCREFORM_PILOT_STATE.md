@@ -498,3 +498,8 @@ Next by size: eight classes at 3 (stzTimex first), then six at 2.
 Same slip as stzTablex: @StzMid is count-based but the parser passed end positions; an in-class _Mid(s,n1,n2) helper fixes all 16 slices. An instant must be a date text (StzIsDateTime/StzIsDate). Eight sibling defects fixed (negation, bare count, set constraint, group brackets, MatchAsYouBuild/CouldMatchWithMore as a prefix test, MatchedParts, TargetSet, ExtractMatches). Guard 262 assertions. STALE ENGINE: the DLLs in D:\GitHub\_wtd date from 10-04 and lack StzEngineJsonEncodeString (RX1), so stzMatrex_defects_narrated stops at 133 pass + 1 FAIL until the engine is rebuilt; do not read that as a library regression.
 Next by size: seven classes at 3 (stzSoundLive first), then seven at 2.
 
+## 2026-10-22: the stzSoundLive fix batch is ON MAIN; register 87 -> 84
+
+WaitCycles no longer hangs in capture mode (target capped to the buffer, plus a monotonic deadline); Landings versions never go back; CaptureInsteadOfDevice validates its length. UNPERCEIVED: nobody has heard it; no device or microphone was opened. Guard 134 assertions. Open decision: restart after Stop leaves HeardCycle and the loops' counters stale. More stale-engine symptoms: the stzHtmlBuilder guard now fails on stzenginehtmlneutralizebidi (same cause as stzMatrex).
+Next by size: six classes at 3 (stzCoeffExtractor first), then eight at 2.
+
