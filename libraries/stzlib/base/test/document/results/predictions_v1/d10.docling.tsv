@@ -1,0 +1,11 @@
+heading	1	Quarterly Rainfall Bulletin, Station K-12
+paragraph	0	This bulletin summarises the rainfall measured at Station K-12 during the third quarter of 2025. The station is located on a hill farm about four kilometres north of Tarnby.
+paragraph	0	Total rainfall for the quarter was 214 millimetres, well above the long-term average 1 . September was the wettest month of the quarter.
+heading	1	Monthly rainfall at Station K-12
+table	0	MonthRainfall (mm)Rain daysJuly489August7112September9516
+heading	1	Notes for readers:
+list_item	0	Values are rounded to the nearest millimetre.
+list_item	0	A rain day is a day with at least 1 mm of rain.
+list_item	0	Data for 14 August were estimated from a nearby station.
+paragraph	0	The next bulletin will be published in January 2026.
+paragraph	0	1 The long-term average for the third quarter is 162 millimetres, based on the years 1991 to 2020.

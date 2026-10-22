@@ -1,0 +1,118 @@
+# pdf_reader_narrated.ring -- Softanza's native PDF reader (engine/src/pdf.zig, stz_file.dll), told as scenes.
+#
+# The reader is the deterministic FLOOR of the document faculty: the text layer of a born-digital PDF, laid
+# out in reading order and typed (heading, paragraph, list item, code, table, caption, page furniture).
+# These scenes pin its behaviour on golden_v1, which is its DEVELOPMENT set: the reader was built while
+# reading these ten files, so they prove the behaviour holds, not how good the reader is. Its measured
+# quality is on golden_v2, written by an author who never saw it (results/).
+#
+#   cd libraries/stzlib/base/test/document ; ring pdf_reader_narrated.ring
+
+load "../../stzBase.ring"
+load "../_narrated.ring"
+
+cG = "_data/golden_v1/"
+
+Scenario("A table drawn with ruling lines comes back as its grid")
+	o = StzPdfQ(cG + "d03.pdf")
+	Then("the document has one page", o.NumberOfPages(), 1)
+	Then("it has a text layer", o.HasText(), 1)
+	aT = o.Tables()
+	Then("one table is found", len(aT), 1)
+	Then("seven rows: the header and six items", len(aT[1]), 7)
+	Then("the header row is read cell by cell", @@(aT[1][1]), @@([ "Item code", "Description", "Quantity in stock", "Unit price (EUR)" ]))
+	Then("a body cell sits at its row and column", aT[1][2][1], "A-101")
+	Then("the table's text is not repeated as paragraphs", StzFindFirst("Steel hinge", "" + @@(o.Paragraphs())), 0)
+EndScenario()
+
+Scenario("A merged cell repeats its text in every cell it covers; the line above the table is its caption")
+	o = StzPdfQ(cG + "d04.pdf")
+	aT = o.Tables()[1]
+	Then("a cell spanning two columns fills both", @@([ aT[1][3], aT[1][4] ]), @@([ "Shipments", "Shipments" ]))
+	Then("a cell spanning two rows fills both", @@([ aT[3][1], aT[4][1] ]), @@([ "North", "North" ]))
+	Then("the caption is found", @@(o.Captions()), @@([ "Table 2. Shipments by region and product line (units)" ]))
+	Then("and it is not taken for a heading", StzFindFirst("Table 2", "" + @@(o.Headings())), 0)
+EndScenario()
+
+Scenario("Headings come from the type: largest first, levels by size")
+	o = StzPdfQ(cG + "d02.pdf")
+	aH = o.Headings()
+	Then("the title is level 1", @@(aH[1]), @@([ 1, "Annual Maintenance Report 2025" ]))
+	Then("a section is level 2", @@(aH[2]), @@([ 2, "1 Summary" ]))
+	Then("a subsection is level 3", @@(aH[3]), @@([ 3, "1.1 Scope" ]))
+	Then("a body paragraph is never a heading", StzFindFirst("This report describes", "" + @@(aH)), 0)
+	Then("two pages are read", o.NumberOfPages(), 2)
+EndScenario()
+
+Scenario("Two columns are read one after the other, not line by line across")
+	o = StzPdfQ(cG + "d05.pdf")
+	c = o.Text()
+	n1 = StzFindFirst("Within a week", c)
+	n2 = StzFindFirst("The farmers on the plain", c)
+	Then("the left column's last paragraph is found", n1 > 0, 1)
+	Then("the right column starts after the whole left column", n2 > n1, 1)
+	Then("a line of the left column is not cut by the right one", StzFindFirst("Heavy rain in the hills sent a flood down the valley in just two days.", c) > 0, 1)
+EndScenario()
+
+Scenario("Bullets drawn as shapes, written numbers, and nesting")
+	o = StzPdfQ(cG + "d06.pdf")
+	aL = o.ListItems()
+	Then("every item is found", len(aL), 12)
+	Then("a disc bullet starts an item, the shape gives no character", @@(aL[1]), @@([ 0, "A flat floor area of at least one square metre" ]))
+	Then("a nested item is one level deeper", @@(aL[3]), @@([ 1, "A 10 mm spanner" ]))
+	Then("a numbered item keeps its number", @@(aL[7]), @@([ 0, "1. Unpack the motor unit and the filter bag." ]))
+	Then("the sentence before a list is not an item", StzFindFirst("Before you begin", "" + @@(aL)), 0)
+EndScenario()
+
+Scenario("Page headers and footers are furniture, kept out of the text")
+	o = StzPdfQ(cG + "d07.pdf")
+	aF = o.Furniture()
+	Then("a header and a footer on each of three pages", len(aF), 6)
+	Then("the page number is furniture", StzFindFirst("Page 2 of 3", "" + @@(aF)) > 0, 1)
+	Then("the text has no page number", StzFindFirst("Page 2 of 3", o.Text()), 0)
+	Then("the text has no running header", StzFindFirst("User Manual, Revision 3", o.Text()), 0)
+	Then("a page's own text is still there", StzFindFirst("Hold the power button", o.TextOfPage(2)) > 0, 1)
+EndScenario()
+
+Scenario("Right-to-left text comes back in logical order, as letters, not as glyph forms")
+	o = StzPdfQ(cG + "d08.pdf")
+	c = o.Text()
+	Then("French accents survive", StzFindFirst("La bibliothèque a accueilli", c) > 0, 1)
+	Then("the Arabic sentence reads in logical order", StzFindFirst("يقدم هذا التقرير ملخصا لنشاط المكتبة البلدية خلال السنة الماضية.", c) > 0, 1)
+	Then("no presentation form is left (U+FE70 to U+FEFF)", StzFindFirst("ﻟ", c), 0)
+	Then("the second sentence follows the first", StzFindFirst("ارتفع عدد الزوار", c) > StzFindFirst("يقدم هذا التقرير", c), 1)
+EndScenario()
+
+Scenario("Code keeps its lines, its blank lines and its indentation")
+	o = StzPdfQ(cG + "d09.pdf")
+	aC = o.CodeBlocks()
+	Then("the program is one block", len(aC), 1)
+	Then("an indented line keeps four spaces", StzFindFirst(char(10) + "    return mass_kg * C ** 2", aC[1]) > 0, 1)
+	Then("the underscore is not split", StzFindFirst("mass _ kg", aC[1]), 0)
+	Then("two spaces inside a line are kept", StzFindFirst("299792458  #", aC[1]) > 0, 1)
+	Then("prose is not code", StzFindFirst("The program prints", "" + @@(aC)), 0)
+EndScenario()
+
+Scenario("A file that is not a readable PDF is refused with the reason")
+	bRaised = 0
+	cWhy = ""
+	try
+		o = StzPdfQ("_doc_score.py")
+	catch
+		bRaised = 1
+		cWhy = cCatchError
+	done
+	Then("a Python file is refused", bRaised, 1)
+	Then("and the reason is said", StzFindFirst("not a PDF", cWhy) > 0, 1)
+	bRaised = 0
+	try
+		o = StzPdfQ("_data/no-such-file.pdf")
+	catch
+		bRaised = 1
+		cWhy = cCatchError
+	done
+	Then("a missing file is refused", bRaised, 1)
+	Then("and the reason is said", StzFindFirst("does not exist", cWhy) > 0, 1)
+EndScenario()
+
+Summary()

@@ -735,6 +735,7 @@ load "service/stzPispiQr.ring"    # the twin of the hub served over HTTP, with O
     load "file/stzXml.ring"
     load "file/stzCSV.ring"
     load "file/stzHtml.ring"     # Engine-backed HTML parser (Zig)
+    load "file/stzPdf.ring"      # Engine-backed PDF text-layer reader (Zig)
 
     load "file/stzFolderWatcher.ring"  # Engine-backed folder watcher (Zig)
 
