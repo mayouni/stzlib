@@ -483,7 +483,7 @@ is never the default instrument.
 ```bash
 cd libraries/stzlib/base/test/render && ring escape_sinks_narrated.ring && ring twin_coverage_narrated.ring
 ```
-78 assertions (40 + 38): 10 to 13 s per guard warm on a quiet machine, 50 s each under three
+91 assertions (53 + 38): 10 to 13 s per guard warm on a quiet machine, 50 s each under three
 other sessions, and most of that is the cold start of stzBase, not the assertions. Neither
 guard renders the world; the escape guard parses its own output back with the engine, the
 twin guard judges three projections of a nine-line panel. Both are a PRE-COMMIT GATE for

@@ -16,3 +16,9 @@ What the screenshot shows beside the words, read by the render plane:
 - the NUL row reads **ab** and the controls row **a b**: both carried, both invisible
 
 *Unperceived* became *perceived* here; the guard that writes the page stays the instrument.
+
+## Second look owed
+
+| when | who | what changed | verdict |
+|---|---|---|---|
+| 2026-10-22 | the Principal ruled "bidi: yes" | the bidi row now reads `[U+202E]abc[U+202C]`: the two controls are visible markers and no longer steer the text | **not yet perceived**: the page was regenerated after the policy was built; a person opens it and says what they see |

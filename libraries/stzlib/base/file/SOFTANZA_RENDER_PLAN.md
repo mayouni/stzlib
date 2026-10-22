@@ -79,9 +79,24 @@ still escape in Ring (their desks).
   corpus as a page, one row per entry. **Perceived** by the Principal on 2026-10-22,
   "every row reads as plain text"; the record is `escape_sinks_perceived.md` beside the
   guard. The eye found what no counter did: the bidi row reads `cba`, the override
-  control having passed through as text. **Open**: a policy for the bidirectional
-  controls (U+202A to U+202E, U+2066 to U+2069) in text sinks, which escaping does not
-  address; a decision for the Principal, not a defect of the escaper.
+  control having passed through as text. **Ruled and built the same day** (see the
+  bidi policy below): the page was regenerated and its new bidi row is owed a second
+  look, so it is *unperceived* again until a person has seen it.
+- **Bidi policy -- built** (ruled by the Principal, "bidi: yes", 2026-10-22). Escaping
+  cannot address a control character, so it is its own step: the engine's
+  `html_neutralize_bidi` (`html.zig`, Ring face `StzBidiNeutralized`) replaces each of
+  U+202A to U+202E, the five embeddings and overrides, with a visible ASCII marker such
+  as `[U+202E]`. `StzHtmlEscaped`, `StzHtmlAttrEscaped` and `StzJsonString` apply it
+  first, so the builder, the panel's HTML, the accessibility JSON, the web shell and
+  the response writers all do. The **isolates** (U+2066 to U+2069) and the **marks**
+  (U+200E, U+200F) are kept: the library writes Arabic and Hebrew and they are
+  legitimate there. **Limits**: the marker form is lossy, so JSON written through
+  `StzJsonString` no longer round-trips a text holding one of the five; the twin rule
+  reports a box whose content holds one as dropped by the HTML and accessibility
+  twins, because those twins carry the marker and not the control; `_EduEsc` and the
+  Ring escapers left to other desks do not apply the policy yet. Guard: the Bidi
+  scenario of `escape_sinks_narrated.ring`, with its negative siblings (the isolates,
+  the marks, a truncated sequence, U+202F, plain text, a 24,000-byte run).
 
 ### 3.2 The twin -- **designed**
 
