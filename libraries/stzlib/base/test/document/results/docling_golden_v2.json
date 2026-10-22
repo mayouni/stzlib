@@ -1,0 +1,160 @@
+{
+ "tool": "docling",
+ "golden": "golden_v2",
+ "documents": [
+  {
+   "text": 1.0,
+   "order": 1.0,
+   "headings": 1.0,
+   "tables": 1.0,
+   "lists": null,
+   "furniture": null,
+   "code": null,
+   "id": "e01",
+   "difficulty": "table without any borders or ruling lines; columns aligned by padding only; header row not bold",
+   "seconds": 7.875
+  },
+  {
+   "text": 1.0,
+   "order": 1.0,
+   "headings": 1.0,
+   "tables": null,
+   "lists": null,
+   "furniture": null,
+   "code": null,
+   "id": "e02",
+   "difficulty": "three-column newsletter (CSS multi-column) with a title spanning all three columns",
+   "seconds": 1.266
+  },
+  {
+   "text": 1.0,
+   "order": 1.0,
+   "headings": 1.0,
+   "tables": null,
+   "lists": null,
+   "furniture": null,
+   "code": null,
+   "id": "e03",
+   "difficulty": "sidebar box floated right beside the body text; intended reading order is main text first, sidebar last",
+   "seconds": 1.344
+  },
+  {
+   "text": 1.0,
+   "order": 1.0,
+   "headings": 1.0,
+   "tables": 0.6222222222222222,
+   "lists": null,
+   "furniture": null,
+   "code": null,
+   "id": "e04",
+   "difficulty": "long bordered table that continues onto a second page, with its header row repeated at the top of page 2",
+   "seconds": 21.742
+  },
+  {
+   "text": 0.6666666666666666,
+   "order": 1.0,
+   "headings": 1.0,
+   "tables": null,
+   "lists": null,
+   "furniture": null,
+   "code": null,
+   "id": "e05",
+   "difficulty": "right-to-left Hebrew document with numbers and a Latin product name embedded inside sentences",
+   "seconds": 2.725
+  },
+  {
+   "text": 1.0,
+   "order": 1.0,
+   "headings": 1.0,
+   "tables": null,
+   "lists": null,
+   "furniture": 1.0,
+   "code": null,
+   "id": "e06",
+   "difficulty": "scientific page: serif font, justified paragraphs, superscript footnote markers with footnotes at the foot, an inline formula with subscript and superscript",
+   "seconds": 3.293
+  },
+  {
+   "text": 1.0,
+   "order": 1.0,
+   "headings": 1.0,
+   "tables": null,
+   "lists": null,
+   "furniture": 1.0,
+   "code": null,
+   "id": "e07",
+   "difficulty": "form-like page: label/value pairs in two side-by-side columns, plus a signature line drawn as a rule",
+   "seconds": 3.808
+  },
+  {
+   "text": 1.0,
+   "order": 1.0,
+   "headings": 1.0,
+   "tables": null,
+   "lists": null,
+   "furniture": null,
+   "code": null,
+   "id": "e08",
+   "difficulty": "headings distinguished by bold weight only (same size as body text, no heading tags), one heading in ALL CAPS",
+   "seconds": 3.105
+  },
+  {
+   "text": 1.0,
+   "order": 1.0,
+   "headings": 1.0,
+   "tables": null,
+   "lists": 0.0,
+   "furniture": null,
+   "code": null,
+   "id": "e09",
+   "difficulty": "lettered list with a), b), c), d) markers and nested sub-lists marked with dashes; French text",
+   "seconds": 3.527
+  },
+  {
+   "text": 0.8333333333333334,
+   "order": 0.6666666666666666,
+   "headings": 1.0,
+   "tables": 0.9333333333333333,
+   "lists": null,
+   "furniture": null,
+   "code": null,
+   "id": "e10",
+   "difficulty": "German text with umlauts and ß, a long compound word hyphenated across a line break, and a table with merged header cells (colspan and rowspan)",
+   "seconds": 4.9
+  },
+  {
+   "text": 1.0,
+   "order": 1.0,
+   "headings": 1.0,
+   "tables": 1.0,
+   "lists": null,
+   "furniture": null,
+   "code": null,
+   "id": "e11",
+   "difficulty": "landscape page (A4 landscape) with two bordered tables side by side",
+   "seconds": 6.398
+  },
+  {
+   "text": 1.0,
+   "order": 1.0,
+   "headings": 1.0,
+   "tables": null,
+   "lists": null,
+   "furniture": null,
+   "code": 0.5,
+   "id": "e12",
+   "difficulty": "monospaced code block indented with tab characters, a shell transcript block, and an indented quotation block",
+   "seconds": 1.524
+  }
+ ],
+ "macro": {
+  "text": 0.958,
+  "order": 0.972,
+  "headings": 1.0,
+  "tables": 0.889,
+  "lists": 0.0,
+  "furniture": 1.0,
+  "code": 0.5
+ },
+ "seconds_total": 61.507
+}

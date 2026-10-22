@@ -1,5 +1,5 @@
 {
- "count": 90,
+ "count": 87,
  "defects": [
   {
    "class": "stzAppServer",
@@ -426,30 +426,6 @@
    "cause": "every log entry lists its own trigger in dependson, so the method calls itself on that same trigger without end; confirmed with the trigger num and the trigger d"
   },
   {
-   "class": "stzTimex",
-   "file": "regex/stzTimex.ring",
-   "method": "SplitByOperator",
-   "line": 177,
-   "symptom": "Returns the whole text as one piece today instead of cutting it at an operator outside brackets.",
-   "cause": "the brackets are tracked correctly, only the comparison fails"
-  },
-  {
-   "class": "stzTimex",
-   "file": "regex/stzTimex.ring",
-   "method": "MatchExact",
-   "line": 506,
-   "symptom": "TRUE if the pattern matches the whole target, with nothing left over.",
-   "cause": "because of the parser defect, only single-token patterns are meaningful; Match is the same call"
-  },
-  {
-   "class": "stzTimex",
-   "file": "regex/stzTimex.ring",
-   "method": "MatchPartial",
-   "line": 527,
-   "symptom": "TRUE if the pattern matches somewhere inside the target, starting at any item.",
-   "cause": "because of the parser defect, only single-token patterns are meaningful; any text in a list counts as an instant, so @Instant matches a list holding the text x"
-  },
-  {
    "class": "stzOidcProvider",
    "file": "security/stzOidcProvider.ring",
    "method": "IssueIdTokenAt",
@@ -565,7 +541,7 @@
    "class": "stzString",
    "file": "string/stzString.ring",
    "method": "IsCurrencySymbol",
-   "line": 9373,
+   "line": 9370,
    "symptom": "Answers FALSE today: the currency symbol check is a stub that waits for the locale data.",
    "cause": ""
   },

@@ -1,0 +1,36 @@
+{
+  "id": "e05",
+  "difficulty": "right-to-left Hebrew document with numbers and a Latin product name embedded inside sentences",
+  "pages": 1,
+  "title": "דוח רבעוני: מערכת ההשקיה החכמה",
+  "headings": [
+    {
+      "level": 1,
+      "text": "דוח רבעוני: מערכת ההשקיה החכמה"
+    },
+    {
+      "level": 2,
+      "text": "מכירות"
+    },
+    {
+      "level": 2,
+      "text": "תוכניות לעתיד"
+    }
+  ],
+  "key_sentences": [
+    "בשנת 2025 מכרה החברה 4,750 יחידות של המוצר Rivulet S3.",
+    "הדגם החדש צורך 30 אחוז פחות מים מהדגם הקודם.",
+    "הלקוחות בצפון הארץ דיווחו על שביעות רצון גבוהה במיוחד.",
+    "צוות התמיכה ענה על 1,230 פניות במהלך הרבעון.",
+    "גרסת התוכנה 2.4 תשוחרר לכל המשתמשים בחודש מרץ.",
+    "אנו מתכננים להשיק את Rivulet S3 גם באירופה בשנה הבאה."
+  ],
+  "tables": [],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "he"
+  ],
+  "code": [],
+  "notes": "Whole document is Hebrew, dir=rtl, right-aligned. All expected strings are in LOGICAL (Unicode storage) order, not visual order: a reader that emits glyphs left to right will reverse the Hebrew runs. Embedded left-to-right runs: the product name 'Rivulet S3' (Latin, appears twice), and the numbers 2025, 4,750, 30, 1,230 and 2.4 (comma is a thousands separator, period in 2.4 is a decimal point). Each sentence ends with a period that, in logical order, is the last character. No maqaf or niqqud is used. Rough meaning: quarterly report on a smart irrigation system - sales, then plans."
+}

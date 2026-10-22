@@ -1,0 +1,46 @@
+{
+  "id": "e08",
+  "difficulty": "headings distinguished by bold weight only (same size as body text, no heading tags), one heading in ALL CAPS",
+  "pages": 1,
+  "title": "Annual Report of the Riverside Allotment Society",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Annual Report of the Riverside Allotment Society"
+    },
+    {
+      "level": 2,
+      "text": "Membership"
+    },
+    {
+      "level": 2,
+      "text": "FINANCES"
+    },
+    {
+      "level": 2,
+      "text": "Plot Inspections"
+    },
+    {
+      "level": 2,
+      "text": "Next Year"
+    }
+  ],
+  "key_sentences": [
+    "The society ended the year with 63 members, five more than last year.",
+    "Eleven people are still on the waiting list for a plot.",
+    "Income from plot rents was 3,150 pounds, and expenses came to 2,870 pounds.",
+    "The surplus will be kept as a reserve for repairing the water pipes.",
+    "Inspections took place in June and September.",
+    "Four plot holders received a written reminder to clear weeds from the paths.",
+    "The committee proposes to build a shared tool shed near the main gate.",
+    "Members will vote on the proposal at the spring meeting."
+  ],
+  "tables": [],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Every heading, including the title, is set in the SAME font and size as the body (Arial 11pt); only bold weight and a little extra space above mark them. They are <p><b> in the HTML, not h1/h2, so the PDF carries no heading tags for them. 'FINANCES' is typed in capitals in the source (not a CSS transform). Title is listed as level 1, the four section headings as level 2."
+}

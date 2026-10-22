@@ -1,0 +1,136 @@
+{
+ "tool": "native",
+ "golden": "golden_v1",
+ "documents": [
+  {
+   "text": 1.0,
+   "order": 1.0,
+   "headings": null,
+   "tables": null,
+   "lists": null,
+   "furniture": null,
+   "code": null,
+   "id": "d01",
+   "difficulty": "plain multi-paragraph letter",
+   "seconds": 0.0045
+  },
+  {
+   "text": 1.0,
+   "order": 1.0,
+   "headings": 1.0,
+   "tables": null,
+   "lists": null,
+   "furniture": null,
+   "code": null,
+   "id": "d02",
+   "difficulty": "heading hierarchy (h1, h2, h3), 2 pages",
+   "seconds": 0.0016
+  },
+  {
+   "text": 1.0,
+   "order": 1.0,
+   "headings": 1.0,
+   "tables": 1.0,
+   "lists": null,
+   "furniture": null,
+   "code": null,
+   "id": "d03",
+   "difficulty": "simple table",
+   "seconds": 0.0013
+  },
+  {
+   "text": 1.0,
+   "order": 1.0,
+   "headings": 1.0,
+   "tables": 1.0,
+   "lists": null,
+   "furniture": null,
+   "code": null,
+   "id": "d04",
+   "difficulty": "table with merged cells (rowspan and colspan) and a caption",
+   "seconds": 0.0011
+  },
+  {
+   "text": 1.0,
+   "order": 1.0,
+   "headings": 1.0,
+   "tables": null,
+   "lists": null,
+   "furniture": null,
+   "code": null,
+   "id": "d05",
+   "difficulty": "two-column article layout (reading order)",
+   "seconds": 0.0012
+  },
+  {
+   "text": 1.0,
+   "order": 1.0,
+   "headings": 1.0,
+   "tables": null,
+   "lists": 1.0,
+   "furniture": null,
+   "code": null,
+   "id": "d06",
+   "difficulty": "bulleted and numbered lists, one nested level",
+   "seconds": 0.0013
+  },
+  {
+   "text": 1.0,
+   "order": 1.0,
+   "headings": 1.0,
+   "tables": null,
+   "lists": null,
+   "furniture": 1.0,
+   "code": null,
+   "id": "d07",
+   "difficulty": "repeated page header and footer with page numbers (furniture)",
+   "seconds": 0.002
+  },
+  {
+   "text": 1.0,
+   "order": 1.0,
+   "headings": 1.0,
+   "tables": null,
+   "lists": null,
+   "furniture": null,
+   "code": null,
+   "id": "d08",
+   "difficulty": "French accents and an Arabic right-to-left paragraph",
+   "seconds": 0.0012
+  },
+  {
+   "text": 1.0,
+   "order": 1.0,
+   "headings": 1.0,
+   "tables": null,
+   "lists": null,
+   "furniture": null,
+   "code": 1.0,
+   "id": "d09",
+   "difficulty": "code block (monospace) and inline formulas written as text",
+   "seconds": 0.0011
+  },
+  {
+   "text": 1.0,
+   "order": 1.0,
+   "headings": 1.0,
+   "tables": 1.0,
+   "lists": 1.0,
+   "furniture": null,
+   "code": null,
+   "id": "d10",
+   "difficulty": "mixed: heading, paragraph, small table, list, footnote",
+   "seconds": 0.0011
+  }
+ ],
+ "macro": {
+  "text": 1.0,
+  "order": 1.0,
+  "headings": 1.0,
+  "tables": 1.0,
+  "lists": 1.0,
+  "furniture": 1.0,
+  "code": 1.0
+ },
+ "seconds_total": 0.016
+}

@@ -1,0 +1,97 @@
+{
+  "id": "e11",
+  "difficulty": "landscape page (A4 landscape) with two bordered tables side by side",
+  "pages": 1,
+  "title": "Regional Delivery Performance, First Half of 2026",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Regional Delivery Performance, First Half of 2026"
+    }
+  ],
+  "key_sentences": [
+    "This page compares delivery performance across the five regions served by the Tamberlin depot.",
+    "Figures cover all parcels dispatched between 1 January and 30 June.",
+    "The Coastal region again had the lowest share of late deliveries.",
+    "Most complaints about damaged parcels came from a single faulty conveyor, which has since been replaced."
+  ],
+  "tables": [
+    {
+      "caption": "Table A. On-time deliveries by region",
+      "rows": [
+        [
+          "Region",
+          "Deliveries",
+          "On time (%)"
+        ],
+        [
+          "Coastal",
+          "18,420",
+          "97.1"
+        ],
+        [
+          "Highlands",
+          "9,875",
+          "91.4"
+        ],
+        [
+          "Lakeside",
+          "12,310",
+          "95.0"
+        ],
+        [
+          "Northern Plain",
+          "15,602",
+          "93.8"
+        ],
+        [
+          "Valley",
+          "11,048",
+          "94.6"
+        ]
+      ]
+    },
+    {
+      "caption": "Table B. Complaints by category",
+      "rows": [
+        [
+          "Category",
+          "Complaints",
+          "Resolved"
+        ],
+        [
+          "Late delivery",
+          "214",
+          "198"
+        ],
+        [
+          "Damaged parcel",
+          "131",
+          "127"
+        ],
+        [
+          "Wrong address",
+          "76",
+          "75"
+        ],
+        [
+          "Missing item",
+          "42",
+          "35"
+        ],
+        [
+          "Rude driver",
+          "9",
+          "9"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Page is A4 LANDSCAPE (MediaBox about 842 x 595 pt). Two separate tables stand side by side at the same height with a gap between them; they must be read as TWO tables, left one (Table A) first, then right one (Table B), never merged row by row into one six-column table. Each has its caption above it and a shaded header row."
+}

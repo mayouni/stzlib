@@ -1,0 +1,5 @@
+heading	1	Lab Note 7: Estimating Energy from Mass
+paragraph	0	This note shows a short program that applies the mass-energy relation E = mc^2 to a list of masses. Here E is the energy in joules, m is the mass in kilograms and c is the speed of light.
+code	0	C = 299792458 # speed of light in m/s def energy(mass _ kg): """Return the rest energy in joules. """ return mass _ kg * C ** 2 for m in [0.001, 0.5, 2.0]: print(f"m = {m} kg -> E = {energy(m):.3e} J")
+paragraph	0	The program prints one line for each mass in the list. Results are written in scientific notation with three decimal places.
+paragraph	0	The ratio of two energies is simply E1/E2 = m1/m2, because the constant c^2 cancels out. For example, doubling the mass doubles the energy.

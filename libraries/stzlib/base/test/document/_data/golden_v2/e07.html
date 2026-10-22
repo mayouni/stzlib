@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Volunteer Registration Form</title>
+<style>
+@page { size: A4; margin: 2cm }
+html, body { margin: 0; padding: 0; background: #fff; color: #111 }
+body { font-family: Arial, Helvetica, sans-serif; font-size: 11pt; line-height: 1.4 }
+h1 { font-size: 20pt; margin: 0 0 10pt 0 }
+h2 { font-size: 14pt; margin: 14pt 0 6pt 0 }
+h3 { font-size: 12pt; margin: 8pt 0 4pt 0 }
+p { margin: 0 0 8pt 0 }
+
+.cols { display: flex; gap: 12mm; margin: 10pt 0 16pt 0 }
+.col { flex: 1 }
+.field { display: flex; margin-bottom: 9pt; align-items: baseline }
+.label { width: 34mm; color: #333 }
+.value { flex: 1; border-bottom: 0.75pt dotted #666; padding-left: 2pt }
+.sign { display: flex; gap: 12mm; margin-top: 28pt }
+.sign div { flex: 1; display: flex; align-items: flex-end }
+.line { flex: 1; border-bottom: 0.75pt solid #000; height: 18pt; margin-left: 4pt }
+.formref { position: fixed; bottom: 0; left: 0; font-size: 9pt; color: #333 }
+h2 { font-size: 12pt; border-bottom: 1pt solid #111; padding-bottom: 2pt }
+</style>
+</head>
+<body>
+<h1>Volunteer Registration Form</h1>
+<p>Please check the details below before you sign the form. The details you give are used only to organise the volunteer rota.</p>
+<div class='cols'>
+<div class='col'>
+<h2>Personal details</h2>
+<div class='field'><span class='label'>Name:</span><span class='value'>Ines Marwood</span></div>
+<div class='field'><span class='label'>Date of birth:</span><span class='value'>12 July 1991</span></div>
+<div class='field'><span class='label'>Phone:</span><span class='value'>0161 555 0142</span></div>
+<div class='field'><span class='label'>Email:</span><span class='value'>ines.marwood@example.org</span></div>
+</div>
+<div class='col'>
+<h2>Volunteering</h2>
+<div class='field'><span class='label'>Preferred role:</span><span class='value'>Reading assistant</span></div>
+<div class='field'><span class='label'>Availability:</span><span class='value'>Saturday mornings</span></div>
+<div class='field'><span class='label'>Start date:</span><span class='value'>2 May 2026</span></div>
+<div class='field'><span class='label'>Emergency contact:</span><span class='value'>Tomas Marwood</span></div>
+</div>
+</div>
+<p>By signing, you agree to follow the safeguarding guidelines of the centre. Return the completed form to the reception desk.</p>
+<div class='sign'><div><span>Signature:</span><span class='line'></span></div><div><span>Date:</span><span class='line'></span></div></div>
+<div class='formref'>Form VR-2, revised January 2026</div>
+</body>
+</html>

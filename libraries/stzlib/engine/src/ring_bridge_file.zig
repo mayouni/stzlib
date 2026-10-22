@@ -1,4 +1,6 @@
+const std = @import("std");
 const f = @import("file.zig");
+const pdf = @import("pdf.zig");
 const R = @import("ring_api.zig");
 
 const g = R.ring_vm_api_getnumber;
@@ -125,7 +127,113 @@ fn ring_FileIsReadOnly(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(f.stz_file_is_readonly(gs(p, 1), @intCast(gss(p, 1)))));
 }
 
+// ---- the native PDF reader (pdf.zig) ---------------------------------------------------------------------
+// One document is open at a time: StzEnginePdfOpen reads and lays it out once, and the other calls read
+// that result until StzEnginePdfClose or the next open. A refusal (not a PDF, encrypted, no page) answers -1
+// and StzEnginePdfError says why in a sentence.
+
+var g_pdf: ?pdf.Result = null;
+var g_pdf_err: [512]u8 = undefined;
+var g_pdf_err_len: usize = 0;
+
+fn pdfSetError(msg: []const u8) void {
+    const n = @min(msg.len, g_pdf_err.len);
+    @memcpy(g_pdf_err[0..n], msg[0..n]);
+    g_pdf_err_len = n;
+}
+
+fn pdfClose() void {
+    if (g_pdf) |*r| r.deinit();
+    g_pdf = null;
+}
+
+// StzEnginePdfOpen(cPath) -> the number of pages, or -1 (StzEnginePdfError says why)
+fn ring_PdfOpen(p: *anyopaque) callconv(.c) void {
+    pdfClose();
+    g_pdf_err_len = 0;
+    const path = gs(p, 1)[0..@intCast(gss(p, 1))];
+    const r = pdf.readFile(std.heap.page_allocator, path) catch |e| {
+        pdfSetError(switch (e) {
+            error.NotPdf => "the file is not a PDF",
+            error.Encrypted => "the PDF is encrypted; it is not read",
+            error.NoPages => "the PDF has no page that could be found",
+            error.FileNotFound => "the file does not exist",
+            error.OutOfMemory => "out of memory while reading the PDF",
+            else => @errorName(e),
+        });
+        rn(p, -1);
+        return;
+    };
+    g_pdf = r;
+    rn(p, @floatFromInt(r.pages));
+}
+
+fn ring_PdfError(p: *anyopaque) callconv(.c) void {
+    rs2(p, &g_pdf_err, @intCast(g_pdf_err_len));
+}
+
+// StzEnginePdfInfo() -> [ nPages, cVersion, bEncrypted, bTagged, nGlyphs, nBlocks ], [] when nothing is open
+fn ring_PdfInfo(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    if (g_pdf) |r| {
+        R.ring_list_adddouble(out, @floatFromInt(r.pages));
+        R.ring_list_addstring2(out, r.version.ptr, @intCast(r.version.len));
+        R.ring_list_adddouble(out, if (r.encrypted) 1 else 0);
+        R.ring_list_adddouble(out, if (r.tagged) 1 else 0);
+        R.ring_list_adddouble(out, @floatFromInt(r.glyphs));
+        R.ring_list_adddouble(out, @floatFromInt(r.blocks.len));
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
+// StzEnginePdfBlocks() -> one [ nPage, cKind, nLevel, nX0, nY0, nX1, nY1, nSize, bBold, bMono, cText, aRows ]
+// per block, in reading order; aRows holds a table's cells row by row ([] for any other kind)
+fn ring_PdfBlocks(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    if (g_pdf) |r| {
+        for (r.blocks) |b| {
+            const l = R.ring_list_newlist(out) orelse continue;
+            const kn = pdf.kindName(b.kind);
+            R.ring_list_adddouble(l, @floatFromInt(b.page));
+            R.ring_list_addstring2(l, kn.ptr, @intCast(kn.len));
+            R.ring_list_adddouble(l, @floatFromInt(b.level));
+            R.ring_list_adddouble(l, b.x0);
+            R.ring_list_adddouble(l, b.y0);
+            R.ring_list_adddouble(l, b.x1);
+            R.ring_list_adddouble(l, b.y1);
+            R.ring_list_adddouble(l, b.size);
+            R.ring_list_adddouble(l, if (b.bold) 1 else 0);
+            R.ring_list_adddouble(l, if (b.mono) 1 else 0);
+            R.ring_list_addstring2(l, b.text.ptr, @intCast(b.text.len));
+            const rows = R.ring_list_newlist(l) orelse continue;
+            for (b.rows) |row| {
+                const rl = R.ring_list_newlist(rows) orelse continue;
+                for (row) |c| R.ring_list_addstring2(rl, c.ptr, @intCast(c.len));
+            }
+        }
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
+// StzEnginePdfText() -> the body text in reading order, blocks separated by a blank line, page furniture left out
+fn ring_PdfText(p: *anyopaque) callconv(.c) void {
+    if (g_pdf) |r| {
+        rs2(p, r.text.ptr, @intCast(r.text.len));
+    } else rs2(p, &g_pdf_err, 0);
+}
+
+fn ring_PdfClose(p: *anyopaque) callconv(.c) void {
+    pdfClose();
+    rn(p, 1);
+}
+
 pub const regs = [_]R.Reg{
+    .{ .name = "stzenginepdfopen", .func = &ring_PdfOpen },
+    .{ .name = "stzenginepdferror", .func = &ring_PdfError },
+    .{ .name = "stzenginepdfinfo", .func = &ring_PdfInfo },
+    .{ .name = "stzenginepdfblocks", .func = &ring_PdfBlocks },
+    .{ .name = "stzenginepdftext", .func = &ring_PdfText },
+    .{ .name = "stzenginepdfclose", .func = &ring_PdfClose },
     .{ .name = "stzenginefilesetreadonly", .func = &ring_FileSetReadOnly },
     .{ .name = "stzenginefilewriteprivate", .func = &ring_FileWritePrivate },
     .{ .name = "stzenginefilesetexecutable", .func = &ring_FileSetExecutable },

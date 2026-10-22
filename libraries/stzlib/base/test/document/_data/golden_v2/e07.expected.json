@@ -1,0 +1,36 @@
+{
+  "id": "e07",
+  "difficulty": "form-like page: label/value pairs in two side-by-side columns, plus a signature line drawn as a rule",
+  "pages": 1,
+  "title": "Volunteer Registration Form",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Volunteer Registration Form"
+    },
+    {
+      "level": 2,
+      "text": "Personal details"
+    },
+    {
+      "level": 2,
+      "text": "Volunteering"
+    }
+  ],
+  "key_sentences": [
+    "Please check the details below before you sign the form.",
+    "The details you give are used only to organise the volunteer rota.",
+    "By signing, you agree to follow the safeguarding guidelines of the centre.",
+    "Return the completed form to the reception desk."
+  ],
+  "tables": [],
+  "list_items": [],
+  "furniture": [
+    "Form VR-2, revised January 2026"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Two side-by-side column blocks, each with a level-2 heading and four 'Label: value' fields (label at left, value on a dotted rule). INTENDED READING ORDER: left column top to bottom, then right column top to bottom (the fields of one row are NOT a pair). Fields in order: 'Name: Ines Marwood'; 'Date of birth: 12 July 1991'; 'Phone: 0161 555 0142'; 'Email: ines.marwood@example.org' | 'Preferred role: Reading assistant'; 'Availability: Saturday mornings'; 'Start date: 2 May 2026'; 'Emergency contact: Tomas Marwood'. These are not a table and not a list (tables and list_items are empty); a scorer may check them as label/value pairs. The headings 'Personal details' and 'Volunteering' sit side by side at the same height. After the two sentences that close the body comes the signature line: the word 'Signature:' followed by a solid drawn rule (a border, no underscore characters) and, to its right, 'Date:' followed by another drawn rule; the date is blank. Furniture: 'Form VR-2, revised January 2026' at the bottom left of the page."
+}
