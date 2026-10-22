@@ -1,0 +1,161 @@
+{
+  "id": "k17",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Travel Itinerary",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Travel Itinerary"
+    },
+    {
+      "level": 2,
+      "text": "Flights"
+    },
+    {
+      "level": 2,
+      "text": "Hotels"
+    },
+    {
+      "level": 2,
+      "text": "Ground transport"
+    },
+    {
+      "level": 2,
+      "text": "Before you travel"
+    }
+  ],
+  "key_sentences": [
+    "All times shown are local times at each airport.",
+    "Your return flight on 9 November is waitlisted, and we will confirm it or rebook you by 30 October.",
+    "A driver from Acacia Park Hotel will meet you in the arrivals hall at Nairobi and hold a sign with your name.",
+    "Transfers in Kigali are not included and can be booked at the hotel reception.",
+    "Please check in online 24 hours before each flight and arrive at the airport at least three hours before international departures."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Traveller",
+          "Ms Nadia Rahmani-Okafor",
+          "Booking reference",
+          "QX7R2M"
+        ],
+        [
+          "Company",
+          "Halden Engineering Consultants",
+          "Issued",
+          "21 October 2026"
+        ],
+        [
+          "Ticket number",
+          "176-2412093388",
+          "Travel consultant",
+          "Tunde Afolabi"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Date",
+          "Flight",
+          "From",
+          "To",
+          "Departs",
+          "Arrives",
+          "Class",
+          "Status"
+        ],
+        [
+          "Wed 4 Nov 2026",
+          "XQ 214",
+          "Lagos (LOS)",
+          "Nairobi (NBO)",
+          "08:45",
+          "15:40",
+          "Business (J)",
+          "Confirmed"
+        ],
+        [
+          "Fri 6 Nov 2026",
+          "XQ 731",
+          "Nairobi (NBO)",
+          "Kigali (KGL)",
+          "11:20",
+          "11:35",
+          "Business (J)",
+          "Confirmed"
+        ],
+        [
+          "Mon 9 Nov 2026",
+          "XQ 590",
+          "Kigali (KGL)",
+          "Lagos (LOS)",
+          "13:05",
+          "17:50",
+          "Economy (Y)",
+          "Waitlisted"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Check-in",
+          "Check-out",
+          "Hotel",
+          "Address",
+          "Confirmation"
+        ],
+        [
+          "4 Nov 2026",
+          "6 Nov 2026",
+          "Acacia Park Hotel",
+          "Waiyaki Way, Westlands, Nairobi",
+          "ACP-55120"
+        ],
+        [
+          "6 Nov 2026",
+          "9 Nov 2026",
+          "Hotel Kivu Heights",
+          "KN 3 Avenue, Kigali",
+          "KH-80931"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "□ Passport valid for at least six months after the return date"
+    },
+    {
+      "level": 0,
+      "text": "□ Yellow fever vaccination certificate"
+    },
+    {
+      "level": 0,
+      "text": "□ Printed or electronic copy of this itinerary"
+    },
+    {
+      "level": 0,
+      "text": "□ Corporate card for incidental hotel charges"
+    }
+  ],
+  "furniture": [
+    "Meridian Business Travel",
+    "18 Adeola Hopewell Street, Victoria Island, Lagos",
+    "+234 1 555 0140 · trips@meridian-bt.example",
+    "Meridian Business Travel Ltd · RC 1184420 · 24-hour emergency line +234 1 555 0147",
+    "This itinerary is not a ticket. Fares and availability are subject to change until ticketed."
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "One-page itinerary. Tables: a borderless 3-row key/value header grid (two pairs per row, no header row), the flights table and the hotels table, both with only horizontal rules. The 'Waitlisted' status is bold orange. The checklist under 'Before you travel' is a TYPED list whose marker is the empty-box character □ (U+25A1) typed in the text, kept in list_items. Furniture: wordmark 'Meridian Business Travel' (one line, second part bold), two contact lines, and two footer lines. Airport codes in parentheses are part of the cell text."
+}

@@ -1,0 +1,267 @@
+{
+  "id": "k07",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Discharge Summary",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Discharge Summary"
+    },
+    {
+      "level": 2,
+      "text": "Diagnoses"
+    },
+    {
+      "level": 2,
+      "text": "Presenting complaint"
+    },
+    {
+      "level": 2,
+      "text": "Investigations"
+    },
+    {
+      "level": 2,
+      "text": "Hospital course"
+    },
+    {
+      "level": 2,
+      "text": "Medication on discharge"
+    },
+    {
+      "level": 2,
+      "text": "Follow-up"
+    },
+    {
+      "level": 2,
+      "text": "Advice to the patient"
+    }
+  ],
+  "key_sentences": [
+    "Mr Halvorsen presented to the emergency department with a four-day history of productive cough, fever and increasing shortness of breath.",
+    "On arrival his oxygen saturation was 89% on room air and his temperature was 38.9 °C.",
+    "A chest radiograph showed consolidation in the right lower zone without effusion.",
+    "He was treated with intravenous amoxicillin and oral clarithromycin, and was switched to oral antibiotics on day three once his fever had settled.",
+    "He was mobilising independently and maintaining saturations above 94% on room air at the time of discharge.",
+    "Complete the full course of antibiotics even if you feel better.",
+    "Seek urgent medical help if you become more breathless, develop chest pain or cough up blood."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Patient",
+          "Thomas R. Halvorsen",
+          "MRN",
+          "00482913"
+        ],
+        [
+          "Date of birth",
+          "7 February 1958",
+          "Sex",
+          "Male"
+        ],
+        [
+          "Admitted",
+          "9 October 2026",
+          "Discharged",
+          "16 October 2026"
+        ],
+        [
+          "Ward",
+          "Medical Ward 3B",
+          "Consultant",
+          "Dr. Ingrid Solberg"
+        ],
+        [
+          "Discharged to",
+          "Home, with community nursing",
+          "Family doctor",
+          "Dr. Paul Mercer, Eastside Medical Practice"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Test",
+          "9 Oct",
+          "12 Oct",
+          "15 Oct",
+          "Reference range"
+        ],
+        [
+          "Haematology",
+          "Haematology",
+          "Haematology",
+          "Haematology",
+          "Haematology"
+        ],
+        [
+          "Haemoglobin (g/L)",
+          "132",
+          "128",
+          "130",
+          "130–170"
+        ],
+        [
+          "White cell count (×10⁹/L)",
+          "16.8",
+          "11.2",
+          "8.4",
+          "4.0–11.0"
+        ],
+        [
+          "Biochemistry",
+          "Biochemistry",
+          "Biochemistry",
+          "Biochemistry",
+          "Biochemistry"
+        ],
+        [
+          "C-reactive protein (mg/L)",
+          "186",
+          "74",
+          "21",
+          "< 5"
+        ],
+        [
+          "Sodium (mmol/L)",
+          "134",
+          "137",
+          "139",
+          "135–145"
+        ],
+        [
+          "Potassium (mmol/L)",
+          "4.9",
+          "4.3",
+          "4.1",
+          "3.5–5.3"
+        ],
+        [
+          "Creatinine (µmol/L)",
+          "148",
+          "112",
+          "96",
+          "60–110"
+        ],
+        [
+          "HbA1c (mmol/mol)",
+          "62",
+          "–",
+          "–",
+          "20–41"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Medicine",
+          "Dose",
+          "Route",
+          "Frequency",
+          "Duration",
+          "Status"
+        ],
+        [
+          "Amoxicillin",
+          "1 g",
+          "Oral",
+          "Three times daily",
+          "Until 19 October 2026",
+          "New"
+        ],
+        [
+          "Clarithromycin",
+          "500 mg",
+          "Oral",
+          "Twice daily",
+          "Until 19 October 2026",
+          "New"
+        ],
+        [
+          "Metformin",
+          "1 g",
+          "Oral",
+          "Twice daily",
+          "Ongoing",
+          "Restarted"
+        ],
+        [
+          "Ramipril",
+          "5 mg",
+          "Oral",
+          "Once daily",
+          "Ongoing",
+          "Restarted"
+        ],
+        [
+          "Atorvastatin",
+          "20 mg",
+          "Oral",
+          "At night",
+          "Ongoing",
+          "Unchanged"
+        ],
+        [
+          "Paracetamol",
+          "1 g",
+          "Oral",
+          "Up to four times daily",
+          "As needed",
+          "New"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Community-acquired pneumonia, right lower lobe (primary diagnosis)"
+    },
+    {
+      "level": 0,
+      "text": "Acute kidney injury, stage 1, resolved"
+    },
+    {
+      "level": 0,
+      "text": "Type 2 diabetes mellitus"
+    },
+    {
+      "level": 0,
+      "text": "Hypertension"
+    },
+    {
+      "level": 0,
+      "text": "Renal function and potassium check in one week at the family doctor’s practice."
+    },
+    {
+      "level": 0,
+      "text": "Repeat chest radiograph in six weeks, to be requested by the family doctor."
+    },
+    {
+      "level": 0,
+      "text": "Diabetes nurse review of glucose control within one month."
+    }
+  ],
+  "furniture": [
+    "Lakeview Community Hospital",
+    "Department of Internal Medicine",
+    "400 Shoreline Avenue, Port Elm, ON K0L 2T0",
+    "Switchboard 705-555-0100 · Fax 705-555-0119",
+    "CONFIDENTIAL – contains personal health information",
+    "Page 1 of 2",
+    "DISCHARGE SUMMARY – Thomas R. Halvorsen – MRN 00482913",
+    "Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Clinical discharge summary on two explicit pages. The sentence about renal function carries a superscript footnote marker '1' and is therefore left out of key_sentences; the footnote text itself (bottom of page 1, above the footer, under a short rule) is in no expected field. Tables: a 5-row key/value patient grid (two pairs per row, no header), the investigations table with two section rows (Haematology, Biochemistry) spanning 5 columns, and the discharge-medication table on page 2. Lists: the diagnoses are an HTML ordered list (numbers drawn by CSS, so no marker in the text); follow-up items are an HTML bulleted list (CSS discs). Furniture: letterhead (hospital name, department line, two contact lines), a running header on page 2 (two entries), and on each page the confidentiality line and 'Page n of 2'. The closing signature block is body but not sentences."
+}

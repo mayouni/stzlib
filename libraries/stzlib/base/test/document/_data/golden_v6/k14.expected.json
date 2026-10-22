@@ -1,0 +1,216 @@
+{
+  "id": "k14",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Bedienungsanleitung NS-420",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Bedienungsanleitung NS-420"
+    },
+    {
+      "level": 2,
+      "text": "1 Sicherheitshinweise"
+    },
+    {
+      "level": 2,
+      "text": "2 Lieferumfang"
+    },
+    {
+      "level": 2,
+      "text": "3 Technische Daten"
+    },
+    {
+      "level": 2,
+      "text": "4 Inbetriebnahme"
+    },
+    {
+      "level": 2,
+      "text": "5 Einrichtung über die Kommandozeile"
+    },
+    {
+      "level": 2,
+      "text": "6 Fehlerbehebung"
+    }
+  ],
+  "key_sentences": [
+    "Vielen Dank, dass Sie sich für den Netzwerkspeicher NS-420 entschieden haben.",
+    "Lesen Sie diese Anleitung vollständig, bevor Sie das Gerät in Betrieb nehmen, und bewahren Sie sie für spätere Fragen auf.",
+    "Trennen Sie das Gerät vom Stromnetz, bevor Sie Festplatten ein- oder ausbauen.",
+    "Die Ersteinrichtung dauert je nach Festplattengröße bis zu zehn Minuten.",
+    "Erfahrene Anwender können das Gerät auch über SSH einrichten.",
+    "Melden Sie sich mit dem Benutzer admin und dem Kennwort an, das auf dem Typenschild angegeben ist.",
+    "Wenden Sie sich an unseren Kundendienst, wenn das Problem weiterhin besteht."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Merkmal",
+          "Wert"
+        ],
+        [
+          "Hardware",
+          "Hardware"
+        ],
+        [
+          "Prozessor",
+          "Vierkern-ARM, 1,7 GHz"
+        ],
+        [
+          "Arbeitsspeicher",
+          "2 GB DDR4"
+        ],
+        [
+          "Laufwerksschächte",
+          "2 x 3,5 Zoll oder 2,5 Zoll SATA"
+        ],
+        [
+          "Maximale Kapazität",
+          "2 x 24 TB"
+        ],
+        [
+          "Anschlüsse",
+          "Anschlüsse"
+        ],
+        [
+          "Netzwerk",
+          "1 x 2,5 GbE (RJ45)"
+        ],
+        [
+          "USB",
+          "2 x USB 3.2 Gen 1 (Typ A)"
+        ],
+        [
+          "Allgemein",
+          "Allgemein"
+        ],
+        [
+          "Leistungsaufnahme",
+          "14 W im Betrieb, 5 W im Ruhezustand"
+        ],
+        [
+          "Abmessungen (B x H x T)",
+          "108 x 166 x 232 mm"
+        ],
+        [
+          "Gewicht",
+          "1,3 kg ohne Laufwerke"
+        ],
+        [
+          "Betriebstemperatur",
+          "0 °C bis 40 °C"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Problem",
+          "Mögliche Ursache",
+          "Lösung"
+        ],
+        [
+          "Statusanzeige blinkt rot",
+          "Festplatte nicht erkannt",
+          "Laufwerk erneut einsetzen und Schrauben prüfen."
+        ],
+        [
+          "Gerät im Netzwerk nicht sichtbar",
+          "Kabel oder Router-Einstellung",
+          "Kabel tauschen; DHCP im Router aktivieren."
+        ],
+        [
+          "Lüfter dauerhaft laut",
+          "Lüftungsöffnungen verdeckt",
+          "Gerät frei aufstellen und Staub entfernen."
+        ],
+        [
+          "Zugriff sehr langsam",
+          "Volume wird noch aufgebaut",
+          "Aufbau abwarten; Fortschritt mit ns-cli status prüfen."
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Stellen Sie das Gerät auf eine ebene, stabile Fläche und halten Sie die Lüftungsöffnungen frei."
+    },
+    {
+      "level": 0,
+      "text": "Verwenden Sie ausschließlich das mitgelieferte Netzteil."
+    },
+    {
+      "level": 0,
+      "text": "Schützen Sie das Gerät vor Feuchtigkeit, direkter Sonneneinstrahlung und Staub."
+    },
+    {
+      "level": 0,
+      "text": "Öffnen Sie das Gehäuse nicht; im Inneren befinden sich keine vom Benutzer zu wartenden Teile."
+    },
+    {
+      "level": 0,
+      "text": "NS-420 Grundgerät"
+    },
+    {
+      "level": 0,
+      "text": "Netzteil 12 V / 5 A mit Netzkabel"
+    },
+    {
+      "level": 0,
+      "text": "Netzwerkkabel Cat 6, 1,5 m"
+    },
+    {
+      "level": 0,
+      "text": "8 Schrauben für 2,5-Zoll-Laufwerke"
+    },
+    {
+      "level": 0,
+      "text": "Kurzanleitung und Garantiekarte"
+    },
+    {
+      "level": 0,
+      "text": "Setzen Sie die Festplatten in die Laufwerksschächte ein, bis sie hörbar einrasten."
+    },
+    {
+      "level": 0,
+      "text": "Verbinden Sie den Netzwerkanschluss mit Ihrem Router."
+    },
+    {
+      "level": 0,
+      "text": "Schließen Sie das Netzteil an und drücken Sie die Einschalttaste."
+    },
+    {
+      "level": 0,
+      "text": "Warten Sie, bis die Statusanzeige dauerhaft grün leuchtet."
+    },
+    {
+      "level": 0,
+      "text": "Öffnen Sie im Browser die Adresse http://ns420.local und folgen Sie dem Einrichtungsassistenten."
+    }
+  ],
+  "furniture": [
+    "STELLWERK",
+    "Datentechnik GmbH",
+    "Hafenstraße 31 · 28217 Bremen",
+    "Support: 0421 555 7300 · service@stellwerk-daten.example",
+    "NS-420 Bedienungsanleitung · Ausgabe 10/2026",
+    "Seite 1",
+    "Stellwerk NS-420",
+    "Bedienungsanleitung",
+    "Seite 2"
+  ],
+  "languages": [
+    "de"
+  ],
+  "code": [
+    "ssh admin@192.168.1.50",
+    "ns-cli volume create --name daten --raid 1 --disks sda,sdb\nns-cli share add daten --protocol smb --users buero\nns-cli status",
+    "VOLUME   RAID   STATUS       BELEGT\ndaten    1      Aufbau 12%   0 %"
+  ],
+  "notes": "User guide on two explicit pages. Page 1 opens with a full-width dark letterhead band (wordmark STELLWERK, line 'Datentechnik GmbH', two contact lines at right). The grey line under the title ('Netzwerkspeicher mit zwei Laufwerksschächten') is a subtitle, not a heading. Sections '1' to '6' are level-2 headings whose number is part of the text (no dot). Lists: sections 1 and 2 are HTML bulleted lists, section 4 an HTML ordered list (markers drawn by CSS, not in the text). The warning box begins with the bold label 'Achtung:' followed by a key sentence (the label is not part of the sentence); 'ein- oder ausbauen' contains a REAL hyphen (German suspended compound) and keeps it. Three code blocks in a monospace font; the third is a command output whose column alignment uses runs of spaces, which are preserved. The colon-ended lead-in sentences before code blocks are not key sentences. The spec table is a two-column key/value table with a header row and three section rows (Hardware, Anschlüsse, Allgemein) spanning both columns. Furniture: the band, the page-2 running header (two entries), and the footer line plus 'Seite 1' / 'Seite 2'."
+}

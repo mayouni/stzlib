@@ -1,0 +1,179 @@
+{
+  "id": "k12",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Acta de la reunión ordinaria del Consejo Rector",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Acta de la reunión ordinaria del Consejo Rector"
+    },
+    {
+      "level": 2,
+      "text": "Asistentes"
+    },
+    {
+      "level": 2,
+      "text": "Orden del día"
+    },
+    {
+      "level": 2,
+      "text": "Desarrollo de la sesión"
+    },
+    {
+      "level": 3,
+      "text": "Punto 1. Lectura y aprobación del acta anterior"
+    },
+    {
+      "level": 3,
+      "text": "Punto 2. Campaña de almendra 2026"
+    },
+    {
+      "level": 3,
+      "text": "Punto 3. Nave de almacenamiento"
+    },
+    {
+      "level": 3,
+      "text": "Punto 4. Altas y bajas de socios"
+    },
+    {
+      "level": 3,
+      "text": "Punto 5. Ruegos y preguntas"
+    },
+    {
+      "level": 2,
+      "text": "Tareas pendientes"
+    }
+  ],
+  "key_sentences": [
+    "El acta de la sesión del 17 de septiembre se aprueba por unanimidad sin modificaciones.",
+    "La campaña ha cerrado con 1.842 toneladas de almendra en cáscara, un 12 % más que el año anterior.",
+    "El tesorero presenta tres presupuestos para la construcción de la nave, cuyo importe oscila entre 386.000 y 431.500 euros.",
+    "Se acuerda solicitar una subvención autonómica que cubra hasta el 40 % de la inversión.",
+    "Se aprueba el alta de cuatro nuevos socios y la baja voluntaria de dos.",
+    "Sin más asuntos que tratar, se levanta la sesión a las 20:15, de lo que como secretaria doy fe."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Fecha:",
+          "15 de octubre de 2026"
+        ],
+        [
+          "Hora:",
+          "18:00"
+        ],
+        [
+          "Lugar:",
+          "Sala de juntas de la cooperativa"
+        ],
+        [
+          "Preside:",
+          "Antonio Ruiz Castaño, presidente"
+        ],
+        [
+          "Secretaria:",
+          "Carmen Ortega Lillo"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "N.º",
+          "Tarea",
+          "Responsable",
+          "Plazo",
+          "Estado"
+        ],
+        [
+          "1",
+          "Preparar la solicitud de subvención para la nave",
+          "Gerente",
+          "30/11/2026",
+          "En curso"
+        ],
+        [
+          "2",
+          "Pedir aclaraciones a la empresa de la oferta intermedia",
+          "Tesorero",
+          "31/10/2026",
+          "Pendiente"
+        ],
+        [
+          "3",
+          "Comunicar el anticipo de campaña a los socios",
+          "Secretaria",
+          "22/10/2026",
+          "Pendiente"
+        ],
+        [
+          "4",
+          "Proponer fecha y orden del día de la asamblea general",
+          "Presidente",
+          "15/11/2026",
+          "Pendiente"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Antonio Ruiz Castaño, presidente"
+    },
+    {
+      "level": 0,
+      "text": "Carmen Ortega Lillo, secretaria"
+    },
+    {
+      "level": 0,
+      "text": "Javier Muñoz Pérez, tesorero"
+    },
+    {
+      "level": 0,
+      "text": "Rosa Navarro Gil, vocal"
+    },
+    {
+      "level": 0,
+      "text": "Manuel Soriano Azorín, vocal"
+    },
+    {
+      "level": 0,
+      "text": "Lidia Carrasco Puche, gerente (con voz y sin voto)"
+    },
+    {
+      "level": 0,
+      "text": "Lectura y aprobación del acta de la sesión anterior."
+    },
+    {
+      "level": 0,
+      "text": "Estado de la campaña de almendra 2026."
+    },
+    {
+      "level": 0,
+      "text": "Presupuesto de la nueva nave de almacenamiento."
+    },
+    {
+      "level": 0,
+      "text": "Altas y bajas de socios."
+    },
+    {
+      "level": 0,
+      "text": "Ruegos y preguntas."
+    }
+  ],
+  "furniture": [
+    "COOPERATIVA AGRÍCOLA LOS ALMENDROS, S. COOP.",
+    "Camino del Molino, s/n · 30510 Yecla (Murcia)",
+    "CIF F-30123456 · Inscrita en el Registro de Cooperativas con el n.º MU-1187"
+  ],
+  "languages": [
+    "es"
+  ],
+  "code": [],
+  "notes": "Minutes laid out in NATURAL FLOW (no explicit pages, @page margins only), so the page break falls where Chrome put it; no page numbers and no running header. Headings: title (1), Asistentes / Orden del día / Desarrollo de la sesión / Tareas pendientes (2), the five 'Punto n.' italic sub-headings (3). Lists: attendees are an HTML bulleted list (CSS discs), the agenda is an HTML ordered list (CSS numbers); no markers in the text. The meta block is a 5-row key/value table without header (labels end with a colon). Furniture: the three centred letterhead lines. Signature captions at the end are body, not sentences."
+}

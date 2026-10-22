@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Bedienungsanleitung NS-420</title>
+<style>
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+@page { size: A4; margin: 0; }
+html, body { margin: 0; padding: 0; }
+.page { width: 210mm; height: 296mm; box-sizing: border-box; position: relative; overflow: visible;
+        break-after: page; page-break-after: always; }
+.page:last-child { break-after: auto; page-break-after: auto; }
+
+.page { padding: 0 0 20mm 0; }
+.inner { padding: 8mm 18mm 0 18mm; }
+body { font-family: 'Segoe UI', Calibri, sans-serif; font-size: 9.6pt; color: #1f2933; }
+.band { background: #1f2933; color: #fff; padding: 8mm 18mm 6mm; display: flex; justify-content: space-between; align-items: flex-end; }
+.band .n { font: 800 18pt 'Segoe UI'; letter-spacing: 3px; color: #f59e0b; }
+.band .n span { display: block; font: 600 8.5pt 'Segoe UI'; letter-spacing: 0; color: #e5e7eb; }
+.band .c { text-align: right; font-size: 8pt; color: #d1d5db; line-height: 1.4; }
+.run { display: flex; justify-content: space-between; font-size: 8pt; color: #52606d; border-bottom: 2px solid #f59e0b; padding: 10mm 18mm 3px; }
+h1 { font-size: 19pt; margin: 4px 0 0; }
+.sub { font-size: 11pt; color: #52606d; margin: 0 0 8px; }
+h2 { font-size: 12pt; margin: 12px 0 4px; color: #1f2933; border-left: 4px solid #f59e0b; padding-left: 6px; }
+p { margin: 4px 0; line-height: 1.45; }
+ul, ol { margin: 3px 0; padding-left: 22px; line-height: 1.5; }
+.warn { border: 1.5px solid #f59e0b; background: #fff7e6; padding: 5px 8px; margin: 6px 0; }
+.warn b { color: #b45309; }
+table { border-collapse: collapse; width: 100%; font-size: 9pt; }
+table.spec th { background: #1f2933; color: #fff; text-align: left; padding: 3px 6px; }
+table.spec td { padding: 2.5px 6px; border-bottom: 1px solid #e4e7eb; }
+table.spec td:first-child { width: 38%; color: #52606d; }
+table.spec tr.sec td { background: #fde9c4; font-weight: 700; color: #1f2933; }
+table.fix th { border-bottom: 2px solid #1f2933; text-align: left; padding: 3px 5px; }
+table.fix td { border-bottom: 1px solid #e4e7eb; padding: 3px 5px; vertical-align: top; }
+pre.code { font-family: Consolas, 'Courier New', monospace; font-size: 8.8pt; background: #f3f4f6; border-left: 3px solid #52606d;
+           padding: 5px 8px; margin: 4px 0 6px; line-height: 1.35; white-space: pre; }
+.ftr { position: absolute; left: 18mm; right: 18mm; bottom: 9mm; font-size: 8pt; color: #52606d; border-top: 1px solid #cbd2d9; padding-top: 3px;
+       display: flex; justify-content: space-between; }
+
+</style>
+</head>
+<body>
+<div class="page"><div class="band"><div class="n">STELLWERK<span>Datentechnik GmbH</span></div><div class="c"><div>Hafenstraße 31 · 28217 Bremen</div><div>Support: 0421 555 7300 · service@stellwerk-daten.example</div></div></div>
+<div class="inner"><h1>Bedienungsanleitung NS-420</h1>
+<div class="sub">Netzwerkspeicher mit zwei Laufwerksschächten</div>
+<p>Vielen Dank, dass Sie sich für den Netzwerkspeicher NS-420 entschieden haben. Lesen Sie diese Anleitung vollständig, bevor Sie das Gerät in Betrieb nehmen, und bewahren Sie sie für spätere Fragen auf.</p>
+<h2>1 Sicherheitshinweise</h2>
+<ul>
+<li>Stellen Sie das Gerät auf eine ebene, stabile Fläche und halten Sie die Lüftungsöffnungen frei.</li>
+<li>Verwenden Sie ausschließlich das mitgelieferte Netzteil.</li>
+<li>Schützen Sie das Gerät vor Feuchtigkeit, direkter Sonneneinstrahlung und Staub.</li>
+<li>Öffnen Sie das Gehäuse nicht; im Inneren befinden sich keine vom Benutzer zu wartenden Teile.</li>
+</ul>
+<div class="warn"><b>Achtung:</b> Trennen Sie das Gerät vom Stromnetz, bevor Sie Festplatten ein- oder ausbauen.</div>
+<h2>2 Lieferumfang</h2>
+<ul>
+<li>NS-420 Grundgerät</li>
+<li>Netzteil 12 V / 5 A mit Netzkabel</li>
+<li>Netzwerkkabel Cat 6, 1,5 m</li>
+<li>8 Schrauben für 2,5-Zoll-Laufwerke</li>
+<li>Kurzanleitung und Garantiekarte</li>
+</ul>
+<h2>3 Technische Daten</h2>
+<table class="spec"><thead><tr><th>Merkmal</th><th>Wert</th></tr></thead><tbody><tr class="sec"><td colspan="2">Hardware</td></tr>
+<tr><td>Prozessor</td><td>Vierkern-ARM, 1,7 GHz</td></tr>
+<tr><td>Arbeitsspeicher</td><td>2 GB DDR4</td></tr>
+<tr><td>Laufwerksschächte</td><td>2 x 3,5 Zoll oder 2,5 Zoll SATA</td></tr>
+<tr><td>Maximale Kapazität</td><td>2 x 24 TB</td></tr>
+<tr class="sec"><td colspan="2">Anschlüsse</td></tr>
+<tr><td>Netzwerk</td><td>1 x 2,5 GbE (RJ45)</td></tr>
+<tr><td>USB</td><td>2 x USB 3.2 Gen 1 (Typ A)</td></tr>
+<tr class="sec"><td colspan="2">Allgemein</td></tr>
+<tr><td>Leistungsaufnahme</td><td>14 W im Betrieb, 5 W im Ruhezustand</td></tr>
+<tr><td>Abmessungen (B x H x T)</td><td>108 x 166 x 232 mm</td></tr>
+<tr><td>Gewicht</td><td>1,3 kg ohne Laufwerke</td></tr>
+<tr><td>Betriebstemperatur</td><td>0 °C bis 40 °C</td></tr></tbody></table></div>
+<div class="ftr"><span>NS-420 Bedienungsanleitung · Ausgabe 10/2026</span><span>Seite 1</span></div></div>
+<div class="page"><div class="run"><span>Stellwerk NS-420</span><span>Bedienungsanleitung</span></div>
+<div class="inner"><h2>4 Inbetriebnahme</h2>
+<ol>
+<li>Setzen Sie die Festplatten in die Laufwerksschächte ein, bis sie hörbar einrasten.</li>
+<li>Verbinden Sie den Netzwerkanschluss mit Ihrem Router.</li>
+<li>Schließen Sie das Netzteil an und drücken Sie die Einschalttaste.</li>
+<li>Warten Sie, bis die Statusanzeige dauerhaft grün leuchtet.</li>
+<li>Öffnen Sie im Browser die Adresse http://ns420.local und folgen Sie dem Einrichtungsassistenten.</li>
+</ol>
+<p>Die Ersteinrichtung dauert je nach Festplattengröße bis zu zehn Minuten.</p>
+<h2>5 Einrichtung über die Kommandozeile</h2>
+<p>Erfahrene Anwender können das Gerät auch über SSH einrichten. Melden Sie sich mit dem Benutzer admin und dem Kennwort an, das auf dem Typenschild angegeben ist.</p>
+<pre class="code">ssh admin@192.168.1.50</pre>
+<p>Legen Sie anschließend ein gespiegeltes Volume an und geben Sie es im Netzwerk frei:</p>
+<pre class="code">ns-cli volume create --name daten --raid 1 --disks sda,sdb
+ns-cli share add daten --protocol smb --users buero
+ns-cli status</pre>
+<p>Die Ausgabe von ns-cli status sieht danach etwa so aus:</p>
+<pre class="code">VOLUME   RAID   STATUS       BELEGT
+daten    1      Aufbau 12%   0 %</pre>
+<h2>6 Fehlerbehebung</h2>
+<table class="fix"><colgroup><col style="width:30%"><col style="width:30%"><col style="width:40%"></colgroup><thead><tr><th>Problem</th><th>Mögliche Ursache</th><th>Lösung</th></tr></thead><tbody><tr><td>Statusanzeige blinkt rot</td><td>Festplatte nicht erkannt</td><td>Laufwerk erneut einsetzen und Schrauben prüfen.</td></tr>
+<tr><td>Gerät im Netzwerk nicht sichtbar</td><td>Kabel oder Router-Einstellung</td><td>Kabel tauschen; DHCP im Router aktivieren.</td></tr>
+<tr><td>Lüfter dauerhaft laut</td><td>Lüftungsöffnungen verdeckt</td><td>Gerät frei aufstellen und Staub entfernen.</td></tr>
+<tr><td>Zugriff sehr langsam</td><td>Volume wird noch aufgebaut</td><td>Aufbau abwarten; Fortschritt mit ns-cli status prüfen.</td></tr></tbody></table>
+<p>Wenden Sie sich an unseren Kundendienst, wenn das Problem weiterhin besteht.</p></div>
+<div class="ftr"><span>NS-420 Bedienungsanleitung · Ausgabe 10/2026</span><span>Seite 2</span></div></div>
+</body>
+</html>

@@ -41,9 +41,17 @@ def main():
         opts.artifacts_path = sys.argv[sys.argv.index("--artifacts") + 1]
     conv = DocumentConverter(format_options={InputFormat.PDF: PdfFormatOption(pipeline_options=opts)})
 
+    # --resume: documents already written are kept (a long set is run in pieces that each fit one run)
+    resume = "--resume" in sys.argv
+    tf = pdir / "docling.times.tsv"
     times = []
+    if resume and tf.exists():
+        times = [l for l in tf.read_text(encoding="utf-8").splitlines() if "\t" in l]
+    done = {l.split("\t")[0] for l in times}
     for pdf in sorted(gdir.glob("*.pdf")):
         did = pdf.stem
+        if resume and did in done and (pdir / (did + ".docling.tsv")).exists():
+            continue
         t0 = time.perf_counter()
         doc = conv.convert(str(pdf)).document
         secs = time.perf_counter() - t0
@@ -75,7 +83,8 @@ def main():
         (pdir / (did + ".docling.tsv")).write_text("\n".join(lines) + "\n", encoding="utf-8")
         times.append(did + "\t" + ("%.3f" % secs))
         print(did, "%.2f s" % secs, len(lines), "blocks", flush=True)
-    (pdir / "docling.times.tsv").write_text("\n".join(times) + "\n", encoding="utf-8")
+        tf.write_text("\n".join(times) + "\n", encoding="utf-8")
+    tf.write_text("\n".join(times) + "\n", encoding="utf-8")
 
 
 if __name__ == "__main__":

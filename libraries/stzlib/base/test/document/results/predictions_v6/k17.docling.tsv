@@ -1,0 +1,26 @@
+page_header	0	Meridian Business Travel
+page_header	0	18 Adeola Hopewell Street, Victoria Island, Lagos +234 1 555 0140 · trips@meridian-bt.example
+heading	1	Travel Itinerary
+paragraph	0	Traveller Ms Nadia Rahmani-Okafor
+paragraph	0	Company Halden Engineering Consultants
+paragraph	0	Ticket number
+paragraph	0	176-2412093388
+heading	1	Flights
+table	0	DateFlightFromToDepartsArrivesClassStatusWed 4 Nov 2026XQ 214Lagos (LOS)Nairobi (NBO)08:4515:40Business (J)ConfirmedFri 6 Nov 2026XQ 731Nairobi (NBO)Kigali (KGL)11:2011:35Business (J)ConfirmedMon 9 Nov 2026XQ 590Kigali (KGL)Lagos (LOS)13:0517:50Economy (Y)Waitlisted
+paragraph	0	All times shown are local times at each airport. Your return flight on 9 November is waitlisted, and we will confirm it or rebook you by 30 October.
+heading	1	Hotels
+table	0	Check-inCheck-outHotelAddressConfirmation4 Nov 20266 Nov 2026Acacia Park HotelWaiyaki Way, Westlands, NairobiACP-551206 Nov 20269 Nov 2026Hotel Kivu HeightsKN 3 Avenue, KigaliKH-80931
+paragraph	0	Both hotels are booked on a bed-and-breakfast basis and charged to the company account; incidental charges are payable on departure.
+heading	1	Ground transport
+paragraph	0	A driver from Acacia Park Hotel will meet you in the arrivals hall at Nairobi and hold a sign with your name. Transfers in Kigali are not included and can be booked at the hotel reception.
+heading	1	Before you travel
+paragraph	0	Please check in online 24 hours before each flight and arrive at the airport at least three hours before international departures.
+list_item	0	□ Passport valid for at least six months after the return date
+list_item	0	□ Yellow fever vaccination certificate
+list_item	0	□ Printed or electronic copy of this itinerary
+list_item	0	□ Corporate card for incidental hotel charges
+paragraph	0	Booking reference QX7R2M
+paragraph	0	Issued
+paragraph	0	21 October 2026
+paragraph	0	Travel consultant Tunde Afolabi
+page_footer	0	Meridian Business Travel Ltd · RC 1184420 · 24-hour emergency line +234 1 555 0147 This itinerary is not a ticket. Fares and availability are subject to change until ticketed.

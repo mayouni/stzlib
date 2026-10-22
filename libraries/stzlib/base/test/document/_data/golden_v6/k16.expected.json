@@ -1,0 +1,163 @@
+{
+  "id": "k16",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Conferência Lusófona de Energias Renováveis 2026",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Conferência Lusófona de Energias Renováveis 2026"
+    },
+    {
+      "level": 2,
+      "text": "Programa / Programme"
+    },
+    {
+      "level": 2,
+      "text": "Informações práticas"
+    },
+    {
+      "level": 2,
+      "text": "Practical information"
+    }
+  ],
+  "key_sentences": [
+    "A conferência reúne governos, operadores, investigadores e organizações comunitárias de oito países de língua portuguesa.",
+    "The conference brings together governments, operators, researchers and community organisations from eight Portuguese-speaking countries.",
+    "O credenciamento abre às 8h30 no átrio do centro de congressos.",
+    "Os participantes devem apresentar o crachá em todas as sessões.",
+    "Registration opens at 8:30 in the foyer of the congress centre.",
+    "Participants must wear their badge in all sessions."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Hora Time",
+          "Sessão Session",
+          "Sala Room"
+        ],
+        [
+          "Dia 1 – Quinta-feira, 12 de novembro · Day 1 – Thursday, 12 November",
+          "Dia 1 – Quinta-feira, 12 de novembro · Day 1 – Thursday, 12 November",
+          "Dia 1 – Quinta-feira, 12 de novembro · Day 1 – Thursday, 12 November"
+        ],
+        [
+          "08:30 – 09:15",
+          "Registo e café de boas-vindas Registration and welcome coffee",
+          "Átrio Foyer"
+        ],
+        [
+          "09:15 – 10:00",
+          "Sessão de abertura Opening session",
+          "Auditório A Auditorium A"
+        ],
+        [
+          "10:00 – 11:00",
+          "Painel 1: Mini-redes solares em zonas rurais Panel 1: Solar mini-grids in rural areas",
+          "Auditório A Auditorium A"
+        ],
+        [
+          "11:00 – 11:30",
+          "Pausa Break",
+          "Átrio Foyer"
+        ],
+        [
+          "11:30 – 13:00",
+          "Workshop A: Financiamento de projetos comunitários Workshop A: Financing community projects",
+          "Sala 2 Room 2"
+        ],
+        [
+          "11:30 – 13:00",
+          "Workshop B: Manutenção de sistemas fotovoltaicos Workshop B: Maintaining photovoltaic systems",
+          "Sala 3 Room 3"
+        ],
+        [
+          "13:00 – 14:30",
+          "Almoço Lunch",
+          "Restaurante Restaurant"
+        ],
+        [
+          "14:30 – 16:00",
+          "Painel 2: Regulação e tarifas para o acesso universal Panel 2: Regulation and tariffs for universal access",
+          "Auditório A Auditorium A"
+        ],
+        [
+          "16:00 – 17:30",
+          "Sessão de posters Poster session",
+          "Átrio Foyer"
+        ],
+        [
+          "16:00 – 17:30",
+          "Reunião da rede de jovens profissionais Young professionals network meeting",
+          "Sala 2 Room 2"
+        ],
+        [
+          "19:30",
+          "Jantar da conferência Conference dinner",
+          "Hotel Baía Azul Baía Azul Hotel"
+        ],
+        [
+          "Dia 2 – Sexta-feira, 13 de novembro · Day 2 – Friday, 13 November",
+          "Dia 2 – Sexta-feira, 13 de novembro · Day 2 – Friday, 13 November",
+          "Dia 2 – Sexta-feira, 13 de novembro · Day 2 – Friday, 13 November"
+        ],
+        [
+          "09:00 – 10:30",
+          "Painel 3: Pequenas centrais hidroelétricas Panel 3: Small hydropower plants",
+          "Auditório A Auditorium A"
+        ],
+        [
+          "10:30 – 11:00",
+          "Pausa Break",
+          "Átrio Foyer"
+        ],
+        [
+          "11:00 – 12:30",
+          "Workshop C: Dados abertos de energia Workshop C: Open energy data",
+          "Sala 2 Room 2"
+        ],
+        [
+          "11:00 – 12:30",
+          "Workshop D: Cozinha limpa e biomassa Workshop D: Clean cooking and biomass",
+          "Sala 3 Room 3"
+        ],
+        [
+          "12:30 – 14:00",
+          "Almoço Lunch",
+          "Restaurante Restaurant"
+        ],
+        [
+          "14:00 – 15:30",
+          "Painel 4: Mulheres na transição energética Panel 4: Women in the energy transition",
+          "Auditório A Auditorium A"
+        ],
+        [
+          "15:30 – 16:30",
+          "Encerramento e declaração final Closing session and final declaration",
+          "Auditório A Auditorium A"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "CLER",
+    "Conferência Lusófona de Energias Renováveis",
+    "Lusophone Renewable Energy Conference",
+    "Centro de Congressos da Baía",
+    "Maputo, 12–13 de novembro de 2026",
+    "Organização / Organised by: Associação Lusófona para a Energia Limpa · info@cler2026.example · +258 21 555 019",
+    "1/2",
+    "CLER 2026 · Programa / Programme",
+    "Maputo, 12–13 nov. 2026",
+    "2/2"
+  ],
+  "languages": [
+    "pt",
+    "en"
+  ],
+  "code": [],
+  "notes": "Bilingual programme on two explicit pages. Every programme cell is two lines, Portuguese then English in italics; expected cell text joins them with one space. The programme table continues on page 2 with its header row printed again (given once). Day rows span all 3 columns. PARALLEL SESSIONS: the time cells 11:30 – 13:00, 16:00 – 17:30 and 11:00 – 12:30 are merged over two rows (rowspan 2), so their text repeats in both expected rows. The italic English line under the title is a subtitle, not a heading. Page 2 ends with two side-by-side blocks (Portuguese left, English right), each with its own level-2 heading; reading order left then right. Furniture: letterhead (oval logo 'CLER', two name lines, two venue/date lines), the page-2 running header (two entries), the organiser footer line and the page number in the form '1/2', '2/2'. No lists."
+}

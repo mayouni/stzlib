@@ -1,0 +1,382 @@
+{
+  "id": "k04",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Extrato de Conta à Ordem",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Extrato de Conta à Ordem"
+    },
+    {
+      "level": 2,
+      "text": "Informações importantes"
+    }
+  ],
+  "key_sentences": [
+    "Verifique os movimentos deste extrato e comunique-nos qualquer divergência no prazo de 30 dias.",
+    "Na ausência de reclamação, consideramos o extrato aceite.",
+    "A partir de 1 de novembro de 2026, a comissão de manutenção da conta passa a ser de 4,50 euros por mês.",
+    "Os clientes com ordenado domiciliado continuam isentos desta comissão.",
+    "Pode consultar o preçário completo em qualquer balcão ou no nosso sítio na Internet."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Data mov.",
+          "Data valor",
+          "Descrição",
+          "Débito (EUR)",
+          "Crédito (EUR)",
+          "Saldo (EUR)"
+        ],
+        [
+          "",
+          "",
+          "SALDO ANTERIOR",
+          "",
+          "",
+          "1.287,64"
+        ],
+        [
+          "01-09-2026",
+          "01-09-2026",
+          "TRF RECEBIDA ORDENADO SET 2026 TEXTIL ALVES",
+          "",
+          "1.624,18",
+          "2.911,82"
+        ],
+        [
+          "01-09-2026",
+          "01-09-2026",
+          "DD CONDOMINIO ED. MIRAMAR",
+          "48,50",
+          "",
+          "2.863,32"
+        ],
+        [
+          "02-09-2026",
+          "02-09-2026",
+          "COMPRA 4412 HIPERMERCADO SOL NASCENTE",
+          "87,34",
+          "",
+          "2.775,98"
+        ],
+        [
+          "03-09-2026",
+          "03-09-2026",
+          "LEV ATM AV. DA REPUBLICA 118",
+          "60,00",
+          "",
+          "2.715,98"
+        ],
+        [
+          "03-09-2026",
+          "03-09-2026",
+          "DD AGUAS DO MUNICIPIO REF 228104",
+          "21,77",
+          "",
+          "2.694,21"
+        ],
+        [
+          "04-09-2026",
+          "04-09-2026",
+          "COMPRA 4412 FARMACIA CENTRAL",
+          "14,20",
+          "",
+          "2.680,01"
+        ],
+        [
+          "05-09-2026",
+          "05-09-2026",
+          "PAG SERVICOS ELECTRICIDADE 66012",
+          "53,89",
+          "",
+          "2.626,12"
+        ],
+        [
+          "05-09-2026",
+          "05-09-2026",
+          "COMPRA 4412 PADARIA BOA MASSA",
+          "6,85",
+          "",
+          "2.619,27"
+        ],
+        [
+          "08-09-2026",
+          "08-09-2026",
+          "TRF MB WAY DE RUI FERREIRA",
+          "",
+          "25,00",
+          "2.644,27"
+        ],
+        [
+          "08-09-2026",
+          "08-09-2026",
+          "DD TELECOMUNICACOES FIBRA 3P",
+          "42,99",
+          "",
+          "2.601,28"
+        ],
+        [
+          "09-09-2026",
+          "09-09-2026",
+          "COMPRA 4412 COMBUSTIVEIS ROTA 5",
+          "55,10",
+          "",
+          "2.546,18"
+        ],
+        [
+          "10-09-2026",
+          "10-09-2026",
+          "PRESTACAO CRED HABITACAO 0098-221",
+          "412,36",
+          "",
+          "2.133,82"
+        ],
+        [
+          "10-09-2026",
+          "10-09-2026",
+          "IMPOSTO DO SELO S/ JUROS",
+          "1,15",
+          "",
+          "2.132,67"
+        ],
+        [
+          "11-09-2026",
+          "11-09-2026",
+          "COMPRA 4412 LIVRARIA ESCOLAR",
+          "74,60",
+          "",
+          "2.058,07"
+        ],
+        [
+          "12-09-2026",
+          "12-09-2026",
+          "LEV ATM ESTACAO ORIENTE",
+          "40,00",
+          "",
+          "2.018,07"
+        ],
+        [
+          "15-09-2026",
+          "15-09-2026",
+          "COMPRA 4412 HIPERMERCADO SOL NASCENTE",
+          "112,48",
+          "",
+          "1.905,59"
+        ],
+        [
+          "15-09-2026",
+          "15-09-2026",
+          "TRF PARA POUPANCA 1007-334",
+          "150,00",
+          "",
+          "1.755,59"
+        ],
+        [
+          "16-09-2026",
+          "16-09-2026",
+          "DD SEGURO AUTOMOVEL APOL 77120",
+          "31,42",
+          "",
+          "1.724,17"
+        ],
+        [
+          "17-09-2026",
+          "17-09-2026",
+          "COMPRA 4412 RESTAURANTE O PATEO",
+          "23,50",
+          "",
+          "1.700,67"
+        ],
+        [
+          "18-09-2026",
+          "18-09-2026",
+          "REEMBOLSO IRS 2025",
+          "",
+          "318,62",
+          "2.019,29"
+        ],
+        [
+          "19-09-2026",
+          "19-09-2026",
+          "COMPRA 4412 LOJA DESPORTO NORTE",
+          "39,99",
+          "",
+          "1.979,30"
+        ],
+        [
+          "22-09-2026",
+          "22-09-2026",
+          "PAG SERVICOS GAS NATURAL 81004",
+          "18,33",
+          "",
+          "1.960,97"
+        ],
+        [
+          "22-09-2026",
+          "22-09-2026",
+          "COMPRA 4412 MERCEARIA DA ESQUINA",
+          "9,70",
+          "",
+          "1.951,27"
+        ],
+        [
+          "23-09-2026",
+          "23-09-2026",
+          "LEV ATM PRACA DO COMERCIO",
+          "50,00",
+          "",
+          "1.901,27"
+        ],
+        [
+          "24-09-2026",
+          "24-09-2026",
+          "COMPRA ONLINE PLATAFORMA LIVROS",
+          "16,90",
+          "",
+          "1.884,37"
+        ],
+        [
+          "25-09-2026",
+          "25-09-2026",
+          "TRF MB WAY PARA ANA LOPES",
+          "30,00",
+          "",
+          "1.854,37"
+        ],
+        [
+          "26-09-2026",
+          "26-09-2026",
+          "COMPRA 4412 HIPERMERCADO SOL NASCENTE",
+          "64,12",
+          "",
+          "1.790,25"
+        ],
+        [
+          "29-09-2026",
+          "29-09-2026",
+          "DD GINASIO CORPO ATIVO",
+          "29,90",
+          "",
+          "1.760,35"
+        ],
+        [
+          "29-09-2026",
+          "29-09-2026",
+          "COMPRA 4412 FARMACIA CENTRAL",
+          "8,45",
+          "",
+          "1.751,90"
+        ],
+        [
+          "30-09-2026",
+          "30-09-2026",
+          "COMISSAO MANUTENCAO CONTA",
+          "3,50",
+          "",
+          "1.748,40"
+        ],
+        [
+          "30-09-2026",
+          "30-09-2026",
+          "IMPOSTO DO SELO S/ COMISSOES",
+          "0,14",
+          "",
+          "1.748,26"
+        ],
+        [
+          "30-09-2026",
+          "30-09-2026",
+          "JUROS CREDORES",
+          "",
+          "0,42",
+          "1.748,68"
+        ],
+        [
+          "",
+          "",
+          "TOTAL DE MOVIMENTOS",
+          "1.507,18",
+          "1.968,22",
+          ""
+        ],
+        [
+          "",
+          "",
+          "SALDO FINAL",
+          "",
+          "",
+          "1.748,68"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Conta n.º",
+          "0210 4471 9935"
+        ],
+        [
+          "IBAN",
+          "PT50 4471 9935 1"
+        ],
+        [
+          "Período",
+          "01-09-2026 a 30-09-2026"
+        ],
+        [
+          "Extrato n.º",
+          "2026/09"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Resumo do período",
+          "Valor (EUR)"
+        ],
+        [
+          "Saldo inicial",
+          "1.287,64"
+        ],
+        [
+          "Total a débito",
+          "1.507,18"
+        ],
+        [
+          "Total a crédito",
+          "1.968,22"
+        ],
+        [
+          "Saldo final",
+          "1.748,68"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "Banco Meridional",
+    "de Poupança",
+    "Balcão de Alvalade",
+    "Av. da Igreja, 42 – 1700-239 Lisboa",
+    "Linha de apoio 21 000 4455 (dias úteis, 8h–22h)",
+    "Página 1/2",
+    "Banco Meridional de Poupança, S.A. · Sede: Rua do Ouro, 210, 1100-063 Lisboa · Capital social 120 000 000 EUR · NIPC 509 876 543",
+    "Extrato de Conta à Ordem n.º 2026/09",
+    "Conta n.º 0210 4471 9935",
+    "Página 2/2"
+  ],
+  "languages": [
+    "pt"
+  ],
+  "code": [],
+  "notes": "Bank statement on two explicit pages. The movements table has zebra striping and no vertical borders; it starts with an opening-balance row and ends with a totals row and a closing-balance row, and it continues on page 2 where the column header is printed again (given once). Empty debit/credit cells are empty strings. Dates are dd-mm-2026; amounts use Portuguese format (dot thousands, comma decimals). Page 1 also has a 4-row key/value account table (no header) beside the customer address, and a 'Resumo do período' summary table with a header row. Furniture: the two-line bank wordmark, three branch lines, a running header on page 2 (two entries), the legal footer line and 'Página 1/2' / 'Página 2/2' (right-aligned on the same line as the legal text). Customer address is body, not sentences. No lists."
+}

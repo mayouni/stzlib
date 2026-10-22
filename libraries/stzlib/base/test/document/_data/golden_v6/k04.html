@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Extrato de Conta à Ordem</title>
+<style>
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+@page { size: A4; margin: 0; }
+html, body { margin: 0; padding: 0; }
+.page { width: 210mm; height: 296mm; box-sizing: border-box; position: relative; overflow: visible;
+        break-after: page; page-break-after: always; }
+.page:last-child { break-after: auto; page-break-after: auto; }
+
+body { font-family: Calibri, Arial, sans-serif; font-size: 9pt; color: #1f1f1f; }
+.page { padding: 14mm 15mm 20mm 15mm; }
+.lh { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #0b6e4f; padding-bottom: 6px; }
+.bank { font: bold 15pt Cambria, serif; color: #0b6e4f; }
+.bank small { display: block; font: italic 8.5pt Calibri; color: #3c7a63; }
+.lh .r { text-align: right; font-size: 8pt; color: #555; line-height: 1.35; }
+.run { display: flex; justify-content: space-between; font-size: 8pt; color: #555; border-bottom: 1px solid #0b6e4f; padding-bottom: 3px; margin-bottom: 8px; }
+h1 { font: bold 15pt Cambria, serif; color: #0b6e4f; margin: 10px 0 4px; }
+.meta { display: flex; gap: 12px; }
+.meta > div { flex: 1; }
+.cli { font-size: 9.5pt; line-height: 1.4; padding: 6px 0; }
+table { border-collapse: collapse; width: 100%; }
+table.sum td { padding: 3px 6px; border-bottom: 1px solid #cfe3da; }
+table.sum td:last-child { text-align: right; font-weight: bold; }
+table.sum th { text-align: left; background: #0b6e4f; color: #fff; padding: 3px 6px; }
+table.mov { margin-top: 8px; }
+table.mov th { text-align: left; color: #0b6e4f; border-bottom: 1.5px solid #0b6e4f; padding: 3px 4px; }
+table.mov td { padding: 2.2px 4px; }
+table.mov tbody tr:nth-child(even) td { background: #eef6f2; }
+table.mov .n { text-align: right; white-space: nowrap; }
+table.mov tr.bal td { font-weight: bold; background: #d7eadf !important; }
+p { margin: 5px 0; line-height: 1.4; }
+.note { margin-top: 10px; border-left: 3px solid #0b6e4f; padding: 4px 8px; background: #f5faf7; }
+.ftr { position: absolute; left: 15mm; right: 15mm; bottom: 8mm; font-size: 7pt; color: #666; border-top: 1px solid #bbb; padding-top: 3px; }
+.ftr .pg { float: right; font-weight: bold; }
+
+</style>
+</head>
+<body>
+<div class="page"><div class="lh"><div class="bank">Banco Meridional<small>de Poupança</small></div><div class="r"><div>Balcão de Alvalade</div><div>Av. da Igreja, 42 – 1700-239 Lisboa</div><div>Linha de apoio 21 000 4455 (dias úteis, 8h–22h)</div></div></div>
+<h1>Extrato de Conta à Ordem</h1>
+<div class="meta"><div class="cli">Marta Lopes Ferreira<br>Rua Actor Vale, 17, 3.º Esq.<br>1900-024 Lisboa</div><div>
+<table class="sum"><tbody><tr><td>Conta n.º</td><td>0210 4471 9935</td></tr>
+<tr><td>IBAN</td><td>PT50 <strong>** </strong><strong> </strong>** 4471 9935 1</td></tr>
+<tr><td>Período</td><td>01-09-2026 a 30-09-2026</td></tr>
+<tr><td>Extrato n.º</td><td>2026/09</td></tr></tbody></table>
+</div></div>
+<table class="sum" style="width:55%;margin-top:6px"><thead><tr><th>Resumo do período</th><th>Valor (EUR)</th></tr></thead><tbody><tr><td>Saldo inicial</td><td>1.287,64</td></tr>
+<tr><td>Total a débito</td><td>1.507,18</td></tr>
+<tr><td>Total a crédito</td><td>1.968,22</td></tr>
+<tr><td>Saldo final</td><td>1.748,68</td></tr></tbody></table>
+<table class="mov"><colgroup><col style="width:11%"><col style="width:11%"><col style="width:45%"><col style="width:11%"><col style="width:11%"><col style="width:11%"></colgroup><thead><tr><th>Data mov.</th><th>Data valor</th><th>Descrição</th><th class="n">Débito (EUR)</th><th class="n">Crédito (EUR)</th><th class="n">Saldo (EUR)</th></tr></thead><tbody><tr class="bal"><td></td><td></td><td>SALDO ANTERIOR</td><td></td><td></td><td class="n">1.287,64</td></tr>
+<tr><td>01-09-2026</td><td>01-09-2026</td><td>TRF RECEBIDA ORDENADO SET 2026 TEXTIL ALVES</td><td class="n"></td><td class="n">1.624,18</td><td class="n">2.911,82</td></tr>
+<tr><td>01-09-2026</td><td>01-09-2026</td><td>DD CONDOMINIO ED. MIRAMAR</td><td class="n">48,50</td><td class="n"></td><td class="n">2.863,32</td></tr>
+<tr><td>02-09-2026</td><td>02-09-2026</td><td>COMPRA 4412 HIPERMERCADO SOL NASCENTE</td><td class="n">87,34</td><td class="n"></td><td class="n">2.775,98</td></tr>
+<tr><td>03-09-2026</td><td>03-09-2026</td><td>LEV ATM AV. DA REPUBLICA 118</td><td class="n">60,00</td><td class="n"></td><td class="n">2.715,98</td></tr>
+<tr><td>03-09-2026</td><td>03-09-2026</td><td>DD AGUAS DO MUNICIPIO REF 228104</td><td class="n">21,77</td><td class="n"></td><td class="n">2.694,21</td></tr>
+<tr><td>04-09-2026</td><td>04-09-2026</td><td>COMPRA 4412 FARMACIA CENTRAL</td><td class="n">14,20</td><td class="n"></td><td class="n">2.680,01</td></tr>
+<tr><td>05-09-2026</td><td>05-09-2026</td><td>PAG SERVICOS ELECTRICIDADE 66012</td><td class="n">53,89</td><td class="n"></td><td class="n">2.626,12</td></tr>
+<tr><td>05-09-2026</td><td>05-09-2026</td><td>COMPRA 4412 PADARIA BOA MASSA</td><td class="n">6,85</td><td class="n"></td><td class="n">2.619,27</td></tr>
+<tr><td>08-09-2026</td><td>08-09-2026</td><td>TRF MB WAY DE RUI FERREIRA</td><td class="n"></td><td class="n">25,00</td><td class="n">2.644,27</td></tr>
+<tr><td>08-09-2026</td><td>08-09-2026</td><td>DD TELECOMUNICACOES FIBRA 3P</td><td class="n">42,99</td><td class="n"></td><td class="n">2.601,28</td></tr>
+<tr><td>09-09-2026</td><td>09-09-2026</td><td>COMPRA 4412 COMBUSTIVEIS ROTA 5</td><td class="n">55,10</td><td class="n"></td><td class="n">2.546,18</td></tr>
+<tr><td>10-09-2026</td><td>10-09-2026</td><td>PRESTACAO CRED HABITACAO 0098-221</td><td class="n">412,36</td><td class="n"></td><td class="n">2.133,82</td></tr>
+<tr><td>10-09-2026</td><td>10-09-2026</td><td>IMPOSTO DO SELO S/ JUROS</td><td class="n">1,15</td><td class="n"></td><td class="n">2.132,67</td></tr>
+<tr><td>11-09-2026</td><td>11-09-2026</td><td>COMPRA 4412 LIVRARIA ESCOLAR</td><td class="n">74,60</td><td class="n"></td><td class="n">2.058,07</td></tr>
+<tr><td>12-09-2026</td><td>12-09-2026</td><td>LEV ATM ESTACAO ORIENTE</td><td class="n">40,00</td><td class="n"></td><td class="n">2.018,07</td></tr>
+<tr><td>15-09-2026</td><td>15-09-2026</td><td>COMPRA 4412 HIPERMERCADO SOL NASCENTE</td><td class="n">112,48</td><td class="n"></td><td class="n">1.905,59</td></tr>
+<tr><td>15-09-2026</td><td>15-09-2026</td><td>TRF PARA POUPANCA 1007-334</td><td class="n">150,00</td><td class="n"></td><td class="n">1.755,59</td></tr>
+<tr><td>16-09-2026</td><td>16-09-2026</td><td>DD SEGURO AUTOMOVEL APOL 77120</td><td class="n">31,42</td><td class="n"></td><td class="n">1.724,17</td></tr>
+<tr><td>17-09-2026</td><td>17-09-2026</td><td>COMPRA 4412 RESTAURANTE O PATEO</td><td class="n">23,50</td><td class="n"></td><td class="n">1.700,67</td></tr>
+<tr><td>18-09-2026</td><td>18-09-2026</td><td>REEMBOLSO IRS 2025</td><td class="n"></td><td class="n">318,62</td><td class="n">2.019,29</td></tr>
+<tr><td>19-09-2026</td><td>19-09-2026</td><td>COMPRA 4412 LOJA DESPORTO NORTE</td><td class="n">39,99</td><td class="n"></td><td class="n">1.979,30</td></tr></tbody></table>
+<div class="ftr"><span class="pg">Página 1/2</span>Banco Meridional de Poupança, S.A. · Sede: Rua do Ouro, 210, 1100-063 Lisboa · Capital social 120 000 000 EUR · NIPC 509 876 543</div></div>
+<div class="page"><div class="run"><span>Extrato de Conta à Ordem n.º 2026/09</span><span>Conta n.º 0210 4471 9935</span></div>
+<table class="mov"><colgroup><col style="width:11%"><col style="width:11%"><col style="width:45%"><col style="width:11%"><col style="width:11%"><col style="width:11%"></colgroup><thead><tr><th>Data mov.</th><th>Data valor</th><th>Descrição</th><th class="n">Débito (EUR)</th><th class="n">Crédito (EUR)</th><th class="n">Saldo (EUR)</th></tr></thead><tbody><tr><td>22-09-2026</td><td>22-09-2026</td><td>PAG SERVICOS GAS NATURAL 81004</td><td class="n">18,33</td><td class="n"></td><td class="n">1.960,97</td></tr>
+<tr><td>22-09-2026</td><td>22-09-2026</td><td>COMPRA 4412 MERCEARIA DA ESQUINA</td><td class="n">9,70</td><td class="n"></td><td class="n">1.951,27</td></tr>
+<tr><td>23-09-2026</td><td>23-09-2026</td><td>LEV ATM PRACA DO COMERCIO</td><td class="n">50,00</td><td class="n"></td><td class="n">1.901,27</td></tr>
+<tr><td>24-09-2026</td><td>24-09-2026</td><td>COMPRA ONLINE PLATAFORMA LIVROS</td><td class="n">16,90</td><td class="n"></td><td class="n">1.884,37</td></tr>
+<tr><td>25-09-2026</td><td>25-09-2026</td><td>TRF MB WAY PARA ANA LOPES</td><td class="n">30,00</td><td class="n"></td><td class="n">1.854,37</td></tr>
+<tr><td>26-09-2026</td><td>26-09-2026</td><td>COMPRA 4412 HIPERMERCADO SOL NASCENTE</td><td class="n">64,12</td><td class="n"></td><td class="n">1.790,25</td></tr>
+<tr><td>29-09-2026</td><td>29-09-2026</td><td>DD GINASIO CORPO ATIVO</td><td class="n">29,90</td><td class="n"></td><td class="n">1.760,35</td></tr>
+<tr><td>29-09-2026</td><td>29-09-2026</td><td>COMPRA 4412 FARMACIA CENTRAL</td><td class="n">8,45</td><td class="n"></td><td class="n">1.751,90</td></tr>
+<tr><td>30-09-2026</td><td>30-09-2026</td><td>COMISSAO MANUTENCAO CONTA</td><td class="n">3,50</td><td class="n"></td><td class="n">1.748,40</td></tr>
+<tr><td>30-09-2026</td><td>30-09-2026</td><td>IMPOSTO DO SELO S/ COMISSOES</td><td class="n">0,14</td><td class="n"></td><td class="n">1.748,26</td></tr>
+<tr><td>30-09-2026</td><td>30-09-2026</td><td>JUROS CREDORES</td><td class="n"></td><td class="n">0,42</td><td class="n">1.748,68</td></tr>
+<tr class="bal"><td></td><td></td><td>TOTAL DE MOVIMENTOS</td><td class="n">1.507,18</td><td class="n">1.968,22</td><td></td></tr>
+<tr class="bal"><td></td><td></td><td>SALDO FINAL</td><td></td><td></td><td class="n">1.748,68</td></tr></tbody></table>
+<div class="note"><p>Verifique os movimentos deste extrato e comunique-nos qualquer divergência no prazo de 30 dias. Na ausência de reclamação, consideramos o extrato aceite.</p></div>
+<h2 style="font:bold 11pt Cambria;color:#0b6e4f;margin:12px 0 3px">Informações importantes</h2>
+<p>A partir de 1 de novembro de 2026, a comissão de manutenção da conta passa a ser de 4,50 euros por mês. Os clientes com ordenado domiciliado continuam isentos desta comissão.</p>
+<p>Pode consultar o preçário completo em qualquer balcão ou no nosso sítio na Internet.</p>
+<div class="ftr"><span class="pg">Página 2/2</span>Banco Meridional de Poupança, S.A. · Sede: Rua do Ouro, 210, 1100-063 Lisboa · Capital social 120 000 000 EUR · NIPC 509 876 543</div></div>
+</body>
+</html>

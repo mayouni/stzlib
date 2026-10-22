@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Physical Stock Count Sheet</title>
+<style>
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+@page { size: A4 landscape; margin: 12mm 12mm 14mm 12mm; }
+body { font-family: Arial, sans-serif; font-size: 8.3pt; color: #111; margin: 0; }
+.lh { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #7c2d12; padding-bottom: 4px; }
+.lh .n { font: bold 13pt Arial; color: #7c2d12; }
+.lh .n span { display: block; font: 8pt Arial; color: #555; }
+.lh .c { text-align: right; font-size: 8pt; color: #555; line-height: 1.4; }
+h1 { font-size: 14pt; margin: 6px 0 4px; }
+.top { display: flex; gap: 16px; }
+.top > div:first-child { width: 42%; }
+table { border-collapse: collapse; width: 100%; }
+table.meta td { border: 1px solid #bbb; padding: 2px 4px; }
+table.meta td:first-child { background: #f3e8e2; font-weight: bold; width: 32%; }
+p { margin: 2px 0 4px; line-height: 1.35; }
+table.inv { margin-top: 6px; }
+table.inv thead { display: table-header-group; }
+table.inv th { background: #7c2d12; color: #fff; padding: 3px; text-align: left; font-weight: bold; border: 1px solid #7c2d12; }
+table.inv td { border: 1px solid #d6c4ba; padding: 2.2px 3px; }
+table.inv tr { break-inside: avoid; }
+table.inv td.n, table.inv th.n { text-align: right; }
+table.inv tbody tr:nth-child(even) td { background: #fbf6f3; }
+table.inv tr.sec td { background: #ead7cc !important; font-weight: bold; }
+table.inv tr.tot td { font-weight: bold; background: #f3e8e2 !important; }
+td.neg { color: #b91c1c; }
+.sign { display: flex; gap: 24px; margin-top: 14px; break-inside: avoid; }
+.sign div { flex: 1; border-top: 1px solid #333; padding-top: 3px; }
+
+</style>
+</head>
+<body>
+<div class="lh"><div class="n">Health Supply Partnership<span>Inventory Control Unit</span></div><div class="c"><div>Regional Warehouse 3 · Plot 22, Industrial Layout, Kano</div><div>Form IC-07 · Revision 4</div></div></div>
+<h1>Physical Stock Count Sheet</h1>
+<div class="top"><div><table class="meta"><tbody><tr><td>Warehouse</td><td>Regional Warehouse 3</td></tr>
+<tr><td>Count date</td><td>17 October 2026</td></tr>
+<tr><td>Count team</td><td>Team 2 (Y. Danjuma, R. Okeke)</td></tr>
+<tr><td>Supervisor</td><td>F. Abubakar</td></tr>
+<tr><td>Reference</td><td>SC-2026-10-RW3</td></tr></tbody></table></div><div>
+<p>Count every item physically, even when the system quantity is zero. Do not move stock between bays until the count has been signed off.</p>
+<p>Record any damaged or expired item on the separate write-off form, not on this sheet. Variances above 5% of the system quantity must be recounted by a second counter.</p>
+</div></div>
+<table class="inv"><colgroup><col style="width:3%"><col style="width:8%"><col style="width:24%"><col style="width:9%"><col style="width:7%"><col style="width:7%"><col style="width:7%"><col style="width:7%"><col style="width:7%"><col style="width:9%"><col style="width:12%"></colgroup><thead><tr><th>#</th><th>Item code</th><th>Description</th><th>Unit</th><th>Batch no.</th><th>Expiry</th><th class="n">System qty</th><th class="n">Counted qty</th><th class="n">Variance</th><th class="n">Unit cost (USD)</th><th class="n">Variance value (USD)</th></tr></thead><tbody><tr class="sec"><td colspan="11">Bay A – Medicines</td></tr>
+<tr><td>1</td><td>MED-0012</td><td>Paracetamol 500 mg tablets</td><td>pack of 1000</td><td>PC24117</td><td>Mar 2028</td><td class="n">420</td><td class="n">420</td><td class="n">0</td><td class="n">6.80</td><td class="n">0.00</td></tr>
+<tr><td>2</td><td>MED-0031</td><td>Amoxicillin 250 mg dispersible tablets</td><td>pack of 100</td><td>AX25032</td><td>Nov 2027</td><td class="n">1,260</td><td class="n">1,248</td><td class="n neg">-12</td><td class="n">2.15</td><td class="n neg">-25.80</td></tr>
+<tr><td>3</td><td>MED-0044</td><td>Oral rehydration salts, 20.5 g sachet</td><td>sachet</td><td>OR26004</td><td>Jan 2028</td><td class="n">18,500</td><td class="n">18,500</td><td class="n">0</td><td class="n">0.09</td><td class="n">0.00</td></tr>
+<tr><td>4</td><td>MED-0045</td><td>Zinc sulfate 20 mg dispersible tablets</td><td>pack of 100</td><td>ZN25110</td><td>Aug 2027</td><td class="n">960</td><td class="n">975</td><td class="n">+15</td><td class="n">1.10</td><td class="n">+16.50</td></tr>
+<tr><td>5</td><td>MED-0062</td><td>Artemether/lumefantrine 20/120 mg, 6 x 4</td><td>pack of 30</td><td>AL26015</td><td>Feb 2028</td><td class="n">740</td><td class="n">731</td><td class="n neg">-9</td><td class="n">11.40</td><td class="n neg">-102.60</td></tr>
+<tr><td>6</td><td>MED-0063</td><td>Artemether/lumefantrine 20/120 mg, 6 x 1</td><td>pack of 30</td><td>AL26016</td><td>Feb 2028</td><td class="n">505</td><td class="n">505</td><td class="n">0</td><td class="n">3.60</td><td class="n">0.00</td></tr>
+<tr><td>7</td><td>MED-0078</td><td>Ferrous sulfate + folic acid tablets</td><td>pack of 1000</td><td>FF25088</td><td>Jun 2027</td><td class="n">96</td><td class="n">96</td><td class="n">0</td><td class="n">4.95</td><td class="n">0.00</td></tr>
+<tr><td>8</td><td>MED-0081</td><td>Metronidazole 250 mg tablets</td><td>pack of 1000</td><td>MT25071</td><td>Sep 2027</td><td class="n">64</td><td class="n">61</td><td class="n neg">-3</td><td class="n">7.30</td><td class="n neg">-21.90</td></tr>
+<tr><td>9</td><td>MED-0095</td><td>Oxytocin 10 IU/ml injection</td><td>ampoule</td><td>OX26002</td><td>Dec 2026</td><td class="n">2,400</td><td class="n">2,400</td><td class="n">0</td><td class="n">0.32</td><td class="n">0.00</td></tr>
+<tr><td>10</td><td>MED-0102</td><td>Gentamicin 40 mg/ml injection, 2 ml</td><td>ampoule</td><td>GN25120</td><td>Apr 2028</td><td class="n">1,800</td><td class="n">1,790</td><td class="n neg">-10</td><td class="n">0.21</td><td class="n neg">-2.10</td></tr>
+<tr><td>11</td><td>MED-0117</td><td>Cotrimoxazole 400/80 mg tablets</td><td>pack of 1000</td><td>CT25064</td><td>Jul 2027</td><td class="n">52</td><td class="n">52</td><td class="n">0</td><td class="n">9.85</td><td class="n">0.00</td></tr>
+<tr><td>12</td><td>MED-0120</td><td>Salbutamol inhaler 100 mcg</td><td>inhaler</td><td>SB26011</td><td>May 2028</td><td class="n">310</td><td class="n">306</td><td class="n neg">-4</td><td class="n">1.95</td><td class="n neg">-7.80</td></tr>
+<tr class="sec"><td colspan="11">Bay B – Medical consumables</td></tr>
+<tr><td>13</td><td>CON-0201</td><td>Examination gloves, nitrile, medium</td><td>box of 100</td><td>GL26034</td><td>Oct 2029</td><td class="n">860</td><td class="n">860</td><td class="n">0</td><td class="n">4.20</td><td class="n">0.00</td></tr>
+<tr><td>14</td><td>CON-0202</td><td>Examination gloves, nitrile, large</td><td>box of 100</td><td>GL26035</td><td>Oct 2029</td><td class="n">640</td><td class="n">652</td><td class="n">+12</td><td class="n">4.20</td><td class="n">+50.40</td></tr>
+<tr><td>15</td><td>CON-0215</td><td>Syringe 5 ml with needle 21G</td><td>box of 100</td><td>SY25140</td><td>Mar 2030</td><td class="n">1,150</td><td class="n">1,150</td><td class="n">0</td><td class="n">3.10</td><td class="n">0.00</td></tr>
+<tr><td>16</td><td>CON-0220</td><td>Auto-disable syringe 0.5 ml</td><td>box of 100</td><td>AD26008</td><td>Jun 2030</td><td class="n">2,200</td><td class="n">2,185</td><td class="n neg">-15</td><td class="n">5.60</td><td class="n neg">-84.00</td></tr>
+<tr><td>17</td><td>CON-0231</td><td>Safety box 5 litre</td><td>each</td><td>SB25077</td><td>n/a</td><td class="n">940</td><td class="n">940</td><td class="n">0</td><td class="n">0.85</td><td class="n">0.00</td></tr>
+<tr><td>18</td><td>CON-0244</td><td>Gauze swab 10 x 10 cm, sterile</td><td>pack of 100</td><td>GZ26019</td><td>Jan 2030</td><td class="n">780</td><td class="n">774</td><td class="n neg">-6</td><td class="n">2.45</td><td class="n neg">-14.70</td></tr>
+<tr><td>19</td><td>CON-0250</td><td>Adhesive tape 2.5 cm x 5 m</td><td>roll</td><td>AT25093</td><td>Aug 2029</td><td class="n">1,320</td><td class="n">1,320</td><td class="n">0</td><td class="n">0.38</td><td class="n">0.00</td></tr>
+<tr><td>20</td><td>CON-0263</td><td>Urinary catheter, Foley 16 Ch</td><td>each</td><td>FC25101</td><td>Sep 2029</td><td class="n">410</td><td class="n">400</td><td class="n neg">-10</td><td class="n">0.72</td><td class="n neg">-7.20</td></tr>
+<tr><td>21</td><td>CON-0270</td><td>IV giving set with airway</td><td>each</td><td>IV26022</td><td>Feb 2030</td><td class="n">2,650</td><td class="n">2,650</td><td class="n">0</td><td class="n">0.29</td><td class="n">0.00</td></tr>
+<tr><td>22</td><td>CON-0284</td><td>Surgical mask, 3-ply</td><td>box of 50</td><td>SM26047</td><td>Nov 2028</td><td class="n">1,400</td><td class="n">1,400</td><td class="n">0</td><td class="n">1.35</td><td class="n">0.00</td></tr>
+<tr class="sec"><td colspan="11">Bay C – Laboratory supplies</td></tr>
+<tr><td>23</td><td>LAB-0301</td><td>Malaria rapid diagnostic test, Pf/Pan</td><td>kit of 25</td><td>RD26031</td><td>Jul 2027</td><td class="n">620</td><td class="n">612</td><td class="n neg">-8</td><td class="n">9.50</td><td class="n neg">-76.00</td></tr>
+<tr><td>24</td><td>LAB-0305</td><td>HIV 1/2 rapid test</td><td>kit of 100</td><td>HV26012</td><td>May 2027</td><td class="n">85</td><td class="n">85</td><td class="n">0</td><td class="n">62.00</td><td class="n">0.00</td></tr>
+<tr><td>25</td><td>LAB-0312</td><td>Glass microscope slides, frosted</td><td>box of 72</td><td>GS25060</td><td>n/a</td><td class="n">310</td><td class="n">318</td><td class="n">+8</td><td class="n">2.80</td><td class="n">+22.40</td></tr>
+<tr><td>26</td><td>LAB-0320</td><td>Lancet, sterile, 28G</td><td>box of 200</td><td>LN26005</td><td>Jan 2030</td><td class="n">520</td><td class="n">520</td><td class="n">0</td><td class="n">1.90</td><td class="n">0.00</td></tr>
+<tr><td>27</td><td>LAB-0327</td><td>Haemoglobin test cuvettes</td><td>pack of 50</td><td>HB26018</td><td>Mar 2027</td><td class="n">140</td><td class="n">137</td><td class="n neg">-3</td><td class="n">24.60</td><td class="n neg">-73.80</td></tr>
+<tr><td>28</td><td>LAB-0333</td><td>Giemsa stain, 500 ml</td><td>bottle</td><td>GM25097</td><td>Dec 2027</td><td class="n">48</td><td class="n">48</td><td class="n">0</td><td class="n">18.25</td><td class="n">0.00</td></tr>
+<tr><td>29</td><td>LAB-0340</td><td>Specimen container, 60 ml, sterile</td><td>box of 100</td><td>SC26026</td><td>Apr 2030</td><td class="n">230</td><td class="n">230</td><td class="n">0</td><td class="n">6.40</td><td class="n">0.00</td></tr>
+<tr><td>30</td><td>LAB-0348</td><td>Blood glucose test strips</td><td>box of 50</td><td>BG26014</td><td>Aug 2027</td><td class="n">175</td><td class="n">170</td><td class="n neg">-5</td><td class="n">8.70</td><td class="n neg">-43.50</td></tr>
+<tr class="sec"><td colspan="11">Cold room – Vaccines and cold-chain items</td></tr>
+<tr><td>31</td><td>VAC-0401</td><td>Measles-rubella vaccine, 10-dose vial</td><td>vial</td><td>MR26009</td><td>Jun 2027</td><td class="n">3,200</td><td class="n">3,200</td><td class="n">0</td><td class="n">1.05</td><td class="n">0.00</td></tr>
+<tr><td>32</td><td>VAC-0405</td><td>Pentavalent vaccine, 1-dose vial</td><td>vial</td><td>PV26021</td><td>Sep 2027</td><td class="n">5,400</td><td class="n">5,390</td><td class="n neg">-10</td><td class="n">0.98</td><td class="n neg">-9.80</td></tr>
+<tr><td>33</td><td>VAC-0410</td><td>Oral polio vaccine, 20-dose vial</td><td>vial</td><td>OP26013</td><td>Mar 2027</td><td class="n">1,850</td><td class="n">1,850</td><td class="n">0</td><td class="n">1.30</td><td class="n">0.00</td></tr>
+<tr><td>34</td><td>VAC-0418</td><td>Tetanus-diphtheria vaccine, 10-dose vial</td><td>vial</td><td>TD26027</td><td>Nov 2027</td><td class="n">2,100</td><td class="n">2,100</td><td class="n">0</td><td class="n">0.74</td><td class="n">0.00</td></tr>
+<tr><td>35</td><td>VAC-0425</td><td>BCG vaccine, 20-dose vial with diluent</td><td>vial</td><td>BC26004</td><td>Feb 2027</td><td class="n">960</td><td class="n">948</td><td class="n neg">-12</td><td class="n">2.20</td><td class="n neg">-26.40</td></tr>
+<tr><td>36</td><td>VAC-0433</td><td>Vaccine carrier, 1.7 litre</td><td>each</td><td>VC25051</td><td>n/a</td><td class="n">64</td><td class="n">64</td><td class="n">0</td><td class="n">38.00</td><td class="n">0.00</td></tr>
+<tr><td>37</td><td>VAC-0440</td><td>Ice pack, 0.4 litre</td><td>each</td><td>IP25058</td><td>n/a</td><td class="n">820</td><td class="n">806</td><td class="n neg">-14</td><td class="n">0.95</td><td class="n neg">-13.30</td></tr>
+<tr class="tot"><td class="n" colspan="10">Total variance value</td><td class="n">-419.60</td></tr></tbody></table>
+<p style="margin-top:8px">The count was completed on 17 October 2026 and all variances above the threshold were recounted.</p>
+<div class="sign"><div>Counted by (name, signature)</div><div>Verified by supervisor</div><div>Approved by warehouse manager</div></div>
+</body>
+</html>

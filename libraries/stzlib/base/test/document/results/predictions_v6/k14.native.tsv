@@ -1,0 +1,58 @@
+heading	1	STELLWERK
+page_header	0	Hafenstraße 31 · 28217 Bremen
+page_header	0	Datentechnik GmbH
+page_header	0	Support: 0421 555 7300 · service@stellwerk-daten.example
+heading	1	Bedienungsanleitung NS-420
+heading	3	Netzwerkspeicher mit zwei Laufwerksschächten
+paragraph	0	Vielen Dank, dass Sie sich für den Netzwerkspeicher NS-420 entschieden haben. Lesen Sie diese Anleitung vollständig, bevor Sie das Gerät in Betrieb nehmen, und bewahren Sie sie für spätere Fragen auf.
+heading	2	1 Sicherheitshinweise
+list_item	0	Stellen Sie das Gerät auf eine ebene, stabile Fläche und halten Sie die Lüftungsöffnungen frei.
+list_item	0	Verwenden Sie ausschließlich das mitgelieferte Netzteil.
+list_item	0	Schützen Sie das Gerät vor Feuchtigkeit, direkter Sonneneinstrahlung und Staub.
+list_item	0	Öffnen Sie das Gehäuse nicht; im Inneren befinden sich keine vom Benutzer zu wartenden Teile.
+heading	4	Achtung:
+paragraph	0	Trennen Sie das Gerät vom Stromnetz, bevor Sie Festplatten ein- oder ausbauen.
+heading	2	2 Lieferumfang
+list_item	0	NS-420 Grundgerät
+list_item	0	Netzteil 12 V / 5 A mit Netzkabel
+list_item	0	Netzwerkkabel Cat 6, 1,5 m
+list_item	0	8 Schrauben für 2,5-Zoll-Laufwerke
+list_item	0	Kurzanleitung und Garantiekarte
+heading	2	3 Technische Daten
+table	0	MerkmalWertHardwareHardwareProzessorVierkern-ARM, 1,7 GHzArbeitsspeicher2 GB DDR4Laufwerksschächte2 x 3,5 Zoll oder 2,5 Zoll SATAMaximale Kapazität2 x 24 TB
+paragraph	0	Anschlüsse
+paragraph	0	Netzwerk USB
+paragraph	0	Allgemein
+paragraph	0	Leistungsaufnahme Abmessungen (B x H x T) Gewicht Betriebstemperatur
+paragraph	0	1 x 2,5 GbE (RJ45) 2 x USB 3.2 Gen 1 (Typ A)
+paragraph	0	14 W im Betrieb, 5 W im Ruhezustand 108 x 166 x 232 mm 1,3 kg ohne Laufwerke 0 °C bis 40 °C
+page_footer	0	NS-420 Bedienungsanleitung · Ausgabe 10/2026
+page_footer	0	Seite 1
+page_header	0	Stellwerk NS-420
+page_header	0	Bedienungsanleitung
+heading	2	4 Inbetriebnahme
+list_item	0	1. Setzen Sie die Festplatten in die Laufwerksschächte ein, bis sie hörbar einrasten.
+list_item	0	2. Verbinden Sie den Netzwerkanschluss mit Ihrem Router.
+list_item	0	3. Schließen Sie das Netzteil an und drücken Sie die Einschalttaste.
+list_item	0	4. Warten Sie, bis die Statusanzeige dauerhaft grün leuchtet.
+list_item	0	5. Öffnen Sie im Browser die Adresse http://ns420.local und folgen Sie dem Einrichtungsassistenten.
+paragraph	0	Die Ersteinrichtung dauert je nach Festplattengröße bis zu zehn Minuten.
+heading	2	5 Einrichtung über die Kommandozeile
+paragraph	0	Erfahrene Anwender können das Gerät auch über SSH einrichten. Melden Sie sich mit dem Benutzer admin und dem Kennwort an, das auf dem Typenschild angegeben ist.
+code	0	ssh admin@192.168.1.50
+paragraph	0	Legen Sie anschließend ein gespiegeltes Volume an und geben Sie es im Netzwerk frei:
+code	0	ns-cli volume create --name daten --raid 1 --disks sda,sdb\nns-cli share add daten --protocol smb --users buero\nns-cli status
+paragraph	0	Die Ausgabe von ns-cli status sieht danach etwa so aus:
+code	0	VOLUME   RAID   STATUS       BELEGT\ndaten    1      Aufbau 12%   0 %
+heading	2	6 Fehlerbehebung
+paragraph	0	Problem
+paragraph	0	Statusanzeige blinkt rot
+paragraph	0	Gerät im Netzwerk nicht sichtbar Lüfter dauerhaft laut Zugriff sehr langsam
+paragraph	0	Mögliche Ursache
+paragraph	0	Festplatte nicht erkannt
+paragraph	0	Kabel oder Router-Einstellung Lüftungsöffnungen verdeckt Volume wird noch aufgebaut
+paragraph	0	Lösung
+paragraph	0	Laufwerk erneut einsetzen und Schrauben prüfen. Kabel tauschen; DHCP im Router aktivieren. Gerät frei aufstellen und Staub entfernen. Aufbau abwarten; Fortschritt mit ns-cli status prüfen.
+paragraph	0	Wenden Sie sich an unseren Kundendienst, wenn das Problem weiterhin besteht.
+page_footer	0	NS-420 Bedienungsanleitung · Ausgabe 10/2026
+page_footer	0	Seite 2

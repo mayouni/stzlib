@@ -1,0 +1,470 @@
+{
+  "id": "k02",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Purchase Order",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Purchase Order"
+    },
+    {
+      "level": 2,
+      "text": "Delivery instructions"
+    },
+    {
+      "level": 2,
+      "text": "Terms"
+    }
+  ],
+  "key_sentences": [
+    "Please supply the goods listed below in accordance with the terms of this order.",
+    "Please quote the purchase order number on all invoices, delivery notes and correspondence.",
+    "Partial deliveries are accepted only with the prior written agreement of the buyer.",
+    "Invoices that do not match this order will be returned unpaid.",
+    "This order is subject to our standard terms and conditions of purchase, a copy of which is available on request."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Line",
+          "Item code",
+          "Description",
+          "Qty",
+          "Unit",
+          "Unit price (£)",
+          "Net (£)"
+        ],
+        [
+          "Electrical",
+          "Electrical",
+          "Electrical",
+          "Electrical",
+          "Electrical",
+          "Electrical",
+          "Electrical"
+        ],
+        [
+          "1",
+          "EL-2210",
+          "LED panel 600 x 600 mm, 40 W, 4000 K",
+          "24",
+          "each",
+          "38.50",
+          "924.00"
+        ],
+        [
+          "2",
+          "EL-2214",
+          "LED batten 1500 mm, 50 W, IP65",
+          "16",
+          "each",
+          "27.95",
+          "447.20"
+        ],
+        [
+          "3",
+          "EL-3102",
+          "Twin and earth cable 2.5 mm², 100 m drum",
+          "4",
+          "drum",
+          "89.00",
+          "356.00"
+        ],
+        [
+          "4",
+          "EL-3108",
+          "Twin and earth cable 1.5 mm², 100 m drum",
+          "3",
+          "drum",
+          "61.40",
+          "184.20"
+        ],
+        [
+          "5",
+          "EL-4005",
+          "Double switched socket, white, 13 A",
+          "40",
+          "each",
+          "4.85",
+          "194.00"
+        ],
+        [
+          "6",
+          "EL-4011",
+          "Fused spur, switched, 13 A",
+          "12",
+          "each",
+          "6.20",
+          "74.40"
+        ],
+        [
+          "7",
+          "EL-5120",
+          "RCBO 32 A type A, 30 mA",
+          "8",
+          "each",
+          "24.75",
+          "198.00"
+        ],
+        [
+          "8",
+          "EL-5301",
+          "Emergency bulkhead, 3 h maintained",
+          "10",
+          "each",
+          "33.60",
+          "336.00"
+        ],
+        [
+          "9",
+          "EL-6002",
+          "Cable tie, 300 x 4.8 mm, black (pack of 100)",
+          "6",
+          "pack",
+          "3.90",
+          "23.40"
+        ],
+        [
+          "Plumbing",
+          "Plumbing",
+          "Plumbing",
+          "Plumbing",
+          "Plumbing",
+          "Plumbing",
+          "Plumbing"
+        ],
+        [
+          "10",
+          "PL-1004",
+          "Copper pipe 15 mm x 3 m",
+          "30",
+          "length",
+          "11.80",
+          "354.00"
+        ],
+        [
+          "11",
+          "PL-1006",
+          "Copper pipe 22 mm x 3 m",
+          "18",
+          "length",
+          "23.45",
+          "422.10"
+        ],
+        [
+          "12",
+          "PL-2101",
+          "Push-fit elbow 15 mm",
+          "60",
+          "each",
+          "1.95",
+          "117.00"
+        ],
+        [
+          "13",
+          "PL-2103",
+          "Push-fit tee 15 mm",
+          "40",
+          "each",
+          "2.65",
+          "106.00"
+        ],
+        [
+          "14",
+          "PL-3310",
+          "Thermostatic mixing valve 15 mm",
+          "6",
+          "each",
+          "47.20",
+          "283.20"
+        ],
+        [
+          "15",
+          "PL-4402",
+          "Isolating valve 15 mm, chrome",
+          "24",
+          "each",
+          "3.40",
+          "81.60"
+        ],
+        [
+          "16",
+          "PL-5008",
+          "PTFE tape 12 mm x 12 m (pack of 10)",
+          "5",
+          "pack",
+          "4.10",
+          "20.50"
+        ],
+        [
+          "17",
+          "PL-6120",
+          "Basin waste trap 32 mm, bottle type",
+          "12",
+          "each",
+          "5.95",
+          "71.40"
+        ],
+        [
+          "Safety and PPE",
+          "Safety and PPE",
+          "Safety and PPE",
+          "Safety and PPE",
+          "Safety and PPE",
+          "Safety and PPE",
+          "Safety and PPE"
+        ],
+        [
+          "18",
+          "SF-0101",
+          "Safety helmet, vented, white",
+          "20",
+          "each",
+          "7.25",
+          "145.00"
+        ],
+        [
+          "19",
+          "SF-0140",
+          "Hi-vis vest, class 2, size L",
+          "30",
+          "each",
+          "2.80",
+          "84.00"
+        ],
+        [
+          "20",
+          "SF-0141",
+          "Hi-vis vest, class 2, size XL",
+          "20",
+          "each",
+          "2.80",
+          "56.00"
+        ],
+        [
+          "21",
+          "SF-0230",
+          "Nitrile-coated work gloves, size 9 (pair)",
+          "50",
+          "pair",
+          "1.65",
+          "82.50"
+        ],
+        [
+          "22",
+          "SF-0302",
+          "Safety glasses, anti-fog, clear",
+          "30",
+          "each",
+          "3.15",
+          "94.50"
+        ],
+        [
+          "23",
+          "SF-0410",
+          "Ear defenders, SNR 30 dB",
+          "15",
+          "each",
+          "8.90",
+          "133.50"
+        ],
+        [
+          "24",
+          "SF-0520",
+          "First aid kit, workplace, 10 person",
+          "4",
+          "each",
+          "19.99",
+          "79.96"
+        ],
+        [
+          "Cleaning consumables",
+          "Cleaning consumables",
+          "Cleaning consumables",
+          "Cleaning consumables",
+          "Cleaning consumables",
+          "Cleaning consumables",
+          "Cleaning consumables"
+        ],
+        [
+          "25",
+          "CL-1001",
+          "Blue centrefeed roll, 2-ply (case of 6)",
+          "20",
+          "case",
+          "14.60",
+          "292.00"
+        ],
+        [
+          "26",
+          "CL-1105",
+          "Black refuse sacks, heavy duty (roll of 50)",
+          "25",
+          "roll",
+          "6.35",
+          "158.75"
+        ],
+        [
+          "27",
+          "CL-2210",
+          "Washroom cleaner, 5 litre",
+          "12",
+          "each",
+          "9.80",
+          "117.60"
+        ],
+        [
+          "28",
+          "CL-2302",
+          "Floor cleaner, neutral, 5 litre",
+          "10",
+          "each",
+          "10.45",
+          "104.50"
+        ],
+        [
+          "29",
+          "CL-3004",
+          "Microfibre cloth, blue (pack of 10)",
+          "15",
+          "pack",
+          "5.70",
+          "85.50"
+        ],
+        [
+          "30",
+          "CL-3006",
+          "Microfibre cloth, red (pack of 10)",
+          "15",
+          "pack",
+          "5.70",
+          "85.50"
+        ],
+        [
+          "31",
+          "CL-4120",
+          "Mop head, kentucky, 450 g",
+          "12",
+          "each",
+          "4.25",
+          "51.00"
+        ],
+        [
+          "32",
+          "CL-5001",
+          "Hand soap refill, 800 ml cartridge",
+          "36",
+          "each",
+          "4.95",
+          "178.20"
+        ],
+        [
+          "33",
+          "CL-5010",
+          "Hand sanitiser gel, 500 ml pump",
+          "24",
+          "each",
+          "3.75",
+          "90.00"
+        ],
+        [
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "6,031.51"
+        ],
+        [
+          "Delivery",
+          "Delivery",
+          "Delivery",
+          "Delivery",
+          "Delivery",
+          "Delivery",
+          "45.00"
+        ],
+        [
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "1,215.30"
+        ],
+        [
+          "Order total",
+          "Order total",
+          "Order total",
+          "Order total",
+          "Order total",
+          "Order total",
+          "7,291.81"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "PO number",
+          "PO-55817",
+          "Order date",
+          "19 October 2026"
+        ],
+        [
+          "Requested by",
+          "Fiona Clarke",
+          "Cost centre",
+          "CC-412 Property Services"
+        ],
+        [
+          "Payment terms",
+          "30 days from invoice",
+          "Required by",
+          "2 November 2026"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Deliver between 08:00 and 15:30, Monday to Friday, to the loading bay at the rear of the depot."
+    },
+    {
+      "level": 0,
+      "text": "Report to the stores office on arrival and present the delivery note."
+    },
+    {
+      "level": 0,
+      "text": "Pallets must not exceed 1,000 kg and must be shrink-wrapped."
+    },
+    {
+      "level": 0,
+      "text": "Hazardous products must be accompanied by their safety data sheets."
+    }
+  ],
+  "furniture": [
+    "NORTHGATE",
+    "Facilities Management Ltd",
+    "Unit 7, Harbour Trade Park",
+    "Leith Road, Edinburgh EH6 4QX",
+    "purchasing@northgate-fm.example · 0131 555 0182",
+    "Northgate Facilities Management Ltd · Registered in Scotland No. SC601234 · VAT No. GB 318 4472 09",
+    "Page 1 of 2",
+    "Purchase Order PO-55817 (continued)",
+    "Northgate Facilities Management Ltd",
+    "Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Two pages drawn as explicit pages. The line-item table runs across both pages: page 1 holds the Electrical and Plumbing sections, page 2 the rest plus four totals rows; the column header row is printed again at the top of page 2 but is given ONCE. Section rows (Electrical, Plumbing, Safety and PPE, Cleaning consumables) span all 7 columns; totals labels span 6 columns. The order-details table is a 3-row key/value grid with two pairs per row and no header row. The Supplier and Deliver to boxes are address blocks (body, not sentences, no expected field) with small bold captions SUPPLIER and DELIVER TO that are labels, not headings. Furniture: letterhead (wordmark NORTHGATE with the line 'Facilities Management Ltd' under it, three address lines), a running header on page 2 (two items on one line, given as two entries), and on each page a legal footer and 'Page n of 2'. The delivery instructions are an HTML ordered list whose numbers are drawn by CSS, so the items carry no marker."
+}

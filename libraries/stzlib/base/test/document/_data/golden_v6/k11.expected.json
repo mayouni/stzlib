@@ -1,0 +1,146 @@
+{
+  "id": "k11",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Avis d’appel d’offres ouvert national n° 07/2026/ARPR/DMP",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Avis d’appel d’offres ouvert national n° 07/2026/ARPR/DMP"
+    },
+    {
+      "level": 2,
+      "text": "1. Objet"
+    },
+    {
+      "level": 2,
+      "text": "2. Allotissement"
+    },
+    {
+      "level": 2,
+      "text": "3. Participation"
+    },
+    {
+      "level": 2,
+      "text": "4. Retrait du dossier"
+    },
+    {
+      "level": 2,
+      "text": "5. Composition des offres"
+    },
+    {
+      "level": 2,
+      "text": "6. Dépôt et ouverture des plis"
+    },
+    {
+      "level": 2,
+      "text": "7. Garantie et validité des offres"
+    },
+    {
+      "level": 2,
+      "text": "8. Renseignements complémentaires"
+    }
+  ],
+  "key_sentences": [
+    "L’Agence Régionale des Pistes Rurales lance un appel d’offres ouvert national pour la réhabilitation de 86 kilomètres de pistes rurales.",
+    "Le financement est assuré par le budget d’investissement de l’État, exercice 2026.",
+    "La participation est ouverte à égalité de conditions à toutes les entreprises de travaux publics agréées en catégorie T3 ou supérieure.",
+    "Un soumissionnaire peut présenter une offre pour un ou plusieurs lots, mais ne peut être attributaire de plus de deux lots.",
+    "Le dossier peut être consulté gratuitement ou retiré contre paiement d’une somme non remboursable de 150 000 FCFA à la Direction des marchés publics.",
+    "Les offres rédigées en langue française devront parvenir au plus tard le 24 novembre 2026 à 10 heures.",
+    "L’ouverture des plis aura lieu le même jour à 10 h 30 en présence des soumissionnaires qui souhaitent y assister.",
+    "Les offres demeurent valables pendant 90 jours à compter de la date limite de dépôt."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Lot",
+          "Tronçon",
+          "Longueur (km)",
+          "Délai d’exécution",
+          "Garantie de soumission (FCFA)"
+        ],
+        [
+          "1",
+          "Birni N’Gaouré – Fandou Béri",
+          "24,5",
+          "5 mois",
+          "3 500 000"
+        ],
+        [
+          "2",
+          "Falmey – Tanda",
+          "19,0",
+          "4 mois",
+          "2 800 000"
+        ],
+        [
+          "3",
+          "Gaya – Bengou",
+          "27,0",
+          "6 mois",
+          "4 000 000"
+        ],
+        [
+          "4",
+          "Loga – Sokorbé",
+          "15,5",
+          "4 mois",
+          "2 200 000"
+        ],
+        [
+          "Total",
+          "Total",
+          "86,0",
+          "",
+          ""
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "a) la lettre de soumission signée et datée ;"
+    },
+    {
+      "level": 0,
+      "text": "b) la garantie de soumission en original ;"
+    },
+    {
+      "level": 0,
+      "text": "c) l’attestation de régularité fiscale datant de moins de trois mois ;"
+    },
+    {
+      "level": 0,
+      "text": "d) l’attestation de la caisse de sécurité sociale ;"
+    },
+    {
+      "level": 0,
+      "text": "e) la liste du matériel et du personnel affectés au chantier ;"
+    },
+    {
+      "level": 0,
+      "text": "f) l’offre financière (bordereau des prix unitaires et devis estimatif)."
+    }
+  ],
+  "furniture": [
+    "MINISTÈRE DE L’ÉQUIPEMENT ET DES TRANSPORTS",
+    "AGENCE RÉGIONALE DES PISTES RURALES",
+    "Direction des marchés publics",
+    "BP 212 – Dosso",
+    "Tél. : +227 20 65 08 31",
+    "arpr.marches@example.ne",
+    "ARPR – Avis d’appel d’offres n° 07/2026 – Page 1 sur 2",
+    "Agence Régionale des Pistes Rurales",
+    "AAO n° 07/2026/ARPR/DMP",
+    "ARPR – Avis d’appel d’offres n° 07/2026 – Page 2 sur 2"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "Official tender notice on two explicit pages, numbered articles '1.' to '8.' as level-2 headings (number part of the text). The centred bold-italic line under the title ('Travaux de réhabilitation ...') is a subtitle line, not a heading and not a sentence. The lots table is fully bordered, with a Total row whose label spans the first 2 columns and whose last two cells are empty. Article 5 is a TYPED list: items begin with 'a)' ... 'f)' (markers kept) with a hanging indent. Furniture: a two-block official letterhead (three centred lines left, three contact lines right) over a double rule; page 2 running header (two entries); each page's centred footer 'ARPR – Avis d’appel d’offres n° 07/2026 – Page n sur 2'. The signature block (place and date, title, name) is body but not sentences."
+}

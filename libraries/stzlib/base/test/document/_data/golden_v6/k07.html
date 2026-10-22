@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Discharge Summary</title>
+<style>
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+@page { size: A4; margin: 0; }
+html, body { margin: 0; padding: 0; }
+.page { width: 210mm; height: 296mm; box-sizing: border-box; position: relative; overflow: visible;
+        break-after: page; page-break-after: always; }
+.page:last-child { break-after: auto; page-break-after: auto; }
+
+.page { padding: 14mm 17mm 22mm 17mm; }
+body { font-family: Cambria, Georgia, serif; font-size: 10pt; color: #1b1b1b; }
+.lh { display: flex; justify-content: space-between; border-bottom: 2px solid #7a1f3d; padding-bottom: 6px; }
+.lh .n { font: bold 15pt Calibri, Arial; color: #7a1f3d; }
+.lh .n span { display: block; font: 9pt Calibri; color: #555; }
+.lh .c { text-align: right; font: 8.5pt Calibri; color: #555; line-height: 1.4; }
+.run { font: 8.5pt Calibri; color: #555; border-bottom: 1px solid #7a1f3d; padding-bottom: 3px; margin-bottom: 8px; display: flex; justify-content: space-between; }
+h1 { font: bold 18pt Calibri, Arial; color: #7a1f3d; margin: 10px 0 6px; }
+h2 { font: bold 11.5pt Calibri, Arial; color: #7a1f3d; margin: 12px 0 3px; border-bottom: 1px solid #e2c3cd; }
+table { border-collapse: collapse; width: 100%; font-family: Calibri, Arial; font-size: 9.5pt; }
+table.kv td { border: 1px solid #d9c0c8; padding: 2px 5px; }
+table.kv td:nth-child(odd) { background: #f7edf0; font-weight: bold; width: 17%; }
+table.lab th, table.med th { background: #7a1f3d; color: #fff; text-align: left; padding: 3px 5px; }
+table.lab td, table.med td { border-bottom: 1px solid #e2c3cd; padding: 2px 5px; }
+table.lab tr.sec td { background: #f7edf0; font-weight: bold; font-style: italic; }
+p { margin: 4px 0; line-height: 1.4; text-align: justify; }
+ol, ul { margin: 3px 0; padding-left: 22px; line-height: 1.45; }
+.fn { position: absolute; left: 17mm; right: 17mm; bottom: 17mm; font-size: 8.5pt; border-top: 1px solid #999; width: 60mm; padding-top: 2px; }
+.fn span { display: block; width: 170mm; }
+.sig { margin-top: 14px; font-family: Calibri; font-size: 9.5pt; line-height: 1.4; }
+.ftr { position: absolute; left: 17mm; right: 17mm; bottom: 9mm; font: 8pt Calibri; color: #555; border-top: 1px solid #7a1f3d; padding-top: 3px; display: flex; justify-content: space-between; }
+
+</style>
+</head>
+<body>
+<div class="page"><div class="lh"><div class="n">Lakeview Community Hospital<span>Department of Internal Medicine</span></div><div class="c"><div>400 Shoreline Avenue, Port Elm, ON K0L 2T0</div><div>Switchboard 705-555-0100 · Fax 705-555-0119</div></div></div>
+<h1>Discharge Summary</h1>
+<table class="kv"><tbody><tr><td>Patient</td><td>Thomas R. Halvorsen</td><td>MRN</td><td>00482913</td></tr>
+<tr><td>Date of birth</td><td>7 February 1958</td><td>Sex</td><td>Male</td></tr>
+<tr><td>Admitted</td><td>9 October 2026</td><td>Discharged</td><td>16 October 2026</td></tr>
+<tr><td>Ward</td><td>Medical Ward 3B</td><td>Consultant</td><td>Dr. Ingrid Solberg</td></tr>
+<tr><td>Discharged to</td><td>Home, with community nursing</td><td>Family doctor</td><td>Dr. Paul Mercer, Eastside Medical Practice</td></tr></tbody></table>
+<h2>Diagnoses</h2>
+<ol>
+<li>Community-acquired pneumonia, right lower lobe (primary diagnosis)</li>
+<li>Acute kidney injury, stage 1, resolved</li>
+<li>Type 2 diabetes mellitus</li>
+<li>Hypertension</li>
+</ol>
+<h2>Presenting complaint</h2>
+<p>Mr Halvorsen presented to the emergency department with a four-day history of productive cough, fever and increasing shortness of breath. On arrival his oxygen saturation was 89% on room air and his temperature was 38.9 °C.</p>
+<h2>Investigations</h2>
+<table class="lab"><colgroup><col style="width:38%"><col style="width:13%"><col style="width:13%"><col style="width:13%"><col style="width:23%"></colgroup><thead><tr><th>Test</th><th>9 Oct</th><th>12 Oct</th><th>15 Oct</th><th>Reference range</th></tr></thead><tbody><tr class="sec"><td colspan="5">Haematology</td></tr>
+<tr><td>Haemoglobin (g/L)</td><td>132</td><td>128</td><td>130</td><td>130–170</td></tr>
+<tr><td>White cell count (×10⁹/L)</td><td>16.8</td><td>11.2</td><td>8.4</td><td>4.0–11.0</td></tr>
+<tr class="sec"><td colspan="5">Biochemistry</td></tr>
+<tr><td>C-reactive protein (mg/L)</td><td>186</td><td>74</td><td>21</td><td>&lt; 5</td></tr>
+<tr><td>Sodium (mmol/L)</td><td>134</td><td>137</td><td>139</td><td>135–145</td></tr>
+<tr><td>Potassium (mmol/L)</td><td>4.9</td><td>4.3</td><td>4.1</td><td>3.5–5.3</td></tr>
+<tr><td>Creatinine (µmol/L)</td><td>148</td><td>112</td><td>96</td><td>60–110</td></tr>
+<tr><td>HbA1c (mmol/mol)</td><td>62</td><td>–</td><td>–</td><td>20–41</td></tr></tbody></table>
+<p>A chest radiograph showed consolidation in the right lower zone without effusion.</p>
+<h2>Hospital course</h2>
+<p>He was treated with intravenous amoxicillin and oral clarithromycin, and was switched to oral antibiotics on day three once his fever had settled. His renal function improved with intravenous fluids and temporary withholding of ramipril and metformin.<sup>1</sup> He was mobilising independently and maintaining saturations above 94% on room air at the time of discharge.</p>
+<div class="fn"><span><sup>1</sup> Both medicines were restarted on 14 October 2026 after creatinine had returned to baseline.</span></div>
+<div class="ftr"><span>CONFIDENTIAL – contains personal health information</span><span>Page 1 of 2</span></div></div>
+<div class="page"><div class="run"><span>DISCHARGE SUMMARY – Thomas R. Halvorsen – MRN 00482913</span><span>Lakeview Community Hospital</span></div>
+<h2>Medication on discharge</h2>
+<table class="med"><thead><tr><th>Medicine</th><th>Dose</th><th>Route</th><th>Frequency</th><th>Duration</th><th>Status</th></tr></thead><tbody><tr><td>Amoxicillin</td><td>1 g</td><td>Oral</td><td>Three times daily</td><td>Until 19 October 2026</td><td>New</td></tr>
+<tr><td>Clarithromycin</td><td>500 mg</td><td>Oral</td><td>Twice daily</td><td>Until 19 October 2026</td><td>New</td></tr>
+<tr><td>Metformin</td><td>1 g</td><td>Oral</td><td>Twice daily</td><td>Ongoing</td><td>Restarted</td></tr>
+<tr><td>Ramipril</td><td>5 mg</td><td>Oral</td><td>Once daily</td><td>Ongoing</td><td>Restarted</td></tr>
+<tr><td>Atorvastatin</td><td>20 mg</td><td>Oral</td><td>At night</td><td>Ongoing</td><td>Unchanged</td></tr>
+<tr><td>Paracetamol</td><td>1 g</td><td>Oral</td><td>Up to four times daily</td><td>As needed</td><td>New</td></tr></tbody></table>
+<h2>Follow-up</h2>
+<ul>
+<li>Renal function and potassium check in one week at the family doctor’s practice.</li>
+<li>Repeat chest radiograph in six weeks, to be requested by the family doctor.</li>
+<li>Diabetes nurse review of glucose control within one month.</li>
+</ul>
+<h2>Advice to the patient</h2>
+<p>Complete the full course of antibiotics even if you feel better. Seek urgent medical help if you become more breathless, develop chest pain or cough up blood.</p>
+<div class="sig">Dr. Amir Haddad, resident physician, on behalf of Dr. Ingrid Solberg, Consultant Physician<br>Electronically signed on 16 October 2026 at 14:32<br>Copy to: Dr. Paul Mercer, Eastside Medical Practice</div>
+<div class="ftr"><span>CONFIDENTIAL – contains personal health information</span><span>Page 2 of 2</span></div></div>
+</body>
+</html>

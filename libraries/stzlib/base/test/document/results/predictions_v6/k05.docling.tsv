@@ -1,0 +1,28 @@
+page_header	0	Paseo de la Ribera, 88 · 50014 Zaragoza Atención al cliente: 900 555 214 www.enervalle.example
+heading	1	ENERVALLE
+paragraph	0	Eléctrica del Valle Verde, S.A.
+heading	1	Factura de electricidad
+paragraph	0	N. º de factura
+paragraph	0	Fecha de emisión FE26-0938417
+paragraph	0	6 de octubre de 2026
+paragraph	0	Periodo de facturación 1 de septiembre a 1 de octubre de 2026 (31 días)
+paragraph	0	Titular Lucía Romero Gaspar
+paragraph	0	Dirección de suministro C/ Mayor de San Pablo, 23, 2. º B, 50003 Zaragoza
+paragraph	0	CUPS
+paragraph	0	ES0031 4088 2230 1157 KJ0F
+paragraph	0	Potencia contratada
+paragraph	0	4,6 kW (punta y valle)
+heading	1	Detalle de la factura
+table	0	ConceptoCálculoImporte (€)Término de potenciaPotencia punta4,6 kW x 31 días x 0,108722 €/kW día15,50Potencia valle4,6 kW x 31 días x 0,032074 €/kW día4,57Término de energíaEnergía punta98 kWh x 0,1983 €/kWh19,43Energía llano71 kWh x 0,1412 €/kWh10,03Energía valle76 kWh x 0,0957 €/kWh7,27Otros conceptosFinanciación del bono social31 días0,39Impuesto sobre la electricidad5,11 % s/ 57,19 €2,92Alquiler del contador31 días x 0,0266 €/día0,82ImpuestosIVA21 % s/ 60,93 €12,80TOTAL FACTURA73,73
+heading	1	Información útil
+paragraph	0	Si cambia de cuenta bancaria, comuníquelo con al menos quince días de antelación. En caso de avería puede llamar las 24 horas al 900 555 215.
+paragraph	0	Puede descargar esta factura y consultar su consumo horario en el área de clientes.
+paragraph	0	Importe total
+paragraph	0	
+paragraph	0	73,73 €
+paragraph	0	El importe de esta factura se cargará en su cuenta el 5 de noviembre de 2026.
+heading	1	Su consumo
+paragraph	0	Su consumo en este periodo ha sido de 245 kWh, con una media diaria de 7,9 kWh. Es un 4 % menos que en el mismo periodo del año anterior.
+paragraph	0	Historial de consumo (kWh)
+table	0	Mesnov.dic.ene.feb.mar.abr.may.jun.jul.ago.sep.kWh231288312276240205198226264251245
+page_footer	0	Eléctrica del Valle Verde, S.A. · CIF A-50998877 · Inscrita en el Registro Mercantil de Zaragoza, tomo 4120, folio 87, hoja Z-55321

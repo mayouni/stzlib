@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Travel Itinerary</title>
+<style>
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+@page { size: A4; margin: 0; }
+html, body { margin: 0; padding: 0; }
+.page { width: 210mm; height: 296mm; box-sizing: border-box; position: relative; overflow: visible;
+        break-after: page; page-break-after: always; }
+.page:last-child { break-after: auto; page-break-after: auto; }
+
+.page { padding: 14mm 16mm 20mm 16mm; }
+body { font-family: Calibri, 'Segoe UI', sans-serif; font-size: 9.8pt; color: #1f1f2e; }
+.lh { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid #4338ca; padding-bottom: 6px; }
+.lh .n { font: 300 18pt 'Segoe UI'; color: #4338ca; letter-spacing: 1px; }
+.lh .n b { font-weight: 700; }
+.lh .c { text-align: right; font-size: 8.5pt; color: #555; line-height: 1.4; }
+h1 { font: 600 17pt 'Segoe UI'; margin: 12px 0 6px; color: #1f1f2e; }
+h2 { font: 600 11.5pt 'Segoe UI'; color: #4338ca; margin: 12px 0 4px; }
+table { border-collapse: collapse; width: 100%; }
+table.kv td { padding: 2px 6px 2px 0; }
+table.kv td:nth-child(odd) { color: #666; width: 18%; }
+table.kv td:nth-child(even) { font-weight: 600; width: 32%; }
+table.fl th, table.ho th { text-align: left; font-size: 8.5pt; color: #4338ca; border-bottom: 2px solid #4338ca; padding: 3px 4px; }
+table.fl td, table.ho td { padding: 4px; border-bottom: 1px solid #e0e0ef; font-size: 9.3pt; }
+td.wl { color: #b45309; font-weight: 700; }
+p { margin: 4px 0; line-height: 1.45; }
+.tl { line-height: 1.6; padding-left: 4px; }
+.ftr { position: absolute; left: 16mm; right: 16mm; bottom: 9mm; font-size: 7.8pt; color: #555; border-top: 1px solid #4338ca; padding-top: 3px; line-height: 1.4; }
+
+</style>
+</head>
+<body>
+<div class="page"><div class="lh"><div class="n">Meridian <strong>Business Travel</strong></div><div class="c"><div>18 Adeola Hopewell Street, Victoria Island, Lagos</div><div>+234 1 555 0140 · trips@meridian-bt.example</div></div></div>
+<h1>Travel Itinerary</h1>
+<table class="kv"><tbody><tr><td>Traveller</td><td>Ms Nadia Rahmani-Okafor</td><td>Booking reference</td><td>QX7R2M</td></tr>
+<tr><td>Company</td><td>Halden Engineering Consultants</td><td>Issued</td><td>21 October 2026</td></tr>
+<tr><td>Ticket number</td><td>176-2412093388</td><td>Travel consultant</td><td>Tunde Afolabi</td></tr></tbody></table>
+<h2>Flights</h2>
+<table class="fl"><colgroup><col style="width:15%"><col style="width:9%"><col style="width:14%"><col style="width:14%"><col style="width:9%"><col style="width:9%"><col style="width:14%"><col style="width:16%"></colgroup><thead><tr><th>Date</th><th>Flight</th><th>From</th><th>To</th><th>Departs</th><th>Arrives</th><th>Class</th><th>Status</th></tr></thead><tbody><tr><td>Wed 4 Nov 2026</td><td>XQ 214</td><td>Lagos (LOS)</td><td>Nairobi (NBO)</td><td>08:45</td><td>15:40</td><td>Business (J)</td><td>Confirmed</td></tr>
+<tr><td>Fri 6 Nov 2026</td><td>XQ 731</td><td>Nairobi (NBO)</td><td>Kigali (KGL)</td><td>11:20</td><td>11:35</td><td>Business (J)</td><td>Confirmed</td></tr>
+<tr><td>Mon 9 Nov 2026</td><td>XQ 590</td><td>Kigali (KGL)</td><td>Lagos (LOS)</td><td>13:05</td><td>17:50</td><td>Economy (Y)</td><td class="wl">Waitlisted</td></tr></tbody></table>
+<p>All times shown are local times at each airport. Your return flight on 9 November is waitlisted, and we will confirm it or rebook you by 30 October.</p>
+<h2>Hotels</h2>
+<table class="ho"><colgroup><col style="width:14%"><col style="width:14%"><col style="width:22%"><col style="width:34%"><col style="width:16%"></colgroup><thead><tr><th>Check-in</th><th>Check-out</th><th>Hotel</th><th>Address</th><th>Confirmation</th></tr></thead><tbody><tr><td>4 Nov 2026</td><td>6 Nov 2026</td><td>Acacia Park Hotel</td><td>Waiyaki Way, Westlands, Nairobi</td><td>ACP-55120</td></tr>
+<tr><td>6 Nov 2026</td><td>9 Nov 2026</td><td>Hotel Kivu Heights</td><td>KN 3 Avenue, Kigali</td><td>KH-80931</td></tr></tbody></table>
+<p>Both hotels are booked on a bed-and-breakfast basis and charged to the company account; incidental charges are payable on departure.</p>
+<h2>Ground transport</h2>
+<p>A driver from Acacia Park Hotel will meet you in the arrivals hall at Nairobi and hold a sign with your name. Transfers in Kigali are not included and can be booked at the hotel reception.</p>
+<h2>Before you travel</h2>
+<p>Please check in online 24 hours before each flight and arrive at the airport at least three hours before international departures.</p>
+<div class="tl tl0 ">□ Passport valid for at least six months after the return date</div>
+<div class="tl tl0 ">□ Yellow fever vaccination certificate</div>
+<div class="tl tl0 ">□ Printed or electronic copy of this itinerary</div>
+<div class="tl tl0 ">□ Corporate card for incidental hotel charges</div>
+<div class="ftr"><div>Meridian Business Travel Ltd · RC 1184420 · 24-hour emergency line +234 1 555 0147</div><div>This itinerary is not a ticket. Fares and availability are subject to change until ticketed.</div></div></div>
+</body>
+</html>

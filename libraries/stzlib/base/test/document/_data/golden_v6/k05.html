@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Factura de electricidad</title>
+<style>
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+@page { size: A4; margin: 0; }
+html, body { margin: 0; padding: 0; }
+.page { width: 210mm; height: 296mm; box-sizing: border-box; position: relative; overflow: visible;
+        break-after: page; page-break-after: always; }
+.page:last-child { break-after: auto; page-break-after: auto; }
+
+.page { padding: 1.5cm 1.7cm; }
+body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 9pt; color: #233; margin: 0; }
+.lh { display: flex; justify-content: space-between; align-items: center; background: #f6b400; padding: 8px 12px; border-radius: 6px; }
+.lh .n { font: 800 16pt 'Segoe UI'; color: #3a2a00; }
+.lh .n span { display: block; font: 600 8pt 'Segoe UI'; }
+.lh .c { text-align: right; font-size: 8pt; color: #3a2a00; line-height: 1.4; }
+.cols { display: flex; gap: 14px; margin-top: 12px; }
+.cols > div { flex: 1; }
+h1 { font-size: 16pt; margin: 0 0 4px; color: #7a5400; }
+.box { border: 1px solid #e3c26a; border-radius: 6px; padding: 8px 10px; }
+.big { font-size: 22pt; font-weight: 800; color: #7a5400; }
+table { border-collapse: collapse; width: 100%; }
+table.kv td { padding: 2px 4px; vertical-align: top; }
+table.kv td:first-child { color: #6a6a6a; width: 42%; }
+h2 { font-size: 10.5pt; color: #7a5400; margin: 12px 0 4px; border-bottom: 2px solid #f6b400; padding-bottom: 2px; }
+table.det th { text-align: left; background: #fff3cf; padding: 3px 5px; }
+table.det td { padding: 2.5px 5px; border-bottom: 1px solid #eee; }
+table.det .r { text-align: right; }
+table.det tr.s td { font-weight: 700; color: #7a5400; padding-top: 6px; border-bottom: 1px solid #e3c26a; }
+table.det tr.t td { font-weight: 800; font-size: 10pt; border-top: 2px solid #7a5400; }
+table.hist td, table.hist th { border: 1px solid #e3c26a; padding: 2px 3px; text-align: center; font-size: 8pt; }
+table.hist th { background: #fff3cf; }
+p { margin: 5px 0; line-height: 1.4; }
+.foot { position: absolute; left: 1.7cm; right: 1.7cm; bottom: 0.8cm; font-size: 7pt; color: #777; border-top: 1px solid #ddd; padding-top: 3px; }
+
+</style>
+</head>
+<body>
+<div class="page"><div class="lh"><div class="n">ENERVALLE<span>Eléctrica del Valle Verde, S.A.</span></div><div class="c"><div>Paseo de la Ribera, 88 · 50014 Zaragoza</div><div>Atención al cliente: 900 555 214</div><div>www.enervalle.example</div></div></div>
+<div class="cols"><div><h1>Factura de electricidad</h1>
+<table class="kv"><tbody><tr><td>N.º de factura</td><td>FE26-0938417</td></tr>
+<tr><td>Fecha de emisión</td><td>6 de octubre de 2026</td></tr>
+<tr><td>Periodo de facturación</td><td>1 de septiembre a 1 de octubre de 2026 (31 días)</td></tr>
+<tr><td>Titular</td><td>Lucía Romero Gaspar</td></tr>
+<tr><td>Dirección de suministro</td><td>C/ Mayor de San Pablo, 23, 2.º B, 50003 Zaragoza</td></tr>
+<tr><td>CUPS</td><td>ES0031 4088 2230 1157 KJ0F</td></tr>
+<tr><td>Potencia contratada</td><td>4,6 kW (punta y valle)</td></tr></tbody></table>
+</div><div><div class="box">Importe total<div class="big">73,73 €</div><p>El importe de esta factura se cargará en su cuenta el 5 de noviembre de 2026.</p></div>
+<h2>Su consumo</h2>
+<p>Su consumo en este periodo ha sido de 245 kWh, con una media diaria de 7,9 kWh. Es un 4 % menos que en el mismo periodo del año anterior.</p>
+<table class="hist"><caption>Historial de consumo (kWh)</caption><thead><tr><th>Mes</th><th>nov.</th><th>dic.</th><th>ene.</th><th>feb.</th><th>mar.</th><th>abr.</th><th>may.</th><th>jun.</th><th>jul.</th><th>ago.</th><th>sep.</th></tr></thead><tbody><tr><td>kWh</td><td>231</td><td>288</td><td>312</td><td>276</td><td>240</td><td>205</td><td>198</td><td>226</td><td>264</td><td>251</td><td>245</td></tr></tbody></table>
+</div></div>
+<h2>Detalle de la factura</h2>
+<table class="det"><colgroup><col style="width:38%"><col style="width:44%"><col style="width:18%"></colgroup><thead><tr><th>Concepto</th><th>Cálculo</th><th class="r">Importe (€)</th></tr></thead><tbody><tr class="s"><td colspan="3">Término de potencia</td></tr>
+<tr><td>Potencia punta</td><td>4,6 kW x 31 días x 0,108722 €/kW día</td><td class="r">15,50</td></tr>
+<tr><td>Potencia valle</td><td>4,6 kW x 31 días x 0,032074 €/kW día</td><td class="r">4,57</td></tr>
+<tr class="s"><td colspan="3">Término de energía</td></tr>
+<tr><td>Energía punta</td><td>98 kWh x 0,1983 €/kWh</td><td class="r">19,43</td></tr>
+<tr><td>Energía llano</td><td>71 kWh x 0,1412 €/kWh</td><td class="r">10,03</td></tr>
+<tr><td>Energía valle</td><td>76 kWh x 0,0957 €/kWh</td><td class="r">7,27</td></tr>
+<tr class="s"><td colspan="3">Otros conceptos</td></tr>
+<tr><td>Financiación del bono social</td><td>31 días</td><td class="r">0,39</td></tr>
+<tr><td>Impuesto sobre la electricidad</td><td>5,11 % s/ 57,19 €</td><td class="r">2,92</td></tr>
+<tr><td>Alquiler del contador</td><td>31 días x 0,0266 €/día</td><td class="r">0,82</td></tr>
+<tr class="s"><td colspan="3">Impuestos</td></tr>
+<tr><td>IVA</td><td>21 % s/ 60,93 €</td><td class="r">12,80</td></tr>
+<tr class="t"><td colspan="2">TOTAL FACTURA</td><td class="r">73,73</td></tr></tbody></table>
+<h2>Información útil</h2>
+<p>Si cambia de cuenta bancaria, comuníquelo con al menos quince días de antelación. En caso de avería puede llamar las 24 horas al 900 555 215.</p>
+<p>Puede descargar esta factura y consultar su consumo horario en el área de clientes.</p>
+<div class="foot"><div>Eléctrica del Valle Verde, S.A. · CIF A-50998877 · Inscrita en el Registro Mercantil de Zaragoza, tomo 4120, folio 87, hoja Z-55321</div></div></div>
+</body>
+</html>

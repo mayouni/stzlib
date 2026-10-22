@@ -1,0 +1,87 @@
+{
+  "id": "k20",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "AVIS À LA POPULATION",
+  "headings": [
+    {
+      "level": 1,
+      "text": "AVIS À LA POPULATION"
+    },
+    {
+      "level": 2,
+      "text": "Coupure d’eau programmée"
+    },
+    {
+      "level": 2,
+      "text": "Sanarwa: za a katse ruwa"
+    },
+    {
+      "level": 2,
+      "text": "إعلان: انقطاع مبرمج للماء"
+    },
+    {
+      "level": 2,
+      "text": "Notice: planned water interruption"
+    }
+  ],
+  "key_sentences": [
+    "En raison de travaux de raccordement sur la conduite principale, la distribution d’eau sera interrompue dans les quartiers indiqués ci-dessous.",
+    "Nous invitons la population à constituer des réserves d’eau la veille et nous nous excusons pour la gêne occasionnée.",
+    "Saboda aikin gyaran babban bututun ruwa, za a katse ruwa a unguwannin da aka lissafa a cikin teburin.",
+    "Muna roƙon jama'a su tara ruwa tun ranar da ta gabata, kuma muna neman afuwa kan wannan matsala.",
+    "بسبب أشغال الربط على القناة الرئيسية، سيتم قطع توزيع الماء في الأحياء المذكورة في الجدول.",
+    "ندعو السكان إلى تخزين الماء في اليوم السابق، ونعتذر عن الإزعاج.",
+    "Because of connection works on the main pipeline, the water supply will be interrupted in the areas listed in the table.",
+    "Residents are advised to store water the day before, and we apologise for the inconvenience."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Quartier Unguwa الحي Area",
+          "Date Rana التاريخ Date",
+          "Heures Lokaci الساعات Hours"
+        ],
+        [
+          "Sabon Gari",
+          "03/11/2026",
+          "08:00 – 18:00"
+        ],
+        [
+          "Kollo",
+          "03/11/2026",
+          "08:00 – 18:00"
+        ],
+        [
+          "Taweye",
+          "04/11/2026",
+          "07:00 – 15:00"
+        ],
+        [
+          "Cité Fayçal",
+          "04/11/2026",
+          "07:00 – 15:00"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "SESC",
+    "Société des Eaux du Sahel Central",
+    "Direction régionale de Tahoua",
+    "BP 87 – Tahoua",
+    "Numéro vert : 800 20 21",
+    "SESC – Société anonyme à participation publique – Siège : avenue du Fleuve, Niamey – www.sesc.example"
+  ],
+  "languages": [
+    "fr",
+    "ha",
+    "ar",
+    "en"
+  ],
+  "code": [],
+  "notes": "Public notice in four languages stacked vertically in this order: French, the table, Hausa, Arabic (right-to-left block, dir=rtl, given in logical order), English. Each language block has its own level-2 heading. The single table's header cells are four lines each (French, Hausa, Arabic, English), joined in the expected text by single spaces in that order; the body cells are language-neutral (place names, dd/mm/yyyy dates, 24-hour times). The table has no caption. Furniture: a rotated water-drop logo with the letters 'SESC', two name lines, two contact lines, and the footer line. The place-and-date signature block is body but not sentences. No lists."
+}

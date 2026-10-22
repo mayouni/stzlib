@@ -1,0 +1,301 @@
+{
+  "id": "k10",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "Quarterly Status Report – Q3 2026",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Quarterly Status Report – Q3 2026"
+    },
+    {
+      "level": 2,
+      "text": "1. Executive summary"
+    },
+    {
+      "level": 2,
+      "text": "2. Status by workstream"
+    },
+    {
+      "level": 2,
+      "text": "3. Progress against milestones"
+    },
+    {
+      "level": 3,
+      "text": "3.1 Water infrastructure"
+    },
+    {
+      "level": 3,
+      "text": "3.2 Community management"
+    },
+    {
+      "level": 2,
+      "text": "4. Budget"
+    },
+    {
+      "level": 2,
+      "text": "5. Risks and issues"
+    },
+    {
+      "level": 2,
+      "text": "6. Priorities for next quarter"
+    },
+    {
+      "level": 2,
+      "text": "7. Decisions requested from the steering committee"
+    }
+  ],
+  "key_sentences": [
+    "The programme remained broadly on track in the third quarter, with 31 of 40 planned boreholes completed and commissioned.",
+    "Spending reached 68% of the annual budget against a planned 71%, mainly because the procurement of solar pumps slipped by six weeks.",
+    "The overall status is amber because the delay to the pump contract now threatens the December handover of the Kilwa cluster.",
+    "Drilling success rate rose to 86% after the geophysical survey method was changed in July.",
+    "Water committees have been elected in 27 villages, and 19 of them have opened a maintenance savings account.",
+    "The steering committee is asked to approve a no-cost reallocation of 42,000 USD from training to infrastructure.",
+    "It is also asked to note the revised handover date of 31 January 2027 for the Kilwa cluster."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Reporting period",
+          "1 July to 30 September 2026"
+        ],
+        [
+          "Prepared by",
+          "Programme Management Unit"
+        ],
+        [
+          "Date",
+          "14 October 2026"
+        ],
+        [
+          "Version",
+          "1.2 (final)"
+        ],
+        [
+          "Distribution",
+          "Steering committee, donor liaison officers"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Workstream",
+          "Lead",
+          "Status",
+          "Trend",
+          "Comment"
+        ],
+        [
+          "Water infrastructure",
+          "Engineering",
+          "Amber",
+          "Worsening",
+          "Pump contract signed six weeks late; drilling ahead of plan."
+        ],
+        [
+          "Community management",
+          "Social team",
+          "Green",
+          "Stable",
+          "Committees elected in 27 of 30 target villages."
+        ],
+        [
+          "Water quality",
+          "Laboratory",
+          "Amber",
+          "Stable",
+          "Two boreholes above the salinity guideline value."
+        ],
+        [
+          "Hygiene promotion",
+          "Health team",
+          "Green",
+          "Improving",
+          "School sessions resumed after the holidays."
+        ],
+        [
+          "Monitoring and reporting",
+          "M&E unit",
+          "Red",
+          "Stable",
+          "Baseline survey report still awaiting donor sign-off."
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "ID",
+          "Milestone",
+          "Baseline date",
+          "Forecast date",
+          "Status"
+        ],
+        [
+          "M1",
+          "Hydrogeological surveys completed",
+          "31 Mar 2026",
+          "28 Mar 2026",
+          "Done"
+        ],
+        [
+          "M2",
+          "20 boreholes drilled and tested",
+          "30 Jun 2026",
+          "19 Jun 2026",
+          "Done"
+        ],
+        [
+          "M3",
+          "Solar pump contract awarded",
+          "15 Jul 2026",
+          "28 Aug 2026",
+          "Done, late"
+        ],
+        [
+          "M4",
+          "40 boreholes drilled and tested",
+          "30 Nov 2026",
+          "15 Nov 2026",
+          "On track"
+        ],
+        [
+          "M5",
+          "Kilwa cluster handed over to committees",
+          "15 Dec 2026",
+          "31 Jan 2027",
+          "At risk"
+        ],
+        [
+          "M6",
+          "All schemes handed over",
+          "31 Mar 2027",
+          "31 Mar 2027",
+          "On track"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Budget line",
+          "Annual budget (USD)",
+          "Spent to date (USD)",
+          "% spent",
+          "Year-end forecast (USD)"
+        ],
+        [
+          "Boreholes and drilling",
+          "1,240,000",
+          "902,500",
+          "73%",
+          "1,215,000"
+        ],
+        [
+          "Solar pumping systems",
+          "860,000",
+          "470,600",
+          "55%",
+          "842,000"
+        ],
+        [
+          "Community training",
+          "310,000",
+          "236,900",
+          "76%",
+          "268,000"
+        ],
+        [
+          "Water quality testing",
+          "95,000",
+          "71,200",
+          "75%",
+          "95,000"
+        ],
+        [
+          "Programme management",
+          "420,000",
+          "307,800",
+          "73%",
+          "420,000"
+        ],
+        [
+          "Total",
+          "2,925,000",
+          "1,989,000",
+          "68%",
+          "2,840,000"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Late delivery of solar pumping systems (high)"
+    },
+    {
+      "level": 1,
+      "text": "Mitigation: interim diesel pumps hired for the four most affected sites."
+    },
+    {
+      "level": 1,
+      "text": "Owner: procurement lead; next review on 15 November 2026."
+    },
+    {
+      "level": 0,
+      "text": "Salinity above the guideline value in two boreholes (medium)"
+    },
+    {
+      "level": 1,
+      "text": "Mitigation: both boreholes sealed and replacement sites surveyed."
+    },
+    {
+      "level": 0,
+      "text": "Rainy-season access to the island sites (medium)"
+    },
+    {
+      "level": 1,
+      "text": "Mitigation: materials pre-positioned before the end of October."
+    },
+    {
+      "level": 0,
+      "text": "Complete the remaining nine boreholes and their pump tests."
+    },
+    {
+      "level": 0,
+      "text": "Install and commission solar pumps at the first twelve sites."
+    },
+    {
+      "level": 0,
+      "text": "Elect the last three water committees and train all treasurers."
+    },
+    {
+      "level": 0,
+      "text": "Obtain donor sign-off of the baseline survey report."
+    }
+  ],
+  "furniture": [
+    "TDP",
+    "Tidewater Development Partners",
+    "Programme Management Unit",
+    "Plot 14, Ocean Road, Dar es Salaam",
+    "Internal – not for publication",
+    "– 1 –",
+    "Coastal Water Resilience Programme · Q3 2026 Status Report",
+    "– 2 –",
+    "– 3 –"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Three explicit pages. Heading hierarchy: title (level 1), numbered sections '1.' to '7.' (level 2, the number is part of the heading text), and '3.1', '3.2' (level 3). The line 'Coastal Water Resilience Programme' above the title is a kicker in body text, not a heading. Tables: a 5-row key/value meta table (no header), a RAG status table whose Status cells are coloured AND carry the words Green/Amber/Red, a milestones table, and a budget table with a Total row. Lists: section 5 is an HTML bulleted list with nested level-1 bullets (circles); section 6 is an HTML ordered list (CSS numbers, no marker in the text). Furniture: page-1 letterhead (box 'TDP', organisation name, two address lines); on pages 2 and 3 a running header (two entries); on every page a footer with 'Internal – not for publication' at left and the page number in the form '– n –' centred."
+}

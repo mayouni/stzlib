@@ -1,0 +1,156 @@
+{
+  "id": "k15",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Bahçe ve Sulama Ürünleri Kataloğu 2026",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Bahçe ve Sulama Ürünleri Kataloğu 2026"
+    },
+    {
+      "level": 2,
+      "text": "Dalgıç Pompa DP-750"
+    },
+    {
+      "level": 2,
+      "text": "Yüzey Pompası YP-1100"
+    },
+    {
+      "level": 2,
+      "text": "Damla Sulama Seti 250 m²"
+    },
+    {
+      "level": 2,
+      "text": "Otomatik Sulama Saati"
+    },
+    {
+      "level": 2,
+      "text": "Bahçe Hortumu 1/2\" – 50 m"
+    },
+    {
+      "level": 2,
+      "text": "Akülü Çit Budama Makinesi"
+    },
+    {
+      "level": 2,
+      "text": "Teknik Karşılaştırma: Pompalar"
+    },
+    {
+      "level": 2,
+      "text": "Sipariş ve Teslimat"
+    }
+  ],
+  "key_sentences": [
+    "Bu katalogdaki tüm fiyatlara KDV dahildir ve 31 Aralık 2026 tarihine kadar geçerlidir.",
+    "Bayilerimize özel iskonto oranları için bölge satış temsilcinizle görüşebilirsiniz.",
+    "Derin kuyular için tasarlanan paslanmaz çelik gövdeli pompa, 60 metreye kadar basma yüksekliği sağlar.",
+    "Depodan ve havuzdan su çekmek için idealdir ve kendinden emişlidir.",
+    "Set, ana hat borusu, 120 damlatıcı ve filtre ile birlikte kutulu olarak teslim edilir.",
+    "Dört bölgeyi ayrı ayrı programlayabilir ve yağmur sensörüne bağlanabilir.",
+    "Dört katlı, UV dayanımlı hortum kışın bile esnekliğini korur.",
+    "Tek şarjla yaklaşık 90 dakika çalışır ve yalnızca 2,6 kg ağırlığındadır.",
+    "Siparişleriniz, stokta bulunan ürünler için üç iş günü içinde kargoya verilir."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Model",
+          "Tip",
+          "Motor gücü (kW)",
+          "Debi (m³/saat)",
+          "Basma yüksekliği (m)",
+          "Çıkış çapı (inç)",
+          "Ağırlık (kg)",
+          "Garanti (yıl)",
+          "Fiyat (₺, KDV dahil)"
+        ],
+        [
+          "DP-550",
+          "Dalgıç",
+          "0,55",
+          "3,0",
+          "42",
+          "1 1/4",
+          "11,2",
+          "2",
+          "11.240,00"
+        ],
+        [
+          "DP-750",
+          "Dalgıç",
+          "0,75",
+          "3,6",
+          "60",
+          "1 1/4",
+          "13,0",
+          "2",
+          "14.850,00"
+        ],
+        [
+          "DP-1500",
+          "Dalgıç",
+          "1,50",
+          "6,0",
+          "78",
+          "1 1/2",
+          "19,4",
+          "2",
+          "21.900,00"
+        ],
+        [
+          "YP-750",
+          "Yüzey",
+          "0,75",
+          "3,2",
+          "38",
+          "1",
+          "8,1",
+          "2",
+          "7.350,00"
+        ],
+        [
+          "YP-1100",
+          "Yüzey",
+          "1,10",
+          "4,5",
+          "46",
+          "1",
+          "9,6",
+          "2",
+          "9.480,00"
+        ],
+        [
+          "YP-2200",
+          "Yüzey",
+          "2,20",
+          "9,0",
+          "52",
+          "1 1/2",
+          "17,8",
+          "2",
+          "16.300,00"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "Yeşilvadi",
+    "Tarım Makineleri A.Ş.",
+    "Bayi ve kurumsal satış: satis@yesilvadi.example",
+    "www.yesilvadi.example",
+    "Yeşilvadi Tarım Makineleri A.Ş. · Organize Sanayi Bölgesi 3. Cadde No: 17, 16140 Nilüfer / Bursa · Tel. 0224 555 38 00",
+    "Sayfa 1 / 2",
+    "Yeşilvadi Ürün Kataloğu 2026",
+    "Bahçe ve Sulama",
+    "Sayfa 2 / 2"
+  ],
+  "languages": [
+    "tr"
+  ],
+  "code": [],
+  "notes": "Catalogue on two explicit pages. Page 1 has six PRODUCT CARDS in a 2 x 3 grid read row by row (left card, then right card); each card has a striped picture placeholder (no text), a product-name heading (level 2), a code line, one description sentence (a key sentence) and a price; code and price lines are not sentences. Page 2 holds a WIDE 9-column comparison table with zebra striping whose header cells are on two lines (name, then unit in parentheses; given joined by one space). Turkish number format (dot thousands, comma decimals), the lira sign ₺ after the amount. The grey small line under the grid ('Fotoğraflar temsilidir; ...') is body but not a key sentence. Furniture: a green letterhead band (wordmark 'Yeşilvadi', line 'Tarım Makineleri A.Ş.', two contact lines), the page-2 running header (two entries), the footer address line and 'Sayfa n / 2'. No lists."
+}

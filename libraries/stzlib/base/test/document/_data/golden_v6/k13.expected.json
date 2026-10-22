@@ -1,0 +1,236 @@
+{
+  "id": "k13",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Records Retention and Data Protection Policy",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Records Retention and Data Protection Policy"
+    },
+    {
+      "level": 2,
+      "text": "1. Purpose"
+    },
+    {
+      "level": 2,
+      "text": "2. Scope"
+    },
+    {
+      "level": 2,
+      "text": "3. Responsibilities"
+    },
+    {
+      "level": 2,
+      "text": "4. Retention periods"
+    },
+    {
+      "level": 2,
+      "text": "5. Disposal"
+    },
+    {
+      "level": 2,
+      "text": "6. Rights of individuals"
+    },
+    {
+      "level": 2,
+      "text": "7. Breaches"
+    },
+    {
+      "level": 2,
+      "text": "8. Review"
+    }
+  ],
+  "key_sentences": [
+    "This policy explains how Harbourline Housing Association keeps, protects and disposes of the personal information it holds about tenants, applicants, staff and contractors.",
+    "It applies to records in every format, including paper files, emails, recorded telephone calls and data held in our housing management system.",
+    "Where a manager is unsure which retention period applies, the longer period should be used until the Data Protection Officer has given advice.",
+    "This policy will be reviewed every two years, or sooner if the law or our regulator’s guidance changes.",
+    "Any member of staff who is unsure how long to keep a record should ask the Data Protection Officer before destroying it.",
+    "Breaches of this policy may lead to disciplinary action."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Policy number",
+          "HHA-GOV-014",
+          "Version",
+          "3.0"
+        ],
+        [
+          "Approved by",
+          "Board, 23 September 2026",
+          "Next review",
+          "September 2028"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Record type",
+          "Minimum retention",
+          "Starts from",
+          "Disposal method"
+        ],
+        [
+          "Tenancy file and tenancy agreement",
+          "6 years",
+          "End of tenancy",
+          "Confidential shredding"
+        ],
+        [
+          "Rent account history",
+          "6 years",
+          "End of tenancy",
+          "Secure deletion"
+        ],
+        [
+          "Unsuccessful housing application",
+          "1 year",
+          "Date of decision",
+          "Secure deletion"
+        ],
+        [
+          "Anti-social behaviour case file",
+          "6 years",
+          "Case closure",
+          "Confidential shredding"
+        ],
+        [
+          "Gas safety certificate",
+          "2 years",
+          "Date of inspection",
+          "Secure deletion"
+        ],
+        [
+          "Recorded telephone call",
+          "90 days",
+          "Date of call",
+          "Automatic deletion"
+        ],
+        [
+          "Staff personnel file",
+          "6 years",
+          "End of employment",
+          "Confidential shredding"
+        ],
+        [
+          "CCTV footage (communal areas)",
+          "31 days",
+          "Date of recording",
+          "Automatic overwriting"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1.1 This policy sets out the minimum periods for which our records must be kept and the way in which they are destroyed."
+    },
+    {
+      "level": 0,
+      "text": "1.2 It helps us meet our legal obligations, demonstrate accountability to our regulator and avoid keeping information for longer than we need it."
+    },
+    {
+      "level": 0,
+      "text": "1.3 It should be read together with the Information Security Policy, the Privacy Notice for Tenants and the Staff Code of Conduct."
+    },
+    {
+      "level": 0,
+      "text": "2.1 The policy applies to all employees, board members, volunteers and contractors who handle records on our behalf."
+    },
+    {
+      "level": 0,
+      "text": "2.2 It covers records created or received in the course of our business, whatever their format or location, including records held by third parties under contract."
+    },
+    {
+      "level": 0,
+      "text": "2.3 Records kept only for historical or archive purposes are covered by the separate archive procedure."
+    },
+    {
+      "level": 0,
+      "text": "3.1 Responsibility for this policy is shared as follows:"
+    },
+    {
+      "level": 1,
+      "text": "(a) the Board approves the policy and receives an annual compliance report;"
+    },
+    {
+      "level": 1,
+      "text": "(b) the Data Protection Officer advises on its application, keeps the retention schedule up to date and investigates suspected breaches;"
+    },
+    {
+      "level": 1,
+      "text": "(c) every manager makes sure that the records of their team are kept, reviewed and destroyed in line with the schedule."
+    },
+    {
+      "level": 0,
+      "text": "3.2 All staff must complete data protection training when they join and every two years after that, and must follow the information security procedures."
+    },
+    {
+      "level": 0,
+      "text": "3.3 Team leaders carry out a records review every six months and confirm the result to the Data Protection Officer in writing."
+    },
+    {
+      "level": 0,
+      "text": "3.4 Contractors who process personal data for us must do so under a written agreement that requires them to apply equivalent retention periods."
+    },
+    {
+      "level": 0,
+      "text": "4.1 Records must be kept for at least the periods shown in the schedule below, which reflect legal requirements and good practice in the housing sector."
+    },
+    {
+      "level": 0,
+      "text": "4.2 A retention period may be extended where a record is needed for a complaint, an insurance claim or legal proceedings that have started or are expected."
+    },
+    {
+      "level": 0,
+      "text": "5.1 Paper records containing personal information must be placed in the locked confidential waste bins and never in general waste."
+    },
+    {
+      "level": 0,
+      "text": "5.2 Electronic records must be deleted from live systems and, where this is possible, from backups within the normal backup cycle."
+    },
+    {
+      "level": 0,
+      "text": "5.3 Each disposal of a complete file is entered in the disposal log, stating the record type, the date and the person who authorised it."
+    },
+    {
+      "level": 0,
+      "text": "6.1 Anyone may ask for a copy of the personal information we hold about them, free of charge, and we will normally reply within one month."
+    },
+    {
+      "level": 0,
+      "text": "6.2 Requests for correction or erasure are logged and answered within the same period, unless an exemption applies."
+    },
+    {
+      "level": 0,
+      "text": "7.1 A lost device, a misdirected email or any other suspected breach must be reported to the Data Protection Officer on the same working day."
+    },
+    {
+      "level": 0,
+      "text": "7.2 The Data Protection Officer decides whether the breach must be notified to the supervisory authority and to the people affected."
+    }
+  ],
+  "furniture": [
+    "Harbourline Housing Association",
+    "Homes for the harbour towns since 1974",
+    "Quay House, 3 Netmakers Row, Fallowmouth FM2 7RD",
+    "Registered society no. 31872R · Regulator registration L4417",
+    "Harbourline Housing Association · HHA-GOV-014 · Version 3.0",
+    "Page 1 of 2",
+    "Records Retention and Data Protection Policy",
+    "Uncontrolled when printed",
+    "Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Policy in TWO COLUMNS (CSS multi-column, balanced) on two explicit pages; reading order is left column then right column on each page. On page 2 the retention table spans BOTH columns (column-span: all) in the middle of the column flow: clauses 4.1-4.2 are balanced across the two columns ABOVE the table, and sections 5-8 are balanced across the two columns BELOW it; DOM order (= expected order) is 4.1, 4.2, table, 5 ... 8. Numbered clauses are a TYPED list: level-0 items begin with '1.1', '1.2', ... and the level-1 items of clause 3.1 begin with '(a)', '(b)', '(c)'; markers are part of the text, with hanging indents. Clause headings '1. Purpose' ... '8. Review' are level-2 headings. Body text is justified and some long words contain SOFT HYPHENS (e.g. 'accountability', 'information'): where Chrome broke them a hyphen is visible at the line end, but expected texts give them whole. Key sentences come only from the full-width introduction, the unnumbered paragraphs in sections 3 and 8 and the full-width closing paragraph. Furniture: letterhead (name, italic tagline, two lines right), page-2 running header (two entries), footer line and 'Page n of 2'. The meta table is a 2-row key/value grid with two pairs per row, no header."
+}

@@ -1,0 +1,47 @@
+heading	2	ENERVALLE
+paragraph	0	Paseo de la Ribera, 88 · 50014 Zaragoza Atención al cliente: 900 555 214
+page_header	0	Eléctrica del Valle Verde, S.A.
+page_header	0	www.enervalle.example
+heading	2	Factura de electricidad
+paragraph	0	Importe total
+paragraph	0	N.º de factura Fecha de emisión
+paragraph	0	FE26-0938417 6 de octubre de 2026
+heading	1	73,73 €
+paragraph	0	Periodo de facturación
+paragraph	0	1 de septiembre a 1 de octubre de 2026 (31 días)
+paragraph	0	El importe de esta factura se cargará en su cuenta el 5 de noviembre de 2026.
+paragraph	0	Titular
+paragraph	0	Lucía Romero Gaspar
+paragraph	0	Dirección de suministro
+paragraph	0	C/ Mayor de San Pablo, 23, 2.º B,
+heading	3	Su consumo
+paragraph	0	CUPS Potencia contratada
+paragraph	0	50003 Zaragoza ES0031 4088 2230 1157 KJ0F 4,6 kW (punta y valle)
+paragraph	0	Su consumo en este periodo ha sido de 245 kWh, con una media diaria de 7,9 kWh. Es un 4 % menos que en el mismo periodo del año anterior.
+heading	3	Detalle de la factura
+heading	4	Concepto
+heading	4	Término de potencia
+paragraph	0	Potencia punta Potencia valle
+heading	4	Término de energía
+paragraph	0	Energía punta Energía llano Energía valle
+heading	4	Otros conceptos
+paragraph	0	Financiación del bono social Impuesto sobre la electricidad Alquiler del contador
+heading	4	Impuestos
+paragraph	0	IVA
+heading	3	TOTAL FACTURA
+paragraph	0	Historial de consumo (kWh)
+heading	4	Cálculo
+table	0	Mesnov.dic.ene.feb.mar.abr.may.jun.jul.ago.sep.kWh231288312276240205198226264251245
+paragraph	0	4,6 kW x 31 días x 0,108722 €/kW día 4,6 kW x 31 días x 0,032074 €/kW día
+paragraph	0	98 kWh x 0,1983 €/kWh 71 kWh x 0,1412 €/kWh 76 kWh x 0,0957 €/kWh
+paragraph	0	31 días 5,11 % s/ 57,19 € 31 días x 0,0266 €/día
+paragraph	0	21 % s/ 60,93 €
+heading	4	Importe (€)
+paragraph	0	15,50 4,57
+paragraph	0	19,43 10,03 7,27
+paragraph	0	0,39 2,92 0,82
+paragraph	0	12,80
+heading	3	73,73
+heading	3	Información útil
+paragraph	0	Si cambia de cuenta bancaria, comuníquelo con al menos quince días de antelación. En caso de avería puede llamar las 24 horas al 900 555 215. Puede descargar esta factura y consultar su consumo horario en el área de clientes.
+page_footer	0	Eléctrica del Valle Verde, S.A. · CIF A-50998877 · Inscrita en el Registro Mercantil de Zaragoza, tomo 4120, folio 87, hoja Z-55321

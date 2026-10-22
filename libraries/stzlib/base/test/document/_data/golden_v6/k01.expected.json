@@ -1,0 +1,204 @@
+{
+  "id": "k01",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "DEVIS",
+  "headings": [
+    {
+      "level": 1,
+      "text": "DEVIS"
+    },
+    {
+      "level": 2,
+      "text": "Conditions"
+    }
+  ],
+  "key_sentences": [
+    "Nous avons le plaisir de vous soumettre notre meilleure offre pour la fourniture des matériaux destinés à l’extension de votre bâtiment scolaire.",
+    "Arrêté le présent devis à la somme de trois millions cent quatre-vingt-quinze mille trois cent cinquante-huit francs CFA toutes taxes comprises.",
+    "Les prix s’entendent marchandise rendue sur chantier, déchargement compris.",
+    "Un acompte de 40 % est exigé à la commande et le solde est payable à la livraison.",
+    "Le délai de livraison est de dix jours ouvrables à compter de la réception de l’acompte.",
+    "Toute modification des quantités fera l’objet d’un avenant au présent devis."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "N° de devis",
+          "DV-2026-0417"
+        ],
+        [
+          "Date",
+          "14 octobre 2026"
+        ],
+        [
+          "Validité",
+          "30 jours"
+        ],
+        [
+          "Réf. client",
+          "GSP/ACH/2026-112"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Réf.",
+          "Désignation",
+          "Qté",
+          "Unité",
+          "P.U. HT (FCFA)",
+          "Montant HT (FCFA)"
+        ],
+        [
+          "Lot 1 – Gros œuvre",
+          "Lot 1 – Gros œuvre",
+          "Lot 1 – Gros œuvre",
+          "Lot 1 – Gros œuvre",
+          "Lot 1 – Gros œuvre",
+          "Lot 1 – Gros œuvre"
+        ],
+        [
+          "GO-01",
+          "Ciment CPA 42,5 (sac de 50 kg)",
+          "120",
+          "sac",
+          "6 500",
+          "780 000"
+        ],
+        [
+          "GO-02",
+          "Fer à béton HA 10 (barre de 12 m)",
+          "80",
+          "barre",
+          "4 250",
+          "340 000"
+        ],
+        [
+          "GO-03",
+          "Sable de rivière lavé",
+          "12",
+          "m³",
+          "18 000",
+          "216 000"
+        ],
+        [
+          "GO-04",
+          "Parpaings creux 15 x 20 x 40",
+          "1 500",
+          "pièce",
+          "425",
+          "637 500"
+        ],
+        [
+          "Lot 2 – Électricité",
+          "Lot 2 – Électricité",
+          "Lot 2 – Électricité",
+          "Lot 2 – Électricité",
+          "Lot 2 – Électricité",
+          "Lot 2 – Électricité"
+        ],
+        [
+          "EL-01",
+          "Câble rigide U-1000 R2V 3G2,5 (couronne de 100 m)",
+          "6",
+          "couronne",
+          "47 500",
+          "285 000"
+        ],
+        [
+          "EL-02",
+          "Tableau électrique 2 rangées pré-équipé",
+          "2",
+          "pièce",
+          "86 000",
+          "172 000"
+        ],
+        [
+          "EL-03",
+          "Luminaire LED étanche 36 W",
+          "24",
+          "pièce",
+          "12 750",
+          "306 000"
+        ],
+        [
+          "Lot 3 – Transport",
+          "Lot 3 – Transport",
+          "Lot 3 – Transport",
+          "Lot 3 – Transport",
+          "Lot 3 – Transport",
+          "Lot 3 – Transport"
+        ],
+        [
+          "TR-01",
+          "Livraison sur chantier (camion 10 t)",
+          "2",
+          "voyage",
+          "45 000",
+          "90 000"
+        ],
+        [
+          "Total HT",
+          "Total HT",
+          "Total HT",
+          "Total HT",
+          "Total HT",
+          "2 826 500"
+        ],
+        [
+          "Remise 5 %",
+          "Remise 5 %",
+          "Remise 5 %",
+          "Remise 5 %",
+          "Remise 5 %",
+          "-141 325"
+        ],
+        [
+          "Net HT",
+          "Net HT",
+          "Net HT",
+          "Net HT",
+          "Net HT",
+          "2 685 175"
+        ],
+        [
+          "TVA 19 %",
+          "TVA 19 %",
+          "TVA 19 %",
+          "TVA 19 %",
+          "TVA 19 %",
+          "510 183"
+        ],
+        [
+          "Total TTC",
+          "Total TTC",
+          "Total TTC",
+          "Total TTC",
+          "Total TTC",
+          "3 195 358"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "BR",
+    "BATIRAMA SARL",
+    "Matériaux et équipements de construction",
+    "Route de Tillabéri, Zone industrielle Sud",
+    "BP 4410 – Niamey, Niger",
+    "Tél. +227 20 73 41 18 – contact@batirama.example",
+    "BATIRAMA SARL au capital de 10 000 000 FCFA – RCCM NE-NIM-01-2019-B-1187 – NIF 45821/S",
+    "Banque : compte n° 0042 1187 5530 – Les marchandises restent notre propriété jusqu’au paiement intégral."
+  ],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "Letterhead: a square logo mark with the letters 'BR', the company name and tagline at left, a three-line address block at right; all of it is furniture, as are the two legal footer lines at the bottom of the page. Two tables: a borderless key/value meta table under the title (no header row; given as 4 rows of 2), and the line-item table with section rows per lot (each section row spans all 6 columns, so its text repeats in 6 cells) and five totals rows whose label spans the first 5 columns. Amounts use French grouping with non-breaking spaces, given here with plain spaces. The 'Client :' box (client name and address lines) and the two signature captions are body text but not sentences, so they are in no expected field. 'Conditions' is a level-2 heading. No lists."
+}

@@ -1,0 +1,194 @@
+{
+  "id": "k05",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Factura de electricidad",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Factura de electricidad"
+    },
+    {
+      "level": 2,
+      "text": "Su consumo"
+    },
+    {
+      "level": 2,
+      "text": "Detalle de la factura"
+    },
+    {
+      "level": 2,
+      "text": "Información útil"
+    }
+  ],
+  "key_sentences": [
+    "El importe de esta factura se cargará en su cuenta el 5 de noviembre de 2026.",
+    "Su consumo en este periodo ha sido de 245 kWh, con una media diaria de 7,9 kWh.",
+    "Es un 4 % menos que en el mismo periodo del año anterior.",
+    "Si cambia de cuenta bancaria, comuníquelo con al menos quince días de antelación.",
+    "En caso de avería puede llamar las 24 horas al 900 555 215.",
+    "Puede descargar esta factura y consultar su consumo horario en el área de clientes."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "N.º de factura",
+          "FE26-0938417"
+        ],
+        [
+          "Fecha de emisión",
+          "6 de octubre de 2026"
+        ],
+        [
+          "Periodo de facturación",
+          "1 de septiembre a 1 de octubre de 2026 (31 días)"
+        ],
+        [
+          "Titular",
+          "Lucía Romero Gaspar"
+        ],
+        [
+          "Dirección de suministro",
+          "C/ Mayor de San Pablo, 23, 2.º B, 50003 Zaragoza"
+        ],
+        [
+          "CUPS",
+          "ES0031 4088 2230 1157 KJ0F"
+        ],
+        [
+          "Potencia contratada",
+          "4,6 kW (punta y valle)"
+        ]
+      ]
+    },
+    {
+      "caption": "Historial de consumo (kWh)",
+      "rows": [
+        [
+          "Mes",
+          "nov.",
+          "dic.",
+          "ene.",
+          "feb.",
+          "mar.",
+          "abr.",
+          "may.",
+          "jun.",
+          "jul.",
+          "ago.",
+          "sep."
+        ],
+        [
+          "kWh",
+          "231",
+          "288",
+          "312",
+          "276",
+          "240",
+          "205",
+          "198",
+          "226",
+          "264",
+          "251",
+          "245"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Concepto",
+          "Cálculo",
+          "Importe (€)"
+        ],
+        [
+          "Término de potencia",
+          "Término de potencia",
+          "Término de potencia"
+        ],
+        [
+          "Potencia punta",
+          "4,6 kW x 31 días x 0,108722 €/kW día",
+          "15,50"
+        ],
+        [
+          "Potencia valle",
+          "4,6 kW x 31 días x 0,032074 €/kW día",
+          "4,57"
+        ],
+        [
+          "Término de energía",
+          "Término de energía",
+          "Término de energía"
+        ],
+        [
+          "Energía punta",
+          "98 kWh x 0,1983 €/kWh",
+          "19,43"
+        ],
+        [
+          "Energía llano",
+          "71 kWh x 0,1412 €/kWh",
+          "10,03"
+        ],
+        [
+          "Energía valle",
+          "76 kWh x 0,0957 €/kWh",
+          "7,27"
+        ],
+        [
+          "Otros conceptos",
+          "Otros conceptos",
+          "Otros conceptos"
+        ],
+        [
+          "Financiación del bono social",
+          "31 días",
+          "0,39"
+        ],
+        [
+          "Impuesto sobre la electricidad",
+          "5,11 % s/ 57,19 €",
+          "2,92"
+        ],
+        [
+          "Alquiler del contador",
+          "31 días x 0,0266 €/día",
+          "0,82"
+        ],
+        [
+          "Impuestos",
+          "Impuestos",
+          "Impuestos"
+        ],
+        [
+          "IVA",
+          "21 % s/ 60,93 €",
+          "12,80"
+        ],
+        [
+          "TOTAL FACTURA",
+          "TOTAL FACTURA",
+          "73,73"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "ENERVALLE",
+    "Eléctrica del Valle Verde, S.A.",
+    "Paseo de la Ribera, 88 · 50014 Zaragoza",
+    "Atención al cliente: 900 555 214",
+    "www.enervalle.example",
+    "Eléctrica del Valle Verde, S.A. · CIF A-50998877 · Inscrita en el Registro Mercantil de Zaragoza, tomo 4120, folio 87, hoja Z-55321"
+  ],
+  "languages": [
+    "es"
+  ],
+  "code": [],
+  "notes": "Two-column top area: left column = title and a 7-row key/value table (no header); right column = a total-amount box (the label 'Importe total' and the big amount are not sentences; the box ends with one key sentence), then the 'Su consumo' heading, two sentences and a small two-row history table (caption 'Historial de consumo (kWh)'; first row Mes + 11 months is the header). Reading order: left column before right column. The detail table has section rows (Término de potencia, Término de energía, Otros conceptos, Impuestos) spanning 3 columns and a total row whose label spans 2 columns. Spanish number format. Furniture: a yellow letterhead band (wordmark ENERVALLE, legal name, three contact lines) and a one-line legal footer. No lists."
+}

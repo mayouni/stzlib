@@ -1,0 +1,226 @@
+{
+  "id": "k03",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "Entgeltabrechnung Oktober 2026",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Entgeltabrechnung Oktober 2026"
+    },
+    {
+      "level": 2,
+      "text": "Bezüge"
+    },
+    {
+      "level": 2,
+      "text": "Gesetzliche Abzüge"
+    },
+    {
+      "level": 2,
+      "text": "Vom Nettobetrag zur Auszahlung"
+    },
+    {
+      "level": 2,
+      "text": "Hinweise"
+    }
+  ],
+  "key_sentences": [
+    "Die Überstunden aus dem September wurden mit dieser Abrechnung vergütet.",
+    "Ihr Resturlaub zum Monatsende beträgt 9,5 Tage.",
+    "Der Auszahlungsbetrag wird am letzten Bankarbeitstag des Monats auf Ihr Konto überwiesen.",
+    "Bitte prüfen Sie diese Abrechnung sorgfältig und melden Sie Unstimmigkeiten innerhalb von vier Wochen der Personalabteilung."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Personalnummer",
+          "004417",
+          "Eintritt",
+          "01.03.2019",
+          "Steuerklasse",
+          "I"
+        ],
+        [
+          "Abteilung",
+          "Konstruktion",
+          "Kostenstelle",
+          "3120",
+          "Kinderfreibeträge",
+          "0,0"
+        ],
+        [
+          "Krankenkasse",
+          "BKK Mittelsachsen",
+          "KV-Zusatzbeitrag",
+          "1,7 %",
+          "Konfession",
+          "ev"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Lohnart",
+          "Bezeichnung",
+          "Menge",
+          "Satz (EUR)",
+          "Betrag (EUR)"
+        ],
+        [
+          "1000",
+          "Grundgehalt",
+          "",
+          "",
+          "3.850,00"
+        ],
+        [
+          "1210",
+          "Überstunden 25 %",
+          "6,00 Std.",
+          "27,76",
+          "166,56"
+        ],
+        [
+          "1310",
+          "Zuschlag Nachtarbeit",
+          "8,00 Std.",
+          "5,55",
+          "44,40"
+        ],
+        [
+          "1600",
+          "Vermögenswirksame Leistungen AG",
+          "",
+          "",
+          "40,00"
+        ],
+        [
+          "1810",
+          "Sachbezug Jobticket",
+          "",
+          "",
+          "58,00"
+        ],
+        [
+          "Gesamtbrutto",
+          "Gesamtbrutto",
+          "Gesamtbrutto",
+          "Gesamtbrutto",
+          "4.158,96"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Steuern",
+          "Betrag (EUR)"
+        ],
+        [
+          "Lohnsteuer",
+          "512,33"
+        ],
+        [
+          "Solidaritätszuschlag",
+          "0,00"
+        ],
+        [
+          "Kirchensteuer",
+          "41,00"
+        ],
+        [
+          "Summe Steuern",
+          "553,33"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Sozialversicherung",
+          "Betrag (EUR)"
+        ],
+        [
+          "Krankenversicherung",
+          "357,67"
+        ],
+        [
+          "Rentenversicherung",
+          "386,78"
+        ],
+        [
+          "Arbeitslosenversicherung",
+          "54,07"
+        ],
+        [
+          "Pflegeversicherung",
+          "74,86"
+        ],
+        [
+          "Summe Sozialversicherung",
+          "873,38"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Position",
+          "Betrag (EUR)"
+        ],
+        [
+          "Gesamtbrutto",
+          "4.158,96"
+        ],
+        [
+          "abzüglich Steuern",
+          "-553,33"
+        ],
+        [
+          "abzüglich Sozialversicherung",
+          "-873,38"
+        ],
+        [
+          "Nettoentgelt",
+          "2.732,25"
+        ],
+        [
+          "Überweisung vermögenswirksame Leistungen",
+          "-40,00"
+        ],
+        [
+          "Einbehalt Sachbezug Jobticket",
+          "-58,00"
+        ],
+        [
+          "Auszahlungsbetrag",
+          "2.634,25"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "Brenner & Vogt Maschinenbau GmbH",
+    "Lohn- und Gehaltsabrechnung",
+    "Am Wasserturm 12",
+    "09113 Chemnitz",
+    "Personalabteilung: Tel. 0371 55 20 40",
+    "Brenner & Vogt GmbH · Am Wasserturm 12 · 09113 Chemnitz",
+    "Brenner & Vogt Maschinenbau GmbH · Sitz Chemnitz · Amtsgericht Chemnitz HRB 98765 · USt-IdNr. DE 287 654 321",
+    "Diese Abrechnung wurde maschinell erstellt und ist ohne Unterschrift gültig."
+  ],
+  "languages": [
+    "de"
+  ],
+  "code": [],
+  "notes": "A payslip with five tables: a key/value header grid (3 rows x 6 cells, three pairs per row, no header row), the earnings table (total row 'Gesamtbrutto' whose label spans 4 columns), TWO SMALL TABLES SIDE BY SIDE (taxes left, social insurance right; reading order left table first), and the net-to-payout table. The boxed line 'Auszahlungsbetrag ... EUR' repeats the last total and is not a table. The small underlined sender line above the address window and the letterhead are furniture; the recipient address, the month/date block and the bank line are body but not sentences. Numbers use German format (dot thousands, comma decimals). Section titles Bezüge, Gesetzliche Abzüge, Vom Nettobetrag zur Auszahlung and Hinweise are level-2 headings; the header cells 'Steuern' and 'Sozialversicherung' are table header cells, not headings. No lists."
+}
