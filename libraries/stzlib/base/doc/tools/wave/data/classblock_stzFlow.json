@@ -1,0 +1,21 @@
+{
+ "brief": "Wires faculties into a data flow whose stages are checked before they run and whose results are parcels.",
+ "detail": "A flow names faculties and never models, so any stage can be pinned to one implementation, to a set of them, or to its floor without touching the rest. It composes an stzGraph, and CheckRules, ResolvePlan and Why run nothing. Run feeds the input to the stages that have no predecessor, passes each parcel to the stage after it, stops at the first stage that refuses, and returns the value of the last stage in order, or the findings when the flow was refused. This slice has no merge, so a stage with several predecessors is a finding. Nothing here has been run against a real model: the examples use plain functions as stand-ins.",
+ "receiver": "f1 = StzFacultyQ(\"flowpos\")  f1.SetInputType(:text)  f1.SetOutputType(:number)  f1.SetFloor(\"last\", \"StzFindLast\")  o1 = StzFlowQ(\"positions\")  o1.AddStage(\"find\", \"flowpos\", [ \"a\", \"b\", \"c\", \"b\" ])",
+ "example": [
+  "? @@( o1.StageIds() )",
+  "#--> [ \"find\" ]",
+  "? o1.IsSound()",
+  "#--> 1",
+  "? o1.Run(\"c\")",
+  "#--> 3",
+  "? o1.StageParcelQ(\"find\").Why()",
+  "#--> flowpos -> last (floor) | certainty unknown"
+ ],
+ "see": [
+  "stzFaculty",
+  "stzParcel",
+  "stzModelRegistry",
+  "stzGraph"
+ ]
+}

@@ -1,0 +1,20 @@
+{
+ "brief": "Carries a value between the stages of a flow together with its provenance, certainty, cost and content key.",
+ "detail": "A parcel is the only thing that passes between stages. It has no public setter: the library fills its evidence, provenance and cost when a faculty runs, so it can be read and replayed but not edited. A stage yields either a parcel its court accepted or a refusal parcel whose value is the list of findings, which is why a refusal can travel through a flow like any other value. Certainty and probability are what the implementation stated, and unknown when it stated none; they are not a judgment made by a person.",
+ "receiver": "o1 = StzParcelQ(\"label\", \"odd\")",
+ "example": [
+  "? o1.Type()",
+  "#--> label",
+  "? o1.IsRefusal()",
+  "#--> 0",
+  "? o1.Certainty()",
+  "#--> unknown",
+  "o2 = StzRefusalParcelQ(\"stage x\", \"my-rule\", \"something failed\")",
+  "? o2.Why()",
+  "#--> REFUSED: my-rule at stage x: something failed"
+ ],
+ "see": [
+  "stzFaculty",
+  "stzFlow"
+ ]
+}

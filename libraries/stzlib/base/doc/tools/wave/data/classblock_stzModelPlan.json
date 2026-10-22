@@ -1,0 +1,19 @@
+{
+ "brief": "Holds what the registry decided for a requirement: the implementation chosen, those rejected, and why.",
+ "detail": "A plan is the registry's answer made readable. Chosen and Kind say what would run, Rejected lists every implementation turned down with its reason, and Why writes the whole explanation one line per fact. A plan can be a refusal, with an empty chosen id and findings, when a pin cannot be honoured or the requirement forbids settling for the floor. Making a plan runs nothing.",
+ "receiver": "o1 = StzFacultyQ(\"planpos\")  o1.SetInputType(:text)  o1.SetOutputType(:number)  o1.SetFloor(\"last\", \"StzFindLast\")  o1 = StzModelRegistryQ().ResolveQ(\"planpos\")",
+ "example": [
+  "? o1.Chosen()",
+  "#--> last",
+  "? o1.Kind()",
+  "#--> floor",
+  "? o1.IsFloor()",
+  "#--> 1",
+  "? @@( o1.Rejected() )",
+  "#--> [ ]"
+ ],
+ "see": [
+  "stzModelRegistry",
+  "stzRequirement"
+ ]
+}

@@ -1,0 +1,20 @@
+{
+ "brief": "Declares one named, typed capability of a flow, with a deterministic floor, optional model implementations and a golden set.",
+ "detail": "A faculty says what is done (a payload type in, a payload type out) and never which model does it, so an implementation can be swapped, or dropped to the floor, without touching the flow. Every faculty needs a floor, a plain function that always answers; a model is chosen only when it strictly beats the floor on the faculty's golden set. Every answer is judged by a court for its output type before it leaves, and an answer the court refuses comes back as a refusal and not as a value. The definition is kept in one process-wide table and the object is only a handle on its row, so copies of it agree. Scores, goldens and certainties are computed by the class from what the implementations state; no person has judged the quality of any model output.",
+ "receiver": "o1 = StzFacultyQ(\"position\")  o1.SetInputType(:text)  o1.SetOutputType(:number)  o1.SetFloor(\"last\", \"StzFindLast\")",
+ "example": [
+  "? o1.Why()",
+  "#--> faculty 'position': text -> number; implementations: last (floor); golden set v1 of 0 item(s)",
+  "? @@( o1.Problems() )",
+  "#--> [ \"no golden set: no model may be auto-selected without one\" ]",
+  "? o1.Run(\"b\", [ \"a\", \"b\", \"c\", \"b\" ])",
+  "#--> 4"
+ ],
+ "see": [
+  "StzFacultyQ",
+  "stzFlow",
+  "stzModelRegistry",
+  "stzParcel",
+  "stzRequirement"
+ ]
+}

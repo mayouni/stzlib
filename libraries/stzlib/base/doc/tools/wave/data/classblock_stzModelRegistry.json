@@ -1,0 +1,27 @@
+{
+ "brief": "Resolves a requirement to the implementation of a faculty that should run, from what was measured, and stores the measurements.",
+ "detail": "The registry trusts only measurements: an implementation with none is unknown and never chosen, and a model is chosen only when its score strictly beats the measured floor on the faculty's golden set and reaches the requested quality. RunGoldens records those scores, SaveMeasurements and LoadMeasurements keep them in a text file, and a pin always overrides the registry. It is a handle on process-wide tables, so every object sees the same measurements. StzModelPolicy(:deterministic), or the environment STZ_MODELS=off, puts every faculty on its floor. Scores are computed by the class from the goldens; no person has judged the output of any model.",
+ "receiver": "o1 = StzModelRegistryQ()",
+ "example": [
+  "o2 = StzFacultyQ(\"regpos\")",
+  "o2.SetInputType(:text)",
+  "o2.SetOutputType(:number)",
+  "o2.SetFloor(\"last\", \"StzFindLast\")",
+  "o2.AddGolden(\"b\", 2)",
+  "o2.AddImplementation([ :id = \"first\", :kind = \"model\", :fn = \"StzFindFirst\", :licence = \"mit\" ])",
+  "? o1.Resolve(\"regpos\")[:chosen]",
+  "#--> last",
+  "StzRecordMeasurement(\"regpos\", \"last\", \"v1\", 0.5, 2, 1, \"\")",
+  "StzRecordMeasurement(\"regpos\", \"first\", \"v1\", 1, 2, 1, \"\")",
+  "? o1.Resolve(\"regpos\")[:chosen]",
+  "#--> first",
+  "? o1.MeasurementOf(\"regpos\", \"first\")[:score]",
+  "#--> 1"
+ ],
+ "see": [
+  "stzFaculty",
+  "stzRequirement",
+  "stzModelPlan",
+  "stzFlow"
+ ]
+}

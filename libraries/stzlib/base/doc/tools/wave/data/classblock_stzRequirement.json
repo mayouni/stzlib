@@ -1,0 +1,18 @@
+{
+ "brief": "States what a faculty is needed for, in quality, memory, languages, licence and determinism, and never which model.",
+ "detail": "The registry resolves a requirement to an implementation and explains its choice. The requirement is a plain record read through Data. Quality, memory, languages, licence and determinism filter the models; the floor is never filtered. Latency and locality are recorded but the registry does not read them yet. A quality bar is checked against the score the registry measured on the golden set, a figure computed by the class and not judged by a person.",
+ "receiver": "o1 = StzRequirementQ(\"position\")",
+ "example": [
+  "o1.RequireQualityQ(:good).RequireMemoryQ(500)",
+  "? o1.Data()[:quality]",
+  "#--> 0.70",
+  "? o1.Data()[:memory]",
+  "#--> 500",
+  "? o1.Faculty()",
+  "#--> position"
+ ],
+ "see": [
+  "stzModelRegistry",
+  "stzFaculty"
+ ]
+}

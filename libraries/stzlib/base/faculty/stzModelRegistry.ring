@@ -411,42 +411,119 @@ func StzRunGoldensFor(pcFaculty, pacImplIds, paParams)
 	next
 	return _aRows_
 
-# ---- the plan as an object (the Q form), and the registry handle ---------------------------------------
+# Holds what the registry decided for a requirement: the implementation chosen, those rejected, and why.
+#
+# A plan is the registry's answer made readable. Chosen and Kind say what would run, Rejected lists
+# every implementation turned down with its reason, and Why writes the whole explanation one line
+# per fact. A plan can be a refusal, with an empty chosen id and findings, when a pin cannot be
+# honoured or the requirement forbids settling for the floor. Making a plan runs nothing.
+#
+#   receiver   o1 = StzFacultyQ("planpos")  o1.SetInputType(:text)  o1.SetOutputType(:number)
+#              o1.SetFloor("last", "StzFindLast")  o1 = StzModelRegistryQ().ResolveQ("planpos")
+#   example    ? o1.Chosen()
+#              #--> last
+#              ? o1.Kind()
+#              #--> floor
+#              ? o1.IsFloor()
+#              #--> 1
+#              ? @@( o1.Rejected() )
+#              #--> [ ]
+#   see        stzModelRegistry, stzRequirement
 class stzModelPlan from stzObject
 
 	@aPlan = []
 
+	# Wraps a plan produced by the registry so it can be read by name and explained.
+	#
+	#   paPlan     a plan as the registry returns it: a list of [ key, value ] pairs faculty,
+	#              chosen, kind, why, rejected, floor, refusal, findings, pinned
+	#   returns    nothing; the object is built
+	#   note       the plan is kept as a copy, so changing the list afterwards does not change the
+	#              object
+	#   warning    the list is not checked: an empty list is accepted and the readers then return
+	#              empty values
+	#   see        stzModelRegistry, Data
 	def init(paPlan)
 		@aPlan = paPlan
 
+	# Returns the plan as the list of [ key, value ] pairs it was built from.
+	#
+	#   returns    a list of pairs: faculty, chosen, kind, why, rejected, floor, refusal, findings,
+	#              pinned and needle
+	#   see        Why, Chosen
 	def Data()
 		return @aPlan
 
+	# Returns the name of the faculty the plan is for.
+	#
+	#   returns    a text
+	#   see        Chosen, Data
 	def Faculty()
 		return @aPlan[:faculty]
 
+	# Returns the id of the implementation the plan picked.
+	#
+	#   returns    a text; an empty text when the plan is a refusal
+	#   see        Kind, Floor, IsRefusal
 	def Chosen()
 		return @aPlan[:chosen]
 
+	# Returns which kind of implementation the plan picked.
+	#
+	#   returns    a text: floor, model, dlm or service; an empty text for a refusal
+	#   note       the registry picks a service only when it was pinned by name
+	#   see        Chosen, IsFloor
 	def Kind()
 		return @aPlan[:kind]
 
+	# Returns the id of the faculty's floor, the fallback the plan keeps.
+	#
+	#   returns    a text; an empty text when the faculty is unknown
+	#   note       this is the floor's id and not its row: Floor of the faculty returns the row
+	#   see        Chosen, IsFloor
 	def Floor()
 		return @aPlan[:floor]
 
+	# TRUE if the plan is a refusal: nothing can answer, or a pin cannot be honoured, or the requirement forbids the floor.
+	#
+	#   returns    TRUE or FALSE
+	#   note       a refusal plan has an empty chosen id and its findings say why
+	#   see        Findings, Why
 	def IsRefusal()
 		return @aPlan[:refusal]
 
+	# TRUE if the plan picked the faculty's floor, whether the registry fell back to it or it was pinned.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Kind, Chosen
 	def IsFloor()
 		return @aPlan[:kind] = "floor"
 
+	# Returns each implementation the plan turned down, with the reason.
+	#
+	#   returns    a list of [ id, reason ] pairs; [ ] when nothing was rejected
+	#   note       reasons name the filter: not installed, not permissive, memory, language,
+	#              determinism, unmeasured, not beating the floor, a lower rank, a service
+	#   see        Why, Chosen
 	def Rejected()
 		return @aPlan[:rejected]
 
+	# Returns the findings of a refusal plan, in the house shape.
+	#
+	#   returns    a list of findings, each [ rule, subject, where, severity, message ]; [ ] when
+	#              the plan is not a refusal
+	#   see        IsRefusal, Why
 	def Findings()
 		return @aPlan[:findings]
 
-	# the whole explanation, one line per fact
+	# Returns the whole explanation: the choice, one line per reason, then each rejection and each finding.
+	#
+	#   returns    a text with one line per fact, starting with the faculty and the chosen
+	#              implementation or REFUSED
+	#   note       the scores it quotes are measured by the registry on the golden set and are not
+	#              judged by a person
+	#   see        Rejected, Findings, Data
+	#@ aka  the whole explanation, one line per fact
 	def Why()
 		_c_ = @aPlan[:faculty] + " -> "
 		if @aPlan[:refusal] = 1
@@ -465,36 +542,135 @@ class stzModelPlan from stzObject
 		next
 		return _c_
 
-# The registry is a handle over the global tables above (like stzFaculty): there is one registry per process.
+# Resolves a requirement to the implementation of a faculty that should run, from what was measured, and stores the measurements.
+#
+# The registry trusts only measurements: an implementation with none is unknown and never chosen,
+# and a model is chosen only when its score strictly beats the measured floor on the faculty's
+# golden set and reaches the requested quality. RunGoldens records those scores, SaveMeasurements
+# and LoadMeasurements keep them in a text file, and a pin always overrides the registry. It is a
+# handle on process-wide tables, so every object sees the same measurements.
+# StzModelPolicy(:deterministic), or the environment STZ_MODELS=off, puts every faculty on its
+# floor. Scores are computed by the class from the goldens; no person has judged the output of any
+# model.
+#
+#   receiver   o1 = StzModelRegistryQ()
+#   example    o2 = StzFacultyQ("regpos")
+#              o2.SetInputType(:text)
+#              o2.SetOutputType(:number)
+#              o2.SetFloor("last", "StzFindLast")
+#              o2.AddGolden("b", 2)
+#              o2.AddImplementation([ :id = "first", :kind = "model", :fn = "StzFindFirst", :licence = "mit" ])
+#              ? o1.Resolve("regpos")[:chosen]
+#              #--> last
+#              StzRecordMeasurement("regpos", "last", "v1", 0.5, 2, 1, "")
+#              StzRecordMeasurement("regpos", "first", "v1", 1, 2, 1, "")
+#              ? o1.Resolve("regpos")[:chosen]
+#              #--> first
+#              ? o1.MeasurementOf("regpos", "first")[:score]
+#              #--> 1
+#   see        stzFaculty, stzRequirement, stzModelPlan, stzFlow
 class stzModelRegistry from stzObject
 
+	# Builds a handle on the process-wide registry of measurements; it holds no state of its own.
+	#
+	#   returns    nothing; the object is built
+	#   note       every handle reads the same measurements, the same model trace and the same
+	#              policy, so there is one registry per process
+	#   see        StzModelRegistryQ, Measurements
 	def init()
-		# stateless handle over the global tables
-
+	# Resolves a requirement to the implementation that should run and returns the plan as data.
+	#
+	#   pReq       a faculty name, an stzRequirement, or the list its Data returns
+	#   returns    a plan: a list of [ key, value ] pairs faculty, chosen, kind, why, rejected,
+	#              floor, refusal, findings, pinned and needle
+	#   note       a model is chosen only when its measured score strictly beats the floor's and
+	#              reaches the requested quality, and the floor stays as the fallback; under
+	#              StzModelPolicy(:deterministic) or STZ_MODELS=off every faculty resolves to its
+	#              floor; ResolveQ returns the same plan as an stzModelPlan, ready to explain
+	#   warning    an unknown faculty, or one with no floor, gives a plan with refusal 1 and its
+	#              findings, not an error; with no measurement the floor is chosen, because an
+	#              unmeasured model is unknown and never good
+	#   see        ResolveQ, MeasurementOf, stzRequirement
+	#@ aka  stateless handle over the global tables
 	def Resolve(pReq)
 		return StzResolveFaculty(pReq, [])
 
 	def ResolveQ(pReq)
 		return new stzModelPlan(StzResolveFaculty(pReq, []))
 
+	# Returns every measurement recorded in the process, in the order recorded.
+	#
+	#   returns    a list of rows, each a list of [ key, value ] pairs: faculty, impl, golden,
+	#              score, n, conformance, date, note
+	#   note       a new measurement of the same implementation on the same golden version replaces
+	#              the old row and goes to the end
+	#   see        MeasurementOf, RunGoldens, SaveMeasurements
 	def Measurements()
 		return StzMeasurements()
 
+	# Returns the measurement recorded for one implementation under the faculty's current golden version.
+	#
+	#   pcFaculty   the faculty's name
+	#   pcImpl      the id of the implementation
+	#   returns     a row of [ key, value ] pairs faculty, impl, golden, score, n, conformance,
+	#               date, note; [ ] when none
+	#   note        score is the share of golden inputs whose answer the checker accepted, and
+	#               conformance the share the court accepted: both are computed by the class, not
+	#               judged by a person
+	#   warning     an unknown faculty gives [ ] and not an error; after SetGoldenVersion the
+	#               earlier rows are not found
+	#   see         Measurements, RunGoldens
 	def MeasurementOf(pcFaculty, pcImpl)
 		_iF_ = _StzFacultyRow(pcFaculty)
 		if _iF_ = 0 return [] ok
 		return StzMeasurementOf(pcFaculty, pcImpl, $aStzFaculties[_iF_][:goldenversion])
 
-	# RUN a faculty's golden set through EVERY implementation that is installed -- the floor first, because
-	# its score is the bar -- and record what was measured. Returns the rows recorded.
+	# Runs the faculty's golden set through every installed implementation, the floor first, and records the scores.
+	#
+	#   pcFaculty   the name of the faculty to measure
+	#   returns     the rows recorded: one measurement per implementation run
+	#   note        the floor is run first because its score is the bar a model must strictly beat
+	#   warning     raises an error for an unknown faculty; a model whose file is not in the models
+	#               directory is skipped and a service is never run; an answer that stated a
+	#               probability also enters the calibration ledger; the golden loop writes the
+	#               merged defaults back into the list it passes, so a faculty whose default params
+	#               are not [ key, value ] pairs is scored on grown params; not exercised with a
+	#               real model: the answer shape is read from the code
+	#   see         RunGoldensFor, Measurements, Resolve
+	#@ aka  RUN a faculty's golden set through EVERY implementation that is installed -- the floor first, because its score is the bar -- and record what was measured. Returns the rows recorded.
 	def RunGoldens(pcFaculty)
 		return StzRunGoldens(pcFaculty, [])
 
+	# Measures the floor and the named implementations on the golden set and records the scores.
+	#
+	#   pcFaculty    the name of the faculty to measure
+	#   pacImplIds   the ids of the non-floor implementations to measure
+	#   returns      the rows recorded: the floor and each named implementation that is installed
+	#   note         the floor is always measured, because it is the bar; implementations not named
+	#                keep their earlier rows
+	#   warning      raises an error for an unknown faculty; ids that are not installed, and
+	#                services, are skipped; not exercised with a real model: the answer shape is
+	#                read from the code
+	#   see          RunGoldens, Measurements
 	def RunGoldensFor(pcFaculty, pacImplIds)
 		return StzRunGoldensFor(pcFaculty, pacImplIds, [])
 
+	# Writes every measurement to a text file, one line per row after a header, overwriting the file.
+	#
+	#   pcPath     the file to write
+	#   returns    nothing; the file is written
+	#   note       each line holds faculty, impl, golden, score, n, conformance, date and note
+	#              separated by vertical bars, so a note containing a bar would not read back whole
+	#   see        LoadMeasurements, Measurements
 	def SaveMeasurements(pcPath)
 		StzSaveMeasurements(pcPath)
 
+	# Reads a file written by SaveMeasurements back into the registry and returns how many rows it took.
+	#
+	#   pcPath     the file to read
+	#   returns    a number: the rows loaded; 0 for a missing file
+	#   note       a row for an implementation already measured on the same golden version replaces
+	#              it, the saved date is kept, and lines with fewer than six fields are skipped
+	#   see        SaveMeasurements, Measurements
 	def LoadMeasurements(pcPath)
 		return StzLoadMeasurements(pcPath)
