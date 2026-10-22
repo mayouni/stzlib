@@ -59,14 +59,50 @@ pub extern fn ring_vm_error(pVM: *anyopaque, cStr: [*:0]const u8) void;
 // this removes is the CLIFF -- the point where correct code starts failing for
 // reasons it cannot see.
 
+// A SLOT IS REUSED, AND AN ID MUST NOT FOLLOW IT (threat-model R16). Releasing
+// a slot empties it, and the next storeHandle may fill it with another object.
+// A Ring COPY of the first object still holds the old id, and before generations
+// that id resolved to whatever lives in the slot now -- another object, no error:
+// the use-after-free class behind PHP2Shell, in its quiet form. So every slot
+// carries a GENERATION, the id carries it too, and a release bumps it:
+//
+//     id = generation * 2^32 + (slot + 1)       exact in an f64 up to 2^53
+//
+// A stale id resolves to null, and a stale RELEASE is ignored, so a copy can
+// neither read nor free a slot that now belongs to someone else. A fresh slot
+// starts at generation 0, so its id is exactly the old 1-based number.
 const INITIAL_HANDLES = 8192;
+const GEN_MASK: u32 = 0xFFFFF; // 20 bits: (2^20 * 2^32) < 2^53
 var handle_table: []?*anyopaque = &[_]?*anyopaque{};
 var handle_backing: [INITIAL_HANDLES]?*anyopaque = [_]?*anyopaque{null} ** INITIAL_HANDLES;
+var gen_table: []u32 = &[_]u32{};
+var gen_backing: [INITIAL_HANDLES]u32 = [_]u32{0} ** INITIAL_HANDLES;
 var handle_grown: bool = false;
 var next_slot: usize = 0;
 
 fn tableInit() void {
-    if (handle_table.len == 0) handle_table = handle_backing[0..];
+    if (handle_table.len == 0) {
+        handle_table = handle_backing[0..];
+        gen_table = gen_backing[0..];
+    }
+}
+
+fn makeId(idx: usize, gen: u32) f64 {
+    const v: u64 = (@as(u64, gen) << 32) | @as(u64, @intCast(idx + 1));
+    return @floatFromInt(v);
+}
+
+// The slot an id names, when the id is well formed and its generation is the
+// slot's current one; null otherwise.
+fn slotOf(id: f64) ?usize {
+    if (!(id >= 1) or id > 9007199254740991) return null;
+    const v: u64 = @intFromFloat(id);
+    const low: u64 = v & 0xFFFFFFFF;
+    const gen: u32 = @intCast(v >> 32);
+    if (low == 0 or low > handle_table.len) return null;
+    const idx: usize = @intCast(low - 1);
+    if (gen_table[idx] != gen) return null;
+    return idx;
 }
 
 /// Double the table, copying what is there. Returns false if the allocator refuses,
@@ -75,10 +111,20 @@ fn grow() bool {
     const alloc = std.heap.c_allocator;
     const new_len = handle_table.len * 2;
     const bigger = alloc.alloc(?*anyopaque, new_len) catch return false;
+    const gens = alloc.alloc(u32, new_len) catch {
+        alloc.free(bigger);
+        return false;
+    };
     @memcpy(bigger[0..handle_table.len], handle_table);
     @memset(bigger[handle_table.len..], null);
-    if (handle_grown) alloc.free(handle_table);
+    @memcpy(gens[0..gen_table.len], gen_table);
+    @memset(gens[gen_table.len..], 0);
+    if (handle_grown) {
+        alloc.free(handle_table);
+        alloc.free(gen_table);
+    }
     handle_table = bigger;
+    gen_table = gens;
     handle_grown = true;
     return true;
 }
@@ -96,7 +142,7 @@ pub fn storeHandle(ptr: ?*anyopaque) f64 {
             if (handle_table[idx] == null) {
                 handle_table[idx] = raw;
                 next_slot = (idx + 1) % n;
-                return @floatFromInt(idx + 1); // 1-based ID
+                return makeId(idx, gen_table[idx]);
             }
         }
         // full: grow once, then look again
@@ -107,18 +153,28 @@ pub fn storeHandle(ptr: ?*anyopaque) f64 {
 
 pub fn resolveHandle(id: f64) ?*anyopaque {
     tableInit();
-    const raw_id = @as(i64, @intFromFloat(id));
-    if (raw_id <= 0 or raw_id > @as(i64, @intCast(handle_table.len))) return null;
-    const idx: usize = @intCast(raw_id - 1);
+    const idx = slotOf(id) orelse return null;
     return handle_table[idx];
 }
 
+// Empty the slot and move it to its next generation, so every copy of this id
+// goes stale at once. A stale or unknown id releases nothing.
 pub fn releaseSlot(id: f64) void {
     tableInit();
-    const raw_id = @as(i64, @intFromFloat(id));
-    if (raw_id <= 0 or raw_id > @as(i64, @intCast(handle_table.len))) return;
-    const idx: usize = @intCast(raw_id - 1);
+    const idx = slotOf(id) orelse return;
+    if (handle_table[idx] == null) return;
     handle_table[idx] = null;
+    gen_table[idx] = (gen_table[idx] + 1) & GEN_MASK;
+}
+
+/// Like getHandle, for an object whose stale use must be an ERROR rather than a
+/// silent null: a nonzero id that no longer resolves raises in Ring.
+pub fn getHandleOrRaise(p: *anyopaque, n: c_int, comptime what: []const u8) ?*anyopaque {
+    const id = ring_vm_api_getnumber(p, n);
+    if (id == 0) return null;
+    const ptr = resolveHandle(id);
+    if (ptr == null) ring_vm_error(p, "This " ++ what ++ " was destroyed: a copy of it holds a handle that is no longer valid.");
+    return ptr;
 }
 
 /// Wrapper: store pointer in handle table, return integer ID to Ring.

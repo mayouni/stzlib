@@ -14,19 +14,17 @@ const LOG_HANDLE: [*:0]const u8 = "StzSecLog";
 var str_buf: [512]u8 = undefined;
 
 fn getLog(p: *anyopaque, n: c_int) ?*seclog.SecLog {
-    const raw = R.ring_vm_api_getcpointer(p, n, LOG_HANDLE) orelse return null;
-    const addr = @intFromPtr(raw);
-    if (addr == 0) return null;
-    return @ptrFromInt(addr);
+    // ids from the generation-checked table: a destroyed ledger's copy raises (R16)
+    const raw = R.getHandleOrRaise(p, n, "security ledger") orelse return null;
+    return @ptrFromInt(@intFromPtr(raw));
 }
 
 fn ring_SecLogCreate(p: *anyopaque) callconv(.c) void {
     const handle = seclog.seclog_create(gn(p, 1));
-    if (handle) |s| {
-        R.ring_vm_api_retcpointer(p, @ptrCast(s), LOG_HANDLE);
-    } else {
-        R.ring_vm_api_retcpointer(p, @ptrFromInt(0), LOG_HANDLE);
-    }
+    if (handle) |sl| {
+        sl.ring_id = R.storeHandle(@ptrCast(sl));
+        rn(p, sl.ring_id);
+    } else rn(p, 0);
 }
 
 fn ring_SecLogAppend(p: *anyopaque) callconv(.c) void {
@@ -135,7 +133,9 @@ fn ring_SecLogReset(p: *anyopaque) callconv(.c) void {
 }
 
 fn ring_SecLogDestroy(p: *anyopaque) callconv(.c) void {
-    seclog.seclog_destroy(getLog(p, 1));
+    // release FIRST: every copy of this id goes stale before the memory is freed
+    const raw = R.releaseHandle(p, 1);
+    if (raw) |ptr| seclog.seclog_destroy(@ptrFromInt(@intFromPtr(ptr)));
     rn(p, 0);
 }
 
@@ -154,12 +154,8 @@ fn ring_SecLogHasCurrent(p: *anyopaque) callconv(.c) void {
 }
 
 fn ring_SecLogCurrent(p: *anyopaque) callconv(.c) void {
-    const s = seclog.seclog_current();
-    if (s) |sp| {
-        R.ring_vm_api_retcpointer(p, @ptrCast(sp), LOG_HANDLE);
-    } else {
-        R.ring_vm_api_retcpointer(p, @ptrFromInt(0), LOG_HANDLE);
-    }
+    const cur = seclog.seclog_current();
+    if (cur) |sp| rn(p, sp.ring_id) else rn(p, 0);
 }
 
 fn ring_SecLogCurrentAppend(p: *anyopaque) callconv(.c) void {

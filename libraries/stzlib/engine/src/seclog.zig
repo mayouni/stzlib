@@ -57,6 +57,7 @@ const BudgetSlot = struct {
 };
 
 pub const SecLog = struct {
+    ring_id: f64 = 0, // its id in the Ring handle table, so "current" returns the SAME id
     canon: []u8, // cap * CANON_MAX
     canon_lens: []u16,
     digests: []u8, // cap * DIGEST_LEN
