@@ -465,6 +465,13 @@ oCert.SetExpiry( 1830000000 )                        # the certificate's end, in
 oStore.Register(oCert)
 ```
 
+The mutual-TLS **private key** is best kept as a file outside your repository and named by path, like the
+certificate: it then never enters your program. If it can only reach your platform as an environment variable
+(`FromEnv`), the adapter writes it for the length of one call, in a folder under the user's own profile,
+readable by that user alone from the first byte, and deletes it afterwards, also when the call fails. It
+is never written to a shared folder, and a key held in a vault needs to be a file or an environment variable
+first.
+
 A secret **expires**: the sandbox's certificate lasts a year, and a renewed webhook secret lapses on a
 date you choose. The library does not check the date when you pay. A **watch** reads the store and tells the
 security ledger, once, when something is about to expire (30 days by default) or has:

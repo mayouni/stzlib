@@ -505,6 +505,67 @@ Scenario("mutual TLS: the participant that requires a certificate")
 	Then("...and production refuses it", StzFindFirst("conformance-in-production", @@(oRegC.Findings())) > 0, TRUE)
 EndScenario()
 
+Scenario("a key that is a VALUE in the store: written for one call, owner-only, gone on every path")
+	cPem = read($cNodeKey)
+	oStoreV = MkStore($cClientId, $cClientSecret, $cApiKey)
+	oCertV = StzPispiSecretQ("bia", "mtls-cert")
+	oCertV.FromFile($cNodeCrt)
+	oCertV.SetExpiry(StzEngineTimeNowMs() / 1000 + 365 * 86400)
+	oStoreV.Register(oCertV)
+	oKeyV = StzPispiSecretQ("bia", "mtls-key")
+	oKeyV.FromLiteral(cPem)                      # a value, not a file: the engine's TLS client still wants a path
+	oStoreV.Register(oKeyV)
+	Then("the key descriptor is a value in the store, not a file", oStoreV.Secret("pispi-bia-mtls-key").SourceKind(), "literal")
+	nBefore = KeyFilesLeft()
+
+	oAdV = StzPispiHttpAdapterQ()
+	oAdV.WithParticipant("bia")
+	oAdV.WithBaseUrl("https://127.0.0.1:" + $nPortB + "/piz/v1")
+	oAdV.WithScopePrefix("piz/")
+	oAdV.WithSecretsFrom(oStoreV, HumanActor("tresorier"))
+	oAdV.WithCertificateFrom(oStoreV)
+	oAdV.WithCaFile($cCACrt)
+	oAdV.AsLive()
+	aAccV = UngovernedPort(oAdV).Accounts()
+	Then("mutual TLS works with a key that was only a value", len(aAccV), 2)
+	Then("...and no key file is left behind after a call that worked", KeyFilesLeft(), nBefore)
+
+	oBadV = StzPispiHttpAdapterQ()
+	oBadV.WithParticipant("bia")
+	oBadV.WithBaseUrl("https://127.0.0.1:" + $nPortB + "/piz/v1")
+	oBadV.WithScopePrefix("piz/")
+	oBadV.WithSecretsFrom(oStoreV, HumanActor("tresorier"))
+	oBadV.WithCertificateFrom(oStoreV)
+	oBadV.WithCaFile($cWrongCA)                  # the handshake aborts: the call FAILS
+	oBadV.AsLive()
+	cWhyV = ""
+	try
+		UngovernedPort(oBadV).Accounts()
+	catch
+		cWhyV = cCatchError
+	done
+	Then("a call that fails still raises", StzFindFirst("TLS to", cWhyV) > 0, TRUE)
+	Then("...and no key file is left behind after a call that failed", KeyFilesLeft(), nBefore)
+	Then("...and the error never carries the key", StzFindFirst("PRIVATE KEY", cWhyV), 0)
+
+	oLlmV = StzPispiHttpAdapterQ()
+	oLlmV.WithParticipant("bia")
+	oLlmV.WithBaseUrl("https://127.0.0.1:" + $nPortB + "/piz/v1")
+	oLlmV.WithScopePrefix("piz/")
+	oLlmV.WithSecretsFrom(oStoreV, LLMActor("assistant"))
+	oLlmV.WithCertificateFrom(oStoreV)
+	oLlmV.WithCaFile($cCACrt)
+	oLlmV.AsLive()
+	cWhyL = ""
+	try
+		UngovernedPort(oLlmV).Accounts()
+	catch
+		cWhyL = cCatchError
+	done
+	Then("an actor that may not reveal secrets cannot make the key exist as a file either", cWhyL != "", TRUE)
+	Then("...and nothing was written", KeyFilesLeft(), nBefore)
+EndScenario()
+
 Scenario("the wire codec, on its own")
 	Then("an empty array stays an array", StzPispiJson([ ["transactions", []], ["x", 1] ]), '{"transactions":[],"x":1}')
 	Then("a one-pair array of objects stays an array of objects",
@@ -704,3 +765,23 @@ func TlsAliases
 
 func MkOrderTls(cTx, cWho, nAmount)
 	return MkOrderA(TlsAliases(), cTx, cWho, nAmount)
+
+# how many one-call key files sit in the user's private folder
+func KeyFilesLeft()
+	cHome = EnvVar("USERPROFILE")
+	if cHome = ""
+		cHome = EnvVar("HOME")
+	ok
+	aE = []
+	try
+		aE = dir(cHome + "/.softanza-private")
+	catch
+		return 0                                  # the folder does not exist until the first value-sourced key is used
+	done
+	nN = 0
+	for i = 1 to len(aE)
+		if StzFindFirst(".key", aE[i][1]) > 0
+			nN++
+		ok
+	next
+	return nN
