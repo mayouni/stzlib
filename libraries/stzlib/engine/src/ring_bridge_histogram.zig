@@ -7,7 +7,13 @@ const rn = R.ring_vm_api_retnumber;
 const HIST_HANDLE: [*:0]const u8 = "StzHistogram";
 
 fn getHist(p: *anyopaque, n: c_int) ?*histogram.Histogram {
-    const raw = R.ring_vm_api_getcpointer(p, n, HIST_HANDLE) orelse return null;
+    // Two kinds of histogram reach here. One this DLL made: an id in its own,
+    // generation-checked table. One a perf family owns (stz_perf.dll): a raw
+    // pointer, since that DLL's table ids mean nothing here (R16).
+    const raw = blk: {
+        if (R.ring_vm_api_ispointer(p, n) == 1) break :blk R.ring_vm_api_getcpointer(p, n, HIST_HANDLE) orelse return null;
+        break :blk R.getHandleOrRaise(p, n, "latency histogram") orelse return null;
+    };
     const addr = @intFromPtr(raw);
     if (addr == 0) return null;
     return @ptrFromInt(addr);
@@ -16,9 +22,9 @@ fn getHist(p: *anyopaque, n: c_int) ?*histogram.Histogram {
 fn ring_HistogramCreate(p: *anyopaque) callconv(.c) void {
     const handle = histogram.histogram_create();
     if (handle) |h| {
-        R.ring_vm_api_retcpointer(p, @ptrCast(h), HIST_HANDLE);
+        R.retHandleOnce(p, @ptrCast(h));
     } else {
-        R.ring_vm_api_retcpointer(p, @ptrFromInt(0), HIST_HANDLE);
+        R.ring_vm_api_retnumber(p, 0);
     }
 }
 
@@ -45,7 +51,9 @@ fn ring_HistogramReset(p: *anyopaque) callconv(.c) void {
 }
 
 fn ring_HistogramDestroy(p: *anyopaque) callconv(.c) void {
-    histogram.histogram_destroy(getHist(p, 1));
+    const _obj = getHist(p, 1);
+    R.releaseParam(p, 1); // every copy of this id goes stale before the memory is freed (R16)
+    histogram.histogram_destroy(_obj);
     rn(p, 0);
 }
 

@@ -15,7 +15,7 @@ const rcp = R.ring_vm_api_retcpointer;
 const HTML_DOC: [*:0]const u8 = "HtmlDoc";
 
 fn getDoc(p: *anyopaque, n: c_int) ?*dom.Doc {
-    const raw = R.ring_vm_api_getcpointer(p, n, HTML_DOC) orelse return null;
+    const raw = R.getHandleOrRaise(p, n, "HTML document") orelse return null;
     const addr = @intFromPtr(raw);
     if (addr == 0) return null;
     return @ptrFromInt(addr);
@@ -80,14 +80,16 @@ fn ring_HtmlParse(p: *anyopaque) callconv(.c) void {
     const len: usize = @intCast(gss(p, 1));
     const doc = dom.html_parse(ptr, len);
     if (doc) |d| {
-        R.ring_vm_api_retcpointer(p, @ptrCast(d), HTML_DOC);
+        R.retHandleOnce(p, @ptrCast(d));
     } else {
-        R.ring_vm_api_retcpointer(p, @ptrFromInt(0), HTML_DOC);
+        R.ring_vm_api_retnumber(p, 0);
     }
 }
 
 fn ring_HtmlFree(p: *anyopaque) callconv(.c) void {
-    const doc = getDoc(p, 1);
+    const _obj = getDoc(p, 1);
+    R.releaseParam(p, 1); // every copy of this id goes stale before the memory is freed (R16)
+    const doc = _obj;
     dom.html_free(doc);
 }
 

@@ -13,14 +13,14 @@ const TCP_CLIENT: [*:0]const u8 = "TcpClient";
 const TCP_SERVER: [*:0]const u8 = "TcpServer";
 
 fn getClient(p: *anyopaque, n: c_int) ?*tcp.TcpClient {
-    const raw = R.ring_vm_api_getcpointer(p, n, TCP_CLIENT) orelse return null;
+    const raw = R.getHandleOrRaise(p, n, "TCP client") orelse return null;
     const addr = @intFromPtr(raw);
     if (addr == 0) return null;
     return @ptrFromInt(addr);
 }
 
 fn getServer(p: *anyopaque, n: c_int) ?*tcp.TcpServer {
-    const raw = R.ring_vm_api_getcpointer(p, n, TCP_SERVER) orelse return null;
+    const raw = R.getHandleOrRaise(p, n, "TCP server") orelse return null;
     const addr = @intFromPtr(raw);
     if (addr == 0) return null;
     return @ptrFromInt(addr);
@@ -37,9 +37,9 @@ fn ring_TcpConnect(p: *anyopaque) callconv(.c) void {
     const port: u16 = @intFromFloat(gn(p, 2));
     const h = tcp.tcp_connect(host_ptr, host_len, port);
     if (h) |c| {
-        R.ring_vm_api_retcpointer(p, @ptrCast(c), TCP_CLIENT);
+        R.retHandleOnce(p, @ptrCast(c));
     } else {
-        R.ring_vm_api_retcpointer(p, @ptrFromInt(0), TCP_CLIENT);
+        R.ring_vm_api_retnumber(p, 0);
     }
 }
 
@@ -59,7 +59,9 @@ fn ring_TcpRecv(p: *anyopaque) callconv(.c) void {
 }
 
 fn ring_TcpClose(p: *anyopaque) callconv(.c) void {
-    const c = getClient(p, 1);
+    const _obj = getClient(p, 1);
+    R.releaseParam(p, 1); // every copy of this id goes stale before the memory is freed (R16)
+    const c = _obj;
     tcp.tcp_close(c);
 }
 
@@ -69,9 +71,9 @@ fn ring_TcpListen(p: *anyopaque) callconv(.c) void {
     const port: u16 = @intFromFloat(gn(p, 2));
     const h = tcp.tcp_listen(host_ptr, host_len, port);
     if (h) |s| {
-        R.ring_vm_api_retcpointer(p, @ptrCast(s), TCP_SERVER);
+        R.retHandleOnce(p, @ptrCast(s));
     } else {
-        R.ring_vm_api_retcpointer(p, @ptrFromInt(0), TCP_SERVER);
+        R.ring_vm_api_retnumber(p, 0);
     }
 }
 
@@ -82,14 +84,16 @@ fn ring_TcpAccept(p: *anyopaque) callconv(.c) void {
     else
         tcp.tcp_accept(s);
     if (c) |client| {
-        R.ring_vm_api_retcpointer(p, @ptrCast(client), TCP_CLIENT);
+        R.retHandleOnce(p, @ptrCast(client));
     } else {
-        R.ring_vm_api_retcpointer(p, @ptrFromInt(0), TCP_CLIENT);
+        R.ring_vm_api_retnumber(p, 0);
     }
 }
 
 fn ring_TcpServerClose(p: *anyopaque) callconv(.c) void {
-    const s = getServer(p, 1);
+    const _obj = getServer(p, 1);
+    R.releaseParam(p, 1); // every copy of this id goes stale before the memory is freed (R16)
+    const s = _obj;
     tcp.tcp_server_close(s);
 }
 

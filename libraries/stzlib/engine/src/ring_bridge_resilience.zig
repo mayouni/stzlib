@@ -8,14 +8,14 @@ const RATE_HANDLE: [*:0]const u8 = "StzRateLimiter";
 const CIRCUIT_HANDLE: [*:0]const u8 = "StzCircuitBreaker";
 
 fn getRate(p: *anyopaque, n: c_int) ?*r.RateLimiter {
-    const raw = R.ring_vm_api_getcpointer(p, n, RATE_HANDLE) orelse return null;
+    const raw = R.getHandleOrRaise(p, n, "rate limiter") orelse return null;
     const addr = @intFromPtr(raw);
     if (addr == 0) return null;
     return @ptrFromInt(addr);
 }
 
 fn getCircuit(p: *anyopaque, n: c_int) ?*r.CircuitBreaker {
-    const raw = R.ring_vm_api_getcpointer(p, n, CIRCUIT_HANDLE) orelse return null;
+    const raw = R.getHandleOrRaise(p, n, "circuit breaker") orelse return null;
     const addr = @intFromPtr(raw);
     if (addr == 0) return null;
     return @ptrFromInt(addr);
@@ -38,9 +38,9 @@ fn ring_RateCreate(p: *anyopaque) callconv(.c) void {
     const refill: u32 = @intFromFloat(gn(p, 2));
     const handle = r.rate_create(cap, refill);
     if (handle) |h| {
-        R.ring_vm_api_retcpointer(p, @ptrCast(h), RATE_HANDLE);
+        R.retHandleOnce(p, @ptrCast(h));
     } else {
-        R.ring_vm_api_retcpointer(p, @ptrFromInt(0), RATE_HANDLE);
+        R.ring_vm_api_retnumber(p, 0);
     }
 }
 
@@ -62,7 +62,9 @@ fn ring_RateAvailable(p: *anyopaque) callconv(.c) void {
 }
 
 fn ring_RateDestroy(p: *anyopaque) callconv(.c) void {
-    r.rate_destroy(getRate(p, 1));
+    const _obj = getRate(p, 1);
+    R.releaseParam(p, 1); // every copy of this id goes stale before the memory is freed (R16)
+    r.rate_destroy(_obj);
 }
 
 // ── circuit breaker ─────────────────────────────────────────
@@ -72,9 +74,9 @@ fn ring_CircuitCreate(p: *anyopaque) callconv(.c) void {
     const reset_ms: u64 = @intFromFloat(gn(p, 2));
     const handle = r.circuit_create(threshold, reset_ms);
     if (handle) |h| {
-        R.ring_vm_api_retcpointer(p, @ptrCast(h), CIRCUIT_HANDLE);
+        R.retHandleOnce(p, @ptrCast(h));
     } else {
-        R.ring_vm_api_retcpointer(p, @ptrFromInt(0), CIRCUIT_HANDLE);
+        R.ring_vm_api_retnumber(p, 0);
     }
 }
 
@@ -101,7 +103,9 @@ fn ring_CircuitReset(p: *anyopaque) callconv(.c) void {
 }
 
 fn ring_CircuitDestroy(p: *anyopaque) callconv(.c) void {
-    r.circuit_destroy(getCircuit(p, 1));
+    const _obj = getCircuit(p, 1);
+    R.releaseParam(p, 1); // every copy of this id goes stale before the memory is freed (R16)
+    r.circuit_destroy(_obj);
 }
 
 const regs = [_]R.Reg{

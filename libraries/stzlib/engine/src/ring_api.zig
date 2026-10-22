@@ -167,9 +167,47 @@ pub fn releaseSlot(id: f64) void {
     gen_table[idx] = (gen_table[idx] + 1) & GEN_MASK;
 }
 
+// ONE ID PER OBJECT, for the objects a bridge can hand out more than once (a
+// family's series, the same pool asked twice). If each return minted its own
+// id, releasing one would leave the others live over freed memory. The map is
+// consulted only by retHandleOnce, so the hot string path never pays for it.
+var once_map: std.AutoHashMapUnmanaged(usize, f64) = .{};
+
+/// Store ptr, or return the id it already has; answer that id to Ring.
+pub fn retHandleOnce(p: *anyopaque, ptr: ?*anyopaque) void {
+    const raw = ptr orelse {
+        ring_vm_api_retnumber(p, 0);
+        return;
+    };
+    const key = @intFromPtr(raw);
+    if (once_map.get(key)) |id| {
+        if (resolveHandle(id) == raw) {
+            ring_vm_api_retnumber(p, id);
+            return;
+        }
+    }
+    const id = storeHandle(raw);
+    if (id != 0) once_map.put(std.heap.c_allocator, key, id) catch {};
+    ring_vm_api_retnumber(p, id);
+}
+
+/// Release the id in param n -- every copy of it goes stale -- and forget it in
+/// the once-map. Call it in a destroy, after reading the pointer and before
+/// freeing it.
+pub fn releaseParam(p: *anyopaque, n: c_int) void {
+    if (ring_vm_api_isnumber(p, n) == 0) return;
+    const id = ring_vm_api_getnumber(p, n);
+    if (resolveHandle(id)) |raw| _ = once_map.remove(@intFromPtr(raw));
+    releaseSlot(id);
+}
+
 /// Like getHandle, for an object whose stale use must be an ERROR rather than a
 /// silent null: a nonzero id that no longer resolves raises in Ring.
 pub fn getHandleOrRaise(p: *anyopaque, n: c_int, comptime what: []const u8) ?*anyopaque {
+    // NULL ("") or anything that is not a number is not a handle at all: the
+    // caller's old answer for a null handle stands. Only a NUMBER that no longer
+    // resolves is a stale copy, and that raises.
+    if (ring_vm_api_isnumber(p, n) == 0) return null;
     const id = ring_vm_api_getnumber(p, n);
     if (id == 0) return null;
     const ptr = resolveHandle(id);

@@ -13,14 +13,14 @@ const POOL_HANDLE: [*:0]const u8 = "StzPool";
 const CANCEL_HANDLE: [*:0]const u8 = "StzCancelToken";
 
 fn getPool(p: *anyopaque, n: c_int) ?*pool.Pool {
-    const raw = R.ring_vm_api_getcpointer(p, n, POOL_HANDLE) orelse return null;
+    const raw = R.getHandleOrRaise(p, n, "worker pool") orelse return null;
     const addr = @intFromPtr(raw);
     if (addr == 0) return null;
     return @ptrFromInt(addr);
 }
 
 fn getCancel(p: *anyopaque, n: c_int) ?*cancel.CancelToken {
-    const raw = R.ring_vm_api_getcpointer(p, n, CANCEL_HANDLE) orelse return null;
+    const raw = R.getHandleOrRaise(p, n, "cancel token") orelse return null;
     const addr = @intFromPtr(raw);
     if (addr == 0) return null;
     return @ptrFromInt(addr);
@@ -34,9 +34,9 @@ fn ring_PoolCreate(p: *anyopaque) callconv(.c) void {
     const n: u32 = @intFromFloat(gn(p, 1));
     const handle = pool.pool_create(n);
     if (handle) |h| {
-        R.ring_vm_api_retcpointer(p, @ptrCast(h), POOL_HANDLE);
+        R.retHandleOnce(p, @ptrCast(h));
     } else {
-        R.ring_vm_api_retcpointer(p, @ptrFromInt(0), POOL_HANDLE);
+        R.ring_vm_api_retnumber(p, 0);
     }
 }
 
@@ -45,9 +45,9 @@ fn ring_PoolCreateXT(p: *anyopaque) callconv(.c) void {
     const max_queue: u32 = @intFromFloat(gn(p, 2));
     const handle = pool.pool_create_xt(n, max_queue);
     if (handle) |h| {
-        R.ring_vm_api_retcpointer(p, @ptrCast(h), POOL_HANDLE);
+        R.retHandleOnce(p, @ptrCast(h));
     } else {
-        R.ring_vm_api_retcpointer(p, @ptrFromInt(0), POOL_HANDLE);
+        R.ring_vm_api_retnumber(p, 0);
     }
 }
 
@@ -84,9 +84,9 @@ fn ring_PoolSubmitWithCancel(p: *anyopaque) callconv(.c) void {
 fn ring_CancelCreate(p: *anyopaque) callconv(.c) void {
     const handle = cancel.cancel_create();
     if (handle) |h| {
-        R.ring_vm_api_retcpointer(p, @ptrCast(h), CANCEL_HANDLE);
+        R.retHandleOnce(p, @ptrCast(h));
     } else {
-        R.ring_vm_api_retcpointer(p, @ptrFromInt(0), CANCEL_HANDLE);
+        R.ring_vm_api_retnumber(p, 0);
     }
 }
 
@@ -100,7 +100,9 @@ fn ring_CancelIsCancelled(p: *anyopaque) callconv(.c) void {
 }
 
 fn ring_CancelDestroy(p: *anyopaque) callconv(.c) void {
-    cancel.cancel_destroy(getCancel(p, 1));
+    const _obj = getCancel(p, 1);
+    R.releaseParam(p, 1); // every copy of this id goes stale before the memory is freed (R16)
+    cancel.cancel_destroy(_obj);
     rn(p, 0);
 }
 
@@ -141,7 +143,9 @@ fn ring_PoolDrain(p: *anyopaque) callconv(.c) void {
 }
 
 fn ring_PoolDestroy(p: *anyopaque) callconv(.c) void {
-    const pp = getPool(p, 1);
+    const _obj = getPool(p, 1);
+    R.releaseParam(p, 1); // every copy of this id goes stale before the memory is freed (R16)
+    const pp = _obj;
     pool.pool_destroy(pp);
 }
 

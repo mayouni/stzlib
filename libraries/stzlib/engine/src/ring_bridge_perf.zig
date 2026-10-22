@@ -18,14 +18,14 @@ const HIST_HANDLE: [*:0]const u8 = "StzHistogram";
 var str_buf: [128]u8 = undefined;
 
 fn getTrace(p: *anyopaque, n: c_int) ?*perf.TraceRing {
-    const raw = R.ring_vm_api_getcpointer(p, n, TRACE_HANDLE) orelse return null;
+    const raw = R.getHandleOrRaise(p, n, "trace ring") orelse return null;
     const addr = @intFromPtr(raw);
     if (addr == 0) return null;
     return @ptrFromInt(addr);
 }
 
 fn getSeries(p: *anyopaque, n: c_int) ?*perf.Series {
-    const raw = R.ring_vm_api_getcpointer(p, n, SERIES_HANDLE) orelse return null;
+    const raw = R.getHandleOrRaise(p, n, "perf series") orelse return null;
     const addr = @intFromPtr(raw);
     if (addr == 0) return null;
     return @ptrFromInt(addr);
@@ -58,9 +58,9 @@ fn ring_PerfCpuNs(p: *anyopaque) callconv(.c) void {
 fn ring_SeriesCreate(p: *anyopaque) callconv(.c) void {
     const handle = perf.perf_series_create(gn(p, 1));
     if (handle) |s| {
-        R.ring_vm_api_retcpointer(p, @ptrCast(s), SERIES_HANDLE);
+        R.retHandleOnce(p, @ptrCast(s));
     } else {
-        R.ring_vm_api_retcpointer(p, @ptrFromInt(0), SERIES_HANDLE);
+        R.ring_vm_api_retnumber(p, 0);
     }
 }
 
@@ -115,7 +115,9 @@ fn ring_SeriesReset(p: *anyopaque) callconv(.c) void {
 }
 
 fn ring_SeriesDestroy(p: *anyopaque) callconv(.c) void {
-    perf.perf_series_destroy(getSeries(p, 1));
+    const _obj = getSeries(p, 1);
+    R.releaseParam(p, 1); // every copy of this id goes stale before the memory is freed (R16)
+    perf.perf_series_destroy(_obj);
     rn(p, 0);
 }
 
@@ -124,9 +126,9 @@ fn ring_SeriesDestroy(p: *anyopaque) callconv(.c) void {
 fn ring_TraceCreate(p: *anyopaque) callconv(.c) void {
     const handle = perf.perf_trace_create(gn(p, 1));
     if (handle) |t| {
-        R.ring_vm_api_retcpointer(p, @ptrCast(t), TRACE_HANDLE);
+        R.retHandleOnce(p, @ptrCast(t));
     } else {
-        R.ring_vm_api_retcpointer(p, @ptrFromInt(0), TRACE_HANDLE);
+        R.ring_vm_api_retnumber(p, 0);
     }
 }
 
@@ -175,7 +177,9 @@ fn ring_TraceReset(p: *anyopaque) callconv(.c) void {
 }
 
 fn ring_TraceDestroy(p: *anyopaque) callconv(.c) void {
-    perf.perf_trace_destroy(getTrace(p, 1));
+    const _obj = getTrace(p, 1);
+    R.releaseParam(p, 1); // every copy of this id goes stale before the memory is freed (R16)
+    perf.perf_trace_destroy(_obj);
     rn(p, 0);
 }
 
@@ -186,7 +190,7 @@ const PROF_HANDLE: [*:0]const u8 = "StzProfiler";
 var prof_buf: [256]u8 = undefined;
 
 fn getProf(p: *anyopaque, n: c_int) ?*perf.Profiler {
-    const raw = R.ring_vm_api_getcpointer(p, n, PROF_HANDLE) orelse return null;
+    const raw = R.getHandleOrRaise(p, n, "profiler") orelse return null;
     const addr = @intFromPtr(raw);
     if (addr == 0) return null;
     return @ptrFromInt(addr);
@@ -195,9 +199,9 @@ fn getProf(p: *anyopaque, n: c_int) ?*perf.Profiler {
 fn ring_ProfCreate(p: *anyopaque) callconv(.c) void {
     const handle = perf.perf_prof_create(gn(p, 1));
     if (handle) |pr2| {
-        R.ring_vm_api_retcpointer(p, @ptrCast(pr2), PROF_HANDLE);
+        R.retHandleOnce(p, @ptrCast(pr2));
     } else {
-        R.ring_vm_api_retcpointer(p, @ptrFromInt(0), PROF_HANDLE);
+        R.ring_vm_api_retnumber(p, 0);
     }
 }
 
@@ -265,7 +269,9 @@ fn ring_ProfReset(p: *anyopaque) callconv(.c) void {
 }
 
 fn ring_ProfDestroy(p: *anyopaque) callconv(.c) void {
-    perf.perf_prof_destroy(getProf(p, 1));
+    const _obj = getProf(p, 1);
+    R.releaseParam(p, 1); // every copy of this id goes stale before the memory is freed (R16)
+    perf.perf_prof_destroy(_obj);
     rn(p, 0);
 }
 
@@ -291,7 +297,7 @@ fn ring_TraceScopeClear(p: *anyopaque) callconv(.c) void {
 // ── family (labels / dimensions) ─────────────────────────────
 
 fn getFamily(p: *anyopaque, n: c_int) ?*perf.Family {
-    const raw = R.ring_vm_api_getcpointer(p, n, FAMILY_HANDLE) orelse return null;
+    const raw = R.getHandleOrRaise(p, n, "metric family") orelse return null;
     const addr = @intFromPtr(raw);
     if (addr == 0) return null;
     return @ptrFromInt(addr);
@@ -300,9 +306,9 @@ fn getFamily(p: *anyopaque, n: c_int) ?*perf.Family {
 fn ring_FamilyCreate(p: *anyopaque) callconv(.c) void {
     const handle = perf.perf_family_create(gn(p, 1), gn(p, 2), gn(p, 3));
     if (handle) |f| {
-        R.ring_vm_api_retcpointer(p, @ptrCast(f), FAMILY_HANDLE);
+        R.retHandleOnce(p, @ptrCast(f));
     } else {
-        R.ring_vm_api_retcpointer(p, @ptrFromInt(0), FAMILY_HANDLE);
+        R.ring_vm_api_retnumber(p, 0);
     }
 }
 
@@ -317,9 +323,9 @@ fn ring_FamilyChildSeries(p: *anyopaque) callconv(.c) void {
     const kl: usize = @intCast(gss(p, 2));
     const s = perf.perf_family_child_series(getFamily(p, 1), key, kl);
     if (s) |sp| {
-        R.ring_vm_api_retcpointer(p, @ptrCast(sp), SERIES_HANDLE);
+        R.retHandleOnce(p, @ptrCast(sp));
     } else {
-        R.ring_vm_api_retcpointer(p, @ptrFromInt(0), SERIES_HANDLE);
+        R.ring_vm_api_retnumber(p, 0);
     }
 }
 
@@ -327,6 +333,9 @@ fn ring_FamilyChildHist(p: *anyopaque) callconv(.c) void {
     const key: [*]const u8 = @ptrCast(gs(p, 2));
     const kl: usize = @intCast(gss(p, 2));
     const h = perf.perf_family_child_hist(getFamily(p, 1), key, kl);
+    // A RAW pointer, deliberately: the histogram is read by stz_histogram.dll,
+    // and each DLL has its own handle table, so an id from this one would not
+    // resolve there. The child's lifetime is the family's (threat-model R16).
     if (h) |hp| {
         R.ring_vm_api_retcpointer(p, @ptrCast(hp), HIST_HANDLE);
     } else {
@@ -344,7 +353,9 @@ fn ring_FamilyKeyAt(p: *anyopaque) callconv(.c) void {
 }
 
 fn ring_FamilyDestroy(p: *anyopaque) callconv(.c) void {
-    perf.perf_family_destroy(getFamily(p, 1));
+    const _obj = getFamily(p, 1);
+    R.releaseParam(p, 1); // every copy of this id goes stale before the memory is freed (R16)
+    perf.perf_family_destroy(_obj);
     rn(p, 0);
 }
 

@@ -47,6 +47,18 @@ Scenario("an ordinary object is unaffected (negative sibling)")
 	Then("strings, which share the table, still work", s2.Uppercased(), "HELLO")
 EndScenario()
 
+Scenario("the same holds for the other engine objects moved onto the table")
+	pC = StzEngineCircuitCreate(3, 1000)
+	pC2 = pC                                   # a Ring copy of the handle
+	Then("a circuit breaker answers while it lives", StzEngineCircuitCanPass(pC2), 1)
+	StzEngineCircuitDestroy(pC)
+	for i = 1 to 20  pX = StzEngineCircuitCreate(3, 1000)  next     # reuse the freed slots
+	cErr = ""
+	try  StzEngineCircuitCanPass(pC2)  catch  cErr = cCatchError  done
+	Then("its copy raises after the destroy", StzFindFirst("circuit breaker was destroyed", cErr) > 0, 1)
+	Then("a NULL handle is still just NULL, not an error", StzEngineCircuitCanPass(NULL) = 0 or StzEngineCircuitCanPass(NULL) = 1, 1)
+EndScenario()
+
 Scenario("the process ledger keeps one id")
 	StzOpenSecurityLedger(16)
 	Then("two faces of the process ledger see the same entries",

@@ -10,7 +10,7 @@ const rn = R.ring_vm_api_retnumber;
 const FSWATCH_HANDLE: [*:0]const u8 = "FsWatcher";
 
 fn getWatcher(p: *anyopaque, n: c_int) ?*fswatch.Watcher {
-    const raw = R.ring_vm_api_getcpointer(p, n, FSWATCH_HANDLE) orelse return null;
+    const raw = R.getHandleOrRaise(p, n, "folder watcher") orelse return null;
     const addr = @intFromPtr(raw);
     if (addr == 0) return null;
     return @ptrFromInt(addr);
@@ -24,9 +24,9 @@ fn ring_FsWatchStart(p: *anyopaque) callconv(.c) void {
     const path_len: usize = @intCast(gss(p, 1));
     const w = fswatch.fswatch_start(path_ptr, path_len);
     if (w) |handle| {
-        R.ring_vm_api_retcpointer(p, @ptrCast(handle), FSWATCH_HANDLE);
+        R.retHandleOnce(p, @ptrCast(handle));
     } else {
-        R.ring_vm_api_retcpointer(p, @ptrFromInt(0), FSWATCH_HANDLE);
+        R.ring_vm_api_retnumber(p, 0);
     }
 }
 
@@ -37,7 +37,9 @@ fn ring_FsWatchPoll(p: *anyopaque) callconv(.c) void {
 }
 
 fn ring_FsWatchStop(p: *anyopaque) callconv(.c) void {
-    const w = getWatcher(p, 1);
+    const _obj = getWatcher(p, 1);
+    R.releaseParam(p, 1); // every copy of this id goes stale before the memory is freed (R16)
+    const w = _obj;
     fswatch.fswatch_stop(w);
 }
 

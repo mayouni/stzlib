@@ -16,7 +16,7 @@ const TCP_BODY_CAP: usize = 4 * 1024 * 1024;
 var tcp_body_buf: [TCP_BODY_CAP]u8 = undefined;
 
 fn getReactor(p: *anyopaque, n: c_int) ?*reactor.Reactor {
-    const raw = R.ring_vm_api_getcpointer(p, n, REACTOR_HANDLE) orelse return null;
+    const raw = R.getHandleOrRaise(p, n, "reactor") orelse return null;
     const addr = @intFromPtr(raw);
     if (addr == 0) return null;
     return @ptrFromInt(addr);
@@ -42,9 +42,9 @@ fn ring_ReactorSelfTest(p: *anyopaque) callconv(.c) void {
 fn ring_ReactorCreate(p: *anyopaque) callconv(.c) void {
     const handle = reactor.reactor_create();
     if (handle) |h| {
-        R.ring_vm_api_retcpointer(p, @ptrCast(h), REACTOR_HANDLE);
+        R.retHandleOnce(p, @ptrCast(h));
     } else {
-        R.ring_vm_api_retcpointer(p, @ptrFromInt(0), REACTOR_HANDLE);
+        R.ring_vm_api_retnumber(p, 0);
     }
 }
 
@@ -230,7 +230,9 @@ fn ring_ReactorCurlLastStatus(p: *anyopaque) callconv(.c) void {
 
 /// StzEngineReactorDestroy(reactor) -- stops the loop, joins the thread.
 fn ring_ReactorDestroy(p: *anyopaque) callconv(.c) void {
-    reactor.reactor_destroy(getReactor(p, 1));
+    const _obj = getReactor(p, 1);
+    R.releaseParam(p, 1); // every copy of this id goes stale before the memory is freed (R16)
+    reactor.reactor_destroy(_obj);
     rn(p, 0);
 }
 
