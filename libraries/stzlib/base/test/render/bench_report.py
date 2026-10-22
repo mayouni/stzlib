@@ -3,8 +3,8 @@
     python bench_report.py WORKDIR ITER REQS LOAD_BEFORE LOAD_AFTER
 
 Reads render_1..3.txt and app.txt that bench_run.sh wrote, asks the machine for
-what the figures were taken on, and writes BENCH_RESULTS_<date>.md beside the
-method. It judges nothing: parity was gated before this ran. It states the
+what the figures were taken on, and writes BENCH_RESULTS_<date>_<HHMM>.md beside the
+method, so a rerun never overwrites another page. It judges nothing: parity was gated before this ran. It states the
 conditions and the figures and compares with nothing.
 """
 import datetime
@@ -37,8 +37,10 @@ ram = ps("[math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemo
 model = ps("$c=Get-CimInstance Win32_ComputerSystem; \"$($c.Manufacturer) $($c.Model)\"")
 osv = ps("(Get-CimInstance Win32_OperatingSystem).Caption + ' ' + (Get-CimInstance Win32_OperatingSystem).Version")
 zig = run(["zig", "version"])
-ring = run(["ring", "-v"])
-ring = ring.splitlines()[0] if ring else "unavailable"
+ring = "unavailable"
+for _l in run(["ring", "-v"]).splitlines():
+    if _l.startswith("Ring version"):
+        ring = _l.strip()
 commit = run(["git", "-C", repo, "rev-parse", "HEAD"])
 engine_commit = run(["git", "-C", repo, "log", "-1", "--format=%H", "--", "libraries/stzlib/engine/src"])
 dlls = []
@@ -62,8 +64,10 @@ for r in (1, 2, 3):
     times = {l[1]: l[2:] for l in lines(p, "TIME")}
     rss = {l[1]: int(l[2]) for l in lines(p, "RSS")}
     runs.append((times, rss))
-app_rss = {l[1]: int(l[2]) for l in lines(os.path.join(work, "app.txt"), "RSS")}
-app_load = lines(os.path.join(work, "app.txt"), "LOAD")[0]
+app_runs = []
+for r in (1, 2, 3):
+    p = os.path.join(work, "app_%d.txt" % r)
+    app_runs.append(({l[1]: int(l[2]) for l in lines(p, "RSS")}, lines(p, "LOAD")[0]))
 
 
 def mb(b):
@@ -130,15 +134,18 @@ md.append("**Closed-loop, one client**: the next request is sent only after the 
           "exercised and this is a round trip, not a capacity. Client and server share one process and one machine, so a "
           "request's time includes the client's own cost. The route answers a short text. An open-loop run is not made here "
           "and is not implied.\n")
-md.append("| idle memory | MB |")
-md.append("|---|---|")
-md.append("| process with the library loaded, before the listener | %s |" % mb(app_rss["baseline"]))
-md.append("| the same process after Start(), before any request | %s |" % mb(app_rss["idle-server"]))
-md.append("| the same process after the %s requests | %s |" % (reqs, mb(app_rss["after-load"])))
+md.append("Three runs, each its own process, shown side by side and never pooled or reduced to one: the same code on this "
+          "machine has given a p50 near 5 ms in some runs and near 31.6 ms, twice the Windows timer quantum of 15.6 ms, in "
+          "others, so one figure would be a coin toss.\n")
+md.append("| run | idle: library loaded, before the listener (MB) | idle: after Start(), before any request (MB) | after the requests (MB) |")
+md.append("|---|---|---|---|")
+for i, (rss, _) in enumerate(app_runs, 1):
+    md.append("| %d | %s | %s | %s |" % (i, mb(rss["baseline"]), mb(rss["idle-server"]), mb(rss["after-load"])))
 md.append("")
-md.append("| requests | seconds | requests per second | p50 ms | p95 ms | worst ms |")
-md.append("|---|---|---|---|---|---|")
-md.append("| %s | %s | %s | %s | %s | %s |" % (app_load[2], app_load[3], app_load[4], app_load[5], app_load[6], app_load[7]))
+md.append("| run | requests | seconds | requests per second | p50 ms | p95 ms | worst ms |")
+md.append("|---|---|---|---|---|---|---|")
+for i, (_, ld) in enumerate(app_runs, 1):
+    md.append("| %d | %s | %s | %s | %s | %s | %s |" % (i, ld[2], ld[3], ld[4], ld[5], ld[6], ld[7]))
 md.append("")
 md.append("## What this does not say\n")
 md.append("- No other framework, no multiple, no ranking: parity of output is the only comparison made, and only between "
@@ -146,7 +153,7 @@ md.append("- No other framework, no multiple, no ranking: parity of output is th
           "- One machine and one afternoon, with other sessions running; the ambient CPU above is the honest size of that.\n"
           "- Inputs (the rows, the parsed panel, the run chapter) are built once and are not in the time.\n"
           "- Resident set includes the library and engine loaded into the process; it is not the cost of one page.\n")
-path = os.path.join(out_dir, "BENCH_RESULTS_%s.md" % date)
+path = os.path.join(out_dir, "BENCH_RESULTS_%s_%s.md" % (date, now_local.strftime("%H%M")))
 with open(path, "w", encoding="utf-8", newline="\n") as f:
     f.write("\n".join(md))
 print("report written:", path)

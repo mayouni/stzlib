@@ -2,7 +2,8 @@
 
 *Plane `stzlib-render`, rung RX4, 2026-10-22. Stage words: **built** (the script that
 shows it is named), **designed**, **absent**. This page is a method, not a result;
-the results are dated pages beside it, `BENCH_RESULTS_<date>.md`.*
+the results are dated pages beside it, `BENCH_RESULTS_<date>_<HHMM>.md`, one per run,
+never overwritten.*
 
 A benchmark here is **dated evidence**. It says what one machine did on one day with
 one build, and it says nothing else. The numbers on a results page are **compared with
@@ -22,8 +23,8 @@ on building its inputs. **built**: `base/test/render/bench_render.ring`.
 | `panel` | the `.panel` document `base/test/gui/showcase.panel` through `stzUiDocument.ToHtml()`, the document already parsed and judged |
 | `chapter` | ONE education chapter in English through `stzEduReader` (an `AddChapter` and `Html()`), the chapter already run; never all 72 |
 
-The app server, **built**: `base/test/render/bench_appserver.ring`: one idle-memory
-figure and one throughput run.
+The app server, **built**: `base/test/render/bench_appserver.ring`: an idle-memory
+figure and a throughput run, each made three times and shown three times.
 
 - **Idle memory** is the resident set of the process after the library is loaded and
   before the listener starts (the baseline), and again after `Start()` and before any
@@ -98,6 +99,19 @@ timed, **2** the run was refused. The page lands in `libraries/stzlib/base/file/
   is a different measurement and is not made here.
 - The resident set includes the library and the engine loaded into the process. It is
   not the cost of one page.
+- **Ambient load moves a figure by a factor, so a page without its load is not evidence.**
+  On 2026-10-22 the 200-row table's p50 was about 485 ms in a session that began at 32
+  percent ambient CPU and about 1,000 ms in a session that began at 73 percent, with the
+  same code, the same engine build and the same bytes. The first session's page was
+  replaced by the second before pages carried the time in their name, which is why the
+  name carries it now. Every page prints its load before and after; a reader compares
+  pages only at similar loads.
+- **The closed-loop figure is bimodal on this machine.** Observed on 2026-10-22, the same
+  code gave a p50 near 5 ms in some runs and near 31.6 ms in others, run to run and once
+  within a pair of runs of one size: two Windows timer quanta of 15.6 ms, which is what a
+  sleep costs when the 1 ms resolution the reactor requests is not in force. The cause
+  is not diagnosed here. So the method runs the app server three times, shows all three,
+  and never reports one.
 - A benchmark of the builder is a benchmark of its present shape: `Build()` rebuilds
   its node objects from its lists on every call. The method does not say whether that
   is right; it says what it costs today.

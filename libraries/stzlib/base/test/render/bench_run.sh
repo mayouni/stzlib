@@ -63,9 +63,14 @@ for r in 2 3; do
 done
 echo "   three runs, identical bytes and sha256 for every output"
 
-echo "== app server: bench_appserver.ring $REQS requests"
-ring bench_appserver.ring "$REQS" > "$WORK/app.txt" 2>&1 || { cat "$WORK/app.txt" >&2; exit 1; }
-grep -q "^ERR" "$WORK/app.txt" && { cat "$WORK/app.txt" >&2; exit 1; }
+# three runs, never one: on 2026-10-22 the same code gave a p50 near 5 ms in
+# some runs and near 31.6 ms (two Windows timer quanta of 15.6 ms) in others,
+# run to run on one machine, so a single figure would be a coin toss
+for r in 1 2 3; do
+	echo "== app server run $r of 3: bench_appserver.ring $REQS requests"
+	ring bench_appserver.ring "$REQS" > "$WORK/app_$r.txt" 2>&1 || { cat "$WORK/app_$r.txt" >&2; exit 1; }
+	grep -q "^ERR" "$WORK/app_$r.txt" && { cat "$WORK/app_$r.txt" >&2; exit 1; }
+done
 
 LOAD_AFTER="$(load_now)"
 echo "== ambient CPU after: $LOAD_AFTER percent"
