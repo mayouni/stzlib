@@ -1,0 +1,43 @@
+{
+  "id": "e02",
+  "difficulty": "three-column newsletter (CSS multi-column) with a title spanning all three columns",
+  "pages": 1,
+  "title": "The Harbour Lane Gazette",
+  "headings": [
+    {
+      "level": 1,
+      "text": "The Harbour Lane Gazette"
+    },
+    {
+      "level": 2,
+      "text": "New Bus Stop Opens on Quay Street"
+    },
+    {
+      "level": 2,
+      "text": "Library Extends Its Opening Hours"
+    },
+    {
+      "level": 2,
+      "text": "Spring Clean-Up Day"
+    }
+  ],
+  "key_sentences": [
+    "The long-awaited bus stop on Quay Street opened to passengers on the first Monday of April.",
+    "Route 14 now stops there every twenty minutes between six in the morning and ten at night.",
+    "Residents asked for a shelter with a bench, and the council has promised one before the summer.",
+    "The Harbour Lane library will stay open until eight o'clock on Tuesdays and Thursdays.",
+    "Volunteers will run a homework club for children aged eight to twelve during the extra hours.",
+    "Anyone who wants to help can leave their name at the front desk.",
+    "Our yearly clean-up day takes place on Saturday the 16th of May, starting at nine o'clock.",
+    "Gloves, bags and tea will be provided at the community hall.",
+    "Last year forty-two neighbours collected more than ninety bags of rubbish from the beach and the park."
+  ],
+  "tables": [],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Body text flows through three CSS columns: down column 1, then column 2, then column 3. Intended reading order is that flow, which is also the order of the three articles (each a level-2 heading followed by three one-sentence paragraphs). The browser balances the columns, so an article may be split across a column boundary; the reading order does not change. A thin vertical rule separates the columns. The title spans all columns."
+}

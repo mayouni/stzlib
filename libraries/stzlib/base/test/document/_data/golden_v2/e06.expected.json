@@ -1,0 +1,43 @@
+{
+  "id": "e06",
+  "difficulty": "scientific page: serif font, justified paragraphs, superscript footnote markers with footnotes at the foot, an inline formula with subscript and superscript",
+  "pages": 1,
+  "title": "Seasonal Recharge of a Shallow Alluvial Aquifer",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Seasonal Recharge of a Shallow Alluvial Aquifer"
+    },
+    {
+      "level": 2,
+      "text": "1. Introduction"
+    },
+    {
+      "level": 2,
+      "text": "2. Method"
+    },
+    {
+      "level": 2,
+      "text": "3. Results"
+    }
+  ],
+  "key_sentences": [
+    "Shallow alluvial aquifers supply most of the drinking water in the villages of the lower valley.",
+    "Little is known about how quickly the water table responds after the first heavy rain.",
+    "We monitored twelve wells twice a week from May to November.",
+    "The water table rose by an average of 2.4 m within ten days of the first storm.",
+    "The recession constant was remarkably similar across all twelve wells.",
+    "These results suggest that the aquifer is recharged mainly through the riverbed rather than by direct infiltration."
+  ],
+  "tables": [],
+  "list_items": [],
+  "furniture": [
+    "Sahel Water Studies 7(2), 2026",
+    "41"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Font Times New Roman 11.5pt, paragraphs justified (inter-word spaces vary), no hyphenation. Author line 'R. Okonjo and L. Varga' (centred, italic) is neither a heading nor a key sentence. FOOTNOTE MARKERS: superscript '1' after 'riverbed.' in the Introduction and superscript '2' after 'wells.' in the Method; both sentences are left OUT of key_sentences. The footnotes sit at the bottom of the text under a short rule: '1 Infiltration was estimated from double-ring tests at six points.' and '2 The station is operated by the district agricultural office.' (each starts with a superscript number). INLINE FORMULA in the Method paragraph, left out of key_sentences: visually 'h(t) = h0 · e^(−kt)' - h, t and k italic, '0' is a subscript, '−kt' is a superscript and the minus is U+2212, the dot is U+00B7; the sentence reads 'The decline of the water level after the last rain was fitted with the exponential model h(t) = h0 · e−kt, where k is the recession constant.' when sub/superscripts are flattened. Furniture: running header 'Sahel Water Studies 7(2), 2026' (top right, italic, ruled below) and page number '41' (bottom centre). Serif text may carry fi/fl ligatures depending on the font ('infiltration', 'fitted')."
+}

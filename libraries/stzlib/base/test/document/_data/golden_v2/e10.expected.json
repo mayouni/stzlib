@@ -1,0 +1,67 @@
+{
+  "id": "e10",
+  "difficulty": "German text with umlauts and ß, a long compound word hyphenated across a line break, and a table with merged header cells (colspan and rowspan)",
+  "pages": 1,
+  "title": "Jahresbericht 2025 der Stadtwerke Großbachtal",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Jahresbericht 2025 der Stadtwerke Großbachtal"
+    },
+    {
+      "level": 2,
+      "text": "Überblick"
+    },
+    {
+      "level": 2,
+      "text": "Kennzahlen"
+    }
+  ],
+  "key_sentences": [
+    "Die Stadtwerke Großbachtal versorgen rund 18.400 Haushalte mit Strom, Gas und Trinkwasser.",
+    "Im vergangenen Jahr wurden 6,2 Kilometer Wasserleitungen erneuert.",
+    "Seit März gilt außerdem die neue Trinkwasserversorgungssicherheitsverordnung des Landkreises, die regelmäßige Prüfungen aller Hochbehälter vorschreibt.",
+    "Die größte Herausforderung bleibt der Fachkräftemangel im technischen Außendienst.",
+    "Der Gasabsatz ging wegen des milden Winters um knapp sechs Prozent zurück.",
+    "Für das Jahr 2026 plant der Betrieb Investitionen in Höhe von 9,5 Millionen Euro."
+  ],
+  "tables": [
+    {
+      "caption": "Tabelle 1: Absatzmengen nach Sparte",
+      "rows": [
+        [
+          "Sparte",
+          "Absatz",
+          "Absatz"
+        ],
+        [
+          "Sparte",
+          "2024",
+          "2025"
+        ],
+        [
+          "Strom (MWh)",
+          "41.250",
+          "42.980"
+        ],
+        [
+          "Gas (MWh)",
+          "58.700",
+          "55.310"
+        ],
+        [
+          "Trinkwasser (Tsd. m³)",
+          "1.920",
+          "1.965"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "de"
+  ],
+  "code": [],
+  "notes": "HYPHENATION: the compound 'Trinkwasserversorgungssicherheitsverordnung' (third key sentence) is broken across two lines as 'Trinkwasserversorgungs-' / 'sicherheitsverordnung' with a visible hyphen at the end of the first line; the source has a soft hyphen (U+00AD) at that one point, and the narrow column forces the break there. In the rendering checked by its author the break falls at the END OF COLUMN 1, so the second half 'sicherheitsverordnung' opens column 2: a reader must join the halves across a column boundary. key_sentences give the word WHOLE, without hyphen. The 'Überblick' text is set in two CSS columns (12pt), read column 1 then column 2. Numbers use German format: '.' is the thousands separator (18.400, 41.250), ',' the decimal mark (6,2 / 9,5). TABLE: two header rows; 'Sparte' spans both header rows (rowspan 2) and 'Absatz' spans the two year columns (colspan 2), so each merged cell's text is repeated in every grid cell it covers: header rows are ['Sparte','Absatz','Absatz'] and ['Sparte','2024','2025']. 'm³' uses U+00B3."
+}

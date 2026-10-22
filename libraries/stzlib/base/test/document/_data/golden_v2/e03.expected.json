@@ -1,0 +1,43 @@
+{
+  "id": "e03",
+  "difficulty": "sidebar box floated right beside the body text; intended reading order is main text first, sidebar last",
+  "pages": 1,
+  "title": "Restoring the Old Mill Pond",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Restoring the Old Mill Pond"
+    },
+    {
+      "level": 2,
+      "text": "Why the Pond Matters"
+    },
+    {
+      "level": 2,
+      "text": "What the Work Involves"
+    },
+    {
+      "level": 3,
+      "text": "At a Glance"
+    }
+  ],
+  "key_sentences": [
+    "The old mill pond is the last open water in the eastern part of the town.",
+    "For decades it was a resting place for herons, ducks and the occasional kingfisher.",
+    "Since the sluice gate collapsed, the pond has slowly filled with silt and reeds.",
+    "Contractors will first remove about four thousand cubic metres of silt.",
+    "The sluice gate will then be rebuilt in oak, following the original drawings kept in the town archive.",
+    "Finally, a footpath with two viewing platforms will be laid along the southern bank.",
+    "The pond covers about 1.8 hectares.",
+    "Work began in September 2025 and should end in June 2026.",
+    "The total budget is 214,000 euros."
+  ],
+  "tables": [],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "INTENDED READING ORDER: title, then the whole main text (both level-2 sections and the closing paragraph about the restoration group), then the sidebar box. In the HTML source the sidebar comes BEFORE the main text (a float must precede what wraps around it) and it sits visually at the top right, level with the first section, so a reader that follows source order or top-to-bottom geometry will put it too early. The headings list follows the intended reading order, so the sidebar heading 'At a Glance' (level 3) is last. key_sentences follow the same order; the closing paragraph is body text but not in key_sentences. The sidebar has a border and a light grey-blue background."
+}

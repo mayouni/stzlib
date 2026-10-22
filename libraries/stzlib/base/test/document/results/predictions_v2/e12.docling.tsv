@@ -1,0 +1,10 @@
+heading	1	Release Notes for the Tessel Build Tool 3.2
+paragraph	0	Version 3.2 changes how configuration files are loaded. Errors now name the file that could not be read, which makes broken setups much easier to diagnose.
+heading	1	Loading the configuration
+code	0	func loadConfig(path string) (*Config, error) { data, err := os.ReadFile(path) if err != nil { return nil, fmt.Errorf("read %s: %w" , path, err) } var cfg Config if err := json.Unmarshal(data, &cfg); err != nil { return nil, err } return &cfg, nil }
+heading	1	Upgrading
+paragraph	0	Existing installations can be upgraded in place with the built-in update command.
+code	0	$ tessel --version tessel 3.1.4 $ tessel self-update --channel stable Downloading tessel 3.2.0 ... done Verifying signature ... ok $ tessel --version tessel 3.2.0
+paragraph	0	A build tool should be boring in the best sense of the word. It should do the same thing every time, and tell you clearly when it cannot.
+paragraph	0	From the project design notes
+paragraph	0	The previous version will receive security fixes until the end of the year.

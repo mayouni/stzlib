@@ -1,0 +1,306 @@
+{
+  "id": "e04",
+  "difficulty": "long bordered table that continues onto a second page, with its header row repeated at the top of page 2",
+  "pages": 2,
+  "title": "Spare Parts Inventory, Workshop B",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Spare Parts Inventory, Workshop B"
+    },
+    {
+      "level": 2,
+      "text": "Remarks"
+    }
+  ],
+  "key_sentences": [
+    "This ledger lists every spare part held in Workshop B at the end of January.",
+    "Quantities were counted by hand and checked against the delivery notes.",
+    "Parts with a quantity of zero have been reordered and should arrive within two weeks.",
+    "Please report any difference between this list and the shelves to the stores supervisor."
+  ],
+  "tables": [
+    {
+      "caption": "Stock count of 31 January 2026",
+      "rows": [
+        [
+          "Part no.",
+          "Description",
+          "Bin",
+          "Quantity"
+        ],
+        [
+          "SP-1001",
+          "Hex bolt M8 x 40",
+          "A1",
+          "11"
+        ],
+        [
+          "SP-1002",
+          "Hex nut M8",
+          "B1",
+          "48"
+        ],
+        [
+          "SP-1003",
+          "Washer 8 mm",
+          "C1",
+          "85"
+        ],
+        [
+          "SP-1004",
+          "Bearing 6204-2RS",
+          "A2",
+          "32"
+        ],
+        [
+          "SP-1005",
+          "V-belt A-38",
+          "B2",
+          "69"
+        ],
+        [
+          "SP-1006",
+          "Hydraulic hose 1/2 inch",
+          "C2",
+          "0"
+        ],
+        [
+          "SP-1007",
+          "Oil filter OF-112",
+          "A3",
+          "53"
+        ],
+        [
+          "SP-1008",
+          "Air filter AF-30",
+          "B3",
+          "0"
+        ],
+        [
+          "SP-1009",
+          "Fuse 10 A",
+          "A1",
+          "37"
+        ],
+        [
+          "SP-1010",
+          "Relay 24 V",
+          "B1",
+          "74"
+        ],
+        [
+          "SP-1011",
+          "O-ring 25 x 3",
+          "C1",
+          "21"
+        ],
+        [
+          "SP-1012",
+          "Grease cartridge 400 g",
+          "A2",
+          "58"
+        ],
+        [
+          "SP-1013",
+          "Spark plug SP-7",
+          "B2",
+          "5"
+        ],
+        [
+          "SP-1014",
+          "Drive chain 08B",
+          "C2",
+          "42"
+        ],
+        [
+          "SP-1015",
+          "Cable tie 200 mm",
+          "A3",
+          "79"
+        ],
+        [
+          "SP-1016",
+          "Hex bolt M8 x 40, spare 2",
+          "B3",
+          "26"
+        ],
+        [
+          "SP-1017",
+          "Hex nut M8, spare 2",
+          "A1",
+          "63"
+        ],
+        [
+          "SP-1018",
+          "Washer 8 mm, spare 2",
+          "B1",
+          "10"
+        ],
+        [
+          "SP-1019",
+          "Bearing 6204-2RS, spare 2",
+          "C1",
+          "0"
+        ],
+        [
+          "SP-1020",
+          "V-belt A-38, spare 2",
+          "A2",
+          "84"
+        ],
+        [
+          "SP-1021",
+          "Hydraulic hose 1/2 inch, spare 2",
+          "B2",
+          "31"
+        ],
+        [
+          "SP-1022",
+          "Oil filter OF-112, spare 2",
+          "C2",
+          "68"
+        ],
+        [
+          "SP-1023",
+          "Air filter AF-30, spare 2",
+          "A3",
+          "15"
+        ],
+        [
+          "SP-1024",
+          "Fuse 10 A, spare 2",
+          "B3",
+          "52"
+        ],
+        [
+          "SP-1025",
+          "Relay 24 V, spare 2",
+          "A1",
+          "89"
+        ],
+        [
+          "SP-1026",
+          "O-ring 25 x 3, spare 2",
+          "B1",
+          "36"
+        ],
+        [
+          "SP-1027",
+          "Grease cartridge 400 g, spare 2",
+          "C1",
+          "73"
+        ],
+        [
+          "SP-1028",
+          "Spark plug SP-7, spare 2",
+          "A2",
+          "20"
+        ],
+        [
+          "SP-1029",
+          "Drive chain 08B, spare 2",
+          "B2",
+          "57"
+        ],
+        [
+          "SP-1030",
+          "Cable tie 200 mm, spare 2",
+          "C2",
+          "4"
+        ],
+        [
+          "SP-1031",
+          "Hex bolt M8 x 40, spare 3",
+          "A3",
+          "41"
+        ],
+        [
+          "SP-1032",
+          "Hex nut M8, spare 3",
+          "B3",
+          "0"
+        ],
+        [
+          "SP-1033",
+          "Washer 8 mm, spare 3",
+          "A1",
+          "25"
+        ],
+        [
+          "SP-1034",
+          "Bearing 6204-2RS, spare 3",
+          "B1",
+          "62"
+        ],
+        [
+          "SP-1035",
+          "V-belt A-38, spare 3",
+          "C1",
+          "9"
+        ],
+        [
+          "SP-1036",
+          "Hydraulic hose 1/2 inch, spare 3",
+          "A2",
+          "46"
+        ],
+        [
+          "SP-1037",
+          "Oil filter OF-112, spare 3",
+          "B2",
+          "83"
+        ],
+        [
+          "SP-1038",
+          "Air filter AF-30, spare 3",
+          "C2",
+          "30"
+        ],
+        [
+          "SP-1039",
+          "Fuse 10 A, spare 3",
+          "A3",
+          "67"
+        ],
+        [
+          "SP-1040",
+          "Relay 24 V, spare 3",
+          "B3",
+          "14"
+        ],
+        [
+          "SP-1041",
+          "O-ring 25 x 3, spare 3",
+          "A1",
+          "51"
+        ],
+        [
+          "SP-1042",
+          "Grease cartridge 400 g, spare 3",
+          "B1",
+          "88"
+        ],
+        [
+          "SP-1043",
+          "Spark plug SP-7, spare 3",
+          "C1",
+          "35"
+        ],
+        [
+          "SP-1044",
+          "Drive chain 08B, spare 3",
+          "A2",
+          "72"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "One table of 44 data rows plus a header row. It breaks across pages 1 and 2; the browser repeats the header row (Part no. / Description / Bin / Quantity) at the top of page 2. Expected: ONE table, header row once, all 44 data rows in order, no row split across the page break (rows are kept whole). The caption 'Stock count of 31 January 2026' is above the table on page 1 only. The 'Remarks' section follows the table on page 2."
+}

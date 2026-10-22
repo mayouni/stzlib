@@ -135,7 +135,28 @@ The three slices share the `:document` parcel type; D1's golden pages can be **g
 
 **How it ran**: the venv is outside the tree (`D:\GitHub\_wt_dl\docling-venv`, plus `onnxruntime` for RapidOCR), and the models were fetched beforehand with `curl -C -` and checked against the hub's SHA-256 (layout 171,658,996 B `00333a43...`, TableFormer accurate 212,758,388 B `2a7d6c92...`), because the Hugging Face client stalled on this network. Run with `--artifacts <models dir>` and `HF_HUB_OFFLINE=1`.
 
-**Not measured**: Granite-Docling-258M (not downloaded), the GPU, scanned golden pages with an expected text.
+**The floor now exists (2026-10-22): Softanza's native reader**, `engine/src/pdf.zig` in `stz_file.dll`, Zig standard library only, with its Ring face `base/file/stzPdf.ring`. It reads the text layer: objects (a broken xref does not matter), object streams, five filters, ToUnicode and simple encodings, the text and path operators; then lays the glyphs out (rows, right-to-left lines in logical order, tables from ruling lines, an XY cut for columns) and types each block. Guard `pdf_reader_narrated.ring`, 42 assertions.
+
+**Measured on golden_v2**, 12 harder PDFs written by a second independent agent that saw neither reader nor golden_v1 (borderless table, three columns, a sidebar, a table across two pages, Hebrew, a scientific page, a form, bold-only headings, a) b) lists, German with a soft hyphen, landscape, code with tabs). Both readers write the same prediction format and are scored by the same function, `_doc_score.py`:
+
+| golden_v2 | text | order | headings | tables | lists | furniture | code | per document |
+|---|---|---|---|---|---|---|---|---|
+| Softanza native | **0.97** | **0.99** | 0.94 | 0.66 | **1.00** | 0.25 | **1.00** | about 2 ms |
+| Docling 2.141 | 0.96 | 0.97 | **1.00** | **0.89** | 0.00 | **1.00** | 0.50 | about 5 s |
+
+On golden_v1 the native reader scores 1.00 everywhere, but golden_v1 is its DEVELOPMENT set (it was built while reading those ten files), so that number proves behaviour, not quality; only golden_v2 is a measurement. **golden_v2 is now spent the same way the moment the reader is changed to fix what it showed**: a fix is re-measured on a new set.
+
+What the native reader got wrong on golden_v2, each cause read off its output:
+
+- **tables**: a table WITHOUT ruling lines is not found (e01, 0.00; its text is still read, in order); a table continued on a second page comes back as two tables (e04, 0.62).
+- **furniture**: a running header or a form's footer on a ONE-page document has no repetition to give it away (e06, e07); Docling's layout model sees it.
+- **headings**: numbered headings ("1. Introduction") were taken for list items, because the list-marker rule runs before the heading rule (e06).
+- **bidi**: in Hebrew, the period after a Latin run at the end of a sentence lands on the wrong side of it (".Rivulet S3"), a weak-character rule the line reordering lacks (e05).
+- **hyphenation**: a word split by a soft hyphen across a COLUMN break is not joined (e10).
+
+What Docling got wrong on the same set: every a) b) c) list (lists 0.00), the code block with tabs (0.50), two of the six Hebrew sentences, the reading order around the German column break, and the same two-page table (0.62).
+
+**Not measured**: Granite-Docling-258M (not downloaded), the GPU, scanned golden pages with an expected text, PDFs from producers other than Chrome (both golden sets are Chrome-made and tagged; the native reader does not read the tags).
 
 ---
 

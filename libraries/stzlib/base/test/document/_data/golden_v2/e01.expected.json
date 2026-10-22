@@ -1,0 +1,66 @@
+{
+  "id": "e01",
+  "difficulty": "table without any borders or ruling lines; columns aligned by padding only; header row not bold",
+  "pages": 1,
+  "title": "Field Trial Summary: Drought-Tolerant Millet",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Field Trial Summary: Drought-Tolerant Millet"
+    },
+    {
+      "level": 2,
+      "text": "Results"
+    },
+    {
+      "level": 2,
+      "text": "Next Steps"
+    }
+  ],
+  "key_sentences": [
+    "This summary reports the second season of field trials at three experimental stations.",
+    "Each plot was sown on the same day and received no irrigation after germination.",
+    "Sahel Gold and Riverbank Early produced the highest yields, but Riverbank Early needed almost three more weeks to mature.",
+    "Dune Runner matured fastest and remains the safest choice where the rains end early.",
+    "A third season is planned before any variety is recommended to growers."
+  ],
+  "tables": [
+    {
+      "caption": "Table 1. Average yield per hectare by variety",
+      "rows": [
+        [
+          "Variety",
+          "Yield (kg/ha)",
+          "Days to maturity"
+        ],
+        [
+          "Sahel Gold",
+          "1,240",
+          "84"
+        ],
+        [
+          "Tillaberi 3",
+          "1,105",
+          "79"
+        ],
+        [
+          "Dune Runner",
+          "980",
+          "72"
+        ],
+        [
+          "Riverbank Early",
+          "1,310",
+          "91"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "The table is an HTML table with every border, rule and background removed; the header row is set in the same weight and size as the data rows and is told apart only by its position and an extra 6pt of space below it. Numeric columns are right-aligned. The caption sits above the table, in italics. The title is also listed as the level-1 heading (convention for the whole set)."
+}
