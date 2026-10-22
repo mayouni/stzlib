@@ -89,8 +89,8 @@ func TheLetters(acChars)
 # that was tagged false stays false: later steps do not run, so build a new chain for a new
 # question. The surface is frozen legacy: the same idea lives on as interrogative narrations in
 # stzNatural, and part of this class does not work today: the negative forms (IsNot, IsNotAn,
-# IsNotThe, IsNotA), Containing, ContainingNo, the function-call forms of Is and IsA, and the
-# ordinal forms (st, nd, rd, th, Nth).
+# IsNotThe, IsNotA) and the function-call forms of Is and IsA. Containment (Containing,
+# ContainingNo) and the nth item (Nth and the ordinal forms st, nd, rd, th) work.
 #
 #   receiver   o1 = _("Ring")
 #   example    ? o1.Is(:String)._
@@ -283,9 +283,9 @@ class stzChainOfTruth from stzObject
 	#   returns    the chain itself; close it with the _ attribute to read 1 or 0
 	#   note       a value is equal to the held one without regard to case; an unknown word gives a
 	#              false chain, not an error
-	#   warning    the form with a function call such as 'LetterOf("HUSSEIN")' raises error R13
-	#              Object is required, because the call builds a chain with the name _ which inside
-	#              the class is an attribute; once the chain is false, later steps stay false
+	#   warning    the form with a function call such as 'LetterOf("HUSSEIN")' raises error R14 today,
+	#              because the string object it asks has no IsLetterOf method; once the chain is
+	#              false, later steps stay false
 	#   see        IsA, IsThe, Which, get_
 	def Is(pThing)
 
@@ -365,7 +365,9 @@ class stzChainOfTruth from stzObject
 			but (StzFindFirst("(", pThing) > 1 and StzFindFirst(")", pThing) > 0 and StringNumberOfOccurrence(pThing, "(") = 1 and StringNumberOfOccurrence(pThing, ")") = 1 and StzFindFirst("(", pThing) < StzFindFirst(")", pThing) and StzRight(pThing, 1) = ")")
 				# Example: _("H").Is('LetterOf("HUSSEIN")')._
 
-				_cCode_ = 'bResult = _(' + ComputableForm(This.Value()) + ').Q.Is' + pThing
+				# The wrapped object is asked directly: a call of the global _( ) here would
+				# read the _ attribute of this class instead and die with R13.
+				_cCode_ = 'bResult = This.StzObjectQ().Is' + pThing
 				eval(_cCode_)
 
 			else
@@ -700,7 +702,7 @@ class stzChainOfTruth from stzObject
 	def Where(pcCondition)
 		/* Example
 
-			? _("Ring").IsAString().Where('{ NumberOfItems() = 4 }')
+			? _("Ring").Is(:String).Where('NumberOfChars() = 4')._
 			
 			--> Returns 1
 		*/
@@ -760,52 +762,43 @@ class stzChainOfTruth from stzObject
 	 #   CHECKING CONTAINMENT   #
 	#--------------------------#
 
-	# Raises error Syntax error today for any text or list, instead of tagging the chain with whether the value holds p.
+	# Tags the chain true when the held text includes p as a part or the held list has p as an item, else false, and returns the chain.
 	#
-	#   p          the item the value should contain
-	#   returns    nothing, since it raises; a number gives the chain tagged false
-	#   note       Contains and IsContaining are the same call
-	#   warning    tested with a text and with a list, and both raised Syntax error! Check the
-	#              condition you provided, because it builds the condition between braces and Where
-	#              refuses braces
-	#   see        Where, ContainingNo
+	#   p          what to look for: a text when the chain holds a text; any item (a text, a number or a
+	#              list) when it holds a list
+	#   returns    the chain itself, tagged 1 or 0; close it with the _ attribute to read the answer
+	#   note       a text holds p when p occurs in it as a part, compared by codepoints and telling A from
+	#              a; every text holds the empty text; a p that is not a text is never held by a text
+	#   note       a list holds p only as a whole item of the same type, so 2 is not found in a list that
+	#              holds the text "2", and a list item is compared member by member; a number or an
+	#              object holds nothing, so the chain is tagged false
+	#   note       once the chain is false, later steps stay false; Contains and IsContaining are the
+	#              same call
+	#   see        ContainingNo, Where, get_
+	#   example    ? _("Ring").Is(:String).Containing("in")._
+	#              #--> 1
+	#              ? _("Ring").Containing("IN")._
+	#              #--> 0
 	def Containing(p)
-		/* Example
-
-		? _("Ring").IsAString().Containing("in")
-
-		--> Returns 1
-		*/
-
-		if This.ShouldBeNegated()
-			if This.ShouldReturnFalse()
-				This.SetchainToReturn(1)
-			but This.ShouldReturnTrue()
-				This.SetChainToReturn(0)
-			ok
-		ok
 
 		if This.ShouldReturnFalse()
 			This.SetChainToReturn(0)
 			return This
 		ok
 
-		if isNumber(This.Value())
-			This.SetChainToReturn(0)
-			return This
-		ok
-
-		if isString(p)
-			p = '"' + p + '"'
-		ok
-
-		bResult = This.Where('{ Contains(' + p + ') }')
+		_bHolds_ = This.pvtHolds(p)
 
 		if This.ShouldBeNegated()
-			bResult = NOt bResult
+			_bHolds_ = 1 - _bHolds_
 		ok
 
-		return bResult
+		if _bHolds_
+			This.SetChainToReturn(1)
+		else
+			This.SetChainToReturn(0)
+		ok
+
+		return This
 
 		#< @FunctionAlternativeForms
 
@@ -815,30 +808,24 @@ class stzChainOfTruth from stzObject
 		def IsContaining(p)
 			return This.Containing(p)
 
-	# Raises error Syntax error today for any text or list, instead of tagging the chain with whether the value lacks p.
-	#
-	#   p          the item the value should not contain
-	#   returns    nothing, since it raises; a number gives the chain tagged false
-	#   note       ContainsNo, DoesNotContain and IsContainingNo are the same call
-	#   warning    tested with a text and with a list, and both raised Syntax error! Check the
-	#              condition you provided, for the same reason as Containing
-	#   see        Where, Containing
 		#>
+
+	# Tags the chain true when the held text lacks p as a part or the held list lacks p as an item, else false, and returns the chain.
+	#
+	#   p          what should be absent: a text when the chain holds a text; any item (a text, a number
+	#              or a list) when it holds a list
+	#   returns    the chain itself, tagged 1 or 0; close it with the _ attribute to read the answer
+	#   note       the exact complement of the containment test for a text or a list, with the same rules
+	#              for case, empty text, types and nested lists; a number or an object holds nothing and
+	#              lacks nothing, so for it both tests tag the chain false
+	#   note       once the chain is false, later steps stay false; ContainsNo, ContainsNeighther,
+	#              IsContainingNo, DoesNotContain and ContainingNeighther are the same call
+	#   see        Containing, Where
+	#   example    ? _("Ring").Is(:String).ContainingNo("xyz")._
+	#              #--> 1
+	#              ? _("Ring").ContainingNo("in")._
+	#              #--> 0
 	def ContainingNo(p)
-		/* Example
-
-		? _("Ring").IsAString().ContainingNo("xyz")
-
-		--> Returns 1
-		*/
-
-		if This.ShouldBeNegated()
-			if This.ShouldReturnFalse()
-				This.SetchainToReturn(1)
-			but This.ShouldReturnTrue()
-				This.SetChainToReturn(0)
-			ok
-		ok
 
 		if This.ShouldReturnFalse()
 			This.SetChainToReturn(0)
@@ -847,22 +834,25 @@ class stzChainOfTruth from stzObject
 
 		@cNeightherFunction = :ContainingNo
 
-		if isNumber(This.Value())
+		_pValue_ = This.Value()
+		if NOT (isString(_pValue_) or isList(_pValue_))
 			This.SetChainToReturn(0)
 			return This
 		ok
 
-		if isString(p)
-			p = '"' + p + '"'
-		ok
-
-		bResult = This.Where('{ ContainsNo(' + p + ') }')
+		_bLacks_ = 1 - This.pvtHolds(p)
 
 		if This.ShouldBeNegated()
-			bResult = NOt bResult
+			_bLacks_ = 1 - _bLacks_
 		ok
 
-		return bResult
+		if _bLacks_
+			This.SetChainToReturn(1)
+		else
+			This.SetChainToReturn(0)
+		ok
+
+		return This
 
 		#< @FunctionAlternativeForms
 
@@ -881,28 +871,29 @@ class stzChainOfTruth from stzObject
 		def ContainingNeighther(p)
 			return This.ContainingNo(p)
 
-	# Calls the method named by NeightherFunction with p and returns its answer, which is always 0 today.
-	#
-	#   p          the thing to test, as for Is
-	#   returns    0
-	#   warning    tested after IsNeighther and IsNor, and the answer was 0 in both, since the
-	#              method it calls is IsNot
-	#   see        IsNeighther, NeightherFunction
 		#>
+
+	# Runs the method named by NeightherFunction on p and returns its answer: 0 after IsNeighther or IsNor, the chain after ContainingNo.
+	#
+	#   p          the thing to test: as for Is after IsNeighther or IsNor, as for ContainingNo after it
+	#   returns    0 after IsNeighther or IsNor; the chain itself, tagged 1 or 0, after ContainingNo
+	#   warning    after IsNeighther or IsNor the answer is 0 whatever p is, since the method it calls is
+	#              IsNot; on a chain where none of these steps came first the method name is empty and
+	#              the call raises error R42 Error in eval() function
+	#   see        IsNeighther, ContainingNo, NeightherFunction
 	def Nor(p)
 		_cCode_ = 'bResult = This.' + This.NeightherFunction() + '(p)'
 		eval(_cCode_)
 
 		return bResult
 
-	# Raises error R13 for a number ending in 1, instead of returning the nth item of a call such as 'LetterOf("HUSSEIN")'.
+	# Returns the item at the rank held by the chain, such as the 21st letter of a call, when that number ends in 1, else nothing.
 	#
 	#   pcThing    a function call as text, such as 'LetterOf("HUSSEIN")'
-	#   returns    nothing for a number that does not end in 1 or for a non-number; raises error R13
-	#              otherwise
-	#   warning    with 21 it raised R13 Object is required, as Nth does
+	#   returns    what the nth-item step answers, a new chain or this chain tagged false, when the chain
+	#              holds a number ending in 1; an empty text for any other value
+	#   note       the rank is the held number; 21 asks for the 21st letter, which HUSSEIN does not have
 	#   see        Nth, nd, rd, th
-	#------------------
 	def st(pcThing)
 		if This._Type() = "NUMBER" and
 		   StzRight(''+ This.Value(), 1) = "1"
@@ -910,12 +901,13 @@ class stzChainOfTruth from stzObject
 			return This.Nth(pcThing)
 		ok
 
-	# Raises error R13 for a number ending in 2, instead of returning the nth item of a call such as 'LetterOf("HUSSEIN")'.
+		return ""
+
+	# Returns the item at the rank held by the chain, such as the 22nd letter of a call, when that number ends in 2, else nothing.
 	#
 	#   pcThing    a function call as text, such as 'LetterOf("HUSSEIN")'
-	#   returns    nothing for a number that does not end in 2 or for a non-number; raises error R13
-	#              otherwise
-	#   warning    with 2 it raised R13 Object is required, as Nth does
+	#   returns    what the nth-item step answers, a new chain or this chain tagged false, when the chain
+	#              holds a number ending in 2; an empty text for any other value
 	#   see        Nth, st, rd, th
 	def nd(pcThing)
 		if This._Type() = "NUMBER" and
@@ -924,12 +916,13 @@ class stzChainOfTruth from stzObject
 			return This.nth(pcThing)
 		ok
 
-	# Raises error R13 for a number ending in 3, instead of returning the nth item of a call such as 'LetterOf("HUSSEIN")'.
+		return ""
+
+	# Returns the item at the rank held by the chain, such as the 23rd letter of a call, when that number ends in 3, else nothing.
 	#
 	#   pcThing    a function call as text, such as 'LetterOf("HUSSEIN")'
-	#   returns    nothing for a number that does not end in 3 or for a non-number; raises error R13
-	#              otherwise
-	#   warning    with 3 it raised R13 Object is required, as Nth does
+	#   returns    what the nth-item step answers, a new chain or this chain tagged false, when the chain
+	#              holds a number ending in 3; an empty text for any other value
 	#   see        Nth, st, nd, th
 	def rd(pcThing)
 		if This._Type() = "NUMBER" and
@@ -938,19 +931,18 @@ class stzChainOfTruth from stzObject
 			return This.nth(pcThing)
 		ok
 
-	# Raises error R13 for a number ending in 4 to 9 or 0, instead of returning the nth item of a call such as 'LetterOf("HUSSEIN")'.
+		return ""
+
+	# Returns the item at the rank held by the chain, such as the 7th letter of a call, when its last digit is 2 to 9, else nothing.
 	#
 	#   pcThing    a function call as text, such as 'LetterOf("HUSSEIN")'
-	#   returns    nothing for a number that ends in 1, 2 or 3 or for a non-number; raises error R13
-	#              otherwise
-	#   warning    with 7 and with 12 it raised R13 Object is required, as Nth does
+	#   returns    what the nth-item step answers, a new chain or this chain tagged false, when the chain
+	#              holds a number whose last digit is 2 to 9; an empty text for any other value
+	#   note       a number ending in 0 or 1 gives an empty text, so 10 asks for nothing here
 	#   see        Nth, st, nd, rd
+	#   example    ? _(7).th('LetterOf("HUSSEIN")')._
+	#              #--> N
 	def th(pcThing)
-		/* Example:
-
-		_(7).nth('LetterOf("HUSSEIN")').Q 	#--> "N"
-
-		*/
 		if This._Type() = "NUMBER" and
 		   (0+ StzRight(''+ This.Value(), 1)) > 1
 
@@ -958,33 +950,92 @@ class stzChainOfTruth from stzObject
 
 		ok
 
-	# Raises error R13 Object is required today for a number, instead of returning the nth item such as the 7th letter of HUSSEIN.
+		return ""
+
+	# Returns a new chain holding the nth item, such as the 7th letter of HUSSEIN, or this chain tagged false when there is none.
 	#
-	#   pcThing    a function call as text, such as 'LetterOf("HUSSEIN")'
-	#   returns    nothing for a non-number; raises error R13 for a number
-	#   warning    the call NthLetterOf(7, "HUSSEIN") on its own works and answers N; the failure is
-	#              in the last line of the method, which builds the result with the name _, an
-	#              attribute inside the class
+	#   pcThing    for a chain holding the number n: a function call as text, such as
+	#              'LetterOf("HUSSEIN")', that gets Nth in front of its name and n as first argument;
+	#              for a chain holding a text or a list: the number n itself
+	#   returns    a new chain holding the item, read with the _ attribute or Value; this chain tagged
+	#              false when n is not a whole number from 1 to 2147483647, when there is no item at
+	#              n, or when pcThing does not fit the held value
+	#   note       the letter of a text is a codepoint, not a byte, so the 2nd letter of an accented
+	#              text is whole; the call text is evaluated as Ring code, so pass only text you wrote,
+	#              and a call that cannot be evaluated raises a message that names it
 	#   see        st, nd, rd, th
+	#   example    ? _(7).Nth('LetterOf("HUSSEIN")')._
+	#              #--> N
+	#              ? _("HUSSEIN").Nth(2)._
+	#              #--> U
 	def Nth(pcThing)
 
-		This.SetChainToReturn(:Value)
+		_pValue_ = This.Value()
+		_xNth_ = ""
+		_bFound_ = 0
+		_nRank_ = 0
 
-		if This._Type() = "NUMBER"
+		# The chain holds the rank: pcThing is a call such as 'LetterOf("HUSSEIN")'
+		if isNumber(_pValue_) and isString(pcThing)
 
-			pcThing = StringSimplified(pcThing)
+			_nRank_ = _pValue_
+			if NOT (_nRank_ >= 1 and _nRank_ <= 2147483647 and _nRank_ = floor(_nRank_))
+				This.SetChainToReturn(0)
+				return This
+			ok
 
-			_cCode_ = 'result = Nth' + pcThing
-	
-			_oStzString_ = new stzString(_cCode_)
-			_n_ = _oStzString_.FindFirst("(")
-	
-			_cCode_ = StzLeft(_cCode_, _n_) + "" + This.Value() + ", " + StzMid(_cCode_, _n_ + 1, StzLen(_cCode_) - _n_)
+			_cCall_ = StringSimplified(pcThing)
+			_nParen_ = StzFindFirst("(", _cCall_)
+			if _nParen_ < 2
+				StzRaise("Nth expects a call such as 'LetterOf(" + char(34) + "HUSSEIN" + char(34) + ")' and got: " + pcThing)
+			ok
 
-			eval(_cCode_)
+			_cRest_ = StzMid(_cCall_, _nParen_ + 1, StzLen(_cCall_) - _nParen_)
+			_cSep_ = ", "
+			if StzLeft(ring_trim(_cRest_), 1) = ")"
+				_cSep_ = ""
+			ok
 
-			return _( result )
+			_cCode_ = "_xNth_ = Nth" + StzLeft(_cCall_, _nParen_) + _nRank_ + _cSep_ + _cRest_
+
+			try
+				eval(_cCode_)
+			catch
+				StzRaise("Nth could not run the call you provided: " + pcThing)
+			done
+
+			_bFound_ = 1
+			if isString(_xNth_) and ring_len(_xNth_) = 0
+				_bFound_ = 0
+			ok
+
+		# The chain holds a text or a list: pcThing is the rank itself
+		but (isString(_pValue_) or isList(_pValue_)) and isNumber(pcThing)
+
+			_nRank_ = pcThing
+			if _nRank_ >= 1 and _nRank_ <= 2147483647 and _nRank_ = floor(_nRank_)
+				if isString(_pValue_)
+					if _nRank_ <= StzLen(_pValue_)
+						_xNth_ = StzMid(_pValue_, _nRank_, 1)
+						_bFound_ = 1
+					ok
+				else
+					if _nRank_ <= ring_len(_pValue_)
+						_xNth_ = _pValue_[_nRank_]
+						_bFound_ = 1
+					ok
+				ok
+			ok
+
 		ok
+
+		if NOT _bFound_
+			This.SetChainToReturn(0)
+			return This
+		ok
+
+		_oNth_ = new stzChainOfTruth(_xNth_)
+		return _oNth_
 
 	#------------------
 
@@ -1147,3 +1198,36 @@ class stzChainOfTruth from stzObject
 	def pvtFunctionParamTypeIsOneOfThese( pcFunctionCall, paSubStr )
 		_cType_ = pvtFunctionParamType(pcFunctionCall)
 		return StzFindFirst(_cType_, paSubStr) > 0
+
+	# Returns 1 when the held text includes p as a part, or the held list has p as an item, else 0.
+	#
+	#   p          what to look for, as for Containing
+	#   returns    1 or 0; 0 for a held number or object
+	#   note       private; run through a subclass; the empty text is held by every text, a p that is
+	#              not a text is never held by a text, and a list is asked through its checker, which
+	#              compares by type and member, telling A from a
+	#   see        Containing, ContainingNo
+	def pvtHolds(p)
+		_pHeld_ = This.Value()
+
+		if isString(_pHeld_)
+			if NOT isString(p)
+				return 0
+			ok
+			if ring_len(p) = 0
+				return 1
+			ok
+			if This.StzObjectQ().Contains(p)
+				return 1
+			ok
+			return 0
+
+		but isList(_pHeld_)
+			_oChecker_ = new stzListChecker(_pHeld_)
+			if _oChecker_.ContainsItem(p)
+				return 1
+			ok
+			return 0
+		ok
+
+		return 0
