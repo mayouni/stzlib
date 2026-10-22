@@ -478,3 +478,8 @@ Next by size: stzChainOfValue (3) and eleven more at 3.
 IsANumber, IsAList and IsAnObject answer a plain 1 or 0 by the live Ring type (the convention of the working IsAString); six more failures of the same shape fixed (Q forms raised R19, _Type was read once at build time, ToStzObject on a number, Do_, ThisValue, Update). Exactly one of the four type predicates holds per value on an 18-value table. Not done: the Q / Not / alias family for list and object (new API). The initiators share flags across the process (by design). Guard 163 assertions.
 Next by size: ten classes at 3 (stzEntity first).
 
+## 2026-10-22: the stzEntity fix batch is ON MAIN (code and guard), the reference is NOT regenerated: the doc gate fails on main
+
+Commit fe871d7e2 (model flow) added six classes with no briefs: stzFaculty 26, stzFlow 24, stzParcel 15, stzRequirement 11, stzModelPlan 11, stzModelRegistry 8 = 95 doc-floor errors from `ring gate.ring` in base/doc. A regeneration cannot be committed while the gate fails, so reference.json, DEFECTS.md, defects.json and the baselines are stale (register shows 96 defects in 57 classes; real count 93, stzEntity fixed). To resume: either the owner of the model-flow classes writes the briefs, or run a documentation wave on those six classes (comments only, strip-checked), then regenerate (export_reference.ring, mk_defects.py, gate.ring --update, gate must print OK) and commit the outputs. stzEntity: HasName/IsOfType compare both sides through StzLower (case-insensitive, accents fold); IsEmpty ignores name, type and created. Guard 91 assertions.
+Next by size after that: nine classes at 3 (stzListOfObjects first).
+
