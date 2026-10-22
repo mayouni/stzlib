@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 99 methods in 58 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 96 methods in 57 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| natural/stzChainOfValue.ring | stzChainOfValue | 3 |
 | natural/stzEntity.ring | stzEntity | 3 |
 | object/stzListOfObjects.ring | stzListOfObjects | 3 |
 | regex/stzTimex.ring | stzTimex | 3 |
@@ -160,12 +159,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzTukeyLine -- math/stzTukey.ring (1)
 
 - `Fit` (line 927): Fits Tukey's three-group line, then improves it with passes over the residuals, as R's line does. -- Fit(0) equals R's line with iter 1 and Fit(1) equals iter 2, so the count here is one less than R's; points that all share one x give slope 0 and intercept 0 with no error, which is a defect
-
-## stzChainOfValue -- natural/stzChainOfValue.ring (3)
-
-- `IsANumber` (line 761): Returns the chain itself whatever the value holds, so it does not answer today whether the value is a number. -- tested with a number, a text and a list: the answer is always the chain, never 1 or 0
-- `IsAList` (line 925): Returns nothing today: the method has an empty body and does not test the value. -- tested with a number, a text and a list: the answer is always an empty text
-- `IsAnObject` (line 933): Returns nothing today: the method has an empty body and does not test the value. -- tested with a number and a text: the answer is always an empty text
 
 ## stzEntity -- natural/stzEntity.ring (3)
 

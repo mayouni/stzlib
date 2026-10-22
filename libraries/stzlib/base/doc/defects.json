@@ -1,5 +1,5 @@
 {
- "count": 99,
+ "count": 96,
  "defects": [
   {
    "class": "stzAppServer",
@@ -240,30 +240,6 @@
    "line": 927,
    "symptom": "Fits Tukey's three-group line, then improves it with passes over the residuals, as R's line does.",
    "cause": "Fit(0) equals R's line with iter 1 and Fit(1) equals iter 2, so the count here is one less than R's; points that all share one x give slope 0 and intercept 0 with no error, which is a defect"
-  },
-  {
-   "class": "stzChainOfValue",
-   "file": "natural/stzChainOfValue.ring",
-   "method": "IsANumber",
-   "line": 761,
-   "symptom": "Returns the chain itself whatever the value holds, so it does not answer today whether the value is a number.",
-   "cause": "tested with a number, a text and a list: the answer is always the chain, never 1 or 0"
-  },
-  {
-   "class": "stzChainOfValue",
-   "file": "natural/stzChainOfValue.ring",
-   "method": "IsAList",
-   "line": 925,
-   "symptom": "Returns nothing today: the method has an empty body and does not test the value.",
-   "cause": "tested with a number, a text and a list: the answer is always an empty text"
-  },
-  {
-   "class": "stzChainOfValue",
-   "file": "natural/stzChainOfValue.ring",
-   "method": "IsAnObject",
-   "line": 933,
-   "symptom": "Returns nothing today: the method has an empty body and does not test the value.",
-   "cause": "tested with a number and a text: the answer is always an empty text"
   },
   {
    "class": "stzEntity",
