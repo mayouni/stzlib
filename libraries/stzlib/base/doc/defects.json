@@ -1,5 +1,5 @@
 {
- "count": 93,
+ "count": 90,
  "defects": [
   {
    "class": "stzAppServer",
@@ -376,30 +376,6 @@
    "line": 97,
    "symptom": "Raises error R14 today instead of returning a copy of the list: it builds a new one through init, which raises.",
    "cause": ""
-  },
-  {
-   "class": "stzListOfObjects",
-   "file": "object/stzListOfObjects.ring",
-   "method": "init",
-   "line": 36,
-   "symptom": "Raises error R14 today instead of building a list of objects from the given list.",
-   "cause": "the type check calls IsListOfObjects on a stzList, a method that does not exist, so every list raises R14 Calling Method without definition: islistofobjects (tried with one object and with two); a value that is not a list raises Incorrect param type"
-  },
-  {
-   "class": "stzListOfObjects",
-   "file": "object/stzListOfObjects.ring",
-   "method": "Content",
-   "line": 50,
-   "symptom": "Returns an empty text today instead of the list of objects, because the method names the list and does not return it.",
-   "cause": "the body is the bare name @aContent with no return, so the list is never handed back, even for a holder built without init"
-  },
-  {
-   "class": "stzListOfObjects",
-   "file": "object/stzListOfObjects.ring",
-   "method": "Copy",
-   "line": 58,
-   "symptom": "Raises error today instead of returning a copy of the list: it calls Content, which returns nothing, and init then refuses it.",
-   "cause": "raises Incorrect param type! paoObjects must be a list of objects"
   },
   {
    "class": "stzMultiObjectiveSolver",

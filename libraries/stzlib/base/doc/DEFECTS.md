@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 93 methods in 56 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 90 methods in 55 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| object/stzListOfObjects.ring | stzListOfObjects | 3 |
 | regex/stzTimex.ring | stzTimex | 3 |
 | sound/stzSoundLive.ring | stzSoundLive | 3 |
 | stats/stzCoeffExtractor.ring | stzCoeffExtractor | 3 |
@@ -205,12 +204,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 - `init` (line 68): Raises error R14 today instead of building a list of named objects from the given list. -- the check calls IsListOfNamedObjects on a stzList, a method that does not exist, so every list raises R14 Calling Method without definition: islistofnamedobjects (tried with an empty list and with one object); a value that is not a list raises Incorrect param type
 - `Copy` (line 97): Raises error R14 today instead of returning a copy of the list: it builds a new one through init, which raises.
-
-## stzListOfObjects -- object/stzListOfObjects.ring (3)
-
-- `init` (line 36): Raises error R14 today instead of building a list of objects from the given list. -- the type check calls IsListOfObjects on a stzList, a method that does not exist, so every list raises R14 Calling Method without definition: islistofobjects (tried with one object and with two); a value that is not a list raises Incorrect param type
-- `Content` (line 50): Returns an empty text today instead of the list of objects, because the method names the list and does not return it. -- the body is the bare name @aContent with no return, so the list is never handed back, even for a holder built without init
-- `Copy` (line 58): Raises error today instead of returning a copy of the list: it calls Content, which returns nothing, and init then refuses it. -- raises Incorrect param type! paoObjects must be a list of objects
 
 ## stzMultiObjectiveSolver -- optim/stzMultiObjectiveSolver.ring (1)
 
