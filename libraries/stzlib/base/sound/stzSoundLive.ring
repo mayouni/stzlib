@@ -64,9 +64,10 @@ func StzSoundLiveTickAll()
 # reached and posts the new pattern from there, and the call returns that cycle. The console reports
 # what was heard, not what was posted. Without CaptureInsteadOfDevice the session plays on a sound
 # card through a transport, which was not run in this reference; with it, a producer thread renders
-# into a ring that this session drains into a buffer, so no device is opened. In capture mode
-# WaitCycles for longer than the buffer never returns. The sound has not been heard by a person
-# (UNPERCEIVED): it is checked by frame count, sample rate and peak level, not by listening.
+# into a ring that this session drains into a buffer, so no device is opened. In capture mode a wait
+# longer than the buffer is cut where the buffer ends, and the cut is a refusal. The sound has not
+# been heard by a person (UNPERCEIVED): it is checked by frame count, sample rate and peak level, not
+# by listening.
 #
 #   receiver   o1 = StzSoundLiveQ(120)
 #   example    o1.CaptureInsteadOfDevice(6, FALSE)
@@ -94,7 +95,7 @@ class stzSoundLive
 	@nTl = 0
 	@oT = NULL              # the transport, on a device
 	@bRunning = FALSE
-	@aLoops = []            # [ name, tag, [ [fromCycle, pattern|NULL, instrument, version] ], nextCycle ]
+	@aLoops = []            # [ name, tag, [ [fromCycle, pattern|NULL, instrument, version] ], nextCycle, lastVersion ]
 	@aLedger = []           # [ cycle, name, version ] -- what was POSTED for a cycle
 	@aConsole = []          # [ cycle, heardFrame, text ] -- what was HEARD
 	@aLandings = []         # [ name, version, landingCycle, heardCycleAtCall ]
@@ -115,6 +116,7 @@ class stzSoundLive
 	@nT0 = 0
 	@nDrainShort = 0        # paced capture: frames that were due and not there
 	@nUnderruns = 0         # on a device: frames the card asked for and did not get
+	@nWaitSlack = 30        # seconds a wait may overrun its own length before it gives up (monotonic clock)
 
 	# Builds a live session at 120 beats per minute with no loops, started on a sound card unless capture is chosen.
 	#
@@ -177,20 +179,26 @@ class stzSoundLive
 
 	# Chooses to drain the sound into a buffer instead of a sound card, for at most a number of seconds.
 	#
-	#   pnSeconds   the length of the buffer that keeps what came out
+	#   pnSeconds   the length of the buffer that keeps what came out, a number above 0
 	#   pbPaced     TRUE to drain at the pace of the wall clock, FALSE to drain as fast as
 	#               WaitCycles asks
 	#   returns     the session itself, so calls chain
 	#   note        this is the only way to run the session without opening an audio device; a
 	#               device drains on its own thread, so a render in capture mode stalls the drain
-	#               and proves nothing about late notes
-	#   warning     refused once the loops have started; the buffer is silent beyond what was heard;
-	#               WaitCycles for longer than pnSeconds never returns, see the defects file
-	#   see         Capture, OnDevice
+	#               and proves nothing about late notes; a second call before the start replaces
+	#               the first
+	#   warning     refused, with LastError set and the refusal counted, once the loops have started
+	#               and for a length that is not a number above 0; the buffer is silent beyond what
+	#               was heard, and a wait that would pass its end is cut there
+	#   see         Capture, WaitCycles, OnDevice
 	#@ aka  Drain the ring here instead of on a sound card, for `pnSeconds` at most, and keep what came out. Paced: drain at the wall clock's rate; unpaced: as fast as WaitCycles asks.
 	def CaptureInsteadOfDevice(pnSeconds, pbPaced)
 		if @bRunning
 			This._Refuse("CaptureInsteadOfDevice: choose before the loops start")
+			return This
+		ok
+		if NOT isNumber(pnSeconds) or pnSeconds <= 0
+			This._Refuse("CaptureInsteadOfDevice: the length is a number of seconds above 0")
 			return This
 		ok
 		@bCapture = TRUE
@@ -399,20 +407,42 @@ class stzSoundLive
 
 	# Lets the session run for a number of heard cycles, starting it first when needed, and then returns.
 	#
-	#   pnCycles   how many cycles of heard time to wait
+	#   pnCycles   how many cycles of heard time to wait, a number from 0 up
 	#   returns    the session itself, so calls chain
-	#   note       the wait counts heard frames, not posted ones
-	#   warning    in capture mode it never returns when the wait is longer than the capture buffer,
-	#              see the defects file; without capture it plays on a device, which was not run in
-	#              this reference
-	#   see        Start, Tick
+	#   note       the wait counts heard frames, not posted ones; in capture mode a wait that would
+	#              pass the end of the buffer is cut there, with LastError set and the refusal
+	#              counted, and what is heard is the whole buffer
+	#   warning    a wait that does not move for 30 seconds more than its own length gives up the
+	#              same way, with the refusal counted; a text or a negative number is refused;
+	#              without capture it plays on a device, which was not run in this reference
+	#   see        Start, Tick, CaptureInsteadOfDevice
 	#@ aka  Play for `pnCycles` more cycles of HEARD time, ticking all the while.
 	def WaitCycles(pnCycles)
+		if NOT isNumber(pnCycles) or pnCycles < 0
+			This._Refuse("WaitCycles: the number of cycles is a number from 0 up")
+			return This
+		ok
 		if NOT @bRunning
 			if NOT This.Start()  return This ok
 		ok
 		_target_ = This.HeardFrames() + floor(pnCycles * This.CycleFrames() + 0.5)
+		if @bCapture and _target_ > @oCap.Frames()
+			# the buffer cannot hold what was asked: wait for what it can hold
+			_target_ = @oCap.Frames()
+			This._Refuse("WaitCycles: the capture buffer of " + @nCapSeconds + " s ends before " + pnCycles +
+			             " more cycles -- the wait was cut at its end, at frame " + _target_)
+		ok
+		# a deadline on the monotonic clock: a wait that cannot move gives up instead of spinning
+		_nT0_ = StzEngineWatchTimestampNs()
+		_nWait_ = _target_ - This.HeardFrames()
+		if _nWait_ < 0  _nWait_ = 0 ok
+		_nLimit_ = @nWaitSlack + 4 * _nWait_ / @nRate
 		while This.HeardFrames() < _target_
+			if (StzEngineWatchTimestampNs() - _nT0_) / 1000000000 > _nLimit_
+				This._Refuse("WaitCycles: gave up after " + _nLimit_ + " s with " + This.HeardFrames() +
+				             " of " + _target_ + " frames heard")
+				exit
+			ok
 			This._Post()
 			if @bCapture
 				if @bPaced
@@ -571,10 +601,12 @@ class stzSoundLive
 	# Returns where each definition of a loop took effect.
 	#
 	#   returns    a list of [ loop name, version, landing cycle, cycle heard when it was asked ]
-	#              rows
-	#   warning    before the loops start every landing is cycle 0 and the heard cycle is -1; a loop
-	#              redefined twice before the start and once while running is numbered v3 and then
-	#              v2, so version numbers can go back, see the defects file
+	#              rows, in the order the definitions were made
+	#   note       the version of a loop counts its definitions, one row each, and never goes back:
+	#              a loop defined three times before the start and once while running has v1, v2, v3
+	#              and v4
+	#   warning    before the loops start every landing is cycle 0 and the heard cycle is -1, and
+	#              only the last definition made before the start is ever heard
 	#   see        Ledger, LiveLoop
 	#@ aka  [ name, version, landingCycle, heardCycleAtCall ]
 	def Landings()
@@ -591,6 +623,8 @@ class stzSoundLive
 	# Returns how many notes were withdrawn before they sounded, by a redefinition.
 	#
 	#   returns    a number
+	#   note       the engine applies a withdrawal on its own thread, so read it a cycle after the
+	#              redefinition: read at once it can still be 0
 	#   warning    measured: redefining a four-note loop at heard cycle 1 withdrew 4 notes
 	#   see        MidCycleChanges
 	def Cancelled()
@@ -719,7 +753,7 @@ class stzSoundLive
 
 		_i_ = This._LoopIndex(pcName)
 		if _i_ = 0
-			@aLoops + [ pcName, @nTagNext, [], 0 ]
+			@aLoops + [ pcName, @nTagNext, [], 0, 0 ]
 			@nTagNext++
 			_i_ = len(@aLoops)
 		ok
@@ -729,8 +763,9 @@ class stzSoundLive
 	def _Land(pnI, poPattern, pcInst)
 		_K_ = 0
 		if @bRunning  _K_ = This._LandingCycle() ok
-		_aV_ = @aLoops[pnI][3]
-		_ver_ = len(_aV_) + 1
+		# the version counts the definitions of this loop and never goes back, started or not
+		_ver_ = @aLoops[pnI][5] + 1
+		@aLoops[pnI][5] = _ver_
 		if @bRunning
 			StzEngineSoundGraphTimelineCancel(@oGraph.GraphId(), @nTl, @aLoops[pnI][2],
 			                                  This.FrameOfCycle(_K_) + 1)
@@ -745,8 +780,6 @@ class stzSoundLive
 		else
 			# before the start, a redefinition simply replaces
 			@aLoops[pnI][3] = []
-			_ver_ = 1
-			if len(_aV_) > 0  _ver_ = _aV_[len(_aV_)][4] + 1 ok
 		ok
 		@aLoops[pnI][3] + [ _K_, poPattern, pcInst, _ver_ ]
 		@aLandings + [ @aLoops[pnI][1], _ver_, _K_, @nHeardCycle ]
