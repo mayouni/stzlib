@@ -216,9 +216,24 @@ fn ring_FilterFeatures(p: *anyopaque) callconv(.c) void {
     rs2(p, out, @intCast(out_len));
 }
 
+// JsonEncodeString(cText) -> the text as a JSON string literal, quotes
+// included: the one writer every Ring-side JSON emitter concatenates (RX1).
+fn ring_EncodeString(p: *anyopaque) callconv(.c) void {
+    const n: usize = @intCast(gss(p, 1));
+    var out_len: usize = 0;
+    const out = j.stz_json_encode_string(gs(p, 1), n, &out_len);
+    if (out == null) {
+        rs(p, "\"\"");
+        return;
+    }
+    defer j.stz_json_escape_free(out, out_len);
+    rs2(p, out, @intCast(out_len));
+}
+
 const regs = [_]R.Reg{
     .{ .name = "stzenginejsonparse", .func = &ring_Parse },
     .{ .name = "stzenginejsonescapenonascii", .func = &ring_EscapeNonAscii },
+    .{ .name = "stzenginejsonencodestring", .func = &ring_EncodeString },
     .{ .name = "stzenginejsonparsetolist", .func = &ring_JsonParseToList },
     .{ .name = "stzenginejsonfilterfeatures", .func = &ring_FilterFeatures },
     .{ .name = "stzenginejsonfree", .func = &ring_Free },

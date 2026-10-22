@@ -1852,13 +1852,9 @@ class stzString from stzObject
 	#   see        HtmlEncoded
 	#@ aka  HtmlEscaped: escape `&`, `<`, `>`, `"`, `'` to HTML entities. Self-contained: no engine dependency, no external lookup.
 	def HtmlEscaped()
-		_cHesContent_ = This.Content()
-		_cHesR_ = StzReplace(_cHesContent_, "&", "&amp;")
-		_cHesR_ = StzReplace(_cHesR_, "<", "&lt;")
-		_cHesR_ = StzReplace(_cHesR_, ">", "&gt;")
-		_cHesR_ = StzReplace(_cHesR_, char(34), "&quot;")
-		_cHesR_ = StzReplace(_cHesR_, char(39), "&#39;")
-		return _cHesR_
+		# the engine's html_encode writes the same five entities this method
+		# wrote in Ring until RX1: one writer, no Ring-side fallback
+		return StzEngineHtmlEncode(This.Content())
 
 		def EscapedHtml()
 			return This.HtmlEscaped()

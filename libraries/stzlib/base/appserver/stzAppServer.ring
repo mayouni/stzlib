@@ -1418,11 +1418,11 @@ class stzAppServer from stzObject
 		return _cOut_ + "]"
 
 	def _OneAgentJson(pcName)
-		return '{"name":"' + This._JsonEsc(pcName) +
-		       '","active":' + This._Bool01(@oAgentHost.IsActive(pcName)) +
+		return '{"name":' + StzJsonString(pcName) +
+		       ',"active":' + This._Bool01(@oAgentHost.IsActive(pcName)) +
 		       ',"retired":' + This._Bool01(@oAgentHost.IsRetired(pcName)) +
 		       ',"ticks":' + @oAgentHost.TicksOf(pcName) +
-		       ',"channel":"' + This._JsonEsc(@oAgentHost.ChannelOf(pcName)) + '"}'
+		       ',"channel":' + StzJsonString(@oAgentHost.ChannelOf(pcName)) + '}'
 
 	def _AgentTraceJson()
 		_aT_ = @oAgentHost.Trace()
@@ -1433,9 +1433,9 @@ class stzAppServer from stzObject
 				_cOut_ += ","
 			ok
 			_cOut_ += ('{"at":' + _aT_[_i_][1] +
-			           ',"agent":"' + This._JsonEsc("" + _aT_[_i_][2]) +
-			           '","acted":' + _aT_[_i_][3] +
-			           ',"why":"' + This._JsonEsc("" + _aT_[_i_][4]) + '"}')
+			           ',"agent":' + StzJsonString("" + _aT_[_i_][2]) +
+			           ',"acted":' + _aT_[_i_][3] +
+			           ',"why":' + StzJsonString("" + _aT_[_i_][4]) + '}')
 		next
 		return _cOut_ + "]"
 
@@ -1445,8 +1445,12 @@ class stzAppServer from stzObject
 		ok
 		return "0"
 
+	# Kept as a face for any caller outside this file: the body between the
+	# quotes of the engine's JSON string literal (RX1); it used to escape the
+	# quote and nothing else.
 	def _JsonEsc(pcVal)
-		return StzReplace("" + pcVal, '"', '\"')
+		_c_ = StzJsonString(pcVal)
+		return StzMid(_c_, 2, len(_c_) - 2)
 
 	# one row [cell,cell,...] -> ["cell","cell",...]
 	def _RowJson(aRow)
@@ -1454,7 +1458,7 @@ class stzAppServer from stzObject
 		_nLen_ = len(aRow)
 		for _i_ = 1 to _nLen_
 			if _i_ > 1  _cOut_ += ","  ok
-			_cOut_ += '"' + StzReplace("" + aRow[_i_], '"', '\"') + '"'
+			_cOut_ += StzJsonString("" + aRow[_i_])
 		next
 		return _cOut_ + "]"
 
@@ -1806,7 +1810,7 @@ class stzAppServer from stzObject
 			_nCells_ = len(aRows[_i_])
 			for _j_ = 1 to _nCells_
 				if _j_ > 1 _cOut_ += "," ok
-				_cOut_ += '"' + StzReplace("" + aRows[_i_][_j_], '"', '\"') + '"'
+				_cOut_ += StzJsonString("" + aRows[_i_][_j_])
 			next
 			_cOut_ += "]"
 		next

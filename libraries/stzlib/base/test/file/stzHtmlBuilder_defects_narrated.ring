@@ -170,8 +170,10 @@ Scenario("Build equals the node classes' own serialisation, with no escaping of 
 	o.AppendToCurrent(h)
 	ref.AppendChild(h)
 	Then("the text and the attributes are written as the node writes them", Same(o.Build(), ref.ToHtml()), 1)
-	Then("the text is not escaped", Has(o.Build(), "a < b & c > d"), 1)
-	Then("the quote of the attribute is not escaped either", Has(o.Build(), 'say "hi" & <go>'), 1)
+	# RX1 (2026-10-22): text is escaped when the document is written, and so is
+	# an attribute value; SetMarkup is the one door that writes as given
+	Then("the text is escaped: a < reads as &lt;", Has(o.Build(), "a &lt; b &amp; c &gt; d"), 1)
+	Then("the quote of the attribute is escaped too", Has(o.Build(), 'say &quot;hi&quot; &amp; &lt;go&gt;'), 1)
 	Then("an attribute set twice is written twice, as the node does", Has(o.Build(), 'data-x="1" data-x="2"'), 1)
 	Then("the node class and the builder agree on Root", Same(o.Root().ToHtml(), ref.ToHtml()), 1)
 	Then("ToHtml on the builder is Build", Same(o.ToHtml(), o.Build()), 1)

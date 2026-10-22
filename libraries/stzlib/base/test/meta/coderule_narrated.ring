@@ -44,7 +44,7 @@ Scenario("FROZEN behaviour: StzCheckCode reproduces the house findings")
 
 	cGood = "class Foo" + nl + "def BazQ()" + nl + "	return This" + nl
 	Then("clean source passes", StzCodeIsClean(cGood), TRUE)
-	Then("StzCodeRuleNames lists the house rules (14 with the knob rules)", len(StzCodeRuleNames()), 14)
+	Then("StzCodeRuleNames lists the house rules (15 with the knob rules and the raw markup door)", len(StzCodeRuleNames()), 15)
 	Then("...including dead-knob", StzFindFirst("dead-knob", StzCodeRuleNames()) > 0, TRUE)
 	Then("...and setter-resets-on-reject", StzFindFirst("setter-resets-on-reject", StzCodeRuleNames()) > 0, TRUE)
 	Then("...and the three shapes learned after them", NNamed(["setter-only-moves-one-way", "misspelled-name", "library-prints"]), 3)
@@ -332,6 +332,21 @@ Scenario("Calling a value as though it were a function")
 	Then("nested calls are not flagged", NValueCalls(StzCheckCode(NestedCallFixture())), 0)
 	Then("')(' inside a STRING is not flagged", NValueCalls(StzCheckCode(ParensInStringFixture())), 0)
 	Then("...even when the string spans LINES", NValueCalls(StzCheckCode(MultiLineStringFixture())), 0)
+EndScenario()
+
+Scenario("The raw markup door is counted, never refused")
+	# RX1 (2026-10-22): the HTML builder escapes text by default and SetMarkup is
+	# the one door that writes as given. The court counts every use at severity
+	# info, so all of them can be read in one report; it refuses none.
+	Given("a class that uses the door twice, mentions it in a comment and in a text, and defines it once")
+	cR = RawMarkupFixture()
+	aR = StzCheckCode(cR)
+	Then("each use is a finding of severity info", SevOf(aR, "raw_markup_door", "SetMarkup"), "info")
+	Then("the two uses are counted, and nothing else", NRawDoors(aR), 2)
+	Then("the message says it is counted and not refused", SaysIn(aR, "raw_markup_door", "counted"), TRUE)
+	Given("a class that only uses SetText")
+	aT = StzCheckCode(TextOnlyFixture())
+	Then("nothing is counted", NRawDoors(aT), 0)
 EndScenario()
 
 Summary()
@@ -723,6 +738,39 @@ func EmptyCaught()
 
 
 #-- the mutable-constant rule ---------------------------------------------------
+
+func RawMarkupFixture()
+	_nl_ = char(10)
+	_q_ = char(34)
+	_c_ = "class stzDoorDemo from stzObject" + _nl_
+	_c_ += "	def Page(pcBody)" + _nl_
+	_c_ += "		o = new stzHtmlBuildNode(" + _q_ + "div" + _q_ + ")" + _nl_
+	_c_ += "		o.SetMarkup(pcBody)   # SetMarkup( in a comment is not a use" + _nl_
+	_c_ += "		o.SetMarkupQ(" + _q_ + "<b>x</b>" + _q_ + ")" + _nl_
+	_c_ += "		cNote = " + _q_ + "SetMarkup(" + _q_ + _nl_
+	_c_ += "		return o" + _nl_
+	_c_ += "	def SetMarkup(pcHtml)" + _nl_
+	_c_ += "		return self" + _nl_
+	return _c_
+
+func TextOnlyFixture()
+	_nl_ = char(10)
+	_q_ = char(34)
+	_c_ = "class stzTextDemo from stzObject" + _nl_
+	_c_ += "	def Page(pcBody)" + _nl_
+	_c_ += "		o = new stzHtmlBuildNode(" + _q_ + "p" + _q_ + ")" + _nl_
+	_c_ += "		o.SetText(pcBody)" + _nl_
+	_c_ += "		return o" + _nl_
+	return _c_
+
+func NRawDoors(paFindings)
+	_n_ = 0
+	for _i_ = 1 to len(paFindings)
+		if "" + paFindings[_i_][:rule] = "raw_markup_door"
+			_n_++
+		ok
+	next
+	return _n_
 
 func ConstantWriteFixture()
 	_nl_ = char(10)

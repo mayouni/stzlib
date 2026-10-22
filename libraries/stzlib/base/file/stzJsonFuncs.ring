@@ -1,6 +1,20 @@
 # JSON Utility Functions for stzJson Class 
 #------------------------------------------
 
+# -- The JSON string face (RX1) ---------------------------------------------
+# Returns the text as a JSON string literal, quotes included, through the
+# engine's one writer: the quote, the backslash and every control character
+# are escaped and every other byte passes as it is. This is what every JSON
+# writer in the library concatenates; no Ring-side escaper remains beside it.
+#
+#   example    ? StzJsonString('say "hi"')
+#              #--> "say \"hi\""
+func StzJsonString(pcText)
+	return StzEngineJsonEncodeString("" + pcText)
+
+	func @StzJsonString(pcText)
+		return StzJsonString(pcText)
+
 func IsJson(cStrOrList)
 	if not (isString(cStrOrList) or isList(cStrOrList))
 		StzRaise("Incorrect param type! cStrOrList must be a list or string.")
@@ -549,34 +563,12 @@ func _GetIndent(nLevel)
     next
     return _cResult_
 
+# The body between the quotes of the engine's JSON string literal (RX1).
+# The Ring loop this replaces escaped five control characters and left the
+# other twenty-seven, NUL included, inside the document.
 func _EscapeJsonString(_cStr_)
-    _cResult_ = ""
-    _nLen_ = len(_cStr_)
-    
-    for i = 1 to _nLen_
-        _cChar_ = _cStr_[i]
-        
-        switch _cChar_
-            on char(34)  # Quote
-                _cResult_ += "\" + char(34)
-            on char(92)  # Backslash
-                _cResult_ += "\\"
-            on char(8)   # Backspace
-                _cResult_ += "\b"
-            on char(12)  # Form feed
-                _cResult_ += "\f"
-            on char(10)  # Newline
-                _cResult_ += "\n"
-            on char(13)  # Carriage return
-                _cResult_ += "\r"
-            on char(9)   # Tab
-                _cResult_ += "\t"
-            other
-                _cResult_ += _cChar_
-        off
-    next
-    
-    return _cResult_
+    _cQ_ = StzJsonString(_cStr_)
+    return StzMid(_cQ_, 2, len(_cQ_) - 2)
 
 func _TrimJson(_cJson_)
     _nStart_ = 1

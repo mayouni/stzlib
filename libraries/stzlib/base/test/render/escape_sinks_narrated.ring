@@ -26,9 +26,14 @@ RxMain()
 # A comparison proves sameness, never rightness; the oracle is independent of
 # the writer, which is why a sink that escapes "by coincidence" cannot pass it.
 #
-# STATE ON RX0 (2026-10-22): RED on purpose. A failing guard is the proof of
-# the defect, and it stays out of every suite's gate until RX1 turns it green.
-# The RED LIST printed at the end is the first figure of the render plane.
+# STATE. On RX0 (2026-10-22, b88eba49c) this guard was RED on purpose, 8 of
+# 25: a failing guard is the proof of the defect. The red list then read
+# SetText 5 of 16, SetAttr 4, ObjectToJson 6, _RowsJson 3, _WebShell 5, the
+# accessibility JSON 2. On RX1 (the same day) every sink writes through the
+# engine's one HTML pair and one JSON string writer, and the list is empty.
+# The RX1 scenarios at the end are the negative siblings: the raw door still
+# writes as given and the court counts it, a script scheme is refused, and a
+# pre-escaped text is escaped again because text means text.
 #
 # Every positive has its negative sibling: the oracle itself is shown to SEE
 # the injection on raw concatenation before any sink is judged, and the
@@ -383,7 +388,7 @@ EndScenario()
 Scenario("Sink 1: stzHtmlBuildNode.SetText writes the text as given")
 	Given("every corpus entry through SetText on a p node")
 	nF = _RxSweepHtml("stzHtmlBuildNode.SetText", "_RxNodeText", [ "p" ], "p", 1)
-	Then("no entry fails (RED on RX0: the node escapes nothing)", nF, 0)
+	Then("no entry fails (red on RX0, green since RX1: the node escapes nothing)", nF, 0)
 	Given("the same three entries through stzHtmlBuilder.Build, the same writer")
 	nF2 = 0
 	for cE in [ "<script>alert(1)</script>", "x</p><p>y", "fish & chips" ]
@@ -391,7 +396,7 @@ Scenario("Sink 1: stzHtmlBuildNode.SetText writes the text as given")
 			nF2++
 		ok
 	next
-	Then("no entry fails (RED on RX0)", nF2, 0)
+	Then("no entry fails (red on RX0, green since RX1)", nF2, 0)
 EndScenario()
 
 Scenario("Sink 1b: stzHtmlBuildNode.SetAttr writes the value between quotes as given")
@@ -407,7 +412,7 @@ Scenario("Sink 1b: stzHtmlBuildNode.SetAttr writes the value between quotes as g
 			_RxRed("stzHtmlBuildNode.SetAttr", aC[i][1])
 		ok
 	next
-	Then("no entry fails (RED on RX0)", nBad, 0)
+	Then("no entry fails (red on RX0, green since RX1)", nBad, 0)
 	Given("the three URL values as the href of an a node -- a policy, recorded not asserted")
 	aU = _RxUrlCorpus()
 	for i = 1 to len(aU)
@@ -476,7 +481,7 @@ EndScenario()
 Scenario("Sink 3: stzAppResponse.ObjectToJson quotes a text without escaping it")
 	Given("every corpus entry as the value of key k")
 	nF = _RxSweepJson("stzAppResponse.ObjectToJson", "_RxResponseJson")
-	Then("no entry fails (RED on RX0: a quote inside gives invalid JSON)", nF, 0)
+	Then("no entry fails (red on RX0, green since RX1: a quote inside gives invalid JSON)", nF, 0)
 	Given("the key side too: a key holding a quote")
 	oRsp = new stzAppResponse(NULL)
 	aKey = [ 'a"b', 1 ]
@@ -503,7 +508,7 @@ Scenario("Sink 3b: stzAppServer._RowsJson escapes only the double quote of a cel
 			_RxRed("stzAppServer._RowsJson", aC[i][1])
 		ok
 	next
-	Then("no entry fails (RED on RX0)", nBad, 0)
+	Then("no entry fails (red on RX0, green since RX1)", nBad, 0)
 EndScenario()
 
 Scenario("Sink 4: stzPlatform._WebShell concatenates the world's name into the title, the h1 and the li")
@@ -523,7 +528,7 @@ Scenario("Sink 4: stzPlatform._WebShell concatenates the world's name into the t
 			_RxRed("stzPlatform._WebShell", aC[i][1])
 		ok
 	next
-	Then("no entry fails (RED on RX0)", nBad, 0)
+	Then("no entry fails (red on RX0, green since RX1)", nBad, 0)
 EndScenario()
 
 Scenario("SVG: the canvas carries a label as glyph outlines and refuses a bad identifier")
@@ -565,9 +570,102 @@ Scenario("SVG: the canvas carries a label as glyph outlines and refuses a bad id
 	Then("the door refuses it rather than escaping it", bRaised, 1)
 EndScenario()
 
+Scenario("RX1: the raw door writes as given, and the court counts every use of it")
+	Given("a node given markup through SetMarkup, the one declared door")
+	oM = new stzHtmlBuildNode("p")
+	oM.SetMarkup("<b>x</b>")
+	cM = oM.ToHtml()
+	Then("the markup is written as given: the oracle sees the b element", _RxUndeclared(cM, [ "p" ]), 1)
+	Then("and the node says so", oM.IsMarkup(), 1)
+	Given("the same node through the builder, which copies nodes as it adds them")
+	oB = new stzHtmlBuilder()
+	oN = oB.CreateNode("p")
+	oN.SetMarkup("<b>x</b>")
+	oB.AppendToCurrent(oN)
+	Then("the copy kept the door open", _RxUndeclared(oB.Build(), [ "p" ]), 1)
+	Given("a source that calls the door twice, through the code rules")
+	cSrc = "o = new stzHtmlBuildNode(" + char(34) + "p" + char(34) + ")" + char(10) +
+	       "o.SetMarkup(cBody)" + char(10) + "o.SetMarkupQ(cMore)" + char(10) + "o.SetText(cText)" + char(10)
+	aF = StzCheckCode(cSrc)
+	nDoors = 0
+	cSev = ""
+	for aOne in aF
+		if _RxEq(aOne[:rule], "raw_markup_door")
+			nDoors++
+			cSev = "" + aOne[:severity]
+		ok
+	next
+	Then("the court counts the two uses", nDoors, 2)
+	Then("at severity info, never a ban", cSev, "info")
+EndScenario()
+
+Scenario("RX1: a pre-escaped text is escaped again, because text means text")
+	Given("the five characters of &amp; given as text")
+	oT = new stzHtmlBuildNode("p")
+	oT.SetText("&amp;")
+	cT = oT.ToHtml()
+	Then("the markup holds &amp;amp;", StzFindFirst("&amp;amp;", cT) > 0, 1)
+	Then("and a reader sees the five characters, not an ampersand", _RxEq(_RxTextOf(cT, "p", 1), "&amp;"), 1)
+EndScenario()
+
+Scenario("RX1: a URL attribute refuses a script scheme, and an attribute name is validated")
+	Given("the three URL cases and two hidden spellings, through SetUrlAttr")
+	nRefused = 0
+	for cU in [ "javascript:alert(1)", "data:text/html,<script>alert(1)</script>",
+	            "JaVaScRiPt:alert(1)", "java" + char(9) + "script:alert(1)", " vbscript:x" ]
+		oA = new stzHtmlBuildNode("a")
+		try
+			oA.SetUrlAttr("href", cU)
+		catch
+			nRefused++
+		done
+	next
+	Then("all five are refused", nRefused, 5)
+	Given("an https URL and a relative path")
+	nPassed = 0
+	for cU in [ "https://softanza.example/x?a=1&b=2", "/docs/page.html" ]
+		oA = new stzHtmlBuildNode("a")
+		try
+			oA.SetUrlAttr("href", cU)
+			nPassed++
+		catch
+		done
+	next
+	Then("both pass", nPassed, 2)
+	Given("an attribute name holding a quote")
+	oQ = new stzHtmlBuildNode("p")
+	bRaised = 0
+	try
+		oQ.SetAttr('a"b', "x")
+	catch
+		bRaised = 1
+	done
+	Then("it is refused: there is no raw door for a name", bRaised, 1)
+	Given("the usual names")
+	nOk = 0
+	for cN in [ "data-x", "aria-label", "xml:lang", "_k", "v.1" ]
+		try
+			oQ.SetAttr(cN, "v")
+			nOk++
+		catch
+		done
+	next
+	Then("all five pass", nOk, 5)
+EndScenario()
+
+Scenario("RX1: the engine's JSON string writer, the one every writer concatenates")
+	Given("a text with a quote, a backslash, a newline, a NUL and Arabic")
+	cIn = 'a"b\c' + char(10) + char(0) + _RxCps([ 1605, 1585 ])
+	cJ = StzJsonString(cIn)
+	Then("it starts and ends with a quote", _RxEq(StzLeft(cJ, 1), char(34)) + _RxEq(StzRight(cJ, 1), char(34)), 2)
+	Then("the NUL is a \u0000 escape", StzFindFirst("\u0000", cJ) > 0, 1)
+	Then("the Arabic passes through as it is", StzFindFirst(_RxCps([ 1605, 1585 ]), cJ) > 0, 1)
+	Then("and the document round-trips", _RxJsonOk('{"k":' + cJ + '}', "k", cIn), 1)
+EndScenario()
+
 # ---------------------------------------------------------------- the red list
 
-? char(10) + "RED LIST -- corpus entries each sink failed on (RX0 figure)"
+? char(10) + "RED LIST -- corpus entries each sink failed on (8 of 25 on RX0; empty since RX1)"
 aSinks = []
 for aR in $RX_RED
 	bSeen = 0
@@ -594,6 +692,38 @@ if len(aSinks) = 0
 ok
 ? "LIMITS: JSON and HTML-attribute read-back through a 4096-byte bridge buffer; .panel strings cannot carry a quote;" +
   " SVG judged by the tag parser, not an XML validator; callers are counted in the census, not here."
+
+# ---------------------------------------------------------------- the page
+
+# A rendered page a person can open (CENTRAL-PERCEPTGATE-01): the corpus, one
+# row per entry, through the builder's default door -- so what the oracle says
+# is text can also be SEEN as text. The last row goes through the raw door on
+# purpose, as the one element that should render as markup. Unperceived until
+# a named person has opened it and said what they saw.
+oPg = new stzHtmlBuilder()
+oH = oPg.CreateNode("h1")
+oH.SetText("escape_sinks_narrated -- the corpus as a page")
+oPg.AppendToCurrent(oH)
+oP = oPg.CreateNode("p")
+oP.SetText("Every row below is a corpus entry written through SetText. If one of them renders as anything but its own characters, the builder has a defect. The last row is markup through SetMarkup, the one declared door, and renders bold on purpose.")
+oPg.AppendToCurrent(oP)
+oUl = oPg.CreateNode("ul")
+oPg.AppendToCurrent(oUl)
+oPg.GoToLastChild()
+aPgC = _RxCorpus()
+nPgC = len(aPgC)
+for iPg = 1 to nPgC
+	oLi = oPg.CreateNode("li")
+	oLi.SetAttr("title", aPgC[iPg][2])
+	oLi.SetText(aPgC[iPg][1] + ": " + aPgC[iPg][2])
+	oPg.AppendToCurrent(oLi)
+next
+oLi = oPg.CreateNode("li")
+oLi.SetMarkup("<b>markup through the raw door: this row is bold</b>")
+oPg.AppendToCurrent(oLi)
+oPg.GoToRoot()
+oPg.BuildToFile("escape_sinks_rendered.html")
+? char(10) + "PAGE: escape_sinks_rendered.html written beside this guard (unperceived until a person opens it)"
 
 Summary()
 

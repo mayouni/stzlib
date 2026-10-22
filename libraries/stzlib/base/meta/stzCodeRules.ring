@@ -26,7 +26,7 @@ func StzCodeRuleNames()
 	         "dead-knob", "setter-resets-on-reject",
 	         "setter-only-moves-one-way", "misspelled-name", "library-prints",
 	         "empty-method-body", "writes-a-mutable-constant",
-	         "value-called-as-function" ]
+	         "value-called-as-function", "raw-markup-door" ]
 
 func StzCheckCodeFile(pcPath)
 	return StzCheckCode(read(pcPath))
@@ -141,6 +141,7 @@ func _StzTextPassFindings(pcSource)
 		_StzCheckLibraryPrints(_cClean_),
 		_StzCheckEmptyBodies(_cClean_),
 		_StzCheckConstantWrites(_cClean_),
+		_StzCheckRawMarkupDoor(_cClean_),
 		_StzCheckValueCalls(_cClean_),
 		_StzCheckForInLoops(_cClean_)
 	]
@@ -1462,6 +1463,61 @@ func _StzNameIsPredicate(pcName)
 		ok
 	next
 	return 0
+
+# RAW-MARKUP-DOOR: every use of the one door that writes markup as given.
+#
+# The HTML builder escapes text by default (RX1, 2026-10-22); a caller holding
+# markup says so with SetMarkup, and that call is the whole exception. This rule
+# does not forbid it -- severity :info -- it COUNTS it, so that every place where
+# text could reach the markup unescaped can be read in one report. The door is
+# declared by the caller who judges, never by the one judged; a mention in a
+# comment or a text, and the door's own definition, are not uses.
+func _StzCheckRawMarkupDoor(pcSource)
+	_aOut_ = []
+	_acLines_ = StzSplit(StzReplace("" + pcSource, char(13), ""), char(10))
+	_nLen_ = len(_acLines_)
+	for _i_ = 1 to _nLen_
+		_cL_ = StzLower(ring_trim(_StzRawDoorStrip(_acLines_[_i_])))
+		if StzFindFirst("def ", _cL_) = 1 or StzFindFirst("func ", _cL_) = 1
+			loop
+		ok
+		if StzFindFirst("setmarkup(", _cL_) > 0 or StzFindFirst("setmarkupq(", _cL_) > 0
+			_aOut_ + [ :rule = :raw_markup_door, :line = _i_,
+			           :severity = :info,
+			           :message = "writes markup as given through SetMarkup, the one raw door" +
+			           " of the HTML builder -- counted, not refused; what it carries must" +
+			           " be the caller's own markup, never untrusted text." ]
+		ok
+	next
+	return _aOut_
+
+# a line with its comment dropped and its string literals blanked, so that a
+# mention of the door inside a comment or a text is not a use of it
+func _StzRawDoorStrip(pcLine)
+	_c_ = "" + pcLine
+	_n_ = len(_c_)
+	_cOut_ = ""
+	_cQ_ = ""
+	for _i_ = 1 to _n_
+		_ch_ = _c_[_i_]
+		if _cQ_ != ""
+			if _ch_ = _cQ_
+				_cQ_ = ""
+				_cOut_ += _ch_
+			ok
+			loop
+		ok
+		if _ch_ = "#"
+			exit
+		ok
+		if _ch_ = char(34) or _ch_ = char(39)
+			_cQ_ = _ch_
+			_cOut_ += _ch_
+			loop
+		ok
+		_cOut_ += _ch_
+	next
+	return _cOut_
 
 # WRITES-A-MUTABLE-CONSTANT: assigning to true, false, null, nl, tab or cr.
 #

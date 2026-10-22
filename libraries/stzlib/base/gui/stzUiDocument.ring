@@ -894,11 +894,10 @@ class stzUiDocument from stzObject
 		ok
 		return ""
 
+	# The one HTML text escaper, the engine's (RX1): & < > and both quotes,
+	# so this helper stays safe the day it is used for an attribute too.
 	def _Escape(pcText)
-		_c_ = StzReplace(pcText, "&", "&amp;")
-		_c_ = StzReplace(_c_, "<", "&lt;")
-		_c_ = StzReplace(_c_, ">", "&gt;")
-		return _c_
+		return StzHtmlEscaped(pcText)
 
 	# Records the font file that ToPanel loads for the document's FONT family.
 	#

@@ -40,6 +40,75 @@ func HtmlToText(pcHtml)
 	func @HtmlToText(pcHtml)
 		return HtmlToText(pcHtml)
 
+# -- The escape faces (RX1) --------------------------------------------------
+# Text is the default and markup the exception. These two are the only way
+# text enters the markup the library writes: both are the engine's
+# html_encode and html_encode_attribute, so one policy serves every sink,
+# and no Ring-side escaper stands beside them.
+
+# Returns the text with & < > " and ' written as entities, for an element's content.
+#
+#   example    ? StzHtmlEscaped("fish & <chips>")
+#              #--> fish &amp; &lt;chips&gt;
+func StzHtmlEscaped(pcText)
+	return StzEngineHtmlEncode("" + pcText)
+
+	func @StzHtmlEscaped(pcText)
+		return StzHtmlEscaped(pcText)
+
+# Returns the text with & < > " and ' written as entities, for an attribute value between double quotes.
+#
+#   example    ? StzHtmlAttrEscaped('say "hi"')
+#              #--> say &quot;hi&quot;
+func StzHtmlAttrEscaped(pcText)
+	return StzEngineHtmlEncodeAttribute("" + pcText)
+
+	func @StzHtmlAttrEscaped(pcText)
+		return StzHtmlAttrEscaped(pcText)
+
+# 1 when the text is an attribute name: a letter or underscore, then letters, digits, - _ : or .
+func _StzHtmlIsAttrName(pcName)
+	if NOT isString(pcName)
+		return 0
+	ok
+	_n_ = len(pcName)
+	if _n_ = 0
+		return 0
+	ok
+	for _i_ = 1 to _n_
+		_b_ = ascii(pcName[_i_])
+		_bLetter_ = (_b_ >= 65 and _b_ <= 90) or (_b_ >= 97 and _b_ <= 122)
+		if _i_ = 1
+			if NOT (_bLetter_ or _b_ = 95)
+				return 0
+			ok
+		else
+			if NOT (_bLetter_ or (_b_ >= 48 and _b_ <= 57) or _b_ = 45 or
+			        _b_ = 95 or _b_ = 58 or _b_ = 46)
+				return 0
+			ok
+		ok
+	next
+	return 1
+
+# 1 when a URL value names a script scheme, read the way a browser reads it:
+# the control characters and spaces are dropped first, then the case is folded
+func _StzHtmlUrlIsRefused(pcUrl)
+	_c_ = "" + pcUrl
+	_n_ = len(_c_)
+	_cBare_ = ""
+	for _i_ = 1 to _n_
+		if ascii(_c_[_i_]) > 32
+			_cBare_ += _c_[_i_]
+		ok
+	next
+	_cLow_ = StzLower(_cBare_)
+	if StzFindFirst("javascript:", _cLow_) = 1 or StzFindFirst("vbscript:", _cLow_) = 1 or
+	   StzFindFirst("data:", _cLow_) = 1
+		return 1
+	ok
+	return 0
+
 # ── stzHtml -- document handle ──────────────────────────────
 
 # Parses HTML text with the engine and finds its elements by tag, id or class, giving their text and attributes.
@@ -461,7 +530,7 @@ class stzHtmlNode from stzObject
 # chaining works: each method returns the builder itself. A node handed to AppendToCurrent is
 # copied at that moment, so changes made to the original afterwards are not seen. The position is
 # a number, readable as a path of child numbers with CurrentPath. Text and attribute values are
-# written as given, with no escaping: that is the rule of the node class.
+# escaped when the document is written; SetMarkup on a node is the one door that writes as given.
 #
 #   receiver   o1 = new stzHtmlBuilder() d1 = o1.CreateNode("div") p1 = o1.CreateNode("p")
 #              p1.SetText("x") o1.AppendToCurrent(d1).GoToLastChild().AppendToCurrent(p1)
@@ -474,6 +543,7 @@ class stzHtmlBuilder from stzObject
 
 	@aTags   = [ "" ]    # tag of every node; node 1 is the tag-less root container
 	@aTexts  = [ "" ]    # text of every node
+	@aMarkup = [ 0 ]     # 1 where a node's text is markup, written as given
 	@aAttrs  = [ [] ]    # attributes of every node, a list of [name, value]
 	@aParent = [ 0 ]     # number of the parent of every node, 0 for the root
 	@aKids   = [ [] ]    # numbers of the children of every node, in order
@@ -486,6 +556,7 @@ class stzHtmlBuilder from stzObject
 	def init()
 		@aTags   = [ "" ]
 		@aTexts  = [ "" ]
+		@aMarkup = [ 0 ]
 		@aAttrs  = [ [] ]
 		@aParent = [ 0 ]
 		@aKids   = [ [] ]
@@ -660,7 +731,7 @@ class stzHtmlBuilder from stzObject
 	# Returns the HTML text of the document: the children of the root, one after the other.
 	#
 	#   returns    a text, empty when nothing was added
-	#   note       it is the text the node class gives with ToHtml, with no escaping of its own
+	#   note       it is the text the node class gives with ToHtml: text escaped, markup as given
 	#   see        BuildToFile, Root
 	#@ aka  Serialise the whole document to an HTML string.
 	def Build()
@@ -699,6 +770,7 @@ class stzHtmlBuilder from stzObject
 		_nId_ = ring_len(@aTags) + 1
 		@aTags + poNode.Tag()
 		@aTexts + poNode.Text()
+		@aMarkup + poNode.IsMarkup()
 		@aAttrs + poNode.Attrs()
 		@aParent + pnParent
 		@aKids + []
@@ -732,7 +804,11 @@ class stzHtmlBuilder from stzObject
 		for _j_ = _nTop_ to 1 step -1
 			_nId_ = _aOrder_[_j_]
 			_oN_ = new stzHtmlBuildNode(@aTags[_nId_])
-			_oN_.SetText(@aTexts[_nId_])
+			if @aMarkup[_nId_] = 1
+				_oN_.SetMarkup(@aTexts[_nId_])
+			else
+				_oN_.SetText(@aTexts[_nId_])
+			ok
 			_nA_ = ring_len(@aAttrs[_nId_])
 			for _i_ = 1 to _nA_
 				_oN_.SetAttr(@aAttrs[_nId_][_i_][1], @aAttrs[_nId_][_i_][2])
@@ -794,6 +870,7 @@ class stzHtmlBuildNode from stzObject
 	@cText     = ""
 	@aChildren = []
 	@aAttrs    = []   # list of [name, value]
+	@bMarkup   = 0    # 1 when the text is markup, written as given
 
 	# Builds a node with a tag, no text, no attribute and no child; the empty tag makes a container written without a tag of its own.
 	#
@@ -805,6 +882,7 @@ class stzHtmlBuildNode from stzObject
 		@cText     = ""
 		@aChildren = []
 		@aAttrs    = []
+		@bMarkup   = 0
 
 	# Returns the tag name as it was given.
 	#
@@ -815,16 +893,40 @@ class stzHtmlBuildNode from stzObject
 
 	# Sets the text written inside the node before its children and returns the node.
 	#
-	#   pcText     the text, written as given
+	#   pcText     the text; it is escaped when the node is written, so a < reads as a <
 	#   returns    the node itself
-	#   note       the text is not escaped: a < stays a <, so do not pass untrusted text
-	#   see        Text, ToHtml
+	#   note       text is the default and markup the exception: a caller holding markup
+	#              says so with SetMarkup, the one door that writes as given
+	#   see        Text, SetMarkup, ToHtml
 	def SetText(pcText)
 		@cText = pcText
+		@bMarkup = 0
 		return self
 
 		def SetTextQ(pcText)
 			return This.SetText(pcText)
+
+	# Sets markup written inside the node as given, before its children, and returns the node.
+	#
+	#   pcHtml     the markup, written as given: nothing in it is escaped
+	#   returns    the node itself
+	#   warning    this is the one door for markup, so every call to it is counted by the
+	#              raw-markup-door code rule; untrusted text goes through SetText
+	#   see        SetText, IsMarkup, ToHtml
+	def SetMarkup(pcHtml)
+		@cText = "" + pcHtml
+		@bMarkup = 1
+		return self
+
+		def SetMarkupQ(pcHtml)
+			return This.SetMarkup(pcHtml)
+
+	# Returns 1 when the node's text was given as markup, 0 when it is text.
+	#
+	#   returns    a number, 1 or 0
+	#   see        SetMarkup, SetText
+	def IsMarkup()
+		return @bMarkup
 
 	# Returns the text of the node, not counting its children.
 	#
@@ -835,15 +937,44 @@ class stzHtmlBuildNode from stzObject
 
 	# Adds an attribute and returns the node.
 	#
-	#   pcName     the attribute name
-	#   pcValue    the value, written between double quotes
+	#   pcName     the attribute name: a letter or underscore, then letters, digits, - _ : or .
+	#   pcValue    the value, escaped when the node is written between double quotes
 	#   returns    the node itself
-	#   note       the value is not escaped, so a double quote inside it breaks the markup; setting
-	#              a name twice writes it twice
-	#   see        AppendChild, ToHtml
+	#   note       setting a name twice writes it twice; a URL-valued attribute goes through
+	#              SetUrlAttr, which refuses a script scheme
+	#   warning    a name that is not an attribute name raises an error: there is no raw door
+	#              for a name, and no escaping that would make one safe
+	#   see        SetUrlAttr, AppendChild, ToHtml
 	def SetAttr(pcName, pcValue)
-		@aAttrs + [ pcName, pcValue ]
+		if NOT _StzHtmlIsAttrName(pcName)
+			StzRaise("stzHtmlBuildNode.SetAttr: refused -- an attribute name is a letter or " +
+				"underscore, then letters, digits, '-', '_', ':' or '.'. Got '" +
+				("" + pcName) + "'.")
+		ok
+		@aAttrs + [ pcName, "" + pcValue ]
 		return self
+
+		def SetAttrQ(pcName, pcValue)
+			return This.SetAttr(pcName, pcValue)
+
+	# Adds an attribute whose value is a URL, refusing a script scheme, and returns the node.
+	#
+	#   pcName     the attribute name, such as href or src
+	#   pcUrl      the URL; javascript:, vbscript: and data: are refused whatever their case
+	#              or the control characters hidden inside them
+	#   returns    the node itself
+	#   warning    escaping cannot make a script scheme safe, so the value is refused with an
+	#              error rather than written; a relative or an http(s) URL passes
+	#   see        SetAttr, ToHtml
+	def SetUrlAttr(pcName, pcUrl)
+		if _StzHtmlUrlIsRefused(pcUrl)
+			StzRaise("stzHtmlBuildNode.SetUrlAttr: refused -- a URL attribute does not take " +
+				"a javascript:, vbscript: or data: value. Got '" + ("" + pcUrl) + "'.")
+		ok
+		return This.SetAttr(pcName, pcUrl)
+
+		def SetUrlAttrQ(pcName, pcUrl)
+			return This.SetUrlAttr(pcName, pcUrl)
 
 	# Returns the attributes of the node as a list of [ name, value ] pairs, in the order they were set.
 	#
@@ -888,9 +1019,13 @@ class stzHtmlBuildNode from stzObject
 		_cAttrs_ = ""
 		_nA_ = len(@aAttrs)
 		for _i_ = 1 to _nA_
-			_cAttrs_ += " " + @aAttrs[_i_][1] + '="' + @aAttrs[_i_][2] + '"'
+			_cAttrs_ += " " + @aAttrs[_i_][1] + '="' + StzHtmlAttrEscaped(@aAttrs[_i_][2]) + '"'
 		next
-		return "<" + @cTag + _cAttrs_ + ">" + @cText + This.ChildrenHtml() + "</" + @cTag + ">"
+		_cInner_ = @cText
+		if @bMarkup = 0
+			_cInner_ = StzHtmlEscaped(@cText)
+		ok
+		return "<" + @cTag + _cAttrs_ + ">" + _cInner_ + This.ChildrenHtml() + "</" + @cTag + ">"
 
 	# Returns the HTML of the children only, one after the other, without the tag of this node.
 	#

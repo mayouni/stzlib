@@ -492,13 +492,10 @@ class stzAccessibilityTree from stzObject
 	# JSON escaping, built from char() codes rather than literals: a lone
 	# backslash inside a Ring string literal is its own adventure, and
 	# this runs on every RATIONALE in the document.
+	# The one JSON string writer, the engine's (RX1): this used to forget CR
+	# and NUL, and a rationale holding either gave an invalid document.
 	def _Q(pcText)
-		_cBack_ = char(92)
-		_c_ = StzReplace("" + pcText, _cBack_, _cBack_ + _cBack_)
-		_c_ = StzReplace(_c_, char(34), _cBack_ + char(34))
-		_c_ = StzReplace(_c_, char(10), _cBack_ + "n")
-		_c_ = StzReplace(_c_, char(9), _cBack_ + "t")
-		return char(34) + _c_ + char(34)
+		return StzJsonString(pcText)
 
 	def _B(pb)
 		if pb

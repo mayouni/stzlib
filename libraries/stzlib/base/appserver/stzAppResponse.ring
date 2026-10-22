@@ -98,8 +98,9 @@ class stzAppResponse from stzObject
 	#   note       build the object as a flat list and the output is what a client expects
 	#   warning    a Ring hash list of pairs such as [ :a = 1 ] becomes an array of one-pair
 	#              objects, not an object; a list of two texts becomes an object; a list of an odd
-	#              number of texts raises R2; texts are not escaped, so a quote inside one gives
-	#              invalid JSON; an object inside the data becomes ""
+	#              number of texts raises R2; an object inside the data becomes ""
+	#   note       texts and keys are written through the engine's JSON string writer, so a
+	#              quote, a backslash or a control character inside one stays a valid document
 	#   see        ObjectToJson, Text, Send
 	def Json(aData)
 		_cJson_ = This.ObjectToJson(aData)
@@ -183,11 +184,11 @@ class stzAppResponse from stzObject
 	#   returns    a text such as {"id":7}
 	#   note       numbers keep the library's own formatting, so 3.5 reads 3.50
 	#   warning    the same limits as Json: a list that starts with a text is read as key and value
-	#              pairs, a text is not escaped and an object becomes ""
+	#              pairs and an object becomes ""; a text is written through StzJsonString
 	#   see        Json
 	def ObjectToJson(obj)
-		# Simplified JSON serializer - full implementation needed
-		if isstring(obj) return '"' + obj + '"' ok
+		# a text is the engine's JSON string literal, quotes included (RX1)
+		if isstring(obj) return StzJsonString(obj) ok
 		if isnumber(obj) return "" + obj ok
 		if islist(obj)
 			if len(obj) = 0 return "[]" ok
@@ -198,7 +199,7 @@ class stzAppResponse from stzObject
 				_nLen2_ = len(obj)
 				for _i2_ = 1 to _nLen2_ step 2
 					if _i2_ > 1 _cJson_ += "," ok
-					_cJson_ += '"' + obj[_i2_] + '":' + This.ObjectToJson(obj[_i2_+1])
+					_cJson_ += StzJsonString(obj[_i2_]) + ':' + This.ObjectToJson(obj[_i2_+1])
 				next
 				_cJson_ += "}"
 				return _cJson_

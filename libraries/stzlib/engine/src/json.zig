@@ -186,6 +186,49 @@ fn appendEscape(out: *std.ArrayList(u8), v: u16) !void {
     try out.append(gpa, hex[v & 0xF]);
 }
 
+/// THE ONE JSON STRING WRITER: the text as a JSON string literal, quotes
+/// included, ready to concatenate into a document. Escapes the quote, the
+/// backslash and every control byte below 0x20 (\n \r \t \b \f by name, the
+/// rest as \u00XX, NUL included) and passes every other byte through as it
+/// arrived, so UTF-8 stays UTF-8. Answers an owned buffer; free it with
+/// stz_json_escape_free.
+///
+/// WHY THIS EXISTS. The RX0 census of 2026-10-22 found EIGHT JSON string
+/// escapers on the Ring side with eight policies -- one escaped the quote and
+/// nothing else, three forgot every control character, one forgot CR -- and
+/// none in the engine. Every writer now concatenates what this answers.
+pub fn stz_json_encode_string(data: [*c]const u8, data_len: usize, out_len: *usize) callconv(.c) [*c]u8 {
+    out_len.* = 0;
+    var out = std.ArrayList(u8){};
+    errdefer out.deinit(gpa);
+    out.append(gpa, '"') catch return null;
+    if (data != null) {
+        const src = data[0..data_len];
+        for (src) |b| {
+            switch (b) {
+                '"' => out.appendSlice(gpa, "\\\"") catch return null,
+                '\\' => out.appendSlice(gpa, "\\\\") catch return null,
+                '\n' => out.appendSlice(gpa, "\\n") catch return null,
+                '\r' => out.appendSlice(gpa, "\\r") catch return null,
+                '\t' => out.appendSlice(gpa, "\\t") catch return null,
+                0x08 => out.appendSlice(gpa, "\\b") catch return null,
+                0x0C => out.appendSlice(gpa, "\\f") catch return null,
+                else => {
+                    if (b < 0x20) {
+                        appendEscape(&out, @intCast(b)) catch return null;
+                    } else {
+                        out.append(gpa, b) catch return null;
+                    }
+                },
+            }
+        }
+    }
+    out.append(gpa, '"') catch return null;
+    const owned = out.toOwnedSlice(gpa) catch return null;
+    out_len.* = owned.len;
+    return owned.ptr;
+}
+
 pub fn stz_json_escape_free(ptr: [*c]u8, len: usize) callconv(.c) void {
     if (ptr == null or len == 0) return;
     gpa.free(ptr[0..len]);
