@@ -6,6 +6,8 @@ $bExecuteCode = 0
 
 $cValueInitiator = ""
 
+$pThisValueSeed = ""
+
 $cOneOrManyLoops = :One
 $bRequiresStopValue = 0
 
@@ -61,8 +63,11 @@ func SometimesWhen(p)
 
 	return new stzChainOfValue(p)
 
+# Builds a chain over a value given directly, which the chain reads back from a shared seed variable;
+# the chain keeps its own copy of the value, so a later ThisValue call does not change it.
 func ThisValue(pValue)
-	return new stzChainOfValue(pValue)
+	$pThisValueSeed = pValue
+	return new stzChainOfValue("$pThisValueSeed")
 		
 # Watches one variable of the caller and runs a piece of code only if the variable meets a condition, written as a near-natural chain.
 #
@@ -74,7 +79,8 @@ func ThisValue(pValue)
 # Until repeats it until the variable equals the stop value; Since waits for Becomes to name where
 # it ends. The loop mode, the run flag and the stop value are shared by every chain of the process,
 # and a new initiator call resets them. The value held is a snapshot taken when the chain is built.
-# IsANumber, IsNotANumber, IsAList, IsAnObject and ToStzObject on a number do not work today.
+# The type questions IsANumber, IsAString, IsAList and IsAnObject answer 1 or 0 and exactly one of them
+# holds for any value; ThisValue builds a chain over a value that is not in a variable.
 #
 #   receiver   v = 5; o1 = OnlyWhen(:v).Is(5)
 #   example    ? o1.ChainStatus()
@@ -177,15 +183,20 @@ class stzChainOfValue from stzObject
 		return @pValue
 
 	def _Type()
-		return @cType
+		return ring_type(@pValue)
 
 	# Builds a new chain over the same variable name, reading the variable's current value again.
 	#
 	#   returns    a new stzChainOfValue
 	#   warning    the copy forgets Update: it holds what the caller's variable holds now, not the
-	#              value given to Update
+	#              value given to Update; a chain built by ThisValue has no variable, so its copy
+	#              holds the value the chain holds
 	#   see        VarName, Value
 	def Copy()
+		if This.VarName() = "$pThisValueSeed"
+			return ThisValue(This.Value())
+		ok
+
 		return new stzChainOfValue( This.VarName() )
 
 	  #-------------------------------#
@@ -196,12 +207,13 @@ class stzChainOfValue from stzObject
 	#
 	#   pValue     the new value to hold
 	#   returns    nothing; use UpdateQ to chain
-	#   note       UpdateQ is the same call and returns the chain
+	#   note       UpdateQ is the same call and returns the chain; the type questions follow the
+	#              new value, and a pair such as [ :With, 7 ] holds its second item
 	#   see        UpdateWith, Updated, Value
 	def Update(pValue)
 		if CheckingParams() = 1
 			if isList(pValue) and Q(pValue).IsWithOrByOrUsingNamedParam()
-				_cNewCode_ = _cNewCode_[2]
+				pValue = pValue[2]
 			ok
 		ok
 
@@ -577,6 +589,7 @@ class stzChainOfValue from stzObject
 		#< @FunctionAlternativeForms
 		def Do_(pcCode)
 			This.DoThis(pcCode)
+			return This
 	
 	# Returns the chain after switching on the shared flag that allows code to run.
 	#
@@ -731,18 +744,15 @@ class stzChainOfValue from stzObject
 			return 1
 		ok
 
-	# Returns the held value wrapped in the library object of its type: a stzString for a text, a stzList for a list, a stzObject for an object.
+	# Returns the held value wrapped in the library class of its type: stzNumber, stzString, stzList or stzObject.
 	#
-	#   returns    a stzString, a stzList or a stzObject
-	#   warning    raises error Can't create the stzList object, paList must be a list, when the
-	#              held value is a number, because the number is passed to stzList; use Value for
-	#              numbers
+	#   returns    a stzNumber, a stzString, a stzList or a stzObject
 	#   see        Value
 	#-------------------
 	def ToStzObject()
 		switch Upper(ring_type(This.Value()))
 		on "NUMBER"
-			return new stzList(This.Value())
+			return new stzNumber(This.Value())
 		on "STRING"
 			return new stzString(This.Value())
 		on "LIST"
@@ -751,44 +761,41 @@ class stzChainOfValue from stzObject
 			return new stzObject(This.Value())
 		off
 
-	# Returns the chain itself whatever the value holds, so it does not answer today whether the value is a number.
+	# TRUE if the held value is a number; a text such as 12 is a text, not a number.
 	#
-	#   returns    the chain itself
-	#   warning    tested with a number, a text and a list: the answer is always the chain, never 1
-	#              or 0
-	#   see        IsNotANumber, IsAString
+	#   returns    1 or 0
+	#   note       the test is on the type of the value: a numeric text, an empty list and an
+	#              object all answer 0; ANumber is the same call, and IsANumberQ stops the chain
+	#              instead of answering
+	#   see        IsNotANumber, IsAString, IsAList, IsAnObject
+	#   example    ? ThisValue(5).IsANumber()
+	#              #--> 1
+	#              ? ThisValue("5").IsANumber()
+	#              #--> 0
 	#----------------------
 	def IsANumber()
-
-		if StzUpper(This._Type()) = "NUMBER"	
-			return This
+		if StzUpper(This._Type()) = "NUMBER"
+			return 1
 		else
-
-			return This
+			return 0
 		ok
 
 		#< @FunctionFluentForm
 
 		def IsANumberQ()
-
-			if $bRandomPass = 0
-				This.StopChain()
-				return This
+			_bOk_ = This.IsANumber()
+			if @bNegateNext
+				_bOk_ = NOT _bOk_
 			ok
-	
-			if NOT @bNegateNext
-				if NOT isNumber(This.Value())
-					This.StopChain()
-					return This
-				ok
-			else
-				if isNumber(This.Value())
-					This.StopChain()
-					return This
-				ok
 
+			if NOT _bOk_
+				if @bNegateNext
+					This.StopChain([ "Because the value is a number!" ])
+				else
+					This.StopChain([ "Because the value is not a number!" ])
+				ok
 			ok
-	
+
 			return This
 
 		#>
@@ -803,29 +810,32 @@ class stzChainOfValue from stzObject
 			def ANumberQ()
 				return This.IsANumberQ()
 
-		# Returns 0 whatever the value holds, because it negates the chain object that IsANumber returns.
-		#
-		#   returns    0
-		#   warning    tested with a number, a text and a list: the answer is always 0, even for a
-		#              text
-		#   see        IsANumber, IsNotAString
 			#>
+
 		#>
+
+	# TRUE if the held value is not a number, which includes a numeric text such as 12.
+	#
+	#   returns    1 or 0
+	#   note       NotANumber is the same call
+	#   see        IsANumber, IsNotAString
+	#----------------------
 		#< @FunctionNegativeForm
-		def IsNotANumber()
-			return NOT This.IsANumber()
+	def IsNotANumber()
+		_bIs_ = This.IsANumber()
+		return NOT _bIs_
 
-			#< @FunctionFluentForm
+		#< @FunctionFluentForm
 
-			def IsNotANumberQ()
-				if isNumber(This.Value())
-					This.StopChain()
-					return This
-				ok
-
+		def IsNotANumberQ()
+			if This.IsANumber()
+				This.StopChain([ "Because the value is a number!" ])
 				return This
+			ok
 
-			#>
+			return This
+
+		#>
 
 		def NotANumber()
 			return This.IsNotANumber()
@@ -835,13 +845,19 @@ class stzChainOfValue from stzObject
 			def NotANumberQ()
 				return This.IsNotANumberQ()
 
-	# TRUE if the held value is a text.
+			#>
+
+		#>
+
+	# TRUE if the held value is a text, which includes a numeric text such as 12 and the empty text.
 	#
 	#   returns    1 or 0
-	#   note       AString is the same call
-	#   see        IsNotAString, IsANumber
-			#>
-		#>
+	#   note       AString is the same call, and IsAStringQ stops the chain instead of answering
+	#   see        IsNotAString, IsANumber, IsAList, IsAnObject
+	#   example    ? ThisValue("abc").IsAString()
+	#              #--> 1
+	#              ? ThisValue(7).IsAString()
+	#              #--> 0
 	#----------------------
 	def IsAString()
 		if StzUpper(This._Type()) = "STRING"
@@ -850,57 +866,24 @@ class stzChainOfValue from stzObject
 			return 0
 		ok
 
-
 		#< @FunctionFluentForm
 
 		def IsAStringQ()
 
 			if NOT @bNegateNext
 				if NOT isString(This.Value())
-					This.StopChain()
+					This.StopChain([ "Because the value is not a text!" ])
 					return This
 				ok
 			else
 				if isString(This.Value())
-					This.StopChain()
+					This.StopChain([ "Because the value is a text!" ])
 					return This
 				ok
 
 			ok
-	
+
 			return This
-
-		# TRUE if the held value is not a text.
-		#
-		#   returns    1 or 0
-		#   note       NotAString is the same call
-		#   see        IsAString, IsNotANumber
-		#>
-		#< @FunctionNegativeForm
-		def IsNotAString()
-			return NOT This.IsAString()
-
-			#< @FunctionFluentForm
-
-			def IsNotAStringQ()
-				if isString(This.Value())
-					This.StopChain()
-					return This
-				ok
-
-				return This
-
-			#>
-
-		def NotAString()
-			return This.IsNotAString()
-
-			#< @FunctionFluentForm
-
-			def NotAStringQ()
-				return This.IsNotAStringQ()
-
-			#>
 
 		#>
 
@@ -914,21 +897,75 @@ class stzChainOfValue from stzObject
 			def AStringQ()
 				return This.IsAStringQ()
 
-	# Returns nothing today: the method has an empty body and does not test the value.
-	#
-	#   returns    nothing
-	#   warning    tested with a number, a text and a list: the answer is always an empty text
-	#   see        IsANumber, IsAString
 			#>
+
 		#>
+
+	# TRUE if the held value is not a text.
+	#
+	#   returns    1 or 0
+	#   note       NotAString is the same call
+	#   see        IsAString, IsNotANumber
+	#----------------------
+		#< @FunctionNegativeForm
+	def IsNotAString()
+		return NOT This.IsAString()
+
+		#< @FunctionFluentForm
+
+		def IsNotAStringQ()
+			if isString(This.Value())
+				This.StopChain([ "Because the value is a text!" ])
+				return This
+			ok
+
+			return This
+
+		#>
+
+		def NotAString()
+			return This.IsNotAString()
+
+			#< @FunctionFluentForm
+
+			def NotAStringQ()
+				return This.IsNotAStringQ()
+
+			#>
+
+		#>
+
+	# TRUE if the held value is a list, which includes the empty list and a list of lists.
+	#
+	#   returns    1 or 0
+	#   note       an object is not a list, and a text is not a list whatever it looks like
+	#   see        IsAnObject, IsANumber, IsAString
+	#   example    ? ThisValue([ 1, 2 ]).IsAList()
+	#              #--> 1
+	#              ? ThisValue("1,2").IsAList()
+	#              #--> 0
 	#----------------------
 	def IsAList()
+		if StzUpper(This._Type()) = "LIST"
+			return 1
+		else
+			return 0
+		ok
 
-	# Returns nothing today: the method has an empty body and does not test the value.
+	# TRUE if the held value is an object of any class, library or user made.
 	#
-	#   returns    nothing
-	#   warning    tested with a number and a text: the answer is always an empty text
-	#   see        IsAList, IsAString
+	#   returns    1 or 0
+	#   note       the test is on the type of the value, so it does not depend on which copy of
+	#              the object the chain holds
+	#   see        IsAList, IsANumber, IsAString
+	#   example    ? ThisValue(new stzString("a")).IsAnObject()
+	#              #--> 1
+	#              ? ThisValue([ 1 ]).IsAnObject()
+	#              #--> 0
 	#----------------------
 	def IsAnObject()
-
+		if StzUpper(This._Type()) = "OBJECT"
+			return 1
+		else
+			return 0
+		ok
