@@ -82,21 +82,38 @@ still escape in Ring (their desks).
   control having passed through as text. **Ruled and built the same day** (see the
   bidi policy below): the page was regenerated and its new bidi row is owed a second
   look, so it is *unperceived* again until a person has seen it.
-- **Bidi policy -- built** (ruled by the Principal, "bidi: yes", 2026-10-22). Escaping
-  cannot address a control character, so it is its own step: the engine's
-  `html_neutralize_bidi` (`html.zig`, Ring face `StzBidiNeutralized`) replaces each of
-  U+202A to U+202E, the five embeddings and overrides, with a visible ASCII marker such
-  as `[U+202E]`. `StzHtmlEscaped`, `StzHtmlAttrEscaped` and `StzJsonString` apply it
-  first, so the builder, the panel's HTML, the accessibility JSON, the web shell and
-  the response writers all do. The **isolates** (U+2066 to U+2069) and the **marks**
-  (U+200E, U+200F) are kept: the library writes Arabic and Hebrew and they are
-  legitimate there. **Limits**: the marker form is lossy, so JSON written through
-  `StzJsonString` no longer round-trips a text holding one of the five; the twin rule
-  reports a box whose content holds one as dropped by the HTML and accessibility
-  twins, because those twins carry the marker and not the control; `_EduEsc` and the
-  Ring escapers left to other desks do not apply the policy yet. Guard: the Bidi
-  scenario of `escape_sinks_narrated.ring`, with its negative siblings (the isolates,
-  the marks, a truncated sequence, U+202F, plain text, a 24,000-byte run).
+- **Bidi policy -- built** (ruled by the Principal, "bidi: yes", 2026-10-22; the JSON half
+  refined the same day by "escape"). Escaping cannot address a control character, so it
+  is its own step: the engine's `html_neutralize_bidi` (`html.zig`, Ring face
+  `StzBidiNeutralized`) replaces each of U+202A to U+202E, the five embeddings and
+  overrides, with a visible ASCII marker such as `[U+202E]`; `StzHtmlEscaped` and
+  `StzHtmlAttrEscaped` apply it first, so the builder, the panel's HTML, the web shell
+  and every HTML text carry it. **JSON is lossless instead**: the engine's
+  `stz_json_encode_string` writes the same five as the JSON escapes `\u202a` to `\u202e`,
+  which a parser reads back as the exact character and a raw view shows as text, so the
+  accessibility JSON and the response writers keep the data and lose nothing. The
+  **isolates** (U+2066 to U+2069) and the **marks** (U+200E, U+200F) are kept in both:
+  the library writes Arabic and Hebrew and they are legitimate there. **Limits**: the
+  HTML marker form is lossy by design; the twin rule reports a box whose content holds
+  one of the five as dropped by the HTML twin, because that twin carries the marker and
+  the accessibility twin the exact character; `_EduEsc` and the Ring escapers left to
+  other desks do not apply the policy yet. Guard: the Bidi scenario of
+  `escape_sinks_narrated.ring`, with its negative siblings (the isolates, the marks, a
+  truncated sequence, U+202F, plain text, a 24,000-byte run and its 18,002-byte JSON).
+- **The gate for a new concatenating writer -- built** (asked by the Principal, "gate",
+  2026-10-22). The code rule `markup-concatenation` (`stzCodeRules.ring`, severity **info**,
+  the sixteenth) counts every line that joins a tag literal to a dynamic operand with no
+  escaping face on it. It is a **text heuristic over one line, not a data-flow analysis**,
+  and says so in each finding: it has false positives (an operand escaped or validated on
+  an earlier line, as in the platform shell) and misses a tag built in one statement and
+  joined in another. Today it counts **189 lines in 26 of 874 files** (the largest: the
+  emulator 47, the education reader 35, the sound staff 23 and notation 18), recorded in
+  `base/test/render/markup_concat_baseline.txt`. The **ratchet** is
+  `markup_concat_gate_narrated.ring`: it walks the library and fails when a file counts
+  more than its baseline or a file not in it counts any; a lower count is reported so the
+  baseline can be lowered. It was shown failing on a probe file with a new writer and on a
+  lowered baseline entry, and green at the baseline. It costs about a minute: run it once
+  before a commit that touches a writer. `markup_concat_census.ring` prints the lines.
 
 ### 3.2 The twin -- **designed**
 

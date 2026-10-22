@@ -26,7 +26,8 @@ func StzCodeRuleNames()
 	         "dead-knob", "setter-resets-on-reject",
 	         "setter-only-moves-one-way", "misspelled-name", "library-prints",
 	         "empty-method-body", "writes-a-mutable-constant",
-	         "value-called-as-function", "raw-markup-door" ]
+	         "value-called-as-function", "raw-markup-door",
+	         "markup-concatenation" ]
 
 func StzCheckCodeFile(pcPath)
 	return StzCheckCode(read(pcPath))
@@ -142,6 +143,7 @@ func _StzTextPassFindings(pcSource)
 		_StzCheckEmptyBodies(_cClean_),
 		_StzCheckConstantWrites(_cClean_),
 		_StzCheckRawMarkupDoor(_cClean_),
+		_StzCheckMarkupConcat(_cClean_),
 		_StzCheckValueCalls(_cClean_),
 		_StzCheckForInLoops(_cClean_)
 	]
@@ -1460,6 +1462,169 @@ func _StzNameIsPredicate(pcName)
 	for _i_ = 1 to _n_
 		if StzLeft(_c_, len(_aP_[_i_])) = _aP_[_i_]
 			return 1
+		ok
+	next
+	return 0
+
+# MARKUP-CONCATENATION: a tag literal joined to a dynamic operand, with no
+# escaping face on the line.
+#
+# The HTML builder escapes by default and the engine owns the escaping faces
+# (RX1, 2026-10-22), but a writer that builds markup by concatenation goes
+# through neither: the RX0 census found three of them, and nothing stopped a
+# fourth. This rule counts them. Severity :info -- it counts and never refuses,
+# and it can be dropped later at no cost.
+#
+# IT IS A TEXT HEURISTIC, NOT A DATA-FLOW ANALYSIS, and every finding says so.
+# It reads one line at a time. A line is a finding when it holds a string
+# literal that opens or closes a tag ("<li>", "</p>", '<td class="x">'), AND
+# joins it with + to an operand that is not a literal, a number, a newline name
+# or char(n), AND names no escaping face on that line. It misses a tag built in
+# one statement and joined in another, and it cannot know whether an operand is
+# untrusted: it points a person at a writer to read, as raw-markup-door does for
+# the one door.
+func _StzCheckMarkupConcat(pcSource)
+	_aOut_ = []
+	_acLines_ = StzSplit(StzReplace("" + pcSource, char(13), ""), char(10))
+	_nLen_ = len(_acLines_)
+	for _i_ = 1 to _nLen_
+		_cL_ = _acLines_[_i_]
+		# cheap pre-filter: only a line with a < and a + can be a finding
+		if StzFindFirst("<", _cL_) = 0 or StzFindFirst("+", _cL_) = 0
+			loop
+		ok
+		_cT_ = StzLower(ring_trim(_cL_))
+		if StzFindFirst("def ", _cT_) = 1 or StzFindFirst("func ", _cT_) = 1
+			loop
+		ok
+		_aP_ = _StzMarkupLineParts(_cL_)
+		if _aP_[1] = 1 and _aP_[2] = 1 and _aP_[3] = 0
+			_aOut_ + [ :rule = :markup_concatenation, :line = _i_,
+			           :severity = :info,
+			           :message = "joins a tag literal to a dynamic operand with no escaping face" +
+			           " on the line -- build it with stzHtmlBuilder (SetText and SetAttr escape)" +
+			           " or pass the operand through StzHtmlEscaped. Counted, not refused: a text" +
+			           " heuristic over one line, not a data-flow analysis; it cannot know whether" +
+			           " the operand is untrusted." ]
+		ok
+	next
+	return _aOut_
+
+# [ has a tag literal, has a dynamic operand, names an escaping face ] for one line
+func _StzMarkupLineParts(pcLine)
+	_c_ = "" + pcLine
+	_n_ = len(_c_)
+	_cPH_ = char(1)
+	_cSkel_ = ""
+	_cQ_ = ""
+	_cLit_ = ""
+	_bTag_ = 0
+	for _i_ = 1 to _n_
+		_ch_ = _c_[_i_]
+		if _cQ_ != ""
+			if _ch_ = _cQ_
+				_cQ_ = ""
+				if _StzMarkupIsTagLiteral(_cLit_) = 1
+					_bTag_ = 1
+				ok
+				_cSkel_ += _cPH_
+			else
+				_cLit_ += _ch_
+			ok
+			loop
+		ok
+		if _ch_ = char(34) or _ch_ = char(39)
+			_cQ_ = _ch_
+			_cLit_ = ""
+			loop
+		ok
+		if _ch_ = "#"
+			exit
+		ok
+		if _ch_ = "/" and _i_ < _n_ and _c_[_i_ + 1] = "/"
+			exit
+		ok
+		_cSkel_ += _ch_
+	next
+	if _bTag_ = 0
+		return [ 0, 0, 0 ]
+	ok
+
+	# an escaping face named anywhere on the line settles it
+	_cLow_ = StzLower(_cSkel_)
+	_bEsc_ = 0
+	_acEsc_ = [ "escape", "_esc", "_xml(", "htmlencode" ]
+	for _k_ = 1 to len(_acEsc_)
+		if StzFindFirst(_acEsc_[_k_], _cLow_) > 0
+			_bEsc_ = 1
+		ok
+	next
+
+	# the right-hand side: after return, else after the first =, else all of it
+	_cLhs_ = ""
+	_cRhs_ = _cSkel_
+	_cTrim_ = ring_trim(_cSkel_)
+	if StzFindFirst("return ", StzLower(_cTrim_)) = 1
+		_cRhs_ = StzMidToEnd(_cTrim_, 8)
+	else
+		_nEq_ = StzFindFirst("=", _cSkel_)
+		if _nEq_ > 0
+			_cLhs_ = ring_trim(StzLeft(_cSkel_, _nEq_ - 1))
+			if StzRight(_cLhs_, 1) = "+"
+				_cLhs_ = ring_trim(StzLeft(_cLhs_, len(_cLhs_) - 1))
+			ok
+			_cRhs_ = StzMidToEnd(_cSkel_, _nEq_ + 1)
+		ok
+	ok
+
+	_acPieces_ = StzSplit(_cRhs_, "+")
+	_bDyn_ = 0
+	for _k_ = 1 to len(_acPieces_)
+		_cP_ = StzReplace(_acPieces_[_k_], _cPH_, "")
+		_cP_ = StzReplace(_cP_, " ", "")
+		_cP_ = StzReplace(_cP_, char(9), "")
+		_cP_ = StzReplace(_cP_, ")", "")
+		_cP_ = StzReplace(_cP_, "(", "")
+		_cP_ = StzReplace(_cP_, ",", "")
+		_cP_ = StzReplace(_cP_, ";", "")
+		if _cP_ = ""
+			loop
+		ok
+		_cPL_ = StzLower(_cP_)
+		_nB_ = ascii(_cP_[1])
+		if _nB_ >= 48 and _nB_ <= 57
+			loop
+		ok
+		if _cPL_ = StzLower(StzReplace(_cLhs_, " ", ""))
+			loop
+		ok
+		if _cPL_ = "nl" or _cPL_ = "_cnl_" or _cPL_ = "cnl" or _cPL_ = "_nl_" or
+		   _cPL_ = "newline" or _cPL_ = "crlf" or _cPL_ = "$crlf" or _cPL_ = "tab"
+			loop
+		ok
+		if StzFindFirst("char", _cPL_) = 1 or StzFindFirst("ring_char", _cPL_) = 1
+			loop
+		ok
+		_bDyn_ = 1
+	next
+	return [ _bTag_, _bDyn_, _bEsc_ ]
+
+# 1 when a string literal opens or closes a tag: < then a letter, ! or / and a letter
+func _StzMarkupIsTagLiteral(pcLit)
+	_n_ = len(pcLit)
+	for _i_ = 1 to _n_ - 1
+		if pcLit[_i_] != "<"
+			loop
+		ok
+		_b_ = ascii(pcLit[_i_ + 1])
+		if (_b_ >= 65 and _b_ <= 90) or (_b_ >= 97 and _b_ <= 122) or _b_ = 33
+			return 1
+		ok
+		if _b_ = 47 and _i_ + 2 <= _n_
+			_b2_ = ascii(pcLit[_i_ + 2])
+			if (_b2_ >= 65 and _b2_ <= 90) or (_b2_ >= 97 and _b2_ <= 122)
+				return 1
+			ok
 		ok
 	next
 	return 0

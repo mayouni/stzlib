@@ -52,7 +52,8 @@ func HtmlToText(pcHtml)
 #   returns    a text; the isolates (U+2066 to U+2069) and the marks (U+200E, U+200F) are kept,
 #              because Arabic and Hebrew text uses them
 #   note       ruled by the Principal on 2026-10-22 after a rendered page read abc as cba;
-#              the three escaping faces below apply it first, so every text sink does
+#              the two HTML escaping faces below apply it first; the JSON face writes the
+#              same five as the escapes \u202a to \u202e instead, which is lossless
 #   see        StzHtmlEscaped, StzHtmlAttrEscaped, StzJsonString
 func StzBidiNeutralized(pcText)
 	return StzEngineHtmlNeutralizeBidi("" + pcText)

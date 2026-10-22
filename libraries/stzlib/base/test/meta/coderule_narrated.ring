@@ -44,7 +44,7 @@ Scenario("FROZEN behaviour: StzCheckCode reproduces the house findings")
 
 	cGood = "class Foo" + nl + "def BazQ()" + nl + "	return This" + nl
 	Then("clean source passes", StzCodeIsClean(cGood), TRUE)
-	Then("StzCodeRuleNames lists the house rules (15 with the knob rules and the raw markup door)", len(StzCodeRuleNames()), 15)
+	Then("StzCodeRuleNames lists the house rules (16 with the knob rules, the raw markup door and the markup concatenation)", len(StzCodeRuleNames()), 16)
 	Then("...including dead-knob", StzFindFirst("dead-knob", StzCodeRuleNames()) > 0, TRUE)
 	Then("...and setter-resets-on-reject", StzFindFirst("setter-resets-on-reject", StzCodeRuleNames()) > 0, TRUE)
 	Then("...and the three shapes learned after them", NNamed(["setter-only-moves-one-way", "misspelled-name", "library-prints"]), 3)
@@ -347,6 +347,27 @@ Scenario("The raw markup door is counted, never refused")
 	Given("a class that only uses SetText")
 	aT = StzCheckCode(TextOnlyFixture())
 	Then("nothing is counted", NRawDoors(aT), 0)
+EndScenario()
+
+Scenario("Markup concatenation is counted at info, as a text heuristic, and never refused")
+	# RX gate (2026-10-22, asked by the Principal): a line that joins a tag literal to a
+	# dynamic operand with no escaping face on it is counted, so a new concatenating
+	# writer is seen. It is a heuristic over one line, and says so in its message.
+	Given("a class with three concatenating lines and eight lines that must NOT be flagged")
+	aM = StzCheckCode(MarkupConcatFixture())
+	Then("exactly the three concatenations are counted", NMarkup(aM), 3)
+	Then("each is a finding of severity info", SevOf(aM, "markup_concatenation", "dynamic operand"), "info")
+	Then("the message says it is a text heuristic and not a data-flow analysis", SaysIn(aM, "markup_concatenation", "not a data-flow analysis"), TRUE)
+	Then("the message says it is counted and not refused", SaysIn(aM, "markup_concatenation", "Counted, not refused"), TRUE)
+	Given("the NEGATIVE SIBLINGS, each alone")
+	Then("an escaped operand is not flagged", NMarkup(StzCheckCode("x = " + char(34) + "<li>" + char(34) + " + StzHtmlEscaped(pcName) + " + char(34) + "</li>" + char(34))), 0)
+	Then("a newline name is not flagged", NMarkup(StzCheckCode("x = " + char(34) + "<br>" + char(34) + " + nl")), 0)
+	Then("char(10) is not flagged", NMarkup(StzCheckCode("x = " + char(34) + "<hr>" + char(34) + " + char(10)")), 0)
+	Then("literals only are not flagged", NMarkup(StzCheckCode("x = " + char(34) + "<p>" + char(34) + " + " + char(34) + "a" + char(34))), 0)
+	Then("an accumulator appended with a literal is not flagged", NMarkup(StzCheckCode("_c_ = _c_ + " + char(34) + "</tr>" + char(34))), 0)
+	Then("a < that opens no tag is not flagged", NMarkup(StzCheckCode("x = " + char(34) + "a < b" + char(34) + " + pcName")), 0)
+	Then("a comment is not flagged", NMarkup(StzCheckCode("# " + char(34) + "<li>" + char(34) + " + pcName")), 0)
+	Then("a method definition line is not flagged", NMarkup(StzCheckCode("def Row(pcName) # " + char(34) + "<li>" + char(34) + " + x")), 0)
 EndScenario()
 
 Summary()
@@ -738,6 +759,35 @@ func EmptyCaught()
 
 
 #-- the mutable-constant rule ---------------------------------------------------
+
+func MarkupConcatFixture()
+	_nl_ = char(10)
+	_q_ = char(34)
+	_s_ = char(39)
+	_c_ = "class stzConcatDemo from stzObject" + _nl_
+	_c_ += "	def Row(pcName, pcNote)" + _nl_
+	_c_ += "		_c_ = " + _q_ + "<tr>" + _q_ + " + pcName + " + _q_ + "</tr>" + _q_ + _nl_
+	_c_ += "		_c_ += " + _s_ + "<li class=" + _q_ + "x" + _q_ + ">" + _s_ + " + pcNote + " + _q_ + "</li>" + _q_ + _nl_
+	_c_ += "		return " + _q_ + "<p>" + _q_ + " + This.Text() + " + _q_ + "</p>" + _q_ + _nl_
+	_c_ += "	def Safe(pcName)" + _nl_
+	_c_ += "		_c_ = " + _q_ + "<li>" + _q_ + " + StzHtmlEscaped(pcName) + " + _q_ + "</li>" + _q_ + _nl_
+	_c_ += "		_c_ += " + _q_ + "<br>" + _q_ + " + nl" + _nl_
+	_c_ += "		_c_ += " + _q_ + "<hr>" + _q_ + " + char(10)" + _nl_
+	_c_ += "		_c_ = " + _q_ + "<p>" + _q_ + " + " + _q_ + "static" + _q_ + " + " + _q_ + "</p>" + _q_ + _nl_
+	_c_ += "		_c_ = _c_ + " + _q_ + "</tr>" + _q_ + _nl_
+	_c_ += "		_c_ = " + _q_ + "a < b" + _q_ + " + pcName" + _nl_
+	_c_ += "		# " + _q_ + "<li>" + _q_ + " + pcName is a comment" + _nl_
+	_c_ += "		return _c_" + _nl_
+	return _c_
+
+func NMarkup(paFindings)
+	_n_ = 0
+	for _i_ = 1 to len(paFindings)
+		if "" + paFindings[_i_][:rule] = "markup_concatenation"
+			_n_++
+		ok
+	next
+	return _n_
 
 func RawMarkupFixture()
 	_nl_ = char(10)

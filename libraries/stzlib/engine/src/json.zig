@@ -193,6 +193,14 @@ fn appendEscape(out: *std.ArrayList(u8), v: u16) !void {
 /// arrived, so UTF-8 stays UTF-8. Answers an owned buffer; free it with
 /// stz_json_escape_free.
 ///
+/// THE BIDIRECTIONAL EMBEDDINGS AND OVERRIDES, U+202A..U+202E, are written as
+/// the JSON escapes ‪..‮ (ruled by the Principal on 2026-10-22,
+/// "escape"). That is LOSSLESS -- a JSON parser returns the exact character --
+/// and it is visible as text in a raw view, where the raw bytes would steer the
+/// reading order of whatever shows them. The HTML faces, which a person reads
+/// directly, write the visible marker [U+202E] instead. The isolates
+/// (U+2066..U+2069) and the marks (U+200E, U+200F) are left alone.
+///
 /// WHY THIS EXISTS. The RX0 census of 2026-10-22 found EIGHT JSON string
 /// escapers on the Ring side with eight policies -- one escaped the quote and
 /// nothing else, three forgot every control character, one forgot CR -- and
@@ -204,7 +212,9 @@ pub fn stz_json_encode_string(data: [*c]const u8, data_len: usize, out_len: *usi
     out.append(gpa, '"') catch return null;
     if (data != null) {
         const src = data[0..data_len];
-        for (src) |b| {
+        var i: usize = 0;
+        while (i < src.len) : (i += 1) {
+            const b = src[i];
             switch (b) {
                 '"' => out.appendSlice(gpa, "\\\"") catch return null,
                 '\\' => out.appendSlice(gpa, "\\\\") catch return null,
@@ -213,6 +223,17 @@ pub fn stz_json_encode_string(data: [*c]const u8, data_len: usize, out_len: *usi
                 '\t' => out.appendSlice(gpa, "\\t") catch return null,
                 0x08 => out.appendSlice(gpa, "\\b") catch return null,
                 0x0C => out.appendSlice(gpa, "\\f") catch return null,
+                0xE2 => {
+                    // U+202A..U+202E is E2 80 AA .. E2 80 AE
+                    if (i + 2 < src.len and src[i + 1] == 0x80 and src[i + 2] >= 0xAA and src[i + 2] <= 0xAE) {
+                        const hex = "abcde";
+                        out.appendSlice(gpa, "\\u202") catch return null;
+                        out.append(gpa, hex[src[i + 2] - 0xAA]) catch return null;
+                        i += 2;
+                    } else {
+                        out.append(gpa, b) catch return null;
+                    }
+                },
                 else => {
                     if (b < 0x20) {
                         appendEscape(&out, @intCast(b)) catch return null;

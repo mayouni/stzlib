@@ -67,16 +67,23 @@ field. `ALIGNMENT.md` says where this repository stands against the reference de
 
 Each is a pre-commit gate for what it names, run once per task, never after every edit.
 
-The render plane's fast path, 78 assertions in two processes:
+The render plane's fast path, 95 assertions in two processes:
 
 ```bash
 cd libraries/stzlib/base/test/render && ring escape_sinks_narrated.ring && ring twin_coverage_narrated.ring
 ```
 
-The code rules, 81 assertions:
+The code rules, 93 assertions:
 
 ```bash
 cd libraries/stzlib/base/test/meta && ring coderule_narrated.ring
+```
+
+The ratchet that catches a NEW writer concatenating markup (about a minute; once before a
+commit that touches a writer, never after every edit):
+
+```bash
+cd libraries/stzlib/base/test/render && ring markup_concat_gate_narrated.ring
 ```
 
 The doc gate (prints `OK` or every missing or malformed brief):

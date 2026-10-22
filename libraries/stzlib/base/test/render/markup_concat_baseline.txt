@@ -1,0 +1,32 @@
+# markup-concatenation baseline -- lines per file the rule counts today (2026-10-22)
+# Taken by markup_concat_census.ring over the tracked base/ tree at the tree commit named
+# in markup_concat_gate_narrated.ring. A count is a LINE TO READ, not a defect: the rule is a
+# one-line text heuristic with known false positives (an operand escaped or validated on an
+# earlier line). The gate FAILS when a file here counts MORE, or a file not here counts any;
+# a LOWER count is reported and the baseline should then be lowered.
+data/stzRegexData.ring 10
+education/stzEduReader.ring 35
+education/stzEducation.ring 1
+education/tools/learn.ring 1
+graph/stzGraph.ring 3
+graph/stzStoryboard.ring 8
+gui/stzUiDocument.ring 8
+natural/stzNatural.ring 2
+neural/stzOutputSchema.ring 1
+platform/stzPlatform.ring 6
+regex/stzRegexMaker.ring 1
+security/stzSaml.ring 1
+security/stzSamlProvider.ring 3
+security/stzSecret.ring 1
+security/stzSecretStore.ring 1
+security/stzVaultHttpResolver.ring 1
+sound/stzSoundLadder.ring 8
+sound/stzSoundNotation.ring 18
+sound/stzSoundNotationReader.ring 1
+sound/stzSoundRetunedVoice.ring 2
+sound/stzSoundStaff.ring 23
+string/stzStringIO.ring 1
+system/stzDeployment.ring 3
+system/stzEmulator.ring 47
+system/stzWebBundle.ring 2
+table/stzTable.ring 1

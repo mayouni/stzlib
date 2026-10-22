@@ -27,6 +27,7 @@ ending with `pf()` prints `STOPPED!` on success; that banner is the success mark
 |---|---|
 | `base/file/stzHtml.ring`, the JSON faces, the GUI projections | `cd libraries/stzlib/base/test/render && ring escape_sinks_narrated.ring && ring twin_coverage_narrated.ring` |
 | `base/meta/stzCodeRules.ring` | `cd libraries/stzlib/base/test/meta && ring coderule_narrated.ring` |
+| a writer that builds HTML or XML by concatenation | `cd libraries/stzlib/base/test/render && ring markup_concat_gate_narrated.ring`: the ratchet, about a minute, fails on a new concatenating line |
 | any public method (a brief above it) | `cd libraries/stzlib/base/doc && ring gate.ring` prints `OK` or the errors |
 | the engine (`engine/src/*.zig`) | `cd libraries/stzlib/engine && zig build -j2`, alone, in the foreground, about 25 minutes; never beside another build |
 | a test topic | `cd libraries/stzlib/base/testoor && ring testoor.ring --topic <topic>` |

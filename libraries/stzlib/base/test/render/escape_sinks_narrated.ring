@@ -272,7 +272,7 @@ func _RxSweepJson(cSink, cFunc)
 	_nFail_ = 0
 	for _i_ = 1 to _nC_
 		_cOut_ = call cFunc(_aC_[_i_][2])
-		if _RxJsonOk(_cOut_, "k", _RxWant(_aC_[_i_][2])) = 0
+		if _RxJsonOk(_cOut_, "k", _aC_[_i_][2]) = 0
 			_nFail_++
 			_RxRed(cSink, _aC_[_i_][1])
 		ok
@@ -516,7 +516,7 @@ Scenario("Sink 3b: stzAppServer._RowsJson escapes only the double quote of a cel
 		if StzJsonIsValid(cJ)
 			aL = StzEngineJsonParseToList(cJ)
 			if isList(aL) and len(aL) = 1 and isList(aL[1]) and len(aL[1]) = 1
-				bOk = _RxEq(aL[1][1], _RxWant(aC[i][2]))
+				bOk = _RxEq(aL[1][1], aC[i][2])
 			ok
 		ok
 		if bOk = 0
@@ -679,7 +679,7 @@ Scenario("RX1: the engine's JSON string writer, the one every writer concatenate
 	Then("and the document round-trips", _RxJsonOk('{"k":' + cJ + '}', "k", cIn), 1)
 EndScenario()
 
-Scenario("Bidi: the five overrides become visible markers in every text sink, and nothing else moves")
+Scenario("Bidi: the five overrides become visible markers in HTML and escapes in JSON, and nothing else moves")
 	# Ruled by the Principal on 2026-10-22 after the corpus page read abc as cba.
 	Given("a text holding all five of U+202A..U+202E around some letters")
 	cB = "x" + _RxCps([ 8234, 8235, 8236, 8237, 8238 ]) + "y"
@@ -687,8 +687,11 @@ Scenario("Bidi: the five overrides become visible markers in every text sink, an
 	Then("the neutralizer face writes the five markers", StzBidiNeutralized(cB), cWant)
 	Then("the HTML text face does", StzHtmlEscaped(cB), cWant)
 	Then("the HTML attribute face does", StzHtmlAttrEscaped(cB), cWant)
-	Then("the JSON string face does, inside its quotes", StzJsonString(cB), char(34) + cWant + char(34))
-	Then("none of the five controls is left in any of them",
+	cBs = char(92)
+	cJsonWant = char(34) + "x" + cBs + "u202a" + cBs + "u202b" + cBs + "u202c" + cBs + "u202d" + cBs + "u202e" + "y" + char(34)
+	Then("the JSON string face writes the five as escapes, not markers", StzJsonString(cB), cJsonWant)
+	Then("...and a parser reads back the EXACT text: the JSON face is lossless", _RxJsonOk('{"k":' + StzJsonString(cB) + '}', "k", cB), 1)
+	Then("none of the five raw controls is left in any of the three",
 		StzFindFirst(_RxUtf8(8238), StzHtmlEscaped(cB) + StzHtmlAttrEscaped(cB) + StzJsonString(cB)), 0)
 	Given("the same text through a builder node, read back by the oracle")
 	oBd = new stzHtmlBuildNode("p")
@@ -712,6 +715,10 @@ Scenario("Bidi: the five overrides become visible markers in every text sink, an
 		cLongB += _RxUtf8(8238)
 	next
 	Then("every one is a marker (24000 bytes, nothing cut)", len(StzBidiNeutralized(cLongB)), 24000)
+	Then("and in JSON every one is a six-byte escape (18002 bytes with the quotes)", len(StzJsonString(cLongB)), 18002)
+	Given("the NEGATIVE SIBLINGS for the JSON face: the isolates and the marks")
+	Then("the JSON face leaves them as they are, inside the quotes", StzJsonString(cIso), char(34) + cIso + char(34))
+	Then("and a truncated sequence is not mistaken for a control", StzJsonString(cCut), char(34) + cCut + char(34))
 EndScenario()
 
 # ---------------------------------------------------------------- the red list

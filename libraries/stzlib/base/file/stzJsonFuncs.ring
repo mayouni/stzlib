@@ -4,14 +4,15 @@
 # -- The JSON string face (RX1) ---------------------------------------------
 # Returns the text as a JSON string literal, quotes included, through the
 # engine's one writer: the quote, the backslash and every control character
-# are escaped, the bidirectional overrides become visible markers (StzBidiNeutralized) and
-# every other byte passes as it is. This is what every JSON
+# are escaped, the bidirectional embeddings and overrides U+202A to U+202E are written as the
+# escapes \u202a to \u202e, which a parser reads back as the exact character (lossless; the
+# HTML faces write a visible marker instead), and every other byte passes as it is. This is what every JSON
 # writer in the library concatenates; no Ring-side escaper remains beside it.
 #
 #   example    ? StzJsonString('say "hi"')
 #              #--> "say \"hi\""
 func StzJsonString(pcText)
-	return StzEngineJsonEncodeString(StzEngineHtmlNeutralizeBidi("" + pcText))
+	return StzEngineJsonEncodeString("" + pcText)
 
 	func @StzJsonString(pcText)
 		return StzJsonString(pcText)
