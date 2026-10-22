@@ -28,10 +28,10 @@ func IsEntity(p)
 # becomes @noname and a missing type becomes undefined, and the created stamp is set to now.
 # Properties are read and set by name without regard to case, so Property("AGE") and Property("age")
 # are one property, and the @ method reads, sets one or sets several in a single door. Name and type
-# are single words that keep their case. Known gaps, in the w13 defect file: HasName and IsOfType
-# compare the stored text with a lower-cased argument, so they are FALSE for any stored name or type
-# with a capital letter; IsEmpty is never TRUE; and ContainsPropertyOrValue raises for an argument
-# that is not text.
+# are single words that keep their case, but HasName and IsOfType compare without regard to case, so
+# Ana and ana are one name and Person and person are one type. IsEmpty is TRUE when nothing is held
+# beyond the name, the type and the creation stamp. Known gap, in the w13 defect file:
+# ContainsPropertyOrValue raises for an argument that is not text.
 #
 #   receiver   o1 = new stzEntity([ :name = "ana", :type = "person", :age = 30 ])
 #   example    ? o1.Property("AGE")
@@ -414,25 +414,51 @@ class stzEntity from stzObject
 	def Values()
 		return StzHashListQ( This.Content() ).Values()
 
-	# TRUE if the entity type equals the given type.
+	# Tells whether the entity type is the given type, without regard to case.
 	#
-	#   pcType     the type to test, which is lower-cased before the comparison
-	#   returns    TRUE or FALSE; always FALSE when the stored type has capital letters
-	#   warning    the comparison lower-cases only the argument, so a stored type such as Person
-	#              never matches (w13 defect file)
+	#   pcType     the type to test; Person and person are one type, and so are accented capitals
+	#              and their small forms
+	#   returns    TRUE or FALSE; FALSE for a value that is not a text, and for a type that only
+	#              starts like the stored one
 	#   see        Type, SetType
 	def IsOfType(pcType)
-		return This.Type() = StzLower(pcType)
+		if NOT isString(pcType)
+			return 0
+		ok
 
-	# TRUE if the entity name equals the given name.
+		_cStoredType_ = This.Type()
+		if NOT isString(_cStoredType_)
+			return 0
+		ok
+
+		if strcmp( StzLower(_cStoredType_), StzLower(pcType) ) = 0
+			return 1
+		else
+			return 0
+		ok
+
+	# Tells whether the entity name is the given name, without regard to case.
 	#
-	#   pcName     the name to test, which is lower-cased before the comparison
-	#   returns    TRUE or FALSE; always FALSE when the stored name has capital letters
-	#   warning    the comparison lower-cases only the argument, so a stored name such as Ana never
-	#              matches (w13 defect file)
+	#   pcName     the name to test; Ana and ana are one name, and so are accented capitals and
+	#              their small forms
+	#   returns    TRUE or FALSE; FALSE for a value that is not a text, and for a name that only
+	#              starts like the stored one
 	#   see        Name, SetName
 	def HasName(pcName)
-		return This.Name() = StzLower(pcName)
+		if NOT isString(pcName)
+			return 0
+		ok
+
+		_cStoredName_ = This.Name()
+		if NOT isString(_cStoredName_)
+			return 0
+		ok
+
+		if strcmp( StzLower(_cStoredName_), StzLower(pcName) ) = 0
+			return 1
+		else
+			return 0
+		ok
 
 	# Returns a new entity with the same properties.
 	#
@@ -452,14 +478,23 @@ class stzEntity from stzObject
 		def NumberOfProperties()
 			return This.Size()
 
-	# TRUE if the entity holds nothing beyond name and type.
+	# Tells whether the entity holds nothing beyond its name, its type and its creation stamp.
 	#
-	#   returns    TRUE or FALSE; FALSE always, even for a bare entity
-	#   warning    the test is that the size equals 2, but created is always a third property, so it
-	#              can never be TRUE (w13 defect file)
-	#   see        Size
+	#   returns    TRUE or FALSE; TRUE for a fresh entity built with a name and a type only, FALSE
+	#              once any other property is set, and TRUE again when that property is removed
+	#   note       name, type and created are the bookkeeping the entity always carries, and they do
+	#              not count, whatever the case of their keys
+	#   see        Size, RemoveProperty
 	def IsEmpty()
-		return This.Size() = 2  # Only name and type
+		_nEmptyLen_ = ring_len(@aEntity)
+		for _iEmpty_ = 1 to _nEmptyLen_
+			_cEmptyKey_ = StzLower( @aEntity[_iEmpty_][1] )
+			if _cEmptyKey_ != "name" and _cEmptyKey_ != "type" and _cEmptyKey_ != "created"
+				return 0
+			ok
+		next
+
+		return 1
 
 	# Prints the entity name and type, then one line for each other property.
 	#
