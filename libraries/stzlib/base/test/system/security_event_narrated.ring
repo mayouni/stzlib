@@ -67,7 +67,7 @@ chk("a nameless caller at the login door still records", oE3.Actor() = "admin" a
 ? ""
 ? "-- Scene 4: THE REDACTION LAW -- descriptors, never values --"
 oSecret = new stzSecret("stripe-live")
-oSecret.FromLiteralQ("sk_live_51H8xQeSUPERSECRETVALUE")
+oSecret.FromLiteralQ("sk_live_FAKE_FOR_REDACTION_TEST")
 oE2.About(oSecret)
 ? "  subject recorded as: " + oE2.Subject()
 chk("the subject is the secret's DESCRIPTOR", StzFindFirst("<secret 'stripe-live'", oE2.Subject()) > 0)

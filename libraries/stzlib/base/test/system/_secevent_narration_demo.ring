@@ -2,7 +2,7 @@ load "../../stzBase.ring"
 
 ? "== block 1 =="
 oSecret = new stzSecret("stripe-live")
-oSecret.FromLiteralQ("sk_live_51H8xQeSUPERSECRETVALUE")
+oSecret.FromLiteralQ("sk_live_FAKE_FOR_REDACTION_TEST")
 oLlm = LLMActor("advisor")
 oE = StzSecurityEvent("secret.reveal.refused")
 oE.ByActor(oLlm).About(oSecret).Doing("reveal").AtRisk(4)
