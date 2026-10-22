@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 102 methods in 59 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 99 methods in 58 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| natural/stzChainOfTruth.ring | stzChainOfTruth | 3 |
 | natural/stzChainOfValue.ring | stzChainOfValue | 3 |
 | natural/stzEntity.ring | stzEntity | 3 |
 | object/stzListOfObjects.ring | stzListOfObjects | 3 |
@@ -161,12 +160,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzTukeyLine -- math/stzTukey.ring (1)
 
 - `Fit` (line 927): Fits Tukey's three-group line, then improves it with passes over the residuals, as R's line does. -- Fit(0) equals R's line with iter 1 and Fit(1) equals iter 2, so the count here is one less than R's; points that all share one x give slope 0 and intercept 0 with no error, which is a defect
-
-## stzChainOfTruth -- natural/stzChainOfTruth.ring (3)
-
-- `Containing` (line 772): Raises error Syntax error today for any text or list, instead of tagging the chain with whether the value holds p. -- tested with a text and with a list, and both raised Syntax error! Check the condition you provided, because it builds the condition between braces and Where refuses braces
-- `ContainingNo` (line 827): Raises error Syntax error today for any text or list, instead of tagging the chain with whether the value lacks p. -- tested with a text and with a list, and both raised Syntax error! Check the condition you provided, for the same reason as Containing
-- `Nth` (line 969): Raises error R13 Object is required today for a number, instead of returning the nth item such as the 7th letter of HUSSEIN. -- the call NthLetterOf(7, "HUSSEIN") on its own works and answers N; the failure is in the last line of the method, which builds the result with the name _, an attribute inside the class
 
 ## stzChainOfValue -- natural/stzChainOfValue.ring (3)
 

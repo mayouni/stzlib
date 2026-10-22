@@ -1,5 +1,5 @@
 {
- "count": 102,
+ "count": 99,
  "defects": [
   {
    "class": "stzAppServer",
@@ -240,30 +240,6 @@
    "line": 927,
    "symptom": "Fits Tukey's three-group line, then improves it with passes over the residuals, as R's line does.",
    "cause": "Fit(0) equals R's line with iter 1 and Fit(1) equals iter 2, so the count here is one less than R's; points that all share one x give slope 0 and intercept 0 with no error, which is a defect"
-  },
-  {
-   "class": "stzChainOfTruth",
-   "file": "natural/stzChainOfTruth.ring",
-   "method": "Containing",
-   "line": 772,
-   "symptom": "Raises error Syntax error today for any text or list, instead of tagging the chain with whether the value holds p.",
-   "cause": "tested with a text and with a list, and both raised Syntax error! Check the condition you provided, because it builds the condition between braces and Where refuses braces"
-  },
-  {
-   "class": "stzChainOfTruth",
-   "file": "natural/stzChainOfTruth.ring",
-   "method": "ContainingNo",
-   "line": 827,
-   "symptom": "Raises error Syntax error today for any text or list, instead of tagging the chain with whether the value lacks p.",
-   "cause": "tested with a text and with a list, and both raised Syntax error! Check the condition you provided, for the same reason as Containing"
-  },
-  {
-   "class": "stzChainOfTruth",
-   "file": "natural/stzChainOfTruth.ring",
-   "method": "Nth",
-   "line": 969,
-   "symptom": "Raises error R13 Object is required today for a number, instead of returning the nth item such as the 7th letter of HUSSEIN.",
-   "cause": "the call NthLetterOf(7, \"HUSSEIN\") on its own works and answers N; the failure is in the last line of the method, which builds the result with the name _, an attribute inside the class"
   },
   {
    "class": "stzChainOfValue",
