@@ -488,3 +488,8 @@ Next by size after that: nine classes at 3 (stzListOfObjects first).
 stzFaculty 26, stzFlow 24, stzParcel 15, stzRequirement 11, stzModelPlan 11, stzModelRegistry 8 = 95 roots documented (comments only, strip-checked, exercised with stand-ins, never with a real model). The blocker recorded in the section above is closed: reference.json, DEFECTS.md, defects.json and the baselines are regenerated and the register reads 93 defects in 56 classes. Defect D1 for the owner: StzRunImplementation writes through its by-reference paParams, so defaults merge into the caller list and grow it on every call (plain-list defaults); the other findings D2 to D5 are in w16_defects_modelflow.md.
 Next by size: nine classes at 3 (stzListOfObjects first), then five at 2.
 
+## 2026-10-22: the stzListOfObjects fix batch is ON MAIN; register 93 -> 90
+
+init uses the global IsListOfObjects (stzList has no such method), Content returns @aContent, Copy works. The holder keeps its own copies; a chained call on an element of Content() still reaches the holder's own object (documented; closing it would copy the list on every call: a decision). Guard 68 assertions. Same row-1 shape in stzListOfNamedObjects (IsListOfNamedObjects does not exist) and in StzAreBothListsOfObjects (stzFuncs.ring ~5308).
+Next by size: eight classes at 3 (stzTimex first), then six at 2.
+
