@@ -766,13 +766,10 @@ class stzCanvas from stzObject
 			_cPath_ = "stzcanvas_show.svg"
 			write(_cPath_, This.ToSVG())
 		ok
-		if isWindows()
-			system('start "" "' + _cPath_ + '"')
-		but isMacOS()
-			system('open "' + _cPath_ + '"')
-		else
-			system('xdg-open "' + _cPath_ + '" >/dev/null 2>&1 &')
-		ok
+		# security R11: no shell sees the path (a `"` in it would end the
+		# quoting and run the rest). StzOpenInDefaultApp hands the path to
+		# ShellExecuteW / open / xdg-open as one argument, no shell.
+		StzOpenInDefaultApp(_cPath_)
 		return _cPath_
 
 	# Releases the engine scene behind the canvas and sets its id to 0.

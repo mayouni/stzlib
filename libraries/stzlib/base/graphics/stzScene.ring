@@ -610,13 +610,9 @@ class stzScene from stzObject
 			StzRaise("stzScene.Show: no GPU on this machine -- a 3D scene " +
 				"has no vector tier to fall back to (2D does: stzCanvas).")
 		ok
-		if isWindows()
-			system('start "" "' + _cPath_ + '"')
-		but isMacOS()
-			system('open "' + _cPath_ + '"')
-		else
-			system('xdg-open "' + _cPath_ + '" >/dev/null 2>&1 &')
-		ok
+		# security R11: no shell sees the path -- StzOpenInDefaultApp passes
+		# it to ShellExecuteW / open / xdg-open as one argument.
+		StzOpenInDefaultApp(_cPath_)
 		return _cPath_
 
 	# Releases the scene in the engine, after which every query answers 0 or empty.
