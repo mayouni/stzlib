@@ -144,6 +144,8 @@ Each is a gap with no guard yet. The rung is the plane's plan for it.
 | R13 | ~~No reporting runbook for the CRA's 24 h / 72 h clocks~~ (closed 2026-09-30: `SOFTANZA_CRA_RUNBOOK.md`); a second named owner of the clocks, and counsel on the coordinator CSIRT, remain before the first EU sale | RS, GV | before any EU sale of RINGBOL |
 | R14 | POSIX code paths (trust bundles, argv quoting, chmod) are compiled only under a Linux target and unverified here | A02, A05 | when a Linux machine is available |
 | R15 | ~~SQLite is at 3.49.1, behind the 3.50 line~~ | A03 | **CLOSED 2026-09-30** -- 3.53.4, SHA3-256 checked against sqlite.org; its record is kept by G25 |
+| R16 | A copy of an engine-backed object outlives the object it points to: Destroy() frees the engine side, and a Ring copy keeps the raw pointer (Ring) or a table index that is never retired (Ring++), so it reads freed, reused memory with no error -- the class behind PHP2Shell (CVE-2026-109618/9). Measured 2026-10-22 on both runtimes: a destroyed ledger's copy answered 1, then 0 after reuse. Reachable by code that destroys and keeps a copy, not by a remote request; about 15 handle kinds in 10 bridges | A04, CWE-416 | a generation-checked handle table, the shape gpu.zig and agentloop.zig already use |
+| R17 | A few W methods still evaluate their condition as Ring code: StringsW in stzList, and others in stzString and stzStringList (8 sites), so a condition built from untrusted text RUNS it (measured 2026-10-22, Ring and Ring++: a file written from inside a condition). FindW and the engine-backed W methods refuse it -- Ring++ loudly | A03, CWE-95 | route every W method through the engine W evaluator; Haro has no eval by charter |
 
 ---
 
