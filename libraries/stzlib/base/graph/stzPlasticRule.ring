@@ -307,7 +307,9 @@ class stzScopedRule from stzObject
 	#@ aka  -- asking the rule about a picture ---------------------------------
 	def SubjectsIn(poDg)
 		if @pScope = NULL  return []  ok
-		return call @pScope(poDg)
+		_aS_ = call @pScope(poDg)
+		This._RequireSubjectList(_aS_, "scope")
+		return _aS_
 
 	# Returns the subjects the rule must not govern that a case contains, by calling its counter.
 	#
@@ -316,7 +318,31 @@ class stzScopedRule from stzObject
 	#   see        SubjectsIn, SetCounter
 	def CounterSubjectsIn(poDg)
 		if @pCounter = NULL  return []  ok
-		return call @pCounter(poDg)
+		_aC_ = call @pCounter(poDg)
+		This._RequireSubjectList(_aC_, "counter")
+		return _aC_
+
+	# A scope and a counter answer with a LIST of subject keys, and a caller
+	# that returns a number (a count, a 0/1 flag) is handing the governor
+	# something it takes len() of: the crash that follows says "bad parameter
+	# type" and names neither the rule nor the file. Said here, at the one
+	# place every answer passes through, it names both.
+	def _RequireSubjectList(paAnswer, pcWhich)
+		if isList(paAnswer)  return  ok
+		_cKind_ = "value"
+		_cShown_ = ""
+		if isNumber(paAnswer)
+			_cKind_ = "number"
+			_cShown_ = " (" + paAnswer + ")"
+		but isString(paAnswer)
+			_cKind_ = "string"
+			_cShown_ = " ('" + paAnswer + "')"
+		but isObject(paAnswer)
+			_cKind_ = "object"
+		ok
+		StzRaise("rule '" + @cName + "': its " + pcWhich + " answered a " +
+			_cKind_ + _cShown_ + ", not a list of subject keys -- return " +
+			"[ ] for none and [ 'key', ... ] otherwise")
 
 	# Judges every governed subject of a case and returns a finding for each that fails the claim.
 	#
