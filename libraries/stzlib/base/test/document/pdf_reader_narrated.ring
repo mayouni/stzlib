@@ -266,6 +266,34 @@ Scenario("A run-in heading, a typewriter heading, and prose beside a table")
 	Then("a large line in a typewriter face is a heading, not code", StzFindFirst("Farmácia Boa Esperança", "" + @@(o.Headings())) > 0, 1)
 EndScenario()
 
+# ---- the sixth round, pinned on golden_v6 (realistic documents; a development set since the reader was fixed on it)
+cM = "_data/golden_v6/"
+
+Scenario("A purchase order: a wrapped header cell, a section row, two pages, totals and a letterhead")
+	o = StzPdfQ(cM + "k02.pdf")
+	aT = 0
+	aAll = o.Tables()
+	for i = 1 to len(aAll)
+		if StzFindFirst("Order total", "" + @@(aAll[i])) > 0 aT = aAll[i] ok
+	next
+	Then("the line items are one table across both pages", isList(aT), 1)
+	Then("its header row, a wrapped cell joined", @@(aT[1]), @@([ "Line", "Item code", "Description", "Qty", "Unit", "Unit price (£)", "Net (£)" ]))
+	Then("then the first section row across the table", aT[2][7], "Electrical")
+	Then("the header repeated on page 2 is not repeated in the table", len(StzFindCS("Item code", "" + @@(aT), 1)), 1)
+	Then("a totals label fills the cells it spans", @@(aT[len(aT)]), @@([ "Order total", "Order total", "Order total", "Order total", "Order total", "Order total", "7,291.81" ]))
+	Then("the logo name of the letterhead is furniture", StzFindFirst("NORTHGATE", "" + @@(o.Furniture())) > 0, 1)
+	Then("the document's title is not", StzFindFirst("Purchase Order", "" + @@(o.Headings())) > 0, 1)
+EndScenario()
+
+Scenario("A two-level header: a cell over two columns fills both")
+	o = StzPdfQ("_data/golden_v5/h17.pdf")
+	aT = o.Tables()[1]
+	# (the "Note" cell spans both header rows in the source but is drawn once, in the lower row: a borderless
+	#  header gives no sign of a row span, so the reader leaves the upper cell empty -- a known limit)
+	Then("the upper header row", @@(aT[1]), @@([ "", "", "Quarter ended 30 September", "Quarter ended 30 September", "Nine months ended 30 September", "Nine months ended 30 September" ]))
+	Then("the lower header row", aT[2][3], "2025")
+EndScenario()
+
 Scenario("A file that is not a readable PDF is refused with the reason")
 	bRaised = 0
 	cWhy = ""

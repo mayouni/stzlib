@@ -2969,60 +2969,162 @@ fn rowNear(a: Allocator, frags: []Frag, t: TableOut, dir: i32) ![]u32 {
     return out.items;
 }
 
+// The free fragments just above `edge` inside a table's x range: the nearest line, and the lines stacked right
+// above it (a header cell wrapped onto several lines), up to three lines.
+fn bandAbove(a: Allocator, frags: []Frag, t: TableOut, edge: f32) ![]u32 {
+    // the nearest free fragment above the edge, then every free fragment whose height overlaps the band so far
+    // (cells of one header row are centred differently when one of them wraps), up to three and a half lines tall
+    var nearest: ?u32 = null;
+    var nb: f32 = -1e9;
+    for (frags, 0..) |f, k| {
+        if (f.table >= 0 or f.text.len == 0) continue;
+        const cm = (f.x0 + f.x1) / 2;
+        if (cm < t.x0 - 5 or cm > t.x1 + 5) continue;
+        if (f.y1 <= edge + 1 and f.y1 > nb) {
+            nb = f.y1;
+            nearest = @intCast(k);
+        }
+    }
+    var out: std.ArrayList(u32) = .empty;
+    const n0 = nearest orelse return out.items;
+    var top = frags[n0].y0;
+    const bottom = frags[n0].y1;
+    var in_band = try a.alloc(bool, frags.len);
+    @memset(in_band, false);
+    in_band[n0] = true;
+    var grew = true;
+    while (grew) {
+        grew = false;
+        for (frags, 0..) |f, k| {
+            if (in_band[k] or f.table >= 0 or f.text.len == 0) continue;
+            const cm = (f.x0 + f.x1) / 2;
+            if (cm < t.x0 - 5 or cm > t.x1 + 5) continue;
+            if (f.y1 > edge + 1) continue;
+            if (f.y1 >= top - 0.3 * f.size and bottom - @min(top, f.y0) <= 3.5 * f.size) {
+                in_band[k] = true;
+                top = @min(top, f.y0);
+                grew = true;
+            }
+        }
+    }
+    for (in_band, 0..) |v, k| if (v) try out.append(a, @intCast(k));
+    return out.items;
+}
+
 // A table grows by its header row (free fragments right above it, one per column) and by its totals rows (right
 // below it, the amount in the last column; the label fills the cells it spans, as a merged cell does).
 fn growTables(a: Allocator, frags: []Frag, tables: *std.ArrayList(TableOut)) !void {
     for (tables.items, 0..) |*t, ti| {
         const n = t.cols.len;
         if (n < 2 or t.rows.len == 0) continue;
-        // header rows above, possibly several (a two-level header), possibly past one section row
+        // header rows above, possibly several (a two-level header), possibly past one section row; a header cell
+        // may wrap onto two or three lines, so the header is gathered as a BAND of lines, joined per column
         var hguard: usize = 0;
-        while (hguard < 4) : (hguard += 1) {
-            var row = try rowNear(a, frags, t.*, -1);
-            var section: ?u32 = null;
-            if (row.len == 1 and t.y0 - frags[row[0]].y1 <= 1.8 * frags[row[0]].size and frags[row[0]].size <= 1.05 * t.size and
-                @abs(frags[row[0]].x0 - t.cols[0][0]) <= 1.5 * t.size)
-            {
-                // a section row: only taken when a header row sits right above it
-                var probe = t.*;
-                probe.y0 = frags[row[0]].y0;
-                const above = try rowNear(a, frags, probe, -1);
-                if (above.len >= 2 and probe.y0 - frags[above[0]].y1 <= 1.8 * frags[above[0]].size) {
-                    section = row[0];
-                    row = above;
-                } else break;
-            }
+        var edge: f32 = t.y0;
+        var pending_section: ?u32 = null;
+        var headers: usize = 0;
+        var header_bold = false;
+        while (hguard < 6) : (hguard += 1) {
+            var band = try bandAbove(a, frags, t.*, edge);
+            if (band.len == 0) break;
+            const b0 = frags[band[0]];
+            var bottom: f32 = -1e9;
+            for (band) |k| bottom = @max(bottom, frags[k].y1);
+            if (edge - bottom > 1.8 * t.size) break;
             var same_size = true;
-            for (row) |k| if (frags[k].size > 1.05 * t.size) {
+            for (band) |k| if (frags[k].size > 1.05 * t.size) {
                 same_size = false;
             };
-            const edge = if (section) |sk| frags[sk].y0 else t.y0;
-            if (!(row.len >= 2 and same_size and edge - frags[row[0]].y1 <= 1.8 * frags[row[0]].size)) break;
-            var cells = try a.alloc([]const u8, n);
-            for (cells) |*c| c.* = "";
-            var distinct = true;
-            for (row) |k| {
-                // a header cell covers every column whose middle lies under it
+            if (!same_size) break;
+            // header cells are short: no sentence, nothing wider than most of the table
+            var short_cells = true;
+            for (band) |k| if (wordCount(frags[k].text) > 6 or frags[k].x1 - frags[k].x0 > 0.6 * (t.x1 - t.x0)) {
+                short_cells = false;
+            };
+            if (!short_cells) break;
+            if (headers > 0 and edge - bottom > 1.5 * t.size) break; // a further header row sits close above the first
+            if (band.len == 1) {
+                // one cell starting at the first column: a section row, kept only if a header sits above it
+                if (pending_section != null or @abs(b0.x0 - t.cols[0][0]) > 1.5 * t.size) break;
+                pending_section = band[0];
+                edge = b0.y0;
+                continue;
+            }
+            // a band whose every line holds several cells is a header of several ROWS (a two-level header):
+            // only its lowest line is taken now, the loop takes the others; a band with one-cell lines is a
+            // single row whose cells wrap, joined below
+            {
+                var lines_n: usize = 0;
+                var multi = true;
+                var low_base: f32 = -1e9;
+                var seen = try a.alloc(bool, band.len);
+                @memset(seen, false);
+                for (band, 0..) |k, q| {
+                    if (seen[q]) continue;
+                    var cnt: usize = 0;
+                    for (band, 0..) |k2, q2| {
+                        if (@abs(frags[k2].base - frags[k].base) < 0.3 * frags[k].size) {
+                            seen[q2] = true;
+                            cnt += 1;
+                        }
+                    }
+                    lines_n += 1;
+                    if (cnt < 2) multi = false;
+                    low_base = @max(low_base, frags[k].base);
+                }
+                if (lines_n > 1 and multi) {
+                    var low: std.ArrayList(u32) = .empty;
+                    for (band) |k| if (@abs(frags[k].base - low_base) < 0.3 * frags[k].size) try low.append(a, k);
+                    band = low.items;
+                }
+            }
+            var cells = try a.alloc(std.ArrayList(u8), n);
+            for (cells) |*c| c.* = .empty;
+            var col_x0 = try a.alloc(f32, n);
+            for (col_x0) |*x| x.* = 1e9;
+            var conflict = false;
+            // top to bottom, so a wrapped cell reads in order
+            const ByY = struct {
+                f: []Frag,
+                fn lt(ctx: @This(), l: u32, r: u32) bool {
+                    if (@abs(ctx.f[l].base - ctx.f[r].base) > 0.5) return ctx.f[l].base < ctx.f[r].base;
+                    return ctx.f[l].x0 < ctx.f[r].x0;
+                }
+            };
+            const sorted = try a.dupe(u32, band);
+            std.mem.sort(u32, sorted, ByY{ .f = frags }, ByY.lt);
+            for (sorted) |k| {
                 var placed = false;
-                for (t.cols, 0..) |c, j| {
+                for (t.cols, 0..) |c, jj| {
                     const m = (c[0] + c[1]) / 2;
                     if (m >= frags[k].x0 - 2 and m <= frags[k].x1 + 2) {
-                        if (cells[j].len > 0) distinct = false;
-                        cells[j] = frags[k].text;
+                        if (cells[jj].items.len > 0) {
+                            // a second line in the same column must start where the first did (a wrapped cell)
+                            if (@abs(frags[k].x0 - col_x0[jj]) > 1.5 * t.size and @abs(frags[k].x1 - (col_x0[jj])) > 1e8) conflict = true;
+                            try cells[jj].append(a, ' ');
+                        }
+                        try cells[jj].appendSlice(a, frags[k].text);
+                        col_x0[jj] = @min(col_x0[jj], frags[k].x0);
                         placed = true;
                     }
                 }
                 if (!placed) {
-                    const j = colOf(t.cols, (frags[k].x0 + frags[k].x1) / 2);
-                    if (cells[j].len > 0) distinct = false;
-                    cells[j] = frags[k].text;
+                    const jj = colOf(t.cols, (frags[k].x0 + frags[k].x1) / 2);
+                    if (cells[jj].items.len > 0) try cells[jj].append(a, ' ');
+                    try cells[jj].appendSlice(a, frags[k].text);
                 }
             }
-            if (!distinct) break;
-            const extra: usize = if (section != null) 2 else 1;
+            var used: usize = 0;
+            for (cells) |c| {
+                if (c.items.len > 0) used += 1;
+            }
+            if (conflict or used < 2) break;
+            const extra: usize = if (pending_section != null) 2 else 1;
             var rows = try a.alloc([][]const u8, t.rows.len + extra);
-            rows[0] = cells;
-            if (section) |sk| {
+            var hrow = try a.alloc([]const u8, n);
+            for (0..n) |jj| hrow[jj] = cells[jj].items;
+            rows[0] = hrow;
+            if (pending_section) |sk| {
                 const sc = try a.alloc([]const u8, n);
                 for (sc) |*c| c.* = frags[sk].text;
                 rows[1] = sc;
@@ -3030,10 +3132,20 @@ fn growTables(a: Allocator, frags: []Frag, tables: *std.ArrayList(TableOut)) !vo
             }
             @memcpy(rows[extra..], t.rows);
             t.rows = rows;
-            for (row) |k| {
+            for (band) |k| {
                 frags[k].table = @intCast(ti);
                 t.y0 = @min(t.y0, frags[k].y0);
             }
+            pending_section = null;
+            edge = t.y0;
+            if (headers == 0) {
+                var nbold: usize = 0;
+                for (band) |k| {
+                    if (frags[k].bold) nbold += 1;
+                }
+                header_bold = nbold * 2 >= band.len;
+            }
+            headers += 1;
         }
         // totals rows below
         var guard: usize = 0;
@@ -3401,6 +3513,16 @@ fn compoundBreak(t: []const u8) bool {
     while (k > 0 and t[k - 1] != ' ' and t[k - 1] != '\n') k -= 1;
     const word = t[k .. e - 1];
     return word.len > 0 and std.ascii.isAlphabetic(word[word.len - 1]) and std.mem.indexOfScalar(u8, word, '-') != null;
+}
+
+fn hasLower(t: []const u8) bool {
+    var view = std.unicode.Utf8View.init(t) catch return true;
+    var it = view.iterator();
+    while (it.nextCodepoint()) |cp| {
+        if (cp < 128 and std.ascii.isLower(@intCast(cp))) return true;
+        if (cp >= 0xDF and cp <= 0xFF and cp != 0xF7) return true;
+    }
+    return false;
 }
 
 fn startsQuote(t: []const u8) bool {
@@ -3820,6 +3942,29 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
             try hsizes.append(a, b.size);
         }
     }
+    // a letterhead: on the first page, the blocks of the top band that end above the title (the largest heading
+    // near the top) are furniture, not the document's own text
+    {
+        var title: ?usize = null;
+        for (merged.items, 0..) |b, k| {
+            if (b.page != 1 or b.kind != .heading) continue;
+            const h = page_list.items[0].height;
+            if (b.y0 > 0.3 * h) continue;
+            if (title == null or b.size > merged.items[title.?].size) title = k;
+        }
+        if (title) |ti| {
+            const tblk = merged.items[ti];
+            const h = page_list.items[0].height;
+            for (merged.items, 0..) |*b, k| {
+                if (k == ti or b.page != 1) continue;
+                if (!(b.y1 < tblk.y0 and b.y1 < 0.18 * h and b.size <= tblk.size)) continue;
+                // a letterhead holds a logo name (in capitals) and short lines (an address), never a sentence
+                const logo = b.kind == .heading and !hasLower(b.text);
+                const short_line = b.kind == .paragraph and b.lines <= 3 and wordCount(b.text) <= 12;
+                if (logo or short_line) b.kind = .page_header;
+            }
+        }
+    }
     // heading levels: distinct sizes, largest first
     std.mem.sort(f32, hsizes.items, {}, std.sort.desc(f32));
     var levels: std.ArrayList(f32) = .empty;
@@ -3962,6 +4107,25 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
             const c = &final.items[k + 1];
             const names = std.mem.startsWith(u8, c.text, "Table") or std.mem.startsWith(u8, c.text, "Figure") or std.mem.startsWith(u8, c.text, "Source");
             if (c.page == t.page and c.kind == .paragraph and names and c.lines <= 2 and c.y0 - t.y1 <= 2.0 * c.size) c.kind = .caption;
+        }
+    }
+    for (final.items) |*b| {
+        if (b.kind != .table) continue;
+        for (b.rows) |row| {
+            const n = row.len;
+            if (n < 3 or row[n - 1].len == 0) continue;
+            var lab: ?usize = null;
+            var others: usize = 0;
+            for (row[0 .. n - 1], 0..) |c, j| {
+                if (c.len > 0) {
+                    others += 1;
+                    if (lab == null) lab = j;
+                }
+            }
+            if (others != 1) continue;
+            const l = lab.?;
+            if (l == 0) continue;
+            for (0..n - 1) |j| row[j] = row[l];
         }
     }
     try arabicDocFix(a, final.items);
