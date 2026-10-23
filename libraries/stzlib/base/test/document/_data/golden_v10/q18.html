@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ledgerline Server 4.2.0 release notes</title>
+<style>
+@page { size: A4; margin: 0 }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+html, body { margin: 0; padding: 0; }
+body { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; font-size: 9.5pt; color: #24292f; }
+.page { width: 210mm; height: 296mm; box-sizing: border-box; padding: 13mm 18mm 10mm; display: flex; flex-direction: column; overflow: hidden; break-after: page; }
+.page:last-child { break-after: auto; }
+.content { flex: 1; overflow: hidden; }
+.rh { display: flex; justify-content: space-between; font-family: Consolas, monospace; font-size: 7.5pt; color: #57606a; margin-bottom: 6mm; }
+.rf { text-align: center; font-size: 8pt; color: #57606a; }
+.badge { display: inline-block; background: #0969da; color: #fff; font-size: 8pt; padding: 0.6mm 2.5mm; border-radius: 3mm; margin-bottom: 2mm; }
+h1 { font-size: 18pt; margin: 0 0 1mm; }
+.date { color: #57606a; margin-bottom: 4mm; }
+h2 { font-size: 12pt; margin: 5mm 0 2mm; padding-bottom: 1mm; border-bottom: 0.6pt solid #d0d7de; }
+h3 { font-size: 10pt; margin: 3.5mm 0 1.5mm; }
+p { margin: 0 0 2mm; line-height: 1.5; }
+ul { margin: 0 0 2mm; padding-left: 5mm; line-height: 1.5; }
+code { font-family: Consolas, monospace; background: #eff1f3; padding: 0 1mm; font-size: 8.8pt; }
+pre { font-family: Consolas, "Courier New", monospace; font-size: 8.4pt; line-height: 1.45; background: #161b22; color: #e6edf3; padding: 3mm 4mm; margin: 1mm 0 3mm; border-radius: 1.5mm; white-space: pre; }
+table { border-collapse: collapse; width: 100%; margin: 1mm 0 3mm; font-size: 9pt; }
+th { text-align: left; background: #f6f8fa; border: 0.5pt solid #d0d7de; padding: 1.3mm 2mm; }
+td { border: 0.5pt solid #d0d7de; padding: 1.2mm 2mm; vertical-align: top; }
+td.t { white-space: nowrap; }
+.note { border-left: 3pt solid #bf8700; background: #fff8c5; padding: 2mm 3mm; margin: 2mm 0 3mm; }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="rh"><span data-f>ledgerline-server / docs / releases</span><span data-f>DOC-REL-0420</span></div>
+  <div class="content">
+    <div class="badge">Stable release</div>
+    <h1 data-h="1" data-title>Ledgerline Server 4.2.0 release notes</h1>
+    <div class="date">Released 14 October 2026 · supersedes 4.1.3</div>
+    <p><span data-k>Ledgerline Server 4.2.0 introduces scheduled reconciliation, faster ledger exports and stricter TLS defaults.</span> <span data-k>Most installations can upgrade in place in under fifteen minutes, but one configuration key has been renamed.</span></p>
+    <h2 data-h="2">Highlights</h2>
+    <ul>
+      <li>Reconciliation jobs can now run on a fixed interval instead of only on demand.</li>
+      <li>CSV and Parquet exports of large ledgers are about three times faster.</li>
+      <li>TLS 1.3 is the default minimum version for the HTTP listener.</li>
+      <li>The audit log records the client certificate fingerprint for every write.</li>
+    </ul>
+    <h2 data-h="2">Changes in this release</h2>
+    <table data-t="changes">
+      <thead><tr><th>Ticket</th><th>Type</th><th>Summary</th></tr></thead>
+      <tbody>
+        <tr><td class="t">LL-2291</td><td>Feature</td><td>Scheduled reconciliation with <code>jobs.reconcile_interval</code></td></tr>
+        <tr><td class="t">LL-2305</td><td>Feature</td><td>Parquet export format for ledgers and journals</td></tr>
+        <tr><td class="t">LL-2318</td><td>Performance</td><td>Streaming writer for exports; memory use no longer grows with ledger size</td></tr>
+        <tr><td class="t">LL-2322</td><td>Security</td><td>Default <code>tls_min_version</code> raised from 1.2 to 1.3</td></tr>
+        <tr><td class="t">LL-2340</td><td>Fix</td><td>Rounding error in multi-currency balances with more than four decimals</td></tr>
+        <tr><td class="t">LL-2347</td><td>Fix</td><td>Health endpoint reported ready before migrations had finished</td></tr>
+        <tr><td class="t">LL-2351</td><td>Change</td><td>Configuration key <code>reconcile_every</code> renamed to <code>reconcile_interval</code></td></tr>
+        <tr><td class="t">LL-2356</td><td>Deprecation</td><td>The XML export endpoint will be removed in 5.0</td></tr>
+      </tbody>
+    </table>
+    <h2 data-h="2">Breaking changes</h2>
+    <p><span data-k>The server refuses to start if the old key <code>reconcile_every</code> is still present in the configuration file.</span> Rename it before restarting, as shown in step 2 of the runbook.</p>
+    <div class="note"><span data-k>Clients that only support TLS 1.2 will fail to connect after the upgrade unless <code>tls_min_version</code> is set back to "1.2".</span></div>
+  </div>
+  <div class="rf" data-f>— 1 —</div>
+</div>
+
+<div class="page">
+  <div class="rh"><span data-f>ledgerline-server / docs / releases</span><span data-f>DOC-REL-0420</span></div>
+  <div class="content">
+    <h2 data-h="2">Upgrade runbook</h2>
+    <p>Run these steps on each application node in turn. A single-node installation will be unavailable for the duration of steps 1 to 3.</p>
+    <h3 data-h="3">Step 1: Back up and stop the service</h3>
+    <pre data-code>
+$ ledgerctl backup create --label pre-4.2 --verify
+$ sudo systemctl stop ledgerline
+$ sudo apt-get install ledgerline-server=4.2.0-1
+</pre>
+    <h3 data-h="3">Step 2: Update the configuration</h3>
+    <p>Edit the server configuration and rename the reconciliation key. The other keys below are shown for context.</p>
+    <pre data-code>
+# /etc/ledgerline/server.yaml
+database:
+  url: postgres://ledger@db01:5432/ledger
+  pool_size: 20
+http:
+  listen: 0.0.0.0:8443
+  tls_min_version: "1.3"
+jobs:
+  reconcile_interval: 15m   # was reconcile_every in 4.1
+</pre>
+    <h3 data-h="3">Step 3: Migrate and start</h3>
+    <pre data-code>
+$ ledgerctl migrate --check
+$ ledgerctl migrate --apply
+$ sudo systemctl start ledgerline
+$ curl -fsS https://localhost:8443/healthz
+{"status":"ready","version":"4.2.0"}
+</pre>
+    <p><span data-k>The migration adds two indexes to the journal table and takes about one minute per ten million journal lines.</span></p>
+    <h2 data-h="2">Rollback</h2>
+    <p><span data-k>If the health check fails, stop the service, reinstall version 4.1.3 and restore the backup taken in step 1.</span> Do not run the 4.1 server against a database that has been migrated to 4.2.</p>
+    <h2 data-h="2">Supported upgrade paths</h2>
+    <table data-t="paths">
+      <thead><tr><th>From version</th><th>Direct upgrade</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>4.1.x</td><td>Yes</td><td>Follow this runbook.</td></tr>
+        <tr><td>4.0.x</td><td>Yes</td><td>Run <code>ledgerctl migrate --apply</code> twice; the first run upgrades to the 4.1 schema.</td></tr>
+        <tr><td>3.x</td><td>No</td><td>Upgrade to 4.0.6 first.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="rf" data-f>— 2 —</div>
+</div>
+
+</body>
+</html>

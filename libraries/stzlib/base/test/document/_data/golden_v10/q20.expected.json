@@ -1,0 +1,189 @@
+{
+  "id": "q20",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Daftar Menu",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Daftar Menu"
+    },
+    {
+      "level": 2,
+      "text": "Makanan Pembuka"
+    },
+    {
+      "level": 2,
+      "text": "Hidangan Utama"
+    },
+    {
+      "level": 2,
+      "text": "Sayuran"
+    },
+    {
+      "level": 2,
+      "text": "Minuman"
+    },
+    {
+      "level": 2,
+      "text": "Pencuci Mulut"
+    },
+    {
+      "level": 2,
+      "text": "Paket Keluarga"
+    }
+  ],
+  "key_sentences": [
+    "Semua hidangan kami dimasak setiap hari dengan bumbu yang diulek sendiri dan bahan segar dari pasar setempat.",
+    "Paket keluarga berisi nasi, dua lauk utama, satu sayuran dan minuman untuk setiap orang.",
+    "Harga dalam rupiah dan sudah termasuk pajak restoran 10 persen.",
+    "Tingkat kepedasan dapat disesuaikan, silakan sampaikan kepada pelayan kami."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Lumpia Semarang",
+          "22.000"
+        ],
+        [
+          "Tahu Isi Sayur",
+          "18.000"
+        ],
+        [
+          "Perkedel Kentang",
+          "15.000"
+        ],
+        [
+          "Sup Jagung Manis",
+          "20.000"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Nasi Goreng Kampung",
+          "38.000"
+        ],
+        [
+          "Ayam Bakar Bumbu Rujak (pedas)",
+          "52.000"
+        ],
+        [
+          "Sate Ayam Madura, 10 tusuk",
+          "45.000"
+        ],
+        [
+          "Gudeg Komplit",
+          "48.000"
+        ],
+        [
+          "Ikan Gurame Asam Manis",
+          "85.000"
+        ],
+        [
+          "Rendang Sapi",
+          "62.000"
+        ],
+        [
+          "Mie Godog Jawa",
+          "35.000"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Cah Kangkung Terasi (pedas)",
+          "24.000"
+        ],
+        [
+          "Sayur Lodeh",
+          "22.000"
+        ],
+        [
+          "Gado-Gado",
+          "30.000"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Es Teh Manis",
+          "8.000"
+        ],
+        [
+          "Wedang Jahe",
+          "14.000"
+        ],
+        [
+          "Es Jeruk Peras",
+          "16.000"
+        ],
+        [
+          "Kopi Tubruk",
+          "12.000"
+        ],
+        [
+          "Es Kelapa Muda",
+          "20.000"
+        ],
+        [
+          "Jus Alpukat",
+          "22.000"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Klepon, 5 buah",
+          "15.000"
+        ],
+        [
+          "Es Campur",
+          "25.000"
+        ],
+        [
+          "Pisang Goreng Keju",
+          "20.000"
+        ],
+        [
+          "Bubur Sumsum",
+          "16.000"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Paket A, untuk 4 orang",
+          "210.000"
+        ],
+        [
+          "Paket B, untuk 6 orang",
+          "305.000"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "Sekar Melati",
+    "Rumah makan keluarga sejak 1998",
+    "Jalan Kaliurang Km 7 No. 15, Sleman · Buka setiap hari pukul 10.00–22.00 · 0274 555 8812"
+  ],
+  "languages": [
+    "id"
+  ],
+  "code": [],
+  "notes": "Indonesian restaurant menu, one fixed page inside a double frame. The restaurant name, the \"since 1998\" line and the address/opening-hours line at the bottom are furniture. The menu is set in two columns (CSS grid), read left column top to bottom, then right column. Each menu section is a borderless two-column table (dish, price) with dotted leaders drawn by CSS between them and no header row; the leaders are not text. Prices are in rupiah with a dot as thousands separator. The italic intro and the centred notes are body text."
+}

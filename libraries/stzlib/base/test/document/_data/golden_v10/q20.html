@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Daftar Menu Sekar Melati</title>
+<style>
+@page { size: A4; margin: 0 }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+html, body { margin: 0; padding: 0; }
+body { font-family: Garamond, "EB Garamond", Georgia, serif; font-size: 11pt; color: #3e2a14; }
+.page { width: 210mm; height: 296mm; box-sizing: border-box; padding: 12mm 16mm 10mm; display: flex; flex-direction: column; overflow: hidden; background: #fdf8ef; border: 0; }
+.content { flex: 1; overflow: hidden; }
+.frame { border: 1.5pt solid #9c6b30; outline: 0.5pt solid #9c6b30; outline-offset: 1.2mm; padding: 6mm 8mm; height: 100%; box-sizing: border-box; }
+.brand { text-align: center; font-size: 24pt; letter-spacing: 3pt; color: #7a4b16; }
+.since { text-align: center; font-size: 9.5pt; font-style: italic; margin-bottom: 3mm; }
+h1 { text-align: center; font-size: 15pt; font-weight: normal; margin: 0 0 2mm; letter-spacing: 1pt; }
+.intro { text-align: center; font-style: italic; margin: 0 8mm 5mm; line-height: 1.45; }
+.menu { display: grid; grid-template-columns: 1fr 1fr; column-gap: 10mm; }
+h2 { font-size: 12.5pt; color: #7a4b16; margin: 3mm 0 1.5mm; border-bottom: 0.5pt solid #c9a46a; font-weight: normal; letter-spacing: 0.5pt; }
+table { border-collapse: collapse; width: 100%; margin-bottom: 1mm; }
+td { padding: 0.9mm 0; vertical-align: bottom; }
+td.nm { background-image: radial-gradient(circle, #9c6b30 0.5px, transparent 0.7px); background-size: 4px 4px; background-repeat: repeat-x; background-position: 0 85%; }
+td.nm span { background: #fdf8ef; padding-right: 1.5mm; }
+td.pr { text-align: right; width: 18mm; padding-left: 1.5mm; background: #fdf8ef; }
+.notes { margin-top: 5mm; font-size: 9.5pt; line-height: 1.45; text-align: center; }
+.notes p { margin: 0 0 1mm; }
+.foot { text-align: center; font-size: 8.5pt; color: #7a4b16; padding-top: 2mm; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="content">
+   <div class="frame">
+    <div class="brand" data-f>Sekar Melati</div>
+    <div class="since" data-f>Rumah makan keluarga sejak 1998</div>
+    <h1 data-h="1" data-title>Daftar Menu</h1>
+    <p class="intro"><span data-k>Semua hidangan kami dimasak setiap hari dengan bumbu yang diulek sendiri dan bahan segar dari pasar setempat.</span></p>
+    <div class="menu">
+      <div>
+        <h2 data-h="2">Makanan Pembuka</h2>
+        <table data-t="pembuka">
+          <tr><td class="nm"><span>Lumpia Semarang</span></td><td class="pr">22.000</td></tr>
+          <tr><td class="nm"><span>Tahu Isi Sayur</span></td><td class="pr">18.000</td></tr>
+          <tr><td class="nm"><span>Perkedel Kentang</span></td><td class="pr">15.000</td></tr>
+          <tr><td class="nm"><span>Sup Jagung Manis</span></td><td class="pr">20.000</td></tr>
+        </table>
+        <h2 data-h="2">Hidangan Utama</h2>
+        <table data-t="utama">
+          <tr><td class="nm"><span>Nasi Goreng Kampung</span></td><td class="pr">38.000</td></tr>
+          <tr><td class="nm"><span>Ayam Bakar Bumbu Rujak (pedas)</span></td><td class="pr">52.000</td></tr>
+          <tr><td class="nm"><span>Sate Ayam Madura, 10 tusuk</span></td><td class="pr">45.000</td></tr>
+          <tr><td class="nm"><span>Gudeg Komplit</span></td><td class="pr">48.000</td></tr>
+          <tr><td class="nm"><span>Ikan Gurame Asam Manis</span></td><td class="pr">85.000</td></tr>
+          <tr><td class="nm"><span>Rendang Sapi</span></td><td class="pr">62.000</td></tr>
+          <tr><td class="nm"><span>Mie Godog Jawa</span></td><td class="pr">35.000</td></tr>
+        </table>
+        <h2 data-h="2">Sayuran</h2>
+        <table data-t="sayur">
+          <tr><td class="nm"><span>Cah Kangkung Terasi (pedas)</span></td><td class="pr">24.000</td></tr>
+          <tr><td class="nm"><span>Sayur Lodeh</span></td><td class="pr">22.000</td></tr>
+          <tr><td class="nm"><span>Gado-Gado</span></td><td class="pr">30.000</td></tr>
+        </table>
+      </div>
+      <div>
+        <h2 data-h="2">Minuman</h2>
+        <table data-t="minum">
+          <tr><td class="nm"><span>Es Teh Manis</span></td><td class="pr">8.000</td></tr>
+          <tr><td class="nm"><span>Wedang Jahe</span></td><td class="pr">14.000</td></tr>
+          <tr><td class="nm"><span>Es Jeruk Peras</span></td><td class="pr">16.000</td></tr>
+          <tr><td class="nm"><span>Kopi Tubruk</span></td><td class="pr">12.000</td></tr>
+          <tr><td class="nm"><span>Es Kelapa Muda</span></td><td class="pr">20.000</td></tr>
+          <tr><td class="nm"><span>Jus Alpukat</span></td><td class="pr">22.000</td></tr>
+        </table>
+        <h2 data-h="2">Pencuci Mulut</h2>
+        <table data-t="manis">
+          <tr><td class="nm"><span>Klepon, 5 buah</span></td><td class="pr">15.000</td></tr>
+          <tr><td class="nm"><span>Es Campur</span></td><td class="pr">25.000</td></tr>
+          <tr><td class="nm"><span>Pisang Goreng Keju</span></td><td class="pr">20.000</td></tr>
+          <tr><td class="nm"><span>Bubur Sumsum</span></td><td class="pr">16.000</td></tr>
+        </table>
+        <h2 data-h="2">Paket Keluarga</h2>
+        <table data-t="paket">
+          <tr><td class="nm"><span>Paket A, untuk 4 orang</span></td><td class="pr">210.000</td></tr>
+          <tr><td class="nm"><span>Paket B, untuk 6 orang</span></td><td class="pr">305.000</td></tr>
+        </table>
+        <p style="font-size:9.5pt;line-height:1.4;margin:2mm 0 0"><span data-k>Paket keluarga berisi nasi, dua lauk utama, satu sayuran dan minuman untuk setiap orang.</span></p>
+      </div>
+    </div>
+    <div class="notes">
+      <p><span data-k>Harga dalam rupiah dan sudah termasuk pajak restoran 10 persen.</span></p>
+      <p><span data-k>Tingkat kepedasan dapat disesuaikan, silakan sampaikan kepada pelayan kami.</span></p>
+      <p>Kami menerima pembayaran tunai, kartu debit dan QRIS.</p>
+    </div>
+   </div>
+  </div>
+  <div class="foot" data-f>Jalan Kaliurang Km 7 No. 15, Sleman · Buka setiap hari pukul 10.00–22.00 · 0274 555 8812</div>
+</div>
+</body>
+</html>

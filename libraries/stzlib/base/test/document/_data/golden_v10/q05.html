@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Betriebsanleitung AquaTakt PC-200</title>
+<style>
+@page { size: A4; margin: 0 }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+html, body { margin: 0; padding: 0; }
+body { font-family: Verdana, "DejaVu Sans", sans-serif; font-size: 9pt; color: #202020; }
+.page { width: 210mm; height: 296mm; box-sizing: border-box; padding: 10mm 18mm 10mm 22mm; display: flex; flex-direction: column; overflow: hidden; break-after: page; }
+.page:last-child { break-after: auto; }
+.content { flex: 1; overflow: hidden; }
+.rh { display: flex; justify-content: space-between; font-size: 7.5pt; color: #fff; background: #3a3a3a; padding: 1.5mm 3mm; margin-bottom: 6mm; }
+.rf { display: flex; justify-content: space-between; font-size: 7.5pt; color: #555; border-top: 0.5pt solid #999; padding-top: 2mm; }
+h1 { font-size: 17pt; margin: 0 0 1mm; font-weight: bold; }
+.sub { font-size: 10pt; color: #666; margin-bottom: 6mm; }
+h2 { font-size: 11.5pt; margin: 5mm 0 2mm; padding-bottom: 1mm; border-bottom: 1.5pt solid #f0a500; }
+h3 { font-size: 9.5pt; margin: 3mm 0 1.5mm; }
+p { margin: 0 0 2mm; line-height: 1.5; }
+.warn { border: 1.2pt solid #c0392b; margin: 2mm 0 3mm; display: flex; }
+.warn .l { background: #c0392b; color: #fff; font-weight: bold; padding: 2mm 3mm; writing-mode: horizontal-tb; }
+.warn .t { padding: 2mm 3mm; line-height: 1.45; }
+ul.safe { margin: 0 0 2mm; padding-left: 5mm; line-height: 1.5; }
+table { border-collapse: collapse; width: 100%; margin: 1mm 0 3mm; }
+th { background: #f0a500; color: #1b1b1b; text-align: left; padding: 1.3mm 2mm; font-size: 8.5pt; }
+td { border-bottom: 0.4pt solid #bbb; padding: 1.1mm 2mm; vertical-align: top; }
+tr.sec td { background: #efefef; font-weight: bold; }
+.steps div { line-height: 1.5; margin-bottom: 1mm; }
+.steps .s1 { padding-left: 7mm; }
+pre { font-family: Consolas, "Courier New", monospace; font-size: 8.5pt; background: #f4f4f4; border-left: 3pt solid #f0a500; padding: 3mm 4mm; margin: 2mm 0 3mm; line-height: 1.4; }
+code { font-family: Consolas, monospace; }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="rh"><span data-f>AquaTakt PC-200 · Betriebsanleitung</span><span data-f>Ausgabe 03/2026 · Dok.-Nr. BA-PC200-DE</span></div>
+  <div class="content">
+    <h1 data-h="1" data-title>Betriebsanleitung Pumpensteuerung AquaTakt PC-200</h1>
+    <div class="sub">Für Druckerhöhungsanlagen mit einer oder zwei Pumpen</div>
+    <p><span data-k>Diese Anleitung ist Bestandteil des Produkts und muss während der gesamten Lebensdauer der Steuerung am Einsatzort verfügbar sein.</span> <span data-k>Lesen Sie die Anleitung vor der Montage vollständig durch.</span></p>
+    <h2 data-h="2">1 Sicherheitshinweise</h2>
+    <div class="warn">
+      <div class="l">Warnung</div>
+      <div class="t"><span data-k>Lebensgefahr durch elektrischen Schlag: Vor dem Öffnen des Gehäuses die Anlage allpolig vom Netz trennen und gegen Wiedereinschalten sichern.</span></div>
+    </div>
+    <ul class="safe">
+      <li>Installation und Anschluss nur durch eine Elektrofachkraft.</li>
+      <li>Die Steuerung nicht in explosionsgefährdeten Bereichen einsetzen.</li>
+      <li>Beschädigte Kabel sofort austauschen.</li>
+      <li>Keine Veränderungen an der Firmware ohne Freigabe des Herstellers vornehmen.</li>
+    </ul>
+    <h2 data-h="2">2 Technische Daten</h2>
+    <table data-t="daten">
+      <thead><tr><th>Merkmal</th><th>Wert</th></tr></thead>
+      <tbody>
+        <tr class="sec"><td colspan="2">Elektrische Daten</td></tr>
+        <tr><td>Netzspannung</td><td>230 V AC ± 10 %, 50/60 Hz</td></tr>
+        <tr><td>Motorstrom je Pumpe</td><td>max. 10 A</td></tr>
+        <tr><td>Eigenverbrauch</td><td>3,5 W</td></tr>
+        <tr><td>Drucksensor-Eingang</td><td>4–20 mA, 0–10 bar</td></tr>
+        <tr class="sec"><td colspan="2">Umgebung</td></tr>
+        <tr><td>Umgebungstemperatur</td><td>0 bis 40 °C</td></tr>
+        <tr><td>Schutzart</td><td>IP 54</td></tr>
+        <tr><td>Abmessungen (B × H × T)</td><td>220 × 280 × 115 mm</td></tr>
+        <tr><td>Gewicht</td><td>2,4 kg</td></tr>
+      </tbody>
+    </table>
+    <p>Die Steuerung erfüllt die Anforderungen der Niederspannungsrichtlinie und der EMV-Richtlinie.</p>
+  </div>
+  <div class="rf"><span data-f>Hollbrecht Pumpentechnik GmbH · Werkstraße 12 · 34117 Kassel</span><span data-f>Seite 1 von 3</span></div>
+</div>
+
+<div class="page">
+  <div class="rh"><span data-f>AquaTakt PC-200 · Betriebsanleitung</span><span data-f>Ausgabe 03/2026 · Dok.-Nr. BA-PC200-DE</span></div>
+  <div class="content">
+    <h2 data-h="2">3 Montage</h2>
+    <p><span data-k>Montieren Sie die Steuerung senkrecht an einer ebenen, schwingungsfreien Wand in der Nähe der Pumpen.</span> Der Abstand zu Wärmequellen muss mindestens 50 cm betragen.</p>
+    <div class="steps">
+      <div data-li="0">1. Bohrschablone an der Wand ausrichten und die vier Befestigungslöcher anzeichnen.</div>
+      <div data-li="0">2. Löcher mit Ø 6 mm bohren und Dübel einsetzen.</div>
+      <div data-li="0">3. Gehäuse anschrauben und den Deckel abnehmen.</div>
+      <div data-li="0">4. Kabelverschraubungen vorbereiten:</div>
+      <div class="s1" data-li="1">a) Netzkabel durch die linke Verschraubung M20 führen,</div>
+      <div class="s1" data-li="1">b) Motorkabel durch die mittleren Verschraubungen M20 führen,</div>
+      <div class="s1" data-li="1">c) Sensorkabel durch die rechte Verschraubung M16 führen.</div>
+      <div data-li="0">5. Nicht benutzte Öffnungen mit Blindstopfen verschließen.</div>
+    </div>
+    <h2 data-h="2">4 Elektrischer Anschluss</h2>
+    <p><span data-k>Der Anschluss erfolgt an der Klemmleiste X1 gemäß der folgenden Tabelle.</span> Querschnitte unter 1,5 mm² sind für die Leistungsklemmen nicht zulässig.</p>
+    <table data-t="klemmen">
+      <thead><tr><th>Klemme</th><th>Bezeichnung</th><th>Funktion</th><th>Max. Belastung</th></tr></thead>
+      <tbody>
+        <tr><td>X1.1 – X1.3</td><td>L, N, PE</td><td>Netzeinspeisung</td><td>16 A</td></tr>
+        <tr><td>X1.4 – X1.6</td><td>P1-L, P1-N, PE</td><td>Pumpe 1</td><td>10 A</td></tr>
+        <tr><td>X1.7 – X1.9</td><td>P2-L, P2-N, PE</td><td>Pumpe 2</td><td>10 A</td></tr>
+        <tr><td>X1.10, X1.11</td><td>AI+, AI−</td><td>Drucksensor 4–20 mA</td><td>24 V DC</td></tr>
+        <tr><td>X1.12, X1.13</td><td>SM-C, SM-NO</td><td>Sammelstörmeldung, potenzialfrei</td><td>250 V / 2 A</td></tr>
+        <tr><td>X1.14, X1.15</td><td>DI1, GND</td><td>Externer Freigabekontakt</td><td>5 V DC</td></tr>
+      </tbody>
+    </table>
+    <h3 data-h="3">4.1 Drehrichtung prüfen</h3>
+    <p><span data-k>Schalten Sie jede Pumpe im Handbetrieb kurz ein und vergleichen Sie die Drehrichtung mit dem Pfeil auf dem Motorgehäuse.</span> Bei falscher Drehrichtung zwei Phasen am Motor tauschen; bei Wechselstrommotoren ist keine Prüfung erforderlich.</p>
+  </div>
+  <div class="rf"><span data-f>Hollbrecht Pumpentechnik GmbH · Werkstraße 12 · 34117 Kassel</span><span data-f>Seite 2 von 3</span></div>
+</div>
+
+<div class="page">
+  <div class="rh"><span data-f>AquaTakt PC-200 · Betriebsanleitung</span><span data-f>Ausgabe 03/2026 · Dok.-Nr. BA-PC200-DE</span></div>
+  <div class="content">
+    <h2 data-h="2">5 Konfiguration</h2>
+    <p>Die Parameter werden über das Bedienfeld oder als Datei <code>pc200.cfg</code> von einer microSD-Karte geladen. <span data-k>Beim Einschalten liest die Steuerung die Datei ein und übernimmt nur Werte, die innerhalb der zulässigen Grenzen liegen.</span></p>
+    <pre data-code>
+# pc200.cfg - Beispielkonfiguration
+[pumpe]
+modus        = druck      ; druck | niveau
+sollwert_bar = 3.5
+hysterese    = 0.4
+nachlauf_s   = 20
+wechsel_h    = 24         ; Pumpenwechsel nach Laufzeit
+
+[schutz]
+trockenlauf  = ein
+max_starts_h = 12
+</pre>
+    <p>Kommentare beginnen mit <code>#</code> oder <code>;</code> und werden ignoriert.</p>
+    <h2 data-h="2">6 Störungen und Abhilfe</h2>
+    <table data-t="stoer">
+      <thead><tr><th>Anzeige</th><th>Ursache</th><th>Abhilfe</th></tr></thead>
+      <tbody>
+        <tr><td>E01</td><td>Kein Sensorsignal</td><td>Sensorkabel und Klemmen X1.10/X1.11 prüfen</td></tr>
+        <tr><td>E02</td><td>Trockenlauf erkannt</td><td>Wasserzulauf prüfen, Störung mit OK quittieren</td></tr>
+        <tr><td>E03</td><td>Überstrom Pumpe 1</td><td>Pumpe auf Blockade prüfen, Motorschutz kontrollieren</td></tr>
+        <tr><td>E04</td><td>Überstrom Pumpe 2</td><td>wie E03</td></tr>
+        <tr><td>E05</td><td>Zu viele Starts pro Stunde</td><td>Druckbehälter-Vordruck und Hysterese prüfen</td></tr>
+      </tbody>
+    </table>
+    <p><span data-k>Bleibt eine Störung nach dem Quittieren bestehen, wenden Sie sich an den Kundendienst und halten Sie die Seriennummer bereit.</span></p>
+    <h2 data-h="2">7 Entsorgung</h2>
+    <p><span data-k>Elektronische Altgeräte dürfen nicht über den Hausmüll entsorgt werden.</span> Geben Sie die Steuerung an einer kommunalen Sammelstelle oder beim Fachhändler ab.</p>
+  </div>
+  <div class="rf"><span data-f>Hollbrecht Pumpentechnik GmbH · Werkstraße 12 · 34117 Kassel</span><span data-f>Seite 3 von 3</span></div>
+</div>
+
+</body>
+</html>

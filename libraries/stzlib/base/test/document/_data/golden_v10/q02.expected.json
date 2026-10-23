@@ -1,0 +1,291 @@
+{
+  "id": "q02",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "Procès-verbal de la séance du conseil municipal",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Procès-verbal de la séance du conseil municipal"
+    },
+    {
+      "level": 3,
+      "text": "Membres présents (11)"
+    },
+    {
+      "level": 3,
+      "text": "Absents excusés (3)"
+    },
+    {
+      "level": 3,
+      "text": "Public"
+    },
+    {
+      "level": 2,
+      "text": "Ordre du jour"
+    },
+    {
+      "level": 2,
+      "text": "1. Approbation du procès-verbal du 30 juin 2026"
+    },
+    {
+      "level": 2,
+      "text": "2. Décision modificative n° 2 au budget principal"
+    },
+    {
+      "level": 2,
+      "text": "3. Tarifs de la restauration scolaire 2026-2027"
+    },
+    {
+      "level": 2,
+      "text": "4. Convention avec le syndicat départemental d’énergie"
+    },
+    {
+      "level": 2,
+      "text": "5. Questions diverses"
+    },
+    {
+      "level": 2,
+      "text": "Récapitulatif des votes"
+    }
+  ],
+  "key_sentences": [
+    "L’an deux mille vingt-six, le quinze septembre à vingt heures trente, le conseil municipal, légalement convoqué, s’est réuni en séance publique sous la présidence de Madame la Maire.",
+    "Le quorum étant atteint avec onze membres présents sur quinze, la séance est ouverte.",
+    "Aucune observation n’ayant été formulée, le procès-verbal de la séance du 30 juin 2026 est approuvé à l’unanimité.",
+    "Il est proposé de virer des crédits de la section de fonctionnement vers la section d’investissement afin de financer le surcoût.",
+    "La commission des affaires scolaires propose de ne répercuter qu’une partie de cette hausse et de maintenir un tarif social pour les familles dont le quotient familial est inférieur à 700 euros.",
+    "Madame la Maire répond que la question sera inscrite au prochain comité de pilotage avec le prestataire.",
+    "L’économie attendue sur la facture d’électricité de l’éclairage public est estimée à 61 % par an.",
+    "L’ordre du jour étant épuisé, la séance est levée à vingt-deux heures dix."
+  ],
+  "tables": [
+    {
+      "caption": "Tableau 1 – Mouvements de crédits proposés (en euros)",
+      "rows": [
+        [
+          "Chapitre",
+          "Libellé",
+          "Dépenses",
+          "Dépenses"
+        ],
+        [
+          "Chapitre",
+          "Libellé",
+          "Augmentation",
+          "Diminution"
+        ],
+        [
+          "Section de fonctionnement",
+          "Section de fonctionnement",
+          "Section de fonctionnement",
+          "Section de fonctionnement"
+        ],
+        [
+          "011",
+          "Charges à caractère général",
+          "",
+          "18 500,00"
+        ],
+        [
+          "023",
+          "Virement à la section d’investissement",
+          "18 500,00",
+          ""
+        ],
+        [
+          "Section d’investissement",
+          "Section d’investissement",
+          "Section d’investissement",
+          "Section d’investissement"
+        ],
+        [
+          "21",
+          "Immobilisations corporelles – école",
+          "18 500,00",
+          ""
+        ],
+        [
+          "021",
+          "Virement de la section de fonctionnement (recette)",
+          "18 500,00",
+          ""
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Catégorie",
+          "Tarif 2025-2026",
+          "Tarif 2026-2027"
+        ],
+        [
+          "Repas enfant, quotient inférieur à 700 €",
+          "1,00 €",
+          "1,00 €"
+        ],
+        [
+          "Repas enfant, quotient de 700 à 1 200 €",
+          "3,10 €",
+          "3,20 €"
+        ],
+        [
+          "Repas enfant, quotient supérieur à 1 200 €",
+          "3,85 €",
+          "3,95 €"
+        ],
+        [
+          "Repas adulte (enseignants, personnel)",
+          "5,40 €",
+          "5,60 €"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Point",
+          "Objet",
+          "Pour",
+          "Contre",
+          "Abstentions"
+        ],
+        [
+          "1",
+          "Procès-verbal du 30 juin 2026",
+          "13",
+          "0",
+          "0"
+        ],
+        [
+          "2",
+          "Décision modificative n° 2",
+          "12",
+          "0",
+          "1"
+        ],
+        [
+          "3",
+          "Tarifs de la restauration scolaire",
+          "13",
+          "0",
+          "0"
+        ],
+        [
+          "4",
+          "Convention éclairage public",
+          "11",
+          "2",
+          "0"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Hélène Garnier-Ruaux"
+    },
+    {
+      "level": 0,
+      "text": "Joël Pasquier"
+    },
+    {
+      "level": 0,
+      "text": "Martine Leveau"
+    },
+    {
+      "level": 0,
+      "text": "Karim Benali"
+    },
+    {
+      "level": 0,
+      "text": "Sophie Drouet"
+    },
+    {
+      "level": 0,
+      "text": "Thierry Mabille"
+    },
+    {
+      "level": 0,
+      "text": "Anne-Laure Chevrier"
+    },
+    {
+      "level": 0,
+      "text": "Patrice Ronsard"
+    },
+    {
+      "level": 0,
+      "text": "Inès Fauvel"
+    },
+    {
+      "level": 0,
+      "text": "Gérard Lhomme"
+    },
+    {
+      "level": 0,
+      "text": "Claire Vasseur"
+    },
+    {
+      "level": 0,
+      "text": "Damien Rocher, pouvoir à Martine Leveau"
+    },
+    {
+      "level": 0,
+      "text": "Nathalie Brissot, pouvoir à Karim Benali"
+    },
+    {
+      "level": 0,
+      "text": "Yves Corbin"
+    },
+    {
+      "level": 0,
+      "text": "Approbation du procès-verbal de la séance du 30 juin 2026"
+    },
+    {
+      "level": 0,
+      "text": "Décision modificative n° 2 au budget principal"
+    },
+    {
+      "level": 0,
+      "text": "Tarifs de la restauration scolaire pour l’année 2026-2027"
+    },
+    {
+      "level": 0,
+      "text": "Convention avec le syndicat départemental d’énergie pour l’éclairage public"
+    },
+    {
+      "level": 0,
+      "text": "Questions diverses"
+    },
+    {
+      "level": 0,
+      "text": "– durée de la convention : dix ans ;"
+    },
+    {
+      "level": 0,
+      "text": "– extinction de l’éclairage entre 23 h 30 et 5 h 30, sauf rue Principale ;"
+    },
+    {
+      "level": 0,
+      "text": "– maintenance assurée par le syndicat, sans surcoût pour la commune."
+    }
+  ],
+  "furniture": [
+    "Commune de Saint-Aubin-des-Prés",
+    "Séance du 15 septembre 2026",
+    "Département de la Sarthe — Commune de Saint-Aubin-des-Prés",
+    "Mairie, 1 place de l’Église, 72410 Saint-Aubin-des-Prés",
+    "Page 1 / 3",
+    "Page 2 / 3",
+    "Page 3 / 3"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "Municipal council minutes, three fixed pages. The running header (two items, left and right) repeats on every page and is listed once; the page numbers \"Page n / 3\" are listed once per page. The commune block under the running header on page 1 is letterhead furniture. Members present and members excused are two side-by-side columns read column by column, left first; their names are CSS-bulleted list items. The agenda is a CSS-numbered list (markers not in the text). The numbers \"1.\" to \"5.\" in the level-2 headings are part of the heading text, not list items. Table 1 has a two-level header: \"Chapitre\" and \"Libellé\" span both header rows and \"Dépenses\" spans two columns, so both header rows are given; section rows span all four columns. Non-breaking spaces before colons and after \"n°\" count as ordinary spaces. The signature block at the end is body text, not furniture."
+}

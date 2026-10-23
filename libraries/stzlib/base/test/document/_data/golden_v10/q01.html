@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Invoice INV-2026-0418</title>
+<style>
+@page { size: A4; margin: 0 }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+html, body { margin: 0; padding: 0; }
+body { font-family: "Segoe UI", Arial, sans-serif; font-size: 10pt; color: #222; }
+.page { width: 210mm; height: 296mm; box-sizing: border-box; padding: 14mm 18mm 12mm; display: flex; flex-direction: column; overflow: hidden; }
+.content { flex: 1; overflow: hidden; }
+.lh { display: flex; justify-content: space-between; border-bottom: 3px solid #1f6f5c; padding-bottom: 6mm; }
+.lh .name { font-size: 18pt; font-weight: 700; color: #1f6f5c; letter-spacing: 0.5pt; }
+.lh .addr { text-align: right; font-size: 8.5pt; line-height: 1.45; color: #555; }
+h1 { font-size: 22pt; font-weight: 300; margin: 9mm 0 5mm; color: #1f6f5c; }
+.two { display: flex; gap: 10mm; margin-bottom: 8mm; }
+.box { flex: 1; border: 1px solid #cfdcd8; padding: 4mm 5mm; border-radius: 2mm; }
+.box h2 { font-size: 9pt; margin: 0 0 2mm; color: #1f6f5c; }
+.box p { margin: 0; line-height: 1.5; }
+table.kv { border-collapse: collapse; width: 100%; }
+table.kv td { padding: 1mm 0; }
+table.kv td:first-child { color: #666; width: 45%; }
+table.items { width: 100%; border-collapse: collapse; margin-top: 2mm; }
+table.items th { background: #1f6f5c; color: #fff; text-align: left; padding: 2.2mm 3mm; font-weight: 600; font-size: 9pt; }
+table.items td { padding: 2.2mm 3mm; border-bottom: 1px solid #e3ebe8; vertical-align: top; }
+table.items td.n, table.items th.n { text-align: right; white-space: nowrap; }
+table.items tr.sum td { border-bottom: none; padding-top: 1.4mm; padding-bottom: 1.4mm; }
+table.items tr.sum td.lab { text-align: right; color: #555; }
+table.items tr.total td { border-top: 2px solid #1f6f5c; font-weight: 700; font-size: 11pt; }
+.small { color: #666; font-size: 8.5pt; }
+h3 { font-size: 11pt; color: #1f6f5c; margin: 9mm 0 2mm; }
+p { line-height: 1.5; margin: 0 0 2.5mm; }
+.foot { border-top: 1px solid #cfdcd8; padding-top: 3mm; font-size: 8pt; color: #777; display: flex; justify-content: space-between; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="lh">
+    <div class="name" data-f>Larkspur Analytics Ltd</div>
+    <div class="addr">
+      <div data-f>14 Coppergate Yard, Norwich NR3 1HX</div>
+      <div data-f>accounts@larkspur-analytics.example · +44 1603 555 0192</div>
+      <div data-f>VAT reg. GB 318 4402 77</div>
+    </div>
+  </div>
+  <div class="content">
+    <h1 data-h="1" data-title>Tax Invoice</h1>
+    <div class="two">
+      <div class="box">
+        <h2 data-h="2">Bill to</h2>
+        <p>Harrowfield Community Housing Trust<br>Attn: Finance Office<br>2 Mill Lane, Wymondham NR18 0QA</p>
+      </div>
+      <div class="box">
+        <h2 data-h="2">Invoice details</h2>
+        <table class="kv" data-t="kv">
+          <tr><td>Invoice number</td><td>INV-2026-0418</td></tr>
+          <tr><td>Invoice date</td><td>2 October 2026</td></tr>
+          <tr><td>Due date</td><td>1 November 2026</td></tr>
+          <tr><td>Purchase order</td><td>HCHT-PO-7731</td></tr>
+        </table>
+      </div>
+    </div>
+    <p><span data-k>This invoice covers the tenant survey analysis delivered under the agreement signed on 4 August 2026.</span> <span data-k>All amounts are shown in pounds sterling.</span></p>
+    <table class="items" data-t="items">
+      <thead>
+        <tr><th>Description</th><th class="n">Qty</th><th class="n">Unit price</th><th class="n">Amount</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Survey design workshop (half day)</td><td class="n">1</td><td class="n">£650.00</td><td class="n">£650.00</td></tr>
+        <tr><td>Questionnaire hosting and reminders, per month</td><td class="n">3</td><td class="n">£120.00</td><td class="n">£360.00</td></tr>
+        <tr><td>Data cleaning and weighting</td><td class="n">12</td><td class="n">£85.00</td><td class="n">£1,020.00</td></tr>
+        <tr><td>Analysis report with estate-level breakdown</td><td class="n">1</td><td class="n">£1,400.00</td><td class="n">£1,400.00</td></tr>
+        <tr><td>Presentation to the board of trustees</td><td class="n">1</td><td class="n">£300.00</td><td class="n">£300.00</td></tr>
+        <tr class="sum"><td class="lab" colspan="3">Subtotal</td><td class="n">£3,730.00</td></tr>
+        <tr class="sum"><td class="lab" colspan="3">VAT at 20%</td><td class="n">£746.00</td></tr>
+        <tr class="sum total"><td class="lab" colspan="3">Total due</td><td class="n">£4,476.00</td></tr>
+      </tbody>
+    </table>
+    <h3 data-h="2">Payment</h3>
+    <p><span data-k>Please pay by bank transfer within 30 days and quote the invoice number as your reference.</span> <span data-k>Our bank details are printed on the remittance advice sent with this invoice.</span></p>
+    <p><span data-k>Late payments may incur interest at 8% above the Bank of England base rate under the Late Payment of Commercial Debts Act.</span></p>
+    <h3 data-h="2">Notes</h3>
+    <p class="small"><span data-k>The data cleaning line reflects twelve hours, two more than estimated, as agreed by email on 17 September.</span></p>
+  </div>
+  <div class="foot">
+    <span data-f>Registered in England and Wales, company no. 10928364</span>
+    <span data-f>Page 1 of 1</span>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,166 @@
+{
+  "id": "q18",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Ledgerline Server 4.2.0 release notes",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Ledgerline Server 4.2.0 release notes"
+    },
+    {
+      "level": 2,
+      "text": "Highlights"
+    },
+    {
+      "level": 2,
+      "text": "Changes in this release"
+    },
+    {
+      "level": 2,
+      "text": "Breaking changes"
+    },
+    {
+      "level": 2,
+      "text": "Upgrade runbook"
+    },
+    {
+      "level": 3,
+      "text": "Step 1: Back up and stop the service"
+    },
+    {
+      "level": 3,
+      "text": "Step 2: Update the configuration"
+    },
+    {
+      "level": 3,
+      "text": "Step 3: Migrate and start"
+    },
+    {
+      "level": 2,
+      "text": "Rollback"
+    },
+    {
+      "level": 2,
+      "text": "Supported upgrade paths"
+    }
+  ],
+  "key_sentences": [
+    "Ledgerline Server 4.2.0 introduces scheduled reconciliation, faster ledger exports and stricter TLS defaults.",
+    "Most installations can upgrade in place in under fifteen minutes, but one configuration key has been renamed.",
+    "The server refuses to start if the old key reconcile_every is still present in the configuration file.",
+    "Clients that only support TLS 1.2 will fail to connect after the upgrade unless tls_min_version is set back to \"1.2\".",
+    "The migration adds two indexes to the journal table and takes about one minute per ten million journal lines.",
+    "If the health check fails, stop the service, reinstall version 4.1.3 and restore the backup taken in step 1."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Ticket",
+          "Type",
+          "Summary"
+        ],
+        [
+          "LL-2291",
+          "Feature",
+          "Scheduled reconciliation with jobs.reconcile_interval"
+        ],
+        [
+          "LL-2305",
+          "Feature",
+          "Parquet export format for ledgers and journals"
+        ],
+        [
+          "LL-2318",
+          "Performance",
+          "Streaming writer for exports; memory use no longer grows with ledger size"
+        ],
+        [
+          "LL-2322",
+          "Security",
+          "Default tls_min_version raised from 1.2 to 1.3"
+        ],
+        [
+          "LL-2340",
+          "Fix",
+          "Rounding error in multi-currency balances with more than four decimals"
+        ],
+        [
+          "LL-2347",
+          "Fix",
+          "Health endpoint reported ready before migrations had finished"
+        ],
+        [
+          "LL-2351",
+          "Change",
+          "Configuration key reconcile_every renamed to reconcile_interval"
+        ],
+        [
+          "LL-2356",
+          "Deprecation",
+          "The XML export endpoint will be removed in 5.0"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "From version",
+          "Direct upgrade",
+          "Notes"
+        ],
+        [
+          "4.1.x",
+          "Yes",
+          "Follow this runbook."
+        ],
+        [
+          "4.0.x",
+          "Yes",
+          "Run ledgerctl migrate --apply twice; the first run upgrades to the 4.1 schema."
+        ],
+        [
+          "3.x",
+          "No",
+          "Upgrade to 4.0.6 first."
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Reconciliation jobs can now run on a fixed interval instead of only on demand."
+    },
+    {
+      "level": 0,
+      "text": "CSV and Parquet exports of large ledgers are about three times faster."
+    },
+    {
+      "level": 0,
+      "text": "TLS 1.3 is the default minimum version for the HTTP listener."
+    },
+    {
+      "level": 0,
+      "text": "The audit log records the client certificate fingerprint for every write."
+    }
+  ],
+  "furniture": [
+    "ledgerline-server / docs / releases",
+    "DOC-REL-0420",
+    "— 1 —",
+    "— 2 —"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "$ ledgerctl backup create --label pre-4.2 --verify\n$ sudo systemctl stop ledgerline\n$ sudo apt-get install ledgerline-server=4.2.0-1",
+    "# /etc/ledgerline/server.yaml\ndatabase:\n  url: postgres://ledger@db01:5432/ledger\n  pool_size: 20\nhttp:\n  listen: 0.0.0.0:8443\n  tls_min_version: \"1.3\"\njobs:\n  reconcile_interval: 15m   # was reconcile_every in 4.1",
+    "$ ledgerctl migrate --check\n$ ledgerctl migrate --apply\n$ sudo systemctl start ledgerline\n$ curl -fsS https://localhost:8443/healthz\n{\"status\":\"ready\",\"version\":\"4.2.0\"}"
+  ],
+  "notes": "Software release notes and upgrade runbook, two fixed pages. The monospaced running header (two items) repeats and is listed once; the centred page numbers \"— 1 —\" and \"— 2 —\" are listed once per page. The \"Stable release\" badge and the release date line are body text. Inline code (configuration key names in sentences and table cells) is part of the sentence or cell text and is not a code block. There are three code blocks (shell, YAML with a comment, shell with a JSON reply line); code text keeps its indentation and the \"$ \" prompts as printed. The highlights list is CSS-bulleted."
+}

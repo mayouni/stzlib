@@ -1,0 +1,175 @@
+{
+  "id": "q12",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "Master Services Agreement",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Master Services Agreement"
+    },
+    {
+      "level": 2,
+      "text": "Parties"
+    },
+    {
+      "level": 2,
+      "text": "Background"
+    },
+    {
+      "level": 2,
+      "text": "1. Definitions and interpretation"
+    },
+    {
+      "level": 2,
+      "text": "2. Commencement and term"
+    },
+    {
+      "level": 2,
+      "text": "3. Supplier’s obligations"
+    },
+    {
+      "level": 2,
+      "text": "4. Charges and payment"
+    },
+    {
+      "level": 2,
+      "text": "5. Confidentiality"
+    },
+    {
+      "level": 2,
+      "text": "6. Limitation of liability"
+    },
+    {
+      "level": 2,
+      "text": "7. Termination"
+    },
+    {
+      "level": 2,
+      "text": "8. Governing law"
+    },
+    {
+      "level": 2,
+      "text": "Schedule 1 – Charges and service credits"
+    }
+  ],
+  "key_sentences": [
+    "“Business Day” means a day other than a Saturday, Sunday or public holiday in England when banks in London are open for business.",
+    "This Agreement starts on 1 November 2026 and continues for an initial term of thirty-six months.",
+    "If the Supplier fails to meet the availability level in any month, the Client shall be entitled to the service credits described in Schedule 1.",
+    "The Client shall pay each valid invoice within thirty days of receipt, by bank transfer to the account notified by the Supplier in writing.",
+    "Nothing in this Agreement limits either party’s liability for death or personal injury caused by its negligence, or for fraud.",
+    "On termination the Supplier shall make the Client’s data available for download in a standard format for thirty days, after which it shall be deleted."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Service",
+          "Unit",
+          "Charge (GBP)"
+        ],
+        [
+          "Platform licence",
+          "per vehicle per month",
+          "6.50"
+        ],
+        [
+          "Hosting and backups",
+          "per month",
+          "420.00"
+        ],
+        [
+          "Standard support",
+          "included",
+          "0.00"
+        ],
+        [
+          "On-site training",
+          "per day",
+          "780.00"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Monthly availability",
+          "Service credit (% of monthly Charges)"
+        ],
+        [
+          "99.0% to below 99.5%",
+          "5%"
+        ],
+        [
+          "98.0% to below 99.0%",
+          "10%"
+        ],
+        [
+          "Below 98.0%",
+          "20%"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "(1) Fernhollow Systems Limited, a company incorporated in England and Wales with company number 11820457, whose registered office is at 9 Tanner Row, York YO1 6JB (the “Supplier”); and"
+    },
+    {
+      "level": 0,
+      "text": "(2) Quarry Bank Logistics Limited, a company incorporated in England and Wales with company number 07344916, whose registered office is at Unit 4, Hallam Way, Sheffield S9 2RX (the “Client”)."
+    },
+    {
+      "level": 0,
+      "text": "A. The Supplier provides hosted fleet-tracking software and related support services."
+    },
+    {
+      "level": 0,
+      "text": "B. The Client wishes to obtain those services on the terms set out in this Agreement."
+    },
+    {
+      "level": 0,
+      "text": "(a) provide the Services with reasonable skill and care and in accordance with good industry practice;"
+    },
+    {
+      "level": 0,
+      "text": "(b) make the hosted platform available for at least 99.5% of each calendar month, excluding planned maintenance notified five Business Days in advance;"
+    },
+    {
+      "level": 0,
+      "text": "(c) respond to priority-one support requests within one hour, at any time of day; and"
+    },
+    {
+      "level": 0,
+      "text": "(d) comply with all applicable laws, including data protection legislation."
+    },
+    {
+      "level": 0,
+      "text": "(a) commits a material breach that is not remedied within thirty days of being notified of it;"
+    },
+    {
+      "level": 0,
+      "text": "(b) becomes insolvent or enters into an arrangement with its creditors; or"
+    },
+    {
+      "level": 0,
+      "text": "(c) ceases to carry on business."
+    }
+  ],
+  "furniture": [
+    "Fernhollow / Quarry Bank – MSA",
+    "Page 1 of 3",
+    "Initials: ______ / ______",
+    "Page 2 of 3",
+    "Page 3 of 3"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Commercial services agreement, three fixed pages, no letterhead. The footer has three parts (short title, page number, initials blanks); the short title and initials line repeat and are listed once, \"Page n of 3\" once per page. Clause numbers such as \"1.1\" and \"4.2\" are paragraph numbers, NOT list items, and they are part of the paragraph text; key sentences inside numbered clauses are given without the clause number. The parties \"(1)\", \"(2)\", the recitals \"A.\", \"B.\" and the sub-clauses \"(a)\" to \"(d)\" are typed-marker list items. Definitions are ordinary paragraphs. Curly quotes and apostrophes are as printed. The two signature blocks at the end sit side by side and are read box by box, left first; they are body text. Schedule 1 holds two separate ruled tables."
+}

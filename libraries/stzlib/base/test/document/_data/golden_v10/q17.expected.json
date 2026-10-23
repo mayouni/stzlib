@@ -1,0 +1,113 @@
+{
+  "id": "q17",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Jagoran Noman Gero Mai Inganci",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Jagoran Noman Gero Mai Inganci"
+    },
+    {
+      "level": 2,
+      "text": "Gabatarwa"
+    },
+    {
+      "level": 2,
+      "text": "Shirya gona"
+    },
+    {
+      "level": 2,
+      "text": "Shuka"
+    },
+    {
+      "level": 2,
+      "text": "Amfani da taki"
+    },
+    {
+      "level": 2,
+      "text": "Kula da gona"
+    },
+    {
+      "level": 2,
+      "text": "Girbi da ajiya"
+    }
+  ],
+  "key_sentences": [
+    "Gero shi ne abincin da aka fi ci a yankinmu.",
+    "Wannan takarda tana bayyana hanyoyin da za su taimaka wa manoma su ƙara yawan amfanin gona.",
+    "A yi shuka bayan ruwan sama na farko wanda ya kai milimita ashirin ko fiye.",
+    "A sa ƙwayoyi uku zuwa biyar a kowane rami, sannan a rage su zuwa tsiro biyu ko uku bayan makonni biyu.",
+    "A girbe gero idan kawunansa sun bushe kuma ƙwayoyin sun yi tauri.",
+    "A shanya kawunan a rana na kwanaki biyar zuwa bakwai kafin a ajiye su.",
+    "Don ƙarin bayani, ku tuntuɓi jami'in aikin gona na ƙauyenku ko ku zo ofishinmu a ranar Alhamis."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Lokaci",
+          "Irin taki",
+          "Yawa a kadada"
+        ],
+        [
+          "Kafin shuka",
+          "Taki na gargajiya",
+          "Tan 2"
+        ],
+        [
+          "Lokacin shuka",
+          "NPK 15-15-15, gram 6 a kowane rami",
+          "Kilo 60"
+        ],
+        [
+          "Makonni 4 bayan shuka",
+          "Yuriya",
+          "Kilo 50"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. A share gona kafin damina ta fara."
+    },
+    {
+      "level": 0,
+      "text": "2. A zuba taki na gargajiya, kamar tan biyu a kowace kadada."
+    },
+    {
+      "level": 0,
+      "text": "3. A haƙa ramuka masu nisan mita ɗaya a tsakaninsu."
+    },
+    {
+      "level": 0,
+      "text": "4. A zaɓi iri mai kyau wanda ba shi da ƙwari."
+    },
+    {
+      "level": 0,
+      "text": "A yi noman ciyawa sau biyu kafin gero ya yi kai."
+    },
+    {
+      "level": 0,
+      "text": "A lura da tsutsotsi da ƙwari a ganyayyaki."
+    },
+    {
+      "level": 0,
+      "text": "A kare gona daga dabbobi."
+    }
+  ],
+  "furniture": [
+    "Shirin Tallafa wa Manoma na Gundumar Tsamiya",
+    "Takardar shawara ta 3",
+    "Shirin Tallafa wa Manoma · Tsamiya",
+    "Bugu na 2026"
+  ],
+  "languages": [
+    "ha"
+  ],
+  "code": [],
+  "notes": "Hausa agricultural extension leaflet on millet growing, one page, normal flow. Hausa uses hooked letters (ɓ, ɗ, ƙ) that must be kept. The brown band at the top (programme name and leaflet number) and the bottom line (two items) are furniture. The italic tagline under the title is body text. The body is set in two CSS columns with a vertical rule, read left column first then right column; each section has a heading on a green bar. The field-preparation steps carry typed markers \"1.\" to \"4.\"; the crop-care list is CSS-bulleted. The framed sentence at the end is body text."
+}

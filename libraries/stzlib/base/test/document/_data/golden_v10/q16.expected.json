@@ -1,0 +1,236 @@
+{
+  "id": "q16",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "Bulletin de notes du troisième trimestre",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Bulletin de notes du troisième trimestre"
+    },
+    {
+      "level": 2,
+      "text": "Appréciation du conseil de classe"
+    }
+  ],
+  "key_sentences": [
+    "Mariama a fourni des efforts constants tout au long de l’année et ses résultats en langues sont remarquables.",
+    "Elle doit consolider ses bases en géométrie avant l’entrée en seconde.",
+    "Le conseil de classe la félicite pour son sérieux et son comportement exemplaire.",
+    "Les parents sont priés de retourner ce bulletin signé au secrétariat avant le 30 juin 2026."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Élève",
+          "Mariama Souley Abdou"
+        ],
+        [
+          "Classe",
+          "3e B"
+        ],
+        [
+          "Matricule",
+          "CSR-2022-0347"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Professeur principal",
+          "M. Ibrahim Hamani"
+        ],
+        [
+          "Effectif de la classe",
+          "42 élèves"
+        ],
+        [
+          "Conseil de classe",
+          "18 juin 2026"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Matière",
+          "Coef.",
+          "Élève",
+          "Élève",
+          "Classe",
+          "Classe",
+          "Appréciation"
+        ],
+        [
+          "Matière",
+          "Coef.",
+          "Note /20",
+          "Points",
+          "Moyenne",
+          "Plus forte",
+          "Appréciation"
+        ],
+        [
+          "Matières littéraires",
+          "Matières littéraires",
+          "Matières littéraires",
+          "Matières littéraires",
+          "Matières littéraires",
+          "Matières littéraires",
+          "Matières littéraires"
+        ],
+        [
+          "Français",
+          "4",
+          "13,50",
+          "54,00",
+          "10,90",
+          "16,50",
+          "Bon travail"
+        ],
+        [
+          "Anglais",
+          "2",
+          "15,00",
+          "30,00",
+          "11,60",
+          "17,00",
+          "Très bien"
+        ],
+        [
+          "Histoire-géographie",
+          "2",
+          "12,00",
+          "24,00",
+          "10,20",
+          "15,50",
+          "Assez bien, participer davantage"
+        ],
+        [
+          "Éducation civique",
+          "1",
+          "16,00",
+          "16,00",
+          "13,10",
+          "17,50",
+          "Très bien"
+        ],
+        [
+          "Matières scientifiques",
+          "Matières scientifiques",
+          "Matières scientifiques",
+          "Matières scientifiques",
+          "Matières scientifiques",
+          "Matières scientifiques",
+          "Matières scientifiques"
+        ],
+        [
+          "Mathématiques",
+          "4",
+          "11,25",
+          "45,00",
+          "9,40",
+          "18,00",
+          "Peut mieux faire en géométrie"
+        ],
+        [
+          "Physique-chimie",
+          "2",
+          "12,50",
+          "25,00",
+          "10,10",
+          "16,00",
+          "Assez bien"
+        ],
+        [
+          "Sciences de la vie et de la Terre",
+          "2",
+          "14,00",
+          "28,00",
+          "11,30",
+          "17,00",
+          "Bien"
+        ],
+        [
+          "Autres disciplines",
+          "Autres disciplines",
+          "Autres disciplines",
+          "Autres disciplines",
+          "Autres disciplines",
+          "Autres disciplines",
+          "Autres disciplines"
+        ],
+        [
+          "Éducation physique et sportive",
+          "1",
+          "17,00",
+          "17,00",
+          "14,20",
+          "18,00",
+          "Excellent"
+        ],
+        [
+          "Langue nationale (hausa)",
+          "1",
+          "15,50",
+          "15,50",
+          "12,80",
+          "17,50",
+          "Bien"
+        ],
+        [
+          "Total",
+          "19",
+          "",
+          "254,50",
+          "",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Moyenne du trimestre",
+          "13,39 / 20"
+        ],
+        [
+          "Rang",
+          "7e sur 42"
+        ],
+        [
+          "Moyenne de la classe",
+          "11,08 / 20"
+        ],
+        [
+          "Moyenne annuelle",
+          "12,86 / 20"
+        ],
+        [
+          "Absences",
+          "2 demi-journées, justifiées"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "Complexe scolaire privé Les Rôniers",
+    "BP 11 482, quartier Plateau, Niamey · Tél. 20 72 55 18",
+    "Année scolaire 2025–2026",
+    "Cycle de base 2",
+    "Document à conserver. Aucun duplicata ne sera délivré."
+  ],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "School report card from a (fictional) private secondary school in Niamey, one page, normal flow. The framed header (school name, address line, school year, cycle) and the closing line are furniture. The two student/class boxes under the title are side by side and read box by box, left first; each is a borderless key/value table. The grades table has a two-level header: \"Matière\", \"Coef.\" and \"Appréciation\" span both header rows, \"Élève\" and \"Classe\" each span two columns; both header rows are given. Section rows span all seven columns; the total row has empty cells. Below it, the results key/value table (left) and the council remarks (right) sit side by side and are read left box first. The three signature captions are body text, not furniture."
+}

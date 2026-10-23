@@ -1,0 +1,132 @@
+{
+  "id": "q21",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "آیین‌نامهٔ عضویت و امانت کتاب",
+  "headings": [
+    {
+      "level": 1,
+      "text": "آیین‌نامهٔ عضویت و امانت کتاب"
+    },
+    {
+      "level": 2,
+      "text": "انواع عضویت و هزینه‌ها"
+    },
+    {
+      "level": 2,
+      "text": "مدارک لازم"
+    },
+    {
+      "level": 2,
+      "text": "ساعات کار"
+    },
+    {
+      "level": 2,
+      "text": "قوانین امانت"
+    }
+  ],
+  "key_sentences": [
+    "عضویت در کتابخانه برای همهٔ ساکنان شهر آزاد است.",
+    "اعضا می‌توانند از همهٔ بخش‌های کتابخانه، از جمله تالار مطالعه و بخش کودکان، استفاده کنند.",
+    "تمدید کتاب از طریق تلفن یا وبگاه کتابخانه نیز امکان‌پذیر است.",
+    "این آیین‌نامه از اول آبان ۱۴۰۵ اجرا می‌شود."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "نوع عضویت",
+          "مدت",
+          "هزینه (تومان)",
+          "تعداد کتاب در امانت"
+        ],
+        [
+          "عادی",
+          "یک سال",
+          "۲۵۰٬۰۰۰",
+          "۳"
+        ],
+        [
+          "دانشجویی",
+          "یک سال",
+          "۱۲۰٬۰۰۰",
+          "۴"
+        ],
+        [
+          "کودک و نوجوان",
+          "یک سال",
+          "رایگان",
+          "۲"
+        ],
+        [
+          "خانوادگی",
+          "یک سال",
+          "۴۰۰٬۰۰۰",
+          "۸"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "شنبه تا چهارشنبه",
+          "۸ تا ۲۰"
+        ],
+        [
+          "پنجشنبه",
+          "۸ تا ۱۴"
+        ],
+        [
+          "جمعه و تعطیلات رسمی",
+          "تعطیل"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "تصویر کارت ملی"
+    },
+    {
+      "level": 0,
+      "text": "یک قطعه عکس"
+    },
+    {
+      "level": 0,
+      "text": "فرم تکمیل‌شدهٔ عضویت"
+    },
+    {
+      "level": 0,
+      "text": "برای کودکان، رضایت‌نامهٔ ولی"
+    },
+    {
+      "level": 0,
+      "text": "۱. مدت امانت هر کتاب دو هفته است و یک بار قابل تمدید است."
+    },
+    {
+      "level": 0,
+      "text": "۲. برای هر روز تأخیر، ۵٬۰۰۰ تومان جریمه دریافت می‌شود."
+    },
+    {
+      "level": 0,
+      "text": "۳. کتاب‌های مرجع و نشریات فقط در تالار مطالعه قابل استفاده‌اند."
+    },
+    {
+      "level": 0,
+      "text": "۴. در صورت گم شدن یا آسیب دیدن کتاب، عضو باید نسخهٔ جدید آن را تهیه کند."
+    }
+  ],
+  "furniture": [
+    "کتابخانهٔ عمومی باغ نارنج",
+    "خیابان بهار، کوچهٔ نسترن، پلاک ۱۴",
+    "کتابخانهٔ عمومی باغ نارنج · تلفن ۳۳۴۴۵۵۶۶"
+  ],
+  "languages": [
+    "fa"
+  ],
+  "code": [],
+  "notes": "Right-to-left Persian library membership regulations, one page, normal flow. All text is in logical order; tables are listed rightmost column first. Persian digits and the Arabic thousands separator U+066C are as printed. Zero-width non-joiners (U+200C), which Persian uses inside words such as آیین‌نامهٔ and می‌توانند, are kept in the expected text; a scorer may remove them on both sides before comparing. The centred library name and address at the top and the footer line are furniture. \"مدارک لازم\" (required documents, CSS-bulleted) and \"ساعات کار\" (opening hours, a borderless key/value table with no header row) are two side-by-side boxes; in this right-to-left page the RIGHT box is read first. The lending rules carry typed Persian-digit markers \"۱.\" to \"۴.\"."
+}

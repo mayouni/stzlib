@@ -1,0 +1,210 @@
+{
+  "id": "q19",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Ulotka dołączona do opakowania: informacja dla pacjenta",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Ulotka dołączona do opakowania: informacja dla pacjenta"
+    },
+    {
+      "level": 2,
+      "text": "Spis treści ulotki"
+    },
+    {
+      "level": 2,
+      "text": "1. Co to jest lek Febrinol i w jakim celu się go stosuje"
+    },
+    {
+      "level": 2,
+      "text": "2. Informacje ważne przed zastosowaniem leku Febrinol"
+    },
+    {
+      "level": 3,
+      "text": "Kiedy nie stosować leku Febrinol"
+    },
+    {
+      "level": 3,
+      "text": "Ostrzeżenia i środki ostrożności"
+    },
+    {
+      "level": 3,
+      "text": "Febrinol a inne leki"
+    },
+    {
+      "level": 3,
+      "text": "Ciąża i karmienie piersią"
+    },
+    {
+      "level": 3,
+      "text": "Prowadzenie pojazdów i obsługiwanie maszyn"
+    },
+    {
+      "level": 2,
+      "text": "3. Jak stosować lek Febrinol"
+    },
+    {
+      "level": 3,
+      "text": "Zastosowanie większej niż zalecana dawki leku"
+    },
+    {
+      "level": 3,
+      "text": "Pominięcie zastosowania leku"
+    },
+    {
+      "level": 2,
+      "text": "4. Możliwe działania niepożądane"
+    },
+    {
+      "level": 3,
+      "text": "Rzadko (mogą wystąpić u 1 na 1000 osób)"
+    },
+    {
+      "level": 3,
+      "text": "Bardzo rzadko (mogą wystąpić u 1 na 10 000 osób)"
+    },
+    {
+      "level": 2,
+      "text": "5. Jak przechowywać lek Febrinol"
+    },
+    {
+      "level": 2,
+      "text": "6. Zawartość opakowania i inne informacje"
+    }
+  ],
+  "key_sentences": [
+    "Należy uważnie zapoznać się z treścią ulotki przed zastosowaniem leku, ponieważ zawiera ona informacje ważne dla pacjenta.",
+    "Febrinol zawiera paracetamol, który działa przeciwbólowo i przeciwgorączkowo.",
+    "Lek stosuje się w bólach głowy, zębów, mięśni i stawów, w bolesnym miesiączkowaniu oraz w gorączce.",
+    "Nie należy stosować jednocześnie innych leków zawierających paracetamol, ponieważ może to doprowadzić do przedawkowania.",
+    "Przyjęcie większej niż zalecana dawki leku może spowodować ciężkie uszkodzenie wątroby, nawet jeśli pacjent czuje się dobrze.",
+    "Jak każdy lek, ten lek może powodować działania niepożądane, chociaż nie u każdego one wystąpią.",
+    "Lek należy przechowywać w miejscu niewidocznym i niedostępnym dla dzieci.",
+    "Leków nie należy wyrzucać do kanalizacji ani domowych pojemników na odpadki."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Pacjenci",
+          "Dawka jednorazowa",
+          "Odstęp między dawkami",
+          "Maksymalna dawka dobowa"
+        ],
+        [
+          "Dorośli i młodzież powyżej 12 lat o masie ciała powyżej 50 kg",
+          "1–2 tabletki (500–1000 mg)",
+          "co najmniej 4 godziny",
+          "8 tabletek (4 g)"
+        ],
+        [
+          "Młodzież o masie ciała od 33 do 50 kg",
+          "1 tabletka (500 mg)",
+          "co najmniej 4 godziny",
+          "6 tabletek (3 g)"
+        ],
+        [
+          "Dzieci o masie ciała poniżej 33 kg",
+          "nie stosować",
+          "–",
+          "–"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Substancja czynna",
+          "paracetamol 500 mg w jednej tabletce"
+        ],
+        [
+          "Pozostałe składniki",
+          "skrobia kukurydziana, powidon, kwas stearynowy, talk"
+        ],
+        [
+          "Wygląd",
+          "białe, podłużne tabletki z linią podziału"
+        ],
+        [
+          "Opakowania",
+          "10 lub 20 tabletek w blistrach"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Należy zachować tę ulotkę, aby w razie potrzeby móc ją ponownie przeczytać."
+    },
+    {
+      "level": 0,
+      "text": "W razie jakichkolwiek wątpliwości należy zwrócić się do lekarza lub farmaceuty."
+    },
+    {
+      "level": 0,
+      "text": "Jeśli po upływie 3 dni nie nastąpiła poprawa lub pacjent czuje się gorzej, należy skontaktować się z lekarzem."
+    },
+    {
+      "level": 0,
+      "text": "Co to jest lek Febrinol i w jakim celu się go stosuje"
+    },
+    {
+      "level": 0,
+      "text": "Informacje ważne przed zastosowaniem leku Febrinol"
+    },
+    {
+      "level": 0,
+      "text": "Jak stosować lek Febrinol"
+    },
+    {
+      "level": 0,
+      "text": "Możliwe działania niepożądane"
+    },
+    {
+      "level": 0,
+      "text": "Jak przechowywać lek Febrinol"
+    },
+    {
+      "level": 0,
+      "text": "Zawartość opakowania i inne informacje"
+    },
+    {
+      "level": 0,
+      "text": "jeśli pacjent ma uczulenie na paracetamol lub którykolwiek z pozostałych składników tego leku;"
+    },
+    {
+      "level": 0,
+      "text": "w ciężkiej niewydolności wątroby;"
+    },
+    {
+      "level": 0,
+      "text": "u dzieci o masie ciała poniżej 33 kg."
+    },
+    {
+      "level": 0,
+      "text": "wysypka, świąd, pokrzywka;"
+    },
+    {
+      "level": 0,
+      "text": "zaburzenia czynności wątroby."
+    },
+    {
+      "level": 0,
+      "text": "ciężkie reakcje skórne;"
+    },
+    {
+      "level": 0,
+      "text": "zmniejszenie liczby płytek krwi."
+    }
+  ],
+  "furniture": [],
+  "languages": [
+    "pl"
+  ],
+  "code": [],
+  "notes": "Polish patient information leaflet for a (fictional) paracetamol product, normal flow with 2 cm margins, the whole text set in two CSS columns that continue onto the next page. Reading order is left column then right column on each page. There is no letterhead, running header or page number, so furniture is empty; the marketing-authorisation holder and the revision date at the end are body text. The product name line and the active-substance line under the title are body text, not headings. The framed warning box comes first in reading order. The table of contents is a CSS-numbered list (markers not in the text); the section headings carry their numbers \"1.\" to \"6.\" in the heading text. Bullet lists use a CSS-drawn dash marker, so items carry no marker. The composition table is a borderless key/value table with no header row."
+}

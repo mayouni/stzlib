@@ -243,6 +243,25 @@ golden_v9: 24 realistic documents in 14 languages besides English (among them Am
 
 Time for the 24 documents: native 1.2 s, Docling 2,703 s (throttled). **For the first time since golden_v3, Docling leads on text** (0.97 against 0.93), and it keeps its lead on tables and lists; the native reader keeps order, headings, furniture and code. The round-8 table gain on the development set (0.64 -> 0.67) is matched on the unseen set (0.62, against 0.64 on v8 before the fixes): it neither carried a large gain over nor lost one. Causes read off the native output: **side-by-side boxes are read line by line across both boxes** instead of box by box -- an English column and its Hausa translation (text 0.38), an Amharic card with its English beside it (0.57), a text and a tinted box beside it (0.83), a two-column newsletter around a spanning table (0.57); this one class is most of the text loss, and it is round 9's first item. Tables: a menu's four small price tables and a flyer's 4 x 3 table are not found at all; the two long tables across pages are still cut (59 rows come back as 16 + 4 + 39, with 7 and 8 columns; 87 rows as 80 + 8); an invoice's two tables come back with the wrong column count (8 x 4 for 5 x 2, 12 x 3 for 12 x 5). Where the shape is right, cell text can still differ. Lists: an Arabic and a Hebrew list come back as one paragraph each (the marker at the right edge is not seen as a marker), and a contract's parties numbered "(1)", "(2)" are joined to the sentence that introduces them.
 
+**Ninth round: boxes side by side, right-to-left lists and tables, long tables; then golden_v10.** Fixed on golden_v9 (now a development set; there text 0.93 -> 0.99, tables 0.62 -> 0.76, lists 0.59 -> 0.85, code 0.63 -> 0.88; golden_v1 to v4 stay at 1.00; v6 tables 0.61 -> 0.68, v7 tables 0.68 -> 0.79 and lists 0.55 -> 0.77, v8 tables 0.67 -> 0.75 and lists 0.83 -> 0.86):
+- two boxes side by side, with a title, a date line, a heading or a footer crossing their gutter, are read box by box -- the x where the fewest lines cross (at most a fifth of the ink height) splits the stretches between the crossing lines;
+- a CSS-drawn bullet's item joins its next line (the join wanted it indented past a typed marker);
+- on a right-to-left page a drawn bullet or a typed marker is looked for at the right, items are joined and levelled by their right edge, a table whose cells are mostly right-to-left lists them rightmost first, and the Arabic letter fix reaches table cells;
+- a table over three pages joins its third part to its second, not to its first;
+- a cell lying over two cells of one other row (a subtotal label) spans columns and no longer joins their bands; bands join only when spans truly overlap; and the two-columns test places cells as the grid does;
+- an indented line of code continues the block under a one-character line (a JSON brace).
+
+Tried and WITHDRAWN on measurement: building a borderless table's rows from overlapping heights instead of baselines (it fixed three tables with vertically centred two-line cells and broke three others, and cost text on v8 and v9). Guard 128 assertions under Ring++.
+
+golden_v10: 24 realistic documents in 15 languages besides English (Persian, Arabic and Hebrew among them, each with lists and tables), 12 of 2-3 pages, side-by-side boxes in 13 of them, by a tenth independent agent who saw no reader, no output and no earlier set and did not look at the rendered pages (the set is unperceived); reader frozen at 9df81b212; both readers ran once. The scorer is unchanged: Persian zero-width non-joiners are kept on both sides, as in every earlier round.
+
+| golden_v10, realistic | text | order | headings | tables | lists | furniture | code |
+|---|---|---|---|---|---|---|---|
+| Softanza native (Ring++) | **0.88** | **1.00** | 0.76 | **0.68** | **0.69** | 0.71 | **1.00** |
+| Docling 2.141 | 0.79 | 0.99 | **0.81** | 0.64 | 0.65 | **0.83** | 0.00 |
+
+Time for the 24 documents: native 0.3 s, Docling 654 s. **For the first time on a set of realistic documents (golden_v5 to v10), the native reader leads on tables** (0.68 against 0.64); it also leads on lists (0.69 against 0.65) and takes text back (0.88 against 0.79); Docling leads on headings and furniture. Both readers lose text on this set: it is harder than golden_v9 for both. Causes read off the native output: a Persian page loses its text (0.00) to three faults -- medial heh comes out as U+06BE (the Arabic letter fix is skipped on Persian pages, which do not use that letter either), the zero-width non-joiners are dropped, and the hamza of «همهٔ» comes loose as a separate mark; a title set with wide letter spacing is read with tabs between its words (each gap taken for a cell boundary), and a split initial reads "E lève"; of the 108 furniture lines, 29 are missed, 16 of them at the head of page 1 (letterheads). Round 10.
+
 **Not measured**: Granite-Docling-258M (not downloaded), the GPU, scanned golden pages with an expected text, PDFs from producers other than Chrome (both golden sets are Chrome-made and tagged; the native reader does not read the tags).
 
 ---

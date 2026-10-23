@@ -1,0 +1,36 @@
+page_header	0	ledgerline-server / docs / releases
+page_header	0	DOC-REL-0420
+paragraph	0	
+heading	1	Ledgerline Server 4.2.0 release notes
+paragraph	0	Released 14 October 2026 · supersedes 4.1.3
+paragraph	0	Ledgerline Server 4.2.0 introduces scheduled reconciliation, faster ledger exports and stricter TLS defaults. Most installations can upgrade in place in under fifteen minutes, but one configuration key has been renamed.
+heading	1	Highlights
+list_item	0	Reconciliation jobs can now run on a fixed interval instead of only on demand.
+list_item	0	CSV and Parquet exports of large ledgers are about three times faster.
+list_item	0	TLS 1.3 is the default minimum version for the HTTP listener.
+list_item	0	The audit log records the client certificate fingerprint for every write.
+heading	1	Changes in this release
+table	0	TicketTypeSummaryLL-2291FeatureScheduled reconciliation with jobs.reconcile _ intervalLL-2305FeatureParquet export format for ledgers and journalsLL-2318PerformanceStreaming writer for exports; memory use no longer grows with ledger sizeLL-2322SecurityDefault tls _ min _ version raised from 1.2 to 1.3LL-2340FixRounding error in multi-currency balances with more than four decimalsLL-2347FixHealth endpoint reported ready before migrations had finishedLL-2351ChangeConfiguration key reconcile _ every renamed to reconcile _ intervalLL-2356DeprecationThe XML export endpoint will be removed in 5.0
+heading	1	Breaking changes
+paragraph	0	The server refuses to start if the old key reconcile _ every is still present in the configuration file. Rename it before restarting, as shown in step 2 of the runbook.
+paragraph	0	Clients that only support TLS 1.2 will fail to connect after the upgrade unless tls _ min _ version is set back to "1.2" .
+page_footer	0	- 1 -
+page_header	0	ledgerline-server / docs / releases
+page_header	0	DOC-REL-0420
+heading	1	Upgrade runbook
+paragraph	0	Run these steps on each application node in turn. A single-node installation will be unavailable for the duration of steps 1 to 3.
+heading	1	Step 1: Back up and stop the service
+code	0	$ ledgerctl backup create --label pre-4.2 --verify
+code	0	$ sudo systemctl stop ledgerline $ sudo apt-get install ledgerline-server=4.2.0-1
+heading	1	Step 2: Update the configuration
+paragraph	0	Edit the server configuration and rename the reconciliation key. The other keys below are shown for context.
+code	0	# /etc/ledgerline/server.yaml database: url: postgres://ledger@db01:5432/ledger pool _ size: 20 http: listen: 0.0.0.0:8443 tls _ min _ version: "1.3" jobs: reconcile _ interval: 15m # was reconcile _
+heading	1	Step 3: Migrate and start
+code	0	$ ledgerctl migrate --check $ ledgerctl migrate --apply $ sudo systemctl start ledgerline $ curl -fsS https://localhost:8443/healthz {"status":"ready" , "version":"4.2.0"}
+paragraph	0	The migration adds two indexes to the journal table and takes about one minute per ten million journal lines.
+heading	1	Rollback
+paragraph	0	If the health check fails, stop the service, reinstall version 4.1.3 and restore the backup taken in step 1. Do not run the 4.1 server against a database that has been migrated to 4.2.
+heading	1	Supported upgrade paths
+table	0	From versionDirect upgradeNotes4.1.xYesFollow this runbook.4.0.xYesRun ledgerctl migrate --apply twice; the first run upgrades to the 4.1 schema.3.xNoUpgrade to 4.0.6 first.
+code	0	every in 4.1
+page_footer	0	- 2 -

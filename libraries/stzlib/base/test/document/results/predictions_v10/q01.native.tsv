@@ -1,0 +1,18 @@
+heading	2	Larkspur Analytics Ltd
+heading	1	Tax Invoice
+paragraph	0	Bill to
+paragraph	0	Harrowfield Community Housing Trust Attn: Finance Office 2 Mill Lane, Wymondham NR18 0QA
+page_header	0	14 Coppergate Yard, Norwich NR3 1HX accounts@larkspur-analytics.example · +44 1603 555 0192
+paragraph	0	Invoice details
+paragraph	0	Invoice number Invoice date Due date Purchase order
+page_header	0	VAT reg. GB 318 4402 77
+paragraph	0	INV-2026-0418 2 October 2026 1 November 2026 HCHT-PO-7731
+caption	0	This invoice covers the tenant survey analysis delivered under the agreement signed on 4 August 2026. All amounts are shown in pounds sterling.
+table	0	DescriptionQtyUnit priceAmountSurvey design workshop (half day)1£650.00£650.00Questionnaire hosting and reminders, per month3£120.00£360.00Data cleaning and weighting12£85.00£1,020.00Analysis report with estate-level breakdown1£1,400.00£1,400.00Presentation to the board of trustees1£300.00£300.00SubtotalSubtotalSubtotal£3,730.00VAT at 20%VAT at 20%VAT at 20%£746.00Total dueTotal dueTotal due£4,476.00
+heading	3	Payment
+paragraph	0	Please pay by bank transfer within 30 days and quote the invoice number as your reference. Our bank details are printed on the remittance advice sent with this invoice.
+paragraph	0	Late payments may incur interest at 8% above the Bank of England base rate under the Late Payment of Commercial Debts Act.
+heading	3	Notes
+paragraph	0	The data cleaning line reflects twelve hours, two more than estimated, as agreed by email on 17 September.
+page_footer	0	Registered in England and Wales, company no. 10928364
+page_footer	0	Page 1 of 1

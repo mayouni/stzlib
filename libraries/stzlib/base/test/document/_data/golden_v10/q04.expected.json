@@ -1,0 +1,200 @@
+{
+  "id": "q04",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Informe de resultados analíticos",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Informe de resultados analíticos"
+    },
+    {
+      "level": 2,
+      "text": "Datos del paciente"
+    },
+    {
+      "level": 2,
+      "text": "Datos de la muestra"
+    },
+    {
+      "level": 2,
+      "text": "Comentario del laboratorio"
+    }
+  ],
+  "key_sentences": [
+    "Los valores de glucosa en ayunas y de hemoglobina glicada se sitúan en el rango de prediabetes según los criterios vigentes.",
+    "Se recomienda valorar estos resultados junto con la historia clínica y repetir la determinación en tres meses.",
+    "La muestra de orina se recibió dentro del plazo de estabilidad y no presenta interferencias.",
+    "Los intervalos de referencia corresponden a mujeres adultas y pueden variar según la edad."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Paciente",
+          "Rosario Méndez Ibarra"
+        ],
+        [
+          "Fecha de nacimiento",
+          "14/03/1961"
+        ],
+        [
+          "N.º de historia",
+          "VH-0084512"
+        ],
+        [
+          "Médico solicitante",
+          "Dr. Andrés Lucena Pardo"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "N.º de petición",
+          "26-118734"
+        ],
+        [
+          "Extracción",
+          "05/10/2026, 08:12"
+        ],
+        [
+          "Tipo de muestra",
+          "Sangre venosa y orina"
+        ],
+        [
+          "Validación",
+          "05/10/2026, 13:40"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Prueba",
+          "Resultado",
+          "Unidades",
+          "Valores de referencia"
+        ],
+        [
+          "Hematología",
+          "Hematología",
+          "Hematología",
+          "Hematología"
+        ],
+        [
+          "Hemoglobina",
+          "13,1",
+          "g/dL",
+          "12,0 – 15,5"
+        ],
+        [
+          "Hematocrito",
+          "39,8",
+          "%",
+          "36,0 – 46,0"
+        ],
+        [
+          "Leucocitos",
+          "6,4",
+          "x10³/µL",
+          "4,0 – 10,5"
+        ],
+        [
+          "Plaquetas",
+          "251",
+          "x10³/µL",
+          "150 – 400"
+        ],
+        [
+          "Bioquímica",
+          "Bioquímica",
+          "Bioquímica",
+          "Bioquímica"
+        ],
+        [
+          "Glucosa en ayunas",
+          "118 (A)",
+          "mg/dL",
+          "70 – 100"
+        ],
+        [
+          "Hemoglobina glicada (HbA1c)",
+          "6,3 (A)",
+          "%",
+          "4,0 – 5,6"
+        ],
+        [
+          "Creatinina",
+          "0,82",
+          "mg/dL",
+          "0,51 – 0,95"
+        ],
+        [
+          "Colesterol total",
+          "212 (A)",
+          "mg/dL",
+          "menor de 200"
+        ],
+        [
+          "Colesterol HDL",
+          "58",
+          "mg/dL",
+          "mayor de 45"
+        ],
+        [
+          "Triglicéridos",
+          "134",
+          "mg/dL",
+          "menor de 150"
+        ],
+        [
+          "TSH",
+          "2,1",
+          "µUI/mL",
+          "0,4 – 4,0"
+        ],
+        [
+          "Orina",
+          "Orina",
+          "Orina",
+          "Orina"
+        ],
+        [
+          "Densidad",
+          "1,018",
+          "",
+          "1,005 – 1,030"
+        ],
+        [
+          "Proteínas",
+          "Negativo",
+          "",
+          "Negativo"
+        ],
+        [
+          "Microalbuminuria",
+          "12",
+          "mg/L",
+          "menor de 30"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "Laboratorio de Análisis Clínicos Vallehermoso",
+    "Avenida de los Almendros 37, 30005 Murcia · Tel. 968 55 21 40",
+    "Centro autorizado n.º 30-C2-0117",
+    "Informe validado electrónicamente. La reproducción parcial de este documento no está permitida.",
+    "Página 1 de 1"
+  ],
+  "languages": [
+    "es"
+  ],
+  "code": [],
+  "notes": "Clinical laboratory report, one fixed page. Letterhead lines (laboratory name, address line, licence number) and the footer (validation sentence and \"Página 1 de 1\") are furniture. Patient data and sample data are two side-by-side boxes, read box by box, left first; each holds a borderless two-column key/value table with no header row. The results table has section rows (Hematología, Bioquímica, Orina) spanning all four columns, and empty unit cells for some urine tests. Flag \"(A)\" is part of the result cell. Decimal commas and the en dash in reference ranges are as printed."
+}

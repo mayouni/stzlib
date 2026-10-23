@@ -1,0 +1,36 @@
+page_header	0	Journal of Dryland Field Studies 14 (2026) 112–118
+page_header	0	Research article
+page_header	0	Agronomy · Soil physics
+heading	1	Soil moisture persistence after rainfall in Sahelian millet fields: a two-season sensor study
+paragraph	0	Adaeze Okafor, Moussa Garba Ibrahim and Linnea Sjöberg
+paragraph	0	Department of Agronomy, Northgate University, and Regional Centre for Semi-Arid Cropping Research
+paragraph	0	Abstract
+paragraph	0	We measured volumetric soil moisture at three depths in twelve smallholder millet fields over the 2024 and 2025 rainy seasons. Moisture at 30 cm persisted above the wilting threshold for a median of 6.8 days after events larger than 20 mm, against 2.1 days after smaller events. Mulched plots extended persistence by roughly one third, while crusted sandy surfaces shortened it. These results suggest that sowing advice keyed to cumulative rainfall should give more weight to the size of individual events.
+paragraph	0	Keywords: soil moisture; pearl millet; rainfall events; mulching; Sahel
+heading	2	1 Introduction
+paragraph	0	Pearl millet is sown across the Sahel at the first rains, and a false start, in which seedlings emerge and then die during a dry spell, is among the costliest risks a farmer faces. Extension services usually recommend sowing once cumulative rainfall passes a fixed amount, commonly 20 mm over three days. Such rules treat a single heavy storm and several light showers as equivalent, although their effect on the root zone may differ widely. Field evidence on how long moisture lasts after individual events remains scarce, because continuous measurements in farmers’ fields are expensive to maintain. This study uses low-cost capacitance probes to describe the persistence of moisture in the upper root zone and its dependence on event size, soil surface condition and mulching.
+paragraph	0	¹ Cores were taken at the start and end of each season; see the supplementary material.
+page_footer	0	https://doi.org/10.0000/jdfs.2026.0112
+heading	2	2 Methods
+paragraph	0	2.1 Sites and sensors
+paragraph	0	Twelve fields were selected along a 90 km transect with annual rainfall between 380 and 560 mm. Each field received one probe station with sensors at 10, 30 and 60 cm, logging every 30 minutes. Sensor calibration followed a gravimetric protocol on soil cores from each site.1 Six fields carried a millet-stalk mulch of about 2 t ha⁻¹ applied after sowing; the other six were left bare, as is common practice. Rainfall was recorded by tipping-bucket gauges at each station. An event was defined as rainfall separated from the next by at least six dry hours, which produced 214 events over the two seasons.
+paragraph	0	2.2 Analysis
+paragraph	0	Persistence was defined as the number of days during which moisture at a given depth stayed above the sitespecific wilting threshold after an event. We fitted mixed models with field as a random effect and event size class, mulch and surface crusting as fixed effects, accounting for the heterogeneity of soils between sites.
+page_footer	0	112
+page_header	0	A. Okafor et al.
+heading	2	3 Results
+paragraph	0	Event size was the strongest predictor of persistence at 30 cm (Table 1). Events below 10 mm rarely wetted that depth at all, and their effect at 10 cm vanished within two days on bare plots. Mulching lengthened persistence in every size class, with the largest gain after medium events of 10 to 20 mm.
+paragraph	0	Table 1. Median persistence (days) of moisture above the wilting threshold at 30 cm, by event size and plot treatment.
+paragraph	0	Event size
+paragraph	0	Events
+paragraph	0	Bare
+paragraph	0	Mulched
+page_header	0	Soil moisture persistence in millet fields
+heading	2	4 Discussion
+paragraph	0	The persistence figures imply that a single 25 mm storm leaves the upper root zone moist for almost a week, while three showers of 7 mm may leave it dry within days. A sowing rule based on cumulative rainfall would therefore trigger sowing in conditions that differ greatly in risk. A simple refinement would require at least one event above 15 mm within the cumulative window. The study has limits. Twelve fields cannot represent the variety of Sahelian soils, and probes give point measurements in fields that are far from uniform. Even
+table	0	Below 10 mm1180.40.7so, the agreement between seasons suggests that the10–20 mm571.93.0relation between event size and persistence is robust20–40 mm315.67.4enough to inform extension advice.Above 40 mm89.111.2Crusted surfaces, recorded on four bare fields,Crusted surfaces, recorded on four bare fields,Crusted surfaces, recorded on four bare fields,Crusted surfaces, recorded on four bare fields,[1] Abdou, H. and Lenz, K. (2019). Rainfall onset definitions and
+paragraph	0	reduced persistence by 1.3 days on average after events above 20 mm, mostly through runoff. Differences between the two seasons were small once event size was taken into account.
+page_footer	0	https://doi.org/10.0000/jdfs.2026.0112
+heading	2	References
+paragraph	0	false starts in West African millet systems. Field Crops Review 41, 77–90. [2] Bergström, T. (2021). Low-cost capacitance probes under field conditions. Soil Instruments Quarterly 8, 12–25. [3] Diallo, F., Okonkwo, J. and Reyes, M. (2022). Mulch residues and evaporation on sandy soils. Journal of Arid Agronomy 29, 301–315. [4] Nwosu, C. (2023). Surface crusting and infiltration in the Sahel: a review. Dryland Soils 17, 5–33.
+page_footer	0	113

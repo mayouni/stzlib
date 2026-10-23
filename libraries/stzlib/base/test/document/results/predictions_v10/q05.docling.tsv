@@ -1,0 +1,48 @@
+page_header	0	AquaTakt PC-200 · Betriebsanleitung
+page_header	0	Ausgabe 03/2026 · Dok. -Nr. BA-PC200-DE
+heading	1	Betriebsanleitung Pumpensteuerung AquaTakt PC-200
+paragraph	0	Für Druckerhöhungsanlagen mit einer oder zwei Pumpen
+paragraph	0	Diese Anleitung ist Bestandteil des Produkts und muss während der gesamten Lebensdauer der Steuerung am Einsatzort verfügbar sein. Lesen Sie die Anleitung vor der Montage vollständig durch.
+heading	1	1 Sicherheitshinweise
+paragraph	0	Warnung Lebensgefahr durch elektrischen Schlag: Vor dem Öffnen des Gehäuses die Anlage allpolig vom Netz trennen und gegen Wiedereinschalten sichern.
+list_item	0	Installation und Anschluss nur durch eine Elektrofachkraft.
+list_item	0	Die Steuerung nicht in explosionsgefährdeten Bereichen einsetzen.
+list_item	0	Beschädigte Kabel sofort austauschen.
+list_item	0	Keine Veränderungen an der Firmware ohne Freigabe des Herstellers vornehmen.
+heading	1	2 Technische Daten
+table	0	MerkmalWertElektrische DatenNetzspannung230 V AC ± 10 %, 50/60 HzMotorstrom je Pumpemax. 10 AEigenverbrauch3,5 WDrucksensor-Eingang4-20 mA, 0-10 barUmgebungUmgebungstemperatur0 bis 40 °CSchutzartIP 54Abmessungen (B × H × T)220 × 280 × 115 mmGewicht2,4 kg
+paragraph	0	Die Steuerung erfüllt die Anforderungen der Niederspannungsrichtlinie und der EMV-Richtlinie.
+page_footer	0	Hollbrecht Pumpentechnik GmbH · Werkstraße 12 · 34117 Kassel
+page_footer	0	Seite 1 von 3
+page_header	0	AquaTakt PC-200 · Betriebsanleitung
+page_header	0	Ausgabe 03/2026 · Dok. -Nr. BA-PC200-DE
+heading	1	3 Montage
+paragraph	0	Montieren Sie die Steuerung senkrecht an einer ebenen, schwingungsfreien Wand in der Nähe der Pumpen. Der Abstand zu Wärmequellen muss mindestens 50 cm betragen.
+list_item	0	Bohrschablone an der Wand ausrichten und die vier Befestigungslöcher anzeichnen.
+list_item	0	Löcher mit Ø 6 mm bohren und Dübel einsetzen.
+list_item	0	Gehäuse anschrauben und den Deckel abnehmen.
+list_item	0	Kabelverschraubungen vorbereiten:
+list_item	0	Netzkabel durch die linke Verschraubung M20 führen,
+list_item	0	Motorkabel durch die mittleren Verschraubungen M20 führen,
+list_item	0	Sensorkabel durch die rechte Verschraubung M16 führen.
+list_item	0	Nicht benutzte Öffnungen mit Blindstopfen verschließen.
+heading	1	4 Elektrischer Anschluss
+paragraph	0	Der Anschluss erfolgt an der Klemmleiste X1 gemäß der folgenden Tabelle. Querschnitte unter 1,5 mm² sind für die Leistungsklemmen nicht zulässig.
+table	0	KlemmeBezeichnungFunktionMax. BelastungX1.1 - X1.3L, N, PENetzeinspeisung16 AX1.4 - X1.6P1-L, P1-N, PEPumpe 110 AX1.7 - X1.9P2-L, P2-N, PEPumpe 210 AX1.10, X1.11AI+, AI-Drucksensor 4-20 mA24 V DCX1.12, X1.13SM-C, SM-NOSammelstörmeldung, potenzialfrei250 V / 2 AX1.14, X1.15DI1, GNDExterner Freigabekontakt5 V DC
+heading	1	4.1 Drehrichtung prüfen
+paragraph	0	Schalten Sie jede Pumpe im Handbetrieb kurz ein und vergleichen Sie die Drehrichtung mit dem Pfeil auf dem Motorgehäuse. Bei falscher Drehrichtung zwei Phasen am Motor tauschen; bei Wechselstrommotoren ist keine Prüfung erforderlich.
+page_footer	0	Hollbrecht Pumpentechnik GmbH · Werkstraße 12 · 34117 Kassel
+page_footer	0	Seite 2 von 3
+page_header	0	AquaTakt PC-200 · Betriebsanleitung
+page_header	0	Ausgabe 03/2026 · Dok. -Nr. BA-PC200-DE
+heading	1	5 Konfiguration
+paragraph	0	Die Parameter werden über das Bedienfeld oder als Datei pc200.cfg von einer microSD-Karte geladen. Beim Einschalten liest die Steuerung die Datei ein und übernimmt nur Werte, die innerhalb der zulässigen Grenzen liegen.
+code	0	# pc200.cfg - Beispielkonfiguration [pumpe] modus = druck ; druck | niveau sollwert _ bar = 3.5 hysterese = 0.4 nachlauf _ s = 20 wechsel _ h = 24 ; Pumpenwechsel nach Laufzeit [schutz] trockenlauf = ein max _ starts _ h = 12
+paragraph	0	Kommentare beginnen mit # oder ; und werden ignoriert.
+heading	1	6 Störungen und Abhilfe
+table	0	AnzeigeUrsacheAbhilfeE01Kein SensorsignalSensorkabel und Klemmen X1.10/X1.11 prüfenE02Trockenlauf erkanntWasserzulauf prüfen, Störung mit OK quittierenE03Überstrom Pumpe 1Pumpe auf Blockade prüfen, Motorschutz kontrollierenE04Überstrom Pumpe 2wie E03E05Zu viele Starts pro StundeDruckbehälter-Vordruck und Hysterese prüfen
+paragraph	0	Bleibt eine Störung nach dem Quittieren bestehen, wenden Sie sich an den Kundendienst und halten Sie die Seriennummer bereit.
+heading	1	7 Entsorgung
+paragraph	0	Elektronische Altgeräte dürfen nicht über den Hausmüll entsorgt werden. Geben Sie die Steuerung an einer kommunalen Sammelstelle oder beim Fachhändler ab.
+page_footer	0	Hollbrecht Pumpentechnik GmbH · Werkstraße 12 · 34117 Kassel
+page_footer	0	Seite 3 von 3

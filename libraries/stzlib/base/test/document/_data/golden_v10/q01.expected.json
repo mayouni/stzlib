@@ -1,0 +1,132 @@
+{
+  "id": "q01",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Tax Invoice",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Tax Invoice"
+    },
+    {
+      "level": 2,
+      "text": "Bill to"
+    },
+    {
+      "level": 2,
+      "text": "Invoice details"
+    },
+    {
+      "level": 2,
+      "text": "Payment"
+    },
+    {
+      "level": 2,
+      "text": "Notes"
+    }
+  ],
+  "key_sentences": [
+    "This invoice covers the tenant survey analysis delivered under the agreement signed on 4 August 2026.",
+    "All amounts are shown in pounds sterling.",
+    "Please pay by bank transfer within 30 days and quote the invoice number as your reference.",
+    "Our bank details are printed on the remittance advice sent with this invoice.",
+    "Late payments may incur interest at 8% above the Bank of England base rate under the Late Payment of Commercial Debts Act.",
+    "The data cleaning line reflects twelve hours, two more than estimated, as agreed by email on 17 September."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Invoice number",
+          "INV-2026-0418"
+        ],
+        [
+          "Invoice date",
+          "2 October 2026"
+        ],
+        [
+          "Due date",
+          "1 November 2026"
+        ],
+        [
+          "Purchase order",
+          "HCHT-PO-7731"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Description",
+          "Qty",
+          "Unit price",
+          "Amount"
+        ],
+        [
+          "Survey design workshop (half day)",
+          "1",
+          "£650.00",
+          "£650.00"
+        ],
+        [
+          "Questionnaire hosting and reminders, per month",
+          "3",
+          "£120.00",
+          "£360.00"
+        ],
+        [
+          "Data cleaning and weighting",
+          "12",
+          "£85.00",
+          "£1,020.00"
+        ],
+        [
+          "Analysis report with estate-level breakdown",
+          "1",
+          "£1,400.00",
+          "£1,400.00"
+        ],
+        [
+          "Presentation to the board of trustees",
+          "1",
+          "£300.00",
+          "£300.00"
+        ],
+        [
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "£3,730.00"
+        ],
+        [
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "£746.00"
+        ],
+        [
+          "Total due",
+          "Total due",
+          "Total due",
+          "£4,476.00"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "Larkspur Analytics Ltd",
+    "14 Coppergate Yard, Norwich NR3 1HX",
+    "accounts@larkspur-analytics.example · +44 1603 555 0192",
+    "VAT reg. GB 318 4402 77",
+    "Registered in England and Wales, company no. 10928364",
+    "Page 1 of 1"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Commercial invoice, one page, built as a fixed page with letterhead and footer in the body. The letterhead (company name, address, VAT line) and the footer line are furniture, not headings. \"Bill to\" and \"Invoice details\" are two side-by-side boxes read box by box, left box first; the right box holds a borderless key/value table. The line-item table has subtotal, VAT and total rows whose label spans the first three columns, so the label is repeated in those three cells."
+}

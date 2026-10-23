@@ -1,0 +1,49 @@
+heading	1	Master Services Agreement
+paragraph	0	This Agreement is dated 6 October 2026.
+heading	2	Parties
+paragraph	0	(1) Fernhollow Systems Limited, a company incorporated in England and Wales with company number 11820457, whose registered office is at 9 Tanner Row, York YO1 6JB (the “Supplier”); and (2) Quarry Bank Logistics Limited, a company incorporated in England and Wales with company number 07344916, whose registered office is at Unit 4, Hallam Way, Sheffield S9 2RX (the “Client”).
+heading	2	Background
+paragraph	0	A. The Supplier provides hosted fleet-tracking software and related support services. B. The Client wishes to obtain those services on the terms set out in this Agreement.
+heading	2	1. Definitions and interpretation
+paragraph	0	1.1 In this Agreement the following definitions apply. “Business Day” means a day other than a Saturday, Sunday or public holiday in England when banks in London are open for business. “Charges” means the charges payable by the Client for the Services, as set out in Schedule 1.
+paragraph	0	“Confidential Information” means all information of a confidential nature disclosed by one party to the other, whether before or after the date of this Agreement, including technical, commercial and personal data. “Services” means the hosting, licensing, maintenance and support services described in the order form signed by both parties. 1.2 Clause and schedule headings do not affect the interpretation of this Agreement. A reference to a statute is a reference to it as amended or re-enacted from time to time.
+paragraph	0	1.3 Words in the singular include the plural and in the plural include the singular.
+heading	2	2. Commencement and term
+paragraph	0	2.1 This Agreement starts on 1 November 2026 and continues for an initial term of thirty-six months. 2.2 After the initial term this Agreement renews automatically for successive periods of twelve months unless either party gives at least ninety days’ written notice before the end of the current term.
+page_footer	0	Fernhollow / Quarry Bank – MSA
+page_footer	0	Initials: ______ / ______
+page_footer	0	Page 1 of 3
+heading	2	3. Supplier’s obligations
+paragraph	0	3.1 The Supplier shall:
+paragraph	0	(a) provide the Services with reasonable skill and care and in accordance with good industry practice; (b) make the hosted platform available for at least 99.5% of each calendar month, excluding planned maintenance notified five Business Days in advance; (c) respond to priority-one support requests within one hour, at any time of day; and (d) comply with all applicable laws, including data protection legislation. 3.2 If the Supplier fails to meet the availability level in any month, the Client shall be entitled to the service credits described in Schedule 1.
+heading	2	4. Charges and payment
+paragraph	0	4.1 The Supplier shall invoice the Client monthly in arrears for the Charges.
+paragraph	0	4.2 The Client shall pay each valid invoice within thirty days of receipt, by bank transfer to the account notified by the Supplier in writing. 4.3 The Supplier may increase the Charges once in each contract year by no more than the percentage increase in the Consumer Prices Index over the preceding twelve months, on sixty days’ written notice.
+heading	2	5. Confidentiality
+paragraph	0	5.1 Each party shall keep the other party’s Confidential Information confidential and shall not use it except to perform its obligations under this Agreement.
+paragraph	0	5.2 A party may disclose Confidential Information to its employees, officers and advisers who need to know it, provided that they are bound by obligations of confidentiality no less strict than this clause.
+paragraph	0	5.3 This clause survives termination of this Agreement for a period of five years.
+heading	2	6. Limitation of liability
+paragraph	0	6.1 Nothing in this Agreement limits either party’s liability for death or personal injury caused by its negligence, or for fraud.
+paragraph	0	6.2 Subject to clause 6.1, each party’s total liability in each contract year shall not exceed the total Charges paid or payable in that contract year.
+page_footer	0	Fernhollow / Quarry Bank – MSA
+page_footer	0	Page 2 of 3
+page_footer	0	Initials: ______ / ______
+heading	2	7. Termination
+paragraph	0	7.1 Either party may terminate this Agreement with immediate effect by written notice if the other party:
+paragraph	0	(a) commits a material breach that is not remedied within thirty days of being notified of it; (b) becomes insolvent or enters into an arrangement with its creditors; or (c) ceases to carry on business. 7.2 On termination the Supplier shall make the Client’s data available for download in a standard format for thirty days, after which it shall be deleted.
+heading	2	8. Governing law
+paragraph	0	8.1 This Agreement and any dispute arising out of it shall be governed by the law of England and Wales, and the courts of England and Wales shall have exclusive jurisdiction.
+caption	0	Schedule 1 – Charges and service credits
+table	0	ServiceUnitCharge (GBP)Platform licenceper vehicle per month6.50Hosting and backupsper month420.00Standard supportincluded0.00On-site trainingper day780.00
+table	0	Monthly availabilityService credit (% of monthly Charges)99.0% to below 99.5%5%98.0% to below 99.0%10%Below 98.0%20%
+paragraph	0	This Agreement has been entered into on the date stated at the beginning of it.
+paragraph	0	Signed for and on behalf of Fernhollow Systems Limited
+paragraph	0	Signature: ____________________
+paragraph	0	Name: Gareth Ellison-Moore, Director
+page_footer	0	Fernhollow / Quarry Bank – MSA
+paragraph	0	Signed for and on behalf of Quarry Bank Logistics Limited
+paragraph	0	Signature: ____________________
+paragraph	0	Name: Priya Natarajan, Finance Director
+page_footer	0	Page 3 of 3
+page_footer	0	Initials: ______ / ______

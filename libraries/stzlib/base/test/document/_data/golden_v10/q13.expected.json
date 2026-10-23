@@ -1,0 +1,219 @@
+{
+  "id": "q13",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Programma autunno-inverno 2026–2027",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Programma autunno-inverno 2026–2027"
+    },
+    {
+      "level": 2,
+      "text": "La mostra «Terre di fuoco»"
+    },
+    {
+      "level": 2,
+      "text": "Calendario degli eventi"
+    },
+    {
+      "level": 2,
+      "text": "Informazioni utili"
+    },
+    {
+      "level": 3,
+      "text": "Orari e biglietti"
+    },
+    {
+      "level": 3,
+      "text": "Come arrivare"
+    },
+    {
+      "level": 3,
+      "text": "Accessibilità"
+    },
+    {
+      "level": 2,
+      "text": "Per le scuole"
+    },
+    {
+      "level": 2,
+      "text": "Diventa Amico del museo"
+    }
+  ],
+  "key_sentences": [
+    "Dal 17 ottobre 2026 al 28 febbraio 2027 il museo presenta «Terre di fuoco», una mostra dedicata alla maiolica prodotta nelle botteghe della valle tra il Quattrocento e il Settecento.",
+    "Oltre centoventi pezzi, molti dei quali mai esposti prima, raccontano la vita quotidiana, il commercio e la devozione popolare.",
+    "Il percorso si conclude con una sala dedicata ai ceramisti contemporanei che ancora lavorano nel borgo.",
+    "Il museo si trova nel centro storico, a dieci minuti a piedi dal parcheggio di Porta Nuova.",
+    "Il servizio educativo propone percorsi adatti a ogni età, che uniscono la visita alla mostra a un laboratorio pratico con l’argilla.",
+    "Il programma può subire variazioni, che saranno comunicate sul sito e sui canali social del museo."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Data",
+          "Ora",
+          "Evento",
+          "Ingresso"
+        ],
+        [
+          "sab 17 ottobre",
+          "17:00",
+          "Inaugurazione della mostra con la curatrice",
+          "libero"
+        ],
+        [
+          "dom 25 ottobre",
+          "10:30",
+          "Visita guidata «Le botteghe del borgo»",
+          "5 €"
+        ],
+        [
+          "gio 5 novembre",
+          "18:00",
+          "Conferenza: la maiolica e il commercio adriatico",
+          "libero"
+        ],
+        [
+          "dom 15 novembre",
+          "15:30",
+          "Laboratorio per famiglie: decoriamo una piastrella",
+          "8 €"
+        ],
+        [
+          "sab 28 novembre",
+          "21:00",
+          "Concerto in museo: musiche del Rinascimento",
+          "12 €"
+        ],
+        [
+          "dom 6 dicembre",
+          "10:30",
+          "Visita guidata in lingua inglese",
+          "5 €"
+        ],
+        [
+          "mar 8 dicembre",
+          "16:00",
+          "Laboratorio natalizio per bambini",
+          "8 €"
+        ],
+        [
+          "sab 9 gennaio",
+          "17:00",
+          "Presentazione del catalogo della mostra",
+          "libero"
+        ],
+        [
+          "dom 24 gennaio",
+          "10:30",
+          "Visita guidata «Le botteghe del borgo»",
+          "5 €"
+        ],
+        [
+          "gio 11 febbraio",
+          "18:00",
+          "Conferenza: restaurare la ceramica",
+          "libero"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Martedì – venerdì",
+          "10–13, 15–18"
+        ],
+        [
+          "Sabato e domenica",
+          "10–19"
+        ],
+        [
+          "Lunedì",
+          "chiuso"
+        ],
+        [
+          "Biglietto intero",
+          "9 €"
+        ],
+        [
+          "Ridotto",
+          "6 €"
+        ],
+        [
+          "Under 12",
+          "gratuito"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Attività",
+          "Durata",
+          "Tariffa per alunno",
+          "Tariffa per alunno"
+        ],
+        [
+          "Attività",
+          "Durata",
+          "Infanzia e primaria",
+          "Secondaria"
+        ],
+        [
+          "Visita animata",
+          "1 ora",
+          "4 €",
+          "5 €"
+        ],
+        [
+          "Visita e laboratorio",
+          "2 ore",
+          "7 €",
+          "8 €"
+        ],
+        [
+          "Giornata in bottega",
+          "4 ore",
+          "12 €",
+          "14 €"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "ingresso gratuito per un anno alla mostra e alle collezioni;"
+    },
+    {
+      "level": 0,
+      "text": "inviti alle inaugurazioni e alle anteprime;"
+    },
+    {
+      "level": 0,
+      "text": "uno sconto del 10% nel bookshop;"
+    },
+    {
+      "level": 0,
+      "text": "la newsletter mensile con le novità del museo."
+    }
+  ],
+  "furniture": [
+    "Museo della Ceramica di Borgo Sanfelice",
+    "Piazza dei Vasai 3 · 06030 Borgo Sanfelice (PG)",
+    "Museo della Ceramica · Programma autunno-inverno",
+    "1/2",
+    "2/2"
+  ],
+  "languages": [
+    "it"
+  ],
+  "code": [],
+  "notes": "Museum autumn-winter programme, two fixed pages. The masthead on page 1 (museum name and address) is furniture; the footer title repeats and is listed once, and the page numbers \"1/2\" and \"2/2\" are listed once per page. Page 1 is laid out as a main column with a shaded sidebar on the right (\"Informazioni utili\"); reading order is the main column first, then the sidebar. The sidebar holds a borderless key/value table with no header row. The events calendar is ONE table continued across the page break: page 2 repeats its header row, which is given once. The italic lines \"Il calendario prosegue alla pagina seguente.\" and \"Calendario degli eventi (segue)\" are continuation notes, body text, and not captions. The schools table has a two-level header (\"Attività\" and \"Durata\" span both rows; \"Tariffa per alunno\" spans two columns). The benefits list uses a CSS-drawn diamond marker, so items carry no marker."
+}

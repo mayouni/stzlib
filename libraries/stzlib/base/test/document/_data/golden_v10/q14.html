@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Brief afvalinzameling 2027</title>
+<style>
+@page { size: A4; margin: 2cm }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0; font-family: Corbel, "Segoe UI", Arial, sans-serif; font-size: 10.5pt; color: #222; }
+.lh { display: flex; justify-content: space-between; margin-bottom: 9mm; }
+.lh .logo { font-size: 19pt; font-weight: bold; color: #00648c; }
+.lh .logo span { display: block; font-size: 9pt; font-weight: normal; color: #00648c; }
+.lh .ret { font-size: 8.5pt; color: #555; text-align: right; line-height: 1.45; }
+.addr { margin-bottom: 8mm; line-height: 1.4; }
+.ref { display: grid; grid-template-columns: 28mm 1fr; font-size: 9pt; margin-bottom: 6mm; row-gap: 0.6mm; }
+.ref span:nth-child(odd) { color: #666; }
+p { margin: 0 0 2.6mm; line-height: 1.5; }
+h2 { font-size: 11.5pt; color: #00648c; margin: 4mm 0 2mm; }
+table.cal { border-collapse: collapse; width: 100%; margin: 1mm 0 3mm; font-size: 9.5pt; }
+table.cal th { background: #00648c; color: #fff; padding: 1.4mm 2mm; text-align: left; }
+table.cal td { padding: 1.3mm 2mm; border-bottom: 0.5pt solid #cfe3ec; }
+.yesno { display: flex; gap: 5mm; margin: 2mm 0 3mm; }
+.yesno > div { flex: 1; border-top: 3pt solid; padding: 2mm 3mm; background: #f5f9fb; }
+.yesno .y { border-color: #3c8d2f; }
+.yesno .n { border-color: #c0392b; }
+.yesno h3 { font-size: 10.5pt; margin: 0 0 1mm; }
+.yesno ul { margin: 0; padding-left: 4.5mm; line-height: 1.45; }
+.sig { margin-top: 5mm; line-height: 1.45; }
+.foot { margin-top: 7mm; font-size: 8pt; color: #777; border-top: 0.5pt solid #ccc; padding-top: 2mm; }
+</style>
+</head>
+<body>
+<div class="lh">
+  <div class="logo" data-f>Gemeente Heerdervaart</div>
+  <div class="ret"><div data-f>Postbus 140, 7940 AC Heerdervaart</div><div data-f>Telefoon 14 0529 · www.heerdervaart.example</div></div>
+</div>
+<div class="addr">Fam. J. van Dijk-Hoekstra<br>Lindelaan 23<br>7942 KT Heerdervaart</div>
+<div class="ref">
+  <span>Datum</span><span>19 oktober 2026</span>
+  <span>Ons kenmerk</span><span>AFV/2026/0915</span>
+  <span>Onderwerp</span><span>Nieuwe ophaaldagen afval vanaf 1 januari 2027</span>
+</div>
+<p>Beste bewoner,</p>
+<p><span data-k>Vanaf 1 januari 2027 verandert de manier waarop wij het afval in uw wijk ophalen.</span> <span data-k>Restafval wordt voortaan eens per vier weken opgehaald, terwijl GFT in de zomermaanden elke week wordt geleegd.</span> Zo willen we het scheiden van afval makkelijker maken en de kosten beperken.</p>
+<h2 data-h="2">Ophaaldagen eerste kwartaal 2027</h2>
+<table class="cal" data-t="cal">
+  <thead><tr><th>Maand</th><th>GFT</th><th>Restafval</th><th>Papier</th><th>PMD</th></tr></thead>
+  <tbody>
+    <tr><td>Januari</td><td>5 en 19</td><td>12</td><td>26</td><td>7 en 21</td></tr>
+    <tr><td>Februari</td><td>2 en 16</td><td>9</td><td>23</td><td>4 en 18</td></tr>
+    <tr><td>Maart</td><td>2, 16 en 30</td><td>9</td><td>23</td><td>4 en 18</td></tr>
+  </tbody>
+</table>
+<p><span data-k>Zet uw container op de ophaaldag vóór 7.30 uur aan de straat, met de handgreep naar de weg.</span> PMD staat voor plastic verpakkingen, metalen verpakkingen en drinkpakken.</p>
+<h2 data-h="2">Wat hoort in de groene container?</h2>
+<div class="yesno">
+  <div class="y">
+    <h3 data-h="3">Wel</h3>
+    <ul>
+      <li>Groente- en fruitresten</li>
+      <li>Koffiedik en theezakjes</li>
+      <li>Gras, bladeren en snoeiafval</li>
+      <li>Etensresten, ook gekookt</li>
+    </ul>
+  </div>
+  <div class="n">
+    <h3 data-h="3">Niet</h3>
+    <ul>
+      <li>Kattenbakkorrels</li>
+      <li>Luiers</li>
+      <li>Zand en stenen</li>
+      <li>Plastic zakjes, ook als ze afbreekbaar heten</li>
+    </ul>
+  </div>
+</div>
+<p><span data-k>De volledige afvalkalender voor 2027 vindt u vanaf december in de app Afvalwijzer en op onze website.</span> <span data-k>Heeft u vragen, bel dan op werkdagen tussen 8.30 en 17.00 uur met het Klantcontactcentrum.</span></p>
+<div class="sig">Met vriendelijke groet,<br>namens het college van burgemeester en wethouders,<br><br>ing. M.A. Brouwer<br>teamleider Afval en Reiniging</div>
+<div class="foot" data-f>Vermeld bij beantwoording altijd ons kenmerk.</div>
+</body>
+</html>

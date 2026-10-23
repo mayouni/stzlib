@@ -1,0 +1,122 @@
+{
+  "id": "q06",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Soil moisture persistence after rainfall in Sahelian millet fields: a two-season sensor study",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Soil moisture persistence after rainfall in Sahelian millet fields: a two-season sensor study"
+    },
+    {
+      "level": 2,
+      "text": "Abstract"
+    },
+    {
+      "level": 2,
+      "text": "1 Introduction"
+    },
+    {
+      "level": 2,
+      "text": "2 Methods"
+    },
+    {
+      "level": 3,
+      "text": "2.1 Sites and sensors"
+    },
+    {
+      "level": 3,
+      "text": "2.2 Analysis"
+    },
+    {
+      "level": 2,
+      "text": "3 Results"
+    },
+    {
+      "level": 2,
+      "text": "4 Discussion"
+    },
+    {
+      "level": 2,
+      "text": "References"
+    }
+  ],
+  "key_sentences": [
+    "We measured volumetric soil moisture at three depths in twelve smallholder millet fields over the 2024 and 2025 rainy seasons.",
+    "Moisture at 30 cm persisted above the wilting threshold for a median of 6.8 days after events larger than 20 mm, against 2.1 days after smaller events.",
+    "These results suggest that sowing advice keyed to cumulative rainfall should give more weight to the size of individual events.",
+    "Such rules treat a single heavy storm and several light showers as equivalent, although their effect on the root zone may differ widely.",
+    "Mulching lengthened persistence in every size class, with the largest gain after medium events of 10 to 20 mm.",
+    "A sowing rule based on cumulative rainfall would therefore trigger sowing in conditions that differ greatly in risk.",
+    "Even so, the agreement between seasons suggests that the relation between event size and persistence is robust enough to inform extension advice."
+  ],
+  "tables": [
+    {
+      "caption": "Table 1. Median persistence (days) of moisture above the wilting threshold at 30 cm, by event size and plot treatment.",
+      "rows": [
+        [
+          "Event size",
+          "Events",
+          "Bare",
+          "Mulched"
+        ],
+        [
+          "Below 10 mm",
+          "118",
+          "0.4",
+          "0.7"
+        ],
+        [
+          "10–20 mm",
+          "57",
+          "1.9",
+          "3.0"
+        ],
+        [
+          "20–40 mm",
+          "31",
+          "5.6",
+          "7.4"
+        ],
+        [
+          "Above 40 mm",
+          "8",
+          "9.1",
+          "11.2"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "[1] Abdou, H. and Lenz, K. (2019). Rainfall onset definitions and false starts in West African millet systems. Field Crops Review 41, 77–90."
+    },
+    {
+      "level": 0,
+      "text": "[2] Bergström, T. (2021). Low-cost capacitance probes under field conditions. Soil Instruments Quarterly 8, 12–25."
+    },
+    {
+      "level": 0,
+      "text": "[3] Diallo, F., Okonkwo, J. and Reyes, M. (2022). Mulch residues and evaporation on sandy soils. Journal of Arid Agronomy 29, 301–315."
+    },
+    {
+      "level": 0,
+      "text": "[4] Nwosu, C. (2023). Surface crusting and infiltration in the Sahel: a review. Dryland Soils 17, 5–33."
+    }
+  ],
+  "furniture": [
+    "Journal of Dryland Field Studies 14 (2026) 112–118",
+    "Research article",
+    "https://doi.org/10.0000/jdfs.2026.0112",
+    "112",
+    "A. Okafor et al.",
+    "Soil moisture persistence in millet fields",
+    "113"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Two-page journal article. Title block and abstract span the page; the body is set in two CSS columns, read left column then right column on each page. Running headers differ between pages (journal line and \"Research article\" on page 1; author and short title on page 2); the DOI footer repeats and is listed once; journal page numbers \"112\" and \"113\" are listed once per page. The kicker line \"Agronomy · Soil physics\", the author line, the affiliation line and the keywords line are body text, not headings. Section numbers are part of the heading text. The sentence carrying footnote marker 1 is left out of key_sentences; the footnote text at the bottom of page 1 is neither furniture nor a key sentence. The word \"heterogeneity\" carries a soft hyphen and may be broken across lines; it is given whole. Table 1 has its caption above it. References are a list with typed markers \"[1]\" to \"[4]\"."
+}

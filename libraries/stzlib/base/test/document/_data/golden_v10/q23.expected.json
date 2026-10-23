@@ -1,0 +1,148 @@
+{
+  "id": "q23",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "Vacancy announcement / Avis de vacance de poste",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Vacancy announcement / Avis de vacance de poste"
+    },
+    {
+      "level": 2,
+      "text": "About the role"
+    },
+    {
+      "level": 2,
+      "text": "Main responsibilities"
+    },
+    {
+      "level": 2,
+      "text": "Requirements"
+    },
+    {
+      "level": 2,
+      "text": "How to apply"
+    },
+    {
+      "level": 2,
+      "text": "Le poste"
+    },
+    {
+      "level": 2,
+      "text": "Principales responsabilités"
+    },
+    {
+      "level": 2,
+      "text": "Profil recherché"
+    },
+    {
+      "level": 2,
+      "text": "Comment postuler"
+    }
+  ],
+  "key_sentences": [
+    "The Monitoring and Evaluation Officer will design and run the data systems of our remedial reading programme in 160 primary schools.",
+    "The post reports to the Programme Manager and supervises two data assistants.",
+    "Send a cover letter and a CV of no more than three pages, quoting the reference, to the address below.",
+    "Le ou la chargé(e) de suivi-évaluation concevra et gérera les systèmes de données de notre programme de remédiation en lecture dans 160 écoles primaires.",
+    "Envoyez une lettre de motivation et un CV de trois pages au maximum, en indiquant la référence, à l’adresse ci-dessous.",
+    "Les candidatures féminines sont vivement encouragées."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Position / Poste",
+          "Monitoring and Evaluation Officer / Chargé(e) de suivi-évaluation"
+        ],
+        [
+          "Duty station / Lieu d’affectation",
+          "Niamey, with field travel / avec déplacements sur le terrain"
+        ],
+        [
+          "Contract / Contrat",
+          "Fixed term, 24 months, renewable / Durée déterminée, 24 mois, renouvelable"
+        ],
+        [
+          "Reference / Référence",
+          "SLP-HR-2026-14"
+        ],
+        [
+          "Closing date / Date limite",
+          "20 November 2026 / 20 novembre 2026"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Maintain the results framework and the indicator database."
+    },
+    {
+      "level": 0,
+      "text": "Organise termly reading assessments with district education officers."
+    },
+    {
+      "level": 0,
+      "text": "Train field staff in mobile data collection."
+    },
+    {
+      "level": 0,
+      "text": "Write quarterly monitoring reports for partners and donors."
+    },
+    {
+      "level": 0,
+      "text": "A degree in statistics, social sciences or education."
+    },
+    {
+      "level": 0,
+      "text": "At least three years of experience in monitoring and evaluation."
+    },
+    {
+      "level": 0,
+      "text": "Fluency in French and a good working knowledge of English."
+    },
+    {
+      "level": 0,
+      "text": "Tenir à jour le cadre de résultats et la base de données des indicateurs."
+    },
+    {
+      "level": 0,
+      "text": "Organiser les évaluations trimestrielles de lecture avec les inspections."
+    },
+    {
+      "level": 0,
+      "text": "Former le personnel de terrain à la collecte de données mobile."
+    },
+    {
+      "level": 0,
+      "text": "Rédiger les rapports trimestriels de suivi pour les partenaires et les bailleurs."
+    },
+    {
+      "level": 0,
+      "text": "Diplôme en statistique, en sciences sociales ou en éducation."
+    },
+    {
+      "level": 0,
+      "text": "Au moins trois ans d’expérience en suivi-évaluation."
+    },
+    {
+      "level": 0,
+      "text": "Maîtrise du français et bonne connaissance de l’anglais."
+    }
+  ],
+  "furniture": [
+    "Sahel Learning Partnership",
+    "Partenariat Sahel pour l’Apprentissage",
+    "Sahel Learning Partnership · BP 10 233 Niamey · Équipe Ressources humaines"
+  ],
+  "languages": [
+    "en",
+    "fr"
+  ],
+  "code": [],
+  "notes": "Bilingual English/French job vacancy announcement from a (fictional) NGO in Niamey, one page, normal flow. The two organisation names at the top (English left, French right) and the footer line are furniture. The bilingual title is one heading. The key/value table has bilingual labels and no header row. Below it, the English version (left column) and the French version (right column) sit SIDE BY SIDE; reading order is the whole English column first, then the whole French column, never line by line across. The small \"English\" and \"Français\" tabs are language labels, body text, not headings. All lists are CSS-bulleted. The e-mail line under the columns is body text."
+}

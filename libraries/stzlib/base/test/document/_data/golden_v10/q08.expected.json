@@ -1,0 +1,149 @@
+{
+  "id": "q08",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Confirmação de reserva",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Confirmação de reserva"
+    },
+    {
+      "level": 2,
+      "text": "Resumo do pagamento"
+    },
+    {
+      "level": 3,
+      "text": "Check-in e check-out"
+    },
+    {
+      "level": 3,
+      "text": "Política de cancelamento"
+    },
+    {
+      "level": 2,
+      "text": "Incluído na sua estadia"
+    }
+  ],
+  "key_sentences": [
+    "Agradecemos a sua preferência e temos o prazer de confirmar a reserva abaixo.",
+    "Guarde este documento e apresente-o na receção no dia da chegada.",
+    "O quarto estará disponível a partir das 15h00 do dia de chegada.",
+    "O cancelamento é gratuito até sete dias antes da chegada.",
+    "Se precisar de transfer a partir da estação ferroviária de Évora, informe-nos com 48 horas de antecedência."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Número da reserva",
+          "AMR-48213"
+        ],
+        [
+          "Chegada",
+          "sexta-feira, 13 de novembro de 2026"
+        ],
+        [
+          "Partida",
+          "domingo, 15 de novembro de 2026"
+        ],
+        [
+          "Hóspedes",
+          "2 adultos"
+        ],
+        [
+          "Quarto",
+          "Duplo superior com vista para o olival"
+        ],
+        [
+          "Regime",
+          "Alojamento e pequeno-almoço"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Descrição",
+          "Quantidade",
+          "Preço unitário",
+          "Total"
+        ],
+        [
+          "Quarto duplo superior, por noite",
+          "2",
+          "145,00 €",
+          "290,00 €"
+        ],
+        [
+          "Jantar regional (sábado)",
+          "2",
+          "32,00 €",
+          "64,00 €"
+        ],
+        [
+          "Taxa turística municipal",
+          "4",
+          "2,00 €",
+          "8,00 €"
+        ],
+        [
+          "Total",
+          "",
+          "",
+          "362,00 €"
+        ],
+        [
+          "Sinal pago em 21/10/2026",
+          "",
+          "",
+          "−90,00 €"
+        ],
+        [
+          "Valor a pagar no check-out",
+          "",
+          "",
+          "272,00 €"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Pequeno-almoço com produtos locais"
+    },
+    {
+      "level": 0,
+      "text": "Estacionamento privado"
+    },
+    {
+      "level": 0,
+      "text": "Acesso à piscina exterior"
+    },
+    {
+      "level": 0,
+      "text": "Bicicletas para passeios na quinta"
+    },
+    {
+      "level": 0,
+      "text": "Wi-Fi em toda a propriedade"
+    },
+    {
+      "level": 0,
+      "text": "Prova de azeites às sextas-feiras"
+    }
+  ],
+  "furniture": [
+    "Pousada Quinta das Amoreiras",
+    "Estrada de São Bento, km 4 · 7000-208 Évora · reservas@amoreiras.example",
+    "Quinta das Amoreiras, Turismo Rural, Lda. · NIF 514 870 362 · RNET 4471"
+  ],
+  "languages": [
+    "pt"
+  ],
+  "code": [],
+  "notes": "Hotel booking confirmation (European Portuguese), one page, normal flow with 2 cm page margins. The centred hotel name and address line at the top and the company line at the bottom are furniture. The booking details are a borderless key/value table with dotted rules and no header row. The payment table has a total row followed by a deposit row and a balance row; empty cells are empty strings. Check-in and cancellation policy are two side-by-side boxes read box by box, left first. The amenities list is set in two CSS columns (read left column first) and its check-mark markers are drawn by CSS, so the items carry no marker. The salutation and the signature lines are body text."
+}

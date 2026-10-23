@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Informe de laboratorio</title>
+<style>
+@page { size: A4; margin: 0 }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+html, body { margin: 0; padding: 0; }
+body { font-family: Calibri, "Segoe UI", Arial, sans-serif; font-size: 10pt; color: #1d1d1d; }
+.page { width: 210mm; height: 296mm; box-sizing: border-box; padding: 12mm 16mm 10mm; display: flex; flex-direction: column; overflow: hidden; }
+.content { flex: 1; overflow: hidden; }
+.lh { display: grid; grid-template-columns: 1fr auto; border-bottom: 1pt solid #8a1c3b; padding-bottom: 3mm; }
+.lh .n { font-family: Cambria, Georgia, serif; font-size: 16pt; color: #8a1c3b; }
+.lh .a { font-size: 8.5pt; color: #555; line-height: 1.4; }
+.lh .r { text-align: right; font-size: 8.5pt; color: #555; line-height: 1.4; align-self: end; }
+h1 { font-family: Cambria, Georgia, serif; font-size: 15pt; margin: 5mm 0 3mm; letter-spacing: 0.3pt; }
+.boxes { display: flex; gap: 5mm; margin-bottom: 4mm; }
+.boxes section { flex: 1; background: #f7f1f3; padding: 3mm 4mm; }
+.boxes h2 { font-size: 9.5pt; color: #8a1c3b; margin: 0 0 1.5mm; }
+.boxes table td { padding: 0.6mm 0; vertical-align: top; }
+.boxes table td:first-child { color: #666; padding-right: 3mm; }
+table.res { width: 100%; border-collapse: collapse; }
+table.res th { text-align: left; font-size: 9pt; color: #8a1c3b; border-bottom: 1pt solid #8a1c3b; padding: 1.5mm 2mm; }
+table.res td { padding: 1.1mm 2mm; }
+table.res tr.sec td { font-weight: bold; padding-top: 3mm; border-bottom: 0.5pt solid #c9a5b1; font-size: 10.5pt; }
+table.res td.v { font-weight: bold; text-align: right; width: 18%; }
+table.res td.u { color: #555; width: 14%; }
+table.res td.ref { color: #555; width: 24%; }
+.leg { font-size: 8.5pt; color: #555; margin: 2mm 0 4mm; }
+h3 { font-size: 10.5pt; margin: 4mm 0 1.5mm; color: #8a1c3b; }
+p { margin: 0 0 2mm; line-height: 1.45; }
+.firma { margin-top: 5mm; font-size: 9.5pt; }
+.foot { border-top: 0.5pt solid #aaa; padding-top: 2mm; display: flex; justify-content: space-between; font-size: 8pt; color: #666; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="lh">
+    <div>
+      <div class="n" data-f>Laboratorio de Análisis Clínicos Vallehermoso</div>
+      <div class="a" data-f>Avenida de los Almendros 37, 30005 Murcia · Tel. 968 55 21 40</div>
+    </div>
+    <div class="r"><div data-f>Centro autorizado n.º 30-C2-0117</div></div>
+  </div>
+  <div class="content">
+    <h1 data-h="1" data-title>Informe de resultados analíticos</h1>
+    <div class="boxes">
+      <section>
+        <h2 data-h="2">Datos del paciente</h2>
+        <table data-t="pac">
+          <tr><td>Paciente</td><td>Rosario Méndez Ibarra</td></tr>
+          <tr><td>Fecha de nacimiento</td><td>14/03/1961</td></tr>
+          <tr><td>N.º de historia</td><td>VH-0084512</td></tr>
+          <tr><td>Médico solicitante</td><td>Dr. Andrés Lucena Pardo</td></tr>
+        </table>
+      </section>
+      <section>
+        <h2 data-h="2">Datos de la muestra</h2>
+        <table data-t="mue">
+          <tr><td>N.º de petición</td><td>26-118734</td></tr>
+          <tr><td>Extracción</td><td>05/10/2026, 08:12</td></tr>
+          <tr><td>Tipo de muestra</td><td>Sangre venosa y orina</td></tr>
+          <tr><td>Validación</td><td>05/10/2026, 13:40</td></tr>
+        </table>
+      </section>
+    </div>
+    <table class="res" data-t="res">
+      <thead><tr><th>Prueba</th><th style="text-align:right">Resultado</th><th>Unidades</th><th>Valores de referencia</th></tr></thead>
+      <tbody>
+        <tr class="sec"><td colspan="4">Hematología</td></tr>
+        <tr><td>Hemoglobina</td><td class="v">13,1</td><td class="u">g/dL</td><td class="ref">12,0 – 15,5</td></tr>
+        <tr><td>Hematocrito</td><td class="v">39,8</td><td class="u">%</td><td class="ref">36,0 – 46,0</td></tr>
+        <tr><td>Leucocitos</td><td class="v">6,4</td><td class="u">x10³/µL</td><td class="ref">4,0 – 10,5</td></tr>
+        <tr><td>Plaquetas</td><td class="v">251</td><td class="u">x10³/µL</td><td class="ref">150 – 400</td></tr>
+        <tr class="sec"><td colspan="4">Bioquímica</td></tr>
+        <tr><td>Glucosa en ayunas</td><td class="v">118 (A)</td><td class="u">mg/dL</td><td class="ref">70 – 100</td></tr>
+        <tr><td>Hemoglobina glicada (HbA1c)</td><td class="v">6,3 (A)</td><td class="u">%</td><td class="ref">4,0 – 5,6</td></tr>
+        <tr><td>Creatinina</td><td class="v">0,82</td><td class="u">mg/dL</td><td class="ref">0,51 – 0,95</td></tr>
+        <tr><td>Colesterol total</td><td class="v">212 (A)</td><td class="u">mg/dL</td><td class="ref">menor de 200</td></tr>
+        <tr><td>Colesterol HDL</td><td class="v">58</td><td class="u">mg/dL</td><td class="ref">mayor de 45</td></tr>
+        <tr><td>Triglicéridos</td><td class="v">134</td><td class="u">mg/dL</td><td class="ref">menor de 150</td></tr>
+        <tr><td>TSH</td><td class="v">2,1</td><td class="u">µUI/mL</td><td class="ref">0,4 – 4,0</td></tr>
+        <tr class="sec"><td colspan="4">Orina</td></tr>
+        <tr><td>Densidad</td><td class="v">1,018</td><td class="u"></td><td class="ref">1,005 – 1,030</td></tr>
+        <tr><td>Proteínas</td><td class="v">Negativo</td><td class="u"></td><td class="ref">Negativo</td></tr>
+        <tr><td>Microalbuminuria</td><td class="v">12</td><td class="u">mg/L</td><td class="ref">menor de 30</td></tr>
+      </tbody>
+    </table>
+    <p class="leg">(A): valor fuera del intervalo de referencia.</p>
+    <h3 data-h="2">Comentario del laboratorio</h3>
+    <p><span data-k>Los valores de glucosa en ayunas y de hemoglobina glicada se sitúan en el rango de prediabetes según los criterios vigentes.</span> <span data-k>Se recomienda valorar estos resultados junto con la historia clínica y repetir la determinación en tres meses.</span></p>
+    <p><span data-k>La muestra de orina se recibió dentro del plazo de estabilidad y no presenta interferencias.</span> <span data-k>Los intervalos de referencia corresponden a mujeres adultas y pueden variar según la edad.</span></p>
+    <div class="firma">Facultativa responsable: Dra. Pilar Ochoa Sanz, especialista en Análisis Clínicos</div>
+  </div>
+  <div class="foot"><span data-f>Informe validado electrónicamente. La reproducción parcial de este documento no está permitida.</span><span data-f>Página 1 de 1</span></div>
+</div>
+</body>
+</html>

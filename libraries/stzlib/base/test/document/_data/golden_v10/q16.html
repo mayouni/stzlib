@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Bulletin de notes – 3e trimestre</title>
+<style>
+@page { size: A4; margin: 2cm }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0; font-family: Cambria, Georgia, serif; font-size: 9.5pt; color: #1a1a1a; }
+.lh { display: flex; justify-content: space-between; align-items: center; border: 1pt solid #8b5a00; padding: 2.5mm 4mm; margin-bottom: 5mm; }
+.lh .n { font-size: 13pt; font-weight: bold; color: #8b5a00; }
+.lh .n small { display: block; font-size: 8.5pt; font-weight: normal; color: #444; }
+.lh .y { text-align: right; font-size: 9pt; line-height: 1.4; }
+h1 { text-align: center; font-size: 14pt; margin: 0 0 4mm; letter-spacing: 1pt; }
+.id { display: flex; gap: 4mm; margin-bottom: 4mm; }
+.id > div { flex: 1; background: #fbf5ea; padding: 2mm 3mm; }
+.id table { border-collapse: collapse; width: 100%; }
+.id td { padding: 0.6mm 0; }
+.id td:first-child { color: #6b4a10; width: 42%; }
+table.notes { border-collapse: collapse; width: 100%; font-size: 9pt; }
+table.notes th, table.notes td { border: 0.6pt solid #6b4a10; padding: 1mm 1.5mm; }
+table.notes th { background: #f1e3c6; font-weight: bold; text-align: center; }
+table.notes td.n { text-align: center; }
+table.notes tr.sec td { background: #fbf5ea; font-weight: bold; font-style: italic; }
+table.notes tr.tot td { font-weight: bold; background: #f1e3c6; }
+.res { display: flex; gap: 6mm; margin-top: 4mm; }
+.res > div:first-child { width: 70mm; }
+.res table { border-collapse: collapse; width: 100%; }
+.res td { border-bottom: 0.4pt dotted #6b4a10; padding: 1mm 1mm; }
+.res td + td { text-align: right; font-weight: bold; }
+h2 { font-size: 10.5pt; margin: 0 0 1.5mm; color: #8b5a00; }
+p { margin: 0 0 1.8mm; line-height: 1.45; }
+.dec { margin: 1mm 0 0; }
+.sig { display: flex; justify-content: space-between; margin-top: 8mm; text-align: center; }
+.sig div { width: 30%; height: 16mm; border-top: 0.4pt solid #999; padding-top: 1mm; font-size: 8.5pt; }
+.foot { margin-top: 4mm; font-size: 7.5pt; color: #666; text-align: center; }
+</style>
+</head>
+<body>
+<div class="lh">
+  <div class="n"><span data-f>Complexe scolaire privé Les Rôniers</span><small data-f>BP 11 482, quartier Plateau, Niamey · Tél. 20 72 55 18</small></div>
+  <div class="y"><div data-f>Année scolaire 2025–2026</div><div data-f>Cycle de base 2</div></div>
+</div>
+<h1 data-h="1" data-title>Bulletin de notes du troisième trimestre</h1>
+<div class="id">
+  <div>
+    <table data-t="eleve">
+      <tr><td>Élève</td><td>Mariama Souley Abdou</td></tr>
+      <tr><td>Classe</td><td>3e B</td></tr>
+      <tr><td>Matricule</td><td>CSR-2022-0347</td></tr>
+    </table>
+  </div>
+  <div>
+    <table data-t="classe">
+      <tr><td>Professeur principal</td><td>M. Ibrahim Hamani</td></tr>
+      <tr><td>Effectif de la classe</td><td>42 élèves</td></tr>
+      <tr><td>Conseil de classe</td><td>18 juin 2026</td></tr>
+    </table>
+  </div>
+</div>
+<table class="notes" data-t="notes">
+  <thead>
+    <tr><th rowspan="2">Matière</th><th rowspan="2">Coef.</th><th colspan="2">Élève</th><th colspan="2">Classe</th><th rowspan="2">Appréciation</th></tr>
+    <tr><th>Note /20</th><th>Points</th><th>Moyenne</th><th>Plus forte</th></tr>
+  </thead>
+  <tbody>
+    <tr class="sec"><td colspan="7">Matières littéraires</td></tr>
+    <tr><td>Français</td><td class="n">4</td><td class="n">13,50</td><td class="n">54,00</td><td class="n">10,90</td><td class="n">16,50</td><td>Bon travail</td></tr>
+    <tr><td>Anglais</td><td class="n">2</td><td class="n">15,00</td><td class="n">30,00</td><td class="n">11,60</td><td class="n">17,00</td><td>Très bien</td></tr>
+    <tr><td>Histoire-géographie</td><td class="n">2</td><td class="n">12,00</td><td class="n">24,00</td><td class="n">10,20</td><td class="n">15,50</td><td>Assez bien, participer davantage</td></tr>
+    <tr><td>Éducation civique</td><td class="n">1</td><td class="n">16,00</td><td class="n">16,00</td><td class="n">13,10</td><td class="n">17,50</td><td>Très bien</td></tr>
+    <tr class="sec"><td colspan="7">Matières scientifiques</td></tr>
+    <tr><td>Mathématiques</td><td class="n">4</td><td class="n">11,25</td><td class="n">45,00</td><td class="n">9,40</td><td class="n">18,00</td><td>Peut mieux faire en géométrie</td></tr>
+    <tr><td>Physique-chimie</td><td class="n">2</td><td class="n">12,50</td><td class="n">25,00</td><td class="n">10,10</td><td class="n">16,00</td><td>Assez bien</td></tr>
+    <tr><td>Sciences de la vie et de la Terre</td><td class="n">2</td><td class="n">14,00</td><td class="n">28,00</td><td class="n">11,30</td><td class="n">17,00</td><td>Bien</td></tr>
+    <tr class="sec"><td colspan="7">Autres disciplines</td></tr>
+    <tr><td>Éducation physique et sportive</td><td class="n">1</td><td class="n">17,00</td><td class="n">17,00</td><td class="n">14,20</td><td class="n">18,00</td><td>Excellent</td></tr>
+    <tr><td>Langue nationale (hausa)</td><td class="n">1</td><td class="n">15,50</td><td class="n">15,50</td><td class="n">12,80</td><td class="n">17,50</td><td>Bien</td></tr>
+    <tr class="tot"><td>Total</td><td class="n">19</td><td class="n"></td><td class="n">254,50</td><td class="n"></td><td class="n"></td><td></td></tr>
+  </tbody>
+</table>
+<div class="res">
+  <div>
+    <table data-t="res">
+      <tr><td>Moyenne du trimestre</td><td>13,39 / 20</td></tr>
+      <tr><td>Rang</td><td>7e sur 42</td></tr>
+      <tr><td>Moyenne de la classe</td><td>11,08 / 20</td></tr>
+      <tr><td>Moyenne annuelle</td><td>12,86 / 20</td></tr>
+      <tr><td>Absences</td><td>2 demi-journées, justifiées</td></tr>
+    </table>
+  </div>
+  <div>
+    <h2 data-h="2">Appréciation du conseil de classe</h2>
+    <p><span data-k>Mariama a fourni des efforts constants tout au long de l’année et ses résultats en langues sont remarquables.</span> <span data-k>Elle doit consolider ses bases en géométrie avant l’entrée en seconde.</span></p>
+    <p><span data-k>Le conseil de classe la félicite pour son sérieux et son comportement exemplaire.</span></p>
+    <p class="dec">Décision : admise en classe de seconde, série scientifique.</p>
+  </div>
+</div>
+<p style="margin-top:4mm"><span data-k>Les parents sont priés de retourner ce bulletin signé au secrétariat avant le 30 juin 2026.</span></p>
+<div class="sig"><div>Le professeur principal</div><div>Le directeur des études</div><div>Signature des parents</div></div>
+<div class="foot" data-f>Document à conserver. Aucun duplicata ne sera délivré.</div>
+</body>
+</html>

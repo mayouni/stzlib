@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Route 42 timetable</title>
+<style>
+@page { size: A4 landscape; margin: 12mm }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0; font-family: Arial, Helvetica, sans-serif; font-size: 9pt; color: #1a1a1a; }
+.top { display: flex; align-items: center; justify-content: space-between; background: #ffcc00; padding: 2.5mm 4mm; margin-bottom: 4mm; }
+.top .op { font-weight: bold; font-size: 12pt; }
+.top .rt { background: #1a1a1a; color: #ffcc00; font-weight: bold; font-size: 16pt; padding: 1mm 4mm; }
+h1 { font-size: 15pt; margin: 0 0 1mm; }
+.via { font-size: 10pt; color: #444; margin-bottom: 3mm; }
+h2 { font-size: 10.5pt; margin: 3mm 0 1.5mm; }
+table.tt { border-collapse: collapse; width: 100%; font-size: 8.6pt; }
+table.tt th { background: #1a1a1a; color: #fff; padding: 1.2mm 1mm; font-weight: bold; border: 0.4pt solid #fff; }
+table.tt td { padding: 1.05mm 1mm; text-align: center; font-variant-numeric: tabular-nums; }
+table.tt td.stop, table.tt th.stop { text-align: left; padding-left: 2mm; width: 34mm; }
+table.tt tbody tr:nth-child(odd) td { background: #fff6cc; }
+.legend { font-size: 8pt; color: #444; margin: 1.5mm 0 3mm; }
+.lower { display: flex; gap: 8mm; }
+.lower > div { flex: 1; }
+table.fare { border-collapse: collapse; width: 100%; }
+table.fare th { text-align: left; border-bottom: 1pt solid #1a1a1a; padding: 1mm 2mm; }
+table.fare td { padding: 1mm 2mm; border-bottom: 0.3pt solid #ccc; }
+table.fare td + td, table.fare th + th { text-align: right; }
+ul { margin: 0; padding-left: 4.5mm; line-height: 1.45; }
+p { margin: 0 0 1.5mm; line-height: 1.4; }
+.foot { margin-top: 4mm; display: flex; justify-content: space-between; font-size: 7.5pt; color: #555; border-top: 0.5pt solid #999; padding-top: 1.5mm; }
+</style>
+</head>
+<body>
+<div class="top"><span class="op" data-f>Brackenridge Regional Transit</span><span class="rt" data-f>42</span></div>
+<h1 data-h="1" data-title>Route 42 weekday timetable</h1>
+<div class="via">Harbour Station – Kelmscott Hospital – Ashby Park &amp; Ride, Monday to Friday except public holidays</div>
+<table class="tt" data-t="tt">
+<thead>
+<tr><th rowspan="2" class="stop">Stop</th><th colspan="5">Morning</th><th colspan="3">Daytime</th><th colspan="4">Evening</th></tr>
+<tr><th>4201</th><th>4203</th><th>4205</th><th>4207</th><th>4209</th><th>4211</th><th>4213</th><th>4215</th><th>4217</th><th>4219</th><th>4221</th><th>4223</th></tr>
+</thead>
+<tbody>
+<tr><td class="stop">Harbour Station</td><td>06:10</td><td>06:40</td><td>07:10</td><td>07:35</td><td>08:05</td><td>10:15</td><td>12:15</td><td>14:15</td><td>16:20</td><td>17:00</td><td>17:45</td><td>19:10</td></tr>
+<tr><td class="stop">Quay Street</td><td>06:13</td><td>06:43</td><td>07:13</td><td>07:38</td><td>08:08</td><td>10:18</td><td>12:18</td><td>14:18</td><td>16:23</td><td>17:03</td><td>17:48</td><td>19:13</td></tr>
+<tr><td class="stop">Market Cross</td><td>06:16</td><td>06:46</td><td>07:16</td><td>07:41</td><td>08:11</td><td>10:21</td><td>12:21</td><td>14:21</td><td>16:26</td><td>17:06</td><td>17:51</td><td>19:16</td></tr>
+<tr><td class="stop">Northgate Library</td><td>06:20</td><td>06:50</td><td>07:20</td><td>07:45</td><td>08:15</td><td>10:25</td><td>12:25</td><td>14:25</td><td>16:30</td><td>17:10</td><td>17:55</td><td>19:20</td></tr>
+<tr><td class="stop">Kelmscott Hospital</td><td>06:26</td><td>06:56</td><td>07:26</td><td>07:51</td><td>08:21</td><td>10:31</td><td>12:31</td><td>14:31</td><td>16:36</td><td>17:16</td><td>18:01</td><td>19:26</td></tr>
+<tr><td class="stop">Fenwick Road</td><td>06:31</td><td>07:01</td><td>07:31</td><td>07:56</td><td>08:26</td><td>10:36</td><td>12:36</td><td>14:36</td><td>16:41</td><td>17:21</td><td>18:06</td><td>19:31</td></tr>
+<tr><td class="stop">Ashby Village</td><td>06:37</td><td>07:07</td><td>07:37</td><td>08:02</td><td>08:32</td><td>10:42</td><td>12:42</td><td>14:42</td><td>16:47</td><td>17:27</td><td>18:12</td><td>19:37</td></tr>
+<tr><td class="stop">Ashby School</td><td>—</td><td>—</td><td>07:40</td><td>08:05</td><td>—</td><td>—</td><td>—</td><td>14:45</td><td>16:50</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td class="stop">Larch Lane</td><td>06:43</td><td>07:13</td><td>07:43</td><td>08:08</td><td>08:38</td><td>10:48</td><td>12:48</td><td>14:48</td><td>16:53</td><td>17:33</td><td>18:18</td><td>19:43</td></tr>
+<tr><td class="stop">Ashby Park &amp; Ride</td><td>06:47</td><td>07:17</td><td>07:47</td><td>08:12</td><td>08:42</td><td>10:52</td><td>12:52</td><td>14:52</td><td>16:57</td><td>17:37</td><td>18:22</td><td>19:47</td></tr>
+</tbody>
+</table>
+<div class="legend">— the journey does not serve this stop. Trip numbers are shown above each column. Times at intermediate stops are approximate.</div>
+<div class="lower">
+  <div>
+    <h2 data-h="2">Fares</h2>
+    <table class="fare" data-t="fare">
+      <thead><tr><th>Ticket</th><th>Adult</th><th>Child (5–15)</th><th>Concession</th></tr></thead>
+      <tbody>
+        <tr><td>Single, any distance</td><td>£2.40</td><td>£1.20</td><td>£1.60</td></tr>
+        <tr><td>Day ticket</td><td>£5.10</td><td>£2.50</td><td>£3.40</td></tr>
+        <tr><td>7-day ticket</td><td>£19.00</td><td>£9.50</td><td>£12.50</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <h2 data-h="2">What changes on 2 November</h2>
+    <ul>
+      <li>The 06:10 journey now starts from Harbour Station instead of Quay Street.</li>
+      <li>School journeys serve Ashby School on weekdays in term time only.</li>
+      <li>The last evening journey leaves at 19:10, ten minutes later than before.</li>
+    </ul>
+    <p style="margin-top:2mm"><span data-k>Buses on this route are wheelchair accessible and carry up to two folded bicycles.</span> <span data-k>Please have your ticket or contactless card ready when you board.</span></p>
+    <p><span data-k>During roadworks on Fenwick Road, buses may run up to five minutes late between the hospital and Ashby Village.</span> <span data-k>Live departure times are shown at every stop with a display screen.</span></p>
+  </div>
+</div>
+<div class="foot"><span data-f>Timetable valid from 2 November 2026 until further notice</span><span data-f>Customer line 0300 555 0142 · brt.example/42</span></div>
+</body>
+</html>

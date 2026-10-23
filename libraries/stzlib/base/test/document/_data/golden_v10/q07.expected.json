@@ -1,0 +1,210 @@
+{
+  "id": "q07",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Ripoti ya Robo ya Tatu: Julai – Septemba 2026",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Ripoti ya Robo ya Tatu: Julai – Septemba 2026"
+    },
+    {
+      "level": 2,
+      "text": "Muhtasari"
+    },
+    {
+      "level": 2,
+      "text": "Viashiria vya utekelezaji"
+    },
+    {
+      "level": 3,
+      "text": "Mafanikio"
+    },
+    {
+      "level": 3,
+      "text": "Changamoto"
+    },
+    {
+      "level": 2,
+      "text": "Matumizi ya bajeti"
+    },
+    {
+      "level": 2,
+      "text": "Hatua zinazofuata"
+    },
+    {
+      "level": 2,
+      "text": "Hitimisho"
+    }
+  ],
+  "key_sentences": [
+    "Katika robo hii, wahudumu wa afya ya jamii 48 walitembelea kaya 3,920 katika vijiji kumi na viwili.",
+    "Idadi ya akina mama waliojifungulia katika vituo vya afya iliongezeka kutoka asilimia 61 hadi asilimia 72.",
+    "Mafanikio haya yametokana na ushirikiano mzuri kati ya viongozi wa vijiji na zahanati.",
+    "Lengo la vyoo bora halikufikiwa kwa sababu bei ya saruji ilipanda katikati ya robo.",
+    "Bajeti ya robo hii ilitumika kwa asilimia 96, na gharama za usafiri zilizidi makadirio kutokana na barabara zilizoharibika.",
+    "Kwa ujumla, mradi unaendelea vizuri na malengo mengi ya robo hii yamefikiwa au kuzidiwa.",
+    "Tunawashukuru wafadhili wetu na jamii za Wilaya ya Mlimani kwa ushirikiano wao."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Mradi",
+          "Afya ya Mama na Mtoto Vijijini"
+        ],
+        [
+          "Eneo",
+          "Wilaya ya Mlimani, vijiji 12"
+        ],
+        [
+          "Imeandaliwa na",
+          "Idara ya Ufuatiliaji na Tathmini"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Kiashiria",
+          "Lengo",
+          "Kilichofikiwa",
+          "Asilimia"
+        ],
+        [
+          "Kaya zilizotembelewa",
+          "3,600",
+          "3,920",
+          "109%"
+        ],
+        [
+          "Watoto chini ya miaka 5 waliopimwa uzito",
+          "1,500",
+          "1,284",
+          "86%"
+        ],
+        [
+          "Akina mama wajawazito waliopewa rufaa",
+          "220",
+          "236",
+          "107%"
+        ],
+        [
+          "Vyoo bora vilivyojengwa",
+          "150",
+          "97",
+          "65%"
+        ],
+        [
+          "Vikao vya elimu ya usafi",
+          "60",
+          "64",
+          "107%"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Kipengele",
+          "Bajeti (TSh)",
+          "Matumizi (TSh)",
+          "Salio (TSh)"
+        ],
+        [
+          "Posho za wahudumu",
+          "14,400,000",
+          "14,400,000",
+          "0"
+        ],
+        [
+          "Usafiri",
+          "5,200,000",
+          "5,610,000",
+          "-410,000"
+        ],
+        [
+          "Vifaa vya usafi wa maji",
+          "8,000,000",
+          "6,950,000",
+          "1,050,000"
+        ],
+        [
+          "Mafunzo",
+          "3,600,000",
+          "3,240,000",
+          "360,000"
+        ],
+        [
+          "Ufuatiliaji na tathmini",
+          "2,800,000",
+          "2,370,000",
+          "430,000"
+        ],
+        [
+          "Jumla",
+          "34,000,000",
+          "32,570,000",
+          "1,430,000"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Mafunzo ya siku tatu kwa wahudumu 48 yalikamilika."
+    },
+    {
+      "level": 0,
+      "text": "Kamati za maji zimeundwa katika vijiji vinne vipya."
+    },
+    {
+      "level": 0,
+      "text": "Takwimu sasa zinakusanywa kwa simu janja."
+    },
+    {
+      "level": 0,
+      "text": "Barabara mbili ziliharibiwa na mvua za Agosti."
+    },
+    {
+      "level": 0,
+      "text": "Gharama za saruji zimepanda kwa asilimia 18."
+    },
+    {
+      "level": 0,
+      "text": "Wahudumu watatu waliacha kazi."
+    },
+    {
+      "level": 0,
+      "text": "Kukamilisha ujenzi wa vyoo 53 vilivyobaki kabla ya Desemba."
+    },
+    {
+      "level": 0,
+      "text": "Kuanzisha vikundi vya akina mama katika vijiji vitatu."
+    },
+    {
+      "level": 0,
+      "text": "Kuajiri na kufundisha wahudumu wapya watatu."
+    },
+    {
+      "level": 0,
+      "text": "Kukarabati njia ya kuingia kijiji cha Kisanga kwa kushirikiana na halmashauri."
+    }
+  ],
+  "furniture": [
+    "Shirika la Maji na Afya Jamii (SHAMAJA)",
+    "S.L.P. 1187, Mlimani · barua@shamaja.example",
+    "SHAMAJA · Ripoti ya Robo ya Tatu 2026",
+    "Ukurasa 1 wa 2",
+    "Ukurasa 2 wa 2"
+  ],
+  "languages": [
+    "sw"
+  ],
+  "code": [],
+  "notes": "Swahili NGO quarterly report, two fixed pages. The green band on page 1 (organisation name and postal line) is letterhead furniture; page 2 has only a plain colour bar. The footer report line repeats and is listed once; \"Ukurasa n wa 2\" is listed once per page. The project metadata under the title is a borderless key/value table with no header row. Both data tables are zebra-striped. \"Mafanikio\" (achievements) and \"Changamoto\" (challenges) are two side-by-side boxes read box by box, left first; their items are CSS-bulleted. The next-steps list is CSS-numbered. The budget table ends with a total row \"Jumla\"."
+}

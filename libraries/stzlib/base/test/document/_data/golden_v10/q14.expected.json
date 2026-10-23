@@ -1,0 +1,111 @@
+{
+  "id": "q14",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": null,
+  "headings": [
+    {
+      "level": 2,
+      "text": "Ophaaldagen eerste kwartaal 2027"
+    },
+    {
+      "level": 2,
+      "text": "Wat hoort in de groene container?"
+    },
+    {
+      "level": 3,
+      "text": "Wel"
+    },
+    {
+      "level": 3,
+      "text": "Niet"
+    }
+  ],
+  "key_sentences": [
+    "Vanaf 1 januari 2027 verandert de manier waarop wij het afval in uw wijk ophalen.",
+    "Restafval wordt voortaan eens per vier weken opgehaald, terwijl GFT in de zomermaanden elke week wordt geleegd.",
+    "Zet uw container op de ophaaldag vóór 7.30 uur aan de straat, met de handgreep naar de weg.",
+    "De volledige afvalkalender voor 2027 vindt u vanaf december in de app Afvalwijzer en op onze website.",
+    "Heeft u vragen, bel dan op werkdagen tussen 8.30 en 17.00 uur met het Klantcontactcentrum."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Maand",
+          "GFT",
+          "Restafval",
+          "Papier",
+          "PMD"
+        ],
+        [
+          "Januari",
+          "5 en 19",
+          "12",
+          "26",
+          "7 en 21"
+        ],
+        [
+          "Februari",
+          "2 en 16",
+          "9",
+          "23",
+          "4 en 18"
+        ],
+        [
+          "Maart",
+          "2, 16 en 30",
+          "9",
+          "23",
+          "4 en 18"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Groente- en fruitresten"
+    },
+    {
+      "level": 0,
+      "text": "Koffiedik en theezakjes"
+    },
+    {
+      "level": 0,
+      "text": "Gras, bladeren en snoeiafval"
+    },
+    {
+      "level": 0,
+      "text": "Etensresten, ook gekookt"
+    },
+    {
+      "level": 0,
+      "text": "Kattenbakkorrels"
+    },
+    {
+      "level": 0,
+      "text": "Luiers"
+    },
+    {
+      "level": 0,
+      "text": "Zand en stenen"
+    },
+    {
+      "level": 0,
+      "text": "Plastic zakjes, ook als ze afbreekbaar heten"
+    }
+  ],
+  "furniture": [
+    "Gemeente Heerdervaart",
+    "Postbus 140, 7940 AC Heerdervaart",
+    "Telefoon 14 0529 · www.heerdervaart.example",
+    "Vermeld bij beantwoording altijd ons kenmerk."
+  ],
+  "languages": [
+    "nl"
+  ],
+  "code": [],
+  "notes": "Dutch municipal letter about waste collection, one page, normal flow. No title: the subject (\"Onderwerp\") line is body text in the reference block, so title is null and the section headings start at level 2. The municipality name, the return address and phone line at the top, and the footer line at the bottom, are furniture. The recipient address block, the date/reference/subject block, the salutation and the signature are body text. The \"Wel\" (yes) and \"Niet\" (no) boxes are side by side and read box by box, left first; their items are CSS-bulleted. Words such as \"vóór\" keep their accents."
+}
