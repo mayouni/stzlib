@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 75 methods in 50 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 72 methods in 49 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| string/stzStringChecker.ring | stzStringChecker | 3 |
 | string/stzStringPerformer.ring | stzStringPerformer | 3 |
 | string/stzStringText.ring | stzStringText | 3 |
 | appserver/stzAppServer.ring | stzAppServer | 2 |
@@ -232,12 +231,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzString -- string/stzString.ring (1)
 
 - `IsCurrencySymbol` (line 9370): Answers FALSE today: the currency symbol check is a stub that waits for the locale data.
-
-## stzStringChecker -- string/stzStringChecker.ring (3)
-
-- `HasLeadingChars` (line 607): Returns 0 today whatever the text is, instead of telling whether the text starts with a repeated character. -- answers FALSE for aab and for xxyy alike: it compares two engine handles, which are never equal, instead of the two characters; the stzString method of the same name answers 1 for aab
-- `HasTrailingChars` (line 624): Returns 0 today whatever the text is, instead of telling whether the text ends with a repeated character. -- answers FALSE for abb and for xxyy alike: it compares two engine handles, which are never equal, instead of the two characters
-- `HasLeadingAndTrailingChars` (line 642): Returns 0 today whatever the text is, because both of the questions it combines answer 0. -- answers FALSE for aabaa: it is the AND of HasLeadingChars and HasTrailingChars, which are always 0
 
 ## stzStringCounter -- string/stzStringCounter.ring (1)
 

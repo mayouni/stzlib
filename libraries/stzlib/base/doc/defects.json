@@ -1,5 +1,5 @@
 {
- "count": 75,
+ "count": 72,
  "defects": [
   {
    "class": "stzAppServer",
@@ -448,30 +448,6 @@
    "line": 9370,
    "symptom": "Answers FALSE today: the currency symbol check is a stub that waits for the locale data.",
    "cause": ""
-  },
-  {
-   "class": "stzStringChecker",
-   "file": "string/stzStringChecker.ring",
-   "method": "HasLeadingChars",
-   "line": 607,
-   "symptom": "Returns 0 today whatever the text is, instead of telling whether the text starts with a repeated character.",
-   "cause": "answers FALSE for aab and for xxyy alike: it compares two engine handles, which are never equal, instead of the two characters; the stzString method of the same name answers 1 for aab"
-  },
-  {
-   "class": "stzStringChecker",
-   "file": "string/stzStringChecker.ring",
-   "method": "HasTrailingChars",
-   "line": 624,
-   "symptom": "Returns 0 today whatever the text is, instead of telling whether the text ends with a repeated character.",
-   "cause": "answers FALSE for abb and for xxyy alike: it compares two engine handles, which are never equal, instead of the two characters"
-  },
-  {
-   "class": "stzStringChecker",
-   "file": "string/stzStringChecker.ring",
-   "method": "HasLeadingAndTrailingChars",
-   "line": 642,
-   "symptom": "Returns 0 today whatever the text is, because both of the questions it combines answer 0.",
-   "cause": "answers FALSE for aabaa: it is the AND of HasLeadingChars and HasTrailingChars, which are always 0"
   },
   {
    "class": "stzStringCounter",
