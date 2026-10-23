@@ -1065,9 +1065,8 @@ func StzCompareDatasets(paData1, paData2)
 # (AddInsightRule, InsightsOfDomain), plans (MakePlan, ExecutePlan) and Summary. The tables of rules
 # and plan templates are global, shared by every data set of the process, and ExecutePlan and
 # AdaptiveAnalysis print as they work. Known gaps today, each carried as a warning on its method:
-# Percentile makes the engine panic for a percent below 0 or far above 100, WMean overflows the
-# stack, NonParametricCorrelation and PlanSummary raise errors, and MutualInformation misreads
-# values that contain an underscore.
+# Percentile makes the engine panic for a percent below 0 or far above 100, and WMean overflows the
+# stack.
 #
 #   receiver   o1 = new stzDataSet([ 2, 4, 4, 4, 5, 5, 7, 9 ])
 #   example    ? o1.Mean()
@@ -2130,8 +2129,8 @@ class stzDataSet from stzObject
 	    
 	    return [_aUniqueY_, _aTable_]
 	
-		def ContingTable()
-			return This.ContingencyTable()
+		def ContingTable(oOtherDataSet)
+			return This.ContingencyTable(oOtherDataSet)
 
 
 	# Returns how many times the most frequent value occurs.
@@ -2519,14 +2518,14 @@ class stzDataSet from stzObject
         
         return _aMovingAvg_
 
-		def MovAvrg()
-			return This.MovingAverage()
+		def MovAvrg(_nWindow_)
+			return This.MovingAverage(_nWindow_)
 
-		def MovingMean()
-			return This.MovingAverage()
+		def MovingMean(_nWindow_)
+			return This.MovingAverage(_nWindow_)
 
-		def MovMean()
-			return This.MovingAverage()
+		def MovMean(_nWindow_)
+			return This.MovingAverage(_nWindow_)
 
 
 	# Returns the trend segments of the data as [ direction, length ] pairs, the direction being up, down or stable.
@@ -4032,19 +4031,23 @@ class stzDataSet from stzObject
         ]
     
 	def RunPlanXT(cNameOrGoalOrTemplate, bVerbose)
-		This.ExecutePlan(cNameOrGoalOrTemplate, bVerbose)
+		return This.ExecutePlanXT(cNameOrGoalOrTemplate, bVerbose)
 
 	def PerformPlanXT(cNameOrGoalOrTemplate, bVerbose)
-		This.ExecutePlan(cNameOrGoalOrTemplate, bVerbose)
+		return This.ExecutePlanXT(cNameOrGoalOrTemplate, bVerbose)
 
 
-    # Raises error R5 today instead of returning a text preview of a plan's steps without running it.
+    # Returns a text preview of a plan's steps for this data, without running any of them.
     #
-    #   cNameOrGoalOrTemplate   a plan name or goal
-    #   returns                 nothing today
-    #   note                    MakePlan returns the same plan as data
-    #   warning                 known defect: the body reads the title from a variable named oPlan,
-    #                           which does not exist, instead of from the plan it built
+    #   cNameOrGoalOrTemplate   a plan name or goal, such as eda or anomalies
+    #   returns                 text: a boxed title, then the data, the plan name and goal, the
+    #                           number of steps and one numbered line per step, in order, each with
+    #                           its description, "(conditional)" when it carries a condition and
+    #                           its params when it has any
+    #   warning                 an unknown name raises an error
+    #   note                    nothing is run: only the step conditions are read, to keep the steps
+    #                           that apply to this data, so a plan with no step to run ends after
+    #                           the line "Steps (0):"; MakePlan returns the same plan as data
     #   see                     MakePlan, ExecutePlan
     def PlanSummary(cNameOrGoalOrTemplate)
         /*
@@ -4054,7 +4057,7 @@ class stzDataSet from stzObject
         */
 
         _aPlan_ = This.GeneratePlan(cNameOrGoalOrTemplate)
-        _cSummary_ = BoxifyRound("Plan: " + oPlan[:title]) + char(10)
+        _cSummary_ = BoxifyRound("Plan: " + _aPlan_[:title]) + char(10)
 
 		if @bChain = 0 or
 			(@bChain = 1 and @bFirstChain)
