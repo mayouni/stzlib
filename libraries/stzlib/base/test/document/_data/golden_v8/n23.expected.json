@@ -1,0 +1,147 @@
+{
+  "id": "n23",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Purchase Order",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Purchase Order"
+    },
+    {
+      "level": 2,
+      "text": "General Terms and Conditions of Purchase"
+    }
+  ],
+  "key_sentences": [
+    "Please quote the purchase order number on all delivery notes and invoices.",
+    "Deliveries are accepted Monday to Friday between 08:00 and 15:00; call the stores supervisor on 01632 960 291 to book a slot.",
+    "This order is subject to the General Terms and Conditions of Purchase overleaf.",
+    "No terms proposed by the Supplier shall apply unless agreed in writing by the Authority’s procurement manager.",
+    "Time of delivery is of the essence.",
+    "The Authority may cancel all or part of the order by written notice if the Supplier fails to perform any of its obligations.",
+    "These conditions are governed by the law of England and Wales."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Line",
+          "Item code",
+          "Description",
+          "Qty",
+          "Unit",
+          "Unit price (£)",
+          "Net (£)",
+          "Required by"
+        ],
+        [
+          "10",
+          "GV-150-PN16",
+          "Gate valve, ductile iron, DN150, PN16",
+          "8",
+          "each",
+          "412.60",
+          "3,300.80",
+          "16/11/2026"
+        ],
+        [
+          "20",
+          "BV-100-PN16",
+          "Butterfly valve, wafer type, DN100",
+          "12",
+          "each",
+          "186.25",
+          "2,235.00",
+          "16/11/2026"
+        ],
+        [
+          "30",
+          "AV-050",
+          "Double-orifice air valve, DN50",
+          "6",
+          "each",
+          "248.90",
+          "1,493.40",
+          "23/11/2026"
+        ],
+        [
+          "40",
+          "FA-150",
+          "Flange adaptor, DN150, wide tolerance",
+          "16",
+          "each",
+          "97.40",
+          "1,558.40",
+          "16/11/2026"
+        ],
+        [
+          "50",
+          "GK-150",
+          "Gasket kit, EPDM, DN150",
+          "40",
+          "set",
+          "8.75",
+          "350.00",
+          "16/11/2026"
+        ],
+        [
+          "60",
+          "HY-080",
+          "Fire hydrant, underground, 80 mm",
+          "4",
+          "each",
+          "529.00",
+          "2,116.00",
+          "30/11/2026"
+        ],
+        [
+          "Net total",
+          "Net total",
+          "Net total",
+          "Net total",
+          "Net total",
+          "Net total",
+          "11,053.60",
+          ""
+        ],
+        [
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "2,210.72",
+          ""
+        ],
+        [
+          "Order total (GBP)",
+          "Order total (GBP)",
+          "Order total (GBP)",
+          "Order total (GBP)",
+          "Order total (GBP)",
+          "Order total (GBP)",
+          "13,264.32",
+          ""
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "Thornfield Regional Water Authority",
+    "Procurement Services · Riverside House, 3 Weir Street, Thornfield TF2 6WA",
+    "Tel. 01632 960 284 · procurement@thornfield-water.example",
+    "Thornfield Regional Water Authority · PO 4500018734",
+    "Page 1 of 2",
+    "Thornfield Regional Water Authority · Procurement Services",
+    "Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Page 2 is two-column small print: read column 1 top to bottom, then column 2. The clause titles ('1. Definitions.' ...) are bold run-in text inside paragraphs, not headings. A clause may be split between the two columns. Total rows have a label spanning 6 columns."
+}

@@ -211,6 +211,27 @@ golden_v7: 20 realistic documents in 11 languages besides English (a hotel invoi
 
 The native reader keeps a wide lead on text and headings on unseen documents, draws level on tables (0.68 against 0.72, from 0.50 against 0.70 on v6), and **trails on furniture again (0.53 against 0.72): the letterhead gain on golden_v6 did not carry over.** The cause is visible: on receipts, posters and club letters the organisation's name is the LARGEST text on the page, so the rule takes it for the title, and nothing ends above a title; golden_v7 marks those blocks as furniture, and so does Docling's layout model, which has seen many such pages. A deterministic floor can only meet this with a stated convention (the first block group of page 1, set apart by a gap, is a letterhead when it holds an address or a legal line), and that convention will be wrong on documents whose name is their title -- the honest place for this judgement may be a measured model above the floor, not the floor. Tables still missed: a three-column poster's narrow table, a Hausa sheet's small table, a receipt's items split in two.
 
+**The letterhead decision as a measured faculty, and round 7 on golden_v8 -- now under Ring++.** Ring is retired (the author, 2026-10-23): the reader and its guards run on Ring++ (`rnxc`), against the Rule-A-migrated library, with every engine DLL built for Ring++'s native interface (`rpp_init`) from this tree's sources by Ring++'s own `bench/engine_copy.py`. The PDF guard passes 111 of 111 under Ring++, and the letterhead floor scores the same under Ring++ as under Ring (128 of 167).
+
+The **:letterhead faculty** (`base/file/stzPdfLetterhead.ring`) decides, for each block of page 1's top band, letterhead or content. Its floor is the reader's own rule; each installed generative model reads its probability for the two answers; the registry takes a model only if it measures strictly better than the floor. Golden set: the 167 top-band blocks of golden_v7 (fixed before any rule or model was tuned to it), labelled from that set's own furniture lists: 55 letterhead, 112 content.
+
+| letterhead, 167 blocks of golden_v7 | score | chosen |
+|---|---|---|
+| reader's rule (floor) | **0.77** | **yes** |
+| Granite-4.0-1b, read by probability | 0.71 | no: below the floor |
+| Qwen2.5-Coder-1.5B, Granite-4.2-3B | not measured | -- |
+
+The two larger models are NOT measured yet: the CPU was firmware-throttled to 21 per cent for the rest of the day (an item took 45 to 90 s, so one model needed more than two hours), and another repository's engine build ran meanwhile. Until a model beats 0.77, the registry answers with the floor -- so "the reader plus the decision" is, today, the reader.
+
+golden_v8: 24 realistic documents in 10 languages besides English, 12 of 2-3 pages, 20 with a letterhead, four tables across pages, by an eighth independent agent; reader frozen at the round-6 state; both readers ran once:
+
+| golden_v8, realistic | text | order | headings | tables | lists | furniture | code |
+|---|---|---|---|---|---|---|---|
+| Softanza native (Ring++) | **1.00** | 1.00 | **0.99** | 0.64 | **0.83** | **0.56** | **1.00** |
+| Docling 2.141 | 0.84 | 1.00 | 0.84 | **0.75** | 0.78 | 0.55 | 0.25 |
+
+Across eight sets the pattern holds: on unseen realistic documents the native reader leads on text, headings, lists and code by a wide margin and at a thousandth of the time; it is level on reading order and on furniture (both readers are weak there); it trails on tables by about a tenth. Furniture is where a measured model above the floor has room, and the faculty is in place to take one when it earns its place.
+
 **Not measured**: Granite-Docling-258M (not downloaded), the GPU, scanned golden pages with an expected text, PDFs from producers other than Chrome (both golden sets are Chrome-made and tagged; the native reader does not read the tags).
 
 ---

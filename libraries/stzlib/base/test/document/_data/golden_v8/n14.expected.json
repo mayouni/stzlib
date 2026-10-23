@@ -1,0 +1,95 @@
+{
+  "id": "n14",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Besluit op uw aanvraag omgevingsvergunning",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Besluit op uw aanvraag omgevingsvergunning"
+    },
+    {
+      "level": 2,
+      "text": "Besluit"
+    },
+    {
+      "level": 2,
+      "text": "Voorschriften"
+    },
+    {
+      "level": 2,
+      "text": "Motivering"
+    },
+    {
+      "level": 2,
+      "text": "Leges"
+    },
+    {
+      "level": 2,
+      "text": "Bent u het niet eens met dit besluit?"
+    },
+    {
+      "level": 2,
+      "text": "Wanneer gaat de vergunning in?"
+    }
+  ],
+  "key_sentences": [
+    "Op 2 augustus 2026 hebben wij uw aanvraag ontvangen voor het plaatsen van een uitbouw aan de achterzijde van de woning op het adres Kerkstraat 14 in Waterlinde.",
+    "In deze brief leest u ons besluit en de redenen daarvoor.",
+    "Wij verlenen u de omgevingsvergunning voor de activiteit bouwen, met inachtneming van de voorschriften in deze brief.",
+    "Het bouwplan voldoet aan de redelijke eisen van welstand, zo blijkt uit het advies van de adviescommissie ruimtelijke kwaliteit van 9 september 2026.",
+    "Dan kunt u binnen zes weken na de dag van verzending van deze brief een bezwaarschrift indienen bij het college van burgemeester en wethouders.",
+    "Wij raden u aan pas met de bouw te beginnen als de bezwaartermijn is verstreken."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Onderdeel",
+          "Bedrag"
+        ],
+        [
+          "Activiteit bouwen (2,9% van de bouwkosten van € 38.000)",
+          "€ 1.102,00"
+        ],
+        [
+          "Advies adviescommissie ruimtelijke kwaliteit",
+          "€ 145,00"
+        ],
+        [
+          "Totaal",
+          "€ 1.247,00"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Uiterlijk twee weken voor de start van de bouw meldt u de startdatum bij de gemeente."
+    },
+    {
+      "level": 0,
+      "text": "De uitbouw wordt uitgevoerd in metselwerk in dezelfde kleur als de bestaande gevel."
+    },
+    {
+      "level": 0,
+      "text": "Hemelwater wordt afgevoerd naar de tuin of een infiltratievoorziening, niet naar het riool."
+    }
+  ],
+  "furniture": [
+    "Gemeente Waterlinde",
+    "Postbus 1180 · 3440 AD Waterlinde",
+    "Telefoon 0348 000 418",
+    "www.waterlinde.example",
+    "pagina 1 van 2",
+    "Ons kenmerk OV-2026-0874",
+    "pagina 2 van 2"
+  ],
+  "languages": [
+    "nl"
+  ],
+  "code": [],
+  "notes": "The subject line 'Besluit op uw aanvraag omgevingsvergunning' is styled as the title. The reference block (Datum, Ons kenmerk, ...) and the address block are body text, not tables. Euro amounts use a period for thousands and a comma for decimals. Page 2 has a running header split into two parts."
+}

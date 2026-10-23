@@ -1,0 +1,85 @@
+heading	1	Thornfield\tRegional\tWater\tAuthority
+paragraph	0	Procurement Services · Riverside House, 3 Weir Street, Thornfield TF2 6WA Tel. 01632 960 284 · procurement@thornfield-water.example
+heading	2	Purchase\tOrder
+heading	5	Supplier
+heading	5	Deliver to
+heading	5	Order details
+paragraph	0	Calderbrook Valve & Fittings Ltd
+paragraph	0	Thornfield Treatment Works
+paragraph	0	PO number: 4500018734
+paragraph	0	Unit 9 Mercer Park
+paragraph	0	Stores Building B, Moor Lane
+paragraph	0	Order date: 19 October 2026
+paragraph	0	Ashby Vale AV5 1RN
+paragraph	0	Thornfield TF4 9LP
+paragraph	0	Cost centre: CAP-2210 Network Renewals
+paragraph	0	Supplier no. 210447
+paragraph	0	Buyer: D. Ashworth
+heading	5	Line
+paragraph	0	10 20 30 40 50 60
+heading	5	Item code
+paragraph	0	GV-150-PN16 BV-100-PN16 AV-050 FA-150 GK-150 HY-080
+heading	5	Description
+paragraph	0	Gate valve, ductile iron, DN150, PN16 Butterfly valve, wafer type, DN100 Double-orifice air valve, DN50 Flange adaptor, DN150, wide tolerance Gasket kit, EPDM, DN150 Fire hydrant, underground, 80 mm
+heading	5	Qty
+heading	5	Unit
+paragraph	0	8
+paragraph	0	each
+paragraph	0	12
+paragraph	0	each
+paragraph	0	6
+paragraph	0	each
+paragraph	0	16
+paragraph	0	each
+paragraph	0	40
+paragraph	0	set
+paragraph	0	4
+paragraph	0	each
+heading	5	Unit price (£)
+paragraph	0	412.60 186.25 248.90 97.40 8.75 529.00
+paragraph	0	Net total VAT at 20% Order total (GBP)
+heading	5	Net (£)
+heading	5	Required by
+paragraph	0	3,300.80
+paragraph	0	16/11/2026
+paragraph	0	2,235.00
+paragraph	0	16/11/2026
+paragraph	0	1,493.40
+paragraph	0	23/11/2026
+paragraph	0	1,558.40
+paragraph	0	16/11/2026
+paragraph	0	350.00
+paragraph	0	16/11/2026
+paragraph	0	2,116.00
+paragraph	0	30/11/2026
+paragraph	0	11,053.60 2,210.72 13,264.32
+paragraph	0	Please quote the purchase order number on all delivery notes and invoices. Deliveries are accepted Monday to Friday between 08:00 and 15:00; call the stores supervisor on 01632 960 291 to book a slot. This order is subject to the General Terms and Conditions of Purchase overleaf.
+heading	4	Authorised by: R. Templeton-Shaw, Procurement Manager Invoices to: accounts.payable@thornfield-water.example
+page_footer	0	Thornfield Regional Water Authority · PO 4500018734
+page_footer	0	Page 1 of 2
+paragraph	0	Thornfield Regional Water Authority · Procurement Services
+heading	3	General\tTerms\tand\tConditions\tof\tPurchase
+list_item	0	1. Definitions. In these conditions, “the Authority” means Thornfield
+paragraph	0	Regional Water Authority and “the Supplier” means the person or company named on the purchase order. “Goods” means the items described on the order, including any related documentation, certificates and spare parts.
+list_item	0	2. Acceptance. The Supplier’s acceptance of the order, or delivery of
+paragraph	0	any of the goods, constitutes acceptance of these conditions. No terms proposed by the Supplier shall apply unless agreed in writing by the Authority’s procurement manager.
+list_item	0	3. Delivery. Time of delivery is of the essence. Goods must be
+paragraph	0	delivered to the address on the order, properly packed and labelled with the order number and the line number. Partial deliveries are accepted only with the Authority’s prior consent.
+list_item	0	4. Inspection and rejection. The Authority may inspect the goods
+paragraph	0	within 30 days of delivery and reject any goods that do not conform to the order. Rejected goods will be returned at the Supplier’s risk and expense, and the Supplier shall replace them or refund the price, as the Authority chooses.
+list_item	0	5. Quality and standards. All products in contact with drinking water
+paragraph	0	must be approved for that use under the applicable regulations, and the Supplier shall provide the approval certificates on request. Goods must comply with the British and European standards named in the order.
+page_footer	0	Thornfield Regional Water Authority · PO 4500018734
+list_item	0	6. Price and payment. Prices are fixed and include packing and
+paragraph	0	carriage unless stated otherwise on the order. The Authority will pay valid, undisputed invoices within 30 days of receipt. Invoices that do not quote the purchase order number will be returned unpaid.
+list_item	0	7. Warranty. The Supplier warrants that the goods will be free from
+paragraph	0	defects in design, materials and workmanship for 24 months from the date of delivery. Defective goods shall be repaired or replaced promptly and free of charge.
+list_item	0	8. Liability and insurance. The Supplier shall indemnify the Authority
+paragraph	0	against any loss or damage caused by defective goods or by the negligence of its employees. The Supplier shall maintain public and product liability insurance of not less than £5 million for any one event.
+list_item	0	9. Confidentiality. The Supplier shall keep confidential all drawings,
+paragraph	0	specifications and network information supplied by the Authority and use them only to fulfil the order.
+list_item	0	10. Termination. The Authority may cancel all or part of the order by
+paragraph	0	written notice if the Supplier fails to perform any of its obligations. Cancellation does not affect any rights that have accrued before the notice.
+list_item	0	11. Law. These conditions are governed by the law of England and
+paragraph	0	Wales. The courts of England and Wales have exclusive jurisdiction over any dispute.
+page_footer	0	Page 2 of 2

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Runbook: Deploying the Ledgerline Billing Service to Production</title>
+<style>
+@page { size: A4; margin: 0 }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box }
+html, body { margin: 0; padding: 0 }
+.sheet { position: relative; width: 210mm; height: 296mm; overflow: hidden; break-after: page; page-break-after: always }
+.sheet.last { break-after: auto; page-break-after: auto }
+
+body { font-family: Calibri, 'Segoe UI', sans-serif; font-size: 10.2pt; color: #1e1e1e }
+.main { position: absolute; left: 20mm; right: 20mm; top: 21mm; bottom: 20mm }
+.rh { position: absolute; top: 9mm; left: 20mm; right: 20mm; display: flex; justify-content: space-between; font-size: 8.3pt; color: #5c3d8f; border-bottom: 1px solid #c8b8e2; padding-bottom: 2px }
+.ft { position: absolute; bottom: 9mm; left: 20mm; right: 20mm; display: flex; justify-content: space-between; font-size: 8pt; color: #666 }
+h1 { font-family: 'Segoe UI', sans-serif; font-weight: 600; font-size: 16pt; color: #3c1f6e; margin: 0 0 4px }
+.meta { color: #555; font-size: 9pt; margin-bottom: 8px }
+h2 { font-family: 'Segoe UI', sans-serif; font-weight: 600; font-size: 11.5pt; color: #3c1f6e; margin: 12px 0 3px }
+p { margin: 3px 0 5px; line-height: 1.4 }
+ul, ol { margin: 2px 0 5px; padding-left: 22px; line-height: 1.4 }
+ol ul { list-style: circle; margin: 1px 0 2px }
+pre { font-family: Consolas, 'Courier New', monospace; font-size: 8.6pt; background: #f4f1f8; border-left: 3px solid #7b5cb0; padding: 6px 8px; margin: 4px 0 7px; white-space: pre; line-height: 1.35 }
+code { font-family: Consolas, monospace; font-size: 9pt; background: #f4f1f8; padding: 0 2px }
+table { border-collapse: collapse; width: 100% }
+th { text-align: left; background: #e9e2f3; padding: 4px 6px; border-bottom: 1.5px solid #7b5cb0 }
+td { padding: 4px 6px; border-bottom: 1px solid #ddd }
+</style>
+</head>
+<body>
+
+<div class="sheet"><div class="rh"><div><span class="ln">Platform Engineering · Internal</span></div><div><span class="ln">RB-114 · version 3.2</span></div></div><div class="main">
+<h1>Runbook: Deploying the Ledgerline Billing Service to Production</h1>
+<div class="meta">Owner: Billing Platform team · Last reviewed: 12 October 2026 · Expected duration: 45 minutes</div>
+<h2>1. Purpose</h2>
+<p>This runbook describes how to deploy a new release of the Ledgerline billing API to the production cluster. Follow the steps in order and record each completed step in the change ticket.</p>
+<h2>2. Prerequisites</h2>
+<ul>
+<li>An approved change ticket in the change calendar</li>
+<li>Membership of the billing-deployers group</li>
+<li>Helm 3.14 or later, and kubectl configured for the prod-eu-west context</li>
+<li>A green build of the release tag in the CI pipeline</li>
+</ul>
+<h2>3. Pre-deployment checks</h2>
+<ol>
+<li>Confirm that no billing run is in progress.
+  <ul>
+  <li>Check the Batch Jobs dashboard for active invoice runs.</li>
+  <li>If a run is active, wait for it to finish or postpone the deployment.</li>
+  </ul></li>
+<li>Announce the deployment in the #billing-ops channel at least 15 minutes beforehand.</li>
+<li>Compare the rendered manifests with the running release:</li>
+</ol>
+<pre>export RELEASE=2026.10.3
+kubectl config use-context prod-eu-west
+kubectl -n billing get deploy ledgerline-api -o wide
+helm diff upgrade ledgerline ./charts/ledgerline \
+  -n billing -f values/prod.yaml --set image.tag=$RELEASE</pre>
+<h2>4. Deployment</h2>
+<p>Run the upgrade with the atomic flag so that Helm rolls back automatically if the new pods fail their readiness checks.</p>
+<pre>helm upgrade ledgerline ./charts/ledgerline -n billing \
+  -f values/prod.yaml --set image.tag=$RELEASE \
+  --atomic --timeout 10m
+kubectl -n billing rollout status deploy/ledgerline-api</pre>
+<p>The rollout normally completes within six minutes. Do not interrupt the command while it is waiting.</p>
+</div><div class="ft"><div><span class="ln">Printed copies are uncontrolled. Check the wiki for the current version.</span></div><div><span class="ln">1/2</span></div></div></div>
+<div class="sheet last"><div class="rh"><div><span class="ln">Platform Engineering · Internal</span></div><div><span class="ln">RB-114 · version 3.2</span></div></div><div class="main">
+<h2>5. Configuration reference</h2>
+<p>The production values file sets the following options:</p>
+<pre>replicaCount: 6
+image:
+  repository: registry.internal.example/ledgerline-api
+  pullPolicy: IfNotPresent
+resources:
+  requests:
+    cpu: "500m"
+    memory: 768Mi
+  limits:
+    memory: 1Gi
+featureFlags:
+  invoiceBatchV2: true
+  legacyTaxEngine: false</pre>
+<p>Never edit <code>values/prod.yaml</code> directly on a workstation; changes must go through a reviewed merge request.</p>
+<h2>6. Verification</h2>
+<ol>
+<li>Check that all six pods report Ready.</li>
+<li>Run the synthetic invoice test in the monitoring tool and confirm that it passes.</li>
+<li>Watch the error-rate panel for 15 minutes.</li>
+</ol>
+<h2>7. Rollback</h2>
+<p>If the error rate stays above 2% for more than five minutes, roll back to the previous revision.</p>
+<pre>helm history ledgerline -n billing --max 5
+helm rollback ledgerline 0 -n billing --wait</pre>
+<h2>8. Contacts</h2>
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Team</th>
+<th>Escalation channel</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>Primary on-call</td>
+<td>Billing Platform</td>
+<td>Pager rota billing-primary</td>
+</tr>
+<tr>
+<td>Database support</td>
+<td>Data Platform</td>
+<td>#dba-help, then pager rota dba-oncall</td>
+</tr>
+<tr>
+<td>Change manager</td>
+<td>Service Management</td>
+<td>Change desk, extension 4410</td>
+</tr>
+</tbody></table>
+</div><div class="ft"><div><span class="ln">Printed copies are uncontrolled. Check the wiki for the current version.</span></div><div><span class="ln">2/2</span></div></div></div>
+</body>
+</html>

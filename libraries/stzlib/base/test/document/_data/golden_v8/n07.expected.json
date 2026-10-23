@@ -1,0 +1,146 @@
+{
+  "id": "n07",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Runbook: Deploying the Ledgerline Billing Service to Production",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Runbook: Deploying the Ledgerline Billing Service to Production"
+    },
+    {
+      "level": 2,
+      "text": "1. Purpose"
+    },
+    {
+      "level": 2,
+      "text": "2. Prerequisites"
+    },
+    {
+      "level": 2,
+      "text": "3. Pre-deployment checks"
+    },
+    {
+      "level": 2,
+      "text": "4. Deployment"
+    },
+    {
+      "level": 2,
+      "text": "5. Configuration reference"
+    },
+    {
+      "level": 2,
+      "text": "6. Verification"
+    },
+    {
+      "level": 2,
+      "text": "7. Rollback"
+    },
+    {
+      "level": 2,
+      "text": "8. Contacts"
+    }
+  ],
+  "key_sentences": [
+    "This runbook describes how to deploy a new release of the Ledgerline billing API to the production cluster.",
+    "Follow the steps in order and record each completed step in the change ticket.",
+    "Run the upgrade with the atomic flag so that Helm rolls back automatically if the new pods fail their readiness checks.",
+    "The rollout normally completes within six minutes.",
+    "Never edit values/prod.yaml directly on a workstation; changes must go through a reviewed merge request.",
+    "If the error rate stays above 2% for more than five minutes, roll back to the previous revision."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Role",
+          "Team",
+          "Escalation channel"
+        ],
+        [
+          "Primary on-call",
+          "Billing Platform",
+          "Pager rota billing-primary"
+        ],
+        [
+          "Database support",
+          "Data Platform",
+          "#dba-help, then pager rota dba-oncall"
+        ],
+        [
+          "Change manager",
+          "Service Management",
+          "Change desk, extension 4410"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "An approved change ticket in the change calendar"
+    },
+    {
+      "level": 0,
+      "text": "Membership of the billing-deployers group"
+    },
+    {
+      "level": 0,
+      "text": "Helm 3.14 or later, and kubectl configured for the prod-eu-west context"
+    },
+    {
+      "level": 0,
+      "text": "A green build of the release tag in the CI pipeline"
+    },
+    {
+      "level": 0,
+      "text": "Confirm that no billing run is in progress."
+    },
+    {
+      "level": 1,
+      "text": "Check the Batch Jobs dashboard for active invoice runs."
+    },
+    {
+      "level": 1,
+      "text": "If a run is active, wait for it to finish or postpone the deployment."
+    },
+    {
+      "level": 0,
+      "text": "Announce the deployment in the #billing-ops channel at least 15 minutes beforehand."
+    },
+    {
+      "level": 0,
+      "text": "Compare the rendered manifests with the running release:"
+    },
+    {
+      "level": 0,
+      "text": "Check that all six pods report Ready."
+    },
+    {
+      "level": 0,
+      "text": "Run the synthetic invoice test in the monitoring tool and confirm that it passes."
+    },
+    {
+      "level": 0,
+      "text": "Watch the error-rate panel for 15 minutes."
+    }
+  ],
+  "furniture": [
+    "Platform Engineering · Internal",
+    "RB-114 · version 3.2",
+    "Printed copies are uncontrolled. Check the wiki for the current version.",
+    "1/2",
+    "2/2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "export RELEASE=2026.10.3\nkubectl config use-context prod-eu-west\nkubectl -n billing get deploy ledgerline-api -o wide\nhelm diff upgrade ledgerline ./charts/ledgerline \\\n  -n billing -f values/prod.yaml --set image.tag=$RELEASE",
+    "helm upgrade ledgerline ./charts/ledgerline -n billing \\\n  -f values/prod.yaml --set image.tag=$RELEASE \\\n  --atomic --timeout 10m\nkubectl -n billing rollout status deploy/ledgerline-api",
+    "replicaCount: 6\nimage:\n  repository: registry.internal.example/ledgerline-api\n  pullPolicy: IfNotPresent\nresources:\n  requests:\n    cpu: \"500m\"\n    memory: 768Mi\n  limits:\n    memory: 1Gi\nfeatureFlags:\n  invoiceBatchV2: true\n  legacyTaxEngine: false",
+    "helm history ledgerline -n billing --max 5\nhelm rollback ledgerline 0 -n billing --wait"
+  ],
+  "notes": "Section numbers (1. Purpose ...) are typed in the heading text. The ordered list in section 3 has two level-1 bulleted sub-items under its first item. Code blocks keep their indentation and trailing backslashes. Header and footer left/right parts are separate furniture entries."
+}

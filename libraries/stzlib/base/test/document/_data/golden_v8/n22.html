@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Informe de resultados</title>
+<style>
+@page { size: A4; margin: 2cm }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box }
+html, body { margin: 0; padding: 0 }
+
+body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 9.4pt; color: #1d2433 }
+.lh { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #3b4cb8; padding-bottom: 6px }
+.org { font-size: 18pt; font-weight: 700; color: #3b4cb8; white-space: nowrap }
+.lh .sm { font-size: 8pt; color: #555; text-align: right; line-height: 1.45 }
+h1 { font-size: 14pt; text-align: center; margin: 10px 0 6px; color: #3b4cb8; letter-spacing: .5px }
+.pac { display: grid; grid-template-columns: 1.4fr 1fr; gap: 1px 14px; border: 1px solid #c5cbe8; padding: 5px 9px; margin-bottom: 8px; line-height: 1.5 }
+table { border-collapse: collapse; width: 100% }
+th { background: #e6e9f7; color: #2a3580; text-align: left; padding: 4px 6px; border-bottom: 1.5px solid #3b4cb8 }
+td { padding: 3px 6px; border-bottom: 1px solid #e3e6f2 }
+tr.sec td { font-weight: 700; color: #3b4cb8; padding-top: 7px; border-bottom: 1px solid #c5cbe8 }
+td.f { font-weight: 700; color: #b0221a }
+.leg { font-size: 8.4pt; color: #555; margin: 4px 0 8px }
+h2 { font-size: 11pt; color: #3b4cb8; margin: 10px 0 3px }
+p { margin: 3px 0 5px; line-height: 1.45 }
+.val { margin-top: 18px; line-height: 1.5 }
+.foot { position: fixed; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-between; font-size: 7.8pt; color: #555; border-top: 1px solid #c5cbe8; padding-top: 3px }
+</style>
+</head>
+<body>
+
+<div class="lh">
+  <div class="org"><span class="ln">Laboratorio Clínico del Valle Azul</span></div>
+  <div class="sm">
+    <div><span class="ln">Av. de los Fresnos 1450, Col. Jardines del Lago</span></div>
+    <div><span class="ln">Zapopan, Jal., C.P. 45150</span></div>
+    <div><span class="ln">Tel. 33 0000 4187 · resultados@lab-valleazul.example</span></div>
+    <div><span class="ln">Licencia sanitaria 14-AF-0418</span></div>
+  </div>
+</div>
+<h1>Informe de resultados</h1>
+<div class="pac">
+  <div><b>Paciente:</b> Rosa Elena Quintanilla Ríos</div><div><b>Folio:</b> VA-2026-104187</div>
+  <div><b>Edad:</b> 47 años · <b>Sexo:</b> Femenino</div><div><b>Toma de muestra:</b> 20/10/2026 07:45</div>
+  <div><b>Médico solicitante:</b> Dr. Ernesto Salgado Pineda</div><div><b>Emisión:</b> 20/10/2026 14:10</div>
+</div>
+<table>
+<thead>
+<tr>
+<th>Prueba</th>
+<th>Resultado</th>
+<th>Unidades</th>
+<th>Valores de referencia</th>
+</tr>
+</thead><tbody>
+<tr class="sec">
+<td colspan="4">BIOMETRÍA HEMÁTICA</td>
+</tr>
+<tr>
+<td>Hemoglobina</td>
+<td>12.9</td>
+<td>g/dL</td>
+<td>12.0 – 15.5</td>
+</tr>
+<tr>
+<td>Hematocrito</td>
+<td>38.6</td>
+<td>%</td>
+<td>36.0 – 46.0</td>
+</tr>
+<tr>
+<td>Leucocitos</td>
+<td>6.8</td>
+<td>x10³/µL</td>
+<td>4.5 – 11.0</td>
+</tr>
+<tr>
+<td>Plaquetas</td>
+<td>245</td>
+<td>x10³/µL</td>
+<td>150 – 400</td>
+</tr>
+<tr class="sec">
+<td colspan="4">QUÍMICA SANGUÍNEA</td>
+</tr>
+<tr>
+<td>Glucosa en ayuno</td>
+<td class="f">118 (A)</td>
+<td>mg/dL</td>
+<td>70 – 99</td>
+</tr>
+<tr>
+<td>Urea</td>
+<td>28</td>
+<td>mg/dL</td>
+<td>15 – 45</td>
+</tr>
+<tr>
+<td>Creatinina</td>
+<td>0.82</td>
+<td>mg/dL</td>
+<td>0.50 – 1.10</td>
+</tr>
+<tr>
+<td>Ácido úrico</td>
+<td>5.1</td>
+<td>mg/dL</td>
+<td>2.4 – 6.0</td>
+</tr>
+<tr class="sec">
+<td colspan="4">PERFIL DE LÍPIDOS</td>
+</tr>
+<tr>
+<td>Colesterol total</td>
+<td class="f">212 (A)</td>
+<td>mg/dL</td>
+<td>menor de 200</td>
+</tr>
+<tr>
+<td>Triglicéridos</td>
+<td class="f">168 (A)</td>
+<td>mg/dL</td>
+<td>menor de 150</td>
+</tr>
+<tr>
+<td>Colesterol HDL</td>
+<td class="f">44 (B)</td>
+<td>mg/dL</td>
+<td>mayor de 50</td>
+</tr>
+<tr>
+<td>Colesterol LDL (calculado)</td>
+<td class="f">134 (A)</td>
+<td>mg/dL</td>
+<td>menor de 130</td>
+</tr>
+</tbody></table>
+<div class="leg">(A) valor por arriba del intervalo de referencia · (B) valor por debajo del intervalo de referencia</div>
+<h2>Comentarios</h2>
+<p>La glucosa en ayuno se encuentra por arriba del intervalo de referencia. Se sugiere repetir la determinación y valorar una prueba de hemoglobina glucosilada.</p>
+<p>El perfil de lípidos muestra colesterol total y triglicéridos elevados, con colesterol HDL bajo. Interprete estos resultados junto con su médico tratante.</p>
+<div class="val">Validó: Q.F.B. María Fernanda Ortega Leal<br>Cédula profesional 0418722</div>
+<div class="foot"><div><span class="ln">Este informe se emite electrónicamente y es válido sin firma autógrafa.</span></div><div><span class="ln">Hoja 1 de 1</span></div></div>
+
+</body>
+</html>

@@ -1,0 +1,121 @@
+{
+  "id": "n19",
+  "difficulty": "easy",
+  "pages": 1,
+  "title": "Vacancy Announcement: Monitoring, Evaluation and Learning Officer",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Vacancy Announcement: Monitoring, Evaluation and Learning Officer"
+    },
+    {
+      "level": 2,
+      "text": "About us"
+    },
+    {
+      "level": 2,
+      "text": "Key responsibilities"
+    },
+    {
+      "level": 2,
+      "text": "Qualifications and experience"
+    },
+    {
+      "level": 2,
+      "text": "How to apply"
+    }
+  ],
+  "key_sentences": [
+    "LARL is a non-profit organisation that helps smallholder farmers around Lake Kyoga to raise their incomes and adapt to a changing climate.",
+    "We currently work with 18,000 households in five districts.",
+    "Send a cover letter and a CV of no more than three pages to jobs@larl.example, quoting the reference number in the subject line.",
+    "Only shortlisted candidates will be contacted.",
+    "LARL does not charge any fee at any stage of the recruitment process."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Reference",
+          "LARL/HR/2026/031"
+        ],
+        [
+          "Duty station",
+          "Mbale, with frequent travel to Bukedea and Kumi"
+        ],
+        [
+          "Contract",
+          "Two years, renewable subject to funding and performance"
+        ],
+        [
+          "Reporting to",
+          "Programme Manager"
+        ],
+        [
+          "Closing date",
+          "14 November 2026, 17:00 East Africa Time"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Maintain the programme’s results framework and indicator reference sheets."
+    },
+    {
+      "level": 0,
+      "text": "Plan and supervise baseline, midline and endline surveys."
+    },
+    {
+      "level": 0,
+      "text": "Train field officers in data collection and data quality checks."
+    },
+    {
+      "level": 0,
+      "text": "Prepare quarterly progress reports and dashboards for donors and partners."
+    },
+    {
+      "level": 0,
+      "text": "Organise learning reviews with farmer groups and district officials."
+    },
+    {
+      "level": 0,
+      "text": "A bachelor’s degree in statistics, economics, agriculture or a related field"
+    },
+    {
+      "level": 0,
+      "text": "At least three years of experience in monitoring and evaluation, including:"
+    },
+    {
+      "level": 1,
+      "text": "designing household surveys and sampling plans"
+    },
+    {
+      "level": 1,
+      "text": "managing data collection on mobile phones or tablets"
+    },
+    {
+      "level": 0,
+      "text": "Strong skills in spreadsheets and in at least one statistical package"
+    },
+    {
+      "level": 0,
+      "text": "Fluency in English; knowledge of Ateso or Lusoga is an advantage"
+    }
+  ],
+  "furniture": [
+    "LARL",
+    "Lakeshore Alliance for Rural Livelihoods",
+    "Plot 22, Kanyanja Road · P.O. Box 4187, Mbale, Uganda",
+    "Tel. +256 39 000 4187 · jobs@larl.example",
+    "LARL is an equal opportunity employer. Women and people with disabilities are encouraged to apply.",
+    "Registered NGO No. 0418/2014 · www.larl.example"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "The vacancy details box is a 2-column key/value table with NO header row. The second qualification item has two level-1 sub-items. The logo box text 'LARL' is letterhead furniture."
+}

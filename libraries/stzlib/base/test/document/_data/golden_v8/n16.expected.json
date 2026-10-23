@@ -1,0 +1,160 @@
+{
+  "id": "n16",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Preparation of Luria–Bertani (LB) Agar Plates",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Preparation of Luria–Bertani (LB) Agar Plates"
+    },
+    {
+      "level": 2,
+      "text": "1 Purpose"
+    },
+    {
+      "level": 2,
+      "text": "2 Scope"
+    },
+    {
+      "level": 2,
+      "text": "3 Safety"
+    },
+    {
+      "level": 2,
+      "text": "4 Materials"
+    },
+    {
+      "level": 2,
+      "text": "5 Procedure"
+    },
+    {
+      "level": 2,
+      "text": "6 Storage and records"
+    }
+  ],
+  "key_sentences": [
+    "This procedure describes the preparation, sterilisation and pouring of LB agar plates for routine bacterial culture.",
+    "It applies to all staff and students who prepare media in the Media Preparation Unit.",
+    "Store the plates inverted at 2–8 °C and use them within four weeks.",
+    "Record the batch number, date and preparer in the media log.",
+    "Discard any plate that shows contamination, cracking or drying."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Document no.",
+          "Version",
+          "Effective date",
+          "Next review",
+          "Approved by"
+        ],
+        [
+          "SOP-MB-017",
+          "4.0",
+          "1 September 2026",
+          "1 September 2028",
+          "Head of Media Preparation"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Component",
+          "Amount per litre",
+          "Grade"
+        ],
+        [
+          "Tryptone",
+          "10 g",
+          "Microbiology grade"
+        ],
+        [
+          "Yeast extract",
+          "5 g",
+          "Microbiology grade"
+        ],
+        [
+          "Sodium chloride",
+          "10 g",
+          "Analytical reagent"
+        ],
+        [
+          "Agar",
+          "15 g",
+          "Bacteriological"
+        ],
+        [
+          "Purified water",
+          "to 1000 mL",
+          "Type II"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Wear a laboratory coat, safety glasses and heat-resistant gloves when handling hot media."
+    },
+    {
+      "level": 0,
+      "text": "Never open the autoclave until the chamber pressure has returned to zero."
+    },
+    {
+      "level": 0,
+      "text": "Report any burn or spillage to the unit supervisor immediately."
+    },
+    {
+      "level": 0,
+      "text": "Weigh the dry components into a 2 L glass bottle."
+    },
+    {
+      "level": 0,
+      "text": "Add 900 mL of purified water and stir until the powders are fully suspended."
+    },
+    {
+      "level": 0,
+      "text": "Adjust the volume to 1000 mL."
+    },
+    {
+      "level": 0,
+      "text": "Sterilise by autoclaving:"
+    },
+    {
+      "level": 1,
+      "text": "121 °C for 15 minutes on the liquid cycle;"
+    },
+    {
+      "level": 1,
+      "text": "loosen the cap by a quarter turn before loading."
+    },
+    {
+      "level": 0,
+      "text": "Cool the medium to about 50 °C in a water bath."
+    },
+    {
+      "level": 0,
+      "text": "If required, add the antibiotic aseptically and swirl gently to mix."
+    },
+    {
+      "level": 0,
+      "text": "Pour approximately 20 mL into each sterile Petri dish and allow the plates to set."
+    }
+  ],
+  "furniture": [
+    "Kestrel Ridge Institute for Applied Microbiology",
+    "Media Preparation Unit · Building C, 40 Larchmere Road, Kestrel Ridge KR7 2PD · Tel. 01632 960 733",
+    "Uncontrolled when printed",
+    "SOP-MB-017 v4.0 · Page 1 of 1"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "The document-control table sits between the letterhead and the title. Procedure step 4 has two nested sub-steps (CSS lower-alpha markers, not included). Section numbers (1 Purpose ...) are typed in the heading text."
+}

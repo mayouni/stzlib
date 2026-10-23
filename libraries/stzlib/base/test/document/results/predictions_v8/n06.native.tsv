@@ -1,0 +1,33 @@
+page_header	0	Industriestraße 18 · 73529 Lindenhain
+heading	1	Wendrich Pumpentechnik GmbH
+paragraph	0	Tel. +49 7171 000-418 · Fax +49 7171 000-419 vertrieb@wendrich-pumpen.example www.wendrich-pumpen.example
+heading	2	Technisches Datenblatt: Kreiselpumpe KP 40-160
+heading	3	Beschreibung
+paragraph	0	Die KP 40-160 ist eine einstufige, normalsaugende Spiralgehäusepumpe in Blockbauweise. Sie eignet sich zur Förderung von reinen oder leicht verschmutzten Flüssigkeiten ohne abrasive Bestandteile. Das Laufrad ist dynamisch gewuchtet und axial hydraulisch entlastet.
+paragraph	0	Motor und Pumpe sitzen auf einer gemeinsamen
+heading	3	Technische Daten
+heading	4	Merkmal
+heading	4	Hydraulik
+paragraph	0	Förderstrom max. Förderhöhe max. Zulaufdruck max. Flüssigkeitstemperatur
+heading	4	Wert
+paragraph	0	42 m³/h 36 m 6 bar −10 bis +120 °C
+table	0	Welle, sodass keine Kupplung ausgerichtet werdenMotorBemessungsleistungBemessungsleistung4,0 kWEinsatzbereicheDrehzahl2900 1/minSpannungSpannung400 V, 3~, 50 HzHeizungs- und KühlkreisläufeSchutzartIP55Bewässerung in Landwirtschaft und GartenbauEffizienzklasseIE3
+paragraph	0	muss.
+list_item	0	Wasserversorgung und Druckerhöhung
+list_item	0	Industrielle Prozesswasserkreisläufe
+heading	3	Werkstoffe
+paragraph	0	Bauteil Pumpengehäuse Laufrad Welle Gleitringdichtung
+paragraph	0	Werkstoff EN-GJL-250 (Grauguss) CuSn10 (Bronze) 1.4021 (nichtrostender Stahl) Kohle / Siliziumkarbid / EPDM
+heading	4	Anschlüsse und Gewicht
+paragraph	0	Saugstutzen
+paragraph	0	DN 65
+paragraph	0	Druckstutzen
+paragraph	0	DN 40
+paragraph	0	Gewicht
+paragraph	0	58 kg
+heading	3	Kennlinie bei 2900 1/min
+table	0	Förderstrom Q (m³/h)010203040Förderhöhe H (m)36,035,232,828,121,4Wirkungsgrad η (%)048647066Leistungsbedarf P₂ (kW)1,22,02,83,33,6
+heading	4	Hinweis:
+paragraph	0	Die Kennlinien gelten für Wasser mit 20 °C und einer Dichte von 1000 kg/m³. Toleranzen der Kennlinien nach ISO 9906, Klasse 3B.
+page_footer	0	Technische Änderungen vorbehalten. Stand 09/2026
+page_footer	0	DB-KP40160-DE · Rev. C

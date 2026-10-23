@@ -1,0 +1,86 @@
+{
+  "id": "n18",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "Cardápio",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Cardápio"
+    },
+    {
+      "level": 2,
+      "text": "Entradas"
+    },
+    {
+      "level": 2,
+      "text": "Pratos principais"
+    },
+    {
+      "level": 2,
+      "text": "Sobremesas"
+    },
+    {
+      "level": 2,
+      "text": "Bebidas"
+    }
+  ],
+  "key_sentences": [
+    "Seis unidades, servidas com molho de pimenta da casa.",
+    "Recheado com vatapá, caruru, vinagrete e camarão seco.",
+    "Peixe do dia cozido no leite de coco e no azeite de dendê, servido com arroz, pirão e farofa.",
+    "Opção vegetariana, com pimentões, tomate e leite de coco.",
+    "Os pratos principais servem duas pessoas.",
+    "A taxa de serviço de 10% é opcional.",
+    "Informe ao garçom se tiver alguma alergia ou restrição alimentar."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Bebida",
+          "Copo",
+          "Jarra"
+        ],
+        [
+          "Suco de cajá",
+          "R$ 12,00",
+          "R$ 30,00"
+        ],
+        [
+          "Suco de mangaba",
+          "R$ 12,00",
+          "R$ 30,00"
+        ],
+        [
+          "Limonada suíça",
+          "R$ 14,00",
+          "R$ 34,00"
+        ],
+        [
+          "Água de coco",
+          "R$ 10,00",
+          "—"
+        ],
+        [
+          "Caipirinha de limão",
+          "R$ 24,00",
+          "R$ 68,00"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "Cantina Beira-Rio",
+    "Cozinha baiana desde 1998",
+    "Rua das Palmeiras, 210 · Centro · Ilhéus Nova · Reservas: (73) 3000-4187",
+    "@cantinabeirario · Aberto de terça a domingo, das 11h30 às 23h"
+  ],
+  "languages": [
+    "pt"
+  ],
+  "code": [],
+  "notes": "Dish names with prices (e.g. 'Moqueca de peixe ... R$ 118,00') are body text lines laid out with flex and dotted leaders; they are NOT headings and NOT a table. The only table is the drinks table (Bebida, Copo, Jarra). Read the left column (Entradas, Pratos principais) before the right column (Sobremesas, Bebidas)."
+}

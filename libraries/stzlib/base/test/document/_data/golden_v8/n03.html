@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Discharge Summary</title>
+<style>
+@page { size: A4; margin: 0 }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box }
+html, body { margin: 0; padding: 0 }
+.sheet { position: relative; width: 210mm; height: 296mm; overflow: hidden; break-after: page; page-break-after: always }
+.sheet.last { break-after: auto; page-break-after: auto }
+
+body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 9.3pt; color: #222 }
+.main { position: absolute; left: 20mm; right: 20mm; top: 44mm; bottom: 22mm }
+.sheet.p2 .main { top: 24mm }
+.lh { position: absolute; top: 12mm; left: 20mm; right: 20mm; border-bottom: 4px solid #0b6e8a; padding-bottom: 5px }
+.org { font-size: 21pt; font-weight: 700; color: #0b6e8a }
+.lh .sm { font-size: 8.3pt; color: #4a5a63; line-height: 1.4 }
+.rh { position: absolute; top: 11mm; left: 20mm; right: 20mm; font-size: 8pt; color: #4a5a63; border-bottom: 1px solid #9bb7c2; padding-bottom: 3px }
+.ft { position: absolute; bottom: 10mm; left: 20mm; right: 20mm; font-size: 7.8pt; color: #4a5a63; border-top: 1px solid #9bb7c2; padding-top: 3px; display: flex; justify-content: space-between }
+h1 { font-size: 17pt; margin: 0 0 8px; color: #0b6e8a; font-weight: 600 }
+h2 { font-size: 11pt; margin: 12px 0 4px; color: #0b6e8a; border-bottom: 1px solid #d3e3e9; padding-bottom: 1px }
+p { margin: 3px 0 5px; line-height: 1.45 }
+table { border-collapse: collapse; width: 100% }
+table.kv td { border: 1px solid #b9cfd7; padding: 3px 6px }
+table.kv td:nth-child(odd) { background: #eaf3f6; font-weight: 600; width: 17% }
+table.lab th, table.lab td, table.med th, table.med td { border: 1px solid #b9cfd7; padding: 3px 6px; text-align: left }
+table.lab th, table.med th { background: #d9eaf0 }
+table.lab td.c { text-align: center }
+ol, ul { margin: 3px 0 6px; padding-left: 22px; line-height: 1.5 }
+.sig { margin-top: 18px; line-height: 1.6 }
+</style>
+</head>
+<body>
+
+<div class="sheet">
+<div class="lh">
+  <div class="org"><span class="ln">St Brannoc Community Hospital</span></div>
+  <div class="sm"><span class="ln">Riverside Wing, 12 Mill Lane, Ashcombe AC4 9RT</span></div>
+  <div class="sm"><span class="ln">Switchboard 01632 960 112 · Acute Medical Unit 01632 960 175 · www.stbrannoc-hospital.example</span></div>
+</div>
+<div class="main">
+<h1>Discharge Summary</h1>
+<table class="kv">
+<tbody>
+<tr>
+<td>Patient</td>
+<td>Mrs Evelyn Marsh-Okafor</td>
+<td>Hospital no.</td>
+<td>7731 0428</td>
+</tr>
+<tr>
+<td>Date of birth</td>
+<td>3 February 1951</td>
+<td>Ward</td>
+<td>Lyndon Ward (Acute Medical Unit)</td>
+</tr>
+<tr>
+<td>Admitted</td>
+<td>27 September 2026</td>
+<td>Discharged</td>
+<td>6 October 2026</td>
+</tr>
+<tr>
+<td>Consultant</td>
+<td>Dr R. Saldanha</td>
+<td>GP</td>
+<td>Dr H. Lindqvist, Ashcombe Health Centre</td>
+</tr>
+</tbody></table>
+<h2>Diagnosis</h2>
+<p>Primary: community-acquired pneumonia, right lower lobe.<br>Secondary: acute kidney injury, stage 1, resolved.</p>
+<h2>Reason for admission</h2>
+<p>Mrs Marsh-Okafor presented with four days of productive cough, fever and increasing breathlessness. On arrival she was hypoxic, with oxygen saturations of 88% on room air, and a chest radiograph showed right lower lobe consolidation.</p>
+<h2>Clinical course</h2>
+<p>She was treated with intravenous co-amoxiclav and oral clarithromycin, and the antibiotics were switched to tablets on day four. Her kidney function worsened on admission and recovered with intravenous fluids and the temporary withholding of ramipril. Supplementary oxygen was weaned off by day five, and she walked independently on the ward before discharge.</p>
+<h2>Investigations</h2>
+<table class="lab">
+<thead>
+<tr>
+<th rowspan="2">Test</th>
+<th colspan="2">Admission</th>
+<th colspan="2">Discharge</th>
+<th rowspan="2">Reference range</th>
+</tr>
+<tr>
+<th>Value</th>
+<th>Flag</th>
+<th>Value</th>
+<th>Flag</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>Haemoglobin (g/L)</td>
+<td class="c">102</td>
+<td class="c">L</td>
+<td class="c">114</td>
+<td class="c">L</td>
+<td>120–160</td>
+</tr>
+<tr>
+<td>White cell count (x10⁹/L)</td>
+<td class="c">14.8</td>
+<td class="c">H</td>
+<td class="c">8.2</td>
+<td></td>
+<td>4.0–11.0</td>
+</tr>
+<tr>
+<td>C-reactive protein (mg/L)</td>
+<td class="c">186</td>
+<td class="c">H</td>
+<td class="c">22</td>
+<td class="c">H</td>
+<td>below 5</td>
+</tr>
+<tr>
+<td>Sodium (mmol/L)</td>
+<td class="c">131</td>
+<td class="c">L</td>
+<td class="c">137</td>
+<td></td>
+<td>133–146</td>
+</tr>
+<tr>
+<td>Creatinine (µmol/L)</td>
+<td class="c">128</td>
+<td class="c">H</td>
+<td class="c">94</td>
+<td></td>
+<td>45–90</td>
+</tr>
+<tr>
+<td>eGFR (mL/min/1.73 m²)</td>
+<td class="c">38</td>
+<td class="c">L</td>
+<td class="c">56</td>
+<td class="c">L</td>
+<td>above 60</td>
+</tr>
+</tbody></table>
+</div>
+<div class="ft"><div><span class="ln">Confidential – contains patient-identifiable information</span></div><div><span class="ln">Page 1 of 2</span></div></div>
+</div>
+<div class="sheet p2 last">
+<div class="rh"><span class="ln">Discharge Summary · Mrs Evelyn Marsh-Okafor · Hospital no. 7731 0428</span></div>
+<div class="main">
+<h2>Medications on discharge</h2>
+<table class="med">
+<thead>
+<tr>
+<th>Medicine</th>
+<th>Dose</th>
+<th>Frequency</th>
+<th>Duration</th>
+<th>Status</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>Amoxicillin</td>
+<td>500 mg</td>
+<td>Three times a day</td>
+<td>3 more days</td>
+<td>New</td>
+</tr>
+<tr>
+<td>Clarithromycin</td>
+<td>500 mg</td>
+<td>Twice a day</td>
+<td>3 more days</td>
+<td>New</td>
+</tr>
+<tr>
+<td>Ramipril</td>
+<td>5 mg</td>
+<td>Once a day</td>
+<td>Ongoing</td>
+<td>Withheld – restart after blood test</td>
+</tr>
+<tr>
+<td>Amlodipine</td>
+<td>5 mg</td>
+<td>Once a day</td>
+<td>Ongoing</td>
+<td>Unchanged</td>
+</tr>
+<tr>
+<td>Paracetamol</td>
+<td>1 g</td>
+<td>Up to four times a day</td>
+<td>As needed</td>
+<td>Unchanged</td>
+</tr>
+</tbody></table>
+<h2>Follow-up</h2>
+<ol>
+<li>Repeat kidney function blood test at the GP surgery within 7 days.</li>
+<li>GP to restart ramipril if creatinine is below 100 µmol/L.</li>
+<li>Chest X-ray in 6 weeks to confirm that the consolidation has resolved.</li>
+</ol>
+<h2>Advice given to the patient</h2>
+<ul>
+<li>Complete the full course of antibiotics.</li>
+<li>Drink at least 1.5 litres of fluid a day unless advised otherwise.</li>
+<li>Return to hospital if breathlessness worsens or the fever comes back.</li>
+</ul>
+<p>The patient and her daughter were given a copy of this summary and had the opportunity to ask questions.</p>
+<div class="sig">Completed by: Dr A. Ferreira-Lund, Specialty Registrar, Acute Medicine<br>Date: 6 October 2026<br>Copy to: GP (electronic), patient</div>
+</div>
+<div class="ft"><div><span class="ln">Confidential – contains patient-identifiable information</span></div><div><span class="ln">Page 2 of 2</span></div></div>
+</div>
+</body>
+</html>

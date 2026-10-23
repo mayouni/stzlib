@@ -1,0 +1,166 @@
+{
+  "id": "n21",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "3 Configuration",
+  "headings": [
+    {
+      "level": 1,
+      "text": "3 Configuration"
+    },
+    {
+      "level": 2,
+      "text": "3.1 Configuration file location"
+    },
+    {
+      "level": 2,
+      "text": "3.2 A minimal configuration"
+    },
+    {
+      "level": 2,
+      "text": "3.3 Parameter reference"
+    },
+    {
+      "level": 2,
+      "text": "3.4 Environment variable overrides"
+    },
+    {
+      "level": 2,
+      "text": "3.5 Validating a configuration"
+    }
+  ],
+  "key_sentences": [
+    "Tidewater reads its settings from a single TOML file when the server starts.",
+    "Most settings can also be overridden with environment variables, which is convenient in container deployments.",
+    "Changes to the [storage] section take effect only after a full restart; a reload signal is not enough.",
+    "Any parameter can be set through an environment variable whose name is TIDEWATER_ followed by the section and the key in capital letters.",
+    "Environment variables take precedence over values in the configuration file.",
+    "The validator exits with status 1 if it finds an unknown parameter or a value of the wrong type."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Parameter",
+          "Type",
+          "Default",
+          "Description"
+        ],
+        [
+          "server.bind",
+          "string",
+          "\"127.0.0.1:7420\"",
+          "Address and port on which the server accepts client connections."
+        ],
+        [
+          "server.data_dir",
+          "path",
+          "/var/lib/tidewater",
+          "Directory for queue segments and metadata."
+        ],
+        [
+          "server.max_connections",
+          "integer",
+          "1024",
+          "Maximum number of simultaneous client connections."
+        ],
+        [
+          "server.idle_timeout_s",
+          "integer",
+          "300",
+          "Seconds after which an idle connection is closed."
+        ],
+        [
+          "storage.segment_size_mb",
+          "integer",
+          "128",
+          "Size at which a segment file is rolled over."
+        ],
+        [
+          "storage.fsync",
+          "string",
+          "\"interval\"",
+          "When data is flushed to disk: \"always\", \"batch\" or \"interval\"."
+        ],
+        [
+          "storage.fsync_interval_ms",
+          "integer",
+          "200",
+          "Flush interval when fsync is \"interval\"."
+        ],
+        [
+          "storage.retention_hours",
+          "integer",
+          "72",
+          "How long acknowledged messages are kept."
+        ],
+        [
+          "storage.compression",
+          "string",
+          "\"none\"",
+          "Segment compression: \"none\", \"lz4\" or \"zstd\"."
+        ],
+        [
+          "auth.mode",
+          "string",
+          "\"none\"",
+          "Client authentication: \"none\", \"token\" or \"mtls\"."
+        ],
+        [
+          "auth.token_file",
+          "path",
+          "(none)",
+          "JSON file holding the accepted client tokens."
+        ],
+        [
+          "tls.cert_file",
+          "path",
+          "(none)",
+          "Server certificate in PEM format."
+        ],
+        [
+          "tls.key_file",
+          "path",
+          "(none)",
+          "Private key for the server certificate."
+        ],
+        [
+          "metrics.enabled",
+          "boolean",
+          "true",
+          "Exposes server metrics in plain text over HTTP."
+        ],
+        [
+          "metrics.bind",
+          "string",
+          "\"127.0.0.1:9420\"",
+          "Address of the metrics endpoint."
+        ],
+        [
+          "log.level",
+          "string",
+          "\"info\"",
+          "One of \"error\", \"warn\", \"info\", \"debug\" or \"trace\"."
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "Tidewater Queue Server 4.2 · Administrator Guide",
+    "Chapter 3 · Configuration",
+    "3-1",
+    "3-2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "tidewater-server --config /opt/tidewater/conf/prod.toml",
+    "[server]\nbind = \"0.0.0.0:7420\"\ndata_dir = \"/var/lib/tidewater\"\nmax_connections = 2048\n\n[storage]\nsegment_size_mb = 256\nfsync = \"batch\"\nretention_hours = 168\n\n[auth]\nmode = \"token\"\ntoken_file = \"/etc/tidewater/tokens.json\"",
+    "export TIDEWATER_SERVER_MAX_CONNECTIONS=4096\nexport TIDEWATER_STORAGE_FSYNC=always\nexport TIDEWATER_LOG_LEVEL=debug",
+    "$ tidewater-server check --config /etc/tidewater/tidewater.toml\nconfig OK: 14 parameters set, 0 warnings"
+  ],
+  "notes": "Page numbers are '3-1' (bottom right) and '3-2' (bottom left). The parameter table runs from page 1 to page 2 and repeats its header row; the expected table lists the header once. The note box label 'Note' is not a heading. The console code block keeps its '$ ' prompt and output line exactly."
+}

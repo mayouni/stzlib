@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Plan de cours : ECO 2104 – Statistique appliquée à l’économie</title>
+<style>
+@page { size: A4; margin: 0 }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box }
+html, body { margin: 0; padding: 0 }
+.sheet { position: relative; width: 210mm; height: 296mm; overflow: hidden; break-after: page; page-break-after: always }
+.sheet.last { break-after: auto; page-break-after: auto }
+
+body { font-family: Cambria, Georgia, serif; font-size: 10pt; color: #20232a }
+.main { position: absolute; left: 20mm; right: 20mm; top: 40mm; bottom: 20mm }
+.p2 .main { top: 18mm }
+.lh { position: absolute; top: 11mm; left: 20mm; right: 20mm; display: flex; align-items: flex-end; justify-content: space-between; border-bottom: 2px solid #8c1d40; padding-bottom: 5px }
+.org { font-family: 'Gill Sans MT', Calibri, sans-serif; font-size: 21pt; color: #8c1d40; white-space: nowrap }
+.lh .sm { font-family: 'Gill Sans MT', Calibri, sans-serif; font-size: 8.4pt; color: #555; text-align: right; line-height: 1.4 }
+.ft { position: absolute; bottom: 9mm; left: 20mm; right: 20mm; display: flex; justify-content: space-between; font-family: 'Gill Sans MT', Calibri, sans-serif; font-size: 8.4pt; color: #666 }
+h1 { font-family: 'Gill Sans MT', Calibri, sans-serif; font-size: 15pt; margin: 0 0 6px; color: #8c1d40; font-weight: normal }
+.info { display: grid; grid-template-columns: 1fr 1fr; gap: 1px 16px; font-size: 9.2pt; background: #f7eef1; padding: 5px 8px; margin-bottom: 6px }
+h2 { font-family: 'Gill Sans MT', Calibri, sans-serif; font-size: 12pt; color: #8c1d40; margin: 10px 0 3px }
+p { margin: 3px 0 5px; line-height: 1.42; text-align: justify }
+ol, ul { margin: 2px 0 5px; padding-left: 22px; line-height: 1.42 }
+table { border-collapse: collapse; width: 100%; font-size: 9.3pt; margin: 3px 0 6px }
+th { background: #8c1d40; color: #fff; padding: 3px 5px; text-align: left; font-family: 'Gill Sans MT', Calibri, sans-serif; font-weight: normal }
+td { padding: 2.6px 5px; border-bottom: 1px solid #e3cbd3 }
+td.c, th.c { text-align: center }
+tr.tot td { font-weight: 700; border-top: 1.5px solid #8c1d40 }
+pre { font-family: Consolas, monospace; font-size: 8.6pt; background: #f4f4f4; border: 1px solid #ddd; padding: 6px 8px; margin: 4px 0 6px; line-height: 1.35 }
+</style>
+</head>
+<body>
+
+<div class="sheet">
+<div class="lh">
+  <div class="org"><span class="ln">Université de Lisière</span></div>
+  <div class="sm">
+    <div><span class="ln">Faculté des sciences économiques et de gestion</span></div>
+    <div><span class="ln">Département d’économie appliquée</span></div>
+    <div><span class="ln">3, allée des Tilleuls · 21300 Lisière</span></div>
+  </div>
+</div>
+<div class="main">
+<h1>Plan de cours : ECO 2104 – Statistique appliquée à l’économie</h1>
+<div class="info">
+  <div><b>Enseignante :</b> Pr Mathilde Garnier-Oyono</div><div><b>Bureau :</b> B-214</div>
+  <div><b>Courriel :</b> m.garnier@univ-lisiere.example</div><div><b>Séances :</b> mardi, 8 h 30 – 11 h 30</div>
+</div>
+<h2>Description du cours</h2>
+<p>Ce cours initie les étudiants aux méthodes statistiques utilisées pour décrire et analyser des données économiques. Il met l’accent sur l’interprétation des résultats plutôt que sur les démonstrations mathématiques.</p>
+<h2>Objectifs d’apprentissage</h2>
+<ol>
+<li>Décrire une distribution à l’aide d’indicateurs de position et de dispersion</li>
+<li>Construire et interpréter un intervalle de confiance</li>
+<li>Mettre en œuvre un test d’hypothèse et en discuter les limites</li>
+<li>Estimer et interpréter un modèle de régression linéaire simple</li>
+</ol>
+<h2>Préalables</h2>
+<p>Le cours ECO 1101 (Mathématiques pour économistes) doit avoir été réussi. Une connaissance élémentaire d’un tableur est souhaitable, mais aucune expérience de programmation n’est exigée.</p>
+<h2>Matériel pédagogique</h2>
+<ul>
+<li>Manuel : Statistique pour l’économie et la gestion, 4e édition (disponible à la bibliothèque)</li>
+<li>Recueil d’exercices corrigés, vendu à la coopérative étudiante</li>
+<li>Diapositives et jeux de données déposés chaque semaine sur l’espace numérique du cours</li>
+</ul>
+<h2>Calendrier des séances</h2>
+<table>
+<thead>
+<tr>
+<th class="c">Semaine</th>
+<th>Date</th>
+<th>Thème</th>
+<th>Lectures</th>
+</tr>
+</thead><tbody>
+<tr>
+<td class="c">1</td>
+<td>8 sept.</td>
+<td>Présentation du cours ; types de données</td>
+<td>Chap. 1</td>
+</tr>
+<tr>
+<td class="c">2</td>
+<td>15 sept.</td>
+<td>Statistique descriptive univariée</td>
+<td>Chap. 2</td>
+</tr>
+<tr>
+<td class="c">3</td>
+<td>22 sept.</td>
+<td>Représentations graphiques</td>
+<td>Chap. 3</td>
+</tr>
+<tr>
+<td class="c">4</td>
+<td>29 sept.</td>
+<td>Probabilités : rappels</td>
+<td>Chap. 4</td>
+</tr>
+<tr>
+<td class="c">5</td>
+<td>6 oct.</td>
+<td>Loi normale et échantillonnage</td>
+<td>Chap. 5</td>
+</tr>
+<tr>
+<td class="c">6</td>
+<td>13 oct.</td>
+<td>Intervalles de confiance</td>
+<td>Chap. 6</td>
+</tr>
+<tr>
+<td class="c">7</td>
+<td>20 oct.</td>
+<td>Examen intra (2 h)</td>
+<td>—</td>
+</tr>
+<tr>
+<td class="c">8</td>
+<td>3 nov.</td>
+<td>Tests d’hypothèse</td>
+<td>Chap. 7</td>
+</tr>
+<tr>
+<td class="c">9</td>
+<td>10 nov.</td>
+<td>Comparaison de deux moyennes</td>
+<td>Chap. 8</td>
+</tr>
+<tr>
+<td class="c">10</td>
+<td>17 nov.</td>
+<td>Corrélation</td>
+<td>Chap. 9</td>
+</tr>
+<tr>
+<td class="c">11</td>
+<td>24 nov.</td>
+<td>Régression linéaire simple</td>
+<td>Chap. 10</td>
+</tr>
+</tbody></table>
+</div><div class="ft"><div><span class="ln">ECO 2104 – Plan de cours – Automne 2026</span></div><div><span class="ln">— 1 —</span></div></div></div>
+<div class="sheet p2 last">
+<div class="main">
+<table>
+<thead>
+<tr>
+<th class="c">Semaine</th>
+<th>Date</th>
+<th>Thème</th>
+<th>Lectures</th>
+</tr>
+</thead><tbody>
+<tr>
+<td class="c">12</td>
+<td>1er déc.</td>
+<td>Régression : diagnostic des résidus</td>
+<td>Chap. 10</td>
+</tr>
+<tr>
+<td class="c">13</td>
+<td>8 déc.</td>
+<td>Révision générale</td>
+<td>—</td>
+</tr>
+</tbody></table>
+<p>Aucune séance n’a lieu pendant la semaine de lecture, du 26 au 30 octobre.</p>
+<h2>Évaluation</h2>
+<table>
+<thead>
+<tr>
+<th>Composante</th>
+<th class="c">Pondération</th>
+<th>Date</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>Travaux dirigés (4 rendus)</td>
+<td class="c">20 %</td>
+<td>Tout au long du trimestre</td>
+</tr>
+<tr>
+<td>Examen intra</td>
+<td class="c">30 %</td>
+<td>20 octobre 2026</td>
+</tr>
+<tr>
+<td>Projet d’analyse de données</td>
+<td class="c">15 %</td>
+<td>1er décembre 2026</td>
+</tr>
+<tr>
+<td>Examen final</td>
+<td class="c">35 %</td>
+<td>15 décembre 2026</td>
+</tr>
+<tr class="tot">
+<td>Total</td>
+<td class="c">100 %</td>
+<td></td>
+</tr>
+</tbody></table>
+<h2>Logiciel</h2>
+<p>Les travaux dirigés se font avec le logiciel libre R, installé dans toutes les salles informatiques. Avant la deuxième séance, installez les extensions nécessaires :</p>
+<pre>install.packages(c("readr", "dplyr", "ggplot2"))
+library(dplyr)
+notes &lt;- readr::read_csv("notes_td.csv")
+notes |&gt;
+  group_by(groupe) |&gt;
+  summarise(moyenne = mean(note), n = n())</pre>
+<h2>Règles du cours</h2>
+<ul>
+<li>Tout retard de remise entraîne une pénalité de 10 % par jour.</li>
+<li>Le plagiat est sanctionné conformément au règlement des études.</li>
+<li>La présence aux travaux dirigés est obligatoire.</li>
+</ul>
+<p>Les étudiants en situation de handicap peuvent demander des aménagements auprès du service d’accueil dès le début du trimestre.</p>
+</div><div class="ft"><div><span class="ln">ECO 2104 – Plan de cours – Automne 2026</span></div><div><span class="ln">— 2 —</span></div></div></div>
+</body>
+</html>

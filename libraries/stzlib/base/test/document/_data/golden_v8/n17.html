@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>كشف حساب</title>
+<style>
+@page { size: A4; margin: 0 }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box }
+html, body { margin: 0; padding: 0 }
+.sheet { position: relative; width: 210mm; height: 296mm; overflow: hidden; break-after: page; page-break-after: always }
+.sheet.last { break-after: auto; page-break-after: auto }
+
+body { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; font-size: 9.2pt; color: #1d1d2b }
+.main { position: absolute; left: 16mm; right: 16mm; top: 38mm; bottom: 24mm }
+.p2 .main { top: 22mm }
+.lh { position: absolute; top: 10mm; left: 16mm; right: 16mm; display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid #1f3a68; padding-bottom: 5px }
+.org { font-size: 22pt; font-weight: 700; color: #1f3a68; white-space: nowrap }
+.lh .sm { font-size: 8.6pt; color: #555; text-align: left; line-height: 1.5 }
+.rh { position: absolute; top: 10mm; left: 16mm; right: 16mm; font-size: 8.4pt; color: #1f3a68; border-bottom: 1px solid #9fb0cc; padding-bottom: 2px }
+.ft { position: absolute; bottom: 9mm; left: 16mm; right: 16mm; font-size: 7.8pt; color: #555; text-align: center; border-top: 1px solid #ccd; padding-top: 2px; line-height: 1.5 }
+h1 { font-size: 16pt; margin: 0 0 6px; color: #1f3a68 }
+.acc { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 14px; background: #eef1f7; padding: 6px 10px; margin-bottom: 8px; line-height: 1.5 }
+h2 { font-size: 11pt; color: #1f3a68; margin: 10px 0 3px }
+p { margin: 3px 0 5px; line-height: 1.5 }
+table { border-collapse: collapse; width: 100%; font-size: 8.6pt }
+th { background: #1f3a68; color: #fff; padding: 3.5px 4px; font-weight: 600 }
+td { padding: 2.6px 4px; border-bottom: 1px solid #d8deea }
+td.n { text-align: left; direction: ltr; white-space: nowrap; font-family: Consolas, 'Segoe UI', monospace }
+td.c { text-align: center; white-space: nowrap }
+tr.ob td { background: #f3f5fa; font-weight: 600 }
+table.sum { width: 100%; margin-top: 4px }
+table.sum th { background: #dfe5f1; color: #1f3a68 }
+table.sum td { text-align: center; font-family: Consolas, monospace; font-size: 9.4pt }
+</style>
+</head>
+<body>
+
+<div class="sheet">
+<div class="lh">
+  <div class="org"><span class="ln">مصرف الأفق التجاري</span></div>
+  <div class="sm">
+    <div><span class="ln">فرع شارع النيل</span></div>
+    <div><span class="ln">هاتف خدمة العملاء: 8000041870</span></div>
+    <div><span class="ln">www.alufuq-bank.example</span></div>
+  </div>
+</div>
+<div class="main">
+<h1>كشف حساب</h1>
+<div class="acc">
+  <div><b>اسم العميل:</b> شركة الرمال الذهبية للتجارة العامة</div><div><b>رقم الحساب:</b> 0417-552190-001</div>
+  <div><b>نوع الحساب:</b> حساب جار</div><div><b>العملة:</b> دينار</div>
+  <div><b>الفترة:</b> من 01/09/2026 إلى 30/09/2026</div><div><b>تاريخ الإصدار:</b> 01/10/2026</div>
+</div>
+<p>يرجى مراجعة هذا الكشف وإبلاغ الفرع بأي ملاحظات خلال خمسة عشر يوماً من تاريخ استلامه. وفي حال عدم ورود أي اعتراض خلال هذه المدة يعتبر الكشف صحيحاً ومقبولاً.</p>
+<h2>تفاصيل الحركات</h2>
+<table>
+<thead>
+<tr>
+<th>التاريخ</th>
+<th>البيان</th>
+<th>المرجع</th>
+<th>مدين</th>
+<th>دائن</th>
+<th>الرصيد</th>
+</tr>
+</thead><tbody>
+<tr class="ob">
+<td class="c">01/09/2026</td>
+<td>رصيد افتتاحي</td>
+<td class="c"></td>
+<td class="n"></td>
+<td class="n"></td>
+<td class="n">48,250.75</td>
+</tr>
+<tr>
+<td class="c">01/09/2026</td>
+<td>رسوم تجديد البطاقة</td>
+<td class="c">FEE-0901</td>
+<td class="n">50.00</td>
+<td class="n"></td>
+<td class="n">48,200.75</td>
+</tr>
+<tr>
+<td class="c">02/09/2026</td>
+<td>حوالة واردة من مؤسسة النخيل للمقاولات</td>
+<td class="c">TRF-88412</td>
+<td class="n"></td>
+<td class="n">12,500.00</td>
+<td class="n">60,700.75</td>
+</tr>
+<tr>
+<td class="c">03/09/2026</td>
+<td>سحب نقدي من الصراف الآلي</td>
+<td class="c">ATM-30917</td>
+<td class="n">2,000.00</td>
+<td class="n"></td>
+<td class="n">58,700.75</td>
+</tr>
+<tr>
+<td class="c">04/09/2026</td>
+<td>دفع فاتورة الكهرباء</td>
+<td class="c">BIL-55120</td>
+<td class="n">1,184.30</td>
+<td class="n"></td>
+<td class="n">57,516.45</td>
+</tr>
+<tr>
+<td class="c">05/09/2026</td>
+<td>حوالة واردة من مكتب السلام للاستشارات</td>
+<td class="c">TRF-88470</td>
+<td class="n"></td>
+<td class="n">4,300.00</td>
+<td class="n">61,816.45</td>
+</tr>
+<tr>
+<td class="c">06/09/2026</td>
+<td>إيداع شيك رقم 104577</td>
+<td class="c">CHQ-104577</td>
+<td class="n"></td>
+<td class="n">7,820.00</td>
+<td class="n">69,636.45</td>
+</tr>
+<tr>
+<td class="c">07/09/2026</td>
+<td>رسوم خدمة الرسائل القصيرة</td>
+<td class="c">FEE-0907</td>
+<td class="n">5.00</td>
+<td class="n"></td>
+<td class="n">69,631.45</td>
+</tr>
+<tr>
+<td class="c">08/09/2026</td>
+<td>حوالة صادرة إلى شركة الوفاء للنقل</td>
+<td class="c">TRF-88533</td>
+<td class="n">6,350.00</td>
+<td class="n"></td>
+<td class="n">63,281.45</td>
+</tr>
+<tr>
+<td class="c">09/09/2026</td>
+<td>دفع فاتورة المياه</td>
+<td class="c">BIL-55201</td>
+<td class="n">326.80</td>
+<td class="n"></td>
+<td class="n">62,954.65</td>
+</tr>
+<tr>
+<td class="c">10/09/2026</td>
+<td>مشتريات بالبطاقة - مكتبة المعرفة</td>
+<td class="c">POS-71102</td>
+<td class="n">418.75</td>
+<td class="n"></td>
+<td class="n">62,535.90</td>
+</tr>
+<tr>
+<td class="c">11/09/2026</td>
+<td>حوالة واردة من مؤسسة الريان</td>
+<td class="c">TRF-88671</td>
+<td class="n"></td>
+<td class="n">9,240.00</td>
+<td class="n">71,775.90</td>
+</tr>
+<tr>
+<td class="c">12/09/2026</td>
+<td>مشتريات بالبطاقة - مطعم الواحة</td>
+<td class="c">POS-71240</td>
+<td class="n">187.50</td>
+<td class="n"></td>
+<td class="n">71,588.40</td>
+</tr>
+<tr>
+<td class="c">12/09/2026</td>
+<td>حوالة صادرة إلى شركة المدار للبرمجيات</td>
+<td class="c">TRF-88702</td>
+<td class="n">2,950.00</td>
+<td class="n"></td>
+<td class="n">68,638.40</td>
+</tr>
+<tr>
+<td class="c">13/09/2026</td>
+<td>دفع رواتب الموظفين</td>
+<td class="c">PAY-0913</td>
+<td class="n">18,600.00</td>
+<td class="n"></td>
+<td class="n">50,038.40</td>
+</tr>
+<tr>
+<td class="c">14/09/2026</td>
+<td>إيداع نقدي</td>
+<td class="c">DEP-22014</td>
+<td class="n"></td>
+<td class="n">5,000.00</td>
+<td class="n">55,038.40</td>
+</tr>
+<tr>
+<td class="c">15/09/2026</td>
+<td>قسط تمويل رقم 7731</td>
+<td class="c">LN-7731-09</td>
+<td class="n">3,275.40</td>
+<td class="n"></td>
+<td class="n">51,763.00</td>
+</tr>
+<tr>
+<td class="c">16/09/2026</td>
+<td>مشتريات بالبطاقة - محطة الوقود</td>
+<td class="c">POS-71388</td>
+<td class="n">260.00</td>
+<td class="n"></td>
+<td class="n">51,503.00</td>
+</tr>
+<tr>
+<td class="c">16/09/2026</td>
+<td>إيداع نقدي</td>
+<td class="c">DEP-22031</td>
+<td class="n"></td>
+<td class="n">2,500.00</td>
+<td class="n">54,003.00</td>
+</tr>
+<tr>
+<td class="c">17/09/2026</td>
+<td>حوالة واردة من شركة البحر الأحمر للتوريدات</td>
+<td class="c">TRF-88902</td>
+<td class="n"></td>
+<td class="n">14,115.50</td>
+<td class="n">68,118.50</td>
+</tr>
+<tr>
+<td class="c">18/09/2026</td>
+<td>دفع فاتورة الاتصالات</td>
+<td class="c">BIL-55377</td>
+<td class="n">742.10</td>
+<td class="n"></td>
+<td class="n">67,376.40</td>
+</tr>
+<tr>
+<td class="c">19/09/2026</td>
+<td>سحب نقدي من الصراف الآلي</td>
+<td class="c">ATM-31188</td>
+<td class="n">1,500.00</td>
+<td class="n"></td>
+<td class="n">65,876.40</td>
+</tr>
+<tr>
+<td class="c">20/09/2026</td>
+<td>شيك صادر رقم 000318</td>
+<td class="c">CHQ-000318</td>
+<td class="n">4,500.00</td>
+<td class="n"></td>
+<td class="n">61,376.40</td>
+</tr>
+<tr>
+<td class="c">21/09/2026</td>
+<td>إيداع شيك رقم 104812</td>
+<td class="c">CHQ-104812</td>
+<td class="n"></td>
+<td class="n">3,960.00</td>
+<td class="n">65,336.40</td>
+</tr>
+<tr>
+<td class="c">22/09/2026</td>
+<td>حوالة صادرة إلى مورد الأقمشة</td>
+<td class="c">TRF-89017</td>
+<td class="n">8,725.00</td>
+<td class="n"></td>
+<td class="n">56,611.40</td>
+</tr>
+<tr>
+<td class="c">23/09/2026</td>
+<td>حوالة واردة من شركة الأمل للتجارة</td>
+<td class="c">TRF-89088</td>
+<td class="n"></td>
+<td class="n">6,780.00</td>
+<td class="n">63,391.40</td>
+</tr>
+<tr>
+<td class="c">24/09/2026</td>
+<td>سحب نقدي من الفرع</td>
+<td class="c">WDL-10924</td>
+<td class="n">3,000.00</td>
+<td class="n"></td>
+<td class="n">60,391.40</td>
+</tr>
+<tr>
+<td class="c">25/09/2026</td>
+<td>حوالة واردة من مؤسسة النخيل للمقاولات</td>
+<td class="c">TRF-89144</td>
+<td class="n"></td>
+<td class="n">11,000.00</td>
+<td class="n">71,391.40</td>
+</tr>
+<tr>
+<td class="c">26/09/2026</td>
+<td>دفع اشتراك التأمين الصحي</td>
+<td class="c">INS-0926</td>
+<td class="n">1,240.00</td>
+<td class="n"></td>
+<td class="n">70,151.40</td>
+</tr>
+<tr>
+<td class="c">27/09/2026</td>
+<td>رسوم إدارة الحساب الشهرية</td>
+<td class="c">FEE-0927</td>
+<td class="n">25.00</td>
+<td class="n"></td>
+<td class="n">70,126.40</td>
+</tr>
+</tbody></table>
+</div><div class="ft"><div><span class="ln">هذا الكشف صادر آلياً ولا يحتاج إلى توقيع.</span></div><div><span class="ln">صفحة 1 من 2</span></div></div></div>
+<div class="sheet p2 last">
+<div class="rh"><span class="ln">كشف حساب رقم 0417-552190-001 — سبتمبر 2026</span></div>
+<div class="main">
+<table>
+<thead>
+<tr>
+<th>التاريخ</th>
+<th>البيان</th>
+<th>المرجع</th>
+<th>مدين</th>
+<th>دائن</th>
+<th>الرصيد</th>
+</tr>
+</thead><tbody>
+<tr>
+<td class="c">28/09/2026</td>
+<td>مشتريات بالبطاقة - متجر الأدوات المكتبية</td>
+<td class="c">POS-72015</td>
+<td class="n">1,136.20</td>
+<td class="n"></td>
+<td class="n">68,990.20</td>
+</tr>
+<tr>
+<td class="c">29/09/2026</td>
+<td>أرباح وديعة لأجل</td>
+<td class="c">DPT-4410</td>
+<td class="n"></td>
+<td class="n">812.35</td>
+<td class="n">69,802.55</td>
+</tr>
+<tr>
+<td class="c">30/09/2026</td>
+<td>عمولة حوالات الشهر</td>
+<td class="c">FEE-0930</td>
+<td class="n">42.00</td>
+<td class="n"></td>
+<td class="n">69,760.55</td>
+</tr>
+<tr class="ob">
+<td class="c">30/09/2026</td>
+<td>رصيد ختامي</td>
+<td class="c"></td>
+<td class="n"></td>
+<td class="n"></td>
+<td class="n">69,760.55</td>
+</tr>
+</tbody></table>
+<h2>ملخص الحساب</h2>
+<table class="sum">
+<thead>
+<tr>
+<th>الرصيد الافتتاحي</th>
+<th>إجمالي الحركات المدينة</th>
+<th>إجمالي الحركات الدائنة</th>
+<th>الرصيد الختامي</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>48,250.75</td>
+<td>56,518.05</td>
+<td>78,027.85</td>
+<td>69,760.55</td>
+</tr>
+</tbody></table>
+<p>للاطلاع على حساباتكم على مدار الساعة، يمكنكم استخدام تطبيق المصرف على الهاتف المحمول. لا تشارك رمز التحقق أو كلمة المرور مع أي شخص، فموظفو المصرف لن يطلبوها منك أبداً.</p>
+</div><div class="ft"><div><span class="ln">هذا الكشف صادر آلياً ولا يحتاج إلى توقيع.</span></div><div><span class="ln">صفحة 2 من 2</span></div></div></div>
+</body>
+</html>

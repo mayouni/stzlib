@@ -1,0 +1,140 @@
+{
+  "id": "n22",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Informe de resultados",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Informe de resultados"
+    },
+    {
+      "level": 2,
+      "text": "Comentarios"
+    }
+  ],
+  "key_sentences": [
+    "La glucosa en ayuno se encuentra por arriba del intervalo de referencia.",
+    "Se sugiere repetir la determinación y valorar una prueba de hemoglobina glucosilada.",
+    "El perfil de lípidos muestra colesterol total y triglicéridos elevados, con colesterol HDL bajo.",
+    "Interprete estos resultados junto con su médico tratante."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Prueba",
+          "Resultado",
+          "Unidades",
+          "Valores de referencia"
+        ],
+        [
+          "BIOMETRÍA HEMÁTICA",
+          "BIOMETRÍA HEMÁTICA",
+          "BIOMETRÍA HEMÁTICA",
+          "BIOMETRÍA HEMÁTICA"
+        ],
+        [
+          "Hemoglobina",
+          "12.9",
+          "g/dL",
+          "12.0 – 15.5"
+        ],
+        [
+          "Hematocrito",
+          "38.6",
+          "%",
+          "36.0 – 46.0"
+        ],
+        [
+          "Leucocitos",
+          "6.8",
+          "x10³/µL",
+          "4.5 – 11.0"
+        ],
+        [
+          "Plaquetas",
+          "245",
+          "x10³/µL",
+          "150 – 400"
+        ],
+        [
+          "QUÍMICA SANGUÍNEA",
+          "QUÍMICA SANGUÍNEA",
+          "QUÍMICA SANGUÍNEA",
+          "QUÍMICA SANGUÍNEA"
+        ],
+        [
+          "Glucosa en ayuno",
+          "118 (A)",
+          "mg/dL",
+          "70 – 99"
+        ],
+        [
+          "Urea",
+          "28",
+          "mg/dL",
+          "15 – 45"
+        ],
+        [
+          "Creatinina",
+          "0.82",
+          "mg/dL",
+          "0.50 – 1.10"
+        ],
+        [
+          "Ácido úrico",
+          "5.1",
+          "mg/dL",
+          "2.4 – 6.0"
+        ],
+        [
+          "PERFIL DE LÍPIDOS",
+          "PERFIL DE LÍPIDOS",
+          "PERFIL DE LÍPIDOS",
+          "PERFIL DE LÍPIDOS"
+        ],
+        [
+          "Colesterol total",
+          "212 (A)",
+          "mg/dL",
+          "menor de 200"
+        ],
+        [
+          "Triglicéridos",
+          "168 (A)",
+          "mg/dL",
+          "menor de 150"
+        ],
+        [
+          "Colesterol HDL",
+          "44 (B)",
+          "mg/dL",
+          "mayor de 50"
+        ],
+        [
+          "Colesterol LDL (calculado)",
+          "134 (A)",
+          "mg/dL",
+          "menor de 130"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "Laboratorio Clínico del Valle Azul",
+    "Av. de los Fresnos 1450, Col. Jardines del Lago",
+    "Zapopan, Jal., C.P. 45150",
+    "Tel. 33 0000 4187 · resultados@lab-valleazul.example",
+    "Licencia sanitaria 14-AF-0418",
+    "Este informe se emite electrónicamente y es válido sin firma autógrafa.",
+    "Hoja 1 de 1"
+  ],
+  "languages": [
+    "es"
+  ],
+  "code": [],
+  "notes": "Section rows (BIOMETRÍA HEMÁTICA, QUÍMICA SANGUÍNEA, PERFIL DE LÍPIDOS) span all 4 columns and are typed in capitals. Flags '(A)' and '(B)' are part of the result cell text. Decimal separator is a period."
+}

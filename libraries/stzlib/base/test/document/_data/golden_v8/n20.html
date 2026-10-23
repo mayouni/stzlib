@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Your electricity bill</title>
+<style>
+@page { size: A4; margin: 2cm }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box }
+html, body { margin: 0; padding: 0 }
+
+body { font-family: Arial, sans-serif; font-size: 9.2pt; color: #1e2a2f }
+.lh { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px }
+.org { font-size: 20pt; font-weight: 700; color: #0f7c8c; white-space: nowrap }
+.lh .sm { font-size: 8.2pt; color: #4b5a60; text-align: right; line-height: 1.45 }
+.top { display: flex; gap: 10mm; margin-bottom: 10px }
+.addr { flex: 1; line-height: 1.5; padding-top: 6px }
+.sum { flex: 1.1; background: #e6f4f6; border-radius: 6px; padding: 8px 12px; line-height: 1.6 }
+.sum .big { font-size: 15pt; font-weight: 700; color: #0f7c8c }
+.sum span { display: inline-block; width: 34mm; color: #4b5a60 }
+.grid { display: grid; grid-template-columns: 2.1fr 1fr; gap: 8mm }
+h1 { font-size: 15pt; margin: 0 0 4px; color: #0f7c8c }
+h2 { font-size: 10.6pt; margin: 10px 0 3px; color: #0f7c8c }
+p { margin: 3px 0 5px; line-height: 1.45 }
+table { border-collapse: collapse; width: 100%; font-size: 8.8pt }
+table.m th, table.c th { background: #0f7c8c; color: #fff; padding: 3px 4px; border: 1px solid #fff; font-weight: 600 }
+table.m td { border: 1px solid #c3dde1; padding: 3px 4px; text-align: center }
+table.c td { padding: 3px 4px; border-bottom: 1px solid #d5e6e9 }
+table.c td.n, table.c th.n { text-align: right; white-space: nowrap }
+table.c tr.sec td { font-weight: 700; color: #0f7c8c; border-bottom: none; padding-top: 6px }
+table.c tr.tot td { font-weight: 700; text-align: right }
+table.c tr.grand td { font-size: 10pt; border-top: 2px solid #0f7c8c; border-bottom: none }
+.side { background: #f4f8f9; padding: 6px 9px; border-radius: 6px }
+table.u td { padding: 2px 3px }
+table.u td.n, table.u th.n { text-align: right }
+table.u th { text-align: left; color: #4b5a60; font-weight: normal; border-bottom: 1px solid #c3dde1 }
+ul { margin: 2px 0 5px; padding-left: 16px; line-height: 1.45 }
+.foot { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 7.6pt; color: #4b5a60; border-top: 1px solid #c3dde1; padding-top: 3px }
+</style>
+</head>
+<body>
+
+<div class="lh">
+  <div class="org"><span class="ln">Brightwater Energy Supply Co.</span></div>
+  <div class="sm">
+    <div><span class="ln">PO Box 4187, Ferndale FD1 8XQ</span></div>
+    <div><span class="ln">Customer service 0800 000 4187</span></div>
+    <div><span class="ln">www.brightwater-energy.example</span></div>
+  </div>
+</div>
+<div class="top">
+  <div class="addr">Ms Amara Quill<br>7 Linden Court<br>Ferndale<br>FD3 2LS</div>
+  <div class="sum">
+    <div><span>Account number</span>3021 774 518</div>
+    <div><span>Bill date</span>3 October 2026</div>
+    <div><span>Billing period</span>1 – 30 September 2026</div>
+    <div><span>Amount due</span><b class="big">£91.76</b></div>
+  </div>
+</div>
+<div class="grid">
+<div>
+<h1>Your electricity bill</h1>
+<p>Thank you for paying by Direct Debit. The amount due will be collected from your bank account on or after 17 October 2026.</p>
+<h2>Meter readings</h2>
+<table class="m">
+<thead>
+<tr>
+<th rowspan="2">Meter and register</th>
+<th colspan="2">Previous reading</th>
+<th colspan="2">Current reading</th>
+<th rowspan="2">Units used (kWh)</th>
+</tr>
+<tr>
+<th>Date</th>
+<th>Reading</th>
+<th>Date</th>
+<th>Reading</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>E18K004187 day</td>
+<td>31 Aug 2026</td>
+<td>18,402</td>
+<td>30 Sep 2026</td>
+<td>18,616</td>
+<td>214</td>
+</tr>
+<tr>
+<td>E18K004187 night</td>
+<td>31 Aug 2026</td>
+<td>6,116</td>
+<td>30 Sep 2026</td>
+<td>6,196</td>
+<td>80</td>
+</tr>
+</tbody></table>
+<p>Both readings were sent automatically by your smart meter.</p>
+<h2>Your charges</h2>
+<table class="c">
+<thead>
+<tr>
+<th>Description</th>
+<th>Quantity</th>
+<th>Rate</th>
+<th class="n">Amount (£)</th>
+</tr>
+</thead><tbody>
+<tr class="sec">
+<td colspan="4">Energy charges</td>
+</tr>
+<tr>
+<td>Day units</td>
+<td>214 kWh</td>
+<td>27.84p per kWh</td>
+<td class="n">59.58</td>
+</tr>
+<tr>
+<td>Night units</td>
+<td>80 kWh</td>
+<td>14.62p per kWh</td>
+<td class="n">11.70</td>
+</tr>
+<tr class="sec">
+<td colspan="4">Standing charge</td>
+</tr>
+<tr>
+<td>Daily standing charge</td>
+<td>30 days</td>
+<td>53.70p per day</td>
+<td class="n">16.11</td>
+</tr>
+<tr class="tot">
+<td colspan="3">Charges before VAT</td>
+<td class="n">87.39</td>
+</tr>
+<tr class="tot">
+<td colspan="3">VAT at 5%</td>
+<td class="n">4.37</td>
+</tr>
+<tr class="tot grand">
+<td colspan="3">Total charges for this period</td>
+<td class="n">91.76</td>
+</tr>
+</tbody></table>
+</div>
+<div class="side">
+<h2>Your usage over six months</h2>
+<table class="u">
+<thead>
+<tr>
+<th>Month</th>
+<th class="n">kWh</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>April 2026</td>
+<td class="n">312</td>
+</tr>
+<tr>
+<td>May 2026</td>
+<td class="n">288</td>
+</tr>
+<tr>
+<td>June 2026</td>
+<td class="n">251</td>
+</tr>
+<tr>
+<td>July 2026</td>
+<td class="n">240</td>
+</tr>
+<tr>
+<td>August 2026</td>
+<td class="n">263</td>
+</tr>
+<tr>
+<td>September 2026</td>
+<td class="n">294</td>
+</tr>
+</tbody></table>
+<h2>Ways to pay</h2>
+<ul>
+<li>Direct Debit (you are already set up)</li>
+<li>Online in your account</li>
+<li>By phone with a debit card</li>
+<li>At any post office, with your payment card</li>
+</ul>
+<p>If you think a reading is wrong, send us a photo of your meter within 14 days.</p>
+</div>
+</div>
+<div class="foot"><span class="ln">Brightwater Energy Supply Co. · Registered in England No. 07718452 · Power cut? Call 105 free from any phone</span></div>
+
+</body>
+</html>

@@ -1,0 +1,32 @@
+heading	1	St Brannoc Community Hospital
+paragraph	0	Riverside Wing, 12 Mill Lane, Ashcombe AC4 9RT
+paragraph	0	Switchboard 01632 960 112 · Acute Medical Unit 01632 960 175 · www.stbrannoc-hospital.example
+heading	1	Discharge Summary
+table	0	PatientMrs Evelyn Marsh-OkaforHospital no.7731 0428Date of birth3 February 1951WardLyndon Ward (Acute Medical Unit)Admitted27 September 2026Discharged6 October 2026ConsultantDr R. SaldanhaGPDr H. Lindqvist, Ashcombe Health Centre
+heading	1	Diagnosis
+paragraph	0	Primary: community-acquired pneumonia, right lower lobe. Secondary: acute kidney injury, stage 1, resolved.
+heading	1	Reason for admission
+paragraph	0	Mrs Marsh-Okafor presented with four days of productive cough, fever and increasing breathlessness. On arrival she was hypoxic, with oxygen saturations of 88% on room air, and a chest radiograph showed right lower lobe consolidation.
+heading	1	Clinical course
+paragraph	0	She was treated with intravenous co-amoxiclav and oral clarithromycin, and the antibiotics were switched to tablets on day four. Her kidney function worsened on admission and recovered with intravenous fluids and the temporary withholding of ramipril. Supplementary oxygen was weaned off by day five, and she walked independently on the ward before discharge.
+heading	1	Investigations
+table	0	AdmissionAdmissionDischargeDischargeReference rangeTestValueFlagValueFlagReference rangeHaemoglobin (g/L)102L114L120-160White cell count (x10⁹/L)14.8H8.24.0-11.0C-reactive protein (mg/L)186H22Hbelow 5Sodium (mmol/L)131L137133-146Creatinine (µmol/L)128H9445-90eGFR (mL/min/1.73 m²)38L56Labove 60
+page_footer	0	Confidential - contains patient-identifiable information
+page_footer	0	Page 1 of 2
+page_header	0	Discharge Summary · Mrs Evelyn Marsh-Okafor · Hospital no. 7731 0428
+heading	1	Medications on discharge
+table	0	MedicineDoseFrequencyDurationStatusAmoxicillin500 mgThree times a day3 more daysNewClarithromycin500 mgTwice a day3 more daysNewRamipril5 mgOnce a dayOngoingWithheld - restart after blood testAmlodipine5 mgOnce a dayOngoingUnchangedParacetamol1 gUp to four times a dayAs neededUnchanged
+heading	1	Follow-up
+list_item	0	Repeat kidney function blood test at the GP surgery within 7 days.
+list_item	0	GP to restart ramipril if creatinine is below 100 µmol/L.
+list_item	0	Chest X-ray in 6 weeks to confirm that the consolidation has resolved.
+heading	1	Advice given to the patient
+list_item	0	Complete the full course of antibiotics.
+list_item	0	Drink at least 1.5 litres of fluid a day unless advised otherwise.
+list_item	0	Return to hospital if breathlessness worsens or the fever comes back.
+paragraph	0	The patient and her daughter were given a copy of this summary and had the opportunity to ask questions.
+paragraph	0	Completed by: Dr A. Ferreira-Lund, Specialty Registrar, Acute Medicine
+paragraph	0	Date: 6 October 2026
+paragraph	0	Copy to: GP (electronic), patient
+page_footer	0	Confidential - contains patient-identifiable information
+page_footer	0	Page 2 of 2

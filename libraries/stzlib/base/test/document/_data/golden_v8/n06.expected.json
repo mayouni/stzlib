@@ -1,0 +1,204 @@
+{
+  "id": "n06",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "Technisches Datenblatt: Kreiselpumpe KP 40-160",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Technisches Datenblatt: Kreiselpumpe KP 40-160"
+    },
+    {
+      "level": 2,
+      "text": "Beschreibung"
+    },
+    {
+      "level": 2,
+      "text": "Einsatzbereiche"
+    },
+    {
+      "level": 2,
+      "text": "Werkstoffe"
+    },
+    {
+      "level": 2,
+      "text": "Technische Daten"
+    },
+    {
+      "level": 2,
+      "text": "Kennlinie bei 2900 1/min"
+    }
+  ],
+  "key_sentences": [
+    "Die KP 40-160 ist eine einstufige, normalsaugende Spiralgehäusepumpe in Blockbauweise.",
+    "Sie eignet sich zur Förderung von reinen oder leicht verschmutzten Flüssigkeiten ohne abrasive Bestandteile.",
+    "Das Laufrad ist dynamisch gewuchtet und axial hydraulisch entlastet.",
+    "Die Kennlinien gelten für Wasser mit 20 °C und einer Dichte von 1000 kg/m³.",
+    "Toleranzen der Kennlinien nach ISO 9906, Klasse 3B."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Bauteil",
+          "Werkstoff"
+        ],
+        [
+          "Pumpengehäuse",
+          "EN-GJL-250 (Grauguss)"
+        ],
+        [
+          "Laufrad",
+          "CuSn10 (Bronze)"
+        ],
+        [
+          "Welle",
+          "1.4021 (nichtrostender Stahl)"
+        ],
+        [
+          "Gleitringdichtung",
+          "Kohle / Siliziumkarbid / EPDM"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Merkmal",
+          "Wert"
+        ],
+        [
+          "Hydraulik",
+          "Hydraulik"
+        ],
+        [
+          "Förderstrom max.",
+          "42 m³/h"
+        ],
+        [
+          "Förderhöhe max.",
+          "36 m"
+        ],
+        [
+          "Zulaufdruck max.",
+          "6 bar"
+        ],
+        [
+          "Flüssigkeitstemperatur",
+          "−10 bis +120 °C"
+        ],
+        [
+          "Motor",
+          "Motor"
+        ],
+        [
+          "Bemessungsleistung",
+          "4,0 kW"
+        ],
+        [
+          "Drehzahl",
+          "2900 1/min"
+        ],
+        [
+          "Spannung",
+          "400 V, 3~, 50 Hz"
+        ],
+        [
+          "Schutzart",
+          "IP55"
+        ],
+        [
+          "Effizienzklasse",
+          "IE3"
+        ],
+        [
+          "Anschlüsse und Gewicht",
+          "Anschlüsse und Gewicht"
+        ],
+        [
+          "Saugstutzen",
+          "DN 65"
+        ],
+        [
+          "Druckstutzen",
+          "DN 40"
+        ],
+        [
+          "Gewicht",
+          "58 kg"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Förderstrom Q (m³/h)",
+          "0",
+          "10",
+          "20",
+          "30",
+          "40"
+        ],
+        [
+          "Förderhöhe H (m)",
+          "36,0",
+          "35,2",
+          "32,8",
+          "28,1",
+          "21,4"
+        ],
+        [
+          "Wirkungsgrad η (%)",
+          "0",
+          "48",
+          "64",
+          "70",
+          "66"
+        ],
+        [
+          "Leistungsbedarf P₂ (kW)",
+          "1,2",
+          "2,0",
+          "2,8",
+          "3,3",
+          "3,6"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Wasserversorgung und Druckerhöhung"
+    },
+    {
+      "level": 0,
+      "text": "Heizungs- und Kühlkreisläufe"
+    },
+    {
+      "level": 0,
+      "text": "Bewässerung in Landwirtschaft und Gartenbau"
+    },
+    {
+      "level": 0,
+      "text": "Industrielle Prozesswasserkreisläufe"
+    }
+  ],
+  "furniture": [
+    "Wendrich Pumpentechnik GmbH",
+    "Industriestraße 18 · 73529 Lindenhain",
+    "Tel. +49 7171 000-418 · Fax +49 7171 000-419",
+    "vertrieb@wendrich-pumpen.example",
+    "www.wendrich-pumpen.example",
+    "Technische Änderungen vorbehalten. Stand 09/2026",
+    "DB-KP40160-DE · Rev. C"
+  ],
+  "languages": [
+    "de"
+  ],
+  "code": [],
+  "notes": "Two-column layout: the left column (Beschreibung, Einsatzbereiche, Werkstoffe) is read before the right column (Technische Daten, Kennlinie). The spec table has section rows spanning both columns. The Kennlinie table is transposed: its first row (Förderstrom) is the header row. 'Heizungs- und Kühlkreisläufe' contains a real suspended hyphen, not a line-break hyphen. The note sentence after 'Hinweis:' is given without the label."
+}

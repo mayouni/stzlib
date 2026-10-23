@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Cardápio</title>
+<style>
+@page { size: A4; margin: 2cm }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box }
+html, body { margin: 0; padding: 0 }
+
+body { font-family: Candara, Calibri, sans-serif; font-size: 10.4pt; color: #3a2416 }
+.lh { text-align: center; margin-bottom: 4px }
+.org { font-family: Georgia, serif; font-style: italic; font-size: 30pt; color: #b5482a; line-height: 1.1 }
+.lh .sm { font-size: 9pt; color: #7a5a44; letter-spacing: .5px }
+h1 { text-align: center; font-family: Georgia, serif; font-weight: normal; font-size: 20pt; letter-spacing: 4px; color: #3a2416; margin: 10px 0 12px; border-top: 1px solid #d7b9a3; border-bottom: 1px solid #d7b9a3; padding: 4px 0 }
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12mm }
+h2 { font-family: Georgia, serif; font-style: italic; font-weight: normal; font-size: 15pt; color: #b5482a; margin: 2px 0 6px }
+.it { margin-bottom: 9px }
+.nm { display: flex; font-weight: 700 }
+.nm .dots { flex: 1; border-bottom: 1.5px dotted #b08a70; margin: 0 4px 4px }
+.ds { font-size: 9.4pt; color: #6b4e3a; font-style: italic; line-height: 1.35 }
+table { border-collapse: collapse; width: 100%; font-size: 10pt }
+th { text-align: left; font-weight: 700; color: #b5482a; border-bottom: 1px solid #d7b9a3; padding: 2px 3px }
+td { padding: 3px 3px }
+td.p, th.p { text-align: right; white-space: nowrap }
+.notes { margin-top: 14px; font-size: 9.2pt; text-align: center; color: #6b4e3a; line-height: 1.5 }
+.foot { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 8.6pt; color: #7a5a44; border-top: 1px solid #d7b9a3; padding-top: 3px }
+</style>
+</head>
+<body>
+
+<div class="lh">
+  <div class="org"><span class="ln">Cantina Beira-Rio</span></div>
+  <div class="sm"><span class="ln">Cozinha baiana desde 1998</span></div>
+  <div class="sm"><span class="ln">Rua das Palmeiras, 210 · Centro · Ilhéus Nova · Reservas: (73) 3000-4187</span></div>
+</div>
+<h1>Cardápio</h1>
+<div class="cols">
+<div>
+<h2>Entradas</h2>
+<div class="it"><div class="nm"><span>Bolinho de aipim com carne-seca</span><span class="dots"></span><span>R$ 32,00</span></div><div class="ds">Seis unidades, servidas com molho de pimenta da casa.</div></div>
+<div class="it"><div class="nm"><span>Casquinha de siri</span><span class="dots"></span><span>R$ 28,00</span></div><div class="ds">Carne de siri refogada com coentro e gratinada com farofa de manteiga.</div></div>
+<div class="it"><div class="nm"><span>Acarajé da casa</span><span class="dots"></span><span>R$ 24,00</span></div><div class="ds">Recheado com vatapá, caruru, vinagrete e camarão seco.</div></div>
+<h2>Pratos principais</h2>
+<div class="it"><div class="nm"><span>Moqueca de peixe</span><span class="dots"></span><span>R$ 118,00</span></div><div class="ds">Peixe do dia cozido no leite de coco e no azeite de dendê, servido com arroz, pirão e farofa.</div></div>
+<div class="it"><div class="nm"><span>Bobó de camarão</span><span class="dots"></span><span>R$ 112,00</span></div><div class="ds">Camarões ao creme de aipim e leite de coco, com arroz branco.</div></div>
+<div class="it"><div class="nm"><span>Galinha caipira ao molho pardo</span><span class="dots"></span><span>R$ 89,00</span></div><div class="ds">Acompanha arroz, feijão-de-corda e farofa de banana.</div></div>
+<div class="it"><div class="nm"><span>Moqueca de banana-da-terra</span><span class="dots"></span><span>R$ 79,00</span></div><div class="ds">Opção vegetariana, com pimentões, tomate e leite de coco.</div></div>
+</div>
+<div>
+<h2>Sobremesas</h2>
+<div class="it"><div class="nm"><span>Cocada cremosa com sorvete de tapioca</span><span class="dots"></span><span>R$ 26,00</span></div></div>
+<div class="it"><div class="nm"><span>Pudim de leite condensado</span><span class="dots"></span><span>R$ 19,00</span></div></div>
+<div class="it"><div class="nm"><span>Quindim</span><span class="dots"></span><span>R$ 14,00</span></div></div>
+<h2>Bebidas</h2>
+<table>
+<thead>
+<tr>
+<th>Bebida</th>
+<th class="p">Copo</th>
+<th class="p">Jarra</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>Suco de cajá</td>
+<td class="p">R$ 12,00</td>
+<td class="p">R$ 30,00</td>
+</tr>
+<tr>
+<td>Suco de mangaba</td>
+<td class="p">R$ 12,00</td>
+<td class="p">R$ 30,00</td>
+</tr>
+<tr>
+<td>Limonada suíça</td>
+<td class="p">R$ 14,00</td>
+<td class="p">R$ 34,00</td>
+</tr>
+<tr>
+<td>Água de coco</td>
+<td class="p">R$ 10,00</td>
+<td class="p">—</td>
+</tr>
+<tr>
+<td>Caipirinha de limão</td>
+<td class="p">R$ 24,00</td>
+<td class="p">R$ 68,00</td>
+</tr>
+</tbody></table>
+</div>
+</div>
+<div class="notes">Os pratos principais servem duas pessoas. A taxa de serviço de 10% é opcional.<br>Informe ao garçom se tiver alguma alergia ou restrição alimentar.</div>
+<div class="foot"><span class="ln">@cantinabeirario · Aberto de terça a domingo, das 11h30 às 23h</span></div>
+
+</body>
+</html>

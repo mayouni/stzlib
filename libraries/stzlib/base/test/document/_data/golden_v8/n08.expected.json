@@ -1,0 +1,182 @@
+{
+  "id": "n08",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Registo de Avaliação Final – Ano Letivo 2025/2026",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Registo de Avaliação Final – Ano Letivo 2025/2026"
+    },
+    {
+      "level": 2,
+      "text": "Apreciação global"
+    }
+  ],
+  "key_sentences": [
+    "O Tomás revelou uma evolução muito positiva ao longo do ano, sobretudo em Matemática e Ciências Naturais.",
+    "É um aluno empenhado, participativo e respeitador das regras da sala de aula.",
+    "Deve continuar a melhorar a organização do caderno diário e a regularidade do estudo em casa.",
+    "O Conselho de Turma deliberou a sua transição para o 9.º ano de escolaridade."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Disciplina",
+          "1.º Período",
+          "1.º Período",
+          "2.º Período",
+          "2.º Período",
+          "3.º Período",
+          "3.º Período",
+          "Classificação final"
+        ],
+        [
+          "Disciplina",
+          "Nível",
+          "Faltas",
+          "Nível",
+          "Faltas",
+          "Nível",
+          "Faltas",
+          "Classificação final"
+        ],
+        [
+          "Português",
+          "3",
+          "0",
+          "3",
+          "2",
+          "4",
+          "1",
+          "4"
+        ],
+        [
+          "Inglês",
+          "4",
+          "0",
+          "4",
+          "0",
+          "4",
+          "0",
+          "4"
+        ],
+        [
+          "Francês",
+          "3",
+          "1",
+          "3",
+          "0",
+          "3",
+          "2",
+          "3"
+        ],
+        [
+          "História",
+          "3",
+          "0",
+          "4",
+          "0",
+          "4",
+          "0",
+          "4"
+        ],
+        [
+          "Geografia",
+          "3",
+          "0",
+          "3",
+          "1",
+          "3",
+          "0",
+          "3"
+        ],
+        [
+          "Matemática",
+          "2",
+          "2",
+          "3",
+          "1",
+          "3",
+          "0",
+          "3"
+        ],
+        [
+          "Ciências Naturais",
+          "4",
+          "0",
+          "4",
+          "0",
+          "5",
+          "0",
+          "5"
+        ],
+        [
+          "Físico-Química",
+          "3",
+          "0",
+          "3",
+          "0",
+          "4",
+          "1",
+          "4"
+        ],
+        [
+          "Educação Visual",
+          "4",
+          "0",
+          "4",
+          "0",
+          "4",
+          "0",
+          "4"
+        ],
+        [
+          "Educação Física",
+          "5",
+          "0",
+          "5",
+          "0",
+          "5",
+          "0",
+          "5"
+        ],
+        [
+          "Cidadania e Desenvolvimento",
+          "4",
+          "0",
+          "4",
+          "0",
+          "4",
+          "0",
+          "4"
+        ],
+        [
+          "Total de faltas",
+          "—",
+          "3",
+          "—",
+          "4",
+          "—",
+          "4",
+          "—"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "AERC",
+    "Agrupamento de Escolas de Rio Claro",
+    "Escola Básica e Secundária de Vila Serena",
+    "Rua da Escola Nova, 45 · 2100-118 Vila Serena · Tel. 263 000 418 · secretaria@aerioclaro.example",
+    "Documento emitido pelos Serviços Administrativos · Modelo AERC-07/2026"
+  ],
+  "languages": [
+    "pt"
+  ],
+  "code": [],
+  "notes": "The grades table has a two-level header: Disciplina and Classificação final span both header rows; each period spans two columns (Nível, Faltas). The logo box text 'AERC' is part of the letterhead furniture. Student details lines are body text."
+}

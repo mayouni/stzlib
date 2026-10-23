@@ -1,0 +1,41 @@
+page_header	0	Platform Engineering · Internal
+page_header	0	RB-114 · version 3.2
+heading	1	Runbook: Deploying the Ledgerline Billing Service to Production
+paragraph	0	Owner: Billing Platform team · Last reviewed: 12 October 2026 · Expected duration: 45 minutes
+heading	2	1. Purpose
+paragraph	0	This runbook describes how to deploy a new release of the Ledgerline billing API to the production cluster. Follow the steps in order and record each completed step in the change ticket.
+heading	2	2. Prerequisites
+list_item	0	An approved change ticket in the change calendar
+list_item	0	Membership of the billing-deployers group
+list_item	0	Helm 3.14 or later, and kubectl configured for the prod-eu-west context
+list_item	0	A green build of the release tag in the CI pipeline
+heading	2	3. Pre-deployment checks
+list_item	0	1. Confirm that no billing run is in progress.
+list_item	1	Check the Batch Jobs dashboard for active invoice runs.
+list_item	1	If a run is active, wait for it to finish or postpone the deployment.
+list_item	0	2. Announce the deployment in the #billing-ops channel at least 15 minutes beforehand.
+list_item	0	3. Compare the rendered manifests with the running release:
+code	0	export RELEASE=2026.10.3\nkubectl config use-context prod-eu-west\nkubectl -n billing get deploy ledgerline-api -o wide\nhelm diff upgrade ledgerline ./charts/ledgerline \\\n  -n billing -f values/prod.yaml --set image.tag=$RELEASE
+heading	2	4. Deployment
+paragraph	0	Run the upgrade with the atomic flag so that Helm rolls back automatically if the new pods fail their readiness checks.
+code	0	helm upgrade ledgerline ./charts/ledgerline -n billing \\\n  -f values/prod.yaml --set image.tag=$RELEASE \\\n  --atomic --timeout 10m\nkubectl -n billing rollout status deploy/ledgerline-api
+paragraph	0	The rollout normally completes within six minutes. Do not interrupt the command while it is waiting.
+page_footer	0	Printed copies are uncontrolled. Check the wiki for the current version.
+page_footer	0	1/2
+page_header	0	Platform Engineering · Internal
+page_header	0	RB-114 · version 3.2
+heading	2	5. Configuration reference
+paragraph	0	The production values file sets the following options:
+code	0	replicaCount: 6\nimage:\n  repository: registry.internal.example/ledgerline-api\n  pullPolicy: IfNotPresent\nresources:\n  requests:\n    cpu: "500m"\n    memory: 768Mi\n  limits:\n    memory: 1Gi\nfeatureFlags:\n  invoiceBatchV2: true\n  legacyTaxEngine: false
+paragraph	0	Never edit values/prod.yaml directly on a workstation; changes must go through a reviewed merge request.
+heading	2	6. Verification
+list_item	0	1. Check that all six pods report Ready.
+list_item	0	2. Run the synthetic invoice test in the monitoring tool and confirm that it passes.
+list_item	0	3. Watch the error-rate panel for 15 minutes.
+heading	2	7. Rollback
+paragraph	0	If the error rate stays above 2% for more than five minutes, roll back to the previous revision.
+code	0	helm history ledgerline -n billing --max 5\nhelm rollback ledgerline 0 -n billing --wait
+heading	2	8. Contacts
+table	0	RoleTeamEscalation channelPrimary on-callBilling PlatformPager rota billing-primaryDatabase supportData Platform#dba-help, then pager rota dba-oncallChange managerService ManagementChange desk, extension 4410
+page_footer	0	Printed copies are uncontrolled. Check the wiki for the current version.
+page_footer	0	2/2

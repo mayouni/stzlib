@@ -1,0 +1,39 @@
+page_header	0	Faculté des sciences économiques et de gestion
+heading	1	Université de Lisière
+page_header	0	Département d’économie appliquée 3, allée des Tilleuls · 21300 Lisière
+heading	2	Plan de cours : ECO 2104 – Statistique appliquée à l’économie
+heading	4	Enseignante\t:
+paragraph	0	Pr Mathilde Garnier-Oyono Courriel\t: m.garnier@univ-lisiere.example
+paragraph	0	Bureau\t: B-214
+heading	4	Séances\t:
+paragraph	0	mardi, 8 h 30 – 11 h 30
+heading	3	Description du cours
+paragraph	0	Ce cours initie les étudiants aux méthodes statistiques utilisées pour décrire et analyser des données économiques. Il met l’accent sur l’interprétation des résultats plutôt que sur les démonstrations mathématiques.
+heading	3	Objectifs d’apprentissage
+list_item	0	1. Décrire une distribution à l’aide d’indicateurs de position et de dispersion
+list_item	0	2. Construire et interpréter un intervalle de confiance
+list_item	0	3. Mettre en œuvre un test d’hypothèse et en discuter les limites
+list_item	0	4. Estimer et interpréter un modèle de régression linéaire simple
+heading	3	Préalables
+paragraph	0	Le cours ECO 1101 (Mathématiques pour économistes) doit avoir été réussi. Une connaissance élémentaire d’un tableur est souhaitable, mais aucune expérience de programmation n’est exigée.
+heading	3	Matériel pédagogique
+list_item	0	Manuel : Statistique pour l’économie et la gestion, 4e édition (disponible à la bibliothèque)
+list_item	0	Recueil d’exercices corrigés, vendu à la coopérative étudiante
+list_item	0	Diapositives et jeux de données déposés chaque semaine sur l’espace numérique du cours
+heading	3	Calendrier des séances
+table	0	SemaineDateThèmeLectures18 sept.Présentation du cours ; types de donnéesChap. 1215 sept.Statistique descriptive univariéeChap. 2322 sept.Représentations graphiquesChap. 3429 sept.Probabilités : rappelsChap. 456 oct.Loi normale et échantillonnageChap. 5613 oct.Intervalles de confianceChap. 6720 oct.Examen intra (2 h)—83 nov.Tests d’hypothèseChap. 7910 nov.Comparaison de deux moyennesChap. 81017 nov.CorrélationChap. 91124 nov.Régression linéaire simpleChap. 10121er déc.Régression : diagnostic des résidusChap. 10138 déc.Révision générale—
+page_footer	0	ECO 2104 – Plan de cours – Automne 2026
+page_footer	0	— 1 —
+paragraph	0	Aucune séance n’a lieu pendant la semaine de lecture, du 26 au 30 octobre.
+heading	3	Évaluation
+table	0	ComposantePondérationDateTravaux dirigés (4 rendus)20 %Tout au long du trimestreExamen intra30 %20 octobre 2026Projet d’analyse de données15 %1er décembre 2026Examen final35 %15 décembre 2026Total100\t%
+heading	3	Logiciel
+paragraph	0	Les travaux dirigés se font avec le logiciel libre R, installé dans toutes les salles informatiques. Avant la deuxième séance, installez les extensions nécessaires :
+code	0	install.packages(c("readr", "dplyr", "ggplot2"))\nlibrary(dplyr)\nnotes <- readr::read_csv("notes_td.csv")\nnotes |>\n  group_by(groupe) |>\n  summarise(moyenne = mean(note), n = n())
+heading	3	Règles du cours
+list_item	0	Tout retard de remise entraı̂ne une pénalité de 10 % par jour.
+list_item	0	Le plagiat est sanctionné conformément au règlement des études.
+list_item	0	La présence aux travaux dirigés est obligatoire.
+paragraph	0	Les étudiants en situation de handicap peuvent demander des aménagements auprès du service d’accueil dès le début du trimestre.
+page_footer	0	ECO 2104 – Plan de cours – Automne 2026
+page_footer	0	— 2 —

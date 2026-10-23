@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Tax Invoice</title>
+<style>
+@page { size: A4; margin: 2cm }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box }
+html, body { margin: 0; padding: 0 }
+
+body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 9.5pt; color: #1d2733 }
+.lh { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid #12355b; padding-bottom: 8px }
+.org { font-size: 23pt; font-weight: 700; color: #12355b; letter-spacing: .3px; white-space: nowrap }
+.contact { text-align: right; font-size: 8.5pt; color: #45566a; line-height: 1.45 }
+h1 { font-size: 17pt; color: #12355b; margin: 18px 0 10px; font-weight: 600 }
+h2 { font-size: 11pt; color: #12355b; margin: 16px 0 4px }
+.blocks { display: flex; gap: 22px; margin-bottom: 14px }
+.blk { flex: 1 } .blk b { display: block; color: #6a7b8f; font-size: 8pt; text-transform: none; margin-bottom: 2px }
+.meta { flex: 1.1; background: #eef3f8; padding: 8px 10px; line-height: 1.6 }
+.meta span.l { display: inline-block; width: 92px; color: #6a7b8f }
+table.items { width: 100%; border-collapse: collapse; margin-top: 4px }
+table.items th { background: #12355b; color: #fff; text-align: left; padding: 5px 6px; font-weight: 600; font-size: 8.5pt }
+table.items td { padding: 5px 6px; border-bottom: 1px solid #d5dde6; vertical-align: top }
+table.items td.n, table.items th.n { text-align: right; white-space: nowrap }
+table.items tr.tot td { border-bottom: none; text-align: right; padding: 3px 6px }
+table.items tr.grand td { font-weight: 700; font-size: 10.5pt; border-top: 2px solid #12355b }
+p { margin: 4px 0 6px; line-height: 1.45 }
+.bank { line-height: 1.55 }
+.foot { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 7.5pt; color: #6a7b8f; border-top: 1px solid #d5dde6; padding-top: 4px }
+</style>
+</head>
+<body>
+
+<div class="lh">
+  <div class="org"><span class="ln">Halvorsen Marine Supplies Ltd</span></div>
+  <div class="contact">
+    <div><span class="ln">Unit 4, Quayside Trading Estate</span></div>
+    <div><span class="ln">Port Elden PE3 7QA</span></div>
+    <div><span class="ln">Tel. 01632 960 418</span></div>
+    <div><span class="ln">accounts@halvorsen-marine.example</span></div>
+    <div><span class="ln">VAT No. GB 418 2290 63</span></div>
+  </div>
+</div>
+<h1>Tax Invoice</h1>
+<div class="blocks">
+  <div class="blk"><b>Invoice to</b>Northgate Island Ferries Ltd<br>Harbour Office, Pier Road<br>Saltholm SH2 4LB</div>
+  <div class="blk"><b>Deliver to</b>MV Saltholm Spirit, Berth 3<br>Port Elden Harbour<br>Attn: Chief Engineer</div>
+  <div class="meta">
+    <div><span class="l">Invoice no.</span>HMS-2026-0417</div>
+    <div><span class="l">Invoice date</span>14 October 2026</div>
+    <div><span class="l">Your order</span>PO 55102</div>
+    <div><span class="l">Account</span>NIF-0093</div>
+    <div><span class="l">Due date</span>13 November 2026</div>
+  </div>
+</div>
+<table class="items">
+<thead>
+<tr>
+<th>Item</th>
+<th>Description</th>
+<th class="n">Qty</th>
+<th class="n">Unit price (£)</th>
+<th class="n">VAT %</th>
+<th class="n">Amount (£)</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>MR-2210</td>
+<td>Mooring rope, 16 mm polyester, 50 m coil</td>
+<td class="n">4</td>
+<td class="n">86.50</td>
+<td class="n">20</td>
+<td class="n">346.00</td>
+</tr>
+<tr>
+<td>FD-0445</td>
+<td>Fender, cylindrical, 200 x 750 mm</td>
+<td class="n">6</td>
+<td class="n">41.20</td>
+<td class="n">20</td>
+<td class="n">247.20</td>
+</tr>
+<tr>
+<td>SH-1032</td>
+<td>Stainless shackle, D-type, 10 mm</td>
+<td class="n">24</td>
+<td class="n">6.85</td>
+<td class="n">20</td>
+<td class="n">164.40</td>
+</tr>
+<tr>
+<td>LJ-3150</td>
+<td>Lifejacket, 150 N, automatic inflation</td>
+<td class="n">10</td>
+<td class="n">72.00</td>
+<td class="n">20</td>
+<td class="n">720.00</td>
+</tr>
+<tr>
+<td>BP-0080</td>
+<td>Bilge pump, 12 V, 2000 GPH</td>
+<td class="n">2</td>
+<td class="n">118.75</td>
+<td class="n">20</td>
+<td class="n">237.50</td>
+</tr>
+<tr>
+<td>CH-6006</td>
+<td>Admiralty-style chart folio, North Sea East</td>
+<td class="n">1</td>
+<td class="n">64.00</td>
+<td class="n">0</td>
+<td class="n">64.00</td>
+</tr>
+<tr>
+<td>DL-0001</td>
+<td>Delivery to vessel, Port Elden harbour</td>
+<td class="n">1</td>
+<td class="n">35.00</td>
+<td class="n">20</td>
+<td class="n">35.00</td>
+</tr>
+<tr class="tot">
+<td colspan="5">Subtotal</td>
+<td>1,814.10</td>
+</tr>
+<tr class="tot">
+<td colspan="5">VAT at 20% on £1,750.10</td>
+<td>350.02</td>
+</tr>
+<tr class="tot grand">
+<td colspan="5">Total due (GBP)</td>
+<td>2,164.12</td>
+</tr>
+</tbody></table>
+<p>Two of the twelve lifejackets on your order are on back order and will be invoiced separately when dispatched.</p>
+<h2>Payment terms</h2>
+<p>Payment is due within 30 days of the invoice date. Please quote the invoice number as your payment reference. Goods remain the property of Halvorsen Marine Supplies Ltd until payment has been received in full. Interest may be charged on overdue accounts at 8% per year above the base rate.</p>
+<h2>Bank details</h2>
+<div class="bank">Account name: Halvorsen Marine Supplies Ltd<br>Bank: Harbourline Bank, Port Elden branch<br>Sort code: 20-49-77 · Account no.: 53018826<br>IBAN: GB12 HRBL 2049 7753 0188 26 · BIC: HRBLGB2P</div>
+<div class="foot"><span class="ln">Halvorsen Marine Supplies Ltd · Registered in England and Wales No. 08847215 · Registered office as above</span></div>
+
+</body>
+</html>

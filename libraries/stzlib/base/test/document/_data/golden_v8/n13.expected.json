@@ -1,0 +1,155 @@
+{
+  "id": "n13",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Verbale di assemblea ordinaria",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Verbale di assemblea ordinaria"
+    },
+    {
+      "level": 2,
+      "text": "Punto 1 – Rendiconto consuntivo 2025/2026"
+    },
+    {
+      "level": 2,
+      "text": "Punto 2 – Bilancio preventivo 2026/2027"
+    },
+    {
+      "level": 2,
+      "text": "Punto 3 – Impermeabilizzazione del lastrico solare"
+    },
+    {
+      "level": 2,
+      "text": "Punto 4 – Varie ed eventuali"
+    }
+  ],
+  "key_sentences": [
+    "Il giorno 15 ottobre 2026, alle ore 18:30, presso la sala comune del condominio, si è riunita in seconda convocazione l’assemblea ordinaria dei condomini.",
+    "Sono presenti, in proprio o per delega, 14 condomini su 22, rappresentanti 712,40 millesimi di proprietà.",
+    "L’amministratore illustra il rendiconto, che chiude con spese complessive di 48.215,60 euro a fronte di un preventivo di 50.000,00 euro.",
+    "La prima rata scadrà il 30 novembre 2026.",
+    "Dopo ampia discussione, l’assemblea delibera di affidare i lavori all’impresa Coperture Portici Rossi S.n.c., che ha presentato l’offerta più conveniente.",
+    "Alcuni condomini segnalano il malfunzionamento del cancello carrabile; l’amministratore provvederà a far intervenire la ditta di manutenzione.",
+    "Non essendovi altro da deliberare, la seduta è tolta alle ore 20:45."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Impresa",
+          "Importo (IVA esclusa)",
+          "Tempi di esecuzione",
+          "Garanzia"
+        ],
+        [
+          "Impresa Edile Ventaglio S.r.l.",
+          "38.400,00 €",
+          "25 giorni",
+          "10 anni"
+        ],
+        [
+          "Coperture Portici Rossi S.n.c.",
+          "35.950,00 €",
+          "30 giorni",
+          "10 anni"
+        ],
+        [
+          "Guaine e Tetti Zanardini S.r.l.",
+          "41.200,00 €",
+          "20 giorni",
+          "12 anni"
+        ]
+      ]
+    },
+    {
+      "caption": "Riepilogo delle votazioni",
+      "rows": [
+        [
+          "Punto",
+          "Favorevoli",
+          "Favorevoli",
+          "Contrari",
+          "Contrari",
+          "Astenuti",
+          "Astenuti",
+          "Esito"
+        ],
+        [
+          "Punto",
+          "Condomini",
+          "Millesimi",
+          "Condomini",
+          "Millesimi",
+          "Condomini",
+          "Millesimi",
+          "Esito"
+        ],
+        [
+          "1",
+          "14",
+          "712,40",
+          "0",
+          "0,00",
+          "0",
+          "0,00",
+          "Approvato"
+        ],
+        [
+          "2",
+          "13",
+          "671,90",
+          "1",
+          "40,50",
+          "0",
+          "0,00",
+          "Approvato"
+        ],
+        [
+          "3",
+          "11",
+          "560,20",
+          "2",
+          "98,10",
+          "1",
+          "54,10",
+          "Approvato"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Approvazione del rendiconto consuntivo 2025/2026"
+    },
+    {
+      "level": 0,
+      "text": "Approvazione del bilancio preventivo 2026/2027 e del relativo riparto"
+    },
+    {
+      "level": 0,
+      "text": "Rifacimento dell’impermeabilizzazione del lastrico solare: esame dei preventivi"
+    },
+    {
+      "level": 0,
+      "text": "Varie ed eventuali"
+    }
+  ],
+  "furniture": [
+    "Studio Ghibellina Amministrazioni Condominiali",
+    "Viale dei Mille 88 · 40139 Bologna · Tel. 051 000 4187",
+    "PEC: studioghibellina@pec.example · P. IVA 04187220371",
+    "Verbale n. 3/2026",
+    "Pagina 1 di 2",
+    "Condominio “Residenza Le Magnolie” – Verbale dell’assemblea del 15 ottobre 2026",
+    "Pagina 2 di 2"
+  ],
+  "languages": [
+    "it"
+  ],
+  "code": [],
+  "notes": "The voting table has two header rows: Punto and Esito span both rows; Favorevoli, Contrari and Astenuti each span two columns (Condomini, Millesimi). Typographic quotes “ ” and apostrophes ’ are part of the text. Footer left 'Verbale n. 3/2026' repeats; right page numbers differ."
+}

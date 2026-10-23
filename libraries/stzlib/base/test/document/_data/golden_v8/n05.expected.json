@@ -1,0 +1,135 @@
+{
+  "id": "n05",
+  "difficulty": "medium",
+  "pages": 3,
+  "title": "Contrato de arrendamiento de vivienda",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Contrato de arrendamiento de vivienda"
+    },
+    {
+      "level": 2,
+      "text": "Reunidos"
+    },
+    {
+      "level": 2,
+      "text": "Exponen"
+    },
+    {
+      "level": 2,
+      "text": "Cláusulas"
+    },
+    {
+      "level": 3,
+      "text": "Primera. Objeto"
+    },
+    {
+      "level": 3,
+      "text": "Segunda. Duración"
+    },
+    {
+      "level": 3,
+      "text": "Tercera. Renta"
+    },
+    {
+      "level": 3,
+      "text": "Cuarta. Fianza y garantías"
+    },
+    {
+      "level": 3,
+      "text": "Quinta. Gastos y suministros"
+    },
+    {
+      "level": 3,
+      "text": "Sexta. Conservación y obras"
+    },
+    {
+      "level": 3,
+      "text": "Séptima. Inventario"
+    },
+    {
+      "level": 3,
+      "text": "Octava. Cesión y subarriendo"
+    },
+    {
+      "level": 3,
+      "text": "Novena. Régimen jurídico"
+    },
+    {
+      "level": 3,
+      "text": "Décima. Jurisdicción"
+    }
+  ],
+  "key_sentences": [
+    "El contrato tendrá una duración inicial de un año a contar desde el 1 de octubre de 2026.",
+    "La renta anual se fija en 10.200 euros, pagaderos en doce mensualidades de 850 euros cada una.",
+    "Dicha fianza será devuelta al término del contrato, una vez comprobado el buen estado de la vivienda.",
+    "Los gastos de comunidad y el impuesto sobre bienes inmuebles serán por cuenta del arrendador.",
+    "La arrendataria no podrá realizar obras que modifiquen la configuración de la vivienda sin el consentimiento previo y por escrito del arrendador.",
+    "Para cualquier controversia que pudiera derivarse de este contrato, las partes se someten a los juzgados y tribunales del lugar en que se halla la vivienda.",
+    "Y en prueba de conformidad, las partes firman el presente contrato por duplicado y a un solo efecto en el lugar y la fecha indicados en el encabezamiento."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Estancia",
+          "Elementos",
+          "Estado"
+        ],
+        [
+          "Cocina",
+          "Frigorífico, horno, placa de inducción, lavavajillas",
+          "Nuevo"
+        ],
+        [
+          "Salón-comedor",
+          "Sofá de tres plazas, mesa de comedor, seis sillas",
+          "Bueno"
+        ],
+        [
+          "Dormitorio principal",
+          "Cama de 150 cm, armario empotrado, dos mesillas",
+          "Bueno"
+        ],
+        [
+          "Dormitorios 2 y 3",
+          "Dos camas de 90 cm, dos escritorios, estanterías",
+          "Usado"
+        ],
+        [
+          "Baños",
+          "Mamparas, espejos, toalleros",
+          "Bueno"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "I. Que el arrendador es propietario de la vivienda situada en la calle de los Almendros, 27, 3.º B, de Villanueva del Arcial, con referencia catastral 7741203VK3874S0012PL."
+    },
+    {
+      "level": 0,
+      "text": "II. Que la vivienda tiene una superficie útil de 86 metros cuadrados y consta de tres dormitorios, salón-comedor, cocina, dos baños y una plaza de garaje."
+    },
+    {
+      "level": 0,
+      "text": "III. Que la arrendataria está interesada en arrendar dicha vivienda para destinarla a su residencia habitual y permanente."
+    }
+  ],
+  "furniture": [
+    "Contrato de arrendamiento de vivienda – C/ de los Almendros, 27, 3.º B",
+    "Página 1 de 3",
+    "Página 2 de 3",
+    "Página 3 de 3"
+  ],
+  "languages": [
+    "es"
+  ],
+  "code": [],
+  "notes": "The expositive paragraphs I., II., III. are a typed list (markers included). Clause titles (Primera. Objeto, ...) are level-3 headings under 'Cláusulas'. Footer left text repeats on every page; the page number on the right differs per page. Guillemets « » are part of the text."
+}

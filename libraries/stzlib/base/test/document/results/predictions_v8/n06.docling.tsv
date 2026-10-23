@@ -1,0 +1,24 @@
+heading	1	Wendrich Pumpentechnik GmbH
+paragraph	0	Industriestraße 18 · 73529 Lindenhain Tel. +49 7171 000-418 · Fax +49 7171 000-419 vertrieb@wendrich-pumpen.example www.wendrich-pumpen.example
+heading	1	Technisches Datenblatt: Kreiselpumpe KP 40-160
+heading	1	Beschreibung
+paragraph	0	Die KP 40-160 ist eine einstufige, normalsaugende Spiralgehäusepumpe in Blockbauweise. Sie eignet sich zur Förderung von reinen oder leicht verschmutzten Flüssigkeiten ohne abrasive Bestandteile. Das Laufrad ist dynamisch gewuchtet und axial hydraulisch entlastet.
+paragraph	0	Motor und Pumpe sitzen auf einer gemeinsamen Welle, sodass keine Kupplung ausgerichtet werden muss.
+heading	1	Einsatzbereiche
+list_item	0	Wasserversorgung und Druckerhöhung
+list_item	0	Heizungs- und Kühlkreisläufe
+list_item	0	Bewässerung in Landwirtschaft und Gartenbau
+list_item	0	Industrielle Prozesswasserkreisläufe
+table	0	WerkstoffeWerkstoffeBauteilWerkstoffPumpengehäuseEN-GJL-250 (Grauguss)LaufradCuSn10 (Bronze)Welle1.4021 (nichtrostender Stahl)GleitringdichtungKohle / Siliziumkarbid / EPDM
+table	0	Technische Daten MerkmalWertHydraulik Förderstrom max.42 m³/hFörderhöhe max.36 mZulaufdruck max.6 barFlüssigkeitstemperatur-10 bis +120 °CMotor Bemessungsleistung4,0 kWDrehzahl2900 1/minSpannung400 V, 3~ , 50 HzSchutzartIP55EffizienzklasseIE3Anschlüsse und Gewicht SaugstutzenDN 65DruckstutzenDN 40Gewicht58 kg
+heading	1	Kennlinie bei 2900 1/min
+paragraph	0	Förderstrom Q (m³/h)
+paragraph	0	Förderhöhe H (m)
+paragraph	0	0 10 20 30 40
+paragraph	0	36,0 35,2 32,8 28,1 21,4
+paragraph	0	Wirkungsgrad η (%)
+paragraph	0	0 48 64 70 66
+paragraph	0	Leistungsbedarf P₂ (kW) 1,2 2,0 2,8 3,3 3,6
+paragraph	0	Hinweis: Die Kennlinien gelten für Wasser mit 20 °C und einer Dichte von 1000 kg/m³ . Toleranzen der Kennlinien nach ISO 9906, Klasse 3B.
+page_footer	0	DB-KP40160-DE · Rev. C
+page_footer	0	Technische Änderungen vorbehalten. Stand 09/2026

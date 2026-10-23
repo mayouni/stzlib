@@ -1,0 +1,196 @@
+{
+  "id": "n24",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "Budget primitif 2026 – Présentation brève et synthétique",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Budget primitif 2026 – Présentation brève et synthétique"
+    },
+    {
+      "level": 2,
+      "text": "Section de fonctionnement"
+    },
+    {
+      "level": 2,
+      "text": "Principaux investissements 2026"
+    }
+  ],
+  "key_sentences": [
+    "Le budget primitif 2026 est voté en équilibre à 1 544 300 euros en section de fonctionnement.",
+    "Les taux des impôts locaux restent inchangés pour la cinquième année consécutive.",
+    "La hausse des charges de personnel s’explique par le recrutement d’un agent technique à temps plein.",
+    "Le virement à la section d’investissement progresse de 17,8 % et permet de limiter le recours à l’emprunt."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Chapitre",
+          "Libellé",
+          "BP 2025 (€)",
+          "BP 2026 (€)",
+          "Évolution",
+          "Évolution"
+        ],
+        [
+          "Chapitre",
+          "Libellé",
+          "BP 2025 (€)",
+          "BP 2026 (€)",
+          "en €",
+          "en %"
+        ],
+        [
+          "Dépenses de fonctionnement",
+          "Dépenses de fonctionnement",
+          "Dépenses de fonctionnement",
+          "Dépenses de fonctionnement",
+          "Dépenses de fonctionnement",
+          "Dépenses de fonctionnement"
+        ],
+        [
+          "011",
+          "Charges à caractère général",
+          "412 500",
+          "436 800",
+          "+24 300",
+          "+5,9 %"
+        ],
+        [
+          "012",
+          "Charges de personnel",
+          "688 000",
+          "709 500",
+          "+21 500",
+          "+3,1 %"
+        ],
+        [
+          "65",
+          "Autres charges de gestion courante",
+          "154 200",
+          "151 900",
+          "−2 300",
+          "−1,5 %"
+        ],
+        [
+          "66",
+          "Charges financières",
+          "38 600",
+          "34 100",
+          "−4 500",
+          "−11,7 %"
+        ],
+        [
+          "023",
+          "Virement à la section d’investissement",
+          "180 000",
+          "212 000",
+          "+32 000",
+          "+17,8 %"
+        ],
+        [
+          "Total des dépenses",
+          "Total des dépenses",
+          "1 473 300",
+          "1 544 300",
+          "+71 000",
+          "+4,8 %"
+        ],
+        [
+          "Recettes de fonctionnement",
+          "Recettes de fonctionnement",
+          "Recettes de fonctionnement",
+          "Recettes de fonctionnement",
+          "Recettes de fonctionnement",
+          "Recettes de fonctionnement"
+        ],
+        [
+          "70",
+          "Produits des services",
+          "96 400",
+          "101 200",
+          "+4 800",
+          "+5,0 %"
+        ],
+        [
+          "73",
+          "Impôts et taxes",
+          "905 300",
+          "948 600",
+          "+43 300",
+          "+4,8 %"
+        ],
+        [
+          "74",
+          "Dotations et participations",
+          "452 800",
+          "465 300",
+          "+12 500",
+          "+2,8 %"
+        ],
+        [
+          "75",
+          "Autres produits de gestion courante",
+          "18 800",
+          "29 200",
+          "+10 400",
+          "+55,3 %"
+        ],
+        [
+          "Total des recettes",
+          "Total des recettes",
+          "1 473 300",
+          "1 544 300",
+          "+71 000",
+          "+4,8 %"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Opération",
+          "Montant (€)",
+          "Financement"
+        ],
+        [
+          "Rénovation énergétique de l’école élémentaire",
+          "320 000",
+          "État (DSIL), région, autofinancement"
+        ],
+        [
+          "Aménagement de la traversée du bourg",
+          "185 000",
+          "Département, autofinancement"
+        ],
+        [
+          "Extension du cimetière",
+          "64 000",
+          "Autofinancement"
+        ],
+        [
+          "Total",
+          "569 000",
+          ""
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "Commune de Saint-Aubin-des-Vergers",
+    "Mairie · 1, place de la Mairie · 72410 Saint-Aubin-des-Vergers",
+    "Tél. 02 43 00 41 87 · mairie@saint-aubin-des-vergers.example",
+    "Document établi en application de l’article L. 2313-1 du code général des collectivités territoriales",
+    "Conseil municipal du 24 mars 2026"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "Landscape page. The left block (functioning budget table) is read before the right block (text and investment table). The budget table has two header rows: Chapitre, Libellé, BP 2025 and BP 2026 span both rows; Évolution spans 'en €' and 'en %'. Section rows (Dépenses / Recettes de fonctionnement) span all columns; total rows have a label spanning 2 columns. Numbers use non-breaking spaces (given as spaces)."
+}

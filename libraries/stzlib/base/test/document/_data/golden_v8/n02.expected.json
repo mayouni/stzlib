@@ -1,0 +1,185 @@
+{
+  "id": "n02",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Devis n° D-2026-118",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Devis n° D-2026-118"
+    },
+    {
+      "level": 2,
+      "text": "Conditions"
+    }
+  ],
+  "key_sentences": [
+    "Suite à notre visite du 2 octobre 2026, nous avons le plaisir de vous soumettre notre meilleure offre pour les travaux décrits ci-dessous.",
+    "Arrêté le présent devis à la somme de cinq millions sept cent soixante-dix-huit mille quarante-cinq francs CFA toutes taxes comprises.",
+    "Les bois utilisés proviennent de fournisseurs agréés et sont traités contre les termites.",
+    "Toute modification des quantités fera l’objet d’un avenant au présent devis."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Désignation",
+          "Unité",
+          "Qté",
+          "P.U. (FCFA)",
+          "Montant (FCFA)"
+        ],
+        [
+          "Lot 1 – Mobilier des salles de classe",
+          "Lot 1 – Mobilier des salles de classe",
+          "Lot 1 – Mobilier des salles de classe",
+          "Lot 1 – Mobilier des salles de classe",
+          "Lot 1 – Mobilier des salles de classe"
+        ],
+        [
+          "Table-banc biplace en bois rouge, plateau verni",
+          "u",
+          "60",
+          "38 500",
+          "2 310 000"
+        ],
+        [
+          "Bureau de maître avec tiroir fermant à clé",
+          "u",
+          "6",
+          "72 000",
+          "432 000"
+        ],
+        [
+          "Armoire de rangement 2 portes, 180 x 90 cm",
+          "u",
+          "6",
+          "115 000",
+          "690 000"
+        ],
+        [
+          "Sous-total Lot 1",
+          "Sous-total Lot 1",
+          "Sous-total Lot 1",
+          "Sous-total Lot 1",
+          "3 432 000"
+        ],
+        [
+          "Lot 2 – Bibliothèque",
+          "Lot 2 – Bibliothèque",
+          "Lot 2 – Bibliothèque",
+          "Lot 2 – Bibliothèque",
+          "Lot 2 – Bibliothèque"
+        ],
+        [
+          "Étagère murale à 5 niveaux",
+          "u",
+          "8",
+          "64 000",
+          "512 000"
+        ],
+        [
+          "Table de lecture 6 places",
+          "u",
+          "3",
+          "96 500",
+          "289 500"
+        ],
+        [
+          "Chaise empilable en bois",
+          "u",
+          "18",
+          "14 000",
+          "252 000"
+        ],
+        [
+          "Sous-total Lot 2",
+          "Sous-total Lot 2",
+          "Sous-total Lot 2",
+          "Sous-total Lot 2",
+          "1 053 500"
+        ],
+        [
+          "Lot 3 – Transport et pose",
+          "Lot 3 – Transport et pose",
+          "Lot 3 – Transport et pose",
+          "Lot 3 – Transport et pose",
+          "Lot 3 – Transport et pose"
+        ],
+        [
+          "Transport et manutention",
+          "forfait",
+          "1",
+          "150 000",
+          "150 000"
+        ],
+        [
+          "Montage et pose sur site",
+          "forfait",
+          "1",
+          "220 000",
+          "220 000"
+        ],
+        [
+          "Sous-total Lot 3",
+          "Sous-total Lot 3",
+          "Sous-total Lot 3",
+          "Sous-total Lot 3",
+          "370 000"
+        ],
+        [
+          "Total hors taxes",
+          "Total hors taxes",
+          "Total hors taxes",
+          "Total hors taxes",
+          "4 855 500"
+        ],
+        [
+          "TVA 19 %",
+          "TVA 19 %",
+          "TVA 19 %",
+          "TVA 19 %",
+          "922 545"
+        ],
+        [
+          "Total toutes taxes comprises",
+          "Total toutes taxes comprises",
+          "Total toutes taxes comprises",
+          "Total toutes taxes comprises",
+          "5 778 045"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Validité de l’offre : 60 jours à compter de la date d’émission."
+    },
+    {
+      "level": 0,
+      "text": "Acompte de 40 % à la commande, solde à la réception des travaux."
+    },
+    {
+      "level": 0,
+      "text": "Délai d’exécution : six semaines après encaissement de l’acompte."
+    },
+    {
+      "level": 0,
+      "text": "Garantie d’un an sur les assemblages et la quincaillerie."
+    }
+  ],
+  "furniture": [
+    "Atelier Sahel Menuiserie & Agencement",
+    "Menuiserie bois et métallique · Mobilier scolaire et de bureau · Aménagement intérieur",
+    "Quartier Plateau, BP 11 482, Niamey, Niger · Tél. +227 20 00 41 87 · contact@sahel-menuiserie.example",
+    "RCCM NE-NIM-2019-B-0412 · NIF 48115/R",
+    "Atelier Sahel Menuiserie & Agencement – SARL au capital de 5 000 000 FCFA – Siège : Quartier Plateau, Niamey"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "Thousands separators are non-breaking spaces (U+00A0), given as ordinary spaces. Section rows (Lot 1/2/3) span all 5 columns and are repeated. Sous-total and total rows have a label spanning 4 columns."
+}

@@ -1,0 +1,137 @@
+{
+  "id": "n01",
+  "difficulty": "easy",
+  "pages": 1,
+  "title": "Tax Invoice",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Tax Invoice"
+    },
+    {
+      "level": 2,
+      "text": "Payment terms"
+    },
+    {
+      "level": 2,
+      "text": "Bank details"
+    }
+  ],
+  "key_sentences": [
+    "Two of the twelve lifejackets on your order are on back order and will be invoiced separately when dispatched.",
+    "Payment is due within 30 days of the invoice date.",
+    "Please quote the invoice number as your payment reference.",
+    "Goods remain the property of Halvorsen Marine Supplies Ltd until payment has been received in full.",
+    "Interest may be charged on overdue accounts at 8% per year above the base rate."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Item",
+          "Description",
+          "Qty",
+          "Unit price (£)",
+          "VAT %",
+          "Amount (£)"
+        ],
+        [
+          "MR-2210",
+          "Mooring rope, 16 mm polyester, 50 m coil",
+          "4",
+          "86.50",
+          "20",
+          "346.00"
+        ],
+        [
+          "FD-0445",
+          "Fender, cylindrical, 200 x 750 mm",
+          "6",
+          "41.20",
+          "20",
+          "247.20"
+        ],
+        [
+          "SH-1032",
+          "Stainless shackle, D-type, 10 mm",
+          "24",
+          "6.85",
+          "20",
+          "164.40"
+        ],
+        [
+          "LJ-3150",
+          "Lifejacket, 150 N, automatic inflation",
+          "10",
+          "72.00",
+          "20",
+          "720.00"
+        ],
+        [
+          "BP-0080",
+          "Bilge pump, 12 V, 2000 GPH",
+          "2",
+          "118.75",
+          "20",
+          "237.50"
+        ],
+        [
+          "CH-6006",
+          "Admiralty-style chart folio, North Sea East",
+          "1",
+          "64.00",
+          "0",
+          "64.00"
+        ],
+        [
+          "DL-0001",
+          "Delivery to vessel, Port Elden harbour",
+          "1",
+          "35.00",
+          "20",
+          "35.00"
+        ],
+        [
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "1,814.10"
+        ],
+        [
+          "VAT at 20% on £1,750.10",
+          "VAT at 20% on £1,750.10",
+          "VAT at 20% on £1,750.10",
+          "VAT at 20% on £1,750.10",
+          "VAT at 20% on £1,750.10",
+          "350.02"
+        ],
+        [
+          "Total due (GBP)",
+          "Total due (GBP)",
+          "Total due (GBP)",
+          "Total due (GBP)",
+          "Total due (GBP)",
+          "2,164.12"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "Halvorsen Marine Supplies Ltd",
+    "Unit 4, Quayside Trading Estate",
+    "Port Elden PE3 7QA",
+    "Tel. 01632 960 418",
+    "accounts@halvorsen-marine.example",
+    "VAT No. GB 418 2290 63",
+    "Halvorsen Marine Supplies Ltd · Registered in England and Wales No. 08847215 · Registered office as above"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Totals rows (Subtotal, VAT, Total due) are rows of the line-item table; their label cell spans 5 columns and is repeated. Invoice-to / Deliver-to / invoice meta blocks are div layouts, not tables. The bottom line is a fixed footer."
+}

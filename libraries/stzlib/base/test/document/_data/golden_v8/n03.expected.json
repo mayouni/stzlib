@@ -1,0 +1,235 @@
+{
+  "id": "n03",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Discharge Summary",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Discharge Summary"
+    },
+    {
+      "level": 2,
+      "text": "Diagnosis"
+    },
+    {
+      "level": 2,
+      "text": "Reason for admission"
+    },
+    {
+      "level": 2,
+      "text": "Clinical course"
+    },
+    {
+      "level": 2,
+      "text": "Investigations"
+    },
+    {
+      "level": 2,
+      "text": "Medications on discharge"
+    },
+    {
+      "level": 2,
+      "text": "Follow-up"
+    },
+    {
+      "level": 2,
+      "text": "Advice given to the patient"
+    }
+  ],
+  "key_sentences": [
+    "Mrs Marsh-Okafor presented with four days of productive cough, fever and increasing breathlessness.",
+    "On arrival she was hypoxic, with oxygen saturations of 88% on room air, and a chest radiograph showed right lower lobe consolidation.",
+    "She was treated with intravenous co-amoxiclav and oral clarithromycin, and the antibiotics were switched to tablets on day four.",
+    "Her kidney function worsened on admission and recovered with intravenous fluids and the temporary withholding of ramipril.",
+    "Supplementary oxygen was weaned off by day five, and she walked independently on the ward before discharge.",
+    "The patient and her daughter were given a copy of this summary and had the opportunity to ask questions."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Patient",
+          "Mrs Evelyn Marsh-Okafor",
+          "Hospital no.",
+          "7731 0428"
+        ],
+        [
+          "Date of birth",
+          "3 February 1951",
+          "Ward",
+          "Lyndon Ward (Acute Medical Unit)"
+        ],
+        [
+          "Admitted",
+          "27 September 2026",
+          "Discharged",
+          "6 October 2026"
+        ],
+        [
+          "Consultant",
+          "Dr R. Saldanha",
+          "GP",
+          "Dr H. Lindqvist, Ashcombe Health Centre"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Test",
+          "Admission",
+          "Admission",
+          "Discharge",
+          "Discharge",
+          "Reference range"
+        ],
+        [
+          "Test",
+          "Value",
+          "Flag",
+          "Value",
+          "Flag",
+          "Reference range"
+        ],
+        [
+          "Haemoglobin (g/L)",
+          "102",
+          "L",
+          "114",
+          "L",
+          "120–160"
+        ],
+        [
+          "White cell count (x10⁹/L)",
+          "14.8",
+          "H",
+          "8.2",
+          "",
+          "4.0–11.0"
+        ],
+        [
+          "C-reactive protein (mg/L)",
+          "186",
+          "H",
+          "22",
+          "H",
+          "below 5"
+        ],
+        [
+          "Sodium (mmol/L)",
+          "131",
+          "L",
+          "137",
+          "",
+          "133–146"
+        ],
+        [
+          "Creatinine (µmol/L)",
+          "128",
+          "H",
+          "94",
+          "",
+          "45–90"
+        ],
+        [
+          "eGFR (mL/min/1.73 m²)",
+          "38",
+          "L",
+          "56",
+          "L",
+          "above 60"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Medicine",
+          "Dose",
+          "Frequency",
+          "Duration",
+          "Status"
+        ],
+        [
+          "Amoxicillin",
+          "500 mg",
+          "Three times a day",
+          "3 more days",
+          "New"
+        ],
+        [
+          "Clarithromycin",
+          "500 mg",
+          "Twice a day",
+          "3 more days",
+          "New"
+        ],
+        [
+          "Ramipril",
+          "5 mg",
+          "Once a day",
+          "Ongoing",
+          "Withheld – restart after blood test"
+        ],
+        [
+          "Amlodipine",
+          "5 mg",
+          "Once a day",
+          "Ongoing",
+          "Unchanged"
+        ],
+        [
+          "Paracetamol",
+          "1 g",
+          "Up to four times a day",
+          "As needed",
+          "Unchanged"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Repeat kidney function blood test at the GP surgery within 7 days."
+    },
+    {
+      "level": 0,
+      "text": "GP to restart ramipril if creatinine is below 100 µmol/L."
+    },
+    {
+      "level": 0,
+      "text": "Chest X-ray in 6 weeks to confirm that the consolidation has resolved."
+    },
+    {
+      "level": 0,
+      "text": "Complete the full course of antibiotics."
+    },
+    {
+      "level": 0,
+      "text": "Drink at least 1.5 litres of fluid a day unless advised otherwise."
+    },
+    {
+      "level": 0,
+      "text": "Return to hospital if breathlessness worsens or the fever comes back."
+    }
+  ],
+  "furniture": [
+    "St Brannoc Community Hospital",
+    "Riverside Wing, 12 Mill Lane, Ashcombe AC4 9RT",
+    "Switchboard 01632 960 112 · Acute Medical Unit 01632 960 175 · www.stbrannoc-hospital.example",
+    "Confidential – contains patient-identifiable information",
+    "Page 1 of 2",
+    "Discharge Summary · Mrs Evelyn Marsh-Okafor · Hospital no. 7731 0428",
+    "Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "The patient details box is a 4-column key/value table with NO header row (all rows are data). The investigations table has a two-level header: Test and Reference range span both header rows; Admission and Discharge each span two columns (Value, Flag). Footer: left text and right page number are separate entries. Page 2 carries a running header instead of the letterhead."
+}

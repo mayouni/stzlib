@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Purchase Order</title>
+<style>
+@page { size: A4; margin: 0 }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box }
+html, body { margin: 0; padding: 0 }
+.sheet { position: relative; width: 210mm; height: 296mm; overflow: hidden; break-after: page; page-break-after: always }
+.sheet.last { break-after: auto; page-break-after: auto }
+
+body { font-family: Calibri, 'Segoe UI', sans-serif; font-size: 9.6pt; color: #1b2430 }
+.main { position: absolute; left: 18mm; right: 18mm; top: 38mm; bottom: 20mm }
+.p2 .main { top: 21mm }
+.lh { position: absolute; top: 11mm; left: 18mm; right: 18mm; border-bottom: 2.5px solid #234e70; padding-bottom: 5px }
+.org { font-family: Cambria, Georgia, serif; font-size: 19pt; color: #234e70; font-weight: 700 }
+.lh .sm { font-size: 8.3pt; color: #555 }
+.rh { position: absolute; top: 9mm; left: 18mm; right: 18mm; font-size: 8pt; color: #234e70; border-bottom: 1px solid #9db3c6; padding-bottom: 2px }
+.ft { position: absolute; bottom: 9mm; left: 18mm; right: 18mm; display: flex; justify-content: space-between; font-size: 8pt; color: #555 }
+h1 { font-family: Cambria, Georgia, serif; font-size: 17pt; margin: 0 0 8px; color: #234e70 }
+.blocks { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6mm; margin-bottom: 8px }
+.blocks div { border-top: 2px solid #234e70; padding-top: 3px; line-height: 1.45; font-size: 9pt }
+.blocks b { color: #234e70 }
+table { border-collapse: collapse; width: 100%; font-size: 8.6pt }
+th { background: #234e70; color: #fff; padding: 3px 4px; text-align: left; font-weight: 600 }
+td { padding: 3px 4px; border-bottom: 1px solid #d6dee6; vertical-align: top }
+td.n, th.n { text-align: right; white-space: nowrap }
+tr.tot td { text-align: right; font-weight: 700; border-bottom: none }
+tr.grand td { border-top: 2px solid #234e70; font-size: 9.6pt }
+p { margin: 3px 0 5px; line-height: 1.42 }
+.auth { margin-top: 14px; line-height: 1.5 }
+h2 { font-family: Cambria, Georgia, serif; font-size: 13pt; color: #234e70; margin: 0 0 6px; text-align: center }
+.tc { column-count: 2; column-gap: 8mm; font-size: 8.2pt; text-align: justify }
+.tc p { margin: 0 0 5px; line-height: 1.38 }
+</style>
+</head>
+<body>
+
+<div class="sheet">
+<div class="lh">
+  <div class="org"><span class="ln">Thornfield Regional Water Authority</span></div>
+  <div class="sm"><span class="ln">Procurement Services · Riverside House, 3 Weir Street, Thornfield TF2 6WA</span></div>
+  <div class="sm"><span class="ln">Tel. 01632 960 284 · procurement@thornfield-water.example</span></div>
+</div>
+<div class="main">
+<h1>Purchase Order</h1>
+<div class="blocks">
+  <div><b>Supplier</b><br>Calderbrook Valve &amp; Fittings Ltd<br>Unit 9 Mercer Park<br>Ashby Vale AV5 1RN<br>Supplier no. 210447</div>
+  <div><b>Deliver to</b><br>Thornfield Treatment Works<br>Stores Building B, Moor Lane<br>Thornfield TF4 9LP</div>
+  <div><b>Order details</b><br>PO number: 4500018734<br>Order date: 19 October 2026<br>Cost centre: CAP-2210 Network Renewals<br>Buyer: D. Ashworth</div>
+</div>
+<table>
+<thead>
+<tr>
+<th>Line</th>
+<th>Item code</th>
+<th>Description</th>
+<th class="n">Qty</th>
+<th>Unit</th>
+<th class="n">Unit price (£)</th>
+<th class="n">Net (£)</th>
+<th>Required by</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>10</td>
+<td>GV-150-PN16</td>
+<td>Gate valve, ductile iron, DN150, PN16</td>
+<td class="n">8</td>
+<td>each</td>
+<td class="n">412.60</td>
+<td class="n">3,300.80</td>
+<td>16/11/2026</td>
+</tr>
+<tr>
+<td>20</td>
+<td>BV-100-PN16</td>
+<td>Butterfly valve, wafer type, DN100</td>
+<td class="n">12</td>
+<td>each</td>
+<td class="n">186.25</td>
+<td class="n">2,235.00</td>
+<td>16/11/2026</td>
+</tr>
+<tr>
+<td>30</td>
+<td>AV-050</td>
+<td>Double-orifice air valve, DN50</td>
+<td class="n">6</td>
+<td>each</td>
+<td class="n">248.90</td>
+<td class="n">1,493.40</td>
+<td>23/11/2026</td>
+</tr>
+<tr>
+<td>40</td>
+<td>FA-150</td>
+<td>Flange adaptor, DN150, wide tolerance</td>
+<td class="n">16</td>
+<td>each</td>
+<td class="n">97.40</td>
+<td class="n">1,558.40</td>
+<td>16/11/2026</td>
+</tr>
+<tr>
+<td>50</td>
+<td>GK-150</td>
+<td>Gasket kit, EPDM, DN150</td>
+<td class="n">40</td>
+<td>set</td>
+<td class="n">8.75</td>
+<td class="n">350.00</td>
+<td>16/11/2026</td>
+</tr>
+<tr>
+<td>60</td>
+<td>HY-080</td>
+<td>Fire hydrant, underground, 80 mm</td>
+<td class="n">4</td>
+<td>each</td>
+<td class="n">529.00</td>
+<td class="n">2,116.00</td>
+<td>30/11/2026</td>
+</tr>
+<tr class="tot">
+<td colspan="6">Net total</td>
+<td class="n">11,053.60</td>
+<td></td>
+</tr>
+<tr class="tot">
+<td colspan="6">VAT at 20%</td>
+<td class="n">2,210.72</td>
+<td></td>
+</tr>
+<tr class="tot grand">
+<td colspan="6">Order total (GBP)</td>
+<td class="n">13,264.32</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>Please quote the purchase order number on all delivery notes and invoices. Deliveries are accepted Monday to Friday between 08:00 and 15:00; call the stores supervisor on 01632 960 291 to book a slot.</p>
+<p>This order is subject to the General Terms and Conditions of Purchase overleaf.</p>
+<div class="auth">Authorised by: R. Templeton-Shaw, Procurement Manager<br>Invoices to: accounts.payable@thornfield-water.example</div>
+</div><div class="ft"><div><span class="ln">Thornfield Regional Water Authority · PO 4500018734</span></div><div><span class="ln">Page 1 of 2</span></div></div></div>
+<div class="sheet p2 last">
+<div class="rh"><span class="ln">Thornfield Regional Water Authority · Procurement Services</span></div>
+<div class="main">
+<h2>General Terms and Conditions of Purchase</h2>
+<div class="tc">
+<p><b>1. Definitions.</b> In these conditions, “the Authority” means Thornfield Regional Water Authority and “the Supplier” means the person or company named on the purchase order. “Goods” means the items described on the order, including any related documentation, certificates and spare parts.</p>
+<p><b>2. Acceptance.</b> The Supplier’s acceptance of the order, or delivery of any of the goods, constitutes acceptance of these conditions. No terms proposed by the Supplier shall apply unless agreed in writing by the Authority’s procurement manager.</p>
+<p><b>3. Delivery.</b> Time of delivery is of the essence. Goods must be delivered to the address on the order, properly packed and labelled with the order number and the line number. Partial deliveries are accepted only with the Authority’s prior consent.</p>
+<p><b>4. Inspection and rejection.</b> The Authority may inspect the goods within 30 days of delivery and reject any goods that do not conform to the order. Rejected goods will be returned at the Supplier’s risk and expense, and the Supplier shall replace them or refund the price, as the Authority chooses.</p>
+<p><b>5. Quality and standards.</b> All products in contact with drinking water must be approved for that use under the applicable regulations, and the Supplier shall provide the approval certificates on request. Goods must comply with the British and European standards named in the order.</p>
+<p><b>6. Price and payment.</b> Prices are fixed and include packing and carriage unless stated otherwise on the order. The Authority will pay valid, undisputed invoices within 30 days of receipt. Invoices that do not quote the purchase order number will be returned unpaid.</p>
+<p><b>7. Warranty.</b> The Supplier warrants that the goods will be free from defects in design, materials and workmanship for 24 months from the date of delivery. Defective goods shall be repaired or replaced promptly and free of charge.</p>
+<p><b>8. Liability and insurance.</b> The Supplier shall indemnify the Authority against any loss or damage caused by defective goods or by the negligence of its employees. The Supplier shall maintain public and product liability insurance of not less than £5 million for any one event.</p>
+<p><b>9. Confidentiality.</b> The Supplier shall keep confidential all drawings, specifications and network information supplied by the Authority and use them only to fulfil the order.</p>
+<p><b>10. Termination.</b> The Authority may cancel all or part of the order by written notice if the Supplier fails to perform any of its obligations. Cancellation does not affect any rights that have accrued before the notice.</p>
+<p><b>11. Law.</b> These conditions are governed by the law of England and Wales. The courts of England and Wales have exclusive jurisdiction over any dispute.</p>
+</div>
+</div><div class="ft"><div><span class="ln">Thornfield Regional Water Authority · PO 4500018734</span></div><div><span class="ln">Page 2 of 2</span></div></div></div>
+</body>
+</html>

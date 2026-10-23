@@ -1,0 +1,30 @@
+heading	1	Brightwater Energy Supply Co.
+paragraph	0	Ms Amara Quill
+paragraph	0	7 Linden Court
+paragraph	0	Ferndale
+paragraph	0	FD3 2LS
+heading	1	Your electricity bill
+paragraph	0	Thank you for paying by Direct Debit. The amount due will be collected from your bank account on or after 17 October 2026.
+heading	1	Meter readings
+table	0	Meter and registerPrevious readingPrevious readingCurrent readingCurrent readingUnits used (kWh)Meter and registerDateReadingDateReadingUnits used (kWh)E18K004187 day31 Aug 202618,40230 Sep 202618,616214E18K004187 night31 Aug 20266,11630 Sep 20266,19680
+paragraph	0	Both readings were sent automatically by your smart meter.
+heading	1	Your charges
+table	0	DescriptionQuantityRateAmount (£)Energy chargesDay units214 kWh27.84p per kWh59.58Night units80 kWh14.62p per kWh11.70Standing chargeDaily standing charge30 days53.70p per day16.11Charges before VAT87.39VAT at 5%4.37Total charges for this periodTotal charges for this period91.76
+paragraph	0	PO Box 4187, Ferndale FD1 8XQ Customer service 0800 000 4187 www.brightwater-energy.example
+paragraph	0	Account number
+paragraph	0	3021 774 518
+paragraph	0	Bill date
+paragraph	0	3 October 2026
+paragraph	0	Billing period
+paragraph	0	1 - 30 September 2026
+paragraph	0	Amount due
+paragraph	0	£91.76
+heading	1	Your usage over six months
+table	0	MonthkWhApril 2026312May 2026288June 2026251July 2026240August 2026263September 2026294
+heading	1	Ways to pay
+list_item	0	Direct Debit (you are already set up)
+list_item	0	Online in your account
+list_item	0	By phone with a debit card
+list_item	0	At any post office, with your payment card
+paragraph	0	If you think a reading is wrong, send us a photo of your meter within 14 days.
+page_footer	0	Brightwater Energy Supply Co. · Registered in England No. 07718452 · Power cut? Call 105 free from any phone

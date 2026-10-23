@@ -1,0 +1,34 @@
+page_header	0	Tidewater Queue Server 4.2 · Administrator Guide
+page_header	0	Chapter 3 · Configuration
+heading	1	3 Configuration
+paragraph	0	Tidewater reads its settings from a single TOML file when the server starts. Most settings can also be overridden with environment variables, which is convenient in container deployments.
+heading	2	3.1 Configuration file location
+paragraph	0	By default the server looks for /etc/tidewater/tidewater.toml. You can point to another file with the -- config option:
+code	0	tidewater-server --config /opt/tidewater/conf/prod.toml
+heading	2	3.2 A minimal configuration
+paragraph	0	The following file is enough to run a single server with token authentication:
+code	0	[server]\nbind = "0.0.0.0:7420"\ndata_dir = "/var/lib/tidewater"\nmax_connections = 2048\n\n[storage]\nsegment_size_mb = 256\nfsync = "batch"\nretention_hours = 168\n\n[auth]\nmode = "token"\ntoken_file = "/etc/tidewater/tokens.json"
+heading	3	Note
+paragraph	0	– Changes to the [storage] section take effect only after a full restart; a reload signal is not enough.
+heading	2	3.3 Parameter reference
+paragraph	0	Parameter
+code	0	server.bind
+paragraph	0	Type
+paragraph	0	string
+paragraph	0	Default
+code	0	"127.0.0.1:7420"
+paragraph	0	Description
+caption	0	Address and port on which the server accepts client connections.
+table	0	server.data_dirpath/var/lib/tidewaterDirectory for queue segments and metadata.server.max_connectionsinteger1024Maximum number of simultaneous client connections.server.idle_timeout_sinteger300Seconds after which an idle connection is closed.storage.segment_size_mbinteger128Size at which a segment file is rolled over.storage.fsyncstring"interval"When data is flushed to disk: "always", "batch" or"interval"."interval"."interval"."interval".storage.fsync_interval_msinteger200Flush interval when fsync is "interval".storage.retention_hoursinteger72How long acknowledged messages are kept.storage.compressionstring"none"Segment compression: "none", "lz4" or "zstd".auth.modestring"none"Client authentication: "none", "token" or "mtls".auth.token_filepath(none)JSON file holding the accepted client tokens.tls.cert_filepath(none)Server certificate in PEM format.tls.key_filepath(none)Private key for the server certificate.ParameterTypeDefaultDescriptionmetrics.enabledbooleantrueExposes server metrics in plain text over HTTP.metrics.bindstring"127.0.0.1:9420"Address of the metrics endpoint.log.levelstring"info"One of "error", "warn", "info", "debug" or "trace".
+page_footer	0	3-1
+page_header	0	Tidewater Queue Server 4.2 · Administrator Guide
+page_header	0	Chapter 3 · Configuration
+heading	2	3.4 Environment variable overrides
+paragraph	0	Any parameter can be set through an environment variable whose name is TIDEWATER_ followed by the section and the key in capital letters. For example:
+code	0	export TIDEWATER_SERVER_MAX_CONNECTIONS=4096\nexport TIDEWATER_STORAGE_FSYNC=always\nexport TIDEWATER_LOG_LEVEL=debug
+paragraph	0	Environment variables take precedence over values in the configuration file.
+heading	2	3.5 Validating a configuration
+paragraph	0	Before restarting a production server, check the file with the built-in validator:
+code	0	$ tidewater-server check --config /etc/tidewater/tidewater.toml\nconfig OK: 14 parameters set, 0 warnings
+paragraph	0	The validator exits with status 1 if it finds an unknown parameter or a value of the wrong type.
+page_footer	0	3-2

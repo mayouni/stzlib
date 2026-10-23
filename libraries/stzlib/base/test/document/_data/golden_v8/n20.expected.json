@@ -1,0 +1,195 @@
+{
+  "id": "n20",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "Your electricity bill",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Your electricity bill"
+    },
+    {
+      "level": 2,
+      "text": "Meter readings"
+    },
+    {
+      "level": 2,
+      "text": "Your charges"
+    },
+    {
+      "level": 2,
+      "text": "Your usage over six months"
+    },
+    {
+      "level": 2,
+      "text": "Ways to pay"
+    }
+  ],
+  "key_sentences": [
+    "Thank you for paying by Direct Debit.",
+    "The amount due will be collected from your bank account on or after 17 October 2026.",
+    "Both readings were sent automatically by your smart meter.",
+    "If you think a reading is wrong, send us a photo of your meter within 14 days."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Meter and register",
+          "Previous reading",
+          "Previous reading",
+          "Current reading",
+          "Current reading",
+          "Units used (kWh)"
+        ],
+        [
+          "Meter and register",
+          "Date",
+          "Reading",
+          "Date",
+          "Reading",
+          "Units used (kWh)"
+        ],
+        [
+          "E18K004187 day",
+          "31 Aug 2026",
+          "18,402",
+          "30 Sep 2026",
+          "18,616",
+          "214"
+        ],
+        [
+          "E18K004187 night",
+          "31 Aug 2026",
+          "6,116",
+          "30 Sep 2026",
+          "6,196",
+          "80"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Description",
+          "Quantity",
+          "Rate",
+          "Amount (£)"
+        ],
+        [
+          "Energy charges",
+          "Energy charges",
+          "Energy charges",
+          "Energy charges"
+        ],
+        [
+          "Day units",
+          "214 kWh",
+          "27.84p per kWh",
+          "59.58"
+        ],
+        [
+          "Night units",
+          "80 kWh",
+          "14.62p per kWh",
+          "11.70"
+        ],
+        [
+          "Standing charge",
+          "Standing charge",
+          "Standing charge",
+          "Standing charge"
+        ],
+        [
+          "Daily standing charge",
+          "30 days",
+          "53.70p per day",
+          "16.11"
+        ],
+        [
+          "Charges before VAT",
+          "Charges before VAT",
+          "Charges before VAT",
+          "87.39"
+        ],
+        [
+          "VAT at 5%",
+          "VAT at 5%",
+          "VAT at 5%",
+          "4.37"
+        ],
+        [
+          "Total charges for this period",
+          "Total charges for this period",
+          "Total charges for this period",
+          "91.76"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Month",
+          "kWh"
+        ],
+        [
+          "April 2026",
+          "312"
+        ],
+        [
+          "May 2026",
+          "288"
+        ],
+        [
+          "June 2026",
+          "251"
+        ],
+        [
+          "July 2026",
+          "240"
+        ],
+        [
+          "August 2026",
+          "263"
+        ],
+        [
+          "September 2026",
+          "294"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Direct Debit (you are already set up)"
+    },
+    {
+      "level": 0,
+      "text": "Online in your account"
+    },
+    {
+      "level": 0,
+      "text": "By phone with a debit card"
+    },
+    {
+      "level": 0,
+      "text": "At any post office, with your payment card"
+    }
+  ],
+  "furniture": [
+    "Brightwater Energy Supply Co.",
+    "PO Box 4187, Ferndale FD1 8XQ",
+    "Customer service 0800 000 4187",
+    "www.brightwater-energy.example",
+    "Brightwater Energy Supply Co. · Registered in England No. 07718452 · Power cut? Call 105 free from any phone"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Layout: the main column (title, intro, meter readings, charges) is read before the sidebar (usage history, ways to pay, meter-reading sentence). The meter table has two header rows: Meter and register and Units used span both; Previous reading and Current reading each span Date and Reading. The charges table has section rows spanning all columns and total rows whose label spans 3 columns."
+}
