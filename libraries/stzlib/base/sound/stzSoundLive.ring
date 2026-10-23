@@ -100,6 +100,7 @@ class stzSoundLive
 	@aConsole = []          # [ cycle, heardFrame, text ] -- what was HEARD
 	@aLandings = []         # [ name, version, landingCycle, heardCycleAtCall ]
 	@nHeardCycle = -1
+	@bStopped = 0           # a running performance was stopped: the next Start begins a clean run
 	@fOnCycle = NULL
 	@nTagNext = 1
 	@nRenderedLive = 0      # notes rendered while playing (a pattern past its period)
@@ -339,7 +340,10 @@ class stzSoundLive
 	#
 	#   returns    TRUE if running; FALSE with LastError set when there are no loops or the engine
 	#              refused
-	#   note       asking again while running answers TRUE
+	#   note       asking again while running answers TRUE; starting again after Stop begins a clean
+	#              run: the heard cycle is back to -1, the console and the ledger are emptied, every
+	#              loop posts from cycle 0 in the version it has now, and the capture buffer is
+	#              replaced, while the loops, the landings and the version numbers are kept
 	#   warning    without CaptureInsteadOfDevice it opens an audio device through a transport,
 	#              which was not run in this reference
 	#   see        WaitCycles, DriveWith, Stop
@@ -349,6 +353,9 @@ class stzSoundLive
 		if len(@aLoops) = 0
 			This._Refuse("Start: there are no loops yet")
 			return FALSE
+		ok
+		if @bStopped
+			This._StartClean()
 		ok
 		@oGraph = StzSoundGraphOfQ(@nCh, @nRate)
 		@nTl = @oGraph.AddTimeline()
@@ -492,6 +499,8 @@ class stzSoundLive
 	# Takes the session out of any reactive loop and stops the performance, keeping the loops and the logs.
 	#
 	#   returns    the session itself, so calls chain
+	#   note       the heard frames, the heard cycle, the console, the ledger and the capture buffer
+	#              stay readable until the next Start, which begins a clean run
 	#   warning    does nothing to a session that is not running
 	#   see        Release, Start
 	def Stop()
@@ -510,6 +519,7 @@ class stzSoundLive
 			@oT = NULL
 		ok
 		@bRunning = FALSE
+		@bStopped = 1
 		return This
 
 	# Stops the session, then frees the graph and the rendered notes.
@@ -696,6 +706,33 @@ class stzSoundLive
 		return @nRefusals
 
 	#-- private -------------------------------------------------------------
+
+	# A stopped session is started again: forget the run that ended, keep what was defined.
+	# The loops keep their names, tags and version numbers, and each plays from cycle 0 in the
+	# version it has now (a redefinition made while running is the loop's version for the new run);
+	# the refusals count and the landings are the session's, not the run's.
+	def _StartClean()
+		@bStopped = 0
+		if isObject(@oGraph)
+			@oGraph.Release()
+		ok
+		@oGraph = NULL
+		@nTl = 0
+		@nHeardCycle = -1
+		@aConsole = []
+		@aLedger = []
+		@nHeard = 0
+		@nDrainShort = 0
+		@nUnderruns = 0
+		@nRenderedLive = 0
+		@cLastError = ""
+		_nLoops_ = len(@aLoops)
+		for _i_ = 1 to _nLoops_
+			_aV_ = @aLoops[_i_][3]
+			_last_ = _aV_[len(_aV_)]
+			@aLoops[_i_][3] = [ [ 0, _last_[2], _last_[3], _last_[4] ] ]
+			@aLoops[_i_][4] = 0
+		next
 
 	def _Refuse(pcWhy)
 		@nRefusals++

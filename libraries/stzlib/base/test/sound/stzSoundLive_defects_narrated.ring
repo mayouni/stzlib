@@ -17,6 +17,18 @@ load "../_narrated.ring"
 # (stzSoundLiveStalled, at the end of this file) proves the deadline itself, in about
 # a second.
 #
+# START AFTER STOP (the last two scenarios): a stopped session that is started again starts a
+# clean run. The heard cycle is back to -1, the console and the ledger are emptied, every loop
+# posts from cycle 0 in the version it has now, the capture buffer is replaced and the last error
+# is cleared; the loops, the landings, the version numbers and the refusals count are kept. Before,
+# the restart began at frame 0 but kept the heard cycle and the loops' next-cycle counters, so the
+# first cycles were silent and the console logged nothing until the old cycle number.
+#
+# EXIT CODE: every session below is released, because a capture session left RUNNING when the
+# process exits crashes it (exit 139 on bash, 0xC0000005 on Windows). The first scenario used to
+# leave its session running. The crash is engine-side: a bare StzEngineSoundStreamStart with no
+# Stop does the same without this class; the producer thread is still running when the DLL goes.
+
 # UNPERCEIVED: nobody has heard any of this. The evidence is frame counts, sample
 # rates, peaks and wall times; whether it SOUNDS right is a human's gate.
 
@@ -55,6 +67,7 @@ Scenario("CaptureInsteadOfDevice: what it takes, what it refuses")
 	Then("it is refused and counted", oA.Refusals(), 4)
 	Then("saying that the choice comes before the start", SlHas(oA.LastError(), "before the loops start"), 1)
 	Then("and the running buffer is untouched: still 96000 frames", oA.Capture().Frames(), 96000)
+	oA.Release()
 	EndScenario()
 
 Scenario("CaptureInsteadOfDevice: the buffer is silent beyond what was heard")
@@ -331,6 +344,128 @@ Scenario("Tick drains in paced capture")
 	oK.Release()
 	EndScenario()
 
+Scenario("Start after Stop: a stopped session that is started again starts clean")
+	Given("a 4 second capture at 240 bpm, with tune and beat defined, and a refusal made on purpose")
+	$aSlSeen = []
+	oR1 = StzSoundLiveQ(240)
+	oR1.CaptureInsteadOfDevice(4, FALSE)
+	oR1.OnCycle("SlFeed")
+	oR1.LiveLoopOn(:tune, "c5 e5 g5 e5", :Harp)
+	oR1.LiveLoop(:beat, "bd hh sn hh")
+	oR1.WaitCycles("two")
+	nRef1 = oR1.Refusals()
+	Then("the refusal was counted", nRef1, 1)
+	Then("and its reason is set", SlHas(oR1.LastError(), "number of cycles"), 1)
+	When("it runs 3 cycles, tune is redefined while it plays, and it is stopped")
+	oR1.WaitCycles(3)
+	Then("run 1 heard 3 cycles of frames: 144000", oR1.HeardFrames(), 144000)
+	Then("the heard cycle is 3: the boundary of cycle 3 is crossed at frame 144000", oR1.HeardCycle(), 3)
+	Then("the console has one line for each of the cycles 0, 1, 2 and 3", SlCycleNumbers(oR1.ConsoleLog()), "0123")
+	Then("the first run's first line names the versions it posted", oR1.ConsoleLog()[1][3], "cycle 0 | tune v1 | beat v1")
+	Then("the refusal made before the start was not cleared by the first start", SlHas(oR1.LastError(), "number of cycles"), 1)
+	nK1 = oR1.LiveLoopOn(:tune, "d4 c5 e5 c5", :Harp)
+	Then("the redefinition while playing landed later than the heard cycle", nK1 > 3, 1)
+	oR1.Stop()
+	Then("it is stopped", oR1.IsRunning(), 0)
+	Given("the stopped session, read before anything restarts it")
+	Then("the heard frames are still 144000", oR1.HeardFrames(), 144000)
+	Then("the heard cycle is still 3", oR1.HeardCycle(), 3)
+	Then("the console still has its 4 lines", len(oR1.ConsoleLog()), 4)
+	Then("the ledger still holds what was posted", len(oR1.Ledger()) > 0, 1)
+	Then("the capture buffer is still there: 192000 frames", oR1.Capture().Frames(), 192000)
+	Then("the callback was called for the 4 cycles heard", len($aSlSeen), 4)
+	nLan1 = len(oR1.Landings())
+	Then("three landings so far: tune v1, beat v1 and tune v2", nLan1, 3)
+	Then("tune is at v2 and the count is the loop's own", oR1.Landings()[3][2], 2)
+	When("it is started again")
+	$aSlSeen = []
+	Then("Start answers 1", oR1.Start(), 1)
+	Then("it is running", oR1.IsRunning(), 1)
+	Then("the first boundary heard is cycle 0 again: the heard cycle is 0, not 3", oR1.HeardCycle(), 0)
+	Then("the console was emptied and holds the line of cycle 0 only", len(oR1.ConsoleLog()), 1)
+	Then("that line names the version each loop has now: tune v2 plays from cycle 0", oR1.ConsoleLog()[1][3], "cycle 0 | tune v2 | beat v1")
+	Then("the ledger holds only the new run: no row for a cycle past the first window", SlLedgerHasNoCycleAbove(oR1.Ledger(), 4), 1)
+	Then("... and both loops were posted for cycle 0", SlLedgerCountAt(oR1.Ledger(), 0), 2)
+	Then("the last error is cleared", oR1.LastError(), "")
+	Then("the refusals count is the session's: kept at 1", oR1.Refusals(), nRef1)
+	Then("the capture buffer is a new one of the same length", oR1.Capture().Frames(), 192000)
+	When("it runs 3 cycles")
+	oR1.WaitCycles(3)
+	Then("run 2 heard frames from 0 again: 144000, not 288000", oR1.HeardFrames(), 144000)
+	Then("the heard cycle numbers are 0 to 3 again", SlCycleNumbers(oR1.ConsoleLog()), "0123")
+	Then("the callback was called for cycles 0 to 3: the first cycles are no longer silent", len($aSlSeen), 4)
+	Then("... the first with the text of cycle 0", $aSlSeen[1], "cycle 0 | tune v2 | beat v1")
+	Then("... the last with the text of cycle 3", $aSlSeen[4], "cycle 3 | tune v2 | beat v1")
+	Then("the loops are posted from the first cycle: the first second of the capture sounds, peak above 0.01",
+		SlPeakOfRange(oR1.Capture().ToList(1), 1, 48000) > 0.01, 1)
+	Then("no note was late", oR1.Late(), 0)
+	Then("no withdrawal was refused: nothing landed mid-cycle", oR1.MidCycleChanges(), 0)
+	Then("the landings were not touched by the restart: still 3", len(oR1.Landings()), nLan1)
+	Then("the refusal count is still the session's", oR1.Refusals(), nRef1)
+	When("tune is defined again in the second run, and the session is stopped and run a third time")
+	nK2 = oR1.LiveLoopOn(:tune, "e5 g5 c5 e5", :Harp)
+	Then("the new definition is v3: the version never goes back", oR1.Landings()[4][2], 3)
+	oR1.Stop()
+	$aSlSeen = []
+	oR1.WaitCycles(3)
+	Then("run 3 heard 144000 frames from 0", oR1.HeardFrames(), 144000)
+	Then("with the heard cycles 0 to 3 once more", SlCycleNumbers(oR1.ConsoleLog()), "0123")
+	Then("and the first line names tune v3", oR1.ConsoleLog()[1][3], "cycle 0 | tune v3 | beat v1")
+	Then("the callback was called 4 times in run 3", len($aSlSeen), 4)
+	oR1.Release()
+	EndScenario()
+
+Scenario("Start after Stop: the negative siblings, a stop with no restart and a start that is not a restart")
+	Given("a stopped session that is not started again")
+	oR2 = StzSoundLiveQ(240)
+	oR2.CaptureInsteadOfDevice(3, FALSE)
+	oR2.LiveLoopOn(:tune, "c5 e5 g5 e5", :Harp)
+	oR2.WaitCycles(2)
+	oR2.Stop()
+	Then("the heard frames stay readable: 96000", oR2.HeardFrames(), 96000)
+	Then("the heard cycle stays readable: 2", oR2.HeardCycle(), 2)
+	Then("the console stays readable: cycles 0, 1 and 2", SlCycleNumbers(oR2.ConsoleLog()), "012")
+	Then("the ledger stays readable and is not empty", len(oR2.Ledger()) > 0, 1)
+	Then("the capture stays readable: 144000 frames", oR2.Capture().Frames(), 144000)
+	Then("and it still sounds where it was heard: peak above 0.01", oR2.Capture().Peak() > 0.01, 1)
+	Then("reading it twice gives the same answer", oR2.HeardCycle() + oR2.HeardFrames(), 96002)
+	Then("the loop's definition is still there: one landing, v1", oR2.Landings()[1][2], 1)
+	Then("a second Stop changes nothing", oR2.Stop().HeardCycle(), 2)
+	Then("and the session is not running", oR2.IsRunning(), 0)
+	oR2.Release()
+	Given("a session that is started twice without a stop in between")
+	oR3 = StzSoundLiveQ(240)
+	oR3.CaptureInsteadOfDevice(3, FALSE)
+	oR3.LiveLoopOn(:tune, "c5 e5 g5 e5", :Harp)
+	oR3.WaitCycles(2)
+	Then("Start while running answers 1", oR3.Start(), 1)
+	Then("and does not reset the run: the heard cycle is still 2", oR3.HeardCycle(), 2)
+	Then("nor the frames heard: 96000", oR3.HeardFrames(), 96000)
+	Then("nor the console: 3 lines", len(oR3.ConsoleLog()), 3)
+	oR3.Release()
+	Given("a session whose first start follows a refusal, which is not a restart")
+	oR4 = StzSoundLiveQ(240)
+	oR4.CaptureInsteadOfDevice(2, FALSE)
+	oR4.SetTempo(5)
+	oR4.LiveLoopOn(:tune, "c5 e5 g5 e5", :Harp)
+	oR4.Start()
+	Then("the first start keeps the last error: it was not stopped before", SlHas(oR4.LastError(), "beats per minute"), 1)
+	Then("and the refusal count", oR4.Refusals(), 1)
+	oR4.Release()
+	Given("a stopped session whose loops are all silenced before it is started again")
+	oR5 = StzSoundLiveQ(240)
+	oR5.CaptureInsteadOfDevice(2, FALSE)
+	oR5.LiveLoopOn(:tune, "c5 e5 g5 e5", :Harp)
+	oR5.WaitCycles(1)
+	oR5.Hush()
+	oR5.Stop()
+	oR5.WaitCycles(1)
+	Then("the restarted run hears 48000 frames from 0", oR5.HeardFrames(), 48000)
+	Then("and the silence is the loop's version now: the capture is silent", oR5.Capture().Peak() < 0.001, 1)
+	Then("the heard cycles restarted too: 0 and 1", SlCycleNumbers(oR5.ConsoleLog()), "01")
+	oR5.Release()
+	EndScenario()
+
 Summary()
 
 # ---- helpers (at the end: top-level code after a func belongs to that func) ----
@@ -367,6 +502,29 @@ func SlVersionsOf(aLog, cLoop)
 		ok
 	next
 	return aOut
+
+# the cycle numbers of a console log, written one after the other: "0123"
+func SlCycleNumbers(aLog)
+	cOut = ""
+	for i = 1 to len(aLog)
+		cOut += aLog[i][1]
+	next
+	return cOut
+
+# 1 when no row of a ledger is for a cycle above nCycle
+func SlLedgerHasNoCycleAbove(aLedger, nCycle)
+	for i = 1 to len(aLedger)
+		if aLedger[i][1] > nCycle  return 0 ok
+	next
+	return 1
+
+# how many rows of a ledger are for the cycle nCycle
+func SlLedgerCountAt(aLedger, nCycle)
+	nCount = 0
+	for i = 1 to len(aLedger)
+		if aLedger[i][1] = nCycle  nCount++ ok
+	next
+	return nCount
 
 func SlNonDecreasing(aNums)
 	for i = 2 to len(aNums)
