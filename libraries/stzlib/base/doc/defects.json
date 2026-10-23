@@ -1,5 +1,5 @@
 {
- "count": 78,
+ "count": 75,
  "defects": [
   {
    "class": "stzAppServer",
@@ -440,30 +440,6 @@
    "line": 183,
    "symptom": "Returns the index of the node the graph hands to the world.",
    "cause": "a node added after the graph was prepared can reset this to 0, see the defects file"
-  },
-  {
-   "class": "stzLinearSolver",
-   "file": "stats/stzLinearSolver.ring",
-   "method": "solveWithBranchAndBound",
-   "line": 624,
-   "symptom": "Raises error today instead of solving by branch and bound, which is not implemented yet.",
-   "cause": "an honesty guard stops the method on its first line, so the branching code after it never runs; use \"greedy\" or \"simplex\""
-  },
-  {
-   "class": "stzLinearSolver",
-   "file": "stats/stzLinearSolver.ring",
-   "method": "CalculateFitness",
-   "line": 1274,
-   "symptom": "Raises error R5 today instead of returning the objective value less the constraint penalty, negated when minimizing.",
-   "cause": "it raises whenever the problem has a constraint, because CalculatePenalty fails (two problems); with no constraint it returns the objective value, negated when minimizing"
-  },
-  {
-   "class": "stzLinearSolver",
-   "file": "stats/stzLinearSolver.ring",
-   "method": "CalculatePenalty",
-   "line": 1293,
-   "symptom": "Raises error R5 today instead of returning 1000 times the total constraint violation of a candidate.",
-   "cause": "line 995 reads a variable oConst that is never defined, ahead of the correct line; it raises with one constraint and with two, and returns 0 when the problem has none"
   },
   {
    "class": "stzString",

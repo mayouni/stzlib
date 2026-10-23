@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 78 methods in 51 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 75 methods in 50 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| stats/stzLinearSolver.ring | stzLinearSolver | 3 |
 | string/stzStringChecker.ring | stzStringChecker | 3 |
 | string/stzStringPerformer.ring | stzStringPerformer | 3 |
 | string/stzStringText.ring | stzStringText | 3 |
@@ -229,12 +228,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzSoundGraph -- sound/stzSoundGraph.ring (1)
 
 - `OutputNode` (line 183): Returns the index of the node the graph hands to the world. -- a node added after the graph was prepared can reset this to 0, see the defects file
-
-## stzLinearSolver -- stats/stzLinearSolver.ring (3)
-
-- `solveWithBranchAndBound` (line 624): Raises error today instead of solving by branch and bound, which is not implemented yet. -- an honesty guard stops the method on its first line, so the branching code after it never runs; use "greedy" or "simplex"
-- `CalculateFitness` (line 1274): Raises error R5 today instead of returning the objective value less the constraint penalty, negated when minimizing. -- it raises whenever the problem has a constraint, because CalculatePenalty fails (two problems); with no constraint it returns the objective value, negated when minimizing
-- `CalculatePenalty` (line 1293): Raises error R5 today instead of returning 1000 times the total constraint violation of a candidate. -- line 995 reads a variable oConst that is never defined, ahead of the correct line; it raises with one constraint and with two, and returns 0 when the problem has none
 
 ## stzString -- string/stzString.ring (1)
 
