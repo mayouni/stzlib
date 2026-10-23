@@ -513,3 +513,8 @@ Next by size: five classes at 3 (stzDataSet first), then nine at 2.
 extract read coefficients by scanning the text (x found inside xx, a factor outside parentheses missed, repeated occurrences not added): the old code got 187 of 200 random linear expressions wrong, the new one 0. extract now judges the text and evaluates it at 16 points (one eval loop), falls to numericalDerivative for non-linear input; an undeclared name in the text is read as one more variable (test 18, and the solvers build the extractor with no names). Guard 920 assertions. Check stzLinearSolver's own extractCoefficient (about line 897) against the same generator in its batch.
 Next by size: five classes at 3 (stzDataSet first), then nine at 2.
 
+## 2026-10-23: the stzDataSet fix batch is ON MAIN; register 81 -> 78
+
+NonParametricCorrelation takes the other data set; the rank correlation now averages tied ranks (the engine function is exact only without ties: 0.825 against the true 0.8207826816681233); MutualInformation counts pairs of integer ids instead of text joined with an underscore; PlanSummary read oPlan instead of the plan it built. Seven arity-drift methods fixed by the sweep (935 calls, 0 errors). Guard 146 assertions. The machine was heavily loaded by another session's zig builds: reflect guards took 4, 2.5 and 8 minutes; use generous timeouts (590 s) for them.
+Next by size: four classes at 3 (stzLinearSolver first), then nine at 2.
+
