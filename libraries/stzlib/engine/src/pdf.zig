@@ -2325,6 +2325,11 @@ fn arabicDocFix(a: Allocator, blocks: []Block) !void {
     }
     if (!arabic or persian) return;
     for (blocks) |*b| {
+        for (b.rows) |row| for (row) |*c| {
+            if (std.mem.indexOf(u8, c.*, "\u{06CC}") == null and std.mem.indexOf(u8, c.*, "\u{06BE}") == null) continue;
+            const t = try std.mem.replaceOwned(u8, a, c.*, "\u{06CC}", "\u{064A}");
+            c.* = try std.mem.replaceOwned(u8, a, t, "\u{06BE}", "\u{0647}");
+        };
         if (std.mem.indexOf(u8, b.text, "\u{06CC}") == null and std.mem.indexOf(u8, b.text, "\u{06BE}") == null) continue;
         var t = try std.mem.replaceOwned(u8, a, b.text, "\u{06CC}", "\u{064A}");
         t = try std.mem.replaceOwned(u8, a, t, "\u{06BE}", "\u{0647}");
@@ -3844,9 +3849,13 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
         var frags: std.ArrayList(Frag) = .empty;
         try fragments(a, pg, @intCast(pi + 1), tb, &frags);
         for (frags.items) |*f| {
+            const rtl = isRtlCp(firstCp(f.text));
             for (pg.dots) |dt| {
                 const cy = (dt.y0 + dt.y1) / 2;
-                if (dt.x1 <= f.x0 + 1 and f.x0 - dt.x1 < 2.5 * f.size and cy >= f.y0 - 0.1 * f.size and cy <= f.y1 + 0.1 * f.size) {
+                if (cy < f.y0 - 0.1 * f.size or cy > f.y1 + 0.1 * f.size) continue;
+                const left = dt.x1 <= f.x0 + 1 and f.x0 - dt.x1 < 2.5 * f.size;
+                const right = dt.x0 >= f.x1 - 1 and dt.x0 - f.x1 < 2.5 * f.size;
+                if ((!rtl and left) or (rtl and right)) {
                     f.bullet = true;
                     break;
                 }
@@ -3859,7 +3868,9 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
             if (startsListMarker(t2) != mk.text.len + 1) continue;
             for (frags.items) |*it| {
                 if (it == mk or it.text.len == 0) continue;
-                if (@abs(it.base - mk.base) < 0.3 * mk.size and it.x0 > mk.x1 and it.x0 - mk.x1 < 3 * mk.size) {
+                const after_ltr = it.x0 > mk.x1 and it.x0 - mk.x1 < 3 * mk.size and !isRtlCp(firstCp(it.text));
+                const after_rtl = it.x1 < mk.x0 and mk.x0 - it.x1 < 3 * mk.size and isRtlCp(firstCp(it.text));
+                if (@abs(it.base - mk.base) < 0.3 * mk.size and (after_ltr or after_rtl)) {
                     it.bullet = true;
                     mk.text = "";
                     break;
@@ -3914,6 +3925,7 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
         var cur_text: std.ArrayList(u8) = .empty;
         var last: Frag = undefined;
         var list_x: f32 = 0;
+        var list_rtl = false;
         const flush = struct {
             fn f(al: Allocator, m: *std.ArrayList(Block), c: *?Block, t: *std.ArrayList(u8)) !void {
                 if (c.*) |*b| {
@@ -3935,7 +3947,7 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
                 const overlap = f.x0 < b.x1 + 1 and f.x1 > b.x0 - 1;
                 if (same_style and below and overlap and !item) {
                     if (b.kind == .list_item) {
-                        join = f.x0 >= list_x - 0.5 * f.size;
+                        join = if (list_rtl) f.x1 <= list_x + 0.5 * f.size else f.x0 >= list_x - 0.5 * f.size;
                     } else join = true;
                 }
             }
@@ -3965,7 +3977,10 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
                     kind = .list_item;
                     // a typed marker: the next line of the item is indented past it; a drawn bullet: the item's text
                     // starts where its next line does
-                    list_x = if (mk > 0) f.x0 + 1.0 * f.size else f.x0 + 0.5 * f.size;
+                    list_rtl = isRtlCp(firstCp(f.text[mk..]));
+                    list_x = if (list_rtl)
+                        (if (mk > 0) f.x1 - 1.0 * f.size else f.x1 - 0.5 * f.size)
+                    else if (mk > 0) f.x0 + 1.0 * f.size else f.x0 + 0.5 * f.size;
                 } else if (f.mono) kind = .code;
                 cur = .{ .page = f.page, .kind = kind, .x0 = f.x0, .y0 = f.y0, .x1 = f.x1, .y1 = f.y1, .size = f.size, .bold = f.bold, .mono = f.mono, .italic = f.italic, .text = "" };
                 const lb = f.lead_bold;
@@ -4117,13 +4132,20 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
             var e = k;
             var minx: f32 = 1e9;
             while (e < merged.items.len and merged.items[e].kind == .list_item and merged.items[e].page == merged.items[k].page) : (e += 1) minx = @min(minx, merged.items[e].x0);
+            // a right-to-left list is indented from the right: its edge is the right one
+            var nrtl: usize = 0;
+            for (merged.items[k..e]) |b| {
+                if (isRtlCp(firstCp(b.text[startsListMarker(b.text)..]))) nrtl += 1;
+            }
+            const rtl = 2 * nrtl > e - k;
             var xs: std.ArrayList(f32) = .empty;
-            for (merged.items[k..e]) |b| try xs.append(a, b.x0);
+            for (merged.items[k..e]) |b| try xs.append(a, if (rtl) -b.x1 else b.x0);
             const steps = try clusterVals(a, xs.items, 4);
             for (merged.items[k..e]) |*b| {
                 var lv: u32 = 0;
+                const edge = if (rtl) -b.x1 else b.x0;
                 for (steps, 0..) |sx, si| {
-                    if (@abs(sx - b.x0) <= 4) lv = @intCast(si);
+                    if (@abs(sx - edge) <= 4) lv = @intCast(si);
                 }
                 b.level = lv;
             }
@@ -4255,6 +4277,27 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
             if (l == 0) continue;
             for (0..n - 1) |j| row[j] = row[l];
         }
+    }
+    for (final.items) |*b| {
+        if (b.kind != .table) continue;
+        var nr: usize = 0;
+        var nl: usize = 0;
+        for (b.rows) |row| for (row) |c| {
+            var view = std.unicode.Utf8View.init(c) catch continue;
+            var it = view.iterator();
+            while (it.nextCodepoint()) |cp| {
+                if (isRtlCp(cp)) {
+                    nr += 1;
+                    break;
+                }
+                if (isLtrCp(cp)) {
+                    nl += 1;
+                    break;
+                }
+            }
+        };
+        if (nr <= nl) continue;
+        for (b.rows) |row| std.mem.reverse([]const u8, row);
     }
     try arabicDocFix(a, final.items);
     res.blocks = final.items;
