@@ -3028,6 +3028,50 @@ fn findAlignedTablesIn(a: Allocator, frags: []Frag, lane0: f32, lane1: f32, tabl
                 cols.items[cols.items.len - 1][1] = @max(cols.items[cols.items.len - 1][1], sp[1]);
             } else try cols.append(a, sp);
         }
+        // a band that only ONE row of a longer run fills is not a column: a header cell centred over
+        // right-aligned figures overlaps none of them; its cells go to the nearest band
+        if (run.len >= 4 and cols.items.len > 2) {
+            var kept_cols: std.ArrayList([2]f32) = .empty;
+            const fsz = frags[run[0][0]].size;
+            // which bands hold data (a row below the header)
+            var has_data = try a.alloc(bool, cols.items.len);
+            for (cols.items, 0..) |c, ci| {
+                has_data[ci] = false;
+                for (run[1..]) |row| for (row) |k| {
+                    const mx = (frags[k].x0 + frags[k].x1) / 2;
+                    if (mx >= c[0] and mx <= c[1]) has_data[ci] = true;
+                };
+            }
+            for (cols.items, 0..) |c, ci| {
+                // a header-only band right beside a band of figures is that column's header, set off-centre;
+                // over an empty column (no figures on this page) it is a column of its own
+                var beside = false;
+                for (cols.items, 0..) |c2, cj| {
+                    if (cj == ci or !has_data[cj]) continue;
+                    const gap = @max(c2[0] - c[1], c[0] - c2[1]);
+                    if (gap < 1.5 * fsz) beside = true;
+                }
+                if (!beside) {
+                    try kept_cols.append(a, c);
+                    continue;
+                }
+                var nrows: usize = 0;
+                var data_rows: usize = 0;
+                for (run, 0..) |row, ri| {
+                    for (row) |k| {
+                        const mx = (frags[k].x0 + frags[k].x1) / 2;
+                        if (mx >= c[0] and mx <= c[1]) {
+                            nrows += 1;
+                            if (ri > 0) data_rows += 1;
+                            break;
+                        }
+                    }
+                }
+                // (only the HEADER row's lonely bands: a sparse column of figures filled once is a real column)
+                if (nrows >= 2 or data_rows > 0) try kept_cols.append(a, c);
+            }
+            if (kept_cols.items.len >= 2) cols = kept_cols;
+        }
         if (cols.items.len < 2) {
             r = e;
             continue;
