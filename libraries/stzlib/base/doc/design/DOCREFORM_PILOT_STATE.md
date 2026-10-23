@@ -529,3 +529,8 @@ UPDATE 2026-10-23 (later): CODEBERG IS CURRENT AGAIN. The push of 870cbacc0 alon
 A real depth-first branch and bound over the class's own simplex (proved against a brute-force oracle on 40 random problems and 8 hand-solved LPs) replaced the honesty guard; CalculatePenalty lost a stray line; the genetic solver kept the worst candidate when minimising; round() with one argument is nonsense (use floor(v+0.5)). SECURITY: the solver ran raw eval on text and a function call ran (canary 1); text is now judged (R17). extractCoefficient had the extractor's bug (67 of 200 wrong, 200 of 200 now). Guard 555 assertions. A global side effect to decide: stzCoeffExtractor.init sets the display precision to 4 for the whole process.
 Next by size: three classes at 3 (stzStringChecker first), then nine at 2.
 
+## 2026-10-23: the four decisions taken on the author's behalf are ON MAIN
+
+stzSoundLive restarts clean after Stop (and its guard no longer exits 139: a sound stream still running at process exit crashes the process, an ENGINE-side defect, the guard releases its session); stzEntity.ContainsPropertyOrValue falls through to ContainsValue for a non-text; stzChainOfTruth ordinals follow the English rule (11th 12th 13th); stzDataSet.ExecutePlanXT treats a numeric 0 as quiet. Guards: Sound 195, Entity 108, ChainOfTruth 202, DataSet 185. The full list of decisions kept, declined and left for the engine owner is in CONCLUSIONS (K1-K8, N1, E1-E8).
+Next by size: three classes at 3 (stzStringChecker first), then nine at 2.
+
