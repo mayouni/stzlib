@@ -325,8 +325,13 @@ if NOT fexists(cExpect)
 	write(cExpect, cSvg1)
 	chk("EXPECTATION GENERATED at " + cExpect + " -- commit it and run again", FALSE)
 else
-	cWant = read(cExpect)
-	chk("the cardinal sine's SVG is byte for byte the committed expectation  [" + len(cSvg1) + " bytes]",
+	# a checkout with autocrlf hands the expectation back with carriage
+	# returns the renderer never wrote (stzlib-graphics, 2026-10-23: 281 of
+	# 282 on their machine, identical once CRs were stripped), so both sides
+	# are read without CRs: the bytes compared are the renderer's, not git's
+	cWant = StzReplace(read(cExpect), char(13), "")
+	cSvg1 = StzReplace(cSvg1, char(13), "")
+	chk("the cardinal sine's SVG is byte for byte the committed expectation, carriage returns aside  [" + len(cSvg1) + " bytes]",
 	    cSvg1 = cWant)
 	if cSvg1 != cWant
 		write("expect/fig_01.got.svg", cSvg1)
