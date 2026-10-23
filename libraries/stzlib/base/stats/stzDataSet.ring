@@ -3955,6 +3955,17 @@ class stzDataSet from stzObject
 			This.ExecutePlan(cNameOrGoalOrTemplate)
 
 
+    # Runs a plan on this data and returns the plan, the results and the errors, printing the steps only if asked.
+    #
+    #   cNameOrGoalOrTemplate   a plan name or goal, such as eda
+    #   bVerbose                1 to print the title, every step and the closing line, 0 to print
+    #                           nothing; an empty text means 1
+    #   returns                 a hash-list with the keys plan, results, errors and success_rate
+    #   note                    a number is a switch whatever its value: 0 is quiet and any other
+    #                           number is verbose; the empty text is the only way to say not given,
+    #                           since Ring has no default values; a step that raises is reported in
+    #                           errors and skipped
+    #   see                     ExecutePlan, MakePlan
     def ExecutePlanXT(cNameOrGoalOrTemplate, bVerbose)
         /*
         Execute a complete Plan and return results
@@ -3965,7 +3976,13 @@ class stzDataSet from stzObject
 
 	_nTime_ = clock()
 
-        if bVerbose = "" bVerbose = 1 ok
+        # an empty text means "not given" and is verbose; a number is a switch, so 0 is quiet
+        # (0 = "" is true in Ring, which is why the type is tested and not the value)
+        if isString(bVerbose)
+            if ring_len(bVerbose) = 0
+                bVerbose = 1
+            ok
+        ok
         
         _aPlan_ = This.GeneratePlan(cNameOrGoalOrTemplate)
         _aResults_ = []

@@ -447,6 +447,79 @@ Scenario("The aliases that named a method with the wrong number of arguments")
 	Then("... and the answer is returned, not dropped", len(aPerf), 3)
 EndScenario()
 
+Scenario("ExecutePlanXT: a bVerbose of 0 is quiet, 1 is verbose, an empty one keeps the verbose default")
+	Given("a child process that runs plans on [ 2 4 4 4 5 5 7 9 10 40 ] and marks the start and the end of each call")
+	aRuns = DsRunChild()
+	nRuns = len(aRuns)
+	Then("the child answered for 9 calls", nRuns, 9)
+	Given("the calls with 0, which must print nothing and still run the plan")
+	aQ0 = DsCase(aRuns, "q0")
+	Then("eda with 0: not a single line is printed", aQ0[2], 0)
+	Then("... no title line", aQ0[3], 0)
+	Then("... no step line", aQ0[4], 0)
+	Then("... no closing line", aQ0[5], 0)
+	Then("... and the plan still ran: 9 results", aQ0[6], 9)
+	Then("... with no error", aQ0[7], 0)
+	aQG = DsCase(aRuns, "qG")
+	Then("anomalies with 0: not a single line is printed", aQG[2], 0)
+	Then("... and the plan still ran, at least one result", aQG[6] > 0, 1)
+	aQR = DsCase(aRuns, "qR")
+	Then("RunPlanXT with 0 prints nothing", aQR[2], 0)
+	Then("... and runs the plan", aQR[6], 9)
+	aQP = DsCase(aRuns, "qP")
+	Then("PerformPlanXT with 0 prints nothing", aQP[2], 0)
+	Then("... and runs the plan", aQP[6], 9)
+	Given("the calls with 1, 2 and an empty text, which print the title, every step and the closing line")
+	aV1 = DsCase(aRuns, "v1")
+	Then("eda with 1: the title is printed", aV1[3], 1)
+	Then("... one line per step, 9 of them", aV1[4], 9)
+	Then("... the closing line is printed", aV1[5], 1)
+	Then("... and the same 9 results as the quiet call", aV1[6], aQ0[6])
+	aVE = DsCase(aRuns, "vE")
+	Then("eda with an empty text: verbose as it always was, the title", aVE[3], 1)
+	Then("... one line per step, 9 of them", aVE[4], 9)
+	Then("... the closing line", aVE[5], 1)
+	aV2 = DsCase(aRuns, "v2")
+	Then("eda with 2, a number that is not 0: verbose", aV2[3], 1)
+	Then("... 9 step lines", aV2[4], 9)
+	aVG = DsCase(aRuns, "vG")
+	Then("anomalies with 1: the title is printed", aVG[3], 1)
+	Then("... a step line for each result and error", aVG[4], aVG[6] + aVG[7])
+	Then("... and the quiet call of the same plan had the same results", aQG[6], aVG[6])
+	Given("the verbose output compared with the quiet one")
+	Then("a verbose call prints lines where the quiet one prints none", aV1[2] > aQ0[2], 1)
+	Then("the verbose call of an empty text prints as many lines as the call with 1", aVE[2], aV1[2])
+EndScenario()
+
+Scenario("ExecutePlan, RunPlan and PerformPlan ask for the verbose run; RunPlanXT and PerformPlanXT pass the argument through")
+	Given("a data set whose ExecutePlanXT records the arguments it received")
+	$dsRecPlan = "none"
+	$dsRecVerbose = "none"
+	oRec = new DsRec([ 1, 2, 3 ])
+	oRec.ExecutePlan("eda")
+	Then("ExecutePlan passes the plan name", $dsRecPlan, "eda")
+	Then("... and asks for the verbose run, 1", $dsRecVerbose, 1)
+	$dsRecPlan = "none"
+	$dsRecVerbose = "none"
+	oRec.RunPlan("trends")
+	Then("RunPlan passes the plan name", $dsRecPlan, "trends")
+	Then("... and asks for 1", $dsRecVerbose, 1)
+	$dsRecVerbose = "none"
+	oRec.PerformPlan("outliers")
+	Then("PerformPlan asks for 1", $dsRecVerbose, 1)
+	oRec.RunPlanXT("eda", 0)
+	Then("RunPlanXT passes a 0 as a number, not as an empty text", isNumber($dsRecVerbose), 1)
+	Then("... and it is 0", $dsRecVerbose, 0)
+	oRec.PerformPlanXT("eda", 0)
+	Then("PerformPlanXT passes a 0 as a number too", isNumber($dsRecVerbose), 1)
+	Then("... and it is 0", $dsRecVerbose, 0)
+	oRec.PerformPlanXT("eda", 1)
+	Then("PerformPlanXT passes a 1", $dsRecVerbose, 1)
+	oRec.RunPlanXT("eda", "")
+	Then("RunPlanXT passes an empty text as an empty text, for the method to turn into the default", isString($dsRecVerbose), 1)
+	Then("... and it is empty", len($dsRecVerbose), 0)
+EndScenario()
+
 Summary()
 
 # helpers go at the END: top-level code after a func belongs to that func
@@ -595,7 +668,88 @@ func NaiveMI(aX, aY)
 	next
 	return nvMi
 
+# runs the plan calls in a child process (the printed output cannot be captured in this one) and
+# returns, for each call, [ name, number of lines printed, title lines, step lines, closing lines,
+# results, errors ]
+func DsRunChild()
+	dsrFile = "zz_dsverbose_child.ring"
+	dsrOut = "zz_dsverbose_child.out"
+	dsrCalls = [
+		[ "q0", 'ExecutePlanXT("eda", 0)' ], [ "v1", 'ExecutePlanXT("eda", 1)' ], [ "vE", 'ExecutePlanXT("eda", "")' ],
+		[ "v2", 'ExecutePlanXT("eda", 2)' ], [ "qG", 'ExecutePlanXT("anomalies", 0)' ], [ "vG", 'ExecutePlanXT("anomalies", 1)' ],
+		[ "qR", 'RunPlanXT("eda", 0)' ], [ "qP", 'PerformPlanXT("eda", 0)' ], [ "vR", 'RunPlanXT("eda", 1)' ]
+	]
+	dsrScript = 'load "../../stzBase.ring"' + char(10) + 'dsrO = new stzDataSet([ 2, 4, 4, 4, 5, 5, 7, 9, 10, 40 ])' + char(10)
+	dsrN = len(dsrCalls)
+	for dsrI = 1 to dsrN
+		dsrScript += '? "<<' + dsrCalls[dsrI][1] + '>>"' + char(10)
+		dsrScript += 'dsrR = dsrO.' + dsrCalls[dsrI][2] + char(10)
+		dsrScript += '? "<<' + dsrCalls[dsrI][1] + ' end results=" + len(dsrR[:results]) + " errors=" + len(dsrR[:errors]) + ">>"' + char(10)
+	next
+	write(dsrFile, dsrScript)
+	if fexists(dsrOut)
+		remove(dsrOut)
+	ok
+	system(exefilename() + " " + dsrFile + " > " + dsrOut)
+	dsrText = read(dsrOut)
+	remove(dsrFile)
+	remove(dsrOut)
+
+	dsrLines = str2list(dsrText)
+	dsrNL = len(dsrLines)
+	dsrRes = []
+	dsrCur = []
+	for dsrI = 1 to dsrNL
+		dsrLine = dsrLines[dsrI]
+		if Has(dsrLine, "<<") and Has(dsrLine, ">>")
+			if Has(dsrLine, " end results=")
+				dsrPos = substr(dsrLine, "results=")
+				dsrPart = substr(dsrLine, dsrPos + 8)
+				dsrCur[6] = 0 + left(dsrPart, substr(dsrPart, " ") - 1)
+				dsrPos = substr(dsrLine, "errors=")
+				dsrPart = substr(dsrLine, dsrPos + 7)
+				dsrCur[7] = 0 + left(dsrPart, substr(dsrPart, ">") - 1)
+				dsrRes + dsrCur
+				dsrCur = []
+			else
+				dsrPos = substr(dsrLine, "<<")
+				dsrPart = substr(dsrLine, dsrPos + 2)
+				dsrCur = [ left(dsrPart, substr(dsrPart, ">") - 1), 0, 0, 0, 0, -1, -1 ]
+			ok
+		else
+			if len(dsrCur) > 0
+				dsrCur[2] = dsrCur[2] + 1
+				if Has(dsrLine, "Executing Plan")
+					dsrCur[3] = dsrCur[3] + 1
+				ok
+				if Has(dsrLine, "Step ") and Has(dsrLine, "/")
+					dsrCur[4] = dsrCur[4] + 1
+				ok
+				if Has(dsrLine, "Plan completed in")
+					dsrCur[5] = dsrCur[5] + 1
+				ok
+			ok
+		ok
+	next
+	return dsrRes
+
+func DsCase(aRuns, cName)
+	dscN = len(aRuns)
+	for dscI = 1 to dscN
+		if strcmp(aRuns[dscI][1], cName) = 0
+			return aRuns[dscI]
+		ok
+	next
+	return [ cName, -1, -1, -1, -1, -1, -1 ]
+
 # a data set whose ExecutePlanXT only records what it was asked
 class DsStub from stzDataSet
 	def ExecutePlanXT(cPlan, bVerbose)
 		return [ "stub", cPlan, bVerbose ]
+
+# a data set whose ExecutePlanXT records the plan and the verbose argument it received
+class DsRec from stzDataSet
+	def ExecutePlanXT(cPlan, bVerbose)
+		$dsRecPlan = cPlan
+		$dsRecVerbose = bVerbose
+		return [ "rec", cPlan, bVerbose ]
