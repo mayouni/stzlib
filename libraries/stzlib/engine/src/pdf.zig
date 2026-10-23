@@ -4241,7 +4241,15 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
             }
             const last = b.text[b.text.len - 1];
             const label = last == ':' or last == '.' or std.mem.endsWith(u8, b.text, "\u{FF1A}");
-            if (!label and hasLetter(b.text)) {
+            // a heading that shares its baseline with two or more other short blocks is a cell of a row
+            var mates: usize = 0;
+            if (b.lines == 1) for (merged.items, 0..) |o, q| {
+                if (q == k or o.page != b.page or o.lines != 1 or wordCount(o.text) > 4) continue;
+                if (@abs(o.y1 - b.y1) <= 0.3 * b.size and (o.x1 <= b.x0 or o.x0 >= b.x1)) mates += 1;
+            };
+            // (column headings of a poster share a baseline too, but prose follows each of them)
+            const prose_next = k + 1 < merged.items.len and merged.items[k + 1].kind == .paragraph and merged.items[k + 1].lines >= 2;
+            if (!label and hasLetter(b.text) and (mates < 2 or prose_next)) {
                 k += 1;
                 continue;
             }
