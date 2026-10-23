@@ -262,6 +262,34 @@ golden_v10: 24 realistic documents in 15 languages besides English (Persian, Ara
 
 Time for the 24 documents: native 0.3 s, Docling 654 s. **For the first time on a set of realistic documents (golden_v5 to v10), the native reader leads on tables** (0.68 against 0.64); it also leads on lists (0.69 against 0.65) and takes text back (0.88 against 0.79); Docling leads on headings and furniture. Both readers lose text on this set: it is harder than golden_v9 for both. Causes read off the native output: a Persian page loses its text (0.00) to three faults -- medial heh comes out as U+06BE (the Arabic letter fix is skipped on Persian pages, which do not use that letter either), the zero-width non-joiners are dropped, and the hamza of «همهٔ» comes loose as a separate mark; a title set with wide letter spacing is read with tabs between its words (each gap taken for a cell boundary), and a split initial reads "E lève"; of the 108 furniture lines, 29 are missed, 16 of them at the head of page 1 (letterheads). Round 10.
 
+**Tenth round: Persian, combining marks, tab glyphs, boxes under titles; then golden_v11.** Fixed on golden_v10 (now a development set; there text 0.88 -> 0.90, headings 0.76 -> 0.81, tables 0.68 -> 0.71; golden_v1 to v4 stay at 1.00; v6 text 0.95 -> 0.98, v7 lists 0.77 -> 0.78, v8 headings 0.985 -> 0.993):
+- Arabic-Indic and Persian digits read as a number run, left to right (a Persian price came back reversed);
+- a combining mark -- hamza, tanween, harakat, Hebrew points, Latin accents -- makes no gap and follows its base letter (never a space or a full stop it overhangs); the hamza of «کتابخانهٔ» split the word and came first;
+- outside Urdu, U+06BE (the glyph a font shares with initial and medial heh) is heh, and on a Persian page the digits shared with the Arabic-Indic ones are the Persian ones;
+- a glyph that a producer's ToUnicode maps to a TAB or a line end is a space, and one mapped to U+0000 is nothing (titles read "Bulletin<TAB>de<TAB>notes");
+- a wide line is a spanning line only if it crosses the narrow units' gutter;
+- two key/value boxes side by side read as one table under a row of titles are split, one table per box, each title a heading.
+
+WITHDRAWN on measurement: a short bold label a little smaller than the body read as a heading. The heading score rose (v10 0.81 -> 0.83), but checked against the sets' own headings and table cells, the 30 blocks it newly called headings were 3 expected headings, 18 table header cells and 9 neither. **The shared scorer counts heading RECALL only**, so it rewards false headings; from this round the memo also reports heading precision, computed the same way for both readers and outside the scorer, so the earlier rows stay comparable. Not recovered: the Persian zero-width non-joiner (no glyph, no gap). Guard 138 assertions under Ring++.
+
+golden_v11: 24 realistic documents in 19 languages besides English (Urdu, Persian, Arabic, Hebrew, Amharic, Vietnamese, Russian and Greek among them), 12 of 2-3 pages, by an eleventh independent agent who saw no reader, no output and no earlier set and did not look at the rendered pages (unperceived); reader frozen at 24a58eff4; both readers ran once:
+
+| golden_v11, realistic | text | order | headings | tables | lists | furniture | code |
+|---|---|---|---|---|---|---|---|
+| Softanza native (Ring++) | **0.89** | **1.00** | **0.82** | 0.61 | **0.66** | **0.72** | **0.50** |
+| Docling 2.141 | 0.83 | 0.98 | 0.73 | **0.66** | 0.53 | 0.52 | 0.38 |
+
+Heading precision (the share of a reader's heading blocks that are expected headings, pooled over the set):
+
+| heading precision | golden_v9 | golden_v10 | golden_v11 |
+|---|---|---|---|
+| Softanza native | 0.61 | 0.67 | **0.71** |
+| Docling 2.141 | **0.86** | **0.82** | 0.69 |
+
+Time for the 24 documents: native 0.1 s, Docling 148 s. The native reader leads on six of the seven measures; Docling keeps tables (0.66 against 0.61). Heading precision is the measure the shared score did not show: on golden_v9 and v10 four native headings in ten were not headings, against two in ten for Docling; on golden_v11 the two are level.
+
+Causes read off the native output: **code in a proportional face is not code to the native reader** -- r17's four blocks were printed in Segoe UI (the only fonts the PDF embeds, though its CSS asks for a monospaced face) and the reader finds code by a monospaced font only; Docling's layout model finds three of the four by their look. An Urdu page set in a Nastaliq face loses its text for both readers (text 0.00): its letters are drawn as dotless bodies plus separate dots, and the text layer maps the bodies to dotless letters («حامع م حد» for جامع مسجد). The Persian page still loses its zero-width non-joiners. Tables: separate tables merged into one (three of 4, 4 and 7 rows come back as one of 15), one table cut in two (11 rows as 2 + 9; 16 as 3 + 4), wrong column counts (9 for 5). Round 11.
+
 **Not measured**: Granite-Docling-258M (not downloaded), the GPU, scanned golden pages with an expected text, PDFs from producers other than Chrome (both golden sets are Chrome-made and tagged; the native reader does not read the tags).
 
 ---

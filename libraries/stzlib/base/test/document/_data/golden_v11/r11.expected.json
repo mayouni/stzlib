@@ -1,0 +1,125 @@
+{
+  "id": "r11",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "הסכם שכירות בלתי מוגנת",
+  "headings": [
+    {
+      "level": 1,
+      "text": "הסכם שכירות בלתי מוגנת"
+    },
+    {
+      "level": 2,
+      "text": "המשכיר"
+    },
+    {
+      "level": 2,
+      "text": "השוכר"
+    },
+    {
+      "level": 2,
+      "text": "1. המושכר"
+    },
+    {
+      "level": 2,
+      "text": "2. תקופת השכירות"
+    },
+    {
+      "level": 2,
+      "text": "3. דמי השכירות ותשלומם"
+    },
+    {
+      "level": 2,
+      "text": "4. ביטחונות"
+    },
+    {
+      "level": 2,
+      "text": "5. שימוש ותחזוקה"
+    },
+    {
+      "level": 2,
+      "text": "6. סיום ההסכם"
+    }
+  ],
+  "key_sentences": [
+    "המשכיר מצהיר כי הוא הבעלים הרשום של דירה בת שלושה חדרים בקומה השנייה ברחוב הזית 22, נווה גלים, המכונה להלן המושכר.",
+    "המושכר יימסר לשוכר כשהוא נקי ובמצב תקין, יחד עם מקרר, תנור ומזגן בסלון.",
+    "תקופת השכירות היא שנים עשר חודשים, החל מיום 1 בנובמבר 2026 ועד יום 31 באוקטובר 2027.",
+    "דמי השכירות החודשיים הם 5,400 ₪.",
+    "דמי השכירות ישולמו מראש לכל שלושה חודשים בהעברה בנקאית, לפי הלוח שלהלן.",
+    "להבטחת קיום התחייבויותיו ימסור השוכר למשכיר ערבות בנקאית בסך 10,800 ₪.",
+    "בתום תקופת השכירות יפנה השוכר את המושכר וימסור אותו למשכיר במצב שבו קיבל אותו, למעט בלאי סביר.",
+    "כל שינוי בהסכם זה ייעשה בכתב ובחתימת שני הצדדים."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "תשלום",
+          "מועד",
+          "תקופה",
+          "סכום (₪)"
+        ],
+        [
+          "1",
+          "01/11/2026",
+          "נובמבר 2026 – ינואר 2027",
+          "16,200"
+        ],
+        [
+          "2",
+          "01/02/2027",
+          "פברואר – אפריל 2027",
+          "16,200"
+        ],
+        [
+          "3",
+          "01/05/2027",
+          "מאי – יולי 2027",
+          "16,200"
+        ],
+        [
+          "4",
+          "01/08/2027",
+          "אוגוסט – אוקטובר 2027",
+          "16,200"
+        ],
+        [
+          "סה״כ",
+          "סה״כ",
+          "סה״כ",
+          "64,800"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "השוכר ישתמש במושכר למגורים בלבד."
+    },
+    {
+      "level": 0,
+      "text": "השוכר לא יכניס שינויים במושכר ללא הסכמת המשכיר בכתב."
+    },
+    {
+      "level": 0,
+      "text": "תיקון קלקולים שנגרמו משימוש רגיל יחול על המשכיר."
+    },
+    {
+      "level": 0,
+      "text": "חשבונות החשמל, המים, הגז והארנונה יחולו על השוכר."
+    }
+  ],
+  "furniture": [
+    "הסכם שכירות – רחוב הזית 22",
+    "עמוד 1 מתוך 2",
+    "עמוד 2 מתוך 2"
+  ],
+  "languages": [
+    "he"
+  ],
+  "code": [],
+  "notes": "Two-page Hebrew residential lease, right to left. Running header (top left) listed once; 'עמוד n מתוך N' once per page. The two party boxes ('המשכיר' then 'השוכר') sit SIDE BY SIDE and are read box by box, right box first; their labels are level-2 headings. Clause numbers such as '3.1' are PARAGRAPH NUMBERS, not list items, and are excluded from key_sentences (the sentence after the number is given). The obligations list has CSS-drawn circle bullets. The payment table lists cells rightmost column first; 'סה״כ' spans three columns. The signature blocks at the end sit side by side and have drawn signature lines."
+}

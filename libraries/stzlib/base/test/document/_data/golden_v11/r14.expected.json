@@ -1,0 +1,180 @@
+{
+  "id": "r14",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "DOCUMENTO DI VALUTAZIONE",
+  "headings": [
+    {
+      "level": 1,
+      "text": "DOCUMENTO DI VALUTAZIONE"
+    },
+    {
+      "level": 2,
+      "text": "Dati dell’alunno"
+    },
+    {
+      "level": 2,
+      "text": "Valutazioni periodiche e finali"
+    },
+    {
+      "level": 2,
+      "text": "Giudizio globale"
+    },
+    {
+      "level": 2,
+      "text": "Esito finale"
+    }
+  ],
+  "key_sentences": [
+    "Matteo ha partecipato alle attività didattiche con interesse e continuità, mostrando un miglioramento costante nel secondo quadrimestre.",
+    "Il metodo di studio è diventato più autonomo e organizzato.",
+    "Si consiglia di consolidare durante l’estate le competenze di calcolo e la comprensione dei testi in lingua francese.",
+    "L’alunno è ammesso alla classe successiva."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Alunno",
+          "Matteo Ricciardi",
+          "Classe",
+          "2ª sezione B"
+        ],
+        [
+          "Data di nascita",
+          "14/03/2013",
+          "Coordinatrice di classe",
+          "prof.ssa Giulia Ferrante"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Disciplina",
+          "Primo quadrimestre",
+          "Primo quadrimestre",
+          "Secondo quadrimestre",
+          "Secondo quadrimestre"
+        ],
+        [
+          "Disciplina",
+          "Voto",
+          "Assenze",
+          "Voto",
+          "Assenze"
+        ],
+        [
+          "Italiano",
+          "7",
+          "4",
+          "8",
+          "2"
+        ],
+        [
+          "Storia",
+          "8",
+          "2",
+          "8",
+          "1"
+        ],
+        [
+          "Geografia",
+          "7",
+          "2",
+          "7",
+          "1"
+        ],
+        [
+          "Inglese",
+          "9",
+          "3",
+          "9",
+          "2"
+        ],
+        [
+          "Seconda lingua comunitaria (Francese)",
+          "6",
+          "2",
+          "7",
+          "1"
+        ],
+        [
+          "Matematica",
+          "6",
+          "5",
+          "7",
+          "3"
+        ],
+        [
+          "Scienze",
+          "7",
+          "3",
+          "8",
+          "2"
+        ],
+        [
+          "Tecnologia",
+          "8",
+          "1",
+          "8",
+          "1"
+        ],
+        [
+          "Musica",
+          "9",
+          "1",
+          "9",
+          "0"
+        ],
+        [
+          "Arte e immagine",
+          "8",
+          "1",
+          "8",
+          "1"
+        ],
+        [
+          "Scienze motorie e sportive",
+          "10",
+          "0",
+          "9",
+          "2"
+        ],
+        [
+          "Educazione civica",
+          "8",
+          "–",
+          "8",
+          "–"
+        ],
+        [
+          "Religione cattolica",
+          "Distinto",
+          "1",
+          "Ottimo",
+          "0"
+        ],
+        [
+          "Comportamento",
+          "Corretto e responsabile",
+          "Corretto e responsabile",
+          "Corretto e responsabile",
+          "Corretto e responsabile"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "Istituto Comprensivo Statale «Valle dei Mandorli»",
+    "Via dei Gelsi 21 – 70044 Borgo Ulivo · tel. 080 555 2741"
+  ],
+  "languages": [
+    "it"
+  ],
+  "code": [],
+  "notes": "One-page Italian lower-secondary report card. Letterhead lines are furniture. The title is typed in capitals and LETTER-SPACED (given as its plain words). The grades table has a TWO-LEVEL header ('Disciplina' spans two rows, each term spans 'Voto' and 'Assenze'); in the behaviour row each judgement spans the two columns of its term. A dash means no value. The student data table is a four-column key/value grid without header. The place/date line and the two signature blocks (side by side) are body text."
+}

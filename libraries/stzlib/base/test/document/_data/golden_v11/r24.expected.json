@@ -1,0 +1,448 @@
+{
+  "id": "r24",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "Financial Statements for the year ended 30 June 2026",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Financial Statements for the year ended 30 June 2026"
+    },
+    {
+      "level": 2,
+      "text": "Statement of financial position"
+    },
+    {
+      "level": 2,
+      "text": "Statement of activities"
+    },
+    {
+      "level": 2,
+      "text": "Notes to the financial statements"
+    },
+    {
+      "level": 3,
+      "text": "1 Accounting policies"
+    },
+    {
+      "level": 3,
+      "text": "2 Property, plant and equipment"
+    },
+    {
+      "level": 3,
+      "text": "3 Restricted funds"
+    },
+    {
+      "level": 3,
+      "text": "4 Related parties"
+    },
+    {
+      "level": 2,
+      "text": "Trustees’ approval"
+    }
+  ],
+  "key_sentences": [
+    "The Trust holds fourteen homes and two workshops, all let at rents below the local market level.",
+    "Cash at bank rose by a quarter during the year because a planned roof replacement was postponed to the spring.",
+    "All income and expenditure arise from continuing activities.",
+    "The financial statements have been prepared on the historical cost basis, except that land is shown at valuation.",
+    "Income is recognised when the Trust is entitled to it and the amount can be measured reliably.",
+    "The Affordable Homes Fund may be used only to acquire or improve homes let at no more than eighty percent of local market rents.",
+    "Two trustees are tenants of the Trust and pay rent on the same terms as other tenants.",
+    "No trustee received any remuneration during the year."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "",
+          "Note",
+          "2026 £",
+          "2025 £"
+        ],
+        [
+          "Non-current assets",
+          "",
+          "",
+          ""
+        ],
+        [
+          "Land and buildings",
+          "2",
+          "1,842,600",
+          "1,796,300"
+        ],
+        [
+          "Equipment",
+          "2",
+          "38,450",
+          "44,120"
+        ],
+        [
+          "",
+          "",
+          "1,881,050",
+          "1,840,420"
+        ],
+        [
+          "Current assets",
+          "",
+          "",
+          ""
+        ],
+        [
+          "Rent and other receivables",
+          "",
+          "21,380",
+          "18,950"
+        ],
+        [
+          "Cash at bank",
+          "",
+          "164,720",
+          "131,005"
+        ],
+        [
+          "",
+          "",
+          "186,100",
+          "149,955"
+        ],
+        [
+          "Current liabilities",
+          "",
+          "",
+          ""
+        ],
+        [
+          "Payables and accruals",
+          "",
+          "(24,610)",
+          "(22,870)"
+        ],
+        [
+          "Deferred grant income",
+          "",
+          "(15,000)",
+          "(30,000)"
+        ],
+        [
+          "",
+          "",
+          "(39,610)",
+          "(52,870)"
+        ],
+        [
+          "Net current assets",
+          "",
+          "146,490",
+          "97,085"
+        ],
+        [
+          "Non-current liabilities",
+          "",
+          "",
+          ""
+        ],
+        [
+          "Community share loan",
+          "",
+          "(420,000)",
+          "(450,000)"
+        ],
+        [
+          "Net assets",
+          "",
+          "1,607,540",
+          "1,487,505"
+        ],
+        [
+          "Funds",
+          "",
+          "",
+          ""
+        ],
+        [
+          "Unrestricted funds",
+          "",
+          "1,248,330",
+          "1,152,095"
+        ],
+        [
+          "Restricted funds",
+          "3",
+          "359,210",
+          "335,410"
+        ],
+        [
+          "Total funds",
+          "",
+          "1,607,540",
+          "1,487,505"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "",
+          "2026",
+          "2026",
+          "2026",
+          "2025 Total"
+        ],
+        [
+          "",
+          "Unrestricted",
+          "Restricted",
+          "Total",
+          "2025 Total"
+        ],
+        [
+          "Income",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "Rental income",
+          "212,400",
+          "–",
+          "212,400",
+          "198,750"
+        ],
+        [
+          "Grants",
+          "18,000",
+          "65,000",
+          "83,000",
+          "71,500"
+        ],
+        [
+          "Donations",
+          "9,850",
+          "4,200",
+          "14,050",
+          "12,300"
+        ],
+        [
+          "Investment income",
+          "1,240",
+          "–",
+          "1,240",
+          "380"
+        ],
+        [
+          "Total income",
+          "241,490",
+          "69,200",
+          "310,690",
+          "282,930"
+        ],
+        [
+          "Expenditure",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "Property maintenance",
+          "68,300",
+          "12,400",
+          "80,700",
+          "74,210"
+        ],
+        [
+          "Staff costs",
+          "54,600",
+          "18,000",
+          "72,600",
+          "69,850"
+        ],
+        [
+          "Loan interest",
+          "11,350",
+          "–",
+          "11,350",
+          "12,600"
+        ],
+        [
+          "Governance and audit",
+          "8,705",
+          "–",
+          "8,705",
+          "8,120"
+        ],
+        [
+          "Depreciation",
+          "2,300",
+          "15,000",
+          "17,300",
+          "16,900"
+        ],
+        [
+          "Total expenditure",
+          "145,255",
+          "45,400",
+          "190,655",
+          "181,680"
+        ],
+        [
+          "Net movement in funds",
+          "96,235",
+          "23,800",
+          "120,035",
+          "101,250"
+        ],
+        [
+          "Funds brought forward",
+          "1,152,095",
+          "335,410",
+          "1,487,505",
+          "1,386,255"
+        ],
+        [
+          "Funds carried forward",
+          "1,248,330",
+          "359,210",
+          "1,607,540",
+          "1,487,505"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "",
+          "Land and buildings £",
+          "Equipment £",
+          "Total £"
+        ],
+        [
+          "Cost or valuation",
+          "",
+          "",
+          ""
+        ],
+        [
+          "At 1 July 2025",
+          "1,835,700",
+          "76,400",
+          "1,912,100"
+        ],
+        [
+          "Additions",
+          "55,300",
+          "2,630",
+          "57,930"
+        ],
+        [
+          "At 30 June 2026",
+          "1,891,000",
+          "79,030",
+          "1,970,030"
+        ],
+        [
+          "Depreciation",
+          "",
+          "",
+          ""
+        ],
+        [
+          "At 1 July 2025",
+          "39,400",
+          "32,280",
+          "71,680"
+        ],
+        [
+          "Charge for the year",
+          "9,000",
+          "8,300",
+          "17,300"
+        ],
+        [
+          "At 30 June 2026",
+          "48,400",
+          "40,580",
+          "88,980"
+        ],
+        [
+          "Net book value",
+          "",
+          "",
+          ""
+        ],
+        [
+          "At 30 June 2026",
+          "1,842,600",
+          "38,450",
+          "1,881,050"
+        ],
+        [
+          "At 30 June 2025",
+          "1,796,300",
+          "44,120",
+          "1,840,420"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Fund",
+          "At 1 July 2025 £",
+          "Income £",
+          "Expenditure £",
+          "At 30 June 2026 £"
+        ],
+        [
+          "Affordable Homes Fund",
+          "290,410",
+          "50,000",
+          "(30,400)",
+          "310,010"
+        ],
+        [
+          "Green Retrofit Grant",
+          "45,000",
+          "15,000",
+          "(15,000)",
+          "45,000"
+        ],
+        [
+          "Community Garden",
+          "0",
+          "4,200",
+          "0",
+          "4,200"
+        ],
+        [
+          "Total",
+          "335,410",
+          "69,200",
+          "(45,400)",
+          "359,210"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "KESTREL VALLEY COMMUNITY LAND TRUST",
+    "Kestrel Valley Community Land Trust · Annual Report 2026",
+    "1",
+    "2",
+    "3"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Three-page charity financial statements (one statement per page; the notes start on page 3). The letter-spaced organisation line at the top of page 1 is letterhead furniture; the bottom-left footer is listed once and the bare page number once per page. Tables are PARTLY RULED (rules only under headers, above subtotals, double rule under totals). Section rows ('Non-current assets', 'Income', 'Cost or valuation' ...) carry their label in the first cell only; the other cells are empty strings. Subtotal rows have an empty label cell. Negative amounts are in parentheses. The statement of activities has a TWO-LEVEL header (first cell and '2025 Total' span two rows; '2026' spans three columns). Note headings ('1 Accounting policies' ...) are level 3. The two signature blocks sit side by side."
+}

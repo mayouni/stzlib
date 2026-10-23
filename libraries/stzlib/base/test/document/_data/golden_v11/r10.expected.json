@@ -1,0 +1,193 @@
+{
+  "id": "r10",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Elektrik Faturası",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Elektrik Faturası"
+    },
+    {
+      "level": 2,
+      "text": "Abone Bilgileri"
+    },
+    {
+      "level": 2,
+      "text": "Fatura Bilgileri"
+    },
+    {
+      "level": 2,
+      "text": "Tüketim Bilgileri"
+    },
+    {
+      "level": 2,
+      "text": "Fatura Detayı"
+    },
+    {
+      "level": 2,
+      "text": "Son 6 Ay Tüketim (kWh)"
+    },
+    {
+      "level": 2,
+      "text": "Önemli Bilgiler"
+    }
+  ],
+  "key_sentences": [
+    "Bu dönemki tüketiminiz geçen yılın aynı dönemine göre yüzde 6 daha düşüktür.",
+    "Son ödeme tarihine kadar ödenmeyen faturalara gecikme zammı uygulanır.",
+    "Faturanızı banka, PTT ve anlaşmalı ödeme noktalarından ödeyebilirsiniz.",
+    "Otomatik ödeme talimatı vermek için çağrı merkezimizi arayabilirsiniz."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Abone No",
+          "4100 2287 15"
+        ],
+        [
+          "Ad Soyad",
+          "Elif Karaca"
+        ],
+        [
+          "Adres",
+          "Lale Sok. No: 7 D: 3, Yeşilova"
+        ],
+        [
+          "Tarife",
+          "Mesken – Tek Zamanlı"
+        ],
+        [
+          "Sayaç No",
+          "7731 9902"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Fatura No",
+          "GEP2026000918734"
+        ],
+        [
+          "Fatura Tarihi",
+          "05.10.2026"
+        ],
+        [
+          "Dönem",
+          "01.09.2026 – 30.09.2026"
+        ],
+        [
+          "Son Ödeme Tarihi",
+          "20.10.2026"
+        ],
+        [
+          "Okuma Türü",
+          "Gerçek okuma"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "İlk Endeks",
+          "Son Endeks",
+          "Fark (kWh)",
+          "Çarpan",
+          "Tüketim (kWh)"
+        ],
+        [
+          "18.432",
+          "18.671",
+          "239",
+          "1",
+          "239"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Kalem",
+          "Miktar",
+          "Birim Fiyat (TL)",
+          "Tutar (TL)"
+        ],
+        [
+          "Enerji bedeli",
+          "239 kWh",
+          "2,0750",
+          "495,93"
+        ],
+        [
+          "Dağıtım bedeli",
+          "239 kWh",
+          "1,2410",
+          "296,60"
+        ],
+        [
+          "Elektrik tüketim vergisi (%5)",
+          "—",
+          "—",
+          "39,63"
+        ],
+        [
+          "Ara Toplam",
+          "Ara Toplam",
+          "Ara Toplam",
+          "832,16"
+        ],
+        [
+          "KDV (%20)",
+          "KDV (%20)",
+          "KDV (%20)",
+          "166,43"
+        ],
+        [
+          "Ödenecek Tutar",
+          "Ödenecek Tutar",
+          "Ödenecek Tutar",
+          "998,59"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Nisan",
+          "Mayıs",
+          "Haziran",
+          "Temmuz",
+          "Ağustos",
+          "Eylül"
+        ],
+        [
+          "198",
+          "176",
+          "205",
+          "262",
+          "281",
+          "239"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "GÖKTAŞ ELEKTRİK PERAKENDE SATIŞ A.Ş.",
+    "Çınarlı Mah. Enerji Cad. No: 12, 16420 Yeşilova",
+    "Çağrı Merkezi: 444 5 186 · www.goktas-elektrik.example",
+    "Bu fatura elektronik ortamda düzenlenmiştir. Mersis No: 0418 5550 1860 0017"
+  ],
+  "languages": [
+    "tr"
+  ],
+  "code": [],
+  "notes": "One-page Turkish electricity bill, dense. The yellow letterhead band and the small print under the final rule are furniture. 'Abone Bilgileri' and 'Fatura Bilgileri' are SIDE-BY-SIDE key/value boxes, read box by box. In the bill detail table the subtotal, VAT and payable rows have their label spanning three columns. The six-month consumption table is a two-row horizontal table (header row = months). The boxed amount line is body text."
+}

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>تقرير نتائج التحاليل المخبرية</title>
+<style>
+
+@page { size: A4; margin: 1.8cm 2cm; }
+body { font-family: Tahoma, Arial, sans-serif; font-size: 10.5pt; color: #1e2a33; }
+.lh { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #b5452f; padding-bottom: 8px; }
+.lh .n { font-size: 16pt; font-weight: bold; color: #b5452f; }
+.lh .a { font-size: 9pt; color: #555; }
+.cross { width: 34px; height: 34px; position: relative; }
+.cross:before, .cross:after { content: ""; position: absolute; background: #b5452f; }
+.cross:before { left: 12px; top: 0; width: 10px; height: 34px; }
+.cross:after { top: 12px; left: 0; height: 10px; width: 34px; }
+h1 { text-align: center; font-size: 15pt; margin: 16px 0 10px 0; }
+h2 { font-size: 11.5pt; color: #b5452f; margin: 14px 0 5px 0; }
+table { width: 100%; border-collapse: collapse; }
+table.pt td { padding: 4px 8px; border: 1px solid #ddd; }
+table.pt td.k { background: #f6efed; font-weight: bold; width: 18%; }
+table.res th { background: #b5452f; color: white; padding: 5px; font-weight: normal; }
+table.res td { padding: 4px 8px; border-bottom: 1px solid #e5e5e5; }
+table.res td.v { text-align: center; direction: ltr; unicode-bidi: isolate; }
+table.res tr.sec td { background: #f6efed; font-weight: bold; color: #b5452f; }
+table.res td.flag { color: #b5452f; font-weight: bold; }
+ul { padding-right: 20px; margin: 4px 0; }
+li { margin: 3px 0; }
+.sig { margin-top: 20px; }
+.foot { margin-top: 26px; border-top: 1px solid #ccc; padding-top: 6px; font-size: 8.5pt; color: #666; text-align: center; }
+
+</style>
+</head>
+<body>
+<div class="lh"><div><div class="n">مختبر الواحة للتحاليل الطبية</div><div class="a">شارع الجامعة، عمارة ١٢، الطابق الأول</div><div class="a">هاتف ٠٢٢٤٥٥١٩٨ — فاكس ٠٢٢٤٥٥١٩٩</div></div><div class="cross"></div></div>
+<h1>تقرير نتائج التحاليل المخبرية</h1>
+<h2>بيانات المريض</h2>
+<table class="pt"><tbody><tr><td class="k">اسم المريض</td><td>هدى عبد الرحيم السالم</td><td class="k">رقم الملف</td><td>2026-08815</td></tr><tr><td class="k">العمر</td><td>٤٢ سنة</td><td class="k">الجنس</td><td>أنثى</td></tr><tr><td class="k">الطبيب المحيل</td><td>د. كمال الحداد</td><td class="k">تاريخ سحب العينة</td><td>٢٠٢٦/١٠/١٩</td></tr><tr><td class="k">نوع العينة</td><td>دم وريدي</td><td class="k">تاريخ إصدار التقرير</td><td>٢٠٢٦/١٠/٢٠</td></tr></tbody></table>
+<h2>النتائج</h2>
+<table class="res"><thead><tr><th>الفحص</th><th>النتيجة</th><th>الوحدة</th><th>المدى المرجعي</th><th>ملاحظة</th></tr></thead><tbody><tr class="sec"><td colspan="5">تعداد الدم الكامل</td></tr><tr><td>الهيموغلوبين</td><td class="v">11.4</td><td>غ/دل</td><td class="v">12.0 - 15.5</td><td class="flag">منخفض</td></tr><tr><td>كريات الدم الحمراء</td><td class="v">4.21</td><td>مليون/مكل</td><td class="v">3.90 - 5.20</td><td></td></tr><tr><td>كريات الدم البيضاء</td><td class="v">7.8</td><td>ألف/مكل</td><td class="v">4.0 - 11.0</td><td></td></tr><tr><td>الصفائح الدموية</td><td class="v">265</td><td>ألف/مكل</td><td class="v">150 - 400</td><td></td></tr><tr class="sec"><td colspan="5">الكيمياء الحيوية</td></tr><tr><td>غلوكوز الدم الصائم</td><td class="v">118</td><td>ملغ/دل</td><td class="v">70 - 100</td><td class="flag">مرتفع</td></tr><tr><td>الكرياتينين</td><td class="v">0.8</td><td>ملغ/دل</td><td class="v">0.5 - 1.1</td><td></td></tr><tr><td>الكوليسترول الكلي</td><td class="v">212</td><td>ملغ/دل</td><td>أقل من 200</td><td class="flag">مرتفع</td></tr><tr><td>الدهون الثلاثية</td><td class="v">145</td><td>ملغ/دل</td><td>أقل من 150</td><td></td></tr><tr class="sec"><td colspan="5">وظائف الغدة الدرقية</td></tr><tr><td>الهرمون المنبه للدرقية</td><td class="v">2.35</td><td>ميكرووحدة/مل</td><td class="v">0.40 - 4.00</td><td></td></tr></tbody></table>
+<h2>ملاحظات</h2>
+<ul><li>سحبت العينة بعد صيام دام اثنتي عشرة ساعة.</li><li>النتائج المميزة بكلمة «مرتفع» أو «منخفض» تقع خارج المدى المرجعي.</li><li>ينصح بإعادة فحص الغلوكوز الصائم خلال أسبوعين.</li></ul>
+<p>يجب تفسير هذه النتائج من قبل الطبيب المعالج في ضوء الحالة السريرية للمريض. لا يعد هذا التقرير تشخيصا طبيا بحد ذاته. تحفظ العينات في المختبر مدة سبعة أيام من تاريخ السحب. يرجى إحضار هذا التقرير عند مراجعة الطبيب.</p>
+<p class="sig">أخصائية المختبر: رنا يوسف</p>
+<div class="foot">هذا التقرير صادر إلكترونيا ولا يحتاج إلى ختم</div>
+</body>
+</html>

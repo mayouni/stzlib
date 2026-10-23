@@ -1,0 +1,239 @@
+{
+  "id": "r08",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Motor Policy Schedule",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Motor Policy Schedule"
+    },
+    {
+      "level": 2,
+      "text": "Policyholder and vehicle"
+    },
+    {
+      "level": 2,
+      "text": "Cover"
+    },
+    {
+      "level": 2,
+      "text": "Excesses"
+    },
+    {
+      "level": 2,
+      "text": "Named drivers"
+    },
+    {
+      "level": 2,
+      "text": "Premium"
+    },
+    {
+      "level": 2,
+      "text": "Endorsements and conditions"
+    },
+    {
+      "level": 3,
+      "text": "Endorsement 04 – Garaging"
+    },
+    {
+      "level": 3,
+      "text": "Endorsement 11 – Telematics"
+    },
+    {
+      "level": 3,
+      "text": "Use of vehicle"
+    },
+    {
+      "level": 3,
+      "text": "Cancellation"
+    },
+    {
+      "level": 3,
+      "text": "Making a claim"
+    }
+  ],
+  "key_sentences": [
+    "This schedule forms part of your policy and must be read together with the policy booklet MP-2026.",
+    "Please check the details below and tell us within 14 days if anything is incorrect.",
+    "The additional excess applies only when the vehicle is driven by a named driver under the age of 25.",
+    "The vehicle must be kept in a locked garage overnight at the address shown.",
+    "A telematics device must remain fitted and working for the whole period of insurance.",
+    "Social, domestic and pleasure use and commuting to a single place of work are covered, but business use is not.",
+    "You may cancel within 14 days of receiving this schedule and receive a full refund if no claim has been made."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Policy number",
+          "MTR-55-2093817",
+          "Period of insurance",
+          "15 Oct 2026 to 14 Oct 2027"
+        ],
+        [
+          "Policyholder",
+          "Daniel Okafor-Reyes",
+          "Main user",
+          "Policyholder"
+        ],
+        [
+          "Address",
+          "27 Linnet Close, Tamsworth TW3 8PL",
+          "Overnight location",
+          "Locked garage"
+        ],
+        [
+          "Vehicle",
+          "2021 Corvane Estrel 1.5 hybrid estate",
+          "Registration",
+          "TW21 KXR"
+        ],
+        [
+          "Estimated value",
+          "£14,750",
+          "Annual mileage",
+          "9,000"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Section",
+          "Cover",
+          "Limit"
+        ],
+        [
+          "A",
+          "Accidental damage Repair or replacement of your vehicle after an accident",
+          "Market value"
+        ],
+        [
+          "B",
+          "Fire and theft Including theft of keys from your home",
+          "Market value"
+        ],
+        [
+          "C",
+          "Third-party liability Injury to others and damage to their property",
+          "£20,000,000 property; unlimited injury"
+        ],
+        [
+          "D",
+          "Windscreen Repair or replacement of glass",
+          "£1,500"
+        ],
+        [
+          "E",
+          "Personal belongings Items carried in the vehicle",
+          "£300"
+        ],
+        [
+          "F",
+          "Courtesy car While your vehicle is repaired by an approved garage",
+          "Small hatchback"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Claim type",
+          "Compulsory",
+          "Voluntary",
+          "Total"
+        ],
+        [
+          "Accidental damage",
+          "£250",
+          "£150",
+          "£400"
+        ],
+        [
+          "Fire and theft",
+          "£250",
+          "£150",
+          "£400"
+        ],
+        [
+          "Windscreen replacement",
+          "£95",
+          "–",
+          "£95"
+        ],
+        [
+          "Windscreen repair",
+          "£0",
+          "–",
+          "£0"
+        ],
+        [
+          "Driver under 25 (additional)",
+          "£300",
+          "–",
+          "£300"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Name",
+          "Relationship",
+          "Licence held since"
+        ],
+        [
+          "Daniel Okafor-Reyes",
+          "Policyholder",
+          "2003"
+        ],
+        [
+          "Amara Okafor-Reyes",
+          "Spouse",
+          "2008"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Annual premium",
+          "£612.40"
+        ],
+        [
+          "Insurance Premium Tax at 12%",
+          "£73.49"
+        ],
+        [
+          "Total payable",
+          "£685.89"
+        ],
+        [
+          "Payment",
+          "First instalment £57.13, then 11 instalments of £57.16"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "Fairhollow Mutual",
+    "Motor Insurance Division · 2 Orchard Exchange, Tamsworth TW1 4HB",
+    "Claims line 0800 555 7310 (24 hours)",
+    "Policy MTR-55-2093817",
+    "Fairhollow Mutual Insurance Society is registered as a mutual society, No. 30417.",
+    "1/2",
+    "2/2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Two-page motor insurance schedule. Letterhead (left name, right 2 lines) is furniture; bottom-left policy number and bottom-centre registration line are listed once, 'n/N' once per page. Level-2 headings are SMALL CAPS and letter-spaced: text given in source case (compare case-insensitively). The cover table has cells of TWO LINES (cover name + description), given joined by one space. The endorsement paragraphs begin with RUN-IN headings (level 3), recorded without their trailing period. Key/value tables have no header row."
+}

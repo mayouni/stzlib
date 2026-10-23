@@ -1,0 +1,207 @@
+{
+  "id": "r07",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Ripoti ya Robo ya Tatu: Julai hadi Septemba 2026",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Ripoti ya Robo ya Tatu: Julai hadi Septemba 2026"
+    },
+    {
+      "level": 2,
+      "text": "1. Muhtasari"
+    },
+    {
+      "level": 2,
+      "text": "2. Maendeleo dhidi ya malengo"
+    },
+    {
+      "level": 2,
+      "text": "3. Mafanikio na changamoto"
+    },
+    {
+      "level": 3,
+      "text": "Mafanikio"
+    },
+    {
+      "level": 3,
+      "text": "Changamoto"
+    },
+    {
+      "level": 2,
+      "text": "4. Matumizi ya fedha"
+    },
+    {
+      "level": 2,
+      "text": "5. Mpango wa robo ijayo"
+    }
+  ],
+  "key_sentences": [
+    "Katika robo hii, shirika lilikamilisha visima vitano vipya na kukarabati pampu kumi na mbili katika vijiji saba.",
+    "Jumla ya watu 6,840 sasa wanapata maji safi ndani ya umbali wa mita 400 kutoka makazi yao.",
+    "Ujenzi wa vyoo vya shule ulicheleweshwa kwa sababu ya mvua za mapema mwezi Septemba.",
+    "Ushiriki wa jamii katika uchimbaji ulipunguza gharama za kazi kwa karibu robo.",
+    "Timu ya mradi imeanza kununua vifaa mapema ili kuepuka ongezeko zaidi la bei.",
+    "Matumizi ya vifaa vya pampu yalizidi bajeti kwa sababu pampu mbili za ziada zilinunuliwa kwa idhini ya mfadhili.",
+    "Ripoti hii imeandaliwa na Idara ya Ufuatiliaji na Tathmini na kuidhinishwa na Mkurugenzi Mtendaji."
+  ],
+  "tables": [
+    {
+      "caption": "Jedwali 1: Viashiria vikuu vya mradi",
+      "rows": [
+        [
+          "Kiashiria",
+          "Lengo la mwaka",
+          "Robo ya tatu",
+          "Robo ya tatu",
+          "Robo ya tatu"
+        ],
+        [
+          "Kiashiria",
+          "Lengo la mwaka",
+          "Lengo",
+          "Halisi",
+          "Asilimia"
+        ],
+        [
+          "Visima vipya vilivyochimbwa",
+          "16",
+          "5",
+          "5",
+          "100%"
+        ],
+        [
+          "Pampu zilizokarabatiwa",
+          "40",
+          "10",
+          "12",
+          "120%"
+        ],
+        [
+          "Kamati za maji zilizofunzwa",
+          "20",
+          "6",
+          "4",
+          "67%"
+        ],
+        [
+          "Vyoo vya shule vilivyojengwa",
+          "12",
+          "4",
+          "1",
+          "25%"
+        ],
+        [
+          "Kaya zilizopata elimu ya usafi",
+          "2,400",
+          "600",
+          "715",
+          "119%"
+        ]
+      ]
+    },
+    {
+      "caption": "Jedwali 2: Bajeti na matumizi, Julai hadi Septemba 2026",
+      "rows": [
+        [
+          "Kipengele",
+          "Bajeti ya robo (TSh)",
+          "Matumizi halisi (TSh)",
+          "Salio (TSh)"
+        ],
+        [
+          "Uchimbaji wa visima",
+          "62,500,000",
+          "61,870,000",
+          "630,000"
+        ],
+        [
+          "Vifaa vya pampu",
+          "18,000,000",
+          "19,240,000",
+          "−1,240,000"
+        ],
+        [
+          "Mafunzo ya kamati",
+          "7,200,000",
+          "4,950,000",
+          "2,250,000"
+        ],
+        [
+          "Ujenzi wa vyoo",
+          "24,000,000",
+          "6,100,000",
+          "17,900,000"
+        ],
+        [
+          "Usafiri na usimamizi",
+          "9,300,000",
+          "8,760,000",
+          "540,000"
+        ],
+        [
+          "Jumla",
+          "121,000,000",
+          "100,920,000",
+          "20,080,000"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Kisima cha Kijiji cha Mwembeni kinatoa lita 2,000 kwa saa."
+    },
+    {
+      "level": 0,
+      "text": "Wanawake wanane walichaguliwa kuwa wenyeviti wa kamati za maji."
+    },
+    {
+      "level": 0,
+      "text": "Halmashauri ya wilaya imeahidi kuchangia gharama za matengenezo."
+    },
+    {
+      "level": 0,
+      "text": "Bei ya saruji ilipanda kwa asilimia kumi na tano."
+    },
+    {
+      "level": 0,
+      "text": "Barabara ya kwenda Kijiji cha Ng’ambo haipitiki wakati wa mvua."
+    },
+    {
+      "level": 0,
+      "text": "Baadhi ya kaya bado hazijalipa michango ya matengenezo."
+    },
+    {
+      "level": 0,
+      "text": "(i) Kukamilisha vyoo vitatu vilivyobaki katika Shule ya Msingi Mwembeni."
+    },
+    {
+      "level": 0,
+      "text": "(ii) Kuchimba visima vinne katika vijiji vya Kilimani na Ng’ambo."
+    },
+    {
+      "level": 0,
+      "text": "(iii) Kutoa mafunzo kwa kamati mbili mpya za maji."
+    },
+    {
+      "level": 0,
+      "text": "(iv) Kufanya tathmini ya kati ya mradi pamoja na wafadhili."
+    }
+  ],
+  "furniture": [
+    "SHIRIKA LA MAJI SAFI VIJIJINI (SHIMAVI)",
+    "S.L.P. 418, Mlimani Kusini",
+    "Simu: +255 26 555 0419 · ofisi@shimavi.example",
+    "SHIMAVI · Ripoti ya Robo ya Tatu 2026",
+    "ukurasa 1/2",
+    "ukurasa 2/2"
+  ],
+  "languages": [
+    "sw"
+  ],
+  "code": [],
+  "notes": "Two-page Swahili NGO quarterly report. The coloured letterhead band (3 lines) is furniture; the bottom-left footer is listed once and 'ukurasa n/N' once per page. Table 1 has a TWO-LEVEL header (two header rows; 'Kiashiria' and 'Lengo la mwaka' span both rows, 'Robo ya tatu' spans three columns). Section 3 holds two SIDE-BY-SIDE boxes ('Mafanikio' then 'Changamoto'), read box by box; each box has a CSS-bulleted list. The plan list has TYPED markers '(i)' .. '(iv)'. Section 4 starts on page 2. Negative amount uses U+2212."
+}

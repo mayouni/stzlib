@@ -1,0 +1,242 @@
+{
+  "id": "r02",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "Procès-verbal de la séance du conseil municipal du 14 octobre 2026",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Procès-verbal de la séance du conseil municipal du 14 octobre 2026"
+    },
+    {
+      "level": 2,
+      "text": "Présents et excusés"
+    },
+    {
+      "level": 2,
+      "text": "Ordre du jour"
+    },
+    {
+      "level": 2,
+      "text": "1. Approbation du procès-verbal de la séance précédente"
+    },
+    {
+      "level": 2,
+      "text": "2. Finances"
+    },
+    {
+      "level": 3,
+      "text": "2.1 Décision modificative n° 2 au budget principal"
+    },
+    {
+      "level": 3,
+      "text": "2.2 Tarifs de la restauration scolaire pour 2027"
+    },
+    {
+      "level": 2,
+      "text": "3. Vie associative"
+    },
+    {
+      "level": 3,
+      "text": "3.1 Convention de mise à disposition de la salle des fêtes"
+    },
+    {
+      "level": 2,
+      "text": "4. Urbanisme : lotissement « Les Prés-Hauts »"
+    },
+    {
+      "level": 2,
+      "text": "5. Questions diverses"
+    },
+    {
+      "level": 2,
+      "text": "Récapitulatif des délibérations"
+    }
+  ],
+  "key_sentences": [
+    "L’an deux mille vingt-six, le quatorze octobre à vingt heures, le conseil municipal de la commune de Vernelles-sur-Orme, légalement convoqué le 7 octobre 2026, s’est réuni en séance publique à la salle du conseil de la mairie, sous la présidence de Mme Claire Domergue, maire.",
+    "Le quorum étant atteint, Mme le Maire ouvre la séance à 20 h 05.",
+    "M. Jean-Marc Vidal demande que son intervention sur l’éclairage public soit complétée par la mention du devis présenté en commission.",
+    "Les réparations urgentes dépassent les crédits inscrits au chapitre 011 et doivent être financées par un prélèvement sur les dépenses imprévues.",
+    "La commission scolaire propose de maintenir une tarification selon le quotient familial et de limiter la hausse moyenne à trois pour cent.",
+    "La nouvelle convention précise les obligations de chaque association en matière de ménage, de sécurité et de restitution des clés.",
+    "Le bassin de rétention des eaux pluviales sera agrandi afin de protéger les habitations situées en contrebas, rue des Saules.",
+    "La cérémonie du 11 novembre débutera à 11 heures devant le monument aux morts, avec la participation des élèves de l’école élémentaire.",
+    "L’ordre du jour étant épuisé, la séance est levée à 22 h 10."
+  ],
+  "tables": [
+    {
+      "caption": "Tableau 1 – Mouvements de crédits",
+      "rows": [
+        [
+          "Section",
+          "Chapitre",
+          "Article",
+          "Libellé",
+          "Montant (€)"
+        ],
+        [
+          "Fonctionnement",
+          "011",
+          "615221",
+          "Entretien et réparations de bâtiments",
+          "+ 12 500,00"
+        ],
+        [
+          "Fonctionnement",
+          "022",
+          "022",
+          "Dépenses imprévues",
+          "− 12 500,00"
+        ],
+        [
+          "Investissement",
+          "21",
+          "2183",
+          "Matériel informatique (école)",
+          "+ 4 800,00"
+        ],
+        [
+          "Investissement",
+          "23",
+          "2313",
+          "Travaux en cours, groupe scolaire",
+          "− 4 800,00"
+        ],
+        [
+          "Solde",
+          "Solde",
+          "Solde",
+          "Solde",
+          "0,00"
+        ]
+      ]
+    },
+    {
+      "caption": "Tableau 2 – Tarifs applicables au 1er janvier 2027",
+      "rows": [
+        [
+          "Quotient familial",
+          "Repas enfant",
+          "Repas adulte"
+        ],
+        [
+          "Moins de 600 €",
+          "1,00 €",
+          "6,20 €"
+        ],
+        [
+          "De 600 € à 1 000 €",
+          "2,40 €",
+          "6,20 €"
+        ],
+        [
+          "De 1 001 € à 1 500 €",
+          "3,60 €",
+          "6,20 €"
+        ],
+        [
+          "Plus de 1 500 €",
+          "4,30 €",
+          "6,20 €"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "N°",
+          "Objet",
+          "Pour",
+          "Contre",
+          "Abstention"
+        ],
+        [
+          "2026-40",
+          "Approbation du procès-verbal",
+          "13",
+          "0",
+          "0"
+        ],
+        [
+          "2026-41",
+          "Décision modificative n° 2",
+          "12",
+          "0",
+          "1"
+        ],
+        [
+          "2026-42",
+          "Tarifs de la restauration scolaire",
+          "10",
+          "2",
+          "1"
+        ],
+        [
+          "2026-43",
+          "Convention salle des fêtes",
+          "13",
+          "0",
+          "0"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Présents : Mme Claire Domergue, M. Paul Ferrand, Mme Lucie Barthe, M. Ahmed Kaci, Mme Odile Marchal, M. Jean-Marc Vidal, Mme Sophie Lenoir, M. Thierry Roche, Mme Nadia Belkacem, M. Hugo Perrin, Mme Anne Castel."
+    },
+    {
+      "level": 0,
+      "text": "Excusés ayant donné pouvoir : M. Bernard Lacombe (pouvoir à M. Paul Ferrand), Mme Inès Morel (pouvoir à Mme Lucie Barthe)."
+    },
+    {
+      "level": 0,
+      "text": "Absent : M. Yves Granier."
+    },
+    {
+      "level": 0,
+      "text": "Secrétaire de séance : Mme Sophie Lenoir."
+    },
+    {
+      "level": 0,
+      "text": "Approbation du procès-verbal de la séance précédente"
+    },
+    {
+      "level": 0,
+      "text": "Décision modificative n° 2 au budget principal"
+    },
+    {
+      "level": 0,
+      "text": "Tarifs de la restauration scolaire pour 2027"
+    },
+    {
+      "level": 0,
+      "text": "Convention de mise à disposition de la salle des fêtes"
+    },
+    {
+      "level": 0,
+      "text": "Lotissement « Les Prés-Hauts » : point d’étape"
+    },
+    {
+      "level": 0,
+      "text": "Questions diverses"
+    }
+  ],
+  "furniture": [
+    "RÉPUBLIQUE FRANÇAISE",
+    "Département de la Haute-Orme",
+    "Commune de Vernelles-sur-Orme",
+    "Vernelles-sur-Orme · Conseil municipal du 14 octobre 2026",
+    "— 1 —",
+    "— 2 —",
+    "— 3 —"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "Three-page municipal council minutes. The three centred letterhead lines on page 1 are furniture. The running header (absent on page 1) is listed once; the page number '— n —' is listed once per page. The agenda (ol) and the attendance list (square bullets) have CSS-drawn markers, so their items are given without markers. Numbered headings keep their typed numbers. In table 1 the 'Fonctionnement' and 'Investissement' cells span two rows and 'Solde' spans four columns; in table 2 the adult price cell spans four rows. Non-breaking spaces count as spaces. The two signature blocks at the end sit side by side."
+}

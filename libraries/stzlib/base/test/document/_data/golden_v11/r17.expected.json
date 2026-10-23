@@ -1,0 +1,159 @@
+{
+  "id": "r17",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Runbook RB-112: Rolling upgrade of parcel-router",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Runbook RB-112: Rolling upgrade of parcel-router"
+    },
+    {
+      "level": 2,
+      "text": "PURPOSE"
+    },
+    {
+      "level": 2,
+      "text": "PREREQUISITES"
+    },
+    {
+      "level": 2,
+      "text": "ENVIRONMENT"
+    },
+    {
+      "level": 2,
+      "text": "PROCEDURE"
+    },
+    {
+      "level": 2,
+      "text": "VERIFICATION"
+    },
+    {
+      "level": 2,
+      "text": "ROLLBACK"
+    }
+  ],
+  "key_sentences": [
+    "This runbook describes how to upgrade parcel-router to a new release without interrupting label printing at the depots.",
+    "Follow every step in order and record the result in the change ticket.",
+    "Print a test label from the Kelby depot console and check that the route code matches the postcode.",
+    "Watch the error rate on the routing dashboard for fifteen minutes after the rollout.",
+    "If the error rate rises above two percent, roll back immediately with the command below.",
+    "Rollback does not revert database migrations, which must be handled together with the release team."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Owner",
+          "Platform Operations"
+        ],
+        [
+          "Service",
+          "parcel-router"
+        ],
+        [
+          "Last reviewed",
+          "2026-10-12"
+        ],
+        [
+          "Approver",
+          "Change Advisory Board"
+        ],
+        [
+          "Risk",
+          "Medium"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Variable",
+          "Example",
+          "Purpose"
+        ],
+        [
+          "ROUTER_IMAGE_TAG",
+          "4.18.2",
+          "Release to deploy"
+        ],
+        [
+          "ROUTER_MAX_UNAVAILABLE",
+          "1",
+          "Pods replaced at a time"
+        ],
+        [
+          "ROUTER_DRAIN_SECONDS",
+          "45",
+          "Time allowed to finish in-flight requests"
+        ],
+        [
+          "ROUTER_DB_MIGRATE",
+          "false",
+          "Run migrations before the rollout"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "An approved change ticket with a maintenance window of at least 60 minutes."
+    },
+    {
+      "level": 0,
+      "text": "Access to the ops-bastion host and to the deploy role in the cluster."
+    },
+    {
+      "level": 0,
+      "text": "The release notes for the target version, including any database migrations."
+    },
+    {
+      "level": 0,
+      "text": "Open a session on the bastion host and confirm the release that is currently running."
+    },
+    {
+      "level": 0,
+      "text": "Update the production values file with the new image tag."
+    },
+    {
+      "level": 0,
+      "text": "Apply the change and follow the rollout until every pod reports ready."
+    },
+    {
+      "level": 0,
+      "text": "Announce the completion in the operations channel and update the change ticket."
+    },
+    {
+      "level": 0,
+      "text": "HTTP 5xx rate below 0.5 percent."
+    },
+    {
+      "level": 0,
+      "text": "Median label latency below 300 ms."
+    },
+    {
+      "level": 0,
+      "text": "No pods in CrashLoopBackOff."
+    }
+  ],
+  "furniture": [
+    "RB-112 · parcel-router rolling upgrade",
+    "INTERNAL",
+    "p. 1",
+    "p. 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "ssh ops-bastion\nkubectl -n routing get deploy parcel-router \\\n  -o jsonpath='{.spec.template.spec.containers[0].image}'",
+    "router:\n  image:\n    repository: registry.harbourline.example/parcel-router\n    tag: \"4.18.2\"\n  rollout:\n    maxUnavailable: 1\n    drainSeconds: 45\n  resources:\n    requests:\n      cpu: 500m\n      memory: 768Mi",
+    "helm upgrade parcel-router ./charts/parcel-router \\\n  -n routing -f values/prod.yaml --atomic --timeout 15m\nkubectl -n routing rollout status deploy/parcel-router",
+    "helm rollback parcel-router 0 -n routing --wait"
+  ],
+  "notes": "Two-page operations runbook. Running header (left text, right 'INTERNAL') listed once; 'p. n' once per page. Level-2 headings are typed in capitals and LETTER-SPACED. The procedure is one CSS-numbered ordered list split by code blocks (numbering continues 1-4 via the start attribute); items are given without numbers. Four code blocks (shell, YAML, shell, shell); a trailing backslash continues a shell line. Inline code in the environment table is ordinary cell text."
+}

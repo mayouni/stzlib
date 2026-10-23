@@ -1,0 +1,142 @@
+{
+  "id": "r01",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "INVOICE",
+  "headings": [
+    {
+      "level": 1,
+      "text": "INVOICE"
+    },
+    {
+      "level": 2,
+      "text": "Bill to"
+    },
+    {
+      "level": 2,
+      "text": "Deliver to"
+    },
+    {
+      "level": 2,
+      "text": "Payment instructions"
+    },
+    {
+      "level": 2,
+      "text": "Notes"
+    }
+  ],
+  "key_sentences": [
+    "Please pay by bank transfer within 30 days of the invoice date.",
+    "Quote the invoice number INV-2026-0417 as the payment reference.",
+    "The support retainer covers the period from 1 September to 30 September 2026.",
+    "Hardware items remain our property until they are paid in full.",
+    "Late payments may incur interest at 4% above the base rate.",
+    "Thank you for your business."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Invoice no.",
+          "INV-2026-0417"
+        ],
+        [
+          "Invoice date",
+          "2 October 2026"
+        ],
+        [
+          "Due date",
+          "1 November 2026"
+        ],
+        [
+          "Customer reference",
+          "PO 7781-B"
+        ],
+        [
+          "Account manager",
+          "Ines Varga"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Item",
+          "Description",
+          "Qty",
+          "Unit price",
+          "Amount"
+        ],
+        [
+          "SR-01",
+          "Support retainer, September 2026",
+          "1",
+          "2,400.00",
+          "2,400.00"
+        ],
+        [
+          "DV-14",
+          "Custom report module Development days, 14 to 21 September",
+          "6",
+          "640.00",
+          "3,840.00"
+        ],
+        [
+          "TR-02",
+          "On-site training for warehouse staff",
+          "2",
+          "550.00",
+          "1,100.00"
+        ],
+        [
+          "HW-88",
+          "Barcode scanner, model K3",
+          "4",
+          "189.50",
+          "758.00"
+        ],
+        [
+          "LC-05",
+          "Annual licence, routing add-on",
+          "1",
+          "1,250.00",
+          "1,250.00"
+        ],
+        [
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "9,348.00"
+        ],
+        [
+          "VAT 20%",
+          "VAT 20%",
+          "VAT 20%",
+          "VAT 20%",
+          "1,869.60"
+        ],
+        [
+          "Total due (EUR)",
+          "Total due (EUR)",
+          "Total due (EUR)",
+          "Total due (EUR)",
+          "11,217.60"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "Brackenridge Lumen Software Ltd",
+    "14 Calder Wharf, Dunmarren DM4 7QT",
+    "accounts@brackenridge-lumen.example · +44 131 555 0182"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "One-page commercial invoice. The letterhead (organisation name with address lines) and the bottom margin footer are furniture. 'Bill to' / 'Deliver to' and 'Payment instructions' / 'Notes' are two pairs of SIDE-BY-SIDE boxes; reading order is box by box, left box first. Box labels are level-2 headings. The meta table is a key/value table without header row. In the line-item table the label cells of Subtotal, VAT and Total due span four columns (repeated in the grid); the description of DV-14 is a cell of two lines given joined by one space."
+}

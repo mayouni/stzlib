@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>INVOICE</title>
+<style>
+
+@page { size: A4; margin: 2cm 2cm 2.4cm 2cm;
+  @bottom-center { content: "Brackenridge Lumen Software Ltd \00B7  Registered in Dunmarren No. 08841273 \00B7  VAT No. DM 418 2290 61";
+    font-family: 'Segoe UI', sans-serif; font-size: 7.5pt; color: #666; } }
+body { font-family: 'Segoe UI', sans-serif; font-size: 10pt; color: #222; margin: 0; }
+.lh { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #1b7f79; padding-bottom: 10px; }
+.org { display: flex; gap: 12px; }
+.mark { width: 38px; height: 38px; background: #1b7f79; border-radius: 50% 0 50% 0; margin-top: 4px; }
+.org .n { font-size: 13pt; font-weight: 600; color: #1b7f79; }
+.org div div { font-size: 8.5pt; color: #555; }
+h1 { font-size: 26pt; font-weight: 300; letter-spacing: 0.04em; margin: 0; color: #1b7f79; }
+table.meta { margin: 14px 0 0 auto; border-collapse: collapse; font-size: 9.5pt; }
+table.meta td { padding: 2px 0 2px 18px; }
+table.meta td:first-child { color: #666; }
+.boxes { display: flex; gap: 24px; margin: 18px 0; }
+.box { flex: 1; border: 1px solid #cfe3e1; border-radius: 4px; padding: 8px 12px; }
+.box h2 { font-size: 9pt; text-transform: none; color: #1b7f79; margin: 0 0 4px 0; font-weight: 600; }
+.box div { line-height: 1.45; }
+table.items { width: 100%; border-collapse: collapse; margin-top: 8px; }
+table.items th { background: #1b7f79; color: #fff; font-weight: 600; text-align: left; padding: 6px 8px; font-size: 9pt; }
+table.items td { padding: 6px 8px; border-bottom: 1px solid #e3e3e3; vertical-align: top; }
+table.items td.n, table.items th.n { text-align: right; }
+table.items .sub { color: #777; font-size: 8.5pt; }
+table.items tr.tot td { border-bottom: none; }
+table.items tr.grand td { font-weight: 700; border-top: 2px solid #1b7f79; font-size: 11pt; }
+.lower { display: flex; gap: 24px; margin-top: 26px; }
+.lower section { flex: 1; background: #f4f9f8; padding: 10px 14px; }
+.lower h2 { font-size: 10.5pt; margin: 0 0 6px 0; color: #1b7f79; }
+.lower p { margin: 0 0 6px 0; line-height: 1.45; }
+.thanks { margin-top: 26px; font-size: 11pt; color: #1b7f79; }
+
+</style>
+</head>
+<body>
+<div class="lh"><div class="org"><div class="mark"></div><div><div class="n">Brackenridge Lumen Software Ltd</div><div>14 Calder Wharf, Dunmarren DM4 7QT</div><div>accounts@brackenridge-lumen.example · +44 131 555 0182</div></div></div><div>
+<h1>INVOICE</h1>
+</div></div>
+<table class="meta"><tbody><tr><td>Invoice no.</td><td>INV-2026-0417</td></tr><tr><td>Invoice date</td><td>2 October 2026</td></tr><tr><td>Due date</td><td>1 November 2026</td></tr><tr><td>Customer reference</td><td>PO 7781-B</td></tr><tr><td>Account manager</td><td>Ines Varga</td></tr></tbody></table>
+<div class="boxes"><div class="box">
+<h2>Bill to</h2>
+<div>Fernholt Cold Storage plc<br>Accounts Payable<br>Unit 3, Marsh Lane Industrial Estate<br>Kelby KB2 9RS</div></div><div class="box">
+<h2>Deliver to</h2>
+<div>Fernholt Cold Storage plc<br>Warehouse B, Gate 4<br>Dock Road<br>Kelby KB2 9RW</div></div></div>
+<table class="items"><thead><tr><th>Item</th><th>Description</th><th class="n">Qty</th><th class="n">Unit price</th><th class="n">Amount</th></tr></thead><tbody><tr><td>SR-01</td><td>Support retainer, September 2026</td><td class="n">1</td><td class="n">2,400.00</td><td class="n">2,400.00</td></tr><tr><td>DV-14</td><td>Custom report module<br><span class="sub">Development days, 14 to 21 September</span></td><td class="n">6</td><td class="n">640.00</td><td class="n">3,840.00</td></tr><tr><td>TR-02</td><td>On-site training for warehouse staff</td><td class="n">2</td><td class="n">550.00</td><td class="n">1,100.00</td></tr><tr><td>HW-88</td><td>Barcode scanner, model K3</td><td class="n">4</td><td class="n">189.50</td><td class="n">758.00</td></tr><tr><td>LC-05</td><td>Annual licence, routing add-on</td><td class="n">1</td><td class="n">1,250.00</td><td class="n">1,250.00</td></tr><tr class="tot"><td colspan="4" class="n">Subtotal</td><td class="n">9,348.00</td></tr><tr class="tot"><td colspan="4" class="n">VAT 20%</td><td class="n">1,869.60</td></tr><tr class="grand"><td colspan="4" class="n">Total due (EUR)</td><td class="n">11,217.60</td></tr></tbody></table>
+<div class="lower"><section>
+<h2>Payment instructions</h2>
+<p>Please pay by bank transfer within 30 days of the invoice date. Quote the invoice number INV-2026-0417 as the payment reference.</p>
+<p>Account name: Brackenridge Lumen Software Ltd<br>IBAN: DM21 LUMN 0042 7719 3305 18<br>BIC: LUMNDMX2</p>
+</section><section>
+<h2>Notes</h2>
+<p>The support retainer covers the period from 1 September to 30 September 2026. Hardware items remain our property until they are paid in full.</p>
+<p>Late payments may incur interest at 4% above the base rate.</p>
+</section></div>
+<p class="thanks">Thank you for your business.</p>
+</body>
+</html>

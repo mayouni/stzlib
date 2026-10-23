@@ -1,0 +1,34 @@
+page_header	0	RB-112 · parcel-router rolling upgrade
+page_header	0	I N T E R NA L
+heading	1	Runbook RB-112: Rolling upgrade of parcel-router
+table	0	OwnerPlatform OperationsServiceparcel-routerLast reviewed2026-10-12ApproverChange Advisory BoardRiskMedium
+heading	2	P U R P O S E
+paragraph	0	This runbook describes how to upgrade parcel-router to a new release without interrupting label printing at the depots. Follow every step in order and record the result in the change ticket.
+heading	2	P R E R E Q U I S I T E S
+list_item	0	An approved change ticket with a maintenance window of at least 60 minutes.
+list_item	0	Access to the ops-bastion host and to the deploy role in the cluster.
+list_item	0	The release notes for the target version, including any database migrations.
+caption	0	E N V I R O N M E N T
+table	0	VariableExamplePurposeROUTER_IMAGE_TAG4.18.2Release to deployROUTER_MAX_UNAVAILABLE1Pods replaced at a timeROUTER_DRAIN_SECONDS45Time allowed to finish in-flight requestsROUTER_DB_MIGRATEfalseRun migrations before the rollout
+heading	2	P R O C E D U R E
+list_item	0	1. Open a session on the bastion host and confirm the release that is currently running.
+paragraph	0	ssh ops-bastion kubectl -n routing get deploy parcel-router \\ -o jsonpath='{.spec.template.spec.containers[0].image}'
+list_item	0	2. Update the production values file with the new image tag.
+paragraph	0	router: image: repository: registry.harbourline.example/parcel-router tag: "4.18.2" rollout: maxUnavailable: 1 drainSeconds: 45 resources: requests: cpu: 500m memory: 768Mi
+list_item	0	3. Apply the change and follow the rollout until every pod reports ready.
+paragraph	0	helm upgrade parcel-router ./charts/parcel-router \\ -n routing -f values/prod.yaml --atomic --timeout 15m
+page_footer	0	p. 1
+page_header	0	RB-112 · parcel-router rolling upgrade
+page_header	0	I N T E R NA L
+page_header	0	kubectl -n routing rollout status deploy/parcel-router
+list_item	0	4. Announce the completion in the operations channel and update the change ticket.
+heading	2	V E R I F I C A T I O N
+paragraph	0	Print a test label from the Kelby depot console and check that the route code matches the postcode. Watch the error rate on the routing dashboard for fifteen minutes after the rollout.
+list_item	0	HTTP 5xx rate below 0.5 percent.
+list_item	0	Median label latency below 300 ms.
+list_item	0	No pods in CrashLoopBackOff.
+heading	2	R O L L B A C K
+paragraph	0	If the error rate rises above two percent, roll back immediately with the command below.
+paragraph	0	helm rollback parcel-router 0 -n routing --wait
+paragraph	0	Rollback does not revert database migrations, which must be handled together with the release team. Record the incident number in the change ticket before closing it.
+page_footer	0	p. 2

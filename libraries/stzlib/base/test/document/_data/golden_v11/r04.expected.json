@@ -1,0 +1,177 @@
+{
+  "id": "r04",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Thermaro LW 9 – Installationsanleitung",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Thermaro LW 9 – Installationsanleitung"
+    },
+    {
+      "level": 2,
+      "text": "1 Sicherheitshinweise"
+    },
+    {
+      "level": 3,
+      "text": "1.1 Bestimmungsgemäße Verwendung"
+    },
+    {
+      "level": 3,
+      "text": "1.2 Qualifikation des Personals"
+    },
+    {
+      "level": 2,
+      "text": "2 Technische Daten"
+    },
+    {
+      "level": 2,
+      "text": "3 Aufstellung"
+    },
+    {
+      "level": 3,
+      "text": "3.1 Mindestabstände"
+    },
+    {
+      "level": 2,
+      "text": "4 Inbetriebnahme"
+    },
+    {
+      "level": 3,
+      "text": "4.1 Konfigurationsdatei"
+    }
+  ],
+  "key_sentences": [
+    "Diese Anleitung richtet sich an Fachhandwerker, die die Wärmepumpe aufstellen, anschließen und in Betrieb nehmen.",
+    "Bewahren Sie die Anleitung nach der Installation beim Gerät auf.",
+    "Das Gerät dient ausschließlich zur Erwärmung von Heizungswasser und Trinkwasser in geschlossenen Heizsystemen.",
+    "Warnung: Vor allen Arbeiten am Gerät ist die Spannungsversorgung allpolig zu trennen und gegen Wiedereinschalten zu sichern.",
+    "Das Außengerät wird auf einem frostfreien Fundament oder auf zwei Fundamentstreifen aus Beton aufgestellt.",
+    "Die Kondensatablaufleitung ist frostsicher zu verlegen und mit einem Gefälle von mindestens zwei Prozent auszuführen.",
+    "Der Luftaustritt darf nicht auf Fenster, Terrassen oder Nachbargrundstücke gerichtet sein.",
+    "Die Datei config.ini muss im Stammverzeichnis des USB-Sticks liegen.",
+    "Nach dem Einlesen zeigt der Regler eine Zusammenfassung an, die vor dem Speichern bestätigt werden muss."
+  ],
+  "tables": [
+    {
+      "caption": "Tabelle 1: Kenndaten",
+      "rows": [
+        [
+          "Kenngröße",
+          "Wert",
+          "Einheit"
+        ],
+        [
+          "Heizleistung bei A7/W35",
+          "9,1",
+          "kW"
+        ],
+        [
+          "Leistungszahl (COP) bei A7/W35",
+          "4,72",
+          "–"
+        ],
+        [
+          "Max. Vorlauftemperatur",
+          "65",
+          "°C"
+        ],
+        [
+          "Kältemittel / Füllmenge",
+          "R290 / 1,3",
+          "kg"
+        ],
+        [
+          "Schalldruckpegel in 5 m Abstand",
+          "34",
+          "dB(A)"
+        ],
+        [
+          "Elektrischer Anschluss",
+          "3/N/PE 400 V 50 Hz",
+          "–"
+        ],
+        [
+          "Abmessungen (B × H × T)",
+          "1120 × 980 × 480",
+          "mm"
+        ],
+        [
+          "Gewicht",
+          "128",
+          "kg"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Seite",
+          "Mindestabstand",
+          "Empfohlen"
+        ],
+        [
+          "Vorderseite (Luftaustritt)",
+          "1000 mm",
+          "1500 mm"
+        ],
+        [
+          "Rückseite (Lufteintritt)",
+          "300 mm",
+          "500 mm"
+        ],
+        [
+          "Links",
+          "300 mm",
+          "500 mm"
+        ],
+        [
+          "Rechts (Serviceseite)",
+          "600 mm",
+          "800 mm"
+        ],
+        [
+          "Oben",
+          "1200 mm",
+          "frei"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "a) Heizungsanlage füllen, spülen und entlüften."
+    },
+    {
+      "level": 0,
+      "text": "b) Anlagendruck prüfen (Sollwert 1,5 bar bei kalter Anlage)."
+    },
+    {
+      "level": 0,
+      "text": "c) Spannungsversorgung einschalten und den Inbetriebnahme-Assistenten am Regler starten."
+    },
+    {
+      "level": 0,
+      "text": "d) Konfigurationsdatei vom USB-Stick einlesen (siehe Abschnitt 4.1)."
+    },
+    {
+      "level": 0,
+      "text": "e) Probelauf von mindestens 30 Minuten durchführen und protokollieren."
+    }
+  ],
+  "furniture": [
+    "Kessling Haustechnik GmbH",
+    "Dok.-Nr. KH-IA-0937 · Ausgabe 03/2026",
+    "Seite 1",
+    "Seite 2"
+  ],
+  "languages": [
+    "de"
+  ],
+  "code": [
+    "[anlage]\ntyp = LW9\nheizkreise = 2\nvorlauf_max = 55\n\n[heizkreis_1]\nart = fussboden\nkennlinie = 0.6\n\n[heizkreis_2]\nart = heizkoerper\nkennlinie = 1.2\n\n[warmwasser]\nsoll = 48\nlegionellen_tag = so"
+  ],
+  "notes": "Two-page German installation manual. Running header (top right) and the document number footer (bottom left) are listed once; 'Seite n' is listed once per page. Section 3 is set in two CSS columns, read column by column; its long compounds contain soft hyphens and are given whole. The commissioning list has TYPED markers 'a)' .. 'e)', kept in the item text. One INI configuration block. Table 1 is a three-column data table with a caption."
+}

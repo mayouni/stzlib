@@ -1,0 +1,222 @@
+{
+  "id": "r15",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "Dienstregeling lijn 317",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Dienstregeling lijn 317"
+    },
+    {
+      "level": 2,
+      "text": "Toelichting"
+    },
+    {
+      "level": 2,
+      "text": "Wegwerkzaamheden"
+    }
+  ],
+  "key_sentences": [
+    "Reserveer de belbus uiterlijk een uur voor vertrek via de klantenservice.",
+    "In de bus kunt u alleen betalen met een bankpas of creditcard.",
+    "Tijdens de werkzaamheden aan de Dijkweg kunnen ritten tot tien minuten later vertrekken.",
+    "Rolstoelgebruikers kunnen bij alle haltes met een verhoogd perron zelfstandig instappen."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Halte",
+          "maandag t/m vrijdag",
+          "maandag t/m vrijdag",
+          "maandag t/m vrijdag",
+          "maandag t/m vrijdag",
+          "maandag t/m vrijdag",
+          "maandag t/m vrijdag",
+          "maandag t/m vrijdag",
+          "maandag t/m vrijdag",
+          "zaterdag",
+          "zaterdag",
+          "zaterdag",
+          "zaterdag"
+        ],
+        [
+          "Halte",
+          "3101 S",
+          "3103",
+          "3105",
+          "3107",
+          "3109",
+          "3111",
+          "3113",
+          "3115",
+          "3201",
+          "3203",
+          "3205",
+          "3207"
+        ],
+        [
+          "Purmerveld Station",
+          "06:12",
+          "06:42",
+          "07:12",
+          "07:42",
+          "08:12",
+          "09:12",
+          "10:12",
+          "11:12",
+          "08:15",
+          "09:15",
+          "10:15",
+          "11:15"
+        ],
+        [
+          "Purmerveld Centrum",
+          "06:16",
+          "06:46",
+          "07:16",
+          "07:46",
+          "08:16",
+          "09:16",
+          "10:16",
+          "11:16",
+          "08:19",
+          "09:19",
+          "10:19",
+          "11:19"
+        ],
+        [
+          "Weidenbroek Kerk",
+          "06:21",
+          "06:51",
+          "07:21",
+          "07:51",
+          "08:21",
+          "09:21",
+          "10:21",
+          "11:21",
+          "08:24",
+          "|",
+          "10:24",
+          "|"
+        ],
+        [
+          "Dijkhuizen Dorp",
+          "06:25",
+          "06:55",
+          "07:25",
+          "07:55",
+          "08:25",
+          "09:25",
+          "10:25",
+          "11:25",
+          "08:28",
+          "09:28",
+          "10:28",
+          "11:28"
+        ],
+        [
+          "Edamsluis Busstation",
+          "06:31",
+          "07:01",
+          "07:31",
+          "08:01",
+          "08:31",
+          "09:31",
+          "10:31",
+          "11:31",
+          "08:34",
+          "09:34",
+          "10:34",
+          "11:34"
+        ],
+        [
+          "Edamsluis Zuid",
+          "06:34",
+          "|",
+          "07:34",
+          "|",
+          "08:34",
+          "09:34",
+          "10:34",
+          "11:34",
+          "08:37",
+          "09:37",
+          "10:37",
+          "11:37"
+        ],
+        [
+          "Kolkwijk",
+          "06:39",
+          "07:09",
+          "07:39",
+          "08:09",
+          "08:39",
+          "09:39",
+          "10:39",
+          "11:39",
+          "08:42",
+          "09:42",
+          "10:42",
+          "11:42"
+        ],
+        [
+          "Hoornbeek Ziekenhuis",
+          "06:45",
+          "07:15",
+          "07:45",
+          "08:15",
+          "08:45",
+          "09:45",
+          "10:45",
+          "11:45",
+          "08:48",
+          "09:48",
+          "10:48",
+          "11:48"
+        ],
+        [
+          "Hoornbeek Station",
+          "06:49",
+          "07:19",
+          "07:49",
+          "08:19",
+          "08:49",
+          "09:49",
+          "10:49",
+          "11:49",
+          "08:52",
+          "09:52",
+          "10:52",
+          "11:52"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "S: rijdt alleen op schooldagen."
+    },
+    {
+      "level": 0,
+      "text": "|: deze rit stopt niet bij de halte."
+    },
+    {
+      "level": 0,
+      "text": "Op zon- en feestdagen rijdt lijn 317 niet; gebruik dan de belbus 917."
+    }
+  ],
+  "furniture": [
+    "Streekvervoer Waterland-Oost",
+    "Klantenservice 0900 555 3170 (lokaal tarief) · www.svwo.example",
+    "Wijzigingen voorbehouden · uitgave december 2026"
+  ],
+  "languages": [
+    "nl"
+  ],
+  "code": [],
+  "notes": "One-page Dutch bus timetable on a LANDSCAPE A4 page. Letterhead line (name left, contact right) and the bottom-right margin line are furniture. The route badge '317' is decorative body text and not a heading. The WIDE timetable (13 columns) has a two-level header: 'Halte' spans two rows, 'maandag t/m vrijdag' spans 8 trip columns and 'zaterdag' 4; the second header row holds trip numbers ('3101 S' carries the school-days symbol). A '|' cell means the trip passes the stop without stopping. The two text blocks below the table ('Toelichting' and 'Wegwerkzaamheden') sit SIDE BY SIDE and are read box by box, left first."
+}

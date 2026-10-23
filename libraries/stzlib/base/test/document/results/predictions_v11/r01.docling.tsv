@@ -1,0 +1,35 @@
+paragraph	0	
+heading	1	Brackenridge Lumen Software Ltd
+paragraph	0	14 Calder Wharf, Dunmarren DM4 7QT accounts@brackenridge-lumen.example · +44 131 555 0182
+heading	1	INVOICE
+paragraph	0	Invoice no.
+paragraph	0	Invoice date INV-2026-0417
+paragraph	0	2 October 2026
+paragraph	0	Due date
+paragraph	0	1 November 2026
+paragraph	0	Customer reference PO 7781-B
+paragraph	0	Account manager Ines Varga
+heading	1	Deliver to
+paragraph	0	Fernholt Cold Storage plc
+paragraph	0	Warehouse B, Gate 4
+paragraph	0	Dock Road
+paragraph	0	Kelby KB2 9RW
+heading	1	Bill to
+paragraph	0	Fernholt Cold Storage plc
+paragraph	0	Accounts Payable
+paragraph	0	Unit 3, Marsh Lane Industrial Estate
+paragraph	0	Kelby KB2 9RS
+table	0	ItemDescriptionQtyUnit priceAmountSR-01Support retainer, September 202612,400.002,400.00DV-14Custom report module Development days, 14 to 21 September6640.003,840.00TR-02On-site training for warehouse staff2550.001,100.00HW-88Barcode scanner, model K34189.50758.00LC-05Annual licence, routing add-on11,250.001,250.00Subtotal9,348.00VAT 20%1,869.60
+paragraph	0	Total due (EUR)
+paragraph	0	11,217.60
+heading	1	Payment instructions
+paragraph	0	Please pay by bank transfer within 30 days of the invoice date. Quote the invoice number INV-2026-0417 as the payment reference.
+paragraph	0	Account name: Brackenridge Lumen Software
+paragraph	0	Ltd
+paragraph	0	IBAN: DM21 LUMN 0042 7719 3305 18
+paragraph	0	BIC: LUMNDMX2
+heading	1	Thank you for your business.
+heading	1	Notes
+paragraph	0	The support retainer covers the period from 1 September to 30 September 2026. Hardware items remain our property until they are paid in full.
+paragraph	0	Late payments may incur interest at 4% above the base rate.
+page_footer	0	Brackenridge Lumen Software Ltd · Registered in Dunmarren No. 08841273 · VAT No. DM 418 2290 61

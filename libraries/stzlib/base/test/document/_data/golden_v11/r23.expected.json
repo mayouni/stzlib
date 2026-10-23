@@ -1,0 +1,115 @@
+{
+  "id": "r23",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "ĐƠN THUỐC",
+  "headings": [
+    {
+      "level": 1,
+      "text": "ĐƠN THUỐC"
+    },
+    {
+      "level": 2,
+      "text": "Lời dặn"
+    }
+  ],
+  "key_sentences": [
+    "Thuốc kháng sinh cần uống đủ bảy ngày, kể cả khi đã hết triệu chứng.",
+    "Tái khám sau 7 ngày hoặc khi có dấu hiệu bất thường như khó thở, sốt cao kéo dài.",
+    "Mang theo đơn này khi tái khám.",
+    "Không dùng chung đơn thuốc này cho người khác."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Họ tên:",
+          "Trần Thị Mai Phương",
+          "Tuổi:",
+          "58"
+        ],
+        [
+          "Giới tính:",
+          "Nữ",
+          "Mã bệnh nhân:",
+          "BN-208815"
+        ],
+        [
+          "Địa chỉ:",
+          "Tổ 9, phường Bình Minh",
+          "Ngày khám:",
+          "22/10/2026"
+        ],
+        [
+          "Chẩn đoán:",
+          "Tăng huyết áp độ 1; viêm phế quản cấp",
+          "Mã ICD:",
+          "I10; J20"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "STT",
+          "Tên thuốc – hàm lượng",
+          "Số lượng",
+          "Cách dùng"
+        ],
+        [
+          "1",
+          "Amlodipin 5 mg (viên nén)",
+          "30 viên",
+          "Uống 1 viên mỗi sáng"
+        ],
+        [
+          "2",
+          "Amoxicilin 500 mg (viên nang)",
+          "21 viên",
+          "Uống 1 viên × 3 lần/ngày sau ăn, trong 7 ngày"
+        ],
+        [
+          "3",
+          "Paracetamol 500 mg",
+          "10 viên",
+          "Uống 1 viên khi sốt trên 38,5 °C cách nhau ít nhất 6 giờ"
+        ],
+        [
+          "4",
+          "Siro ho thảo dược 100 ml",
+          "1 chai",
+          "Uống 10 ml × 3 lần/ngày"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "- Uống thuốc đúng liều, không tự ý ngừng thuốc huyết áp."
+    },
+    {
+      "level": 0,
+      "text": "- Hạn chế ăn mặn, tránh rượu bia và thuốc lá."
+    },
+    {
+      "level": 0,
+      "text": "- Đo huyết áp tại nhà mỗi sáng và ghi vào sổ theo dõi."
+    }
+  ],
+  "furniture": [
+    "PHÒNG KHÁM ĐA KHOA HÒA AN TÂM",
+    "Số 25 đường Hoa Sữa, phường Bình Minh, TP. Tân Hải",
+    "ĐT: 0236 3555 618",
+    "Mẫu số 01/BV",
+    "Số: 2026-10-4471",
+    "Giờ làm việc: 7h00 – 19h00 tất cả các ngày trong tuần"
+  ],
+  "languages": [
+    "vi"
+  ],
+  "code": [],
+  "notes": "One-page Vietnamese outpatient prescription on an A5 page. Letterhead (name, address, phone on the left; form code on the right) and the working-hours line under the dashed rule are furniture. Vietnamese text is precomposed (NFC). The patient block is a four-column key/value table. Dosage cells of TWO LINES are given joined by one space. The advice list has TYPED hyphen markers, kept. The title is typed in capitals and letter-spaced."
+}

@@ -1,0 +1,190 @@
+{
+  "id": "r09",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Ordem de Serviço de Evento n.º 2026/318",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Ordem de Serviço de Evento n.º 2026/318"
+    },
+    {
+      "level": 2,
+      "text": "Dados do cliente"
+    },
+    {
+      "level": 2,
+      "text": "Dados do evento"
+    },
+    {
+      "level": 2,
+      "text": "Programa"
+    },
+    {
+      "level": 2,
+      "text": "Ementa do almoço"
+    },
+    {
+      "level": 2,
+      "text": "Equipamento"
+    },
+    {
+      "level": 2,
+      "text": "Observações"
+    }
+  ],
+  "key_sentences": [
+    "O cliente confirmará o número final de participantes até 72 horas antes do evento.",
+    "Dois participantes têm intolerância ao glúten e um é alérgico a frutos secos.",
+    "A sala deve estar montada e climatizada às 08h00.",
+    "Os serviços adicionais serão faturados de acordo com a tabela de preços em vigor."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Cliente",
+          "Associação de Viticultores do Barrocal"
+        ],
+        [
+          "Contacto",
+          "Eng.ª Teresa Valadares"
+        ],
+        [
+          "Telefone",
+          "+351 912 555 407"
+        ],
+        [
+          "Faturação",
+          "Sede da associação, Rua do Lagar 9, Vale Fundo"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Evento",
+          "Jornada técnica «Vinha e clima»"
+        ],
+        [
+          "Data",
+          "Sábado, 21 de novembro de 2026"
+        ],
+        [
+          "Participantes",
+          "85 confirmados (mínimo garantido 80)"
+        ],
+        [
+          "Sala",
+          "Salão dos Lagares, disposição em plateia"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Hora",
+          "Atividade",
+          "Local",
+          "Responsável"
+        ],
+        [
+          "08h30",
+          "Receção e café de boas-vindas",
+          "Átrio principal",
+          "Banquetes"
+        ],
+        [
+          "09h30",
+          "Sessões técnicas (manhã)",
+          "Salão dos Lagares",
+          "Cliente"
+        ],
+        [
+          "11h00",
+          "Pausa para café",
+          "Terraço norte",
+          "Banquetes"
+        ],
+        [
+          "13h00",
+          "Almoço volante",
+          "Jardim das Oliveiras",
+          "Cozinha"
+        ],
+        [
+          "14h30",
+          "Visita à adega",
+          "Adega da quinta",
+          "Enologia"
+        ],
+        [
+          "17h00",
+          "Prova de vinhos e encerramento",
+          "Salão dos Lagares",
+          "Bar"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Item",
+          "Quantidade"
+        ],
+        [
+          "Projetor e ecrã",
+          "1"
+        ],
+        [
+          "Microfones sem fios",
+          "3"
+        ],
+        [
+          "Mesa de oradores",
+          "1 (4 lugares)"
+        ],
+        [
+          "Flipchart",
+          "2"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Creme de abóbora com sementes torradas"
+    },
+    {
+      "level": 0,
+      "text": "Bacalhau confitado com grão e espinafres"
+    },
+    {
+      "level": 0,
+      "text": "Bochechas de porco preto estufadas em vinho tinto"
+    },
+    {
+      "level": 0,
+      "text": "Opção vegetariana: risoto de cogumelos silvestres"
+    },
+    {
+      "level": 0,
+      "text": "Sobremesas: tarte de amêndoa e fruta da época"
+    }
+  ],
+  "furniture": [
+    "Hotel Quinta das Amendoeiras",
+    "Estrada da Serra 1140, 8550-201 Vale Fundo",
+    "eventos@quinta-amendoeiras.example · +351 282 555 140"
+  ],
+  "languages": [
+    "pt"
+  ],
+  "code": [],
+  "notes": "One-page Portuguese hotel banquet event order. Letterhead lines are furniture. 'Dados do cliente' and 'Dados do evento' are SIDE-BY-SIDE boxes, each a key/value table without header row; reading order is left box then right box. The menu list markers are em dashes drawn by CSS ::before, so items are given without them. The two signature lines at the bottom sit side by side."
+}

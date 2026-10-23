@@ -1,0 +1,180 @@
+{
+  "id": "r19",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "SURAT PESANAN PEMBELIAN",
+  "headings": [
+    {
+      "level": 1,
+      "text": "SURAT PESANAN PEMBELIAN"
+    },
+    {
+      "level": 2,
+      "text": "Kepada"
+    },
+    {
+      "level": 2,
+      "text": "Rincian Pesanan"
+    },
+    {
+      "level": 2,
+      "text": "Syarat dan Ketentuan"
+    }
+  ],
+  "key_sentences": [
+    "Harga sudah termasuk biaya pengiriman ke gudang tujuan.",
+    "Mohon konfirmasi penerimaan pesanan ini paling lambat dua hari kerja setelah tanggal PO.",
+    "Nomor PO wajib dicantumkan pada surat jalan dan faktur.",
+    "Pengiriman diterima di gudang setiap hari Senin sampai Jumat pukul 08.00 sampai 15.00."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Nomor PO",
+          "PO/KL/2026/10/0882"
+        ],
+        [
+          "Tanggal",
+          "21 Oktober 2026"
+        ],
+        [
+          "Tanggal kirim",
+          "28 Oktober 2026"
+        ],
+        [
+          "Gudang tujuan",
+          "DC Tirtaraya Timur"
+        ],
+        [
+          "Syarat pembayaran",
+          "30 hari setelah faktur"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "No",
+          "Nama Barang",
+          "Satuan",
+          "Jumlah",
+          "Harga Satuan (Rp)",
+          "Diskon",
+          "Total (Rp)"
+        ],
+        [
+          "1",
+          "Beras Pandan Wangi 5 kg SKU 8990412",
+          "karung",
+          "120",
+          "74.500",
+          "5%",
+          "8.493.000"
+        ],
+        [
+          "2",
+          "Minyak Goreng Sawit 2 L SKU 8990877",
+          "pouch",
+          "240",
+          "33.900",
+          "–",
+          "8.136.000"
+        ],
+        [
+          "3",
+          "Gula Pasir Kristal 1 kg SKU 8990133",
+          "bungkus",
+          "300",
+          "17.250",
+          "2%",
+          "5.071.500"
+        ],
+        [
+          "4",
+          "Telur Ayam Negeri 1 kg SKU 8991560",
+          "pak",
+          "150",
+          "28.400",
+          "–",
+          "4.260.000"
+        ],
+        [
+          "5",
+          "Tepung Terigu Protein Sedang 1 kg SKU 8990299",
+          "bungkus",
+          "200",
+          "12.800",
+          "–",
+          "2.560.000"
+        ],
+        [
+          "6",
+          "Kecap Manis 600 ml SKU 8991024",
+          "botol",
+          "96",
+          "21.700",
+          "3%",
+          "2.020.704"
+        ],
+        [
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "30.541.204"
+        ],
+        [
+          "PPN 11%",
+          "PPN 11%",
+          "PPN 11%",
+          "PPN 11%",
+          "PPN 11%",
+          "PPN 11%",
+          "3.359.532"
+        ],
+        [
+          "Grand Total",
+          "Grand Total",
+          "Grand Total",
+          "Grand Total",
+          "Grand Total",
+          "Grand Total",
+          "33.900.736"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. Barang harus dikirim sesuai jadwal dan disertai surat jalan."
+    },
+    {
+      "level": 0,
+      "text": "2. Masa kedaluwarsa produk minimal enam bulan sejak tanggal pengiriman."
+    },
+    {
+      "level": 0,
+      "text": "3. Barang yang rusak atau tidak sesuai pesanan akan dikembalikan atas biaya pemasok."
+    },
+    {
+      "level": 0,
+      "text": "4. Faktur pajak dikirim bersama tagihan ke bagian keuangan."
+    }
+  ],
+  "furniture": [
+    "PT Pasar Segar Kenanga Lestari",
+    "Jl. Raya Kenanga No. 88, Kel. Sukamaju, Kota Tirtaraya 40551",
+    "Telp. (022) 555-8812 · pengadaan@kenanga-lestari.example"
+  ],
+  "languages": [
+    "id"
+  ],
+  "code": [],
+  "notes": "One-page Indonesian retail purchase order. Letterhead (3 lines) is furniture. The supplier box ('Kepada') and the order details box ('Rincian Pesanan', a key/value table) sit SIDE BY SIDE, read box by box. Item names are cells of TWO LINES (name + SKU), given joined by one space. Subtotal, PPN and Grand Total labels span six columns. Indonesian number format uses dots for thousands. The terms list has TYPED markers '1.' .. '4.', kept. The title is typed in capitals and letter-spaced. Three signature blocks sit side by side."
+}

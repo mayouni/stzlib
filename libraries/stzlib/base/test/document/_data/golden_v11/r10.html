@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="tr" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Elektrik Faturası</title>
+<style>
+
+@page { size: A4; margin: 1.5cm 1.6cm; }
+body { font-family: Calibri, sans-serif; font-size: 9.5pt; color: #222; }
+.lh { display: flex; justify-content: space-between; align-items: center; background: #ffd400; padding: 8px 12px; }
+.lh .n { font-size: 13pt; font-weight: bold; letter-spacing: 0.02em; }
+.lh .a { font-size: 8pt; text-align: right; }
+.bolt { width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 26px solid #222; }
+h1 { font-size: 16pt; margin: 10px 0 6px 0; }
+h2 { font-size: 10pt; background: #333; color: #ffd400; padding: 2px 6px; margin: 10px 0 4px 0; }
+.two { display: flex; gap: 12px; }
+.two > div { flex: 1; }
+table { border-collapse: collapse; width: 100%; }
+table.kv td { border-bottom: 1px solid #ddd; padding: 2px 5px; }
+table.kv td:first-child { font-weight: bold; width: 38%; }
+table.g th { background: #f2f2f2; border: 1px solid #ccc; padding: 3px 5px; }
+table.g td { border: 1px solid #ccc; padding: 3px 5px; }
+td.r, th.r { text-align: right; }
+tr.pay td { background: #ffd400; font-weight: bold; font-size: 11pt; }
+.due { margin: 10px 0; border: 2px solid #333; padding: 6px 10px; display: flex; justify-content: space-between; font-size: 12pt; }
+.due b { font-size: 15pt; }
+.foot { margin-top: 14px; border-top: 1px solid #999; padding-top: 4px; font-size: 7.5pt; color: #666; }
+p { margin: 4px 0; }
+
+</style>
+</head>
+<body>
+<div class="lh"><div style="display:flex;gap:10px;align-items:center"><div class="bolt"></div><div class="n">GÖKTAŞ ELEKTRİK PERAKENDE SATIŞ A.Ş.</div></div><div class="a"><div>Çınarlı Mah. Enerji Cad. No: 12, 16420 Yeşilova</div><div>Çağrı Merkezi: 444 5 186 · www.goktas-elektrik.example</div></div></div>
+<h1>Elektrik Faturası</h1>
+<div class="two"><div>
+<h2>Abone Bilgileri</h2>
+<table class="kv"><tbody><tr><td>Abone No</td><td>4100 2287 15</td></tr><tr><td>Ad Soyad</td><td>Elif Karaca</td></tr><tr><td>Adres</td><td>Lale Sok. No: 7 D: 3, Yeşilova</td></tr><tr><td>Tarife</td><td>Mesken – Tek Zamanlı</td></tr><tr><td>Sayaç No</td><td>7731 9902</td></tr></tbody></table>
+</div><div>
+<h2>Fatura Bilgileri</h2>
+<table class="kv"><tbody><tr><td>Fatura No</td><td>GEP2026000918734</td></tr><tr><td>Fatura Tarihi</td><td>05.10.2026</td></tr><tr><td>Dönem</td><td>01.09.2026 – 30.09.2026</td></tr><tr><td>Son Ödeme Tarihi</td><td>20.10.2026</td></tr><tr><td>Okuma Türü</td><td>Gerçek okuma</td></tr></tbody></table>
+</div></div>
+<div class="due"><span>Ödenecek Tutar</span><b>998,59 TL</b><span>Son Ödeme: 20.10.2026</span></div>
+<h2>Tüketim Bilgileri</h2>
+<table class="g"><thead><tr><th>İlk Endeks</th><th>Son Endeks</th><th>Fark (kWh)</th><th>Çarpan</th><th>Tüketim (kWh)</th></tr></thead><tbody><tr><td class="r">18.432</td><td class="r">18.671</td><td class="r">239</td><td class="r">1</td><td class="r">239</td></tr></tbody></table>
+<h2>Fatura Detayı</h2>
+<table class="g"><thead><tr><th>Kalem</th><th>Miktar</th><th class="r">Birim Fiyat (TL)</th><th class="r">Tutar (TL)</th></tr></thead><tbody><tr><td>Enerji bedeli</td><td>239 kWh</td><td class="r">2,0750</td><td class="r">495,93</td></tr><tr><td>Dağıtım bedeli</td><td>239 kWh</td><td class="r">1,2410</td><td class="r">296,60</td></tr><tr><td>Elektrik tüketim vergisi (%5)</td><td>—</td><td class="r">—</td><td class="r">39,63</td></tr><tr><td colspan="3">Ara Toplam</td><td class="r">832,16</td></tr><tr><td colspan="3">KDV (%20)</td><td class="r">166,43</td></tr><tr class="pay"><td colspan="3">Ödenecek Tutar</td><td class="r">998,59</td></tr></tbody></table>
+<h2>Son 6 Ay Tüketim (kWh)</h2>
+<table class="g"><thead><tr><th>Nisan</th><th>Mayıs</th><th>Haziran</th><th>Temmuz</th><th>Ağustos</th><th>Eylül</th></tr></thead><tbody><tr><td>198</td><td>176</td><td>205</td><td>262</td><td>281</td><td>239</td></tr></tbody></table>
+<p>Bu dönemki tüketiminiz geçen yılın aynı dönemine göre yüzde 6 daha düşüktür.</p>
+<h2>Önemli Bilgiler</h2>
+<p>Son ödeme tarihine kadar ödenmeyen faturalara gecikme zammı uygulanır. Faturanızı banka, PTT ve anlaşmalı ödeme noktalarından ödeyebilirsiniz. Otomatik ödeme talimatı vermek için çağrı merkezimizi arayabilirsiniz.</p>
+<p>Kesinti ve arıza bildirimleri için 186 numaralı hat yirmi dört saat hizmet verir.</p>
+<div class="foot">Bu fatura elektronik ortamda düzenlenmiştir. Mersis No: 0418 5550 1860 0017</div>
+</body>
+</html>

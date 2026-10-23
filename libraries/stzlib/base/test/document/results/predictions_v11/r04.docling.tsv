@@ -1,0 +1,34 @@
+page_header	0	Kessling Haustechnik GmbH
+heading	1	Thermaro LW 9 - Installationsanleitung
+paragraph	0	Luft-Wasser-Wärmepumpe für die Außenaufstellung
+paragraph	0	Diese Anleitung richtet sich an Fachhandwerker, die die Wärmepumpe aufstellen, anschließen und in Betrieb nehmen. Bewahren Sie die Anleitung nach der Installation beim Gerät auf.
+heading	1	1 Sicherheitshinweise
+heading	1	1.1 Bestimmungsgemäße Verwendung
+paragraph	0	Das Gerät dient ausschließlich zur Erwärmung von Heizungswasser und Trinkwasser in geschlossenen Heizsystemen. Jede andere Verwendung gilt als nicht bestimmungsgemäß. Für Schäden, die aus einer solchen Verwendung entstehen, haftet der Hersteller nicht.
+heading	1	1.2 Qualifikation des Personals
+paragraph	0	Arbeiten am Kältekreis dürfen nur von zertifizierten Fachkräften ausgeführt werden. Das Gerät enthält das brennbare Kältemittel R290; offene Flammen und Zündquellen sind im Umkreis von drei Metern verboten.
+paragraph	0	Warnung: Vor allen Arbeiten am Gerät ist die Spannungsversorgung allpolig zu trennen und gegen Wiedereinschalten zu sichern.
+heading	1	2 Technische Daten
+table	0	Tabelle 1: Kenndaten KenngrößeEinheitHeizleistung bei A7/W359,1kWLeistungszahl (COP) bei A7/W354,72-Max. Vorlauftemperatur65°CKältemittel / FüllmengeR290 / 1,3kgSchalldruckpegel in 5 m Abstand34dB(A)Elektrischer Anschluss3/N/PE 400 V 50 Hz-Abmessungen (B × H × T)1120 × 980 × 480mmGewicht128kg
+heading	1	3 Aufstellung
+paragraph	0	Das Außengerät wird auf einem frostfreien Fundament oder auf zwei Fundament­streifen aus Beton aufgestellt. Der Untergrund muss eben und tragfähig sein und das Betriebsgewicht dauerhaft aufnehmen. Zwischen Gerät und Fundament sind die mitgelieferten Schwingungs­dämpfer einzulegen.
+paragraph	0	Die Kondensat­ablauf­leitung ist frostsicher zu verlegen und mit einem Gefälle von mindestens zwei Prozent auszuführen. Bei Außentemperaturen unter null Grad kann sich sonst Eis im Ablauf bilden, das den Verdampfer beschädigt.
+paragraph	0	Der Luftaustritt darf nicht auf Fenster, Terrassen oder Nachbargrundstücke gerichtet sein. In Hofsituationen und Nischen kann der Schall reflektiert werden; prüfen Sie in diesem Fall die Immissions­richtwerte am nächstgelegenen Wohnraum.
+page_footer	0	Dok. -Nr. KH-IA-0937 · Ausgabe 03/2026
+page_footer	0	Seite 1
+page_header	0	Kessling Haustechnik GmbH
+heading	1	3.1 Mindestabstände
+table	0	SeiteMindestabstandEmpfohlenVorderseite (Luftaustritt)1000 mm1500 mmRückseite (Lufteintritt)300 mm500 mmLinks300 mm500 mmRechts (Serviceseite)600 mm800 mmOben1200 mmfrei
+heading	1	4 Inbetriebnahme
+paragraph	0	Führen Sie die folgenden Schritte in der angegebenen Reihenfolge aus:
+list_item	0	Heizungsanlage füllen, spülen und entlüften.
+list_item	0	Anlagendruck prüfen (Sollwert 1,5 bar bei kalter Anlage).
+list_item	0	Spannungsversorgung einschalten und den Inbetriebnahme-Assistenten am Regler starten.
+list_item	0	Konfigurationsdatei vom USB-Stick einlesen (siehe Abschnitt 4.1).
+list_item	0	Probelauf von mindestens 30 Minuten durchführen und protokollieren.
+heading	1	4.1 Konfigurationsdatei
+paragraph	0	Die Datei config.ini muss im Stammverzeichnis des USB-Sticks liegen. Unbekannte Schlüssel werden beim Einlesen ignoriert und im Ereignisprotokoll vermerkt.
+code	0	[anlage] typ = LW9 heizkreise = 2 vorlauf _ max = 55 [heizkreis _ 1] art = fussboden kennlinie = 0.6 [heizkreis _ 2] art = heizkoerper kennlinie = 1.2 [warmwasser] soll = 48 legionellen _ tag = so
+paragraph	0	Nach dem Einlesen zeigt der Regler eine Zusammenfassung an, die vor dem Speichern bestätigt werden muss. Technische Änderungen vorbehalten.
+page_footer	0	Dok. -Nr. KH-IA-0937 · Ausgabe 03/2026
+page_footer	0	Seite 2

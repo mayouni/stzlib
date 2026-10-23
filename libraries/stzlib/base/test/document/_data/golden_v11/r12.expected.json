@@ -1,0 +1,155 @@
+{
+  "id": "r12",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "Cover crops raise steady-state infiltration on two contrasting loam soils",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Cover crops raise steady-state infiltration on two contrasting loam soils"
+    },
+    {
+      "level": 2,
+      "text": "Abstract"
+    },
+    {
+      "level": 2,
+      "text": "1. Introduction"
+    },
+    {
+      "level": 2,
+      "text": "2. Materials and methods"
+    },
+    {
+      "level": 3,
+      "text": "2.1 Study sites"
+    },
+    {
+      "level": 3,
+      "text": "2.2 Infiltration measurements"
+    },
+    {
+      "level": 3,
+      "text": "2.3 Statistical analysis"
+    },
+    {
+      "level": 2,
+      "text": "3. Results"
+    },
+    {
+      "level": 2,
+      "text": "4. Discussion"
+    },
+    {
+      "level": 2,
+      "text": "5. Conclusions"
+    },
+    {
+      "level": 2,
+      "text": "Acknowledgements"
+    },
+    {
+      "level": 2,
+      "text": "References"
+    }
+  ],
+  "key_sentences": [
+    "Winter cover crops are promoted as a way to improve soil structure, but field evidence on their effect on infiltration remains mixed.",
+    "Across both sites, a rye and vetch mixture increased infiltration by 61 percent relative to bare fallow in the second year.",
+    "Cover crops sown after the main harvest keep the soil covered over winter and add roots and residues that may stabilise aggregates.",
+    "Both sites had been managed under conventional tillage with a cereal rotation for at least ten years before the trial began.",
+    "Measurements were made at three random points per plot, avoiding wheel tracks.",
+    "On the silt loam, all three cover crops increased infiltration in both years, and the gap to bare fallow widened in the second year.",
+    "Mixtures combining a cereal with a legume may also benefit from the additional biological activity supported by nitrogen-rich residues.",
+    "Cover crops raised steady-state infiltration on both soils, and the effect grew between the first and second year."
+  ],
+  "tables": [
+    {
+      "caption": "Table 1. Steady-state infiltration rate (mm h⁻¹) by treatment, site and year.",
+      "rows": [
+        [
+          "Treatment",
+          "Site A (silt loam)",
+          "Site A (silt loam)",
+          "Site B (sandy loam)",
+          "Site B (sandy loam)"
+        ],
+        [
+          "Treatment",
+          "2024",
+          "2025",
+          "2024",
+          "2025"
+        ],
+        [
+          "Bare fallow",
+          "18.2",
+          "17.5",
+          "9.4",
+          "8.8"
+        ],
+        [
+          "Cereal rye",
+          "26.9",
+          "31.4",
+          "12.7",
+          "14.9"
+        ],
+        [
+          "Rye–vetch mix",
+          "29.3",
+          "35.8",
+          "13.1",
+          "16.2"
+        ],
+        [
+          "Oilseed radish",
+          "24.1",
+          "27.0",
+          "15.8",
+          "18.5"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "[1] Abara, K. and Lindqvist, P. (2019). Root architecture and macropore flow in arable soils. Soil Physics Letters 7, 44–58."
+    },
+    {
+      "level": 0,
+      "text": "[2] Brenner, T., Osei, A. and Duval, M. (2021). Cover crops and runoff in temperate catchments. Journal of Field Hydrology 33, 101–117."
+    },
+    {
+      "level": 0,
+      "text": "[3] Castellanos, R. (2018). Measuring infiltration with ring infiltrometers: a practical guide. Lakemoor University Press."
+    },
+    {
+      "level": 0,
+      "text": "[4] Dunmore, E. and Hart, J. (2022). Brassica tap roots as biological subsoilers. Agronomy Review 15, 210–224."
+    },
+    {
+      "level": 0,
+      "text": "[5] Feldkamp, J. (2020). Seasonal dynamics of soil structure under winter cover. Landscape Water Research 9, 12–29."
+    },
+    {
+      "level": 0,
+      "text": "[6] Ito, S. and Nishimura, A. (2023). Mixed-species cover crops and aggregate stability. Soil Ecology Notes 4, 77–90."
+    }
+  ],
+  "furniture": [
+    "JOURNAL OF APPLIED SOIL HYDROLOGY",
+    "J. Appl. Soil Hydrol. 14 (2026)",
+    "Tchamba et al.",
+    "© 2026 The Authors. Published under a CC BY 4.0 licence.",
+    "1",
+    "2",
+    "3"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Three-page research article. The journal line above the title ('JOURNAL OF APPLIED SOIL HYDROLOGY', letter-spaced) and the running header (pages 2-3), the first-page licence line and the page numbers are furniture (page number once per page). The body is in TWO CSS COLUMNS read column by column; Table 1 spans both columns and has a TWO-LEVEL header (Treatment spans two header rows; each site spans two year columns). Author and affiliation lines are body text with superscript digits. A sentence carrying the footnote marker is left out of key_sentences; the footnote line itself is in no field. References carry TYPED markers '[1]'..'[6]', kept in list_items. 'mm h⁻¹' uses Unicode superscript characters."
+}

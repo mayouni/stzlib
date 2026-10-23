@@ -1,0 +1,48 @@
+page_header	0	JOURNAL OF APPLIED SOIL HYDROLOGY
+heading	1	Cover crops raise steady-state infiltration on two contrasting loam soils
+paragraph	0	Mireille Tchamba1, Jonas Feldkamp2, Aiko Nishimura1
+paragraph	0	1 Department of Agronomy, University of Lakemoor; 2 Institute of Landscape Water Research, Brenndal
+heading	2	Abstract
+paragraph	0	Winter cover crops are promoted as a way to improve soil structure, but field evidence on their effect on infiltration remains mixed. We measured steady-state infiltration under bare fallow and three cover crop treatments on a silt loam and a sandy loam over two seasons. Across both sites, a rye and vetch mixture increased infiltration by 61 percent relative to bare fallow in the second year. The effect was smaller and slower on the sandy loam, where oilseed radish performed best. Keywords: cover crops; infiltration; soil structure; double-ring infiltrometer; loam
+page_footer	0	© 2026 The Authors. Published under a CC BY 4.0 licence.
+page_footer	0	1
+page_header	0	J. Appl. Soil Hydrol. 14 (2026)
+heading	2	1. Introduction
+paragraph	0	Intense spring rainfall on bare arable soil produces surface runoff, erosion and the loss of nutrients to streams. Cover crops sown after the main harvest keep the soil covered over winter and add roots and residues that may stabilise aggregates. Several plot studies report higher infiltration under cover crops, whereas others find no difference or attribute the gains to reduced traffic rather than to the plants themselves. Most of these studies cover a single season and a single soil. Root systems differ widely between species: cereals form dense fibrous networks near the surface, while brassicas such as radish develop a thick tap root that can penetrate compacted layers. We therefore expected species effects to depend on soil texture and to accumulate over time. This paper reports the first two years of a replicated field trial designed to test both expectations.
+heading	2	2. Materials and methods
+heading	3	2.1 Study sites
+page_header	0	Tchamba et al.
+paragraph	0	The trial was established in autumn 2023 at two farms of the Lakemoor research network. Site A lies on a silt loam with 18 percent clay and 2.1 percent organic carbon; Site B lies on a sandy loam with 9 percent clay and 1.3 percent organic carbon. Both sites had been managed under conventional tillage with a cereal rotation for at least ten years before the trial began.
+heading	3	2.2 Infiltration measurements
+paragraph	0	Each treatment was sown in four replicate plots of 12 by 24 metres in a randomised complete block design. Infiltration was measured in late March of each year with a double-ring infiltrometer.1 Water was kept at a constant head of 5 cm, and readings were taken every five minutes until three successive rates differed by less than five percent. Measurements were made at three random points per plot, avoiding wheel tracks.
+heading	3	2.3 Statistical analysis
+paragraph	0	Plot means were analysed with a linear mixed model with treatment, year and their interaction as fixed effects and block as a random effect, separately for each site. Rates were log-transformed to stabilise the variance and back-transformed for presentation.
+caption	0	Table 1. Steady-state infiltration rate (mm h⁻¹) by treatment, site and year.
+table	0	Site A (silt loam)Site A (silt loam)Site B (sandy loam)Site B (sandy loam)2024202520242025Bare fallow18.217.59.48.8Cereal rye26.931.412.714.9Rye–vetch mix29.335.813.116.2Oilseed radish24.127.015.818.5
+paragraph	0	Treatment
+heading	2	3. Results
+paragraph	0	On the silt loam, all three cover crops increased infiltration in both years, and the gap to bare fallow widened in the second year. The rye and vetch mixture reached 35.8 mm h⁻¹ in 2025, twice the fallow value. On the sandy loam the absolute rates were lower and the differences smaller; only oilseed radish differed significantly from fallow in 2024, but in 2025 all three treatments did. The interaction between treatment and year was significant at both sites, which indicates that the effect builds up over successive seasons rather than appearing at once. Variation between replicate points
+paragraph	0	The results support both expectations. Fibrous cereal roots appear to be most effective on the finer soil, where they promote aggregation near the surface, whereas the radish tap root helps most on the sandy loam, whose limiting layer is a plough pan at 25 to 30 cm. Mixtures combining a cereal with a legume may also benefit from the additional biological activity supported by nitrogen-rich residues. Two years are too short to judge whether the gains persist once cover cropping stops. The trial will continue for at least four more seasons, and dye-tracer experiments are planned to separate matrix flow from flow through root channels.
+paragraph	0	was largest under radish, where some measurements
+heading	2	5. Conclusions
+paragraph	0	fell directly over decayed tap-root channels.
+heading	2	4. Discussion
+paragraph	0	Cover crops raised steady-state infiltration on both soils, and the effect grew between the first and second year. The choice of species should follow the soil: cereals and cereal-legume mixtures on silt loams, and
+page_footer	0	2
+page_header	0	J. Appl. Soil Hydrol. 14 (2026)
+page_header	0	Tchamba et al.
+paragraph	0	deep-rooting brassicas where compaction limits
+page_header	0	Hydrology 33, 101–117.
+paragraph	0	drainage.
+paragraph	0	[3] Castellanos, R. (2018). Measuring infiltration with ring infiltrometers: a practical guide. Lakemoor University
+heading	2	Acknowledgements
+paragraph	0	Press.
+paragraph	0	We thank the farm staff of the Lakemoor network for managing the plots, and two anonymous reviewers for their comments.
+paragraph	0	[4] Dunmore, E. and Hart, J. (2022). Brassica tap roots as biological subsoilers. Agronomy Review 15, 210–224. [5] Feldkamp, J. (2020). Seasonal dynamics of soil structure under winter cover. Landscape Water Research 9, 12–29.
+heading	2	References
+paragraph	0	[6] Ito, S. and Nishimura, A. (2023). Mixed-species cover crops and aggregate stability. Soil Ecology Notes 4, 77–
+paragraph	0	[1] Abara, K. and Lindqvist, P. (2019). Root architecture and
+paragraph	0	90.
+paragraph	0	macropore flow in arable soils. Soil Physics Letters 7, 44– 58. [2] Brenner, T., Osei, A. and Duval, M. (2021). Cover crops and runoff in temperate catchments. Journal of Field
+paragraph	0	1 Inner ring diameter 30 cm, outer ring diameter 60 cm, inserted to a depth of 10 cm.
+page_footer	0	3
