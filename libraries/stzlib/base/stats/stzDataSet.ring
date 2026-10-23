@@ -3168,57 +3168,64 @@ class stzDataSet from stzObject
 	# Returns the mutual information, in bits, between this data and another data set of the same length.
 	#
 	#   oOtherDataSet   the stzDataSet to relate to
-	#   returns         a number; 0 for different lengths or empty data
-	#   warning         known defect: the pairs are joined with an underscore and split again, so a
-	#                   value containing an underscore gives a wrong result: "a_b" and "c_d" against
-	#                   x and y give 0 where ab and cd give 1
-	#   see             ContingencyTable, ChiSquareWith
+	#   returns         a number from 0 up: 0 for independent series, a constant series, different
+	#                   lengths or empty data; the entropy of either series when each value of one
+	#                   determines the value of the other
+	#   note            two values are the same value when they are written the same way, as in
+	#                   FrequencyTable and Entropy, whatever characters they hold; each value of a
+	#                   series is numbered once and a pair is counted by its two numbers, so no
+	#                   joined text is ever split; a rounding residue below 0 is returned as 0
+	#   see             Entropy, ContingencyTable, ChiSquareWith
 	def MutualInformation(oOtherDataSet)
-	    # Simplified mutual information for categorical data
 	    _aData1_ = @anData
 	    _aData2_ = oOtherDataSet.Data()
 	    
-	    if len(_aData1_) != len(_aData2_) or len(_aData1_) = 0
+	    _nTotal_ = len(_aData1_)
+	    if _nTotal_ != len(_aData2_) or _nTotal_ = 0
 	        return 0
 	    ok
 	    
-	    # Create joint frequency table
-	    _aJointFreq_ = []
-	    _nTotal_ = len(_aData1_)
+	    # Number the distinct values of each series; the counts are the marginal frequencies
+	    _aCats1_ = This._CategoryIds(_aData1_)
+	    _aCats2_ = This._CategoryIds(_aData2_)
+	    _anIds1_ = _aCats1_[1]
+	    _anCount1_ = _aCats1_[2]
+	    _anIds2_ = _aCats2_[1]
+	    _anCount2_ = _aCats2_[2]
+	    
+	    # Count each pair of numbers; the pair's key is a number no other pair shares
+	    _nWidth_ = len(_anCount2_) + 1
+	    _aJointAt_ = []
+	    _anJointX_ = []
+	    _anJointY_ = []
+	    _anJointN_ = []
 	    
 	    for i = 1 to _nTotal_
-	        _cPair_ = "" + _aData1_[i] + "_" + _aData2_[i]
-	        _nIndex_ = This._FindInFreqList(_aJointFreq_, _cPair_)
-	        if _nIndex_ = 0
-	            _aJointFreq_ + [_cPair_, 1]
+	        _cPair_ = "" + (_anIds1_[i] * _nWidth_ + _anIds2_[i])
+	        _nAt_ = _aJointAt_[_cPair_]
+	        if isNumber(_nAt_)
+	            _anJointN_[_nAt_]++
 	        else
-	            _aJointFreq_[_nIndex_][2]++
+	            _anJointX_ + _anIds1_[i]
+	            _anJointY_ + _anIds2_[i]
+	            _anJointN_ + 1
+	            _aJointAt_[_cPair_] = len(_anJointN_)
 	        ok
 	    next
 	    
-	    # Calculate marginal frequencies
-	    _aFreq1_ = This.FrequencyTable()
-	    _aFreq2_ = oOtherDataSet.FrequencyTable()
-	    
-	    # Calculate mutual information
+	    # Calculate mutual information: sum of p(x,y) * log2( p(x,y) / (p(x) * p(y)) )
 	    _nMI_ = 0
-	    _nJointLen_ = len(_aJointFreq_)
+	    _nJointLen_ = len(_anJointN_)
 	    
 	    for i = 1 to _nJointLen_
-	        _nJointProb_ = _aJointFreq_[i][2] / _nTotal_
-	        
-	        # Extract individual values from pair
-	        _aPair_ = split(_aJointFreq_[i][1], "_")
-	        _cVal1_ = _aPair_[1]
-	        _cVal2_ = _aPair_[2]
-	        
-	        _nMarg1_ = This._GetFreqValue(_aFreq1_, _cVal1_) / _nTotal_
-	        _nMarg2_ = This._GetFreqValue(_aFreq2_, _cVal2_) / _nTotal_
-	        
-	        if _nJointProb_ > 0 and _nMarg1_ > 0 and _nMarg2_ > 0
-	            _nMI_ += _nJointProb_ * log(_nJointProb_ / (_nMarg1_ * _nMarg2_)) / log(2)
-	        ok
+	        _nJoint_ = _anJointN_[i]
+	        _nRatio_ = (_nJoint_ * _nTotal_) / (_anCount1_[_anJointX_[i]] * _anCount2_[_anJointY_[i]])
+	        _nMI_ += (_nJoint_ / _nTotal_) * log(_nRatio_) / log(2)
 	    next
+	    
+	    if _nMI_ < 0
+	        return 0
+	    ok
 	    
 	    return _nMI_
 	
@@ -3245,6 +3252,33 @@ class stzDataSet from stzObject
 	    next
 	    return _cHash_
 	
+	# Numbers the distinct values of a list from 1, in the order they first appear.
+	#
+	#   aData      a list of numbers or texts
+	#   returns    a list [ the number of each item, the count of each number ]; two items share a
+	#              number when they are written the same way, which is how FrequencyTable and
+	#              Entropy tell values apart
+	def _CategoryIds(aData)
+	    _aSeen_ = []
+	    _anIds_ = []
+	    _anCounts_ = []
+	    _nLen_ = len(aData)
+	    
+	    for i = 1 to _nLen_
+	        _cItemKey_ = "" + aData[i]
+	        _nId_ = _aSeen_[_cItemKey_]
+	        if isNumber(_nId_)
+	            _anCounts_[_nId_]++
+	        else
+	            _anCounts_ + 1
+	            _nId_ = len(_anCounts_)
+	            _aSeen_[_cItemKey_] = _nId_
+	        ok
+	        _anIds_ + _nId_
+	    next
+	    
+	    return [_anIds_, _anCounts_]
+
 	def _FindInFreqList(aFreqList, _cValue_)
 	    _nLen_ = len(aFreqList)
 	    for i = 1 to _nLen_
