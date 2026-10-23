@@ -524,3 +524,8 @@ origin/main = 4d066c5e3 and is current; codeberg/main stays at e82e31037. Pushin
 
 UPDATE 2026-10-23 (later): CODEBERG IS CURRENT AGAIN. The push of 870cbacc0 alone, then of docs/reform, succeeded on the next attempt; origin, codeberg and docs/reform all read 15ab705af. The failure was transient (a dropped connection), not a size limit. The section above is historical.
 
+## 2026-10-23: the stzLinearSolver fix batch is ON MAIN; register 78 -> 75
+
+A real depth-first branch and bound over the class's own simplex (proved against a brute-force oracle on 40 random problems and 8 hand-solved LPs) replaced the honesty guard; CalculatePenalty lost a stray line; the genetic solver kept the worst candidate when minimising; round() with one argument is nonsense (use floor(v+0.5)). SECURITY: the solver ran raw eval on text and a function call ran (canary 1); text is now judged (R17). extractCoefficient had the extractor's bug (67 of 200 wrong, 200 of 200 now). Guard 555 assertions. A global side effect to decide: stzCoeffExtractor.init sets the display precision to 4 for the whole process.
+Next by size: three classes at 3 (stzStringChecker first), then nine at 2.
+
