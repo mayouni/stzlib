@@ -508,3 +508,8 @@ Next by size: six classes at 3 (stzCoeffExtractor first), then eight at 2.
 evaluateExpression passed a list to ManyReplaced (one text): empty formula, R42. The text is now judged by the new translateExpression (exact grammar: numbers, declared variables, + - * /, parentheses, commas, pow sqrt abs min max) and rebuilt from tokens; 79 hostile strings never ran, a canary stayed 0. Guard 428 assertions. SILENT WRONG ANSWERS still open in the plain linear path of extract (x + 2*x gives 1, should be 3; xx vs x), recommended follow-up. stzSoundLive guard passes 134 but exits 139 at teardown (same on main).
 Next by size: five classes at 3 (stzDataSet first), then nine at 2.
 
+## 2026-10-23: the stzCoeffExtractor.extract wrong-answer defect is FIXED and on main (not a register row)
+
+extract read coefficients by scanning the text (x found inside xx, a factor outside parentheses missed, repeated occurrences not added): the old code got 187 of 200 random linear expressions wrong, the new one 0. extract now judges the text and evaluates it at 16 points (one eval loop), falls to numericalDerivative for non-linear input; an undeclared name in the text is read as one more variable (test 18, and the solvers build the extractor with no names). Guard 920 assertions. Check stzLinearSolver's own extractCoefficient (about line 897) against the same generator in its batch.
+Next by size: five classes at 3 (stzDataSet first), then nine at 2.
+
