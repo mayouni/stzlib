@@ -544,3 +544,8 @@ Next by size: two classes at 3 (stzStringPerformer first), then ten at 2.
 Perform and PerformOn wrote nothing back (the engine call's result was dropped); they now rewrite the text consistently with Yield / YieldOn (35/35 and 28/28 pairs). The expression is evaluated by the ENGINE, never by Ring eval (R17 holds, canary 0 over 39 hostile strings). ENGINE: the expression compiler overflows the process stack on deep nesting (about 7000 parentheses kill the process; stzString.YieldCharsW and the list W forms are exposed too; a 2000-character limit is the boundary fix here) and upper()/lower() are ASCII-only. Guard 98 assertions.
 Next by size: one class at 3 (stzStringText), then eleven at 2.
 
+## 2026-10-24: the stzStringText fix batch is ON MAIN; register 69 -> 66; no class has 3 rows or more any more
+
+OnlyScript, OnlyArabic and OnlyLatin: the anonymous function could not see its parameter (a Ring lambda is a global function) and ConcatenateQ no longer exists; now an index loop and a join through a private _ScriptPart. OnlyScript is strict (common characters dropped); OnlyLatin and OnlyArabic keep common characters and collapse whitespace (the old intent); combining marks follow the character before them. The register holds 66 defects in 47 classes: 19 classes with 2 rows, 28 with 1. Guard 85 assertions.
+Next by size: the classes at 2 (stzAppServer first), then those at 1.
+
