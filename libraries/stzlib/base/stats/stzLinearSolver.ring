@@ -14,11 +14,15 @@ class stzLinear from stzObject
 # maximize or minimize, then call solve with a solver name. The simplex solver (Big-M, run in the
 # engine) gives the exact optimum and reports optimal, infeasible or unbounded in status. The greedy
 # solver, the default, is a heuristic that raises every variable as far as allowed: it does not
-# honour minimize and reads every constraint as a limit from above. The genetic solver raises an
-# error as soon as the problem has a constraint, and branch_bound is not implemented, so it always
-# raises. The integer and binary marks are recorded but no solver enforces them. The simplex pivot
-# helpers (BuildSimplexTableau and its kin) are placeholders that answer constants. Pass an empty
-# text to solve for the default solver, since the argument cannot be left out.
+# honour minimize and reads every constraint as a limit from above. The genetic solver is a random
+# search scored by the objective less a penalty for each broken constraint, so its answer is only
+# approximate. The branch_bound solver is the one that enforces the integer and binary marks: it
+# branches over the simplex until every marked variable is whole, and reports infeasible when no whole
+# answer exists; the other solvers ignore the marks. Expressions are read term by term when they are
+# made of terms like 2*x, x*2 and constants, and any other text (parentheses, a slash) is judged and
+# evaluated by stzCoeffExtractor, never run as typed. The simplex pivot helpers (BuildSimplexTableau
+# and its kin) are placeholders that answer constants. Pass an empty text to solve for the default
+# solver, since the argument cannot be left out.
 #
 #   receiver   o1 = new stzLinearSolver()
 #   example    o1.addVariable("x", 0, 4).addVariable("y", 0, 6)
@@ -43,7 +47,9 @@ class stzLinearSolver from stzObject
 	@status = ""
 	@iterations = 0
 	@solveTime = 0
-	@aCoeffCache = []   # expression text -> parsed [ [name, coeff], ... ]
+	@aCoeffCache = []   # rows [ expression text, [ [name, coeff], ... ] or "", ordered terms or "" ]
+	@nMaxNodes = 5000   # the most nodes branch and bound solves before it stops with an error
+	@oExact = ""        # a stzCoeffExtractor, built on first need, for expressions the plain reader cannot read with certainty
 
 	# Builds an empty linear programming problem, with no variable, no constraint and no objective.
 	#
@@ -130,8 +136,8 @@ class stzLinearSolver from stzObject
 	#   returns        the solver itself, so calls chain
 	#   note           all three arguments are needed, as for addVariable
 	#   warning        the mark is only recorded in the variable list: the simplex solver ignores it
-	#                  (maximize n with 2*n <= 5 answers 2.5), the greedy solver floors every value,
-	#                  and branch and bound is not implemented
+	#                  (maximize n with 2*n <= 5 answers 2.5) and the greedy solver floors every
+	#                  value; only the branch_bound solver enforces it (the same problem answers 2)
 	#   see            addVariable, addBinaryVariable
 	def addIntegerVariable(varName, _lowerBound_, _upperBound_)
 		# Was `@variables + [:type, "integer"]` -- appends a malformed
@@ -147,7 +153,7 @@ class stzLinearSolver from stzObject
 	#   varName    the variable's name, as text
 	#   returns    the solver itself, so calls chain
 	#   warning    the mark is only recorded: the simplex solver ignores it (maximize b with 2*b <=
-	#              1 answers 0.5)
+	#              1 answers 0.5); the branch_bound solver enforces it (the same problem answers 0)
 	#   see        addVariable, addIntegerVariable
 	def addBinaryVariable(varName)
 		# Same bug as addIntegerVariable.
@@ -287,10 +293,9 @@ class stzLinearSolver from stzObject
 	#   note        on maximize 3*x + 2*y with x + y <= 5 and x + 3*y <= 12, bounds 0..4 and 0..6,
 	#               simplex and greedy both answer x = 4 and y = 1, value 14
 	#   warning     the argument cannot be left out (R19), pass an empty text for the default; no
-	#               variable, no objective or an unknown name raise an error; "branch_bound" always
-	#               raises today and sets the status to unimplemented; "genetic" raises R5 as soon
-	#               as the problem has a constraint; "greedy" is a heuristic and still reports the
-	#               status optimal
+	#               variable, no objective or an unknown name raise an error; "branch_bound" raises
+	#               after 5000 nodes with the status node_limit; "genetic" searches at random and is
+	#               approximate; "greedy" is a heuristic and still reports the status optimal
 	#   see         solveWithSimplex, solveWithGreedy, Solution, status, objectiveValue
 	def solve(_cSolver_)
 		if isNull(_cSolver_) or _cSolver_ = ""
@@ -614,90 +619,166 @@ class stzLinearSolver from stzObject
 		next
 		return _aSolution_
 
-	# Raises error today instead of solving by branch and bound, which is not implemented yet.
+	# Returns the best answer that gives every integer and binary variable a whole value, found by branch and bound over the simplex.
 	#
-	#   returns    nothing; always raises and sets the status to unimplemented
-	#   note       the integer variables are therefore never enforced by any solver
-	#   warning    an honesty guard stops the method on its first line, so the branching code after
-	#              it never runs; use "greedy" or "simplex"
-	#   see        solve, solveWithSimplex
+	# Each node is the problem with tighter bounds, solved by the simplex. A node whose relaxation is
+	# infeasible, or no better than the best whole answer so far (by more than 1e-9), is dropped; one whose
+	# integer and binary variables are all whole (within 1e-9) becomes the best answer; any other is split
+	# on its most fractional variable v into v <= floor and v >= ceil, depth first. Continuous variables
+	# are never branched on. The search stops with an error after 5000 nodes.
+	#
+	#   returns    a list of [ name, value ] pairs, one per variable, the whole values exact; the status
+	#              is optimal, infeasible (no whole answer exists) or unbounded (the relaxation is
+	#              unbounded), and the iterations count the nodes solved
+	#   note       maximize x + y with 2*x + 2*y <= 7 and integer x, y in 0..5 answers value 3, where
+	#              the simplex alone answers 3.5; with no integer or binary variable it is the simplex
+	#   warning    raises, with the status node_limit, when 5000 nodes were not enough, and when the
+	#              simplex of a node stops at its iteration limit
+	#   see        solve, solveWithSimplex, addIntegerVariable, addBinaryVariable
 	def solveWithBranchAndBound()
-		# HONESTY GUARD (S0, 2026-07-14): branch-and-bound rides the
-		# simplex relaxation, which is not implemented yet (see
-		# solveWithSimplex). Refuse loudly until R4.
-		@status = "unimplemented"
-		raise("Branch-and-bound needs the simplex relaxation, which is not implemented yet. Use Solve('greedy') or Solve('genetic') until the real simplex lands (R4).")
-
-		# -- unreachable legacy scaffolding kept for the R4 rebuild --
 		@status = "optimal"
 		@iterations = 0
-		
-		# First solve LP relaxation
-		_oRelaxed_ = this.createRelaxedProblem()
-		_aSolution_ = _oRelaxed_.solveWithSimplex()
-		
-		# Check if solution is already integer
-		if this.isIntegerSolution(_aSolution_)
-			return _aSolution_
-		ok
-		
-		# Branch and bound search
-		_aBestSolution_ = _aSolution_
-		_nBestValue_ = this.evaluateSolution(_aSolution_)
-		
-		_aBranches_ = [_aSolution_]
-		
-		while len(_aBranches_) > 0 and @iterations < 100
+		_nV_ = len(@variables)
+		_nMaxNodes_ = @nMaxNodes
+		_nTol_ = 0.000000001
+
+		_anLo_ = []
+		_anHi_ = []
+		for j = 1 to _nV_
+			_anLo_ + (0 + @variables[j][:lowerBound])
+			_anHi_ + (0 + @variables[j][:upperBound])
+		next
+
+		_aStack_ = [ [ _anLo_, _anHi_ ] ]
+		_aBest_ = []
+		_nBest_ = 0
+		_bHave_ = 0
+		_aRoot_ = []
+
+		while len(_aStack_) > 0
+			_nTop_ = len(_aStack_)
+			_aNode_ = _aStack_[_nTop_]
+			del(_aStack_, _nTop_)
+
+			if @iterations >= _nMaxNodes_
+				@status = "node_limit"
+				raise("stzLinearSolver: branch and bound stopped after " + _nMaxNodes_ + " nodes without proving the best whole answer; use fewer integer variables or tighter bounds.")
+			ok
 			@iterations++
-			
-			# Get next branch
-			_aCurrentSolution_ = _aBranches_[1]
-			del(_aBranches_, 1)
-			
-			# Find fractional variable
-			_cFracVar_ = this.findFractionalVariable(_aCurrentSolution_)
-			if _cFracVar_ = ""
+
+			_oNode_ = this._NodeProblem(_aNode_[1], _aNode_[2])
+			_aSol_ = _oNode_.solveWithSimplex()
+			_cStatus_ = _oNode_.status()
+			if @iterations = 1
+				_aRoot_ = _aSol_
+			ok
+
+			if _cStatus_ = "unbounded"
+				@status = "unbounded"
+				return _aSol_
+			ok
+			if _cStatus_ = "iteration_limit"
+				@status = "iteration_limit"
+				raise("stzLinearSolver: the simplex stopped at its iteration limit inside branch and bound.")
+			ok
+			if _cStatus_ = "infeasible"
 				loop
 			ok
-			
-			_nFracValue_ = this.getSolutionValue(_aCurrentSolution_, _cFracVar_)
-			
-			# Create two branches
-			_aBranch1_ = this.addBranchConstraint(_aCurrentSolution_, _cFracVar_, "<=", floor(_nFracValue_))
-			_aBranch2_ = this.addBranchConstraint(_aCurrentSolution_, _cFracVar_, ">=", ceil(_nFracValue_))
-			
-			# Evaluate branches
-			_aABranch1aBranch21_ = [_aBranch1_, _aBranch2_]
-			_nABranch1aBranch21Len_ = len(_aABranch1aBranch21_)
-			for _iLoopABranch1aBranch21_ = 1 to _nABranch1aBranch21Len_
-				_aBranch_ = _aABranch1aBranch21_[_iLoopABranch1aBranch21_]
-				if this.isFeasible(_aBranch_)
-					_nValue_ = this.evaluateSolution(_aBranch_)
-					
-					if this.isBetter(_nValue_, _nBestValue_)
-						if this.isIntegerSolution(_aBranch_)
-							_aBestSolution_ = _aBranch_
-							_nBestValue_ = _nValue_
-						else
-							_aBranches_ + _aBranch_
-						ok
+
+			# a node that cannot beat the best whole answer is dropped
+			_nValue_ = this.EvaluateSolution(_aSol_)
+			if _bHave_
+				if @objectiveType = "maximize"
+					if _nValue_ <= _nBest_ + _nTol_
+						loop
+					ok
+				else
+					if _nValue_ >= _nBest_ - _nTol_
+						loop
+					ok
+				ok
+			ok
+
+			# the integer or binary variable furthest from a whole value
+			_nBranch_ = 0
+			_nWorst_ = _nTol_
+			for j = 1 to _nV_
+				if @variables[j][:type] != "continuous"
+					_nFrac_ = _aSol_[j][2] - floor(_aSol_[j][2])
+					_nDist_ = _nFrac_
+					if (1 - _nFrac_) < _nDist_
+						_nDist_ = 1 - _nFrac_
+					ok
+					if _nDist_ > _nWorst_
+						_nWorst_ = _nDist_
+						_nBranch_ = j
 					ok
 				ok
 			next
+
+			if _nBranch_ = 0
+				# all whole: the values are snapped to the whole number they are within 1e-9 of
+				_aWhole_ = []
+				for j = 1 to _nV_
+					_nCell_ = _aSol_[j][2]
+					if @variables[j][:type] != "continuous"
+						_nCell_ = floor(_nCell_ + 0.5)
+					ok
+					_aWhole_ + [ _aSol_[j][1], _nCell_ ]
+				next
+				_bHave_ = 1
+				_aBest_ = _aWhole_
+				_nBest_ = this.EvaluateSolution(_aWhole_)
+				loop
+			ok
+
+			# split: v <= floor(v) and v >= ceil(v); the lower branch is popped first
+			_nSplit_ = _aSol_[_nBranch_][2]
+			_anHiLow_ = _aNode_[2]
+			_anHiLow_[_nBranch_] = floor(_nSplit_)
+			_anLoUp_ = _aNode_[1]
+			_anLoUp_[_nBranch_] = ceil(_nSplit_)
+			if _anLoUp_[_nBranch_] <= _aNode_[2][_nBranch_]
+				_aStack_ + [ _anLoUp_, _aNode_[2] ]
+			ok
+			if _aNode_[1][_nBranch_] <= _anHiLow_[_nBranch_]
+				_aStack_ + [ _aNode_[1], _anHiLow_ ]
+			ok
 		end
-		
-		return _aBestSolution_
+
+		if NOT _bHave_
+			@status = "infeasible"
+			return _aRoot_
+		ok
+		return _aBest_
+
+	# Builds a copy of the problem in which every variable is continuous and has the given bounds.
+	def _NodeProblem(_anLo_, _anHi_)
+		_oNode_ = new stzLinearSolver()
+		_nVars_ = len(@variables)
+		for j = 1 to _nVars_
+			_oNode_.addVariable(@variables[j][:name], _anLo_[j], _anHi_[j])
+		next
+		_nCons_ = len(@constraints)
+		for i = 1 to _nCons_
+			_oNode_.addConstraint(@constraints[i][:expression], @constraints[i][:operator], @constraints[i][:value])
+		next
+		if @objectiveType = "maximize"
+			_oNode_.maximize(@objective)
+		else
+			_oNode_.minimize(@objective)
+		ok
+		return _oNode_
 
 	# Returns a solution found by a genetic search of 50 candidates over 100 generations, scored by objective minus a constraint penalty.
 	#
 	#   returns    a list of [ name, value ] pairs, one per variable
-	#   note       the search draws random numbers from the engine
-	#   warning    raises R5 Can't access the list item, Object is not list as soon as the problem
-	#              has a constraint, because CalculatePenalty reads a variable oConst that does not
-	#              exist (two problems, one and two constraints); a problem without constraints
-	#              runs, and bounds 0..100 with maximize x + y answered x = 99 and y = 100, so the
-	#              search is approximate
-	#   see        solve, InitializePopulation, CalculateFitness
+	#   note       the search draws random numbers from the engine; it keeps the candidate with the
+	#              highest CalculateFitness, which is the best for maximize and for minimize alike
+	#   warning    approximate: bounds 0..100 with maximize x + y answered x = 99 and y = 100; a broken
+	#              constraint costs 1000 per unit, so the answer is feasible only when the search met a
+	#              feasible candidate
+	#   see        solve, InitializePopulation, CalculateFitness, CalculatePenalty
 	def solveWithGenetic()
 		# Genetic algorithm for complex problems
 		@status = "optimal"
@@ -723,7 +804,9 @@ class stzLinearSolver from stzObject
 				_aFitness_ + _nFit_
 				
 				# Track best solution
-				if this.isBetter(_nFit_, _nBestFitness_)
+				# the fitness is already signed so that larger is better for both goals, so isBetter (which
+				# flips for minimize) must not judge it: it kept the WORST candidate when minimizing
+				if _nFit_ > _nBestFitness_
 					_aBestSolution_ = _aPopulation_[i]
 					_nBestFitness_ = _nFit_
 				ok
@@ -813,24 +896,85 @@ class stzLinearSolver from stzObject
 		next
 		return _bDigit_
 
+	# Tells whether a token is a plain name, which is a letter or underscore then letters, digits or underscores.
+	def _IsPlainName(_cTok_)
+		# bytes above 127 count as letters, so names in other scripts stay readable here
+		_nLenT_ = ring_len(_cTok_)
+		if _nLenT_ = 0
+			return 0
+		ok
+		for _iPn_ = 1 to _nLenT_
+			_nA_ = ascii(_cTok_[_iPn_])
+			_bLetter_ = 0
+			if (_nA_ >= 97 and _nA_ <= 122) or (_nA_ >= 65 and _nA_ <= 90) or _nA_ = 95 or _nA_ > 127
+				_bLetter_ = 1
+			ok
+			_bDigit_ = 0
+			if _nA_ >= 48 and _nA_ <= 57
+				_bDigit_ = 1
+			ok
+			if _iPn_ = 1
+				if NOT _bLetter_
+					return 0
+				ok
+			else
+				if NOT (_bLetter_ or _bDigit_)
+					return 0
+				ok
+			ok
+		next
+		return 1
+
+	# Tells whether a token is a plain number: digits with at most one point, no sign, no exponent.
+	def _IsPlainNumber(_cTok_)
+		_nLenT_ = ring_len(_cTok_)
+		_nDigits_ = 0
+		_nPoints_ = 0
+		for _iPn_ = 1 to _nLenT_
+			_nA_ = ascii(_cTok_[_iPn_])
+			if _nA_ >= 48 and _nA_ <= 57
+				_nDigits_++
+			but _nA_ = 46
+				_nPoints_++
+			else
+				return 0
+			ok
+		next
+		if _nDigits_ > 0 and _nPoints_ <= 1
+			return 1
+		ok
+		return 0
+
+	# Returns the cache row of an expression, which is [ text, pairs, ordered terms ], parsing it on first sight.
 	def _ParsedTermsOf(_cExpression_)
+		# The pairs and the terms are filled only when this reader is SURE of the text: every term is a
+		# name, a number, k*name or name*k, and the operators come one at a time. Anything else
+		# (parentheses, a slash, a product of names, 2*3*x, a sign after a sign, a name glued to a digit)
+		# leaves both as "" and the coefficient is then read by stzCoeffExtractor, which judges the text
+		# and evaluates it, instead of this reader guessing: it used to drop what it could not read and
+		# answer a silent wrong number.
 		_nCacheLen_ = len(@aCoeffCache)
 		for _iPc_ = 1 to _nCacheLen_
 			if @aCoeffCache[_iPc_][1] = _cExpression_
-				return @aCoeffCache[_iPc_][2]
+				return @aCoeffCache[_iPc_]
 			ok
 		next
 
-		# The parse itself, term for term as it always was: split on +/- , then
-		# read 'k*var', 'var*k' or a bare 'var', with EXACT token matching so
-		# 'rd' never matches inside 'yard'.
+		# The parse itself: split on +/- , then read 'k*var', 'var*k', a bare 'var' or a bare
+		# number, with EXACT token matching so 'rd' never matches inside 'yard'.
 		_cE_ = StzLower(StzReplace(" " + _cExpression_, "-", "+-"))
 		_acTerms_ = StzSplit(_cE_, "+")
 		_aPairs_ = []
+		_aOrdered_ = []
+		_bSimple_ = 1
 		_nT_ = len(_acTerms_)
 		for _i_ = 1 to _nT_
 			_cT_ = StzReplace(ring_trim(_acTerms_[_i_]), " ", "")
 			if _cT_ = ""
+				# only the blank before the first term may be empty: another one is a doubled or a trailing operator
+				if _i_ > 1
+					_bSimple_ = 0
+				ok
 				loop
 			ok
 			_nSg_ = 1
@@ -838,35 +982,55 @@ class stzLinearSolver from stzObject
 				_nSg_ = -1
 				_cT_ = StzRight(_cT_, StzLen(_cT_) - 1)
 			ok
+			if _cT_ = ""
+				_bSimple_ = 0
+				loop
+			ok
 
 			_cName_ = ""
 			_nCoef_ = 0
-			if len(StzFind("*", _cT_)) > 0
+			_bConstant_ = 0
+			_nStars_ = len(StzFind("*", _cT_))
+			if _nStars_ = 0
+				if This._IsPlainName(_cT_)
+					_cName_ = _cT_
+					_nCoef_ = _nSg_
+				but This._IsPlainNumber(_cT_)
+					_bConstant_ = 1
+					_nCoef_ = _nSg_ * ring_number(_cT_)
+				else
+					_bSimple_ = 0
+				ok
+			but _nStars_ = 1
 				_acF_ = StzSplit(_cT_, "*")
 				if len(_acF_) = 2
 					_cF1_ = ring_trim(_acF_[1])
 					_cF2_ = ring_trim(_acF_[2])
-					# 'k*var' or 'var*k' -- whichever side is not the number
-					if _cF1_ != "" and _cF2_ != ""
-						# which side is the number? A CHARACTER SCAN, not a regex
-						# -- @IsNumberInString recompiles one per call, which is
-						# the very cost this change exists to remove (the CSV
-						# module lost 3.1s per 2000 rows to exactly that).
-						if This._LooksNumeric(_cF1_)
-							_cName_ = _cF2_
-							_nCoef_ = _nSg_ * ring_number(_cF1_)
-						but This._LooksNumeric(_cF2_)
-							_cName_ = _cF1_
-							_nCoef_ = _nSg_ * ring_number(_cF2_)
-						ok
+					# which side is the number? A CHARACTER SCAN, not a regex
+					# -- @IsNumberInString recompiles one per call, which is
+					# the very cost this change exists to remove (the CSV
+					# module lost 3.1s per 2000 rows to exactly that).
+					if This._IsPlainNumber(_cF1_) and This._IsPlainName(_cF2_)
+						_cName_ = _cF2_
+						_nCoef_ = _nSg_ * ring_number(_cF1_)
+					but This._IsPlainName(_cF1_) and This._IsPlainNumber(_cF2_)
+						_cName_ = _cF1_
+						_nCoef_ = _nSg_ * ring_number(_cF2_)
+					but This._IsPlainNumber(_cF1_) and This._IsPlainNumber(_cF2_)
+						_bConstant_ = 1
+						_nCoef_ = _nSg_ * ring_number(_cF1_) * ring_number(_cF2_)
+					else
+						_bSimple_ = 0
 					ok
+				else
+					_bSimple_ = 0
 				ok
 			else
-				_cName_ = _cT_
-				_nCoef_ = _nSg_
+				_bSimple_ = 0
 			ok
 
 			if _cName_ != ""
+				_aOrdered_ + [ _cName_, _nCoef_ ]
 				# a variable may appear more than once in one expression, so the
 				# terms ACCUMULATE, exactly as the per-variable version did
 				_bFound_ = 0
@@ -881,22 +1045,51 @@ class stzLinearSolver from stzObject
 				if NOT _bFound_
 					_aPairs_ + [ _cName_, _nCoef_ ]
 				ok
+			but _bConstant_
+				_aOrdered_ + [ "", _nCoef_ ]
 			ok
 		next
 
-		@aCoeffCache + [ _cExpression_, _aPairs_ ]
-		return _aPairs_
+		if NOT _bSimple_
+			_aPairs_ = ""
+			_aOrdered_ = ""
+		ok
+		_aRow_ = [ _cExpression_, _aPairs_, _aOrdered_ ]
+		@aCoeffCache + _aRow_
+		return _aRow_
+
+	# Returns a coefficient read by stzCoeffExtractor, and raises when the text is refused or not linear in the variable.
+	def _ExactCoefficient(_cExpression_, _cV_)
+		This._MakeExactExtractor()
+		_nCo_ = @oExact.extractLinearCoefficient(StzLower(_cExpression_), _cV_)
+		if NOT isNumber(_nCo_)
+			raise("stzLinearSolver: the expression [" + _cExpression_ + "] is not linear in the variable " + _cV_ + ", so it cannot be used in a linear problem.")
+		ok
+		return _nCo_
 
 	# Returns the coefficient of one variable in an expression, adding up the terms that name it.
 	#
-	#   _cExpression_   the expression, as text, with terms like 2*x, x*2, -x or x
-	#   _cVarName_      the variable's name, matched without regard to case
+	# A text made only of terms like 2*x, x*2, -x, x and constants is read by a fast term reader. Any other
+	# text (parentheses, a slash, a product of names, a sign after a sign) is judged and evaluated by
+	# stzCoeffExtractor instead of being guessed at: it used to answer the coefficients of the parts it could
+	# read, so 5*(-2*x + 8) - 3 gave -2 for x where the answer is -10. The text is never run as given.
+	#
+	#   _cExpression_   the expression, as text, such as 3*x + 2*y or 2*(x + y) - 3
+	#   _cVarName_      the variable's name, matched without regard to case, as a whole word
 	#   returns         a number; 0 when the variable does not appear
-	#   note            x*2 + y - x gives 1 for x
+	#   note            x*2 + y - x gives 1 for x, x + 2*x gives 3, (3*x + 4) * 5 gives 15, and x does
+	#                   not match inside xx
+	#   warning         raises when the text is outside the extractor's grammar (a name glued to a digit, a
+	#                   power sign, a semicolon) or is not linear in the variable (x*y, x/y, pow(x, 2)),
+	#                   where it used to answer a number and drop the part it could not read
 	#   see             parseObjectiveCoefficients, calculateResourceCost
 	def extractCoefficient(_cExpression_, _cVarName_)
 		_cV_ = StzLower(ring_trim(_cVarName_))
-		_aPairs_ = This._ParsedTermsOf(_cExpression_)
+		_aRow_ = This._ParsedTermsOf(_cExpression_)
+		_aPairs_ = _aRow_[2]
+		if isString(_aPairs_)
+			return This._ExactCoefficient(_cExpression_, _cV_)
+		ok
 		_nLenP_ = len(_aPairs_)
 		for _iEc_ = 1 to _nLenP_
 			if _aPairs_[_iEc_][1] = _cV_
@@ -1134,7 +1327,7 @@ class stzLinearSolver from stzObject
 		_nLen_ = len(_aSolution_)
 		for i = 1 to _nLen_
 			_nValue_ = _aSolution_[i][2]
-			if abs(_nValue_ - round(_nValue_)) > 0.001
+			if abs(_nValue_ - floor(_nValue_ + 0.5)) > 0.001
 				return 0
 			ok
 		next
@@ -1203,7 +1396,7 @@ class stzLinearSolver from stzObject
 		_nLen_ = len(_aSolution_)
 		for i = 1 to _nLen_
 			_nValue_ = _aSolution_[i][2]
-			if abs(_nValue_ - round(_nValue_)) > 0.001
+			if abs(_nValue_ - floor(_nValue_ + 0.5)) > 0.001
 				return _aSolution_[i][1]
 			ok
 		next
@@ -1218,7 +1411,7 @@ class stzLinearSolver from stzObject
 	#   returns       a list of [ name, value ] pairs
 	#   note          x = 4 capped with "<=" and 2 gives 2
 	#   warning       it adds no constraint to the problem, despite its name; it only edits a
-	#                 solution, for the branch and bound code that does not run
+	#                 solution, and solveWithBranchAndBound does not use it (it tightens bounds)
 	#   see           FindFractionalVariable, solveWithBranchAndBound
 	def AddBranchConstraint(_aSolution_, _cVarName_, _cOperator_, _nValue_)
 		# This would create a new subproblem with additional constraint
@@ -1263,13 +1456,12 @@ class stzLinearSolver from stzObject
 		
 		return _aPopulation_
 
-	# Raises error R5 today instead of returning the objective value less the constraint penalty, negated when minimizing.
+	# Returns a candidate's score for the genetic search: its objective value less the penalty, higher being better.
 	#
 	#   _aIndividual_   a candidate, as a list of [ name, value ] pairs
-	#   returns         nothing; raises R5 Can't access the list item, Object is not list
-	#   warning         it raises whenever the problem has a constraint, because CalculatePenalty
-	#                   fails (two problems); with no constraint it returns the objective value,
-	#                   negated when minimizing
+	#   returns         a number; a larger score is always a better candidate, for both goals
+	#   note            maximizing 3*x + 2*y with x + y <= 4: x = 3 and y = 2 scores 13 - 1000 = -987, x = 2 and
+	#                   y = 2 scores 10; minimizing, the objective enters as -10 less the penalty
 	#   see             CalculatePenalty, solveWithGenetic
 	def CalculateFitness(_aIndividual_)
 		# Fitness = objective value - penalty for constraint violations
@@ -1282,21 +1474,20 @@ class stzLinearSolver from stzObject
 			return -_nObjectiveValue_ - _nPenalty_
 		ok
 
-	# Raises error R5 today instead of returning 1000 times the total constraint violation of a candidate.
+	# Returns 1000 times the total amount by which a candidate breaks the constraints, 0 when it breaks none.
 	#
 	#   _aIndividual_   a candidate, as a list of [ name, value ] pairs
-	#   returns         nothing; raises R5 Can't access the list item, Object is not list
-	#   warning         line 995 reads a variable oConst that is never defined, ahead of the correct
-	#                   line; it raises with one constraint and with two, and returns 0 when the
-	#                   problem has none
-	#   see             CalculateFitness, solveWithGenetic
+	#   returns         a number, never below 0; 0 for a problem with no constraint
+	#   note            a "<=" constraint is broken by the amount its left side exceeds the number, a ">="
+	#                   one by the amount the left side falls short, an "=" one by the distance between
+	#                   the two; x + y <= 4 with x = 3 and y = 2 is broken by 1, so the penalty is 1000
+	#   see             CalculateFitness, solveWithGenetic, IsFeasible
 	def CalculatePenalty(_aIndividual_)
 		_nPenalty_ = 0
 		_nLen_ = len(@constraints)
 
 		for i = 1 to _nLen_
 			_aConst_ = @constraints[i]
-			_nLeftSide_ = this.evaluateConstraintLeft(oConst[:expression], _aIndividual_)
 			_nLeftSide_ = this.evaluateConstraintLeft(_aConst_[:expression], _aIndividual_)
 			_nRightSide_ = _aConst_[:value]
 			_cOperator_ = _aConst_[:operator]
@@ -1416,48 +1607,101 @@ class stzLinearSolver from stzObject
 
 	# Returns the objective expression evaluated at the stored solution.
 	#
-	#   returns    a number
-	#   note       after maximize 3*x + 2*y with x = 4 and y = 1 it answers 14
+	# The expression is read term by term when it is made of terms like 2*x, x*2, x and constants, and is
+	# otherwise judged and evaluated by stzCoeffExtractor. The variable names are never pasted into the
+	# text, so x is never replaced inside xx, and the text is never run as given.
+	#
+	#   returns    a number; 0 before any solve
+	#   note       after maximize 3*x + 2*y with x = 4 and y = 1 it answers 14; 3*x + 2*y + 10 answers 24
+	#   warning    each stored value is read through its text form, as it always was, so Ring's display
+	#              precision applies to it (two decimals unless changed): a milk of 2.6667 counts as
+	#              2.67; raises when the objective names a variable that has no value in the stored
+	#              solution, or when it is outside the extractor's grammar
 	#   see        EvaluateSolution, solve
 	def objectiveValue()
+		# no answer is stored yet: the empty list-like object is not a list
+		if NOT isList(@aSolution)
+			return 0
+		ok
 
-		# Calculate objective value from current solution
-		_cExpression_ = @objective
-		
+		_aRow_ = This._ParsedTermsOf(@objective)
+		_aOrdered_ = _aRow_[3]
+		if isList(_aOrdered_)
+			_nValue_ = 0
+			_nTerms_ = len(_aOrdered_)
+			for i = 1 to _nTerms_
+				if _aOrdered_[i][1] = ""
+					_nValue_ += _aOrdered_[i][2]
+				else
+					_nValue_ += _aOrdered_[i][2] * This._StoredValueOf(_aOrdered_[i][1])
+				ok
+			next
+			return _nValue_
+		ok
 
-		# Substitute variable values
-		_nLen_ = len(@variables)
+		# anything else is judged and evaluated by the extractor, never run
+		This._MakeExactExtractor()
+		_aPoint_ = []
+		_nLen_ = len(@aSolution)
 		for i = 1 to _nLen_
-			_cVarName_ = @variables[i][:name]
-			_nValue_ = @aSolution[_cVarName_]
-			_cExpression_ = StzReplace(_cExpression_, _cVarName_, "" + _nValue_)
+			_aPoint_ + [ StzLower(@aSolution[i][1]), This._TextValue(@aSolution[i][2]) ]
 		next
+		_acNames_ = []
+		for i = 1 to _nLen_
+			_acNames_ + _aPoint_[i][1]
+		next
+		@oExact.setVariableNames(_acNames_)
+		return @oExact.evaluateExpression(StzLower(@objective), _aPoint_)
 
-		# Evaluate expression (simplified)
-		return this.evaluateExpression(_cExpression_)
+	# Returns the stored value of the variable with that lower-case name, as the number its text form reads back.
+	def _StoredValueOf(_cLowerName_)
+		_nLen_ = len(@aSolution)
+		for i = 1 to _nLen_
+			if StzLower(@aSolution[i][1]) = _cLowerName_
+				return This._TextValue(@aSolution[i][2])
+			ok
+		next
+		raise("stzLinearSolver: the objective names " + _cLowerName_ + ", which has no value in the stored solution.")
+
+	# Returns a stored value as the number its text form reads back, which is how the objective always read it.
+	def _TextValue(_nValue_)
+		# this applies Ring's display precision (2 decimals unless changed): 2.6667 reads back as 2.67
+		if NOT isNumber(_nValue_)
+			return 0
+		ok
+		return ring_number("" + _nValue_)
+
+	# Builds, once, the stzCoeffExtractor that judges the texts this solver cannot read by itself.
+	def _MakeExactExtractor()
+		if NOT isObject(@oExact)
+			@oExact = new stzCoeffExtractor([])
+			# building it set Ring's display precision to 4 decimals: put it back at once
+			@oExact.BraceEnd()
+		ok
 
 	# Returns the value of an arithmetic expression given as text, 0 when it cannot be evaluated.
 	#
+	# The text is judged first by stzCoeffExtractor: only numbers, + - * / ( ) , and pow, sqrt, abs, min,
+	# max are accepted, and the formula is rebuilt from those tokens, so nothing else that was typed can
+	# run. It used to hand the text to Ring's eval as it was written.
+	#
 	#   _cExpression_   the arithmetic expression, as text, such as 2+3*4
 	#   returns         a number
-	#   note            2+3*4 gives 14; an invalid text such as 1 + gives 0 after Ring prints an
-	#                   eval error line
+	#   note            2+3*4 gives 14; a text outside the grammar, such as 1 + or a call of any other
+	#                   function, gives 0 and nothing is run
 	#   see             objectiveValue
 	def evaluateExpression(_cExpression_)
-		# Simple expression evaluator
-		# In practice, would use a proper math parser
 		try
-			_nResult_ = eval(_cExpression_)
-			_cCode_ = '_nResult_ = (' + _cExpression_ + ')'
-			eval(_cCode_)
-			return _nResult_
+			This._MakeExactExtractor()
+			@oExact.setVariableNames([])
+			return @oExact.evaluateExpression(_cExpression_, [])
 		catch
 			return 0
 		done
 
 	# Returns how the last solve ended.
 	#
-	#   returns    a text: optimal, infeasible, unbounded, iteration_limit or unimplemented; ""
+	#   returns    a text: optimal, infeasible, unbounded, iteration_limit or node_limit; ""
 	#              before any solve
 	#   see        solve, iterations
 	def status()
