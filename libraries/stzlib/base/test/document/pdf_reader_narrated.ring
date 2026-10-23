@@ -401,6 +401,34 @@ Scenario("Greek mu drawn with the micro sign's glyph reads as mu")
 	Then("no micro sign inside a Greek word", StzFindFirst("µµ", o.Text()), 0)
 EndScenario()
 
+# ---- the twelfth round, pinned on golden_v8, v10 and v11 (development sets)
+
+Scenario("A header cell centred over right-aligned figures heads their column, not one of its own")
+	o = StzPdfQ("_data/golden_v11/r12.pdf")
+	aT = o.Tables()[1]
+	Then("five columns", len(aT[3]), 5)
+	Then("a row of figures under them", @@(aT[3]), @@([ "Bare fallow", "18.2", "17.5", "9.4", "8.8" ]))
+EndScenario()
+
+Scenario("A timetable ruled only in its header is one table with its body")
+	o = StzPdfQ("_data/golden_v11/r15.pdf")
+	aT = o.Tables()[1]
+	Then("eleven rows: two header rows and nine stops", len(aT), 11)
+	Then("the first stop follows the header", aT[3][1], "Purmerveld Station")
+EndScenario()
+
+Scenario("A key/value table whose values are phrases")
+	o = StzPdfQ("_data/golden_v10/q07.pdf")
+	aT = o.Tables()[1]
+	Then("three rows of two", len(aT), 3)
+	Then("a phrase for a value", @@(aT[3]), @@([ "Imeandaliwa na", "Idara ya Ufuatiliaji na Tathmini" ]))
+EndScenario()
+
+Scenario("A list numbered in Arabic-Indic digits")
+	o = StzPdfQ("_data/golden_v8/n04.pdf")
+	Then("its items are list items", StzFindFirst("٢. نسخة من بطاقة التعريف الوطنية للمستغل", "" + @@(o.ListItems())) > 0, 1)
+EndScenario()
+
 Scenario("A file that is not a readable PDF is refused with the reason")
 	bRaised = 0
 	cWhy = ""
