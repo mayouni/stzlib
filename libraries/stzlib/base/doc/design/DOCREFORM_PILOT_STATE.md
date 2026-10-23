@@ -539,3 +539,8 @@ Next by size: three classes at 3 (stzStringChecker first), then nine at 2.
 HasLeadingChars / HasTrailingChars / HasLeadingAndTrailingChars compared two engine handles (new numbers on every call, never equal); they now compare the two characters with StzMid and strcmp and agree with stzString on all 55 texts of the table (36 disagreeing texts before). Bigger finding, not fixed: 35 disagreements between stzStringChecker and stzString on other predicates (IsCapitalcase, prefixed numbers, decimal and real numbers, IsListInString) -- two classes with different semantics, one decision per family. Guard 72 assertions.
 Next by size: two classes at 3 (stzStringPerformer first), then ten at 2.
 
+## 2026-10-24: the stzStringPerformer fix batch is ON MAIN; register 72 -> 69
+
+Perform and PerformOn wrote nothing back (the engine call's result was dropped); they now rewrite the text consistently with Yield / YieldOn (35/35 and 28/28 pairs). The expression is evaluated by the ENGINE, never by Ring eval (R17 holds, canary 0 over 39 hostile strings). ENGINE: the expression compiler overflows the process stack on deep nesting (about 7000 parentheses kill the process; stzString.YieldCharsW and the list W forms are exposed too; a 2000-character limit is the boundary fix here) and upper()/lower() are ASCII-only. Guard 98 assertions.
+Next by size: one class at 3 (stzStringText), then eleven at 2.
+
