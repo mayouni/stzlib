@@ -3966,6 +3966,21 @@ fn startsListMarker(t: []const u8) usize {
             return e;
         }
     }
+    // a bracketed marker: (a) (iv) (12) or [3], then a space
+    if (t.len >= 4 and (t[0] == '(' or t[0] == '[')) {
+        const close: u8 = if (t[0] == '(') ')' else ']';
+        var j: usize = 1;
+        var digits = true;
+        var letters = true;
+        while (j < t.len and j <= 4 and t[j] != close) : (j += 1) {
+            if (!(t[j] >= '0' and t[j] <= '9')) digits = false;
+            if (!std.ascii.isLower(t[j])) letters = false;
+        }
+        const n = j - 1;
+        const ok_inner = n >= 1 and (digits or (letters and (n == 1 or std.mem.indexOfNone(u8, t[1..j], "ivxlc") == null)));
+        // (a square bracket holds a number only: [a] is an editor's note, not a list)
+        if (ok_inner and !(close == ']' and !digits) and j + 1 < t.len and t[j] == close and t[j + 1] == ' ') return j + 2;
+    }
     // Arabic-Indic or Persian digits, then a full stop, a bracket, a dash or the Urdu full stop, then a space
     {
         var j: usize = 0;
