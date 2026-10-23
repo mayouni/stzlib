@@ -1,0 +1,210 @@
+{
+  "id": "p20",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Extrait du registre des délibérations du conseil municipal",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Extrait du registre des délibérations du conseil municipal"
+    },
+    {
+      "level": 2,
+      "text": "Ordre du jour"
+    },
+    {
+      "level": 2,
+      "text": "Délibération n° 2026-041 : tarifs de la restauration scolaire"
+    },
+    {
+      "level": 2,
+      "text": "Délibération n° 2026-042 : rénovation énergétique de l'école élémentaire"
+    },
+    {
+      "level": 2,
+      "text": "Délibération n° 2026-043 : dénomination d'une voie nouvelle"
+    },
+    {
+      "level": 2,
+      "text": "Délibération n° 2026-044 : décision modificative n° 2"
+    }
+  ],
+  "key_sentences": [
+    "M. Rodolphe Guénaut a été désigné secrétaire de séance.",
+    "La hausse moyenne de 4,8 % correspond à l'augmentation du prix des denrées constatée par le prestataire.",
+    "Le coût prévisionnel des travaux s'élève à 372 000 € hors taxes.",
+    "Le conseil municipal décide de dénommer « allée des Vergers » la voie nouvelle desservant le lotissement du Clos Saint-Martin.",
+    "Les services de La Poste et du cadastre en seront informés.",
+    "Fait et délibéré les jour, mois et an susdits.",
+    "Acte rendu exécutoire après transmission au représentant de l'État le 20 octobre 2026 et publication le 21 octobre 2026."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Conseillers en exercice",
+          "19"
+        ],
+        [
+          "Présents",
+          "15"
+        ],
+        [
+          "Pouvoirs",
+          "3"
+        ],
+        [
+          "Votants",
+          "18"
+        ],
+        [
+          "Date de convocation",
+          "8 octobre 2026"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Catégorie",
+          "Tarif actuel",
+          "Tarif au 1er janvier 2027"
+        ],
+        [
+          "Repas enfant, quotient familial inférieur à 700 €",
+          "1,00 €",
+          "1,00 €"
+        ],
+        [
+          "Repas enfant, quotient familial de 700 € à 1 200 €",
+          "3,10 €",
+          "3,25 €"
+        ],
+        [
+          "Repas enfant, quotient familial supérieur à 1 200 €",
+          "4,20 €",
+          "4,40 €"
+        ],
+        [
+          "Repas adulte (personnel et enseignants)",
+          "6,50 €",
+          "6,80 €"
+        ],
+        [
+          "Majoration pour repas non réservé",
+          "2,00 €",
+          "2,00 €"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Financeur",
+          "Montant HT",
+          "Taux"
+        ],
+        [
+          "État, dotation de soutien à l'investissement local",
+          "148 800 €",
+          "40 %"
+        ],
+        [
+          "Région, fonds de transition énergétique",
+          "74 400 €",
+          "20 %"
+        ],
+        [
+          "Département, aide aux communes rurales",
+          "55 800 €",
+          "15 %"
+        ],
+        [
+          "Autofinancement communal",
+          "93 000 €",
+          "25 %"
+        ],
+        [
+          "Total",
+          "372 000 €",
+          "100 %"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Section",
+          "Article",
+          "Libellé",
+          "Dépenses",
+          "Recettes"
+        ],
+        [
+          "Fonctionnement",
+          "60612",
+          "Énergie, électricité",
+          "+ 12 000 €",
+          ""
+        ],
+        [
+          "Fonctionnement",
+          "022",
+          "Dépenses imprévues",
+          "- 12 000 €",
+          ""
+        ],
+        [
+          "Investissement",
+          "2313",
+          "Constructions en cours",
+          "+ 18 500 €",
+          ""
+        ],
+        [
+          "Investissement",
+          "1323",
+          "Subvention du département",
+          "",
+          "+ 18 500 €"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. Tarifs de la restauration scolaire au 1er janvier 2027"
+    },
+    {
+      "level": 0,
+      "text": "2. Demande de subvention pour la rénovation énergétique de l'école élémentaire"
+    },
+    {
+      "level": 0,
+      "text": "3. Dénomination d'une voie nouvelle"
+    },
+    {
+      "level": 0,
+      "text": "4. Décision modificative n° 2 au budget principal"
+    }
+  ],
+  "furniture": [
+    "Commune de Bréval-sur-Orne",
+    "Mairie · 2, place de la Halle",
+    "61290 Bréval-sur-Orne",
+    "Tél. 01 99 00 27 40",
+    "Arrondissement de Mortagne",
+    "Registre des délibérations · feuillet n° 1",
+    "Registre des délibérations · feuillet n° 2"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "Council minutes. The italic 'Séance du ...' line under the title is body text, as are the vote lines, the signature block and the boxed enforceability mention. Agenda list has TYPED numbers, no CSS marker. Four tables: quorum key/value (centred, no header), tariffs, financing plan with a Total row, and a budget amendment table with empty cells. French guillemets with spaces « ... ». Page footer 'feuillet n° n'."
+}

@@ -1,0 +1,124 @@
+{
+  "id": "p09",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Maji safi yafika vijiji vitano vya Bonde la Kilangali",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Maji safi yafika vijiji vitano vya Bonde la Kilangali"
+    },
+    {
+      "level": 2,
+      "text": "Visima vipya vyakabidhiwa kwa jamii"
+    },
+    {
+      "level": 2,
+      "text": "Mafunzo ya usafi na afya"
+    },
+    {
+      "level": 2,
+      "text": "Kilimo cha bustani kwa maji ya ziada"
+    },
+    {
+      "level": 2,
+      "text": "Changamoto zilizopo"
+    },
+    {
+      "level": 2,
+      "text": "Shughuli zijazo"
+    },
+    {
+      "level": 2,
+      "text": "Shukrani"
+    }
+  ],
+  "key_sentences": [
+    "Kila kisima kina pampu inayotumia nishati ya jua na tanki la lita elfu kumi.",
+    "Kabla ya mradi huu, wanawake na watoto walitembea hadi kilomita sita kila siku kutafuta maji.",
+    "Mchango huo wa nguvu kazi ulipunguza gharama za mradi kwa karibu asilimia kumi na tano.",
+    "Shule tatu za msingi zimejengewa vituo vya kunawia mikono vyenye matanki ya lita elfu mbili.",
+    "Umwagiliaji utasimamishwa iwapo kiwango cha maji katika tanki kitashuka chini ya nusu.",
+    "Changamoto kubwa iliyobaki ni upatikanaji wa vipuri vya pampu, ambavyo kwa sasa vinapatikana Morogoro mjini pekee.",
+    "Bila ushirikiano wenu mradi huu usingefanikiwa."
+  ],
+  "tables": [
+    {
+      "caption": "Jedwali: Takwimu za mradi kwa kila kijiji",
+      "rows": [
+        [
+          "Kijiji",
+          "Visima",
+          "Kaya zinazohudumiwa",
+          "Gharama (TSh milioni)"
+        ],
+        [
+          "Mbuyuni",
+          "1",
+          "312",
+          "48.5"
+        ],
+        [
+          "Kisanga",
+          "1",
+          "275",
+          "46.2"
+        ],
+        [
+          "Mlali Juu",
+          "1",
+          "340",
+          "51.0"
+        ],
+        [
+          "Chamwino Kati",
+          "1",
+          "198",
+          "44.8"
+        ],
+        [
+          "Nyandira",
+          "1",
+          "260",
+          "47.3"
+        ],
+        [
+          "Jumla",
+          "5",
+          "1,385",
+          "237.8"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Mafunzo ya ukarabati wa pampu kwa mafundi wa vijiji, 12 hadi 14 Novemba 2026"
+    },
+    {
+      "level": 0,
+      "text": "Siku ya usafi wa mazingira katika kijiji cha Kisanga, 5 Desemba 2026"
+    },
+    {
+      "level": 0,
+      "text": "Mkutano wa mwaka wa wadau wa maji, Morogoro, 20 Januari 2027"
+    },
+    {
+      "level": 0,
+      "text": "Uzinduzi wa visima viwili vipya katika kijiji cha Lukenge, Machi 2027"
+    }
+  ],
+  "furniture": [
+    "Shirika la Maendeleo Tumaini",
+    "Jarida la Robo Mwaka · Toleo Na. 14 · Oktoba 2026",
+    "S.L.P. 1182, Morogoro · Simu: +255 23 000 4417 · Ofisi zetu ziko wazi Jumatatu hadi Ijumaa",
+    "Jarida la Tumaini · Ukurasa 1",
+    "Jarida la Tumaini · Ukurasa 2"
+  ],
+  "languages": [
+    "sw"
+  ],
+  "code": [],
+  "notes": "Newsletter in TWO COLUMNS with a rule between them; the data table spans both columns (column-span) in the middle of the first article, so text above the table is read column by column, then the table, then the columns below it. Italic lead paragraph under the title. A pull quote with a coloured bar is body text. The contact line at the end of the last page is furniture."
+}

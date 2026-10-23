@@ -1,0 +1,222 @@
+{
+  "id": "p17",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Notulen Musyawarah Desa",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Notulen Musyawarah Desa"
+    },
+    {
+      "level": 2,
+      "text": "A. Acara"
+    },
+    {
+      "level": 2,
+      "text": "B. Jalannya Rapat"
+    },
+    {
+      "level": 2,
+      "text": "C. Usulan Warga"
+    },
+    {
+      "level": 2,
+      "text": "D. Kesepakatan"
+    }
+  ],
+  "key_sentences": [
+    "Rapat dibuka pukul 09.15 WIB oleh Kepala Desa setelah jumlah peserta memenuhi kuorum.",
+    "Dalam sambutannya, Kepala Desa menyampaikan bahwa musyawarah ini merupakan tahap penting dalam penyusunan Rencana Kerja Pemerintah Desa tahun 2027.",
+    "Kepala Urusan Keuangan menjelaskan bahwa realisasi belanja pembangunan masih rendah karena pengerjaan jembatan Dusun Pasirkole baru dimulai pada bulan Agustus.",
+    "Sisa anggaran penanggulangan bencana akan tetap dicadangkan sampai akhir musim hujan.",
+    "Usulan dari Dusun Babakan mendapat dukungan luas, tetapi peserta sepakat menunda pelaksanaannya karena keterbatasan anggaran.",
+    "Rapat ditutup pukul 12.30 WIB dengan doa bersama."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Hari/Tanggal",
+          "Sabtu, 17 Oktober 2026"
+        ],
+        [
+          "Waktu",
+          "09.00 – 12.30 WIB"
+        ],
+        [
+          "Tempat",
+          "Balai Desa Sukamaju Lor"
+        ],
+        [
+          "Pimpinan rapat",
+          "Hendra Wiguna (Kepala Desa)"
+        ],
+        [
+          "Notulis",
+          "Sri Rahayu Lestari (Sekretaris Desa)"
+        ],
+        [
+          "Jumlah peserta",
+          "46 orang (daftar hadir terlampir)"
+        ]
+      ]
+    },
+    {
+      "caption": "Realisasi APBDes Sukamaju Lor sampai dengan 30 September 2026",
+      "rows": [
+        [
+          "Uraian",
+          "Anggaran (Rp)",
+          "Realisasi (Rp)",
+          "%"
+        ],
+        [
+          "Pendapatan",
+          "Pendapatan",
+          "Pendapatan",
+          "Pendapatan"
+        ],
+        [
+          "Dana Desa",
+          "1.124.500.000",
+          "843.375.000",
+          "75,0"
+        ],
+        [
+          "Alokasi Dana Desa",
+          "486.200.000",
+          "364.650.000",
+          "75,0"
+        ],
+        [
+          "Pendapatan Asli Desa",
+          "62.000.000",
+          "41.850.000",
+          "67,5"
+        ],
+        [
+          "Bagi hasil pajak dan retribusi",
+          "38.400.000",
+          "19.200.000",
+          "50,0"
+        ],
+        [
+          "Jumlah Pendapatan",
+          "1.711.100.000",
+          "1.269.075.000",
+          "74,2"
+        ],
+        [
+          "Belanja",
+          "Belanja",
+          "Belanja",
+          "Belanja"
+        ],
+        [
+          "Penyelenggaraan pemerintahan desa",
+          "512.000.000",
+          "368.900.000",
+          "72,1"
+        ],
+        [
+          "Pelaksanaan pembangunan desa",
+          "864.600.000",
+          "541.300.000",
+          "62,6"
+        ],
+        [
+          "Pembinaan kemasyarakatan",
+          "96.500.000",
+          "70.250.000",
+          "72,8"
+        ],
+        [
+          "Pemberdayaan masyarakat",
+          "148.000.000",
+          "92.400.000",
+          "62,4"
+        ],
+        [
+          "Penanggulangan bencana dan keadaan darurat",
+          "90.000.000",
+          "15.000.000",
+          "16,7"
+        ],
+        [
+          "Jumlah Belanja",
+          "1.711.100.000",
+          "1.087.850.000",
+          "63,6"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. Pembukaan dan sambutan Kepala Desa"
+    },
+    {
+      "level": 0,
+      "text": "2. Laporan realisasi APBDes tahun 2026 sampai dengan bulan September"
+    },
+    {
+      "level": 0,
+      "text": "3. Pembahasan rencana kegiatan pembangunan tahun 2027"
+    },
+    {
+      "level": 0,
+      "text": "4. Tanya jawab dan usulan warga"
+    },
+    {
+      "level": 0,
+      "text": "5. Penetapan kesepakatan dan penutup"
+    },
+    {
+      "level": 0,
+      "text": "Dusun Cikadu: perbaikan jalan lingkungan sepanjang 450 meter"
+    },
+    {
+      "level": 0,
+      "text": "Dusun Pasirkole: pembangunan saluran drainase di sekitar pasar"
+    },
+    {
+      "level": 0,
+      "text": "Dusun Babakan: penambahan lampu penerangan jalan sebanyak 24 titik"
+    },
+    {
+      "level": 0,
+      "text": "Kelompok Wanita Tani: pelatihan pengolahan hasil kebun dan bantuan alat pengering"
+    },
+    {
+      "level": 0,
+      "text": "Karang Taruna: renovasi lapangan olahraga desa"
+    },
+    {
+      "level": 0,
+      "text": "Prioritas pembangunan tahun 2027 adalah perbaikan jalan Dusun Cikadu dan pembangunan saluran drainase di Dusun Pasirkole."
+    },
+    {
+      "level": 0,
+      "text": "Dibentuk tim penyusun RKP Desa 2027 yang terdiri atas tujuh orang, termasuk dua perwakilan perempuan."
+    },
+    {
+      "level": 0,
+      "text": "Hasil musyawarah diumumkan di papan informasi desa paling lambat tanggal 24 Oktober 2026."
+    }
+  ],
+  "furniture": [
+    "PEMERINTAH DESA SUKAMAJU LOR",
+    "KECAMATAN CIBENING, KABUPATEN WANAJAYA",
+    "Jalan Raya Sukamaju No. 1, Kode Pos 45173",
+    "Halaman 1 dari 2",
+    "Halaman 2 dari 2"
+  ],
+  "languages": [
+    "id"
+  ],
+  "code": [],
+  "notes": "Official 'kop surat' letterhead with a double rule. Title underlined. The agenda list has TYPED numbers ('1. ...') with no CSS marker; the decisions list is CSS-numbered (numbers not in text); the proposals list is bulleted. Fully ruled budget table with two section rows ('Pendapatan', 'Belanja') spanning all columns and two total rows; it may be split by the page break. Signature block (two columns) is body text."
+}

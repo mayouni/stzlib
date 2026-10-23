@@ -1,0 +1,196 @@
+{
+  "id": "p06",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Runbook: Rolling Upgrade of Ledgerline Gateway 4.1 to 4.2",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Runbook: Rolling Upgrade of Ledgerline Gateway 4.1 to 4.2"
+    },
+    {
+      "level": 2,
+      "text": "1. Purpose and scope"
+    },
+    {
+      "level": 2,
+      "text": "2. Prerequisites"
+    },
+    {
+      "level": 2,
+      "text": "3. Pre-flight checks"
+    },
+    {
+      "level": 2,
+      "text": "4. Procedure"
+    },
+    {
+      "level": 3,
+      "text": "4.1 Drain the node"
+    },
+    {
+      "level": 3,
+      "text": "4.2 Install the new release"
+    },
+    {
+      "level": 3,
+      "text": "4.3 Return the node to service"
+    },
+    {
+      "level": 2,
+      "text": "5. Rollback"
+    },
+    {
+      "level": 2,
+      "text": "6. Contacts"
+    }
+  ],
+  "key_sentences": [
+    "This runbook describes how to upgrade the Ledgerline payment gateway from version 4.1.x to 4.2.0 without interrupting card authorisations.",
+    "The procedure is a rolling upgrade: nodes are drained, upgraded and returned to the pool one at a time.",
+    "Run every check below from the bastion host.",
+    "Remove the node from the load balancer and wait until in-flight transactions have completed.",
+    "Version 4.2 introduces a new connection pool section in the gateway configuration.",
+    "If the error rate for an upgraded node exceeds 0.5 % for more than five minutes, roll that node back immediately.",
+    "Do not continue the upgrade until the cause has been understood."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Document ID",
+          "OPS-RB-112"
+        ],
+        [
+          "Revision",
+          "3 (19 October 2026)"
+        ],
+        [
+          "Owner",
+          "Platform Operations"
+        ],
+        [
+          "Review cycle",
+          "Every six months"
+        ],
+        [
+          "Applies to",
+          "Production clusters eu-west-a and eu-west-b"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Check",
+          "Command",
+          "Expected result"
+        ],
+        [
+          "Cluster health",
+          "llctl cluster status",
+          "All nodes READY"
+        ],
+        [
+          "Queue depth",
+          "llctl queue depth --all",
+          "Below 500 messages"
+        ],
+        [
+          "Disk space",
+          "df -h /opt/ledgerline",
+          "At least 5 GB free"
+        ],
+        [
+          "Certificate expiry",
+          "llctl tls expiry",
+          "More than 30 days"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Role",
+          "Name",
+          "Extension"
+        ],
+        [
+          "Duty platform engineer",
+          "On-call rota (see PagerHub)",
+          "4410"
+        ],
+        [
+          "Payments product owner",
+          "Selin Arkwright",
+          "4127"
+        ],
+        [
+          "Database on-call",
+          "On-call rota (see PagerHub)",
+          "4415"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "A change ticket in the Approved state, with the maintenance window recorded."
+    },
+    {
+      "level": 0,
+      "text": "Shell access to the bastion host with the ops-deploy role."
+    },
+    {
+      "level": 0,
+      "text": "The release bundle ledgerline-4.2.0.tar.gz, verified against its published checksum."
+    },
+    {
+      "level": 0,
+      "text": "At least four healthy nodes in the target cluster before you begin."
+    },
+    {
+      "level": 0,
+      "text": "Start the service with sudo systemctl start ledgerline-gateway."
+    },
+    {
+      "level": 0,
+      "text": "Confirm that llctl node status reports version 4.2.0 and state READY."
+    },
+    {
+      "level": 0,
+      "text": "Undrain the node with llctl node undrain gw-node-03 and check the dashboard:"
+    },
+    {
+      "level": 1,
+      "text": "authorisation error rate below 0.5 %"
+    },
+    {
+      "level": 1,
+      "text": "p95 latency below 300 ms"
+    },
+    {
+      "level": 0,
+      "text": "Wait ten minutes before moving on to the next node."
+    }
+  ],
+  "furniture": [
+    "OPS-RB-112 rev. 3 · Internal use only",
+    "Page 1 of 2",
+    "Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "llctl node drain gw-node-03 --timeout 300\nllctl node status gw-node-03\n# wait for: state=DRAINED active_sessions=0",
+    "sudo systemctl stop ledgerline-gateway\nsudo tar -xzf /srv/releases/ledgerline-4.2.0.tar.gz -C /opt/ledgerline\nsudo ln -sfn /opt/ledgerline/4.2.0 /opt/ledgerline/current",
+    "gateway:\n  listen: 0.0.0.0:8443\n  pool:\n    max_connections: 256\n    idle_timeout_s: 90\n    health_check:\n      path: /healthz\n      interval_s: 10\n  tls:\n    min_version: \"1.2\"",
+    "sudo systemctl stop ledgerline-gateway\nsudo ln -sfn /opt/ledgerline/4.1.7 /opt/ledgerline/current\nsudo systemctl start ledgerline-gateway"
+  ],
+  "notes": "Four code blocks (shell and YAML) in a monospace font on a tinted background; the YAML indentation is significant. Headings at three levels with typed section numbers. The numbered list in 4.3 is CSS-numbered and has a nested bulleted sub-list (level 1). The pre-flight table has commands in monospace cells. Footer: left box 'OPS-RB-112 rev. 3 · Internal use only' and right box 'Page n of N' on the same line, listed as separate furniture entries."
+}

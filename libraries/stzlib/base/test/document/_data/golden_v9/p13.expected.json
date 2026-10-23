@@ -1,0 +1,194 @@
+{
+  "id": "p13",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Birinci Dönem Gelişim Raporu",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Birinci Dönem Gelişim Raporu"
+    },
+    {
+      "level": 2,
+      "text": "Ders notları"
+    },
+    {
+      "level": 2,
+      "text": "Devam durumu"
+    },
+    {
+      "level": 2,
+      "text": "Sınıf öğretmeninin görüşü"
+    },
+    {
+      "level": 2,
+      "text": "Veliye not"
+    }
+  ],
+  "key_sentences": [
+    "Deniz, dönem boyunca derslerine düzenli olarak hazırlanmış ve sınıf içi etkinliklere istekli bir şekilde katılmıştır.",
+    "Fen Bilimleri dersindeki proje çalışması okul bilim şenliğinde sergilenmiştir.",
+    "Matematikte problem çözme becerisini geliştirmek için ek alıştırmalar yapmasını öneriyorum.",
+    "İkinci dönemde kitap okuma alışkanlığını sürdürmesini bekliyoruz.",
+    "İkinci dönem 2 Şubat 2027 Pazartesi günü başlayacaktır.",
+    "Veli toplantısı 13 Şubat 2027 Cumartesi günü saat 10:00'da okul konferans salonunda yapılacaktır.",
+    "Bu rapor veliye elden teslim edilmiştir."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Öğrencinin adı soyadı",
+          "Deniz Aydemir"
+        ],
+        [
+          "Sınıfı / Şubesi",
+          "7 / C"
+        ],
+        [
+          "Okul numarası",
+          "1184"
+        ],
+        [
+          "Sınıf öğretmeni",
+          "Ayşe Gülsüm Erdem"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Ders",
+          "1. Yazılı",
+          "2. Yazılı",
+          "Performans",
+          "Proje",
+          "Ortalama"
+        ],
+        [
+          "Türkçe",
+          "84",
+          "78",
+          "90",
+          "—",
+          "84"
+        ],
+        [
+          "Matematik",
+          "72",
+          "81",
+          "85",
+          "—",
+          "79,33"
+        ],
+        [
+          "Fen Bilimleri",
+          "88",
+          "92",
+          "95",
+          "90",
+          "91,25"
+        ],
+        [
+          "Sosyal Bilgiler",
+          "76",
+          "80",
+          "85",
+          "—",
+          "80,33"
+        ],
+        [
+          "İngilizce",
+          "91",
+          "87",
+          "95",
+          "—",
+          "91"
+        ],
+        [
+          "Din Kültürü ve Ahlak Bilgisi",
+          "85",
+          "88",
+          "90",
+          "—",
+          "87,67"
+        ],
+        [
+          "Görsel Sanatlar",
+          "—",
+          "—",
+          "100",
+          "—",
+          "100"
+        ],
+        [
+          "Müzik",
+          "—",
+          "—",
+          "96",
+          "—",
+          "96"
+        ],
+        [
+          "Beden Eğitimi ve Spor",
+          "—",
+          "—",
+          "95",
+          "—",
+          "95"
+        ],
+        [
+          "Bilişim Teknolojileri ve Yazılım",
+          "—",
+          "—",
+          "92",
+          "88",
+          "90"
+        ],
+        [
+          "Dönem ortalaması",
+          "Dönem ortalaması",
+          "Dönem ortalaması",
+          "Dönem ortalaması",
+          "Dönem ortalaması",
+          "89,46"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Devamsızlık",
+          "Gün"
+        ],
+        [
+          "Özürlü",
+          "2"
+        ],
+        [
+          "Özürsüz",
+          "0,5"
+        ],
+        [
+          "Toplam",
+          "2,5"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "YO",
+    "Özel Yıldıztepe Ortaokulu",
+    "Çınar Sokak No: 9, Tepebaşı / Eskişehir · Tel. 0222 000 41 90",
+    "2026–2027 Eğitim Öğretim Yılı"
+  ],
+  "languages": [
+    "tr"
+  ],
+  "code": [],
+  "notes": "Letterhead with a round monogram badge 'YO' beside the school name. PARTLY RULED grade table: only horizontal rules under the header and around the average row, no vertical rules; '—' marks no grade. The average row's label is merged over five columns. The attendance table and the teacher's comment sit side by side (read the left column first). Signature captions are body text; the last centred line is a body sentence."
+}

@@ -1,0 +1,191 @@
+{
+  "id": "p24",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Mathematics Paper 2",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Mathematics Paper 2"
+    },
+    {
+      "level": 2,
+      "text": "Instructions to candidates"
+    },
+    {
+      "level": 2,
+      "text": "Section A"
+    },
+    {
+      "level": 2,
+      "text": "Section B"
+    }
+  ],
+  "key_sentences": [
+    "Answer all the questions in this section.",
+    "Answer all the questions in this section.",
+    "Diagrams are not drawn to scale.",
+    "End of examination.",
+    "Check your answers before you hand in this paper."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Candidate name",
+          ""
+        ],
+        [
+          "Class",
+          ""
+        ],
+        [
+          "Candidate number",
+          ""
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Height h (cm)",
+          "145 ≤ h < 150",
+          "150 ≤ h < 155",
+          "155 ≤ h < 160",
+          "160 ≤ h < 165",
+          "165 ≤ h < 170",
+          "170 ≤ h < 175"
+        ],
+        [
+          "Frequency",
+          "3",
+          "7",
+          "11",
+          "10",
+          "6",
+          "3"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Answer all questions in the spaces provided."
+    },
+    {
+      "level": 0,
+      "text": "Show all your working; marks are awarded for method."
+    },
+    {
+      "level": 0,
+      "text": "Calculators may be used unless a question says otherwise."
+    },
+    {
+      "level": 0,
+      "text": "Give non-exact answers to three significant figures."
+    },
+    {
+      "level": 0,
+      "text": "The number of marks for each part is shown in brackets."
+    },
+    {
+      "level": 0,
+      "text": "1. Solve the following equations."
+    },
+    {
+      "level": 1,
+      "text": "(a) 5x − 8 = 3x + 14 [2]"
+    },
+    {
+      "level": 1,
+      "text": "(b) x² − 7x + 12 = 0 [3]"
+    },
+    {
+      "level": 1,
+      "text": "(c) 2/(x + 1) = 3/(2x − 1) [3]"
+    },
+    {
+      "level": 0,
+      "text": "2. The table below shows the heights of 40 students in a Grade 10 class."
+    },
+    {
+      "level": 1,
+      "text": "(a) Write down the modal class. [1]"
+    },
+    {
+      "level": 1,
+      "text": "(b) Calculate an estimate of the mean height. [4]"
+    },
+    {
+      "level": 1,
+      "text": "(c) Find the probability that a student chosen at random is at least 165 cm tall. [2]"
+    },
+    {
+      "level": 0,
+      "text": "3. A water tank in the shape of a cylinder has a radius of 1.2 m and a height of 2.5 m."
+    },
+    {
+      "level": 1,
+      "text": "(a) Calculate the volume of the tank in cubic metres. [3]"
+    },
+    {
+      "level": 1,
+      "text": "(b) Water flows out of the full tank at 15 litres per minute. How long, in hours and minutes, does it take to empty? [4]"
+    },
+    {
+      "level": 0,
+      "text": "4. A straight line passes through the points A(−2, 5) and B(4, −7)."
+    },
+    {
+      "level": 1,
+      "text": "(a) Find the gradient of AB. [2]"
+    },
+    {
+      "level": 1,
+      "text": "(b) Find the equation of the line AB in the form y = mx + c. [2]"
+    },
+    {
+      "level": 1,
+      "text": "(c) Find the coordinates of the midpoint of AB. [2]"
+    },
+    {
+      "level": 0,
+      "text": "5. A shop increases the price of a jacket by 20% and later reduces the new price by 15%."
+    },
+    {
+      "level": 1,
+      "text": "(a) The original price was $80. Find the final price. [3]"
+    },
+    {
+      "level": 1,
+      "text": "(b) Find the overall percentage change in price. [2]"
+    },
+    {
+      "level": 0,
+      "text": "6. In triangle PQR, PQ = 8 cm, QR = 11 cm and angle PQR = 52°."
+    },
+    {
+      "level": 1,
+      "text": "(a) Calculate the length of PR. [4]"
+    },
+    {
+      "level": 1,
+      "text": "(b) Calculate the area of triangle PQR. [3]"
+    }
+  ],
+  "furniture": [
+    "Lakeview Secondary School",
+    "End-of-Term Examinations, November 2026",
+    "Mathematics Paper 2 · Grade 10",
+    "Page 1 of 2",
+    "Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Examination paper. Questions are a list with TYPED numbers (level 0) and typed sub-parts (a), (b) at level 1; the mark allocation '[n]' is part of each sub-part's text. Answer space is left under each sub-part as dotted lines (no text). Math uses U+2212 minus, superscript two '²' and ≤. The frequency table is a HORIZONTAL table (first row is the header row, first column holds the row labels). The candidate box is a key/value table with empty value cells. The meta line under the title is body text. Question 2's list item contains the table; The sentence 'Answer all the questions in this section.' occurs twice and is listed twice. Running header from page 2 on."
+}

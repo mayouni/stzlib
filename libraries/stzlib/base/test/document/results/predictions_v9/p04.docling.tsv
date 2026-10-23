@@ -1,0 +1,26 @@
+heading	1	Universidad de Tierra Alta
+paragraph	0	Facultad de Ciencias Sociales y Jurídicas · Departamento de Sociología
+heading	1	Guía docente: Estadística Aplicada a las Ciencias Sociales
+heading	1	1. Datos generales
+table	0	Código40213CursoSegundoSemestrePrimero (septiembre - enero)Créditos ECTS6CarácterObligatoriaIdioma de imparticiónEspañolProfesora responsableDra. Lucía Ferrándiz OrtegaTutoríasMartes y jueves, de 11:00 a 13:00, despacho 2.14
+heading	1	2. Descripción de la asignatura
+paragraph	0	Esta asignatura ofrece una introducción práctica a los métodos estadísticos que se utilizan con mayor frecuencia en la investigación social. Se parte de la descripción de datos para llegar a la inferencia y a los modelos de regresión. Las sesiones combinan exposiciones teóricas con prácticas en el aula de informática, donde se trabaja con encuestas reales anonimizadas.
+heading	1	3. Competencias
+list_item	0	Analizar e interpretar datos cuantitativos procedentes de encuestas y registros administrativos.
+list_item	0	Seleccionar la técnica estadística adecuada para cada pregunta de investigación.
+list_item	0	Utilizar software estadístico de libre distribución para el tratamiento de datos.
+list_item	0	Comunicar resultados de forma clara mediante tablas y gráficos.
+heading	1	4. Programa y calendario
+table	0	SemanaFechasTemaLectura obligatoria115-19 sep.Introducción: datos, variables y escalas de medidaMorales, cap. 1222-26 sep.Distribuciones de frecuencias y representación gráficaMorales, cap. 2329 sep. -3 oct.Medidas de tendencia central y de dispersiónMorales, cap. 346-10 oct.Probabilidad y variables aleatoriasQuiroga y Bastos, cap. 4513-17 oct.La distribución normal y sus aplicacionesQuiroga y Bastos, cap. 5620-24 oct.Muestreo y distribuciones muestralesMorales, cap. 6727-31 oct.Estimación por intervalosMorales, cap. 783-7 nov.Contraste de hipótesis: lógica y erroresMorales, cap. 8910-14 nov.Comparación de medias: pruebas t y ANOVAQuiroga y Bastos, cap. 91017-21 nov.Tablas de contingencia y prueba ji cuadradoQuiroga y Bastos, cap. 101124-28 nov.Correlación linealMorales, cap. 11
+page_footer	0	- 1 -
+page_header	0	Guía docente 2026/2027
+table	0	SemanaFechasTemaLectura obligatoria121-5 dic.Regresión lineal simpleMorales, cap. 12139-12 dic.Regresión múltiple: introducciónLectura en el aula virtual1415-19 dic.Presentación de los trabajos en grupo-
+heading	1	5. Evaluación
+table	0	ActividadPesoFechaPrácticas con software (cinco entregas)20 %Semanas 3, 5, 7, 10 y 12Prueba parcial20 %6 de noviembre de 2026Trabajo en grupo y presentación20 %Semana 14Examen final40 %20 de enero de 2027Total100 %-
+paragraph	0	Para superar la asignatura es necesario obtener al menos un 4 sobre 10 en el examen final. Los estudiantes que no puedan seguir la evaluación continua podrán acogerse a la evaluación única, que consiste en un examen con un peso del 100 %. La solicitud debe presentarse durante las cuatro primeras semanas del semestre.
+paragraph	0	El uso de herramientas de inteligencia artificial en los trabajos deberá declararse expresamente. La copia o el plagio en cualquier actividad supondrá la calificación de suspenso en la convocatoria correspondiente.
+heading	1	6. Bibliografía básica
+list_item	0	Morales Pinto, A. (2019). Estadística para sociólogos. Madrid: Ediciones Atalaya.
+list_item	0	Quiroga, M. y Bastos, R. (2021). Análisis de datos en ciencias sociales con R. Valencia: Editorial Albufera.
+list_item	0	Seoane Rial, C. (2017). Encuestas: diseño, muestreo y análisis. Santiago de Compostela: Universitas Galaica.
+page_footer	0	- 2 -

@@ -1,0 +1,255 @@
+{
+  "id": "p04",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Guía docente: Estadística Aplicada a las Ciencias Sociales",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Guía docente: Estadística Aplicada a las Ciencias Sociales"
+    },
+    {
+      "level": 2,
+      "text": "1. Datos generales"
+    },
+    {
+      "level": 2,
+      "text": "2. Descripción de la asignatura"
+    },
+    {
+      "level": 2,
+      "text": "3. Competencias"
+    },
+    {
+      "level": 2,
+      "text": "4. Programa y calendario"
+    },
+    {
+      "level": 2,
+      "text": "5. Evaluación"
+    },
+    {
+      "level": 2,
+      "text": "6. Bibliografía básica"
+    }
+  ],
+  "key_sentences": [
+    "Esta asignatura ofrece una introducción práctica a los métodos estadísticos que se utilizan con mayor frecuencia en la investigación social.",
+    "Las sesiones combinan exposiciones teóricas con prácticas en el aula de informática, donde se trabaja con encuestas reales anonimizadas.",
+    "Para superar la asignatura es necesario obtener al menos un 4 sobre 10 en el examen final.",
+    "Los estudiantes que no puedan seguir la evaluación continua podrán acogerse a la evaluación única, que consiste en un examen con un peso del 100 %.",
+    "El uso de herramientas de inteligencia artificial en los trabajos deberá declararse expresamente.",
+    "La copia o el plagio en cualquier actividad supondrá la calificación de suspenso en la convocatoria correspondiente."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Código",
+          "40213"
+        ],
+        [
+          "Curso",
+          "Segundo"
+        ],
+        [
+          "Semestre",
+          "Primero (septiembre – enero)"
+        ],
+        [
+          "Créditos ECTS",
+          "6"
+        ],
+        [
+          "Carácter",
+          "Obligatoria"
+        ],
+        [
+          "Idioma de impartición",
+          "Español"
+        ],
+        [
+          "Profesora responsable",
+          "Dra. Lucía Ferrándiz Ortega"
+        ],
+        [
+          "Tutorías",
+          "Martes y jueves, de 11:00 a 13:00, despacho 2.14"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Semana",
+          "Fechas",
+          "Tema",
+          "Lectura obligatoria"
+        ],
+        [
+          "1",
+          "15–19 sep.",
+          "Introducción: datos, variables y escalas de medida",
+          "Morales, cap. 1"
+        ],
+        [
+          "2",
+          "22–26 sep.",
+          "Distribuciones de frecuencias y representación gráfica",
+          "Morales, cap. 2"
+        ],
+        [
+          "3",
+          "29 sep.–3 oct.",
+          "Medidas de tendencia central y de dispersión",
+          "Morales, cap. 3"
+        ],
+        [
+          "4",
+          "6–10 oct.",
+          "Probabilidad y variables aleatorias",
+          "Quiroga y Bastos, cap. 4"
+        ],
+        [
+          "5",
+          "13–17 oct.",
+          "La distribución normal y sus aplicaciones",
+          "Quiroga y Bastos, cap. 5"
+        ],
+        [
+          "6",
+          "20–24 oct.",
+          "Muestreo y distribuciones muestrales",
+          "Morales, cap. 6"
+        ],
+        [
+          "7",
+          "27–31 oct.",
+          "Estimación por intervalos",
+          "Morales, cap. 7"
+        ],
+        [
+          "8",
+          "3–7 nov.",
+          "Contraste de hipótesis: lógica y errores",
+          "Morales, cap. 8"
+        ],
+        [
+          "9",
+          "10–14 nov.",
+          "Comparación de medias: pruebas t y ANOVA",
+          "Quiroga y Bastos, cap. 9"
+        ],
+        [
+          "10",
+          "17–21 nov.",
+          "Tablas de contingencia y prueba ji cuadrado",
+          "Quiroga y Bastos, cap. 10"
+        ],
+        [
+          "11",
+          "24–28 nov.",
+          "Correlación lineal",
+          "Morales, cap. 11"
+        ],
+        [
+          "12",
+          "1–5 dic.",
+          "Regresión lineal simple",
+          "Morales, cap. 12"
+        ],
+        [
+          "13",
+          "9–12 dic.",
+          "Regresión múltiple: introducción",
+          "Lectura en el aula virtual"
+        ],
+        [
+          "14",
+          "15–19 dic.",
+          "Presentación de los trabajos en grupo",
+          "—"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Actividad",
+          "Peso",
+          "Fecha"
+        ],
+        [
+          "Prácticas con software (cinco entregas)",
+          "20 %",
+          "Semanas 3, 5, 7, 10 y 12"
+        ],
+        [
+          "Prueba parcial",
+          "20 %",
+          "6 de noviembre de 2026"
+        ],
+        [
+          "Trabajo en grupo y presentación",
+          "20 %",
+          "Semana 14"
+        ],
+        [
+          "Examen final",
+          "40 %",
+          "20 de enero de 2027"
+        ],
+        [
+          "Total",
+          "100 %",
+          "—"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Analizar e interpretar datos cuantitativos procedentes de encuestas y registros administrativos."
+    },
+    {
+      "level": 0,
+      "text": "Seleccionar la técnica estadística adecuada para cada pregunta de investigación."
+    },
+    {
+      "level": 0,
+      "text": "Utilizar software estadístico de libre distribución para el tratamiento de datos."
+    },
+    {
+      "level": 0,
+      "text": "Comunicar resultados de forma clara mediante tablas y gráficos."
+    },
+    {
+      "level": 0,
+      "text": "Morales Pinto, A. (2019). Estadística para sociólogos. Madrid: Ediciones Atalaya."
+    },
+    {
+      "level": 0,
+      "text": "Quiroga, M. y Bastos, R. (2021). Análisis de datos en ciencias sociales con R. Valencia: Editorial Albufera."
+    },
+    {
+      "level": 0,
+      "text": "Seoane Rial, C. (2017). Encuestas: diseño, muestreo y análisis. Santiago de Compostela: Universitas Galaica."
+    }
+  ],
+  "furniture": [
+    "Universidad de Tierra Alta",
+    "Facultad de Ciencias Sociales y Jurídicas · Departamento de Sociología",
+    "Guía docente 2026/2027",
+    "— 1 —",
+    "— 2 —"
+  ],
+  "languages": [
+    "es"
+  ],
+  "code": [],
+  "notes": "Title is white on a coloured band. Section headings carry typed numbers ('1. Datos generales'). Key/value table without header; zebra-striped programme table (header row repeated by the browser if it crosses a page); evaluation table with a Total row. Bibliography is a CSS-numbered list (numbers not in text). Page numbers are printed as '— n —'; running header 'Guía docente 2026/2027' from page 2 on."
+}

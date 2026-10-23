@@ -1,0 +1,104 @@
+{
+  "id": "p19",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "የቀጠሮ ማስታወሻ / Appointment Reminder",
+  "headings": [
+    {
+      "level": 1,
+      "text": "የቀጠሮ ማስታወሻ / Appointment Reminder"
+    },
+    {
+      "level": 2,
+      "text": "ቀጠሮዎች / Appointments"
+    },
+    {
+      "level": 2,
+      "text": "ማሳሰቢያ"
+    },
+    {
+      "level": 2,
+      "text": "Please note"
+    }
+  ],
+  "key_sentences": [
+    "እባክዎ በቀጠሮዎ ቀን ይህንን ካርድ ይዘው ይምጡ።",
+    "ከቀጠሮዎ ሰዓት 15 ደቂቃ ቀደም ብለው ይድረሱ።",
+    "መምጣት ካልቻሉ እባክዎ አስቀድመው ይደውሉልን።",
+    "Please bring this card with you on the day of your appointment.",
+    "Arrive 15 minutes before your appointment time.",
+    "If you cannot come, please call us in advance.",
+    "Bring all the medicines you are currently taking."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "ስም / Name",
+          "ሰላማዊት ተስፋዬ / Selamawit Tesfaye"
+        ],
+        [
+          "የካርድ ቁጥር / Card No.",
+          "BHC-26-03318"
+        ],
+        [
+          "ክፍል / Department",
+          "የእናቶችና ሕፃናት ጤና / Maternal and Child Health"
+        ],
+        [
+          "ሐኪም / Clinician",
+          "ሲስተር መሠረት አለሙ / Sister Meseret Alemu"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "ቀን / Date",
+          "ሰዓት / Time",
+          "የአገልግሎት ዓይነት / Service",
+          "ክፍል ቁጥር / Room"
+        ],
+        [
+          "12/11/2026",
+          "8:30",
+          "የእርግዝና ክትትል / Antenatal check-up",
+          "4"
+        ],
+        [
+          "10/12/2026",
+          "9:00",
+          "የደም ምርመራ / Blood test",
+          "Lab 2"
+        ],
+        [
+          "07/01/2027",
+          "8:30",
+          "የአልትራሳውንድ ምርመራ / Ultrasound scan",
+          "7"
+        ],
+        [
+          "04/02/2027",
+          "10:00",
+          "የእርግዝና ክትትል / Antenatal check-up",
+          "4"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "ብርሃን ጤና ጣቢያ",
+    "Birhan Health Centre",
+    "ስልክ / Tel. +251 11 000 4417",
+    "ሰኞ – ቅዳሜ 2:00 – 11:00 · Monday – Saturday 8:00 – 17:00"
+  ],
+  "languages": [
+    "am",
+    "en"
+  ],
+  "code": [],
+  "notes": "Amharic in Ethiopic script (font Ebrima) with English in the same cells and headings ('Amharic / English'). Amharic sentences end with the Ethiopic full stop ። . The Amharic notice and its English version are side by side; read the Amharic (left) box first. The footer opening hours give Ethiopian clock time (2:00 – 11:00) and the international equivalent."
+}

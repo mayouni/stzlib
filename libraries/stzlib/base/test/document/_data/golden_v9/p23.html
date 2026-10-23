@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Änderungsantrag CHG-2026-0873</title>
+<style>
+*{box-sizing:border-box} .nw{white-space:nowrap} pre{white-space:pre}
+
+@page { size: A4; margin: 1.8cm 1.9cm 2cm 1.9cm;
+  @bottom-left { content: "CHG-2026-0873 · Vertraulichkeit: intern"; font-family: Arial, sans-serif; font-size: 7.5pt; color: #666; }
+  @bottom-right { content: "Seite " counter(page) "/" counter(pages); font-family: Arial, sans-serif; font-size: 7.5pt; color: #666; }
+}
+body { font-family: Arial, Helvetica, sans-serif; font-size: 9.6pt; line-height: 1.42; color: #222; margin: 0; }
+.lh { display: flex; justify-content: space-between; border-bottom: 1px solid #444; padding-bottom: 4px; font-size: 8.5pt; color: #444; }
+.lh .n { font-weight: 700; font-size: 11pt; color: #000; }
+h1 { font-size: 15pt; margin: 12px 0 0 0; }
+h2 { font-size: 11pt; margin: 12px 0 4px 0; background: #eceff1; padding: 2px 6px; }
+h2.sub { background: none; padding: 0; font-weight: 400; font-size: 12pt; margin: 2px 0 8px 0; color: #455a64; }
+p { margin: 4px 0; }
+table { border-collapse: collapse; width: 100%; }
+table.kv td { border: 1px solid #cfd8dc; padding: 3px 6px; } table.kv td:first-child { background: #f5f7f8; width: 4.6cm; font-weight: 700; }
+table.risk th, table.appr th { text-align: left; padding: 3px 5px; border-bottom: 2px solid #455a64; }
+table.risk td, table.appr td { padding: 3px 5px; border-bottom: 1px solid #cfd8dc; vertical-align: top; }
+table.risk td:nth-child(2), table.risk td:nth-child(3) { text-align: center; }
+pre { font-family: Consolas, "Courier New", monospace; font-size: 8.4pt; background: #263238; color: #eceff1; padding: 7px 9px; border-radius: 4px; margin: 4px 0 8px 0; line-height: 1.4; }
+ol { margin: 3px 0; padding-left: 22px; }
+
+</style>
+</head>
+<body>
+
+<div class="lh"><div class="n">Brenntal Logistik GmbH</div><div>IT-Betrieb · Change Management</div></div>
+<h1>Änderungsantrag <span class="nw">CHG-2026-0873</span></h1>
+<h2 class="sub">Umstellung der <span class="nw">Reverse-Proxy-Server</span> auf TLS 1.3</h2>
+<table class="kv"><tbody><tr><td>Antragsteller</td><td>Tobias Wendland (Netzwerk &amp; Sicherheit)</td></tr><tr><td>Eingereicht am</td><td>19.10.2026</td></tr><tr><td>Kategorie</td><td>Normale Änderung</td></tr><tr><td>Priorität</td><td>Mittel</td></tr><tr><td>Betroffene Systeme</td><td><span class="nw">rp-edge-01,</span> <span class="nw">rp-edge-02</span> (Nginx 1.26)</td></tr><tr><td>Wartungsfenster</td><td>Dienstag, 03.11.2026, 22:00–23:30 Uhr</td></tr><tr><td>Erwartete Ausfallzeit</td><td>keine (rollierende Umstellung)</td></tr></tbody></table>
+<h2>1. Beschreibung</h2>
+<p>Die beiden <span class="nw">Reverse-Proxy-Server</span> vor dem Kundenportal und der <span class="nw">Lager-API</span> sollen TLS 1.3 anbieten. Die veralteten Protokollversionen TLS 1.0 und 1.1 werden abgeschaltet. Damit wird eine Feststellung aus dem Sicherheitsaudit vom Juni 2026 geschlossen.</p>
+<h2>2. Geplante Konfiguration</h2>
+<p>Der folgende Block ersetzt die bisherigen <span class="nw">SSL-Einstellungen</span> in der Datei /etc/nginx/conf.d/tls.conf auf beiden Servern.</p>
+<pre>ssl_protocols TLSv1.2 TLSv1.3;
+ssl_prefer_server_ciphers off;
+ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256;
+ssl_session_timeout 1d;
+ssl_session_cache shared:TLS:20m;
+add_header Strict-Transport-Security "max-age=31536000" always;</pre>
+<p>Zusätzlich wird im Monitoring ein <span class="nw">Handshake-Test</span> eingerichtet:</p>
+<pre>{
+  "check": "tls-handshake",
+  "targets": ["rp-edge-01:443", "rp-edge-02:443"],
+  "min_version": "TLSv1.2",
+  "interval_s": 60,
+  "alert_channel": "netsec-oncall"
+}</pre>
+<h2>3. Risikobewertung</h2>
+<table class="risk"><thead><tr><th>Risiko</th><th>Wahrscheinlichkeit</th><th>Auswirkung</th><th>Gegenmaßnahme</th></tr></thead><tbody><tr><td>Ältere Handscanner im Lager unterstützen kein TLS 1.2</td><td>mittel</td><td>hoch</td><td>Geräteliste vorab prüfen; Übergangszugang über separaten Port 8443</td></tr><tr><td>Fehler in der Konfiguration</td><td>gering</td><td>hoch</td><td>Syntaxprüfung mit nginx -t vor dem Neuladen</td></tr><tr><td>Zertifikatskette unvollständig</td><td>gering</td><td>mittel</td><td>Prüfung mit externem Testwerkzeug nach der Umstellung</td></tr></tbody></table>
+<h2>4. Durchführung</h2>
+<ol><li><span class="nw">rp-edge-02</span> aus dem Pool des <span class="nw">Load-Balancers</span> nehmen.</li><li>Konfiguration ausrollen und mit nginx -t prüfen.</li><li>Dienst neu laden und den <span class="nw">Handshake-Test</span> ausführen.</li><li><span class="nw">rp-edge-02</span> wieder in den Pool aufnehmen und die Schritte 1 bis 4 für <span class="nw">rp-edge-01</span> wiederholen.</li></ol>
+<h2>5. Rückfallplan</h2>
+<p>Falls der <span class="nw">Handshake-Test</span> fehlschlägt, wird die gesicherte Konfiguration aus /etc/nginx/backup/ zurückgespielt. Die Rückkehr zum vorherigen Zustand dauert weniger als fünf Minuten je Server.</p>
+<h2>6. Freigabe</h2>
+<table class="appr"><thead><tr><th>Rolle</th><th>Name</th><th>Entscheidung</th><th>Datum</th></tr></thead><tbody><tr><td>Change Manager</td><td>Petra Kuhlmann</td><td>genehmigt</td><td>27.10.2026</td></tr><tr><td>Leitung <span class="nw">IT-Betrieb</span></td><td>Malik Özdemir</td><td>genehmigt</td><td>28.10.2026</td></tr><tr><td>Fachbereich Lager</td><td>Jens Hoppe</td><td>genehmigt mit Auflage</td><td>28.10.2026</td></tr></tbody></table>
+<p>Auflage des Fachbereichs Lager: Die Liste der betroffenen Handscanner ist bis zum 02.11.2026 vorzulegen.</p>
+
+</body>
+</html>

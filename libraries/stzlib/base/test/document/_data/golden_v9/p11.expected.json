@@ -1,0 +1,149 @@
+{
+  "id": "p11",
+  "difficulty": "easy",
+  "pages": 1,
+  "title": "Conferma di prenotazione",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Conferma di prenotazione"
+    },
+    {
+      "level": 2,
+      "text": "Riepilogo dei costi"
+    },
+    {
+      "level": 2,
+      "text": "Informazioni utili"
+    },
+    {
+      "level": 2,
+      "text": "Condizioni di cancellazione"
+    }
+  ],
+  "key_sentences": [
+    "La ringraziamo per aver scelto l'Albergo Torre del Faro e siamo lieti di confermarLe la seguente prenotazione.",
+    "La prenotazione può essere cancellata senza penali fino a 14 giorni prima della data di arrivo.",
+    "In caso di cancellazione successiva o di mancato arrivo, la caparra versata non sarà rimborsata.",
+    "Le modifiche delle date sono soggette a disponibilità.",
+    "Restiamo a disposizione per qualsiasi richiesta e Le auguriamo un piacevole soggiorno."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Numero di prenotazione",
+          "TF-26-08815"
+        ],
+        [
+          "Ospite",
+          "Elisa Bortolin"
+        ],
+        [
+          "Arrivo",
+          "venerdì 21 maggio 2027, dalle ore 15:00"
+        ],
+        [
+          "Partenza",
+          "lunedì 24 maggio 2027, entro le ore 11:00"
+        ],
+        [
+          "Notti",
+          "3"
+        ],
+        [
+          "Camera",
+          "Doppia superior con vista mare (n. 31)"
+        ],
+        [
+          "Ospiti",
+          "2 adulti"
+        ],
+        [
+          "Trattamento",
+          "Pernottamento e prima colazione"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Data",
+          "Descrizione",
+          "Importo"
+        ],
+        [
+          "21/05/2027",
+          "Camera doppia superior, colazione inclusa",
+          "€ 210,00"
+        ],
+        [
+          "22/05/2027",
+          "Camera doppia superior, colazione inclusa",
+          "€ 210,00"
+        ],
+        [
+          "23/05/2027",
+          "Camera doppia superior, colazione inclusa (tariffa domenicale)",
+          "€ 195,00"
+        ],
+        [
+          "21–24/05/2027",
+          "Parcheggio custodito (3 notti × € 15,00)",
+          "€ 45,00"
+        ],
+        [
+          "21–24/05/2027",
+          "Imposta di soggiorno (2 persone × 3 notti × € 2,50)",
+          "€ 15,00"
+        ],
+        [
+          "Totale soggiorno",
+          "Totale soggiorno",
+          "€ 675,00"
+        ],
+        [
+          "Caparra versata il 14/10/2026",
+          "Caparra versata il 14/10/2026",
+          "- € 202,50"
+        ],
+        [
+          "Saldo da pagare all'arrivo",
+          "Saldo da pagare all'arrivo",
+          "€ 472,50"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Il check-in è possibile dalle 15:00 alle 22:00; per arrivi più tardi La preghiamo di avvisarci."
+    },
+    {
+      "level": 0,
+      "text": "La colazione è servita in terrazza dalle 7:30 alle 10:30."
+    },
+    {
+      "level": 0,
+      "text": "Gli animali di piccola taglia sono ammessi su richiesta, con un supplemento di € 10,00 al giorno."
+    },
+    {
+      "level": 0,
+      "text": "La spiaggia convenzionata dista 300 metri dall'albergo."
+    }
+  ],
+  "furniture": [
+    "Albergo Torre del Faro",
+    "Via del Molo Vecchio 12 · 19018 Punta Corvara (SP)",
+    "Tel. +39 0187 000 412 · prenotazioni@torredelfaro.example",
+    "Torre del Faro s.r.l. · P. IVA 01948730117 · Codice identificativo nazionale IT011024B4TF0031"
+  ],
+  "languages": [
+    "it"
+  ],
+  "code": [],
+  "notes": "Centred letterhead with wide letter-spacing on the hotel name. Borderless key/value table; cost table with three summary rows whose labels are merged over the first two columns. The 'Informazioni utili' list uses a CSS-drawn en-dash marker (not in the text). Salutation and closing lines are body text."
+}

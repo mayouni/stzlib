@@ -1,0 +1,23 @@
+page_header	0	Confidential
+heading	1	Mutual Non-Disclosure Agreement
+paragraph	0	This Agreement is made on 2 November 2026 between: (1) Corvane Analytics Ltd, a company registered in England and Wales under number 11873402, whose registered office is at 5 Ropewalk Yard, Bristol BS1 6QA (“Corvane”); and (2) Bluefen Marine Systems GmbH, a company registered in the commercial register of Hamburg under HRB 204517, whose office is at Kehrwieder 9, 20457 Hamburg (“Bluefen”). Each of Corvane and Bluefen may disclose or receive information under this Agreement, and is referred to as the Discloser or the Recipient as the context requires.
+heading	2	1. Purpose
+paragraph	0	1.1 The parties wish to exchange information for the sole purpose of evaluating a possible collaboration on analytics for underwater sensor networks (the “Purpose”). Nothing in this Agreement obliges either party to enter into any further agreement.
+heading	2	2. Confidential Information
+paragraph	0	2.1 “Confidential Information” means all information disclosed by the Discloser to the Recipient in connection with the Purpose, whether before or after the date of this Agreement and in whatever form, including technical data, source code, designs, prices and customer lists. 2.2 Information is not Confidential Information to the extent that it: (a) is or becomes publicly available other than through a breach of this Agreement; (b) was lawfully in the possession of the Recipient before disclosure by the Discloser; (c) is received from a third party who is not under any obligation of confidence; or (d) is independently developed by the Recipient without use of the Discloser's information.
+heading	2	3. Obligations of the Recipient
+paragraph	0	3.1 The Recipient shall keep the Confidential Information secret and shall use it only for the Purpose. It shall disclose it only to those of its employees and advisers who need to know it for the Purpose and who are bound by obligations of confidence no less strict than these. 3.2 The Recipient shall protect the Confidential Information with at least the degree of care it uses for its own information of a similar nature, and in any event with reasonable care. Personal data shall be handled in accordance with the data processing terms annexed to this Agreement.1 3.3 The Recipient may disclose Confidential Information if required by law or by a court, provided that it gives the Discloser prompt written notice where it is lawful to do so.
+paragraph	0	1 The data processing terms form Schedule 2 and prevail over this Agreement in case of conflict.
+heading	2	4. Term and return of information
+paragraph	0	4.1 This Agreement remains in force for three years from its date. The obligations in clause 3 survive for five years after its termination. 4.2 On written request, the Recipient shall promptly return or destroy all documents containing Confidential Information, except for copies that it is required to keep by law or that are held in
+page_footer	0	Mutual NDA · Corvane / Bluefen · v1.2
+page_footer	0	1
+page_header	0	Confidential
+paragraph	0	routine electronic back-ups.
+heading	2	5. No licence or warranty
+paragraph	0	5.1 All Confidential Information remains the property of the Discloser. No licence under any patent, copyright or other right is granted by this Agreement. Confidential Information is provided as is, without any warranty as to its accuracy or completeness.
+heading	2	6. Governing law and jurisdiction
+paragraph	0	6.1 This Agreement and any dispute arising out of it are governed by the laws of England and Wales. The courts of England have exclusive jurisdiction. Signed by the authorised representatives of the parties on the date written above.
+table	0	For Corvane Analytics LtdFor Corvane Analytics LtdFor Bluefen Marine Systems GmbHSignatureSignatureSignatureNameHarriet OkonjoLukas BrenneckeTitleChief Operating OfficerManaging DirectorDate2 November 20262 November 2026
+page_footer	0	Mutual NDA · Corvane / Bluefen · v1.2
+page_footer	0	2

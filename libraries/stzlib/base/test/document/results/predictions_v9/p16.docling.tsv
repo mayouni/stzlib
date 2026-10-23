@@ -1,0 +1,26 @@
+page_header	0	AQT-9M · Karta katalogowa · wydanie 2.1 · 09/2026
+heading	1	Termowent Sp. z o.o.
+paragraph	0	ul. Przemysłowa 41, 64-920 Zielonka Wielka tel. +48 67 000 41 90 · biuro@termowent.example
+heading	1	Pompa ciepła powietrze-woda AQT-9M
+paragraph	0	AQT-9M to monoblokowa pompa ciepła typu powietrze-woda przeznaczona do ogrzewania budynków jednorodzinnych oraz przygotowania ciepłej wody użytkowej. Urządzenie pracuje z naturalnym czynnikiem chłodniczym R290 o bardzo niskim współczynniku GWP. Sprężarka inwerterowa dopasowuje moc do bieżącego zapotrzebowania budynku, co ogranicza liczbę cykli załączania.
+heading	1	Dane techniczne
+table	0	ParametrJednostkaWartośćWydajnośćMoc grzewcza A7/W35kW9,1COP A7/W35-4,85Moc grzewcza A2/W35kW8,4COP A2/W35-3,92Moc chłodnicza A35/W18kW8,0EER A35/W18-4,10SCOP (klimat umiarkowany, 35 °C)-4,92Dane elektryczneZasilanieV/Hz400/50 (3N­)Maksymalny pobór prąduA12,5Zalecane zabezpieczenieAC16Grzałka elektryczna (opcja)kW3 / 6 / 9InstalacjaCzynnik chłodniczy-R290Ilość czynnikakg1,15Przyłącza hydraulicznecalG 1¼Minimalny przepływ wodyl/h950Zakres pracy w trybie grzania°Cod -25 do 43Wymiary i masaWymiary (szer. × wys. × gł.)mm1 280 × 945 × 465Masa nettokg118Poziom mocy akustycznejdB(A)54
+caption	0	Tabela 1. Dane techniczne AQT-9M
+paragraph	0	Dane według normy EN 14511 przy czystym wymienniku. Wartości mogą się różnić w zależności od warunków instalacji.
+heading	1	Najważniejsze cechy
+list_item	0	Temperatura zasilania do 70 °C, także przy -15 °C na zewnątrz
+list_item	0	Klasa efektywności energetycznej A+++ (35 °C)
+list_item	0	Cicha praca: 35 dB(A) w odległości 3 m
+list_item	0	Sterowanie przez aplikację i protokół Modbus RTU
+list_item	0	Praca kaskadowa do sześciu urządzeń
+page_footer	0	str. 1/2
+page_header	0	AQT-9M · Karta katalogowa · wydanie 2.1 · 09/2026
+heading	1	Moc grzewcza w zależności od warunków pracy
+table	0	PunktTemperatura powietrza zewnętrznegoTemperatura powietrza zewnętrznegoTemperatura powietrza zewnętrznegoTemperatura powietrza zewnętrznegoTemperatura powietrza zewnętrznegoPunkt-15 °C-7 °C2 °C7 °C12 °CW35 · moc [kW]6,27,48,49,19,8W35 · COP2,453,053,924,855,60W45 · moc [kW]5,97,08,08,79,3W45 · COP2,052,523,103,784,32W55 · moc [kW]5,56,67,58,28,8W55 · COP1,722,102,553,053,46
+caption	0	Tabela 2. Moc grzewcza i COP w zależności od warunków pracy
+heading	1	Wymagania montażowe
+paragraph	0	Jednostkę należy ustawić na stabilnym podłożu, w odległości co najmniej 30 cm od ściany budynku. Ze względu na palny czynnik R290 nie wolno montować urządzenia w zagłębieniach terenu ani w pobliżu studzienek kanalizacyjnych. Wokół jednostki należy zachować strefę bezpieczeństwa o promieniu 1 m, wolną od źródeł zapłonu. Montaż i pierwsze uruchomienie musi przeprowadzić instalator posiadający odpowiednie uprawnienia. Warunkiem udzielenia gwarancji jest coroczny przegląd serwisowy.
+heading	1	Akcesoria
+table	0	KodNazwaUwagiAQ-TR300Zasobnik c.w.u. 300 l z wężownicąstal nierdzewnaAQ-BUF50Bufor 50 lmontaż ściennyAQ-WIFI2Moduł internetowyaplikacja Termowent HomeAQ-KONKonsola podłogowaz podkładkami antywibracyjnymi
+paragraph	0	Producent zastrzega sobie prawo do wprowadzania zmian konstrukcyjnych bez uprzedzenia.
+page_footer	0	str. 2/2

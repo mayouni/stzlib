@@ -1,0 +1,83 @@
+{
+  "id": "p08",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "This Week's Specials",
+  "headings": [
+    {
+      "level": 1,
+      "text": "This Week's Specials"
+    },
+    {
+      "level": 2,
+      "text": "Fresh Produce"
+    },
+    {
+      "level": 2,
+      "text": "Meat & Seafood"
+    },
+    {
+      "level": 2,
+      "text": "Dairy & Bakery"
+    },
+    {
+      "level": 2,
+      "text": "Pantry Staples"
+    },
+    {
+      "level": 2,
+      "text": "Rewards & Coupons"
+    },
+    {
+      "level": 2,
+      "text": "Store Information"
+    }
+  ],
+  "key_sentences": [
+    "Prices are valid from Wednesday, November 4 through Tuesday, November 10, 2026.",
+    "Rewards members earn one point for every dollar spent.",
+    "Digital coupons can be loaded to your rewards card in the FreshWay app.",
+    "Items marked with a star are limited per household, while supplies last.",
+    "We reserve the right to limit quantities.",
+    "We are not responsible for typographical or pictorial errors."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Day",
+          "Store hours",
+          "Pharmacy hours"
+        ],
+        [
+          "Monday – Friday",
+          "7:00 am – 10:00 pm",
+          "9:00 am – 8:00 pm"
+        ],
+        [
+          "Saturday",
+          "7:00 am – 10:00 pm",
+          "9:00 am – 5:00 pm"
+        ],
+        [
+          "Sunday",
+          "8:00 am – 9:00 pm",
+          "Closed"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "FreshWay Market",
+    "Store #214 · Riverside Plaza",
+    "Weekly ad · Rewards members save more",
+    "FreshWay Market · 1820 Riverside Plaza, Millbrook · (555) 014-2201 · Open 7 days a week"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Retail flyer: product CARDS laid out in a 4-column CSS grid under each section heading (name, unit, price, saving badge). The cards are neither a table nor a list, so they are not in 'tables' or 'list_items'; their reading order is row by row, left to right. Large red prices in a serif font. The masthead band (brand name left, two lines right) and the bottom line are furniture. The 'Rewards & Coupons' text and the hours table sit side by side in two columns at the bottom: read the left column first."
+}

@@ -1,0 +1,46 @@
+heading	1	Runbook: Rolling Upgrade of Ledgerline Gateway 4.1 to 4.2
+paragraph	0	Document ID OPS-RB-112
+paragraph	0	Revision
+paragraph	0	3 (19 October 2026)
+paragraph	0	Owner Platform Operations
+paragraph	0	Review cycle Every six months
+paragraph	0	Applies to Production clusters eu-west-a and eu-west-b
+heading	1	1. Purpose and scope
+paragraph	0	This runbook describes how to upgrade the Ledgerline payment gateway from version 4.1.x to 4.2.0 without interrupting card authorisations. The procedure is a rolling upgrade: nodes are drained, upgraded and returned to the pool one at a time. It does not cover the database schema migration, which is handled by runbook OPS-RB-109.
+heading	1	2. Prerequisites
+list_item	0	A change ticket in the Approved state, with the maintenance window recorded.
+list_item	0	Shell access to the bastion host with the ops-deploy role.
+list_item	0	The release bundle ledgerline-4.2.0.tar.gz, verified against its published checksum.
+list_item	0	At least four healthy nodes in the target cluster before you begin.
+heading	1	3. Pre-flight checks
+paragraph	0	Run every check below from the bastion host. Stop and escalate if any result differs from the expected value.
+table	0	CheckCommandExpected resultCluster healthllctl cluster statusAll nodes READYQueue depthllctl queue depth --allBelow 500 messagesDisk spacedf -h /opt/ledgerlineAt least 5 GB freeCertificate expiryllctl tls expiryMore than 30 days
+heading	1	4. Procedure
+paragraph	0	Repeat steps 4.1 to 4.3 for each node in turn, starting with the node that currently carries the least traffic.
+heading	1	4.1 Drain the node
+paragraph	0	Remove the node from the load balancer and wait until in-flight transactions have completed.
+code	0	llctl node drain gw-node-03 --timeout 300 llctl node status gw-node-03 # wait for: state=DRAINED active
+code	0	_ sessions=0
+heading	1	4.2 Install the new release
+code	0	sudo systemctl stop ledgerline-gateway
+code	0	sudo tar -xzf /srv/releases/ledgerline-4.2.0.tar.gz -C /opt/ledgerline sudo ln -sfn /opt/ledgerline/4.2.0 /opt/ledgerline/current
+paragraph	0	Version 4.2 introduces a new connection pool section in the gateway configuration. Update /etc/ledgerline/gateway.yaml so that it contains the following block before restarting the service.
+code	0	gateway: listen: 0.0.0.0:8443 pool: max _ connections: 256 idle _ timeout _ s: 90
+page_footer	0	OPS-RB-112 rev. 3 · Internal use only
+page_footer	0	Page 1 of 2
+code	0	health _ check: path: /healthz interval _ s: 10 tls: min _ version: "1.2"
+heading	1	4.3 Return the node to service
+list_item	0	Start the service with sudo systemctl start ledgerline-gateway.
+list_item	0	Confirm that llctl node status reports version 4.2.0 and state READY.
+list_item	0	Undrain the node with llctl node undrain gw-node-03 and check the dashboard:
+list_item	0	authorisation error rate below 0.5 %
+list_item	0	p95 latency below 300 ms
+list_item	0	Wait ten minutes before moving on to the next node.
+heading	1	5. Rollback
+paragraph	0	If the error rate for an upgraded node exceeds 0.5 % for more than five minutes, roll that node back immediately. Do not continue the upgrade until the cause has been understood.
+code	0	sudo ln -sfn /opt/ledgerline/4.1.7 /opt/ledgerline/current
+code	0	sudo systemctl stop ledgerline-gateway sudo systemctl start ledgerline-gateway
+heading	1	6. Contacts
+table	0	RoleNameExtensionDuty platform engineerOn-call rota (see PagerHub)4410Payments product ownerSelin Arkwright4127Database on-callOn-call rota (see PagerHub)4415
+page_footer	0	OPS-RB-112 rev. 3 · Internal use only
+page_footer	0	Page 2 of 2

@@ -1,0 +1,134 @@
+{
+  "id": "p03",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "Mietvertrag über Wohnraum",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Mietvertrag über Wohnraum"
+    },
+    {
+      "level": 2,
+      "text": "§ 1 Mietsache"
+    },
+    {
+      "level": 2,
+      "text": "§ 2 Mietzeit"
+    },
+    {
+      "level": 2,
+      "text": "§ 3 Miete und Nebenkosten"
+    },
+    {
+      "level": 2,
+      "text": "§ 4 Mietsicherheit"
+    },
+    {
+      "level": 2,
+      "text": "§ 5 Instandhaltung und Schönheitsreparaturen"
+    },
+    {
+      "level": 2,
+      "text": "§ 6 Tierhaltung"
+    },
+    {
+      "level": 2,
+      "text": "§ 7 Kündigung und Rückgabe"
+    },
+    {
+      "level": 2,
+      "text": "§ 8 Hausordnung"
+    },
+    {
+      "level": 2,
+      "text": "§ 9 Schlussbestimmungen"
+    }
+  ],
+  "key_sentences": [
+    "Die Wohnfläche beträgt rund 78 Quadratmeter.",
+    "Das Mietverhältnis beginnt am 1. Dezember 2026 und läuft auf unbestimmte Zeit.",
+    "Die Betriebskostenabrechnung ist dem Mieter spätestens zwölf Monate nach Ende des Abrechnungszeitraums mitzuteilen.",
+    "Die Zinsen stehen dem Mieter zu und erhöhen die Sicherheit.",
+    "Die jährliche Gesamtbelastung ist auf 8 % der Jahresnettokaltmiete begrenzt.",
+    "Die Zustimmung darf nur aus wichtigem Grund versagt werden.",
+    "Die Reinigung des Treppenhauses erfolgt im wöchentlichen Wechsel nach dem Plan im Hausflur.",
+    "Sollte eine Bestimmung dieses Vertrages unwirksam sein, so bleibt die Wirksamkeit der übrigen Bestimmungen unberührt."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Position",
+          "Betrag monatlich"
+        ],
+        [
+          "Grundmiete (Nettokaltmiete)",
+          "845,00 €"
+        ],
+        [
+          "Vorauszahlung Betriebskosten",
+          "165,00 €"
+        ],
+        [
+          "Vorauszahlung Heizkosten und Warmwasser",
+          "110,00 €"
+        ],
+        [
+          "Stellplatz Nr. 2",
+          "35,00 €"
+        ],
+        [
+          "Gesamtmiete",
+          "1.155,00 €"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "drei Zimmern, einer Küche, einem Bad mit WC und einer Diele"
+    },
+    {
+      "level": 0,
+      "text": "einem Balkon zur Gartenseite"
+    },
+    {
+      "level": 0,
+      "text": "einem Kellerabteil (Nr. 5)"
+    },
+    {
+      "level": 0,
+      "text": "einem Kfz-Stellplatz im Hof (Nr. 2)"
+    },
+    {
+      "level": 0,
+      "text": "Anlage 1: Übergabeprotokoll"
+    },
+    {
+      "level": 0,
+      "text": "Anlage 2: Bankverbindung des Vermieters"
+    },
+    {
+      "level": 0,
+      "text": "Anlage 3: Hausordnung"
+    },
+    {
+      "level": 0,
+      "text": "Anlage 4: Energieausweis"
+    }
+  ],
+  "furniture": [
+    "Mietvertrag Lindenstraße 14, 2. OG links",
+    "Seite 1 von 3",
+    "Seite 2 von 3",
+    "Seite 3 von 3"
+  ],
+  "languages": [
+    "de"
+  ],
+  "code": [],
+  "notes": "Justified text with SOFT HYPHENS (U+00AD) in long compounds such as Betriebskostenabrechnung, Abrechnungszeitraums, Jahresnettokaltmiete, Übergabeprotokoll: where the line breaks inside one a hyphen is drawn; expected text gives the word whole. Paragraph numbers (1), (2) ... are paragraph numbering of the contract and are NOT list items. Two visible lists: the square-bulleted list in § 1 and the unmarked list of annexes in § 9. Running header from page 2 on; 'Seite n von N' footer on all pages. Signature lines are body. Lines 'Zwischen', 'und' and the centred party block are body text."
+}

@@ -1,0 +1,174 @@
+{
+  "id": "p23",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Änderungsantrag CHG-2026-0873",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Änderungsantrag CHG-2026-0873"
+    },
+    {
+      "level": 2,
+      "text": "Umstellung der Reverse-Proxy-Server auf TLS 1.3"
+    },
+    {
+      "level": 2,
+      "text": "1. Beschreibung"
+    },
+    {
+      "level": 2,
+      "text": "2. Geplante Konfiguration"
+    },
+    {
+      "level": 2,
+      "text": "3. Risikobewertung"
+    },
+    {
+      "level": 2,
+      "text": "4. Durchführung"
+    },
+    {
+      "level": 2,
+      "text": "5. Rückfallplan"
+    },
+    {
+      "level": 2,
+      "text": "6. Freigabe"
+    }
+  ],
+  "key_sentences": [
+    "Die veralteten Protokollversionen TLS 1.0 und 1.1 werden abgeschaltet.",
+    "Damit wird eine Feststellung aus dem Sicherheitsaudit vom Juni 2026 geschlossen.",
+    "Der folgende Block ersetzt die bisherigen SSL-Einstellungen in der Datei /etc/nginx/conf.d/tls.conf auf beiden Servern.",
+    "Falls der Handshake-Test fehlschlägt, wird die gesicherte Konfiguration aus /etc/nginx/backup/ zurückgespielt.",
+    "Die Rückkehr zum vorherigen Zustand dauert weniger als fünf Minuten je Server.",
+    "Auflage des Fachbereichs Lager: Die Liste der betroffenen Handscanner ist bis zum 02.11.2026 vorzulegen."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Antragsteller",
+          "Tobias Wendland (Netzwerk & Sicherheit)"
+        ],
+        [
+          "Eingereicht am",
+          "19.10.2026"
+        ],
+        [
+          "Kategorie",
+          "Normale Änderung"
+        ],
+        [
+          "Priorität",
+          "Mittel"
+        ],
+        [
+          "Betroffene Systeme",
+          "rp-edge-01, rp-edge-02 (Nginx 1.26)"
+        ],
+        [
+          "Wartungsfenster",
+          "Dienstag, 03.11.2026, 22:00–23:30 Uhr"
+        ],
+        [
+          "Erwartete Ausfallzeit",
+          "keine (rollierende Umstellung)"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Risiko",
+          "Wahrscheinlichkeit",
+          "Auswirkung",
+          "Gegenmaßnahme"
+        ],
+        [
+          "Ältere Handscanner im Lager unterstützen kein TLS 1.2",
+          "mittel",
+          "hoch",
+          "Geräteliste vorab prüfen; Übergangszugang über separaten Port 8443"
+        ],
+        [
+          "Fehler in der Konfiguration",
+          "gering",
+          "hoch",
+          "Syntaxprüfung mit nginx -t vor dem Neuladen"
+        ],
+        [
+          "Zertifikatskette unvollständig",
+          "gering",
+          "mittel",
+          "Prüfung mit externem Testwerkzeug nach der Umstellung"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Rolle",
+          "Name",
+          "Entscheidung",
+          "Datum"
+        ],
+        [
+          "Change Manager",
+          "Petra Kuhlmann",
+          "genehmigt",
+          "27.10.2026"
+        ],
+        [
+          "Leitung IT-Betrieb",
+          "Malik Özdemir",
+          "genehmigt",
+          "28.10.2026"
+        ],
+        [
+          "Fachbereich Lager",
+          "Jens Hoppe",
+          "genehmigt mit Auflage",
+          "28.10.2026"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "rp-edge-02 aus dem Pool des Load-Balancers nehmen."
+    },
+    {
+      "level": 0,
+      "text": "Konfiguration ausrollen und mit nginx -t prüfen."
+    },
+    {
+      "level": 0,
+      "text": "Dienst neu laden und den Handshake-Test ausführen."
+    },
+    {
+      "level": 0,
+      "text": "rp-edge-02 wieder in den Pool aufnehmen und die Schritte 1 bis 4 für rp-edge-01 wiederholen."
+    }
+  ],
+  "furniture": [
+    "Brenntal Logistik GmbH",
+    "IT-Betrieb · Change Management",
+    "CHG-2026-0873 · Vertraulichkeit: intern",
+    "Seite 1/2",
+    "Seite 2/2"
+  ],
+  "languages": [
+    "de"
+  ],
+  "code": [
+    "ssl_protocols TLSv1.2 TLSv1.3;\nssl_prefer_server_ciphers off;\nssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256;\nssl_session_timeout 1d;\nssl_session_cache shared:TLS:20m;\nadd_header Strict-Transport-Security \"max-age=31536000\" always;",
+    "{\n  \"check\": \"tls-handshake\",\n  \"targets\": [\"rp-edge-01:443\", \"rp-edge-02:443\"],\n  \"min_version\": \"TLSv1.2\",\n  \"interval_s\": 60,\n  \"alert_channel\": \"netsec-oncall\"\n}"
+  ],
+  "notes": "IT change request. The subtitle under the title is a level-2 heading in a lighter style. Two code blocks (nginx configuration, JSON) are light text on a DARK background. Ruled key/value table with a shaded key column; risk table with wrapped cells. CSS-numbered procedure list. Footer: left and right boxes on one line, listed separately."
+}

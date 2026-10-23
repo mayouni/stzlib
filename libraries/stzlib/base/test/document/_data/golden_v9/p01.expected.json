@@ -1,0 +1,154 @@
+{
+  "id": "p01",
+  "difficulty": "easy",
+  "pages": 1,
+  "title": "Tax Invoice",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Tax Invoice"
+    },
+    {
+      "level": 2,
+      "text": "Payment terms"
+    }
+  ],
+  "key_sentences": [
+    "Payment is due within 30 days of the invoice date.",
+    "Please quote invoice number KF-24187 with your remittance.",
+    "Goods remain the property of Kestrel Fasteners & Supply Ltd until payment has been received in full.",
+    "Any shortage or damage must be reported within five working days of delivery.",
+    "Late payments may attract interest and compensation under the Late Payment of Commercial Debts (Interest) Act 1998.",
+    "Thank you for your business."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Invoice number",
+          "KF-24187"
+        ],
+        [
+          "Invoice date",
+          "12 October 2026"
+        ],
+        [
+          "Due date",
+          "11 November 2026"
+        ],
+        [
+          "Customer PO",
+          "PO-55102"
+        ],
+        [
+          "Account",
+          "BRAD-0042"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Code",
+          "Description",
+          "Qty",
+          "Unit price",
+          "Amount"
+        ],
+        [
+          "HX-M10-50",
+          "Hex bolt M10 × 50 mm, zinc plated (box of 100)",
+          "12",
+          "£18.40",
+          "£220.80"
+        ],
+        [
+          "NY-M10",
+          "Nyloc nut M10, zinc plated (box of 200)",
+          "6",
+          "£14.75",
+          "£88.50"
+        ],
+        [
+          "WF-M10A",
+          "Flat washer M10, form A (box of 500)",
+          "4",
+          "£11.20",
+          "£44.80"
+        ],
+        [
+          "CA-380",
+          "Chemical anchor resin, 380 ml cartridge",
+          "10",
+          "£9.85",
+          "£98.50"
+        ],
+        [
+          "TR-M12-1",
+          "Threaded rod M12 × 1 m, grade 8.8",
+          "25",
+          "£3.62",
+          "£90.50"
+        ],
+        [
+          "SD-4250",
+          "Self-drilling screw 4.2 × 50 mm, hex head (box of 250)",
+          "8",
+          "£16.90",
+          "£135.20"
+        ],
+        [
+          "EP-NOZ",
+          "Static mixing nozzle for resin cartridges (pack of 12)",
+          "3",
+          "£7.45",
+          "£22.35"
+        ],
+        [
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "£700.65"
+        ],
+        [
+          "Delivery, next working day (pallet)",
+          "Delivery, next working day (pallet)",
+          "Delivery, next working day (pallet)",
+          "Delivery, next working day (pallet)",
+          "£35.00"
+        ],
+        [
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "£147.13"
+        ],
+        [
+          "Total due",
+          "Total due",
+          "Total due",
+          "Total due",
+          "£882.78"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "Kestrel Fasteners & Supply Ltd",
+    "Unit 7, Harrow Mill Industrial Estate, Leeds LS12 4QT",
+    "Tel. 0113 496 0721 · accounts@kestrelfasteners.example",
+    "VAT Reg. No. GB 318 4402 57 · Company No. 08814236",
+    "Payment by BACS to Northgate Commercial Bank, sort code 40-12-76, account 51963308",
+    "Kestrel Fasteners & Supply Ltd is registered in England and Wales. Registered office as above."
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Letterhead: organisation name left, three address lines right-aligned on the same band. Bill-to / deliver-to address blocks and the key/value invoice table sit side by side in three columns; the address blocks are body text, not tables. Line-item table: total rows have their label merged over the first four columns (repeated in each covered cell). The bank footer closes the page under a rule."
+}

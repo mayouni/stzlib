@@ -1,0 +1,118 @@
+{
+  "id": "p15",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Polio Vaccination Campaign",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Polio Vaccination Campaign"
+    },
+    {
+      "level": 2,
+      "text": "Protect every child under five"
+    },
+    {
+      "level": 3,
+      "text": "When and where"
+    },
+    {
+      "level": 3,
+      "text": "What parents should know"
+    },
+    {
+      "level": 2,
+      "text": "Kare kowane yaro ɗan ƙasa da shekara biyar"
+    },
+    {
+      "level": 3,
+      "text": "Yaushe kuma ina"
+    },
+    {
+      "level": 3,
+      "text": "Abin da iyaye ya kamata su sani"
+    },
+    {
+      "level": 2,
+      "text": "Fixed vaccination posts / Wuraren rigakafi"
+    }
+  ],
+  "key_sentences": [
+    "All children under five years old will receive polio vaccine drops free of charge.",
+    "Vaccinate your child again even if he or she has been vaccinated before.",
+    "Health workers will visit every house from Saturday to Tuesday.",
+    "After vaccination, the child's little finger will be marked with ink.",
+    "Za a ba duk yara 'yan ƙasa da shekara biyar digon maganin rigakafin cutar shan inna kyauta.",
+    "Ku sake kawo ɗanku a yi masa rigakafi ko da an taɓa yi masa a baya.",
+    "Ma'aikatan lafiya za su ziyarci kowane gida daga ranar Asabar zuwa ranar Talata.",
+    "Bayan an yi wa yaro rigakafi, za a sanya masa alama da tawada a ɗan yatsansa."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Date / Kwanan wata",
+          "Place / Wuri",
+          "Time / Lokaci"
+        ],
+        [
+          "Saturday 14 November / Asabar 14 ga Nuwamba",
+          "Kwaroro Primary Health Centre / Asibitin Kwaroro",
+          "8:00 – 16:00"
+        ],
+        [
+          "Sunday 15 November / Lahadi 15 ga Nuwamba",
+          "Central market, east gate / Babbar kasuwa, ƙofar gabas",
+          "9:00 – 15:00"
+        ],
+        [
+          "Monday 16 November / Litinin 16 ga Nuwamba",
+          "Dan Kade primary school / Makarantar firamare ta Dan Kade",
+          "8:00 – 14:00"
+        ],
+        [
+          "Tuesday 17 November / Talata 17 ga Nuwamba",
+          "Motor park / Tashar mota",
+          "8:00 – 16:00"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Keep your child's vaccination card and show it to the team."
+    },
+    {
+      "level": 0,
+      "text": "A child who is sick can still be vaccinated."
+    },
+    {
+      "level": 0,
+      "text": "Tell the team if a child in the house was not vaccinated."
+    },
+    {
+      "level": 0,
+      "text": "Ku ajiye katin rigakafin ɗanku kuma ku nuna wa ma'aikata."
+    },
+    {
+      "level": 0,
+      "text": "Yaro mara lafiya ma ana iya yi masa rigakafi."
+    },
+    {
+      "level": 0,
+      "text": "Ku sanar da ma'aikata idan akwai yaron da ba a yi wa rigakafi ba a gidan."
+    }
+  ],
+  "furniture": [
+    "Kwaroro District Health Office · Ofishin Kiwon Lafiya na Gundumar Kwaroro",
+    "Free hotline / Layin kyauta: 0800 000 7654"
+  ],
+  "languages": [
+    "en",
+    "ha"
+  ],
+  "code": [],
+  "notes": "Bilingual leaflet: the English column (left) and its Hausa translation (right) are PARALLEL side-by-side boxes; reading order is the whole English box, then the whole Hausa box, then the schedule. Hausa uses the hooked letters ɗ, ƙ and the apostrophe in 'yan and Ma'aikatan. The banner date line is body text. The schedule table has bilingual cells 'English / Hausa' (kept as one cell text) and zebra rows."
+}

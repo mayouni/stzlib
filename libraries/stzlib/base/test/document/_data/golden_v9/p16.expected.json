@@ -1,0 +1,301 @@
+{
+  "id": "p16",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Pompa ciepła powietrze–woda AQT-9M",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Pompa ciepła powietrze–woda AQT-9M"
+    },
+    {
+      "level": 2,
+      "text": "Najważniejsze cechy"
+    },
+    {
+      "level": 2,
+      "text": "Dane techniczne"
+    },
+    {
+      "level": 2,
+      "text": "Moc grzewcza w zależności od warunków pracy"
+    },
+    {
+      "level": 2,
+      "text": "Wymagania montażowe"
+    },
+    {
+      "level": 2,
+      "text": "Akcesoria"
+    }
+  ],
+  "key_sentences": [
+    "Urządzenie pracuje z naturalnym czynnikiem chłodniczym R290 o bardzo niskim współczynniku GWP.",
+    "Dane według normy EN 14511 przy czystym wymienniku.",
+    "Jednostkę należy ustawić na stabilnym podłożu, w odległości co najmniej 30 cm od ściany budynku.",
+    "Ze względu na palny czynnik R290 nie wolno montować urządzenia w zagłębieniach terenu ani w pobliżu studzienek kanalizacyjnych.",
+    "Warunkiem udzielenia gwarancji jest coroczny przegląd serwisowy.",
+    "Producent zastrzega sobie prawo do wprowadzania zmian konstrukcyjnych bez uprzedzenia."
+  ],
+  "tables": [
+    {
+      "caption": "Tabela 1. Dane techniczne AQT-9M",
+      "rows": [
+        [
+          "Parametr",
+          "Jednostka",
+          "Wartość"
+        ],
+        [
+          "Wydajność",
+          "Wydajność",
+          "Wydajność"
+        ],
+        [
+          "Moc grzewcza A7/W35",
+          "kW",
+          "9,1"
+        ],
+        [
+          "COP A7/W35",
+          "–",
+          "4,85"
+        ],
+        [
+          "Moc grzewcza A2/W35",
+          "kW",
+          "8,4"
+        ],
+        [
+          "COP A2/W35",
+          "–",
+          "3,92"
+        ],
+        [
+          "Moc chłodnicza A35/W18",
+          "kW",
+          "8,0"
+        ],
+        [
+          "EER A35/W18",
+          "–",
+          "4,10"
+        ],
+        [
+          "SCOP (klimat umiarkowany, 35 °C)",
+          "–",
+          "4,92"
+        ],
+        [
+          "Dane elektryczne",
+          "Dane elektryczne",
+          "Dane elektryczne"
+        ],
+        [
+          "Zasilanie",
+          "V/Hz",
+          "400/50 (3N)"
+        ],
+        [
+          "Maksymalny pobór prądu",
+          "A",
+          "12,5"
+        ],
+        [
+          "Zalecane zabezpieczenie",
+          "A",
+          "C16"
+        ],
+        [
+          "Grzałka elektryczna (opcja)",
+          "kW",
+          "3 / 6 / 9"
+        ],
+        [
+          "Instalacja",
+          "Instalacja",
+          "Instalacja"
+        ],
+        [
+          "Czynnik chłodniczy",
+          "–",
+          "R290"
+        ],
+        [
+          "Ilość czynnika",
+          "kg",
+          "1,15"
+        ],
+        [
+          "Przyłącza hydrauliczne",
+          "cal",
+          "G 1¼"
+        ],
+        [
+          "Minimalny przepływ wody",
+          "l/h",
+          "950"
+        ],
+        [
+          "Zakres pracy w trybie grzania",
+          "°C",
+          "od -25 do 43"
+        ],
+        [
+          "Wymiary i masa",
+          "Wymiary i masa",
+          "Wymiary i masa"
+        ],
+        [
+          "Wymiary (szer. × wys. × gł.)",
+          "mm",
+          "1 280 × 945 × 465"
+        ],
+        [
+          "Masa netto",
+          "kg",
+          "118"
+        ],
+        [
+          "Poziom mocy akustycznej",
+          "dB(A)",
+          "54"
+        ]
+      ]
+    },
+    {
+      "caption": "Tabela 2. Moc grzewcza i COP w zależności od warunków pracy",
+      "rows": [
+        [
+          "Punkt pracy",
+          "Temperatura powietrza zewnętrznego",
+          "Temperatura powietrza zewnętrznego",
+          "Temperatura powietrza zewnętrznego",
+          "Temperatura powietrza zewnętrznego",
+          "Temperatura powietrza zewnętrznego"
+        ],
+        [
+          "Punkt pracy",
+          "-15 °C",
+          "-7 °C",
+          "2 °C",
+          "7 °C",
+          "12 °C"
+        ],
+        [
+          "W35 · moc [kW]",
+          "6,2",
+          "7,4",
+          "8,4",
+          "9,1",
+          "9,8"
+        ],
+        [
+          "W35 · COP",
+          "2,45",
+          "3,05",
+          "3,92",
+          "4,85",
+          "5,60"
+        ],
+        [
+          "W45 · moc [kW]",
+          "5,9",
+          "7,0",
+          "8,0",
+          "8,7",
+          "9,3"
+        ],
+        [
+          "W45 · COP",
+          "2,05",
+          "2,52",
+          "3,10",
+          "3,78",
+          "4,32"
+        ],
+        [
+          "W55 · moc [kW]",
+          "5,5",
+          "6,6",
+          "7,5",
+          "8,2",
+          "8,8"
+        ],
+        [
+          "W55 · COP",
+          "1,72",
+          "2,10",
+          "2,55",
+          "3,05",
+          "3,46"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Kod",
+          "Nazwa",
+          "Uwagi"
+        ],
+        [
+          "AQ-TR300",
+          "Zasobnik c.w.u. 300 l z wężownicą",
+          "stal nierdzewna"
+        ],
+        [
+          "AQ-BUF50",
+          "Bufor 50 l",
+          "montaż ścienny"
+        ],
+        [
+          "AQ-WIFI2",
+          "Moduł internetowy",
+          "aplikacja Termowent Home"
+        ],
+        [
+          "AQ-KON",
+          "Konsola podłogowa",
+          "z podkładkami antywibracyjnymi"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Temperatura zasilania do 70 °C, także przy -15 °C na zewnątrz"
+    },
+    {
+      "level": 0,
+      "text": "Klasa efektywności energetycznej A+++ (35 °C)"
+    },
+    {
+      "level": 0,
+      "text": "Cicha praca: 35 dB(A) w odległości 3 m"
+    },
+    {
+      "level": 0,
+      "text": "Sterowanie przez aplikację i protokół Modbus RTU"
+    },
+    {
+      "level": 0,
+      "text": "Praca kaskadowa do sześciu urządzeń"
+    }
+  ],
+  "furniture": [
+    "Termowent Sp. z o.o.",
+    "ul. Przemysłowa 41, 64-920 Zielonka Wielka",
+    "tel. +48 67 000 41 90 · biuro@termowent.example",
+    "AQT-9M · Karta katalogowa · wydanie 2.1 · 09/2026",
+    "str. 1/2",
+    "str. 2/2"
+  ],
+  "languages": [
+    "pl"
+  ],
+  "code": [],
+  "notes": "Intro text and a tinted 'Najważniejsze cechy' box side by side (read the text first). Table 1 is a zebra specification table with four SECTION rows spanning all three columns (text repeated per cell). Table 2 has a two-level header ('Punkt pracy' spans two rows, the outdoor temperature header spans five columns). Captions are italic paragraphs above the tables. Forced page break before Table 2. Small grey notes are body text."
+}

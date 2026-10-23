@@ -1,0 +1,114 @@
+{
+  "id": "p21",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Mutual Non-Disclosure Agreement",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Mutual Non-Disclosure Agreement"
+    },
+    {
+      "level": 2,
+      "text": "1. Purpose"
+    },
+    {
+      "level": 2,
+      "text": "2. Confidential Information"
+    },
+    {
+      "level": 2,
+      "text": "3. Obligations of the Recipient"
+    },
+    {
+      "level": 2,
+      "text": "4. Term and return of information"
+    },
+    {
+      "level": 2,
+      "text": "5. No licence or warranty"
+    },
+    {
+      "level": 2,
+      "text": "6. Governing law and jurisdiction"
+    }
+  ],
+  "key_sentences": [
+    "This Agreement is made on 2 November 2026 between:",
+    "Nothing in this Agreement obliges either party to enter into any further agreement.",
+    "It shall disclose it only to those of its employees and advisers who need to know it for the Purpose and who are bound by obligations of confidence no less strict than these.",
+    "The obligations in clause 3 survive for five years after its termination.",
+    "No licence under any patent, copyright or other right is granted by this Agreement.",
+    "The courts of England have exclusive jurisdiction.",
+    "Signed by the authorised representatives of the parties on the date written above."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "",
+          "For Corvane Analytics Ltd",
+          "For Bluefen Marine Systems GmbH"
+        ],
+        [
+          "Signature",
+          "",
+          ""
+        ],
+        [
+          "Name",
+          "Harriet Okonjo",
+          "Lukas Brennecke"
+        ],
+        [
+          "Title",
+          "Chief Operating Officer",
+          "Managing Director"
+        ],
+        [
+          "Date",
+          "2 November 2026",
+          "2 November 2026"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "(1) Corvane Analytics Ltd, a company registered in England and Wales under number 11873402, whose registered office is at 5 Ropewalk Yard, Bristol BS1 6QA (“Corvane”); and"
+    },
+    {
+      "level": 0,
+      "text": "(2) Bluefen Marine Systems GmbH, a company registered in the commercial register of Hamburg under HRB 204517, whose office is at Kehrwieder 9, 20457 Hamburg (“Bluefen”)."
+    },
+    {
+      "level": 0,
+      "text": "(a) is or becomes publicly available other than through a breach of this Agreement;"
+    },
+    {
+      "level": 0,
+      "text": "(b) was lawfully in the possession of the Recipient before disclosure by the Discloser;"
+    },
+    {
+      "level": 0,
+      "text": "(c) is received from a third party who is not under any obligation of confidence; or"
+    },
+    {
+      "level": 0,
+      "text": "(d) is independently developed by the Recipient without use of the Discloser's information."
+    }
+  ],
+  "furniture": [
+    "Confidential",
+    "Mutual NDA · Corvane / Bluefen · v1.2",
+    "1",
+    "2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Contract. Clause numbers 1.1, 2.1 ... are paragraph numbering, NOT list items. Two lists with TYPED markers and no CSS marker: the parties (1), (2) and the exclusions (a)-(d). Clause 3.2 ends with a superscript FOOTNOTE marker '1'; that sentence is left out of key_sentences, and the footnote text under a short rule after clause 3.3 is a footnote (not in key_sentences, not furniture). Curly quotes “ ” around defined terms. Page footer: left box text and a bare page number at the right; running header 'Confidential' top right. The signature table has an empty top-left header cell and empty signature cells."
+}

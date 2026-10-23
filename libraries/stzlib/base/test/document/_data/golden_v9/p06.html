@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>OPS-RB-112 Ledgerline upgrade runbook</title>
+<style>
+*{box-sizing:border-box} .nw{white-space:nowrap} pre{white-space:pre}
+
+@page { size: A4; margin: 1.8cm 2cm 2cm 2cm;
+  @bottom-left { content: "OPS-RB-112 rev. 3 · Internal use only"; font-family: "Segoe UI", sans-serif; font-size: 8pt; color: #666; }
+  @bottom-right { content: "Page " counter(page) " of " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 8pt; color: #666; }
+}
+body { font-family: "Segoe UI", Arial, sans-serif; font-size: 9.6pt; line-height: 1.45; color: #20232a; margin: 0; }
+h1 { font-size: 17pt; color: #3b2f8f; margin: 0 0 8px 0; font-weight: 600; }
+h2 { font-size: 12pt; color: #3b2f8f; margin: 14px 0 4px 0; font-weight: 600; }
+h3 { font-size: 10.2pt; margin: 10px 0 3px 0; font-weight: 600; }
+p { margin: 4px 0; }
+table { border-collapse: collapse; margin: 4px 0 8px 0; }
+table.ctrl td { padding: 2px 14px 2px 0; font-size: 9pt; } table.ctrl td:first-child { color: #666; }
+table.grid { width: 100%; font-size: 9pt; }
+table.grid th { text-align: left; background: #ecebf7; border-bottom: 2px solid #3b2f8f; padding: 4px 6px; }
+table.grid td { border-bottom: 1px solid #ddd; padding: 3px 6px; }
+.mono { font-family: Consolas, monospace; font-size: 8.8pt; }
+pre { font-family: Consolas, monospace; font-size: 8.8pt; background: #f5f5f8; border-left: 3px solid #8c84c9; padding: 6px 10px; margin: 5px 0 8px 0; line-height: 1.35; }
+code { font-family: Consolas, monospace; font-size: 9pt; }
+ul, ol { margin: 3px 0; padding-left: 22px; } li { margin: 1px 0; }
+
+</style>
+</head>
+<body>
+
+<h1>Runbook: Rolling Upgrade of Ledgerline Gateway 4.1 to 4.2</h1>
+<table class="ctrl"><tbody><tr><td>Document ID</td><td><span class="nw">OPS-RB-112</span></td></tr><tr><td>Revision</td><td>3 (19 October 2026)</td></tr><tr><td>Owner</td><td>Platform Operations</td></tr><tr><td>Review cycle</td><td>Every six months</td></tr><tr><td>Applies to</td><td>Production clusters <span class="nw">eu-west-a</span> and <span class="nw">eu-west-b</span></td></tr></tbody></table>
+<h2>1. Purpose and scope</h2>
+<p>This runbook describes how to upgrade the Ledgerline payment gateway from version 4.1.x to 4.2.0 without interrupting card authorisations. The procedure is a rolling upgrade: nodes are drained, upgraded and returned to the pool one at a time. It does not cover the database schema migration, which is handled by runbook <span class="nw">OPS-RB-109.</span></p>
+<h2>2. Prerequisites</h2>
+<ul><li>A change ticket in the Approved state, with the maintenance window recorded.</li><li>Shell access to the bastion host with the <span class="nw">ops-deploy</span> role.</li><li>The release bundle <span class="nw">ledgerline-4.2.0.tar.gz,</span> verified against its published checksum.</li><li>At least four healthy nodes in the target cluster before you begin.</li></ul>
+<h2>3. <span class="nw">Pre-flight</span> checks</h2>
+<p>Run every check below from the bastion host. Stop and escalate if any result differs from the expected value.</p>
+<table class="grid"><thead><tr><th>Check</th><th class="mono">Command</th><th>Expected result</th></tr></thead><tbody><tr><td>Cluster health</td><td class="mono">llctl cluster status</td><td>All nodes READY</td></tr><tr><td>Queue depth</td><td class="mono">llctl queue depth --all</td><td>Below 500 messages</td></tr><tr><td>Disk space</td><td class="mono">df -h /opt/ledgerline</td><td>At least 5 GB free</td></tr><tr><td>Certificate expiry</td><td class="mono">llctl tls expiry</td><td>More than 30 days</td></tr></tbody></table>
+<h2>4. Procedure</h2>
+<p>Repeat steps 4.1 to 4.3 for each node in turn, starting with the node that currently carries the least traffic.</p>
+<h3>4.1 Drain the node</h3>
+<p>Remove the node from the load balancer and wait until <span class="nw">in-flight</span> transactions have completed.</p>
+<pre>llctl node drain gw-node-03 --timeout 300
+llctl node status gw-node-03
+# wait for: state=DRAINED active_sessions=0</pre>
+<h3>4.2 Install the new release</h3>
+<pre>sudo systemctl stop ledgerline-gateway
+sudo tar -xzf /srv/releases/ledgerline-4.2.0.tar.gz -C /opt/ledgerline
+sudo ln -sfn /opt/ledgerline/4.2.0 /opt/ledgerline/current</pre>
+<p>Version 4.2 introduces a new connection pool section in the gateway configuration. Update /etc/ledgerline/gateway.yaml so that it contains the following block before restarting the service.</p>
+<pre>gateway:
+  listen: 0.0.0.0:8443
+  pool:
+    max_connections: 256
+    idle_timeout_s: 90
+    health_check:
+      path: /healthz
+      interval_s: 10
+  tls:
+    min_version: "1.2"</pre>
+<h3>4.3 Return the node to service</h3>
+<ol><li>Start the service with sudo systemctl start <span class="nw">ledgerline-gateway.</span></li><li>Confirm that llctl node status reports version 4.2.0 and state READY.</li><li>Undrain the node with llctl node undrain <span class="nw">gw-node-03</span> and check the dashboard:<ul><li>authorisation error rate below 0.5 %</li><li>p95 latency below 300 ms</li></ul></li><li>Wait ten minutes before moving on to the next node.</li></ol>
+<h2>5. Rollback</h2>
+<p>If the error rate for an upgraded node exceeds 0.5 % for more than five minutes, roll that node back immediately. Do not continue the upgrade until the cause has been understood.</p>
+<pre>sudo systemctl stop ledgerline-gateway
+sudo ln -sfn /opt/ledgerline/4.1.7 /opt/ledgerline/current
+sudo systemctl start ledgerline-gateway</pre>
+<h2>6. Contacts</h2>
+<table class="grid"><thead><tr><th>Role</th><th>Name</th><th>Extension</th></tr></thead><tbody><tr><td>Duty platform engineer</td><td><span class="nw">On-call</span> rota (see PagerHub)</td><td>4410</td></tr><tr><td>Payments product owner</td><td>Selin Arkwright</td><td>4127</td></tr><tr><td>Database <span class="nw">on-call</span></td><td><span class="nw">On-call</span> rota (see PagerHub)</td><td>4415</td></tr></tbody></table>
+
+</body>
+</html>

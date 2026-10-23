@@ -1,0 +1,72 @@
+heading	2	Universidad de Tierra Alta
+page_header	0	Facultad de Ciencias Sociales y Jurídicas · Departamento de Sociología
+heading	1	Guía docente: Estadística Aplicada a las Ciencias Sociales
+heading	3	1. Datos generales
+table	0	Código40213CursoSegundoSemestrePrimero (septiembre – enero)Créditos ECTS6CarácterObligatoriaIdioma de imparticiónEspañolProfesora responsableDra. Lucía Ferrándiz OrtegaTutoríasMartes y jueves, de 11:00 a 13:00, despacho 2.14
+heading	3	2. Descripción de la asignatura
+paragraph	0	Esta asignatura ofrece una introducción práctica a los métodos estadísticos que se utilizan con mayor frecuencia en la investigación social. Se parte de la descripción de datos para llegar a la inferencia y a los modelos de regresión. Las sesiones combinan exposiciones teóricas con prácticas en el aula de informática, donde se trabaja con encuestas reales anonimizadas.
+heading	3	3. Competencias
+list_item	0	Analizar e interpretar datos cuantitativos procedentes de encuestas y registros administrativos.
+list_item	0	Seleccionar la técnica estadística adecuada para cada pregunta de investigación.
+list_item	0	Utilizar software estadístico de libre distribución para el tratamiento de datos.
+list_item	0	Comunicar resultados de forma clara mediante tablas y gráficos.
+heading	3	4. Programa y calendario
+paragraph	0	Semana
+paragraph	0	Fechas
+paragraph	0	1
+paragraph	0	2
+paragraph	0	3
+paragraph	0	4
+paragraph	0	5
+paragraph	0	6
+paragraph	0	7
+paragraph	0	8
+paragraph	0	9
+page_footer	0	10
+page_footer	0	11
+paragraph	0	15–19 sep.
+paragraph	0	22–26 sep.
+paragraph	0	29 sep.–3 oct.
+paragraph	0	6–10 oct.
+paragraph	0	13–17 oct.
+paragraph	0	20–24 oct.
+paragraph	0	27–31 oct.
+paragraph	0	3–7 nov.
+paragraph	0	10–14 nov.
+paragraph	0	17–21 nov.
+paragraph	0	24–28 nov.
+paragraph	0	Tema
+paragraph	0	Introducción: datos, variables y escalas de medida
+paragraph	0	Distribuciones de frecuencias y representación gráfica
+paragraph	0	Medidas de tendencia central y de dispersión
+paragraph	0	Probabilidad y variables aleatorias
+paragraph	0	La distribución normal y sus aplicaciones
+paragraph	0	Muestreo y distribuciones muestrales
+paragraph	0	Estimación por intervalos
+paragraph	0	Contraste de hipótesis: lógica y errores
+paragraph	0	Comparación de medias: pruebas t y ANOVA
+paragraph	0	Tablas de contingencia y prueba ji cuadrado
+paragraph	0	Correlación lineal
+paragraph	0	Lectura obligatoria
+paragraph	0	Morales, cap. 1
+paragraph	0	Morales, cap. 2
+paragraph	0	Morales, cap. 3
+paragraph	0	Quiroga y Bastos, cap. 4
+paragraph	0	Quiroga y Bastos, cap. 5
+paragraph	0	Morales, cap. 6
+paragraph	0	Morales, cap. 7
+paragraph	0	Morales, cap. 8
+paragraph	0	Quiroga y Bastos, cap. 9
+paragraph	0	Quiroga y Bastos, cap. 10
+paragraph	0	Morales, cap. 11
+page_footer	0	— 1 —
+page_header	0	Guía docente 2026/2027
+table	0	SemanaFechasTemaLectura obligatoria121–5 dic.Regresión lineal simpleMorales, cap. 12139–12 dic.Regresión múltiple: introducciónLectura en el aula virtual1415–19 dic.Presentación de los trabajos en grupo—
+heading	3	5. Evaluación
+table	0	ActividadPesoFechaPrácticas con software (cinco entregas)20 %Semanas 3, 5, 7, 10 y 12Prueba parcial20 %6 de noviembre de 2026Trabajo en grupo y presentación20 %Semana 14Examen final40 %20 de enero de 2027Total100 %—
+paragraph	0	Para superar la asignatura es necesario obtener al menos un 4 sobre 10 en el examen final. Los estudiantes que no puedan seguir la evaluación continua podrán acogerse a la evaluación única, que consiste en un examen con un peso del 100 %. La solicitud debe presentarse durante las cuatro primeras semanas del semestre. El uso de herramientas de inteligencia artificial en los trabajos deberá declararse expresamente. La copia o el plagio en cualquier actividad supondrá la calificación de suspenso en la convocatoria correspondiente.
+heading	3	6. Bibliografía básica
+list_item	0	1. Morales Pinto, A. (2019). Estadística para sociólogos. Madrid: Ediciones Atalaya.
+list_item	0	2. Quiroga, M. y Bastos, R. (2021). Análisis de datos en ciencias sociales con R. Valencia: Editorial Albufera.
+list_item	0	3. Seoane Rial, C. (2017). Encuestas: diseño, muestreo y análisis. Santiago de Compostela: Universitas Galaica.
+page_footer	0	— 2 —

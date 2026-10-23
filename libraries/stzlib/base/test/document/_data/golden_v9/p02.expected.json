@@ -1,0 +1,243 @@
+{
+  "id": "p02",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Compte rendu d'hospitalisation",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Compte rendu d'hospitalisation"
+    },
+    {
+      "level": 2,
+      "text": "Motif d'hospitalisation"
+    },
+    {
+      "level": 2,
+      "text": "Antécédents"
+    },
+    {
+      "level": 2,
+      "text": "Histoire de la maladie"
+    },
+    {
+      "level": 2,
+      "text": "Examen clinique à l'entrée"
+    },
+    {
+      "level": 2,
+      "text": "Examens complémentaires"
+    },
+    {
+      "level": 3,
+      "text": "Biologie"
+    },
+    {
+      "level": 3,
+      "text": "Imagerie et électrocardiogramme"
+    },
+    {
+      "level": 2,
+      "text": "Évolution"
+    },
+    {
+      "level": 2,
+      "text": "Traitement de sortie"
+    },
+    {
+      "level": 2,
+      "text": "Suivi proposé"
+    }
+  ],
+  "key_sentences": [
+    "Nous avons pris en charge votre patiente, Mme Marchetti, du 6 au 13 octobre 2026 pour une décompensation cardiaque globale.",
+    "Veuve, elle vit seule au premier étage sans ascenseur et reste autonome pour les actes de la vie quotidienne.",
+    "À l'arrivée, l'électrocardiogramme montrait une fibrillation atriale rapide à 118 battements par minute.",
+    "La radiographie thoracique montre une cardiomégalie avec un épanchement pleural bilatéral de faible abondance.",
+    "L'échocardiographie transthoracique retrouve une fraction d'éjection ventriculaire gauche estimée à 38 %, sans valvulopathie significative.",
+    "Sous diurétiques intraveineux, l'évolution a été favorable avec une perte de poids de 4,2 kg en six jours.",
+    "La fonction rénale est restée stable, avec une créatinine de sortie à 109 µmol/L."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Patiente",
+          "Mme MARCHETTI Hélène"
+        ],
+        [
+          "Née le",
+          "03/06/1951 (75 ans)"
+        ],
+        [
+          "N° de séjour",
+          "2026-104471"
+        ],
+        [
+          "Entrée",
+          "06/10/2026, par les urgences"
+        ],
+        [
+          "Sortie",
+          "13/10/2026, retour à domicile"
+        ],
+        [
+          "Médecin traitant",
+          "Dr Paul Ricaud, Valmont-sur-Loire"
+        ]
+      ]
+    },
+    {
+      "caption": "Tableau 1 — Évolution des principaux paramètres biologiques",
+      "rows": [
+        [
+          "Paramètre",
+          "Résultats",
+          "Résultats",
+          "Résultats",
+          "Valeurs usuelles"
+        ],
+        [
+          "Paramètre",
+          "Entrée",
+          "J3",
+          "Sortie",
+          "Valeurs usuelles"
+        ],
+        [
+          "Hémoglobine (g/dL)",
+          "12,1",
+          "11,8",
+          "12,0",
+          "12,0 – 16,0"
+        ],
+        [
+          "Sodium (mmol/L)",
+          "133",
+          "136",
+          "138",
+          "136 – 145"
+        ],
+        [
+          "Potassium (mmol/L)",
+          "4,8",
+          "4,1",
+          "4,3",
+          "3,5 – 5,0"
+        ],
+        [
+          "Créatinine (µmol/L)",
+          "118",
+          "126",
+          "109",
+          "45 – 90"
+        ],
+        [
+          "NT-proBNP (pg/mL)",
+          "6 840",
+          "—",
+          "2 115",
+          "< 450"
+        ],
+        [
+          "Troponine T hs (ng/L)",
+          "21",
+          "19",
+          "—",
+          "< 14"
+        ],
+        [
+          "HbA1c (%)",
+          "7,4",
+          "—",
+          "—",
+          "< 6,5"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Médicament",
+          "Posologie",
+          "Remarque"
+        ],
+        [
+          "Furosémide 40 mg",
+          "1 comprimé le matin",
+          "Adapter selon le poids"
+        ],
+        [
+          "Bisoprolol 2,5 mg",
+          "1 comprimé le matin",
+          "Augmentation prévue en consultation"
+        ],
+        [
+          "Ramipril 2,5 mg",
+          "1 comprimé le soir",
+          "Nouveau traitement"
+        ],
+        [
+          "Apixaban 5 mg",
+          "1 comprimé matin et soir",
+          "Inchangé"
+        ],
+        [
+          "Metformine 1000 mg",
+          "1 comprimé matin et soir",
+          "Inchangé"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Hypertension artérielle traitée depuis 2009"
+    },
+    {
+      "level": 0,
+      "text": "Fibrillation atriale paroxystique diagnostiquée en 2021, sous anticoagulant"
+    },
+    {
+      "level": 0,
+      "text": "Diabète de type 2 non insulinorequérant"
+    },
+    {
+      "level": 0,
+      "text": "Cholécystectomie en 1998"
+    },
+    {
+      "level": 0,
+      "text": "Pesée quotidienne ; consulter si prise de plus de 2 kg en trois jours"
+    },
+    {
+      "level": 0,
+      "text": "Bilan sanguin (ionogramme, créatinine) dans une semaine"
+    },
+    {
+      "level": 0,
+      "text": "Consultation de cardiologie le 17 novembre 2026 à 10 h 30"
+    },
+    {
+      "level": 0,
+      "text": "Réadaptation cardiaque à discuter lors de cette consultation"
+    }
+  ],
+  "furniture": [
+    "Centre hospitalier de Valmont",
+    "Pôle cardio-vasculaire — Service de cardiologie",
+    "14, avenue des Tilleuls — 45390 Valmont-sur-Loire",
+    "Secrétariat : 01 99 00 41 17",
+    "CH de Valmont · Cardiologie · Mme MARCHETTI Hélène, née le 03/06/1951",
+    "Page 1/2",
+    "Page 2/2"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "Running header (patient identification) from page 2 on only; page footer 'Page n/N' bottom right on every page. Letterhead is a bordered block on page 1. The patient identification block is a borderless key/value table. Table 1 has a two-level header: 'Paramètre' and 'Valeurs usuelles' span both header rows, 'Résultats' spans three columns. Text contains the letter œ (not a typographic ligature). The signature block and the copy line are body text."
+}

@@ -1,0 +1,28 @@
+page_header	0	Brenntal Logistik GmbH
+page_header	0	IT-Betrieb · Change Management
+heading	1	Änderungsantrag CHG-2026-0873
+paragraph	0	Umstellung der Reverse-Proxy-Server auf TLS 1.3
+table	0	AntragstellerTobias Wendland (Netzwerk & Sicherheit)Eingereicht am19.10.2026KategorieNormale ÄnderungPrioritätMittelBetroffene Systemerp-edge-01, rp-edge-02 (Nginx 1.26)WartungsfensterDienstag, 03.11.2026, 22:00-23:30 UhrErwartete Ausfallzeitkeine (rollierende Umstellung)
+heading	1	1. Beschreibung
+paragraph	0	Die beiden Reverse-Proxy-Server vor dem Kundenportal und der Lager-API sollen TLS 1.3 anbieten. Die veralteten Protokollversionen TLS 1.0 und 1.1 werden abgeschaltet. Damit wird eine Feststellung aus dem Sicherheitsaudit vom Juni 2026 geschlossen.
+heading	1	2. Geplante Konfiguration
+paragraph	0	Der folgende Block ersetzt die bisherigen SSL-Einstellungen in der Datei /etc/nginx/conf.d/tls.conf auf beiden Servern.
+code	0	ssl _protocols TLSv1.2 TLSv1.3; ssl _prefer _ server _ ciphers off; ssl _ ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256; ssl _ session _ timeout 1d; ssl _ session _ cache shared:TLS:20m; add _ header Strict-Transport-Security "max-age=31536000" always;
+paragraph	0	Zusätzlich wird im Monitoring ein Handshake-Test eingerichtet:
+code	0	{ "check": "tls-handshake" , "targets": ["rp-edge-01:443" , "rp-edge-02:443"], "min _ version": "TLSv1.2" , "interval _ s": 60, "alert _ channel": "netsec-oncall" }
+heading	1	3. Risikobewertung
+table	0	RisikoWahrscheinlichkeitAuswirkungGegenmaßnahmeÄltere Handscanner im Lager unterstützen kein TLS 1.2mittelhochGeräteliste vorab prüfen; Übergangszugang über separaten Port 8443Fehler in der KonfigurationgeringhochSyntaxprüfung mit nginx -t vor dem NeuladenZertifikatskette unvollständiggeringmittelPrüfung mit externem Testwerkzeug nach der Umstellung
+heading	1	4. Durchführung
+page_footer	0	CHG-2026-0873 · Vertraulichkeit: intern
+page_footer	0	Seite 1/2
+list_item	0	rp-edge-02 aus dem Pool des Load-Balancers nehmen.
+list_item	0	Konfiguration ausrollen und mit nginx -t prüfen.
+list_item	0	Dienst neu laden und den Handshake-Test ausführen.
+list_item	0	rp-edge-02 wieder in den Pool aufnehmen und die Schritte 1 bis 4 für rp-edge-01 wiederholen.
+heading	1	5. Rückfallplan
+paragraph	0	Falls der Handshake-Test fehlschlägt, wird die gesicherte Konfiguration aus /etc/nginx/backup/ zurückgespielt. Die Rückkehr zum vorherigen Zustand dauert weniger als fünf Minuten je Server.
+heading	1	6. Freigabe
+table	0	RolleNameEntscheidungDatumChange ManagerPetra Kuhlmanngenehmigt27.10.2026Leitung IT-BetriebMalik Özdemirgenehmigt28.10.2026Fachbereich LagerJens Hoppegenehmigt mit Auflage28.10.2026
+paragraph	0	Auflage des Fachbereichs Lager: Die Liste der betroffenen Handscanner ist bis zum 02.11.2026 vorzulegen.
+page_footer	0	CHG-2026-0873 · Vertraulichkeit: intern
+page_footer	0	Seite 2/2
