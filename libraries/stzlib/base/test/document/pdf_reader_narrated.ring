@@ -429,6 +429,18 @@ Scenario("A list numbered in Arabic-Indic digits")
 	Then("its items are list items", StzFindFirst("٢. نسخة من بطاقة التعريف الوطنية للمستغل", "" + @@(o.ListItems())) > 0, 1)
 EndScenario()
 
+Scenario("A two-column article whose lines run a little into the gap is read column by column")
+	o = StzPdfQ("_data/golden_v12/s13.pdf")
+	Then("a sentence of the left column reads whole", StzFindFirst("The objectives of this study were to quantify the effect of two biochar rates", o.Text()) > 0, 1)
+EndScenario()
+
+Scenario("Bracketed markers open list items")
+	o = StzPdfQ("_data/golden_v12/s17.pdf")
+	cL = "" + @@(o.ListItems())
+	Then("a letter in brackets", StzFindFirst("(a) loss or damage caused by:", cL) > 0, 1)
+	Then("a roman numeral in brackets", StzFindFirst("(i) wear and tear, rot, fungus or vermin;", cL) > 0, 1)
+EndScenario()
+
 Scenario("A file that is not a readable PDF is refused with the reason")
 	bRaised = 0
 	cWhy = ""
