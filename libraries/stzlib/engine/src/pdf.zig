@@ -2812,11 +2812,13 @@ fn findAlignedTablesIn(a: Allocator, frags: []Frag, lane0: f32, lane1: f32, tabl
         }
         // grow a run of multi-cell rows close below one another
         var e = r + 1;
-        while (e < rows.items.len and rows.items[e].len >= 2) : (e += 1) {
+        while (e < rows.items.len) : (e += 1) {
             const pf = frags[rows.items[e - 1][0]];
             const cf = frags[rows.items[e][0]];
             if (cf.base - pf.base > 3.2 * pf.size) break;
             if (@abs(cf.size - pf.size) > 0.05 * pf.size) break;
+            if (rows.items[e].len >= 2) continue;
+            break; // (a wrapped one-cell line was tried as part of the run: it pulled prose into tables -- off)
         }
         const run = rows.items[r..e];
         if (run.len < 3) {
@@ -2826,10 +2828,13 @@ fn findAlignedTablesIn(a: Allocator, frags: []Frag, lane0: f32, lane1: f32, tabl
         // the cells must be short
         var nf: usize = 0;
         var short: usize = 0;
-        for (run) |row| for (row) |k| {
-            nf += 1;
-            if (wordCount(frags[k].text) <= 3) short += 1;
-        };
+        for (run) |row| {
+            if (row.len < 2) continue;
+            for (row) |k| {
+                nf += 1;
+                if (wordCount(frags[k].text) <= 3) short += 1; // (five words was tried: it let short prose in)
+            }
+        }
         if (short * 10 < nf * 7) {
             r = e;
             continue;
@@ -2856,6 +2861,7 @@ fn findAlignedTablesIn(a: Allocator, frags: []Frag, lane0: f32, lane1: f32, tabl
         // every row must use at least two of the columns
         var ok = true;
         for (run) |row| {
+            if (row.len < 2) continue;
             var used: usize = 0;
             for (cols.items) |c| {
                 for (row) |k| if ((frags[k].x0 + frags[k].x1) / 2 >= c[0] and (frags[k].x0 + frags[k].x1) / 2 <= c[1]) {
@@ -2882,10 +2888,8 @@ fn findAlignedTablesIn(a: Allocator, frags: []Frag, lane0: f32, lane1: f32, tabl
             for (row) |k| {
                 const f = &frags[k];
                 const mx = (f.x0 + f.x1) / 2;
-                var ci: usize = 0;
-                for (cols.items, 0..) |c, j| if (mx >= c[0] and mx <= c[1]) {
-                    ci = j;
-                };
+                var ci: usize = colOf(cols.items, mx);
+                _ = &ci;
                 if (cells[ci].items.len > 0) try cells[ci].append(a, ' ');
                 try cells[ci].appendSlice(a, f.text);
                 f.table = @intCast(tables.items.len);
@@ -2898,7 +2902,20 @@ fn findAlignedTablesIn(a: Allocator, frags: []Frag, lane0: f32, lane1: f32, tabl
             grid[ri] = try a.alloc([]const u8, nc);
             for (0..nc) |j| grid[ri][j] = cells[j].items;
         }
-        try tables.append(a, .{ .x0 = bx0, .y0 = by0, .x1 = bx1, .y1 = by1, .rows = grid, .size = size, .cols = try a.dupe([2]f32, cols.items) });
+        // a wrapped line joins the cell above it, in its column
+        var kept: std.ArrayList([][]const u8) = .empty;
+        for (run, 0..) |row, ri| {
+            if (row.len >= 2 or kept.items.len == 0) {
+                try kept.append(a, grid[ri]);
+                continue;
+            }
+            const last = kept.items[kept.items.len - 1];
+            for (0..nc) |j| {
+                if (grid[ri][j].len == 0) continue;
+                last[j] = if (last[j].len == 0) grid[ri][j] else try std.mem.concat(a, u8, &.{ last[j], " ", grid[ri][j] });
+            }
+        }
+        try tables.append(a, .{ .x0 = bx0, .y0 = by0, .x1 = bx1, .y1 = by1, .rows = kept.items, .size = size, .cols = try a.dupe([2]f32, cols.items) });
         r = e;
     }
 }
@@ -4114,6 +4131,20 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
             const names = std.mem.startsWith(u8, c.text, "Table") or std.mem.startsWith(u8, c.text, "Figure") or std.mem.startsWith(u8, c.text, "Source");
             if (c.page == t.page and c.kind == .paragraph and names and c.lines <= 2 and c.y0 - t.y1 <= 2.0 * c.size) c.kind = .caption;
         }
+    }
+    for (final.items) |*b| {
+        if (b.kind != .table) continue;
+        // blank rows ABOVE the first row with text are a band (a double border, a header's background), not rows;
+        // a blank row further down is kept: a form's empty row is part of the table
+        var first: usize = 0;
+        while (first < b.rows.len) : (first += 1) {
+            var any = false;
+            for (b.rows[first]) |c| {
+                if (c.len > 0) any = true;
+            }
+            if (any) break;
+        }
+        if (first < b.rows.len) b.rows = b.rows[first..];
     }
     for (final.items) |*b| {
         if (b.kind != .table) continue;

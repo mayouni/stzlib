@@ -294,6 +294,23 @@ Scenario("A two-level header: a cell over two columns fills both")
 	Then("the lower header row", aT[2][3], "2025")
 EndScenario()
 
+# ---- the eighth round, pinned on golden_v7 and golden_v8 (development sets since the reader was fixed on them)
+
+Scenario("A blank band above a table is not its first row")
+	o = StzPdfQ("_data/golden_v8/n03.pdf")
+	aT = o.Tables()
+	Then("the first table opens on its first labelled row", @@(aT[1][1]), @@([ "Patient", "Mrs Evelyn Marsh-Okafor", "Hospital no.", "7731 0428" ]))
+	Then("the results table opens on its header", aT[2][1][1], "Test")
+EndScenario()
+
+Scenario("A form's blank rows lower in the table are kept")
+	o = StzPdfQ("_data/golden_v7/m16.pdf")
+	aT = o.Tables()[1]
+	Then("the header row", @@(aT[1]), @@([ "low", "high", "mid", "items[mid]" ]))
+	Then("the one filled row, then three rows left to fill", len(aT), 5)
+	Then("the last of them blank", @@(aT[5]), @@([ "", "", "", "" ]))
+EndScenario()
+
 Scenario("A file that is not a readable PDF is refused with the reason")
 	bRaised = 0
 	cWhy = ""

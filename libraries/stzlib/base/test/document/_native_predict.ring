@@ -9,9 +9,23 @@
 load "../../stzBase.ring"
 decimals(4)
 
-cGolden = sysargv[3]
-cOut = sysargv[4]
-if NOT direxists(cOut) system("mkdir " + cOut) ok
+#     ring _native_predict.ring many <out root> <golden dir> [<golden dir> ...]
+#         reads several sets in one process (the library loads once); predictions go to <out root>/<set name>/
+
+if sysargv[3] = "many"
+	cRoot = sysargv[4]
+	for g = 5 to len(sysargv)
+		cG = sysargv[g]
+		aParts = StzSplit(StzReplace(cG, "\", "/"), "/")
+		cSet = aParts[len(aParts)]
+		_PredictSet(cG, cRoot + "/" + cSet)
+	next
+else
+	_PredictSet(sysargv[3], sysargv[4])
+ok
+
+func _PredictSet(cGolden, cOut)
+if NOT direxists(cOut) system("mkdir " + StzReplace(cOut, "/", "\")) ok
 
 aFiles = dir(cGolden)
 cTimes = ""
