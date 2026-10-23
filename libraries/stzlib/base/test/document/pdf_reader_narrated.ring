@@ -350,6 +350,36 @@ Scenario("A code block opening with a brace keeps its indented lines")
 	Then("the JSON one starts with its brace and holds its first key", StzFindFirst('"check": "tls-handshake"', aC[2]) > 0, 1)
 EndScenario()
 
+# ---- the tenth round, pinned on golden_v10 and golden_v8 (development sets since the reader was fixed on them)
+
+Scenario("A Persian page: its digits read as a number, its hamza stays on its letter, its heh is heh")
+	o = StzPdfQ("_data/golden_v10/q21.pdf")
+	aT = o.Tables()[1]
+	Then("a price in Persian digits, in order", aT[2][3], "۲۵۰٬۰۰۰")
+	Then("the title keeps kitabkhaneh whole, hamza last", StzFindFirst("کتابخانهٔ عمومی", "" + @@(o.Headings())) > 0, 1)
+	Then("no Urdu heh on a Persian page", StzFindFirst("ھ", o.Text()), 0)
+EndScenario()
+
+Scenario("A tanween over a word's last alef stays with it, before the full stop")
+	o = StzPdfQ("_data/golden_v8/n17.pdf")
+	Then("the mark follows its alef", StzFindFirst("ومقبولاً.", o.Text()) > 0, 1)
+EndScenario()
+
+Scenario("A space glyph mapped to a TAB is a space")
+	o = StzPdfQ("_data/golden_v10/q16.pdf")
+	Then("the title reads with spaces", StzFindFirst("Bulletin de notes du troisième trimestre", "" + @@(o.Headings())) > 0, 1)
+	Then("no TAB anywhere in the text", StzFindFirst(char(9), o.Text()), 0)
+EndScenario()
+
+Scenario("Two boxes side by side read as one table under a row of titles become two tables, box by box")
+	o = StzPdfQ("_data/golden_v10/q04.pdf")
+	aT = o.Tables()
+	Then("the patient box is a table of two columns", len(aT[1][1]), 2)
+	Then("its first row", @@(aT[1][1]), @@([ "Paciente", "Rosario Méndez Ibarra" ]))
+	Then("the sample box comes next", aT[2][1][1], "N.º de petición")
+	Then("each title is a heading", StzFindFirst("Datos de la muestra", "" + @@(o.Headings())) > 0, 1)
+EndScenario()
+
 Scenario("A file that is not a readable PDF is refused with the reason")
 	bRaised = 0
 	cWhy = ""
