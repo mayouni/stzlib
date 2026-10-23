@@ -1,0 +1,211 @@
+{
+  "id": "s06",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Installation and Configuration Guide",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Installation and Configuration Guide"
+    },
+    {
+      "level": 2,
+      "text": "1 Overview"
+    },
+    {
+      "level": 2,
+      "text": "2 System requirements"
+    },
+    {
+      "level": 2,
+      "text": "3 Installing on Linux"
+    },
+    {
+      "level": 3,
+      "text": "3.1 Prerequisites"
+    },
+    {
+      "level": 3,
+      "text": "3.2 Installation steps"
+    },
+    {
+      "level": 2,
+      "text": "4 Configuration"
+    },
+    {
+      "level": 3,
+      "text": "4.1 Main parameters"
+    },
+    {
+      "level": 3,
+      "text": "4.2 Running as a service"
+    },
+    {
+      "level": 2,
+      "text": "5 Troubleshooting"
+    }
+  ],
+  "key_sentences": [
+    "Tessellate Gateway is a reverse proxy that routes API requests from client applications to internal services.",
+    "This guide describes a single-node installation; clustered deployments are covered in a separate document.",
+    "The service needs no elevated privileges once the listening port is above 1024 or the capability to bind low ports has been granted.",
+    "Changes to the upstream list can be applied without a restart by sending the reload signal, whereas changes to the listening address always require a restart."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Component",
+          "Minimum",
+          "Recommended"
+        ],
+        [
+          "Operating system",
+          "64-bit Linux, kernel 5.4",
+          "Kernel 6.1 or later"
+        ],
+        [
+          "Processor",
+          "2 cores",
+          "4 cores or more"
+        ],
+        [
+          "Memory",
+          "2 GB",
+          "8 GB"
+        ],
+        [
+          "Disk space",
+          "500 MB plus logs",
+          "20 GB on a separate volume"
+        ],
+        [
+          "Network",
+          "One interface",
+          "Separate interfaces for clients and services"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Key",
+          "Type",
+          "Default",
+          "Description"
+        ],
+        [
+          "server.listen",
+          "address",
+          "0.0.0.0:8443",
+          "Address and port on which client connections are accepted."
+        ],
+        [
+          "server.workers",
+          "integer",
+          "number of cores",
+          "Worker threads handling requests; values above twice the number of cores rarely help."
+        ],
+        [
+          "upstreams[].timeout_ms",
+          "integer",
+          "3000",
+          "Time allowed for an upstream service to send the first byte of its response."
+        ],
+        [
+          "logging.level",
+          "string",
+          "info",
+          "One of debug, info, warn or error."
+        ],
+        [
+          "logging.format",
+          "string",
+          "text",
+          "Use json when the log is collected by an aggregation system."
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Code",
+          "Meaning",
+          "What to do"
+        ],
+        [
+          "TG-101",
+          "Configuration file not found",
+          "Check the path given with the --config option."
+        ],
+        [
+          "TG-204",
+          "Certificate and key do not match",
+          "Regenerate the key pair or correct the file paths."
+        ],
+        [
+          "TG-310",
+          "Upstream unreachable",
+          "Verify the address and the firewall rules between the gateway and the service."
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "A user account with sudo rights on the target server"
+    },
+    {
+      "level": 0,
+      "text": "Outbound HTTPS access to the download server, or the archive copied by hand"
+    },
+    {
+      "level": 0,
+      "text": "A TLS certificate and private key for the public host name"
+    },
+    {
+      "level": 0,
+      "text": "Create a dedicated system user and group for the service."
+    },
+    {
+      "level": 0,
+      "text": "Download the release archive and verify its checksum."
+    },
+    {
+      "level": 1,
+      "text": "The checksum file is published next to each archive."
+    },
+    {
+      "level": 1,
+      "text": "Stop if the verification reports a mismatch."
+    },
+    {
+      "level": 0,
+      "text": "Unpack the archive under /opt and create a version-independent link."
+    },
+    {
+      "level": 0,
+      "text": "Copy the example configuration file and adapt it as described in section 4."
+    }
+  ],
+  "furniture": [
+    "Tessellate Gateway 3.4",
+    "Installation Guide · Linux",
+    "Document TG-IG-0304 · Revision B",
+    "Page 1",
+    "Page 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "sudo groupadd --system tessellate\nsudo useradd --system --gid tessellate --home-dir /var/lib/tessellate tessellate\ncurl -fsSLO https://dl.tessellate.example/gw/3.4.2/tgw-3.4.2-linux-amd64.tar.gz\nsha256sum -c tgw-3.4.2.sha256\nsudo tar -xzf tgw-3.4.2-linux-amd64.tar.gz -C /opt\nsudo ln -s /opt/tgw-3.4.2 /opt/tessellate",
+    "# /etc/tessellate/gateway.yaml\nserver:\n  listen: 0.0.0.0:8443\n  workers: 4\n  tls:\n    certificate: /etc/tessellate/tls/gateway.crt\n    private_key: /etc/tessellate/tls/gateway.key\nupstreams:\n  - name: billing\n    url: http://10.20.0.15:9000\n    timeout_ms: 2500\n  - name: inventory\n    url: http://10.20.0.22:9100\n    timeout_ms: 4000\nlogging:\n  level: info\n  format: json",
+    "[Unit]\nDescription=Tessellate Gateway\nAfter=network-online.target\n\n[Service]\nUser=tessellate\nExecStart=/opt/tessellate/bin/tgw --config /etc/tessellate/gateway.yaml\nRestart=on-failure\nLimitNOFILE=65536\n\n[Install]\nWantedBy=multi-user.target"
+  ],
+  "notes": "Fictional product. Running header in two margin boxes (left product, right 'Installation Guide · Linux') and footer in two margin boxes (left document number, right 'Page n'). The grey line under the title is a subtitle, not a heading. Three code blocks are printed in Consolas: a shell session, a YAML configuration and a systemd unit file containing blank lines (kept as empty lines in code). The numbered installation steps are CSS-numbered with a nested square-bullet list under step 2. In the parameter table the Key column is set in Consolas and long descriptions wrap onto two lines (joined with one space). The 'Note:' callout is a boxed paragraph; its first sentence ('Note: Do not run the gateway as the root user.') starts with a bold label."
+}

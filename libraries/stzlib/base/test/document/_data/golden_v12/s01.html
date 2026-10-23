@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>INVOICE</title>
+<style>
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+table { border-collapse: collapse; }
+
+@page { size: A4; margin: 1.6cm 1.8cm 1.6cm 1.8cm; }
+body { font-family: Calibri, sans-serif; font-size: 10.5pt; color: #1d2a33; }
+.top { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #0f6e6e; padding-bottom: 10px; }
+.lh .org { font-size: 17pt; font-weight: bold; color: #0f6e6e; }
+.lh div { line-height: 1.35; }
+.lh .small { font-size: 9pt; color: #4b5a63; }
+h1.inv { font-size: 26pt; letter-spacing: 0.35em; color: #0f6e6e; margin: 0 0 6px 0; text-align: right; font-weight: normal; }
+table.meta td { padding: 2px 6px; font-size: 10pt; }
+table.meta td:first-child { color: #4b5a63; text-align: right; }
+table.meta td:last-child { font-weight: bold; }
+.boxes { display: flex; gap: 18px; margin: 12px 0 10px 0; }
+.box { flex: 1; border: 1px solid #b9cfcf; border-radius: 4px; padding: 8px 12px; background: #f3f8f8; }
+.box .lbl { font-size: 8.5pt; color: #0f6e6e; font-weight: bold; letter-spacing: 0.08em; margin-bottom: 4px; }
+.box div { line-height: 1.35; }
+table.items { width: 100%; margin-top: 4px; }
+table.items th { background: #0f6e6e; color: #fff; font-weight: bold; text-align: left; padding: 5px 6px; font-size: 9.5pt; }
+table.items td { padding: 3px 6px; border-bottom: 1px solid #d5e2e2; vertical-align: top; }
+table.items td.n, table.items th.n { text-align: right; }
+table.items .sub { font-size: 8.5pt; color: #5d6b73; }
+table.items tr.tot td { border-bottom: none; padding: 3px 6px; }
+table.items tr.grand td { font-weight: bold; font-size: 11.5pt; border-top: 2px solid #0f6e6e; border-bottom: none; }
+h2 { font-size: 12pt; color: #0f6e6e; margin: 10px 0 3px 0; }
+p { margin: 0 0 6px 0; line-height: 1.4; }
+table.bank td { padding: 2px 10px 2px 0; }
+table.bank td:first-child { color: #4b5a63; }
+.foot { margin-top: 12px; border-top: 1px solid #b9cfcf; padding-top: 6px; font-size: 8.5pt; color: #5d6b73; text-align: center; }
+</style>
+</head>
+<body>
+<div class="top"><div class="lh"><div class="org" data-f="1">Harbourline Office Supplies Ltd</div><div class="small" data-f="1">Unit 7, Kestrel Trading Estate, Portsmouth PO3 5LZ</div><div class="small" data-f="1">Tel. 023 9200 4471 · accounts@harbourline-supplies.example</div></div><div><h1 class="inv">INVOICE</h1><table class="meta"><tbody><tr><td>Invoice number</td><td>INV-2026-04817</td></tr><tr><td>Invoice date</td><td>14 October 2026</td></tr><tr><td>Due date</td><td>13 November 2026</td></tr><tr><td>Customer PO</td><td>FM-PO-3391</td></tr><tr><td>Account</td><td>FEN-0042</td></tr></tbody></table></div></div><div class="boxes"><div class="box"><div class="lbl">BILL TO</div><div>Fenwick and Marsh Architects</div><div>Attn: Finance Office</div><div>14 Quayside Walk</div><div>Bristol BS1 4QT</div></div><div class="box"><div class="lbl">SHIP TO</div><div>Fenwick and Marsh Architects</div><div>Studio 3, Ropewalk House</div><div>22 Anchor Lane</div><div>Bristol BS2 0RT</div></div></div><table class="items"><colgroup><col style="width:15%"><col style="width:47%"><col style="width:8%"><col style="width:15%"><col style="width:15%"></colgroup><thead><tr><th>Item code</th><th>Description</th><th class="n">Qty</th><th class="n">Unit price (£)</th><th class="n">Amount (£)</th></tr></thead><tbody><tr><td>PAP-A4-80</td><td>Copier paper A4 80 g/m², box of 5 reams</td><td class="n">12</td><td class="n">21.50</td><td class="n">258.00</td></tr><tr><td>TON-HP-410</td><td>Toner cartridge, black, high yield</td><td class="n">4</td><td class="n">64.90</td><td class="n">259.60</td></tr><tr><td>FIL-LAT-4D</td><td>Lateral filing cabinet, 4 drawers, grey</td><td class="n">1</td><td class="n">312.00</td><td class="n">312.00</td></tr><tr><td>PEN-GEL-BL</td><td>Gel pens, blue, pack of 12</td><td class="n">10</td><td class="n">6.75</td><td class="n">67.50</td></tr><tr><td>NTB-A5-DOT</td><td>Dotted notebooks A5, pack of 6</td><td class="n">5</td><td class="n">14.20</td><td class="n">71.00</td></tr><tr><td>CHR-ERG-02</td><td>Ergonomic task chair with lumbar support<br><span class="sub">Colour: graphite, assembled on site</span></td><td class="n">3</td><td class="n">189.00</td><td class="n">567.00</td></tr><tr><td>LBL-ADR-21</td><td>Address labels, 21 per sheet, 100 sheets</td><td class="n">6</td><td class="n">11.40</td><td class="n">68.40</td></tr><tr><td>DEL-STD</td><td>Delivery and installation, Zone 2</td><td class="n">1</td><td class="n">45.00</td><td class="n">45.00</td></tr><tr class="tot"><td></td><td></td><td></td><td class="n">Subtotal</td><td class="n">1,648.50</td></tr><tr class="tot"><td></td><td></td><td></td><td class="n">Account discount</td><td class="n">−50.00</td></tr><tr class="tot"><td></td><td></td><td></td><td class="n">VAT at 20%</td><td class="n">319.70</td></tr><tr class="grand"><td></td><td></td><td></td><td class="n">Total due</td><td class="n">1,918.20</td></tr></tbody></table><h2>Payment details</h2><p>Payment is due within 30 days of the invoice date. Please quote the invoice number INV-2026-04817 as the payment reference so that your remittance can be matched without delay. Bank transfers should be made to the account shown below; we do not accept cheques for amounts above £1,000.</p><table class="bank"><tbody><tr><td>Account name</td><td>Harbourline Office Supplies Ltd</td></tr><tr><td>Sort code</td><td>40-11-62</td></tr><tr><td>Account number</td><td>31926604</td></tr></tbody></table><h2>Notes</h2><p>Goods remain the property of Harbourline Office Supplies Ltd until payment has been received in full. Any shortage or damage must be reported within five working days of delivery. Late payments may incur interest at 4% above the statutory base rate.</p><div class="foot"><div data-f="1">Registered in England and Wales No. 08814552 · VAT Reg. GB 291 4473 06</div><div data-f="1">Thank you for your business.</div></div>
+</body>
+</html>

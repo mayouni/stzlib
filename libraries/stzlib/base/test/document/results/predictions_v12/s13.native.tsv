@@ -1,0 +1,92 @@
+page_header	0	Journal of Dryland Agronomy · Preprint
+heading	1	Biochar amendment and soil moisture retention in rain-fed sorghum plots on a sandy Sahelian soil
+paragraph	0	Amina Sow-Dicko1, Tomas Rehnberg2, Idrissa Maïga1
+paragraph	0	1 Station de recherche agronomique de Kollah-Sud 2 Department of Soil Science, Nordvik University College
+heading	2	ABSTRACT
+paragraph	0	Sandy soils of the Sahel hold little water, and rain-fed crops often suffer from dry spells within the growing season. We tested whether pyrolysed millet-stalk biochar, applied alone or with manure, increases soil water content and sorghum grain yield. Over one season, biochar at 10 t ha⁻¹ raised topsoil water content by 1.8 percentage points relative to the control, while the combination of biochar and manure gave the highest yield. The results suggest that biochar is most useful when it is combined with a nutrient source. Keywords: biochar; soil water; sorghum; Sahel; field trial
+heading	2	1. Introduction
+paragraph	0	Rain-fed cereal production in the Sahel depends on a short rainy season whose onset, duration and distribution vary strongly from one year to the next. Even in years with average rainfall, dry spells of ten days or more frequently coincide with flowering, when sorghum is most sensitive to water stress. On the sandy soils that dominate the region, the available water capacity of the root zone is often below 60 mm, so that a crop can exhaust the stored water within a week of hot weather. Biochar, the solid product of biomass pyrolysis, has a large internal surface and a high porosity. Laboratory studies have reported increases in water retention after
+heading	3	2.2 Experimental design
+paragraph	0	Five treatments were arranged in a randomised complete block design with four replicates, on plots of 6 m by 8 m. Biochar was produced from millet stalks in a simple drum kiln at about 450 °C, crushed to particles below 5 mm and incorporated to a depth of 15 cm two weeks before sowing. Table 1. Treatments and application rates.
+paragraph	0	biochar addition to coarse-textured soils, but field
+table	0	CodeTreatmentBiochar (t ha⁻¹)Manure (t ha⁻¹)T0Control00T1Low biochar50T2High biochar100T3Manure only02.5T4Low biochar + manure52.5
+heading	3	2.3 Measurements
+paragraph	0	evidence from smallholder systems remains scarce and
+paragraph	0	Volumetric water content was measured weekly with a
+paragraph	0	partly contradictory. Moreover, biochar contains few
+paragraph	0	calibrated capacitance probe at depths of 0–10 cm and
+paragraph	0	available nutrients, and on nutrient-poor soils its effect
+paragraph	0	10–30 cm in the centre of each plot. Grain was
+paragraph	0	on yield may depend on whether a nutrient source is
+paragraph	0	harvested from the four central rows of each plot, sunsupplied at the same time.
+paragraph	0	dried and weighed, and yields are reported at 12 %
+paragraph	0	The objectives of this study were to quantify the effect moisture.
+paragraph	0	of two biochar rates on volumetric soil water content during the rainy season, and to compare the grain yield of sorghum under biochar, manure and their combination.
+heading	3	2.4 Statistical analysis
+paragraph	0	Water content was analysed with a linear mixed model with treatment, depth and their interaction as fixed effects and plot nested in block as random effects. The
+heading	2	2. Materials and methods
+paragraph	0	model was fitted in R with the following code:
+heading	3	2.1 Study site
+paragraph	0	The trial was conducted at an on-station field with a sandy soil containing 91 % sand, 5 % silt and 4 % clay in the upper 30 cm. Long-term mean annual rainfall at the site is 480 mm, falling almost entirely between June and Septembera. The rainfall of the trial season is summarised in Table 3.
+code	0	library(lme4)\nlibrary(emmeans)\nm <- lmer(vwc ~ treatment * depth +\n            (1 | block/plot),\n          data = moisture)\nanova(m)\nemmeans(m, pairwise ~ treatment | depth)
+page_footer	0	1
+page_header	0	Journal of Dryland Agronomy · Preprint
+page_header	0	Sow-Dicko et al. · Biochar and soil moisture
+paragraph	0	Grain yield was analysed by one-way analysis of
+paragraph	0	porous material is mixed into a sandy matrix.
+paragraph	0	variance, and differences between treatments were
+paragraph	0	However, extra water in the topsoil did not translate
+paragraph	0	declared significant at P < 0.05.
+paragraph	0	into a proportional yield gain when no nutrients were
+heading	2	3. Results
+paragraph	0	added. On this soil, nitrogen and phosphorus availability appear to limit the crop at least as much as
+heading	3	3.1 Rainfall and soil water content
+paragraph	0	water.
+paragraph	0	Season rainfall was 415 mm, below the long-term
+paragraph	0	The combined treatment shows that the two
+paragraph	0	mean, and the crop experienced a dry spell of 14 days
+paragraph	0	amendments are complementary: manure supplies
+paragraph	0	in September during grain filling. Both biochar rates
+paragraph	0	nutrients, while biochar helps the crop to bridge short
+paragraph	0	increased water content in the topsoil compared with
+paragraph	0	dry spells. Farmers who already apply manure may
+paragraph	0	the control, and the effect persisted throughout the
+paragraph	0	therefore gain most from adding a moderate rate of
+paragraph	0	season.
+paragraph	0	biochar.
+paragraph	0	Table 3. Rainfall of the trial season by month.
+paragraph	0	A single season is not enough to assess the durability of these effects. Biochar is expected to persist in the soil for many years, and its interaction with soil organic matter may change as it ages; the trial is therefore being continued for at least three further seasons.
+heading	2	5. Conclusions
+table	0	PeriodRainfall (mm)Rain daysLongest dry spell (d)June38411July142116August171135September64614Season4153414
+paragraph	0	The increase was smaller in the 10–30 cm layer, which received no biochar, but still significant for the high rate. Manure alone had only a small effect on water content.
+paragraph	0	Biochar made from millet stalks increased soil water retention in a sandy Sahelian soil within the first season after application. Its effect on sorghum yield was large only when it was combined with manure.
+paragraph	0	Table 2. Mean seasonal water content and grain yield (mean ± standard error, n = 4).
+heading	2	Acknowledgements
+paragraph	0	Treatment
+paragraph	0	Water content (%) 0–10 cm
+paragraph	0	10–30 cm
+paragraph	0	Grain yield (kg ha⁻¹)
+paragraph	0	We thank the field technicians of the research station for their careful work during the season, and the
+paragraph	0	T0 T1 T2 T3 T4
+paragraph	0	6.1 ± 0.3 7.0 ± 0.3 7.9 ± 0.4 6.6 ± 0.2 7.8 ± 0.3
+paragraph	0	8.4 ± 0.4 9.1 ± 0.3 9.6 ± 0.4 8.8 ± 0.3 9.9 ± 0.3
+heading	3	3.2 Grain yield
+paragraph	0	742 ± 51 818 ± 47 851 ± 62 905 ± 44 1 034 ± 58 farmers' association of the neighbouring village for supplying the millet stalks.
+heading	2	References
+paragraph	0	[1] Abdou, H., Lindqvist, M. (2019). Dry spells and sorghum yield in the western Sahel. Field Crops Notes 12, 44–58. [2] Barro, F., Keller, S. (2021). Water retention of biocharamended sandy soils: a column study. Soil and Water
+paragraph	0	Grain yield ranged from 742 kg ha⁻¹ in the control to 1
+paragraph	0	Letters 7, 101–112.
+paragraph	0	034 kg ha⁻¹ in the combined treatment. Biochar alone
+paragraph	0	[3] Coulibaly, N. et al. (2022). Manure management on
+paragraph	0	increased yield by 10 to 15 %, a difference that was not
+paragraph	0	smallholder farms in dry regions. Agricultural Systems
+paragraph	0	significant, whereas the combination of biochar and
+paragraph	0	Review 31, 9–27.
+paragraph	0	manure increased yield by 39 % relative to the control.
+heading	2	4. Discussion
+paragraph	0	[4] Rehnberg, T. (2024). Pyrolysis of crop residues in low-cost kilns. Bioresource Engineering Notes 5, 66–79.
+paragraph	0	a Rainfall was recorded with a manual gauge read every morning
+paragraph	0	The higher water content under biochar is consistent
+paragraph	0	at 8 h.
+paragraph	0	with the increase in fine pore volume expected when a
+page_footer	0	2

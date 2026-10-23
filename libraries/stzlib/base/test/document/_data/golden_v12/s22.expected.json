@@ -1,0 +1,176 @@
+{
+  "id": "s22",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "CIRCULAIRE relative à la campagne de vaccination du bétail 2026-2027",
+  "headings": [
+    {
+      "level": 1,
+      "text": "CIRCULAIRE relative à la campagne de vaccination du bétail 2026-2027"
+    },
+    {
+      "level": 2,
+      "text": "Article 1 : Objet"
+    },
+    {
+      "level": 2,
+      "text": "Article 2 : Maladies concernées"
+    },
+    {
+      "level": 2,
+      "text": "Article 3 : Calendrier de la campagne"
+    },
+    {
+      "level": 2,
+      "text": "Article 4 : Organisation sur le terrain"
+    },
+    {
+      "level": 2,
+      "text": "Article 5 : Participation des éleveurs"
+    },
+    {
+      "level": 2,
+      "text": "Article 6 : Rapports"
+    },
+    {
+      "level": 2,
+      "text": "Article 7 : Dispositions finales"
+    }
+  ],
+  "key_sentences": [
+    "La présente circulaire précise les modalités d'organisation de la campagne annuelle de vaccination du bétail dans l'ensemble des départements de la région.",
+    "Les chefs de service départementaux peuvent adapter les dates de quinze jours au plus, après accord écrit de la Direction régionale.",
+    "Les éleveurs sont informés au moins une semaine à l'avance par les chefs de village, les radios communautaires et les marchés à bétail.",
+    "La vaccination contre la péripneumonie contagieuse bovine et la peste des petits ruminants est gratuite.",
+    "Le rapport final de campagne, accompagné des fiches de stock de vaccins, est attendu au plus tard le 31 mars 2027.",
+    "J'attache du prix à la stricte application de la présente circulaire, qui sera communiquée aux autorités administratives et coutumières de chaque département."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Département",
+          "Période",
+          "Espèces ciblées",
+          "Objectif (têtes)"
+        ],
+        [
+          "Kollah-Sud",
+          "1er novembre – 15 décembre 2026",
+          "Bovins petits ruminants",
+          "184 000"
+        ],
+        [
+          "Bandi-Koira",
+          "15 novembre 2026 – 15 janvier 2027",
+          "Bovins petits ruminants, camelins",
+          "226 500"
+        ],
+        [
+          "Tondi-Gorou",
+          "1er décembre 2026 – 31 janvier 2027",
+          "Bovins petits ruminants",
+          "142 300"
+        ],
+        [
+          "Fleuve-Nord",
+          "15 décembre 2026 – 28 février 2027",
+          "Bovins, camelins petits ruminants",
+          "97 200"
+        ],
+        [
+          "Total régional",
+          "Total régional",
+          "Total régional",
+          "650 000"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Vaccination",
+          "Espèce",
+          "Prix par tête (FCFA)"
+        ],
+        [
+          "Pasteurellose",
+          "Camelins",
+          "150"
+        ],
+        [
+          "Charbon symptomatique",
+          "Bovins",
+          "100"
+        ],
+        [
+          "Variole ovine",
+          "Ovins",
+          "50"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "– la péripneumonie contagieuse bovine, pour les bovins âgés de plus de six mois ;"
+    },
+    {
+      "level": 0,
+      "text": "– la peste des petits ruminants, pour les ovins et les caprins âgés de plus de trois mois ;"
+    },
+    {
+      "level": 0,
+      "text": "– la pasteurellose, pour les camelins, à titre recommandé."
+    },
+    {
+      "level": 0,
+      "text": "– au respect de la chaîne du froid, de la réception des vaccins jusqu'au parc ;"
+    },
+    {
+      "level": 0,
+      "text": "– au marquage des animaux vaccinés à l'oreille gauche ;"
+    },
+    {
+      "level": 0,
+      "text": "– à la délivrance d'un certificat de vaccination à chaque éleveur ;"
+    },
+    {
+      "level": 0,
+      "text": "– à l'élimination sécurisée des flacons et des seringues usagés."
+    },
+    {
+      "level": 0,
+      "text": "– Gouvernorat de la Région du Fleuve-Est"
+    },
+    {
+      "level": 0,
+      "text": "– Préfectures des départements (4)"
+    },
+    {
+      "level": 0,
+      "text": "– Ordre régional des vétérinaires"
+    },
+    {
+      "level": 0,
+      "text": "– Chrono / Archives"
+    }
+  ],
+  "furniture": [
+    "RÉGION DU FLEUVE-EST",
+    "Direction régionale de l'Élevage",
+    "et des Productions animales",
+    "N° 014/DREPA/FE/2026",
+    "Kollah-Sud, le 2 octobre 2026",
+    "1/2",
+    "2/2"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "Fictional region, departments and official. Administrative letterhead: the left centred block (region, service on two lines, reference number, separated by short rules) and the right block (place and date) are furniture. The addressee block ('Le Directeur régional de l'Élevage / à / Mesdames et Messieurs ...'), the 'Objet :' line, the signature block and the 'Ampliations :' label are body text, not headings or key sentences. Articles are level-2 headings (underlined). Lists use typed en-dash markers '– ' (included); the last list is the Ampliations distribution list. In the calendar table each 'Espèces ciblées' cell has two lines joined with one space; the totals row's first cell spans three columns (repeated). Page numbers 'n/N' in the bottom right margin. French punctuation spacing before ';' and ':' uses ordinary spaces."
+}

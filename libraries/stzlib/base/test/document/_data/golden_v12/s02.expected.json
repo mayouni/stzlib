@@ -1,0 +1,227 @@
+{
+  "id": "s02",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Compte rendu d'hospitalisation",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Compte rendu d'hospitalisation"
+    },
+    {
+      "level": 2,
+      "text": "Motif d'hospitalisation"
+    },
+    {
+      "level": 2,
+      "text": "Antécédents"
+    },
+    {
+      "level": 2,
+      "text": "Histoire de la maladie"
+    },
+    {
+      "level": 2,
+      "text": "Examens complémentaires"
+    },
+    {
+      "level": 3,
+      "text": "Biologie"
+    },
+    {
+      "level": 3,
+      "text": "Imagerie"
+    },
+    {
+      "level": 2,
+      "text": "Évolution"
+    },
+    {
+      "level": 2,
+      "text": "Traitement de sortie"
+    },
+    {
+      "level": 2,
+      "text": "Consignes et suivi"
+    }
+  ],
+  "key_sentences": [
+    "Le patient a été admis pour une dyspnée d'effort d'aggravation progressive, associée à des œdèmes des membres inférieurs.",
+    "L'auscultation retrouvait des crépitants aux deux bases pulmonaires.",
+    "L'électrocardiogramme montrait une fibrillation atriale à 118 battements par minute, sans trouble de la repolarisation.",
+    "La radiographie thoracique objectivait un épanchement pleural droit de faible abondance.",
+    "Le patient a bénéficié d'une séance d'éducation thérapeutique sur la surveillance du poids et la restriction sodée.",
+    "Nous restons à votre disposition pour tout renseignement complémentaire."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Patient",
+          "M. Laurent PICHON, né le 03/02/1958 (68 ans)"
+        ],
+        [
+          "Entrée",
+          "Le 06/10/2026 par les urgences"
+        ],
+        [
+          "Sortie",
+          "Le 13/10/2026 vers le domicile"
+        ],
+        [
+          "Médecin traitant",
+          "Dr Arnaud Lemoine, Brenne-sur-Loir"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Paramètre",
+          "Résultat",
+          "Unité",
+          "Valeurs de référence"
+        ],
+        [
+          "NT-proBNP",
+          "4 860",
+          "pg/mL",
+          "< 300"
+        ],
+        [
+          "Créatinine",
+          "112",
+          "µmol/L",
+          "64 – 104"
+        ],
+        [
+          "Débit de filtration glomérulaire",
+          "58",
+          "mL/min/1,73 m²",
+          "> 90"
+        ],
+        [
+          "Potassium",
+          "4,3",
+          "mmol/L",
+          "3,5 – 5,0"
+        ],
+        [
+          "Hémoglobine",
+          "13,1",
+          "g/dL",
+          "13,0 – 17,0"
+        ],
+        [
+          "Troponine T hypersensible",
+          "18",
+          "ng/L",
+          "< 14"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Médicament",
+          "Posologie",
+          "Durée"
+        ],
+        [
+          "Furosémide 40 mg comprimé sécable",
+          "1 comprimé le matin",
+          "À réévaluer à 15 jours"
+        ],
+        [
+          "Bisoprolol 2,5 mg comprimé pelliculé",
+          "1 comprimé matin et soir",
+          "Au long cours"
+        ],
+        [
+          "Apixaban 5 mg comprimé pelliculé",
+          "1 comprimé matin et soir",
+          "Au long cours"
+        ],
+        [
+          "Ramipril 2,5 mg gélule",
+          "1 gélule le soir",
+          "Au long cours"
+        ],
+        [
+          "Metformine 850 mg comprimé",
+          "1 comprimé matin et soir, au repas",
+          "Inchangé"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Hypertension artérielle traitée depuis 2011"
+    },
+    {
+      "level": 0,
+      "text": "Diabète de type 2"
+    },
+    {
+      "level": 1,
+      "text": "sous metformine depuis 2016"
+    },
+    {
+      "level": 1,
+      "text": "dernière HbA1c à 7,4 %"
+    },
+    {
+      "level": 0,
+      "text": "Tabagisme sevré en 2019, estimé à 30 paquets-années"
+    },
+    {
+      "level": 0,
+      "text": "Pas d'allergie médicamenteuse connue"
+    },
+    {
+      "level": 0,
+      "text": "Peser le patient chaque matin et consulter en cas de prise de plus de 2 kg en trois jours"
+    },
+    {
+      "level": 0,
+      "text": "Rendez-vous programmés"
+    },
+    {
+      "level": 1,
+      "text": "consultation de cardiologie le 10/11/2026 à 9 h 30"
+    },
+    {
+      "level": 1,
+      "text": "bilan sanguin avec ionogramme et créatinine sous huit jours"
+    },
+    {
+      "level": 0,
+      "text": "Régime pauvre en sel, limité à 6 g par jour"
+    },
+    {
+      "level": 0,
+      "text": "Reprise progressive de la marche, sans effort violent pendant un mois"
+    }
+  ],
+  "furniture": [
+    "Centre hospitalier du Val-de-Brenne",
+    "Pôle cardio-vasculaire · Service de cardiologie",
+    "12 avenue des Tilleuls · 37290 Brenne-sur-Loir",
+    "Secrétariat : 02 47 91 30 40",
+    "Chef de service : Dr Hélène Marchais",
+    "CH du Val-de-Brenne · Service de cardiologie",
+    "Patient : PICHON Laurent · IPP 2026-118342",
+    "Page 1/2",
+    "Page 2/2"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "All persons and the hospital are fictional. Page 1 carries a letterhead (left block of three lines, right block of two lines); from page 2 a running header in two margin boxes (left: hospital, right: patient) appears; every page has a centred footer 'Page n/N'. The patient key/value table at the top has no header row. The biology table shows abnormal values in bold red. In the prescription table each Médicament cell has two lines (name, then pharmaceutical form in italics), joined with one space. Bulleted lists are CSS-drawn (disc, nested circle). The closing place/date and signature line sit side by side and are body text, not sentences."
+}

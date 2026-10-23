@@ -1,0 +1,172 @@
+{
+  "id": "s12",
+  "difficulty": "easy",
+  "pages": 1,
+  "title": "Rezervasyon Onayı",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Rezervasyon Onayı"
+    },
+    {
+      "level": 2,
+      "text": "Misafir bilgileri"
+    },
+    {
+      "level": 2,
+      "text": "Rezervasyon bilgileri"
+    },
+    {
+      "level": 2,
+      "text": "Konaklama ücreti"
+    },
+    {
+      "level": 2,
+      "text": "Otel hizmetleri"
+    },
+    {
+      "level": 2,
+      "text": "İptal koşulları"
+    }
+  ],
+  "key_sentences": [
+    "Aşağıdaki bilgileri kontrol etmenizi ve otele girişte bu belgeyi göstermenizi rica ederiz.",
+    "Hafta sonu geceleri için sezon fiyatı uygulanmıştır.",
+    "Balon turu ve havaalanı transferi bu tutara dahil değildir.",
+    "Sorularınız için resepsiyonumuza günün her saatinde ulaşabilirsiniz."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Ad soyad",
+          "Elif Karaağaçlı"
+        ],
+        [
+          "Kişi sayısı",
+          "2 yetişkin, 1 çocuk (7 yaş)"
+        ],
+        [
+          "Uyruk",
+          "Türkiye Cumhuriyeti"
+        ],
+        [
+          "İletişim",
+          "+90 532 418 07 93"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Rezervasyon no.",
+          "LK-26-11873"
+        ],
+        [
+          "Giriş",
+          "12 Kasım 2026, 14:00’ten itibaren"
+        ],
+        [
+          "Çıkış",
+          "16 Kasım 2026, 11:00’e kadar"
+        ],
+        [
+          "Oda",
+          "Mağara süit, bahçe manzaralı"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Tarih",
+          "Oda tipi",
+          "Pansiyon",
+          "Gecelik ücret (TL)"
+        ],
+        [
+          "12 Kasım 2026",
+          "Mağara süit",
+          "Oda ve kahvaltı",
+          "6.400,00"
+        ],
+        [
+          "13 Kasım 2026",
+          "Mağara süit",
+          "Oda ve kahvaltı",
+          "7.200,00"
+        ],
+        [
+          "14 Kasım 2026",
+          "Mağara süit",
+          "Oda ve kahvaltı",
+          "7.200,00"
+        ],
+        [
+          "15 Kasım 2026",
+          "Mağara süit",
+          "Oda ve kahvaltı",
+          "6.400,00"
+        ],
+        [
+          "Toplam (KDV dahil)",
+          "",
+          "",
+          "27.200,00"
+        ],
+        [
+          "Ön ödeme (12 Ekim 2026)",
+          "",
+          "",
+          "8.160,00"
+        ],
+        [
+          "Girişte ödenecek tutar",
+          "",
+          "",
+          "19.040,00"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Kahvaltı her gün 07:30 ile 10:30 arasında teras restoranında servis edilir."
+    },
+    {
+      "level": 0,
+      "text": "Ücretsiz otopark ve kablosuz internet bulunmaktadır."
+    },
+    {
+      "level": 0,
+      "text": "Talep edilmesi hâlinde çocuk yatağı ücretsiz olarak odaya eklenir."
+    },
+    {
+      "level": 0,
+      "text": "– Girişten 7 gün öncesine kadar yapılan iptallerde ön ödeme tamamen iade edilir."
+    },
+    {
+      "level": 0,
+      "text": "– Girişe 7 günden az kala yapılan iptallerde ön ödeme iade edilmez."
+    },
+    {
+      "level": 0,
+      "text": "– Konaklama süresinin kısaltılması hâlinde ilk gecenin ücreti tahsil edilir."
+    }
+  ],
+  "furniture": [
+    "LALE KONAK OTEL",
+    "Kayakapı Mahallesi, Taşocak Sokak No. 12 · Ürgüp / Nevşehir",
+    "Tel. +90 384 341 22 60 · rezervasyon@lalekonak.example",
+    "Lale Konak Turizm Ltd. Şti. · Turizm İşletme Belgesi No. 50-2291"
+  ],
+  "languages": [
+    "tr"
+  ],
+  "code": [],
+  "notes": "Fictional hotel and guest. The centred letter-spaced hotel name and two address lines are letterhead furniture; the footer line is furniture. Two key/value tables (no header rows) sit side by side, each under its own level-2 heading: the left one (Misafir bilgileri) is read first, then the right one. The rate table ends with three summary rows whose middle cells are empty. Times use the typographic apostrophe U+2019 (14:00’ten). The services list is CSS-bulleted; the cancellation list uses typed en-dash markers '– ' (included)."
+}

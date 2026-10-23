@@ -1,0 +1,268 @@
+{
+  "id": "s11",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "Dienstregeling lijn 47 Lindeveld – Brakel – Oosterwold",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Dienstregeling lijn 47 Lindeveld – Brakel – Oosterwold"
+    },
+    {
+      "level": 2,
+      "text": "Verklaring van tekens"
+    },
+    {
+      "level": 2,
+      "text": "Goed om te weten"
+    }
+  ],
+  "key_sentences": [
+    "Op Koningsdag rijdt lijn 47 volgens de dienstregeling van zaterdag.",
+    "Bij evenementen in het centrum van Oosterwold kan de bus omrijden via de Esweg.",
+    "Fietsen mogen buiten de spits gratis mee, zolang er plaats is.",
+    "Actuele vertrektijden en eventuele omleidingen vindt u in de reisplanner en op de schermen bij de grotere haltes."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Halte",
+          "Maandag t/m vrijdag",
+          "Maandag t/m vrijdag",
+          "Maandag t/m vrijdag",
+          "Maandag t/m vrijdag",
+          "Maandag t/m vrijdag",
+          "Maandag t/m vrijdag",
+          "Maandag t/m vrijdag",
+          "Zaterdag",
+          "Zaterdag",
+          "Zaterdag",
+          "Zon- en feestdagen",
+          "Zon- en feestdagen"
+        ],
+        [
+          "Halte",
+          "Rit 4701",
+          "Rit 4703",
+          "Rit 4705",
+          "Rit 4707 A",
+          "Rit 4709",
+          "Rit 4711",
+          "Rit 4713",
+          "Rit 4751",
+          "Rit 4753",
+          "Rit 4755",
+          "Rit 4781 Z",
+          "Rit 4783 Z"
+        ],
+        [
+          "Lindeveld, Busstation",
+          "06:12",
+          "06:42",
+          "07:12",
+          "07:27",
+          "08:12",
+          "12:42",
+          "17:12",
+          "08:42",
+          "12:42",
+          "16:42",
+          "10:42",
+          "15:42"
+        ],
+        [
+          "Lindeveld, Markt",
+          "06:14",
+          "06:44",
+          "07:14",
+          "07:29",
+          "08:14",
+          "12:44",
+          "17:14",
+          "08:44",
+          "12:44",
+          "16:44",
+          "—",
+          "—"
+        ],
+        [
+          "Zuiderhout, Kerkstraat",
+          "06:19",
+          "06:49",
+          "07:19",
+          "07:34",
+          "08:19",
+          "12:49",
+          "17:19",
+          "08:49",
+          "12:49",
+          "16:49",
+          "10:49",
+          "15:49"
+        ],
+        [
+          "Zuiderhout, Sportpark",
+          "06:21",
+          "06:51",
+          "07:21",
+          "07:36",
+          "08:21",
+          "—",
+          "17:21",
+          "08:51",
+          "—",
+          "16:51",
+          "—",
+          "—"
+        ],
+        [
+          "Brakel, Dorpsplein",
+          "06:26",
+          "06:56",
+          "07:26",
+          "07:41",
+          "08:26",
+          "12:56",
+          "17:26",
+          "08:56",
+          "12:56",
+          "16:56",
+          "10:56",
+          "15:56"
+        ],
+        [
+          "Brakel, Ziekenhuis",
+          "06:29",
+          "06:59",
+          "07:29",
+          "07:44",
+          "08:29",
+          "—",
+          "17:29",
+          "08:59",
+          "—",
+          "16:59",
+          "—",
+          "—"
+        ],
+        [
+          "Hemmen, Molenweg",
+          "06:34",
+          "07:04",
+          "07:34",
+          "07:49",
+          "08:34",
+          "13:04",
+          "17:34",
+          "09:04",
+          "13:04",
+          "17:04",
+          "11:04",
+          "16:04"
+        ],
+        [
+          "Hemmen, Station",
+          "06:37",
+          "07:07",
+          "07:37",
+          "07:52",
+          "08:37",
+          "13:07",
+          "17:37",
+          "09:07",
+          "13:07",
+          "17:07",
+          "11:07",
+          "16:07"
+        ],
+        [
+          "Oosterwold, Esweg",
+          "06:43",
+          "07:13",
+          "07:43",
+          "07:58",
+          "08:43",
+          "13:13",
+          "17:43",
+          "09:13",
+          "13:13",
+          "17:13",
+          "11:13",
+          "16:13"
+        ],
+        [
+          "Oosterwold, Scholengemeenschap",
+          "06:46",
+          "07:16",
+          "07:46",
+          "08:01",
+          "08:46",
+          "13:16",
+          "17:46",
+          "09:16",
+          "13:16",
+          "17:16",
+          "11:16",
+          "16:16"
+        ],
+        [
+          "Oosterwold, Centrum",
+          "06:49",
+          "07:19",
+          "07:49",
+          "08:04",
+          "08:49",
+          "13:19",
+          "17:49",
+          "09:19",
+          "13:19",
+          "17:19",
+          "11:19",
+          "16:19"
+        ],
+        [
+          "Oosterwold, Station",
+          "06:52",
+          "07:22",
+          "07:52",
+          "08:07",
+          "08:52",
+          "13:22",
+          "17:52",
+          "09:22",
+          "13:22",
+          "17:22",
+          "11:22",
+          "16:22"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "A = rijdt alleen op schooldagen"
+    },
+    {
+      "level": 0,
+      "text": "Z = rijdt niet op 25 en 26 december en niet op 1 januari"
+    },
+    {
+      "level": 0,
+      "text": "— = deze rit stopt niet bij deze halte"
+    }
+  ],
+  "furniture": [
+    "47 Streekbus Rivierenland",
+    "Reisinformatie: 0900 474 7474 · streekbus-rivierenland.example",
+    "Wijzigingen voorbehouden.",
+    "Uitgave december 2026 · L47-2027-01"
+  ],
+  "languages": [
+    "nl"
+  ],
+  "code": [],
+  "notes": "Fictional operator and places. Landscape A4. The red band carries the line badge '47' followed by the operator name on one line (left, one furniture entry) and the information line (right); both are furniture, as are the two footer items. The 'Geldig van ...' line under the title is a subtitle, not a heading. The timetable has two header rows: 'Halte' spans both rows; the day-type groups span 7, 3 and 2 columns (text repeated); the second header row gives trip numbers, two of which carry the footnote letter A or Z. An em dash (U+2014) marks a stop not served. Below the table, two columns sit side by side: the legend (typed markers 'A =', 'Z =', '— =' included) is read first, then 'Goed om te weten'."
+}

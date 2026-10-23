@@ -1,0 +1,181 @@
+{
+  "id": "s10",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Rahoton Rarraba Irin Shuka na Damina 2026",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Rahoton Rarraba Irin Shuka na Damina 2026"
+    },
+    {
+      "level": 2,
+      "text": "Gabatarwa"
+    },
+    {
+      "level": 2,
+      "text": "Yawan irin da aka rarraba"
+    },
+    {
+      "level": 2,
+      "text": "Matsalolin da aka fuskanta"
+    },
+    {
+      "level": 2,
+      "text": "Shawarwari"
+    }
+  ],
+  "key_sentences": [
+    "An rarraba irin shuka ga manoma ɗari biyar da arba'in a ƙauyuka uku na ƙaramar hukuma.",
+    "Kowane manomi ya karɓi iri bisa ga girman gonarsa da kuma irin amfanin gonar da yake nomawa.",
+    "Ruwan sama ya fara da wuri a bana, saboda haka an kammala rarrabawa kafin ƙarshen watan Yuni.",
+    "Wasu manoma ba su samu irin gyaɗa ba saboda ƙarancin kaya a rumbun ajiya.",
+    "Muna godiya ga shugabannin ƙauyuka da masu taimaka wa aikin gona bisa haɗin kai da suka ba mu."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Irin shuka",
+          "Nau'i",
+          "Manoma",
+          "Yawa (kg)"
+        ],
+        [
+          "Ƙauyen Tudun Wada",
+          "Ƙauyen Tudun Wada",
+          "Ƙauyen Tudun Wada",
+          "Ƙauyen Tudun Wada"
+        ],
+        [
+          "Gero",
+          "SOSAT-C88",
+          "96",
+          "960"
+        ],
+        [
+          "Dawa",
+          "CSR-01",
+          "74",
+          "592"
+        ],
+        [
+          "Wake",
+          "IT99K-573",
+          "40",
+          "200"
+        ],
+        [
+          "Jimillar Tudun Wada",
+          "",
+          "210",
+          "1 752"
+        ],
+        [
+          "Ƙauyen Gidan Bawa",
+          "Ƙauyen Gidan Bawa",
+          "Ƙauyen Gidan Bawa",
+          "Ƙauyen Gidan Bawa"
+        ],
+        [
+          "Gero",
+          "SOSAT-C88",
+          "88",
+          "880"
+        ],
+        [
+          "Gyaɗa",
+          "SAMNUT 24",
+          "52",
+          "1 040"
+        ],
+        [
+          "Riɗi",
+          "NCRIBEN-04E",
+          "30",
+          "90"
+        ],
+        [
+          "Jimillar Gidan Bawa",
+          "",
+          "170",
+          "2 010"
+        ],
+        [
+          "Ƙauyen Rafin Gora",
+          "Ƙauyen Rafin Gora",
+          "Ƙauyen Rafin Gora",
+          "Ƙauyen Rafin Gora"
+        ],
+        [
+          "Dawa",
+          "CSR-01",
+          "81",
+          "648"
+        ],
+        [
+          "Wake",
+          "IT99K-573",
+          "49",
+          "245"
+        ],
+        [
+          "Masara",
+          "SAMMAZ 52",
+          "30",
+          "450"
+        ],
+        [
+          "Jimillar Rafin Gora",
+          "",
+          "160",
+          "1 343"
+        ],
+        [
+          "Jimilla baki ɗaya",
+          "",
+          "540",
+          "5 105"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Ƙarancin irin gyaɗa a rumbun ajiya"
+    },
+    {
+      "level": 0,
+      "text": "Lalacewar hanyar zuwa Rafin Gora bayan ruwan sama na farko"
+    },
+    {
+      "level": 0,
+      "text": "Jinkirin isowar motar kaya daga cibiyar jiha"
+    },
+    {
+      "level": 0,
+      "text": "1) A ƙara yawan irin gyaɗa da kashi talatin a shekara mai zuwa."
+    },
+    {
+      "level": 0,
+      "text": "2) A fara rarrabawa a watan Mayu kafin hanyoyi su lalace."
+    },
+    {
+      "level": 0,
+      "text": "3) A horar da masu taimaka wa aikin gona kan adana iri a ƙauyuka."
+    }
+  ],
+  "furniture": [
+    "Ƙungiyar Manoma ta Gidan Kwari",
+    "Ofishin Rarraba Iri · Ƙaramar Hukumar Dan Kwari",
+    "An buga ranar 30 ga Yuli, 2026",
+    "Shafi 1 na 1"
+  ],
+  "languages": [
+    "ha"
+  ],
+  "code": [],
+  "notes": "Fictional cooperative and villages; the seed variety codes are given as printed. A brown disc logo (no text) precedes the two-line letterhead. Hausa hooked letters ɓ (U+0253), ɗ (U+0257), ƙ (U+0199) and Ƙ (U+0198) occur throughout. In the table each village row is a section row spanning all four columns (text repeated), followed by its varieties and a subtotal row whose Nau'i cell is empty; the last row is the grand total. The problems list is CSS-bulleted; the recommendations list has typed '1)' markers (included). The footer holds two items on one line (left date, right page) given as two entries."
+}

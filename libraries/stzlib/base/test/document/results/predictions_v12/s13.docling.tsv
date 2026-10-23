@@ -1,0 +1,53 @@
+page_header	0	Journal of Dryland Agronomy · Preprint
+heading	1	Biochar amendment and soil moisture retention in rain-fed sorghum plots on a sandy Sahelian soil
+paragraph	0	Amina Sow-Dicko 1 , Tomas Rehnberg 2 , Idrissa Maïga 1
+paragraph	0	1 Station de recherche agronomique de Kollah-Sud
+paragraph	0	2 Department of Soil Science, Nordvik University College
+heading	1	ABSTRACT
+paragraph	0	Sandy soils of the Sahel hold little water, and rain-fed crops often suffer from dry spells within the growing season. We tested whether pyrolysed millet-stalk biochar, applied alone or with manure, increases soil water content and sorghum grain yield. Over one season, biochar at 10 t ha⁻¹ raised topsoil water content by 1.8 percentage points relative to the control, while the combination of biochar and manure gave the highest yield. The results suggest that biochar is most useful when it is combined with a nutrient source.
+paragraph	0	Keywords: biochar; soil water; sorghum; Sahel; field trial
+heading	1	1. Introduction
+paragraph	0	Rain-fed cereal production in the Sahel depends on a short rainy season whose onset, duration and distribution vary strongly from one year to the next. Even in years with average rainfall, dry spells of ten days or more frequently coincide with flowering, when sorghum is most sensitive to water stress. On the sandy soils that dominate the region, the available water capacity of the root zone is often below 60 mm, so that a crop can exhaust the stored water within a week of hot weather.
+paragraph	0	Biochar, the solid product of biomass pyrolysis, has a large internal surface and a high porosity. Laboratory studies have reported increases in water retention after biochar addition to coarse-textured soils, but field evidence from smallholder systems remains scarce and partly contradictory. Moreover, biochar contains few available nutrients, and on nutrient-poor soils its effect on yield may depend on whether a nutrient source is supplied at the same time.
+paragraph	0	The objectives of this study were to quantify the effect of two biochar rates on volumetric soil water content during the rainy season, and to compare the grain yield of sorghum under biochar, manure and their combination.
+heading	1	2. Materials and methods
+heading	1	2.1 Study site
+paragraph	0	The trial was conducted at an on-station field with a sandy soil containing 91 % sand, 5 % silt and 4 % clay in the upper 30 cm. Long-term mean annual rainfall at the site is 480 mm, falling almost entirely between June and September a . The rainfall of the trial season is summarised in Table 3.
+heading	1	2.2 Experimental design
+paragraph	0	Five treatments were arranged in a randomised complete block design with four replicates, on plots of 6 m by 8 m. Biochar was produced from millet stalks in a simple drum kiln at about 450 °C, crushed to particles below 5 mm and incorporated to a depth of 15 cm two weeks before sowing.
+table	0	CodeTreatmentBiochar (t ha⁻¹)Manure (t ha⁻¹)T0Control00T1Low biochar50T2High biochar100T3Manure only02.5T4Low biochar + manure52.5
+caption	0	Table 1. Treatments and application rates.
+heading	1	2.3 Measurements
+paragraph	0	Volumetric water content was measured weekly with a calibrated capacitance probe at depths of 0-10 cm and 10-30 cm in the centre of each plot. Grain was harvested from the four central rows of each plot, sundried and weighed, and yields are reported at 12 % moisture.
+heading	1	2.4 Statistical analysis
+paragraph	0	Water content was analysed with a linear mixed model with treatment, depth and their interaction as fixed effects and plot nested in block as random effects. The model was fitted in R with the following code:
+code	0	library(lme4) library(emmeans) m <- lmer(vwc ~ treatment * depth + (1 | block/plot), data = moisture) anova(m) emmeans(m, pairwise ~ treatment | depth)
+page_footer	0	1
+page_header	0	Journal of Dryland Agronomy · Preprint
+page_header	0	Sow-Dicko et al. · Biochar and soil moisture
+paragraph	0	Grain yield was analysed by one-way analysis of variance, and differences between treatments were declared significant at P < 0.05.
+heading	1	3. Results
+heading	1	3.1 Rainfall and soil water content
+paragraph	0	Season rainfall was 415 mm, below the long-term mean, and the crop experienced a dry spell of 14 days in September during grain filling. Both biochar rates increased water content in the topsoil compared with the control, and the effect persisted throughout the season.
+table	0	PeriodRainfall (mm)Rain daysLongest dry spell (d)June38411July142116August171135September64614Season4153414
+caption	0	Table 3. Rainfall of the trial season by month.
+paragraph	0	The increase was smaller in the 10-30 cm layer, which received no biochar, but still significant for the high rate. Manure alone had only a small effect on water content.
+table	0	TreatmentWater content (%)Water content (%)Grain yield (kg ha⁻¹)Treatment0-10 cm10-30 cmGrain yield (kg ha⁻¹)T06.1 ± 0.38.4 ± 0.4742 ± 51T17.0 ± 0.39.1 ± 0.3818 ± 47T27.9 ± 0.49.6 ± 0.4851 ± 62T36.6 ± 0.28.8 ± 0.3905 ± 44T47.8 ± 0.39.9 ± 0.31 034 ± 58
+caption	0	Table 2. Mean seasonal water content and grain yield (mean ± standard error, n = 4).
+heading	1	3.2 Grain yield
+paragraph	0	Grain yield ranged from 742 kg ha⁻¹ in the control to 1 034 kg ha⁻¹ in the combined treatment. Biochar alone increased yield by 10 to 15 %, a difference that was not significant, whereas the combination of biochar and manure increased yield by 39 % relative to the control.
+heading	1	4. Discussion
+paragraph	0	The higher water content under biochar is consistent with the increase in fine pore volume expected when a porous material is mixed into a sandy matrix. However, extra water in the topsoil did not translate into a proportional yield gain when no nutrients were added. On this soil, nitrogen and phosphorus availability appear to limit the crop at least as much as water.
+paragraph	0	The combined treatment shows that the two amendments are complementary: manure supplies nutrients, while biochar helps the crop to bridge short dry spells. Farmers who already apply manure may therefore gain most from adding a moderate rate of biochar.
+paragraph	0	A single season is not enough to assess the durability of these effects. Biochar is expected to persist in the soil for many years, and its interaction with soil organic matter may change as it ages; the trial is therefore being continued for at least three further seasons.
+heading	1	5. Conclusions
+paragraph	0	Biochar made from millet stalks increased soil water retention in a sandy Sahelian soil within the first season after application. Its effect on sorghum yield was large only when it was combined with manure.
+heading	1	Acknowledgements
+paragraph	0	We thank the field technicians of the research station for their careful work during the season, and the farmers' association of the neighbouring village for supplying the millet stalks.
+heading	1	References
+list_item	0	Abdou, H., Lindqvist, M. (2019). Dry spells and sorghum yield in the western Sahel. Field Crops Notes 12, 44-58.
+list_item	0	Barro, F., Keller, S. (2021). Water retention of biocharamended sandy soils: a column study. Soil and Water Letters 7, 101-112.
+list_item	0	Coulibaly, N. et al. (2022). Manure management on smallholder farms in dry regions. Agricultural Systems Review 31, 9-27.
+list_item	0	Rehnberg, T. (2024). Pyrolysis of crop residues in low-cost kilns. Bioresource Engineering Notes 5, 66-79.
+paragraph	0	a Rainfall was recorded with a manual gauge read every morning at 8 h.
+page_footer	0	2

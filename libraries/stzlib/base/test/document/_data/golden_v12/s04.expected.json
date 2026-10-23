@@ -1,0 +1,263 @@
+{
+  "id": "s04",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Modul BI-412: Wasserbau II – Flussbau und Hochwasserschutz",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Modul BI-412: Wasserbau II – Flussbau und Hochwasserschutz"
+    },
+    {
+      "level": 2,
+      "text": "1 Allgemeine Angaben"
+    },
+    {
+      "level": 2,
+      "text": "2 Lernziele"
+    },
+    {
+      "level": 2,
+      "text": "3 Semesterplan"
+    },
+    {
+      "level": 2,
+      "text": "4 Prüfungsleistungen"
+    },
+    {
+      "level": 2,
+      "text": "5 Hinweise zur Lehrveranstaltung"
+    },
+    {
+      "level": 3,
+      "text": "5.1 Anwesenheit"
+    },
+    {
+      "level": 3,
+      "text": "5.2 Software"
+    },
+    {
+      "level": 2,
+      "text": "6 Literatur"
+    }
+  ],
+  "key_sentences": [
+    "Die Lehrveranstaltung verbindet die theoretischen Grundlagen mit praktischen Übungen am hydraulischen Modell im Wasserbaulabor.",
+    "Jede Übungsgruppe bearbeitet im Laufe des Semesters ein eigenes Fallbeispiel an einem Gewässer der Region.",
+    "In der Woche vom 22. Dezember bis zum 9. Januar finden keine Lehrveranstaltungen statt.",
+    "Die Teilnahme an beiden Laborpraktika ist Voraussetzung für die Zulassung zur Klausur.",
+    "Für die Laborpraktika ist aus Sicherheitsgründen eine vorherige Einweisung erforderlich, die in der ersten Semesterwoche angeboten wird."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Modulverantwortliche",
+          "Prof. Dr.-Ing. Katrin Wendeborn"
+        ],
+        [
+          "Studiengang",
+          "Bauingenieurwesen (B.Eng.), 5. Fachsemester"
+        ],
+        [
+          "Leistungspunkte",
+          "6 ECTS (Arbeitsaufwand 180 Stunden)"
+        ],
+        [
+          "Lehrform",
+          "4 SWS: 2 SWS Vorlesung, 1 SWS Übung, 1 SWS Laborpraktikum"
+        ],
+        [
+          "Voraussetzungen",
+          "Erfolgreicher Abschluss von BI-311 Hydromechanik"
+        ],
+        [
+          "Unterrichtssprache",
+          "Deutsch"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Woche",
+          "Datum",
+          "Thema",
+          "Vorbereitung"
+        ],
+        [
+          "1",
+          "13.10.",
+          "Einführung, Gewässertypen und Abflussregime",
+          "Kap. 1"
+        ],
+        [
+          "2",
+          "20.10.",
+          "Fließformeln nach Gauckler-Manning-Strickler Übung im Anschluss",
+          "Kap. 2.1–2.3"
+        ],
+        [
+          "3",
+          "27.10.",
+          "Gegliederte Querschnitte und Vorlandabfluss",
+          "Kap. 2.4"
+        ],
+        [
+          "4",
+          "03.11.",
+          "Hochwasserstatistik: Jährlichkeit und Verteilungsfunktionen Übung im Anschluss",
+          "Kap. 3"
+        ],
+        [
+          "5",
+          "10.11.",
+          "Niederschlag-Abfluss-Modelle",
+          "Kap. 4; Skript S. 41–58"
+        ],
+        [
+          "6",
+          "17.11.",
+          "Sedimenttransport und Sohlstabilität",
+          "Kap. 5"
+        ],
+        [
+          "7",
+          "24.11.",
+          "Laborpraktikum I: Wasserspiegellagen im Modellgerinne",
+          "Versuchsanleitung A"
+        ],
+        [
+          "8",
+          "01.12.",
+          "Deichbau: Aufbau, Durchsickerung und Standsicherheit Übung im Anschluss",
+          "Kap. 6"
+        ],
+        [
+          "9",
+          "08.12.",
+          "Hochwasserrückhaltebecken und Talsperren",
+          "Kap. 7"
+        ],
+        [
+          "10",
+          "15.12.",
+          "Mobile Hochwasserschutzsysteme",
+          "Fachartikel im Lernportal"
+        ],
+        [
+          "11",
+          "12.01.",
+          "Laborpraktikum II: Strömung an Brückenpfeilern",
+          "Versuchsanleitung B"
+        ],
+        [
+          "12",
+          "19.01.",
+          "Gewässerrenaturierung und Durchgängigkeit",
+          "Kap. 8"
+        ],
+        [
+          "13",
+          "26.01.",
+          "Präsentation der Fallbeispiele",
+          "–"
+        ],
+        [
+          "14",
+          "02.02.",
+          "Wiederholung und Fragestunde",
+          "Altklausuren"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Prüfungsleistung",
+          "Umfang",
+          "Gewichtung",
+          "Gewichtung",
+          "Termin"
+        ],
+        [
+          "Prüfungsleistung",
+          "Umfang",
+          "Anteil an der Modulnote",
+          "Leistungspunkte",
+          "Termin"
+        ],
+        [
+          "Schriftliche Klausur",
+          "120 Minuten",
+          "60 %",
+          "3,6",
+          "Prüfungszeitraum Februar"
+        ],
+        [
+          "Laborbericht",
+          "max. 15 Seiten",
+          "25 %",
+          "1,5",
+          "bis 16.01.2027"
+        ],
+        [
+          "Präsentation des Fallbeispiels",
+          "20 Minuten je Gruppe",
+          "15 %",
+          "0,9",
+          "26.01.2027"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Abflussvorgänge in natürlichen Gerinnen hydraulisch zu beschreiben und zu berechnen,"
+    },
+    {
+      "level": 0,
+      "text": "Bemessungshochwasser aus Pegeldaten statistisch abzuleiten,"
+    },
+    {
+      "level": 0,
+      "text": "Deiche, Hochwasserrückhaltebecken und mobile Schutzsysteme zu entwerfen,"
+    },
+    {
+      "level": 0,
+      "text": "die ökologischen Folgen flussbaulicher Eingriffe zu bewerten."
+    },
+    {
+      "level": 0,
+      "text": "[1] Hallström, B.; Ortmann, J.: Flussbau. Grundlagen und Bemessung. 4. Auflage, Rheinau 2023."
+    },
+    {
+      "level": 0,
+      "text": "[2] Wendeborn, K.: Skript Wasserbau II. Hochschule Rheinau, Fassung Oktober 2026."
+    },
+    {
+      "level": 0,
+      "text": "[3] Merkt, S.: Hochwasserschutz in der Praxis. Berlin 2021."
+    },
+    {
+      "level": 0,
+      "text": "[4] Fachverband Wasserwirtschaft: Merkblatt Deiche an Fließgewässern. Ausgabe 2019."
+    }
+  ],
+  "furniture": [
+    "Hochschule Rheinau für Technik und Wirtschaft",
+    "Fakultät Bauingenieurwesen · Institut für Wasserbau und Hydromechanik",
+    "Modulhandbuch BI-412 · Wintersemester 2026/27",
+    "Seite 1 von 2",
+    "Seite 2 von 2"
+  ],
+  "languages": [
+    "de"
+  ],
+  "code": [],
+  "notes": "The university, staff and references are fictional. The two-line letterhead (with a coloured rule at its left) is furniture; the footer has a left part (module handbook) and a right part (page n of N). Headings carry typed section numbers ('1 Allgemeine Angaben', '5.1 Anwesenheit'), kept in the heading text. The key/value table under section 1 has no header row. The learning-outcome list is CSS-numbered (markers not in list_items). The semester table is zebra-striped; three Thema cells have a second, smaller line ('Übung im Anschluss') joined with one space. The assessment table has a two-level header: 'Gewichtung' spans two columns and the other header cells span two rows; both header rows are given. The bibliography uses typed [n] markers (included)."
+}

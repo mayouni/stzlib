@@ -1,0 +1,388 @@
+{
+  "id": "s24",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "Condensed Consolidated Interim Financial Statements",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Condensed Consolidated Interim Financial Statements"
+    },
+    {
+      "level": 2,
+      "text": "Condensed consolidated statement of financial position"
+    },
+    {
+      "level": 2,
+      "text": "Condensed consolidated income statement"
+    },
+    {
+      "level": 2,
+      "text": "Notes to the condensed interim financial statements"
+    },
+    {
+      "level": 3,
+      "text": "1. Basis of preparation"
+    },
+    {
+      "level": 3,
+      "text": "2. Segment information"
+    },
+    {
+      "level": 3,
+      "text": "3. Dividends"
+    },
+    {
+      "level": 3,
+      "text": "4. Borrowings"
+    },
+    {
+      "level": 3,
+      "text": "5. Events after the reporting date"
+    }
+  ],
+  "key_sentences": [
+    "The condensed interim financial statements were approved by the Board of Directors on 9 September 2026.",
+    "All results relate to continuing operations.",
+    "Gross margin improved from 30.6% to 31.3% as ingredient costs stabilised during the second quarter.",
+    "The effective tax rate for the period was 25.0%, in line with the statutory rate.",
+    "They do not include all the information required for full annual statements.",
+    "The Board has declared an interim dividend of 3.1 pence per share, payable on 30 October 2026 to shareholders on the register on 2 October 2026."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "",
+          "Note",
+          "30 June 2026",
+          "31 December 2025"
+        ],
+        [
+          "",
+          "Note",
+          "Unaudited",
+          "Audited"
+        ],
+        [
+          "Non-current assets",
+          "Non-current assets",
+          "Non-current assets",
+          "Non-current assets"
+        ],
+        [
+          "Property, plant and equipment",
+          "",
+          "84,210",
+          "81,935"
+        ],
+        [
+          "Right-of-use assets",
+          "",
+          "6,480",
+          "6,912"
+        ],
+        [
+          "Intangible assets",
+          "",
+          "12,305",
+          "12,640"
+        ],
+        [
+          "Deferred tax assets",
+          "",
+          "1,120",
+          "1,045"
+        ],
+        [
+          "",
+          "",
+          "104,115",
+          "102,532"
+        ],
+        [
+          "Current assets",
+          "Current assets",
+          "Current assets",
+          "Current assets"
+        ],
+        [
+          "Inventories",
+          "",
+          "23,760",
+          "21,418"
+        ],
+        [
+          "Trade and other receivables",
+          "",
+          "31,942",
+          "29,307"
+        ],
+        [
+          "Cash and cash equivalents",
+          "",
+          "9,617",
+          "12,884"
+        ],
+        [
+          "",
+          "",
+          "65,319",
+          "63,609"
+        ],
+        [
+          "Total assets",
+          "",
+          "169,434",
+          "166,141"
+        ],
+        [
+          "Current liabilities",
+          "Current liabilities",
+          "Current liabilities",
+          "Current liabilities"
+        ],
+        [
+          "Trade and other payables",
+          "",
+          "(28,415)",
+          "(27,962)"
+        ],
+        [
+          "Borrowings",
+          "4",
+          "(5,000)",
+          "(5,000)"
+        ],
+        [
+          "Lease liabilities",
+          "",
+          "(1,210)",
+          "(1,185)"
+        ],
+        [
+          "Current tax liabilities",
+          "",
+          "(1,874)",
+          "(2,236)"
+        ],
+        [
+          "",
+          "",
+          "(36,499)",
+          "(36,383)"
+        ],
+        [
+          "Non-current liabilities",
+          "Non-current liabilities",
+          "Non-current liabilities",
+          "Non-current liabilities"
+        ],
+        [
+          "Borrowings",
+          "4",
+          "(22,500)",
+          "(25,000)"
+        ],
+        [
+          "Lease liabilities",
+          "",
+          "(5,630)",
+          "(6,105)"
+        ],
+        [
+          "Provisions",
+          "",
+          "(1,342)",
+          "(1,298)"
+        ],
+        [
+          "",
+          "",
+          "(29,472)",
+          "(32,403)"
+        ],
+        [
+          "Total liabilities",
+          "",
+          "(65,971)",
+          "(68,786)"
+        ],
+        [
+          "Net assets",
+          "",
+          "103,463",
+          "97,355"
+        ],
+        [
+          "Equity",
+          "Equity",
+          "Equity",
+          "Equity"
+        ],
+        [
+          "Share capital",
+          "",
+          "4,800",
+          "4,800"
+        ],
+        [
+          "Share premium",
+          "",
+          "18,250",
+          "18,250"
+        ],
+        [
+          "Retained earnings",
+          "",
+          "80,413",
+          "74,305"
+        ],
+        [
+          "Total equity",
+          "",
+          "103,463",
+          "97,355"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "",
+          "Note",
+          "Six months to 30 June 2026",
+          "Six months to 30 June 2025"
+        ],
+        [
+          "",
+          "Note",
+          "Unaudited",
+          "Unaudited"
+        ],
+        [
+          "Revenue",
+          "2",
+          "142,870",
+          "131,455"
+        ],
+        [
+          "Cost of sales",
+          "",
+          "(98,215)",
+          "(91,290)"
+        ],
+        [
+          "Gross profit",
+          "",
+          "44,655",
+          "40,165"
+        ],
+        [
+          "Distribution costs",
+          "",
+          "(14,320)",
+          "(13,410)"
+        ],
+        [
+          "Administrative expenses",
+          "",
+          "(16,980)",
+          "(15,730)"
+        ],
+        [
+          "Operating profit",
+          "2",
+          "13,355",
+          "11,025"
+        ],
+        [
+          "Finance income",
+          "",
+          "145",
+          "92"
+        ],
+        [
+          "Finance costs",
+          "",
+          "(1,260)",
+          "(1,395)"
+        ],
+        [
+          "Profit before tax",
+          "",
+          "12,240",
+          "9,722"
+        ],
+        [
+          "Income tax expense",
+          "",
+          "(3,060)",
+          "(2,430)"
+        ],
+        [
+          "Profit for the period",
+          "",
+          "9,180",
+          "7,292"
+        ],
+        [
+          "Basic earnings per share (pence)",
+          "",
+          "19.1",
+          "15.2"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Segment",
+          "Revenue",
+          "Operating profit",
+          "Margin"
+        ],
+        [
+          "Bakery",
+          "61,420",
+          "6,105",
+          "9.9%"
+        ],
+        [
+          "Chilled foods",
+          "54,310",
+          "5,020",
+          "9.2%"
+        ],
+        [
+          "Food service",
+          "27,140",
+          "2,230",
+          "8.2%"
+        ],
+        [
+          "Group",
+          "142,870",
+          "13,355",
+          "9.3%"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "Ashgrove Foods plc",
+    "Interim Report 2026",
+    "1",
+    "2",
+    "3"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Fictional company; all figures are internally consistent (the balance sheet balances, the income statement adds up). Running header: company name (left) and 'Interim Report 2026' (right); bare centred page numbers. The italic line under the title is a subtitle, the 'All amounts in £000' lines are unit captions; neither is a heading. Page 1: statement of financial position; page 2: income statement; page 3: notes (forced page breaks). The two statement tables have a two-level header: an empty corner cell and 'Note' span both header rows; the second header row gives Unaudited/Audited. Section rows (Non-current assets, Current assets, ...) span all four columns and are repeated in each; subtotal rows have an empty label cell; empty Note cells are empty strings; negatives are in brackets. Sentences carrying footnote markers 1 and 2 are excluded from key_sentences; the footnotes at the bottom of page 3 are body text. The segment table has no Note column."
+}

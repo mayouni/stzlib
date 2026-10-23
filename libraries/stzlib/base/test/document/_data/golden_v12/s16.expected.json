@@ -1,0 +1,253 @@
+{
+  "id": "s16",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Panduan Anggota Musim 2027",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Panduan Anggota Musim 2027"
+    },
+    {
+      "level": 2,
+      "text": "Tentang Klub"
+    },
+    {
+      "level": 2,
+      "text": "Kategori dan Biaya Keanggotaan"
+    },
+    {
+      "level": 3,
+      "text": "Keringanan iuran"
+    },
+    {
+      "level": 2,
+      "text": "Jadwal Pertandingan Liga Antarklub"
+    },
+    {
+      "level": 2,
+      "text": "Peraturan Latihan"
+    },
+    {
+      "level": 2,
+      "text": "Perlengkapan yang Perlu Dibawa"
+    }
+  ],
+  "key_sentences": [
+    "Persatuan Bulu Tangkis Garuda Muda didirikan pada tahun 1998 oleh sekelompok guru olahraga di Sleman.",
+    "Saat ini klub memiliki lebih dari dua ratus anggota aktif dari usia sembilan tahun hingga veteran.",
+    "Iuran bulanan dibayarkan paling lambat tanggal sepuluh setiap bulan melalui bendahara klub.",
+    "Anggota yang tidak membayar iuran selama tiga bulan berturut-turut dianggap mengundurkan diri.",
+    "Keluarga dengan lebih dari satu anak yang terdaftar mendapat potongan iuran sebesar dua puluh lima persen untuk anak kedua dan seterusnya.",
+    "Seluruh jadwal dapat berubah sesuai keputusan panitia liga."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Kategori",
+          "Usia",
+          "Pendaftaran (Rp)",
+          "Iuran bulanan (Rp)",
+          "Jadwal latihan"
+        ],
+        [
+          "Pemula anak",
+          "9–12 tahun",
+          "150.000",
+          "100.000",
+          "Selasa dan Kamis 15.30–17.30"
+        ],
+        [
+          "Remaja",
+          "13–17 tahun",
+          "200.000",
+          "150.000",
+          "Senin, Rabu, Jumat 16.00–18.30"
+        ],
+        [
+          "Dewasa",
+          "18–39 tahun",
+          "250.000",
+          "175.000",
+          "Selasa dan Kamis 19.00–21.30"
+        ],
+        [
+          "Veteran",
+          "40 tahun ke atas",
+          "200.000",
+          "125.000",
+          "Sabtu 06.30–09.00"
+        ],
+        [
+          "Atlet binaan",
+          "seleksi pelatih",
+          "0",
+          "75.000",
+          "Setiap hari kecuali Minggu sesuai program"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Tanggal",
+          "Lawan",
+          "Tempat",
+          "Nomor",
+          "Pukul"
+        ],
+        [
+          "Sabtu, 9 Januari 2027",
+          "PB Merapi Jaya",
+          "GOR Sekar Arum (kandang)",
+          "Ganda putra",
+          "09.00"
+        ],
+        [
+          "Sabtu, 16 Januari 2027",
+          "PB Kali Code",
+          "GOR Tegalrejo",
+          "Tunggal putri",
+          "13.00"
+        ],
+        [
+          "Minggu, 24 Januari 2027",
+          "PB Bintang Selatan",
+          "GOR Sekar Arum (kandang)",
+          "Beregu campuran",
+          "08.00"
+        ],
+        [
+          "Sabtu, 6 Februari 2027",
+          "PB Cendana",
+          "GOR Bantul",
+          "Ganda campuran",
+          "10.00"
+        ],
+        [
+          "Sabtu, 13 Februari 2027",
+          "PB Merapi Jaya",
+          "GOR Pakem",
+          "Ganda putra",
+          "09.00"
+        ],
+        [
+          "Minggu, 21 Februari 2027",
+          "PB Tunas Harapan",
+          "GOR Sekar Arum (kandang)",
+          "Tunggal putra",
+          "08.30"
+        ],
+        [
+          "Sabtu, 6 Maret 2027",
+          "PB Kali Code",
+          "GOR Sekar Arum (kandang)",
+          "Tunggal putri",
+          "13.00"
+        ],
+        [
+          "Sabtu, 13 Maret 2027",
+          "PB Bintang Selatan",
+          "GOR Wates",
+          "Beregu campuran",
+          "08.00"
+        ],
+        [
+          "Minggu, 21 Maret 2027",
+          "PB Cendana",
+          "GOR Sekar Arum (kandang)",
+          "Ganda campuran",
+          "10.00"
+        ],
+        [
+          "Sabtu, 3 April 2027",
+          "PB Tunas Harapan",
+          "GOR Godean",
+          "Tunggal putra",
+          "08.30"
+        ],
+        [
+          "Sabtu, 17 April 2027",
+          "PB Sinar Mataram",
+          "GOR Sekar Arum (kandang)",
+          "Ganda putri",
+          "09.00"
+        ],
+        [
+          "Minggu, 25 April 2027",
+          "PB Sinar Mataram",
+          "GOR Kota",
+          "Ganda putri",
+          "09.00"
+        ],
+        [
+          "Sabtu, 8 Mei 2027",
+          "Semifinal liga",
+          "GOR Kota",
+          "Beregu campuran",
+          "08.00"
+        ],
+        [
+          "Minggu, 16 Mei 2027",
+          "Final liga",
+          "GOR Kota",
+          "Beregu campuran",
+          "13.00"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Anggota hadir paling lambat sepuluh menit sebelum latihan dimulai."
+    },
+    {
+      "level": 0,
+      "text": "Pakaian dan sepatu:"
+    },
+    {
+      "level": 1,
+      "text": "wajib memakai sepatu khusus bulu tangkis bersol karet putih;"
+    },
+    {
+      "level": 1,
+      "text": "kaus klub dipakai pada setiap pertandingan liga."
+    },
+    {
+      "level": 0,
+      "text": "Kok latihan disediakan klub; kok pertandingan dibeli oleh pemain."
+    },
+    {
+      "level": 0,
+      "text": "Ketidakhadiran lebih dari tiga kali berturut-turut tanpa izin dilaporkan kepada orang tua atau wali."
+    },
+    {
+      "level": 0,
+      "text": "Raket dengan senar yang masih baik"
+    },
+    {
+      "level": 0,
+      "text": "Botol minum pribadi"
+    },
+    {
+      "level": 0,
+      "text": "Handuk kecil dan kaus ganti"
+    }
+  ],
+  "furniture": [
+    "Persatuan Bulu Tangkis Garuda Muda",
+    "GOR Sekar Arum, Jl. Kenanga No. 17, Sleman · sekretariat@pbgarudamuda.example",
+    "PB Garuda Muda · Panduan Anggota 2027",
+    "Halaman 1 dari 2",
+    "Halaman 2 dari 2"
+  ],
+  "languages": [
+    "id"
+  ],
+  "code": [],
+  "notes": "Fictional club and opponents. A green diamond logo (no text) precedes the two-line letterhead. Footer in two margin boxes (left handbook name, right 'Halaman n dari N'). In the fee table every Jadwal latihan cell has two lines (days, then times in smaller grey type), joined with one space. The fixture table is zebra-striped; if it breaks across the page the browser repeats its header row, and it is ONE table with the header listed once. The rules list is CSS-numbered with a nested CSS lower-alpha list under item 2 (markers not in list_items). 'Keringanan iuran' is a level-3 heading."
+}

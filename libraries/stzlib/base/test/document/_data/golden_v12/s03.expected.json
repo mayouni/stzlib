@@ -1,0 +1,231 @@
+{
+  "id": "s03",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "CONTRATO DE ARRENDAMIENTO DE VIVIENDA",
+  "headings": [
+    {
+      "level": 1,
+      "text": "CONTRATO DE ARRENDAMIENTO DE VIVIENDA"
+    },
+    {
+      "level": 2,
+      "text": "REUNIDOS"
+    },
+    {
+      "level": 2,
+      "text": "EXPONEN"
+    },
+    {
+      "level": 2,
+      "text": "CLÁUSULAS"
+    },
+    {
+      "level": 3,
+      "text": "Primera. Objeto"
+    },
+    {
+      "level": 3,
+      "text": "Segunda. Duración"
+    },
+    {
+      "level": 3,
+      "text": "Tercera. Renta y forma de pago"
+    },
+    {
+      "level": 3,
+      "text": "Cuarta. Actualización de la renta"
+    },
+    {
+      "level": 3,
+      "text": "Quinta. Obligaciones de la parte arrendataria"
+    },
+    {
+      "level": 3,
+      "text": "Sexta. Obligaciones de la parte arrendadora"
+    },
+    {
+      "level": 3,
+      "text": "Séptima. Fianza"
+    },
+    {
+      "level": 3,
+      "text": "Octava. Inventario"
+    },
+    {
+      "level": 3,
+      "text": "Novena. Resolución del contrato"
+    },
+    {
+      "level": 3,
+      "text": "Décima. Jurisdicción"
+    }
+  ],
+  "key_sentences": [
+    "En Valdemora, a 1 de septiembre de 2026.",
+    "Que la vivienda se encuentra en buen estado de conservación y es apta para el uso al que se destina.",
+    "Queda prohibido destinar la vivienda a cualquier actividad profesional, comercial o de alojamiento turístico.",
+    "El pago se realizará dentro de los siete primeros días de cada mes mediante transferencia a la cuenta bancaria que designe la parte arrendadora.",
+    "Las pequeñas reparaciones que exija el desgaste por el uso ordinario serán de cargo de la parte arrendataria.",
+    "La falta de pago de dos mensualidades de renta será causa suficiente de resolución.",
+    "Y en prueba de conformidad, ambas partes firman el presente contrato por duplicado y a un solo efecto en el lugar y la fecha indicados al principio."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Concepto",
+          "Periodicidad",
+          "Importe (€)"
+        ],
+        [
+          "Renta de la vivienda",
+          "Mensual",
+          "950,00"
+        ],
+        [
+          "Plaza de garaje y trastero",
+          "Mensual",
+          "60,00"
+        ],
+        [
+          "Gastos de comunidad",
+          "Mensual",
+          "45,00"
+        ],
+        [
+          "Fianza legal (una mensualidad)",
+          "Única, a la firma",
+          "950,00"
+        ],
+        [
+          "Garantía adicional",
+          "Única, a la firma",
+          "1.900,00"
+        ],
+        [
+          "Total a abonar a la firma",
+          "",
+          "3.905,00"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "N.º",
+          "Elemento",
+          "Estancia",
+          "Estado"
+        ],
+        [
+          "1",
+          "Sofá de tres plazas, tapizado gris",
+          "Salón",
+          "Bueno"
+        ],
+        [
+          "2",
+          "Mesa de comedor extensible con seis sillas",
+          "Salón",
+          "Bueno"
+        ],
+        [
+          "3",
+          "Mueble de televisión",
+          "Salón",
+          "Muy bueno"
+        ],
+        [
+          "4",
+          "Frigorífico combi, clase energética A",
+          "Cocina",
+          "Nuevo"
+        ],
+        [
+          "5",
+          "Lavadora de 8 kg",
+          "Cocina",
+          "Bueno"
+        ],
+        [
+          "6",
+          "Horno y placa de inducción",
+          "Cocina",
+          "Bueno"
+        ],
+        [
+          "7",
+          "Cama de matrimonio de 150 cm con colchón",
+          "Dormitorio principal",
+          "Muy bueno"
+        ],
+        [
+          "8",
+          "Armario empotrado de cuatro puertas",
+          "Dormitorio principal",
+          "Bueno"
+        ],
+        [
+          "9",
+          "Dos camas individuales de 90 cm",
+          "Dormitorio 2",
+          "Bueno"
+        ],
+        [
+          "10",
+          "Escritorio y silla de estudio",
+          "Dormitorio 3",
+          "Usado"
+        ],
+        [
+          "11",
+          "Mampara de ducha",
+          "Baño 1",
+          "Bueno"
+        ],
+        [
+          "12",
+          "Mesa y cuatro sillas de exterior",
+          "Terraza",
+          "Usado"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "a) Conservar la vivienda y sus instalaciones con la diligencia debida y comunicar sin demora cualquier avería."
+    },
+    {
+      "level": 0,
+      "text": "b) Abonar los suministros de agua, electricidad, gas y telecomunicaciones según sus contadores individuales."
+    },
+    {
+      "level": 0,
+      "text": "c) No realizar obras que modifiquen la configuración de la vivienda sin el consentimiento escrito de la parte arrendadora."
+    },
+    {
+      "level": 0,
+      "text": "d) Permitir el acceso a la vivienda para las reparaciones necesarias, previo aviso de cuarenta y ocho horas."
+    },
+    {
+      "level": 0,
+      "text": "e) No subarrendar ni ceder la vivienda, total o parcialmente, a terceras personas."
+    }
+  ],
+  "furniture": [
+    "Ref. CA-2026/0915",
+    "— 1 —",
+    "— 2 —",
+    "— 3 —"
+  ],
+  "languages": [
+    "es"
+  ],
+  "code": [],
+  "notes": "All persons and places are fictional. Running header (top right) 'Ref. CA-2026/0915' on every page; page numbers are centred between em dashes. The italic line under the title is a subtitle, not a heading. Paragraphs are justified with a first-line indent. Section titles REUNIDOS, EXPONEN, CLÁUSULAS are letter-spaced level-2 headings; clauses are level-3 headings. The a)-e) list has typed markers (included in list_items). The economic table's totals row has an empty middle cell. If the inventory table breaks across a page the browser repeats its header row; it is ONE table and the header is listed once. The two signature boxes at the end sit side by side (left then right) and are not sentences."
+}

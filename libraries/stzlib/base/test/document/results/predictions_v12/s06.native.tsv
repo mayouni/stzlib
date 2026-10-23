@@ -1,0 +1,70 @@
+page_header	0	Tessellate Gateway 3.4
+page_header	0	Installation Guide · Linux
+heading	1	Installation and Configuration Guide
+paragraph	0	Tessellate Gateway 3.4 for Linux servers · October 2026
+heading	2	1 Overview
+paragraph	0	Tessellate Gateway is a reverse proxy that routes API requests from client applications to internal services. It terminates TLS, applies rate limits per client key and writes a structured access log for every request. This guide describes a single-node installation; clustered deployments are covered in a separate document.
+heading	2	2 System requirements
+paragraph	0	Component
+paragraph	0	Minimum
+paragraph	0	Recommended
+paragraph	0	Operating system
+paragraph	0	64-bit Linux, kernel 5.4
+paragraph	0	Kernel 6.1 or later
+paragraph	0	Processor
+paragraph	0	2 cores
+paragraph	0	4 cores or more
+paragraph	0	Memory
+paragraph	0	2 GB
+paragraph	0	8 GB
+paragraph	0	Disk space
+paragraph	0	500 MB plus logs
+paragraph	0	20 GB on a separate volume
+paragraph	0	Network
+paragraph	0	One interface
+paragraph	0	Separate interfaces for clients and services
+heading	2	3 Installing on Linux
+heading	3	3.1 Prerequisites
+list_item	0	A user account with sudo rights on the target server
+list_item	0	Outbound HTTPS access to the download server, or the archive copied by hand
+list_item	0	A TLS certificate and private key for the public host name
+heading	3	3.2 Installation steps
+list_item	0	1. Create a dedicated system user and group for the service.
+list_item	0	2. Download the release archive and verify its checksum.
+list_item	1	The checksum file is published next to each archive.
+list_item	1	Stop if the verification reports a mismatch.
+list_item	0	3. Unpack the archive under /opt and create a version-independent link.
+list_item	0	4. Copy the example configuration file and adapt it as described in section 4.
+paragraph	0	The following commands perform steps 1 to 3 on a typical distribution:
+code	0	sudo groupadd --system tessellate\nsudo useradd --system --gid tessellate --home-dir /var/lib/tessellate tessellate\ncurl -fsSLO https://dl.tessellate.example/gw/3.4.2/tgw-3.4.2-linux-amd64.tar.gz\nsha256sum -c tgw-3.4.2.sha256\nsudo tar -xzf tgw-3.4.2-linux-amd64.tar.gz -C /opt\nsudo ln -s /opt/tgw-3.4.2 /opt/tessellate
+paragraph	0	Note: Do not run the gateway as the root user. The service needs no elevated privileges once the listening port is above 1024 or the capability to bind low ports has been granted.
+heading	2	4 Configuration
+paragraph	0	The gateway reads a single YAML file at start-up. Changes to the upstream list can be applied without a restart by sending the reload signal, whereas changes to the listening address always require a restart.
+page_footer	0	Document TG-IG-0304 · Revision B
+page_footer	0	Page 1
+page_header	0	Tessellate Gateway 3.4
+page_header	0	Installation Guide · Linux
+code	0	# /etc/tessellate/gateway.yaml\nserver:\n  listen: 0.0.0.0:8443\n  workers: 4\n  tls:\n    certificate: /etc/tessellate/tls/gateway.crt\n    private_key: /etc/tessellate/tls/gateway.key\nupstreams:
+list_item	0	- name: billing\n  url: http://10.20.0.15:9000\n  timeout_ms: 2500
+list_item	0	- name: inventory\n  url: http://10.20.0.22:9100\n  timeout_ms: 4000
+code	0	logging:\n  level: info\n  format: json
+heading	3	4.1 Main parameters
+table	0	KeyTypeDefaultDescriptionserver.listenaddress0.0.0.0:8443Address and port on which client connections are accepted.server.workersintegernumber of coresWorker threads handling requests; values above twice the number of cores rarely help.upstreams[].timeout_msinteger3000Time allowed for an upstream service to send the first byte of its response.logging.levelstringinfoOne of debug, info, warn or error.logging.formatstringtextUse json when the log is collected by an aggregation system.
+heading	3	4.2 Running as a service
+paragraph	0	Install the following unit file as /etc/systemd/system/tessellate.service, then enable and start the service:
+code	0	[Unit]\nDescription=Tessellate Gateway\nAfter=network-online.target\n\n[Service]\nUser=tessellate\nExecStart=/opt/tessellate/bin/tgw --config /etc/tessellate/gateway.yaml\nRestart=on-failure\nLimitNOFILE=65536\n\n[Install]\nWantedBy=multi-user.target
+heading	2	5 Troubleshooting
+paragraph	0	Code
+paragraph	0	Meaning
+paragraph	0	TG-101
+paragraph	0	Configuration file not found
+paragraph	0	TG-204
+paragraph	0	Certificate and key do not match
+paragraph	0	TG-310
+paragraph	0	Upstream unreachable
+page_footer	0	Document TG-IG-0304 · Revision B
+paragraph	0	What to do
+paragraph	0	Check the path given with the --config option.
+paragraph	0	Regenerate the key pair or correct the file paths.
+paragraph	0	Verify the address and the firewall rules between the gateway and the service.
+page_footer	0	Page 2

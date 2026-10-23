@@ -1,0 +1,206 @@
+{
+  "id": "s18",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "HÓA ĐƠN TIỀN ĐIỆN",
+  "headings": [
+    {
+      "level": 1,
+      "text": "HÓA ĐƠN TIỀN ĐIỆN"
+    },
+    {
+      "level": 2,
+      "text": "Thông tin khách hàng"
+    },
+    {
+      "level": 2,
+      "text": "Tóm tắt thanh toán"
+    },
+    {
+      "level": 2,
+      "text": "Chỉ số công tơ"
+    },
+    {
+      "level": 2,
+      "text": "Chi tiết tiền điện theo bậc thang"
+    },
+    {
+      "level": 2,
+      "text": "Lời khuyên tiết kiệm điện"
+    }
+  ],
+  "key_sentences": [
+    "Số tiền viết bằng chữ: Chín trăm mười nghìn bốn trăm sáu mươi ba đồng.",
+    "Điện năng tiêu thụ của quý khách tháng này tăng 12% so với cùng kỳ năm trước.",
+    "Quý khách vui lòng thanh toán trước ngày 29/09/2026 để tránh bị tạm ngừng cấp điện.",
+    "Quý khách có thể thanh toán tại quầy giao dịch, qua ngân hàng hoặc qua ứng dụng ví điện tử."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Tên khách hàng",
+          "Trần Thị Bích Ngọc"
+        ],
+        [
+          "Địa chỉ",
+          "Số 18, ngõ 4, đường Hoàng Diệu, phường Phú Thịnh"
+        ],
+        [
+          "Mã khách hàng",
+          "PA07260419833"
+        ],
+        [
+          "Mục đích sử dụng",
+          "Sinh hoạt"
+        ],
+        [
+          "Số công tơ",
+          "26-118734"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Điện năng tiêu thụ",
+          "343 kWh"
+        ],
+        [
+          "Tổng tiền thanh toán",
+          "910.463 đ"
+        ],
+        [
+          "Hạn thanh toán",
+          "29/09/2026"
+        ],
+        [
+          "Mã thanh toán",
+          "PA07260419833-0926"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Bộ chỉ số",
+          "Chỉ số mới",
+          "Chỉ số cũ",
+          "Hệ số nhân",
+          "Điện năng tiêu thụ (kWh)"
+        ],
+        [
+          "KT (bình thường)",
+          "12.801",
+          "12.458",
+          "1",
+          "343"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Bậc",
+          "Mức sử dụng",
+          "Đơn giá (đ/kWh)",
+          "Sản lượng (kWh)",
+          "Thành tiền (đ)"
+        ],
+        [
+          "Bậc 1",
+          "Từ 0 đến 50 kWh",
+          "1.893",
+          "50",
+          "94.650"
+        ],
+        [
+          "Bậc 2",
+          "Từ 51 đến 100 kWh",
+          "1.956",
+          "50",
+          "97.800"
+        ],
+        [
+          "Bậc 3",
+          "Từ 101 đến 200 kWh",
+          "2.271",
+          "100",
+          "227.100"
+        ],
+        [
+          "Bậc 4",
+          "Từ 201 đến 300 kWh",
+          "2.860",
+          "100",
+          "286.000"
+        ],
+        [
+          "Bậc 5",
+          "Từ 301 đến 400 kWh",
+          "3.197",
+          "43",
+          "137.471"
+        ],
+        [
+          "Bậc 6",
+          "Từ 401 kWh trở lên",
+          "3.302",
+          "0",
+          "0"
+        ],
+        [
+          "Cộng tiền điện",
+          "",
+          "",
+          "343",
+          "843.021"
+        ],
+        [
+          "Thuế GTGT 8%",
+          "",
+          "",
+          "",
+          "67.442"
+        ],
+        [
+          "Tổng cộng tiền thanh toán",
+          "",
+          "",
+          "",
+          "910.463"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Đặt nhiệt độ điều hòa từ 26 °C trở lên"
+    },
+    {
+      "level": 0,
+      "text": "Tắt các thiết bị điện khi không sử dụng, kể cả chế độ chờ"
+    },
+    {
+      "level": 0,
+      "text": "Sử dụng đèn LED thay cho bóng đèn sợi đốt"
+    }
+  ],
+  "furniture": [
+    "CÔNG TY ĐIỆN LỰC PHÚ AN",
+    "Điện lực huyện Tân Hòa · 214 đường Lê Lợi, thị trấn Tân Hòa",
+    "Tổng đài chăm sóc khách hàng: 1900 6 7788",
+    "Mẫu số 01GTKT · Ký hiệu PA/26E",
+    "Hóa đơn điện tử đã được ký số · Tra cứu tại hoadon.dienlucphuan.example"
+  ],
+  "languages": [
+    "vi"
+  ],
+  "code": [],
+  "notes": "Fictional utility and customer. Letterhead: company name and branch address (left, two lines), hotline and invoice form code (right, two lines); the footer line is furniture. The italic billing-period line under the title is a subtitle, not a heading. Two boxes sit side by side, each with a level-2 heading and a key/value table without header row: the left box (customer information) is read first, then the right box (payment summary). Numbers use a dot as thousands separator. The tariff table ends with three summary rows whose empty cells are empty strings. The amount-in-words line is a full sentence."
+}

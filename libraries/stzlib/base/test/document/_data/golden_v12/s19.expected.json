@@ -1,0 +1,169 @@
+{
+  "id": "s19",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "LISTĂ DE COLISAJ",
+  "headings": [
+    {
+      "level": 1,
+      "text": "LISTĂ DE COLISAJ"
+    },
+    {
+      "level": 2,
+      "text": "Marcaje colete"
+    },
+    {
+      "level": 2,
+      "text": "Observații"
+    }
+  ],
+  "key_sentences": [
+    "Toate coletele sunt ambalate în carton cu cinci straturi și protejate la colțuri cu profile din polistiren.",
+    "Mobilierul demontat este însoțit de instrucțiuni de montaj în limbile germană și engleză.",
+    "Paleții nu sunt returnabili.",
+    "Orice deteriorare constatată la descărcare trebuie menționată pe scrisoarea de trăsură CMR înainte de semnarea acesteia."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Nr. factură",
+          "TCM-2026-1187",
+          "Data",
+          "21.10.2026"
+        ],
+        [
+          "Comandă client",
+          "HB-26-0447",
+          "Condiții de livrare",
+          "FCA Cluj-Napoca (Incoterms 2020)"
+        ],
+        [
+          "Mijloc de transport",
+          "Camion cu prelată",
+          "Nr. înmatriculare",
+          "CJ 47 TCM / CJ 12 REM"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Nr. colete",
+          "Cod articol",
+          "Descriere",
+          "Buc.",
+          "Greutate netă totală (kg)",
+          "Greutate brută totală (kg)",
+          "Dimensiuni colet (cm)",
+          "Volum total (m³)"
+        ],
+        [
+          "1–4",
+          "MS-ST-180",
+          "Masă de stejar extensibilă 180 cm, demontată",
+          "4",
+          "168,0",
+          "190,0",
+          "190×95×14",
+          "1,011"
+        ],
+        [
+          "5–20",
+          "SC-ST-02",
+          "Scaun din stejar cu șezut tapițat",
+          "16",
+          "108,8",
+          "129,6",
+          "52×50×95",
+          "3,952"
+        ],
+        [
+          "21–22",
+          "DL-NU-3U",
+          "Dulap din nuc cu trei uși",
+          "2",
+          "176,0",
+          "194,0",
+          "200×62×30",
+          "0,744"
+        ],
+        [
+          "23–28",
+          "CO-ST-4S",
+          "Comodă din stejar cu patru sertare",
+          "6",
+          "189,0",
+          "211,2",
+          "90×48×85",
+          "2,203"
+        ],
+        [
+          "29–40",
+          "RF-FR-80",
+          "Raft din frasin 80 cm, demontat",
+          "12",
+          "112,8",
+          "127,2",
+          "84×32×12",
+          "0,387"
+        ],
+        [
+          "41–48",
+          "NT-ST-50",
+          "Noptieră din stejar cu un sertar",
+          "8",
+          "89,6",
+          "103,2",
+          "50×42×58",
+          "0,974"
+        ],
+        [
+          "49",
+          "PT-ST-160",
+          "Pat dublu din stejar 160×200 cm, demontat",
+          "1",
+          "64,0",
+          "71,5",
+          "210×170×18",
+          "0,643"
+        ],
+        [
+          "50–51",
+          "BC-NU-120",
+          "Bancă din nuc 120 cm",
+          "2",
+          "37,4",
+          "42,6",
+          "125×38×48",
+          "0,456"
+        ],
+        [
+          "Total: 51 colete",
+          "Total: 51 colete",
+          "Total: 51 colete",
+          "51",
+          "945,6",
+          "1069,3",
+          "",
+          "10,370"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "TRANSCARPATIC MOBILA S.R.L.",
+    "Str. Fabricii de Zahăr nr. 41, 400632 Cluj-Napoca, România",
+    "CUI RO 28714409 · Reg. Com. J12/3318/2011 · export@transcarpatic.example"
+  ],
+  "languages": [
+    "ro"
+  ],
+  "code": [
+    "HOLZWERK BERGEN GMBH\nAUFTRAG HB-26-0447\nLIEFERUNG LANDSBERG\nCOLET NR. 1-51 / 51\nMADE IN ROMANIA"
+  ],
+  "notes": "Fictional companies and persons. Romanian uses comma-below letters ș (U+0219) and ț (U+021B). Letterhead: company name (left) and two address/registration lines (right). The EXPEDITOR and DESTINATAR boxes sit side by side (left then right); their labels are not headings and their lines are not sentences. The shipment table is a key/value grid of four columns without header row (two label/value pairs per row). In the packing table four header cells are broken over two lines with <br> (joined with one space); the totals row's first cell spans three columns (repeated) and its Dimensiuni cell is empty. Decimals use a comma. The shipping-marks block is printed in Courier New and is given in code. The three signature boxes at the end sit side by side and are not sentences."
+}

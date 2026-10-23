@@ -1,0 +1,215 @@
+{
+  "id": "s17",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Home Insurance Policy Schedule",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Home Insurance Policy Schedule"
+    },
+    {
+      "level": 2,
+      "text": "Policy details"
+    },
+    {
+      "level": 2,
+      "text": "Your cover"
+    },
+    {
+      "level": 2,
+      "text": "Premium"
+    },
+    {
+      "level": 2,
+      "text": "Endorsements"
+    },
+    {
+      "level": 3,
+      "text": "E04 Unoccupancy"
+    },
+    {
+      "level": 3,
+      "text": "E11 Pedal cycles"
+    },
+    {
+      "level": 3,
+      "text": "E19 Home working equipment"
+    },
+    {
+      "level": 2,
+      "text": "General exclusions"
+    },
+    {
+      "level": 2,
+      "text": "Important information"
+    }
+  ],
+  "key_sentences": [
+    "This schedule forms part of your policy and must be read together with the policy wording and any endorsements shown below.",
+    "Please check that the information is correct and tell us within 14 days if anything needs to be changed.",
+    "Escape of water and subsidence claims under section A carry a standard excess of £500 instead of the amount shown.",
+    "You must turn off the water supply at the mains whenever the home is unoccupied for more than seven days between November and March.",
+    "If you do not tell us, your policy may not cover you fully and a claim could be refused."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Policyholder",
+          "Mr Daniel Okafor and Mrs Ruth Okafor"
+        ],
+        [
+          "Insured address",
+          "27 Lark Rise, Otley Bridge, West Yorkshire LS21 3PT"
+        ],
+        [
+          "Policy number",
+          "HM-7741-2290-03"
+        ],
+        [
+          "Period of insurance",
+          "1 November 2026 to 31 October 2027 (both dates inclusive)"
+        ],
+        [
+          "Property type",
+          "Detached house, brick built with a tiled roof, built in 1987"
+        ],
+        [
+          "Reason for issue",
+          "Renewal"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Section",
+          "Cover",
+          "Sum insured (£)",
+          "Excess (£)",
+          "Excess (£)"
+        ],
+        [
+          "Section",
+          "Cover",
+          "Sum insured (£)",
+          "Standard",
+          "Voluntary"
+        ],
+        [
+          "A",
+          "Buildings",
+          "385,000",
+          "250",
+          "100"
+        ],
+        [
+          "B",
+          "Contents",
+          "60,000",
+          "150",
+          "100"
+        ],
+        [
+          "C",
+          "Personal possessions away from the home",
+          "5,000",
+          "100",
+          "0"
+        ],
+        [
+          "D",
+          "Legal expenses",
+          "50,000",
+          "0",
+          "0"
+        ],
+        [
+          "E",
+          "Home emergency",
+          "Not covered",
+          "Not covered",
+          "Not covered"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Annual premium",
+          "412.50"
+        ],
+        [
+          "Insurance premium tax at 12%",
+          "49.50"
+        ],
+        [
+          "Total annual cost",
+          "462.00"
+        ],
+        [
+          "Payable by 12 monthly instalments of",
+          "38.50"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "(a) loss or damage caused by:"
+    },
+    {
+      "level": 1,
+      "text": "(i) wear and tear, rot, fungus or vermin;"
+    },
+    {
+      "level": 1,
+      "text": "(ii) the gradual deterioration of the buildings or contents;"
+    },
+    {
+      "level": 1,
+      "text": "(iii) faulty workmanship or defective design;"
+    },
+    {
+      "level": 0,
+      "text": "(b) any loss that happens before the start of the period of insurance;"
+    },
+    {
+      "level": 0,
+      "text": "(c) loss or damage arising from:"
+    },
+    {
+      "level": 1,
+      "text": "(i) war, invasion or civil unrest;"
+    },
+    {
+      "level": 1,
+      "text": "(ii) radioactive contamination;"
+    },
+    {
+      "level": 0,
+      "text": "(d) any reduction in the market value of the property after it has been repaired."
+    }
+  ],
+  "furniture": [
+    "Meridian Mutual Insurance",
+    "Home and Property Division",
+    "Policy Services, 40 Granary Wharf, Leeds LS1 4BR",
+    "Customer helpline 0113 496 0721",
+    "Claims line (24 hours) 0113 496 0999",
+    "Policy HM-7741-2290-03 · Schedule",
+    "MM-HOME-SCH v4.2",
+    "Page 1 of 2",
+    "Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Fictional insurer and policyholders; telephone numbers are in a range reserved for fiction. Letterhead: insurer name and division (left, two lines) and three contact lines (right). Running header (top right) from page 2; footer left document code, right 'Page n of N' on every page. The title is set white on a blue band. The policy details and premium tables have no header row; the premium table's 'Total annual cost' row is a totals row. The cover table has a two-level header: 'Excess (£)' spans the Standard and Voluntary columns, the other three header cells span both header rows; in row E the cell 'Not covered' spans the last three columns and is repeated in each. The exclusions list has typed markers (a)-(d) with nested typed (i)-(iii) items; markers are included in list_items."
+}

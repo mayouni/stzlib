@@ -1,0 +1,180 @@
+{
+  "id": "s01",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "INVOICE",
+  "headings": [
+    {
+      "level": 1,
+      "text": "INVOICE"
+    },
+    {
+      "level": 2,
+      "text": "Payment details"
+    },
+    {
+      "level": 2,
+      "text": "Notes"
+    }
+  ],
+  "key_sentences": [
+    "Payment is due within 30 days of the invoice date.",
+    "Please quote the invoice number INV-2026-04817 as the payment reference so that your remittance can be matched without delay.",
+    "Goods remain the property of Harbourline Office Supplies Ltd until payment has been received in full.",
+    "Any shortage or damage must be reported within five working days of delivery.",
+    "Late payments may incur interest at 4% above the statutory base rate."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Invoice number",
+          "INV-2026-04817"
+        ],
+        [
+          "Invoice date",
+          "14 October 2026"
+        ],
+        [
+          "Due date",
+          "13 November 2026"
+        ],
+        [
+          "Customer PO",
+          "FM-PO-3391"
+        ],
+        [
+          "Account",
+          "FEN-0042"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Item code",
+          "Description",
+          "Qty",
+          "Unit price (£)",
+          "Amount (£)"
+        ],
+        [
+          "PAP-A4-80",
+          "Copier paper A4 80 g/m², box of 5 reams",
+          "12",
+          "21.50",
+          "258.00"
+        ],
+        [
+          "TON-HP-410",
+          "Toner cartridge, black, high yield",
+          "4",
+          "64.90",
+          "259.60"
+        ],
+        [
+          "FIL-LAT-4D",
+          "Lateral filing cabinet, 4 drawers, grey",
+          "1",
+          "312.00",
+          "312.00"
+        ],
+        [
+          "PEN-GEL-BL",
+          "Gel pens, blue, pack of 12",
+          "10",
+          "6.75",
+          "67.50"
+        ],
+        [
+          "NTB-A5-DOT",
+          "Dotted notebooks A5, pack of 6",
+          "5",
+          "14.20",
+          "71.00"
+        ],
+        [
+          "CHR-ERG-02",
+          "Ergonomic task chair with lumbar support Colour: graphite, assembled on site",
+          "3",
+          "189.00",
+          "567.00"
+        ],
+        [
+          "LBL-ADR-21",
+          "Address labels, 21 per sheet, 100 sheets",
+          "6",
+          "11.40",
+          "68.40"
+        ],
+        [
+          "DEL-STD",
+          "Delivery and installation, Zone 2",
+          "1",
+          "45.00",
+          "45.00"
+        ],
+        [
+          "",
+          "",
+          "",
+          "Subtotal",
+          "1,648.50"
+        ],
+        [
+          "",
+          "",
+          "",
+          "Account discount",
+          "−50.00"
+        ],
+        [
+          "",
+          "",
+          "",
+          "VAT at 20%",
+          "319.70"
+        ],
+        [
+          "",
+          "",
+          "",
+          "Total due",
+          "1,918.20"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Account name",
+          "Harbourline Office Supplies Ltd"
+        ],
+        [
+          "Sort code",
+          "40-11-62"
+        ],
+        [
+          "Account number",
+          "31926604"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "Harbourline Office Supplies Ltd",
+    "Unit 7, Kestrel Trading Estate, Portsmouth PO3 5LZ",
+    "Tel. 023 9200 4471 · accounts@harbourline-supplies.example",
+    "Registered in England and Wales No. 08814552 · VAT Reg. GB 291 4473 06",
+    "Thank you for your business."
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "The company and customer are fictional. The letterhead (top left, three lines) and the two footer lines are furniture. The title INVOICE is letter-spaced. The invoice meta key/value table (no header row) sits to the right of the letterhead, under the title. The BILL TO and SHIP TO boxes sit side by side; reading order is box by box (left box, then right box); their labels are box labels, not headings, and their address lines are not sentences. In the line-item table the CHR-ERG-02 description cell has two lines, joined with one space. Totals rows have empty first three cells (given as empty strings); the discount uses the minus sign U+2212. The bank details are a second key/value table without header row."
+}

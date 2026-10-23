@@ -1,0 +1,164 @@
+{
+  "id": "s21",
+  "difficulty": "easy",
+  "pages": 1,
+  "title": "Výpis z vysvědčení",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Výpis z vysvědčení"
+    },
+    {
+      "level": 2,
+      "text": "Hodnocení v jednotlivých předmětech"
+    },
+    {
+      "level": 2,
+      "text": "Docházka"
+    },
+    {
+      "level": 2,
+      "text": "Slovní hodnocení třídní učitelky"
+    },
+    {
+      "level": 2,
+      "text": "Stupně hodnocení prospěchu"
+    }
+  ],
+  "key_sentences": [
+    "Tereza pracuje soustředěně a do vyučování se aktivně zapojuje.",
+    "Velmi dobře čte s porozuměním a její slohové práce jsou nápadité.",
+    "V angličtině by měla více procvičovat slovní zásobu, zejména psaní slov.",
+    "Ve třídním kolektivu je oblíbená a ochotně pomáhá spolužákům.",
+    "Výpis z vysvědčení se vydává místo vysvědčení za první pololetí."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Jméno a příjmení:",
+          "Tereza Kubíčková"
+        ],
+        [
+          "Datum narození:",
+          "14. května 2015"
+        ],
+        [
+          "Ročník a třída:",
+          "5. ročník, třída 5.B"
+        ],
+        [
+          "Třídní učitelka:",
+          "Mgr. Šárka Dvořáčková"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Vyučovací předmět",
+          "Známka",
+          "Slovní vyjádření"
+        ],
+        [
+          "Český jazyk a literatura",
+          "1",
+          "výborný"
+        ],
+        [
+          "Anglický jazyk",
+          "2",
+          "chvalitebný"
+        ],
+        [
+          "Matematika",
+          "1",
+          "výborný"
+        ],
+        [
+          "Přírodověda",
+          "1",
+          "výborný"
+        ],
+        [
+          "Vlastivěda",
+          "2",
+          "chvalitebný"
+        ],
+        [
+          "Hudební výchova",
+          "1",
+          "výborný"
+        ],
+        [
+          "Výtvarná výchova",
+          "1",
+          "výborný"
+        ],
+        [
+          "Tělesná výchova",
+          "1",
+          "výborný"
+        ],
+        [
+          "Pracovní činnosti",
+          "2",
+          "chvalitebný"
+        ],
+        [
+          "Chování",
+          "1",
+          "velmi dobré"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Zameškané hodiny celkem",
+          "Z toho omluvené",
+          "Z toho neomluvené"
+        ],
+        [
+          "24",
+          "24",
+          "0"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1 – výborný"
+    },
+    {
+      "level": 0,
+      "text": "2 – chvalitebný"
+    },
+    {
+      "level": 0,
+      "text": "3 – dobrý"
+    },
+    {
+      "level": 0,
+      "text": "4 – dostatečný"
+    },
+    {
+      "level": 0,
+      "text": "5 – nedostatečný"
+    }
+  ],
+  "furniture": [
+    "Základní škola Pod Lipami, Horní Rokytná",
+    "příspěvková organizace · Školní 112, 512 44 Horní Rokytná · IČO 70981245"
+  ],
+  "languages": [
+    "cs"
+  ],
+  "code": [],
+  "notes": "Fictional school and persons. The centred two-line letterhead is furniture; the italic line under the title is a subtitle, not a heading. The pupil table has no header row. The 'Celkové hodnocení:' line, the place-and-date line and the two side-by-side signature lines are body text but not key sentences. The grading legend is a typed list ('1 – výborný', with an en dash) flowed in two CSS columns: reading order is the left column (items 1-3) then the right column (items 4-5)."
+}

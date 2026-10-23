@@ -1,0 +1,146 @@
+{
+  "id": "s14",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "برنامهٔ نمایشگاه «نقش‌های کوچ»",
+  "headings": [
+    {
+      "level": 1,
+      "text": "برنامهٔ نمایشگاه «نقش‌های کوچ»"
+    },
+    {
+      "level": 2,
+      "text": "برنامهٔ هفتگی"
+    },
+    {
+      "level": 2,
+      "text": "بهای بلیت"
+    },
+    {
+      "level": 2,
+      "text": "قوانین بازدید"
+    },
+    {
+      "level": 2,
+      "text": "کارگاه‌های آموزشی"
+    }
+  ],
+  "key_sentences": [
+    "نمایشگاه «نقش‌های کوچ» مجموعه‌ای از گلیم‌ها و جاجیم‌های عشایری را از سه نسل بافنده به نمایش می‌گذارد.",
+    "بیشتر این آثار پیش از این هرگز در یک مکان کنار هم قرار نگرفته بودند.",
+    "بازدید از نمایشگاه برای دانش‌آموزان و دانشجویان با ارائهٔ کارت معتبر رایگان است.",
+    "ثبت‌نام در کارگاه‌ها از طریق باجهٔ اطلاعات موزه انجام می‌شود و ظرفیت هر کارگاه بیست نفر است.",
+    "موزه در روزهای تعطیل رسمی بسته است."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "روز",
+          "ساعت",
+          "برنامه",
+          "مکان"
+        ],
+        [
+          "شنبه",
+          "۱۰:۰۰",
+          "بازدید راهنمادار برای عموم",
+          "تالار شمارهٔ ۲"
+        ],
+        [
+          "یکشنبه",
+          "۱۶:۰۰",
+          "گفت‌وگو با بافندگان مهمان",
+          "سالن اجتماعات"
+        ],
+        [
+          "دوشنبه",
+          "۱۱:۰۰",
+          "بازدید ویژهٔ مدارس",
+          "تالار شمارهٔ ۲"
+        ],
+        [
+          "سه‌شنبه",
+          "۱۷:۰۰",
+          "نمایش فیلم مستند «راه ییلاق»",
+          "سالن اجتماعات"
+        ],
+        [
+          "چهارشنبه",
+          "۱۰:۰۰",
+          "کارگاه رنگرزی گیاهی",
+          "کارگاه حیاط"
+        ],
+        [
+          "پنج‌شنبه",
+          "۱۵:۰۰",
+          "بازدید راهنمادار به زبان انگلیسی",
+          "تالار شمارهٔ ۲"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "نوع بلیت",
+          "بها (تومان)"
+        ],
+        [
+          "بزرگسال",
+          "۱۲۰٬۰۰۰"
+        ],
+        [
+          "خانواده (تا چهار نفر)",
+          "۳۵۰٬۰۰۰"
+        ],
+        [
+          "دانش‌آموز و دانشجو",
+          "رایگان"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "عکاسی بدون فلاش در همهٔ تالارها مجاز است"
+    },
+    {
+      "level": 0,
+      "text": "لمس آثار و تکیه دادن به ویترین‌ها ممنوع است"
+    },
+    {
+      "level": 0,
+      "text": "کیف‌های بزرگ باید در امانت‌داری ورودی گذاشته شوند"
+    },
+    {
+      "level": 0,
+      "text": "خوردن و آشامیدن در تالارها مجاز نیست"
+    },
+    {
+      "level": 0,
+      "text": "آشنایی با نقش‌های گلیم و معنای آن‌ها"
+    },
+    {
+      "level": 0,
+      "text": "رنگرزی پشم با گیاهان بومی"
+    },
+    {
+      "level": 0,
+      "text": "بافت دار کوچک برای کودکان"
+    }
+  ],
+  "furniture": [
+    "موزهٔ فرش و دست‌بافته‌های نیکان",
+    "خیابان سپهر، کوچهٔ بیست‌وسوم، شهر نیکان",
+    "www.nikan-museum.example",
+    "تلفن: ۰۲۱-۵۵۴۳۲۱۰۸ · ساعات کار: شنبه تا پنج‌شنبه، ۹ تا ۱۸"
+  ],
+  "languages": [
+    "fa"
+  ],
+  "code": [],
+  "notes": "Fictional museum. Right-to-left Persian in logical order. Words contain ZERO-WIDTH NON-JOINERS (U+200C, e.g. نقش‌های), kept as in the source; Persian digits (U+06F0-U+06F9) and the Arabic thousands separator U+066C appear in tables. The title uses guillemets « ». The coloured line under the title is a subtitle, not a heading. Letterhead: museum name and address (right block) and the web address (left block). Both tables are RTL, cells listed rightmost column first; the programme table is zebra-striped. The rules list is CSS-bulleted and the workshops list CSS-numbered with Persian digits (markers not in list_items). The footer line is furniture."
+}

@@ -1,0 +1,242 @@
+{
+  "id": "s08",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Listino prezzi autunno–inverno 2026",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Listino prezzi autunno–inverno 2026"
+    },
+    {
+      "level": 2,
+      "text": "Piante da frutto"
+    },
+    {
+      "level": 2,
+      "text": "Bulbi da fiore"
+    },
+    {
+      "level": 2,
+      "text": "Terricci e concimi"
+    },
+    {
+      "level": 2,
+      "text": "Piante aromatiche"
+    },
+    {
+      "level": 2,
+      "text": "Attrezzi"
+    },
+    {
+      "level": 2,
+      "text": "Servizi"
+    }
+  ],
+  "key_sentences": [
+    "Questo listino sostituisce tutti i precedenti ed è valido fino al 31 marzo 2027.",
+    "I prezzi sono espressi in euro e comprendono l'IVA.",
+    "Le piante da frutto sono innestate su portinnesti adatti ai terreni argillosi.",
+    "Per ordini superiori a dieci sacchi la consegna a domicilio è gratuita nel raggio di 15 km.",
+    "Gli attrezzi sono garantiti due anni dal produttore."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Articolo",
+          "Formato",
+          "Prezzo €"
+        ],
+        [
+          "Melo ‘Renetta’, in vaso",
+          "Ø 24 cm",
+          "29,90"
+        ],
+        [
+          "Pero ‘Abate Fetel’",
+          "Ø 24 cm",
+          "31,50"
+        ],
+        [
+          "Albicocco ‘Pisana’",
+          "Ø 26 cm",
+          "34,00"
+        ],
+        [
+          "Fico ‘Dottato’",
+          "Ø 22 cm",
+          "26,50"
+        ],
+        [
+          "Limone ‘Lunario’",
+          "Ø 30 cm",
+          "48,00"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Articolo",
+          "Formato",
+          "Prezzo €"
+        ],
+        [
+          "Tulipani misti",
+          "conf. 20 pz",
+          "7,90"
+        ],
+        [
+          "Narcisi ‘Tête-à-Tête’",
+          "conf. 15 pz",
+          "6,50"
+        ],
+        [
+          "Giacinti profumati",
+          "conf. 6 pz",
+          "5,80"
+        ],
+        [
+          "Crochi botanici",
+          "conf. 30 pz",
+          "4,90"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Articolo",
+          "Formato",
+          "Prezzo €"
+        ],
+        [
+          "Terriccio universale",
+          "sacco 50 l",
+          "8,90"
+        ],
+        [
+          "Terriccio per agrumi",
+          "sacco 20 l",
+          "6,70"
+        ],
+        [
+          "Stallatico pellettato",
+          "sacco 25 kg",
+          "14,50"
+        ],
+        [
+          "Concime per prato autunnale",
+          "4 kg",
+          "19,90"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Articolo",
+          "Formato",
+          "Prezzo €"
+        ],
+        [
+          "Rosmarino prostrato",
+          "Ø 14 cm",
+          "3,90"
+        ],
+        [
+          "Salvia officinale",
+          "Ø 14 cm",
+          "3,90"
+        ],
+        [
+          "Lavanda angustifolia",
+          "Ø 18 cm",
+          "6,90"
+        ],
+        [
+          "Timo limoncino",
+          "Ø 12 cm",
+          "3,20"
+        ],
+        [
+          "Alloro ad alberello",
+          "Ø 30 cm",
+          "39,00"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Articolo",
+          "Formato",
+          "Prezzo €"
+        ],
+        [
+          "Forbici da potatura a doppia lama",
+          "",
+          "24,90"
+        ],
+        [
+          "Rastrello per foglie",
+          "",
+          "12,50"
+        ],
+        [
+          "Annaffiatoio in zinco",
+          "10 l",
+          "27,00"
+        ],
+        [
+          "Guanti da giardino rinforzati",
+          "taglia M o L",
+          "6,90"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Articolo",
+          "Formato",
+          "Prezzo €"
+        ],
+        [
+          "Potatura di siepi",
+          "al metro lineare",
+          "4,50"
+        ],
+        [
+          "Rinvaso di piante grandi",
+          "a pianta",
+          "12,00"
+        ],
+        [
+          "Progetto di un piccolo giardino",
+          "sopralluogo incluso",
+          "180,00"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "Vivai Colle Verde",
+    "Strada provinciale 14, km 3 · Montefiore Alto",
+    "Aperto dal lunedì al sabato, 8.30–12.30 e 14.30–19.00",
+    "Vivai Colle Verde s.n.c. · P. IVA 01938460527 · info@colleverde-vivai.example"
+  ],
+  "languages": [
+    "it"
+  ],
+  "code": [],
+  "notes": "Fictional business. The letterhead (italic name left, two lines of address and opening hours right) and the footer line are furniture. The intro paragraph spans the full width; the six sections then flow in two newspaper columns (CSS columns): reading order is the left column top to bottom, then the right column, and each section is kept whole. Each section has a level-2 heading on a green band and a small borderless price table with its own header row; three sections end with an italic note sentence. Empty Formato cells are empty strings. Cultivar names use typographic single quotes (U+2018/U+2019)."
+}

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Installation and Configuration Guide</title>
+<style>
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+table { border-collapse: collapse; }
+
+@page { size: A4; margin: 2.2cm 2cm 2cm 2cm;
+  @top-left { content: "Tessellate Gateway 3.4"; font: 8pt 'Segoe UI'; color: #5b6770; }
+  @top-right { content: "Installation Guide · Linux"; font: 8pt 'Segoe UI'; color: #5b6770; }
+  @bottom-left { content: "Document TG-IG-0304 · Revision B"; font: 7.5pt 'Segoe UI'; color: #5b6770; }
+  @bottom-right { content: "Page " counter(page); font: 7.5pt 'Segoe UI'; color: #5b6770; }
+}
+body { font-family: 'Segoe UI', sans-serif; font-size: 9.6pt; line-height: 1.5; color: #1f2933; }
+h1 { font-size: 20pt; font-weight: 600; color: #3b2f8f; margin: 0 0 4px 0; }
+.lead { font-size: 10.5pt; color: #52606d; margin-bottom: 12px; }
+h2 { font-size: 13pt; font-weight: 600; color: #3b2f8f; margin: 14px 0 4px 0; }
+h3 { font-size: 10.5pt; font-weight: 600; margin: 10px 0 3px 0; }
+p { margin: 0 0 6px 0; }
+pre.code { font-family: Consolas, 'Courier New', monospace; font-size: 8.4pt; line-height: 1.35; background: #f1f3f7; border: 1px solid #d6dbe4; border-left: 3px solid #3b2f8f; padding: 6px 8px; margin: 4px 0 8px 0; white-space: pre; }
+code { font-family: Consolas, monospace; font-size: 9pt; }
+table.req { width: 100%; font-size: 9pt; margin: 4px 0 8px 0; }
+table.req th { text-align: left; border-bottom: 2px solid #3b2f8f; padding: 3px 6px; }
+table.req td { border-bottom: 1px solid #e1e5ea; padding: 3px 6px; }
+table.par { width: 100%; font-size: 8.6pt; margin: 4px 0 8px 0; table-layout: fixed; }
+table.par th { background: #3b2f8f; color: #fff; text-align: left; padding: 3px 6px; }
+table.par td { border: 1px solid #d6dbe4; padding: 3px 6px; vertical-align: top; }
+table.par td:first-child { font-family: Consolas, monospace; }
+ol.steps { padding-left: 20px; margin: 2px 0 6px 0; }
+ol.steps li { margin-bottom: 3px; }
+ol.steps ul { list-style-type: square; padding-left: 18px; margin: 1px 0; }
+ul.pre { padding-left: 18px; margin: 2px 0 6px 0; }
+.callout { border: 1px solid #e3b341; background: #fff8e1; padding: 6px 10px; margin: 6px 0 8px 0; }
+table.err { width: 100%; font-size: 8.8pt; }
+table.err th { text-align: left; background: #eceff4; padding: 3px 6px; }
+table.err td { border-bottom: 1px solid #e1e5ea; padding: 3px 6px; vertical-align: top; }
+</style>
+</head>
+<body>
+<h1>Installation and Configuration Guide</h1><div class="lead">Tessellate Gateway 3.4 for Linux servers · October 2026</div><h2>1 Overview</h2><p>Tessellate Gateway is a reverse proxy that routes API requests from client applications to internal services. It terminates TLS, applies rate limits per client key and writes a structured access log for every request. This guide describes a single-node installation; clustered deployments are covered in a separate document.</p><h2>2 System requirements</h2><table class="req"><thead><tr><th>Component</th><th>Minimum</th><th>Recommended</th></tr></thead><tbody><tr><td>Operating system</td><td>64-bit Linux, kernel 5.4</td><td>Kernel 6.1 or later</td></tr><tr><td>Processor</td><td>2 cores</td><td>4 cores or more</td></tr><tr><td>Memory</td><td>2 GB</td><td>8 GB</td></tr><tr><td>Disk space</td><td>500 MB plus logs</td><td>20 GB on a separate volume</td></tr><tr><td>Network</td><td>One interface</td><td>Separate interfaces for clients and services</td></tr></tbody></table><h2>3 Installing on Linux</h2><h3>3.1 Prerequisites</h3><ul class="pre"><li>A user account with sudo rights on the target server</li><li>Outbound HTTPS access to the download server, or the archive copied by hand</li><li>A TLS certificate and private key for the public host name</li></ul><h3>3.2 Installation steps</h3><ol class="steps"><li>Create a dedicated system user and group for the service.</li><li>Download the release archive and verify its checksum.<ul><li>The checksum file is published next to each archive.</li><li>Stop if the verification reports a mismatch.</li></ul></li><li>Unpack the archive under /opt and create a version-independent link.</li><li>Copy the example configuration file and adapt it as described in section 4.</li></ol><p>The following commands perform steps 1 to 3 on a typical distribution:</p><pre class="code">sudo groupadd --system tessellate
+sudo useradd --system --gid tessellate --home-dir /var/lib/tessellate tessellate
+curl -fsSLO https://dl.tessellate.example/gw/3.4.2/tgw-3.4.2-linux-amd64.tar.gz
+sha256sum -c tgw-3.4.2.sha256
+sudo tar -xzf tgw-3.4.2-linux-amd64.tar.gz -C /opt
+sudo ln -s /opt/tgw-3.4.2 /opt/tessellate</pre><div class="callout"><p><b>Note:</b> Do not run the gateway as the root user. The service needs no elevated privileges once the listening port is above 1024 or the capability to bind low ports has been granted.</p></div><h2>4 Configuration</h2><p>The gateway reads a single YAML file at start-up. Changes to the upstream list can be applied without a restart by sending the reload signal, whereas changes to the listening address always require a restart.</p><pre class="code"># /etc/tessellate/gateway.yaml
+server:
+  listen: 0.0.0.0:8443
+  workers: 4
+  tls:
+    certificate: /etc/tessellate/tls/gateway.crt
+    private_key: /etc/tessellate/tls/gateway.key
+upstreams:
+  - name: billing
+    url: http://10.20.0.15:9000
+    timeout_ms: 2500
+  - name: inventory
+    url: http://10.20.0.22:9100
+    timeout_ms: 4000
+logging:
+  level: info
+  format: json</pre><h3>4.1 Main parameters</h3><table class="par"><colgroup><col style="width:27%"><col style="width:12%"><col style="width:17%"><col style="width:44%"></colgroup><thead><tr><th>Key</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody><tr><td>server.listen</td><td>address</td><td>0.0.0.0:8443</td><td>Address and port on which client connections are accepted.</td></tr><tr><td>server.workers</td><td>integer</td><td>number of cores</td><td>Worker threads handling requests; values above twice the number of cores rarely help.</td></tr><tr><td>upstreams[].timeout_ms</td><td>integer</td><td>3000</td><td>Time allowed for an upstream service to send the first byte of its response.</td></tr><tr><td>logging.level</td><td>string</td><td>info</td><td>One of debug, info, warn or error.</td></tr><tr><td>logging.format</td><td>string</td><td>text</td><td>Use json when the log is collected by an aggregation system.</td></tr></tbody></table><h3>4.2 Running as a service</h3><p>Install the following unit file as /etc/systemd/system/tessellate.service, then enable and start the service:</p><pre class="code">[Unit]
+Description=Tessellate Gateway
+After=network-online.target
+
+[Service]
+User=tessellate
+ExecStart=/opt/tessellate/bin/tgw --config /etc/tessellate/gateway.yaml
+Restart=on-failure
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target</pre><h2>5 Troubleshooting</h2><table class="err"><colgroup><col style="width:14%"><col style="width:34%"><col style="width:52%"></colgroup><thead><tr><th>Code</th><th>Meaning</th><th>What to do</th></tr></thead><tbody><tr><td>TG-101</td><td>Configuration file not found</td><td>Check the path given with the --config option.</td></tr><tr><td>TG-204</td><td>Certificate and key do not match</td><td>Regenerate the key pair or correct the file paths.</td></tr><tr><td>TG-310</td><td>Upstream unreachable</td><td>Verify the address and the firewall rules between the gateway and the service.</td></tr></tbody></table>
+</body>
+</html>

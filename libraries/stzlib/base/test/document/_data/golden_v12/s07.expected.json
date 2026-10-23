@@ -1,0 +1,542 @@
+{
+  "id": "s07",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Extrato de conta corrente",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Extrato de conta corrente"
+    },
+    {
+      "level": 2,
+      "text": "Lançamentos do período"
+    },
+    {
+      "level": 2,
+      "text": "Informações importantes"
+    }
+  ],
+  "key_sentences": [
+    "Os lançamentos com data de fim de semana ou feriado são processados no primeiro dia útil seguinte.",
+    "Confira os valores deste extrato e comunique qualquer divergência à sua agência no prazo de 30 dias.",
+    "O limite de cheque especial contratado não está incluído no saldo apresentado.",
+    "A partir de novembro, a tarifa do pacote de serviços será reajustada para R$ 34,50, conforme comunicado enviado em setembro."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Saldo anterior em 31/08/2026",
+          "3.214,57"
+        ],
+        [
+          "Total de créditos",
+          "11.780,46"
+        ],
+        [
+          "Total de débitos",
+          "8.207,35"
+        ],
+        [
+          "Saldo final em 30/09/2026",
+          "6.787,68"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Data",
+          "Histórico",
+          "Documento",
+          "Débito (R$)",
+          "Crédito (R$)",
+          "Saldo (R$)"
+        ],
+        [
+          "01/09",
+          "Saldo anterior",
+          "",
+          "",
+          "",
+          "3.214,57"
+        ],
+        [
+          "02/09",
+          "Pagamento de boleto – Condomínio Residencial Ipê",
+          "164373",
+          "480,00",
+          "",
+          "2.734,57"
+        ],
+        [
+          "01/09",
+          "Compra no débito – Posto Estrela do Sul",
+          "696864",
+          "103,89",
+          "",
+          "2.630,68"
+        ],
+        [
+          "02/09",
+          "Compra no débito – Posto Estrela do Sul",
+          "348821",
+          "177,03",
+          "",
+          "2.453,65"
+        ],
+        [
+          "03/09",
+          "Pix recebido – venda de móveis",
+          "136628",
+          "",
+          "600,54",
+          "3.054,19"
+        ],
+        [
+          "03/09",
+          "Pagamento de boleto – Condomínio Residencial Ipê",
+          "164548",
+          "480,00",
+          "",
+          "2.574,19"
+        ],
+        [
+          "03/09",
+          "Compra no débito – Supermercado Bom Preço",
+          "389236",
+          "201,06",
+          "",
+          "2.373,13"
+        ],
+        [
+          "05/09",
+          "Crédito de salário – Cooperativa Agro Vale",
+          "295963",
+          "",
+          "5.480,00",
+          "7.853,13"
+        ],
+        [
+          "04/09",
+          "Compra no débito – Posto Estrela do Sul",
+          "961602",
+          "164,76",
+          "",
+          "7.688,37"
+        ],
+        [
+          "05/09",
+          "Pagamento de conta – Energia elétrica",
+          "280136",
+          "252,69",
+          "",
+          "7.435,68"
+        ],
+        [
+          "06/09",
+          "Débito automático – Plano de internet",
+          "136831",
+          "99,90",
+          "",
+          "7.335,78"
+        ],
+        [
+          "06/09",
+          "Transferência recebida – conta poupança",
+          "610765",
+          "",
+          "678,50",
+          "8.014,28"
+        ],
+        [
+          "06/09",
+          "Pix enviado – Padaria Pão Dourado",
+          "204824",
+          "21,28",
+          "",
+          "7.993,00"
+        ],
+        [
+          "08/09",
+          "Transferência recebida – conta poupança",
+          "724722",
+          "",
+          "543,38",
+          "8.536,38"
+        ],
+        [
+          "07/09",
+          "Débito automático – Plano de internet",
+          "292906",
+          "99,90",
+          "",
+          "8.436,48"
+        ],
+        [
+          "08/09",
+          "Pagamento de conta – Energia elétrica",
+          "156851",
+          "120,56",
+          "",
+          "8.315,92"
+        ],
+        [
+          "10/09",
+          "Pix recebido – venda de móveis",
+          "368966",
+          "",
+          "578,77",
+          "8.894,69"
+        ],
+        [
+          "09/09",
+          "Compra no débito – Livraria Caminhos",
+          "754404",
+          "61,72",
+          "",
+          "8.832,97"
+        ],
+        [
+          "10/09",
+          "Pagamento de boleto – Condomínio Residencial Ipê",
+          "695237",
+          "480,00",
+          "",
+          "8.352,97"
+        ],
+        [
+          "11/09",
+          "Pagamento de boleto – Condomínio Residencial Ipê",
+          "614564",
+          "480,00",
+          "",
+          "7.872,97"
+        ],
+        [
+          "11/09",
+          "Pix recebido – Oficina Mecânica Ramos",
+          "210250",
+          "",
+          "636,65",
+          "8.509,62"
+        ],
+        [
+          "11/09",
+          "Pix enviado – Farmácia Vida Plena",
+          "488273",
+          "63,40",
+          "",
+          "8.446,22"
+        ],
+        [
+          "13/09",
+          "Pix enviado – Padaria Pão Dourado",
+          "330308",
+          "41,70",
+          "",
+          "8.404,52"
+        ],
+        [
+          "12/09",
+          "Compra no débito – Posto Estrela do Sul",
+          "981067",
+          "137,78",
+          "",
+          "8.266,74"
+        ],
+        [
+          "13/09",
+          "Pagamento de conta – Energia elétrica",
+          "574886",
+          "194,92",
+          "",
+          "8.071,82"
+        ],
+        [
+          "14/09",
+          "Compra no débito – Posto Estrela do Sul",
+          "209703",
+          "201,09",
+          "",
+          "7.870,73"
+        ],
+        [
+          "14/09",
+          "Pix recebido – venda de móveis",
+          "128751",
+          "",
+          "535,21",
+          "8.405,94"
+        ],
+        [
+          "14/09",
+          "Pagamento de conta – Energia elétrica",
+          "574988",
+          "194,53",
+          "",
+          "8.211,41"
+        ],
+        [
+          "16/09",
+          "Pagamento de conta – Energia elétrica",
+          "861205",
+          "239,38",
+          "",
+          "7.972,03"
+        ],
+        [
+          "16/09",
+          "Pix recebido – venda de móveis",
+          "529115",
+          "",
+          "412,32",
+          "8.384,35"
+        ],
+        [
+          "16/09",
+          "Compra no débito – Posto Estrela do Sul",
+          "190799",
+          "116,10",
+          "",
+          "8.268,25"
+        ],
+        [
+          "18/09",
+          "Compra no débito – Posto Estrela do Sul",
+          "255213",
+          "186,94",
+          "",
+          "8.081,31"
+        ],
+        [
+          "17/09",
+          "Pix enviado – Padaria Pão Dourado",
+          "813681",
+          "12,31",
+          "",
+          "8.069,00"
+        ],
+        [
+          "18/09",
+          "Pagamento de conta – Companhia de Água",
+          "471858",
+          "112,36",
+          "",
+          "7.956,64"
+        ],
+        [
+          "19/09",
+          "Compra no débito – Supermercado Bom Preço",
+          "356566",
+          "124,24",
+          "",
+          "7.832,40"
+        ],
+        [
+          "19/09",
+          "Pix recebido – venda de móveis",
+          "446473",
+          "",
+          "320,41",
+          "8.152,81"
+        ],
+        [
+          "19/09",
+          "Transferência recebida – conta poupança",
+          "905583",
+          "",
+          "1.001,99",
+          "9.154,80"
+        ],
+        [
+          "21/09",
+          "Pix recebido – venda de móveis",
+          "529301",
+          "",
+          "434,46",
+          "9.589,26"
+        ],
+        [
+          "20/09",
+          "Pix enviado – Farmácia Vida Plena",
+          "252902",
+          "78,09",
+          "",
+          "9.511,17"
+        ],
+        [
+          "21/09",
+          "Compra no débito – Supermercado Bom Preço",
+          "492385",
+          "184,35",
+          "",
+          "9.326,82"
+        ],
+        [
+          "22/09",
+          "Pix enviado – Padaria Pão Dourado",
+          "408358",
+          "11,56",
+          "",
+          "9.315,26"
+        ],
+        [
+          "22/09",
+          "Pagamento de boleto – Condomínio Residencial Ipê",
+          "893533",
+          "480,00",
+          "",
+          "8.835,26"
+        ],
+        [
+          "22/09",
+          "Pagamento de conta – Companhia de Água",
+          "422926",
+          "136,74",
+          "",
+          "8.698,52"
+        ],
+        [
+          "24/09",
+          "Pix enviado – Farmácia Vida Plena",
+          "776834",
+          "94,50",
+          "",
+          "8.604,02"
+        ],
+        [
+          "24/09",
+          "Pix enviado – Padaria Pão Dourado",
+          "747828",
+          "39,34",
+          "",
+          "8.564,68"
+        ],
+        [
+          "24/09",
+          "Pagamento de conta – Companhia de Água",
+          "829753",
+          "85,75",
+          "",
+          "8.478,93"
+        ],
+        [
+          "26/09",
+          "Compra no débito – Posto Estrela do Sul",
+          "505655",
+          "184,02",
+          "",
+          "8.294,91"
+        ],
+        [
+          "25/09",
+          "Pagamento de boleto – Condomínio Residencial Ipê",
+          "728284",
+          "480,00",
+          "",
+          "7.814,91"
+        ],
+        [
+          "26/09",
+          "Pagamento de conta – Energia elétrica",
+          "175784",
+          "249,64",
+          "",
+          "7.565,27"
+        ],
+        [
+          "27/09",
+          "Pagamento de conta – Companhia de Água",
+          "111277",
+          "91,35",
+          "",
+          "7.473,92"
+        ],
+        [
+          "27/09",
+          "Saque em terminal 24 horas",
+          "845643",
+          "362,23",
+          "",
+          "7.111,69"
+        ],
+        [
+          "27/09",
+          "Pagamento de conta – Energia elétrica",
+          "778897",
+          "209,82",
+          "",
+          "6.901,87"
+        ],
+        [
+          "29/09",
+          "Pix enviado – Farmácia Vida Plena",
+          "106158",
+          "69,05",
+          "",
+          "6.832,82"
+        ],
+        [
+          "28/09",
+          "Pix recebido – venda de móveis",
+          "229113",
+          "",
+          "558,23",
+          "7.391,05"
+        ],
+        [
+          "29/09",
+          "Pix enviado – Padaria Pão Dourado",
+          "131256",
+          "17,54",
+          "",
+          "7.373,51"
+        ],
+        [
+          "30/09",
+          "Compra no débito – Livraria Caminhos",
+          "758018",
+          "72,93",
+          "",
+          "7.300,58"
+        ],
+        [
+          "30/09",
+          "Pagamento de boleto – Condomínio Residencial Ipê",
+          "940108",
+          "480,00",
+          "",
+          "6.820,58"
+        ],
+        [
+          "30/09",
+          "Tarifa do pacote de serviços",
+          "",
+          "32,90",
+          "",
+          "6.787,68"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "Banco Cooperativo Serra Azul",
+    "Agência 0417 – Campo Alegre",
+    "Rua dos Expedicionários, 210 · Campo Alegre",
+    "Extrato de conta corrente · Ag. 0417 · C/C 22.871-3",
+    "Período: 01/09/2026 a 30/09/2026",
+    "SAC 0800 940 2210 · Ouvidoria 0800 940 2299",
+    "Página 1 de 2",
+    "Página 2 de 2"
+  ],
+  "languages": [
+    "pt"
+  ],
+  "code": [],
+  "notes": "Fictional bank and customer. Page 1 starts with a dark letterhead band (bank name left; branch name and address right, two lines). From page 2 a running header (left account, right period) appears; every page has a footer (left service numbers, right 'Página n de N'). The TITULAR and CONTA boxes sit side by side; reading order is box by box; their labels are not headings. The summary key/value table has no header row. The transaction table continues across the page break and the browser repeats its header row on page 2; it is ONE table with the header listed once. Debit and credit columns are empty strings where not applicable; 'Saldo anterior' row has empty Documento, Débito and Crédito cells. Amounts use the Brazilian format 1.234,56."
+}

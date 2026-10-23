@@ -290,6 +290,22 @@ Time for the 24 documents: native 0.1 s, Docling 148 s. The native reader leads 
 
 Causes read off the native output: **code in a proportional face is not code to the native reader** -- r17's four blocks were printed in Segoe UI (the only fonts the PDF embeds, though its CSS asks for a monospaced face) and the reader finds code by a monospaced font only; Docling's layout model finds three of the four by their look. An Urdu page set in a Nastaliq face loses its text for both readers (text 0.00): its letters are drawn as dotless bodies plus separate dots, and the text layer maps the bodies to dotless letters («حامع م حد» for جامع مسجد). The Persian page still loses its zero-width non-joiners. Tables: separate tables merged into one (three of 4, 4 and 7 rows come back as one of 15), one table cut in two (11 rows as 2 + 9; 16 as 3 + 4), wrong column counts (9 for 5). Round 11.
 
+**Eleventh round: heading precision; then golden_v12.** The native reader's false headings were classified over golden_v5 to v11 (1,218 heading blocks, 417 false): 106 letterhead lines, 88 table cells, the rest mostly labels and figures. Fixed, each rule measured for what it costs in true headings before it was kept:
+- a heading is never a label ending in a colon or a full stop, nor a figure with no letter (78 false, 1 true -- the run-in "Abstract." of golden_v5, whose guard assertion was changed to the measured decision); a refused run-in lead goes back into its paragraph;
+- a heading that shares its baseline with two or more other short blocks is a cell of a row, unless prose follows it (a poster's column headings): about 68 false removed, 3 true lost;
+- the micro sign beside a Greek letter is mu (a font draws both with one glyph; golden_v11 text 0.89 -> 0.91).
+
+Heading precision on the development sets, before -> after: v5 0.58 -> 0.65, v6 0.64 -> 0.75, v7 0.70 -> 0.77, v8 0.65 -> 0.73, v9 0.62 -> 0.81, v10 0.69 -> 0.73, v11 0.71 -> 0.79; heading recall moved by at most one heading per set except v7 (0.98 -> 0.96). Tables were not touched this round: two key/value boxes side by side without a title row, merged and then stacked onto the next table, need more than a rule (r09). Guard 143 assertions under Ring++.
+
+golden_v12: 24 realistic documents in 18 languages besides English, 13 of 2-3 pages, by a twelfth independent agent who saw no reader, no output and no earlier set and did not look at the rendered pages (unperceived) -- and who, from this set on, checked that every font it named was installed and embedded (the r17 lesson: its five code blocks are really monospaced); reader frozen at 3df1deb8e; both readers ran once:
+
+| golden_v12, realistic | text | order | headings | tables | lists | furniture | code | heading precision |
+|---|---|---|---|---|---|---|---|---|
+| Softanza native (Ring++) | 0.89 | **0.99** | **0.89** | 0.61 | **0.63** | **0.62** | **0.89** | **0.86** |
+| Docling 2.141 | **0.92** | **0.99** | 0.85 | **0.65** | 0.52 | 0.58 | 0.56 | 0.82 |
+
+Time for the 24 documents: native 0.1 s, Docling 188 s. **The heading-precision work carried over to unseen documents**: native 0.86 against Docling 0.82, where on golden_v9 and v10 it was 0.61-0.67 against 0.82-0.86. Docling leads on text (0.92 against 0.89) and still on tables. Causes read off the native output: an Arabic page in Sakkal Majalla loses most of its text for BOTH readers (native 0.00, Docling 0.17: «على» reads «عال», «بعد» reads «عد») -- the text layer again; a two-column scientific article is read at 0.50 by the native reader and 1.00 by Docling. golden_v12 is now a development set for round 12.
+
 **Not measured**: Granite-Docling-258M (not downloaded), the GPU, scanned golden pages with an expected text, PDFs from producers other than Chrome (both golden sets are Chrome-made and tagged; the native reader does not read the tags).
 
 ---

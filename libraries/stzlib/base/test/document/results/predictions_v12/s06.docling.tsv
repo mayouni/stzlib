@@ -1,0 +1,39 @@
+page_header	0	Tessellate Gateway 3.4
+page_header	0	Installation Guide · Linux
+heading	1	Installation and Configuration Guide
+paragraph	0	Tessellate Gateway 3.4 for Linux servers · October 2026
+heading	1	1 Overview
+paragraph	0	Tessellate Gateway is a reverse proxy that routes API requests from client applications to internal services. It terminates TLS, applies rate limits per client key and writes a structured access log for every request. This guide describes a single-node installation; clustered deployments are covered in a separate document.
+heading	1	2 System requirements
+table	0	ComponentMinimumRecommendedOperating system64-bit Linux, kernel 5.4Kernel 6.1 or laterProcessor2 cores4 cores or moreMemory2 GB8 GBDisk space500 MB plus logs20 GB on a separate volumeNetworkOne interfaceSeparate interfaces for clients and services
+heading	1	3 Installing on Linux
+heading	1	3.1 Prerequisites
+list_item	0	A user account with sudo rights on the target server
+list_item	0	Outbound HTTPS access to the download server, or the archive copied by hand
+list_item	0	A TLS certificate and private key for the public host name
+heading	1	3.2 Installation steps
+list_item	0	Create a dedicated system user and group for the service.
+list_item	0	Download the release archive and verify its checksum.
+list_item	0	The checksum file is published next to each archive.
+list_item	0	Stop if the verification reports a mismatch.
+list_item	0	Unpack the archive under /opt and create a version-independent link.
+list_item	0	Copy the example configuration file and adapt it as described in section 4.
+paragraph	0	The following commands perform steps 1 to 3 on a typical distribution:
+code	0	sudo groupadd --system tessellate sudo useradd --system --gid tessellate --home-dir /var/lib/tessellate tessellate curl -fsSLO https://dl.tessellate.example/gw/3.4.2/tgw-3.4.2-linux-amd64.tar.gz sha256sum -c tgw-3.4.2.sha256 sudo tar -xzf tgw-3.4.2-linux-amd64.tar.gz -C /opt sudo ln -s /opt/tgw-3.4.2 /opt/tessellate
+paragraph	0	Note: Do not run the gateway as the root user. The service needs no elevated privileges once the listening port is above 1024 or the capability to bind low ports has been granted.
+heading	1	4 Configuration
+paragraph	0	The gateway reads a single YAML file at start-up. Changes to the upstream list can be applied without a restart by sending the reload signal, whereas changes to the listening address always require a restart.
+page_footer	0	Document TG-IG-0304 · Revision B
+page_footer	0	Page 1
+page_header	0	Tessellate Gateway 3.4
+page_header	0	Installation Guide · Linux
+code	0	# /etc/tessellate/gateway.yaml server: listen: 0.0.0.0:8443 workers: 4 tls: certificate: /etc/tessellate/tls/gateway.crt private _ key: /etc/tessellate/tls/gateway.key upstreams: - name: billing url: http://10.20.0.15:9000 timeout _ ms: 2500 - name: inventory url: http://10.20.0.22:9100 timeout _ ms: 4000 logging: level: info format: json
+heading	1	4.1 Main parameters
+table	0	KeyTypeDefaultDescriptionserver.listenaddress0.0.0.0:8443Address and port on which client connections are accepted.server.workersintegernumber of coresWorker threads handling requests; values above twice the number of cores rarely help.upstreams[].timeout _ msinteger3000Time allowed for an upstream service to send the first byte of its response.logging.levelstringinfoOne of debug, info, warn or error.logging.formatstringtextUse json when the log is collected by an aggregation system.
+heading	1	4.2 Running as a service
+paragraph	0	Install the following unit file as /etc/systemd/system/tessellate.service, then enable and start the service:
+code	0	[Unit] Description=Tessellate Gateway After=network-online.target [Service] User=tessellate ExecStart=/opt/tessellate/bin/tgw --config /etc/tessellate/gateway.yaml Restart=on-failure LimitNOFILE=65536 [Install] WantedBy=multi-user.target
+heading	1	5 Troubleshooting
+table	0	CodeMeaningWhat to doTG-101Configuration file not foundCheck the path given with the --config option.TG-204Certificate and key do not matchRegenerate the key pair or correct the file paths.TG-310Upstream unreachableVerify the address and the firewall rules between the gateway and the service.
+page_footer	0	Document TG-IG-0304 · Revision B
+page_footer	0	Page 2

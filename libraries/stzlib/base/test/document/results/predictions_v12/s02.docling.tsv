@@ -1,0 +1,46 @@
+heading	1	Centre hospitalier du Val-de-Brenne
+paragraph	0	Pôle cardio-vasculaire · Service de cardiologie
+paragraph	0	12 avenue des Tilleuls · 37290 Brenne-sur-Loir
+paragraph	0	Secrétariat : 02 47 91 30 40
+paragraph	0	Chef de service : Dr Hélène Marchais
+heading	1	Compte rendu d'hospitalisation
+paragraph	0	Patient
+paragraph	0	Entrée
+paragraph	0	Sortie M. Laurent PICHON, né le 03/02/1958 (68 ans)
+paragraph	0	Le 06/10/2026 par les urgences
+paragraph	0	Le 13/10/2026 vers le domicile
+paragraph	0	Médecin traitant Dr Arnaud Lemoine, Brenne-sur-Loir
+heading	1	Motif d'hospitalisation
+paragraph	0	Le patient a été admis pour une dyspnée d'effort d'aggravation progressive, associée à des œdèmes des membres inférieurs. Il décrivait une prise de poids de quatre kilogrammes en dix jours.
+heading	1	Antécédents
+list_item	0	Hypertension artérielle traitée depuis 2011
+list_item	0	Diabète de type 2
+list_item	0	sous metformine depuis 2016
+list_item	0	dernière HbA1c à 7,4 %
+list_item	0	Tabagisme sevré en 2019, estimé à 30 paquets-années
+list_item	0	Pas d'allergie médicamenteuse connue
+heading	1	Histoire de la maladie
+paragraph	0	À l'arrivée, la pression artérielle était de 152/88 mmHg et la saturation en oxygène de 91 % en air ambiant. L'auscultation retrouvait des crépitants aux deux bases pulmonaires. L'électrocardiogramme montrait une fibrillation atriale à 118 battements par minute, sans trouble de la repolarisation.
+heading	1	Examens complémentaires
+heading	1	Biologie
+table	0	ParamètreRésultatUnitéValeurs de référenceNT-proBNP4 860pg/mL< 300Créatinine112µmol/L64 - 104Débit de filtration glomérulaire58mL/min/1,73 m²> 90Potassium4,3mmol/L3,5 - 5,0Hémoglobine13,1g/dL13,0 - 17,0Troponine T hypersensible18ng/L< 14
+heading	1	Imagerie
+paragraph	0	L'échocardiographie transthoracique a mis en évidence une fraction d'éjection du ventricule gauche estimée à 38 %, avec une hypokinésie globale. La radiographie thoracique objectivait un épanchement pleural droit de faible abondance.
+heading	1	Évolution
+page_footer	0	Page 1/2
+page_header	0	CH du Val-de-Brenne · Service de cardiologie
+page_header	0	Patient : PICHON Laurent · IPP 2026-118342
+paragraph	0	L'évolution a été favorable sous diurétiques par voie intraveineuse, avec une perte de poids de 3,8 kg. Le rythme a été contrôlé par un bêtabloquant, et une anticoagulation orale a été introduite après évaluation du risque hémorragique. Le patient a bénéficié d'une séance d'éducation thérapeutique sur la surveillance du poids et la restriction sodée.
+heading	1	Traitement de sortie
+table	0	MédicamentPosologieDuréeFurosémide 40 mg comprimé sécable1 comprimé le matinÀ réévaluer à 15 joursBisoprolol 2,5 mg comprimé pelliculé1 comprimé matin et soirAu long coursApixaban 5 mg comprimé pelliculé1 comprimé matin et soirAu long coursRamipril 2,5 mg gélule1 gélule le soirAu long coursMetformine 850 mg comprimé1 comprimé matin et soir, au repasInchangé
+heading	1	Consignes et suivi
+list_item	0	Peser le patient chaque matin et consulter en cas de prise de plus de 2 kg en trois jours
+list_item	0	Rendez-vous programmés
+list_item	0	consultation de cardiologie le 10/11/2026 à 9 h 30
+list_item	0	bilan sanguin avec ionogramme et créatinine sous huit jours
+list_item	0	Régime pauvre en sel, limité à 6 g par jour
+list_item	0	Reprise progressive de la marche, sans effort violent pendant un mois
+paragraph	0	Nous restons à votre disposition pour tout renseignement complémentaire. Veuillez agréer, cher confrère, l'expression de nos sentiments confraternels.
+paragraph	0	Brenne-sur-Loir, le 13 octobre 2026
+paragraph	0	Dr Julien Ferrand, praticien hospitalier
+page_footer	0	Page 2/2

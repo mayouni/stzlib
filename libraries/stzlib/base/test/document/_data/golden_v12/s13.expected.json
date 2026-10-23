@@ -1,0 +1,240 @@
+{
+  "id": "s13",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Biochar amendment and soil moisture retention in rain-fed sorghum plots on a sandy Sahelian soil",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Biochar amendment and soil moisture retention in rain-fed sorghum plots on a sandy Sahelian soil"
+    },
+    {
+      "level": 2,
+      "text": "ABSTRACT"
+    },
+    {
+      "level": 2,
+      "text": "1. Introduction"
+    },
+    {
+      "level": 2,
+      "text": "2. Materials and methods"
+    },
+    {
+      "level": 3,
+      "text": "2.1 Study site"
+    },
+    {
+      "level": 3,
+      "text": "2.2 Experimental design"
+    },
+    {
+      "level": 3,
+      "text": "2.3 Measurements"
+    },
+    {
+      "level": 3,
+      "text": "2.4 Statistical analysis"
+    },
+    {
+      "level": 2,
+      "text": "3. Results"
+    },
+    {
+      "level": 3,
+      "text": "3.1 Rainfall and soil water content"
+    },
+    {
+      "level": 3,
+      "text": "3.2 Grain yield"
+    },
+    {
+      "level": 2,
+      "text": "4. Discussion"
+    },
+    {
+      "level": 2,
+      "text": "5. Conclusions"
+    },
+    {
+      "level": 2,
+      "text": "Acknowledgements"
+    },
+    {
+      "level": 2,
+      "text": "References"
+    }
+  ],
+  "key_sentences": [
+    "Sandy soils of the Sahel hold little water, and rain-fed crops often suffer from dry spells within the growing season.",
+    "The results suggest that biochar is most useful when it is combined with a nutrient source.",
+    "The objectives of this study were to quantify the effect of two biochar rates on volumetric soil water content during the rainy season, and to compare the grain yield of sorghum under biochar, manure and their combination.",
+    "Five treatments were arranged in a randomised complete block design with four replicates, on plots of 6 m by 8 m.",
+    "Grain yield was analysed by one-way analysis of variance, and differences between treatments were declared significant at P < 0.05.",
+    "Both biochar rates increased water content in the topsoil compared with the control, and the effect persisted throughout the season.",
+    "The combined treatment shows that the two amendments are complementary: manure supplies nutrients, while biochar helps the crop to bridge short dry spells.",
+    "Its effect on sorghum yield was large only when it was combined with manure."
+  ],
+  "tables": [
+    {
+      "caption": "Table 1. Treatments and application rates.",
+      "rows": [
+        [
+          "Code",
+          "Treatment",
+          "Biochar (t ha⁻¹)",
+          "Manure (t ha⁻¹)"
+        ],
+        [
+          "T0",
+          "Control",
+          "0",
+          "0"
+        ],
+        [
+          "T1",
+          "Low biochar",
+          "5",
+          "0"
+        ],
+        [
+          "T2",
+          "High biochar",
+          "10",
+          "0"
+        ],
+        [
+          "T3",
+          "Manure only",
+          "0",
+          "2.5"
+        ],
+        [
+          "T4",
+          "Low biochar + manure",
+          "5",
+          "2.5"
+        ]
+      ]
+    },
+    {
+      "caption": "Table 3. Rainfall of the trial season by month.",
+      "rows": [
+        [
+          "Period",
+          "Rainfall (mm)",
+          "Rain days",
+          "Longest dry spell (d)"
+        ],
+        [
+          "June",
+          "38",
+          "4",
+          "11"
+        ],
+        [
+          "July",
+          "142",
+          "11",
+          "6"
+        ],
+        [
+          "August",
+          "171",
+          "13",
+          "5"
+        ],
+        [
+          "September",
+          "64",
+          "6",
+          "14"
+        ],
+        [
+          "Season",
+          "415",
+          "34",
+          "14"
+        ]
+      ]
+    },
+    {
+      "caption": "Table 2. Mean seasonal water content and grain yield (mean ± standard error, n = 4).",
+      "rows": [
+        [
+          "Treatment",
+          "Water content (%)",
+          "Water content (%)",
+          "Grain yield (kg ha⁻¹)"
+        ],
+        [
+          "Treatment",
+          "0–10 cm",
+          "10–30 cm",
+          "Grain yield (kg ha⁻¹)"
+        ],
+        [
+          "T0",
+          "6.1 ± 0.3",
+          "8.4 ± 0.4",
+          "742 ± 51"
+        ],
+        [
+          "T1",
+          "7.0 ± 0.3",
+          "9.1 ± 0.3",
+          "818 ± 47"
+        ],
+        [
+          "T2",
+          "7.9 ± 0.4",
+          "9.6 ± 0.4",
+          "851 ± 62"
+        ],
+        [
+          "T3",
+          "6.6 ± 0.2",
+          "8.8 ± 0.3",
+          "905 ± 44"
+        ],
+        [
+          "T4",
+          "7.8 ± 0.3",
+          "9.9 ± 0.3",
+          "1 034 ± 58"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "[1] Abdou, H., Lindqvist, M. (2019). Dry spells and sorghum yield in the western Sahel. Field Crops Notes 12, 44–58."
+    },
+    {
+      "level": 0,
+      "text": "[2] Barro, F., Keller, S. (2021). Water retention of biochar-amended sandy soils: a column study. Soil and Water Letters 7, 101–112."
+    },
+    {
+      "level": 0,
+      "text": "[3] Coulibaly, N. et al. (2022). Manure management on smallholder farms in dry regions. Agricultural Systems Review 31, 9–27."
+    },
+    {
+      "level": 0,
+      "text": "[4] Rehnberg, T. (2024). Pyrolysis of crop residues in low-cost kilns. Bioresource Engineering Notes 5, 66–79."
+    }
+  ],
+  "furniture": [
+    "Journal of Dryland Agronomy · Preprint",
+    "Sow-Dicko et al. · Biochar and soil moisture",
+    "1",
+    "2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "library(lme4)\nlibrary(emmeans)\nm <- lmer(vwc ~ treatment * depth +\n            (1 | block/plot),\n          data = moisture)\nanova(m)\nemmeans(m, pairwise ~ treatment | depth)"
+  ],
+  "notes": "Fictional study, authors, institutions and references. Running header: left 'Journal of Dryland Agronomy · Preprint' on every page, right 'Sow-Dicko et al. · Biochar and soil moisture' from page 2; bare centred page numbers. The title, the author line, two affiliation lines and the boxed abstract span the full width; the author and affiliation lines are body text, not headings or sentences (superscript markers 1, 2 are part of them). The 'Keywords:' line is not a key sentence. The rest is set in TWO COLUMNS: reading order is down the left column, then down the right column, page by page. Hyphenation is enabled in the columns (hyphens: auto); any word hyphenated at a line end is given whole. The sentence in 2.1 that carries the footnote marker 'a' is excluded from key_sentences; the footnote text sits at the end of the right column of the last page. Tables sit inside a column with their caption as a paragraph above; they are listed in document order (Table 1, Table 3, Table 2 - as printed). Table 2 has a two-level header ('Water content (%)' spans two depth columns; Treatment and Grain yield span two rows). The R code block is set in Courier New. References use typed [n] markers (included in list_items)."
+}

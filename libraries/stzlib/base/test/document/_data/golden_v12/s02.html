@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Compte rendu d&#x27;hospitalisation</title>
+<style>
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+table { border-collapse: collapse; }
+
+@page { size: A4; margin: 2.3cm 2cm 2cm 2cm;
+  @top-left { content: "CH du Val-de-Brenne · Service de cardiologie"; font: 8pt Calibri; color: #6a6f78; }
+  @top-right { content: "Patient : PICHON Laurent · IPP 2026-118342"; font: 8pt Calibri; color: #6a6f78; }
+  @bottom-center { content: "Page " counter(page) "/" counter(pages); font: 8.5pt Calibri; color: #333; }
+}
+@page :first { @top-left { content: none; } @top-right { content: none; } }
+body { font-family: Calibri, sans-serif; font-size: 10.5pt; color: #222; line-height: 1.38; }
+.lh { display: flex; justify-content: space-between; border-bottom: 1px solid #8aa0b8; padding-bottom: 8px; margin-bottom: 12px; }
+.lh .org { font-family: Cambria, serif; font-size: 14pt; color: #23446b; font-weight: bold; }
+.lh .r { text-align: right; font-size: 9pt; color: #444; }
+.lh div div { line-height: 1.3; }
+h1 { font-family: Cambria, serif; font-size: 17pt; color: #23446b; text-align: center; margin: 6px 0 10px 0; }
+h2 { font-family: Cambria, serif; font-size: 12.5pt; color: #23446b; border-bottom: 1px solid #c6d2df; margin: 14px 0 5px 0; padding-bottom: 2px; }
+h3 { font-family: Cambria, serif; font-size: 11pt; font-style: italic; color: #333; margin: 10px 0 3px 0; }
+p { margin: 0 0 6px 0; text-align: justify; }
+table.kv td { padding: 1px 12px 1px 0; vertical-align: top; }
+table.kv td:first-child { color: #555; }
+table.lab { width: 100%; font-size: 9.5pt; margin: 4px 0 8px 0; }
+table.lab th { border-bottom: 1.5px solid #23446b; text-align: left; padding: 3px 5px; }
+table.lab td { border-bottom: 0.5px solid #ccd; padding: 3px 5px; }
+table.lab td.h { font-weight: bold; color: #a8241f; }
+table.rx { width: 100%; font-size: 9.5pt; border: 1px solid #8aa0b8; margin: 4px 0 8px 0; }
+table.rx th { background: #e8eef5; border: 1px solid #8aa0b8; padding: 4px 6px; text-align: left; }
+table.rx td { border: 1px solid #8aa0b8; padding: 4px 6px; vertical-align: top; }
+table.rx .f { font-size: 8.5pt; color: #555; font-style: italic; }
+ul { margin: 2px 0 8px 0; padding-left: 20px; }
+ul ul { list-style-type: circle; margin: 1px 0; }
+li { margin: 1px 0; }
+.sign { display: flex; justify-content: space-between; margin-top: 22px; font-size: 10pt; }
+</style>
+</head>
+<body>
+<div class="lh"><div><div class="org" data-f="1">Centre hospitalier du Val-de-Brenne</div><div data-f="1">Pôle cardio-vasculaire · Service de cardiologie</div><div data-f="1">12 avenue des Tilleuls · 37290 Brenne-sur-Loir</div></div><div class="r"><div data-f="1">Secrétariat : 02 47 91 30 40</div><div data-f="1">Chef de service : Dr Hélène Marchais</div></div></div><h1>Compte rendu d'hospitalisation</h1><table class="kv"><tbody><tr><td>Patient</td><td>M. Laurent PICHON, né le 03/02/1958 (68 ans)</td></tr><tr><td>Entrée</td><td>Le 06/10/2026 par les urgences</td></tr><tr><td>Sortie</td><td>Le 13/10/2026 vers le domicile</td></tr><tr><td>Médecin traitant</td><td>Dr Arnaud Lemoine, Brenne-sur-Loir</td></tr></tbody></table><h2>Motif d'hospitalisation</h2><p>Le patient a été admis pour une dyspnée d'effort d'aggravation progressive, associée à des œdèmes des membres inférieurs. Il décrivait une prise de poids de quatre kilogrammes en dix jours.</p><h2>Antécédents</h2><ul><li>Hypertension artérielle traitée depuis 2011</li><li>Diabète de type 2<ul><li>sous metformine depuis 2016</li><li>dernière HbA1c à 7,4 %</li></ul></li><li>Tabagisme sevré en 2019, estimé à 30 paquets-années</li><li>Pas d'allergie médicamenteuse connue</li></ul><h2>Histoire de la maladie</h2><p>À l'arrivée, la pression artérielle était de 152/88 mmHg et la saturation en oxygène de 91 % en air ambiant. L'auscultation retrouvait des crépitants aux deux bases pulmonaires. L'électrocardiogramme montrait une fibrillation atriale à 118 battements par minute, sans trouble de la repolarisation.</p><h2>Examens complémentaires</h2><h3>Biologie</h3><table class="lab"><thead><tr><th>Paramètre</th><th>Résultat</th><th>Unité</th><th>Valeurs de référence</th></tr></thead><tbody><tr><td>NT-proBNP</td><td class="h">4 860</td><td>pg/mL</td><td>&lt; 300</td></tr><tr><td>Créatinine</td><td>112</td><td>µmol/L</td><td>64 – 104</td></tr><tr><td>Débit de filtration glomérulaire</td><td>58</td><td>mL/min/1,73 m²</td><td>&gt; 90</td></tr><tr><td>Potassium</td><td>4,3</td><td>mmol/L</td><td>3,5 – 5,0</td></tr><tr><td>Hémoglobine</td><td>13,1</td><td>g/dL</td><td>13,0 – 17,0</td></tr><tr><td>Troponine T hypersensible</td><td>18</td><td>ng/L</td><td>&lt; 14</td></tr></tbody></table><h3>Imagerie</h3><p>L'échocardiographie transthoracique a mis en évidence une fraction d'éjection du ventricule gauche estimée à 38 %, avec une hypokinésie globale. La radiographie thoracique objectivait un épanchement pleural droit de faible abondance.</p><h2>Évolution</h2><p>L'évolution a été favorable sous diurétiques par voie intraveineuse, avec une perte de poids de 3,8 kg. Le rythme a été contrôlé par un bêtabloquant, et une anticoagulation orale a été introduite après évaluation du risque hémorragique. Le patient a bénéficié d'une séance d'éducation thérapeutique sur la surveillance du poids et la restriction sodée.</p><h2>Traitement de sortie</h2><table class="rx"><colgroup><col style="width:38%"><col style="width:36%"><col style="width:26%"></colgroup><thead><tr><th>Médicament</th><th>Posologie</th><th>Durée</th></tr></thead><tbody><tr><td>Furosémide 40 mg<br><span class="f">comprimé sécable</span></td><td>1 comprimé le matin</td><td>À réévaluer à 15 jours</td></tr><tr><td>Bisoprolol 2,5 mg<br><span class="f">comprimé pelliculé</span></td><td>1 comprimé matin et soir</td><td>Au long cours</td></tr><tr><td>Apixaban 5 mg<br><span class="f">comprimé pelliculé</span></td><td>1 comprimé matin et soir</td><td>Au long cours</td></tr><tr><td>Ramipril 2,5 mg<br><span class="f">gélule</span></td><td>1 gélule le soir</td><td>Au long cours</td></tr><tr><td>Metformine 850 mg<br><span class="f">comprimé</span></td><td>1 comprimé matin et soir, au repas</td><td>Inchangé</td></tr></tbody></table><h2>Consignes et suivi</h2><ul><li>Peser le patient chaque matin et consulter en cas de prise de plus de 2 kg en trois jours</li><li>Rendez-vous programmés<ul><li>consultation de cardiologie le 10/11/2026 à 9 h 30</li><li>bilan sanguin avec ionogramme et créatinine sous huit jours</li></ul></li><li>Régime pauvre en sel, limité à 6 g par jour</li><li>Reprise progressive de la marche, sans effort violent pendant un mois</li></ul><p>Nous restons à votre disposition pour tout renseignement complémentaire. Veuillez agréer, cher confrère, l'expression de nos sentiments confraternels.</p><div class="sign"><div>Brenne-sur-Loir, le 13 octobre 2026</div><div>Dr Julien Ferrand, praticien hospitalier</div></div>
+</body>
+</html>
