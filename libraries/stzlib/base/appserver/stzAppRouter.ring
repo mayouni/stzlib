@@ -156,13 +156,14 @@ class stzAppRouter from stzObject
 		ok
 		return _aParams_
 
-	# Stores a middleware function for a path prefix; nothing in the router or the server ever reads the list, so it never runs.
+	# Stores a function for a path prefix, in registration order; the server runs the list before it routes a request.
 	#
-	#   cPath         the path the middleware should cover
-	#   fMiddleware   the function meant to run before the routes
+	#   cPath         the path prefix the middleware covers, as given to stzAppServer.Use
+	#   fMiddleware   the name of the function to run before the routes
 	#   returns       nothing; use AddMiddlewareQ to chain
-	#   note          stored and never applied; see stzAppServer.Use
-	#   see           AddStaticRoute
+	#   note          the router only stores the pair; stzAppServer reads it back with Middleware and
+	#                 decides which entries cover a request
+	#   see           Middleware, AddStaticRoute
 	def AddMiddleware(cPath, fMiddleware)
 		@aMiddleware + [ cPath, fMiddleware ]
 
@@ -170,16 +171,31 @@ class stzAppRouter from stzObject
 			This.AddMiddleware(cPath, fMiddleware)
 			return This
 
-	# Stores a URL path and a folder for static files; nothing in the router or the server ever reads the list, so no file is served.
+	# Returns the stored functions that run before routing, as [ path prefix, function ] pairs in registration order.
 	#
-	#   cPath        the URL path meant to map to the folder
+	#   returns    a list of two-item lists, empty when none was stored
+	#   see        AddMiddleware, StaticRoutes
+	def Middleware()
+		return @aMiddleware
+
+	# Stores a URL path prefix and the folder that backs it, in registration order; the server reads the list back.
+	#
+	#   cPath        the URL path prefix, as given to stzAppServer.Static
 	#   cDirectory   the folder of files
 	#   returns      nothing; use AddStaticRouteQ to chain
-	#   note         stored and never applied; see stzAppServer.Static
-	#   see          AddMiddleware
+	#   note         the router only stores the pair; stzAppServer reads it back with StaticRoutes and
+	#                does the serving
+	#   see          StaticRoutes, AddMiddleware
 	def AddStaticRoute(cPath, cDirectory)
 		@aStaticRoutes + [ cPath, cDirectory ]
 
 		def AddStaticRouteQ(cPath, cDirectory)
 			This.AddStaticRoute(cPath, cDirectory)
 			return This
+
+	# Returns the folders mounted for file serving, as [ path prefix, folder ] pairs in registration order.
+	#
+	#   returns    a list of two-item lists, empty when none was stored
+	#   see        AddStaticRoute, Middleware
+	def StaticRoutes()
+		return @aStaticRoutes

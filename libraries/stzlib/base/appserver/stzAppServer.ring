@@ -54,6 +54,14 @@ clobbered at `new stzAppResponse(...)`, then R12 on the attribute).
 func StzAppServerQ()
 	return new stzAppServer()
 
+# Renders a response for the wire; an answer to a HEAD request keeps its headers, Content-Length included, and loses its body.
+func _StzAppServerWire(poResp, pcMethod)
+	_cWire_ = poResp.HttpBytes()
+	if StzUpper("" + pcMethod) = "HEAD"
+		_cWire_ = left(_cWire_, len(_cWire_) - len(poResp.Body()))
+	ok
+	return _cWire_
+
 # Hosts routes, a REST floor over a database, raw device streams and supervised agents on one resident event loop, served on a localhost-first HTTP listener.
 #
 # The server is a persistent host rather than a per-request library: Start binds a listener on a
@@ -66,9 +74,9 @@ func StzAppServerQ()
 # between serve slices, with a read-only view at GET /agents. /health is always answered and
 # /metrics appears once Observe attaches a perf monitor. Bind to 127.0.0.1 unless the server must be
 # reached from outside, and then call RequireSignedRequests; MountAuth and MountOidcProvider serve a
-# login router and an identity provider from the same listener. Known gaps today, each carried as a
-# warning on its method: Use and Static store their arguments but never act, and Stop leaves Port
-# and Uptime unreset.
+# login router and an identity provider from the same listener. Use runs middleware before the routes and
+# Static serves the files of a folder (GET and HEAD, never outside it). Known gap today, carried as
+# a warning on its method: Stop leaves Port and Uptime unreset.
 #
 #   receiver   o1 = new stzAppServer()
 #   example    o1.Get_("/greet", func oReq, oResp { oResp.Text("hello") })
@@ -105,6 +113,12 @@ class stzAppServer from stzObject
 	# Per-route family face (perf P8, set by ObserveRoutes): held
 	# directly so the per-request path hits this face's child cache.
 	@oRouteFam = ""
+
+	# Middleware: why the last one that raised did (kept for the operator, never sent)
+	@cMiddlewareWhy = ""
+
+	# Static files: the largest file a request may read into memory, in bytes (10 MB)
+	@nStaticMaxBytes = 10485760
 
 	# Hosted agents (R5): an stzAgentHost sharing THIS server's loop
 	@oAgentHost = ""
@@ -480,29 +494,94 @@ class stzAppServer from stzObject
 		@oRouteFam = poMonitor.MetricQ("http.route.ms")
 		return This
 
-	# Leaves every request unchanged today instead of running the middleware before the routes under a path.
+	# Registers a function that runs before the routes, in registration order, for every request whose path lies under a prefix.
 	#
-	#   cPath         the path the middleware should cover
-	#   fMiddleware   the function meant to run before the routes
+	#   cPath         the path prefix, such as /api; it matches whole segments, so /a covers /a and /a/b
+	#                 but not /ab, and / or * (and a trailing /*) cover every path
+	#   fMiddleware   the name of a function, called as fMiddleware(oReq, oResp); only letters, digits
+	#                 and underscore are accepted, so a path or an expression raises here
 	#   returns       the server, so calls can be chained
-	#   note          Add a route or check inside the handler until the router uses the list
-	#   warning       The middleware is stored in the router but nothing ever reads the list, so it
-	#                 never runs (checked with paths /a, / and *)
-	#   see           Static
+	#   note          Middleware runs after the signature gate and before routing, so it also covers
+	#                 the built-in surfaces (the MBaaS floor, /agents, /health, auth, static files). It
+	#                 answers by sending a body or by setting a status other than 200: then the later
+	#                 middleware and the route do not run. Otherwise the request goes on. The path is
+	#                 tested as written and after one percent-decoding, so /%61 cannot slip past a
+	#                 middleware registered for /a
+	#   warning       A middleware that raises ends the request with a plain 500 that carries no detail
+	#                 (MiddlewareWhy keeps the text for the operator); a body it had already sent stays
+	#   see           MiddlewareWhy, Static, Get_
 	def Use(cPath, fMiddleware)
-		@oRouter.AddMiddleware(cPath, fMiddleware)
+		if NOT isString(cPath)
+			stzraise("stzAppServer.Use: the path must be a text such as /api, / or *.")
+		ok
+		if NOT This._IsPlainIdentifier(fMiddleware)
+			stzraise("stzAppServer.Use: the middleware must be the name of a function (letters, digits and underscore only), not a path or an expression.")
+		ok
+		_cPrefix_ = This._NormalizePrefix(cPath)
+		if _cPrefix_ = ""
+			stzraise("stzAppServer.Use: the path must be a prefix such as /api, / or *, without patterns or escapes.")
+		ok
+		@oRouter.AddMiddleware(_cPrefix_, fMiddleware)
 		return This
 
-	# Leaves a folder unserved today instead of serving its files under a path; a request for a file in it answers 404.
+	# Returns the error text of the last middleware that raised, or an empty text when none did.
 	#
-	#   cPath        the URL path meant to map to the folder
-	#   cDirectory   the folder of files to serve
+	#   returns    a text, for the operator; the client never sees it
+	#   see        Use
+	def MiddlewareWhy()
+		return @cMiddlewareWhy
+
+	# Serves the files of a folder under a URL path prefix, for GET and HEAD requests that no route handles.
+	#
+	#   cPath        the URL path prefix, such as /files, or / for the whole site; a trailing /* is
+	#                ignored
+	#   cDirectory   the folder to serve; it must exist when this is called, or an error is raised, and
+	#                a relative folder is read against the current folder at each request
 	#   returns      the server, so calls can be chained
-	#   warning      The static routes are stored in the router but nothing ever reads the list
-	#                (checked with paths /files and /)
-	#   see          Use
+	#   note         A request is answered by the first mount whose prefix covers it and holds the
+	#                file; your own routes, the MBaaS floor and the other built-in surfaces are asked
+	#                first. The Content-Type comes from the file extension (octet-stream when it is
+	#                unknown), the body is the file's bytes untouched with an exact Content-Length, and
+	#                a HEAD answer carries the headers and no body. A folder or a missing file
+	#                answers 404 (there is no directory listing and no index file), and a file over
+	#                10 MB answers 413 without being read. Another method on an existing file
+	#                answers 405 with Allow: GET, HEAD
+	#   note         Safety: the path is split at its slashes first, each piece is percent-decoded
+	#                once, and the request is refused with 400 if a piece in the middle is empty, is . or .., starts
+	#                with a dot (no hidden files), ends with a dot or a space, holds a control
+	#                character, a NUL, a backslash, a colon, a wildcard, a quote or an angle bracket,
+	#                is not valid UTF-8, names a Windows device (CON, NUL, AUX, COM1, LPT1 and the
+	#                like, with any extension), or if the whole path passes 2048 bytes. What passes is
+	#                never joined into a path as typed: each piece must equal, letter for letter, a
+	#                name listed in the folder at that level (folders for all but the last piece, files
+	#                for the last), and only the listed name is opened. A symbolic link is listed as
+	#                neither, so nothing is served through one, and a short 8.3 name or a stream such
+	#                as file.txt:s is not a listed name
+	#   warning      The check is by name, not by identity, and the engine has no call that resolves a
+	#                path or tells a link from its target. A hard link to a file outside the folder
+	#                is a file like any other and is served, and on Windows an NTFS junction is listed
+	#                as an ordinary folder and IS followed (checked with a junction to a folder
+	#                outside): keep junctions and hard links out of a served folder. The listing is read
+	#                at every request
+	#   see          Use, Get_
 	def Static(cPath, cDirectory)
-		@oRouter.AddStaticRoute(cPath, cDirectory)
+		if NOT isString(cPath) or NOT isString(cDirectory)
+			stzraise("stzAppServer.Static: the path and the folder must be texts.")
+		ok
+		if cPath = ""
+			stzraise("stzAppServer.Static: the path must start with a slash, such as /files.")
+		ok
+		if cPath[1] != "/"
+			stzraise("stzAppServer.Static: the path must start with a slash, such as /files.")
+		ok
+		_cPrefix_ = This._NormalizePrefix(cPath)
+		if _cPrefix_ = ""
+			stzraise("stzAppServer.Static: the path must be a prefix such as /files, without patterns or escapes.")
+		ok
+		if ring_trim(cDirectory) = "" or StzDirExists(cDirectory) = 0
+			stzraise("stzAppServer.Static: '" + cDirectory + "' is not an existing folder.")
+		ok
+		@oRouter.AddStaticRoute(_cPrefix_, cDirectory)
 		return This
 
 	  #--------------------------------#
@@ -1125,7 +1204,7 @@ class stzAppServer from stzObject
 		if NOT _oResp_.IsSent()
 			_oResp_.Text("")   # handler set nothing: empty 200
 		ok
-		_oRct_.ServerWrite(_nSid_, _nConn_, _oResp_.HttpBytes(), _bClose_)
+		_oRct_.ServerWrite(_nSid_, _nConn_, _StzAppServerWire(_oResp_, _cReqMethod_), _bClose_)
 		# Incident I2: the transport VERDICT is a security event. Reading it
 		# here rather than at each `Status(401, ...)` site is deliberate --
 		# there are nine of those inside this file alone, plus every route a
@@ -1179,7 +1258,16 @@ class stzAppServer from stzObject
 				oResp.Status(401, "Unauthorized").Json([ "error", @cAuthWhy ])
 				return
 			ok
-			_aM_ = @oRouter.MatchRoute(oReq.Method(), oReq.Path())
+			# Middleware may run user code that re-enters other objects, so everything this
+			# method reads from the server afterwards is taken into locals first (the R24 trap
+			# described in _HandleHttpEvent).
+			_oRouter_ = @oRouter
+			_oPerfMon_ = @oPerfMon
+			_nRequestCount_ = @nRequestCount
+			if This._RunMiddleware(oReq, oResp) = 0
+				return
+			ok
+			_aM_ = _oRouter_.MatchRoute(oReq.Method(), oReq.Path())
 			if _aM_[:matched]
 				oReq.SetParams(_aM_[:params])
 				_fHandler_ = _aM_[:handler]
@@ -1201,12 +1289,12 @@ class stzAppServer from stzObject
 					"status", "healthy",
 					"engine", "softanza-resident",
 					"uptime_s", This.Uptime(),
-					"requests_served", @nRequestCount,
+					"requests_served", _nRequestCount_,
 					"rss_bytes", StzEnginePerfMemRss(),
 					"cpu_ms", StzEnginePerfCpuNs() / 1000000
 				]
-				if @oPerfMon != ""
-					_oT_ = @oPerfMon.MetricQ("http.request.ms")
+				if _oPerfMon_ != ""
+					_oT_ = _oPerfMon_.MetricQ("http.request.ms")
 					_aH_ + "p50_ms"
 					_aH_ + _oT_.P50()
 					_aH_ + "p95_ms"
@@ -1214,21 +1302,445 @@ class stzAppServer from stzObject
 					_aH_ + "p99_ms"
 					_aH_ + _oT_.P99()
 					_aH_ + "rate_per_s"
-					_aH_ + @oPerfMon.MetricQ("http.requests").RatePerSecond()
+					_aH_ + _oPerfMon_.MetricQ("http.requests").RatePerSecond()
 				ok
 				oResp.Json(_aH_)
 			# perf P3: the OBSERVED server speaks Prometheus natively --
 			# point a scraper at /metrics and every metric (senses + the
 			# request instruments + the app's own) arrives in exposition
 			# format. Signed like every other path when signing is on.
-			but oReq.Method() = "GET" and This._BarePath(oReq.Path()) = "/metrics" and @oPerfMon != ""
-				oResp.Text(@oPerfMon.Prometheus())
+			but oReq.Method() = "GET" and This._BarePath(oReq.Path()) = "/metrics" and _oPerfMon_ != ""
+				oResp.Text(_oPerfMon_.Prometheus())
+			but This._ServeStatic(oReq, oResp)
+				# a file of a folder mounted with Static
 			else
 				oResp.NotFound("Route not found: " + oReq.Method() + " " + oReq.Path())
 			ok
 		catch
 			oResp.InternalError("Handler error: " + cCatchError)
 		done
+
+	  #-------------------------------------------#
+	 #  MIDDLEWARE AND STATIC FILES (internals)  #
+	#-------------------------------------------#
+
+	# 1 for a text that is a plain function name: ASCII letters, digits and underscore, not starting with a digit.
+	def _IsPlainIdentifier(pcName)
+		if NOT isString(pcName)
+			return 0
+		ok
+		_nLen_ = ring_len(pcName)
+		if _nLen_ = 0 or _nLen_ > 128
+			return 0
+		ok
+		for _i_ = 1 to _nLen_
+			_nA_ = ascii(pcName[_i_])
+			_bLetter_ = (_nA_ >= 65 and _nA_ <= 90) or (_nA_ >= 97 and _nA_ <= 122) or (_nA_ = 95)
+			_bDigit_ = (_nA_ >= 48 and _nA_ <= 57)
+			if _bLetter_ = 0 and (_bDigit_ = 0 or _i_ = 1)
+				return 0
+			ok
+		next
+		return 1
+
+	# The non-empty pieces of a path split at its slashes.
+	def _NonEmptySegments(pcPath)
+		_aRaw_ = StzSplit("" + pcPath, "/")
+		_aOut_ = []
+		_nLen_ = ring_len(_aRaw_)
+		for _i_ = 1 to _nLen_
+			if _aRaw_[_i_] != ""
+				_aOut_ + _aRaw_[_i_]
+			ok
+		next
+		return _aOut_
+
+	# "/a/b" for a usable prefix, "/" for every path, "" for a prefix that holds a pattern or an escape.
+	def _NormalizePrefix(pcPath)
+		_cPath_ = "" + pcPath
+		if _cPath_ != "" and _cPath_ != "*"
+			if _cPath_[1] != "/"
+				return ""
+			ok
+		ok
+		_aSegs_ = This._NonEmptySegments(_cPath_)
+		_nLen_ = ring_len(_aSegs_)
+		if _nLen_ > 0
+			if _aSegs_[_nLen_] = "*"
+				_nLen_--
+			ok
+		ok
+		_cOut_ = ""
+		for _i_ = 1 to _nLen_
+			_cSeg_ = _aSegs_[_i_]
+			if StzFindFirst("*", _cSeg_) > 0 or StzFindFirst(":", _cSeg_) > 0 or
+			   StzFindFirst("?", _cSeg_) > 0 or StzFindFirst("#", _cSeg_) > 0 or
+			   StzFindFirst("%", _cSeg_) > 0 or StzFindFirst(char(92), _cSeg_) > 0
+				return ""
+			ok
+			_cOut_ += ("/" + _cSeg_)
+		next
+		if _cOut_ = ""
+			return "/"
+		ok
+		return _cOut_
+
+	# 1 when every piece of the prefix equals the piece of the path at the same place, letter for letter.
+	def _PrefixCovers(paPrefix, paSegs)
+		_nPre_ = ring_len(paPrefix)
+		if _nPre_ > ring_len(paSegs)
+			return 0
+		ok
+		for _i_ = 1 to _nPre_
+			if strcmp(paPrefix[_i_], paSegs[_i_]) != 0
+				return 0
+			ok
+		next
+		return 1
+
+	# The value of a hex digit, or -1.
+	def _HexVal(pcCh)
+		_nA_ = ascii(pcCh)
+		if _nA_ >= 48 and _nA_ <= 57
+			return _nA_ - 48
+		ok
+		if _nA_ >= 97 and _nA_ <= 102
+			return _nA_ - 87
+		ok
+		if _nA_ >= 65 and _nA_ <= 70
+			return _nA_ - 55
+		ok
+		return -1
+
+	# One piece of a path decoded once, forgiving: a bad escape stays as typed. For matching prefixes only.
+	def _LooseDecode(pcSeg)
+		_cSeg_ = "" + pcSeg
+		if StzFindFirst("%", _cSeg_) = 0
+			return _cSeg_
+		ok
+		_nLen_ = ring_len(_cSeg_)
+		_cOut_ = ""
+		_i_ = 1
+		while _i_ <= _nLen_
+			_cCh_ = _cSeg_[_i_]
+			if _cCh_ = "%" and _i_ + 2 <= _nLen_
+				_nHi_ = This._HexVal(_cSeg_[_i_ + 1])
+				_nLo_ = This._HexVal(_cSeg_[_i_ + 2])
+				if _nHi_ >= 0 and _nLo_ >= 0
+					_cOut_ += char(_nHi_ * 16 + _nLo_)
+					_i_ += 3
+					loop
+				ok
+			ok
+			_cOut_ += _cCh_
+			_i_++
+		end
+		return _cOut_
+
+	# 1 when the text is well-formed UTF-8: no overlong form, no surrogate, nothing above U+10FFFF.
+	def _IsUtf8(pcText)
+		_nLen_ = ring_len(pcText)
+		_i_ = 1
+		while _i_ <= _nLen_
+			_nB_ = ascii(pcText[_i_])
+			if _nB_ < 128
+				_i_++
+				loop
+			ok
+			_nNeed_ = 0
+			_nLow_ = 128
+			_nHigh_ = 191
+			if _nB_ >= 194 and _nB_ <= 223
+				_nNeed_ = 1
+			but _nB_ >= 224 and _nB_ <= 239
+				_nNeed_ = 2
+				if _nB_ = 224  _nLow_ = 160  ok
+				if _nB_ = 237  _nHigh_ = 159  ok
+			but _nB_ >= 240 and _nB_ <= 244
+				_nNeed_ = 3
+				if _nB_ = 240  _nLow_ = 144  ok
+				if _nB_ = 244  _nHigh_ = 143  ok
+			else
+				return 0
+			ok
+			if _i_ + _nNeed_ > _nLen_
+				return 0
+			ok
+			for _j_ = 1 to _nNeed_
+				_nC_ = ascii(pcText[_i_ + _j_])
+				if _j_ = 1
+					if _nC_ < _nLow_ or _nC_ > _nHigh_
+						return 0
+					ok
+				else
+					if _nC_ < 128 or _nC_ > 191
+						return 0
+					ok
+				ok
+			next
+			_i_ += (_nNeed_ + 1)
+		end
+		return 1
+
+	# One piece of a static path decoded once and checked, or "" when the piece must be refused.
+	def _StaticDecodeSegment(pcSeg)
+		_cSeg_ = "" + pcSeg
+		_nLen_ = ring_len(_cSeg_)
+		if _nLen_ = 0 or _nLen_ > 765
+			return ""
+		ok
+		_cOut_ = ""
+		_i_ = 1
+		while _i_ <= _nLen_
+			_nA_ = ascii(_cSeg_[_i_])
+			if _nA_ = 37
+				if _i_ + 2 > _nLen_
+					return ""
+				ok
+				_nHi_ = This._HexVal(_cSeg_[_i_ + 1])
+				_nLo_ = This._HexVal(_cSeg_[_i_ + 2])
+				if _nHi_ < 0 or _nLo_ < 0
+					return ""
+				ok
+				_nA_ = _nHi_ * 16 + _nLo_
+				_i_ += 3
+			else
+				_i_++
+			ok
+			# control characters and NUL, DEL, / \ : * ? " < > |
+			if _nA_ < 32 or _nA_ = 127 or _nA_ = 47 or _nA_ = 92 or _nA_ = 58 or
+			   _nA_ = 42 or _nA_ = 63 or _nA_ = 34 or _nA_ = 60 or _nA_ = 62 or _nA_ = 124
+				return ""
+			ok
+			_cOut_ += char(_nA_)
+		end
+		if ring_len(_cOut_) > 255
+			return ""
+		ok
+		# . and .. and every hidden name; a name ending in a dot or a space
+		_nFirst_ = ascii(_cOut_[1])
+		_nLast_ = ascii(_cOut_[ring_len(_cOut_)])
+		if _nFirst_ = 46 or _nLast_ = 46 or _nLast_ = 32
+			return ""
+		ok
+		if This._IsUtf8(_cOut_) = 0
+			return ""
+		ok
+		# Windows devices, with or without an extension
+		_aParts_ = StzSplit(_cOut_, ".")
+		_cBase_ = StzUpper(ring_trim(_aParts_[1]))
+		if _cBase_ = "CON" or _cBase_ = "PRN" or _cBase_ = "AUX" or _cBase_ = "NUL"
+			return ""
+		ok
+		if ring_len(_cBase_) = 4 and (StzLeft(_cBase_, 3) = "COM" or StzLeft(_cBase_, 3) = "LPT")
+			_nD_ = ascii(_cBase_[4])
+			if _nD_ >= 49 and _nD_ <= 57
+				return ""
+			ok
+		ok
+		return _cOut_
+
+	# The path of the file reached by walking the listed names under a folder, or "" when a name is not listed.
+	def _StaticResolve(pcFolder, paTail)
+		_cCur_ = "" + pcFolder
+		_nTail_ = ring_len(paTail)
+		for _i_ = 1 to _nTail_
+			_cName_ = paTail[_i_]
+			if _i_ < _nTail_
+				_aNames_ = StzEngineDirListDirs(_cCur_)
+			else
+				_aNames_ = StzEngineDirListFiles(_cCur_)
+			ok
+			if NOT isList(_aNames_)
+				return ""
+			ok
+			_bFound_ = 0
+			_nNames_ = ring_len(_aNames_)
+			for _j_ = 1 to _nNames_
+				if strcmp(_aNames_[_j_], _cName_) = 0
+					_bFound_ = 1
+					exit
+				ok
+			next
+			if _bFound_ = 0
+				return ""
+			ok
+			_cCur_ = _cCur_ + "/" + _cName_
+		next
+		return _cCur_
+
+	# The Content-Type for a file name, from its extension.
+	def _StaticMime(pcName)
+		_aSplit_ = StzSplit("" + pcName, ".")
+		if ring_len(_aSplit_) < 2
+			return "application/octet-stream"
+		ok
+		_cExt_ = StzLower(_aSplit_[ring_len(_aSplit_)])
+		_aMap_ = [
+			[ "html", "text/html; charset=utf-8" ], [ "htm", "text/html; charset=utf-8" ],
+			[ "css", "text/css; charset=utf-8" ], [ "js", "text/javascript; charset=utf-8" ],
+			[ "mjs", "text/javascript; charset=utf-8" ], [ "json", "application/json" ],
+			[ "map", "application/json" ], [ "txt", "text/plain; charset=utf-8" ],
+			[ "md", "text/markdown; charset=utf-8" ], [ "csv", "text/csv; charset=utf-8" ],
+			[ "xml", "application/xml" ], [ "svg", "image/svg+xml" ],
+			[ "png", "image/png" ], [ "jpg", "image/jpeg" ], [ "jpeg", "image/jpeg" ],
+			[ "gif", "image/gif" ], [ "webp", "image/webp" ], [ "ico", "image/x-icon" ],
+			[ "woff", "font/woff" ], [ "woff2", "font/woff2" ], [ "ttf", "font/ttf" ],
+			[ "otf", "font/otf" ], [ "pdf", "application/pdf" ], [ "wasm", "application/wasm" ],
+			[ "zip", "application/zip" ], [ "mp3", "audio/mpeg" ], [ "mp4", "video/mp4" ],
+			[ "webm", "video/webm" ], [ "ogg", "audio/ogg" ]
+		]
+		_nMap_ = ring_len(_aMap_)
+		for _i_ = 1 to _nMap_
+			if strcmp(_aMap_[_i_][1], _cExt_) = 0
+				return _aMap_[_i_][2]
+			ok
+		next
+		return "application/octet-stream"
+
+	# Notes the error text of a middleware that raised, for the operator.
+	def _NoteMiddlewareWhy(pcWhy)
+		@cMiddlewareWhy = "" + pcWhy
+
+	# Runs the middleware that covers the request, in order. Returns 1 when the request goes on, 0 when it was answered.
+	def _RunMiddleware(poReq, poResp)
+		_aMw_ = @oRouter.Middleware()
+		_nMw_ = ring_len(_aMw_)
+		if _nMw_ = 0
+			return 1
+		ok
+		_aRaw_ = This._NonEmptySegments(poReq.Path())
+		_aDec_ = []
+		_nRaw_ = ring_len(_aRaw_)
+		for _i_ = 1 to _nRaw_
+			_aDec_ + This._LooseDecode(_aRaw_[_i_])
+		next
+		for _i_ = 1 to _nMw_
+			_aPre_ = This._NonEmptySegments(_aMw_[_i_][1])
+			_bCovers_ = This._PrefixCovers(_aPre_, _aRaw_)
+			if _bCovers_ = 0
+				_bCovers_ = This._PrefixCovers(_aPre_, _aDec_)
+			ok
+			if _bCovers_ = 0
+				loop
+			ok
+			_fMw_ = _aMw_[_i_][2]
+			_bRaised_ = 0
+			try
+				if NOT isfunction(_fMw_)
+					stzraise("middleware '" + _fMw_ + "' is not a function")
+				ok
+				call _fMw_(poReq, poResp)
+			catch
+				_bRaised_ = 1
+				This._NoteMiddlewareWhy("" + cCatchError)
+			done
+			if _bRaised_
+				poResp.Status(500, "Internal Server Error")
+				if NOT poResp.IsSent()
+					poResp.Text("Internal Server Error")
+				ok
+				return 0
+			ok
+			if poResp.IsSent() or poResp.StatusCode() != 200
+				return 0
+			ok
+		next
+		return 1
+
+	# Answers a request from a static mount. Returns 1 when it was answered, 0 to fall through to Not Found.
+	def _ServeStatic(poReq, poResp)
+		_aMounts_ = @oRouter.StaticRoutes()
+		_nMounts_ = ring_len(_aMounts_)
+		if _nMounts_ = 0
+			return 0
+		ok
+		_cPath_ = poReq.Path()
+		if ring_len(_cPath_) = 0
+			return 0
+		ok
+		if _cPath_[1] != "/"
+			return 0
+		ok
+		_aRaw_ = StzSplit(_cPath_, "/")
+		_aSegs_ = []
+		_nRaw_ = ring_len(_aRaw_)
+		for _i_ = 2 to _nRaw_
+			_aSegs_ + _aRaw_[_i_]
+		next
+		_nSegs_ = ring_len(_aSegs_)
+		_bTrailing_ = 0
+		if _nSegs_ > 0
+			if _aSegs_[_nSegs_] = ""
+				_nSegs_--
+				_bTrailing_ = 1
+			ok
+		ok
+		_aDec_ = []
+		for _i_ = 1 to _nSegs_
+			_aDec_ + This._LooseDecode(_aSegs_[_i_])
+		next
+		for _m_ = 1 to _nMounts_
+			_aPre_ = This._NonEmptySegments(_aMounts_[_m_][1])
+			_nPre_ = ring_len(_aPre_)
+			if _nSegs_ <= _nPre_
+				loop
+			ok
+			if This._PrefixCovers(_aPre_, _aDec_) = 0
+				loop
+			ok
+			_aTail_ = []
+			_bBad_ = 0
+			if ring_len(_cPath_) > 2048
+				_bBad_ = 1
+			ok
+			for _j_ = (_nPre_ + 1) to _nSegs_
+				if _bBad_
+					exit
+				ok
+				_cPiece_ = This._StaticDecodeSegment(_aSegs_[_j_])
+				if _cPiece_ = ""
+					_bBad_ = 1
+				else
+					_aTail_ + _cPiece_
+				ok
+			next
+			if _bBad_
+				poResp.Status(400, "Bad Request").Text("Bad Request")
+				return 1
+			ok
+			if _bTrailing_
+				loop
+			ok
+			_cReal_ = This._StaticResolve(_aMounts_[_m_][2], _aTail_)
+			if _cReal_ = ""
+				loop
+			ok
+			_cMethod_ = StzUpper("" + poReq.Method())
+			if _cMethod_ != "GET" and _cMethod_ != "HEAD"
+				poResp.Status(405, "Method Not Allowed").Header("Allow", "GET, HEAD")
+				poResp.Text("Method Not Allowed")
+				return 1
+			ok
+			_nSize_ = StzEngineFileSize(_cReal_)
+			if _nSize_ < 0
+				loop
+			ok
+			if _nSize_ > @nStaticMaxBytes
+				poResp.Status(413, "Payload Too Large").Text("File too large")
+				return 1
+			ok
+			_cData_ = StzEngineFileRead(_cReal_)
+			if ring_len(_cData_) != _nSize_
+				loop
+			ok
+			poResp.Status(200, "OK")
+			poResp.Header("Content-Type", This._StaticMime(_aTail_[ring_len(_aTail_)]))
+			poResp.Header("X-Content-Type-Options", "nosniff")
+			poResp.Send(_cData_)
+			return 1
+		next
+		return 0
 
 	# MBaaS floor. Returns TRUE when the path targeted an exposed table.
 	def _ServeResource(oReq, oResp)
