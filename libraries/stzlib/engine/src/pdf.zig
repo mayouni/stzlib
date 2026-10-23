@@ -2377,6 +2377,16 @@ fn arabicDocFix(a: Allocator, blocks: []Block) !void {
     }
 }
 
+fn hasLetter(t: []const u8) bool {
+    var view = std.unicode.Utf8View.init(t) catch return true;
+    var it = view.iterator();
+    while (it.nextCodepoint()) |cp| {
+        if (isLtrCp(cp) or isRtlCp(cp)) return true;
+        if ((cp >= 0x0900 and cp <= 0x0DFF) or (cp >= 0x1200 and cp <= 0x137F) or cp >= 0x3040) return true;
+    }
+    return false;
+}
+
 fn persianDigits(a: Allocator, t: []const u8) ![]const u8 {
     var out: std.ArrayList(u8) = .empty;
     var view = std.unicode.Utf8View.init(t) catch return t;
@@ -4216,6 +4226,36 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
         } else if (b.italic and short and !ends and b.size >= 0.95 * body and b.lines == 1 and b.text.len <= 80 and !startsQuote(b.text)) {
             b.kind = .heading;
             try hsizes.append(a, b.size);
+        }
+    }
+    // a heading is never a label ending in a colon or a full stop ("Note:", "Decision:"), nor a figure with no
+    // letter (a price, a total): measured over golden_v1..v11, 78 such headings were false and one true. A run-in
+    // lead so refused goes back into the paragraph it opens.
+    {
+        var k: usize = 0;
+        while (k < merged.items.len) {
+            const b = merged.items[k];
+            if (b.kind != .heading or b.text.len == 0) {
+                k += 1;
+                continue;
+            }
+            const last = b.text[b.text.len - 1];
+            const label = last == ':' or last == '.' or std.mem.endsWith(u8, b.text, "\u{FF1A}");
+            if (!label and hasLetter(b.text)) {
+                k += 1;
+                continue;
+            }
+            merged.items[k].kind = .paragraph;
+            merged.items[k].level = 0;
+            if (b.runin and k + 1 < merged.items.len and merged.items[k + 1].kind == .paragraph and merged.items[k + 1].page == b.page) {
+                const nx = &merged.items[k + 1];
+                nx.text = try std.mem.concat(a, u8, &.{ b.text, " ", nx.text });
+                nx.x0 = @min(nx.x0, b.x0);
+                nx.y0 = @min(nx.y0, b.y0);
+                _ = merged.orderedRemove(k);
+                continue;
+            }
+            k += 1;
         }
     }
     // a letterhead: on the first page, the blocks of the top band that end above the title (the largest heading
