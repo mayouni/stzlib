@@ -522,3 +522,5 @@ Next by size: four classes at 3 (stzLinearSolver first), then nine at 2.
 
 origin/main = 4d066c5e3 and is current; codeberg/main stays at e82e31037. Pushing to Codeberg fails with 'the remote end hung up unexpectedly' / 'unexpected disconnect while reading sideband packet', even for the single commit 870cbacc0 (the author's 'PDF reader round 7 on golden_v8': 128 files, 10,535 inserted lines of results TSVs), also over HTTP/1.1 with a 500 MB postBuffer. Every commit after it, including the six stzDataSet commits, depends on it. Retry later with `git push codeberg docs/reform:refs/heads/main`, or push 870cbacc0 first and the rest after; if it keeps failing the pack (262 MB repository) or the Codeberg connection is the limit, and the author's call is whether to trim the results data.
 
+UPDATE 2026-10-23 (later): CODEBERG IS CURRENT AGAIN. The push of 870cbacc0 alone, then of docs/reform, succeeded on the next attempt; origin, codeberg and docs/reform all read 15ab705af. The failure was transient (a dropped connection), not a size limit. The section above is historical.
+
