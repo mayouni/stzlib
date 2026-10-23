@@ -15,6 +15,7 @@ load "../_narrated.ring"
 # Run from inside its folder: cd base/test/stats
 
 canary = 0
+$ceSeed = 1   # the seed of the random cross-check, a global so the generator can advance it
 
 o1 = new stzCoeffExtractor([ "x", "y" ])
 
@@ -458,6 +459,342 @@ Scenario("The rest of the public surface still answers")
 	decimals(nBefore)
 EndScenario()
 
+# ----------------------------------------------------------------------------------------------
+# extract reads a coefficient by EVALUATING the judged expression (CE2). The plain path used to
+# scan the text: it took x for the x inside xx, ignored a factor outside a parenthesis, and stopped
+# at the first occurrence of a variable. Every value below is computed by hand from the expression.
+# ----------------------------------------------------------------------------------------------
+
+oC = new stzCoeffExtractor([ "x", "xx", "y", "z" ])
+
+Scenario("The three defects of the plain path, hand-computed, with their wrong old answers as negative siblings")
+	n = oC.extract("5*xx + 2*x", "x")
+	Then("5*xx + 2*x: the coefficient of x is 2", Near(n, 2, 0.000000001), 1)
+	Then("and it is not 5, the coefficient of xx that the old scan found inside the name", Near(n, 5, 0.000000001), 0)
+	n = oC.extract("5*xx + 2*x", "xx")
+	Then("5*xx + 2*x: the coefficient of xx is 5", Near(n, 5, 0.000000001), 1)
+	Then("and it is not 2", Near(n, 2, 0.000000001), 0)
+	n = oC.extract("(x + y) * 2 + z", "x")
+	Then("(x + y) * 2 + z: the coefficient of x is 2, the factor outside the parentheses counted", Near(n, 2, 0.000000001), 1)
+	Then("and it is not 1, what the old scan said", Near(n, 1, 0.000000001), 0)
+	n = oC.extract("(x + y) * 2 + z", "y")
+	Then("(x + y) * 2 + z: the coefficient of y is 2", Near(n, 2, 0.000000001), 1)
+	n = oC.extract("(x + y) * 2 + z", "z")
+	Then("(x + y) * 2 + z: the coefficient of z is 1", Near(n, 1, 0.000000001), 1)
+	Then("(x + y) * 2 + z: a variable that is not in it, xx, is 0", oC.extract("(x + y) * 2 + z", "xx"), 0)
+	n = oC.extract("x + 2*x", "x")
+	Then("x + 2*x: the two occurrences are added up: 3", Near(n, 3, 0.000000001), 1)
+	Then("and it is not 1, the first term alone", Near(n, 1, 0.000000001), 0)
+EndScenario()
+
+Scenario("extract on linear expressions of every shape (hand-computed), each with a wrong neighbour refused")
+	aRows = [
+		[ "3*x - 2*y + 5", "x", 3 ],
+		[ "3*x - 2*y + 5", "y", -2 ],
+		[ "3*x - 2*y + 5", "z", 0 ],
+		[ "x/8 + y/4", "x", 0.125 ],
+		[ "x/8 + y/4", "y", 0.25 ],
+		[ "0.5*x", "x", 0.5 ],
+		[ "x*3", "x", 3 ],
+		[ "3*x*2", "x", 6 ],
+		[ "2*(x+1)", "x", 2 ],
+		[ "x - x", "x", 0 ],
+		[ "7", "x", 0 ],
+		[ "-x", "x", -1 ],
+		[ "-(x - y)", "y", 1 ],
+		[ "-(x - y)", "x", -1 ],
+		[ "((x))", "x", 1 ],
+		[ "4*(3*(2*x))", "x", 24 ],
+		[ "x/4/2", "x", 0.125 ],
+		[ "(x + 1)/4", "x", 0.25 ],
+		[ "3 - x", "x", -1 ],
+		[ "3 * -x", "x", -3 ],
+		[ "x - -x", "x", 2 ],
+		[ "1e2*x", "x", 100 ],
+		[ "2.5E-1*x", "x", 0.25 ],
+		[ ".5*x + 5.*x", "x", 5.5 ],
+		[ "0.1*x + 0.2*x", "x", 0.3 ],
+		[ "1000000 + 0.3*x", "x", 0.3 ],
+		[ "2*(x + y*3) - y", "y", 5 ],
+		[ "2*(x + y*3) - y", "x", 2 ],
+		[ "x*xx", "z", 0 ],
+		[ "xx + xx + xx", "xx", 3 ],
+		[ "xx + xx + xx", "x", 0 ],
+		[ "z*0 + x", "z", 0 ],
+		[ "  5 *" + char(9) + "x +  3" + char(9) + "* y  ", "x", 5 ],
+		[ "  5 *" + char(9) + "x +  3" + char(9) + "* y  ", "y", 3 ],
+		[ "pow(x, 2) * 0 + 2*y", "y", 2 ],
+		[ "pow(x, 2) + 3*y", "y", 3 ],
+		[ "sqrt(x) + 3*y", "y", 3 ],
+		[ "abs(3) * x", "x", 3 ],
+		[ "max(2, 5) * x - min(1, 4) * y", "x", 5 ],
+		[ "max(2, 5) * x - min(1, 4) * y", "y", -1 ]
+	]
+	nRows = len(aRows)
+	for i = 1 to nRows
+		n = oC.extract(aRows[i][1], aRows[i][2])
+		Then("[" + aRows[i][1] + "] for " + aRows[i][2] + " is " + aRows[i][3], Near(n, aRows[i][3], 0.000000001), 1)
+		Then("[" + aRows[i][1] + "] for " + aRows[i][2] + " is not " + (aRows[i][3] + 1), Near(n, aRows[i][3] + 1, 0.000000001), 0)
+	next
+EndScenario()
+
+Scenario("The answer does not depend on the order in which the variables are declared")
+	oRev = new stzCoeffExtractor([ "z", "y", "xx", "x" ])
+	aTexts = [ "5*xx + 2*x", "(x + y) * 2 + z", "x + 2*x", "3*x - 2*y + 5", "x/8 + y/4", "pow(x, 2) + 3*y", "-(x - y)" ]
+	aVarsAsked = [ "x", "xx", "y", "z" ]
+	nTexts = len(aTexts)
+	nSame = 0
+	for i = 1 to nTexts
+		for j = 1 to 4
+			nA = oC.extract(aTexts[i], aVarsAsked[j])
+			nB = oRev.extract(aTexts[i], aVarsAsked[j])
+			bSame = Near(nA, nB, 0.000000001)
+			nSame += bSame
+			Then("[" + aTexts[i] + "] for " + aVarsAsked[j] + " is the same in the reverse declaration", bSame, 1)
+		next
+	next
+	Then("all 28 answers agree", nSame, 28)
+	Then("and the reverse extractor reads 2 for x in 5*xx + 2*x", Near(oRev.extract("5*xx + 2*x", "x"), 2, 0.000000001), 1)
+	aAllRev = oRev.extractAllCoefficients("(x + y) * 2 + z")
+	Then("extractAllCoefficients follows the declared order: z y xx x is 1 2 0 2", "" + aAllRev[1] + " " + aAllRev[2] + " " + aAllRev[3] + " " + aAllRev[4], "1 2 0 2")
+	aAllC = oC.extractAllCoefficients("(x + y) * 2 + z")
+	Then("and in the original order x xx y z it is 2 0 2 1", "" + aAllC[1] + " " + aAllC[2] + " " + aAllC[3] + " " + aAllC[4], "2 0 2 1")
+EndScenario()
+
+Scenario("Eight variables, each read exactly")
+	oE = new stzCoeffExtractor([ "a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8" ])
+	aAll = oE.extractAllCoefficients("a1 + 2*a2 + 3*a3 + 4*a4 + 5*a5 + 6*a6 + 7*a7 + 8*a8")
+	Then("eight coefficients come back", len(aAll), 8)
+	nOk = 0
+	for i = 1 to 8
+		nOk += Near(aAll[i], i, 0.000000001)
+	next
+	Then("they are 1 2 3 4 5 6 7 8", nOk, 8)
+	aAll = oE.extractAllCoefficients("(a1 + a2)*3 + a8/4 - 2*(a3 - a4)")
+	aWant8 = [ 3, 3, -2, 2, 0, 0, 0, 0.25 ]
+	nOk = 0
+	for i = 1 to 8
+		nOk += Near(aAll[i], aWant8[i], 0.000000001)
+	next
+	Then("(a1 + a2)*3 + a8/4 - 2*(a3 - a4) gives 3 3 -2 2 0 0 0 0.25", nOk, 8)
+	Then("and a name that only starts like another, a1 against a10, is not confused", Near(oE.extract("a8 + 5", "a1"), 0, 0.000000001), 1)
+	oE2 = new stzCoeffExtractor([ "a1", "a10" ])
+	Then("a10 is read as a10: 2*a10 + a1 gives 1 for a1", Near(oE2.extract("2*a10 + a1", "a1"), 1, 0.000000001), 1)
+	Then("and 2 for a10", Near(oE2.extract("2*a10 + a1", "a10"), 2, 0.000000001), 1)
+EndScenario()
+
+Scenario("When the expression is not linear in the variable, extract gives the slope at the test point 10, as documented")
+	Then("pow(x, 2): 20", Near(oC.extract("pow(x, 2)", "x"), 20, 0.0001), 1)
+	Then("and not 1, what a straight line through x = 0 and x = 1 would say", Near(oC.extract("pow(x, 2)", "x"), 1, 0.0001), 0)
+	Then("x*x: 20", Near(oC.extract("x*x", "x"), 20, 0.0001), 1)
+	Then("abs(x): 1, the rising side at 10", Near(oC.extract("abs(x)", "x"), 1, 0.000001), 1)
+	Then("abs(x - 20): -1, the falling side at 10", Near(oC.extract("abs(x - 20)", "x"), -1, 0.000001), 1)
+	Then("abs(x - 10): 0, the kink sits at the test point and the central step reads 0", Near(oC.extract("abs(x - 10)", "x"), 0, 0.000001), 1)
+	Then("max(x, 0): 1, on its rising branch at 10", Near(oC.extract("max(x, 0)", "x"), 1, 0.000001), 1)
+	Then("max(x, 20): 0, on its flat branch at 10", Near(oC.extract("max(x, 20)", "x"), 0, 0.000001), 1)
+	Then("max([0, x - 5]): 1", Near(oC.extract("max([0, x - 5])", "x"), 1, 0.000001), 1)
+	Then("min(x, 20): 1", Near(oC.extract("min(x, 20)", "x"), 1, 0.000001), 1)
+	Then("sqrt(x): 0.158114", Near(oC.extract("sqrt(x)", "x"), 0.158114, 0.000001), 1)
+	Then("x*y: 10 for x, the value of y at the test point", Near(oC.extract("x*y", "x"), 10, 0.000001), 1)
+	Then("x*y: 10 for y too", Near(oC.extract("x*y", "y"), 10, 0.000001), 1)
+	Then("and x*y for x is not 0, what the old scan read as the coefficient before the star", Near(oC.extract("x*y", "x"), 0, 0.000001), 0)
+	Then("10/x: -0.1 at x = 10", Near(oC.extract("10/x", "x"), -0.1, 0.00001), 1)
+	Then("x/y: 0.1 for x", Near(oC.extract("x/y", "x"), 0.1, 0.00001), 1)
+	Then("pow(x, 2) + 3*y: x is 20", Near(oC.extract("pow(x, 2) + 3*y", "x"), 20, 0.0001), 1)
+	Then("and y is exactly 3, the expression being linear in y", Near(oC.extract("pow(x, 2) + 3*y", "y"), 3, 0.000000001), 1)
+	Then("extractLinearCoefficient says no (an empty text) for pow(x, 2)", oC.extractLinearCoefficient("pow(x, 2)", "x"), "")
+	Then("and no for x*y", oC.extractLinearCoefficient("x*y", "x"), "")
+	Then("and no for a division by the variable, 10/x", oC.extractLinearCoefficient("10/x", "x"), "")
+	Then("and no for sqrt(x), which fails below 0", oC.extractLinearCoefficient("sqrt(x)", "x"), "")
+	Then("and no for a kink between the probe points, max(x, 10.5)", oC.extractLinearCoefficient("max(x, 10.5)", "x"), "")
+	Then("and no for a kink at the test point, abs(x - 10)", oC.extractLinearCoefficient("abs(x - 10)", "x"), "")
+	Then("but a number for a straight line, x/8", Near(oC.extractLinearCoefficient("x/8", "x"), 0.125, 0.000000001), 1)
+	Then("and 0 for a variable the text does not use", oC.extractLinearCoefficient("pow(y, 2)", "x"), 0)
+EndScenario()
+
+Scenario("Text is judged, never run, on the exact path too: a refused text raises and the canary stays 0")
+	canary = 0
+	aRef = [
+		[ "a statement after a semicolon", "x+1;canary=1" ],
+		[ "an incomplete expression", "x +" ],
+		[ "a caret", "x ^ 2" ],
+		[ "an assignment", "x = 1" ],
+		[ "a function that is not listed", "exp(x)" ],
+		[ "two operands", "x y" ],
+		[ "an eval call", 'x+eval("canary=1")' ],
+		[ "a call of a global function", "x+CanaryFn()" ],
+		[ "a call alone", "CanaryFn()" ],
+		[ "a newline injection", "x" + char(10) + "canary=1" ],
+		[ "a brace", "x+{canary=1}" ],
+		[ "a comparison", "x==canary" ],
+		[ "an empty argument list", "pow()" ],
+		[ "a very deep text", DeepText(80) ]
+	]
+	nRef = len(aRef)
+	for i = 1 to nRef
+		cMsg = RaiseOf("oC.extract(aRef[" + i + "][2], 'x')")
+		Then("refused for x: " + aRef[i][1], Has(cMsg, "stzCoeffExtractor: refused"), 1)
+		Then("and the canary is still 0", canary, 0)
+		cMsg = RaiseOf("oC.extract(aRef[" + i + "][2], 'z')")
+		Then("refused for z as well, the name asked does not change the verdict: " + aRef[i][1], Has(cMsg, "stzCoeffExtractor: refused"), 1)
+		cMsg = RaiseOf("oC.extractLinearCoefficient(aRef[" + i + "][2], 'x')")
+		Then("refused by extractLinearCoefficient: " + aRef[i][1], Has(cMsg, "stzCoeffExtractor: refused"), 1)
+		cMsg = RaiseOf("oC.trySimpleExtraction(aRef[" + i + "][2], 'x')")
+		Then("trySimpleExtraction does not run it either: " + aRef[i][1], canary, 0)
+		canary = 0
+	next
+	cMsg = RaiseOf("oC.extract('x+1;canary=1', 'x')")
+	Then("the message names the character that stopped it", Has(cMsg, "character ;"), 1)
+	cMsg = RaiseOf("oC.extract('x+1', 'x')")
+	Then("while the clean sibling x+1 raises nothing", cMsg, "")
+	Then("and answers 1", Near(oC.extract("x+1", "x"), 1, 0.000000001), 1)
+	cMsg = RaiseOf("oC.extract(12, 'x')")
+	Then("an expression that is not a text is refused with a plain message", Has(cMsg, "must be texts"), 1)
+	cMsg = RaiseOf("oC.extract('x+1', 12)")
+	Then("so is a variable name that is not a text", Has(cMsg, "must be texts"), 1)
+	Then("an empty expression has no x: 0", oC.extract("", "x"), 0)
+	Then("so does a text of spaces", oC.extract("   ", "x"), 0)
+	Then("and an empty variable name is 0", oC.extract("x + 1", ""), 0)
+	Then("the declared names are still the four after the refusals", len(oC.VarNames()), 4)
+EndScenario()
+
+Scenario("Names the extractor was not told about (the solvers declare theirs late) and names that look alike")
+	oU = new stzCoeffExtractor([ "x", "y" ])
+	cExpr = "0.15*stocks + 0.04*bonds"
+	Then("stocks is not declared and is read as a variable: 0.15", Near(oU.extract(cExpr, "stocks"), 0.15, 0.000000001), 1)
+	Then("bonds likewise: 0.04", Near(oU.extract(cExpr, "bonds"), 0.04, 0.000000001), 1)
+	Then("x is declared and not in the text: 0", oU.extract(cExpr, "x"), 0)
+	Then("a name nobody mentions, declared or not, is 0", oU.extract(cExpr, "cash"), 0)
+	Then("a bare undeclared name is 1 for itself", oU.extract("foo", "foo"), 1)
+	Then("and 0 for another name", oU.extract("foo", "x"), 0)
+	Then("3*x + w: w is not declared and x is still 3", Near(oU.extract("3*x + w", "x"), 3, 0.000000001), 1)
+	Then("and w is 1", Near(oU.extract("3*x + w", "w"), 1, 0.000000001), 1)
+	Then("the declared names are untouched by all of that", oU.VarNames()[1] + oU.VarNames()[2] + len(oU.VarNames()), "xy2")
+	oN = new stzCoeffExtractor([])
+	Then("an extractor with no declared name reads 5 for x in 5*x + 3*y", Near(oN.extract("5*x + 3*y", "x"), 5, 0.000000001), 1)
+	Then("and 3 for y", Near(oN.extract("5*x + 3*y", "y"), 3, 0.000000001), 1)
+	Then("and 0.125 for x/8", Near(oN.extract("x/8", "x"), 0.125, 0.000000001), 1)
+	cMsg = RaiseOf("oN.extract('pow(x, 2)', 'x')")
+	Then("a non-linear expression still needs the name declared: the numerical path says so", Has(cMsg, "not one of the names"), 1)
+	cMsg = RaiseOf("oU.extract('pow(x, 2)', 'x')")
+	Then("while with x declared the same call raises nothing", cMsg, "")
+	oCS = new stzCoeffExtractor([ "x", "X" ])
+	Then("x and X are two variables: x + 2*X gives 1 for x", Near(oCS.extract("x + 2*X", "x"), 1, 0.000000001), 1)
+	Then("and 2 for X", Near(oCS.extract("x + 2*X", "X"), 2, 0.000000001), 1)
+	oLo = new stzCoeffExtractor([ "x" ])
+	Then("with only x declared, X is another name: X + 2*x gives 2 for x", Near(oLo.extract("X + 2*x", "x"), 2, 0.000000001), 1)
+	Then("and not 3", Near(oLo.extract("X + 2*x", "x"), 3, 0.000000001), 0)
+	oMx = new stzCoeffExtractor([ "x", "max" ])
+	Then("a variable named max beside the function: max + 2*x gives 2 for x", Near(oMx.extract("max + 2*x", "x"), 2, 0.000000001), 1)
+	Then("and 1 for max", Near(oMx.extract("max + 2*x", "max"), 1, 0.000000001), 1)
+	Then("a call of max(1, x) is the function: its slope at 10 is 1", Near(oMx.extract("max(1, x)", "x"), 1, 0.000001), 1)
+	Then("and max is not a variable there: 0", oMx.extract("max(1, x)", "max"), 0)
+EndScenario()
+
+Scenario("collectNames, runFormula, runFormulaMany and probeLinear, one by one")
+	acN = oC.collectNames("2*max(x, y1) + 1e3*foo - .5e-2*x_2 + x + Foo + 7")
+	Then("collectNames skips the function and the numbers and counts each name once: x y1 foo x_2 Foo", "" + len(acN) + " " + acN[1] + " " + acN[2] + " " + acN[3] + " " + acN[4], "5 x y1 foo x_2")
+	Then("and keeps the case: the fifth is Foo, not foo again", acN[5], "Foo")
+	Then("a name before a parenthesis after spaces is a function", len(oC.collectNames("pow  (x, 2)")), 1)
+	Then("a text of numbers has no name", len(oC.collectNames("1.5e3 + 2.E+2 + .25")), 0)
+	Then("a value that is not a text has no name", len(oC.collectNames(12)), 0)
+	aT = oC.translateExpression("2*x + y")
+	nRun = oC.runFormula(aT[2], [ 3, 0, 4, 0 ])
+	Then("runFormula runs the translated 2*x + y at x=3, y=4: 10", Near(nRun, 10, 0.000000001), 1)
+	anMany = oC.runFormulaMany(aT[2], [ [ 3, 0, 4, 0 ], [ 0, 0, 0, 0 ], [ 1, 0, -1, 0 ] ])
+	Then("runFormulaMany gives one number per point", len(anMany), 3)
+	Then("they are 10, 0 and 1", "" + anMany[1] + " " + anMany[2] + " " + anMany[3], "10 0 1")
+	aTd = oC.translateExpression("x / y")
+	cMsg = RaiseOf("oC.runFormulaMany(aTd[2], [ [ 1, 0, 2, 0 ], [ 1, 0, 0, 0 ] ])")
+	Then("one point that divides by zero fails the whole call, in plain words", Has(cMsg, "divides by zero"), 1)
+	cMsg = RaiseOf("oC.runFormulaMany(aTd[2], [ [ 1, 0, 2, 0 ] ])")
+	Then("while the point away from zero raises nothing", cMsg, "")
+	aTs = oC.translateExpression("sqrt(x)")
+	cMsg = RaiseOf("oC.runFormulaMany(aTs[2], [ [ -4, 0, 0, 0 ] ])")
+	Then("a square root of a negative number is reported as not evaluable", Has(cMsg, "could not be evaluated"), 1)
+	aTo = oC.translateExpression("1e999 * x")
+	cMsg = RaiseOf("oC.runFormulaMany(aTo[2], [ [ 3, 0, 0, 0 ] ])")
+	Then("an overflow is reported as not finite", Has(cMsg, "finite"), 1)
+	Then("probeLinear reads 2 in 2*x + y for x (position 1 of 4)", Near(oC.probeLinear(aT[2], 4, 1), 2, 0.000000001), 1)
+	Then("and 1 for y (position 3)", Near(oC.probeLinear(aT[2], 4, 3), 1, 0.000000001), 1)
+	aTp = oC.translateExpression("x * y")
+	Then("probeLinear says no for x * y, whose rise depends on y", oC.probeLinear(aTp[2], 4, 1), "")
+	Then("trySimpleExtraction reads 3 in x*3 (it used to raise a numeric-string error)", Near(oC.trySimpleExtraction("x*3", "x"), 3, 0.000000001), 1)
+	Then("trySimpleExtraction reads 3 in x*3 for the right variable only: y is 0", oC.trySimpleExtraction("x*3", "y"), 0)
+	Then("trySimpleExtraction still hands pow(x, 2) to the numerical path with an empty text", oC.trySimpleExtraction("pow(x, 2)", "x"), "")
+	Then("and a text without function or slash that is not linear, x*y, with an empty text too", oC.trySimpleExtraction("x*y", "x"), "")
+	cMsg = RaiseOf("oC.extractLinearCoefficient(12, 'x')")
+	Then("extractLinearCoefficient refuses a number as the expression", Has(cMsg, "must be texts"), 1)
+EndScenario()
+
+Scenario("The memory of answers is emptied when the names or the step change, and it never keeps an error")
+	oK = new stzCoeffExtractor([ "x", "y" ])
+	Then("pow(x, 2) asked once: 20", Near(oK.extract("pow(x, 2)", "x"), 20, 0.0001), 1)
+	Then("asked again it gives the same 20", Near(oK.extract("pow(x, 2)", "x"), 20, 0.0001), 1)
+	oK.setPerturbationDelta(0)
+	cMsg = RaiseOf("oK.extract('pow(x, 2)', 'x')")
+	Then("after the step is set to 0 the same call raises, so the old answer was not served", Has(cMsg, "must be positive"), 1)
+	oK.setPerturbationDelta(0.001)
+	Then("with the step put back it answers 20 again", Near(oK.extract("pow(x, 2)", "x"), 20, 0.0001), 1)
+	oK.setVariableNames([ "y" ])
+	cMsg = RaiseOf("oK.extract('pow(x, 2)', 'x')")
+	Then("after the names change to y alone, x is not one of them and the same call raises", Has(cMsg, "not one of the names"), 1)
+	oK.setVariableNames([ "x", "y" ])
+	Then("with the names put back it answers 20 again", Near(oK.extract("pow(x, 2)", "x"), 20, 0.0001), 1)
+	Then("a linear answer is remembered too: 3*x + 2*y gives 3", Near(oK.extract("3*x + 2*y", "x"), 3, 0.000000001), 1)
+	oK.setVariableNames([ "x", "y" ])
+	Then("and still 3 after the names are set again to the same list", Near(oK.extract("3*x + 2*y", "x"), 3, 0.000000001), 1)
+	nBad = 0
+	for i = 1 to 410
+		nGot = oK.extract("x + " + i + "*y", "y")
+		if NOT Near(nGot, i, 0.000000001)
+			nBad++
+		ok
+	next
+	Then("410 different expressions, more than the memory holds, are all answered right", nBad, 0)
+	Then("and the first one is still right after the memory was emptied on the way: 1", Near(oK.extract("x + 1*y", "y"), 1, 0.000000001), 1)
+	Then("as is 3*x + 2*y", Near(oK.extract("3*x + 2*y", "x"), 3, 0.000000001), 1)
+	cMsg = RaiseOf("oK.extract('x+1;canary=1', 'x')")
+	cMsg2 = RaiseOf("oK.extract('x+1;canary=1', 'x')")
+	Then("a refusal is not remembered as an answer: it raises the second time too", Has(cMsg2, "refused"), 1)
+EndScenario()
+
+Scenario("200 random linear expressions in three spellings, every coefficient of x, xx, y, yy read exactly")
+	# The generator (CeGenCases, at the end of the file) writes each text and computes its true
+	# coefficients on the way, from a fixed LCG seed, independently of the extractor. Spellings:
+	# a*x + b*y + c, (a*x + b*y + c)*k + d, a*x + b*y + c*x + d, with a*v, v*a and a bare v.
+	# Against the plain path of 35c721a03, 187 of these 200 were answered wrongly or raised an error
+	# (118 with a silent wrong answer), measured on 2026-10-23.
+	aCases = CeGenCases(200)
+	Then("200 expressions were generated", len(aCases), 200)
+	oR4 = new stzCoeffExtractor([ "x", "xx", "y", "yy" ])
+	aNames4 = [ "x", "xx", "y", "yy" ]
+	nWithXX = 0
+	nExact = 0
+	for i = 1 to 200
+		cWant = ""
+		nAll = 1
+		for v = 1 to 4
+			nGot = oR4.extract(aCases[i][1], aNames4[v])
+			nAll *= Near(nGot, aCases[i][2][v], 0.000001)
+			cWant += "" + aCases[i][2][v] + " "
+		next
+		nExact += nAll
+		if Has(aCases[i][1], "xx")
+			nWithXX++
+		ok
+		Then("case " + i + " [" + aCases[i][1] + "]: want " + cWant, nAll, 1)
+	next
+	Then("all 200 are exact", nExact, 200)
+	Then("the corpus is not vacuous: at least 60 texts use xx next to x", nWithXX >= 60, 1)
+	aAllFirst = oR4.extractAllCoefficients(aCases[1][1])
+	nAgree = 0
+	for v = 1 to 4
+		nAgree += Near(aAllFirst[v], aCases[1][2][v], 0.000001)
+	next
+	Then("extractAllCoefficients agrees with the generator on the first case", nAgree, 4)
+EndScenario()
+
 Summary()
 
 # helpers go at the END: top-level code after a func belongs to that func
@@ -590,6 +927,95 @@ func DeepText(n)
 		cT += ")"
 	next
 	return cT
+
+func CeRand(nMax)
+	$ceSeed = ($ceSeed * 16807) % 2147483647
+	return $ceSeed % nMax
+
+# nCases random linear expressions over x, xx, y, yy, in three spellings; each is [ text, [ c(x), c(xx), c(y), c(yy) ] ],
+# the true coefficients being computed here while the text is written, independently of the extractor
+func CeGenCases(nCases)
+	$ceSeed = 20261022
+	aNames = [ "x", "xx", "y", "yy" ]
+	aOut = []
+	for iCase = 1 to nCases
+		nStyle = (iCase - 1) % 3 + 1
+		nTerms = CeRand(4) + 1
+		anCoef = [ 0, 0, 0, 0 ]
+		cBody = ""
+		iFirstVar = 0
+		for iT = 1 to nTerms
+			iVar = CeRand(4) + 1
+			nA = CeRand(19) - 9
+			if iT = 1
+				iFirstVar = iVar
+			ok
+			nSpell = CeRand(3)
+			nAbs = nA
+			if nA < 0
+				nAbs = -nA
+			ok
+			if nSpell = 0
+				cTerm = "" + nAbs + "*" + aNames[iVar]
+			but nSpell = 1
+				cTerm = aNames[iVar] + "*" + nAbs
+			else
+				if nAbs = 1
+					cTerm = aNames[iVar]
+				else
+					cTerm = "" + nAbs + "*" + aNames[iVar]
+				ok
+			ok
+			cSep = " "
+			if CeRand(2) = 0
+				cSep = ""
+			ok
+			if iT = 1
+				if nA < 0
+					cBody = "-" + cTerm
+				else
+					cBody = cTerm
+				ok
+			else
+				if nA < 0
+					cBody = cBody + cSep + "-" + cSep + cTerm
+				else
+					cBody = cBody + cSep + "+" + cSep + cTerm
+				ok
+			ok
+			anCoef[iVar] = anCoef[iVar] + nA
+		next
+		nConst = CeRand(19) - 9
+		if nStyle = 1
+			cText = cBody + " + " + nConst
+			if nConst < 0
+				cText = cBody + " - " + (-nConst)
+			ok
+		but nStyle = 2
+			nK = CeRand(4) + 2
+			cInner = "(" + cBody + " + " + nConst + ")"
+			if nConst < 0
+				cInner = "(" + cBody + " - " + (-nConst) + ")"
+			ok
+			if CeRand(2) = 0
+				cText = cInner + " * " + nK + " + 4"
+			else
+				cText = "" + nK + "*" + cInner + " - 3"
+			ok
+			for i = 1 to 4
+				anCoef[i] = anCoef[i] * nK
+			next
+		else
+			nC = CeRand(9) + 1
+			cText = cBody + " + " + nC + "*" + aNames[iFirstVar] + " + " + nConst
+			if nConst < 0
+				cText = cBody + " + " + nC + "*" + aNames[iFirstVar] + " - " + (-nConst)
+			ok
+			anCoef[iFirstVar] = anCoef[iFirstVar] + nC
+		ok
+		aOut + [ cText, anCoef ]
+	next
+	return aOut
 
 # a class goes last of all: a func written after a class would belong to it
 

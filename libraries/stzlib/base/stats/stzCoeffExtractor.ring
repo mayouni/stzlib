@@ -10,9 +10,9 @@
 # - Batch operations: All coefficients at once
 # - Validation: Expression correctness checking
 
-#NOTE The numerical differentiation approach handles the complex
-# cases that pattern matching can't, while the fast path efficiently
-# processes simple linear expressions.
+#NOTE A linear expression is read exactly, by evaluating the judged
+# text at a few points. The numerical differentiation approach handles
+# the cases that are not linear.
 # What works well:
 #-----------------
 
@@ -63,16 +63,19 @@
 
 class StzCoefficientExtractor from stzCoeffExtractor
 
-# Reads the coefficient of a variable in a linear expression, for the solvers that turn text into numbers.
+# Reads the coefficient of a variable in an expression, for the solvers that turn text into numbers.
 #
-# For a plain linear expression such as 5*x + 3*y - 2*z it reads each term and gives 5, 3 and -2; a
-# variable written without a star has coefficient 1 or -1, an absent one 0. A non-linear expression
-# (a slash, pow, sqrt, abs, min or max) is handled by nudging the variable around the point where
-# every variable is 10: x/8 + y/4 gives 0.125 and 0.25, pow(x, 2) gives 20. That path evaluates the
-# text, but only after judging it: numbers, the declared variables, + - * / ( ) , and pow, sqrt, abs,
-# min, max are accepted, anything else is refused with a plain error and nothing is run. The plain
-# path matches names as substrings, so give variables names that are not parts of one another.
-# Building it sets Ring's display precision to 4 decimals until a brace ends or BraceEnd is called.
+# When the expression is linear in the variable the coefficient is exact: 5*x + 3*y - 2*z gives 5, 3
+# and -2, x + 2*x gives 3 for x, (x + y)*2 + z gives 2 for x, x/8 + y/4 gives 0.125 and 0.25. It is
+# found by evaluating the judged text at a few points and never by reading its characters, so a name
+# inside another name is no trouble: 5*xx + 2*x gives 2 for x. A variable written alone has
+# coefficient 1 or -1, an absent one 0. When the expression is not linear in the variable (pow, sqrt,
+# a kink of abs, min or max near the test point, x*y, a division by a variable) the answer is the slope
+# around the point where every variable is 10: pow(x, 2) gives 20. Both ways judge the text first:
+# numbers, the variables, + - * / ( ) , and pow, sqrt, abs, min, max are accepted, anything else is
+# refused with a plain error and nothing is run. A name that was not declared is read as one more
+# variable. Building it sets Ring's display precision to 4 decimals until a brace ends or BraceEnd is
+# called.
 #
 #   receiver   o1 = new stzCoeffExtractor([ "x", "y", "z" ])
 #   example    ? o1.extract("5*x + 3*y - 2*z", "z")
@@ -89,6 +92,11 @@ class stzCoeffExtractor from stzObject
 
 	@nInternalPrecision = 4
 	@nOutsidePrecision = CurrentRound()
+
+	# answers already found, as two parallel lists: the key (expression + char(1) + variable) and the
+	# number; emptied when the names or the step change, so an answer never outlives what it depends on
+	@acCacheKeys = []
+	@anCacheVals = []
 
 	# Builds an extractor for the named variables and sets Ring's display precision to 4 decimals until BraceEnd puts it back.
 	#
@@ -109,6 +117,8 @@ class stzCoeffExtractor from stzObject
 	#   see        VarNames, init
 	def setVariableNames(p@aVars)
 		@aVars = p@aVars
+		@acCacheKeys = []
+		@anCacheVals = []
 			
 	# Sets the small step by which the numerical method nudges a variable; the default is 0.001.
 	#
@@ -117,6 +127,8 @@ class stzCoeffExtractor from stzObject
 	#   see        numericalDerivative
 	def setPerturbationDelta(pnDelta)
 		@nPerturbationDelta = pnDelta
+		@acCacheKeys = []
+		@anCacheVals = []
 	
 	# Puts Ring's display precision back to what it was when the extractor was built, at the closing of a brace.
 	#
@@ -126,41 +138,61 @@ class stzCoeffExtractor from stzObject
 	def BraceEnd()
 		decimals(@nOutsidePrecision)
 
-	# Returns the coefficient of one variable in an expression, read term by term when the expression is plain linear.
+	# Returns the coefficient of one variable in an expression: exact when it is linear in it, a slope at 10 when not.
+	#
+	# The text is judged first (see judgeExpression), so only numbers, variables, + - * / ( ) , and
+	# pow, sqrt, abs, min, max are ever evaluated; a text outside that grammar raises a plain error
+	# and nothing runs. A name the extractor was not told about is read as one more variable of the
+	# expression, because the solvers declare their variables late; it never reaches the evaluator
+	# as text, only as a position. When the expression is linear in the variable the answer is the
+	# number a in a*x + rest, found by evaluating the judged expression and checked on more points
+	# and with the other variables at two values (see extractLinearCoefficient): x + 2*x gives 3,
+	# (x + y)*2 + z gives 2 for x, 5*xx + 2*x gives 2 for x, 2*(x + 1) gives 2. A variable the
+	# expression does not use, or a constant text, gives 0. When the expression is not linear in the
+	# variable (pow, sqrt, an abs or max kink near the test point, x*y, a division by a variable) the
+	# answer is the slope at the test point where every variable is 10, from numericalDerivative.
 	#
 	#   cExpression   the expression text, such as 5*x + 3*y - 2*z
-	#   _cVarName_    the variable whose coefficient is wanted
+	#   _cVarName_    the variable whose coefficient is wanted; names are whole words and case-sensitive
 	#   returns       a number; 0 when the name does not appear
-	#   note          ExtractCoefficient and ExtractCoeff are the same call
-	#   warning       an expression with /, pow, sqrt, max, min or abs is differentiated numerically
-	#                 at the test point 10 and raises a plain error text, with nothing run, when it
-	#                 is outside the accepted grammar (see judgeExpression); the plain path reads
-	#                 variable names as substrings, so for 5*xx + 2*x it answers 5 for x, and a
-	#                 repeated variable gives only its first term
-	#   see           extractAllCoefficients, trySimpleExtraction, numericalDerivative, judgeExpression
+	#   note          ExtractCoefficient and ExtractCoeff are the same call; the answer is rounded to
+	#                 six decimals by roundCoefficient
+	#   warning       raises a plain error text, with nothing run, when the expression is outside the
+	#                 accepted grammar; a non-linear expression is differentiated numerically at the
+	#                 test point 10 and raises there when the variable or a name of the expression
+	#                 is not one the extractor knows
+	#   see           extractAllCoefficients, extractLinearCoefficient, numericalDerivative, judgeExpression
 	#@ aka  Main method: Extract coefficient
 	def extract(cExpression, _cVarName_)
 
-		_nResult_ = 0
+		# An answer already found for the same text and name is given back (a solver asks again and again)
+		_cKey_ = ""
+		if isString(cExpression) and isString(_cVarName_)
+			_cKey_ = cExpression + ring_char(1) + _cVarName_
+			_nAt_ = ring_find(@acCacheKeys, _cKey_)
+			if _nAt_ > 0
+				return @anCacheVals[_nAt_]
+			ok
+		ok
 
-		if not ring_substr1(cExpression, _cVarName_)
-			return 0
-			return _nResult_
+		# Exact answer first: the judged expression, evaluated, when it is linear in the variable
+		_nAnswer_ = This.extractLinearCoefficient(cExpression, _cVarName_)
+
+		# Not linear in this variable: the slope at the test point
+		if NOT isNumber(_nAnswer_)
+			_nAnswer_ = This.numericalDerivative(cExpression, _cVarName_)
 		ok
-		
-		# Try simple pattern matching first (for performance)
-		_nSimpleCoeff_ = This.trySimpleExtraction(cExpression, _cVarName_)
-		if _nSimpleCoeff_ != ""
-			return _nSimpleCoeff_
-			_nResult_ = _nSimpleCoeff_
+
+		if _cKey_ != ""
+			if ring_len(@acCacheKeys) >= 400
+				@acCacheKeys = []
+				@anCacheVals = []
+			ok
+			@acCacheKeys + _cKey_
+			@anCacheVals + _nAnswer_
 		ok
-		
-		# Fall back to numerical differentiation
-		return This.numericalDerivative(cExpression, _cVarName_)
-	
-		_nResult_ = This.numericalDerivative(cExpression, _cVarName_)
-		return _nResult_
-	
+		return _nAnswer_
+
 		def ExtractCoefficient(cExpression, _cVarName_)
 			return This.Extract(cExpression, _cVarName_)
 
@@ -168,24 +200,28 @@ class stzCoeffExtractor from stzObject
 			return This.Extract(cExpression, _cVarName_)
 
 
-	# Returns the coefficient when the expression is plain linear, and an empty text when it is not, which tells extract to differentiate.
+	# Returns the coefficient when the text has no slash or function, and an empty text when it has one or is not linear.
+	#
+	# It is the gate of the first design, kept for the callers that used it: a text with min(, max(,
+	# abs(, sqrt(, pow(, a slash or a caret answers an empty text at once, and any other text goes to
+	# extractLinearCoefficient, so it is judged and evaluated and never scanned.
 	#
 	#   cExpression   the expression text
 	#   _cVarName_    the variable
-	#   returns       a number, or an empty text for a non-linear expression
-	#   warning       the same substring reading of names as extract
-	#   see           extract, isSimpleLinearExpression
+	#   returns       a number, or an empty text for a text with a function or a slash or one that is not linear
+	#   warning       raises a plain error text when the text is outside the accepted grammar
+	#   see           extract, isSimpleLinearExpression, extractLinearCoefficient
 	#@ aka  Fast path for simple linear expressions
 	def trySimpleExtraction(cExpression, _cVarName_)
 		_cExpr_ = This.normalizeExpression(cExpression)
-		
+
 		# Check if it's a simple linear form
 		if This.isSimpleLinearExpression(_cExpr_)
-			return This.extractLinearCoefficient(_cExpr_, _cVarName_)
+			return This.extractLinearCoefficient(cExpression, _cVarName_)
 		ok
-		
+
 		return ""  # Indicates need for numerical method
-	
+
 	# Returns the expression with its spaces and tabs removed.
 	#
 	#   cExpression   the expression text
@@ -196,7 +232,7 @@ class stzCoeffExtractor from stzObject
 		_cExpr_ = StzReplace(_cExpr_, " ", "")  # Remove spaces
 		_cExpr_ = StzReplace(_cExpr_, ring_char(9), "") # Remove tabs
 		return _cExpr_
-	
+
 	# TRUE if the expression has none of min(, max(, abs(, sqrt(, pow(, a slash or a caret, so it can be read term by term.
 	#
 	#   cExpression   the expression text, already without spaces
@@ -205,7 +241,7 @@ class stzCoeffExtractor from stzObject
 	def isSimpleLinearExpression(cExpression)
 		# Check if expression contains only +, -, *, numbers, and variables
 		# No functions, parentheses (except simple grouping), or complex operations
-		
+
 		# Quick heuristic: if it contains function calls or complex operators, it's not simple
 		if ring_substr1(cExpression, "min(") or ring_substr1(cExpression, "max(") or
 		   ring_substr1(cExpression, "abs(") or ring_substr1(cExpression, "sqrt(") or
@@ -213,50 +249,244 @@ class stzCoeffExtractor from stzObject
 		   ring_substr1(cExpression, "^")
 			return 0
 		ok
-		
+
 		return 1
-	
-	# Returns the number before the star in the first term that mentions the variable; 1 or -1 when none, 0 when no term.
+
+	# Returns the exact coefficient of a variable when the judged expression is linear in it, and an empty text when it is not.
 	#
-	#   cExpression   the expression text without spaces
-	#   _cVarName_    the variable
-	#   returns       a number
-	#   warning       the first term containing the name as a substring wins, so xx is taken for x
-	#   see           trySimpleExtraction
+	# The expression is judged (see judgeExpression) with the variables the extractor knows plus
+	# every other name the text uses, then evaluated, never scanned as text. The coefficient is
+	# a = f(x=1) - f(x=0) with the other variables at 0. It is linear only when the expression
+	# also fits that line at x = 2, -3, 9, 10, 11 and 100, and gives the same a with the other
+	# variables at 7, all within a relative 1e-9; the points 9, 10 and 11 are there so that a kink at
+	# the test point of the numerical path is never taken for a straight line. Names are whole words
+	# and case-sensitive: in 5*xx + 2*x the variable x has coefficient 2, and a repeated variable is
+	# added up: x + 2*x gives 3. An expression that fails at one of the points, such as sqrt(x) at -3
+	# or 1/x at 0, is not linear. A text that does not use the variable, or an empty text, gives 0.
+	#
+	#   cExpression   the expression text
+	#   _cVarName_    the variable; a name the extractor was not told about is allowed
+	#   returns       a number rounded by roundCoefficient; an empty text when not linear in the variable
+	#   warning       raises a plain error text, with nothing run, when the text is outside the accepted
+	#                 grammar or is not a text; a name that is also a function (max, pow) stands for the
+	#                 function when a parenthesis follows it
+	#   see           extract, trySimpleExtraction, judgeExpression, evaluateExpression
 	def extractLinearCoefficient(cExpression, _cVarName_)
-		_cExpr_ = StzReplace(cExpression, "-", "+-")  # Handle negative terms
-		_acTerms_ = @split(_cExpr_, "+")
-		_nLen_ = len(_acTerms_)
+		if NOT isString(cExpression) or NOT isString(_cVarName_)
+			raise("stzCoeffExtractor: the expression and the variable name must be texts")
+		ok
+		if ring_len(This.normalizeExpression(cExpression)) = 0 or ring_len(_cVarName_) = 0
+			return 0
+		ok
 
-		for i = 1 to _nLen_
-			_cTerm_ = @trim(_acTerms_[i])
-			if _cTerm_ = "" loop ok
-			
-			if ring_substr1(_cTerm_, _cVarName_)
-				if ring_substr1(_cTerm_, "*")
-					# Extract coefficient before *
-					_nPos_ = ring_substr1(_cTerm_, "*")
+		# The names of this call: the declared ones, in their order, then the other names of the text
+		_acNames_ = []
+		_nDeclared_ = ring_len(@aVars)
+		for _iDecl_ = 1 to _nDeclared_
+			_acNames_ + @aVars[_iDecl_]
+		next
+		_acUsed_ = This.collectNames(cExpression)
+		_nUsed_ = ring_len(_acUsed_)
+		for _iUsed_ = 1 to _nUsed_
+			_bKnown_ = 0
+			for _iDecl_ = 1 to _nDeclared_
+				if isString(_acNames_[_iDecl_])
+					if strcmp(_acNames_[_iDecl_], _acUsed_[_iUsed_]) = 0
+						_bKnown_ = 1
+						exit
+					ok
+				ok
+			next
+			if NOT _bKnown_
+				_acNames_ + _acUsed_[_iUsed_]
+			ok
+		next
 
-					_cCoeff_ = trim(@StzMid(_cTerm_, 1, _nPos_-1))
-					if _cCoeff_ = "" or _cCoeff_ = "+"
-						return 1
-					ok
-					if _cCoeff_ = "-"
-						return -1
-					ok
-					return 0 + _cCoeff_
-				else
-					# Variable without explicit coefficient
-					if StzLeft(_cTerm_, 1) = "-"
-						return -1
-					ok
-					return 1
+		_nPos_ = 0
+		_nNames_ = ring_len(_acNames_)
+		for _iName_ = 1 to _nNames_
+			if isString(_acNames_[_iName_])
+				if strcmp(_acNames_[_iName_], _cVarName_) = 0
+					_nPos_ = _iName_
+					exit
 				ok
 			ok
 		next
-		
-		return 0
-	
+
+		# Judged with those names; the declared list is put back whatever happens
+		_aSavedVars_ = @aVars
+		@aVars = _acNames_
+		try
+			_aTranslated_ = This.translateExpression(cExpression)
+		catch
+			_aTranslated_ = [ "refused: the expression could not be read", "", [] ]
+		done
+		@aVars = _aSavedVars_
+		if _aTranslated_[1] != ""
+			raise("stzCoeffExtractor: " + _aTranslated_[1])
+		ok
+
+		if _nPos_ = 0
+			return 0
+		ok
+		if _aTranslated_[3][_nPos_] = 0
+			return 0
+		ok
+		return This.probeLinear(_aTranslated_[2], _nNames_, _nPos_)
+
+
+	# Returns the names a text uses as variables, in order of appearance, without the numbers and the function names.
+	#
+	# It reads the text the way judgeExpression does: 1e3 and 2.5E-2 are numbers, a name followed by a
+	# parenthesis is a function, any other name counts once. It judges nothing; the judge decides.
+	#
+	#   cExpression   the expression text
+	#   returns       a list of names, each once, case-sensitive
+	#   note          a value that is not a text gives an empty list
+	#   see           extractLinearCoefficient, translateExpression
+	def collectNames(cExpression)
+		_acFound_ = []
+		if NOT isString(cExpression)
+			return _acFound_
+		ok
+		_cAlpha_ = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_"
+		_cDigits_ = "0123456789"
+		_nLen_ = ring_len(cExpression)
+		_cE_ = cExpression + "~~"
+		_nI_ = 1
+		while _nI_ <= _nLen_
+			_c_ = _cE_[_nI_]
+			if ring_substr1(_cDigits_, _c_) > 0 or ( _c_ = "." and ring_substr1(_cDigits_, _cE_[_nI_ + 1]) > 0 )
+				# a number, with its decimals and its exponent
+				while ring_substr1(_cDigits_, _cE_[_nI_]) > 0
+					_nI_++
+				end
+				if _cE_[_nI_] = "."
+					_nI_++
+					while ring_substr1(_cDigits_, _cE_[_nI_]) > 0
+						_nI_++
+					end
+				ok
+				if ring_lower(_cE_[_nI_]) = "e"
+					_nJ_ = _nI_ + 1
+					if _cE_[_nJ_] = "+" or _cE_[_nJ_] = "-"
+						_nJ_++
+					ok
+					if ring_substr1(_cDigits_, _cE_[_nJ_]) > 0
+						while ring_substr1(_cDigits_, _cE_[_nJ_]) > 0
+							_nJ_++
+						end
+						_nI_ = _nJ_
+					ok
+				ok
+			but ring_substr1(_cAlpha_, _c_) > 0
+				_cName_ = ""
+				while ring_substr1(_cAlpha_, _cE_[_nI_]) > 0 or ring_substr1(_cDigits_, _cE_[_nI_]) > 0
+					_cName_ += _cE_[_nI_]
+					_nI_++
+				end
+				_nK_ = _nI_
+				while _cE_[_nK_] = " " or _cE_[_nK_] = ring_char(9)
+					_nK_++
+				end
+				if _cE_[_nK_] != "("
+					_bSeen_ = 0
+					_nFound_ = ring_len(_acFound_)
+					for _iSeen_ = 1 to _nFound_
+						if strcmp(_acFound_[_iSeen_], _cName_) = 0
+							_bSeen_ = 1
+							exit
+						ok
+					next
+					if NOT _bSeen_
+						_acFound_ + _cName_
+					ok
+				ok
+			else
+				_nI_++
+			ok
+		end
+		return _acFound_
+
+
+	# Returns the coefficient of a variable in a judged formula when the formula is linear in it, and an empty text when it is not.
+	#
+	# The formula is the one translateExpression builds, which reads its values from a list by
+	# position. It is run with the variable at 0, 1, 2, -3, 9, 10, 11 and 100 while every other variable
+	# stands at 0, and again while they stand at 7. The coefficient is the rise between 0 and 1; the
+	# formula is linear only when all the points fit that line and both settings give the same rise,
+	# within a relative 1e-9. A point where the formula fails, such as a division by zero, ends the
+	# probe: the answer is then an empty text.
+	#
+	#   cFormula   the formula text from translateExpression
+	#   nVars      how many values the formula may read
+	#   nPos       the position of the variable among them
+	#   returns    a number rounded by roundCoefficient, or an empty text
+	#   see        extractLinearCoefficient, runFormulaMany
+	def probeLinear(cFormula, nVars, nPos)
+		_aOthers_ = [ 0, 7 ]
+		_aXs_ = [ 0, 1, 2, -3, 9, 10, 11, 100 ]
+		_nXs_ = ring_len(_aXs_)
+
+		# Every point of both settings, run in ONE evaluation: starting Ring's evaluator costs far more than the formula
+		_aPoints_ = []
+		for _iSet_ = 1 to 2
+			for _iX_ = 1 to _nXs_
+				_aPoint_ = []
+				for _iVal_ = 1 to nVars
+					_aPoint_ + _aOthers_[_iSet_]
+				next
+				_aPoint_[nPos] = _aXs_[_iX_]
+				_aPoints_ + _aPoint_
+			next
+		next
+		_bOk_ = 1
+		_anAll_ = []
+		try
+			_anAll_ = This.runFormulaMany(cFormula, _aPoints_)
+		catch
+			_bOk_ = 0
+		done
+		if NOT _bOk_
+			return ""
+		ok
+
+		_nRise_ = 0
+		for _iSet_ = 1 to 2
+			_nBase_ = (_iSet_ - 1) * _nXs_
+			_nSetRise_ = _anAll_[_nBase_ + 2] - _anAll_[_nBase_ + 1]
+			for _iX_ = 1 to _nXs_
+				_nGot_ = _anAll_[_nBase_ + _iX_]
+				_nWant_ = _anAll_[_nBase_ + 1] + _nSetRise_ * _aXs_[_iX_]
+				_nScale_ = 1
+				if abs(_nGot_) > _nScale_
+					_nScale_ = abs(_nGot_)
+				ok
+				if abs(_nWant_) > _nScale_
+					_nScale_ = abs(_nWant_)
+				ok
+				if abs(_nGot_ - _nWant_) > 0.000000001 * _nScale_
+					return ""
+				ok
+			next
+
+			if _iSet_ = 1
+				_nRise_ = _nSetRise_
+			else
+				_nScale_ = 1
+				if abs(_nRise_) > _nScale_
+					_nScale_ = abs(_nRise_)
+				ok
+				if abs(_nSetRise_) > _nScale_
+					_nScale_ = abs(_nSetRise_)
+				ok
+				if abs(_nSetRise_ - _nRise_) > 0.000000001 * _nScale_
+					return ""
+				ok
+			ok
+		next
+		return This.roundCoefficient(_nRise_)
+
 
 	# Returns the slope of an expression along one variable at the test point, by a central difference.
 	#
@@ -727,10 +957,46 @@ class stzCoeffExtractor from stzObject
 		next
 
 		# The formula holds only what the translation put there
-		_nResult_ = ""
+		return This.runFormula(_aTranslated_[2], _aEv_)
+
+
+
+	# Runs a formula that translateExpression built on a list of values and returns the number it gives.
+	#
+	# The formula holds only what the translation put there: numbers, positions into the list of
+	# values, the operators, parentheses, commas and the five functions. Ring's own failures are turned
+	# into plain texts, so nothing from Ring's evaluator reaches the caller.
+	#
+	#   cFormula   the formula text from translateExpression
+	#   _aEv_      a list of numbers, one per known variable, in the order of the names
+	#   returns    a number, finite
+	#   warning    raises a plain error text when the formula divides by zero, cannot be evaluated at
+	#              this point, or does not give a finite number
+	#   see        evaluateExpression, runFormulaMany, translateExpression
+	def runFormula(cFormula, _aEv_)
+		_anValues_ = This.runFormulaMany(cFormula, [ _aEv_ ])
+		return _anValues_[1]
+
+
+	# Runs a formula that translateExpression built at several points in one evaluation and returns the numbers it gives.
+	#
+	# Ring's evaluator costs about ten milliseconds to start, far more than the arithmetic, so the
+	# points are run in a single loop inside one evaluation. The text that is evaluated is the formula
+	# the translation built, wrapped in a fixed loop; the points are read from a list, never printed
+	# into the text. One failing point fails the whole call.
+	#
+	#   cFormula   the formula text from translateExpression
+	#   aPoints    a list of points, each a list of numbers, one per known variable, in the order of the names
+	#   returns    a list with one finite number per point
+	#   warning    raises a plain error text when the formula divides by zero, cannot be evaluated at a
+	#              point, or does not give a finite number there
+	#   see        runFormula, probeLinear, translateExpression
+	def runFormulaMany(cFormula, aPoints)
+		_aPts_ = aPoints
+		_anOut_ = []
 		_cFailure_ = ""
 		try
-			eval("_nResult_ = " + _aTranslated_[2])
+			eval("for _iPt_ = 1 to ring_len(_aPts_) " + ring_char(10) + "_aEv_ = _aPts_[_iPt_] " + ring_char(10) + "_anOut_ + (" + cFormula + ") " + ring_char(10) + "next")
 		catch
 			_cFailure_ = cCatchError
 		done
@@ -741,15 +1007,21 @@ class stzCoeffExtractor from stzObject
 			ok
 			raise("stzCoeffExtractor: the expression could not be evaluated at this point")
 		ok
-		if NOT isNumber(_nResult_)
+		_nOutLen_ = ring_len(_anOut_)
+		if _nOutLen_ != ring_len(_aPts_)
 			raise("stzCoeffExtractor: the expression did not give a number")
 		ok
 		# not a number (nan) and infinities are not answers
 		_nBig_ = ring_pow(10, 300)
-		if NOT ( _nResult_ = _nResult_ ) or _nResult_ > _nBig_ or _nResult_ < -_nBig_
-			raise("stzCoeffExtractor: the expression did not give a finite number at this point")
-		ok
-		return _nResult_
+		for _iOut_ = 1 to _nOutLen_
+			if NOT isNumber(_anOut_[_iOut_])
+				raise("stzCoeffExtractor: the expression did not give a number")
+			ok
+			if NOT ( _anOut_[_iOut_] = _anOut_[_iOut_] ) or _anOut_[_iOut_] > _nBig_ or _anOut_[_iOut_] < -_nBig_
+				raise("stzCoeffExtractor: the expression did not give a finite number at this point")
+			ok
+		next
+		return _anOut_
 
 
 	# Returns a coefficient rounded to six decimals, as a whole number when it is within a millionth of one.
