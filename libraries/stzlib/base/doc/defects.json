@@ -1,5 +1,5 @@
 {
- "count": 81,
+ "count": 78,
  "defects": [
   {
    "class": "stzAppServer",
@@ -440,30 +440,6 @@
    "line": 183,
    "symptom": "Returns the index of the node the graph hands to the world.",
    "cause": "a node added after the graph was prepared can reset this to 0, see the defects file"
-  },
-  {
-   "class": "stzDataSet",
-   "file": "stats/stzDataSet.ring",
-   "method": "NonParametricCorrelation",
-   "line": 2924,
-   "symptom": "Raises error R24 today instead of returning a rank correlation.",
-   "cause": "known defect: the body reads a variable named _oOtherStats_ that this method does not receive"
-  },
-  {
-   "class": "stzDataSet",
-   "file": "stats/stzDataSet.ring",
-   "method": "MutualInformation",
-   "line": 3144,
-   "symptom": "Returns the mutual information, in bits, between this data and another data set of the same length.",
-   "cause": "known defect: the pairs are joined with an underscore and split again, so a value containing an underscore gives a wrong result: \"a_b\" and \"c_d\" against x and y give 0 where ab and cd give 1"
-  },
-  {
-   "class": "stzDataSet",
-   "file": "stats/stzDataSet.ring",
-   "method": "PlanSummary",
-   "line": 3983,
-   "symptom": "Raises error R5 today instead of returning a text preview of a plan's steps without running it.",
-   "cause": "known defect: the body reads the title from a variable named oPlan, which does not exist, instead of from the plan it built"
   },
   {
    "class": "stzLinearSolver",

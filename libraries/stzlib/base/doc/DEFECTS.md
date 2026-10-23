@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 81 methods in 52 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 78 methods in 51 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| stats/stzDataSet.ring | stzDataSet | 3 |
 | stats/stzLinearSolver.ring | stzLinearSolver | 3 |
 | string/stzStringChecker.ring | stzStringChecker | 3 |
 | string/stzStringPerformer.ring | stzStringPerformer | 3 |
@@ -230,12 +229,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzSoundGraph -- sound/stzSoundGraph.ring (1)
 
 - `OutputNode` (line 183): Returns the index of the node the graph hands to the world. -- a node added after the graph was prepared can reset this to 0, see the defects file
-
-## stzDataSet -- stats/stzDataSet.ring (3)
-
-- `NonParametricCorrelation` (line 2924): Raises error R24 today instead of returning a rank correlation. -- the body reads a variable named _oOtherStats_ that this method does not receive
-- `MutualInformation` (line 3144): Returns the mutual information, in bits, between this data and another data set of the same length. -- the pairs are joined with an underscore and split again, so a value containing an underscore gives a wrong result: "a_b" and "c_d" against x and y give 0 where ab and cd give 1
-- `PlanSummary` (line 3983): Raises error R5 today instead of returning a text preview of a plan's steps without running it. -- the body reads the title from a variable named oPlan, which does not exist, instead of from the plan it built
 
 ## stzLinearSolver -- stats/stzLinearSolver.ring (3)
 
