@@ -1473,7 +1473,22 @@ const Frag = struct {
 };
 
 fn isRtlCp(cp: u21) bool {
+    if (isArabicDigit(cp)) return false;
     return (cp >= 0x0590 and cp <= 0x08FF) or (cp >= 0xFB1D and cp <= 0xFDFF) or (cp >= 0xFE70 and cp <= 0xFEFF);
+}
+// Arabic-Indic and Extended (Persian) digits and their separators: a number run, read left to right
+fn isArabicDigit(cp: u21) bool {
+    return (cp >= 0x0660 and cp <= 0x066C) or (cp >= 0x06F0 and cp <= 0x06F9);
+}
+fn isDigitCp(cp: u21) bool {
+    return (cp >= '0' and cp <= '9') or isArabicDigit(cp);
+}
+// A combining mark drawn over or under a letter (Arabic harakat and hamza, Hebrew points, Latin accents)
+fn isMarkCp(cp: u21) bool {
+    return (cp >= 0x0300 and cp <= 0x036F) or (cp >= 0x0591 and cp <= 0x05BD) or cp == 0x05BF or cp == 0x05C1 or cp == 0x05C2 or
+        cp == 0x05C4 or cp == 0x05C5 or cp == 0x05C7 or (cp >= 0x0610 and cp <= 0x061A) or (cp >= 0x064B and cp <= 0x065F) or
+        cp == 0x0670 or (cp >= 0x06D6 and cp <= 0x06DC) or (cp >= 0x06DF and cp <= 0x06E4) or cp == 0x06E7 or cp == 0x06E8 or
+        (cp >= 0x06EA and cp <= 0x06ED);
 }
 fn isLtrCp(cp: u21) bool {
     return (cp >= 'A' and cp <= 'Z') or (cp >= 'a' and cp <= 'z') or (cp >= 0xC0 and cp <= 0x24F) or (cp >= 0x370 and cp <= 0x52F);
@@ -2312,18 +2327,40 @@ fn arabicLogical(a: Allocator, t: []const u8) ![]const u8 {
 fn arabicDocFix(a: Allocator, blocks: []Block) !void {
     var arabic = false;
     var persian = false;
+    var urdu = false;
+    var script = false;
     for (blocks) |b| {
         var view = std.unicode.Utf8View.init(b.text) catch continue;
         var it = view.iterator();
         while (it.nextCodepoint()) |cp| {
+            if (cp >= 0x0620 and cp <= 0x06FF) script = true;
             if (cp == 0x0629 or cp == 0x0643) arabic = true;
             switch (cp) {
-                0x067E, 0x0686, 0x0698, 0x06AF, 0x06A9, 0x06D2, 0x0679, 0x0688, 0x0691, 0x06BA => persian = true,
+                0x067E, 0x0686, 0x0698, 0x06AF, 0x06A9 => persian = true,
+                0x06D2, 0x0679, 0x0688, 0x0691, 0x06BA, 0x06C1 => urdu = true,
                 else => {},
             }
         }
     }
-    if (!arabic or persian) return;
+    // a font draws heh in its initial and medial forms with the glyph it shares with U+06BE, which only Urdu writes
+    if (script and !urdu) {
+        for (blocks) |*b| {
+            for (b.rows) |row| for (row) |*c| {
+                if (std.mem.indexOf(u8, c.*, "\u{06BE}") != null) c.* = try std.mem.replaceOwned(u8, a, c.*, "\u{06BE}", "\u{0647}");
+            };
+            if (std.mem.indexOf(u8, b.text, "\u{06BE}") != null) b.text = try std.mem.replaceOwned(u8, a, b.text, "\u{06BE}", "\u{0647}");
+        }
+    }
+    // a Persian page writes the Extended digits; the glyphs it shares with the Arabic-Indic ones read as those
+    if (persian and !urdu and !arabic) {
+        for (blocks) |*b| {
+            for (b.rows) |row| for (row) |*c| {
+                c.* = try persianDigits(a, c.*);
+            };
+            b.text = try persianDigits(a, b.text);
+        }
+    }
+    if (!arabic or persian or urdu) return;
     for (blocks) |*b| {
         for (b.rows) |row| for (row) |*c| {
             if (std.mem.indexOf(u8, c.*, "\u{06CC}") == null and std.mem.indexOf(u8, c.*, "\u{06BE}") == null) continue;
@@ -2335,6 +2372,24 @@ fn arabicDocFix(a: Allocator, blocks: []Block) !void {
         t = try std.mem.replaceOwned(u8, a, t, "\u{06BE}", "\u{0647}");
         b.text = t;
     }
+}
+
+fn persianDigits(a: Allocator, t: []const u8) ![]const u8 {
+    var out: std.ArrayList(u8) = .empty;
+    var view = std.unicode.Utf8View.init(t) catch return t;
+    var it = view.iterator();
+    var changed = false;
+    while (it.nextCodepoint()) |cp| {
+        var c = cp;
+        if (cp >= 0x0660 and cp <= 0x0669) {
+            c = cp - 0x0660 + 0x06F0;
+            changed = true;
+        }
+        var b4: [4]u8 = undefined;
+        const n = std.unicode.utf8Encode(c, &b4) catch 0;
+        try out.appendSlice(a, b4[0..n]);
+    }
+    return if (changed) out.items else t;
 }
 
 const Page = struct { glyphs: []Glyph, rules: []Rule, dots: []Rule, width: f32, height: f32 };
@@ -2420,12 +2475,15 @@ fn fragments(a: Allocator, pg: Page, page_no: u32, text: []const u8, out: *std.A
         const row_spaces = page_spaces;
         var st: usize = 0;
         var k: usize = 1;
+        var right: f32 = gl[row.items[0]].x + gl[row.items[0]].w;
         while (k <= row.items.len) : (k += 1) {
             var cut = k == row.items.len;
             if (!cut) {
                 const prev = gl[row.items[k - 1]];
                 const g = gl[row.items[k]];
-                const gap = g.x - (prev.x + prev.w);
+                // (from the furthest right edge so far: a mark drawn inside its letter leaves no gap after it)
+                const gap = g.x - right;
+                right = @max(right, g.x + g.w);
                 if (gap > 1.1 * @max(prev.size, g.size)) cut = true;
                 // a producer that writes its spaces leaves no wide gap between two visible glyphs of one phrase
                 if (row_spaces and gap > 0.5 * @max(prev.size, g.size) and !isBlankGlyph(glyphText(text, prev)) and !isBlankGlyph(glyphText(text, g))) cut = true;
@@ -2433,6 +2491,7 @@ fn fragments(a: Allocator, pg: Page, page_no: u32, text: []const u8, out: *std.A
             if (!cut) continue;
             try out.append(a, try makeFrag(a, gl, row.items[st..k], text, page_no));
             st = k;
+            if (k < row.items.len) right = gl[row.items[k]].x + gl[row.items[k]].w;
         }
     }
 }
@@ -2457,8 +2516,50 @@ fn makeFrag(a: Allocator, gl: []Glyph, ids_in: []u32, text: []const u8, page_no:
         }
         try kept.append(a, k);
     }
-    const ids: []u32 = if (kept.items.len > 0) kept.items else ids_in;
+    const ids0: []u32 = if (kept.items.len > 0) kept.items else ids_in;
     var rtl: usize = 0;
+    {
+        var r0: usize = 0;
+        var l0: usize = 0;
+        for (ids0) |k| {
+            const cp = firstCp(glyphText(text, gl[k]));
+            if (isRtlCp(cp) and !isMarkCp(cp)) r0 += 1;
+            if (isLtrCp(cp)) l0 += 1;
+        }
+        rtl = if (r0 > l0) 1 else 0;
+    }
+    // a combining mark sits over its letter: in the visual (left to right) order it goes right after that letter
+    // on a left-to-right line and right before it on a right-to-left one, so the logical order is letter, mark
+    var placed: std.ArrayList(u32) = .empty;
+    {
+        var marks: std.ArrayList(u32) = .empty;
+        for (ids0) |k| {
+            if (isMarkCp(firstCp(glyphText(text, gl[k])))) try marks.append(a, k) else try placed.append(a, k);
+        }
+        for (marks.items) |m| {
+            const mc = gl[m].x + gl[m].w / 2;
+            var at: usize = placed.items.len;
+            var bd: f32 = 1e9;
+            for (placed.items, 0..) |b, j| {
+                // (a mark's base is a letter, never a space or a full stop a leaning mark overhangs)
+                const bc = firstCp(glyphText(text, gl[b]));
+                if (isMarkCp(bc) or !(isRtlCp(bc) or isLtrCp(bc))) continue;
+                const g = gl[b];
+                const d: f32 = if (mc >= g.x and mc <= g.x + g.w) 0 else @min(@abs(mc - g.x), @abs(mc - g.x - g.w));
+                if (d < bd) {
+                    bd = d;
+                    at = j;
+                }
+            }
+            if (at == placed.items.len) {
+                try placed.append(a, m);
+            } else if (rtl == 1) {
+                try placed.insert(a, at, m);
+            } else try placed.insert(a, at + 1, m);
+        }
+    }
+    const ids: []u32 = placed.items;
+    rtl = 0;
     var ltr: usize = 0;
     var sizes: f32 = 0;
     var nb: usize = 0;
@@ -2493,14 +2594,26 @@ fn makeFrag(a: Allocator, gl: []Glyph, ids_in: []u32, text: []const u8, page_no:
     var in_ltr: []bool = &.{};
     if (rtl > ltr) {
         var vis: std.ArrayList(u32) = .empty;
-        for (ids, 0..) |k, j| {
-            if (j > 0) {
-                const pv = gl[ids[j - 1]];
-                const g = gl[k];
-                const gap = g.x - (pv.x + pv.w);
-                if (gap > 0.2 * @max(pv.size, g.size) and !isBlankGlyph(glyphText(text, pv)) and !isBlankGlyph(glyphText(text, g))) try vis.append(a, space_item);
+        var right: f32 = -1e9;
+        var pvk: ?u32 = null;
+        for (ids) |k| {
+            const g = gl[k];
+            const is_mark = isMarkCp(firstCp(glyphText(text, g)));
+            if (pvk) |pk| {
+                const pv = gl[pk];
+                const gap = g.x - right;
+                if (!is_mark and gap > 0.2 * @max(pv.size, g.size) and !isBlankGlyph(glyphText(text, pv)) and !isBlankGlyph(glyphText(text, g))) {
+                    // the space goes before the marks placed ahead of this letter: they belong to it
+                    var at = vis.items.len;
+                    while (at > 0 and vis.items[at - 1] != space_item and isMarkCp(firstCp(glyphText(text, gl[vis.items[at - 1]])))) at -= 1;
+                    try vis.insert(a, at, space_item);
+                }
             }
             try vis.append(a, k);
+            if (!is_mark) {
+                right = @max(right, g.x + g.w);
+                pvk = k;
+            }
         }
         order = vis.items;
         std.mem.reverse(u32, order);
@@ -2510,14 +2623,14 @@ fn makeFrag(a: Allocator, gl: []Glyph, ids_in: []u32, text: []const u8, page_no:
         var k: usize = 0;
         while (k < order.len) {
             const cp = firstCp(itemText(text, gl, order[k]));
-            if (isLtrCp(cp) or (cp >= '0' and cp <= '9')) {
+            if (isLtrCp(cp) or isDigitCp(cp)) {
                 var e = k;
                 while (e + 1 < order.len) {
                     const c2 = firstCp(itemText(text, gl, order[e + 1]));
-                    const strong = isLtrCp(c2) or (c2 >= '0' and c2 <= '9');
+                    const strong = isLtrCp(c2) or isDigitCp(c2);
                     const inner = c2 == '.' or c2 == ',' or c2 == '-' or c2 == ':' or c2 == '/';
                     const c3: u21 = if (e + 2 < order.len) firstCp(itemText(text, gl, order[e + 2])) else 0;
-                    if (strong or (inner and (isLtrCp(c3) or (c3 >= '0' and c3 <= '9')))) {
+                    if (strong or (inner and (isLtrCp(c3) or isDigitCp(c3)))) {
                         e += 1;
                     } else if (c2 == ' ' and e + 2 < order.len and (isLtrCp(firstCp(itemText(text, gl, order[e + 2]))))) {
                         e += 1;
