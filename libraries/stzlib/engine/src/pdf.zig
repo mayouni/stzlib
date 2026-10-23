@@ -3963,7 +3963,9 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
                 var kind: Kind = .paragraph;
                 if (item) {
                     kind = .list_item;
-                    list_x = f.x0 + 1.0 * f.size;
+                    // a typed marker: the next line of the item is indented past it; a drawn bullet: the item's text
+                    // starts where its next line does
+                    list_x = if (mk > 0) f.x0 + 1.0 * f.size else f.x0 + 0.5 * f.size;
                 } else if (f.mono) kind = .code;
                 cur = .{ .page = f.page, .kind = kind, .x0 = f.x0, .y0 = f.y0, .x1 = f.x1, .y1 = f.y1, .size = f.size, .bold = f.bold, .mono = f.mono, .italic = f.italic, .text = "" };
                 const lb = f.lead_bold;
