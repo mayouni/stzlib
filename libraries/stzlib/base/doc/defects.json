@@ -1,5 +1,5 @@
 {
- "count": 69,
+ "count": 66,
  "defects": [
   {
    "class": "stzAppServer",
@@ -520,30 +520,6 @@
    "line": 182,
    "symptom": "Raises error R14 today instead of returning the position of every occurrence.",
    "cause": "it calls FindAllCS on the finder, a method that does not exist, so Positions and Occurrences raise for every input; confirmed with Banana bandana and with banana"
-  },
-  {
-   "class": "stzStringText",
-   "file": "string/stzStringText.ring",
-   "method": "OnlyScript",
-   "line": 386,
-   "symptom": "Raises error R24 today instead of returning the part of the text written in a given script.",
-   "cause": "raises Using uninitialized variable pcscript for :Latin, :Hebrew and :Arabic alike: the anonymous function it builds does not see its own parameter"
-  },
-  {
-   "class": "stzStringText",
-   "file": "string/stzStringText.ring",
-   "method": "OnlyArabic",
-   "line": 402,
-   "symptom": "Raises error R14 today instead of returning the Arabic-script part of the text.",
-   "cause": "raises Calling Method without definition: concatenateq on a Latin text and on an Arabic text alike"
-  },
-  {
-   "class": "stzStringText",
-   "file": "string/stzStringText.ring",
-   "method": "OnlyLatin",
-   "line": 416,
-   "symptom": "Raises error R14 today instead of returning the Latin-script part of the text.",
-   "cause": "raises Calling Method without definition: concatenateq on a Latin text and on a mixed text alike"
   },
   {
    "class": "TableDisplayConfig",
