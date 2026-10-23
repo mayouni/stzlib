@@ -1201,6 +1201,9 @@ const Interp = struct {
                 0x84 => "ffl",
                 else => "st",
             };
+            // a producer may map its space glyph to a TAB (or a line end), and an accent piece to U+0000
+            if (t.len == 1 and (t[0] == 9 or t[0] == 10 or t[0] == 13)) t = " ";
+            if (t.len == 1 and t[0] == 0) t = "";
             if (upright and t.len > 0 and size > 0.5) {
                 const t0: u32 = @intCast(it.text.items.len);
                 try it.text.appendSlice(it.a, t);
@@ -3462,7 +3465,7 @@ fn xycut(a: Allocator, units: []Frag, ids: []u32, out: *std.ArrayList(u32), asid
     if (wide > 0 and wide < ids.len) {
         var narrow: std.ArrayList(u32) = .empty;
         for (ids) |k| if (units[k].x1 - units[k].x0 <= 0.6 * rw) try narrow.append(a, k);
-        if (try hasGutter(a, units, narrow.items, med)) {
+        if (try gutterAt(a, units, narrow.items, med)) |ng| {
             const sorted = try a.dupe(u32, ids);
             const ByTop = struct {
                 u: []Frag,
@@ -3473,7 +3476,9 @@ fn xycut(a: Allocator, units: []Frag, ids: []u32, out: *std.ArrayList(u32), asid
             std.mem.sort(u32, sorted, ByTop{ .u = units }, ByTop.lt);
             var seg: std.ArrayList(u32) = .empty;
             for (sorted) |k| {
-                if (units[k].x1 - units[k].x0 > 0.6 * rw) {
+                // (a wide unit spans only when it crosses the narrow units' gutter: a wide line of the right-hand
+                //  box beside a narrow one is part of that box)
+                if (units[k].x1 - units[k].x0 > 0.6 * rw and units[k].x0 < ng and units[k].x1 > ng) {
                     try xycut(a, units, seg.items, out, aside, depth + 1);
                     seg = .empty;
                     try out.append(a, k);
@@ -3581,7 +3586,18 @@ fn bridgeSplit(a: Allocator, units: []Frag, ids: []u32, med: f32, rx0: f32, rx1:
         }
     }
     if (nb == 0) return false;
-    if (lw < rw / 3 or rwid < rw / 3) return false;
+    // a narrow side is a box only when it holds a gutter of its own (a small key/value box); a single column of
+    // labels beside its values is a table, not two boxes
+    if (lw < rw / 3 or rwid < rw / 3) {
+        var ls: std.ArrayList(u32) = .empty;
+        var rs: std.ArrayList(u32) = .empty;
+        for (ids) |k| {
+            const u = units[k];
+            if (u.x1 <= gx) try ls.append(a, k) else if (u.x0 >= gx) try rs.append(a, k);
+        }
+        if (lw < rw / 3 and !(try hasGutter(a, units, ls.items, med))) return false;
+        if (rwid < rw / 3 and !(try hasGutter(a, units, rs.items, med))) return false;
+    }
     if (@min(ly[1], ry[1]) - @max(ly[0], ry[0]) <= 0) return false;
     const sorted = try a.dupe(u32, ids);
     const ByTop = struct {
