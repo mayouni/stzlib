@@ -379,7 +379,7 @@ func StzResidualPlotRuleSet()
 	_o1_.SetOrder(93)
 	_o1_.SetReads([ "substance" ])
 	_o1_.SetScope(func(oDg) { return _RpScope(oDg, "Point", "point:") })
-	_o1_.SetCounter(func(oDg) { return _RpCounter(oDg, "Point") })
+	_o1_.SetCounter(func(oDg) { return _RpCounter(oDg, "point:") })
 	_o1_.SetClaimCheck(func(oDg, cSub) {
 		_cP_ = StzStringSection(cSub, 7, len(cSub))
 		_oS_ = oDg.Substance()
@@ -418,7 +418,7 @@ func StzResidualPlotRuleSet()
 	_o2_.SetOrder(94)
 	_o2_.SetReads([ "substance" ])
 	_o2_.SetScope(func(oDg) { return _RpScope(oDg, "Band", "band:") })
-	_o2_.SetCounter(func(oDg) { return _RpCounter(oDg, "Band") })
+	_o2_.SetCounter(func(oDg) { return _RpCounter(oDg, "band:") })
 	_o2_.SetClaimCheck(func(oDg, cSub) {
 		_cB_ = StzStringSection(cSub, 6, len(cSub))
 		_oS_ = oDg.Substance()
@@ -458,6 +458,13 @@ func _RpScope(poDg, pcType, pcPrefix)
 	for _i_ = 1 to len(_ac_)  _a_ + (pcPrefix + _ac_[_i_])  next
 	return _a_
 
-func _RpCounter(poDg, pcType)
-	if NOT _RpIsResidual(poDg)  return 0  ok
-	return len(poDg.Substance().ObjectsOfType(pcType))
+# A COUNTER ANSWERS A LIST OF SUBJECT KEYS -- what the rule must NOT govern
+# that this picture holds -- exactly as a scope does; it is never a count.
+func _RpCounter(poDg, pcPrefix)
+	_r_ = []
+	if NOT isObject(poDg)  return _r_  ok
+	if StzLower(classname(poDg)) != "stzmathdiagram"  return _r_  ok
+	if _RpIsResidual(poDg)  return _r_  ok
+	_ac_ = poDg.Substance().ObjectNames()
+	for _i_ = 1 to len(_ac_)  _r_ + (pcPrefix + _ac_[_i_])  next
+	return _r_

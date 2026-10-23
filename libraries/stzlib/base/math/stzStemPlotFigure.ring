@@ -377,9 +377,16 @@ func _SpScopeFigure(poDg)
 	if NOT _SpIsStem(poDg)  return []  ok
 	return [ "figure:fr" ]
 
+# A COUNTER ANSWERS A LIST OF SUBJECT KEYS -- what the rule must NOT govern
+# that this picture holds -- exactly as a scope does; it is never a count.
+# For a picture of another kind that is its figure; for a stem plot, [ ].
 func _SpCounterFigure(poDg)
-	if NOT _SpIsStem(poDg)  return 0  ok
-	return 1
+	_r_ = []
+	if NOT isObject(poDg)  return _r_  ok
+	if StzLower(classname(poDg)) != "stzmathdiagram"  return _r_  ok
+	if _SpIsStem(poDg)  return _r_  ok
+	_r_ + ("figure:" + StzLower("" + poDg.Substance().DomainQ().Name_()))
+	return _r_
 
 func _SpScope(poDg, pcType, pcPrefix)
 	if NOT _SpIsStem(poDg)  return []  ok
@@ -389,4 +396,10 @@ func _SpScope(poDg, pcType, pcPrefix)
 	return _a_
 
 func _SpCounter(poDg, pcPrefix)
-	return len(_SpScope(poDg, "Stem", pcPrefix))
+	_r_ = []
+	if NOT isObject(poDg)  return _r_  ok
+	if StzLower(classname(poDg)) != "stzmathdiagram"  return _r_  ok
+	if _SpIsStem(poDg)  return _r_  ok
+	_ac_ = poDg.Substance().ObjectNames()
+	for _i_ = 1 to len(_ac_)  _r_ + (pcPrefix + _ac_[_i_])  next
+	return _r_

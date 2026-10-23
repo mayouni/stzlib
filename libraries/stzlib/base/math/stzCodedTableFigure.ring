@@ -327,7 +327,7 @@ func StzCodedTableRuleSet()
 	_o1_.SetOrder(95)
 	_o1_.SetReads([ "substance" ])
 	_o1_.SetScope(func(oDg) { return _CtScope(oDg, "Cell", "cell:") })
-	_o1_.SetCounter(func(oDg) { return _CtCounter(oDg, "Cell") })
+	_o1_.SetCounter(func(oDg) { return _CtCounter(oDg, "cell:") })
 	_o1_.SetClaimCheck(func(oDg, cSub) {
 		_cZ_ = StzStringSection(cSub, 6, len(cSub))
 		_oS_ = oDg.Substance()
@@ -395,14 +395,25 @@ func _CtScope(poDg, pcType, pcPrefix)
 	for _i_ = 1 to len(_ac_)  _a_ + (pcPrefix + _ac_[_i_])  next
 	return _a_
 
-func _CtCounter(poDg, pcType)
-	if NOT _CtIsCoded(poDg)  return 0  ok
-	return len(poDg.Substance().ObjectsOfType(pcType))
+# A COUNTER ANSWERS A LIST OF SUBJECT KEYS -- what the rule must NOT govern
+# that this picture holds -- exactly as a scope does; it is never a count.
+func _CtCounter(poDg, pcPrefix)
+	_r_ = []
+	if NOT isObject(poDg)  return _r_  ok
+	if StzLower(classname(poDg)) != "stzmathdiagram"  return _r_  ok
+	if _CtIsCoded(poDg)  return _r_  ok
+	_ac_ = poDg.Substance().ObjectNames()
+	for _i_ = 1 to len(_ac_)  _r_ + (pcPrefix + _ac_[_i_])  next
+	return _r_
 
 func _CtScopeFigure(poDg)
 	if NOT _CtIsCoded(poDg)  return []  ok
 	return [ "figure:fr" ]
 
 func _CtCounterFigure(poDg)
-	if NOT _CtIsCoded(poDg)  return 0  ok
-	return 1
+	_r_ = []
+	if NOT isObject(poDg)  return _r_  ok
+	if StzLower(classname(poDg)) != "stzmathdiagram"  return _r_  ok
+	if _CtIsCoded(poDg)  return _r_  ok
+	_r_ + ("figure:" + StzLower("" + poDg.Substance().DomainQ().Name_()))
+	return _r_
