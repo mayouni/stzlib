@@ -1,5 +1,5 @@
 {
- "count": 72,
+ "count": 69,
  "defects": [
   {
    "class": "stzAppServer",
@@ -504,30 +504,6 @@
    "line": 1756,
    "symptom": "TRUE if every string matches the pattern as a whole, so \"a.\" matches ab and \"a\" does not; an empty list is TRUE.",
    "cause": "known defect: the old comment says it returns the strings that match, but it answers one verdict for the whole list"
-  },
-  {
-   "class": "stzStringPerformer",
-   "file": "string/stzStringPerformer.ring",
-   "method": "Content",
-   "line": 62,
-   "symptom": "Returns the text the performer holds, which no method of this class changes today.",
-   "cause": ""
-  },
-  {
-   "class": "stzStringPerformer",
-   "file": "string/stzStringPerformer.ring",
-   "method": "Perform",
-   "line": 92,
-   "symptom": "Leaves the text unchanged today instead of replacing every character by the result of an expression.",
-   "cause": "Has no effect today: Perform(\"upper(@char)\") on \"abc\" leaves \"abc\", because the result of the engine call is dropped and never written back; use Yield to get the results as a list"
-  },
-  {
-   "class": "stzStringPerformer",
-   "file": "string/stzStringPerformer.ring",
-   "method": "PerformOn",
-   "line": 112,
-   "symptom": "Leaves the text unchanged today instead of replacing the characters at some positions by the result of an expression.",
-   "cause": "Has no effect today: PerformOn([1], \"upper(@char)\") on \"abc\" leaves \"abc\"; the positions are not even read; use YieldOn"
   },
   {
    "class": "stzStringReplacer",

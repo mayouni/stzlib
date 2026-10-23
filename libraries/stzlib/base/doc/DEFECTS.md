@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 72 methods in 49 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 69 methods in 48 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| string/stzStringPerformer.ring | stzStringPerformer | 3 |
 | string/stzStringText.ring | stzStringText | 3 |
 | appserver/stzAppServer.ring | stzAppServer | 2 |
 | datetime/stzDate.ring | stzDate | 2 |
@@ -253,12 +252,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 - `SortBy` (line 1311): Sorts the strings in place by a numeric key computed from each one, such as its length; a text key raises. -- @item is not defined here and raises R24, and a key that is text raises R41 because keys are compared with a greater-than, so only numeric keys such as len(@string) work
 - `Matches` (line 1756): TRUE if every string matches the pattern as a whole, so "a." matches ab and "a" does not; an empty list is TRUE. -- the old comment says it returns the strings that match, but it answers one verdict for the whole list
-
-## stzStringPerformer -- string/stzStringPerformer.ring (3)
-
-- `Content` (line 62): Returns the text the performer holds, which no method of this class changes today.
-- `Perform` (line 92): Leaves the text unchanged today instead of replacing every character by the result of an expression. -- Has no effect today: Perform("upper(@char)") on "abc" leaves "abc", because the result of the engine call is dropped and never written back; use Yield to get the results as a list
-- `PerformOn` (line 112): Leaves the text unchanged today instead of replacing the characters at some positions by the result of an expression. -- Has no effect today: PerformOn([1], "upper(@char)") on "abc" leaves "abc"; the positions are not even read; use YieldOn
 
 ## stzStringReplacer -- string/stzStringReplacer.ring (1)
 
