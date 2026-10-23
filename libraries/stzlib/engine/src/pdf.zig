@@ -2844,9 +2844,27 @@ fn findAlignedTablesIn(a: Allocator, frags: []Frag, lane0: f32, lane1: f32, tabl
             r = e;
             continue;
         }
-        // columns: the x bands covered by the run's fragments
+        // columns: the x bands covered by the run's fragments -- except a cell that SPANS columns (a "Subtotal"
+        // label over two of them): one that two cells of ONE other row both overlap
         var spans: std.ArrayList([2]f32) = .empty;
-        for (run) |row| for (row) |k| try spans.append(a, .{ frags[k].x0, frags[k].x1 });
+        for (run, 0..) |row, ri| for (row) |k| {
+            const f = frags[k];
+            var spanning = false;
+            for (run, 0..) |row2, rj| {
+                if (rj == ri) continue;
+                var under: usize = 0;
+                for (row2) |k2| {
+                    const g = frags[k2];
+                    if (g.x1 > f.x0 + 1 and g.x0 < f.x1 - 1) under += 1;
+                }
+                if (under >= 2) {
+                    spanning = true;
+                    break;
+                }
+            }
+            if (spanning) continue;
+            try spans.append(a, .{ f.x0, f.x1 });
+        };
         const BySpan = struct {
             fn lt(_: void, l: [2]f32, rr: [2]f32) bool {
                 return l[0] < rr[0];
@@ -2855,7 +2873,7 @@ fn findAlignedTablesIn(a: Allocator, frags: []Frag, lane0: f32, lane1: f32, tabl
         std.mem.sort([2]f32, spans.items, {}, BySpan.lt);
         var cols: std.ArrayList([2]f32) = .empty;
         for (spans.items) |sp| {
-            if (cols.items.len > 0 and sp[0] <= cols.items[cols.items.len - 1][1] + 2) {
+            if (cols.items.len > 0 and sp[0] < cols.items[cols.items.len - 1][1]) {
                 cols.items[cols.items.len - 1][1] = @max(cols.items[cols.items.len - 1][1], sp[1]);
             } else try cols.append(a, sp);
         }
@@ -2867,14 +2885,13 @@ fn findAlignedTablesIn(a: Allocator, frags: []Frag, lane0: f32, lane1: f32, tabl
         var ok = true;
         for (run) |row| {
             if (row.len < 2) continue;
-            var used: usize = 0;
-            for (cols.items) |c| {
-                for (row) |k| if ((frags[k].x0 + frags[k].x1) / 2 >= c[0] and (frags[k].x0 + frags[k].x1) / 2 <= c[1]) {
-                    used += 1;
-                    break;
-                };
+            // (cells placed as they will be: a spanning cell's centre may fall between two bands)
+            const c0 = colOf(cols.items, (frags[row[0]].x0 + frags[row[0]].x1) / 2);
+            var two = false;
+            for (row[1..]) |k| {
+                if (colOf(cols.items, (frags[k].x0 + frags[k].x1) / 2) != c0) two = true;
             }
-            if (used < 2) ok = false;
+            if (!two) ok = false;
         }
         if (!ok) {
             r = e;
@@ -4205,13 +4222,20 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
     // a table that ends a page and one that starts the next, with as many columns, are one table
     {
         var k: usize = 0;
+        // the page a table joined so far ENDS on (a table over three pages joins its third part to its second)
+        var tail_k: usize = std.math.maxInt(usize);
+        var tail_page: u32 = 0;
         while (k + 1 < final.items.len) {
             const t1 = final.items[k];
+            if (tail_k != k) {
+                tail_k = k;
+                tail_page = t1.page;
+            }
             var j2 = k + 1;
             while (j2 < final.items.len and (final.items[j2].kind == .page_header or final.items[j2].kind == .page_footer)) j2 += 1;
             if (j2 >= final.items.len) break;
             const t2 = final.items[j2];
-            if (t1.kind == .table and t2.kind == .table and t2.page == t1.page + 1 and t1.rows.len > 0 and t2.rows.len > 0 and t1.rows[0].len == t2.rows[0].len) {
+            if (t1.kind == .table and t2.kind == .table and t2.page == tail_page + 1 and t1.rows.len > 0 and t2.rows.len > 0 and t1.rows[0].len == t2.rows[0].len) {
                 var same_head = true;
                 for (t1.rows[0], t2.rows[0]) |c1, c2| if (!eq(c1, c2)) {
                     same_head = false;
@@ -4222,6 +4246,7 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
                 @memcpy(rows[t1.rows.len..], t2.rows[from..]);
                 final.items[k].rows = rows;
                 final.items[k].text = try std.mem.concat(a, u8, &.{ t1.text, " ", t2.text });
+                tail_page = t2.page;
                 _ = final.orderedRemove(j2);
                 continue;
             }
