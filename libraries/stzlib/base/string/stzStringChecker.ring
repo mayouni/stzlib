@@ -22,8 +22,8 @@
 # characters, not bytes, so a Hebrew or Arabic word and an emoji are one character each. The number
 # checks that expect a prefix (0b, 0o, 0x, U+) answer 0 without it. The case-flag forms (CS) take 1
 # to compare with case and 0 to ignore it. HasLeadingChars, HasTrailingChars and
-# HasLeadingAndTrailingChars answer 0 for every text today; use the stzString methods of the same
-# names.
+# HasLeadingAndTrailingChars tell whether the text starts, ends or both with a repeated character
+# (two equal characters in a row, letter case counted).
 #
 #   receiver   o1 = new stzStringChecker("level")
 #   example    ? o1.IsPalindrome()
@@ -596,51 +596,57 @@ class stzStringChecker from stzObject
 	 #     LEADING/TRAILING CHARS    #
 	#===============================#
 
-	# Returns 0 today whatever the text is, instead of telling whether the text starts with a repeated character.
+	# TRUE if the text starts with a repeated character, that is with two equal characters in a row.
 	#
-	#   returns    always 0 today
-	#   note       stzString.HasLeadingChars is the working one
-	#   warning    answers FALSE for aab and for xxyy alike: it compares two engine handles, which
-	#              are never equal, instead of the two characters; the stzString method of the same
-	#              name answers 1 for aab
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   note       the same character twice is enough, so aab and aaaa answer 1 and ab, a and the
+	#              empty text answer 0; letter case counts (Aa answers 0); a character is one
+	#              Unicode code point, so an accented letter, a Hebrew letter or an emoji repeated
+	#              twice answers 1, while a letter with its separate combining accent repeated does
+	#              not (the letter and the accent are two different characters); agrees with
+	#              stzString.HasLeadingChars on every text
 	#   see        HasTrailingChars, HasLeadingAndTrailingChars
 	def HasLeadingChars()
-		if @oString.NumberOfChars() < 2
+		_cText_ = @oString.Content()
+		if StzLen(_cText_) < 2
 			return 0
 		ok
 
-		_pH_ = @oString.Engine()
-		_cFirst_ = StzEngineStringCharAtToString(_pH_, 1)
-		_cSecond_ = StzEngineStringCharAtToString(_pH_, 2)
-		return _cFirst_ = _cSecond_
+		_cFirst_ = StzMid(_cText_, 1, 1)
+		_cSecond_ = StzMid(_cText_, 2, 1)
+		return strcmp(_cFirst_, _cSecond_) = 0
 
-	# Returns 0 today whatever the text is, instead of telling whether the text ends with a repeated character.
+	# TRUE if the text ends with a repeated character, that is with two equal characters in a row.
 	#
-	#   returns    always 0 today
-	#   note       stzString.HasTrailingChars is the working one
-	#   warning    answers FALSE for abb and for xxyy alike: it compares two engine handles, which
-	#              are never equal, instead of the two characters
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   note       the same character twice is enough, so abb and aaaa answer 1 and ab, a and the
+	#              empty text answer 0; letter case counts (aA answers 0); a character is one
+	#              Unicode code point, as for HasLeadingChars; agrees with
+	#              stzString.HasTrailingChars on every text
 	#   see        HasLeadingChars, HasLeadingAndTrailingChars
 	def HasTrailingChars()
-		_nLen_ = @oString.NumberOfChars()
+		_cText_ = @oString.Content()
+		_nLen_ = StzLen(_cText_)
 		if _nLen_ < 2
 			return 0
 		ok
 
-		_pH_ = @oString.Engine()
-		_cLast_ = StzEngineStringCharAtToString(_pH_, _nLen_)
-		_cPrev_ = StzEngineStringCharAtToString(_pH_, _nLen_ - 1)
-		return _cLast_ = _cPrev_
+		_cLast_ = StzMid(_cText_, _nLen_, 1)
+		_cPrev_ = StzMid(_cText_, _nLen_ - 1, 1)
+		return strcmp(_cLast_, _cPrev_) = 0
 
-	# Returns 0 today whatever the text is, because both of the questions it combines answer 0.
+	# TRUE if the text both starts and ends with a repeated character.
 	#
-	#   returns    always 0 today
-	#   note       stzString.HasLeadingAndTrailingChars is the working one
-	#   warning    answers FALSE for aabaa: it is the AND of HasLeadingChars and HasTrailingChars,
-	#              which are always 0
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   note       both questions are put to the same text, so aabaa answers 1 while aab and abb
+	#              answer 0; a text of one character repeated, like aa or aaaa, starts and ends with
+	#              it and answers 1; agrees with stzString.HasLeadingAndTrailingChars on every
+	#              text
 	#   see        HasLeadingChars, HasTrailingChars
 	def HasLeadingAndTrailingChars()
-		return This.HasLeadingChars() and This.HasTrailingChars()
+		_bLead_ = This.HasLeadingChars()
+		_bTrail_ = This.HasTrailingChars()
+		return _bLead_ and _bTrail_
 
 	  #===============================#
 	 #     TRIMMED                   #
