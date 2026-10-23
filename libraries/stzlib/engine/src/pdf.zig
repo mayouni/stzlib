@@ -3952,6 +3952,24 @@ fn startsListMarker(t: []const u8) usize {
             return e;
         }
     }
+    // Arabic-Indic or Persian digits, then a full stop, a bracket, a dash or the Urdu full stop, then a space
+    {
+        var j: usize = 0;
+        var nd: usize = 0;
+        while (j + 1 < t.len and nd < 3) {
+            const sl = std.unicode.utf8ByteSequenceLength(t[j]) catch break;
+            if (sl != 2) break;
+            const cp = std.unicode.utf8Decode(t[j .. j + 2]) catch break;
+            if (!((cp >= 0x0660 and cp <= 0x0669) or (cp >= 0x06F0 and cp <= 0x06F9))) break;
+            j += 2;
+            nd += 1;
+        }
+        if (nd > 0 and j < t.len) {
+            var m: usize = 0;
+            if (t[j] == '.' or t[j] == ')' or t[j] == '-') m = 1 else if (std.mem.startsWith(u8, t[j..], "\u{06D4}")) m = 2;
+            if (m > 0 and j + m < t.len and t[j + m] == ' ') return j + m + 1;
+        }
+    }
     var i: usize = 0;
     while (i < t.len and i < 3 and t[i] >= '0' and t[i] <= '9') i += 1;
     if (i == 0) {
