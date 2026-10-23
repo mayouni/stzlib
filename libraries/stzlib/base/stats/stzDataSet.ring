@@ -2885,8 +2885,14 @@ class stzDataSet from stzObject
     # Returns the Spearman rank correlation with another data set of the same length, from -1 to 1.
     #
     #   _oOtherStats_   the stzDataSet to correlate with
-    #   returns         a number; 0 for non-numeric data, different lengths or fewer than two values
-    #   see             CorrelationWith
+    #   returns         a number: the Pearson correlation of the two series after each value is
+    #                   replaced by its rank, tied values sharing the average of their ranks; 0 for
+    #                   non-numeric data, different lengths, fewer than two values or a series
+    #                   whose values are all tied
+    #   note            the engine's rank correlation uses the shortcut formula with the squared
+    #                   rank differences, which is exact only without ties, so the ranks are taken
+    #                   here and the engine correlates them
+    #   see             NonParametricCorrelation, CorrelationWith
     def RankCorrelationWith(_oOtherStats_)
         if @cDataType != "numeric" or _oOtherStats_.DataType() != "numeric"
             return 0
@@ -2897,15 +2903,16 @@ class stzDataSet from stzObject
             return 0
         ok
 
-        if This._EngineAvailable() and _oOtherStats_._EngineAvailable()
-            return StzEngineStatsRankCorrelation(@pEngineStats, _oOtherStats_._EngineHandle())
-        ok
-
-        # Create rankings
+        # Create rankings (ties share the average rank)
         _aRanks1_ = This._GetRanks(@anData)
         _aRanks2_ = This._GetRanks(_aOtherData_)
         
-        # Calculate correlation of ranks
+        # Calculate correlation of ranks. The engine takes the rank lists directly; a data set
+        # per rank list would clean 3,000 values for 1.2 seconds to get the same two handles.
+        if This._EngineAvailable()
+            return StzEngineStatsCorrelation(StzEngineStatsCreate(_aRanks1_), StzEngineStatsCreate(_aRanks2_))
+        ok
+
         _oRank1_ = new stzDataSet(_aRanks1_)
         _oRank2_ = new stzDataSet(_aRanks2_)
         
@@ -2914,17 +2921,21 @@ class stzDataSet from stzObject
 		def RankCorelWith(_oOtherStats_)
 			return This.RankCorrelationWith(_oOtherStats_)
 
-		# Raises error R24 today instead of returning a rank correlation.
+		# Returns the distribution-free correlation with another data set of the same length, from -1 to 1.
 		#
-		#   returns    nothing today
-		#   note       RankCorrelationWith takes the other data set as an argument
-		#   warning    known defect: the body reads a variable named _oOtherStats_ that this method
-		#              does not receive
-		#   see        RankCorrelationWith
-		def NonParametricCorrelation()
-			return This.RankCorrelationWith(_oOtherStats_)
+		#   _oOtherStats_   the stzDataSet to correlate with
+		#   returns         a number, the same as the Spearman rank correlation; 0 for non-numeric
+		#                   data, different lengths, fewer than two values or all-tied values
+		#   see             RankCorrelationWith, CorrelationWith
+		def NonParametricCorrelation(_oOtherStats_)
+			_nRho_ = This.RankCorrelationWith(_oOtherStats_)
+			return _nRho_
 
 
+    # Returns the rank of each value, from 1; tied values share the average of their positions.
+    #
+    #   aData      a list of numbers
+    #   returns    a list of numbers of the same length: [ 10, 20, 20, 30 ] gives [ 1, 2.5, 2.5, 4 ]
     def _GetRanks(aData)
         _aIndexed_ = []
         _nLen_ = len(aData)
@@ -2944,12 +2955,33 @@ class stzDataSet from stzObject
             _aRanks_ + 0  # Initialize
         next
         
-        for i = 1 to _nLen_
-            _nOriginalIndex_ = _aIndexed_[i][2]
-            _aRanks_[_nOriginalIndex_] = i
-        next
+        # Walk the sorted values group by group: a run of equal values takes the middle
+        # of the positions it covers
+        _nFrom_ = 1
+        while _nFrom_ <= _nLen_
+            _nTo_ = _nFrom_
+            _bSame_ = 1
+            while _bSame_
+                _bSame_ = 0
+                if _nTo_ < _nLen_
+                    if _aIndexed_[_nTo_ + 1][1] = _aIndexed_[_nFrom_][1]
+                        _nTo_++
+                        _bSame_ = 1
+                    ok
+                ok
+            end
+
+            _nAverage_ = (_nFrom_ + _nTo_) / 2
+            for i = _nFrom_ to _nTo_
+                _nOriginalIndex_ = _aIndexed_[i][2]
+                _aRanks_[_nOriginalIndex_] = _nAverage_
+            next
+
+            _nFrom_ = _nTo_ + 1
+        end
         
         return _aRanks_
+
 
 	# Returns the chi-square statistic of independence between two categorical data sets of the same length.
 	#
