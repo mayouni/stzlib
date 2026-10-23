@@ -3685,7 +3685,21 @@ fn bridgeSplit(a: Allocator, units: []Frag, ids: []u32, med: f32, rx0: f32, rx1:
             ry = .{ @min(ry[0], u.y0), @max(ry[1], u.y1) };
         }
     }
-    if (nb == 0) return false;
+    // nothing crosses the gutter, though a few lines run into the gap so the plain gutter test missed it: the
+    // left side, then the right
+    if (nb == 0) {
+        if (lw < rw / 3 or rwid < rw / 3) return false;
+        if (@min(ly[1], ry[1]) - @max(ly[0], ry[0]) <= 0) return false;
+        var ls: std.ArrayList(u32) = .empty;
+        var rs: std.ArrayList(u32) = .empty;
+        for (ids) |k| {
+            if (units[k].x1 <= gx) try ls.append(a, k) else try rs.append(a, k);
+        }
+        if (ls.items.len == 0 or rs.items.len == 0) return false;
+        try xycut(a, units, ls.items, out, aside, depth + 1);
+        try xycut(a, units, rs.items, out, aside, depth + 1);
+        return true;
+    }
     // a narrow side is a box only when it holds a gutter of its own (a small key/value box); a single column of
     // labels beside its values is a table, not two boxes
     if (lw < rw / 3 or rwid < rw / 3) {
