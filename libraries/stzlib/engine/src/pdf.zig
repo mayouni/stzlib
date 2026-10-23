@@ -4210,7 +4210,8 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
         if (body > 0 and b.size >= 1.15 * body and short) {
             b.kind = .heading;
             try hsizes.append(a, b.size);
-        } else if (b.bold and short and !ends and b.size >= 0.95 * body and b.lines == 1) {
+        } else if (b.bold and short and !ends and b.lines == 1 and (b.size >= 0.95 * body or (b.size >= 0.85 * body and wordCount(b.text) <= 6))) {
+            // (a short bold label in type a little smaller than the body -- "Bill to", "Abstract" -- heads its box)
             b.kind = .heading;
             try hsizes.append(a, b.size);
         } else if (b.italic and short and !ends and b.size >= 0.95 * body and b.lines == 1 and b.text.len <= 80 and !startsQuote(b.text)) {
