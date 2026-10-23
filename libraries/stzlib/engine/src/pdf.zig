@@ -3348,6 +3348,9 @@ fn xycut(a: Allocator, units: []Frag, ids: []u32, out: *std.ArrayList(u32), asid
             return;
         }
     }
+    // a gutter that a few lines cross (a title, a date line, a heading, a footer): the stretches between those
+    // lines are read on their own, each with its own gutter, and each bridging line where it falls
+    if (try bridgeSplit(a, units, ids, med, rx0, rx1, out, aside, depth)) return;
     // strips from the top
     const sorted = try a.dupe(u32, ids);
     const ByTop = struct {
@@ -3378,6 +3381,92 @@ fn xycut(a: Allocator, units: []Frag, ids: []u32, out: *std.ArrayList(u32), asid
     }
     try xycut(a, units, sorted[0..k], out, aside, depth + 1);
     try xycut(a, units, sorted[k..], out, aside, depth + 1);
+}
+
+// Two boxes side by side with lines crossing between them: the x where the ink crossing is lowest, over a run at
+// least 1.2 sizes wide, carrying at most a fifth of the region's ink height. Both sides must hold lines of a third
+// of the region's width or more -- a column of labels beside its values is a table, not two boxes.
+fn bridgeSplit(a: Allocator, units: []Frag, ids: []u32, med: f32, rx0: f32, rx1: f32, out: *std.ArrayList(u32), aside: *std.ArrayList(u32), depth: u32) anyerror!bool {
+    if (ids.len < 6) return false;
+    const rw = rx1 - rx0;
+    if (rw < 10 * med) return false;
+    var ink: f32 = 0;
+    for (ids) |k| ink += units[k].y1 - units[k].y0;
+    if (ink <= 0) return false;
+    const n: usize = @intFromFloat(@ceil(rw));
+    const cov = try a.alloc(f32, n + 1);
+    @memset(cov, 0);
+    for (ids) |k| {
+        const u = units[k];
+        const h = u.y1 - u.y0;
+        var i: usize = @intFromFloat(@max(0, @floor(u.x0 - rx0)));
+        const j: usize = @min(n, @as(usize, @intFromFloat(@max(0, @ceil(u.x1 - rx0)))));
+        while (i < j) : (i += 1) cov[i] += h;
+    }
+    // the widest run of low crossing ink, away from both edges
+    const limit = 0.2 * ink;
+    var best_lo: usize = 0;
+    var best_hi: usize = 0;
+    var i: usize = 0;
+    while (i <= n) {
+        if (cov[i] > limit) {
+            i += 1;
+            continue;
+        }
+        const lo = i;
+        while (i <= n and cov[i] <= limit) i += 1;
+        if (lo == 0 or i > n) continue; // a margin, not a gutter
+        if (i - lo > best_hi - best_lo) {
+            best_lo = lo;
+            best_hi = i;
+        }
+    }
+    if (@as(f32, @floatFromInt(best_hi - best_lo)) < 1.2 * med) return false;
+    // the gutter: the lowest point of the run
+    var g = best_lo;
+    for (best_lo..best_hi) |x| {
+        if (cov[x] < cov[g]) g = x;
+    }
+    const gx = rx0 + @as(f32, @floatFromInt(g)) + 0.5;
+    var nb: usize = 0;
+    var lw: f32 = 0;
+    var rwid: f32 = 0;
+    var ly = [2]f32{ 1e9, -1e9 };
+    var ry = [2]f32{ 1e9, -1e9 };
+    for (ids) |k| {
+        const u = units[k];
+        if (u.x0 < gx and u.x1 > gx) {
+            nb += 1;
+        } else if (u.x1 <= gx) {
+            lw = @max(lw, u.x1 - u.x0);
+            ly = .{ @min(ly[0], u.y0), @max(ly[1], u.y1) };
+        } else {
+            rwid = @max(rwid, u.x1 - u.x0);
+            ry = .{ @min(ry[0], u.y0), @max(ry[1], u.y1) };
+        }
+    }
+    if (nb == 0) return false;
+    if (lw < rw / 3 or rwid < rw / 3) return false;
+    if (@min(ly[1], ry[1]) - @max(ly[0], ry[0]) <= 0) return false;
+    const sorted = try a.dupe(u32, ids);
+    const ByTop = struct {
+        u: []Frag,
+        fn lt(ctx: @This(), l: u32, r: u32) bool {
+            return ctx.u[l].y0 < ctx.u[r].y0;
+        }
+    };
+    std.mem.sort(u32, sorted, ByTop{ .u = units }, ByTop.lt);
+    var seg: std.ArrayList(u32) = .empty;
+    for (sorted) |k| {
+        const u = units[k];
+        if (u.x0 < gx and u.x1 > gx) {
+            try xycut(a, units, seg.items, out, aside, depth + 1);
+            seg = .empty;
+            try out.append(a, k);
+        } else try seg.append(a, k);
+    }
+    try xycut(a, units, seg.items, out, aside, depth + 1);
+    return true;
 }
 
 fn gutterAt(a: Allocator, units: []Frag, ids: []u32, med: f32) !?f32 {
