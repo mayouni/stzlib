@@ -11,6 +11,13 @@ load "../_narrated.ring"
 #   Nth  ended with _( result ) inside the class, where _ is an attribute: the answer came back as
 #       an empty text and any call on it died with R13 Object is required. It now returns a chain.
 #
+#   st, nd, rd, th  now follow the English rule. A number takes st when it ends in 1 and not in 11,
+#       nd when it ends in 2 and not in 12, rd when it ends in 3 and not in 13, and th otherwise
+#       (0, 4 to 20, 100, 111, 112, 113 ...). They went by the last digit alone before, so 11 took st,
+#       12 nd and 13 rd, while 10 and 20 took nothing and 2 took th. That is an INTENDED change of
+#       expected results: the assertion that pinned the old quirk (10 th gave an empty text) is
+#       rewritten, and a scenario on the teens and a table of 31 numbers are added.
+#
 # The expectations are written by hand, never copied from a run. Texts beyond ASCII are built from
 # char codes (UTF-8 bytes) and never printed. Every positive has a negative sibling.
 
@@ -421,7 +428,79 @@ Scenario("The ordinal forms st, nd, rd, th go through Nth")
 	Then("... and from rd", CtIsEmptyText(_(21).rd(cAbc)), 1)
 	Then("a text value gives an empty text from st", CtIsEmptyText(_("ring").st(cAbc)), 1)
 	Then("a number ending in 1 gives an empty text from th", CtIsEmptyText(_(21).th(cAbc)), 1)
-	Then("a number ending in 0 gives an empty text from th (10th is not understood: a known limit)", CtIsEmptyText(_(10).th(cAbc)), 1)
+	bS = CtSame(CtLetterOf(_(10).th(cAbc)), "J")
+	Then("10 th gives the 10th letter (it gave an empty text before, a known limit that is lifted)", bS, 1)
+	Then("... and 10 gives an empty text from st, nd and rd", CtIsEmptyText(_(10).st(cAbc)) + CtIsEmptyText(_(10).nd(cAbc)) + CtIsEmptyText(_(10).rd(cAbc)), 3)
+EndScenario()
+
+Scenario("The ordinal forms follow the English rule: 11, 12 and 13 take th, and so do 111, 112 and 113")
+	Given("the alphabet, and the teens, which the last digit alone used to get wrong")
+	cAbc = 'LetterOf("ABCDEFGHIJKLMNOPQRSTUVWXYZ")'
+	bS = CtSame(CtLetterOf(_(11).th(cAbc)), "K")
+	Then("11 th gives the 11th letter (11st before)", bS, 1)
+	bS = CtSame(CtLetterOf(_(12).th(cAbc)), "L")
+	Then("12 th gives the 12th letter (12nd before)", bS, 1)
+	bS = CtSame(CtLetterOf(_(13).th(cAbc)), "M")
+	Then("13 th gives the 13th letter (13rd before)", bS, 1)
+	Then("11 gives an empty text from st", CtIsEmptyText(_(11).st(cAbc)), 1)
+	Then("12 gives an empty text from nd", CtIsEmptyText(_(12).nd(cAbc)), 1)
+	Then("13 gives an empty text from rd", CtIsEmptyText(_(13).rd(cAbc)), 1)
+	Given("the numbers just beside the teens, which keep their own word")
+	bS = CtSame(CtLetterOf(_(1).st(cAbc)), "A")
+	Then("1 st gives the 1st letter", bS, 1)
+	bS = CtSame(CtLetterOf(_(2).nd(cAbc)), "B")
+	Then("2 nd gives the 2nd letter", bS, 1)
+	bS = CtSame(CtLetterOf(_(3).rd(cAbc)), "C")
+	Then("3 rd gives the 3rd letter", bS, 1)
+	bS = CtSame(CtLetterOf(_(14).th(cAbc)), "N")
+	Then("14 th gives the 14th letter", bS, 1)
+	bS = CtSame(CtLetterOf(_(20).th(cAbc)), "T")
+	Then("20 th gives the 20th letter (an empty text before)", bS, 1)
+	bS = CtSame(CtLetterOf(_(21).st(cAbc)), "U")
+	Then("21 st still gives the 21st letter", bS, 1)
+	Then("2 gives an empty text from th (it gave the 2nd letter before)", CtIsEmptyText(_(2).th(cAbc)), 1)
+	Then("3 gives an empty text from th (it gave the 3rd letter before)", CtIsEmptyText(_(3).th(cAbc)), 1)
+	Then("1 gives an empty text from th", CtIsEmptyText(_(1).th(cAbc)), 1)
+	Then("0 gives an empty text from st", CtIsEmptyText(_(0).st(cAbc)), 1)
+	Then("0 takes th, and the nth-item step finds no 0th item: the chain, tagged false", CtTagOf(_(0).th(cAbc)), 0)
+	Then("a number takes th, so 0 gives not an empty text from th", CtIsEmptyText(_(0).th(cAbc)), 0)
+	Given("a fraction and a negative number, which have no ordinal")
+	Then("2.5 gives an empty text from nd", CtIsEmptyText(_(2.5).nd(cAbc)), 1)
+	Then("2.5 takes th, and finds no item: the chain, tagged false", CtTagOf(_(2.5).th(cAbc)), 0)
+	Then("-1 gives an empty text from st", CtIsEmptyText(_(-1).st(cAbc)), 1)
+	Then("-1 takes th, and finds no item: the chain, tagged false", CtTagOf(_(-1).th(cAbc)), 0)
+	Then("a text gives an empty text from th", CtIsEmptyText(_("ring").th(cAbc)), 1)
+	Then("a list gives an empty text from rd", CtIsEmptyText(_([ 1, 2 ]).rd(cAbc)), 1)
+EndScenario()
+
+Scenario("The ordinal table: for 31 numbers exactly one of st, nd, rd and th answers, and it is the English one")
+	Given("a table of numbers, each with the word written by hand")
+	aTable = [
+		[ 0, "th" ], [ 1, "st" ], [ 2, "nd" ], [ 3, "rd" ], [ 4, "th" ], [ 9, "th" ], [ 10, "th" ],
+		[ 11, "th" ], [ 12, "th" ], [ 13, "th" ], [ 14, "th" ], [ 20, "th" ], [ 21, "st" ], [ 22, "nd" ],
+		[ 23, "rd" ], [ 24, "th" ], [ 100, "th" ], [ 101, "st" ], [ 102, "nd" ], [ 103, "rd" ], [ 104, "th" ],
+		[ 111, "th" ], [ 112, "th" ], [ 113, "th" ], [ 121, "st" ], [ 122, "nd" ], [ 123, "rd" ],
+		[ 1000, "th" ], [ 1011, "th" ], [ 1012, "th" ], [ 1013, "th" ]
+	]
+	nRows = len(aTable)
+	Then("the table holds 31 numbers", nRows, 31)
+	for iRow = 1 to nRows
+		cGot = CtWordsOf(aTable[iRow][1])
+		Then("the number " + aTable[iRow][1] + " answers to " + aTable[iRow][2] + " and to nothing else", cGot, aTable[iRow][2])
+	next
+	Given("the same numbers, each asked for the three words it does not take")
+	nWrong = 0
+	for iRow = 1 to nRows
+		cGot = CtWordsOf(aTable[iRow][1])
+		if strcmp(cGot, aTable[iRow][2]) != 0
+			nWrong++
+		ok
+	next
+	Then("no number answers to a second word, or to none", nWrong, 0)
+	Then("the English rule on a bigger number: 1000001 takes st", CtWordsOf(1000001), "st")
+	Then("... 1000011 takes th", CtWordsOf(1000011), "th")
+	Then("... 3000000012 takes th", CtWordsOf(3000000012), "th")
+	Then("... 3000000022 takes nd", CtWordsOf(3000000022), "nd")
 EndScenario()
 
 Scenario("The function-call form of Is no longer dies on the name _ (R13)")
@@ -447,6 +526,39 @@ func CtSame a, b
 		return 1
 	ok
 	return 0
+
+func CtWordsOf n
+	cWAbc = 'LetterOf("ABCDEFGHIJKLMNOPQRSTUVWXYZ")'
+	cWGot = ""
+	oWA = _(n).st(cWAbc)
+	if NOT CtIsEmptyText(oWA)
+		cWGot += "st"
+	ok
+	oWB = _(n).nd(cWAbc)
+	if NOT CtIsEmptyText(oWB)
+		cWGot += "nd"
+	ok
+	oWC = _(n).rd(cWAbc)
+	if NOT CtIsEmptyText(oWC)
+		cWGot += "rd"
+	ok
+	oWD = _(n).th(cWAbc)
+	if NOT CtIsEmptyText(oWD)
+		cWGot += "th"
+	ok
+	return cWGot
+
+func CtLetterOf x
+	if isObject(x)
+		return x.Value()
+	ok
+	return "(none)"
+
+func CtTagOf x
+	if isObject(x)
+		return x._
+	ok
+	return "(none)"
 
 func CtIsEmptyText x
 	if isString(x) and len(x) = 0

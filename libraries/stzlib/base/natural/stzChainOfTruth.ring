@@ -181,6 +181,27 @@ class stzChainOfTruth from stzObject
 	def _Type()
 		return ring_type(@pValue)
 
+	# The English ordinal word of the held number, st nd rd or th; an empty text for a value that is not a number.
+	def _OrdinalWord()
+		if NOT isNumber(@pValue)
+			return ""
+		ok
+
+		_nLast1_ = @pValue % 10
+		_nLast2_ = @pValue % 100
+
+		if _nLast1_ = 1 and _nLast2_ != 11
+			return "st"
+		ok
+		if _nLast1_ = 2 and _nLast2_ != 12
+			return "nd"
+		ok
+		if _nLast1_ = 3 and _nLast2_ != 13
+			return "rd"
+		ok
+
+		return "th"
+
 	# Returns the library object that wraps the held value: a stzNumber, stzString, stzList or stzObject.
 	#
 	#   returns    an object
@@ -887,67 +908,63 @@ class stzChainOfTruth from stzObject
 
 		return bResult
 
-	# Returns the item at the rank held by the chain, such as the 21st letter of a call, when that number ends in 1, else nothing.
+	# Returns the item at the rank held by the chain, such as the 21st letter of a call, when that number takes st, else nothing.
 	#
 	#   pcThing    a function call as text, such as 'LetterOf("HUSSEIN")'
 	#   returns    what the nth-item step answers, a new chain or this chain tagged false, when the chain
-	#              holds a number ending in 1; an empty text for any other value
-	#   note       the rank is the held number; 21 asks for the 21st letter, which HUSSEIN does not have
+	#              holds a number that takes st; an empty text for any other value
+	#   note       the rank is the held number; 21 asks for the 21st letter, which HUSSEIN does not have;
+	#              the English rule decides: 1, 21, 101 take st, but 11, 111 take th
 	#   see        Nth, nd, rd, th
 	def st(pcThing)
-		if This._Type() = "NUMBER" and
-		   StzRight(''+ This.Value(), 1) = "1"
-
+		if This._OrdinalWord() = "st"
 			return This.Nth(pcThing)
 		ok
 
 		return ""
 
-	# Returns the item at the rank held by the chain, such as the 22nd letter of a call, when that number ends in 2, else nothing.
+	# Returns the item at the rank held by the chain, such as the 22nd letter of a call, when that number takes nd, else nothing.
 	#
 	#   pcThing    a function call as text, such as 'LetterOf("HUSSEIN")'
 	#   returns    what the nth-item step answers, a new chain or this chain tagged false, when the chain
-	#              holds a number ending in 2; an empty text for any other value
+	#              holds a number that takes nd; an empty text for any other value
+	#   note       the English rule decides: 2, 22, 102 take nd, but 12, 112 take th
 	#   see        Nth, st, rd, th
 	def nd(pcThing)
-		if This._Type() = "NUMBER" and
-		   StzRight(''+ This.Value(), 1) = "2"
-
+		if This._OrdinalWord() = "nd"
 			return This.nth(pcThing)
 		ok
 
 		return ""
 
-	# Returns the item at the rank held by the chain, such as the 23rd letter of a call, when that number ends in 3, else nothing.
+	# Returns the item at the rank held by the chain, such as the 23rd letter of a call, when that number takes rd, else nothing.
 	#
 	#   pcThing    a function call as text, such as 'LetterOf("HUSSEIN")'
 	#   returns    what the nth-item step answers, a new chain or this chain tagged false, when the chain
-	#              holds a number ending in 3; an empty text for any other value
+	#              holds a number that takes rd; an empty text for any other value
+	#   note       the English rule decides: 3, 23, 103 take rd, but 13, 113 take th
 	#   see        Nth, st, nd, th
 	def rd(pcThing)
-		if This._Type() = "NUMBER" and
-		   StzRight(''+ This.Value(), 1) = "3"
-
+		if This._OrdinalWord() = "rd"
 			return This.nth(pcThing)
 		ok
 
 		return ""
 
-	# Returns the item at the rank held by the chain, such as the 7th letter of a call, when its last digit is 2 to 9, else nothing.
+	# Returns the item at the rank held by the chain, such as the 7th letter of a call, when that number takes th, else nothing.
 	#
 	#   pcThing    a function call as text, such as 'LetterOf("HUSSEIN")'
 	#   returns    what the nth-item step answers, a new chain or this chain tagged false, when the chain
-	#              holds a number whose last digit is 2 to 9; an empty text for any other value
-	#   note       a number ending in 0 or 1 gives an empty text, so 10 asks for nothing here
+	#              holds a number that takes th; an empty text for any other value
+	#   note       the English rule decides: th is every number that takes none of st, nd and rd, so
+	#              0, 4 to 10, 11 to 20, 100, 111, 112 and 113 take it; a fraction or a negative
+	#              number takes it too, and the nth-item step then finds no item
 	#   see        Nth, st, nd, rd
 	#   example    ? _(7).th('LetterOf("HUSSEIN")')._
 	#              #--> N
 	def th(pcThing)
-		if This._Type() = "NUMBER" and
-		   (0+ StzRight(''+ This.Value(), 1)) > 1
-
+		if This._OrdinalWord() = "th"
 			return This.nth(pcThing)
-
 		ok
 
 		return ""
