@@ -3997,8 +3997,8 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
                     // starts where its next line does
                     list_rtl = isRtlCp(firstCp(f.text[mk..]));
                     list_x = if (list_rtl)
-                        (if (mk > 0) f.x1 - 1.0 * f.size else f.x1 - 0.5 * f.size)
-                    else if (mk > 0) f.x0 + 1.0 * f.size else f.x0 + 0.5 * f.size;
+                        (if (mk > 0) f.x1 - 1.0 * f.size else f.x1 - 0.4 * f.size)
+                    else if (mk > 0) f.x0 + 1.0 * f.size else f.x0 + 0.4 * f.size; // (0.4: a line starting exactly where the item does)
                 } else if (f.mono) kind = .code;
                 cur = .{ .page = f.page, .kind = kind, .x0 = f.x0, .y0 = f.y0, .x1 = f.x1, .y1 = f.y1, .size = f.size, .bold = f.bold, .mono = f.mono, .italic = f.italic, .text = "" };
                 const lb = f.lead_bold;

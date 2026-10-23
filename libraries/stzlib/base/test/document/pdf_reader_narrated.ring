@@ -311,6 +311,45 @@ Scenario("A form's blank rows lower in the table are kept")
 	Then("the last of them blank", @@(aT[5]), @@([ "", "", "", "" ]))
 EndScenario()
 
+# ---- the ninth round, pinned on golden_v9 (a development set since the reader was fixed on it)
+
+Scenario("Two boxes side by side, with a title and a footer crossing their gutter, are read box by box")
+	o = StzPdfQ("_data/golden_v9/p15.pdf")
+	cT = o.Text()
+	Then("the English box ends before the Hausa box begins", StzFindFirst("marked with ink", cT) < StzFindFirst("Za a ba duk yara", cT), 1)
+	Then("a drawn bullet's item keeps its second line", StzFindFirst("show it to the team.", "" + @@(o.ListItems())) > 0, 1)
+EndScenario()
+
+Scenario("A right-to-left page: its list is found and its table reads rightmost first")
+	o = StzPdfQ("_data/golden_v9/p05.pdf")
+	Then("four list items, their bullets drawn on the right", len(o.ListItems()), 4)
+	aT = o.Tables()[1]
+	Then("a row reads from its rightmost cell: the date third", aT[2][3], "2026/11/09")
+	Then("and the leftmost cell last", aT[2][5], "16:00")
+EndScenario()
+
+Scenario("A long table with section and subtotal rows, across two pages, is one table")
+	o = StzPdfQ("_data/golden_v9/p10.pdf")
+	aT = o.Tables()[2]
+	Then("59 rows, the header once", len(aT), 59)
+	Then("eight columns: a subtotal label over two does not join them", @@(aT[1]), @@([ "Village", "Producer group", "Members", "Women", "Millet seed (kg)", "Cowpea seed (kg)", "NPK 15-15-15 (bags)", "Urea (bags)" ]))
+	Then("the grand total closes it", aT[59][1], "Grand total")
+EndScenario()
+
+Scenario("A table over three pages is one table")
+	o = StzPdfQ("_data/golden_v9/p18.pdf")
+	aT = o.Tables()[2]
+	Then("87 rows, the header once", len(aT), 87)
+	Then("its last row is on page 3", aT[87][2], "Balance carried forward")
+EndScenario()
+
+Scenario("A code block opening with a brace keeps its indented lines")
+	o = StzPdfQ("_data/golden_v9/p23.pdf")
+	aC = o.CodeBlocks()
+	Then("two code blocks", len(aC), 2)
+	Then("the JSON one starts with its brace and holds its first key", StzFindFirst('"check": "tls-handshake"', aC[2]) > 0, 1)
+EndScenario()
+
 Scenario("A file that is not a readable PDF is refused with the reason")
 	bRaised = 0
 	cWhy = ""
