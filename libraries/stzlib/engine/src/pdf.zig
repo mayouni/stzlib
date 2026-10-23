@@ -3644,6 +3644,7 @@ pub const Result = struct {
     version: []const u8 = "",
     encrypted: bool = false,
     tagged: bool = false,
+    page_heights: []f32 = &.{}, // each page's height in points, from its crop box (or media box)
     blocks: []Block = &.{},
     text: []const u8 = "",
 
@@ -3722,6 +3723,11 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
         try page_list.append(a, .{ .glyphs = glyphs.items, .rules = rules.items, .dots = dots.items, .width = @floatCast(pg.box[2] - pg.box[0]), .height = @floatCast(pg.box[3] - pg.box[1]) });
     }
     const tb = text_bytes.items;
+    {
+        var hs = try a.alloc(f32, page_list.items.len);
+        for (page_list.items, 0..) |pg, k| hs[k] = pg.height;
+        res.page_heights = hs;
+    }
 
     // fragments, tables and reading order, page by page
     var blocks: std.ArrayList(Block) = .empty;

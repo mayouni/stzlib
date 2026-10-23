@@ -172,7 +172,7 @@ fn ring_PdfError(p: *anyopaque) callconv(.c) void {
     rs2(p, &g_pdf_err, @intCast(g_pdf_err_len));
 }
 
-// StzEnginePdfInfo() -> [ nPages, cVersion, bEncrypted, bTagged, nGlyphs, nBlocks ], [] when nothing is open
+// StzEnginePdfInfo() -> [ nPages, cVersion, bEncrypted, bTagged, nGlyphs, nBlocks, anPageHeights ], [] when nothing is open
 fn ring_PdfInfo(p: *anyopaque) callconv(.c) void {
     const out = R.ring_vm_api_newlist(p) orelse return;
     if (g_pdf) |r| {
@@ -182,6 +182,8 @@ fn ring_PdfInfo(p: *anyopaque) callconv(.c) void {
         R.ring_list_adddouble(out, if (r.tagged) 1 else 0);
         R.ring_list_adddouble(out, @floatFromInt(r.glyphs));
         R.ring_list_adddouble(out, @floatFromInt(r.blocks.len));
+        const hl = R.ring_list_newlist(out) orelse return;
+        for (r.page_heights) |h| R.ring_list_adddouble(hl, h);
     }
     R.ring_vm_api_retlist(p, out);
 }

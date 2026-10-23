@@ -1,0 +1,3 @@
+# zmdl 1 -- measured quality per implementation (SOFTANZA_MODEL_FLOW.md 9.2)
+letterhead|reader-rule|v7|0.77|167|1|23/10/2026 11:41:09|golden from golden_v7 furniture lists
+letterhead|granite-1b-choice|v7|0.71|167|1|23/10/2026 11:59:55|golden from golden_v7 furniture lists

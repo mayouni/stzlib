@@ -83,6 +83,14 @@ class stzPdf from stzObject
 	def Version()
 		return @aInfo[2]
 
+	# Returns the height of page pnPage in points, from its crop box (or its media box).
+	#
+	#   pnPage     the page number, from 1
+	#   returns    a number; 0 for a page that does not exist
+	def PageHeight(pnPage)
+		if len(@aInfo) < 7 or pnPage < 1 or pnPage > len(@aInfo[7]) return 0 ok
+		return @aInfo[7][pnPage]
+
 	# TRUE if the PDF carries a structure tree (a tagged PDF), which this reader does not use yet.
 	def IsTagged()
 		return @aInfo[4]
