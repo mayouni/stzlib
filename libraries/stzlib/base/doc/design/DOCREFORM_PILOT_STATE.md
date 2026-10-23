@@ -518,3 +518,7 @@ Next by size: five classes at 3 (stzDataSet first), then nine at 2.
 NonParametricCorrelation takes the other data set; the rank correlation now averages tied ranks (the engine function is exact only without ties: 0.825 against the true 0.8207826816681233); MutualInformation counts pairs of integer ids instead of text joined with an underscore; PlanSummary read oPlan instead of the plan it built. Seven arity-drift methods fixed by the sweep (935 calls, 0 errors). Guard 146 assertions. The machine was heavily loaded by another session's zig builds: reflect guards took 4, 2.5 and 8 minutes; use generous timeouts (590 s) for them.
 Next by size: four classes at 3 (stzLinearSolver first), then nine at 2.
 
+## 2026-10-23: CODEBERG IS SEVEN COMMITS BEHIND (GitHub is current)
+
+origin/main = 4d066c5e3 and is current; codeberg/main stays at e82e31037. Pushing to Codeberg fails with 'the remote end hung up unexpectedly' / 'unexpected disconnect while reading sideband packet', even for the single commit 870cbacc0 (the author's 'PDF reader round 7 on golden_v8': 128 files, 10,535 inserted lines of results TSVs), also over HTTP/1.1 with a 500 MB postBuffer. Every commit after it, including the six stzDataSet commits, depends on it. Retry later with `git push codeberg docs/reform:refs/heads/main`, or push 870cbacc0 first and the rest after; if it keeps failing the pack (262 MB repository) or the Codeberg connection is the limit, and the author's call is whether to trim the results data.
+
