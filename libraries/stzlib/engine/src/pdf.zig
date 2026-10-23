@@ -2377,6 +2377,31 @@ fn arabicDocFix(a: Allocator, blocks: []Block) !void {
     }
 }
 
+fn isGreekLetter(cp: u21) bool {
+    return (cp >= 0x0386 and cp <= 0x03CE) or (cp >= 0x1F00 and cp <= 0x1FFC);
+}
+
+fn greekMu(a: Allocator, t: []const u8) ![]const u8 {
+    if (std.mem.indexOf(u8, t, "\u{00B5}") == null) return t;
+    var cps: std.ArrayList(u21) = .empty;
+    var view = std.unicode.Utf8View.init(t) catch return t;
+    var it = view.iterator();
+    while (it.nextCodepoint()) |cp| try cps.append(a, cp);
+    var out: std.ArrayList(u8) = .empty;
+    for (cps.items, 0..) |cp, i| {
+        var c = cp;
+        if (cp == 0x00B5) {
+            const before = i > 0 and isGreekLetter(cps.items[i - 1]);
+            const after = i + 1 < cps.items.len and isGreekLetter(cps.items[i + 1]);
+            if (before or after) c = 0x03BC;
+        }
+        var b4: [4]u8 = undefined;
+        const n = std.unicode.utf8Encode(c, &b4) catch 0;
+        try out.appendSlice(a, b4[0..n]);
+    }
+    return out.items;
+}
+
 fn hasLetter(t: []const u8) bool {
     var view = std.unicode.Utf8View.init(t) catch return true;
     var it = view.iterator();
@@ -4586,6 +4611,14 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
         for (b.rows) |row| std.mem.reverse([]const u8, row);
     }
     try arabicDocFix(a, final.items);
+    // a font draws Greek mu and the micro sign with one glyph and its ToUnicode says micro: beside a Greek letter
+    // it is mu (Programma read with U+00B5)
+    for (final.items) |*b| {
+        b.text = try greekMu(a, b.text);
+        for (b.rows) |row| for (row) |*c| {
+            c.* = try greekMu(a, c.*);
+        };
+    }
     res.blocks = final.items;
 
     var all: std.ArrayList(u8) = .empty;
