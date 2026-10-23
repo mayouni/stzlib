@@ -4433,6 +4433,89 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
             for (0..n - 1) |j| row[j] = row[l];
         }
     }
+    // boxes side by side, each a small table under its own title, read as ONE table whose first row holds only
+    // the titles ([title] [] [title] []): one table per box, its title a heading above it, box by box
+    {
+        var k: usize = 0;
+        while (k < final.items.len) : (k += 1) {
+            const t = final.items[k];
+            if (t.kind != .table or t.rows.len < 3) continue;
+            const n = t.rows[0].len;
+            if (n < 4) continue;
+            var starts: std.ArrayList(usize) = .empty;
+            for (t.rows[0], 0..) |c, j| {
+                if (c.len > 0) try starts.append(a, j);
+            }
+            if (starts.items.len < 2 or starts.items[0] != 0) continue;
+            var groups_ok = true;
+            for (starts.items, 0..) |st, gi| {
+                const en = if (gi + 1 < starts.items.len) starts.items[gi + 1] else n;
+                if (en - st < 2) groups_ok = false;
+            }
+            if (!groups_ok) continue;
+            // the title row is not data: the next row has text in more cells than the titles
+            var filled: usize = 0;
+            for (t.rows[1]) |c| {
+                if (c.len > 0) filled += 1;
+            }
+            if (filled <= starts.items.len) continue;
+            var rtl_n: usize = 0;
+            var ltr_n: usize = 0;
+            for (t.rows) |row| for (row) |c| {
+                const cp = firstCp(c);
+                if (isRtlCp(cp)) rtl_n += 1;
+                if (isLtrCp(cp)) ltr_n += 1;
+            };
+            var level: u32 = 2;
+            {
+                var q = k;
+                while (q > 0) {
+                    q -= 1;
+                    if (final.items[q].kind == .heading) {
+                        level = final.items[q].level + 1;
+                        break;
+                    }
+                }
+            }
+            var parts: std.ArrayList(Block) = .empty;
+            const ng = starts.items.len;
+            for (0..ng) |gq| {
+                const gi = if (rtl_n > ltr_n) ng - 1 - gq else gq;
+                const st = starts.items[gi];
+                const en = if (gi + 1 < ng) starts.items[gi + 1] else n;
+                const w = (t.x1 - t.x0) / @as(f32, @floatFromInt(n));
+                const gx0 = t.x0 + w * @as(f32, @floatFromInt(st));
+                const gx1 = t.x0 + w * @as(f32, @floatFromInt(en));
+                var rows: std.ArrayList([][]const u8) = .empty;
+                var flat: std.ArrayList(u8) = .empty;
+                for (t.rows[1..]) |row| {
+                    try rows.append(a, row[st..en]);
+                    for (row[st..en]) |c| {
+                        if (c.len == 0) continue;
+                        if (flat.items.len > 0) try flat.append(a, ' ');
+                        try flat.appendSlice(a, c);
+                    }
+                }
+                var hb = t;
+                hb.kind = .heading;
+                hb.level = level;
+                hb.bold = true;
+                hb.rows = &.{};
+                hb.text = t.rows[0][st];
+                hb.x0 = gx0;
+                hb.x1 = gx1;
+                try parts.append(a, hb);
+                var tb2 = t;
+                tb2.rows = rows.items;
+                tb2.text = flat.items;
+                tb2.x0 = gx0;
+                tb2.x1 = gx1;
+                try parts.append(a, tb2);
+            }
+            try final.replaceRange(a, k, 1, parts.items);
+            k += parts.items.len - 1;
+        }
+    }
     for (final.items) |*b| {
         if (b.kind != .table) continue;
         var nr: usize = 0;
