@@ -259,7 +259,9 @@ EndScenario()
 
 Scenario("A run-in heading, a typewriter heading, and prose beside a table")
 	o = StzPdfQ(cL + "h09.pdf")
-	Then("a bold lead-in is a heading of its own", StzFindFirst("Abstract.", "" + @@(o.Headings())) > 0, 1)
+	# (round 11: a lead ending in a full stop is no longer a heading -- over golden_v1..v11 such headings were
+	#  16 false and 1 true, this one; it stays at the head of its paragraph)
+	Then("a bold lead-in ending in a full stop opens its paragraph", StzFindFirst("Abstract. Thirty-six", o.Text()) > 0, 1)
 	Then("the paragraph after it keeps its text", StzFindFirst("Thirty-six low-cost data loggers", o.Text()) > 0, 1)
 	Then("a prose line of the next column is not a table cell", StzFindFirst("central store", "" + @@(o.Tables())), 0)
 	o = StzPdfQ(cL + "h04.pdf")
@@ -378,6 +380,25 @@ Scenario("Two boxes side by side read as one table under a row of titles become 
 	Then("its first row", @@(aT[1][1]), @@([ "Paciente", "Rosario Méndez Ibarra" ]))
 	Then("the sample box comes next", aT[2][1][1], "N.º de petición")
 	Then("each title is a heading", StzFindFirst("Datos de la muestra", "" + @@(o.Headings())) > 0, 1)
+EndScenario()
+
+# ---- the eleventh round, pinned on golden_v5, v6 and v11 (development sets since the reader was fixed on them)
+
+Scenario("A bold lead ending in a colon is not a heading: it opens its paragraph")
+	o = StzPdfQ("_data/golden_v5/h14.pdf")
+	Then("no heading ends with a colon", StzFindFirst(":" + char(34), "" + @@(o.Headings())), 0)
+	Then("the lead stays with its sentence", StzFindFirst("Warning: Do not restore while the enrolment period is open.", o.Text()) > 0, 1)
+EndScenario()
+
+Scenario("A bold cell in a row of short cells is not a heading")
+	o = StzPdfQ("_data/golden_v6/k05.pdf")
+	Then("the header cell is not a heading", StzFindFirst("Concepto", "" + @@(o.Headings())), 0)
+EndScenario()
+
+Scenario("Greek mu drawn with the micro sign's glyph reads as mu")
+	o = StzPdfQ("_data/golden_v11/r20.pdf")
+	Then("the title with mu", StzFindFirst("Πρόγραμμα εκδηλώσεων", "" + @@(o.Headings())) > 0, 1)
+	Then("no micro sign inside a Greek word", StzFindFirst("µµ", o.Text()), 0)
 EndScenario()
 
 Scenario("A file that is not a readable PDF is refused with the reason")
