@@ -3961,7 +3961,8 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
                 const same_style = @abs(f.size - b.size) <= 0.15 * b.size and f.bold == b.bold and f.mono == b.mono and f.italic == b.italic;
                 const maxgap: f32 = if (b.mono and f.mono) 3.5 * f.size else 0.9 * f.size;
                 const below = f.page == b.page and f.y0 >= last.y0 + 0.3 * f.size and f.y0 - last.y1 <= maxgap;
-                const overlap = f.x0 < b.x1 + 1 and f.x1 > b.x0 - 1;
+                // (an indented line of code under a short one -- "{" -- does not overlap it and still continues it)
+                const overlap = (f.x0 < b.x1 + 1 and f.x1 > b.x0 - 1) or (b.mono and f.mono and f.x0 >= b.x0 - 0.5 * f.size);
                 if (same_style and below and overlap and !item) {
                     if (b.kind == .list_item) {
                         join = if (list_rtl) f.x1 <= list_x + 0.5 * f.size else f.x0 >= list_x - 0.5 * f.size;
