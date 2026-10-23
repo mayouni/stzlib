@@ -2908,7 +2908,10 @@ fn findTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.ArrayList
         }
         var bands = try a.alloc([2]f32, nc);
         for (0..nc) |ci| bands[ci] = .{ cx[ci], cx[ci + 1] };
-        try tables.append(a, .{ .x0 = bx0, .y0 = by0, .x1 = bx1, .y1 = by1, .rows = rows, .size = size, .cols = bands });
+        // the table ends at its last horizontal rule: column rules running on below it frame rows the grid
+        // does not hold (a timetable ruled only in its header), which another table may take
+        const tbot = @min(by1, cy[cy.len - 1] + 1);
+        try tables.append(a, .{ .x0 = bx0, .y0 = by0, .x1 = bx1, .y1 = tbot, .rows = rows, .size = size, .cols = bands });
     }
 }
 
