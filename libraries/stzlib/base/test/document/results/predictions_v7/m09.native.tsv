@@ -1,0 +1,65 @@
+heading	1	Low-cost soil moisture sensing for smallholder irrigation
+paragraph	0	NSIA Northern Savanna Institute of Agriculture
+heading	1	scheduling: a two-season field trial
+paragraph	0	Amina Dauda1, Kofi Mensah-Boateng2, Lena Hartmann3 and Ibrahim Sule1
+paragraph	0	1 Northern Savanna Institute of Agriculture, Tamale · 2 Volta Basin Water Research Unit · 3 Lindenfeld University of Applied Sciences
+heading	2	Background
+heading	2	Results
+paragraph	0	Smallholder vegetable growers in the savanna zone irrigate by habit rather than by measurement. Over-irrigation wastes pumped water and fuel, while under-irrigation during fruit set cuts yields sharply.
+paragraph	0	Commercial tensiometers cost more than a season of fuel, so we tested whether a capacitive sensor costing under five dollars could guide irrigation decisions.
+heading	2	Objectives
+list_item	0	Calibrate a low-cost capacitive probe against gravimetric
+paragraph	0	soil samples.
+list_item	0	Compare sensor-guided scheduling with farmers’ usual
+paragraph	0	practice.
+list_item	0	Measure water use, onion yield and net income per plot.
+heading	2	Methods
+paragraph	0	Twenty-four farmers in four communities each managed two adjacent onion plots of 200 square metres over the 2025 and 2026 dry seasons. One plot followed usual practice and the other was irrigated only when the sensor reading fell below a threshold set at 55 percent of available water. Raw sensor counts were converted to volumetric water content with a site-specific linear model:
+code	0	import numpy as np\n\n# raw ADC counts vs. gravimetric VWC (m3/m3), 36 samples\nslope, intercept = np.polyfit(counts, vwc, 1)\n\ndef to_vwc(raw):\n    return max(0.0, slope * raw + intercept)
+paragraph	0	Table 1. Mean values per plot over two seasons (n = 24 farmers)
+paragraph	0	Indicator
+paragraph	0	Irrigation events per season Water applied (mm) Pump fuel (litres) Bulb yield (t/ha) Net income (GHS per plot)
+paragraph	0	Usual practice
+paragraph	0	Sensor-guided
+paragraph	0	Usual practice
+paragraph	0	41
+paragraph	0	612 96 18.4
+paragraph	0	1 520
+paragraph	0	Sensorguided
+paragraph	0	Change
+paragraph	0	27
+paragraph	0	−34 %
+paragraph	0	438
+paragraph	0	−28 %
+paragraph	0	69
+paragraph	0	−28 %
+paragraph	0	19.7
+paragraph	0	+7 %
+paragraph	0	1 790
+paragraph	0	+18 %
+paragraph	0	612 mm 438 mm
+paragraph	0	Figure 1. Seasonal water applied, mean of both seasons.
+paragraph	0	Sensor-guided plots received 28 percent less water while yielding slightly more onions. The saving was largest in the first six weeks after transplanting, when farmers usually irrigate every second day.
+paragraph	0	Three sensors failed after flooding of the field channel and were replaced within a week.
+heading	2	Discussion
+paragraph	0	Farmers trusted the readings once they had seen the probe respond to a single irrigation. Several asked for a simple display of three coloured lights instead of a number. The yield gain is modest, but the fuel saving alone repays the sensor within the first month.
+code	0	THRESHOLD = 0.55 * (FC - PWP) + PWP
+paragraph	0	The calibration explained 91 percent of the variance in measured water content (RMSE 0.021 m3/m3).
+paragraph	0	Presented at the 14th Regional Conference on Water and Food Security, Accra, 3–5 November 2026
+heading	2	Conclusions
+list_item	0	A five-dollar capacitive probe,
+paragraph	0	calibrated once per soil type, is accurate enough to schedule irrigation.
+list_item	0	Sensor-guided scheduling saved over
+paragraph	0	a quarter of the water and fuel without any loss of yield.
+list_item	0	Adoption depends on a display that
+paragraph	0	farmers can read at a glance.
+heading	2	Next steps
+paragraph	0	In 2027 the trial will extend to tomatoes and peppers in two further districts, with the three-light display built by a local electronics cooperative.
+heading	2	Acknowledgements
+paragraph	0	We thank the farmers of Nyankpala, Kumbungu, Dalun and Savelugu for their time and their plots.
+heading	2	References
+list_item	0	1. Allen R.G. et al. (1998) Crop evapotranspiration: guidelines for computing crop water requirements. FAO, Rome.
+list_item	0	2. Placidi P. et al. (2020) Characterization of lowcost capacitive soil moisture sensors for IoT networks. Sensors 20, 3585.
+list_item	0	3. Dauda A. and Sule I. (2024) Irrigation habits of dry-season onion growers in northern Ghana. Savanna Agric. J. 12, 44–58.
+paragraph	0	Contact: a.dauda@nsia.example
+paragraph	0	LUAS Lindenfeld University

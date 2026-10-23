@@ -1,0 +1,113 @@
+{
+  "id": "m11",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Yadda Ake Noman Gero Mai Yawan Amfani",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Yadda Ake Noman Gero Mai Yawan Amfani"
+    },
+    {
+      "level": 2,
+      "text": "Matakan noma"
+    },
+    {
+      "level": 2,
+      "text": "Kare amfanin gona"
+    },
+    {
+      "level": 2,
+      "text": "Taki da takin zamani"
+    }
+  ],
+  "key_sentences": [
+    "Gero shi ne babban abincin mafi yawan iyalai a yankinmu.",
+    "Wannan takarda tana bayani a kan matakan da manomi zai bi domin samun girbi mai yawa a kowace kadada.",
+    "Tsuntsaye da ƙwari suna lalata gero sosai lokacin da kai ya fara cika.",
+    "Manomin da ya bi waɗannan matakai zai iya samun buhu 15 na gero a kadada ɗaya maimakon buhu 6.",
+    "Ajiye wani ɓangare na iri mai kyau domin shukar shekara mai zuwa."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Lokaci",
+          "Irin taki",
+          "Yawa a kadada ɗaya",
+          "Yadda ake sa shi"
+        ],
+        [
+          "Kafin shuka",
+          "Takin gargajiya (taki na dabbobi)",
+          "Keken shanu 10",
+          "A watsa a gona kafin a yi noma"
+        ],
+        [
+          "Lokacin shuka",
+          "Takin NPK 15-15-15",
+          "Buhu 2 (kilo 100)",
+          "A sa ɗan kaɗan a rami tare da iri"
+        ],
+        [
+          "Makonni 3 bayan tsiro",
+          "Takin Urea",
+          "Buhu 1 (kilo 50)",
+          "A binne kusa da tsiro bayan ruwan sama"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Shirya gona da wuri kafin damina ta fara."
+    },
+    {
+      "level": 0,
+      "text": "Yi amfani da irin gero da aka tantance, kamar irin Dallol-2 mai saurin nuna."
+    },
+    {
+      "level": 0,
+      "text": "Shuka bayan ruwan sama na farko wanda ya kai milimita 20 ko fiye."
+    },
+    {
+      "level": 0,
+      "text": "Bar tazarar mita ɗaya tsakanin layi da layi da kuma tsakanin rami da rami."
+    },
+    {
+      "level": 0,
+      "text": "Yi noman farko makonni biyu bayan tsiro."
+    },
+    {
+      "level": 0,
+      "text": "Rage tsire zuwa tsiro uku a kowane rami."
+    },
+    {
+      "level": 0,
+      "text": "Duba gona sau biyu a mako."
+    },
+    {
+      "level": 0,
+      "text": "Cire tsire mai cuta a ƙone shi nesa da gona."
+    },
+    {
+      "level": 0,
+      "text": "Kada a fesa magani ba tare da shawarar ma’aikacin gona ba."
+    }
+  ],
+  "furniture": [
+    "HBAG",
+    "Hukumar Bunƙasa Aikin Gona ta Yankin Dallol",
+    "Sashen Faɗakarwa ga Manoma",
+    "Takardar shawarwari ga manoma – Lamba ta 7",
+    "Don ƙarin bayani, tuntuɓi ma’aikacin gona mafi kusa ko kira 0800 22 44 66 (kyauta).",
+    "Bugu na 2026"
+  ],
+  "languages": [
+    "ha"
+  ],
+  "code": [],
+  "notes": "Hausa (boko orthography with hooked letters ɓ ɗ ƙ and the apostrophe U+2019). Two-column middle section: the numbered list \"Matakan noma\" (CSS numbers) is read before the right-hand column \"Kare amfanin gona\". The round \"HBAG\" badge is a text logo. The \"Ka sani?\" tip box opens with a bold run-in label that is not part of the key sentences. The bottom contact line is furniture."
+}

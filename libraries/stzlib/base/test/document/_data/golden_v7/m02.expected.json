@@ -1,0 +1,145 @@
+{
+  "id": "m02",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "CONTRATO DE ARRENDAMENTO PARA FIM HABITACIONAL",
+  "headings": [
+    {
+      "level": 1,
+      "text": "CONTRATO DE ARRENDAMENTO PARA FIM HABITACIONAL"
+    },
+    {
+      "level": 2,
+      "text": "Cláusula 1.ª – Objeto"
+    },
+    {
+      "level": 2,
+      "text": "Cláusula 2.ª – Prazo"
+    },
+    {
+      "level": 2,
+      "text": "Cláusula 3.ª – Renda"
+    },
+    {
+      "level": 2,
+      "text": "Cláusula 4.ª – Caução"
+    },
+    {
+      "level": 2,
+      "text": "Cláusula 5.ª – Obrigações da Arrendatária"
+    },
+    {
+      "level": 2,
+      "text": "Cláusula 6.ª – Obras"
+    },
+    {
+      "level": 2,
+      "text": "Cláusula 7.ª – Animais de companhia"
+    },
+    {
+      "level": 2,
+      "text": "Cláusula 8.ª – Denúncia pela Arrendatária"
+    },
+    {
+      "level": 2,
+      "text": "Cláusula 9.ª – Atualização da renda"
+    },
+    {
+      "level": 2,
+      "text": "Cláusula 10.ª – Comunicações"
+    },
+    {
+      "level": 2,
+      "text": "Cláusula 11.ª – Certificado energético e licença"
+    },
+    {
+      "level": 2,
+      "text": "Cláusula 12.ª – Foro"
+    }
+  ],
+  "key_sentences": [
+    "Entre Joaquim Alberto Fernandes Lobo, contribuinte n.º 213 457 890, residente na Avenida da Liberdade Nova, 112, 4.º, 3000-245 Coimbra, adiante designado por SENHORIO, e Mariana Sousa Teixeira, contribuinte n.º 245 118 362, titular do cartão de cidadão n.º 14552781, adiante designada por ARRENDATÁRIA, é celebrado o presente contrato, que se rege pelas cláusulas seguintes.",
+    "O arrendamento é celebrado pelo prazo de três anos, com início em 1 de novembro de 2026 e termo em 31 de outubro de 2029.",
+    "A caução será restituída no prazo de trinta dias após a entrega do locado, deduzida de eventuais danos devidamente comprovados.",
+    "Decorrido um terço do prazo inicial, a Arrendatária pode denunciar o contrato a todo o tempo, mediante comunicação ao Senhorio com a antecedência mínima de noventa dias.",
+    "Para a resolução de qualquer litígio emergente do presente contrato, as partes elegem o foro da comarca de Coimbra, com expressa renúncia a qualquer outro.",
+    "Feito em duplicado, ficando cada uma das partes com um exemplar, e assinado pelas partes em todas as folhas."
+  ],
+  "tables": [
+    {
+      "caption": "Quadro I – Valores e encargos do arrendamento",
+      "rows": [
+        [
+          "Rubrica",
+          "Valor",
+          "Periodicidade",
+          "Responsável"
+        ],
+        [
+          "Renda",
+          "780,00 €",
+          "Mensal",
+          "Arrendatária"
+        ],
+        [
+          "Caução",
+          "1 560,00 €",
+          "Única",
+          "Arrendatária"
+        ],
+        [
+          "Quota de condomínio",
+          "42,50 €",
+          "Mensal",
+          "Senhorio"
+        ],
+        [
+          "Imposto Municipal sobre Imóveis",
+          "318,00 €",
+          "Anual",
+          "Senhorio"
+        ],
+        [
+          "Água, eletricidade e gás",
+          "Conforme consumo",
+          "Mensal",
+          "Arrendatária"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "a) Pagar pontualmente a renda e os encargos que lhe cabem;"
+    },
+    {
+      "level": 0,
+      "text": "b) Manter o locado em bom estado de conservação e limpeza;"
+    },
+    {
+      "level": 0,
+      "text": "c) Não sublocar nem ceder, total ou parcialmente, o uso do locado sem autorização escrita do Senhorio;"
+    },
+    {
+      "level": 0,
+      "text": "d) Permitir a visita do locado, mediante aviso prévio de 48 horas, para verificação do seu estado;"
+    },
+    {
+      "level": 0,
+      "text": "e) Restituir o locado no fim do contrato no estado em que o recebeu, ressalvadas as deteriorações inerentes a uma prudente utilização."
+    }
+  ],
+  "furniture": [
+    "Contrato n.º 0457/2026 – Rua das Amendoeiras, 23, 2.º Esq.",
+    "Rubricas: ______ ______",
+    "Página 1 de 3",
+    "Página 2 de 3",
+    "Página 3 de 3"
+  ],
+  "languages": [
+    "pt"
+  ],
+  "code": [],
+  "notes": "Contract with 12 numbered clauses as level-2 headings. Running header (contract number and address) and initials line \"Rubricas: ______ ______\" repeat on every page and are listed once; the page number \"Página n de N\" is listed per page. The obligations a) to e) are a typed list (markers are text). Table \"Quadro I\" sits inside clause 3. The signature block at the end is two side-by-side body columns, not a table."
+}

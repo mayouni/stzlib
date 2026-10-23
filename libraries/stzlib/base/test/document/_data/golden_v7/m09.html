@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>m09</title>
+<style>
+html,body{margin:0;padding:0}
+@page { size: A3; margin: 1.2cm;
+}
+
+body{font-family:"Segoe UI",Calibri,sans-serif;font-size:10.5pt;color:#1d2a33}
+.banner{background:#0e4d64;color:#fff;padding:12px 18px;display:flex;justify-content:space-between;align-items:center;border-radius:6px}
+.logo{font:bold 11pt Georgia;border:2px solid #fff;padding:6px 8px;text-align:center;line-height:1.2}
+.ttl{flex:1;padding:0 18px}
+h1{font-size:22pt;margin:0 0 6px;line-height:1.15}
+.au{font-size:12pt}
+.af{font-size:9pt;opacity:.9;margin-top:3px}
+.cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:14px}
+h2{font-size:14pt;color:#fff;background:#137a63;padding:3px 10px;margin:0 0 8px;border-radius:3px}
+.col section{margin-bottom:14px}
+p{margin:0 0 7px;line-height:1.45}
+ul,ol{margin:0 0 8px;padding-left:20px}
+li{margin-bottom:3px;line-height:1.35}
+pre{font-family:Consolas,"Courier New",monospace;font-size:8.6pt;background:#f1f5f7;border-left:4px solid #0e4d64;padding:6px 8px;margin:4px 0 8px;white-space:pre}
+table{border-collapse:collapse;width:100%;font-size:9.5pt;margin:4px 0}
+th{background:#d7ebe5;padding:3px;border-bottom:2px solid #137a63}
+td{padding:3px;border-bottom:1px solid #ccd;text-align:center}
+td:first-child{text-align:left}
+caption{caption-side:top;text-align:left;font-weight:bold;font-size:9.5pt;margin-bottom:2px}
+.fig{border:1px solid #ccd;padding:8px;margin:4px 0}
+.bar{display:flex;align-items:center;margin:3px 0;font-size:8.5pt}
+.bar span{width:110px}
+.bar i{display:inline-block;height:12px;margin-right:6px}
+.figcap{font-size:9pt;font-style:italic;margin-top:4px}
+.refs{font-size:8.6pt}
+.foot{margin-top:6px;background:#0e4d64;color:#fff;padding:5px 12px;font-size:9pt;display:flex;justify-content:space-between;border-radius:4px}
+
+</style>
+</head>
+<body>
+<div class="banner">
+<div class="logo">NSIA<br>Northern Savanna Institute of Agriculture</div>
+<div class="ttl">
+<h1>Low-cost soil moisture sensing for smallholder irrigation scheduling: a two-season field trial</h1>
+<div class="au">Amina Dauda<sup>1</sup>, Kofi Mensah-Boateng<sup>2</sup>, Lena Hartmann<sup>3</sup> and Ibrahim Sule<sup>1</sup></div>
+<div class="af"><sup>1</sup> Northern Savanna Institute of Agriculture, Tamale · <sup>2</sup> Volta Basin Water Research Unit · <sup>3</sup> Lindenfeld University of Applied Sciences</div>
+</div>
+<div class="logo">LUAS<br>Lindenfeld University</div>
+</div>
+<div class="cols"><div class="col">
+<section><h2>Background</h2>
+<p>Smallholder vegetable growers in the savanna zone irrigate by habit rather than by measurement. Over-irrigation wastes pumped water and fuel, while under-irrigation during fruit set cuts yields sharply.</p>
+<p>Commercial tensiometers cost more than a season of fuel, so we tested whether a capacitive sensor costing under five dollars could guide irrigation decisions.</p>
+</section><section><h2>Objectives</h2>
+<ul>
+<li>Calibrate a low-cost capacitive probe against gravimetric soil samples.
+</li>
+<li>Compare sensor-guided scheduling with farmers’ usual practice.
+</li>
+<li>Measure water use, onion yield and net income per plot.
+</li>
+</ul>
+</section><section><h2>Methods</h2>
+<p>Twenty-four farmers in four communities each managed two adjacent onion plots of 200 square metres over the 2025 and 2026 dry seasons. One plot followed usual practice and the other was irrigated only when the sensor reading fell below a threshold set at 55 percent of available water.</p>
+<p>Raw sensor counts were converted to volumetric water content with a site-specific linear model:</p>
+<pre>import numpy as np
+
+# raw ADC counts vs. gravimetric VWC (m3/m3), 36 samples
+slope, intercept = np.polyfit(counts, vwc, 1)
+
+def to_vwc(raw):
+    return max(0.0, slope * raw + intercept)
+
+THRESHOLD = 0.55 * (FC - PWP) + PWP</pre>
+<p>The calibration explained 91 percent of the variance in measured water content (RMSE 0.021 m3/m3).</p>
+</section></div><div class="col">
+<section><h2>Results</h2>
+<table>
+<caption>Table 1. Mean values per plot over two seasons (n = 24 farmers)</caption>
+<thead>
+<tr>
+<th>Indicator</th>
+<th>Usual practice</th>
+<th>Sensor-guided</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Irrigation events per season</td>
+<td>41</td>
+<td>27</td>
+<td>−34 %</td>
+</tr>
+<tr>
+<td>Water applied (mm)</td>
+<td>612</td>
+<td>438</td>
+<td>−28 %</td>
+</tr>
+<tr>
+<td>Pump fuel (litres)</td>
+<td>96</td>
+<td>69</td>
+<td>−28 %</td>
+</tr>
+<tr>
+<td>Bulb yield (t/ha)</td>
+<td>18.4</td>
+<td>19.7</td>
+<td>+7 %</td>
+</tr>
+<tr>
+<td>Net income (GHS per plot)</td>
+<td>1 520</td>
+<td>1 790</td>
+<td>+18 %</td>
+</tr>
+</tbody>
+</table>
+<div class="fig">
+<div class="bar"><span>Usual practice</span><i style="width:214px;background:#9aa9b3"></i>612 mm</div>
+<div class="bar"><span>Sensor-guided</span><i style="width:153px;background:#137a63"></i>438 mm</div>
+<div class="figcap">Figure 1. Seasonal water applied, mean of both seasons.</div></div>
+<p>Sensor-guided plots received 28 percent less water while yielding slightly more onions. The saving was largest in the first six weeks after transplanting, when farmers usually irrigate every second day.</p>
+<p>Three sensors failed after flooding of the field channel and were replaced within a week.</p>
+</section><section><h2>Discussion</h2>
+<p>Farmers trusted the readings once they had seen the probe respond to a single irrigation. Several asked for a simple display of three coloured lights instead of a number.</p>
+<p>The yield gain is modest, but the fuel saving alone repays the sensor within the first month.</p>
+</section></div><div class="col">
+<section><h2>Conclusions</h2>
+<ul>
+<li>A five-dollar capacitive probe, calibrated once per soil type, is accurate enough to schedule irrigation.
+</li>
+<li>Sensor-guided scheduling saved over a quarter of the water and fuel without any loss of yield.
+</li>
+<li>Adoption depends on a display that farmers can read at a glance.
+</li>
+</ul>
+</section><section><h2>Next steps</h2>
+<p>In 2027 the trial will extend to tomatoes and peppers in two further districts, with the three-light display built by a local electronics cooperative.</p>
+</section><section><h2>Acknowledgements</h2>
+<p>We thank the farmers of Nyankpala, Kumbungu, Dalun and Savelugu for their time and their plots.</p>
+</section><section><h2>References</h2>
+<div class="refs"><ol>
+<li>Allen R.G. et al. (1998) Crop evapotranspiration: guidelines for computing crop water requirements. FAO, Rome.
+</li>
+<li>Placidi P. et al. (2020) Characterization of low-cost capacitive soil moisture sensors for IoT networks. Sensors 20, 3585.
+</li>
+<li>Dauda A. and Sule I. (2024) Irrigation habits of dry-season onion growers in northern Ghana. Savanna Agric. J. 12, 44–58.
+</li>
+</ol></div>
+</section></div></div>
+<div class="foot">
+<span>Presented at the 14th Regional Conference on Water and Food Security, Accra, 3–5 November 2026</span>
+<span>Contact: a.dauda@nsia.example</span>
+</div>
+</body>
+</html>

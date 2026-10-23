@@ -1,0 +1,196 @@
+{
+  "id": "m16",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "Computer Science – Paper 2: Programming and Algorithms",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Computer Science – Paper 2: Programming and Algorithms"
+    },
+    {
+      "level": 2,
+      "text": "Instructions"
+    },
+    {
+      "level": 2,
+      "text": "Information"
+    },
+    {
+      "level": 2,
+      "text": "Section A"
+    },
+    {
+      "level": 3,
+      "text": "Question 1"
+    },
+    {
+      "level": 3,
+      "text": "Question 2"
+    },
+    {
+      "level": 2,
+      "text": "Section B"
+    },
+    {
+      "level": 3,
+      "text": "Question 3"
+    },
+    {
+      "level": 3,
+      "text": "Question 4"
+    }
+  ],
+  "key_sentences": [
+    "Read each question carefully before you start to write your answer.",
+    "You are reminded of the need for clear presentation in your answers.",
+    "A program stores the daily rainfall, in millimetres, for one week in a list.",
+    "A school wants to store the results of a quiz in a two-dimensional array.",
+    "Each row holds the name of a student followed by the scores of five rounds.",
+    "The following algorithm is intended to search a sorted list for a target value using a binary search.",
+    "A library lends laptops to students for a maximum of three days.",
+    "Design an algorithm that reads the date a laptop was borrowed and the date it was returned, and outputs the fine due if it is late."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "low",
+          "high",
+          "mid",
+          "items[mid]"
+        ],
+        [
+          "0",
+          "5",
+          "",
+          ""
+        ],
+        [
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "",
+          "",
+          "",
+          ""
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Use black ink or a black ball-point pen."
+    },
+    {
+      "level": 0,
+      "text": "Answer all questions in the spaces provided."
+    },
+    {
+      "level": 0,
+      "text": "Do all rough work in this book and cross through any work you do not want to be marked."
+    },
+    {
+      "level": 0,
+      "text": "Calculators are not permitted in this paper."
+    },
+    {
+      "level": 0,
+      "text": "The total mark for this paper is 40."
+    },
+    {
+      "level": 0,
+      "text": "The marks for each question are shown in brackets."
+    },
+    {
+      "level": 0,
+      "text": "Program code is written in Python 3."
+    },
+    {
+      "level": 0,
+      "text": "(a) State the data type that should be used for each rainfall value. Give a reason for your answer. [2]"
+    },
+    {
+      "level": 0,
+      "text": "(b) Explain the difference between a list and a constant. [2]"
+    },
+    {
+      "level": 0,
+      "text": "(c) Write down exactly what the program prints. [2]"
+    },
+    {
+      "level": 0,
+      "text": "(d) Rewrite the loop so that it also counts the days with more than 20 mm of rain. [3]"
+    },
+    {
+      "level": 0,
+      "text": "(a) Describe how a two-dimensional array is stored and accessed. [3]"
+    },
+    {
+      "level": 0,
+      "text": "(b) A student’s scores are 8, 6, 9, 7 and 10."
+    },
+    {
+      "level": 1,
+      "text": "(i) Calculate the mean score. [1]"
+    },
+    {
+      "level": 1,
+      "text": "(ii) Write a Python function mean(scores) that returns the mean of a list of numbers. [3]"
+    },
+    {
+      "level": 0,
+      "text": "(c) Give one reason why a programmer might use a function rather than repeating code. [2]"
+    },
+    {
+      "level": 0,
+      "text": "(a) Complete the trace table for the call search([3, 8, 11, 15, 21, 30], 21). [4]"
+    },
+    {
+      "level": 0,
+      "text": "(b) Identify the logic error and write the corrected lines. [2]"
+    },
+    {
+      "level": 0,
+      "text": "(c) State the maximum number of comparisons needed to find a value in a sorted list of 1,000 items. [1]"
+    },
+    {
+      "level": 0,
+      "text": "(a) The fine is 50 pence for each day late, up to a maximum of £5.00. Write your algorithm in pseudocode or Python. [6]"
+    },
+    {
+      "level": 0,
+      "text": "(b) Suggest two items of test data for your algorithm and give the expected result for each. [4]"
+    }
+  ],
+  "furniture": [
+    "CS2/26",
+    "© NCEB 2026",
+    "Northern Counties Examination Board",
+    "Candidate copy",
+    "Turn over ►",
+    "Turn over ►",
+    "Page 1 of 3",
+    "Page 2 of 3",
+    "Page 3 of 3"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "rain = [12, 0, 3, 0, 25, 7, 0]\ndry = 0\nfor day in rain:\n    if day == 0:\n        dry = dry + 1\nprint(\"Dry days:\", dry)\nprint(\"Total:\", sum(rain))",
+    "FUNCTION search(items, target)\n    low <- 0\n    high <- LEN(items) - 1\n    WHILE low <= high\n        mid <- (low + high) DIV 2\n        IF items[mid] = target THEN\n            RETURN mid\n        ELSE IF items[mid] < target THEN\n            high <- mid - 1\n        ELSE\n            low <- mid + 1\n        ENDIF\n    ENDWHILE\n    RETURN -1\nENDFUNCTION"
+  ],
+  "notes": "Three-page exam paper with forced page breaks: cover, Section A, Section B. \"Turn over ►\" at the bottom of pages 1 and 2 is furniture (listed twice, once per page). Question parts are a typed list: markers \"(a)\", \"(i)\" are text, sub-parts (i)/(ii) are level 1; each item ends with its mark in brackets, floated to the right margin (part of the item text). Item (b) of Question 2 has no mark. Two code blocks: a Python program and a pseudocode function (indentation preserved). The trace table is mostly empty cells (\"\"), with its first data row \"0, 5\" pre-filled. The candidate-details boxes and the examiner box are form fields, not tables. The lines \"General Certificate of Secondary Education\", the date line, the time line and \"END OF QUESTIONS\" are body lines."
+}

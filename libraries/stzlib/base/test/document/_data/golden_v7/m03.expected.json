@@ -1,0 +1,108 @@
+{
+  "id": "m03",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "EXPORT DECLARATION / DÉCLARATION D’EXPORTATION",
+  "headings": [
+    {
+      "level": 1,
+      "text": "EXPORT DECLARATION / DÉCLARATION D’EXPORTATION"
+    },
+    {
+      "level": 2,
+      "text": "14 Goods / Marchandises"
+    },
+    {
+      "level": 2,
+      "text": "15 Declaration / Déclaration"
+    }
+  ],
+  "key_sentences": [
+    "I, the undersigned, declare that the particulars given in this declaration are true and complete.",
+    "I undertake to produce the goods, the transport documents and the certificates of origin at the request of the customs office.",
+    "Je soussigné déclare que les renseignements portés sur la présente déclaration sont exacts et complets.",
+    "Je m’engage à présenter les marchandises, les documents de transport et les certificats d’origine à toute réquisition du bureau de douane."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Item Article",
+          "HS code Code SH",
+          "Description of goods Désignation des marchandises",
+          "Packages Colis",
+          "Gross mass (kg) Masse brute (kg)",
+          "Net mass (kg) Masse nette (kg)",
+          "Value (USD) Valeur (USD)",
+          "Origin Origine"
+        ],
+        [
+          "1",
+          "1207.40",
+          "Sesame seeds, hulled, food grade, in 50 kg polypropylene bags",
+          "480",
+          "24 192",
+          "24 000",
+          "43 200.00",
+          "MR"
+        ],
+        [
+          "2",
+          "1202.42",
+          "Groundnuts, shelled, not roasted, grade HPS",
+          "380",
+          "19 152",
+          "19 000",
+          "26 600.00",
+          "MR"
+        ],
+        [
+          "3",
+          "0713.33",
+          "Dried kidney beans, white, in 25 kg paper sacks",
+          "240",
+          "6 096",
+          "6 000",
+          "7 320.00",
+          "MR"
+        ],
+        [
+          "4",
+          "0910.11",
+          "Ginger, dried, whole",
+          "60",
+          "1 530",
+          "1 500",
+          "3 450.00",
+          "MR"
+        ],
+        [
+          "TOTAL",
+          "TOTAL",
+          "TOTAL",
+          "1 160",
+          "50 970",
+          "50 500",
+          "80 570.00",
+          ""
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "MINISTRY OF FINANCE – MINISTÈRE DES FINANCES",
+    "Directorate of Customs and Excise",
+    "Direction des Douanes et Accises",
+    "Form CD-3 (rev. 2025)",
+    "Copy 1 of 4 – Exemplaire 1 sur 4",
+    "Printed by authorised declarant software – not valid without customs stamp"
+  ],
+  "languages": [
+    "en",
+    "fr"
+  ],
+  "code": [],
+  "notes": "Bilingual English/French customs form. Boxes 1-13 are a CSS grid of labelled form fields and boxes 16-18 are signature fields: they are a FORM, not a table, and are not in tables[]. Only the goods grid (box 14) is a table; its header cells hold two lines (English then French) joined by a space; the TOTAL label spans three columns. The red \"COPY 1 ...\" line and the \"OFFICE STAMP\" box are body decorations, neither heading nor furniture. The box titles \"14 Goods / Marchandises\" and \"15 Declaration / Déclaration\" are level-2 headings. Footer line of three spans at page bottom is furniture."
+}

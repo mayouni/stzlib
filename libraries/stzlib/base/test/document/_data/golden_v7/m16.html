@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>m16</title>
+<style>
+html,body{margin:0;padding:0}
+@page { size: A4; margin: 1.8cm 2cm 2cm 2cm;
+  @top-right { content:"CS2/26"; font:8pt Arial; color:#444 }
+  @bottom-left { content:"© NCEB 2026"; font:7.5pt Arial; color:#444 }
+  @bottom-center { content:"Page " counter(page) " of " counter(pages); font:8pt Arial }
+}
+
+body{font-family:Arial,Helvetica,sans-serif;font-size:10.5pt;color:#000}
+.board{font:bold 11pt Arial;border-bottom:1px solid #000;padding-bottom:3px;display:flex;justify-content:space-between}
+.qual{margin:18px 0 4px;font-size:11pt}
+h1{font-size:21pt;margin:4px 0 4px}
+.when{margin:6px 0 2px}
+.cand{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin:16px 0}
+.cand div{border:1.5px solid #000;height:46px;padding:3px 5px;font-size:8pt}
+h2{font-size:12pt;margin:14px 0 6px;background:#000;color:#fff;padding:3px 8px}
+h3{font-size:11pt;margin:12px 0 4px}
+p{margin:0 0 6px;line-height:1.4}
+ul{margin:2px 0 8px}
+li{margin-bottom:3px}
+.ti{margin:3px 0 5px 1.6em;text-indent:-1.6em;line-height:1.4}
+.ti.l1{margin-left:3.6em}
+.mk{float:right;font-weight:bold;text-indent:0}
+pre{font-family:Consolas,"Courier New",monospace;font-size:9.8pt;border:1px solid #000;padding:6px 10px;margin:6px 0 8px 1.6em;background:#fafafa}
+table{border-collapse:collapse;margin:6px 0 8px 1.6em;width:70%}
+th,td{border:1px solid #000;padding:3px 6px;height:16px;text-align:center}
+th{background:#e6e6e6}
+.turn{text-align:right;font-weight:bold;margin-top:14px}
+.pb{break-before:page}
+.tot{border:2px solid #000;padding:6px;text-align:center;font-weight:bold;margin-top:12px}
+
+</style>
+</head>
+<body>
+<div class="board"><span>Northern Counties Examination Board</span><span>Candidate copy</span></div>
+<div class="qual">General Certificate of Secondary Education</div>
+<h1>Computer Science – Paper 2: Programming and Algorithms</h1>
+<div class="when">Thursday 4 June 2026 – Morning</div><div>Time allowed: 1 hour 30 minutes</div>
+<div class="cand"><div>Candidate name</div><div>Centre number</div><div>Candidate number</div></div>
+<h2>Instructions</h2>
+<ul>
+<li>Use black ink or a black ball-point pen.
+</li>
+<li>Answer all questions in the spaces provided.
+</li>
+<li>Do all rough work in this book and cross through any work you do not want to be marked.
+</li>
+<li>Calculators are not permitted in this paper.
+</li>
+</ul>
+<h2>Information</h2>
+<ul>
+<li>The total mark for this paper is 40.
+</li>
+<li>The marks for each question are shown in brackets.
+</li>
+<li>Program code is written in Python 3.
+</li>
+</ul>
+<p>Read each question carefully before you start to write your answer. You are reminded of the need for clear presentation in your answers.</p>
+<div class="tot">For Examiner’s use only: Section A ____ / 18 &nbsp; Section B ____ / 22 &nbsp; Total ____ / 40</div>
+<div class="turn">Turn over ►</div>
+<h2 class="pb">Section A</h2>
+<h3>Question 1</h3>
+<p>A program stores the daily rainfall, in millimetres, for one week in a list.</p>
+<div class="ti" class="ti">(a) State the data type that should be used for each rainfall value. Give a reason for your answer. <span class="mk">[2]</span></div>
+<div class="ti" class="ti">(b) Explain the difference between a list and a constant. <span class="mk">[2]</span></div>
+<p>Study the following program.</p>
+<pre>rain = [12, 0, 3, 0, 25, 7, 0]
+dry = 0
+for day in rain:
+    if day == 0:
+        dry = dry + 1
+print(&quot;Dry days:&quot;, dry)
+print(&quot;Total:&quot;, sum(rain))</pre>
+<div class="ti" class="ti">(c) Write down exactly what the program prints. <span class="mk">[2]</span></div>
+<div class="ti" class="ti">(d) Rewrite the loop so that it also counts the days with more than 20 mm of rain. <span class="mk">[3]</span></div>
+<h3>Question 2</h3>
+<p>A school wants to store the results of a quiz in a two-dimensional array. Each row holds the name of a student followed by the scores of five rounds.</p>
+<div class="ti" class="ti">(a) Describe how a two-dimensional array is stored and accessed. <span class="mk">[3]</span></div>
+<div class="ti" class="ti">(b) A student’s scores are 8, 6, 9, 7 and 10.</div>
+<div class="ti" class="ti l1">(i) Calculate the mean score. <span class="mk">[1]</span></div>
+<div class="ti" class="ti l1">(ii) Write a Python function <b>mean(scores)</b> that returns the mean of a list of numbers. <span class="mk">[3]</span></div>
+<div class="ti" class="ti">(c) Give one reason why a programmer might use a function rather than repeating code. <span class="mk">[2]</span></div>
+<div class="turn">Turn over ►</div>
+<h2 class="pb">Section B</h2>
+<h3>Question 3</h3>
+<p>The following algorithm is intended to search a sorted list for a target value using a binary search. It contains one logic error.</p>
+<pre>FUNCTION search(items, target)
+    low &lt;- 0
+    high &lt;- LEN(items) - 1
+    WHILE low &lt;= high
+        mid &lt;- (low + high) DIV 2
+        IF items[mid] = target THEN
+            RETURN mid
+        ELSE IF items[mid] &lt; target THEN
+            high &lt;- mid - 1
+        ELSE
+            low &lt;- mid + 1
+        ENDIF
+    ENDWHILE
+    RETURN -1
+ENDFUNCTION</pre>
+<div class="ti" class="ti">(a) Complete the trace table for the call search([3, 8, 11, 15, 21, 30], 21). <span class="mk">[4]</span></div>
+<table>
+<thead>
+<tr>
+<th>low</th>
+<th>high</th>
+<th>mid</th>
+<th>items[mid]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>5</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<div class="ti" class="ti">(b) Identify the logic error and write the corrected lines. <span class="mk">[2]</span></div>
+<div class="ti" class="ti">(c) State the maximum number of comparisons needed to find a value in a sorted list of 1,000 items. <span class="mk">[1]</span></div>
+<h3>Question 4</h3>
+<p>A library lends laptops to students for a maximum of three days. Design an algorithm that reads the date a laptop was borrowed and the date it was returned, and outputs the fine due if it is late.</p>
+<div class="ti" class="ti">(a) The fine is 50 pence for each day late, up to a maximum of £5.00. Write your algorithm in pseudocode or Python. <span class="mk">[6]</span></div>
+<div class="ti" class="ti">(b) Suggest two items of test data for your algorithm and give the expected result for each. <span class="mk">[4]</span></div>
+<p style="text-align:center;margin-top:18px;font-weight:bold">END OF QUESTIONS</p>
+</body>
+</html>

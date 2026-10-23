@@ -1,0 +1,152 @@
+{
+  "id": "m01",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Facture n° FA-2026-03187",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Facture n° FA-2026-03187"
+    },
+    {
+      "level": 2,
+      "text": "Détail des prestations"
+    },
+    {
+      "level": 2,
+      "text": "Conditions de règlement"
+    }
+  ],
+  "key_sentences": [
+    "Le solde de cette facture a été réglé par carte bancaire le 16 octobre 2026 à la réception.",
+    "Aucun escompte n’est accordé pour paiement anticipé.",
+    "En cas de retard de paiement, une pénalité égale à trois fois le taux d’intérêt légal sera appliquée, ainsi qu’une indemnité forfaitaire de 40 € pour frais de recouvrement.",
+    "Nous vous remercions de votre séjour aux Acacias et espérons vous accueillir de nouveau très prochainement.",
+    "Pour toute réclamation relative à cette facture, merci d’écrire au service comptabilité dans un délai de trente jours."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Date",
+          "Désignation",
+          "Qté",
+          "P.U. HT",
+          "TVA",
+          "Montant HT"
+        ],
+        [
+          "12/10 – 15/10",
+          "Nuitée chambre supérieure double",
+          "4",
+          "136,36 €",
+          "10 %",
+          "545,44 €"
+        ],
+        [
+          "13/10 – 16/10",
+          "Petit-déjeuner buffet",
+          "4",
+          "16,36 €",
+          "10 %",
+          "65,44 €"
+        ],
+        [
+          "13/10",
+          "Dîner au restaurant « Le Verger »",
+          "1",
+          "47,27 €",
+          "10 %",
+          "47,27 €"
+        ],
+        [
+          "14/10",
+          "Minibar (boissons)",
+          "3",
+          "5,00 €",
+          "20 %",
+          "15,00 €"
+        ],
+        [
+          "12/10 – 16/10",
+          "Parking couvert",
+          "4",
+          "12,50 €",
+          "20 %",
+          "50,00 €"
+        ],
+        [
+          "12/10 – 16/10",
+          "Taxe de séjour (non soumise à TVA)",
+          "4",
+          "2,88 €",
+          "–",
+          "11,52 €"
+        ],
+        [
+          "Total HT",
+          "Total HT",
+          "Total HT",
+          "Total HT",
+          "Total HT",
+          "734,67 €"
+        ],
+        [
+          "TVA 10 %",
+          "TVA 10 %",
+          "TVA 10 %",
+          "TVA 10 %",
+          "TVA 10 %",
+          "65,82 €"
+        ],
+        [
+          "TVA 20 %",
+          "TVA 20 %",
+          "TVA 20 %",
+          "TVA 20 %",
+          "TVA 20 %",
+          "13,00 €"
+        ],
+        [
+          "Total TTC",
+          "Total TTC",
+          "Total TTC",
+          "Total TTC",
+          "Total TTC",
+          "813,49 €"
+        ],
+        [
+          "Acompte versé le 02/09/2026",
+          "Acompte versé le 02/09/2026",
+          "Acompte versé le 02/09/2026",
+          "Acompte versé le 02/09/2026",
+          "Acompte versé le 02/09/2026",
+          "−150,00 €"
+        ],
+        [
+          "Net à payer",
+          "Net à payer",
+          "Net à payer",
+          "Net à payer",
+          "Net à payer",
+          "663,49 €"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "Hôtel Les Acacias",
+    "★★★★ Hôtel & Spa",
+    "14, quai des Chartrons – 33000 Bordeaux",
+    "Tél. +33 5 56 00 41 72 · reception@hotel-acacias.example",
+    "SAS Hôtel Les Acacias au capital de 120 000 € – RCS Bordeaux 812 345 678 – Code APE 5510Z",
+    "N° TVA intracommunautaire FR27 812345678 – IBAN FR76 3000 4000 0500 0012 3456 789"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "Invoice with a letterhead (4 lines, furniture) and a right-hand meta block (date, room, booking: body lines, not a table). The billing table carries its totals as six footer rows whose label spans five columns, repeated in each grid cell. Amounts use non-breaking spaces before the euro sign. The two-line legal footer at the page bottom is furniture. The \"Facturé à\" / \"Client\" address blocks are side-by-side body lines, not a table."
+}

@@ -1,0 +1,266 @@
+{
+  "id": "m10",
+  "difficulty": "medium",
+  "pages": 3,
+  "title": "Rapid Needs Assessment: Flood Response in Kasoro District",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Rapid Needs Assessment: Flood Response in Kasoro District"
+    },
+    {
+      "level": 2,
+      "text": "1. Summary"
+    },
+    {
+      "level": 3,
+      "text": "Key findings"
+    },
+    {
+      "level": 2,
+      "text": "2. Context"
+    },
+    {
+      "level": 2,
+      "text": "3. Methodology"
+    },
+    {
+      "level": 2,
+      "text": "4. Findings"
+    },
+    {
+      "level": 3,
+      "text": "4.1 Shelter and non-food items"
+    },
+    {
+      "level": 3,
+      "text": "4.2 Water, sanitation and hygiene"
+    },
+    {
+      "level": 3,
+      "text": "4.3 Food security and livelihoods"
+    },
+    {
+      "level": 3,
+      "text": "4.4 Health and nutrition"
+    },
+    {
+      "level": 2,
+      "text": "5. Recommendations"
+    },
+    {
+      "level": 2,
+      "text": "6. Next steps"
+    }
+  ],
+  "key_sentences": [
+    "Heavy rains between 28 September and 3 October caused the Kasoro River to overflow its banks in four sub-counties.",
+    "An estimated 4,870 households were affected, of whom 1,215 are currently displaced in schools, churches and host families.",
+    "Displaced families occupy 31 classrooms, with an average of 14 households per room.",
+    "The Programme Quality Unit will review this report on 14 October and submit a funding request to the emergency pooled fund.",
+    "A follow-up assessment of Ongora is planned once the road to the two cut-off parishes reopens."
+  ],
+  "tables": [
+    {
+      "caption": "Table 1. Affected and displaced population by sub-county (local government figures, 8 October 2026)",
+      "rows": [
+        [
+          "Sub-county",
+          "Households affected",
+          "Households displaced",
+          "Persons displaced",
+          "Main sites"
+        ],
+        [
+          "Ongora",
+          "1,640",
+          "512",
+          "2,560",
+          "Ongora Primary School, St. Jude Church"
+        ],
+        [
+          "Kidera",
+          "1,385",
+          "341",
+          "1,705",
+          "Kidera Seed School"
+        ],
+        [
+          "Abwoch",
+          "1,102",
+          "228",
+          "1,140",
+          "Host families"
+        ],
+        [
+          "Lwala East",
+          "743",
+          "134",
+          "670",
+          "Lwala Trading Centre hall"
+        ],
+        [
+          "Total",
+          "4,870",
+          "1,215",
+          "6,075",
+          ""
+        ]
+      ]
+    },
+    {
+      "caption": "Table 2. WASH indicators at displacement sites compared with minimum standards",
+      "rows": [
+        [
+          "Indicator",
+          "Ongora",
+          "Kidera",
+          "Abwoch",
+          "Lwala East",
+          "Standard"
+        ],
+        [
+          "Functional water points",
+          "1 of 4",
+          "2 of 3",
+          "1 of 2",
+          "0 of 2",
+          "1 per 250 persons"
+        ],
+        [
+          "Litres per person per day",
+          "6",
+          "9",
+          "11",
+          "4",
+          "15"
+        ],
+        [
+          "Persons per latrine",
+          "96",
+          "71",
+          "48",
+          "120",
+          "20"
+        ],
+        [
+          "Handwashing stations",
+          "None",
+          "2",
+          "1",
+          "None",
+          "At every latrine block"
+        ]
+      ]
+    },
+    {
+      "caption": "Table 3. Indicative budget for the first response phase",
+      "rows": [
+        [
+          "Item",
+          "Unit cost (USD)",
+          "Quantity",
+          "Total (USD)"
+        ],
+        [
+          "Shelter kit (tarpaulin, rope, tools)",
+          "38.00",
+          "1,215",
+          "46,170.00"
+        ],
+        [
+          "Household NFI kit",
+          "27.50",
+          "1,215",
+          "33,412.50"
+        ],
+        [
+          "Borehole rehabilitation",
+          "1,450.00",
+          "7",
+          "10,150.00"
+        ],
+        [
+          "Emergency latrine block",
+          "620.00",
+          "40",
+          "24,800.00"
+        ],
+        [
+          "Cash transfer, one month",
+          "45.00",
+          "1,215",
+          "54,675.00"
+        ],
+        [
+          "Total",
+          "",
+          "",
+          "169,207.50"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Shelter is the most urgent need: 62% of displaced households sleep in overcrowded classrooms."
+    },
+    {
+      "level": 0,
+      "text": "Seven of eleven boreholes in the flooded area are contaminated or inaccessible."
+    },
+    {
+      "level": 0,
+      "text": "Standing maize ready for harvest was lost on about 1,900 hectares."
+    },
+    {
+      "level": 0,
+      "text": "Two health centres remain functional but have run out of oral rehydration salts."
+    },
+    {
+      "level": 0,
+      "text": "Distribute emergency shelter kits and non-food items to all 1,215 displaced households within ten days."
+    },
+    {
+      "level": 1,
+      "text": "Prioritise Ongora and Kidera, where crowding is worst."
+    },
+    {
+      "level": 1,
+      "text": "Coordinate with the Red Cross to avoid double distribution."
+    },
+    {
+      "level": 0,
+      "text": "Restore safe water at displacement sites."
+    },
+    {
+      "level": 1,
+      "text": "Chlorinate and disinfect the seven affected boreholes."
+    },
+    {
+      "level": 1,
+      "text": "Install emergency latrines and handwashing stations at the 14 sites."
+    },
+    {
+      "level": 0,
+      "text": "Provide a one-month food ration or cash transfer to displaced households."
+    },
+    {
+      "level": 0,
+      "text": "Supply both health centres with oral rehydration salts, zinc and malaria test kits."
+    }
+  ],
+  "furniture": [
+    "Bridgewell Relief Alliance",
+    "Field Report FR-2026-031 · INTERNAL",
+    "- 1 -",
+    "- 2 -",
+    "- 3 -"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Three-page report with forced page breaks before sections 4 and 5. Running header (organisation, report number) on every page is listed once; the page number \"- n -\" is listed per page. Key findings are a CSS bullet list inside a shaded box under a level-3 heading. Recommendations are a numbered list with two nested bullet levels (level 1 items). In Table 3 the Total row has one empty cell spanning two columns, repeated as two empty cells. Thousands separators are commas."
+}

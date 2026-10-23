@@ -1,0 +1,191 @@
+{
+  "id": "m18",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Versicherungsschein",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Versicherungsschein"
+    },
+    {
+      "level": 2,
+      "text": "Vertragsdaten"
+    },
+    {
+      "level": 2,
+      "text": "Versicherungsumfang"
+    },
+    {
+      "level": 2,
+      "text": "Beitrag"
+    },
+    {
+      "level": 2,
+      "text": "Vertragsgrundlagen"
+    },
+    {
+      "level": 2,
+      "text": "Wichtige Hinweise"
+    }
+  ],
+  "key_sentences": [
+    "Dieser Versicherungsschein ersetzt alle bisherigen Versicherungsscheine zu diesem Vertrag.",
+    "Die Versicherungssumme entspricht 650 Euro je Quadratmeter Wohnfläche, so dass auf den Einwand der Unterversicherung verzichtet wird.",
+    "Der Beitrag wird am 01.11.2026 von Ihrem Konto mit der IBAN DE89 3705 0198 0000 •••• 12 abgebucht.",
+    "Bitte teilen Sie uns einen Wohnungswechsel spätestens bei Beginn des Umzugs mit, damit der Versicherungsschutz in der neuen Wohnung erhalten bleibt.",
+    "Ein Schaden sollte uns unverzüglich gemeldet werden, am einfachsten über unsere Schadenhotline 0800 744 2000."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Angabe",
+          "Inhalt"
+        ],
+        [
+          "Versicherungsnehmer",
+          "Tobias Wenninger, geb. 08.04.1988"
+        ],
+        [
+          "Versicherungsort",
+          "Am Mühlbach 17, 53229 Bonn, 2. Obergeschoss"
+        ],
+        [
+          "Wohnfläche",
+          "96 m²"
+        ],
+        [
+          "Vertragsbeginn",
+          "01.11.2023, 0:00 Uhr"
+        ],
+        [
+          "Vertragsablauf",
+          "01.11.2026, danach jährliche Verlängerung"
+        ],
+        [
+          "Zahlungsweise",
+          "jährlich per SEPA-Lastschrift"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Versicherte Gefahr",
+          "Versicherungssumme",
+          "Selbstbeteiligung",
+          "Status"
+        ],
+        [
+          "Feuer, Blitzschlag, Explosion",
+          "62.400 €",
+          "150 €",
+          "eingeschlossen"
+        ],
+        [
+          "Einbruchdiebstahl, Raub, Vandalismus",
+          "62.400 €",
+          "150 €",
+          "eingeschlossen"
+        ],
+        [
+          "Leitungswasser",
+          "62.400 €",
+          "150 €",
+          "eingeschlossen"
+        ],
+        [
+          "Sturm und Hagel",
+          "62.400 €",
+          "150 €",
+          "eingeschlossen"
+        ],
+        [
+          "Weitere Naturgefahren (Elementar)",
+          "62.400 €",
+          "500 €",
+          "eingeschlossen"
+        ],
+        [
+          "Fahrraddiebstahl",
+          "3.000 €",
+          "–",
+          "eingeschlossen"
+        ],
+        [
+          "Glasbruch",
+          "–",
+          "–",
+          "nicht vereinbart"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Beitragsbestandteil",
+          "Jahresbeitrag"
+        ],
+        [
+          "Grundbeitrag Hausrat",
+          "118,56 €"
+        ],
+        [
+          "Baustein Weitere Naturgefahren",
+          "31,20 €"
+        ],
+        [
+          "Baustein Fahrraddiebstahl",
+          "24,00 €"
+        ],
+        [
+          "Nettobeitrag",
+          "173,76 €"
+        ],
+        [
+          "Versicherungsteuer 19 %",
+          "33,01 €"
+        ],
+        [
+          "Zu zahlender Jahresbeitrag",
+          "206,77 €"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Allgemeine Hausrat-Versicherungsbedingungen (VHB 2022, Fassung 01.2024)"
+    },
+    {
+      "level": 0,
+      "text": "Besondere Bedingungen für die Versicherung weiterer Elementarschäden (BWE 2022)"
+    },
+    {
+      "level": 0,
+      "text": "Klauseln zum Fahrraddiebstahl (Klausel 7110)"
+    },
+    {
+      "level": 0,
+      "text": "Informationsblatt zu Versicherungsprodukten und Verbraucherinformationen"
+    }
+  ],
+  "furniture": [
+    "Versicherungsschein Nr. HR-4471-208-55",
+    "Rheinauer Versicherung AG · Sitz Köln · Amtsgericht Köln HRB 98213 · Vorstand: Dr. Petra Oellers (Vors.), Jens Haberkamp",
+    "Rheinauer. Versicherung",
+    "Rheinauer Versicherung AG · Postfach 10 22 40 · 50462 Köln",
+    "Seite 1 von 2",
+    "Seite 2 von 2"
+  ],
+  "languages": [
+    "de"
+  ],
+  "code": [],
+  "notes": "German policy schedule in letter form: sender line above the address window and the logo are furniture; the recipient address and the right-hand contact block are body lines, not tables. The contract-data table is a two-column key/value table with a header row. The IBAN is masked with bullet characters U+2022 as printed. The text flows naturally onto page 2 (no forced break). Margin furniture: policy number top right on every page, a long legal line bottom left, \"Seite n von N\" bottom right."
+}

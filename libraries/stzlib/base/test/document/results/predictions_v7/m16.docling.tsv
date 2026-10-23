@@ -1,0 +1,60 @@
+page_header	0	Northern Counties Examination Board
+page_header	0	CS2/26
+page_header	0	Candidate copy
+paragraph	0	General Certificate of Secondary Education
+heading	1	Computer Science - Paper 2: Programming and Algorithms
+paragraph	0	Thursday 4 June 2026 - Morning Time allowed: 1 hour 30 minutes
+paragraph	0	Candidate name Centre number Candidate number
+heading	1	Instructions
+list_item	0	Use black ink or a black ball-point pen.
+list_item	0	Answer all questions in the spaces provided.
+list_item	0	Do all rough work in this book and cross through any work you do not want to be marked.
+list_item	0	Calculators are not permitted in this paper.
+heading	1	Information
+list_item	0	The total mark for this paper is 40.
+list_item	0	The marks for each question are shown in brackets.
+list_item	0	Program code is written in Python 3.
+paragraph	0	Read each question carefully before you start to write your answer. You are reminded of the need for clear presentation in your answers.
+paragraph	0	For Examiner's use only: Section A ____ / 18 Section B ____ / 22 Total ____ / 40
+paragraph	0	Turn over ►
+page_footer	0	© NCEB 2026
+page_footer	0	Page 1 of 3
+page_header	0	CS2/26
+heading	1	Section A
+heading	1	Question 1
+paragraph	0	A program stores the daily rainfall, in millimetres, for one week in a list.
+list_item	0	(a) State the data type that should be used for each rainfall value. Give a reason for your answer.
+list_item	0	(b) Explain the difference between a list and a constant.
+paragraph	0	Study the following program.
+code	0	rain = [12, 0, 3, 0, 25, 7, 0] dry = 0 for day in rain: if day == 0: dry = dry + 1 print("Dry days:" , dry) print("Total:" , sum(rain))
+list_item	0	(c) Write down exactly what the program prints.
+list_item	0	(d) Rewrite the loop so that it also counts the days with more than 20 mm of rain.
+heading	1	Question 2
+paragraph	0	A school wants to store the results of a quiz in a two-dimensional array. Each row holds the name of a student followed by the scores of five rounds.
+list_item	0	(a) Describe how a two-dimensional array is stored and accessed.
+list_item	0	(b) A student's scores are 8, 6, 9, 7 and 10.
+list_item	0	(i) Calculate the mean score.
+list_item	0	(ii) Write a Python function mean(scores) that returns the mean of a list of numbers.
+list_item	0	(c) Give one reason why a programmer might use a function rather than repeating code.
+paragraph	0	Turn over ►
+page_footer	0	© NCEB 2026
+page_footer	0	Page 2 of 3
+page_header	0	CS2/26
+heading	1	Section B
+heading	1	Question 3
+paragraph	0	The following algorithm is intended to search a sorted list for a target value using a binary search. It contains one logic error.
+code	0	FUNCTION search(items, target) low <- 0 high <- LEN(items) - 1 WHILE low <= high mid <- (low + high) DIV 2 IF items[mid] = target THEN RETURN mid ELSE IF items[mid] < target THEN high <- mid - 1 ELSE low <- mid + 1 ENDIF ENDWHILE RETURN -1 ENDFUNCTION
+list_item	0	(a) Complete the trace table for the call search([3, 8, 11, 15, 21, 30], 21).
+list_item	0	(b) Identify the logic error and write the corrected lines.
+list_item	0	(c) State the maximum number of comparisons needed to find a value in a sorted list of 1,000 items.
+table	0	lowhighmiditems[mid]05
+heading	1	Question 4
+paragraph	0	A library lends laptops to students for a maximum of three days. Design an algorithm that reads the date a laptop was borrowed and the date it was returned, and outputs the fine due if it is late.
+list_item	0	(a) The fine is 50 pence for each day late, up to a maximum of £5.00. Write your algorithm in pseudocode or Python.
+list_item	0	(b) Suggest two items of test data for your algorithm and give the expected result for each.
+heading	1	END OF QUESTIONS
+paragraph	0	[4]
+list_item	0	[6]
+paragraph	0	[4]
+page_footer	0	© NCEB 2026
+page_footer	0	Page 3 of 3

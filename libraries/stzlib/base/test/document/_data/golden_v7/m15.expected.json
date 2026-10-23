@@ -1,0 +1,122 @@
+{
+  "id": "m15",
+  "difficulty": "easy",
+  "pages": 1,
+  "title": "FACTURA SIMPLIFICADA",
+  "headings": [
+    {
+      "level": 1,
+      "text": "FACTURA SIMPLIFICADA"
+    }
+  ],
+  "key_sentences": [
+    "Todos los precios incluyen el IVA vigente.",
+    "Consulte a nuestro personal la información sobre alérgenos de cada plato.",
+    "Existen hojas de reclamaciones a disposición del cliente.",
+    "¡Gracias por su visita y esperamos verle pronto!"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Ud.",
+          "Descripción",
+          "Precio",
+          "Importe"
+        ],
+        [
+          "2",
+          "Salmorejo cordobés",
+          "6,50",
+          "13,00"
+        ],
+        [
+          "1",
+          "Tabla de quesos",
+          "14,00",
+          "14,00"
+        ],
+        [
+          "1",
+          "Croquetas de jamón (8 u.)",
+          "9,50",
+          "9,50"
+        ],
+        [
+          "2",
+          "Pescaíto frito",
+          "12,00",
+          "24,00"
+        ],
+        [
+          "1",
+          "Carrillada ibérica",
+          "15,50",
+          "15,50"
+        ],
+        [
+          "4",
+          "Caña de cerveza",
+          "2,50",
+          "10,00"
+        ],
+        [
+          "1",
+          "Agua mineral 1,5 l",
+          "3,00",
+          "3,00"
+        ],
+        [
+          "2",
+          "Tarta de queso",
+          "5,50",
+          "11,00"
+        ],
+        [
+          "2",
+          "Café solo",
+          "1,60",
+          "3,20"
+        ],
+        [
+          "Base imponible (IVA 10 %)",
+          "Base imponible (IVA 10 %)",
+          "Base imponible (IVA 10 %)",
+          "93,82"
+        ],
+        [
+          "Cuota IVA 10 %",
+          "Cuota IVA 10 %",
+          "Cuota IVA 10 %",
+          "9,38"
+        ],
+        [
+          "TOTAL EUR",
+          "TOTAL EUR",
+          "TOTAL EUR",
+          "103,20"
+        ],
+        [
+          "Pagado con tarjeta",
+          "Pagado con tarjeta",
+          "Pagado con tarjeta",
+          "103,20"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "TABERNA EL OLIVO VIEJO",
+    "Olivo Viejo Hostelería S.L. – CIF B-41876532",
+    "C/ de la Pescadería, 7 – 41001 Sevilla",
+    "Tel. 954 21 33 08",
+    "www.olivoviejo.example · Síguenos @olivoviejosevilla"
+  ],
+  "languages": [
+    "es"
+  ],
+  "code": [],
+  "notes": "A narrow till receipt centred on an otherwise empty A4 page, monospaced. The four header lines and the closing web line are furniture. Ticket number, date, table and waiter lines are body lines, not a table. The items table ends with four summary rows whose label spans three columns (repeated). Decimal comma."
+}

@@ -1,0 +1,110 @@
+{
+  "id": "m19",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "למכירה: דירת 4 חדרים משופצת עם מרפסת שמש ברחוב הרימונים",
+  "headings": [
+    {
+      "level": 1,
+      "text": "למכירה: דירת 4 חדרים משופצת עם מרפסת שמש ברחוב הרימונים"
+    },
+    {
+      "level": 2,
+      "text": "תיאור הנכס"
+    },
+    {
+      "level": 2,
+      "text": "מה יש בדירה"
+    },
+    {
+      "level": 2,
+      "text": "פרטים עיקריים"
+    }
+  ],
+  "key_sentences": [
+    "דירה מרווחת ומוארת בקומה השלישית מתוך חמש, בבניין משופץ עם מעלית וחניה בטאבו.",
+    "הדירה עברה שיפוץ יסודי בשנת 2024, כולל מטבח חדש, החלפת צנרת וחלונות אלומיניום בידודיים.",
+    "המרפסת הפונה לדרום ולמערב משקיפה אל הפארק השכונתי ומקבלת שמש לאורך כל היום.",
+    "בית הספר היסודי, גן הילדים ותחנת הרכבת הקלה נמצאים במרחק הליכה של עד עשר דקות."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "פרט",
+          "נתון"
+        ],
+        [
+          "שטח בנוי",
+          "108 מ״ר"
+        ],
+        [
+          "מרפסת",
+          "14 מ״ר"
+        ],
+        [
+          "קומה",
+          "3 מתוך 5"
+        ],
+        [
+          "חדרים",
+          "4"
+        ],
+        [
+          "חניה",
+          "1 מקורה, רשומה בטאבו"
+        ],
+        [
+          "ארנונה לחודשיים",
+          "1,140 ₪"
+        ],
+        [
+          "ועד בית לחודש",
+          "320 ₪"
+        ],
+        [
+          "כניסה",
+          "גמישה, החל מינואר 2027"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "סלון גדול עם יציאה למרפסת"
+    },
+    {
+      "level": 0,
+      "text": "מטבח פתוח עם אי ושיש קיסר"
+    },
+    {
+      "level": 0,
+      "text": "שלושה חדרי שינה, מהם יחידת הורים עם מקלחת"
+    },
+    {
+      "level": 0,
+      "text": "ממ״ד המשמש כחדר עבודה"
+    },
+    {
+      "level": 0,
+      "text": "מיזוג אוויר מרכזי ודוד שמש"
+    },
+    {
+      "level": 0,
+      "text": "מחסן בקומת הקרקע"
+    }
+  ],
+  "furniture": [
+    "אופק נכסים",
+    "משרד תיווך מורשה · רישיון מס׳ 3104455",
+    "רחוב ביאליק 58, רמת גן · 03-6122840",
+    "המידע אינו מהווה הצעה מחייבת ועשוי להשתנות. התמונות להמחשה בלבד. המחיר אינו כולל דמי תיווך בשיעור 2% בתוספת מע״מ."
+  ],
+  "languages": [
+    "he"
+  ],
+  "code": [],
+  "notes": "Hebrew, right-to-left; all texts in logical order. Two columns: the main column (right, description and features list) is read before the side column (left, key-facts table and agent box). Table cells are listed in reading order (right column first). Hebrew gershayim are typed as U+05F4 (״) and geresh as U+05F3 (׳). The grey photo placeholders contain no text. The orange label \"בבלעדיות\" and the price line are body, not headings. The disclaimer line at the bottom is furniture."
+}

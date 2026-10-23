@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>m18</title>
+<style>
+html,body{margin:0;padding:0}
+@page { size: A4; margin: 1.7cm 2cm 2.6cm 2.4cm;
+  @top-right { content:"Versicherungsschein Nr. HR-4471-208-55"; font:8pt "Segoe UI",Arial; color:#555 }
+  @bottom-left { content:"Rheinauer Versicherung AG · Sitz Köln · Amtsgericht Köln HRB 98213 · Vorstand: Dr. Petra Oellers (Vors.), Jens Haberkamp"; font:6.8pt "Segoe UI",Arial; color:#666; width:75% }
+  @bottom-right { content:"Seite " counter(page) " von " counter(pages); font:8pt "Segoe UI",Arial }
+}
+
+body{font-family:"Segoe UI",Arial,sans-serif;font-size:10pt;color:#1a1a1a}
+.lh{display:flex;justify-content:space-between;align-items:flex-start}
+.logo{font:bold 17pt Georgia;color:#003a70}
+.logo span{color:#e2001a}
+.sender{font-size:7pt;text-decoration:underline;color:#444;margin-top:24px}
+.addr{line-height:1.4;margin-top:3px;height:80px}
+.info{font-size:8.5pt;line-height:1.5;text-align:left;border-left:2px solid #003a70;padding-left:8px;margin-top:14px}
+h1{font-size:16pt;color:#003a70;margin:14px 0 2px}
+.prod{font-weight:bold;margin-bottom:8px}
+h2{font-size:11pt;color:#003a70;margin:12px 0 4px;border-bottom:1px solid #b9c7d6}
+p{margin:0 0 6px;line-height:1.45}
+table{border-collapse:collapse;width:100%;font-size:9.5pt;margin:4px 0 6px}
+th{background:#003a70;color:#fff;text-align:left;padding:3px 6px;font-weight:600}
+td{padding:3px 6px;border-bottom:1px solid #d5dde6}
+td.n,th.n{text-align:right;white-space:nowrap}
+tr.tot td{font-weight:bold;border-top:1.5px solid #003a70}
+ul{margin:2px 0 8px}
+li{margin-bottom:2px}
+.pb{break-before:page}
+
+</style>
+</head>
+<body>
+<div class="lh"><div>
+<div class="logo">Rheinauer<span>.</span> Versicherung</div>
+<div class="sender">Rheinauer Versicherung AG · Postfach 10 22 40 · 50462 Köln</div>
+<div class="addr">Herrn<br>Tobias Wenninger<br>Am Mühlbach 17<br>53229 Bonn</div>
+</div><div class="info">Ihr Ansprechpartner: Kundenservice Privat<br>Telefon: 0221 9840 3300<br>E-Mail: privat@rheinauer.example<br>Kundennummer: 7 044 812<br>Datum: 19.10.2026</div></div>
+<h1>Versicherungsschein</h1>
+<div class="prod">Hausratversicherung „Wohnen Komfort“ – Nachtrag zum 01.11.2026</div>
+<p>Sehr geehrter Herr Wenninger,</p>
+<p>wir haben Ihren Vertrag wie besprochen angepasst und die Versicherungssumme an Ihre neue Wohnfläche angeglichen. Dieser Versicherungsschein ersetzt alle bisherigen Versicherungsscheine zu diesem Vertrag.</p>
+<h2>Vertragsdaten</h2>
+<table>
+<thead>
+<tr>
+<th>Angabe</th>
+<th>Inhalt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Versicherungsnehmer</td>
+<td>Tobias Wenninger, geb. 08.04.1988</td>
+</tr>
+<tr>
+<td>Versicherungsort</td>
+<td>Am Mühlbach 17, 53229 Bonn, 2. Obergeschoss</td>
+</tr>
+<tr>
+<td>Wohnfläche</td>
+<td>96 m²</td>
+</tr>
+<tr>
+<td>Vertragsbeginn</td>
+<td>01.11.2023, 0:00 Uhr</td>
+</tr>
+<tr>
+<td>Vertragsablauf</td>
+<td>01.11.2026, danach jährliche Verlängerung</td>
+</tr>
+<tr>
+<td>Zahlungsweise</td>
+<td>jährlich per SEPA-Lastschrift</td>
+</tr>
+</tbody>
+</table>
+<h2>Versicherungsumfang</h2>
+<table>
+<thead>
+<tr>
+<th>Versicherte Gefahr</th>
+<th class="n">Versicherungssumme</th>
+<th class="n">Selbstbeteiligung</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Feuer, Blitzschlag, Explosion</td>
+<td class="n">62.400 €</td>
+<td class="n">150 €</td>
+<td>eingeschlossen</td>
+</tr>
+<tr>
+<td>Einbruchdiebstahl, Raub, Vandalismus</td>
+<td class="n">62.400 €</td>
+<td class="n">150 €</td>
+<td>eingeschlossen</td>
+</tr>
+<tr>
+<td>Leitungswasser</td>
+<td class="n">62.400 €</td>
+<td class="n">150 €</td>
+<td>eingeschlossen</td>
+</tr>
+<tr>
+<td>Sturm und Hagel</td>
+<td class="n">62.400 €</td>
+<td class="n">150 €</td>
+<td>eingeschlossen</td>
+</tr>
+<tr>
+<td>Weitere Naturgefahren (Elementar)</td>
+<td class="n">62.400 €</td>
+<td class="n">500 €</td>
+<td>eingeschlossen</td>
+</tr>
+<tr>
+<td>Fahrraddiebstahl</td>
+<td class="n">3.000 €</td>
+<td class="n">–</td>
+<td>eingeschlossen</td>
+</tr>
+<tr>
+<td>Glasbruch</td>
+<td class="n">–</td>
+<td class="n">–</td>
+<td>nicht vereinbart</td>
+</tr>
+</tbody>
+</table>
+<p>Die Versicherungssumme entspricht 650 Euro je Quadratmeter Wohnfläche, so dass auf den Einwand der Unterversicherung verzichtet wird.</p>
+<h2>Beitrag</h2>
+<table style="width:60%">
+<thead>
+<tr>
+<th>Beitragsbestandteil</th>
+<th class="n">Jahresbeitrag</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Grundbeitrag Hausrat</td>
+<td class="n">118,56 €</td>
+</tr>
+<tr>
+<td>Baustein Weitere Naturgefahren</td>
+<td class="n">31,20 €</td>
+</tr>
+<tr>
+<td>Baustein Fahrraddiebstahl</td>
+<td class="n">24,00 €</td>
+</tr>
+<tr>
+<td>Nettobeitrag</td>
+<td class="n">173,76 €</td>
+</tr>
+<tr>
+<td>Versicherungsteuer 19 %</td>
+<td class="n">33,01 €</td>
+</tr>
+<tr class="tot">
+<td>Zu zahlender Jahresbeitrag</td>
+<td class="n">206,77 €</td>
+</tr>
+</tbody>
+</table>
+<p>Der Beitrag wird am 01.11.2026 von Ihrem Konto mit der IBAN DE89 3705 0198 0000 •••• 12 abgebucht.</p>
+<h2>Vertragsgrundlagen</h2>
+<p>Für diesen Vertrag gelten die folgenden Bedingungen, die Sie mit dem Antrag erhalten haben:</p>
+<ul>
+<li>Allgemeine Hausrat-Versicherungsbedingungen (VHB 2022, Fassung 01.2024)
+</li>
+<li>Besondere Bedingungen für die Versicherung weiterer Elementarschäden (BWE 2022)
+</li>
+<li>Klauseln zum Fahrraddiebstahl (Klausel 7110)
+</li>
+<li>Informationsblatt zu Versicherungsprodukten und Verbraucherinformationen
+</li>
+</ul>
+<h2>Wichtige Hinweise</h2>
+<p>Bitte teilen Sie uns einen Wohnungswechsel spätestens bei Beginn des Umzugs mit, damit der Versicherungsschutz in der neuen Wohnung erhalten bleibt. Ein Schaden sollte uns unverzüglich gemeldet werden, am einfachsten über unsere Schadenhotline 0800 744 2000.</p>
+<p>Mit freundlichen Grüßen</p>
+<p>Ihre Rheinauer Versicherung AG</p>
+</body>
+</html>

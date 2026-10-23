@@ -1,0 +1,150 @@
+{
+  "id": "m09",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "Low-cost soil moisture sensing for smallholder irrigation scheduling: a two-season field trial",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Low-cost soil moisture sensing for smallholder irrigation scheduling: a two-season field trial"
+    },
+    {
+      "level": 2,
+      "text": "Background"
+    },
+    {
+      "level": 2,
+      "text": "Objectives"
+    },
+    {
+      "level": 2,
+      "text": "Methods"
+    },
+    {
+      "level": 2,
+      "text": "Results"
+    },
+    {
+      "level": 2,
+      "text": "Discussion"
+    },
+    {
+      "level": 2,
+      "text": "Conclusions"
+    },
+    {
+      "level": 2,
+      "text": "Next steps"
+    },
+    {
+      "level": 2,
+      "text": "Acknowledgements"
+    },
+    {
+      "level": 2,
+      "text": "References"
+    }
+  ],
+  "key_sentences": [
+    "Smallholder vegetable growers in the savanna zone irrigate by habit rather than by measurement.",
+    "Over-irrigation wastes pumped water and fuel, while under-irrigation during fruit set cuts yields sharply.",
+    "Commercial tensiometers cost more than a season of fuel, so we tested whether a capacitive sensor costing under five dollars could guide irrigation decisions.",
+    "Sensor-guided plots received 28 percent less water while yielding slightly more onions.",
+    "The saving was largest in the first six weeks after transplanting, when farmers usually irrigate every second day.",
+    "The yield gain is modest, but the fuel saving alone repays the sensor within the first month."
+  ],
+  "tables": [
+    {
+      "caption": "Table 1. Mean values per plot over two seasons (n = 24 farmers)",
+      "rows": [
+        [
+          "Indicator",
+          "Usual practice",
+          "Sensor-guided",
+          "Change"
+        ],
+        [
+          "Irrigation events per season",
+          "41",
+          "27",
+          "−34 %"
+        ],
+        [
+          "Water applied (mm)",
+          "612",
+          "438",
+          "−28 %"
+        ],
+        [
+          "Pump fuel (litres)",
+          "96",
+          "69",
+          "−28 %"
+        ],
+        [
+          "Bulb yield (t/ha)",
+          "18.4",
+          "19.7",
+          "+7 %"
+        ],
+        [
+          "Net income (GHS per plot)",
+          "1 520",
+          "1 790",
+          "+18 %"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Calibrate a low-cost capacitive probe against gravimetric soil samples."
+    },
+    {
+      "level": 0,
+      "text": "Compare sensor-guided scheduling with farmers’ usual practice."
+    },
+    {
+      "level": 0,
+      "text": "Measure water use, onion yield and net income per plot."
+    },
+    {
+      "level": 0,
+      "text": "A five-dollar capacitive probe, calibrated once per soil type, is accurate enough to schedule irrigation."
+    },
+    {
+      "level": 0,
+      "text": "Sensor-guided scheduling saved over a quarter of the water and fuel without any loss of yield."
+    },
+    {
+      "level": 0,
+      "text": "Adoption depends on a display that farmers can read at a glance."
+    },
+    {
+      "level": 0,
+      "text": "Allen R.G. et al. (1998) Crop evapotranspiration: guidelines for computing crop water requirements. FAO, Rome."
+    },
+    {
+      "level": 0,
+      "text": "Placidi P. et al. (2020) Characterization of low-cost capacitive soil moisture sensors for IoT networks. Sensors 20, 3585."
+    },
+    {
+      "level": 0,
+      "text": "Dauda A. and Sule I. (2024) Irrigation habits of dry-season onion growers in northern Ghana. Savanna Agric. J. 12, 44–58."
+    }
+  ],
+  "furniture": [
+    "NSIA Northern Savanna Institute of Agriculture",
+    "LUAS Lindenfeld University",
+    "Presented at the 14th Regional Conference on Water and Food Security, Accra, 3–5 November 2026",
+    "Contact: a.dauda@nsia.example"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "import numpy as np\n\n# raw ADC counts vs. gravimetric VWC (m3/m3), 36 samples\nslope, intercept = np.polyfit(counts, vwc, 1)\n\ndef to_vwc(raw):\n    return max(0.0, slope * raw + intercept)\n\nTHRESHOLD = 0.55 * (FC - PWP) + PWP"
+  ],
+  "notes": "A3 poster in three columns; reading order is column 1 top to bottom, then column 2, then column 3. The two boxed institution logos in the banner are furniture (two lines each, given as one entry each). Author and affiliation lines carry superscript marks and are body text, not key sentences. Figure 1 is a CSS bar chart (labels and values are text, not a table). Lists: three Objectives bullets, three Conclusions bullets, three numbered References (CSS-drawn markers). One Python code block."
+}
