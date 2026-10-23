@@ -301,6 +301,47 @@ Scenario("The sibling predicates agree with the two that were repaired")
 	Then("and finds the exact one", r, 1)
 EndScenario()
 
+Scenario("ContainsPropertyOrValue: a non-text argument skips the property test and falls through to the value test")
+	Given("an entity named Ana with an age of 30, and one named Acme with no age")
+	oA = Ana()
+	oO = Org()
+	r = oA.ContainsPropertyOrValue(30)
+	Then("the number 30, present as a value, is found and nothing raises", r, 1)
+	r = oO.ContainsPropertyOrValue(30)
+	Then("the number 30, absent from the other entity, answers 0", r, 0)
+	r = oA.ContainsPropertyOrValue(31)
+	Then("another number, absent, answers 0", r, 0)
+	r = oA.ContainsPropertyOrValue([ 1, 2 ])
+	Then("a list that is no value answers 0 and does not raise", r, 0)
+	cErr = RunOne("ana", "ContainsPropertyOrValue(30)")
+	Then("the call raises nothing", cErr, "")
+	cErr = RunOne("ana", "Contains@(30)")
+	Then("the first alias raises nothing either", cErr, "")
+	r = oA.Contains@(30)
+	Then("and the alias answers like the method", r, 1)
+	r = oO.@Contains(30)
+	Then("the other alias answers 0 where the value is absent", r, 0)
+	Given("a text argument, which behaves as before")
+	r = oA.ContainsPropertyOrValue("age")
+	Then("a text that is a property name is found", r, 1)
+	r = oA.ContainsPropertyOrValue("AGE")
+	Then("a property name in capitals is found, the case being ignored", r, 1)
+	r = oA.ContainsPropertyOrValue("Ana")
+	Then("a text that is a value is found", r, 1)
+	r = oA.ContainsPropertyOrValue("Person")
+	Then("the type, which is a value, is found", r, 1)
+	r = oA.ContainsPropertyOrValue("zzz")
+	Then("a text that is neither a property nor a value answers 0", r, 0)
+	r = oA.ContainsPropertyOrValue("ana")
+	Then("a value in another case is not found, the value test keeping the case", r, 0)
+	r = oO.ContainsPropertyOrValue("age")
+	Then("a property name the other entity lacks answers 0", r, 0)
+	r = oO.ContainsPropertyOrValue("NE")
+	Then("a value of the other entity is found there", r, 1)
+	r = oA.ContainsPropertyOrValue("NE")
+	Then("and absent from the first", r, 0)
+EndScenario()
+
 Summary()
 
 func Ana()
@@ -326,7 +367,7 @@ func Calls()
 		"Contains@('age')", "@Contains('age')", "ContainsValueOrProperty('age')", "ContainsPropOrVal('age')",
 		"ContainsValOrPrep('age')",
 		"ContainsProperty('age')", "ContainsProperty('AGE')", "ContainsProperty('zzz')",
-		"ContainsValue(30)", "ContainsValue('Ana')", "ContainsValue('ana')", "ContainsValue('zzz')",
+		"ContainsPropertyOrValue(30)", "Contains@(30)", "ContainsValue(30)", "ContainsValue('Ana')", "ContainsValue('ana')", "ContainsValue('zzz')",
 		"Property('age')", "Property('AGE')", "Prop('age')",
 		"@('age')", "@([ 'k1', 5 ])", "@([ [ 'k2', 6 ], [ 'k3', 7 ] ])",
 		"SetProperty('city', 'Niamey')", "SetProperty('CITY', 'Niamey')", "SetProp('c4', 1)", "Set@('c5', 2)", "@Set('c6', 3)",
@@ -339,7 +380,7 @@ func Calls()
 
 func BadCalls()
 	return [
-		"ContainsPropertyOrValue(30)", "ContainsProperty(5)", "Property('zzz')", "@(5)", "RemoveProperty('zzz')",
+		"ContainsProperty(5)", "Property('zzz')", "@(5)", "RemoveProperty('zzz')",
 		"SetName('two words')", "SetType(5)", "SetProperty(5, 1)"
 	]
 

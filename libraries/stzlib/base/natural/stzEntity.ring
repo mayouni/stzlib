@@ -30,8 +30,8 @@ func IsEntity(p)
 # are one property, and the @ method reads, sets one or sets several in a single door. Name and type
 # are single words that keep their case, but HasName and IsOfType compare without regard to case, so
 # Ana and ana are one name and Person and person are one type. IsEmpty is TRUE when nothing is held
-# beyond the name, the type and the creation stamp. Known gap, in the w13 defect file:
-# ContainsPropertyOrValue raises for an argument that is not text.
+# beyond the name, the type and the creation stamp. ContainsPropertyOrValue tests a text as a
+# property name first and as a value second, and tests any other argument as a value only.
 #
 #   receiver   o1 = new stzEntity([ :name = "ana", :type = "person", :age = 30 ])
 #   example    ? o1.Property("AGE")
@@ -148,15 +148,17 @@ class stzEntity from stzObject
 	#
 	#   pPropOrVal   a property name, or a value to look for
 	#   returns      TRUE or FALSE
-	#   warning      raises an error when the argument is not a text, because the property test runs
-	#                first; a number or a list is never found this way, so use ContainsValue
+	#   note         a text is tested as a property name first, then as a value; any other argument
+	#                is tested as a value only, since a property name is text, and never raises
 	#   see          ContainsProperty, ContainsValue
 	def ContainsPropertyOrValue(pPropOrVal)
-		if This.ContainsProperty(pPropOrVal) or This.ContainsValue(pPropOrVal)
-			return 1
-		else
-			return 0
+		if isString(pPropOrVal)
+			if This.ContainsProperty(pPropOrVal)
+				return 1
+			ok
 		ok
+
+		return This.ContainsValue(pPropOrVal)
 
 		#< @FunctionAlternativeForms
 
