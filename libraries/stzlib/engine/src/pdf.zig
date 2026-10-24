@@ -3336,10 +3336,41 @@ fn findAlignedTablesIn(a: Allocator, frags: []Frag, lane0: f32, lane1: f32, tabl
             grid[ri] = try a.alloc([]const u8, nc);
             for (0..nc) |j| grid[ri][j] = cells[j].items;
         }
-        // a wrapped line joins the cell above it, in its column
+        // a wrapped line joins the cell above it, in its column -- a one-cell line, and also a line of several
+        // cells set at LINE pitch under its row where the run's rows are set further apart (top-aligned cells of
+        // two lines: their second lines are not a row of their own)
+        var med_pitch: f32 = 0;
+        {
+            var pitches: std.ArrayList(f32) = .empty;
+            for (run[1..], 1..) |row, ri| {
+                if (row.len < 2 or run[ri - 1].len < 2) continue;
+                try pitches.append(a, frags[row[0]].base - frags[run[ri - 1][0]].base);
+            }
+            if (pitches.items.len >= 2) {
+                std.mem.sort(f32, pitches.items, {}, std.sort.asc(f32));
+                med_pitch = pitches.items[pitches.items.len / 2];
+            }
+        }
         var kept: std.ArrayList([][]const u8) = .empty;
         for (run, 0..) |row, ri| {
-            if (row.len >= 2 or kept.items.len == 0) {
+            var wrapped = row.len < 2;
+            if (!wrapped and ri > 0 and med_pitch > 0) {
+                const pitch = frags[row[0]].base - frags[run[ri - 1][0]].base;
+                const sz = frags[row[0]].size;
+                // (and its first column empty: the row's label fits one line while its values wrap)
+                // (not under a cell spanning two columns: that is a two-level header, "Priority" over its parts)
+                var spans_above = false;
+                for (run[ri - 1]) |kk| {
+                    var ncol: usize = 0;
+                    for (cols.items) |c| {
+                        if (frags[kk].x0 < c[1] - 1 and frags[kk].x1 > c[0] + 1) ncol += 1;
+                    }
+                    if (ncol >= 2) spans_above = true;
+                }
+                // (nor into the run's FIRST row: a header's second row is a two-level header as often as a wrap)
+                if (pitch < 0.8 * med_pitch and pitch <= 1.35 * sz and grid[ri][0].len == 0 and !spans_above and ri >= 2) wrapped = true;
+            }
+            if (!wrapped or kept.items.len == 0) {
                 try kept.append(a, grid[ri]);
                 continue;
             }
