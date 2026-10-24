@@ -11,13 +11,15 @@ import json, re, sys, collections
 
 ref = json.load(open(sys.argv[1], encoding="utf-8"))
 RX = re.compile(r"^(Raises|Leaves|Answers|Does nothing|Returns)\b.*\btoday\b", re.I)
+# a date rendering that merely lists the words today, tomorrow, yesterday is not a defect (stzDate.ToHuman, ToRelative)
+RX_NOT = re.compile(r"^Returns today, tomorrow or yesterday", re.I)
 rows = []
 for c in ref["classes"]:
     for m in c["methods"]:
         b = m.get("brief") or ""
         w = m.get("warnings") or []
         known = [x for x in w if "defect" in x.lower()]
-        if known or RX.match(b):
+        if known or (RX.match(b) and not RX_NOT.match(b)):
             rows.append({"class": c["name"], "file": c["file"], "method": m["name"], "line": m["line"],
                          "symptom": b, "cause": " ".join(known or w)})
 rows.sort(key=lambda r: (r["file"], r["class"].lower(), r["line"]))
