@@ -460,6 +460,17 @@ Scenario("A kerned alef tucked into a ra's tail stays after it")
 	Then("and not swapped", StzFindFirst("الدارسية", o.Text()), 0)
 EndScenario()
 
+# ---- the fourteenth round, pinned on golden_v14 (a development set since round 13 was measured on it)
+
+Scenario("A typed marker set apart by a hanging indent stays at the head of its item")
+	cL = "" + @@(StzPdfQ("_data/golden_v14/w10.pdf").ListItems())
+	Then("a typed bullet", StzFindFirst("• The station manager ensures", cL) > 0, 1)
+	cL = "" + @@(StzPdfQ("_data/golden_v14/w18.pdf").ListItems())
+	Then("a typed dash", StzFindFirst("– Hujan lebat pada", cL) > 0, 1)
+	cL = "" + @@(StzPdfQ("_data/golden_v14/w11.pdf").ListItems())
+	Then("a typed number", StzFindFirst("1. Kada ku shuka kafin", cL) > 0, 1)
+EndScenario()
+
 Scenario("A file that is not a readable PDF is refused with the reason")
 	bRaised = 0
 	cWhy = ""
