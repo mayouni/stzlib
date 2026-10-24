@@ -49,6 +49,11 @@ fn ring_RunXT(p: *anyopaque) callconv(.c) void {
 
     R.ring_vm_api_retlist(p, out);
 }
+// StzEngineSystemOpenDefault(cPath) -> 0, or -1 bad path, -2 memory, -3 launch failed.
+// No shell parses the path (threat-model R11).
+fn ring_OpenDefault(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(sys.stz_system_open_default(gs(p, 1), @intCast(gss(p, 1)))));
+}
 fn ring_Exec(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(sys.stz_system_exec(gs(p, 1), @intCast(gss(p, 1)))));
 }
@@ -158,6 +163,7 @@ fn ring_IsMacos(p: *anyopaque) callconv(.c) void { rn(p, @floatFromInt(sys.stz_s
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginesystemrun", .func = &ring_Run },
     .{ .name = "stzenginesystemrunxt", .func = &ring_RunXT },
+    .{ .name = "stzenginesystemopendefault", .func = &ring_OpenDefault },
     .{ .name = "stzenginesystemexec", .func = &ring_Exec },
     .{ .name = "stzenginesystemenv", .func = &ring_Env },
     .{ .name = "stzenginesystemenvget", .func = &ring_EnvGet },

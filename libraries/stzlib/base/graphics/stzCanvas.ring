@@ -486,12 +486,12 @@ class stzCanvas from stzObject
 			_cPath_ = "stzcanvas_show.svg"
 			write(_cPath_, This.ToSVG())
 		ok
-		if sysget("STZ_NO_VIEW") != "" but isWindows()  # STZ_NO_VIEW set (a test run): written, not opened
-			system('start "" "' + _cPath_ + '"')
-		but isMacOS()
-			system('open "' + _cPath_ + '"')
-		else
-			system('xdg-open "' + _cPath_ + '" >/dev/null 2>&1 &')
+		# STZ_NO_VIEW set (a test run): written, not opened. Otherwise no shell
+		# sees the path (security R11): a `"` in it would end the quoting and
+		# run the rest. StzOpenInDefaultApp hands it to ShellExecuteW / open /
+		# xdg-open as ONE argument, and refuses a path that does not exist.
+		if sysget("STZ_NO_VIEW") = ""
+			StzOpenInDefaultApp(_cPath_)
 		ok
 		return _cPath_
 
