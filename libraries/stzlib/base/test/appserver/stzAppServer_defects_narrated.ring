@@ -355,15 +355,21 @@ Scenario("Static: the bytes of a PNG-like file survive, all 256 values")
 	aR = Drive(oSrv, "GET", "/files/all256.bin")
 	Then("it answers 200", aR[1], 200)
 	Then("the body is 256 bytes", len(aR[2]), 256)
-	Then("the body equals the file byte for byte", strcmp(aR[2], $cAll), 0)
+	Then("the body equals the file byte for byte (length, every byte, CRC32)", AsSame(aR[2], $cAll), 1)
+	Then("the file on disk is what the fixture wrote", AsSame(read($cFx + "/files/all256.bin"), $cAll), 1)
 	Then("Content-Length says 256", Has(aR[3], "Content-Length: 256" + $CRLF), TRUE)
 	Then("the wire ends with those same 256 bytes",
-		strcmp(right(aR[3], 256), $cAll), 0)
+		AsSame(right(aR[3], 256), $cAll), 1)
 	Then("the wire is the headers plus exactly 256 bytes", len(aR[3]) - 256 > 0 and Has(left(aR[3], len(aR[3]) - 256), $CRLF + $CRLF), TRUE)
 	Given("the negative sibling: a body that differs by one byte")
 	cOff = $cAll
 	cOff[1] = char(1)
-	Then("is detected as different", strcmp(aR[2], cOff) != 0, TRUE)
+	Then("is detected as different", AsSame(aR[2], cOff), 0)
+	Given("a body whose last 255 bytes are wrong but which starts with the same NUL")
+	cOff = $cAll
+	cOff[256] = char(7)
+	Then("is detected as different (strcmp would stop at the first NUL and call it equal)", AsSame(aR[2], cOff), 0)
+	Then("and strcmp indeed calls them equal, which is why it is not used here", strcmp(aR[2], cOff), 0)
 EndScenario()
 
 Scenario("Static: HEAD has the headers and no body; other methods are refused")
@@ -668,6 +674,26 @@ func Corpus()
 func RouteLog(h_oReq, h_oResp)
 	$cLog += "R"
 	h_oResp.Text("hello")
+
+# Byte-exact comparison. Ring's strcmp STOPS AT THE FIRST NUL, so two texts that both begin with NUL
+# compare equal whatever follows: length first, then every byte, then the engine CRC32 of both.
+func AsSame(h_cA, h_cB)
+	if not isString(h_cA) or not isString(h_cB)
+		return 0
+	ok
+	if len(h_cA) != len(h_cB)
+		return 0
+	ok
+	h_nLen = len(h_cA)
+	for h_nQ = 1 to h_nLen
+		if ascii(h_cA[h_nQ]) != ascii(h_cB[h_nQ])
+			return 0
+		ok
+	next
+	if StzEngineCompressCrc32(h_cA) != StzEngineCompressCrc32(h_cB)
+		return 0
+	ok
+	return 1
 
 func MwA(h_oReq, h_oResp)
 	$cLog += "A"
