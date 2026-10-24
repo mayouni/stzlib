@@ -3212,6 +3212,33 @@ fn findAlignedTablesIn(a: Allocator, frags: []Frag, lane0: f32, lane1: f32, tabl
             r = e;
             continue;
         }
+        // (a first column of list markers -- "1-", "(a)", "※" set apart by a hanging indent -- is a list)
+        {
+            // (only the list's own shape: two columns, the second running text of four words or more on
+            //  average -- a table whose first column numbers its rows ("1.1", "2.") is still a table)
+            var nm: usize = 0;
+            var n0: usize = 0;
+            var words2: usize = 0;
+            var two_col = true;
+            for (run) |row| {
+                if (row.len < 2) continue;
+                if (row.len != 2) two_col = false;
+                words2 += wordCount(frags[row[row.len - 1]].text);
+            }
+            for (run) |row| {
+                if (row.len < 2 or !two_col) continue;
+                n0 += 1;
+                const mt = frags[row[0]].text;
+                if (mt.len <= 8) {
+                    const probe = std.mem.concat(a, u8, &.{ mt, " x" }) catch continue;
+                    if (startsListMarker(probe) == mt.len + 1) nm += 1;
+                }
+            }
+            if (n0 >= 2 and nm * 10 >= n0 * 8 and words2 >= 4 * n0) {
+                r = e;
+                continue;
+            }
+        }
         // columns: the x bands covered by the run's fragments -- except a cell that SPANS columns (a "Subtotal"
         // label over two of them): one that two cells of ONE other row both overlap
         var spans: std.ArrayList([2]f32) = .empty;
@@ -4216,7 +4243,8 @@ fn isMonoProse(t: []const u8) bool {
 
 fn startsListMarker(t: []const u8) usize {
     // returns the byte length of the marker (with its trailing space), 0 when the text does not start a list item
-    const bullets = [_][]const u8{ "\u{2022}", "\u{25E6}", "\u{25AA}", "\u{25CF}", "\u{25CB}", "\u{25A0}", "\u{2023}", "\u{2043}", "\u{2013}", "\u{2192}", "\u{2713}", "\u{2714}", "-", "*", "\u{00B7}" };
+    const bullets = [_][]const u8{ "\u{2022}", "\u{25E6}", "\u{25AA}", "\u{25CF}", "\u{25CB}", "\u{25A0}", "\u{2023}", "\u{2043}", "\u{2013}", "\u{2192}", "\u{2713}", "\u{2714}", "-", "*", "\u{00B7}", "\u{203B}", "\u{25C6}", "\u{25C7}", "\u{25B6}", "\u{25BA}", "\u{27A2}", "\u{2014}", "\u{25A1}", "\u{2610}", "\u{2611}", "\u{2612}" };
+    if (otherListMarker(t)) |n| return n;
     for (bullets) |b| {
         if (std.mem.startsWith(u8, t, b)) {
             var e = b.len;
@@ -4269,6 +4297,74 @@ fn startsListMarker(t: []const u8) usize {
     if (i == 0 and t.len >= 2 and std.ascii.isLower(t[0])) i = 1;
     if (i > 0 and i + 1 < t.len and (t[i] == '.' or t[i] == ')') and t[i + 1] == ' ') return i + 2;
     return 0;
+}
+
+// List markers in the conventions documents in many languages use, each followed by a space (or, for a full-width
+// CJK marker, by the text itself): "1.1" / "1.1." / "2.3.4", "1-", "1.ª" / "1.º", "（1）" / "（一）", a letter of any
+// script in brackets "(क)" / "(א)", a single non-Latin letter then "." or ")" ("א.", "б)", "α)").
+fn otherListMarker(t: []const u8) ?usize {
+    // multi-level decimal and dash forms
+    {
+        var i: usize = 0;
+        var groups: usize = 0;
+        var numberlike = false; // "850.00": a group of three digits, or a later group with a leading zero
+        while (i < t.len) {
+            var d: usize = 0;
+            const gstart = i;
+            while (i < t.len and t[i] >= '0' and t[i] <= '9' and d < 3) : (i += 1) d += 1;
+            if (d == 0) break;
+            if (d > 2 or (groups > 0 and d > 1 and t[gstart] == '0')) numberlike = true;
+            groups += 1;
+            if (i < t.len and t[i] == '.' and i + 1 < t.len and t[i + 1] >= '0' and t[i + 1] <= '9') {
+                i += 1;
+                continue;
+            }
+            break;
+        }
+        if (groups >= 2 and !numberlike) {
+            var e = i;
+            if (e < t.len and t[e] == '.') e += 1;
+            if (e < t.len and t[e] == ' ') return e + 1;
+        }
+        if (groups == 1 and i + 1 < t.len and t[i] == '-' and t[i + 1] == ' ') return i + 2;
+        if (groups == 1 and i + 3 < t.len and t[i] == '.' and (std.mem.startsWith(u8, t[i + 1 ..], "\u{00AA} ") or std.mem.startsWith(u8, t[i + 1 ..], "\u{00BA} "))) return i + 4;
+    }
+    var view = std.unicode.Utf8View.init(t) catch return null;
+    var it = view.iterator();
+    const c0 = it.nextCodepoint() orelse return null;
+    // full-width brackets round digits or CJK numerals
+    if (c0 == 0xFF08) {
+        var n: usize = 0;
+        var ok = true;
+        while (it.nextCodepoint()) |cp| {
+            if (cp == 0xFF09) break;
+            n += 1;
+            const numeral = (cp >= '0' and cp <= '9') or (cp >= 0xFF10 and cp <= 0xFF19) or std.mem.indexOfScalar(u21, &[_]u21{ 0x4E00, 0x4E8C, 0x4E09, 0x56DB, 0x4E94, 0x516D, 0x4E03, 0x516B, 0x4E5D, 0x5341 }, cp) != null;
+            if (!numeral or n > 3) ok = false;
+        }
+        if (ok and n >= 1 and it.i < t.len) {
+            var e = it.i;
+            if (t[e] == ' ') e += 1;
+            return e;
+        }
+        return null;
+    }
+    // a letter of any non-Latin script in brackets
+    if (c0 == '(') {
+        const l = it.nextCodepoint() orelse return null;
+        if (l < 0x0370 or isMarkCp(l)) return null;
+        var close = it.nextCodepoint() orelse return null;
+        while (isMarkCp(close)) close = it.nextCodepoint() orelse return null; // a vowel sign on the letter
+        if (close != ')') return null;
+        if (it.i < t.len and t[it.i] == ' ') return it.i + 1;
+        return null;
+    }
+    // a single non-Latin letter then "." or ")"
+    if (c0 >= 0x0370 and (isLtrCp(c0) or isRtlCp(c0)) and !isMarkCp(c0)) {
+        const p = it.nextCodepoint() orelse return null;
+        if ((p == '.' or p == ')') and it.i < t.len and t[it.i] == ' ') return it.i + 1;
+    }
+    return null;
 }
 
 fn normFurniture(a: Allocator, t: []const u8) ![]const u8 {
@@ -4493,7 +4589,10 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
                 if (it == mk or it.text.len == 0) continue;
                 const after_ltr = it.x0 > mk.x1 and it.x0 - mk.x1 < 3 * mk.size and !isRtlCp(firstCp(it.text));
                 const after_rtl = it.x1 < mk.x0 and mk.x0 - it.x1 < 3 * mk.size and isRtlCp(firstCp(it.text));
-                if (@abs(it.base - mk.base) < 0.3 * mk.size and (after_ltr or after_rtl)) {
+                // (the item's text starts with a letter or a quote, never a figure: "850.00 | 850.00" is a table row)
+                const ic = firstCp(it.text);
+                const starts_word = !(ic >= '0' and ic <= '9') and !isArabicDigit(ic);
+                if (@abs(it.base - mk.base) < 0.3 * mk.size and (after_ltr or after_rtl) and starts_word) {
                     it.bullet = true;
                     // a marker set apart by a hanging indent is TEXT the producer wrote, so it stays at the head of its
                     // item (Chrome draws CSS bullets as shapes, and over golden_v1..v14 a CSS-numbered list never left
@@ -4671,7 +4770,9 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
             }
         }
         if (b.kind == .list_item and startsListMarker(b.text) > 0 and body > 0 and b.lines == 1 and b.text.len <= 120 and
-            (b.size >= 1.08 * body or (b.bold and b.text[b.text.len - 1] != '.')))
+            (b.size >= 1.08 * body or (b.bold and b.text[b.text.len - 1] != '.') or
+            // (an italic numbered line, like an italic paragraph line, is a heading: "2.1 Decision ...")
+            (b.italic and b.text.len <= 80 and b.text[b.text.len - 1] != '.' and b.size >= 0.95 * body)))
         {
             b.kind = .heading;
             try hsizes.append(a, b.size);
