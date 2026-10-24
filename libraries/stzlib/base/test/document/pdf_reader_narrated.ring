@@ -485,6 +485,19 @@ Scenario("A marked span's ActualText is what its glyphs read as")
 	Then("no soft hyphen left in the text", StzFindFirst(char(194) + char(173), o.Text()), 0)
 EndScenario()
 
+# ---- the sixteenth round: page numbers in any language (golden_v5, v16)
+
+Scenario("A page number in the document's own language marks its line as the footer")
+	o = StzPdfQ("_data/golden_v16/y02.pdf")
+	cF = "" + @@(o.Furniture())
+	Then("a Greek page number is furniture", StzFindFirst("Σελίδα 1 από 1", cF) > 0, 1)
+	Then("and so is the legal line on its baseline", StzFindFirst("Εκδόθηκε σύμφωνα με την απόφαση", cF) > 0, 1)
+	o = StzPdfQ("_data/golden_v16/y09.pdf")
+	Then("a Hungarian page number is furniture", StzFindFirst("1/1. oldal", "" + @@(o.Furniture())) > 0, 1)
+	o = StzPdfQ("_data/golden_v5/h07.pdf")
+	Then("a product name with a number, larger than the body, stays the title", StzFindFirst("AquaSense 300", "" + @@(o.Headings())) > 0, 1)
+EndScenario()
+
 Scenario("A file that is not a readable PDF is refused with the reason")
 	bRaised = 0
 	cWhy = ""
