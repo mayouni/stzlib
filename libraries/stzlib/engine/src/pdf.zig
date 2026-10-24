@@ -1555,6 +1555,19 @@ fn isMarkCp(cp: u21) bool {
 fn isLtrCp(cp: u21) bool {
     return (cp >= 'A' and cp <= 'Z') or (cp >= 'a' and cp <= 'z') or (cp >= 0xC0 and cp <= 0x24F) or (cp >= 0x370 and cp <= 0x52F);
 }
+// A script written without spaces between words: Chinese, Japanese (kana and kanji), Thai, Lao, Khmer, Myanmar,
+// and the full-width forms and CJK punctuation that go with them
+fn isNoSpaceCp(cp: u21) bool {
+    return (cp >= 0x0E00 and cp <= 0x0EFF) or (cp >= 0x1000 and cp <= 0x109F) or (cp >= 0x1780 and cp <= 0x17FF) or
+        (cp >= 0x3000 and cp <= 0x30FF) or (cp >= 0x3400 and cp <= 0x9FFF) or (cp >= 0xF900 and cp <= 0xFAFF) or
+        (cp >= 0xFF00 and cp <= 0xFFEF);
+}
+fn lastCp(s: []const u8) u21 {
+    if (s.len == 0) return 0;
+    var i: usize = s.len - 1;
+    while (i > 0 and (s[i] & 0xC0) == 0x80) i -= 1;
+    return firstCp(s[i..]);
+}
 fn firstCp(s: []const u8) u21 {
     if (s.len == 0) return 0;
     const n = std.unicode.utf8ByteSequenceLength(s[0]) catch return s[0];
@@ -2815,7 +2828,12 @@ fn makeFrag(a: Allocator, gl: []Glyph, ids_in: []u32, text: []const u8, page_no:
                 // code: every missing column is a space
                 const cw = 0.6 * g.size;
                 if (gap > 0.5 * cw) try buf.appendNTimes(a, ' ', @intFromFloat(@min(40, @round(gap / cw))));
-            } else if (gap > space_gap and !last_space and !(t.len > 0 and t[0] == ' ')) try buf.append(a, ' ');
+            } else if (gap > space_gap and !last_space and !(t.len > 0 and t[0] == ' ')) {
+                // (between two glyphs of a no-space script a gap is a space only when it is wide: full-width
+                //  punctuation and justification open gaps that are not word breaks)
+                const cjk = isNoSpaceCp(lastCp(buf.items)) and isNoSpaceCp(firstCp(t));
+                if (!cjk or gap > 0.6 * g.size) try buf.append(a, ' ');
+            }
         }
         if (mono or !(t.len == 1 and t[0] == ' ' and buf.items.len > 0 and buf.items[buf.items.len - 1] == ' ')) try buf.appendSlice(a, t);
         prev = g;
@@ -4445,6 +4463,8 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
                     while (cur_text.items.len > 0 and cur_text.items[cur_text.items.len - 1] == ' ') cur_text.shrinkRetainingCapacity(cur_text.items.len - 1);
                 } else if (dehyphen(cur_text.items) > 0 and f.text.len > 0 and std.ascii.isLower(f.text[0])) {
                     cur_text.shrinkRetainingCapacity(cur_text.items.len - dehyphen(cur_text.items));
+                } else if (isNoSpaceCp(lastCp(cur_text.items)) and isNoSpaceCp(firstCp(f.text))) {
+                    // (Japanese, Chinese, Thai: a line wrapped inside a sentence joins with no space)
                 } else try cur_text.append(a, ' ');
                 try cur_text.appendSlice(a, f.text);
                 b.lines += 1;
