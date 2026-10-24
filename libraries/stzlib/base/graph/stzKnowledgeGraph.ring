@@ -87,12 +87,12 @@ class stzKnowGraph from stzKnowledgeGraph
 # A stzKnowledgeGraph is a stzGraph of type semantic: each fact is an edge labelled with its
 # predicate between two entity nodes, so every stzGraph method is also available. Facts are set-like
 # (adding a known fact is a no-op), but only one fact can link a given ordered pair of entities.
-# Laws (:unique, :symmetric, :transitive) are declared per relation with ConstrainRelation, and only
-# :unique and :transitive are acted on here: Admit is the governed door that checks :unique and
-# records a refusal as a named contradiction, and Prove follows :transitive; strict mode makes every
-# fact carry provenance. Prove answers a goal with a replayable proof, and the space can hold
-# stzConversation objects that elicit missing facts. Knowledge is saved and read as .zknw text. A
-# number of methods carry a warning today.
+# Laws (:unique, :symmetric, :transitive) are declared per relation with ConstrainRelation: Admit is
+# the governed door that checks :unique and records a refusal as a named contradiction, Prove follows
+# :transitive, and ValidateOntology checks all three against the facts while ValidateOntologyIssues
+# names each break; strict mode makes every fact carry provenance. Prove answers a goal with a
+# replayable proof, and the space can hold stzConversation objects that elicit missing facts.
+# Knowledge is saved and read as .zknw text. A number of methods carry a warning today.
 #
 #   receiver   o1 = new stzKnowledgeGraph("zoo"); o1.AddFact("Dog", "is-a", "Animal");
 #              o1.AddFact("Cat", "is-a", "Animal"); o1.AddFact("Dog", "eats", "Meat")
@@ -199,8 +199,8 @@ class stzKnowledgeGraph from stzGraph
 	#   pcRel      The relation (the predicate), as text.
 	#   pcLaw      The law, as text: unique, symmetric or transitive.
 	#   returns    the graph itself
-	#   note       the laws unique and transitive are acted on by Admit and Prove; symmetric is only
-	#              recorded
+	#   note       the laws unique and transitive are acted on by Admit and Prove, and all three are
+	#              checked against the facts by ValidateOntologyIssues
 	#   see        RelationHasLaw, Admit, Prove
 	#@ aka  Record a relation LAW on THIS graph's ontology (:Symmetric, :Unique, :Transitive). Prove() reads it for transitive closure; forging a DLM reads it as the domain's laws.
 	def ConstrainRelation(pcRel, pcLaw)
@@ -857,14 +857,306 @@ class stzKnowledgeGraph from stzGraph
 	def Ontology()
 		return @aOntology
 
-	# Returns 1 whatever the ontology holds; the check is not written yet.
+	# Returns 1 when the facts break no law that the ontology declares, and 0 when at least one law is broken.
 	#
-	#   returns    1
-	#   warning    known defect: the body only returns 1, so no inconsistency is ever reported
-	#   see        Ontology
+	#   returns    1 or 0, where 1 also holds for an empty ontology and for an empty graph
+	#   note       the three laws are unique, symmetric and transitive; a warning, such as a relation
+	#              that no fact uses, does not make the ontology invalid; the graph is not changed
+	#   see        ValidateOntologyIssues, Ontology, RelationHasLaw
 	def ValidateOntology()
-		# Basic validation - checks if defined properties are used consistently
+		_aIss_ = This.ValidateOntologyIssues()
+		_nIss_ = len(_aIss_)
+		for _i_ = 1 to _nIss_
+			if _aIss_[_i_][:severity] = "error"
+				return 0
+			ok
+		next
 		return 1
+
+	# Returns the problems between the ontology and the facts, as hash lists of the rule-report shape; [ ] when there is none.
+	#
+	#   returns    a list of hash lists [ :rule, :subject, :where, :severity, :message ]; the subject is
+	#              always knowledge; the severity is error for a broken law and warning for advice;
+	#              the rule is relation_unique, relation_symmetric or relation_transitive for a broken
+	#              law, law_unknown for a law of another name, and relation_unused for a declared
+	#              relation that no fact uses
+	#   note       the issues follow the order of the ontology, then unique, symmetric and transitive,
+	#              then the facts; relations are matched without regard to case and names are shown
+	#              in lowercase; transitive asks the shortcut of every two facts in a row, so a cycle
+	#              ends and a return to the start asks nothing; at most 10000 issues are given for
+	#              one relation and law; a property declared with a schema, such as a type or a
+	#              maximum, is checked for use only, as its meaning is not defined; the graph is
+	#              not changed
+	#   see        ValidateOntology, Ontology, ConstrainRelation
+	def ValidateOntologyIssues()
+		_aIssues_ = []
+		_aView_ = This._OntologyView()
+		_nProps_ = len(_aView_)
+		if _nProps_ = 0
+			return _aIssues_
+		ok
+
+		_pRel_ = StzEngineHashMapNew()
+		_pPair_ = StzEngineHashMapNew()
+		if _pRel_ = "" or _pPair_ = ""
+			stzraise("The ontology check needs the engine hash map, which is not available.")
+		ok
+
+		# One pass over the facts: the edges of each declared relation, and the edge of each ordered pair.
+		_aaRelEdges_ = []
+		for _i_ = 1 to _nProps_
+			StzEngineHashMapPutInt(_pRel_, _aView_[_i_][:property], _i_)
+			_aaRelEdges_ + []
+		next
+		_aEdges_ = This.Edges()
+		_nE_ = len(_aEdges_)
+		_acLab_ = []
+		for _e_ = 1 to _nE_
+			_cLab_ = StzLower("" + _aEdges_[_e_][:label])
+			_acLab_ + _cLab_
+			StzEngineHashMapPutInt(_pPair_, _aEdges_[_e_][:from] + char(1) + _aEdges_[_e_][:to], _e_)
+			if StzEngineHashMapHasKey(_pRel_, _cLab_)
+				_k_ = StzEngineHashMapGetInt(_pRel_, _cLab_)
+				_aaRelEdges_[_k_] + _e_
+			ok
+		next
+
+		_nCap_ = 10000
+		for _p_ = 1 to _nProps_
+			_cRel_ = _aView_[_p_][:property]
+			_nRE_ = len(_aaRelEdges_[_p_])
+
+			# a law of another name
+			_nUnk_ = len(_aView_[_p_][:unknown])
+			for _j_ = 1 to _nUnk_
+				_aIssues_ + [ :rule = "law_unknown", :subject = "knowledge", :where = _cRel_,
+					:severity = "warning",
+					:message = "'" + _cRel_ + "' declares the law '" + _aView_[_p_][:unknown][_j_] +
+						"', which is none of unique, symmetric or transitive." ]
+			next
+
+			# unique: a subject bears at most one object
+			if ring_find(_aView_[_p_][:laws], "unique") > 0
+				_pS_ = StzEngineHashMapNew()
+				_acSubj_ = []
+				_aaObj_ = []
+				for _q_ = 1 to _nRE_
+					_nEp_ = _aaRelEdges_[_p_][_q_]
+					_cF_ = _aEdges_[_nEp_][:from]
+					if StzEngineHashMapHasKey(_pS_, _cF_)
+						_k_ = StzEngineHashMapGetInt(_pS_, _cF_)
+					else
+						_acSubj_ + _cF_
+						_aaObj_ + []
+						_k_ = len(_acSubj_)
+						StzEngineHashMapPutInt(_pS_, _cF_, _k_)
+					ok
+					_aaObj_[_k_] + _aEdges_[_nEp_][:to]
+				next
+				StzEngineHashMapFree(_pS_)
+				_nS_ = len(_acSubj_)
+				for _q_ = 1 to _nS_
+					_nO_ = len(_aaObj_[_q_])
+					if _nO_ >= 2
+						_cList_ = ""
+						_nShown_ = _nO_
+						if _nShown_ > 5
+							_nShown_ = 5
+						ok
+						for _j_ = 1 to _nShown_
+							if _j_ > 1
+								_cList_ += ", "
+							ok
+							_cList_ += _aaObj_[_q_][_j_]
+						next
+						if _nO_ > 5
+							_cList_ += ", and " + (_nO_ - 5) + " more"
+						ok
+						_aIssues_ + [ :rule = "relation_unique", :subject = "knowledge",
+							:where = _acSubj_[_q_], :severity = "error",
+							:message = "'" + _acSubj_[_q_] + "' bears '" + _cRel_ + "' to " + _nO_ +
+								" objects (" + _cList_ + "), and the relation is unique." ]
+					ok
+				next
+			ok
+
+			# symmetric: a fact a r b asks for b r a
+			if ring_find(_aView_[_p_][:laws], "symmetric") > 0
+				_nSym_ = 0
+				for _q_ = 1 to _nRE_
+					_nEp_ = _aaRelEdges_[_p_][_q_]
+					_cF_ = _aEdges_[_nEp_][:from]
+					_cT_ = _aEdges_[_nEp_][:to]
+					if _cF_ = _cT_
+						loop
+					ok
+					_cOther_ = ""
+					_cKey_ = _cT_ + char(1) + _cF_
+					if StzEngineHashMapHasKey(_pPair_, _cKey_)
+						_nRv_ = StzEngineHashMapGetInt(_pPair_, _cKey_)
+						if _acLab_[_nRv_] = _cRel_
+							loop
+						ok
+						_cOther_ = _acLab_[_nRv_]
+					ok
+					_cMsg_ = "'" + _cF_ + "' " + _cRel_ + " '" + _cT_ + "' has no reverse: '" + _cT_ + "' " +
+						_cRel_ + " '" + _cF_ + "' is missing"
+					if _cOther_ != ""
+						_cMsg_ += ", and the pair already links '" + _cT_ + "' to '" + _cF_ + "' with '" +
+							_cOther_ + "'"
+					ok
+					_cMsg_ += "."
+					_nSym_++
+					if _nSym_ > _nCap_
+						_aIssues_ + [ :rule = "relation_symmetric", :subject = "knowledge", :where = _cRel_,
+							:severity = "error",
+							:message = "more than " + _nCap_ + " facts of '" + _cRel_ + "' have no reverse; the rest are not listed." ]
+						exit
+					ok
+					_aIssues_ + [ :rule = "relation_symmetric", :subject = "knowledge", :where = _cF_,
+						:severity = "error", :message = _cMsg_ ]
+				next
+			ok
+
+			# transitive: two facts a r b and b r c ask for a r c
+			if ring_find(_aView_[_p_][:laws], "transitive") > 0
+				_pOut_ = StzEngineHashMapNew()
+				_pMiss_ = StzEngineHashMapNew()
+				_aaAdj_ = []
+				for _q_ = 1 to _nRE_
+					_nEp_ = _aaRelEdges_[_p_][_q_]
+					_cF_ = _aEdges_[_nEp_][:from]
+					if StzEngineHashMapHasKey(_pOut_, _cF_)
+						_k_ = StzEngineHashMapGetInt(_pOut_, _cF_)
+					else
+						_aaAdj_ + []
+						_k_ = len(_aaAdj_)
+						StzEngineHashMapPutInt(_pOut_, _cF_, _k_)
+					ok
+					_aaAdj_[_k_] + _nEp_
+				next
+				_nTr_ = 0
+				_bFull_ = 0
+				for _q_ = 1 to _nRE_
+					_nEp_ = _aaRelEdges_[_p_][_q_]
+					_cA_ = _aEdges_[_nEp_][:from]
+					_cB_ = _aEdges_[_nEp_][:to]
+					if NOT StzEngineHashMapHasKey(_pOut_, _cB_)
+						loop
+					ok
+					_k_ = StzEngineHashMapGetInt(_pOut_, _cB_)
+					_nAdj_ = len(_aaAdj_[_k_])
+					for _j_ = 1 to _nAdj_
+						_cC_ = _aEdges_[_aaAdj_[_k_][_j_]][:to]
+						if _cC_ = _cA_
+							loop
+						ok
+						_cKey_ = _cA_ + char(1) + _cC_
+						if StzEngineHashMapHasKey(_pPair_, _cKey_)
+							_nRv_ = StzEngineHashMapGetInt(_pPair_, _cKey_)
+							if _acLab_[_nRv_] = _cRel_
+								loop
+							ok
+						ok
+						if StzEngineHashMapHasKey(_pMiss_, _cKey_)
+							loop
+						ok
+						StzEngineHashMapPutInt(_pMiss_, _cKey_, 1)
+						_nTr_++
+						if _nTr_ > _nCap_
+							_aIssues_ + [ :rule = "relation_transitive", :subject = "knowledge", :where = _cRel_,
+								:severity = "error",
+								:message = "more than " + _nCap_ + " links of '" + _cRel_ + "' are missing; the rest are not listed." ]
+							_bFull_ = 1
+							exit
+						ok
+						_aIssues_ + [ :rule = "relation_transitive", :subject = "knowledge", :where = _cA_,
+							:severity = "error",
+							:message = "'" + _cA_ + "' " + _cRel_ + " '" + _cB_ + "' and '" + _cB_ + "' " + _cRel_ +
+								" '" + _cC_ + "', so '" + _cA_ + "' " + _cRel_ + " '" + _cC_ + "' is missing." ]
+					next
+					if _bFull_
+						exit
+					ok
+				next
+				StzEngineHashMapFree(_pOut_)
+				StzEngineHashMapFree(_pMiss_)
+			ok
+
+			# a declared relation that no fact uses
+			if _nRE_ = 0
+				_aIssues_ + [ :rule = "relation_unused", :subject = "knowledge", :where = _cRel_,
+					:severity = "warning",
+					:message = "'" + _cRel_ + "' is declared in the ontology, and no fact uses it." ]
+			ok
+		next
+
+		StzEngineHashMapFree(_pRel_)
+		StzEngineHashMapFree(_pPair_)
+		return _aIssues_
+
+	# The ontology grouped by property, in order of first declaration: [ :property, :laws, :unknown, :items ].
+	# A property may be declared by several entries (ConstrainRelation adds one per law). Laws and
+	# unknown laws are lowercase and appear once; :items is every constraint as text, in order. A
+	# constraint that is a pair (a schema such as type = number) is shown as key=value and is no law.
+	def _OntologyView()
+		_acNames_ = []
+		_aaLaws_ = []
+		_aaUnk_ = []
+		_aaItems_ = []
+		_nOnt_ = len(@aOntology)
+		for _i_ = 1 to _nOnt_
+			_cProp_ = StzLower(ring_trim("" + @aOntology[_i_][:property]))
+			_nP_ = ring_find(_acNames_, _cProp_)
+			if _nP_ = 0
+				_acNames_ + _cProp_
+				_aaLaws_ + []
+				_aaUnk_ + []
+				_aaItems_ + []
+				_nP_ = len(_acNames_)
+			ok
+			_aCons_ = []
+			if isList(@aOntology[_i_][:constraints])
+				_aCons_ = @aOntology[_i_][:constraints]
+			but isString(@aOntology[_i_][:constraints])
+				_aCons_ + @aOntology[_i_][:constraints]
+			ok
+			_nC_ = len(_aCons_)
+			for _j_ = 1 to _nC_
+				if isString(_aCons_[_j_])
+					_cLaw_ = StzLower(ring_trim(_aCons_[_j_]))
+					if _cLaw_ = ""
+						loop
+					ok
+					if _cLaw_ = "unique" or _cLaw_ = "symmetric" or _cLaw_ = "transitive"
+						if ring_find(_aaLaws_[_nP_], _cLaw_) = 0
+							_aaLaws_[_nP_] + _cLaw_
+							_aaItems_[_nP_] + _cLaw_
+						ok
+					else
+						if ring_find(_aaUnk_[_nP_], _cLaw_) = 0
+							_aaUnk_[_nP_] + _cLaw_
+							_aaItems_[_nP_] + _cLaw_
+						ok
+					ok
+				but isList(_aCons_[_j_]) and len(_aCons_[_j_]) = 2
+					_xV_ = _aCons_[_j_][2]
+					if isString(_xV_) or isNumber(_xV_)
+						_cV_ = "" + _xV_
+					else
+						_cV_ = @@(_xV_)
+					ok
+					_aaItems_[_nP_] + ("" + _aCons_[_j_][1] + "=" + _cV_)
+				ok
+			next
+		next
+		_aView_ = []
+		_nN_ = len(_acNames_)
+		for _i_ = 1 to _nN_
+			_aView_ + [ :property = _acNames_[_i_], :laws = _aaLaws_[_i_], :unknown = _aaUnk_[_i_],
+				:items = _aaItems_[_i_] ]
+		next
+		return _aView_
 
 	# TRUE if the ontology declares that law for the relation; both are matched without regard to case.
 	#
@@ -990,17 +1282,31 @@ class stzKnowledgeGraph from stzGraph
 	#  KNOWLEDGE GRAPH EXPLAIN  #
 	#---------------------------#
 
-	# Raises error R14 today instead of describing the knowledge graph in sections: structure, facts, entities, predicates, ontology and insights.
+	# Describes the knowledge graph in sections, from its counts, facts, entities, predicates, ontology and computed insights.
 	#
-	#   returns    nothing today
-	#   warning    known defect: it calls ApplyInference, which is defined nowhere, so the call
-	#              always raises R14; stzGraph.Explain is shadowed by this version
-	#              seen in the gallery: drawn through GraphCanvas a knowledge graph shows no predicate on its edges and no arrowheads; Dot() with graphviz draws each fact as an edge labelled with its predicate
-	#   see        Facts, Ontology
+	#   returns    a hash list [ :type, :structure, :facts, :entities, :predicates, :ontology, :patterns,
+	#              :insights ]: :type and :structure are text and the others are lists of text
+	#   note       the first 5 facts, in the order added; the 10 entities with most links (in plus
+	#              out), then by name; the 10 predicates with most facts, then by name; the
+	#              ontology property by property; the density and whether a cycle exists; and the
+	#              insights: the most connected entity, the ontology issues of ValidateOntologyIssues,
+	#              entities without a fact, and refused attempts; the answer is the same on every
+	#              call, and the graph is not changed; no fact is inferred
+	#   warning    drawn through GraphCanvas, a knowledge graph shows no predicate on its edges and
+	#              no arrowheads, because the canvas draws every edge as a plain line; Dot() with
+	#              graphviz draws each fact as an edge labelled with its predicate
+	#   see        Facts, Ontology, ValidateOntologyIssues, Prove
 	def Explain()
+		_aNodes_ = This.Nodes()
+		_aEdges_ = This.Edges()
+		_nNodes_ = len(_aNodes_)
+		_nFacts_ = len(_aEdges_)
+
 		_aExplanation_ = [
 			:type = "Knowledge Graph",
-			:structure = "",
+			:structure = 'Knowledge graph "' + This.Id() + '" contains ' + _nNodes_ + " " +
+				This._Plural(_nNodes_, "entity", "entities") + " and " + _nFacts_ + " " +
+				This._Plural(_nFacts_, "fact", "facts") + ".",
 			:facts = [],
 			:entities = [],
 			:predicates = [],
@@ -1008,133 +1314,194 @@ class stzKnowledgeGraph from stzGraph
 			:patterns = [],
 			:insights = []
 		]
-		
-		# Structure overview
-		_nNodes_ = This.NodeCount()
-		_nEdges_ = This.EdgeCount()
-		_nFacts_ = len(This.Facts())
-		_aExplanation_[:structure] = 'Knowledge graph "' + @cId + '" contains ' + 
-		                           _nNodes_ + " entities and " + _nFacts_ + " facts."
-		
-		# Facts analysis
-		_aFacts_ = This.Facts()
-		if len(_aFacts_) > 0
-			_nSample_ = min([5, len(_aFacts_)])
-			for i = 1 to _nSample_
-				_aFact_ = _aFacts_[i]
-				_aExplanation_[:facts] + (_aFact_[1] + " " + _aFact_[2] + " " + _aFact_[3])
-			end
-			if len(_aFacts_) > 5
-				_aExplanation_[:facts] + ("... and " + (len(_aFacts_) - 5) + " more facts")
+
+		# One pass over the facts: links per entity and uses per predicate
+		_pNode_ = StzEngineHashMapNew()
+		_anIn_ = []
+		_anOut_ = []
+		for _i_ = 1 to _nNodes_
+			StzEngineHashMapPutInt(_pNode_, _aNodes_[_i_][:id], _i_)
+			_anIn_ + 0
+			_anOut_ + 0
+		next
+		_pPred_ = StzEngineHashMapNew()
+		_acPred_ = []
+		_anPred_ = []
+		for _i_ = 1 to _nFacts_
+			_nF_ = StzEngineHashMapGetInt(_pNode_, _aEdges_[_i_][:from])
+			_nT_ = StzEngineHashMapGetInt(_pNode_, _aEdges_[_i_][:to])
+			_anOut_[_nF_] = _anOut_[_nF_] + 1
+			_anIn_[_nT_] = _anIn_[_nT_] + 1
+			_cLab_ = StzLower("" + _aEdges_[_i_][:label])
+			if StzEngineHashMapHasKey(_pPred_, _cLab_)
+				_k_ = StzEngineHashMapGetInt(_pPred_, _cLab_)
+				_anPred_[_k_] = _anPred_[_k_] + 1
+			else
+				_acPred_ + _cLab_
+				_anPred_ + 1
+				StzEngineHashMapPutInt(_pPred_, _cLab_, len(_acPred_))
 			ok
-		else
+		next
+		StzEngineHashMapFree(_pPred_)
+
+		# Facts: the first five, as written
+		if _nFacts_ = 0
 			_aExplanation_[:facts] + "No facts defined yet"
-		ok
-		
-		# Entity analysis
-		_aNodes_ = This.Nodes()
-		_acEntities_ = []
-		_nNodeLen_ = len(_aNodes_)
-		for i = 1 to _nNodeLen_
-			if HasKey(_aNodes_[i]["properties"], "type")
-				if _aNodes_[i]["properties"]["type"] = "entity"
-					_acEntities_ + _aNodes_[i]["id"]
-				ok
-			ok
-		end
-		
-		if len(_acEntities_) > 0
-			_nSample_ = min([10, len(_acEntities_)])
-			_cEntityList_ = ""
-			for i = 1 to _nSample_
-				_cEntityList_ += _acEntities_[i]
-				if i < _nSample_ _cEntityList_ += ", " ok
-			end
-			_aExplanation_[:entities] + ("Entities: " + _cEntityList_)
-			if len(_acEntities_) > 10
-				_aExplanation_[:entities] + ("... and " + (len(_acEntities_) - 10) + " more")
-			ok
-		ok
-		
-		# Predicate analysis
-		_acAllPredicates_ = []
-		_aEdges_ = This.Edges()
-		_nEdgeLen_ = len(_aEdges_)
-		for i = 1 to _nEdgeLen_
-			_cPred_ = _aEdges_[i][:label]
-			if _cPred_ != "" and StzFindFirst(_cPred_, _acAllPredicates_) = 0
-				_acAllPredicates_ + _cPred_
-			ok
-		end
-		
-		if len(_acAllPredicates_) > 0
-			_aExplanation_[:predicates] + ("Predicates used: " + JoinXT(_acAllPredicates_, ", "))
-		ok
-		
-		# Ontology status
-		if len(@aOntology) > 0
-			_aExplanation_[:ontology] + ("Ontology defined with " + len(@aOntology) + " constraints")
-			_nOntLen_ = len(@aOntology)
-			for i = 1 to _nOntLen_
-				if HasKey(@aOntology[i], :property)
-					_aExplanation_[:ontology] + ("Property: " + @aOntology[i][:property])
-				ok
-			end
 		else
+			_nShow_ = _nFacts_
+			if _nShow_ > 5
+				_nShow_ = 5
+			ok
+			for _i_ = 1 to _nShow_
+				_nF_ = StzEngineHashMapGetInt(_pNode_, _aEdges_[_i_][:from])
+				_nT_ = StzEngineHashMapGetInt(_pNode_, _aEdges_[_i_][:to])
+				_aExplanation_[:facts] + (_aNodes_[_nF_][:label] + " " + _aEdges_[_i_][:label] + " " +
+					_aNodes_[_nT_][:label])
+			next
+			if _nFacts_ > 5
+				_aExplanation_[:facts] + ("... and " + (_nFacts_ - 5) + " more facts")
+			ok
+		ok
+
+		# Predicates: most used first, ties by name (the sort key is the padded count, then the name)
+		_nP_ = len(_acPred_)
+		if _nP_ = 0
+			_aExplanation_[:predicates] + "No predicates yet"
+		else
+			_acKeys_ = []
+			for _i_ = 1 to _nP_
+				_acKeys_ + (right("0000000" + (9999999 - _anPred_[_i_]), 7) + _acPred_[_i_])
+			next
+			_acKeys_ = sort(_acKeys_)
+			_nShow_ = _nP_
+			if _nShow_ > 10
+				_nShow_ = 10
+			ok
+			for _i_ = 1 to _nShow_
+				_nUse_ = 9999999 - (0 + left(_acKeys_[_i_], 7))
+				_aExplanation_[:predicates] + (right(_acKeys_[_i_], len(_acKeys_[_i_]) - 7) + ": " + _nUse_ + " " +
+					This._Plural(_nUse_, "fact", "facts"))
+			next
+			if _nP_ > 10
+				_aExplanation_[:predicates] + ("... and " + (_nP_ - 10) + " more predicates")
+			ok
+		ok
+
+		# Entities: most links first, ties by name
+		_cMost_ = ""
+		_nMost_ = 0
+		_nIsolated_ = 0
+		if _nNodes_ = 0
+			_aExplanation_[:entities] + "No entities yet"
+		else
+			_acKeys_ = []
+			for _i_ = 1 to _nNodes_
+				_nDeg_ = _anIn_[_i_] + _anOut_[_i_]
+				if _nDeg_ = 0
+					_nIsolated_++
+				ok
+				_acKeys_ + (right("0000000" + (9999999 - _nDeg_), 7) + _aNodes_[_i_][:id])
+			next
+			_acKeys_ = sort(_acKeys_)
+			_nShow_ = _nNodes_
+			if _nShow_ > 10
+				_nShow_ = 10
+			ok
+			for _i_ = 1 to _nShow_
+				_nDeg_ = 9999999 - (0 + left(_acKeys_[_i_], 7))
+				_k_ = StzEngineHashMapGetInt(_pNode_, right(_acKeys_[_i_], len(_acKeys_[_i_]) - 7))
+				if _i_ = 1
+					_cMost_ = _aNodes_[_k_][:label]
+					_nMost_ = _nDeg_
+				ok
+				_aExplanation_[:entities] + (_aNodes_[_k_][:label] + ": " + _nDeg_ + " " +
+					This._Plural(_nDeg_, "link", "links") + " (" + _anIn_[_k_] + " in, " + _anOut_[_k_] + " out)")
+			next
+			if _nNodes_ > 10
+				_aExplanation_[:entities] + ("... and " + (_nNodes_ - 10) + " more entities")
+			ok
+		ok
+		StzEngineHashMapFree(_pNode_)
+
+		# Ontology: property by property
+		_aView_ = This._OntologyView()
+		_nProps_ = len(_aView_)
+		if _nProps_ = 0
 			_aExplanation_[:ontology] + "No formal ontology defined"
+		else
+			_aExplanation_[:ontology] + ("Ontology declares " + _nProps_ + " " +
+				This._Plural(_nProps_, "property", "properties") + ".")
+			for _i_ = 1 to _nProps_
+				_aExplanation_[:ontology] + (_aView_[_i_][:property] + ": " + JoinXT(_aView_[_i_][:items], ", "))
+			next
 		ok
-		
-		# Pattern detection
-		_nMaxConnections_ = 0
-		_cMostConnected_ = ""
-		for i = 1 to _nNodeLen_
-			_cNodeId_ = _aNodes_[i]["id"]
-			_nConnections_ = len(This.Predicates(_cNodeId_))
-			if _nConnections_ > _nMaxConnections_
-				_nMaxConnections_ = _nConnections_
-				_cMostConnected_ = _cNodeId_
+
+		# Patterns: density and cycles
+		if _nNodes_ > 0
+			_nPct_ = floor(This.NodeDensity() * 100 + 0.5)
+			if _nPct_ < 25
+				_aExplanation_[:patterns] + ("Graph is sparse (" + _nPct_ + "% density)")
+			but _nPct_ > 75
+				_aExplanation_[:patterns] + ("Graph is highly connected (" + _nPct_ + "% density)")
+			else
+				_aExplanation_[:patterns] + ("Moderate connectivity (" + _nPct_ + "% density)")
 			ok
-		end
-		
-		if _cMostConnected_ != ""
-			_aExplanation_[:patterns] + ("Most connected entity: " + _cMostConnected_ + 
-			                           " (" + _nMaxConnections_ + " relationships)")
+			if This.HasCyclicDependencies()
+				_aExplanation_[:patterns] + "Circular relationships found (cycles)"
+			else
+				_aExplanation_[:patterns] + "Acyclic structure (no cycles)"
+			ok
 		ok
-		
-		# Density
-		_nDensity_ = This.NodeDensity()
-		if _nDensity_ < 25
-			_aExplanation_[:patterns] + ("Graph is sparse (" + _nDensity_ + "% density)")
-		but _nDensity_ > 75
-			_aExplanation_[:patterns] + ("Graph is highly connected (" + _nDensity_ + "% density)")
-		else
-			_aExplanation_[:patterns] + ("Moderate connectivity (" + _nDensity_ + "% density)")
+
+		# Insights: each one computed from the facts and the ontology
+		if _nFacts_ > 0
+			_aExplanation_[:insights] + ("Most connected entity: " + _cMost_ + " (" + _nMost_ + " " +
+				This._Plural(_nMost_, "link", "links") + ")")
 		ok
-		
-		# Insights
-		# Was This.CyclicDependencies(), which is defined nowhere -- the
-		# method is HasCyclicDependencies() (stzGraph.ring:2075). Same typo
-		# as stzWorkflow.ValidateDeadlock() carried.
-		if This.HasCyclicDependencies()
-			_aExplanation_[:insights] + "Contains circular relationships (cycles detected)"
-		else
-			_aExplanation_[:insights] + "Acyclic structure (no circular dependencies)"
+		if _nProps_ > 0
+			_aIssues_ = This.ValidateOntologyIssues()
+			_nIss_ = len(_aIssues_)
+			if _nIss_ = 0
+				_aExplanation_[:insights] + "The ontology holds against the facts"
+			else
+				_nErr_ = 0
+				for _i_ = 1 to _nIss_
+					if _aIssues_[_i_][:severity] = "error"
+						_nErr_++
+					ok
+				next
+				_nWarn_ = _nIss_ - _nErr_
+				_aExplanation_[:insights] + ("Ontology: " + _nErr_ + " " + This._Plural(_nErr_, "error", "errors") +
+					", " + _nWarn_ + " " + This._Plural(_nWarn_, "warning", "warnings"))
+				_nShow_ = _nIss_
+				if _nShow_ > 5
+					_nShow_ = 5
+				ok
+				for _i_ = 1 to _nShow_
+					_aExplanation_[:insights] + _aIssues_[_i_][:message]
+				next
+				if _nIss_ > 5
+					_aExplanation_[:insights] + ("... and " + (_nIss_ - 5) + " more issues")
+				ok
+			ok
 		ok
-		
-		# Inferred knowledge
-		if This.ApplyInference() > 0
-			_aExplanation_[:insights] + "Inference rules generated new knowledge"
+		if _nNodes_ > 0 and _nIsolated_ > 0
+			_aExplanation_[:insights] + ("" + _nIsolated_ + " " + This._Plural(_nIsolated_, "entity has", "entities have") +
+				" no fact")
 		ok
-		
-		if len(_acAllPredicates_) < 3
-			_aExplanation_[:insights] + "Limited relationship types - consider enriching the ontology"
+		_nRef_ = len(@aContradictions)
+		if _nRef_ > 0
+			_aExplanation_[:insights] + ("" + _nRef_ + " " + This._Plural(_nRef_, "attempt was", "attempts were") +
+				" refused and recorded as contradictions")
 		ok
-		
-		if _nDensity_ < 10 and _nNodes_ > 5
-			_aExplanation_[:insights] + "Many isolated entities - may need more connections"
-		ok
-		
+
 		return _aExplanation_
+
+	def _Plural(pnCount, pcOne, pcMany)
+		if pnCount = 1
+			return pcOne
+		ok
+		return pcMany
 
 	#----------------------------------#
 	#  MANAGING *.zknw file format     #
