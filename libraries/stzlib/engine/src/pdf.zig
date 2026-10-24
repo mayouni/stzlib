@@ -3087,7 +3087,8 @@ fn findAlignedTablesIn(a: Allocator, frags: []Frag, lane0: f32, lane1: f32, tabl
     var idx: std.ArrayList(u32) = .empty;
     for (frags, 0..) |f, k| {
         const cxm = (f.x0 + f.x1) / 2;
-        if (f.table < 0 and f.text.len > 0 and cxm >= lane0 and cxm < lane1 and !isProseLine(frags, f)) try idx.append(a, @intCast(k));
+        // (a line with a bullet drawn before it is a list item, never a table cell: a list beside a table joined it)
+        if (f.table < 0 and f.text.len > 0 and cxm >= lane0 and cxm < lane1 and !f.bullet and !isProseLine(frags, f)) try idx.append(a, @intCast(k));
     }
     if (idx.items.len < 6) return;
     const ByBase = struct {
@@ -3108,6 +3109,48 @@ fn findAlignedTablesIn(a: Allocator, frags: []Frag, lane0: f32, lane1: f32, tabl
                 st = k;
             }
         }
+    }
+    // a cell of two lines beside cells of one, centred in their row (the default): the one-line cells sit on a
+    // baseline BETWEEN the two lines of the tall cell -- three baseline rows that are one table row
+    {
+        var merged_rows: std.ArrayList([]u32) = .empty;
+        var q: usize = 0;
+        while (q < rows.items.len) {
+            if (q + 2 < rows.items.len and rows.items[q].len == 1 and rows.items[q + 2].len == 1 and rows.items[q + 1].len >= 1) {
+                const up = frags[rows.items[q][0]];
+                const dn = frags[rows.items[q + 2][0]];
+                const mid = rows.items[q + 1];
+                // (a body cell: a two-line HEADER cell is gathered by the header band, and merged here it joined
+                //  the table above)
+                var ok = @abs(up.x0 - dn.x0) <= 1.0 and dn.base - up.base <= 1.6 * up.size and @abs(up.size - dn.size) <= 0.05 * up.size and !up.bold and !dn.bold;
+                for (mid) |mk| {
+                    const g = frags[mk];
+                    if (!(g.base > up.base + 0.2 * up.size and g.base < dn.base - 0.2 * up.size)) ok = false;
+                    if (g.x1 > @min(up.x0, dn.x0) - 1 and g.x0 < @max(up.x1, dn.x1) + 1) ok = false; // not in the tall cell's column
+                }
+                if (ok) {
+                    var row = try a.alloc(u32, mid.len + 2);
+                    row[0] = rows.items[q][0];
+                    @memcpy(row[1 .. mid.len + 1], mid);
+                    row[mid.len + 1] = rows.items[q + 2][0];
+                    // cells in their column order; the tall cell's two lines stay top to bottom
+                    const ByX2 = struct {
+                        f: []Frag,
+                        fn lt(ctx: @This(), l: u32, rr: u32) bool {
+                            if (@abs(ctx.f[l].x0 - ctx.f[rr].x0) > 1.0) return ctx.f[l].x0 < ctx.f[rr].x0;
+                            return ctx.f[l].base < ctx.f[rr].base;
+                        }
+                    };
+                    std.mem.sort(u32, row, ByX2{ .f = frags }, ByX2.lt);
+                    try merged_rows.append(a, row);
+                    q += 3;
+                    continue;
+                }
+            }
+            try merged_rows.append(a, rows.items[q]);
+            q += 1;
+        }
+        rows = merged_rows;
     }
     var r: usize = 0;
     while (r < rows.items.len) {
