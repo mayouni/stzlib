@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="nl" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Orderbevestiging</title>
+<style>
+@page { size: A4; margin: 0 }
+html, body { margin: 0; padding: 0 }
+section.page { width: 210mm; height: 296mm; box-sizing: border-box; position: relative; overflow: hidden; break-after: page; padding: 16mm 18mm 20mm 18mm }
+section.page:last-child { break-after: auto }
+section.page .hdr { position: absolute; top: 9mm; left: 18mm; right: 18mm }
+section.page .ftr { position: absolute; bottom: 9mm; left: 18mm; right: 18mm }
+
+.tl .li { display: flex; }
+.tl .mk { flex: 0 0 auto; min-width: 1.7em; }
+.tl .lt { flex: 1 1 auto; }
+.tl .lv1 { margin-inline-start: 1.8em }
+.tl .lv2 { margin-inline-start: 3.6em }
+ul.cl { list-style: none; margin: 0; padding: 0 }
+ul.cl li { position: relative; padding-inline-start: 1.3em }
+ul.cl li::before { content: ""; position: absolute; inset-inline-start: .25em; top: .52em; width: .42em; height: .42em; background: currentColor; border-radius: 50% }
+ul.cl li.lv1 { margin-inline-start: 1.5em }
+ul.cl li.lv1::before { background: transparent; border: 1px solid currentColor; box-sizing: border-box }
+ul.sq li::before { border-radius: 0 }
+
+body { font-family: "Trebuchet MS"; font-size: 9.6pt; color: #222; line-height: 1.45 }
+h1 { font-family: "Trebuchet MS"; font-weight: bold; font-size: 22pt; color: #d9480f; margin: 5mm 0 3mm }
+h2 { font-family: "Trebuchet MS"; font-weight: bold; font-size: 11.5pt; color: #333; margin: 4.5mm 0 1.2mm }
+p { margin: 0 0 1.8mm }
+.lh { display: flex; justify-content: space-between; align-items: center; padding-bottom: 2mm; border-bottom: 1px solid #ddd }
+.lh .n { font-weight: bold; font-size: 14pt; color: #333 }
+.lh .n i { display: inline-block; width: 6mm; height: 6mm; border: 2px solid #d9480f; border-radius: 50%; margin-right: 1mm; vertical-align: -1mm }
+.lh .a { font-size: 8pt; color: #777; text-align: right }
+.row { display: flex; gap: 8mm }
+.box { flex: 1; border: 1px solid #e5e5e5; border-radius: 1.5mm; padding: 2mm 4mm }
+.label { font-size: 8pt; color: #d9480f; font-weight: bold; margin-bottom: 1mm }
+table { border-collapse: collapse; width: 100% }
+table.kv td { padding: .5mm 0 }
+table.kv td:first-child { color: #777; width: 45% }
+table.ol th { text-align: left; border-bottom: 2px solid #d9480f; padding: 1.2mm 2mm }
+table.ol td { padding: 1.4mm 2mm; border-bottom: .5px solid #e5e5e5; vertical-align: top }
+table.ol td:nth-child(n+2), table.ol th:nth-child(n+2) { text-align: right; white-space: nowrap }
+table.ol td.lab { text-align: right; border-bottom: none; padding: .8mm 2mm }
+table.ol tr.t td { border-bottom: none; padding: .8mm 2mm }
+table.ol tr.g td { font-weight: bold; font-size: 11pt; border-top: 1.5px solid #222 }
+table.ol tr.v td { color: #777; font-size: 8.6pt }
+.sku { color: #888; font-size: 8.3pt }
+.tl .li { margin: 1mm 0 }
+.tl .mk { color: #d9480f; font-weight: bold }
+.ftr { font-size: 7.6pt; color: #888; text-align: center; border-top: .5px solid #ddd; padding-top: 1mm }
+
+</style>
+</head>
+<body>
+<section class="page"><div class="hdr"></div><div class="main"><div class="lh"><div class="n"><i></i>Fietshuis Van der Molen</div><div class="a">Ambachtsweg 31 · 7311 AB Apeldoorn<br>klantenservice@fietshuisvandermolen.example · 055 000 1290</div></div><h1>Orderbevestiging</h1><div class="row"><div class="box"><div class="label">Afleveradres</div>Sanne de Wit<br>Kastanjelaan 7<br>3701 BK Zeist</div><div class="box"><table class="kv"><tbody><tr><td>Ordernummer</td><td>FM-2026-118403</td></tr><tr><td>Besteldatum</td><td>21 oktober 2026</td></tr><tr><td>Betaalwijze</td><td>Bankoverschrijving (betaald)</td></tr><tr><td>Verwachte levering</td><td>24 oktober 2026</td></tr></tbody></table></div></div><div style="height:4mm"></div><p>Beste Sanne,</p><p>Bedankt voor je bestelling bij Fietshuis Van der Molen. We hebben je betaling ontvangen en je bestelling wordt nu klaargemaakt voor verzending.</p><table class="ol"><thead><tr><th>Artikel</th><th>Aantal</th><th>Prijs</th><th>Totaal</th></tr></thead><tbody><tr><td>Stadsfiets dames 28 inch, 7 versnellingen<br><span class="sku">Art.nr. SF-2807-GR · kleur mosgroen</span></td><td>1</td><td>€ 649,00</td><td>€ 649,00</td></tr><tr><td>Kettingslot 110 cm<br><span class="sku">Art.nr. SL-1102</span></td><td>2</td><td>€ 54,95</td><td>€ 109,90</td></tr><tr><td>LED-verlichtingsset op accu<br><span class="sku">Art.nr. LV-0450</span></td><td>1</td><td>€ 29,95</td><td>€ 29,95</td></tr><tr><td>Dubbele fietstas, 32 liter<br><span class="sku">Art.nr. FT-3200-ZW · kleur zwart</span></td><td>1</td><td>€ 44,50</td><td>€ 44,50</td></tr><tr class="t"><td colspan="3" class="lab">Subtotaal</td><td>€ 833,35</td></tr><tr class="t"><td colspan="3" class="lab">Verzendkosten</td><td>€ 0,00</td></tr><tr class="g"><td colspan="3" class="lab">Totaal (incl. btw)</td><td>€ 833,35</td></tr><tr class="v"><td colspan="3" class="lab">Waarvan 21% btw</td><td>€ 144,63</td></tr></tbody></table><h2>Wat gebeurt er nu?</h2><div class="tl"><div class="li lv0"><span class="mk">1.</span><span class="lt">We controleren en stellen je fiets af in onze werkplaats.</span></div><div class="li lv0"><span class="mk">2.</span><span class="lt">Je ontvangt een e-mail met een track-and-tracecode zodra het pakket onderweg is.</span></div><div class="li lv0"><span class="mk">3.</span><span class="lt">De fiets wordt bezorgd tussen 8.00 en 18.00 uur; de bezorger plaatst hem op verzoek binnen.</span></div></div><h2>Retourneren</h2><p>Je hebt 30 dagen bedenktijd vanaf de dag van levering. Fietsen nemen we alleen terug als ze niet zijn gebruikt en in de originele verpakking zitten. Neem voor een retour eerst contact op met onze klantenservice.</p><p>Veel fietsplezier!<br>Team Fietshuis Van der Molen</p></div><div class="ftr"><div class="ftr">KvK 00000000 · btw-nummer NL000000000B01 · Op al onze leveringen zijn de algemene voorwaarden van toepassing.</div></div></section>
+</body>
+</html>

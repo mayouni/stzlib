@@ -1,0 +1,160 @@
+{
+  "id": "w17",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Your electricity bill",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Your electricity bill"
+    },
+    {
+      "level": 2,
+      "text": "Account summary"
+    },
+    {
+      "level": 2,
+      "text": "Meter readings"
+    },
+    {
+      "level": 2,
+      "text": "Charges for 1 July to 30 September 2026"
+    },
+    {
+      "level": 2,
+      "text": "Ways to save"
+    }
+  ],
+  "key_sentences": [
+    "Please pay £218.58 by 20 October 2026.",
+    "We will collect this amount by Direct Debit on or after 20 October 2026, so you do not need to do anything.",
+    "Your estimated annual consumption is 3,640 kWh, based on your readings over the last twelve months.",
+    "If your night reading looks wrong, send us a photo of your meter within 14 days and we will reissue the bill.",
+    "As a member-owned co-operative, any surplus we make is returned to members or invested in local renewable energy."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Previous balance",
+          "£112.40"
+        ],
+        [
+          "Payment received 18 July, thank you",
+          "−£112.40"
+        ],
+        [
+          "Charges this period",
+          "£218.58"
+        ],
+        [
+          "Amount due",
+          "£218.58"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Register",
+          "Previous",
+          "Current",
+          "Units"
+        ],
+        [
+          "Day",
+          "41 872 A",
+          "42 391 A",
+          "519"
+        ],
+        [
+          "Night",
+          "18 203 A",
+          "18 592 E",
+          "389"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Description",
+          "Quantity",
+          "Rate",
+          "Amount"
+        ],
+        [
+          "Day units",
+          "519 kWh",
+          "27.40p per kWh",
+          "£142.21"
+        ],
+        [
+          "Night units",
+          "389 kWh",
+          "13.10p per kWh",
+          "£50.96"
+        ],
+        [
+          "Standing charge",
+          "92 days",
+          "51.20p per day",
+          "£47.10"
+        ],
+        [
+          "Smart export credit",
+          "214 kWh",
+          "15.00p per kWh",
+          "−£32.10"
+        ],
+        [
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "£208.17"
+        ],
+        [
+          "VAT at 5%",
+          "VAT at 5%",
+          "VAT at 5%",
+          "£10.41"
+        ],
+        [
+          "Total charges",
+          "Total charges",
+          "Total charges",
+          "£218.58"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Run your washing machine and dishwasher after 22:00, when night units are cheaper."
+    },
+    {
+      "level": 0,
+      "text": "Members can join the community solar share scheme from 1 January."
+    },
+    {
+      "level": 0,
+      "text": "Ask us for a free home energy check if your usage has risen by more than 10%."
+    }
+  ],
+  "furniture": [
+    "Brightwater Energy Co-operative",
+    "PO Box 2204, Lowfield LF3 9QA",
+    "0300 000 6612 · brightwater.example",
+    "Brightwater Energy Co-operative Ltd is a registered society, number 31877R.",
+    "Page 1 of 1"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Household electricity bill from a co-operative, one page. Two boxes SIDE BY SIDE: \"Account summary\" (left, key/value table, no header row) then \"Meter readings\" (right, small table with header row plus a legend line); read left box then right box. Charges table is zebra-striped, with subtotal, VAT and total rows whose label spans three columns (repeated). Minus sign U+2212 in credits. Ways-to-save list is CSS-drawn. Customer address lines and the bill reference line are body text, not headings."
+}

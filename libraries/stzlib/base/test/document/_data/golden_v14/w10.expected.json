@@ -1,0 +1,179 @@
+{
+  "id": "w10",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Ground Handling Bulletin GHB-26-14: Winter De-icing and Anti-icing Operations",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Ground Handling Bulletin GHB-26-14: Winter De-icing and Anti-icing Operations"
+    },
+    {
+      "level": 2,
+      "text": "1. Purpose"
+    },
+    {
+      "level": 2,
+      "text": "2. Responsibilities"
+    },
+    {
+      "level": 2,
+      "text": "3. Holdover times"
+    },
+    {
+      "level": 2,
+      "text": "4. Communication with the flight crew"
+    },
+    {
+      "level": 2,
+      "text": "5. Pre-departure checklist"
+    },
+    {
+      "level": 2,
+      "text": "6. Reporting"
+    }
+  ],
+  "key_sentences": [
+    "This bulletin sets out the procedures that all stations and contracted handling agents must follow when aircraft are de-iced or anti-iced during the 2026–27 winter season.",
+    "It replaces the previous bulletin in full and must be read together with the Ground Operations Manual, chapter 9.",
+    "Holdover time is the estimated period during which the anti-icing fluid prevents frost, ice or snow from forming on the treated surfaces.",
+    "The table below is reproduced for training purposes; in operation, always use the current holdover-time guidelines issued for the season.",
+    "Holdover time begins at the start of the final application of fluid, not at its end.",
+    "Before the aircraft leaves the de-icing pad, the de-icing lead must pass the anti-icing code to the commander by radio or by ACARS.",
+    "Messages sent by ACARS must follow the format below exactly.",
+    "The commander confirms receipt by repeating the fluid type and the start time.",
+    "Any fluid spill, equipment failure or missed holdover time must be reported through the safety reporting system before the end of the shift.",
+    "Stations send a weekly summary of de-icing movements to Ground Operations every Monday."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Effective date",
+          "1 November 2026"
+        ],
+        [
+          "Applies to",
+          "All stations; ATR 72-600 and Dash 8-400 fleets"
+        ],
+        [
+          "Supersedes",
+          "GHB-25-09"
+        ],
+        [
+          "Issued by",
+          "Head of Ground Operations"
+        ]
+      ]
+    },
+    {
+      "caption": "Table 1. Indicative holdover times for training use",
+      "rows": [
+        [
+          "OAT (°C)",
+          "Fluid",
+          "Holdover time (h:mm)",
+          "Holdover time (h:mm)",
+          "Holdover time (h:mm)",
+          "Holdover time (h:mm)"
+        ],
+        [
+          "OAT (°C)",
+          "Fluid",
+          "Freezing fog",
+          "Light snow",
+          "Freezing drizzle",
+          "Light freezing rain"
+        ],
+        [
+          "−3 and above",
+          "Type I",
+          "0:11–0:17",
+          "0:06–0:11",
+          "0:05–0:09",
+          "0:02–0:05"
+        ],
+        [
+          "−3 and above",
+          "Type IV 100/0",
+          "1:05–2:10",
+          "0:35–1:05",
+          "0:40–1:10",
+          "0:25–0:40"
+        ],
+        [
+          "Below −3 to −14",
+          "Type I",
+          "0:08–0:13",
+          "0:05–0:09",
+          "0:04–0:07",
+          "0:02–0:05"
+        ],
+        [
+          "Below −3 to −14",
+          "Type IV 100/0",
+          "0:50–1:40",
+          "0:25–0:50",
+          "0:20–0:45",
+          "0:15–0:30"
+        ],
+        [
+          "Below −14 to −25",
+          "Type IV 100/0",
+          "0:20–0:55",
+          "0:15–0:30",
+          "—",
+          "—"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "• The station manager ensures that only trained and authorised staff apply fluids."
+    },
+    {
+      "level": 0,
+      "text": "• The de-icing lead decides the treatment method and records the start time of the final step."
+    },
+    {
+      "level": 0,
+      "text": "• The commander remains responsible for deciding whether the aircraft is fit to take off."
+    },
+    {
+      "level": 0,
+      "text": "Contamination check carried out on wings, tail and control surfaces"
+    },
+    {
+      "level": 0,
+      "text": "Fluid type and concentration confirmed against the batch sheet"
+    },
+    {
+      "level": 0,
+      "text": "Start time of the final step recorded"
+    },
+    {
+      "level": 0,
+      "text": "Anti-icing code passed to the commander"
+    },
+    {
+      "level": 0,
+      "text": "Post-treatment check signed by the de-icing lead"
+    }
+  ],
+  "furniture": [
+    "KESTREL REGIONAL AIRWAYS · GROUND OPERATIONS",
+    "GHB-26-14 · Revision 0 · Uncontrolled when printed",
+    "Page 1 of 2",
+    "Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "DEICE/ANTI-ICE REPORT\nFLT KRA2417   ACFT G-ZKRA   STN EXT\nFLUID   TYPE IV 100/0\nSTART   0642Z (FINAL STEP)\nINSP    POST-TREATMENT CHECK COMPLETED\nCODE    IV/100/0642/COMPLETE"
+  ],
+  "notes": "Airline ground-operations bulletin, two pages. Letter-spaced running header (typed in capitals) and footer with \"Page n of 2\" on both pages. Holdover-time table: two-level header (\"OAT (°C)\" and \"Fluid\" span both header rows; \"Holdover time (h:mm)\" spans four columns) and a body cell \"−3 and above\" / \"Below −3 to −14\" spanning two rows each (repeated); the minus sign is U+2212. Its caption sits above the table. Code block in Courier New (ACARS report format). The checklist is drawn with CSS boxes (no typed marker); responsibilities list uses typed \"•\". Bulletin details key/value table has no header row."
+}

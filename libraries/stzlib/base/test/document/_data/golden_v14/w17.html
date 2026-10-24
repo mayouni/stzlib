@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en-GB" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Your electricity bill</title>
+<style>
+@page { size: A4; margin: 0 }
+html, body { margin: 0; padding: 0 }
+section.page { width: 210mm; height: 296mm; box-sizing: border-box; position: relative; overflow: hidden; break-after: page; padding: 15mm 18mm 20mm 18mm }
+section.page:last-child { break-after: auto }
+section.page .hdr { position: absolute; top: 9mm; left: 18mm; right: 18mm }
+section.page .ftr { position: absolute; bottom: 9mm; left: 18mm; right: 18mm }
+
+.tl .li { display: flex; }
+.tl .mk { flex: 0 0 auto; min-width: 1.7em; }
+.tl .lt { flex: 1 1 auto; }
+.tl .lv1 { margin-inline-start: 1.8em }
+.tl .lv2 { margin-inline-start: 3.6em }
+ul.cl { list-style: none; margin: 0; padding: 0 }
+ul.cl li { position: relative; padding-inline-start: 1.3em }
+ul.cl li::before { content: ""; position: absolute; inset-inline-start: .25em; top: .52em; width: .42em; height: .42em; background: currentColor; border-radius: 50% }
+ul.cl li.lv1 { margin-inline-start: 1.5em }
+ul.cl li.lv1::before { background: transparent; border: 1px solid currentColor; box-sizing: border-box }
+ul.sq li::before { border-radius: 0 }
+
+body { font-family: "Open Sans"; font-size: 9.2pt; color: #23303b; line-height: 1.45 }
+h1 { font-family: "Open Sans"; font-weight: bold; font-size: 20pt; color: #e05a00; margin: 5mm 0 1mm }
+h2 { font-family: "Open Sans"; font-weight: bold; font-size: 10.5pt; color: #134e6f; margin: 0 0 1.5mm }
+h2.s { margin-top: 4mm }
+p { margin: 0 0 1.6mm }
+.lh { display: flex; justify-content: space-between; align-items: center }
+.lh .n { font-weight: bold; font-size: 13pt; color: #134e6f; display: flex; align-items: center; gap: 2.5mm }
+.lh .sun { width: 8mm; height: 8mm; border-radius: 50%; background: #f7a600; box-shadow: 0 0 0 1.5mm #fde3a7 }
+.lh .a { font-size: 8pt; color: #61707c; text-align: right }
+.ref { color: #61707c; font-size: 8.6pt }
+.addr { margin: 3mm 0 4mm; line-height: 1.4 }
+.row { display: flex; gap: 6mm }
+.box { flex: 1; background: #f1f6f9; border-radius: 2mm; padding: 3mm 4mm }
+table { border-collapse: collapse; width: 100% }
+table.kv td { padding: .8mm 0 }
+table.kv td:last-child { text-align: right; white-space: nowrap }
+table.kv tr:last-child td { font-weight: bold; border-top: 1px solid #134e6f; font-size: 10.5pt }
+table.mr th { text-align: left; font-weight: bold; border-bottom: 1px solid #134e6f; padding: .6mm 1mm }
+table.mr td { padding: .6mm 1mm }
+table.mr td:nth-child(n+2), table.mr th:nth-child(n+2) { text-align: right }
+.legend { font-size: 7.8pt; color: #61707c; margin-top: 1mm }
+.due { margin: 4mm 0 1mm; padding: 2.5mm 4mm; border: 2px solid #e05a00; border-radius: 2mm; font-size: 11pt; font-weight: bold; color: #e05a00 }
+table.ch th { background: #134e6f; color: #fff; text-align: left; padding: 1.2mm 2mm }
+table.ch td { padding: 1.1mm 2mm }
+table.ch tbody tr:nth-child(even) td { background: #f1f6f9 }
+table.ch td:nth-child(n+2), table.ch th:nth-child(n+2) { text-align: right }
+table.ch tr.tot td { background: #fff; border-top: .8px solid #9fb4c2 }
+table.ch tr.grand td { font-weight: bold; border-top: 1.5px solid #134e6f; background: #fff }
+table.ch td.lab { text-align: right }
+ul.cl li { margin: .6mm 0 }
+.ftr { font-size: 7.5pt; color: #61707c; display: flex; justify-content: space-between; border-top: .6px solid #c5d3dc; padding-top: 1mm }
+
+</style>
+</head>
+<body>
+<section class="page"><div class="hdr"></div><div class="main"><div class="lh"><div class="n"><span class="sun"></span>Brightwater Energy Co-operative</div><div class="a">PO Box 2204, Lowfield LF3 9QA<br>0300 000 6612 · brightwater.example</div></div><h1>Your electricity bill</h1><div class="ref">Bill date 3 October 2026 · Account number 4410 2287 19 · Bill number 0098-77412</div><div class="addr">Ms Priya Ramaswamy<br>Flat 2, 18 Orchard Terrace<br>Lowfield LF2 6PD</div><div class="row"><div class="box"><h2>Account summary</h2><table class="kv"><tbody><tr><td>Previous balance</td><td>£112.40</td></tr><tr><td>Payment received 18 July, thank you</td><td>−£112.40</td></tr><tr><td>Charges this period</td><td>£218.58</td></tr><tr><td>Amount due</td><td>£218.58</td></tr></tbody></table></div><div class="box"><h2>Meter readings</h2><table class="mr"><thead><tr><th>Register</th><th>Previous</th><th>Current</th><th>Units</th></tr></thead><tbody><tr><td>Day</td><td>41 872 A</td><td>42 391 A</td><td>519</td></tr><tr><td>Night</td><td>18 203 A</td><td>18 592 E</td><td>389</td></tr></tbody></table><div class="legend">A = actual reading, E = estimated reading</div></div></div><p class="due">Please pay £218.58 by 20 October 2026.</p><p>We will collect this amount by Direct Debit on or after 20 October 2026, so you do not need to do anything.</p><h2 class="s">Charges for 1 July to 30 September 2026</h2><table class="ch"><thead><tr><th>Description</th><th>Quantity</th><th>Rate</th><th>Amount</th></tr></thead><tbody><tr><td>Day units</td><td>519 kWh</td><td>27.40p per kWh</td><td>£142.21</td></tr><tr><td>Night units</td><td>389 kWh</td><td>13.10p per kWh</td><td>£50.96</td></tr><tr><td>Standing charge</td><td>92 days</td><td>51.20p per day</td><td>£47.10</td></tr><tr><td>Smart export credit</td><td>214 kWh</td><td>15.00p per kWh</td><td>−£32.10</td></tr><tr class="tot"><td colspan="3" class="lab">Subtotal</td><td>£208.17</td></tr><tr class="tot"><td colspan="3" class="lab">VAT at 5%</td><td>£10.41</td></tr><tr class="grand"><td colspan="3" class="lab">Total charges</td><td>£218.58</td></tr></tbody></table><p>Your estimated annual consumption is 3,640 kWh, based on your readings over the last twelve months. If your night reading looks wrong, send us a photo of your meter within 14 days and we will reissue the bill.</p><h2 class="s">Ways to save</h2><ul class="cl"><li class="lv0">Run your washing machine and dishwasher after 22:00, when night units are cheaper.</li><li class="lv0">Members can join the community solar share scheme from 1 January.</li><li class="lv0">Ask us for a free home energy check if your usage has risen by more than 10%.</li></ul><div style="height:2mm"></div><p>As a member-owned co-operative, any surplus we make is returned to members or invested in local renewable energy.</p></div><div class="ftr"><div class="ftr"><span>Brightwater Energy Co-operative Ltd is a registered society, number 31877R.</span><span>Page 1 of 1</span></div></div></section>
+</body>
+</html>

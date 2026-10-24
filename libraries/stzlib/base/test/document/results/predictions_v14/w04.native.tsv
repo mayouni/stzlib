@@ -1,0 +1,36 @@
+page_header	0	Kessler Messtechnik
+page_header	0	MDS 4 · Installationsanleitung
+heading	1	Installationsanleitung MDS 4 Messdatenserver
+paragraph	0	Diese Anleitung beschreibt die Erstinstallation des Messdatenservers MDS 4 unter Linux. Sie richtet sich an Administratorinnen und Administratoren mit Grundkenntnissen der Kommandozeile.
+heading	2	1 Systemvoraussetzungen
+heading	3	1.1 Hardware
+table	0	KomponenteMindestanforderungEmpfehlungProzessor4 Kerne, 2,0 GHz8 Kerne, 3,0 GHzArbeitsspeicher8 GB32 GBDatenträger250 GB SSD1 TB NVMe im RAID 1Netzwerk1 Gbit/s2 × 10 Gbit/s
+heading	3	1.2 Software
+list_item	0	Debian 12 oder Ubuntu Server 24.04 LTS (64 Bit)
+list_item	0	PostgreSQL 16 mit der Erweiterung TimescaleDB
+list_item	0	OpenSSL 3.0 oder neuer
+list_item	0	ein gültiges Serverzertifikat für den vorgesehenen Hostnamen
+heading	2	2 Installation
+paragraph	0	Melden Sie sich als Benutzer mit sudo-Rechten an und führen Sie die folgenden Schritte der Reihe nach aus.
+list_item	0	Laden Sie das Installationspaket aus dem Kundenportal herunter.
+list_item	0	Prüfen Sie die Prüfsumme des Pakets mit dem Befehl sha256sum.
+list_item	0	Installieren Sie das Paket und aktivieren Sie den Dienst:
+code	0	sudo apt update\nsudo apt install ./mds4-server_4.2.1_amd64.deb\nsudo systemctl enable --now mds4\nsystemctl status mds4
+list_item	0	Legen Sie die Datenbank an und vergeben Sie ein sicheres Passwort für den Benutzer mds4.
+paragraph	0	Das Installationsprogramm legt den Systembenutzer, die Verzeichnisse unter /var/lib/mds4 und eine Beispielkonfiguration an. Bestehende Konfigurationsdateien werden bei einer Aktualisierung nicht überschrieben.
+page_footer	0	Dokument IA-MDS4-DE · Ausgabe 03/2026
+page_footer	0	Seite 1 von 2
+page_header	0	Kessler Messtechnik
+page_header	0	MDS 4 · Installationsanleitung
+heading	2	3 Konfiguration
+paragraph	0	Die zentrale Konfigurationsdatei liegt unter /etc/mds4/server.toml. Änderungen werden erst nach einem Neustart des Dienstes wirksam.
+code	0	[server]\nbind = "0.0.0.0:8443"\nworkers = 8\n\n\n[database]\nurl = "postgresql://mds4@localhost:5432/messdaten"\npool_size = 20\n\n\n[tls]\ncertificate = "/etc/mds4/tls/server.crt"\nprivate_key = "/etc/mds4/tls/server.key"
+heading	3	3.1 Wichtige Parameter
+table	0	ParameterStandardwertBedeutungbind127.0.0.1:8443Adresse und Port, an denen der Server Verbindungen annimmtworkersAnzahl der KerneZahl der parallelen Verarbeitungsprozessepool_size10Höchstzahl gleichzeitiger Datenbankverbindungencertificate—Pfad zum Serverzertifikat im PEM-Format
+heading	2	4 Inbetriebnahme prüfen
+paragraph	0	Rufen Sie nach dem Start die Statusseite unter https://<hostname>:8443/status im Browser auf. Wird die Seite nicht angezeigt, prüfen Sie das Protokoll mit journalctl -u mds4.
+paragraph	0	Hinweis: Öffnen Sie Port 8443 in der Firewall nur für die Netze, aus denen Messgeräte Daten senden.
+heading	2	5 Support
+paragraph	0	Bei Fragen erreichen Sie unseren technischen Support werktags von 8 bis 17 Uhr unter der Rufnummer 030 5550 1840. Halten Sie dafür bitte die Seriennummer Ihres Geräts bereit.
+page_footer	0	Dokument IA-MDS4-DE · Ausgabe 03/2026
+page_footer	0	Seite 2 von 2

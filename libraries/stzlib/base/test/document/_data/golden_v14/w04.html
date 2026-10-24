@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Installationsanleitung MDS 4 Messdatenserver</title>
+<style>
+@page { size: A4; margin: 0 }
+html, body { margin: 0; padding: 0 }
+section.page { width: 210mm; height: 296mm; box-sizing: border-box; position: relative; overflow: hidden; break-after: page; padding: 24mm 22mm 22mm 22mm }
+section.page:last-child { break-after: auto }
+section.page .hdr { position: absolute; top: 10mm; left: 22mm; right: 22mm }
+section.page .ftr { position: absolute; bottom: 10mm; left: 22mm; right: 22mm }
+
+.tl .li { display: flex; }
+.tl .mk { flex: 0 0 auto; min-width: 1.7em; }
+.tl .lt { flex: 1 1 auto; }
+.tl .lv1 { margin-inline-start: 1.8em }
+.tl .lv2 { margin-inline-start: 3.6em }
+ul.cl { list-style: none; margin: 0; padding: 0 }
+ul.cl li { position: relative; padding-inline-start: 1.3em }
+ul.cl li::before { content: ""; position: absolute; inset-inline-start: .25em; top: .52em; width: .42em; height: .42em; background: currentColor; border-radius: 50% }
+ul.cl li.lv1 { margin-inline-start: 1.5em }
+ul.cl li.lv1::before { background: transparent; border: 1px solid currentColor; box-sizing: border-box }
+ul.sq li::before { border-radius: 0 }
+
+body { font-family: Verdana; font-size: 8.8pt; color: #202020; line-height: 1.5 }
+h1, h2, h3 { font-family: Tahoma; font-weight: bold; color: #003b6f }
+h1 { font-size: 17pt; margin: 2mm 0 4mm; padding-bottom: 2mm; border-bottom: 2px solid #f2a900 }
+h2 { font-size: 12pt; margin: 5mm 0 1.5mm }
+h3 { font-size: 10pt; margin: 3.5mm 0 1mm; color: #1f5c94 }
+p { margin: 0 0 2mm }
+pre { font-family: Consolas; font-size: 9pt; background: #f2f4f7; border-left: 3px solid #003b6f; padding: 2.5mm 3.5mm; margin: 2mm 0 3mm; line-height: 1.4; white-space: pre }
+code { font-family: Consolas; font-size: 9.3pt; background: #f2f4f7; padding: 0 .6mm }
+table.t { border-collapse: collapse; width: 100%; margin: 1mm 0 2mm }
+table.t th { text-align: left; border-bottom: 1.5px solid #003b6f; padding: 1mm 2mm; font-family: Tahoma; color: #003b6f }
+table.t td { border-bottom: .5px solid #c9d1da; padding: 1mm 2mm; vertical-align: top }
+.hdr { font-family: Tahoma; font-size: 7.8pt; color: #5d6b78; display: flex; justify-content: space-between; border-bottom: .5px solid #c9d1da; padding-bottom: 1mm }
+.ftr { font-family: Tahoma; font-size: 7.8pt; color: #5d6b78; display: flex; justify-content: space-between }
+.note { border: 1px solid #f2a900; background: #fff8e5; padding: 2mm 3mm; margin: 3mm 0 }
+.tl .li { margin: 1mm 0 }
+ul.cl li { margin: .6mm 0 }
+
+</style>
+</head>
+<body>
+<section class="page"><div class="hdr"><div class="hdr"><span>Kessler Messtechnik</span><span>MDS 4 · Installationsanleitung</span></div></div><div class="main"><h1>Installationsanleitung MDS 4 Messdatenserver</h1><p>Diese Anleitung beschreibt die Erstinstallation des Messdatenservers MDS 4 unter Linux. Sie richtet sich an Administratorinnen und Administratoren mit Grundkenntnissen der Kommandozeile.</p><h2>1 Systemvoraussetzungen</h2><h3>1.1 Hardware</h3><table class="t"><thead><tr><th>Komponente</th><th>Mindestanforderung</th><th>Empfehlung</th></tr></thead><tbody><tr><td>Prozessor</td><td>4 Kerne, 2,0 GHz</td><td>8 Kerne, 3,0 GHz</td></tr><tr><td>Arbeitsspeicher</td><td>8 GB</td><td>32 GB</td></tr><tr><td>Datenträger</td><td>250 GB SSD</td><td>1 TB NVMe im RAID 1</td></tr><tr><td>Netzwerk</td><td>1 Gbit/s</td><td>2 × 10 Gbit/s</td></tr></tbody></table><h3>1.2 Software</h3><ul class="cl"><li class="lv0">Debian 12 oder Ubuntu Server 24.04 LTS (64 Bit)</li><li class="lv0">PostgreSQL 16 mit der Erweiterung TimescaleDB</li><li class="lv0">OpenSSL 3.0 oder neuer</li><li class="lv0">ein gültiges Serverzertifikat für den vorgesehenen Hostnamen</li></ul><h2>2 Installation</h2><p>Melden Sie sich als Benutzer mit sudo-Rechten an und führen Sie die folgenden Schritte der Reihe nach aus.</p><div class="tl"><div class="li lv0"><span class="mk">1.</span><span class="lt">Laden Sie das Installationspaket aus dem Kundenportal herunter.</span></div><div class="li lv0"><span class="mk">2.</span><span class="lt">Prüfen Sie die Prüfsumme des Pakets mit dem Befehl <code>sha256sum</code>.</span></div><div class="li lv0"><span class="mk">3.</span><span class="lt">Installieren Sie das Paket und aktivieren Sie den Dienst:</span></div></div><pre>sudo apt update
+sudo apt install ./mds4-server_4.2.1_amd64.deb
+sudo systemctl enable --now mds4
+systemctl status mds4</pre><div class="tl"><div class="li lv0"><span class="mk">4.</span><span class="lt">Legen Sie die Datenbank an und vergeben Sie ein sicheres Passwort für den Benutzer <code>mds4</code>.</span></div></div><p>Das Installationsprogramm legt den Systembenutzer, die Verzeichnisse unter /var/lib/mds4 und eine Beispielkonfiguration an. Bestehende Konfigurationsdateien werden bei einer Aktualisierung nicht überschrieben.</p></div><div class="ftr"><div class="ftr"><span>Dokument IA-MDS4-DE · Ausgabe 03/2026</span><span>Seite 1 von 2</span></div></div></section><section class="page"><div class="hdr"><div class="hdr"><span>Kessler Messtechnik</span><span>MDS 4 · Installationsanleitung</span></div></div><div class="main"><h2>3 Konfiguration</h2><p>Die zentrale Konfigurationsdatei liegt unter <code>/etc/mds4/server.toml</code>. Änderungen werden erst nach einem Neustart des Dienstes wirksam.</p><pre>[server]
+bind = "0.0.0.0:8443"
+workers = 8
+
+[database]
+url = "postgresql://mds4@localhost:5432/messdaten"
+pool_size = 20
+
+[tls]
+certificate = "/etc/mds4/tls/server.crt"
+private_key = "/etc/mds4/tls/server.key"</pre><h3>3.1 Wichtige Parameter</h3><table class="t"><thead><tr><th>Parameter</th><th>Standardwert</th><th>Bedeutung</th></tr></thead><tbody><tr><td><code>bind</code></td><td>127.0.0.1:8443</td><td>Adresse und Port, an denen der Server Verbindungen annimmt</td></tr><tr><td><code>workers</code></td><td>Anzahl der Kerne</td><td>Zahl der parallelen Verarbeitungsprozesse</td></tr><tr><td><code>pool_size</code></td><td>10</td><td>Höchstzahl gleichzeitiger Datenbankverbindungen</td></tr><tr><td><code>certificate</code></td><td>—</td><td>Pfad zum Serverzertifikat im PEM-Format</td></tr></tbody></table><h2>4 Inbetriebnahme prüfen</h2><p>Rufen Sie nach dem Start die Statusseite unter https://&lt;hostname&gt;:8443/status im Browser auf. Wird die Seite nicht angezeigt, prüfen Sie das Protokoll mit <code>journalctl -u mds4</code>.</p><div class="note"><span><b>Hinweis:</b> Öffnen Sie Port 8443 in der Firewall nur für die Netze, aus denen Messgeräte Daten senden.</span></div><h2>5 Support</h2><p>Bei Fragen erreichen Sie unseren technischen Support werktags von 8 bis 17 Uhr unter der Rufnummer 030 5550 1840. Halten Sie dafür bitte die Seriennummer Ihres Geräts bereit.</p></div><div class="ftr"><div class="ftr"><span>Dokument IA-MDS4-DE · Ausgabe 03/2026</span><span>Seite 2 von 2</span></div></div></section>
+</body>
+</html>

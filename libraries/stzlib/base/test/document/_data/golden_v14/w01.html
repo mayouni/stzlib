@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en-GB" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Tax Invoice</title>
+<style>
+@page { size: A4; margin: 0 }
+html, body { margin: 0; padding: 0 }
+section.page { width: 210mm; height: 296mm; box-sizing: border-box; position: relative; overflow: hidden; break-after: page; padding: 16mm 18mm 20mm 18mm }
+section.page:last-child { break-after: auto }
+section.page .hdr { position: absolute; top: 9mm; left: 18mm; right: 18mm }
+section.page .ftr { position: absolute; bottom: 9mm; left: 18mm; right: 18mm }
+
+.tl .li { display: flex; }
+.tl .mk { flex: 0 0 auto; min-width: 1.7em; }
+.tl .lt { flex: 1 1 auto; }
+.tl .lv1 { margin-inline-start: 1.8em }
+.tl .lv2 { margin-inline-start: 3.6em }
+ul.cl { list-style: none; margin: 0; padding: 0 }
+ul.cl li { position: relative; padding-inline-start: 1.3em }
+ul.cl li::before { content: ""; position: absolute; inset-inline-start: .25em; top: .52em; width: .42em; height: .42em; background: currentColor; border-radius: 50% }
+ul.cl li.lv1 { margin-inline-start: 1.5em }
+ul.cl li.lv1::before { background: transparent; border: 1px solid currentColor; box-sizing: border-box }
+ul.sq li::before { border-radius: 0 }
+
+body { font-family: "Franklin Gothic Book"; font-size: 9.5pt; color: #1f2b33; line-height: 1.38 }
+.lh { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid #0b5c7a; padding-bottom: 3mm }
+.lh .name { font-family: "Franklin Gothic Medium"; font-size: 14pt; letter-spacing: .2em; color: #0b5c7a }
+.lh .mark { width: 11mm; height: 11mm; background: #0b5c7a; border-radius: 2mm; margin-right: 4mm; display: inline-block; vertical-align: middle }
+.lh .addr { font-size: 8pt; color: #59666e; text-align: right; line-height: 1.5 }
+h1 { font-family: "Franklin Gothic Medium"; font-weight: normal; font-size: 24pt; color: #0b5c7a; margin: 4mm 0 3mm; letter-spacing: .02em }
+h2 { font-family: "Franklin Gothic Medium"; font-weight: normal; font-size: 9pt; letter-spacing: .12em; color: #0b5c7a; margin: 0 0 2mm }
+.row { display: flex; gap: 8mm; align-items: stretch }
+.box { flex: 1; border: 1px solid #c9d6dd; padding: 3mm 4mm; border-radius: 1.5mm }
+.label { font-size: 7.5pt; color: #0b5c7a; letter-spacing: .1em; margin-bottom: 1.5mm }
+table.kv { border-collapse: collapse; width: 100% }
+table.kv td { padding: .8mm 0; vertical-align: top }
+table.kv td:first-child { color: #59666e; width: 42% }
+table.items { width: 100%; border-collapse: collapse; margin: 4mm 0 2mm }
+table.items th { background: #0b5c7a; color: #fff; font-family: "Franklin Gothic Medium"; font-weight: normal; text-align: left; padding: 2mm 2mm }
+table.items td { padding: 1.5mm 2mm; border-bottom: 1px solid #dde5ea; vertical-align: top }
+table.items .n { text-align: right; white-space: nowrap }
+table.items tr.tot td { border-bottom: none; padding: 1.2mm 2mm }
+table.items tr.grand td { font-family: "Franklin Gothic Medium"; font-size: 11pt; border-top: 2px solid #0b5c7a; color: #0b5c7a }
+.lead { margin: 0 0 2mm }
+.small { font-size: 8.5pt; color: #3c4a52 }
+.ftr { font-size: 7.5pt; color: #59666e; border-top: 1px solid #c9d6dd; padding-top: 2mm; display: flex; justify-content: space-between }
+
+</style>
+</head>
+<body>
+<section class="page"><div class="hdr"></div><div class="main"><div class="lh"><div><span class="mark"></span><span class="name">HARBOURLINE FREIGHT SERVICES</span></div><div class="addr">Unit 3, Quayside Business Park · Port Calder · PC4 7RT<br>+44 1632 960 418 · accounts@harbourline.example</div></div><h1>Tax Invoice</h1><div class="row"><div class="box"><div class="label">INVOICE TO</div>Northgate Garden Supplies Ltd<br>Purchase Ledger Department<br>Unit 9, Brackley Trading Estate<br>Westerby WB2 5QL</div><div class="box"><table class="kv"><tbody><tr><td>Invoice number</td><td>HFS-26-04418</td></tr><tr><td>Invoice date</td><td>9 October 2026</td></tr><tr><td>Due date</td><td>8 November 2026</td></tr><tr><td>Customer account</td><td>NGS-0193</td></tr><tr><td>Our reference</td><td>EXP/FXT/26/2207</td></tr></tbody></table></div></div><div style="height:5mm"></div><p class="lead">This invoice covers the export of two 40-foot high-cube containers of garden furniture from our Westerby depot to the consignee's terminal in Rotterdam. Vessel MV Calder Spirit, voyage 2641E, sailed from Felixstowe on 4 October 2026.</p><table class="items"><thead><tr><th>Description</th><th class="n">Qty</th><th>Unit</th><th class="n">Rate (GBP)</th><th class="n">Amount (GBP)</th></tr></thead><tbody><tr><td>Sea freight FCL 40' HC, Felixstowe to Rotterdam</td><td class="n">2</td><td>container</td><td class="n">1,180.00</td><td class="n">2,360.00</td></tr><tr><td>Terminal handling charge, origin</td><td class="n">2</td><td>container</td><td class="n">145.00</td><td class="n">290.00</td></tr><tr><td>Haulage, Westerby depot to Felixstowe</td><td class="n">2</td><td>trip</td><td class="n">410.00</td><td class="n">820.00</td></tr><tr><td>Customs export declaration</td><td class="n">1</td><td>entry</td><td class="n">65.00</td><td class="n">65.00</td></tr><tr><td>Cargo insurance, 0.35% of declared value</td><td class="n">1</td><td>policy</td><td class="n">192.50</td><td class="n">192.50</td></tr><tr><td>Documentation fee</td><td class="n">1</td><td>set</td><td class="n">35.00</td><td class="n">35.00</td></tr><tr class="tot"><td colspan="4" class="n">Subtotal</td><td class="n">3,762.50</td></tr><tr class="tot"><td colspan="4" class="n">VAT at 20% on 920.00</td><td class="n">184.00</td></tr><tr class="grand"><td colspan="4" class="n">Total due</td><td class="n">3,946.50</td></tr></tbody></table><p class="small">VAT is charged only on the UK haulage, customs and documentation services; international sea freight and its origin charges are zero-rated.</p><div style="height:2mm"></div><div class="row"><div class="box"><h2>PAYMENT DETAILS</h2><p class="lead">Please pay by bank transfer within 30 days of the invoice date.</p><table class="kv"><tbody><tr><td>Bank</td><td>Calder Mutual Bank</td></tr><tr><td>Account name</td><td>Harbourline Freight Services Ltd</td></tr><tr><td>Sort code</td><td>40-11-62</td></tr><tr><td>Account number</td><td>71839204</td></tr><tr><td>Payment reference</td><td>HFS-26-04418</td></tr></tbody></table></div><div class="box"><h2>REMARKS</h2><p class="lead">Claims for loss or damage must be notified to us in writing within seven days of delivery.</p><p>All business is transacted under our standard trading conditions, a copy of which is available on request. Interest may be charged on overdue accounts at 4% above the base rate.</p></div></div></div><div class="ftr"><span>Harbourline Freight Services Ltd · Registered in England and Wales No. 10457732 · VAT No. GB 318 2290 47</span><span>Page 1 of 1</span></div></section>
+</body>
+</html>

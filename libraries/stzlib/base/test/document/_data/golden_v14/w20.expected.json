@@ -1,0 +1,139 @@
+{
+  "id": "w20",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Hóa đơn dịch vụ viễn thông di động",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Hóa đơn dịch vụ viễn thông di động"
+    },
+    {
+      "level": 2,
+      "text": "Chi tiết cước"
+    },
+    {
+      "level": 2,
+      "text": "Hướng dẫn cấu hình dữ liệu di động (APN)"
+    },
+    {
+      "level": 2,
+      "text": "Kênh thanh toán"
+    }
+  ],
+  "key_sentences": [
+    "Số tiền bằng chữ: một trăm sáu mươi lăm nghìn chín trăm chín mươi đồng.",
+    "Quý khách vui lòng thanh toán trước ngày 15/10/2026 để tránh bị tạm ngưng dịch vụ.",
+    "Nếu đã thanh toán, xin quý khách bỏ qua thông báo này.",
+    "Nếu điện thoại không tự nhận cấu hình, quý khách có thể nhập thủ công các thông số sau.",
+    "Sau khi lưu cấu hình, hãy khởi động lại điện thoại."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Khách hàng",
+          "Nguyễn Thị Lan Anh"
+        ],
+        [
+          "Số thuê bao",
+          "0905 000 471"
+        ],
+        [
+          "Mã khách hàng",
+          "SM-DN-0048217"
+        ],
+        [
+          "Kỳ cước",
+          "01/09/2026 – 30/09/2026"
+        ],
+        [
+          "Hạn thanh toán",
+          "15/10/2026"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Dịch vụ",
+          "Số lượng",
+          "Đơn giá (đồng)",
+          "Thành tiền (đồng)"
+        ],
+        [
+          "Gói cước SM90 (4 GB dữ liệu mỗi ngày)",
+          "1 tháng",
+          "90.000",
+          "90.000"
+        ],
+        [
+          "Gọi ngoài gói",
+          "37 phút",
+          "1.200",
+          "44.400"
+        ],
+        [
+          "Tin nhắn SMS",
+          "25 tin",
+          "300",
+          "7.500"
+        ],
+        [
+          "Dịch vụ nhạc chờ",
+          "1 tháng",
+          "9.000",
+          "9.000"
+        ],
+        [
+          "Cộng tiền dịch vụ",
+          "Cộng tiền dịch vụ",
+          "Cộng tiền dịch vụ",
+          "150.900"
+        ],
+        [
+          "Thuế GTGT 10%",
+          "Thuế GTGT 10%",
+          "Thuế GTGT 10%",
+          "15.090"
+        ],
+        [
+          "Tổng cộng thanh toán",
+          "Tổng cộng thanh toán",
+          "Tổng cộng thanh toán",
+          "165.990"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Tại các cửa hàng giao dịch của Sao Mai trên toàn quốc"
+    },
+    {
+      "level": 0,
+      "text": "Qua ứng dụng Sao Mai trên điện thoại di động"
+    },
+    {
+      "level": 0,
+      "text": "Qua ngân hàng liên kết, bằng mã khách hàng"
+    }
+  ],
+  "furniture": [
+    "CÔNG TY VIỄN THÔNG SAO MAI",
+    "Tầng 9, số 112 đường Trần Phú, quận Hải Châu, Đà Nẵng",
+    "Tổng đài hỗ trợ 1800 0000 (miễn phí)",
+    "Hóa đơn điện tử — tra cứu tại hoadon.saomai.example",
+    "Trang 1/1"
+  ],
+  "languages": [
+    "vi"
+  ],
+  "code": [
+    "Tên (Name):       SaoMai Internet\nAPN:              internet.saomai\nTên người dùng:   (để trống)\nMật khẩu:         (để trống)\nMCC:              452\nMNC:              99\nLoại APN:         default,supl\nGiao thức APN:    IPv4/IPv6"
+  ],
+  "notes": "Vietnamese mobile telecom bill, one page, with an APN settings block in Courier New (code, aligned with spaces). Customer key/value table has no header row. Charges table: subtotal, VAT and total rows have labels spanning three columns (repeated). Payment channels use a CSS-drawn list. Letterhead (typed in capitals) and footer are furniture."
+}

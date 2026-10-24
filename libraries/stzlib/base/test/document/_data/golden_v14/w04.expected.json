@@ -1,0 +1,167 @@
+{
+  "id": "w04",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Installationsanleitung MDS 4 Messdatenserver",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Installationsanleitung MDS 4 Messdatenserver"
+    },
+    {
+      "level": 2,
+      "text": "1 Systemvoraussetzungen"
+    },
+    {
+      "level": 3,
+      "text": "1.1 Hardware"
+    },
+    {
+      "level": 3,
+      "text": "1.2 Software"
+    },
+    {
+      "level": 2,
+      "text": "2 Installation"
+    },
+    {
+      "level": 2,
+      "text": "3 Konfiguration"
+    },
+    {
+      "level": 3,
+      "text": "3.1 Wichtige Parameter"
+    },
+    {
+      "level": 2,
+      "text": "4 Inbetriebnahme prüfen"
+    },
+    {
+      "level": 2,
+      "text": "5 Support"
+    }
+  ],
+  "key_sentences": [
+    "Diese Anleitung beschreibt die Erstinstallation des Messdatenservers MDS 4 unter Linux.",
+    "Sie richtet sich an Administratorinnen und Administratoren mit Grundkenntnissen der Kommandozeile.",
+    "Melden Sie sich als Benutzer mit sudo-Rechten an und führen Sie die folgenden Schritte der Reihe nach aus.",
+    "Das Installationsprogramm legt den Systembenutzer, die Verzeichnisse unter /var/lib/mds4 und eine Beispielkonfiguration an.",
+    "Die zentrale Konfigurationsdatei liegt unter /etc/mds4/server.toml.",
+    "Änderungen werden erst nach einem Neustart des Dienstes wirksam.",
+    "Rufen Sie nach dem Start die Statusseite unter https://<hostname>:8443/status im Browser auf.",
+    "Wird die Seite nicht angezeigt, prüfen Sie das Protokoll mit journalctl -u mds4.",
+    "Hinweis: Öffnen Sie Port 8443 in der Firewall nur für die Netze, aus denen Messgeräte Daten senden.",
+    "Bei Fragen erreichen Sie unseren technischen Support werktags von 8 bis 17 Uhr unter der Rufnummer 030 5550 1840."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Komponente",
+          "Mindestanforderung",
+          "Empfehlung"
+        ],
+        [
+          "Prozessor",
+          "4 Kerne, 2,0 GHz",
+          "8 Kerne, 3,0 GHz"
+        ],
+        [
+          "Arbeitsspeicher",
+          "8 GB",
+          "32 GB"
+        ],
+        [
+          "Datenträger",
+          "250 GB SSD",
+          "1 TB NVMe im RAID 1"
+        ],
+        [
+          "Netzwerk",
+          "1 Gbit/s",
+          "2 × 10 Gbit/s"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Parameter",
+          "Standardwert",
+          "Bedeutung"
+        ],
+        [
+          "bind",
+          "127.0.0.1:8443",
+          "Adresse und Port, an denen der Server Verbindungen annimmt"
+        ],
+        [
+          "workers",
+          "Anzahl der Kerne",
+          "Zahl der parallelen Verarbeitungsprozesse"
+        ],
+        [
+          "pool_size",
+          "10",
+          "Höchstzahl gleichzeitiger Datenbankverbindungen"
+        ],
+        [
+          "certificate",
+          "—",
+          "Pfad zum Serverzertifikat im PEM-Format"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Debian 12 oder Ubuntu Server 24.04 LTS (64 Bit)"
+    },
+    {
+      "level": 0,
+      "text": "PostgreSQL 16 mit der Erweiterung TimescaleDB"
+    },
+    {
+      "level": 0,
+      "text": "OpenSSL 3.0 oder neuer"
+    },
+    {
+      "level": 0,
+      "text": "ein gültiges Serverzertifikat für den vorgesehenen Hostnamen"
+    },
+    {
+      "level": 0,
+      "text": "1. Laden Sie das Installationspaket aus dem Kundenportal herunter."
+    },
+    {
+      "level": 0,
+      "text": "2. Prüfen Sie die Prüfsumme des Pakets mit dem Befehl sha256sum."
+    },
+    {
+      "level": 0,
+      "text": "3. Installieren Sie das Paket und aktivieren Sie den Dienst:"
+    },
+    {
+      "level": 0,
+      "text": "4. Legen Sie die Datenbank an und vergeben Sie ein sicheres Passwort für den Benutzer mds4."
+    }
+  ],
+  "furniture": [
+    "Kessler Messtechnik",
+    "MDS 4 · Installationsanleitung",
+    "Dokument IA-MDS4-DE · Ausgabe 03/2026",
+    "Seite 1 von 2",
+    "Seite 2 von 2"
+  ],
+  "languages": [
+    "de"
+  ],
+  "code": [
+    "sudo apt update\nsudo apt install ./mds4-server_4.2.1_amd64.deb\nsudo systemctl enable --now mds4\nsystemctl status mds4",
+    "[server]\nbind = \"0.0.0.0:8443\"\nworkers = 8\n\n[database]\nurl = \"postgresql://mds4@localhost:5432/messdaten\"\npool_size = 20\n\n[tls]\ncertificate = \"/etc/mds4/tls/server.crt\"\nprivate_key = \"/etc/mds4/tls/server.key\""
+  ],
+  "notes": "Technical installation guide, two pages, numbered headings at levels 2 and 3 (the numbers are part of the heading text). Two code blocks in Consolas (shell commands and a TOML file). Typed numbered steps \"1.\" to \"4.\"; CSS-drawn bullet list under 1.2. Running header and \"Seite n von 2\" footer on both pages. Inline code in sentences is part of the sentence. The \"Hinweis\" box is body text."
+}

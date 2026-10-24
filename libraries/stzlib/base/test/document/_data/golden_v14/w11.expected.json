@@ -1,0 +1,103 @@
+{
+  "id": "w11",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Jagorar Shuka Gero a Lokacin Damina",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Jagorar Shuka Gero a Lokacin Damina"
+    },
+    {
+      "level": 2,
+      "text": "Zaɓen iri"
+    },
+    {
+      "level": 2,
+      "text": "Jadawalin ayyuka"
+    },
+    {
+      "level": 2,
+      "text": "Shawarwari masu muhimmanci"
+    }
+  ],
+  "key_sentences": [
+    "Gero shi ne babban abincin mutane da dama a yankinmu, kuma yana jure fari fiye da sauran hatsi.",
+    "Wannan takarda tana bayyana matakan da manomi zai bi domin samun amfanin gona mai yawa.",
+    "Ku zaɓi ingantaccen iri wanda yake girma cikin kwanaki 75 zuwa 90.",
+    "Iri mai kyau yana da tsabta, ba shi da ƙwari, kuma yana tsiro da sauri.",
+    "Domin ƙarin bayani, ku tuntuɓi jami'in wayar da kan manoma na ƙaramar hukumarku.",
+    "Ana rarraba wannan takarda kyauta ga manoma.",
+    "Kada ku sayar da ita."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Aiki",
+          "Lokaci",
+          "Bayani"
+        ],
+        [
+          "Shirya gona",
+          "Mayu zuwa Yuni",
+          "Share ciyawa kuma a zuba taki na gargajiya"
+        ],
+        [
+          "Shuka",
+          "Bayan ruwan sama na farko mai kyau (akalla mm 20)",
+          "Zurfin rami santimita 3 zuwa 5"
+        ],
+        [
+          "Cire ciyawa na farko",
+          "Mako 2 zuwa 3 bayan shuka",
+          "A bar shuke-shuke uku a kowane rami"
+        ],
+        [
+          "Zuba taki",
+          "Mako 3 zuwa 4 bayan shuka",
+          "Gram 2 na takin NPK a kowane rami"
+        ],
+        [
+          "Cire ciyawa na biyu",
+          "Mako 5 zuwa 6 bayan shuka",
+          "Kafin gero ya fara yin kai"
+        ],
+        [
+          "Girbi",
+          "Satumba zuwa Oktoba",
+          "Lokacin da kawunan gero suka bushe kuma ƙwayoyin suka yi tauri"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. Kada ku shuka kafin ƙasa ta jiƙe sosai."
+    },
+    {
+      "level": 0,
+      "text": "2. Ku yi amfani da hanyar zai domin tara ruwa da taki a cikin rami."
+    },
+    {
+      "level": 0,
+      "text": "3. Ku haɗa gero da wake domin ƙara wa ƙasa ƙarfi."
+    },
+    {
+      "level": 0,
+      "text": "4. Ku adana iri a wuri mai bushe, nesa da ɓeraye."
+    }
+  ],
+  "furniture": [
+    "Cibiyar Bunƙasa Noma ta Yankin Dallol",
+    "Sashen Wayar da Kan Manoma",
+    "Takardar Bayani Lamba 7 · Bugu na 2026 · Shafi 1/1"
+  ],
+  "languages": [
+    "ha"
+  ],
+  "code": [],
+  "notes": "Hausa agricultural extension leaflet, one page. Hausa hooked letters ɓ ɗ ƙ as written; the apostrophe in \"jami'in\" is an ASCII apostrophe. The work calendar table has some cells of two lines (joined with one space). Typed numbered list \"1.\" to \"4.\". Letterhead and footer are furniture. The coloured side note at the right of the closing paragraph block is body text and is read after the main column."
+}

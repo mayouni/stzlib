@@ -1,0 +1,22 @@
+page_header	0	HARBOURLINE FREIGHT
+page_header	0	S E RV I C E S
+heading	1	Tax Invoice
+paragraph	0	INVOICE TO
+paragraph	0	Northgate Garden Supplies Ltd Purchase Ledger Department Unit 9, Brackley Trading Estate Westerby WB2 5QL
+page_header	0	Unit 3, Quayside Business Park · Port Calder · PC4
+paragraph	0	Invoice number Invoice date Due date Customer account Our reference
+page_header	0	7RT +44 1632 960 418 · accounts@harbourline.example
+paragraph	0	HFS-26-04418 9 October 2026 8 November 2026 NGS-0193 EXP/FXT/26/2207
+paragraph	0	This invoice covers the export of two 40-foot high-cube containers of garden furniture from our Westerby depot to the consignee's terminal in Rotterdam. Vessel MV Calder Spirit, voyage 2641E, sailed from Felixstowe on 4 October 2026.
+table	0	DescriptionQtyUnitRate (GBP)Amount (GBP)Sea freight FCL 40' HC, Felixstowe to Rotterdam2container1,180.002,360.00Terminal handling charge, origin2container145.00290.00Haulage, Westerby depot to Felixstowe2trip410.00820.00Customs export declaration1entry65.0065.00Cargo insurance, 0.35% of declared value1policy192.50192.50Documentation fee1set35.0035.00SubtotalSubtotalSubtotalSubtotal3,762.50VAT at 20% on 920.00VAT at 20% on 920.00VAT at 20% on 920.00VAT at 20% on 920.00184.00Total dueTotal dueTotal dueTotal due3,946.50
+paragraph	0	VAT is charged only on the UK haulage, customs and documentation services; international sea freight and its origin charges are zerorated.
+paragraph	0	PAYMENT DETAILS
+paragraph	0	Please pay by bank transfer within 30 days of the invoice date.
+paragraph	0	Bank Account name
+paragraph	0	Calder Mutual Bank Harbourline Freight Services Ltd
+paragraph	0	REMARKS
+paragraph	0	Claims for loss or damage must be notified to us in writing within seven days of delivery.
+paragraph	0	All business is transacted under our standard trading conditions, a copy of which is available on request. Interest may be charged on overdue accounts at 4% above the base rate.
+table	0	Sort code40-11-62Account number71839204Payment referenceHFS-26-04418
+page_footer	0	Harbourline Freight Services Ltd · Registered in England and Wales No. 10457732 · VAT No. GB 318 2290 47
+page_footer	0	Page 1 of 1

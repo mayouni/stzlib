@@ -1,0 +1,28 @@
+page_header	0	KESTREL REGIONAL AIRWAYS · GROUND OPERATIONS
+heading	1	Ground Handling Bulletin GHB-26-14: Winter De-icing and Anti-icing Operations
+table	0	Effective date1 November 2026Applies toAll stations; ATR 72-600 and Dash 8-400 fleetsSupersedesGHB-25-09Issued byHead of Ground Operations
+heading	2	1. Purpose
+paragraph	0	This bulletin sets out the procedures that all stations and contracted handling agents must follow when aircraft are de-iced or anti-iced during the 2026–27 winter season. It replaces the previous bulletin in full and must be read together with the Ground Operations Manual, chapter 9.
+heading	2	2. Responsibilities
+list_item	0	The station manager ensures that only trained and authorised staff apply fluids.
+list_item	0	The de-icing lead decides the treatment method and records the start time of the final step.
+list_item	0	The commander remains responsible for deciding whether the aircraft is fit to take off.
+heading	2	3. Holdover times
+paragraph	0	Holdover time is the estimated period during which the anti-icing fluid prevents frost, ice or snow from forming on the treated surfaces. The table below is reproduced for training purposes; in operation, always use the current holdover-time guidelines issued for the season.
+caption	0	Table 1. Indicative holdover times for training use
+table	0	OAT (°C)FluidHoldover time (h:mm)Holdover time (h:mm)Holdover time (h:mm)Holdover time (h:mm)OAT (°C)FluidFreezing fogLight snowFreezing drizzleLight freezing rain−3 and aboveType I0:11–0:170:06–0:110:05–0:090:02–0:05−3 and aboveType IV 100/01:05–2:100:35–1:050:40–1:100:25–0:40Below −3 to −14Type I0:08–0:130:05–0:090:04–0:070:02–0:05Below −3 to −14Type IV 100/00:50–1:400:25–0:500:20–0:450:15–0:30Below −14 to −25Type IV 100/00:20–0:550:15–0:30——
+paragraph	0	Holdover time begins at the start of the final application of fluid, not at its end.
+page_footer	0	GHB-26-14 · Revision 0 · Uncontrolled when printed
+page_footer	0	Page 1 of 2
+page_header	0	KESTREL REGIONAL AIRWAYS · GROUND OPERATIONS
+heading	2	4. Communication with the flight crew
+paragraph	0	Before the aircraft leaves the de-icing pad, the de-icing lead must pass the anti-icing code to the commander by radio or by ACARS. Messages sent by ACARS must follow the format below exactly.
+code	0	DEICE/ANTI-ICE REPORT\nFLT KRA2417   ACFT G-ZKRA   STN EXT\nFLUID   TYPE IV 100/0\nSTART   0642Z (FINAL STEP)\nINSP    POST-TREATMENT CHECK COMPLETED\nCODE    IV/100/0642/COMPLETE
+paragraph	0	The commander confirms receipt by repeating the fluid type and the start time.
+heading	2	5. Pre-departure checklist
+paragraph	0	Contamination check carried out on wings, tail and control surfaces Fluid type and concentration confirmed against the batch sheet Start time of the final step recorded Anti-icing code passed to the commander Post-treatment check signed by the de-icing lead
+heading	2	6. Reporting
+paragraph	0	Any fluid spill, equipment failure or missed holdover time must be reported through the safety reporting system before the end of the shift. Stations send a weekly summary of de-icing movements to Ground Operations every Monday.
+paragraph	0	Approved by: Head of Ground Operations, 20 October 2026
+page_footer	0	GHB-26-14 · Revision 0 · Uncontrolled when printed
+page_footer	0	Page 2 of 2

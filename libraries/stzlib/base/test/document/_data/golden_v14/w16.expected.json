@@ -1,0 +1,195 @@
+{
+  "id": "w16",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Polisa ubezpieczenia mieszkania i odpowiedzialności cywilnej",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Polisa ubezpieczenia mieszkania i odpowiedzialności cywilnej"
+    },
+    {
+      "level": 2,
+      "text": "Dane ubezpieczającego"
+    },
+    {
+      "level": 2,
+      "text": "Przedmiot i okres ubezpieczenia"
+    },
+    {
+      "level": 2,
+      "text": "Zakres ochrony i sumy ubezpieczenia"
+    },
+    {
+      "level": 2,
+      "text": "Płatność składki"
+    },
+    {
+      "level": 2,
+      "text": "Postanowienia szczególne"
+    },
+    {
+      "level": 2,
+      "text": "Zgłaszanie szkód"
+    }
+  ],
+  "key_sentences": [
+    "Niniejsza polisa potwierdza zawarcie umowy ubezpieczenia na warunkach określonych poniżej.",
+    "Prosimy o sprawdzenie wszystkich danych i niezwłoczne zgłoszenie ewentualnych błędów.",
+    "Sumy ubezpieczenia ustalono według wartości odtworzeniowej, bez potrącenia zużycia technicznego.",
+    "Składka roczna w wysokości 759,00 zł jest płatna jednorazowo do dnia 15.11.2026.",
+    "Niezapłacenie składki w terminie może spowodować wygaśnięcie ochrony ubezpieczeniowej.",
+    "Polisa została wystawiona na podstawie Ogólnych warunków ubezpieczenia mieszkań OWU-M/2025, które ubezpieczający otrzymał przed zawarciem umowy."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Ubezpieczający",
+          "Tomasz Wierzbicki"
+        ],
+        [
+          "Adres korespondencyjny",
+          "ul. Lipowa 8/14, 30-001 Kraków"
+        ],
+        [
+          "Telefon",
+          "600 000 112"
+        ],
+        [
+          "E-mail",
+          "t.wierzbicki@poczta.example"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Miejsce ubezpieczenia",
+          "ul. Lipowa 8/14, Kraków"
+        ],
+        [
+          "Rodzaj lokalu",
+          "Mieszkanie w budynku wielorodzinnym, 3. piętro"
+        ],
+        [
+          "Powierzchnia",
+          "64 m²"
+        ],
+        [
+          "Okres ubezpieczenia",
+          "od 01.11.2026 do 31.10.2027"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Ryzyko",
+          "Suma ubezpieczenia (zł)",
+          "Składka roczna (zł)"
+        ],
+        [
+          "Mury i stałe elementy (ogień, zalanie, huragan, grad)",
+          "380 000",
+          "312,00"
+        ],
+        [
+          "Ruchomości domowe (meble, sprzęt RTV i AGD)",
+          "90 000",
+          "198,00"
+        ],
+        [
+          "Kradzież z włamaniem i rabunek",
+          "30 000",
+          "126,00"
+        ],
+        [
+          "Odpowiedzialność cywilna w życiu prywatnym",
+          "200 000",
+          "84,00"
+        ],
+        [
+          "Assistance domowy (hydraulik, elektryk, ślusarz)",
+          "5 000",
+          "39,00"
+        ],
+        [
+          "Razem",
+          "—",
+          "759,00"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Odbiorca",
+          "TUW „Sosnowa Dolina”"
+        ],
+        [
+          "Numer rachunku",
+          "00 1020 0000 0000 0000 0000 0000"
+        ],
+        [
+          "Tytuł przelewu",
+          "MZ/2026/0071834"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. Udział własny w każdej szkodzie wynosi 300 zł, z wyjątkiem szkód z odpowiedzialności cywilnej."
+    },
+    {
+      "level": 0,
+      "text": "2. Ochrona od kradzieży z włamaniem obowiązuje pod warunkiem, że drzwi wejściowe są zamknięte na co najmniej:"
+    },
+    {
+      "level": 1,
+      "text": "a) dwa zamki wielozastawkowe lub"
+    },
+    {
+      "level": 1,
+      "text": "b) jeden zamek z certyfikatem klasy C."
+    },
+    {
+      "level": 0,
+      "text": "3. Szkodę należy zgłosić ubezpieczycielowi w ciągu 3 dni od dnia jej wykrycia."
+    },
+    {
+      "level": 0,
+      "text": "4. Zmiana adresu lub sposobu korzystania z mieszkania wymaga powiadomienia ubezpieczyciela."
+    },
+    {
+      "level": 0,
+      "text": "telefonicznie pod numerem 800 000 474, całodobowo;"
+    },
+    {
+      "level": 0,
+      "text": "przez formularz na stronie sosnowadolina.example/szkody;"
+    },
+    {
+      "level": 0,
+      "text": "osobiście w każdym oddziale towarzystwa."
+    }
+  ],
+  "furniture": [
+    "TUW „Sosnowa Dolina”",
+    "Polisa nr MZ/2026/0071834",
+    "Infolinia 800 000 474 · sosnowadolina.example",
+    "Strona 1 z 2",
+    "Strona 2 z 2"
+  ],
+  "languages": [
+    "pl"
+  ],
+  "code": [],
+  "notes": "Polish home-insurance policy schedule, two pages. Running header and footer (with \"Strona n z 2\") on both pages. Three key/value tables without header row. Coverage table has risk cells of two lines (risk name, then a bracketed description) joined with one space, and a totals row. Special provisions list is typed and two-level (\"1.\" ... with \"a)\" \"b)\" at level 1). Claims channels use a CSS-drawn list. Polish quotation marks „ ” as written."
+}

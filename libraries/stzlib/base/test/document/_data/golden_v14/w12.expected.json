@@ -1,0 +1,136 @@
+{
+  "id": "w12",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Toplantı ve Konferans Paket Teklifi",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Toplantı ve Konferans Paket Teklifi"
+    },
+    {
+      "level": 2,
+      "text": "Yarım Gün Paketi"
+    },
+    {
+      "level": 2,
+      "text": "Tam Gün Paketi"
+    },
+    {
+      "level": 2,
+      "text": "Konaklama Fiyatları"
+    },
+    {
+      "level": 2,
+      "text": "Koşullar"
+    }
+  ],
+  "key_sentences": [
+    "Kooperatifinizin 18–20 Kasım 2026 tarihlerinde düzenleyeceği bölge eğitim toplantısı için hazırladığımız teklifi bilgilerinize sunarız.",
+    "Fiyatlar 60 katılımcı esas alınarak hesaplanmıştır.",
+    "Konaklama fiyatlarına açık büfe kahvaltı dahildir.",
+    "Sorularınız için satış ekibimiz hafta içi 09.00–18.00 saatleri arasında hizmetinizdedir."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Oda tipi",
+          "Tek kişilik (TL/gece)",
+          "Çift kişilik (TL/gece)",
+          "Manzara"
+        ],
+        [
+          "Standart oda",
+          "3.400",
+          "4.200",
+          "Bahçe"
+        ],
+        [
+          "Deniz manzaralı oda",
+          "4.100",
+          "4.950",
+          "Deniz"
+        ],
+        [
+          "Aile odası",
+          "—",
+          "5.800",
+          "Bahçe"
+        ],
+        [
+          "Süit",
+          "6.900",
+          "7.900",
+          "Deniz"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Toplantı salonu (4 saat)"
+    },
+    {
+      "level": 0,
+      "text": "Projeksiyon ve ses sistemi"
+    },
+    {
+      "level": 0,
+      "text": "Bir kahve molası"
+    },
+    {
+      "level": 0,
+      "text": "Öğle yemeği (set menü)"
+    },
+    {
+      "level": 0,
+      "text": "Toplantı salonu (8 saat)"
+    },
+    {
+      "level": 0,
+      "text": "Projeksiyon, ses sistemi ve kablosuz mikrofon"
+    },
+    {
+      "level": 0,
+      "text": "İki kahve molası"
+    },
+    {
+      "level": 0,
+      "text": "Açık büfe öğle yemeği"
+    },
+    {
+      "level": 0,
+      "text": "Not defteri ve kalem"
+    },
+    {
+      "level": 0,
+      "text": "1) Fiyatlara KDV dahildir."
+    },
+    {
+      "level": 0,
+      "text": "2) Rezervasyonun kesinleşmesi için toplam tutarın %30'u ön ödeme olarak alınır."
+    },
+    {
+      "level": 0,
+      "text": "3) Etkinlik tarihinden 15 gün öncesine kadar yapılan iptallerde ön ödeme iade edilir."
+    },
+    {
+      "level": 0,
+      "text": "4) Bu teklif 31 Ekim 2026 tarihine kadar geçerlidir."
+    }
+  ],
+  "furniture": [
+    "OTEL MAVİ LİMAN",
+    "Liman Caddesi No: 24 · 48400 Bodrum / Muğla",
+    "Tel: +90 252 000 41 41 · satis@maviliman.example",
+    "Otel Mavi Liman · www.maviliman.example"
+  ],
+  "languages": [
+    "tr"
+  ],
+  "code": [],
+  "notes": "Turkish hotel offer letter for a meeting, one page. Two package boxes SIDE BY SIDE, each with a level-2 heading, a price line and a CSS-drawn list: read the left box (\"Yarım Gün Paketi\") completely, then the right box. Conditions list uses typed markers \"1)\" to \"4)\". Letterhead (typed in capitals with dotted İ) and footer are furniture; date line, addressee and signature are body text, not headings."
+}

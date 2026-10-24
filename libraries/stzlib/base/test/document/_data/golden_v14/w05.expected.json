@@ -1,0 +1,198 @@
+{
+  "id": "w05",
+  "difficulty": "medium",
+  "pages": 3,
+  "title": "Contrato de arrendamiento de vivienda",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Contrato de arrendamiento de vivienda"
+    },
+    {
+      "level": 2,
+      "text": "REUNIDOS"
+    },
+    {
+      "level": 2,
+      "text": "EXPONEN"
+    },
+    {
+      "level": 2,
+      "text": "CLÁUSULAS"
+    },
+    {
+      "level": 3,
+      "text": "Primera. Objeto"
+    },
+    {
+      "level": 3,
+      "text": "Segunda. Duración"
+    },
+    {
+      "level": 3,
+      "text": "Tercera. Renta y gastos"
+    },
+    {
+      "level": 3,
+      "text": "Cuarta. Actualización de la renta"
+    },
+    {
+      "level": 3,
+      "text": "Quinta. Obligaciones de la parte arrendataria"
+    },
+    {
+      "level": 3,
+      "text": "Sexta. Obligaciones de la parte arrendadora"
+    },
+    {
+      "level": 3,
+      "text": "Séptima. Cesión y subarriendo"
+    },
+    {
+      "level": 3,
+      "text": "Octava. Desistimiento"
+    },
+    {
+      "level": 3,
+      "text": "Novena. Notificaciones"
+    },
+    {
+      "level": 3,
+      "text": "Décima. Legislación aplicable y jurisdicción"
+    },
+    {
+      "level": 2,
+      "text": "ANEXO I. INVENTARIO DEL MOBILIARIO"
+    }
+  ],
+  "key_sentences": [
+    "De una parte, D.ª Marta Ibáñez Soler, mayor de edad, con domicilio en la calle del Pilar 14, 3.º B, de Zaragoza, en adelante «la parte arrendadora».",
+    "De otra parte, D. Javier Ortega Lucena, mayor de edad, con domicilio a efectos de notificaciones en la vivienda objeto de este contrato, en adelante «la parte arrendataria».",
+    "La vivienda se entrega amueblada conforme al inventario que figura como anexo I.",
+    "El contrato se celebra por un plazo de un año, a contar desde el 1 de octubre de 2026.",
+    "Llegada la fecha de vencimiento, se prorrogará obligatoriamente por plazos anuales hasta alcanzar una duración mínima de cinco años, salvo que la parte arrendataria manifieste con treinta días de antelación su voluntad de no renovarlo.",
+    "Las condiciones económicas del arrendamiento son las que se indican en el cuadro siguiente.",
+    "La renta se abonará dentro de los siete primeros días de cada mes mediante transferencia a la cuenta bancaria designada por la parte arrendadora.",
+    "Transcurridos seis meses desde la firma, la parte arrendataria podrá desistir del contrato comunicándolo con una antelación mínima de treinta días.",
+    "El presente contrato se rige por la legislación vigente en materia de arrendamientos urbanos.",
+    "Y en prueba de conformidad, las partes firman el presente contrato por duplicado y a un solo efecto en el lugar y la fecha indicados."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Concepto",
+          "Importe",
+          "Periodicidad"
+        ],
+        [
+          "Renta",
+          "850,00 €",
+          "Mensual"
+        ],
+        [
+          "Gastos de comunidad",
+          "45,00 €",
+          "Mensual"
+        ],
+        [
+          "Fianza legal",
+          "850,00 €",
+          "Única"
+        ],
+        [
+          "Garantía adicional",
+          "1.700,00 €",
+          "Única"
+        ],
+        [
+          "Total a abonar a la firma",
+          "3.445,00 €",
+          "—"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Estancia",
+          "Elemento",
+          "Estado"
+        ],
+        [
+          "Salón",
+          "Sofá de tres plazas",
+          "Bueno"
+        ],
+        [
+          "Salón",
+          "Mesa de comedor con seis sillas",
+          "Bueno"
+        ],
+        [
+          "Cocina",
+          "Frigorífico combinado",
+          "Nuevo"
+        ],
+        [
+          "Cocina",
+          "Lavadora",
+          "Usado"
+        ],
+        [
+          "Dormitorio principal",
+          "Cama de 150 cm con colchón",
+          "Nuevo"
+        ],
+        [
+          "Dormitorio principal",
+          "Armario empotrado de dos puertas",
+          "Bueno"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "I. Que la parte arrendadora es propietaria de la vivienda situada en la avenida de Goya 52, 5.º A, de Zaragoza, con una superficie útil de 78 m²."
+    },
+    {
+      "level": 0,
+      "text": "II. Que la vivienda dispone de cédula de habitabilidad y de certificado de eficiencia energética con calificación D."
+    },
+    {
+      "level": 0,
+      "text": "III. Que la parte arrendataria desea arrendar la vivienda para destinarla a su residencia habitual y permanente."
+    },
+    {
+      "level": 0,
+      "text": "a) Pagar puntualmente la renta y los gastos pactados."
+    },
+    {
+      "level": 0,
+      "text": "b) Conservar la vivienda en buen estado y realizar las pequeñas reparaciones que exija el desgaste por el uso ordinario."
+    },
+    {
+      "level": 0,
+      "text": "c) No realizar obras sin el consentimiento previo y por escrito de la parte arrendadora."
+    },
+    {
+      "level": 0,
+      "text": "d) Permitir el acceso a la vivienda para las reparaciones urgentes, con un aviso previo de cuarenta y ocho horas."
+    }
+  ],
+  "furniture": [
+    "Contrato de arrendamiento de vivienda — Ref. ARR-2026-0417",
+    "Página 1 de 3",
+    "Página 2 de 3",
+    "Página 3 de 3"
+  ],
+  "languages": [
+    "es"
+  ],
+  "code": [],
+  "notes": "Residential lease contract, three pages. Running header and \"Página n de 3\" footer on every page. Section headings (\"REUNIDOS\", \"EXPONEN\", \"CLÁUSULAS\", \"ANEXO I. ...\", typed in capitals and letter-spaced) are level 2; each clause title (\"Primera. Objeto\" ...) is level 3. Typed lists with Roman numerals \"I.\" and with \"a)\". Two side-by-side signature boxes on page 3, read left box then right box; their texts are body, not headings. Guillemets « » are part of the text."
+}

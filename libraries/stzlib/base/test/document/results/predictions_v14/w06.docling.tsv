@@ -1,0 +1,46 @@
+page_header	0	Westmere University Faculty of Earth and Environmental Sciences Department of Water Resources Engineering
+heading	1	Introduction to Hydrology
+paragraph	0	HYD 201 · Course syllabus · Autumn semester 2026
+paragraph	0	Credits
+paragraph	0	Lectures
+paragraph	0	Laboratory
+paragraph	0	3 credit hours
+paragraph	0	Tuesday and Thursday, 10:00-11:20, Room G.14
+paragraph	0	Wednesday, 14:00-16:50, Hydraulics Laboratory
+paragraph	0	Instructor
+paragraph	0	Office hours
+paragraph	0	Email Dr Rosalind Achterberg Monday 13:00-15:00, or by appointment r.achterberg@westmere.example
+heading	1	Course description
+paragraph	0	This course introduces the physical processes that move water through the landscape, from precipitation and interception to infiltration, groundwater recharge and streamflow. Students learn to measure these processes in the field and to describe them with simple quantitative models. Weekly laboratory sessions use real data from the university's experimental catchment on the Ashby Brook.
+paragraph	0	The course is a prerequisite for HYD 305 Groundwater Hydraulics and for the water resources specialisation. Prior completion of MATH 120 or an equivalent course in calculus is required.
+heading	1	Learning outcomes
+paragraph	0	By the end of the course, students will be able to:
+list_item	0	describe the components of the hydrological cycle and estimate a catchment water balance;
+list_item	0	analyse rainfall records and construct intensity-duration-frequency curves;
+list_item	0	measure streamflow with the velocity-area method and build a stage-discharge rating curve;
+list_item	0	apply the rational method and the unit hydrograph to estimate design floods;
+list_item	0	write a clear technical report that states its assumptions and uncertainties.
+heading	1	Weekly schedule
+table	0	WeekDatesTopic and laboratoryReading11-5 SepThe hydrological cycle and catchments Lab: Catchment delineation from mapsCh. 128-12 SepPrecipitation: measurement and spatial averaging Lab: Thiessen polygons and isohyetsCh. 2315-19 SepRainfall statistics and design storms Lab: IDF curves from gauge recordsCh. 3422-26 SepInterception and evaporation Lab: Pan evaporation dataCh. 4
+page_footer	0	- 1 -
+page_header	0	HYD 201 · Introduction to Hydrology
+page_header	0	Autumn 2026
+table	0	WeekDatesTopic and laboratoryReading529 Sep-3 OctEvapotranspiration and the Penman equation Lab: Reference ET from weather dataCh. 466-10 OctInfiltration and soil moisture Field: Double-ring infiltrometer testsCh. 5713-17 OctGroundwater and recharge Lab: Well hydrographsCh. 6820-24 OctMid-term examination Lab: Review session-927-31 OctStreamflow measurement Field: Velocity-area gauging on the Ashby BrookCh. 7103-7 NovRating curves and flow records Lab: Building a rating curveCh. 71110-14 NovHydrograph analysis and baseflow separation Lab: Storm hydrograph analysisCh. 81217-21 NovUnit hydrograph theory Lab: Deriving a unit hydrographCh. 81324-28 NovFlood frequency analysis Lab: Annual maximum seriesCh. 9141-5 DecDesign floods and course review Lab: Rational method exerciseCh. 10
+heading	1	Assessment
+table	0	ComponentWeightDueLaboratory reports (five)25%Weeks 3 to 12Field-trip report15%20 NovemberMid-term examination20%22 OctoberFinal examination40%December examination periodTotal100%
+paragraph	0	Grades follow the university's standard scale, and a mark of 50% overall is required to pass the course.
+heading	1	Course policies
+heading	1	Attendance
+paragraph	0	Attendance at laboratory and field sessions is compulsory because the data collected there are used in the reports. Students who miss a session for a documented reason will be given an equivalent data set.
+heading	1	Late submissions
+list_item	0	(a) Reports submitted up to 24 hours late lose 10% of the available marks.
+list_item	0	(b) Reports submitted between 24 hours and one week late lose 30%.
+page_footer	0	- 2 -
+page_header	0	HYD 201 · Introduction to Hydrology
+page_header	0	Autumn 2026
+paragraph	0	(c) Reports more than one week late are not marked unless an extension was agreed in advance.
+heading	1	Academic integrity
+paragraph	0	You may discuss laboratory data with other students, but every report must be written individually. Generative tools may be used for spelling and grammar only, and their use must be declared 1 .
+paragraph	0	Suspected misconduct is referred to the faculty's academic integrity panel.
+paragraph	0	1 See the faculty guidance on the declaration of digital tools, section 4.2.
+page_footer	0	- 3 -

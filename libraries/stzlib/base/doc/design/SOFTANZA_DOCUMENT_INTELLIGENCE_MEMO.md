@@ -324,6 +324,22 @@ golden_v13: 24 realistic documents in 19 languages besides English (Arabic, Pers
 
 Time for the 24 documents: native 0.1 s, Docling 153 s. **On unseen documents the native reader now leads on everything but text** -- tables included (0.68 against 0.66) and heading precision (0.83 against 0.81). The text gap (0.88 against 0.93) is mostly two documents: an electricity bill whose boxes side by side are still read line by line across both (native 0.25, Docling 1.00), and an Arabic school-results sheet (native 0.40, Docling 0.80); a Persian page set in a Nastaliq face loses its text for both readers (0.00 and 0.14), the text layer once more. Round 13.
 
+**Thirteenth round: reading order of boxes, letterheads, a kerned alef; then golden_v14.** Fixed on golden_v13 (now a development set) and checked on golden_v1 to v13:
+- with no gutter, the XY cut splits a region at its widest horizontal gap instead of peeling one strip from the top, so a band of boxes side by side between two full-width tables becomes a region of its own and finds its gutter (an electricity bill's text 0.25 -> 1.00);
+- address lines read together as one block are still a letterhead (up to four lines of eight words or fewer, no sentence's full stop), and a margin block of up to three short lines in type up to 0.92 of the body is furniture;
+- a right-to-left line is ordered by each glyph's right edge, where the pen set it: a kerned alef tucked into a ra's tail has its origin right of the ra's, and «الدراسية» read «الدارسية» (an Arabic sheet's text 0.40 -> 0.80).
+
+On the development sets, round-12 freeze -> round-13 freeze: text v5 0.93 -> 0.97, v10 0.90 -> 0.91, v13 0.88 -> 0.94; furniture v6 0.72 -> 0.80, v8 0.58 -> 0.61, v11 0.72 -> 0.76, v13 0.75 -> 0.77; v5 order 0.97 -> 1.00; lists v13 0.75 -> 0.79. Costs: v6 text 0.975 -> 0.967 (a side box cut by a gap only one column has) and the furniture of three documents. Guard 158 assertions under Ring++.
+
+golden_v14: 24 realistic documents in 18 languages besides English, 13 of 2-3 pages, every named font checked as embedded, by a fourteenth independent agent who saw no reader, no output and no earlier set and did not look at the rendered pages (unperceived); reader frozen at 4dc2e0b56; both readers ran once:
+
+| golden_v14, realistic | text | order | headings | tables | lists | furniture | code | heading precision |
+|---|---|---|---|---|---|---|---|---|
+| Softanza native (Ring++) | **0.94** | **1.00** | 0.86 | 0.67 | 0.38 | **0.87** | **1.00** | **0.81** |
+| Docling 2.141 | 0.89 | 0.99 | 0.86 | **0.68** | 0.38 | 0.84 | 0.33 | 0.79 |
+
+Time for the 24 documents: native 0.1 s, Docling 131 s. **The native reader takes text back on unseen documents** (0.94 against 0.89, where golden_v13 had 0.88 against 0.93) and leads on order, furniture, code and heading precision; headings, tables and lists are level. Lists are low for BOTH readers for one reason: this set TYPES its markers into the text ("• ", "– ", "1. ", "α) "), set apart from the item by a hanging indent, and its expected items keep them; the native reader drops a marker that stands apart from its item. A bullet glyph standing apart can only be typed -- Chrome draws CSS bullets as shapes -- so it can be kept; a number standing apart cannot be told from a CSS-numbered list, which Chrome also writes as text. Round 14.
+
 **Perceived (2026-10-24):** the author looked through every rendered page of golden_v9 to golden_v13 -- the sets whose own authors could not look at them -- and judged them: "they look great". Those five sets are no longer unperceived; the sets before them were generated the same way and are not covered by this look.
 
 **Not measured**: Granite-Docling-258M (not downloaded), the GPU, scanned golden pages with an expected text, PDFs from producers other than Chrome (both golden sets are Chrome-made and tagged; the native reader does not read the tags).

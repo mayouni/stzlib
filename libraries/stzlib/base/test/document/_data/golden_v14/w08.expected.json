@@ -1,0 +1,295 @@
+{
+  "id": "w08",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Balanço Patrimonial em 31 de dezembro de 2025",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Balanço Patrimonial em 31 de dezembro de 2025"
+    }
+  ],
+  "key_sentences": [
+    "As demonstrações a seguir foram aprovadas pelo Conselho de Administração em 12 de março de 2026 e examinadas por auditores independentes.",
+    "Os valores estão expressos em milhares de reais, exceto quando indicado de outra forma.",
+    "As notas explicativas são parte integrante das demonstrações financeiras.",
+    "A participação de não controladores refere-se à fração de 18% do capital da Sereno Armazéns Gerais Ltda. detida por terceiros."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Descrição",
+          "Nota",
+          "Controladora",
+          "Controladora",
+          "Consolidado",
+          "Consolidado"
+        ],
+        [
+          "Descrição",
+          "Nota",
+          "2025",
+          "2024",
+          "2025",
+          "2024"
+        ],
+        [
+          "Ativo circulante",
+          "Ativo circulante",
+          "Ativo circulante",
+          "Ativo circulante",
+          "Ativo circulante",
+          "Ativo circulante"
+        ],
+        [
+          "Caixa e equivalentes de caixa",
+          "5",
+          "18.412",
+          "15.087",
+          "19.230",
+          "16.004"
+        ],
+        [
+          "Contas a receber de cooperados",
+          "6",
+          "42.118",
+          "39.554",
+          "42.118",
+          "39.554"
+        ],
+        [
+          "Estoques",
+          "7",
+          "61.903",
+          "58.270",
+          "63.441",
+          "59.812"
+        ],
+        [
+          "Adiantamentos a fornecedores",
+          "",
+          "3.226",
+          "2.905",
+          "3.226",
+          "2.905"
+        ],
+        [
+          "Tributos a recuperar",
+          "8",
+          "7.842",
+          "6.611",
+          "8.105",
+          "6.930"
+        ],
+        [
+          "Total do ativo circulante",
+          "",
+          "133.501",
+          "122.427",
+          "136.120",
+          "125.205"
+        ],
+        [
+          "Ativo não circulante",
+          "Ativo não circulante",
+          "Ativo não circulante",
+          "Ativo não circulante",
+          "Ativo não circulante",
+          "Ativo não circulante"
+        ],
+        [
+          "Realizável a longo prazo",
+          "",
+          "9.774",
+          "8.120",
+          "9.774",
+          "8.120"
+        ],
+        [
+          "Investimentos",
+          "9",
+          "12.650",
+          "11.980",
+          "1.420",
+          "1.385"
+        ],
+        [
+          "Imobilizado",
+          "10",
+          "148.307",
+          "141.662",
+          "159.515",
+          "151.793"
+        ],
+        [
+          "Intangível",
+          "11",
+          "2.118",
+          "2.460",
+          "2.205",
+          "2.551"
+        ],
+        [
+          "Total do ativo não circulante",
+          "",
+          "172.849",
+          "164.222",
+          "172.914",
+          "163.849"
+        ],
+        [
+          "Total do ativo",
+          "",
+          "306.350",
+          "286.649",
+          "309.034",
+          "289.054"
+        ],
+        [
+          "Passivo circulante",
+          "Passivo circulante",
+          "Passivo circulante",
+          "Passivo circulante",
+          "Passivo circulante",
+          "Passivo circulante"
+        ],
+        [
+          "Fornecedores",
+          "12",
+          "38.245",
+          "35.118",
+          "39.502",
+          "36.240"
+        ],
+        [
+          "Empréstimos e financiamentos",
+          "13",
+          "24.610",
+          "27.905",
+          "24.610",
+          "27.905"
+        ],
+        [
+          "Obrigações trabalhistas e sociais",
+          "",
+          "6.388",
+          "5.902",
+          "6.611",
+          "6.087"
+        ],
+        [
+          "Total do passivo circulante",
+          "",
+          "69.243",
+          "68.925",
+          "70.723",
+          "70.232"
+        ],
+        [
+          "Passivo não circulante",
+          "Passivo não circulante",
+          "Passivo não circulante",
+          "Passivo não circulante",
+          "Passivo não circulante",
+          "Passivo não circulante"
+        ],
+        [
+          "Empréstimos e financiamentos",
+          "13",
+          "71.402",
+          "66.830",
+          "71.402",
+          "66.830"
+        ],
+        [
+          "Provisões para contingências",
+          "14",
+          "3.115",
+          "2.884",
+          "3.115",
+          "2.884"
+        ],
+        [
+          "Total do passivo não circulante",
+          "",
+          "74.517",
+          "69.714",
+          "74.517",
+          "69.714"
+        ],
+        [
+          "Patrimônio líquido",
+          "Patrimônio líquido",
+          "Patrimônio líquido",
+          "Patrimônio líquido",
+          "Patrimônio líquido",
+          "Patrimônio líquido"
+        ],
+        [
+          "Capital social",
+          "15",
+          "98.640",
+          "94.215",
+          "98.640",
+          "94.215"
+        ],
+        [
+          "Reservas de sobras",
+          "",
+          "52.874",
+          "46.932",
+          "52.874",
+          "46.932"
+        ],
+        [
+          "Sobras à disposição da assembleia",
+          "",
+          "11.076",
+          "6.863",
+          "11.076",
+          "6.863"
+        ],
+        [
+          "Participação de não controladores",
+          "",
+          "–",
+          "–",
+          "1.204",
+          "1.098"
+        ],
+        [
+          "Total do patrimônio líquido",
+          "",
+          "162.590",
+          "148.010",
+          "163.794",
+          "149.108"
+        ],
+        [
+          "Total do passivo e do patrimônio líquido",
+          "",
+          "306.350",
+          "286.649",
+          "309.034",
+          "289.054"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "Cooperativa Agroindustrial Vale do Sereno",
+    "Rodovia RS-342, km 18 — Linha Bonita — RS",
+    "Demonstrações financeiras do exercício de 2025",
+    "Relatório Anual 2025 | 14",
+    "Vale do Sereno — Demonstrações Financeiras 2025",
+    "Relatório Anual 2025 | 15"
+  ],
+  "languages": [
+    "pt"
+  ],
+  "code": [],
+  "notes": "Cooperative balance sheet, two pages. ONE table continued across both pages: its two header rows are repeated at the top of page 2 by the document itself and are listed once. Two-level header: \"Descrição\" and \"Nota\" span both header rows; \"Controladora\" and \"Consolidado\" each span two year columns. Section rows (\"Ativo circulante\" ...) span all six columns and are repeated in every cell; empty \"Nota\" cells are \"\". Printed page numbers are 14 and 15 (annual-report numbering), not 1 and 2. Signature boxes on page 2 side by side, read left then right."
+}

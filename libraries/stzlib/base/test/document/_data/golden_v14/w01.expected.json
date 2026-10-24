@@ -1,0 +1,169 @@
+{
+  "id": "w01",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Tax Invoice",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Tax Invoice"
+    },
+    {
+      "level": 2,
+      "text": "PAYMENT DETAILS"
+    },
+    {
+      "level": 2,
+      "text": "REMARKS"
+    }
+  ],
+  "key_sentences": [
+    "This invoice covers the export of two 40-foot high-cube containers of garden furniture from our Westerby depot to the consignee's terminal in Rotterdam.",
+    "Vessel MV Calder Spirit, voyage 2641E, sailed from Felixstowe on 4 October 2026.",
+    "VAT is charged only on the UK haulage, customs and documentation services; international sea freight and its origin charges are zero-rated.",
+    "Please pay by bank transfer within 30 days of the invoice date.",
+    "Claims for loss or damage must be notified to us in writing within seven days of delivery.",
+    "All business is transacted under our standard trading conditions, a copy of which is available on request.",
+    "Interest may be charged on overdue accounts at 4% above the base rate."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Invoice number",
+          "HFS-26-04418"
+        ],
+        [
+          "Invoice date",
+          "9 October 2026"
+        ],
+        [
+          "Due date",
+          "8 November 2026"
+        ],
+        [
+          "Customer account",
+          "NGS-0193"
+        ],
+        [
+          "Our reference",
+          "EXP/FXT/26/2207"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Description",
+          "Qty",
+          "Unit",
+          "Rate (GBP)",
+          "Amount (GBP)"
+        ],
+        [
+          "Sea freight FCL 40' HC, Felixstowe to Rotterdam",
+          "2",
+          "container",
+          "1,180.00",
+          "2,360.00"
+        ],
+        [
+          "Terminal handling charge, origin",
+          "2",
+          "container",
+          "145.00",
+          "290.00"
+        ],
+        [
+          "Haulage, Westerby depot to Felixstowe",
+          "2",
+          "trip",
+          "410.00",
+          "820.00"
+        ],
+        [
+          "Customs export declaration",
+          "1",
+          "entry",
+          "65.00",
+          "65.00"
+        ],
+        [
+          "Cargo insurance, 0.35% of declared value",
+          "1",
+          "policy",
+          "192.50",
+          "192.50"
+        ],
+        [
+          "Documentation fee",
+          "1",
+          "set",
+          "35.00",
+          "35.00"
+        ],
+        [
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "3,762.50"
+        ],
+        [
+          "VAT at 20% on 920.00",
+          "VAT at 20% on 920.00",
+          "VAT at 20% on 920.00",
+          "VAT at 20% on 920.00",
+          "184.00"
+        ],
+        [
+          "Total due",
+          "Total due",
+          "Total due",
+          "Total due",
+          "3,946.50"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Bank",
+          "Calder Mutual Bank"
+        ],
+        [
+          "Account name",
+          "Harbourline Freight Services Ltd"
+        ],
+        [
+          "Sort code",
+          "40-11-62"
+        ],
+        [
+          "Account number",
+          "71839204"
+        ],
+        [
+          "Payment reference",
+          "HFS-26-04418"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "HARBOURLINE FREIGHT SERVICES",
+    "Unit 3, Quayside Business Park · Port Calder · PC4 7RT",
+    "+44 1632 960 418 · accounts@harbourline.example",
+    "Harbourline Freight Services Ltd · Registered in England and Wales No. 10457732 · VAT No. GB 318 2290 47",
+    "Page 1 of 1"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Freight forwarder tax invoice, one page. Letterhead and footer are furniture. Two pairs of side-by-side boxes: at the top the \"INVOICE TO\" address box (left) then the invoice-details key/value table (right); at the bottom the \"PAYMENT DETAILS\" box (left, with its bank key/value table) then the \"REMARKS\" box (right). Reading order is box by box, left box first. \"INVOICE TO\" is an address label, not a heading; the two lower box titles (typed in capitals, letter-spaced) are level-2 headings. Key/value tables have no header row. Totals rows: the label cell spans four columns and is repeated in each."
+}

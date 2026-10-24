@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Introduction to Hydrology</title>
+<style>
+@page { size: A4; margin: 2.2cm 2cm 2cm 2cm;
+  @top-left { content: "HYD 201 · Introduction to Hydrology"; font-family: "Gill Sans MT"; font-size: 8pt; color: #4b5d67 }
+  @top-right { content: "Autumn 2026"; font-family: "Gill Sans MT"; font-size: 8pt; color: #4b5d67 }
+  @bottom-center { content: "– " counter(page) " –"; font-family: "Gill Sans MT"; font-size: 9pt; color: #333 }
+}
+@page :first { @top-left { content: none } @top-right { content: none } }
+body { font-family: Georgia; font-size: 10pt; color: #1e1e1e; line-height: 1.5; margin: 0 }
+h1, h2, h3 { font-family: "Gill Sans MT"; color: #0e4d64; font-weight: normal }
+h1 { font-size: 24pt; margin: 4mm 0 0 }
+.sub { font-family: "Gill Sans MT"; font-size: 12pt; color: #4b5d67; margin: 0 0 5mm }
+h2 { font-size: 14pt; margin: 6mm 0 2mm; border-bottom: 1px solid #9fc3d1 }
+h3 { font-size: 11pt; margin: 4mm 0 1mm; font-weight: bold }
+p { margin: 0 0 2mm }
+.lh { font-family: "Gill Sans MT"; font-size: 9pt; color: #0e4d64; border-left: 4px solid #0e4d64; padding-left: 3mm; line-height: 1.35 }
+table.kv { border-collapse: collapse; margin: 0 0 3mm; font-size: 9.5pt }
+table.kv td { padding: .6mm 4mm .6mm 0; vertical-align: top }
+table.kv td:first-child { font-family: "Gill Sans MT"; color: #0e4d64; width: 34mm }
+table.sch { border-collapse: collapse; width: 100%; font-size: 9pt; margin: 1mm 0 3mm }
+table.sch th { background: #0e4d64; color: #fff; font-family: "Gill Sans MT"; font-weight: normal; text-align: left; padding: 1.2mm 2mm }
+table.sch td { padding: 1.2mm 2mm; vertical-align: top }
+table.sch tbody tr:nth-child(even) td { background: #eaf3f6 }
+table.sch tr { break-inside: avoid }
+table.as { border-collapse: collapse; width: 100%; font-size: 9.5pt; margin: 1mm 0 3mm }
+table.as th, table.as td { border: .6px solid #9fc3d1; padding: 1mm 2mm; text-align: left }
+table.as th { font-family: "Gill Sans MT"; font-weight: normal; background: #eaf3f6 }
+table.as tr.tot td { font-weight: bold }
+.fn { font-size: 8.5pt; color: #444; border-top: .6px solid #999; padding-top: 1mm; margin-top: 5mm; width: 60mm }
+.fnt { font-size: 8.5pt; color: #444 }
+
+.tl .li { display: flex; }
+.tl .mk { flex: 0 0 auto; min-width: 1.7em; }
+.tl .lt { flex: 1 1 auto; }
+.tl .lv1 { margin-inline-start: 1.8em }
+.tl .lv2 { margin-inline-start: 3.6em }
+ul.cl { list-style: none; margin: 0; padding: 0 }
+ul.cl li { position: relative; padding-inline-start: 1.3em }
+ul.cl li::before { content: ""; position: absolute; inset-inline-start: .25em; top: .52em; width: .42em; height: .42em; background: currentColor; border-radius: 50% }
+ul.cl li.lv1 { margin-inline-start: 1.5em }
+ul.cl li.lv1::before { background: transparent; border: 1px solid currentColor; box-sizing: border-box }
+ul.sq li::before { border-radius: 0 }
+
+ul.cl li { margin: .8mm 0 }
+.tl .li { margin: .8mm 0 }
+
+</style>
+</head>
+<body>
+<div class="lh">Westmere University<br>Faculty of Earth and Environmental Sciences<br>Department of Water Resources Engineering</div><h1>Introduction to Hydrology</h1><div class="sub">HYD 201 · Course syllabus · Autumn semester 2026</div><table class="kv"><tbody><tr><td>Credits</td><td>3 credit hours</td></tr><tr><td>Lectures</td><td>Tuesday and Thursday, 10:00–11:20, Room G.14</td></tr><tr><td>Laboratory</td><td>Wednesday, 14:00–16:50, Hydraulics Laboratory</td></tr><tr><td>Instructor</td><td>Dr Rosalind Achterberg</td></tr><tr><td>Office hours</td><td>Monday 13:00–15:00, or by appointment</td></tr><tr><td>Email</td><td>r.achterberg@westmere.example</td></tr></tbody></table><h2>Course description</h2><p>This course introduces the physical processes that move water through the landscape, from precipitation and interception to infiltration, groundwater recharge and streamflow. Students learn to measure these processes in the field and to describe them with simple quantitative models. Weekly laboratory sessions use real data from the university's experimental catchment on the Ashby Brook.</p><p>The course is a prerequisite for HYD 305 Groundwater Hydraulics and for the water resources specialisation. Prior completion of MATH 120 or an equivalent course in calculus is required.</p><h2>Learning outcomes</h2><p>By the end of the course, students will be able to:</p><ul class="cl"><li class="lv0">describe the components of the hydrological cycle and estimate a catchment water balance;</li><li class="lv0">analyse rainfall records and construct intensity–duration–frequency curves;</li><li class="lv0">measure streamflow with the velocity–area method and build a stage–discharge rating curve;</li><li class="lv0">apply the rational method and the unit hydrograph to estimate design floods;</li><li class="lv0">write a clear technical report that states its assumptions and uncertainties.</li></ul><h2>Weekly schedule</h2><table class="sch"><thead><tr><th>Week</th><th>Dates</th><th>Topic and laboratory</th><th>Reading</th></tr></thead><tbody><tr><td>1</td><td>1–5 Sep</td><td>The hydrological cycle and catchments<br>Lab: Catchment delineation from maps</td><td>Ch. 1</td></tr><tr><td>2</td><td>8–12 Sep</td><td>Precipitation: measurement and spatial averaging<br>Lab: Thiessen polygons and isohyets</td><td>Ch. 2</td></tr><tr><td>3</td><td>15–19 Sep</td><td>Rainfall statistics and design storms<br>Lab: IDF curves from gauge records</td><td>Ch. 3</td></tr><tr><td>4</td><td>22–26 Sep</td><td>Interception and evaporation<br>Lab: Pan evaporation data</td><td>Ch. 4</td></tr><tr><td>5</td><td>29 Sep–3 Oct</td><td>Evapotranspiration and the Penman equation<br>Lab: Reference ET from weather data</td><td>Ch. 4</td></tr><tr><td>6</td><td>6–10 Oct</td><td>Infiltration and soil moisture<br>Field: Double-ring infiltrometer tests</td><td>Ch. 5</td></tr><tr><td>7</td><td>13–17 Oct</td><td>Groundwater and recharge<br>Lab: Well hydrographs</td><td>Ch. 6</td></tr><tr><td>8</td><td>20–24 Oct</td><td>Mid-term examination<br>Lab: Review session</td><td>—</td></tr><tr><td>9</td><td>27–31 Oct</td><td>Streamflow measurement<br>Field: Velocity–area gauging on the Ashby Brook</td><td>Ch. 7</td></tr><tr><td>10</td><td>3–7 Nov</td><td>Rating curves and flow records<br>Lab: Building a rating curve</td><td>Ch. 7</td></tr><tr><td>11</td><td>10–14 Nov</td><td>Hydrograph analysis and baseflow separation<br>Lab: Storm hydrograph analysis</td><td>Ch. 8</td></tr><tr><td>12</td><td>17–21 Nov</td><td>Unit hydrograph theory<br>Lab: Deriving a unit hydrograph</td><td>Ch. 8</td></tr><tr><td>13</td><td>24–28 Nov</td><td>Flood frequency analysis<br>Lab: Annual maximum series</td><td>Ch. 9</td></tr><tr><td>14</td><td>1–5 Dec</td><td>Design floods and course review<br>Lab: Rational method exercise</td><td>Ch. 10</td></tr></tbody></table><h2>Assessment</h2><table class="as"><thead><tr><th>Component</th><th>Weight</th><th>Due</th></tr></thead><tbody><tr><td>Laboratory reports (five)</td><td>25%</td><td>Weeks 3 to 12</td></tr><tr><td>Field-trip report</td><td>15%</td><td>20 November</td></tr><tr><td>Mid-term examination</td><td>20%</td><td>22 October</td></tr><tr><td>Final examination</td><td>40%</td><td>December examination period</td></tr><tr class="tot"><td>Total</td><td>100%</td><td></td></tr></tbody></table><p>Grades follow the university's standard scale, and a mark of 50% overall is required to pass the course.</p><h2>Course policies</h2><h3>Attendance</h3><p>Attendance at laboratory and field sessions is compulsory because the data collected there are used in the reports. Students who miss a session for a documented reason will be given an equivalent data set.</p><h3>Late submissions</h3><div class="tl"><div class="li lv0"><span class="mk">(a)</span><span class="lt">Reports submitted up to 24 hours late lose 10% of the available marks.</span></div><div class="li lv0"><span class="mk">(b)</span><span class="lt">Reports submitted between 24 hours and one week late lose 30%.</span></div><div class="li lv0"><span class="mk">(c)</span><span class="lt">Reports more than one week late are not marked unless an extension was agreed in advance.</span></div></div><h3>Academic integrity</h3><p>You may discuss laboratory data with other students, but every report must be written individually. Generative tools may be used for spelling and grammar only, and their use must be declared<sup>1</sup>.</p><p>Suspected misconduct is referred to the faculty's academic integrity panel.</p><div class="fn"></div><p class="fnt"><sup>1</sup> See the faculty guidance on the declaration of digital tools, section 4.2.</p>
+</body>
+</html>

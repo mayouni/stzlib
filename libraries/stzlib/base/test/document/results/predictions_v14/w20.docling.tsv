@@ -1,0 +1,30 @@
+paragraph	0	
+heading	1	Hóa đơn dịch vụ viễn thông di động
+table	0	Khách hàngNguyễn Thị Lan AnhSố thuê bao0905 000 471Mã khách hàngSM-DN-0048217Kỳ cước01/09/2026 - 30/09/2026Hạn thanh toán15/10/2026
+heading	1	Chi tiết cước
+table	0	Dịch vụSố lượngĐơn giá (đồng)Thành tiền (đồng)Gói cước SM90 (4 GB dữ liệu mỗi ngày)1 tháng90.00090.000Gọi ngoài gói37 phút1.20044.400Tin nhắn SMS25 tin3007.500Dịch vụ nhạc chờ1 tháng9.0009.000Cộng tiền dịch vụCộng tiền dịch vụCộng tiền dịch vụ150.900Thuế GTGT 10%Thuế GTGT 10%Thuế GTGT 10%15.090Tổng cộng thanh toánTổng cộng thanh toánTổng cộng thanh toán165.990
+paragraph	0	Số tiền bằng chữ: một trăm sáu mươi lăm nghìn chín trăm chín mươi đồng.
+paragraph	0	Quý khách vui lòng thanh toán trước ngày 15/10/2026 để tránh bị tạm ngưng dịch vụ. Nếu đã thanh toán, xin quý khách bỏ qua thông báo này.
+heading	1	Hướng dẫn cấu hình dữ liệu di động (APN)
+paragraph	0	Nếu điện thoại không tự nhận cấu hình, quý khách có thể nhập thủ công các thông số sau.
+paragraph	0	Tên (Name):
+paragraph	0	APN:
+paragraph	0	SaoMai Internet
+paragraph	0	internet.saomai
+paragraph	0	Tên người dùng: (để trống)
+paragraph	0	Mật khẩu:
+paragraph	0	(để trống)
+paragraph	0	MCC:
+paragraph	0	452
+paragraph	0	MNC:
+paragraph	0	99
+paragraph	0	Loại APN:
+paragraph	0	default,supl
+paragraph	0	Giao thức APN: IPv4/IPv6
+paragraph	0	Sau khi lưu cấu hình, hãy khởi động lại điện thoại.
+heading	1	Kênh thanh toán
+list_item	0	Tại các cửa hàng giao dịch của Sao Mai trên toàn quốc
+list_item	0	Qua ứng dụng Sao Mai trên điện thoại di động
+list_item	0	Qua ngân hàng liên kết, bằng mã khách hàng
+page_footer	0	Hóa đơn điện tử - tra cứu tại hoadon.saomai.example
+page_footer	0	Trang 1/1

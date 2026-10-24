@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Compte rendu d&#x27;hospitalisation</title>
+<style>
+@page { size: A4; margin: 0 }
+html, body { margin: 0; padding: 0 }
+section.page { width: 210mm; height: 296mm; box-sizing: border-box; position: relative; overflow: hidden; break-after: page; padding: 24mm 21mm 22mm 21mm }
+section.page:last-child { break-after: auto }
+section.page .hdr { position: absolute; top: 10mm; left: 21mm; right: 21mm }
+section.page .ftr { position: absolute; bottom: 9mm; left: 21mm; right: 21mm }
+
+.tl .li { display: flex; }
+.tl .mk { flex: 0 0 auto; min-width: 1.7em; }
+.tl .lt { flex: 1 1 auto; }
+.tl .lv1 { margin-inline-start: 1.8em }
+.tl .lv2 { margin-inline-start: 3.6em }
+ul.cl { list-style: none; margin: 0; padding: 0 }
+ul.cl li { position: relative; padding-inline-start: 1.3em }
+ul.cl li::before { content: ""; position: absolute; inset-inline-start: .25em; top: .52em; width: .42em; height: .42em; background: currentColor; border-radius: 50% }
+ul.cl li.lv1 { margin-inline-start: 1.5em }
+ul.cl li.lv1::before { background: transparent; border: 1px solid currentColor; box-sizing: border-box }
+ul.sq li::before { border-radius: 0 }
+
+body { font-family: Calibri; font-size: 10.5pt; color: #222; line-height: 1.32 }
+h1, h2, h3 { font-family: Cambria; color: #7a1f2b }
+h1 { font-size: 18pt; margin: 6mm 0 3mm; font-weight: bold }
+h2 { font-size: 11.5pt; margin: 4.2mm 0 1.2mm; border-bottom: .6px solid #c7a3a8; padding-bottom: .6mm }
+h3 { font-size: 10.5pt; margin: 3mm 0 1mm; font-style: italic; font-weight: bold }
+p { margin: 0 0 1.6mm }
+.lh { display: flex; gap: 5mm; align-items: center; border-bottom: 1.2px solid #7a1f2b; padding-bottom: 3mm }
+.lh .logo { width: 14mm; height: 14mm; border: 2.4px solid #7a1f2b; border-radius: 50%; position: relative }
+.lh .logo::after { content: ""; position: absolute; left: 5.2mm; top: 2.5mm; width: 2.4mm; height: 8mm; background: #7a1f2b; box-shadow: 0 0 0 0 #7a1f2b }
+.lh .logo::before { content: ""; position: absolute; left: 2.5mm; top: 5.2mm; width: 8mm; height: 2.4mm; background: #7a1f2b }
+.lh .t1 { font-family: Cambria; font-size: 12.5pt; color: #7a1f2b; font-weight: bold }
+.lh .t2 { font-size: 9pt; color: #555 }
+.rh { font-size: 8pt; color: #7a1f2b; border-bottom: .6px solid #c7a3a8; padding-bottom: 1mm }
+.ftr { font-size: 8pt; color: #666; display: flex; justify-content: space-between }
+table.kv { border-collapse: collapse; width: 100%; margin: 2mm 0 3mm; font-size: 10pt }
+table.kv td { border: .6px solid #d9c3c6; padding: 1mm 2mm }
+table.kv td:first-child { background: #f6eeef; width: 36%; color: #5a1620 }
+table.lab, table.rx { border-collapse: collapse; width: 100%; font-size: 9.8pt; margin: 1.5mm 0 2mm }
+table.lab th, table.rx th { background: #7a1f2b; color: #fff; font-weight: bold; padding: 1mm 1.5mm; border: .6px solid #fff }
+table.lab td, table.rx td { border-bottom: .6px solid #d9c3c6; padding: 1mm 1.5mm }
+table.lab td:nth-child(n+2) { text-align: center }
+.tl .li { margin: .5mm 0 }
+ul.cl li { margin: .6mm 0 }
+.sig { margin-top: 6mm; margin-left: 95mm }
+
+</style>
+</head>
+<body>
+<section class="page"><div class="hdr"></div><div class="main"><div class="lh"><div class="logo"></div><div><div class="t1">Centre Hospitalier Intercommunal du Val-de-Lys</div><div class="t2">Pôle Cœur-Vaisseaux — Service de Cardiologie<br>12, avenue des Tilleuls — 59870 Marchiennes-sur-Lys — Tél. 03 27 00 41 18</div></div></div><h1>Compte rendu d'hospitalisation</h1><p>Destinataire : Dr Hélène Marchal, médecin traitant, 4 rue du Moulin, 59870 Marchiennes-sur-Lys</p><table class="kv"><tbody><tr><td>Patient</td><td>M. BARRAULT Lucien</td></tr><tr><td>Date de naissance</td><td>12/03/1951 (75 ans)</td></tr><tr><td>N° de séjour</td><td>26-118304</td></tr><tr><td>Entrée</td><td>14/09/2026, par les urgences</td></tr><tr><td>Sortie</td><td>19/09/2026, retour à domicile</td></tr><tr><td>Médecin responsable</td><td>Dr Antoine Vasseur</td></tr></tbody></table><p>Chère Consœur,</p><p>Je vous adresse le compte rendu de l'hospitalisation de votre patient, M. Lucien Barrault, admis dans notre service du 14 au 19 septembre 2026.</p><h2>Motif d'hospitalisation</h2><p>Le patient a été admis pour une décompensation cardiaque globale sur fibrillation atriale rapide de découverte récente.</p><h2>Antécédents</h2><div class="tl"><div class="li lv0"><span class="mk">–</span><span class="lt">Hypertension artérielle traitée depuis 2009</span></div><div class="li lv0"><span class="mk">–</span><span class="lt">Diabète de type 2 sous metformine, HbA1c à 7,4 % en juin 2026</span></div><div class="li lv0"><span class="mk">–</span><span class="lt">Cardiopathie ischémique : angioplastie de l'artère interventriculaire antérieure en 2018</span></div><div class="li lv0"><span class="mk">–</span><span class="lt">Ancien fumeur (30 paquets-années), sevré depuis 2015</span></div></div><h2>Histoire de la maladie</h2><p>Depuis trois semaines, M. Barrault décrivait une dyspnée d'effort d'aggravation progressive, associée à des œdèmes des membres inférieurs. À l'admission, la fréquence cardiaque était à 138 battements par minute et la saturation à 91 % en air ambiant. La radiographie thoracique objectivait une surcharge hydrostatique bilatérale.</p><h2>Examens complémentaires</h2><h3>Biologie</h3><table class="lab"><thead><tr><th rowspan="2">Examen</th><th colspan="2">Résultats</th><th rowspan="2">Unité</th><th rowspan="2">Valeurs usuelles</th></tr><tr><th>J1 (14/09)</th><th>J5 (18/09)</th></tr></thead><tbody><tr><td>NT-proBNP</td><td>4 870</td><td>1 920</td><td>pg/mL</td><td>&lt; 450</td></tr><tr><td>Créatinine</td><td>118</td><td>104</td><td>µmol/L</td><td>62 – 106</td></tr><tr><td>Potassium</td><td>3,6</td><td>4,2</td><td>mmol/L</td><td>3,5 – 5,0</td></tr><tr><td>Hémoglobine</td><td>12,9</td><td>12,6</td><td>g/dL</td><td>13,0 – 17,0</td></tr><tr><td>TSH</td><td>2,1</td><td>—</td><td>mUI/L</td><td>0,4 – 4,0</td></tr></tbody></table></div><div class="ftr"><span>Document confidentiel — soumis au secret médical</span><span>Page 1/2</span></div></section><section class="page"><div class="hdr"><div class="rh">CHI du Val-de-Lys — Cardiologie — BARRAULT Lucien, né le 12/03/1951 — séjour 26-118304</div></div><div class="main"><h3>Imagerie</h3><p>L'échocardiographie transthoracique du 15 septembre retrouve une fraction d'éjection ventriculaire gauche estimée à 40 %, sans valvulopathie significative.</p><h2>Évolution</h2><p>Sous diurétiques intraveineux, l'évolution a été favorable avec une perte de poids de 4,2 kg en cinq jours. Un traitement anticoagulant a été instauré après évaluation du risque hémorragique. Une stratégie de contrôle de la fréquence a été privilégiée ; la cardioversion sera discutée à distance.</p><h2>Traitement de sortie</h2><table class="rx"><thead><tr><th>Médicament</th><th>Posologie</th><th>Remarque</th></tr></thead><tbody><tr><td>Apixaban 5 mg</td><td>1 comprimé matin et soir</td><td>Nouveau</td></tr><tr><td>Bisoprolol 5 mg</td><td>1 comprimé le matin</td><td>Dose augmentée</td></tr><tr><td>Furosémide 40 mg</td><td>1 comprimé le matin</td><td>Nouveau</td></tr><tr><td>Ramipril 2,5 mg</td><td>1 comprimé le soir</td><td>Inchangé</td></tr><tr><td>Metformine 1 000 mg</td><td>1 comprimé matin et soir</td><td>Inchangé</td></tr><tr><td>Atorvastatine 40 mg</td><td>1 comprimé le soir</td><td>Inchangé</td></tr></tbody></table><h2>Suivi proposé</h2><ul class="cl"><li class="lv0">Ionogramme sanguin et créatininémie dans 7 jours</li><li class="lv0">Consultation de cardiologie le 21 octobre 2026 à 10 h 30</li><li class="lv0">Échocardiographie de contrôle dans 3 mois</li><li class="lv0">Pesée quotidienne ; reconsulter en cas de prise de plus de 2 kg en trois jours</li></ul><div style="height:4mm"></div><p>Je vous remercie de m'avoir confié ce patient et reste à votre disposition pour tout renseignement complémentaire.</p><p>Bien confraternellement,</p><div class="sig">Dr Antoine Vasseur<br>Praticien hospitalier — Cardiologie</div></div><div class="ftr"><span>Document confidentiel — soumis au secret médical</span><span>Page 2/2</span></div></section>
+</body>
+</html>

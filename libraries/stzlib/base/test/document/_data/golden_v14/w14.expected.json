@@ -1,0 +1,126 @@
+{
+  "id": "w14",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Seasonal variation of nitrate in shallow wells of the Oued Sabra alluvial aquifer",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Seasonal variation of nitrate in shallow wells of the Oued Sabra alluvial aquifer"
+    },
+    {
+      "level": 2,
+      "text": "Abstract"
+    },
+    {
+      "level": 2,
+      "text": "1. Introduction"
+    },
+    {
+      "level": 2,
+      "text": "2. Study area and methods"
+    },
+    {
+      "level": 3,
+      "text": "2.1 Sampling"
+    },
+    {
+      "level": 3,
+      "text": "2.2 Analysis"
+    },
+    {
+      "level": 2,
+      "text": "3. Results"
+    },
+    {
+      "level": 2,
+      "text": "4. Discussion"
+    },
+    {
+      "level": 2,
+      "text": "5. Conclusions"
+    },
+    {
+      "level": 2,
+      "text": "References"
+    }
+  ],
+  "key_sentences": [
+    "Nitrate concentrations were measured monthly in 31 hand-dug and drilled wells over two hydrological years.",
+    "Shallow wells showed a sharp rise in nitrate after the first heavy rains, while wells deeper than 20 m remained stable.",
+    "The results point to rapid leaching from latrines and livestock enclosures close to the wellheads.",
+    "Most villages along the Oued Sabra depend on shallow wells for drinking water throughout the year.",
+    "Earlier surveys sampled only once a year, at the end of the dry season, and may therefore have missed the period of greatest risk.",
+    "Samples were collected between 07:00 and 10:00, filtered on site and kept at 4 °C until analysis.",
+    "Nitrate was determined by ion chromatography within 48 hours of collection.",
+    "Six of the fourteen shallow wells exceeded 50 mg/L at least once during the wet season, compared with none of the deep wells."
+  ],
+  "tables": [
+    {
+      "caption": "Table 1. Mean nitrate concentration (mg/L) by season and depth class.",
+      "rows": [
+        [
+          "Depth class",
+          "Dry season",
+          "Wet season",
+          "Wells"
+        ],
+        [
+          "< 10 m",
+          "38.4",
+          "61.2",
+          "14"
+        ],
+        [
+          "10–20 m",
+          "27.9",
+          "41.5",
+          "11"
+        ],
+        [
+          "> 20 m",
+          "12.6",
+          "15.3",
+          "6"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "(1) Nitrate in shallow wells varies strongly with season and peaks soon after the first heavy rains."
+    },
+    {
+      "level": 0,
+      "text": "(2) Monitoring programmes should include at least one sampling round in the early wet season."
+    },
+    {
+      "level": 0,
+      "text": "(3) Latrines should be sited at least 30 m from wells and, where possible, downslope of them."
+    },
+    {
+      "level": 0,
+      "text": "[1] Ibrahim, S. and Moreau, P. (2019). Groundwater quality in alluvial aquifers of the Sahel. Journal of Arid Hydrology 12, 44–61."
+    },
+    {
+      "level": 0,
+      "text": "[2] Drylands Water Research Institute (2023). Village water point inventory, Oued Sabra basin. Internal report DW-2023-11."
+    },
+    {
+      "level": 0,
+      "text": "[3] Tanko, A., Ndiaye, S. and Lowe, R. (2021). Sanitation distance and nitrate in shallow wells. Water and Health 9, 201–214."
+    }
+  ],
+  "furniture": [
+    "Technical Note TN-2026-07",
+    "Drylands Water Research Institute",
+    "Page 1",
+    "Page 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Technical note in TWO COLUMNS below a full-width title block and abstract, flowed across pages. Reading order: title block, abstract, then the left column, then the right column, page by page. Running header in the page margin (\"Technical Note TN-2026-07\" left, \"Drylands Water Research Institute\" right) and \"Page n\" bottom right, drawn as CSS page-margin boxes. Authors and affiliation lines are body text, not headings. Table 1 sits inside a column with its caption BELOW it. The sentence with footnote marker \"a\" is not a key sentence. References use typed markers \"[1]\" etc.; conclusions use typed \"(1)\" etc. The \"Abstract\" label is a level-2 heading."
+}

@@ -1,0 +1,233 @@
+{
+  "id": "w02",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Compte rendu d'hospitalisation",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Compte rendu d'hospitalisation"
+    },
+    {
+      "level": 2,
+      "text": "Motif d'hospitalisation"
+    },
+    {
+      "level": 2,
+      "text": "Antécédents"
+    },
+    {
+      "level": 2,
+      "text": "Histoire de la maladie"
+    },
+    {
+      "level": 2,
+      "text": "Examens complémentaires"
+    },
+    {
+      "level": 3,
+      "text": "Biologie"
+    },
+    {
+      "level": 3,
+      "text": "Imagerie"
+    },
+    {
+      "level": 2,
+      "text": "Évolution"
+    },
+    {
+      "level": 2,
+      "text": "Traitement de sortie"
+    },
+    {
+      "level": 2,
+      "text": "Suivi proposé"
+    }
+  ],
+  "key_sentences": [
+    "Je vous adresse le compte rendu de l'hospitalisation de votre patient, M. Lucien Barrault, admis dans notre service du 14 au 19 septembre 2026.",
+    "Le patient a été admis pour une décompensation cardiaque globale sur fibrillation atriale rapide de découverte récente.",
+    "Depuis trois semaines, M. Barrault décrivait une dyspnée d'effort d'aggravation progressive, associée à des œdèmes des membres inférieurs.",
+    "À l'admission, la fréquence cardiaque était à 138 battements par minute et la saturation à 91 % en air ambiant.",
+    "La radiographie thoracique objectivait une surcharge hydrostatique bilatérale.",
+    "L'échocardiographie transthoracique du 15 septembre retrouve une fraction d'éjection ventriculaire gauche estimée à 40 %, sans valvulopathie significative.",
+    "Sous diurétiques intraveineux, l'évolution a été favorable avec une perte de poids de 4,2 kg en cinq jours.",
+    "Un traitement anticoagulant a été instauré après évaluation du risque hémorragique.",
+    "Une stratégie de contrôle de la fréquence a été privilégiée ; la cardioversion sera discutée à distance.",
+    "Je vous remercie de m'avoir confié ce patient et reste à votre disposition pour tout renseignement complémentaire."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Patient",
+          "M. BARRAULT Lucien"
+        ],
+        [
+          "Date de naissance",
+          "12/03/1951 (75 ans)"
+        ],
+        [
+          "N° de séjour",
+          "26-118304"
+        ],
+        [
+          "Entrée",
+          "14/09/2026, par les urgences"
+        ],
+        [
+          "Sortie",
+          "19/09/2026, retour à domicile"
+        ],
+        [
+          "Médecin responsable",
+          "Dr Antoine Vasseur"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Examen",
+          "Résultats",
+          "Résultats",
+          "Unité",
+          "Valeurs usuelles"
+        ],
+        [
+          "Examen",
+          "J1 (14/09)",
+          "J5 (18/09)",
+          "Unité",
+          "Valeurs usuelles"
+        ],
+        [
+          "NT-proBNP",
+          "4 870",
+          "1 920",
+          "pg/mL",
+          "< 450"
+        ],
+        [
+          "Créatinine",
+          "118",
+          "104",
+          "µmol/L",
+          "62 – 106"
+        ],
+        [
+          "Potassium",
+          "3,6",
+          "4,2",
+          "mmol/L",
+          "3,5 – 5,0"
+        ],
+        [
+          "Hémoglobine",
+          "12,9",
+          "12,6",
+          "g/dL",
+          "13,0 – 17,0"
+        ],
+        [
+          "TSH",
+          "2,1",
+          "—",
+          "mUI/L",
+          "0,4 – 4,0"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Médicament",
+          "Posologie",
+          "Remarque"
+        ],
+        [
+          "Apixaban 5 mg",
+          "1 comprimé matin et soir",
+          "Nouveau"
+        ],
+        [
+          "Bisoprolol 5 mg",
+          "1 comprimé le matin",
+          "Dose augmentée"
+        ],
+        [
+          "Furosémide 40 mg",
+          "1 comprimé le matin",
+          "Nouveau"
+        ],
+        [
+          "Ramipril 2,5 mg",
+          "1 comprimé le soir",
+          "Inchangé"
+        ],
+        [
+          "Metformine 1 000 mg",
+          "1 comprimé matin et soir",
+          "Inchangé"
+        ],
+        [
+          "Atorvastatine 40 mg",
+          "1 comprimé le soir",
+          "Inchangé"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "– Hypertension artérielle traitée depuis 2009"
+    },
+    {
+      "level": 0,
+      "text": "– Diabète de type 2 sous metformine, HbA1c à 7,4 % en juin 2026"
+    },
+    {
+      "level": 0,
+      "text": "– Cardiopathie ischémique : angioplastie de l'artère interventriculaire antérieure en 2018"
+    },
+    {
+      "level": 0,
+      "text": "– Ancien fumeur (30 paquets-années), sevré depuis 2015"
+    },
+    {
+      "level": 0,
+      "text": "Ionogramme sanguin et créatininémie dans 7 jours"
+    },
+    {
+      "level": 0,
+      "text": "Consultation de cardiologie le 21 octobre 2026 à 10 h 30"
+    },
+    {
+      "level": 0,
+      "text": "Échocardiographie de contrôle dans 3 mois"
+    },
+    {
+      "level": 0,
+      "text": "Pesée quotidienne ; reconsulter en cas de prise de plus de 2 kg en trois jours"
+    }
+  ],
+  "furniture": [
+    "Centre Hospitalier Intercommunal du Val-de-Lys",
+    "Pôle Cœur-Vaisseaux — Service de Cardiologie",
+    "12, avenue des Tilleuls — 59870 Marchiennes-sur-Lys — Tél. 03 27 00 41 18",
+    "Document confidentiel — soumis au secret médical",
+    "Page 1/2",
+    "CHI du Val-de-Lys — Cardiologie — BARRAULT Lucien, né le 12/03/1951 — séjour 26-118304",
+    "Page 2/2"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "Hospital discharge letter, two pages. Letterhead on page 1, running header on page 2, confidentiality footer and \"Page n/2\" on both. Patient identity key/value table has no header row. The laboratory table has a two-level header: \"Examen\", \"Unité\" and \"Valeurs usuelles\" span both header rows and \"Résultats\" spans two columns; merged texts repeat. French spacing uses no-break spaces (before \":\" \"%\" \";\" and inside numbers); they count as plain spaces. \"Destinataire\" line and signature lines are body text, not headings."
+}

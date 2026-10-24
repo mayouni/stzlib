@@ -1,0 +1,265 @@
+{
+  "id": "w06",
+  "difficulty": "medium",
+  "pages": 3,
+  "title": "Introduction to Hydrology",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Introduction to Hydrology"
+    },
+    {
+      "level": 2,
+      "text": "Course description"
+    },
+    {
+      "level": 2,
+      "text": "Learning outcomes"
+    },
+    {
+      "level": 2,
+      "text": "Weekly schedule"
+    },
+    {
+      "level": 2,
+      "text": "Assessment"
+    },
+    {
+      "level": 2,
+      "text": "Course policies"
+    },
+    {
+      "level": 3,
+      "text": "Attendance"
+    },
+    {
+      "level": 3,
+      "text": "Late submissions"
+    },
+    {
+      "level": 3,
+      "text": "Academic integrity"
+    }
+  ],
+  "key_sentences": [
+    "This course introduces the physical processes that move water through the landscape, from precipitation and interception to infiltration, groundwater recharge and streamflow.",
+    "Students learn to measure these processes in the field and to describe them with simple quantitative models.",
+    "Weekly laboratory sessions use real data from the university's experimental catchment on the Ashby Brook.",
+    "Prior completion of MATH 120 or an equivalent course in calculus is required.",
+    "Grades follow the university's standard scale, and a mark of 50% overall is required to pass the course.",
+    "Attendance at laboratory and field sessions is compulsory because the data collected there are used in the reports.",
+    "Students who miss a session for a documented reason will be given an equivalent data set.",
+    "You may discuss laboratory data with other students, but every report must be written individually.",
+    "Suspected misconduct is referred to the faculty's academic integrity panel."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Credits",
+          "3 credit hours"
+        ],
+        [
+          "Lectures",
+          "Tuesday and Thursday, 10:00–11:20, Room G.14"
+        ],
+        [
+          "Laboratory",
+          "Wednesday, 14:00–16:50, Hydraulics Laboratory"
+        ],
+        [
+          "Instructor",
+          "Dr Rosalind Achterberg"
+        ],
+        [
+          "Office hours",
+          "Monday 13:00–15:00, or by appointment"
+        ],
+        [
+          "Email",
+          "r.achterberg@westmere.example"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Week",
+          "Dates",
+          "Topic and laboratory",
+          "Reading"
+        ],
+        [
+          "1",
+          "1–5 Sep",
+          "The hydrological cycle and catchments Lab: Catchment delineation from maps",
+          "Ch. 1"
+        ],
+        [
+          "2",
+          "8–12 Sep",
+          "Precipitation: measurement and spatial averaging Lab: Thiessen polygons and isohyets",
+          "Ch. 2"
+        ],
+        [
+          "3",
+          "15–19 Sep",
+          "Rainfall statistics and design storms Lab: IDF curves from gauge records",
+          "Ch. 3"
+        ],
+        [
+          "4",
+          "22–26 Sep",
+          "Interception and evaporation Lab: Pan evaporation data",
+          "Ch. 4"
+        ],
+        [
+          "5",
+          "29 Sep–3 Oct",
+          "Evapotranspiration and the Penman equation Lab: Reference ET from weather data",
+          "Ch. 4"
+        ],
+        [
+          "6",
+          "6–10 Oct",
+          "Infiltration and soil moisture Field: Double-ring infiltrometer tests",
+          "Ch. 5"
+        ],
+        [
+          "7",
+          "13–17 Oct",
+          "Groundwater and recharge Lab: Well hydrographs",
+          "Ch. 6"
+        ],
+        [
+          "8",
+          "20–24 Oct",
+          "Mid-term examination Lab: Review session",
+          "—"
+        ],
+        [
+          "9",
+          "27–31 Oct",
+          "Streamflow measurement Field: Velocity–area gauging on the Ashby Brook",
+          "Ch. 7"
+        ],
+        [
+          "10",
+          "3–7 Nov",
+          "Rating curves and flow records Lab: Building a rating curve",
+          "Ch. 7"
+        ],
+        [
+          "11",
+          "10–14 Nov",
+          "Hydrograph analysis and baseflow separation Lab: Storm hydrograph analysis",
+          "Ch. 8"
+        ],
+        [
+          "12",
+          "17–21 Nov",
+          "Unit hydrograph theory Lab: Deriving a unit hydrograph",
+          "Ch. 8"
+        ],
+        [
+          "13",
+          "24–28 Nov",
+          "Flood frequency analysis Lab: Annual maximum series",
+          "Ch. 9"
+        ],
+        [
+          "14",
+          "1–5 Dec",
+          "Design floods and course review Lab: Rational method exercise",
+          "Ch. 10"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Component",
+          "Weight",
+          "Due"
+        ],
+        [
+          "Laboratory reports (five)",
+          "25%",
+          "Weeks 3 to 12"
+        ],
+        [
+          "Field-trip report",
+          "15%",
+          "20 November"
+        ],
+        [
+          "Mid-term examination",
+          "20%",
+          "22 October"
+        ],
+        [
+          "Final examination",
+          "40%",
+          "December examination period"
+        ],
+        [
+          "Total",
+          "100%",
+          ""
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "describe the components of the hydrological cycle and estimate a catchment water balance;"
+    },
+    {
+      "level": 0,
+      "text": "analyse rainfall records and construct intensity–duration–frequency curves;"
+    },
+    {
+      "level": 0,
+      "text": "measure streamflow with the velocity–area method and build a stage–discharge rating curve;"
+    },
+    {
+      "level": 0,
+      "text": "apply the rational method and the unit hydrograph to estimate design floods;"
+    },
+    {
+      "level": 0,
+      "text": "write a clear technical report that states its assumptions and uncertainties."
+    },
+    {
+      "level": 0,
+      "text": "(a) Reports submitted up to 24 hours late lose 10% of the available marks."
+    },
+    {
+      "level": 0,
+      "text": "(b) Reports submitted between 24 hours and one week late lose 30%."
+    },
+    {
+      "level": 0,
+      "text": "(c) Reports more than one week late are not marked unless an extension was agreed in advance."
+    }
+  ],
+  "furniture": [
+    "Westmere University",
+    "Faculty of Earth and Environmental Sciences",
+    "Department of Water Resources Engineering",
+    "– 1 –",
+    "HYD 201 · Introduction to Hydrology",
+    "Autumn 2026",
+    "– 2 –",
+    "– 3 –"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "University course syllabus, flowed text (page breaks fall where the renderer puts them). Running header in the page margin from page 2 on (\"HYD 201 · Introduction to Hydrology\" left, \"Autumn 2026\" right) and a centred \"– n –\" page number on every page, all drawn as CSS page-margin boxes. The weekly schedule table has cells of two lines (topic, then a \"Lab:\" or \"Field:\" line), joined with one space; if it breaks across a page the renderer repeats its header row, which is listed once. The course-details key/value table has no header row. The sentence carrying footnote marker 1 is not a key sentence; the footnote text at the end is body text. Learning outcomes use CSS-drawn bullets; late-submission rules use typed \"(a)\" markers."
+}

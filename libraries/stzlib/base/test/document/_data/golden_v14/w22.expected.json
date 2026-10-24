@@ -1,0 +1,134 @@
+{
+  "id": "w22",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Orderbevestiging",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Orderbevestiging"
+    },
+    {
+      "level": 2,
+      "text": "Wat gebeurt er nu?"
+    },
+    {
+      "level": 2,
+      "text": "Retourneren"
+    }
+  ],
+  "key_sentences": [
+    "Bedankt voor je bestelling bij Fietshuis Van der Molen.",
+    "We hebben je betaling ontvangen en je bestelling wordt nu klaargemaakt voor verzending.",
+    "Je hebt 30 dagen bedenktijd vanaf de dag van levering.",
+    "Fietsen nemen we alleen terug als ze niet zijn gebruikt en in de originele verpakking zitten.",
+    "Neem voor een retour eerst contact op met onze klantenservice."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Ordernummer",
+          "FM-2026-118403"
+        ],
+        [
+          "Besteldatum",
+          "21 oktober 2026"
+        ],
+        [
+          "Betaalwijze",
+          "Bankoverschrijving (betaald)"
+        ],
+        [
+          "Verwachte levering",
+          "24 oktober 2026"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Artikel",
+          "Aantal",
+          "Prijs",
+          "Totaal"
+        ],
+        [
+          "Stadsfiets dames 28 inch, 7 versnellingen Art.nr. SF-2807-GR · kleur mosgroen",
+          "1",
+          "€ 649,00",
+          "€ 649,00"
+        ],
+        [
+          "Kettingslot 110 cm Art.nr. SL-1102",
+          "2",
+          "€ 54,95",
+          "€ 109,90"
+        ],
+        [
+          "LED-verlichtingsset op accu Art.nr. LV-0450",
+          "1",
+          "€ 29,95",
+          "€ 29,95"
+        ],
+        [
+          "Dubbele fietstas, 32 liter Art.nr. FT-3200-ZW · kleur zwart",
+          "1",
+          "€ 44,50",
+          "€ 44,50"
+        ],
+        [
+          "Subtotaal",
+          "Subtotaal",
+          "Subtotaal",
+          "€ 833,35"
+        ],
+        [
+          "Verzendkosten",
+          "Verzendkosten",
+          "Verzendkosten",
+          "€ 0,00"
+        ],
+        [
+          "Totaal (incl. btw)",
+          "Totaal (incl. btw)",
+          "Totaal (incl. btw)",
+          "€ 833,35"
+        ],
+        [
+          "Waarvan 21% btw",
+          "Waarvan 21% btw",
+          "Waarvan 21% btw",
+          "€ 144,63"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. We controleren en stellen je fiets af in onze werkplaats."
+    },
+    {
+      "level": 0,
+      "text": "2. Je ontvangt een e-mail met een track-and-tracecode zodra het pakket onderweg is."
+    },
+    {
+      "level": 0,
+      "text": "3. De fiets wordt bezorgd tussen 8.00 en 18.00 uur; de bezorger plaatst hem op verzoek binnen."
+    }
+  ],
+  "furniture": [
+    "Fietshuis Van der Molen",
+    "Ambachtsweg 31 · 7311 AB Apeldoorn",
+    "klantenservice@fietshuisvandermolen.example · 055 000 1290",
+    "KvK 00000000 · btw-nummer NL000000000B01 · Op al onze leveringen zijn de algemene voorwaarden van toepassing."
+  ],
+  "languages": [
+    "nl"
+  ],
+  "code": [],
+  "notes": "Dutch web-shop order confirmation, one page. Two boxes SIDE BY SIDE: delivery address (left, label \"Afleveradres\" is a label, not a heading) then the order-details key/value table (right, no header row); read left then right. Order lines have article cells of two lines (product name, then article number) joined with one space; subtotal, shipping, total and VAT rows have labels spanning three columns (repeated). Typed steps \"1.\" to \"3.\". Euro amounts use a no-break space after \"€\" (counts as a space)."
+}

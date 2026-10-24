@@ -1,0 +1,260 @@
+{
+  "id": "w23",
+  "difficulty": "medium",
+  "pages": 3,
+  "title": "Volunteer Handbook",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Volunteer Handbook"
+    },
+    {
+      "level": 2,
+      "text": "Welcome"
+    },
+    {
+      "level": 2,
+      "text": "1. Before the festival"
+    },
+    {
+      "level": 3,
+      "text": "1.1 Registration"
+    },
+    {
+      "level": 3,
+      "text": "1.2 Training sessions"
+    },
+    {
+      "level": 2,
+      "text": "2. Volunteer roles"
+    },
+    {
+      "level": 2,
+      "text": "3. Shifts"
+    },
+    {
+      "level": 2,
+      "text": "4. Health and safety"
+    },
+    {
+      "level": 3,
+      "text": "In an emergency"
+    },
+    {
+      "level": 3,
+      "text": "Lost children"
+    },
+    {
+      "level": 2,
+      "text": "5. Code of conduct"
+    },
+    {
+      "level": 2,
+      "text": "6. Contacts"
+    },
+    {
+      "level": 2,
+      "text": "7. After the festival"
+    }
+  ],
+  "key_sentences": [
+    "Thank you for volunteering at the twelfth Lowmoor Folk & Lantern Festival.",
+    "More than four hundred volunteers make the festival possible, from the people who build the lantern trail to those who greet visitors at the gate.",
+    "This handbook explains what we expect of you and what you can expect from us.",
+    "Every volunteer must complete the online registration form and choose at least three shifts.",
+    "The general induction is compulsory for everyone, including volunteers who have helped in previous years.",
+    "Shifts last four hours and include a twenty-minute break.",
+    "Wear your volunteer tabard at all times while on duty, and drink plenty of water in hot weather.",
+    "Call the control room on channel 1 of your radio, or dial the number on the back of your pass.",
+    "Take the child to the welfare tent next to the main gate and stay with them.",
+    "Every volunteer who completes three shifts receives a free weekend ticket for next year's festival."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Session",
+          "Date",
+          "Time",
+          "Venue"
+        ],
+        [
+          "General induction",
+          "Saturday 19 June",
+          "10:00–12:00",
+          "Lowmoor Town Hall"
+        ],
+        [
+          "Gate and wristbands",
+          "Wednesday 30 June",
+          "18:30–20:00",
+          "Festival office"
+        ],
+        [
+          "Stage crew safety",
+          "Saturday 3 July",
+          "09:00–13:00",
+          "Main stage field"
+        ],
+        [
+          "Lantern workshop",
+          "Sunday 4 July",
+          "14:00–17:00",
+          "Old Mill Studios"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Shift",
+          "Friday 16 July",
+          "Saturday 17 July",
+          "Sunday 18 July"
+        ],
+        [
+          "Morning",
+          "—",
+          "08:00–12:00 Meet at the volunteer tent",
+          "08:00–12:00 Meet at the volunteer tent"
+        ],
+        [
+          "Midday",
+          "12:00–16:00 Meet at the main gate",
+          "12:00–16:00 Meet at the main gate",
+          "12:00–16:00 Meet at the main gate"
+        ],
+        [
+          "Afternoon",
+          "16:00–20:00 Meet at the main gate",
+          "16:00–20:00 Meet at the river path",
+          "16:00–20:00 Meet at the river path"
+        ],
+        [
+          "Evening",
+          "20:00–00:00 Meet at the control room",
+          "20:00–00:00 Meet at the lantern trail",
+          "—"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Role",
+          "Name",
+          "Telephone"
+        ],
+        [
+          "Volunteer coordinator",
+          "Tamsin Rowe",
+          "07700 900 341"
+        ],
+        [
+          "Site manager",
+          "Gareth Pryce",
+          "07700 900 562"
+        ],
+        [
+          "First aid post",
+          "Lowmoor First Responders",
+          "07700 900 118"
+        ],
+        [
+          "Lost property",
+          "Festival office",
+          "01632 960 774"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "A. Gate and wristbands"
+    },
+    {
+      "level": 1,
+      "text": "• checking tickets and exchanging them for wristbands"
+    },
+    {
+      "level": 1,
+      "text": "• counting entries every hour and reporting the figures to the control room"
+    },
+    {
+      "level": 0,
+      "text": "B. Stage crew"
+    },
+    {
+      "level": 1,
+      "text": "• moving equipment between acts"
+    },
+    {
+      "level": 1,
+      "text": "• keeping the backstage area clear"
+    },
+    {
+      "level": 2,
+      "text": "– no visitors without a backstage pass"
+    },
+    {
+      "level": 2,
+      "text": "– no glass bottles at any time"
+    },
+    {
+      "level": 0,
+      "text": "C. Lantern trail"
+    },
+    {
+      "level": 1,
+      "text": "• helping children carry and light their lanterns"
+    },
+    {
+      "level": 1,
+      "text": "• guiding the procession along the river path"
+    },
+    {
+      "level": 0,
+      "text": "Report any hazard to your team leader straight away."
+    },
+    {
+      "level": 0,
+      "text": "Do not lift anything heavier than you can manage comfortably."
+    },
+    {
+      "level": 0,
+      "text": "Never block an emergency exit or a fire lane."
+    },
+    {
+      "level": 0,
+      "text": "(i) Treat visitors, artists and other volunteers with courtesy and respect."
+    },
+    {
+      "level": 0,
+      "text": "(ii) Do not drink alcohol before or during a shift."
+    },
+    {
+      "level": 0,
+      "text": "(iii) Do not post photographs of children or of the backstage area on social media."
+    },
+    {
+      "level": 0,
+      "text": "(iv) Tell your team leader if you cannot attend a shift, as early as possible."
+    }
+  ],
+  "furniture": [
+    "Lowmoor Folk & Lantern Festival 2027 · Volunteer Handbook",
+    "Version 1.2 · January 2027",
+    "p. 1",
+    "p. 2",
+    "p. 3"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Festival volunteer handbook, three pages. Running header and footer on every page (\"p. n\" as the page number). Multi-level typed list of volunteer roles (letters at level 0, \"•\" at level 1, \"–\" at level 2). Shift table with zebra rows and cells of two lines (times, then a meeting point) joined with one space. Two boxes SIDE BY SIDE on page 2 (\"In an emergency\" then \"Lost children\"), each with a level-3 heading; read left then right. Contacts key/value-like table has a header row. Code of conduct uses typed \"(i)\" markers. Subtitle line under the title is body text."
+}
