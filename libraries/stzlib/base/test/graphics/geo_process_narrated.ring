@@ -129,11 +129,13 @@ chk("AN INTENSITY RISING LINEARLY PUTS THREE TIMES AS MANY POINTS IN THE " +
     "the null model that says 'the pattern follows the population', and " +
     "without it every disease map is significantly clustered",
     fabs(aHalves[2] / aHalves[1] - 3) < 0.15)
-chk("...and its expected count is its SURFACE'S MEAN times the area, " +
-    "which is the only place an inhomogeneous rate lives. Reading a scalar " +
-    "intensity instead answered ZERO, and the envelope sized its buffer " +
-    "from that",
-    fabs(oInh.ExpectedCount(nArea, nArea) - 0.025 * nArea) / (0.025 * nArea) < 0.05)
+chk("...and its expected count is the INTEGRAL OF ITS SURFACE over the " +
+    "window -- here the surface's mean, 0.025, times the area, because the " +
+    "window is the whole grid. Reading a scalar intensity instead answered " +
+    "ZERO, and the envelope sized its buffer from that. ExpectedCount with " +
+    "two areas cannot name a window, so it refuses this kind and the window " +
+    "is asked with ExpectedCountIn",
+    fabs(oInh.ExpectedCountIn(oOne) - 0.025 * nArea) / (0.025 * nArea) < 0.05)
 
 # ---------------------------------------------------------------------
 sec("MATERN II AND SSI LOOK ALIKE AND ARE NOT")

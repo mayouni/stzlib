@@ -131,9 +131,11 @@ func _GeoKmList(paKm)
 # stzGeoPoints; EnvelopeOf, EscapesOf and VerdictOn judge an observed pattern against the band the
 # process makes: 39 simulations being the classic count, and the band widens with the count. Counts
 # of the cluster processes vary widely between seeds (a standard deviation of about 90 on a mean of
-# 190). Known gaps: PatternIn raises today, and ExpectedCount for Inhomogeneous is the mean of the
-# whole grid times the window area. Pictures, each looked at by 'stzlib-docs visual pass (a model
-# reading the PNG)' on 2026-10-05: doc/gallery/stzGeoProcess/seven_processes.png, one pattern from
+# 190). PatternIn throws the same pattern as a stzGeoPoints in the same window; ExpectedCountIn
+# answers the expected count of any kind in a window, which for Inhomogeneous is the integral of the
+# surface over the window (ExpectedCount takes only areas, so it refuses that kind). Pictures, each
+# looked at by 'stzlib-docs visual pass (a model reading the PNG)' on 2026-10-05:
+# doc/gallery/stzGeoProcess/seven_processes.png, one pattern from
 # each process, RIGHT (clusters compact, inhibited processes evenly spaced, the inhomogeneous one
 # follows its field); null_models.png, one pattern against three nulls, RIGHT (it escapes Poisson
 # and Binomial everywhere and never the MaternCluster that made it); matern_ii_ceiling.png,
@@ -388,15 +390,128 @@ class stzGeoProcess from stzObject
 	#   pnBoxAreaKm2   the area of the window's bounding box in km2
 	#   returns        a number; 177.5 for Poisson at 0.00015 per km2 over Niger
 	#   note           Right on average for Poisson, Binomial, MaternCluster and Thomas (60 seeds:
-	#                  190 against 189)
-	#   warning        Defect: for Inhomogeneous it is the mean of all the grid values times the
-	#                  window area, not the integral over the window: 191.9 against 149.4 drawn on
-	#                  average and 144.3 integrated.
-	#   see            GenerateIn, stzGeoPoints.BoxAreaKm2
+	#                  190 against 189). An Inhomogeneous process raises an error here, because its
+	#                  count is the integral of the intensity surface over the window and two areas
+	#                  cannot name a window: ask ExpectedCountIn. This used to answer the mean of all
+	#                  the grid values times the window area, 191.9 where 149.4 were drawn on average
+	#                  and 144.3 integrated, and that call now raises instead of answering wrongly
+	#   see            ExpectedCountIn, GenerateIn, stzGeoPoints.BoxAreaKm2
 	#@ aka  -- generating ----------------------------------------------------------
 	def ExpectedCount(pnAreaKm2, pnBoxAreaKm2)
+		if @cKind = "Inhomogeneous"
+			raise("Softanza: ExpectedCount takes two areas, and the expected count of an " +
+				"Inhomogeneous process is the integral of its intensity surface over a WINDOW, " +
+				"which two areas cannot name. Use ExpectedCountIn(poPoints) with the " +
+				"stzGeoPoints whose window you mean.")
+		ok
 		return StzEngineGeoProcessExpected(@nKind, @nA, @nB, @nC, @aLambda,
 			pnAreaKm2, pnBoxAreaKm2)
+
+	# Returns how many points the process puts down on average in the window of a pattern, for every kind.
+	#
+	#   poPoints   a stzGeoPoints whose window is the one the pattern would be thrown in
+	#   returns    a number of points; 177.5 for Poisson at 0.00015 per km2 over Niger
+	#   note       For every kind but Inhomogeneous it is ExpectedCount of the window's area and of its
+	#              box's area. For Inhomogeneous it is the integral of the intensity surface over the
+	#              window, which is what GenerateIn draws on average: the window's area times the
+	#              mean of the surface over the window, where the surface is read as GenerateIn
+	#              reads it (bilinear between the four nodes around a place, nothing outside the
+	#              grid, an unknown node taken as 0). The integral is a sum over a lattice of 160
+	#              places along the longer side of the window's box, kept where the window holds
+	#              them and weighted by the ground they stand for on the sphere, so it is within a
+	#              fraction of a percent of the true integral. It raises an error for a window
+	#              that is not a stzGeoPoints or for a surface with fewer values than its grid has
+	#              nodes. A window that crosses the antimeridian is not supported
+	#   see        ExpectedCount, GenerateIn, PatternIn
+	def ExpectedCountIn(poPoints)
+		This._CheckWindowArg(poPoints)
+		if @cKind != "Inhomogeneous"
+			return This.ExpectedCount(poPoints.AreaKm2(), poPoints.BoxAreaKm2())
+		ok
+		return This.ExpectedCountInXT(poPoints, 160)
+
+	# ...with the lattice size as a dial: pnNodes places along the longer side of the window's box, from 4 to 2000.
+	def ExpectedCountInXT(poPoints, pnNodes)
+		This._CheckWindowArg(poPoints)
+		if NOT isNumber(pnNodes) or pnNodes < 4 or pnNodes > 2000
+			raise("Softanza: ExpectedCountInXT: the nodes are how many places run along the " +
+				"longer side of the window's box, a number from 4 to 2000.")
+		ok
+		if @cKind != "Inhomogeneous"
+			return This.ExpectedCount(poPoints.AreaKm2(), poPoints.BoxAreaKm2())
+		ok
+		_nArea_ = poPoints.AreaKm2()
+		if len(@aGrid) < 6 or len(@aLambda) = 0 or _nArea_ <= 0  return 0  ok
+		_nNx_ = floor(@aGrid[5])
+		_nNy_ = floor(@aGrid[6])
+		if _nNx_ < 2 or _nNy_ < 2 or @aGrid[3] = 0 or @aGrid[4] = 0  return 0  ok
+		if len(@aLambda) < _nNx_ * _nNy_
+			raise("Softanza: the intensity surface holds " + len(@aLambda) + " values and its grid " +
+				"has " + (_nNx_ * _nNy_) + " nodes.")
+		ok
+		_aBox_ = poPoints.WindowBox()
+		_nW_ = _aBox_[3] - _aBox_[1]
+		_nH_ = _aBox_[4] - _aBox_[2]
+		if _nW_ <= 0 or _nH_ <= 0  return 0  ok
+		# the lattice: square-ish on the ground, pnNodes along the longer side, a place at the
+		# middle of each lattice cell, asked of the engine in ONE call which of them the window holds
+		_nRad_ = 3.14159265358979 / 180
+		_nWk_ = _nW_ * cos(((_aBox_[2] + _aBox_[4]) / 2) * _nRad_)
+		_nMx_ = pnNodes
+		_nMy_ = ceil(pnNodes * _nH_ / _nWk_)
+		if _nWk_ < _nH_
+			_nMy_ = pnNodes
+			_nMx_ = ceil(pnNodes * _nWk_ / _nH_)
+		ok
+		if _nMx_ < 2  _nMx_ = 2  ok
+		if _nMy_ < 2  _nMy_ = 2  ok
+		_nDx_ = _nW_ / _nMx_
+		_nDy_ = _nH_ / _nMy_
+		_aMask_ = StzEngineGeoGridMask([ _aBox_[1] + _nDx_ / 2, _aBox_[2] + _nDy_ / 2,
+			_nDx_, _nDy_, _nMx_, _nMy_ ], poPoints.WindowRings(), _aBox_)
+		_nNum_ = 0
+		_nDen_ = 0
+		for _j_ = 0 to _nMy_ - 1
+			# equal-area on the sphere: a row stands for the difference of the sines of its edges
+			_nWj_ = sin((_aBox_[2] + (_j_ + 1) * _nDy_) * _nRad_) - sin((_aBox_[2] + _j_ * _nDy_) * _nRad_)
+			_nLat_ = _aBox_[2] + (_j_ + 0.5) * _nDy_
+			for _i_ = 0 to _nMx_ - 1
+				if _aMask_[_j_ * _nMx_ + _i_ + 1] = 1
+					_nDen_ += _nWj_
+					_nNum_ += _nWj_ * This._IntensityAt(_aBox_[1] + (_i_ + 0.5) * _nDx_, _nLat_)
+				ok
+			next
+		next
+		if _nDen_ <= 0  return 0  ok
+		return _nArea_ * _nNum_ / _nDen_
+
+	# the surface at a place as GenerateIn reads it: bilinear between the four nodes around it, 0 outside
+	# the grid (and on its last row and column), an unknown node taken as 0, nothing below 0
+	def _IntensityAt(pnLon, pnLat)
+		_fx_ = (pnLon - @aGrid[1]) / @aGrid[3]
+		_fy_ = (pnLat - @aGrid[2]) / @aGrid[4]
+		if _fx_ < 0 or _fy_ < 0  return 0  ok
+		_ix_ = floor(_fx_)
+		_jy_ = floor(_fy_)
+		_nx_ = floor(@aGrid[5])
+		if _ix_ + 1 >= _nx_ or _jy_ + 1 >= floor(@aGrid[6])  return 0  ok
+		_tx_ = _fx_ - _ix_
+		_ty_ = _fy_ - _jy_
+		_k_ = _jy_ * _nx_ + _ix_ + 1
+		_a_ = 0  _b_ = 0  _c_ = 0  _d_ = 0
+		if isNumber(@aLambda[_k_])  _a_ = @aLambda[_k_]  ok
+		if isNumber(@aLambda[_k_ + 1])  _b_ = @aLambda[_k_ + 1]  ok
+		if isNumber(@aLambda[_k_ + _nx_])  _c_ = @aLambda[_k_ + _nx_]  ok
+		if isNumber(@aLambda[_k_ + _nx_ + 1])  _d_ = @aLambda[_k_ + _nx_ + 1]  ok
+		_v_ = _a_ * (1 - _tx_) * (1 - _ty_) + _b_ * _tx_ * (1 - _ty_) + _c_ * (1 - _tx_) * _ty_ + _d_ * _tx_ * _ty_
+		if _v_ < 0  return 0  ok
+		return _v_
+
+	# the window argument of the methods that take a pattern: an object that answers like a stzGeoPoints
+	def _CheckWindowArg(poPoints)
+		if NOT isObject(poPoints) or NOT ismethod(poPoints, "WindowRings") or NOT ismethod(poPoints, "AreaKm2")
+			raise("Softanza: the window is a stzGeoPoints -- the pattern whose window the process works in.")
+		ok
 
 	# Returns one pattern of the process inside a window, as a flat list of places.
 	#
@@ -415,19 +530,20 @@ class stzGeoProcess from stzObject
 			poPoints.AreaKm2(), poPoints.BoxAreaKm2(),
 			@aGrid, @aLambda, pnSeed, pnCap)
 
-	# Raises error today instead of returning the pattern of GenerateIn as a stzGeoPoints ready to measure.
+	# Returns one pattern of the process inside a window as a stzGeoPoints, ready to measure.
 	#
-	#   poPoints   a stzGeoPoints whose window the pattern would be thrown in
+	#   poPoints   a stzGeoPoints whose window the pattern is thrown in
 	#   pnSeed     the seed of the random draw
-	#   returns    nothing: it raises the error that stzGeoPoints needs a stzGeoFeatures window
-	#   note       Build it yourself: poPoints.With(oProcess.GenerateIn(poPoints, nSeed))
-	#   warning    Defect: it passes the window's list of rings to StzGeoPoints, which takes the
-	#              stzGeoFeatures. Seen with SSI and MaternCluster on the fixtures and Poisson on
-	#              Niger
-	#   see        GenerateIn
+	#   returns    a stzGeoPoints with the window of poPoints that holds the places GenerateIn draws
+	#              for the same seed
+	#   note       The same seed gives the same pattern. Count, ClarkEvans, RipleyK and Envelope can
+	#              be asked of the result at once
+	#   see        GenerateIn, stzGeoPoints.With
 	#@ aka  ...and the same as a stzGeoPoints, ready to be measured
 	def PatternIn(poPoints, pnSeed)
-		return StzGeoPoints(This.GenerateIn(poPoints, pnSeed), poPoints.WindowRings())
+		This._CheckWindowArg(poPoints)
+		_aPlaces_ = This.GenerateIn(poPoints, pnSeed)
+		return poPoints.With(_aPlaces_)
 
 	# Returns the band of L the process produces, by simulation: the lowest, highest and mean over pnSims patterns at each radius.
 	#

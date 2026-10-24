@@ -1,5 +1,5 @@
 # stzGeoProcess: one pattern from each of the seven processes in the same window (Niger), by GenerateIn,
-# with the expected count (ExpectedCount) against the number drawn. The parents of the two cluster
+# with the expected count (ExpectedCountIn) against the number drawn. The parents of the two cluster
 # processes are never drawn; the inhomogeneous one follows a field that rises to the south-west.
 # Run from libraries/stzlib/base/test/reflect:  ring ../../doc/gallery/stzGeoProcess/seven_processes.ring
 load "../../stzBase.ring"
@@ -68,9 +68,9 @@ for m = 1 to 7
 	cInter = "no interaction"
 	if aP[m].IsClustering()  cInter = "clustering"  ok
 	if aP[m].IsInhibiting()  cInter = "inhibiting"  ok
-	oC.SetFontQ(oFont, 13).AddTextQ(cInter + ": " + floor(len(aPts) / 2) + " drawn, " + floor(aP[m].ExpectedCount(nA, nB)) + " expected", nX0 + 6, nY0 + 212).Fill("#333333")
+	oC.SetFontQ(oFont, 13).AddTextQ(cInter + ": " + floor(len(aPts) / 2) + " drawn, " + floor(aP[m].ExpectedCountIn(oWin)) + " expected", nX0 + 6, nY0 + 212).Fill("#333333")
 	oC.Flush()
-	? aP[m].Kind() + ": " + floor(len(aPts) / 2) + " drawn, " + aP[m].ExpectedCount(nA, nB) + " expected, " + @@( aP[m].Content() )
+	? aP[m].Kind() + ": " + floor(len(aPts) / 2) + " drawn, " + aP[m].ExpectedCountIn(oWin) + " expected, " + @@( aP[m].Content() )
 next
 oC.SetFontQ(oFont, 13).AddTextQ("Invented patterns, seeded. Parents of the cluster processes are not drawn; MaternII thins a proposal, SSI refuses a landing.", 20, 540).Fill("#555555")
 oC.Flush()
