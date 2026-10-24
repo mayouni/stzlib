@@ -4132,6 +4132,7 @@ fn normFurniture(a: Allocator, t: []const u8) ![]const u8 {
 }
 
 fn isPageNumber(t: []const u8) bool {
+    if (pageNumberAnyLanguage(t)) return true;
     var lower_buf: [64]u8 = undefined;
     if (t.len > 40) return false;
     const l = std.ascii.lowerString(lower_buf[0..t.len], t);
@@ -4149,6 +4150,77 @@ fn isPageNumber(t: []const u8) bool {
         return true;
     }
     return false;
+}
+
+// A page number in any language: a short line holding one or two small numbers (the second, a page count, not
+// below the first), at most three words and the usual separators -- "Seite 1 von 2", "1/1. oldal", "Strona 2 z 3",
+// "- 3 -", and the same with Arabic-script digits. No word list: the words are whatever the language uses.
+fn pageNumberAnyLanguage(t: []const u8) bool {
+    var view = std.unicode.Utf8View.init(t) catch return false;
+    var it = view.iterator();
+    var nums: [3]u32 = undefined;
+    var nn: usize = 0;
+    var words: usize = 0;
+    var cps: usize = 0;
+    var cur: u32 = 0;
+    var digits: usize = 0;
+    var in_word = false;
+    var word_len: usize = 0;
+    var words_after_last_num: usize = 0;
+    var between_ok = false; // a word or a slash stands between the two numbers ("1 von 2", "1/2"), not a full stop ("1.2")
+    while (true) {
+        const cpo = it.nextCodepoint();
+        cps += 1;
+        if (cps > 32) return false;
+        const cp: u21 = cpo orelse ' ';
+        var dv: ?u32 = null;
+        if (cp >= '0' and cp <= '9') dv = cp - '0' else if (cp >= 0x0660 and cp <= 0x0669) dv = cp - 0x0660 else if (cp >= 0x06F0 and cp <= 0x06F9) dv = cp - 0x06F0;
+        if (dv) |d| {
+            if (in_word) return false; // a digit inside a word: a code, not a page number
+            cur = cur * 10 + d;
+            digits += 1;
+            if (digits > 3) return false;
+            if (cpo == null) break;
+            continue;
+        }
+        if (digits > 0) {
+            if (nn >= 2) return false;
+            nums[nn] = cur;
+            nn += 1;
+            cur = 0;
+            digits = 0;
+            words_after_last_num = 0;
+        }
+        const letter = isLtrCp(cp) or isRtlCp(cp) or (cp >= 0x0400 and cp <= 0x04FF) or (cp >= 0x1200 and cp <= 0x137F) or (cp >= 0x0900 and cp <= 0x0E7F);
+        if (letter) {
+            if (!in_word) {
+                words += 1;
+                word_len = 0;
+                if (words > 3) return false;
+                if (nn > 0) {
+                    words_after_last_num += 1;
+                    if (nn == 1) between_ok = true;
+                }
+            }
+            in_word = true;
+            word_len += 1;
+            if (word_len > 12) return false;
+        } else {
+            in_word = false;
+            // separators a page number uses; anything else (a colon, a comma, an at sign) is a sentence or a contact line
+            const sep = cp == ' ' or cp == '/' or cp == '.' or cp == '-' or cp == 0x2013 or cp == 0x2014 or cp == '|' or cp == 0x00B7 or cp == '(' or cp == ')' or cp == 0x00A0 or cp == 0x0640;
+            if (!sep) return false;
+            if (nn == 1 and cp == '/') between_ok = true;
+        }
+        if (cpo == null) break;
+    }
+    if (nn == 0) return false;
+    if (nums[0] == 0) return false;
+    // one number comes LAST (or alone): "Seite 3", "- 3 -"; a number first and words after is a numbered heading
+    if (nn == 1) return words_after_last_num == 0;
+    // two numbers: a page and a count, apart by a word or a slash; "1.2 Background" is a numbered heading
+    if (!between_ok or nums[1] < nums[0]) return false;
+    return words_after_last_num <= 1;
 }
 
 pub const Result = struct {
@@ -4438,7 +4510,8 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
         if (top or bottom) {
             const key = try normFurniture(a, b.text);
             const pagesn = if (marg.get(key)) |m| m.count() else 0;
-            if (pagesn >= 2 or isPageNumber(b.text)) {
+            // (a page number is never set larger than the body: "AquaSense 300" at the top of a page is a title)
+            if (pagesn >= 2 or (isPageNumber(b.text) and (body <= 0 or b.size <= 1.05 * body))) {
                 b.kind = if (top) .page_header else .page_footer;
                 continue;
             }
@@ -4516,6 +4589,26 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
                 continue;
             }
             k += 1;
+        }
+    }
+    // the lowest line of a page, when one of its blocks is a page number, is the page's footer wherever it sits
+    // (a footer set inside the page box, above the bottom band: "Σελίδα 1 από 1" beside a legal line)
+    {
+        var pgi: u32 = 1;
+        while (pgi <= page_list.items.len) : (pgi += 1) {
+            var low: f32 = -1e9;
+            for (merged.items) |b| {
+                if (b.page == pgi and b.y1 > low) low = b.y1;
+            }
+            if (low < -1e8) continue;
+            var has_num = false;
+            for (merged.items) |b| {
+                if (b.page == pgi and b.lines == 1 and @abs(b.y1 - low) <= 0.3 * b.size and isPageNumber(b.text)) has_num = true;
+            }
+            if (!has_num) continue;
+            for (merged.items) |*b| {
+                if (b.page == pgi and b.lines <= 2 and @abs(b.y1 - low) <= 0.3 * b.size and b.kind == .paragraph) b.kind = .page_footer;
+            }
         }
     }
     // a letterhead: on the first page, the blocks of the top band that end above the title (the largest heading
