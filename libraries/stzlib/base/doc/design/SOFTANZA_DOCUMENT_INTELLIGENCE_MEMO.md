@@ -324,6 +324,8 @@ golden_v13: 24 realistic documents in 19 languages besides English (Arabic, Pers
 
 Time for the 24 documents: native 0.1 s, Docling 153 s. **On unseen documents the native reader now leads on everything but text** -- tables included (0.68 against 0.66) and heading precision (0.83 against 0.81). The text gap (0.88 against 0.93) is mostly two documents: an electricity bill whose boxes side by side are still read line by line across both (native 0.25, Docling 1.00), and an Arabic school-results sheet (native 0.40, Docling 0.80); a Persian page set in a Nastaliq face loses its text for both readers (0.00 and 0.14), the text layer once more. Round 13.
 
+**Perceived (2026-10-24):** the author looked through every rendered page of golden_v9 to golden_v13 -- the sets whose own authors could not look at them -- and judged them: "they look great". Those five sets are no longer unperceived; the sets before them were generated the same way and are not covered by this look.
+
 **Not measured**: Granite-Docling-258M (not downloaded), the GPU, scanned golden pages with an expected text, PDFs from producers other than Chrome (both golden sets are Chrome-made and tagged; the native reader does not read the tags).
 
 ---
