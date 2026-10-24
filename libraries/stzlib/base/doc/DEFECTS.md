@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 66 methods in 47 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 64 methods in 46 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| appserver/stzAppServer.ring | stzAppServer | 2 |
 | datetime/stzDate.ring | stzDate | 2 |
 | file/stzZipFile.ring | stzZipFile | 2 |
 | geo/stzGeoFeatures.ring | stzGeoFeatures | 2 |
@@ -56,11 +55,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 | string/stzStringReplacer.ring | stzStringReplacer | 1 |
 | string/stzStringSubString.ring | stzStringSubStringCS | 1 |
 | table/stzPivotTableShow.ring | TableDisplayConfig | 1 |
-
-## stzAppServer -- appserver/stzAppServer.ring (2)
-
-- `Use` (line 492): Leaves every request unchanged today instead of running the middleware before the routes under a path. -- The middleware is stored in the router but nothing ever reads the list, so it never runs (checked with paths /a, / and *)
-- `Static` (line 504): Leaves a folder unserved today instead of serving its files under a path; a request for a file in it answers 404. -- The static routes are stored in the router but nothing ever reads the list (checked with paths /files and /)
 
 ## stzEngineTimeline -- common/stzEngineTimeline.ring (1)
 

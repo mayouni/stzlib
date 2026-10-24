@@ -1,22 +1,6 @@
 {
- "count": 66,
+ "count": 64,
  "defects": [
-  {
-   "class": "stzAppServer",
-   "file": "appserver/stzAppServer.ring",
-   "method": "Use",
-   "line": 492,
-   "symptom": "Leaves every request unchanged today instead of running the middleware before the routes under a path.",
-   "cause": "The middleware is stored in the router but nothing ever reads the list, so it never runs (checked with paths /a, / and *)"
-  },
-  {
-   "class": "stzAppServer",
-   "file": "appserver/stzAppServer.ring",
-   "method": "Static",
-   "line": 504,
-   "symptom": "Leaves a folder unserved today instead of serving its files under a path; a request for a file in it answers 404.",
-   "cause": "The static routes are stored in the router but nothing ever reads the list (checked with paths /files and /)"
-  },
   {
    "class": "stzEngineTimeline",
    "file": "common/stzEngineTimeline.ring",
