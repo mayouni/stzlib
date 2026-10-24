@@ -1,5 +1,5 @@
 {
- "count": 56,
+ "count": 54,
  "defects": [
   {
    "class": "stzEngineTimeline",
@@ -16,22 +16,6 @@
    "line": 1082,
    "symptom": "Returns the projection written for a picture: its name, the parallels of a conic and the rotation if any.",
    "cause": "Defect: the parallels of a conic always carry an N, so 22.78 degrees south prints as -22.78N."
-  },
-  {
-   "class": "stzGraphQuery",
-   "file": "graph/stzGraphQuery.ring",
-   "method": "ValidateWith",
-   "line": 233,
-   "symptom": "Queues a validation of the matched subgraph against rule groups; a single text raises error R21 when the query runs today.",
-   "cause": "known defect: a single text is wrapped with paValidators = [ paValidators ], which stores [ [ [ ] ] ] and the run then raises R21; a list of names works, and a failing group raises Validation failed"
-  },
-  {
-   "class": "stzGraphQuery",
-   "file": "graph/stzGraphQuery.ring",
-   "method": "OrderBy",
-   "line": 650,
-   "symptom": "Leaves the rows in match order for ascending and reverses them for descending today, instead of sorting by a field.",
-   "cause": "known defect: the sort call @SortOn returns the sorted list and the method drops it, so nothing is sorted; asc keeps the match order and desc reverses it; only the first OrderBy is read; both arguments are required, with one Ring raises R19"
   },
   {
    "class": "stzGraphRule",

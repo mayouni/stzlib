@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 56 methods in 42 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 54 methods in 41 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| graph/stzGraphQuery.ring | stzGraphQuery | 2 |
 | graph/stzKnowledgeGraph.ring | stzKnowledgeGraph | 2 |
 | list/stzSetOfSections.ring | stzSetOfSections | 2 |
 | math/stzMathFigure.ring | stzMathFigure | 2 |
@@ -59,11 +58,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzGeoProjection -- geo/stzGeoProjection.ring (1)
 
 - `Caption` (line 1082): Returns the projection written for a picture: its name, the parallels of a conic and the rotation if any. -- Defect: the parallels of a conic always carry an N, so 22.78 degrees south prints as -22.78N.
-
-## stzGraphQuery -- graph/stzGraphQuery.ring (2)
-
-- `ValidateWith` (line 233): Queues a validation of the matched subgraph against rule groups; a single text raises error R21 when the query runs today. -- a single text is wrapped with paValidators = [ paValidators ], which stores [ [ [ ] ] ] and the run then raises R21; a list of names works, and a failing group raises Validation failed
-- `OrderBy` (line 650): Leaves the rows in match order for ascending and reverses them for descending today, instead of sorting by a field. -- the sort call @SortOn returns the sorted list and the method drops it, so nothing is sorted; asc keeps the match order and desc reverses it; only the first OrderBy is read; both arguments are required, with one Ring raises R19
 
 ## stzGraphRule -- graph/stzGraphRule.ring (1)
 
