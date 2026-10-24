@@ -1,0 +1,187 @@
+{
+  "id": "y21",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Seasonal variation of soil respiration in restored upland peatlands",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Seasonal variation of soil respiration in restored upland peatlands"
+    },
+    {
+      "level": 2,
+      "text": "Abstract"
+    },
+    {
+      "level": 2,
+      "text": "1. Introduction"
+    },
+    {
+      "level": 2,
+      "text": "2. Methods"
+    },
+    {
+      "level": 3,
+      "text": "2.1 Study sites"
+    },
+    {
+      "level": 3,
+      "text": "2.2 Flux measurements"
+    },
+    {
+      "level": 3,
+      "text": "2.3 Statistical analysis"
+    },
+    {
+      "level": 2,
+      "text": "3. Results"
+    },
+    {
+      "level": 2,
+      "text": "4. Discussion"
+    },
+    {
+      "level": 2,
+      "text": "5. Conclusions"
+    },
+    {
+      "level": 2,
+      "text": "References"
+    }
+  ],
+  "key_sentences": [
+    "Peatland restoration by ditch blocking is widely used to raise water tables and reduce carbon losses, but its effect on soil respiration over the seasons is poorly known.",
+    "We measured soil CO₂ efflux monthly for two years at three restored and three unrestored sites on a blanket bog in the northern uplands.",
+    "Mean annual efflux was 31% lower at restored sites, and the difference was largest in late summer when water tables at unrestored sites fell below 25 cm.",
+    "Northern peatlands store about one third of global soil carbon while covering only a small fraction of the land surface.",
+    "In this study we ask whether restoration reduces soil respiration evenly through the year or mainly in the warm and dry months.",
+    "The study was carried out on a blanket bog at 420 to 510 m above sea level with a mean annual rainfall of 1,840 mm.",
+    "Soil respiration followed a clear seasonal cycle at all sites, with the lowest values in January and the highest in August.",
+    "Our results show that the benefit of ditch blocking is concentrated in the warmest and driest part of the year.",
+    "Ditch blocking reduced soil respiration by almost one third, mainly by preventing deep summer drawdown of the water table."
+  ],
+  "tables": [
+    {
+      "caption": "Table 1. Site characteristics (means of three sites).",
+      "rows": [
+        [
+          "Variable",
+          "Restored",
+          "Unrestored"
+        ],
+        [
+          "Water table (cm)",
+          "-8.4",
+          "-21.7"
+        ],
+        [
+          "Peat depth (m)",
+          "2.3",
+          "2.1"
+        ],
+        [
+          "Soil temperature (°C)",
+          "8.9",
+          "9.4"
+        ],
+        [
+          "Bulk density (g cm⁻³)",
+          "0.11",
+          "0.13"
+        ]
+      ]
+    },
+    {
+      "caption": "Table 2. Seasonal mean soil CO₂ efflux at restored and unrestored sites, 2024–2025.",
+      "rows": [
+        [
+          "Season",
+          "Restored efflux (g CO₂ m⁻² d⁻¹)",
+          "Unrestored efflux (g CO₂ m⁻² d⁻¹)",
+          "Difference (%)",
+          "p"
+        ],
+        [
+          "Winter (Dec–Feb)",
+          "0.62",
+          "0.71",
+          "-13",
+          "0.21"
+        ],
+        [
+          "Spring (Mar–May)",
+          "1.48",
+          "1.93",
+          "-23",
+          "0.04"
+        ],
+        [
+          "Summer (Jun–Aug)",
+          "3.05",
+          "4.87",
+          "-37",
+          "<0.001"
+        ],
+        [
+          "Autumn (Sep–Nov)",
+          "1.71",
+          "2.39",
+          "-28",
+          "0.01"
+        ],
+        [
+          "Annual mean",
+          "1.72",
+          "2.49",
+          "-31",
+          "<0.001"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "three sites where ditches were blocked with peat dams in 2017;"
+    },
+    {
+      "level": 0,
+      "text": "three nearby sites where ditches remain open;"
+    },
+    {
+      "level": 0,
+      "text": "all sites on peat deeper than 1.5 m with similar vegetation."
+    },
+    {
+      "level": 0,
+      "text": "[1] Ashworth, P. and Lund, K. (2019) Ditch blocking and peat hydrology. Upland Hydrology Review 8, 44–61."
+    },
+    {
+      "level": 0,
+      "text": "[2] Brennan, S. et al. (2021) Carbon fluxes from drained blanket bogs. Journal of Upland Ecology 9, 102–117."
+    },
+    {
+      "level": 0,
+      "text": "[3] Calder, M. (2018) Temperature sensitivity of peat decomposition. Soil Processes 31, 5–19."
+    },
+    {
+      "level": 0,
+      "text": "[4] Dunmore, A. and Iqbal, R. (2023) Water-table thresholds for peat oxidation. Wetland Science 12, 230–245."
+    },
+    {
+      "level": 0,
+      "text": "[5] Evers, J. (2020) Measuring soil respiration in the field. Field Methods in Ecology 4, 77–90."
+    }
+  ],
+  "furniture": [
+    "Journal of Upland Ecology 14 (2026) 211–218",
+    "Research article",
+    "1",
+    "2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Title, authors, affiliations and abstract run across the full width; the body is set in TWO CSS COLUMNS and reads column by column on each page. Table 2 spans both columns (column-span: all) and sits between the column blocks; Table 1 sits inside a column. Running header (journal citation left, \"Research article\" right) and footer page number are furniture; page numbers are listed per page as bare digits. The author line and affiliation line are body, not headings. \"Abstract\" is a heading. One sentence in section 2.2 carries footnote marker a and is excluded from key_sentences; the footnote text is small type under a rule. References are a typed list with markers \"[1]\" to \"[5]\". The site list in section 2.1 is CSS-drawn (discs). Paragraphs after the first in a section are indented. CO₂ uses a subscript-two character U+2082."
+}

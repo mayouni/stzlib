@@ -1,0 +1,258 @@
+{
+  "id": "y07",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Karta informacyjna leczenia szpitalnego",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Karta informacyjna leczenia szpitalnego"
+    },
+    {
+      "level": 2,
+      "text": "Rozpoznanie"
+    },
+    {
+      "level": 2,
+      "text": "Wywiad"
+    },
+    {
+      "level": 2,
+      "text": "Przebieg hospitalizacji"
+    },
+    {
+      "level": 2,
+      "text": "Wyniki badań laboratoryjnych"
+    },
+    {
+      "level": 2,
+      "text": "Zalecenia"
+    },
+    {
+      "level": 2,
+      "text": "Leki zalecane po wypisie"
+    }
+  ],
+  "key_sentences": [
+    "Pacjent przyjęty z powodu narastającej od tygodnia duszności wysiłkowej, obrzęków kończyn dolnych i przyrostu masy ciała o około 4 kg.",
+    "W wywiadzie nadciśnienie tętnicze od 2009 roku, cukrzyca typu 2 leczona metforminą oraz przebyty zawał serca w 2018 roku.",
+    "Przy przyjęciu stwierdzono cechy zastoju w krążeniu płucnym, saturację 89% bez tlenoterapii oraz szybką akcję serca w przebiegu migotania przedsionków.",
+    "Zastosowano diuretyk pętlowy dożylnie, tlenoterapię bierną i kontrolę częstości rytmu, uzyskując stopniową poprawę stanu ogólnego.",
+    "W badaniu echokardiograficznym frakcja wyrzutowa lewej komory wynosiła 35%, bez istotnych wad zastawkowych.",
+    "Pacjent otrzymał zwolnienie lekarskie do dnia 20 października 2026 roku."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Pacjent",
+          "Zbigniew Wróblewski",
+          "Data urodzenia",
+          "14.03.1957"
+        ],
+        [
+          "Adres",
+          "ul. Jaśminowa 3, Stara Łąka",
+          "Nr księgi głównej",
+          "2026/04412"
+        ],
+        [
+          "Przyjęty",
+          "28.09.2026, godz. 22:40",
+          "Wypisany",
+          "06.10.2026"
+        ],
+        [
+          "Tryb przyjęcia",
+          "nagły, przez SOR",
+          "Lekarz prowadzący",
+          "lek. Ewa Słowińska"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Kod ICD-10",
+          "Rozpoznanie"
+        ],
+        [
+          "I50.1",
+          "Niewydolność lewokomorowa serca, zaostrzenie"
+        ],
+        [
+          "I48.1",
+          "Migotanie przedsionków przetrwałe"
+        ],
+        [
+          "E11.6",
+          "Cukrzyca typu 2 z innymi określonymi powikłaniami"
+        ],
+        [
+          "N18.3",
+          "Przewlekła choroba nerek, stadium 3"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Badanie",
+          "Wynik",
+          "Wynik",
+          "Jednostka",
+          "Zakres referencyjny"
+        ],
+        [
+          "Badanie",
+          "29.09.2026",
+          "05.10.2026",
+          "Jednostka",
+          "Zakres referencyjny"
+        ],
+        [
+          "NT-proBNP",
+          "6840",
+          "2115",
+          "pg/ml",
+          "< 125"
+        ],
+        [
+          "Kreatynina",
+          "1,62",
+          "1,48",
+          "mg/dl",
+          "0,70 – 1,20"
+        ],
+        [
+          "eGFR",
+          "43",
+          "48",
+          "ml/min/1,73 m²",
+          "> 60"
+        ],
+        [
+          "Potas",
+          "3,6",
+          "4,4",
+          "mmol/l",
+          "3,5 – 5,1"
+        ],
+        [
+          "Sód",
+          "134",
+          "137",
+          "mmol/l",
+          "136 – 145"
+        ],
+        [
+          "Hemoglobina glikowana HbA1c",
+          "7,9",
+          "—",
+          "%",
+          "< 6,5"
+        ],
+        [
+          "Troponina T hs",
+          "24",
+          "19",
+          "ng/l",
+          "< 14"
+        ],
+        [
+          "Hemoglobina",
+          "12,8",
+          "12,5",
+          "g/dl",
+          "13,5 – 17,5"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Lek",
+          "Dawka",
+          "Sposób stosowania",
+          "Uwagi"
+        ],
+        [
+          "Torasemid",
+          "10 mg",
+          "1 tabletka rano",
+          "na czczo"
+        ],
+        [
+          "Bisoprolol",
+          "5 mg",
+          "1 tabletka rano",
+          "—"
+        ],
+        [
+          "Sakubitryl z walsartanem",
+          "49/51 mg",
+          "1 tabletka dwa razy dziennie",
+          "kontrola ciśnienia"
+        ],
+        [
+          "Apiksaban",
+          "5 mg",
+          "1 tabletka dwa razy dziennie",
+          "bez przerw"
+        ],
+        [
+          "Empagliflozyna",
+          "10 mg",
+          "1 tabletka rano",
+          "—"
+        ],
+        [
+          "Metformina",
+          "500 mg",
+          "1 tabletka wieczorem",
+          "po posiłku"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Dieta z ograniczeniem soli kuchennej do 5 g na dobę i płynów do 1,5 litra na dobę."
+    },
+    {
+      "level": 0,
+      "text": "Codzienna kontrola masy ciała; przyrost o więcej niż 2 kg w ciągu trzech dni wymaga kontaktu z lekarzem."
+    },
+    {
+      "level": 0,
+      "text": "Kontrola stężenia potasu i kreatyniny za 7 dni w poradni rodzinnej."
+    },
+    {
+      "level": 0,
+      "text": "Wizyta w Poradni Kardiologicznej za 4 tygodnie, skierowanie wydano."
+    },
+    {
+      "level": 0,
+      "text": "Unikanie niesteroidowych leków przeciwzapalnych."
+    }
+  ],
+  "furniture": [
+    "Szpital Powiatowy w Zielonej Dąbrowie",
+    "Oddział Chorób Wewnętrznych z Pododdziałem Kardiologicznym",
+    "ul. Źródlana 9, 66-412 Zielona Dąbrowa · tel. 95 000 21 40",
+    "Pacjent: Zbigniew Wróblewski · Nr księgi głównej 2026/04412",
+    "Oddział Chorób Wewnętrznych",
+    "Strona 1 z 2",
+    "Strona 2 z 2"
+  ],
+  "languages": [
+    "pl"
+  ],
+  "code": [],
+  "notes": "Centred hospital letterhead (three lines) is furniture. On page 2 a running header (patient line left, ward right) appears; it is suppressed on page 1. Footer \"Strona n z N\" on every page, listed per page. The patient data table is a borderless key/value table of FOUR columns (two key/value pairs per row). The laboratory table has a two-level header: \"Badanie\" and \"Jednostka\" and \"Zakres referencyjny\" span both header rows and repeat; \"Wynik\" spans two date columns. Recommendations are a CSS-drawn numbered list (numbers drawn by CSS, text without them). Signature lines at the end are body text."
+}

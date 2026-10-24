@@ -1,0 +1,174 @@
+{
+  "id": "y18",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Taarifa ya Mapato na Matumizi",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Taarifa ya Mapato na Matumizi"
+    },
+    {
+      "level": 2,
+      "text": "Muhtasari wa fedha"
+    },
+    {
+      "level": 2,
+      "text": "Changamoto zilizojitokeza"
+    },
+    {
+      "level": 2,
+      "text": "Maazimio yanayopendekezwa"
+    },
+    {
+      "level": 2,
+      "text": "Wajumbe wa kamati"
+    }
+  ],
+  "key_sentences": [
+    "Taarifa hii inawasilishwa kwa mkutano mkuu wa wanakijiji kama inavyotakiwa na katiba ya Jumuiya ya Watumiaji Maji.",
+    "Inaonyesha fedha zilizokusanywa kutoka kwa watumiaji wa maji na jinsi zilivyotumika katika kipindi cha miezi mitatu.",
+    "Salio katika akaunti ya benki tarehe 30 Septemba 2026 lilikuwa shilingi 8,437,200, ikiwa ni pamoja na mfuko wa dharura wa shilingi 3,000,000.",
+    "Wanakijiji wote wanakaribishwa kuuliza maswali kuhusu taarifa hii wakati wa mkutano."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Maelezo",
+          "Kiasi (TSh)",
+          "Asilimia"
+        ],
+        [
+          "Mapato",
+          "Mapato",
+          "Mapato"
+        ],
+        [
+          "Ada za maji kutoka vituo 12 vya kuchotea",
+          "4,860,000",
+          "71%"
+        ],
+        [
+          "Ada za maunganisho ya majumbani (nyumba 38)",
+          "1,520,000",
+          "22%"
+        ],
+        [
+          "Faini za kuchelewa kulipa",
+          "96,000",
+          "1%"
+        ],
+        [
+          "Ruzuku ya halmashauri ya wilaya",
+          "400,000",
+          "6%"
+        ],
+        [
+          "Jumla ya mapato",
+          "6,876,000",
+          "100%"
+        ],
+        [
+          "Matumizi",
+          "Matumizi",
+          "Matumizi"
+        ],
+        [
+          "Mishahara ya mafundi wawili na mlinzi",
+          "2,250,000",
+          "39%"
+        ],
+        [
+          "Umeme wa pampu",
+          "1,612,500",
+          "28%"
+        ],
+        [
+          "Vipuri na ukarabati wa mabomba",
+          "1,184,000",
+          "21%"
+        ],
+        [
+          "Dawa ya kutibu maji (klorini)",
+          "318,000",
+          "6%"
+        ],
+        [
+          "Shajara na usafiri wa kamati",
+          "342,000",
+          "6%"
+        ],
+        [
+          "Jumla ya matumizi",
+          "5,706,500",
+          "100%"
+        ],
+        [
+          "Ziada ya kipindi",
+          "1,169,500",
+          ""
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Jina",
+          "Cheo"
+        ],
+        [
+          "Bi. Rehema Mshana",
+          "Mwenyekiti"
+        ],
+        [
+          "Bw. Elias Kimaro",
+          "Katibu"
+        ],
+        [
+          "Bi. Neema Swai",
+          "Mweka hazina"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Bomba kuu lilipasuka mara mbili karibu na shule ya msingi kutokana na shinikizo kubwa."
+    },
+    {
+      "level": 0,
+      "text": "Baadhi ya kaya bado zinadaiwa ada za miezi mitatu."
+    },
+    {
+      "level": 0,
+      "text": "Bei ya umeme imeongezeka tangu mwezi Agosti."
+    },
+    {
+      "level": 0,
+      "text": "Kufunga vali ya kupunguza shinikizo kwenye bomba kuu kabla ya msimu wa mvua."
+    },
+    {
+      "level": 0,
+      "text": "Kuanzisha malipo ya ada kwa simu ya mkononi ili kurahisisha ukusanyaji."
+    },
+    {
+      "level": 0,
+      "text": "Kufanya ukaguzi wa hesabu na mkaguzi wa nje kabla ya Desemba 2026."
+    }
+  ],
+  "furniture": [
+    "KAMATI YA MAJI YA KIJIJI CHA MLIMANI",
+    "Kata ya Usangi, Wilaya ya Mwanga · S.L.P. 118, Mwanga",
+    "Imeandaliwa na Mweka hazina, 5 Oktoba 2026",
+    "Ukurasa 1 kati ya 1"
+  ],
+  "languages": [
+    "sw"
+  ],
+  "code": [],
+  "notes": "The centred committee name and address above the title and the bottom line are furniture. The income/expenditure table has two section rows (\"Mapato\", \"Matumizi\") that span all three columns (text repeated in each grid cell), subtotal rows and a final balance row, all rows of one table. The committee-members table is small and borderless. Challenges are a CSS-drawn disc list; resolutions are a CSS-drawn lower-alpha list (letters drawn by CSS, text without them). Amounts are Tanzanian shillings with comma thousands separators."
+}

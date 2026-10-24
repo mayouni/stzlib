@@ -1,0 +1,274 @@
+{
+  "id": "y08",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Fișa disciplinei",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Fișa disciplinei"
+    },
+    {
+      "level": 2,
+      "text": "1. Date despre program"
+    },
+    {
+      "level": 2,
+      "text": "2. Date despre disciplină"
+    },
+    {
+      "level": 2,
+      "text": "3. Timpul total estimat"
+    },
+    {
+      "level": 2,
+      "text": "4. Obiectivele disciplinei"
+    },
+    {
+      "level": 2,
+      "text": "5. Competențe specifice acumulate"
+    },
+    {
+      "level": 2,
+      "text": "6. Conținuturi"
+    },
+    {
+      "level": 2,
+      "text": "7. Evaluare"
+    }
+  ],
+  "key_sentences": [
+    "Numărul de credite transferabile alocat disciplinei este de 5, corespunzător unui volum total de muncă de 125 de ore.",
+    "Disciplina urmărește formarea capacității studenților de a dimensiona și exploata sisteme de irigare adaptate solului, culturii și resurselor de apă disponibile.",
+    "Se pune accent pe economisirea apei și pe evitarea salinizării secundare a solurilor din câmpia Dunării.",
+    "Studenții care nu promovează examenul în sesiunea ordinară se pot prezenta în sesiunea de restanțe din septembrie."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "1.1",
+          "Instituția de învățământ superior",
+          "Universitatea „Dunărea de Sus” din Calafeni"
+        ],
+        [
+          "1.2",
+          "Facultatea",
+          "Științe Agronomice"
+        ],
+        [
+          "1.3",
+          "Departamentul",
+          "Pedologie și Îmbunătățiri Funciare"
+        ],
+        [
+          "1.4",
+          "Domeniul de studii",
+          "Agronomie"
+        ],
+        [
+          "1.5",
+          "Ciclul de studii",
+          "Licență"
+        ],
+        [
+          "1.6",
+          "Programul de studii",
+          "Agricultură"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "2.1",
+          "Denumirea disciplinei",
+          "Irigarea culturilor și gestiunea apei în fermă"
+        ],
+        [
+          "2.2",
+          "Titularul activităților de curs",
+          "Conf. univ. dr. Ioana Brăteanu-Mușat"
+        ],
+        [
+          "2.3",
+          "Titularul activităților de laborator",
+          "Asist. univ. dr. Radu Țepeș"
+        ],
+        [
+          "2.4",
+          "Anul de studiu / Semestrul",
+          "III / 1"
+        ],
+        [
+          "2.5",
+          "Tipul de evaluare",
+          "Examen"
+        ],
+        [
+          "2.6",
+          "Regimul disciplinei",
+          "Obligatorie, de specialitate"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Activitate",
+          "Ore pe semestru",
+          "Ore pe semestru"
+        ],
+        [
+          "Activitate",
+          "Pe săptămână",
+          "Total (14 săptămâni)"
+        ],
+        [
+          "Curs",
+          "2",
+          "28"
+        ],
+        [
+          "Laborator",
+          "2",
+          "28"
+        ],
+        [
+          "Studiu individual și documentare",
+          "3",
+          "42"
+        ],
+        [
+          "Pregătire proiect de fermă",
+          "1",
+          "14"
+        ],
+        [
+          "Total ore",
+          "8",
+          "112"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Nr.",
+          "Curs",
+          "Ore",
+          "Metode de predare"
+        ],
+        [
+          "1",
+          "Apa în sol și relația sol–plantă–atmosferă",
+          "4",
+          "Prelegere, studiu de caz"
+        ],
+        [
+          "2",
+          "Evapotranspirația și bilanțul apei",
+          "4",
+          "Prelegere, exerciții"
+        ],
+        [
+          "3",
+          "Irigarea prin aspersiune: elemente de proiectare și exploatare",
+          "6",
+          "Prelegere, vizită în fermă"
+        ],
+        [
+          "4",
+          "Irigarea prin picurare și fertirigarea",
+          "6",
+          "Prelegere, demonstrație"
+        ],
+        [
+          "5",
+          "Calitatea apei și riscul de salinizare",
+          "4",
+          "Prelegere, dezbatere"
+        ],
+        [
+          "6",
+          "Programarea udărilor și agricultura de precizie",
+          "4",
+          "Prelegere, aplicație digitală"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Tip activitate",
+          "Criterii de evaluare",
+          "Metode de evaluare",
+          "Pondere din nota finală"
+        ],
+        [
+          "Curs",
+          "Corectitudinea și completitudinea cunoștințelor",
+          "Examen scris",
+          "60%"
+        ],
+        [
+          "Laborator",
+          "Rezolvarea aplicațiilor de calcul",
+          "Verificare pe parcurs",
+          "25%"
+        ],
+        [
+          "Proiect",
+          "Calitatea proiectului de irigare a unei ferme",
+          "Susținere orală",
+          "15%"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Calcularea necesarului de apă al culturilor pe baza evapotranspirației."
+    },
+    {
+      "level": 0,
+      "text": "Alegerea metodei de udare potrivite pentru fiecare tip de sol."
+    },
+    {
+      "level": 0,
+      "text": "Programarea udărilor folosind date de la senzori de umiditate și stații meteo."
+    },
+    {
+      "level": 0,
+      "text": "Interpretarea analizelor de calitate a apei de irigat."
+    },
+    {
+      "level": 0,
+      "text": "– calculul corect al normei de irigare pentru o cultură dată;"
+    },
+    {
+      "level": 0,
+      "text": "– prezența la cel puțin 80% din orele de laborator;"
+    },
+    {
+      "level": 0,
+      "text": "– obținerea notei 5 la fiecare componentă a evaluării."
+    }
+  ],
+  "furniture": [
+    "Universitatea „Dunărea de Sus” din Calafeni · Facultatea de Științe Agronomice",
+    "1 / 2",
+    "2 / 2"
+  ],
+  "languages": [
+    "ro"
+  ],
+  "code": [],
+  "notes": "Running header (university and faculty) and footer \"n / N\" are furniture on every page; page-number lines listed per page. Sections \"1. Date despre program\" and \"2. Date despre disciplină\" are ruled key/value tables of three columns (number, label, value), no header row. Section 3 is a table with a two-level header: \"Activitate\" spans two header rows and repeats; \"Ore pe semestru\" spans two columns and repeats. The competences list is CSS-drawn (discs); the evaluation criteria list uses typed markers \"–\". Romanian uses comma-below ș and ț (U+0219, U+021B). The title is letter-spaced; read as plain words. Signature captions at the end are body text."
+}

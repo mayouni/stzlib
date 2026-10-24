@@ -1,0 +1,72 @@
+page_header	0	Brightline Fibre Networks — Field Engineering
+page_header	0	Internal · Do not distribute
+heading	1	Field Deployment Guide: GX-7 Fibre Gateway
+paragraph	0	Applies to firmware 4.2.x · Revision C · Approved 9 October 2026
+heading	2	1 Purpose and Scope
+paragraph	0	This guide describes how field technicians install, provision and verify the GX-7 fibre gateway at residential and small business premises. It covers the physical installation, the provisioning file, the first boot and the acceptance tests that must pass before a job is closed.
+paragraph	0	Before you start
+list_item	0	Confirm the work order shows an active GPON port.
+list_item	0	Check that the optical light level at the wall box is between -8 dBm and -27 dBm.
+list_item	0	Make sure the customer is present to choose the gateway location.
+paragraph	0	Tools required
+list_item	0	Optical power meter with SC/APC adapter
+list_item	0	Laptop with a terminal client and an Ethernet port
+list_item	0	Fibre cleaning pen and inspection scope
+heading	2	2 Physical Installation
+paragraph	0	Mount the gateway on a wall or shelf at least one metre away from microwave ovens and cordless phone bases. Keep the fibre patch lead bend radius above 15 mm at all times.
+list_item	0	1. Clean and inspect the SC/APC connector on the patch lead.
+list_item	0	2. Connect the patch lead to the PON port on the rear panel.
+list_item	0	3. Connect the power adapter and wait until the PWR light is steady green.
+list_item	0	4. Check that the PON light turns steady green within three minutes.
+list_item	0	5. Record the gateway serial number and MAC address on the work order.
+table	0	PortLabelDefault useNotesPONGreen SC/APCFibre uplinkClass B+ opticsLAN 12.5GCustomer router or PCSupports 2.5GBASE-TLAN 2–41GCustomer devicesBridged to LAN 1TEL 1–2RJ11Voice linesDisabled unless voice is orderedUSBUSB-CField diagnosticsRead-only storage
+heading	2	3 Provisioning
+paragraph	0	The gateway downloads its provisioning file from the auto-configuration server during first boot. If the download fails, the technician can load the same file locally from the laptop.
+paragraph	0	3.1 Provisioning file A typical provisioning file for a residential internet and voice service looks like this:
+page_footer	0	BFN-ENG-DG-014 rev C
+page_footer	0	1
+page_header	0	Brightline Fibre Networks — Field Engineering
+page_header	0	Internal · Do not distribute
+code	0	# gx7-provision.yaml\ndevice:\n  model: GX-7\n  firmware: 4.2.3\nwan:\n  mode: gpon\n  vlan: 101\n  pppoe: false\nlan:\n  subnet: 192.168.20.0/24\n  dhcp_range: [192.168.20.100, 192.168.20.199]\nvoice:\n  enabled: true\n  lines: 1\n  sip_server: sip.core.brightline.example
+paragraph	0	3.2 Service VLANs
+caption	0	Priority
+table	0	VLAN IDServiceTagged on802.1pQueue101Internet0Best effortPON102Voice (SIP)5ExpeditedPON103IPTV multicast4AssuredPON, LAN 4199Management6Network controlPON
+paragraph	0	3.3 Loading the file locally Connect the laptop to LAN 1, open a terminal session to the gateway and enter the commands below. The gateway reboots automatically when the commit succeeds.
+code	0	gx7> login field\nPassword: ********\ngx7# config load usb:/gx7-provision.yaml\ngx7# config validate\nValidation passed: 0 errors, 1 warning\ngx7# config commit\nCommitting configuration... done\ngx7# reboot
+paragraph	0	Never commit a provisioning file that reports validation errors, because the gateway may lose its management VLAN and require a site revisit.
+heading	2	4 Acceptance Tests
+caption	0	All acceptance tests must pass before the job can be closed in the workforce application. Results are uploaded automatically when the technician presses Finish.
+table	0	TestCommand or methodPass criterionOptical levelshow pon opticsRx between -8 and -27 dBmInternet throughputspeedtest --server nearestAt least 90% of the
+paragraph	0	Voice call
+paragraph	0	Wi-Fi coverage
+paragraph	0	Test call to 1505
+paragraph	0	Walk test with the app subscribed rate
+paragraph	0	Clear audio both ways for 30 seconds
+paragraph	0	Signal above -67 dBm in every main room
+page_footer	0	BFN-ENG-DG-014 rev C
+page_footer	0	2
+page_header	0	Brightline Fibre Networks — Field Engineering
+page_header	0	Internal · Do not distribute
+paragraph	0	The optical level command prints output similar to the following:
+code	0	gx7# show pon optics\n  Rx power      : -18.4 dBm\n  Tx power      :   2.1 dBm\n  Temperature   :  41.0 C\n  Status        : IN RANGE
+heading	2	5 Troubleshooting
+paragraph	0	Symptom
+paragraph	0	PON light flashing red
+paragraph	0	PON green, no internet
+paragraph	0	Voice line silent
+paragraph	0	Slow Wi-Fi
+paragraph	0	Likely cause
+paragraph	0	No optical signal or dirty connector
+paragraph	0	Wrong WAN VLAN
+paragraph	0	SIP registration failed
+paragraph	0	Channel congestion
+paragraph	0	Action
+paragraph	0	Clean and inspect the connector, then measure the light level
+paragraph	0	Check that wan.vlan is 101 and reload the file
+paragraph	0	Run show voice status and call the network desk
+paragraph	0	Run wifi scan and move to the least used channel
+paragraph	0	Escalate to the network operations desk if a fault cannot be cleared within 30 minutes on site.
+heading	2	6 Revision History
+table	0	RevisionDateChangeA12 March 2026First issueB30 June 2026Added IPTV VLAN 103C9 October 2026Firmware 4.2.x commands and new acceptance tests
+page_footer	0	BFN-ENG-DG-014 rev C
+page_footer	0	3

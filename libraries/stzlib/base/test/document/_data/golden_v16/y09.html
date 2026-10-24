@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="hu" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Villamosenergia-számla</title>
+<style>
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+* { box-sizing: border-box; }
+table:not(.tc):not(.inv), pre { break-inside: avoid; }
+h1, h2, h3 { break-after: avoid; }
+
+@page { size: A4; margin: 1.5cm 1.6cm 1.4cm 1.6cm; }
+body { font-family: "Trebuchet MS"; font-size: 9pt; line-height: 1.33; color: #20262e; margin: 0; }
+.band { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f0a500; padding-bottom: 5px; }
+.band .n { font-size: 14pt; font-weight: bold; color: #1f4e79; }
+.band .n span { color: #f0a500; }
+.band .a { font-size: 7.5pt; text-align: right; color: #4b5563; }
+h1 { font-size: 16pt; color: #1f4e79; margin: 10px 0 0 0; }
+.inv { font-size: 9pt; color: #4b5563; margin: 0 0 8px 0; }
+.two { display: flex; gap: 12px; margin-bottom: 8px; }
+.two > div { flex: 1; background: #f4f7fb; border-top: 3px solid #1f4e79; padding: 5px 9px; }
+h2 { font-size: 10pt; color: #1f4e79; margin: 0 0 3px 0; }
+h2.s { margin: 10px 0 4px 0; font-size: 11pt; }
+table { border-collapse: collapse; width: 100%; }
+.two td { padding: 1px 2px; font-size: 8.5pt; } .two td:first-child { color: #4b5563; width: 48%; }
+.pay { display: flex; gap: 0; border: 2px solid #f0a500; margin: 6px 0 4px 0; }
+.pay div { flex: 1; padding: 6px 10px; text-align: center; }
+.pay div + div { border-left: 1px solid #f0a500; }
+.pay .l { font-size: 8pt; color: #4b5563; display: block; } .pay .v { font-size: 13pt; font-weight: bold; color: #1f4e79; display: block; }
+table.it { font-size: 8.5pt; }
+table.it th { border-bottom: 1.5px solid #1f4e79; text-align: right; padding: 3px 4px; color: #1f4e79; font-size: 8pt; }
+table.it th:first-child { text-align: left; }
+table.it td { padding: 2px 4px; border-bottom: 0.5px solid #d8dee6; }
+tr.g td { font-weight: bold; background: #e7eef7; }
+tr.t td { font-weight: bold; border-top: 1.5px solid #1f4e79; border-bottom: 1.5px solid #1f4e79; font-size: 9.5pt; }
+.ar { text-align: right; } .ac { text-align: center; }
+table.m td, table.m th { border: 0.5px solid #9aa8b8; padding: 2px 4px; font-size: 8.5pt; }
+table.m th { background: #e7eef7; }
+ul { margin: 2px 0 4px 0; padding-left: 16px; } li { margin-bottom: 1px; }
+.foot { margin-top: 10px; font-size: 7pt; color: #6b7280; border-top: 0.5px solid #aaa; padding-top: 3px; display: flex; justify-content: space-between; }
+
+</style>
+</head>
+<body>
+<div class="band"><div class="n"><span style="white-space:nowrap">Alföldi Áramszolgáltató Zrt.</span></div><div class="a" style="white-space:nowrap">6720 Szegvár, Tisza Lajos körút 41.<br>Ügyfélszolgálat: 06 80 000 461 · www.alfoldiaram.example</div></div><h1>Villamosenergia-számla</h1><p class="inv">Számla sorszáma: AA-2026-0918346 · Elszámolási időszak: 2026.08.01. – 2026.09.30.</p><div class="two"><div><h2>Vevő (fizető) adatai</h2><table><tbody><tr><td>Név</td><td>Szőke Bálint</td></tr><tr><td>Cím</td><td>6800 Hódmezővásárhely, Bőrösök útja 17.</td></tr><tr><td>Ügyfél-azonosító</td><td>30018 4462</td></tr><tr><td>Szerződéses folyószámla</td><td>7001 2284 9013</td></tr></tbody></table></div><div><h2>Felhasználási hely adatai</h2><table><tbody><tr><td>Cím</td><td>6800 Hódmezővásárhely, Bőrösök útja 17.</td></tr><tr><td>POD azonosító</td><td>HU000120-11-S00000000000000184620</td></tr><tr><td>Tarifa</td><td>A1 általános, egyzónás</td></tr><tr><td>Teljesítmény</td><td>3 × 16 A</td></tr></tbody></table></div></div><div class="pay"><div><span class="l">Fizetendő összeg</span><span class="v">38 412 Ft</span></div><div><span class="l">Fizetési határidő</span><span class="v">2026. november 5.</span></div><div><span class="l">Fizetési mód</span><span class="v">csoportos beszedés</span></div></div><h2 class="s">A számla részletezése</h2><table class="it"><thead><tr><th>Tétel</th><th class="ar">Mennyiség</th><th class="ar">Egységár (Ft)</th><th class="ar">Nettó (Ft)</th><th class="ar">ÁFA 27% (Ft)</th><th class="ar">Bruttó (Ft)</th></tr></thead><tbody><tr class="g"><td colspan="6">Villamos energia</td></tr><tr><td>Energiadíj, kedvezményes sáv</td><td class="ar">420 kWh</td><td class="ar">28,15</td><td class="ar">11 823</td><td class="ar">3 192</td><td class="ar">15 015</td></tr><tr><td>Energiadíj, piaci sáv</td><td class="ar">98 kWh</td><td class="ar">70,10</td><td class="ar">6 870</td><td class="ar">1 855</td><td class="ar">8 725</td></tr><tr class="g"><td colspan="6">Rendszerhasználati díjak</td></tr><tr><td>Átviteli díj</td><td class="ar">518 kWh</td><td class="ar">2,63</td><td class="ar">1 362</td><td class="ar">368</td><td class="ar">1 730</td></tr><tr><td>Elosztói forgalmi díj</td><td class="ar">518 kWh</td><td class="ar">13,72</td><td class="ar">7 107</td><td class="ar">1 919</td><td class="ar">9 026</td></tr><tr><td>Elosztói alapdíj</td><td class="ar">2 hó</td><td class="ar">624,00</td><td class="ar">1 248</td><td class="ar">337</td><td class="ar">1 585</td></tr><tr><td>Pénzeszközökhöz kapcsolódó díjak</td><td class="ar">518 kWh</td><td class="ar">3,40</td><td class="ar">1 761</td><td class="ar">476</td><td class="ar">2 237</td></tr><tr class="t"><td>Összesen</td><td class="ar"></td><td class="ar"></td><td class="ar">30 171</td><td class="ar">8 147</td><td class="ar">38 318</td></tr><tr><td>Előző számla egyenlege</td><td class="ar"></td><td class="ar"></td><td class="ar"></td><td class="ar"></td><td class="ar">94</td></tr><tr class="t"><td>Fizetendő</td><td class="ar"></td><td class="ar"></td><td class="ar"></td><td class="ar"></td><td class="ar">38 412</td></tr></tbody></table><h2 class="s">Mérőállások</h2><table class="m"><thead><tr><th class="ac">Mérő gyári száma</th><th class="ar">Előző állás (2026.07.31.)</th><th class="ar">Jelenlegi állás (2026.09.30.)</th><th class="ac">Leolvasás módja</th><th class="ar">Fogyasztás (kWh)</th></tr></thead><tbody><tr><td class="ac">44 1180 2296</td><td class="ar">21 604</td><td class="ar">22 122</td><td class="ac">távleolvasás</td><td class="ar">518</td></tr></tbody></table><p style="margin-top:6px">Az Ön átlagos napi fogyasztása ebben az időszakban 8,5 kWh volt, ami 6%-kal kevesebb az előző év azonos időszakánál.</p><p>A kedvezményes sávban évente legfeljebb 2523 kWh villamos energia számolható el rezsicsökkentett áron. Az idei évben ebből eddig 1964 kWh-t használt fel.</p><h2 class="s">Tájékoztatás</h2><ul><li>Mérőállását a hónap első öt napjában online is bejelentheti.</li><li>Panaszát írásban, telefonon vagy személyesen teheti meg ügyfélszolgálati irodáinkban.</li><li>Fogyasztóvédelmi kérdésekben a területileg illetékes kormányhivatalhoz fordulhat.</li></ul><p>Késedelmes fizetés esetén a jegybanki alapkamatnak megfelelő késedelmi kamatot számítunk fel.</p><div class="foot"><span style="white-space:nowrap">Cégjegyzékszám: 06-10-000461 · Adószám: 10000461-2-06</span><span style="white-space:nowrap">1/1. oldal</span></div>
+</body>
+</html>

@@ -1,0 +1,304 @@
+{
+  "id": "y15",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "Field Deployment Guide: GX-7 Fibre Gateway",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Field Deployment Guide: GX-7 Fibre Gateway"
+    },
+    {
+      "level": 2,
+      "text": "1 Purpose and Scope"
+    },
+    {
+      "level": 3,
+      "text": "Before you start"
+    },
+    {
+      "level": 3,
+      "text": "Tools required"
+    },
+    {
+      "level": 2,
+      "text": "2 Physical Installation"
+    },
+    {
+      "level": 2,
+      "text": "3 Provisioning"
+    },
+    {
+      "level": 3,
+      "text": "3.1 Provisioning file"
+    },
+    {
+      "level": 3,
+      "text": "3.2 Service VLANs"
+    },
+    {
+      "level": 3,
+      "text": "3.3 Loading the file locally"
+    },
+    {
+      "level": 2,
+      "text": "4 Acceptance Tests"
+    },
+    {
+      "level": 2,
+      "text": "5 Troubleshooting"
+    },
+    {
+      "level": 2,
+      "text": "6 Revision History"
+    }
+  ],
+  "key_sentences": [
+    "This guide describes how field technicians install, provision and verify the GX-7 fibre gateway at residential and small business premises.",
+    "It covers the physical installation, the provisioning file, the first boot and the acceptance tests that must pass before a job is closed.",
+    "Mount the gateway on a wall or shelf at least one metre away from microwave ovens and cordless phone bases.",
+    "The gateway downloads its provisioning file from the auto-configuration server during first boot.",
+    "Connect the laptop to LAN 1, open a terminal session to the gateway and enter the commands below.",
+    "Never commit a provisioning file that reports validation errors, because the gateway may lose its management VLAN and require a site revisit.",
+    "All acceptance tests must pass before the job can be closed in the workforce application.",
+    "Escalate to the network operations desk if a fault cannot be cleared within 30 minutes on site."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Port",
+          "Label",
+          "Default use",
+          "Notes"
+        ],
+        [
+          "PON",
+          "Green SC/APC",
+          "Fibre uplink",
+          "Class B+ optics"
+        ],
+        [
+          "LAN 1",
+          "2.5G",
+          "Customer router or PC",
+          "Supports 2.5GBASE-T"
+        ],
+        [
+          "LAN 2–4",
+          "1G",
+          "Customer devices",
+          "Bridged to LAN 1"
+        ],
+        [
+          "TEL 1–2",
+          "RJ11",
+          "Voice lines",
+          "Disabled unless voice is ordered"
+        ],
+        [
+          "USB",
+          "USB-C",
+          "Field diagnostics",
+          "Read-only storage"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "VLAN ID",
+          "Service",
+          "Priority",
+          "Priority",
+          "Tagged on"
+        ],
+        [
+          "VLAN ID",
+          "Service",
+          "802.1p",
+          "Queue",
+          "Tagged on"
+        ],
+        [
+          "101",
+          "Internet",
+          "0",
+          "Best effort",
+          "PON"
+        ],
+        [
+          "102",
+          "Voice (SIP)",
+          "5",
+          "Expedited",
+          "PON"
+        ],
+        [
+          "103",
+          "IPTV multicast",
+          "4",
+          "Assured",
+          "PON, LAN 4"
+        ],
+        [
+          "199",
+          "Management",
+          "6",
+          "Network control",
+          "PON"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Test",
+          "Command or method",
+          "Pass criterion"
+        ],
+        [
+          "Optical level",
+          "show pon optics",
+          "Rx between -8 and -27 dBm"
+        ],
+        [
+          "Internet throughput",
+          "speedtest --server nearest",
+          "At least 90% of the subscribed rate"
+        ],
+        [
+          "Voice call",
+          "Test call to 1505",
+          "Clear audio both ways for 30 seconds"
+        ],
+        [
+          "Wi-Fi coverage",
+          "Walk test with the app",
+          "Signal above -67 dBm in every main room"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Symptom",
+          "Likely cause",
+          "Action"
+        ],
+        [
+          "PON light flashing red",
+          "No optical signal or dirty connector",
+          "Clean and inspect the connector, then measure the light level"
+        ],
+        [
+          "PON green, no internet",
+          "Wrong WAN VLAN",
+          "Check that wan.vlan is 101 and reload the file"
+        ],
+        [
+          "Voice line silent",
+          "SIP registration failed",
+          "Run show voice status and call the network desk"
+        ],
+        [
+          "Slow Wi-Fi",
+          "Channel congestion",
+          "Run wifi scan and move to the least used channel"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Revision",
+          "Date",
+          "Change"
+        ],
+        [
+          "A",
+          "12 March 2026",
+          "First issue"
+        ],
+        [
+          "B",
+          "30 June 2026",
+          "Added IPTV VLAN 103"
+        ],
+        [
+          "C",
+          "9 October 2026",
+          "Firmware 4.2.x commands and new acceptance tests"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Confirm the work order shows an active GPON port."
+    },
+    {
+      "level": 0,
+      "text": "Check that the optical light level at the wall box is between -8 dBm and -27 dBm."
+    },
+    {
+      "level": 0,
+      "text": "Make sure the customer is present to choose the gateway location."
+    },
+    {
+      "level": 0,
+      "text": "Optical power meter with SC/APC adapter"
+    },
+    {
+      "level": 0,
+      "text": "Laptop with a terminal client and an Ethernet port"
+    },
+    {
+      "level": 0,
+      "text": "Fibre cleaning pen and inspection scope"
+    },
+    {
+      "level": 0,
+      "text": "Clean and inspect the SC/APC connector on the patch lead."
+    },
+    {
+      "level": 0,
+      "text": "Connect the patch lead to the PON port on the rear panel."
+    },
+    {
+      "level": 0,
+      "text": "Connect the power adapter and wait until the PWR light is steady green."
+    },
+    {
+      "level": 0,
+      "text": "Check that the PON light turns steady green within three minutes."
+    },
+    {
+      "level": 0,
+      "text": "Record the gateway serial number and MAC address on the work order."
+    }
+  ],
+  "furniture": [
+    "Brightline Fibre Networks — Field Engineering",
+    "Internal · Do not distribute",
+    "BFN-ENG-DG-014 rev C",
+    "1",
+    "2",
+    "3"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "# gx7-provision.yaml\ndevice:\n  model: GX-7\n  firmware: 4.2.3\nwan:\n  mode: gpon\n  vlan: 101\n  pppoe: false\nlan:\n  subnet: 192.168.20.0/24\n  dhcp_range: [192.168.20.100, 192.168.20.199]\nvoice:\n  enabled: true\n  lines: 1\n  sip_server: sip.core.brightline.example",
+    "gx7> login field\nPassword: ********\ngx7# config load usb:/gx7-provision.yaml\ngx7# config validate\nValidation passed: 0 errors, 1 warning\ngx7# config commit\nCommitting configuration... done\ngx7# reboot",
+    "gx7# show pon optics\n  Rx power      : -18.4 dBm\n  Tx power      :   2.1 dBm\n  Temperature   :  41.0 C\n  Status        : IN RANGE"
+  ],
+  "notes": "Running header (department left, classification right) and footer (document number left, bare page number right) are furniture; page numbers are listed one per page as bare digits. Code blocks are set in Consolas and given exactly, lines joined with \\n, leading spaces kept. Inline identifiers inside sentences are in Consolas too but belong to the sentences. Installation steps are a CSS-drawn numbered list (numbers not in the text). The \"Before you start\" and \"Tools required\" boxes sit SIDE BY SIDE; reading order is box by box (left first). The VLAN table has a two-level header: \"VLAN ID\" and \"Service\" span both rows and repeat, \"Priority\" spans two columns and repeats. The troubleshooting table has cells of two lines. The amber warning box is body text."
+}

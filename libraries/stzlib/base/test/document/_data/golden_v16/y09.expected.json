@@ -1,0 +1,228 @@
+{
+  "id": "y09",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Villamosenergia-számla",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Villamosenergia-számla"
+    },
+    {
+      "level": 2,
+      "text": "Vevő (fizető) adatai"
+    },
+    {
+      "level": 2,
+      "text": "Felhasználási hely adatai"
+    },
+    {
+      "level": 2,
+      "text": "A számla részletezése"
+    },
+    {
+      "level": 2,
+      "text": "Mérőállások"
+    },
+    {
+      "level": 2,
+      "text": "Tájékoztatás"
+    }
+  ],
+  "key_sentences": [
+    "Az Ön átlagos napi fogyasztása ebben az időszakban 8,5 kWh volt, ami 6%-kal kevesebb az előző év azonos időszakánál.",
+    "A kedvezményes sávban évente legfeljebb 2523 kWh villamos energia számolható el rezsicsökkentett áron.",
+    "Az idei évben ebből eddig 1964 kWh-t használt fel.",
+    "Késedelmes fizetés esetén a jegybanki alapkamatnak megfelelő késedelmi kamatot számítunk fel."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Név",
+          "Szőke Bálint"
+        ],
+        [
+          "Cím",
+          "6800 Hódmezővásárhely, Bőrösök útja 17."
+        ],
+        [
+          "Ügyfél-azonosító",
+          "30018 4462"
+        ],
+        [
+          "Szerződéses folyószámla",
+          "7001 2284 9013"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Cím",
+          "6800 Hódmezővásárhely, Bőrösök útja 17."
+        ],
+        [
+          "POD azonosító",
+          "HU000120-11-S00000000000000184620"
+        ],
+        [
+          "Tarifa",
+          "A1 általános, egyzónás"
+        ],
+        [
+          "Teljesítmény",
+          "3 × 16 A"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Tétel",
+          "Mennyiség",
+          "Egységár (Ft)",
+          "Nettó (Ft)",
+          "ÁFA 27% (Ft)",
+          "Bruttó (Ft)"
+        ],
+        [
+          "Villamos energia",
+          "Villamos energia",
+          "Villamos energia",
+          "Villamos energia",
+          "Villamos energia",
+          "Villamos energia"
+        ],
+        [
+          "Energiadíj, kedvezményes sáv",
+          "420 kWh",
+          "28,15",
+          "11 823",
+          "3 192",
+          "15 015"
+        ],
+        [
+          "Energiadíj, piaci sáv",
+          "98 kWh",
+          "70,10",
+          "6 870",
+          "1 855",
+          "8 725"
+        ],
+        [
+          "Rendszerhasználati díjak",
+          "Rendszerhasználati díjak",
+          "Rendszerhasználati díjak",
+          "Rendszerhasználati díjak",
+          "Rendszerhasználati díjak",
+          "Rendszerhasználati díjak"
+        ],
+        [
+          "Átviteli díj",
+          "518 kWh",
+          "2,63",
+          "1 362",
+          "368",
+          "1 730"
+        ],
+        [
+          "Elosztói forgalmi díj",
+          "518 kWh",
+          "13,72",
+          "7 107",
+          "1 919",
+          "9 026"
+        ],
+        [
+          "Elosztói alapdíj",
+          "2 hó",
+          "624,00",
+          "1 248",
+          "337",
+          "1 585"
+        ],
+        [
+          "Pénzeszközökhöz kapcsolódó díjak",
+          "518 kWh",
+          "3,40",
+          "1 761",
+          "476",
+          "2 237"
+        ],
+        [
+          "Összesen",
+          "",
+          "",
+          "30 171",
+          "8 147",
+          "38 318"
+        ],
+        [
+          "Előző számla egyenlege",
+          "",
+          "",
+          "",
+          "",
+          "94"
+        ],
+        [
+          "Fizetendő",
+          "",
+          "",
+          "",
+          "",
+          "38 412"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Mérő gyári száma",
+          "Előző állás (2026.07.31.)",
+          "Jelenlegi állás (2026.09.30.)",
+          "Leolvasás módja",
+          "Fogyasztás (kWh)"
+        ],
+        [
+          "44 1180 2296",
+          "21 604",
+          "22 122",
+          "távleolvasás",
+          "518"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Mérőállását a hónap első öt napjában online is bejelentheti."
+    },
+    {
+      "level": 0,
+      "text": "Panaszát írásban, telefonon vagy személyesen teheti meg ügyfélszolgálati irodáinkban."
+    },
+    {
+      "level": 0,
+      "text": "Fogyasztóvédelmi kérdésekben a területileg illetékes kormányhivatalhoz fordulhat."
+    }
+  ],
+  "furniture": [
+    "Alföldi Áramszolgáltató Zrt.",
+    "6720 Szegvár, Tisza Lajos körút 41.",
+    "Ügyfélszolgálat: 06 80 000 461 · www.alfoldiaram.example",
+    "Cégjegyzékszám: 06-10-000461 · Adószám: 10000461-2-06",
+    "1/1. oldal"
+  ],
+  "languages": [
+    "hu"
+  ],
+  "code": [],
+  "notes": "Letterhead band (supplier name and address block) and the bottom line are furniture. Two boxes \"Vevő (fizető) adatai\" and \"Felhasználási hely adatai\" sit SIDE BY SIDE; reading order is box by box, left first; each holds a borderless key/value table. The orange payment strip is a row of three label/value pairs and is NOT a table (labels then values read left to right). Amounts use a NON-BREAKING SPACE as thousands separator (count it as a space). The itemised table has section rows and a total row. The information list is CSS-drawn (discs). Hungarian double acute letters ő ű are used throughout."
+}

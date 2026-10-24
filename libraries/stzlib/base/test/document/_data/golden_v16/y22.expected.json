@@ -1,0 +1,193 @@
+{
+  "id": "y22",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Stagione Concertistica 2026/2027",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Stagione Concertistica 2026/2027"
+    },
+    {
+      "level": 2,
+      "text": "Presentazione"
+    },
+    {
+      "level": 2,
+      "text": "Calendario"
+    },
+    {
+      "level": 2,
+      "text": "Abbonamenti e biglietti"
+    },
+    {
+      "level": 3,
+      "text": "Biglietteria"
+    },
+    {
+      "level": 3,
+      "text": "Come arrivare"
+    }
+  ],
+  "key_sentences": [
+    "Otto serate di musica da camera e sinfonica, da ottobre a maggio, nella sala restaurata del teatro.",
+    "La nuova stagione si apre con un omaggio a Ottorino Respighi e prosegue con un percorso che unisce il grande repertorio a pagine poco eseguite.",
+    "Accanto all’Orchestra Filarmonica di Valmorena saliranno sul palco giovani solisti vincitori di concorsi internazionali.",
+    "Per la prima volta, ogni concerto sarà preceduto da una breve guida all’ascolto nel ridotto, aperta a tutti i possessori di biglietto.",
+    "Il rinnovo degli abbonamenti con conferma del posto è possibile dal 1° al 30 settembre; la vendita dei nuovi abbonamenti inizia il 3 ottobre.",
+    "Nei giorni di spettacolo la biglietteria apre un’ora prima dell’inizio.",
+    "Il teatro è accessibile alle persone con disabilità motoria dall’ingresso laterale."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Data",
+          "Programma",
+          "Ora"
+        ],
+        [
+          "Sabato 17 ottobre 2026",
+          "Respighi: Fontane di Roma, Pini di Roma Orchestra Filarmonica di Valmorena, dir. Lucia Benvenuti",
+          "20:30"
+        ],
+        [
+          "Domenica 15 novembre 2026",
+          "Schubert: Quintetto «La trota» Quintetto Arsenale",
+          "18:00"
+        ],
+        [
+          "Sabato 12 dicembre 2026",
+          "Händel: Messiah, parte prima Coro e Orchestra barocca «Il Giardino»",
+          "20:30"
+        ],
+        [
+          "Sabato 23 gennaio 2027",
+          "Čajkovskij: Concerto per violino op. 35 Solista Ilaria Monteforte",
+          "20:30"
+        ],
+        [
+          "Domenica 21 febbraio 2027",
+          "Dvořák: Trio «Dumky»; Smetana: Trio in sol minore Trio Ponte Vecchio",
+          "18:00"
+        ],
+        [
+          "Sabato 20 marzo 2027",
+          "Brahms: Sinfonia n. 4 Orchestra Filarmonica di Valmorena, dir. Matteo Ruggeri",
+          "20:30"
+        ],
+        [
+          "Sabato 17 aprile 2027",
+          "Debussy e Ravel: musica per pianoforte Pianista Giorgio Esposito-Lindqvist",
+          "20:30"
+        ],
+        [
+          "Domenica 16 maggio 2027",
+          "Verdi: Messa da Requiem Coro lirico regionale e Orchestra Filarmonica",
+          "18:00"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Settore",
+          "Abbonamento",
+          "Abbonamento",
+          "Biglietto singolo",
+          "Biglietto singolo"
+        ],
+        [
+          "Settore",
+          "Intero",
+          "Ridotto",
+          "Intero",
+          "Ridotto"
+        ],
+        [
+          "Platea",
+          "€ 160",
+          "€ 120",
+          "€ 28",
+          "€ 20"
+        ],
+        [
+          "Palchi di primo ordine",
+          "€ 140",
+          "€ 105",
+          "€ 24",
+          "€ 18"
+        ],
+        [
+          "Palchi di secondo ordine",
+          "€ 110",
+          "€ 80",
+          "€ 19",
+          "€ 14"
+        ],
+        [
+          "Galleria",
+          "€ 70",
+          "€ 50",
+          "€ 12",
+          "€ 8"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "i giovani fino a 26 anni e gli studenti del conservatorio;"
+    },
+    {
+      "level": 0,
+      "text": "le persone con più di 65 anni;"
+    },
+    {
+      "level": 0,
+      "text": "i soci delle associazioni musicali convenzionate;"
+    },
+    {
+      "level": 0,
+      "text": "i gruppi di almeno dieci persone."
+    },
+    {
+      "level": 0,
+      "text": "— Piazza della Rocca 2, Valmorena"
+    },
+    {
+      "level": 0,
+      "text": "— Dal martedì al sabato, ore 10–13 e 16–19"
+    },
+    {
+      "level": 0,
+      "text": "— Telefono 0577 000 418"
+    },
+    {
+      "level": 0,
+      "text": "— In treno: stazione di Valmorena, 10 minuti a piedi"
+    },
+    {
+      "level": 0,
+      "text": "— In autobus: linee 3 e 7, fermata Rocca"
+    },
+    {
+      "level": 0,
+      "text": "— In auto: parcheggio di via dei Tintori"
+    }
+  ],
+  "furniture": [
+    "TEATRO COMUNALE DI VALMORENA",
+    "Teatro Comunale di Valmorena",
+    "– 1 –",
+    "– 2 –"
+  ],
+  "languages": [
+    "it"
+  ],
+  "code": [],
+  "notes": "The letter-spaced line above the title (\"TEATRO COMUNALE DI VALMORENA\", spaced capitals) and the footer (theatre name left, \"– n –\" right) are furniture; letter-spaced text is given as plain words, page-number lines listed per page. Section headings are letter-spaced; read as plain words. The calendar table is zebra-striped and each \"Programma\" cell has TWO LINES (composer and works / performers), joined with a space. The price table has a two-level header: \"Settore\" spans both header rows and repeats; \"Abbonamento\" and \"Biglietto singolo\" each span two columns and repeat. The boxes \"Biglietteria\" and \"Come arrivare\" sit SIDE BY SIDE; reading order is box by box. Reductions are a CSS-drawn disc list; the box lists use typed \"—\" markers."
+}

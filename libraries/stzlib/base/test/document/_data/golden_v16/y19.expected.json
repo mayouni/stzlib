@@ -1,0 +1,172 @@
+{
+  "id": "y19",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Bayanin Asusun Lamuni",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Bayanin Asusun Lamuni"
+    },
+    {
+      "level": 2,
+      "text": "Bayanan mai karɓar lamuni"
+    },
+    {
+      "level": 2,
+      "text": "Bayanan lamuni"
+    },
+    {
+      "level": 2,
+      "text": "Jadawalin biyan bashi"
+    },
+    {
+      "level": 2,
+      "text": "Shawarwari ga manoma"
+    }
+  ],
+  "key_sentences": [
+    "Ya zuwa ranar 15 ga Oktoba 2026, sauran bashin da ake bin ki shi ne N76,125.",
+    "Ana roƙon ki da ki biya kashi na ƙarshe kafin ko a ranar 31 ga Oktoba 2026 domin ki samu damar karɓar sabon lamuni a damina mai zuwa.",
+    "An caje ki tarar N1,500 saboda jinkirin biyan kashi na huɗu, kuma an riga an cire ta daga ajiyarki.",
+    "Idan kina da tambaya, ki ziyarci reshenmu ko ki kira lambar wayar da ke sama."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Suna",
+          "Malama Hauwaʼu Ɗanjuma"
+        ],
+        [
+          "Lambar asusu",
+          "DTM-2026-00418"
+        ],
+        [
+          "Ƙungiya",
+          "Ƙungiyar Matan Manoma ta Ƴandoto"
+        ],
+        [
+          "Adireshi",
+          "Unguwar Ɓaure, Dutsin-Ma"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Nauʼin lamuni",
+          "Lamunin noman ridi da gyaɗa"
+        ],
+        [
+          "Adadin lamuni",
+          "N450,000"
+        ],
+        [
+          "Ribar shekara",
+          "18%"
+        ],
+        [
+          "Tsawon lokaci",
+          "Watanni 6 (Mayu–Oktoba 2026)"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Kashi",
+          "Ranar biya",
+          "Babban kuɗi (N)",
+          "Riba (N)",
+          "Jimilla (N)",
+          "Matsayi"
+        ],
+        [
+          "1",
+          "31/05/2026",
+          "75,000",
+          "6,750",
+          "81,750",
+          "An biya"
+        ],
+        [
+          "2",
+          "30/06/2026",
+          "75,000",
+          "5,625",
+          "80,625",
+          "An biya"
+        ],
+        [
+          "3",
+          "31/07/2026",
+          "75,000",
+          "4,500",
+          "79,500",
+          "An biya"
+        ],
+        [
+          "4",
+          "31/08/2026",
+          "75,000",
+          "3,375",
+          "78,375",
+          "An biya a makare"
+        ],
+        [
+          "5",
+          "30/09/2026",
+          "75,000",
+          "2,250",
+          "77,250",
+          "An biya"
+        ],
+        [
+          "6",
+          "31/10/2026",
+          "75,000",
+          "1,125",
+          "76,125",
+          "Ba a biya ba tukuna"
+        ],
+        [
+          "Jimilla",
+          "",
+          "450,000",
+          "23,625",
+          "473,625",
+          ""
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "• Ku adana amfanin gona a rumbu mai tsabta domin guje wa ƙwari."
+    },
+    {
+      "level": 0,
+      "text": "• Ku sayar da ridi lokacin da farashi ya tashi, ba lokacin girbi kaɗai ba."
+    },
+    {
+      "level": 0,
+      "text": "• Ku halarci taron ƙungiya na kowane wata domin samun horo kyauta."
+    }
+  ],
+  "furniture": [
+    "Asusun Bunƙasa Manoma Ƙanana",
+    "Reshen Dutsin-Ma, Titin Kasuwa, Jihar Katsina",
+    "Lambar waya: 0800 000 4180",
+    "Wannan bayani an samar da shi ta kwamfuta kuma baya buƙatar sa hannu. Shafi 1 cikin 1"
+  ],
+  "languages": [
+    "ha"
+  ],
+  "code": [],
+  "notes": "Letterhead (lender name and branch block) and the bottom line are furniture. The customer and loan details are two key/value tables placed SIDE BY SIDE under their own headings; reading order is the left block (heading and table) then the right block. The repayment schedule has a total row; grey rows are paid instalments (same table). Advice items use typed markers \"•\" (a bullet character typed in the text). Hausa hooked letters ɓ ɗ ƙ ƴ and the modifier apostrophe ʼ (U+02BC) are used as written. Amounts in naira are written with a plain capital N before the number (N450,000), as is common in Nigerian print."
+}

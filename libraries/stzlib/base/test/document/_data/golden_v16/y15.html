@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Field Deployment Guide: GX-7 Fibre Gateway</title>
+<style>
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+* { box-sizing: border-box; }
+table:not(.tc):not(.inv), pre { break-inside: avoid; }
+h1, h2, h3 { break-after: avoid; }
+
+@page { size: A4; margin: 2.2cm 2cm 2cm 2cm;
+  @top-left { content: "Brightline Fibre Networks \2014  Field Engineering"; font-family: Roboto; font-size: 8pt; color: #0057b8; }
+  @top-right { content: "Internal \00B7  Do not distribute"; font-family: Roboto; font-size: 8pt; color: #b00020; }
+  @bottom-left { content: "BFN-ENG-DG-014 rev C"; font-family: Roboto; font-size: 8pt; color: #555; }
+  @bottom-right { content: counter(page); font-family: Roboto; font-size: 9pt; font-weight: bold; color: #0057b8; } }
+body { font-family: Roboto; font-size: 9.5pt; line-height: 1.45; color: #202124; margin: 0; }
+h1 { font-size: 20pt; font-weight: bold; color: #0057b8; margin: 0 0 4px 0; }
+.ver { font-size: 9pt; color: #5f6368; margin: 0 0 12px 0; }
+h2 { font-size: 13pt; font-weight: bold; color: #202124; margin: 16px 0 5px 0; padding-left: 8px; border-left: 4px solid #0057b8; }
+h3 { font-size: 10.5pt; font-weight: 500; color: #0057b8; margin: 10px 0 3px 0; }
+p { margin: 0 0 6px 0; }
+pre.code { font-family: Consolas; font-size: 8.5pt; line-height: 1.35; background: #f4f6f8; border: 1px solid #d0d7de; border-left: 3px solid #0057b8; padding: 6px 8px; margin: 4px 0 8px 0; white-space: pre; }
+code { font-family: Consolas; font-size: 9pt; }
+table { border-collapse: collapse; width: 100%; font-size: 8.8pt; margin: 4px 0 8px 0; }
+th { background: #e8f0fe; text-align: left; padding: 3px 5px; border-bottom: 1.5px solid #0057b8; font-weight: 500; }
+td { padding: 3px 5px; border-bottom: 1px solid #e0e3e7; vertical-align: top; }
+.ar { text-align: right; } .ac { text-align: center; }
+ol.steps { padding-left: 20px; margin: 2px 0 6px 0; } ol.steps li { margin-bottom: 3px; }
+ul.b { padding-left: 18px; margin: 2px 0 6px 0; list-style: disc; }
+.warn { border: 1px solid #f29900; background: #fef7e0; padding: 5px 8px; margin: 6px 0; }
+.side { display: flex; gap: 12px; margin: 6px 0; }
+.side > div { flex: 1; border: 1px solid #d0d7de; border-radius: 4px; padding: 5px 8px; }
+.side h3 { margin-top: 0; }
+
+</style>
+</head>
+<body>
+<h1>Field Deployment Guide: GX-7 Fibre Gateway</h1><p class="ver">Applies to firmware 4.2.x · Revision C · Approved 9 October 2026</p><h2>1 Purpose and Scope</h2><p>This guide describes how field technicians install, provision and verify the GX-7 fibre gateway at residential and small business premises. It covers the physical installation, the provisioning file, the first boot and the acceptance tests that must pass before a job is closed.</p><div class="side"><div><h3>Before you start</h3><ul class="b"><li>Confirm the work order shows an active GPON port.</li><li>Check that the optical light level at the wall box is between -8 dBm and -27 dBm.</li><li>Make sure the customer is present to choose the gateway location.</li></ul></div><div><h3>Tools required</h3><ul class="b"><li>Optical power meter with SC/APC adapter</li><li>Laptop with a terminal client and an Ethernet port</li><li>Fibre cleaning pen and inspection scope</li></ul></div></div><h2>2 Physical Installation</h2><p>Mount the gateway on a wall or shelf at least one metre away from microwave ovens and cordless phone bases. Keep the fibre patch lead bend radius above 15 mm at all times.</p><ol class="steps"><li>Clean and inspect the SC/APC connector on the patch lead.</li><li>Connect the patch lead to the PON port on the rear panel.</li><li>Connect the power adapter and wait until the PWR light is steady green.</li><li>Check that the PON light turns steady green within three minutes.</li><li>Record the gateway serial number and MAC address on the work order.</li></ol><table><colgroup><col style="width:14%"><col style="width:18%"><col style="width:30%"><col style="width:38%"></colgroup><thead><tr><th>Port</th><th>Label</th><th>Default use</th><th>Notes</th></tr></thead><tbody><tr><td>PON</td><td>Green SC/APC</td><td>Fibre uplink</td><td>Class B+ optics</td></tr><tr><td>LAN 1</td><td>2.5G</td><td>Customer router or PC</td><td>Supports 2.5GBASE-T</td></tr><tr><td>LAN 2–4</td><td>1G</td><td>Customer devices</td><td>Bridged to LAN 1</td></tr><tr><td>TEL 1–2</td><td>RJ11</td><td>Voice lines</td><td>Disabled unless voice is ordered</td></tr><tr><td>USB</td><td>USB-C</td><td>Field diagnostics</td><td>Read-only storage</td></tr></tbody></table><h2>3 Provisioning</h2><p>The gateway downloads its provisioning file from the auto-configuration server during first boot. If the download fails, the technician can load the same file locally from the laptop.</p><h3>3.1 Provisioning file</h3><p>A typical provisioning file for a residential internet and voice service looks like this:</p><pre class="code"># gx7-provision.yaml
+device:
+  model: GX-7
+  firmware: 4.2.3
+wan:
+  mode: gpon
+  vlan: 101
+  pppoe: false
+lan:
+  subnet: 192.168.20.0/24
+  dhcp_range: [192.168.20.100, 192.168.20.199]
+voice:
+  enabled: true
+  lines: 1
+  sip_server: sip.core.brightline.example</pre><h3>3.2 Service VLANs</h3><table><thead><tr><th rowspan="2" class="ac">VLAN ID</th><th rowspan="2">Service</th><th colspan="2" class="ac">Priority</th><th rowspan="2">Tagged on</th></tr><tr><th class="ac">802.1p</th><th>Queue</th></tr></thead><tbody><tr><td class="ac">101</td><td>Internet</td><td class="ac">0</td><td>Best effort</td><td>PON</td></tr><tr><td class="ac">102</td><td>Voice (SIP)</td><td class="ac">5</td><td>Expedited</td><td>PON</td></tr><tr><td class="ac">103</td><td>IPTV multicast</td><td class="ac">4</td><td>Assured</td><td>PON, LAN 4</td></tr><tr><td class="ac">199</td><td>Management</td><td class="ac">6</td><td>Network control</td><td>PON</td></tr></tbody></table><h3>3.3 Loading the file locally</h3><p>Connect the laptop to LAN 1, open a terminal session to the gateway and enter the commands below. The gateway reboots automatically when the commit succeeds.</p><pre class="code">gx7&gt; login field
+Password: ********
+gx7# config load usb:/gx7-provision.yaml
+gx7# config validate
+Validation passed: 0 errors, 1 warning
+gx7# config commit
+Committing configuration... done
+gx7# reboot</pre><div class="warn"><p style="margin:0">Never commit a provisioning file that reports validation errors, because the gateway may lose its management VLAN and require a site revisit.</p></div><h2>4 Acceptance Tests</h2><p>All acceptance tests must pass before the job can be closed in the workforce application. Results are uploaded automatically when the technician presses Finish.</p><table><colgroup><col style="width:22%"><col style="width:38%"><col style="width:40%"></colgroup><thead><tr><th>Test</th><th>Command or method</th><th>Pass criterion</th></tr></thead><tbody><tr><td>Optical level</td><td>show pon optics</td><td>Rx between -8 and -27 dBm</td></tr><tr><td>Internet throughput</td><td>speedtest --server nearest</td><td>At least 90% of the<br>subscribed rate</td></tr><tr><td>Voice call</td><td>Test call to 1505</td><td>Clear audio both ways<br>for 30 seconds</td></tr><tr><td>Wi-Fi coverage</td><td>Walk test with the app</td><td>Signal above -67 dBm<br>in every main room</td></tr></tbody></table><p>The optical level command prints output similar to the following:</p><pre class="code">gx7# show pon optics
+  Rx power      : -18.4 dBm
+  Tx power      :   2.1 dBm
+  Temperature   :  41.0 C
+  Status        : IN RANGE</pre><h2>5 Troubleshooting</h2><table><colgroup><col style="width:24%"><col style="width:30%"><col style="width:46%"></colgroup><thead><tr><th>Symptom</th><th>Likely cause</th><th>Action</th></tr></thead><tbody><tr><td>PON light flashing red</td><td>No optical signal or<br>dirty connector</td><td>Clean and inspect the connector,<br>then measure the light level</td></tr><tr><td>PON green, no internet</td><td>Wrong WAN VLAN</td><td>Check that wan.vlan is 101<br>and reload the file</td></tr><tr><td>Voice line silent</td><td>SIP registration failed</td><td>Run show voice status and<br>call the network desk</td></tr><tr><td>Slow Wi-Fi</td><td>Channel congestion</td><td>Run wifi scan and move<br>to the least used channel</td></tr></tbody></table><p>Escalate to the network operations desk if a fault cannot be cleared within 30 minutes on site.</p><h2>6 Revision History</h2><table><colgroup><col style="width:14%"><col style="width:22%"><col style="width:64%"></colgroup><thead><tr><th>Revision</th><th>Date</th><th>Change</th></tr></thead><tbody><tr><td>A</td><td>12 March 2026</td><td>First issue</td></tr><tr><td>B</td><td>30 June 2026</td><td>Added IPTV VLAN 103</td></tr><tr><td>C</td><td>9 October 2026</td><td>Firmware 4.2.x commands and new acceptance tests</td></tr></tbody></table>
+</body>
+</html>

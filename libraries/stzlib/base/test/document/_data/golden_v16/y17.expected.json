@@ -1,0 +1,216 @@
+{
+  "id": "y17",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Declaración de desembarque y nota de primera venta",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Declaración de desembarque y nota de primera venta"
+    },
+    {
+      "level": 2,
+      "text": "Buque"
+    },
+    {
+      "level": 2,
+      "text": "Marea"
+    },
+    {
+      "level": 2,
+      "text": "Comprador"
+    },
+    {
+      "level": 2,
+      "text": "Capturas desembarcadas"
+    },
+    {
+      "level": 2,
+      "text": "Observaciones"
+    }
+  ],
+  "key_sentences": [
+    "El patrón declara que las cantidades consignadas corresponden a las capturas realmente desembarcadas en este puerto.",
+    "Los datos de esta nota se comunicarán a la Secretaría General de Pesca en un plazo máximo de 48 horas.",
+    "Cualquier discrepancia en el peso deberá comunicarse a la lonja antes de la salida de la mercancía.",
+    "El comprador se responsabiliza de mantener la cadena de frío desde la retirada de la mercancía."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Nombre",
+          "Nuevo Peñasco"
+        ],
+        [
+          "Matrícula",
+          "VI-5-2118"
+        ],
+        [
+          "Arte de pesca",
+          "Arrastre de fondo"
+        ],
+        [
+          "Patrón",
+          "Iñaki Ferreiro Couto"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Salida",
+          "15/10/2026 22:00"
+        ],
+        [
+          "Llegada",
+          "19/10/2026 03:15"
+        ],
+        [
+          "Zona FAO",
+          "27.9.a (Gran Sol)"
+        ],
+        [
+          "Días de pesca",
+          "3"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Razón social",
+          "Mariscos Ría Baixa, S.L."
+        ],
+        [
+          "NIF",
+          "B00418273"
+        ],
+        [
+          "N.º de comprador",
+          "LPA-0412"
+        ],
+        [
+          "Destino",
+          "Consumo humano"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Especie",
+          "Código FAO",
+          "Presentación",
+          "Cajas",
+          "Peso neto (kg)",
+          "Precio (€/kg)",
+          "Importe (€)"
+        ],
+        [
+          "Merluza europea Merluccius merluccius",
+          "HKE",
+          "Entera",
+          "86",
+          "1.548,0",
+          "6,42",
+          "9.938,16"
+        ],
+        [
+          "Rape blanco Lophius piscatorius",
+          "MON",
+          "Sin cabeza",
+          "22",
+          "418,5",
+          "11,80",
+          "4.938,30"
+        ],
+        [
+          "Gallo del norte Lepidorhombus whiffiagonis",
+          "LEZ",
+          "Entero",
+          "31",
+          "496,0",
+          "7,15",
+          "3.546,40"
+        ],
+        [
+          "Cigala Nephrops norvegicus",
+          "NEP",
+          "Viva, calibre 2",
+          "9",
+          "72,0",
+          "28,50",
+          "2.052,00"
+        ],
+        [
+          "Jurel Trachurus trachurus",
+          "HOM",
+          "Entero",
+          "40",
+          "820,0",
+          "1,35",
+          "1.107,00"
+        ],
+        [
+          "Total",
+          "",
+          "",
+          "188",
+          "3.354,5",
+          "",
+          "21.581,86"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Importe bruto",
+          "21.581,86 €"
+        ],
+        [
+          "Tasa de lonja (2,5 %)",
+          "539,55 €"
+        ],
+        [
+          "Cuota de la cofradía (1 %)",
+          "215,82 €"
+        ],
+        [
+          "Importe líquido a percibir",
+          "20.826,49 €"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. La cigala se ha desembarcado viva y se ha mantenido en viveros con agua de mar hasta la subasta."
+    },
+    {
+      "level": 0,
+      "text": "2. Se han descartado a bordo 64 kg de bacaladilla por talla inferior a la mínima de referencia."
+    },
+    {
+      "level": 0,
+      "text": "3. El diario electrónico de a bordo se transmitió correctamente antes de la entrada en puerto."
+    }
+  ],
+  "furniture": [
+    "Cofradía de Pescadores «Virgen del Faro» de Puerto Albar",
+    "Lonja de Puerto Albar · Muelle Pesquero s/n · 36980 Puerto Albar (Pontevedra)",
+    "Modelo NV-3 · Ejemplar para el comprador"
+  ],
+  "languages": [
+    "es"
+  ],
+  "code": [],
+  "notes": "Letterhead (guild name and address beside a round logo) and the bottom-right form reference are furniture. Three boxes \"Buque\", \"Marea\" and \"Comprador\" sit SIDE BY SIDE; reading order is box by box, left to right, each a borderless key/value table. In the catch table each \"Especie\" cell has TWO LINES: the common name and, below it in italics, the scientific name; the cell text joins them with a space. The catch table ends with a total row. Observations use typed markers \"1.\" to \"3.\". Spanish uses ñ and accented vowels."
+}

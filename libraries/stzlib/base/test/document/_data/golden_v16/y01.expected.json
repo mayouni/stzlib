@@ -1,0 +1,293 @@
+{
+  "id": "y01",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Quarterly Environmental Monitoring Report",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Quarterly Environmental Monitoring Report"
+    },
+    {
+      "level": 2,
+      "text": "1 Summary"
+    },
+    {
+      "level": 2,
+      "text": "2 Surface Water Quality"
+    },
+    {
+      "level": 3,
+      "text": "2.1 Exceedance at SW-04"
+    },
+    {
+      "level": 2,
+      "text": "3 Groundwater"
+    },
+    {
+      "level": 2,
+      "text": "4 Dust and Noise"
+    },
+    {
+      "level": 2,
+      "text": "5 Corrective Actions"
+    }
+  ],
+  "key_sentences": [
+    "This report presents the results of the environmental monitoring programme carried out at the Kestrel Ridge Gold Project during the third quarter of 2026.",
+    "Monitoring covered surface water, groundwater, airborne dust and environmental noise, as required by the conditions of licence EPL 4471.",
+    "Grab samples were collected monthly from the upstream reference point SW-01 and the downstream compliance point SW-04 on Marlow Creek.",
+    "The September iron result at SW-04 was 1.12 mg/L against a limit of 1.0 mg/L.",
+    "The exceedance followed a storm of 41 mm on 12 September, which carried sediment from the haul road crossing into the creek.",
+    "Standing water levels and sulphate were measured in the six monitoring bores around the tailings storage facility.",
+    "Sulphate at MB-03 and MB-04 remains above the internal trigger of 300 mg/L and both bores stay on the watch list.",
+    "Deposited dust is measured with eight gauges at the lease boundary and noise is logged at the two nearest homesteads.",
+    "Progress on these actions will be reported in the fourth quarter report, due in January 2027."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Report number",
+          "ENV-KR-2026-Q3"
+        ],
+        [
+          "Reporting period",
+          "1 July to 30 September 2026"
+        ],
+        [
+          "Environmental licence",
+          "EPL 4471 (Condition M2 and M5)"
+        ],
+        [
+          "Prepared by",
+          "Environment Section, Site Services"
+        ],
+        [
+          "Issue date",
+          "14 October 2026"
+        ]
+      ]
+    },
+    {
+      "caption": "Table 1. Surface water results, July and September 2026",
+      "rows": [
+        [
+          "Parameter",
+          "Unit",
+          "Licence limit",
+          "SW-01 Upstream",
+          "SW-01 Upstream",
+          "SW-04 Downstream",
+          "SW-04 Downstream"
+        ],
+        [
+          "Parameter",
+          "Unit",
+          "Licence limit",
+          "July",
+          "September",
+          "July",
+          "September"
+        ],
+        [
+          "pH",
+          "–",
+          "6.5 – 8.5",
+          "7.4",
+          "7.2",
+          "7.1",
+          "6.9"
+        ],
+        [
+          "Electrical conductivity",
+          "µS/cm",
+          "1500",
+          "312",
+          "298",
+          "641",
+          "702"
+        ],
+        [
+          "Total suspended solids",
+          "mg/L",
+          "50",
+          "8",
+          "11",
+          "23",
+          "31"
+        ],
+        [
+          "Arsenic (dissolved)",
+          "mg/L",
+          "0.024",
+          "<0.001",
+          "<0.001",
+          "0.006",
+          "0.009"
+        ],
+        [
+          "Cyanide (WAD)",
+          "mg/L",
+          "0.1",
+          "<0.005",
+          "<0.005",
+          "0.012",
+          "0.018"
+        ],
+        [
+          "Iron (total)",
+          "mg/L",
+          "1.0",
+          "0.21",
+          "0.34",
+          "0.66",
+          "1.12"
+        ]
+      ]
+    },
+    {
+      "caption": "Table 2. Groundwater bores, September 2026",
+      "rows": [
+        [
+          "Bore",
+          "Location",
+          "Water level (m bgl)",
+          "Change since Q2 (m)",
+          "Sulphate (mg/L)",
+          "Status"
+        ],
+        [
+          "MB-01",
+          "North of TSF",
+          "12.4",
+          "-0.6",
+          "88",
+          "Normal"
+        ],
+        [
+          "MB-02",
+          "East of TSF",
+          "9.8",
+          "-0.9",
+          "140",
+          "Normal"
+        ],
+        [
+          "MB-03",
+          "South-east toe",
+          "6.1",
+          "-0.2",
+          "412",
+          "Watch"
+        ],
+        [
+          "MB-04",
+          "South toe",
+          "5.7",
+          "+0.1",
+          "365",
+          "Watch"
+        ],
+        [
+          "MB-05",
+          "West of plant",
+          "14.9",
+          "-1.1",
+          "61",
+          "Normal"
+        ],
+        [
+          "MB-06",
+          "Background",
+          "18.2",
+          "-0.4",
+          "35",
+          "Normal"
+        ]
+      ]
+    },
+    {
+      "caption": "Table 3. Corrective actions arising this quarter",
+      "rows": [
+        [
+          "No.",
+          "Action",
+          "Owner",
+          "Due",
+          "Status"
+        ],
+        [
+          "CA-31",
+          "Install a sediment trap at the haul road crossing",
+          "Civil works supervisor",
+          "31 Oct 2026",
+          "In progress"
+        ],
+        [
+          "CA-32",
+          "Add water cart passes on the western haul road in dry weeks",
+          "Mining superintendent",
+          "15 Oct 2026",
+          "Done"
+        ],
+        [
+          "CA-33",
+          "Re-sample MB-03 and MB-04 for major ions",
+          "Environment officer",
+          "30 Nov 2026",
+          "Open"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "All pH and conductivity results were within licence limits at every sampling point."
+    },
+    {
+      "level": 0,
+      "text": "Total iron at the downstream point SW-04 exceeded the licence limit in September."
+    },
+    {
+      "level": 0,
+      "text": "Groundwater levels fell in four of six bores, consistent with the dry season."
+    },
+    {
+      "level": 0,
+      "text": "Deposited dust exceeded the guideline at one boundary gauge for a single month."
+    },
+    {
+      "level": 0,
+      "text": "(a) Gauge DG-6 recorded 4.6 g/m² per month in August, above the guideline of 4.0 g/m²."
+    },
+    {
+      "level": 0,
+      "text": "(b) All other gauges stayed below 2.8 g/m² per month."
+    },
+    {
+      "level": 0,
+      "text": "(c) Night-time noise at Hollis homestead averaged 33 dB(A) against a criterion of 35 dB(A)."
+    },
+    {
+      "level": 0,
+      "text": "(d) One noise complaint was received on 3 August and closed on 9 August."
+    }
+  ],
+  "furniture": [
+    "Tandala Mining Limited",
+    "Kestrel Ridge Site Office, PO Box 118, Marlow Creek",
+    "Environment Section · env@tandala-mining.example",
+    "Kestrel Ridge Gold Project — Q3 2026 Environmental Monitoring",
+    "ENV-KR-2026-Q3",
+    "Page 1 of 2",
+    "Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Letterhead (organisation name and address) is furniture. Running header appears on page 2 only (suppressed on page 1); footer carries the report number at left and \"Page n of N\" at right on every page, each page-number line listed. Table 1 has a two-level header: \"Parameter\", \"Unit\" and \"Licence limit\" span both header rows and repeat; the sample-point cells span two month columns and repeat. The subtitle line under the title is not a heading. The bullet list in section 1 is CSS-drawn (discs); the list in section 4 has typed markers \"(a)\" to \"(d)\". The table of corrective actions has cells of two lines (joined with a space). The sign-off lines at the end are body text, not furniture."
+}

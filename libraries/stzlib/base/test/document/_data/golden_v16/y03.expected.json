@@ -1,0 +1,194 @@
+{
+  "id": "y03",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Chương trình nghỉ dưỡng Biển Xanh 3 ngày 2 đêm",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Chương trình nghỉ dưỡng Biển Xanh 3 ngày 2 đêm"
+    },
+    {
+      "level": 2,
+      "text": "Lịch trình chi tiết"
+    },
+    {
+      "level": 3,
+      "text": "Ngày 1: Đón khách và nhận phòng"
+    },
+    {
+      "level": 3,
+      "text": "Ngày 2: Khám phá đảo và làng chài"
+    },
+    {
+      "level": 3,
+      "text": "Ngày 3: Thư giãn và trả phòng"
+    },
+    {
+      "level": 2,
+      "text": "Bảng giá năm 2026"
+    },
+    {
+      "level": 3,
+      "text": "Giá bao gồm"
+    },
+    {
+      "level": 3,
+      "text": "Giá không bao gồm"
+    },
+    {
+      "level": 2,
+      "text": "Điều kiện hủy và thay đổi"
+    },
+    {
+      "level": 2,
+      "text": "Thông tin liên hệ"
+    }
+  ],
+  "key_sentences": [
+    "Chương trình dành cho gia đình và nhóm bạn muốn nghỉ ngơi trọn vẹn bên bờ biển Hòn Mây trong mùa thu năm 2026.",
+    "Khách được đón tại sân bay hoặc ga tàu, nghỉ hai đêm tại biệt thự hướng biển và tham gia các hoạt động trải nghiệm cùng ngư dân địa phương.",
+    "Toàn bộ bữa ăn sáng, một bữa tối hải sản và vé tàu ra đảo đã được tính trong giá trọn gói.",
+    "Trẻ em dưới 6 tuổi được miễn phí khi ngủ chung giường với bố mẹ.",
+    "Quý khách vui lòng đặt cọc 30% tổng giá trị chương trình để giữ chỗ.",
+    "Số tiền còn lại được thanh toán khi nhận phòng bằng tiền mặt, thẻ hoặc chuyển khoản.",
+    "Bộ phận đặt phòng làm việc từ 7 giờ sáng đến 10 giờ tối tất cả các ngày trong tuần."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Loại phòng",
+          "Giá trọn gói (VNĐ/khách)",
+          "Giá trọn gói (VNĐ/khách)",
+          "Giá trọn gói (VNĐ/khách)"
+        ],
+        [
+          "Loại phòng",
+          "Ngày thường",
+          "Cuối tuần",
+          "Lễ, Tết"
+        ],
+        [
+          "Phòng Deluxe hướng vườn",
+          "3.450.000",
+          "3.890.000",
+          "4.600.000"
+        ],
+        [
+          "Phòng Superior hướng biển",
+          "4.120.000",
+          "4.580.000",
+          "5.350.000"
+        ],
+        [
+          "Biệt thự một phòng ngủ",
+          "5.900.000",
+          "6.400.000",
+          "7.750.000"
+        ],
+        [
+          "Biệt thự hai phòng ngủ có hồ bơi",
+          "7.250.000",
+          "7.990.000",
+          "9.400.000"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Hủy trước 15 ngày",
+          "Hoàn lại 100% tiền đặt cọc"
+        ],
+        [
+          "Hủy từ 7 đến 14 ngày",
+          "Hoàn lại 50% tiền đặt cọc"
+        ],
+        [
+          "Hủy trong vòng 7 ngày",
+          "Không hoàn tiền đặt cọc"
+        ],
+        [
+          "Đổi ngày lưu trú",
+          "Miễn phí một lần nếu báo trước 5 ngày"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "14:00 – Xe đón khách tại sân bay Phù Cát hoặc ga Diêu Trì."
+    },
+    {
+      "level": 0,
+      "text": "15:30 – Nhận phòng, thưởng thức nước dừa chào mừng."
+    },
+    {
+      "level": 0,
+      "text": "18:30 – Ăn tối tự chọn tại nhà hàng Gió Nồm."
+    },
+    {
+      "level": 0,
+      "text": "07:00 – Ăn sáng tại nhà hàng."
+    },
+    {
+      "level": 0,
+      "text": "08:30 – Đi tàu ra đảo Hòn Khô, lặn ngắm san hô có hướng dẫn viên."
+    },
+    {
+      "level": 0,
+      "text": "15:00 – Tham quan làng chài Nhơn Lý, học cách đan lưới cùng ngư dân."
+    },
+    {
+      "level": 0,
+      "text": "19:00 – Tiệc nướng hải sản trên bãi biển."
+    },
+    {
+      "level": 0,
+      "text": "07:00 – Ăn sáng, tập yoga bên hồ bơi vô cực."
+    },
+    {
+      "level": 0,
+      "text": "11:00 – Trả phòng; xe đưa khách ra sân bay hoặc ga tàu."
+    },
+    {
+      "level": 0,
+      "text": "– Hai đêm nghỉ tại loại phòng đã chọn."
+    },
+    {
+      "level": 0,
+      "text": "– Ăn sáng hằng ngày và một bữa tiệc nướng hải sản."
+    },
+    {
+      "level": 0,
+      "text": "– Vé tàu, áo phao và thiết bị lặn ngắm san hô."
+    },
+    {
+      "level": 0,
+      "text": "– Xe đưa đón sân bay hoặc ga tàu theo lịch trình."
+    },
+    {
+      "level": 0,
+      "text": "– Đồ uống ngoài thực đơn và chi phí cá nhân."
+    },
+    {
+      "level": 0,
+      "text": "– Thuế giá trị gia tăng 8% và phí dịch vụ 5%."
+    }
+  ],
+  "furniture": [
+    "Khu nghỉ dưỡng Hòn Mây",
+    "Mã chương trình: HM-BX-2026",
+    "Trang 1/2",
+    "Trang 2/2"
+  ],
+  "languages": [
+    "vi"
+  ],
+  "code": [],
+  "notes": "Running header (resort name left, programme code right) and footer \"Trang n/N\" on every page are furniture; page-number lines are listed per page. Day itineraries use CSS-drawn square bullets (text without marker). The \"Giá bao gồm\" and \"Giá không bao gồm\" lists use a typed \"–\" marker. The price table has a two-level header: \"Loại phòng\" spans both header rows and repeats; \"Giá trọn gói (VNĐ/khách)\" spans three columns and repeats. Vietnamese is NFC with stacked diacritics."
+}

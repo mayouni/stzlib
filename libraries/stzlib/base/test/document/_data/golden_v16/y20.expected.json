@@ -1,0 +1,114 @@
+{
+  "id": "y20",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "የዛፍ ችግኝ ስርጭት ማስታወቂያ",
+  "headings": [
+    {
+      "level": 1,
+      "text": "የዛፍ ችግኝ ስርጭት ማስታወቂያ"
+    },
+    {
+      "level": 2,
+      "text": "የሚሰራጩ ችግኞች"
+    },
+    {
+      "level": 2,
+      "text": "ለመውሰድ የሚያስፈልጉ"
+    },
+    {
+      "level": 2,
+      "text": "የተከላ ምክሮች"
+    }
+  ],
+  "key_sentences": [
+    "የደጋ ወረዳ ደን ልማት ጽሕፈት ቤት በ2019 ዓ.ም. የክረምት ወቅት ለአርሶ አደሮች የዛፍ ችግኞችን በነጻ ያከፋፍላል።",
+    "ችግኞቹ ከሰኔ 15 እስከ ሐምሌ 30 ቀን 2019 ዓ.ም. ድረስ በየቀበሌው ችግኝ ጣቢያ ይሰራጫሉ።",
+    "እያንዳንዱ አርሶ አደር እስከ 50 ችግኞች መውሰድ ይችላል።",
+    "የፍራፍሬ ችግኞች ግን ለአንድ ቤተሰብ ከ5 አይበልጡም።",
+    "ለተጨማሪ መረጃ በየቀበሌው የሚገኙ የልማት ሠራተኞችን ያነጋግሩ።"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "የችግኝ ዓይነት",
+          "ብዛት",
+          "የሚሰራጭበት ቀበሌ"
+        ],
+        [
+          "ጥድ",
+          "42,000",
+          "ጎላ፣ ሞጃ"
+        ],
+        [
+          "ኮሶ",
+          "18,500",
+          "ሞጃ"
+        ],
+        [
+          "ዋንዛ",
+          "25,000",
+          "ጎላ፣ እንሳሮ"
+        ],
+        [
+          "ግራቪሊያ",
+          "60,000",
+          "ሁሉም ቀበሌዎች"
+        ],
+        [
+          "አቮካዶ",
+          "12,000",
+          "እንሳሮ"
+        ],
+        [
+          "ማንጎ",
+          "8,500",
+          "እንሳሮ"
+        ],
+        [
+          "ድምር",
+          "166,000",
+          ""
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "የቀበሌ መታወቂያ ካርድ"
+    },
+    {
+      "level": 0,
+      "text": "የመሬት ይዞታ ማረጋገጫ ደብተር"
+    },
+    {
+      "level": 0,
+      "text": "ችግኝ ለመሸከም የሚያገለግል ዕቃ"
+    },
+    {
+      "level": 0,
+      "text": "1. የተከላ ጉድጓዶች ችግኙ ከመሰጠቱ ቢያንስ አንድ ወር በፊት መዘጋጀት አለባቸው።"
+    },
+    {
+      "level": 0,
+      "text": "2. ችግኙን ከተከሉ በኋላ በዙሪያው ያለውን አፈር በደንብ ይጫኑ።"
+    },
+    {
+      "level": 0,
+      "text": "3. አዲስ የተተከሉ ችግኞችን ከእንስሳት ለመጠበቅ አጥር ያድርጉ።"
+    }
+  ],
+  "furniture": [
+    "የደጋ ወረዳ ደን ልማት ጽሕፈት ቤት",
+    "ደብረ ብርሃን መንገድ፣ ስልክ 011 000 4180",
+    "ዛፍ እንትከል፣ አካባቢያችንን እንጠብቅ"
+  ],
+  "languages": [
+    "am"
+  ],
+  "code": [],
+  "notes": "Amharic (Ethiopic script) notice set in Ebrima. The boxed office name and address at the top and the bottom line are furniture. Section headings are white on green bands. Sentences end with the Ethiopic full stop ። (U+1362). The seedling table has a total row. Requirements are a CSS-drawn disc list; planting advice uses typed markers \"1.\" to \"3.\". Dates are Ethiopian calendar (ዓ.ም.)."
+}

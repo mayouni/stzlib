@@ -1,0 +1,181 @@
+{
+  "id": "y10",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Sevk İrsaliyesi",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Sevk İrsaliyesi"
+    },
+    {
+      "level": 2,
+      "text": "Gönderici"
+    },
+    {
+      "level": 2,
+      "text": "Alıcı"
+    },
+    {
+      "level": 2,
+      "text": "Taşıma bilgileri"
+    },
+    {
+      "level": 2,
+      "text": "Mal bilgileri"
+    },
+    {
+      "level": 2,
+      "text": "Gümrük notları"
+    }
+  ],
+  "key_sentences": [
+    "Yukarıda cinsi ve miktarı yazılı mallar sağlam ve eksiksiz olarak teslim edilmiştir.",
+    "Malların ihracat beyannamesi elektronik ortamda tescil edilmiş ve konteyner gümrük memuru huzurunda mühürlenmiştir.",
+    "Teslim sırasında tespit edilen hasar veya eksiklikler bu belgenin arkasına yazılarak taraflarca imzalanmalıdır.",
+    "Sevkiyatla ilgili her türlü soru için operasyon birimimize iş günlerinde 08:00 ile 18:00 arasında ulaşabilirsiniz."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Unvan",
+          "Doğu Fındık İşleme San. ve Tic. Ltd. Şti."
+        ],
+        [
+          "Adres",
+          "Organize Sanayi Bölgesi 4. Cadde No: 12, Giresun"
+        ],
+        [
+          "Vergi dairesi",
+          "Giresun / 0000992154"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Unvan",
+          "Nordhafen Lebensmittel Handels GmbH"
+        ],
+        [
+          "Adres",
+          "Speicherstraße 8, Hamburg, Almanya"
+        ],
+        [
+          "Teslim şekli",
+          "FCA Trabzon Limanı (Incoterms 2020)"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Araç plakası",
+          "61 AFK 418",
+          "Dorse plakası",
+          "61 AFR 902"
+        ],
+        [
+          "Sürücü",
+          "Mehmet Ali Yılmazoğlu",
+          "Sevk tarihi",
+          "21.10.2026"
+        ],
+        [
+          "Çıkış gümrüğü",
+          "Trabzon Gümrük Müdürlüğü",
+          "Konteyner no",
+          "KLGU 418273 6"
+        ],
+        [
+          "Mühür no",
+          "TR 2026 448190",
+          "Beyanname no",
+          "26610300EX00041273"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Sıra",
+          "Malın cinsi",
+          "GTİP kodu",
+          "Kap adedi",
+          "Ambalaj",
+          "Brüt ağırlık (kg)",
+          "Net ağırlık (kg)"
+        ],
+        [
+          "1",
+          "Kabuksuz fındık, naturel, 13–15 mm",
+          "0802.22.00.00.00",
+          "640",
+          "Jüt çuval",
+          "32.320",
+          "32.000"
+        ],
+        [
+          "2",
+          "Kavrulmuş fındık içi, vakumlu",
+          "2008.19.13.00.00",
+          "180",
+          "Karton koli",
+          "3.690",
+          "3.600"
+        ],
+        [
+          "3",
+          "Fındık ezmesi, şekersiz",
+          "2008.19.19.00.00",
+          "96",
+          "Plastik kova",
+          "1.056",
+          "960"
+        ],
+        [
+          "Toplam",
+          "",
+          "",
+          "916",
+          "",
+          "37.066",
+          "36.560"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "a) Menşe şahadetnamesi EUR.1 belgesi araçla birlikte gönderilmiştir."
+    },
+    {
+      "level": 0,
+      "text": "b) Sağlık sertifikası numarası: TR-GIR-2026-11873."
+    },
+    {
+      "level": 0,
+      "text": "c) Aflatoksin analiz raporu alıcıya ayrıca e-posta ile iletilmiştir."
+    },
+    {
+      "level": 0,
+      "text": "d) Konteyner iç sıcaklığı yolculuk boyunca 18 °C altında tutulmalıdır."
+    }
+  ],
+  "furniture": [
+    "Karadeniz Lojistik ve Gümrük Müşavirliği A.Ş.",
+    "Liman Caddesi No: 27, 61080 Değirmendere / Trabzon · Vergi No: 0000418273",
+    "Bu irsaliye 3 nüsha olarak düzenlenmiştir. Sayfa 1/1"
+  ],
+  "languages": [
+    "tr"
+  ],
+  "code": [],
+  "notes": "The bordered letterhead (company name with its address line) is furniture; the dark box at its right holds the document title (heading) and the document number/date lines, which are body. \"Gönderici\" and \"Alıcı\" boxes sit SIDE BY SIDE; reading order is box by box. The transport table is a four-column key/value table (two pairs per row), no header. The goods table has a total row. The customs-notes list uses typed markers \"a)\" to \"d)\". Turkish dotted/dotless i (İ, ı) are distinct letters and must be kept as written. Signature boxes at the bottom contain only labels."
+}

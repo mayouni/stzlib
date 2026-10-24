@@ -1,0 +1,152 @@
+{
+  "id": "y11",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "Ètò Ìsìn Ọjọ́ Àìkú",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Ètò Ìsìn Ọjọ́ Àìkú"
+    },
+    {
+      "level": 2,
+      "text": "Ètò Ìsìn"
+    },
+    {
+      "level": 2,
+      "text": "Ẹsẹ Ọ̀sẹ̀ Yìí"
+    },
+    {
+      "level": 2,
+      "text": "Àkọlé Ìwàásù"
+    },
+    {
+      "level": 2,
+      "text": "Ìkéde"
+    },
+    {
+      "level": 2,
+      "text": "Ìròyìn Ọrẹ"
+    },
+    {
+      "level": 2,
+      "text": "Àwọn Òṣìṣẹ́ Ọ̀sẹ̀ Yìí"
+    }
+  ],
+  "key_sentences": [
+    "Àkọlé ìwàásù òní ni “Ìrètí tí kì í ṣákìí”.",
+    "Olùsọ́ àgùntàn wa yóò sọ̀rọ̀ lórí bí ìgbàgbọ́ ṣe ń fún wa lókun nígbà ìṣòro.",
+    "Ẹ jọ̀wọ́, ẹ mú Bíbélì yín wá, kí ẹ sì kọ àwọn ẹsẹ tí a bá kà sílẹ̀.",
+    "A dúpẹ́ lọ́wọ́ gbogbo àwọn tí wọ́n fi ọrẹ wọn ṣètìlẹ́yìn fún iṣẹ́ Olúwa.",
+    "Ọlọ́run yóò bù kún yín lọ́pọ̀lọpọ̀.",
+    "Our motto: one family, one hope, one faith."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Ọ̀sẹ̀",
+          "Ọrẹ (₦)",
+          "Ìdámẹ́wàá (₦)"
+        ],
+        [
+          "11 Oṣù Kẹwàá",
+          "184,500",
+          "312,000"
+        ],
+        [
+          "18 Oṣù Kẹwàá",
+          "201,250",
+          "298,400"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Iṣẹ́",
+          "Orúkọ"
+        ],
+        [
+          "Olùdarí ìsìn",
+          "Olùṣọ́ àgùntàn Adéwálé Ògúnlẹ́yẹ"
+        ],
+        [
+          "Olùkàwé",
+          "Arábìnrin Fọláṣadé Àjàyí"
+        ],
+        [
+          "Olórin",
+          "Arákùnrin Túndé Ọláòṣebìkan"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. Orin ìbẹ̀rẹ̀ àti àdúrà ìpè"
+    },
+    {
+      "level": 0,
+      "text": "2. Orin ìyìn láti ọwọ́ ẹgbẹ́ akọrin"
+    },
+    {
+      "level": 0,
+      "text": "3. Kíkà Ìwé Mímọ́: Sáàmù 23"
+    },
+    {
+      "level": 0,
+      "text": "4. Ìjẹ́wọ́ ìgbàgbọ́"
+    },
+    {
+      "level": 0,
+      "text": "5. Orin: “Ọlọ́run ni olùṣọ́ àgùntàn mi”"
+    },
+    {
+      "level": 0,
+      "text": "6. Ìwàásù"
+    },
+    {
+      "level": 0,
+      "text": "7. Ọrẹ àti ìdúpẹ́"
+    },
+    {
+      "level": 0,
+      "text": "8. Ìkéde"
+    },
+    {
+      "level": 0,
+      "text": "9. Àdúrà ìparí àti ìbùkún"
+    },
+    {
+      "level": 0,
+      "text": "Ìpàdé àwọn ọ̀dọ́ yóò wáyé ní ọjọ́ Ẹtì, aago márùn-ún ìrọ̀lẹ́."
+    },
+    {
+      "level": 0,
+      "text": "Ẹgbẹ́ àwọn obìnrin yóò ṣe ìsìn ìdúpẹ́ ní ọjọ́ Àìkú tó ń bọ̀."
+    },
+    {
+      "level": 0,
+      "text": "Ìforúkọsílẹ̀ fún ìrìbọmi ṣì ń lọ lọ́wọ́ ní ọ́fíìsì ìjọ."
+    },
+    {
+      "level": 0,
+      "text": "A ń kọ́ ilé ìwé ọjọ́ Àìkú tuntun; ẹ jọ̀wọ́ ẹ ṣètìlẹ́yìn."
+    }
+  ],
+  "furniture": [
+    "ÌJỌ ÌRÈTÍ TUNTUN",
+    "Òpópónà Àgbàlá Ọba, Ìbàdàn · New Hope Church, Ibadan",
+    "Ẹ kú àbọ̀ sí ilé Olúwa · Ìjọ Ìrètí Tuntun"
+  ],
+  "languages": [
+    "yo",
+    "en"
+  ],
+  "code": [],
+  "notes": "Body is set in TWO CSS COLUMNS: reading order is the whole left column, then the right column (the break falls where the browser puts it; reading order follows the DOM). The centred church name and address above the title and the bottom line are furniture. The order of service uses typed markers \"1.\" to \"9.\"; announcements are a CSS-drawn disc list. Yoruba tone marks are NFC: letters with dot below plus a tone keep a combining grave/acute (U+0300/U+0301) after the precomposed dot-below letter. One English line (the motto) is included; languages yo and en."
+}

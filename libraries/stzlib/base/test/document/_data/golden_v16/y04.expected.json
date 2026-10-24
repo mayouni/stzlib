@@ -1,0 +1,191 @@
+{
+  "id": "y04",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "Contrat de location d'un logement vide",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Contrat de location d'un logement vide"
+    },
+    {
+      "level": 2,
+      "text": "TITRE I — DÉSIGNATION DES PARTIES"
+    },
+    {
+      "level": 3,
+      "text": "Article 1 — Le bailleur et le locataire"
+    },
+    {
+      "level": 3,
+      "text": "Article 2 — Objet du contrat"
+    },
+    {
+      "level": 2,
+      "text": "TITRE II — CONSISTANCE DU LOGEMENT"
+    },
+    {
+      "level": 3,
+      "text": "Article 3 — Désignation des locaux"
+    },
+    {
+      "level": 2,
+      "text": "TITRE III — DURÉE ET CONDITIONS FINANCIÈRES"
+    },
+    {
+      "level": 3,
+      "text": "Article 4 — Durée du contrat"
+    },
+    {
+      "level": 3,
+      "text": "Article 5 — Loyer et charges"
+    },
+    {
+      "level": 3,
+      "text": "Article 6 — Révision du loyer"
+    },
+    {
+      "level": 3,
+      "text": "Article 7 — Dépôt de garantie"
+    },
+    {
+      "level": 2,
+      "text": "TITRE IV — OBLIGATIONS DES PARTIES"
+    },
+    {
+      "level": 3,
+      "text": "Article 8 — Obligations du locataire"
+    },
+    {
+      "level": 3,
+      "text": "Article 9 — Obligations du bailleur"
+    },
+    {
+      "level": 3,
+      "text": "Article 10 — Remise des clés"
+    },
+    {
+      "level": 3,
+      "text": "Article 11 — Clause résolutoire"
+    }
+  ],
+  "key_sentences": [
+    "Le présent contrat est conclu entre la SCI Les Tilleuls, société civile immobilière dont le siège est 3 rue des Écoles à Villeneuve-sur-Ourne, ci-après dénommée « le bailleur », et Monsieur Gaspard Lemoine, ci-après dénommé « le locataire ».",
+    "Le bailleur donne en location au locataire, qui l’accepte, le logement désigné à l’article 3 du présent contrat.",
+    "La surface habitable du logement est de 61,4 m², mesurée conformément aux dispositions du code de la construction et de l’habitation.",
+    "Le contrat prend effet le 1er novembre 2026 pour une durée de trois ans.",
+    "À défaut de congé donné dans les formes et délais légaux, il sera reconduit tacitement pour la même durée.",
+    "Le loyer est payable d’avance, le cinq de chaque mois au plus tard, par virement sur le compte désigné par le bailleur.",
+    "Le loyer sera révisé chaque année à la date anniversaire du contrat, en fonction de la variation de l’indice de référence des loyers publié par l’Institut national de la statistique.",
+    "Le locataire verse ce jour un dépôt de garantie de 685,00 €, correspondant à un mois de loyer hors charges.",
+    "Le bailleur est tenu de remettre au locataire un logement décent, en bon état d’usage et de réparation, ainsi que les équipements mentionnés au contrat en bon état de fonctionnement.",
+    "Le présent contrat sera résilié de plein droit deux mois après un commandement de payer demeuré infructueux, à défaut de paiement du loyer ou des charges."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Désignation",
+          "Montant mensuel"
+        ],
+        [
+          "Loyer hors charges",
+          "685,00 €"
+        ],
+        [
+          "Provision sur charges récupérables",
+          "72,00 €"
+        ],
+        [
+          "Place de stationnement",
+          "25,00 €"
+        ],
+        [
+          "Total mensuel",
+          "782,00 €"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Type",
+          "Nombre",
+          "Observations"
+        ],
+        [
+          "Clés de la porte palière",
+          "3",
+          "Serrure trois points"
+        ],
+        [
+          "Badge d’accès au hall",
+          "2",
+          "Programmés au nom du locataire"
+        ],
+        [
+          "Clé de boîte aux lettres",
+          "1",
+          "—"
+        ],
+        [
+          "Clé de cave",
+          "1",
+          "Cave n° 12"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "a) une entrée avec placard, un séjour de 22 m² et deux chambres ;"
+    },
+    {
+      "level": 0,
+      "text": "b) une cuisine équipée d’une plaque de cuisson, d’une hotte et d’un évier ;"
+    },
+    {
+      "level": 0,
+      "text": "c) une salle d’eau avec douche à l’italienne et un cabinet de toilette séparé ;"
+    },
+    {
+      "level": 0,
+      "text": "d) une cave en sous-sol, portant le numéro 12, et une place de stationnement extérieure."
+    },
+    {
+      "level": 0,
+      "text": "a) de payer le loyer et les charges aux termes convenus ;"
+    },
+    {
+      "level": 0,
+      "text": "b) d’user paisiblement des locaux suivant la destination prévue au contrat ;"
+    },
+    {
+      "level": 0,
+      "text": "c) de répondre des dégradations survenues pendant la durée du contrat ;"
+    },
+    {
+      "level": 0,
+      "text": "d) de s’assurer contre les risques locatifs et d’en justifier chaque année ;"
+    },
+    {
+      "level": 0,
+      "text": "e) de laisser exécuter les travaux d’amélioration des parties communes."
+    }
+  ],
+  "furniture": [
+    "Bail d’habitation — Résidence Les Tilleuls, lot 12",
+    "Paraphes :",
+    "— 1 —",
+    "— 2 —",
+    "— 3 —"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "Running header on pages 2 and 3 only; footer \"— n —\" centred and the word \"Paraphes :\" bottom right on every page; all are furniture (page-number lines listed per page). Headings are three-level: title, \"TITRE ...\" divisions (letter-spaced capitals, read as plain words) and \"Article n\" headings. Lists use typed markers \"a)\", \"b)\"... The sentence carrying footnote marker 1 is excluded from key_sentences and the footnote text itself (small type under a short rule) is neither body key sentence nor furniture. The two signature boxes at the end sit SIDE BY SIDE; reading order is box by box (bailleur first). Text is justified without automatic hyphenation."
+}

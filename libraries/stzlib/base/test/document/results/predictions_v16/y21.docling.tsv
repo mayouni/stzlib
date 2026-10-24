@@ -1,0 +1,46 @@
+page_header	0	Journal of Upland Ecology 14 (2026) 211-218
+page_header	0	Research article
+heading	1	Seasonal variation of soil respiration in restored upland peatlands
+paragraph	0	Imogen R. Thackeray, Daniel Okonjo-Price and Wen-li Ashdown
+paragraph	0	Department of Environmental Science, University of Harrowdale, Harrowdale, United Kingdom
+heading	1	Abstract
+paragraph	0	Peatland restoration by ditch blocking is widely used to raise water tables and reduce carbon losses, but its effect on soil respiration over the seasons is poorly known. We measured soil CO₂ efflux monthly for two years at three restored and three unrestored sites on a blanket bog in the northern uplands. Mean annual efflux was 31% lower at restored sites, and the difference was largest in late summer when water tables at unrestored sites fell below 25 cm. Temperature explained most of the seasonal pattern, while water-table depth controlled its amplitude.
+paragraph	0	Keywords: peatland restoration; soil respiration; water table; carbon flux
+heading	1	1. Introduction
+paragraph	0	Northern peatlands store about one third of global soil carbon while covering only a small fraction of the land surface. Drainage for grazing and forestry has lowered water tables across large areas, exposing peat to oxygen and accelerating decomposition.
+paragraph	0	Blocking drainage ditches is the most common restoration method because it is cheap and quickly raises the water table near the ditch. However, most studies report annual budgets and say little about how restoration changes the timing of carbon losses within the year.
+paragraph	0	In this study we ask whether restoration reduces soil respiration evenly through the year or mainly in the warm and dry months.
+heading	1	2. Methods
+heading	1	2.1 Study sites
+paragraph	0	The study was carried out on a blanket bog at 420 to 510 m above sea level with a mean annual rainfall of 1,840 mm. Six sites were selected:
+list_item	0	three sites where ditches were blocked with peat dams in 2017;
+list_item	0	three nearby sites where ditches remain open;
+list_item	0	all sites on peat deeper than 1.5 m with similar vegetation.
+heading	1	2.2 Flux measurements
+paragraph	0	Soil respiration was measured on vegetation-free collars with a portable infrared gas analyser. a Each site had five collars, and measurements were made between 10:00 and 14:00 on one day per month.
+paragraph	0	Water-table depth was recorded in dipwells next to each collar, and soil temperature was measured at 5 cm depth.
+paragraph	0	a Model EGM-5 with SRC-2 chamber; collars were inserted 5 cm into the peat six weeks before the first measurement.
+table	0	VariableRestoredUnrestoredWater table (cm)-8.4-21.7Peat depth (m)2.32.1Soil temperature (°C)8.99.4Bulk density (g cm ⁻³)0.110.13
+caption	0	Table 1. Site characteristics (means of three sites).
+heading	1	2.3 Statistical analysis
+paragraph	0	We fitted linear mixed models with log-transformed efflux as the response, treatment and month as fixed effects, and site as a random effect. Temperature sensitivity was described with an exponential model and its Q10 value.
+table	0	SeasonRestored efflux (g CO₂ m ⁻² d⁻¹)Unrestored efflux (g CO₂ m ⁻² d⁻¹)Difference (%)pWinter (Dec-Feb)0.620.71-130.21Spring (Mar-May)1.481.93-230.04Summer (Jun-Aug)3.054.87-37<0.001Autumn (Sep-Nov)1.712.39-280.01Annual mean1.722.49-31<0.001
+caption	0	Table 2. Seasonal mean soil CO₂ efflux at restored and unrestored sites, 2024-2025.
+heading	1	3. Results
+paragraph	0	Soil respiration followed a clear seasonal cycle at all sites, with the lowest values in January and the highest in August. Restored sites had lower efflux in every season, but the difference was significant only from spring to autumn (Table 2).
+paragraph	0	The Q10 value did not differ between treatments, which suggests that restoration changed the amount of peat exposed to oxygen rather than the temperature response of decomposition. Efflux increased sharply once the water table fell below about 25 cm, a threshold reached only at unrestored sites.
+page_footer	0	1
+page_header	0	Journal of Upland Ecology 14 (2026) 211-218
+page_header	0	Research article
+heading	1	4. Discussion
+paragraph	0	Our results show that the benefit of ditch blocking is concentrated in the warmest and driest part of the year. This matters because climate projections for the region predict longer summer droughts, when unrestored peat will lose carbon fastest.
+paragraph	0	Annual budgets based on a few summer campaigns may therefore overestimate the effect of restoration if they are scaled up without seasonal weighting. Monthly sampling, as used here, gives a more reliable estimate.
+heading	1	5. Conclusions
+paragraph	0	Ditch blocking reduced soil respiration by almost one third, mainly by preventing deep summer drawdown of the water table. Restoration programmes should give priority to sites where summer water tables fall furthest.
+heading	1	References
+list_item	0	Ashworth, P. and Lund, K. (2019) Ditch blocking and peat hydrology. Upland Hydrology Review 8, 44-61.
+list_item	0	Brennan, S. et al. (2021) Carbon fluxes from drained blanket bogs. Journal of Upland Ecology 9, 102-117.
+list_item	0	Calder, M. (2018) Temperature sensitivity of peat decomposition. Soil Processes 31, 5-19.
+list_item	0	Dunmore, A. and Iqbal, R. (2023) Water-table thresholds for peat oxidation. Wetland Science 12, 230-245.
+list_item	0	Evers, J. (2020) Measuring soil respiration in the field. Field Methods in Ecology 4, 77-90.
+page_footer	0	2
