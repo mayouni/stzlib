@@ -554,3 +554,8 @@ Next by size: the classes at 2 (stzAppServer first), then those at 1.
 Use and Static stored their lists and nothing read them. Middleware now runs before routing (registration order, segment boundaries, a continue convention defined); Static serves a folder with a whitelist from the engine directory listing (78 hostile paths, the secret never leaks). OPEN SECURITY GAP, ENGINE-SIDE: a Windows junction (or hard link) inside the served folder is followed, the engine lists it as an ordinary folder; serve only folders nobody else can write to until the engine can resolve or classify links. Guard 222 assertions. Also left: _Dispatch's outer catch leaks the raw error text of a failing route handler.
 Next by size: 18 classes at 2 (stzDate first), then 28 at 1.
 
+## 2026-10-24: the stzDate fix batch is ON MAIN; register 66 -> 62
+
+ToHuman's capital-letter defect was already gone from the code (lower case, pinned by dtfix_date_time_args_narrated): only its stale block warning was replaced. ToRelative had an off-by-one at exactly 14 days (in 1 week, while 15 to 20 days read 2 weeks): now 8 to 30 days is floor(days/7) weeks, 31+ is dd/MM/yyyy. The register generator listed both rows because their briefs begin 'Returns today, tomorrow or yesterday': mk_defects.py now skips that opening (RX_NOT). Guard 141 assertions on six frozen clocks plus a live-clock scenario. Register rows without a cause may be intended or stale: stzWebSocket.Close, stzListOfNamedObjects.Copy, stzString.IsCurrencySymbol.
+Next by size: 17 classes at 2 (stzZipFile first), then 28 at 1.
+
