@@ -1,5 +1,5 @@
 {
- "count": 54,
+ "count": 52,
  "defects": [
   {
    "class": "stzEngineTimeline",
@@ -24,22 +24,6 @@
    "line": 896,
    "symptom": "Adds a clause that selects the nodes the rule looks at: a node property tested against a value; clauses are combined with AND.",
    "cause": "an empty property name or an unknown operator raises an error; the ordering operators compare numbers only: on a text greaterthan and lessthan never match but greaterequal and lessequal match every node, which is a defect; an unset property reads as 0, so exists fails and missing holds for it"
-  },
-  {
-   "class": "stzKnowledgeGraph",
-   "file": "graph/stzKnowledgeGraph.ring",
-   "method": "ValidateOntology",
-   "line": 865,
-   "symptom": "Returns 1 whatever the ontology holds; the check is not written yet.",
-   "cause": "known defect: the body only returns 1, so no inconsistency is ever reported"
-  },
-  {
-   "class": "stzKnowledgeGraph",
-   "file": "graph/stzKnowledgeGraph.ring",
-   "method": "Explain",
-   "line": 1000,
-   "symptom": "Raises error R14 today instead of describing the knowledge graph in sections: structure, facts, entities, predicates, ontology and insights.",
-   "cause": "known defect: it calls ApplyInference, which is defined nowhere, so the call always raises R14; stzGraph.Explain is shadowed by this version seen in the gallery: drawn through GraphCanvas a knowledge graph shows no predicate on its edges and no arrowheads; Dot() with graphviz draws each fact as an edge labelled with its predicate"
   },
   {
    "class": "stzMathSubstance",

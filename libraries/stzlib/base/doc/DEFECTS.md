@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 54 methods in 41 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 52 methods in 40 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| graph/stzKnowledgeGraph.ring | stzKnowledgeGraph | 2 |
 | list/stzSetOfSections.ring | stzSetOfSections | 2 |
 | math/stzMathFigure.ring | stzMathFigure | 2 |
 | network/stzWebSocket.ring | stzWebSocket | 2 |
@@ -62,11 +61,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzGraphRule -- graph/stzGraphRule.ring (1)
 
 - `When` (line 896): Adds a clause that selects the nodes the rule looks at: a node property tested against a value; clauses are combined with AND. -- an empty property name or an unknown operator raises an error; the ordering operators compare numbers only: on a text greaterthan and lessthan never match but greaterequal and lessequal match every node, which is a defect; an unset property reads as 0, so exists fails and missing holds for it
-
-## stzKnowledgeGraph -- graph/stzKnowledgeGraph.ring (2)
-
-- `ValidateOntology` (line 865): Returns 1 whatever the ontology holds; the check is not written yet. -- the body only returns 1, so no inconsistency is ever reported
-- `Explain` (line 1000): Raises error R14 today instead of describing the knowledge graph in sections: structure, facts, entities, predicates, ontology and insights. -- it calls ApplyInference, which is defined nowhere, so the call always raises R14; stzGraph.Explain is shadowed by this version seen in the gallery: drawn through GraphCanvas a knowledge graph shows no predicate on its edges and no arrowheads; Dot() with graphviz draws each fact as an edge labelled with its predicate
 
 ## stzMathSubstance -- graph/stzMathDiagram.ring (1)
 
