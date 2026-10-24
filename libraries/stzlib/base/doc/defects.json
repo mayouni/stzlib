@@ -1,5 +1,5 @@
 {
- "count": 52,
+ "count": 49,
  "defects": [
   {
    "class": "stzEngineTimeline",
@@ -72,30 +72,6 @@
    "line": 728,
    "symptom": "Raises error R14 today instead of counting the items that satisfy a W condition.",
    "cause": "raises Calling Method without definition: countw for every condition (two conditions tried), because the class it calls has no CountW"
-  },
-  {
-   "class": "stzListOfPairs",
-   "file": "list/stzListOfPairs.ring",
-   "method": "ToStzSetOfSections",
-   "line": 2354,
-   "symptom": "Returns the pairs as a stzSetOfSections; today every call raises an error that names the cause.",
-   "cause": "Not reachable today, and not fixable in this class: the constructor of stzSetOfSections checks its argument with @IsSetOfSections, a function whose body is empty in list/stzSetOfSections.ring, so it refuses every list, [ [ 1, 3 ], [ 5, 8 ] ] included. That function must return IsSetOfSections(paSections), and IsSetOfSections must call @IsListOfSections, since stzList has no IsListOfSections method. ToStzListOfSections accepts the same pairs"
-  },
-  {
-   "class": "stzSetOfSections",
-   "file": "list/stzSetOfSections.ring",
-   "method": "init",
-   "line": 46,
-   "symptom": "Raises error \"Can't create the stzSetOfSections object\" today for every argument instead of building a set of sections.",
-   "cause": "Refuses [ [1,3], [5,7] ] and every other list: the check calls @IsSetOfSections, a function whose body is empty, so it answers an empty text and the creation is always refused; the working global IsSetOfSections itself fails with R14 (stzList has no IsListOfSections method)"
-  },
-  {
-   "class": "stzSetOfSections",
-   "file": "list/stzSetOfSections.ring",
-   "method": "IntersectionWith",
-   "line": 117,
-   "symptom": "Raises the error \"Feature not implemented yet!\" today instead of the sections shared with another set.",
-   "cause": "Not run on an object, since none can be built; read from the code, the body is only a StzRaise call, and Intersection forwards to it"
   },
   {
    "class": "stzYielder",

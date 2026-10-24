@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 52 methods in 40 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 49 methods in 38 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| list/stzSetOfSections.ring | stzSetOfSections | 2 |
 | math/stzMathFigure.ring | stzMathFigure | 2 |
 | network/stzWebSocket.ring | stzWebSocket | 2 |
 | neural/stzLLMFunction.ring | stzLLMFunction | 2 |
@@ -30,7 +29,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 | list/stzListBounder.ring | stzListBounder | 1 |
 | list/stzListDuplicates.ring | stzListDuplicates | 1 |
 | list/stzListFinder.ring | stzListFinder | 1 |
-| list/stzListOfPairs.ring | stzListOfPairs | 1 |
 | list/stzYielder.ring | stzYielder | 1 |
 | math/stzTukey.ring | stzTukeyLine | 1 |
 | natural/stzNatural.ring | stzNaturalEngine | 1 |
@@ -85,15 +83,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzListFinder -- list/stzListFinder.ring (1)
 
 - `CountItemsW` (line 728): Raises error R14 today instead of counting the items that satisfy a W condition. -- raises Calling Method without definition: countw for every condition (two conditions tried), because the class it calls has no CountW
-
-## stzListOfPairs -- list/stzListOfPairs.ring (1)
-
-- `ToStzSetOfSections` (line 2354): Returns the pairs as a stzSetOfSections; today every call raises an error that names the cause. -- Not reachable today, and not fixable in this class: the constructor of stzSetOfSections checks its argument with @IsSetOfSections, a function whose body is empty in list/stzSetOfSections.ring, so it refuses every list, [ [ 1, 3 ], [ 5, 8 ] ] included. That function must return IsSetOfSections(paSections), and IsSetOfSections must call @IsListOfSections, since stzList has no IsListOfSections method. ToStzListOfSections accepts the same pairs
-
-## stzSetOfSections -- list/stzSetOfSections.ring (2)
-
-- `init` (line 46): Raises error "Can't create the stzSetOfSections object" today for every argument instead of building a set of sections. -- Refuses [ [1,3], [5,7] ] and every other list: the check calls @IsSetOfSections, a function whose body is empty, so it answers an empty text and the creation is always refused; the working global IsSetOfSections itself fails with R14 (stzList has no IsListOfSections method)
-- `IntersectionWith` (line 117): Raises the error "Feature not implemented yet!" today instead of the sections shared with another set. -- Not run on an object, since none can be built; read from the code, the body is only a StzRaise call, and Intersection forwards to it
 
 ## stzYielder -- list/stzYielder.ring (1)
 

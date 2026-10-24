@@ -152,9 +152,9 @@
  {"rule": "doc-typo-word", "subject": "thqn", "where": "stzNumber.IsSmallerThqn", "severity": "warning", "message": "the word 'thqn' (2 uses) is one edit from 'than' (225 uses): stzNumber.IsSmallerThqn may be misspelled"},
  {"rule": "doc-typo-word", "subject": "valide", "where": "stzGrid.IsValideNode", "severity": "warning", "message": "the word 'valide' (1 uses) is one edit from 'valid' (36 uses): stzGrid.IsValideNode may be misspelled"},
  {"rule": "doc-typo-word", "subject": "veiw", "where": "stzGraph.Veiw", "severity": "warning", "message": "the word 'veiw' (1 uses) is one edit from 'view' (47 uses): stzGraph.Veiw may be misspelled"},
- {"rule": "doc-typo-word", "subject": "wich", "where": "stzObject.WichAreBoth", "severity": "warning", "message": "the word 'wich' (4 uses) is one edit from 'with' (844 uses): stzObject.WichAreBoth may be misspelled"},
- {"rule": "doc-typo-word", "subject": "witch", "where": "stzObject.WitchBothAre", "severity": "warning", "message": "the word 'witch' (2 uses) is one edit from 'with' (844 uses): stzObject.WitchBothAre may be misspelled"},
- {"rule": "doc-typo-word", "subject": "witht", "where": "stzListOfBytes.SetWithtNumberInBase", "severity": "warning", "message": "the word 'witht' (1 uses) is one edit from 'with' (844 uses): stzListOfBytes.SetWithtNumberInBase may be misspelled"},
+ {"rule": "doc-typo-word", "subject": "wich", "where": "stzObject.WichAreBoth", "severity": "warning", "message": "the word 'wich' (4 uses) is one edit from 'with' (845 uses): stzObject.WichAreBoth may be misspelled"},
+ {"rule": "doc-typo-word", "subject": "witch", "where": "stzObject.WitchBothAre", "severity": "warning", "message": "the word 'witch' (2 uses) is one edit from 'with' (845 uses): stzObject.WitchBothAre may be misspelled"},
+ {"rule": "doc-typo-word", "subject": "witht", "where": "stzListOfBytes.SetWithtNumberInBase", "severity": "warning", "message": "the word 'witht' (1 uses) is one edit from 'with' (845 uses): stzListOfBytes.SetWithtNumberInBase may be misspelled"},
  {"rule": "doc-typo-word", "subject": "worts", "where": "stzGraphPlanner.WortsHistoPlan", "severity": "warning", "message": "the word 'worts' (1 uses) is one edit from 'words' (174 uses): stzGraphPlanner.WortsHistoPlan may be misspelled"},
  {"rule": "doc-typo-word", "subject": "wrtite", "where": "stzFileAppender.WrtiteLinesQ", "severity": "warning", "message": "the word 'wrtite' (2 uses) is one edit from 'write' (97 uses): stzFileAppender.WrtiteLinesQ may be misspelled"}
 ]}
