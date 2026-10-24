@@ -584,3 +584,8 @@ Next by size: 14 classes at 2 (stzGraphQuery first), then 28 at 1.
 OrderBy dropped the list @SortOn returned, so nothing was sorted (asc kept match order, desc reversed it); now a stable merge sort before projection, several keys in call order, missing values last for asc and desc, code-point order for text, stored types kept (the text 10 sorts before 9); new OrderByAsc and OrderByDesc. ValidateWith wrapped a single text into [[[ ]]]; now a one-name list, bad input raises at the call. Guard 143 assertions with seven mutations. Open: Distinct treats 0 and the empty text as equal; ToOpenCypher writes an empty WHERE for a function filter and has no :not_in; SelectXT and its two siblings return 1 and run the query twice.
 Next by size: 13 classes at 2 (stzKnowledgeGraph first), then 28 at 1.
 
+## 2026-10-24: the stzKnowledgeGraph fix batch is ON MAIN; register 54 -> 52
+
+ValidateOntology returned 1 whatever the ontology held; it now checks unique, symmetric and transitive laws (plus unknown law and unused relation as warnings) and returns 0 on an error; the new ValidateOntologyIssues returns the rule-report shape. Explain called ApplyInference, never defined anywhere; it is now a read-only, deterministic report. The GraphCanvas drawing shows no predicate and no arrowhead for ANY stzGraph (stzGraphCanvas.ring:434-447): not this class. Guard 110 assertions with ten mutations. The author's GK3 commit left two briefs over 140 characters in stzGpu.ring and failed the gate; shortened (comment only). Open: RelationHasLaw raises R21 on pair-form schemas, stzKnowGraph raises R13, labels keep their case.
+Next by size: 12 classes at 2 (stzSetOfSections first), then 28 at 1, then the stzGraphQuery follow-up.
+
