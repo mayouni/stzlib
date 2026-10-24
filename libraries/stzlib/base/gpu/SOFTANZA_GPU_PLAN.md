@@ -2855,3 +2855,79 @@ Next: **KP0**, the grammar grows one admission at a time (an index in
 the body, the learner's own bounds guard, the stencil, the reduction),
 each with its probe, its refusal message and its edge-proof case; the
 interpreter here is the reference every admission is checked against.
+
+---
+
+## KP0 STATUS — shipped 2026-10-24: the grammar grows, one admission at a time
+
+Guard: `base/test/gpu/gpu_grammar_narrated.ring` — **43 asserts green
+under Ring++ (`rnxc`)**; Scene 0 (the four admissions on the CPU and the
+seven refusals) needs no device. Zig: `gpu_wgsl.zig` 6 of 7 (two KP0
+tests added; the fragment-stage failure is GR4b's, recorded at GK6),
+`gpu_verify.zig` 5 (the masked compare added). Gates re-run under `rnxc`
+after the change: `gpu_spec_reference` 34, `gpu_declarative` 20,
+`gpu_verify` 36. **The edge proof: 17 of 17 in the browser pane**,
+five cases where there was one — and the native results came from the
+RTX 3050 under `rnxc` while the browser ran the byte-identical WGSL on
+the **Intel iGPU** (`intel gen-12lp`): two GPUs, two runtimes, the same
+numbers to the bit. That is KP1's premise, shown before KP1.
+
+**Why.** The elementwise grammar covered map, zip and a scalar
+(Modular's puzzles 1-3). KP2's eight puzzles need, in order, an element
+index the body can read, a bounds guard the learner writes — or omits,
+and sees the margin catch — a stencil over neighbours, and a two-pass
+reduction. Each is a grammar decision with a kernel-shape consequence,
+made here one at a time, each refused or admitted with a probe.
+
+**The four admissions, in both readers from one parser:**
+
+| admission | the spec | the WGSL | the interpreter | what it refuses |
+|---|---|---|---|---|
+| the index | `@i` in a body | `f32(i)` | the element number | a vector or scalar named `i` ("the element index; it cannot be declared") |
+| the guard | `guard { @i < n - 1 }`, or `guard none` | `if (f32(i) < f32(p.n) - 1) {`; or no `if` at all; and in both cases **`_ = p.n;`** so the params uniform stays bound (GK6's crash) | an element the guard refuses is left UNWRITTEN, and the checker's compare wants it untouched in the candidate (the written mask) | `=` alone ("use '==' to compare"), a comparison or `and`/`or` in a body ("belongs to the guard line"), two guard lines |
+| the stencil | `@a[@i - 1]` | a reader per input, `rd_a(k : i32)`, **0.0 outside the input's own range** (`arrayLength`), so an unguarded edge is a wrong value the compare names, not undefined behaviour | the same rule, bounded by each input's own length (inputs may be longer than n now, never shorter) | `[` after anything but a vector name; a missing `]` |
+| the sum | `sum(k, 0, 16, @a[@i * 16 + k])` | a prelude: `var acc0 : f32 = 0.0; for (var k_k : i32 = ...) { acc0 = acc0 + (...); }` and the body reads `acc0` | a loop frame; the operations EXECUTED are counted, loops included (`stz_gpu_spec_eval_flops`), and that is the FLOP count the compute ceiling reads for a spec | a sum inside a sum ("one level; shared memory is KP3's"), three arguments, a variable that is already a name |
+
+`n` is the element count, a bare name in a body or a guard; `i` and `n`
+are reserved. The default form — no guard line — emits the kernel every
+spec had before KP0, byte for byte (the GK6 test holds it). A kernel
+with a guard line always references `p`, whatever the learner writes;
+that is the rule GK6 set and KP0 keeps.
+
+**Face:** `stzKernelMaker.Guard('{ ... }')`, `WithoutGuard()`,
+`GuardText()`, `EvaluateOnWith(bindings, [:n = ...])` (ragged inputs,
+the output count chosen), `OperationsExecuted()`; `stzGpu.VerifySpecWith(...,
+[:n = ...])` (the hidden input is each input's reversed tail scaled by
+the hidden shape's ratio), `RunWith` / `RunQWith` with `:n`. An input
+shorter than n is refused by name in `Run` and `VerifySpec`; longer is
+admitted.
+
+**The two-pass reduction without workgroup memory**, measured on the
+device under Ring++: 1,024 partials of 16 over 16,384 inputs verify
+themselves at the visible and the hidden shape; a partial one term short
+is a mismatch; the fold of the partials into one element agrees with the
+CPU's sum within f32 and verifies itself at n = 1. The grammar stops at
+the reduction in this charge, as the launch prompt's default said;
+workgroup memory and a barrier are KP3's admission, and the sum's
+refusal message says so.
+
+**What the admissions taught, for KP2's texts:** a guard too TIGHT is a
+mismatch at the first element the task writes and the learner does not;
+a guard DROPPED is `write-outside` at n + 1 when n is not a multiple of
+256 — the two mistakes are told apart by the checker, and the puzzle
+can say which; an unguarded stencil edge is a mismatch at element 1,
+the edge the task leaves; and at 4,096 elements the GPU is slower than
+the interpreter, which is the first lesson of all.
+
+**Edge proof, run 2026-10-24 in the desktop app's browser pane** on the
+Intel iGPU (the native half on the RTX 3050 under `rnxc`): axpby,
+index, guard, stencil, partials — each byte-identical WGSL and exactly
+equal results (17 checks). `gen_fixture.ring` emits the five cases
+(inputs of their own lengths, the ordered scalars, n, the native
+results); `edge_proof.html` loops over them; an element both sides leave
+unwritten reads 0 on both (WebGPU zero-fills a new buffer). `stz.wasm`
+and `fixture.js` are generated and untracked, as before.
+
+Next: **KP1**, the puzzle form and its two runners from one spec — the
+desktop runner through the Ring face, the browser runner as a page in
+this proof's shape with the interpreter's verdict as the grader.

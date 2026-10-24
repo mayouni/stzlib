@@ -174,6 +174,29 @@ class stzGpu from stzObject
 	# The same, but the RESULT stays resident (an stzGpuBuffer) -- feed it
 	# to ApplyQ chains without paying the readback.
 	def RunQ(poKernel, paBindings)
+		return This.RunQWith(poKernel, paBindings, [])
+
+	# Runs a kernel and returns its result as a list, with options: :n, the number of elements to produce when it is not the first input's length.
+	#
+	#   poKernel     the stzKernelMaker
+	#   paBindings   the inputs and scalars by name; the inputs may differ in length (KP0)
+	#   paOptions    :n the output count
+	#   returns      a list of n numbers
+	#   see          Run, RunQWith
+	def RunWith(poKernel, paBindings, paOptions)
+		_oOut_ = This.RunQWith(poKernel, paBindings, paOptions)
+		_aOut_ = _oOut_.Download()
+		_oOut_.Free()
+		return _aOut_
+
+	# Runs a kernel and returns the result still on the device, with options: :n, the output count.
+	#
+	#   poKernel     the stzKernelMaker
+	#   paBindings   the inputs and scalars by name
+	#   paOptions    :n the output count
+	#   returns      a stzGpuBuffer
+	#   see          RunQ, RunWith
+	def RunQWith(poKernel, paBindings, paOptions)
 		This._RequireDevice()
 		_aNames_ = poKernel.InputNames()
 		_nIn_ = ring_len(_aNames_)
@@ -181,7 +204,7 @@ class stzGpu from stzObject
 			StzRaise("RunQ: the kernel declares no TakesVector input.")
 		ok
 
-		# collect the bound vectors, all the same length
+		# collect the bound vectors: n is the first one's length unless :n says otherwise (KP0)
 		_aVecs_ = []
 		_nElems_ = 0
 		for _i_ = 1 to _nIn_
@@ -193,12 +216,20 @@ class stzGpu from stzObject
 			ok
 			if _nElems_ = 0
 				_nElems_ = ring_len(_v_)
-			but ring_len(_v_) != _nElems_
-				StzRaise("RunQ: vector '" + _aNames_[_i_] + "' has " +
-					ring_len(_v_) + " elements, the first had " + _nElems_ +
-					" -- elementwise kernels need equal lengths.")
 			ok
 			_aVecs_ + _v_
+		next
+		_nOptN_ = _BindingValue(paOptions, "n")
+		if isNumber(_nOptN_) and _nOptN_ > 0
+			_nElems_ = _nOptN_
+		ok
+		# an input may be LONGER than n (KP0: a stencil or a sum reads it by its
+		# own length), never shorter: the kernel would read past it
+		for _i_ = 1 to _nIn_
+			if ring_len(_aVecs_[_i_]) < _nElems_
+				StzRaise("RunQ: vector '" + _aNames_[_i_] + "' has " + ring_len(_aVecs_[_i_]) +
+					" elements, under n = " + _nElems_ + " (an input may be longer than n, never shorter).")
+			ok
 		next
 		_aScal_ = _OrderedScalars(poKernel, paBindings)
 
@@ -211,7 +242,7 @@ class stzGpu from stzObject
 		# upload inputs (temporaries), make the resident output
 		_aIds_ = []
 		for _i_ = 1 to _nIn_
-			_nId_ = StzEngineGpuBufferNew(_nElems_ * 4)
+			_nId_ = StzEngineGpuBufferNew(ring_len(_aVecs_[_i_]) * 4)
 			_bOk_ = _nId_ > 0
 			if _bOk_
 				_bOk_ = StzEngineGpuBufferUploadList(_nId_, _aVecs_[_i_]) = 0
@@ -554,6 +585,8 @@ class stzGpu from stzObject
 		if _nIn_ = 0
 			StzRaise("VerifySpec: the reference declares no TakesVector input.")
 		ok
+		# KP0: the inputs may differ in length (a stencil or a sum reads an input
+		# by its own length); n is the first input's length unless :n says otherwise
 		_aVecs_ = []
 		_nA_ = 0
 		for _i_ = 1 to _nIn_
@@ -563,11 +596,20 @@ class stzGpu from stzObject
 			ok
 			if _nA_ = 0
 				_nA_ = ring_len(_v_)
-			but ring_len(_v_) != _nA_
-				StzRaise("VerifySpec: vector '" + _aNames_[_i_] + "' has " + ring_len(_v_) +
-					" elements, the first had " + _nA_ + ".")
 			ok
 			_aVecs_ + _v_
+		next
+		_nOptN_ = _BindingValue(paOptions, "n")
+		if isNumber(_nOptN_) and _nOptN_ > 0
+			_nA_ = _nOptN_
+		ok
+		# an input may be LONGER than n (a stencil or a sum reads it by its own
+		# length), never shorter: the kernel would read past it
+		for _i_ = 1 to _nIn_
+			if ring_len(_aVecs_[_i_]) < _nA_
+				StzRaise("VerifySpec: vector '" + _aNames_[_i_] + "' has " + ring_len(_aVecs_[_i_]) +
+					" elements, under n = " + _nA_ + " (an input may be longer than n, never shorter).")
+			ok
 		next
 		_aScal_ = _OrderedScalars(poRef, paBindings)
 		if isString(pCand)
@@ -591,18 +633,24 @@ class stzGpu from stzObject
 		_aIdsA_ = []
 		_aIdsB_ = []
 		for _i_ = 1 to _nIn_
-			_nId_ = StzEngineGpuBufferNew(_nA_ * 4)
+			_nLen_ = ring_len(_aVecs_[_i_])
+			_nId_ = StzEngineGpuBufferNew(_nLen_ * 4)
 			if _nId_ = 0 or StzEngineGpuBufferUploadList(_nId_, _aVecs_[_i_]) != 0
 				_FreeIds(_aIdsA_)
 				_FreeIds(_aIdsB_)
 				StzRaise("VerifySpec: input upload refused (" + StzEngineGpuLastError() + ")")
 			ok
 			_aIdsA_ + _nId_
+			# the hidden input: the reversed tail, scaled by the hidden shape's ratio
+			_nHidLen_ = floor(_nLen_ * _nB_ / _nA_)
+			if _nHidLen_ < 1
+				_nHidLen_ = 1
+			ok
 			_aHid_ = []
-			for _j_ = _nA_ to (_nA_ - _nB_ + 1) step -1
+			for _j_ = _nLen_ to (_nLen_ - _nHidLen_ + 1) step -1
 				_aHid_ + _aVecs_[_i_][_j_]
 			next
-			_nId_ = StzEngineGpuBufferNew(_nB_ * 4)
+			_nId_ = StzEngineGpuBufferNew(_nHidLen_ * 4)
 			if _nId_ = 0 or StzEngineGpuBufferUploadList(_nId_, _aHid_) != 0
 				_FreeIds(_aIdsA_)
 				_FreeIds(_aIdsB_)

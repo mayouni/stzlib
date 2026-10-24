@@ -636,9 +636,10 @@ fn ring_VerifyError(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retstring2(p, &buf, @intCast(n));
 }
 
-// GK6. SpecEval(cSpec, aFlatInputs, nInputs, n, aScalars) -> list of n numbers
-// ([] with the reason in WgslError). The inputs are n_inputs vectors of n
-// numbers laid end to end. Needs no device: the puzzle grader's CPU half.
+// GK6/KP0. SpecEval(cSpec, aFlatInputs, aLens, n, aScalars) -> list of n numbers
+// ([] with the reason in WgslError). The inputs are laid end to end, each
+// aLens[k] numbers long (a stencil or a sum may read an input longer than n).
+// Needs no device: the puzzle grader's CPU half.
 fn ring_SpecEval(p: *anyopaque) callconv(.c) void {
     const spec = getStr(p, 1);
     const out = R.ring_vm_api_newlist(p) orelse return;
@@ -646,22 +647,44 @@ fn ring_SpecEval(p: *anyopaque) callconv(.c) void {
         R.ring_vm_api_retlist(p, out);
         return;
     }
-    const n_in: usize = @intFromFloat(gn(p, 3));
     const n: usize = @intFromFloat(gn(p, 4));
     const flat = R.gl(p, 2) orelse {
         R.ring_vm_api_retlist(p, out);
         return;
     };
-    if (n_in == 0 or n == 0 or n_in > 8 or @as(usize, @intCast(R.ringListSize(flat))) < n_in * n) {
+    const lens_l = R.gl(p, 3) orelse {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    const n_in: usize = @intCast(R.ringListSize(lens_l));
+    var lens: [8]f64 = undefined;
+    var total: usize = 0;
+    if (n_in == 0 or n == 0 or n_in > 8) {
         R.ring_vm_api_retlist(p, out);
         return;
     }
-    const host = allocator.alloc(f32, n_in * n) catch {
+    for (0..n_in) |k| {
+        const item = R.ring_list_getitem_gc(null, lens_l, @intCast(k + 1)) orelse {
+            R.ring_vm_api_retlist(p, out);
+            return;
+        };
+        lens[k] = R.ring_item_getnumber(item);
+        if (lens[k] < 1) {
+            R.ring_vm_api_retlist(p, out);
+            return;
+        }
+        total += @intFromFloat(lens[k]);
+    }
+    if (@as(usize, @intCast(R.ringListSize(flat))) < total) {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    }
+    const host = allocator.alloc(f32, total) catch {
         R.ring_vm_api_retlist(p, out);
         return;
     };
     defer allocator.free(host);
-    for (0..n_in * n) |i| {
+    for (0..total) |i| {
         const item = R.ring_list_getitem_gc(null, flat, @intCast(i + 1)) orelse {
             R.ring_vm_api_retlist(p, out);
             return;
@@ -669,7 +692,11 @@ fn ring_SpecEval(p: *anyopaque) callconv(.c) void {
         host[i] = @floatCast(R.ring_item_getnumber(item));
     }
     var ptrs: [8][*]const f32 = undefined;
-    for (0..n_in) |k| ptrs[k] = host[k * n ..].ptr;
+    var off: usize = 0;
+    for (0..n_in) |k| {
+        ptrs[k] = host[off..].ptr;
+        off += @intFromFloat(lens[k]);
+    }
     var scal: [14]f32 = @splat(0);
     var n_scal: usize = 0;
     if (R.gl(p, 5)) |sl| {
@@ -684,7 +711,7 @@ fn ring_SpecEval(p: *anyopaque) callconv(.c) void {
         return;
     };
     defer allocator.free(res);
-    if (wgsl.stz_gpu_spec_eval(&ptrs, @intCast(n_in), &scal, @intCast(n_scal), @floatFromInt(n), res.ptr) != 0) {
+    if (wgsl.stz_gpu_spec_eval(&ptrs, @intCast(n_in), &lens, &scal, @intCast(n_scal), @floatFromInt(n), res.ptr) != 0) {
         R.ring_vm_api_retlist(p, out);
         return;
     }
@@ -692,7 +719,12 @@ fn ring_SpecEval(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
-// GK6. SpecFlops(cSpec) -> operations per element (0 if the spec is refused)
+// KP0. SpecEvalFlops() -> the operations the last SpecEval executed, loops included
+fn ring_SpecEvalFlops(p: *anyopaque) callconv(.c) void {
+    rn(p, wgsl.stz_gpu_spec_eval_flops());
+}
+
+// GK6. SpecFlops(cSpec) -> operations per element, loops counted once (0 if refused)
 fn ring_SpecFlops(p: *anyopaque) callconv(.c) void {
     const spec = getStr(p, 1);
     if (wgsl.stz_gpu_spec_compile(spec.ptr, @floatFromInt(spec.len)) != 0) {
@@ -2178,6 +2210,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuverifyerror", .func = &ring_VerifyError },
     .{ .name = "stzenginegpuspeceval", .func = &ring_SpecEval },
     .{ .name = "stzenginegpuspecflops", .func = &ring_SpecFlops },
+    .{ .name = "stzenginegpuspecevalflops", .func = &ring_SpecEvalFlops },
     .{ .name = "stzenginegpuverifyjudge", .func = &ring_VerifyJudge },
     .{ .name = "stzenginegpuverifyjudgeflops", .func = &ring_VerifyJudgeFlops },
     .{ .name = "stzenginegpuverifydeclareflops", .func = &ring_VerifyDeclareFlops },

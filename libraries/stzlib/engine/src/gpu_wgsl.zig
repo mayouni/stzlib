@@ -137,7 +137,20 @@ pub const Decl = struct {
     n_scalars: usize = 0,
     out_name: Name = .{},
     rhs: []const u8 = "",
+    // KP0: the guard line. null = the engine's default (i < n, as every kernel
+    // had before); "none" = the learner omits it; anything else = the
+    // learner's own boolean expression over @i, n, the scalars and the inputs.
+    guard: ?[]const u8 = null,
 };
+
+// KP0: names the grammar keeps for itself. `i` is the element index (@i in
+// a body), `n` the element count (bare, in a body or a guard). A vector or
+// scalar may not take them.
+fn reservedName(s: []const u8) ?[]const u8 {
+    if (std.mem.eql(u8, s, "i")) return "'i' is the element index (@i); it cannot be declared";
+    if (std.mem.eql(u8, s, "n")) return "'n' is the element count; it cannot be declared";
+    return null;
+}
 
 /// Parse the directive lines and the single assignment. Returns 0, or -1
 /// with the reason in the error slot. Every refusal message is the one the
@@ -156,6 +169,7 @@ fn parseDecl(text: []const u8, d: *Decl) i32 {
             var lowered: Name = .{};
             if (!lowerInto(&lowered, nm) or !validIdent(lowered.slice()))
                 return fail("bad input name: '{s}'", .{nm});
+            if (reservedName(lowered.slice())) |why| return fail("{s}", .{why});
             if (d.n_ins == MAX_VECS - 1)
                 return fail("too many inputs (max {d})", .{MAX_VECS - 1});
             d.ins[d.n_ins] = lowered;
@@ -165,6 +179,7 @@ fn parseDecl(text: []const u8, d: *Decl) i32 {
             var lowered: Name = .{};
             if (!lowerInto(&lowered, nm) or !validIdent(lowered.slice()))
                 return fail("bad scalar name: '{s}'", .{nm});
+            if (reservedName(lowered.slice())) |why| return fail("{s}", .{why});
             if (d.n_scalars == MAX_SCALARS)
                 return fail("too many scalars (max {d})", .{MAX_SCALARS});
             d.scalars[d.n_scalars] = lowered;
@@ -174,9 +189,17 @@ fn parseDecl(text: []const u8, d: *Decl) i32 {
             if (have_out) return fail("only one output (ForEachElement writes one vector)", .{});
             if (!lowerInto(&d.out_name, nm) or !validIdent(d.out_name.slice()))
                 return fail("bad output name: '{s}'", .{nm});
+            if (reservedName(d.out_name.slice())) |why| return fail("{s}", .{why});
             have_out = true;
         } else if (std.mem.startsWith(u8, line, "body ")) {
             body = std.mem.trim(u8, line[5..], " \t");
+        } else if (std.mem.startsWith(u8, line, "guard ")) {
+            var g = std.mem.trim(u8, line[6..], " \t");
+            if (g.len >= 2 and g[0] == '{' and g[g.len - 1] == '}')
+                g = std.mem.trim(u8, g[1 .. g.len - 1], " \t");
+            if (g.len == 0) return fail("empty guard (write 'guard none' to omit it)", .{});
+            if (d.guard != null) return fail("only one guard line", .{});
+            d.guard = g;
         } else {
             return fail("unknown spec line: '{s}'", .{line});
         }
@@ -222,88 +245,29 @@ pub fn stz_gpu_wgsl_elementwise(spec: [*]const u8, spec_len: f64, out: [*]u8, ca
     const out_name = d.out_name;
     const rhs = d.rhs;
 
-    // ---- transpile the rhs token by token
+    // ---- transpile the rhs (and the guard) through the rewriter
     var expr_buf: [4096]u8 = undefined;
     var expr = Cursor{ .buf = &expr_buf };
-    var i: usize = 0;
-    while (i < rhs.len) {
-        const ch = rhs[i];
-        if (ch == '@') {
-            // vector element reference
-            var j = i + 1;
-            while (j < rhs.len and (std.ascii.isAlphanumeric(rhs[j]) or rhs[j] == '_')) : (j += 1) {}
-            var nm: Name = .{};
-            if (j == i + 1 or !lowerInto(&nm, rhs[i + 1 .. j]))
-                return fail("bad @name at '{s}'", .{rhs[i..@min(i + 8, rhs.len)]});
-            if (nameIn(ins[0..], n_ins, nm.slice()) == null) {
-                if (std.mem.eql(u8, nm.slice(), out_name.slice()))
-                    return fail("the output '@{s}' cannot be read", .{nm.slice()})
-                else
-                    return fail("undeclared vector '@{s}'", .{nm.slice()});
-            }
-            expr.put("v_");
-            expr.put(nm.slice());
-            expr.put("[i]");
-            i = j;
-        } else if (std.ascii.isAlphabetic(ch) or ch == '_') {
-            // scalar or whitelisted function
-            var j = i;
-            while (j < rhs.len and (std.ascii.isAlphanumeric(rhs[j]) or rhs[j] == '_')) : (j += 1) {}
-            var nm: Name = .{};
-            if (!lowerInto(&nm, rhs[i..j]))
-                return fail("name too long at '{s}'", .{rhs[i..@min(i + 8, rhs.len)]});
-            if (nameIn(scalars[0..], n_scalars, nm.slice()) != null) {
-                expr.put("p.s_");
-                expr.put(nm.slice());
-            } else {
-                var is_func = false;
-                for (FUNC_WHITELIST) |f| {
-                    if (std.mem.eql(u8, f, nm.slice())) {
-                        is_func = true;
-                        break;
-                    }
-                }
-                // vecN is spelled vecN<f32> in WGSL. The material language
-                // keeps the friendly name and the transpiler adds the type.
-                // Emitting the bare name produced WGSL that failed to
-                // compile -- and the broken pipeline then PANICKED the
-                // process at submit rather than being refused.
-                if (std.mem.eql(u8, nm.slice(), "vec2") or
-                    std.mem.eql(u8, nm.slice(), "vec3") or
-                    std.mem.eql(u8, nm.slice(), "vec4"))
-                {
-                    expr.put(nm.slice());
-                    expr.put("<f32>");
-                    i = j;
-                    continue;
-                }
-                if (!is_func)
-                    return fail("unknown name '{s}' (not a declared scalar, not a whitelisted function)", .{nm.slice()});
-                // a function name must actually be CALLED
-                var k = j;
-                while (k < rhs.len and (rhs[k] == ' ' or rhs[k] == '\t')) : (k += 1) {}
-                if (k >= rhs.len or rhs[k] != '(')
-                    return fail("function '{s}' needs '('", .{nm.slice()});
-                expr.put(nm.slice());
-            }
-            i = j;
-        } else if (std.ascii.isDigit(ch) or ch == '.') {
-            var j = i;
-            while (j < rhs.len and (std.ascii.isDigit(rhs[j]) or rhs[j] == '.')) : (j += 1) {}
-            expr.put(rhs[i..j]);
-            i = j;
-        } else if (ch == '+' or ch == '-' or ch == '*' or ch == '/' or ch == '%' or
-            ch == '(' or ch == ')' or ch == ',' or ch == ' ' or ch == '\t')
-        {
-            expr.putc(ch);
-            i += 1;
+    var prelude_buf: [4096]u8 = undefined;
+    var prelude = Cursor{ .buf = &prelude_buf };
+    var rw = Rewriter{ .d = &d, .prelude = &prelude };
+    if (rw.rewrite(rhs, &expr) < 0) return -1;
+    if (expr.overflow or prelude.overflow) return fail("expression too long", .{});
+    var guard_buf: [1024]u8 = undefined;
+    var guard = Cursor{ .buf = &guard_buf };
+    var guard_kind: enum { default, none, custom } = .default;
+    if (d.guard) |g| {
+        if (std.mem.eql(u8, g, "none")) {
+            guard_kind = .none;
         } else {
-            return fail("character '{c}' is not part of the elementwise language", .{ch});
+            guard_kind = .custom;
+            rw.compare = true;
+            rw.loopvar = null;
+            if (rw.rewrite(g, &guard) < 0) return -1;
+            rw.compare = false;
+            if (guard.overflow) return fail("guard too long", .{});
         }
     }
-
-    if (expr.overflow) return fail("expression too long", .{});
-
     // ---- emit the kernel straight into the caller's buffer
     var w = Cursor{ .buf = out[0..@intFromFloat(cap)] };
     const put = struct {
@@ -341,18 +305,291 @@ pub fn stz_gpu_wgsl_elementwise(spec: [*]const u8, spec_len: f64, out: [*]u8, ca
         put(&w, out_name.slice());
         put(&w, " : array<f32>;\n");
     }
+    // KP0: a neighbour read is a helper per input it is used on. Out of the
+    // input's own range it answers 0.0 -- the interpreter says the same --
+    // so a stencil's edges are the learner's to guard, and an unguarded edge
+    // is a wrong VALUE the compare names, not undefined behaviour.
+    for (0..n_ins) |s| {
+        if (!rw.used_rd[s]) continue;
+        put(&w, "fn rd_");
+        put(&w, ins[s].slice());
+        put(&w, "(k : i32) -> f32 {\n  if (k < 0 || u32(k) >= arrayLength(&v_");
+        put(&w, ins[s].slice());
+        put(&w, ")) { return 0.0; }\n  return v_");
+        put(&w, ins[s].slice());
+        put(&w, "[u32(k)];\n}\n");
+    }
     put(&w, "@compute @workgroup_size(256)\n");
     put(&w, "fn main(@builtin(global_invocation_id) gid : vec3<u32>) {\n");
     put(&w, "  let i = gid.x + tile.xoff * 256u;\n");
-    put(&w, "  if (i < p.n) { v_");
-    put(&w, out_name.slice());
-    put(&w, "[i] = ");
-    put(&w, expr.items());
-    put(&w, "; }\n}\n");
+    if (guard_kind == .default and prelude.len == 0) {
+        // the form every kernel had before KP0, byte for byte
+        put(&w, "  if (i < p.n) { v_");
+        put(&w, out_name.slice());
+        put(&w, "[i] = ");
+        put(&w, expr.items());
+        put(&w, "; }\n}\n");
+    } else {
+        // a guard line is the learner's: the params uniform may go unread, and
+        // a kernel that never reads p gets a layout without binding 1 (GK6's
+        // crash). The phony assignment keeps p bound whatever the guard says.
+        if (guard_kind != .default) put(&w, "  _ = p.n;\n");
+        switch (guard_kind) {
+            .default => put(&w, "  if (i < p.n) {\n"),
+            .custom => {
+                put(&w, "  if (");
+                put(&w, guard.items());
+                put(&w, ") {\n");
+            },
+            .none => {},
+        }
+        put(&w, prelude.items());
+        put(&w, "    v_");
+        put(&w, out_name.slice());
+        put(&w, "[i] = ");
+        put(&w, expr.items());
+        put(&w, ";\n");
+        if (guard_kind != .none) put(&w, "  }\n");
+        put(&w, "}\n");
+    }
 
     if (w.overflow) return fail("kernel too large for the output buffer", .{});
     return @intCast(w.len);
 }
+
+// ---------------------------------------------------------------- the rewriter (KP0)
+// The body and the guard are rewritten by ONE routine, recursive so a sum's
+// bounds and body, and a neighbour read's index, are the same language.
+// What it admits beyond the GK0 grammar, each a KP0 admission:
+//   @i                  the element index, as f32(i)
+//   n                   the element count, as f32(p.n)
+//   @a[expr]            a neighbour read: rd_a(i32(expr)), 0.0 out of range
+//   sum(k, from, to, e) a bounded loop: a prelude accumulates e over k in
+//                       [from, to) and the expression reads the accumulator;
+//                       k is a bare name inside e; one sum may not nest in
+//                       another (KP3's shared memory is the next step up)
+//   < <= > >= == != and or    in the GUARD only; a body stays arithmetic
+const Rewriter = struct {
+    d: *const Decl,
+    prelude: *Cursor,
+    nsum: usize = 0,
+    loopvar: ?Name = null,
+    compare: bool = false,
+    used_rd: [MAX_VECS]bool = @splat(false),
+
+    fn matching(text: []const u8, open_at: usize) ?usize {
+        var depth: usize = 0;
+        var j = open_at;
+        while (j < text.len) : (j += 1) {
+            const ch = text[j];
+            if (ch == '(' or ch == '[') depth += 1;
+            if (ch == ')' or ch == ']') {
+                depth -= 1;
+                if (depth == 0) return j;
+            }
+        }
+        return null;
+    }
+
+    fn rewrite(self: *Rewriter, rhs: []const u8, expr: *Cursor) i32 {
+        var i: usize = 0;
+        while (i < rhs.len) {
+            const ch = rhs[i];
+            if (ch == '@') {
+                var j = i + 1;
+                while (j < rhs.len and (std.ascii.isAlphanumeric(rhs[j]) or rhs[j] == '_')) : (j += 1) {}
+                var nm: Name = .{};
+                if (j == i + 1 or !lowerInto(&nm, rhs[i + 1 .. j]))
+                    return fail("bad @name at '{s}'", .{rhs[i..@min(i + 8, rhs.len)]});
+                if (std.mem.eql(u8, nm.slice(), "i")) {
+                    expr.put("f32(i)");
+                    i = j;
+                    continue;
+                }
+                const idx = nameIn(self.d.ins[0..], self.d.n_ins, nm.slice()) orelse {
+                    if (std.mem.eql(u8, nm.slice(), self.d.out_name.slice()))
+                        return fail("the output '@{s}' cannot be read", .{nm.slice()});
+                    return fail("undeclared vector '@{s}'", .{nm.slice()});
+                };
+                // a neighbour read?
+                var k = j;
+                while (k < rhs.len and (rhs[k] == ' ' or rhs[k] == '\t')) : (k += 1) {}
+                if (k < rhs.len and rhs[k] == '[') {
+                    const close = matching(rhs, k) orelse return fail("missing ']' after '@{s}['", .{nm.slice()});
+                    var inner_buf: [1024]u8 = undefined;
+                    var inner = Cursor{ .buf = &inner_buf };
+                    const saved = self.compare;
+                    self.compare = false;
+                    if (self.rewrite(rhs[k + 1 .. close], &inner) < 0) return -1;
+                    self.compare = saved;
+                    if (inner.len == 0) return fail("empty index in '@{s}[]'", .{nm.slice()});
+                    self.used_rd[idx] = true;
+                    expr.put("rd_");
+                    expr.put(nm.slice());
+                    expr.put("(i32(");
+                    expr.put(inner.items());
+                    expr.put("))");
+                    i = close + 1;
+                    continue;
+                }
+                expr.put("v_");
+                expr.put(nm.slice());
+                expr.put("[i]");
+                i = j;
+            } else if (std.ascii.isAlphabetic(ch) or ch == '_') {
+                var j = i;
+                while (j < rhs.len and (std.ascii.isAlphanumeric(rhs[j]) or rhs[j] == '_')) : (j += 1) {}
+                var nm: Name = .{};
+                if (!lowerInto(&nm, rhs[i..j]))
+                    return fail("name too long at '{s}'", .{rhs[i..@min(i + 8, rhs.len)]});
+                const word = nm.slice();
+                if (std.mem.eql(u8, word, "n")) {
+                    expr.put("f32(p.n)");
+                    i = j;
+                    continue;
+                }
+                if (self.loopvar) |lv| {
+                    if (std.mem.eql(u8, word, lv.slice())) {
+                        expr.put("f32(k_");
+                        expr.put(word);
+                        expr.put(")");
+                        i = j;
+                        continue;
+                    }
+                }
+                if (std.mem.eql(u8, word, "and") or std.mem.eql(u8, word, "or")) {
+                    if (!self.compare) return fail("'{s}' belongs to the guard line, not to a body", .{word});
+                    expr.put(if (word[0] == 'a') " && " else " || ");
+                    i = j;
+                    continue;
+                }
+                if (nameIn(self.d.scalars[0..], self.d.n_scalars, word) != null) {
+                    expr.put("p.s_");
+                    expr.put(word);
+                    i = j;
+                    continue;
+                }
+                if (std.mem.eql(u8, word, "sum")) {
+                    if (self.loopvar != null) return fail("a sum inside a sum is not admitted (one level; shared memory is KP3's)", .{});
+                    var k = j;
+                    while (k < rhs.len and (rhs[k] == ' ' or rhs[k] == '\t')) : (k += 1) {}
+                    if (k >= rhs.len or rhs[k] != '(') return fail("sum needs '(var, from, to, expression)'", .{});
+                    const close = matching(rhs, k) orelse return fail("sum is missing ')'", .{});
+                    // split the four arguments at top-level commas
+                    var parts: [4][]const u8 = undefined;
+                    var np: usize = 0;
+                    var start = k + 1;
+                    var depth: usize = 0;
+                    var q = k + 1;
+                    while (q <= close) : (q += 1) {
+                        const c2 = rhs[q];
+                        if (c2 == '(' or c2 == '[') depth += 1;
+                        if ((c2 == ')' or c2 == ']') and q < close) depth -= 1;
+                        if (q == close or (c2 == ',' and depth == 0)) {
+                            if (np == 4) return fail("sum takes 4 arguments (var, from, to, expression)", .{});
+                            parts[np] = std.mem.trim(u8, rhs[start..q], " \t");
+                            np += 1;
+                            start = q + 1;
+                        }
+                    }
+                    if (np != 4) return fail("sum takes 4 arguments (var, from, to, expression), got {d}", .{np});
+                    var lv: Name = .{};
+                    if (!lowerInto(&lv, parts[0]) or !validIdent(lv.slice()))
+                        return fail("sum's variable must be a name, got '{s}'", .{parts[0]});
+                    if (reservedName(lv.slice()) != null or nameIn(self.d.ins[0..], self.d.n_ins, lv.slice()) != null or
+                        nameIn(self.d.scalars[0..], self.d.n_scalars, lv.slice()) != null)
+                        return fail("sum's variable '{s}' is already a name here", .{lv.slice()});
+                    var from_buf: [512]u8 = undefined;
+                    var to_buf: [512]u8 = undefined;
+                    var body_buf: [2048]u8 = undefined;
+                    var from = Cursor{ .buf = &from_buf };
+                    var to = Cursor{ .buf = &to_buf };
+                    var body = Cursor{ .buf = &body_buf };
+                    const saved = self.compare;
+                    self.compare = false;
+                    if (self.rewrite(parts[1], &from) < 0) return -1;
+                    if (self.rewrite(parts[2], &to) < 0) return -1;
+                    self.loopvar = lv;
+                    const r = self.rewrite(parts[3], &body);
+                    self.loopvar = null;
+                    self.compare = saved;
+                    if (r < 0) return -1;
+                    if (from.len == 0 or to.len == 0 or body.len == 0) return fail("sum's arguments cannot be empty", .{});
+                    var num: [8]u8 = undefined;
+                    const acc = std.fmt.bufPrint(&num, "acc{d}", .{self.nsum}) catch return -1;
+                    self.nsum += 1;
+                    self.prelude.put("    var ");
+                    self.prelude.put(acc);
+                    self.prelude.put(" : f32 = 0.0;\n    for (var k_");
+                    self.prelude.put(lv.slice());
+                    self.prelude.put(" : i32 = i32(");
+                    self.prelude.put(from.items());
+                    self.prelude.put("); k_");
+                    self.prelude.put(lv.slice());
+                    self.prelude.put(" < i32(");
+                    self.prelude.put(to.items());
+                    self.prelude.put("); k_");
+                    self.prelude.put(lv.slice());
+                    self.prelude.put(" = k_");
+                    self.prelude.put(lv.slice());
+                    self.prelude.put(" + 1) { ");
+                    self.prelude.put(acc);
+                    self.prelude.put(" = ");
+                    self.prelude.put(acc);
+                    self.prelude.put(" + (");
+                    self.prelude.put(body.items());
+                    self.prelude.put("); }\n");
+                    expr.put(acc);
+                    i = close + 1;
+                    continue;
+                }
+                var is_func = false;
+                for (FUNC_WHITELIST) |f| {
+                    if (std.mem.eql(u8, f, word)) {
+                        is_func = true;
+                        break;
+                    }
+                }
+                if (std.mem.eql(u8, word, "vec2") or std.mem.eql(u8, word, "vec3") or std.mem.eql(u8, word, "vec4")) {
+                    expr.put(word);
+                    expr.put("<f32>");
+                    i = j;
+                    continue;
+                }
+                if (!is_func)
+                    return fail("unknown name '{s}' (not a declared scalar, not a whitelisted function)", .{word});
+                var k = j;
+                while (k < rhs.len and (rhs[k] == ' ' or rhs[k] == '\t')) : (k += 1) {}
+                if (k >= rhs.len or rhs[k] != '(')
+                    return fail("function '{s}' needs '('", .{word});
+                expr.put(word);
+                i = j;
+            } else if (std.ascii.isDigit(ch) or ch == '.') {
+                var j = i;
+                while (j < rhs.len and (std.ascii.isDigit(rhs[j]) or rhs[j] == '.')) : (j += 1) {}
+                expr.put(rhs[i..j]);
+                i = j;
+            } else if (ch == '<' or ch == '>' or ch == '=' or ch == '!') {
+                if (!self.compare) return fail("'{c}' is a comparison; comparisons belong to the guard line", .{ch});
+                const two = i + 1 < rhs.len and rhs[i + 1] == '=';
+                if (ch == '=' and !two) return fail("use '==' to compare in a guard", .{});
+                if (ch == '!' and !two) return fail("'!' alone is not admitted; use '!='", .{});
+                expr.put(rhs[i .. i + (if (two) @as(usize, 2) else 1)]);
+                i += if (two) 2 else 1;
+            } else if (ch == '+' or ch == '-' or ch == '*' or ch == '/' or ch == '%' or
+                ch == '(' or ch == ')' or ch == ',' or ch == ' ' or ch == '\t')
+            {
+                expr.putc(ch);
+                i += 1;
+            } else if (ch == '[' or ch == ']') {
+                return fail("'[' follows a vector name only (@a[...])", .{});
+            } else {
+                return fail("character '{c}' is not part of the elementwise language", .{ch});
+            }
+        }
+        return 0;
+    }
+};
 
 // ===========================================================================
 // THE INTERPRETER (GK6 of SOFTANZA_GPU_PLAN.md) -- the spec, evaluated on
@@ -379,6 +616,9 @@ pub fn stz_gpu_wgsl_elementwise(spec: [*]const u8, spec_len: f64, out: [*]u8, ca
 
 const Op = enum(u8) {
     k_const, k_in, k_scalar, neg, add, sub, mul, div, mod,
+    // KP0
+    k_index, k_n, k_var, rd, sum_begin, sum_end,
+    c_lt, c_le, c_gt, c_ge, c_eq, c_ne, l_and, l_or,
     f_abs, f_min, f_max, f_sqrt, f_exp, f_log, f_sin, f_cos, f_tan, f_floor, f_ceil,
     f_pow, f_clamp, f_sign, f_fract, f_round, f_mix, f_smoothstep, f_step, f_atan2,
     f_asin, f_acos, f_inversesqrt, f_length, f_distance,
@@ -406,6 +646,7 @@ pub const MAX_OPS = 512;
 pub const MAX_CONSTS = 128;
 const MAX_DEPTH = 32;
 const STACK = 64;
+const MAX_SUMS = 4;
 
 pub const Program = struct {
     ops: [MAX_OPS]Op = undefined,
@@ -415,8 +656,12 @@ pub const Program = struct {
     n_consts: usize = 0,
     n_ins: usize = 0,
     n_scalars: usize = 0,
-    flops: f64 = 0, // operations per element
+    flops: f64 = 0, // operations per element, loops counted once (static)
     ready: bool = false,
+    // KP0
+    jump: [MAX_OPS]u16 = undefined, // sum_begin -> its sum_end
+    nsum: usize = 0,
+    sumvar: [MAX_SUMS]Name = undefined,
 
     fn emit(self: *Program, op: Op, arg: u16) bool {
         if (self.n >= MAX_OPS) return false;
@@ -428,6 +673,9 @@ pub const Program = struct {
 };
 
 var g_prog: Program = .{};
+var g_guard: Program = .{}; // KP0: the guard's program; g_guard_kind says whether it is read
+var g_guard_kind: enum { default, none, custom } = .default;
+var g_eval_flops: f64 = 0; // KP0: operations executed by the last eval, loops included
 
 // ---- a recursive-descent compiler over the rhs, WGSL precedence
 const Parser = struct {
@@ -436,6 +684,53 @@ const Parser = struct {
     d: *const Decl,
     p: *Program,
     depth: usize = 0,
+    compare: bool = false,
+    loopvar: ?Name = null,
+
+    // guard := andexpr ('or' andexpr)*   -- KP0, compare mode only
+    fn orexpr(self: *Parser) i32 {
+        if (self.andexpr() < 0) return -1;
+        while (self.word("or")) {
+            if (self.andexpr() < 0) return -1;
+            if (self.emit(.l_or, 0) < 0) return -1;
+            self.p.flops += 1;
+        }
+        return 0;
+    }
+    fn andexpr(self: *Parser) i32 {
+        if (self.cmp() < 0) return -1;
+        while (self.word("and")) {
+            if (self.cmp() < 0) return -1;
+            if (self.emit(.l_and, 0) < 0) return -1;
+            self.p.flops += 1;
+        }
+        return 0;
+    }
+    fn cmp(self: *Parser) i32 {
+        if (self.expr() < 0) return -1;
+        const c = self.peek();
+        if (c == '<' or c == '>' or c == '=' or c == '!') {
+            const two = self.i + 1 < self.s.len and self.s[self.i + 1] == '=';
+            if (c == '=' and !two) return fail("use '==' to compare in a guard", .{});
+            if (c == '!' and !two) return fail("'!' alone is not admitted; use '!='", .{});
+            const op: Op = if (c == '<') (if (two) .c_le else .c_lt) else if (c == '>') (if (two) .c_ge else .c_gt) else if (c == '=') .c_eq else .c_ne;
+            self.i += if (two) 2 else 1;
+            if (self.expr() < 0) return -1;
+            if (self.emit(op, 0) < 0) return -1;
+            self.p.flops += 1;
+        }
+        return 0;
+    }
+    // consume a bare word if it is exactly `w`
+    fn word(self: *Parser, w: []const u8) bool {
+        self.skip();
+        if (self.i + w.len > self.s.len) return false;
+        if (!std.ascii.eqlIgnoreCase(self.s[self.i .. self.i + w.len], w)) return false;
+        const after = self.i + w.len;
+        if (after < self.s.len and (std.ascii.isAlphanumeric(self.s[after]) or self.s[after] == '_')) return false;
+        self.i = after;
+        return true;
+    }
 
     fn skip(self: *Parser) void {
         while (self.i < self.s.len and (self.s[self.i] == ' ' or self.s[self.i] == '\t')) : (self.i += 1) {}
@@ -524,12 +819,29 @@ const Parser = struct {
             var nm: Name = .{};
             if (j == self.i + 1 or !lowerInto(&nm, self.s[self.i + 1 .. j]))
                 return fail("bad @name at '{s}'", .{self.s[self.i..@min(self.i + 8, self.s.len)]});
+            if (std.mem.eql(u8, nm.slice(), "i")) {
+                self.i = j;
+                return self.emit(.k_index, 0);
+            }
             const idx = nameIn(self.d.ins[0..], self.d.n_ins, nm.slice()) orelse {
                 if (std.mem.eql(u8, nm.slice(), self.d.out_name.slice()))
                     return fail("the output '@{s}' cannot be read", .{nm.slice()});
                 return fail("undeclared vector '@{s}'", .{nm.slice()});
             };
             self.i = j;
+            if (self.peek() == '[') {
+                // a neighbour read: the index expression, then rd
+                self.i += 1;
+                const saved = self.compare;
+                self.compare = false;
+                const r = self.expr();
+                self.compare = saved;
+                if (r < 0) return -1;
+                if (self.peek() != ']') return fail("missing ']' after '@{s}['", .{nm.slice()});
+                self.i += 1;
+                self.p.flops += 1;
+                return self.emit(.rd, @intCast(idx));
+            }
             return self.emit(.k_in, @intCast(idx));
         }
         if (std.ascii.isAlphabetic(c) or c == '_') {
@@ -539,8 +851,56 @@ const Parser = struct {
             if (!lowerInto(&nm, self.s[self.i..j]))
                 return fail("name too long at '{s}'", .{self.s[self.i..@min(self.i + 8, self.s.len)]});
             self.i = j;
+            if (std.mem.eql(u8, nm.slice(), "n")) return self.emit(.k_n, 0);
+            if (self.loopvar) |lv| {
+                if (std.mem.eql(u8, nm.slice(), lv.slice())) return self.emit(.k_var, @intCast(self.p.nsum - 1));
+            }
+            if (std.mem.eql(u8, nm.slice(), "and") or std.mem.eql(u8, nm.slice(), "or"))
+                return fail("'{s}' belongs to the guard line, not to a body", .{nm.slice()});
             if (nameIn(self.d.scalars[0..], self.d.n_scalars, nm.slice())) |si| {
                 return self.emit(.k_scalar, @intCast(si));
+            }
+            if (std.mem.eql(u8, nm.slice(), "sum")) {
+                if (self.loopvar != null) return fail("a sum inside a sum is not admitted (one level; shared memory is KP3's)", .{});
+                if (self.p.nsum >= MAX_SUMS) return fail("too many sums (max {d})", .{MAX_SUMS});
+                if (self.peek() != '(') return fail("sum needs '(var, from, to, expression)'", .{});
+                self.i += 1;
+                self.skip();
+                var k = self.i;
+                while (k < self.s.len and (std.ascii.isAlphanumeric(self.s[k]) or self.s[k] == '_')) : (k += 1) {}
+                var lv: Name = .{};
+                if (k == self.i or !lowerInto(&lv, self.s[self.i..k]) or !validIdent(lv.slice()))
+                    return fail("sum's variable must be a name, got '{s}'", .{self.s[self.i..@min(k, self.i + 8)]});
+                if (reservedName(lv.slice()) != null or nameIn(self.d.ins[0..], self.d.n_ins, lv.slice()) != null or
+                    nameIn(self.d.scalars[0..], self.d.n_scalars, lv.slice()) != null)
+                    return fail("sum's variable '{s}' is already a name here", .{lv.slice()});
+                self.i = k;
+                if (self.peek() != ',') return fail("sum takes 4 arguments (var, from, to, expression)", .{});
+                self.i += 1;
+                const saved = self.compare;
+                self.compare = false;
+                if (self.expr() < 0) return -1; // from
+                if (self.peek() != ',') return fail("sum takes 4 arguments (var, from, to, expression)", .{});
+                self.i += 1;
+                if (self.expr() < 0) return -1; // to
+                if (self.peek() != ',') return fail("sum takes 4 arguments (var, from, to, expression)", .{});
+                self.i += 1;
+                const slot = self.p.nsum;
+                self.p.sumvar[slot] = lv;
+                self.p.nsum += 1;
+                const begin = self.p.n;
+                if (self.emit(.sum_begin, @intCast(slot)) < 0) return -1;
+                self.loopvar = lv;
+                const r = self.expr();
+                self.loopvar = null;
+                self.compare = saved;
+                if (r < 0) return -1;
+                if (self.peek() != ')') return fail("sum is missing ')'", .{});
+                self.i += 1;
+                self.p.jump[begin] = @intCast(self.p.n);
+                self.p.jump[self.p.n] = @intCast(begin);
+                self.p.flops += 1;
+                return self.emit(.sum_end, @intCast(slot));
             }
             for (VECTOR_ONLY) |v| {
                 if (std.mem.eql(u8, v, nm.slice()))
@@ -585,11 +945,35 @@ pub fn stz_gpu_spec_compile(spec: [*]const u8, spec_len: f64) callconv(.c) i32 {
     if (parseDecl(text, &d) < 0) return -1;
     var ps = Parser{ .s = d.rhs, .d = &d, .p = &g_prog };
     if (ps.expr() < 0) return -1;
-    if (ps.peek() != 0) return fail("unexpected '{c}' after the expression", .{ps.peek()});
+    if (ps.peek() != 0) {
+        const c = ps.peek();
+        if (c == '<' or c == '>' or c == '=' or c == '!') return fail("'{c}' is a comparison; comparisons belong to the guard line", .{c});
+        return fail("unexpected '{c}' after the expression", .{c});
+    }
     g_prog.n_ins = d.n_ins;
     g_prog.n_scalars = d.n_scalars;
+    // KP0: the guard
+    g_guard = .{};
+    g_guard_kind = .default;
+    if (d.guard) |g| {
+        if (std.mem.eql(u8, g, "none")) {
+            g_guard_kind = .none;
+        } else {
+            g_guard_kind = .custom;
+            var pg = Parser{ .s = g, .d = &d, .p = &g_guard, .compare = true };
+            if (pg.orexpr() < 0) return -1;
+            if (pg.peek() != 0) return fail("unexpected '{c}' after the guard", .{pg.peek()});
+            g_guard.ready = true;
+        }
+    }
     g_prog.ready = true;
     return 0;
+}
+
+/// KP0: the operations the last stz_gpu_spec_eval executed, loops included --
+/// the FLOP count the checker's compute ceiling reads for a spec.
+pub fn stz_gpu_spec_eval_flops() callconv(.c) f64 {
+    return g_eval_flops;
 }
 
 /// Operations per element of the compiled spec (0 if none is compiled).
@@ -617,119 +1001,206 @@ fn wgslMod(x: f32, y: f32) f32 {
     return x - y * @trunc(x / y);
 }
 
-/// Evaluate the compiled spec over `n` elements: `ins` points at n_ins
-/// arrays of n f32, `scalars` at the declared scalars in order, `out`
-/// receives n f32. Returns 0, or -1 (nothing compiled / wrong counts).
-pub fn stz_gpu_spec_eval(ins: [*]const [*]const f32, n_ins: i32, scalars: [*]const f32, n_scalars: i32, nf: f64, out: [*]f32) callconv(.c) i32 {
+fn toIndex(x: f32) ?usize {
+    // WGSL i32(x) truncates toward zero; out of i32's range is out of range here
+    if (!(x > -2147483648.0 and x < 2147483648.0)) return null;
+    const k: i64 = @intFromFloat(@trunc(x));
+    if (k < 0) return null;
+    return @intCast(k);
+}
+
+const Frame = struct { v: f32 = 0, to: f32 = 0, acc: f32 = 0 };
+
+/// Run one program over element `i`. Returns the value, or null on a stack fault.
+fn runProgram(p: *const Program, i: usize, n: usize, ins: [*]const [*]const f32, lens: [*]const f64, scalars: [*]const f32, ops_out: *f64) ?f32 {
+    var st: [STACK]f32 = undefined;
+    var sp: usize = 0;
+    var frames: [MAX_SUMS]Frame = undefined;
+    var ops: f64 = 0;
+    var k: usize = 0;
+    while (k < p.n) {
+        var next = k + 1;
+        switch (p.ops[k]) {
+            .k_const => {
+                if (sp >= STACK) return null;
+                st[sp] = p.consts[p.args[k]];
+                sp += 1;
+            },
+            .k_in => {
+                if (sp >= STACK) return null;
+                st[sp] = ins[p.args[k]][i];
+                sp += 1;
+            },
+            .k_scalar => {
+                if (sp >= STACK) return null;
+                st[sp] = scalars[p.args[k]];
+                sp += 1;
+            },
+            .k_index => {
+                if (sp >= STACK) return null;
+                st[sp] = @floatFromInt(i);
+                sp += 1;
+            },
+            .k_n => {
+                if (sp >= STACK) return null;
+                st[sp] = @floatFromInt(n);
+                sp += 1;
+            },
+            .k_var => {
+                if (sp >= STACK) return null;
+                st[sp] = frames[p.args[k]].v;
+                sp += 1;
+            },
+            .rd => {
+                if (sp < 1) return null;
+                const which = p.args[k];
+                const len: usize = @intFromFloat(lens[which]);
+                st[sp - 1] = if (toIndex(st[sp - 1])) |ix| (if (ix < len) ins[which][ix] else 0.0) else 0.0;
+                ops += 1;
+            },
+            .sum_begin => {
+                if (sp < 2) return null;
+                const slot = p.args[k];
+                frames[slot] = .{ .v = @trunc(st[sp - 2]), .to = @trunc(st[sp - 1]), .acc = 0 };
+                sp -= 2;
+                if (!(frames[slot].v < frames[slot].to)) {
+                    // an empty range: the sum is 0, skip to after sum_end
+                    if (sp >= STACK) return null;
+                    st[sp] = 0;
+                    sp += 1;
+                    next = @as(usize, p.jump[k]) + 1;
+                }
+            },
+            .sum_end => {
+                if (sp < 1) return null;
+                const slot = p.args[k];
+                frames[slot].acc += st[sp - 1];
+                sp -= 1;
+                frames[slot].v += 1;
+                ops += 1;
+                if (frames[slot].v < frames[slot].to) {
+                    next = @as(usize, p.jump[k]) + 1;
+                } else {
+                    if (sp >= STACK) return null;
+                    st[sp] = frames[slot].acc;
+                    sp += 1;
+                }
+            },
+            .neg => {
+                if (sp < 1) return null;
+                st[sp - 1] = -st[sp - 1];
+                ops += 1;
+            },
+            .add, .sub, .mul, .div, .mod, .f_min, .f_max, .f_pow, .f_step, .f_atan2, .f_distance, .c_lt, .c_le, .c_gt, .c_ge, .c_eq, .c_ne, .l_and, .l_or => {
+                if (sp < 2) return null;
+                const a2 = st[sp - 2];
+                const b2 = st[sp - 1];
+                st[sp - 2] = switch (p.ops[k]) {
+                    .add => a2 + b2,
+                    .sub => a2 - b2,
+                    .mul => a2 * b2,
+                    .div => a2 / b2,
+                    .mod => wgslMod(a2, b2),
+                    .f_min => @min(a2, b2),
+                    .f_max => @max(a2, b2),
+                    .f_pow => std.math.pow(f32, a2, b2),
+                    .f_step => if (b2 < a2) 0.0 else 1.0,
+                    .f_atan2 => std.math.atan2(a2, b2),
+                    .f_distance => @abs(a2 - b2),
+                    .c_lt => if (a2 < b2) 1.0 else 0.0,
+                    .c_le => if (a2 <= b2) 1.0 else 0.0,
+                    .c_gt => if (a2 > b2) 1.0 else 0.0,
+                    .c_ge => if (a2 >= b2) 1.0 else 0.0,
+                    .c_eq => if (a2 == b2) 1.0 else 0.0,
+                    .c_ne => if (a2 != b2) 1.0 else 0.0,
+                    .l_and => if (a2 != 0 and b2 != 0) 1.0 else 0.0,
+                    .l_or => if (a2 != 0 or b2 != 0) 1.0 else 0.0,
+                    else => unreachable,
+                };
+                sp -= 1;
+                ops += 1;
+            },
+            .f_clamp, .f_mix, .f_smoothstep => {
+                if (sp < 3) return null;
+                const x = st[sp - 3];
+                const y = st[sp - 2];
+                const z = st[sp - 1];
+                st[sp - 3] = switch (p.ops[k]) {
+                    .f_clamp => @min(@max(x, y), z),
+                    .f_mix => x * (1.0 - z) + y * z,
+                    .f_smoothstep => blk: {
+                        const t = @min(@max((z - x) / (y - x), 0.0), 1.0);
+                        break :blk t * t * (3.0 - 2.0 * t);
+                    },
+                    else => unreachable,
+                };
+                sp -= 2;
+                ops += 1;
+            },
+            else => {
+                if (sp < 1) return null;
+                const x = st[sp - 1];
+                st[sp - 1] = switch (p.ops[k]) {
+                    .f_abs, .f_length => @abs(x),
+                    .f_sqrt => @sqrt(x),
+                    .f_exp => @exp(x),
+                    .f_log => @log(x),
+                    .f_sin => @sin(x),
+                    .f_cos => @cos(x),
+                    .f_tan => @tan(x),
+                    .f_floor => @floor(x),
+                    .f_ceil => @ceil(x),
+                    .f_sign => if (x > 0) 1.0 else if (x < 0) -1.0 else x,
+                    .f_fract => x - @floor(x),
+                    .f_round => roundEven(x),
+                    .f_asin => std.math.asin(x),
+                    .f_acos => std.math.acos(x),
+                    .f_inversesqrt => 1.0 / @sqrt(x),
+                    else => unreachable,
+                };
+                ops += 1;
+            },
+        }
+        k = next;
+    }
+    if (sp != 1) return null;
+    ops_out.* += ops;
+    return st[0];
+}
+
+/// Evaluate the compiled spec over `n` elements: `ins` points at n_ins arrays,
+/// `lens` their lengths (a neighbour read is bounded by its input's own
+/// length; the inputs need not be n long), `scalars` the declared scalars in
+/// order, `out` receives n f32. An element the guard refuses is left NaN --
+/// unwritten, as the kernel leaves it. Returns 0, or -1 (nothing compiled /
+/// wrong counts / a stack fault). The operations executed, loops included,
+/// are read with stz_gpu_spec_eval_flops.
+pub fn stz_gpu_spec_eval(ins: [*]const [*]const f32, n_ins: i32, lens: [*]const f64, scalars: [*]const f32, n_scalars: i32, nf: f64, out: [*]f32) callconv(.c) i32 {
+    return stz_gpu_spec_eval_masked(ins, n_ins, lens, scalars, n_scalars, nf, out, null);
+}
+
+/// The same, with a WRITTEN mask: mask[i] is 1 where the element was written
+/// and 0 where the guard refused it. A checker needs the two told apart from
+/// a written NaN: an unwritten element must still be the fill in the
+/// candidate, where a NaN the body produced agrees with nothing (GK6).
+pub fn stz_gpu_spec_eval_masked(ins: [*]const [*]const f32, n_ins: i32, lens: [*]const f64, scalars: [*]const f32, n_scalars: i32, nf: f64, out: [*]f32, mask: ?[*]u8) callconv(.c) i32 {
     if (!g_prog.ready) return -1;
     if (n_ins < 0 or @as(usize, @intCast(n_ins)) != g_prog.n_ins) return -1;
     if (n_scalars < 0 or @as(usize, @intCast(n_scalars)) < g_prog.n_scalars) return -1;
     const n: usize = @intFromFloat(nf);
-    const p = &g_prog;
+    g_eval_flops = 0;
     var i: usize = 0;
     while (i < n) : (i += 1) {
-        var st: [STACK]f32 = undefined;
-        var sp: usize = 0;
-        var k: usize = 0;
-        while (k < p.n) : (k += 1) {
-            switch (p.ops[k]) {
-                .k_const => {
-                    if (sp >= STACK) return -1;
-                    st[sp] = p.consts[p.args[k]];
-                    sp += 1;
-                },
-                .k_in => {
-                    if (sp >= STACK) return -1;
-                    st[sp] = ins[p.args[k]][i];
-                    sp += 1;
-                },
-                .k_scalar => {
-                    if (sp >= STACK) return -1;
-                    st[sp] = scalars[p.args[k]];
-                    sp += 1;
-                },
-                .neg => st[sp - 1] = -st[sp - 1],
-                .add => {
-                    st[sp - 2] = st[sp - 2] + st[sp - 1];
-                    sp -= 1;
-                },
-                .sub => {
-                    st[sp - 2] = st[sp - 2] - st[sp - 1];
-                    sp -= 1;
-                },
-                .mul => {
-                    st[sp - 2] = st[sp - 2] * st[sp - 1];
-                    sp -= 1;
-                },
-                .div => {
-                    st[sp - 2] = st[sp - 2] / st[sp - 1];
-                    sp -= 1;
-                },
-                .mod => {
-                    st[sp - 2] = wgslMod(st[sp - 2], st[sp - 1]);
-                    sp -= 1;
-                },
-                .f_abs => st[sp - 1] = @abs(st[sp - 1]),
-                .f_sqrt => st[sp - 1] = @sqrt(st[sp - 1]),
-                .f_exp => st[sp - 1] = @exp(st[sp - 1]),
-                .f_log => st[sp - 1] = @log(st[sp - 1]),
-                .f_sin => st[sp - 1] = @sin(st[sp - 1]),
-                .f_cos => st[sp - 1] = @cos(st[sp - 1]),
-                .f_tan => st[sp - 1] = @tan(st[sp - 1]),
-                .f_floor => st[sp - 1] = @floor(st[sp - 1]),
-                .f_ceil => st[sp - 1] = @ceil(st[sp - 1]),
-                .f_sign => st[sp - 1] = if (st[sp - 1] > 0) 1.0 else if (st[sp - 1] < 0) -1.0 else st[sp - 1],
-                .f_fract => st[sp - 1] = st[sp - 1] - @floor(st[sp - 1]),
-                .f_round => st[sp - 1] = roundEven(st[sp - 1]),
-                .f_asin => st[sp - 1] = std.math.asin(st[sp - 1]),
-                .f_acos => st[sp - 1] = std.math.acos(st[sp - 1]),
-                .f_inversesqrt => st[sp - 1] = 1.0 / @sqrt(st[sp - 1]),
-                .f_length => st[sp - 1] = @abs(st[sp - 1]),
-                .f_min => {
-                    st[sp - 2] = @min(st[sp - 2], st[sp - 1]);
-                    sp -= 1;
-                },
-                .f_max => {
-                    st[sp - 2] = @max(st[sp - 2], st[sp - 1]);
-                    sp -= 1;
-                },
-                .f_pow => {
-                    st[sp - 2] = std.math.pow(f32, st[sp - 2], st[sp - 1]);
-                    sp -= 1;
-                },
-                .f_step => {
-                    st[sp - 2] = if (st[sp - 1] < st[sp - 2]) 0.0 else 1.0; // step(edge, x)
-                    sp -= 1;
-                },
-                .f_atan2 => {
-                    st[sp - 2] = std.math.atan2(st[sp - 2], st[sp - 1]);
-                    sp -= 1;
-                },
-                .f_distance => {
-                    st[sp - 2] = @abs(st[sp - 2] - st[sp - 1]);
-                    sp -= 1;
-                },
-                .f_clamp => {
-                    st[sp - 3] = @min(@max(st[sp - 3], st[sp - 2]), st[sp - 1]);
-                    sp -= 2;
-                },
-                .f_mix => {
-                    const t = st[sp - 1];
-                    st[sp - 3] = st[sp - 3] * (1.0 - t) + st[sp - 2] * t;
-                    sp -= 2;
-                },
-                .f_smoothstep => {
-                    const e0 = st[sp - 3];
-                    const e1 = st[sp - 2];
-                    const x = st[sp - 1];
-                    const t = @min(@max((x - e0) / (e1 - e0), 0.0), 1.0);
-                    st[sp - 3] = t * t * (3.0 - 2.0 * t);
-                    sp -= 2;
-                },
+        if (g_guard_kind == .custom) {
+            const g = runProgram(&g_guard, i, n, ins, lens, scalars, &g_eval_flops) orelse return -1;
+            if (g == 0) {
+                out[i] = std.math.nan(f32);
+                if (mask) |m| m[i] = 0;
+                continue;
             }
         }
-        if (sp != 1) return -1;
-        out[i] = st[0];
+        out[i] = runProgram(&g_prog, i, n, ins, lens, scalars, &g_eval_flops) orelse return -1;
+        if (mask) |m| m[i] = 1;
     }
     return 0;
 }
@@ -763,9 +1234,10 @@ test "GK6: the interpreter means what WGSL means" {
     const a = [_]f32{ 7, -7, 2.5, 0 };
     const b = [_]f32{ 2.5, 3.5, -2.5, 0.49 };
     const ins = [_][*]const f32{ &a, &b };
+    const lens = [_]f64{ 4, 4 };
     const k = [_]f32{10};
     var out: [4]f32 = undefined;
-    try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_eval(&ins, 2, &k, 1, 4, &out));
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_eval(&ins, 2, &lens, &k, 1, 4, &out));
     // 7 % 3 = 1, round(2.5) = 2 (to even), 1 + 20 + 1 = 22
     try std.testing.expectApproxEqAbs(@as(f32, 22), out[0], 1e-6);
     // -7 % 3 = -1 (truncated), round(3.5) = 4: -1 + 40 + 1 = 40
@@ -775,7 +1247,112 @@ test "GK6: the interpreter means what WGSL means" {
     // 0 % 3 = 0, round(0.49) = 0: 1
     try std.testing.expectApproxEqAbs(@as(f32, 1), out[3], 1e-6);
     // the counts are checked
-    try std.testing.expectEqual(@as(i32, -1), stz_gpu_spec_eval(&ins, 1, &k, 1, 4, &out));
+    try std.testing.expectEqual(@as(i32, -1), stz_gpu_spec_eval(&ins, 1, &lens, &k, 1, 4, &out));
+}
+
+test "KP0: the four admissions, in the WGSL and in the interpreter, and p is always bound" {
+    var buf: [8192]u8 = undefined;
+    var out: [8]f32 = undefined;
+    const a = [_]f32{ 1, 2, 3, 4, 5, 6, 7, 8 };
+    const ins = [_][*]const f32{&a};
+    const lens = [_]f64{8};
+    const none = [_]f32{};
+
+    // 1. the index: @i is f32(i) in WGSL and the element number in the interpreter
+    const s1 = "in a\nout c\nbody { @c = @a + @i }";
+    var n = stz_gpu_wgsl_elementwise(s1.ptr, @floatFromInt(s1.len), &buf, buf.len);
+    try std.testing.expect(n > 0);
+    try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "v_a[i] + f32(i)") != null);
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_compile(s1.ptr, @floatFromInt(s1.len)));
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_eval(&ins, 1, &lens, &none, 0, 8, &out));
+    try std.testing.expectEqual(@as(f32, 1 + 0), out[0]);
+    try std.testing.expectEqual(@as(f32, 8 + 7), out[7]);
+
+    // 2. the learner's guard: refused elements stay NaN; `_ = p.n;` keeps p bound
+    const s2 = "in a\nout c\nguard { @i < n - 2 }\nbody { @c = @a * 2 }";
+    n = stz_gpu_wgsl_elementwise(s2.ptr, @floatFromInt(s2.len), &buf, buf.len);
+    try std.testing.expect(n > 0);
+    try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "_ = p.n;") != null);
+    try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "if (f32(i) < f32(p.n) - 2) {") != null);
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_compile(s2.ptr, @floatFromInt(s2.len)));
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_eval(&ins, 1, &lens, &none, 0, 8, &out));
+    try std.testing.expectEqual(@as(f32, 12), out[5]);
+    try std.testing.expect(out[6] != out[6]); // NaN: the guard refused it
+    try std.testing.expect(out[7] != out[7]);
+    // guard none: no if, and still `_ = p.n;`
+    const s2b = "in a\nout c\nguard none\nbody { @c = @a }";
+    n = stz_gpu_wgsl_elementwise(s2b.ptr, @floatFromInt(s2b.len), &buf, buf.len);
+    try std.testing.expect(n > 0);
+    try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "_ = p.n;") != null);
+    try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "if (") == null);
+
+    // 3. the stencil: a neighbour read, 0.0 outside the input's own range on both sides
+    const s3 = "in a\nout c\nbody { @c = @a[@i - 1] + @a + @a[@i + 1] }";
+    n = stz_gpu_wgsl_elementwise(s3.ptr, @floatFromInt(s3.len), &buf, buf.len);
+    try std.testing.expect(n > 0);
+    try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "fn rd_a(k : i32) -> f32 {") != null);
+    try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "rd_a(i32(f32(i) - 1)) + v_a[i] + rd_a(i32(f32(i) + 1))") != null);
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_compile(s3.ptr, @floatFromInt(s3.len)));
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_eval(&ins, 1, &lens, &none, 0, 8, &out));
+    try std.testing.expectEqual(@as(f32, 0 + 1 + 2), out[0]);
+    try std.testing.expectEqual(@as(f32, 2 + 3 + 4), out[2]);
+    try std.testing.expectEqual(@as(f32, 7 + 8 + 0), out[7]);
+
+    // 4. the sum: a first pass of partials (n = 2 outputs over 8 inputs), then the fold
+    const s4 = "in a\nout c\nbody { @c = sum(k, 0, 4, @a[@i * 4 + k]) }";
+    n = stz_gpu_wgsl_elementwise(s4.ptr, @floatFromInt(s4.len), &buf, buf.len);
+    try std.testing.expect(n > 0);
+    try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "var acc0 : f32 = 0.0;") != null);
+    try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "for (var k_k : i32 = i32(0); k_k < i32(4); k_k = k_k + 1) { acc0 = acc0 + (rd_a(i32(f32(i) * 4 + f32(k_k)))); }") != null);
+    try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "v_c[i] = acc0;") != null);
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_compile(s4.ptr, @floatFromInt(s4.len)));
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_eval(&ins, 1, &lens, &none, 0, 2, &out));
+    try std.testing.expectEqual(@as(f32, 1 + 2 + 3 + 4), out[0]);
+    try std.testing.expectEqual(@as(f32, 5 + 6 + 7 + 8), out[1]);
+    try std.testing.expect(stz_gpu_spec_eval_flops() > 8); // the loop's work is counted
+    const s5 = "in c\nscalar m\nout d\nbody { @d = sum(k, 0, m, @c[k]) }";
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_compile(s5.ptr, @floatFromInt(s5.len)));
+    const parts = [_]f32{ 10, 26 };
+    const pins = [_][*]const f32{&parts};
+    const plens = [_]f64{2};
+    const m = [_]f32{2};
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_eval(&pins, 1, &plens, &m, 1, 1, &out));
+    try std.testing.expectEqual(@as(f32, 36), out[0]);
+
+    // the default form is unchanged: no `_ = p.n;`, the one-line if
+    const s0 = "in a\nout c\nbody { @c = @a * 2 }";
+    n = stz_gpu_wgsl_elementwise(s0.ptr, @floatFromInt(s0.len), &buf, buf.len);
+    try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "  if (i < p.n) { v_c[i] = v_a[i] * 2; }\n}\n") != null);
+    try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "_ = p.n;") == null);
+}
+
+test "KP0: the refusals name the offender, and the two readers agree on them" {
+    const specs = [_][]const u8{
+        "in i\nout c\nbody { @c = @i }", // i reserved
+        "in a\nscalar n\nout c\nbody { @c = @a }", // n reserved
+        "in a\nout c\nbody { @c = @a < 2 }", // a comparison in a body
+        "in a\nout c\nbody { @c = sum(k, 0, 4, sum(j, 0, 2, @a[k + j])) }", // nested sums
+        "in a\nout c\nbody { @c = sum(k, 0, @a[k]) }", // 3 arguments
+        "in a\nout c\nbody { @c = sum(a, 0, 4, @a[k]) }", // the var is a name already
+        "in a\nout c\nbody { @c = @a[ }", // missing ]
+        "in a\nout c\nguard { @i = 2 }\nbody { @c = @a }", // = in a guard
+        "in a\nout c\nguard { @i < 2 }\nguard none\nbody { @c = @a }", // two guards
+        "in a\nout c\nbody { @c = @a and 1 }", // and in a body
+        "in a\nout c\nguard { @i > 0 and @i < n - 1 }\nbody { @c = (@a[@i - 1] + @a + @a[@i + 1]) / 3 }", // admitted
+    };
+    var buf: [8192]u8 = undefined;
+    for (specs) |s| {
+        const t = stz_gpu_wgsl_elementwise(s.ptr, @floatFromInt(s.len), &buf, buf.len);
+        const c = stz_gpu_spec_compile(s.ptr, @floatFromInt(s.len));
+        try std.testing.expectEqual(t >= 0, c == 0);
+    }
+    const last = specs[specs.len - 1];
+    try std.testing.expect(stz_gpu_wgsl_elementwise(last.ptr, @floatFromInt(last.len), &buf, buf.len) > 0);
+    const nested = specs[3];
+    try std.testing.expectEqual(@as(i32, -1), stz_gpu_spec_compile(nested.ptr, @floatFromInt(nested.len)));
+    var e: [256]u8 = undefined;
+    const el = stz_gpu_wgsl_error(&e, e.len);
+    try std.testing.expect(std.mem.indexOf(u8, e[0..@intCast(el)], "sum inside a sum") != null);
 }
 
 test "GK6: what the transpiler refuses the interpreter refuses, and the same spec compiles on both" {

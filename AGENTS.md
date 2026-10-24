@@ -124,6 +124,15 @@ cd libraries/stzlib/base/test/gpu && ring gpu_verify_narrated.ring
 cd libraries/stzlib/base/test/gpu && ring gpu_spec_reference_narrated.ring
 ```
 
+The grammar's admissions (KP0: the index, the learner's guard, the stencil, the sum), 43
+assertions; the edge proof whose five kernels a browser runs byte-identical to the native
+engine is `libraries/stzlib/base/test/gpu/edge_proof/edge_proof.html`, fed by
+`libraries/stzlib/base/test/gpu/edge_proof/gen_fixture.ring` and served over http:
+
+```bash
+cd libraries/stzlib/base/test/gpu && ring gpu_grammar_narrated.ring
+```
+
 The standalone probe beside it prints every adapter's peak with its spread, A B A B against
 the copy kernel, on both clocks; build it with the line below, then run `gpu_peak_probe.exe`
 from the engine folder with the vendored runtime,

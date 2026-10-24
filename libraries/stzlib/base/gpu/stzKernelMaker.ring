@@ -56,6 +56,8 @@ class stzKernelMaker from stzObject
 	#
 	#   returns    nothing; the object is built
 	#   see        TakesVector, ToWGSL
+	@cGuard = ""
+
 	def init()
 
 	# Declares an input vector by name; a kernel takes up to 5.
@@ -104,6 +106,34 @@ class stzKernelMaker from stzObject
 		@cWgsl = ""
 		return This
 
+	# Sets the bounds guard the kernel runs under, in the learner's own words: a boolean over @i (the element index), n (the element count), the scalars and the inputs, such as { @i > 0 and @i < n - 1 }; or none, to omit the guard altogether.
+	#
+	#   pcW        the guard, a text like { @i < n }, or "none" (also :none)
+	#   returns    the object itself
+	#   note       KP0 (2026-10-24): without this call the engine guards with i < n as it always did;
+	#              with none, the kernel writes every thread's element and a checker's NaN margin
+	#              catches the ones past the region; the comparisons < <= > >= == != and the words
+	#              and / or are admitted here and nowhere else
+	#   see        ForEachElement, WithoutGuard
+	def Guard(pcW)
+		@cGuard = lower("" + pcW)
+		@cWgsl = ""
+		return This
+
+	# Omits the bounds guard: every thread writes its element, including the threads past n in the last workgroup.
+	#
+	#   returns    the object itself
+	#   see        Guard
+	def WithoutGuard()
+		return This.Guard("none")
+
+	# Returns the guard line as given, or an empty text when the engine's default guard applies.
+	#
+	#   returns    a text
+	#   see        Guard
+	def GuardText()
+		return @cGuard
+
 	# Returns the declared input vectors, lower-cased, in the order declared.
 	#
 	#   returns    a list of texts
@@ -119,11 +149,21 @@ class stzKernelMaker from stzObject
 	#                missing or ragged
 	#   see          ToWGSL, OperationsPerElement
 	def EvaluateOn(paBindings)
+		return This.EvaluateOnWith(paBindings, [])
+
+	# Does the same as EvaluateOn with options: :n, the number of elements to produce when it is not the first input's length (a first pass of partials writes fewer elements than its input holds).
+	#
+	#   paBindings   the inputs and scalars by name; the inputs may differ in length
+	#   paOptions    :n the output count
+	#   returns      a list of n numbers
+	#   see          EvaluateOn
+	def EvaluateOnWith(paBindings, paOptions)
 		_nIn_ = len(@aIns)
 		if _nIn_ = 0
 			StzRaise("stzKernelMaker: no TakesVector input to evaluate over.")
 		ok
 		_aFlat_ = []
+		_aLens_ = []
 		_n_ = 0
 		for _i_ = 1 to _nIn_
 			_v_ = _Binding(paBindings, @aIns[_i_])
@@ -132,15 +172,17 @@ class stzKernelMaker from stzObject
 			ok
 			if _n_ = 0
 				_n_ = len(_v_)
-			but len(_v_) != _n_
-				StzRaise("stzKernelMaker: vector '" + @aIns[_i_] + "' has " + len(_v_) +
-					" elements, the first had " + _n_ + ".")
 			ok
 			_nV_ = len(_v_)
+			_aLens_ + _nV_
 			for _j_ = 1 to _nV_
 				_aFlat_ + _v_[_j_]
 			next
 		next
+		_nOpt_ = _Binding(paOptions, "n")
+		if isNumber(_nOpt_) and _nOpt_ > 0
+			_n_ = _nOpt_
+		ok
 		_aScal_ = []
 		_nS_ = len(@aScalars)
 		for _i_ = 1 to _nS_
@@ -150,16 +192,23 @@ class stzKernelMaker from stzObject
 			ok
 			_aScal_ + _s_
 		next
-		_aOut_ = StzEngineGpuSpecEval(This.Spec(), _aFlat_, _nIn_, _n_, _aScal_)
+		_aOut_ = StzEngineGpuSpecEval(This.Spec(), _aFlat_, _aLens_, _n_, _aScal_)
 		if len(_aOut_) = 0
 			StzRaise("stzKernelMaker: " + StzEngineGpuWgslError())
 		ok
 		return _aOut_
 
-	# Returns the number of operations the description does per element (one per operator or function call), the work a checker's compute ceiling reads against.
+	# Returns the number of operations the last EvaluateOn executed in all, loops included: the work a checker's compute ceiling reads against for this description over those inputs.
+	#
+	#   returns    a number
+	#   see        EvaluateOn, OperationsPerElement
+	def OperationsExecuted()
+		return StzEngineGpuSpecEvalFlops()
+
+	# Returns the number of operations the description does per element (one per operator or function call), a sum counted once, not per iteration.
 	#
 	#   returns    a number, 0 when the description is refused
-	#   see        EvaluateOn
+	#   see        EvaluateOn, OperationsExecuted
 	def OperationsPerElement()
 		return StzEngineGpuSpecFlops(This.Spec())
 
@@ -207,6 +256,9 @@ class stzKernelMaker from stzObject
 		next
 		if @cOut != ""
 			_c_ += "out " + @cOut + char(10)
+		ok
+		if @cGuard != ""
+			_c_ += "guard " + @cGuard + char(10)
 		ok
 		if @cBody != ""
 			_c_ += "body " + @cBody

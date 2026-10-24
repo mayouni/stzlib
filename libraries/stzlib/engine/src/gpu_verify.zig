@@ -712,6 +712,26 @@ fn readF32(id: i64, out: []f32) bool {
 
 const Compare = struct { maxabs: f64, first_bad: i64 };
 
+/// GK6/KP0: the compare with the interpreter's written mask. An element the
+/// reference's guard left unwritten (mask 0) must still be the NaN fill in
+/// the candidate -- a kernel that wrote it wrote where the task says not to,
+/// and that is the first bad element. A written element follows the band's
+/// rule, NaN agreeing with nothing.
+fn compareMasked(ref: []const f32, cand: []const f32, mask: []const u8, band: f64) Compare {
+    var maxabs: f64 = 0;
+    var first_bad: i64 = -1;
+    for (ref, cand, mask, 0..) |x, y, m, i| {
+        if (m == 0) {
+            if (y == y and first_bad < 0) first_bad = @intCast(i); // written where unwritten was owed
+            continue;
+        }
+        const d: f64 = @abs(@as(f64, x) - @as(f64, y));
+        if (!(d <= band) and first_bad < 0) first_bad = @intCast(i);
+        if (d > maxabs or d != d) maxabs = if (d != d) std.math.inf(f64) else d;
+    }
+    return .{ .maxabs = maxabs, .first_bad = first_bad };
+}
+
 fn compare(a: []const f32, b: []const f32, band: f64) Compare {
     var maxabs: f64 = 0;
     var first_bad: i64 = -1;
@@ -901,7 +921,7 @@ pub fn stz_gpu_verify(
 }
 
 // ---------------------------------------------------------------- GK6: the spec as the reference
-const SpecShape = struct { outside: i64, cmp: Compare, cpu_ms: f64 };
+const SpecShape = struct { outside: i64, cmp: Compare, cpu_ms: f64, flops: f64 };
 
 /// One shape: read the inputs back, evaluate the spec on the host (timed),
 /// run the candidate into a NaN-filled buffer with a margin, scan the
@@ -910,15 +930,21 @@ fn checkSpecShape(kcand: i64, params: []const u8, ids: []const i64, n: usize, wx
     const alloc = std.heap.c_allocator;
     const n_in = ids.len - 1;
     // the inputs, read back from the device buffers the caller filled
+    // each input is read back WHOLE: a neighbour read or a sum is bounded by
+    // the input's own length, which need not be n (a first pass of partials
+    // writes n outputs over a longer input)
     var host: [8][]f32 = undefined;
     var ptrs: [8][*]const f32 = undefined;
+    var lens: [8]f64 = undefined;
     var got: usize = 0;
     defer for (0..got) |k| alloc.free(host[k]);
     for (0..n_in) |k| {
-        host[k] = alloc.alloc(f32, n) catch return null;
+        const len = gpu.rawBufferSize(ids[k]) / 4;
+        host[k] = alloc.alloc(f32, len) catch return null;
         got += 1;
         if (!readF32(ids[k], host[k])) return null;
         ptrs[k] = host[k].ptr;
+        lens[k] = @floatFromInt(len);
     }
     // the scalars, as the params uniform carries them: n, pad, then f32s
     var scal: [wgsl.MAX_SCALARS]f32 = @splat(0);
@@ -929,9 +955,12 @@ fn checkSpecShape(kcand: i64, params: []const u8, ids: []const i64, n: usize, wx
     // the REFERENCE: the spec, on the CPU, timed
     const ref = alloc.alloc(f32, n) catch return null;
     defer alloc.free(ref);
+    const mask = alloc.alloc(u8, n) catch return null;
+    defer alloc.free(mask);
     var t = std.time.Timer.start() catch return null;
-    if (wgsl.stz_gpu_spec_eval(&ptrs, @intCast(n_in), &scal, @intCast(n_scal), @floatFromInt(n), ref.ptr) != 0) return null;
+    if (wgsl.stz_gpu_spec_eval_masked(&ptrs, @intCast(n_in), &lens, &scal, @intCast(n_scal), @floatFromInt(n), ref.ptr, mask.ptr) != 0) return null;
     const cpu_ms = @as(f64, @floatFromInt(t.read())) / 1e6;
+    const flops = wgsl.stz_gpu_spec_eval_flops();
     // the candidate's region and margin, NaN before it runs
     const total = n + MARGIN;
     const cand = alloc.alloc(f32, total) catch return null;
@@ -949,9 +978,9 @@ fn checkSpecShape(kcand: i64, params: []const u8, ids: []const i64, n: usize, wx
             break;
         }
     }
-    const cmp = compare(ref, cand[0..n], band);
+    const cmp = compareMasked(ref, cand[0..n], mask, band);
     result[slot_maxabs] = cmp.maxabs;
-    return .{ .outside = outside, .cmp = cmp, .cpu_ms = cpu_ms };
+    return .{ .outside = outside, .cmp = cmp, .cpu_ms = cpu_ms, .flops = flops };
 }
 
 /// GK6: verify a candidate kernel against a SPEC interpreted on the CPU --
@@ -1035,12 +1064,12 @@ pub fn stz_gpu_verify_spec(
     result[R_PEAK_GFLOPS] = peak / 1e9;
     result[R_PEAK_WARM] = @floatFromInt(peak_warm);
     result[R_REPS] = @floatFromInt(nreps);
-    const flops_a: f64 = wgsl.stz_gpu_spec_flops() * n_a;
-    result[R_FLOPS] = flops_a;
-
-    // 1. the visible shape: margin, then values
+    // 1. the visible shape: margin, then values; the FLOPs are what the
+    //    interpreter executed there, loops included (KP0)
     const sa = checkSpecShape(kcand, pa, ia, na, wx_a, band, R_MAXABS_A) orelse return gpu.GPU_ERROR;
     result[R_REF_MS] = sa.cpu_ms;
+    const flops_a: f64 = sa.flops;
+    result[R_FLOPS] = flops_a;
     if (sa.outside >= 0) {
         result[R_VERDICT] = V_WRITE_OUTSIDE;
         result[R_FIRST_BAD] = @floatFromInt(sa.outside);
@@ -1146,6 +1175,20 @@ test "GK3: the peak kernel's text is the dense one and its FLOP count follows fr
     // 16 chains x 16 unroll = 256 fma lines in the loop body
     try std.testing.expectEqual(@as(usize, 256), std.mem.count(u8, PEAK_WGSL, "= fma("));
     try std.testing.expectApproxEqAbs(@as(f64, 1048576.0 * 16 * 2 * 1024), PEAK_FLOPS, 1);
+}
+
+test "KP0: the masked compare wants an unwritten element untouched and a written NaN refused" {
+    const ref = [_]f32{ 1, std.math.nan(f32), 3, std.math.nan(f32) };
+    const mask = [_]u8{ 1, 0, 1, 1 }; // element 1 unwritten by the guard; element 3 a written NaN
+    const good = [_]f32{ 1, std.math.nan(f32), 3, std.math.nan(f32) };
+    try std.testing.expectEqual(@as(i64, 3), compareMasked(&ref, &good, &mask, 1e-6).first_bad); // the written NaN
+    const wrote = [_]f32{ 1, 2, 3, 5 };
+    try std.testing.expectEqual(@as(i64, 1), compareMasked(&ref, &wrote, &mask, 1e-6).first_bad); // wrote the unwritten
+    const mask_all = [_]u8{ 1, 1, 1, 1 };
+    const a = [_]f32{ 1, 2, 3, 4 };
+    const b = [_]f32{ 1, 2, 3.5, 4 };
+    try std.testing.expectEqual(@as(i64, 2), compareMasked(&a, &b, &mask_all, 1e-6).first_bad);
+    try std.testing.expectEqual(@as(i64, -1), compareMasked(&a, &a, &mask_all, 0).first_bad);
 }
 
 test "compare names the FIRST out-of-band element and treats NaN as bad" {
