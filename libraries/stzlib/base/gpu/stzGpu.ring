@@ -572,7 +572,7 @@ class stzGpu from stzObject
 		StzEngineGpuVerifyPeakSet(nGflops)
 		return This
 
-	# Judges whether a dispatch touching nBytes and doing nFlops could finish in nMs on this device, against the measured floors AND the measured compute peak.
+	# Judges whether a dispatch could finish in the claimed time, against the measured floors and the compute peak.
 	#
 	#   nBytes     the bytes the dispatch touches
 	#   nFlops     the floating-point operations it does (2 per fused multiply-add)
@@ -587,10 +587,12 @@ class stzGpu from stzObject
 		This._RequireDevice()
 		return This._VerdictName(StzEngineGpuVerifyJudgeFlops(nBytes, nFlops, nMs))
 
-	# Returns the compute peak of the current adapter in GFLOP/s, measured once per device by a dense fused-multiply-add kernel (or pinned explicitly in this process, or read from the adapter's calibration file).
+	# Returns the compute peak of the current adapter in GFLOP/s, measured once per device.
 	#
 	#   returns    a number, GFLOP/s; 0 without a device
-	#   note       GK3 (2026-10-24): RTX 3050 6GB Laptop 8,364 burst; Intel Graphics (Core 5 210H) 972
+	#   note       GK3 (2026-10-24): RTX 3050 6GB Laptop 8,364 burst; Intel Graphics (Core 5 210H) 972.
+	#              Measured by a dense fused-multiply-add kernel, unless pinned in this process or
+	#              read from the adapter's calibration file
 	#   see        VerifyFloors, VerifyJudgeFlops
 	def PeakGFlops()
 		return StzEngineGpuVerifyPeakGflops()
