@@ -441,6 +441,25 @@ Scenario("Bracketed markers open list items")
 	Then("a roman numeral in brackets", StzFindFirst("(i) wear and tear, rot, fungus or vermin;", cL) > 0, 1)
 EndScenario()
 
+# ---- the thirteenth round, pinned on golden_v13 (a development set since round 12 was measured on it)
+
+Scenario("Boxes side by side between full-width tables are read box by box")
+	o = StzPdfQ("_data/golden_v13/u19.pdf")
+	Then("a sentence of the left box reads whole", StzFindFirst("Quý khách vui lòng thanh toán trước ngày 24/09/2026 để tránh bị tạm ngừng cấp điện.", o.Text()) > 0, 1)
+EndScenario()
+
+Scenario("A letterhead's address read as one block of short lines is furniture")
+	o = StzPdfQ("_data/golden_v13/u01.pdf")
+	Then("the address is page furniture", StzFindFirst("Marlpit Trading Estate", "" + @@(o.Furniture())) > 0, 1)
+	Then("the title is not", StzFindFirst("TAX INVOICE", "" + @@(o.Headings())) > 0, 1)
+EndScenario()
+
+Scenario("A kerned alef tucked into a ra's tail stays after it")
+	o = StzPdfQ("_data/golden_v13/u04.pdf")
+	Then("al-dirasiya reads in order", StzFindFirst("السنة الدراسية", o.Text()) > 0, 1)
+	Then("and not swapped", StzFindFirst("الدارسية", o.Text()), 0)
+EndScenario()
+
 Scenario("A file that is not a readable PDF is refused with the reason")
 	bRaised = 0
 	cWhy = ""
