@@ -1,0 +1,260 @@
+{
+  "id": "u03",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "CONTRATO DE ARRENDAMIENTO DE VIVIENDA",
+  "headings": [
+    {
+      "level": 1,
+      "text": "CONTRATO DE ARRENDAMIENTO DE VIVIENDA"
+    },
+    {
+      "level": 2,
+      "text": "REUNIDOS"
+    },
+    {
+      "level": 2,
+      "text": "EXPONEN"
+    },
+    {
+      "level": 2,
+      "text": "CLÁUSULAS"
+    },
+    {
+      "level": 3,
+      "text": "Primera. Objeto"
+    },
+    {
+      "level": 3,
+      "text": "Segunda. Duración"
+    },
+    {
+      "level": 3,
+      "text": "Tercera. Renta"
+    },
+    {
+      "level": 3,
+      "text": "Cuarta. Gastos y suministros"
+    },
+    {
+      "level": 3,
+      "text": "Quinta. Fianza y garantía adicional"
+    },
+    {
+      "level": 3,
+      "text": "Sexta. Conservación y obras"
+    },
+    {
+      "level": 3,
+      "text": "Séptima. Cesión y subarriendo"
+    },
+    {
+      "level": 3,
+      "text": "Octava. Animales domésticos"
+    },
+    {
+      "level": 3,
+      "text": "Novena. Resolución"
+    },
+    {
+      "level": 3,
+      "text": "Décima. Notificaciones y jurisdicción"
+    },
+    {
+      "level": 2,
+      "text": "ANEXO I. INVENTARIO"
+    }
+  ],
+  "key_sentences": [
+    "De una parte, doña Rosario Elvira Montalbán Ruiz, mayor de edad, con domicilio en la calle Doctrinos 14 de Valladolid, en adelante la parte arrendadora.",
+    "La vivienda se entrega amueblada conforme al inventario que figura como anexo I.",
+    "El pago se realizará dentro de los siete primeros días de cada mes mediante transferencia a la cuenta que la parte arrendadora designe por escrito.",
+    "A la firma del presente contrato, la parte arrendataria entrega la cantidad de ochocientos euros en concepto de fianza legal, equivalente a una mensualidad de renta.",
+    "No podrá realizar obras que modifiquen la configuración de la vivienda sin el consentimiento expreso y por escrito de la parte arrendadora.",
+    "Se autoriza la tenencia de un animal doméstico de compañía, siempre que no cause molestias a los vecinos ni daños en la vivienda.",
+    "Para cualquier controversia que pudiera derivarse de este contrato, las partes se someten a los juzgados y tribunales de Valladolid.",
+    "Las partes declaran haber revisado conjuntamente el inventario y estar conformes con su contenido."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Elemento",
+          "Unidades",
+          "Estado",
+          "Observaciones"
+        ],
+        [
+          "Salón",
+          "Salón",
+          "Salón",
+          "Salón"
+        ],
+        [
+          "Sofá de tres plazas",
+          "1",
+          "Bueno",
+          "Tapicería gris"
+        ],
+        [
+          "Mesa de comedor extensible",
+          "1",
+          "Bueno",
+          "—"
+        ],
+        [
+          "Sillas",
+          "4",
+          "Bueno",
+          "Una con arañazo leve"
+        ],
+        [
+          "Estantería de pared",
+          "2",
+          "Nuevo",
+          "—"
+        ],
+        [
+          "Cocina",
+          "Cocina",
+          "Cocina",
+          "Cocina"
+        ],
+        [
+          "Frigorífico combi",
+          "1",
+          "Bueno",
+          "Clase energética A+"
+        ],
+        [
+          "Placa de inducción",
+          "1",
+          "Nuevo",
+          "Instalada en 2025"
+        ],
+        [
+          "Horno eléctrico",
+          "1",
+          "Bueno",
+          "—"
+        ],
+        [
+          "Lavadora",
+          "1",
+          "Regular",
+          "Ruido en centrifugado"
+        ],
+        [
+          "Dormitorio principal",
+          "Dormitorio principal",
+          "Dormitorio principal",
+          "Dormitorio principal"
+        ],
+        [
+          "Cama de 150 cm con colchón",
+          "1",
+          "Bueno",
+          "—"
+        ],
+        [
+          "Armario empotrado",
+          "1",
+          "Bueno",
+          "Cuatro puertas"
+        ],
+        [
+          "Mesillas de noche",
+          "2",
+          "Bueno",
+          "—"
+        ],
+        [
+          "Dormitorio secundario",
+          "Dormitorio secundario",
+          "Dormitorio secundario",
+          "Dormitorio secundario"
+        ],
+        [
+          "Cama de 90 cm con colchón",
+          "1",
+          "Nuevo",
+          "—"
+        ],
+        [
+          "Escritorio",
+          "1",
+          "Bueno",
+          "Con cajonera"
+        ],
+        [
+          "Baño",
+          "Baño",
+          "Baño",
+          "Baño"
+        ],
+        [
+          "Mampara de ducha",
+          "1",
+          "Bueno",
+          "—"
+        ],
+        [
+          "Espejo con armario",
+          "1",
+          "Bueno",
+          "—"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "I. Que la parte arrendadora es propietaria de la vivienda situada en la calle Platerías 9, piso segundo, puerta B, de Valladolid, con una superficie útil de 78 metros cuadrados."
+    },
+    {
+      "level": 0,
+      "text": "II. Que la vivienda dispone de cédula de habitabilidad en vigor y de certificado de eficiencia energética con calificación D."
+    },
+    {
+      "level": 0,
+      "text": "III. Que la parte arrendataria está interesada en arrendar dicha vivienda para destinarla a su residencia habitual y permanente."
+    },
+    {
+      "level": 0,
+      "text": "a) los suministros de electricidad, agua y gas, que se contratarán a su nombre;"
+    },
+    {
+      "level": 0,
+      "text": "b) la tasa municipal de recogida de residuos;"
+    },
+    {
+      "level": 0,
+      "text": "c) las pequeñas reparaciones que exija el desgaste por el uso ordinario de la vivienda."
+    },
+    {
+      "level": 0,
+      "text": "a) la falta de pago de la renta o de cualquiera de las cantidades cuyo pago haya asumido la parte arrendataria;"
+    },
+    {
+      "level": 0,
+      "text": "b) la realización de daños causados dolosamente en la vivienda;"
+    },
+    {
+      "level": 0,
+      "text": "c) el desarrollo en la vivienda de actividades molestas, insalubres o ilícitas."
+    }
+  ],
+  "furniture": [
+    "Contrato n.º ARR-2026-0318",
+    "— 1 —",
+    "— 2 —",
+    "— 3 —"
+  ],
+  "languages": [
+    "es"
+  ],
+  "code": [],
+  "notes": "Spanish residential lease agreement in justified text, three pages. Clauses are level-3 headings (\"Primera. Objeto\"); the recitals \"I.\", \"II.\", \"III.\" and the items \"a)\", \"b)\", \"c)\" are lists whose markers are typed in the text. The section headings REUNIDOS / EXPONEN / CLÁUSULAS are letter-spaced. The contract number (top right) and the page number in the form \"— n —\" are CSS page-margin boxes in Garamond on every page. Annex I starts on a new page; its inventory table has section rows (room names) spanning all four columns. The place-and-date line, the signature captions and the fragments that end in a comma or colon to introduce a list are not key sentences."
+}

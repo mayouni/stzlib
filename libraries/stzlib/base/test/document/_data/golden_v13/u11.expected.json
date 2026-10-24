@@ -1,0 +1,137 @@
+{
+  "id": "u11",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Jitayarishe kwa msimu wa masika",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Jitayarishe kwa msimu wa masika"
+    },
+    {
+      "level": 2,
+      "text": "MAHINDI"
+    },
+    {
+      "level": 2,
+      "text": "MAHARAGE"
+    },
+    {
+      "level": 2,
+      "text": "Kalenda ya upandaji"
+    },
+    {
+      "level": 2,
+      "text": "Vidokezo muhimu"
+    },
+    {
+      "level": 2,
+      "text": "Kupambana na viwavijeshi"
+    }
+  ],
+  "key_sentences": [
+    "Ushauri wa wataalamu wa kilimo kwa wakulima wadogo wa mahindi na maharage.",
+    "Mvua za masika zinatarajiwa kuanza katikati ya mwezi Machi na kuwa za wastani hadi juu ya wastani.",
+    "Panda kwa nafasi ya sentimita 75 kati ya mistari na sentimita 25 kati ya mimea.",
+    "Weka mbolea ya kupandia gramu tano kwa kila shimo, kisha funika kwa udongo kabla ya kuweka mbegu.",
+    "Maharage hustawi vizuri yakipandwa kati ya mistari ya mahindi au peke yake baada ya mvua za kwanza.",
+    "Usipande maharage katika shamba lililokuwa na maharage msimu uliopita ili kuepuka magonjwa ya udongo.",
+    "Kwa ushauri zaidi, tembelea ofisi ya afisa ugani iliyo karibu nawe au piga simu kwa namba ya bure iliyo hapa chini.",
+    "Huduma hii inatolewa bila malipo kwa wakulima wote waliosajiliwa."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Zao",
+          "Mvua za masika",
+          "Mvua za masika",
+          "Mvua za vuli",
+          "Mvua za vuli",
+          "Siku hadi kuvuna"
+        ],
+        [
+          "Zao",
+          "Kupanda",
+          "Kupalilia",
+          "Kupanda",
+          "Kupalilia",
+          "Siku hadi kuvuna"
+        ],
+        [
+          "Mahindi",
+          "15 Machi – 5 Aprili",
+          "Aprili – Mei",
+          "10 – 30 Oktoba",
+          "Novemba",
+          "90 – 120"
+        ],
+        [
+          "Maharage",
+          "20 Machi – 10 Aprili",
+          "Aprili",
+          "15 Oktoba – 5 Novemba",
+          "Novemba",
+          "75 – 90"
+        ],
+        [
+          "Mtama",
+          "10 – 31 Machi",
+          "Aprili – Mei",
+          "5 – 25 Oktoba",
+          "Novemba",
+          "100 – 130"
+        ],
+        [
+          "Viazi vitamu",
+          "1 – 20 Aprili",
+          "Mei",
+          "Haipendekezwi",
+          "—",
+          "120 – 150"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Andaa shamba wiki mbili kabla ya mvua kuanza."
+    },
+    {
+      "level": 0,
+      "text": "Hifadhi mbegu mahali pakavu na pasipo na wadudu."
+    },
+    {
+      "level": 0,
+      "text": "Fuatilia taarifa za hali ya hewa kupitia redio ya jamii kila Jumatatu."
+    },
+    {
+      "level": 0,
+      "text": "Jiunge na kikundi cha wakulima ili kununua pembejeo kwa bei nafuu."
+    },
+    {
+      "level": 0,
+      "text": "Hatua ya 1: Kagua shamba mara mbili kwa wiki tangu mimea inapoota."
+    },
+    {
+      "level": 0,
+      "text": "Hatua ya 2: Ukiona mashimo kwenye majani, ripoti kwa afisa ugani wa kata."
+    },
+    {
+      "level": 0,
+      "text": "Hatua ya 3: Tumia viuatilifu vilivyoidhinishwa tu, kwa kipimo kilichoandikwa."
+    }
+  ],
+  "furniture": [
+    "IDARA YA KILIMO NA MIFUGO · KAUNTI YA MLIMANI",
+    "Toleo Na. 14 · Februari 2027",
+    "Ofisi ya Kilimo, Barabara ya Soko, Mji Mkuu wa Kaunti · Simu ya bure 0800 720 144 · ugani@mlimani-kilimo.example"
+  ],
+  "languages": [
+    "sw"
+  ],
+  "code": [],
+  "notes": "Swahili farmers' advisory bulletin from a county agriculture office, one page. The MAHINDI and MAHARAGE boxes stand side by side: read the left box completely, then the right box. The planting calendar has a two-level header (Mvua za masika / Mvua za vuli), with Zao and Siku hadi kuvuna spanning both header rows. Lower down, the tips list (left) and the steps list (right) also stand side by side, left first. The tips list has CSS markers; the steps list has typed markers (\"Hatua ya 1:\"). The masthead (office name, issue) and the bottom contact line are furniture, not headings."
+}

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Транспортная накладная</title>
+<style>
+@page { size: A4; margin: 1.8cm 1.6cm 2cm 1.6cm; @top-right { content: "Транспортная накладная \2116  ТН-2026/10458"; font-family: Tahoma; font-size: 7.5pt; color: #666; } @bottom-center { content: "Стр. " counter(page) " из " counter(pages); font-family: Tahoma; font-size: 8pt; } }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0; }
+@media screen { body { width: 178mm; } }
+.page { width: 210mm; height: 296.6mm; position: relative; box-sizing: border-box; overflow: hidden; break-after: page; }
+.page:last-child { break-after: auto; }
+tr, li { break-inside: avoid; }
+
+
+body { font-family: Calibri; font-size: 9.6pt; line-height: 1.4; color: #1b1b1b; }
+.lh { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1.5pt solid #37474f; padding-bottom: 4pt; }
+.lh .o { font-family: Georgia; font-size: 14pt; font-weight: bold; color: #37474f; }
+.lh .s { font-size: 8.5pt; color: #555; }
+.lh .r { font-size: 8.5pt; text-align: right; color: #555; }
+h1 { font-family: Georgia; font-size: 15pt; font-weight: bold; text-align: center; margin: 10pt 0 0; }
+.no { text-align: center; margin: 0 0 8pt; }
+.two { display: flex; gap: 10pt; margin-bottom: 6pt; }
+.two > div { flex: 1; border: 0.8pt solid #90a4ae; padding: 5pt 8pt; }
+h2 { font-family: Georgia; font-size: 10.5pt; font-weight: bold; margin: 8pt 0 3pt; color: #37474f; }
+.two h2 { margin-top: 0; }
+.two p { margin: 0; }
+p { margin: 0 0 5pt; }
+table.kv { width: 100%; border-collapse: collapse; margin-bottom: 6pt; }
+.kv td { padding: 2pt 5pt; border-bottom: 0.4pt solid #cfd8dc; }
+.kv td:nth-child(odd) { color: #546e7a; width: 22%; }
+table.g { width: 100%; border-collapse: collapse; font-size: 8.8pt; }
+.g th { background: #37474f; color: #fff; padding: 3pt 4pt; border: 0.5pt solid #37474f; font-weight: bold; }
+.g td { padding: 2pt 4pt; border: 0.5pt solid #b0bec5; }
+.g td.n { text-align: right; white-space: nowrap; }
+.g tr.t td { font-weight: bold; background: #eceff1; }
+.g tr.t td:first-child { text-align: right; }
+ol.u { padding-left: 16pt; margin: 2pt 0 6pt; }
+ol.u li { margin-bottom: 2pt; }
+.sig { display: flex; gap: 14pt; margin-top: 14pt; }
+.sig > div { flex: 1; border-top: 0.6pt solid #000; padding-top: 2pt; font-size: 8.5pt; }
+.sig p { margin: 0; }
+
+</style>
+</head>
+<body>
+<div class="lh"><div>
+<div class="o" data-one="1">ООО «Северный Транзит»</div>
+<div class="s" data-one="1">Автомобильные грузоперевозки и складская логистика</div>
+</div><div class="r">
+<div class="" data-one="1">г. Вологда, ул. Промышленная, д. 18</div>
+<div class="" data-one="1">Диспетчерская служба: +7 8172 00-41-77</div>
+</div></div>
+<h1 class="">Транспортная накладная</h1>
+<p class="no">№ ТН-2026/10458 от 19 октября 2026 г.</p>
+<div class="two"><div>
+<h2 class="">Грузоотправитель</h2>
+<p class="">ООО «Вологодский молочный комбинат»</p>
+<p class="">г. Вологда, Окружное шоссе, д. 7</p>
+<p class="">Контактное лицо: Смирнова Е. В.</p>
+</div><div>
+<h2 class="">Грузополучатель</h2>
+<p class="">АО «Торговая сеть Ладога»</p>
+<p class="">г. Санкт-Петербург, Пулковское шоссе, д. 40, склад 3</p>
+<p class="">Приёмка грузов: с 06:00 до 14:00</p>
+</div></div>
+<h2 class="">Сведения о перевозке</h2>
+<table class="kv"><tbody><tr><td>Транспортное средство</td><td>Рефрижератор, гос. номер В 417 КЕ 35</td><td>Водитель</td><td>Кузнецов А. П.</td></tr><tr><td>Дата и время погрузки</td><td>19.10.2026, 21:30</td><td>Срок доставки</td><td>20.10.2026, до 12:00</td></tr><tr><td>Температурный режим</td><td>от +2 до +6 °C</td><td>Пломба</td><td>№ 0045871</td></tr></tbody></table>
+<p class="">Груз принят к перевозке в исправной таре, без видимых повреждений. Температура в кузове при погрузке составила +3,8 °C.</p>
+<h2 class="">Спецификация груза</h2>
+<table class="g"><thead><tr><th>№</th><th>Наименование груза</th><th>Упаковка</th><th>Кол-во мест</th><th>Масса места, кг</th><th>Масса брутто, кг</th></tr></thead><tbody><tr><td>1</td><td>Молоко питьевое 3,2%, 1 л</td><td>короб 12 шт.</td><td class="n">96</td><td class="n">12,4</td><td class="n">1 190,4</td></tr><tr><td>2</td><td>Молоко питьевое 2,5%, 1 л</td><td>короб 12 шт.</td><td class="n">120</td><td class="n">12,4</td><td class="n">1 488,0</td></tr><tr><td>3</td><td>Кефир 2,5%, 0,9 л</td><td>короб 12 шт.</td><td class="n">64</td><td class="n">11,2</td><td class="n">716,8</td></tr><tr><td>4</td><td>Ряженка 4%, 0,5 л</td><td>короб 20 шт.</td><td class="n">30</td><td class="n">10,6</td><td class="n">318,0</td></tr><tr><td>5</td><td>Йогурт питьевой клубничный, 0,3 л</td><td>короб 24 шт.</td><td class="n">45</td><td class="n">7,9</td><td class="n">355,5</td></tr><tr><td>6</td><td>Сметана 20%, 0,3 кг</td><td>короб 16 шт.</td><td class="n">40</td><td class="n">5,3</td><td class="n">212,0</td></tr><tr><td>7</td><td>Сметана 15%, 0,5 кг</td><td>короб 12 шт.</td><td class="n">28</td><td class="n">6,4</td><td class="n">179,2</td></tr><tr><td>8</td><td>Творог 9%, 0,2 кг</td><td>короб 20 шт.</td><td class="n">50</td><td class="n">4,3</td><td class="n">215,0</td></tr><tr><td>9</td><td>Творог 5%, 0,4 кг</td><td>короб 12 шт.</td><td class="n">36</td><td class="n">5,1</td><td class="n">183,6</td></tr><tr><td>10</td><td>Масло сливочное 82,5%, 0,18 кг</td><td>короб 30 шт.</td><td class="n">24</td><td class="n">5,6</td><td class="n">134,4</td></tr><tr><td>11</td><td>Масло сливочное 72,5%, 0,4 кг</td><td>короб 20 шт.</td><td class="n">18</td><td class="n">8,3</td><td class="n">149,4</td></tr><tr><td>12</td><td>Сыр полутвёрдый «Российский», 0,25 кг</td><td>короб 16 шт.</td><td class="n">22</td><td class="n">4,2</td><td class="n">92,4</td></tr><tr><td>13</td><td>Сыр плавленый, 0,2 кг</td><td>короб 24 шт.</td><td class="n">15</td><td class="n">5,0</td><td class="n">75,0</td></tr><tr><td>14</td><td>Сливки 10%, 0,5 л</td><td>короб 12 шт.</td><td class="n">20</td><td class="n">6,3</td><td class="n">126,0</td></tr><tr><td>15</td><td>Сливки 33%, 0,25 л</td><td>короб 24 шт.</td><td class="n">12</td><td class="n">6,4</td><td class="n">76,8</td></tr><tr><td>16</td><td>Простокваша 3,2%, 0,9 л</td><td>короб 12 шт.</td><td class="n">18</td><td class="n">11,2</td><td class="n">201,6</td></tr><tr><td>17</td><td>Снежок сладкий 2,5%, 0,5 л</td><td>короб 20 шт.</td><td class="n">16</td><td class="n">10,6</td><td class="n">169,6</td></tr><tr><td>18</td><td>Творожная масса с изюмом, 0,18 кг</td><td>короб 24 шт.</td><td class="n">14</td><td class="n">4,6</td><td class="n">64,4</td></tr><tr><td>19</td><td>Сырки глазированные, 0,05 кг</td><td>короб 60 шт.</td><td class="n">25</td><td class="n">3,3</td><td class="n">82,5</td></tr><tr><td>20</td><td>Молочный коктейль ванильный, 0,3 л</td><td>короб 24 шт.</td><td class="n">20</td><td class="n">7,9</td><td class="n">158,0</td></tr><tr><td>21</td><td>Биойогурт натуральный, 0,15 кг</td><td>короб 24 шт.</td><td class="n">18</td><td class="n">3,9</td><td class="n">70,2</td></tr><tr><td>22</td><td>Масло топлёное, 0,5 кг</td><td>короб 12 шт.</td><td class="n">8</td><td class="n">6,3</td><td class="n">50,4</td></tr><tr><td>23</td><td>Молоко сгущённое, 0,38 кг</td><td>короб 30 шт.</td><td class="n">20</td><td class="n">12,0</td><td class="n">240,0</td></tr><tr><td>24</td><td>Кисломолочный напиток «Тан», 0,5 л</td><td>короб 12 шт.</td><td class="n">14</td><td class="n">6,3</td><td class="n">88,2</td></tr><tr><td>25</td><td>Варенец 2,5%, 0,5 л</td><td>короб 20 шт.</td><td class="n">12</td><td class="n">10,6</td><td class="n">127,2</td></tr><tr><td>26</td><td>Айран 1,5%, 0,5 л</td><td>короб 12 шт.</td><td class="n">16</td><td class="n">6,3</td><td class="n">100,8</td></tr><tr><td>27</td><td>Молоко ультрапастеризованное 3,2%, 1 л</td><td>короб 12 шт.</td><td class="n">60</td><td class="n">12,4</td><td class="n">744,0</td></tr><tr><td>28</td><td>Молоко безлактозное 1,5%, 1 л</td><td>короб 12 шт.</td><td class="n">18</td><td class="n">12,4</td><td class="n">223,2</td></tr><tr><td>29</td><td>Творог зернёный, 0,35 кг</td><td>короб 12 шт.</td><td class="n">16</td><td class="n">4,5</td><td class="n">72,0</td></tr><tr><td>30</td><td>Десерт творожный шоколадный, 0,1 кг</td><td>короб 24 шт.</td><td class="n">20</td><td class="n">2,6</td><td class="n">52,0</td></tr><tr><td>31</td><td>Сыр мягкий «Адыгейский», 0,3 кг</td><td>короб 12 шт.</td><td class="n">14</td><td class="n">3,8</td><td class="n">53,2</td></tr><tr><td>32</td><td>Пудинг ванильный, 0,125 кг</td><td>короб 24 шт.</td><td class="n">12</td><td class="n">3,3</td><td class="n">39,6</td></tr><tr><td>33</td><td>Сметанный продукт 10%, 0,4 кг</td><td>короб 12 шт.</td><td class="n">16</td><td class="n">5,2</td><td class="n">83,2</td></tr><tr><td>34</td><td>Кефир 1%, 0,9 л</td><td>короб 12 шт.</td><td class="n">40</td><td class="n">11,2</td><td class="n">448,0</td></tr><tr><td>35</td><td>Молоко топлёное 4%, 0,9 л</td><td>короб 12 шт.</td><td class="n">18</td><td class="n">11,2</td><td class="n">201,6</td></tr><tr><td>36</td><td>Поддоны пластиковые для йогуртов</td><td>шт.</td><td class="n">40</td><td class="n">1,2</td><td class="n">48,0</td></tr><tr><td>37</td><td>Паллеты деревянные (возвратная тара)</td><td>шт.</td><td class="n">22</td><td class="n">25,0</td><td class="n">550,0</td></tr><tr class="t"><td colspan="3">Итого</td><td class="n">1 077</td><td></td><td class="n">9 380,2</td></tr></tbody></table>
+<p class="">Общее количество мест и масса груза подтверждены взвешиванием на складе грузоотправителя. Возвратная тара подлежит возврату водителю после разгрузки.</p>
+<h2 class="">Условия перевозки</h2>
+<ol class="u"><li>Перевозка выполняется без перегрузки груза в пути.</li><li>Водитель обязан каждые четыре часа проверять температуру в кузове и записывать её в журнал.</li><li>При отклонении температуры от заданного режима водитель немедленно сообщает диспетчеру.</li><li>Грузополучатель вправе отказаться от приёмки продукции с нарушенной упаковкой.</li><li>Претензии по количеству и качеству груза принимаются в момент приёмки и отражаются в акте.</li></ol>
+<div class="sig"><div>
+<p class="">Груз сдал: кладовщик Белова Н. С.</p>
+</div><div>
+<p class="">Груз принял к перевозке: водитель Кузнецов А. П.</p>
+</div><div>
+<p class="">Груз получил: ____________________</p>
+</div></div>
+</body>
+</html>

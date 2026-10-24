@@ -1,0 +1,185 @@
+{
+  "id": "u06",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "TG-300 Telemetry Gateway",
+  "headings": [
+    {
+      "level": 1,
+      "text": "TG-300 Telemetry Gateway"
+    },
+    {
+      "level": 2,
+      "text": "1 Overview"
+    },
+    {
+      "level": 2,
+      "text": "2 Requirements"
+    },
+    {
+      "level": 3,
+      "text": "2.1 Hardware"
+    },
+    {
+      "level": 3,
+      "text": "2.2 Software"
+    },
+    {
+      "level": 2,
+      "text": "3 Installation"
+    },
+    {
+      "level": 2,
+      "text": "4 Configuration"
+    },
+    {
+      "level": 3,
+      "text": "4.1 Example configuration"
+    },
+    {
+      "level": 3,
+      "text": "4.2 Parameters"
+    },
+    {
+      "level": 2,
+      "text": "5 Troubleshooting"
+    },
+    {
+      "level": 3,
+      "text": "5.1 No readings arrive at the broker"
+    },
+    {
+      "level": 3,
+      "text": "5.2 Modbus timeouts"
+    }
+  ],
+  "key_sentences": [
+    "The TG-300 collects readings from field sensors over Modbus RTU and forwards them to a central broker over MQTT.",
+    "It is written for installers who are familiar with basic Linux commands.",
+    "You only need a laptop with an SSH client and a web browser to complete the set-up.",
+    "An interrupted update leaves the gateway in recovery mode and requires a site visit.",
+    "All settings are kept in a single YAML file at /etc/tg300/gateway.yaml.",
+    "Check that the collector service is running and that the broker host name resolves from the gateway.",
+    "Timeouts usually come from a wrong baud rate or from a missing terminating resistor.",
+    "For further help, contact the support desk and quote the serial number printed on the side of the unit."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Item",
+          "Minimum",
+          "Recommended"
+        ],
+        [
+          "Power supply",
+          "12 V DC, 1 A",
+          "24 V DC, 2 A with surge protection"
+        ],
+        [
+          "Enclosure",
+          "IP54",
+          "IP66 with sun shield"
+        ],
+        [
+          "Network",
+          "Ethernet 10/100",
+          "Ethernet plus LTE backup modem"
+        ],
+        [
+          "Serial line",
+          "RS-485, two-wire",
+          "RS-485, shielded twisted pair, terminated"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Parameter",
+          "Type",
+          "Default",
+          "Description"
+        ],
+        [
+          "site.id",
+          "string",
+          "—",
+          "Unique name of the site, used in every topic."
+        ],
+        [
+          "modbus.baudrate",
+          "integer",
+          "9600",
+          "Serial speed; must match all field devices."
+        ],
+        [
+          "modbus.poll_interval_s",
+          "integer",
+          "30",
+          "Seconds between two complete polling cycles."
+        ],
+        [
+          "mqtt.tls",
+          "boolean",
+          "true",
+          "Encrypts the connection to the broker."
+        ],
+        [
+          "mqtt.topic_prefix",
+          "string",
+          "tg300",
+          "First part of every published topic."
+        ],
+        [
+          "buffer.max_mb",
+          "integer",
+          "256",
+          "Disk space used to store readings while offline."
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Mount the gateway on a DIN rail inside the enclosure, away from frequency converters."
+    },
+    {
+      "level": 0,
+      "text": "Connect the RS-485 line to terminals A and B."
+    },
+    {
+      "level": 1,
+      "text": "Use a 120 ohm terminating resistor at the last device."
+    },
+    {
+      "level": 1,
+      "text": "Keep the cable shield grounded at one end only."
+    },
+    {
+      "level": 0,
+      "text": "Connect the Ethernet cable and apply power; the status LED blinks green while the system starts."
+    },
+    {
+      "level": 0,
+      "text": "Log in over SSH with the installer account printed on the label inside the lid."
+    }
+  ],
+  "furniture": [
+    "Fieldlink TG-300 Gateway — Installation Guide",
+    "Revision C · October 2026",
+    "Page 1",
+    "Page 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "sudo tg-update --channel stable\nsudo systemctl enable --now tg-collector.service\nsystemctl status tg-collector.service --no-pager",
+    "site:\n  id: PUMP-STATION-07\n  timezone: Europe/Lisbon\nmodbus:\n  port: /dev/ttyS1\n  baudrate: 19200\n  parity: even\n  poll_interval_s: 15\nmqtt:\n  host: broker.example.net\n  port: 8883\n  tls: true\n  topic_prefix: utilities/water/pumps"
+  ],
+  "notes": "Technical installation guide, numbered headings on three levels. Two code blocks (shell commands, YAML configuration) are printed in Consolas and given exactly, without the caption above them. The running header (product and revision) and the page number (\"Page n\") are CSS page-margin boxes in Corbel, shown on every page. The installation steps are a CSS-numbered list with a nested CSS-bulleted sub-list. The WARNING box text is body text. The parameter table has code-like cells."
+}

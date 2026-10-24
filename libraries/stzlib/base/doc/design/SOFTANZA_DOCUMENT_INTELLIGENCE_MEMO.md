@@ -306,6 +306,24 @@ golden_v12: 24 realistic documents in 18 languages besides English, 13 of 2-3 pa
 
 Time for the 24 documents: native 0.1 s, Docling 188 s. **The heading-precision work carried over to unseen documents**: native 0.86 against Docling 0.82, where on golden_v9 and v10 it was 0.61-0.67 against 0.82-0.86. Docling leads on text (0.92 against 0.89) and still on tables. Causes read off the native output: an Arabic page in Sakkal Majalla loses most of its text for BOTH readers (native 0.00, Docling 0.17: «على» reads «عال», «بعد» reads «عد») -- the text layer again; a two-column scientific article is read at 0.50 by the native reader and 1.00 by Docling. golden_v12 is now a development set for round 12.
 
+**Twelfth round: tables, lists, columns; then golden_v13.** Fixed on golden_v8 to v12 (v12 became a development set after round 11 was measured on it):
+- a header cell set off-centre beside the right-aligned figures it heads is not a column of its own (it made 9 columns for 5); over an empty column it stays -- a looser form fixed two more tables and broke a bank statement (1.00 -> 0.26) and was withdrawn;
+- a ruled table ends at its last horizontal rule, so the borderless body of a timetable ruled only in its header is stacked under it;
+- a key/value table may have phrases for values (labels of four words or fewer, values of fifteen or fewer, no bullets: a list set in two columns stays a list);
+- Arabic-Indic and Persian digits, and bracketed markers -- (a) (iv) (12) [3] -- open list items; the cost: one set's contract clauses numbered "(1)", which its author counts as paragraphs (v9 p03 text 1.00 -> 0.875);
+- a low-ink gutter that no line crosses splits two columns, even when a few lines run into the gap (a two-column article was read line by line across both).
+
+On the development sets, start of round -> freeze: lists v5 0.57 -> 0.62, v8 0.86 -> 0.93, v9 0.85 -> 0.92, v10 0.69 -> 0.81, v11 0.66 -> 0.72, v12 0.63 -> 0.78; tables v11 0.61 -> 0.71, v12 0.61 -> 0.67; text v12 0.89 -> 0.91. **The table and list changes made before golden_v12 was opened already moved it** (tables 0.61 -> 0.67, lists 0.63 -> 0.66): the first out-of-sample check inside a round. Guard 153 assertions under Ring++.
+
+golden_v13: 24 realistic documents in 19 languages besides English (Arabic, Persian and Hebrew each with lists and tables), 15 of 2-3 pages, every named font checked as embedded, by a thirteenth independent agent who saw no reader, no output and no earlier set and did not look at the rendered pages (unperceived); reader frozen at 671a8cd74; both readers ran once:
+
+| golden_v13, realistic | text | order | headings | tables | lists | furniture | code | heading precision |
+|---|---|---|---|---|---|---|---|---|
+| Softanza native (Ring++) | 0.88 | **1.00** | **0.90** | **0.68** | **0.75** | **0.75** | **1.00** | **0.83** |
+| Docling 2.141 | **0.93** | 0.97 | 0.89 | 0.66 | 0.56 | 0.74 | 0.50 | 0.81 |
+
+Time for the 24 documents: native 0.1 s, Docling 153 s. **On unseen documents the native reader now leads on everything but text** -- tables included (0.68 against 0.66) and heading precision (0.83 against 0.81). The text gap (0.88 against 0.93) is mostly two documents: an electricity bill whose boxes side by side are still read line by line across both (native 0.25, Docling 1.00), and an Arabic school-results sheet (native 0.40, Docling 0.80); a Persian page set in a Nastaliq face loses its text for both readers (0.00 and 0.14), the text layer once more. Round 13.
+
 **Not measured**: Granite-Docling-258M (not downloaded), the GPU, scanned golden pages with an expected text, PDFs from producers other than Chrome (both golden sets are Chrome-made and tagged; the native reader does not read the tags).
 
 ---

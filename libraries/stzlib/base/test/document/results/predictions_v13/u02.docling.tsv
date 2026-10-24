@@ -1,0 +1,38 @@
+page_header	0	Centre hospitalier de Valmorin
+page_header	0	12, avenue des Tilleuls · 41290 Valmorin Secrétariat : 02 54 71 30 66 cardiologie@ch-valmorin.example
+paragraph	0	Pôle cœur-vaisseaux · Service de cardiologie
+heading	1	Compte rendu d'hospitalisation
+table	0	PatienteMme Odile FERRANDNée le17/03/1949Séjourdu 02/10/2026 au 09/10/2026UnitéSoins intensifs puis 3e étageMédecin traitantDr Paul Ricaud, Saint-AignanN° de séjour2026-11873
+heading	1	Motif d'hospitalisation
+paragraph	0	Mme Ferrand, 77 ans, est adressée par le SAMU pour une douleur thoracique constrictive apparue au repos. L'électrocardiogramme initial montre un sous-décalage du segment ST en territoire latéral.
+heading	1	Antécédents
+list_item	0	Hypertension artérielle traitée depuis 2011
+list_item	0	Diabète de type 2 sous antidiabétiques oraux
+list_item	0	Cholécystectomie en 1998
+list_item	0	Allergie déclarée à la pénicilline
+heading	1	Histoire de la maladie
+paragraph	0	La douleur a débuté le matin du 2 octobre, au réveil, avec une irradiation vers le bras gauche. La patiente a pris son traitement habituel sans amélioration et a appelé le centre 15 une heure plus tard. À l'arrivée, elle était consciente, eupnéique, avec une pression artérielle de 158/92 mmHg.
+heading	1	Examens complémentaires
+heading	1	Biologie
+table	0	ParamètreRésultatUnitéValeurs de référenceTroponine T hs (H0)86ng/L< 14Troponine T hs (H3)212ng/L< 14Créatinine94µmol/L45 - 90Hémoglobine12,8g/dL12,0 - 16,0HbA1c7,9%< 6,5LDL-cholestérol1,42g/Lobjectif < 0,55Potassium4,1mmol/L3,5 - 5,0
+heading	1	Imagerie et explorations
+paragraph	0	La coronarographie réalisée le 3 octobre retrouve une sténose serrée de l'artère circonflexe moyenne. Une angioplastie avec pose d'un stent actif a été effectuée dans le même temps, sans complication. L'échocardiographie de contrôle montre une fraction d'éjection du ventricule gauche à 52 %.
+page_footer	0	CRH 2026-11873 · Mme O. FERRAND
+page_footer	0	Page 1/2
+page_header	0	Centre hospitalier de Valmorin - Service de cardiologie
+page_header	0	Compte rendu du 09/10/2026
+heading	1	Évolution dans le service
+paragraph	0	Les suites de l'angioplastie ont été simples et la patiente n'a plus présenté de douleur. Le point de ponction radial est propre, sans hématome. Une hypoglycémie modérée le 5 octobre a conduit à adapter le traitement antidiabétique. La reprise de la marche a été progressive avec le kinésithérapeute du service.
+heading	1	Traitement de sortie
+table	0	MédicamentPosologieDuréeAcide acétylsalicylique 75 mg1 comprimé le midiAu long coursTicagrélor 90 mg1 comprimé matin et soir12 mois, puis réévaluationAtorvastatine 80 mg1 comprimé le soirAu long coursBisoprolol 2,5 mg1 comprimé le matinAu long coursRamipril 5 mg1 gélule le matin, contrôle de la kaliémie à J10Au long coursMetformine 1000 mg1 comprimé matin et soirAu long cours
+heading	1	Consignes à la patiente
+list_item	0	Ne jamais interrompre le ticagrélor ni l'aspirine sans avis du cardiologue.
+list_item	0	Appeler le 15 en cas de nouvelle douleur thoracique de plus de dix minutes.
+list_item	0	Réaliser une prise de sang à J10 : créatinine et potassium.
+list_item	0	Participer au programme de réadaptation cardiaque proposé à partir du 20 octobre.
+list_item	0	Reprendre la conduite automobile après une semaine, sauf avis contraire.
+heading	1	Suivi
+paragraph	0	Une consultation de cardiologie est programmée dans trois mois avec une épreuve d'effort. Le médecin traitant est invité à renforcer le suivi du diabète et à viser un LDL-cholestérol inférieur à 0,55 g/L. Nous restons à votre disposition pour tout renseignement complémentaire.
+paragraph	0	Dr Hélène Marchais Praticien hospitalier, cardiologie
+page_footer	0	CRH 2026-11873 · Mme O. FERRAND
+page_footer	0	Page 2/2

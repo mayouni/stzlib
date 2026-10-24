@@ -1,0 +1,371 @@
+{
+  "id": "u17",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Laporan Klasemen dan Hasil Pertandingan",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Laporan Klasemen dan Hasil Pertandingan"
+    },
+    {
+      "level": 2,
+      "text": "Ringkasan putaran pertama"
+    },
+    {
+      "level": 2,
+      "text": "Klasemen sementara"
+    },
+    {
+      "level": 2,
+      "text": "Hasil pekan ke-11"
+    },
+    {
+      "level": 2,
+      "text": "Pencetak gol terbanyak"
+    },
+    {
+      "level": 2,
+      "text": "Keputusan Komisi Disiplin"
+    },
+    {
+      "level": 2,
+      "text": "Jadwal pekan ke-12"
+    }
+  ],
+  "key_sentences": [
+    "Putaran pertama liga tahun ini diikuti oleh dua belas klub dari sembilan kecamatan.",
+    "Seluruh 66 pertandingan berlangsung sesuai jadwal meskipun beberapa kali diganggu hujan deras.",
+    "Rata-rata penonton mencapai sekitar delapan ratus orang per pertandingan, naik dibandingkan musim lalu.",
+    "Pertandingan pekan ke-11 berjalan tertib dan tidak ada kartu merah.",
+    "Gol tercepat dicetak pada menit ketiga di Lapangan Merdeka.",
+    "Putaran kedua dimulai pada 7 November 2026 dengan susunan pertandingan yang sama seperti pekan pertama, tetapi tuan rumah ditukar.",
+    "Kami mengucapkan terima kasih kepada para wasit, relawan, dan pemerintah desa yang mendukung penyelenggaraan liga.",
+    "Mari kita jaga sportivitas di dalam dan di luar lapangan."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Pos",
+          "Klub",
+          "Main",
+          "M",
+          "S",
+          "K",
+          "GM",
+          "GK",
+          "SG",
+          "Poin"
+        ],
+        [
+          "1",
+          "Mitra Desa Sejahtera",
+          "11",
+          "6",
+          "3",
+          "2",
+          "20",
+          "11",
+          "+9",
+          "21"
+        ],
+        [
+          "2",
+          "Persatuan Wanasari",
+          "11",
+          "6",
+          "1",
+          "4",
+          "13",
+          "13",
+          "0",
+          "19"
+        ],
+        [
+          "3",
+          "Persikas Sukamaju",
+          "11",
+          "5",
+          "3",
+          "3",
+          "18",
+          "17",
+          "+1",
+          "18"
+        ],
+        [
+          "4",
+          "Satria Muda Ciherang",
+          "11",
+          "5",
+          "1",
+          "5",
+          "16",
+          "11",
+          "+5",
+          "16"
+        ],
+        [
+          "5",
+          "Persida Karanganyar",
+          "11",
+          "5",
+          "1",
+          "5",
+          "15",
+          "14",
+          "+1",
+          "16"
+        ],
+        [
+          "6",
+          "Bintang Timur FC",
+          "11",
+          "4",
+          "4",
+          "3",
+          "14",
+          "17",
+          "-3",
+          "16"
+        ],
+        [
+          "7",
+          "Garuda Cibening",
+          "11",
+          "3",
+          "6",
+          "2",
+          "15",
+          "13",
+          "+2",
+          "15"
+        ],
+        [
+          "8",
+          "PS Tunas Muda",
+          "11",
+          "3",
+          "5",
+          "3",
+          "14",
+          "12",
+          "+2",
+          "14"
+        ],
+        [
+          "9",
+          "PS Rajawali Hijau",
+          "11",
+          "3",
+          "3",
+          "5",
+          "14",
+          "15",
+          "-1",
+          "12"
+        ],
+        [
+          "10",
+          "Sinar Pagi FC",
+          "11",
+          "3",
+          "3",
+          "5",
+          "17",
+          "19",
+          "-2",
+          "12"
+        ],
+        [
+          "11",
+          "Putra Lembah",
+          "11",
+          "3",
+          "2",
+          "6",
+          "14",
+          "24",
+          "-10",
+          "11"
+        ],
+        [
+          "12",
+          "Elang Pantai",
+          "11",
+          "2",
+          "4",
+          "5",
+          "19",
+          "23",
+          "-4",
+          "10"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Tanggal",
+          "Tuan rumah",
+          "Skor",
+          "Tamu",
+          "Tempat"
+        ],
+        [
+          "Sabtu, 31 Oktober 2026",
+          "Persikas Sukamaju",
+          "2 – 2",
+          "PS Tunas Muda",
+          "Lapangan Merdeka"
+        ],
+        [
+          "Sabtu, 31 Oktober 2026",
+          "Garuda Cibening",
+          "2 – 1",
+          "Satria Muda Ciherang",
+          "Stadion Sukamaju"
+        ],
+        [
+          "Sabtu, 31 Oktober 2026",
+          "Putra Lembah",
+          "0 – 3",
+          "Elang Pantai",
+          "Lapangan Cibening"
+        ],
+        [
+          "Minggu, 1 November 2026",
+          "Bintang Timur FC",
+          "2 – 0",
+          "Persatuan Wanasari",
+          "Lapangan Karanganyar"
+        ],
+        [
+          "Minggu, 1 November 2026",
+          "Persida Karanganyar",
+          "1 – 0",
+          "Sinar Pagi FC",
+          "Stadion Mini Wanasari"
+        ],
+        [
+          "Minggu, 1 November 2026",
+          "PS Rajawali Hijau",
+          "1 – 1",
+          "Mitra Desa Sejahtera",
+          "Lapangan Ciherang"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Pemain",
+          "Klub",
+          "Gol"
+        ],
+        [
+          "Rizal Fadhilah",
+          "Mitra Desa Sejahtera",
+          "9"
+        ],
+        [
+          "Yohanes Manurung",
+          "Persatuan Wanasari",
+          "8"
+        ],
+        [
+          "Dimas Ardiansyah",
+          "Persikas Sukamaju",
+          "7"
+        ],
+        [
+          "Fikri Ramadhan",
+          "Persida Karanganyar",
+          "6"
+        ],
+        [
+          "Teguh Santoso",
+          "Satria Muda Ciherang",
+          "6"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Tanggal",
+          "Pertandingan",
+          "Pukul",
+          "Tempat"
+        ],
+        [
+          "Sabtu, 7 November 2026",
+          "Satria Muda Ciherang – Persikas Sukamaju",
+          "15.30 WIB",
+          "Lapangan Cibening"
+        ],
+        [
+          "Sabtu, 7 November 2026",
+          "Elang Pantai – PS Tunas Muda",
+          "15.30 WIB",
+          "Lapangan Karanganyar"
+        ],
+        [
+          "Sabtu, 7 November 2026",
+          "Persatuan Wanasari – Garuda Cibening",
+          "15.30 WIB",
+          "Stadion Mini Wanasari"
+        ],
+        [
+          "Minggu, 8 November 2026",
+          "Sinar Pagi FC – Putra Lembah",
+          "15.30 WIB",
+          "Lapangan Ciherang"
+        ],
+        [
+          "Minggu, 8 November 2026",
+          "Mitra Desa Sejahtera – Bintang Timur FC",
+          "15.30 WIB",
+          "Lapangan Merdeka"
+        ],
+        [
+          "Minggu, 8 November 2026",
+          "PS Rajawali Hijau – Persida Karanganyar",
+          "15.30 WIB",
+          "Stadion Sukamaju"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "a. Pemain dengan nomor punggung 14 dari PS Tunas Muda dilarang bermain dalam dua pertandingan karena perilaku tidak sportif."
+    },
+    {
+      "level": 0,
+      "text": "b. Panitia pelaksana Sinar Pagi FC didenda Rp1.500.000 karena penonton memasuki lapangan."
+    },
+    {
+      "level": 0,
+      "text": "c. Protes Bintang Timur FC atas hasil pertandingan pekan ke-9 ditolak karena diajukan melewati batas waktu."
+    }
+  ],
+  "furniture": [
+    "ASOSIASI SEPAK BOLA KABUPATEN SUKAMAJU",
+    "Jl. Pemuda No. 45, Sukamaju · Sekretariat liga: liga@askab-sukamaju.example",
+    "Liga Antarkampung Kabupaten Sukamaju 2026 · Putaran Pertama",
+    "Halaman 1 dari 2",
+    "Halaman 2 dari 2"
+  ],
+  "languages": [
+    "id"
+  ],
+  "code": [],
+  "notes": "Village football league report in Indonesian, two pages. The standings table is zebra-striped with abbreviated column headers (Main, M, S, K, GM, GK, SG, Poin) explained in a key line below it; the standings are internally consistent (points = 3 x wins + draws, goal difference = GM - GK). Results and fixtures are separate tables. Disciplinary decisions are a list with typed markers \"a.\" ... Header line and page number \"Halaman n dari N\" are CSS page-margin boxes in Microsoft Sans Serif. The association letterhead is furniture."
+}

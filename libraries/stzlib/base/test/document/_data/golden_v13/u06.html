@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>TG-300 Telemetry Gateway</title>
+<style>
+@page { size: A4; margin: 2.2cm 2cm 2cm 2cm; @top-left { content: "Fieldlink TG-300 Gateway \2014  Installation Guide"; font-family: Corbel; font-size: 8pt; color: #5a6675; } @top-right { content: "Revision C \00B7  October 2026"; font-family: Corbel; font-size: 8pt; color: #5a6675; } @bottom-right { content: "Page " counter(page); font-family: Corbel; font-size: 8.5pt; } }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0; }
+@media screen { body { width: 170mm; } }
+.page { width: 210mm; height: 296.6mm; position: relative; box-sizing: border-box; overflow: hidden; break-after: page; }
+.page:last-child { break-after: auto; }
+tr, li { break-inside: avoid; }
+
+
+body { font-family: "Segoe UI"; font-size: 9.8pt; line-height: 1.45; color: #20262e; }
+h1 { font-family: "Segoe UI Semibold"; font-weight: normal; font-size: 20pt; margin: 0; color: #0b3d91; }
+.sub { font-size: 11pt; color: #5a6675; margin: 2pt 0 14pt; }
+h2 { font-family: "Segoe UI Semibold"; font-weight: normal; font-size: 13.5pt; color: #0b3d91; margin: 14pt 0 4pt; }
+h3 { font-family: "Segoe UI Semibold"; font-weight: normal; font-size: 10.8pt; margin: 9pt 0 3pt; }
+p { margin: 0 0 6pt; }
+pre.code { font-family: Consolas; font-size: 8.8pt; background: #f3f5f8; border-left: 3pt solid #0b3d91; padding: 6pt 9pt; margin: 2pt 0 8pt; line-height: 1.35; white-space: pre; }
+.cap { font-size: 8.5pt; color: #5a6675; margin: 4pt 0 0; font-style: italic; }
+table.t { width: 100%; border-collapse: collapse; margin: 4pt 0 8pt; font-size: 9pt; }
+.t th { text-align: left; border-bottom: 1.5pt solid #0b3d91; padding: 3pt 5pt; font-family: "Segoe UI Semibold"; font-weight: normal; }
+.t td { border-bottom: 0.5pt solid #d0d6de; padding: 3pt 5pt; vertical-align: top; }
+.t td.m { font-family: Consolas; font-size: 8.6pt; }
+ol.s { padding-left: 18pt; margin: 2pt 0 8pt; }
+ol.s li { margin-bottom: 3pt; }
+ol.s ul { list-style-type: disc; padding-left: 14pt; margin: 2pt 0; }
+.warn { border: 1pt solid #c77700; background: #fff6e5; padding: 6pt 9pt; margin: 6pt 0 8pt; }
+.warn p { margin: 0; }
+
+</style>
+</head>
+<body>
+<h1 class="">TG-300 Telemetry Gateway</h1>
+<p class="sub">Installation and configuration guide for firmware 3.2</p>
+<h2 class="">1 Overview</h2>
+<p class="">The TG-300 collects readings from field sensors over Modbus RTU and forwards them to a central broker over MQTT. This guide covers mounting, first start-up, network configuration and the most common faults. It is written for installers who are familiar with basic Linux commands.</p>
+<h2 class="">2 Requirements</h2>
+<h3 class="">2.1 Hardware</h3>
+<table class="t"><thead><tr><th>Item</th><th>Minimum</th><th>Recommended</th></tr></thead><tbody><tr><td>Power supply</td><td>12 V DC, 1 A</td><td>24 V DC, 2 A with surge protection</td></tr><tr><td>Enclosure</td><td>IP54</td><td>IP66 with sun shield</td></tr><tr><td>Network</td><td>Ethernet 10/100</td><td>Ethernet plus LTE backup modem</td></tr><tr><td>Serial line</td><td>RS-485, two-wire</td><td>RS-485, shielded twisted pair, terminated</td></tr></tbody></table>
+<h3 class="">2.2 Software</h3>
+<p class="">The gateway runs a hardened Linux image that is installed at the factory. You only need a laptop with an SSH client and a web browser to complete the set-up.</p>
+<h2 class="">3 Installation</h2>
+<ol class="s"><li>Mount the gateway on a DIN rail inside the enclosure, away from frequency converters.</li><li>Connect the RS-485 line to terminals A and B.<ul class=""><li>Use a 120 ohm terminating resistor at the last device.</li><li>Keep the cable shield grounded at one end only.</li></ul></li><li>Connect the Ethernet cable and apply power; the status LED blinks green while the system starts.</li><li>Log in over SSH with the installer account printed on the label inside the lid.</li></ol>
+<p class="">After the first login, install the latest package set and enable the collector service:</p>
+<p class="cap">Listing 1. Update and enable the collector</p>
+<pre class="code">sudo tg-update --channel stable
+sudo systemctl enable --now tg-collector.service
+systemctl status tg-collector.service --no-pager</pre>
+<div class="warn">
+<p class="">WARNING: Do not disconnect power while an update is running. An interrupted update leaves the gateway in recovery mode and requires a site visit.</p>
+</div>
+<h2 class="">4 Configuration</h2>
+<p class="">All settings are kept in a single YAML file at /etc/tg300/gateway.yaml. Changes take effect when the collector service is restarted.</p>
+<h3 class="">4.1 Example configuration</h3>
+<p class="cap">Listing 2. Minimal gateway.yaml</p>
+<pre class="code">site:
+  id: PUMP-STATION-07
+  timezone: Europe/Lisbon
+modbus:
+  port: /dev/ttyS1
+  baudrate: 19200
+  parity: even
+  poll_interval_s: 15
+mqtt:
+  host: broker.example.net
+  port: 8883
+  tls: true
+  topic_prefix: utilities/water/pumps</pre>
+<h3 class="">4.2 Parameters</h3>
+<table class="t"><thead><tr><th>Parameter</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody><tr><td class="m">site.id</td><td>string</td><td>—</td><td>Unique name of the site, used in every topic.</td></tr><tr><td class="m">modbus.baudrate</td><td>integer</td><td>9600</td><td>Serial speed; must match all field devices.</td></tr><tr><td class="m">modbus.poll_interval_s</td><td>integer</td><td>30</td><td>Seconds between two complete polling cycles.</td></tr><tr><td class="m">mqtt.tls</td><td>boolean</td><td>true</td><td>Encrypts the connection to the broker.</td></tr><tr><td class="m">mqtt.topic_prefix</td><td>string</td><td>tg300</td><td>First part of every published topic.</td></tr><tr><td class="m">buffer.max_mb</td><td>integer</td><td>256</td><td>Disk space used to store readings while offline.</td></tr></tbody></table>
+<h2 class="">5 Troubleshooting</h2>
+<h3 class="">5.1 No readings arrive at the broker</h3>
+<p class="">Check that the collector service is running and that the broker host name resolves from the gateway. If the LED blinks orange, the gateway is buffering readings because the uplink is down.</p>
+<h3 class="">5.2 Modbus timeouts</h3>
+<p class="">Timeouts usually come from a wrong baud rate or from a missing terminating resistor. Reduce the polling interval only after the line has been checked with a handheld tester.</p>
+<p class="">For further help, contact the support desk and quote the serial number printed on the side of the unit.</p>
+</body>
+</html>

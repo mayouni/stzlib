@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="it" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Ricevuta di reso e rimborso</title>
+<style>
+@page { size: A4; margin: 1.4cm 1.6cm;  }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0; }
+@media screen { body { width: 178mm; } }
+.page { width: 210mm; height: 296.6mm; position: relative; box-sizing: border-box; overflow: hidden; break-after: page; }
+.page:last-child { break-after: auto; }
+tr, li { break-inside: avoid; }
+
+
+body { font-family: Verdana; font-size: 8.6pt; line-height: 1.45; color: #222; }
+.lh { display: flex; justify-content: space-between; align-items: center; background: #e4002b; color: #fff; padding: 8pt 12pt; border-radius: 4pt; }
+.lh .o { font-family: "Century Gothic"; font-weight: bold; font-size: 18pt; letter-spacing: 1pt; }
+.lh .r { text-align: right; font-size: 7.6pt; line-height: 1.4; }
+h1 { font-family: "Century Gothic"; font-weight: bold; font-size: 16pt; margin: 14pt 0 2pt; }
+.num { font-size: 9pt; color: #666; margin: 0 0 10pt; }
+.two { display: flex; gap: 10pt; margin-bottom: 12pt; }
+.two > div { flex: 1; border: 0.8pt solid #ccc; padding: 6pt 9pt; }
+.two .lbl { font-family: "Century Gothic"; font-weight: bold; font-size: 7.5pt; letter-spacing: 1.2pt; color: #e4002b; margin-bottom: 2pt; }
+.two p { margin: 0; }
+h2 { font-family: "Century Gothic"; font-weight: bold; font-size: 11pt; margin: 12pt 0 4pt; color: #e4002b; }
+table.z { width: 100%; border-collapse: collapse; }
+.z th { font-family: "Century Gothic"; font-weight: bold; text-align: left; font-size: 8pt; padding: 4pt 5pt; border-bottom: 1.2pt solid #222; }
+.z td { padding: 4pt 5pt; vertical-align: top; }
+.z tbody tr:nth-child(odd) td { background: #f4f4f4; }
+.z .n { text-align: right; white-space: nowrap; }
+.row { display: flex; gap: 14pt; align-items: flex-start; }
+.row > .l { flex: 1.4; } .row > .r { flex: 1; }
+table.kv { width: 100%; border-collapse: collapse; }
+.kv td { padding: 2.5pt 4pt; border-bottom: 0.5pt dotted #bbb; }
+.kv td:last-child { text-align: right; }
+.kv tr.t td { font-weight: bold; font-size: 10pt; border-bottom: 1.5pt solid #e4002b; }
+ul.ar { list-style: none; padding-left: 12pt; margin: 2pt 0; }
+ul.ar li { position: relative; margin-bottom: 3pt; }
+ul.ar li::before { content: "\203A"; position: absolute; left: -11pt; color: #e4002b; font-weight: bold; }
+p { margin: 0 0 5pt; }
+.foot { margin-top: 14pt; border-top: 0.6pt solid #ccc; padding-top: 4pt; font-size: 7pt; color: #777; text-align: center; }
+
+</style>
+</head>
+<body>
+<div class="lh"><div>
+<div class="o" data-one="1">VOLTARIA</div>
+<div class="" data-one="1">elettronica &amp; casa</div>
+</div><div class="r">
+<div class="" data-one="1">Voltaria Retail S.r.l. · Via Emilia Est 214 · 41124 Modena</div>
+<div class="" data-one="1">P. IVA 03917420364 · servizioclienti@voltaria.example</div>
+</div></div>
+<h1 class="">Ricevuta di reso e rimborso</h1>
+<p class="num">N. RR-0458-2026-1187 del 21/10/2026, ore 17:42</p>
+<div class="two"><div><div class="lbl">DATI CLIENTE</div>
+<p class="">Giulia Ferraresi</p>
+<p class="">Carta fedeltà VoltClub n. 7700 4412 9031</p>
+<p class="">Scontrino di acquisto n. 0458-2026-0931 del 03/10/2026</p>
+</div><div><div class="lbl">PUNTO VENDITA</div>
+<p class="">Voltaria Modena Grandemilia</p>
+<p class="">Cassa 6 · Operatore: M. Benassi</p>
+<p class="">Motivo del reso: prodotto non conforme</p>
+</div></div>
+<h2 class="">Articoli resi</h2>
+<table class="z"><thead><tr><th>Codice</th><th>Descrizione</th><th>Q.tà</th><th>Prezzo unitario</th><th>Importo</th></tr></thead><tbody><tr><td>8031294</td><td>Robot aspirapolvere Lumo S7, base<br>di svuotamento automatica</td><td>1</td><td>€ 449,00</td><td>€ 449,00</td></tr><tr><td>8031577</td><td>Kit spazzole di ricambio Lumo S7</td><td>2</td><td>€ 19,90</td><td>€ 39,80</td></tr><tr><td>7720145</td><td>Estensione garanzia 2 anni «Protezione Plus»</td><td>1</td><td>€ 59,00</td><td>€ 59,00</td></tr><tr><td>6650088</td><td>Adattatore presa Schuko / italiana</td><td>1</td><td>€ 6,50</td><td>€ 6,50</td></tr></tbody></table>
+<div class="row"><div class="l">
+<h2 class="">Condizioni di reso</h2>
+<ul class="ar"><li>Il reso è accettato entro 30 giorni dalla data di acquisto, con lo scontrino originale.</li><li>Il prodotto deve essere completo di tutti gli accessori e della confezione originale.</li><li>I prodotti personalizzati e i software aperti non possono essere resi.</li><li>Le estensioni di garanzia sono rimborsate solo insieme al prodotto a cui si riferiscono.</li></ul>
+</div><div class="r">
+<h2 class="">Riepilogo rimborso</h2>
+<table class="kv"><tbody><tr><td>Totale articoli resi</td><td>€ 554,30</td></tr><tr><td>di cui IVA 22%</td><td>€ 99,96</td></tr><tr><td>Punti VoltClub stornati</td><td>−554 punti</td></tr><tr class="t"><td>Totale rimborsato</td><td>€ 554,30</td></tr><tr><td>Modalità</td><td>Carta di pagamento originale</td></tr></tbody></table>
+</div></div>
+<h2 class="">Informazioni sul rimborso</h2>
+<p class="">Il rimborso è stato disposto sulla stessa carta utilizzata per l'acquisto. L'accredito sarà visibile sull'estratto conto entro 5–10 giorni lavorativi, secondo i tempi della banca emittente. Conservi questa ricevuta fino alla ricezione dell'accredito.</p>
+<p class="">Per qualsiasi chiarimento può rivolgersi al servizio clienti, citando il numero della ricevuta. La ringraziamo per aver scelto Voltaria.</p>
+<div class="foot" data-one="1">Voltaria Retail S.r.l. · Capitale sociale € 2.500.000 i.v. · Registro Imprese di Modena · Copia per il cliente</div>
+</body>
+</html>

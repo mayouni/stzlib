@@ -1,0 +1,41 @@
+heading	2	Älvdala kommun
+page_header	0	Kommunledningsförvaltningen · IT-avdelningen
+page_header	0	Driftinstruktion IT-DI-0412 · version 2.1
+page_header	0	Intern information
+heading	1	Driftinstruktion: trådlöst nätverk i kommunens skolor
+table	0	Dokument-IDIT-DI-0412Gäller från2026-10-12ÄgareEnhetschef nätverkFastställd avIT-chefMålgruppDrifttekniker och skolornas IT-samordnareGranskas senast2027-10-12
+heading	3	1 Syfte och omfattning
+paragraph	0	Instruktionen beskriver hur det trådlösa nätverket i kommunens grundskolor och gymnasieskola ska konfigureras och övervakas. Den gäller för alla accesspunkter som är anslutna till skolnätet, sammanlagt 412 enheter på 17 skolor. Instruktionen gäller inte för förskolornas gästnät, som har en egen rutin.
+heading	3	2 Ansvar
+table	0	RollAnsvarEnhetschef nätverkFastställer konfigurationen och godkänner avvikelserDriftteknikerInstallerar, uppdaterar och felsöker accesspunkternaIT-samordnare på skolanTar emot felanmälningar och gör första kontrollen på platsLeverantörens supportHanterar fel i hårdvara och programvara enligt avtal
+heading	3	3 Nätverksöversikt
+caption	0	Varje skola har tre trådlösa nät som skiljs åt med VLAN. Elevernas och personalens nät använder certifikatbaserad inloggning, medan gästnätet kräver en daglig kod.
+table	0	SSIDVLANAutentiseringAnvändareALVDALA-SKOLA210WPA3-Enterprise, EAP-TLSElever med kommunens datorerALVDALA-PERSONAL220WPA3-Enterprise, EAP-TLSLärare och övrig personalALVDALA-GAST290WPA2-PSK, daglig kodBesökare, endast internet
+heading	3	4 Konfiguration
+heading	4	4.1 Standardinställningar
+paragraph	0	Alla accesspunkter hämtar sin konfiguration från den centrala styrenheten vid start. Lokala ändringar på en enskild accesspunkt är inte tillåtna och skrivs över vid nästa synkronisering.
+paragraph	0	Utdrag ur profilen skola-standard
+code	0	profile skola-standard\n  country SE\n  band 5ghz channel-width 40\n  band 2.4ghz disabled\n  ssid ALVDALA-SKOLA vlan 210 security wpa3-enterprise\n  ssid ALVDALA-PERSONAL vlan 220 security wpa3-enterprise\n  ssid ALVDALA-GAST vlan 290 security wpa2-psk rotate-key daily\n  client-limit 45\n  syslog 10.40.0.15 level warning\nend
+page_footer	0	Sida 1 av 2
+page_header	0	Driftinstruktion IT-DI-0412 · version 2.1
+heading	4	4.2 Uppdatering av programvara
+paragraph	0	Ny programvara installeras först på testskolan och därefter på övriga skolor tidigast en vecka senare. Uppdateringar görs efter klockan 17.00 eller under lov för att inte störa undervisningen.
+heading	3	5 Felsökning
+paragraph	0	När en skola anmäler problem med det trådlösa nätet arbetar driftteknikern i följande ordning:
+list_item	0	1. Kontrollera i styrenheten om accesspunkten är ansluten och har rätt profil.
+list_item	0	2. Fråga IT-samordnaren vilka användare som påverkas.
+list_item	1	a. Om bara gästnätet påverkas, kontrollera dagens kod.
+list_item	1	b. Om alla nät påverkas, kontrollera switchporten och strömmen.
+list_item	0	3. Starta om accesspunkten från styrenheten, aldrig genom att dra ur kabeln.
+list_item	0	4. Om felet kvarstår efter omstart, skapa ett ärende hos leverantören och bifoga loggfilen.
+paragraph	0	Alla åtgärder dokumenteras i ärendet i kommunens ärendehanteringssystem. Ett ärende får stängas först när IT-samordnaren har bekräftat att nätet fungerar.
+heading	3	6 Kontakter
+paragraph	0	IT-servicedesk
+paragraph	0	telefon 0250-55 01 00, vardagar 7.30–16.30
+paragraph	0	Jour för nätverk
+paragraph	0	telefon 0250-55 01 99, kvällar och helger
+paragraph	0	Leverantörens support
+paragraph	0	enligt avtal LEV-2025-031
+heading	3	Revisionshistorik
+table	0	VersionDatumÄndringAv1.02024-08-19Första versionenL. Nyström2.02025-06-23Övergång till WPA3 för elever och personalA. Haddad2.12026-10-122,4 GHz-bandet avstängt; ny gästnätsrutinA. Haddad
+page_footer	0	Sida 2 av 2

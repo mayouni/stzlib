@@ -1,0 +1,168 @@
+{
+  "id": "u09",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Rahoton Shekara-shekara na 2025",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Rahoton Shekara-shekara na 2025"
+    },
+    {
+      "level": 3,
+      "text": "Taƙaitawa"
+    },
+    {
+      "level": 3,
+      "text": "Summary"
+    },
+    {
+      "level": 2,
+      "text": "1. Gabatarwa"
+    },
+    {
+      "level": 2,
+      "text": "2. Ayyukan da aka gudanar"
+    },
+    {
+      "level": 2,
+      "text": "3. Waɗanda suka amfana"
+    },
+    {
+      "level": 2,
+      "text": "4. Kuɗaɗen shiga da kashewa"
+    },
+    {
+      "level": 2,
+      "text": "5. Ƙalubale"
+    },
+    {
+      "level": 2,
+      "text": "6. Shawarwari don 2026"
+    }
+  ],
+  "key_sentences": [
+    "A shekarar 2025, ƙungiyarmu ta taimaka wa iyalai fiye da dubu goma sha biyu a yankuna uku.",
+    "An yi wa yara fiye da dubu shida allurar rigakafi.",
+    "More than six thousand children were vaccinated.",
+    "Muna aiki tare da ma'aikatar lafiya ta ƙasa, da shugabannin gargajiya, da ƙungiyoyin mata.",
+    "Yankin Maradi ne ya fi yawan mutane saboda sabbin cibiyoyi biyu da aka buɗe a can.",
+    "Kashi saba'in da biyar cikin ɗari an kashe su kai tsaye a ayyukan filin.",
+    "Duk da haka, mun ci gaba da aiki ta hanyar ma'aikatan lafiya na al'umma da ke zaune a ƙauyukan.",
+    "Ba tare da goyon bayansu ba, waɗannan nasarori ba za su samu ba."
+  ],
+  "tables": [
+    {
+      "caption": "Tebur 1. Yawan waɗanda suka amfana, 2025",
+      "rows": [
+        [
+          "Yanki",
+          "Mata masu ciki",
+          "'Yan ƙasa da shekara 5",
+          "Allurar rigakafi",
+          "Jimla"
+        ],
+        [
+          "Dosso",
+          "1 120",
+          "1 870",
+          "1 640",
+          "4 630"
+        ],
+        [
+          "Tahoua",
+          "1 310",
+          "2 040",
+          "1 980",
+          "5 330"
+        ],
+        [
+          "Maradi",
+          "1 655",
+          "2 510",
+          "2 470",
+          "6 635"
+        ],
+        [
+          "Jimla",
+          "4 085",
+          "6 420",
+          "6 090",
+          "16 595"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Kuɗin shiga",
+          "CFA 340 000 000"
+        ],
+        [
+          "Ayyukan filin",
+          "CFA 255 000 000"
+        ],
+        [
+          "Albashi da gudanarwa",
+          "CFA 61 200 000"
+        ],
+        [
+          "Bincike da kimantawa",
+          "CFA 23 800 000"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Horar da ungozoma ɗari da arba'in a kan haihuwa lafiya."
+    },
+    {
+      "level": 0,
+      "text": "Gina rijiyoyin burtsatse guda takwas kusa da cibiyoyin lafiya."
+    },
+    {
+      "level": 0,
+      "text": "Rarraba gidajen sauro dubu tara ga iyalai masu ƙananan yara."
+    },
+    {
+      "level": 0,
+      "text": "Shirya taron wayar da kai kan abinci mai gina jiki a ƙauyuka sittin."
+    },
+    {
+      "level": 0,
+      "text": "Samar da babura huɗu don ɗaukar marasa lafiya zuwa asibiti."
+    },
+    {
+      "level": 0,
+      "text": "1) Ƙara yawan ungozoma da aka horar a yankin Tahoua."
+    },
+    {
+      "level": 0,
+      "text": "2) Haɗa shirin abinci mai gina jiki da shirin allurar rigakafi."
+    },
+    {
+      "level": 0,
+      "text": "3) Ƙarfafa haɗin kai da rediyon al'umma don isar da saƙonni."
+    },
+    {
+      "level": 0,
+      "text": "4) Neman sabbin abokan hulɗa don ɗaukar nauyin motocin ɗaukar marasa lafiya."
+    }
+  ],
+  "furniture": [
+    "Ƙungiyar Lafiya Tare",
+    "Ƙungiya mai zaman kanta · Quartier Koira Kano, Yamai, Nijar · lafiyatare@ngo.example",
+    "Ƙungiyar Lafiya Tare · Rahoton Shekara-shekara 2025",
+    "Shafi 1 na 2",
+    "Shafi 2 na 2"
+  ],
+  "languages": [
+    "ha",
+    "en"
+  ],
+  "code": [],
+  "notes": "Annual report of a community-health NGO, written in Hausa with an English summary. Hausa uses the hooked letters ɓ ɗ ƙ and the apostrophe in 'yan / 'ya'ya. On page 1 a Hausa summary box and an English summary box stand side by side: read the Hausa box completely, then the English box. The beneficiaries table has a total row (Jimla). The activity list is CSS-bulleted; the recommendations list has typed markers \"1)\" ... in the text. Footer line and page number (\"Shafi n na N\") are CSS page-margin boxes in Segoe UI."
+}

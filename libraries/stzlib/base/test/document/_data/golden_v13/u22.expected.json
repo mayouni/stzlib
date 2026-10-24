@@ -1,0 +1,437 @@
+{
+  "id": "u22",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "Monthly Safety, Health, Environment and Production Report",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Monthly Safety, Health, Environment and Production Report"
+    },
+    {
+      "level": 2,
+      "text": "1. Summary"
+    },
+    {
+      "level": 3,
+      "text": "SAFETY"
+    },
+    {
+      "level": 3,
+      "text": "PRODUCTION"
+    },
+    {
+      "level": 2,
+      "text": "2. Safety performance"
+    },
+    {
+      "level": 2,
+      "text": "3. Incidents"
+    },
+    {
+      "level": 2,
+      "text": "Corrective actions"
+    },
+    {
+      "level": 2,
+      "text": "4. Production"
+    },
+    {
+      "level": 2,
+      "text": "5. Environment"
+    },
+    {
+      "level": 2,
+      "text": "6. Actions for October"
+    },
+    {
+      "level": 2,
+      "text": "7. Approval"
+    }
+  ],
+  "key_sentences": [
+    "September closed with one lost-time injury, in the processing plant.",
+    "Ore mined reached 186,400 tonnes, 3% above plan.",
+    "Copper in concentrate totalled 2,187 tonnes against a plan of 2,267 tonnes.",
+    "The processing plant has exceeded its annual target for lost-time injuries, and a recovery plan is described in section 3.",
+    "The investigation found that the overhead hoist had been out of service for two weeks without a replacement plan.",
+    "Recovery returned to 90.4% in the last week of the month once the flotation cell was back in service.",
+    "The dust reading at the tailings facility rose after strong winds on 22 and 23 September.",
+    "The committee accepted the corrective actions and asked for a progress update in November."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Reporting period",
+          "1 to 30 September 2026"
+        ],
+        [
+          "Prepared by",
+          "SHE Department and Mine Planning"
+        ],
+        [
+          "Distribution",
+          "Executive committee, mine managers, union safety representatives"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Indicator",
+          "September",
+          "Year to date",
+          "Target"
+        ],
+        [
+          "Underground",
+          "Underground",
+          "Underground",
+          "Underground"
+        ],
+        [
+          "Lost-time injuries",
+          "0",
+          "1",
+          "≤ 2"
+        ],
+        [
+          "Medical treatment cases",
+          "2",
+          "11",
+          "≤ 15"
+        ],
+        [
+          "High-potential incidents",
+          "1",
+          "4",
+          "—"
+        ],
+        [
+          "Hours worked",
+          "148,220",
+          "1,302,560",
+          "—"
+        ],
+        [
+          "Open pit",
+          "Open pit",
+          "Open pit",
+          "Open pit"
+        ],
+        [
+          "Lost-time injuries",
+          "0",
+          "0",
+          "≤ 1"
+        ],
+        [
+          "Medical treatment cases",
+          "1",
+          "6",
+          "≤ 10"
+        ],
+        [
+          "High-potential incidents",
+          "0",
+          "2",
+          "—"
+        ],
+        [
+          "Hours worked",
+          "96,410",
+          "861,030",
+          "—"
+        ],
+        [
+          "Processing plant",
+          "Processing plant",
+          "Processing plant",
+          "Processing plant"
+        ],
+        [
+          "Lost-time injuries",
+          "1",
+          "2",
+          "≤ 1"
+        ],
+        [
+          "Medical treatment cases",
+          "1",
+          "5",
+          "≤ 8"
+        ],
+        [
+          "High-potential incidents",
+          "1",
+          "3",
+          "—"
+        ],
+        [
+          "Hours worked",
+          "61,870",
+          "549,900",
+          "—"
+        ],
+        [
+          "Whole mine",
+          "Whole mine",
+          "Whole mine",
+          "Whole mine"
+        ],
+        [
+          "Lost-time injury frequency rate",
+          "0.65",
+          "0.22",
+          "≤ 0.50"
+        ],
+        [
+          "Total recordable injury frequency rate",
+          "3.26",
+          "1.84",
+          "≤ 5.00"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Date",
+          "Area",
+          "Description",
+          "Classification",
+          "Status"
+        ],
+        [
+          "04 Sep",
+          "Underground, level 9",
+          "Loose rock fell from the hanging wall next to a scaling crew; no injury",
+          "High potential",
+          "Closed"
+        ],
+        [
+          "12 Sep",
+          "Processing plant",
+          "Fitter strained his back lifting a pump impeller without a hoist",
+          "Lost-time injury",
+          "Closed"
+        ],
+        [
+          "19 Sep",
+          "Processing plant",
+          "Lime dust release while unblocking a chute; two workers checked",
+          "High potential",
+          "Closed"
+        ],
+        [
+          "26 Sep",
+          "Open pit, ramp 2",
+          "Haul truck left the road edge at low speed; berm held the vehicle",
+          "Property damage",
+          "Under review"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Measure",
+          "Actual",
+          "Plan",
+          "Variance"
+        ],
+        [
+          "Mining",
+          "Mining",
+          "Mining",
+          "Mining"
+        ],
+        [
+          "Ore mined (t)",
+          "186,400",
+          "181,000",
+          "+3.0%"
+        ],
+        [
+          "Waste mined (t)",
+          "512,700",
+          "540,000",
+          "−5.1%"
+        ],
+        [
+          "Ore grade (% Cu)",
+          "1.35",
+          "1.38",
+          "−0.03"
+        ],
+        [
+          "Processing",
+          "Processing",
+          "Processing",
+          "Processing"
+        ],
+        [
+          "Ore milled (t)",
+          "183,900",
+          "182,500",
+          "+0.8%"
+        ],
+        [
+          "Recovery (%)",
+          "88.1",
+          "90.0",
+          "−1.9"
+        ],
+        [
+          "Copper in concentrate (t)",
+          "2,187",
+          "2,267",
+          "−3.5%"
+        ],
+        [
+          "Logistics",
+          "Logistics",
+          "Logistics",
+          "Logistics"
+        ],
+        [
+          "Concentrate shipped (wet t)",
+          "8,050",
+          "8,200",
+          "−1.8%"
+        ],
+        [
+          "Rail wagons dispatched",
+          "134",
+          "137",
+          "−3"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Parameter",
+          "Location",
+          "Result",
+          "Limit"
+        ],
+        [
+          "Dust fallout (mg/m²/day)",
+          "Village boundary",
+          "412",
+          "600"
+        ],
+        [
+          "Dust fallout (mg/m²/day)",
+          "Tailings facility",
+          "688",
+          "1,200"
+        ],
+        [
+          "Fresh water used (m³)",
+          "Whole mine",
+          "96,300",
+          "110,000"
+        ],
+        [
+          "Water recycled (%)",
+          "Processing plant",
+          "71",
+          "≥ 65"
+        ],
+        [
+          "Groundwater level change (m)",
+          "Monitoring borehole 3",
+          "−0.4",
+          "−1.0"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Lifting in the processing plant"
+    },
+    {
+      "level": 1,
+      "text": "Repair the overhead hoist and add it to the critical equipment list."
+    },
+    {
+      "level": 1,
+      "text": "Supply two mobile lifting frames for the pump workshop."
+    },
+    {
+      "level": 0,
+      "text": "Ground control underground"
+    },
+    {
+      "level": 1,
+      "text": "Re-train scaling crews on level 9 before work resumes in the area."
+    },
+    {
+      "level": 1,
+      "text": "Install additional mesh on the hanging wall of the main drive."
+    },
+    {
+      "level": 0,
+      "text": "Repeat the chute unblocking procedure with every plant shift and record attendance."
+    },
+    {
+      "level": 0,
+      "text": "Safety"
+    },
+    {
+      "level": 1,
+      "text": "Complete the lifting equipment audit in all workshops."
+    },
+    {
+      "level": 1,
+      "text": "Run a fatigue management campaign for night shift operators."
+    },
+    {
+      "level": 0,
+      "text": "Production"
+    },
+    {
+      "level": 1,
+      "text": "Recover 15,000 tonnes of the waste stripping deficit."
+    },
+    {
+      "level": 1,
+      "text": "Replace the flotation cell agitators during the planned shutdown on 18 October."
+    },
+    {
+      "level": 0,
+      "text": "Environment"
+    },
+    {
+      "level": 1,
+      "text": "Start the rehabilitation trial on the old waste rock dump."
+    }
+  ],
+  "furniture": [
+    "KAROO RIDGE MINERALS",
+    "Rietfontein Copper Mine · Northern Cape",
+    "Report SHE-PR-2026-09",
+    "Issued 6 October 2026",
+    "Karoo Ridge Minerals · Internal and confidential",
+    "Page 1 of 3",
+    "SHE and Production Report · September 2026",
+    "Rietfontein Copper Mine",
+    "Page 2 of 3",
+    "Page 3 of 3"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Monthly safety, health, environment and production report of a mine, three pages laid out in the body (page 1 letterhead band; pages 2-3 running header; footer \"Page n of 3\" with a confidentiality line on every page). On page 1 the SAFETY and PRODUCTION summary boxes stand side by side: read the left box completely, then the right box. The safety table and the production table have section rows (area names) spanning all columns. The incident table has two-line cells. Corrective actions and October actions are CSS-bulleted lists with nested sub-items (level 1). Tables are set in Arial Narrow."
+}

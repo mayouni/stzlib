@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>TAX INVOICE</title>
+<style>
+@page { size: A4; margin: 2cm; @bottom-center { content: "Brackwater Office Supply Ltd \00B7  Registered in England and Wales No. 10458822 \00B7  VAT No. GB 318 5527 46"; font-family: "Segoe UI Light"; font-size: 7.5pt; color: #6b7d82; } }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0; }
+@media screen { body { width: 170mm; } }
+.page { width: 210mm; height: 296.6mm; position: relative; box-sizing: border-box; overflow: hidden; break-after: page; }
+.page:last-child { break-after: auto; }
+tr, li { break-inside: avoid; }
+
+
+body { font-family: "Segoe UI"; font-size: 9.5pt; color: #1d2b2f; }
+.lh { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #0f7c7a; padding-bottom: 8pt; }
+.lh .org { font-size: 17pt; font-weight: 700; color: #0f7c7a; letter-spacing: 0.5pt; }
+.lh .addr { text-align: right; font-size: 8.5pt; line-height: 1.35; color: #44575c; }
+h1 { font-size: 22pt; font-weight: 400; margin: 16pt 0 4pt; color: #0f7c7a; letter-spacing: 3pt; }
+.meta { width: 60%; border-collapse: collapse; margin-bottom: 12pt; }
+.meta td { padding: 1.5pt 6pt 1.5pt 0; }
+.meta td:first-child { color: #6b7d82; width: 35%; }
+.boxes { display: flex; gap: 14pt; margin-bottom: 14pt; }
+.box { flex: 1; background: #eef6f6; padding: 8pt 10pt; border-radius: 3pt; }
+.lbl { font-size: 7.5pt; letter-spacing: 1.5pt; color: #0f7c7a; font-weight: 600; margin-bottom: 3pt; }
+.box p { margin: 1pt 0; }
+table.items { width: 100%; border-collapse: collapse; }
+.items th { background: #0f7c7a; color: white; text-align: left; padding: 5pt 6pt; font-weight: 600; }
+.items td { padding: 5pt 6pt; border-bottom: 1px solid #d3e2e3; vertical-align: top; }
+.items .n { text-align: right; white-space: nowrap; }
+.items tr.sum td { border-bottom: none; padding: 2.5pt 6pt; }
+.items tr.sum td:first-child { text-align: right; color: #44575c; }
+.items tr.tot td { font-weight: 700; font-size: 11pt; border-top: 2px solid #0f7c7a; border-bottom: none; }
+.items tr.tot td:first-child { text-align: right; }
+h2 { font-size: 11pt; color: #0f7c7a; margin: 16pt 0 4pt; font-weight: 600; }
+.kv { border-collapse: collapse; }
+.kv td { padding: 1.5pt 12pt 1.5pt 0; }
+.kv td:first-child { color: #6b7d82; }
+.small { font-size: 8.5pt; color: #44575c; }
+
+</style>
+</head>
+<body>
+<div class="lh"><div>
+<div class="org" data-one="1">BRACKWATER OFFICE SUPPLY</div>
+<div class="small" data-one="1">Furniture · Stationery · Workplace fit-out</div>
+</div><div class="addr">
+<div class="" data-one="1">Unit 7, Marlpit Trading Estate</div>
+<div class="" data-one="1">Halesworth Road, Norwich NR6 4TQ</div>
+<div class="" data-one="1">accounts@brackwater-supply.example</div>
+<div class="" data-one="1">+44 1632 960 218</div>
+</div></div>
+<h1 class="">TAX INVOICE</h1>
+<table class="meta"><tbody><tr><td>Invoice number</td><td>BOS-2026-04417</td></tr><tr><td>Invoice date</td><td>14 October 2026</td></tr><tr><td>Customer reference</td><td>PO 88-1932</td></tr><tr><td>Due date</td><td>13 November 2026</td></tr></tbody></table>
+<div class="boxes"><div class="box"><div class="lbl">BILL TO</div>
+<p class="">Fenwick &amp; Lowe Architects LLP</p>
+<p class="">Accounts Payable, 3rd Floor</p>
+<p class="">22 Tombland, Norwich NR3 1RF</p>
+</div><div class="box"><div class="lbl">SHIP TO</div>
+<p class="">Fenwick &amp; Lowe Architects LLP</p>
+<p class="">Site office, Riverside Wharf</p>
+<p class="">Delivery between 08:00 and 12:00 only</p>
+</div></div>
+<table class="items"><thead><tr><th>Item</th><th>Description</th><th>Qty</th><th>Unit price</th><th>Amount</th></tr></thead><tbody><tr><td>DSK-1600-OAK</td><td>Sit-stand desk 1600 x 800, oak top,<br>electric dual motor</td><td class="n">6</td><td class="n">£412.00</td><td class="n">£2,472.00</td></tr><tr><td>CHR-ERG-22</td><td>Ergonomic task chair, mesh back, black</td><td class="n">6</td><td class="n">£189.50</td><td class="n">£1,137.00</td></tr><tr><td>PED-3D-WH</td><td>Mobile pedestal, three drawers, white</td><td class="n">6</td><td class="n">£96.00</td><td class="n">£576.00</td></tr><tr><td>LMP-LED-08</td><td>LED desk lamp with USB-C charging port</td><td class="n">6</td><td class="n">£38.75</td><td class="n">£232.50</td></tr><tr><td>SRV-INST</td><td>Delivery, assembly and packaging removal</td><td class="n">1</td><td class="n">£260.00</td><td class="n">£260.00</td></tr><tr class="sum"><td colspan="4">Subtotal</td><td class="n">£4,677.50</td></tr><tr class="sum"><td colspan="4">Trade discount 5%</td><td class="n">−£233.88</td></tr><tr class="sum"><td colspan="4">VAT at 20%</td><td class="n">£888.72</td></tr><tr class="tot"><td colspan="4">Total due</td><td class="n">£5,332.34</td></tr></tbody></table>
+<h2 class="">Payment instructions</h2>
+<p class="">Please pay by bank transfer and quote the invoice number as the payment reference. Payments received after the due date may incur interest at 4% above the Bank of England base rate.</p>
+<table class="kv"><tbody><tr><td>Account name</td><td>Brackwater Office Supply Ltd</td></tr><tr><td>Sort code</td><td>40-19-27</td></tr><tr><td>Account number</td><td>61 77 30 14</td></tr></tbody></table>
+<h2 class="">Terms</h2>
+<p class="small">Goods remain the property of Brackwater Office Supply Ltd until this invoice has been paid in full. Any damage or shortfall must be reported within five working days of delivery. Chairs and desks carry a five-year warranty against manufacturing defects.</p>
+<p class="small">Thank you for your order. We look forward to working with you again.</p>
+</body>
+</html>

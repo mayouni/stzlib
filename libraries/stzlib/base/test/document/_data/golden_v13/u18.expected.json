@@ -1,0 +1,283 @@
+{
+  "id": "u18",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Motor Insurance Policy Schedule",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Motor Insurance Policy Schedule"
+    },
+    {
+      "level": 2,
+      "text": "Policyholder and period of cover"
+    },
+    {
+      "level": 2,
+      "text": "Vehicle"
+    },
+    {
+      "level": 2,
+      "text": "Drivers"
+    },
+    {
+      "level": 2,
+      "text": "What you are covered for"
+    },
+    {
+      "level": 2,
+      "text": "Excesses"
+    },
+    {
+      "level": 2,
+      "text": "No claim discount"
+    },
+    {
+      "level": 2,
+      "text": "Endorsements"
+    },
+    {
+      "level": 3,
+      "text": "E07 — Approved repairer"
+    },
+    {
+      "level": 3,
+      "text": "E19 — Telematics device"
+    },
+    {
+      "level": 2,
+      "text": "General conditions"
+    }
+  ],
+  "key_sentences": [
+    "This schedule forms part of your policy and must be read together with the policy booklet.",
+    "Please check the details below carefully and tell us straight away if anything is wrong.",
+    "Compulsory and voluntary excesses are added together.",
+    "Your policy includes a no claim discount for nine years.",
+    "Protecting the discount does not protect the premium, which may still rise after a claim.",
+    "If you choose not to use our approved repairer, an additional excess of £200 applies to any accidental damage claim.",
+    "To make a claim, call our claims line on 01632 960 755, available 24 hours a day.",
+    "Have your policy number and the registration of every vehicle involved ready when you call."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Policyholder",
+          "Ms Priya Venkataraman",
+          "Policy number",
+          "MTR-55-0193822"
+        ],
+        [
+          "Address",
+          "14 Larchfield Close, Kettlebury, KB4 9WN",
+          "Period of cover",
+          "1 November 2026 to 31 October 2027"
+        ],
+        [
+          "Type of cover",
+          "Comprehensive",
+          "Annual premium",
+          "£612.48 including Insurance Premium Tax"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Registration",
+          "KX23 HVR",
+          "Make and model",
+          "Kestrel Ionis 1.5 Hybrid Estate"
+        ],
+        [
+          "Year of manufacture",
+          "2023",
+          "Estimated value",
+          "£19,750"
+        ],
+        [
+          "Use",
+          "Social, domestic, pleasure and commuting",
+          "Annual mileage",
+          "9,000 miles"
+        ],
+        [
+          "Overnight location",
+          "Private driveway",
+          "Security",
+          "Factory-fitted alarm and immobiliser"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Name",
+          "Relationship",
+          "Date of birth",
+          "Licence held"
+        ],
+        [
+          "Priya Venkataraman",
+          "Policyholder",
+          "09/02/1984",
+          "19 years"
+        ],
+        [
+          "Daniel Okafor",
+          "Spouse",
+          "27/06/1981",
+          "23 years"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Cover",
+          "Included",
+          "Limit or notes"
+        ],
+        [
+          "Accidental damage, fire and theft",
+          "Yes",
+          "Up to the market value of the vehicle"
+        ],
+        [
+          "Third-party injury",
+          "Yes",
+          "Unlimited"
+        ],
+        [
+          "Third-party property damage",
+          "Yes",
+          "£20,000,000"
+        ],
+        [
+          "Windscreen and glass",
+          "Yes",
+          "Repair free of excess; replacement excess £95"
+        ],
+        [
+          "Courtesy car",
+          "Yes",
+          "Small car while yours is repaired by an approved repairer"
+        ],
+        [
+          "Personal belongings",
+          "Yes",
+          "£300 per claim"
+        ],
+        [
+          "Driving other cars",
+          "No",
+          "Not included on this policy"
+        ],
+        [
+          "European cover",
+          "Yes",
+          "Up to 90 days per trip, same level of cover"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Section",
+          "Excess",
+          "Excess",
+          "Total"
+        ],
+        [
+          "Section",
+          "Compulsory",
+          "Voluntary",
+          "Total"
+        ],
+        [
+          "Accidental damage",
+          "£250",
+          "£150",
+          "£400"
+        ],
+        [
+          "Fire and theft",
+          "£250",
+          "£150",
+          "£400"
+        ],
+        [
+          "Young or inexperienced driver",
+          "£350",
+          "£150",
+          "£500"
+        ],
+        [
+          "Windscreen replacement",
+          "£95",
+          "£0",
+          "£95"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. You must take all reasonable steps to protect the vehicle from loss or damage."
+    },
+    {
+      "level": 1,
+      "text": "(a) Keep the vehicle locked and the keys out of sight when it is unattended."
+    },
+    {
+      "level": 1,
+      "text": "(b) Keep the vehicle in a roadworthy condition and hold a valid MOT certificate where one is required."
+    },
+    {
+      "level": 0,
+      "text": "2. You must tell us within 48 hours about any accident, loss or damage, whether or not you intend to claim."
+    },
+    {
+      "level": 0,
+      "text": "3. You must tell us before the change takes effect if:"
+    },
+    {
+      "level": 1,
+      "text": "(a) you change your address or the place where the vehicle is kept overnight;"
+    },
+    {
+      "level": 1,
+      "text": "(b) you want to add a driver or change the use of the vehicle;"
+    },
+    {
+      "level": 1,
+      "text": "(c) a driver receives a motoring conviction or a medical condition affecting driving."
+    },
+    {
+      "level": 0,
+      "text": "4. We may cancel the policy by giving you seven days' notice in writing to your last known address."
+    }
+  ],
+  "furniture": [
+    "Harrowgate Mutual",
+    "MOTOR · HOME · TRAVEL",
+    "Harrowgate Mutual Insurance Society Ltd",
+    "Customer services 01632 960 418",
+    "claims@harrowgate-mutual.example",
+    "Policy Schedule — Private Car",
+    "Policy MTR-55-0193822 · Page 1 of 2",
+    "Policy MTR-55-0193822 · Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Motor insurance policy schedule, two pages. Vehicle and policyholder details are key/value tables. The cover table has cells that run over two lines. The excess table has a two-level header (Excess -> Compulsory / Voluntary) where \"Section\" spans both header rows. General conditions are a numbered list with typed markers \"1.\" and nested typed markers \"(a)\". Footer \"Policy MTR-55-0193822 · Page n of N\" and the top-right header are CSS page-margin boxes in Trebuchet MS. The insurer letterhead is furniture."
+}

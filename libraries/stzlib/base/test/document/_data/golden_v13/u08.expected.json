@@ -1,0 +1,132 @@
+{
+  "id": "u08",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Ricevuta di reso e rimborso",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Ricevuta di reso e rimborso"
+    },
+    {
+      "level": 2,
+      "text": "Articoli resi"
+    },
+    {
+      "level": 2,
+      "text": "Condizioni di reso"
+    },
+    {
+      "level": 2,
+      "text": "Riepilogo rimborso"
+    },
+    {
+      "level": 2,
+      "text": "Informazioni sul rimborso"
+    }
+  ],
+  "key_sentences": [
+    "Il rimborso è stato disposto sulla stessa carta utilizzata per l'acquisto.",
+    "L'accredito sarà visibile sull'estratto conto entro 5–10 giorni lavorativi, secondo i tempi della banca emittente.",
+    "Conservi questa ricevuta fino alla ricezione dell'accredito.",
+    "Per qualsiasi chiarimento può rivolgersi al servizio clienti, citando il numero della ricevuta.",
+    "La ringraziamo per aver scelto Voltaria."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Codice",
+          "Descrizione",
+          "Q.tà",
+          "Prezzo unitario",
+          "Importo"
+        ],
+        [
+          "8031294",
+          "Robot aspirapolvere Lumo S7, base di svuotamento automatica",
+          "1",
+          "€ 449,00",
+          "€ 449,00"
+        ],
+        [
+          "8031577",
+          "Kit spazzole di ricambio Lumo S7",
+          "2",
+          "€ 19,90",
+          "€ 39,80"
+        ],
+        [
+          "7720145",
+          "Estensione garanzia 2 anni «Protezione Plus»",
+          "1",
+          "€ 59,00",
+          "€ 59,00"
+        ],
+        [
+          "6650088",
+          "Adattatore presa Schuko / italiana",
+          "1",
+          "€ 6,50",
+          "€ 6,50"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Totale articoli resi",
+          "€ 554,30"
+        ],
+        [
+          "di cui IVA 22%",
+          "€ 99,96"
+        ],
+        [
+          "Punti VoltClub stornati",
+          "−554 punti"
+        ],
+        [
+          "Totale rimborsato",
+          "€ 554,30"
+        ],
+        [
+          "Modalità",
+          "Carta di pagamento originale"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Il reso è accettato entro 30 giorni dalla data di acquisto, con lo scontrino originale."
+    },
+    {
+      "level": 0,
+      "text": "Il prodotto deve essere completo di tutti gli accessori e della confezione originale."
+    },
+    {
+      "level": 0,
+      "text": "I prodotti personalizzati e i software aperti non possono essere resi."
+    },
+    {
+      "level": 0,
+      "text": "Le estensioni di garanzia sono rimborsate solo insieme al prodotto a cui si riferiscono."
+    }
+  ],
+  "furniture": [
+    "VOLTARIA",
+    "elettronica & casa",
+    "Voltaria Retail S.r.l. · Via Emilia Est 214 · 41124 Modena",
+    "P. IVA 03917420364 · servizioclienti@voltaria.example",
+    "Voltaria Retail S.r.l. · Capitale sociale € 2.500.000 i.v. · Registro Imprese di Modena · Copia per il cliente"
+  ],
+  "languages": [
+    "it"
+  ],
+  "code": [],
+  "notes": "Italian electronics-store return and refund receipt, one page. The DATI CLIENTE and PUNTO VENDITA boxes stand side by side: read box by box, left first; their uppercase captions are field labels, not headings. The returned-items table is zebra-striped without vertical rules and has a two-line cell. The sections \"Condizioni di reso\" (left) and \"Riepilogo rimborso\" (right) also stand side by side: the whole left column first. The refund summary is a key/value table that includes the total row. The return-conditions list uses CSS-drawn markers (not in the text). The red letterhead band and the bottom company line are furniture."
+}

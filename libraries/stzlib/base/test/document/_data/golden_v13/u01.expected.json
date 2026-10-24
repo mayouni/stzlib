@@ -1,0 +1,159 @@
+{
+  "id": "u01",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "TAX INVOICE",
+  "headings": [
+    {
+      "level": 1,
+      "text": "TAX INVOICE"
+    },
+    {
+      "level": 2,
+      "text": "Payment instructions"
+    },
+    {
+      "level": 2,
+      "text": "Terms"
+    }
+  ],
+  "key_sentences": [
+    "Please pay by bank transfer and quote the invoice number as the payment reference.",
+    "Payments received after the due date may incur interest at 4% above the Bank of England base rate.",
+    "Goods remain the property of Brackwater Office Supply Ltd until this invoice has been paid in full.",
+    "Any damage or shortfall must be reported within five working days of delivery.",
+    "Chairs and desks carry a five-year warranty against manufacturing defects.",
+    "Thank you for your order.",
+    "We look forward to working with you again."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Invoice number",
+          "BOS-2026-04417"
+        ],
+        [
+          "Invoice date",
+          "14 October 2026"
+        ],
+        [
+          "Customer reference",
+          "PO 88-1932"
+        ],
+        [
+          "Due date",
+          "13 November 2026"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Item",
+          "Description",
+          "Qty",
+          "Unit price",
+          "Amount"
+        ],
+        [
+          "DSK-1600-OAK",
+          "Sit-stand desk 1600 x 800, oak top, electric dual motor",
+          "6",
+          "£412.00",
+          "£2,472.00"
+        ],
+        [
+          "CHR-ERG-22",
+          "Ergonomic task chair, mesh back, black",
+          "6",
+          "£189.50",
+          "£1,137.00"
+        ],
+        [
+          "PED-3D-WH",
+          "Mobile pedestal, three drawers, white",
+          "6",
+          "£96.00",
+          "£576.00"
+        ],
+        [
+          "LMP-LED-08",
+          "LED desk lamp with USB-C charging port",
+          "6",
+          "£38.75",
+          "£232.50"
+        ],
+        [
+          "SRV-INST",
+          "Delivery, assembly and packaging removal",
+          "1",
+          "£260.00",
+          "£260.00"
+        ],
+        [
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "£4,677.50"
+        ],
+        [
+          "Trade discount 5%",
+          "Trade discount 5%",
+          "Trade discount 5%",
+          "Trade discount 5%",
+          "−£233.88"
+        ],
+        [
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "£888.72"
+        ],
+        [
+          "Total due",
+          "Total due",
+          "Total due",
+          "Total due",
+          "£5,332.34"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Account name",
+          "Brackwater Office Supply Ltd"
+        ],
+        [
+          "Sort code",
+          "40-19-27"
+        ],
+        [
+          "Account number",
+          "61 77 30 14"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "BRACKWATER OFFICE SUPPLY",
+    "Furniture · Stationery · Workplace fit-out",
+    "Unit 7, Marlpit Trading Estate",
+    "Halesworth Road, Norwich NR6 4TQ",
+    "accounts@brackwater-supply.example",
+    "+44 1632 960 218",
+    "Brackwater Office Supply Ltd · Registered in England and Wales No. 10458822 · VAT No. GB 318 5527 46"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Commercial tax invoice, one page. The BILL TO and SHIP TO blocks sit side by side; read box by box (BILL TO first). Their uppercase captions and the invoice meta labels are field labels, not headings. The line-item table carries its subtotal, discount, VAT and total rows as rows of the same table; their label cell spans the first four columns and is repeated in each. The footer line is a CSS page-margin box in Segoe UI Light."
+}

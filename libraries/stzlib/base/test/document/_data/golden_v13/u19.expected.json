@@ -1,0 +1,195 @@
+{
+  "id": "u19",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "HÓA ĐƠN TIỀN ĐIỆN",
+  "headings": [
+    {
+      "level": 1,
+      "text": "HÓA ĐƠN TIỀN ĐIỆN"
+    },
+    {
+      "level": 2,
+      "text": "Thông tin khách hàng"
+    },
+    {
+      "level": 2,
+      "text": "Thông tin thanh toán"
+    },
+    {
+      "level": 2,
+      "text": "Chỉ số công tơ"
+    },
+    {
+      "level": 2,
+      "text": "Chi tiết tiền điện theo bậc thang"
+    },
+    {
+      "level": 2,
+      "text": "Lưu ý"
+    },
+    {
+      "level": 2,
+      "text": "Hình thức thanh toán"
+    },
+    {
+      "level": 2,
+      "text": "Lịch sử tiêu thụ"
+    }
+  ],
+  "key_sentences": [
+    "Quý khách vui lòng thanh toán trước ngày 24/09/2026 để tránh bị tạm ngừng cấp điện.",
+    "Điện năng tiêu thụ kỳ này tăng 18% so với cùng kỳ năm trước do thời tiết nắng nóng kéo dài.",
+    "Quý khách nên tắt các thiết bị điện khi không sử dụng và cài đặt điều hòa ở mức 26 độ C để tiết kiệm điện.",
+    "Cảm ơn Quý khách đã sử dụng điện an toàn, tiết kiệm và hiệu quả."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Bộ chỉ số",
+          "Chỉ số mới",
+          "Chỉ số cũ",
+          "Hệ số nhân",
+          "Điện năng tiêu thụ (kWh)"
+        ],
+        [
+          "KT",
+          "12.584",
+          "12.193",
+          "1",
+          "391"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Bậc",
+          "Mức sử dụng (kWh)",
+          "Đơn giá (đồng/kWh)",
+          "Sản lượng (kWh)",
+          "Thành tiền (đồng)"
+        ],
+        [
+          "Bậc 1",
+          "0 – 50",
+          "1.984",
+          "50",
+          "99.200"
+        ],
+        [
+          "Bậc 2",
+          "51 – 100",
+          "2.050",
+          "50",
+          "102.500"
+        ],
+        [
+          "Bậc 3",
+          "101 – 200",
+          "2.380",
+          "100",
+          "238.000"
+        ],
+        [
+          "Bậc 4",
+          "201 – 300",
+          "2.998",
+          "100",
+          "299.800"
+        ],
+        [
+          "Bậc 5",
+          "301 – 400",
+          "3.350",
+          "91",
+          "304.850"
+        ],
+        [
+          "Bậc 6",
+          "Từ 401 trở lên",
+          "3.460",
+          "0",
+          "0"
+        ],
+        [
+          "Cộng",
+          "Cộng",
+          "Cộng",
+          "Cộng",
+          "1.044.350"
+        ],
+        [
+          "Thuế GTGT 8%",
+          "Thuế GTGT 8%",
+          "Thuế GTGT 8%",
+          "Thuế GTGT 8%",
+          "83.548"
+        ],
+        [
+          "Tổng cộng tiền thanh toán",
+          "Tổng cộng tiền thanh toán",
+          "Tổng cộng tiền thanh toán",
+          "Tổng cộng tiền thanh toán",
+          "1.127.898"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Tháng",
+          "4/2026",
+          "5/2026",
+          "6/2026",
+          "7/2026",
+          "8/2026",
+          "9/2026"
+        ],
+        [
+          "kWh",
+          "248",
+          "305",
+          "372",
+          "406",
+          "388",
+          "391"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Ứng dụng di động Điện lực Nam Sơn hoặc ví điện tử liên kết"
+    },
+    {
+      "level": 0,
+      "text": "Chuyển khoản qua ngân hàng với mã khách hàng ở nội dung"
+    },
+    {
+      "level": 0,
+      "text": "Tại quầy giao dịch của Điện lực, từ thứ Hai đến thứ Bảy"
+    },
+    {
+      "level": 0,
+      "text": "Đăng ký trích nợ tự động hằng tháng"
+    }
+  ],
+  "furniture": [
+    "CÔNG TY CỔ PHẦN ĐIỆN LỰC NAM SƠN",
+    "Chi nhánh Điện lực quận Hòa Bình",
+    "Tổng đài chăm sóc khách hàng: 1900 8686 12",
+    "Mẫu số 01GTKT · Ký hiệu 1C26TNS",
+    "Hóa đơn điện tử được tra cứu tại hoadon.diennamson.example · Mã tra cứu: 7KQ2-NS26-0915"
+  ],
+  "languages": [
+    "vi"
+  ],
+  "code": [],
+  "notes": "Vietnamese household electricity bill (one page). The customer box and the payment box stand side by side; read the left box completely, then the right box; their headings are level 2. Thousands are separated with dots (1.044.350). The tiered tariff table ends with three summary rows (Cộng, VAT, total) whose label cell spans the first four columns. The amount in words is a label line, not a key sentence. The payment-channel list is CSS-bulleted. The power company letterhead is furniture."
+}

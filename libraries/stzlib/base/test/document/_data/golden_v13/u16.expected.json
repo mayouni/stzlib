@@ -1,0 +1,142 @@
+{
+  "id": "u16",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "XXX Niedziela zwykła",
+  "headings": [
+    {
+      "level": 1,
+      "text": "XXX Niedziela zwykła"
+    },
+    {
+      "level": 2,
+      "text": "Słowo na niedzielę"
+    },
+    {
+      "level": 2,
+      "text": "Porządek Mszy Świętych"
+    },
+    {
+      "level": 2,
+      "text": "Intencje mszalne"
+    },
+    {
+      "level": 2,
+      "text": "Ogłoszenia duszpasterskie"
+    },
+    {
+      "level": 2,
+      "text": "Kancelaria parafialna"
+    }
+  ],
+  "key_sentences": [
+    "Jezus streszcza całe Prawo w dwóch przykazaniach: miłości Boga i miłości bliźniego.",
+    "Te dwa przykazania nie stoją obok siebie, lecz wzajemnie się przenikają.",
+    "Kto mówi, że kocha Boga, a nie widzi człowieka w potrzebie, oszukuje samego siebie.",
+    "W tym tygodniu spróbujmy odwiedzić kogoś samotnego z naszej ulicy albo zadzwonić do osoby, o której dawno nie pamiętaliśmy.",
+    "Wszystkim parafianom i gościom życzymy błogosławionej niedzieli i dobrego tygodnia.",
+    "Bóg zapłać za wszelką pomoc i życzliwość."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Dzień",
+          "Godziny"
+        ],
+        [
+          "Niedziela",
+          "7.00, 9.00, 10.30, 12.00, 18.00"
+        ],
+        [
+          "Dni powszednie",
+          "7.00 i 18.00"
+        ],
+        [
+          "Sobota",
+          "7.00 i 17.00 (z liturgii niedzielnej)"
+        ],
+        [
+          "Uroczystość Wszystkich Świętych",
+          "7.00, 9.00, 10.30, 12.00; 14.00 na cmentarzu parafialnym"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Dzień i godzina",
+          "Intencja"
+        ],
+        [
+          "Poniedziałek, 18.00",
+          "Za śp. Halinę i Stanisława Kowalczyków w rocznicę śmierci"
+        ],
+        [
+          "Wtorek, 7.00",
+          "O zdrowie i błogosławieństwo dla Marii z okazji 80. urodzin"
+        ],
+        [
+          "Środa, 18.00",
+          "Za parafian, którzy zmarli w ostatnim roku"
+        ],
+        [
+          "Czwartek, 7.00",
+          "Dziękczynna za dar powołania kapłańskiego"
+        ],
+        [
+          "Piątek, 18.00",
+          "Za śp. Jerzego Malinowskiego od sąsiadów"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. W niedzielę 1 listopada przypada uroczystość Wszystkich Świętych. Procesja na cmentarzu rozpocznie się o godzinie 14.00."
+    },
+    {
+      "level": 0,
+      "text": "2. W poniedziałek 2 listopada, we wspomnienie wszystkich wiernych zmarłych, Msze Święte o 7.00, 9.00 i 18.00."
+    },
+    {
+      "level": 0,
+      "text": "3. Wypominki można składać w kancelarii parafialnej oraz w zakrystii po każdej Mszy Świętej."
+    },
+    {
+      "level": 0,
+      "text": "4. Spotkanie kandydatów do bierzmowania odbędzie się w czwartek po wieczornej Mszy Świętej."
+    },
+    {
+      "level": 0,
+      "text": "5. Dziękujemy za ofiary złożone na remont dachu kościoła; w ubiegłą niedzielę zebrano 6 840 zł."
+    },
+    {
+      "level": 0,
+      "text": "wtorek i czwartek: 16.00–17.30"
+    },
+    {
+      "level": 0,
+      "text": "sobota: 9.00–10.30"
+    },
+    {
+      "level": 0,
+      "text": "w sprawach pilnych: po każdej Mszy Świętej"
+    }
+  ],
+  "furniture": [
+    "SIEWCA",
+    "Tygodnik parafii pw. św. Wojciecha w Brzezinach Dolnych",
+    "Nr 43 (1187) · Rok XXIV",
+    "25 października 2026",
+    "Parafia pw. św. Wojciecha · ul. Kościelna 3, 26-412 Brzeziny Dolne · tel. 48 671 20 34 · parafia.brzeziny@diecezja.example"
+  ],
+  "languages": [
+    "pl"
+  ],
+  "code": [],
+  "notes": "Weekly parish bulletin (one page). The masthead (bulletin name in Perpetua Titling MT, issue line, parish name) is furniture. Below the reflection, two columns stand side by side: the left column (Mass schedule table and the intentions table) is read completely before the right column (numbered announcements with typed markers \"1.\" ... and a CSS-bulleted list of office hours). Intentions cells run over two lines. The closing contact line is furniture."
+}

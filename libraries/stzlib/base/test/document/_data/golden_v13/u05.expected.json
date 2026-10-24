@@ -1,0 +1,114 @@
+{
+  "id": "u05",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "Öffentliche Bekanntmachung",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Öffentliche Bekanntmachung"
+    },
+    {
+      "level": 2,
+      "text": "Vollsperrung der Lindenallee wegen Kanal- und Straßenbauarbeiten"
+    },
+    {
+      "level": 3,
+      "text": "Anlass der Maßnahme"
+    },
+    {
+      "level": 3,
+      "text": "Bauabschnitte und Zeitraum"
+    },
+    {
+      "level": 3,
+      "text": "Umleitung"
+    },
+    {
+      "level": 3,
+      "text": "Hinweise für Anwohnerinnen und Anwohner"
+    },
+    {
+      "level": 3,
+      "text": "Ansprechpartner"
+    }
+  ],
+  "key_sentences": [
+    "Der Mischwasserkanal unter der Lindenallee stammt aus dem Jahr 1958 und weist erhebliche Schäden auf.",
+    "Gleichzeitig verlegen die Stadtwerke neue Wasser- und Glasfaserleitungen, damit die Straße nicht zweimal geöffnet werden muss.",
+    "Die Arbeiten beginnen am Montag, dem 2. November 2026, und werden in drei Abschnitten ausgeführt.",
+    "Die genauen Zeiträume entnehmen Sie bitte der Tabelle am Ende dieser Bekanntmachung.",
+    "Die Buslinien 3 und 7 fahren während der Sperrung eine geänderte Strecke.",
+    "Die Zufahrt zu den Grundstücken bleibt außerhalb der eigentlichen Baugrube möglich.",
+    "Rettungsfahrzeuge und die Müllabfuhr erreichen alle Häuser zu jeder Zeit.",
+    "Eine Sprechstunde im Baucontainer an der Ecke Mühlenweg findet jeden Donnerstag von 15 bis 17 Uhr statt."
+  ],
+  "tables": [
+    {
+      "caption": "Übersicht der Bauabschnitte",
+      "rows": [
+        [
+          "Abschnitt",
+          "Bereich",
+          "Zeitraum",
+          "Umleitung"
+        ],
+        [
+          "1",
+          "Marktplatz bis Schulstraße",
+          "02.11.2026 – 18.12.2026",
+          "Bahnhofstraße / Mühlenweg"
+        ],
+        [
+          "2",
+          "Schulstraße bis Gartenstraße",
+          "11.01.2027 – 26.03.2027",
+          "Gartenstraße / K 17"
+        ],
+        [
+          "3",
+          "Gartenstraße bis Ortsausgang",
+          "06.04.2027 – 25.06.2027",
+          "Gartenstraße / K 17"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "– stadteinwärts über die Bahnhofstraße und den Mühlenweg,"
+    },
+    {
+      "level": 0,
+      "text": "– stadtauswärts über die Gartenstraße und die Kreisstraße K 17,"
+    },
+    {
+      "level": 0,
+      "text": "– für Radfahrende über den Uferweg entlang der Wehr."
+    },
+    {
+      "level": 0,
+      "text": "Mülltonnen werden am Abholtag an die nächste befahrbare Ecke gebracht."
+    },
+    {
+      "level": 0,
+      "text": "Kurzzeitige Unterbrechungen der Wasserversorgung werden zwei Tage vorher angekündigt."
+    },
+    {
+      "level": 0,
+      "text": "Für Geschäfte stellt die Stadt Hinweisschilder zur Verfügung."
+    }
+  ],
+  "furniture": [
+    "AMTSBLATT DER STADT WEHRBACH",
+    "Nr. 41 · 37. Jahrgang · 9. Oktober 2026",
+    "Stadt Wehrbach · Tiefbauamt",
+    "Seite 3"
+  ],
+  "languages": [
+    "de"
+  ],
+  "code": [],
+  "notes": "German official notice from a town gazette, one page. The main text is set in two columns with a column rule: read the left column completely, then the right column. The gazette header line (title, issue number, date), the department line beside the coat-of-arms shape and the page label \"Seite 3\" belong to the gazette page and are furniture. The detour list has typed en-dash markers; the residents' list has CSS circle markers. The construction-phase table sits below the columns at full width, with its caption above. The place/date and signature lines at the bottom are not key sentences."
+}

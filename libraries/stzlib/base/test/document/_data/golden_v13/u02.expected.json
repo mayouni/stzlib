@@ -1,0 +1,235 @@
+{
+  "id": "u02",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Compte rendu d'hospitalisation",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Compte rendu d'hospitalisation"
+    },
+    {
+      "level": 2,
+      "text": "Motif d'hospitalisation"
+    },
+    {
+      "level": 2,
+      "text": "Antécédents"
+    },
+    {
+      "level": 2,
+      "text": "Histoire de la maladie"
+    },
+    {
+      "level": 2,
+      "text": "Examens complémentaires"
+    },
+    {
+      "level": 3,
+      "text": "Biologie"
+    },
+    {
+      "level": 3,
+      "text": "Imagerie et explorations"
+    },
+    {
+      "level": 2,
+      "text": "Évolution dans le service"
+    },
+    {
+      "level": 2,
+      "text": "Traitement de sortie"
+    },
+    {
+      "level": 2,
+      "text": "Consignes à la patiente"
+    },
+    {
+      "level": 2,
+      "text": "Suivi"
+    }
+  ],
+  "key_sentences": [
+    "Mme Ferrand, 77 ans, est adressée par le SAMU pour une douleur thoracique constrictive apparue au repos.",
+    "La douleur a débuté le matin du 2 octobre, au réveil, avec une irradiation vers le bras gauche.",
+    "À l'arrivée, elle était consciente, eupnéique, avec une pression artérielle de 158/92 mmHg.",
+    "Une angioplastie avec pose d'un stent actif a été effectuée dans le même temps, sans complication.",
+    "Les suites de l'angioplastie ont été simples et la patiente n'a plus présenté de douleur.",
+    "Une hypoglycémie modérée le 5 octobre a conduit à adapter le traitement antidiabétique.",
+    "Une consultation de cardiologie est programmée dans trois mois avec une épreuve d'effort.",
+    "Nous restons à votre disposition pour tout renseignement complémentaire."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Patiente",
+          "Mme Odile FERRAND",
+          "Née le",
+          "17/03/1949"
+        ],
+        [
+          "Séjour",
+          "du 02/10/2026 au 09/10/2026",
+          "Unité",
+          "Soins intensifs puis 3e étage"
+        ],
+        [
+          "Médecin traitant",
+          "Dr Paul Ricaud, Saint-Aignan",
+          "N° de séjour",
+          "2026-11873"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Paramètre",
+          "Résultat",
+          "Unité",
+          "Valeurs de référence"
+        ],
+        [
+          "Troponine T hs (H0)",
+          "86",
+          "ng/L",
+          "< 14"
+        ],
+        [
+          "Troponine T hs (H3)",
+          "212",
+          "ng/L",
+          "< 14"
+        ],
+        [
+          "Créatinine",
+          "94",
+          "µmol/L",
+          "45 – 90"
+        ],
+        [
+          "Hémoglobine",
+          "12,8",
+          "g/dL",
+          "12,0 – 16,0"
+        ],
+        [
+          "HbA1c",
+          "7,9",
+          "%",
+          "< 6,5"
+        ],
+        [
+          "LDL-cholestérol",
+          "1,42",
+          "g/L",
+          "objectif < 0,55"
+        ],
+        [
+          "Potassium",
+          "4,1",
+          "mmol/L",
+          "3,5 – 5,0"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Médicament",
+          "Posologie",
+          "Durée"
+        ],
+        [
+          "Acide acétylsalicylique 75 mg",
+          "1 comprimé le midi",
+          "Au long cours"
+        ],
+        [
+          "Ticagrélor 90 mg",
+          "1 comprimé matin et soir",
+          "12 mois, puis réévaluation"
+        ],
+        [
+          "Atorvastatine 80 mg",
+          "1 comprimé le soir",
+          "Au long cours"
+        ],
+        [
+          "Bisoprolol 2,5 mg",
+          "1 comprimé le matin",
+          "Au long cours"
+        ],
+        [
+          "Ramipril 5 mg",
+          "1 gélule le matin, contrôle de la kaliémie à J10",
+          "Au long cours"
+        ],
+        [
+          "Metformine 1000 mg",
+          "1 comprimé matin et soir",
+          "Au long cours"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Hypertension artérielle traitée depuis 2011"
+    },
+    {
+      "level": 0,
+      "text": "Diabète de type 2 sous antidiabétiques oraux"
+    },
+    {
+      "level": 0,
+      "text": "Cholécystectomie en 1998"
+    },
+    {
+      "level": 0,
+      "text": "Allergie déclarée à la pénicilline"
+    },
+    {
+      "level": 0,
+      "text": "Ne jamais interrompre le ticagrélor ni l'aspirine sans avis du cardiologue."
+    },
+    {
+      "level": 0,
+      "text": "Appeler le 15 en cas de nouvelle douleur thoracique de plus de dix minutes."
+    },
+    {
+      "level": 0,
+      "text": "Réaliser une prise de sang à J10 : créatinine et potassium."
+    },
+    {
+      "level": 0,
+      "text": "Participer au programme de réadaptation cardiaque proposé à partir du 20 octobre."
+    },
+    {
+      "level": 0,
+      "text": "Reprendre la conduite automobile après une semaine, sauf avis contraire."
+    }
+  ],
+  "furniture": [
+    "Centre hospitalier de Valmorin",
+    "Pôle cœur-vaisseaux · Service de cardiologie",
+    "12, avenue des Tilleuls · 41290 Valmorin",
+    "Secrétariat : 02 54 71 30 66",
+    "cardiologie@ch-valmorin.example",
+    "CRH 2026-11873 · Mme O. FERRAND",
+    "Page 1/2",
+    "Centre hospitalier de Valmorin — Service de cardiologie",
+    "Compte rendu du 09/10/2026",
+    "Page 2/2"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "French hospital discharge summary (cardiology), two pages composed in the body: page 1 carries the hospital letterhead, page 2 a running header; both pages carry the footer (record reference left, \"Page n/2\" right). The patient identification block is a key/value table without a header row. The laboratory table is zebra-striped; the discharge medication table has cells of two lines. Patient instructions are a CSS-numbered list (numbers are not in the text); the history list uses CSS square bullets. The signature lines (name, title) are not headings and not key sentences."
+}

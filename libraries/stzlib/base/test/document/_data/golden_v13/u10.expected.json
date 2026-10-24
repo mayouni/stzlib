@@ -1,0 +1,206 @@
+{
+  "id": "u10",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Notulen van de openbare raadsvergadering",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Notulen van de openbare raadsvergadering"
+    },
+    {
+      "level": 2,
+      "text": "1. Opening en vaststelling van de agenda"
+    },
+    {
+      "level": 2,
+      "text": "2. Vragenhalfuur"
+    },
+    {
+      "level": 2,
+      "text": "3. Vaststelling van de notulen van 7 juli 2026"
+    },
+    {
+      "level": 2,
+      "text": "4. Actielijst"
+    },
+    {
+      "level": 2,
+      "text": "5. Bestemmingsplan Molenkwartier"
+    },
+    {
+      "level": 2,
+      "text": "6. Subsidieregeling verduurzaming verenigingsgebouwen"
+    },
+    {
+      "level": 2,
+      "text": "7. Besluitenlijst"
+    },
+    {
+      "level": 2,
+      "text": "8. Sluiting"
+    }
+  ],
+  "key_sentences": [
+    "De voorzitter opent de vergadering om 19.32 uur en heet de aanwezigen en de kijkers thuis welkom.",
+    "De fractie Lokaal Bergwijk stelt vragen over de lange wachttijden bij het afvalbrengstation.",
+    "De fractie van de ChristenUnie vraagt naar de stand van zaken rond de opvang van statushouders.",
+    "De raad neemt kennis van de actielijst; de acties A-108 tot en met A-111 zijn afgerond en vervallen.",
+    "Een derde van de woningen wordt gebouwd in de sociale huursector.",
+    "Het voorstel is daarmee aangenomen.",
+    "De raad stemt unaniem in met het voorstel.",
+    "De volgende vergadering vindt plaats op dinsdag 20 oktober 2026."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Voorzitter",
+          "Mevrouw J.H. van Dorsselaer, burgemeester"
+        ],
+        [
+          "Griffier",
+          "De heer P. Ouwerkerk"
+        ],
+        [
+          "Aanwezig",
+          "23 raadsleden van de fracties Lokaal Bergwijk, VVD, CDA, GroenLinks-PvdA, D66 en ChristenUnie"
+        ],
+        [
+          "Afwezig met bericht",
+          "Mevrouw S. Kaya (D66) en de heer R. Brinkhorst (CDA)"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Nr.",
+          "Actie",
+          "Wie",
+          "Uiterlijk"
+        ],
+        [
+          "A-112",
+          "Raadsinformatiebrief over de kosten van de nieuwe sporthal",
+          "Wethouder Sport",
+          "15 oktober 2026"
+        ],
+        [
+          "A-113",
+          "Overzicht van alle zienswijzen op het bestemmingsplan Molenkwartier",
+          "Griffie",
+          "1 oktober 2026"
+        ],
+        [
+          "A-114",
+          "Gesprek met omwonenden over de verkeersveiligheid op de Dorpsstraat",
+          "Wethouder Verkeer",
+          "30 oktober 2026"
+        ],
+        [
+          "A-115",
+          "Voorstel voor een vaste vergoeding voor vrijwillige mantelzorgondersteuners",
+          "College",
+          "1 december 2026"
+        ],
+        [
+          "A-116",
+          "Evaluatie van de proef met avondopenstelling van het gemeentehuis",
+          "Gemeentesecretaris",
+          "15 januari 2027"
+        ],
+        [
+          "A-117",
+          "Technische sessie over de energiestrategie van de regio",
+          "Griffie",
+          "12 november 2026"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Fractie",
+          "Zetels",
+          "Voor",
+          "Tegen"
+        ],
+        [
+          "Lokaal Bergwijk",
+          "7",
+          "7",
+          "0"
+        ],
+        [
+          "VVD",
+          "5",
+          "0",
+          "5"
+        ],
+        [
+          "GroenLinks-PvdA",
+          "5",
+          "5",
+          "0"
+        ],
+        [
+          "CDA",
+          "3",
+          "2",
+          "0"
+        ],
+        [
+          "D66",
+          "3",
+          "2",
+          "0"
+        ],
+        [
+          "ChristenUnie",
+          "2",
+          "0",
+          "2"
+        ],
+        [
+          "Totaal",
+          "25",
+          "16",
+          "7"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Besluit 2026-41: de agenda wordt gewijzigd vastgesteld."
+    },
+    {
+      "level": 0,
+      "text": "Besluit 2026-42: de notulen van 7 juli 2026 worden vastgesteld."
+    },
+    {
+      "level": 0,
+      "text": "Besluit 2026-43: het bestemmingsplan Molenkwartier wordt vastgesteld."
+    },
+    {
+      "level": 0,
+      "text": "Besluit 2026-44: de subsidieregeling verduurzaming verenigingsgebouwen wordt vastgesteld."
+    }
+  ],
+  "furniture": [
+    "Gemeente Bergwijk",
+    "Notulen openbare raadsvergadering · 22 september 2026",
+    "Pagina 1 van 2",
+    "Pagina 2 van 2"
+  ],
+  "languages": [
+    "nl"
+  ],
+  "code": [],
+  "notes": "Dutch municipal council minutes, two pages laid out in the body (running header and footer \"Pagina n van 2\" on every page). Agenda items are level-2 headings with typed numbers. The attendance block is a key/value table with a two-line cell. The action list continues from page 1 to page 2; its header row is repeated on page 2, but it is ONE table with the header row once. The voting table has a total row. The decisions are a list with typed markers (\"Besluit 2026-41:\"). The date line under the title and the lead-in sentence ending in a colon are not key sentences."
+}

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="sv" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Driftinstruktion: trådlöst nätverk i kommunens skolor</title>
+<style>
+@page { size: A4; margin: 2.2cm 2cm 2.2cm 2.4cm; @top-right { content: "Driftinstruktion IT-DI-0412 \00B7  version 2.1"; font-family: "Calibri Light"; font-size: 8pt; color: #666; } @bottom-right { content: "Sida " counter(page) " av " counter(pages); font-family: "Calibri Light"; font-size: 8.5pt; } }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0; }
+@media screen { body { width: 166mm; } }
+.page { width: 210mm; height: 296.6mm; position: relative; box-sizing: border-box; overflow: hidden; break-after: page; }
+.page:last-child { break-after: auto; }
+tr, li { break-inside: avoid; }
+
+
+body { font-family: Candara; font-size: 10pt; line-height: 1.45; color: #1f2328; }
+.lh { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1pt solid #005a8c; padding-bottom: 4pt; margin-bottom: 10pt; }
+.lh .o { font-family: Constantia; font-size: 14pt; font-weight: bold; color: #005a8c; }
+.lh .s { font-size: 8.5pt; color: #555; }
+.lh .r { font-size: 8.5pt; text-align: right; color: #555; }
+h1 { font-family: Constantia; font-weight: bold; font-size: 18pt; margin: 0 0 6pt; color: #003d5c; }
+h2 { font-family: Constantia; font-weight: bold; font-size: 12pt; margin: 13pt 0 3pt; color: #005a8c; }
+h3 { font-family: Constantia; font-weight: bold; font-style: italic; font-size: 10.5pt; margin: 8pt 0 2pt; }
+p { margin: 0 0 6pt; }
+table.kv { border-collapse: collapse; width: 100%; background: #f2f6f9; margin-bottom: 6pt; font-size: 9pt; }
+.kv td { padding: 2pt 6pt; }
+.kv td:nth-child(odd) { color: #555; width: 18%; }
+table.n { width: 100%; border-collapse: collapse; font-size: 9.2pt; margin: 3pt 0 6pt; }
+.n th { text-align: left; border-bottom: 1.2pt solid #005a8c; padding: 2.5pt 5pt; }
+.n td { border-bottom: 0.4pt solid #c5d3dd; padding: 2.5pt 5pt; vertical-align: top; }
+pre.code { font-family: Consolas; font-size: 8.6pt; line-height: 1.35; background: #1f2b36; color: #e8eef3; padding: 7pt 10pt; margin: 2pt 0 8pt; white-space: pre; border-radius: 3pt; }
+.cap { font-size: 8.5pt; color: #555; margin: 0 0 1pt; }
+ol.f { padding-left: 18pt; margin: 2pt 0 6pt; }
+ol.f li { margin-bottom: 3pt; }
+ol.f ol { list-style-type: lower-alpha; padding-left: 16pt; margin: 2pt 0; }
+
+</style>
+</head>
+<body>
+<div class="lh"><div>
+<div class="o" data-one="1">Älvdala kommun</div>
+<div class="s" data-one="1">Kommunledningsförvaltningen · IT-avdelningen</div>
+</div><div class="r">
+<div class="" data-one="1">Intern information</div>
+</div></div>
+<h1 class="">Driftinstruktion: trådlöst nätverk i kommunens skolor</h1>
+<table class="kv"><tbody><tr><td>Dokument-ID</td><td>IT-DI-0412</td><td>Gäller från</td><td>2026-10-12</td></tr><tr><td>Ägare</td><td>Enhetschef nätverk</td><td>Fastställd av</td><td>IT-chef</td></tr><tr><td>Målgrupp</td><td>Drifttekniker och skolornas IT-samordnare</td><td>Granskas senast</td><td>2027-10-12</td></tr></tbody></table>
+<h2 class="">1 Syfte och omfattning</h2>
+<p class="">Instruktionen beskriver hur det trådlösa nätverket i kommunens grundskolor och gymnasieskola ska konfigureras och övervakas. Den gäller för alla accesspunkter som är anslutna till skolnätet, sammanlagt 412 enheter på 17 skolor. Instruktionen gäller inte för förskolornas gästnät, som har en egen rutin.</p>
+<h2 class="">2 Ansvar</h2>
+<table class="n"><thead><tr><th>Roll</th><th>Ansvar</th></tr></thead><tbody><tr><td>Enhetschef nätverk</td><td>Fastställer konfigurationen och godkänner avvikelser</td></tr><tr><td>Drifttekniker</td><td>Installerar, uppdaterar och felsöker accesspunkterna</td></tr><tr><td>IT-samordnare på skolan</td><td>Tar emot felanmälningar och gör första kontrollen på plats</td></tr><tr><td>Leverantörens support</td><td>Hanterar fel i hårdvara och programvara enligt avtal</td></tr></tbody></table>
+<h2 class="">3 Nätverksöversikt</h2>
+<p class="">Varje skola har tre trådlösa nät som skiljs åt med VLAN. Elevernas och personalens nät använder certifikatbaserad inloggning, medan gästnätet kräver en daglig kod.</p>
+<table class="n"><thead><tr><th>SSID</th><th>VLAN</th><th>Autentisering</th><th>Användare</th></tr></thead><tbody><tr><td>ALVDALA-SKOLA</td><td>210</td><td>WPA3-Enterprise, EAP-TLS</td><td>Elever med kommunens datorer</td></tr><tr><td>ALVDALA-PERSONAL</td><td>220</td><td>WPA3-Enterprise, EAP-TLS</td><td>Lärare och övrig personal</td></tr><tr><td>ALVDALA-GAST</td><td>290</td><td>WPA2-PSK, daglig kod</td><td>Besökare, endast internet</td></tr></tbody></table>
+<h2 class="">4 Konfiguration</h2>
+<h3 class="">4.1 Standardinställningar</h3>
+<p class="">Alla accesspunkter hämtar sin konfiguration från den centrala styrenheten vid start. Lokala ändringar på en enskild accesspunkt är inte tillåtna och skrivs över vid nästa synkronisering.</p>
+<p class="cap">Utdrag ur profilen skola-standard</p>
+<pre class="code">profile skola-standard
+  country SE
+  band 5ghz channel-width 40
+  band 2.4ghz disabled
+  ssid ALVDALA-SKOLA vlan 210 security wpa3-enterprise
+  ssid ALVDALA-PERSONAL vlan 220 security wpa3-enterprise
+  ssid ALVDALA-GAST vlan 290 security wpa2-psk rotate-key daily
+  client-limit 45
+  syslog 10.40.0.15 level warning
+end</pre>
+<h3 class="">4.2 Uppdatering av programvara</h3>
+<p class="">Ny programvara installeras först på testskolan och därefter på övriga skolor tidigast en vecka senare. Uppdateringar görs efter klockan 17.00 eller under lov för att inte störa undervisningen.</p>
+<h2 class="">5 Felsökning</h2>
+<p class="">När en skola anmäler problem med det trådlösa nätet arbetar driftteknikern i följande ordning:</p>
+<ol class="f"><li>Kontrollera i styrenheten om accesspunkten är ansluten och har rätt profil.</li><li>Fråga IT-samordnaren vilka användare som påverkas.<ol class=""><li>Om bara gästnätet påverkas, kontrollera dagens kod.</li><li>Om alla nät påverkas, kontrollera switchporten och strömmen.</li></ol></li><li>Starta om accesspunkten från styrenheten, aldrig genom att dra ur kabeln.</li><li>Om felet kvarstår efter omstart, skapa ett ärende hos leverantören och bifoga loggfilen.</li></ol>
+<p class="">Alla åtgärder dokumenteras i ärendet i kommunens ärendehanteringssystem. Ett ärende får stängas först när IT-samordnaren har bekräftat att nätet fungerar.</p>
+<h2 class="">6 Kontakter</h2>
+<table class="kv"><tbody><tr><td>IT-servicedesk</td><td>telefon 0250-55 01 00, vardagar 7.30–16.30</td></tr><tr><td>Jour för nätverk</td><td>telefon 0250-55 01 99, kvällar och helger</td></tr><tr><td>Leverantörens support</td><td>enligt avtal LEV-2025-031</td></tr></tbody></table>
+<h2 class="">Revisionshistorik</h2>
+<table class="n"><thead><tr><th>Version</th><th>Datum</th><th>Ändring</th><th>Av</th></tr></thead><tbody><tr><td>1.0</td><td>2024-08-19</td><td>Första versionen</td><td>L. Nyström</td></tr><tr><td>2.0</td><td>2025-06-23</td><td>Övergång till WPA3 för elever och personal</td><td>A. Haddad</td></tr><tr><td>2.1</td><td>2026-10-12</td><td>2,4 GHz-bandet avstängt; ny gästnätsrutin</td><td>A. Haddad</td></tr></tbody></table>
+</body>
+</html>

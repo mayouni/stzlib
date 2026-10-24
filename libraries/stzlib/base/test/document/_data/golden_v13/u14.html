@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Forecasting root-zone soil moisture with low-cost capacitive sensors for smallholder irrigation scheduling</title>
+<style>
+@page { size: A4; margin: 2cm 1.8cm 2cm 1.8cm; @top-center { content: "Low-cost sensing for irrigation scheduling \00B7  Preprint, not peer reviewed"; font-family: "Lucida Sans Unicode"; font-size: 7.5pt; color: #444; } @bottom-center { content: counter(page) " / " counter(pages); font-family: "Lucida Sans Unicode"; font-size: 8pt; } } @page :first { @top-center { content: none; } }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0; }
+@media screen { body { width: 174mm; } }
+.page { width: 210mm; height: 296.6mm; position: relative; box-sizing: border-box; overflow: hidden; break-after: page; }
+.page:last-child { break-after: auto; }
+tr, li { break-inside: avoid; }
+
+
+body { font-family: "Book Antiqua"; font-size: 9.6pt; line-height: 1.4; color: #111; }
+h1 { font-family: Corbel; font-weight: bold; font-size: 18pt; line-height: 1.2; text-align: center; margin: 0 0 6pt; }
+.au { text-align: center; font-size: 10pt; margin: 0 0 2pt; }
+.af { text-align: center; font-size: 8.4pt; font-style: italic; color: #333; margin: 0 0 10pt; }
+.abs { margin: 0 8mm 10pt; padding: 6pt 0; border-top: 0.6pt solid #000; border-bottom: 0.6pt solid #000; font-size: 9pt; }
+.abs h2 { display: inline; font-size: 9pt; margin: 0; }
+.abs p { margin: 0; text-align: justify; }
+.kw { font-size: 8.6pt; margin-top: 3pt !important; }
+.cols { column-count: 2; column-gap: 7mm; text-align: justify; }
+h2 { font-family: Corbel; font-weight: bold; font-size: 11pt; margin: 9pt 0 3pt; break-after: avoid; }
+h3 { font-family: Corbel; font-weight: bold; font-style: italic; font-size: 10pt; margin: 6pt 0 2pt; break-after: avoid; }
+p { margin: 0 0 5pt; }
+table.r { width: 100%; border-collapse: collapse; font-size: 8.4pt; margin: 3pt 0 7pt; break-inside: avoid; }
+.r caption { font-size: 8.4pt; text-align: left; padding-bottom: 3pt; }
+.r th { border-top: 1pt solid #000; border-bottom: 0.6pt solid #000; padding: 2pt 3pt; font-weight: bold; text-align: center; }
+.r th:first-child { text-align: left; }
+.r td { padding: 1.5pt 3pt; text-align: center; }
+.r td:first-child { text-align: left; }
+.r tbody tr:last-child td { border-bottom: 1pt solid #000; }
+.tcap { font-size: 8.4pt; margin: -4pt 0 8pt; }
+pre.code { font-family: "Courier New"; font-size: 7.8pt; line-height: 1.3; background: #f5f5f5; padding: 5pt 6pt; margin: 2pt 0 7pt; white-space: pre; break-inside: avoid; }
+.algcap { font-size: 8.4pt; font-weight: bold; margin: 4pt 0 1pt; }
+ul.ref { list-style: none; padding-left: 0; font-size: 8.4pt; margin: 0; }
+ul.ref li { margin-bottom: 3pt; padding-left: 16pt; text-indent: -16pt; text-align: left; }
+.fn { font-size: 7.8pt; border-top: 0.5pt solid #000; padding-top: 2pt; margin-top: 8pt; }
+
+</style>
+</head>
+<body>
+<h1 class="">Forecasting root-zone soil moisture with low-cost capacitive sensors for smallholder irrigation scheduling</h1>
+<p class="au">Amara Diallo-Keita, Tomasz Wierzbicki, Lucía Ferrándiz and Joseph Mwangi Kariuki</p>
+<p class="af">Institute for Dryland Water Research; Department of Agricultural Engineering, Lake Region University</p>
+<div class="abs">
+<h2 class="">Abstract</h2>
+<p class="">Smallholder farmers rarely have access to the soil moisture information that irrigation scheduling requires. We evaluated 48 low-cost capacitive sensors installed in maize and tomato plots over two dry seasons. After a two-point field calibration, the sensors reproduced gravimetric soil moisture with a root mean square error of 0.031 cm³/cm³. A simple water-balance model driven by these readings forecast the next irrigation date within one day in 83% of cases. Farmers who followed the forecast used 27% less water without a measurable loss of yield.</p>
+<p class="kw"><i>Keywords:</i> soil moisture; capacitive sensor; irrigation scheduling; smallholder agriculture; water balance</p>
+</div><div class="cols">
+<h2 class="">1 Introduction</h2>
+<p class="">Irrigated agriculture uses about seventy per cent of the fresh water withdrawn worldwide. In small irrigation schemes, water is usually applied on a fixed calendar, regardless of the moisture already stored in the soil. This practice wastes water when the soil is still wet and stresses the crop when hot weather dries the soil faster than expected.</p>
+<p class="">Commercial soil moisture probes cost several hundred dollars per unit, which places them out of reach of most smallholders. Capacitive sensors sold for hobby electronics cost less than five dollars, but their accuracy in field soils has rarely been tested.<sup>1</sup> This study asks whether such sensors, combined with a transparent water-balance model, can give farmers a reliable irrigation forecast.</p>
+<h2 class="">2 Materials and methods</h2>
+<h3 class="">2.1 Study sites</h3>
+<p class="">The trials took place in two irrigation schemes on sandy loam and clay loam soils. Each scheme contributed twelve plots of maize and twelve plots of tomato, managed by the farmers themselves. Daily weather data were recorded by an automatic station located less than two kilometres from all plots.</p>
+<h3 class="">2.2 Sensors and calibration</h3>
+<p class="">Two sensors were buried in each plot, at depths of 15 cm and 35 cm. Raw readings were converted to volumetric water content with a two-point calibration taken at field capacity and at the end of a drying cycle. Gravimetric samples were collected every two weeks to evaluate the calibrated readings.</p>
+<table class="r"><caption>Table 1. Agreement between calibrated sensor readings and gravimetric samples (cm³/cm³).</caption><thead><tr><th>Soil</th><th>n</th><th>RMSE</th><th>Bias</th><th>R²</th></tr></thead><tbody><tr><td>Sandy loam</td><td>412</td><td>0.027</td><td>−0.004</td><td>0.91</td></tr><tr><td>Clay loam</td><td>398</td><td>0.035</td><td>+0.009</td><td>0.86</td></tr><tr><td>All plots</td><td>810</td><td>0.031</td><td>+0.002</td><td>0.88</td></tr></tbody></table>
+<h3 class="">2.3 Forecast model</h3>
+<p class="">The forecast model tracks the water stored in the root zone from one day to the next. It adds rainfall and irrigation, subtracts crop evapotranspiration, and resets the stored water to the sensor value each morning. An irrigation is recommended for the first day on which the stored water is predicted to fall below the management allowed depletion.</p>
+<div class="algcap">Algorithm 1. Daily forecast step</div>
+<pre class="code">for day in horizon:
+    et_c = kc[stage] * et_0[day]
+    store = store + rain[day] - et_c
+    if store &lt; (1 - mad) * taw:
+        return day
+return None</pre>
+<h2 class="">3 Results</h2>
+<h3 class="">3.1 Sensor accuracy</h3>
+<p class="">Calibrated sensors agreed closely with the gravimetric samples on both soils, as shown in Table 1. Errors were larger on the clay loam, where shrinkage cracks occasionally separated the sensor from the soil. Four of the 48 sensors failed during the second season, all because of water entering the cable joint.</p>
+<h3 class="">3.2 Forecast skill and water use</h3>
+<p class="">The forecast irrigation date matched the date on which the soil actually reached the threshold within one day in 83% of cases. Forecasts were least reliable after heavy rain, when drainage below the root zone was overestimated.</p>
+<table class="r"><thead><tr><th>Crop</th><th>Calendar (mm)</th><th>Forecast (mm)</th><th>Saving</th><th>Yield change</th></tr></thead><tbody><tr><td>Maize</td><td>486</td><td>351</td><td>28%</td><td>−2%</td></tr><tr><td>Tomato</td><td>612</td><td>452</td><td>26%</td><td>+3%</td></tr></tbody></table><div class="tcap">Table 2. Seasonal irrigation water applied and yield change, mean of both schemes.</div>
+<h2 class="">4 Discussion</h2>
+<p class="">The accuracy obtained here is comparable to that reported for commercial probes after site-specific calibration. The decisive step is the calibration itself, which farmers can perform with a simple drying test and a kitchen scale. Without calibration, the factory curve overestimated water content by almost a third on the clay loam.</p>
+<p class="">The water savings did not reduce yields, which suggests that calendar irrigation applied more water than the crops could use. Similar savings may not appear where farmers already irrigate sparingly because water is scarce.</p>
+<h2 class="">5 Conclusion</h2>
+<p class="">Low-cost capacitive sensors can support irrigation scheduling on smallholder farms if they are calibrated in the field and protected against moisture at the cable joint. Combined with a transparent water-balance model, they gave forecasts that farmers understood and trusted.</p>
+<h2 class="">References</h2>
+<ul class="ref"><li>[1] Okonkwo, B. and Larsen, H. Crop water demand in semi-arid smallholder schemes. Journal of Dryland Hydrology 14, 2019.</li><li>[2] Prakash, V., Moreau, C. and Ilunga, T. Field behaviour of capacitive soil moisture sensors in tropical soils. Sensing in Agriculture 7, 2022.</li><li>[3] Haddad, S. Water balance models for farmers: simplicity before precision. Irrigation Science Letters 3, 2021.</li><li>[4] Brennan, K. and Osei, A. Calendar irrigation and its alternatives in small public schemes. Water Policy Review 29, 2018.</li></ul>
+<p class="fn"><sup>1</sup> Prices observed in online electronics shops in March 2025.</p>
+</div>
+</body>
+</html>

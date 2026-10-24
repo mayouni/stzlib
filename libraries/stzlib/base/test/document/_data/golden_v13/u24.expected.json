@@ -1,0 +1,224 @@
+{
+  "id": "u24",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Driftinstruktion: trådlöst nätverk i kommunens skolor",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Driftinstruktion: trådlöst nätverk i kommunens skolor"
+    },
+    {
+      "level": 2,
+      "text": "1 Syfte och omfattning"
+    },
+    {
+      "level": 2,
+      "text": "2 Ansvar"
+    },
+    {
+      "level": 2,
+      "text": "3 Nätverksöversikt"
+    },
+    {
+      "level": 2,
+      "text": "4 Konfiguration"
+    },
+    {
+      "level": 3,
+      "text": "4.1 Standardinställningar"
+    },
+    {
+      "level": 3,
+      "text": "4.2 Uppdatering av programvara"
+    },
+    {
+      "level": 2,
+      "text": "5 Felsökning"
+    },
+    {
+      "level": 2,
+      "text": "6 Kontakter"
+    },
+    {
+      "level": 2,
+      "text": "Revisionshistorik"
+    }
+  ],
+  "key_sentences": [
+    "Instruktionen beskriver hur det trådlösa nätverket i kommunens grundskolor och gymnasieskola ska konfigureras och övervakas.",
+    "Den gäller för alla accesspunkter som är anslutna till skolnätet, sammanlagt 412 enheter på 17 skolor.",
+    "Varje skola har tre trådlösa nät som skiljs åt med VLAN.",
+    "Elevernas och personalens nät använder certifikatbaserad inloggning, medan gästnätet kräver en daglig kod.",
+    "Lokala ändringar på en enskild accesspunkt är inte tillåtna och skrivs över vid nästa synkronisering.",
+    "Ny programvara installeras först på testskolan och därefter på övriga skolor tidigast en vecka senare.",
+    "Alla åtgärder dokumenteras i ärendet i kommunens ärendehanteringssystem.",
+    "Ett ärende får stängas först när IT-samordnaren har bekräftat att nätet fungerar."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Dokument-ID",
+          "IT-DI-0412",
+          "Gäller från",
+          "2026-10-12"
+        ],
+        [
+          "Ägare",
+          "Enhetschef nätverk",
+          "Fastställd av",
+          "IT-chef"
+        ],
+        [
+          "Målgrupp",
+          "Drifttekniker och skolornas IT-samordnare",
+          "Granskas senast",
+          "2027-10-12"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Roll",
+          "Ansvar"
+        ],
+        [
+          "Enhetschef nätverk",
+          "Fastställer konfigurationen och godkänner avvikelser"
+        ],
+        [
+          "Drifttekniker",
+          "Installerar, uppdaterar och felsöker accesspunkterna"
+        ],
+        [
+          "IT-samordnare på skolan",
+          "Tar emot felanmälningar och gör första kontrollen på plats"
+        ],
+        [
+          "Leverantörens support",
+          "Hanterar fel i hårdvara och programvara enligt avtal"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "SSID",
+          "VLAN",
+          "Autentisering",
+          "Användare"
+        ],
+        [
+          "ALVDALA-SKOLA",
+          "210",
+          "WPA3-Enterprise, EAP-TLS",
+          "Elever med kommunens datorer"
+        ],
+        [
+          "ALVDALA-PERSONAL",
+          "220",
+          "WPA3-Enterprise, EAP-TLS",
+          "Lärare och övrig personal"
+        ],
+        [
+          "ALVDALA-GAST",
+          "290",
+          "WPA2-PSK, daglig kod",
+          "Besökare, endast internet"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "IT-servicedesk",
+          "telefon 0250-55 01 00, vardagar 7.30–16.30"
+        ],
+        [
+          "Jour för nätverk",
+          "telefon 0250-55 01 99, kvällar och helger"
+        ],
+        [
+          "Leverantörens support",
+          "enligt avtal LEV-2025-031"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Version",
+          "Datum",
+          "Ändring",
+          "Av"
+        ],
+        [
+          "1.0",
+          "2024-08-19",
+          "Första versionen",
+          "L. Nyström"
+        ],
+        [
+          "2.0",
+          "2025-06-23",
+          "Övergång till WPA3 för elever och personal",
+          "A. Haddad"
+        ],
+        [
+          "2.1",
+          "2026-10-12",
+          "2,4 GHz-bandet avstängt; ny gästnätsrutin",
+          "A. Haddad"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Kontrollera i styrenheten om accesspunkten är ansluten och har rätt profil."
+    },
+    {
+      "level": 0,
+      "text": "Fråga IT-samordnaren vilka användare som påverkas."
+    },
+    {
+      "level": 1,
+      "text": "Om bara gästnätet påverkas, kontrollera dagens kod."
+    },
+    {
+      "level": 1,
+      "text": "Om alla nät påverkas, kontrollera switchporten och strömmen."
+    },
+    {
+      "level": 0,
+      "text": "Starta om accesspunkten från styrenheten, aldrig genom att dra ur kabeln."
+    },
+    {
+      "level": 0,
+      "text": "Om felet kvarstår efter omstart, skapa ett ärende hos leverantören och bifoga loggfilen."
+    }
+  ],
+  "furniture": [
+    "Älvdala kommun",
+    "Kommunledningsförvaltningen · IT-avdelningen",
+    "Intern information",
+    "Driftinstruktion IT-DI-0412 · version 2.1",
+    "Sida 1 av 2",
+    "Sida 2 av 2"
+  ],
+  "languages": [
+    "sv"
+  ],
+  "code": [
+    "profile skola-standard\n  country SE\n  band 5ghz channel-width 40\n  band 2.4ghz disabled\n  ssid ALVDALA-SKOLA vlan 210 security wpa3-enterprise\n  ssid ALVDALA-PERSONAL vlan 220 security wpa3-enterprise\n  ssid ALVDALA-GAST vlan 290 security wpa2-psk rotate-key daily\n  client-limit 45\n  syslog 10.40.0.15 level warning\nend"
+  ],
+  "notes": "Municipal IT operations instruction in Swedish, two pages. The document control block is a key/value table. Headings are numbered on two levels. The access point configuration is a code block in Consolas (given without its caption line). The network table is partly ruled (horizontal rules only, no vertical lines); the revision history table is a small table at the end. Troubleshooting steps are a CSS-numbered list with a nested CSS-lettered sub-list (level 1). The running header and \"Sida n av N\" are CSS page-margin boxes in Calibri Light."
+}

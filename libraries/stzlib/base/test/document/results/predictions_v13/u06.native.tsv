@@ -1,0 +1,53 @@
+page_header	0	Fieldlink TG-300 Gateway — Installation Guide
+page_header	0	Revision C · October 2026
+heading	1	TG-300 Telemetry Gateway
+paragraph	0	Installation and configuration guide for firmware 3.2
+heading	2	1 Overview
+paragraph	0	The TG-300 collects readings from field sensors over Modbus RTU and forwards them to a central broker over MQTT. This guide covers mounting, first start-up, network configuration and the most common faults. It is written for installers who are familiar with basic Linux commands.
+heading	2	2 Requirements
+heading	3	2.1 Hardware
+paragraph	0	Item
+paragraph	0	Power supply
+paragraph	0	Enclosure
+paragraph	0	Network
+paragraph	0	Serial line
+paragraph	0	Minimum
+paragraph	0	12 V DC, 1 A
+paragraph	0	IP54
+paragraph	0	Ethernet 10/100
+paragraph	0	RS-485, two-wire
+paragraph	0	Recommended
+paragraph	0	24 V DC, 2 A with surge protection
+paragraph	0	IP66 with sun shield
+paragraph	0	Ethernet plus LTE backup modem
+paragraph	0	RS-485, shielded twisted pair, terminated
+heading	3	2.2 Software
+paragraph	0	The gateway runs a hardened Linux image that is installed at the factory. You only need a laptop with an SSH client and a web browser to complete the set-up.
+heading	2	3 Installation
+list_item	0	1. Mount the gateway on a DIN rail inside the enclosure, away from frequency converters.
+list_item	0	2. Connect the RS-485 line to terminals A and B.
+list_item	1	Use a 120 ohm terminating resistor at the last device.
+list_item	1	Keep the cable shield grounded at one end only.
+list_item	0	3. Connect the Ethernet cable and apply power; the status LED blinks green while the system starts.
+list_item	0	4. Log in over SSH with the installer account printed on the label inside the lid.
+paragraph	0	After the first login, install the latest package set and enable the collector service:
+paragraph	0	Listing 1. Update and enable the collector
+code	0	sudo tg-update --channel stable\nsudo systemctl enable --now tg-collector.service\nsystemctl status tg-collector.service --no-pager
+paragraph	0	WARNING: Do not disconnect power while an update is running. An interrupted update leaves the gateway in recovery mode and requires a site visit.
+heading	2	4 Configuration
+paragraph	0	All settings are kept in a single YAML file at /etc/tg300/gateway.yaml. Changes take effect when the collector service is restarted.
+heading	3	4.1 Example configuration
+page_footer	0	Page 1
+page_header	0	Fieldlink TG-300 Gateway — Installation Guide
+page_header	0	Revision C · October 2026
+page_header	0	Listing 2. Minimal gateway.yaml
+code	0	site:\n  id: PUMP-STATION-07\n  timezone: Europe/Lisbon\nmodbus:\n  port: /dev/ttyS1\n  baudrate: 19200\n  parity: even\n  poll_interval_s: 15\nmqtt:\n  host: broker.example.net\n  port: 8883\n  tls: true\n  topic_prefix: utilities/water/pumps
+heading	3	4.2 Parameters
+table	0	ParameterTypeDefaultDescriptionsite.idstring—Unique name of the site, used in every topic.modbus.baudrateinteger9600Serial speed; must match all field devices.modbus.poll_interval_sinteger30Seconds between two complete polling cycles.mqtt.tlsbooleantrueEncrypts the connection to the broker.mqtt.topic_prefixstringtg300First part of every published topic.buffer.max_mbinteger256Disk space used to store readings while offline.
+heading	2	5 Troubleshooting
+heading	3	5.1 No readings arrive at the broker
+paragraph	0	Check that the collector service is running and that the broker host name resolves from the gateway. If the LED blinks orange, the gateway is buffering readings because the uplink is down.
+heading	3	5.2 Modbus timeouts
+paragraph	0	Timeouts usually come from a wrong baud rate or from a missing terminating resistor. Reduce the polling interval only after the line has been checked with a handheld tester.
+paragraph	0	For further help, contact the support desk and quote the serial number printed on the side of the unit.
+page_footer	0	Page 2

@@ -1,0 +1,163 @@
+{
+  "id": "u14",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Forecasting root-zone soil moisture with low-cost capacitive sensors for smallholder irrigation scheduling",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Forecasting root-zone soil moisture with low-cost capacitive sensors for smallholder irrigation scheduling"
+    },
+    {
+      "level": 2,
+      "text": "Abstract"
+    },
+    {
+      "level": 2,
+      "text": "1 Introduction"
+    },
+    {
+      "level": 2,
+      "text": "2 Materials and methods"
+    },
+    {
+      "level": 3,
+      "text": "2.1 Study sites"
+    },
+    {
+      "level": 3,
+      "text": "2.2 Sensors and calibration"
+    },
+    {
+      "level": 3,
+      "text": "2.3 Forecast model"
+    },
+    {
+      "level": 2,
+      "text": "3 Results"
+    },
+    {
+      "level": 3,
+      "text": "3.1 Sensor accuracy"
+    },
+    {
+      "level": 3,
+      "text": "3.2 Forecast skill and water use"
+    },
+    {
+      "level": 2,
+      "text": "4 Discussion"
+    },
+    {
+      "level": 2,
+      "text": "5 Conclusion"
+    },
+    {
+      "level": 2,
+      "text": "References"
+    }
+  ],
+  "key_sentences": [
+    "Smallholder farmers rarely have access to the soil moisture information that irrigation scheduling requires.",
+    "A simple water-balance model driven by these readings forecast the next irrigation date within one day in 83% of cases.",
+    "This practice wastes water when the soil is still wet and stresses the crop when hot weather dries the soil faster than expected.",
+    "The trials took place in two irrigation schemes on sandy loam and clay loam soils.",
+    "Two sensors were buried in each plot, at depths of 15 cm and 35 cm.",
+    "It adds rainfall and irrigation, subtracts crop evapotranspiration, and resets the stored water to the sensor value each morning.",
+    "Errors were larger on the clay loam, where shrinkage cracks occasionally separated the sensor from the soil.",
+    "Forecasts were least reliable after heavy rain, when drainage below the root zone was overestimated.",
+    "The water savings did not reduce yields, which suggests that calendar irrigation applied more water than the crops could use.",
+    "Combined with a transparent water-balance model, they gave forecasts that farmers understood and trusted."
+  ],
+  "tables": [
+    {
+      "caption": "Table 1. Agreement between calibrated sensor readings and gravimetric samples (cm³/cm³).",
+      "rows": [
+        [
+          "Soil",
+          "n",
+          "RMSE",
+          "Bias",
+          "R²"
+        ],
+        [
+          "Sandy loam",
+          "412",
+          "0.027",
+          "−0.004",
+          "0.91"
+        ],
+        [
+          "Clay loam",
+          "398",
+          "0.035",
+          "+0.009",
+          "0.86"
+        ],
+        [
+          "All plots",
+          "810",
+          "0.031",
+          "+0.002",
+          "0.88"
+        ]
+      ]
+    },
+    {
+      "caption": "Table 2. Seasonal irrigation water applied and yield change, mean of both schemes.",
+      "rows": [
+        [
+          "Crop",
+          "Calendar (mm)",
+          "Forecast (mm)",
+          "Saving",
+          "Yield change"
+        ],
+        [
+          "Maize",
+          "486",
+          "351",
+          "28%",
+          "−2%"
+        ],
+        [
+          "Tomato",
+          "612",
+          "452",
+          "26%",
+          "+3%"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "[1] Okonkwo, B. and Larsen, H. Crop water demand in semi-arid smallholder schemes. Journal of Dryland Hydrology 14, 2019."
+    },
+    {
+      "level": 0,
+      "text": "[2] Prakash, V., Moreau, C. and Ilunga, T. Field behaviour of capacitive soil moisture sensors in tropical soils. Sensing in Agriculture 7, 2022."
+    },
+    {
+      "level": 0,
+      "text": "[3] Haddad, S. Water balance models for farmers: simplicity before precision. Irrigation Science Letters 3, 2021."
+    },
+    {
+      "level": 0,
+      "text": "[4] Brennan, K. and Osei, A. Calendar irrigation and its alternatives in small public schemes. Water Policy Review 29, 2018."
+    }
+  ],
+  "furniture": [
+    "Low-cost sensing for irrigation scheduling · Preprint, not peer reviewed",
+    "1 / 2",
+    "2 / 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "for day in horizon:\n    et_c = kc[stage] * et_0[day]\n    store = store + rain[day] - et_c\n    if store < (1 - mad) * taw:\n        return day\nreturn None"
+  ],
+  "notes": "Scientific preprint. Title, author line and abstract span the full width; the body is set in two columns that continue across pages: read the left column, then the right column, page by page. Table 1 sits inside a column with its caption ABOVE it; Table 2 spans the column with its caption below. Algorithm 1 is a code block in Courier New (given without its caption). The sentence carrying footnote marker 1 is excluded from key_sentences, and the footnote text is not a key sentence. References are a list with typed \"[n]\" markers. The running header and page number \"n / N\" are CSS page-margin boxes in Lucida Sans Unicode; no running header on page 1. Author names and affiliations are body text, not headings. All authors, institutions and references are fictitious."
+}

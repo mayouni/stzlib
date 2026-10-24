@@ -1,0 +1,41 @@
+heading	1	Forecasting root-zone soil moisture with low-cost capacitive sensors for smallholder irrigation scheduling
+paragraph	0	Amara Diallo-Keita, Tomasz Wierzbicki, Lucía Ferrándiz and Joseph Mwangi Kariuki
+paragraph	0	Institute for Dryland Water Research; Department of Agricultural Engineering, Lake Region University
+heading	1	Abstract
+paragraph	0	Smallholder farmers rarely have access to the soil moisture information that irrigation scheduling requires. We evaluated 48 low-cost capacitive sensors installed in maize and tomato plots over two dry seasons. After a twopoint field calibration, the sensors reproduced gravimetric soil moisture with a root mean square error of 0.031 cm³/cm³ . A simple water-balance model driven by these readings forecast the next irrigation date within one day in 83% of cases. Farmers who followed the forecast used 27% less water without a measurable loss of yield.
+paragraph	0	Keywords: soil moisture; capacitive sensor; irrigation scheduling; smallholder agriculture; water balance
+heading	1	1 Introduction
+paragraph	0	Irrigated agriculture uses about seventy per cent of the fresh water withdrawn worldwide. In small irrigation schemes, water is usually applied on a fixed calendar, regardless of the moisture already stored in the soil. This practice wastes water when the soil is still wet and stresses the crop when hot weather dries the soil faster than expected.
+paragraph	0	Commercial soil moisture probes cost several hundred dollars per unit, which places them out of reach of most smallholders. Capacitive sensors sold for hobby electronics cost less than five dollars, but their accuracy in field soils has rarely been tested. 1 This study asks whether such sensors, combined with a transparent water-balance model, can give farmers a reliable irrigation forecast.
+heading	1	2 Materials and methods
+heading	1	2.1 Study sites
+paragraph	0	The trials took place in two irrigation schemes on sandy loam and clay loam soils. Each scheme contributed twelve plots of maize and twelve plots of tomato, managed by the farmers themselves. Daily weather data were recorded by an automatic station located less than two kilometres from all plots.
+heading	1	2.2 Sensors and calibration
+paragraph	0	Two sensors were buried in each plot, at depths of 15 cm and 35 cm. Raw readings were converted to volumetric water content with a two-point calibration taken at field capacity and at the end of a drying cycle. Gravimetric samples were collected every two weeks to evaluate the calibrated readings.
+table	0	SoilnRMSEBiasR²Sandy loam4120.027-0.0040.91Clay loam3980.035+0.0090.86All plots8100.031+0.0020.88
+caption	0	Table 1. Agreement between calibrated sensor readings and gravimetric samples (cm³/cm³).
+heading	1	2.3 Forecast model
+paragraph	0	The forecast model tracks the water stored in the root zone from one day to the next. It adds rainfall and irrigation, subtracts crop evapotranspiration, and resets the stored water to the sensor value each morning. An irrigation is recommended for the first day on which the stored water is predicted to fall below the management allowed depletion.
+heading	1	Algorithm 1. Daily forecast step
+code	0	for day in horizon: et _ c = kc[stage] * et _ 0[day] store = store + rain[day] - et _ c if store < (1 - mad) * taw: return day return None
+heading	1	3 Results
+heading	1	3.1 Sensor accuracy
+paragraph	0	Calibrated sensors agreed closely with the gravimetric samples on both soils, as shown in Table 1. Errors were larger on the clay loam, where shrinkage cracks occasionally separated the sensor from the soil. Four of the 48 sensors failed during the second season, all because of water entering the cable joint.
+heading	1	3.2 Forecast skill and water use
+paragraph	0	The forecast irrigation date matched the date on which the soil actually reached the threshold within one day in 83% of cases. Forecasts were least reliable after heavy rain, when drainage below the root zone was overestimated.
+page_footer	0	1 / 2
+page_header	0	Low-cost sensing for irrigation scheduling · Preprint, not peer reviewed
+table	0	CropCalendar (mm)Forecast (mm)SavingYield changeMaize48635128%-2%Tomato61245226%+3%
+caption	0	Table 2. Seasonal irrigation water applied and yield change, mean of both schemes.
+heading	1	4 Discussion
+paragraph	0	The accuracy obtained here is comparable to that reported for commercial probes after site-specific calibration. The decisive step is the calibration itself, which farmers can perform with a simple drying test and a kitchen scale. Without calibration, the factory curve overestimated water content by almost a third on the clay loam.
+paragraph	0	The water savings did not reduce yields, which suggests that calendar irrigation applied more water than the crops could use. Similar savings may not appear where farmers already irrigate sparingly because water is scarce.
+heading	1	5 Conclusion
+paragraph	0	Low-cost capacitive sensors can support irrigation scheduling on smallholder farms if they are calibrated in the field and protected against moisture at the cable joint. Combined with a transparent water-balance model, they gave forecasts that farmers understood and trusted.
+heading	1	References
+list_item	0	Okonkwo, B. and Larsen, H. Crop water demand in semiarid smallholder schemes. Journal of Dryland Hydrology 14, 2019.
+list_item	0	Prakash, V., Moreau, C. and Ilunga, T. Field behaviour of capacitive soil moisture sensors in tropical soils. Sensing in Agriculture 7, 2022.
+list_item	0	Haddad, S. Water balance models for farmers: simplicity before precision. Irrigation Science Letters 3, 2021.
+list_item	0	Brennan, K. and Osei, A. Calendar irrigation and its alternatives in small public schemes. Water Policy Review 29, 2018.
+paragraph	0	1 Prices observed in online electronics shops in March 2025.
+page_footer	0	2 / 2
