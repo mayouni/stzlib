@@ -579,3 +579,8 @@ Next by size: 15 classes at 2 (stzGeoProcess first), then 28 at 1.
 PatternIn now returns poPoints.With(GenerateIn(...)). ExpectedCount(area, boxArea) was wrong for Inhomogeneous even for the box (engine draws candidates over the window and thins by lambda/lmax, so the mean is window area x mean surface over the window): it now RAISES for that kind and names the new ExpectedCountIn(poPoints), which integrates the surface over the window (160-place lattice, ExpectedCountInXT sets it). Guard 176 assertions with five mutations. The seven_processes.png was re-rendered (label 191 -> 152) and nobody has looked at it. Engine items: expectedCount and envelope still use the grid mean, Generate does not check the surface length, an unknown node is 0 in Generate but renormalised in stzGeoField.ValueAt, a window with a hole is over-sampled against the field.
 Next by size: 14 classes at 2 (stzGraphQuery first), then 28 at 1.
 
+## 2026-10-24: the stzGraphQuery fix batch is ON MAIN; register 56 -> 54
+
+OrderBy dropped the list @SortOn returned, so nothing was sorted (asc kept match order, desc reversed it); now a stable merge sort before projection, several keys in call order, missing values last for asc and desc, code-point order for text, stored types kept (the text 10 sorts before 9); new OrderByAsc and OrderByDesc. ValidateWith wrapped a single text into [[[ ]]]; now a one-name list, bad input raises at the call. Guard 143 assertions with seven mutations. Open: Distinct treats 0 and the empty text as equal; ToOpenCypher writes an empty WHERE for a function filter and has no :not_in; SelectXT and its two siblings return 1 and run the query twice.
+Next by size: 13 classes at 2 (stzKnowledgeGraph first), then 28 at 1.
+
