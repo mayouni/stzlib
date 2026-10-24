@@ -118,9 +118,17 @@ class stzKernelPuzzle from stzObject
 			@cStarter = StzReplace(read(@cFolder + "/starter.txt"), char(13), "")
 		ok
 
+	# Returns the exercise id, lower-cased, as the puzzle was opened.
+	#
+	#   returns    a text
+	#   see        Folder
 	def Id()
 		return @cId
 
+	# Returns the folder the puzzle was read from.
+	#
+	#   returns    a text
+	#   see        Id
 	def Folder()
 		return @cFolder
 
@@ -213,9 +221,10 @@ class stzKernelPuzzle from stzObject
 		ok
 		return This._GradeOnCpu(_oRef_, _oK_, _aB_, _nN_)
 
-	# Grades on the CPU alone, by the interpreter at both shapes, whatever device the machine has: the browser's path when WebGPU is missing, and the guard's way to show the two paths agree.
+	# Grades on the CPU alone, by the interpreter at both shapes, whatever device the machine has.
 	#
 	#   pLearner   a stzKernelMaker, or the description as text
+	#   note       the browser's path when WebGPU is missing, and the guard's way to show the two paths agree
 	#   returns    the verdict words as Grade gives them; a store past the region cannot be seen
 	#              here (the margin needs a device)
 	#   see        Grade

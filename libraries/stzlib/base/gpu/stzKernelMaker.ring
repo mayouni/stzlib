@@ -51,13 +51,12 @@ class stzKernelMaker from stzObject
 	@cOut = ""
 	@cBody = ""
 	@cWgsl = ""
+	@cGuard = ""
 
 	# Creates an empty kernel description, to be filled with the vectors, scalars, output and body of an elementwise computation.
 	#
 	#   returns    nothing; the object is built
 	#   see        TakesVector, ToWGSL
-	@cGuard = ""
-
 	def init()
 
 	# Declares an input vector by name; a kernel takes up to 5.
@@ -106,10 +105,12 @@ class stzKernelMaker from stzObject
 		@cWgsl = ""
 		return This
 
-	# Sets the bounds guard the kernel runs under, in the learner's own words: a boolean over @i (the element index), n (the element count), the scalars and the inputs, such as { @i > 0 and @i < n - 1 }; or none, to omit the guard altogether.
+	# Sets the bounds guard the kernel runs under, as a boolean text over the element index.
 	#
 	#   pcW        the guard, a text like { @i < n }, or "none" (also :none)
 	#   returns    the object itself
+	#   note       in the learner's own words: a boolean over @i (the element index), n (the element count),
+	#              the scalars and the inputs, such as { @i > 0 and @i < n - 1 }
 	#   note       KP0 (2026-10-24): without this call the engine guards with i < n as it always did;
 	#              with none, the kernel writes every thread's element and a checker's NaN margin
 	#              catches the ones past the region; the comparisons < <= > >= == != and the words
@@ -151,10 +152,10 @@ class stzKernelMaker from stzObject
 	def EvaluateOn(paBindings)
 		return This.EvaluateOnWith(paBindings, [])
 
-	# Does the same as EvaluateOn with options: :n, the number of elements to produce when it is not the first input's length (a first pass of partials writes fewer elements than its input holds).
+	# Does the same as EvaluateOn with options, such as the number of elements to produce.
 	#
 	#   paBindings   the inputs and scalars by name; the inputs may differ in length
-	#   paOptions    :n the output count
+	#   paOptions    :n the output count, when it is not the first input's length (a first pass of partials writes fewer elements than its input holds)
 	#   returns      a list of n numbers
 	#   see          EvaluateOn
 	def EvaluateOnWith(paBindings, paOptions)
