@@ -2931,3 +2931,84 @@ and `fixture.js` are generated and untracked, as before.
 Next: **KP1**, the puzzle form and its two runners from one spec — the
 desktop runner through the Ring face, the browser runner as a page in
 this proof's shape with the interpreter's verdict as the grader.
+
+---
+
+## KP1 STATUS — shipped 2026-10-24: the puzzle form, and two runners from one description
+
+Guard: `base/test/gpu/gpu_puzzle_narrated.ring` — **30 asserts green under
+Ring++ (`rnxc`)**, from the vehicle with main's Learning System laid over
+the lineage (its eleven files carry no Rule A site of their own). Scenes 0
+and 1 need no device. Gates re-run under `rnxc`: `gpu_grammar` 43,
+`gpu_spec_reference` 34, `gpu_declarative` 20, `gpu_verify` 36. Zig
+`gpu_wgsl.zig` 7 of 8 (one KP1 test added; the eighth is GR4b's fragment
+test). **The browser runner, driven in the desktop app's browser pane on
+the Intel iGPU:** the starter answers *waiting for your implementation*,
+the right answer *verified* (2.9 ms on the device), the wrong operator
+*mismatch at element 2*, the unknown function *refused: unknown name
+'foo'* — the desktop face's words, letter for letter.
+
+**The form.** A puzzle is an exercise of the Learning System in the
+System's own shape — `exercise.zknw`, `task.<lang>.md` in en, fr, ar and
+ha (fr, ar and ha marked as provisional translations awaiting a native
+reader), `promise.ring`, `right/`, `wrong/` — plus two texts the grammar
+reads, `reference.txt` (the description the kernel must match) and
+`starter.txt` (where the learner begins; no body, so the puzzle starts
+red), and data facts both runners build the same vectors from:
+`kp-01 | elements | 4000`, `kp-01 | input-a | ramp`, with the recipes
+ramp, half, mod13, ones and tenths, `scalar-<name> | value` and
+`input-length-<name> | m` for an input longer than n. **The promise is
+one word**, the checker's verdict; the learner's program builds a maker
+and prints what `StzKernelPuzzleQ("kp-01").Grade(k)` says of it. The
+course `kernel-puzzles` is declared in `program.zknw` and opens through
+the program; its first puzzle **proves itself through the System's own
+checker**, every wrong answer refused and every right one accepted, by
+running them under `rnxc` (the checker spawns the executable it runs in).
+
+**The desktop runner** is `stzKernelPuzzle` in `base/gpu/`, a face over
+the checker: `Grade` takes a maker or the description text
+(`StzKernelMakerFromSpec` turns a text into a maker, and `Spec()` turns
+it back), refuses the starter and an empty body with *waiting for your
+implementation*, a description the grammar refuses with *refused: ...*,
+inputs or scalars not the task's — or not in the task's order, since one
+params block serves the kernel and the interpreter alike — by naming
+yours and the task's, and otherwise runs `VerifySpecWith` at n with the
+NaN margin: *verified*, *mismatch at element K*, *mismatch-hidden at
+element K*, *write-outside at element K*, *impossible*. `GradeOnCpu` is
+the interpreter alone at both shapes, in the same words — the browser's
+path when WebGPU is missing — and the guard holds the two paths to the
+same verdicts; the one thing it cannot see is a store past the region.
+
+**The browser runner** is `courses/kernel-puzzles/runner/puzzle.html`
+beside `stz.wasm`, in the edge proof's shape: it fetches the puzzle's
+facts, reference, starter and task, builds the data from the same
+recipes, transpiles the learner's text with the wasm transpiler, computes
+the reference with the wasm INTERPRETER (the native checker's, compiled;
+`stz_gpu_spec_compile`, `_eval_masked`, `_eval_flops` joined the gpu
+group), runs the kernel on the browser's WebGPU into a NaN-filled buffer
+with the 256-float margin, at the visible shape and the hidden one built
+by the face's rule (odd, five sevenths, the reversed tail scaled), and
+judges with the written mask in the face's words. No server grades
+anything, nothing is stored, and the page ran on the laptop's integrated
+GPU with no NVIDIA driver in the picture. Open it with `?p=<id>&lang=<l>`.
+
+**Found on the way, and fixed in the grammar:** the cheat kernel
+`@c = @i * 2` reads none of its inputs, so wgpu's auto layout dropped the
+input binding and the layer's bind group was refused (GK6's finding, on
+an INPUT this time; the device path said *refused* where the CPU path
+said *mismatch-hidden*). The transpiler now keeps every declared input
+bound with a phony `_ = arrayLength(&v_a);` when the body never reads it;
+a kernel that reads all its inputs is emitted exactly as before. And the
+knowledge graph keeps one edge per node pair, so a course manifest names
+an exercise once: `has-exercise`, not also `has-puzzle-N`.
+
+Not done, and said: the puzzle is one (the map); KP2 writes the eight.
+The browser runner ran under the desk's hand, not yet a person's — the
+named person is KP2's PERCEPTGATE. The System's reader does not embed the
+page (cells in the browser are ZD1, another desk's); the page stands alone,
+as the launch prompt allowed.
+
+Next: **KP2**, the eight puzzles from the map to the reduction, each with
+its text in the course's languages, its right and wrong siblings and the
+sentence on what the GPU did differently from a loop; then a named person
+works two of them in the browser, one failing first.

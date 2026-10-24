@@ -155,6 +155,26 @@ fn wgsl_error(out_ptr: u32, out_cap: usize) callconv(.c) i32 {
     const out: [*]u8 = @ptrFromInt(@as(usize, out_ptr));
     return gpu_wgsl.stz_gpu_wgsl_error(out, @floatFromInt(out_cap));
 }
+// KP1: the INTERPRETER joins the group, so a browser grades a puzzle without
+// a device -- the reference is the same description, evaluated on the
+// learner's machine by the same code the native checker runs.
+fn spec_compile(spec_ptr: u32, spec_len: usize) callconv(.c) i32 {
+    const spec: [*]const u8 = @ptrFromInt(@as(usize, spec_ptr));
+    return gpu_wgsl.stz_gpu_spec_compile(spec, @floatFromInt(spec_len));
+}
+// ins_ptr: n_ins u32 offsets of f32 arrays; lens_ptr: n_ins f64; scalars_ptr: f32s;
+// out_ptr: n f32; mask_ptr: n bytes (1 written, 0 left by the guard)
+fn spec_eval_masked(ins_ptr: u32, n_ins: i32, lens_ptr: u32, scalars_ptr: u32, n_scalars: i32, n: usize, out_ptr: u32, mask_ptr: u32) callconv(.c) i32 {
+    const ins: [*]const [*]const f32 = @ptrFromInt(@as(usize, ins_ptr));
+    const lens: [*]const f64 = @ptrFromInt(@as(usize, lens_ptr));
+    const scalars: [*]const f32 = @ptrFromInt(@as(usize, scalars_ptr));
+    const out: [*]f32 = @ptrFromInt(@as(usize, out_ptr));
+    const mask: ?[*]u8 = if (mask_ptr == 0) null else @ptrFromInt(@as(usize, mask_ptr));
+    return gpu_wgsl.stz_gpu_spec_eval_masked(ins, n_ins, lens, scalars, n_scalars, @floatFromInt(n), out, mask);
+}
+fn spec_eval_flops() callconv(.c) f64 {
+    return gpu_wgsl.stz_gpu_spec_eval_flops();
+}
 
 
 // ── the sound group: build a graph, then fill a block on demand ─────────────
@@ -368,6 +388,9 @@ comptime {
     if (want_gpu) {
         @export(&wgsl_elementwise, .{ .name = "stz_gpu_wgsl_elementwise" });
         @export(&wgsl_error, .{ .name = "stz_gpu_wgsl_error" });
+        @export(&spec_compile, .{ .name = "stz_gpu_spec_compile" });
+        @export(&spec_eval_masked, .{ .name = "stz_gpu_spec_eval_masked" });
+        @export(&spec_eval_flops, .{ .name = "stz_gpu_spec_eval_flops" });
     }
     if (want_graph) {
         // graph.zig's functions are already callconv(.c) with a pointer/handle

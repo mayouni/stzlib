@@ -82,6 +82,7 @@ ok
     load "gpu/stzKernelMaker.ring"
     load "gpu/stzGpuBuffer.ring"
     load "gpu/stzGpu.ring"
+    load "gpu/stzKernelPuzzle.ring"
 
     # graphics/ -- the declarative drawing surface (GR4,
     # SOFTANZA_GRAPHICS_PLAN.md). stzColor first: the others take colours.

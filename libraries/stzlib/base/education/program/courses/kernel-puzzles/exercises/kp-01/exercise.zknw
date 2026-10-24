@@ -1,0 +1,12 @@
+knowledge "kp-01"
+
+facts
+    kp-01 | is-a | exercise
+    kp-01 | in-course | kernel-puzzles
+    kp-01 | in-chapter | the-elementwise-kernel
+    kp-01 | puzzle-number | 1
+    kp-01 | teaches | a-map-one-thread-per-element
+    kp-01 | starts | red
+
+    kp-01 | elements | 4000
+    kp-01 | input-a | ramp

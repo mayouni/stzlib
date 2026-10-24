@@ -1,0 +1,242 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kernel puzzles</title>
+<style>
+  :root { --bg: #101418; --fg: #d8dee6; --dim: #8a93a0; --ok: #6ec06e; --bad: #e06c75; --wait: #e5c07b; --panel: #181e24; }
+  body { font-family: ui-monospace, monospace; margin: 0; padding: 16px; background: var(--bg); color: var(--fg); max-width: 1100px; }
+  h1 { font-size: 1.1rem; margin: 0 0 .5rem; }
+  .task { background: var(--panel); padding: 1rem; white-space: pre-wrap; line-height: 1.45; margin-bottom: 1rem; }
+  textarea { width: 100%; box-sizing: border-box; min-height: 9rem; background: #0b0e11; color: var(--fg); border: 1px solid #2a323c; padding: .6rem; font: inherit; font-size: 1rem; }
+  button { font: inherit; font-size: 1rem; padding: .5rem 1.2rem; background: #2a323c; color: var(--fg); border: 0; cursor: pointer; margin-top: .5rem; }
+  #verdict { font-size: 1.6rem; margin: 1rem 0; min-height: 2rem; }
+  .ok { color: var(--ok); } .bad { color: var(--bad); } .wait { color: var(--wait); }
+  pre { background: var(--panel); padding: .8rem; overflow-x: auto; max-height: 18rem; }
+  .dim { color: var(--dim); }
+</style>
+<h1 id="title">Kernel puzzles</h1>
+<div class="dim" id="where">loading...</div>
+<div class="task" id="task"></div>
+<textarea id="spec" spellcheck="false"></textarea>
+<div><button id="run">Run the kernel</button> <span class="dim" id="timing"></span></div>
+<div id="verdict" class="wait">waiting for your implementation</div>
+<pre id="wgsl" class="dim"></pre>
+<script type="module">
+// THE BROWSER RUNNER (KP1 of SOFTANZA_GPU_PLAN.md). One description, two
+// runners, one verdict: this page grades the same text the desktop face
+// grades, in the same words, from the same facts -- the reference is the
+// puzzle's description interpreted by stz.wasm (the native checker's own
+// interpreter, compiled to wasm), the learner's kernel is the WGSL the same
+// wasm transpiles from the learner's text, run by the browser's WebGPU with a
+// NaN margin after the output, at the visible shape and a hidden one. No
+// server grades anything; nothing is stored; a laptop's integrated GPU is
+// enough, and no vendor driver is in the picture.
+const q = new URLSearchParams(location.search);
+const id = (q.get("p") || "kp-01").toLowerCase();
+const lang = (q.get("lang") || "en").toLowerCase();
+const MARGIN = 256;
+const el = (s) => document.getElementById(s);
+const exDir = `../exercises/${id}/`;
+
+async function text(path) {
+  const r = await fetch(path);
+  if (!r.ok) throw new Error(`${path}: ${r.status}`);
+  return await r.text();
+}
+function facts(zknw) {
+  // subject | relation | object, the manifest's own shape
+  return zknw.split(/\r?\n/).map(l => l.trim()).filter(l => l && !l.startsWith("#") && !l.startsWith("knowledge") && l !== "facts")
+    .map(l => l.split("|").map(p => p.trim())).filter(p => p.length === 3);
+}
+function fact(fs, rel) { const f = fs.find(p => p[1].toLowerCase() === rel); return f ? f[2] : ""; }
+// the five data recipes the desktop face knows, the same here
+function recipe(name, len) {
+  const a = new Float32Array(len);
+  for (let i = 0; i < len; i++) {
+    switch (name.toLowerCase()) {
+      case "ramp": a[i] = i; break;
+      case "half": a[i] = i * 0.5; break;
+      case "mod13": a[i] = (i * 7) % 13; break;
+      case "ones": a[i] = 1; break;
+      case "tenths": a[i] = (i % 10) / 10; break;
+      default: throw new Error(`unknown data recipe '${name}'`);
+    }
+  }
+  return a;
+}
+function specLines(spec, head) {
+  return spec.split(/\r?\n/).map(l => l.trim()).filter(l => l.startsWith(head + " ")).map(l => l.slice(head.length + 1).trim().toLowerCase());
+}
+// a list as Ring's @@ writes it: [ "a", "b" ], and [ ] when empty -- the face's words
+function ringList(xs) { return xs.length ? `[ ${xs.map(x => `"${x}"`).join(", ")} ]` : "[ ]"; }
+function hiddenCount(n) { let b = Math.floor(n * 5 / 7); if (b < 1) b = 1; if (b > 1 && b % 2 === 0) b--; return b; }
+function hiddenInput(v, n, nB) {
+  let hl = Math.floor(v.length * nB / n); if (hl < 1) hl = 1;
+  const h = new Float32Array(hl);
+  for (let j = 0; j < hl; j++) h[j] = v[v.length - 1 - j]; // the reversed tail
+  return h;
+}
+
+const memory = new WebAssembly.Memory({ initial: 64 });
+const { instance } = await WebAssembly.instantiateStreaming(fetch("./stz.wasm"), { env: { memory } });
+const E = instance.exports;
+const enc = new TextEncoder();
+function putBytes(bytes) { const p = E.stz_alloc(bytes.length); new Uint8Array(memory.buffer, p, bytes.length).set(bytes); return p; }
+function putF32(arr) { const p = E.stz_alloc(arr.length * 4); new Float32Array(memory.buffer, p, arr.length).set(arr); return p; }
+function putF64(arr) { const p = E.stz_alloc(arr.length * 8); new Float64Array(memory.buffer, p, arr.length).set(arr); return p; }
+function putU32(arr) { const p = E.stz_alloc(arr.length * 4); new Uint32Array(memory.buffer, p, arr.length).set(arr); return p; }
+function wasmError() { const p = E.stz_alloc(256); const n = E.stz_gpu_wgsl_error(p, 256); return new TextDecoder().decode(new Uint8Array(memory.buffer, p, n)); }
+function transpile(spec) {
+  E.stz_reset();
+  const sp = putBytes(enc.encode(spec)); const out = E.stz_alloc(8192);
+  const n = E.stz_gpu_wgsl_elementwise(sp, enc.encode(spec).length, out, 8192);
+  if (n < 0) return { error: wasmError() };
+  return { wgsl: new TextDecoder().decode(new Uint8Array(memory.buffer, out, n)) };
+}
+// the reference, interpreted on this machine by the checker's own interpreter
+function interpret(spec, inputs, scalars, n) {
+  E.stz_reset();
+  const sp = putBytes(enc.encode(spec));
+  if (E.stz_gpu_spec_compile(sp, enc.encode(spec).length) !== 0) throw new Error("the reference description is refused: " + wasmError());
+  const ptrs = inputs.map(v => putF32(v));
+  const insP = putU32(new Uint32Array(ptrs));
+  const lensP = putF64(new Float64Array(inputs.map(v => v.length)));
+  const scP = putF32(new Float32Array(scalars.length ? scalars : [0]));
+  const outP = E.stz_alloc(n * 4); const maskP = E.stz_alloc(n);
+  if (E.stz_gpu_spec_eval_masked(insP, inputs.length, lensP, scP, scalars.length, n, outP, maskP) !== 0) throw new Error("the interpreter could not evaluate the reference");
+  return { ref: new Float32Array(memory.buffer, outP, n).slice(), mask: new Uint8Array(memory.buffer, maskP, n).slice(), flops: E.stz_gpu_spec_eval_flops() };
+}
+
+let device = null;
+if (navigator.gpu) {
+  const adapter = await navigator.gpu.requestAdapter();
+  if (adapter) { device = await adapter.requestDevice(); const i = adapter.info || {}; el("where").textContent = `WebGPU: ${i.vendor || "?"} ${i.architecture || ""} ${i.device || ""}`.trim(); }
+}
+if (!device) el("where").textContent = "no WebGPU in this browser: the kernel cannot run here";
+
+async function runKernel(wgsl, inputs, scalars, n) {
+  const mk = (usage, size) => device.createBuffer({ size, usage });
+  const module = device.createShaderModule({ code: wgsl });
+  const pipeline = device.createComputePipeline({ layout: "auto", compute: { module, entryPoint: "main" } });
+  const tile = mk(GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST, 16);
+  const params = mk(GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST, 64);
+  device.queue.writeBuffer(tile, 0, new Uint32Array([0, 0, 0, 0]));
+  const pbuf = new ArrayBuffer(64);
+  new Uint32Array(pbuf, 0, 2).set([n, 0]);
+  if (scalars.length) new Float32Array(pbuf, 8, scalars.length).set(scalars);
+  device.queue.writeBuffer(params, 0, pbuf);
+  const entries = [{ binding: 0, resource: { buffer: tile } }, { binding: 1, resource: { buffer: params } }];
+  let b = 2;
+  for (const v of inputs) { const buf = mk(GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST, v.length * 4); device.queue.writeBuffer(buf, 0, v); entries.push({ binding: b++, resource: { buffer: buf } }); }
+  const total = n + MARGIN;
+  const out = mk(GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST | GPUBufferUsage.COPY_SRC, total * 4);
+  device.queue.writeBuffer(out, 0, new Float32Array(total).fill(NaN)); // the region AND the margin, NaN before the kernel runs
+  entries.push({ binding: b, resource: { buffer: out } });
+  const stage = mk(GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST, total * 4);
+  let bind;
+  device.pushErrorScope("validation");
+  bind = device.createBindGroup({ layout: pipeline.getBindGroupLayout(0), entries });
+  const err = await device.popErrorScope();
+  if (err) throw new Error("the kernel cannot be bound: " + err.message);
+  const encdr = device.createCommandEncoder();
+  const pass = encdr.beginComputePass();
+  pass.setPipeline(pipeline); pass.setBindGroup(0, bind); pass.dispatchWorkgroups(Math.ceil(n / 256)); pass.end();
+  encdr.copyBufferToBuffer(out, 0, stage, 0, total * 4);
+  const t0 = performance.now();
+  device.queue.submit([encdr.finish()]);
+  await device.queue.onSubmittedWorkDone();
+  const ms = performance.now() - t0;
+  await stage.mapAsync(GPUMapMode.READ);
+  const got = new Float32Array(stage.getMappedRange()).slice();
+  stage.unmap();
+  return { got, ms };
+}
+
+// the verdict words are the desktop face's, letter for letter
+function judge(got, ref, mask, n, suffix) {
+  for (let k = n; k < n + MARGIN; k++) if (!Number.isNaN(got[k])) return `write-outside at element ${k + 1}`;
+  for (let i = 0; i < n; i++) {
+    if (mask[i] === 0) { if (!Number.isNaN(got[i])) return `mismatch${suffix} at element ${i + 1}`; continue; }
+    const d = Math.abs(got[i] - ref[i]);
+    if (!(d <= 1e-6)) return `mismatch${suffix} at element ${i + 1}`;
+  }
+  return null;
+}
+
+let puzzle;
+async function load() {
+  const fs = facts(await text(exDir + "exercise.zknw"));
+  puzzle = {
+    facts: fs, reference: await text(exDir + "reference.txt"), starter: await text(exDir + "starter.txt").catch(() => ""),
+    n: parseInt(fact(fs, "elements") || "4096", 10),
+  };
+  let task = "";
+  try { task = await text(exDir + `task.${lang}.md`); } catch { task = await text(exDir + "task.en.md"); }
+  el("task").textContent = task;
+  el("title").textContent = `Kernel puzzles · ${id}`;
+  el("spec").value = puzzle.starter;
+}
+function dataFor(spec, n) {
+  const inputs = [], scalars = [];
+  for (const name of specLines(spec, "in")) {
+    const r = fact(puzzle.facts, "input-" + name);
+    if (!r) throw new Error(`the puzzle binds no input '${name}'`);
+    const lenS = fact(puzzle.facts, "input-length-" + name);
+    inputs.push(recipe(r, lenS ? parseInt(lenS, 10) : n));
+  }
+  for (const name of specLines(spec, "scalar")) {
+    const v = fact(puzzle.facts, "scalar-" + name);
+    if (v === "") throw new Error(`the puzzle binds no scalar '${name}'`);
+    scalars.push(parseFloat(v));
+  }
+  return { inputs, scalars };
+}
+async function grade(learner) {
+  const refSpec = puzzle.reference;
+  const t = learner.replace(/\r/g, "").trim();
+  if (t === "" || t === puzzle.starter.replace(/\r/g, "").trim() || !specLines(learner, "body").length) return { verdict: "waiting for your implementation", cls: "wait" };
+  // the learner's inputs and scalars must be the task's, in the task's order: one params block serves both sides
+  const refIns = specLines(refSpec, "in"), refSc = specLines(refSpec, "scalar");
+  const lIns = specLines(learner, "in"), lSc = specLines(learner, "scalar");
+  if (lIns.join(",") !== refIns.join(",") || lSc.join(",") !== refSc.join(","))
+    return { verdict: `refused: your inputs ${ringList(lIns)} and scalars ${ringList(lSc)} are not the task's ${ringList(refIns)} and ${ringList(refSc)} in the task's order`, cls: "bad" };
+  const tr = transpile(learner);
+  if (tr.error) return { verdict: "refused: " + tr.error, cls: "bad" };
+  el("wgsl").textContent = tr.wgsl;
+  const n = puzzle.n;
+  const { inputs, scalars } = dataFor(refSpec, n);
+  const nB = hiddenCount(n);
+  const hidden = inputs.map(v => hiddenInput(v, n, nB));
+  const refA = interpret(refSpec, inputs, scalars, n);
+  const refB = interpret(refSpec, hidden, scalars, nB);
+  if (!device) {
+    // no WebGPU: the interpreter grades the learner's text too (values only; the margin needs a device)
+    const candA = interpret(learner, inputs, scalars, n), candB = interpret(learner, hidden, scalars, nB);
+    const vA = judgeCpu(candA, refA, n, ""); if (vA) return { verdict: vA, cls: "bad" };
+    const vB = judgeCpu(candB, refB, nB, "-hidden"); if (vB) return { verdict: vB, cls: "bad" };
+    return { verdict: "verified", cls: "ok", note: "interpreter only (no WebGPU): values at both shapes; the margin needs a device" };
+  }
+  const a = await runKernel(tr.wgsl, inputs, scalars, n);
+  const vA = judge(a.got, refA.ref, refA.mask, n, ""); if (vA) return { verdict: vA, cls: "bad", ms: a.ms };
+  const b = await runKernel(tr.wgsl, hidden, scalars, nB);
+  const vB = judge(b.got, refB.ref, refB.mask, nB, "-hidden"); if (vB) return { verdict: vB, cls: "bad", ms: a.ms };
+  return { verdict: "verified", cls: "ok", ms: a.ms, flops: refA.flops };
+}
+function judgeCpu(cand, ref, n, suffix) {
+  for (let i = 0; i < n; i++) {
+    const rn = Number.isNaN(ref.ref[i]), cn = Number.isNaN(cand.ref[i]);
+    if (rn && cn) continue;
+    if (rn || cn || Math.abs(ref.ref[i] - cand.ref[i]) > 1e-6) return `mismatch${suffix} at element ${i + 1}`;
+  }
+  return null;
+}
+el("run").addEventListener("click", async () => {
+  el("verdict").textContent = "running..."; el("verdict").className = "wait"; el("timing").textContent = "";
+  try {
+    const r = await grade(el("spec").value);
+    el("verdict").textContent = r.verdict; el("verdict").className = r.cls;
+    el("timing").textContent = (r.ms !== undefined ? `kernel ${r.ms.toFixed(2)} ms on the device` : "") + (r.flops ? `, ${r.flops} operations in the reference` : "") + (r.note ? ` -- ${r.note}` : "");
+  } catch (e) { el("verdict").textContent = "error: " + e.message; el("verdict").className = "bad"; }
+});
+await load();
+</script>

@@ -111,26 +111,23 @@ cd libraries/stzlib/engine && zig build -j2
 cd libraries/stzlib/engine && zig build -Ddomains=stz_gpu -j2
 ```
 
-The GPU plane's checker, 36 assertions in one process, needs a device; its compute ceiling
-(GK3) reads against a peak the engine measures on the adapter. The user kernel's own
-reference (GK6: a description interpreted on the CPU, a NaN margin, a shape assert) is the
-second guard, 34 assertions, and runs under Ring++ as every guard does now:
+The GPU plane, four guards in one folder, each needing a device: the checker with its compute
+ceiling (GK3, 36), the user kernel's own reference (GK6, 34), the grammar's admissions (KP0, 43)
+and the kernel puzzles (KP1, 30: the course `libraries/stzlib/base/education/program/courses/kernel-puzzles`,
+graded by `libraries/stzlib/base/gpu/stzKernelPuzzle.ring` on the desktop and by
+`libraries/stzlib/base/education/program/courses/kernel-puzzles/runner/puzzle.html` in a browser
+with WebGPU, the course folder served over http). The standalone probe `libraries/stzlib/engine/src/gpu_peak_probe.zig`
+prints every adapter's peak with its spread (build it with `zig build-exe`, run it with
+`libraries/stzlib/engine/vendor/wgpu/lib/wgpu_native.dll` as its one argument), and the edge proof
+`libraries/stzlib/base/test/gpu/edge_proof/edge_proof.html` runs five kernels in a browser
+byte-identical to the native engine (fixture from `libraries/stzlib/base/test/gpu/edge_proof/gen_fixture.ring`):
 
 ```bash
-cd libraries/stzlib/base/test/gpu && ring gpu_verify_narrated.ring
+cd libraries/stzlib/base/test/gpu && ring gpu_verify_narrated.ring && ring gpu_spec_reference_narrated.ring
 ```
 
 ```bash
-cd libraries/stzlib/base/test/gpu && ring gpu_spec_reference_narrated.ring
-```
-
-The grammar's admissions (KP0: the index, the learner's guard, the stencil, the sum), 43
-assertions; the edge proof whose five kernels a browser runs byte-identical to the native
-engine is `libraries/stzlib/base/test/gpu/edge_proof/edge_proof.html`, fed by
-`libraries/stzlib/base/test/gpu/edge_proof/gen_fixture.ring` and served over http:
-
-```bash
-cd libraries/stzlib/base/test/gpu && ring gpu_grammar_narrated.ring
+cd libraries/stzlib/base/test/gpu && ring gpu_grammar_narrated.ring && ring gpu_puzzle_narrated.ring
 ```
 
 The standalone probe beside it prints every adapter's peak with its spread, A B A B against

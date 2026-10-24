@@ -322,6 +322,17 @@ pub fn stz_gpu_wgsl_elementwise(spec: [*]const u8, spec_len: f64, out: [*]u8, ca
     put(&w, "@compute @workgroup_size(256)\n");
     put(&w, "fn main(@builtin(global_invocation_id) gid : vec3<u32>) {\n");
     put(&w, "  let i = gid.x + tile.xoff * 256u;\n");
+    // KP1: an input the body never reads (the cheat `@c = @i * 2`, which reads no
+    // @a) would be dropped from the auto layout, and this layer's bind group
+    // then carries an entry the layout lacks -- GK6's crash, on an INPUT this
+    // time. A phony use keeps every declared input bound; a kernel that reads
+    // all its inputs is emitted exactly as before.
+    for (0..n_ins) |s| {
+        if (rw.used_in[s]) continue;
+        put(&w, "  _ = arrayLength(&v_");
+        put(&w, ins[s].slice());
+        put(&w, ");\n");
+    }
     if (guard_kind == .default and prelude.len == 0) {
         // the form every kernel had before KP0, byte for byte
         put(&w, "  if (i < p.n) { v_");
@@ -376,6 +387,7 @@ const Rewriter = struct {
     loopvar: ?Name = null,
     compare: bool = false,
     used_rd: [MAX_VECS]bool = @splat(false),
+    used_in: [MAX_VECS]bool = @splat(false), // KP1: an input the body never reads must still be BOUND
 
     fn matching(text: []const u8, open_at: usize) ?usize {
         var depth: usize = 0;
@@ -411,6 +423,7 @@ const Rewriter = struct {
                         return fail("the output '@{s}' cannot be read", .{nm.slice()});
                     return fail("undeclared vector '@{s}'", .{nm.slice()});
                 };
+                self.used_in[idx] = true;
                 // a neighbour read?
                 var k = j;
                 while (k < rhs.len and (rhs[k] == ' ' or rhs[k] == '\t')) : (k += 1) {}
@@ -1324,6 +1337,17 @@ test "KP0: the four admissions, in the WGSL and in the interpreter, and p is alw
     n = stz_gpu_wgsl_elementwise(s0.ptr, @floatFromInt(s0.len), &buf, buf.len);
     try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "  if (i < p.n) { v_c[i] = v_a[i] * 2; }\n}\n") != null);
     try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "_ = p.n;") == null);
+}
+
+test "KP1: an input the body never reads stays bound, and a read one is emitted as before" {
+    var buf: [8192]u8 = undefined;
+    const cheat = "in a\nout c\nbody { @c = @i * 2 }";
+    var n = stz_gpu_wgsl_elementwise(cheat.ptr, @floatFromInt(cheat.len), &buf, buf.len);
+    try std.testing.expect(n > 0);
+    try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "  _ = arrayLength(&v_a);\n") != null);
+    const reads = "in a\nout c\nbody { @c = @a * 2 }";
+    n = stz_gpu_wgsl_elementwise(reads.ptr, @floatFromInt(reads.len), &buf, buf.len);
+    try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "arrayLength") == null);
 }
 
 test "KP0: the refusals name the offender, and the two readers agree on them" {

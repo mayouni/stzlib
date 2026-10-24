@@ -67,3 +67,6 @@ WHATS-NEXT.md
 
 # Testoor: tours planted by base/test/testoor guards (written and removed by the guard)
 **/test/testoor/_planted*/
+
+# KP1: the browser runner loads the wasm built by `zig build wasm`; generated, never tracked
+libraries/stzlib/base/education/program/courses/kernel-puzzles/runner/stz.wasm

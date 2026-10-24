@@ -221,6 +221,10 @@ class stzKernelMaker from stzObject
 		next
 		return NULL
 
+	# Returns the body text as given to ForEachElement, or an empty text when none was given yet.
+	def Body()
+		return @cBody
+
 	def InputNames()
 		return @aIns
 

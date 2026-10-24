@@ -1,0 +1,14 @@
+knowledge "kernel-puzzles"
+
+facts
+    kernel-puzzles | is-a | course
+    kernel-puzzles | teaches | computational-thinking-on-a-gpu
+    kernel-puzzles | runs-on | the-desktop-through-the-face
+    kernel-puzzles | runs-on | a-browser-page-on-webgpu
+    kernel-puzzles | graded-by | the-checker-against-the-reference-description
+
+    kernel-puzzles | has-chapter-01 | the-elementwise-kernel
+    the-elementwise-kernel | is-a | chapter
+    the-elementwise-kernel | has-exercise | kp-01
+
+    kernel-puzzles | has-exercise | kp-01
