@@ -540,6 +540,17 @@ Scenario("A top-aligned cell's second line joins its row")
 	Then("a two-line company name is one cell", aT[2][1], "Impresa Edile Ventaglio S.r.l.")
 EndScenario()
 
+# ---- the twentieth round: list markers in many conventions (golden_v4, v20)
+
+Scenario("List markers in the conventions of many languages")
+	Then("a decimal pair", StzFindFirst("1.1 Dues are payable", "" + @@(StzPdfQ("_data/golden_v20/c01.pdf").ListItems())) > 0, 1)
+	Then("a number and a dash, set apart, not a table", StzFindFirst("1- Ticari fatura (2 sayfa)", "" + @@(StzPdfQ("_data/golden_v20/c18.pdf").ListItems())) > 0, 1)
+	Then("a full-width CJK marker", StzFindFirst("（1）平日朝7時台", "" + @@(StzPdfQ("_data/golden_v20/c06.pdf").ListItems())) > 0, 1)
+	Then("a Devanagari letter in brackets", StzFindFirst("(क) फ़ोटोयुक्त पासपोर्ट", "" + @@(StzPdfQ("_data/golden_v20/c16.pdf").ListItems())) > 0, 1)
+	aT = StzPdfQ("_data/golden_v4/g09.pdf").Tables()[1]
+	Then("a figure like 850.00 is a table cell, never a list marker", @@(aT[2]), @@([ "Rent", "850.00", "850.00", "850.00", "2,550.00" ]))
+EndScenario()
+
 Scenario("A file that is not a readable PDF is refused with the reason")
 	bRaised = 0
 	cWhy = ""
