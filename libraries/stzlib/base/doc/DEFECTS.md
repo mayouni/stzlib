@@ -62,8 +62,8 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 ## stzDate -- datetime/stzDate.ring (2)
 
-- `ToHuman` (line 1867): Returns today, tomorrow or yesterday for those days, a count of days for the next or last 7, else a long date. -- the future form starts with a capital (In 3 days) and the past form does not (3 days ago)
-- `ToRelative` (line 1901): Returns today, tomorrow or yesterday, a count of days or weeks within a month of today, else the date as dd/MM/yyyy.
+- `ToHuman` (line 1870): Returns today, tomorrow or yesterday for those days, a count of days for the next or last 7, else a long date.
+- `ToRelative` (line 1908): Returns today, tomorrow or yesterday, a count of days or weeks within a month of today, else the date as dd/MM/yyyy.
 
 ## stzZipFile -- file/stzZipFile.ring (2)
 

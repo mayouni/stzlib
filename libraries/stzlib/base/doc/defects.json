@@ -13,15 +13,15 @@
    "class": "stzDate",
    "file": "datetime/stzDate.ring",
    "method": "ToHuman",
-   "line": 1867,
+   "line": 1870,
    "symptom": "Returns today, tomorrow or yesterday for those days, a count of days for the next or last 7, else a long date.",
-   "cause": "the future form starts with a capital (In 3 days) and the past form does not (3 days ago)"
+   "cause": ""
   },
   {
    "class": "stzDate",
    "file": "datetime/stzDate.ring",
    "method": "ToRelative",
-   "line": 1901,
+   "line": 1908,
    "symptom": "Returns today, tomorrow or yesterday, a count of days or weeks within a month of today, else the date as dd/MM/yyyy.",
    "cause": ""
   },
