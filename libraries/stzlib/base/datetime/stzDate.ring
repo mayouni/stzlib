@@ -1858,11 +1858,14 @@ def LastWeekdayOfMonth()
 
     # Returns today, tomorrow or yesterday for those days, a count of days for the next or last 7, else a long date.
     #
-    #   returns    text such as tomorrow, In 3 days, 3 days ago or Monday, March 23rd, 2026
-    #   note       follows StzFreezeClock; English only; the long form has an ordinal day (1st, 2nd,
-    #              3rd, 4th)
-    #   warning    the future form starts with a capital (In 3 days) and the past form does not (3
-    #              days ago)
+    #   returns    text such as tomorrow, in 3 days, 3 days ago or Monday, March 23rd, 2026
+    #   note       follows StzFreezeClock; English only. Every form that starts with a word is
+    #              lower case (today, tomorrow, yesterday, in 3 days) so that it reads inside a
+    #              sentence, and the past form starts with its number (3 days ago); only the long
+    #              form is capitalised, because it begins with a day name. 2 to 7 days away is
+    #              counted in days (the singular never shows: 1 day is tomorrow or yesterday), 8
+    #              days or more away is the long form, whose day has an ordinal (1st, 2nd, 3rd,
+    #              4th, 11th, 21st)
     #   see        ToRelative, ToLong
     def ToHuman()
 	    _oToday_ = new stzDate("")
