@@ -20,6 +20,11 @@
 #     its checker around, and the one this plane did not have
 #   - the ROOFLINE: the judge refuses a physically impossible time and
 #     accepts a plausible one, over floors it measured (>0)
+#   - the COMPUTE CEILING (GK3): the peak was MEASURED; reg4's work claimed
+#     in a time implying twice the peak is refused by compute, the same work
+#     at its real speed passes, and an undeclared kernel is judged by the bus
+#     alone; a peak PINNED low refuses what the measured one accepted (the
+#     fixture that FAILED before GK3: no ceiling existed to refuse it)
 #   - the second clock, when present, reads GPU time INSIDE the wall time;
 #     absent, ONE clock is recorded, never a failure
 #   - without a device, Verify refuses by name
@@ -139,6 +144,44 @@ else
 	chk("32 KB in 5 ms is possible", oG.VerifyJudge(32768, 5) = "verified")
 	chk("the reference's own measured time is possible (the negative sibling of the refusal)",
 		oG.VerifyJudge(nN * 4 * 2, aR[:refms] + 1) = "verified")
+
+	? ""
+	? "-- Scene 5b: the COMPUTE CEILING (GK3) -- the judge refuses what the ALU cannot have done --"
+	nPeak = aF[:peakgflops]
+	? "  measured compute peak: " + nPeak + " GFLOP/s (burst, dense fma kernel; " + aF[:peakwarm] + " dispatches of compute warm-up, then warm-min of 5)"
+	chk("the compute peak was MEASURED, not quoted (> 0)", nPeak > 0)
+	chk("...and is the same number PeakGFlops() answers", oG.PeakGFlops() = nPeak)
+	# a HUNDRED of reg4's dispatches at the backbone's widest shape, 512 x 384 x 1536:
+	# 60.4 GFLOP, ~8 ms at the peak. One dispatch's 604 MFLOP would take 0.08 ms,
+	# which is under this device's submit floor -- the bus would refuse it first and
+	# the compute ceiling would never be the one speaking; a hundred puts the
+	# compute floor alone in play (the bytes stay one dispatch's)
+	nFlops = 2 * 512 * 384 * 1536 * 100
+	nBytes = (512 * 384 + 384 * 1536 + 512 * 1536) * 4
+	nMsAtPeak = nFlops / (nPeak * 1000000000) * 1000
+	? "  60.4 GFLOP at the peak would take " + nMsAtPeak + " ms (bus floors: " + aF[:submitfloorms] + " ms submit)"
+	# (the refusal is confirmed against a peak re-measured in the same second, so a
+	#  2x claim stays impossible unless the device doubles its speed meanwhile)
+	chk("reg4's work claimed in HALF the time the peak allows is IMPOSSIBLE by compute",
+		oG.VerifyJudgeFlops(nBytes, nFlops, nMsAtPeak / 2) = "impossible")
+	chk("the same work at a quarter of the peak (its real speed) is possible",
+		oG.VerifyJudgeFlops(nBytes, nFlops, nMsAtPeak * 4) = "verified")
+	chk("the same TIME with no FLOPs declared is judged by the bus alone and passes (the judge of before GK3)",
+		oG.VerifyJudge(nBytes, nMsAtPeak / 2) = "verified")
+	# the authority order: a peak PINNED in this process outranks the measurement
+	oG.PinPeakGFlops(nPeak / 8)
+	aF2 = oG.VerifyFloors()
+	? "  peak pinned to " + (nPeak / 8) + ": the judge now reads " + aF2[:peakgflops] + ", the measurement still " + aF2[:peakmeasuredgflops]
+	chk("an EXPLICIT pin outranks the measured peak at the judge", aF2[:peakgflops] = nPeak / 8)
+	# the refusal above re-measured the peak in the same second, and a re-measurement
+	# can only RAISE it (a warmer clock), never lower it
+	chk("...while the measurement itself is untouched by the pin (it can only have risen)", aF2[:peakmeasuredgflops] >= nPeak)
+	chk("...and the real quarter-of-peak time is now refused by it (the fixture that could not fail before GK3)",
+		oG.VerifyJudgeFlops(nBytes, nFlops, nMsAtPeak * 4) = "impossible")
+	oG.PinPeakGFlops(0)
+	chk("...unpinned, it passes again", oG.VerifyJudgeFlops(nBytes, nFlops, nMsAtPeak * 4) = "verified")
+	chk("the record holds the measured peak under peak_gflops (the latest, highest reading)",
+		StzEngineGpuCalibGet("peak_gflops") = aF2[:peakmeasuredgflops] and aF2[:peakmeasuredgflops] >= nPeak)
 
 	? ""
 	? "-- Scene 6: the device goes away; the checker refuses by name --"

@@ -504,6 +504,9 @@ class stzGpu from stzObject
 			:clocks = StzEngineGpuVerifyResult(14),
 			:reps = StzEngineGpuVerifyResult(15),
 			:jitterms = StzEngineGpuVerifyResult(16),
+			:peakgflops = StzEngineGpuVerifyResult(17),
+			:flops = StzEngineGpuVerifyResult(18),
+			:minmscompute = StzEngineGpuVerifyResult(19),
 			:hiddensize = _nB_
 		]
 
@@ -536,10 +539,61 @@ class stzGpu from stzObject
 	def VerifyFloors()
 		This._RequireDevice()
 		StzEngineGpuVerifyJudge(1, 1)
+		# the RECORD: the measured floors go into the adapter's calibration file under
+		# peak_gflops and copy_gbs the next time any foundry verb saves (or RecordFloors()
+		# saves now). The engine never reads them back -- see gpu_verify.zig, GK3.
+		StzEngineGpuCalibSet("peak_gflops", StzEngineGpuVerifyPeakMeasuredGflops())
+		StzEngineGpuCalibSet("copy_gbs", StzEngineGpuVerifyResult(10))
 		return [
 			:floorgbs = StzEngineGpuVerifyResult(10),
-			:submitfloorms = StzEngineGpuVerifyResult(11)
+			:submitfloorms = StzEngineGpuVerifyResult(11),
+			:peakgflops = StzEngineGpuVerifyResult(17),
+			:peakmeasuredgflops = StzEngineGpuVerifyPeakMeasuredGflops(),
+			:peakwarm = StzEngineGpuVerifyResult(20)
 		]
+
+	# Measures the floors and writes them into this adapter's calibration file at once, so the plan's tables can cite a dated number per adapter.
+	#
+	#   returns    the floors hashlist VerifyFloors returns
+	#   see        VerifyFloors
+	def RecordFloors()
+		_aF_ = This.VerifyFloors()
+		StzGpuSaveCalibration(This._AllCalibOps())
+		return _aF_
+
+	# Pins the compute peak the judge reads against, in GFLOP/s, for this process; 0 removes the pin.
+	#
+	#   nGflops    the peak to judge against; 0 = back to the measured one
+	#   returns    the object itself
+	#   note       a guard's tool: a peak pinned LOW refuses a time the measured peak accepted,
+	#              which is how the compute ceiling's refusal is shown to work
+	#   see        PeakGFlops, VerifyJudgeFlops
+	def PinPeakGFlops(nGflops)
+		StzEngineGpuVerifyPeakSet(nGflops)
+		return This
+
+	# Judges whether a dispatch touching nBytes and doing nFlops could finish in nMs on this device, against the measured floors AND the measured compute peak.
+	#
+	#   nBytes     the bytes the dispatch touches
+	#   nFlops     the floating-point operations it does (2 per fused multiply-add)
+	#   nMs        the time it claims, in milliseconds
+	#   returns    a text among verified and impossible (error without a device)
+	#   note       GK3: the compute ceiling is the burst peak the engine measured on this adapter
+	#              (VerifyFloors()[:peakgflops]) times an allowance of 1.15; a claim above it is
+	#              impossible by name, whatever the bytes
+	#   warning    raises an error when no GPU device is available on the machine
+	#   see        VerifyJudge, VerifyFloors
+	def VerifyJudgeFlops(nBytes, nFlops, nMs)
+		This._RequireDevice()
+		return This._VerdictName(StzEngineGpuVerifyJudgeFlops(nBytes, nFlops, nMs))
+
+	# Returns the compute peak of the current adapter in GFLOP/s, measured once per device by a dense fused-multiply-add kernel (or pinned explicitly in this process, or read from the adapter's calibration file).
+	#
+	#   returns    a number, GFLOP/s; 0 without a device
+	#   note       GK3 (2026-10-24): RTX 3050 6GB Laptop 8,364 burst; Intel Graphics (Core 5 210H) 972
+	#   see        VerifyFloors, VerifyJudgeFlops
+	def PeakGFlops()
+		return StzEngineGpuVerifyPeakGflops()
 
 	def _VerdictName(nV)
 		switch nV
@@ -839,7 +893,7 @@ class stzGpu from stzObject
 		_nCount_ = StzEngineGpuFoundryResult(0)
 		_aV_ = []
 		for _v_ = 1 to _nCount_
-			_nB_ = 8 + _v_ * 5
+			_nB_ = 10 + _v_ * 5
 			_aV_ + [ StzEngineGpuVariantName(_v_), StzEngineGpuFoundryResult(_nB_),
 			         StzEngineGpuFoundryResult(_nB_ + 1), StzEngineGpuFoundryResult(_nB_ + 2),
 			         StzEngineGpuFoundryResult(_nB_ + 3), StzEngineGpuFoundryResult(_nB_ + 4) ]
@@ -856,6 +910,11 @@ class stzGpu from stzObject
 			:clocks = StzEngineGpuFoundryResult(5),
 			:refgpums = StzEngineGpuFoundryResult(1),
 			:refwallms = StzEngineGpuFoundryResult(2),
+			:flops = StzEngineGpuFoundryResult(7),
+			:bytes = StzEngineGpuFoundryResult(8),
+			:peakgflops = StzEngineGpuFoundryResult(9),
+			:fractions = This._FoundryFractions(_aV_, StzEngineGpuFoundryResult(1), StzEngineGpuFoundryResult(2),
+				StzEngineGpuFoundryResult(7), StzEngineGpuFoundryResult(8), StzEngineGpuFoundryResult(9)),
 			:variants = _aV_,
 			:winner = StzEngineGpuVariantName(_nW_),
 			:ratio = StzEngineGpuFoundryResult(4),
@@ -957,7 +1016,7 @@ class stzGpu from stzObject
 		_nCount_ = StzEngineGpuFoundryResult(0)
 		_aV_ = []
 		for _v_ = 1 to _nCount_
-			_nB_ = 8 + _v_ * 5
+			_nB_ = 10 + _v_ * 5
 			_aV_ + [ StzEngineGpuMmVariantName(_v_), StzEngineGpuFoundryResult(_nB_),
 			         StzEngineGpuFoundryResult(_nB_ + 1), StzEngineGpuFoundryResult(_nB_ + 2),
 			         StzEngineGpuFoundryResult(_nB_ + 3), StzEngineGpuFoundryResult(_nB_ + 4) ]
@@ -974,6 +1033,11 @@ class stzGpu from stzObject
 			:clocks = StzEngineGpuFoundryResult(5),
 			:refgpums = StzEngineGpuFoundryResult(1),
 			:refwallms = StzEngineGpuFoundryResult(2),
+			:flops = StzEngineGpuFoundryResult(7),
+			:bytes = StzEngineGpuFoundryResult(8),
+			:peakgflops = StzEngineGpuFoundryResult(9),
+			:fractions = This._FoundryFractions(_aV_, StzEngineGpuFoundryResult(1), StzEngineGpuFoundryResult(2),
+				StzEngineGpuFoundryResult(7), StzEngineGpuFoundryResult(8), StzEngineGpuFoundryResult(9)),
 			:variants = _aV_,
 			:winner = StzEngineGpuMmVariantName(_nW_),
 			:ratio = StzEngineGpuFoundryResult(4),
@@ -1042,8 +1106,41 @@ class stzGpu from stzObject
 
 	# every op the calibration file currently knows, so a save from one foundry
 	# never drops another's rows (the writer keeps only the ops it is given)
+	# GK3: for the generic and every verified variant, the fraction of the measured compute peak and of the measured copy bandwidth its time reached (GPU clock where there is one, wall otherwise). A row is [ name, gpu_ms, fraction_of_peak, fraction_of_bandwidth ].
+	def _FoundryFractions(paVariants, nRefGpuMs, nRefWallMs, nFlops, nBytes, nPeakGflops)
+		_aRows_ = []
+		_nCopyGbs_ = StzEngineGpuVerifyResult(10)
+		_nRef_ = nRefGpuMs
+		if _nRef_ <= 0
+			_nRef_ = nRefWallMs
+		ok
+		_aRows_ + This._FractionRow("generic", _nRef_, nFlops, nBytes, nPeakGflops, _nCopyGbs_)
+		_n_ = len(paVariants)
+		for _i_ = 1 to _n_
+			_v_ = paVariants[_i_]
+			if _v_[2] = 1
+				_nMs_ = _v_[3]
+				if _nMs_ <= 0
+					_nMs_ = _v_[4]
+				ok
+				_aRows_ + This._FractionRow(_v_[1], _nMs_, nFlops, nBytes, nPeakGflops, _nCopyGbs_)
+			ok
+		next
+		return _aRows_
+
+	def _FractionRow(cName, nMs, nFlops, nBytes, nPeakGflops, nCopyGbs)
+		_nPeak_ = 0
+		_nBw_ = 0
+		if nMs > 0 and nPeakGflops > 0
+			_nPeak_ = (nFlops / (nMs / 1000)) / (nPeakGflops * 1000000000)
+		ok
+		if nMs > 0 and nCopyGbs > 0
+			_nBw_ = (nBytes / (nMs / 1000)) / (nCopyGbs * 1000000000)
+		ok
+		return [ cName, nMs, _nPeak_, _nBw_ ]
+
 	def _AllCalibOps()
-		_aOps_ = [ "pairdist" ]
+		_aOps_ = [ "pairdist", "peak_gflops", "copy_gbs" ]
 		_aAll_ = StzGpuVariants()
 		_n_ = len(_aAll_)
 		for _i_ = 1 to _n_

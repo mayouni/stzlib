@@ -61,6 +61,12 @@ else
 	StzEngineGpuVariantClear()
 	aR = oG.FoundryPairdistWith(1, 4096, 384, 5)
 	? "  generic: " + aR[:refgpums] + " ms GPU clock, " + aR[:refwallms] + " ms wall   clocks " + aR[:clocks] + "   hidden n " + aR[:hiddenn]
+	# GK3: the same cells as fractions of what the device CAN do (peak, copy bandwidth)
+	cFr = "  of peak " + aR[:peakgflops] + " GFLOP/s:"
+	for f in aR[:fractions]
+		cFr += " " + f[1] + " " + (floor(f[3] * 1000) / 10) + "% / " + (floor(f[4] * 1000) / 10) + "% bw"
+	next
+	? cFr
 	nV = len(aR[:variants])
 	bAllVerified = TRUE
 	for i = 1 to nV

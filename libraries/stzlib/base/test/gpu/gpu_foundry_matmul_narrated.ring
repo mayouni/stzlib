@@ -65,6 +65,12 @@ else
 		next
 		cRow += " | winner " + aR[:winner] + " " + aR[:ratio] + "x"
 		? cRow
+		# GK3: the same cells as fractions of what the device CAN do (peak, copy bandwidth)
+		cFr = "      of peak " + aR[:peakgflops] + " GFLOP/s:"
+		for f in aR[:fractions]
+			cFr += " " + f[1] + " " + (floor(f[3] * 1000) / 10) + "% / " + (floor(f[4] * 1000) / 10) + "% bw"
+		next
+		? cFr
 		nCells++
 		if bAll nAllOk++ ok
 	next

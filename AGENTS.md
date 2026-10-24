@@ -100,10 +100,32 @@ start, **2** the runner refused. `--json` for a pipe, `--all` is a gate and not 
 cd libraries/stzlib/base/testoor && ring testoor.ring --topic uuid
 ```
 
-The engine, alone, capped at two jobs (about 25 minutes on this machine):
+The engine, alone, capped at two jobs (about 25 minutes on this machine); or ONE of its
+DLLs by name, which is what a change to one domain owes (about 4 minutes cold, 20 seconds warm):
 
 ```bash
 cd libraries/stzlib/engine && zig build -j2
+```
+
+```bash
+cd libraries/stzlib/engine && zig build -Ddomains=stz_gpu -j2
+```
+
+The GPU plane's checker, 36 assertions in one process, needs a device; its compute ceiling
+(GK3) reads against a peak the engine measures on the adapter:
+
+```bash
+cd libraries/stzlib/base/test/gpu && ring gpu_verify_narrated.ring
+```
+
+The standalone probe beside it prints every adapter's peak with its spread, A B A B against
+the copy kernel, on both clocks; build it with the line below, then run `gpu_peak_probe.exe`
+from the engine folder with the vendored runtime,
+`libraries/stzlib/engine/vendor/wgpu/lib/wgpu_native.dll`, as its one argument
+(`--ramp` shows the clock under sustained work):
+
+```bash
+cd libraries/stzlib/engine && zig build-exe -j2 src/gpu_peak_probe.zig -I vendor/wgpu/include -lc -O ReleaseFast
 ```
 
 This door's own guard, which needs no engine and runs in a fresh checkout:

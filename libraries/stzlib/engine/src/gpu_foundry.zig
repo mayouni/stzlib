@@ -29,7 +29,10 @@ pub const F_WINNER = 3; // variant index, 0 = the generic stays
 pub const F_WINNER_RATIO = 4; // generic / winner on the GPU clock (wall if one clock)
 pub const F_CLOCKS = 5;
 pub const F_HIDDEN_N = 6;
-pub const F_BASE = 8; // per variant v: F_BASE + v*5 + {0 verified, 1 gpu_ms, 2 wall_ms, 3 ratio_gpu, 4 ratio_wall}
+pub const F_FLOPS = 7; // GK3: the op's FLOPs at the visible shape (2mkn for matmul, 3mnd for pairdist)
+pub const F_BYTES = 8; // GK3: the bytes the visible shape's buffers hold
+pub const F_PEAK_GFLOPS = 9; // GK3: the compute peak the checker judged against
+pub const F_BASE = 10; // per variant v: F_BASE + v*5 + {0 verified, 1 gpu_ms, 2 wall_ms, 3 ratio_gpu, 4 ratio_wall}
 pub const F_STRIDE = 5;
 pub const F_SLOTS = F_BASE + (if (ops.PD_VARIANTS > ops.MM_VARIANTS) ops.PD_VARIANTS else ops.MM_VARIANTS) * F_STRIDE;
 var result: [F_SLOTS]f64 = @splat(0);
@@ -124,6 +127,13 @@ pub fn stz_gpu_foundry_pairdist(mf: f64, nf: f64, df: f64, reps: f64, maskf: f64
     // the band: f32 accumulation order differs between a 16-chunk tile and a
     // straight row loop; distances scale with d, so the band does too
     const band: f64 = 1e-4 * @as(f64, @floatFromInt(d));
+    // GK3: the work, so the checker's compute ceiling applies and the table
+    // can say what fraction of the peak each variant reached. Squared L2 per
+    // (row, row, dim) is a subtract and a fused multiply-add: 3 FLOP.
+    const flops_a: f64 = 3.0 * @as(f64, @floatFromInt(m * n * d));
+    const flops_b: f64 = 3.0 * @as(f64, @floatFromInt(m * n2 * d));
+    result[F_FLOPS] = flops_a;
+    result[F_BYTES] = @floatFromInt((m * d + n * d + m * n) * 4);
 
     var best_v: usize = 0;
     var best_ratio: f64 = 1.0;
@@ -142,6 +152,7 @@ pub fn stz_gpu_foundry_pairdist(mf: f64, nf: f64, df: f64, reps: f64, maskf: f64
         if (kv == 0) return gpu.GPU_ERROR;
         const gv_a = ops.pdGeometry(v, m, n);
         const gv_b = ops.pdGeometry(v, m, n2);
+        verify.stz_gpu_verify_declare_flops(flops_a, flops_b);
         const st = verify.stz_gpu_verify(
             kref,
             kv,
@@ -166,6 +177,7 @@ pub fn stz_gpu_foundry_pairdist(mf: f64, nf: f64, df: f64, reps: f64, maskf: f64
         const verdict: i32 = @intFromFloat(verify.stz_gpu_verify_result(verify.R_VERDICT));
         const clocks = verify.stz_gpu_verify_result(verify.R_CLOCKS);
         result[F_CLOCKS] = clocks;
+        result[F_PEAK_GFLOPS] = verify.stz_gpu_verify_result(verify.R_PEAK_GFLOPS);
         result[F_REF_WALL_MS] = verify.stz_gpu_verify_result(verify.R_REF_MS);
         result[F_REF_GPU_MS] = verify.stz_gpu_verify_result(verify.R_REF_GPU_MS);
         if (verdict != verify.V_VERIFIED) {
@@ -249,6 +261,11 @@ pub fn stz_gpu_foundry_matmul(mf: f64, kf: f64, nf: f64, reps: f64, maskf: f64) 
     // f32 sums of k products in [0, 1): the order is the same in every variant
     // (k ascending) but fused multiply-adds may differ; the band scales with k
     const band: f64 = 2e-5 * @as(f64, @floatFromInt(k));
+    // GK3: 2 FLOP per multiply-add, m*k*n of them
+    const flops_a: f64 = 2.0 * @as(f64, @floatFromInt(m * k * n));
+    const flops_b: f64 = 2.0 * @as(f64, @floatFromInt(m2 * k * n2));
+    result[F_FLOPS] = flops_a;
+    result[F_BYTES] = @floatFromInt((m * k + k * n + m * n) * 4);
 
     var best_v: usize = 0;
     var best_ratio: f64 = 1.0;
@@ -267,11 +284,13 @@ pub fn stz_gpu_foundry_matmul(mf: f64, kf: f64, nf: f64, reps: f64, maskf: f64) 
         if (kv == 0) return gpu.GPU_ERROR;
         const gv_a = ops.mmGeometry(v, m, n);
         const gv_b = ops.mmGeometry(v, m2, n2);
+        verify.stz_gpu_verify_declare_flops(flops_a, flops_b);
         const st = verify.stz_gpu_verify(kref, kv, ba.ptr, @floatFromInt(ba.len), &ids_a, 3, @floatFromInt(m * n), @floatFromInt(gref_a.wx), @floatFromInt(gv_a.wx), bb.ptr, @floatFromInt(bb.len), &ids_b, 3, @floatFromInt(m2 * n2), @floatFromInt(gref_b.wx), @floatFromInt(gv_b.wx), reps, band);
         if (st != gpu.OK) return st;
         const verdict: i32 = @intFromFloat(verify.stz_gpu_verify_result(verify.R_VERDICT));
         const clocks = verify.stz_gpu_verify_result(verify.R_CLOCKS);
         result[F_CLOCKS] = clocks;
+        result[F_PEAK_GFLOPS] = verify.stz_gpu_verify_result(verify.R_PEAK_GFLOPS);
         result[F_REF_WALL_MS] = verify.stz_gpu_verify_result(verify.R_REF_MS);
         result[F_REF_GPU_MS] = verify.stz_gpu_verify_result(verify.R_REF_GPU_MS);
         if (verdict != verify.V_VERIFIED) {

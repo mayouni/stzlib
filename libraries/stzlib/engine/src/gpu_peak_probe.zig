@@ -28,7 +28,7 @@
 //! the engine folder:
 //!
 //!     zig build-exe src/gpu_peak_probe.zig -I vendor/wgpu/include -lc -O ReleaseFast
-//!     ./gpu_peak_probe <absolute path to wgpu_native.dll> [--reps=7]
+//!     ./gpu_peak_probe <absolute path to wgpu_native.dll> [--reps=7] [--ramp]
 //!
 //! It walks every adapter the instance enumerates (the discrete card and the
 //! integrated one on this machine) and prints one block per adapter. ASCII
@@ -48,55 +48,18 @@ const ROUNDS = [_]u32{ 1024, 4096, 16384 }; // fma rounds per chain; iters = rou
 /// with the fmas for issue slots, so a denser body reads closer to the ALU.
 /// The peak is the best of them, and the memo names which.
 const Variant = struct { chains: usize, unroll: usize, src: []const u8 };
+// the last one is PEAK_WGSL itself -- the probe and the engine must agree
 const VARIANTS = [_]Variant{
     .{ .chains = 8, .unroll = 1, .src = fmaSource(8, 1) },
     .{ .chains = 8, .unroll = 4, .src = fmaSource(8, 4) },
     .{ .chains = 16, .unroll = 4, .src = fmaSource(16, 4) },
     .{ .chains = 16, .unroll = 8, .src = fmaSource(16, 8) },
-    .{ .chains = 16, .unroll = 16, .src = fmaSource(16, 16) },
     .{ .chains = 32, .unroll = 8, .src = fmaSource(32, 8) },
+    .{ .chains = verify.PEAK_CHAINS, .unroll = verify.PEAK_UNROLL, .src = verify.PEAK_WGSL },
 };
 
-const Params = extern struct { iters: u32, n: u32, m: f32, b: f32 };
-
-/// The FMA kernel for `chains` independent accumulators per thread. Built at
-/// comptime so every accumulator is a NAMED SCALAR -- the lesson GK2b paid
-/// for: an array indexed by a loop variable lands in local memory, not
-/// registers, and measures the memory, not the ALU.
-fn fmaSource(comptime chains: usize, comptime unroll: usize) []const u8 {
-    @setEvalBranchQuota(400000);
-    {
-        comptime var s: []const u8 =
-            \\struct StzTile { xoff : u32, p0 : u32, p1 : u32, p2 : u32 }
-            \\@group(0) @binding(0) var<uniform> tile : StzTile;
-            \\struct P { iters : u32, n : u32, m : f32, b : f32 }
-            \\@group(0) @binding(1) var<uniform> p : P;
-            \\@group(0) @binding(2) var<storage, read> a : array<f32>;
-            \\@group(0) @binding(3) var<storage, read_write> o : array<f32>;
-            \\@compute @workgroup_size(256)
-            \\fn main(@builtin(global_invocation_id) gid : vec3<u32>) {
-            \\  let i = gid.x + tile.xoff * 256u;
-            \\  if (i >= p.n) { return; }
-            \\  let s = a[i];
-            \\
-        ;
-        for (0..chains) |k| {
-            s = s ++ std.fmt.comptimePrint("  var x{d} = s + {d}.0 * 0.125;\n", .{ k, k });
-        }
-        s = s ++ "  for (var k = 0u; k < p.iters; k = k + 1u) {\n";
-        for (0..unroll) |_| {
-            for (0..chains) |k| {
-                s = s ++ std.fmt.comptimePrint("    x{d} = fma(x{d}, p.m, p.b);\n", .{ k, k });
-            }
-        }
-        s = s ++ "  }\n  o[i] = x0";
-        for (1..chains) |k| {
-            s = s ++ std.fmt.comptimePrint(" + x{d}", .{k});
-        }
-        s = s ++ ";\n}\n";
-        return s;
-    }
-}
+const Params = verify.PeakParams;
+const fmaSource = verify.fmaSource; // the checker's own builder; GK3 measures with its (16, 16)
 
 const Stat = struct {
     min: f64 = std.math.inf(f64),
@@ -145,9 +108,10 @@ fn runAdapter(idx: i32, reps: usize) !void {
         print("   floors: could not be measured (status {d}); adapter skipped\n", .{j});
         return;
     }
-    print("   checker floors: copy {d:.1} GB/s, smallest dispatch {d:.3} ms\n", .{
+    print("   checker floors: copy {d:.1} GB/s, smallest dispatch {d:.3} ms, PEAK {d:.1} GFLOP/s (the engine's own measurement, 5 reps)\n", .{
         verify.stz_gpu_verify_result(verify.R_FLOOR_GBS),
         verify.stz_gpu_verify_result(verify.R_SUBMIT_FLOOR_MS),
+        verify.stz_gpu_verify_result(verify.R_PEAK_GFLOPS),
     });
     const two = verify.ensureTs();
 
@@ -284,15 +248,81 @@ fn runAdapter(idx: i32, reps: usize) !void {
     print("   2 FLOP per fma; {d} threads; reps {d}; copy = 16 MB in + 16 MB out\n", .{ N_THREADS, reps });
 }
 
+/// --ramp: how the device's clock rises under sustained work, measured, so
+/// the settle rules in stz_gpu_wake and measurePeak are chosen from data.
+/// 400 back-to-back copies, then 300 back-to-back dense dispatches; the
+/// min of every window of 20 (copies) / 10 (dispatches) is printed.
+fn rampAdapter(idx: i32) !void {
+    var nbuf: [256]u8 = undefined;
+    print("\n== RAMP adapter {d}: {s}\n", .{ idx, adapterName(idx, &nbuf) });
+    const cbytes: f64 = @floatFromInt(verify.COPY_N * 4);
+    const ca = gpu.stz_gpu_buffer_new(cbytes);
+    const co = gpu.stz_gpu_buffer_new(cbytes);
+    const pbytes: f64 = @floatFromInt(verify.PEAK_THREADS * 4);
+    const pa = gpu.stz_gpu_buffer_new(pbytes);
+    const po = gpu.stz_gpu_buffer_new(pbytes);
+    if (ca == 0 or co == 0 or pa == 0 or po == 0) return;
+    defer _ = gpu.stz_gpu_buffer_free(ca);
+    defer _ = gpu.stz_gpu_buffer_free(co);
+    defer _ = gpu.stz_gpu_buffer_free(pa);
+    defer _ = gpu.stz_gpu_buffer_free(po);
+    const kcopy = gpu.stz_gpu_kernel_compile(verify.COPY_WGSL.ptr, @floatFromInt(verify.COPY_WGSL.len));
+    const kpeak = gpu.stz_gpu_kernel_compile(verify.PEAK_WGSL.ptr, @floatFromInt(verify.PEAK_WGSL.len));
+    if (kcopy == 0 or kpeak == 0) return;
+    const cids = [_]i64{ ca, co };
+    const pids = [_]i64{ pa, po };
+    const wx_c: f64 = @floatFromInt(verify.COPY_N / WG);
+    const wx_p: f64 = @floatFromInt(verify.PEAK_THREADS / WG);
+    const two = verify.ensureTs();
+
+    print("   copies, 32 MB each, min ms per window of 20 (GB/s):\n   ", .{});
+    var total = try std.time.Timer.start();
+    var w: usize = 0;
+    while (w < 20) : (w += 1) {
+        var best: f64 = std.math.inf(f64);
+        var k: usize = 0;
+        while (k < 20) : (k += 1) {
+            var t = try std.time.Timer.start();
+            if (gpu.stz_gpu_dispatch(kcopy, &cids, 2, wx_c, 1) != gpu.OK) return;
+            if (gpu.stz_gpu_sync() != gpu.OK) return;
+            const ms = @as(f64, @floatFromInt(t.read())) / 1e6;
+            if (ms < best) best = ms;
+        }
+        print(" {d:.2}({d:.0})", .{ best, gbs(2.0 * cbytes, best) });
+    }
+    print("\n   400 copies in {d:.0} ms\n", .{@as(f64, @floatFromInt(total.read())) / 1e6});
+
+    const prm = Params{ .iters = verify.PEAK_ROUNDS / @as(u32, @intCast(verify.PEAK_UNROLL)), .n = @intCast(verify.PEAK_THREADS), .m = 0.999, .b = 0.001 };
+    const pb = std.mem.asBytes(&prm);
+    print("   dense fma dispatches (1024 rounds), min {s} ms per window of 10 (GFLOP/s):\n   ", .{if (two) "gpu" else "wall"});
+    total = try std.time.Timer.start();
+    w = 0;
+    while (w < 30) : (w += 1) {
+        var best: f64 = std.math.inf(f64);
+        var k: usize = 0;
+        while (k < 10) : (k += 1) {
+            var gms: f64 = -1;
+            const wall = verify.timedDispatch(kpeak, pb, &pids, wx_p, two, &gms) orelse return;
+            const t = if (gms > 0) gms else wall;
+            if (t < best) best = t;
+        }
+        print(" {d:.2}({d:.0})", .{ best, gflops(verify.PEAK_FLOPS, best) });
+    }
+    print("\n   300 dispatches in {d:.0} ms\n", .{@as(f64, @floatFromInt(total.read())) / 1e6});
+}
+
 pub fn main() !void {
     const alloc = std.heap.c_allocator;
     const args = try std.process.argsAlloc(alloc);
     defer std.process.argsFree(alloc, args);
     var dll: []const u8 = "vendor/wgpu/lib/wgpu_native.dll";
     var reps: usize = 7;
+    var ramp = false;
     for (args[1..]) |a| {
         if (std.mem.startsWith(u8, a, "--reps=")) {
             reps = @min(32, try std.fmt.parseInt(usize, a["--reps=".len..], 10));
+        } else if (std.mem.eql(u8, a, "--ramp")) {
+            ramp = true;
         } else dll = a;
     }
     const dllz = try alloc.dupeZ(u8, dll);
@@ -314,7 +344,7 @@ pub fn main() !void {
             print("\n== adapter {d}: {s} -- no device ({s})\n", .{ i, adapterName(i, &nb), gpu.lastError() });
             continue;
         }
-        try runAdapter(i, reps);
+        if (ramp) try rampAdapter(i) else try runAdapter(i, reps);
     }
     gpu.stz_gpu_shutdown();
 }

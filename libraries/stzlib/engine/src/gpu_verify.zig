@@ -13,9 +13,25 @@
 //!   - TWO clocks where the adapter has them: the wall clock around
 //!     dispatch+sync, and GPU timestamp queries inside the pass. One clock is
 //!     a recorded limit, never a failure;
-//!   - a ROOFLINE measured on this device (bytes/s of a copy kernel, and the
-//!     cost of the smallest dispatch) refuses BY NAME any time that could not
-//!     have happened -- on the candidate AND on the reference.
+//!   - a ROOFLINE measured on this device (bytes/s of a copy kernel, the cost
+//!     of the smallest dispatch, and -- GK3, 2026-10-24 -- the FLOP/s of a
+//!     register-only fma kernel) refuses BY NAME any time that could not have
+//!     happened -- on the candidate AND on the reference. The compute ceiling
+//!     applies where the caller DECLARES the candidate's FLOPs (the foundry
+//!     does, for every op it enumerates); a kernel with no declared work is
+//!     judged by the bus alone, as before.
+//!
+//! GK3's three findings, each paid for on 2026-10-24 (gpu_peak_probe.zig):
+//!   - a peak kernel must be DENSE: 8 fma per loop round measured the loop
+//!     (2.7 TFLOP/s on the RTX 3050), 256 per round measured the ALU (8.4);
+//!   - a power-capped laptop part has TWO peaks, burst (4 ms dispatch) and
+//!     sustained (80 ms, 15% lower); a foundry candidate runs for
+//!     milliseconds, so the ceiling is the burst and PEAK_ALLOW covers the
+//!     8% run-to-run on it;
+//!   - Wake's old awake test (one 32 MB copy under 2 ms) was the 3050 ASLEEP
+//!     and the Intel iGPU never passed it: the floors were measured mid-ramp
+//!     at half the awake bandwidth. Wake now settles when the copy stops
+//!     IMPROVING, whatever the adapter's speed.
 //!
 //! The verdict is DATA in result slots; Ring only reads them.
 
@@ -48,6 +64,10 @@ pub const R_MIN_MS = 13; // the floor for THIS candidate
 pub const R_CLOCKS = 14; // 1 or 2
 pub const R_REPS = 15;
 pub const R_JITTER_MS = 16; // max - min of the reference's reps
+pub const R_PEAK_GFLOPS = 17; // GK3: the compute peak the judge used, GFLOP/s (0 = unmeasured)
+pub const R_FLOPS = 18; // GK3: the FLOPs the caller declared for the candidate (0 = none)
+pub const R_MIN_MS_COMPUTE = 19; // GK3: the compute-only floor for those FLOPs, ms
+pub const R_PEAK_WARM = 20; // GK3: dispatches of the peak kernel until its time stopped improving
 pub const RESULT_SLOTS = 24;
 
 var result: [RESULT_SLOTS]f64 = @splat(0);
@@ -61,8 +81,53 @@ pub fn stz_gpu_verify_result(idx: i32) callconv(.c) f64 {
 // Measured ONCE per device (reset when it closes), never quoted from a plan.
 var floor_bps: f64 = 0; // bytes per second, copy kernel, warm-min
 var submit_floor_ms: f64 = 0; // the smallest dispatch + sync, warm-min
+var peak_fps: f64 = 0; // GK3: FLOP/s of the dense fma kernel, warm-min, burst
+var peak_warm: usize = 0; // GK3: dispatches it took the peak kernel's time to stop improving
+var wake_best_ns: u64 = std.math.maxInt(u64); // GK3: the fastest 32 MB copy a Wake saw on THIS device
 var floors_ready = false;
 var hooked = false;
+
+/// GK3: the allowance over the stored burst peak before a time is refused by
+/// compute. Measured 2026-10-24 on the RTX 3050: the 4 ms burst moved 8%
+/// between two runs (8.02 vs 8.36 TFLOP/s) and sits 15% over the sustained
+/// figure; a ceiling too LOW refuses legitimate kernels, which is the worse
+/// failure, so the allowance covers the run-to-run and a little more.
+pub const PEAK_ALLOW: f64 = 1.15;
+/// The names under which the face RECORDS the peak and the copy floor in the
+/// adapter's calibration file, beside the ops' thresholds. A record, not an
+/// authority: the engine never reads them back. Found by the probe on
+/// 2026-10-24 when it was otherwise -- the flat store is keyed by name and is
+/// process-wide, so after a switch of adapter the RTX 3050 read the iGPU's
+/// 957 GFLOP/s and 20 GB/s as its own and would have refused everything above
+/// 1.1 TFLOP/s. The authority order here is EXPLICIT (a pin set in this
+/// process, stz_gpu_verify_peak_set) > MEASURED (this device, this process).
+pub const PEAK_NAME = "peak_gflops";
+pub const COPY_NAME = "copy_gbs";
+var peak_explicit_fps: f64 = 0; // a pin; 0 = none
+
+/// GK3: pin the compute peak (GFLOP/s) for this process -- a guard's way to
+/// make the ceiling refuse what the measured one accepted. 0 clears the pin.
+/// Takes effect at the next judgement; survives a device close.
+pub fn stz_gpu_verify_peak_set(gflops: f64) callconv(.c) void {
+    peak_explicit_fps = if (gflops > 0) gflops * 1e9 else 0;
+}
+
+/// The peak the judge reads against: the pin if there is one, else the measurement.
+fn effectivePeak() f64 {
+    return if (peak_explicit_fps > 0) peak_explicit_fps else peak_fps;
+}
+
+// the caller may DECLARE the FLOPs of the next verify's candidate at the
+// visible and the hidden shape; consumed by that call and reset
+var declared_flops_a: f64 = 0;
+var declared_flops_b: f64 = 0;
+
+/// GK3: declare the candidate's FLOPs for the NEXT stz_gpu_verify call, so
+/// its time is judged against the compute ceiling too. 0 = no declaration.
+pub fn stz_gpu_verify_declare_flops(visible: f64, hidden: f64) callconv(.c) void {
+    declared_flops_a = if (visible > 0) visible else 0;
+    declared_flops_b = if (hidden > 0) hidden else 0;
+}
 
 pub const COPY_N: usize = 4 * 1024 * 1024; // 16 MB in + 16 MB out per copy
 
@@ -86,10 +151,67 @@ pub const COPY_WGSL =
     \\}
 ;
 
+// ---------------------------------------------------------------- the peak kernel (GK3)
+// A register-only fma kernel: `chains` independent accumulators per thread
+// through p.iters rounds of fma(x, m, b) with m and b from the params uniform
+// (so nothing folds at compile time), the body unrolled `unroll` times so the
+// loop's counter, compare and branch are amortised over unroll*chains fmas.
+// Every accumulator is a NAMED SCALAR -- GK2b's lesson: an array indexed by a
+// loop variable lands in local memory and measures the memory, not the ALU.
+pub fn fmaSource(comptime chains: usize, comptime unroll: usize) []const u8 {
+    @setEvalBranchQuota(400000);
+    {
+        comptime var s: []const u8 =
+            \\struct StzTile { xoff : u32, p0 : u32, p1 : u32, p2 : u32 }
+            \\@group(0) @binding(0) var<uniform> tile : StzTile;
+            \\struct P { iters : u32, n : u32, m : f32, b : f32 }
+            \\@group(0) @binding(1) var<uniform> p : P;
+            \\@group(0) @binding(2) var<storage, read> a : array<f32>;
+            \\@group(0) @binding(3) var<storage, read_write> o : array<f32>;
+            \\@compute @workgroup_size(256)
+            \\fn main(@builtin(global_invocation_id) gid : vec3<u32>) {
+            \\  let i = gid.x + tile.xoff * 256u;
+            \\  if (i >= p.n) { return; }
+            \\  let s = a[i];
+            \\
+        ;
+        for (0..chains) |k| {
+            s = s ++ std.fmt.comptimePrint("  var x{d} = s + {d}.0 * 0.125;\n", .{ k, k });
+        }
+        s = s ++ "  for (var k = 0u; k < p.iters; k = k + 1u) {\n";
+        for (0..unroll) |_| {
+            for (0..chains) |k| {
+                s = s ++ std.fmt.comptimePrint("    x{d} = fma(x{d}, p.m, p.b);\n", .{ k, k });
+            }
+        }
+        s = s ++ "  }\n  o[i] = x0";
+        for (1..chains) |k| {
+            s = s ++ std.fmt.comptimePrint(" + x{d}", .{k});
+        }
+        s = s ++ ";\n}\n";
+        return s;
+    }
+}
+
+pub const PeakParams = extern struct { iters: u32, n: u32, m: f32, b: f32 };
+/// The densest variant the probe measured (16 chains, body x16: 256 fma per
+/// round) reached 97% of 2048 lanes x 2 x the 3050's 2.1 GHz max clock.
+pub const PEAK_CHAINS: usize = 16;
+pub const PEAK_UNROLL: usize = 16;
+pub const PEAK_WGSL = fmaSource(PEAK_CHAINS, PEAK_UNROLL);
+pub const PEAK_THREADS: usize = 4096 * 256; // 1,048,576: enough waves for any adapter here
+pub const PEAK_ROUNDS: u32 = 1024; // 4 ms on the 3050, ~35 ms on the iGPU: a BURST, on purpose
+pub const PEAK_FLOPS: f64 = @as(f64, @floatFromInt(PEAK_THREADS * PEAK_CHAINS * 2)) * @as(f64, @floatFromInt(PEAK_ROUNDS));
+
 fn onDeviceClose() void {
     floors_ready = false;
     floor_bps = 0;
     submit_floor_ms = 0;
+    peak_fps = 0;
+    peak_warm = 0;
+    wake_best_ns = std.math.maxInt(u64);
+    declared_flops_a = 0;
+    declared_flops_b = 0;
     releaseTs();
 }
 
@@ -133,29 +255,66 @@ pub fn stz_gpu_wake(budget_ms: f64) callconv(.c) i32 {
     defer _ = gpu.stz_gpu_buffer_free(dst);
     const ids = [_]i64{ src, dst };
     const wx: f64 = @floatFromInt(COPY_N / 256);
-    // ADAPTIVE: copy until a copy runs at full speed -- an asleep 3050 takes
-    // ~9 ms per 32 MB copy, awake ~0.4 ms; the flip happens mid-burst after
-    // ~250 ms of sustained work -- then settle for a few more, and stop.
-    // The budget is a CAP, not a duration: an awake device is recognised on
-    // its first copies and the burst costs milliseconds.
-    const awake_ns: u64 = 2_000_000; // 32 MB in under 2 ms = 16 GB/s = awake
+    // THE GOVERNOR, MEASURED (GK3, 2026-10-24, nvidia-smi sampled at 250 ms
+    // while the guards ran): the RTX 3050 sits at 990 MHz (P3, reasons
+    // 0x24 = software power cap + thermal slowdown) and rises to 1477-1740
+    // only after roughly a quarter second of SUSTAINED work; an asleep card
+    // copies 32 MB in ~9 ms and that is a plateau too, so a rule that stops
+    // on "no longer improving" stopped on the sleep itself and read a 5.9
+    // GB/s floor. And the Intel iGPU copies at ~1.5 ms whatever one does, so
+    // the old test -- one copy under 2 ms -- never settled there.
+    //
+    // So, two regimes. The FIRST Wake on a device: at least `min_warm` of
+    // sustained copies, then stop when `settle` copies in a row fail to
+    // beat the running minimum by 10%; the best copy seen is remembered.
+    // EVERY LATER Wake: a copy within 3x of that best says awake, and
+    // `settle` such copies end the burst at once (an awake 3050: ~21
+    // copies, ~10 ms -- the shaped-calibration guard's "second burst stops
+    // at the settle count" is the gate on this). Why 3x and not less: the
+    // best is an outlier minimum (0.39 ms against 0.43-0.48 typical on the
+    // 3050) and a 1.3x bound failed that gate at 669 copies; an asleep card
+    // copies 20x slower, so 3x cannot mistake sleep for awake. Asleep, the
+    // loop runs until the flip or the cap. The budget stays a CAP. (A
+    // measured copy floor, when there is one, is a second reference.)
     const settle: i32 = 20;
+    const min_warm_ns: u64 = 300_000_000;
+    var awake_ns: ?u64 = null;
+    if (wake_best_ns != std.math.maxInt(u64)) awake_ns = wake_best_ns * 3;
+    if (floors_ready and floor_bps > 0) {
+        const f: u64 = @intFromFloat((2.0 * nbytes / floor_bps) * 3e9);
+        awake_ns = if (awake_ns) |a| @min(a, f) else f;
+    }
+    const floor_copy_ns: ?u64 = awake_ns;
     var timer = std.time.Timer.start() catch return 0;
     var count: i32 = 0;
     var settled: i32 = 0;
+    var best_ns: u64 = std.math.maxInt(u64);
     const budget_ns: u64 = @intFromFloat(@max(budget_ms, 1) * 1e6);
     while (timer.read() < budget_ns and count < 100000) : (count += 1) {
         var one = std.time.Timer.start() catch return count;
         if (gpu.stz_gpu_dispatch(kc, &ids, 2, wx, 1) != gpu.OK) return count;
         if (gpu.stz_gpu_sync() != gpu.OK) return count;
-        if (one.read() < awake_ns) {
+        const ns = one.read();
+        if (ns < wake_best_ns) wake_best_ns = ns;
+        if (floor_copy_ns) |awake| {
+            if (ns < awake) {
+                settled += 1;
+                if (settled >= settle) {
+                    count += 1;
+                    break;
+                }
+            } else settled = 0;
+            continue;
+        }
+        if (ns < best_ns - best_ns / 10) {
+            best_ns = ns; // still improving: the ramp, or the flip out of sleep
+            settled = 0;
+        } else {
             settled += 1;
-            if (settled >= settle) {
+            if (timer.read() >= min_warm_ns and settled >= settle) {
                 count += 1;
                 break;
             }
-        } else {
-            settled = 0;
         }
     }
     return count;
@@ -165,9 +324,11 @@ fn ensureFloors() bool {
     if (floors_ready) return true;
     if (!gpu.isAvail()) return false;
     ensureHook();
-    // the floors are AWAKE numbers by construction (see stz_gpu_wake; the
-    // 400 ms is a cap -- the burst stops once copies run at full speed)
-    _ = stz_gpu_wake(400);
+    // the floors are AWAKE numbers by construction (see stz_gpu_wake). The
+    // cap is 2000 ms here, not the 400 the op sites use: the floors are
+    // measured ONCE per device and are what every verdict reads against,
+    // and the iGPU's ramp is ~600 ms. An awake device still returns in ~36 ms.
+    _ = stz_gpu_wake(2000);
 
     // 1. the submit floor: the smallest possible dispatch, warm
     const ks = gpu.stz_gpu_kernel_compile(SUBMIT_WGSL.ptr, @floatFromInt(SUBMIT_WGSL.len));
@@ -196,35 +357,166 @@ fn ensureFloors() bool {
     if (copy_ms <= 0) return false;
     floor_bps = (2.0 * nbytes) / (copy_ms / 1000.0);
 
+    // 3. GK3: the compute peak -- the dense fma kernel, warm, warm-min of 5
+    //    on the GPU clock where there is one (the submit is 0.1-0.6 ms and
+    //    the burst 4-35 ms, so the wall clock would read 2-10% low)
+    if (!measurePeak()) return false;
+
     floors_ready = true;
     return true;
 }
 
-/// The floor for a dispatch touching `bytes`: it cannot beat the smallest
-/// dispatch we measured, and it cannot move bytes faster than the measured
-/// copy bandwidth -- with an 8x allowance, because a working set that fits
-/// in cache legitimately beats DRAM, and a floor that refuses a legitimate
-/// result is worse than one that lets a marginal one through. Pure.
-pub fn minPossibleMs(bytes: f64, bps: f64, submit_ms: f64) f64 {
-    const by_bus = if (bps > 0) (bytes / (bps * 8.0)) * 1000.0 else 0;
-    const by_submit = submit_ms * 0.5;
-    return @max(by_bus, by_submit);
+/// The burst compute peak of the open device: PEAK_FLOPS of fused
+/// multiply-adds in the warm-min time of 5 dispatches, GPU clock first.
+fn measurePeak() bool {
+    const kp = gpu.stz_gpu_kernel_compile(PEAK_WGSL.ptr, @floatFromInt(PEAK_WGSL.len));
+    if (kp == 0) return false;
+    const pbytes: f64 = @floatFromInt(PEAK_THREADS * 4);
+    const pin = gpu.stz_gpu_buffer_new(pbytes);
+    if (pin == 0) return false;
+    defer _ = gpu.stz_gpu_buffer_free(pin);
+    const pout = gpu.stz_gpu_buffer_new(pbytes);
+    if (pout == 0) return false;
+    defer _ = gpu.stz_gpu_buffer_free(pout);
+    const pids = [_]i64{ pin, pout };
+    const prm = PeakParams{ .iters = PEAK_ROUNDS / @as(u32, @intCast(PEAK_UNROLL)), .n = @intCast(PEAK_THREADS), .m = 0.999, .b = 0.001 };
+    const params = std.mem.asBytes(&prm);
+    const wxp: f64 = @floatFromInt(PEAK_THREADS / 256);
+    const two = ensureTs();
+    // WARM FOR COMPUTE, the way Wake warms for bandwidth (GK3, 2026-10-24):
+    // this kernel dispatched right after the copy floors read 4.8 TFLOP/s on
+    // the RTX 3050 in every run (the card at 990 MHz under its power cap),
+    // and the same kernel after seconds of arithmetic read 7.1-7.5 (1477-1740
+    // MHz). The SM clock rises with SUSTAINED ARITHMETIC and copies do not
+    // raise it, so a peak read cold is a ceiling that refuses legitimate
+    // kernels -- the worse failure. So: at least `min_warm` of back-to-back
+    // dispatches, then windows of 5 until three windows in a row fail to
+    // beat the best by 3%, cap 1500 ms; then the house's warm-min of 5. The
+    // peak is the best time seen anywhere in that, and a re-measurement
+    // (confirmComputeRefusal) can only raise it.
+    const min_warm_ns: u64 = 300_000_000;
+    const cap_ns: u64 = 1_500_000_000;
+    var timer = std.time.Timer.start() catch return false;
+    var best: f64 = std.math.inf(f64);
+    var stale: usize = 0;
+    var warm: usize = 0;
+    while (timer.read() < cap_ns and warm < 2000) {
+        var wmin: f64 = std.math.inf(f64);
+        var k: usize = 0;
+        while (k < 5) : (k += 1) {
+            var gms: f64 = -1;
+            const wall = timedDispatch(kp, params, &pids, wxp, two, &gms) orelse return false;
+            const t = if (gms > 0) gms else wall;
+            if (t < wmin) wmin = t;
+            warm += 1;
+        }
+        if (best == std.math.inf(f64) or wmin < best * 0.97) {
+            best = wmin; // the clock is still rising
+            stale = 0;
+        } else {
+            if (wmin < best) best = wmin;
+            stale += 1;
+            if (timer.read() >= min_warm_ns and stale >= 3) break;
+        }
+    }
+    peak_warm = warm;
+    var r: usize = 0;
+    while (r < 5) : (r += 1) {
+        var gms: f64 = -1;
+        const wall = timedDispatch(kp, params, &pids, wxp, two, &gms) orelse return false;
+        const t = if (gms > 0) gms else wall;
+        if (t < best) best = t;
+    }
+    if (!(best > 0) or best == std.math.inf(f64)) return false;
+    const measured = PEAK_FLOPS / (best / 1000.0);
+    if (measured > peak_fps) peak_fps = measured; // a later, warmer reading only raises the peak
+    return true;
 }
 
-pub fn judgeWith(bytes: f64, ms: f64, bps: f64, submit_ms: f64) i32 {
-    return if (ms < minPossibleMs(bytes, bps, submit_ms)) V_IMPOSSIBLE else V_VERIFIED;
+/// A refusal by compute is pronounced only against a peak measured in the
+/// SAME second: the Intel iGPU's peak halved (955 -> 470 GFLOP/s) after
+/// eleven seconds of its own full load on 2026-10-24 -- package thermal
+/// throttling -- and a kernel timed cool against a ceiling measured hot
+/// would be refused for running as fast as the device can. So before the
+/// verdict the peak is measured again (it can only rise), and the time is
+/// judged once more. A PINNED peak is authoritative and is not re-measured.
+fn confirmComputeRefusal(flops: f64, ms: f64) bool {
+    if (peak_explicit_fps > 0) return true;
+    if (!measurePeak()) return true;
+    return ms < minComputeMs(flops, effectivePeak());
+}
+
+/// The compute peak the judge reads against, GFLOP/s (0 = no device yet):
+/// the pin if there is one, else the measurement.
+pub fn stz_gpu_verify_peak_gflops() callconv(.c) f64 {
+    if (!ensureFloors()) return 0;
+    return effectivePeak() / 1e9;
+}
+
+/// The MEASURED peak alone, GFLOP/s, whatever the pin -- the record's value.
+pub fn stz_gpu_verify_peak_measured_gflops() callconv(.c) f64 {
+    if (!ensureFloors()) return 0;
+    return peak_fps / 1e9;
+}
+
+/// The floor for a dispatch touching `bytes` and doing `flops`: it cannot
+/// beat the smallest dispatch we measured, it cannot move bytes faster than
+/// the measured copy bandwidth -- with an 8x allowance, because a working
+/// set that fits in cache legitimately beats DRAM, and a floor that refuses
+/// a legitimate result is worse than one that lets a marginal one through --
+/// and (GK3) it cannot do more fused multiply-adds per second than the
+/// measured burst peak times PEAK_ALLOW. flops = 0 means undeclared: the
+/// bus floors alone, as before GK3. Pure.
+pub fn minPossibleMs(bytes: f64, flops: f64, bps: f64, submit_ms: f64, peak: f64) f64 {
+    const by_bus = if (bps > 0) (bytes / (bps * 8.0)) * 1000.0 else 0;
+    const by_submit = submit_ms * 0.5;
+    const by_compute = minComputeMs(flops, peak);
+    return @max(@max(by_bus, by_submit), by_compute);
+}
+
+/// The compute-only floor: `flops` at the stored peak with the allowance. Pure.
+pub fn minComputeMs(flops: f64, peak: f64) f64 {
+    return if (peak > 0 and flops > 0) (flops / (peak * PEAK_ALLOW)) * 1000.0 else 0;
+}
+
+pub fn judgeWith(bytes: f64, flops: f64, ms: f64, bps: f64, submit_ms: f64, peak: f64) i32 {
+    return if (ms < minPossibleMs(bytes, flops, bps, submit_ms, peak)) V_IMPOSSIBLE else V_VERIFIED;
 }
 
 /// Is a dispatch over `bytes` in `ms` physically possible on this device?
 /// Measures the floors if they are not yet; exposed so a guard can hand it
-/// an impossible number and watch it refuse.
+/// an impossible number and watch it refuse. Bus floors only (no FLOPs).
 pub fn stz_gpu_verify_judge(bytes: f64, ms: f64) callconv(.c) i32 {
+    return stz_gpu_verify_judge_flops(bytes, 0, ms);
+}
+
+/// GK3: the same judge with the candidate's FLOPs declared, so the compute
+/// ceiling applies: `flops` in `ms` claiming more than the measured burst
+/// peak times PEAK_ALLOW is refused by name.
+pub fn stz_gpu_verify_judge_flops(bytes: f64, flops: f64, ms: f64) callconv(.c) i32 {
     if (!ensureFloors()) return V_ERROR;
+    const peak = effectivePeak();
     result[R_FLOOR_GBS] = floor_bps / 1e9;
     result[R_SUBMIT_FLOOR_MS] = submit_floor_ms;
+    result[R_PEAK_GFLOPS] = peak / 1e9;
+    result[R_PEAK_WARM] = @floatFromInt(peak_warm);
     result[R_BYTES] = bytes;
-    result[R_MIN_MS] = minPossibleMs(bytes, floor_bps, submit_floor_ms);
-    return judgeWith(bytes, ms, floor_bps, submit_floor_ms);
+    result[R_FLOPS] = flops;
+    result[R_MIN_MS_COMPUTE] = minComputeMs(flops, peak);
+    result[R_MIN_MS] = minPossibleMs(bytes, flops, floor_bps, submit_floor_ms, peak);
+    const verdict = judgeWith(bytes, flops, ms, floor_bps, submit_floor_ms, peak);
+    if (verdict == V_IMPOSSIBLE and ms >= minPossibleMs(bytes, 0, floor_bps, submit_floor_ms, 0)) {
+        // refused by COMPUTE alone (the bus floors accept it): confirm against a fresh peak
+        if (!confirmComputeRefusal(flops, ms)) {
+            const p2 = effectivePeak();
+            result[R_PEAK_GFLOPS] = p2 / 1e9;
+            result[R_PEAK_WARM] = @floatFromInt(peak_warm);
+            result[R_MIN_MS_COMPUTE] = minComputeMs(flops, p2);
+            result[R_MIN_MS] = minPossibleMs(bytes, flops, floor_bps, submit_floor_ms, p2);
+            return V_VERIFIED;
+        }
+    }
+    return verdict;
 }
 
 // ---------------------------------------------------------------- the second clock
@@ -249,6 +541,12 @@ fn releaseTs() void {
 
 pub fn ensureTs() bool {
     if (!gpu.hasTimestamps()) return false;
+    // the query set belongs to THIS device: the close hook that releases it
+    // must be in place before one is made, whoever asks first (found by the
+    // probe's --ramp mode, 2026-10-24, which asked for timestamps before any
+    // floor had been measured, switched adapters, and wgpu refused a query
+    // set of the old device on the new one)
+    ensureHook();
     if (qset != null) return true;
     const f = gpu.wfns();
     const dev = gpu.deviceHandle();
@@ -428,7 +726,15 @@ pub fn stz_gpu_verify(
 
     result[R_FLOOR_GBS] = floor_bps / 1e9;
     result[R_SUBMIT_FLOOR_MS] = submit_floor_ms;
+    const peak = effectivePeak();
+    result[R_PEAK_GFLOPS] = peak / 1e9;
+    result[R_PEAK_WARM] = @floatFromInt(peak_warm);
     result[R_REPS] = @floatFromInt(nreps);
+    // GK3: the declared FLOPs are this call's and nobody else's
+    const flops_a = declared_flops_a;
+    declared_flops_a = 0;
+    declared_flops_b = 0;
+    result[R_FLOPS] = flops_a;
 
     // 1. correctness, visible shape (this also WARMS both kernels: compiled
     //    and dispatched once each, so the timing below is warm on both sides)
@@ -484,8 +790,20 @@ pub fn stz_gpu_verify(
     var bytes: f64 = 0;
     for (ids_cand[0..ia.len]) |id| bytes += @floatFromInt(gpu.rawBufferSize(id));
     result[R_BYTES] = bytes;
-    const min_ms = minPossibleMs(bytes, floor_bps, submit_floor_ms);
+    var min_ms = minPossibleMs(bytes, flops_a, floor_bps, submit_floor_ms, peak);
+    const bus_ms = minPossibleMs(bytes, 0, floor_bps, submit_floor_ms, 0);
     result[R_MIN_MS] = min_ms;
+    result[R_MIN_MS_COMPUTE] = minComputeMs(flops_a, peak);
+    // a refusal by compute alone is confirmed against a peak measured now
+    const faster = @min(ref_min, cand_min);
+    if (faster < min_ms and faster >= bus_ms and !confirmComputeRefusal(flops_a, faster)) {
+        const p2 = effectivePeak();
+        result[R_PEAK_GFLOPS] = p2 / 1e9;
+        result[R_PEAK_WARM] = @floatFromInt(peak_warm);
+        min_ms = minPossibleMs(bytes, flops_a, floor_bps, submit_floor_ms, p2);
+        result[R_MIN_MS] = min_ms;
+        result[R_MIN_MS_COMPUTE] = minComputeMs(flops_a, p2);
+    }
     if (ref_min < min_ms) {
         result[R_VERDICT] = V_REF_IMPOSSIBLE;
         return gpu.OK;
@@ -499,17 +817,43 @@ pub fn stz_gpu_verify(
 }
 
 test "the roofline judge is pure and refuses by the floor it is given" {
-    // floors: 100 GB/s, 0.06 ms per submit
+    // floors: 100 GB/s, 0.06 ms per submit, no peak
     const bps: f64 = 100e9;
     const sub: f64 = 0.06;
     // 1 GB in 0.01 ms is 100 TB/s: impossible even with the 8x cache allowance
-    try std.testing.expectEqual(V_IMPOSSIBLE, judgeWith(1e9, 0.01, bps, sub));
+    try std.testing.expectEqual(V_IMPOSSIBLE, judgeWith(1e9, 0, 0.01, bps, sub, 0));
     // 32 KB in 1 ms is fine
-    try std.testing.expectEqual(V_VERIFIED, judgeWith(32768, 1.0, bps, sub));
+    try std.testing.expectEqual(V_VERIFIED, judgeWith(32768, 0, 1.0, bps, sub, 0));
     // nothing beats half the submit floor, however few the bytes
-    try std.testing.expectEqual(V_IMPOSSIBLE, judgeWith(16, 0.001, bps, sub));
+    try std.testing.expectEqual(V_IMPOSSIBLE, judgeWith(16, 0, 0.001, bps, sub, 0));
     // the floor for 1 GB at 100 GB/s with 8x allowance is 1.25 ms
-    try std.testing.expectApproxEqAbs(@as(f64, 1.25), minPossibleMs(1e9, bps, sub), 1e-9);
+    try std.testing.expectApproxEqAbs(@as(f64, 1.25), minPossibleMs(1e9, 0, bps, sub, 0), 1e-9);
+}
+
+test "GK3: the compute ceiling refuses more FLOP/s than the peak allows, and only when FLOPs are declared" {
+    const bps: f64 = 100e9;
+    const sub: f64 = 0.06;
+    const peak: f64 = 8.36e12; // the 3050's measured burst, 2026-10-24
+    // reg4 at 512 x 384 x 1536: 604 MFLOP. At 0.43 ms it is 1.4 TFLOP/s: possible
+    const flops: f64 = 2.0 * 512 * 384 * 1536;
+    try std.testing.expectEqual(V_VERIFIED, judgeWith(4e6, flops, 0.43, bps, sub, peak));
+    // the same work claimed in 0.04 ms is 15 TFLOP/s: refused by compute
+    try std.testing.expectEqual(V_IMPOSSIBLE, judgeWith(4e6, flops, 0.04, bps, sub, peak));
+    // the ceiling is peak x PEAK_ALLOW: just under it passes, just over is refused
+    const edge = minComputeMs(flops, peak);
+    try std.testing.expectApproxEqAbs(flops / (peak * PEAK_ALLOW) * 1000.0, edge, 1e-12);
+    try std.testing.expectEqual(V_VERIFIED, judgeWith(4e6, flops, edge * 1.001, bps, sub, peak));
+    try std.testing.expectEqual(V_IMPOSSIBLE, judgeWith(4e6, flops, edge * 0.999, bps, sub, peak));
+    // undeclared FLOPs: the bus judge of before GK3, whatever the peak
+    try std.testing.expectEqual(V_VERIFIED, judgeWith(4e6, 0, 0.04, bps, sub, peak));
+    // no peak measured: no compute floor, never a refusal by compute
+    try std.testing.expectEqual(@as(f64, 0), minComputeMs(flops, 0));
+}
+
+test "GK3: the peak kernel's text is the dense one and its FLOP count follows from it" {
+    // 16 chains x 16 unroll = 256 fma lines in the loop body
+    try std.testing.expectEqual(@as(usize, 256), std.mem.count(u8, PEAK_WGSL, "= fma("));
+    try std.testing.expectApproxEqAbs(@as(f64, 1048576.0 * 16 * 2 * 1024), PEAK_FLOPS, 1);
 }
 
 test "compare names the FIRST out-of-band element and treats NaN as bad" {

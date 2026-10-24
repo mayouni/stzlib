@@ -304,7 +304,10 @@ f64 tier, 14x CPU f32 — and 64 GF/s on the bare iGPU (9x / 2.9x). The kill
 criterion ("resident chain must beat CPU under ~1024²") passes on BOTH
 adapters with room: the chain crosses CPU at n≈128 (3050) / n≈256 (iGPU).
 And this is the FLOOR — a plain 16×16 tile, ~5% of the 3050's peak; G2
-tuning has headroom, the decision doesn't depend on it.
+tuning has headroom, the decision doesn't depend on it. *(GK3,
+2026-10-24: the peak was then a guess. Measured, the card's burst peak
+is 7.45 TFLOP/s and 294 GFLOP/s is 3.9% of it; the plan's fractions
+read against the measured number from GK3 on.)*
 
 **CONDITIONAL — FFT-at-scale, reductions, softmax.** Between the two poles
 measured here (O(1) and O(n) work per element); each gets this same
@@ -1392,14 +1395,20 @@ name the seam, not the GPU op. The seam's key is `knn_resident`, with no
 seed: an uncalibrated key routes CPU by the engine's own rule.
 
 **Measured on the RTX 3050 at 384 dims, device awake, through the
-calibration (control: cpu ×1.59, gpu ×0.97 — not confounded):**
+calibration (control: cpu ×1.59, gpu ×0.97 — not confounded)** -- the two
+right-hand columns are GK3's, 2026-10-24: the seam's time is a whole
+seam (upload of the query, the distance kernel, the top-k, the
+readback), so against the 7.45 TFLOP/s and 77 GB/s this card measures
+it reaches a tenth of a percent of the ALU and 5-13% of the bandwidth;
+a single-query pairwise distance is a bandwidth-and-submit kernel and
+the plan should never have let a "2x the CPU" stand for it alone:
 
-| corpus | n·d | CPU top-k | GPU seam | cpu/gpu |
-|---|---|---|---|---|
-| 1,000 | 384k | 0.124 ms | 0.331 ms | 0.37x |
-| 4,000 | 1.5M | 0.643 ms | 0.634 ms | 1.01x |
-| **16,000** | **6.1M** | **5.325 ms** | **2.573 ms** | **2.07x** |
-| 32,000 | 12.3M | 6.523 ms | 6.347 ms | 1.03x |
+| corpus | n·d | CPU top-k | GPU seam | cpu/gpu | GPU seam, of peak | GPU seam, of bandwidth |
+|---|---|---|---|---|---|---|
+| 1,000 | 384k | 0.124 ms | 0.331 ms | 0.37x  3.5 GFLOP/s, 0.05% | 4.6 GB/s, 6% |
+| 4,000 | 1.5M | 0.643 ms | 0.634 ms | 1.01x  7.3 GFLOP/s, 0.10% | 9.7 GB/s, 13% |
+| **16,000** | **6.1M** | **5.325 ms** | **2.573 ms** | **2.07x**  7.2 GFLOP/s, 0.10% | 9.6 GB/s, 12% |
+| 32,000 | 12.3M | 6.523 ms | 6.347 ms | 1.03x  5.8 GFLOP/s, 0.08% | 7.7 GB/s, 10% |
 
 One class wins. The store is shaped for exactly this: class (16k, 384)
 carries its 2x, the flat line sits beyond the ladder, and a corpus of
@@ -2103,16 +2112,20 @@ dispatches (slot 4).
 
 **The kill line, measured on the RTX 3050, k = 15, ratios on the GPU
 clock against the generic — every cell VERIFIED at its visible and
-hidden shape:**
+hidden shape** (the two right-hand columns are GK3's, 2026-10-24, for
+the kernel the verdict kept, FLOPs as 3 · n² · d for every pair's
+squared distance, against the 7.45 TFLOP/s and 77 GB/s this card
+measures: the k-NN kernel reaches 0.7-2% of the ALU, so its cost is
+the selection and the strided reads, not the arithmetic):
 
-| shape | generic | tile | tile4 | chunk | verdict |
-|---|---|---|---|---|---|
-| 4,096 × 8 | 3.6 ms | 0.59x | 0.82x | 0.65x | generic stays |
-| 16,384 × 8 | 29.7 ms | 0.82x | 1.22x | 0.37x | generic stays |
-| 8,192 × 32 | 30.5 ms | 0.53x | 1.23x | 0.55x | generic stays |
-| 8,192 × 64 | 85.3 ms | 0.52x | **1.52x** | 0.83x | **tile4** |
-| 4,096 × 128 | — | — | — | **1.61x** | **chunk** |
-| 4,096 × 256 | 234 ms | — | — | **2.26x** | **chunk** |
+| shape | generic | tile | tile4 | chunk | verdict | kept kernel, of peak | kept kernel, of bandwidth |
+|---|---|---|---|---|---|---|---|
+| 4,096 × 8 | 3.6 ms | 0.59x | 0.82x | 0.65x | generic stays  112 GFLOP/s, 1.5% | 0.17 GB/s, 0.2% |
+| 16,384 × 8 | 29.7 ms | 0.82x | 1.22x | 0.37x | generic stays  217 GFLOP/s, 2.9% | 0.08 GB/s, 0.1% |
+| 8,192 × 32 | 30.5 ms | 0.53x | 1.23x | 0.55x | generic stays  211 GFLOP/s, 2.8% | 0.07 GB/s, 0.1% |
+| 8,192 × 64 | 85.3 ms | 0.52x | **1.52x** | 0.83x | **tile4**  230 GFLOP/s, 3.1% | 0.05 GB/s, 0.1% |
+| 4,096 × 256 | 234 ms | — | — | **2.26x** | **chunk**  124 GFLOP/s, 1.7% | 0.05 GB/s, 0.1% |
+| 4,096 × 128 | — | — | — | **1.61x** | **chunk** | — (no generic time recorded) | — |
 
 The line is the row's WIDTH, not the count: below 64 features the
 generic's warp-broadcast reads out of L1 already beat a staged tile
@@ -2174,13 +2187,25 @@ embedding. Face: `stzGpu.FoundryMatmul(m, k, n)`.
 **The kill line, measured on the RTX 3050 on the backbone's shapes,
 GPU clock, every cell VERIFIED at its visible and hidden shape:**
 
-| m × k × n | generic | tile8 | reg2 | reg4 | verdict |
-|---|---|---|---|---|---|
-| 64 × 384 × 384 | 0.11 ms | 0.82x | **1.47x** | 1.21x | reg2 |
-| 256 × 384 × 384 | 0.39 ms | 0.87x | 2.28x | **2.59x** | reg4 |
-| 256 × 384 × 1536 | 1.53 ms | 0.79x | 2.37x | **4.28x** | reg4 |
-| 256 × 1536 × 384 | 1.60 ms | 0.86x | 2.43x | **2.52x** | reg4 |
-| 512 × 384 × 1536 | 1.89 ms | 0.82x | 2.25x | **4.35x** | reg4 |
+| m × k × n | generic | tile8 | reg2 | reg4 | verdict | winner, of peak | winner, of bandwidth |
+|---|---|---|---|---|---|---|---|
+| 64 × 384 × 384 | 0.11 ms | 0.82x | **1.47x** | 1.21x | reg2  0.25 TFLOP/s, **3.4%** | 10.5 GB/s, 14% |
+| 256 × 384 × 384 | 0.39 ms | 0.87x | 2.28x | **2.59x** | reg4  0.50 TFLOP/s, **6.7%** | 9.1 GB/s, 12% |
+| 256 × 384 × 1536 | 1.53 ms | 0.79x | 2.37x | **4.28x** | reg4  0.84 TFLOP/s, **11.3%** | 12.1 GB/s, 16% |
+| 256 × 1536 × 384 | 1.60 ms | 0.86x | 2.43x | **2.52x** | reg4  0.48 TFLOP/s, **6.4%** | 6.8 GB/s, 9% |
+| 512 × 384 × 1536 | 1.89 ms | 0.82x | 2.25x | **4.35x** | reg4  1.39 TFLOP/s, **18.7%** | 14.5 GB/s, 19% |
+
+**The time column is the GENERIC tile's time on the GPU clock** (the
+checker's `refgpums`, warm-min of 7); a variant's time is that divided
+by its ratio, so at 512 × 384 × 1536 reg4 ran in 1.89 / 4.35 = 0.43 ms
+-- 2 · 512 · 384 · 1536 = 604 MFLOP in 0.43 ms = **1.39 TFLOP/s, 18.7%
+of the 7.45 TFLOP/s burst peak GK3 measured on this card on
+2026-10-24** (and 24% of its 77 GB/s copy bandwidth). The two
+right-hand columns were added by GK3 with that reading, against that
+peak; the times are the 2026-09-10 ones. Re-measured 2026-10-24 in the
+guard: generic 1.85 ms, reg4 4.18x, 0.443 ms, 1.36 TFLOP/s, 18.3%. The
+compass read "about a quarter of the 3050's peak" from this row against
+a guessed 5.9 TFLOP/s; measured, the fraction is smaller.
 
 Smaller tiles never pay; register blocking pays everywhere, more the
 wider the output. **And through the real backbone** (MiniLM, 130
@@ -2361,13 +2386,19 @@ same sync before the first embedding. The forward dispatches the
 table's variant and **reports which** (`StzEngineNeuralAttentionVariantUsed`),
 which is the guard's witness.
 
-**Measured, RTX 3050, 384 wide, 12 heads, every cell VERIFIED:**
+**Measured, RTX 3050, 384 wide, 12 heads, every cell VERIFIED** (the
+two right-hand columns are GK3's, 2026-10-24, against the 7.45 TFLOP/s
+and 77 GB/s this card measures; FLOPs counted as 4 · n² · 384 for the
+two products, bytes as Q, K, V in and the context out; what they say is
+that attention at these token counts is **neither compute- nor
+bandwidth-bound -- it is submit-bound**, 0.19-1.39 ms against a 0.13 ms
+smallest dispatch, which is why a 1.5x tile wins and no tile wins 10x):
 
-| tokens | generic | red64 | red128 | red256 | verdict |
-|---|---|---|---|---|---|
-| 64 | 0.19 ms | 1.35x | **1.37x** | 1.27x | red128 |
-| 130 | 0.73 ms | 1.49x | **1.51x** | 1.47x | red64 / red128 (a coin toss between runs) |
-| 256 | 1.39 ms | 1.29x | 1.25x | 1.24x | generic stays (under the margin) |
+| tokens | generic | red64 | red128 | red256 | verdict | winner, of peak | winner, of bandwidth |
+|---|---|---|---|---|---|---|---|
+| 64 | 0.19 ms | 1.35x | **1.37x** | 1.27x | red128  45 GFLOP/s, 0.6% | 2.8 GB/s, 3.7% |
+| 130 | 0.73 ms | 1.49x | **1.51x** | 1.47x | red64 / red128 (a coin toss between runs)  54 GFLOP/s, 0.7% | 1.7 GB/s, 2.1% |
+| 256 | 1.39 ms | 1.29x | 1.25x | 1.24x | generic stays (under the margin)  72 GFLOP/s, 1.0% | 1.1 GB/s, 1.5% |
 
 **And through the real forward** (MiniLM, 130 tokens, warm-min of 7):
 all generic **14.43 ms**; the matmul winners **7.46 ms**; the matmul
@@ -2544,3 +2575,163 @@ Gates, all green: `gpu_lifecycle` 62, `gpu_ops` 37, `gpu_verify` 26,
 74, `gpu_convolve` 19, `gpu_calibration_shaped` 40, `numeric_tsne_gpu`
 24, `neural_backbone` 14, `plot_backends` 29, `gg2_graphcanvas` and
 `gg3_hierarchy` pass. Owned and not run: none on this desk's list.
+
+---
+
+## GK3 STATUS — shipped 2026-10-24: the peak in the roofline, measured, and what measuring it found
+
+Guard: `base/test/gpu/gpu_verify_narrated.ring` — **36 asserts green**
+(26 before), run on Ring 1.27, interim. Zig: `gpu_verify.zig` 4 tests
+(2 new: the pure compute judge; the peak kernel's text and FLOP count).
+Gates run on the device the same afternoon, every one green:
+`gpu_foundry_matmul` 18 (fraction rows printed per cell), `gpu_foundry`
+27 (pairdist, fraction row), `gpu_calibration` 10,
+`gpu_calibration_shaped` 40 (its Wake scene failed once on the way and
+is the reason for the second half of finding 3), `gpu_lifecycle` 62,
+`gpu_ops` 37, `gpu_declarative` 20, `gpu_batch` 13, `gpu_seams` 17,
+`gpu_deploy_gate` 16. Not run:
+the backbone scene of the matmul guard (no MiniLM in this worktree; it
+says so and skips) and the neural and stats guards (their DLLs carry
+their own copy of `gpu_verify.zig`; both DLLs were rebuilt and compile).
+
+**Why.** Every kernel this plane had timed was recorded as "Nx the CPU"
+or "Nx the generic tile", never as a fraction of what the hardware can
+do, and GK0's roofline refused a time that beat the BUS and had no
+ceiling for ARITHMETIC: a candidate claiming more FLOP/s than the device
+owns was not refused. The Modular reading (compass, 2026-10-24) named
+both; this rung measures the peak and makes the ceiling.
+
+**What shipped.** In `gpu_verify.zig`: a register-only fused-multiply-add
+kernel built at comptime (`fmaSource(chains, unroll)`; 16 chains, body
+unrolled ×16, 256 fma per loop round, m and b from the params uniform
+so nothing folds), measured once per device inside `ensureFloors`
+beside the copy floor and the submit floor, warm-min of 5 on the GPU
+clock after a compute warm-up; `minPossibleMs` and `judgeWith` take the
+candidate's FLOPs and refuse a time implying more than the peak ×
+`PEAK_ALLOW` (1.15); `stz_gpu_verify_judge_flops(bytes, flops, ms)`,
+`stz_gpu_verify_declare_flops(visible, hidden)` for the next verify,
+`stz_gpu_verify_peak_gflops`, `_peak_measured_gflops`, `_peak_set` (a
+pin); result slots 17-20 (peak, declared FLOPs, compute floor, warm
+dispatches). The foundry declares its ops' FLOPs (2mkn; 3mnd) and
+records FLOPs, bytes and the peak in slots 7-9 (F_BASE moved 8 → 10;
+the face's two gpu readers moved with it, the neural and stats readers
+keep 8). Face: `VerifyJudgeFlops`, `PeakGFlops`, `PinPeakGFlops`,
+`RecordFloors`, `VerifyFloors()[:peakgflops]`, and every foundry report
+carries `:fractions` — for the generic and each verified variant, the
+fraction of the measured peak and of the measured copy bandwidth; the
+two foundry guards print them per cell. The record: `VerifyFloors`
+writes `peak_gflops` and `copy_gbs` into the adapter's calibration file
+(`engine/data/gpu_calib_<adapter>.txt`) beside the ops' thresholds.
+The standalone instrument: `engine/src/gpu_peak_probe.zig` (not built by
+the default build), every adapter, six body densities, three work sizes,
+A B A B against the copy kernel, both clocks, the spread of 7 beside
+every number, and `--ramp` for the clock's behaviour under sustained
+work. And `zig build -Ddomains=stz_gpu -j2` builds one DLL instead of
+92 (4 minutes cold, 20 seconds warm): a desk changing one domain owes a
+rebuild of that one.
+
+**Measured, 2026-10-24, wgpu-native as vendored, Vulkan, GPU timestamps
+inside the pass, warm-min; the record is the adapter file, the spread is
+the probe's:**
+
+| adapter | burst peak | sustained | copy, 16 MB in + out | smallest dispatch | warm-up to the peak |
+|---|---|---|---|---|---|
+| RTX 3050 6GB Laptop GPU (2048 lanes, max SM clock 2100 MHz, 65 W) | **7.45 TFLOP/s** in the Ring process (7.38-7.85 across six guard runs; the probe 7.5-8.4 at 4 ms, spread 0.5-1.9 ms) | 7.1-7.25 TFLOP/s at 75-150 ms per dispatch, spread 0.6-1.7 ms | 77 GB/s (54-79 across runs) | 0.13 ms | 50-60 dispatches, ~300 ms |
+| Intel(R) Graphics (Core 5 210H iGPU) | **955 GFLOP/s** cool (957-972 across runs; **331-617 after eleven seconds of its own full load**) | 955 (no burst/sustained step) | 22 GB/s alone, 35-53 right after compute | 0.21 ms | 20 dispatches, ~700 ms |
+
+The 3050's burst is 97% of 2048 × 2 × 2.1 GHz at its best (8.36, run 3
+of the probe) and 1.73-1.82 GHz-equivalent in the Ring process; the
+published 7.1 TFLOP/s is its SUSTAINED figure, not its ceiling. The
+discrete card is 7.8x the integrated one in arithmetic and 1.5x (3.5x
+alone) in bandwidth.
+
+**Found, and each one changed the design above:**
+
+1. **The loop was the first measurement.** 8 fma per loop round read
+   2.70 TFLOP/s on the 3050 and 0.43 on the iGPU; 256 per round read
+   8.36 and 0.97 from the same hardware. The counter, compare and branch
+   share issue slots with the fma. A peak kernel is a DENSE one or it
+   measures its own bookkeeping — GK2b's lesson (accumulators in a
+   private array, 0.04x) met one level up. A ceiling set by the loop
+   kernel would have refused every kernel above a third of the ALU.
+2. **The clock is a governor, and it was sampled.** `nvidia-smi` at
+   250 ms while the guard ran: the 3050 sits at **990 MHz (P3, throttle
+   reasons 0x24: software power cap and thermal slowdown)** and rises to
+   1477-1740 only after about a quarter second of SUSTAINED arithmetic;
+   copies do not raise it. The engine's first peak, read right after the
+   copy floors, was 4.78 TFLOP/s in every run, in the probe's process as
+   in Ring's — not a process effect, an ORDER effect. The peak is now
+   measured after at least 300 ms of its own dispatches and windows of
+   five until three in a row stop improving by 3%; it reads 7.4-7.8.
+3. **Wake(400)'s awake test was a 3050 constant, and the first repair
+   regressed it.** One 32 MB copy under 2 ms is the 3050 ASLEEP and the
+   iGPU awake at once (its copies take 1.5 ms whatever one does), so the
+   iGPU's floors were measured at 19-23 GB/s. The first replacement —
+   settle when the copy stops improving by 10% — settled on the asleep
+   3050 (its 9 ms copies are a plateau too) and read a **5.9 GB/s**
+   floor. Wake now runs at least 300 ms of sustained copies before
+   looking for a plateau the FIRST time it meets a device, remembers the
+   best copy it saw, and from then on a copy within 3x of that best
+   says awake (21 copies, ~10 ms; an asleep card is 20x slower, so 3x
+   cannot confuse the two) — the shaped-calibration guard's "second
+   burst stops at the settle count" failed two versions on the way: one
+   that knew awake only once the floors existed, and one with a 1.3x
+   bound that the best copy's own jitter (0.39 against 0.43-0.48 ms)
+   put most normal copies outside of.
+   The `--ramp` run that found the iGPU flat at 22 GB/s for 400 copies
+   and 955 GFLOP/s for 300 dispatches also says: the iGPU does not ramp,
+   it THROTTLES — see 5.
+4. **A process-wide store keyed by name mis-scopes across adapters.**
+   The first design filled `peak_gflops` and `copy_gbs` into the flat
+   calibration store and read them back as the authority (explicit >
+   persisted > measured, the order the thresholds keep). The probe,
+   which switches adapters in one process, then read the iGPU's 957
+   GFLOP/s and 20 GB/s as the 3050's and would have refused everything
+   above 1.1 TFLOP/s. The authority is now **a pin set in this process,
+   else this device's own measurement**; the file is a RECORD the engine
+   never reads back. Reported because the order "explicit > persisted >
+   seed" is right for a threshold a tuner sets and wrong for a hardware
+   fact a device measures.
+5. **The iGPU's peak halves when the package is hot** (955 → 470 →
+   331 across an afternoon of runs; the CPU shares its power budget), so
+   a ceiling measured hot would refuse a kernel timed cool for running
+   as fast as the device can. A refusal BY COMPUTE is therefore
+   confirmed: the peak is re-measured in the same second (it can only
+   rise), and the time is judged again; a pinned peak is not re-measured.
+   `R_PEAK_WARM` says how many dispatches the warm-up took.
+6. **The second clock agrees with the wall by the submit** (0.3-0.5 ms)
+   on both adapters, and both have timestamp queries. One latent defect
+   fixed on the way: the checker's query set was released on device
+   close only if the floors had been measured first (only `ensureFloors`
+   registered the close hook); `ensureTs` registers it itself now, found
+   when the probe asked for timestamps before any floor and wgpu refused
+   a query set of the old device on the new one.
+7. **The compute ceiling rarely speaks on the 3050 for the backbone's
+   kernels** — reg4's 604 MFLOP at the peak is 0.08 ms, under the 0.13
+   ms submit floor, so the bus refuses first; the guard's fixture claims
+   a hundred such dispatches (60 GFLOP, 8 ms at the peak) so the ceiling
+   alone decides. The ceiling matters for the kernels GK6 and the
+   puzzles will bring: a user kernel declared with its FLOPs, judged
+   without a Zig twin.
+
+**The 1.89 ms question** (GPU_PLAN.md GK2b table): the time column is
+the generic's GPU-clock time and the variant's time is that divided by
+its ratio, so reg4 at 512 × 384 × 1536 is 0.43 ms, 1.39 TFLOP/s, **18.7%
+of the measured burst peak** — written into the table above, with the
+same two columns on the attention, k-NN and semantic-seam tables. What
+those columns say, read together: the matmul variants reach 3-19% of
+the ALU and 14-35% of the bandwidth; attention and the single-query
+seam reach under 1% of the ALU — they are submit-bound; the k-NN kernel
+reaches 0.7-2% — it is a selection, not an arithmetic kernel. The plan
+had one kind of number for all of them.
+
+**Decided:** `PEAK_ALLOW` 1.15 (the burst moved 8% between runs and sits
+15% over sustained; a low ceiling refuses legitimate kernels, the worse
+failure). The ceiling is the BURST peak, because a foundry candidate
+runs for milliseconds and sees the burst. Pin > measured, record not
+authority (4). Refusal by compute confirmed against a fresh peak (5).
+
+Next: **GK6**, the user kernel's own reference — the KernelMaker spec
+interpreted on the CPU as the checker's reference, NaN guard margins, a
+shape assert — which is where a declared-FLOPs candidate without a Zig
+twin first meets this ceiling.

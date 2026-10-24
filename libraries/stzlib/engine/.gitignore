@@ -1,2 +1,7 @@
 zig-out/
 .zig-cache/
+# GK3's standalone probe, built beside the sources by the command in AGENTS.md
+gpu_peak_probe.exe
+gpu_peak_probe.pdb
+gpu_peak_probe.exe.obj
+gpu_peak_probe

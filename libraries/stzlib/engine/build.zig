@@ -1133,8 +1133,18 @@ pub fn build(b: *std.Build) void {
     ring_opts.addOption(u32, "ring_minor", ring_minor);
     const ring_opts_mod = ring_opts.createModule();
 
+    // -Ddomains=stz_gpu,stz_neural builds ONLY the named DLLs (GK3, 2026-10-24):
+    // the engine is 92 DLLs and a desk changing one file in one of them owes a
+    // rebuild of that one, not of the world -- one heavy job at a time is the
+    // machine's law, and a full build is the heaviest job here. Omitted, every
+    // domain builds as before. A name that matches nothing builds nothing and
+    // says so.
+    const only_domains = b.option([]const u8, "domains", "Build only these DLLs (comma-separated domain names, e.g. stz_gpu,stz_neural)");
+    if (only_domains) |od| std.debug.print("[softanza] -Ddomains: building only {s}\n", .{od});
+
     // Core layer DLLs
     for (core_domains) |dom| {
+        if (!domainWanted(only_domains, dom.name)) continue;
         const mod = b.createModule(.{
             .root_source_file = b.path(dom.entry),
             .target = target,
@@ -1158,6 +1168,7 @@ pub fn build(b: *std.Build) void {
 
     // Base layer DLLs
     for (base_domains) |dom| {
+        if (!domainWanted(only_domains, dom.name)) continue;
         const mod = b.createModule(.{
             .root_source_file = b.path(dom.entry),
             .target = if (dom.needs_ggml) ggml_target else target,
@@ -1493,4 +1504,15 @@ pub fn build(b: *std.Build) void {
     const clean_run = b.addRunArtifact(clean_exe);
     clean_run.setCwd(b.path("."));
     clean_step.dependOn(&clean_run.step);
+}
+
+/// -Ddomains filter: null = everything; otherwise the name must appear in the
+/// comma-separated list exactly.
+fn domainWanted(only: ?[]const u8, name: []const u8) bool {
+    const list = only orelse return true;
+    var it = std.mem.splitScalar(u8, list, ',');
+    while (it.next()) |item| {
+        if (std.mem.eql(u8, std.mem.trim(u8, item, " "), name)) return true;
+    }
+    return false;
 }

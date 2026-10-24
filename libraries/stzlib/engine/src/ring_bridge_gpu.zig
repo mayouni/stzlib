@@ -598,6 +598,33 @@ fn ring_Wake(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(verify.stz_gpu_wake(gn(p, 1))));
 }
 
+// GK3. VerifyJudgeFlops(nBytes, nFlops, nMs) -> verdict code, with the compute ceiling
+fn ring_VerifyJudgeFlops(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(verify.stz_gpu_verify_judge_flops(gn(p, 1), gn(p, 2), gn(p, 3))));
+}
+
+// GK3. VerifyDeclareFlops(nVisible, nHidden): the NEXT Verify's candidate does this much work
+fn ring_VerifyDeclareFlops(p: *anyopaque) callconv(.c) void {
+    verify.stz_gpu_verify_declare_flops(gn(p, 1), gn(p, 2));
+    rn(p, 1);
+}
+
+// GK3. VerifyPeakGflops() -> the compute peak the judge uses (the pin, else the measurement), GFLOP/s
+fn ring_VerifyPeakGflops(p: *anyopaque) callconv(.c) void {
+    rn(p, verify.stz_gpu_verify_peak_gflops());
+}
+
+// GK3. VerifyPeakMeasuredGflops() -> the measured peak alone, GFLOP/s
+fn ring_VerifyPeakMeasuredGflops(p: *anyopaque) callconv(.c) void {
+    rn(p, verify.stz_gpu_verify_peak_measured_gflops());
+}
+
+// GK3. VerifyPeakSet(nGflops): pin the peak for this process (0 clears)
+fn ring_VerifyPeakSet(p: *anyopaque) callconv(.c) void {
+    verify.stz_gpu_verify_peak_set(gn(p, 1));
+    rn(p, 1);
+}
+
 // ---------------- GS1 FFT convolution (the GPU plane's op)
 
 // OpConvolveReal(hA, nA, hB, nB, hOut) -> status; out holds nA+nB-1 f32
@@ -2030,6 +2057,11 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuverify", .func = &ring_Verify },
     .{ .name = "stzenginegpuverifyresult", .func = &ring_VerifyResult },
     .{ .name = "stzenginegpuverifyjudge", .func = &ring_VerifyJudge },
+    .{ .name = "stzenginegpuverifyjudgeflops", .func = &ring_VerifyJudgeFlops },
+    .{ .name = "stzenginegpuverifydeclareflops", .func = &ring_VerifyDeclareFlops },
+    .{ .name = "stzenginegpuverifypeakgflops", .func = &ring_VerifyPeakGflops },
+    .{ .name = "stzenginegpuverifypeakmeasuredgflops", .func = &ring_VerifyPeakMeasuredGflops },
+    .{ .name = "stzenginegpuverifypeakset", .func = &ring_VerifyPeakSet },
     .{ .name = "stzenginegpuwake", .func = &ring_Wake },
     // GK2 the foundry and the variant table
     // GS1 FFT convolution
