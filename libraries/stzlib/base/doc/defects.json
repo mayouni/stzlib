@@ -1,5 +1,5 @@
 {
- "count": 58,
+ "count": 56,
  "defects": [
   {
    "class": "stzEngineTimeline",
@@ -8,22 +8,6 @@
    "line": 161,
    "symptom": "Returns 0 on every call today, whatever the events are.",
    "cause": "answered 0 for timestamps 100, 200, 300, then 1000 and 5000, then 2.5 and 9, then 1700000000 and 1700000060, sorted or not; the span between the first and the last event is not computed"
-  },
-  {
-   "class": "stzGeoProcess",
-   "file": "geo/stzGeoProcess.ring",
-   "method": "ExpectedCount",
-   "line": 397,
-   "symptom": "Returns how many points the process puts down on average in a window of the given area.",
-   "cause": "Defect: for Inhomogeneous it is the mean of all the grid values times the window area, not the integral over the window: 191.9 against 149.4 drawn on average and 144.3 integrated."
-  },
-  {
-   "class": "stzGeoProcess",
-   "file": "geo/stzGeoProcess.ring",
-   "method": "PatternIn",
-   "line": 429,
-   "symptom": "Raises error today instead of returning the pattern of GenerateIn as a stzGeoPoints ready to measure.",
-   "cause": "Defect: it passes the window's list of rings to StzGeoPoints, which takes the stzGeoFeatures. Seen with SSI and MaternCluster on the fixtures and Poisson on Niger"
   },
   {
    "class": "stzGeoProjection",
