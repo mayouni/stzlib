@@ -4783,7 +4783,10 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
         if (t.kind != .table) continue;
         if (k > 0) {
             const c = &final.items[k - 1];
-            if (c.page == t.page and (c.kind == .paragraph or (c.kind == .heading and c.size <= 1.05 * t.size)) and c.lines <= 2 and t.y0 - c.y1 <= 2.0 * c.size and c.x1 > t.x0 and c.x0 < t.x1) {
+            // (a HEADING above a table is its caption only when it names itself with a number -- "Table 2",
+            //  "Tableau 1"; 65 of the 84 captions in golden_v1..v16 hold a digit, and a bold section title does not)
+            const numbered = std.mem.indexOfAny(u8, c.text, "0123456789") != null;
+            if (c.page == t.page and (c.kind == .paragraph or (c.kind == .heading and c.size <= 1.05 * t.size and numbered)) and c.lines <= 2 and t.y0 - c.y1 <= 2.0 * c.size and c.x1 > t.x0 and c.x0 < t.x1) {
                 // (a heading in larger type than the table is a section heading, not the table's caption)
                 c.kind = .caption;
                 c.level = 0;
