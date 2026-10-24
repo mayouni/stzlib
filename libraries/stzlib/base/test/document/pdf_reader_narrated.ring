@@ -508,6 +508,22 @@ Scenario("Japanese joins a wrapped line with no space; a Devanagari cluster keep
 	Then("a cluster of zero width does not cut its word", StzFindFirst("समय से पहुँचें", o.Text()) > 0, 1)
 EndScenario()
 
+# ---- the eighteenth round: tables (golden_v9, v15)
+
+Scenario("Small tables set in two columns are split, one table per column")
+	o = StzPdfQ("_data/golden_v15/x22.pdf")
+	aT = o.Tables()
+	Then("the first table has four columns", len(aT[1][1]), 4)
+	Then("each opens on its own header", @@(aT[2][1]), @@([ "Plac", "Namn", "Förening", "Resultat" ]))
+EndScenario()
+
+Scenario("A centred row beside a two-line cell is one row")
+	o = StzPdfQ("_data/golden_v9/p04.pdf")
+	aT = o.Tables()[2]
+	Then("the programme table is whole", len(aT), 15)
+	Then("a two-line cell is joined in its row", aT[3][3], "Distribuciones de frecuencias y representación gráfica")
+EndScenario()
+
 Scenario("A file that is not a readable PDF is refused with the reason")
 	bRaised = 0
 	cWhy = ""
