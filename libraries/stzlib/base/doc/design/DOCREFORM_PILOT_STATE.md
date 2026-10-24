@@ -559,3 +559,8 @@ Next by size: 18 classes at 2 (stzDate first), then 28 at 1.
 ToHuman's capital-letter defect was already gone from the code (lower case, pinned by dtfix_date_time_args_narrated): only its stale block warning was replaced. ToRelative had an off-by-one at exactly 14 days (in 1 week, while 15 to 20 days read 2 weeks): now 8 to 30 days is floor(days/7) weeks, 31+ is dd/MM/yyyy. The register generator listed both rows because their briefs begin 'Returns today, tomorrow or yesterday': mk_defects.py now skips that opening (RX_NOT). Guard 141 assertions on six frozen clocks plus a live-clock scenario. Register rows without a cause may be intended or stale: stzWebSocket.Close, stzListOfNamedObjects.Copy, stzString.IsCurrencySymbol.
 Next by size: 17 classes at 2 (stzZipFile first), then 28 at 1.
 
+## 2026-10-24: the stzZipFile fix batch is ON MAIN; register 62 -> 60
+
+CreateFromDirectory called FilesInDir and AddString called zip_newentry: neither exists. Both now use the real zip functions (zip_entry_open / write / close). SECURITY: the extract methods were open to ZIP SLIP (../ and backslash names wrote above the target; absolute and over-long names killed the process) and now refuse the whole archive before any write. Zip bombs not addressed. RING FACT: strcmp stops at NUL, so a guard that asserts byte-exactness with strcmp on data that can hold NUL passes vacuously: compare length, every byte and the CRC32. The stzAppServer Static guard should be re-checked for this. Guard 305 assertions.
+Next by size: 16 classes at 2 (stzGeoFeatures first), then 28 at 1.
+
