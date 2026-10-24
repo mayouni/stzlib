@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 62 methods in 45 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 60 methods in 44 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| file/stzZipFile.ring | stzZipFile | 2 |
 | geo/stzGeoFeatures.ring | stzGeoFeatures | 2 |
 | geo/stzGeoProcess.ring | stzGeoProcess | 2 |
 | graph/stzGraphQuery.ring | stzGraphQuery | 2 |
@@ -58,11 +57,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzEngineTimeline -- common/stzEngineTimeline.ring (1)
 
 - `Duration` (line 161): Returns 0 on every call today, whatever the events are. -- answered 0 for timestamps 100, 200, 300, then 1000 and 5000, then 2.5 and 9, then 1700000000 and 1700000060, sorted or not; the span between the first and the last event is not computed
-
-## stzZipFile -- file/stzZipFile.ring (2)
-
-- `CreateFromDirectory` (line 129): Raises error R3 today instead of creating the archive from every file of a folder. -- the call FilesInDir does not exist anywhere in the library, so an existing folder raises R3 Calling Function without definition: filesindir; a missing folder raises Directory does not exist
-- `AddString` (line 218): Raises error R3 today instead of storing a text as an entry of the archive. -- the zip_newentry function it calls does not exist (checked by calling it directly), so every call raises R3 Calling Function without definition: zip_newentry
 
 ## stzGeoFeatures -- geo/stzGeoFeatures.ring (2)
 

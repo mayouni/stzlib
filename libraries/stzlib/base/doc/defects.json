@@ -1,5 +1,5 @@
 {
- "count": 62,
+ "count": 60,
  "defects": [
   {
    "class": "stzEngineTimeline",
@@ -8,22 +8,6 @@
    "line": 161,
    "symptom": "Returns 0 on every call today, whatever the events are.",
    "cause": "answered 0 for timestamps 100, 200, 300, then 1000 and 5000, then 2.5 and 9, then 1700000000 and 1700000060, sorted or not; the span between the first and the last event is not computed"
-  },
-  {
-   "class": "stzZipFile",
-   "file": "file/stzZipFile.ring",
-   "method": "CreateFromDirectory",
-   "line": 129,
-   "symptom": "Raises error R3 today instead of creating the archive from every file of a folder.",
-   "cause": "the call FilesInDir does not exist anywhere in the library, so an existing folder raises R3 Calling Function without definition: filesindir; a missing folder raises Directory does not exist"
-  },
-  {
-   "class": "stzZipFile",
-   "file": "file/stzZipFile.ring",
-   "method": "AddString",
-   "line": 218,
-   "symptom": "Raises error R3 today instead of storing a text as an entry of the archive.",
-   "cause": "the zip_newentry function it calls does not exist (checked by calling it directly), so every call raises R3 Calling Function without definition: zip_newentry"
   },
   {
    "class": "stzGeoFeatures",
