@@ -1,0 +1,50 @@
+page_header	0	Thermalis WPR 4 – Installationsanleitung
+page_header	0	Ausgabe 03/2026
+heading	1	Wärmepumpenregler WPR 4
+heading	3	Installations- und Inbetriebnahmeanleitung für Fachhandwerker
+paragraph	0	Diese Anleitung richtet sich ausschließlich an qualifizierte Elektro- und Heizungsfachkräfte. Bewahren Sie das Dokument nach der Installation beim Gerät auf und übergeben Sie es bei einem Eigentümerwechsel.
+heading	2	1 Sicherheitshinweise
+paragraph	0	Der Regler arbeitet mit Netzspannung. Arbeiten am geöffneten Gerät dürfen nur im spannungsfreien Zustand erfolgen.
+heading	5	WARNUNG
+paragraph	0	Lebensgefahr durch elektrischen Schlag. Schalten Sie vor dem Öffnen des Gehäuses alle Stromkreise allpolig ab und sichern Sie diese gegen Wiedereinschalten.
+paragraph	0	Beachten Sie zusätzlich die örtlichen Vorschriften des Netzbetreibers sowie die Anleitungen der angeschlossenen Wärmepumpe.
+heading	2	2 Montage
+heading	4	2.1 Lieferumfang
+list_item	0	Regler WPR 4 mit Wandgehäuse
+list_item	0	Außentemperaturfühler AF 1 mit 15 m Leitung
+list_item	0	Zwei Anlegefühler VF 2 für Vor- und Rücklauf
+list_item	0	Befestigungsmaterial (vier Schrauben, vier Dübel)
+list_item	0	Diese Anleitung und eine Kurzbedienungsanleitung
+heading	4	2.2 Wandmontage
+paragraph	0	Wählen Sie einen trockenen, frostfreien Montageort ohne direkte Sonneneinstrahlung.
+list_item	0	1. Gehäusedeckel durch Lösen der beiden Frontschrauben abnehmen.
+list_item	0	2. Bohrlöcher mit Hilfe der Bohrschablone anzeichnen und bohren.
+list_item	0	3. Gehäuseunterteil mit den mitgelieferten Schrauben befestigen.
+list_item	0	4. Kabel durch die Kabeleinführungen von unten einführen.
+list_item	0	5. Zugentlastungen festziehen und Deckel wieder aufsetzen.
+paragraph	0	Der Mindestabstand zu seitlichen Wänden beträgt 50 mm, damit die Lüftungsschlitze frei bleiben.
+heading	2	3 Elektrischer Anschluss
+heading	4	3.1 Klemmenbelegung
+page_footer	0	Tabelle 1: Klemmenbelegung
+page_footer	0	Seite 1 von 3
+page_header	0	Thermalis WPR 4 – Installationsanleitung
+page_header	0	Ausgabe 03/2026
+page_header	0	Max. Belastung
+table	0	KlemmeBezeichnungFunktionNetzseite (230 V AC)Netzseite (230 V AC)Netzseite (230 V AC)Netzseite (230 V AC)L / N / PENetzVersorgung des Reglers–A1VerdichterFreigabe Wärmepumpe2 AA2Umwälzpumpe HKHeizkreispumpe1 AA3Mischer AUF / ZUMischerantrieb Heizkreis 20,5 AKleinspannungsseiteKleinspannungsseiteKleinspannungsseiteKleinspannungsseiteF1AF 1Außentemperaturfühler–F2VF 2Vorlauftemperatur–F3RF 2Rücklauftemperatur–BUSModbus RTUKommunikation mit Gebäudeleittechnik–
+paragraph	0	Fühlerleitungen müssen getrennt von Netzleitungen verlegt werden, um Messfehler zu vermeiden. Bei Leitungslängen über 20 m ist eine geschirmte Leitung zu verwenden.
+heading	2	4 Inbetriebnahme
+paragraph	0	Nach dem ersten Einschalten führt der Regler einen Selbsttest durch und zeigt anschließend die Sprachauswahl an.
+heading	4	4.1 Konfiguration über die Servicedatei
+paragraph	0	Alternativ zur Eingabe am Bedienteil kann die Grundkonfiguration als Textdatei von einer microSD- Karte geladen werden. Die Datei muss den Namen wpr4.ini tragen und im Stammverzeichnis der Karte liegen.
+code	0	[anlage]\ntyp = luft_wasser\nheizkreise = 2\nwarmwasser = ja\n\n[heizkreis_1]\nkennlinie = 0.8\nfusspunkt = 22\nvorlauf_max = 45\n\n[heizkreis_2]\nmischer = ja\nkennlinie = 0.5\nvorlauf_max = 38\n\n[modbus]\nadresse = 17\nbaudrate = 19200
+heading	5	4.1.1 Parameter für den Heizkreis
+table	0	ParameterBereichWerkseinstellungHinweiskennlinie0,2 – 3,01,0Steilheit der Heizkurvefusspunkt15 – 30 °C20 °CVorlauf bei 20 °C außenvorlauf_max25 – 65 °C50 °CBegrenzung für Fußbodenheizung beachtenmischerja / neinneinNur für Heizkreis 2
+page_footer	0	Seite 2 von 3
+page_header	0	Thermalis WPR 4 – Installationsanleitung
+page_header	0	Ausgabe 03/2026
+paragraph	0	Für Fußbodenheizungen empfehlen wir eine Kennlinie zwischen 0,4 und 0,7.
+heading	2	5 Störungsmeldungen
+caption	0	Tabelle 2: Störungscodes
+table	0	CodeBedeutungAbhilfeE01Außenfühler unterbrochenLeitung und Klemme F1 prüfen, Fühlerwiderstand messenE04Vorlauf zu heißKennlinie und Mischer prüfen, Umwälzpumpe kontrollierenE07Keine Rückmeldung WärmepumpeFreigabekontakt A1 und Busleitung prüfenE12Speicherkarte nicht lesbarKarte mit FAT32 formatieren, Dateinamen prüfen
+paragraph	0	Wenn eine Störung nach der Abhilfe weiter besteht, notieren Sie den Code und die Softwareversion aus dem Menü Info und wenden Sie sich an den Thermalis Kundendienst.
+page_footer	0	Seite 3 von 3

@@ -1,0 +1,398 @@
+{
+  "id": "x17",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Laporan Bulanan Produksi Ikan yang Didaratkan",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Laporan Bulanan Produksi Ikan yang Didaratkan"
+    },
+    {
+      "level": 2,
+      "text": "A. Ringkasan"
+    },
+    {
+      "level": 2,
+      "text": "B. Produksi Menurut Jenis Ikan"
+    },
+    {
+      "level": 2,
+      "text": "C. Kunjungan Kapal Menurut Ukuran"
+    },
+    {
+      "level": 2,
+      "text": "D. Catatan"
+    }
+  ],
+  "key_sentences": [
+    "Produksi bulan September meningkat dibandingkan bulan Agustus karena musim ikan pelagis kecil telah dimulai.",
+    "Cakalang dan tongkol tetap menjadi jenis ikan dengan volume pendaratan terbesar.",
+    "Kapal berukuran kurang dari lima gross tonnage masih mendominasi kunjungan ke pelabuhan.",
+    "Laporan ini disampaikan kepada Dinas Kelautan dan Perikanan Provinsi sebagai bahan evaluasi bulanan."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Periode laporan",
+          "1–30 September 2026"
+        ],
+        [
+          "Jumlah kunjungan kapal",
+          "412 kali"
+        ],
+        [
+          "Total volume produksi",
+          "284.783 kg"
+        ],
+        [
+          "Total nilai produksi",
+          "Rp 7.735.830.000"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "No.",
+          "Jenis ikan",
+          "Nama ilmiah",
+          "Volume (kg)",
+          "Harga rata-rata (Rp/kg)",
+          "Nilai (Rp)"
+        ],
+        [
+          "1",
+          "Cakalang",
+          "Katsuwonus pelamis",
+          "48.210",
+          "23.500",
+          "1.132.935.000"
+        ],
+        [
+          "2",
+          "Tongkol komo",
+          "Euthynnus affinis",
+          "31.480",
+          "21.000",
+          "661.080.000"
+        ],
+        [
+          "3",
+          "Tongkol krai",
+          "Auxis thazard",
+          "22.975",
+          "18.500",
+          "425.037.500"
+        ],
+        [
+          "4",
+          "Madidihang",
+          "Thunnus albacares",
+          "18.340",
+          "52.000",
+          "953.680.000"
+        ],
+        [
+          "5",
+          "Tuna mata besar",
+          "Thunnus obesus",
+          "4.120",
+          "61.000",
+          "251.320.000"
+        ],
+        [
+          "6",
+          "Layang",
+          "Decapterus russelli",
+          "27.660",
+          "16.000",
+          "442.560.000"
+        ],
+        [
+          "7",
+          "Selar bentong",
+          "Selar crumenophthalmus",
+          "9.815",
+          "19.500",
+          "191.392.500"
+        ],
+        [
+          "8",
+          "Kembung",
+          "Rastrelliger kanagurta",
+          "14.230",
+          "27.000",
+          "384.210.000"
+        ],
+        [
+          "9",
+          "Tenggiri",
+          "Scomberomorus commerson",
+          "3.905",
+          "78.000",
+          "304.590.000"
+        ],
+        [
+          "10",
+          "Lemuru",
+          "Sardinella lemuru",
+          "36.120",
+          "7.500",
+          "270.900.000"
+        ],
+        [
+          "11",
+          "Teri",
+          "Stolephorus indicus",
+          "5.480",
+          "32.000",
+          "175.360.000"
+        ],
+        [
+          "12",
+          "Kakap merah",
+          "Lutjanus malabaricus",
+          "2.215",
+          "85.000",
+          "188.275.000"
+        ],
+        [
+          "13",
+          "Kerapu sunu",
+          "Plectropomus leopardus",
+          "640",
+          "145.000",
+          "92.800.000"
+        ],
+        [
+          "14",
+          "Kerapu macan",
+          "Epinephelus fuscoguttatus",
+          "455",
+          "120.000",
+          "54.600.000"
+        ],
+        [
+          "15",
+          "Kuwe",
+          "Caranx ignobilis",
+          "1.870",
+          "42.000",
+          "78.540.000"
+        ],
+        [
+          "16",
+          "Baronang",
+          "Siganus canaliculatus",
+          "2.340",
+          "38.000",
+          "88.920.000"
+        ],
+        [
+          "17",
+          "Ekor kuning",
+          "Caesio cuning",
+          "6.105",
+          "33.000",
+          "201.465.000"
+        ],
+        [
+          "18",
+          "Lencam",
+          "Lethrinus lentjan",
+          "1.490",
+          "36.000",
+          "53.640.000"
+        ],
+        [
+          "19",
+          "Kurisi",
+          "Nemipterus japonicus",
+          "4.780",
+          "24.000",
+          "114.720.000"
+        ],
+        [
+          "20",
+          "Swanggi",
+          "Priacanthus tayenus",
+          "3.215",
+          "17.000",
+          "54.655.000"
+        ],
+        [
+          "21",
+          "Layur",
+          "Trichiurus lepturus",
+          "7.340",
+          "29.000",
+          "212.860.000"
+        ],
+        [
+          "22",
+          "Bawal hitam",
+          "Parastromateus niger",
+          "1.185",
+          "68.000",
+          "80.580.000"
+        ],
+        [
+          "23",
+          "Manyung",
+          "Netuma thalassina",
+          "2.060",
+          "31.000",
+          "63.860.000"
+        ],
+        [
+          "24",
+          "Peperek",
+          "Leiognathus equulus",
+          "8.930",
+          "9.000",
+          "80.370.000"
+        ],
+        [
+          "25",
+          "Belanak",
+          "Mugil cephalus",
+          "1.640",
+          "26.000",
+          "42.640.000"
+        ],
+        [
+          "26",
+          "Julung-julung",
+          "Hemiramphus far",
+          "2.475",
+          "22.000",
+          "54.450.000"
+        ],
+        [
+          "27",
+          "Lemadang",
+          "Coryphaena hippurus",
+          "3.360",
+          "34.000",
+          "114.240.000"
+        ],
+        [
+          "28",
+          "Cumi-cumi",
+          "Loligo spp.",
+          "5.925",
+          "64.000",
+          "379.200.000"
+        ],
+        [
+          "29",
+          "Sotong",
+          "Sepia spp.",
+          "1.310",
+          "58.000",
+          "75.980.000"
+        ],
+        [
+          "30",
+          "Gurita",
+          "Octopus spp.",
+          "980",
+          "55.000",
+          "53.900.000"
+        ],
+        [
+          "31",
+          "Udang putih",
+          "Penaeus merguiensis",
+          "1.725",
+          "110.000",
+          "189.750.000"
+        ],
+        [
+          "32",
+          "Rajungan",
+          "Portunus pelagicus",
+          "2.290",
+          "92.000",
+          "210.680.000"
+        ],
+        [
+          "33",
+          "Lobster pasir",
+          "Panulirus homarus",
+          "118",
+          "480.000",
+          "56.640.000"
+        ],
+        [
+          "",
+          "Jumlah",
+          "",
+          "284.783",
+          "",
+          "7.735.830.000"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Ukuran kapal",
+          "Jumlah kunjungan",
+          "Persentase"
+        ],
+        [
+          "< 5 GT",
+          "176",
+          "42,7 %"
+        ],
+        [
+          "5–10 GT",
+          "131",
+          "31,8 %"
+        ],
+        [
+          "10–30 GT",
+          "83",
+          "20,1 %"
+        ],
+        [
+          "> 30 GT",
+          "22",
+          "5,3 %"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. Data volume berasal dari pencatatan di tempat pelelangan ikan dan laporan nakhoda."
+    },
+    {
+      "level": 0,
+      "text": "2. Harga rata-rata adalah harga lelang tertimbang selama satu bulan."
+    },
+    {
+      "level": 0,
+      "text": "3. Pendaratan hasil tangkapan sampingan yang dilindungi dilaporkan secara terpisah."
+    }
+  ],
+  "furniture": [
+    "PELABUHAN PERIKANAN NUSANTARA TELUK DAMAR",
+    "Seksi Tata Kelola dan Pelayanan Usaha · Jl. Dermaga Timur No. 3",
+    "Laporan Produksi – September 2026",
+    "Halaman 1 dari 2",
+    "Halaman 2 dari 2"
+  ],
+  "languages": [
+    "id"
+  ],
+  "code": [],
+  "notes": "Letterhead (port name and section line) is furniture; running header and \"Halaman n dari N\" are CSS margin boxes. The species table has 33 species rows plus a total row and crosses from page 1 to page 2; the browser repeats the header row on page 2, but the expected table lists it once and is ONE table. Latin names are italic. Numbers use Indonesian format (thousands point, decimal comma). The summary is a key/value table without header. The notes are a typed list with \"1.\" markers."
+}

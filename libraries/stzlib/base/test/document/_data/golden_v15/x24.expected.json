@@ -1,0 +1,207 @@
+{
+  "id": "x24",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Release Runbook: WMS 7.4 at Kestrel Point Distribution Centre",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Release Runbook: WMS 7.4 at Kestrel Point Distribution Centre"
+    },
+    {
+      "level": 2,
+      "text": "1. Purpose"
+    },
+    {
+      "level": 2,
+      "text": "2. Pre-checks"
+    },
+    {
+      "level": 2,
+      "text": "3. Deployment"
+    },
+    {
+      "level": 3,
+      "text": "3.1 Update the release values"
+    },
+    {
+      "level": 3,
+      "text": "3.2 Run the deployment"
+    },
+    {
+      "level": 2,
+      "text": "4. Verification"
+    },
+    {
+      "level": 2,
+      "text": "5. Rollback"
+    },
+    {
+      "level": 2,
+      "text": "6. Contacts"
+    }
+  ],
+  "key_sentences": [
+    "This runbook describes how to deploy release 7.4 of the warehouse management system to the production cluster at Kestrel Point.",
+    "The release introduces wave picking for chilled goods and replaces the label printer gateway.",
+    "Set the image tags and the feature flag in the environment file before running the pipeline.",
+    "If a rollout does not finish within ten minutes, stop and go to section 5.",
+    "Rollback restores release 7.3.2 and the database snapshot taken during the pre-checks.",
+    "Orders created after the snapshot must be re-imported from the transport management system."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Change ID",
+          "CHG-26-0918"
+        ],
+        [
+          "Maintenance window",
+          "Saturday 31 October 2026, 22:00 – 02:00 (local time)"
+        ],
+        [
+          "Change owner",
+          "R. Haverkamp, Platform Team"
+        ],
+        [
+          "Rollback decision point",
+          "00:30 at the latest"
+        ],
+        [
+          "Affected services",
+          "wms-api, wms-picking, label-printer-gateway"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Check",
+          "Where",
+          "Expected result",
+          "Owner"
+        ],
+        [
+          "API health",
+          "GET /health on wms-api",
+          "HTTP 200 and version 7.4.0",
+          "Platform"
+        ],
+        [
+          "Wave creation",
+          "Picking console, test site KP-TEST",
+          "Chilled wave created within 30 seconds",
+          "Operations"
+        ],
+        [
+          "Label printing",
+          "Printer bank B, dock 4",
+          "Test label printed with new layout",
+          "Operations"
+        ],
+        [
+          "Order backlog",
+          "Database query below",
+          "No orders stuck in status ALLOCATING",
+          "Platform"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Role",
+          "Name",
+          "Phone"
+        ],
+        [
+          "Change owner",
+          "R. Haverkamp",
+          "+31 6 0000 1182"
+        ],
+        [
+          "Database on call",
+          "T. Mbeki-Larsen",
+          "+31 6 0000 4407"
+        ],
+        [
+          "Site shift supervisor",
+          "J. Coppens",
+          "+31 6 0000 9031"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Confirm the change is approved in the change calendar"
+    },
+    {
+      "level": 0,
+      "text": "Check the state of the cluster"
+    },
+    {
+      "level": 1,
+      "text": "All nodes report Ready"
+    },
+    {
+      "level": 1,
+      "text": "No pods in CrashLoopBackOff"
+    },
+    {
+      "level": 1,
+      "text": "Disk usage on database volumes below 70 %"
+    },
+    {
+      "level": 0,
+      "text": "Notify the shift supervisor"
+    },
+    {
+      "level": 1,
+      "text": "Picking stops at 21:45"
+    },
+    {
+      "level": 1,
+      "text": "Trucks scheduled after 22:00 are loaded manually"
+    },
+    {
+      "level": 0,
+      "text": "Take a database snapshot and record its identifier"
+    },
+    {
+      "level": 0,
+      "text": "Put the site into maintenance mode from the operations console."
+    },
+    {
+      "level": 0,
+      "text": "Run the database migration job and wait for it to complete."
+    },
+    {
+      "level": 0,
+      "text": "Deploy the services with the commands below."
+    },
+    {
+      "level": 0,
+      "text": "Take the site out of maintenance mode."
+    }
+  ],
+  "furniture": [
+    "INTERNAL — Change CHG-26-0918",
+    "Page 1 of 2",
+    "Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "release: \"7.4.0\"\nimages:\n  wms-api: registry.internal/wms/api:7.4.0\n  wms-picking: registry.internal/wms/picking:7.4.0\n  label-gateway: registry.internal/wms/label-gateway:2.0.3\nfeatures:\n  chilled_wave_picking: true\n  legacy_label_spooler: false\nreplicas:\n  wms-api: 4\n  wms-picking: 3",
+    "kubectl config use-context kpdc-prod\nkubectl -n wms apply -f release-7.4.0.yaml\nkubectl -n wms rollout status deploy/wms-api --timeout=10m\nkubectl -n wms rollout status deploy/wms-picking --timeout=10m",
+    "SELECT status, COUNT(*)\nFROM outbound_order\nWHERE updated_at > now() - interval '30 minutes'\nGROUP BY status;"
+  ],
+  "notes": "Running header \"INTERNAL — Change CHG-26-0918\" and \"Page n of N\" are CSS margin boxes. The line under the title is a subtitle, not a heading. The change table is key/value without header. Pre-checks are a nested CSS-drawn list (square bullets at level 0, circles at level 1). Deployment steps are a CSS-numbered list (decimal markers not in the text). Three code blocks in Consolas: YAML values, shell commands and an SQL query; their exact text is in \"code\" in document order. Verification cells hold two lines, joined with a space. The note box sentence is body text."
+}

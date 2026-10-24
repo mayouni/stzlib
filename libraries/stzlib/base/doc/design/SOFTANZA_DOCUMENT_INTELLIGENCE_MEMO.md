@@ -340,6 +340,21 @@ golden_v14: 24 realistic documents in 18 languages besides English, 13 of 2-3 pa
 
 Time for the 24 documents: native 0.1 s, Docling 131 s. **The native reader takes text back on unseen documents** (0.94 against 0.89, where golden_v13 had 0.88 against 0.93) and leads on order, furniture, code and heading precision; headings, tables and lists are level. Lists are low for BOTH readers for one reason: this set TYPES its markers into the text ("• ", "– ", "1. ", "α) "), set apart from the item by a hanging indent, and its expected items keep them; the native reader drops a marker that stands apart from its item. A bullet glyph standing apart can only be typed -- Chrome draws CSS bullets as shapes -- so it can be kept; a number standing apart cannot be told from a CSS-numbered list, which Chrome also writes as text. Round 14.
 
+**Fourteenth round: typed markers; then golden_v15.** Fixed on golden_v14 (now a development set):
+- a marker set apart from its item by a hanging indent is text the producer wrote, so it stays at the head of the item -- bullet glyphs (Chrome draws CSS bullets as shapes, so a glyph was typed) and numbers too: the expected ambiguity with CSS-numbered lists was MEASURED before deciding, and over golden_v1 to v13 no CSS-numbered list ever left its number standing apart (keeping numbers moved no earlier set). golden_v14 lists 0.38 -> 0.50 with glyphs, -> 0.73 with numbers;
+- a table of short cells whose last column holds descriptions (rows of two to four cells, the last up to fifteen words) is a table (v12 tables 0.671 -> 0.685).
+
+Not recovered, and now measured: on golden_v14's Persian page every key sentence matches once the zero-width non-joiner is removed, so the whole gap between its text score (0.17) and 1.00 is that one invisible character, which leaves no glyph and no gap. The scorer keeps it, as in every round, so the series stays comparable. Guard 161 assertions under Ring++.
+
+golden_v15: 24 realistic documents in 19 languages besides English, 14 of 2-3 pages, every named font checked as embedded and every character checked against its font, by a fifteenth independent agent who saw no reader, no output and no earlier set and did not look at the rendered pages (unperceived); reader frozen at 2280d83c5; both readers ran once:
+
+| golden_v15, realistic | text | order | headings | tables | lists | furniture | code | heading precision |
+|---|---|---|---|---|---|---|---|---|
+| Softanza native (Ring++) | **0.94** | **1.00** | 0.81 | 0.72 | **0.84** | **0.82** | **1.00** | **0.86** |
+| Docling 2.141 | 0.88 | 0.98 | **0.90** | **0.74** | 0.50 | 0.75 | 0.00 | 0.79 |
+
+Time for the 24 documents: native 0.1 s, Docling 159 s. The native reader leads on six of the eight measures, lists by a wide margin (0.84 against 0.50); Docling leads on headings (0.90 against 0.81) and narrowly on tables. One cause read off the output, and Docling shows it is recoverable: a Greek page set in Cambria loses its accents in the native reader (text 0.00 -- «ιστορικο» for «ιστορικό») because Chrome's ToUnicode maps the separate tonos glyph to U+0000, which the reader drops; Docling reads the same page at 1.00, so the accent is in the file (the embedded font's own cmap is the likely source). Round 15.
+
 **Perceived (2026-10-24):** the author looked through every rendered page of golden_v9 to golden_v13 -- the sets whose own authors could not look at them -- and judged them: "they look great". Those five sets are no longer unperceived; the sets before them were generated the same way and are not covered by this look.
 
 **Not measured**: Granite-Docling-258M (not downloaded), the GPU, scanned golden pages with an expected text, PDFs from producers other than Chrome (both golden sets are Chrome-made and tagged; the native reader does not read the tags).

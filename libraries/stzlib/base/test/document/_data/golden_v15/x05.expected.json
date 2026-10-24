@@ -1,0 +1,178 @@
+{
+  "id": "x05",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Liquidación de aceituna — Campaña 2025/2026",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Liquidación de aceituna — Campaña 2025/2026"
+    },
+    {
+      "level": 2,
+      "text": "Resumen económico"
+    }
+  ],
+  "key_sentences": [
+    "En esta liquidación se detallan las entregas de aceituna realizadas por el socio durante la campaña y el precio definitivo aprobado por la Asamblea General.",
+    "El precio por kilo de aceite se ha fijado según la categoría comercial obtenida en la almazara.",
+    "Las entregas de aceituna de suelo se liquidan a un precio inferior porque su aceite no alcanza la categoría virgen extra.",
+    "El importe líquido se abonará en la cuenta registrada por el socio en un plazo de diez días hábiles.",
+    "Las reclamaciones sobre esta liquidación deberán presentarse por escrito en las oficinas de la cooperativa antes del 31 de octubre de 2026."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Fecha",
+          "Albarán",
+          "Variedad",
+          "Kg brutos",
+          "% Tierra y hojas",
+          "Kg netos",
+          "Rendimiento graso %",
+          "Kg aceite",
+          "Precio €/kg",
+          "Importe €"
+        ],
+        [
+          "14/11/2025",
+          "A-10233",
+          "Picual",
+          "3.420",
+          "2,1",
+          "3.348",
+          "21,4",
+          "716,5",
+          "4,15",
+          "2.973,48"
+        ],
+        [
+          "21/11/2025",
+          "A-10871",
+          "Picual",
+          "2.980",
+          "1,8",
+          "2.926",
+          "22,0",
+          "643,7",
+          "4,15",
+          "2.671,36"
+        ],
+        [
+          "02/12/2025",
+          "A-11904",
+          "Hojiblanca",
+          "4.110",
+          "3,4",
+          "3.970",
+          "19,6",
+          "778,1",
+          "3,98",
+          "3.096,84"
+        ],
+        [
+          "09/12/2025",
+          "A-12466",
+          "Picual",
+          "3.760",
+          "2,5",
+          "3.666",
+          "23,1",
+          "846,8",
+          "4,15",
+          "3.514,22"
+        ],
+        [
+          "16/12/2025",
+          "A-13018",
+          "Hojiblanca",
+          "2.540",
+          "2,9",
+          "2.466",
+          "20,3",
+          "500,6",
+          "3,98",
+          "1.992,39"
+        ],
+        [
+          "08/01/2026",
+          "A-14102",
+          "Picual (suelo)",
+          "1.230",
+          "6,7",
+          "1.148",
+          "17,8",
+          "204,3",
+          "2,60",
+          "531,18"
+        ],
+        [
+          "15/01/2026",
+          "A-14577",
+          "Picual",
+          "3.050",
+          "2,2",
+          "2.983",
+          "24,0",
+          "715,9",
+          "4,15",
+          "2.970,99"
+        ],
+        [
+          "Total",
+          "",
+          "",
+          "21.090",
+          "",
+          "20.507",
+          "",
+          "4.405,9",
+          "",
+          "17.750,46"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Importe bruto",
+          "17.750,46 €"
+        ],
+        [
+          "Retención IRPF (2 %)",
+          "−355,01 €"
+        ],
+        [
+          "Cuota de sostenimiento",
+          "−88,75 €"
+        ],
+        [
+          "Anticipos recibidos",
+          "−9.000,00 €"
+        ],
+        [
+          "Líquido a percibir",
+          "8.306,70 €"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "Sierra de Almendros",
+    "COOPERATIVA AGRARIA",
+    "Camino de la Almazara, s/n",
+    "23490 Valdehiguera (Jaén)",
+    "Tel. 953 000 417 · socios@sierradealmendros.example",
+    "1 / 1",
+    "Cooperativa Agraria Sierra de Almendros, S. Coop. And. — CIF F-23900417"
+  ],
+  "languages": [
+    "es"
+  ],
+  "code": [],
+  "notes": "Letterhead (name, the letter-spaced word COOPERATIVA AGRARIA, address) is furniture. The member/date lines in two small columns are body text, not key sentences. The delivery table is ten columns wide with zebra shading and a totals row with empty cells; numbers use Spanish format (thousands point, decimal comma). The deduction table is a key/value table without header; minus signs are U+2212. Footer line and page number \"n / N\" are CSS margin boxes."
+}

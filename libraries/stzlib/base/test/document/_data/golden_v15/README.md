@@ -1,0 +1,62 @@
+# golden_v15 -- 24 realistic PDF documents with known structure
+
+An independent golden test set for scoring document readers (for example Docling and Softanza's native PDF reader). Each document `xNN` comes as three files: `xNN.html` (the source), `xNN.pdf` (the rendering) and `xNN.expected.json` (the structure a perfect reader should recover: title, headings with levels, key sentences in reading order, tables as grids, list items, page furniture, languages, code blocks, and notes for the scorer).
+
+## How it was made
+
+- Every document was written for this set: whole documents of kinds real organisations produce, with invented organisations, people, numbers and places (no real persons or companies). Figures that add up in a real document (invoice totals, balance sheets, duty assessments, standings) were computed so that they do add up.
+- A small Python generator builds each HTML page and its expected.json FROM THE SAME DATA, so every expected string is exactly the string that was typeset (after whitespace collapsing). The expected page count is read from the raw bytes of the produced PDF (`/Type /Page` objects and the `/Count` of the page tree).
+- Rendering: headless Chrome 155 (`--headless=new --disable-gpu --no-pdf-header-footer`, separate profile), CSS `@page` A4 (two documents A4 landscape). Running headers, footers and page numbers are CSS page-margin boxes (`@top-left`, `@bottom-center`, ...), not browser headers.
+- Fonts: only fonts installed in `C:\Windows\Fonts`, no variable fonts. Before rendering, every character of each document was checked against the cmap of the font faces it is set in (fontTools). After rendering, the `/BaseFont` names in the raw PDF bytes were read to confirm which fonts were embedded; every document embeds exactly the families intended and no fallback font.
+- The author of this set never ran, imported or looked at any PDF-to-text or document-conversion tool, PDF rasterizer, any reader's code or any reader's output, and never opened golden_v1 .. golden_v14. Layout was checked only by screenshots of the HTML sources in headless Chrome.
+
+## Conventions a scorer must know
+
+- Texts are whitespace-collapsed (runs of spaces, tabs, newlines and no-break spaces become one space), except in `code`.
+- `headings` start with the title at level 1; levels follow the HTML h1..h4 tags. A letterhead's organisation name, subtitles, date lines, table header cells and form labels are never headings.
+- `key_sentences` are 4 to 10 full body sentences, in reading order. No key sentence carries a footnote marker. Inline bold or italic words appear as plain text.
+- `tables`: header rows first (a two-level header gives two rows); a merged cell repeats its text in every grid cell it covers; section, subtotal and total rows are rows of the same table; a cell drawn on two lines is joined with one space; empty cells are "". A table that continues on another page is one table with its header listed once (Chrome repeats `<thead>` on the new page). Right-to-left tables are listed in logical order, rightmost column first.
+- `list_items`: a typed marker (written in the text: "1.", "a)", "(a)", "–", "•", "١.", "፩.", "א.") is part of the item text; a CSS-drawn marker (disc, square, circle, decimal, lower-alpha) is not. Nested items have level 1. Each document's notes say which is which.
+- `furniture`: letterhead lines and margin-box lines, one visible line per entry. Identical running lines are listed once; page-number lines differ per page and are listed once per page ("Page 1 of 2", "Page 2 of 2").
+- Letter-spaced text is given as its plain words; ligatures as their letters. No CSS hyphenation and no soft hyphens are used; real hyphens in compound words (for example "Okafor-Reid", "OV-chipkaart") stay in the text even if a line breaks after them.
+- Right-to-left text (Arabic, Persian, Hebrew) is in logical order. Digits are as printed: Arabic-Indic in x03, Persian in x04, Western in x12. Visual order of digit groups in RTL lines (for example a phone number) differs from logical order; expected is logical.
+- "Side by side" blocks (flex boxes) and CSS multi-column text are read block by block / column by column, in source order. The notes of each document name them.
+- Text is NFC. Typographic apostrophes (U+2019), en dashes and minus signs (U+2212) are used as printed.
+
+## The documents
+
+| id | kind | lang | pages | difficulty | main difficulties | fonts embedded (/BaseFont) |
+|---|---|---|---|---|---|---|
+| x01 | Commercial tax invoice (industrial supplies) | en | 1 | easy | letterhead; two address boxes side by side; line-item table whose total rows span five columns; borderless key/value table | ArialMT, Arial-BoldMT |
+| x02 | Hospital discharge letter (cardiology) | fr | 2 | medium | two pages; running header and page numbers; two-level table header with row spans; medication cells on two lines; CSS bullet list and typed dash list; headings on two levels | Verdana, Verdana-Bold, Georgia, Georgia-Bold |
+| x03 | Municipal notice of scheduled water interruptions | ar | 1 | medium | right-to-left Arabic with Arabic-Indic digits; table read right to left; typed numbered list; letterhead in two corners | Tahoma, Tahoma-Bold, SimplifiedArabic |
+| x04 | Home fire insurance policy schedule | fa | 2 | hard | right-to-left Persian with Persian digits; key/value table in two column pairs; coverage table with section rows and a total; CSS bullet list and typed numbered list; two pages | Tahoma, Arial-BoldMT, Tahoma-Bold |
+| x05 | Agricultural cooperative olive settlement statement | es | 1 | medium | wide ten-column zebra table with a totals row; numbers with decimal commas and thousands points; key/value deduction table; letterhead with logo text | TrebuchetMS, Candara-Bold, Candara, TrebuchetMS-Bold |
+| x06 | Installation manual for a heat-pump controller | de | 3 | hard | three pages; numbered headings on three levels; warning box; CSS-numbered steps; parameter table with a section row; error table with two-line cells; INI configuration block in Consolas; running header in two corners | SegoeUI, SegoeUI-Bold, Consolas, SegoeUI-BoldItalic |
+| x07 | Residential tenancy agreement | en | 3 | hard | three pages of numbered clauses; typed sub-clause markers (a), (b); a footnote marker and footnote text; particulars key/value table; inventory table with section rows; two signature boxes side by side; footer with initials line | TimesNewRomanPSMT, TimesNewRomanPS-BoldMT, TimesNewRomanPS-ItalicMT, TimesNewRomanPS-BoldItalicMT |
+| x08 | University course syllabus | pt | 2 | medium | key/value header table; schedule table with module section rows across a page break; assessment table with a total; typed letter list and CSS square list; numbered headings | Calibri, Constantia, Calibri-Bold, Constantia-Bold |
+| x09 | NGO monthly community health outreach report | ha | 1 | hard | Hausa with hooked letters (ɓ ɗ ƙ); body in two CSS columns read column by column; table inside a column; CSS bullet list and typed numbered list | Tahoma, Tahoma-Bold |
+| x10 | Municipal water utility bill | sw | 1 | medium | bill layout with a shaded customer panel beside the amount box (two boxes, box by box); key/value tables; small meter table; tariff table with totals; typed list | Verdana, Verdana-Bold, Verdana-Italic |
+| x11 | Hotel banquet and event offer | tr | 2 | medium | letter with offer tables: price table with VAT and total, programme timetable, menu as headed CSS lists; typed bullet conditions; centred decorative headings with letter spacing | CenturyGothic, PalatinoLinotype-Roman, PalatinoLinotype-BoldItalic, PalatinoLinotype-Bold |
+| x12 | Synagogue and community centre holiday and activity programme | he | 1 | medium | right-to-left Hebrew; prayer-time table with a two-level header; activity table; typed Hebrew-letter list and CSS bullet list; mixed digits and times in RTL | ArialMT, Arial-BoldMT, TimesNewRomanPSMT |
+| x13 | Coffee cooperative union purchase price notice (bilingual) | am, en | 1 | hard | Ethiopic script (Amharic) interleaved with English; table with two-line bilingual cells; typed list with Ethiopic numerals; CSS bullet list; Ethiopian-calendar dates | Ebrima, Ebrima-Bold |
+| x14 | Drinking-water laboratory test report | it | 2 | hard | results table with a two-level header, section rows and footnote symbols in cells, likely crossing the page break; sample key/value table in two column pairs; footnote legend; conformity statement; signature block | ArialMT, Garamond-Italic, Arial-BoldMT, Garamond |
+| x15 | Regional bus timetable leaflet | nl | 1 | hard | landscape page; two very wide timetable tables (14 columns) in a condensed font; dash cells; superscript-free symbol legend; side-by-side information boxes read box by box | ArialMT, Arial-BoldMT, ArialNarrow |
+| x16 | Housing cooperative annual financial statement | pl | 2 | hard | balance sheet with a two-level header, nested section rows and subtotal rows; income statement; Polish number format with spaces; typed numbered resolutions and CSS list; two pages | GillSansMT, GillSansMT-Bold, BookAntiqua, BookAntiqua-Bold |
+| x17 | Fishing port monthly landing report | id | 2 | medium | long species table that crosses the page break with its header repeated by the browser; italic Latin names; Indonesian number format; summary key/value table; small vessel table; typed list | OpenSans, OpenSans-Bold, OpenSans |
+| x18 | Municipal theatre festival programme | el | 2 | medium | Greek with tonos accents; two venue boxes side by side (box by box); schedule table; ticket table with two-level header; performance notes in two CSS columns; typed dash list and CSS list | BookmanOldStyle, Cambria, BookmanOldStyle-Bold |
+| x19 | Telecom operator tariff plan sheet | ru | 1 | medium | Cyrillic; comparison table with plan names as column headers and two section rows; zebra rows; CSS bullet list and typed numbered list; coloured title band | SegoeUI, SegoeUI-Semibold, SegoeUI-Bold |
+| x20 | Mine occupational safety inspection minutes | vi | 2 | hard | Vietnamese with stacked diacritics; official two-block header side by side (both furniture); findings table with multi-line cells; typed lists; two signature blocks side by side; two pages | TimesNewRomanPSMT, TimesNewRomanPS-BoldMT, TimesNewRomanPS-ItalicMT |
+| x21 | Aircraft service bulletin (landing gear inspection) | en | 2 | hard | dense technical layout; lettered planning sub-headings; parts table; torque table with a two-level header; CSS-numbered steps with nested lettered sub-steps; WARNING and CAUTION boxes; record block in Courier New; four-corner running furniture | MicrosoftSansSerif, CourierNewPSMT |
+| x22 | District athletics championship results list | sv | 2 | hard | eleven small result tables in two CSS columns that run across two pages (read column by column); event headings with wind/implement notes; DNF cell; club standings table with totals; Swedish decimal commas | Roboto-Regular, Roboto-Bold, RobotoCondensed-Bold, RobotoCondensed-Regular |
+| x23 | Customs broker duty and tax assessment note | fr | 1 | hard | landscape; very wide goods table (eleven columns) with a two-level header and a totals row; numbers with space grouping; key/value block in three column pairs; typed dash list | CenturySchoolbook, LucidaSans, LucidaSans-Demi, CenturySchoolbook-Bold |
+| x24 | Warehouse system release runbook (IT operations) | en | 2 | hard | runbook with three code blocks (YAML, shell, SQL) in Consolas; nested CSS checklists (two levels); CSS-numbered steps; verification table with two-line cells; key/value change table; contacts table | DroidSans, DroidSans-Bold, Consolas |
+
+Languages besides English: French, Arabic, Persian, Spanish, German, Portuguese, Hausa, Swahili, Turkish, Hebrew, Amharic, Italian, Dutch, Polish, Indonesian, Greek, Russian, Vietnamese, Swedish. Fourteen documents have two or three pages.
+
+## Font findings while building
+
+- `Franklin Gothic Medium` named in CSS was resolved by Chrome to the Franklin Gothic Demi face (FranklinGothic-Demi embedded); that document (x11) was switched to Century Gothic.
+- Corbel, Cambria, Calibri, Candara, Segoe UI and Ebrima all map U+0198 (Ƙ) in their cmap, but their glyph shows no visible hook; the Hausa document (x09) was set in Tahoma, whose Ƙ is visibly hooked.
+- Microsoft Sans Serif (x21) has no bold face, so its bold text is synthesised by the renderer from the regular face.
+- Segoe UI at weight 600 embeds the Segoe UI Semibold face (x19).

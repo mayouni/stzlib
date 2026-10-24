@@ -1,0 +1,226 @@
+{
+  "id": "x11",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Yıl Sonu Gala Yemeği Teklifi",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Yıl Sonu Gala Yemeği Teklifi"
+    },
+    {
+      "level": 2,
+      "text": "Etkinlik Bilgileri"
+    },
+    {
+      "level": 2,
+      "text": "Program Akışı"
+    },
+    {
+      "level": 2,
+      "text": "Gala Menüsü"
+    },
+    {
+      "level": 3,
+      "text": "Başlangıç"
+    },
+    {
+      "level": 3,
+      "text": "Ara Sıcak"
+    },
+    {
+      "level": 3,
+      "text": "Ana Yemek"
+    },
+    {
+      "level": 3,
+      "text": "Tatlı"
+    },
+    {
+      "level": 2,
+      "text": "Fiyatlandırma"
+    },
+    {
+      "level": 2,
+      "text": "Rezervasyon ve İptal Koşulları"
+    }
+  ],
+  "key_sentences": [
+    "Şirketinizin yıl sonu gala yemeğine ev sahipliği yapma fırsatı için teşekkür ederiz.",
+    "Görüşmemizde belirttiğiniz ihtiyaçlara göre hazırladığımız teklifimizi bilgilerinize sunarız.",
+    "Salon kirası, garanti edilen kişi sayısına ulaşılması halinde ücretsizdir.",
+    "Teklifimiz 31 Ekim 2026 tarihine kadar geçerlidir.",
+    "Sorularınız için bizimle her zaman iletişime geçebilirsiniz."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Tarih",
+          "19 Aralık 2026, Cumartesi"
+        ],
+        [
+          "Salon",
+          "Zeytinlik Balo Salonu (zemin kat)"
+        ],
+        [
+          "Katılımcı sayısı",
+          "180 kişi (garanti)"
+        ],
+        [
+          "Oturma düzeni",
+          "10 kişilik yuvarlak masalar"
+        ],
+        [
+          "Saat",
+          "19:30 – 00:30"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Saat",
+          "Etkinlik"
+        ],
+        [
+          "19:30",
+          "Karşılama kokteyli ve fotoğraf köşesi"
+        ],
+        [
+          "20:30",
+          "Genel müdür konuşması"
+        ],
+        [
+          "20:45",
+          "Akşam yemeği servisi"
+        ],
+        [
+          "22:00",
+          "Ödül töreni"
+        ],
+        [
+          "22:30",
+          "Canlı müzik ve dans"
+        ],
+        [
+          "00:30",
+          "Kapanış"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Kalem",
+          "Miktar",
+          "Birim fiyat (TL)",
+          "Tutar (TL)"
+        ],
+        [
+          "Gala menüsü ve sınırsız meşrubat",
+          "180 kişi",
+          "2.450,00",
+          "441.000,00"
+        ],
+        [
+          "Karşılama kokteyli",
+          "180 kişi",
+          "380,00",
+          "68.400,00"
+        ],
+        [
+          "Sahne, ses ve ışık sistemi",
+          "1 paket",
+          "36.000,00",
+          "36.000,00"
+        ],
+        [
+          "Masa süslemesi (çiçek ve mum)",
+          "18 masa",
+          "1.250,00",
+          "22.500,00"
+        ],
+        [
+          "Ara toplam",
+          "",
+          "",
+          "567.900,00"
+        ],
+        [
+          "KDV (%10)",
+          "",
+          "",
+          "56.790,00"
+        ],
+        [
+          "Genel toplam",
+          "",
+          "",
+          "624.690,00"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Ege otlarıyla zeytinyağlı enginar"
+    },
+    {
+      "level": 0,
+      "text": "Közlenmiş patlıcan salatası ve taze kekik"
+    },
+    {
+      "level": 0,
+      "text": "Fırında kaşarlı mantar"
+    },
+    {
+      "level": 0,
+      "text": "Kuzu incik, beğendi eşliğinde"
+    },
+    {
+      "level": 0,
+      "text": "Vejetaryen seçenek: sebzeli fırın mantı"
+    },
+    {
+      "level": 0,
+      "text": "İrmik helvası ve dondurma"
+    },
+    {
+      "level": 0,
+      "text": "Türk kahvesi ve lokum"
+    },
+    {
+      "level": 0,
+      "text": "• Rezervasyonun kesinleşmesi için toplam tutarın %30’u kadar ön ödeme gereklidir."
+    },
+    {
+      "level": 0,
+      "text": "• Kesin katılımcı sayısı etkinlikten en geç 7 gün önce bildirilmelidir."
+    },
+    {
+      "level": 0,
+      "text": "• Etkinlikten 30 gün öncesine kadar yapılan iptallerde ön ödeme iade edilir."
+    },
+    {
+      "level": 0,
+      "text": "• Daha geç yapılan iptallerde ön ödeme iade edilmez."
+    }
+  ],
+  "furniture": [
+    "KORDON BAHÇE OTEL",
+    "Toplantı ve Davet Organizasyonu",
+    "Kordon Bahçe Otel · Mithatpaşa Cad. No: 214 · Narlıdere / İzmir",
+    "Sayfa 1/2",
+    "Sayfa 2/2"
+  ],
+  "languages": [
+    "tr"
+  ],
+  "code": [],
+  "notes": "Letterhead (letter-spaced hotel name and tagline) is furniture; footer address and \"Sayfa n/N\" are CSS margin boxes. The recipient/date block is in two small columns (left then right) and is not key text. \"Etkinlik Bilgileri\" is a key/value table without header. The menu is centred: course names are h3 headings and the dishes under each are CSS lists with no visible marker (list-style none), one list item per dish. The conditions are a typed list whose items begin with \"•\". Numbers use Turkish format (thousands point, decimal comma)."
+}

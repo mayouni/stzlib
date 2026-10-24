@@ -1,0 +1,185 @@
+{
+  "id": "x01",
+  "difficulty": "easy",
+  "pages": 1,
+  "title": "Tax Invoice",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Tax Invoice"
+    },
+    {
+      "level": 2,
+      "text": "Payment instructions"
+    },
+    {
+      "level": 2,
+      "text": "Notes"
+    }
+  ],
+  "key_sentences": [
+    "Invoices are processed by the central finance office in Brackmoor.",
+    "Deliveries are accepted between 07:30 and 15:00 on weekdays.",
+    "Payment is due within 30 days of the invoice date.",
+    "Please quote the invoice number on all remittances so that your payment can be allocated without delay.",
+    "Goods remain the property of Northmere Industrial Supply Co. until payment has been received in full.",
+    "Damaged or missing items must be reported within five working days of delivery."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Invoice number",
+          "NIS-2026-04417"
+        ],
+        [
+          "Invoice date",
+          "9 October 2026"
+        ],
+        [
+          "Due date",
+          "8 November 2026"
+        ],
+        [
+          "Customer reference",
+          "PO 7781-B"
+        ],
+        [
+          "Account",
+          "C-01294"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Item",
+          "Description",
+          "Qty",
+          "Unit",
+          "Unit price",
+          "Amount"
+        ],
+        [
+          "HX-M10-50",
+          "Hex bolt M10 x 50, zinc plated, grade 8.8",
+          "400",
+          "pcs",
+          "0.21",
+          "84.00"
+        ],
+        [
+          "NY-M10",
+          "Nylon insert lock nut M10",
+          "400",
+          "pcs",
+          "0.09",
+          "36.00"
+        ],
+        [
+          "BR-6204",
+          "Deep groove ball bearing 6204-2RS",
+          "24",
+          "pcs",
+          "3.85",
+          "92.40"
+        ],
+        [
+          "CT-115",
+          "Cutting disc 115 x 1.0 mm, stainless steel",
+          "50",
+          "pcs",
+          "0.96",
+          "48.00"
+        ],
+        [
+          "GL-NIT-L",
+          "Nitrile gloves, size L, box of 100",
+          "12",
+          "box",
+          "6.40",
+          "76.80"
+        ],
+        [
+          "TH-LOC-243",
+          "Threadlocker, medium strength, 50 ml",
+          "6",
+          "btl",
+          "9.75",
+          "58.50"
+        ],
+        [
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "395.70"
+        ],
+        [
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "79.14"
+        ],
+        [
+          "Carriage",
+          "Carriage",
+          "Carriage",
+          "Carriage",
+          "Carriage",
+          "12.50"
+        ],
+        [
+          "Total due (GBP)",
+          "Total due (GBP)",
+          "Total due (GBP)",
+          "Total due (GBP)",
+          "Total due (GBP)",
+          "487.34"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Bank",
+          "Fenwick Mercantile Bank"
+        ],
+        [
+          "Sort code",
+          "40-17-22"
+        ],
+        [
+          "Account number",
+          "31884506"
+        ],
+        [
+          "IBAN",
+          "GB29 FMBK 4017 2231 8845 06"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "NORTHMERE INDUSTRIAL SUPPLY CO.",
+    "Fasteners · Bearings · Workshop consumables",
+    "Unit 14, Calder Bank Trading Estate",
+    "Halsworth HX7 2QD, United Kingdom",
+    "Tel. +44 1632 960 418",
+    "accounts@northmere.example",
+    "Northmere Industrial Supply Co. Ltd · Registered in England No. 08172264 · VAT GB 418 2290 37",
+    "Page 1 of 1"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Letterhead (organisation name letter-spaced, tagline, address) is furniture, not a heading. The BILL TO and SHIP TO boxes sit side by side; reading order is the whole left box, then the whole right box. The box labels BILL TO / SHIP TO are labels, not headings. The first table (invoice number, dates) and the bank table are key/value tables with no header row. In the items table the Subtotal, VAT, Carriage and Total labels span five columns and are repeated in each covered cell. The footer line and the page number are CSS page-margin boxes."
+}

@@ -1,0 +1,141 @@
+{
+  "id": "x20",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "BIÊN BẢN KIỂM TRA AN TOÀN LAO ĐỘNG",
+  "headings": [
+    {
+      "level": 1,
+      "text": "BIÊN BẢN KIỂM TRA AN TOÀN LAO ĐỘNG"
+    },
+    {
+      "level": 2,
+      "text": "I. Thành phần đoàn kiểm tra"
+    },
+    {
+      "level": 2,
+      "text": "II. Nội dung và kết quả kiểm tra"
+    },
+    {
+      "level": 2,
+      "text": "III. Kết luận"
+    },
+    {
+      "level": 2,
+      "text": "IV. Kiến nghị"
+    }
+  ],
+  "key_sentences": [
+    "Hôm nay, vào lúc 8 giờ 30 phút, đoàn kiểm tra của Công ty đã tiến hành kiểm tra công tác an toàn lao động tại khai trường mỏ đá vôi số 2.",
+    "Đoàn đã kiểm tra hồ sơ huấn luyện an toàn, tình trạng thiết bị, khu vực nổ mìn và việc sử dụng phương tiện bảo vệ cá nhân của công nhân.",
+    "Nhìn chung, đơn vị đã thực hiện tương đối tốt các quy định về an toàn lao động.",
+    "Tuy nhiên, vết nứt tại bờ moong tầng +120 có nguy cơ sạt lở cao và phải được xử lý ngay.",
+    "Biên bản được lập thành hai bản có giá trị như nhau, mỗi bên giữ một bản."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "STT",
+          "Hạng mục kiểm tra",
+          "Hiện trạng",
+          "Mức độ",
+          "Biện pháp khắc phục",
+          "Thời hạn"
+        ],
+        [
+          "1",
+          "Bờ moong tầng +120",
+          "Có vết nứt dài khoảng 6 m ở mép tầng phía Bắc",
+          "Nghiêm trọng",
+          "Dừng khai thác khu vực, cắm biển cảnh báo",
+          "17/10/2026"
+        ],
+        [
+          "2",
+          "Băng tải số 3",
+          "Thiếu nắp che tang dẫn động",
+          "Trung bình",
+          "Lắp nắp che bằng thép tấm",
+          "25/10/2026"
+        ],
+        [
+          "3",
+          "Kho vật liệu nổ",
+          "Sổ theo dõi xuất nhập ghi chép đầy đủ",
+          "Đạt",
+          "—",
+          "—"
+        ],
+        [
+          "4",
+          "Phương tiện bảo vệ cá nhân",
+          "5 công nhân không đeo khẩu trang chống bụi",
+          "Trung bình",
+          "Nhắc nhở, cấp bổ sung khẩu trang",
+          "18/10/2026"
+        ],
+        [
+          "5",
+          "Hệ thống phun sương dập bụi",
+          "Hai vòi phun bị tắc",
+          "Nhẹ",
+          "Vệ sinh và thay đầu phun",
+          "20/10/2026"
+        ],
+        [
+          "6",
+          "Hồ sơ huấn luyện an toàn",
+          "3 công nhân mới chưa được huấn luyện",
+          "Nghiêm trọng",
+          "Tổ chức huấn luyện trước khi bố trí công việc",
+          "23/10/2026"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. Ông Nguyễn Văn Thắng – Phó Giám đốc, Trưởng đoàn;"
+    },
+    {
+      "level": 0,
+      "text": "2. Bà Trần Thị Hồng Nhung – Trưởng ban An toàn, thành viên;"
+    },
+    {
+      "level": 0,
+      "text": "3. Ông Lê Quốc Huy – Kỹ sư cơ điện, thành viên;"
+    },
+    {
+      "level": 0,
+      "text": "4. Ông Phạm Đức Long – Quản đốc khai trường, đại diện đơn vị được kiểm tra."
+    },
+    {
+      "level": 0,
+      "text": "a) Quản đốc khai trường báo cáo kết quả khắc phục bằng văn bản trước ngày 30/10/2026."
+    },
+    {
+      "level": 0,
+      "text": "b) Phòng Kỹ thuật lập phương án gia cố bờ moong và trình Giám đốc phê duyệt."
+    },
+    {
+      "level": 0,
+      "text": "c) Ban An toàn tổ chức kiểm tra lại vào tuần đầu tháng 11."
+    }
+  ],
+  "furniture": [
+    "CÔNG TY CỔ PHẦN KHOÁNG SẢN LŨNG MÂY",
+    "BAN AN TOÀN – BẢO HỘ LAO ĐỘNG",
+    "CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM",
+    "Độc lập – Tự do – Hạnh phúc",
+    "Trang 1/2",
+    "Trang 2/2"
+  ],
+  "languages": [
+    "vi"
+  ],
+  "code": [],
+  "notes": "The two-block header (company and safety board on the left, national heading and motto on the right) sits side by side and is furniture, read left block then right block. The number line \"Số: 27/BB-ATLĐ\" and the place/date line are body text but not key sentences; the italic line under the title is a subtitle, not a heading. The members list and the recommendations are typed lists (markers \"1.\" and \"a)\"). In the findings table most cells hold two lines, joined with a space. The two signature blocks sit side by side: left block (title, instruction, name) then right block. \"Trang n/N\" is a CSS margin box. Text is NFC."
+}

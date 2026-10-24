@@ -1,0 +1,198 @@
+{
+  "id": "x07",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "RESIDENTIAL TENANCY AGREEMENT",
+  "headings": [
+    {
+      "level": 1,
+      "text": "RESIDENTIAL TENANCY AGREEMENT"
+    },
+    {
+      "level": 2,
+      "text": "1. Particulars"
+    },
+    {
+      "level": 2,
+      "text": "2. Rent"
+    },
+    {
+      "level": 2,
+      "text": "3. Deposit"
+    },
+    {
+      "level": 2,
+      "text": "4. Obligations of the Tenant"
+    },
+    {
+      "level": 2,
+      "text": "5. Obligations of the Landlord"
+    },
+    {
+      "level": 2,
+      "text": "6. Ending the tenancy"
+    },
+    {
+      "level": 2,
+      "text": "7. Notices"
+    },
+    {
+      "level": 2,
+      "text": "Schedule: inventory summary"
+    },
+    {
+      "level": 2,
+      "text": "Signatures"
+    }
+  ],
+  "key_sentences": [
+    "This agreement is made on 1 November 2026 between the parties named below.",
+    "It creates a tenancy of a dwelling house and sets out the rights and duties of both parties.",
+    "The first payment is due on the date of this agreement.",
+    "Any increase must be notified to the Tenant at least one month before it takes effect.",
+    "Deductions may only be made for unpaid rent, damage beyond fair wear and tear, or missing items listed in the inventory.",
+    "The Tenant is advised to arrange separate insurance for personal belongings.",
+    "A final inspection will be carried out in the presence of the Tenant if the Tenant so wishes.",
+    "The Landlord confirms that the gas safety record and the energy performance certificate have been given to the Tenant.",
+    "The Tenant confirms receipt of two sets of keys and a copy of the full inventory."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Landlord",
+          "Gareth Pellow, 41 Moorside Crescent, Tregenna TR9 4LP"
+        ],
+        [
+          "Tenant",
+          "Imogen Saltash and Daniel Okafor-Reid"
+        ],
+        [
+          "Property",
+          "Flat 3, Harbour View, 17 Quay Street, Porthleven Mills PL12 8RW"
+        ],
+        [
+          "Term",
+          "Twelve months from 1 November 2026 to 31 October 2027"
+        ],
+        [
+          "Rent",
+          "£1,150.00 per calendar month, payable in advance on the 1st"
+        ],
+        [
+          "Deposit",
+          "£1,326.92 (five weeks’ rent)"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Room",
+          "Item",
+          "Condition at start"
+        ],
+        [
+          "Living room",
+          "Living room",
+          "Living room"
+        ],
+        [
+          "",
+          "Two-seat sofa, grey fabric",
+          "Good; small stain on left arm"
+        ],
+        [
+          "",
+          "Curtains and pole",
+          "Good"
+        ],
+        [
+          "Kitchen",
+          "Kitchen",
+          "Kitchen"
+        ],
+        [
+          "",
+          "Electric oven and hob",
+          "Good; cleaned before check-in"
+        ],
+        [
+          "",
+          "Fridge freezer",
+          "Fair; door seal worn"
+        ],
+        [
+          "Bedroom",
+          "Bedroom",
+          "Bedroom"
+        ],
+        [
+          "",
+          "Double bed frame and mattress",
+          "Good; mattress protector supplied"
+        ],
+        [
+          "",
+          "Fitted wardrobe",
+          "Good"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "(a) to keep the interior of the Property clean and in good condition;"
+    },
+    {
+      "level": 0,
+      "text": "(b) not to make any alterations or additions to the Property without the written consent of the Landlord;"
+    },
+    {
+      "level": 0,
+      "text": "(c) not to keep any animal at the Property, except one cat or one small caged animal;"
+    },
+    {
+      "level": 0,
+      "text": "(d) to report promptly to the Landlord any disrepair or defect in the Property;"
+    },
+    {
+      "level": 0,
+      "text": "(e) to allow the Landlord access at reasonable times on at least twenty-four hours’ written notice;"
+    },
+    {
+      "level": 0,
+      "text": "(f) not to sublet or part with possession of the whole or any part of the Property."
+    },
+    {
+      "level": 0,
+      "text": "(a) to allow the Tenant to occupy the Property without interruption, except as provided in this agreement;"
+    },
+    {
+      "level": 0,
+      "text": "(b) to keep in repair the structure and exterior of the Property, including drains, gutters and external pipes;"
+    },
+    {
+      "level": 0,
+      "text": "(c) to keep in repair and proper working order the installations for the supply of water, gas, electricity and heating;"
+    },
+    {
+      "level": 0,
+      "text": "(d) to arrange an annual gas safety check by a registered engineer and give the Tenant a copy of the record."
+    }
+  ],
+  "furniture": [
+    "Initials: Landlord ______ Tenant ______",
+    "Page 1 of 3",
+    "Page 2 of 3",
+    "Page 3 of 3"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Clause paragraphs begin with their typed clause number (e.g. \"2.1\"); clause-number sentences were avoided as key sentences. Sentence 3.1 carries a footnote marker \"1\" and is therefore not a key sentence; the footnote text (\"1 The scheme’s name ...\") is printed in small type after clause 3 and is body text, not furniture. The obligations lists are typed lists with markers \"(a)\"..\"(f)\" in the text. The particulars table is a key/value table without header row. In the inventory table the room rows (Living room, Kitchen, Bedroom) span three columns and the item rows have an empty first cell. The two signature boxes are side by side: read the Landlord box completely, then the Tenant box. The footer \"Initials\" line and page number are CSS margin boxes; underscores are literal."
+}

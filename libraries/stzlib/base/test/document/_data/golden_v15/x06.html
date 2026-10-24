@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Wärmepumpenregler WPR 4</title>
+<style>
+@page { size: A4; margin: 2.5cm 2cm 2.2cm 2.5cm; @top-left { content: "Thermalis WPR 4 \2013  Installationsanleitung"; font-family: "Segoe UI"; font-size: 8pt; color: #c0392b; } @top-right { content: "Ausgabe 03/2026"; font-family: "Segoe UI"; font-size: 8pt; color: #777; } @bottom-center { content: "Seite " counter(page) " von " counter(pages); font-family: "Segoe UI"; font-size: 8pt; } }
+
+body { font-family: "Segoe UI"; font-size: 10pt; line-height: 1.5; color: #222; }
+h1 { font-size: 22pt; font-weight: bold; margin: 0 0 4px; color: #c0392b; }
+.subt { font-size: 12pt; color: #555; margin-bottom: 18px; }
+h2 { font-size: 13pt; margin: 18px 0 6px; padding-bottom: 2px; border-bottom: 2px solid #c0392b; }
+h3 { font-size: 11pt; margin: 12px 0 4px; }
+h4 { font-size: 10pt; font-style: italic; margin: 10px 0 3px; }
+p { margin: 4px 0; }
+.warn { border: 2px solid #e67e22; background: #fdf2e6; padding: 8px 12px; margin: 10px 0; }
+.warn .lab { font-weight: bold; color: #b35400; }
+table { border-collapse: collapse; width: 100%; font-size: 9pt; margin: 6px 0 10px; }
+table.ruled th { border-bottom: 2px solid #333; text-align: left; padding: 3px 5px; }
+table.ruled td { border-bottom: 1px solid #ccc; padding: 3px 5px; vertical-align: top; }
+table.ruled tr.sec td { font-weight: bold; background: #f1f1f1; }
+table.grid th, table.grid td { border: 1px solid #999; padding: 3px 5px; vertical-align: top; text-align: left; }
+table.grid th { background: #eee; }
+caption { text-align: left; font-weight: bold; font-size: 9pt; padding-bottom: 3px; }
+pre.code { font-family: Consolas; font-size: 8.5pt; background: #f4f4f4; border-left: 3px solid #c0392b; padding: 8px 10px; line-height: 1.35; }
+ol li, ul li { margin: 2px 0; }
+
+</style>
+</head>
+<body>
+<h1>Wärmepumpenregler WPR 4</h1>
+<p class="subt">Installations- und Inbetriebnahmeanleitung für Fachhandwerker</p>
+<p>Diese Anleitung richtet sich ausschließlich an qualifizierte Elektro- und Heizungsfachkräfte. Bewahren Sie das Dokument nach der Installation beim Gerät auf und übergeben Sie es bei einem Eigentümerwechsel.</p>
+<h2>1 Sicherheitshinweise</h2>
+<p>Der Regler arbeitet mit Netzspannung. Arbeiten am geöffneten Gerät dürfen nur im spannungsfreien Zustand erfolgen.</p>
+<div class="warn"><p><strong>WARNUNG</strong> Lebensgefahr durch elektrischen Schlag.</p><p>Schalten Sie vor dem Öffnen des Gehäuses alle Stromkreise allpolig ab und sichern Sie diese gegen Wiedereinschalten.</p></div>
+<p>Beachten Sie zusätzlich die örtlichen Vorschriften des Netzbetreibers sowie die Anleitungen der angeschlossenen Wärmepumpe.</p>
+<h2>2 Montage</h2>
+<h3>2.1 Lieferumfang</h3>
+<ul class=""><li>Regler WPR 4 mit Wandgehäuse</li><li>Außentemperaturfühler AF 1 mit 15 m Leitung</li><li>Zwei Anlegefühler VF 2 für Vor- und Rücklauf</li><li>Befestigungsmaterial (vier Schrauben, vier Dübel)</li><li>Diese Anleitung und eine Kurzbedienungsanleitung</li></ul>
+<h3>2.2 Wandmontage</h3>
+<p>Wählen Sie einen trockenen, frostfreien Montageort ohne direkte Sonneneinstrahlung.</p>
+<ol class=""><li>Gehäusedeckel durch Lösen der beiden Frontschrauben abnehmen.</li><li>Bohrlöcher mit Hilfe der Bohrschablone anzeichnen und bohren.</li><li>Gehäuseunterteil mit den mitgelieferten Schrauben befestigen.</li><li>Kabel durch die Kabeleinführungen von unten einführen.</li><li>Zugentlastungen festziehen und Deckel wieder aufsetzen.</li></ol>
+<p>Der Mindestabstand zu seitlichen Wänden beträgt 50 mm, damit die Lüftungsschlitze frei bleiben.</p>
+<h2>3 Elektrischer Anschluss</h2>
+<h3>3.1 Klemmenbelegung</h3>
+<table class="ruled"><caption>Tabelle 1: Klemmenbelegung</caption><thead><tr><th>Klemme</th><th>Bezeichnung</th><th>Funktion</th><th>Max. Belastung</th></tr></thead><tbody><tr class="sec"><td colspan="4">Netzseite (230 V AC)</td></tr><tr><td>L / N / PE</td><td>Netz</td><td>Versorgung des Reglers</td><td>–</td></tr><tr><td>A1</td><td>Verdichter</td><td>Freigabe Wärmepumpe</td><td>2 A</td></tr><tr><td>A2</td><td>Umwälzpumpe HK</td><td>Heizkreispumpe</td><td>1 A</td></tr><tr><td>A3</td><td>Mischer AUF / ZU</td><td>Mischerantrieb Heizkreis 2</td><td>0,5 A</td></tr><tr class="sec"><td colspan="4">Kleinspannungsseite</td></tr><tr><td>F1</td><td>AF 1</td><td>Außentemperaturfühler</td><td>–</td></tr><tr><td>F2</td><td>VF 2</td><td>Vorlauftemperatur</td><td>–</td></tr><tr><td>F3</td><td>RF 2</td><td>Rücklauftemperatur</td><td>–</td></tr><tr><td>BUS</td><td>Modbus RTU</td><td>Kommunikation mit Gebäudeleittechnik</td><td>–</td></tr></tbody></table>
+<p>Fühlerleitungen müssen getrennt von Netzleitungen verlegt werden, um Messfehler zu vermeiden. Bei Leitungslängen über 20 m ist eine geschirmte Leitung zu verwenden.</p>
+<h2>4 Inbetriebnahme</h2>
+<p>Nach dem ersten Einschalten führt der Regler einen Selbsttest durch und zeigt anschließend die Sprachauswahl an.</p>
+<h3>4.1 Konfiguration über die Servicedatei</h3>
+<p>Alternativ zur Eingabe am Bedienteil kann die Grundkonfiguration als Textdatei von einer microSD-Karte geladen werden. Die Datei muss den Namen wpr4.ini tragen und im Stammverzeichnis der Karte liegen.</p>
+<pre class="code">[anlage]
+typ = luft_wasser
+heizkreise = 2
+warmwasser = ja
+
+[heizkreis_1]
+kennlinie = 0.8
+fusspunkt = 22
+vorlauf_max = 45
+
+[heizkreis_2]
+mischer = ja
+kennlinie = 0.5
+vorlauf_max = 38
+
+[modbus]
+adresse = 17
+baudrate = 19200</pre>
+<h4>4.1.1 Parameter für den Heizkreis</h4>
+<table class="grid"><thead><tr><th>Parameter</th><th>Bereich</th><th>Werkseinstellung</th><th>Hinweis</th></tr></thead><tbody><tr><td>kennlinie</td><td>0,2 – 3,0</td><td>1,0</td><td>Steilheit der Heizkurve</td></tr><tr><td>fusspunkt</td><td>15 – 30 °C</td><td>20 °C</td><td>Vorlauf bei 20 °C außen</td></tr><tr><td>vorlauf_max</td><td>25 – 65 °C</td><td>50 °C</td><td>Begrenzung für Fußbodenheizung beachten</td></tr><tr><td>mischer</td><td>ja / nein</td><td>nein</td><td>Nur für Heizkreis 2</td></tr></tbody></table>
+<p>Für Fußbodenheizungen empfehlen wir eine Kennlinie zwischen 0,4 und 0,7.</p>
+<h2>5 Störungsmeldungen</h2>
+<table class="grid"><caption>Tabelle 2: Störungscodes</caption><thead><tr><th>Code</th><th>Bedeutung</th><th>Abhilfe</th></tr></thead><tbody><tr><td>E01</td><td>Außenfühler<br>unterbrochen</td><td>Leitung und Klemme F1 prüfen,<br>Fühlerwiderstand messen</td></tr><tr><td>E04</td><td>Vorlauf zu heiß</td><td>Kennlinie und Mischer prüfen,<br>Umwälzpumpe kontrollieren</td></tr><tr><td>E07</td><td>Keine Rückmeldung<br>Wärmepumpe</td><td>Freigabekontakt A1 und<br>Busleitung prüfen</td></tr><tr><td>E12</td><td>Speicherkarte<br>nicht lesbar</td><td>Karte mit FAT32 formatieren,<br>Dateinamen prüfen</td></tr></tbody></table>
+<p>Wenn eine Störung nach der Abhilfe weiter besteht, notieren Sie den Code und die Softwareversion aus dem Menü Info und wenden Sie sich an den Thermalis Kundendienst.</p>
+</body>
+</html>

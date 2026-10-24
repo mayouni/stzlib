@@ -1,0 +1,185 @@
+{
+  "id": "x02",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Lettre de sortie d’hospitalisation",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Lettre de sortie d’hospitalisation"
+    },
+    {
+      "level": 2,
+      "text": "Motif d’hospitalisation"
+    },
+    {
+      "level": 2,
+      "text": "Antécédents"
+    },
+    {
+      "level": 2,
+      "text": "Examens complémentaires"
+    },
+    {
+      "level": 3,
+      "text": "Biologie"
+    },
+    {
+      "level": 3,
+      "text": "Imagerie"
+    },
+    {
+      "level": 2,
+      "text": "Traitement de sortie"
+    },
+    {
+      "level": 2,
+      "text": "Suivi proposé"
+    }
+  ],
+  "key_sentences": [
+    "Je vous adresse le compte rendu d’hospitalisation de votre patient, admis par les urgences pour une douleur thoracique survenue au repos.",
+    "L’évolution a été favorable et le patient regagne son domicile ce jour.",
+    "La coronarographie du 7 octobre a mis en évidence une sténose serrée de l’artère circonflexe moyenne, traitée par angioplastie avec pose d’un stent actif.",
+    "Le patient a reçu une éducation thérapeutique sur la double antiagrégation plaquettaire et sur la conduite à tenir en cas de récidive douloureuse.",
+    "Je reste à votre disposition pour tout renseignement complémentaire."
+  ],
+  "tables": [
+    {
+      "caption": "Tableau 1 – Résultats biologiques",
+      "rows": [
+        [
+          "Paramètre",
+          "Résultat",
+          "Résultat",
+          "Valeurs de référence",
+          "Unité"
+        ],
+        [
+          "Paramètre",
+          "Entrée",
+          "Sortie",
+          "Valeurs de référence",
+          "Unité"
+        ],
+        [
+          "Troponine T hypersensible",
+          "86",
+          "19",
+          "< 14",
+          "ng/L"
+        ],
+        [
+          "Hémoglobine",
+          "13,9",
+          "13,4",
+          "13,0 – 17,0",
+          "g/dL"
+        ],
+        [
+          "Créatinine",
+          "92",
+          "88",
+          "64 – 104",
+          "µmol/L"
+        ],
+        [
+          "Potassium",
+          "4,1",
+          "4,3",
+          "3,5 – 5,0",
+          "mmol/L"
+        ],
+        [
+          "LDL cholestérol",
+          "1,62",
+          "",
+          "< 0,55 (objectif)",
+          "g/L"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Médicament",
+          "Posologie",
+          "Durée"
+        ],
+        [
+          "Acide acétylsalicylique 75 mg sachet",
+          "1 sachet le midi",
+          "Au long cours"
+        ],
+        [
+          "Ticagrélor 90 mg comprimé pelliculé",
+          "1 comprimé matin et soir",
+          "12 mois"
+        ],
+        [
+          "Atorvastatine 80 mg comprimé",
+          "1 comprimé le soir",
+          "Au long cours"
+        ],
+        [
+          "Bisoprolol 2,5 mg comprimé sécable",
+          "1 comprimé le matin",
+          "Au long cours"
+        ],
+        [
+          "Ramipril 5 mg gélule",
+          "1 gélule le matin",
+          "Au long cours"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Hypertension artérielle traitée depuis 2014"
+    },
+    {
+      "level": 0,
+      "text": "Dyslipidémie sous régime seul"
+    },
+    {
+      "level": 0,
+      "text": "Tabagisme sevré en 2009 (25 paquets-années)"
+    },
+    {
+      "level": 0,
+      "text": "Appendicectomie dans l’enfance"
+    },
+    {
+      "level": 0,
+      "text": "– Consultation de cardiologie dans six semaines avec électrocardiogramme"
+    },
+    {
+      "level": 0,
+      "text": "– Bilan lipidique et hépatique à un mois"
+    },
+    {
+      "level": 0,
+      "text": "– Programme de réadaptation cardiaque à débuter dans les quinze jours"
+    },
+    {
+      "level": 0,
+      "text": "– Arrêt de la conduite automobile pendant une semaine"
+    }
+  ],
+  "furniture": [
+    "Centre hospitalier de Valmorin",
+    "Service de cardiologie et soins intensifs",
+    "12, avenue des Tilleuls · 38960 Valmorin · Secrétariat : 04 76 00 18 42",
+    "CH Valmorin — Cardiologie — Lettre de sortie",
+    "Page 1/2",
+    "Page 2/2"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "Letterhead lines (hospital, department, address) are furniture. The running header and \"Page n/N\" are CSS page-margin boxes. The address block, date and \"Objet\" line are body text but not key sentences. Table 1 has a two-level header: \"Paramètre\", \"Valeurs de référence\" and \"Unité\" span both header rows, \"Résultat\" spans the \"Entrée\" and \"Sortie\" columns; one cell (LDL, Sortie) is empty. In the medication table each drug cell holds two lines (name and form), joined with a space. \"Antécédents\" is a CSS-drawn bullet list (no marker in text); \"Suivi proposé\" is a typed list whose items begin with an en dash. Decimal commas are as printed."
+}

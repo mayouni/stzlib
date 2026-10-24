@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Release Runbook: WMS 7.4 at Kestrel Point Distribution Centre</title>
+<style>
+@page { size: A4; margin: 2.2cm 2cm 2cm 2cm; @top-left { content: "INTERNAL \2014  Change CHG-26-0918"; font-family: "Droid Sans"; font-size: 7.5pt; color: #b71c1c; } @bottom-right { content: "Page " counter(page) " of " counter(pages); font-family: "Droid Sans"; font-size: 7.5pt; } }
+
+body { font-family: "Droid Sans"; font-size: 9.5pt; line-height: 1.45; color: #212121; }
+h1 { font-size: 17pt; margin: 0 0 2px; }
+.sub { color: #616161; margin: 0 0 10px; }
+h2 { font-size: 12pt; margin: 16px 0 4px; border-bottom: 1px solid #bdbdbd; }
+h3 { font-size: 10pt; margin: 10px 0 3px; }
+p { margin: 4px 0; }
+table { border-collapse: collapse; width: 100%; margin: 4px 0 8px; font-size: 8.5pt; }
+table.kv td { padding: 2px 8px; border-bottom: 1px solid #eee; }
+table.kv td:first-child { font-weight: bold; width: 28%; }
+table.g th { text-align: left; background: #424242; color: #fff; padding: 3px 5px; }
+table.g td { padding: 3px 5px; border-bottom: 1px solid #ddd; vertical-align: top; }
+table.g tbody tr:nth-child(even) td { background: #fafafa; }
+pre.code { font-family: Consolas; font-size: 8.3pt; background: #263238; color: #eceff1; padding: 8px 10px; line-height: 1.35; border-radius: 3px; }
+ul.check { list-style-type: square; }
+ul.check ul { list-style-type: circle; }
+li { margin: 1px 0; }
+.note { border-left: 4px solid #f9a825; background: #fffde7; padding: 4px 10px; }
+
+</style>
+</head>
+<body>
+<h1>Release Runbook: WMS 7.4 at Kestrel Point Distribution Centre</h1>
+<p class="sub">Operations Engineering · Version 3 · 22 October 2026</p>
+<table class="kv"><tbody><tr><td>Change ID</td><td>CHG-26-0918</td></tr><tr><td>Maintenance window</td><td>Saturday 31 October 2026, 22:00 – 02:00 (local time)</td></tr><tr><td>Change owner</td><td>R. Haverkamp, Platform Team</td></tr><tr><td>Rollback decision point</td><td>00:30 at the latest</td></tr><tr><td>Affected services</td><td>wms-api, wms-picking, label-printer-gateway</td></tr></tbody></table>
+<h2>1. Purpose</h2>
+<p>This runbook describes how to deploy release 7.4 of the warehouse management system to the production cluster at Kestrel Point. The release introduces wave picking for chilled goods and replaces the label printer gateway.</p>
+<h2>2. Pre-checks</h2>
+<ul class="check"><li>Confirm the change is approved in the change calendar</li><li>Check the state of the cluster<ul class="check"><li>All nodes report Ready</li><li>No pods in CrashLoopBackOff</li><li>Disk usage on database volumes below 70 %</li></ul></li><li>Notify the shift supervisor<ul class="check"><li>Picking stops at 21:45</li><li>Trucks scheduled after 22:00 are loaded manually</li></ul></li><li>Take a database snapshot and record its identifier</li></ul>
+<h2>3. Deployment</h2>
+<h3>3.1 Update the release values</h3>
+<p>Set the image tags and the feature flag in the environment file before running the pipeline.</p>
+<pre class="code">release: "7.4.0"
+images:
+  wms-api: registry.internal/wms/api:7.4.0
+  wms-picking: registry.internal/wms/picking:7.4.0
+  label-gateway: registry.internal/wms/label-gateway:2.0.3
+features:
+  chilled_wave_picking: true
+  legacy_label_spooler: false
+replicas:
+  wms-api: 4
+  wms-picking: 3</pre>
+<h3>3.2 Run the deployment</h3>
+<ol class=""><li>Put the site into maintenance mode from the operations console.</li><li>Run the database migration job and wait for it to complete.</li><li>Deploy the services with the commands below.</li><li>Take the site out of maintenance mode.</li></ol>
+<pre class="code">kubectl config use-context kpdc-prod
+kubectl -n wms apply -f release-7.4.0.yaml
+kubectl -n wms rollout status deploy/wms-api --timeout=10m
+kubectl -n wms rollout status deploy/wms-picking --timeout=10m</pre>
+<div class="note"><p>If a rollout does not finish within ten minutes, stop and go to section 5.</p></div>
+<h2>4. Verification</h2>
+<table class="g"><thead><tr><th>Check</th><th>Where</th><th>Expected result</th><th>Owner</th></tr></thead><tbody><tr><td>API health</td><td>GET /health on wms-api</td><td>HTTP 200 and<br>version 7.4.0</td><td>Platform</td></tr><tr><td>Wave creation</td><td>Picking console,<br>test site KP-TEST</td><td>Chilled wave created<br>within 30 seconds</td><td>Operations</td></tr><tr><td>Label printing</td><td>Printer bank B,<br>dock 4</td><td>Test label printed<br>with new layout</td><td>Operations</td></tr><tr><td>Order backlog</td><td>Database query below</td><td>No orders stuck in<br>status ALLOCATING</td><td>Platform</td></tr></tbody></table>
+<pre class="code">SELECT status, COUNT(*)
+FROM outbound_order
+WHERE updated_at &gt; now() - interval '30 minutes'
+GROUP BY status;</pre>
+<h2>5. Rollback</h2>
+<p>Rollback restores release 7.3.2 and the database snapshot taken during the pre-checks. Orders created after the snapshot must be re-imported from the transport management system.</p>
+<h2>6. Contacts</h2>
+<table class="g"><thead><tr><th>Role</th><th>Name</th><th>Phone</th></tr></thead><tbody><tr><td>Change owner</td><td>R. Haverkamp</td><td>+31 6 0000 1182</td></tr><tr><td>Database on call</td><td>T. Mbeki-Larsen</td><td>+31 6 0000 4407</td></tr><tr><td>Site shift supervisor</td><td>J. Coppens</td><td>+31 6 0000 9031</td></tr></tbody></table>
+</body>
+</html>

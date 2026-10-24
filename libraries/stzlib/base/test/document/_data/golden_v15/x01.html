@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Tax Invoice</title>
+<style>
+@page { size: A4; margin: 1.8cm 2cm 2.2cm 2cm; @bottom-left { content: "Northmere Industrial Supply Co. Ltd \00B7  Registered in England No. 08172264 \00B7  VAT GB 418 2290 37"; font-family: Arial; font-size: 7.5pt; color: #666; } @bottom-right { content: "Page " counter(page) " of " counter(pages); font-family: Arial; font-size: 7.5pt; color: #666; } }
+
+body { font-family: Arial; font-size: 9.5pt; color: #1d1d1d; }
+.lh { display: flex; justify-content: space-between; border-bottom: 3px solid #0b5d7a; padding-bottom: 8px; }
+.org { font-size: 14pt; font-weight: bold; letter-spacing: 0.1em; color: #0b5d7a; white-space: nowrap; }
+.lh .addr { text-align: right; font-size: 8pt; line-height: 1.35; color: #444; white-space: nowrap; }
+h1 { font-size: 20pt; margin: 18px 0 6px; color: #0b5d7a; font-weight: normal; }
+h2 { font-size: 11pt; margin: 16px 0 4px; color: #0b5d7a; }
+table.kv { border-collapse: collapse; margin: 4px 0 10px; }
+table.kv td { padding: 1px 14px 1px 0; }
+table.kv td:first-child { color: #666; }
+.boxes { display: flex; gap: 18px; margin: 10px 0 14px; }
+.box { flex: 1; border: 1px solid #b7cdd6; padding: 8px 10px; background: #f3f8fa; }
+.box .lab { font-size: 8pt; font-weight: bold; color: #0b5d7a; margin-bottom: 3px; }
+.box p { margin: 0; line-height: 1.4; }
+table.items { width: 100%; border-collapse: collapse; }
+table.items th { background: #0b5d7a; color: #fff; text-align: left; padding: 5px 6px; font-size: 8.5pt; }
+table.items td { padding: 5px 6px; border-bottom: 1px solid #d5e2e8; vertical-align: top; }
+table.items .r { text-align: right; }
+table.items tr.sum td { border-bottom: none; padding: 3px 6px; }
+table.items tr.total td { font-weight: bold; border-top: 2px solid #0b5d7a; font-size: 10.5pt; }
+p { line-height: 1.45; margin: 4px 0; }
+
+</style>
+</head>
+<body>
+<div class="lh"><div><div class="org">NORTHMERE INDUSTRIAL SUPPLY CO.</div><div>Fasteners · Bearings · Workshop consumables</div></div><div class="addr"><div>Unit 14, Calder Bank Trading Estate</div><div>Halsworth HX7 2QD, United Kingdom</div><div>Tel. +44 1632 960 418</div><div>accounts@northmere.example</div></div></div>
+<h1>Tax Invoice</h1>
+<table class="kv"><tbody><tr><td>Invoice number</td><td>NIS-2026-04417</td></tr><tr><td>Invoice date</td><td>9 October 2026</td></tr><tr><td>Due date</td><td>8 November 2026</td></tr><tr><td>Customer reference</td><td>PO 7781-B</td></tr><tr><td>Account</td><td>C-01294</td></tr></tbody></table>
+<div class="boxes"><div class="box"><div class="lab">BILL TO</div><p>Accounts Payable</p><p>Ravelstone Pumps Ltd</p><p>2 Ferry Lane, Brackmoor BK4 9TT</p><p>Invoices are processed by the central finance office in Brackmoor.</p></div><div class="box"><div class="lab">SHIP TO</div><p>Goods Inward, Building C</p><p>Ravelstone Pumps Ltd</p><p>Wharf Road, Lindale LN2 6AP</p><p>Deliveries are accepted between 07:30 and 15:00 on weekdays.</p></div></div>
+<table class="items"><thead><tr><th>Item</th><th>Description</th><th class="r">Qty</th><th>Unit</th><th class="r">Unit price</th><th class="r">Amount</th></tr></thead><tbody><tr><td>HX-M10-50</td><td>Hex bolt M10 x 50, zinc plated, grade 8.8</td><td class="r">400</td><td>pcs</td><td class="r">0.21</td><td class="r">84.00</td></tr><tr><td>NY-M10</td><td>Nylon insert lock nut M10</td><td class="r">400</td><td>pcs</td><td class="r">0.09</td><td class="r">36.00</td></tr><tr><td>BR-6204</td><td>Deep groove ball bearing 6204-2RS</td><td class="r">24</td><td>pcs</td><td class="r">3.85</td><td class="r">92.40</td></tr><tr><td>CT-115</td><td>Cutting disc 115 x 1.0 mm, stainless steel</td><td class="r">50</td><td>pcs</td><td class="r">0.96</td><td class="r">48.00</td></tr><tr><td>GL-NIT-L</td><td>Nitrile gloves, size L, box of 100</td><td class="r">12</td><td>box</td><td class="r">6.40</td><td class="r">76.80</td></tr><tr><td>TH-LOC-243</td><td>Threadlocker, medium strength, 50 ml</td><td class="r">6</td><td>btl</td><td class="r">9.75</td><td class="r">58.50</td></tr><tr class="sum"><td colspan="5" class="r">Subtotal</td><td class="r">395.70</td></tr><tr class="sum"><td colspan="5" class="r">VAT at 20%</td><td class="r">79.14</td></tr><tr class="sum"><td colspan="5" class="r">Carriage</td><td class="r">12.50</td></tr><tr class="sum total"><td colspan="5" class="r">Total due (GBP)</td><td class="r">487.34</td></tr></tbody></table>
+<h2>Payment instructions</h2>
+<p>Payment is due within 30 days of the invoice date. Please quote the invoice number on all remittances so that your payment can be allocated without delay.</p>
+<table class="kv"><tbody><tr><td>Bank</td><td>Fenwick Mercantile Bank</td></tr><tr><td>Sort code</td><td>40-17-22</td></tr><tr><td>Account number</td><td>31884506</td></tr><tr><td>IBAN</td><td>GB29 FMBK 4017 2231 8845 06</td></tr></tbody></table>
+<h2>Notes</h2>
+<p>Goods remain the property of Northmere Industrial Supply Co. until payment has been received in full. Damaged or missing items must be reported within five working days of delivery. Thank you for your business.</p>
+</body>
+</html>

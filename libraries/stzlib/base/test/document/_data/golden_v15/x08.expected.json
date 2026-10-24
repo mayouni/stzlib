@@ -1,0 +1,232 @@
+{
+  "id": "x08",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Programa da Unidade Curricular: Hidráulica Agrícola",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Programa da Unidade Curricular: Hidráulica Agrícola"
+    },
+    {
+      "level": 2,
+      "text": "1. Objetivos"
+    },
+    {
+      "level": 2,
+      "text": "2. Competências a desenvolver"
+    },
+    {
+      "level": 2,
+      "text": "3. Conteúdos programáticos"
+    },
+    {
+      "level": 2,
+      "text": "4. Avaliação"
+    },
+    {
+      "level": 2,
+      "text": "5. Bibliografia"
+    },
+    {
+      "level": 2,
+      "text": "6. Regras de funcionamento"
+    }
+  ],
+  "key_sentences": [
+    "A unidade curricular pretende dotar os estudantes dos conhecimentos de hidráulica necessários ao dimensionamento de sistemas de rega.",
+    "No final do semestre, o estudante deverá ser capaz de calcular perdas de carga em condutas e escolher o equipamento de bombagem adequado.",
+    "A avaliação é contínua e resulta da média ponderada das componentes indicadas no quadro seguinte.",
+    "O estudante que obtenha classificação inferior a 9,5 valores pode apresentar-se ao exame de recurso.",
+    "A presença nas aulas práticas laboratoriais é obrigatória em pelo menos dois terços das sessões."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Curso",
+          "Licenciatura em Engenharia Agronómica"
+        ],
+        [
+          "Ano / Semestre",
+          "2.º ano / 1.º semestre"
+        ],
+        [
+          "Créditos ECTS",
+          "6"
+        ],
+        [
+          "Horas de contacto",
+          "30 h teóricas + 30 h práticas laboratoriais"
+        ],
+        [
+          "Docente responsável",
+          "Prof.ª Doutora Teresa Lobo Vasconcelos"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Semana",
+          "Tema",
+          "Aulas práticas"
+        ],
+        [
+          "Módulo 1 — Fundamentos",
+          "Módulo 1 — Fundamentos",
+          "Módulo 1 — Fundamentos"
+        ],
+        [
+          "1",
+          "Propriedades dos fluidos; unidades",
+          "Medição de massa volúmica e viscosidade"
+        ],
+        [
+          "2",
+          "Hidrostática; pressão e impulsão",
+          "Manómetros e piezómetros"
+        ],
+        [
+          "3",
+          "Cinemática; equação da continuidade",
+          "Exercícios de caudal"
+        ],
+        [
+          "Módulo 2 — Escoamento em pressão",
+          "Módulo 2 — Escoamento em pressão",
+          "Módulo 2 — Escoamento em pressão"
+        ],
+        [
+          "4",
+          "Teorema de Bernoulli",
+          "Tubo de Venturi"
+        ],
+        [
+          "5–6",
+          "Perdas de carga contínuas e localizadas",
+          "Banco de ensaio de perdas de carga"
+        ],
+        [
+          "7",
+          "Redes ramificadas",
+          "Dimensionamento de uma rede de rega"
+        ],
+        [
+          "8",
+          "Bombas centrífugas; curvas características",
+          "Ensaio de uma bomba"
+        ],
+        [
+          "Módulo 3 — Escoamento com superfície livre",
+          "Módulo 3 — Escoamento com superfície livre",
+          "Módulo 3 — Escoamento com superfície livre"
+        ],
+        [
+          "9–10",
+          "Canais; fórmula de Manning",
+          "Medição em canal laboratorial"
+        ],
+        [
+          "11",
+          "Descarregadores e medidores de caudal",
+          "Visita à barragem do Maranhão Velho"
+        ],
+        [
+          "Módulo 4 — Sistemas de rega",
+          "Módulo 4 — Sistemas de rega",
+          "Módulo 4 — Sistemas de rega"
+        ],
+        [
+          "12",
+          "Rega por aspersão",
+          "Uniformidade de distribuição"
+        ],
+        [
+          "13",
+          "Rega localizada",
+          "Dimensionamento de rampas gota a gota"
+        ],
+        [
+          "14",
+          "Revisões e apresentação de projetos",
+          "Apresentação dos projetos"
+        ]
+      ]
+    },
+    {
+      "caption": "Quadro 1 – Componentes de avaliação",
+      "rows": [
+        [
+          "Componente",
+          "Peso",
+          "Nota mínima"
+        ],
+        [
+          "Dois testes escritos",
+          "50 %",
+          "8 valores"
+        ],
+        [
+          "Relatórios das aulas práticas",
+          "20 %",
+          "—"
+        ],
+        [
+          "Projeto de rega em grupo",
+          "30 %",
+          "10 valores"
+        ],
+        [
+          "Total",
+          "100 %",
+          ""
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "a) Interpretar as propriedades físicas da água relevantes para o escoamento."
+    },
+    {
+      "level": 0,
+      "text": "b) Aplicar as equações da continuidade e de Bernoulli a problemas de engenharia rural."
+    },
+    {
+      "level": 0,
+      "text": "c) Dimensionar redes de rega sob pressão e canais a céu aberto."
+    },
+    {
+      "level": 0,
+      "text": "d) Avaliar a eficiência de sistemas de rega por aspersão e gota a gota."
+    },
+    {
+      "level": 0,
+      "text": "Quintela, A. C. Hidráulica. Lisboa: Fundação Calouste Gulbenkian."
+    },
+    {
+      "level": 0,
+      "text": "Raposo, J. R. A Rega: dos Primitivos Regadios às Modernas Técnicas de Rega."
+    },
+    {
+      "level": 0,
+      "text": "Apontamentos da unidade curricular, disponíveis na plataforma de ensino a distância."
+    }
+  ],
+  "furniture": [
+    "Instituto Politécnico de Vale do Sorraia",
+    "Escola Superior Agrária · Departamento de Ciências do Solo e da Água",
+    "IPVS · Escola Superior Agrária · Ano letivo 2026/2027",
+    "pág. 1",
+    "pág. 2"
+  ],
+  "languages": [
+    "pt"
+  ],
+  "code": [],
+  "notes": "The coloured square and the institute lines at the top are a letterhead (furniture). The running header and \"pág. n\" are CSS margin boxes. The first table is a key/value table without header. The schedule table has four module section rows spanning all three columns. Section 2 is a typed list with letters \"a)\"..\"d)\"; the bibliography is a CSS-drawn square-bullet list. Quadro 1 has an empty last cell in the Total row."
+}

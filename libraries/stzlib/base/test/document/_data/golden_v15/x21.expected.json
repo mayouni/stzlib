@@ -1,0 +1,230 @@
+{
+  "id": "x21",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Main Landing Gear – Torque Link Apex Pin Inspection",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Main Landing Gear – Torque Link Apex Pin Inspection"
+    },
+    {
+      "level": 2,
+      "text": "1. PLANNING INFORMATION"
+    },
+    {
+      "level": 3,
+      "text": "A. Effectivity"
+    },
+    {
+      "level": 3,
+      "text": "B. Reason"
+    },
+    {
+      "level": 3,
+      "text": "C. Compliance"
+    },
+    {
+      "level": 3,
+      "text": "D. Manpower"
+    },
+    {
+      "level": 2,
+      "text": "2. MATERIAL INFORMATION"
+    },
+    {
+      "level": 2,
+      "text": "3. ACCOMPLISHMENT INSTRUCTIONS"
+    },
+    {
+      "level": 3,
+      "text": "Record format for the maintenance computer"
+    },
+    {
+      "level": 2,
+      "text": "4. RETURN TO SERVICE"
+    }
+  ],
+  "key_sentences": [
+    "This service bulletin applies to AR-72 aircraft, manufacturer serial numbers 0101 through 0388, fitted with torque link assembly P/N D23190-5.",
+    "Operators have reported wear of the torque link apex pin bushings beyond the limits of the component maintenance manual.",
+    "Excessive wear can cause shimmy of the main landing gear during taxi and landing.",
+    "Accomplish the inspection at the next scheduled A-check or within 600 flight hours after receipt of this bulletin, whichever occurs first.",
+    "Movement of the landing gear can cause injury to persons and damage to the aircraft.",
+    "Use the extraction tool listed in the AMM to prevent damage to the bushing bore.",
+    "Enter the inspection result in the following format so that the fleet database can be updated automatically."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Task",
+          "Persons",
+          "Elapsed hours",
+          "Man-hours"
+        ],
+        [
+          "Access and jacking",
+          "2",
+          "1.0",
+          "2.0"
+        ],
+        [
+          "Inspection (both gears)",
+          "1",
+          "2.5",
+          "2.5"
+        ],
+        [
+          "Close-up and return to service",
+          "2",
+          "0.5",
+          "1.0"
+        ],
+        [
+          "Total",
+          "",
+          "4.0",
+          "5.5"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Item",
+          "New P/N",
+          "Description",
+          "Qty per A/C",
+          "Note"
+        ],
+        [
+          "1",
+          "D23190-118",
+          "Bushing, apex pin",
+          "4",
+          "Replace if worn"
+        ],
+        [
+          "2",
+          "NAS1611-012",
+          "Packing, preformed",
+          "4",
+          "Discard old part"
+        ],
+        [
+          "3",
+          "MS24665-302",
+          "Cotter pin",
+          "2",
+          "—"
+        ],
+        [
+          "4",
+          "MIL-PRF-81322",
+          "Grease, general purpose",
+          "A/R",
+          "Consumable"
+        ]
+      ]
+    },
+    {
+      "caption": "Table 3. Limits and torque values",
+      "rows": [
+        [
+          "Location",
+          "Inside diameter (mm)",
+          "Inside diameter (mm)",
+          "Torque value",
+          "Torque value"
+        ],
+        [
+          "Location",
+          "Nominal",
+          "Max. worn",
+          "N·m",
+          "lbf·in"
+        ],
+        [
+          "Upper link bushing",
+          "19.050",
+          "19.300",
+          "34 – 41",
+          "300 – 360"
+        ],
+        [
+          "Lower link bushing",
+          "19.050",
+          "19.300",
+          "34 – 41",
+          "300 – 360"
+        ],
+        [
+          "Apex pin nut",
+          "—",
+          "—",
+          "45 – 51",
+          "400 – 450"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Prepare the aircraft."
+    },
+    {
+      "level": 1,
+      "text": "Put the aircraft on jacks in accordance with AMM 07-11-00."
+    },
+    {
+      "level": 1,
+      "text": "Remove hydraulic pressure from the brake system."
+    },
+    {
+      "level": 0,
+      "text": "Remove the torque link apex pin."
+    },
+    {
+      "level": 1,
+      "text": "Remove the cotter pin and the castellated nut."
+    },
+    {
+      "level": 1,
+      "text": "Support the upper torque link and pull out the apex pin."
+    },
+    {
+      "level": 0,
+      "text": "Measure the bushing inside diameter at two positions 90 degrees apart."
+    },
+    {
+      "level": 0,
+      "text": "Compare the results with the limits in Table 3."
+    },
+    {
+      "level": 0,
+      "text": "Replace the bushings that exceed the limits and record the result in the maintenance computer."
+    }
+  ],
+  "furniture": [
+    "AEROLIS REGIONAL AIRCRAFT",
+    "Customer Support Engineering · Toulmont Airfield",
+    "Category: RECOMMENDED",
+    "Models: AR-72-100, AR-72-200",
+    "SERVICE BULLETIN SB 32-0147 Rev. 1",
+    "ATA 32 – LANDING GEAR",
+    "Date: Oct 20/26",
+    "Page 1 of 2",
+    "Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "TASK      SB32-0147-R1\nMSN       0217\nGEAR      LH\nUPPER_ID  19.112\nLOWER_ID  19.087\nRESULT    PASS\nSIGNED    LIC-B1-40218"
+  ],
+  "notes": "Four-corner running furniture (bulletin number, ATA chapter, date, page) are CSS margin boxes; the boxed letterhead (company, department, category, models) is furniture. \"Service Bulletin SB 32-0147, Revision 1\" under the title is a subtitle, not a heading. Heading levels: h1 title, h2 for numbered chapters in white-on-black bars, h3 for lettered sub-headings and the record-format heading. The steps are a CSS-numbered list (decimal, markers not in the text) with nested CSS lower-alpha sub-steps (level 1). WARNING and CAUTION boxes are body text; their capitalised first sentences are not key sentences. Table 3 has a two-level header (\"Location\" spans both rows). The record block is Courier New. Body font is Microsoft Sans Serif, which has no bold face, so bold is synthesised by the renderer."
+}

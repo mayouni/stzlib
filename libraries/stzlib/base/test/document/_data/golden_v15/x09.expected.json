@@ -1,0 +1,121 @@
+{
+  "id": "x09",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "Rahoton Wata-wata: Shirin Rigakafi a Ƙauyuka",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Rahoton Wata-wata: Shirin Rigakafi a Ƙauyuka"
+    },
+    {
+      "level": 2,
+      "text": "Taƙaitawa"
+    },
+    {
+      "level": 2,
+      "text": "Sakamakon Aiki"
+    },
+    {
+      "level": 2,
+      "text": "Matsalolin da aka fuskanta"
+    },
+    {
+      "level": 2,
+      "text": "Shawarwari"
+    }
+  ],
+  "key_sentences": [
+    "An gudanar da aikin rigakafi a ƙauyuka goma sha biyu a cikin watan Satumba.",
+    "Ma’aikatan lafiya sun ziyarci gidaje fiye da dubu biyu domin wayar da kan iyaye game da muhimmancin rigakafi.",
+    "Yara ɗari tara da arba’in sun karɓi allurar rigakafin kyanda a wannan wata.",
+    "Mata masu ciki ɗari da sittin da shida sun sami shawarwari kan abinci mai gina jiki da kuma ranar haihuwa a asibiti.",
+    "Muna godiya ga shugabannin al’umma bisa goyon bayan da suka bayar.",
+    "Za a ci gaba da aikin a watan Oktoba tare da ƙarin ma’aikata biyu."
+  ],
+  "tables": [
+    {
+      "caption": "Tebur na 1: Ziyarori bisa ƙauye",
+      "rows": [
+        [
+          "Ƙauye",
+          "Gidaje",
+          "Yara",
+          "Mata masu ciki"
+        ],
+        [
+          "Dan Bakoshi",
+          "214",
+          "96",
+          "18"
+        ],
+        [
+          "Gidan Ɗanzaki",
+          "187",
+          "81",
+          "12"
+        ],
+        [
+          "Kwanar Ƙusa",
+          "305",
+          "133",
+          "27"
+        ],
+        [
+          "Tudun Wada Gabas",
+          "262",
+          "118",
+          "21"
+        ],
+        [
+          "Sauran ƙauyuka takwas",
+          "1,094",
+          "512",
+          "88"
+        ],
+        [
+          "Jimla",
+          "2,062",
+          "940",
+          "166"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Ruwan sama mai yawa ya hana motoci isa wasu ƙauyuka na tsawon mako guda."
+    },
+    {
+      "level": 0,
+      "text": "Firji ɗaya na ajiyar magani ya lalace a cibiyar Kwanar Ƙusa."
+    },
+    {
+      "level": 0,
+      "text": "Wasu iyaye sun ƙi a yi wa ’ya’yansu allura saboda jita-jita."
+    },
+    {
+      "level": 0,
+      "text": "1. A samar da babura biyu don isa ƙauyukan da ke nesa a lokacin damina."
+    },
+    {
+      "level": 0,
+      "text": "2. A gyara ko a maye gurbin firjin ajiyar magani nan da nan."
+    },
+    {
+      "level": 0,
+      "text": "3. A ƙara tarurrukan wayar da kai tare da malaman addini."
+    }
+  ],
+  "furniture": [
+    "Ƙungiyar Kiwon Lafiyar Al’umma ta Sahel",
+    "Ofishin Shiyya na Gabas · Akwatin Gidan Waya 214",
+    "— 1 —"
+  ],
+  "languages": [
+    "ha"
+  ],
+  "code": [],
+  "notes": "Hausa text with hooked letters ɓ (U+0253), ɗ (U+0257), ƙ (U+0199) and Ɗ (U+018A), Ƙ (U+0198); the apostrophe in words such as ma’aikata is U+2019. The green band at the top is a letterhead (furniture). The line \"Watan Satumba 2026 · An shirya ...\" is a date line, not a heading. The body is set in two CSS columns: read the whole left column, then the right column (source order). \"Matsalolin da aka fuskanta\" is a CSS-drawn bullet list; \"Shawarwari\" is a typed list with \"1.\" markers. Page number \"— n —\" is a CSS margin box."
+}

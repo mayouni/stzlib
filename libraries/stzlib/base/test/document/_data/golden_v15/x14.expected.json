@@ -1,0 +1,256 @@
+{
+  "id": "x14",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "RAPPORTO DI PROVA",
+  "headings": [
+    {
+      "level": 1,
+      "text": "RAPPORTO DI PROVA"
+    },
+    {
+      "level": 2,
+      "text": "Risultati analitici"
+    },
+    {
+      "level": 2,
+      "text": "Giudizio di conformità"
+    },
+    {
+      "level": 2,
+      "text": "Note"
+    }
+  ],
+  "key_sentences": [
+    "Il campione presenta un valore di batteri coliformi superiore al valore di parametro fissato per l’acqua in rete di distribuzione.",
+    "Tutti gli altri parametri determinati risultano conformi ai valori di parametro della normativa vigente.",
+    "Si raccomanda la ripetizione del prelievo entro sette giorni dopo la verifica del sistema di clorazione.",
+    "I risultati si riferiscono esclusivamente al campione sottoposto a prova.",
+    "Il campione sarà conservato per quindici giorni dalla data di emissione del presente rapporto."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Cliente",
+          "Comune di Rocca Velana – Ufficio Tecnico",
+          "Campione n.",
+          "26-W-11937"
+        ],
+        [
+          "Matrice",
+          "Acqua destinata al consumo umano",
+          "Prelevato da",
+          "Tecnico del laboratorio"
+        ],
+        [
+          "Punto di prelievo",
+          "Fontanella pubblica, Piazza Garibaldi",
+          "Data prelievo",
+          "13/10/2026 ore 09:40"
+        ],
+        [
+          "Piano di campionamento",
+          "Controllo di routine, 4° trimestre",
+          "Data ricezione",
+          "13/10/2026 ore 11:15"
+        ],
+        [
+          "Temperatura all’arrivo",
+          "6 °C",
+          "Periodo di prova",
+          "13/10/2026 – 21/10/2026"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Parametro",
+          "Metodo",
+          "Unità di misura",
+          "Risultato",
+          "Risultato",
+          "Valore di parametro"
+        ],
+        [
+          "Parametro",
+          "Metodo",
+          "Unità di misura",
+          "Valore",
+          "Incertezza",
+          "Valore di parametro"
+        ],
+        [
+          "Parametri microbiologici",
+          "Parametri microbiologici",
+          "Parametri microbiologici",
+          "Parametri microbiologici",
+          "Parametri microbiologici",
+          "Parametri microbiologici"
+        ],
+        [
+          "Escherichia coli",
+          "UNI EN ISO 9308-1:2017",
+          "UFC/100 mL",
+          "0",
+          "—",
+          "0"
+        ],
+        [
+          "Enterococchi intestinali",
+          "UNI EN ISO 7899-2:2003",
+          "UFC/100 mL",
+          "0",
+          "—",
+          "0"
+        ],
+        [
+          "Batteri coliformi a 37 °C",
+          "UNI EN ISO 9308-1:2017",
+          "UFC/100 mL",
+          "2",
+          "—",
+          "0 (*)"
+        ],
+        [
+          "Conteggio colonie a 22 °C",
+          "UNI EN ISO 6222:2001",
+          "UFC/mL",
+          "14",
+          "± 4",
+          "senza variazioni anomale"
+        ],
+        [
+          "Parametri chimici",
+          "Parametri chimici",
+          "Parametri chimici",
+          "Parametri chimici",
+          "Parametri chimici",
+          "Parametri chimici"
+        ],
+        [
+          "Nitrati",
+          "APAT CNR IRSA 4020",
+          "mg/L",
+          "18,4",
+          "± 1,7",
+          "50"
+        ],
+        [
+          "Nitriti",
+          "APAT CNR IRSA 4050",
+          "mg/L",
+          "< 0,02",
+          "—",
+          "0,50"
+        ],
+        [
+          "Arsenico",
+          "UNI EN ISO 17294-2:2016",
+          "µg/L",
+          "3,1",
+          "± 0,5",
+          "10"
+        ],
+        [
+          "Piombo",
+          "UNI EN ISO 17294-2:2016",
+          "µg/L",
+          "< 1,0",
+          "—",
+          "5"
+        ],
+        [
+          "Fluoruri",
+          "APAT CNR IRSA 4020",
+          "mg/L",
+          "0,21",
+          "± 0,03",
+          "1,5"
+        ],
+        [
+          "Trialometani totali (**)",
+          "EPA 524.2",
+          "µg/L",
+          "8,6",
+          "± 1,9",
+          "30"
+        ],
+        [
+          "Parametri indicatori",
+          "Parametri indicatori",
+          "Parametri indicatori",
+          "Parametri indicatori",
+          "Parametri indicatori",
+          "Parametri indicatori"
+        ],
+        [
+          "pH",
+          "APAT CNR IRSA 2060",
+          "unità pH",
+          "7,62",
+          "± 0,10",
+          "6,5 – 9,5"
+        ],
+        [
+          "Conduttività a 20 °C",
+          "APAT CNR IRSA 2030",
+          "µS/cm",
+          "512",
+          "± 15",
+          "2500"
+        ],
+        [
+          "Durezza totale",
+          "APAT CNR IRSA 2040",
+          "°F",
+          "27,3",
+          "± 1,4",
+          "15 – 50 (consigliato)"
+        ],
+        [
+          "Cloro residuo libero",
+          "APAT CNR IRSA 4080",
+          "mg/L",
+          "0,14",
+          "± 0,02",
+          "0,2 (consigliato)"
+        ],
+        [
+          "Torbidità",
+          "APAT CNR IRSA 2110",
+          "NTU",
+          "0,3",
+          "± 0,1",
+          "accettabile"
+        ],
+        [
+          "Ammonio",
+          "APAT CNR IRSA 4030",
+          "mg/L",
+          "< 0,05",
+          "—",
+          "0,50"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "LABORATORIO ANALISI AMBIENTALI VAL BRENTA S.R.L.",
+    "Via delle Rogge 41 · 35013 Borgo Ceresara (PD)",
+    "Tel. 049 000 7712",
+    "laboratorio@valbrenta-analisi.example",
+    "Il presente rapporto non può essere riprodotto parzialmente senza l’approvazione scritta del laboratorio.",
+    "RdP 26/04871 — Pagina 1 di 2",
+    "RdP 26/04871 — Pagina 2 di 2"
+  ],
+  "languages": [
+    "it"
+  ],
+  "code": [],
+  "notes": "Letterhead (two blocks) is furniture; the reproduction notice and \"RdP 26/04871 — Pagina n di N\" are CSS margin boxes. \"n. 26/04871 del 22/10/2026\" under the title is a number line, not a heading. The sample table is key/value with two pairs per row and no header. The results table has a two-level header (\"Parametro\", \"Metodo\", \"Unità di misura\", \"Valore di parametro\" span two header rows; \"Risultato\" spans \"Valore\" and \"Incertezza\") and three section rows spanning six columns; the table itself sits on page 1; page 2 holds the closing sections and signatures. \"(*)\" and \"(**)\" are footnote symbols printed inside cells and are kept in the cell text; their legend lines are body text (not key sentences). Decimal commas as printed; \"<\" values as printed."
+}

@@ -1,0 +1,46 @@
+page_header	0	INTERNAL — Change CHG-26-0918
+heading	1	Release Runbook: WMS 7.4 at Kestrel Point Distribution Centre
+caption	0	Operations Engineering · Version 3 · 22 October 2026
+table	0	Change IDCHG-26-0918Maintenance windowSaturday 31 October 2026, 22:00 – 02:00 (local time)Change ownerR. Haverkamp, Platform TeamRollback decision point00:30 at the latestAffected serviceswms-api, wms-picking, label-printer-gateway
+heading	2	1. Purpose
+paragraph	0	This runbook describes how to deploy release 7.4 of the warehouse management system to the production cluster at Kestrel Point. The release introduces wave picking for chilled goods and replaces the label printer gateway.
+heading	2	2. Pre-checks
+list_item	0	Confirm the change is approved in the change calendar
+list_item	0	Check the state of the cluster
+list_item	1	All nodes report Ready
+list_item	1	No pods in CrashLoopBackOff
+list_item	1	Disk usage on database volumes below 70 %
+list_item	0	Notify the shift supervisor
+list_item	1	Picking stops at 21:45
+list_item	1	Trucks scheduled after 22:00 are loaded manually
+list_item	0	Take a database snapshot and record its identifier
+heading	2	3. Deployment
+heading	3	3.1 Update the release values
+paragraph	0	Set the image tags and the feature flag in the environment file before running the pipeline.
+code	0	release: "7.4.0"\nimages:\n  wms-api: registry.internal/wms/api:7.4.0\n  wms-picking: registry.internal/wms/picking:7.4.0\n  label-gateway: registry.internal/wms/label-gateway:2.0.3\nfeatures:\n  chilled_wave_picking: true\n  legacy_label_spooler: false\nreplicas:\n  wms-api: 4\n  wms-picking: 3
+heading	3	3.2 Run the deployment
+list_item	0	1. Put the site into maintenance mode from the operations console.
+list_item	0	2. Run the database migration job and wait for it to complete.
+list_item	0	3. Deploy the services with the commands below.
+list_item	0	4. Take the site out of maintenance mode.
+page_footer	0	Page 1 of 2
+page_header	0	INTERNAL — Change CHG-26-0918
+code	0	kubectl config use-context kpdc-prod\nkubectl -n wms apply -f release-7.4.0.yaml\nkubectl -n wms rollout status deploy/wms-api --timeout=10m\nkubectl -n wms rollout status deploy/wms-picking --timeout=10m
+paragraph	0	If a rollout does not finish within ten minutes, stop and go to section 5.
+heading	2	4. Verification
+paragraph	0	Check
+paragraph	0	API health
+paragraph	0	Where
+paragraph	0	GET /health on wms-api
+paragraph	0	Expected result
+paragraph	0	HTTP 200 and version 7.4.0
+paragraph	0	Owner
+paragraph	0	Platform
+table	0	Wave creationPicking console,Chilled wave createdOperationstest site KP-TESTwithin 30 secondsLabel printingPrinter bank B,Test label printedOperationsdock 4with new layoutOrder backlogDatabase query belowNo orders stuck inPlatform
+paragraph	0	status ALLOCATING
+code	0	SELECT status, COUNT(*)\nFROM outbound_order\nWHERE updated_at > now() - interval '30 minutes'\nGROUP BY status;
+heading	2	5. Rollback
+paragraph	0	Rollback restores release 7.3.2 and the database snapshot taken during the pre-checks. Orders created after the snapshot must be re-imported from the transport management system.
+heading	2	6. Contacts
+page_footer	0	Page 2 of 2
+table	0	RoleNamePhoneChange ownerR. Haverkamp+31 6 0000 1182Database on callT. Mbeki-Larsen+31 6 0000 4407Site shift supervisorJ. Coppens+31 6 0000 9031

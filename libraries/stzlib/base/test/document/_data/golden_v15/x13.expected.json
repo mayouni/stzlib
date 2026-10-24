@@ -1,0 +1,94 @@
+{
+  "id": "x13",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "የቡና ግዢ ዋጋ ማስታወቂያ",
+  "headings": [
+    {
+      "level": 1,
+      "text": "የቡና ግዢ ዋጋ ማስታወቂያ"
+    },
+    {
+      "level": 2,
+      "text": "የማስረከቢያ መመሪያ / Delivery rules"
+    }
+  ],
+  "key_sentences": [
+    "ዩኒየኑ ለ2019 ዓ.ም. የምርት ዘመን የቡና ግዢ ዋጋ እንደሚከተለው ወስኗል።",
+    "The Union has set the following purchase prices for the 2026/27 harvest.",
+    "ዋጋው ከጥቅምት 1 ቀን 2019 ዓ.ም. ጀምሮ ተግባራዊ ይሆናል።",
+    "The prices apply from 11 October 2026.",
+    "አባላት ቡናቸውን በአቅራቢያቸው ባለው መሰብሰቢያ ጣቢያ ማስረከብ አለባቸው።",
+    "Members must deliver their coffee to the nearest collection station."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "ደረጃ Grade",
+          "የቡና ዓይነት Type of coffee",
+          "ዋጋ በኪሎ (ብር) Price per kg (birr)"
+        ],
+        [
+          "1ኛ",
+          "ቀይ እሸት ቡና Red cherry, fully ripe",
+          "128.00"
+        ],
+        [
+          "2ኛ",
+          "ቀይ እሸት ቡና (ድብልቅ) Red cherry, mixed ripeness",
+          "112.50"
+        ],
+        [
+          "3ኛ",
+          "ደረቅ ቡና (ጀንፈል) Dried cherry",
+          "96.00"
+        ],
+        [
+          "—",
+          "የታጠበ ብራና ቡና Washed parchment",
+          "265.00"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "፩. ቡናው በደንብ የበሰለና ቀይ መሆን አለበት።"
+    },
+    {
+      "level": 0,
+      "text": "፪. ቡናው ከአፈርና ከባዕድ ነገሮች የጸዳ መሆን አለበት።"
+    },
+    {
+      "level": 0,
+      "text": "፫. እያንዳንዱ አባል የአባልነት መታወቂያውን ይዞ መቅረብ አለበት።"
+    },
+    {
+      "level": 0,
+      "text": "Cherries must be fully ripe and red."
+    },
+    {
+      "level": 0,
+      "text": "Coffee must be free of soil and foreign matter."
+    },
+    {
+      "level": 0,
+      "text": "Each member must bring his or her membership card."
+    }
+  ],
+  "furniture": [
+    "የደጋ ብርሃን ቡና አምራቾች ኅብረት ሥራ ማኅበራት ዩኒየን",
+    "Dega Birhan Coffee Farmers’ Cooperative Union",
+    "ስልክ / Tel. 046 000 2217 · ፖ.ሣ.ቁ. / P.O. Box 118",
+    "ገጽ 1 / Page 1"
+  ],
+  "languages": [
+    "am",
+    "en"
+  ],
+  "code": [],
+  "notes": "Bilingual Amharic (Ethiopic script) and English. The letterhead (circle seal drawing, union name in Amharic and English, phone/box line) is furniture. The English line under the title is a subtitle paragraph, not a heading. Each Amharic paragraph is followed by its English translation in smaller grey type. Table header cells and body cells hold two lines (Amharic, then English) joined with a space. \"1ኛ\" etc. mix a Western digit with an Ethiopic ordinal suffix. The Amharic delivery rules are a typed list with Ethiopic numerals ፩. ፪. ፫.; the English rules are a CSS-drawn bullet list. Sentences end with the Ethiopic full stop ። (U+1362). The page footer \"ገጽ n / Page n\" is a CSS margin box."
+}

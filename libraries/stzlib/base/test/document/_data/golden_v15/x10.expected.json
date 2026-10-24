@@ -1,0 +1,163 @@
+{
+  "id": "x10",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "ANKARA YA MAJI",
+  "headings": [
+    {
+      "level": 1,
+      "text": "ANKARA YA MAJI"
+    },
+    {
+      "level": 2,
+      "text": "Usomaji wa mita"
+    },
+    {
+      "level": 2,
+      "text": "Mchanganuo wa gharama"
+    },
+    {
+      "level": 2,
+      "text": "Njia za kulipa"
+    }
+  ],
+  "key_sentences": [
+    "Tafadhali lipa kabla ya tarehe ya mwisho ili kuepuka kukatiwa huduma.",
+    "Salio la nyuma linaonyesha malipo ya ziada uliyofanya mwezi uliopita.",
+    "Ikiwa ankara haitalipwa, kiasi kilichobaki kitaongezwa kwenye ankara inayofuata pamoja na faini ya asilimia tano.",
+    "Ukiona uvujaji wa maji barabarani, piga simu kituo chetu cha huduma kwa wateja bila malipo."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Jina la mteja",
+          "Bi. Zawadi Mwakyusa"
+        ],
+        [
+          "Namba ya akaunti",
+          "07-31-004582"
+        ],
+        [
+          "Namba ya mita",
+          "KLM 2219874"
+        ],
+        [
+          "Anwani ya huduma",
+          "Mtaa wa Mivinjeni, Nyumba Na. 42"
+        ],
+        [
+          "Aina ya mteja",
+          "Majumbani"
+        ],
+        [
+          "Kipindi cha ankara",
+          "01/09/2026 hadi 30/09/2026"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Usomaji wa awali",
+          "Usomaji wa sasa",
+          "Matumizi (m³)",
+          "Hali ya usomaji"
+        ],
+        [
+          "1,284",
+          "1,307",
+          "23",
+          "Halisi"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Kiwango",
+          "Mita za ujazo",
+          "Bei kwa m³ (TSh)",
+          "Kiasi (TSh)"
+        ],
+        [
+          "Kiwango cha 1 (0 – 5 m³)",
+          "5",
+          "1,200",
+          "6,000"
+        ],
+        [
+          "Kiwango cha 2 (6 – 20 m³)",
+          "15",
+          "1,650",
+          "24,750"
+        ],
+        [
+          "Kiwango cha 3 (zaidi ya 20 m³)",
+          "3",
+          "2,100",
+          "6,300"
+        ],
+        [
+          "Ada ya huduma ya kila mwezi",
+          "",
+          "",
+          "2,500"
+        ],
+        [
+          "Ada ya majitaka (30% ya maji)",
+          "",
+          "",
+          "11,115"
+        ],
+        [
+          "Jumla ya ankara hii",
+          "",
+          "",
+          "50,665"
+        ],
+        [
+          "Salio la nyuma",
+          "",
+          "",
+          "−2,045"
+        ],
+        [
+          "Jumla ya kulipa",
+          "",
+          "",
+          "48,620"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1) Benki yoyote ya washirika kwa kutumia namba ya akaunti yako."
+    },
+    {
+      "level": 0,
+      "text": "2) Simu ya mkononi: piga *150*00# kisha chagua \"Lipa Maji\"."
+    },
+    {
+      "level": 0,
+      "text": "3) Ofisi zetu za huduma kwa wateja, Jumatatu hadi Ijumaa, saa 2:00 asubuhi hadi saa 10:00 jioni."
+    }
+  ],
+  "furniture": [
+    "MAMLAKA YA MAJI SAFI NA USAFI WA MAZINGIRA KILEMBE",
+    "Barabara ya Uhuru, S.L.P. 318, Kilembe",
+    "Simu: 0800 110 318 (bure)",
+    "huduma@kiwasa.example",
+    "Ukurasa 1 kati ya 1"
+  ],
+  "languages": [
+    "sw"
+  ],
+  "code": [],
+  "notes": "Letterhead (authority name, address, phone, email) is furniture. The customer panel (key/value table, no header) and the amount box sit side by side: read the panel first, then the amount box. The tariff table has empty cells in the fee and total rows; the minus sign of the previous balance is U+2212. Payment methods are a typed list with \"1)\"..\"3)\" markers. Swahili clock times (saa 2:00 asubuhi) are as printed. The page number is a CSS margin box."
+}

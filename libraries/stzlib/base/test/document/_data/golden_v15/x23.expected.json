@@ -1,0 +1,222 @@
+{
+  "id": "x23",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "Note de détail des droits et taxes à l’importation",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Note de détail des droits et taxes à l’importation"
+    },
+    {
+      "level": 2,
+      "text": "Récapitulatif"
+    },
+    {
+      "level": 2,
+      "text": "Pièces jointes"
+    },
+    {
+      "level": 2,
+      "text": "Paiement"
+    }
+  ],
+  "key_sentences": [
+    "La présente note détaille, article par article, les droits et taxes liquidés sur la déclaration ci-dessus.",
+    "Les montants sont exprimés en francs CFA et arrondis à l’unité inférieure.",
+    "La colonne « Autres » correspond au prélèvement de sauvegarde appliqué au ciment importé.",
+    "Le paiement doit être effectué à la caisse du bureau de douane avant l’enlèvement des marchandises."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Déclaration n°",
+          "C 2026 / 18 774",
+          "Bureau",
+          "Douane de la Gare Routière",
+          "Régime",
+          "4000 – Mise à la consommation"
+        ],
+        [
+          "Importateur",
+          "Quincaillerie Moderne du Fleuve",
+          "Connaissement",
+          "MSLX 4471 2290",
+          "Date d’enregistrement",
+          "21/10/2026"
+        ],
+        [
+          "Origine",
+          "Divers",
+          "Provenance",
+          "Port de transit",
+          "Taux de change",
+          "1 EUR = 655,957 FCFA"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Art.",
+          "Désignation",
+          "Code SH",
+          "Origine",
+          "Valeur en douane",
+          "Droits et taxes liquidés (FCFA)",
+          "Droits et taxes liquidés (FCFA)",
+          "Droits et taxes liquidés (FCFA)",
+          "Droits et taxes liquidés (FCFA)",
+          "Droits et taxes liquidés (FCFA)",
+          "Total article"
+        ],
+        [
+          "Art.",
+          "Désignation",
+          "Code SH",
+          "Origine",
+          "Valeur en douane",
+          "DD",
+          "RS 1 %",
+          "PCS 0,8 %",
+          "TVA 19 %",
+          "Autres",
+          "Total article"
+        ],
+        [
+          "1",
+          "Tôles ondulées galvanisées 0,35 mm",
+          "7210.41.00",
+          "Chine",
+          "18 450 000",
+          "1 845 000",
+          "184 500",
+          "147 600",
+          "3 919 149",
+          "0",
+          "6 096 249"
+        ],
+        [
+          "2",
+          "Ciment Portland CEM II 42,5",
+          "2523.29.00",
+          "Turquie",
+          "9 120 000",
+          "1 824 000",
+          "91 200",
+          "72 960",
+          "2 197 190",
+          "456 000",
+          "4 641 350"
+        ],
+        [
+          "3",
+          "Pompes centrifuges électriques",
+          "8413.70.90",
+          "Italie",
+          "6 870 000",
+          "343 500",
+          "68 700",
+          "54 960",
+          "1 394 060",
+          "0",
+          "1 861 220"
+        ],
+        [
+          "4",
+          "Câbles électriques cuivre 2,5 mm²",
+          "8544.49.00",
+          "Inde",
+          "4 260 000",
+          "852 000",
+          "42 600",
+          "34 080",
+          "985 849",
+          "0",
+          "1 914 529"
+        ],
+        [
+          "5",
+          "Peinture glycéro en pots de 20 L",
+          "3208.90.00",
+          "Maroc",
+          "2 315 000",
+          "463 000",
+          "23 150",
+          "18 520",
+          "535 737",
+          "0",
+          "1 040 407"
+        ],
+        [
+          "Total",
+          "Total",
+          "Total",
+          "Total",
+          "41 015 000",
+          "5 327 500",
+          "410 150",
+          "328 120",
+          "9 031 985",
+          "456 000",
+          "15 553 755"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Total droits et taxes",
+          "15 553 755"
+        ],
+        [
+          "Redevance informatique",
+          "15 000"
+        ],
+        [
+          "Timbre douanier",
+          "5 000"
+        ],
+        [
+          "Net à payer au Trésor",
+          "15 573 755"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "– Facture commerciale et liste de colisage"
+    },
+    {
+      "level": 0,
+      "text": "– Connaissement et certificat d’origine"
+    },
+    {
+      "level": 0,
+      "text": "– Attestation d’assurance"
+    },
+    {
+      "level": 0,
+      "text": "– Bon à enlever provisoire"
+    }
+  ],
+  "furniture": [
+    "TRANSIT SAHEL LOGISTIQUE",
+    "Commissionnaire agréé en douane · Transit · Consignation",
+    "Zone portuaire sèche, lot 17 · Tél. 20 00 41 77",
+    "declarations@transit-sahel.example",
+    "Transit Sahel Logistique SARL · Agrément commissionnaire en douane n° CD-2019-044",
+    "Folio 1"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "Landscape A4. Letterhead (two blocks) is furniture; footer agreement line and \"Folio n\" are CSS margin boxes. The declaration block is a key/value table with three label/value pairs per row and no header. The goods table has eleven columns and a two-level header: the first five headers and \"Total article\" span both header rows, \"Droits et taxes liquidés (FCFA)\" spans the five tax columns (DD, RS 1 %, PCS 0,8 %, TVA 19 %, Autres); designation cells hold two lines (joined with a space); the Total label spans four columns. Numbers are grouped with ordinary spaces. The three bottom blocks (Récapitulatif, Pièces jointes, Paiement) sit side by side and are read block by block, left to right; Pièces jointes is a typed list with \"–\" markers. French guillemets « » with spaces as printed."
+}

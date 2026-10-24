@@ -1,0 +1,59 @@
+page_header	0	SERVICE BULLETIN SB 32-0147 Rev. 1
+page_header	0	ATA 32 - LANDING GEAR
+heading	1	AEROLIS REGIONAL AIRCRAFT
+paragraph	0	Customer Support Engineering · Toulmont Airfield
+paragraph	0	Category: RECOMMENDED
+paragraph	0	Models: AR-72-100, AR-72-200
+heading	1	Main Landing Gear - Torque Link Apex Pin Inspection
+paragraph	0	Service Bulletin SB 32-0147, Revision 1
+heading	1	1. PLANNING INFORMATION
+heading	1	A. Effectivity
+paragraph	0	This service bulletin applies to AR-72 aircraft, manufacturer serial numbers 0101 through 0388, fitted with torque link assembly P/N D23190-5.
+heading	1	B. Reason
+paragraph	0	Operators have reported wear of the torque link apex pin bushings beyond the limits of the component maintenance manual. Excessive wear can cause shimmy of the main landing gear during taxi and landing.
+heading	1	C. Compliance
+paragraph	0	Accomplish the inspection at the next scheduled A-check or within 600 flight hours after receipt of this bulletin, whichever occurs first.
+heading	1	D. Manpower
+table	0	TaskPersonsElapsed hoursMan-hoursAccess and jacking21.02.0Inspection (both gears)12.52.5Close-up and return to service20.51.0Total4.05.5
+heading	1	2. MATERIAL INFORMATION
+table	0	ItemNew P/NDescriptionQty per A/CNote1D23190-118Bushing, apex pin4Replace if worn2NAS1611-012Packing, preformed4Discard old part3MS24665-302Cotter pin2-4MIL-PRF-81322Grease, general purposeA/RConsumable
+heading	1	3. ACCOMPLISHMENT INSTRUCTIONS
+paragraph	0	WARNING: MAKE SURE THAT THE GROUND SAFETY LOCKS ARE INSTALLED ON THE LANDING GEAR.
+paragraph	0	Movement of the landing gear can cause injury to persons and damage to the aircraft.
+list_item	0	Prepare the aircraft.
+list_item	0	Put the aircraft on jacks in accordance with AMM 07-11-00.
+list_item	0	Remove hydraulic pressure from the brake system.
+list_item	0	Remove the torque link apex pin.
+list_item	0	Remove the cotter pin and the castellated nut.
+list_item	0	Support the upper torque link and pull out the apex pin.
+list_item	0	Measure the bushing inside diameter at two positions 90 degrees apart.
+list_item	0	Compare the results with the limits in Table 3.
+list_item	0	Replace the bushings that exceed the limits and record the result in the maintenance computer.
+paragraph	0	CAUTION: DO NOT USE A HAMMER TO REMOVE THE APEX PIN.
+page_footer	0	Date: Oct 20/26
+page_footer	0	Page 1 of 2
+page_header	0	SERVICE BULLETIN SB 32-0147 Rev. 1
+page_header	0	ATA 32 - LANDING GEAR
+paragraph	0	Use the extraction tool listed in the AMM to prevent damage to the bushing bore.
+table	0	LocationInside diameter (mm)Inside diameter (mm)Torque valueTorque valueNominalMax. wornN·mlbf·inUpper link bushing19.05019.30034 - 41300 - 360Lower link bushing19.05019.30034 - 41300 - 360Apex pin nut--45 - 51400 - 450
+caption	0	Table 3. Limits and torque values
+heading	1	Record format for the maintenance computer
+paragraph	0	Enter the inspection result in the following format so that the fleet database can be updated automatically.
+paragraph	0	TASK
+paragraph	0	SB32-0147-R1
+paragraph	0	MSN
+paragraph	0	0217
+paragraph	0	GEAR
+paragraph	0	LH
+paragraph	0	UPPER
+paragraph	0	ID 19.112
+paragraph	0	_
+paragraph	0	LOWER
+paragraph	0	ID 19.087
+paragraph	0	_
+paragraph	0	RESULT PASS
+paragraph	0	SIGNED LIC-B1-40218
+heading	1	4. RETURN TO SERVICE
+paragraph	0	Do an operational test of the landing gear retraction system in accordance with AMM 32-30-00. Make an entry in the aircraft technical log that this service bulletin has been accomplished.
+page_footer	0	Date: Oct 20/26
+page_footer	0	Page 2 of 2
