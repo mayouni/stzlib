@@ -1,5 +1,5 @@
 {
- "count": 60,
+ "count": 58,
  "defects": [
   {
    "class": "stzEngineTimeline",
@@ -8,22 +8,6 @@
    "line": 161,
    "symptom": "Returns 0 on every call today, whatever the events are.",
    "cause": "answered 0 for timestamps 100, 200, 300, then 1000 and 5000, then 2.5 and 9, then 1700000000 and 1700000060, sorted or not; the span between the first and the last event is not computed"
-  },
-  {
-   "class": "stzGeoFeatures",
-   "file": "geo/stzGeoFeatures.ring",
-   "method": "IndicesWithin",
-   "line": 776,
-   "symptom": "Returns the positions of the features whose bounding box has its middle inside a box of longitude and latitude.",
-   "cause": "Defect: a feature across the antimeridian has a box 360 degrees wide whose middle is longitude 0, so Fiji is taken by a window around Africa."
-  },
-  {
-   "class": "stzGeoFeatures",
-   "file": "geo/stzGeoFeatures.ring",
-   "method": "Within",
-   "line": 800,
-   "symptom": "Returns a new set of the features whose bounding box has its middle inside a box of longitude and latitude.",
-   "cause": "Defect: the same antimeridian trap as IndicesWithin: Fiji is taken by a window around Africa."
   },
   {
    "class": "stzGeoProcess",
