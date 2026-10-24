@@ -2554,7 +2554,7 @@ fn makeFrag(a: Allocator, gl: []Glyph, ids_in: []u32, text: []const u8, page_no:
         }
         try kept.append(a, k);
     }
-    const ids0: []u32 = if (kept.items.len > 0) kept.items else ids_in;
+    const ids0: []u32 = try a.dupe(u32, if (kept.items.len > 0) kept.items else ids_in);
     var rtl: usize = 0;
     {
         var r0: usize = 0;
@@ -2565,6 +2565,17 @@ fn makeFrag(a: Allocator, gl: []Glyph, ids_in: []u32, text: []const u8, page_no:
             if (isLtrCp(cp)) l0 += 1;
         }
         rtl = if (r0 > l0) 1 else 0;
+    }
+    // a right-to-left line is set from the right: each glyph's RIGHT edge is where the pen put it, and a kerned
+    // alef tucked into a ra's tail has its origin right of the ra's ("al-dirasiya" read "al-darisiya")
+    if (rtl == 1) {
+        const ByRight = struct {
+            g: []Glyph,
+            fn lt(ctx: @This(), l: u32, r: u32) bool {
+                return ctx.g[l].x + ctx.g[l].w < ctx.g[r].x + ctx.g[r].w;
+            }
+        };
+        std.mem.sort(u32, ids0, ByRight{ .g = gl }, ByRight.lt);
     }
     // a combining mark sits over its letter: in the visual (left to right) order it goes right after that letter
     // on a left-to-right line and right before it on a right-to-left one, so the logical order is letter, mark
