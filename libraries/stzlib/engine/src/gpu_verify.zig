@@ -64,7 +64,7 @@ var submit_floor_ms: f64 = 0; // the smallest dispatch + sync, warm-min
 var floors_ready = false;
 var hooked = false;
 
-const COPY_N: usize = 4 * 1024 * 1024; // 16 MB in + 16 MB out per copy
+pub const COPY_N: usize = 4 * 1024 * 1024; // 16 MB in + 16 MB out per copy
 
 const SUBMIT_WGSL =
     \\struct StzTile { xoff: u32, p0: u32, p1: u32, p2: u32 };
@@ -74,7 +74,7 @@ const SUBMIT_WGSL =
     \\fn main() { o[0] = o[0] + f32(tile.xoff); }
 ;
 
-const COPY_WGSL =
+pub const COPY_WGSL =
     \\struct StzTile { xoff: u32, p0: u32, p1: u32, p2: u32 };
     \\@group(0) @binding(0) var<uniform> tile : StzTile;
     \\@group(0) @binding(1) var<storage, read> a : array<f32>;
@@ -100,7 +100,7 @@ fn ensureHook() void {
 }
 
 /// warm-min wall ms of `reps` plain dispatches (no params) of `kernel`.
-fn minPlainDispatchMs(kernel: i64, ids: []const i64, wx: f64, reps: usize) ?f64 {
+pub fn minPlainDispatchMs(kernel: i64, ids: []const i64, wx: f64, reps: usize) ?f64 {
     var best: f64 = std.math.inf(f64);
     var r: usize = 0;
     while (r < reps) : (r += 1) {
@@ -247,7 +247,7 @@ fn releaseTs() void {
     qset = null;
 }
 
-fn ensureTs() bool {
+pub fn ensureTs() bool {
     if (!gpu.hasTimestamps()) return false;
     if (qset != null) return true;
     const f = gpu.wfns();
@@ -280,7 +280,7 @@ fn ensureTs() bool {
 }
 
 /// Resolve the two timestamps of the last armed pass: ms, or -1.
-fn readTimestampsMs() f64 {
+pub fn readTimestampsMs() f64 {
     const f = gpu.wfns();
     const dev = gpu.deviceHandle();
     const enc = f.wgpuDeviceCreateCommandEncoder(dev, null);
@@ -310,7 +310,7 @@ fn readTimestampsMs() f64 {
 
 // ---------------------------------------------------------------- one timed dispatch
 /// Dispatch with params, sync, and time it on both clocks. Returns wall ms.
-fn timedDispatch(kernel: i64, params: []const u8, ids: []const i64, wx: f64, two_clocks: bool, gpu_ms: *f64) ?f64 {
+pub fn timedDispatch(kernel: i64, params: []const u8, ids: []const i64, wx: f64, two_clocks: bool, gpu_ms: *f64) ?f64 {
     var timer = std.time.Timer.start() catch return null;
     if (two_clocks) gpu.g_pass_ts = &ts_writes;
     const st = gpu.stz_gpu_dispatch_params(kernel, params.ptr, @floatFromInt(params.len), ids.ptr, @intCast(ids.len), wx, 1);
