@@ -108,9 +108,8 @@ class stzPairs from stzListOfPairs
 # and score. It orders the pairs by the first or the second item (Sort, SortOn), exchanges the items
 # of every pair (SwapItems), lists the first and the second items apart and checks their types. Most
 # mutators change the object in place and return nothing; the Sorted, Swapped and Stringified forms
-# return a copy. One method is broken today: ToStzSetOfSections, which cannot succeed until
-# stzSetOfSections is repaired; see its warning. The Reverse and Inverse families exchange the two
-# items of each pair, they do not reverse the order of the pairs.
+# return a copy. The Reverse and Inverse families exchange the two items of each pair, they do not
+# reverse the order of the pairs.
 #
 #   receiver   o1 = new stzListOfPairs([ [ "b", 2 ], [ "a", 9 ], [ "c", 5 ] ])
 #   example    ? @@( o1.FirstItems() )
@@ -2339,17 +2338,11 @@ class stzListOfPairs from stzListOfLists
 	def ToStzListOfSections()
 		return new stzListOfSections(This.Content())
 
-	# Returns the pairs as a stzSetOfSections; today every call raises an error that names the cause.
+	# Returns the pairs as a stzSetOfSections, each pair read as [ start, end ], in the order they have.
 	#
-	#   returns    a stzSetOfSections, once the constructor works; today the call raises
-	#   note       the error says which of three causes applies: a pair that is not two numbers, a
-	#              repeated pair, or the constructor itself
-	#   warning    Not reachable today, and not fixable in this class: the constructor of
-	#              stzSetOfSections checks its argument with @IsSetOfSections, a function whose body
-	#              is empty in list/stzSetOfSections.ring, so it refuses every list, [ [ 1, 3 ], [ 5,
-	#              8 ] ] included. That function must return IsSetOfSections(paSections), and
-	#              IsSetOfSections must call @IsListOfSections, since stzList has no IsListOfSections
-	#              method. ToStzListOfSections accepts the same pairs
+	#   returns    a new stzSetOfSections
+	#   note       the error says which of two causes applies: a pair that is not two numbers, or a
+	#              repeated pair; ToStzListOfSections accepts a repeated pair
 	#   see        ToStzListOfSections, IsListOfSections
 	def ToStzSetOfSections()
 		_aContent_ = This.Content()
@@ -2360,10 +2353,6 @@ class stzListOfPairs from stzListOfLists
 
 		if NOT This.IsSet()
 			StzRaise("Can't transform the list of pairs into a stzSetOfSections! A set of sections holds no repeated pair.")
-		ok
-
-		if NOT @IsSetOfSections(_aContent_)
-			StzRaise("Can't transform the list of pairs into a stzSetOfSections! The stzSetOfSections constructor refuses every list: @IsSetOfSections in list/stzSetOfSections.ring has an empty body.")
 		ok
 
 		return new stzSetOfSections(_aContent_)
