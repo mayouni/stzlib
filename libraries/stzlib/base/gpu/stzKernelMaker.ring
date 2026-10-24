@@ -198,16 +198,18 @@ class stzKernelMaker from stzObject
 		ok
 		return _aOut_
 
-	# Returns the number of operations the last EvaluateOn executed in all, loops included: the work a checker's compute ceiling reads against for this description over those inputs.
+	# Returns the number of operations the last EvaluateOn executed in all, loops included.
 	#
 	#   returns    a number
+	#   note       the work a checker's compute ceiling reads against for this description over those inputs
 	#   see        EvaluateOn, OperationsPerElement
 	def OperationsExecuted()
 		return StzEngineGpuSpecEvalFlops()
 
-	# Returns the number of operations the description does per element (one per operator or function call), a sum counted once, not per iteration.
+	# Returns the number of operations the description does per element, a sum counted once and not per iteration.
 	#
 	#   returns    a number, 0 when the description is refused
+	#   note       one per operator or function call
 	#   see        EvaluateOn, OperationsExecuted
 	def OperationsPerElement()
 		return StzEngineGpuSpecFlops(This.Spec())
@@ -225,6 +227,10 @@ class stzKernelMaker from stzObject
 	def Body()
 		return @cBody
 
+	# Returns the declared input vectors, lower-cased, in the order declared.
+	#
+	#   returns    a list of texts
+	#   see        ScalarNames, TakesScalar
 	def InputNames()
 		return @aIns
 

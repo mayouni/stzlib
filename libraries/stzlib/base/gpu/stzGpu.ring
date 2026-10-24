@@ -541,7 +541,7 @@ class stzGpu from stzObject
 			:hiddensize = _nB_
 		]
 
-	# Verifies a candidate kernel against a kernel description INTERPRETED on the CPU, so a user kernel is checked without a hand-written twin: same inputs, a hidden second shape over different data, a NaN margin after the output that catches a store past the region, and the measured floors and compute peak.
+	# Verifies a candidate kernel against a kernel description interpreted on the CPU, with no hand-written twin.
 	#
 	#   poRef        a stzKernelMaker whose description is the reference, evaluated by the engine on the CPU
 	#   pCand        the candidate, a stzKernelMaker on the same declarations or raw WGSL text
@@ -552,6 +552,9 @@ class stzGpu from stzObject
 	#                :maxdiffhidden, :candms, :candgpums, :cpums (the interpreter's time at the visible
 	#                shape), :speedup (cpu over candidate), :flops (the description's operation count
 	#                times n), :peakgflops, :minms, :margin, :clocks, :reps, :hiddensize
+	#   note         the check uses the same inputs, a hidden second shape over different data, a NaN margin
+	#                after the output that catches a store past the region, and the measured floors and
+	#                compute peak
 	#   note         GK6 (2026-10-24): the reference is the engine's interpreter of the same grammar the
 	#                transpiler reads, so what the transpiler refuses the interpreter refuses; the
 	#                margin is 256 floats of NaN after the output, inside the binding
