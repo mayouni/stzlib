@@ -574,3 +574,8 @@ Next by size: 16 classes at 2 (stzGeoFeatures first), then 28 at 1.
 IndicesWithin and Within took an antimeridian feature (Fiji) by an Africa window because its box is 360 wide and its middle is 0. Now a box wider than 180 takes its middle on the shortest arc (Fiji 179.5), and a window with lon0 > lon1 crosses the line; BoundsOf and the stored boxes are unchanged. Guard 100 assertions with a mutation check. Open: the middle of a feature still wider than 180 after the shift (Antarctica) is a convention that depends on vertex spacing; stzGeoMap._ResolveInsets now raises on a non-number inset window; the gallery PNG window_and_areas.png still shows the old behaviour and has not been redrawn or looked at.
 Next by size: 15 classes at 2 (stzGeoProcess first), then 28 at 1.
 
+## 2026-10-24: the stzGeoProcess fix batch is ON MAIN; register 58 -> 56
+
+PatternIn now returns poPoints.With(GenerateIn(...)). ExpectedCount(area, boxArea) was wrong for Inhomogeneous even for the box (engine draws candidates over the window and thins by lambda/lmax, so the mean is window area x mean surface over the window): it now RAISES for that kind and names the new ExpectedCountIn(poPoints), which integrates the surface over the window (160-place lattice, ExpectedCountInXT sets it). Guard 176 assertions with five mutations. The seven_processes.png was re-rendered (label 191 -> 152) and nobody has looked at it. Engine items: expectedCount and envelope still use the grid mean, Generate does not check the surface length, an unknown node is 0 in Generate but renormalised in stzGeoField.ValueAt, a window with a hole is over-sampled against the field.
+Next by size: 14 classes at 2 (stzGraphQuery first), then 28 at 1.
+
