@@ -4991,7 +4991,17 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
             if (t.kind != .table or t.rows.len < 4) continue;
             const n = t.rows[0].len;
             var split: ?usize = null;
-            if (n >= 4) {
+            // (a header row that is the same header twice -- "Place Name Club Mark Place Name Club Mark" -- is two
+            //  tables side by side even when every row fills both halves)
+            if (n >= 4 and n % 2 == 0) {
+                const hk = n / 2;
+                var twice = true;
+                for (0..hk) |j| {
+                    if (t.rows[0][j].len == 0 or !eq(t.rows[0][j], t.rows[0][j + hk])) twice = false;
+                }
+                if (twice) split = hk;
+            }
+            if (split == null and n >= 4) {
                 var m: usize = 2;
                 while (m + 2 <= n) : (m += 1) {
                     var both = false;
