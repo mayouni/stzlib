@@ -1,0 +1,35 @@
+page_header	0	Velmore Fluid Systems · Datasheet DS-CP40-EN · Rev. C
+heading	1	CP-40 Series Close-Coupled Centrifugal Pumps
+paragraph	0	The CP-40 series is designed for clean water circulation in heating, cooling and pressure boosting systems. All wetted parts are made of stainless steel, which makes the pumps suitable for drinking water.
+heading	2	Applications
+list_item	0	Heating and chilled water circulation in commercial buildings
+list_item	0	Pressure boosting in residential blocks
+list_item	0	Process water in light industry
+list_item	0	Irrigation from tanks and wells
+heading	2	Technical data
+heading	3	Hydraulic data
+table	0	ParameterValueMaximum flow24 m³/hMaximum head46 mMaximum operating pressure10 barLiquid temperature−15 to +110 °CPipe connectionDN 40, PN 16Weight28 to 41 kg
+heading	3	Electrical data
+table	0	ParameterValueMotor power1.1 to 4.0 kWSupply3 × 400 V, 50 HzSpeed2900 rpmProtection classIP55Insulation classFEfficiency classIE3
+heading	2	Performance
+table	0	ModelMotor (kW)Flow at best efficiency (m³/h)Head at best efficiency (m)Maximum head (m)Current at 400 V (A)CP-40-1101.19.518.0242.4CP-40-1501.511.022.5293.2CP-40-2202.213.527.0354.6CP-40-3003.015.032.5416.1CP-40-4004.017.037.0467.9
+paragraph	0	Performance values were measured with water at 20 °C in accordance with the tolerances of grade 2B. Curves for each model are available on request.
+page_footer	0	1/2
+page_header	0	Velmore Fluid Systems · Datasheet DS-CP40-EN · Rev. C
+heading	2	Ordering code
+table	0	FieldCodeMeaningSeriesCPClose-coupled centrifugal pumpConnection40DN 40 flanges1101101.1 kW1501501.5 kWMotor2202.2 kW3003003.0 kW4004004.0 kWBBCarbon and ceramic, standardVVSilicon carbide, for hot waterSSStainless steel 1.4301TTStainless steel 1.4404
+paragraph	0	Shaft seal
+paragraph	0	Material
+paragraph	0	For example, CP-40-220-V-S is a pump with a 2.2 kW motor, a silicon carbide seal and a casing in stainless steel 1.4301.
+heading	2	Controller settings
+paragraph	0	Pumps with the optional VC-2 controller are configured with a plain text file. The default settings are:
+code	0	[modbus]\naddress      = 12\nbaudrate     = 19200\nparity       = even\nstop_bits    = 1\n\n[control]\nmode         = constant_pressure\nsetpoint_bar = 4.5\nramp_up_s    = 5
+paragraph	0	Changes to the controller settings take effect after the controller has been restarted.
+caption	0	Modbus registers
+table	0	RegisterNameUnitAccess40001Pressure setpoint0.1 barread/write40002Operating mode—read/write30001Actual pressure0.1 barread30002Motor current0.1 Aread30003Fault code—read
+heading	2	Installation notes
+list_item	0	1) Install the pump with the motor shaft horizontal or vertical, never with the motor below the pump.
+list_item	0	2) Fit isolating valves on both sides of the pump to allow servicing without draining the system.
+list_item	0	3) Fill the pump and the suction pipe with water before the first start.
+paragraph	0	The pump must not run dry, not even for a short time.
+page_footer	0	2/2

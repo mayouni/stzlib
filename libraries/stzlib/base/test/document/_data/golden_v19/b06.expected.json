@@ -1,0 +1,265 @@
+{
+ "id": "b06",
+ "difficulty": "medium",
+ "pages": 2,
+ "title": "Water Quality Test Report",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Water Quality Test Report"
+  },
+  {
+   "level": 2,
+   "text": "Summary"
+  },
+  {
+   "level": 2,
+   "text": "Microbiological results"
+  },
+  {
+   "level": 2,
+   "text": "Physical and chemical results"
+  },
+  {
+   "level": 2,
+   "text": "Interpretation and advice"
+  },
+  {
+   "level": 2,
+   "text": "Notes on methods"
+  }
+ ],
+ "key_sentences": [
+  "The sample complied with the drinking water standards for all the parameters tested, except for lead.",
+  "The lead concentration of 14 µg/L exceeds the prescribed limit of 10 µg/L.",
+  "This is most likely caused by lead pipework within the building rather than by the public supply.",
+  "We recommend the following actions while the source of the lead is investigated.",
+  "A repeat sample taken after flushing would show whether the lead comes from water standing in the pipes.",
+  "All samples were kept chilled and analysed within 24 hours of collection."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Report number",
+     "WQ-25-03318"
+    ],
+    [
+     "Sample ID",
+     "S-114207"
+    ],
+    [
+     "Sample point",
+     "Village hall, kitchen tap"
+    ],
+    [
+     "Sampled",
+     "3 March 2025, 09:40"
+    ],
+    [
+     "Received",
+     "3 March 2025, 14:15"
+    ],
+    [
+     "Sample type",
+     "Mains drinking water"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Parameter",
+     "Result",
+     "Unit",
+     "Limit",
+     "Method",
+     "Compliance"
+    ],
+    [
+     "Coliform bacteria",
+     "0",
+     "per 100 mL",
+     "0",
+     "MB-02 membrane filtration",
+     "Pass"
+    ],
+    [
+     "Escherichia coli",
+     "0",
+     "per 100 mL",
+     "0",
+     "MB-02 membrane filtration",
+     "Pass"
+    ],
+    [
+     "Enterococci",
+     "0",
+     "per 100 mL",
+     "0",
+     "MB-05 membrane filtration",
+     "Pass"
+    ],
+    [
+     "Colony count at 22 °C",
+     "14",
+     "per mL",
+     "No abnormal change",
+     "MB-07 pour plate",
+     "Pass"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Parameter",
+     "Result",
+     "Unit",
+     "Limit",
+     "Method",
+     "Compliance"
+    ],
+    [
+     "pH",
+     "7.6",
+     "pH units",
+     "6.5–9.5",
+     "CH-01 electrometric",
+     "Pass"
+    ],
+    [
+     "Conductivity at 20 °C",
+     "412",
+     "µS/cm",
+     "2500",
+     "CH-02 conductimetric",
+     "Pass"
+    ],
+    [
+     "Turbidity",
+     "0.21",
+     "NTU",
+     "4",
+     "CH-03 nephelometric",
+     "Pass"
+    ],
+    [
+     "Colour",
+     "<2",
+     "mg/L Pt/Co",
+     "20",
+     "CH-04 spectrophotometric",
+     "Pass"
+    ],
+    [
+     "Nitrate",
+     "18.3",
+     "mg/L",
+     "50",
+     "CH-11 ion chromatography",
+     "Pass"
+    ],
+    [
+     "Nitrite",
+     "<0.01",
+     "mg/L",
+     "0.5",
+     "CH-11 ion chromatography",
+     "Pass"
+    ],
+    [
+     "Fluoride",
+     "0.12",
+     "mg/L",
+     "1.5",
+     "CH-12 ion chromatography",
+     "Pass"
+    ],
+    [
+     "Iron",
+     "31",
+     "µg/L",
+     "200",
+     "ME-01 ICP-MS",
+     "Pass"
+    ],
+    [
+     "Manganese",
+     "<2",
+     "µg/L",
+     "50",
+     "ME-01 ICP-MS",
+     "Pass"
+    ],
+    [
+     "Copper",
+     "0.18",
+     "mg/L",
+     "2.0",
+     "ME-01 ICP-MS",
+     "Pass"
+    ],
+    [
+     "Lead",
+     "14",
+     "µg/L",
+     "10",
+     "ME-01 ICP-MS",
+     "Fail"
+    ],
+    [
+     "Nickel",
+     "3",
+     "µg/L",
+     "20",
+     "ME-01 ICP-MS",
+     "Pass"
+    ],
+    [
+     "Aluminium",
+     "12",
+     "µg/L",
+     "200",
+     "ME-01 ICP-MS",
+     "Pass"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "Run the kitchen tap for at least two minutes before drawing water for drinking or cooking, especially after the building has been unused overnight."
+  },
+  {
+   "level": 0,
+   "text": "Use only the kitchen tap for drinking water until the pipework has been surveyed."
+  },
+  {
+   "level": 0,
+   "text": "Ask a plumber to identify and replace any lead pipes or fittings between the stopcock and the kitchen."
+  },
+  {
+   "level": 0,
+   "text": "Request a follow-up sample after any remedial work."
+  }
+ ],
+ "furniture": [
+  "Brackenfield Analytical Laboratories",
+  "12 Foundry Yard, Brackenfield BK4 6RW",
+  "Telephone 01632 960771 · lab@brackenfield-analytical.example",
+  "Results relate only to the sample tested.",
+  "Page 1 of 2",
+  "Brackenfield Analytical Laboratories · Report WQ-25-03318",
+  "Page 2 of 2"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [],
+ "notes": "Page 1 header is a letterhead of three lines; page 2 header is a running line. Footer: left running text 'Results relate only to the sample tested.' (listed once) and, at the right margin, 'Page 1 of 2' / 'Page 2 of 2'. The 'Client' box and the 'Sample details' box stand SIDE BY SIDE; reading order is box by box (Client first). 'Client' and 'Sample details' are labels, not headings; the sample table is a key/value table without header row. Two ZEBRA tables; method cells are cells of two lines (joined with one space). The physical and chemical table CONTINUES from page 1 to page 2 WITHOUT a repeated header row: it is one table. The advice list is CSS-drawn (square)."
+}

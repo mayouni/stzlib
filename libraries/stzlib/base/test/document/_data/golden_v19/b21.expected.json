@@ -1,0 +1,175 @@
+{
+ "id": "b21",
+ "difficulty": "medium",
+ "pages": 1,
+ "title": "HÓA ĐƠN TIỀN ĐIỆN",
+ "headings": [
+  {
+   "level": 1,
+   "text": "HÓA ĐƠN TIỀN ĐIỆN"
+  },
+  {
+   "level": 2,
+   "text": "Chi tiết tiền điện theo bậc"
+  },
+  {
+   "level": 2,
+   "text": "So sánh điện năng tiêu thụ"
+  },
+  {
+   "level": 2,
+   "text": "Thông tin thanh toán"
+  }
+ ],
+ "key_sentences": [
+  "Số tiền viết bằng chữ: chín trăm sáu mươi lăm nghìn bảy trăm linh bảy đồng.",
+  "Điện năng tiêu thụ trong kỳ này tăng 12% so với kỳ trước.",
+  "Để tiết kiệm điện, hãy tắt các thiết bị khi không sử dụng và đặt điều hòa ở 26 °C trở lên.",
+  "Quý khách vui lòng thanh toán đúng hạn để tránh bị gián đoạn cấp điện.",
+  "Mọi thắc mắc về hóa đơn xin liên hệ tổng đài chăm sóc khách hàng."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Tên khách hàng",
+     "Nguyễn Thị Hồng Nhung"
+    ],
+    [
+     "Địa chỉ",
+     "Số 27, ngõ 4, đường Hoa Sữa, phường Bến Thủy"
+    ],
+    [
+     "Mã khách hàng",
+     "PA14BT0072315"
+    ],
+    [
+     "Số công tơ",
+     "22410587"
+    ],
+    [
+     "Chỉ số cũ / chỉ số mới",
+     "18.342 / 18.701"
+    ],
+    [
+     "Điện năng tiêu thụ",
+     "359 kWh"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Bậc",
+     "Khoảng sản lượng (kWh)",
+     "Sản lượng (kWh)",
+     "Đơn giá (đồng/kWh)",
+     "Thành tiền (đồng)"
+    ],
+    [
+     "Bậc 1",
+     "0–50",
+     "50",
+     "1.893",
+     "94.650"
+    ],
+    [
+     "Bậc 2",
+     "51–100",
+     "50",
+     "1.956",
+     "97.800"
+    ],
+    [
+     "Bậc 3",
+     "101–200",
+     "100",
+     "2.271",
+     "227.100"
+    ],
+    [
+     "Bậc 4",
+     "201–300",
+     "100",
+     "2.860",
+     "286.000"
+    ],
+    [
+     "Bậc 5",
+     "301–400",
+     "59",
+     "3.197",
+     "188.623"
+    ],
+    [
+     "Cộng",
+     "",
+     "359",
+     "",
+     "894.173"
+    ],
+    [
+     "Thuế GTGT (8%)",
+     "Thuế GTGT (8%)",
+     "Thuế GTGT (8%)",
+     "Thuế GTGT (8%)",
+     "71.534"
+    ],
+    [
+     "Tổng cộng tiền thanh toán",
+     "Tổng cộng tiền thanh toán",
+     "Tổng cộng tiền thanh toán",
+     "Tổng cộng tiền thanh toán",
+     "965.707"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Kỳ",
+     "Điện năng (kWh)"
+    ],
+    [
+     "Tháng 7/2025",
+     "341"
+    ],
+    [
+     "Tháng 8/2025",
+     "320"
+    ],
+    [
+     "Tháng 9/2025",
+     "359"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "- Hạn thanh toán: ngày 24/09/2025."
+  },
+  {
+   "level": 0,
+   "text": "- Thanh toán tại quầy giao dịch, qua ngân hàng hoặc qua ví điện tử."
+  },
+  {
+   "level": 0,
+   "text": "- Quá hạn thanh toán, công ty sẽ gửi thông báo ngừng cấp điện."
+  }
+ ],
+ "furniture": [
+  "CÔNG TY ĐIỆN LỰC SÔNG LAM XANH",
+  "Chi nhánh Bến Thủy · Điện thoại 0238 3550 216",
+  "Trang 1/1"
+ ],
+ "languages": [
+  "vi"
+ ],
+ "code": [],
+ "notes": "Vietnamese (all letters precomposed, NFC). Header lines (company, branch and telephone) are furniture; page number 'Trang 1/1'. Customer block is a key/value table without header row. The tier table is fully ruled; header cells wrap (joined with one space); 'Cộng' is a totals row, and the VAT and grand-total rows merge the first four columns (label repeated). Dot as thousands separator. Payment information has TYPED hyphen markers '-'."
+}

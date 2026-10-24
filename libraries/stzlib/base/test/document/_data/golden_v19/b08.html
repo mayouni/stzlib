@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Ledgerline 4.2 Release Notes</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:'Trebuchet MS';font-size:10.5pt;line-height:1.35;color:#141414;background:#fff}
+h1,h2,h3,h4{font-family:'Trebuchet MS';margin:0 0 .4em 0;line-height:1.2}
+h1{font-size:18pt}h2{font-size:13pt;margin-top:.9em}h3{font-size:11pt;margin-top:.7em}h4{font-size:10.5pt;margin-top:.6em}
+p{margin:0 0 .55em 0}
+pre{font-family:'Consolas';font-size:8.6pt;line-height:1.3;white-space:pre;margin:.4em 0 .7em 0;padding:6px 9px;background:#f4f4f2;border:1px solid #d6d6d0}
+table{border-collapse:collapse;margin:.3em 0 .8em 0}
+th,td{white-space:nowrap;padding:2px 6px;vertical-align:top;text-align:left}
+td.w,th.w{white-space:normal}
+.r{text-align:right}.c{text-align:center}
+.nw{white-space:nowrap}
+caption{caption-side:top;text-align:left;font-weight:bold;padding:0 0 3px 0}
+ul.typed,ol.typed{list-style:none;padding-left:0;margin:.3em 0 .7em 0}
+ul.typed li,ol.typed li{padding-left:2em;text-indent:-2em}
+ul.typed li .mk,ol.typed li .mk{display:inline-block;width:2em;text-indent:0}
+ul.typed ul.typed{margin:.15em 0 .15em 2em}
+
+@page{size:A4;margin:0}
+.page{width:210mm;height:296.8mm;position:relative;overflow:hidden;break-after:page;page-break-after:always}
+.page:last-child{break-after:auto;page-break-after:auto}
+.hdr{position:absolute;left:22mm;right:22mm;top:10mm}
+.ftr{position:absolute;left:22mm;right:22mm;bottom:10mm}
+.content{position:absolute;left:22mm;right:22mm;top:24mm;bottom:22mm;overflow:hidden}
+.f-code{font-family:'Consolas'}
+
+body{font-size:10pt}
+h1{font-size:20pt;color:#3b2f8f}
+h2{font-size:13.5pt;color:#3b2f8f}
+h3{font-size:11pt}
+.sub{color:#666;margin-bottom:6px}
+table.cfg{width:100%;font-size:9pt}
+table.cfg th{border-bottom:1.5px solid #3b2f8f}
+table.cfg td{padding:3px 6px}
+table.cfg td code{font-family:'Consolas';font-size:9pt}
+ol.steps{margin:.3em 0 .6em 0}
+ol.steps ol{list-style-type:lower-alpha}
+.hdr{font-size:8.5pt;color:#777;text-align:right}
+.ftr{font-size:8.5pt;color:#777;text-align:right}
+</style>
+</head>
+<body>
+<div class="page"><div class="hdr">Ledgerline 4.2 — Release Notes</div><div class="content"><h1>Ledgerline 4.2 Release Notes</h1>
+<p class="sub">Released 9 June 2025 · Applies to <span class="nw">self-hosted</span> installations</p>
+<p>Version 4.2 is a feature release that also changes how Ledgerline is configured. Hosted customers are upgraded automatically during the maintenance window of 15 June.</p>
+<h2>Highlights</h2>
+<ul style="list-style-type:disc"><li>Bank feeds can now be reconciled in bulk, with suggested matches ranked by confidence.</li><li><span class="nw">Multi-currency</span> revaluation runs as a scheduled job instead of only at month end.</li><li>The audit trail records the client address and the API token used for every change.</li><li>PDF exports of reports are about three times faster on large ledgers.</li></ul>
+<h2>Breaking changes</h2>
+<p>Read this section before upgrading, because two of these changes require action on your part.</p>
+<ul class="typed"><li><span class="mk">1.</span> The configuration file is now YAML; the old INI format is no longer read.</li><li><span class="mk">2.</span> PostgreSQL 13 is the minimum supported database version.</li><li><span class="mk">3.</span> The <span class="nw">/api/v1</span> endpoints have been removed; use <span class="nw">/api/v2</span> instead.</li></ul>
+<h2>Configuration reference</h2>
+<table class="cfg"><colgroup><col style="width:38mm"><col style="width:18mm"><col style="width:22mm"><col style="width:None"></colgroup><thead><tr><th>Key</th><th>Type</th><th>Default</th><th class="w">Description</th></tr></thead><tbody><tr><td><code>server.port</code></td><td>integer</td><td>8080</td><td class="w">TCP port on which the web interface listens.</td></tr><tr><td><code>server.base_url</code></td><td>string</td><td>(none)</td><td class="w">Public address used in <span class="nw">e-mail</span> links and in exported documents.</td></tr><tr><td><code>database.url</code></td><td>string</td><td>(none)</td><td class="w">Connection string for the PostgreSQL database.</td></tr><tr><td><code>database.pool_size</code></td><td>integer</td><td>10</td><td class="w">Maximum number of open database connections.</td></tr><tr><td><code>jobs.revaluation</code></td><td>cron</td><td>0 2 * * *</td><td class="w">Schedule of the currency revaluation job.</td></tr><tr><td><code>audit.retain_days</code></td><td>integer</td><td>2555</td><td class="w">Number of days audit records are kept, about seven years.</td></tr><tr><td><code>exports.workers</code></td><td>integer</td><td>2</td><td class="w">Parallel workers used for PDF exports.</td></tr></tbody></table></div><div class="ftr">p. 1</div></div>
+<div class="page"><div class="hdr">Ledgerline 4.2 — Release Notes</div><div class="content"><h2>Upgrading from 4.1</h2>
+<p>The upgrade takes about ten minutes for a ledger of one million postings. Always take a full database backup before you begin.</p>
+<ol class="steps"><li>Stop the Ledgerline service.</li><li>Back up the database and the existing configuration file.<ol class="steps"><li>Use pg_dump with the custom format.</li><li>Copy ledgerline.ini to a safe place.</li></ol></li><li>Convert the configuration file to YAML, as in the example below.</li><li>Install the new package and run the database migration.</li><li>Start the service and check the log for the line “Ledgerline ready”.</li></ol>
+<h3>Example configuration</h3>
+<pre>server:
+  port: 8080
+  base_url: https://ledger.example.org
+database:
+  url: postgresql://ledgerline@db01/ledger
+  pool_size: 20
+jobs:
+  revaluation: "0 2 * * *"
+audit:
+  retain_days: 2555
+exports:
+  workers: 4</pre>
+<h3>Migration commands</h3>
+<pre>sudo systemctl stop ledgerline
+pg_dump -Fc -f ledger-4.1.dump ledger
+sudo dpkg -i ledgerline_4.2.0_amd64.deb
+sudo -u ledgerline ledgerline migrate --to 4.2
+sudo systemctl start ledgerline</pre>
+<h2>Known issues</h2>
+<p>Reports with more than 200 columns may be cut off in the PDF export. A fix is planned for version 4.2.1. Please report other problems through the support portal.</p></div><div class="ftr">p. 2</div></div>
+</body>
+</html>

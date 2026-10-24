@@ -1,0 +1,22 @@
+page_header	0	Wrexley Institute of Technology · School of Life Sciences
+heading	1	Spring 2026 Examination Timetable: Year 2 Biosciences
+caption	0	Candidates must be seated ten minutes before the start of each examination. Rooms are subject to change, so check the noticeboard on the morning of each paper.
+table	0	DayDateMorningMorningAfternoonAfternoonEveningDayDate09:00–10:3011:00–12:3013:30–15:0015:30–17:0018:00–19:30Mon11 MayBIO 214 Main Hall——CHM 205 Lab Block 3—Tue12 May—GEN 220 Main Hall———Wed13 MaySTA 201 Room E104—MIC 230 Main Hall——Thu14 May————ECO 240 Room E104Fri15 May—BIO 218 Main Hall———Mon18 MayPHY 209 Sports Hall————Tue19 May——BCH 226 Main Hall——Wed20 May—ETH 200 Room E104—GEN 224 Main Hall—Thu21 May—————Fri22 MayMIC 234 Sports Hall————
+paragraph	0	Thursday 21 May is kept free as a reserve day in case an examination has to be rescheduled. Candidates with approved access arrangements sit their papers in Room E010, starting at the same time as the main session.
+page_footer	0	Spring 2026 Examination Timetable · version 3, issued 2 March 2026
+page_footer	0	Page 1 of 2
+page_header	0	Wrexley Institute of Technology · School of Life Sciences
+heading	2	Course codes
+heading	2	On the day
+list_item	0	Bring your student card; you will not be admitted without it.
+list_item	0	Only clear pencil cases and clear water bottles are allowed on desks.
+list_item	0	Mobile phones must be switched off and left in the bag area.
+list_item	0	Calculators must be on the approved list published by the School.
+list_item	0	You may not leave during the first 30 minutes or the last 15 minutes of a paper.
+paragraph	0	If you are ill on the day of an examination, contact the School office before the paper starts.
+table	0	CodeCourseBCH 226Metabolic BiochemistryBIO 214Cell Biology IIBIO 218Developmental BiologyCHM 205Organic Chemistry for BiologistsECO 240Field EcologyETH 200Ethics in the Life SciencesGEN 220Molecular GeneticsGEN 224Population GeneticsMIC 230Microbial PhysiologyMIC 234ImmunologyPHY 209BiophysicsSTA 201Statistics for Biology
+heading	2	Add the timetable to your calendar
+paragraph	0	Each examination is also published as a calendar entry that you can import into most calendar applications. A single entry looks like this:
+code	0	BEGIN:VEVENT\nUID:bio214-2026s@exams.wrexley.example\nDTSTART;TZID=Europe/London:20260511T090000\nDTEND;TZID=Europe/London:20260511T103000\nSUMMARY:BIO 214 Cell Biology II\nLOCATION:Main Hall\nEND:VEVENT
+page_footer	0	Spring 2026 Examination Timetable · version 3, issued 2 March 2026
+page_footer	0	Page 2 of 2

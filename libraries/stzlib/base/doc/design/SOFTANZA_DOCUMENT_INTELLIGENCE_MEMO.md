@@ -400,6 +400,22 @@ golden_v18: 24 realistic documents in 17 languages besides English (Chinese, Jap
 
 Time for the 24 documents: native 0.1 s, Docling 395 s. The native reader leads on seven of the eight measures; Docling on tables (0.73 against 0.69), which is where the native reader's work now is. Its weakest text is a Japanese hotel page (0.43; Docling 0.29) whose two shaded boxes side by side are read line by line across both. Round 18.
 
+**Eighteenth round: tables; then golden_v19.** Tables were the one measure Docling still led on unseen documents. Fixed on golden_v15 to v18 and checked on all eighteen sets:
+- two tables read as one are split: columns falling into a left and a right group that no row fills both of (section rows set aside) are two tables side by side, and a row repeating the header row starts a table of its own (an athletics results page 0.37 -> 0.82);
+- a body cell of two lines beside cells of one, centred in their row (the CSS default), makes three baseline rows that are ONE table row (not for bold header cells: merged there, a header joined the table above it);
+- a line with a bullet drawn before it is a list item, never a table cell.
+
+Withdrawn again on measurement: grouping rows by overlapping heights in general (it chained rows that are not one row). On the development sets: tables v7 0.79 -> 0.81, v8 0.75 -> 0.79, v9 0.77 -> 0.79, v10 0.72 -> 0.77, v15 0.74 -> 0.76; lists v8 0.94 -> 0.98, v10 0.83 -> 0.90. Costs: text v9 0.981 -> 0.975, v10 0.944 -> 0.930, v18 0.964 -> 0.957, and v18 lists 0.87 -> 0.83 -- a table now grows across into a list in the box beside it; and one table absorbs a column of prose from the next text column, which the table score (expected cells in place) does not see. Guard 177 assertions under Ring++.
+
+golden_v19: a TABLE-RICH set -- 24 realistic documents, every one with at least one table and 20 with two or more, in every style (ruled, partly ruled, zebra, borderless, two-level headers, merged cells, totals, two-line cells, tables across pages) -- in 16 languages besides English, 15 of 2-3 pages, every named font and character checked against the embedded fonts, by a nineteenth independent agent who saw no reader, no output and no earlier set and did not look at the rendered pages (unperceived); reader frozen at f278bbfea; both readers ran once:
+
+| golden_v19, table-rich | text | order | headings | tables | lists | furniture | code | heading precision |
+|---|---|---|---|---|---|---|---|---|
+| Softanza native (Ring++) | **0.99** | **1.00** | **0.91** | **0.69** | **0.86** | **0.90** | **1.00** | **0.90** |
+| Docling 2.141 | 0.87 | 0.98 | 0.80 | 0.67 | 0.55 | 0.89 | 0.00 | 0.71 |
+
+Time for the 24 documents: native 0.1 s, Docling 738 s. **On a set built to stress tables, the native reader leads on all eight measures, tables included (0.69 against 0.67).** Tables are still the measure with the most room for both readers. Causes read off the native output: one row too many in three tables (a header or caption line taken in), side-by-side tables whose rows fill both halves still read as one wide table, and two tables not found.
+
 **Perceived (2026-10-24):** the author looked through every rendered page of golden_v9 to golden_v13 -- the sets whose own authors could not look at them -- and judged them: "they look great". Those five sets are no longer unperceived; the sets before them were generated the same way and are not covered by this look.
 
 **Not measured**: Granite-Docling-258M (not downloaded), the GPU, scanned golden pages with an expected text, PDFs from producers other than Chrome (both golden sets are Chrome-made and tagged; the native reader does not read the tags).

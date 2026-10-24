@@ -1,0 +1,141 @@
+{
+ "id": "b11",
+ "difficulty": "medium",
+ "pages": 1,
+ "title": "Office Cleaning Contract: Comparison of Tenders",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Office Cleaning Contract: Comparison of Tenders"
+  },
+  {
+   "level": 2,
+   "text": "Scoring summary"
+  },
+  {
+   "level": 3,
+   "text": "Risks"
+  },
+  {
+   "level": 3,
+   "text": "Recommendation"
+  },
+  {
+   "level": 2,
+   "text": "Next steps"
+  }
+ ],
+ "key_sentences": [
+  "Three compliant tenders were received by the closing date of 23 January.",
+  "Each tender was scored against the criteria published in the invitation to tender, with price weighted at 40%.",
+  "Prices were scored in proportion to the lowest compliant tender.",
+  "We recommend that the contract is awarded to Brightwell Services, which achieved the highest overall score.",
+  "Its price is £13,450 a year higher than the lowest tender, but its method statement is considerably stronger.",
+  "The current contract with the outgoing supplier ends on 31 March 2026 and cannot be extended."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "To",
+     "Property and Facilities Committee"
+    ],
+    [
+     "From",
+     "Facilities Team"
+    ],
+    [
+     "Date",
+     "6 February 2026"
+    ],
+    [
+     "Subject",
+     "Award of the cleaning contract for Kingsgate House, 2026–2029"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Criterion (weight)",
+     "Brightwell Services",
+     "Corran Clean Ltd",
+     "Silverbirch Facilities"
+    ],
+    [
+     "Price (40%)",
+     "35 £118,400 a year",
+     "40 £104,950 a year",
+     "32 £131,200 a year"
+    ],
+    [
+     "Method statement (25%)",
+     "21",
+     "17",
+     "22"
+    ],
+    [
+     "Staffing and supervision (15%)",
+     "12",
+     "10",
+     "12"
+    ],
+    [
+     "Environmental approach (10%)",
+     "8",
+     "6",
+     "9"
+    ],
+    [
+     "References (10%)",
+     "9",
+     "7",
+     "9"
+    ],
+    [
+     "Total (100%)",
+     "85",
+     "80",
+     "84"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "Corran Clean’s price depends on a staff turnover rate that looks optimistic."
+  },
+  {
+   "level": 0,
+   "text": "Silverbirch would need six weeks to mobilise, which would delay the start to May."
+  },
+  {
+   "level": 0,
+   "text": "All three bidders assume the current opening hours of the building."
+  },
+  {
+   "level": 0,
+   "text": "i. Committee decision at the meeting of 19 February."
+  },
+  {
+   "level": 0,
+   "text": "ii. Standstill period of ten days, then contract signature."
+  },
+  {
+   "level": 0,
+   "text": "iii. Contract start on 1 April 2026."
+  }
+ ],
+ "furniture": [
+  "Ravensmoor Housing Trust · Facilities Team",
+  "Internal document — not for circulation outside the Trust"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [],
+ "notes": "Header line 'Ravensmoor Housing Trust · Facilities Team' and footer 'Internal document — not for circulation outside the Trust' are furniture; no page number. Memo block To/From/Date/Subject is a borderless key/value table (no header row). Comparison table: header-only rules; the Price row has cells of two lines (score, then the annual price; joined with one space); Total row bold. Boxes 'Risks' and 'Recommendation' stand SIDE BY SIDE; reading order is box by box (Risks first). Risks list CSS-drawn (disc); 'Next steps' has TYPED roman markers i. ii. iii."
+}

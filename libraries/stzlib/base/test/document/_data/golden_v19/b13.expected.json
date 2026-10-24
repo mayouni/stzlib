@@ -1,0 +1,316 @@
+{
+ "id": "b13",
+ "difficulty": "hard",
+ "pages": 2,
+ "title": "Current Account Statement",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Current Account Statement"
+  },
+  {
+   "level": 2,
+   "text": "Your transactions"
+  },
+  {
+   "level": 2,
+   "text": "Interest rates"
+  },
+  {
+   "level": 2,
+   "text": "Important information"
+  }
+ ],
+ "key_sentences": [
+  "Please check this statement carefully and tell us about any entry you do not recognise.",
+  "No overdraft charges were applied during this statement period.",
+  "Interest of £1.07 was paid into your account on 31 October.",
+  "From 1 January 2026 the interest rate on balances up to £4,999.99 will change to 0.75% AER.",
+  "If you have a question about your statement, call us on 01632 960200 or visit any branch."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Account name",
+     "D Okafor-Reyes"
+    ],
+    [
+     "Sort code",
+     "30-96-27"
+    ],
+    [
+     "Account number",
+     "51842093"
+    ],
+    [
+     "Statement period",
+     "1 to 31 October 2025"
+    ],
+    [
+     "Opening balance",
+     "£2,412.36"
+    ],
+    [
+     "Money in",
+     "£2,411.60"
+    ],
+    [
+     "Money out",
+     "£1,790.34"
+    ],
+    [
+     "Closing balance",
+     "£3,033.62"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Date",
+     "Description",
+     "Paid out (£)",
+     "Paid in (£)",
+     "Balance (£)"
+    ],
+    [
+     "1 Oct",
+     "Balance brought forward",
+     "",
+     "",
+     "2,412.36"
+    ],
+    [
+     "1 Oct",
+     "Standing order RENT FLAT 6 LINNET COURT",
+     "875.00",
+     "",
+     "1,537.36"
+    ],
+    [
+     "2 Oct",
+     "Card payment GREENWAYS GROCERS PORTMERE",
+     "46.18",
+     "",
+     "1,491.18"
+    ],
+    [
+     "3 Oct",
+     "Direct debit PORTMERE WATER",
+     "38.40",
+     "",
+     "1,452.78"
+    ],
+    [
+     "3 Oct",
+     "Faster payment from S OKAFOR-REYES",
+     "",
+     "120.00",
+     "1,572.78"
+    ],
+    [
+     "6 Oct",
+     "Card payment CORNER CAFE QUAYSIDE",
+     "7.85",
+     "",
+     "1,564.93"
+    ],
+    [
+     "7 Oct",
+     "Cash withdrawal HIGH STREET BRANCH",
+     "60.00",
+     "",
+     "1,504.93"
+    ],
+    [
+     "8 Oct",
+     "Direct debit NORTHGRID ENERGY",
+     "92.15",
+     "",
+     "1,412.78"
+    ],
+    [
+     "9 Oct",
+     "Card payment PORTMERE RAIL TICKETS",
+     "23.60",
+     "",
+     "1,389.18"
+    ],
+    [
+     "10 Oct",
+     "Card payment GREENWAYS GROCERS PORTMERE",
+     "61.42",
+     "",
+     "1,327.76"
+    ],
+    [
+     "13 Oct",
+     "Direct debit COUNCIL TAX PORTMERE",
+     "141.00",
+     "",
+     "1,186.76"
+    ],
+    [
+     "14 Oct",
+     "Card payment BOOKS ON THE HILL",
+     "18.99",
+     "",
+     "1,167.77"
+    ],
+    [
+     "15 Oct",
+     "Direct debit MOBILE LINK SERVICES",
+     "15.00",
+     "",
+     "1,152.77"
+    ],
+    [
+     "16 Oct",
+     "Card payment GREENWAYS GROCERS PORTMERE",
+     "54.27",
+     "",
+     "1,098.50"
+    ],
+    [
+     "17 Oct",
+     "Transfer to savings ACCOUNT ENDING 7731",
+     "200.00",
+     "",
+     "898.50"
+    ],
+    [
+     "20 Oct",
+     "Card payment QUAYSIDE PHARMACY",
+     "9.35",
+     "",
+     "889.15"
+    ],
+    [
+     "21 Oct",
+     "Card refund BOOKS ON THE HILL",
+     "",
+     "18.99",
+     "908.14"
+    ],
+    [
+     "22 Oct",
+     "Card payment PORTMERE LEISURE CENTRE",
+     "32.00",
+     "",
+     "876.14"
+    ],
+    [
+     "23 Oct",
+     "Card payment GREENWAYS GROCERS PORTMERE",
+     "48.76",
+     "",
+     "827.38"
+    ],
+    [
+     "24 Oct",
+     "Cheque deposit CHEQUE 100248",
+     "",
+     "85.00",
+     "912.38"
+    ],
+    [
+     "27 Oct",
+     "Card payment HARBOUR LIGHT CINEMA",
+     "14.50",
+     "",
+     "897.88"
+    ],
+    [
+     "28 Oct",
+     "Direct debit HOME CONTENTS INSURANCE",
+     "12.83",
+     "",
+     "885.05"
+    ],
+    [
+     "29 Oct",
+     "Card payment GREENWAYS GROCERS PORTMERE",
+     "39.04",
+     "",
+     "846.01"
+    ],
+    [
+     "30 Oct",
+     "Salary MERIDIAN TOOLING LTD",
+     "",
+     "2,186.54",
+     "3,032.55"
+    ],
+    [
+     "31 Oct",
+     "Interest paid",
+     "",
+     "1.07",
+     "3,033.62"
+    ],
+    [
+     "31 Oct",
+     "Balance carried forward",
+     "",
+     "",
+     "3,033.62"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Balance",
+     "Interest rate (AER)",
+     "From 1 January 2026"
+    ],
+    [
+     "£0.00 to £4,999.99",
+     "0.50%",
+     "0.75%"
+    ],
+    [
+     "£5,000.00 to £24,999.99",
+     "1.10%",
+     "1.10%"
+    ],
+    [
+     "£25,000.00 and over",
+     "1.35%",
+     "1.25%"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "Your eligible deposits are protected up to a total of £85,000 by the deposit protection scheme."
+  },
+  {
+   "level": 0,
+   "text": "Keep your card details and passcodes safe and never share them with anyone, including our staff."
+  },
+  {
+   "level": 0,
+   "text": "You can switch to paperless statements in the mobile app at any time."
+  }
+ ],
+ "furniture": [
+  "Harbourline Mutual",
+  "Customer services 01632 960200 · harbourline.example",
+  "Harbourline Mutual Society, Registered Office: 1 Quayside, Portmere PM1 1AA",
+  "Page 1 of 2",
+  "Harbourline Mutual · Current Account Statement · 1 to 31 October 2025",
+  "Page 2 of 2"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [],
+ "notes": "Page 1 header: bank name and contact line; page 2 header: running line; footer left: registered-office line (listed once), footer right: 'Page 1 of 2' / 'Page 2 of 2'. The address block and the 'Account summary' box stand SIDE BY SIDE; reading order is box by box (address first); 'Account summary' is a label; the summary is a key/value table without header row. The transactions table CONTINUES on page 2 with its header row REPEATED visually under the line 'Your transactions (continued)' (that line is body text, not a heading); it is one table with the header once. Several description cells have two lines (joined with one space); empty money cells are empty strings. 'Important information' is a CSS-drawn disc list."
+}

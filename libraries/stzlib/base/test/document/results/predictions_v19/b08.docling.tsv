@@ -1,0 +1,34 @@
+page_header	0	Ledgerline 4.2 - Release Notes
+heading	1	Ledgerline 4.2 Release Notes
+paragraph	0	Released 9 June 2025 · Applies to self-hosted installations
+paragraph	0	Version 4.2 is a feature release that also changes how Ledgerline is configured. Hosted customers are upgraded automatically during the maintenance window of 15 June.
+heading	1	Highlights
+list_item	0	Bank feeds can now be reconciled in bulk, with suggested matches ranked by confidence.
+list_item	0	Multi-currency revaluation runs as a scheduled job instead of only at month end.
+list_item	0	The audit trail records the client address and the API token used for every change.
+list_item	0	PDF exports of reports are about three times faster on large ledgers.
+heading	1	Breaking changes
+paragraph	0	Read this section before upgrading, because two of these changes require action on your part.
+list_item	0	The configuration file is now YAML; the old INI format is no longer read.
+list_item	0	PostgreSQL 13 is the minimum supported database version.
+list_item	0	The /api/v1 endpoints have been removed; use /api/v2 instead.
+heading	1	Configuration reference
+table	0	KeyTypeDefaultDescriptionserver.portinteger8080TCP port on which the web interface listens.server.base _ urlstring(none)Public address used in e-mail links and in exported documents.database.urlstring(none)Connection string for the PostgreSQL database.database.pool _ sizeinteger10Maximum number of open database connections.jobs.revaluationcron0 2 * * *Schedule of the currency revaluation job.audit.retain _ daysinteger2555Number of days audit records are kept, about seven years.exports.workersinteger2Parallel workers used for PDF exports.
+page_footer	0	p. 1
+page_header	0	Ledgerline 4.2 - Release Notes
+heading	1	Upgrading from 4.1
+paragraph	0	The upgrade takes about ten minutes for a ledger of one million postings. Always take a full database backup before you begin.
+list_item	0	Stop the Ledgerline service.
+list_item	0	Back up the database and the existing configuration file.
+list_item	0	Use pg_ dump with the custom format.
+list_item	0	Copy ledgerline.ini to a safe place.
+list_item	0	Convert the configuration file to YAML, as in the example below.
+list_item	0	Install the new package and run the database migration.
+list_item	0	Start the service and check the log for the line "Ledgerline ready" .
+heading	1	Example configuration
+code	0	server: port: 8080 base _ url: https://ledger.example.org database: url: postgresql://ledgerline@db01/ledger pool _ size: 20 jobs: revaluation: "0 2 * * *" audit: retain _ days: 2555 exports: workers: 4
+heading	1	Migration commands
+code	0	sudo systemctl stop ledgerline pg_ dump -Fc -f ledger-4.1.dump ledger sudo dpkg -i ledgerline _ 4.2.0 _ amd64.deb sudo -u ledgerline ledgerline migrate --to 4.2 sudo systemctl start ledgerline
+heading	1	Known issues
+paragraph	0	Reports with more than 200 columns may be cut off in the PDF export. A fix is planned for version 4.2.1. Please report other problems through the support portal.
+page_footer	0	p. 2

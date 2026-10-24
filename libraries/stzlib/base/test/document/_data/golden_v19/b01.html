@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Tax Invoice</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:'Calibri';font-size:10.5pt;line-height:1.35;color:#141414;background:#fff}
+h1,h2,h3,h4{font-family:'Cambria';margin:0 0 .4em 0;line-height:1.2}
+h1{font-size:18pt}h2{font-size:13pt;margin-top:.9em}h3{font-size:11pt;margin-top:.7em}h4{font-size:10.5pt;margin-top:.6em}
+p{margin:0 0 .55em 0}
+pre{font-family:'Consolas';font-size:8.6pt;line-height:1.3;white-space:pre;margin:.4em 0 .7em 0;padding:6px 9px;background:#f4f4f2;border:1px solid #d6d6d0}
+table{border-collapse:collapse;margin:.3em 0 .8em 0}
+th,td{white-space:nowrap;padding:2px 6px;vertical-align:top;text-align:left}
+td.w,th.w{white-space:normal}
+.r{text-align:right}.c{text-align:center}
+.nw{white-space:nowrap}
+caption{caption-side:top;text-align:left;font-weight:bold;padding:0 0 3px 0}
+ul.typed,ol.typed{list-style:none;padding-left:0;margin:.3em 0 .7em 0}
+ul.typed li,ol.typed li{padding-left:2em;text-indent:-2em}
+ul.typed li .mk,ol.typed li .mk{display:inline-block;width:2em;text-indent:0}
+ul.typed ul.typed{margin:.15em 0 .15em 2em}
+
+@page{size:A4;margin:0}
+.page{width:210mm;height:296.8mm;position:relative;overflow:hidden;break-after:page;page-break-after:always}
+.page:last-child{break-after:auto;page-break-after:auto}
+.hdr{position:absolute;left:20mm;right:20mm;top:10mm}
+.ftr{position:absolute;left:20mm;right:20mm;bottom:10mm}
+.content{position:absolute;left:20mm;right:20mm;top:16mm;bottom:22mm;overflow:hidden}
+.f-lh{font-family:'Cambria'}
+
+body{font-size:10.5pt}
+.lh{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2.5px solid #2d5a3d;padding-bottom:5px;margin-bottom:14px}
+.lhname{font-family:'Cambria';font-size:17pt;color:#2d5a3d;font-weight:bold}
+.lhaddr{text-align:right;font-size:8.5pt;color:#444;line-height:1.35}
+h1{font-size:22pt;color:#2d5a3d;margin:4px 0 10px 0;letter-spacing:1px}
+.two{display:flex;gap:12mm;margin-bottom:10px}
+.two>div{flex:1}
+.lbl{font-weight:bold;color:#2d5a3d;font-size:9pt;margin-bottom:2px}
+table.kv td{padding:1px 6px 1px 0}
+table.kv td:first-child{color:#555;width:32mm}
+table.items{width:100%;font-size:10pt}
+table.items th,table.items td{border:1px solid #9aa79e;padding:3px 6px}
+table.items th{background:#e3ebe5}
+table.items tr.tot td{font-weight:bold}
+table.items tr.grand td{background:#2d5a3d;color:#fff;font-weight:bold}
+.ftr{font-size:8pt;color:#555;text-align:center;border-top:1px solid #9aa79e;padding-top:3px}
+</style>
+</head>
+<body>
+<div class="page"><div class="content"><div class="lh"><div class="lhname f-lh">Fernhollow Print &amp; Bindery Ltd</div><div class="lhaddr">Unit 4, Mardale Trading Estate, Kestwick KW3 9TP<br>Telephone 01632 960418 · <span class="nw">accounts@fernhollow-print.example</span></div></div>
+<h1>Tax Invoice</h1>
+<div class="two"><div>
+<p class="lbl">Bill to</p>
+<p>Thornbury Community Choir<br><span class="nw">c/o</span> Rosalind Allsop, Treasurer<br>17 Wellgate Lane<br>Kestwick KW1 4HD</p>
+</div><div>
+<table class="kv"><tbody><tr><td>Invoice number</td><td><span class="nw">INV-2025-0417</span></td></tr><tr><td>Invoice date</td><td>14 March 2025</td></tr><tr><td>Your reference</td><td>PO 88213</td></tr><tr><td>Due date</td><td>13 April 2025</td></tr><tr><td>Account</td><td><span class="nw">THO-0092</span></td></tr></tbody></table>
+</div></div>
+<table class="items"><colgroup><col style="width:12mm"><col style="width:None"><col style="width:16mm"><col style="width:24mm"><col style="width:26mm"></colgroup><thead><tr><th class="c">Item</th><th class="w">Description</th><th class="r">Qty</th><th class="r">Unit price</th><th class="r">Amount</th></tr></thead><tbody><tr><td class="c">1</td><td class="w">Concert programmes, A5, 16 pages<br>full colour, saddle stitched</td><td class="r">400</td><td class="r">£1.85</td><td class="r">£740.00</td></tr><tr><td class="c">2</td><td class="w">Tickets, numbered, with perforated stub</td><td class="r">600</td><td class="r">£0.22</td><td class="r">£132.00</td></tr><tr><td class="c">3</td><td class="w">A2 posters, 170 gsm silk</td><td class="r">35</td><td class="r">£3.40</td><td class="r">£119.00</td></tr><tr><td class="c">4</td><td class="w">Design adjustments (hours)</td><td class="r">2.5</td><td class="r">£38.00</td><td class="r">£95.00</td></tr><tr><td class="c">5</td><td class="w">Delivery to St Aldhelm’s Hall</td><td class="r">1</td><td class="r">£18.00</td><td class="r">£18.00</td></tr><tr class="tot"><td colspan="4" class="r">Subtotal</td><td class="r">£1,104.00</td></tr><tr class="tot"><td colspan="4" class="r">VAT at 20%</td><td class="r">£220.80</td></tr><tr class="grand"><td colspan="4" class="r">Total due</td><td class="r">£1,324.80</td></tr></tbody></table>
+<p>Thank you for your order. Payment is due within 30 days of the invoice date. Please quote the invoice number <span class="nw">INV-2025-0417</span> with your payment so that we can match it to your account.</p>
+<h2>How to pay</h2>
+<ul class="typed"><li><span class="mk">a)</span> Bank transfer to Fernhollow Print &amp; Bindery Ltd, sort code <span class="nw">20-19-74,</span> account 41736025</li><li><span class="mk">b)</span> Card payment by telephone on 01632 960418, Monday to Friday</li><li><span class="mk">c)</span> Cheque payable to Fernhollow Print &amp; Bindery Ltd, sent to the address above</li></ul>
+<h2>Terms</h2>
+<p>Goods remain our property until they have been paid for in full. Any shortage or damage must be reported to us within seven days of delivery. We may charge interest on overdue accounts at 4% above the Bank of England base rate.</p></div><div class="ftr">Fernhollow Print &amp; Bindery Ltd · Registered in England No. 08815237 · VAT No. GB 318 4402 17</div></div>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Water Quality Test Report</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:'Verdana';font-size:10.5pt;line-height:1.35;color:#141414;background:#fff}
+h1,h2,h3,h4{font-family:'Verdana';margin:0 0 .4em 0;line-height:1.2}
+h1{font-size:18pt}h2{font-size:13pt;margin-top:.9em}h3{font-size:11pt;margin-top:.7em}h4{font-size:10.5pt;margin-top:.6em}
+p{margin:0 0 .55em 0}
+pre{font-family:'Consolas';font-size:8.6pt;line-height:1.3;white-space:pre;margin:.4em 0 .7em 0;padding:6px 9px;background:#f4f4f2;border:1px solid #d6d6d0}
+table{border-collapse:collapse;margin:.3em 0 .8em 0}
+th,td{white-space:nowrap;padding:2px 6px;vertical-align:top;text-align:left}
+td.w,th.w{white-space:normal}
+.r{text-align:right}.c{text-align:center}
+.nw{white-space:nowrap}
+caption{caption-side:top;text-align:left;font-weight:bold;padding:0 0 3px 0}
+ul.typed,ol.typed{list-style:none;padding-left:0;margin:.3em 0 .7em 0}
+ul.typed li,ol.typed li{padding-left:2em;text-indent:-2em}
+ul.typed li .mk,ol.typed li .mk{display:inline-block;width:2em;text-indent:0}
+ul.typed ul.typed{margin:.15em 0 .15em 2em}
+
+@page{size:A4;margin:0}
+.page{width:210mm;height:296.8mm;position:relative;overflow:hidden;break-after:page;page-break-after:always}
+.page:last-child{break-after:auto;page-break-after:auto}
+.hdr{position:absolute;left:18mm;right:18mm;top:10mm}
+.ftr{position:absolute;left:18mm;right:18mm;bottom:10mm}
+.content{position:absolute;left:18mm;right:18mm;top:32mm;bottom:22mm;overflow:hidden}
+
+body{font-size:8.8pt;line-height:1.4}
+h1{font-size:15pt;color:#0f4c81}
+h2{font-size:10.5pt;color:#0f4c81;margin-top:12px}
+.two{display:flex;gap:8mm;margin:6px 0 4px 0}
+.two>div{flex:1;border:1px solid #b9cde0;padding:6px 8px}
+.lbl{font-weight:bold;color:#0f4c81;margin-bottom:3px}
+table.kv{font-size:8.4pt;margin:0}
+table.kv td{padding:1px 6px 1px 0}
+table.kv td:first-child{color:#555}
+table.z{width:100%;font-size:8.2pt}
+table.z th{background:#0f4c81;color:#fff;padding:3px 5px}
+table.z td{padding:3px 5px}
+table.z tbody tr:nth-child(even) td{background:#eaf1f8}
+table.z td.fail{color:#b00000;font-weight:bold}
+.hdr{font-size:8pt;color:#0f4c81}
+.hdr .nm{font-size:13pt;font-weight:bold}
+.ftr{font-size:7.5pt;color:#555;display:flex;justify-content:space-between;border-top:.6px solid #999;padding-top:2px}
+.sig{margin-top:10px}
+</style>
+</head>
+<body>
+<div class="page"><div class="hdr"><div class="nm">Brackenfield Analytical Laboratories</div>12 Foundry Yard, Brackenfield BK4 6RW<br>Telephone 01632 960771 · <span class="nw">lab@brackenfield-analytical.example</span></div><div class="content"><h1>Water Quality Test Report</h1>
+<div class="two"><div>
+<p class="lbl">Client</p>
+<p>Ashcombe Parish Council<br>The Old School Room<br>Church Lane, Ashcombe<br>Wexford Vale WV7 2LP</p>
+</div><div>
+<p class="lbl">Sample details</p>
+<table class="kv"><tbody><tr><td>Report number</td><td><span class="nw">WQ-25-03318</span></td></tr><tr><td>Sample ID</td><td><span class="nw">S-114207</span></td></tr><tr><td>Sample point</td><td>Village hall, kitchen tap</td></tr><tr><td>Sampled</td><td>3 March 2025, 09:40</td></tr><tr><td>Received</td><td>3 March 2025, 14:15</td></tr><tr><td>Sample type</td><td>Mains drinking water</td></tr></tbody></table>
+</div></div>
+<h2>Summary</h2>
+<p>The sample complied with the drinking water standards for all the parameters tested, except for lead. The lead concentration of 14 <span class="nw">µg/L</span> exceeds the prescribed limit of 10 <span class="nw">µg/L.</span> This is most likely caused by lead pipework within the building rather than by the public supply.</p>
+<h2>Microbiological results</h2>
+<table class="z"><thead><tr><th>Parameter</th><th class="r">Result</th><th>Unit</th><th>Limit</th><th>Method</th><th class="c">Compliance</th></tr></thead><tbody><tr><td>Coliform bacteria</td><td class="r">0</td><td>per 100 mL</td><td>0</td><td><span class="nw">MB-02</span><br>membrane filtration</td><td class="c">Pass</td></tr><tr><td>Escherichia coli</td><td class="r">0</td><td>per 100 mL</td><td>0</td><td><span class="nw">MB-02</span><br>membrane filtration</td><td class="c">Pass</td></tr><tr><td>Enterococci</td><td class="r">0</td><td>per 100 mL</td><td>0</td><td><span class="nw">MB-05</span><br>membrane filtration</td><td class="c">Pass</td></tr><tr><td>Colony count at 22 °C</td><td class="r">14</td><td>per mL</td><td>No abnormal<br>change</td><td><span class="nw">MB-07</span><br>pour plate</td><td class="c">Pass</td></tr></tbody></table>
+<h2>Physical and chemical results</h2>
+<table class="z"><thead><tr><th>Parameter</th><th class="r">Result</th><th>Unit</th><th>Limit</th><th>Method</th><th class="c">Compliance</th></tr></thead><tbody><tr><td>pH</td><td class="r">7.6</td><td>pH units</td><td><span class="nw">6.5–9.5</span></td><td><span class="nw">CH-01</span><br>electrometric</td><td class="c">Pass</td></tr><tr><td>Conductivity at 20 °C</td><td class="r">412</td><td><span class="nw">µS/cm</span></td><td>2500</td><td><span class="nw">CH-02</span><br>conductimetric</td><td class="c">Pass</td></tr><tr><td>Turbidity</td><td class="r">0.21</td><td>NTU</td><td>4</td><td><span class="nw">CH-03</span><br>nephelometric</td><td class="c">Pass</td></tr><tr><td>Colour</td><td class="r">&lt;2</td><td><span class="nw">mg/L</span> <span class="nw">Pt/Co</span></td><td>20</td><td><span class="nw">CH-04</span><br>spectrophotometric</td><td class="c">Pass</td></tr><tr><td>Nitrate</td><td class="r">18.3</td><td><span class="nw">mg/L</span></td><td>50</td><td><span class="nw">CH-11</span><br>ion chromatography</td><td class="c">Pass</td></tr></tbody></table></div><div class="ftr"><span>Results relate only to the sample tested.</span><span>Page 1 of 2</span></div></div>
+<div class="page"><div class="hdr">Brackenfield Analytical Laboratories · Report <span class="nw">WQ-25-03318</span></div><div class="content"><table class="z"><tbody><tr><td>Nitrite</td><td class="r">&lt;0.01</td><td><span class="nw">mg/L</span></td><td>0.5</td><td><span class="nw">CH-11</span><br>ion chromatography</td><td class="c">Pass</td></tr><tr><td>Fluoride</td><td class="r">0.12</td><td><span class="nw">mg/L</span></td><td>1.5</td><td><span class="nw">CH-12</span><br>ion chromatography</td><td class="c">Pass</td></tr><tr><td>Iron</td><td class="r">31</td><td><span class="nw">µg/L</span></td><td>200</td><td><span class="nw">ME-01</span><br><span class="nw">ICP-MS</span></td><td class="c">Pass</td></tr><tr><td>Manganese</td><td class="r">&lt;2</td><td><span class="nw">µg/L</span></td><td>50</td><td><span class="nw">ME-01</span><br><span class="nw">ICP-MS</span></td><td class="c">Pass</td></tr><tr><td>Copper</td><td class="r">0.18</td><td><span class="nw">mg/L</span></td><td>2.0</td><td><span class="nw">ME-01</span><br><span class="nw">ICP-MS</span></td><td class="c">Pass</td></tr><tr><td>Lead</td><td class="r">14</td><td><span class="nw">µg/L</span></td><td>10</td><td><span class="nw">ME-01</span><br><span class="nw">ICP-MS</span></td><td class="fail c">Fail</td></tr><tr><td>Nickel</td><td class="r">3</td><td><span class="nw">µg/L</span></td><td>20</td><td><span class="nw">ME-01</span><br><span class="nw">ICP-MS</span></td><td class="c">Pass</td></tr><tr><td>Aluminium</td><td class="r">12</td><td><span class="nw">µg/L</span></td><td>200</td><td><span class="nw">ME-01</span><br><span class="nw">ICP-MS</span></td><td class="c">Pass</td></tr></tbody></table>
+<h2>Interpretation and advice</h2>
+<p>Lead can accumulate in water that stands in lead pipes, and young children and pregnant women are most at risk. We recommend the following actions while the source of the lead is investigated.</p>
+<ul style="list-style-type:square"><li>Run the kitchen tap for at least two minutes before drawing water for drinking or cooking, especially after the building has been unused overnight.</li><li>Use only the kitchen tap for drinking water until the pipework has been surveyed.</li><li>Ask a plumber to identify and replace any lead pipes or fittings between the stopcock and the kitchen.</li><li>Request a <span class="nw">follow-up</span> sample after any remedial work.</li></ul>
+<p>A repeat sample taken after flushing would show whether the lead comes from water standing in the pipes.</p>
+<h2>Notes on methods</h2>
+<p>Limits are the prescribed concentrations or values for water intended for human consumption. Results reported as &lt; are below the limit of quantification. All samples were kept chilled and analysed within 24 hours of collection.</p>
+<p class="sig">Authorised by: Helen Marchetti, Laboratory Manager<br>Date of issue: 10 March 2025</p></div><div class="ftr"><span>Results relate only to the sample tested.</span><span>Page 2 of 2</span></div></div>
+</body>
+</html>

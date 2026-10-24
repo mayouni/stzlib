@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Current Account Statement</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:'Arial';font-size:10.5pt;line-height:1.35;color:#141414;background:#fff}
+h1,h2,h3,h4{font-family:'Arial';margin:0 0 .4em 0;line-height:1.2}
+h1{font-size:18pt}h2{font-size:13pt;margin-top:.9em}h3{font-size:11pt;margin-top:.7em}h4{font-size:10.5pt;margin-top:.6em}
+p{margin:0 0 .55em 0}
+pre{font-family:'Consolas';font-size:8.6pt;line-height:1.3;white-space:pre;margin:.4em 0 .7em 0;padding:6px 9px;background:#f4f4f2;border:1px solid #d6d6d0}
+table{border-collapse:collapse;margin:.3em 0 .8em 0}
+th,td{white-space:nowrap;padding:2px 6px;vertical-align:top;text-align:left}
+td.w,th.w{white-space:normal}
+.r{text-align:right}.c{text-align:center}
+.nw{white-space:nowrap}
+caption{caption-side:top;text-align:left;font-weight:bold;padding:0 0 3px 0}
+ul.typed,ol.typed{list-style:none;padding-left:0;margin:.3em 0 .7em 0}
+ul.typed li,ol.typed li{padding-left:2em;text-indent:-2em}
+ul.typed li .mk,ol.typed li .mk{display:inline-block;width:2em;text-indent:0}
+ul.typed ul.typed{margin:.15em 0 .15em 2em}
+
+@page{size:A4;margin:0}
+.page{width:210mm;height:296.8mm;position:relative;overflow:hidden;break-after:page;page-break-after:always}
+.page:last-child{break-after:auto;page-break-after:auto}
+.hdr{position:absolute;left:18mm;right:18mm;top:10mm}
+.ftr{position:absolute;left:18mm;right:18mm;bottom:10mm}
+.content{position:absolute;left:18mm;right:18mm;top:30mm;bottom:24mm;overflow:hidden}
+
+body{font-size:9.4pt;line-height:1.35}
+h1{font-size:16pt;color:#00507a}
+h2{font-size:11pt;color:#00507a;margin-top:10px}
+.two{display:flex;gap:10mm;align-items:flex-start;margin-bottom:6px}
+.two>div{flex:1}
+.two>div.sum{border:1px solid #00507a;padding:5px 8px}
+.lbl{font-weight:bold;color:#00507a;margin-bottom:3px}
+table.kv{margin:0;width:100%}
+table.kv td{padding:1px 4px 1px 0}
+table.kv td.r{text-align:right}
+table.kv tr.cl td{font-weight:bold;border-top:1px solid #00507a}
+table.tx{width:100%;font-size:8.8pt}
+table.tx th{border-bottom:1.5px solid #00507a;color:#00507a;padding:3px 5px}
+table.tx td{border-bottom:.4px solid #d5dde3;padding:2.5px 5px}
+table.tx tr.ob td{font-style:italic}
+.cont{font-size:8.5pt;color:#555;font-style:italic;margin-bottom:2px}
+table.rt th{border-bottom:1px solid #00507a}
+table.rt td{border-bottom:.4px solid #ccc}
+.hdr{font-size:8.5pt;color:#00507a}
+.hdr .nm{font-size:15pt;font-weight:bold;letter-spacing:.5px}
+.ftr{font-size:7.5pt;color:#555;display:flex;justify-content:space-between;border-top:.5px solid #aaa;padding-top:2px}
+</style>
+</head>
+<body>
+<div class="page"><div class="hdr"><div class="nm">Harbourline Mutual</div>Customer services 01632 960200 · harbourline.example</div><div class="content"><h1>Current Account Statement</h1>
+<div class="two"><div>
+<p>Mr Daniel <span class="nw">Okafor-Reyes</span><br>Flat 6, Linnet Court<br>42 Orchard Rise<br>Portmere PM4 7JD</p>
+</div><div class="sum">
+<p class="lbl">Account summary</p>
+<table class="kv"><tbody><tr><td>Account name</td><td class="r">D <span class="nw">Okafor-Reyes</span></td></tr><tr><td>Sort code</td><td class="r"><span class="nw">30-96-27</span></td></tr><tr><td>Account number</td><td class="r">51842093</td></tr><tr><td>Statement period</td><td class="r">1 to 31 October 2025</td></tr><tr><td>Opening balance</td><td class="r">£2,412.36</td></tr><tr><td>Money in</td><td class="r">£2,411.60</td></tr><tr><td>Money out</td><td class="r">£1,790.34</td></tr><tr class="cl"><td>Closing balance</td><td class="r">£3,033.62</td></tr></tbody></table>
+</div></div>
+<p>Please check this statement carefully and tell us about any entry you do not recognise.</p>
+<h2>Your transactions</h2>
+<table class="tx"><colgroup><col style="width:16mm"><col style="width:None"><col style="width:24mm"><col style="width:24mm"><col style="width:26mm"></colgroup><thead><tr><th>Date</th><th>Description</th><th class="r">Paid out (£)</th><th class="r">Paid in (£)</th><th class="r">Balance (£)</th></tr></thead><tbody><tr class="ob"><td>1 Oct</td><td>Balance brought forward</td><td class="r"></td><td class="r"></td><td class="r">2,412.36</td></tr><tr><td>1 Oct</td><td>Standing order<br>RENT FLAT 6 LINNET COURT</td><td class="r">875.00</td><td class="r"></td><td class="r">1,537.36</td></tr><tr><td>2 Oct</td><td>Card payment<br>GREENWAYS GROCERS PORTMERE</td><td class="r">46.18</td><td class="r"></td><td class="r">1,491.18</td></tr><tr><td>3 Oct</td><td>Direct debit<br>PORTMERE WATER</td><td class="r">38.40</td><td class="r"></td><td class="r">1,452.78</td></tr><tr><td>3 Oct</td><td>Faster payment from<br>S <span class="nw">OKAFOR-REYES</span></td><td class="r"></td><td class="r">120.00</td><td class="r">1,572.78</td></tr><tr><td>6 Oct</td><td>Card payment<br>CORNER CAFE QUAYSIDE</td><td class="r">7.85</td><td class="r"></td><td class="r">1,564.93</td></tr><tr><td>7 Oct</td><td>Cash withdrawal<br>HIGH STREET BRANCH</td><td class="r">60.00</td><td class="r"></td><td class="r">1,504.93</td></tr><tr><td>8 Oct</td><td>Direct debit<br>NORTHGRID ENERGY</td><td class="r">92.15</td><td class="r"></td><td class="r">1,412.78</td></tr><tr><td>9 Oct</td><td>Card payment<br>PORTMERE RAIL TICKETS</td><td class="r">23.60</td><td class="r"></td><td class="r">1,389.18</td></tr><tr><td>10 Oct</td><td>Card payment<br>GREENWAYS GROCERS PORTMERE</td><td class="r">61.42</td><td class="r"></td><td class="r">1,327.76</td></tr><tr><td>13 Oct</td><td>Direct debit<br>COUNCIL TAX PORTMERE</td><td class="r">141.00</td><td class="r"></td><td class="r">1,186.76</td></tr><tr><td>14 Oct</td><td>Card payment<br>BOOKS ON THE HILL</td><td class="r">18.99</td><td class="r"></td><td class="r">1,167.77</td></tr><tr><td>15 Oct</td><td>Direct debit<br>MOBILE LINK SERVICES</td><td class="r">15.00</td><td class="r"></td><td class="r">1,152.77</td></tr><tr><td>16 Oct</td><td>Card payment<br>GREENWAYS GROCERS PORTMERE</td><td class="r">54.27</td><td class="r"></td><td class="r">1,098.50</td></tr></tbody></table></div><div class="ftr"><span>Harbourline Mutual Society, Registered Office: 1 Quayside, Portmere PM1 1AA</span><span>Page 1 of 2</span></div></div>
+<div class="page"><div class="hdr">Harbourline Mutual · Current Account Statement · 1 to 31 October 2025</div><div class="content"><p class="cont">Your transactions (continued)</p>
+<table class="tx"><colgroup><col style="width:16mm"><col style="width:None"><col style="width:24mm"><col style="width:24mm"><col style="width:26mm"></colgroup><thead><tr><th>Date</th><th>Description</th><th class="r">Paid out (£)</th><th class="r">Paid in (£)</th><th class="r">Balance (£)</th></tr></thead><tbody><tr><td>17 Oct</td><td>Transfer to savings<br>ACCOUNT ENDING 7731</td><td class="r">200.00</td><td class="r"></td><td class="r">898.50</td></tr><tr><td>20 Oct</td><td>Card payment<br>QUAYSIDE PHARMACY</td><td class="r">9.35</td><td class="r"></td><td class="r">889.15</td></tr><tr><td>21 Oct</td><td>Card refund<br>BOOKS ON THE HILL</td><td class="r"></td><td class="r">18.99</td><td class="r">908.14</td></tr><tr><td>22 Oct</td><td>Card payment<br>PORTMERE LEISURE CENTRE</td><td class="r">32.00</td><td class="r"></td><td class="r">876.14</td></tr><tr><td>23 Oct</td><td>Card payment<br>GREENWAYS GROCERS PORTMERE</td><td class="r">48.76</td><td class="r"></td><td class="r">827.38</td></tr><tr><td>24 Oct</td><td>Cheque deposit<br>CHEQUE 100248</td><td class="r"></td><td class="r">85.00</td><td class="r">912.38</td></tr><tr><td>27 Oct</td><td>Card payment<br>HARBOUR LIGHT CINEMA</td><td class="r">14.50</td><td class="r"></td><td class="r">897.88</td></tr><tr><td>28 Oct</td><td>Direct debit<br>HOME CONTENTS INSURANCE</td><td class="r">12.83</td><td class="r"></td><td class="r">885.05</td></tr><tr><td>29 Oct</td><td>Card payment<br>GREENWAYS GROCERS PORTMERE</td><td class="r">39.04</td><td class="r"></td><td class="r">846.01</td></tr><tr><td>30 Oct</td><td>Salary<br>MERIDIAN TOOLING LTD</td><td class="r"></td><td class="r">2,186.54</td><td class="r">3,032.55</td></tr><tr><td>31 Oct</td><td>Interest paid</td><td class="r"></td><td class="r">1.07</td><td class="r">3,033.62</td></tr><tr class="ob"><td>31 Oct</td><td>Balance carried forward</td><td class="r"></td><td class="r"></td><td class="r">3,033.62</td></tr></tbody></table>
+<p>No overdraft charges were applied during this statement period. Interest of £1.07 was paid into your account on 31 October.</p>
+<h2>Interest rates</h2>
+<table class="rt"><thead><tr><th>Balance</th><th class="r">Interest rate (AER)</th><th class="r">From 1 January 2026</th></tr></thead><tbody><tr><td>£0.00 to £4,999.99</td><td class="r">0.50%</td><td class="r">0.75%</td></tr><tr><td>£5,000.00 to £24,999.99</td><td class="r">1.10%</td><td class="r">1.10%</td></tr><tr><td>£25,000.00 and over</td><td class="r">1.35%</td><td class="r">1.25%</td></tr></tbody></table>
+<p>From 1 January 2026 the interest rate on balances up to £4,999.99 will change to 0.75% AER. AER stands for Annual Equivalent Rate and shows what the interest rate would be if interest were paid and compounded once each year.</p>
+<h2>Important information</h2>
+<ul style="list-style-type:disc"><li>Your eligible deposits are protected up to a total of £85,000 by the deposit protection scheme.</li><li>Keep your card details and passcodes safe and never share them with anyone, including our staff.</li><li>You can switch to paperless statements in the mobile app at any time.</li></ul>
+<p>If you have a question about your statement, call us on 01632 960200 or visit any branch.</p></div><div class="ftr"><span>Harbourline Mutual Society, Registered Office: 1 Quayside, Portmere PM1 1AA</span><span>Page 2 of 2</span></div></div>
+</body>
+</html>

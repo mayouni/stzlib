@@ -1,0 +1,38 @@
+heading	1	Brackenfield Analytical Laboratories
+paragraph	0	12 Foundry Yard, Brackenfield BK4 6RW
+paragraph	0	Telephone 01632 960771 · lab@brackenfield-analytical.example
+heading	1	Water Quality Test Report
+heading	1	Client
+paragraph	0	Ashcombe Parish Council The Old School Room Church Lane, Ashcombe Wexford Vale WV7 2LP
+heading	1	Summary
+paragraph	0	The sample complied with the drinking water standards for all the parameters tested, except for lead. The lead concentration of 14 µg/L exceeds the prescribed limit of 10 µg/L. This is most likely caused by lead pipework within the building rather than by the public supply.
+heading	1	Microbiological results
+table	0	ParameterResultUnitLimitMethodComplianceColiform bacteria0per 100 mL0MB-02 membrane filtrationPassEscherichia coli0per 100 mL0MB-02 membrane filtrationPassEnterococci0per 100 mL0MB-05 membrane filtrationPassColony count at 22 °C14per mLNo abnormal changeMB-07 pour platePass
+heading	1	Physical and chemical results
+table	0	ParameterResultUnitLimitMethodCompliancepH7.6pH units6.5-9.5CH-01 electrometricPassConductivity at 20 °C412µS/cm2500CH-02 conductimetricPassTurbidity0.21NTU4CH-03 nephelometricPassColour<2mg/L Pt/Co20CH-04 spectrophotometricPassNitrate18.3mg/L50CH-11 ion chromatographyPass
+heading	1	Sample details
+paragraph	0	Report number WQ-25-03318
+paragraph	0	Sample ID S-114207
+paragraph	0	Sample point Village hall, kitchen tap
+paragraph	0	Sampled
+paragraph	0	3 March 2025, 09:40
+paragraph	0	Received
+paragraph	0	3 March 2025, 14:15
+paragraph	0	Sample type Mains drinking water
+page_footer	0	Results relate only to the sample tested.
+page_footer	0	Page 1 of 2
+page_header	0	Brackenfield Analytical Laboratories · Report WQ-25-03318
+table	0	Nitrite<0.01mg/L0.5CH-11 ion chromatographyPassFluoride0.12mg/L1.5CH-12 ion chromatographyPassIron31µg/L200ME-01 ICP-MSPassManganese<2µg/L50ME-01 ICP-MSPassCopper0.18mg/L2.0ME-01 ICP-MSPassLead14µg/L10ME-01 ICP-MSFailNickel3µg/L20ME-01 ICP-MSPassAluminium12µg/L200ME-01 ICP-MSPass
+heading	1	Interpretation and advice
+paragraph	0	Lead can accumulate in water that stands in lead pipes, and young children and pregnant women are most at risk. We recommend the following actions while the source of the lead is investigated.
+list_item	0	Run the kitchen tap for at least two minutes before drawing water for drinking or cooking, especially after the building has been unused overnight.
+list_item	0	Use only the kitchen tap for drinking water until the pipework has been surveyed.
+list_item	0	Ask a plumber to identify and replace any lead pipes or fittings between the stopcock and the kitchen.
+list_item	0	Request a follow-up sample after any remedial work.
+paragraph	0	A repeat sample taken after flushing would show whether the lead comes from water standing in the pipes.
+heading	1	Notes on methods
+paragraph	0	Limits are the prescribed concentrations or values for water intended for human consumption. Results reported as < are below the limit of quantification. All samples were kept chilled and analysed within 24 hours of collection.
+paragraph	0	Authorised by: Helen Marchetti, Laboratory Manager
+paragraph	0	Date of issue: 10 March 2025
+page_footer	0	Results relate only to the sample tested.
+page_footer	0	Page 2 of 2

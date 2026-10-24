@@ -1,0 +1,147 @@
+{
+ "id": "b01",
+ "difficulty": "medium",
+ "pages": 1,
+ "title": "Tax Invoice",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Tax Invoice"
+  },
+  {
+   "level": 2,
+   "text": "How to pay"
+  },
+  {
+   "level": 2,
+   "text": "Terms"
+  }
+ ],
+ "key_sentences": [
+  "Payment is due within 30 days of the invoice date.",
+  "Please quote the invoice number INV-2025-0417 with your payment so that we can match it to your account.",
+  "Goods remain our property until they have been paid for in full.",
+  "Any shortage or damage must be reported to us within seven days of delivery.",
+  "We may charge interest on overdue accounts at 4% above the Bank of England base rate."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Invoice number",
+     "INV-2025-0417"
+    ],
+    [
+     "Invoice date",
+     "14 March 2025"
+    ],
+    [
+     "Your reference",
+     "PO 88213"
+    ],
+    [
+     "Due date",
+     "13 April 2025"
+    ],
+    [
+     "Account",
+     "THO-0092"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Item",
+     "Description",
+     "Qty",
+     "Unit price",
+     "Amount"
+    ],
+    [
+     "1",
+     "Concert programmes, A5, 16 pages full colour, saddle stitched",
+     "400",
+     "£1.85",
+     "£740.00"
+    ],
+    [
+     "2",
+     "Tickets, numbered, with perforated stub",
+     "600",
+     "£0.22",
+     "£132.00"
+    ],
+    [
+     "3",
+     "A2 posters, 170 gsm silk",
+     "35",
+     "£3.40",
+     "£119.00"
+    ],
+    [
+     "4",
+     "Design adjustments (hours)",
+     "2.5",
+     "£38.00",
+     "£95.00"
+    ],
+    [
+     "5",
+     "Delivery to St Aldhelm’s Hall",
+     "1",
+     "£18.00",
+     "£18.00"
+    ],
+    [
+     "Subtotal",
+     "Subtotal",
+     "Subtotal",
+     "Subtotal",
+     "£1,104.00"
+    ],
+    [
+     "VAT at 20%",
+     "VAT at 20%",
+     "VAT at 20%",
+     "VAT at 20%",
+     "£220.80"
+    ],
+    [
+     "Total due",
+     "Total due",
+     "Total due",
+     "Total due",
+     "£1,324.80"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "a) Bank transfer to Fernhollow Print & Bindery Ltd, sort code 20-19-74, account 41736025"
+  },
+  {
+   "level": 0,
+   "text": "b) Card payment by telephone on 01632 960418, Monday to Friday"
+  },
+  {
+   "level": 0,
+   "text": "c) Cheque payable to Fernhollow Print & Bindery Ltd, sent to the address above"
+  }
+ ],
+ "furniture": [
+  "Fernhollow Print & Bindery Ltd",
+  "Unit 4, Mardale Trading Estate, Kestwick KW3 9TP",
+  "Telephone 01632 960418 · accounts@fernhollow-print.example",
+  "Fernhollow Print & Bindery Ltd · Registered in England No. 08815237 · VAT No. GB 318 4402 17"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [],
+ "notes": "Letterhead (name, address, telephone/email) and the registration footer are furniture. The 'Bill to' block and the invoice-details table stand SIDE BY SIDE; reading order is box by box, left box first. 'Bill to' is a label, not a heading. The invoice-details table is a key/value table with no header row. Line-item table is fully ruled; item 1 description is a cell of two lines (joined with one space). Subtotal, VAT and Total rows each merge the first four columns; the label is repeated in those four cells. Payment-method list has TYPED markers a) b) c). Letter-spaced title 'Tax Invoice'."
+}

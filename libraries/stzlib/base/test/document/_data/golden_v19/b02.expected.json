@@ -1,0 +1,405 @@
+{
+ "id": "b02",
+ "difficulty": "hard",
+ "pages": 2,
+ "title": "Ligne 14 : Gare de Valmont – Parc d’activités des Tilleuls",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Ligne 14 : Gare de Valmont – Parc d’activités des Tilleuls"
+  },
+  {
+   "level": 2,
+   "text": "Du lundi au vendredi"
+  },
+  {
+   "level": 2,
+   "text": "Le samedi"
+  },
+  {
+   "level": 2,
+   "text": "Titres de transport"
+  },
+  {
+   "level": 2,
+   "text": "Informations pratiques"
+  }
+ ],
+ "key_sentences": [
+  "Les horaires indiqués sont des heures de passage théoriques.",
+  "En cas de forte affluence ou de travaux, des retards de quelques minutes sont possibles.",
+  "Le samedi, six bus partent de la gare entre 7 h et 19 h.",
+  "Aucun service n’est assuré le dimanche ni les jours fériés.",
+  "Les tickets achetés à bord du bus sont vendus 2,00 € et ne sont pas remboursables.",
+  "Les abonnements se rechargent en agence ou sur la borne de la gare routière."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Arrêt",
+     "1401",
+     "1403",
+     "1405",
+     "1407",
+     "1409",
+     "1411",
+     "1413",
+     "1415",
+     "1417",
+     "1419"
+    ],
+    [
+     "Gare de Valmont",
+     "06:05",
+     "06:35",
+     "07:05",
+     "07:25",
+     "07:45",
+     "08:15",
+     "09:15",
+     "12:15",
+     "16:45",
+     "17:45"
+    ],
+    [
+     "Place de la République",
+     "06:08",
+     "06:38",
+     "07:08",
+     "07:28",
+     "07:48",
+     "08:18",
+     "09:18",
+     "12:18",
+     "16:48",
+     "17:48"
+    ],
+    [
+     "Rue des Tanneurs",
+     "06:10",
+     "06:40",
+     "07:10",
+     "07:30",
+     "07:50",
+     "08:20",
+     "09:20",
+     "12:20",
+     "16:50",
+     "17:50"
+    ],
+    [
+     "Hôtel de Ville",
+     "06:13",
+     "06:43",
+     "07:13",
+     "07:33",
+     "07:53",
+     "08:23",
+     "09:23",
+     "12:23",
+     "16:53",
+     "17:53"
+    ],
+    [
+     "Lycée Camus",
+     "—",
+     "06:46",
+     "07:16",
+     "07:36",
+     "07:56",
+     "08:26",
+     "—",
+     "—",
+     "16:56",
+     "17:56"
+    ],
+    [
+     "Pont Neuf",
+     "06:18",
+     "06:48",
+     "07:18",
+     "07:38",
+     "07:58",
+     "08:28",
+     "09:28",
+     "12:28",
+     "16:58",
+     "17:58"
+    ],
+    [
+     "Les Glycines",
+     "06:21",
+     "06:51",
+     "07:21",
+     "07:41",
+     "08:01",
+     "08:31",
+     "09:31",
+     "12:31",
+     "17:01",
+     "18:01"
+    ],
+    [
+     "Hôpital Sud",
+     "06:24",
+     "06:54",
+     "07:24",
+     "07:44",
+     "08:04",
+     "08:34",
+     "09:34",
+     "12:34",
+     "17:04",
+     "18:04"
+    ],
+    [
+     "Zone artisanale",
+     "06:26",
+     "06:56",
+     "07:26",
+     "07:46",
+     "08:06",
+     "08:36",
+     "09:36",
+     "12:36",
+     "17:06",
+     "18:06"
+    ],
+    [
+     "Rond-point des Saules",
+     "06:29",
+     "06:59",
+     "07:29",
+     "07:49",
+     "08:09",
+     "08:39",
+     "09:39",
+     "12:39",
+     "17:09",
+     "18:09"
+    ],
+    [
+     "Centre aquatique",
+     "06:32",
+     "07:02",
+     "07:32",
+     "07:52",
+     "08:12",
+     "08:42",
+     "09:42",
+     "12:42",
+     "17:12",
+     "18:12"
+    ],
+    [
+     "Parc d’activités des Tilleuls",
+     "06:35",
+     "07:05",
+     "07:35",
+     "07:55",
+     "08:15",
+     "08:45",
+     "09:45",
+     "12:45",
+     "17:15",
+     "18:15"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Arrêt",
+     "1451",
+     "1453",
+     "1455",
+     "1457",
+     "1459",
+     "1461"
+    ],
+    [
+     "Gare de Valmont",
+     "07:10",
+     "09:30",
+     "11:50",
+     "14:10",
+     "16:30",
+     "18:50"
+    ],
+    [
+     "Place de la République",
+     "07:13",
+     "09:33",
+     "11:53",
+     "14:13",
+     "16:33",
+     "18:53"
+    ],
+    [
+     "Rue des Tanneurs",
+     "07:15",
+     "09:35",
+     "11:55",
+     "14:15",
+     "16:35",
+     "18:55"
+    ],
+    [
+     "Hôtel de Ville",
+     "07:18",
+     "09:38",
+     "11:58",
+     "14:18",
+     "16:38",
+     "18:58"
+    ],
+    [
+     "Lycée Camus",
+     "—",
+     "—",
+     "—",
+     "—",
+     "—",
+     "—"
+    ],
+    [
+     "Pont Neuf",
+     "07:23",
+     "09:43",
+     "12:03",
+     "14:23",
+     "16:43",
+     "19:03"
+    ],
+    [
+     "Les Glycines",
+     "07:26",
+     "09:46",
+     "12:06",
+     "14:26",
+     "16:46",
+     "19:06"
+    ],
+    [
+     "Hôpital Sud",
+     "07:29",
+     "09:49",
+     "12:09",
+     "14:29",
+     "16:49",
+     "19:09"
+    ],
+    [
+     "Zone artisanale",
+     "07:31",
+     "09:51",
+     "12:11",
+     "14:31",
+     "16:51",
+     "19:11"
+    ],
+    [
+     "Rond-point des Saules",
+     "07:34",
+     "09:54",
+     "12:14",
+     "14:34",
+     "16:54",
+     "19:14"
+    ],
+    [
+     "Centre aquatique",
+     "07:37",
+     "09:57",
+     "12:17",
+     "14:37",
+     "16:57",
+     "19:17"
+    ],
+    [
+     "Parc d’activités des Tilleuls",
+     "07:40",
+     "10:00",
+     "12:20",
+     "14:40",
+     "17:00",
+     "19:20"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Titre",
+     "Prix",
+     "Validité"
+    ],
+    [
+     "Ticket unitaire (vendu à bord)",
+     "2,00 €",
+     "1 heure, correspondances comprises"
+    ],
+    [
+     "Carnet de 10 tickets",
+     "13,50 €",
+     "1 heure par ticket"
+    ],
+    [
+     "Abonnement mensuel",
+     "32,00 €",
+     "Mois calendaire"
+    ],
+    [
+     "Abonnement jeune (moins de 26 ans)",
+     "18,00 €",
+     "Mois calendaire"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "(1) Les courses 1401, 1413 et 1415 ne desservent pas l’arrêt Lycée Camus."
+  },
+  {
+   "level": 0,
+   "text": "(2) La course 1419 est assurée par un minibus de 22 places."
+  },
+  {
+   "level": 0,
+   "text": "(3) En juillet et en août, les courses 1407 et 1409 ne circulent pas."
+  },
+  {
+   "level": 0,
+   "text": "Montée par la porte avant et validation obligatoire à chaque voyage."
+  },
+  {
+   "level": 0,
+   "text": "Les vélos pliés sont acceptés à bord ; les vélos non pliés ne le sont pas."
+  },
+  {
+   "level": 0,
+   "text": "Les chiens de petite taille voyagent gratuitement dans un panier fermé."
+  },
+  {
+   "level": 0,
+   "text": "Objets trouvés : agence Valbus, 3 place de la Gare, du lundi au vendredi de 9 h à 17 h."
+  }
+ ],
+ "furniture": [
+  "Réseau Valbus · Ligne 14 · Horaires 2025–2026",
+  "Document non contractuel",
+  "Page 1 / 2",
+  "Page 2 / 2"
+ ],
+ "languages": [
+  "fr"
+ ],
+ "code": [],
+ "notes": "Running header 'Réseau Valbus · Ligne 14 · Horaires 2025–2026' (listed once). Footer: left text 'Document non contractuel' (running, listed once) and, at the right margin on the same baseline, the page number 'Page 1 / 2', 'Page 2 / 2' (separate entries). Two WIDE timetables with header-only rules (rules above and below the header row and under the last row, none between columns); '—' cells mean the stop is not served. Notes list (1)(2)(3) has TYPED markers; 'Informations pratiques' is a CSS-drawn disc list. French typography uses no-break spaces before ':' ';' and '€' (count as spaces)."
+}

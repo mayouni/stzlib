@@ -1,0 +1,127 @@
+heading	2	Brackenfield Analytical Laboratories
+page_header	0	12 Foundry Yard, Brackenfield BK4 6RW Telephone 01632 960771 · lab@brackenfield-analytical.example
+heading	1	Water Quality Test Report
+table	0	ClientSample detailsAshcombe Parish CouncilReport numberWQ-25-03318The Old School RoomSample IDS-114207Church Lane, AshcombeSample pointVillage hall, kitchen tapWexford Vale WV7 2LPSampled3 March 2025, 09:40ReceivedReceived3 March 2025, 14:15Sample typeSample typeMains drinking water
+heading	3	Summary
+paragraph	0	The sample complied with the drinking water standards for all the parameters tested, except for lead. The lead concentration of 14 µg/L exceeds the prescribed limit of 10 µg/L. This is most likely caused by lead pipework within the building rather than by the public supply.
+heading	3	Microbiological results
+paragraph	0	Parameter
+paragraph	0	Coliform bacteria
+paragraph	0	Escherichia coli
+paragraph	0	Enterococci
+paragraph	0	Colony count at 22 °C
+paragraph	0	Result
+paragraph	0	Unit
+paragraph	0	0
+paragraph	0	per 100 mL
+paragraph	0	0
+paragraph	0	per 100 mL
+paragraph	0	0
+paragraph	0	per 100 mL
+paragraph	0	14
+paragraph	0	per mL
+paragraph	0	Limit
+paragraph	0	0
+paragraph	0	0
+paragraph	0	0
+paragraph	0	No abnormal change
+paragraph	0	Method
+paragraph	0	MB-02 membrane filtration MB-02 membrane filtration MB-05 membrane filtration
+paragraph	0	MB-07 pour plate
+heading	3	Physical and chemical results
+paragraph	0	Parameter
+paragraph	0	pH
+paragraph	0	Conductivity at 20 °C
+paragraph	0	Turbidity
+paragraph	0	Colour
+paragraph	0	Nitrate
+paragraph	0	Result
+paragraph	0	Unit
+paragraph	0	7.6
+paragraph	0	pH units
+paragraph	0	412
+paragraph	0	µS/cm
+paragraph	0	0.21
+paragraph	0	NTU
+paragraph	0	<2
+paragraph	0	mg/L Pt/Co
+paragraph	0	18.3
+paragraph	0	mg/L
+paragraph	0	Limit
+paragraph	0	6.5–9.5
+paragraph	0	2500
+paragraph	0	4
+paragraph	0	20
+paragraph	0	50
+paragraph	0	Method
+paragraph	0	CH-01 electrometric
+paragraph	0	CH-02 conductimetric CH-03 nephelometric CH-04 spectrophotometric CH-11 ion chromatography
+page_footer	0	Results relate only to the sample tested.
+paragraph	0	Compliance
+paragraph	0	Pass
+paragraph	0	Pass
+paragraph	0	Pass
+paragraph	0	Pass
+paragraph	0	Compliance
+paragraph	0	Pass
+paragraph	0	Pass
+paragraph	0	Pass
+paragraph	0	Pass
+paragraph	0	Pass
+page_footer	0	Page 1 of 2
+page_header	0	Brackenfield Analytical Laboratories · Report WQ-25-03318
+paragraph	0	Nitrite
+paragraph	0	Fluoride
+paragraph	0	Iron
+paragraph	0	Manganese
+paragraph	0	Copper
+paragraph	0	Lead
+paragraph	0	Nickel
+paragraph	0	Aluminium
+paragraph	0	<0.01
+paragraph	0	mg/L
+paragraph	0	0.12
+paragraph	0	mg/L
+paragraph	0	31
+paragraph	0	µg/L
+paragraph	0	<2
+paragraph	0	µg/L
+paragraph	0	0.18
+paragraph	0	mg/L
+paragraph	0	14
+paragraph	0	µg/L
+paragraph	0	3
+paragraph	0	µg/L
+paragraph	0	12
+paragraph	0	µg/L
+paragraph	0	0.5
+paragraph	0	1.5
+paragraph	0	200
+paragraph	0	50
+paragraph	0	2.0
+paragraph	0	10
+paragraph	0	20
+paragraph	0	200
+paragraph	0	CH-11 ion chromatography CH-12 ion chromatography ME-01 ICP-MS ME-01 ICP-MS
+paragraph	0	ME-01 ICP-MS ME-01 ICP-MS ME-01 ICP-MS
+paragraph	0	ME-01 ICP-MS
+paragraph	0	Pass
+paragraph	0	Pass
+paragraph	0	Pass
+paragraph	0	Pass
+paragraph	0	Pass
+paragraph	0	Fail
+paragraph	0	Pass
+paragraph	0	Pass
+heading	3	Interpretation and advice
+paragraph	0	Lead can accumulate in water that stands in lead pipes, and young children and pregnant women are most at risk. We recommend the following actions while the source of the lead is investigated.
+list_item	0	Run the kitchen tap for at least two minutes before drawing water for drinking or cooking, especially after the building has been unused overnight.
+list_item	0	Use only the kitchen tap for drinking water until the pipework has been surveyed.
+list_item	0	Ask a plumber to identify and replace any lead pipes or fittings between the stopcock and the kitchen.
+list_item	0	Request a follow-up sample after any remedial work.
+paragraph	0	A repeat sample taken after flushing would show whether the lead comes from water standing in the pipes.
+heading	3	Notes on methods
+paragraph	0	Limits are the prescribed concentrations or values for water intended for human consumption. Results reported as < are below the limit of quantification. All samples were kept chilled and analysed within 24 hours of collection.
+paragraph	0	Authorised by: Helen Marchetti, Laboratory Manager Date of issue: 10 March 2025
+page_footer	0	Results relate only to the sample tested.
+page_footer	0	Page 2 of 2

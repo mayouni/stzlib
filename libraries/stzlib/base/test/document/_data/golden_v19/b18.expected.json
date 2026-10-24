@@ -1,0 +1,190 @@
+{
+ "id": "b18",
+ "difficulty": "medium",
+ "pages": 2,
+ "title": "Protokół nr 3/2025 z Walnego Zgromadzenia Członków",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Protokół nr 3/2025 z Walnego Zgromadzenia Członków"
+  },
+  {
+   "level": 2,
+   "text": "1. Otwarcie zebrania"
+  },
+  {
+   "level": 2,
+   "text": "2. Porządek obrad"
+  },
+  {
+   "level": 2,
+   "text": "3. Sprawozdanie zarządu"
+  },
+  {
+   "level": 2,
+   "text": "4. Wyniki głosowań"
+  },
+  {
+   "level": 2,
+   "text": "5. Wolne wnioski"
+  },
+  {
+   "level": 2,
+   "text": "6. Ustalenia i zadania"
+  }
+ ],
+ "key_sentences": [
+  "Zebranie otworzył o godzinie 18:00 przewodniczący Rady Nadzorczej, pan Zbigniew Kowalczyk.",
+  "Na podstawie listy obecności stwierdzono udział 87 członków spółdzielni.",
+  "Prezes zarządu, pani Halina Sobczak, przedstawiła wyniki finansowe spółdzielni za rok 2024.",
+  "Uchwały nr 1–4 zostały podjęte, a uchwała nr 5 nie uzyskała wymaganej większości głosów.",
+  "Zarząd zobowiązał się przedstawić kosztorys wymiany oświetlenia na najbliższym posiedzeniu Rady Nadzorczej.",
+  "Wobec wyczerpania porządku obrad przewodniczący zamknął zebranie o godzinie 20:40."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Nr uchwały",
+     "Przedmiot uchwały",
+     "Za",
+     "Przeciw",
+     "Wstrzymało się",
+     "Wynik"
+    ],
+    [
+     "1/2025",
+     "Zatwierdzenie sprawozdania finansowego za rok 2024",
+     "79",
+     "3",
+     "5",
+     "przyjęta"
+    ],
+    [
+     "2/2025",
+     "Przeznaczenie nadwyżki bilansowej na fundusz remontowy",
+     "74",
+     "6",
+     "7",
+     "przyjęta"
+    ],
+    [
+     "3/2025",
+     "Udzielenie absolutorium członkom zarządu",
+     "68",
+     "11",
+     "8",
+     "przyjęta"
+    ],
+    [
+     "4/2025",
+     "Termomodernizacja budynku przy ul. Lipowej 3 w latach 2025–2026",
+     "61",
+     "18",
+     "8",
+     "przyjęta"
+    ],
+    [
+     "5/2025",
+     "Budowa parkingu przy ul. Grabowej kosztem terenów zielonych",
+     "29",
+     "47",
+     "11",
+     "odrzucona"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Lp.",
+     "Zadanie",
+     "Odpowiedzialny",
+     "Termin"
+    ],
+    [
+     "1.",
+     "Przygotowanie kosztorysu wymiany oświetlenia",
+     "Zarząd",
+     "15 lipca 2025 r."
+    ],
+    [
+     "2.",
+     "Ogłoszenie przetargu na termomodernizację",
+     "Zarząd",
+     "30 września 2025 r."
+    ],
+    [
+     "3.",
+     "Przegląd chodników i placu zabaw",
+     "Kierownik administracji",
+     "31 lipca 2025 r."
+    ],
+    [
+     "4.",
+     "Rozesłanie protokołu członkom spółdzielni",
+     "Protokolantka",
+     "30 czerwca 2025 r."
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "1. Otwarcie zebrania i wybór prezydium."
+  },
+  {
+   "level": 0,
+   "text": "2. Sprawozdanie zarządu za rok 2024."
+  },
+  {
+   "level": 0,
+   "text": "3. Rozpatrzenie sprawozdania finansowego:"
+  },
+  {
+   "level": 1,
+   "text": "a) bilansu,"
+  },
+  {
+   "level": 1,
+   "text": "b) rachunku zysków i strat."
+  },
+  {
+   "level": 0,
+   "text": "4. Głosowanie nad uchwałami."
+  },
+  {
+   "level": 0,
+   "text": "5. Wolne wnioski i zamknięcie zebrania."
+  },
+  {
+   "level": 0,
+   "text": "wymiana oświetlenia na klatkach schodowych na lampy z czujnikiem ruchu,"
+  },
+  {
+   "level": 0,
+   "text": "naprawa nawierzchni chodnika przy placu zabaw,"
+  },
+  {
+   "level": 0,
+   "text": "ustawienie dodatkowych stojaków na rowery przy budynku nr 5,"
+  },
+  {
+   "level": 0,
+   "text": "częstsze koszenie trawników w okresie letnim."
+  }
+ ],
+ "furniture": [
+  "SM „Zielone Wzgórze” w Borkowie Małym — Protokół nr 3/2025",
+  "Strona 1 z 2",
+  "Strona 2 z 2"
+ ],
+ "languages": [
+  "pl"
+ ],
+ "code": [],
+ "notes": "Running header 'SM „Zielone Wzgórze” w Borkowie Małym — Protokół nr 3/2025' listed once; page numbers 'Strona 1 z 2', 'Strona 2 z 2'. The agenda is a TYPED list (1. … 5.) with a nested typed level a) b). The voting table has header-only rules; its subject column wraps to two lines (joined with one space) and header cells wrap. The task table is fully ruled. 'Wolne wnioski' is a CSS-drawn disc list. The two signature lines at the bottom (Protokolant / Przewodniczący) stand side by side and are body text."
+}

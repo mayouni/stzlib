@@ -1,0 +1,174 @@
+{
+ "id": "b08",
+ "difficulty": "medium",
+ "pages": 2,
+ "title": "Ledgerline 4.2 Release Notes",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Ledgerline 4.2 Release Notes"
+  },
+  {
+   "level": 2,
+   "text": "Highlights"
+  },
+  {
+   "level": 2,
+   "text": "Breaking changes"
+  },
+  {
+   "level": 2,
+   "text": "Configuration reference"
+  },
+  {
+   "level": 2,
+   "text": "Upgrading from 4.1"
+  },
+  {
+   "level": 3,
+   "text": "Example configuration"
+  },
+  {
+   "level": 3,
+   "text": "Migration commands"
+  },
+  {
+   "level": 2,
+   "text": "Known issues"
+  }
+ ],
+ "key_sentences": [
+  "Version 4.2 is a feature release that also changes how Ledgerline is configured.",
+  "Read this section before upgrading, because two of these changes require action on your part.",
+  "The upgrade takes about ten minutes for a ledger of one million postings.",
+  "Always take a full database backup before you begin.",
+  "Reports with more than 200 columns may be cut off in the PDF export.",
+  "Please report other problems through the support portal."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Key",
+     "Type",
+     "Default",
+     "Description"
+    ],
+    [
+     "server.port",
+     "integer",
+     "8080",
+     "TCP port on which the web interface listens."
+    ],
+    [
+     "server.base_url",
+     "string",
+     "(none)",
+     "Public address used in e-mail links and in exported documents."
+    ],
+    [
+     "database.url",
+     "string",
+     "(none)",
+     "Connection string for the PostgreSQL database."
+    ],
+    [
+     "database.pool_size",
+     "integer",
+     "10",
+     "Maximum number of open database connections."
+    ],
+    [
+     "jobs.revaluation",
+     "cron",
+     "0 2 * * *",
+     "Schedule of the currency revaluation job."
+    ],
+    [
+     "audit.retain_days",
+     "integer",
+     "2555",
+     "Number of days audit records are kept, about seven years."
+    ],
+    [
+     "exports.workers",
+     "integer",
+     "2",
+     "Parallel workers used for PDF exports."
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "Bank feeds can now be reconciled in bulk, with suggested matches ranked by confidence."
+  },
+  {
+   "level": 0,
+   "text": "Multi-currency revaluation runs as a scheduled job instead of only at month end."
+  },
+  {
+   "level": 0,
+   "text": "The audit trail records the client address and the API token used for every change."
+  },
+  {
+   "level": 0,
+   "text": "PDF exports of reports are about three times faster on large ledgers."
+  },
+  {
+   "level": 0,
+   "text": "1. The configuration file is now YAML; the old INI format is no longer read."
+  },
+  {
+   "level": 0,
+   "text": "2. PostgreSQL 13 is the minimum supported database version."
+  },
+  {
+   "level": 0,
+   "text": "3. The /api/v1 endpoints have been removed; use /api/v2 instead."
+  },
+  {
+   "level": 0,
+   "text": "Stop the Ledgerline service."
+  },
+  {
+   "level": 0,
+   "text": "Back up the database and the existing configuration file."
+  },
+  {
+   "level": 1,
+   "text": "Use pg_dump with the custom format."
+  },
+  {
+   "level": 1,
+   "text": "Copy ledgerline.ini to a safe place."
+  },
+  {
+   "level": 0,
+   "text": "Convert the configuration file to YAML, as in the example below."
+  },
+  {
+   "level": 0,
+   "text": "Install the new package and run the database migration."
+  },
+  {
+   "level": 0,
+   "text": "Start the service and check the log for the line “Ledgerline ready”."
+  }
+ ],
+ "furniture": [
+  "Ledgerline 4.2 — Release Notes",
+  "p. 1",
+  "p. 2"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [
+  "server:\n  port: 8080\n  base_url: https://ledger.example.org\ndatabase:\n  url: postgresql://ledgerline@db01/ledger\n  pool_size: 20\njobs:\n  revaluation: \"0 2 * * *\"\naudit:\n  retain_days: 2555\nexports:\n  workers: 4",
+  "sudo systemctl stop ledgerline\npg_dump -Fc -f ledger-4.1.dump ledger\nsudo dpkg -i ledgerline_4.2.0_amd64.deb\nsudo -u ledgerline ledgerline migrate --to 4.2\nsudo systemctl start ledgerline"
+ ],
+ "notes": "Running header 'Ledgerline 4.2 — Release Notes' listed once; page numbers 'p. 1', 'p. 2'. 'Highlights' is a CSS-drawn disc list; 'Breaking changes' has TYPED markers 1. 2. 3.; the upgrade steps are a CSS-drawn decimal list with a nested lower-alpha level (markers not given). The configuration table has a rule under the header row only (borderless body); its Key column is set in Consolas; descriptions wrap. Two code blocks in Consolas."
+}

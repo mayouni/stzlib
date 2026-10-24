@@ -1,0 +1,317 @@
+{
+ "id": "b22",
+ "difficulty": "hard",
+ "pages": 2,
+ "title": "CP-40 Series Close-Coupled Centrifugal Pumps",
+ "headings": [
+  {
+   "level": 1,
+   "text": "CP-40 Series Close-Coupled Centrifugal Pumps"
+  },
+  {
+   "level": 2,
+   "text": "Applications"
+  },
+  {
+   "level": 2,
+   "text": "Technical data"
+  },
+  {
+   "level": 2,
+   "text": "Performance"
+  },
+  {
+   "level": 2,
+   "text": "Ordering code"
+  },
+  {
+   "level": 2,
+   "text": "Controller settings"
+  },
+  {
+   "level": 3,
+   "text": "Modbus registers"
+  },
+  {
+   "level": 2,
+   "text": "Installation notes"
+  }
+ ],
+ "key_sentences": [
+  "The CP-40 series is designed for clean water circulation in heating, cooling and pressure boosting systems.",
+  "All wetted parts are made of stainless steel, which makes the pumps suitable for drinking water.",
+  "Performance values were measured with water at 20 °C in accordance with the tolerances of grade 2B.",
+  "For example, CP-40-220-V-S is a pump with a 2.2 kW motor, a silicon carbide seal and a casing in stainless steel 1.4301.",
+  "Changes to the controller settings take effect after the controller has been restarted.",
+  "The pump must not run dry, not even for a short time."
+ ],
+ "tables": [
+  {
+   "caption": "Hydraulic data",
+   "rows": [
+    [
+     "Parameter",
+     "Value"
+    ],
+    [
+     "Maximum flow",
+     "24 m³/h"
+    ],
+    [
+     "Maximum head",
+     "46 m"
+    ],
+    [
+     "Maximum operating pressure",
+     "10 bar"
+    ],
+    [
+     "Liquid temperature",
+     "−15 to +110 °C"
+    ],
+    [
+     "Pipe connection",
+     "DN 40, PN 16"
+    ],
+    [
+     "Weight",
+     "28 to 41 kg"
+    ]
+   ]
+  },
+  {
+   "caption": "Electrical data",
+   "rows": [
+    [
+     "Parameter",
+     "Value"
+    ],
+    [
+     "Motor power",
+     "1.1 to 4.0 kW"
+    ],
+    [
+     "Supply",
+     "3 × 400 V, 50 Hz"
+    ],
+    [
+     "Speed",
+     "2900 rpm"
+    ],
+    [
+     "Protection class",
+     "IP55"
+    ],
+    [
+     "Insulation class",
+     "F"
+    ],
+    [
+     "Efficiency class",
+     "IE3"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Model",
+     "Motor (kW)",
+     "Flow at best efficiency (m³/h)",
+     "Head at best efficiency (m)",
+     "Maximum head (m)",
+     "Current at 400 V (A)"
+    ],
+    [
+     "CP-40-110",
+     "1.1",
+     "9.5",
+     "18.0",
+     "24",
+     "2.4"
+    ],
+    [
+     "CP-40-150",
+     "1.5",
+     "11.0",
+     "22.5",
+     "29",
+     "3.2"
+    ],
+    [
+     "CP-40-220",
+     "2.2",
+     "13.5",
+     "27.0",
+     "35",
+     "4.6"
+    ],
+    [
+     "CP-40-300",
+     "3.0",
+     "15.0",
+     "32.5",
+     "41",
+     "6.1"
+    ],
+    [
+     "CP-40-400",
+     "4.0",
+     "17.0",
+     "37.0",
+     "46",
+     "7.9"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Field",
+     "Code",
+     "Meaning"
+    ],
+    [
+     "Series",
+     "CP",
+     "Close-coupled centrifugal pump"
+    ],
+    [
+     "Connection",
+     "40",
+     "DN 40 flanges"
+    ],
+    [
+     "Motor",
+     "110",
+     "1.1 kW"
+    ],
+    [
+     "Motor",
+     "150",
+     "1.5 kW"
+    ],
+    [
+     "Motor",
+     "220",
+     "2.2 kW"
+    ],
+    [
+     "Motor",
+     "300",
+     "3.0 kW"
+    ],
+    [
+     "Motor",
+     "400",
+     "4.0 kW"
+    ],
+    [
+     "Shaft seal",
+     "B",
+     "Carbon and ceramic, standard"
+    ],
+    [
+     "Shaft seal",
+     "V",
+     "Silicon carbide, for hot water"
+    ],
+    [
+     "Material",
+     "S",
+     "Stainless steel 1.4301"
+    ],
+    [
+     "Material",
+     "T",
+     "Stainless steel 1.4404"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Register",
+     "Name",
+     "Unit",
+     "Access"
+    ],
+    [
+     "40001",
+     "Pressure setpoint",
+     "0.1 bar",
+     "read/write"
+    ],
+    [
+     "40002",
+     "Operating mode",
+     "—",
+     "read/write"
+    ],
+    [
+     "30001",
+     "Actual pressure",
+     "0.1 bar",
+     "read"
+    ],
+    [
+     "30002",
+     "Motor current",
+     "0.1 A",
+     "read"
+    ],
+    [
+     "30003",
+     "Fault code",
+     "—",
+     "read"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "Heating and chilled water circulation in commercial buildings"
+  },
+  {
+   "level": 0,
+   "text": "Pressure boosting in residential blocks"
+  },
+  {
+   "level": 0,
+   "text": "Process water in light industry"
+  },
+  {
+   "level": 0,
+   "text": "Irrigation from tanks and wells"
+  },
+  {
+   "level": 0,
+   "text": "1) Install the pump with the motor shaft horizontal or vertical, never with the motor below the pump."
+  },
+  {
+   "level": 0,
+   "text": "2) Fit isolating valves on both sides of the pump to allow servicing without draining the system."
+  },
+  {
+   "level": 0,
+   "text": "3) Fill the pump and the suction pipe with water before the first start."
+  }
+ ],
+ "furniture": [
+  "Velmore Fluid Systems · Datasheet DS-CP40-EN · Rev. C",
+  "1/2",
+  "2/2"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [
+  "[modbus]\naddress      = 12\nbaudrate     = 19200\nparity       = even\nstop_bits    = 1\n\n[control]\nmode         = constant_pressure\nsetpoint_bar = 4.5\nramp_up_s    = 5"
+ ],
+ "notes": "Running header 'Velmore Fluid Systems · Datasheet DS-CP40-EN · Rev. C' listed once; page numbers '1/2', '2/2'. Two specification tables ('Hydraulic data', 'Electrical data', given as captions) stand SIDE BY SIDE; reading order is box by box (hydraulic first). The performance table is fully ruled with header cells of two lines (joined with one space). The ordering-code table has MERGED cells in its first column (rowspan; repeated in each covered row). Applications list is CSS-drawn (square); installation notes have TYPED markers 1) 2) 3). One INI code block in Consolas with alignment spaces kept. Headings are in Arial Narrow."
+}

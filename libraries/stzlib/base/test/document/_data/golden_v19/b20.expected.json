@@ -1,0 +1,134 @@
+{
+ "id": "b20",
+ "difficulty": "hard",
+ "pages": 2,
+ "title": "The Linden Row Courier",
+ "headings": [
+  {
+   "level": 1,
+   "text": "The Linden Row Courier"
+  },
+  {
+   "level": 2,
+   "text": "Allotments reopen after the winter"
+  },
+  {
+   "level": 2,
+   "text": "Repair café moves to the library"
+  },
+  {
+   "level": 3,
+   "text": "Bin collections over Easter"
+  },
+  {
+   "level": 2,
+   "text": "What’s on this spring"
+  },
+  {
+   "level": 2,
+   "text": "Meet the new warden"
+  },
+  {
+   "level": 2,
+   "text": "From the residents’ committee"
+  },
+  {
+   "level": 2,
+   "text": "Lost and found"
+  },
+  {
+   "level": 2,
+   "text": "Write for the Courier"
+  }
+ ],
+ "key_sentences": [
+  "The flooded lower path has been rebuilt with a gravel surface that drains far better than the old one.",
+  "Seven plots are still free, and anyone who lives in the parish can apply for one.",
+  "The first session in the new room is on Saturday 11 April from ten until one.",
+  "Priya will be at the community centre every Tuesday morning for anyone who wants to raise a problem in person.",
+  "The committee meets on the first Thursday of every month at half past seven, and all residents are welcome to attend.",
+  "Both can be collected from the community centre office during opening hours."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Date",
+     "Event",
+     "Place"
+    ],
+    [
+     "21 Mar",
+     "Litter pick",
+     "Village green"
+    ],
+    [
+     "4 Apr",
+     "Easter trail",
+     "Linden Park"
+    ],
+    [
+     "11 Apr",
+     "Repair café",
+     "Library"
+    ],
+    [
+     "25 Apr",
+     "Plant swap",
+     "Allotments"
+    ],
+    [
+     "9 May",
+     "Quiz night",
+     "Community centre"
+    ],
+    [
+     "23 May",
+     "Open gardens",
+     "Various"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "Good Friday collections move to Saturday 4 April."
+  },
+  {
+   "level": 0,
+   "text": "Easter Monday collections move to Tuesday 7 April."
+  },
+  {
+   "level": 0,
+   "text": "Garden waste collections restart on 13 April."
+  },
+  {
+   "level": 0,
+   "text": "– to ask the council for a pedestrian crossing outside the primary school;"
+  },
+  {
+   "level": 0,
+   "text": "– to buy two new benches for the village green;"
+  },
+  {
+   "level": 0,
+   "text": "– to hold the summer fair on Saturday 27 June;"
+  },
+  {
+   "level": 0,
+   "text": "– to look for a new treasurer from September."
+  }
+ ],
+ "furniture": [
+  "The Linden Row Courier · Spring 2026",
+  "1",
+  "2"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [],
+ "notes": "Newsletter in TWO COLUMNS (CSS multi-column) on both pages: reading order is the whole left column, then the whole right column; key_sentences follow that order. The masthead 'The Linden Row Courier' is the title (h1); the issue line under it is body text. Footer: left 'The Linden Row Courier · Spring 2026' (running, listed once) and right page number '1', '2'. The 'What’s on' table is borderless with a rule under the header, set inside a column. The boxed note 'Bin collections over Easter' has a CSS-drawn disc list; 'From the residents’ committee' has TYPED en-dash markers. Justified text; no hyphenation."
+}

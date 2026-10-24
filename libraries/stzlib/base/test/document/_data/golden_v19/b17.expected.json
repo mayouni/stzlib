@@ -1,0 +1,238 @@
+{
+ "id": "b17",
+ "difficulty": "hard",
+ "pages": 2,
+ "title": "Spring 2026 Examination Timetable: Year 2 Biosciences",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Spring 2026 Examination Timetable: Year 2 Biosciences"
+  },
+  {
+   "level": 2,
+   "text": "Course codes"
+  },
+  {
+   "level": 2,
+   "text": "On the day"
+  },
+  {
+   "level": 2,
+   "text": "Add the timetable to your calendar"
+  }
+ ],
+ "key_sentences": [
+  "Candidates must be seated ten minutes before the start of each examination.",
+  "Rooms are subject to change, so check the noticeboard on the morning of each paper.",
+  "Thursday 21 May is kept free as a reserve day in case an examination has to be rescheduled.",
+  "If you are ill on the day of an examination, contact the School office before the paper starts.",
+  "Each examination is also published as a calendar entry that you can import into most calendar applications."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Day",
+     "Date",
+     "Morning",
+     "Morning",
+     "Afternoon",
+     "Afternoon",
+     "Evening"
+    ],
+    [
+     "Day",
+     "Date",
+     "09:00–10:30",
+     "11:00–12:30",
+     "13:30–15:00",
+     "15:30–17:00",
+     "18:00–19:30"
+    ],
+    [
+     "Mon",
+     "11 May",
+     "BIO 214 Main Hall",
+     "—",
+     "—",
+     "CHM 205 Lab Block 3",
+     "—"
+    ],
+    [
+     "Tue",
+     "12 May",
+     "—",
+     "GEN 220 Main Hall",
+     "—",
+     "—",
+     "—"
+    ],
+    [
+     "Wed",
+     "13 May",
+     "STA 201 Room E104",
+     "—",
+     "MIC 230 Main Hall",
+     "—",
+     "—"
+    ],
+    [
+     "Thu",
+     "14 May",
+     "—",
+     "—",
+     "—",
+     "—",
+     "ECO 240 Room E104"
+    ],
+    [
+     "Fri",
+     "15 May",
+     "—",
+     "BIO 218 Main Hall",
+     "—",
+     "—",
+     "—"
+    ],
+    [
+     "Mon",
+     "18 May",
+     "PHY 209 Sports Hall",
+     "—",
+     "—",
+     "—",
+     "—"
+    ],
+    [
+     "Tue",
+     "19 May",
+     "—",
+     "—",
+     "BCH 226 Main Hall",
+     "—",
+     "—"
+    ],
+    [
+     "Wed",
+     "20 May",
+     "—",
+     "ETH 200 Room E104",
+     "—",
+     "GEN 224 Main Hall",
+     "—"
+    ],
+    [
+     "Thu",
+     "21 May",
+     "—",
+     "—",
+     "—",
+     "—",
+     "—"
+    ],
+    [
+     "Fri",
+     "22 May",
+     "MIC 234 Sports Hall",
+     "—",
+     "—",
+     "—",
+     "—"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Code",
+     "Course"
+    ],
+    [
+     "BCH 226",
+     "Metabolic Biochemistry"
+    ],
+    [
+     "BIO 214",
+     "Cell Biology II"
+    ],
+    [
+     "BIO 218",
+     "Developmental Biology"
+    ],
+    [
+     "CHM 205",
+     "Organic Chemistry for Biologists"
+    ],
+    [
+     "ECO 240",
+     "Field Ecology"
+    ],
+    [
+     "ETH 200",
+     "Ethics in the Life Sciences"
+    ],
+    [
+     "GEN 220",
+     "Molecular Genetics"
+    ],
+    [
+     "GEN 224",
+     "Population Genetics"
+    ],
+    [
+     "MIC 230",
+     "Microbial Physiology"
+    ],
+    [
+     "MIC 234",
+     "Immunology"
+    ],
+    [
+     "PHY 209",
+     "Biophysics"
+    ],
+    [
+     "STA 201",
+     "Statistics for Biology"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "Bring your student card; you will not be admitted without it."
+  },
+  {
+   "level": 0,
+   "text": "Only clear pencil cases and clear water bottles are allowed on desks."
+  },
+  {
+   "level": 0,
+   "text": "Mobile phones must be switched off and left in the bag area."
+  },
+  {
+   "level": 0,
+   "text": "Calculators must be on the approved list published by the School."
+  },
+  {
+   "level": 0,
+   "text": "You may not leave during the first 30 minutes or the last 15 minutes of a paper."
+  }
+ ],
+ "furniture": [
+  "Wrexley Institute of Technology · School of Life Sciences",
+  "Spring 2026 Examination Timetable · version 3, issued 2 March 2026",
+  "Page 1 of 2",
+  "Page 2 of 2"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [
+  "BEGIN:VEVENT\nUID:bio214-2026s@exams.wrexley.example\nDTSTART;TZID=Europe/London:20260511T090000\nDTEND;TZID=Europe/London:20260511T103000\nSUMMARY:BIO 214 Cell Biology II\nLOCATION:Main Hall\nEND:VEVENT"
+ ],
+ "notes": "A4 LANDSCAPE, two pages. Running header 'Wrexley Institute of Technology · School of Life Sciences' listed once; footer left 'Spring 2026 Examination Timetable · version 3, issued 2 March 2026' (running, listed once), footer right 'Page 1 of 2' / 'Page 2 of 2'. WIDE fully ruled grid with a TWO-LEVEL header: 'Day' and 'Date' span both header rows, 'Morning' and 'Afternoon' each span two slot columns, 'Evening' spans one. Exam cells have two lines (course code, room; joined with one space); '—' = no exam. On page 2 the 'Course codes' and 'On the day' sections stand SIDE BY SIDE; reading order is box by box (left first). 'On the day' is a CSS-drawn disc list. One iCalendar code block in Courier New."
+}
