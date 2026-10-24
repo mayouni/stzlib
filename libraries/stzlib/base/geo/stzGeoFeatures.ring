@@ -89,14 +89,19 @@ func StzGeoNameKeys()
 # Coordinates are longitude then latitude, degrees, as both formats require, and every place-taking
 # method here is LONGITUDE FIRST (Contains, IndexAt, Within). Nothing is simplified or reprojected,
 # and this library vendors no boundary data: the atlas files are the caller's
-# (test/graphics/atlas/README.md). Areas are measured on WGS84. One trap in the windows: a feature
-# that crosses the antimeridian (Fiji, Russia, Antarctica) has a bounding box 360 degrees wide whose
-# middle falls anywhere, so Within and IndicesWithin take Fiji for an Africa window. Pictures, each
-# looked at by 'stzlib-docs visual pass (a model reading the PNG)' on 2026-10-05:
-# doc/gallery/stzGeoFeatures/parts_holes_lookup.png, parts, holes, an IndexAt raster of Niger and
-# South Africa's hole, RIGHT; doc/gallery/stzGeoFeatures/window_and_areas.png, the areas panel RIGHT
-# and the Within panel WRONG (Fiji is taken, see FINDINGS_geo.md); lines_points_kinds.png, a river,
-# wells and a lake with a hole read from GeoJSON, RIGHT. Index: doc/gallery/INDEX_geo.md.
+# (test/graphics/atlas/README.md). Areas are measured on WGS84. The trap in the windows is handled:
+# a feature that crosses the antimeridian (Fiji, Russia, Antarctica) has a bounding box 360 degrees
+# wide whose plain middle falls near longitude 0, and IndicesWithin and Within used to take Fiji for
+# an Africa window. They now measure such a feature's middle on the shortest arc, from its own
+# vertices, and a window with its western edge east of its eastern edge runs across the line; BoundsOf
+# and the stored boxes are unchanged. The picture note below must stay truthful: the Within panel of
+# window_and_areas.png was drawn with the OLD behaviour and still shows Fiji taken; it has not been
+# redrawn or looked at since the fix. Pictures, each looked at by 'stzlib-docs visual pass (a model
+# reading the PNG)' on 2026-10-05: doc/gallery/stzGeoFeatures/parts_holes_lookup.png, parts, holes,
+# an IndexAt raster of Niger and South Africa's hole, RIGHT; doc/gallery/stzGeoFeatures/
+# window_and_areas.png, the areas panel RIGHT and the Within panel WRONG at the time, because it showed
+# the old behaviour (Fiji taken, see FINDINGS_geo.md); lines_points_kinds.png, a river, wells and a
+# lake with a hole read from GeoJSON, RIGHT. Index: doc/gallery/INDEX_geo.md.
 #
 #   receiver   o1 = StzGeoFeaturesFromJson(read("../graphics/fixtures/two_countries.geojson"))
 #   example    ? o1.Count()
@@ -762,40 +767,86 @@ class stzGeoFeatures from stzObject
 			@aBox + This.BoundsOf(_i_)
 		next
 
-	# Returns the positions of the features whose bounding box has its middle inside a box of longitude and latitude.
+	# Returns the positions of the features whose bounding-box middle lies in a longitude and latitude window, which may cross the antimeridian.
 	#
-	#   pnLon0     western edge in degrees east
+	#   pnLon0     western edge in degrees east; larger than pnLon1 for a window across the antimeridian
 	#   pnLat0     southern edge in degrees north
 	#   pnLon1     eastern edge in degrees east
 	#   pnLat1     northern edge in degrees north
-	#   returns    a list of numbers
-	#   warning    Defect: a feature across the antimeridian has a box 360 degrees wide whose middle
-	#              is longitude 0, so Fiji is taken by a window around Africa.
+	#   returns    a list of numbers, in the features' own order; [ ] when none is taken
+	#   note       A feature's middle is its box middle, except that a box wider than 180 degrees is
+	#              taken to cross the antimeridian (Fiji, Russia, Antarctica): its middle is then that
+	#              of its own vertices on the shortest arc, negative longitudes shifted by 360 and the
+	#              result brought back into (-180, 180], so Fiji sits near 179 and Russia near 105.
+	#              Antarctica, still wider than 180 after the shift, keeps the middle of that extent,
+	#              near 180: a convention that follows its vertices, not a place. A box of 180 or less
+	#              keeps its plain middle. A window with pnLon0 up to pnLon1 takes the middles from
+	#              pnLon0 to pnLon1; one with pnLon0 beyond pnLon1 runs east over 180 and takes a
+	#              middle at or past pnLon0 or at or below pnLon1, so 170 to -170 is a Pacific window.
+	#              A middle exactly on an edge is inside, and a middle at 180 is never at -180:
+	#              -180 to -160 does not take Fiji, 160 to -160 does. Latitude is unchanged. Raises an
+	#              error when an edge is not a number or is NaN; an infinite edge is allowed
 	#   see        Within, BoundsOf
 	#@ aka  THE FEATURES WHOSE MIDDLE FALLS IN A BOX, by index. What "metropolitan France" means to a file that also carries Réunion and Guyane: not a political statement, a WINDOW -- the caller says which piece of the world they are drawing, and the file is unchanged.
 	def IndicesWithin(pnLon0, pnLat0, pnLon1, pnLat1)
+		_bOk_ = isNumber(pnLon0) and isNumber(pnLat0) and isNumber(pnLon1) and isNumber(pnLat1)
+		if _bOk_
+			# a NaN is the one number not equal to itself
+			_bOk_ = (pnLon0 = pnLon0) and (pnLat0 = pnLat0) and (pnLon1 = pnLon1) and (pnLat1 = pnLat1)
+		ok
+		if NOT _bOk_
+			stzraise("stzGeoFeatures: a window is four numbers -- western longitude, southern " +
+				"latitude, eastern longitude, northern latitude.")
+		ok
+		_bAcross_ = (pnLon0 > pnLon1)
 		_a_ = []
 		for _i_ = 1 to len(@aFeat)
 			_b_ = This.BoundsOf(_i_)
 			if len(_b_) < 4  loop  ok
-			_cx_ = (_b_[1] + _b_[3]) / 2
 			_cy_ = (_b_[2] + _b_[4]) / 2
-			if _cx_ >= pnLon0 and _cx_ <= pnLon1 and _cy_ >= pnLat0 and _cy_ <= pnLat1
-				_a_ + _i_
+			if _cy_ < pnLat0 or _cy_ > pnLat1  loop  ok
+			_cx_ = This._MiddleLonOf(_i_, _b_)
+			if _bAcross_
+				if _cx_ >= pnLon0 or _cx_ <= pnLon1  _a_ + _i_  ok
+			else
+				if _cx_ >= pnLon0 and _cx_ <= pnLon1  _a_ + _i_  ok
 			ok
 		next
 		return _a_
 
-	# Returns a new set of the features whose bounding box has its middle inside a box of longitude and latitude.
+	# the middle longitude of feature pn, given its box paB. A box 180 degrees wide or less keeps its plain
+	# middle. A wider one is taken to cross the antimeridian: the feature's own longitudes are shifted
+	# by 360 where negative, the middle of that extent is taken and brought back into (-180, 180].
+	# BoundsOf and the stored boxes are left alone.
+	def _MiddleLonOf(pn, paB)
+		if (paB[3] - paB[1]) <= 180
+			return (paB[1] + paB[3]) / 2
+		ok
+		_p_ = This.PointsOf(pn)
+		_w_ = 1000
+		_e_ = -1000
+		for _k_ = 1 to len(_p_) - 1 step 2
+			_x_ = _p_[_k_]
+			if _x_ < 0  _x_ += 360  ok
+			if _x_ < _w_  _w_ = _x_  ok
+			if _x_ > _e_  _e_ = _x_  ok
+		next
+		_m_ = (_w_ + _e_) / 2
+		if _m_ > 180  _m_ -= 360  ok
+		return _m_
+
+	# Returns a new set of the features whose bounding-box middle lies in a longitude and latitude window, which may cross the antimeridian.
 	#
-	#   pnLon0     western edge in degrees east
+	#   pnLon0     western edge in degrees east; larger than pnLon1 for a window across the antimeridian
 	#   pnLat0     southern edge in degrees north
 	#   pnLon1     eastern edge in degrees east
 	#   pnLat1     northern edge in degrees north
-	#   returns    a stzGeoFeatures
-	#   note       Metropolitan France is a window, not a political claim
-	#   warning    Defect: the same antimeridian trap as IndicesWithin: Fiji is taken by a window
-	#              around Africa.
+	#   returns    a stzGeoFeatures holding the taken features, in their own order; its Count is the
+	#              number of positions IndicesWithin gives
+	#   note       Metropolitan France is a window, not a political claim. A feature across the
+	#              antimeridian is placed by its middle on the shortest arc, so Fiji is not taken by a
+	#              window around Africa; the rules for edges, for a window across the line and for a
+	#              box wider than 180 degrees are those of IndicesWithin
 	#   see        IndicesWithin, Subset
 	def Within(pnLon0, pnLat0, pnLon1, pnLat1)
 		return This.Subset(This.IndicesWithin(pnLon0, pnLat0, pnLon1, pnLat1))
