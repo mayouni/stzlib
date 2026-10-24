@@ -569,3 +569,8 @@ Next by size: 16 classes at 2 (stzGeoFeatures first), then 28 at 1.
 The two 256-byte assertions used strcmp, which stops at the first NUL, so they passed vacuously. They now use AsSame (length, every byte, CRC32); 225 assertions pass; the server code is unchanged. Still weak, owed after the engine DLLs are rebuilt: Same() in file/stzHtmlBuilder_defects_narrated.ring and _RxEq / _RxIn in render/escape_sinks_narrated.ring (strcmp on texts with a NUL in the middle).
 Next by size: 16 classes at 2 (stzGeoFeatures first), then 28 at 1.
 
+## 2026-10-24: the stzGeoFeatures fix batch is ON MAIN; register 60 -> 58
+
+IndicesWithin and Within took an antimeridian feature (Fiji) by an Africa window because its box is 360 wide and its middle is 0. Now a box wider than 180 takes its middle on the shortest arc (Fiji 179.5), and a window with lon0 > lon1 crosses the line; BoundsOf and the stored boxes are unchanged. Guard 100 assertions with a mutation check. Open: the middle of a feature still wider than 180 after the shift (Antarctica) is a convention that depends on vertex spacing; stzGeoMap._ResolveInsets now raises on a non-number inset window; the gallery PNG window_and_areas.png still shows the old behaviour and has not been redrawn or looked at.
+Next by size: 15 classes at 2 (stzGeoProcess first), then 28 at 1.
+
