@@ -43,8 +43,9 @@ func StzGraphQueryQ(oGraph)
 # A query is a definition, a hash list of 11 parts that the Match, Where, Select, OrderBy, Create,
 # Set and Delete calls fill in; nothing touches the graph until Select, Execute, ToGraphQ or ToViewQ
 # runs it. Rows are lists of [ field, value ] pairs, or of [ alias, node ] pairs for a bare alias.
-# Queries that create, set or delete change the source graph on every run. For plain filters on
-# nodes or edges, stzGraphFinder is lighter.
+# Queries that create, set or delete change the source graph on every run. A run sorts the matches by
+# the OrderBy keys, then projects them, then drops duplicates (Distinct), skips (Skip) and keeps at
+# most Limit rows, in that order. For plain filters on nodes or edges, stzGraphFinder is lighter.
 #
 #   receiver   g1 = new stzGraph("g1"); g1.AddNodeXTT("a", "Person", [ :name = "Ann", :age = 30 ]);
 #              g1.AddNodeXTT("b", "Person", [ :name = "Bob", :age = 25 ]); o1 = new
@@ -73,6 +74,12 @@ class stzGraphQuery from stzObject
 	@aResult = []
 	@bExecuted = 0
 	@aBindings = []
+	
+	# Scratch of the sort, filled and emptied inside one run
+	@aOrdClass = []
+	@aOrdValue = []
+	@aOrdDesc = []
+	@nOrdKeys = 0
 
 	# Builds a query over a graph and keeps a reference to it; anything but a stzGraph raises an error.
 	#
@@ -221,23 +228,55 @@ class stzGraphQuery from stzObject
 			This.EnforceRule(pcRuleName)
 			return This
 	
-	# Queues a validation of the matched subgraph against rule groups; a single text raises error R21 when the query runs today.
+	# Queues a check of the matched subgraph against one or more rule groups; the run raises when a group fails.
 	#
-	#   paValidators   Rule group names such as :DAG, :Reachability or :Completeness, as a list
+	#   paValidators   A rule group name such as "dag", "reachability" or "completeness", or a list of
+	#                  such names
 	#   returns        nothing; the query changes
-	#   note           pass a list, ValidateWith([ :DAG ])
-	#   warning        known defect: a single text is wrapped with paValidators = [ paValidators ],
-	#                  which stores [ [ [ ] ] ] and the run then raises R21; a list of names works,
-	#                  and a failing group raises Validation failed
+	#   note           a single text is the same as a list of one name; the case of a name does not
+	#                  matter; ValidateWithQ chains
+	#   warning        a list that holds a list or a value that is not text, an empty list and an empty
+	#                  text raise an error when the call is made, not when the query runs; a name no rule
+	#                  group has loads no rule, so that group passes unless the graph already holds
+	#                  validation rules, which the check then runs; a group that fails raises Validation
+	#                  failed with one line per issue when the query runs; names are looked up and never
+	#                  evaluated
 	#   see            EnforceRule, DeriveUsing
 	def ValidateWith(paValidators)
+		_acNames_ = []
+
 		if isString(paValidators)
-			paValidators = [paValidators]
+			_acNames_ + paValidators
+
+		but isList(paValidators)
+			_nLen_ = len(paValidators)
+			for i = 1 to _nLen_
+				if isList(paValidators[i])
+					stzraise("ValidateWith takes rule group names as text, not a list of lists!")
+				but NOT isString(paValidators[i])
+					stzraise("ValidateWith takes rule group names as text; item " + i + " is not text!")
+				ok
+				_acNames_ + paValidators[i]
+			next
+
+		else
+			stzraise("ValidateWith takes a rule group name or a list of names!")
 		ok
-	
+
+		if len(_acNames_) = 0
+			stzraise("ValidateWith needs at least one rule group name!")
+		ok
+
+		_nLen_ = len(_acNames_)
+		for i = 1 to _nLen_
+			if len(ring_trim(_acNames_[i])) = 0
+				stzraise("ValidateWith takes non-empty rule group names!")
+			ok
+		next
+
 		@aDefinition["rule_triggers"] + [
 			:type = :validate,
-			:validators = paValidators,
+			:validators = _acNames_,
 			:scope = :matched_bindings
 		]
 
@@ -627,8 +666,9 @@ class stzGraphQuery from stzObject
 	# Asks that duplicate rows be dropped from the result of the query.
 	#
 	#   returns    nothing; the query changes
-	#   note       takes effect when the query runs, so call it before Select
-	#   see        Select, Result
+	#   note       takes effect when the query runs, so call it before Select; it comes after the sort,
+	#              and the first row of each group of equal rows is kept
+	#   see        Select, Result, OrderBy
 	def Distinct()
 		@aDefinition["distinct"] = 1
 	
@@ -636,39 +676,96 @@ class stzGraphQuery from stzObject
 			This.Distinct()
 			return This
 
-	# Leaves the rows in match order for ascending and reverses them for descending today, instead of sorting by a field.
+	# Queues a sort of the rows by a field, ascending or descending; a later call adds a key of lower rank.
 	#
-	#   pcField       The field to sort by, such as "n.age"
-	#   pcDirection   asc, desc, ascending, descending, inascending or indescending, as text
+	#   pcField       The field to sort by, as alias.property such as "n.age"; without a dot the property
+	#                 is read from the alias of the last pattern, as Where does
+	#   pcDirection   asc, desc, ascending, descending, inascending or indescending, as text, in any case
 	#   returns       nothing; the query changes
-	#   note          a direction word it does not know means asc
-	#   warning       known defect: the sort call @SortOn returns the sorted list and the method
-	#                 drops it, so nothing is sorted; asc keeps the match order and desc reverses
-	#                 it; only the first OrderBy is read; both arguments are required, with one Ring
+	#   note          the rows are sorted when the query runs, before Select projects them, so the
+	#                 field need not be selected; the first call is the primary key and each later call
+	#                 breaks the ties of the calls before it; the sort is stable, so rows equal on every
+	#                 key keep their match order; Skip and Limit apply after the sort, and Distinct
+	#                 keeps the first of each group of equal rows, so the sorted order survives it;
+	#                 OrderByAsc and OrderByDesc take the field alone
+	#   warning       numbers compare as numbers, and before texts when ascending; texts compare
+	#                 without regard to case, in the order of their code points, so an accented letter
+	#                 sorts after z, and a numeric text such as "10" is a text, so "10" comes before
+	#                 "9" (property values keep the type they were stored with); a row whose property
+	#                 is absent or empty text sorts last, ascending and descending; a value that is
+	#                 neither number nor text ties with the rest of its kind; a direction word the
+	#                 call does not know, or one that is not text, means asc; a field that is not text,
+	#                 or is empty text, raises an error; both arguments are required, with one Ring
 	#                 raises R19
-	#   see           Skip, Limit, Select
+	#   see           OrderByAsc, OrderByDesc, Skip, Limit, Distinct, Select
 	def OrderBy(pcField, pcDirection)
-		if NOT isString(pcDirection)
-			pcDirection = "asc"
+		if isString(pcField)
+			if len(ring_trim(pcField)) = 0
+				stzraise("OrderBy needs a field such as 'n.age', not empty text!")
+			ok
+		else
+			stzraise("OrderBy needs a field as text such as 'n.age'!")
 		ok
 
-		pcDirection = StzLower(pcDirection)
+		_cDirection_ = This._NormalizeDirection(pcDirection)
 
-		if pcDirection = "inascending" or pcDirection = "ascending"
-			pcDirection = "asc"
-		but pcDirection = "indescending" or pcDirection = "descending"
-			pcDirection = "desc"
-		ok
-
-		if pcDirection != "asc" and pcDirection != "desc"
-			pcDirection = "asc"
-		ok
-
-		@aDefinition["order_by"] + [ ["field", pcField], ["direction", pcDirection] ]
+		@aDefinition["order_by"] + [ ["field", pcField], ["direction", _cDirection_] ]
 
 		def OrderByQ(pcField, pcDirection)
 			This.OrderBy(pcField, pcDirection)
 			return This
+
+	# Queues an ascending sort of the rows by one field, without a direction argument.
+	#
+	#   pcField    The field to sort by, as alias.property such as "n.age"
+	#   returns    nothing; the query changes
+	#   note       the same as a sort called with asc: later sorts break the ties of earlier ones, rows
+	#              missing the field go last, and the sort is stable; OrderByAscQ chains
+	#   warning    a field that is not text, or is empty text, raises an error
+	#   see        OrderBy, OrderByDesc, Limit
+	def OrderByAsc(pcField)
+		_cDirection_ = "asc"
+		This.OrderBy(pcField, _cDirection_)
+
+		def OrderByAscQ(pcField)
+			This.OrderByAsc(pcField)
+			return This
+
+	# Queues a descending sort of the rows by one field, without a direction argument.
+	#
+	#   pcField    The field to sort by, as alias.property such as "n.age"
+	#   returns    nothing; the query changes
+	#   note       the same as a sort called with desc: later sorts break the ties of earlier ones, rows
+	#              missing the field still go last, and the sort is stable, so equal rows keep their
+	#              match order; OrderByDescQ chains
+	#   warning    a field that is not text, or is empty text, raises an error
+	#   see        OrderBy, OrderByAsc, Limit
+	def OrderByDesc(pcField)
+		_cDirection_ = "desc"
+		This.OrderBy(pcField, _cDirection_)
+
+		def OrderByDescQ(pcField)
+			This.OrderByDesc(pcField)
+			return This
+
+	def _NormalizeDirection(pcDirection)
+		_cDir_ = "asc"
+
+		if isString(pcDirection)
+			_cDir_ = StzLower(pcDirection)
+		else
+			return "asc"
+		ok
+
+		if _cDir_ = "inascending" or _cDir_ = "ascending"
+			return "asc"
+		but _cDir_ = "indescending" or _cDir_ = "descending"
+			return "desc"
+		but _cDir_ = "desc"
+			return "desc"
+		ok
+
+		return "asc"
 
 	# Keeps at most this many rows of the result; 0 means no limit.
 	#
@@ -861,12 +958,14 @@ class stzGraphQuery from stzObject
 			This._ExecuteDelete(_aBindings_)
 		ok
 		
-		if len(@aDefinition["select_fields"]) > 0
-			_aBindings_ = This._ExecuteSelect(_aBindings_)
-		ok
-		
+		# The sort comes BEFORE the projection: a row of the projection holds only the selected
+		# fields, so a sort field that is not selected could not be read from it.
 		if len(@aDefinition["order_by"]) > 0
 			_aBindings_ = This._ApplyOrderBy(_aBindings_)
+		ok
+		
+		if len(@aDefinition["select_fields"]) > 0
+			_aBindings_ = This._ExecuteSelect(_aBindings_)
 		ok
 		
 		if @aDefinition["skip"] > 0
@@ -967,10 +1066,28 @@ class stzGraphQuery from stzObject
 		_aResult_ = _oSubgraph_.ValidateXT(paValidators)
 		
 		if _aResult_[:status] = "fail"
+			# A list of names answers with one result per group under :results; a single
+			# name answers with :issues itself. Both are read, so the message names the issues.
+			_acIssues_ = []
+			if HasKey(_aResult_, :results)
+				_nGroups_ = len(_aResult_[:results])
+				for g = 1 to _nGroups_
+					_nIssues_ = len(_aResult_[:results][g][:issues])
+					for k = 1 to _nIssues_
+						_acIssues_ + _aResult_[:results][g][:issues][k]
+					next
+				next
+			else
+				_nIssues_ = len(_aResult_[:issues])
+				for k = 1 to _nIssues_
+					_acIssues_ + _aResult_[:issues][k]
+				next
+			ok
+			
 			_cMsg_ = "Validation failed:" + char(10)
-			_nLen_ = len(_aResult_[:issues])
+			_nLen_ = len(_acIssues_)
 			for i = 1 to _nLen_
-				_cMsg_ += "  - " + _aResult_[:issues][i] + char(10)
+				_cMsg_ += "  - " + _acIssues_[i] + char(10)
 			next
 			stzraise(_cMsg_)
 		ok
@@ -1726,64 +1843,178 @@ def _ExecuteDelete(_aBindings_)
 #  ORDERING/LIMIT  #
 #------------------#
 
-def _ApplyOrderBy(_aResults_)
-	if len(@aDefinition["order_by"]) = 0
-		return _aResults_
+def _ApplyOrderBy(_aRows_)
+	_nRows_ = len(_aRows_)
+	_nKeys_ = len(@aDefinition["order_by"])
+	
+	if _nRows_ < 2 or _nKeys_ = 0
+		return _aRows_
 	ok
 	
-	_aOrderDef_ = @aDefinition["order_by"][1]
-	_cField_ = _aOrderDef_["field"]
-	_cDirection_ = _aOrderDef_["direction"]
+	# The alias a field without a dot is read from: the last pattern's, as Where does.
+	_cAlias_ = "node"
+	_nPatterns_ = len(@aDefinition["match_patterns"])
+	if _nPatterns_ > 0
+		if HasKey(@aDefinition["match_patterns"][_nPatterns_], "alias")
+			_cAlias_ = @aDefinition["match_patterns"][_nPatterns_]["alias"]
+		ok
+	ok
 	
-	# Extract values for sorting
-	_aValues_ = []
-	_nLen_ = len(_aResults_)
-	for i = 1 to _nLen_
-		pVal = This._GetResultValue(_aResults_[i], _cField_)
-		_aValues_ + [i, pVal]
+	# The key of every row is computed ONCE per key, here: a class (1 number, 2 text, 3 other,
+	# 4 missing) and a value (the number, or the text in lower case).
+	@aOrdClass = []
+	@aOrdValue = []
+	@aOrdDesc = []
+	@nOrdKeys = _nKeys_
+	
+	for k = 1 to _nKeys_
+		_cField_ = @aDefinition["order_by"][k]["field"]
+		if StzFindFirst(".", _cField_) = 0
+			_cField_ = _cAlias_ + "." + _cField_
+		ok
+		
+		_anClass_ = list(_nRows_)
+		_aValue_ = list(_nRows_)
+		
+		for i = 1 to _nRows_
+			pVal = This._ResolveValue(_cField_, _aRows_[i])
+			if isNumber(pVal)
+				_anClass_[i] = 1
+				_aValue_[i] = pVal
+			but isString(pVal)
+				if len(pVal) = 0
+					_anClass_[i] = 4
+				else
+					_anClass_[i] = 2
+					_aValue_[i] = StzLower(pVal)
+				ok
+			else
+				_anClass_[i] = 3
+			ok
+		next
+		
+		@aOrdClass + _anClass_
+		@aOrdValue + _aValue_
+		if This._NormalizeDirection(@aDefinition["order_by"][k]["direction"]) = "desc"
+			@aOrdDesc + 1
+		else
+			@aOrdDesc + 0
+		ok
 	next
 	
-	# Sort using Softanza
-	@SortOn(_aValues_, 2)
+	_anIdx_ = This._OrderedIndices(_nRows_)
 	
-	# Apply descending if needed
-	if _cDirection_ = "desc"
-		@Reverse(_aValues_)
-	ok
+	@aOrdClass = []
+	@aOrdValue = []
+	@aOrdDesc = []
 	
-	# Rebuild results in sorted order
 	_aSorted_ = []
-	_nLen_ = len(_aValues_)
-	for i = 1 to _nLen_
-		_nOrigIndex_ = _aValues_[i][1]
-		_aSorted_ + _aResults_[_nOrigIndex_]
+	for i = 1 to _nRows_
+		_aSorted_ + _aRows_[_anIdx_[i]]
 	next
 	
 	return _aSorted_
 
-def _GetResultValue(_aResult_, _cField_)
-	if StzFindFirst(".", _cField_) > 0
-		_acParts_ = @split(_cField_, ".")
-		_cVar_ = _acParts_[1]
-		_cProp_ = _acParts_[2]
-		
-		if HasKey(_aResult_, _cVar_)
-			_aNode_ = _aResult_[_cVar_]
-			if isList(_aNode_) and HasKey(_aNode_, :properties)
-				_aProps_ = _aNode_[:properties]
-				if HasKey(_aProps_, _cProp_)
-					return _aProps_[_cProp_]
-				ok
+# A stable bottom-up merge sort of the row numbers 1..n: O(n log n) comparisons, and a row
+# from the left run goes first on a tie, which is what keeps equal rows in match order.
+def _OrderedIndices(n)
+	_anA_ = list(n)
+	_anB_ = list(n)
+	for i = 1 to n
+		_anA_[i] = i
+	next
+	
+	_nWidth_ = 1
+	while _nWidth_ < n
+		_nLo_ = 1
+		while _nLo_ <= n
+			_nMid_ = _nLo_ + _nWidth_
+			_nHi_ = _nLo_ + 2 * _nWidth_
+			if _nMid_ > n + 1
+				_nMid_ = n + 1
 			ok
+			if _nHi_ > n + 1
+				_nHi_ = n + 1
+			ok
+			
+			i = _nLo_
+			j = _nMid_
+			t = _nLo_
+			while i < _nMid_ and j < _nHi_
+				if This._OrderCompare(_anA_[i], _anA_[j]) <= 0
+					_anB_[t] = _anA_[i]
+					i++
+				else
+					_anB_[t] = _anA_[j]
+					j++
+				ok
+				t++
+			end
+			while i < _nMid_
+				_anB_[t] = _anA_[i]
+				i++
+				t++
+			end
+			while j < _nHi_
+				_anB_[t] = _anA_[j]
+				j++
+				t++
+			end
+			
+			_nLo_ += 2 * _nWidth_
+		end
+		
+		_anT_ = _anA_
+		_anA_ = _anB_
+		_anB_ = _anT_
+		_nWidth_ *= 2
+	end
+	
+	return _anA_
+
+# -1, 0 or 1 for rows a and b over the keys in call order; a missing value goes last in both
+# directions, so only the other three classes are turned round by a descending key.
+def _OrderCompare(a, b)
+	for k = 1 to @nOrdKeys
+		_nCa_ = @aOrdClass[k][a]
+		_nCb_ = @aOrdClass[k][b]
+		_nRes_ = 0
+		
+		if _nCa_ = 4 and _nCb_ = 4
+			loop
 		ok
-		return ""
-	ok
+		if _nCa_ = 4
+			return 1
+		ok
+		if _nCb_ = 4
+			return -1
+		ok
+		
+		if _nCa_ != _nCb_
+			if _nCa_ < _nCb_
+				_nRes_ = -1
+			else
+				_nRes_ = 1
+			ok
+		but _nCa_ = 1
+			if @aOrdValue[k][a] < @aOrdValue[k][b]
+				_nRes_ = -1
+			but @aOrdValue[k][a] > @aOrdValue[k][b]
+				_nRes_ = 1
+			ok
+		but _nCa_ = 2
+			_nRes_ = strcmp(@aOrdValue[k][a], @aOrdValue[k][b])
+		ok
+		
+		if _nRes_ != 0
+			if @aOrdDesc[k]
+				return 0 - _nRes_
+			ok
+			return _nRes_
+		ok
+	next
 	
-	if HasKey(_aResult_, _cField_)
-		return _aResult_[_cField_]
-	ok
-	
-	return ""
+	return 0
 
 def _ApplySkip(_aResults_)
 	if @aDefinition["skip"] = 0 or @aDefinition["skip"] >= len(_aResults_)
@@ -1983,10 +2214,16 @@ def Explain()
 	
 	# Order by
 	if len(@aDefinition["order_by"]) > 0
-		_aOrder_ = @aDefinition["order_by"][1]
-		_cField_ = _aOrder_["field"]
-		_cDir_ = StzUpper(_aOrder_["direction"])
-		_aExplanation_ + [ ["step", "orderby"], ["description", ["Sort by: " + _cField_ + " " + _cDir_]] ]
+		_cSort_ = "Sort by: "
+		_nLen_ = len(@aDefinition["order_by"])
+		for i = 1 to _nLen_
+			_aOrder_ = @aDefinition["order_by"][i]
+			_cSort_ += _aOrder_["field"] + " " + StzUpper(_aOrder_["direction"])
+			if i < _nLen_
+				_cSort_ += ", "
+			ok
+		next
+		_aExplanation_ + [ ["step", "orderby"], ["description", [_cSort_]] ]
 	ok
 	
 	# Skip
@@ -2230,8 +2467,14 @@ def ToOpenCypher()
 	# ORDER BY clause
 	if len(@aDefinition["order_by"]) > 0
 		_cCypher_ += "ORDER BY "
-		_aOrder_ = @aDefinition["order_by"][1]
-		_cCypher_ += _aOrder_["field"] + " " + UPPER(_aOrder_["direction"])
+		_nLen_ = len(@aDefinition["order_by"])
+		for i = 1 to _nLen_
+			_aOrder_ = @aDefinition["order_by"][i]
+			_cCypher_ += _aOrder_["field"] + " " + UPPER(_aOrder_["direction"])
+			if i < _nLen_
+				_cCypher_ += ", "
+			ok
+		next
 		_cCypher_ += char(10)
 	ok
 	

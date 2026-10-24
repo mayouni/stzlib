@@ -23,7 +23,7 @@ aResults = StzGraphQueryQ(oGraph).
 	Select("n")
 
 ? @@( aResults[1]["n"][:id] )
-#--> "alice"
+#--> "bob"
 
 ? @@( aResults[3]["n"][:id] )
 #--> "carol"
