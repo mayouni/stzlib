@@ -414,7 +414,7 @@ golden_v19: a TABLE-RICH set -- 24 realistic documents, every one with at least 
 | Softanza native (Ring++) | **0.99** | **1.00** | **0.91** | **0.69** | **0.86** | **0.90** | **1.00** | **0.90** |
 | Docling 2.141 | 0.87 | 0.98 | 0.80 | 0.67 | 0.55 | 0.89 | 0.00 | 0.71 |
 
-Time for the 24 documents: native 0.1 s, Docling 738 s. **On a set built to stress tables, the native reader leads on all eight measures, tables included (0.69 against 0.67).** Tables are still the measure with the most room for both readers. Causes read off the native output: one row too many in three tables (a header or caption line taken in), side-by-side tables whose rows fill both halves still read as one wide table, and two tables not found.
+Time for the 24 documents: native 0.1 s, Docling 738 s. **On a set built to stress tables, the native reader leads on all eight measures, tables included (0.69 against 0.67).** Tables are still the measure with the most room for both readers. Causes read off the native output: one row too many in three tables -- the second line of a wrapped cell read as a row of its own (a description, a two-line header, an amount under its value), the case the centred-cell rule does not cover because these cells are top-aligned, side-by-side tables whose rows fill both halves still read as one wide table, and two tables not found.
 
 **Perceived (2026-10-24):** the author looked through every rendered page of golden_v9 to golden_v13 -- the sets whose own authors could not look at them -- and judged them: "they look great". Those five sets are no longer unperceived; the sets before them were generated the same way and are not covered by this look.
 
