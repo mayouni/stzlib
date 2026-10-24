@@ -1152,6 +1152,16 @@ const GState = struct {
     tr: u8 = 0, // text render mode; 2 = fill and stroke, how a browser draws a bold it has no face for
 };
 
+// An open marked-content span: its ActualText (null when none), the glyph count at its start, and the extent of
+// every glyph shown inside it -- with or without text of its own -- plus one of them as a template
+const MarkSpan = struct {
+    actual: ?[]const u8,
+    start: usize,
+    x0: f32 = 1e9,
+    x1: f32 = -1e9,
+    tpl: ?Glyph = null,
+};
+
 const Interp = struct {
     d: *Doc,
     a: Allocator,
@@ -1173,7 +1183,7 @@ const Interp = struct {
     start: [2]f64 = .{ 0, 0 },
     depth: u32 = 0,
     // open marked-content spans: the ActualText of each (null when it has none) and the glyph count at its start
-    marked: std.ArrayList(struct { actual: ?[]const u8, start: usize }) = .empty,
+    marked: std.ArrayList(MarkSpan) = .empty,
 
     fn fontFor(it: *Interp, res: ?*Dict, name: []const u8) ?*Font {
         const r = res orelse return null;
@@ -1221,6 +1231,25 @@ const Interp = struct {
             // a producer may map its space glyph to a TAB (or a line end), and an accent piece to U+0000
             if (t.len == 1 and (t[0] == 9 or t[0] == 10 or t[0] == 13)) t = " ";
             if (t.len == 1 and t[0] == 0) t = "";
+            if (upright and size > 0.5 and it.marked.items.len > 0) {
+                // (inside a marked span every glyph counts for its extent: a conjunct or a vowel sign whose
+                //  ToUnicode is empty still occupies its place, and the span's ActualText names it)
+                const ms = &it.marked.items[it.marked.items.len - 1];
+                const gx: f32 = @floatCast(trm[4] - it.page_left);
+                ms.x0 = @min(ms.x0, gx);
+                ms.x1 = @max(ms.x1, gx + @as(f32, @floatCast(adv)));
+                if (ms.tpl == null) ms.tpl = .{
+                    .x = gx,
+                    .y = @floatCast(it.page_top - trm[5]),
+                    .w = @floatCast(adv),
+                    .size = @floatCast(size),
+                    .bold = f.bold or it.gs.tr == 2,
+                    .mono = f.mono,
+                    .italic = f.italic,
+                    .t0 = 0,
+                    .tn = 0,
+                };
+            }
             if (upright and t.len > 0 and size > 0.5) {
                 const t0: u32 = @intCast(it.text.items.len);
                 try it.text.appendSlice(it.a, t);
@@ -1330,15 +1359,15 @@ const Interp = struct {
             if (eq(op, "EMC")) {
                 if (it.marked.pop()) |m| if (m.actual) |act| {
                     const gl = it.glyphs.items;
-                    if (gl.len > m.start) {
+                    if (gl.len > m.start or m.tpl != null) {
                         // the span's glyphs become ONE glyph over their width, reading as the ActualText
-                        var x0: f32 = gl[m.start].x;
-                        var x1: f32 = gl[m.start].x + gl[m.start].w;
+                        var x0: f32 = m.x0;
+                        var x1: f32 = m.x1;
                         for (gl[m.start..]) |g| {
                             x0 = @min(x0, g.x);
                             x1 = @max(x1, g.x + g.w);
                         }
-                        var first = gl[m.start];
+                        var first = if (gl.len > m.start) gl[m.start] else m.tpl.?;
                         first.x = x0;
                         first.w = x1 - x0;
                         first.t0 = @intCast(it.text.items.len);
@@ -1547,6 +1576,18 @@ fn isDigitCp(cp: u21) bool {
 }
 // A combining mark drawn over or under a letter (Arabic harakat and hamza, Hebrew points, Latin accents)
 fn isMarkCp(cp: u21) bool {
+    // Indic combining signs (Devanagari to Malayalam, one 128-codepoint block each): candrabindu, anusvara and
+    // visarga, nukta, the vowel signs and virama, the stress and length marks -- not the pre-base vowel signs a
+    // font draws BEFORE their consonant (i, and e/ai outside Devanagari), which would attach to the wrong letter
+    if (cp >= 0x0900 and cp <= 0x0D7F) {
+        const off = (cp - 0x0900) % 0x80;
+        const block = (cp - 0x0900) / 0x80;
+        if (off == 0x3F) return false;
+        if (block > 0 and off >= 0x46 and off <= 0x48) return false;
+        return off <= 0x03 or (off >= 0x3A and off <= 0x4F and off != 0x3D) or (off >= 0x51 and off <= 0x57) or off == 0x62 or off == 0x63;
+    }
+    // Thai vowel and tone marks set above or below the consonant
+    if (cp == 0x0E31 or (cp >= 0x0E34 and cp <= 0x0E3A) or (cp >= 0x0E47 and cp <= 0x0E4E)) return true;
     return (cp >= 0x0300 and cp <= 0x036F) or (cp >= 0x0591 and cp <= 0x05BD) or cp == 0x05BF or cp == 0x05C1 or cp == 0x05C2 or
         cp == 0x05C4 or cp == 0x05C5 or cp == 0x05C7 or (cp >= 0x0610 and cp <= 0x061A) or (cp >= 0x064B and cp <= 0x065F) or
         cp == 0x0670 or (cp >= 0x06D6 and cp <= 0x06DC) or (cp >= 0x06DF and cp <= 0x06E4) or cp == 0x06E7 or cp == 0x06E8 or
@@ -2819,6 +2860,12 @@ fn makeFrag(a: Allocator, gl: []Glyph, ids_in: []u32, text: []const u8, page_no:
                 try buf.appendSlice(a, m);
             } else if (!(isBlankGlyph(t) and buf.items.len > 0 and buf.items[buf.items.len - 1] == ' ')) try buf.appendSlice(a, t);
             prev = g;
+            continue;
+        }
+        const g_mark = isMarkCp(firstCp(t));
+        if (prev != null and g_mark) {
+            // (a mark joins its letter: no space before it, and the next gap is measured from the letter)
+            try buf.appendSlice(a, t);
             continue;
         }
         if (prev) |pv| {
