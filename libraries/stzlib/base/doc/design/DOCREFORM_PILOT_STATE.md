@@ -549,3 +549,8 @@ Next by size: one class at 3 (stzStringText), then eleven at 2.
 OnlyScript, OnlyArabic and OnlyLatin: the anonymous function could not see its parameter (a Ring lambda is a global function) and ConcatenateQ no longer exists; now an index loop and a join through a private _ScriptPart. OnlyScript is strict (common characters dropped); OnlyLatin and OnlyArabic keep common characters and collapse whitespace (the old intent); combining marks follow the character before them. The register holds 66 defects in 47 classes: 19 classes with 2 rows, 28 with 1. Guard 85 assertions.
 Next by size: the classes at 2 (stzAppServer first), then those at 1.
 
+## 2026-10-24: the stzAppServer fix batch is ON MAIN; register 66 -> 64
+
+Use and Static stored their lists and nothing read them. Middleware now runs before routing (registration order, segment boundaries, a continue convention defined); Static serves a folder with a whitelist from the engine directory listing (78 hostile paths, the secret never leaks). OPEN SECURITY GAP, ENGINE-SIDE: a Windows junction (or hard link) inside the served folder is followed, the engine lists it as an ordinary folder; serve only folders nobody else can write to until the engine can resolve or classify links. Guard 222 assertions. Also left: _Dispatch's outer catch leaks the raw error text of a failing route handler.
+Next by size: 18 classes at 2 (stzDate first), then 28 at 1.
+
