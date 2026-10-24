@@ -1,0 +1,167 @@
+{
+  "id": "a24",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Schedule of Retail Electricity Rates",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Schedule of Retail Electricity Rates"
+    },
+    {
+      "level": 2,
+      "text": "Rate table"
+    },
+    {
+      "level": 2,
+      "text": "Other charges"
+    },
+    {
+      "level": 2,
+      "text": "How to read your bill"
+    },
+    {
+      "level": 2,
+      "text": "Notes"
+    }
+  ],
+  "key_sentences": [
+    "The rates below apply to all members served from the cooperative's distribution system.",
+    "They were approved after a cost-of-service study that showed revenue from residential members falling short of the cost of serving them.",
+    "The basic charge covers the cost of the meter, billing and the line that connects your premises, whatever the amount of energy you use.",
+    "The energy charge is multiplied by the kilowatt-hours recorded during the billing period."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Rate class",
+          "Code",
+          "Basic charge ($/month)",
+          "Energy charge (¢/kWh)",
+          "Energy charge (¢/kWh)",
+          "Demand charge ($/kW)"
+        ],
+        [
+          "Rate class",
+          "Code",
+          "Basic charge ($/month)",
+          "Summer (Jun–Sep)",
+          "Winter (Oct–May)",
+          "Demand charge ($/kW)"
+        ],
+        [
+          "Residential",
+          "R-1",
+          "24.00",
+          "11.42",
+          "10.18",
+          "–"
+        ],
+        [
+          "Residential time-of-use, on-peak hours",
+          "R-TOU",
+          "26.50",
+          "19.85",
+          "16.40",
+          "–"
+        ],
+        [
+          "Residential time-of-use, off-peak hours",
+          "R-TOU",
+          "26.50",
+          "7.96",
+          "7.12",
+          "–"
+        ],
+        [
+          "Small commercial (up to 50 kW)",
+          "C-1",
+          "38.00",
+          "12.05",
+          "10.77",
+          "–"
+        ],
+        [
+          "Large power (over 50 kW)",
+          "LP-2",
+          "145.00",
+          "7.31",
+          "6.88",
+          "14.25"
+        ],
+        [
+          "Irrigation pumping",
+          "IR-1",
+          "30.00",
+          "9.64",
+          "9.64",
+          "6.10"
+        ],
+        [
+          "Outdoor lighting, per fixture",
+          "OL",
+          "11.75",
+          "–",
+          "–",
+          "–"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Power cost adjustment",
+          "up to ±0.25 ¢/kWh, reviewed each quarter"
+        ],
+        [
+          "Late payment charge",
+          "1.5% of the overdue balance"
+        ],
+        [
+          "Reconnection during business hours",
+          "$65.00"
+        ],
+        [
+          "Reconnection after hours",
+          "$180.00"
+        ],
+        [
+          "Returned payment",
+          "$25.00"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. On-peak hours for rate R-TOU are 2 p.m. to 8 p.m. on weekdays, excluding public holidays."
+    },
+    {
+      "level": 0,
+      "text": "2. The summer energy charge applies to meter readings taken from 1 June to 30 September."
+    },
+    {
+      "level": 0,
+      "text": "3. Members whose demand exceeds 50 kW in three consecutive months are moved to rate LP-2."
+    },
+    {
+      "level": 0,
+      "text": "4. A copy of the full tariff, including terms of service, is available at the member services office."
+    }
+  ],
+  "furniture": [
+    "Brindle Valley Electric Cooperative",
+    "410 Depot Road, Brindle Falls",
+    "Member services (555) 014-2290",
+    "Approved by the Board of Directors on 18 November 2026 · Tariff sheet No. 3, Revision 12"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "One page, @page margin 2 cm. Cooperative name and address block at top and the approval line at the bottom are furniture. The bold \"Effective for bills ...\" line under the title is body text, not a heading. Rate table is wide with a two-level header (Rate class, Code, Basic charge and Demand charge span two header rows; \"Energy charge (¢/kWh)\" spans two columns). The R-TOU code and its basic charge 26.50 each span the two time-of-use rows and are repeated in both. \"–\" means not applicable. Notes are a TYPED numbered list. Other charges is a key/value table without header row."
+}

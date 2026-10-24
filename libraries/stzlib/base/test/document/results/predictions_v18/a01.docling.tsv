@@ -1,0 +1,31 @@
+heading	1	KESTREL BAY FREIGHT FORWARDING LTD
+paragraph	0	Unit 14, Quayside Trade Park, Port Ellery PE3 9QT
+paragraph	0	VAT reg. GB 418 2207 63 · Tel. 01632 960 418 · accounts@kestrelbay.example
+heading	1	Tax Invoice
+paragraph	0	BILL TO
+paragraph	0	Harwell & Pike Engineering Ltd Attn: Accounts Payable Bradgate Works, Mill Lane Leicester LE4 0ZZ
+paragraph	0	INVOICE DETAILS
+paragraph	0	Invoice no.
+paragraph	0	KBF-27-04418
+paragraph	0	Invoice date
+paragraph	0	14 March 2027
+paragraph	0	Due date
+paragraph	0	13 April 2027
+paragraph	0	Customer account C-20915
+paragraph	0	Shipment ref.
+paragraph	0	SEA/EXP/27/1182
+heading	1	Charges
+paragraph	0	Two 40-foot high-cube containers of machine parts sailed from Felixstowe on 9 March 2027 aboard the vessel Meridian Crest. The charges below cover the door-to-port leg and the ocean voyage to Jebel Ali.
+table	0	No.DescriptionQtyUnitUnit priceVATAmount (GBP)1Ocean freight FCL 40' HC Felixstowe to Jebel Ali2cntr1,450.000%2,900.002Terminal handling charge, origin2cntr185.000%370.003Road haulage Leicester to Felixstowe2trip420.000%840.004Export customs declaration1entry65.0020%65.005Cargo insurance, 0.35% of declared value1policy147.00Exempt147.006Documentation and bill of lading fee1set35.0020%35.00Subtotal4,357.00VAT at20% on 100.0020.00
+paragraph	0	Total due (GBP)
+paragraph	0	4,377.00
+heading	1	Payment details
+paragraph	0	Payment is due within 30 days of the invoice date. Please quote the invoice number on every remittance so that we can allocate it promptly. Zero-rated items relate to the international carriage of goods and the services directly linked to it.
+paragraph	0	Bank Northmoor Bank plc, Port Ellery Sort code
+paragraph	0	40-11-62
+paragraph	0	Account name Kestrel Bay Freight Forwarding Ltd Account number 30918274
+paragraph	0	IBAN
+paragraph	0	GB29 NMBK 4011 6230 9182 74 BIC
+paragraph	0	NMBKGB2L
+paragraph	0	Late payments may attract interest at 4% above the base rate.
+page_footer	0	Kestrel Bay Freight Forwarding Ltd · Registered in England and Wales No. 08814620 · Registered office as above All business is transacted under our Standard Trading Conditions, available on request.

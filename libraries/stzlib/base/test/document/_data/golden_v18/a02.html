@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Compte rendu d'hospitalisation</title>
+<style>
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+table { border-collapse: collapse; }
+@page { size: A4; margin: 0; }
+.page { width: 210mm; height: 296.6mm; position: relative; overflow: hidden; break-after: page; page-break-after: always; }
+.page:last-child { break-after: auto; page-break-after: auto; }
+.body { position: absolute; overflow: hidden; }
+
+body { font-family: Garamond; font-size: 11.5pt; color: #222; }
+.lh { position: absolute; top: 12mm; left: 20mm; right: 20mm; border-bottom: 1.5pt solid #7a1f3d; padding-bottom: 2.5mm; }
+.lh .org { font-weight: 700; font-size: 14.5pt; color: #7a1f3d; }
+.lh .l { font-size: 9.5pt; line-height: 1.35; }
+.rh { position: absolute; top: 10mm; left: 20mm; right: 20mm; font-size: 9pt; color: #666; border-bottom: 0.5pt solid #aaa; padding-bottom: 1.5mm; font-style: italic; }
+.p1 .body { top: 44mm; left: 20mm; right: 20mm; bottom: 22mm; }
+.p2 .body { top: 22mm; left: 20mm; right: 20mm; bottom: 22mm; }
+.ftr { position: absolute; left: 20mm; right: 20mm; bottom: 10mm; font-size: 9pt; color: #555; display: flex; justify-content: space-between; border-top: 0.5pt solid #aaa; padding-top: 1.5mm; }
+h1 { font-size: 19pt; text-align: center; margin: 0 0 4mm 0; font-weight: 700; color: #7a1f3d; }
+h2 { font-size: 12.5pt; margin: 4.5mm 0 1.5mm 0; color: #7a1f3d; font-weight: 700; }
+h3 { font-size: 11.5pt; margin: 3mm 0 1mm 0; font-style: italic; font-weight: 400; text-decoration: underline; }
+p { margin: 0 0 1.8mm 0; line-height: 1.3; text-align: justify; }
+table.id { width: 100%; border: 0.6pt solid #7a1f3d; margin-bottom: 2mm; }
+table.id td { padding: 1mm 2.5mm; font-size: 10.5pt; }
+table.id td:nth-child(odd) { font-weight: 700; width: 18%; }
+table.lab { width: 100%; font-size: 10.3pt; margin: 1mm 0 2mm 0; }
+table.lab th, table.lab td { border: 0.5pt solid #888; padding: 0.8mm 2mm; text-align: center; }
+table.lab th { background: #f2e4ea; }
+table.lab td:first-child { text-align: left; }
+table.med { width: 100%; font-size: 10.3pt; margin: 1mm 0 2mm 0; }
+table.med th { background: #7a1f3d; color: #fff; padding: 1.2mm 2mm; text-align: left; }
+table.med td { padding: 1.2mm 2mm; vertical-align: top; }
+table.med tbody tr:nth-child(even) td { background: #f5edf0; }
+table.med td.c, table.med th.c { text-align: center; }
+ul.atcd { margin: 0 0 2mm 0; padding-left: 6mm; line-height: 1.3; }
+ul.typed { list-style: none; padding-left: 0; margin: 0 0 2mm 0; line-height: 1.3; }
+ul.typed li { padding-left: 6mm; text-indent: -6mm; margin-bottom: 0.8mm; }
+.sig { margin-top: 6mm; margin-left: 95mm; line-height: 1.35; }
+
+</style>
+</head>
+<body>
+<div class="page p1">
+<div class="hdr"><div class="lh"><div class="org">Centre hospitalier intercommunal du Val-de-Brenne</div><div class="l">Service de cardiologie – Unité de soins intensifs cardiologiques<br>12, avenue des Tilleuls – 37190 Sainte-Aure-sur-Brenne<br>Secrétariat : 02 47 00 18 52 – cardiologie@chi-valdebrenne.example</div></div></div>
+<div class="body"><h1>Compte rendu d'hospitalisation</h1><table class="id"><tbody><tr><td>Patient</td><td>M. Gérard Vasseur</td><td>Né le</td><td>04/09/1958</td></tr><tr><td>Entrée</td><td>12/02/2027 (urgences)</td><td>Sortie</td><td>16/02/2027</td></tr><tr><td>Médecin traitant</td><td>Dr Anne Lemaire, Sainte-Aure</td><td>IPP</td><td>0048213</td></tr></tbody></table><h2>Motif d'hospitalisation</h2><p>Le patient a été admis pour une douleur thoracique constrictive apparue au repos, évoluant depuis deux heures. L'électrocardiogramme initial montrait un sus-décalage du segment ST dans le territoire inférieur.</p><h2>Antécédents</h2><ul class="atcd"><li>Hypertension artérielle traitée depuis 2015</li><li>Dyslipidémie non traitée</li><li>Tabagisme sevré en 2019 (30 paquets-années)</li><li>Pas d'allergie médicamenteuse connue</li></ul><h2>Histoire de la maladie et évolution</h2><p>Une coronarographie réalisée en urgence a mis en évidence une occlusion de l'artère coronaire droite moyenne. Une angioplastie avec pose d'un stent actif a permis une reperméabilisation complète, avec un flux TIMI 3 en fin de procédure. Les suites ont été simples, sans récidive douloureuse ni trouble du rythme sur la surveillance scopique.</p><p>Le patient a été mobilisé dès le deuxième jour et a pu déambuler dans le service sans dyspnée.</p><h2>Examens complémentaires</h2><h3>Biologie</h3><table class="lab"><thead><tr><th rowspan="2">Paramètre</th><th colspan="2">Résultats</th><th rowspan="2">Valeurs usuelles</th></tr><tr><th>Entrée 12/02</th><th>Sortie 15/02</th></tr></thead><tbody><tr><td>Troponine T hs (ng/L)</td><td>412</td><td>96</td><td>&lt; 14</td></tr><tr><td>NT-proBNP (pg/mL)</td><td>1 860</td><td>940</td><td>&lt; 300</td></tr><tr><td>Créatinine (µmol/L)</td><td>88</td><td>91</td><td>59 – 104</td></tr><tr><td>Potassium (mmol/L)</td><td>4,1</td><td>4,4</td><td>3,5 – 5,0</td></tr><tr><td>Hémoglobine (g/dL)</td><td>13,9</td><td>13,2</td><td>13,0 – 17,0</td></tr><tr><td>LDL-cholestérol (g/L)</td><td>1,62</td><td>—</td><td>&lt; 0,55 (objectif)</td></tr></tbody></table><h3>Imagerie</h3><p>L'échocardiographie transthoracique du 14 février retrouve une hypokinésie inférieure avec une fraction d'éjection estimée à 52 %. Il n'existe ni épanchement péricardique ni valvulopathie significative.</p></div>
+<div class="ftr"><span>Document confidentiel – secret médical</span><span>Page 1 sur 2</span></div>
+</div>
+<div class="page p2">
+<div class="hdr"><div class="rh">Compte rendu d'hospitalisation – M. Gérard Vasseur – IPP 0048213</div></div>
+<div class="body"><h2>Conclusion</h2><p>Il s'agit d'un infarctus du myocarde inférieur traité par angioplastie primaire, avec une fonction ventriculaire gauche conservée. Le patient regagne son domicile le 16 février 2027 dans de bonnes conditions.</p><h2>Traitement de sortie</h2><table class="med"><thead><tr><th>Médicament</th><th class="c">Matin</th><th class="c">Midi</th><th class="c">Soir</th><th>Remarques</th></tr></thead><tbody><tr><td>Acide acétylsalicylique 75 mg</td><td class="c">1</td><td class="c">–</td><td class="c">–</td><td>Au long cours</td></tr><tr><td>Ticagrélor 90 mg</td><td class="c">1</td><td class="c">–</td><td class="c">1</td><td>Pendant 12 mois,<br>jusqu'au 16/02/2028</td></tr><tr><td>Bisoprolol 2,5 mg</td><td class="c">1</td><td class="c">–</td><td class="c">–</td><td>Adapter selon la fréquence cardiaque</td></tr><tr><td>Ramipril 2,5 mg</td><td class="c">–</td><td class="c">–</td><td class="c">1</td><td>Contrôle de la kaliémie à J10</td></tr><tr><td>Atorvastatine 80 mg</td><td class="c">–</td><td class="c">–</td><td class="c">1</td><td>Bilan lipidique à 6 semaines</td></tr></tbody></table><h2>Recommandations</h2><ul class="typed"><li>1. Réadaptation cardiaque en centre spécialisé, à débuter dans les quatre semaines.</li><li>2. Consultation de cardiologie à six semaines avec épreuve d'effort.</li><li>3. Arrêt de travail jusqu'à la consultation de contrôle.</li><li>4. Reconsulter en urgence en cas de douleur thoracique de plus de quinze minutes (appeler le 15).</li></ul><p>Un courrier a été adressé au médecin traitant avec l'ensemble des résultats. Nous restons à votre disposition pour tout renseignement complémentaire.</p><div class="sig">Dr Claire Fontanel<br>Praticien hospitalier, cardiologie<br>Sainte-Aure, le 16/02/2027</div></div>
+<div class="ftr"><span>Document confidentiel – secret médical</span><span>Page 2 sur 2</span></div>
+</div>
+</body>
+</html>

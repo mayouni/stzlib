@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Software upgrade of broadband network gateways, Region East</title>
+<style>
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+table { border-collapse: collapse; }
+@page { size: A4; margin: 0; }
+.page { width: 210mm; height: 296.6mm; position: relative; overflow: hidden; break-after: page; page-break-after: always; }
+.page:last-child { break-after: auto; page-break-after: auto; }
+.body { position: absolute; overflow: hidden; }
+
+body { font-family: Calibri; font-size: 10.5pt; color: #202020; }
+.rh { position: absolute; top: 9mm; left: 20mm; right: 20mm; display: flex; justify-content: space-between; font-size: 8.5pt; color: #6b2fa0; border-bottom: 0.75pt solid #6b2fa0; padding-bottom: 1mm; }
+.body { top: 19mm; left: 20mm; right: 20mm; bottom: 19mm; }
+.ftr { position: absolute; left: 20mm; right: 20mm; bottom: 9mm; display: flex; justify-content: space-between; font-size: 8.5pt; color: #555; }
+h1 { font-family: Calibri; font-weight: 700; font-size: 18pt; margin: 3mm 0 1mm 0; color: #3c1a5b; }
+.meta { font-size: 9.5pt; color: #444; margin-bottom: 3mm; }
+h2 { font-size: 13pt; color: #6b2fa0; margin: 4mm 0 1.5mm 0; }
+h3 { font-size: 11pt; margin: 3mm 0 1mm 0; color: #3c1a5b; }
+p { margin: 0 0 1.8mm 0; line-height: 1.32; }
+pre.code { font-family: Consolas; font-size: 8.8pt; background: #f4f1f7; border-left: 2.5pt solid #6b2fa0; padding: 2mm 3mm; margin: 1mm 0 2.5mm 0; line-height: 1.35; white-space: pre; }
+table.t { width: 100%; font-size: 9.5pt; margin: 1mm 0 2.5mm 0; }
+table.t th { text-align: left; border-bottom: 1pt solid #3c1a5b; padding: 1mm 1.5mm; }
+table.t td { border-bottom: 0.4pt solid #ccc; padding: 1mm 1.5mm; }
+ul.typed { list-style: none; padding-left: 0; margin: 0 0 2mm 0; line-height: 1.32; }
+ul.typed li { padding-left: 6mm; text-indent: -6mm; }
+ol.steps { padding-left: 6mm; margin: 0 0 2mm 0; line-height: 1.32; }
+ol.steps li { margin-bottom: 0.8mm; }
+
+</style>
+</head>
+<body>
+<div class="page">
+<div class="hdr"><div class="rh"><span>Calderline Networks · Network Operations</span><span>Change Runbook CHG-27-0613</span></div></div>
+<div class="body"><h1>Software upgrade of broadband network gateways, Region East</h1><div class="meta">Change window: 17–18 June 2027 · Risk: medium · Owner: IP Core team</div><h2>1. Scope</h2><p>This runbook describes the upgrade of the three broadband network gateways in Region East to software release 24.3.2. Each gateway is upgraded in its own one-hour window while its subscribers are carried by the redundant peer.</p><table class="t"><thead><tr><th>Site</th><th>Location</th><th>Active sessions</th><th>Window (UTC)</th></tr></thead><tbody><tr><td>BNG-E01</td><td>Harlow exchange</td><td>18,420</td><td>00:30–01:30</td></tr><tr><td>BNG-E02</td><td>Chelmsford exchange</td><td>22,915</td><td>01:30–02:30</td></tr><tr><td>BNG-E03</td><td>Colchester exchange</td><td>15,077</td><td>02:30–03:30</td></tr></tbody></table><h2>2. Prerequisites</h2><ul class="typed"><li>a) The change has been approved by the Change Advisory Board.</li><li>b) The new image has been copied to every gateway and its checksum verified.</li><li>c) The redundant peer of each gateway reports a healthy state.</li><li>d) The customer notice was published at least five days in advance.</li></ul><h2>3. Procedure</h2><h3>3.1 Pre-checks</h3><p>Log in to the gateway from the operations jump host and record the current state before touching anything.</p><pre class="code">ssh noc-ops@bng-e03.mgmt.calderline.net
+show version | include Software
+show subscriber session summary
+show redundancy group 1 status
+copy running-config flash:/backup/pre-CHG-27-0613.cfg</pre><p>Do not continue if the redundancy group reports anything other than a ready state.</p><h3>3.2 Upgrade</h3><p>The upgrade job reads its parameters from the following file, which is stored with the change record.</p><pre class="code">upgrade:
+  target_release: "24.3.2"
+  image: flash:/images/bng-24.3.2.bin
+  checksum_sha256: 9f2c41e07ab35d8e
+  drain:
+    max_sessions_left: 50
+    timeout_minutes: 20
+  rollback_on_failure: true</pre></div>
+<div class="ftr"><span>Internal — do not distribute outside Network Operations</span><span>Page 1 / 2</span></div>
+</div>
+<div class="page">
+<div class="hdr"><div class="rh"><span>Calderline Networks · Network Operations</span><span>Change Runbook CHG-27-0613</span></div></div>
+<div class="body"><ol class="steps"><li>Drain the gateway so that new sessions are steered to its peer.</li><li>Wait until fewer than 50 sessions remain, or 20 minutes have passed.</li><li>Install the new image and reload the gateway.</li><li>Confirm that the gateway rejoins the redundancy group.</li><li>Move sessions back by removing the drain.</li></ol><h3>3.3 Post-checks</h3><p>Compare the session count with the value recorded in the pre-checks; a difference of more than five per cent must be investigated. Check that RADIUS accounting records are arriving for new sessions.</p><h2>4. Rollback</h2><p>If the gateway fails to rejoin its redundancy group within 15 minutes of the reload, boot it from the previous image. Rollback must be completed before the end of the window so that the next site can start on time.</p><h2>5. Contacts</h2><table class="t"><thead><tr><th>Role</th><th>Name</th><th>Phone</th></tr></thead><tbody><tr><td>Change manager</td><td>Priya Nandakumar</td><td>+44 20 7946 0213</td></tr><tr><td>IP Core engineer on call</td><td>Tomasz Wielgosz</td><td>+44 20 7946 0388</td></tr><tr><td>Vendor support</td><td>Gateway TAC, contract 55-0917</td><td>+44 20 7946 0911</td></tr></tbody></table><p>Escalate to the duty manager if neither engineer can be reached within ten minutes.</p></div>
+<div class="ftr"><span>Internal — do not distribute outside Network Operations</span><span>Page 2 / 2</span></div>
+</div>
+</body>
+</html>

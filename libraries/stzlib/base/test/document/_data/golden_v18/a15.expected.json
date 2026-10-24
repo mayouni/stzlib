@@ -1,0 +1,111 @@
+{
+  "id": "a15",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "הודעה על מועד דיון והחלטת ביניים",
+  "headings": [
+    {
+      "level": 1,
+      "text": "הודעה על מועד דיון והחלטת ביניים"
+    },
+    {
+      "level": 2,
+      "text": "החלטה"
+    },
+    {
+      "level": 2,
+      "text": "יומן הדיונים ליום 4 באפריל 2027"
+    },
+    {
+      "level": 2,
+      "text": "הוראות לצדדים"
+    }
+  ],
+  "key_sentences": [
+    "הוועדה דנה בבקשת העוררת לדחיית מועד הדיון שנקבע ליום 14 במרץ 2027.",
+    "העוררת טוענת כי מנהלה נדרש להליך רפואי באותו מועד, והמשיב הודיע כי אינו מתנגד לבקשה.",
+    "צד שלא יתייצב לדיון במועד שנקבע, רשאית הוועדה לדון בערר בהיעדרו.",
+    "ניתנה היום, 2 במרץ 2027, בהיעדר הצדדים."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "שעה",
+          "מס' תיק",
+          "העורר",
+          "נושא הערר"
+        ],
+        [
+          "09:00",
+          "097/2027",
+          "דליה ורון",
+          "סיווג נכס למגורים"
+        ],
+        [
+          "09:45",
+          "103/2027",
+          "חניון המרכז בע\"מ",
+          "שטח החיוב"
+        ],
+        [
+          "10:30",
+          "118/2027",
+          "מאפיית השחר בע\"מ",
+          "סיווג הנכס ושטח החיוב"
+        ],
+        [
+          "11:30",
+          "121/2027",
+          "עמותת גשר לקהילה",
+          "פטור לנכס ריק"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "א. הבקשה לדחיית מועד הדיון מתקבלת."
+    },
+    {
+      "level": 0,
+      "text": "ב. הדיון יתקיים ביום 4 באפריל 2027 בשעה 10:30, באולם הוועדה בקומה השנייה של בניין העירייה."
+    },
+    {
+      "level": 0,
+      "text": "ג. העוררת תגיש תצהיר עדות ראשית מטעמה עד ליום 21 במרץ 2027."
+    },
+    {
+      "level": 0,
+      "text": "ד. המשיב יגיש תצהירי תשובה עד ליום 28 במרץ 2027."
+    },
+    {
+      "level": 0,
+      "text": "יש להגיע לבניין העירייה עשר דקות לפני מועד הדיון."
+    },
+    {
+      "level": 0,
+      "text": "כל מסמך שיוגש לוועדה יוגש בשלושה עותקים."
+    },
+    {
+      "level": 0,
+      "text": "בקשה נוספת לדחיית מועד תוגש בכתב ולא יאוחר משבעה ימים לפני הדיון."
+    }
+  ],
+  "furniture": [
+    "עיריית נווה ארזים",
+    "ועדת הערר לענייני ארנונה כללית",
+    "רחוב הדקל 12, נווה ארזים",
+    "ערר מס' 118/2027",
+    "טלפון המזכירות: 08-9100412",
+    "מזכירות הוועדה: ימים א'–ה', 08:30–13:00",
+    "עמוד 1 מתוך 1"
+  ],
+  "languages": [
+    "he"
+  ],
+  "code": [],
+  "notes": "One page, Hebrew, right-to-left; all text in logical order and table rows list cells rightmost column first. Letterhead: municipality and committee block on the right, file number and phone on the left (Arial); all furniture. Footer has two parts (office hours, page number \"עמוד 1 מתוך 1\"). The panel line (\"בפני: ...\") and the parties block (three lines, including the word \"נגד\") are body text, not headings. Abbreviations use the ASCII double quote as gershayim (עו\"ד, בע\"מ). The decision items are a TYPED list (Hebrew letters א. ב. ג. ד. in the text); \"הוראות לצדדים\" is a CSS-drawn bullet list. The hearing table highlights one row (bold, grey) but it is an ordinary data row. Body Times New Roman, table and letterhead left block Arial."
+}

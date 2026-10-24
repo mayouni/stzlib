@@ -1,0 +1,182 @@
+{
+  "id": "a07",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "Contrato de arrendamiento de vivienda",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Contrato de arrendamiento de vivienda"
+    },
+    {
+      "level": 2,
+      "text": "REUNIDOS"
+    },
+    {
+      "level": 2,
+      "text": "EXPONEN"
+    },
+    {
+      "level": 2,
+      "text": "CLÁUSULAS"
+    },
+    {
+      "level": 3,
+      "text": "Primera. Objeto."
+    },
+    {
+      "level": 3,
+      "text": "Segunda. Duración."
+    },
+    {
+      "level": 3,
+      "text": "Tercera. Renta."
+    },
+    {
+      "level": 3,
+      "text": "Cuarta. Actualización de la renta."
+    },
+    {
+      "level": 3,
+      "text": "Quinta. Fianza y garantías."
+    },
+    {
+      "level": 3,
+      "text": "Sexta. Gastos y suministros."
+    },
+    {
+      "level": 3,
+      "text": "Séptima. Conservación y obras."
+    },
+    {
+      "level": 3,
+      "text": "Octava. Cesión y subarriendo."
+    },
+    {
+      "level": 3,
+      "text": "Novena. Desistimiento."
+    },
+    {
+      "level": 3,
+      "text": "Décima. Notificaciones."
+    },
+    {
+      "level": 3,
+      "text": "Undécima. Legislación aplicable."
+    },
+    {
+      "level": 2,
+      "text": "ANEXO I"
+    },
+    {
+      "level": 3,
+      "text": "Inventario del mobiliario"
+    }
+  ],
+  "key_sentences": [
+    "Ambas partes se reconocen la capacidad legal necesaria para otorgar el presente contrato.",
+    "EL ARRENDADOR cede en arrendamiento a LA ARRENDATARIA la vivienda descrita en el expositivo I, junto con la plaza de garaje n.º 14 y el trastero n.º 6 situados en el sótano del edificio.",
+    "El contrato tendrá una duración de un año a contar desde el 1 de septiembre de 2027.",
+    "La renta anual se fija en diez mil doscientos euros (10.200 €), pagadera en doce mensualidades de ochocientos cincuenta euros (850 €).",
+    "El pago se realizará dentro de los siete primeros días de cada mes mediante transferencia a la cuenta bancaria designada por EL ARRENDADOR.",
+    "Además, entrega 1.700 € como garantía adicional, que le será devuelta al término del arrendamiento una vez comprobado el estado de la vivienda.",
+    "El impuesto sobre bienes inmuebles y los gastos generales de la comunidad de propietarios serán de cuenta de EL ARRENDADOR.",
+    "Transcurridos al menos seis meses, LA ARRENDATARIA podrá desistir del contrato comunicándolo con una antelación mínima de treinta días.",
+    "El presente contrato se rige por lo dispuesto en la Ley 29/1994, de 24 de noviembre, de Arrendamientos Urbanos, y, supletoriamente, por el Código Civil.",
+    "Y en prueba de conformidad, firman el presente contrato por duplicado y a un solo efecto en el lugar y fecha indicados en el encabezamiento."
+  ],
+  "tables": [
+    {
+      "caption": "Cantidades entregadas a la firma del contrato",
+      "rows": [
+        [
+          "Concepto",
+          "Importe"
+        ],
+        [
+          "Primera mensualidad (septiembre de 2027)",
+          "850,00 €"
+        ],
+        [
+          "Fianza legal (una mensualidad)",
+          "850,00 €"
+        ],
+        [
+          "Garantía adicional (dos mensualidades)",
+          "1.700,00 €"
+        ],
+        [
+          "Total entregado a la firma",
+          "3.400,00 €"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Estancia",
+          "Elementos",
+          "Estado"
+        ],
+        [
+          "Salón",
+          "Sofá de tres plazas, mesa de centro y mueble de televisión",
+          "Bueno"
+        ],
+        [
+          "Cocina",
+          "Frigorífico, horno, placa de inducción y lavadora",
+          "Nuevo"
+        ],
+        [
+          "Dormitorio principal",
+          "Cama de 150 cm, dos mesitas de noche y armario empotrado",
+          "Bueno"
+        ],
+        [
+          "Dormitorio 2",
+          "Cama de 90 cm, escritorio y silla",
+          "Usado, en buen estado"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "I. Que EL ARRENDADOR es propietario de la vivienda situada en la calle del Almendro 22, piso 3.º, puerta B, de Valencia, con una superficie útil de 78 metros cuadrados."
+    },
+    {
+      "level": 0,
+      "text": "II. Que la vivienda dispone de cédula de habitabilidad en vigor y de certificado de eficiencia energética con calificación D."
+    },
+    {
+      "level": 0,
+      "text": "III. Que LA ARRENDATARIA está interesada en arrendar la vivienda para destinarla a su residencia habitual y permanente."
+    },
+    {
+      "level": 0,
+      "text": "a) las pequeñas reparaciones derivadas del uso ordinario de la vivienda;"
+    },
+    {
+      "level": 0,
+      "text": "b) la sustitución de bombillas, grifos y bombines de cerradura;"
+    },
+    {
+      "level": 0,
+      "text": "c) el mantenimiento anual de la caldera de gas por empresa autorizada."
+    }
+  ],
+  "furniture": [
+    "Página 1 de 3",
+    "Contrato de arrendamiento · Calle del Almendro 22, 3.º B · Valencia",
+    "Página 2 de 3",
+    "Página 3 de 3"
+  ],
+  "languages": [
+    "es"
+  ],
+  "code": [],
+  "notes": "Three pages. Page 1 has no running header; pages 2 and 3 carry the running header (letter-spaced, listed once). \"Página N de 3\" per page. Headings REUNIDOS, EXPONEN, CLÁUSULAS and ANEXO I are letter-spaced level-2 headings (given as plain words); clause headings (\"Primera. Objeto.\") are level 3. The place-and-date line, party paragraphs and the run-in sentence ending \"con arreglo a las siguientes\" (no final punctuation; it runs into the CLÁUSULAS heading) are body text. EXPONEN items (I., II., III.) and the a) b) c) items are TYPED lists. The amounts table has a caption and a total row. The two signature boxes (EL ARRENDADOR, LA ARRENDATARIA) sit side by side and read box by box, left first; each box holds its label and a \"Fdo.:\" line. Inventory table cells in \"Elementos\" are mostly two lines (joined with a space)."
+}

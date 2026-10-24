@@ -1,0 +1,144 @@
+{
+  "id": "a16",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Straw and plastic mulch effects on soil moisture retention in rain-fed sorghum: a two-season field trial",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Straw and plastic mulch effects on soil moisture retention in rain-fed sorghum: a two-season field trial"
+    },
+    {
+      "level": 2,
+      "text": "Abstract"
+    },
+    {
+      "level": 2,
+      "text": "1. Introduction"
+    },
+    {
+      "level": 2,
+      "text": "2. Materials and methods"
+    },
+    {
+      "level": 3,
+      "text": "2.1 Study site"
+    },
+    {
+      "level": 3,
+      "text": "2.2 Experimental design"
+    },
+    {
+      "level": 2,
+      "text": "3. Results"
+    },
+    {
+      "level": 2,
+      "text": "4. Discussion"
+    },
+    {
+      "level": 2,
+      "text": "5. Conclusions"
+    },
+    {
+      "level": 2,
+      "text": "Acknowledgements"
+    },
+    {
+      "level": 2,
+      "text": "References"
+    }
+  ],
+  "key_sentences": [
+    "Soil water shortage during grain filling is the main constraint on sorghum yield in semi-arid smallholder systems.",
+    "We compared bare soil with straw mulch and black polyethylene film over two rainy seasons on a sandy loam.",
+    "Both mulches raised volumetric water content in the top 30 cm by 4.6 to 6.3 percentage points and increased grain yield by 36 to 57 per cent.",
+    "Rain-fed sorghum is grown on more than two million hectares of semi-arid land in the region, mostly by farmers with less than two hectares.",
+    "Three treatments were laid out in a randomised complete block design with four replicates.",
+    "Seasonal rainfall was 584 mm in 2025 and 471 mm in 2026, and the second season included a dry spell of 23 days at flowering.",
+    "Across both seasons, mulched plots held between 4.6 and 6.3 percentage points more water in the top 30 cm than bare plots.",
+    "Relative to the control, straw mulch increased yield by 36% in 2025 and by 51% in the drier 2026 season.",
+    "The larger relative gain in the drier season suggests that mulching is most valuable precisely when water is scarcest.",
+    "Straw mulch at 5 t ha⁻¹ is a low-cost way to conserve soil water and raise sorghum yields on sandy soils in semi-arid conditions."
+  ],
+  "tables": [
+    {
+      "caption": "Table 1. Mean volumetric soil water content during grain filling and grain yield by treatment and season (mean ± standard deviation, n = 4).",
+      "rows": [
+        [
+          "Treatment",
+          "Soil water content, 0–30 cm (%)",
+          "Soil water content, 0–30 cm (%)",
+          "Grain yield (t ha⁻¹)",
+          "Grain yield (t ha⁻¹)"
+        ],
+        [
+          "Treatment",
+          "2025",
+          "2026",
+          "2025",
+          "2026"
+        ],
+        [
+          "Bare soil (control)",
+          "14.2 ± 1.1",
+          "12.8 ± 1.3",
+          "1.62",
+          "1.35"
+        ],
+        [
+          "Straw mulch, 5 t ha⁻¹",
+          "18.9 ± 0.9",
+          "17.4 ± 1.0",
+          "2.21",
+          "2.04"
+        ],
+        [
+          "Black polyethylene film",
+          "20.3 ± 1.2",
+          "19.1 ± 1.4",
+          "2.36",
+          "2.12"
+        ],
+        [
+          "LSD (p = 0.05)",
+          "1.6",
+          "1.8",
+          "0.19",
+          "0.22"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "[1] Kombo, S. and Weru, P. (2019). Dry spells and sorghum yield in semi-arid smallholder farms. Journal of Dryland Cropping 8, 45–58."
+    },
+    {
+      "level": 0,
+      "text": "[2] Lindqvist, M., Abdi, H. and Oduya, F. (2021). Evaporation from bare and mulched sandy soils. Soil Physics Letters 33, 112–120."
+    },
+    {
+      "level": 0,
+      "text": "[3] Tarimo, E. (2022). Crop residues as feed and mulch: trade-offs on mixed farms. Agricultural Systems Review 17, 201–214."
+    },
+    {
+      "level": 0,
+      "text": "[4] Varga, I. and Chanda, M. (2024). Polyethylene film residues in field soils after short-term use. Environmental Soil Science 12, 77–86."
+    }
+  ],
+  "furniture": [
+    "211",
+    "Proceedings in Semi-Arid Agronomy 14 (2027) 211–212",
+    "Short communication",
+    "A. T. Mwakilema et al.",
+    "Mulch and soil moisture in rain-fed sorghum",
+    "212"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Two pages in journal layout. Running headers differ per page (page 1: journal citation left, \"Short communication\" right; page 2: authors left, short title right); page numbers are the journal page numbers 211 and 212, centred at the bottom. Author line, affiliations (with superscript digits ¹ ²) and the received/accepted line are body text, not headings. Abstract is full width with its own level-2 heading; keywords line is body text. The body is set in TWO COLUMNS: reading order is the whole left column, then the whole right column, on each page; paragraphs may be split between columns. Table 1 spans the full width at the top of page 2, before the two-column text; its caption is the long \"Table 1. ...\" line; it has a two-level header (\"Treatment\" spans two rows; the two measurement groups each span two columns). The last row (LSD) is italic data, not a header. Page 2 columns are balanced (the text ends part-way down both columns). Words with a real hyphen (semi-arid, open-pollinated) may break after the hyphen at a line end; that hyphen belongs to the word and is kept. References are a TYPED list with markers [1]–[4]. \"t ha⁻¹\" uses superscript minus and one (U+207B, U+00B9)."
+}

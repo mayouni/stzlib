@@ -1,0 +1,43 @@
+page_header	0	Calderline Networks · Network Operations
+page_header	0	Change Runbook CHG-27-0613
+heading	1	Software upgrade of broadband network gateways, Region East
+paragraph	0	Change window: 17–18 June 2027 · Risk: medium · Owner: IP Core team
+heading	2	1. Scope
+paragraph	0	This runbook describes the upgrade of the three broadband network gateways in Region East to software release 24.3.2. Each gateway is upgraded in its own one-hour window while its subscribers are carried by the redundant peer.
+table	0	SiteLocationActive sessionsWindow (UTC)BNG-E01Harlow exchange18,42000:30–01:30BNG-E02Chelmsford exchange22,91501:30–02:30BNG-E03Colchester exchange15,07702:30–03:30
+heading	2	2. Prerequisites
+list_item	0	a) The change has been approved by the Change Advisory Board.
+list_item	0	b) The new image has been copied to every gateway and its checksum verified.
+list_item	0	c) The redundant peer of each gateway reports a healthy state.
+list_item	0	d) The customer notice was published at least five days in advance.
+heading	2	3. Procedure
+heading	3	3.1 Pre-checks
+paragraph	0	Log in to the gateway from the operations jump host and record the current state before touching anything.
+code	0	ssh noc-ops@bng-e03.mgmt.calderline.net\nshow version | include Software\nshow subscriber session summary\nshow redundancy group 1 status\ncopy running-config flash:/backup/pre-CHG-27-0613.cfg
+paragraph	0	Do not continue if the redundancy group reports anything other than a ready state.
+heading	3	3.2 Upgrade
+paragraph	0	The upgrade job reads its parameters from the following file, which is stored with the change record.
+code	0	upgrade:\n  target_release: "24.3.2"\n  image: flash:/images/bng-24.3.2.bin\n  checksum_sha256: 9f2c41e07ab35d8e\n  drain:\n    max_sessions_left: 50\n    timeout_minutes: 20\n  rollback_on_failure: true
+page_footer	0	Internal — do not distribute outside Network Operations
+page_footer	0	Page 1 / 2
+page_header	0	Calderline Networks · Network Operations
+page_header	0	Change Runbook CHG-27-0613
+list_item	0	1. Drain the gateway so that new sessions are steered to its peer.
+list_item	0	2. Wait until fewer than 50 sessions remain, or 20 minutes have passed.
+list_item	0	3. Install the new image and reload the gateway.
+list_item	0	4. Confirm that the gateway rejoins the redundancy group.
+list_item	0	5. Move sessions back by removing the drain.
+heading	3	3.3 Post-checks
+paragraph	0	Compare the session count with the value recorded in the pre-checks; a difference of more than five per cent must be investigated. Check that RADIUS accounting records are arriving for new sessions.
+heading	2	4. Rollback
+paragraph	0	If the gateway fails to rejoin its redundancy group within 15 minutes of the reload, boot it from the previous image. Rollback must be completed before the end of the window so that the next site can start on time.
+heading	2	5. Contacts
+paragraph	0	Role
+paragraph	0	Change manager IP Core engineer on call Vendor support
+paragraph	0	Name
+paragraph	0	Priya Nandakumar Tomasz Wielgosz Gateway TAC, contract 55-0917
+paragraph	0	Phone
+paragraph	0	+44 20 7946 0213 +44 20 7946 0388 +44 20 7946 0911
+paragraph	0	Escalate to the duty manager if neither engineer can be reached within ten minutes.
+page_footer	0	Internal — do not distribute outside Network Operations
+page_footer	0	Page 2 / 2

@@ -1,0 +1,120 @@
+{
+  "id": "a20",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "BIÊN BẢN HỌP BAN QUẢN TRỊ",
+  "headings": [
+    {
+      "level": 1,
+      "text": "BIÊN BẢN HỌP BAN QUẢN TRỊ"
+    },
+    {
+      "level": 2,
+      "text": "I. THỜI GIAN, ĐỊA ĐIỂM, THÀNH PHẦN"
+    },
+    {
+      "level": 2,
+      "text": "II. NỘI DUNG CUỘC HỌP"
+    },
+    {
+      "level": 3,
+      "text": "1. Kết quả khai thác quý I năm 2027"
+    },
+    {
+      "level": 3,
+      "text": "2. Kế hoạch quý II năm 2027"
+    },
+    {
+      "level": 2,
+      "text": "III. KẾT LUẬN"
+    }
+  ],
+  "key_sentences": [
+    "Trong quý I, đội tàu của Hợp tác xã đã thực hiện 46 chuyến biển với tổng sản lượng 212,4 tấn.",
+    "Doanh thu đạt 7.647 triệu đồng, tăng 9% so với cùng kỳ năm trước.",
+    "Các thành viên dự họp nhất trí 100% với kết quả và kế hoạch nêu trên.",
+    "Cuộc họp kết thúc lúc 16 giờ 30 cùng ngày.",
+    "Biên bản đã được đọc lại cho các thành viên dự họp và được nhất trí thông qua."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Tàu",
+          "Số chuyến",
+          "Sản lượng (tấn)",
+          "Doanh thu (triệu đồng)"
+        ],
+        [
+          "CL 90417 TS",
+          "12",
+          "58,6",
+          "2.110"
+        ],
+        [
+          "CL 90528 TS",
+          "11",
+          "51,3",
+          "1.847"
+        ],
+        [
+          "CL 91033 TS",
+          "13",
+          "63,9",
+          "2.300"
+        ],
+        [
+          "CL 91206 TS",
+          "10",
+          "38,6",
+          "1.390"
+        ],
+        [
+          "Tổng cộng",
+          "46",
+          "212,4",
+          "7.647"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "– Chủ trì: ông Trần Văn Lực, Giám đốc Hợp tác xã."
+    },
+    {
+      "level": 0,
+      "text": "– Thư ký: bà Nguyễn Thị Hạnh."
+    },
+    {
+      "level": 0,
+      "text": "– Thành phần: 5/5 thành viên Ban quản trị và 2 thành viên Ban kiểm soát."
+    },
+    {
+      "level": 0,
+      "text": "a) Bảo dưỡng định kỳ tàu CL 91206 TS trước ngày 15 tháng 4 năm 2027."
+    },
+    {
+      "level": 0,
+      "text": "b) Lắp đặt thiết bị giám sát hành trình cho toàn bộ 4 tàu theo quy định."
+    },
+    {
+      "level": 0,
+      "text": "c) Tổ chức tập huấn an toàn lao động trên biển cho 38 thuyền viên."
+    }
+  ],
+  "furniture": [
+    "HTX KHAI THÁC HẢI SẢN SÓNG XANH",
+    "Số: 07/BB-HTX",
+    "CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM",
+    "Độc lập – Tự do – Hạnh phúc",
+    "Cửa Lạch, ngày 18 tháng 3 năm 2027"
+  ],
+  "languages": [
+    "vi"
+  ],
+  "code": [],
+  "notes": "One page, Vietnamese (NFC precomposed). The two-block administrative header is furniture: left block (cooperative name, document number), right block (national heading, underlined motto, italic place-and-date line). No page number. Title \"BIÊN BẢN HỌP BAN QUẢN TRỊ\" is typed in capitals; the bold italic line under it is a subtitle in body text. Level-2 headings use Roman numerals (I., II., III.), level-3 headings use Arabic numerals. The time and place lines are body paragraphs; the attendance items are a TYPED list with en dash markers \"– \"; quarter-II plans are a TYPED list with a) b) c). The two signature blocks (THƯ KÝ left, CHỦ TRÌ right) sit side by side and read box by box, each with label, italic instruction and name."
+}

@@ -384,6 +384,22 @@ golden_v17: 24 realistic documents in 17 languages besides English across nine s
 
 Time for the 24 documents: native 0.1 s, Docling 531 s. **For the first time the native reader leads on every one of the eight measures.** Its two weakest documents are new scripts: a Hindi voter guide (text 0.20; Docling 0.00) whose sentences run into a neighbouring block, and a Japanese permit (text 0.60; Docling 0.60) where a space is inserted where a line wraps inside a sentence -- Japanese writes no spaces between words, so a wrapped line must join with none. Round 17.
 
+**Seventeenth round: scripts without spaces, Devanagari clusters; then golden_v18.** Fixed on golden_v17 (now a development set):
+- scripts written without spaces between words (Japanese, Chinese, Thai, Lao, Khmer, Myanmar, CJK full-width forms) join a wrapped line with no space, and inside a line a gap between two such glyphs is a space only when it is wide (a Japanese permit 0.60 -> 1.00, a Thai plan 0.75 -> 1.00);
+- a marked span counts every glyph drawn inside it, with or without text of its own, and builds its glyph from that extent even when none had text: a Devanagari conjunct whose glyphs all had an empty ToUnicode vanished, and a cluster of zero width left a gap that cut a word in two;
+- Indic combining signs (Devanagari to Malayalam) and Thai vowel and tone marks are marks: no word gap is measured from them.
+
+The Hindi voter guide: text 0.20 -> 0.80, tables 0.08 -> 0.97, headings 0.63 -> 1.00; v17 text 0.93 -> 0.98, tables 0.73 -> 0.76; nothing falls on golden_v1 to v17. Guard 173 assertions under Ring++.
+
+golden_v18: 24 realistic documents in 17 languages besides English (Chinese, Japanese, Korean, Hindi, Thai, Arabic and Hebrew among them), 13 of 2-3 pages, every named font and character checked against the embedded fonts, by an eighteenth independent agent who saw no reader, no output and no earlier set and did not look at the rendered pages (unperceived); reader frozen at 7368f93a3; both readers ran once:
+
+| golden_v18, realistic | text | order | headings | tables | lists | furniture | code | heading precision |
+|---|---|---|---|---|---|---|---|---|
+| Softanza native (Ring++) | **0.96** | **1.00** | **0.86** | 0.69 | **0.87** | **0.88** | **1.00** | **0.80** |
+| Docling 2.141 | 0.80 | 0.98 | 0.82 | **0.73** | 0.51 | 0.77 | 0.00 | 0.75 |
+
+Time for the 24 documents: native 0.1 s, Docling 395 s. The native reader leads on seven of the eight measures; Docling on tables (0.73 against 0.69), which is where the native reader's work now is. Its weakest text is a Japanese hotel page (0.43; Docling 0.29) whose two shaded boxes side by side are read line by line across both. Round 18.
+
 **Perceived (2026-10-24):** the author looked through every rendered page of golden_v9 to golden_v13 -- the sets whose own authors could not look at them -- and judged them: "they look great". Those five sets are no longer unperceived; the sets before them were generated the same way and are not covered by this look.
 
 **Not measured**: Granite-Docling-258M (not downloaded), the GPU, scanned golden pages with an expected text, PDFs from producers other than Chrome (both golden sets are Chrome-made and tagged; the native reader does not read the tags).

@@ -1,0 +1,229 @@
+{
+  "id": "a22",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Aircraft Maintenance Work Order",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Aircraft Maintenance Work Order"
+    },
+    {
+      "level": 2,
+      "text": "1. Defects reported by the crew"
+    },
+    {
+      "level": 2,
+      "text": "2. Task cards"
+    },
+    {
+      "level": 2,
+      "text": "3. Parts used"
+    },
+    {
+      "level": 2,
+      "text": "4. Fault message log"
+    },
+    {
+      "level": 2,
+      "text": "5. Certificate of release to service"
+    }
+  ],
+  "key_sentences": [
+    "Task card TC-0412-06 was deferred under the minimum equipment list, category C, because a replacement battery pack was not in stock.",
+    "The deferral expires on 17 October 2027.",
+    "All other task cards were completed and inspected, and no further defects were found during the zonal inspection.",
+    "The following messages were downloaded from the central maintenance computer before and after the rectification work.",
+    "The work recorded above has been carried out in accordance with the approved maintenance data, and the aircraft is considered ready for release to service."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Work order",
+          "WO-27-3381",
+          "Aircraft registration",
+          "ZK-MRQ"
+        ],
+        [
+          "Aircraft type",
+          "AR-70 twin turboprop",
+          "Serial number",
+          "MSN 1418"
+        ],
+        [
+          "Check type",
+          "A-check with defect rectification",
+          "Station",
+          "Port Ellery (PEY)"
+        ],
+        [
+          "Opened",
+          "6 October 2027, 22:10 UTC",
+          "Closed",
+          "7 October 2027, 14:35 UTC"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Task card",
+          "Description",
+          "ATA",
+          "Est. MH",
+          "Act. MH",
+          "Status"
+        ],
+        [
+          "TC-0412-01",
+          "A-check zonal inspection, zones 100 to 600",
+          "05",
+          "14.0",
+          "15.5",
+          "Closed"
+        ],
+        [
+          "TC-0412-02",
+          "Engine 1 and 2 oil filter change and chip detector inspection",
+          "79",
+          "3.0",
+          "2.5",
+          "Closed"
+        ],
+        [
+          "TC-0412-03",
+          "Pitot probe 2 heater fault: troubleshoot and replace probe",
+          "34",
+          "4.0",
+          "5.0",
+          "Closed"
+        ],
+        [
+          "TC-0412-04",
+          "Pack 1 outlet temperature high: clean heat exchanger",
+          "21",
+          "6.0",
+          "7.5",
+          "Closed"
+        ],
+        [
+          "TC-0412-05",
+          "Main landing gear tyre pressure check and servicing",
+          "32",
+          "1.0",
+          "1.0",
+          "Closed"
+        ],
+        [
+          "TC-0412-06",
+          "Cabin emergency lighting battery capacity test",
+          "33",
+          "2.0",
+          "2.0",
+          "Deferred"
+        ],
+        [
+          "TC-0412-07",
+          "Lavatory smoke detector functional test",
+          "26",
+          "0.5",
+          "0.5",
+          "Closed"
+        ],
+        [
+          "Total man-hours",
+          "Total man-hours",
+          "Total man-hours",
+          "30.5",
+          "34.0",
+          ""
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Part number",
+          "Description",
+          "Qty",
+          "Serial or batch number"
+        ],
+        [
+          "SKP-34-1102",
+          "Pitot probe, heated",
+          "1",
+          "S/N 77104"
+        ],
+        [
+          "SKP-79-0415",
+          "Oil filter element",
+          "2",
+          "Batch 27-0915"
+        ],
+        [
+          "SKP-21-0338",
+          "O-ring, packing",
+          "4",
+          "Batch 26-1142"
+        ],
+        [
+          "SKP-21-2200",
+          "Heat exchanger cleaning kit",
+          "1",
+          "Batch 27-0602"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "(i) PROBE HEAT 2 caution displayed during climb on sector PEY–KRW."
+    },
+    {
+      "level": 0,
+      "text": "(ii) Pack 1 outlet temperature reached the upper limit during taxi at high ambient temperature."
+    },
+    {
+      "level": 0,
+      "text": "(iii) Cabin crew reported that one emergency light near door 2L appeared dim during the preflight check."
+    },
+    {
+      "level": 0,
+      "text": "all tools and equipment were accounted for;"
+    },
+    {
+      "level": 0,
+      "text": "the deferred defect was entered in the technical log with its expiry date;"
+    },
+    {
+      "level": 0,
+      "text": "engine ground runs showed no leaks at the oil filter housings;"
+    },
+    {
+      "level": 0,
+      "text": "the pitot-static leak check on system 2 was within limits."
+    }
+  ],
+  "furniture": [
+    "SKYHAVEN TECHNICAL SERVICES",
+    "Approved Maintenance Organisation ref. AMO-0418",
+    "Hangar 3, Port Ellery Airport (PEY)",
+    "Skyhaven Technical Services · Form STS-WO-01 Rev 7",
+    "WO-27-3381 — Sheet 1 of 2",
+    "Work order WO-27-3381 · ZK-MRQ",
+    "continued",
+    "WO-27-3381 — Sheet 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "DATE     UTC   ATA    MSG   TEXT\n06OCT27  0412  34-11  2216  ADC 2 PITOT HEAT CURRENT LOW\n06OCT27  0412  30-31  1180  PROBE HEAT 2 FAULT\n06OCT27  0947  21-51  0904  PACK 1 OUTLET TEMP HIGH\n07OCT27  1135  34-11  0000  ADC 2 SELF TEST PASSED\n07OCT27  1302  21-51  0000  PACK 1 GROUND TEST PASSED"
+  ],
+  "notes": "Two pages. Letterhead on page 1 (name letter-spaced, approval line, address) and a two-part running header on page 2 are furniture. Footer: form reference (listed once) and \"WO-27-3381 — Sheet N of 2\" per page. The aircraft data grid is a key/value table without header row, two label/value pairs per row. Task card descriptions are two lines each (joined with a space); the total row label spans three columns and its last cell is empty. Crew defects are a TYPED list with roman markers (i) (ii) (iii); the release checklist is a CSS square-bullet list. The fault log is a code block in Courier New (column alignment with spaces). The two boxed sign-off fields at the end are body text. Body font Arial Narrow, headings Arial."
+}

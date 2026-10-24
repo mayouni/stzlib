@@ -1,0 +1,173 @@
+{
+  "id": "a23",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Stagione concertistica 2026/2027",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Stagione concertistica 2026/2027"
+    },
+    {
+      "level": 2,
+      "text": "IL PROGRAMMA"
+    },
+    {
+      "level": 2,
+      "text": "ABBONAMENTI"
+    },
+    {
+      "level": 2,
+      "text": "BIGLIETTI"
+    },
+    {
+      "level": 2,
+      "text": "INFORMAZIONI UTILI"
+    },
+    {
+      "level": 2,
+      "text": "GUIDA ALL'ASCOLTO"
+    }
+  ],
+  "key_sentences": [
+    "Otto appuntamenti, dall'autunno alla primavera, per ascoltare grandi pagine sinfoniche, cameristiche e corali nel Teatro Comunale.",
+    "La stagione si apre il 18 ottobre con la Settima di Beethoven, affidata alla nostra orchestra e alla sua direttrice stabile.",
+    "Tornano i concerti domenicali delle 17:00, pensati per le famiglie e per chi preferisce non uscire la sera.",
+    "Il rinnovo degli abbonamenti è aperto dal 1° al 30 settembre 2026.",
+    "I biglietti singoli sono in vendita dal 1° ottobre 2026.",
+    "Prima di ogni concerto serale, alle 19:45, un musicologo presenta il programma nel ridotto del teatro."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Data",
+          "Ora",
+          "Programma",
+          "Interpreti"
+        ],
+        [
+          "18 ottobre 2026",
+          "20:30",
+          "L. van Beethoven, Sinfonia n. 7 J. Brahms, Concerto per violino",
+          "Orchestra Filarmonica Valdorana dir. Elena Ruspoli"
+        ],
+        [
+          "8 novembre 2026",
+          "17:00",
+          "F. Schubert, Quintetto «La trota»",
+          "Quintetto Aurora"
+        ],
+        [
+          "29 novembre 2026",
+          "20:30",
+          "G. Rossini, Stabat Mater",
+          "Coro e Orchestra Valdorana dir. Paolo Gennari"
+        ],
+        [
+          "20 dicembre 2026",
+          "17:00",
+          "Concerto di Natale musiche di Corelli e Händel",
+          "Ensemble Il Cembalo d'Oro"
+        ],
+        [
+          "17 gennaio 2027",
+          "20:30",
+          "S. Rachmaninov, Concerto per pianoforte n. 2",
+          "Orchestra Filarmonica Valdorana pianoforte Giulia Ardenzi"
+        ],
+        [
+          "14 febbraio 2027",
+          "17:00",
+          "Recital di canto Romanze da salotto italiane",
+          "Marta Celli, soprano Luca Bertin, pianoforte"
+        ],
+        [
+          "14 marzo 2027",
+          "20:30",
+          "R. Schumann, Sinfonia n. 3 «Renana»",
+          "Orchestra Filarmonica Valdorana dir. Elena Ruspoli"
+        ],
+        [
+          "11 aprile 2027",
+          "20:30",
+          "J. S. Bach, Passione secondo Matteo (prima parte)",
+          "Coro e Orchestra Valdorana dir. Paolo Gennari"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Platea, otto concerti",
+          "280 €"
+        ],
+        [
+          "Galleria, otto concerti",
+          "190 €"
+        ],
+        [
+          "Under 30, posto unico",
+          "95 €"
+        ],
+        [
+          "Carnet libero, quattro concerti",
+          "150 €"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Platea",
+          "42 €"
+        ],
+        [
+          "Galleria",
+          "28 €"
+        ],
+        [
+          "Ridotto over 65",
+          "22 €"
+        ],
+        [
+          "Ridotto studenti",
+          "15 €"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "La biglietteria del teatro è aperta dal martedì al sabato, dalle 10:00 alle 13:00 e dalle 16:00 alle 19:00."
+    },
+    {
+      "level": 0,
+      "text": "Nei giorni di concerto la biglietteria apre un'ora prima dell'inizio."
+    },
+    {
+      "level": 0,
+      "text": "A concerto iniziato l'ingresso in sala è consentito solo durante gli applausi."
+    },
+    {
+      "level": 0,
+      "text": "Il teatro è accessibile alle persone con disabilità; si consiglia di segnalarlo al momento dell'acquisto."
+    }
+  ],
+  "furniture": [
+    "FONDAZIONE MUSICALE VALDORANA",
+    "Teatro Comunale di Valdorana · Piazza Garibaldi 3",
+    "Biglietteria: 0461 000 418 · biglietteria@fondazionevaldorana.example",
+    "pag. 1",
+    "pag. 2"
+  ],
+  "languages": [
+    "it"
+  ],
+  "code": [],
+  "notes": "Two pages, Italian. Masthead (foundation name, strongly letter-spaced; address line) repeats on both pages and is listed once; footer box-office line listed once; \"pag. 1\" / \"pag. 2\" per page. Headings are letter-spaced (title in Gill Sans MT; section headings typed in capitals: IL PROGRAMMA, ABBONAMENTI, BIGLIETTI, INFORMAZIONI UTILI, GUIDA ALL'ASCOLTO). The italic centred intro is body text. The programme table is BORDERLESS; many Programma and Interpreti cells hold two lines, and some Interpreti cells wrap to a third line (all lines of a cell join with a space). The two framed boxes ABBONAMENTI and BIGLIETTI sit side by side and read box by box (heading, key/value table without header row, sentence; then the other box). \"INFORMAZIONI UTILI\" is a CSS-drawn bullet list."
+}

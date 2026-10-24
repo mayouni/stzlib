@@ -1,0 +1,232 @@
+{
+  "id": "a02",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Compte rendu d'hospitalisation",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Compte rendu d'hospitalisation"
+    },
+    {
+      "level": 2,
+      "text": "Motif d'hospitalisation"
+    },
+    {
+      "level": 2,
+      "text": "Antécédents"
+    },
+    {
+      "level": 2,
+      "text": "Histoire de la maladie et évolution"
+    },
+    {
+      "level": 2,
+      "text": "Examens complémentaires"
+    },
+    {
+      "level": 3,
+      "text": "Biologie"
+    },
+    {
+      "level": 3,
+      "text": "Imagerie"
+    },
+    {
+      "level": 2,
+      "text": "Conclusion"
+    },
+    {
+      "level": 2,
+      "text": "Traitement de sortie"
+    },
+    {
+      "level": 2,
+      "text": "Recommandations"
+    }
+  ],
+  "key_sentences": [
+    "Le patient a été admis pour une douleur thoracique constrictive apparue au repos, évoluant depuis deux heures.",
+    "L'électrocardiogramme initial montrait un sus-décalage du segment ST dans le territoire inférieur.",
+    "Une coronarographie réalisée en urgence a mis en évidence une occlusion de l'artère coronaire droite moyenne.",
+    "Les suites ont été simples, sans récidive douloureuse ni trouble du rythme sur la surveillance scopique.",
+    "L'échocardiographie transthoracique du 14 février retrouve une hypokinésie inférieure avec une fraction d'éjection estimée à 52 %.",
+    "Il s'agit d'un infarctus du myocarde inférieur traité par angioplastie primaire, avec une fonction ventriculaire gauche conservée.",
+    "Le patient regagne son domicile le 16 février 2027 dans de bonnes conditions.",
+    "Un courrier a été adressé au médecin traitant avec l'ensemble des résultats."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Patient",
+          "M. Gérard Vasseur",
+          "Né le",
+          "04/09/1958"
+        ],
+        [
+          "Entrée",
+          "12/02/2027 (urgences)",
+          "Sortie",
+          "16/02/2027"
+        ],
+        [
+          "Médecin traitant",
+          "Dr Anne Lemaire, Sainte-Aure",
+          "IPP",
+          "0048213"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Paramètre",
+          "Résultats",
+          "Résultats",
+          "Valeurs usuelles"
+        ],
+        [
+          "Paramètre",
+          "Entrée 12/02",
+          "Sortie 15/02",
+          "Valeurs usuelles"
+        ],
+        [
+          "Troponine T hs (ng/L)",
+          "412",
+          "96",
+          "< 14"
+        ],
+        [
+          "NT-proBNP (pg/mL)",
+          "1 860",
+          "940",
+          "< 300"
+        ],
+        [
+          "Créatinine (µmol/L)",
+          "88",
+          "91",
+          "59 – 104"
+        ],
+        [
+          "Potassium (mmol/L)",
+          "4,1",
+          "4,4",
+          "3,5 – 5,0"
+        ],
+        [
+          "Hémoglobine (g/dL)",
+          "13,9",
+          "13,2",
+          "13,0 – 17,0"
+        ],
+        [
+          "LDL-cholestérol (g/L)",
+          "1,62",
+          "—",
+          "< 0,55 (objectif)"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Médicament",
+          "Matin",
+          "Midi",
+          "Soir",
+          "Remarques"
+        ],
+        [
+          "Acide acétylsalicylique 75 mg",
+          "1",
+          "–",
+          "–",
+          "Au long cours"
+        ],
+        [
+          "Ticagrélor 90 mg",
+          "1",
+          "–",
+          "1",
+          "Pendant 12 mois, jusqu'au 16/02/2028"
+        ],
+        [
+          "Bisoprolol 2,5 mg",
+          "1",
+          "–",
+          "–",
+          "Adapter selon la fréquence cardiaque"
+        ],
+        [
+          "Ramipril 2,5 mg",
+          "–",
+          "–",
+          "1",
+          "Contrôle de la kaliémie à J10"
+        ],
+        [
+          "Atorvastatine 80 mg",
+          "–",
+          "–",
+          "1",
+          "Bilan lipidique à 6 semaines"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Hypertension artérielle traitée depuis 2015"
+    },
+    {
+      "level": 0,
+      "text": "Dyslipidémie non traitée"
+    },
+    {
+      "level": 0,
+      "text": "Tabagisme sevré en 2019 (30 paquets-années)"
+    },
+    {
+      "level": 0,
+      "text": "Pas d'allergie médicamenteuse connue"
+    },
+    {
+      "level": 0,
+      "text": "1. Réadaptation cardiaque en centre spécialisé, à débuter dans les quatre semaines."
+    },
+    {
+      "level": 0,
+      "text": "2. Consultation de cardiologie à six semaines avec épreuve d'effort."
+    },
+    {
+      "level": 0,
+      "text": "3. Arrêt de travail jusqu'à la consultation de contrôle."
+    },
+    {
+      "level": 0,
+      "text": "4. Reconsulter en urgence en cas de douleur thoracique de plus de quinze minutes (appeler le 15)."
+    }
+  ],
+  "furniture": [
+    "Centre hospitalier intercommunal du Val-de-Brenne",
+    "Service de cardiologie – Unité de soins intensifs cardiologiques",
+    "12, avenue des Tilleuls – 37190 Sainte-Aure-sur-Brenne",
+    "Secrétariat : 02 47 00 18 52 – cardiologie@chi-valdebrenne.example",
+    "Compte rendu d'hospitalisation – M. Gérard Vasseur – IPP 0048213",
+    "Document confidentiel – secret médical",
+    "Page 1 sur 2",
+    "Page 2 sur 2"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "Two pages. Page 1 carries a letterhead (furniture); page 2 carries a running header in italics (furniture, listed once). The footer \"Document confidentiel – secret médical\" repeats on both pages (listed once); \"Page 1 sur 2\" / \"Page 2 sur 2\" listed per page. The identity block under the title is a key/value table with no header row (four columns: label, value, label, value). Lab table has a two-level header: \"Paramètre\" and \"Valeurs usuelles\" span two header rows, \"Résultats\" spans two columns. Medication table is zebra-striped; one Remarques cell is two lines. Antécédents is a CSS-drawn bullet list (markers not in text); Recommandations is a typed numbered list. The final signature block is body text, not furniture. Font: Garamond throughout."
+}

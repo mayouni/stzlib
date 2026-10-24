@@ -1,0 +1,108 @@
+{
+  "id": "a05",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "ご宿泊のご案内",
+  "headings": [
+    {
+      "level": 1,
+      "text": "ご宿泊のご案内"
+    },
+    {
+      "level": 2,
+      "text": "チェックイン・チェックアウト"
+    },
+    {
+      "level": 2,
+      "text": "お食事"
+    },
+    {
+      "level": 2,
+      "text": "館内施設のご利用時間"
+    },
+    {
+      "level": 2,
+      "text": "お客さまへのお願い"
+    }
+  ],
+  "key_sentences": [
+    "本日は山霧の宿しずく亭にお越しいただき、誠にありがとうございます。",
+    "皆さまに快適にお過ごしいただけますよう、館内のご案内をまとめました。",
+    "チェックインは15時から、チェックアウトは翌朝10時までとなっております。",
+    "お帰りの際は、お部屋の鍵をフロントまでお返しください。",
+    "ご夕食は18時または19時30分から、1階のお食事処「山なみ」にてご用意いたします。",
+    "ご朝食は7時から9時までのバイキング形式です。",
+    "ご不明な点がございましたら、どうぞお気軽にフロントまでお申し付けください。"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "施設",
+          "場所",
+          "利用時間",
+          "備考"
+        ],
+        [
+          "大浴場「渓の湯」",
+          "本館1階",
+          "15:00～24:00 翌朝5:00～9:30",
+          "23時に男女入れ替え"
+        ],
+        [
+          "露天風呂「月見台」",
+          "別館2階",
+          "15:00～22:00",
+          "雨天時は閉鎖する場合があります"
+        ],
+        [
+          "売店",
+          "本館ロビー",
+          "7:00～21:30",
+          "地酒・お土産各種"
+        ],
+        [
+          "ラウンジ「囲炉裏」",
+          "本館1階",
+          "14:00～23:00",
+          "コーヒー・お茶は無料"
+        ],
+        [
+          "卓球コーナー",
+          "別館地下1階",
+          "9:00～22:00",
+          "用具はフロントで貸出"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "館内は全面禁煙です。喫煙は玄関横の喫煙所をご利用ください。"
+    },
+    {
+      "level": 0,
+      "text": "貴重品はお部屋の金庫にお預けください。"
+    },
+    {
+      "level": 0,
+      "text": "浴衣のまま館内およびお庭を散策していただけます。"
+    },
+    {
+      "level": 0,
+      "text": "22時以降は、ほかのお客さまのご迷惑にならないようお静かにお願いいたします。"
+    }
+  ],
+  "furniture": [
+    "山霧の宿 しずく亭",
+    "〒399-9301 長野県北安曇郡白峰村湯ノ沢1024 電話 0261-00-4410",
+    "フロント 内線9番 ／ 外線 0261-00-4410（24時間受付）"
+  ],
+  "languages": [
+    "ja"
+  ],
+  "code": [],
+  "notes": "Japanese, one page. Sentences are written without spaces; lines wrapped inside a sentence join with no space, and consecutive sentences inside one paragraph also join with no space. The two shaded boxes (\"チェックイン・チェックアウト\" and \"お食事\") sit side by side; reading order is box by box, left box first. Each box title is a level-2 heading. The inn name in the letterhead is letter-spaced (furniture, not a heading); the title \"ご宿泊のご案内\" is letter-spaced and given as plain text. One table cell (大浴場 hours) is two lines, joined with a space. \"お客さまへのお願い\" is a CSS-drawn bullet list. Full-width spaces (U+3000) in letterhead and footer count as spaces. Font: Yu Gothic."
+}

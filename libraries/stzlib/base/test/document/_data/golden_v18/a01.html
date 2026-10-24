@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tax Invoice</title>
+<style>
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+table { border-collapse: collapse; }
+@page { size: A4; margin: 0; }
+.page { width: 210mm; height: 296.6mm; position: relative; overflow: hidden; break-after: page; page-break-after: always; }
+.page:last-child { break-after: auto; page-break-after: auto; }
+.body { position: absolute; overflow: hidden; }
+
+body { font-family: 'Segoe UI'; font-size: 9.6pt; color: #1d2733; }
+.lh { position: absolute; top: 0; left: 0; right: 0; height: 30mm; background: #0f3b57; color: #fff; padding: 7.5mm 18mm 0 18mm; }
+.lh .org { font-family: 'Segoe UI'; font-weight: 700; font-size: 17pt; letter-spacing: 0.04em; }
+.lh .sub { font-size: 8.6pt; color: #cfe3f0; margin-top: 1.5mm; line-height: 1.45; }
+.body { top: 37mm; left: 18mm; right: 18mm; bottom: 24mm; }
+h1 { font-weight: 300; font-size: 22pt; margin: 0 0 4mm 0; color: #0f3b57; }
+h2 { font-size: 11pt; font-weight: 600; color: #0f3b57; border-bottom: 1.2pt solid #0f3b57; padding-bottom: 1mm; margin: 6mm 0 2.5mm 0; }
+.top { display: flex; gap: 8mm; }
+.box { flex: 1; border: 0.6pt solid #9fb4c4; padding: 3mm 4mm; line-height: 1.45; }
+.box .lab { font-size: 7.8pt; font-weight: 600; color: #4f6b80; letter-spacing: 0.08em; margin-bottom: 1mm; }
+table.kv td { padding: 0.6mm 4mm 0.6mm 0; }
+table.kv td:nth-child(odd) { color: #4f6b80; }
+table.items { width: 100%; }
+table.items th { background: #e4edf3; text-align: left; font-weight: 600; padding: 1.8mm 2mm; font-size: 8.6pt; }
+table.items td { padding: 1.8mm 2mm; border-bottom: 0.5pt solid #c9d6df; vertical-align: top; }
+table.items td.n, table.items th.n { text-align: right; white-space: nowrap; }
+table.items tr.sum td { border-bottom: none; padding-top: 1.2mm; padding-bottom: 1.2mm; }
+table.items tr.tot td { font-weight: 700; border-top: 1.2pt solid #0f3b57; border-bottom: none; font-size: 10.5pt; }
+.ftr { position: absolute; left: 18mm; right: 18mm; bottom: 9mm; font-size: 7.6pt; color: #5b6b78; border-top: 0.5pt solid #9fb4c4; padding-top: 2mm; line-height: 1.5; }
+p { margin: 0 0 2mm 0; line-height: 1.5; }
+
+</style>
+</head>
+<body>
+<div class="page">
+<div class="hdr"><div class="lh"><div class="org">KESTREL BAY FREIGHT FORWARDING LTD</div><div class="sub">Unit 14, Quayside Trade Park, Port Ellery PE3 9QT<br>VAT reg. GB 418 2207 63 · Tel. 01632 960 418 · accounts@kestrelbay.example</div></div></div>
+<div class="body"><h1>Tax Invoice</h1><div class="top"><div class="box"><div class="lab">BILL TO</div>Harwell &amp; Pike Engineering Ltd<br>Attn: Accounts Payable<br>Bradgate Works, Mill Lane<br>Leicester LE4 0ZZ</div><div class="box"><div class="lab">INVOICE DETAILS</div><table class="kv"><tbody><tr><td>Invoice no.</td><td>KBF-27-04418</td></tr><tr><td>Invoice date</td><td>14 March 2027</td></tr><tr><td>Due date</td><td>13 April 2027</td></tr><tr><td>Customer account</td><td>C-20915</td></tr><tr><td>Shipment ref.</td><td>SEA/EXP/27/1182</td></tr></tbody></table></div></div><h2>Charges</h2><p>Two 40-foot high-cube containers of machine parts sailed from Felixstowe on 9 March 2027 aboard the vessel Meridian Crest. The charges below cover the door-to-port leg and the ocean voyage to Jebel Ali.</p><table class="items"><thead><tr><th>No.</th><th>Description</th><th class="n">Qty</th><th>Unit</th><th class="n">Unit price</th><th class="n">VAT</th><th class="n">Amount (GBP)</th></tr></thead><tbody><tr><td>1</td><td>Ocean freight FCL 40' HC<br>Felixstowe to Jebel Ali</td><td class="n">2</td><td>cntr</td><td class="n">1,450.00</td><td class="n">0%</td><td class="n">2,900.00</td></tr><tr><td>2</td><td>Terminal handling charge, origin</td><td class="n">2</td><td>cntr</td><td class="n">185.00</td><td class="n">0%</td><td class="n">370.00</td></tr><tr><td>3</td><td>Road haulage<br>Leicester to Felixstowe</td><td class="n">2</td><td>trip</td><td class="n">420.00</td><td class="n">0%</td><td class="n">840.00</td></tr><tr><td>4</td><td>Export customs declaration</td><td class="n">1</td><td>entry</td><td class="n">65.00</td><td class="n">20%</td><td class="n">65.00</td></tr><tr><td>5</td><td>Cargo insurance, 0.35% of declared value</td><td class="n">1</td><td>policy</td><td class="n">147.00</td><td class="n">Exempt</td><td class="n">147.00</td></tr><tr><td>6</td><td>Documentation and bill of lading fee</td><td class="n">1</td><td>set</td><td class="n">35.00</td><td class="n">20%</td><td class="n">35.00</td></tr><tr class="sum"><td colspan="6" class="n">Subtotal</td><td class="n">4,357.00</td></tr><tr class="sum"><td colspan="6" class="n">VAT at 20% on 100.00</td><td class="n">20.00</td></tr><tr class="tot"><td colspan="6" class="n">Total due (GBP)</td><td class="n">4,377.00</td></tr></tbody></table><h2>Payment details</h2><p>Payment is due within 30 days of the invoice date. Please quote the invoice number on every remittance so that we can allocate it promptly. Zero-rated items relate to the international carriage of goods and the services directly linked to it.</p><table class="kv"><tbody><tr><td>Bank</td><td>Northmoor Bank plc, Port Ellery</td><td>Sort code</td><td>40-11-62</td></tr><tr><td>Account name</td><td>Kestrel Bay Freight Forwarding Ltd</td><td>Account number</td><td>30918274</td></tr><tr><td>IBAN</td><td>GB29 NMBK 4011 6230 9182 74</td><td>BIC</td><td>NMBKGB2L</td></tr></tbody></table><p style="margin-top:3mm">Late payments may attract interest at 4% above the base rate.</p></div>
+<div class="ftr">Kestrel Bay Freight Forwarding Ltd · Registered in England and Wales No. 08814620 · Registered office as above<br>All business is transacted under our Standard Trading Conditions, available on request.</div>
+</div>
+</body>
+</html>

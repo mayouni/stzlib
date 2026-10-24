@@ -1,0 +1,480 @@
+{
+  "id": "a19",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "Monthly Operations Report — September 2027",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Monthly Operations Report — September 2027"
+    },
+    {
+      "level": 2,
+      "text": "1. Summary"
+    },
+    {
+      "level": 2,
+      "text": "2. Safety"
+    },
+    {
+      "level": 3,
+      "text": "2.1 High-potential incident"
+    },
+    {
+      "level": 2,
+      "text": "3. Mining"
+    },
+    {
+      "level": 2,
+      "text": "4. Processing"
+    },
+    {
+      "level": 3,
+      "text": "4.1 Concentrate shipments"
+    },
+    {
+      "level": 2,
+      "text": "5. Process control"
+    },
+    {
+      "level": 2,
+      "text": "6. Equipment"
+    },
+    {
+      "level": 2,
+      "text": "7. Priorities for October"
+    }
+  ],
+  "key_sentences": [
+    "September production fell short of plan because of lower head grade from the western wall of Stage 4 and a two-day mill shutdown.",
+    "Unit costs rose to 2.41 dollars per pound of copper because fixed costs were spread over fewer tonnes.",
+    "There were no lost-time injuries in September, and the site passed 112 days without one.",
+    "The year-to-date lost-time injury frequency rate stands at 0.61 per million hours worked.",
+    "On 14 September a haul truck reversed into a windrow at the Stage 4 dump after its rear camera failed.",
+    "Total material movement was 1,714 kt, of which 396 kt was ore delivered to the run-of-mine pad.",
+    "The mill treated 371 kt at an average rate of 571 t per operating hour.",
+    "Following the bearing temperature alarm on ball mill 1 in August, the alarm thresholds were reviewed by the process control engineer.",
+    "Fleet availability was 95.6% against a target of 92%, and utilisation was 80.0%.",
+    "The next report will be issued on 8 November 2027."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Report no.",
+          "TRC-OPS-2027-09",
+          "Prepared by",
+          "Mine Technical Services"
+        ],
+        [
+          "Issued",
+          "8 October 2027",
+          "Distribution",
+          "General Manager, Board operations committee"
+        ]
+      ]
+    },
+    {
+      "caption": "Table 1 — Key production indicators",
+      "rows": [
+        [
+          "Metric",
+          "September",
+          "September",
+          "Year to date",
+          "Year to date"
+        ],
+        [
+          "Metric",
+          "Plan",
+          "Actual",
+          "Plan",
+          "Actual"
+        ],
+        [
+          "Ore mined (kt)",
+          "410",
+          "396",
+          "3,690",
+          "3,702"
+        ],
+        [
+          "Waste mined (kt)",
+          "1,250",
+          "1,318",
+          "11,250",
+          "11,040"
+        ],
+        [
+          "Ore milled (kt)",
+          "380",
+          "371",
+          "3,420",
+          "3,388"
+        ],
+        [
+          "Head grade (% Cu)",
+          "0.62",
+          "0.59",
+          "0.62",
+          "0.63"
+        ],
+        [
+          "Recovery (%)",
+          "88.0",
+          "87.2",
+          "88.0",
+          "88.4"
+        ],
+        [
+          "Copper in concentrate (t)",
+          "2,073",
+          "1,909",
+          "18,660",
+          "18,868"
+        ]
+      ]
+    },
+    {
+      "caption": "Table 2 — Safety statistics",
+      "rows": [
+        [
+          "Category",
+          "September",
+          "Year to date"
+        ],
+        [
+          "Lost-time injuries",
+          "0",
+          "1"
+        ],
+        [
+          "Medical treatment injuries",
+          "1",
+          "4"
+        ],
+        [
+          "First-aid cases",
+          "6",
+          "41"
+        ],
+        [
+          "High-potential incidents",
+          "1",
+          "3"
+        ],
+        [
+          "Hours worked",
+          "186,400",
+          "1,642,900"
+        ]
+      ]
+    },
+    {
+      "caption": "Table 4 — Mobile equipment availability and utilisation, September 2027",
+      "rows": [
+        [
+          "Unit",
+          "Type",
+          "Model",
+          "Calendar h",
+          "Scheduled maint. h",
+          "Unscheduled maint. h",
+          "Availability %",
+          "Operating h",
+          "Utilisation %"
+        ],
+        [
+          "HT-01",
+          "Haul truck",
+          "Torrin T190",
+          "720",
+          "22",
+          "6",
+          "96.1",
+          "571",
+          "82.5"
+        ],
+        [
+          "HT-02",
+          "Haul truck",
+          "Torrin T190",
+          "720",
+          "22",
+          "41",
+          "91.2",
+          "503",
+          "76.6"
+        ],
+        [
+          "HT-03",
+          "Haul truck",
+          "Torrin T190",
+          "720",
+          "0",
+          "12",
+          "98.3",
+          "640",
+          "90.4"
+        ],
+        [
+          "HT-04",
+          "Haul truck",
+          "Torrin T190",
+          "720",
+          "22",
+          "9",
+          "95.7",
+          "602",
+          "87.4"
+        ],
+        [
+          "HT-05",
+          "Haul truck",
+          "Torrin T190",
+          "720",
+          "0",
+          "18",
+          "97.5",
+          "629",
+          "89.6"
+        ],
+        [
+          "HT-06",
+          "Haul truck",
+          "Torrin T190",
+          "720",
+          "22",
+          "27",
+          "93.2",
+          "559",
+          "83.3"
+        ],
+        [
+          "HT-07",
+          "Haul truck",
+          "Torrin T190",
+          "720",
+          "0",
+          "5",
+          "99.3",
+          "655",
+          "91.6"
+        ],
+        [
+          "HT-08",
+          "Haul truck",
+          "Torrin T190",
+          "720",
+          "22",
+          "64",
+          "88.1",
+          "470",
+          "74.1"
+        ],
+        [
+          "EX-01",
+          "Excavator",
+          "Torrin E400",
+          "720",
+          "36",
+          "14",
+          "93.1",
+          "588",
+          "87.8"
+        ],
+        [
+          "EX-02",
+          "Excavator",
+          "Torrin E400",
+          "720",
+          "0",
+          "48",
+          "93.3",
+          "571",
+          "85.0"
+        ],
+        [
+          "LD-01",
+          "Wheel loader",
+          "Kadar L90",
+          "720",
+          "18",
+          "11",
+          "96.0",
+          "497",
+          "71.9"
+        ],
+        [
+          "DZ-01",
+          "Track dozer",
+          "Kadar D11",
+          "720",
+          "12",
+          "20",
+          "95.6",
+          "545",
+          "79.2"
+        ],
+        [
+          "DZ-02",
+          "Track dozer",
+          "Kadar D11",
+          "720",
+          "0",
+          "7",
+          "99.0",
+          "612",
+          "85.8"
+        ],
+        [
+          "GR-01",
+          "Grader",
+          "Kadar G16",
+          "720",
+          "10",
+          "4",
+          "98.1",
+          "520",
+          "73.7"
+        ],
+        [
+          "DR-01",
+          "Blast hole drill",
+          "Vantor DR235",
+          "720",
+          "24",
+          "30",
+          "92.5",
+          "498",
+          "74.8"
+        ],
+        [
+          "DR-02",
+          "Blast hole drill",
+          "Vantor DR235",
+          "720",
+          "0",
+          "16",
+          "97.8",
+          "552",
+          "78.4"
+        ],
+        [
+          "WC-01",
+          "Water cart",
+          "Torrin T100W",
+          "720",
+          "8",
+          "3",
+          "98.5",
+          "461",
+          "65.0"
+        ],
+        [
+          "WC-02",
+          "Water cart",
+          "Torrin T100W",
+          "720",
+          "0",
+          "22",
+          "96.9",
+          "433",
+          "62.0"
+        ],
+        [
+          "Fleet total",
+          "Fleet total",
+          "Fleet total",
+          "12,960",
+          "218",
+          "357",
+          "95.6",
+          "9,906",
+          "80.0"
+        ]
+      ]
+    },
+    {
+      "caption": "Table 3 — Concentrate shipments, September 2027",
+      "rows": [
+        [
+          "Shipment",
+          "Dispatched",
+          "Wet tonnes",
+          "Moisture %",
+          "Cu % (dry)"
+        ],
+        [
+          "CS-27-031",
+          "4 September",
+          "2,140",
+          "8.1",
+          "24.6"
+        ],
+        [
+          "CS-27-032",
+          "15 September",
+          "2,205",
+          "8.4",
+          "24.1"
+        ],
+        [
+          "CS-27-033",
+          "27 September",
+          "2,010",
+          "8.6",
+          "23.8"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "(a) Add a camera and proximity alarm test to the haul truck pre-start checklist."
+    },
+    {
+      "level": 0,
+      "text": "(b) Fit camera fault warnings to the dispatch system so that faults are visible to the controller."
+    },
+    {
+      "level": 0,
+      "text": "(c) Brief all haul truck operators on dump approach procedures by 31 October."
+    },
+    {
+      "level": 0,
+      "text": "Complete the pre-strip of Stage 5 bench 3 to secure ore supply for November."
+    },
+    {
+      "level": 0,
+      "text": "Return HT-08 to service with a rebuilt final drive."
+    },
+    {
+      "level": 0,
+      "text": "Finish the tailings dam wall raise to RL 912 before the wet season."
+    },
+    {
+      "level": 0,
+      "text": "Close out all three actions from the September high-potential incident."
+    }
+  ],
+  "furniture": [
+    "Harrowgate Minerals Pty Ltd",
+    "Tarnwick Ridge Copper Operation",
+    "Private Bag 7, Tarnwick Ridge",
+    "Harrowgate Minerals Pty Ltd — Confidential",
+    "Page 1 of 3",
+    "Monthly Operations Report · September 2027",
+    "Page 2 of 3",
+    "Page 3 of 3"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "[alarm.ball_mill_1]\nbearing_temp_warn_c   = 72\nbearing_temp_trip_c   = 80\npower_draw_high_kw    = 6150\npower_draw_low_kw     = 4300\n\n[alarm.flotation_rougher]\nfroth_level_low_mm    = 180\nair_flow_high_m3h     = 1450"
+  ],
+  "notes": "Three pages. Letterhead on page 1 (company name; operation name and address block) and a two-part running header on pages 2 and 3 are furniture (the operation name appears in both and is listed once). Footer: confidentiality line (listed once) and \"Page N of 3\" per page. The report metadata under the title is a key/value table without header row, two pairs per row. Table 1 has a two-level header (\"Metric\" spans two rows; \"September\" and \"Year to date\" span two columns). Table 4 is wide (nine columns), zebra-striped, and CONTINUED from page 2 to page 3; page 3 repeats its header row under the caption \"Table 4 — continued\". It is ONE table with the header once and the main caption; its fleet total row has a label spanning three columns. Corrective actions are a TYPED list with (a) (b) (c) markers; October priorities are a CSS square-bullet list. One configuration block (INI) in Consolas. The two side-by-side sign-off blocks at the end are body text. Body Franklin Gothic Book, headings and table headers Rockwell."
+}

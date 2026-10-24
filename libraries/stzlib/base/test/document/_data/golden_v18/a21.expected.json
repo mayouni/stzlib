@@ -1,0 +1,153 @@
+{
+  "id": "a21",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Taarifa ya Wiki",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Taarifa ya Wiki"
+    },
+    {
+      "level": 2,
+      "text": "Ratiba ya Ibada"
+    },
+    {
+      "level": 2,
+      "text": "Matangazo"
+    },
+    {
+      "level": 2,
+      "text": "Mchango wa Ujenzi wa Ukumbi wa Parokia"
+    },
+    {
+      "level": 2,
+      "text": "Matukio ya Wiki Ijayo"
+    },
+    {
+      "level": 2,
+      "text": "Masomo ya Jumapili"
+    }
+  ],
+  "key_sentences": [
+    "Karibuni nyote katika ibada za wiki hii.",
+    "Tunawashukuru wote waliojitolea kusafisha uwanja wa kanisa Jumamosi iliyopita.",
+    "Misa ya Jumapili ijayo itaongozwa na Paroko msaidizi.",
+    "Kamati ya ujenzi inawaomba waumini wote kukamilisha ahadi zao kabla ya mwisho wa mwezi Desemba.",
+    "Jumamosi tarehe 21 Novemba kutakuwa na harambee ya kuchangia ujenzi wa ukumbi baada ya Misa ya jioni.",
+    "Wanajumuiya wote wanaombwa kufika mapema na kuwakaribisha wageni."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Siku",
+          "Muda",
+          "Ibada"
+        ],
+        [
+          "Jumapili",
+          "Saa 1:00 asubuhi",
+          "Misa ya Kiswahili"
+        ],
+        [
+          "Jumapili",
+          "Saa 3:30 asubuhi",
+          "Misa ya Watoto"
+        ],
+        [
+          "Jumapili",
+          "Saa 5:00 asubuhi",
+          "Misa ya Kiingereza"
+        ],
+        [
+          "Jumatano",
+          "Saa 12:00 jioni",
+          "Sala ya Rozari"
+        ],
+        [
+          "Ijumaa",
+          "Saa 12:30 jioni",
+          "Njia ya Msalaba"
+        ],
+        [
+          "Jumamosi",
+          "Saa 10:00 jioni",
+          "Kitubio"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Jumuiya",
+          "Ahadi (TSh)",
+          "Kilichotolewa (TSh)",
+          "Salio (TSh)"
+        ],
+        [
+          "Mt. Petro",
+          "2,000,000",
+          "1,450,000",
+          "550,000"
+        ],
+        [
+          "Mt. Maria",
+          "1,800,000",
+          "1,800,000",
+          "0"
+        ],
+        [
+          "Mt. Anna",
+          "1,500,000",
+          "900,000",
+          "600,000"
+        ],
+        [
+          "Mt. Yohane",
+          "1,200,000",
+          "1,020,000",
+          "180,000"
+        ],
+        [
+          "Jumla",
+          "6,500,000",
+          "5,170,000",
+          "1,330,000"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Mafundisho ya kipaimara yanaendelea kila Jumamosi saa 8:00 mchana."
+    },
+    {
+      "level": 0,
+      "text": "Kikundi cha vijana kitakuwa na mkutano Jumanne saa 11:00 jioni."
+    },
+    {
+      "level": 0,
+      "text": "Wazazi wanaotaka watoto wao wabatizwe wajiandikishe ofisini kabla ya tarehe 30 Novemba."
+    },
+    {
+      "level": 0,
+      "text": "Sadaka ya pili ya leo ni kwa ajili ya kituo cha wazee."
+    }
+  ],
+  "furniture": [
+    "PAROKIA YA MT. YOSEFU MFANYAKAZI – MLIMANI",
+    "S.L.P. 418, Mlimani · Simu 0754 000 418",
+    "Toleo Na. 42 · Jumapili, 15 Novemba 2026",
+    "Ofisi ya Parokia: Jumanne hadi Jumamosi, saa 3:00 asubuhi hadi saa 9:00 alasiri",
+    "parokiamlimani.example"
+  ],
+  "languages": [
+    "sw"
+  ],
+  "code": [],
+  "notes": "One page, Swahili. The purple masthead (parish name, letter-spaced; postal line; issue line) and the footer (office hours, web address) are furniture. Swahili clock times (\"Saa 1:00 asubuhi\") are given as written. Two columns sit side by side under the intro: the left column (\"Ratiba ya Ibada\" heading, table, one sentence) is read completely before the right column (\"Matangazo\" heading and CSS-drawn bullet list). The contributions table has a total row \"Jumla\". The readings box lists three reading references as separate body lines."
+}

@@ -1,0 +1,37 @@
+heading	1	Centre hospitalier intercommunal du Val-de-Brenne
+paragraph	0	Service de cardiologie - Unité de soins intensifs cardiologiques
+paragraph	0	12, avenue des Tilleuls - 37190 Sainte-Aure-sur-Brenne
+paragraph	0	Secrétariat : 02 47 00 18 52 - cardiologie@chi-valdebrenne.example
+heading	1	Compte rendu d'hospitalisation
+table	0	PatientM. Gérard VasseurNé le04/09/1958Entrée12/02/2027 (urgences)Sortie16/02/2027Médecin traitantDr Anne Lemaire, Sainte-AureIPP0048213
+heading	1	Motif d'hospitalisation
+paragraph	0	Le patient a été admis pour une douleur thoracique constrictive apparue au repos, évoluant depuis deux heures. L'électrocardiogramme initial montrait un sus-décalage du segment ST dans le territoire inférieur.
+heading	1	Antécédents
+list_item	0	Hypertension artérielle traitée depuis 2015
+list_item	0	Dyslipidémie non traitée
+list_item	0	Tabagisme sevré en 2019 (30 paquets-années)
+list_item	0	Pas d'allergie médicamenteuse connue
+heading	1	Histoire de la maladie et évolution
+paragraph	0	Une coronarographie réalisée en urgence a mis en évidence une occlusion de l'artère coronaire droite moyenne. Une angioplastie avec pose d' un stent actif a permis une reperméabilisation complète, avec un flux TIMI 3 en fin de procédure. Les suites ont été simples, sans récidive douloureuse ni trouble du rythme sur la surveillance scopique.
+paragraph	0	Le patient a été mobilisé dès le deuxième jour et a pu déambuler dans le service sans dyspnée.
+heading	1	Examens complémentaires
+heading	1	Biologie
+table	0	RésultatsRésultatsValeurs usuellesParamètreEntrée 12/02Sortie 15/02Troponine T hs (ng/L)41296< 14NT-proBNP (pg/mL)1 860940< 300Créatinine (µmol/L)889159 - 104Potassium (mmol/L)4,14,43,5 - 5,0Hémoglobine (g/dL)13,913,213,0 - 17,0LDL-cholestérol (g/L)1,62-< 0,55 (objectif)
+heading	1	Imagerie
+paragraph	0	L'échocardiographie transthoracique du 14 février retrouve une hypokinésie inférieure avec une fraction d'éjection estimée à 52 %. Il n'existe ni épanchement péricardique ni valvulopathie significative.
+page_footer	0	Document confidentiel - secret médical
+page_footer	0	Page 1 sur 2
+page_header	0	Compte rendu d'hospitalisation - M. Gérard Vasseur - IPP 0048213
+heading	1	Conclusion
+paragraph	0	Il s'agit d' un infarctus du myocarde inférieur traité par angioplastie primaire, avec une fonction ventriculaire gauche conservée. Le patient regagne son domicile le 16 février 2027 dans de bonnes conditions.
+heading	1	Traitement de sortie
+table	0	MédicamentMatinMidiSoirRemarquesAcide acétylsalicylique 75 mg1--Au long coursTicagrélor 90 mg1-1Pendant 12 mois, jusqu 'au 16/02/2028Bisoprolol 2,5 mg1--Adapter selon la fréquence cardiaqueRamipril 2,5 mg--1Contrôle de la kaliémie à J10Atorvastatine 80 mg--1Bilan lipidique à 6 semaines
+heading	1	Recommandations
+list_item	0	Réadaptation cardiaque en centre spécialisé, à débuter dans les quatre semaines.
+list_item	0	Consultation de cardiologie à six semaines avec épreuve d'effort.
+list_item	0	Arrêt de travail jusqu 'à la consultation de contrôle.
+list_item	0	Reconsulter en urgence en cas de douleur thoracique de plus de quinze minutes (appeler le 15).
+paragraph	0	Un courrier a été adressé au médecin traitant avec l'ensemble des résultats. Nous restons à votre disposition pour tout renseignement complémentaire.
+paragraph	0	Dr Claire Fontanel Praticien hospitalier, cardiologie Sainte-Aure, le 16/02/2027
+page_footer	0	Document confidentiel - secret médical
+page_footer	0	Page 2 sur 2

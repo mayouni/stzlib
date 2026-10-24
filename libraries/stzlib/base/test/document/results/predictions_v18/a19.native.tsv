@@ -1,0 +1,48 @@
+heading	2	Harrowgate Minerals Pty Ltd
+page_header	0	Tarnwick Ridge Copper Operation Private Bag 7, Tarnwick Ridge
+heading	1	Monthly Operations Report — September 2027
+paragraph	0	Report no. Issued
+paragraph	0	TRC-OPS-2027-09 8 October 2027
+paragraph	0	Prepared by Distribution
+paragraph	0	Mine Technical Services General Manager, Board operations committee
+heading	3	1. Summary
+paragraph	0	September production fell short of plan because of lower head grade from the western wall of Stage 4 and a two-day mill shutdown. Ore mined was 3% below plan, while waste movement was 5% above plan as the pre-strip of Stage 5 was accelerated. Year-to-date copper in concentrate remains ahead of budget. Unit costs rose to 2.41 dollars per pound of copper because fixed costs were spread over fewer tonnes. The operation expects to recover the September shortfall in the fourth quarter, when higher-grade ore from Stage 5 reaches the mill. Table 1 — Key production indicators
+table	0	MetricSeptemberSeptemberYear to dateYear to dateMetricPlanActualPlanActualOre mined (kt)4103963,6903,702Waste mined (kt)1,2501,31811,25011,040Ore milled (kt)3803713,4203,388Head grade (% Cu)0.620.590.620.63Recovery (%)88.087.288.088.4Copper in concentrate (t)2,0731,90918,66018,868
+heading	3	2. Safety
+paragraph	0	There were no lost-time injuries in September, and the site passed 112 days without one. The year-to-date lost-time injury frequency rate stands at 0.61 per million hours worked. Table 2 — Safety statistics
+table	0	CategorySeptemberYear to dateLost-time injuries01Medical treatment injuries14First-aid cases641High-potential incidents13Hours worked186,4001,642,900
+paragraph	0	2.1 High-potential incident On 14 September a haul truck reversed into a windrow at the Stage 4 dump after its rear camera failed. Nobody was injured and the truck was not damaged. The investigation found that the daily pre-start check did not include a test of the camera display. Corrective actions agreed by the investigation team:
+list_item	0	(a) Add a camera and proximity alarm test to the haul truck pre-start checklist.
+list_item	0	(b) Fit camera fault warnings to the dispatch system so that faults are visible to the controller.
+list_item	0	(c) Brief all haul truck operators on dump approach procedures by 31 October.
+heading	3	3. Mining
+paragraph	0	Total material movement was 1,714 kt, of which 396 kt was ore delivered to the run-of-mine pad. Stage 4 supplied 81% of the ore and Stage 5 the remainder, from its first two benches. Drilling achieved 14,860 m against a plan of 15,200 m because one drill was down for an undercarriage repair. Grade control drilling on the western wall of Stage 4 confirmed that the high-grade zone narrows below the 820 m bench. The short-term plan has been revised to blend this ore with Stage 5 material from October.
+page_footer	0	Harrowgate Minerals Pty Ltd — Confidential
+page_footer	0	Page 1 of 3
+page_header	0	Tarnwick Ridge Copper Operation
+page_header	0	Monthly Operations Report · September 2027
+heading	3	4. Processing
+paragraph	0	The mill treated 371 kt at an average rate of 571 t per operating hour. A planned two-day shutdown from 19 to 21 September replaced the ball mill liners and the main conveyor belt. Recovery was lower than plan in the first week after the restart while the flotation circuit was rebalanced.
+paragraph	0	4.1 Concentrate shipments Three road shipments of concentrate left site for the port during the month. Moisture content stayed below the 9% transportable limit on every shipment. Table 3 — Concentrate shipments, September 2027
+table	0	ShipmentDispatchedWet tonnesMoisture %Cu % (dry)CS-27-0314 September2,1408.124.6CS-27-03215 September2,2058.424.1CS-27-03327 September2,0108.623.8
+heading	3	5. Process control
+paragraph	0	Following the bearing temperature alarm on ball mill 1 in August, the alarm thresholds were reviewed by the process control engineer. The revised settings below were loaded on 2 September and are now under change control.
+code	0	[alarm.ball_mill_1]\nbearing_temp_warn_c   = 72\nbearing_temp_trip_c   = 80\npower_draw_high_kw    = 6150\npower_draw_low_kw     = 4300\n\n[alarm.flotation_rougher]\nfroth_level_low_mm    = 180\nair_flow_high_m3h     = 1450
+heading	3	6. Equipment
+paragraph	0	Fleet availability was 95.6% against a target of 92%, and utilisation was 80.0%. Truck HT-08 lost 64 hours to a final drive failure, and excavator EX-02 was down for two days with a hydraulic pump fault. Table 4 — Mobile equipment availability and utilisation, September 2027
+table	0	UnitTypeModelCalendar hScheduled maint. hUnscheduled maint. hAvailability %Operating hUtilisation %HT-01Haul truckTorrin T19072022696.157182.5HT-02Haul truckTorrin T190720224191.250376.6HT-03Haul truckTorrin T19072001298.364090.4HT-04Haul truckTorrin T19072022995.760287.4HT-05Haul truckTorrin T19072001897.562989.6HT-06Haul truckTorrin T190720222793.255983.3HT-07Haul truckTorrin T1907200599.365591.6HT-08Haul truckTorrin T190720226488.147074.1EX-01ExcavatorTorrin E400720361493.158887.8EX-02ExcavatorTorrin E40072004893.357185.0LD-01Wheel loaderKadar L90720181196.049771.9DZ-01Track dozerKadar D11720122095.654579.2DZ-02Track dozerKadar D117200799.061285.8GR-01GraderKadar G1672010498.152073.7
+page_footer	0	Harrowgate Minerals Pty Ltd — Confidential
+page_footer	0	Page 2 of 3
+page_header	0	Tarnwick Ridge Copper Operation
+page_header	0	Monthly Operations Report · September 2027
+caption	0	Table 4 — continued
+table	0	UnitTypeModelCalendar hScheduled maint. hUnscheduled maint. hAvailability %Operating hUtilisation %DR-01Blast hole drillVantor DR235720243092.549874.8DR-02Blast hole drillVantor DR23572001697.855278.4WC-01Water cartTorrin T100W7208398.546165.0WC-02Water cartTorrin T100W72002296.943362.0Fleet totalFleet totalFleet total12,96021835795.69,90680.0
+heading	3	7. Priorities for October
+list_item	0	Complete the pre-strip of Stage 5 bench 3 to secure ore supply for November.
+list_item	0	Return HT-08 to service with a rebuilt final drive.
+list_item	0	Finish the tailings dam wall raise to RL 912 before the wet season.
+list_item	0	Close out all three actions from the September high-potential incident.
+caption	0	The next report will be issued on 8 November 2027.
+table	0	Prepared byApproved byLerato MahlanguOwen PritchardSuperintendent, Mine Technical ServicesGeneral Manager, Tarnwick Ridge
+page_footer	0	Harrowgate Minerals Pty Ltd — Confidential
+page_footer	0	Page 3 of 3

@@ -1,0 +1,163 @@
+{
+  "id": "a06",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Software upgrade of broadband network gateways, Region East",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Software upgrade of broadband network gateways, Region East"
+    },
+    {
+      "level": 2,
+      "text": "1. Scope"
+    },
+    {
+      "level": 2,
+      "text": "2. Prerequisites"
+    },
+    {
+      "level": 2,
+      "text": "3. Procedure"
+    },
+    {
+      "level": 3,
+      "text": "3.1 Pre-checks"
+    },
+    {
+      "level": 3,
+      "text": "3.2 Upgrade"
+    },
+    {
+      "level": 3,
+      "text": "3.3 Post-checks"
+    },
+    {
+      "level": 2,
+      "text": "4. Rollback"
+    },
+    {
+      "level": 2,
+      "text": "5. Contacts"
+    }
+  ],
+  "key_sentences": [
+    "This runbook describes the upgrade of the three broadband network gateways in Region East to software release 24.3.2.",
+    "Each gateway is upgraded in its own one-hour window while its subscribers are carried by the redundant peer.",
+    "Log in to the gateway from the operations jump host and record the current state before touching anything.",
+    "Do not continue if the redundancy group reports anything other than a ready state.",
+    "Compare the session count with the value recorded in the pre-checks; a difference of more than five per cent must be investigated.",
+    "Check that RADIUS accounting records are arriving for new sessions.",
+    "If the gateway fails to rejoin its redundancy group within 15 minutes of the reload, boot it from the previous image.",
+    "Rollback must be completed before the end of the window so that the next site can start on time."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Site",
+          "Location",
+          "Active sessions",
+          "Window (UTC)"
+        ],
+        [
+          "BNG-E01",
+          "Harlow exchange",
+          "18,420",
+          "00:30–01:30"
+        ],
+        [
+          "BNG-E02",
+          "Chelmsford exchange",
+          "22,915",
+          "01:30–02:30"
+        ],
+        [
+          "BNG-E03",
+          "Colchester exchange",
+          "15,077",
+          "02:30–03:30"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Role",
+          "Name",
+          "Phone"
+        ],
+        [
+          "Change manager",
+          "Priya Nandakumar",
+          "+44 20 7946 0213"
+        ],
+        [
+          "IP Core engineer on call",
+          "Tomasz Wielgosz",
+          "+44 20 7946 0388"
+        ],
+        [
+          "Vendor support",
+          "Gateway TAC, contract 55-0917",
+          "+44 20 7946 0911"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "a) The change has been approved by the Change Advisory Board."
+    },
+    {
+      "level": 0,
+      "text": "b) The new image has been copied to every gateway and its checksum verified."
+    },
+    {
+      "level": 0,
+      "text": "c) The redundant peer of each gateway reports a healthy state."
+    },
+    {
+      "level": 0,
+      "text": "d) The customer notice was published at least five days in advance."
+    },
+    {
+      "level": 0,
+      "text": "Drain the gateway so that new sessions are steered to its peer."
+    },
+    {
+      "level": 0,
+      "text": "Wait until fewer than 50 sessions remain, or 20 minutes have passed."
+    },
+    {
+      "level": 0,
+      "text": "Install the new image and reload the gateway."
+    },
+    {
+      "level": 0,
+      "text": "Confirm that the gateway rejoins the redundancy group."
+    },
+    {
+      "level": 0,
+      "text": "Move sessions back by removing the drain."
+    }
+  ],
+  "furniture": [
+    "Calderline Networks · Network Operations",
+    "Change Runbook CHG-27-0613",
+    "Internal — do not distribute outside Network Operations",
+    "Page 1 / 2",
+    "Page 2 / 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "ssh noc-ops@bng-e03.mgmt.calderline.net\nshow version | include Software\nshow subscriber session summary\nshow redundancy group 1 status\ncopy running-config flash:/backup/pre-CHG-27-0613.cfg",
+    "upgrade:\n  target_release: \"24.3.2\"\n  image: flash:/images/bng-24.3.2.bin\n  checksum_sha256: 9f2c41e07ab35d8e\n  drain:\n    max_sessions_left: 50\n    timeout_minutes: 20\n  rollback_on_failure: true"
+  ],
+  "notes": "Two pages. Running header (two parts, left and right) and footer text repeat on both pages and are listed once; \"Page 1 / 2\" and \"Page 2 / 2\" per page. The line \"Change window: ...\" under the title is a metadata line in body text (not a heading). Headings carry their own section numbers (\"1. Scope\", \"3.1 Pre-checks\"); levels: title 1, sections 2, subsections 3. Prerequisites is a TYPED list (markers a) b) c) d) in the text). The procedure steps at the top of page 2 are a CSS-drawn ordered list (decimal markers not in text) belonging to section 3.2. Two code blocks in Consolas: shell commands and a YAML file (indentation preserved with spaces)."
+}

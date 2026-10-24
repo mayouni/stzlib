@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Aircraft Maintenance Work Order</title>
+<style>
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+table { border-collapse: collapse; }
+@page { size: A4; margin: 0; }
+.page { width: 210mm; height: 296.6mm; position: relative; overflow: hidden; break-after: page; page-break-after: always; }
+.page:last-child { break-after: auto; page-break-after: auto; }
+.body { position: absolute; overflow: hidden; }
+
+body { font-family: 'Arial Narrow'; font-size: 10.4pt; color: #101820; }
+.lh { position: absolute; top: 10mm; left: 15mm; right: 15mm; display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3pt solid #c8102e; padding-bottom: 1.5mm; }
+.lh .o { font-family: Arial; font-weight: 700; font-size: 14pt; letter-spacing: 0.06em; }
+.lh .a { font-size: 9pt; text-align: right; line-height: 1.3; }
+.p1 .body { top: 27mm; left: 15mm; right: 15mm; bottom: 16mm; }
+.p2 .body { top: 18mm; left: 15mm; right: 15mm; bottom: 16mm; }
+.rh { position: absolute; top: 9mm; left: 15mm; right: 15mm; font-size: 9pt; border-bottom: 1pt solid #c8102e; padding-bottom: 1mm; display: flex; justify-content: space-between; }
+.ftr { position: absolute; left: 15mm; right: 15mm; bottom: 8mm; font-size: 8.5pt; display: flex; justify-content: space-between; border-top: 0.5pt solid #555; padding-top: 1mm; }
+h1 { font-family: Arial; font-size: 15pt; margin: 1mm 0 2mm 0; }
+h2 { font-family: Arial; font-size: 10.5pt; background: #101820; color: #fff; padding: 0.8mm 2mm; margin: 3.5mm 0 1.5mm 0; }
+p { margin: 0 0 1.4mm 0; line-height: 1.3; }
+table.g { width: 100%; font-size: 10pt; }
+table.g td { border: 0.6pt solid #777; padding: 1mm 2mm; }
+table.g td:nth-child(odd) { background: #eef0f2; font-weight: 700; width: 20%; }
+table.t { width: 100%; font-size: 9.8pt; }
+table.t th { border: 0.6pt solid #555; background: #dfe3e8; padding: 1mm 1.5mm; text-align: left; }
+table.t td { border: 0.6pt solid #999; padding: 1mm 1.5mm; vertical-align: top; line-height: 1.25; }
+table.t .r { text-align: right; }
+table.t tr.tot td { font-weight: 700; background: #eef0f2; }
+pre.code { font-family: 'Courier New'; font-size: 8.8pt; border: 0.6pt solid #777; padding: 2mm; margin: 1mm 0 2mm 0; line-height: 1.3; }
+ul.typed { list-style: none; padding-left: 0; margin: 0 0 1.5mm 0; line-height: 1.3; }
+ul.typed li { padding-left: 8mm; text-indent: -8mm; margin-bottom: 0.6mm; }
+ul.sq { list-style: square; padding-left: 5mm; margin: 0 0 1.5mm 0; line-height: 1.35; }
+.sigbox { display: flex; gap: 6mm; margin-top: 3mm; }
+.sigbox > div { flex: 1; border: 0.6pt solid #777; height: 20mm; padding: 1.5mm 2mm; font-size: 9pt; }
+
+</style>
+</head>
+<body>
+<div class="page p1">
+<div class="hdr"><div class="lh"><div class="o">SKYHAVEN TECHNICAL SERVICES</div><div class="a">Approved Maintenance Organisation ref. AMO-0418<br>Hangar 3, Port Ellery Airport (PEY)</div></div></div>
+<div class="body"><h1>Aircraft Maintenance Work Order</h1><table class="g"><tbody><tr><td>Work order</td><td>WO-27-3381</td><td>Aircraft registration</td><td>ZK-MRQ</td></tr><tr><td>Aircraft type</td><td>AR-70 twin turboprop</td><td>Serial number</td><td>MSN 1418</td></tr><tr><td>Check type</td><td>A-check with defect rectification</td><td>Station</td><td>Port Ellery (PEY)</td></tr><tr><td>Opened</td><td>6 October 2027, 22:10 UTC</td><td>Closed</td><td>7 October 2027, 14:35 UTC</td></tr></tbody></table><h2>1. Defects reported by the crew</h2><ul class="typed"><li>(i) PROBE HEAT 2 caution displayed during climb on sector PEY–KRW.</li><li>(ii) Pack 1 outlet temperature reached the upper limit during taxi at high ambient temperature.</li><li>(iii) Cabin crew reported that one emergency light near door 2L appeared dim during the preflight check.</li></ul><h2>2. Task cards</h2><table class="t"><thead><tr><th>Task card</th><th>Description</th><th>ATA</th><th class="r">Est. MH</th><th class="r">Act. MH</th><th>Status</th></tr></thead><tbody><tr><td>TC-0412-01</td><td>A-check zonal inspection,<br>zones 100 to 600</td><td>05</td><td class="r">14.0</td><td class="r">15.5</td><td>Closed</td></tr><tr><td>TC-0412-02</td><td>Engine 1 and 2 oil filter change<br>and chip detector inspection</td><td>79</td><td class="r">3.0</td><td class="r">2.5</td><td>Closed</td></tr><tr><td>TC-0412-03</td><td>Pitot probe 2 heater fault:<br>troubleshoot and replace probe</td><td>34</td><td class="r">4.0</td><td class="r">5.0</td><td>Closed</td></tr><tr><td>TC-0412-04</td><td>Pack 1 outlet temperature high:<br>clean heat exchanger</td><td>21</td><td class="r">6.0</td><td class="r">7.5</td><td>Closed</td></tr><tr><td>TC-0412-05</td><td>Main landing gear tyre pressure<br>check and servicing</td><td>32</td><td class="r">1.0</td><td class="r">1.0</td><td>Closed</td></tr><tr><td>TC-0412-06</td><td>Cabin emergency lighting<br>battery capacity test</td><td>33</td><td class="r">2.0</td><td class="r">2.0</td><td>Deferred</td></tr><tr><td>TC-0412-07</td><td>Lavatory smoke detector<br>functional test</td><td>26</td><td class="r">0.5</td><td class="r">0.5</td><td>Closed</td></tr><tr class="tot"><td colspan="3">Total man-hours</td><td class="r">30.5</td><td class="r">34.0</td><td></td></tr></tbody></table><p style="margin-top:2mm">Task card TC-0412-06 was deferred under the minimum equipment list, category C, because a replacement battery pack was not in stock. The deferral expires on 17 October 2027.</p><p>All other task cards were completed and inspected, and no further defects were found during the zonal inspection.</p><h2>3. Parts used</h2><table class="t"><thead><tr><th>Part number</th><th>Description</th><th class="r">Qty</th><th>Serial or batch number</th></tr></thead><tbody><tr><td>SKP-34-1102</td><td>Pitot probe, heated</td><td class="r">1</td><td>S/N 77104</td></tr><tr><td>SKP-79-0415</td><td>Oil filter element</td><td class="r">2</td><td>Batch 27-0915</td></tr><tr><td>SKP-21-0338</td><td>O-ring, packing</td><td class="r">4</td><td>Batch 26-1142</td></tr><tr><td>SKP-21-2200</td><td>Heat exchanger cleaning kit</td><td class="r">1</td><td>Batch 27-0602</td></tr></tbody></table></div>
+<div class="ftr"><span>Skyhaven Technical Services · Form STS-WO-01 Rev 7</span><span>WO-27-3381 — Sheet 1 of 2</span></div>
+</div>
+<div class="page p2">
+<div class="hdr"><div class="rh"><span>Work order WO-27-3381 · ZK-MRQ</span><span>continued</span></div></div>
+<div class="body"><h2>4. Fault message log</h2><p>The following messages were downloaded from the central maintenance computer before and after the rectification work.</p><pre class="code">DATE     UTC   ATA    MSG   TEXT
+06OCT27  0412  34-11  2216  ADC 2 PITOT HEAT CURRENT LOW
+06OCT27  0412  30-31  1180  PROBE HEAT 2 FAULT
+06OCT27  0947  21-51  0904  PACK 1 OUTLET TEMP HIGH
+07OCT27  1135  34-11  0000  ADC 2 SELF TEST PASSED
+07OCT27  1302  21-51  0000  PACK 1 GROUND TEST PASSED</pre><h2>5. Certificate of release to service</h2><p>Before release, the certifying engineer confirmed that:</p><ul class="sq"><li>all tools and equipment were accounted for;</li><li>the deferred defect was entered in the technical log with its expiry date;</li><li>engine ground runs showed no leaks at the oil filter housings;</li><li>the pitot-static leak check on system 2 was within limits.</li></ul><p>The work recorded above has been carried out in accordance with the approved maintenance data, and the aircraft is considered ready for release to service.</p><div class="sigbox"><div>Certifying engineer: Hemi Walker<br>Authorisation STS-B1-077</div><div>Date and time: 7 October 2027, 14:35 UTC</div></div></div>
+<div class="ftr"><span>Skyhaven Technical Services · Form STS-WO-01 Rev 7</span><span>WO-27-3381 — Sheet 2 of 2</span></div>
+</div>
+</body>
+</html>

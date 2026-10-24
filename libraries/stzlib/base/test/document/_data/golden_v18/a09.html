@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<title>Δρομολόγια επιβατηγών πλοίων</title>
+<style>
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+table { border-collapse: collapse; }
+@page { size: A4; margin: 2cm; }
+.page { width: 170mm; height: 256.6mm; position: relative; overflow: hidden; break-after: page; page-break-after: always; }
+.page:last-child { break-after: auto; page-break-after: auto; }
+.body { position: absolute; overflow: hidden; }
+
+body { font-family: 'Palatino Linotype'; font-size: 10pt; color: #0d2236; }
+.top { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2pt solid #1565a8; padding-bottom: 2mm; }
+.top .o { font-weight: 700; font-size: 12.5pt; letter-spacing: 0.12em; color: #1565a8; }
+.top .c { font-size: 8.8pt; text-align: right; line-height: 1.35; }
+.body { top: 18mm; left: 0; right: 0; bottom: 12mm; }
+.ftr { position: absolute; left: 0; right: 0; bottom: 0; font-size: 8.5pt; color: #444; border-top: 0.5pt solid #1565a8; padding-top: 1.5mm; display: flex; justify-content: space-between; }
+h1 { font-size: 19pt; margin: 2mm 0 0.5mm 0; color: #1565a8; }
+.per { font-size: 11pt; font-style: italic; margin-bottom: 3mm; }
+h2 { font-size: 11.5pt; margin: 4mm 0 1.5mm 0; color: #0d2236; border-bottom: 0.5pt solid #9bbbd8; padding-bottom: 0.5mm; }
+p { margin: 0 0 1.5mm 0; line-height: 1.4; }
+table.tt { width: 100%; font-size: 9pt; }
+table.tt th { background: #1565a8; color: #fff; padding: 1.2mm 1mm; font-weight: 700; }
+table.tt td { padding: 1.1mm 1mm; text-align: center; }
+table.tt td:first-child, table.tt td:nth-child(2) { text-align: left; }
+table.tt tbody tr:nth-child(odd) td { background: #e8f1f9; }
+table.sm { font-size: 9pt; }
+table.sm th { border-bottom: 1pt solid #1565a8; padding: 1mm 3mm 1mm 0; text-align: left; }
+table.sm td { padding: 0.8mm 3mm 0.8mm 0; border-bottom: 0.3pt solid #c5d6e6; }
+.row { display: flex; gap: 10mm; }
+ul.ci { list-style: circle; padding-left: 5mm; margin: 0; line-height: 1.4; }
+
+</style>
+</head>
+<body>
+<div class="page">
+<div class="hdr"><div class="top"><div class="o">ΛΙΜΕΝΙΚΟ ΤΑΜΕΙΟ ΝΗΣΟΥ ΚΑΛΘΗΣ</div><div class="c">Λιμάνι Αγίας Μαρίνας, 84 400 Κάλθη<br>Τηλ. 22890 41000 · info@limenkalthis.example</div></div></div>
+<div class="body"><h1>Δρομολόγια επιβατηγών πλοίων</h1><div class="per">Χειμερινή περίοδος: 1 Νοεμβρίου 2026 – 31 Μαρτίου 2027</div><p>Ο παρακάτω πίνακας περιλαμβάνει τις τακτικές αναχωρήσεις από το λιμάνι της Αγίας Μαρίνας για τη χειμερινή περίοδο. Τα δρομολόγια ενδέχεται να τροποποιηθούν λόγω καιρικών συνθηκών.</p><h2>Αναχωρήσεις από Αγία Μαρίνα</h2><table class="tt"><thead><tr><th>Προορισμός</th><th>Πλοίο</th><th>Δευ</th><th>Τρί</th><th>Τετ</th><th>Πέμ</th><th>Παρ</th><th>Σάβ</th><th>Κυρ</th><th>Διάρκεια</th></tr></thead><tbody><tr><td>Πειραιάς</td><td>Ε/Γ-Ο/Γ Αιγαίον Φως</td><td>07:30</td><td>–</td><td>07:30</td><td>–</td><td>07:30</td><td>09:00</td><td>16:00</td><td>5 ώρ. 40 λ.</td></tr><tr><td>Πάρος</td><td>Ε/Γ-Ο/Γ Αιγαίον Φως</td><td>07:30</td><td>–</td><td>07:30</td><td>–</td><td>07:30</td><td>09:00</td><td>16:00</td><td>2 ώρ. 15 λ.</td></tr><tr><td>Νάξος</td><td>Ταχύπλοο Δελφίνι II</td><td>10:15</td><td>10:15</td><td>–</td><td>10:15</td><td>–</td><td>10:15</td><td>10:15</td><td>1 ώρ. 10 λ.</td></tr><tr><td>Σαντορίνη</td><td>Ταχύπλοο Δελφίνι II</td><td>–</td><td>15:40</td><td>–</td><td>–</td><td>15:40</td><td>–</td><td>–</td><td>2 ώρ. 05 λ.</td></tr><tr><td>Αμοργός</td><td>Ε/Γ Κάλθη Express</td><td>13:00</td><td>–</td><td>13:00</td><td>–</td><td>–</td><td>13:00</td><td>–</td><td>1 ώρ. 30 λ.</td></tr><tr><td>Δονούσα</td><td>Ε/Γ Κάλθη Express</td><td>–</td><td>–</td><td>–</td><td>11:20</td><td>–</td><td>–</td><td>11:20</td><td>0 ώρ. 50 λ.</td></tr></tbody></table><div class="row"><div><h2>Αφίξεις στην Αγία Μαρίνα</h2><table class="sm"><thead><tr><th>Από</th><th>Ημέρες</th><th>Άφιξη</th></tr></thead><tbody><tr><td>Πειραιάς</td><td>Δευ, Τετ, Παρ</td><td>21:50</td></tr><tr><td>Πειραιάς</td><td>Σάβ, Κυρ</td><td>23:10</td></tr><tr><td>Νάξος</td><td>καθημερινά εκτός Τετ, Παρ</td><td>18:30</td></tr><tr><td>Αμοργός</td><td>Δευ, Τετ, Σάβ</td><td>09:40</td></tr></tbody></table></div><div><h2>Ενδεικτικές τιμές εισιτηρίων</h2><table class="sm"><thead><tr><th>Διαδρομή</th><th>Οικονομική θέση</th><th>Όχημα έως 4,25 μ.</th></tr></thead><tbody><tr><td>Αγία Μαρίνα – Πειραιάς</td><td>48,50 €</td><td>96,00 €</td></tr><tr><td>Αγία Μαρίνα – Νάξος</td><td>22,00 €</td><td>41,00 €</td></tr><tr><td>Αγία Μαρίνα – Σαντορίνη</td><td>39,00 €</td><td>–</td></tr></tbody></table></div></div><h2>Χρήσιμες πληροφορίες</h2><ul class="ci"><li>Οι επιβάτες πρέπει να βρίσκονται στο λιμάνι τουλάχιστον 30 λεπτά πριν από την αναχώρηση.</li><li>Τα οχήματα επιβιβάζονται έως 45 λεπτά πριν από την αναχώρηση.</li><li>Τα εισιτήρια εκδίδονται από τα πρακτορεία του λιμανιού και ηλεκτρονικά.</li><li>Κατοικίδια ζώα επιτρέπονται μόνο στους ειδικούς χώρους του πλοίου.</li></ul><p style="margin-top:3mm">Για τυχόν ακυρώσεις δρομολογίων οι επιβάτες ενημερώνονται με γραπτό μήνυμα στο κινητό τους τηλέφωνο. Το Λιμεναρχείο Κάλθης είναι η αρμόδια αρχή για την απαγόρευση απόπλου.</p></div>
+<div class="ftr"><span>Ενημέρωση: 15/10/2026</span><span>Οι πληροφορίες δίνονται με κάθε επιφύλαξη.</span></div>
+</div>
+</body>
+</html>

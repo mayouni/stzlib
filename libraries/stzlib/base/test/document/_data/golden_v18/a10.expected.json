@@ -1,0 +1,214 @@
+{
+  "id": "a10",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Home Insurance Policy Schedule",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Home Insurance Policy Schedule"
+    },
+    {
+      "level": 2,
+      "text": "Your cover"
+    },
+    {
+      "level": 2,
+      "text": "Your premium"
+    },
+    {
+      "level": 2,
+      "text": "Endorsements that apply to your policy"
+    },
+    {
+      "level": 2,
+      "text": "Important information"
+    },
+    {
+      "level": 3,
+      "text": "Making a claim"
+    },
+    {
+      "level": 3,
+      "text": "Cancelling your policy"
+    },
+    {
+      "level": 3,
+      "text": "Contact us"
+    }
+  ],
+  "key_sentences": [
+    "This schedule forms part of your policy and should be read together with the policy wording and any endorsements shown.",
+    "Please check that the details are correct and tell us straight away if anything has changed.",
+    "The excess is the amount you must pay towards each claim before we make any payment.",
+    "If you need to make a claim, call our claims line as soon as possible and keep any damaged items until we have seen them.",
+    "In an emergency, take reasonable steps to prevent further damage, such as turning off the water supply.",
+    "You may cancel within 14 days of receiving this schedule and we will refund the premium in full, provided no claim has been made."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Policy number",
+          "AMI-HH-5520917"
+        ],
+        [
+          "Period of insurance",
+          "1 May 2027 to 30 April 2028 (both dates inclusive)"
+        ],
+        [
+          "Date of issue",
+          "11 April 2027"
+        ],
+        [
+          "Policy wording",
+          "Ashgrove Home Plus, edition 2026/2"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Cover",
+          "Sum insured or limit",
+          "Excess"
+        ],
+        [
+          "Section A – Buildings",
+          "Section A – Buildings",
+          "Section A – Buildings"
+        ],
+        [
+          "Buildings",
+          "£385,000",
+          "£250"
+        ],
+        [
+          "Accidental damage to buildings",
+          "Included",
+          "£250"
+        ],
+        [
+          "Escape of water",
+          "Included",
+          "£500"
+        ],
+        [
+          "Subsidence, heave and landslip",
+          "Included",
+          "£1,000"
+        ],
+        [
+          "Section B – Contents",
+          "Section B – Contents",
+          "Section B – Contents"
+        ],
+        [
+          "Contents",
+          "£60,000",
+          "£150"
+        ],
+        [
+          "Valuables (single article limit £2,500)",
+          "£10,000",
+          "£150"
+        ],
+        [
+          "Personal possessions away from home",
+          "£3,000",
+          "£100"
+        ],
+        [
+          "Section C – Legal expenses",
+          "Section C – Legal expenses",
+          "Section C – Legal expenses"
+        ],
+        [
+          "Legal expenses",
+          "£100,000",
+          "Nil"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Item",
+          "Amount"
+        ],
+        [
+          "Annual premium before tax",
+          "£612.40"
+        ],
+        [
+          "Insurance Premium Tax at 12%",
+          "£73.49"
+        ],
+        [
+          "Total annual premium",
+          "£685.89"
+        ],
+        [
+          "Monthly instalments by direct debit",
+          "1 × £57.13, then 11 × £57.16"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Service",
+          "Telephone",
+          "Hours"
+        ],
+        [
+          "Claims",
+          "0808 157 0412",
+          "24 hours, every day"
+        ],
+        [
+          "Policy changes",
+          "0161 496 0731",
+          "Mon–Fri 8:00–19:00"
+        ],
+        [
+          "Complaints",
+          "0161 496 0745",
+          "Mon–Fri 9:00–17:00"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "E04 – Unoccupancy: if the home is left unoccupied for more than 60 days in a row, cover for escape of water, theft and malicious damage is suspended until it is occupied again."
+    },
+    {
+      "level": 0,
+      "text": "E11 – Locks: all external doors must be fitted with a five-lever mortice deadlock or a multi-point locking system."
+    },
+    {
+      "level": 0,
+      "text": "E19 – Flat roof: the flat roof over the rear extension must be inspected by a qualified roofer at least once every five years."
+    }
+  ],
+  "furniture": [
+    "Ashgrove Mutual Insurance Society",
+    "Ashgrove House, 7 Corn Exchange Street, Wexley WX1 4AB",
+    "Policy service 0161 496 0730 · ashgrovemutual.example",
+    "Ashgrove Mutual Insurance Society Limited · Registered in England No. 00417733",
+    "Policy AMI-HH-5520917 · Page 1 of 2",
+    "Home Insurance Policy Schedule – continued",
+    "Policy AMI-HH-5520917 · Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Two pages. Letterhead on page 1, running header on page 2 (furniture). The footer has two parts: the registration line (repeats, listed once) and \"Policy AMI-HH-5520917 · Page N of 2\" (listed per page). The policy key/value table under the title has no header row. The two boxes \"The policyholder\" and \"The property insured\" sit side by side; reading order is box by box. Their dark title bars are box labels, not headings. Cover table: section rows (\"Section A – Buildings\" etc.) span all three columns. Premium table has a total row followed by an instalment row. Endorsements are a TYPED list (codes E04, E11, E19 lead each item). Body font Constantia, headings and tables Corbel."
+}

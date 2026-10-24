@@ -1,0 +1,280 @@
+{
+  "id": "a03",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Jahresabrechnung 2026 für Trinkwasser und Abwasser",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Jahresabrechnung 2026 für Trinkwasser und Abwasser"
+    },
+    {
+      "level": 2,
+      "text": "Ihre Zählerstände"
+    },
+    {
+      "level": 2,
+      "text": "Berechnung"
+    },
+    {
+      "level": 2,
+      "text": "Ihre neuen Abschläge"
+    },
+    {
+      "level": 2,
+      "text": "Verbrauchsvergleich"
+    },
+    {
+      "level": 2,
+      "text": "Hinweise"
+    },
+    {
+      "level": 3,
+      "text": "Preise und Gebühren"
+    },
+    {
+      "level": 3,
+      "text": "Einwände gegen diese Rechnung"
+    }
+  ],
+  "key_sentences": [
+    "mit dieser Rechnung erhalten Sie die Abrechnung Ihres Wasserverbrauchs für den Zeitraum vom 01.01.2026 bis 31.12.2026.",
+    "Am 18.06.2026 wurde Ihr Wasserzähler turnusgemäß gegen ein geeichtes Gerät ausgetauscht.",
+    "Den Nachzahlungsbetrag von 56,96 € buchen wir am 05.02.2027 von Ihrem Konto ab.",
+    "Auf Grundlage Ihres Verbrauchs haben wir die monatlichen Abschläge für das Jahr 2027 neu berechnet.",
+    "Ihr Verbrauch ist damit im dritten Jahr in Folge gesunken.",
+    "Einwände gegen die Abrechnung können Sie innerhalb eines Monats nach Zugang schriftlich bei uns erheben."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Kundennummer",
+          "300 418 227"
+        ],
+        [
+          "Vertragskonto",
+          "7710 0942"
+        ],
+        [
+          "Rechnungsnummer",
+          "WA-2026-118305"
+        ],
+        [
+          "Rechnungsdatum",
+          "22.01.2027"
+        ],
+        [
+          "Ihr Kontakt",
+          "Frau Köhler, Tel. -214"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Zähler",
+          "Zeitraum",
+          "Zeitraum",
+          "Zählerstand (m³)",
+          "Zählerstand (m³)",
+          "Verbrauch (m³)"
+        ],
+        [
+          "Zähler",
+          "von",
+          "bis",
+          "alt",
+          "neu",
+          "Verbrauch (m³)"
+        ],
+        [
+          "18 044 912",
+          "01.01.2026",
+          "18.06.2026",
+          "1 204",
+          "1 262",
+          "58"
+        ],
+        [
+          "23 310 557",
+          "18.06.2026",
+          "31.12.2026",
+          "0",
+          "61",
+          "61"
+        ],
+        [
+          "Gesamtverbrauch",
+          "Gesamtverbrauch",
+          "Gesamtverbrauch",
+          "Gesamtverbrauch",
+          "Gesamtverbrauch",
+          "119"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Position",
+          "Menge",
+          "Einheit",
+          "Preis (€)",
+          "Betrag (€)"
+        ],
+        [
+          "Trinkwasser",
+          "Trinkwasser",
+          "Trinkwasser",
+          "Trinkwasser",
+          "Trinkwasser"
+        ],
+        [
+          "Grundpreis Zähler Qn 2,5",
+          "365",
+          "Tage",
+          "0,2137",
+          "78,00"
+        ],
+        [
+          "Mengenpreis",
+          "119",
+          "m³",
+          "2,08",
+          "247,52"
+        ],
+        [
+          "Zwischensumme Trinkwasser netto",
+          "Zwischensumme Trinkwasser netto",
+          "Zwischensumme Trinkwasser netto",
+          "Zwischensumme Trinkwasser netto",
+          "325,52"
+        ],
+        [
+          "Umsatzsteuer 7 %",
+          "Umsatzsteuer 7 %",
+          "Umsatzsteuer 7 %",
+          "Umsatzsteuer 7 %",
+          "22,79"
+        ],
+        [
+          "Abwasser (umsatzsteuerfrei)",
+          "Abwasser (umsatzsteuerfrei)",
+          "Abwasser (umsatzsteuerfrei)",
+          "Abwasser (umsatzsteuerfrei)",
+          "Abwasser (umsatzsteuerfrei)"
+        ],
+        [
+          "Schmutzwassergebühr",
+          "119",
+          "m³",
+          "2,71",
+          "322,49"
+        ],
+        [
+          "Niederschlagswassergebühr",
+          "142",
+          "m² Fläche",
+          "0,48",
+          "68,16"
+        ],
+        [
+          "Rechnungsbetrag",
+          "Rechnungsbetrag",
+          "Rechnungsbetrag",
+          "Rechnungsbetrag",
+          "738,96"
+        ],
+        [
+          "abzüglich geleistete Abschläge (11 × 62,00 €)",
+          "abzüglich geleistete Abschläge (11 × 62,00 €)",
+          "abzüglich geleistete Abschläge (11 × 62,00 €)",
+          "abzüglich geleistete Abschläge (11 × 62,00 €)",
+          "− 682,00"
+        ],
+        [
+          "Nachzahlung",
+          "Nachzahlung",
+          "Nachzahlung",
+          "Nachzahlung",
+          "56,96"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Fälligkeit",
+          "jeweils zum 15. eines Monats, Februar bis Dezember 2027"
+        ],
+        [
+          "Anzahl",
+          "11 Abschläge"
+        ],
+        [
+          "Betrag je Abschlag",
+          "67,00 €"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Jahr",
+          "Verbrauch (m³)",
+          "Tagesdurchschnitt (Liter)"
+        ],
+        [
+          "2024",
+          "131",
+          "359"
+        ],
+        [
+          "2025",
+          "124",
+          "340"
+        ],
+        [
+          "2026",
+          "119",
+          "326"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Die Gebühren für Schmutz- und Niederschlagswasser beruhen auf der Abwassersatzung der Stadt Lindenau in der Fassung vom 14.11.2025."
+    },
+    {
+      "level": 0,
+      "text": "Die versiegelte Fläche Ihres Grundstücks beträgt laut Veranlagung 142 m²."
+    },
+    {
+      "level": 0,
+      "text": "Der Wasserpreis enthält das Wasserentnahmeentgelt des Landes."
+    }
+  ],
+  "furniture": [
+    "Stadtwerke Lindenau GmbH",
+    "Am Wasserturm 3 · 04769 Lindenau",
+    "Kundenservice 0341 900 418-0 · service@sw-lindenau.example",
+    "Seite 1 von 2",
+    "Stadtwerke Lindenau GmbH · Sitz Lindenau · Amtsgericht Leipzig HRB 30418 · Geschäftsführer: Torsten Weigand",
+    "Bankverbindung: Sparkasse Nordaue · IBAN DE41 8605 5592 0010 4182 27 · BIC SPNADE81XXX",
+    "Seite 2 von 2",
+    "Kundennummer 300 418 227 · Jahresabrechnung 2026"
+  ],
+  "languages": [
+    "de"
+  ],
+  "code": [],
+  "notes": "Two pages. Letterhead (organisation, address, service line) on page 1, running header line on page 2, two-line legal/bank footer on both pages (listed once), \"Seite N von 2\" per page. The address window (with a small return-address line) and the grey info box sit side by side; reading order is window first, then info box (a key/value table, no header row). The return-address line inside the window is body text of the address block, not furniture. Meter table has a two-level header (Zähler and Verbrauch span two rows; Zeitraum and Zählerstand span two columns). Calculation table: section rows \"Trinkwasser\" and \"Abwasser (umsatzsteuerfrei)\" span all five columns; subtotal and total label cells span four columns. The minus sign in \"− 682,00\" is U+2212. The salutation \"Sehr geehrte Familie Brandner,\" and the first sentence that follows are separate visible lines; the key sentence begins with lowercase \"mit\". Hinweise is a CSS square-bullet list."
+}
