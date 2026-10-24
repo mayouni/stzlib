@@ -1,0 +1,3 @@
+in a
+scalar alpha
+out c

@@ -1,0 +1,4 @@
+in a
+out c
+guard { @i > 0 and @i < n - 1 }
+body { @c = (@a[@i - 1] + @a + @a[@i + 1]) / 3 }

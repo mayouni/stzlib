@@ -1,0 +1,12 @@
+knowledge "kp-04"
+
+facts
+    kp-04 | is-a | exercise
+    kp-04 | in-course | kernel-puzzles
+    kp-04 | in-chapter | the-elementwise-kernel
+    kp-04 | puzzle-number | 4
+    kp-04 | teaches | the-element-index-in-the-body
+    kp-04 | starts | red
+
+    kp-04 | elements | 4000
+    kp-04 | input-a | half

@@ -1,0 +1,3 @@
+in c
+scalar m
+out d

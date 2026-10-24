@@ -1,0 +1,13 @@
+knowledge "kp-05"
+
+facts
+    kp-05 | is-a | exercise
+    kp-05 | in-course | kernel-puzzles
+    kp-05 | in-chapter | the-bounds-guard
+    kp-05 | puzzle-number | 5
+    kp-05 | teaches | the-bounds-guard-written-and-omitted
+    kp-05 | starts | red
+
+    kp-05 | elements | 4000
+    kp-05 | input-a | ramp
+    kp-05 | needs | device

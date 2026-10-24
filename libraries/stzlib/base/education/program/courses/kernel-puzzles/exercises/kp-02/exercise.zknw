@@ -1,0 +1,13 @@
+knowledge "kp-02"
+
+facts
+    kp-02 | is-a | exercise
+    kp-02 | in-course | kernel-puzzles
+    kp-02 | in-chapter | the-elementwise-kernel
+    kp-02 | puzzle-number | 2
+    kp-02 | teaches | a-zip-two-inputs-one-output
+    kp-02 | starts | red
+
+    kp-02 | elements | 4000
+    kp-02 | input-a | ramp
+    kp-02 | input-b | half

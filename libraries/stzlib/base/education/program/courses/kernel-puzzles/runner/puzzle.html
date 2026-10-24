@@ -15,6 +15,7 @@
   .dim { color: var(--dim); }
 </style>
 <h1 id="title">Kernel puzzles</h1>
+<div class="dim" id="list"></div>
 <div class="dim" id="where">loading...</div>
 <div class="task" id="task"></div>
 <textarea id="spec" spellcheck="false"></textarea>
@@ -165,6 +166,13 @@ function judge(got, ref, mask, n, suffix) {
 
 let puzzle;
 async function load() {
+  // the course's own list of puzzles, from its manifest
+  try {
+    const cf = facts(await text("../course.zknw"));
+    const ids = cf.filter(p => p[0] === "kernel-puzzles" && p[1] === "has-exercise").map(p => p[2]);
+    el("list").innerHTML = ids.map(x => x === id ? `<b>${x}</b>` : `<a href="?p=${x}&lang=${lang}" style="color:inherit">${x}</a>`).join(" · ")
+      + ` &nbsp; <span>lang:</span> ` + ["en", "fr", "ar", "ha"].map(l => l === lang ? `<b>${l}</b>` : `<a href="?p=${id}&lang=${l}" style="color:inherit">${l}</a>`).join(" ");
+  } catch (e) { el("list").textContent = ""; }
   const fs = facts(await text(exDir + "exercise.zknw"));
   puzzle = {
     facts: fs, reference: await text(exDir + "reference.txt"), starter: await text(exDir + "starter.txt").catch(() => ""),
@@ -181,7 +189,8 @@ function dataFor(spec, n) {
   for (const name of specLines(spec, "in")) {
     const r = fact(puzzle.facts, "input-" + name);
     if (!r) throw new Error(`the puzzle binds no input '${name}'`);
-    const lenS = fact(puzzle.facts, "input-length-" + name);
+    let lenS = fact(puzzle.facts, "input-length-" + name);
+    if (lenS && !/^\d+$/.test(lenS)) lenS = fact(puzzle.facts, "scalar-" + lenS.toLowerCase()); // a length may name a scalar
     inputs.push(recipe(r, lenS ? parseInt(lenS, 10) : n));
   }
   for (const name of specLines(spec, "scalar")) {

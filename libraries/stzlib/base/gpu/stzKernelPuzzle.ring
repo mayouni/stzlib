@@ -171,6 +171,12 @@ class stzKernelPuzzle from stzObject
 				_nLen_ = _nN_
 				_cLen_ = This._Fact("input-length-" + _cName_)
 				if _cLen_ != ""
+					# a length may NAME a scalar ("the input is as long as m says"): the
+					# knowledge graph keeps one edge per node pair, so two facts of one
+					# puzzle cannot both point at the node 1024
+					if NOT (_cLen_[1] >= "0" and _cLen_[1] <= "9")
+						_cLen_ = This._Fact("scalar-" + lower(_cLen_))
+					ok
 					_nLen_ = 0 + _cLen_
 				ok
 				_aB_ + [ _cName_, This._Recipe(@aFacts[_i_][3], _nLen_) ]

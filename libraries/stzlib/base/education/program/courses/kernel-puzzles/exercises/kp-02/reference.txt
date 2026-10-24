@@ -1,0 +1,4 @@
+in a
+in b
+out c
+body { @c = @a + @b }

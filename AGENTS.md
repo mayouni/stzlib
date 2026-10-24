@@ -113,7 +113,7 @@ cd libraries/stzlib/engine && zig build -Ddomains=stz_gpu -j2
 
 The GPU plane, four guards in one folder, each needing a device: the checker with its compute
 ceiling (GK3, 36), the user kernel's own reference (GK6, 34), the grammar's admissions (KP0, 43)
-and the kernel puzzles (KP1, 30: the course `libraries/stzlib/base/education/program/courses/kernel-puzzles`,
+and the kernel puzzles (KP1-KP2, 95: the course `libraries/stzlib/base/education/program/courses/kernel-puzzles`,
 graded by `libraries/stzlib/base/gpu/stzKernelPuzzle.ring` on the desktop and by
 `libraries/stzlib/base/education/program/courses/kernel-puzzles/runner/puzzle.html` in a browser
 with WebGPU, the course folder served over http). The standalone probe `libraries/stzlib/engine/src/gpu_peak_probe.zig`

@@ -1,0 +1,4 @@
+in c
+scalar m
+out d
+body { @d = sum(k, 0, m, @c[k]) }

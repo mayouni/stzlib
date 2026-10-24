@@ -38,6 +38,8 @@ pr()
 ? "-- Scene 0: the course and the puzzle, as the Learning System reads them --"
 oP = StzProgramQ("../../education/program")
 chk("the program declares the course kernel-puzzles", StzFindFirst("kernel-puzzles", oP.Courses()) > 0)
+oCk = oP.CourseQ("kernel-puzzles")
+chk("...and the course names its eight puzzles in four chapters", len(oCk.ChapterIds()) = 4)
 bOpens = TRUE
 try
 	oC = oP.CourseQ("kernel-puzzles")
@@ -103,6 +105,85 @@ else
 	aPr = oEx.ProveItself()
 	? "  wrong refused " + aPr[:wrong] + "   right accepted " + aPr[:right] + "   failures " + @@(aPr[:failures])
 	chk("every wrong answer is refused and every right answer accepted (3 and 2)", aPr[:wrong] = 3 and aPr[:right] = 2 and len(aPr[:failures]) = 0)
+ok
+
+? ""
+? "-- Scene 5 (KP2): puzzles 2 to 8 -- each right answer verified, each wrong answer named, each exercise proving itself --"
+# [ puzzle, description, the words the grader must say ]; a description is written out
+# because the words are the thing under test, not the sibling file that prints them
+aCases = [
+	[ "kp-02", "in a" + char(10) + "in b" + char(10) + "out c" + char(10) + "body { @c = @a + @b }", "verified" ],
+	[ "kp-02", "in a" + char(10) + "in b" + char(10) + "out c" + char(10) + "body { @c = @b + @a }", "verified" ],
+	[ "kp-02", "in a" + char(10) + "in b" + char(10) + "out c" + char(10) + "body { @c = @a - @b }", "mismatch at element 2" ],
+	[ "kp-02", "in a" + char(10) + "in b" + char(10) + "out c" + char(10) + "body { @c = @a + @a }", "mismatch at element 2" ],
+	[ "kp-03", "in a" + char(10) + "scalar alpha" + char(10) + "out c" + char(10) + "body { @c = alpha * @a }", "verified" ],
+	[ "kp-03", "in a" + char(10) + "scalar alpha" + char(10) + "out c" + char(10) + "body { @c = @a * alpha }", "verified" ],
+	[ "kp-03", "in a" + char(10) + "scalar alpha" + char(10) + "out c" + char(10) + "body { @c = @a * 2 }", "mismatch at element 2" ],
+	[ "kp-03", "in a" + char(10) + "scalar alpha" + char(10) + "out c" + char(10) + "body { @c = alpha + @a }", "mismatch at element 1" ],
+	[ "kp-04", "in a" + char(10) + "out c" + char(10) + "body { @c = @a + @i }", "verified" ],
+	[ "kp-04", "in a" + char(10) + "out c" + char(10) + "body { @c = @i + @a }", "verified" ],
+	[ "kp-04", "in a" + char(10) + "out c" + char(10) + "body { @c = @a + @i + 1 }", "mismatch at element 1" ],
+	[ "kp-04", "in a" + char(10) + "out c" + char(10) + "body { @c = @i }", "mismatch at element 2" ],
+	[ "kp-05", "in a" + char(10) + "out c" + char(10) + "guard { @i < n }" + char(10) + "body { @c = @a * 2 }", "verified" ],
+	[ "kp-05", "in a" + char(10) + "out c" + char(10) + "body { @c = @a * 2 }", "verified" ],
+	[ "kp-05", "in a" + char(10) + "out c" + char(10) + "guard none" + char(10) + "body { @c = @a * 2 }", "write-outside at element 4001" ],
+	[ "kp-05", "in a" + char(10) + "out c" + char(10) + "guard { @i < n - 1 }" + char(10) + "body { @c = @a * 2 }", "mismatch at element 4000" ],
+	[ "kp-06", "in a" + char(10) + "out c" + char(10) + "guard { @i > 0 and @i < n - 1 }" + char(10) + "body { @c = (@a[@i - 1] + @a + @a[@i + 1]) / 3 }", "verified" ],
+	[ "kp-06", "in a" + char(10) + "out c" + char(10) + "guard { @i > 0 and @i < n - 1 }" + char(10) + "body { @c = (@a[@i + 1] + @a + @a[@i - 1]) / 3 }", "verified" ],
+	[ "kp-06", "in a" + char(10) + "out c" + char(10) + "body { @c = (@a[@i - 1] + @a + @a[@i + 1]) / 3 }", "mismatch at element 1" ],
+	[ "kp-06", "in a" + char(10) + "out c" + char(10) + "guard { @i > 0 and @i < n - 1 }" + char(10) + "body { @c = (@a[@i - 1] + @a[@i + 1]) / 2 }", "mismatch at element 2" ],
+	[ "kp-07", "in a" + char(10) + "out c" + char(10) + "body { @c = sum(k, 0, 16, @a[@i * 16 + k]) }", "verified" ],
+	[ "kp-07", "in a" + char(10) + "out c" + char(10) + "body { @c = sum(k, 0, 16, @a[k + @i * 16]) }", "verified" ],
+	[ "kp-07", "in a" + char(10) + "out c" + char(10) + "body { @c = sum(k, 0, 15, @a[@i * 16 + k]) }", "mismatch at element 1" ],
+	[ "kp-07", "in a" + char(10) + "out c" + char(10) + "body { @c = sum(k, 0, 16, @a[@i + k]) }", "mismatch at element 2" ],
+	[ "kp-08", "in c" + char(10) + "scalar m" + char(10) + "out d" + char(10) + "body { @d = sum(k, 0, m, @c[k]) }", "verified" ],
+	[ "kp-08", "in c" + char(10) + "scalar m" + char(10) + "out d" + char(10) + "body { @d = sum(k, 0, 1024, @c[k]) }", "verified" ],
+	[ "kp-08", "in c" + char(10) + "scalar m" + char(10) + "out d" + char(10) + "body { @d = sum(k, 0, m - 1, @c[k]) }", "mismatch at element 1" ],
+	[ "kp-08", "in c" + char(10) + "scalar m" + char(10) + "out d" + char(10) + "body { @d = @c }", "mismatch at element 1" ]
+]
+acPuzzles = [ "kp-02", "kp-03", "kp-04", "kp-05", "kp-06", "kp-07", "kp-08" ]
+for cId in acPuzzles
+	oQ = StzKernelPuzzleQ(cId)
+	chk(cId + ": the starter grades 'waiting for your implementation'", oQ.Grade(oQ.Starter()) = "waiting for your implementation")
+	chk(cId + ": the reference grades itself verified on the CPU", oQ.GradeOnCpu(oQ.Reference()) = "verified")
+	chk(cId + ": the task reads in four languages", oQ.Task("en") != "" and oQ.Task("fr") != "" and oQ.Task("ar") != "" and oQ.Task("ha") != "")
+	chk(cId + ": the task ends with what the GPU did differently from a loop", StzFindFirst("differently from a loop", oQ.Task("en")) > 0)
+next
+bDevice = (StzEngineGpuInit($cStzGpuRuntime) != 0 and StzEngineGpuIsAvailable() != 0)
+for aCase in aCases
+	oQ = StzKernelPuzzleQ(aCase[1])
+	if bDevice
+		cV = oQ.Grade(aCase[2])
+	else
+		cV = oQ.GradeOnCpu(aCase[2])
+	ok
+	cBody = StzSplit(aCase[2], char(10))[len(StzSplit(aCase[2], char(10)))]
+	if NOT bDevice and aCase[3] = "write-outside at element 4001"
+		chk(aCase[1] + " " + cBody + " -> (no device: the margin cannot be seen) " + cV, cV = "verified")
+	else
+		chk(aCase[1] + " " + cBody + " -> " + aCase[3], cV = aCase[3])
+	ok
+next
+if bDevice
+	? "  the two paths agree on every VALUE verdict (the margin is the device's alone):"
+	nAgree = 0
+	nValue = 0
+	for aCase in aCases
+		if aCase[3] != "write-outside at element 4001"
+			nValue++
+			if StzKernelPuzzleQ(aCase[1]).GradeOnCpu(aCase[2]) = aCase[3]
+				nAgree++
+			ok
+		ok
+	next
+	chk("...GradeOnCpu says the same words as Grade for all " + nValue + " value cases", nAgree = nValue)
+	? "  each exercise proves itself through the System's checker, by running its programs:"
+	for cId in acPuzzles
+		oE = StzExerciseQ("../../education/program/courses/kernel-puzzles/exercises/" + cId)
+		aPr = oE.ProveItself()
+		chk(cId + ": wrong refused " + aPr[:wrong] + ", right accepted " + aPr[:right] + ", failures " + @@(aPr[:failures]),
+			aPr[:wrong] = 3 and aPr[:right] = 2 and len(aPr[:failures]) = 0)
+	next
 ok
 
 ? ""

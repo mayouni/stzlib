@@ -1,0 +1,4 @@
+in a
+scalar alpha
+out c
+body { @c = alpha * @a }

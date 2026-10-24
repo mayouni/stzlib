@@ -1,0 +1,12 @@
+knowledge "kp-06"
+
+facts
+    kp-06 | is-a | exercise
+    kp-06 | in-course | kernel-puzzles
+    kp-06 | in-chapter | the-stencil
+    kp-06 | puzzle-number | 6
+    kp-06 | teaches | a-stencil-over-neighbours-with-its-edge-guard
+    kp-06 | starts | red
+
+    kp-06 | elements | 4000
+    kp-06 | input-a | mod13

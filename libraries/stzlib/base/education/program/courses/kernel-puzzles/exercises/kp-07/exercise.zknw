@@ -1,0 +1,13 @@
+knowledge "kp-07"
+
+facts
+    kp-07 | is-a | exercise
+    kp-07 | in-course | kernel-puzzles
+    kp-07 | in-chapter | the-reduction
+    kp-07 | puzzle-number | 7
+    kp-07 | teaches | a-two-pass-reduction-the-first-pass
+    kp-07 | starts | red
+
+    kp-07 | elements | 1024
+    kp-07 | input-a | tenths
+    kp-07 | input-length-a | 16384

@@ -3012,3 +3012,60 @@ Next: **KP2**, the eight puzzles from the map to the reduction, each with
 its text in the course's languages, its right and wrong siblings and the
 sentence on what the GPU did differently from a loop; then a named person
 works two of them in the browser, one failing first.
+
+---
+
+## KP2 STATUS — built 2026-10-24: the eight puzzles, from the map to the reduction; the person is owed
+
+Guard: `base/test/gpu/gpu_puzzle_narrated.ring` — **95 asserts green under
+Ring++ (`rnxc`)**, nine minutes on battery (most of it the checker spawning 35 learner programs): for every puzzle the starter waits, the
+reference verifies itself on the CPU, the task reads in four languages and
+ends with what the GPU did differently from a loop; every right and wrong
+description in the table below gets its words on the device; `GradeOnCpu`
+says the same words as `Grade` for all 27 value cases; and every exercise
+PROVES ITSELF through the System's own checker, three wrong refused and
+two right accepted, by running its programs under `rnxc`.
+
+**The eight**, in the order the launch prompt gave, each a folder in the
+exercise shape with its facts, reference, starter, promise (`verified`),
+two right and three wrong programs, and a task in en, fr, ar and ha (fr,
+ar, ha marked provisional):
+
+| puzzle | the kernel | data | the wrong answers the checker names |
+|---|---|---|---|
+| kp-01 map | `@c = @a * 2` | ramp, n 4,000 | starter waits; `* 3` mismatch at 2; `@i * 2` (the cheat) mismatch-hidden at 1 |
+| kp-02 zip | `@c = @a + @b` | ramp, half | `-` mismatch at 2; `@a + @a` (ignores b) mismatch at 2 |
+| kp-03 scalar | `@c = alpha * @a` | ramp, alpha 2.5 | `@a * 2` (hard-coded) mismatch at 2; `alpha + @a` mismatch at 1 |
+| kp-04 index | `@c = @a + @i` | half | `+ 1` (off by one) mismatch at 1; `@i` alone mismatch at 2 |
+| kp-05 the guard | `guard { @i < n }`, `@c = @a * 2` | ramp, n 4,000 (16 groups, 96 idle threads) | `guard none` **write-outside at 4001**; `guard { @i < n - 1 }` mismatch at 4000; the engine's own guard is a right answer too |
+| kp-06 stencil | `guard { @i > 0 and @i < n - 1 }`, `(@a[@i-1] + @a + @a[@i+1]) / 3` | mod13 | no edge guard: mismatch at 1 (the edge the task leaves); forgets itself: mismatch at 2 |
+| kp-07 reduction, pass 1 | `sum(k, 0, 16, @a[@i * 16 + k])` | tenths, 16,384 in, 1,024 out | one short: mismatch at 1; windows sliding by 1: mismatch at 2 |
+| kp-08 reduction, the fold | `sum(k, 0, m, @c[k])` | tenths, 1,024 in (as long as `m` says), 1 out | `m - 1`: mismatch at 1; `@c` (copies the first): mismatch at 1 |
+
+kp-05 carries `needs | device`: its margin mistake is the one thing the
+CPU path cannot see, and a machine without a GPU will not prove that
+exercise. The runner lists the eight from the course manifest and links
+the four languages.
+
+**Found on the way.** The knowledge graph keeps one edge per node pair,
+and a puzzle whose input length and scalar are both 1,024 cannot say so
+twice: an `input-length-<name>` fact may now NAME a scalar ("as long as
+`m` says"), resolved by both runners. And Ring++ raises on `0 + "m"`
+where Ring answered 0, so a numeric test looks at the first character.
+
+**Spot-checked in the desktop app's browser pane on the Intel iGPU** before
+the page was handed over: kp-05 answers *write-outside at element 4001*,
+*mismatch at element 4000* and *verified* for the three guards; kp-08
+answers *verified* for the fold (10.8 ms, 2,048 operations in the
+reference) and *mismatch at element 1* for the copy, in French too.
+
+**PERCEPTGATE — not yet met.** The author asked for the page to work two
+puzzles themselves. Until that happens and their words are recorded here,
+this rung is BUILT, not DONE: every number above is an instrument's. The
+page is served from the course folder (`python -m http.server 8780`, from
+`courses/kernel-puzzles`) at `runner/puzzle.html?p=kp-05`.
+
+Next: the author's two puzzles and their verdict, written here with their
+name; then **KP3** (gated: workgroup memory and a barrier for the tiled
+matmul, softmax and the bandwidth puzzle that reads GK3's roofline) or
+**GK5** (f16 weights on the device), whichever the author names.

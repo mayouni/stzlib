@@ -1,0 +1,14 @@
+knowledge "kp-08"
+
+facts
+    kp-08 | is-a | exercise
+    kp-08 | in-course | kernel-puzzles
+    kp-08 | in-chapter | the-reduction
+    kp-08 | puzzle-number | 8
+    kp-08 | teaches | a-two-pass-reduction-the-fold
+    kp-08 | starts | red
+
+    kp-08 | elements | 1
+    kp-08 | input-c | tenths
+    kp-08 | input-length-c | m
+    kp-08 | scalar-m | 1024

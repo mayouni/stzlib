@@ -1,0 +1,13 @@
+knowledge "kp-03"
+
+facts
+    kp-03 | is-a | exercise
+    kp-03 | in-course | kernel-puzzles
+    kp-03 | in-chapter | the-elementwise-kernel
+    kp-03 | puzzle-number | 3
+    kp-03 | teaches | a-scalar-one-value-for-every-thread
+    kp-03 | starts | red
+
+    kp-03 | elements | 4000
+    kp-03 | input-a | ramp
+    kp-03 | scalar-alpha | 2.5

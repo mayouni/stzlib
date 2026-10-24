@@ -8,7 +8,28 @@ facts
     kernel-puzzles | graded-by | the-checker-against-the-reference-description
 
     kernel-puzzles | has-chapter-01 | the-elementwise-kernel
+    kernel-puzzles | has-chapter-02 | the-bounds-guard
+    kernel-puzzles | has-chapter-03 | the-stencil
+    kernel-puzzles | has-chapter-04 | the-reduction
+
     the-elementwise-kernel | is-a | chapter
     the-elementwise-kernel | has-exercise | kp-01
+    the-elementwise-kernel | has-exercise | kp-02
+    the-elementwise-kernel | has-exercise | kp-03
+    the-elementwise-kernel | has-exercise | kp-04
+    the-bounds-guard | is-a | chapter
+    the-bounds-guard | has-exercise | kp-05
+    the-stencil | is-a | chapter
+    the-stencil | has-exercise | kp-06
+    the-reduction | is-a | chapter
+    the-reduction | has-exercise | kp-07
+    the-reduction | has-exercise | kp-08
 
     kernel-puzzles | has-exercise | kp-01
+    kernel-puzzles | has-exercise | kp-02
+    kernel-puzzles | has-exercise | kp-03
+    kernel-puzzles | has-exercise | kp-04
+    kernel-puzzles | has-exercise | kp-05
+    kernel-puzzles | has-exercise | kp-06
+    kernel-puzzles | has-exercise | kp-07
+    kernel-puzzles | has-exercise | kp-08

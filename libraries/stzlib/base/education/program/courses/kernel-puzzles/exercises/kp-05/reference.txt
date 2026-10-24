@@ -1,0 +1,4 @@
+in a
+out c
+guard { @i < n }
+body { @c = @a * 2 }
