@@ -1898,8 +1898,12 @@ def LastWeekdayOfMonth()
     # Returns today, tomorrow or yesterday, a count of days or weeks within a month of today, else the date as dd/MM/yyyy.
     #
     #   returns    text such as in 3 days, in 1 week, 2 weeks ago or 20/04/2026
-    #   note       follows StzFreezeClock; 8 to 14 days away is 1 week, 15 to 30 days is the whole
-    #              weeks, further away is the plain date
+    #   note       follows StzFreezeClock; English only; every form is lower case, as in ToHuman.
+    #              2 to 7 days away is counted in days, 8 to 30 days is the whole weeks rounded
+    #              down (8 to 13 days is 1 week, 14 days is 2 weeks, 28 to 30 days is 4 weeks),
+    #              and 31 days or more away, in either direction, is the plain dd/MM/yyyy date. The
+    #              limit is a fixed 30 days, not a calendar month. The singular shows only for
+    #              1 week (never 1 days or 1 weeks)
     #   see        ToHuman, ToString
     def ToRelative()
 	    _oToday_ = new stzDate("")
@@ -1918,22 +1922,16 @@ def LastWeekdayOfMonth()
 	    but _nDays_ > 1 and _nDays_ <= 7
 	        return "in " + _nDays_ + " days"
 
-	    but _nDays_ > 7 and _nDays_ <= 14
-	        return "in 1 week"
-
-	    but _nDays_ > 14 and _nDays_ <= 30
+	    but _nDays_ > 7 and _nDays_ <= 30
 	        _nWeeks_ = floor(_nDays_ / 7)
-	        return "in " + _nWeeks_ + " weeks"
+	        return "in " + _nWeeks_ + " week" + Iff(_nWeeks_ = 1, "", "s")
 
 	    but _nDays_ < -1 and _nDays_ >= -7
 	        return '' + (-_nDays_) + " days ago"
 
-	    but _nDays_ < -7 and _nDays_ >= -14
-	        return "1 week ago"
-
-	    but _nDays_ < -14 and _nDays_ >= -30
+	    but _nDays_ < -7 and _nDays_ >= -30
 	        _nWeeks_ = floor((-_nDays_) / 7)
-	        return '' + _nWeeks_ + " weeks ago"
+	        return '' + _nWeeks_ + " week" + Iff(_nWeeks_ = 1, "", "s") + " ago"
 
 	    else
 	        return This.ToString()
