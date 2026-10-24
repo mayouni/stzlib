@@ -2515,6 +2515,15 @@ fn greekMu(a: Allocator, t: []const u8) ![]const u8 {
     return out.items;
 }
 
+// A section row: one text repeated in every cell (a heading spanning the table)
+fn isSectionRow(row: [][]const u8) bool {
+    if (row.len < 2 or row[0].len == 0) return false;
+    for (row[1..]) |c| {
+        if (!std.mem.eql(u8, c, row[0])) return false;
+    }
+    return true;
+}
+
 fn hasLetter(t: []const u8) bool {
     var view = std.unicode.Utf8View.init(t) catch return true;
     var it = view.iterator();
@@ -4896,6 +4905,112 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
             const l = lab.?;
             if (l == 0) continue;
             for (0..n - 1) |j| row[j] = row[l];
+        }
+    }
+    // two tables side by side read as one: its columns fall into a left and a right group that NO row fills both of
+    // (each row belongs to one table or the other) -- one table per group, left then right; and a row repeating the
+    // header row exactly starts a table of its own (two tables stacked, the second with its own header)
+    {
+        var k: usize = 0;
+        while (k < final.items.len) : (k += 1) {
+            const t = final.items[k];
+            if (t.kind != .table or t.rows.len < 4) continue;
+            const n = t.rows[0].len;
+            var split: ?usize = null;
+            if (n >= 4) {
+                var m: usize = 2;
+                while (m + 2 <= n) : (m += 1) {
+                    var both = false;
+                    var nl: usize = 0;
+                    var nr: usize = 0;
+                    for (t.rows) |row| {
+                        if (isSectionRow(row)) continue;
+                        var l = false;
+                        var r = false;
+                        for (row[0..m]) |c| {
+                            if (c.len > 0) l = true;
+                        }
+                        for (row[m..]) |c| {
+                            if (c.len > 0) r = true;
+                        }
+                        if (l and r) both = true;
+                        if (l and !r) nl += 1;
+                        if (r and !l) nr += 1;
+                    }
+                    if (!both and nl >= 2 and nr >= 2) {
+                        split = m;
+                        break;
+                    }
+                }
+            }
+            var parts: std.ArrayList(Block) = .empty;
+            if (split) |m| {
+                const halves = [_][2]usize{ .{ 0, m }, .{ m, n } };
+                for (halves) |hv| {
+                    var rows: std.ArrayList([][]const u8) = .empty;
+                    for (t.rows, 0..) |row, ri| {
+                        if (isSectionRow(row)) {
+                            // (with the half of the next row that is not a section row)
+                            var nx = ri + 1;
+                            while (nx < t.rows.len and isSectionRow(t.rows[nx])) nx += 1;
+                            if (nx < t.rows.len) {
+                                var mine = false;
+                                for (t.rows[nx][hv[0]..hv[1]]) |c| {
+                                    if (c.len > 0) mine = true;
+                                }
+                                if (mine) try rows.append(a, row[hv[0]..hv[1]]);
+                            }
+                            continue;
+                        }
+                        var any = false;
+                        for (row[hv[0]..hv[1]]) |c| {
+                            if (c.len > 0) any = true;
+                        }
+                        if (any) try rows.append(a, row[hv[0]..hv[1]]);
+                    }
+                    var tb2 = t;
+                    tb2.rows = rows.items;
+                    const w = (t.x1 - t.x0) / @as(f32, @floatFromInt(n));
+                    tb2.x0 = t.x0 + w * @as(f32, @floatFromInt(hv[0]));
+                    tb2.x1 = t.x0 + w * @as(f32, @floatFromInt(hv[1]));
+                    try parts.append(a, tb2);
+                }
+            } else try parts.append(a, t);
+            // a row repeating the header row starts a new table
+            var out_parts: std.ArrayList(Block) = .empty;
+            for (parts.items) |pt| {
+                var st: usize = 0;
+                var ri: usize = 1;
+                while (ri <= pt.rows.len) : (ri += 1) {
+                    var cut = ri == pt.rows.len;
+                    if (!cut and ri - st >= 2) {
+                        var same = pt.rows[ri].len == pt.rows[st].len;
+                        var filled: usize = 0;
+                        if (same) for (pt.rows[ri], pt.rows[st]) |c1, c2| {
+                            if (!eq(c1, c2)) same = false;
+                            if (c1.len > 0) filled += 1;
+                        };
+                        if (same and filled >= 2) cut = true;
+                    }
+                    if (!cut) continue;
+                    var tb3 = pt;
+                    tb3.rows = pt.rows[st..ri];
+                    try out_parts.append(a, tb3);
+                    st = ri;
+                }
+            }
+            if (out_parts.items.len <= 1) continue;
+            for (out_parts.items) |*pt| {
+                var flat: std.ArrayList(u8) = .empty;
+                for (pt.rows) |row| for (row) |c| {
+                    if (c.len == 0) continue;
+                    if (flat.items.len > 0) try flat.append(a, ' ');
+                    try flat.appendSlice(a, c);
+                };
+                pt.text = flat.items;
+            }
+            try final.replaceRange(a, k, 1, out_parts.items);
+            k += out_parts.items.len - 1;
         }
     }
     // boxes side by side, each a small table under its own title, read as ONE table whose first row holds only
