@@ -869,6 +869,20 @@ fn utf8Of(a: Allocator, cp: u21) ![]const u8 {
     return try a.dupe(u8, buf[0..n]);
 }
 
+fn latin1ToUtf8(a: Allocator, b: []const u8) ![]const u8 {
+    var out: std.ArrayList(u8) = .empty;
+    for (b) |c| {
+        if (c < 0x80) {
+            try out.append(a, c);
+            continue;
+        }
+        var b4: [4]u8 = undefined;
+        const n = std.unicode.utf8Encode(@as(u21, c), &b4) catch 0;
+        try out.appendSlice(a, b4[0..n]);
+    }
+    return out.items;
+}
+
 fn utf16beToUtf8(a: Allocator, b: []const u8) ![]const u8 {
     var out: std.ArrayList(u8) = .empty;
     var i: usize = 0;
@@ -1121,6 +1135,7 @@ pub const Glyph = struct {
     italic: bool,
     t0: u32, // text in Result.text_bytes
     tn: u16,
+    actual: bool = false, // its text is a marked span's ActualText: logical, never mirrored
 };
 
 const Rule = struct { x0: f32, y0: f32, x1: f32, y1: f32 }; // a thin rectangle or a stroked line: a table ruling
@@ -1157,6 +1172,8 @@ const Interp = struct {
     cur: [2]f64 = .{ 0, 0 },
     start: [2]f64 = .{ 0, 0 },
     depth: u32 = 0,
+    // open marked-content spans: the ActualText of each (null when it has none) and the glyph count at its start
+    marked: std.ArrayList(struct { actual: ?[]const u8, start: usize }) = .empty,
 
     fn fontFor(it: *Interp, res: ?*Dict, name: []const u8) ?*Font {
         const r = res orelse return null;
@@ -1290,6 +1307,48 @@ const Interp = struct {
                     if (data[k] == 'E' and data[k + 1] == 'I' and isWs(data[k - 1]) and (k + 2 >= data.len or isWs(data[k + 2]))) break;
                 }
                 p.i = k + 2;
+                continue;
+            }
+            if (eq(op, "BDC") or eq(op, "BMC")) {
+                // marked content: a span with an /ActualText says what its glyphs READ as (Chrome writes one round
+                // a letter drawn as a base glyph plus an accent glyph its ToUnicode cannot name)
+                var actual: ?[]const u8 = null;
+                if (eq(op, "BDC") and n.len >= 2 and n[1] == .dict) {
+                    if (n[1].dict.get("ActualText")) |v| if (v == .str) {
+                        const sv = v.str;
+                        // (UTF-16 with its byte-order mark, or PDFDocEncoding -- Latin-1 above 0x9F: a no-break
+                        //  space arrives as the byte A0, which copied raw is not UTF-8)
+                        const dec = if (sv.len >= 2 and sv[0] == 0xFE and sv[1] == 0xFF) try utf16beToUtf8(it.a, sv[2..]) else try latin1ToUtf8(it.a, sv);
+                        // (a soft hyphen marks where a word MAY break: invisible, and a hyphen drawn at a line end is
+                        //  a glyph of its own)
+                        actual = try std.mem.replaceOwned(u8, it.a, dec, "\u{00AD}", "");
+                    };
+                }
+                try it.marked.append(it.a, .{ .actual = actual, .start = it.glyphs.items.len });
+                continue;
+            }
+            if (eq(op, "EMC")) {
+                if (it.marked.pop()) |m| if (m.actual) |act| {
+                    const gl = it.glyphs.items;
+                    if (gl.len > m.start) {
+                        // the span's glyphs become ONE glyph over their width, reading as the ActualText
+                        var x0: f32 = gl[m.start].x;
+                        var x1: f32 = gl[m.start].x + gl[m.start].w;
+                        for (gl[m.start..]) |g| {
+                            x0 = @min(x0, g.x);
+                            x1 = @max(x1, g.x + g.w);
+                        }
+                        var first = gl[m.start];
+                        first.x = x0;
+                        first.w = x1 - x0;
+                        first.t0 = @intCast(it.text.items.len);
+                        first.tn = @intCast(act.len);
+                        first.actual = true;
+                        try it.text.appendSlice(it.a, act);
+                        it.glyphs.shrinkRetainingCapacity(m.start);
+                        if (act.len > 0) try it.glyphs.append(it.a, first);
+                    }
+                };
                 continue;
             }
             if (eq(op, "q")) {
@@ -2729,7 +2788,9 @@ fn makeFrag(a: Allocator, gl: []Glyph, ids_in: []u32, text: []const u8, page_no:
         const g = gl[k];
         const t = glyphText(text, g);
         if (rtl > ltr) {
-            const qi = std.mem.indexOfScalar(u32, order, k) orelse 0;
+            const qi_raw = std.mem.indexOfScalar(u32, order, k) orelse 0;
+            // (a glyph whose text is an ActualText already reads logically: mirroring it would undo that)
+            const qi = if (g.actual) in_ltr.len else qi_raw;
             const mirrored: ?[]const u8 = if (qi < in_ltr.len and !in_ltr[qi] and eq(t, "\u{00AB}")) "\u{00BB}" else if (qi < in_ltr.len and !in_ltr[qi] and eq(t, "\u{00BB}")) "\u{00AB}" else if (qi < in_ltr.len and !in_ltr[qi] and eq(t, "\u{2039}")) "\u{203A}" else if (qi < in_ltr.len and !in_ltr[qi] and eq(t, "\u{203A}")) "\u{2039}" else if (qi < in_ltr.len and !in_ltr[qi] and t.len == 1) switch (t[0]) {
                 '(' => ")",
                 ')' => "(",
@@ -3906,6 +3967,10 @@ fn dehyphen(t: []const u8) usize {
     } else if (e >= 3 and t[e - 2] == 0xC2 and t[e - 1] == 0xAD) {
         n = 2;
         e -= 2;
+    } else if (e >= 4 and t[e - 3] == 0xE2 and t[e - 2] == 0x80 and t[e - 1] == 0x90) {
+        // (U+2010, the hyphen an ActualText gives for a hyphen drawn at a line end)
+        n = 3;
+        e -= 3;
     } else return 0;
     if (e > 0 and t[e - 1] == ' ') {
         n += 1;
