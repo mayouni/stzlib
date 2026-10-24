@@ -524,6 +524,22 @@ Scenario("A centred row beside a two-line cell is one row")
 	Then("a two-line cell is joined in its row", aT[3][3], "Distribuciones de frecuencias y representación gráfica")
 EndScenario()
 
+# ---- the nineteenth round: tables (golden_v8, v19)
+
+Scenario("A header row that is the same header twice is two tables side by side")
+	o = StzPdfQ("_data/golden_v19/b14.pdf")
+	aT = o.Tables()
+	Then("five columns, not ten", len(aT[1][1]), 5)
+	Then("the right-hand table is a table of its own", aT[2][2][2], "Beatriz Fontoura")
+EndScenario()
+
+Scenario("A top-aligned cell's second line joins its row")
+	o = StzPdfQ("_data/golden_v8/n13.pdf")
+	aT = o.Tables()[1]
+	Then("the bids table has four rows", len(aT), 4)
+	Then("a two-line company name is one cell", aT[2][1], "Impresa Edile Ventaglio S.r.l.")
+EndScenario()
+
 Scenario("A file that is not a readable PDF is refused with the reason")
 	bRaised = 0
 	cWhy = ""
