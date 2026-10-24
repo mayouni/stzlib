@@ -108,6 +108,70 @@ class stzKernelMaker from stzObject
 	#
 	#   returns    a list of texts
 	#   see        TakesVector, ScalarNames
+	# Evaluates the description on the CPU over the given vectors and scalars, by the engine's interpreter of the same grammar the transpiler reads; needs no GPU.
+	#
+	#   paBindings   the input vectors by name (lists of numbers, one length) and the scalars by name
+	#   returns      a list of numbers, one per element -- what the kernel must produce
+	#   note         GK6 (2026-10-24): this is the checker's reference for a user kernel and the puzzle
+	#                grader's CPU half; the arithmetic is f32 with WGSL's meanings (% truncates,
+	#                round goes to even); the operation count per element is OperationsPerElement()
+	#   warning      raises with the engine's message when the description is refused or a vector is
+	#                missing or ragged
+	#   see          ToWGSL, OperationsPerElement
+	def EvaluateOn(paBindings)
+		_nIn_ = len(@aIns)
+		if _nIn_ = 0
+			StzRaise("stzKernelMaker: no TakesVector input to evaluate over.")
+		ok
+		_aFlat_ = []
+		_n_ = 0
+		for _i_ = 1 to _nIn_
+			_v_ = _Binding(paBindings, @aIns[_i_])
+			if NOT isList(_v_) or len(_v_) = 0
+				StzRaise("stzKernelMaker: vector '" + @aIns[_i_] + "' is missing from the bindings.")
+			ok
+			if _n_ = 0
+				_n_ = len(_v_)
+			but len(_v_) != _n_
+				StzRaise("stzKernelMaker: vector '" + @aIns[_i_] + "' has " + len(_v_) +
+					" elements, the first had " + _n_ + ".")
+			ok
+			_nV_ = len(_v_)
+			for _j_ = 1 to _nV_
+				_aFlat_ + _v_[_j_]
+			next
+		next
+		_aScal_ = []
+		_nS_ = len(@aScalars)
+		for _i_ = 1 to _nS_
+			_s_ = _Binding(paBindings, @aScalars[_i_])
+			if NOT isNumber(_s_)
+				StzRaise("stzKernelMaker: scalar '" + @aScalars[_i_] + "' is missing from the bindings.")
+			ok
+			_aScal_ + _s_
+		next
+		_aOut_ = StzEngineGpuSpecEval(This.Spec(), _aFlat_, _nIn_, _n_, _aScal_)
+		if len(_aOut_) = 0
+			StzRaise("stzKernelMaker: " + StzEngineGpuWgslError())
+		ok
+		return _aOut_
+
+	# Returns the number of operations the description does per element (one per operator or function call), the work a checker's compute ceiling reads against.
+	#
+	#   returns    a number, 0 when the description is refused
+	#   see        EvaluateOn
+	def OperationsPerElement()
+		return StzEngineGpuSpecFlops(This.Spec())
+
+	def _Binding(paBindings, cName)
+		_n_ = len(paBindings)
+		for _i_ = 1 to _n_
+			if isList(paBindings[_i_]) and len(paBindings[_i_]) = 2 and lower("" + paBindings[_i_][1]) = cName
+				return paBindings[_i_][2]
+			ok
+		next
+		return NULL
+
 	def InputNames()
 		return @aIns
 

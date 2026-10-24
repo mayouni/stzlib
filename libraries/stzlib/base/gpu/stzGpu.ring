@@ -510,6 +510,166 @@ class stzGpu from stzObject
 			:hiddensize = _nB_
 		]
 
+	# Verifies a candidate kernel against a kernel description INTERPRETED on the CPU, so a user kernel is checked without a hand-written twin: same inputs, a hidden second shape over different data, a NaN margin after the output that catches a store past the region, and the measured floors and compute peak.
+	#
+	#   poRef        a stzKernelMaker whose description is the reference, evaluated by the engine on the CPU
+	#   pCand        the candidate, a stzKernelMaker on the same declarations or raw WGSL text
+	#   paBindings   the input vectors by name and the scalars by name, as for Verify
+	#   returns      a hashlist report: :verdict among verified, mismatch, mismatch-hidden,
+	#                write-outside, impossible and error, :verified, :firstbad (1-based), :outsideat
+	#                (1-based index of the first store past the region, 0 if none), :maxdiff,
+	#                :maxdiffhidden, :candms, :candgpums, :cpums (the interpreter's time at the visible
+	#                shape), :speedup (cpu over candidate), :flops (the description's operation count
+	#                times n), :peakgflops, :minms, :margin, :clocks, :reps, :hiddensize
+	#   note         GK6 (2026-10-24): the reference is the engine's interpreter of the same grammar the
+	#                transpiler reads, so what the transpiler refuses the interpreter refuses; the
+	#                margin is 256 floats of NaN after the output, inside the binding
+	#   warning      raises an error without a device, when a binding is missing or ragged, when the
+	#                description is refused (with the engine's message), or when a declared shape
+	#                disagrees with its buffers (with both numbers)
+	#   see          Verify, VerifySpecWith
+	def VerifySpec(poRef, pCand, paBindings)
+		return This.VerifySpecWith(poRef, pCand, paBindings, [])
+
+	# Does the same as VerifySpec with options: :reps (timed repetitions, 7) and :band (the allowed difference, 0.000001).
+	#
+	#   poRef        the stzKernelMaker whose description is the reference
+	#   pCand        the candidate, a maker or raw WGSL
+	#   paBindings   the inputs and scalars by name
+	#   paOptions    :reps and :band
+	#   returns      a hashlist report as VerifySpec returns
+	#   see          VerifySpec
+	def VerifySpecWith(poRef, pCand, paBindings, paOptions)
+		This._RequireDevice()
+		_nReps_ = _BindingValue(paOptions, "reps")
+		if NOT isNumber(_nReps_) or _nReps_ < 3
+			_nReps_ = 7
+		ok
+		_nBand_ = _BindingValue(paOptions, "band")
+		if NOT isNumber(_nBand_)
+			_nBand_ = 0.000001
+		ok
+		_aNames_ = poRef.InputNames()
+		_nIn_ = ring_len(_aNames_)
+		if _nIn_ = 0
+			StzRaise("VerifySpec: the reference declares no TakesVector input.")
+		ok
+		_aVecs_ = []
+		_nA_ = 0
+		for _i_ = 1 to _nIn_
+			_v_ = _BindingValue(paBindings, _aNames_[_i_])
+			if NOT isList(_v_) or ring_len(_v_) = 0
+				StzRaise("VerifySpec: vector '" + _aNames_[_i_] + "' is missing from the bindings.")
+			ok
+			if _nA_ = 0
+				_nA_ = ring_len(_v_)
+			but ring_len(_v_) != _nA_
+				StzRaise("VerifySpec: vector '" + _aNames_[_i_] + "' has " + ring_len(_v_) +
+					" elements, the first had " + _nA_ + ".")
+			ok
+			_aVecs_ + _v_
+		next
+		_aScal_ = _OrderedScalars(poRef, paBindings)
+		if isString(pCand)
+			_cCand_ = pCand
+		else
+			_cCand_ = pCand.ToWGSL()
+		ok
+		_nKCand_ = StzEngineGpuKernelCompile(_cCand_)
+		if _nKCand_ = 0
+			StzRaise("VerifySpec: the candidate refused to compile: " + StzEngineGpuLastError())
+		ok
+		# the hidden set, as Verify builds it: odd, tile-uneven, the reversed tail
+		_nB_ = floor(_nA_ * 5 / 7)
+		if _nB_ < 1
+			_nB_ = 1
+		ok
+		if _nB_ > 1 and _nB_ % 2 = 0
+			_nB_--
+		ok
+		_nMargin_ = 256
+		_aIdsA_ = []
+		_aIdsB_ = []
+		for _i_ = 1 to _nIn_
+			_nId_ = StzEngineGpuBufferNew(_nA_ * 4)
+			if _nId_ = 0 or StzEngineGpuBufferUploadList(_nId_, _aVecs_[_i_]) != 0
+				_FreeIds(_aIdsA_)
+				_FreeIds(_aIdsB_)
+				StzRaise("VerifySpec: input upload refused (" + StzEngineGpuLastError() + ")")
+			ok
+			_aIdsA_ + _nId_
+			_aHid_ = []
+			for _j_ = _nA_ to (_nA_ - _nB_ + 1) step -1
+				_aHid_ + _aVecs_[_i_][_j_]
+			next
+			_nId_ = StzEngineGpuBufferNew(_nB_ * 4)
+			if _nId_ = 0 or StzEngineGpuBufferUploadList(_nId_, _aHid_) != 0
+				_FreeIds(_aIdsA_)
+				_FreeIds(_aIdsB_)
+				StzRaise("VerifySpec: hidden-set upload refused (" + StzEngineGpuLastError() + ")")
+			ok
+			_aIdsB_ + _nId_
+		next
+		# the candidate's outputs carry the NaN margin after the region
+		_nOutA_ = StzEngineGpuBufferNew((_nA_ + _nMargin_) * 4)
+		_nOutB_ = StzEngineGpuBufferNew((_nB_ + _nMargin_) * 4)
+		if _nOutA_ = 0 or _nOutB_ = 0
+			_FreeIds(_aIdsA_)
+			_FreeIds(_aIdsB_)
+			StzRaise("VerifySpec: no device buffer for the outputs.")
+		ok
+		_aIdsA_ + _nOutA_
+		_aIdsB_ + _nOutB_
+		_nSt_ = StzEngineGpuVerifySpec(poRef.Spec(), _nKCand_,
+			_nA_, _aScal_, _aIdsA_, ceil(_nA_ / 256.0),
+			_nB_, _aIdsB_, ceil(_nB_ / 256.0),
+			_nReps_, _nBand_)
+		_FreeIds(_aIdsA_)
+		_FreeIds(_aIdsB_)
+		if _nSt_ != 0
+			_cWhy_ = StzEngineGpuVerifyError()
+			if _cWhy_ = ""
+				_cWhy_ = StzEngineGpuLastError()
+			ok
+			StzRaise("VerifySpec: the checker refused to run (status " + _nSt_ + ": " + _cWhy_ + ").")
+		ok
+		_nV_ = StzEngineGpuVerifyResult(0)
+		_nBad_ = StzEngineGpuVerifyResult(3)
+		_nOutside_ = 0
+		if _nV_ = 6 and _nBad_ >= 0
+			_nOutside_ = _nBad_ + 1
+			_nBad_ = 0
+		but _nBad_ >= 0
+			_nBad_++
+		else
+			_nBad_ = 0
+		ok
+		return [
+			:verdict = This._VerdictName(_nV_),
+			:verified = (_nV_ = 0),
+			:maxdiff = StzEngineGpuVerifyResult(1),
+			:maxdiffhidden = StzEngineGpuVerifyResult(2),
+			:firstbad = _nBad_,
+			:outsideat = _nOutside_,
+			:cpums = StzEngineGpuVerifyResult(4),
+			:candms = StzEngineGpuVerifyResult(5),
+			:candgpums = StzEngineGpuVerifyResult(7),
+			:speedup = StzEngineGpuVerifyResult(8),
+			:speedupgpu = StzEngineGpuVerifyResult(9),
+			:floorgbs = StzEngineGpuVerifyResult(10),
+			:submitfloorms = StzEngineGpuVerifyResult(11),
+			:bytes = StzEngineGpuVerifyResult(12),
+			:minms = StzEngineGpuVerifyResult(13),
+			:clocks = StzEngineGpuVerifyResult(14),
+			:reps = StzEngineGpuVerifyResult(15),
+			:jitterms = StzEngineGpuVerifyResult(16),
+			:peakgflops = StzEngineGpuVerifyResult(17),
+			:flops = StzEngineGpuVerifyResult(18),
+			:minmscompute = StzEngineGpuVerifyResult(19),
+			:margin = StzEngineGpuVerifyResult(21),
+			:hiddensize = _nB_
+		]
+
 	# Judges whether a dispatch touching nBytes could finish in nMs on this device, against the measured floors.
 	#
 	#   nBytes     the bytes the dispatch touches
@@ -609,6 +769,8 @@ class stzGpu from stzObject
 			return "impossible"
 		on 4
 			return "reference-impossible"
+		on 6
+			return "write-outside"
 		other
 			return "error"
 		off

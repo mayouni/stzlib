@@ -37,6 +37,7 @@
 
 const std = @import("std");
 const gpu = @import("gpu.zig");
+const wgsl = @import("gpu_wgsl.zig");
 const c = gpu.c;
 
 pub const V_VERIFIED: i32 = 0;
@@ -45,6 +46,7 @@ pub const V_MISMATCH_HIDDEN: i32 = 2; // right where it was shown, wrong where i
 pub const V_IMPOSSIBLE: i32 = 3; // the candidate's time beats the measured floor
 pub const V_REF_IMPOSSIBLE: i32 = 4; // the REFERENCE beats the floor: the measurement is broken
 pub const V_ERROR: i32 = 5;
+pub const V_WRITE_OUTSIDE: i32 = 6; // GK6: the candidate stored past its output region (into the NaN margin)
 
 // result slots -- read back with stz_gpu_verify_result(i)
 pub const R_VERDICT = 0;
@@ -68,7 +70,39 @@ pub const R_PEAK_GFLOPS = 17; // GK3: the compute peak the judge used, GFLOP/s (
 pub const R_FLOPS = 18; // GK3: the FLOPs the caller declared for the candidate (0 = none)
 pub const R_MIN_MS_COMPUTE = 19; // GK3: the compute-only floor for those FLOPs, ms
 pub const R_PEAK_WARM = 20; // GK3: dispatches of the peak kernel until its time stopped improving
+pub const R_MARGIN = 21; // GK6: floats of NaN margin after the output region (0 = none)
 pub const RESULT_SLOTS = 24;
+
+/// GK6: the NaN margin after a spec-checked candidate's output region. One
+/// workgroup's worth: a kernel that drops its bounds guard writes up to 255
+/// elements past n (the last workgroup's tail), and every one of them lands
+/// here. WHAT IT CATCHES: a store to index n or beyond -- the missing or
+/// wrong guard, which is the learner's mistake. WHAT IT CANNOT: a store
+/// below 0 (u32 cannot say it; it wraps to a huge index that WGSL's robust
+/// access drops outside the binding), and a store INSIDE 0..n-1 at the
+/// wrong index, which is a value mismatch and the compare's to catch. A
+/// front margin would be unreachable for the same reason -- the binding is
+/// the kernel's whole world -- so there is one margin, at the end, INSIDE
+/// the binding, which is the only place a kernel can reach past its region.
+pub const MARGIN: usize = 256;
+
+// GK6: the checker's own error text, for the refusals that happen before a
+// dispatch (a spec that does not compile; a shape that disagrees with its
+// buffers), read with stz_gpu_verify_error
+var verr_buf: [256]u8 = @splat(0);
+var verr_len: usize = 0;
+fn verr(comptime fmt: []const u8, args: anytype) void {
+    const m = std.fmt.bufPrint(&verr_buf, fmt, args) catch {
+        verr_len = 0;
+        return;
+    };
+    verr_len = m.len;
+}
+pub fn stz_gpu_verify_error(out: [*]u8, cap: f64) callconv(.c) i32 {
+    const n = @min(verr_len, @as(usize, @intFromFloat(cap)));
+    @memcpy(out[0..n], verr_buf[0..n]);
+    return @intCast(n);
+}
 
 var result: [RESULT_SLOTS]f64 = @splat(0);
 
@@ -83,7 +117,7 @@ var floor_bps: f64 = 0; // bytes per second, copy kernel, warm-min
 var submit_floor_ms: f64 = 0; // the smallest dispatch + sync, warm-min
 var peak_fps: f64 = 0; // GK3: FLOP/s of the dense fma kernel, warm-min, burst
 var peak_warm: usize = 0; // GK3: dispatches it took the peak kernel's time to stop improving
-var wake_best_ns: u64 = std.math.maxInt(u64); // GK3: the fastest 32 MB copy a Wake saw on THIS device
+var wake_best_ns: u64 = std.math.maxInt(u64); // GK3: the fastest 32 MB copy the PREVIOUS Wake saw on this device
 var floors_ready = false;
 var hooked = false;
 
@@ -131,7 +165,7 @@ pub fn stz_gpu_verify_declare_flops(visible: f64, hidden: f64) callconv(.c) void
 
 pub const COPY_N: usize = 4 * 1024 * 1024; // 16 MB in + 16 MB out per copy
 
-const SUBMIT_WGSL =
+pub const SUBMIT_WGSL =
     \\struct StzTile { xoff: u32, p0: u32, p1: u32, p2: u32 };
     \\@group(0) @binding(0) var<uniform> tile : StzTile;
     \\@group(0) @binding(1) var<storage, read_write> o : array<f32>;
@@ -276,10 +310,18 @@ pub fn stz_gpu_wake(budget_ms: f64) callconv(.c) i32 {
     // copies 20x slower, so 3x cannot mistake sleep for awake. Asleep, the
     // loop runs until the flip or the cap. The budget stays a CAP. (A
     // measured copy floor, when there is one, is a second reference.)
+    // The reference is the PREVIOUS Wake's best, not an all-time best: on a
+    // laptop on battery (measured 2026-10-24, 72%, software power cap active)
+    // the awake copy itself moved between 16 and 77 GB/s across an hour, and
+    // an all-time best from a fast state made every later copy look asleep.
     const settle: i32 = 20;
     const min_warm_ns: u64 = 300_000_000;
     var awake_ns: ?u64 = null;
     if (wake_best_ns != std.math.maxInt(u64)) awake_ns = wake_best_ns * 3;
+    var this_best_ns: u64 = std.math.maxInt(u64);
+    defer {
+        if (this_best_ns != std.math.maxInt(u64)) wake_best_ns = this_best_ns;
+    }
     if (floors_ready and floor_bps > 0) {
         const f: u64 = @intFromFloat((2.0 * nbytes / floor_bps) * 3e9);
         awake_ns = if (awake_ns) |a| @min(a, f) else f;
@@ -295,7 +337,7 @@ pub fn stz_gpu_wake(budget_ms: f64) callconv(.c) i32 {
         if (gpu.stz_gpu_dispatch(kc, &ids, 2, wx, 1) != gpu.OK) return count;
         if (gpu.stz_gpu_sync() != gpu.OK) return count;
         const ns = one.read();
-        if (ns < wake_best_ns) wake_best_ns = ns;
+        if (ns < this_best_ns) this_best_ns = ns;
         if (floor_copy_ns) |awake| {
             if (ns < awake) {
                 settled += 1;
@@ -330,17 +372,27 @@ fn ensureFloors() bool {
     // and the iGPU's ramp is ~600 ms. An awake device still returns in ~36 ms.
     _ = stz_gpu_wake(2000);
 
-    // 1. the submit floor: the smallest possible dispatch, warm
+    // 0. GK3: the compute warm-up FIRST. Copies leave sleep but do not lift
+    //    the SM clock; the dense kernel does, and the copy and submit floors
+    //    measured at the lifted clock are the device's (77 GB/s and 0.13 ms
+    //    on the 3050, against 27 GB/s and 0.89 ms read before it once).
+    if (!measurePeak()) return false;
+
+    // 1-2. the submit floor and the copy floor, as the MINIMUM over three
+    //    rounds separated by ~100 ms of dense compute. Measured from a cold
+    //    card on 2026-10-24: copies ran at 6 GB/s for the first 250 ms and
+    //    then at 49-67; and once, after a second of compute, the smallest
+    //    dispatch read 0.82 ms and the copy 16 GB/s where the awake device
+    //    does 0.13 and 77 -- a floor measured in a slow state refuses awake
+    //    work as impossible (the GK0 control itself read "impossible" that
+    //    way). A floor is the fastest the device does; the minimum across
+    //    states, with compute between to move the governor, is that.
     const ks = gpu.stz_gpu_kernel_compile(SUBMIT_WGSL.ptr, @floatFromInt(SUBMIT_WGSL.len));
     if (ks == 0) return false;
     const tiny = gpu.stz_gpu_buffer_new(256);
     if (tiny == 0) return false;
     defer _ = gpu.stz_gpu_buffer_free(tiny);
     const ids1 = [_]i64{tiny};
-    _ = minPlainDispatchMs(ks, &ids1, 1, 1); // warm
-    submit_floor_ms = minPlainDispatchMs(ks, &ids1, 1, 7) orelse return false;
-
-    // 2. the bandwidth floor: a straight copy of 16 MB, warm-min
     const kc = gpu.stz_gpu_kernel_compile(COPY_WGSL.ptr, @floatFromInt(COPY_WGSL.len));
     if (kc == 0) return false;
     const nbytes: f64 = @floatFromInt(COPY_N * 4);
@@ -352,17 +404,45 @@ fn ensureFloors() bool {
     defer _ = gpu.stz_gpu_buffer_free(dst);
     const ids2 = [_]i64{ src, dst };
     const wx: f64 = @floatFromInt(COPY_N / 256);
-    _ = minPlainDispatchMs(kc, &ids2, wx, 1); // warm
-    const copy_ms = minPlainDispatchMs(kc, &ids2, wx, 5) orelse return false;
-    if (copy_ms <= 0) return false;
+    submit_floor_ms = std.math.inf(f64);
+    var copy_ms: f64 = std.math.inf(f64);
+    var round: usize = 0;
+    while (round < 3) : (round += 1) {
+        _ = minPlainDispatchMs(ks, &ids1, 1, 1); // warm
+        const sm = minPlainDispatchMs(ks, &ids1, 1, 7) orelse return false;
+        if (sm < submit_floor_ms) submit_floor_ms = sm;
+        _ = minPlainDispatchMs(kc, &ids2, wx, 1); // warm
+        const cm = minPlainDispatchMs(kc, &ids2, wx, 5) orelse return false;
+        if (cm < copy_ms) copy_ms = cm;
+        if (round < 2 and !burstCompute(100)) return false;
+    }
+    if (copy_ms <= 0 or copy_ms == std.math.inf(f64) or submit_floor_ms == std.math.inf(f64)) return false;
     floor_bps = (2.0 * nbytes) / (copy_ms / 1000.0);
 
-    // 3. GK3: the compute peak -- the dense fma kernel, warm, warm-min of 5
-    //    on the GPU clock where there is one (the submit is 0.1-0.6 ms and
-    //    the burst 4-35 ms, so the wall clock would read 2-10% low)
-    if (!measurePeak()) return false;
-
     floors_ready = true;
+    return true;
+}
+
+/// ~`ms` of back-to-back dense dispatches: the thing that moves the governor.
+fn burstCompute(ms: u64) bool {
+    const kp = gpu.stz_gpu_kernel_compile(PEAK_WGSL.ptr, @floatFromInt(PEAK_WGSL.len));
+    if (kp == 0) return false;
+    const pbytes: f64 = @floatFromInt(PEAK_THREADS * 4);
+    const pin = gpu.stz_gpu_buffer_new(pbytes);
+    if (pin == 0) return false;
+    defer _ = gpu.stz_gpu_buffer_free(pin);
+    const pout = gpu.stz_gpu_buffer_new(pbytes);
+    if (pout == 0) return false;
+    defer _ = gpu.stz_gpu_buffer_free(pout);
+    const pids = [_]i64{ pin, pout };
+    const prm = PeakParams{ .iters = PEAK_ROUNDS / @as(u32, @intCast(PEAK_UNROLL)), .n = @intCast(PEAK_THREADS), .m = 0.999, .b = 0.001 };
+    const params = std.mem.asBytes(&prm);
+    const wxp: f64 = @floatFromInt(PEAK_THREADS / 256);
+    var timer = std.time.Timer.start() catch return false;
+    var g: f64 = -1;
+    while (timer.read() < ms * 1_000_000) {
+        _ = timedDispatch(kp, params, &pids, wxp, false, &g) orelse return false;
+    }
     return true;
 }
 
@@ -394,8 +474,12 @@ fn measurePeak() bool {
     // beat the best by 3%, cap 1500 ms; then the house's warm-min of 5. The
     // peak is the best time seen anywhere in that, and a re-measurement
     // (confirmComputeRefusal) can only raise it.
-    const min_warm_ns: u64 = 300_000_000;
-    const cap_ns: u64 = 1_500_000_000;
+    // min_warm was 300 ms until a cold card (two minutes idle) plateaued at
+    // 990 MHz for the whole of it, read 4.8 TFLOP/s, and the confirmation
+    // re-measurement then read 8.4: the governor's jump is discrete and can
+    // come late, so the warm-up is a full second, once per device and process.
+    const min_warm_ns: u64 = 1_000_000_000;
+    const cap_ns: u64 = 2_000_000_000;
     var timer = std.time.Timer.start() catch return false;
     var best: f64 = std.math.inf(f64);
     var stale: usize = 0;
@@ -807,6 +891,214 @@ pub fn stz_gpu_verify(
     if (ref_min < min_ms) {
         result[R_VERDICT] = V_REF_IMPOSSIBLE;
         return gpu.OK;
+    }
+    if (cand_min < min_ms) {
+        result[R_VERDICT] = V_IMPOSSIBLE;
+        return gpu.OK;
+    }
+    result[R_VERDICT] = V_VERIFIED;
+    return gpu.OK;
+}
+
+// ---------------------------------------------------------------- GK6: the spec as the reference
+const SpecShape = struct { outside: i64, cmp: Compare, cpu_ms: f64 };
+
+/// One shape: read the inputs back, evaluate the spec on the host (timed),
+/// run the candidate into a NaN-filled buffer with a margin, scan the
+/// margin, compare the region. `ids` = inputs then the candidate's output.
+fn checkSpecShape(kcand: i64, params: []const u8, ids: []const i64, n: usize, wx: f64, band: f64, slot_maxabs: usize) ?SpecShape {
+    const alloc = std.heap.c_allocator;
+    const n_in = ids.len - 1;
+    // the inputs, read back from the device buffers the caller filled
+    var host: [8][]f32 = undefined;
+    var ptrs: [8][*]const f32 = undefined;
+    var got: usize = 0;
+    defer for (0..got) |k| alloc.free(host[k]);
+    for (0..n_in) |k| {
+        host[k] = alloc.alloc(f32, n) catch return null;
+        got += 1;
+        if (!readF32(ids[k], host[k])) return null;
+        ptrs[k] = host[k].ptr;
+    }
+    // the scalars, as the params uniform carries them: n, pad, then f32s
+    var scal: [wgsl.MAX_SCALARS]f32 = @splat(0);
+    const n_scal: usize = if (params.len > 8) (params.len - 8) / 4 else 0;
+    for (0..@min(n_scal, wgsl.MAX_SCALARS)) |k| {
+        scal[k] = @bitCast(std.mem.readInt(u32, params[8 + k * 4 ..][0..4], .little));
+    }
+    // the REFERENCE: the spec, on the CPU, timed
+    const ref = alloc.alloc(f32, n) catch return null;
+    defer alloc.free(ref);
+    var t = std.time.Timer.start() catch return null;
+    if (wgsl.stz_gpu_spec_eval(&ptrs, @intCast(n_in), &scal, @intCast(n_scal), @floatFromInt(n), ref.ptr) != 0) return null;
+    const cpu_ms = @as(f64, @floatFromInt(t.read())) / 1e6;
+    // the candidate's region and margin, NaN before it runs
+    const total = n + MARGIN;
+    const cand = alloc.alloc(f32, total) catch return null;
+    defer alloc.free(cand);
+    @memset(cand, std.math.nan(f32));
+    if (gpu.stz_gpu_buffer_write(ids[n_in], @ptrCast(cand.ptr), @floatFromInt(total * 4)) != gpu.OK) return null;
+    var dummy: f64 = 0;
+    _ = timedDispatch(kcand, params, ids, wx, false, &dummy) orelse return null;
+    if (!readF32(ids[n_in], cand)) return null;
+    // the margin: anything that is not NaN was written past the region
+    var outside: i64 = -1;
+    for (cand[n..total], 0..) |x, k| {
+        if (x == x) {
+            outside = @intCast(n + k);
+            break;
+        }
+    }
+    const cmp = compare(ref, cand[0..n], band);
+    result[slot_maxabs] = cmp.maxabs;
+    return .{ .outside = outside, .cmp = cmp, .cpu_ms = cpu_ms };
+}
+
+/// GK6: verify a candidate kernel against a SPEC interpreted on the CPU --
+/// the user kernel's own reference, no Zig twin. ids_a / ids_b are the
+/// inputs then the candidate's OUTPUT buffer, which must hold n + MARGIN
+/// floats (the margin is NaN-filled here and scanned after the dispatch).
+/// Shape assert: every input must hold n floats and the output n + MARGIN,
+/// or the call refuses with both numbers in stz_gpu_verify_error. The
+/// candidate alone is timed (reps, two clocks); the spec's CPU time at the
+/// visible shape is reported in R_REF_MS and R_SPEEDUP is cpu / candidate.
+/// The spec's operation count declares the FLOPs the compute ceiling reads.
+pub fn stz_gpu_verify_spec(
+    spec: [*]const u8,
+    spec_len: f64,
+    kcand: i64,
+    params_a: [*]const u8,
+    len_a: f64,
+    ids_a: [*]const i64,
+    nids_a: i32,
+    n_a: f64,
+    wx_a: f64,
+    params_b: [*]const u8,
+    len_b: f64,
+    ids_b: [*]const i64,
+    nids_b: i32,
+    n_b: f64,
+    wx_b: f64,
+    reps: f64,
+    band: f64,
+) callconv(.c) i32 {
+    result = @splat(0);
+    verr_len = 0;
+    result[R_VERDICT] = V_ERROR;
+    result[R_FIRST_BAD] = -1;
+    result[R_REF_GPU_MS] = -1;
+    result[R_CAND_GPU_MS] = -1;
+    result[R_MARGIN] = @floatFromInt(MARGIN);
+    if (!gpu.isAvail()) {
+        gpu.countFallback();
+        return gpu.FALLBACK;
+    }
+    if (wgsl.stz_gpu_spec_compile(spec, spec_len) != 0) {
+        var e: [256]u8 = undefined;
+        const el = wgsl.stz_gpu_wgsl_error(&e, e.len);
+        verr("spec refused: {s}", .{e[0..@intCast(el)]});
+        return gpu.BAD_ARG;
+    }
+    if (kcand <= 0) return gpu.BAD_ARG;
+    if (nids_a < 2 or nids_a > 8 or nids_b < 2 or nids_b > 8) return gpu.BAD_ARG;
+    const n_in: usize = @intCast(nids_a - 1);
+    if (n_in != @as(usize, @intCast(wgsl.stz_gpu_spec_inputs())) or nids_b != nids_a) {
+        verr("the spec declares {d} input(s); {d} buffer(s) were bound before the output", .{ wgsl.stz_gpu_spec_inputs(), n_in });
+        return gpu.BAD_ARG;
+    }
+    const la: usize = @intFromFloat(len_a);
+    const lb: usize = @intFromFloat(len_b);
+    if (la < 8 or la > gpu.PARAMS_BYTES or lb < 8 or lb > gpu.PARAMS_BYTES) return gpu.BAD_ARG;
+    const na: usize = @intFromFloat(n_a);
+    const nb: usize = @intFromFloat(n_b);
+    if (na == 0 or nb == 0) return gpu.BAD_ARG;
+    const ia = ids_a[0..@intCast(nids_a)];
+    const ib = ids_b[0..@intCast(nids_b)];
+    // THE SHAPE ASSERT: before any dispatch, the declared shape against the buffers
+    for ([_]struct { ids: []const i64, n: usize, name: []const u8 }{ .{ .ids = ia, .n = na, .name = "visible" }, .{ .ids = ib, .n = nb, .name = "hidden" } }) |sh| {
+        for (sh.ids, 0..) |id, k| {
+            const have = gpu.rawBufferSize(id) / 4;
+            const need = if (k == sh.ids.len - 1) sh.n + MARGIN else sh.n;
+            if (have < need) {
+                verr("shape: the {s} shape declares n = {d} but buffer {d} holds {d} floats and needs {d}{s}", .{ sh.name, sh.n, k, have, need, if (k == sh.ids.len - 1) " (n plus the NaN margin)" else "" });
+                return gpu.BAD_ARG;
+            }
+        }
+    }
+    const nreps: usize = @intFromFloat(@max(reps, 3));
+    if (!ensureFloors()) return gpu.GPU_ERROR;
+    const pa = params_a[0..la];
+    const pb = params_b[0..lb];
+    const peak = effectivePeak();
+    result[R_FLOOR_GBS] = floor_bps / 1e9;
+    result[R_SUBMIT_FLOOR_MS] = submit_floor_ms;
+    result[R_PEAK_GFLOPS] = peak / 1e9;
+    result[R_PEAK_WARM] = @floatFromInt(peak_warm);
+    result[R_REPS] = @floatFromInt(nreps);
+    const flops_a: f64 = wgsl.stz_gpu_spec_flops() * n_a;
+    result[R_FLOPS] = flops_a;
+
+    // 1. the visible shape: margin, then values
+    const sa = checkSpecShape(kcand, pa, ia, na, wx_a, band, R_MAXABS_A) orelse return gpu.GPU_ERROR;
+    result[R_REF_MS] = sa.cpu_ms;
+    if (sa.outside >= 0) {
+        result[R_VERDICT] = V_WRITE_OUTSIDE;
+        result[R_FIRST_BAD] = @floatFromInt(sa.outside);
+        return gpu.OK;
+    }
+    if (sa.cmp.first_bad >= 0) {
+        result[R_VERDICT] = V_MISMATCH;
+        result[R_FIRST_BAD] = @floatFromInt(sa.cmp.first_bad);
+        return gpu.OK;
+    }
+    // 2. the hidden shape
+    const sb = checkSpecShape(kcand, pb, ib, nb, wx_b, band, R_MAXABS_B) orelse return gpu.GPU_ERROR;
+    if (sb.outside >= 0) {
+        result[R_VERDICT] = V_WRITE_OUTSIDE;
+        result[R_FIRST_BAD] = @floatFromInt(sb.outside);
+        return gpu.OK;
+    }
+    if (sb.cmp.first_bad >= 0) {
+        result[R_VERDICT] = V_MISMATCH_HIDDEN;
+        result[R_FIRST_BAD] = @floatFromInt(sb.cmp.first_bad);
+        return gpu.OK;
+    }
+    // 3. timing: the candidate alone, warm, two clocks where there are two
+    const two = ensureTs();
+    var cand_min: f64 = std.math.inf(f64);
+    var cand_max: f64 = 0;
+    var cand_gpu_min: f64 = std.math.inf(f64);
+    var r: usize = 0;
+    while (r < nreps) : (r += 1) {
+        var g: f64 = -1;
+        const tc = timedDispatch(kcand, pa, ia, wx_a, two, &g) orelse return gpu.GPU_ERROR;
+        if (tc < cand_min) cand_min = tc;
+        if (tc > cand_max) cand_max = tc;
+        if (g >= 0 and g < cand_gpu_min) cand_gpu_min = g;
+    }
+    result[R_CAND_MS] = cand_min;
+    result[R_JITTER_MS] = cand_max - cand_min;
+    result[R_SPEEDUP] = if (cand_min > 0) sa.cpu_ms / cand_min else 0;
+    const have_gpu = two and cand_gpu_min < std.math.inf(f64);
+    result[R_CLOCKS] = if (have_gpu) 2 else 1;
+    if (have_gpu) {
+        result[R_CAND_GPU_MS] = cand_gpu_min;
+        result[R_SPEEDUP_GPU] = if (cand_gpu_min > 0) sa.cpu_ms / cand_gpu_min else 0;
+    }
+    // 4. the roofline, with the spec's own FLOP count
+    var bytes: f64 = 0;
+    for (ia) |id| bytes += @floatFromInt(gpu.rawBufferSize(id));
+    result[R_BYTES] = bytes;
+    var min_ms = minPossibleMs(bytes, flops_a, floor_bps, submit_floor_ms, peak);
+    const bus_ms = minPossibleMs(bytes, 0, floor_bps, submit_floor_ms, 0);
+    result[R_MIN_MS] = min_ms;
+    result[R_MIN_MS_COMPUTE] = minComputeMs(flops_a, peak);
+    if (cand_min < min_ms and cand_min >= bus_ms and !confirmComputeRefusal(flops_a, cand_min)) {
+        const p2 = effectivePeak();
+        result[R_PEAK_GFLOPS] = p2 / 1e9;
+        min_ms = minPossibleMs(bytes, flops_a, floor_bps, submit_floor_ms, p2);
+        result[R_MIN_MS] = min_ms;
+        result[R_MIN_MS_COMPUTE] = minComputeMs(flops_a, p2);
     }
     if (cand_min < min_ms) {
         result[R_VERDICT] = V_IMPOSSIBLE;

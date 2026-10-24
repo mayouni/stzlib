@@ -584,6 +584,124 @@ fn ring_Verify(p: *anyopaque) callconv(.c) void {
     )));
 }
 
+// GK6. VerifySpec(cSpec, kCand, nA, aScalars, aIdsA, wxA, nB, aIdsB, wxB, reps, band) -> status.
+// Each id list is the inputs then the CANDIDATE's output buffer (n + margin floats).
+fn ring_VerifySpec(p: *anyopaque) callconv(.c) void {
+    const spec = getStr(p, 1);
+    var blob_a: [64]u8 = undefined;
+    var blob_b: [64]u8 = undefined;
+    const la = packParams(p, @intFromFloat(gn(p, 3)), 4, &blob_a) orelse {
+        rn(p, gpu.BAD_ARG);
+        return;
+    };
+    const lb = packParams(p, @intFromFloat(gn(p, 7)), 4, &blob_b) orelse {
+        rn(p, gpu.BAD_ARG);
+        return;
+    };
+    var ids_a: [8]i64 = undefined;
+    var ids_b: [8]i64 = undefined;
+    const na = readIds(p, 5, &ids_a) orelse {
+        rn(p, gpu.BAD_ARG);
+        return;
+    };
+    const nb = readIds(p, 8, &ids_b) orelse {
+        rn(p, gpu.BAD_ARG);
+        return;
+    };
+    rn(p, @floatFromInt(verify.stz_gpu_verify_spec(
+        spec.ptr,
+        @floatFromInt(spec.len),
+        @intFromFloat(gn(p, 2)),
+        &blob_a,
+        @floatFromInt(la),
+        &ids_a,
+        @intCast(na),
+        gn(p, 3),
+        gn(p, 6),
+        &blob_b,
+        @floatFromInt(lb),
+        &ids_b,
+        @intCast(nb),
+        gn(p, 7),
+        gn(p, 9),
+        gn(p, 10),
+        gn(p, 11),
+    )));
+}
+
+// GK6. VerifyError() -> the checker's own refusal text (spec refused; shape)
+fn ring_VerifyError(p: *anyopaque) callconv(.c) void {
+    var buf: [256]u8 = undefined;
+    const n = verify.stz_gpu_verify_error(&buf, buf.len);
+    R.ring_vm_api_retstring2(p, &buf, @intCast(n));
+}
+
+// GK6. SpecEval(cSpec, aFlatInputs, nInputs, n, aScalars) -> list of n numbers
+// ([] with the reason in WgslError). The inputs are n_inputs vectors of n
+// numbers laid end to end. Needs no device: the puzzle grader's CPU half.
+fn ring_SpecEval(p: *anyopaque) callconv(.c) void {
+    const spec = getStr(p, 1);
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    if (wgsl.stz_gpu_spec_compile(spec.ptr, @floatFromInt(spec.len)) != 0) {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    }
+    const n_in: usize = @intFromFloat(gn(p, 3));
+    const n: usize = @intFromFloat(gn(p, 4));
+    const flat = R.gl(p, 2) orelse {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    if (n_in == 0 or n == 0 or n_in > 8 or @as(usize, @intCast(R.ringListSize(flat))) < n_in * n) {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    }
+    const host = allocator.alloc(f32, n_in * n) catch {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    defer allocator.free(host);
+    for (0..n_in * n) |i| {
+        const item = R.ring_list_getitem_gc(null, flat, @intCast(i + 1)) orelse {
+            R.ring_vm_api_retlist(p, out);
+            return;
+        };
+        host[i] = @floatCast(R.ring_item_getnumber(item));
+    }
+    var ptrs: [8][*]const f32 = undefined;
+    for (0..n_in) |k| ptrs[k] = host[k * n ..].ptr;
+    var scal: [14]f32 = @splat(0);
+    var n_scal: usize = 0;
+    if (R.gl(p, 5)) |sl| {
+        n_scal = @min(14, @as(usize, @intCast(R.ringListSize(sl))));
+        for (0..n_scal) |i| {
+            const item = R.ring_list_getitem_gc(null, sl, @intCast(i + 1)) orelse continue;
+            scal[i] = @floatCast(R.ring_item_getnumber(item));
+        }
+    }
+    const res = allocator.alloc(f32, n) catch {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    defer allocator.free(res);
+    if (wgsl.stz_gpu_spec_eval(&ptrs, @intCast(n_in), &scal, @intCast(n_scal), @floatFromInt(n), res.ptr) != 0) {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    }
+    for (res) |x| R.ring_list_adddouble(out, @floatCast(x));
+    R.ring_vm_api_retlist(p, out);
+}
+
+// GK6. SpecFlops(cSpec) -> operations per element (0 if the spec is refused)
+fn ring_SpecFlops(p: *anyopaque) callconv(.c) void {
+    const spec = getStr(p, 1);
+    if (wgsl.stz_gpu_spec_compile(spec.ptr, @floatFromInt(spec.len)) != 0) {
+        rn(p, 0);
+        return;
+    }
+    rn(p, wgsl.stz_gpu_spec_flops());
+}
+
 fn ring_VerifyResult(p: *anyopaque) callconv(.c) void {
     rn(p, verify.stz_gpu_verify_result(@intFromFloat(gn(p, 1))));
 }
@@ -2056,6 +2174,10 @@ pub const regs = [_]R.Reg{
     // GK0 the checker
     .{ .name = "stzenginegpuverify", .func = &ring_Verify },
     .{ .name = "stzenginegpuverifyresult", .func = &ring_VerifyResult },
+    .{ .name = "stzenginegpuverifyspec", .func = &ring_VerifySpec },
+    .{ .name = "stzenginegpuverifyerror", .func = &ring_VerifyError },
+    .{ .name = "stzenginegpuspeceval", .func = &ring_SpecEval },
+    .{ .name = "stzenginegpuspecflops", .func = &ring_SpecFlops },
     .{ .name = "stzenginegpuverifyjudge", .func = &ring_VerifyJudge },
     .{ .name = "stzenginegpuverifyjudgeflops", .func = &ring_VerifyJudgeFlops },
     .{ .name = "stzenginegpuverifydeclareflops", .func = &ring_VerifyDeclareFlops },

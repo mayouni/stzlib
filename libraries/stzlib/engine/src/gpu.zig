@@ -1453,8 +1453,22 @@ fn dispatchInternal(kernel: i64, params: ?[]const u8, buf_ids: [*]const i64, nbu
     bgdesc.layout = k.layout;
     bgdesc.entryCount = nb + base;
     bgdesc.entries = &entries;
+    // GK6 (2026-10-24): a kernel that never reads the params uniform (a
+    // learner's kernel without its bounds guard) gets an auto layout WITHOUT
+    // binding 1, this layer's bind group then carries an entry the layout
+    // lacks, CreateBindGroup returns a non-null INVALID object, and the
+    // submit PANICKED the process. The validation error is raised through
+    // the uncaptured callback right here, so: flush, and refuse by name.
+    const errs_before = counters[CTR_GPU_ERRORS];
+    clearErrors();
     const bg = fns.wgpuDeviceCreateBindGroup(device, &bgdesc);
     if (bg == null) return GPU_ERROR;
+    fns.wgpuInstanceProcessEvents(instance);
+    _ = fns.wgpuDevicePoll(device, 0, null);
+    if (counters[CTR_GPU_ERRORS] > errs_before) {
+        fns.wgpuBindGroupRelease(bg);
+        return GPU_ERROR;
+    }
 
     const total_x: u64 = @intFromFloat(wx);
     const y: u32 = @intFromFloat(wy);

@@ -2735,3 +2735,123 @@ Next: **GK6**, the user kernel's own reference — the KernelMaker spec
 interpreted on the CPU as the checker's reference, NaN guard margins, a
 shape assert — which is where a declared-FLOPs candidate without a Zig
 twin first meets this ceiling.
+
+**Addendum, the same evening, under Ring++ and on battery.** The counts
+above were taken on Ring 1.27 (interim). Told to work against Ring++, the
+desk ran the same guards under `rnxc` from a verification vehicle — the
+migrated lineage `ringpp/migrate-rule-a` plus this plane's files plus
+engine DLLs built for `rpp_init` from this tree by ringpp's
+`engine_copy.py` — and ten of the eleven GPU gates answered the SAME
+counts (verify 36, foundry 27, matmul 18, calibration 10, lifecycle 62,
+ops 37, declarative 20, batch 13, seams 17, deploy 16); the shaped guard
+answers 38 of 40 there because its Scene 3 drives `stzVectorIndex`'s
+seam, which learned to consult the shape with GK1 (September) and the
+lineage split in August. Two Ring++ facts for every GPU guard: counters a
+function touches are `$nPass` / `$nFail` at every site, and an
+engine-only guard loads `stdlibcore.ring`, not `stdlib.ring`. Three
+findings came with the second runtime, none of them about Ring++:
+
+- **The floors are the MINIMUM over three rounds separated by compute.**
+  From a cold card (two minutes idle) copies ran at 6 GB/s for 250 ms and
+  then 49-67; once, after a full second of dense compute, the smallest
+  dispatch read 0.82 ms and the copy 16 GB/s where the awake device does
+  0.13 and 77 — and GK0's own CONTROL then read *impossible*: a floor
+  measured in a slow state refuses awake work. A floor is the fastest the
+  device does; the minimum across states, with 100 ms of dense dispatches
+  between rounds to move the governor, is that.
+- **The peak's warm-up is a full second.** Three hundred milliseconds
+  plateaued at 990 MHz on a cold card (4.8 TFLOP/s), and the confirmation
+  re-measurement read 8.4; the governor's jump is discrete and late. The
+  guard's fixture claims a QUARTER of the peak's time, beyond the 1.76x
+  the clock can swing (990 to 1740 MHz) between two readings.
+- **The machine was on battery** (72%, `sw_power_cap` active, 58-60 °C)
+  for the evening's runs, and that is the local fact behind the swing in
+  every number after the GK3 record: Wake's awake copy itself moved
+  between 16 and 77 GB/s across an hour, so a later Wake now measures
+  itself against the PREVIOUS Wake's best copy, not an all-time best. The
+  GK3 record's power source was not recorded; **a measurement in this
+  plane names its power source from now on**, and the record is to be
+  re-taken on mains.
+
+---
+
+## GK6 STATUS — shipped 2026-10-24: the user kernel's own reference
+
+Guard: `base/test/gpu/gpu_spec_reference_narrated.ring` — **34 asserts
+green under Ring++ (`rnxc`)**, from the verification vehicle described in
+GK3's addendum; Scene 0 and the refusal need no device. Zig:
+`gpu_wgsl.zig` 4 of 5 (the three GK6 tests pass; the fragment-stage test
+fails on the committed file too — a drift of GR4b's, recorded for the
+graphics desk, not touched here), `gpu_verify.zig` 4. Gates re-run under
+`rnxc` after the change: `gpu_verify` 36, `gpu_declarative` 20,
+`gpu_foundry` 27, `gpu_foundry_matmul` 18, `gpu_calibration_shaped` 40.
+
+**Why.** GK0 compares a candidate with a REFERENCE KERNEL on the device.
+A kernel a user writes through `stzKernelMaker` had no reference of its
+own, so the checker could not check it without a Zig twin — and the
+puzzles (KP1) need exactly that: a learner's kernel graded against what
+the description says, with the learner's mistakes named.
+
+**What shipped, and where it lives.** In `gpu_wgsl.zig`, beside the
+transpiler and sharing its directive parser (`parseDecl`, extracted; a
+Zig test holds the emitted WGSL byte-identical to the edge proof's) and
+its whitelist: an INTERPRETER. `stz_gpu_spec_compile` turns the same
+spec into a postfix program over fixed buffers — zero allocation, Zig
+builtins and `std.math` only, so the wasm group carries it and a browser
+can grade without a device — and `stz_gpu_spec_eval` runs it element by
+element in f32 with WGSL's meanings: `%` is the truncated remainder,
+`round` goes to even, and the vector-only names the whitelist carries
+for the fragment stage (`dot`, `cross`, `normalize`, `reflect`, `vecN`)
+are refused by name as not elementwise, where the transpiler would have
+let WGSL fail later. The program counts its operations per element,
+which is the FLOP count GK3's compute ceiling reads: **a user kernel
+declares its own work by what it says.** Decided here: the interpreter
+is Zig native in the same module as the transpiler (one grammar, two
+readers held to agree by a test over a refusal corpus), and the wasm
+group gets it for free; a JavaScript twin would have been a third reader.
+
+In `gpu_verify.zig`: `stz_gpu_verify_spec` reads the candidate's inputs
+back from the device, evaluates the spec on the host (timed; reported as
+the reference's time, and `speedup` is cpu over candidate), fills the
+candidate's output buffer with NaN **including a margin of 256 floats
+after the region**, dispatches, and scans the margin before comparing
+the region; a non-NaN there is `write-outside` with the index named.
+What the margin catches and what it cannot, stated: a store to index n
+or beyond — the missing or wrong bounds guard, the learner's mistake,
+up to a whole workgroup past n; NOT a store below 0 (u32 cannot say it,
+and WGSL's robust access drops the wrapped index outside the binding),
+NOT a store inside the region at the wrong index (a value mismatch, the
+compare's). A front margin is unreachable for the same reason — the
+binding is the kernel's whole world — so there is one margin, at the
+end, inside the binding. A **shape assert** before any dispatch: every
+input must hold n floats and the output n plus the margin, or the call
+refuses with both numbers (`stz_gpu_verify_error`). Face: `stzGpu.VerifySpec`
+/ `VerifySpecWith`, `stzKernelMaker.EvaluateOn` (the CPU reference as a
+list, no device) and `OperationsPerElement`.
+
+**The learner's kernel found a crash on the way, and it is a refusal
+now.** A kernel that never reads the params uniform — the unguarded
+kernel is one — gets an auto layout WITHOUT binding 1; the layer's bind
+group then carries an entry the layout lacks, `wgpuDeviceCreateBindGroup`
+returns a non-null INVALID object, and the submit **panicked the
+process**. `dispatchInternal` now flushes after creating the bind group
+and refuses with wgpu's own message ("Number of bindings in bind group
+descriptor (4) does not match ... (3)"), status 5; Scene 6b asserts the
+process lives. The guard's unguarded fixture keeps `p` alive with a zero
+term so it tests the missing guard alone. For KP0: a kernel the grammar
+emits must always reference `p`, whatever the learner writes.
+
+**Measured, RTX 3050, Ring++, on battery:** the description `@c = @a * 2`
+over 4,096 elements verifies itself in 0.45-1.24 ms on the device against
+0.12-0.15 ms of interpreter on the CPU — at this size the GPU is 3-10x
+SLOWER than the reference, which is the submit floor speaking and the
+first thing a puzzle should teach. The wrong operator is named at
+element 2 by 4,095; the cheat is exact at the visible shape and off by
+8,190 at the hidden one; `sqrt` of a negative is a mismatch at element 1
+on both sides (NaN agrees with nothing); the unguarded kernel at n = 4,000
+is `write-outside` at 4,001; the guarded sibling verifies.
+
+Next: **KP0**, the grammar grows one admission at a time (an index in
+the body, the learner's own bounds guard, the stencil, the reduction),
+each with its probe, its refusal message and its edge-proof case; the
+interpreter here is the reference every admission is checked against.

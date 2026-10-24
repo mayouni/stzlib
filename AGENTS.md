@@ -112,10 +112,16 @@ cd libraries/stzlib/engine && zig build -Ddomains=stz_gpu -j2
 ```
 
 The GPU plane's checker, 36 assertions in one process, needs a device; its compute ceiling
-(GK3) reads against a peak the engine measures on the adapter:
+(GK3) reads against a peak the engine measures on the adapter. The user kernel's own
+reference (GK6: a description interpreted on the CPU, a NaN margin, a shape assert) is the
+second guard, 34 assertions, and runs under Ring++ as every guard does now:
 
 ```bash
 cd libraries/stzlib/base/test/gpu && ring gpu_verify_narrated.ring
+```
+
+```bash
+cd libraries/stzlib/base/test/gpu && ring gpu_spec_reference_narrated.ring
 ```
 
 The standalone probe beside it prints every adapter's peak with its spread, A B A B against
