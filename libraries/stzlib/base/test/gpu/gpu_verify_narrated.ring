@@ -31,8 +31,8 @@
 
 load "../../stzBase.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 pr()
 
@@ -162,8 +162,10 @@ else
 	? "  60.4 GFLOP at the peak would take " + nMsAtPeak + " ms (bus floors: " + aF[:submitfloorms] + " ms submit)"
 	# (the refusal is confirmed against a peak re-measured in the same second, so a
 	#  2x claim stays impossible unless the device doubles its speed meanwhile)
-	chk("reg4's work claimed in HALF the time the peak allows is IMPOSSIBLE by compute",
-		oG.VerifyJudgeFlops(nBytes, nFlops, nMsAtPeak / 2) = "impossible")
+	# a QUARTER, not a half: the confirmation re-measures the peak, and the
+	# card's clock can swing 1.76x (990 to 1740 MHz) between two readings
+	chk("reg4's work claimed in a QUARTER of the time the peak allows is IMPOSSIBLE by compute",
+		oG.VerifyJudgeFlops(nBytes, nFlops, nMsAtPeak / 4) = "impossible")
 	chk("the same work at a quarter of the peak (its real speed) is possible",
 		oG.VerifyJudgeFlops(nBytes, nFlops, nMsAtPeak * 4) = "verified")
 	chk("the same TIME with no FLOPs declared is judged by the bus alone and passes (the judge of before GK3)",
@@ -207,16 +209,16 @@ ok
 
 ? ""
 ? "=========================================="
-? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
+? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
 pf()
 
 func chk cLabel, bCond
 	if bCond
-		nPass++
+		$nPass++
 		? "  [OK] " + cLabel
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cLabel
 	ok
