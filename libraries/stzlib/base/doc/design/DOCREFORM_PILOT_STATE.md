@@ -564,3 +564,8 @@ Next by size: 17 classes at 2 (stzZipFile first), then 28 at 1.
 CreateFromDirectory called FilesInDir and AddString called zip_newentry: neither exists. Both now use the real zip functions (zip_entry_open / write / close). SECURITY: the extract methods were open to ZIP SLIP (../ and backslash names wrote above the target; absolute and over-long names killed the process) and now refuse the whole archive before any write. Zip bombs not addressed. RING FACT: strcmp stops at NUL, so a guard that asserts byte-exactness with strcmp on data that can hold NUL passes vacuously: compare length, every byte and the CRC32. The stzAppServer Static guard should be re-checked for this. Guard 305 assertions.
 Next by size: 16 classes at 2 (stzGeoFeatures first), then 28 at 1.
 
+## 2026-10-24: the stzAppServer Static byte-exactness assertion is re-checked (61f8422fe)
+
+The two 256-byte assertions used strcmp, which stops at the first NUL, so they passed vacuously. They now use AsSame (length, every byte, CRC32); 225 assertions pass; the server code is unchanged. Still weak, owed after the engine DLLs are rebuilt: Same() in file/stzHtmlBuilder_defects_narrated.ring and _RxEq / _RxIn in render/escape_sinks_narrated.ring (strcmp on texts with a NUL in the middle).
+Next by size: 16 classes at 2 (stzGeoFeatures first), then 28 at 1.
+
