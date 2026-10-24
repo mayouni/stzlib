@@ -1,0 +1,271 @@
+{
+  "id": "c11",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "Configuring the NX-400 Edge Router for Fixed-Wireless Sites",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Configuring the NX-400 Edge Router for Fixed-Wireless Sites"
+    },
+    {
+      "level": 2,
+      "text": "1. Purpose and Scope"
+    },
+    {
+      "level": 2,
+      "text": "2. Before You Start"
+    },
+    {
+      "level": 3,
+      "text": "2.1 Safety"
+    },
+    {
+      "level": 2,
+      "text": "3. Port Assignment"
+    },
+    {
+      "level": 2,
+      "text": "4. Initial Configuration"
+    },
+    {
+      "level": 3,
+      "text": "4.1 Load the base configuration"
+    },
+    {
+      "level": 3,
+      "text": "4.2 Site configuration file"
+    },
+    {
+      "level": 2,
+      "text": "5. VLAN Plan"
+    },
+    {
+      "level": 2,
+      "text": "6. Monitoring"
+    },
+    {
+      "level": 2,
+      "text": "7. Acceptance Checks"
+    },
+    {
+      "level": 2,
+      "text": "8. Troubleshooting"
+    },
+    {
+      "level": 2,
+      "text": "9. Revision History"
+    }
+  ],
+  "key_sentences": [
+    "This guide describes how to install and configure an NX-400 edge router at a fixed-wireless base station.",
+    "It covers the initial configuration, the VLAN plan, monitoring and the checks to complete before a site is handed over to operations.",
+    "Never climb the tower or open the cabinet without a second person present.",
+    "Connect to the console port at 115200 baud and log in with the factory account.",
+    "The dry run must finish without errors before the commit is attempted.",
+    "The router exports its metrics to the regional collector every 60 seconds.",
+    "If a fault cannot be cleared within two hours, roll back to the previous configuration and escalate to the on-call engineer."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Document",
+          "KVT-DG-112"
+        ],
+        [
+          "Revision",
+          "C, 12 October 2026"
+        ],
+        [
+          "Applies to",
+          "NX-400 hardware revision 2 and later, firmware 7.4.x"
+        ],
+        [
+          "Owner",
+          "Access Network Engineering"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Port",
+          "Speed",
+          "Connected to",
+          "VLANs"
+        ],
+        [
+          "ge-0/0/0",
+          "1 Gbit/s",
+          "Sector radio A (north)",
+          "210, 999"
+        ],
+        [
+          "ge-0/0/1",
+          "1 Gbit/s",
+          "Sector radio B (south-east)",
+          "211, 999"
+        ],
+        [
+          "ge-0/0/2",
+          "1 Gbit/s",
+          "Sector radio C (south-west)",
+          "212, 999"
+        ],
+        [
+          "xe-0/1/0",
+          "10 Gbit/s",
+          "Microwave backhaul",
+          "100, 300"
+        ],
+        [
+          "ge-0/0/7",
+          "1 Gbit/s",
+          "Site management switch",
+          "999"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "VLAN",
+          "Name",
+          "Purpose",
+          "Notes"
+        ],
+        [
+          "100",
+          "BH-DATA",
+          "Subscriber traffic to the aggregation ring",
+          "Tagged on the backhaul only"
+        ],
+        [
+          "210–212",
+          "SECT-A to SECT-C",
+          "Subscriber traffic per sector",
+          "One VLAN per sector radio Never bridge two sectors"
+        ],
+        [
+          "300",
+          "BH-OAM",
+          "Backhaul radio management",
+          "Reachable from the NOC only"
+        ],
+        [
+          "999",
+          "SITE-MGMT",
+          "Router, switch and radio management",
+          "Untagged on ge-0/0/7"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Symptom",
+          "Likely cause",
+          "Action"
+        ],
+        [
+          "Sector port stays down",
+          "Radio not powered, or PoE budget too low",
+          "Check the injector LED and set the PoE budget to 30 W per port"
+        ],
+        [
+          "Backhaul drops every few minutes",
+          "MTU mismatch with the far end",
+          "Set the MTU to 9100 on both ends and reload the interface"
+        ],
+        [
+          "No metrics on the dashboard",
+          "Collector unreachable from VLAN 999",
+          "Ping the collector from the router and raise a ticket with the NOC"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Revision",
+          "Date",
+          "Change"
+        ],
+        [
+          "A",
+          "3 February 2026",
+          "First issue"
+        ],
+        [
+          "B",
+          "19 June 2026",
+          "Microwave backhaul added"
+        ],
+        [
+          "C",
+          "12 October 2026",
+          "Firmware 7.4 and telemetry section"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "A laptop with an SSH client and the site configuration file from the provisioning portal."
+    },
+    {
+      "level": 0,
+      "text": "The site’s management IP address, gateway and VLAN identifiers."
+    },
+    {
+      "level": 0,
+      "text": "A console cable (RJ45 to USB-C) and a spare SFP+ module."
+    },
+    {
+      "level": 0,
+      "text": "A change ticket in the Approved state."
+    },
+    {
+      "level": 0,
+      "text": "Step 1 Confirm that all three sector ports are up and passing traffic."
+    },
+    {
+      "level": 0,
+      "text": "Step 2 Run a 15-minute throughput test across the backhaul and record the result in the ticket."
+    },
+    {
+      "level": 0,
+      "text": "Step 3 Check that the router appears on the monitoring dashboard with no active alarms."
+    },
+    {
+      "level": 0,
+      "text": "Step 4 Photograph the cabinet, the cable labels and the earth bonding."
+    },
+    {
+      "level": 0,
+      "text": "Step 5 Hand the site over to the Network Operations Centre by phone and close the ticket."
+    }
+  ],
+  "furniture": [
+    "Kestrel Valley Telecom · Field Deployment Guide KVT-DG-112 · Revision C",
+    "Sheet 1 of 3",
+    "Sheet 2 of 3",
+    "Sheet 3 of 3"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "scp KV-0417-base.yaml admin@192.0.2.1:/config/\nssh admin@192.0.2.1\nnxcli config load /config/KV-0417-base.yaml --dry-run\nnxcli config load /config/KV-0417-base.yaml --commit --comment \"KVT-CHG-30218\"",
+    "site:\n  id: KV-0417\n  name: \"Harrow Ridge\"\n  timezone: Europe/London\nmanagement:\n  vlan: 999\n  address: 10.41.7.2/29\n  gateway: 10.41.7.1\nuplink:\n  interface: xe-0/1/0\n  vlans: [100, 300]\n  mtu: 9100\nsectors:\n  - { port: ge-0/0/0, vlan: 210, azimuth: 0 }\n  - { port: ge-0/0/1, vlan: 211, azimuth: 120 }\n  - { port: ge-0/0/2, vlan: 212, azimuth: 240 }",
+    "[telemetry]\ncollector = 10.0.88.20:4317\ninterval_s = 60\nexport = interfaces, optics, cpu, temperature\n\n[alarms]\noptics_rx_low_dbm = -18.0\ntemperature_high_c = 70"
+  ],
+  "notes": "Telecom field deployment guide, 3 pages, body-placed furniture: running header on every page (one line, listed once) and page numbers 'Sheet 1 of 3' ... 'Sheet 3 of 3'. Three code/configuration blocks in Consolas (shell, YAML, INI); code is given exactly, lines joined with \\n, indentation kept. The document-control block is a key/value table without header. Section 2 list uses CSS-drawn square markers (no glyph); section 7 list uses TYPED markers 'Step 1' ... 'Step 5'. VLAN and troubleshooting tables have cells of two lines TOP-aligned. The warning box is body text. Three heading levels."
+}

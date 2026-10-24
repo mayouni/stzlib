@@ -1,0 +1,243 @@
+{
+  "id": "c03",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Niederschrift über die öffentliche Sitzung des Gemeinderates",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Niederschrift über die öffentliche Sitzung des Gemeinderates"
+    },
+    {
+      "level": 2,
+      "text": "Anwesenheit"
+    },
+    {
+      "level": 2,
+      "text": "Tagesordnung"
+    },
+    {
+      "level": 2,
+      "text": "TOP 1 Genehmigung der Niederschrift vom 16.09.2026"
+    },
+    {
+      "level": 2,
+      "text": "TOP 2 Bebauungsplan „Am Mühlbach“ – Satzungsbeschluss"
+    },
+    {
+      "level": 3,
+      "text": "Sachverhalt"
+    },
+    {
+      "level": 3,
+      "text": "Beschluss"
+    },
+    {
+      "level": 2,
+      "text": "TOP 3 Sanierung der Grundschule – Vergabe der Dachdeckerarbeiten"
+    },
+    {
+      "level": 2,
+      "text": "TOP 4 Haushalt 2027 – Eckwerte"
+    },
+    {
+      "level": 2,
+      "text": "TOP 5 Anfragen und Bekanntgaben"
+    }
+  ],
+  "key_sentences": [
+    "Anwesend sind der Vorsitzende und 15 von 16 Mitgliedern des Gemeinderates.",
+    "Der Vorsitzende stellt die ordnungsgemäße Ladung und die Beschlussfähigkeit fest.",
+    "Der Entwurf des Bebauungsplans lag vom 4. August bis zum 8. September 2026 öffentlich aus.",
+    "Während der Auslegung gingen drei Stellungnahmen von Bürgerinnen und Bürgern sowie zwei Stellungnahmen von Behörden ein.",
+    "Der Gemeinderat beschließt den Bebauungsplan „Am Mühlbach“ in der Fassung vom 22.09.2026 als Satzung.",
+    "Der Auftrag wird an die Firma Dachbau Kessler GmbH als wirtschaftlichste Bieterin vergeben.",
+    "Der Gemeinderat nimmt die Eckwerte zustimmend zur Kenntnis und beauftragt die Verwaltung, den Haushaltsplan auf dieser Grundlage aufzustellen."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Datum:",
+          "Mittwoch, 14. Oktober 2026"
+        ],
+        [
+          "Beginn:",
+          "19:00 Uhr"
+        ],
+        [
+          "Ende:",
+          "21:47 Uhr"
+        ],
+        [
+          "Ort:",
+          "Sitzungssaal des Rathauses, Marktplatz 1"
+        ],
+        [
+          "Vorsitz:",
+          "Erster Bürgermeister Tobias Wendrich"
+        ],
+        [
+          "Schriftführung:",
+          "Ilka Sommerfeld, Hauptamt"
+        ]
+      ]
+    },
+    {
+      "caption": "Abstimmungsergebnis zu TOP 1",
+      "rows": [
+        [
+          "Ja",
+          "Nein",
+          "Enthaltung"
+        ],
+        [
+          "15",
+          "0",
+          "1"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Bieter",
+          "Angebotssumme (brutto)",
+          "Rang"
+        ],
+        [
+          "Dachbau Kessler GmbH, Ebersfeld",
+          "187.412,60 €",
+          "1"
+        ],
+        [
+          "Holzmann & Söhne Bedachungen, Lindenhausen",
+          "193.880,15 €",
+          "2"
+        ],
+        [
+          "Steildach Brunnert KG, Oberwang",
+          "201.006,00 €",
+          "3"
+        ],
+        [
+          "Meisterbetrieb Ruland, Talstetten",
+          "214.950,42 €",
+          "4"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Position",
+          "Ansatz 2026",
+          "Entwurf 2027",
+          "Veränderung",
+          "Veränderung"
+        ],
+        [
+          "Position",
+          "Ansatz 2026",
+          "Entwurf 2027",
+          "absolut",
+          "in %"
+        ],
+        [
+          "Erträge Ergebnishaushalt",
+          "18.420",
+          "19.105",
+          "685",
+          "3,7"
+        ],
+        [
+          "Aufwendungen Ergebnishaushalt",
+          "18.010",
+          "18.966",
+          "956",
+          "5,3"
+        ],
+        [
+          "Investitionen",
+          "4.350",
+          "6.120",
+          "1.770",
+          "40,7"
+        ],
+        [
+          "Kreditaufnahme",
+          "0",
+          "1.200",
+          "1.200",
+          "–"
+        ],
+        [
+          "Ordentliches Ergebnis",
+          "410",
+          "139",
+          "−271",
+          "−66,1"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "TOP 1 Genehmigung der Niederschrift vom 16.09.2026"
+    },
+    {
+      "level": 0,
+      "text": "TOP 2 Bebauungsplan „Am Mühlbach“ – Satzungsbeschluss"
+    },
+    {
+      "level": 0,
+      "text": "TOP 3 Sanierung der Grundschule – Vergabe der Dachdeckerarbeiten"
+    },
+    {
+      "level": 0,
+      "text": "TOP 4 Haushalt 2027 – Eckwerte"
+    },
+    {
+      "level": 0,
+      "text": "TOP 5 Anfragen und Bekanntgaben"
+    },
+    {
+      "level": 1,
+      "text": "a) Der Forderung des Wasserwirtschaftsamtes nach einem Gewässerrandstreifen von zehn Metern wird gefolgt."
+    },
+    {
+      "level": 1,
+      "text": "b) Die Anregung, die zulässige Firsthöhe auf 9,50 m anzuheben, wird nicht berücksichtigt."
+    },
+    {
+      "level": 1,
+      "text": "c) Die Hinweise zur Grundstücksentwässerung werden in die Begründung übernommen."
+    },
+    {
+      "level": 0,
+      "text": "– Die Vollsperrung der Kreisstraße zwischen Lindenhausen und Oberwang endet voraussichtlich am 30. Oktober."
+    },
+    {
+      "level": 0,
+      "text": "– Der Weihnachtsmarkt findet am 5. und 6. Dezember auf dem Marktplatz statt."
+    },
+    {
+      "level": 0,
+      "text": "– Gemeinderätin Sabine Ortmann fragt nach dem Stand der Breitbanderschließung im Ortsteil Hagenau; die Verwaltung antwortet schriftlich."
+    }
+  ],
+  "furniture": [
+    "Gemeinde Lindenhausen · Niederschrift über die öffentliche Sitzung des Gemeinderates vom 14.10.2026",
+    "Seite 1 von 2",
+    "Seite 2 von 2"
+  ],
+  "languages": [
+    "de"
+  ],
+  "code": [],
+  "notes": "German council minutes, 2 pages, body-placed furniture. Running header on both pages (one line, listed once) and page number 'Seite 1 von 2' / 'Seite 2 von 2'. First block is a borderless key/value table (no header row). Agenda list has TYPED markers 'TOP 1' ... 'TOP 5'; a typed sub-list uses 'a)', 'b)'; the announcements list under TOP 5 uses a TYPED en dash marker. The budget table has a two-level header ('Veränderung' over 'absolut' and 'in %', other header cells merged over both header rows) and a totals row. Two signature boxes SIDE BY SIDE at the end, read box by box (left first). Some long compounds carry soft hyphens; they are given whole."
+}

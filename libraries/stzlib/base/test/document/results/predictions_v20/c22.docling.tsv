@@ -1,0 +1,29 @@
+heading	1	HARBOURLINE FREIGHT FORWARDING LTD I N V O I C E
+paragraph	0	Unit 9, Quay Logistics Park, Felixmouth FX3 2LQ
+paragraph	0	+44 1632 960 777 · accounts@harbourline.example · VAT GB 000 0418 00
+heading	1	SHI PPER
+paragraph	0	Corvel Agricultural Machines Ltd Brook Lane Industrial Estate Kettering NN15 0AA United Kingdom
+heading	1	CONS IGNEE
+paragraph	0	Tierra Alta Maquinaria S.A.C. Av. Los Fresnos 1418 Callao 07021
+paragraph	0	Peru
+table	0	B/L numberHFFX2611873Vessel / voyageNorthern Larch 047WPort of loadingFelixmouthPort of dischargeCallaoContainers2 × 40 ft HCGross weight31,420 kgIncotermFCA KetteringYour referencePO-TA-5520
+table	0	CodeDescriptionBasisQtyRate (USD)Amount (USD)THC-OTerminal handling, originper container2185.00Origin charges 370.00DOCExport documentation and customs filingper shipment195.0095.00HAULRoad haulage, Kettering to Felixmouthper container2640.001,280.00OFOcean freight, 40 ft high cubeper container22,310.00Freight 4,620.00BAFBunker adjustment factorper container2415.00830.00Terminal handling, destinationDestination chargesTHC-Dper container2210.00420.00DELDelivery order feeper shipment160.0060.00Subtotal7,675.00VAT 0% (export services, zero-rated)VAT 0% (export services, zero-rated)VAT 0% (export services, zero-rated)VAT 0% (export services, zero-rated)VAT 0% (export services, zero-rated)0.00Total dueTotal dueTotal dueTotal dueTotal dueUSD 7,675.00
+heading	1	Bank details (USD account)
+paragraph	0	Bank Felixmouth Merchant Bank
+paragraph	0	Account name
+paragraph	0	Account number Harbourline Freight Forwarding Ltd
+paragraph	0	00-0418-1187
+paragraph	0	Sort code
+paragraph	0	00-00-00
+paragraph	0	SWIFT
+paragraph	0	FXMBGB00
+paragraph	0	No. HFF-26-11873 Date 29 October 2026
+paragraph	0	Due 28 November 2026
+heading	1	NOTIFY PARTY
+paragraph	0	Same as consignee
+paragraph	0	Attn: Import Department
+paragraph	0	imports@tierra-alta.example
+paragraph	0	Payment is due within 30 days of the invoice date, quoting the invoice number as the payment reference. Charges in currencies other than US dollars have been converted at the carrier's rate on the date of sailing.
+paragraph	0	All business is undertaken subject to our standard trading conditions, a copy of which is available on request. Please tell us about any query on this invoice within seven days of receiving it.
+page_footer	0	Registered in England and Wales · Company no. 00000418 · Registered office as above
+page_footer	0	Page 1/1

@@ -1,0 +1,90 @@
+{
+  "id": "c15",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "JUDGMENT",
+  "headings": [
+    {
+      "level": 1,
+      "text": "JUDGMENT"
+    },
+    {
+      "level": 2,
+      "text": "A. Introduction"
+    },
+    {
+      "level": 2,
+      "text": "B. The Facts"
+    },
+    {
+      "level": 2,
+      "text": "C. The Issues"
+    },
+    {
+      "level": 2,
+      "text": "D. Discussion"
+    },
+    {
+      "level": 3,
+      "text": "(1) Custody and causation"
+    },
+    {
+      "level": 3,
+      "text": "(2) The limitation clause"
+    },
+    {
+      "level": 2,
+      "text": "E. Conclusion"
+    }
+  ],
+  "key_sentences": [
+    "The Claimant says that 1,240 tonnes of wheat were rejected by its buyer because they had become infested and damp while in the Defendant’s custody.",
+    "The Defendant accepts that it stored the wheat but denies that the damage occurred while the wheat was in its warehouse.",
+    "On 2 June 2025 the Claimant’s buyer sent a surveyor to sample the wheat before collection.",
+    "A bailee for reward must show that it took reasonable care of the goods, or that its failure to do so did not cause the loss.",
+    "The Defendant’s expert suggested that the weevils could have been present at delivery in numbers too small to detect.",
+    "The Claimant argues that the clause was not incorporated, because the standard terms were first sent after the storage contract had been concluded.",
+    "In my judgment, a reference of that kind is sufficient to incorporate standard terms between commercial parties of equal bargaining power.",
+    "I will hear the parties on interest and costs if they cannot agree them within 14 days of the hand-down of this judgment."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "MARLOWE GRAIN TRADERS LIMITED",
+          "Claimant"
+        ],
+        [
+          "- and -",
+          "- and -"
+        ],
+        [
+          "CRESSWELL LOGISTICS PLC",
+          "Defendant"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "(a) whether the wheat was damaged while it was in the Defendant’s custody; and"
+    },
+    {
+      "level": 0,
+      "text": "(b) if it was, whether clause 14 limits the Defendant’s liability."
+    }
+  ],
+  "furniture": [
+    "1",
+    "Marlowe Grain Traders Ltd v Cresswell Logistics plc — Approved Judgment",
+    "2",
+    "3"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Commercial court judgment, 3 pages, body-placed furniture: running header on pages 2 and 3 (one line, listed once) and bare page numbers '1', '2', '3' centred at the foot. The case heading block on page 1 (citation, claim number, court lines, judge, parties, counsel) is body text; the parties block is a borderless layout table, recorded in tables (its '- and -' row merges both columns). Judgment paragraphs are numbered '1.' to '16.' as part of the body: they are BODY PARAGRAPHS, not list items, and the paragraph number is not part of any key sentence. The only list is paragraph 7's TYPED '(a)' '(b)' sub-list. Two sentences carry footnote markers (superscript 1 and 2) and are left out of key_sentences; the footnote texts at the foot of pages 1 and 2 are neither key sentences nor furniture. Quotations use typographic quotes. The heading 'JUDGMENT' is letter-spaced; it is given as the plain word."
+}

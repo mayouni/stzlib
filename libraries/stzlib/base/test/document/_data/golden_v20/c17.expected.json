@@ -1,0 +1,263 @@
+{
+  "id": "c17",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Task Card: Replacement of No. 2 Engine Bleed Air Valve",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Task Card: Replacement of No. 2 Engine Bleed Air Valve"
+    },
+    {
+      "level": 2,
+      "text": "1. Reason for Work"
+    },
+    {
+      "level": 2,
+      "text": "2. Precautions"
+    },
+    {
+      "level": 2,
+      "text": "3. Tools and Parts"
+    },
+    {
+      "level": 2,
+      "text": "4. Procedure"
+    },
+    {
+      "level": 2,
+      "text": "5. Findings"
+    },
+    {
+      "level": 2,
+      "text": "6. Return to Service"
+    }
+  ],
+  "key_sentences": [
+    "The crew of flight NW218 reported a BLEED 2 FAULT caution during the climb from Elmsford.",
+    "Troubleshooting on arrival confirmed that the valve stayed closed when commanded open.",
+    "The valve is to be replaced in accordance with the reference task.",
+    "Both duct flanges were found free of cracks and heat damage, with light scoring within the limits of the maintenance manual.",
+    "The work recorded on this card has been carried out in accordance with the approved maintenance data, and the aircraft is fit for release in respect of that work."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Task card no.",
+          "TC-26-04417",
+          "Aircraft reg.",
+          "ZK-NWQ"
+        ],
+        [
+          "Aircraft type",
+          "TP-72 series 600",
+          "MSN",
+          "1418"
+        ],
+        [
+          "Station",
+          "Elmsford (EFD)",
+          "Date opened",
+          "23 Oct 2026, 07:40 UTC"
+        ],
+        [
+          "Reference",
+          "AMM 36-11-42-000-801",
+          "Deferral",
+          "MEL 36-11-01 cancelled"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Item",
+          "Part number",
+          "Description",
+          "Qty",
+          "Serial / batch",
+          "Issued by"
+        ],
+        [
+          "1",
+          "BV-3611-07",
+          "Valve, engine bleed, pressure-regulating",
+          "1",
+          "S/N 88214",
+          "Stores EFD"
+        ],
+        [
+          "2",
+          "GK-2270-4",
+          "Gasket, V-band flange",
+          "2",
+          "Batch 26-0915",
+          "Stores EFD"
+        ],
+        [
+          "3",
+          "TW-0150",
+          "Torque wrench, 20–150 lbf·in",
+          "1",
+          "Cal. due 03/2027",
+          "Tool crib"
+        ],
+        [
+          "4",
+          "LW-032",
+          "Lockwire, 0.032 in, stainless",
+          "A/R",
+          "—",
+          "Tool crib"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Step",
+          "Action",
+          "Mech.",
+          "Insp."
+        ],
+        [
+          "1",
+          "Open circuit breakers ENG 2 BLEED CTL and ENG 2 BLEED VLV on panel 21VU. Fit safety clips and DO-NOT-CLOSE tags.",
+          "M-114",
+          "—"
+        ],
+        [
+          "2",
+          "Open the right-hand nacelle cowls and install the cowl hold-open rods.",
+          "M-114",
+          "—"
+        ],
+        [
+          "3",
+          "Disconnect the electrical connector from the bleed valve. Cap the connector and the valve receptacle.",
+          "M-114",
+          "—"
+        ],
+        [
+          "4",
+          "Remove the two V-band clamps and the valve. Discard the gaskets.",
+          "M-114",
+          "—"
+        ],
+        [
+          "5",
+          "Inspect the duct flanges for scoring, cracks and heat damage. Record findings in block 6 of this card.",
+          "M-114",
+          "I-032"
+        ],
+        [
+          "6",
+          "Install the new valve with new gaskets. Position the flow arrow towards the pre-cooler.",
+          "M-114",
+          "—"
+        ],
+        [
+          "7",
+          "Install the V-band clamps and torque to 45–50 lbf·in. Tap around each clamp and re-torque.",
+          "M-114",
+          "I-032"
+        ],
+        [
+          "8",
+          "Reconnect the electrical connector and lockwire it.",
+          "M-114",
+          "I-032"
+        ],
+        [
+          "9",
+          "Close the circuit breakers and run the BITE test from the maintenance panel. Test result: PASS, no fault codes stored.",
+          "M-114",
+          "I-032"
+        ],
+        [
+          "10",
+          "Perform an engine ground run at idle with bleed ON. Check for leaks and that BLEED 2 FAULT does not appear.",
+          "M-207",
+          "I-032"
+        ],
+        [
+          "11",
+          "Close the cowls and remove all tools, tags and safety clips.",
+          "M-207",
+          "—"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Role",
+          "Name",
+          "Licence / stamp",
+          "Date and time (UTC)",
+          "Signature"
+        ],
+        [
+          "Mechanic",
+          "T. Okonkwo-Hale",
+          "M-114",
+          "23 Oct 2026 10:55",
+          ""
+        ],
+        [
+          "Mechanic (engine run)",
+          "L. Brannigan",
+          "M-207",
+          "23 Oct 2026 11:40",
+          ""
+        ],
+        [
+          "Inspector",
+          "S. Varga",
+          "I-032",
+          "23 Oct 2026 11:52",
+          ""
+        ],
+        [
+          "Certifying engineer",
+          "R. Aldous",
+          "B1-77412",
+          "23 Oct 2026 12:05",
+          ""
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Make sure that engine 2 has been shut down for at least 30 minutes before you open the cowls."
+    },
+    {
+      "level": 0,
+      "text": "Use heat-resistant gloves when handling bleed ducts and clamps."
+    },
+    {
+      "level": 0,
+      "text": "Keep the work area clear of loose items while the cowls are open."
+    }
+  ],
+  "furniture": [
+    "Northwind Regional Airways · Line Maintenance · Task Card TC-26-04417",
+    "Form NWR-ME-031 Rev 6 · Uncontrolled when printed",
+    "1 of 2",
+    "2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "ACARS DOWNLINK   NWR218   23OCT26 0612Z\nFLT NW218  EFD-LMR  FL190\nMSG  ENG 2 BLEED FAULT\n     BLEED VLV 2 POS DISAGREE\n     CMD: OPEN    POS: CLOSED\n     BITE CODE 36-11-42  CLASS 2\nEND MSG"
+  ],
+  "notes": "Aircraft line-maintenance task card, 2 pages, body-placed furniture: running header on both pages (one line, listed once), a footer form reference on both pages (listed once) and page numbers '1 of 2' / '2 of 2' at the right of the footer. The ACARS message is a monospaced block in Courier New (given in code). Header data is a four-column key/value table without header row. The procedure table is wide, has cells of two or three lines TOP-aligned, and continues on page 2 with its header repeated (listed once). Precautions list uses CSS-drawn triangle markers (no glyph). The release table's signature column is empty."
+}

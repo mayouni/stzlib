@@ -1,0 +1,223 @@
+{
+  "id": "c24",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Annual Report of the Parochial Church Council for the Year Ended 31 December 2026",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Annual Report of the Parochial Church Council for the Year Ended 31 December 2026"
+    },
+    {
+      "level": 2,
+      "text": "Aims and Purposes"
+    },
+    {
+      "level": 2,
+      "text": "Worship and Ministry"
+    },
+    {
+      "level": 2,
+      "text": "Mission and Outreach"
+    },
+    {
+      "level": 2,
+      "text": "Buildings and Churchyard"
+    },
+    {
+      "level": 2,
+      "text": "Financial Review"
+    },
+    {
+      "level": 2,
+      "text": "Reserves Policy"
+    },
+    {
+      "level": 2,
+      "text": "Approval"
+    }
+  ],
+  "key_sentences": [
+    "The Parochial Church Council works with the incumbent in promoting the whole mission of the Church in the parish, pastoral, evangelistic, social and ecumenical.",
+    "Holy Trinity held 312 services during the year, including a weekly said service in the care home on Mill Lane.",
+    "Average Sunday attendance rose from 86 to 94 adults, with between 15 and 25 children at the monthly family service.",
+    "The repair of the north aisle roof was completed in September, two weeks ahead of schedule and within budget.",
+    "Total income for the year was £148,730, of which £41,200 was given for the roof appeal and is held as a restricted fund.",
+    "The restricted deficit was met from the roof fund balance brought forward from 2025.",
+    "At the end of the year unrestricted reserves stood at £38,940, which meets this policy."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Occasion",
+          "2025",
+          "2026"
+        ],
+        [
+          "Baptisms",
+          "11",
+          "14"
+        ],
+        [
+          "Confirmations",
+          "6",
+          "4"
+        ],
+        [
+          "Weddings",
+          "5",
+          "7"
+        ],
+        [
+          "Funerals",
+          "19",
+          "16"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "",
+          "Funds 2026",
+          "Funds 2026",
+          "Total 2026",
+          "Total 2025"
+        ],
+        [
+          "",
+          "Unrestricted",
+          "Restricted",
+          "Total 2026",
+          "Total 2025"
+        ],
+        [
+          "Income",
+          "Income",
+          "Income",
+          "Income",
+          "Income"
+        ],
+        [
+          "Planned giving",
+          "61,420",
+          "—",
+          "61,420",
+          "58,960"
+        ],
+        [
+          "Collections and donations",
+          "18,350",
+          "41,200",
+          "59,550",
+          "24,110"
+        ],
+        [
+          "Gift Aid recovered",
+          "15,380",
+          "2,150",
+          "17,530",
+          "15,240"
+        ],
+        [
+          "Hall lettings and fees",
+          "10,230",
+          "—",
+          "10,230",
+          "9,870"
+        ],
+        [
+          "Total income",
+          "105,380",
+          "43,350",
+          "148,730",
+          "108,180"
+        ],
+        [
+          "Expenditure",
+          "Expenditure",
+          "Expenditure",
+          "Expenditure",
+          "Expenditure"
+        ],
+        [
+          "Parish share",
+          "58,000",
+          "—",
+          "58,000",
+          "56,500"
+        ],
+        [
+          "Mission giving",
+          "10,540",
+          "—",
+          "10,540",
+          "9,990"
+        ],
+        [
+          "Building repairs",
+          "6,210",
+          "47,980",
+          "54,190",
+          "7,430"
+        ],
+        [
+          "Running costs",
+          "24,870",
+          "—",
+          "24,870",
+          "23,640"
+        ],
+        [
+          "Total expenditure",
+          "99,620",
+          "47,980",
+          "147,600",
+          "97,560"
+        ],
+        [
+          "Net income / (expenditure)",
+          "5,760",
+          "(4,630)",
+          "1,130",
+          "10,620"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Ashcombe Vale Food Bank, which the church also hosts on Tuesday mornings;"
+    },
+    {
+      "level": 0,
+      "text": "the diocesan partnership supporting two rural schools;"
+    },
+    {
+      "level": 0,
+      "text": "a winter night shelter run jointly with the other churches of the town."
+    },
+    {
+      "level": 0,
+      "text": "(i) equal to at least three months of unrestricted expenditure, currently about £25,000; and"
+    },
+    {
+      "level": 0,
+      "text": "(ii) a further £10,000 for urgent repairs not covered by insurance."
+    }
+  ],
+  "furniture": [
+    "Parish of Holy Trinity, Ashcombe Vale · Annual Report 2026",
+    "i",
+    "ii"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Parish church council annual report, 2 pages, body-placed furniture: running header on both pages (one line, listed once) and lower-case roman page numbers 'i' / 'ii' at the foot. The financial statement has a two-level header ('Funds 2026' over 'Unrestricted' and 'Restricted'; other header cells merged over both rows), section rows (Income / Expenditure) spanning all columns, subtotal and net rows; negative amounts are in parentheses. The services table is a small table beside text (text column left, table right; text first). 'Mission and outreach' uses a CSS-drawn cross-shaped marker (no glyph); the reserves policy uses TYPED markers '(i)' '(ii)'. Small capitals are not used; the title is in ordinary letters. The italic line under the title is body text, not a heading."
+}

@@ -1,0 +1,235 @@
+{
+  "id": "c10",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Seguro de Hogar Brezal Plus — Condiciones particulares",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Seguro de Hogar Brezal Plus — Condiciones particulares"
+    },
+    {
+      "level": 2,
+      "text": "Coberturas contratadas"
+    },
+    {
+      "level": 2,
+      "text": "Prima anual"
+    },
+    {
+      "level": 2,
+      "text": "Cláusulas especiales"
+    },
+    {
+      "level": 2,
+      "text": "Declaración del tomador"
+    }
+  ],
+  "key_sentences": [
+    "Las presentes condiciones particulares, junto con las condiciones generales y las especiales, forman el contrato de seguro.",
+    "En caso de contradicción, prevalece lo dispuesto en estas condiciones particulares.",
+    "El tomador declara que los datos facilitados para la valoración del riesgo son ciertos y que no ha sufrido siniestros en los últimos tres años.",
+    "Cualquier modificación del riesgo deberá comunicarse a la aseguradora en el plazo de quince días."
+  ],
+  "tables": [
+    {
+      "caption": "Tomador y asegurado",
+      "rows": [
+        [
+          "Nombre",
+          "Lucía Ferrándiz Olmos"
+        ],
+        [
+          "Cliente n.º",
+          "11-480273"
+        ],
+        [
+          "Domicilio",
+          "C/ Músico Penella 12, 3.º B 46021 Valencia"
+        ],
+        [
+          "Teléfono",
+          "600 000 418"
+        ]
+      ]
+    },
+    {
+      "caption": "Riesgo asegurado",
+      "rows": [
+        [
+          "Situación",
+          "La del domicilio del tomador"
+        ],
+        [
+          "Tipo",
+          "Piso en edificio de 7 plantas"
+        ],
+        [
+          "Año de construcción",
+          "1987"
+        ],
+        [
+          "Superficie",
+          "94 m² construidos"
+        ],
+        [
+          "Uso",
+          "Vivienda habitual"
+        ]
+      ]
+    },
+    {
+      "caption": "Datos de la póliza",
+      "rows": [
+        [
+          "Póliza n.º",
+          "HG-2027-0048113",
+          "Fecha de efecto",
+          "01/02/2027"
+        ],
+        [
+          "Duración",
+          "Anual prorrogable",
+          "Vencimiento",
+          "01/02/2028"
+        ],
+        [
+          "Forma de pago",
+          "Semestral",
+          "Mediador",
+          "Correduría Albufera Riesgos, S.L."
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Garantía",
+          "Capital asegurado",
+          "Franquicia"
+        ],
+        [
+          "Daños materiales",
+          "Daños materiales",
+          "Daños materiales"
+        ],
+        [
+          "Continente estructura e instalaciones fijas",
+          "142.000,00 €",
+          "Sin franquicia"
+        ],
+        [
+          "Contenido mobiliario, ajuar y efectos personales",
+          "38.000,00 €",
+          "Sin franquicia"
+        ],
+        [
+          "Daños por agua incluye localización y reparación de la avería",
+          "Incluido en continente y contenido",
+          "150,00 €"
+        ],
+        [
+          "Rotura de cristales, lunas y encimeras",
+          "1.500,00 €",
+          "Sin franquicia"
+        ],
+        [
+          "Responsabilidad civil",
+          "Responsabilidad civil",
+          "Responsabilidad civil"
+        ],
+        [
+          "Responsabilidad civil familiar",
+          "300.000,00 €",
+          "Sin franquicia"
+        ],
+        [
+          "Responsabilidad civil como propietario de la vivienda",
+          "300.000,00 €",
+          "Sin franquicia"
+        ],
+        [
+          "Asistencia y servicios",
+          "Asistencia y servicios",
+          "Asistencia y servicios"
+        ],
+        [
+          "Asistencia en el hogar 24 horas",
+          "Incluida",
+          "—"
+        ],
+        [
+          "Defensa jurídica",
+          "6.000,00 €",
+          "—"
+        ],
+        [
+          "Asistencia informática remota",
+          "Incluida",
+          "—"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Concepto",
+          "Importe"
+        ],
+        [
+          "Prima neta",
+          "286,40 €"
+        ],
+        [
+          "Recargos legales",
+          "13,85 €"
+        ],
+        [
+          "Impuesto sobre las primas de seguro (6 %)",
+          "17,18 €"
+        ],
+        [
+          "Total prima anual",
+          "317,43 €"
+        ],
+        [
+          "Primer recibo semestral",
+          "158,72 €"
+        ],
+        [
+          "Segundo recibo semestral",
+          "158,71 €"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1.ª Revalorización automática: los capitales asegurados se actualizan en cada vencimiento según el índice de precios de consumo."
+    },
+    {
+      "level": 0,
+      "text": "2.ª Infraseguro: no se aplicará la regla proporcional cuando la diferencia entre el valor real y el capital asegurado no supere el 15 %."
+    },
+    {
+      "level": 0,
+      "text": "3.ª Vivienda deshabitada: la cobertura de robo queda en suspenso si la vivienda permanece deshabitada más de 60 días seguidos."
+    }
+  ],
+  "furniture": [
+    "Aseguradora Brezal, S.A.",
+    "Paseo de la Alameda 41, 46023 Valencia · Tel. 960 000 418 · clientes@brezal.example",
+    "Inscrita en el Registro de Entidades Aseguradoras con la clave C-0000",
+    "Página 1 de 2",
+    "Póliza n.º HG-2027-0048113 · Condiciones particulares",
+    "Página 2 de 2"
+  ],
+  "languages": [
+    "es"
+  ],
+  "code": [],
+  "notes": "Spanish home insurance policy schedule, 2 pages, body-placed furniture. Two boxes SIDE BY SIDE ('Tomador y asegurado' left, 'Riesgo asegurado' right), key/value tables read box by box; their titles are captions. 'Datos de la póliza' is a four-column key/value table without header (key, value, key, value per row). The coverage table has section rows spanning all columns, cells of two lines CENTRED vertically, and continues on page 2 with its header repeated (listed once). The premium table has a totals row. Clauses list uses TYPED markers '1.ª' '2.ª' '3.ª'. Two signature boxes SIDE BY SIDE, read box by box. Letterhead 3 lines on page 1; running header on page 2; page numbers 'Página 1 de 2' / 'Página 2 de 2'. Headings at weight 600 use the Segoe UI Semibold face of the Segoe UI family."
+}

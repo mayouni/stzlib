@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="vi" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>ĐỀ CƯƠNG HỌC PHẦN</title>
+<style>
+@page { size: A4; margin: 0; }
+html, body { margin: 0; padding: 0; background: #fff; }
+body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.page { width: 210mm; height: 297mm; position: relative; overflow: hidden; box-sizing: border-box; break-after: page; page-break-after: always; }
+.page.last { break-after: auto; page-break-after: auto; }
+.pg-body { position: absolute; overflow: hidden; }
+
+body { font-family: 'Open Sans'; color: #1c1c1c; }
+.pg-body { left: 22mm; right: 16mm; top: 14mm; bottom: 20mm; font-size: 9.2pt; line-height: 1.45; }
+.p2 .pg-body { top: 16mm; }
+.lh { display: flex; justify-content: space-between; text-align: center; margin-bottom: 5mm; font-size: 9pt; }
+.lh .l, .lh .r { flex: 0 0 auto; }
+.lh b { font-weight: bold; }
+.lh .u { display: inline-block; border-bottom: 0.6pt solid #000; padding-bottom: 0.5mm; }
+h1 { font-size: 15pt; font-weight: bold; text-align: center; margin: 0 0 0.5mm 0; letter-spacing: 0.1em; }
+.sub { text-align: center; font-size: 11pt; font-weight: bold; margin-bottom: 4mm; color: #0b4f8a; }
+h2 { font-size: 10.5pt; font-weight: bold; margin: 3.5mm 0 1mm 0; color: #0b4f8a; }
+p { margin: 0 0 1.4mm 0; text-align: justify; }
+table { border-collapse: collapse; width: 100%; font-size: 8.6pt; margin: 1mm 0 2mm 0; }
+th { border: 0.6pt solid #333; background: #dbe8f5; padding: 0.9mm 1.5mm; font-weight: bold; }
+td { border: 0.6pt solid #333; padding: 0.7mm 1.5mm; vertical-align: top; }
+table.kv td:first-child { font-weight: bold; width: 32%; background: #f2f6fb; }
+table.kh td:first-child, table.kh td:nth-child(3) { text-align: center; }
+table.dg td + td { text-align: center; }
+table.dg tr.sum td { font-weight: bold; background: #f2f6fb; }
+ul.ab { list-style: none; margin: 0; padding: 0; }
+ul.ab li { padding-left: 6mm; text-indent: -6mm; text-align: justify; }
+ul.ab .mk { display: inline-block; width: 6mm; text-indent: 0; }
+ul.rf { list-style: none; margin: 0; padding: 0; }
+ul.rf li { display: flex; }
+ul.rf .mk { flex: 0 0 8mm; }
+.pn { position: absolute; bottom: 9mm; left: 0; right: 0; text-align: center; font-size: 8.5pt; }
+
+</style>
+
+</head>
+<body>
+<div class="page"><div class="pg-body"><div class="lh"><div class="l"><div class="fl">TRƯỜNG ĐẠI HỌC KHOA HỌC ỨNG DỤNG BÌNH MINH</div><div class="fl"><b class="u">KHOA CÔNG NGHỆ THÔNG TIN</b></div></div><div class="r"><div class="fl"><b>CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</b></div><div class="fl"><b class="u">Độc lập – Tự do – Hạnh phúc</b></div></div></div><h1>ĐỀ CƯƠNG HỌC PHẦN</h1><div class="sub">Nhập môn Khoa học Dữ liệu</div><h2>1. Thông tin chung</h2><table class="kv"><thead></thead><tbody><tr><td>Mã học phần</td><td>CNTT2318</td></tr><tr><td>Số tín chỉ</td><td>3 (2 lý thuyết, 1 thực hành)</td></tr><tr><td>Học phần tiên quyết</td><td>Xác suất thống kê; Lập trình cơ bản</td></tr><tr><td>Giảng viên phụ trách</td><td>TS. Nguyễn Thị Thu Hường</td></tr><tr><td>Học kỳ áp dụng</td><td>Học kỳ II, năm học 2026–2027</td></tr></tbody></table><h2>2. Mục tiêu học phần</h2><p>Học phần cung cấp cho sinh viên những kiến thức nền tảng về quy trình khai thác và phân tích dữ liệu. Sau khi hoàn thành học phần, sinh viên có khả năng:</p><ul class="ab"><li class="l0"><span class="mk">a)</span><span class="it">thu thập, làm sạch và mô tả một tập dữ liệu thực tế bằng ngôn ngữ Python;</span></li><li class="l0"><span class="mk">b)</span><span class="it">xây dựng và đánh giá các mô hình hồi quy, phân loại và phân cụm đơn giản;</span></li><li class="l0"><span class="mk">c)</span><span class="it">trình bày kết quả phân tích một cách rõ ràng và có trách nhiệm với người sử dụng.</span></li></ul><h2>3. Kế hoạch giảng dạy</h2><table class="kh"><thead><tr><th>Tuần</th><th>Nội dung</th><th>Hình thức</th><th>Tài liệu</th></tr></thead><tbody><tr><td>1</td><td>Giới thiệu khoa học dữ liệu; quy trình một dự án dữ liệu</td><td>Lý thuyết</td><td>[1] chương 1</td></tr><tr><td>2</td><td>Python cho phân tích dữ liệu: kiểu dữ liệu, hàm, thư viện</td><td>Lý thuyết<br>Thực hành</td><td>[2] chương 2–3</td></tr><tr><td>3</td><td>Thu thập dữ liệu từ tệp, cơ sở dữ liệu và giao diện lập trình</td><td>Thực hành</td><td>[2] chương 6</td></tr><tr><td>4</td><td>Làm sạch dữ liệu: giá trị thiếu, ngoại lai, chuẩn hóa</td><td>Lý thuyết<br>Thực hành</td><td>[2] chương 7</td></tr><tr><td>5</td><td>Thống kê mô tả và trực quan hóa dữ liệu</td><td>Lý thuyết</td><td>[1] chương 3</td></tr><tr><td>6</td><td>Xác suất cơ bản và phân phối</td><td>Lý thuyết</td><td>[3] chương 2</td></tr><tr><td>7</td><td>Kiểm định giả thuyết; khoảng tin cậy</td><td>Lý thuyết<br>Bài tập</td><td>[3] chương 4</td></tr></tbody></table></div><div class="fl pn">Trang 1/2</div></div>
+<div class="page p2 last"><div class="pg-body"><table class="kh"><thead><tr><th>Tuần</th><th>Nội dung</th><th>Hình thức</th><th>Tài liệu</th></tr></thead><tbody><tr><td>8</td><td>Kiểm tra giữa kỳ</td><td>Kiểm tra</td><td>—</td></tr><tr><td>9</td><td>Hồi quy tuyến tính đơn và bội</td><td>Lý thuyết<br>Thực hành</td><td>[1] chương 5</td></tr><tr><td>10</td><td>Phân loại: hồi quy logistic, cây quyết định</td><td>Lý thuyết<br>Thực hành</td><td>[1] chương 6</td></tr><tr><td>11</td><td>Đánh giá mô hình: ma trận nhầm lẫn, kiểm định chéo</td><td>Thực hành</td><td>[1] chương 7</td></tr><tr><td>12</td><td>Phân cụm k-means và phân cụm phân cấp</td><td>Lý thuyết<br>Thực hành</td><td>[1] chương 8</td></tr><tr><td>13</td><td>Đạo đức dữ liệu và bảo vệ dữ liệu cá nhân</td><td>Thảo luận</td><td>Tài liệu phát tay</td></tr><tr><td>14</td><td>Làm đồ án nhóm có hướng dẫn</td><td>Đồ án</td><td>—</td></tr><tr><td>15</td><td>Báo cáo đồ án nhóm; tổng kết học phần</td><td>Thuyết trình</td><td>—</td></tr></tbody></table><h2>4. Đánh giá kết quả học tập</h2><table class="dg"><thead><tr><th>Thành phần</th><th>Hình thức</th><th>Tỷ trọng</th></tr></thead><tbody><tr><td>Chuyên cần</td><td>Điểm danh, tham gia thảo luận</td><td>10%</td></tr><tr><td>Bài tập thực hành</td><td>5 bài nộp trên hệ thống học trực tuyến</td><td>20%</td></tr><tr><td>Kiểm tra giữa kỳ</td><td>Tự luận, 60 phút</td><td>20%</td></tr><tr><td>Đồ án nhóm</td><td>Báo cáo viết và thuyết trình</td><td>50%</td></tr><tr class="sum"><td>Tổng cộng</td><td></td><td>100%</td></tr></tbody></table><p>Sinh viên vắng quá 20% số tiết học sẽ không được dự thi kết thúc học phần. Mọi hành vi sao chép bài làm hoặc mã nguồn mà không ghi rõ nguồn đều bị xử lý theo quy chế của nhà trường.</p><h2>5. Tài liệu học tập</h2><ul class="rf"><li class="l0"><span class="mk">[1]</span><span class="it">Trần Minh Quân, Giáo trình Khoa học dữ liệu, Nhà xuất bản Bình Minh, 2024.</span></li><li class="l0"><span class="mk">[2]</span><span class="it">Lê Hoàng Yến, Phân tích dữ liệu với Python, tái bản lần thứ ba, 2025.</span></li><li class="l0"><span class="mk">[3]</span><span class="it">Phạm Đức Khải, Xác suất và thống kê ứng dụng, 2023.</span></li></ul><p style="margin-top:3mm">Đề cương này được Hội đồng Khoa học và Đào tạo của Khoa thông qua ngày 15 tháng 9 năm 2026.</p><p style="text-align:right;margin-top:4mm">Trưởng khoa<br><br><br>PGS.TS. Đỗ Văn Lâm</p></div><div class="fl pn">Trang 2/2</div></div>
+</body>
+</html>

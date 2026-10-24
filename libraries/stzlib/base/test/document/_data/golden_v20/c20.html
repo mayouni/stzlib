@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Your electricity bill</title>
+<style>
+@page { size: A4; margin: 0; }
+html, body { margin: 0; padding: 0; background: #fff; }
+body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.page { width: 210mm; height: 297mm; position: relative; overflow: hidden; box-sizing: border-box; break-after: page; page-break-after: always; }
+.page.last { break-after: auto; page-break-after: auto; }
+.pg-body { position: absolute; overflow: hidden; }
+
+body { font-family: Roboto; color: #1d2433; }
+.pg-body { left: 16mm; right: 16mm; top: 13mm; bottom: 18mm; font-size: 9pt; line-height: 1.45; }
+.p2 .pg-body { top: 21mm; }
+.lh { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5mm; }
+.lh .org { font-family: 'Roboto Condensed'; font-weight: bold; font-size: 18pt; color: #0a7c86; letter-spacing: 0.02em; }
+.lh .ad { font-size: 8pt; color: #5b6475; text-align: right; }
+.addr { font-size: 9.6pt; line-height: 1.35; margin-bottom: 5mm; }
+h1 { font-family: 'Roboto Condensed'; font-size: 17pt; font-weight: bold; margin: 0 0 2mm 0; }
+h2 { font-family: 'Roboto Condensed'; font-size: 11.5pt; font-weight: bold; color: #0a7c86; margin: 4mm 0 1.2mm 0; }
+p { margin: 0 0 1.5mm 0; }
+.due { font-size: 13pt; margin: 1mm 0 3mm 0; }
+.due b { color: #0a7c86; font-size: 16pt; }
+.boxes { display: flex; gap: 5mm; margin-bottom: 2mm; }
+.boxes > div { flex: 1; border: 0.8pt solid #9fd3d8; border-radius: 2mm; padding: 2mm 3mm; }
+table { border-collapse: collapse; width: 100%; }
+table.kv caption { text-align: left; font-family: 'Roboto Condensed'; font-weight: bold; font-size: 10pt; color: #0a7c86; padding-bottom: 1mm; }
+table.kv td { padding: 0.4mm 0; }
+table.kv td + td { text-align: right; font-weight: bold; }
+table.ch th { background: #0a7c86; color: #fff; font-family: 'Roboto Condensed'; font-weight: bold; padding: 1mm 2mm; text-align: left; }
+table.ch td { padding: 0.9mm 2mm; }
+table.ch td + td, table.ch th + th { text-align: right; }
+table.ch tbody tr:nth-child(odd) td { background: #eef8f9; }
+table.ch tbody tr.sub td { font-weight: bold; border-top: 0.8pt solid #0a7c86; background: #fff; }
+table.ch tbody tr.tot td { font-weight: bold; background: #0a7c86; color: #fff; }
+table.us { font-size: 8pt; }
+table.us th { font-family: 'Roboto Condensed'; font-weight: bold; border-bottom: 0.8pt solid #0a7c86; padding: 0.6mm 0.8mm; text-align: right; }
+table.us td { padding: 0.6mm 0.8mm; text-align: right; border-bottom: 0.4pt solid #d7e7ea; }
+table.us th:first-child, table.us td:first-child { text-align: left; }
+table.mr th { font-family: 'Roboto Condensed'; text-align: left; border-bottom: 0.8pt solid #0a7c86; padding: 0.8mm 2mm; }
+table.mr td { padding: 0.8mm 2mm; border-bottom: 0.4pt solid #d7e7ea; vertical-align: top; }
+table.tf td { padding: 0.6mm 2mm; border-bottom: 0.4pt solid #d7e7ea; }
+table.tf td:first-child { color: #5b6475; width: 45%; }
+ul.bl { list-style: none; margin: 0; padding: 0; }
+ul.bl li { position: relative; padding-left: 5mm; margin-bottom: 0.6mm; }
+ul.bl li::before { content: ""; position: absolute; left: 1mm; top: 0.55em; width: 1.8mm; height: 1.8mm; border-radius: 50%; background: #0a7c86; }
+.slip { margin-top: 6mm; border: 1pt dashed #5b6475; padding: 3mm 4mm; display: flex; gap: 8mm; }
+.slip .t { flex: 1; }
+.slip .k { flex: 0 0 75mm; }
+.rh { position: absolute; top: 10mm; left: 16mm; right: 16mm; font-size: 8pt; color: #5b6475; border-bottom: 0.5pt solid #9fd3d8; padding-bottom: 1mm; }
+.pn { position: absolute; bottom: 8mm; right: 16mm; font-size: 8pt; color: #5b6475; }
+
+</style>
+
+</head>
+<body>
+<div class="page"><div class="pg-body"><div class="lh"><div><div class="fl org">BRIGHTWATER ENERGY</div></div><div class="ad"><div class="fl ad">Freepost BRIGHTWATER · 0800 000 4180 · brightwater.example</div></div></div><div class="addr">Mr Callum Ferreira-Dunn<br>Flat 3, 27 Linnet Grove<br>Harwell Bridge<br>HB2 9TW</div><h1>Your electricity bill</h1><p>Bill date 4 November 2026 · Billing period 1 October to 31 October 2026 · Account 4400 1873 2291</p><div class="due">Amount due: <b>£85.72</b>, to be collected by Direct Debit on or after 18 November 2026</div><div class="boxes"><div><table class="kv"><caption>Account summary</caption><thead></thead><tbody><tr><td>Previous balance</td><td>£0.00</td></tr><tr><td>Payments received</td><td>£0.00</td></tr><tr><td>Charges this period</td><td>£85.72</td></tr><tr><td>Amount due</td><td>£85.72</td></tr></tbody></table></div><div><table class="kv"><caption>Your usage</caption><thead></thead><tbody><tr><td>Electricity used</td><td>312 kWh</td></tr><tr><td>Solar exported</td><td>41 kWh</td></tr><tr><td>Same period last year</td><td>355 kWh</td></tr><tr><td>Change</td><td>−12%</td></tr></tbody></table></div></div><p>You used 12 per cent less electricity than in October last year. Your solar panels exported 41 kWh to the grid, and we have credited you for every unit.</p><h2>Charges for this period</h2><table class="ch"><thead><tr><th>Description</th><th>Quantity</th><th>Rate</th><th>Amount</th></tr></thead><tbody><tr><td>Day rate electricity</td><td>228 kWh</td><td>£0.2614</td><td>£59.60</td></tr><tr><td>Night rate electricity</td><td>84 kWh</td><td>£0.1392</td><td>£11.69</td></tr><tr><td>Standing charge</td><td>31 days</td><td>£0.5321</td><td>£16.50</td></tr><tr><td>Solar export credit</td><td>41 kWh</td><td>£0.1500</td><td>−£6.15</td></tr><tr class="sub"><td>Subtotal</td><td></td><td></td><td>£81.64</td></tr><tr><td>VAT at 5%</td><td></td><td></td><td>£4.08</td></tr><tr class="tot"><td>Total charges</td><td></td><td></td><td>£85.72</td></tr></tbody></table><h2>How you used energy over the last 12 months</h2><table class="us"><thead><tr><th>kWh</th><th>Nov</th><th>Dec</th><th>Jan</th><th>Feb</th><th>Mar</th><th>Apr</th><th>May</th><th>Jun</th><th>Jul</th><th>Aug</th><th>Sep</th><th>Oct</th></tr></thead><tbody><tr><td>Used</td><td>344</td><td>402</td><td>431</td><td>389</td><td>351</td><td>298</td><td>247</td><td>221</td><td>214</td><td>236</td><td>277</td><td>312</td></tr><tr><td>Exported</td><td>9</td><td>4</td><td>6</td><td>15</td><td>38</td><td>71</td><td>104</td><td>118</td><td>126</td><td>109</td><td>74</td><td>41</td></tr></tbody></table><p>Your highest use was in January, when the heat pump ran for longest. Readings for April and May were estimated.</p></div><div class="fl pn">Page 1 of 2</div></div>
+<div class="page p2 last"><div class="fl rh">Brightwater Energy · Account 4400 1873 2291 · Bill date 4 November 2026</div><div class="pg-body"><h2>Meter readings</h2><table class="mr"><thead><tr><th>Meter</th><th>Register</th><th>Previous reading</th><th>Current reading</th><th>Type</th></tr></thead><tbody><tr><td>Z18E 004418</td><td>Day</td><td>18 204 (30 Sep)</td><td>18 432 (31 Oct)</td><td>Actual<br>sent by smart meter</td></tr><tr><td>Z18E 004418</td><td>Night</td><td>7 715 (30 Sep)</td><td>7 799 (31 Oct)</td><td>Actual<br>sent by smart meter</td></tr><tr><td>Z18E 004418</td><td>Export</td><td>2 961 (30 Sep)</td><td>3 002 (31 Oct)</td><td>Actual<br>sent by smart meter</td></tr></tbody></table><h2>Your tariff</h2><table class="tf"><thead></thead><tbody><tr><td>Tariff name</td><td>Brightwater Fixed Green 24</td></tr><tr><td>Tariff type</td><td>Fixed price, two-rate</td></tr><tr><td>Ends on</td><td>31 March 2028</td></tr><tr><td>Exit fee</td><td>£50 per fuel if you leave before 1 February 2028</td></tr><tr><td>Payment method</td><td>Monthly Direct Debit</td></tr></tbody></table><p>Your prices are fixed until your tariff ends, so your bills will change only with the amount of energy you use. We will write to you at least 49 days before the end date with your renewal options.</p><h2>Ways to pay</h2><ul class="bl"><li class="l0">Direct Debit: we collect the amount due automatically each month.</li><li class="l0">Online or in the Brightwater app, by debit card at any time.</li><li class="l0">By phone on 0800 000 4180, using our automated payment line.</li><li class="l0">At any post office counter, using the payment slip below.</li></ul><h2>If something is wrong</h2><p>If you think your bill is wrong, please call us or use the contact form in the app, and we will look into it within five working days. If we cannot resolve your complaint within eight weeks, you can ask the independent energy ombudsman to review it free of charge.</p><div class="slip"><div class="t"><b>Payment slip</b><br>Please bring this slip if you pay at a post office counter. Do not use it if you pay by Direct Debit.</div><div class="k"><table class="tf"><thead></thead><tbody><tr><td>Account</td><td>4400 1873 2291</td></tr><tr><td>Amount due</td><td>£85.72</td></tr><tr><td>Pay by</td><td>18 November 2026</td></tr></tbody></table></div></div></div><div class="fl pn">Page 2 of 2</div></div>
+</body>
+</html>

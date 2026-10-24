@@ -1,0 +1,296 @@
+{
+  "id": "c20",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Your electricity bill",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Your electricity bill"
+    },
+    {
+      "level": 2,
+      "text": "Charges for this period"
+    },
+    {
+      "level": 2,
+      "text": "How you used energy over the last 12 months"
+    },
+    {
+      "level": 2,
+      "text": "Meter readings"
+    },
+    {
+      "level": 2,
+      "text": "Your tariff"
+    },
+    {
+      "level": 2,
+      "text": "Ways to pay"
+    },
+    {
+      "level": 2,
+      "text": "If something is wrong"
+    }
+  ],
+  "key_sentences": [
+    "You used 12 per cent less electricity than in October last year.",
+    "Your solar panels exported 41 kWh to the grid, and we have credited you for every unit.",
+    "Your highest use was in January, when the heat pump ran for longest.",
+    "Your prices are fixed until your tariff ends, so your bills will change only with the amount of energy you use.",
+    "We will write to you at least 49 days before the end date with your renewal options.",
+    "If you think your bill is wrong, please call us or use the contact form in the app, and we will look into it within five working days."
+  ],
+  "tables": [
+    {
+      "caption": "Account summary",
+      "rows": [
+        [
+          "Previous balance",
+          "£0.00"
+        ],
+        [
+          "Payments received",
+          "£0.00"
+        ],
+        [
+          "Charges this period",
+          "£85.72"
+        ],
+        [
+          "Amount due",
+          "£85.72"
+        ]
+      ]
+    },
+    {
+      "caption": "Your usage",
+      "rows": [
+        [
+          "Electricity used",
+          "312 kWh"
+        ],
+        [
+          "Solar exported",
+          "41 kWh"
+        ],
+        [
+          "Same period last year",
+          "355 kWh"
+        ],
+        [
+          "Change",
+          "−12%"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Description",
+          "Quantity",
+          "Rate",
+          "Amount"
+        ],
+        [
+          "Day rate electricity",
+          "228 kWh",
+          "£0.2614",
+          "£59.60"
+        ],
+        [
+          "Night rate electricity",
+          "84 kWh",
+          "£0.1392",
+          "£11.69"
+        ],
+        [
+          "Standing charge",
+          "31 days",
+          "£0.5321",
+          "£16.50"
+        ],
+        [
+          "Solar export credit",
+          "41 kWh",
+          "£0.1500",
+          "−£6.15"
+        ],
+        [
+          "Subtotal",
+          "",
+          "",
+          "£81.64"
+        ],
+        [
+          "VAT at 5%",
+          "",
+          "",
+          "£4.08"
+        ],
+        [
+          "Total charges",
+          "",
+          "",
+          "£85.72"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "kWh",
+          "Nov",
+          "Dec",
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct"
+        ],
+        [
+          "Used",
+          "344",
+          "402",
+          "431",
+          "389",
+          "351",
+          "298",
+          "247",
+          "221",
+          "214",
+          "236",
+          "277",
+          "312"
+        ],
+        [
+          "Exported",
+          "9",
+          "4",
+          "6",
+          "15",
+          "38",
+          "71",
+          "104",
+          "118",
+          "126",
+          "109",
+          "74",
+          "41"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Meter",
+          "Register",
+          "Previous reading",
+          "Current reading",
+          "Type"
+        ],
+        [
+          "Z18E 004418",
+          "Day",
+          "18 204 (30 Sep)",
+          "18 432 (31 Oct)",
+          "Actual sent by smart meter"
+        ],
+        [
+          "Z18E 004418",
+          "Night",
+          "7 715 (30 Sep)",
+          "7 799 (31 Oct)",
+          "Actual sent by smart meter"
+        ],
+        [
+          "Z18E 004418",
+          "Export",
+          "2 961 (30 Sep)",
+          "3 002 (31 Oct)",
+          "Actual sent by smart meter"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Tariff name",
+          "Brightwater Fixed Green 24"
+        ],
+        [
+          "Tariff type",
+          "Fixed price, two-rate"
+        ],
+        [
+          "Ends on",
+          "31 March 2028"
+        ],
+        [
+          "Exit fee",
+          "£50 per fuel if you leave before 1 February 2028"
+        ],
+        [
+          "Payment method",
+          "Monthly Direct Debit"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Account",
+          "4400 1873 2291"
+        ],
+        [
+          "Amount due",
+          "£85.72"
+        ],
+        [
+          "Pay by",
+          "18 November 2026"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Direct Debit: we collect the amount due automatically each month."
+    },
+    {
+      "level": 0,
+      "text": "Online or in the Brightwater app, by debit card at any time."
+    },
+    {
+      "level": 0,
+      "text": "By phone on 0800 000 4180, using our automated payment line."
+    },
+    {
+      "level": 0,
+      "text": "At any post office counter, using the payment slip below."
+    }
+  ],
+  "furniture": [
+    "BRIGHTWATER ENERGY",
+    "Freepost BRIGHTWATER · 0800 000 4180 · brightwater.example",
+    "Page 1 of 2",
+    "Brightwater Energy · Account 4400 1873 2291 · Bill date 4 November 2026",
+    "Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Electricity bill, 2 pages, body-placed furniture. Page 1: letterhead (2 lines), recipient address block (body), two boxes SIDE BY SIDE ('Account summary' left, 'Your usage' right) as key/value tables read box by box; their titles are captions. The charges table is zebra-striped with a subtotal, VAT and total; the export credit is negative with a typed minus sign (U+2212). The usage history table is WIDE (13 columns: a label column and 12 months). Page 2 has a running header (one line), a meter readings table whose 'Type' cells have two lines, a CSS-drawn bullet list (no glyph) and a payment slip (dashed box) laid out as text beside a key/value table. Page numbers 'Page 1 of 2' / 'Page 2 of 2'."
+}

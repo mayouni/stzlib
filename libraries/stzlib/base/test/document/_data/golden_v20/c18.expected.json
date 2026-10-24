@@ -1,0 +1,183 @@
+{
+  "id": "c18",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "İthalat Beyannamesi Vergi Hesap Özeti",
+  "headings": [
+    {
+      "level": 1,
+      "text": "İthalat Beyannamesi Vergi Hesap Özeti"
+    },
+    {
+      "level": 2,
+      "text": "Eşya bilgileri"
+    },
+    {
+      "level": 2,
+      "text": "Vergi dökümü"
+    },
+    {
+      "level": 2,
+      "text": "Ekler"
+    }
+  ],
+  "key_sentences": [
+    "Beyanname, alıcı firmanın 14.10.2026 tarihli talimatı üzerine firmamız tarafından elektronik ortamda tescil edilmiştir.",
+    "Eşyalar, yatırım teşvik belgesi kapsamında değerlendirilmeyip genel hükümlere göre vergilendirilmiştir.",
+    "Ödenecek toplam tutarın, eşyanın gümrükten çekilmesinden önce gümrük saymanlığı hesabına yatırılması gerekmektedir.",
+    "Ödeme dekontunun bir örneği firmamıza iletildiğinde çekme işlemleri aynı gün tamamlanacaktır."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Beyanname no",
+          "26350100IM00418712",
+          "Tescil tarihi",
+          "19.10.2026"
+        ],
+        [
+          "Gönderici",
+          "Nordhavn Machinery ApS Aarhus, Danimarka",
+          "Alıcı",
+          "Karaçam Tekstil San. ve Tic. A.Ş. Denizli"
+        ],
+        [
+          "Menşe ülke",
+          "Danimarka",
+          "Taşıma şekli",
+          "Denizyolu, 2 × 40′ konteyner"
+        ],
+        [
+          "Teslim şekli",
+          "CIF İzmir",
+          "Döviz kuru",
+          "1 EUR = 37,8412 TL"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Kalem",
+          "GTİP",
+          "Eşyanın tanımı",
+          "Miktar",
+          "Kıymet (EUR)",
+          "Kıymet (TL)"
+        ],
+        [
+          "1",
+          "8445.13.00.00.00",
+          "Halka iplik eğirme makinesi, yeni",
+          "2 adet",
+          "184.500,00",
+          "6.981.701,40"
+        ],
+        [
+          "2",
+          "8448.33.10.00.00",
+          "İğ ve iğ kanatları (yedek parça)",
+          "1.200 adet",
+          "9.360,00",
+          "354.193,63"
+        ],
+        [
+          "3",
+          "8483.40.90.00.19",
+          "Dişli kutusu",
+          "4 adet",
+          "12.840,00",
+          "485.881,01"
+        ],
+        [
+          "4",
+          "8537.10.91.00.00",
+          "Programlanabilir kontrol ünitesi",
+          "2 adet",
+          "6.915,50",
+          "261.690,82"
+        ],
+        [
+          "Toplam",
+          "Toplam",
+          "Toplam",
+          "Toplam",
+          "213.615,50",
+          "8.083.466,86"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Vergi türü",
+          "Matrah (TL)",
+          "Oran",
+          "Tutar (TL)"
+        ],
+        [
+          "Gümrük vergisi",
+          "8.083.466,86",
+          "%2,7",
+          "218.253,61"
+        ],
+        [
+          "Katma değer vergisi",
+          "8.301.720,47",
+          "%20",
+          "1.660.344,09"
+        ],
+        [
+          "Damga vergisi (maktu)",
+          "—",
+          "—",
+          "1.250,00"
+        ],
+        [
+          "Ödenecek toplam",
+          "",
+          "",
+          "1.879.847,70"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1- Ticari fatura (2 sayfa)"
+    },
+    {
+      "level": 0,
+      "text": "2- Konşimento"
+    },
+    {
+      "level": 0,
+      "text": "3- Menşe şahadetnamesi"
+    },
+    {
+      "level": 0,
+      "text": "4- Navlun ve sigorta faturaları"
+    },
+    {
+      "level": 0,
+      "text": "5- Teknik katalog"
+    }
+  ],
+  "furniture": [
+    "Yakamoz Gümrük Müşavirliği Ltd. Şti.",
+    "Liman Caddesi No: 41/3, Alsancak 35220 Konak / İzmir",
+    "Tel. 0232 000 04 18 · info@yakamozgumruk.example",
+    "Bu özet bilgi amaçlıdır; resmî tutarlar gümrük idaresinin tahakkukuna göre kesinleşir.",
+    "Sayfa 1 / 1"
+  ],
+  "languages": [
+    "tr"
+  ],
+  "code": [],
+  "notes": "Turkish customs broker's import declaration tax summary, 1 page. Declaration data is a four-column key/value table without header row (key, value, key, value), some values of two lines. Goods table with line items and a totals row; tax table with a totals row. Amounts use Turkish number format (1.234,56) and the percent sign before the number (%2,7). The attachments list uses TYPED markers '1-' … '5-'. Letterhead 3 lines; footer line and page number 'Sayfa 1 / 1'. The attachments list is set in two CSS columns; its reading order is column by column (1-, 2-, 3-, then 4-, 5-). The container size uses the prime sign (40′)."
+}

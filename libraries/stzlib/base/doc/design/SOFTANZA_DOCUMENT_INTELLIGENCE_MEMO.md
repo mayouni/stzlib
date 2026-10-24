@@ -416,6 +416,21 @@ golden_v19: a TABLE-RICH set -- 24 realistic documents, every one with at least 
 
 Time for the 24 documents: native 0.1 s, Docling 738 s. **On a set built to stress tables, the native reader leads on all eight measures, tables included (0.69 against 0.67).** Tables are still the measure with the most room for both readers. Causes read off the native output: one row too many in three tables -- the second line of a wrapped cell read as a row of its own (a description, a two-line header, an amount under its value), the case the centred-cell rule does not cover because these cells are top-aligned, side-by-side tables whose rows fill both halves still read as one wide table, and two tables not found.
 
+**Nineteenth round: tables again; then golden_v20.** Fixed on golden_v19 (now a development set) and checked on all nineteen sets:
+- the second line of top-aligned wrapped cells, set at line pitch under its row where the run's rows are set further apart, joins the row above cell by cell -- only when its first column is empty, not under a cell spanning two columns and not under the run's header row; without those guards it broke a two-level header (0.72 -> 0.50), which was measured before deciding;
+- a table whose header row is the same header twice is two tables side by side, even when every row fills both halves.
+
+On the development sets: tables v8 0.79 -> 0.81, v9 0.794 -> 0.796, v10 0.768 -> 0.772, v19 0.691 -> 0.694 (side-by-side results 0.60 -> 0.67), a council-results table 0.45 -> 0.91, a price list 0.50 -> 0.65; cost: one table on v12 0.82 -> 0.77. Not reached this round: golden_v19's own three tables with a wrapped line read as a row did not move; why the new rule does not apply to them is not yet found. Guard 181 assertions under Ring++.
+
+golden_v20: 24 realistic documents in 17 languages besides English (Chinese, Japanese, Korean, Thai, Hindi, Arabic and Hebrew among them), 12 of 2-3 pages, cells of two and three lines top-aligned as well as centred, every named font and character checked against the embedded fonts, by a twentieth independent agent who saw no reader, no output and no earlier set and did not look at the rendered pages (unperceived); reader frozen at c5211db15; both readers ran once:
+
+| golden_v20, realistic | text | order | headings | tables | lists | furniture | code | heading precision |
+|---|---|---|---|---|---|---|---|---|
+| Softanza native (Ring++) | **0.92** | 1.00 | **0.85** | 0.67 | **0.53** | **0.79** | 0.83 | **0.76** |
+| Docling 2.141 | 0.77 | 1.00 | 0.81 | **0.68** | 0.44 | 0.72 | 0.83 | 0.68 |
+
+Time for the 24 documents: native 0.1 s, Docling 437 s. The native reader leads on five measures, ties on order and code, and Docling leads on tables by a hair (0.678 against 0.671). Lists are low for BOTH readers, and the cause is read off the output: this set types list markers in many conventions -- "1.1", "（1）", "（一）", "※", "(क)", "1-", "1.ª", "א." -- that the native reader does not know, and where such markers stand apart from their text, the marker column and the text column are taken for a two-column table. Round 20.
+
 **Perceived (2026-10-24):** the author looked through every rendered page of golden_v9 to golden_v13 -- the sets whose own authors could not look at them -- and judged them: "they look great". Those five sets are no longer unperceived; the sets before them were generated the same way and are not covered by this look.
 
 **Not measured**: Granite-Docling-258M (not downloaded), the GPU, scanned golden pages with an expected text, PDFs from producers other than Chrome (both golden sets are Chrome-made and tagged; the native reader does not read the tags).

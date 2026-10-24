@@ -1,0 +1,168 @@
+{
+  "id": "c23",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "Ogłoszenie o sprzedaży drewna w drodze aukcji otwartej",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Ogłoszenie o sprzedaży drewna w drodze aukcji otwartej"
+    },
+    {
+      "level": 2,
+      "text": "Przedmiot sprzedaży"
+    },
+    {
+      "level": 2,
+      "text": "Warunki udziału w aukcji"
+    }
+  ],
+  "key_sentences": [
+    "Nadleśniczy Nadleśnictwa Jodłowy Bród ogłasza aukcję otwartą na sprzedaż drewna pozyskanego w ramach cięć sanitarnych.",
+    "Aukcja odbędzie się 26 listopada 2026 r. o godzinie 10:00 w sali narad nadleśnictwa.",
+    "Drewno można oglądać w lesie w dni robocze od 7:00 do 15:00 po wcześniejszym uzgodnieniu z leśniczym.",
+    "Nadleśnictwo zastrzega sobie prawo do odwołania aukcji bez podania przyczyny."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Nr partii",
+          "Leśnictwo",
+          "Oddział",
+          "Gatunek",
+          "Sortyment",
+          "Ilość",
+          "Ilość",
+          "Cena wywoławcza netto (zł/m³)"
+        ],
+        [
+          "Nr partii",
+          "Leśnictwo",
+          "Oddział",
+          "Gatunek",
+          "Sortyment",
+          "m³",
+          "szt.",
+          "Cena wywoławcza netto (zł/m³)"
+        ],
+        [
+          "1",
+          "Brzozówka",
+          "112a",
+          "Jodła",
+          "WC0",
+          "84,36",
+          "61",
+          "412,00"
+        ],
+        [
+          "2",
+          "Brzozówka",
+          "112b",
+          "Jodła",
+          "WD",
+          "126,10",
+          "118",
+          "338,00"
+        ],
+        [
+          "3",
+          "Brzozówka",
+          "115c",
+          "Buk",
+          "WC0",
+          "52,47",
+          "40",
+          "395,00"
+        ],
+        [
+          "4",
+          "Głęboczek",
+          "203d",
+          "Świerk",
+          "WB0",
+          "38,92",
+          "24",
+          "521,00"
+        ],
+        [
+          "5",
+          "Głęboczek",
+          "207a",
+          "Sosna",
+          "S2A",
+          "64,00",
+          "—",
+          "268,00"
+        ],
+        [
+          "6",
+          "Zielone Wzgórze",
+          "311f",
+          "Modrzew",
+          "WC0",
+          "29,85",
+          "19",
+          "486,00"
+        ],
+        [
+          "Razem",
+          "Razem",
+          "Razem",
+          "Razem",
+          "Razem",
+          "395,70",
+          "262",
+          "—"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1) W aukcji mogą uczestniczyć osoby fizyczne i prawne, które wpłacą wadium w wysokości 10% wartości partii według ceny wywoławczej."
+    },
+    {
+      "level": 0,
+      "text": "2) Wadium należy wpłacić na rachunek nadleśnictwa najpóźniej do 24 listopada 2026 r."
+    },
+    {
+      "level": 0,
+      "text": "3) Postąpienie wynosi nie mniej niż 2% ceny wywoławczej."
+    },
+    {
+      "level": 0,
+      "text": "4) Przed rozpoczęciem aukcji uczestnik przedstawia:"
+    },
+    {
+      "level": 1,
+      "text": "a. dowód wpłaty wadium,"
+    },
+    {
+      "level": 1,
+      "text": "b. aktualny odpis z właściwego rejestru albo zaświadczenie o działalności gospodarczej,"
+    },
+    {
+      "level": 1,
+      "text": "c. pełnomocnictwo, jeżeli działa w imieniu innej osoby."
+    },
+    {
+      "level": 0,
+      "text": "5) Nabywca odbiera drewno w terminie 30 dni od dnia zapłaty ceny."
+    }
+  ],
+  "furniture": [
+    "Nadleśnictwo Jodłowy Bród",
+    "ul. Leśników 12, 38-418 Jodłowy Bród · tel. 13 000 04 18",
+    "sekretariat@jodlowybrod.example",
+    "Ogłoszenie wywieszono na tablicy ogłoszeń nadleśnictwa oraz w Biuletynie Informacji Publicznej"
+  ],
+  "languages": [
+    "pl"
+  ],
+  "code": [],
+  "notes": "Polish forest district timber auction notice, 1 page. The lots table has a two-level header ('Ilość' over 'm³' and 'szt.'; other header cells merged over both rows), forest-range cells merged down over several rows (repeated in each grid row), and a totals row whose first five cells are merged. Conditions list uses TYPED markers '1)' … '5)'; the required-documents list uses TYPED markers 'a.' 'b.' 'c.' at level 1 under condition 4. Letterhead 3 lines; footer line; no page number. 'Sporządził' and 'Zatwierdził' signature blocks are SIDE BY SIDE, read box by box."
+}

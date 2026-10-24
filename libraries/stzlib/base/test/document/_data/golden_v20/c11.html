@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Configuring the NX-400 Edge Router for Fixed-Wireless Sites</title>
+<style>
+@page { size: A4; margin: 0; }
+html, body { margin: 0; padding: 0; background: #fff; }
+body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.page { width: 210mm; height: 297mm; position: relative; overflow: hidden; box-sizing: border-box; break-after: page; page-break-after: always; }
+.page.last { break-after: auto; page-break-after: auto; }
+.pg-body { position: absolute; overflow: hidden; }
+
+body { font-family: Verdana; color: #1f2328; }
+.pg-body { left: 20mm; right: 20mm; top: 22mm; bottom: 20mm; font-size: 8.8pt; line-height: 1.5; }
+.rh { position: absolute; top: 10mm; left: 20mm; right: 20mm; font-family: 'Trebuchet MS'; font-size: 8pt; color: #fff; background: #263c52; padding: 1.2mm 3mm; }
+.pn { position: absolute; bottom: 9mm; right: 20mm; font-family: 'Trebuchet MS'; font-size: 8pt; color: #263c52; }
+h1 { font-family: 'Trebuchet MS'; font-size: 17pt; font-weight: bold; color: #263c52; margin: 0 0 3mm 0; }
+h2 { font-family: 'Trebuchet MS'; font-size: 12pt; font-weight: bold; color: #263c52; margin: 5mm 0 1.5mm 0; border-bottom: 0.8pt solid #e36414; padding-bottom: 0.5mm; }
+h3 { font-family: 'Trebuchet MS'; font-size: 10pt; font-weight: bold; color: #e36414; margin: 3mm 0 1mm 0; }
+p { margin: 0 0 1.8mm 0; }
+pre.code { font-family: Consolas; font-size: 8.4pt; line-height: 1.35; background: #f4f6f8; border-left: 2.5pt solid #e36414; padding: 2mm 3mm; margin: 1mm 0 2.5mm 0; white-space: pre; }
+table { border-collapse: collapse; width: 100%; margin: 1mm 0 2.5mm 0; font-size: 8.4pt; }
+th { background: #263c52; color: #fff; font-family: 'Trebuchet MS'; font-weight: bold; text-align: left; padding: 1mm 2mm; }
+td { border-bottom: 0.5pt solid #c9d1d9; padding: 0.9mm 2mm; vertical-align: top; }
+td code, td .m { font-family: Consolas; }
+table.dc td { border: 0.5pt solid #c9d1d9; }
+table.dc td:first-child { background: #eef2f6; font-weight: bold; width: 28%; }
+ul.sq { list-style: none; margin: 0 0 2mm 0; padding: 0; }
+ul.sq li { position: relative; padding-left: 5mm; margin-bottom: 0.6mm; }
+ul.sq li::before { content: ""; position: absolute; left: 0.8mm; top: 0.55em; width: 1.5mm; height: 1.5mm; background: #e36414; }
+ul.st { list-style: none; margin: 0; padding: 0; }
+ul.st li { display: flex; margin-bottom: 1mm; }
+ul.st .mk { flex: 0 0 15mm; font-family: 'Trebuchet MS'; font-weight: bold; color: #263c52; }
+.warn { border: 1pt solid #e36414; background: #fff4ec; padding: 2mm 3mm; margin: 2mm 0 2mm 0; }
+.warn b { color: #b34700; }
+
+</style>
+
+</head>
+<body>
+<div class="page"><div class="fl rh">Kestrel Valley Telecom · Field Deployment Guide KVT-DG-112 · Revision C</div><div class="pg-body"><h1>Configuring the NX-400 Edge Router for Fixed-Wireless Sites</h1><table class="dc"><thead></thead><tbody><tr><td>Document</td><td>KVT-DG-112</td></tr><tr><td>Revision</td><td>C, 12 October 2026</td></tr><tr><td>Applies to</td><td>NX-400 hardware revision 2 and later, firmware 7.4.x</td></tr><tr><td>Owner</td><td>Access Network Engineering</td></tr></tbody></table><h2>1. Purpose and Scope</h2><p>This guide describes how to install and configure an NX-400 edge router at a fixed-wireless base station. It covers the initial configuration, the VLAN plan, monitoring and the checks to complete before a site is handed over to operations. Changes to the core network are outside its scope and follow the change process in KVT-OPS-004.</p><h2>2. Before You Start</h2><p>Bring the following to site:</p><ul class="sq"><li class="l0">A laptop with an SSH client and the site configuration file from the provisioning portal.</li><li class="l0">The site’s management IP address, gateway and VLAN identifiers.</li><li class="l0">A console cable (RJ45 to USB-C) and a spare SFP+ module.</li><li class="l0">A change ticket in the Approved state.</li></ul><h3>2.1 Safety</h3><p>Never climb the tower or open the cabinet without a second person present. Report any damaged earth bonding before you begin work.</p><div class="warn"><b>Warning.</b> Do not connect the radio uplink until the router reports a valid configuration. An unconfigured router floods the backhaul with DHCP requests.</div><h2>3. Port Assignment</h2><table><thead><tr><th>Port</th><th>Speed</th><th>Connected to</th><th>VLANs</th></tr></thead><tbody><tr><td>ge-0/0/0</td><td>1 Gbit/s</td><td>Sector radio A (north)</td><td>210, 999</td></tr><tr><td>ge-0/0/1</td><td>1 Gbit/s</td><td>Sector radio B (south-east)</td><td>211, 999</td></tr><tr><td>ge-0/0/2</td><td>1 Gbit/s</td><td>Sector radio C (south-west)</td><td>212, 999</td></tr><tr><td>xe-0/1/0</td><td>10 Gbit/s</td><td>Microwave backhaul</td><td>100, 300</td></tr><tr><td>ge-0/0/7</td><td>1 Gbit/s</td><td>Site management switch</td><td>999</td></tr></tbody></table></div><div class="fl pn">Sheet 1 of 3</div></div>
+<div class="page"><div class="fl rh">Kestrel Valley Telecom · Field Deployment Guide KVT-DG-112 · Revision C</div><div class="pg-body"><h2>4. Initial Configuration</h2><h3>4.1 Load the base configuration</h3><p>Connect to the console port at 115200 baud and log in with the factory account. Copy the site file to the router, check it with a dry run, then apply it:</p><pre class="code">scp KV-0417-base.yaml admin@192.0.2.1:/config/
+ssh admin@192.0.2.1
+nxcli config load /config/KV-0417-base.yaml --dry-run
+nxcli config load /config/KV-0417-base.yaml --commit --comment "KVT-CHG-30218"</pre><p>The dry run must finish without errors before the commit is attempted.</p><h3>4.2 Site configuration file</h3><p>The site file is generated by the provisioning portal. A shortened example is shown below.</p><pre class="code">site:
+  id: KV-0417
+  name: "Harrow Ridge"
+  timezone: Europe/London
+management:
+  vlan: 999
+  address: 10.41.7.2/29
+  gateway: 10.41.7.1
+uplink:
+  interface: xe-0/1/0
+  vlans: [100, 300]
+  mtu: 9100
+sectors:
+  - { port: ge-0/0/0, vlan: 210, azimuth: 0 }
+  - { port: ge-0/0/1, vlan: 211, azimuth: 120 }
+  - { port: ge-0/0/2, vlan: 212, azimuth: 240 }</pre><h2>5. VLAN Plan</h2><table><thead><tr><th>VLAN</th><th>Name</th><th>Purpose</th><th>Notes</th></tr></thead><tbody><tr><td>100</td><td>BH-DATA</td><td>Subscriber traffic to the<br>aggregation ring</td><td>Tagged on the backhaul only</td></tr><tr><td>210–212</td><td>SECT-A to SECT-C</td><td>Subscriber traffic per sector</td><td>One VLAN per sector radio<br>Never bridge two sectors</td></tr><tr><td>300</td><td>BH-OAM</td><td>Backhaul radio management</td><td>Reachable from the NOC only</td></tr><tr><td>999</td><td>SITE-MGMT</td><td>Router, switch and radio<br>management</td><td>Untagged on ge-0/0/7</td></tr></tbody></table></div><div class="fl pn">Sheet 2 of 3</div></div>
+<div class="page last"><div class="fl rh">Kestrel Valley Telecom · Field Deployment Guide KVT-DG-112 · Revision C</div><div class="pg-body"><h2>6. Monitoring</h2><p>The router exports its metrics to the regional collector every 60 seconds. The telemetry section of the configuration must read as follows:</p><pre class="code">[telemetry]
+collector = 10.0.88.20:4317
+interval_s = 60
+export = interfaces, optics, cpu, temperature
+
+[alarms]
+optics_rx_low_dbm = -18.0
+temperature_high_c = 70</pre><h2>7. Acceptance Checks</h2><ul class="st"><li class="l0"><span class="mk">Step 1</span><span class="it">Confirm that all three sector ports are up and passing traffic.</span></li><li class="l0"><span class="mk">Step 2</span><span class="it">Run a 15-minute throughput test across the backhaul and record the result in the ticket.</span></li><li class="l0"><span class="mk">Step 3</span><span class="it">Check that the router appears on the monitoring dashboard with no active alarms.</span></li><li class="l0"><span class="mk">Step 4</span><span class="it">Photograph the cabinet, the cable labels and the earth bonding.</span></li><li class="l0"><span class="mk">Step 5</span><span class="it">Hand the site over to the Network Operations Centre by phone and close the ticket.</span></li></ul><h2>8. Troubleshooting</h2><table><thead><tr><th>Symptom</th><th>Likely cause</th><th>Action</th></tr></thead><tbody><tr><td>Sector port stays down</td><td>Radio not powered, or<br>PoE budget too low</td><td>Check the injector LED and set the<br>PoE budget to 30 W per port</td></tr><tr><td>Backhaul drops every few minutes</td><td>MTU mismatch with the<br>far end</td><td>Set the MTU to 9100 on both ends<br>and reload the interface</td></tr><tr><td>No metrics on the dashboard</td><td>Collector unreachable<br>from VLAN 999</td><td>Ping the collector from the router<br>and raise a ticket with the NOC</td></tr></tbody></table><p>If a fault cannot be cleared within two hours, roll back to the previous configuration and escalate to the on-call engineer.</p><h2>9. Revision History</h2><table><thead><tr><th>Revision</th><th>Date</th><th>Change</th></tr></thead><tbody><tr><td>A</td><td>3 February 2026</td><td>First issue</td></tr><tr><td>B</td><td>19 June 2026</td><td>Microwave backhaul added</td></tr><tr><td>C</td><td>12 October 2026</td><td>Firmware 7.4 and telemetry section</td></tr></tbody></table></div><div class="fl pn">Sheet 3 of 3</div></div>
+</body>
+</html>

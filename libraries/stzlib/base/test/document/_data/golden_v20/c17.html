@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Task Card: Replacement of No. 2 Engine Bleed Air Valve</title>
+<style>
+@page { size: A4; margin: 0; }
+html, body { margin: 0; padding: 0; background: #fff; }
+body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.page { width: 210mm; height: 297mm; position: relative; overflow: hidden; box-sizing: border-box; break-after: page; page-break-after: always; }
+.page.last { break-after: auto; page-break-after: auto; }
+.pg-body { position: absolute; overflow: hidden; }
+
+body { font-family: 'Arial Narrow'; color: #111; }
+.pg-body { left: 14mm; right: 14mm; top: 21mm; bottom: 18mm; font-size: 10.2pt; line-height: 1.32; }
+.rh { position: absolute; top: 9mm; left: 14mm; right: 14mm; font-size: 10pt; font-weight: bold; border-bottom: 2pt solid #003a70; padding-bottom: 1mm; color: #003a70; }
+.ft { position: absolute; bottom: 8mm; left: 14mm; right: 14mm; font-size: 8.5pt; display: flex; justify-content: space-between; border-top: 0.5pt solid #555; padding-top: 1mm; }
+h1 { font-size: 15pt; font-weight: bold; margin: 0 0 2mm 0; }
+h2 { font-size: 11pt; font-weight: bold; color: #fff; background: #003a70; padding: 0.6mm 2mm; margin: 3mm 0 1.2mm 0; }
+p { margin: 0 0 1.4mm 0; }
+pre.code { font-family: 'Courier New'; font-size: 9pt; line-height: 1.25; border: 0.6pt solid #555; background: #fbfbf4; padding: 1.5mm 3mm; margin: 1mm 0 2mm 0; width: 120mm; }
+table { border-collapse: collapse; width: 100%; font-size: 9.6pt; margin: 1mm 0 2mm 0; }
+table.hd td { border: 0.6pt solid #555; padding: 0.6mm 1.8mm; }
+table.hd td:nth-child(odd) { background: #e6edf5; font-weight: bold; width: 17%; }
+th { background: #dfe6ee; border: 0.6pt solid #555; padding: 0.8mm 1.5mm; text-align: left; font-weight: bold; }
+td { border: 0.6pt solid #555; padding: 0.7mm 1.5mm; vertical-align: top; }
+table.pr td:first-child, table.pr td:nth-child(3), table.pr td:nth-child(4) { text-align: center; }
+table.pr td:nth-child(3), table.pr td:nth-child(4) { font-family: 'Courier New'; font-size: 9pt; }
+ul.tri { list-style: none; margin: 0; padding: 0; }
+ul.tri li { position: relative; padding-left: 6mm; margin-bottom: 0.5mm; }
+ul.tri li::before { content: ""; position: absolute; left: 1mm; top: 0.3em; width: 0; height: 0; border-left: 1.4mm solid transparent; border-right: 1.4mm solid transparent; border-bottom: 2.4mm solid #c75000; }
+.warn { border: 1.2pt solid #c75000; padding: 1.5mm 2.5mm; margin: 1.5mm 0; }
+.warn b { color: #c75000; }
+
+</style>
+
+</head>
+<body>
+<div class="page"><div class="fl rh">Northwind Regional Airways · Line Maintenance · Task Card TC-26-04417</div><div class="pg-body"><h1>Task Card: Replacement of No. 2 Engine Bleed Air Valve</h1><table class="hd"><thead></thead><tbody><tr><td>Task card no.</td><td>TC-26-04417</td><td>Aircraft reg.</td><td>ZK-NWQ</td></tr><tr><td>Aircraft type</td><td>TP-72 series 600</td><td>MSN</td><td>1418</td></tr><tr><td>Station</td><td>Elmsford (EFD)</td><td>Date opened</td><td>23 Oct 2026, 07:40 UTC</td></tr><tr><td>Reference</td><td>AMM 36-11-42-000-801</td><td>Deferral</td><td>MEL 36-11-01 cancelled</td></tr></tbody></table><h2>1. Reason for Work</h2><p>The crew of flight NW218 reported a BLEED 2 FAULT caution during the climb from Elmsford. The following ACARS message was received by maintenance control:</p><pre class="code">ACARS DOWNLINK   NWR218   23OCT26 0612Z
+FLT NW218  EFD-LMR  FL190
+MSG  ENG 2 BLEED FAULT
+     BLEED VLV 2 POS DISAGREE
+     CMD: OPEN    POS: CLOSED
+     BITE CODE 36-11-42  CLASS 2
+END MSG</pre><p>Troubleshooting on arrival confirmed that the valve stayed closed when commanded open. The valve is to be replaced in accordance with the reference task.</p><h2>2. Precautions</h2><ul class="tri"><li class="l0">Make sure that engine 2 has been shut down for at least 30 minutes before you open the cowls.</li><li class="l0">Use heat-resistant gloves when handling bleed ducts and clamps.</li><li class="l0">Keep the work area clear of loose items while the cowls are open.</li></ul><div class="warn"><b>WARNING:</b> Do not pressurise the bleed system while the duct clamps are loose. Escaping hot air can cause serious injury.</div><h2>3. Tools and Parts</h2><table><thead><tr><th>Item</th><th>Part number</th><th>Description</th><th>Qty</th><th>Serial / batch</th><th>Issued by</th></tr></thead><tbody><tr><td>1</td><td>BV-3611-07</td><td>Valve, engine bleed, pressure-regulating</td><td>1</td><td>S/N 88214</td><td>Stores EFD</td></tr><tr><td>2</td><td>GK-2270-4</td><td>Gasket, V-band flange</td><td>2</td><td>Batch 26-0915</td><td>Stores EFD</td></tr><tr><td>3</td><td>TW-0150</td><td>Torque wrench, 20–150 lbf·in</td><td>1</td><td>Cal. due 03/2027</td><td>Tool crib</td></tr><tr><td>4</td><td>LW-032</td><td>Lockwire, 0.032 in, stainless</td><td>A/R</td><td>—</td><td>Tool crib</td></tr></tbody></table><h2>4. Procedure</h2><table class="pr"><thead><tr><th>Step</th><th>Action</th><th>Mech.</th><th>Insp.</th></tr></thead><tbody><tr><td>1</td><td>Open circuit breakers ENG 2 BLEED CTL and ENG 2 BLEED VLV on panel 21VU.<br>Fit safety clips and DO-NOT-CLOSE tags.</td><td>M-114</td><td>—</td></tr><tr><td>2</td><td>Open the right-hand nacelle cowls and install the cowl hold-open rods.</td><td>M-114</td><td>—</td></tr><tr><td>3</td><td>Disconnect the electrical connector from the bleed valve.<br>Cap the connector and the valve receptacle.</td><td>M-114</td><td>—</td></tr><tr><td>4</td><td>Remove the two V-band clamps and the valve.<br>Discard the gaskets.</td><td>M-114</td><td>—</td></tr><tr><td>5</td><td>Inspect the duct flanges for scoring, cracks and heat damage.<br>Record findings in block 6 of this card.</td><td>M-114</td><td>I-032</td></tr></tbody></table></div><div class="ft"><span class="fl">Form NWR-ME-031 Rev 6 · Uncontrolled when printed</span><span class="fl">1 of 2</span></div></div>
+<div class="page last"><div class="fl rh">Northwind Regional Airways · Line Maintenance · Task Card TC-26-04417</div><div class="pg-body"><table class="pr"><thead><tr><th>Step</th><th>Action</th><th>Mech.</th><th>Insp.</th></tr></thead><tbody><tr><td>6</td><td>Install the new valve with new gaskets.<br>Position the flow arrow towards the pre-cooler.</td><td>M-114</td><td>—</td></tr><tr><td>7</td><td>Install the V-band clamps and torque to 45–50 lbf·in.<br>Tap around each clamp and re-torque.</td><td>M-114</td><td>I-032</td></tr><tr><td>8</td><td>Reconnect the electrical connector and lockwire it.</td><td>M-114</td><td>I-032</td></tr><tr><td>9</td><td>Close the circuit breakers and run the BITE test from the maintenance panel.<br>Test result: PASS, no fault codes stored.</td><td>M-114</td><td>I-032</td></tr><tr><td>10</td><td>Perform an engine ground run at idle with bleed ON.<br>Check for leaks and that BLEED 2 FAULT does not appear.</td><td>M-207</td><td>I-032</td></tr><tr><td>11</td><td>Close the cowls and remove all tools, tags and safety clips.</td><td>M-207</td><td>—</td></tr></tbody></table><h2>5. Findings</h2><p>Both duct flanges were found free of cracks and heat damage, with light scoring within the limits of the maintenance manual. The removed valve has been tagged unserviceable and sent to stores with this card number.</p><h2>6. Return to Service</h2><p>The work recorded on this card has been carried out in accordance with the approved maintenance data, and the aircraft is fit for release in respect of that work.</p><table><thead><tr><th>Role</th><th>Name</th><th>Licence / stamp</th><th>Date and time (UTC)</th><th>Signature</th></tr></thead><tbody><tr><td>Mechanic</td><td>T. Okonkwo-Hale</td><td>M-114</td><td>23 Oct 2026 10:55</td><td></td></tr><tr><td>Mechanic (engine run)</td><td>L. Brannigan</td><td>M-207</td><td>23 Oct 2026 11:40</td><td></td></tr><tr><td>Inspector</td><td>S. Varga</td><td>I-032</td><td>23 Oct 2026 11:52</td><td></td></tr><tr><td>Certifying engineer</td><td>R. Aldous</td><td>B1-77412</td><td>23 Oct 2026 12:05</td><td></td></tr></tbody></table><p>Card closed by maintenance control at 12:10 UTC. MEL item 36-11-01 removed from the technical log.</p></div><div class="ft"><span class="fl">Form NWR-ME-031 Rev 6 · Uncontrolled when printed</span><span class="fl">2 of 2</span></div></div>
+</body>
+</html>

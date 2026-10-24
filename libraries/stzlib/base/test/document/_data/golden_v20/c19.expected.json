@@ -1,0 +1,197 @@
+{
+  "id": "c19",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Ripoti ya Robo ya Tatu: Mradi wa Maji Safi na Usafi wa Mazingira",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Ripoti ya Robo ya Tatu: Mradi wa Maji Safi na Usafi wa Mazingira"
+    },
+    {
+      "level": 2,
+      "text": "Muhtasari"
+    },
+    {
+      "level": 2,
+      "text": "Mafanikio dhidi ya malengo"
+    },
+    {
+      "level": 2,
+      "text": "Changamoto"
+    },
+    {
+      "level": 2,
+      "text": "Matumizi ya fedha (TSh)"
+    },
+    {
+      "level": 2,
+      "text": "Hatua zinazofuata"
+    }
+  ],
+  "key_sentences": [
+    "Katika robo hii, mradi ulikamilisha ujenzi wa visima vinne virefu na kukarabati vituo saba vya kuchotea maji.",
+    "Kaya 1,860 sasa zinapata maji safi umbali usiozidi mita 400 kutoka makazi yao.",
+    "Kamati za maji za vijiji zilipewa mafunzo ya utunzaji wa miundombinu na usimamizi wa fedha.",
+    "Shirika linawashukuru wanakijiji, viongozi wa kata na mfadhili kwa ushirikiano wao katika kipindi hiki."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Kipindi",
+          "Julai – Septemba 2026"
+        ],
+        [
+          "Eneo la mradi",
+          "Kata za Kiromo, Zinga na Mapinga"
+        ],
+        [
+          "Mfadhili",
+          "Mfuko wa Maji wa Jumuiya za Pwani"
+        ],
+        [
+          "Mratibu wa mradi",
+          "Bi. Rehema Mwakalinga"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Kiashiria",
+          "Lengo la mwaka",
+          "Robo ya 3",
+          "Jumla hadi sasa",
+          "% ya lengo"
+        ],
+        [
+          "Visima virefu vilivyojengwa",
+          "10",
+          "4",
+          "8",
+          "80"
+        ],
+        [
+          "Vituo vya kuchotea maji vilivyokarabatiwa",
+          "20",
+          "7",
+          "15",
+          "75"
+        ],
+        [
+          "Vyoo bora shuleni",
+          "12",
+          "3",
+          "6",
+          "50"
+        ],
+        [
+          "Wanakamati waliopata mafunzo",
+          "150",
+          "62",
+          "118",
+          "79"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Kipengele",
+          "Bajeti ya robo",
+          "Matumizi halisi",
+          "Tofauti"
+        ],
+        [
+          "Shughuli za mradi",
+          "Shughuli za mradi",
+          "Shughuli za mradi",
+          "Shughuli za mradi"
+        ],
+        [
+          "Uchimbaji wa visima",
+          "86,000,000",
+          "81,450,000",
+          "4,550,000"
+        ],
+        [
+          "Ukarabati wa vituo vya maji",
+          "24,500,000",
+          "25,920,000",
+          "−1,420,000"
+        ],
+        [
+          "Ujenzi wa vyoo shuleni",
+          "18,000,000",
+          "16,780,000",
+          "1,220,000"
+        ],
+        [
+          "Gharama za uendeshaji",
+          "Gharama za uendeshaji",
+          "Gharama za uendeshaji",
+          "Gharama za uendeshaji"
+        ],
+        [
+          "Mishahara ya watumishi",
+          "21,600,000",
+          "21,600,000",
+          "0"
+        ],
+        [
+          "Usafiri na mafunzo",
+          "9,200,000",
+          "8,315,000",
+          "885,000"
+        ],
+        [
+          "Jumla",
+          "159,300,000",
+          "154,065,000",
+          "5,235,000"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Mvua za vuli zilizoanza mapema zilichelewesha uchimbaji katika kijiji cha Zinga."
+    },
+    {
+      "level": 0,
+      "text": "Bei ya saruji na mabomba ilipanda kwa takriban asilimia 12 tangu mwanzo wa mwaka."
+    },
+    {
+      "level": 0,
+      "text": "Baadhi ya kaya bado hazijalipa mchango wa matengenezo wa kila mwezi."
+    },
+    {
+      "level": 0,
+      "text": "(i) Kukamilisha visima viwili vilivyosalia kabla ya mwisho wa Novemba 2026."
+    },
+    {
+      "level": 0,
+      "text": "(ii) Kuanzisha mfumo wa malipo ya maji kwa simu katika vijiji vyote vitatu."
+    },
+    {
+      "level": 0,
+      "text": "(iii) Kufanya tathmini ya kati ya mradi pamoja na mfadhili mwezi Desemba."
+    }
+  ],
+  "furniture": [
+    "Shirika la Maendeleo ya Jamii Pwani (SHIMAJA)",
+    "S.L.P. 0418, Bagamoyo · simu +255 000 000 418 · ofisi@shimaja.example",
+    "SHIMAJA · Ripoti hii imeandaliwa kwa ajili ya mfadhili na kamati za maji za vijiji",
+    "Ukurasa 1 kati ya 1"
+  ],
+  "languages": [
+    "sw"
+  ],
+  "code": [],
+  "notes": "Swahili NGO quarterly project report, 1 page. Project data is a key/value table without header. The indicators table has a percentage column; the expenditure table has section rows spanning all columns, a totals row, and amounts in Tanzanian shillings with comma thousands separators. 'Changamoto' list uses CSS-drawn round markers (no glyph); 'Hatua zinazofuata' list uses TYPED roman markers '(i)' '(ii)' '(iii)'. Letterhead 2 lines; footer line and page number 'Ukurasa 1 kati ya 1'."
+}

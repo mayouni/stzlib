@@ -1,0 +1,204 @@
+{
+  "id": "c22",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "INVOICE",
+  "headings": [
+    {
+      "level": 1,
+      "text": "INVOICE"
+    }
+  ],
+  "key_sentences": [
+    "Payment is due within 30 days of the invoice date, quoting the invoice number as the payment reference.",
+    "Charges in currencies other than US dollars have been converted at the carrier’s rate on the date of sailing.",
+    "All business is undertaken subject to our standard trading conditions, a copy of which is available on request.",
+    "Please tell us about any query on this invoice within seven days of receiving it."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "B/L number",
+          "HFFX2611873",
+          "Vessel / voyage",
+          "Northern Larch 047W"
+        ],
+        [
+          "Port of loading",
+          "Felixmouth",
+          "Port of discharge",
+          "Callao"
+        ],
+        [
+          "Containers",
+          "2 × 40 ft HC",
+          "Gross weight",
+          "31,420 kg"
+        ],
+        [
+          "Incoterm",
+          "FCA Kettering",
+          "Your reference",
+          "PO-TA-5520"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Code",
+          "Description",
+          "Basis",
+          "Qty",
+          "Rate (USD)",
+          "Amount (USD)"
+        ],
+        [
+          "Origin charges",
+          "Origin charges",
+          "Origin charges",
+          "Origin charges",
+          "Origin charges",
+          "Origin charges"
+        ],
+        [
+          "THC-O",
+          "Terminal handling, origin",
+          "per container",
+          "2",
+          "185.00",
+          "370.00"
+        ],
+        [
+          "DOC",
+          "Export documentation and customs filing",
+          "per shipment",
+          "1",
+          "95.00",
+          "95.00"
+        ],
+        [
+          "HAUL",
+          "Road haulage, Kettering to Felixmouth",
+          "per container",
+          "2",
+          "640.00",
+          "1,280.00"
+        ],
+        [
+          "Freight",
+          "Freight",
+          "Freight",
+          "Freight",
+          "Freight",
+          "Freight"
+        ],
+        [
+          "OF",
+          "Ocean freight, 40 ft high cube",
+          "per container",
+          "2",
+          "2,310.00",
+          "4,620.00"
+        ],
+        [
+          "BAF",
+          "Bunker adjustment factor",
+          "per container",
+          "2",
+          "415.00",
+          "830.00"
+        ],
+        [
+          "Destination charges",
+          "Destination charges",
+          "Destination charges",
+          "Destination charges",
+          "Destination charges",
+          "Destination charges"
+        ],
+        [
+          "THC-D",
+          "Terminal handling, destination",
+          "per container",
+          "2",
+          "210.00",
+          "420.00"
+        ],
+        [
+          "DEL",
+          "Delivery order fee",
+          "per shipment",
+          "1",
+          "60.00",
+          "60.00"
+        ],
+        [
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "7,675.00"
+        ],
+        [
+          "VAT 0% (export services, zero-rated)",
+          "VAT 0% (export services, zero-rated)",
+          "VAT 0% (export services, zero-rated)",
+          "VAT 0% (export services, zero-rated)",
+          "VAT 0% (export services, zero-rated)",
+          "0.00"
+        ],
+        [
+          "Total due",
+          "Total due",
+          "Total due",
+          "Total due",
+          "Total due",
+          "USD 7,675.00"
+        ]
+      ]
+    },
+    {
+      "caption": "Bank details (USD account)",
+      "rows": [
+        [
+          "Bank",
+          "Felixmouth Merchant Bank"
+        ],
+        [
+          "Account name",
+          "Harbourline Freight Forwarding Ltd"
+        ],
+        [
+          "Account number",
+          "00-0418-1187"
+        ],
+        [
+          "Sort code",
+          "00-00-00"
+        ],
+        [
+          "SWIFT",
+          "FXMBGB00"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "HARBOURLINE FREIGHT FORWARDING LTD",
+    "Unit 9, Quay Logistics Park, Felixmouth FX3 2LQ",
+    "+44 1632 960 777 · accounts@harbourline.example · VAT GB 000 0418 00",
+    "Registered in England and Wales · Company no. 00000418 · Registered office as above",
+    "Page 1/1"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Freight forwarding invoice, 1 page. Three boxes SIDE BY SIDE (Shipper, Consignee, Notify party), read box by box from left to right; each is a block of text lines, not a table. Shipment details: a four-column key/value table without header. The charges table is BORDERLESS and only partly ruled (rule under the header and above the totals), with section rows (Origin charges / Freight / Destination charges), a subtotal, VAT and a total. The bank-details box is a key/value table. Letterhead 3 lines; footer line and page number 'Page 1/1'. The title 'INVOICE' is letter-spaced and given as the plain word; the invoice number and date lines beside it and the party boxes are body text."
+}

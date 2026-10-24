@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>INVOICE</title>
+<style>
+@page { size: A4; margin: 0; }
+html, body { margin: 0; padding: 0; background: #fff; }
+body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.page { width: 210mm; height: 297mm; position: relative; overflow: hidden; box-sizing: border-box; break-after: page; page-break-after: always; }
+.page.last { break-after: auto; page-break-after: auto; }
+.pg-body { position: absolute; overflow: hidden; }
+
+body { font-family: 'Tw Cen MT'; color: #1a1a1a; }
+.pg-body { left: 15mm; right: 15mm; top: 12mm; bottom: 18mm; font-size: 10.4pt; line-height: 1.35; }
+.lh { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4mm; }
+.lh .org { font-size: 19pt; font-weight: bold; color: #b8410e; letter-spacing: 0.04em; }
+.lh .ad { font-size: 9pt; color: #555; }
+.inv { text-align: right; }
+h1 { font-size: 22pt; font-weight: bold; margin: 0; color: #1a1a1a; letter-spacing: 0.3em; }
+.inv .m { font-size: 10pt; }
+.parties { display: flex; gap: 4mm; margin: 2mm 0 3mm 0; }
+.parties > div { flex: 1; border-top: 2pt solid #b8410e; background: #faf3ee; padding: 1.5mm 2.5mm; font-size: 9.6pt; }
+.parties .t { font-weight: bold; color: #b8410e; font-size: 9pt; letter-spacing: 0.1em; }
+table { border-collapse: collapse; width: 100%; }
+table.sd td { padding: 0.6mm 2mm; border-bottom: 0.4pt solid #e3cfc2; font-size: 9.6pt; }
+table.sd td:nth-child(odd) { color: #6b4b38; width: 18%; }
+table.chg { margin-top: 4mm; font-size: 10pt; }
+table.chg th { text-align: left; padding: 1mm 1.5mm; border-bottom: 1.2pt solid #1a1a1a; font-weight: bold; }
+table.chg td { padding: 0.7mm 1.5mm; }
+table.chg td:nth-child(n+4), table.chg th:nth-child(n+4) { text-align: right; }
+table.chg tr.sec td { font-weight: bold; color: #b8410e; padding-top: 2mm; }
+table.chg td:last-child { text-align: right; }
+table.chg tr.sub td { border-top: 0.8pt solid #1a1a1a; font-weight: bold; }
+table.chg tr.tot td { font-weight: bold; font-size: 12pt; border-top: 1.2pt solid #1a1a1a; border-bottom: 1.2pt double #1a1a1a; }
+.bottom { display: flex; gap: 8mm; margin-top: 5mm; }
+.bottom > div { flex: 1; }
+.bank { border: 0.8pt solid #b8410e; padding: 2mm 3mm; }
+table.bk td { padding: 0.3mm 1mm; font-size: 9.6pt; }
+table.bk caption { text-align: left; font-weight: bold; color: #b8410e; padding-bottom: 0.8mm; }
+table.bk td:first-child { color: #6b4b38; width: 40%; }
+p { margin: 0 0 1.6mm 0; }
+.ft { position: absolute; bottom: 8mm; left: 15mm; right: 15mm; font-size: 8.4pt; color: #555; display: flex; justify-content: space-between; border-top: 0.5pt solid #ccc; padding-top: 1mm; }
+
+</style>
+
+</head>
+<body>
+<div class="page last"><div class="pg-body"><div class="lh"><div><div class="fl org">HARBOURLINE FREIGHT FORWARDING LTD</div><div class="fl ad">Unit 9, Quay Logistics Park, Felixmouth FX3 2LQ</div><div class="fl ad">+44 1632 960 777 · accounts@harbourline.example · VAT GB 000 0418 00</div></div><div class="inv"><h1>INVOICE</h1><div class="m">No. HFF-26-11873<br>Date 29 October 2026<br>Due 28 November 2026</div></div></div><div class="parties"><div><div class="t">SHIPPER</div>Corvel Agricultural Machines Ltd<br>Brook Lane Industrial Estate<br>Kettering NN15 0AA<br>United Kingdom</div><div><div class="t">CONSIGNEE</div>Tierra Alta Maquinaria S.A.C.<br>Av. Los Fresnos 1418<br>Callao 07021<br>Peru</div><div><div class="t">NOTIFY PARTY</div>Same as consignee<br>Attn: Import Department<br>imports@tierra-alta.example</div></div><table class="sd"><thead></thead><tbody><tr><td>B/L number</td><td>HFFX2611873</td><td>Vessel / voyage</td><td>Northern Larch 047W</td></tr><tr><td>Port of loading</td><td>Felixmouth</td><td>Port of discharge</td><td>Callao</td></tr><tr><td>Containers</td><td>2 × 40 ft HC</td><td>Gross weight</td><td>31,420 kg</td></tr><tr><td>Incoterm</td><td>FCA Kettering</td><td>Your reference</td><td>PO-TA-5520</td></tr></tbody></table><table class="chg"><thead><tr><th>Code</th><th>Description</th><th>Basis</th><th>Qty</th><th>Rate (USD)</th><th>Amount (USD)</th></tr></thead><tbody><tr class="sec"><td colspan="6">Origin charges</td></tr><tr><td>THC-O</td><td>Terminal handling, origin</td><td>per container</td><td>2</td><td>185.00</td><td>370.00</td></tr><tr><td>DOC</td><td>Export documentation and customs filing</td><td>per shipment</td><td>1</td><td>95.00</td><td>95.00</td></tr><tr><td>HAUL</td><td>Road haulage, Kettering to Felixmouth</td><td>per container</td><td>2</td><td>640.00</td><td>1,280.00</td></tr><tr class="sec"><td colspan="6">Freight</td></tr><tr><td>OF</td><td>Ocean freight, 40 ft high cube</td><td>per container</td><td>2</td><td>2,310.00</td><td>4,620.00</td></tr><tr><td>BAF</td><td>Bunker adjustment factor</td><td>per container</td><td>2</td><td>415.00</td><td>830.00</td></tr><tr class="sec"><td colspan="6">Destination charges</td></tr><tr><td>THC-D</td><td>Terminal handling, destination</td><td>per container</td><td>2</td><td>210.00</td><td>420.00</td></tr><tr><td>DEL</td><td>Delivery order fee</td><td>per shipment</td><td>1</td><td>60.00</td><td>60.00</td></tr><tr class="sub"><td colspan="5">Subtotal</td><td>7,675.00</td></tr><tr><td colspan="5">VAT 0% (export services, zero-rated)</td><td>0.00</td></tr><tr class="tot"><td colspan="5">Total due</td><td>USD 7,675.00</td></tr></tbody></table><div class="bottom"><div><p>Payment is due within 30 days of the invoice date, quoting the invoice number as the payment reference. Charges in currencies other than US dollars have been converted at the carrier’s rate on the date of sailing.</p><p>All business is undertaken subject to our standard trading conditions, a copy of which is available on request. Please tell us about any query on this invoice within seven days of receiving it.</p></div><div class="bank"><table class="bk"><caption>Bank details (USD account)</caption><thead></thead><tbody><tr><td>Bank</td><td>Felixmouth Merchant Bank</td></tr><tr><td>Account name</td><td>Harbourline Freight Forwarding Ltd</td></tr><tr><td>Account number</td><td>00-0418-1187</td></tr><tr><td>Sort code</td><td>00-00-00</td></tr><tr><td>SWIFT</td><td>FXMBGB00</td></tr></tbody></table></div></div></div><div class="ft"><span class="fl">Registered in England and Wales · Company no. 00000418 · Registered office as above</span><span class="fl">Page 1/1</span></div></div>
+</body>
+</html>

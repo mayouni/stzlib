@@ -1,0 +1,103 @@
+{
+  "id": "c14",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "Το λάδι και το φως",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Το λάδι και το φως"
+    },
+    {
+      "level": 2,
+      "text": "Η έκθεση"
+    },
+    {
+      "level": 3,
+      "text": "Πρώτη ενότητα: Λύχνοι και καντήλια"
+    },
+    {
+      "level": 3,
+      "text": "Δεύτερη ενότητα: Το ελαιοτριβείο"
+    },
+    {
+      "level": 3,
+      "text": "Τρίτη ενότητα: Από το καντήλι στον λαμπτήρα"
+    },
+    {
+      "level": 2,
+      "text": "Πληροφορίες"
+    }
+  ],
+  "key_sentences": [
+    "Η έκθεση παρουσιάζει πώς το ελαιόλαδο φώτισε τα σπίτια, τις εκκλησίες και τα εργαστήρια της περιοχής από την αρχαιότητα έως τον εξηλεκτρισμό των χωριών.",
+    "Περισσότερα από εκατόν σαράντα αντικείμενα, πολλά από τα οποία εκτίθενται για πρώτη φορά, προέρχονται από τις συλλογές του μουσείου και από δωρεές κατοίκων.",
+    "Οι επισκέπτες μπορούν να δουν από κοντά πώς κατασκευαζόταν το φιτίλι και πόσο λάδι χρειαζόταν για μια νύχτα.",
+    "Φωτογραφίες και ηχογραφημένες αφηγήσεις παλαιών ελαιοτριβέων περιγράφουν τη δουλειά της νύχτας, όταν το λιοτρίβι δούλευε ασταμάτητα για εβδομάδες.",
+    "Η τελευταία ενότητα αφηγείται τη μετάβαση στο πετρέλαιο και στον ηλεκτρισμό, που άλλαξε την καθημερινή ζωή μέσα σε λίγες δεκαετίες."
+  ],
+  "tables": [
+    {
+      "caption": "Πρόγραμμα παράλληλων εκδηλώσεων",
+      "rows": [
+        [
+          "Ημερομηνία",
+          "Ώρα",
+          "Εκδήλωση",
+          "Χώρος"
+        ],
+        [
+          "Σάββατο 12 Δεκεμβρίου 2026",
+          "19:00",
+          "Εγκαίνια της έκθεσης με τη χορωδία του Δήμου",
+          "Αυλή του μουσείου"
+        ],
+        [
+          "Κυριακή 17 Ιανουαρίου 2027",
+          "11:00",
+          "Εργαστήριο για παιδιά: φτιάχνουμε πήλινο λυχνάρι",
+          "Εκπαιδευτικό εργαστήριο"
+        ],
+        [
+          "Παρασκευή 26 Φεβρουαρίου 2027",
+          "18:30",
+          "Διάλεξη: «Το λάδι στη λαϊκή λατρεία»",
+          "Αίθουσα Β΄"
+        ],
+        [
+          "Σάββατο 24 Απριλίου 2027",
+          "20:00",
+          "Βραδιά με φως καντηλιών και παραδοσιακή μουσική",
+          "Ελαιοτριβείο του μουσείου"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "– Ώρες λειτουργίας: Τρίτη έως Κυριακή, 09:00–17:00."
+    },
+    {
+      "level": 0,
+      "text": "– Γενική είσοδος: 4 €· μειωμένη: 2 €· είσοδος ελεύθερη για παιδιά έως 12 ετών."
+    },
+    {
+      "level": 0,
+      "text": "– Ξεναγήσεις για σχολεία κατόπιν κράτησης στο τηλέφωνο 28210 00418."
+    },
+    {
+      "level": 0,
+      "text": "– Ο χώρος είναι προσβάσιμος σε αμαξίδια."
+    }
+  ],
+  "furniture": [
+    "ΔΗΜΟΤΙΚΟ ΜΟΥΣΕΙΟ ΕΛΑΙΟΠΑΡΑΓΩΓΗΣ ΝΕΑΣ ΚΥΔΩΝΙΑΣ",
+    "Δημοτικό Μουσείο Ελαιοπαραγωγής · Οδός Ελαιώνων 7, Νέα Κυδωνία · www.mouseio-elaias.example"
+  ],
+  "languages": [
+    "el"
+  ],
+  "code": [],
+  "notes": "Greek museum exhibition guide, 1 page. The body text below the banner flows in TWO CSS COLUMNS; reading order is the whole left column, then the whole right column (a paragraph may continue from the bottom of the left column to the top of the right one). Headings at levels 2 and 3 sit inside the columns. Some long words carry soft hyphens and may break with a hyphen; they are given whole. The programme table below the columns spans the full width. The 'Πληροφορίες' list uses TYPED en-dash markers. The first paragraph opens with a floated DROP CAP (its first letter 'Η' is larger and set apart); it belongs to the first word. Banner organisation line and the footer line are furniture. No page number. The banner organisation line is letter-spaced capitals, given as plain words; the italic date line under the title is body text."
+}

@@ -1,0 +1,167 @@
+{
+  "id": "c02",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Compte rendu d’analyses de biologie médicale",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Compte rendu d’analyses de biologie médicale"
+    },
+    {
+      "level": 2,
+      "text": "Résultats"
+    },
+    {
+      "level": 2,
+      "text": "Commentaire du biologiste"
+    },
+    {
+      "level": 2,
+      "text": "Conditions de prélèvement"
+    }
+  ],
+  "key_sentences": [
+    "La glycémie à jeun et l’hémoglobine glyquée sont légèrement supérieures aux valeurs de référence.",
+    "Un contrôle à distance est conseillé, de préférence le matin et après un jeûne de douze heures.",
+    "Les autres paramètres se situent dans les limites habituelles.",
+    "Le prélèvement a été réalisé au laboratoire, sur tube citraté et sur tube sec.",
+    "Les échantillons ont été analysés le jour même, moins de trois heures après le prélèvement."
+  ],
+  "tables": [
+    {
+      "caption": "Patient",
+      "rows": [
+        [
+          "Nom",
+          "MARCHAND-VIDAL Élodie"
+        ],
+        [
+          "Né(e) le",
+          "23/06/1979 (47 ans)"
+        ],
+        [
+          "Sexe",
+          "Féminin"
+        ],
+        [
+          "N° de dossier",
+          "26-1104-0387"
+        ],
+        [
+          "Prélevé le",
+          "04/11/2026 à 07:45"
+        ]
+      ]
+    },
+    {
+      "caption": "Prescripteur",
+      "rows": [
+        [
+          "Médecin",
+          "Dr Anselme Rouquier"
+        ],
+        [
+          "Adresse",
+          "8 place du Marché, 69007 Lyon"
+        ],
+        [
+          "Ordonnance du",
+          "28/10/2026"
+        ],
+        [
+          "Copie à",
+          "Patiente (portail sécurisé)"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Analyse",
+          "Résultat",
+          "Unité",
+          "Valeurs de référence",
+          "Antériorité 12/03/2026"
+        ],
+        [
+          "HÉMATOLOGIE",
+          "HÉMATOLOGIE",
+          "HÉMATOLOGIE",
+          "HÉMATOLOGIE",
+          "HÉMATOLOGIE"
+        ],
+        [
+          "Hémoglobine",
+          "13,2",
+          "g/dL",
+          "12,0 – 16,0",
+          "13,6"
+        ],
+        [
+          "Leucocytes",
+          "6,8",
+          "G/L",
+          "4,0 – 10,0",
+          "7,1"
+        ],
+        [
+          "Plaquettes",
+          "254",
+          "G/L",
+          "150 – 400",
+          "241"
+        ],
+        [
+          "BIOCHIMIE SANGUINE",
+          "BIOCHIMIE SANGUINE",
+          "BIOCHIMIE SANGUINE",
+          "BIOCHIMIE SANGUINE",
+          "BIOCHIMIE SANGUINE"
+        ],
+        [
+          "Glycémie à jeun méthode enzymatique",
+          "6,4 H",
+          "mmol/L",
+          "3,9 – 5,8 adulte à jeun",
+          "5,9"
+        ],
+        [
+          "Créatinine méthode de Jaffé",
+          "68",
+          "µmol/L",
+          "45 – 84 femme",
+          "71"
+        ],
+        [
+          "Cholestérol total",
+          "5,1",
+          "mmol/L",
+          "< 5,2",
+          "5,3"
+        ],
+        [
+          "Hémoglobine glyquée (HbA1c) chromatographie liquide",
+          "6,1 H",
+          "%",
+          "4,0 – 6,0",
+          "—"
+        ]
+      ]
+    }
+  ],
+  "list_items": [],
+  "furniture": [
+    "Laboratoire de biologie médicale des Tilleuls",
+    "12 rue des Tilleuls, 69007 Lyon · Tél. 04 00 00 18 52",
+    "Ouvert du lundi au samedi, prélèvements de 7 h à 12 h",
+    "SELAS Laboratoire des Tilleuls · Accréditation n° 8-0000 · Les résultats sont couverts par le secret médical",
+    "Page 1/1"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "French medical laboratory report, 1 page. Two boxes SIDE BY SIDE ('Patient' left, 'Prescripteur' right) are key/value tables read box by box (left box first). The results table has section rows spanning all columns (HÉMATOLOGIE, BIOCHIMIE SANGUINE), cells of two lines (analysis name + method, reference + population) TOP-aligned, and out-of-range results flagged with a typed 'H'. Letterhead 3 lines; footer line and page number 'Page 1/1'. Decimal commas are part of the values. Box titles 'Patient' and 'Prescripteur' are table captions, not headings."
+}

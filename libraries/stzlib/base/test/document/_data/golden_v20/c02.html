@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Compte rendu d’analyses de biologie médicale</title>
+<style>
+@page { size: A4; margin: 0; }
+html, body { margin: 0; padding: 0; background: #fff; }
+body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.page { width: 210mm; height: 297mm; position: relative; overflow: hidden; box-sizing: border-box; break-after: page; page-break-after: always; }
+.page.last { break-after: auto; page-break-after: auto; }
+.pg-body { position: absolute; overflow: hidden; }
+
+body { font-family: Calibri; color: #222; }
+.pg-body { left: 18mm; right: 18mm; top: 15mm; bottom: 24mm; font-size: 10.5pt; line-height: 1.35; }
+.lh { display: flex; align-items: center; border-bottom: 1pt solid #2e7d6b; padding-bottom: 2.5mm; margin-bottom: 5mm; }
+.lh .logo { width: 14mm; height: 14mm; border-radius: 50%; background: #2e7d6b; margin-right: 4mm; }
+.lh .org { font-size: 15pt; font-weight: bold; color: #2e7d6b; }
+.lh .ad { font-size: 9pt; color: #555; }
+h1 { font-size: 15pt; margin: 0 0 4mm 0; color: #1c4e44; }
+h2 { font-size: 11.5pt; margin: 5mm 0 1.5mm 0; color: #1c4e44; border-bottom: 0.5pt solid #9cc5ba; }
+.boxes { display: flex; gap: 6mm; }
+.boxes > div { flex: 1; border: 0.8pt solid #9cc5ba; border-radius: 2mm; padding: 2mm 3mm; }
+table.kv { border-collapse: collapse; width: 100%; font-size: 9.8pt; }
+table.kv caption { text-align: left; font-weight: bold; color: #2e7d6b; padding-bottom: 1mm; }
+table.kv td { padding: 0.5mm 1mm; vertical-align: top; }
+table.kv td:first-child { color: #555; width: 34%; }
+table.res { border-collapse: collapse; width: 100%; font-size: 9.6pt; margin-top: 2mm; }
+table.res th { background: #2e7d6b; color: #fff; text-align: left; padding: 1.3mm 1.8mm; font-weight: bold; }
+table.res td { padding: 1.2mm 1.8mm; border-bottom: 0.4pt solid #cfe2dc; vertical-align: top; }
+table.res tr.sec td { background: #e7f2ef; font-weight: bold; color: #1c4e44; letter-spacing: 0.08em; }
+table.res .hi { font-weight: bold; color: #b3261e; }
+table.res .m { color: #666; font-size: 8.6pt; }
+p { margin: 0 0 2mm 0; }
+.ft { position: absolute; bottom: 10mm; left: 18mm; right: 18mm; font-size: 8pt; color: #666; border-top: 0.5pt solid #9cc5ba; padding-top: 1.5mm; }
+.ft .pn { text-align: right; }
+.valid { margin-top: 4mm; font-style: italic; }
+
+</style>
+
+</head>
+<body>
+<div class="page last"><div class="pg-body"><div class="lh"><div class="logo"></div><div><div class="fl org">Laboratoire de biologie médicale des Tilleuls</div><div class="fl ad">12 rue des Tilleuls, 69007 Lyon · Tél. 04 00 00 18 52</div><div class="fl ad">Ouvert du lundi au samedi, prélèvements de 7 h à 12 h</div></div></div><h1>Compte rendu d’analyses de biologie médicale</h1><div class="boxes"><div><table class="kv"><caption>Patient</caption><thead></thead><tbody><tr><td>Nom</td><td>MARCHAND-VIDAL Élodie</td></tr><tr><td>Né(e) le</td><td>23/06/1979 (47 ans)</td></tr><tr><td>Sexe</td><td>Féminin</td></tr><tr><td>N° de dossier</td><td>26-1104-0387</td></tr><tr><td>Prélevé le</td><td>04/11/2026 à 07:45</td></tr></tbody></table></div><div><table class="kv"><caption>Prescripteur</caption><thead></thead><tbody><tr><td>Médecin</td><td>Dr Anselme Rouquier</td></tr><tr><td>Adresse</td><td>8 place du Marché, 69007 Lyon</td></tr><tr><td>Ordonnance du</td><td>28/10/2026</td></tr><tr><td>Copie à</td><td>Patiente (portail sécurisé)</td></tr></tbody></table></div></div><h2>Résultats</h2><table class="res"><thead><tr><th>Analyse</th><th>Résultat</th><th>Unité</th><th>Valeurs de référence</th><th>Antériorité 12/03/2026</th></tr></thead><tbody><tr class="sec"><td colspan="5">HÉMATOLOGIE</td></tr><tr><td>Hémoglobine</td><td>13,2</td><td>g/dL</td><td>12,0 – 16,0</td><td>13,6</td></tr><tr><td>Leucocytes</td><td>6,8</td><td>G/L</td><td>4,0 – 10,0</td><td>7,1</td></tr><tr><td>Plaquettes</td><td>254</td><td>G/L</td><td>150 – 400</td><td>241</td></tr><tr class="sec"><td colspan="5">BIOCHIMIE SANGUINE</td></tr><tr><td>Glycémie à jeun<br><span class="m">méthode enzymatique</span></td><td class="hi">6,4 H</td><td>mmol/L</td><td>3,9 – 5,8<br><span class="m">adulte à jeun</span></td><td>5,9</td></tr><tr><td>Créatinine<br><span class="m">méthode de Jaffé</span></td><td>68</td><td>µmol/L</td><td>45 – 84<br><span class="m">femme</span></td><td>71</td></tr><tr><td>Cholestérol total</td><td>5,1</td><td>mmol/L</td><td>&lt; 5,2</td><td>5,3</td></tr><tr><td>Hémoglobine glyquée (HbA1c)<br><span class="m">chromatographie liquide</span></td><td class="hi">6,1 H</td><td>%</td><td>4,0 – 6,0</td><td>—</td></tr></tbody></table><h2>Commentaire du biologiste</h2><p>La glycémie à jeun et l’hémoglobine glyquée sont légèrement supérieures aux valeurs de référence. Un contrôle à distance est conseillé, de préférence le matin et après un jeûne de douze heures. Les autres paramètres se situent dans les limites habituelles.</p><h2>Conditions de prélèvement</h2><p>Le prélèvement a été réalisé au laboratoire, sur tube citraté et sur tube sec. Les échantillons ont été analysés le jour même, moins de trois heures après le prélèvement.</p><p class="valid">Compte rendu validé électroniquement par Mme Clothilde Verneuil, biologiste responsable.</p></div><div class="ft"><div class="fl">SELAS Laboratoire des Tilleuls · Accréditation n° 8-0000 · Les résultats sont couverts par le secret médical</div><div class="fl pn">Page 1/1</div></div></div>
+</body>
+</html>

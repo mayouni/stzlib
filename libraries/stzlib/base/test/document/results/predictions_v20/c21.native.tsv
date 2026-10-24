@@ -1,0 +1,26 @@
+page_header	0	TRƯỜNG ĐẠI HỌC KHOA HỌC ỨNG DỤNG BÌNH MINH
+page_header	0	KHOA CÔNG NGHỆ THÔNG TIN
+page_header	0	CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM Độc lập – Tự do – Hạnh phúc
+heading	1	ĐỀ CƯƠNG HỌC PHẦN
+heading	2	Nhập môn Khoa học Dữ liệu
+heading	2	1. Thông tin chung
+table	0	Mã học phầnCNTT2318Số tín chỉ3 (2 lý thuyết, 1 thực hành)Học phần tiên quyếtXác suất thống kê; Lập trình cơ bảnGiảng viên phụ tráchTS. Nguyễn Thị Thu HườngHọc kỳ áp dụngHọc kỳ II, năm học 2026–2027
+heading	2	2. Mục tiêu học phần
+paragraph	0	Học phần cung cấp cho sinh viên những kiến thức nền tảng về quy trình khai thác và phân tích dữ liệu. Sau khi hoàn thành học phần, sinh viên có khả năng:
+list_item	0	a) thu thập, làm sạch và mô tả một tập dữ liệu thực tế bằng ngôn ngữ Python;
+list_item	0	b) xây dựng và đánh giá các mô hình hồi quy, phân loại và phân cụm đơn giản;
+list_item	0	c) trình bày kết quả phân tích một cách rõ ràng và có trách nhiệm với người sử dụng.
+heading	2	3. Kế hoạch giảng dạy
+table	0	TuầnNội dungHình thứcTài liệu1Giới thiệu khoa học dữ liệu; quy trình một dự án dữ liệuLý thuyết[1] chương 12Python cho phân tích dữ liệu: kiểu dữ liệu, hàm, thư việnLý thuyết Thực hành[2] chương 2–33Thu thập dữ liệu từ tệp, cơ sở dữ liệu và giao diện lập trìnhThực hành[2] chương 64Làm sạch dữ liệu: giá trị thiếu, ngoại lai, chuẩn hóaLý thuyết Thực hành[2] chương 75Thống kê mô tả và trực quan hóa dữ liệuLý thuyết[1] chương 36Xác suất cơ bản và phân phốiLý thuyết[3] chương 27Kiểm định giả thuyết; khoảng tin cậyLý thuyết Bài tập[3] chương 48Kiểm tra giữa kỳKiểm tra—9Hồi quy tuyến tính đơn và bộiLý thuyết Thực hành[1] chương 510Phân loại: hồi quy logistic, cây quyết địnhLý thuyết Thực hành[1] chương 611Đánh giá mô hình: ma trận nhầm lẫn, kiểm định chéoThực hành[1] chương 712Phân cụm k-means và phân cụm phân cấpLý thuyết Thực hành[1] chương 813Đạo đức dữ liệu và bảo vệ dữ liệu cá nhânThảo luậnTài liệu phát tay14Làm đồ án nhóm có hướng dẫnĐồ án—15Báo cáo đồ án nhóm; tổng kết học phầnThuyết trình—
+page_footer	0	Trang 1/2
+heading	2	4. Đánh giá kết quả học tập
+table	0	Thành phầnHình thứcTỷ trọngChuyên cầnĐiểm danh, tham gia thảo luận10%Bài tập thực hành5 bài nộp trên hệ thống học trực tuyến20%Kiểm tra giữa kỳTự luận, 60 phút20%Đồ án nhómBáo cáo viết và thuyết trình50%Tổng cộng100%
+paragraph	0	Sinh viên vắng quá 20% số tiết học sẽ không được dự thi kết thúc học phần. Mọi hành vi sao chép bài làm hoặc mã nguồn mà không ghi rõ nguồn đều bị xử lý theo quy chế của nhà trường.
+heading	2	5. Tài liệu học tập
+list_item	0	[1] Trần Minh Quân, Giáo trình Khoa học dữ liệu, Nhà xuất bản Bình Minh, 2024.
+list_item	0	[2] Lê Hoàng Yến, Phân tích dữ liệu với Python, tái bản lần thứ ba, 2025.
+list_item	0	[3] Phạm Đức Khải, Xác suất và thống kê ứng dụng, 2023.
+paragraph	0	Đề cương này được Hội đồng Khoa học và Đào tạo của Khoa thông qua ngày 15 tháng 9 năm 2026.
+paragraph	0	Trưởng khoa
+paragraph	0	PGS.TS. Đỗ Văn Lâm
+page_footer	0	Trang 2/2
