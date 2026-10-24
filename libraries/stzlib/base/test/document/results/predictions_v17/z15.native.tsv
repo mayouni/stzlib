@@ -1,0 +1,52 @@
+page_header	0	Proceedings of the Lakeshore Hydrology Workshop, Vol. 9 (2026)
+page_header	0	Holloway, Albuquerque and Eide
+heading	1	Wind-driven resuspension and turbidity recovery in a shallow eutrophic lake
+paragraph	0	Maren Q. Holloway1, Tiago R. Albuquerque2, Sunniva Eide1
+paragraph	0	1 Department of Aquatic Sciences, University of Westmarch; 2 Riverbend Institute for Inland Waters
+heading	2	Abstract
+paragraph	0	We measured turbidity and wind speed at three stations in Lake Orrin, a shallow eutrophic lake with a mean depth of 2.1 m, during the autumn of 2025. Turbidity rose within two hours of wind speeds exceeding 6 m/s and returned to baseline after a median of 31 hours. A simple first-order decay model explained 78% of the variance in recovery times. Keywords: sediment resuspension; turbidity; shallow lakes; wind forcing
+heading	2	1 Introduction
+paragraph	0	Shallow lakes are prone to sediment resuspension because wind-generated waves can reach the bed over most of their area. Resuspended material reduces light availability and can release phosphorus from the sediment. Few studies have followed the full cycle from
+paragraph	0	1
+paragraph	0	resuspension to recovery at hourly resolution, and most rely on monthly sampling that misses short events. In this study we combine continuous sensor records with wind data to describe how quickly the water column clears after a storm, and whether recovery depends on station depth.
+heading	2	2 Methods
+heading	3	2.1 Study site
+paragraph	0	Lake Orrin covers 4.6 km² and has a maximum depth of 3.4 m. The lake is polymictic and has no thermal
+paragraph	0	1 Internal loading was not measured directly in this study.
+paragraph	0	stratification lasting more than a few days. Three monitoring buoys were deployed along the main wind axis, from the sheltered western bay to the open centre.
+heading	3	2.2 Measurements
+paragraph	0	Turbidity was recorded every 10 minutes with optical sensors, and wind speed was measured 4 m above the water surface. Sensors were cleaned and checked against laboratory samples every two weeks.
+paragraph	0	Table 1. Deployment summary for the three stations.
+paragraph	0	Station
+paragraph	0	S1 S2 S3
+paragraph	0	Depth (m)
+paragraph	0	1.6 2.4 3.1
+paragraph	0	Distance from shore (m)
+paragraph	0	180 640 1,120
+paragraph	0	Valid records (%)
+paragraph	0	97.2 94.8 91.5
+paragraph	0	An event was defined as a rise in turbidity of more than 50% above the seven-day running median, sustained for at least one hour.
+page_footer	0	117
+page_header	0	Proceedings of the Lakeshore Hydrology Workshop, Vol. 9 (2026)
+heading	2	3 Results
+paragraph	0	Eleven resuspension events were identified between September and November. Peak turbidity was highest at the shallowest station and decreased with depth. Two events at station S3 were lost to sensor fouling, which explains the lower count there.
+paragraph	0	Table 2. Recovery times by station (hours).
+paragraph	0	Station
+paragraph	0	S1 S2 S3
+paragraph	0	Events
+paragraph	0	11 11 9
+paragraph	0	Median
+paragraph	0	36 31 24
+paragraph	0	Range
+paragraph	0	18–64 15–52 12–41
+heading	2	4 Discussion
+paragraph	0	Recovery was faster at the deeper stations, where less material was resuspended in the first place. This pattern suggests that the duration of poor light conditions is
+page_header	0	Holloway, Albuquerque and Eide
+paragraph	0	governed more by the amount of material lifted than by settling distance. Management measures that reduce fetch, such as restoring reed belts along the western shore, could therefore shorten turbid periods.
+heading	2	5 Conclusions
+paragraph	0	Hourly monitoring captured the complete resuspension cycle and showed that recovery time scales with station depth.
+heading	2	References
+list_item	0	[1] Brenner, K. and Laasko, P. (2019). Wave-driven resuspension in shallow lakes. Inland Water Dynamics 14, 201–215.
+list_item	0	[2] Oduya, F. (2021). Light climate and turbidity in eutrophic basins. Freshwater Optics 7, 45–60.
+list_item	0	[3] Varga, L., Moss, T. and Ilić, D. (2023). Hourly sensor networks for lake monitoring. Limnological Methods 31, 88–102.
+page_footer	0	118

@@ -1,0 +1,184 @@
+{
+  "id": "z23",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "小型底びき網漁業の許可の条件について",
+  "headings": [
+    {
+      "level": 1,
+      "text": "小型底びき網漁業の許可の条件について"
+    },
+    {
+      "level": 2,
+      "text": "第1 操業区域及び期間"
+    },
+    {
+      "level": 2,
+      "text": "第2 漁具の制限"
+    },
+    {
+      "level": 2,
+      "text": "第3 漁獲量の上限"
+    },
+    {
+      "level": 2,
+      "text": "第4 漁獲成績の報告"
+    },
+    {
+      "level": 3,
+      "text": "報告に記載する事項"
+    },
+    {
+      "level": 2,
+      "text": "第5 違反した場合の措置"
+    },
+    {
+      "level": 2,
+      "text": "第6 問い合わせ先"
+    }
+  ],
+  "key_sentences": [
+    "汐見県漁業調整規則に基づき、令和8年度の小型底びき網漁業の許可に付する条件を次のとおり定めます。",
+    "操業区域は、別図に示す汐見湾内の第1区から第4区までとします。",
+    "許可を受けた者は、毎月の漁獲成績を翌月10日までに水産振興課へ報告しなければなりません。",
+    "報告は、所定の様式による書面又は電子申請により行うものとします。",
+    "この条件に違反した場合は、許可の取消し又は操業の停止を命ずることがあります。"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "区域",
+          "操業期間",
+          "操業時間",
+          "備考"
+        ],
+        [
+          "第1区",
+          "9月1日～翌年5月31日",
+          "日出から日没まで",
+          "—"
+        ],
+        [
+          "第2区",
+          "9月1日～翌年5月31日",
+          "日出から日没まで",
+          "水深10メートル以浅は操業禁止"
+        ],
+        [
+          "第3区",
+          "10月1日～翌年4月30日",
+          "午前4時～午後4時",
+          "—"
+        ],
+        [
+          "第4区",
+          "10月1日～翌年3月31日",
+          "午前4時～午後4時",
+          "保護区に隣接"
+        ]
+      ]
+    },
+    {
+      "caption": "表1 魚種別の年間漁獲可能量",
+      "rows": [
+        [
+          "魚種",
+          "年間上限（トン）",
+          "最小体長等",
+          "禁漁期間"
+        ],
+        [
+          "マダイ",
+          "12.0",
+          "15センチメートル",
+          "5月1日～6月30日"
+        ],
+        [
+          "ヒラメ",
+          "8.5",
+          "30センチメートル",
+          "4月1日～5月31日"
+        ],
+        [
+          "ガザミ",
+          "6.0",
+          "甲幅12センチメートル",
+          "6月1日～8月31日"
+        ],
+        [
+          "クルマエビ",
+          "4.2",
+          "—",
+          "7月1日～8月31日"
+        ],
+        [
+          "ナマコ",
+          "15.0",
+          "100グラム",
+          "4月1日～10月31日"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "担当",
+          "汐見県農林水産部 水産振興課 漁業調整係"
+        ],
+        [
+          "所在地",
+          "汐見市港町2丁目5番1号"
+        ],
+        [
+          "電話",
+          "0899-55-2140"
+        ],
+        [
+          "受付時間",
+          "平日 午前8時30分～午後5時15分"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "（1）網口の幅は8メートル以下とすること。"
+    },
+    {
+      "level": 0,
+      "text": "（2）袋網の目合いは、内径30ミリメートル以上とすること。"
+    },
+    {
+      "level": 0,
+      "text": "（3）網の曳航速度は3ノットを超えないこと。"
+    },
+    {
+      "level": 0,
+      "text": "操業した日及び区域"
+    },
+    {
+      "level": 0,
+      "text": "魚種別の漁獲量"
+    },
+    {
+      "level": 0,
+      "text": "使用した漁具の種類及び数"
+    }
+  ],
+  "furniture": [
+    "汐見県農林水産部 水産振興課",
+    "汐水振第412号 令和8年8月20日",
+    "1／2",
+    "小型底びき網漁業 許可の条件（令和8年度）",
+    "2／2"
+  ],
+  "languages": [
+    "ja"
+  ],
+  "code": [],
+  "notes": "Each separate text block of the page furniture is one entry; parts of the same header or footer row that sit apart (left / centre / right) are separate entries. Two-page Japanese fisheries permit conditions. Japanese writes no spaces between words; sentences end with \"。\". Lines may wrap anywhere inside a sentence; the text is given whole. The table caption contains an ideographic space (U+3000), given as one ordinary space under the whitespace rule. Ideographic spaces in headings and in the page-1 letterhead are likewise given as one ordinary space. Full-width characters (～, （ ）, ／) are kept as written. The gear-limits list has typed markers \"（1）\" to \"（3）\"; the reporting-items list is CSS-drawn (disc). The contact table is key/value without a header row. Page numbers are \"1／2\" and \"2／2\". 令和8年度 is fiscal year 2026."
+}

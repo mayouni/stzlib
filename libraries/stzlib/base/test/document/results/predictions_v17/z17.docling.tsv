@@ -1,0 +1,33 @@
+page_header	0	Flight Operations Crew Briefing Package
+heading	1	Halcyon Coast Airways
+heading	1	Crew Briefing: Pairing HCA-4471
+heading	1	DUTY SUMMARY
+heading	1	CREW
+paragraph	0	Report time
+paragraph	0	Duty end
+paragraph	0	Aircraft
+paragraph	0	05:10 UTC
+paragraph	0	14:25 UTC
+paragraph	0	A220-300, fleet no. 312
+paragraph	0	Maximum duty period 11:30
+paragraph	0	Captain
+paragraph	0	First Officer D. Moravec L. Adebayo-King
+paragraph	0	Cabin manager S. Rautio
+paragraph	0	Cabin crew P. Oyelowo, J. Brennan
+heading	1	SECTORS
+table	0	FlightFromToSTD (UTC)STA (UTC)BlockFuel planned (kg)AlternateHC 401Port AlderKestrel Bay06:1007:251:154,850MirrenHC 402Kestrel BayPort Alder08:0509:201:154,700OstrowHC 517Port AlderMirren10:1511:501:355,600Kestrel BayHC 518MirrenPort Alder12:3514:051:305,450Ostrow
+paragraph	0	WEATHER
+paragraph	0	A cold front will cross Kestrel Bay between 07:00 and 09:00 UTC with gusts up to 35 knots. Expect moderate turbulence below 8,000 feet on the approach to Kestrel Bay.
+paragraph	0	Conditions at Port Alder and Mirren remain good, with visibility above 10 km and no significant cloud below 4,000 feet.
+heading	1	NOTAM SUMMARY
+paragraph	0	A1182/26 KESTREL BAY RWY 09/27 CLSD 0600-0730 DUE WIP. RWY 14/32 AVBL, LDA 2150M.
+paragraph	0	A1190/26 PORT ALDER ILS RWY 22 GP U/S UNTIL 28 OCT 2026.
+paragraph	0	LOC/DME APCH AVBL.
+paragraph	0	B0417/26 MIRREN TWY C BTN TWY C2 AND C4 CLSD.
+heading	1	OPERATIONAL NOTES
+list_item	0	Captain to brief the crosswind limits before departure from Port Alder.
+list_item	0	Catering for HC 517 includes 4 special meals; confirm loading with the dispatcher.
+list_item	0	Cabin crew to complete the security search of the aircraft before the first sector.
+paragraph	0	Report any fatigue concerns to crew control before signing on for duty. This briefing package is valid only for the duty date shown and must not be reused.
+page_footer	0	Valid for duty date 24 OCT 2026 only
+page_footer	0	Sheet 1 of 1

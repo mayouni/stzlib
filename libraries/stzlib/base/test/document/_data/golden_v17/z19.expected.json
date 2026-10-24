@@ -1,0 +1,320 @@
+{
+  "id": "z19",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "CAMPIONATO DI PRIMA CATEGORIA – GIRONE B",
+  "headings": [
+    {
+      "level": 1,
+      "text": "CAMPIONATO DI PRIMA CATEGORIA – GIRONE B"
+    },
+    {
+      "level": 2,
+      "text": "Risultati della 7ª giornata"
+    },
+    {
+      "level": 2,
+      "text": "Prossimo turno"
+    },
+    {
+      "level": 2,
+      "text": "Classifica"
+    },
+    {
+      "level": 2,
+      "text": "Provvedimenti disciplinari"
+    }
+  ],
+  "key_sentences": [
+    "Il Comitato Provinciale comunica i risultati e la classifica aggiornata del Girone B.",
+    "L'ottava giornata si disputerà domenica 25 ottobre 2026 con inizio alle ore 14:30.",
+    "Le società ospitanti devono garantire la presenza di un dirigente addetto all'arbitro.",
+    "Eventuali reclami vanno presentati per iscritto entro le ore 12:00 del giorno successivo alla gara."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Casa",
+          "Ospiti",
+          "Risultato"
+        ],
+        [
+          "Atletico Borgonuovo",
+          "US Ripalta",
+          "2–1"
+        ],
+        [
+          "Polisportiva San Vito",
+          "Real Castellaro",
+          "0–0"
+        ],
+        [
+          "FC Valmarena 1921",
+          "Sporting Pieve",
+          "3–2"
+        ],
+        [
+          "ASD Monterosso",
+          "Virtus Campagnola",
+          "1–4"
+        ],
+        [
+          "Union Fontanelle",
+          "Olimpia Serravalle",
+          "2–2"
+        ],
+        [
+          "Sporting Collealto",
+          "AC Torricella",
+          "0–1"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Casa",
+          "Ospiti"
+        ],
+        [
+          "US Ripalta",
+          "FC Valmarena 1921"
+        ],
+        [
+          "Real Castellaro",
+          "Atletico Borgonuovo"
+        ],
+        [
+          "Sporting Pieve",
+          "ASD Monterosso"
+        ],
+        [
+          "Virtus Campagnola",
+          "Union Fontanelle"
+        ],
+        [
+          "Olimpia Serravalle",
+          "Sporting Collealto"
+        ],
+        [
+          "AC Torricella",
+          "Polisportiva San Vito"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Pos.",
+          "Squadra",
+          "Pt",
+          "Casa",
+          "Casa",
+          "Casa",
+          "Trasferta",
+          "Trasferta",
+          "Trasferta",
+          "Reti",
+          "Reti"
+        ],
+        [
+          "Pos.",
+          "Squadra",
+          "Pt",
+          "V",
+          "N",
+          "P",
+          "V",
+          "N",
+          "P",
+          "F",
+          "S"
+        ],
+        [
+          "1",
+          "FC Valmarena 1921",
+          "17",
+          "3",
+          "1",
+          "0",
+          "2",
+          "1",
+          "0",
+          "16",
+          "7"
+        ],
+        [
+          "2",
+          "Virtus Campagnola",
+          "16",
+          "2",
+          "1",
+          "0",
+          "3",
+          "0",
+          "1",
+          "15",
+          "6"
+        ],
+        [
+          "3",
+          "Atletico Borgonuovo",
+          "14",
+          "3",
+          "0",
+          "1",
+          "1",
+          "2",
+          "0",
+          "12",
+          "8"
+        ],
+        [
+          "4",
+          "AC Torricella",
+          "13",
+          "2",
+          "1",
+          "1",
+          "2",
+          "0",
+          "1",
+          "10",
+          "7"
+        ],
+        [
+          "5",
+          "Union Fontanelle",
+          "12",
+          "2",
+          "2",
+          "0",
+          "1",
+          "1",
+          "1",
+          "11",
+          "9"
+        ],
+        [
+          "6",
+          "Olimpia Serravalle",
+          "12",
+          "1",
+          "2",
+          "0",
+          "2",
+          "1",
+          "1",
+          "9",
+          "8"
+        ],
+        [
+          "7",
+          "Polisportiva San Vito",
+          "9",
+          "2",
+          "1",
+          "1",
+          "0",
+          "2",
+          "1",
+          "7",
+          "8"
+        ],
+        [
+          "8",
+          "Sporting Pieve",
+          "8",
+          "1",
+          "1",
+          "2",
+          "1",
+          "1",
+          "1",
+          "10",
+          "12"
+        ],
+        [
+          "9",
+          "Real Castellaro",
+          "7",
+          "1",
+          "2",
+          "1",
+          "0",
+          "2",
+          "1",
+          "6",
+          "9"
+        ],
+        [
+          "10",
+          "US Ripalta",
+          "6",
+          "1",
+          "1",
+          "1",
+          "0",
+          "2",
+          "2",
+          "7",
+          "12"
+        ],
+        [
+          "11",
+          "Sporting Collealto",
+          "5",
+          "1",
+          "0",
+          "2",
+          "0",
+          "2",
+          "2",
+          "5",
+          "12"
+        ],
+        [
+          "12",
+          "ASD Monterosso",
+          "2",
+          "0",
+          "1",
+          "3",
+          "0",
+          "1",
+          "2",
+          "4",
+          "14"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "– Squalifica per una giornata: Marco Ferretti (US Ripalta), per doppia ammonizione."
+    },
+    {
+      "level": 0,
+      "text": "– Squalifica per due giornate: Davide Lunardi (Sporting Collealto), per condotta violenta."
+    },
+    {
+      "level": 0,
+      "text": "– Ammenda di 150 euro alla società ASD Monterosso per lancio di oggetti in campo."
+    }
+  ],
+  "furniture": [
+    "Federazione Calcistica Dilettanti – Comitato Provinciale di Valmarena",
+    "Comunicato Ufficiale n. 14 del 22 ottobre 2026",
+    "pag. 1"
+  ],
+  "languages": [
+    "it"
+  ],
+  "code": [],
+  "notes": "Each separate text block of the page furniture is one entry; parts of the same header or footer row that sit apart (left / centre / right) are separate entries. One-page Italian amateur football bulletin. The title is typed in capitals and letter-spaced: \"CAMPIONATO DI PRIMA CATEGORIA – GIRONE B\". Two side-by-side columns, \"Risultati della 7ª giornata\" (left) and \"Prossimo turno\" (right), each a heading with a small table, are read column by column; the right column also holds two paragraphs. The standings table has a two-level header: \"Pos.\", \"Squadra\" and \"Pt\" span two rows, \"Casa\" and \"Trasferta\" span three columns (V N P) and \"Reti\" spans two (F S); merged header cells are repeated. The disciplinary list has a typed en dash marker \"–\"."
+}

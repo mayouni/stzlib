@@ -1,0 +1,144 @@
+{
+  "id": "z05",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Minutes of the Ordinary Meeting of Eastmere Borough Council",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Minutes of the Ordinary Meeting of Eastmere Borough Council"
+    },
+    {
+      "level": 2,
+      "text": "Present"
+    },
+    {
+      "level": 2,
+      "text": "Apologies for absence"
+    },
+    {
+      "level": 2,
+      "text": "In attendance"
+    },
+    {
+      "level": 2,
+      "text": "45. Declarations of interest"
+    },
+    {
+      "level": 2,
+      "text": "46. Minutes of the previous meeting"
+    },
+    {
+      "level": 2,
+      "text": "47. Mayor's announcements"
+    },
+    {
+      "level": 2,
+      "text": "48. Questions from members of the public"
+    },
+    {
+      "level": 2,
+      "text": "49. Allotment rents 2027–28"
+    },
+    {
+      "level": 2,
+      "text": "50. Date of next meeting"
+    }
+  ],
+  "key_sentences": [
+    "Councillor Brandt declared a non-pecuniary interest in item 49 as a member of the Eastmere Allotment Society.",
+    "RESOLVED that the minutes of the meeting held on 10 September 2026 be approved as a correct record and signed by the Mayor.",
+    "Mrs G. Pellow asked when the pedestrian crossing on Mill Lane would be repaired, and the Cabinet Member for Highways replied that the work was scheduled for the week beginning 19 October.",
+    "The Council considered the report of the Head of Parks and Open Spaces proposing an increase in allotment rents of 4.5 per cent.",
+    "Members noted that the waiting list for allotments stood at 214 households.",
+    "The next ordinary meeting of the Council will be held on Thursday 12 November 2026 at 7.00 pm.",
+    "The meeting closed at 8.42 pm."
+  ],
+  "tables": [
+    {
+      "caption": "Table A: Proposed allotment rents",
+      "rows": [
+        [
+          "Plot size",
+          "Current rent 2026–27",
+          "Proposed rent 2027–28",
+          "Concession rate"
+        ],
+        [
+          "Full plot (250 m²)",
+          "£96.00",
+          "£100.30",
+          "£50.15"
+        ],
+        [
+          "Half plot (125 m²)",
+          "£52.00",
+          "£54.35",
+          "£27.20"
+        ],
+        [
+          "Raised bed (10 m²)",
+          "£18.00",
+          "£18.80",
+          "£9.40"
+        ]
+      ]
+    },
+    {
+      "caption": "Recorded vote on item 49",
+      "rows": [
+        [
+          "Vote",
+          "Number of members"
+        ],
+        [
+          "For",
+          "5"
+        ],
+        [
+          "Against",
+          "1"
+        ],
+        [
+          "Abstentions",
+          "1"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "The Mayor thanked the volunteers who supported the Heritage Open Days weekend, which attracted over 3,100 visitors."
+    },
+    {
+      "level": 0,
+      "text": "The refurbished Wharf Street library will reopen on 2 November 2026."
+    },
+    {
+      "level": 0,
+      "text": "The Remembrance Sunday parade will assemble at 10.15 am at the War Memorial."
+    },
+    {
+      "level": 0,
+      "text": "(a) the allotment rents for 2027–28 be approved as set out in Table A;"
+    },
+    {
+      "level": 0,
+      "text": "(b) the concession rate of 50 per cent for residents in receipt of pension credit be retained."
+    }
+  ],
+  "furniture": [
+    "BOROUGH OF EASTMERE",
+    "Town Hall, Market Square, Eastmere EM1 1AA",
+    "Chair's initials: ..........",
+    "– 1 –",
+    "Ordinary Council Meeting — 8 October 2026",
+    "– 2 –"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Each separate text block of the page furniture is one entry; parts of the same header or footer row that sit apart (left / centre / right) are separate entries. Two-page council minutes. The borough name at the top of page 1 is letter-spaced letterhead (furniture), given as plain words. The attendance band holds three side-by-side columns \"Present\", \"Apologies for absence\" and \"In attendance\"; reading order is column by column, their titles are headings, and the names under them are plain lines without markers (not list items). Agenda items are level-2 headings numbered 45 to 50. The Mayor's announcements list is CSS-drawn (disc); the resolution list has typed markers \"(a)\", \"(b)\". Page numbers are in the form \"– 1 –\". The chair's-initials line repeats in the footer and is listed once."
+}

@@ -1,0 +1,114 @@
+{
+  "id": "z16",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Proposta de regularização de sinistro",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Proposta de regularização de sinistro"
+    },
+    {
+      "level": 2,
+      "text": "Cálculo da indemnização"
+    },
+    {
+      "level": 2,
+      "text": "Documentos necessários"
+    }
+  ],
+  "key_sentences": [
+    "Concluída a peritagem ao veículo de matrícula 47-TV-82, vimos apresentar a proposta de indemnização ao abrigo da cobertura de danos próprios da apólice.",
+    "O valor proposto resulta do orçamento de reparação validado pelo perito, deduzido da franquia contratual.",
+    "O pagamento será efetuado por transferência bancária no prazo de cinco dias úteis após a receção dos documentos.",
+    "Caso não concorde com a proposta, poderá apresentar reclamação no prazo de 30 dias."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Apólice",
+          "Processo de sinistro",
+          "Data do sinistro",
+          "Data"
+        ],
+        [
+          "AU-7720431",
+          "SIN-2026-018342",
+          "02/09/2026",
+          "16/10/2026"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Descrição",
+          "Valor"
+        ],
+        [
+          "Peças e materiais",
+          "2 184,60 €"
+        ],
+        [
+          "Mão de obra (18,5 horas)",
+          "832,50 €"
+        ],
+        [
+          "Pintura",
+          "611,40 €"
+        ],
+        [
+          "Subtotal da reparação",
+          "3 628,50 €"
+        ],
+        [
+          "IVA (23%)",
+          "834,56 €"
+        ],
+        [
+          "Total do orçamento",
+          "4 463,06 €"
+        ],
+        [
+          "Franquia (2% do capital seguro)",
+          "−420,00 €"
+        ],
+        [
+          "Valor a indemnizar",
+          "4 043,06 €"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Declaração de aceitação da proposta, assinada pela tomadora do seguro;"
+    },
+    {
+      "level": 0,
+      "text": "Comprovativo do IBAN da conta para pagamento;"
+    },
+    {
+      "level": 0,
+      "text": "Cópia do documento único automóvel."
+    }
+  ],
+  "furniture": [
+    "Seguradora Atlântida Mútua",
+    "Departamento de Sinistros Automóvel",
+    "Av. dos Navegantes, 210",
+    "4100-123 Porto",
+    "Linha de apoio 220 410 900",
+    "Seguradora Atlântida Mútua, S.A. · Capital social 25 000 000 € · Sede: Av. dos Navegantes, 210, Porto",
+    "Página 1 de 1"
+  ],
+  "languages": [
+    "pt"
+  ],
+  "code": [],
+  "notes": "Each separate text block of the page furniture is one entry; parts of the same header or footer row that sit apart (left / centre / right) are separate entries. One-page European Portuguese insurance claim settlement letter. The addressee block, salutation and signature are body text but not sentences. The reference table has one header row and one data row. The settlement table has subtotal, total, deductible (negative, with a minus sign U+2212) and final rows, all rows of the same table. The documents list is CSS-drawn (disc, coloured marker). Thousands are separated by no-break spaces, given as ordinary spaces."
+}

@@ -1,0 +1,200 @@
+{
+  "id": "z20",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Informator parafialny",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Informator parafialny"
+    },
+    {
+      "level": 2,
+      "text": "Porządek nabożeństw"
+    },
+    {
+      "level": 2,
+      "text": "Intencje mszalne"
+    },
+    {
+      "level": 2,
+      "text": "Ogłoszenia duszpasterskie"
+    },
+    {
+      "level": 2,
+      "text": "Z życia parafii"
+    },
+    {
+      "level": 3,
+      "text": "Uroczystość Wszystkich Świętych"
+    },
+    {
+      "level": 3,
+      "text": "Wypominki"
+    },
+    {
+      "level": 3,
+      "text": "Dyżury przy kościele"
+    }
+  ],
+  "key_sentences": [
+    "Drodzy Parafianie, w tym tygodniu zapraszamy szczególnie na nabożeństwa różańcowe, które odprawiamy codziennie przez cały październik.",
+    "W uroczystość Wszystkich Świętych nie będzie Mszy św. o godz. 18:00.",
+    "W minioną sobotę grupa 46 pielgrzymów z naszej parafii wróciła z pielgrzymki do sanktuarium maryjnego.",
+    "Uczestnicy dziękują księdzu proboszczowi za opiekę duchową w czasie podróży.",
+    "Kartki z wypominkami można składać w zakrystii do 31 października."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Dzień",
+          "Godzina",
+          "Nabożeństwo"
+        ],
+        [
+          "Niedziela",
+          "8:00",
+          "Msza św. za parafian"
+        ],
+        [
+          "Niedziela",
+          "10:30",
+          "Msza św. z udziałem dzieci"
+        ],
+        [
+          "Niedziela",
+          "18:00",
+          "Msza św. i nabożeństwo różańcowe"
+        ],
+        [
+          "Poniedziałek–piątek",
+          "7:00",
+          "Msza św."
+        ],
+        [
+          "Poniedziałek–piątek",
+          "18:00",
+          "Różaniec i Msza św."
+        ],
+        [
+          "Sobota",
+          "8:00",
+          "Msza św. i spowiedź"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Dzień",
+          "Godz.",
+          "Intencja"
+        ],
+        [
+          "Pon. 19.10",
+          "7:00",
+          "za † Stanisława Wróbla w 5. rocznicę śmierci"
+        ],
+        [
+          "Wt. 20.10",
+          "18:00",
+          "o zdrowie dla Marii i Józefa Nowickich"
+        ],
+        [
+          "Śr. 21.10",
+          "7:00",
+          "za † rodziców Annę i Tadeusza"
+        ],
+        [
+          "Czw. 22.10",
+          "18:00",
+          "dziękczynna w 25. rocznicę ślubu"
+        ],
+        [
+          "Pt. 23.10",
+          "18:00",
+          "za † Helenę Zając"
+        ],
+        [
+          "Sob. 24.10",
+          "8:00",
+          "w intencji parafian"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Data",
+          "Godzina",
+          "Miejsce",
+          "Nabożeństwo"
+        ],
+        [
+          "1 listopada",
+          "10:00",
+          "kościół parafialny",
+          "Msza św."
+        ],
+        [
+          "1 listopada",
+          "13:00",
+          "cmentarz parafialny",
+          "Msza św. i procesja"
+        ],
+        [
+          "2 listopada",
+          "18:00",
+          "kościół parafialny",
+          "Msza św. za zmarłych"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "W środę 21 października o godz. 19:00 odbędzie się spotkanie rodziców dzieci przygotowujących się do Pierwszej Komunii Świętej."
+    },
+    {
+      "level": 0,
+      "text": "Kancelaria parafialna jest czynna we wtorki i czwartki od 16:00 do 18:00."
+    },
+    {
+      "level": 0,
+      "text": "Zbiórka do puszek w przyszłą niedzielę jest przeznaczona na misje."
+    },
+    {
+      "level": 0,
+      "text": "Dziękujemy wszystkim, którzy pomogli przy porządkowaniu cmentarza."
+    },
+    {
+      "level": 0,
+      "text": "Sprzątanie kościoła: rodziny z ulicy Lipowej"
+    },
+    {
+      "level": 0,
+      "text": "Dekoracja ołtarza: Koło Gospodyń Wiejskich"
+    },
+    {
+      "level": 0,
+      "text": "Służba liturgiczna: grupa ministrantów pana Pawła"
+    }
+  ],
+  "furniture": [
+    "Parafia Rzymskokatolicka pw. św. Jadwigi w Brzozowie Wielkim",
+    "ul. Kościelna 4 · tel. 33 812 40 17",
+    "Strona 1 z 2",
+    "Informator parafialny św. Jadwigi · nr 42/2026",
+    "Strona 2 z 2"
+  ],
+  "languages": [
+    "pl"
+  ],
+  "code": [],
+  "notes": "Each separate text block of the page furniture is one entry; parts of the same header or footer row that sit apart (left / centre / right) are separate entries. Two-page Polish parish bulletin. The subtitle line under the title (issue number and date) is a plain paragraph, not a heading. The Mass schedule table uses ROW-SPANNING day cells (\"Niedziela\" spans three rows, \"Poniedziałek–piątek\" two); merged cells are repeated in every covered row. On page 1 two framed boxes sit side by side, \"Intencje mszalne\" (left, a table) and \"Ogłoszenia duszpasterskie\" (right, a CSS-drawn ordered list with numbers drawn by CSS); reading order is box by box, left first. The duty list on page 2 is CSS-drawn (square). The closing greeting is not a sentence for scoring."
+}

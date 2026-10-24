@@ -1,0 +1,186 @@
+{
+  "id": "z03",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "CONTRAT DE LOCATION",
+  "headings": [
+    {
+      "level": 1,
+      "text": "CONTRAT DE LOCATION"
+    },
+    {
+      "level": 2,
+      "text": "I. Désignation des parties"
+    },
+    {
+      "level": 2,
+      "text": "II. Objet du contrat"
+    },
+    {
+      "level": 3,
+      "text": "Article 1 – Consistance du logement"
+    },
+    {
+      "level": 3,
+      "text": "Article 2 – Équipements d'accès aux technologies de l'information"
+    },
+    {
+      "level": 2,
+      "text": "III. Date de prise d'effet et durée du contrat"
+    },
+    {
+      "level": 2,
+      "text": "IV. Conditions financières"
+    },
+    {
+      "level": 3,
+      "text": "Article 3 – Loyer et charges"
+    },
+    {
+      "level": 3,
+      "text": "Article 4 – Révision du loyer"
+    },
+    {
+      "level": 3,
+      "text": "Article 5 – Charges récupérables"
+    },
+    {
+      "level": 2,
+      "text": "V. Obligations des parties"
+    },
+    {
+      "level": 3,
+      "text": "Article 6 – Obligations du bailleur"
+    },
+    {
+      "level": 3,
+      "text": "Article 7 – Obligations du locataire"
+    },
+    {
+      "level": 2,
+      "text": "VI. Clause résolutoire"
+    },
+    {
+      "level": 2,
+      "text": "VII. Annexes"
+    },
+    {
+      "level": 2,
+      "text": "VIII. Signatures"
+    }
+  ],
+  "key_sentences": [
+    "Le logement est situé au 3e étage d'un immeuble collectif construit en 1962, au 8 allée des Platanes, 37100 Tours.",
+    "Il comprend une entrée, un séjour, deux chambres, une cuisine indépendante, une salle d'eau et des toilettes séparées, pour une surface habitable de 64,5 m².",
+    "Le contrat prend effet le 1er novembre 2026 pour une durée de trois ans.",
+    "Le loyer est payable mensuellement et d'avance, au plus tard le 5 de chaque mois, par virement sur le compte désigné par le bailleur.",
+    "Le loyer sera révisé chaque année à la date anniversaire du contrat en fonction de la variation de l'indice de référence des loyers.",
+    "Le contrat sera résilié de plein droit, deux mois après un commandement de payer demeuré infructueux, à défaut de paiement du loyer, des charges ou du dépôt de garantie.",
+    "Fait en deux exemplaires originaux, à Tours, le 18 octobre 2026."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Désignation",
+          "Montant mensuel"
+        ],
+        [
+          "Loyer hors charges",
+          "690,00 €"
+        ],
+        [
+          "Provision sur charges",
+          "85,00 €"
+        ],
+        [
+          "Total mensuel",
+          "775,00 €"
+        ],
+        [
+          "Dépôt de garantie (versé une seule fois)",
+          "690,00 €"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "– Mme Élise Carpentier, demeurant 14 rue des Tanneurs, 37000 Tours, ci-après dénommée « le bailleur » ;"
+    },
+    {
+      "level": 0,
+      "text": "– M. Karim Benali et Mme Léa Fontaine, demeurant ensemble 3 impasse du Moulin, 41000 Blois, ci-après dénommés « le locataire »."
+    },
+    {
+      "level": 0,
+      "text": "a) l'entretien des parties communes et de l'ascenseur ;"
+    },
+    {
+      "level": 0,
+      "text": "b) la consommation d'eau froide et d'eau chaude collective ;"
+    },
+    {
+      "level": 0,
+      "text": "c) la taxe d'enlèvement des ordures ménagères."
+    },
+    {
+      "level": 0,
+      "text": "délivrer un logement décent en bon état d'usage et de réparation ;"
+    },
+    {
+      "level": 0,
+      "text": "assurer au locataire la jouissance paisible du logement ;"
+    },
+    {
+      "level": 0,
+      "text": "entretenir les locaux et effectuer les réparations autres que locatives."
+    },
+    {
+      "level": 0,
+      "text": "payer le loyer et les charges aux termes convenus ;"
+    },
+    {
+      "level": 0,
+      "text": "user paisiblement des locaux suivant la destination prévue au contrat ;"
+    },
+    {
+      "level": 0,
+      "text": "souscrire une assurance contre les risques locatifs et en justifier chaque année ;"
+    },
+    {
+      "level": 0,
+      "text": "ne pas transformer les locaux sans l'accord écrit du bailleur."
+    },
+    {
+      "level": 0,
+      "text": "1° le dossier de diagnostic technique ;"
+    },
+    {
+      "level": 0,
+      "text": "2° l'état des lieux d'entrée ;"
+    },
+    {
+      "level": 0,
+      "text": "3° la notice d'information relative aux droits et obligations des parties ;"
+    },
+    {
+      "level": 0,
+      "text": "4° les extraits du règlement de copropriété."
+    }
+  ],
+  "furniture": [
+    "Contrat de location – Logement vide à usage de résidence principale",
+    "Paraphes du bailleur et du locataire :",
+    "Page 1 sur 3",
+    "Page 2 sur 3",
+    "Page 3 sur 3"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "Each separate text block of the page furniture is one entry; parts of the same header or footer row that sit apart (left / centre / right) are separate entries. Three-page French residential lease, justified text. The title is typed in capitals and letter-spaced: \"CONTRAT DE LOCATION\". The subtitle under the title is a plain paragraph, not a heading. Level-2 headings are roman-numbered parts, letter-spaced; level-3 headings are articles. Lists: the parties list uses a typed en dash marker \"–\", the charges list typed \"a)\" to \"c)\", the annexes list typed \"1°\" to \"4°\"; the obligations lists are CSS-drawn (disc). The running header repeats on all three pages and is listed once; the initials line in the footer repeats and is listed once. The two signature boxes on page 3 sit side by side and read box by box; their labels are not headings. French typography: a no-break space precedes ; : and » and follows «, given as an ordinary space."
+}

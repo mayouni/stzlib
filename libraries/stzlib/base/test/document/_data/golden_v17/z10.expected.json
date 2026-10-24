@@ -1,0 +1,121 @@
+{
+  "id": "z10",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "የምርጥ ዘር እና የማዳበሪያ ስርጭት ማስታወቂያ",
+  "headings": [
+    {
+      "level": 1,
+      "text": "የምርጥ ዘር እና የማዳበሪያ ስርጭት ማስታወቂያ"
+    },
+    {
+      "level": 2,
+      "text": "የስርጭት መርሐ ግብር"
+    },
+    {
+      "level": 2,
+      "text": "የዋጋ ዝርዝር"
+    },
+    {
+      "level": 2,
+      "text": "አባላት ይዘው መቅረብ ያለባቸው ሰነዶች"
+    }
+  ],
+  "key_sentences": [
+    "ለ2019 ዓ.ም. የመኸር ወቅት የተዘጋጀው ምርጥ ዘር እና ማዳበሪያ ከጥቅምት 20 ቀን ጀምሮ ይሰራጫል።",
+    "እያንዳንዱ አባል የአባልነት መታወቂያውን ይዞ መቅረብ አለበት።",
+    "ክፍያ በጥሬ ገንዘብ ወይም በማኅበሩ የባንክ ሂሳብ በኩል መፈጸም ይቻላል።",
+    "ለተጨማሪ መረጃ የማኅበሩን ጽሕፈት ቤት ያነጋግሩ።"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "ቀበሌ",
+          "ቀን",
+          "የስርጭት ቦታ",
+          "ሰዓት"
+        ],
+        [
+          "ሰላም ቀበሌ",
+          "ጥቅምት 20",
+          "የማኅበሩ ዋና መጋዘን",
+          "ከጠዋቱ 2:00 – 6:00"
+        ],
+        [
+          "አበባ ቀበሌ",
+          "ጥቅምት 21",
+          "የአበባ ትምህርት ቤት ግቢ",
+          "ከጠዋቱ 2:00 – 6:00"
+        ],
+        [
+          "ወንዝ ዳር ቀበሌ",
+          "ጥቅምት 22",
+          "የቀበሌው ጽሕፈት ቤት",
+          "ከሰዓት 7:00 – 11:00"
+        ],
+        [
+          "ኮረብታ ቀበሌ",
+          "ጥቅምት 23",
+          "የማኅበሩ ዋና መጋዘን",
+          "ከጠዋቱ 2:00 – 6:00"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "የግብዓት አይነት",
+          "መለኪያ",
+          "ዋጋ (ብር)"
+        ],
+        [
+          "ዩሪያ ማዳበሪያ",
+          "50 ኪ.ግ.",
+          "4,200"
+        ],
+        [
+          "ኤን.ፒ.ኤስ. ማዳበሪያ",
+          "50 ኪ.ግ.",
+          "4,650"
+        ],
+        [
+          "ምርጥ የስንዴ ዘር",
+          "100 ኪ.ግ.",
+          "7,800"
+        ],
+        [
+          "ምርጥ የበቆሎ ዘር",
+          "25 ኪ.ግ.",
+          "3,100"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. የአባልነት መታወቂያ ካርድ"
+    },
+    {
+      "level": 0,
+      "text": "2. የዓመቱ የአባልነት መዋጮ የተከፈለበት ደረሰኝ"
+    },
+    {
+      "level": 0,
+      "text": "3. የመሬት ይዞታ ማረጋገጫ ደብተር ቅጂ"
+    }
+  ],
+  "furniture": [
+    "የአበባ ሸለቆ ገበሬዎች ኅብረት ሥራ ማኅበር",
+    "ደብረ ሰላም ወረዳ · ስልክ 0114 55 21 87",
+    "ገጽ 1 ከ 1"
+  ],
+  "languages": [
+    "am"
+  ],
+  "code": [],
+  "notes": "Each separate text block of the page furniture is one entry; parts of the same header or footer row that sit apart (left / centre / right) are separate entries. One-page Amharic notice of an agricultural cooperative, in Ethiopic script. Dates are in the Ethiopian calendar (year 2019 E.C.). The greeting line and the signature lines are not sentences. The requirements list has typed numbers \"1.\" to \"3.\"; there is no CSS-drawn list. Ethiopic full stop (U+1362) and semicolon (U+1364) are kept as such."
+}

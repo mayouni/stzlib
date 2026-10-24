@@ -1,0 +1,254 @@
+{
+  "id": "z13",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "Runbook: Rotating the Database TLS Certificates",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Runbook: Rotating the Database TLS Certificates"
+    },
+    {
+      "level": 2,
+      "text": "1. Purpose"
+    },
+    {
+      "level": 2,
+      "text": "2. Prerequisites"
+    },
+    {
+      "level": 2,
+      "text": "3. Environments"
+    },
+    {
+      "level": 2,
+      "text": "4. Procedure"
+    },
+    {
+      "level": 3,
+      "text": "4.1 Check the current certificate"
+    },
+    {
+      "level": 3,
+      "text": "4.2 Request a new certificate"
+    },
+    {
+      "level": 3,
+      "text": "4.3 Install the certificate"
+    },
+    {
+      "level": 3,
+      "text": "4.4 Verify"
+    },
+    {
+      "level": 2,
+      "text": "5. Rollback"
+    },
+    {
+      "level": 2,
+      "text": "6. Escalation"
+    },
+    {
+      "level": 2,
+      "text": "7. Revision history"
+    }
+  ],
+  "key_sentences": [
+    "This runbook describes how to replace the server certificates used by the production PostgreSQL clusters before they expire.",
+    "Certificates are issued by the internal certificate authority and are valid for 90 days.",
+    "Run the following command from your workstation and note the expiry date shown in the output.",
+    "Create a certificate signing request with the configuration file below, and keep the private key on the database host only.",
+    "Repeat the check from step 4.1 and confirm that the new expiry date is about 90 days in the future.",
+    "If clients report handshake failures, restore the previous certificate from the backup directory and reload the configuration.",
+    "Escalate to the on-call database lead if the rotation cannot be completed within the change window."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Runbook ID",
+          "RB-112"
+        ],
+        [
+          "Revision",
+          "4 (approved 2026-09-30)"
+        ],
+        [
+          "Owner",
+          "Platform Operations, database team"
+        ],
+        [
+          "Applies to",
+          "pgcluster-prod-a, pgcluster-prod-b and pgcluster-stage"
+        ],
+        [
+          "Estimated duration",
+          "45 minutes per cluster, no downtime expected"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Cluster",
+          "Region",
+          "Primary host",
+          "Replicas",
+          "Certificate expiry"
+        ],
+        [
+          "pgcluster-prod-a",
+          "north-1",
+          "db-a-01.int.cwhn.example",
+          "2",
+          "2026-11-14"
+        ],
+        [
+          "pgcluster-prod-b",
+          "north-2",
+          "db-b-01.int.cwhn.example",
+          "2",
+          "2026-11-21"
+        ],
+        [
+          "pgcluster-stage",
+          "north-1",
+          "db-s-01.int.cwhn.example",
+          "1",
+          "2026-12-02"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Symptom",
+          "Likely cause",
+          "Action"
+        ],
+        [
+          "SSL error: certificate verify failed",
+          "Intermediate certificate missing from the chain",
+          "Append the intermediate certificate to server.crt and reload"
+        ],
+        [
+          "Replication lag above 30 s",
+          "Replica reloaded during heavy write load",
+          "Wait for the lag to recover before moving to the next node"
+        ],
+        [
+          "Connection refused on port 5432",
+          "Key file permissions too open",
+          "Set mode 0600 and restart the service"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "On-call rota",
+          "ops-db rotation in the paging tool"
+        ],
+        [
+          "Chat channel",
+          "#db-operations"
+        ],
+        [
+          "Change manager",
+          "Service desk, extension 4410"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Revision",
+          "Date",
+          "Author",
+          "Change"
+        ],
+        [
+          "1",
+          "2025-03-11",
+          "A. Petrescu",
+          "First version"
+        ],
+        [
+          "2",
+          "2025-08-02",
+          "M. Oyelaran",
+          "Added the staging cluster"
+        ],
+        [
+          "3",
+          "2026-02-19",
+          "A. Petrescu",
+          "Replaced the manual reload with the rolling strategy"
+        ],
+        [
+          "4",
+          "2026-09-30",
+          "J. Haddad",
+          "Updated the CLI commands for version 2.8"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Membership of the db-operators group in the access portal."
+    },
+    {
+      "level": 0,
+      "text": "A workstation with the cluster CLI version 2.8 or later."
+    },
+    {
+      "level": 0,
+      "text": "An approved change request in the change calendar."
+    },
+    {
+      "level": 0,
+      "text": "Confirmation that no backup job is running on the target cluster."
+    },
+    {
+      "level": 0,
+      "text": "Copy the signed certificate to /etc/postgresql/tls/server.crt on each replica first."
+    },
+    {
+      "level": 0,
+      "text": "Set the file owner to postgres and the mode to 0600."
+    },
+    {
+      "level": 0,
+      "text": "Reload the configuration on each replica and confirm that replication is still streaming."
+    },
+    {
+      "level": 0,
+      "text": "Fail over to a replica, then repeat the steps on the former primary."
+    }
+  ],
+  "furniture": [
+    "Calderwood Regional Health Network · Platform Operations",
+    "RB-112 · Database TLS certificate rotation",
+    "Internal — do not distribute outside Platform Operations",
+    "p. 1/3",
+    "p. 2/3",
+    "p. 3/3"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "openssl s_client -connect db-a-01.int.cwhn.example:5432 \\\n    -starttls postgres </dev/null 2>/dev/null \\\n  | openssl x509 -noout -subject -enddate",
+    "[ req ]\ndefault_bits       = 4096\nprompt             = no\ndistinguished_name = dn\nreq_extensions     = san\n\n[ dn ]\nCN = db-a-01.int.cwhn.example\nO  = Calderwood Regional Health Network\n\n[ san ]\nsubjectAltName = DNS:db-a-01.int.cwhn.example, DNS:pgcluster-prod-a.int.cwhn.example",
+    "tls:\n  enabled: true\n  cert_file: /etc/postgresql/tls/server.crt\n  key_file: /etc/postgresql/tls/server.key\n  min_protocol: TLSv1.2\nreload:\n  strategy: rolling\n  pause_between_nodes: 60s",
+    "cwctl cluster status pgcluster-prod-a --show-tls"
+  ],
+  "notes": "Each separate text block of the page furniture is one entry; parts of the same header or footer row that sit apart (left / centre / right) are separate entries. Three-page technical runbook with four code/configuration blocks set in Consolas (a shell pipeline with backslash continuations, an OpenSSL request configuration, a YAML file and a one-line command); code is given verbatim with its indentation. The running header (left and right parts) and the footer classification line repeat on every page and are listed once; page numbers are \"p. 1/3\" etc. The document-control and escalation tables are key/value without header rows. The prerequisites list is CSS-drawn (disc); the installation steps are a CSS-drawn ordered list (numbers drawn by CSS). In the symptoms table some cells are on two lines, given joined by one space."
+}

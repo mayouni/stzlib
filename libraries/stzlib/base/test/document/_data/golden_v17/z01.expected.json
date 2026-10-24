@@ -1,0 +1,173 @@
+{
+  "id": "z01",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "TAX INVOICE",
+  "headings": [
+    {
+      "level": 1,
+      "text": "TAX INVOICE"
+    },
+    {
+      "level": 2,
+      "text": "Invoice to"
+    },
+    {
+      "level": 2,
+      "text": "Deliver to"
+    },
+    {
+      "level": 2,
+      "text": "Payment terms"
+    },
+    {
+      "level": 2,
+      "text": "Notes"
+    }
+  ],
+  "key_sentences": [
+    "Payment is due within 30 days of the invoice date.",
+    "Please quote the invoice number INV-24117 as the payment reference so that we can allocate your remittance correctly.",
+    "Goods remain the property of Fernhollow Trading Ltd until this invoice has been paid in full.",
+    "Thank you for your custom.",
+    "If you have any questions about this invoice, contact our accounts team on 01632 960 418."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Invoice number",
+          "INV-24117"
+        ],
+        [
+          "Invoice date",
+          "14 October 2026"
+        ],
+        [
+          "Customer account",
+          "HAL-0392"
+        ],
+        [
+          "Order reference",
+          "PO 7781-B"
+        ],
+        [
+          "Due date",
+          "13 November 2026"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Item code",
+          "Description",
+          "Qty",
+          "Unit",
+          "Unit price (£)",
+          "Amount (£)"
+        ],
+        [
+          "FT-OAK-2045",
+          "European oak board, planed, 20 × 145 mm, 2.4 m",
+          "36",
+          "length",
+          "18.40",
+          "662.40"
+        ],
+        [
+          "FT-PLY-1812",
+          "Birch plywood sheet, 18 mm, 2440 × 1220 mm",
+          "12",
+          "sheet",
+          "54.75",
+          "657.00"
+        ],
+        [
+          "HW-HNG-0075",
+          "Concealed cabinet hinge, soft close, 110°",
+          "48",
+          "each",
+          "3.15",
+          "151.20"
+        ],
+        [
+          "HW-SCR-4050",
+          "Wood screws 4.0 × 50 mm, box of 200",
+          "6",
+          "box",
+          "9.80",
+          "58.80"
+        ],
+        [
+          "FN-OIL-0001",
+          "Hardwax oil, satin, 2.5 litre",
+          "3",
+          "tin",
+          "46.90",
+          "140.70"
+        ],
+        [
+          "DL-STD-0001",
+          "Delivery, standard rigid vehicle",
+          "1",
+          "trip",
+          "65.00",
+          "65.00"
+        ],
+        [
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "1,735.10"
+        ],
+        [
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "347.02"
+        ],
+        [
+          "Total due",
+          "Total due",
+          "Total due",
+          "Total due",
+          "Total due",
+          "2,082.12"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Timber lengths are cut to order and cannot be returned unless faulty."
+    },
+    {
+      "level": 0,
+      "text": "Shortages or damage must be reported within 48 hours of delivery."
+    },
+    {
+      "level": 0,
+      "text": "A late payment charge of 2% per month may be added to overdue balances."
+    }
+  ],
+  "furniture": [
+    "Fernhollow Timber & Joinery Supplies",
+    "Unit 7, Calder Mill Yard, Brackley Road, Hallowfield HF4 2TR",
+    "Tel. 01632 960 418 · accounts@fernhollow-timber.example",
+    "Fernhollow Trading Ltd · Registered in England and Wales No. 0881 2457 · VAT Reg. GB 274 9183 06",
+    "Page 1 of 1"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Each separate text block of the page furniture is one entry; parts of the same header or footer row that sit apart (left / centre / right) are separate entries. One-page commercial invoice. The two address boxes \"Invoice to\" and \"Deliver to\" sit side by side; reading order is box by box (left box first), and their titles are headings. The invoice-details key/value table sits to the right of the boxes and is read after them. In the line-items table the Subtotal / VAT / Total rows are rows of the same table; their label cell spans five columns and is repeated in each covered cell. The Notes list is CSS-drawn (disc bullets). The title is letter-spaced and typed in capitals: \"TAX INVOICE\"."
+}

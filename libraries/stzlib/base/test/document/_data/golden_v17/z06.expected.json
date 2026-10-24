@@ -1,0 +1,133 @@
+{
+  "id": "z06",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "فاتورة استهلاك المياه",
+  "headings": [
+    {
+      "level": 1,
+      "text": "فاتورة استهلاك المياه"
+    },
+    {
+      "level": 2,
+      "text": "بيانات المشترك"
+    },
+    {
+      "level": 2,
+      "text": "تفاصيل الاستهلاك"
+    },
+    {
+      "level": 2,
+      "text": "طرق الدفع"
+    },
+    {
+      "level": 2,
+      "text": "ملاحظات هامة"
+    }
+  ],
+  "key_sentences": [
+    "القراءة السابقة للعداد ١٢٣٤ م٣ والقراءة الحالية ١٢٨٢ م٣، أي استهلاك قدره ٤٨ م٣ خلال هذه الفترة.",
+    "يجب تسديد هذه الفاتورة في أجل أقصاه ٣١ أكتوبر ٢٠٢٦.",
+    "في حالة عدم الدفع في الأجل المحدد، تطبق غرامة تأخير بنسبة ٥٪ من المبلغ المستحق.",
+    "للإبلاغ عن تسرب أو انقطاع في التزويد، يرجى الاتصال بالرقم الأخضر على مدار الساعة."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "اسم المشترك",
+          "سليم عبد الحميد الفرجاني"
+        ],
+        [
+          "رقم الاشتراك",
+          "٤٤٠٢١٧٨٣"
+        ],
+        [
+          "العنوان",
+          "حي النخيل، شارع الياسمين، رقم ١٧"
+        ],
+        [
+          "فئة الاستهلاك",
+          "منزلي"
+        ],
+        [
+          "فترة الفوترة",
+          "من ١ يوليو إلى ٣٠ سبتمبر ٢٠٢٦"
+        ]
+      ]
+    },
+    {
+      "caption": "جميع المبالغ بالدينار",
+      "rows": [
+        [
+          "البيان",
+          "الكمية (م٣)",
+          "سعر المتر المكعب",
+          "المبلغ"
+        ],
+        [
+          "الشريحة الأولى (٠–٢٠ م٣)",
+          "٢٠",
+          "٠٫٢٠٠",
+          "٤٫٠٠٠"
+        ],
+        [
+          "الشريحة الثانية (٢١–٤٠ م٣)",
+          "٢٠",
+          "٠٫٣٥٠",
+          "٧٫٠٠٠"
+        ],
+        [
+          "الشريحة الثالثة (أكثر من ٤٠ م٣)",
+          "٨",
+          "٠٫٦٠٠",
+          "٤٫٨٠٠"
+        ],
+        [
+          "رسوم الصرف الصحي",
+          "—",
+          "—",
+          "٢٫٤٠٠"
+        ],
+        [
+          "رسوم الاشتراك الثابتة",
+          "—",
+          "—",
+          "١٫٥٠٠"
+        ],
+        [
+          "المجموع",
+          "٤٨",
+          "—",
+          "١٩٫٧٠٠"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "الدفع نقدا في أي وكالة تجارية تابعة للمؤسسة."
+    },
+    {
+      "level": 0,
+      "text": "الدفع الإلكتروني عبر البوابة الرسمية للمؤسسة باستخدام رقم الاشتراك."
+    },
+    {
+      "level": 0,
+      "text": "الدفع لدى مكاتب البريد المعتمدة."
+    }
+  ],
+  "furniture": [
+    "المؤسسة العامة للمياه والصرف الصحي",
+    "مديرية التوزيع – فرع الواحة الشرقية",
+    "الرقم الأخضر: ٨٠٠٢١٤٧",
+    "الصفحة ١ من ١"
+  ],
+  "languages": [
+    "ar"
+  ],
+  "code": [],
+  "notes": "Each separate text block of the page furniture is one entry; parts of the same header or footer row that sit apart (left / centre / right) are separate entries. One-page Arabic (right-to-left) water bill. All text is given in logical order. Numbers use Arabic-Indic digits, the Arabic decimal separator (U+066B) and the Arabic percent sign (U+066A); they are kept as such. Table rows list cells in logical order, rightmost column first. The subscriber table is key/value without a header row. In the consumption table the sanitation and fixed-fee rows and the total row are rows of the same table. The payment list is CSS-drawn (disc, on the right). The framed amount-due line is body text, not a sentence."
+}

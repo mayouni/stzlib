@@ -1,0 +1,169 @@
+{
+  "id": "z17",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "Crew Briefing: Pairing HCA-4471",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Crew Briefing: Pairing HCA-4471"
+    },
+    {
+      "level": 2,
+      "text": "DUTY SUMMARY"
+    },
+    {
+      "level": 2,
+      "text": "CREW"
+    },
+    {
+      "level": 2,
+      "text": "SECTORS"
+    },
+    {
+      "level": 2,
+      "text": "WEATHER"
+    },
+    {
+      "level": 2,
+      "text": "NOTAM SUMMARY"
+    },
+    {
+      "level": 2,
+      "text": "OPERATIONAL NOTES"
+    }
+  ],
+  "key_sentences": [
+    "A cold front will cross Kestrel Bay between 07:00 and 09:00 UTC with gusts up to 35 knots.",
+    "Expect moderate turbulence below 8,000 feet on the approach to Kestrel Bay.",
+    "Report any fatigue concerns to crew control before signing on for duty.",
+    "This briefing package is valid only for the duty date shown and must not be reused."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Report time",
+          "05:10 UTC"
+        ],
+        [
+          "Duty end",
+          "14:25 UTC"
+        ],
+        [
+          "Aircraft",
+          "A220-300, fleet no. 312"
+        ],
+        [
+          "Maximum duty period",
+          "11:30"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Captain",
+          "D. Moravec"
+        ],
+        [
+          "First Officer",
+          "L. Adebayo-King"
+        ],
+        [
+          "Cabin manager",
+          "S. Rautio"
+        ],
+        [
+          "Cabin crew",
+          "P. Oyelowo, J. Brennan"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Flight",
+          "From",
+          "To",
+          "STD (UTC)",
+          "STA (UTC)",
+          "Block",
+          "Fuel planned (kg)",
+          "Alternate"
+        ],
+        [
+          "HC 401",
+          "Port Alder",
+          "Kestrel Bay",
+          "06:10",
+          "07:25",
+          "1:15",
+          "4,850",
+          "Mirren"
+        ],
+        [
+          "HC 402",
+          "Kestrel Bay",
+          "Port Alder",
+          "08:05",
+          "09:20",
+          "1:15",
+          "4,700",
+          "Ostrow"
+        ],
+        [
+          "HC 517",
+          "Port Alder",
+          "Mirren",
+          "10:15",
+          "11:50",
+          "1:35",
+          "5,600",
+          "Kestrel Bay"
+        ],
+        [
+          "HC 518",
+          "Mirren",
+          "Port Alder",
+          "12:35",
+          "14:05",
+          "1:30",
+          "5,450",
+          "Ostrow"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "• Captain to brief the crosswind limits before departure from Port Alder."
+    },
+    {
+      "level": 0,
+      "text": "• Catering for HC 517 includes 4 special meals; confirm loading with the dispatcher."
+    },
+    {
+      "level": 0,
+      "text": "• Cabin crew to complete the security search of the aircraft before the first sector."
+    }
+  ],
+  "furniture": [
+    "Halcyon Coast Airways",
+    "Flight Operations",
+    "Crew Briefing Package",
+    "Valid for duty date 24 OCT 2026 only",
+    "Sheet 1 of 1"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "A1182/26 KESTREL BAY RWY 09/27 CLSD 0600-0730 DUE WIP.\n         RWY 14/32 AVBL, LDA 2150M.\nA1190/26 PORT ALDER ILS RWY 22 GP U/S UNTIL 28 OCT 2026.\n         LOC/DME APCH AVBL.\nB0417/26 MIRREN TWY C BTN TWY C2 AND C4 CLSD."
+  ],
+  "notes": "Each separate text block of the page furniture is one entry; parts of the same header or footer row that sit apart (left / centre / right) are separate entries. One-page airline crew briefing. \"Duty summary\" and \"Crew\" are two side-by-side key/value boxes read box by box (left first); their titles are headings. Level-2 headings are typed in capitals and letter-spaced. The sectors table is set in Arial Narrow. The NOTAM block is a code/preformatted block in Courier New with continuation lines indented by nine spaces. The operational-notes list has a TYPED bullet character \"•\" in the text."
+}

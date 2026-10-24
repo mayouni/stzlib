@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en-GB" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>TAX INVOICE</title>
+<style>
+@page { size: A4; margin: 0; }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+.page { width: 210.0mm; height: 296.4mm; display: flex; flex-direction: column; padding: 18mm 20mm; overflow: hidden; break-after: page; page-break-after: always; position: relative; }
+.page:last-child { break-after: auto; page-break-after: auto; }
+.page > header, .page > footer { flex: none; }
+.page > main { flex: 1 1 auto; overflow: hidden; min-height: 0; }
+table { border-collapse: collapse; }
+.typed .ti { margin: 0.15em 0; }
+
+body { font-family: 'Corbel', sans-serif; font-size: 10.5pt; color: #222; }
+.lh { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid #2f5d50; padding-bottom: 4mm; }
+.lh .nm { font-family: 'Century Gothic', sans-serif; font-size: 20pt; color: #2f5d50; }
+.lh .ad { text-align: right; font-size: 8.5pt; color: #555; line-height: 1.4; }
+h1 { font-family: 'Century Gothic', sans-serif; font-weight: normal; font-size: 22pt; letter-spacing: 0.08em; color: #2f5d50; margin: 7mm 0 3mm; }
+h2 { font-family: 'Century Gothic', sans-serif; font-weight: normal; font-size: 12pt; color: #2f5d50; margin: 5mm 0 1.5mm; }
+.top { display: flex; gap: 6mm; align-items: flex-start; }
+.box { flex: 1; border: 1px solid #b9cbc4; padding: 3mm 4mm; line-height: 1.45; }
+.box h2 { margin-top: 0; }
+.kv td { padding: 1mm 2mm; } .kv td:first-child { color: #555; } .kv td:last-child { font-weight: bold; }
+.items { width: 100%; margin-top: 6mm; }
+.items th { background: #2f5d50; color: #fff; text-align: left; padding: 2mm; font-weight: normal; font-size: 9.5pt; }
+.items td { padding: 1.8mm 2mm; border-bottom: 1px solid #dde6e2; font-size: 9.5pt; }
+.items td:nth-child(n+3), .items th:nth-child(n+3) { text-align: right; }
+.items td.tl { text-align: right; font-weight: bold; border-bottom: none; }
+.items td.tv { font-weight: bold; border-bottom: none; }
+.items td.gt { font-size: 11.5pt; color: #2f5d50; border-top: 2px solid #2f5d50; }
+p { margin: 1.5mm 0; line-height: 1.4; }
+ul { margin: 1mm 0; padding-left: 6mm; } li { margin: 0.8mm 0; }
+.ft { border-top: 1px solid #b9cbc4; padding-top: 2mm; font-size: 8pt; color: #666; display: flex; justify-content: space-between; }
+
+</style>
+</head>
+<body>
+<div class="page"><header class="pf"><div class="lh"><div class="nm">Fernhollow Timber &amp; Joinery Supplies</div><div class="ad">Unit 7, Calder Mill Yard, Brackley Road, Hallowfield HF4 2TR<br>Tel. 01632 960 418 · accounts@fernhollow-timber.example</div></div></header><main><h1>TAX INVOICE</h1>
+<div class="top"><div class="box">
+<h2>Invoice to</h2>
+<div>Hallowfield Kitchens &amp; Interiors<br>Attn: Accounts Payable<br>42 Tenter Street<br>Hallowfield HF1 3QD</div></div><div class="box">
+<h2>Deliver to</h2>
+<div>Site 3, Orchard Rise development<br>Off Pennine Way<br>Hallowfield HF6 9LB<br>Site contact: 07700 900 512</div></div><div>
+<table class="kv"><tbody><tr><td>Invoice number</td><td>INV-24117</td></tr><tr><td>Invoice date</td><td>14 October 2026</td></tr><tr><td>Customer account</td><td>HAL-0392</td></tr><tr><td>Order reference</td><td>PO 7781-B</td></tr><tr><td>Due date</td><td>13 November 2026</td></tr></tbody></table>
+</div></div>
+<table class="items"><thead><tr><th>Item code</th><th>Description</th><th>Qty</th><th>Unit</th><th>Unit price (£)</th><th>Amount (£)</th></tr></thead><tbody><tr><td>FT-OAK-2045</td><td>European oak board, planed, 20 × 145 mm, 2.4 m</td><td>36</td><td>length</td><td>18.40</td><td>662.40</td></tr><tr><td>FT-PLY-1812</td><td>Birch plywood sheet, 18 mm, 2440 × 1220 mm</td><td>12</td><td>sheet</td><td>54.75</td><td>657.00</td></tr><tr><td>HW-HNG-0075</td><td>Concealed cabinet hinge, soft close, 110°</td><td>48</td><td>each</td><td>3.15</td><td>151.20</td></tr><tr><td>HW-SCR-4050</td><td>Wood screws 4.0 × 50 mm, box of 200</td><td>6</td><td>box</td><td>9.80</td><td>58.80</td></tr><tr><td>FN-OIL-0001</td><td>Hardwax oil, satin, 2.5 litre</td><td>3</td><td>tin</td><td>46.90</td><td>140.70</td></tr><tr><td>DL-STD-0001</td><td>Delivery, standard rigid vehicle</td><td>1</td><td>trip</td><td>65.00</td><td>65.00</td></tr><tr><td colspan="5" class="tl">Subtotal</td><td class="tv">1,735.10</td></tr><tr><td colspan="5" class="tl">VAT at 20%</td><td class="tv">347.02</td></tr><tr><td colspan="5" class="tl gt">Total due</td><td class="tv gt">2,082.12</td></tr></tbody></table>
+<h2>Payment terms</h2>
+<p>Payment is due within 30 days of the invoice date. Please quote the invoice number INV-24117 as the payment reference so that we can allocate your remittance correctly. Goods remain the property of Fernhollow Trading Ltd until this invoice has been paid in full.</p>
+<h2>Notes</h2>
+<ul><li>Timber lengths are cut to order and cannot be returned unless faulty.</li><li>Shortages or damage must be reported within 48 hours of delivery.</li><li>A late payment charge of 2% per month may be added to overdue balances.</li></ul>
+<p style="margin-top:5mm">Thank you for your custom. If you have any questions about this invoice, contact our accounts team on 01632 960 418.</p></main><footer class="pf"><div class="ft"><span>Fernhollow Trading Ltd · Registered in England and Wales No. 0881 2457 · VAT Reg. GB 274 9183 06</span><span>Page 1 of 1</span></div></footer></div>
+</body>
+</html>

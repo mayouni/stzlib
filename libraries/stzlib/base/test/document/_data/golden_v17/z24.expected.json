@@ -1,0 +1,234 @@
+{
+  "id": "z24",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Daily Cause List",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Daily Cause List"
+    },
+    {
+      "level": 2,
+      "text": "Notes for court users"
+    },
+    {
+      "level": 2,
+      "text": "Cause list"
+    },
+    {
+      "level": 2,
+      "text": "Listing office"
+    }
+  ],
+  "key_sentences": [
+    "Mobile telephones must be switched off in all courtrooms.",
+    "Recording of proceedings without the permission of the judge is a contempt of court.",
+    "The list was finalised at 3.45 pm on Friday 23 October 2026.",
+    "Any late changes will be announced by the usher of the courtroom concerned."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Time",
+          "Case number",
+          "Parties",
+          "Matter",
+          "Hearing type",
+          "Representation"
+        ],
+        [
+          "Courtroom 1 — Her Honour Judge Okonkwo-Hale",
+          "Courtroom 1 — Her Honour Judge Okonkwo-Hale",
+          "Courtroom 1 — Her Honour Judge Okonkwo-Hale",
+          "Courtroom 1 — Her Honour Judge Okonkwo-Hale",
+          "Courtroom 1 — Her Honour Judge Okonkwo-Hale",
+          "Courtroom 1 — Her Honour Judge Okonkwo-Hale"
+        ],
+        [
+          "10:00",
+          "WM-26-C-01482",
+          "Brightwater Lettings Ltd v Daniel Fairclough",
+          "Possession claim (rent arrears)",
+          "Final hearing",
+          "Claimant: counsel; Defendant: in person"
+        ],
+        [
+          "10:00",
+          "WM-26-C-01517",
+          "Ashgrove Building Society v Marcus and Ellen Tierney",
+          "Mortgage possession",
+          "Review",
+          "Both parties: solicitors"
+        ],
+        [
+          "11:30",
+          "WM-26-C-00964",
+          "Pellham Logistics Ltd v Corrin Freight Services Ltd",
+          "Breach of contract, £48,200",
+          "Case management",
+          "Both parties: solicitors (Remote)"
+        ],
+        [
+          "14:00",
+          "WM-25-C-03311",
+          "Re: Estate of Agnes Mary Hulme (deceased)",
+          "Probate dispute",
+          "Directions",
+          "Counsel for both parties"
+        ],
+        [
+          "Courtroom 2 — District Judge Ferreira",
+          "Courtroom 2 — District Judge Ferreira",
+          "Courtroom 2 — District Judge Ferreira",
+          "Courtroom 2 — District Judge Ferreira",
+          "Courtroom 2 — District Judge Ferreira",
+          "Courtroom 2 — District Judge Ferreira"
+        ],
+        [
+          "10:00",
+          "WM-26-F-00788",
+          "Lomax v Lomax",
+          "Financial remedy",
+          "First appointment",
+          "Both parties: solicitors"
+        ],
+        [
+          "10:45",
+          "WM-26-F-00802",
+          "In the matter of K (a child)",
+          "Child arrangements",
+          "Dispute resolution appointment",
+          "Applicant: in person; Respondent: solicitor"
+        ],
+        [
+          "12:00",
+          "WM-26-C-01603",
+          "Westmarch Borough Council v Ryan Dobbs",
+          "Anti-social behaviour injunction",
+          "Return date",
+          "Claimant: in-house solicitor (Remote)"
+        ],
+        [
+          "14:00",
+          "WM-26-C-01455",
+          "Halden v Quarry Lane Motors Ltd",
+          "Faulty vehicle, £9,850",
+          "Small claims hearing",
+          "Both parties: in person"
+        ],
+        [
+          "15:30",
+          "WM-26-C-01611",
+          "Orla Benning v Coastline Rail Ltd",
+          "Personal injury",
+          "Approval of settlement",
+          "Claimant: counsel"
+        ],
+        [
+          "Courtroom 3 — Deputy District Judge Castellanos",
+          "Courtroom 3 — Deputy District Judge Castellanos",
+          "Courtroom 3 — Deputy District Judge Castellanos",
+          "Courtroom 3 — Deputy District Judge Castellanos",
+          "Courtroom 3 — Deputy District Judge Castellanos",
+          "Courtroom 3 — Deputy District Judge Castellanos"
+        ],
+        [
+          "10:00",
+          "WM-26-C-01290",
+          "Sefton Square Management Co v Priya Raman",
+          "Service charge arrears",
+          "Small claims hearing",
+          "Claimant: agent; Defendant: in person"
+        ],
+        [
+          "11:00",
+          "WM-26-C-01344",
+          "Kilbride v Northgate Insurance plc",
+          "Insurance claim, £22,400",
+          "Fast track trial",
+          "Both parties: counsel"
+        ],
+        [
+          "14:00",
+          "WM-26-C-01702",
+          "Applications without notice",
+          "Various",
+          "Applications list",
+          "—"
+        ],
+        [
+          "Courtroom 4 — Remote hearings only",
+          "Courtroom 4 — Remote hearings only",
+          "Courtroom 4 — Remote hearings only",
+          "Courtroom 4 — Remote hearings only",
+          "Courtroom 4 — Remote hearings only",
+          "Courtroom 4 — Remote hearings only"
+        ],
+        [
+          "10:30",
+          "WM-26-C-01188",
+          "Tamsin Rowe v Greyfield Dental Practice",
+          "Professional negligence",
+          "Costs and case management",
+          "Both parties: solicitors (Remote)"
+        ],
+        [
+          "12:00",
+          "WM-26-F-00655",
+          "Varga v Varga",
+          "Financial remedy",
+          "Financial dispute resolution",
+          "Both parties: solicitors (Remote)"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Telephone",
+          "01632 960 775"
+        ],
+        [
+          "Email",
+          "listing.westmarch@courts.example"
+        ],
+        [
+          "Opening hours",
+          "Monday to Friday, 9.00 am to 4.30 pm"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. Parties must report to the usher of the relevant courtroom at least 15 minutes before the listed time."
+    },
+    {
+      "level": 0,
+      "text": "2. Matters marked “Remote” will be heard by video link; joining details are sent by the listing office."
+    },
+    {
+      "level": 0,
+      "text": "3. Applications to adjourn must be made in writing to the listing office by 4.00 pm on the previous working day."
+    }
+  ],
+  "furniture": [
+    "IN THE DISTRICT COURT OF WESTMARCH",
+    "Civil and Family Division · Law Courts, Quayside, Westmarch",
+    "Lists are subject to change without notice; check the screens in the court foyer.",
+    "Page 1 of 2",
+    "Daily Cause List",
+    "Monday 26 October 2026",
+    "Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Each separate text block of the page furniture is one entry; parts of the same header or footer row that sit apart (left / centre / right) are separate entries. Two-page court daily cause list. The court name at the top of page 1 is letter-spaced letterhead (furniture), given as plain words; the date line under the title is not a sentence. The cause-list table (Roboto Condensed) runs ACROSS THE PAGE BREAK WITHOUT repeating its header on page 2; it is one table. Courtroom rows (\"Courtroom 1 — ...\") are section rows spanning all six columns, repeated in each covered cell. Party cells are on two lines (the second starting with \"v\"), given joined by one space. The notes list has typed numbers \"1.\" to \"3.\". The listing-office table is key/value without a header row. The footer disclaimer repeats and is listed once; its left and right parts are separate entries."
+}

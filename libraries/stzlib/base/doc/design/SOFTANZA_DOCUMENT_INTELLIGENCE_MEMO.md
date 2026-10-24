@@ -368,6 +368,22 @@ golden_v16: 24 realistic documents in 21 languages besides English, accented scr
 
 Time for the 24 documents: native 0.1 s, Docling 142 s. **The widest lead in the series**: text 0.98 against 0.83, tables 0.80 against 0.74, lists 0.91 against 0.44, heading precision 0.92 against 0.79; Docling stays ahead by a hair on headings (0.86 against 0.85) and furniture (0.69 against 0.68). Of the native reader's 24 missed furniture lines out of 105, 8 are letterheads; most of the rest are page numbers written in the document's own language on one-page documents («Σελίδα 1 από 1», «1/1. oldal»), which do not repeat and which the page-number test does not know. Round 16.
 
+**Sixteenth round: page numbers in any language, headings above tables; then golden_v17.** Fixed on golden_v16 (now a development set):
+- a page number in any language, with no word list: one or two small numbers (a page and a count apart by a word or a slash, the count not below the page), at most three words, the usual separators, one number coming last or alone ("Seite 3", «Σελίδα 1 από 1», «1/1. oldal», Arabic-script digits); never larger than the body ("AquaSense 300" at the top of a page is a title -- the first form took it, and was narrowed before keeping); a number first then words, or "1.2", is a numbered heading -- the first form also took those, and lowered headings on twelve sets before it was narrowed;
+- when the lowest line of a page holds a page number, that line and the blocks on its baseline are the page's footer wherever it sits (footers set inside the page box, above the bottom band);
+- a heading above a table becomes its caption only when it names itself with a number (65 of the 84 captions in the sets hold a digit).
+
+On the development sets, round-15 freeze -> round-16 freeze: furniture v16 0.68 -> 0.75, v12 0.63 -> 0.65, v13 0.76 -> 0.77; headings v11 0.845 -> 0.851, v14 0.868 -> 0.878; nothing falls. Guard 170 assertions under Ring++.
+
+golden_v17: 24 realistic documents in 17 languages besides English across nine scripts (Latin, Greek, Cyrillic, Arabic, Hebrew, Ethiopic, Devanagari, Thai, Japanese), 14 of 2-3 pages, page numbers in each document's own language, every named font and character checked against the embedded fonts, by a seventeenth independent agent who saw no reader, no output and no earlier set and did not look at the rendered pages (unperceived); reader frozen at 783ebf23b; both readers ran once:
+
+| golden_v17, realistic | text | order | headings | tables | lists | furniture | code | heading precision |
+|---|---|---|---|---|---|---|---|---|
+| Softanza native (Ring++) | **0.93** | **1.00** | **0.89** | **0.73** | **0.87** | **0.87** | **1.00** | **0.82** |
+| Docling 2.141 | 0.84 | 0.99 | 0.85 | 0.71 | 0.58 | 0.73 | 0.13 | 0.75 |
+
+Time for the 24 documents: native 0.1 s, Docling 531 s. **For the first time the native reader leads on every one of the eight measures.** Its two weakest documents are new scripts: a Hindi voter guide (text 0.20; Docling 0.00) whose sentences run into a neighbouring block, and a Japanese permit (text 0.60; Docling 0.60) where a space is inserted where a line wraps inside a sentence -- Japanese writes no spaces between words, so a wrapped line must join with none. Round 17.
+
 **Perceived (2026-10-24):** the author looked through every rendered page of golden_v9 to golden_v13 -- the sets whose own authors could not look at them -- and judged them: "they look great". Those five sets are no longer unperceived; the sets before them were generated the same way and are not covered by this look.
 
 **Not measured**: Granite-Docling-258M (not downloaded), the GPU, scanned golden pages with an expected text, PDFs from producers other than Chrome (both golden sets are Chrome-made and tagged; the native reader does not read the tags).

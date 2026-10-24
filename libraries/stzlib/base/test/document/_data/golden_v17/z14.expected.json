@@ -1,0 +1,318 @@
+{
+  "id": "z14",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Quarterly Investment Report: Third Quarter 2026",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Quarterly Investment Report: Third Quarter 2026"
+    },
+    {
+      "level": 2,
+      "text": "Key figures"
+    },
+    {
+      "level": 2,
+      "text": "Summary"
+    },
+    {
+      "level": 2,
+      "text": "1. Investment performance"
+    },
+    {
+      "level": 2,
+      "text": "2. Asset allocation"
+    },
+    {
+      "level": 2,
+      "text": "3. Statement of changes in net assets"
+    },
+    {
+      "level": 2,
+      "text": "4. Outlook"
+    },
+    {
+      "level": 3,
+      "text": "Actions agreed by the Committee"
+    },
+    {
+      "level": 2,
+      "text": "5. Glossary"
+    }
+  ],
+  "key_sentences": [
+    "The Fund returned 2.9% in the third quarter, ahead of its policy benchmark by 0.4 percentage points.",
+    "Gains came mainly from global equities and infrastructure, while government bonds were broadly flat.",
+    "The funding ratio improved from 94.3% to 96.1% over the quarter.",
+    "Returns for periods longer than one year are annualised, and negative values are shown in parentheses.",
+    "The Investment Committee expects returns to moderate in the final quarter as interest rate cuts are already reflected in asset prices.",
+    "No change to the strategic asset allocation is proposed before the triennial review in 2027."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Net assets at 30 September 2026",
+          "$4,812.6 m"
+        ],
+        [
+          "Return for the quarter",
+          "2.9%"
+        ],
+        [
+          "Return for one year",
+          "8.4%"
+        ],
+        [
+          "Funding ratio",
+          "96.1%"
+        ],
+        [
+          "Active members",
+          "18,240"
+        ]
+      ]
+    },
+    {
+      "caption": "Table 1. Returns by asset class, net of fees",
+      "rows": [
+        [
+          "Asset class",
+          "Fund",
+          "Fund",
+          "Fund",
+          "Benchmark",
+          "Benchmark",
+          "Benchmark"
+        ],
+        [
+          "Asset class",
+          "3 months",
+          "1 year",
+          "3 years p.a.",
+          "3 months",
+          "1 year",
+          "3 years p.a."
+        ],
+        [
+          "Global equities",
+          "4.1%",
+          "13.2%",
+          "9.8%",
+          "3.8%",
+          "12.6%",
+          "9.5%"
+        ],
+        [
+          "Fixed income",
+          "0.3%",
+          "3.1%",
+          "(0.6%)",
+          "0.2%",
+          "2.9%",
+          "(0.9%)"
+        ],
+        [
+          "Real estate",
+          "1.2%",
+          "2.4%",
+          "3.7%",
+          "1.5%",
+          "2.0%",
+          "3.1%"
+        ],
+        [
+          "Infrastructure",
+          "3.6%",
+          "9.0%",
+          "7.2%",
+          "2.5%",
+          "7.4%",
+          "6.8%"
+        ],
+        [
+          "Cash",
+          "1.1%",
+          "4.6%",
+          "3.5%",
+          "1.1%",
+          "4.5%",
+          "3.4%"
+        ],
+        [
+          "Total Fund",
+          "2.9%",
+          "8.4%",
+          "5.9%",
+          "2.5%",
+          "7.8%",
+          "5.4%"
+        ]
+      ]
+    },
+    {
+      "caption": "Table 2. Asset allocation at 30 September 2026",
+      "rows": [
+        [
+          "Asset class",
+          "Market value ($ m)",
+          "Actual weight",
+          "Target weight",
+          "Range"
+        ],
+        [
+          "Growth assets",
+          "Growth assets",
+          "Growth assets",
+          "Growth assets",
+          "Growth assets"
+        ],
+        [
+          "Global equities",
+          "2,165.7",
+          "45.0%",
+          "45.0%",
+          "40–50%"
+        ],
+        [
+          "Infrastructure",
+          "433.1",
+          "9.0%",
+          "10.0%",
+          "5–15%"
+        ],
+        [
+          "Defensive assets",
+          "Defensive assets",
+          "Defensive assets",
+          "Defensive assets",
+          "Defensive assets"
+        ],
+        [
+          "Fixed income",
+          "1,251.3",
+          "26.0%",
+          "27.0%",
+          "22–32%"
+        ],
+        [
+          "Real estate",
+          "721.9",
+          "15.0%",
+          "15.0%",
+          "10–20%"
+        ],
+        [
+          "Cash",
+          "240.6",
+          "5.0%",
+          "3.0%",
+          "0–8%"
+        ],
+        [
+          "Total",
+          "4,812.6",
+          "100.0%",
+          "100.0%",
+          "—"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Item",
+          "Q3 2026 ($ m)",
+          "Q3 2025 ($ m)"
+        ],
+        [
+          "Net assets at start of quarter",
+          "4,689.2",
+          "4,301.7"
+        ],
+        [
+          "Contributions received",
+          "61.4",
+          "58.9"
+        ],
+        [
+          "Benefits paid",
+          "(73.8)",
+          "(69.5)"
+        ],
+        [
+          "Investment income and gains",
+          "139.6",
+          "92.3"
+        ],
+        [
+          "Investment management fees",
+          "(3.1)",
+          "(2.9)"
+        ],
+        [
+          "Administrative expenses",
+          "(0.7)",
+          "(0.6)"
+        ],
+        [
+          "Net assets at end of quarter",
+          "4,812.6",
+          "4,379.9"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Term",
+          "Meaning"
+        ],
+        [
+          "Benchmark",
+          "The policy portfolio against which the Fund's performance is measured."
+        ],
+        [
+          "Funding ratio",
+          "Net assets divided by the actuarial value of accrued benefits."
+        ],
+        [
+          "Annualised return",
+          "The average yearly return over a period longer than one year."
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Reduce the cash overweight towards the 3% target by the end of the year."
+    },
+    {
+      "level": 0,
+      "text": "Complete the search for a second infrastructure manager."
+    },
+    {
+      "level": 0,
+      "text": "Report on climate-related risks in the annual report for 2026."
+    }
+  ],
+  "furniture": [
+    "Harbourline Municipal Employees' Pension Fund",
+    "Quarterly Investment Report",
+    "Third Quarter 2026",
+    "Figures are unaudited.",
+    "Page 1 of 2",
+    "Harbourline MEPF | Q3 2026",
+    "Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Each separate text block of the page furniture is one entry; parts of the same header or footer row that sit apart (left / centre / right) are separate entries. Two-page pension fund quarterly report. On page 1 a shaded \"Key figures\" box (key/value table) sits beside a \"Summary\" column of paragraphs; reading order is box by box, Key figures first, and both titles are headings. The performance table has a two-level header (\"Asset class\" spans two rows; \"Fund\" and \"Benchmark\" span three columns each) and zebra rows. The allocation table is borderless with section rows \"Growth assets\" and \"Defensive assets\" spanning all five columns (repeated in each covered cell) and a total row. Negative amounts are in parentheses. The \"Actions agreed\" list is CSS-drawn (disc). \"Figures are unaudited.\" repeats in the footer and is listed once."
+}

@@ -1,0 +1,137 @@
+{
+  "id": "z21",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "THÔNG BÁO Về việc điều chỉnh giá bán lẻ điện sinh hoạt",
+  "headings": [
+    {
+      "level": 1,
+      "text": "THÔNG BÁO Về việc điều chỉnh giá bán lẻ điện sinh hoạt"
+    },
+    {
+      "level": 2,
+      "text": "1. Biểu giá bán lẻ điện sinh hoạt"
+    },
+    {
+      "level": 2,
+      "text": "2. Ví dụ tính tiền điện"
+    },
+    {
+      "level": 2,
+      "text": "3. Lưu ý"
+    }
+  ],
+  "key_sentences": [
+    "Công ty Điện lực Sông Mây trân trọng thông báo giá bán lẻ điện sinh hoạt mới được áp dụng từ ngày 01 tháng 11 năm 2026.",
+    "Bảng giá này thay thế bảng giá áp dụng từ ngày 11 tháng 10 năm 2024.",
+    "Giá điện cho hộ nghèo và hộ chính sách xã hội được hỗ trợ theo quy định hiện hành.",
+    "Một hộ gia đình sử dụng 250 kWh trong tháng sẽ trả 589.600 đồng trước thuế theo giá mới.",
+    "Mọi thắc mắc xin liên hệ Trung tâm Chăm sóc khách hàng qua số điện thoại 1900 5588."
+  ],
+  "tables": [
+    {
+      "caption": "Giá chưa bao gồm thuế giá trị gia tăng (VAT).",
+      "rows": [
+        [
+          "Bậc",
+          "Mức sử dụng trong tháng",
+          "Giá cũ (đồng/kWh)",
+          "Giá mới (đồng/kWh)"
+        ],
+        [
+          "Điện sinh hoạt bậc thang",
+          "Điện sinh hoạt bậc thang",
+          "Điện sinh hoạt bậc thang",
+          "Điện sinh hoạt bậc thang"
+        ],
+        [
+          "1",
+          "Từ 0 – 50 kWh",
+          "1.893",
+          "1.984"
+        ],
+        [
+          "2",
+          "Từ 51 – 100 kWh",
+          "1.956",
+          "2.050"
+        ],
+        [
+          "3",
+          "Từ 101 – 200 kWh",
+          "2.271",
+          "2.380"
+        ],
+        [
+          "4",
+          "Từ 201 – 300 kWh",
+          "2.860",
+          "2.998"
+        ],
+        [
+          "5",
+          "Từ 301 – 400 kWh",
+          "3.197",
+          "3.350"
+        ],
+        [
+          "6",
+          "Từ 401 kWh trở lên",
+          "3.302",
+          "3.460"
+        ],
+        [
+          "Điện sinh hoạt dùng công tơ thẻ trả trước",
+          "Điện sinh hoạt dùng công tơ thẻ trả trước",
+          "Điện sinh hoạt dùng công tơ thẻ trả trước",
+          "Điện sinh hoạt dùng công tơ thẻ trả trước"
+        ],
+        [
+          "—",
+          "Công tơ thẻ trả trước",
+          "2.776",
+          "2.909"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "- Chỉ số công tơ được chốt vào ngày ghi điện định kỳ hằng tháng."
+    },
+    {
+      "level": 0,
+      "text": "- Trường hợp kỳ ghi chỉ số có cả ngày trước và sau ngày 01/11/2026, sản lượng điện được phân bổ theo số ngày áp dụng từng mức giá."
+    },
+    {
+      "level": 0,
+      "text": "- Khách hàng có thể tra cứu hóa đơn trên ứng dụng chăm sóc khách hàng của Công ty."
+    },
+    {
+      "level": 0,
+      "text": "- Như trên;"
+    },
+    {
+      "level": 0,
+      "text": "- Ban Giám đốc;"
+    },
+    {
+      "level": 0,
+      "text": "- Lưu: VT, KD."
+    }
+  ],
+  "furniture": [
+    "CÔNG TY ĐIỆN LỰC SÔNG MÂY",
+    "Số: 318/TB-ĐLSM",
+    "CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM",
+    "Độc lập – Tự do – Hạnh phúc",
+    "Sông Mây, ngày 20 tháng 10 năm 2026",
+    "Trang 1/1"
+  ],
+  "languages": [
+    "vi"
+  ],
+  "code": [],
+  "notes": "Each separate text block of the page furniture is one entry; parts of the same header or footer row that sit apart (left / centre / right) are separate entries. One-page Vietnamese administrative notice of an electricity company. The letterhead is two side-by-side blocks (company name and reference number on the left, the national motto and the place/date on the right), all furniture, read block by block. The title is set on two lines (\"THÔNG BÁO\" and \"Về việc ...\"); it is one level-1 heading, given with its lines joined by one space. The tariff table has two section rows spanning all four columns (repeated in each covered cell). Numbers use the Vietnamese format (dot for thousands). The notes list has typed hyphen markers \"-\". At the foot, the \"Nơi nhận:\" block (left, a label followed by a typed-hyphen list) and the signature block (right) sit side by side and are read block by block. Vietnamese letters are NFC."
+}

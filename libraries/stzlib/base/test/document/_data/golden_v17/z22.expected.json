@@ -1,0 +1,110 @@
+{
+  "id": "z22",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Aankondiging huurverhoging per 1 juli 2027",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Aankondiging huurverhoging per 1 juli 2027"
+    },
+    {
+      "level": 2,
+      "text": "Uw nieuwe huur"
+    },
+    {
+      "level": 2,
+      "text": "Bent u het niet eens met de verhoging?"
+    },
+    {
+      "level": 2,
+      "text": "Huurtoeslag"
+    }
+  ],
+  "key_sentences": [
+    "Per 1 juli 2027 verhogen wij de kale huur van uw woning aan de Kastanjelaan 31.",
+    "De verhoging is 4,1 procent en blijft binnen het maximum dat de overheid voor dit jaar heeft vastgesteld.",
+    "U kunt tot 1 juli 2027 bezwaar maken tegen de huurverhoging.",
+    "Stuur uw bezwaar schriftelijk naar het adres bovenaan deze brief of gebruik het formulier op onze website."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Ons kenmerk",
+          "HV-2027-31884"
+        ],
+        [
+          "Datum",
+          "14 april 2027"
+        ],
+        [
+          "Contactpersoon",
+          "Ilse Verhoeven"
+        ],
+        [
+          "Telefoon",
+          "0570 75 22 10"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Onderdeel",
+          "Huidige huur",
+          "Nieuwe huur per 1 juli 2027"
+        ],
+        [
+          "Kale huur",
+          "€ 742,18",
+          "€ 772,61"
+        ],
+        [
+          "Servicekosten",
+          "€ 38,50",
+          "€ 38,50"
+        ],
+        [
+          "Stookkosten blokverwarming",
+          "€ 64,00",
+          "€ 64,00"
+        ],
+        [
+          "Totaal per maand",
+          "€ 844,68",
+          "€ 875,11"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "uw huishoudinkomen is gedaald;"
+    },
+    {
+      "level": 0,
+      "text": "er ernstige gebreken aan de woning zijn;"
+    },
+    {
+      "level": 0,
+      "text": "het verhogingspercentage hoger is dan wettelijk is toegestaan."
+    }
+  ],
+  "furniture": [
+    "Woonstichting De Lindehof",
+    "Postbus 2210",
+    "7400 CE Deventer",
+    "0570 75 22 00",
+    "Woonstichting De Lindehof · KvK 0812 4471 · www.delindehof.example",
+    "Pagina 1 van 1"
+  ],
+  "languages": [
+    "nl"
+  ],
+  "code": [],
+  "notes": "Each separate text block of the page furniture is one entry; parts of the same header or footer row that sit apart (left / centre / right) are separate entries. One-page Dutch housing-association letter. Below the letterhead, the addressee block (left) and a small reference key/value table (right) sit side by side and are read block by block; the addressee lines, salutation and signature are not sentences. The rent table has a total row. The objection-grounds list is CSS-drawn (disc)."
+}

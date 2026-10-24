@@ -1,0 +1,202 @@
+{
+  "id": "z02",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Entlassungsbrief",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Entlassungsbrief"
+    },
+    {
+      "level": 2,
+      "text": "Diagnosen"
+    },
+    {
+      "level": 2,
+      "text": "Anamnese"
+    },
+    {
+      "level": 2,
+      "text": "Befunde"
+    },
+    {
+      "level": 3,
+      "text": "Echokardiographie"
+    },
+    {
+      "level": 3,
+      "text": "Laborwerte bei Aufnahme und Entlassung"
+    },
+    {
+      "level": 2,
+      "text": "Therapie und Verlauf"
+    },
+    {
+      "level": 2,
+      "text": "Medikation bei Entlassung"
+    },
+    {
+      "level": 2,
+      "text": "Empfehlungen"
+    }
+  ],
+  "key_sentences": [
+    "wir berichten über Ihre Patientin, die sich vom 12.10.2026 bis zum 21.10.2026 in unserer stationären Behandlung befand.",
+    "Die Patientin stellte sich mit zunehmender Belastungsdyspnoe und Beinödemen seit etwa zwei Wochen in unserer Notaufnahme vor.",
+    "Eine Gewichtszunahme von vier Kilogramm in diesem Zeitraum wurde angegeben.",
+    "Unter intravenöser Diuretikatherapie kam es zu einer raschen Rekompensation mit einer Gewichtsabnahme von 5,2 kg.",
+    "Die Frequenzkontrolle des Vorhofflimmerns gelang mit Bisoprolol, eine orale Antikoagulation wurde begonnen.",
+    "Für Rückfragen stehen wir Ihnen jederzeit gern zur Verfügung."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Patientin",
+          "Martha Lindqvist"
+        ],
+        [
+          "Geburtsdatum",
+          "03.05.1951"
+        ],
+        [
+          "Aufnahme",
+          "12.10.2026"
+        ],
+        [
+          "Entlassung",
+          "21.10.2026"
+        ],
+        [
+          "Station",
+          "Innere 3B"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Parameter",
+          "Aufnahme",
+          "Entlassung",
+          "Referenzbereich"
+        ],
+        [
+          "NT-proBNP (pg/ml)",
+          "4870",
+          "1920",
+          "< 300"
+        ],
+        [
+          "Kreatinin (mg/dl)",
+          "1,48",
+          "1,31",
+          "0,50–0,90"
+        ],
+        [
+          "Kalium (mmol/l)",
+          "3,4",
+          "4,2",
+          "3,5–5,1"
+        ],
+        [
+          "Hämoglobin (g/dl)",
+          "11,9",
+          "12,3",
+          "12,0–15,4"
+        ],
+        [
+          "Natrium (mmol/l)",
+          "134",
+          "138",
+          "136–145"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Wirkstoff",
+          "Dosierung",
+          "Hinweis"
+        ],
+        [
+          "Bisoprolol 5 mg",
+          "1-0-0",
+          "Herzfrequenz regelmäßig kontrollieren"
+        ],
+        [
+          "Apixaban 5 mg",
+          "1-0-1",
+          "Nicht eigenständig absetzen"
+        ],
+        [
+          "Torasemid 10 mg",
+          "1-0-0",
+          "Tägliche Gewichtskontrolle"
+        ],
+        [
+          "Ramipril 2,5 mg",
+          "1-0-1",
+          "Kreatinin und Kalium in einer Woche prüfen"
+        ],
+        [
+          "Spironolacton 25 mg",
+          "1-0-0",
+          "—"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Akut dekompensierte Herzinsuffizienz, NYHA-Stadium III (I50.14)"
+    },
+    {
+      "level": 0,
+      "text": "Vorhofflimmern, tachykard übergeleitet (I48.1)"
+    },
+    {
+      "level": 0,
+      "text": "Arterielle Hypertonie (I10.90)"
+    },
+    {
+      "level": 0,
+      "text": "Chronische Niereninsuffizienz, Stadium G3a (N18.3)"
+    },
+    {
+      "level": 0,
+      "text": "1. Tägliche Gewichtskontrolle; bei einer Zunahme von mehr als 2 kg in drei Tagen bitte ärztliche Vorstellung."
+    },
+    {
+      "level": 0,
+      "text": "2. Kontrolle von Kreatinin und Kalium in einer Woche in Ihrer Praxis."
+    },
+    {
+      "level": 0,
+      "text": "3. Kardiologische Wiedervorstellung zur Echokardiographie in drei Monaten."
+    },
+    {
+      "level": 0,
+      "text": "4. Flüssigkeitsbeschränkung auf 1,5 Liter pro Tag."
+    }
+  ],
+  "furniture": [
+    "Kreisklinikum Bergenau",
+    "Klinik für Innere Medizin und Kardiologie",
+    "Am Schlossberg 12 · 79911 Bergenau · Telefon 07641 380-0",
+    "Seite 1 von 2",
+    "Kreisklinikum Bergenau · Entlassungsbrief Frau Martha Lindqvist, geb. 03.05.1951",
+    "Seite 2 von 2"
+  ],
+  "languages": [
+    "de"
+  ],
+  "code": [],
+  "notes": "Each separate text block of the page furniture is one entry; parts of the same header or footer row that sit apart (left / centre / right) are separate entries. Two-page German hospital discharge letter. Page 1 carries the clinic letterhead; page 2 a one-line running header. The addressee block, date line and signature block are body text but not sentences. The diagnoses list is CSS-drawn (disc); the recommendations list has typed numbers \"1.\" to \"4.\". In the medication table some cells are set on two lines; such a cell is given with its lines joined by one space. The patient data table is a key/value table without a header row."
+}

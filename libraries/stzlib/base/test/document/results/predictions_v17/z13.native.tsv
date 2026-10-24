@@ -1,0 +1,59 @@
+page_header	0	Calderwood Regional Health Network · Platform Operations
+page_header	0	RB-112 · Database TLS certificate rotation
+heading	1	Runbook: Rotating the Database TLS Certificates
+table	0	Runbook IDRB-112Revision4 (approved 2026-09-30)OwnerPlatform Operations, database teamApplies topgcluster-prod-a, pgcluster-prod-b and pgcluster-stageEstimated duration45 minutes per cluster, no downtime expected
+heading	2	1. Purpose
+paragraph	0	This runbook describes how to replace the server certificates used by the production PostgreSQL clusters before they expire. Certificates are issued by the internal certificate authority and are valid for 90 days.
+heading	2	2. Prerequisites
+list_item	0	Membership of the db-operators group in the access portal.
+list_item	0	A workstation with the cluster CLI version 2.8 or later.
+list_item	0	An approved change request in the change calendar.
+list_item	0	Confirmation that no backup job is running on the target cluster.
+heading	2	3. Environments
+table	0	ClusterRegionPrimary hostReplicasCertificate expirypgcluster-prod-anorth-1db-a-01.int.cwhn.example22026-11-14pgcluster-prod-bnorth-2db-b-01.int.cwhn.example22026-11-21pgcluster-stagenorth-1db-s-01.int.cwhn.example12026-12-02
+heading	2	4. Procedure
+heading	3	4.1 Check the current certificate
+paragraph	0	Run the following command from your workstation and note the expiry date shown in the output.
+code	0	openssl s_client -connect db-a-01.int.cwhn.example:5432 \\\n    -starttls postgres </dev/null 2>/dev/null \\\n  | openssl x509 -noout -subject -enddate
+page_footer	0	Internal — do not distribute outside Platform Operations
+page_footer	0	p. 1/3
+page_header	0	Calderwood Regional Health Network · Platform Operations
+page_header	0	RB-112 · Database TLS certificate rotation
+heading	3	4.2 Request a new certificate
+paragraph	0	Create a certificate signing request with the configuration file below, and keep the private key on the database host only.
+code	0	[ req ]\ndefault_bits       = 4096\nprompt             = no\ndistinguished_name = dn\nreq_extensions     = san\n\n[ dn ]\nCN = db-a-01.int.cwhn.example\nO  = Calderwood Regional Health Network\n\n[ san ]\nsubjectAltName = DNS:db-a-01.int.cwhn.example, DNS:pgcluster-prod-a.int.cwhn.example
+heading	3	4.3 Install the certificate
+list_item	0	1. Copy the signed certificate to /etc/postgresql/tls/server.crt on each replica first.
+list_item	0	2. Set the file owner to postgres and the mode to 0600.
+list_item	0	3. Reload the configuration on each replica and confirm that replication is still streaming.
+list_item	0	4. Fail over to a replica, then repeat the steps on the former primary.
+paragraph	0	The cluster manager reads its TLS settings from the following file:
+code	0	tls:\n  enabled: true\n  cert_file: /etc/postgresql/tls/server.crt\n  key_file: /etc/postgresql/tls/server.key\n  min_protocol: TLSv1.2\nreload:\n  strategy: rolling\n  pause_between_nodes: 60s
+heading	3	4.4 Verify
+paragraph	0	Repeat the check from step 4.1 and confirm that the new expiry date is about 90 days in the future.
+code	0	cwctl cluster status pgcluster-prod-a --show-tls
+page_footer	0	Internal — do not distribute outside Platform Operations
+page_footer	0	p. 2/3
+page_header	0	Calderwood Regional Health Network · Platform Operations
+page_header	0	RB-112 · Database TLS certificate rotation
+heading	2	5. Rollback
+paragraph	0	If clients report handshake failures, restore the previous certificate from the backup directory and reload the configuration.
+paragraph	0	Symptom
+paragraph	0	SSL error: certificate verify failed
+paragraph	0	Replication lag above 30 s
+paragraph	0	Connection refused on port 5432
+paragraph	0	Likely cause
+paragraph	0	Intermediate certificate missing from the chain
+paragraph	0	Replica reloaded during heavy write load
+paragraph	0	Key file permissions too open
+paragraph	0	Action
+paragraph	0	Append the intermediate certificate to server.crt and reload
+paragraph	0	Wait for the lag to recover before moving to the next node
+paragraph	0	Set mode 0600 and restart the service
+heading	2	6. Escalation
+caption	0	Escalate to the on-call database lead if the rotation cannot be completed within the change window.
+table	0	On-call rotaops-db rotation in the paging toolChat channel#db-operationsChange managerService desk, extension 4410
+heading	2	7. Revision history
+table	0	RevisionDateAuthorChange12025-03-11A. PetrescuFirst version22025-08-02M. OyelaranAdded the staging cluster32026-02-19A. PetrescuReplaced the manual reload with the rolling strategy42026-09-30J. HaddadUpdated the CLI commands for version 2.8
+page_footer	0	Internal — do not distribute outside Platform Operations
+page_footer	0	p. 3/3

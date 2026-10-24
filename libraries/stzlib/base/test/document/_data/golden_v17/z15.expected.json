@@ -1,0 +1,142 @@
+{
+  "id": "z15",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Wind-driven resuspension and turbidity recovery in a shallow eutrophic lake",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Wind-driven resuspension and turbidity recovery in a shallow eutrophic lake"
+    },
+    {
+      "level": 2,
+      "text": "Abstract"
+    },
+    {
+      "level": 2,
+      "text": "1 Introduction"
+    },
+    {
+      "level": 2,
+      "text": "2 Methods"
+    },
+    {
+      "level": 3,
+      "text": "2.1 Study site"
+    },
+    {
+      "level": 3,
+      "text": "2.2 Measurements"
+    },
+    {
+      "level": 2,
+      "text": "3 Results"
+    },
+    {
+      "level": 2,
+      "text": "4 Discussion"
+    },
+    {
+      "level": 2,
+      "text": "5 Conclusions"
+    },
+    {
+      "level": 2,
+      "text": "References"
+    }
+  ],
+  "key_sentences": [
+    "We measured turbidity and wind speed at three stations in Lake Orrin, a shallow eutrophic lake with a mean depth of 2.1 m, during the autumn of 2025.",
+    "Turbidity rose within two hours of wind speeds exceeding 6 m/s and returned to baseline after a median of 31 hours.",
+    "A simple first-order decay model explained 78% of the variance in recovery times.",
+    "Shallow lakes are prone to sediment resuspension because wind-generated waves can reach the bed over most of their area.",
+    "Turbidity was recorded every 10 minutes with optical sensors, and wind speed was measured 4 m above the water surface.",
+    "Eleven resuspension events were identified between September and November.",
+    "Recovery was faster at the deeper stations, where less material was resuspended in the first place."
+  ],
+  "tables": [
+    {
+      "caption": "Table 1. Deployment summary for the three stations.",
+      "rows": [
+        [
+          "Station",
+          "Depth (m)",
+          "Distance from shore (m)",
+          "Valid records (%)"
+        ],
+        [
+          "S1",
+          "1.6",
+          "180",
+          "97.2"
+        ],
+        [
+          "S2",
+          "2.4",
+          "640",
+          "94.8"
+        ],
+        [
+          "S3",
+          "3.1",
+          "1,120",
+          "91.5"
+        ]
+      ]
+    },
+    {
+      "caption": "Table 2. Recovery times by station (hours).",
+      "rows": [
+        [
+          "Station",
+          "Events",
+          "Median",
+          "Range"
+        ],
+        [
+          "S1",
+          "11",
+          "36",
+          "18–64"
+        ],
+        [
+          "S2",
+          "11",
+          "31",
+          "15–52"
+        ],
+        [
+          "S3",
+          "9",
+          "24",
+          "12–41"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "[1] Brenner, K. and Laasko, P. (2019). Wave-driven resuspension in shallow lakes. Inland Water Dynamics 14, 201–215."
+    },
+    {
+      "level": 0,
+      "text": "[2] Oduya, F. (2021). Light climate and turbidity in eutrophic basins. Freshwater Optics 7, 45–60."
+    },
+    {
+      "level": 0,
+      "text": "[3] Varga, L., Moss, T. and Ilić, D. (2023). Hourly sensor networks for lake monitoring. Limnological Methods 31, 88–102."
+    }
+  ],
+  "furniture": [
+    "Proceedings of the Lakeshore Hydrology Workshop, Vol. 9 (2026)",
+    "Holloway, Albuquerque and Eide",
+    "117",
+    "118"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Each separate text block of the page furniture is one entry; parts of the same header or footer row that sit apart (left / centre / right) are separate entries. Two-page scientific article. Title, author and affiliation lines and the abstract run full width; the body is set in TWO CSS COLUMNS, balanced, read column by column (left then right) on each page. The author line carries superscript affiliation numbers (\"Maren Q. Holloway1\" when flattened); author, affiliation and keyword lines are not sentences. The page numbers are the journal pages \"117\" and \"118\". One sentence in the Introduction carries a footnote marker and is left out of key_sentences; the footnote text at the foot of the page 1 body is body text, listed neither as furniture nor as a key sentence. Tables 1 and 2 sit inside a column with captions above. The reference list has typed markers \"[1]\" to \"[3]\"."
+}

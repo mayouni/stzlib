@@ -1,0 +1,117 @@
+{
+  "id": "z12",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "สรุปสาระสำคัญของแพ็กเกจรายเดือน",
+  "headings": [
+    {
+      "level": 1,
+      "text": "สรุปสาระสำคัญของแพ็กเกจรายเดือน"
+    },
+    {
+      "level": 2,
+      "text": "อัตราค่าบริการ"
+    },
+    {
+      "level": 2,
+      "text": "เงื่อนไขการใช้บริการ"
+    },
+    {
+      "level": 2,
+      "text": "ช่องทางการชำระเงิน"
+    },
+    {
+      "level": 2,
+      "text": "การติดต่อ"
+    }
+  ],
+  "key_sentences": [
+    "เอกสารนี้สรุปเงื่อนไขสำคัญของแพ็กเกจรายเดือนสำหรับลูกค้าที่สมัครใช้บริการตั้งแต่วันที่ 1 ตุลาคม 2569 เป็นต้นไป",
+    "ลูกค้าสามารถเปลี่ยนแพ็กเกจได้เดือนละหนึ่งครั้งโดยไม่มีค่าธรรมเนียม",
+    "หากมีข้อสงสัยเกี่ยวกับค่าบริการกรุณาติดต่อศูนย์บริการลูกค้าได้ตลอด 24 ชั่วโมง",
+    "ลูกค้าสามารถตรวจสอบปริมาณการใช้งานคงเหลือได้ด้วยการกด *178# แล้วโทรออก"
+  ],
+  "tables": [
+    {
+      "caption": "ราคานี้ยังไม่รวมภาษีมูลค่าเพิ่ม 7%",
+      "rows": [
+        [
+          "แพ็กเกจ",
+          "ค่าบริการต่อเดือน (บาท)",
+          "อินเทอร์เน็ต",
+          "โทรทุกเครือข่าย",
+          "สัญญาขั้นต่ำ"
+        ],
+        [
+          "สายฟ้า 299",
+          "299",
+          "15 GB",
+          "150 นาที",
+          "6 เดือน"
+        ],
+        [
+          "สายฟ้า 499",
+          "499",
+          "40 GB",
+          "300 นาที",
+          "12 เดือน"
+        ],
+        [
+          "สายฟ้า 799",
+          "799",
+          "ไม่จำกัด (ความเร็วสูงสุด 100 GB)",
+          "600 นาที",
+          "12 เดือน"
+        ],
+        [
+          "สายฟ้า 1199",
+          "1,199",
+          "ไม่จำกัด",
+          "ไม่จำกัด",
+          "12 เดือน"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1) ค่าบริการส่วนเกินสำหรับการโทรคิดนาทีละ 1.50 บาท"
+    },
+    {
+      "level": 0,
+      "text": "2) เมื่อใช้อินเทอร์เน็ตครบตามปริมาณที่กำหนด ความเร็วจะลดลงเหลือ 1 Mbps"
+    },
+    {
+      "level": 0,
+      "text": "3) การยกเลิกก่อนครบสัญญาขั้นต่ำมีค่าปรับตามจำนวนเดือนที่เหลือ"
+    },
+    {
+      "level": 0,
+      "text": "4) บริษัทฯ จะแจ้งการเปลี่ยนแปลงเงื่อนไขล่วงหน้าอย่างน้อย 30 วัน"
+    },
+    {
+      "level": 0,
+      "text": "หักบัญชีธนาคารอัตโนมัติ"
+    },
+    {
+      "level": 0,
+      "text": "บัตรเครดิตผ่านแอปพลิเคชัน"
+    },
+    {
+      "level": 0,
+      "text": "ร้านสะดวกซื้อและเคาน์เตอร์บริการทั่วประเทศ"
+    }
+  ],
+  "furniture": [
+    "บริษัท สายฟ้า โมบาย จำกัด",
+    "ศูนย์บริการลูกค้า โทร 1789",
+    "ข้อมูล ณ วันที่ 1 ตุลาคม 2569",
+    "หน้า 1/1"
+  ],
+  "languages": [
+    "th"
+  ],
+  "code": [],
+  "notes": "Each separate text block of the page furniture is one entry; parts of the same header or footer row that sit apart (left / centre / right) are separate entries. One-page Thai mobile plan summary. Thai writes no spaces between words; spaces separate clauses and sentences, and Thai sentences carry no full stop, so each key sentence is a space-delimited Thai sentence as visible. Lines may wrap inside a word without a hyphen; the text is given whole. The plans table is a zebra table; one cell is on two lines, given joined by one space; its caption (VAT note) sits under it. The conditions list has typed markers \"1)\" to \"4)\"; the payment list is CSS-drawn (circle). The year 2569 is the Thai Buddhist-era year."
+}

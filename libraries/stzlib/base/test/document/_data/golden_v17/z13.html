@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Runbook: Rotating the Database TLS Certificates</title>
+<style>
+@page { size: A4; margin: 0; }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+.page { width: 210.0mm; height: 296.4mm; display: flex; flex-direction: column; padding: 18mm 20mm; overflow: hidden; break-after: page; page-break-after: always; position: relative; }
+.page:last-child { break-after: auto; page-break-after: auto; }
+.page > header, .page > footer { flex: none; }
+.page > main { flex: 1 1 auto; overflow: hidden; min-height: 0; }
+table { border-collapse: collapse; }
+.typed .ti { margin: 0.15em 0; }
+
+body { font-family: 'Segoe UI', sans-serif; font-size: 9.8pt; color: #1e2328; line-height: 1.45; }
+.rh { display: flex; justify-content: space-between; font-size: 8pt; color: #5a6672; border-bottom: 1px solid #d0d7de; padding-bottom: 1.5mm; margin-bottom: 4mm; }
+.ft { display: flex; justify-content: space-between; font-size: 8pt; color: #5a6672; border-top: 1px solid #d0d7de; padding-top: 1.5mm; }
+h1 { font-size: 18pt; font-weight: 600; margin: 0 0 3mm; color: #0b3d62; }
+h2 { font-size: 13pt; font-weight: 600; margin: 5mm 0 1.5mm; color: #0b3d62; }
+h3 { font-size: 10.8pt; font-weight: 600; margin: 3.5mm 0 1mm; }
+p { margin: 1.2mm 0; }
+.dc { width: 100%; font-size: 9pt; border: 1px solid #d0d7de; }
+.dc td { padding: 1mm 2.5mm; border-bottom: 1px solid #eaeef2; } .dc td:first-child { background: #f6f8fa; font-weight: 600; width: 30%; }
+.env, .sym, .rev { width: 100%; font-size: 8.8pt; }
+.env th, .sym th, .rev th { text-align: left; background: #f6f8fa; border-bottom: 2px solid #d0d7de; padding: 1.2mm 2mm; font-weight: 600; }
+.env td, .sym td, .rev td { padding: 1.1mm 2mm; border-bottom: 1px solid #eaeef2; vertical-align: top; }
+pre.code { font-family: Consolas, monospace; font-size: 8.6pt; line-height: 1.35; background: #f6f8fa; border: 1px solid #d0d7de; border-left: 4px solid #0b3d62; padding: 2.5mm 3mm; margin: 2mm 0; white-space: pre; }
+ul, ol { margin: 1mm 0; padding-left: 6mm; } li { margin: 0.6mm 0; }
+.esc td { padding: 0.8mm 6mm 0.8mm 0; font-size: 9pt; } .esc td:first-child { font-weight: 600; }
+
+</style>
+</head>
+<body>
+<div class="page"><header class="pf"><div class="rh"><span>Calderwood Regional Health Network · Platform Operations</span><span>RB-112 · Database TLS certificate rotation</span></div></header><main><h1>Runbook: Rotating the Database TLS Certificates</h1>
+<table class="dc"><tbody><tr><td>Runbook ID</td><td>RB-112</td></tr><tr><td>Revision</td><td>4 (approved 2026-09-30)</td></tr><tr><td>Owner</td><td>Platform Operations, database team</td></tr><tr><td>Applies to</td><td>pgcluster-prod-a, pgcluster-prod-b and pgcluster-stage</td></tr><tr><td>Estimated duration</td><td>45 minutes per cluster, no downtime expected</td></tr></tbody></table>
+<h2>1. Purpose</h2>
+<p>This runbook describes how to replace the server certificates used by the production PostgreSQL clusters before they expire. Certificates are issued by the internal certificate authority and are valid for 90 days.</p>
+<h2>2. Prerequisites</h2>
+<ul><li>Membership of the db-operators group in the access portal.</li><li>A workstation with the cluster CLI version 2.8 or later.</li><li>An approved change request in the change calendar.</li><li>Confirmation that no backup job is running on the target cluster.</li></ul>
+<h2>3. Environments</h2>
+<table class="env"><thead><tr><th>Cluster</th><th>Region</th><th>Primary host</th><th>Replicas</th><th>Certificate expiry</th></tr></thead><tbody><tr><td>pgcluster-prod-a</td><td>north-1</td><td>db-a-01.int.cwhn.example</td><td>2</td><td>2026-11-14</td></tr><tr><td>pgcluster-prod-b</td><td>north-2</td><td>db-b-01.int.cwhn.example</td><td>2</td><td>2026-11-21</td></tr><tr><td>pgcluster-stage</td><td>north-1</td><td>db-s-01.int.cwhn.example</td><td>1</td><td>2026-12-02</td></tr></tbody></table>
+<h2>4. Procedure</h2>
+<h3>4.1 Check the current certificate</h3>
+<p>Run the following command from your workstation and note the expiry date shown in the output.</p>
+<pre class="code">openssl s_client -connect db-a-01.int.cwhn.example:5432 \
+    -starttls postgres &lt;/dev/null 2&gt;/dev/null \
+  | openssl x509 -noout -subject -enddate</pre></main><footer class="pf"><div class="ft"><span>Internal — do not distribute outside Platform Operations</span><span>p. 1/3</span></div></footer></div>
+<div class="page"><header class="pf"><div class="rh"><span>Calderwood Regional Health Network · Platform Operations</span><span>RB-112 · Database TLS certificate rotation</span></div></header><main><h3>4.2 Request a new certificate</h3>
+<p>Create a certificate signing request with the configuration file below, and keep the private key on the database host only.</p>
+<pre class="code">[ req ]
+default_bits       = 4096
+prompt             = no
+distinguished_name = dn
+req_extensions     = san
+
+[ dn ]
+CN = db-a-01.int.cwhn.example
+O  = Calderwood Regional Health Network
+
+[ san ]
+subjectAltName = DNS:db-a-01.int.cwhn.example, DNS:pgcluster-prod-a.int.cwhn.example</pre>
+<h3>4.3 Install the certificate</h3>
+<ol><li>Copy the signed certificate to /etc/postgresql/tls/server.crt on each replica first.</li><li>Set the file owner to postgres and the mode to 0600.</li><li>Reload the configuration on each replica and confirm that replication is still streaming.</li><li>Fail over to a replica, then repeat the steps on the former primary.</li></ol>
+<p>The cluster manager reads its TLS settings from the following file:</p>
+<pre class="code">tls:
+  enabled: true
+  cert_file: /etc/postgresql/tls/server.crt
+  key_file: /etc/postgresql/tls/server.key
+  min_protocol: TLSv1.2
+reload:
+  strategy: rolling
+  pause_between_nodes: 60s</pre>
+<h3>4.4 Verify</h3>
+<p>Repeat the check from step 4.1 and confirm that the new expiry date is about 90 days in the future.</p>
+<pre class="code">cwctl cluster status pgcluster-prod-a --show-tls</pre></main><footer class="pf"><div class="ft"><span>Internal — do not distribute outside Platform Operations</span><span>p. 2/3</span></div></footer></div>
+<div class="page"><header class="pf"><div class="rh"><span>Calderwood Regional Health Network · Platform Operations</span><span>RB-112 · Database TLS certificate rotation</span></div></header><main><h2>5. Rollback</h2>
+<p>If clients report handshake failures, restore the previous certificate from the backup directory and reload the configuration.</p>
+<table class="sym"><thead><tr><th>Symptom</th><th>Likely cause</th><th>Action</th></tr></thead><tbody><tr><td>SSL error: certificate verify failed</td><td>Intermediate certificate missing from the chain</td><td>Append the intermediate certificate<br>to server.crt and reload</td></tr><tr><td>Replication lag above 30 s</td><td>Replica reloaded during heavy write load</td><td>Wait for the lag to recover before<br>moving to the next node</td></tr><tr><td>Connection refused on port 5432</td><td>Key file permissions too open</td><td>Set mode 0600 and restart<br>the service</td></tr></tbody></table>
+<h2>6. Escalation</h2>
+<p>Escalate to the on-call database lead if the rotation cannot be completed within the change window.</p>
+<table class="esc"><tbody><tr><td>On-call rota</td><td>ops-db rotation in the paging tool</td></tr><tr><td>Chat channel</td><td>#db-operations</td></tr><tr><td>Change manager</td><td>Service desk, extension 4410</td></tr></tbody></table>
+<h2>7. Revision history</h2>
+<table class="rev"><thead><tr><th>Revision</th><th>Date</th><th>Author</th><th>Change</th></tr></thead><tbody><tr><td>1</td><td>2025-03-11</td><td>A. Petrescu</td><td>First version</td></tr><tr><td>2</td><td>2025-08-02</td><td>M. Oyelaran</td><td>Added the staging cluster</td></tr><tr><td>3</td><td>2026-02-19</td><td>A. Petrescu</td><td>Replaced the manual reload with the rolling strategy</td></tr><tr><td>4</td><td>2026-09-30</td><td>J. Haddad</td><td>Updated the CLI commands for version 2.8</td></tr></tbody></table></main><footer class="pf"><div class="ft"><span>Internal — do not distribute outside Platform Operations</span><span>p. 3/3</span></div></footer></div>
+</body>
+</html>
