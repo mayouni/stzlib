@@ -471,6 +471,20 @@ Scenario("A typed marker set apart by a hanging indent stays at the head of its 
 	Then("a typed number", StzFindFirst("1. Kada ku shuka kafin", cL) > 0, 1)
 EndScenario()
 
+# ---- the fifteenth round: marked content's ActualText (golden_v4, v14, v15)
+
+Scenario("A marked span's ActualText is what its glyphs read as")
+	o = StzPdfQ("_data/golden_v15/x18.pdf")
+	Then("Greek accents drawn as separate glyphs come back", StzFindFirst("Για όγδοη χρονιά", o.Text()) > 0, 1)
+	o = StzPdfQ("_data/golden_v14/w09.pdf")
+	Then("a Persian word keeps its zero-width non-joiner", StzFindFirst("آیین" + char(226) + char(128) + char(140) + "نامه", o.Text()) > 0, 1)
+	o = StzPdfQ("_data/golden_v15/x04.pdf")
+	Then("an ActualText bracket is not mirrored again", StzFindFirst("(سهامی عام)", o.Text()) > 0, 1)
+	o = StzPdfQ("_data/golden_v4/g07.pdf")
+	Then("soft hyphens are dropped and a line-end hyphen joins its word", StzFindFirst("descendants continued the journal", o.Text()) > 0, 1)
+	Then("no soft hyphen left in the text", StzFindFirst(char(194) + char(173), o.Text()), 0)
+EndScenario()
+
 Scenario("A file that is not a readable PDF is refused with the reason")
 	bRaised = 0
 	cWhy = ""
