@@ -3007,18 +3007,25 @@ fn findAlignedTablesIn(a: Allocator, frags: []Frag, lane0: f32, lane1: f32, tabl
         }
         // a key/value table: every row exactly a short label (four words or fewer) and its value (fifteen or
         // fewer), the labels in one column -- the values may be phrases
+        // (likewise a table of short cells whose LAST column holds descriptions: every row as wide, the other cells
+        //  four words or fewer)
         var keyval = run.len >= 3;
         {
             var lx: f32 = -1e9;
+            const w0 = run[0].len;
             for (run) |row| {
-                if (row.len != 2) {
+                if (row.len != w0 or w0 < 2 or w0 > 4) {
                     keyval = false;
                     break;
                 }
                 const l = frags[row[0]];
-                const v = frags[row[1]];
+                const v = frags[row[w0 - 1]];
                 // (a list set in two columns is not one: its items carry bullets)
-                if (wordCount(l.text) > 4 or wordCount(v.text) > 15 or v.x0 <= l.x1 or l.bullet or v.bullet) keyval = false;
+                if (wordCount(v.text) > 15 or l.bullet or v.bullet) keyval = false;
+                for (row[0 .. w0 - 1], 0..) |kc, ci| {
+                    if (wordCount(frags[kc].text) > 4) keyval = false;
+                    if (frags[row[ci + 1]].x0 <= frags[kc].x1) keyval = false;
+                }
                 if (lx > -1e8 and @abs(l.x0 - lx) > 1.0 * l.size) keyval = false;
                 lx = l.x0;
             }
