@@ -498,6 +498,16 @@ Scenario("A page number in the document's own language marks its line as the foo
 	Then("a product name with a number, larger than the body, stays the title", StzFindFirst("AquaSense 300", "" + @@(o.Headings())) > 0, 1)
 EndScenario()
 
+# ---- the seventeenth round: scripts without spaces, Devanagari clusters (golden_v17)
+
+Scenario("Japanese joins a wrapped line with no space; a Devanagari cluster keeps its place")
+	o = StzPdfQ("_data/golden_v17/z23.pdf")
+	Then("no space where a Japanese line wraps", StzFindFirst("条件を次のとおり定めます。", o.Text()) > 0, 1)
+	o = StzPdfQ("_data/golden_v17/z11.pdf")
+	Then("a conjunct whose glyphs have no text of their own is read from its ActualText", StzFindFirst("पते पर स्थित है।", o.Text()) > 0, 1)
+	Then("a cluster of zero width does not cut its word", StzFindFirst("समय से पहुँचें", o.Text()) > 0, 1)
+EndScenario()
+
 Scenario("A file that is not a readable PDF is refused with the reason")
 	bRaised = 0
 	cWhy = ""
