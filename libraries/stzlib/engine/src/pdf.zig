@@ -4203,6 +4203,14 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
                 const after_rtl = it.x1 < mk.x0 and mk.x0 - it.x1 < 3 * mk.size and isRtlCp(firstCp(it.text));
                 if (@abs(it.base - mk.base) < 0.3 * mk.size and (after_ltr or after_rtl)) {
                     it.bullet = true;
+                    // a bullet GLYPH set apart by a hanging indent was typed (Chrome draws CSS bullets as shapes):
+                    // it stays at the head of its item; a number may be a CSS list's and is left out
+                    const c0 = mk.text[0];
+                    const glyph = !std.ascii.isAlphanumeric(c0) and c0 != '(' and c0 != '[' and !isArabicDigit(firstCp(mk.text));
+                    if (glyph) {
+                        it.text = try std.mem.concat(a, u8, &.{ mk.text, " ", it.text });
+                        if (after_ltr) it.x0 = mk.x0 else it.x1 = mk.x1;
+                    }
                     mk.text = "";
                     break;
                 }
