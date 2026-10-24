@@ -384,8 +384,22 @@ Summary()
 
 remove(cTmp)
 
+# byte-exact equality. Ring's strcmp STOPS AT THE FIRST NUL (the file test holds end + NUL + z), so
+# strcmp is only the quick reject: then length, then every byte.
 func Same(a, b)
-	return strcmp(a, b) = 0
+	if strcmp(a, b) != 0
+		return 0
+	ok
+	if len(a) != len(b)
+		return 0
+	ok
+	h_nLen = len(a)
+	for h_nQ = 1 to h_nLen
+		if ascii(a[h_nQ]) != ascii(b[h_nQ])
+			return 0
+		ok
+	next
+	return 1
 
 func Has(cHost, cNeedle)
 	return substr(cHost, cNeedle) > 0

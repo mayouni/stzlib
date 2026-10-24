@@ -135,17 +135,31 @@ func _RxUrlCorpus()
 func _RxIn(cItem, acList)
 	_n_ = len(acList)
 	for _i_ = 1 to _n_
-		if strcmp("" + acList[_i_], "" + cItem) = 0
+		if _RxEq(acList[_i_], cItem) = 1
 			return _i_
 		ok
 	next
 	return 0
 
+# byte-exact text equality as 1/0. Ring's strcmp STOPS AT THE FIRST NUL, and the corpus holds
+# inputs with a NUL in the middle (a + NUL + b), so strcmp would leave whatever a sink wrote after
+# the NUL unchecked: strcmp as a quick reject, then length, then every byte.
 func _RxEq(a, b)
-	if strcmp("" + a, "" + b) = 0
-		return 1
+	_a_ = "" + a
+	_b_ = "" + b
+	if strcmp(_a_, _b_) != 0
+		return 0
 	ok
-	return 0
+	if len(_a_) != len(_b_)
+		return 0
+	ok
+	_n_ = len(_a_)
+	for _q_ = 1 to _n_
+		if ascii(_a_[_q_]) != ascii(_b_[_q_])
+			return 0
+		ok
+	next
+	return 1
 
 func _RxRed(cSink, cEntry)
 	$RX_RED + [ cSink, cEntry ]
