@@ -13,7 +13,7 @@ causes is `tools/wave/data/w5_defects_geo.md`; each defect is also a `Defect:` w
 | `stzGeoFeatures/window_and_areas.png` | `Within` takes Fiji (box -180..180, middle longitude 0) into an Africa window; the areas panel is right. FIXED IN CODE 2026-10-24 (the picture was not redrawn and still shows the old behaviour) |
 | `stzGeoField/ascii_grid_terrain.png` | white specks: a bilinear read of a constant field is one ulp under the node value about 6% of the time, so pixels at the first class edge draw as no data |
 | `stzGeoSamples/kriging_on_a_trend.png` | kriging on trended gauges gives a range of 1858 km on a 2128 km window and estimates from -30825 to 29761 for data 180..799; `Findings` only warns and `IsSound` answers TRUE |
-| `stzGeoProcess/seven_processes.png` | the picture is right, the caption is not: 144 points drawn against 191.9 expected (`ExpectedCount` of an inhomogeneous process multiplies the mean of all grid values by the window area) |
+| `stzGeoProcess/seven_processes.png` | the picture is right, the caption is not: 144 points drawn against 191.9 expected (`ExpectedCount` of an inhomogeneous process multiplied the mean of all grid values by the window area). FIXED 2026-10-24: the picture was re-rendered through `ExpectedCountIn` and its caption reads 152; the new label was read by a model (the agent that made it), no person has looked at it |
 
 Found by probes, with no picture:
 
