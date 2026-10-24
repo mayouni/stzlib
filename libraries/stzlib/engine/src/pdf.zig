@@ -3601,6 +3601,33 @@ fn xycut(a: Allocator, units: []Frag, ids: []u32, out: *std.ArrayList(u32), asid
         }
     };
     std.mem.sort(u32, sorted, ByTop{ .u = units }, ByTop.lt);
+    // the widest horizontal gap between strips cuts first: a band of boxes side by side between two full-width
+    // tables then becomes a region of its own and finds its gutter (peeling one strip from the top read such
+    // boxes line by line across both)
+    {
+        var bot: f32 = units[sorted[0]].y1;
+        var best_gap: f32 = 0;
+        var best_at: usize = 0;
+        var nstrips: usize = 1;
+        var q: usize = 1;
+        while (q < sorted.len) : (q += 1) {
+            const u = units[sorted[q]];
+            if (u.y0 > bot + 0.05 * med) {
+                nstrips += 1;
+                const gap = u.y0 - bot;
+                if (gap > best_gap) {
+                    best_gap = gap;
+                    best_at = q;
+                }
+            }
+            bot = @max(bot, u.y1);
+        }
+        if (nstrips >= 3 and best_at > 0 and best_gap >= 0.8 * med) {
+            try xycut(a, units, sorted[0..best_at], out, aside, depth + 1);
+            try xycut(a, units, sorted[best_at..], out, aside, depth + 1);
+            return;
+        }
+    }
     var bottom: f32 = units[sorted[0]].y1;
     var k: usize = 1;
     while (k < sorted.len) : (k += 1) {
@@ -4327,7 +4354,7 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
                 b.kind = if (top) .page_header else .page_footer;
                 continue;
             }
-            if (b.kind == .paragraph and body > 0 and ((b.lines == 1 and b.size <= 0.92 * body and wordCount(b.text) <= 12) or (b.lines <= 3 and b.size <= 0.85 * body))) {
+            if (b.kind == .paragraph and body > 0 and ((b.lines == 1 and b.size <= 0.92 * body and wordCount(b.text) <= 12) or (b.lines <= 3 and b.size <= 0.85 * body) or (b.lines <= 3 and b.size <= 0.92 * body and wordCount(b.text) <= 6 * b.lines))) {
                 b.kind = if (top) .page_header else .page_footer;
                 continue;
             }
@@ -4421,7 +4448,9 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
                 if (!(b.y1 < tblk.y0 and b.y1 < 0.18 * h and b.size <= tblk.size)) continue;
                 // a letterhead holds a logo name (in capitals) and short lines (an address), never a sentence
                 const logo = b.kind == .heading and !hasLower(b.text);
-                const short_line = b.kind == .paragraph and b.lines <= 3 and wordCount(b.text) <= 12;
+                // (address lines read together as one block: up to eight words a line, and no sentence's full stop)
+                const ends_stop = b.text.len > 0 and b.text[b.text.len - 1] == '.';
+                const short_line = b.kind == .paragraph and ((b.lines <= 3 and wordCount(b.text) <= 12) or (b.lines <= 4 and wordCount(b.text) <= 8 * b.lines and !ends_stop));
                 if (logo or short_line) b.kind = .page_header;
             }
         }
