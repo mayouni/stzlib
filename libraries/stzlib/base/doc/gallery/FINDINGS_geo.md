@@ -10,7 +10,7 @@ causes is `tools/wave/data/w5_defects_geo.md`; each defect is also a `Defect:` w
 | picture | what is wrong |
 |---|---|
 | `stzGeoMap/niger_density.png` | **CORRECTED 2026-10-16.** The Niamey inset was grey while the parent map showed it red: `DrawInsetsOn` ignored `SetOpenTop`, so Niamey (1844 people per km2 on a scale ending at 100) was class 0 in the inset and the top class on the parent. `DrawInsetsOn` now gives the inset the parent's open top; the picture was redrawn and the inset is dark red like the locator mark. Held by `test/geo/stzGeoMap_defects_narrated.ring` |
-| `stzGeoFeatures/window_and_areas.png` | `Within` takes Fiji (box -180..180, middle longitude 0) into an Africa window; the areas panel is right |
+| `stzGeoFeatures/window_and_areas.png` | `Within` takes Fiji (box -180..180, middle longitude 0) into an Africa window; the areas panel is right. FIXED IN CODE 2026-10-24 (the picture was not redrawn and still shows the old behaviour) |
 | `stzGeoField/ascii_grid_terrain.png` | white specks: a bilinear read of a constant field is one ulp under the node value about 6% of the time, so pixels at the first class edge draw as no data |
 | `stzGeoSamples/kriging_on_a_trend.png` | kriging on trended gauges gives a range of 1858 km on a 2128 km window and estimates from -30825 to 29761 for data 180..799; `Findings` only warns and `IsSound` answers TRUE |
 | `stzGeoProcess/seven_processes.png` | the picture is right, the caption is not: 144 points drawn against 191.9 expected (`ExpectedCount` of an inhomogeneous process multiplies the mean of all grid values by the window area) |
