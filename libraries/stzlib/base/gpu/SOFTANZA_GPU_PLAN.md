@@ -3015,7 +3015,7 @@ works two of them in the browser, one failing first.
 
 ---
 
-## KP2 STATUS — built 2026-10-24: the eight puzzles, from the map to the reduction; the person is owed
+## KP2 STATUS — DONE 2026-10-27: the eight puzzles, from the map to the reduction; perceived by the author, twice
 
 Guard: `base/test/gpu/gpu_puzzle_narrated.ring` — **95 asserts green under
 Ring++ (`rnxc`)**, nine minutes on battery (most of it the checker spawning 35 learner programs): for every puzzle the starter waits, the
@@ -3085,7 +3085,8 @@ writing a line; and *I give up -- show the answer* puts the reference in
 the box. The task's small markdown renders instead of showing raw. Found
 on the way: a checkout turns the task files into CRLF and a JavaScript
 `.` does not match the carriage return, so a line-anchored regex over
-fetched text fails silently on Windows; the renderer strips `` first.
+fetched text fails silently on Windows; the renderer strips `
+` first.
 
 Run end to end on the author's behalf, by real keystrokes and clicks in
 the desktop app's browser pane on the Intel iGPU, 2026-10-27 22:11-22:16:
@@ -3095,10 +3096,17 @@ element 1* (the copy), *verified* (the fold, 8.0 ms, 2,048 operations in
 the reference); the two mistake buttons of kp-05 give their two verdicts
 with their notes; the answer link verifies. The desktop face on rnxc with
 the new facts: starter waits, reference verifies on the CPU, a mistake
-named, for kp-01/05/08 (12/12). The author's own reading of the REPAIRED
-page is still owed: the rung is DONE when they say the page told them what
-to do. The page is served from the course folder (`python -m http.server
-8780`, from `courses/kernel-puzzles`) at `runner/puzzle.html?p=kp-05`.
+named, for kp-01/05/08 (12/12). The page is served from the course folder
+(`python -m http.server 8780`, from `courses/kernel-puzzles`) at
+`runner/puzzle.html?p=kp-05`.
+
+**PERCEPTGATE — met a second time, 2026-10-27 22:25, and the verdict was YES.**
+Mansour Ayouni reloaded the repaired page and said, in their words: *"I
+reloaded the page, the Your-move block and the mistake buttons told me
+what to do."* That sentence closes the rung: the eight puzzles are built,
+gated (95/95 on rnxc), and a named person has used the page and said what
+it did. Both verdicts stay in this record, the NO and the YES, because the
+first is what the counters could not see.
 
 Next: the author's two puzzles and their verdict, written here with their
 name; then **KP3** (gated: workgroup memory and a barrier for the tiled
