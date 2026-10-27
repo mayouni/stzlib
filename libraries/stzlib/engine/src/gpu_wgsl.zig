@@ -67,8 +67,9 @@ pub const MAX_SCALARS = 14; // 64-byte params uniform: 8B (n+pad) + 14*4B
 const FUNC_WHITELIST = [_][]const u8{
     "abs", "min", "max", "sqrt", "exp", "log", "sin", "cos", "tan",
     "floor", "ceil", "pow", "clamp", "sign", "fract", "round",
-    // GK4: the backbone's GELU is written with tanh; an epilogue that says the
-    // same thing must be able to
+    // GK4: the backbone's GELU is written with tanh; a description of it must
+    // be able to say so (the fused epilogue that needed it measured within
+    // noise and was removed; the word stays, in both readers)
     "tanh",
     // A SURFACE language needs the surface verbs. Without mix and
     // smoothstep a material cannot blend or make a soft edge, which is most
@@ -405,32 +406,6 @@ fn parseDecl(text: []const u8, d: *Decl) i32 {
     d.rhs = std.mem.trim(u8, b[eq + 1 ..], " \t");
     if (d.rhs.len == 0) return fail("empty expression", .{});
     return 0;
-}
-
-/// GK4: an elementwise EPILOGUE for a matmul's store, from a spec with one
-/// input -- the value the store holds -- and one output:
-///     in x
-///     out y
-///     body { @y = 0.5 * @x * (1 + tanh(0.7978845608 * @x * (1 + 0.044715 * @x * @x))) }
-/// The WGSL expression is written into `out` with the input read as `v`
-/// (the store's own variable). No scalars (the matmul's params are its own),
-/// no guard, no index, no neighbour, no sum, no schedule. Length, or -1.
-pub fn stz_gpu_wgsl_epilogue(spec: [*]const u8, spec_len: f64, out: [*]u8, cap: f64) callconv(.c) i32 {
-    const text = spec[0..@intFromFloat(spec_len)];
-    err_len = 0;
-    var d: Decl = .{};
-    if (parseDecl(text, &d) < 0) return -1;
-    if (d.n_ins != 1) return fail("an epilogue takes one value (one 'in' line), not {d}", .{d.n_ins});
-    if (d.n_scalars != 0) return fail("an epilogue takes no scalars: the matmul's parameters are its own", .{});
-    if (d.guard != null) return fail("an epilogue has no guard: the store already bounds it", .{});
-    if (d.n_shared != 0 or d.n_items != 0 or d.width.len != 0) return fail("an epilogue is elementwise: no shared memory, no schedule, no width", .{});
-    var prelude_buf: [16]u8 = undefined;
-    var prelude = Cursor{ .buf = &prelude_buf };
-    var rw = Rewriter{ .d = &d, .prelude = &prelude, .epi = true };
-    var w = Cursor{ .buf = out[0..@intFromFloat(cap)] };
-    if (rw.rewrite(d.rhs, &w) < 0) return -1;
-    if (w.overflow) return fail("epilogue too long", .{});
-    return @intCast(w.len);
 }
 
 fn widthText(d: *const Decl, buf: []u8) ?[]const u8 {
@@ -876,8 +851,6 @@ const Rewriter = struct {
     stage_target: ?usize = null,
     used_group: bool = false,
     used_sh: [MAX_SHARED]bool = @splat(false),
-    // GK4: an EPILOGUE reads its one value as `v`, the matmul store's own
-    epi: bool = false,
 
     fn matching(text: []const u8, open_at: usize) ?usize {
         var depth: usize = 0;
@@ -904,16 +877,6 @@ const Rewriter = struct {
                 if (j == i + 1 or !lowerInto(&nm, rhs[i + 1 .. j]))
                     return fail("bad @name at '{s}'", .{rhs[i..@min(i + 8, rhs.len)]});
                 if (self.where == .count) return fail(MSG_COUNT, .{});
-                if (self.epi) {
-                    // the one value the store holds, and nothing beside it
-                    var k3 = j;
-                    while (k3 < rhs.len and (rhs[k3] == ' ' or rhs[k3] == '\t')) : (k3 += 1) {}
-                    if (!std.mem.eql(u8, nm.slice(), self.d.ins[0].slice()) or (k3 < rhs.len and rhs[k3] == '['))
-                        return fail("an epilogue reads its one value, @{s}, and numbers: not '@{s}'", .{ self.d.ins[0].slice(), nm.slice() });
-                    expr.put("v");
-                    i = j;
-                    continue;
-                }
                 if (std.mem.eql(u8, nm.slice(), "i")) {
                     expr.put("f32(i)");
                     i = j;
@@ -1040,8 +1003,6 @@ const Rewriter = struct {
                     i = j;
                     continue;
                 }
-                if (self.epi and (std.mem.eql(u8, word, "n") or std.mem.eql(u8, word, "sum")))
-                    return fail("an epilogue reads its one value and numbers: not '{s}'", .{word});
                 if (std.mem.eql(u8, word, "sum")) {
                     if (self.where == .count) return fail(MSG_SUMCOUNT, .{});
                     if (self.loopvar != null) return fail("a sum inside a sum is not admitted (one level; shared memory is KP3's)", .{});
@@ -3036,13 +2997,12 @@ test "KP3: the refusals name the offender, and the two readers agree on them" {
     }
 }
 
-test "GK4: an epilogue reads its one value as v, says GELU with tanh, and refuses the rest" {
+test "GK4: tanh means in the interpreter what it means in WGSL, and the transpiler emits it as itself" {
     const gelu = "in x\nout y\nbody { @y = 0.5 * @x * (1 + tanh(0.7978845608 * @x * (1 + 0.044715 * @x * @x))) }";
-    var buf: [1024]u8 = undefined;
-    const n = stz_gpu_wgsl_epilogue(gelu.ptr, @floatFromInt(gelu.len), &buf, buf.len);
+    var buf: [2048]u8 = undefined;
+    const n = stz_gpu_wgsl_elementwise(gelu.ptr, @floatFromInt(gelu.len), &buf, buf.len);
     try std.testing.expect(n > 0);
-    try std.testing.expectEqualStrings("0.5 * v * (1 + tanh(0.7978845608 * v * (1 + 0.044715 * v * v)))", buf[0..@intCast(n)]);
-    // the interpreter means the same thing by tanh
+    try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "tanh(0.7978845608 * v_x[i]") != null);
     try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_compile(gelu.ptr, @floatFromInt(gelu.len)));
     const x = [_]f32{ -3, -0.5, 0, 0.5, 3 };
     const ins = [_][*]const f32{&x};
@@ -3053,13 +3013,4 @@ test "GK4: an epilogue reads its one value as v, says GELU with tanh, and refuse
         const want = 0.5 * xi * (1 + std.math.tanh(0.7978845608 * xi * (1 + 0.044715 * xi * xi)));
         try std.testing.expectApproxEqAbs(want, yi, 1e-6);
     }
-    const bad = [_][]const u8{
-        "in a\nin b\nout y\nbody { @y = @a + @b }",
-        "in a\nscalar k\nout y\nbody { @y = @a * k }",
-        "in a\nout y\nguard { @i < n }\nbody { @y = @a }",
-        "in a\nout y\nbody { @y = @a + @i }",
-        "in a\nout y\nbody { @y = @a[@i + 1] }",
-        "in a\nout y\nbody { @y = sum(k, 0, 4, 1) }",
-    };
-    for (bad) |s| try std.testing.expect(stz_gpu_wgsl_epilogue(s.ptr, @floatFromInt(s.len), &buf, buf.len) < 0);
 }

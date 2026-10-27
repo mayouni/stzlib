@@ -3313,3 +3313,56 @@ the copy (`sha256sum -c`: OK) before being written beside it.
 `base/test/neural/neural_backbone_narrated.ring` reads `nPass` bare in its
 `chk()`, which Rule A refuses; its migration is the neural desk's. The f16
 guard's backbone scene covers the default f32 path's agreement with the CPU.
+
+## GK4 STATUS — closed 2026-10-28: the fusible epilogue, counted, timed, and REMOVED; tanh and the dispatch count stay
+
+**What was built and measured** (commit `92831a80c`, kept in history so the
+number can be re-earned): `stz_gpu_wgsl_epilogue` turned a one-value
+KernelMaker spec into a matmul store's epilogue, `gpu_ops` applied it after
+the bias in every variant's store (f32 or f16 weights), and the resident
+backbone could apply GELU in the up-projection's store instead of a GELU
+pass. The spec says what the backbone's GELU kernel says, which needed
+`tanh` in the grammar:
+
+    in x
+    out y
+    body { @y = 0.5 * @x * (1 + tanh(0.7978845608 * @x * (1 + 0.044715 * @x * @x))) }
+
+**Measured on MiniLM, RTX 3050, reg4 winners, under `rnxc`, 2026-10-28:**
+
+| measure | GELU as its own pass | GELU in the store |
+|---|---|---|
+| dispatches per forward (a count) | **62** | **56** |
+| embedding, 1 - cos between the two | — | 0 to nine places, at 158 and 68 tokens |
+| forward, twelve turns, order alternated | | fused faster in 7 of 12; unfused / fused from 0.969 to 1.079, median about 1.01 |
+
+The control, the CPU forward timed before and after each turn, moved by up
+to 60% inside a turn. The count confirms one dispatch fewer per layer; the
+clock does not confirm a gain: 7 of 12 is what chance gives, and six GELU
+passes over 130 x 1,536 elements are about a hundred microseconds of an
+8 ms forward. **By the charge's rule the fused form is removed** and the
+number recorded here. It is not kept because it is elegant.
+
+**The other two targets, refused by structure, not by measurement:**
+
+- **add_ln** is LayerNorm over a whole row of 384, while a matmul tile
+  holds 16 columns (64 in reg4): no store of one tile sees the row's mean
+  and variance. Only its residual add could ride the store, and the add is
+  already inside the LayerNorm kernel, so the count would not move.
+- **softmax's third dispatch** scales by the reciprocal of a total that
+  depends on every workgroup's partial sum; there is no matmul before it
+  to carry an epilogue, and it cannot fold into its own exponential pass
+  without a second pass over the whole input. It stays three dispatches.
+
+**What stays.** `tanh` in the grammar's functions, in the transpiler and
+the interpreter (`std.math.tanh`; a Zig test holds the two to WGSL's
+meaning), and `neural_backbone_dispatches()` with its Ring binding
+`StzEngineNeuralBackboneDispatches`, a count of the last forward's
+dispatches that is immune to ambient load. The f16 guard asserts it: 62.
+
+**The reading, for whoever proposes the next fusion here.** The backbone
+is at the point GK2c named: after the register-blocked matmuls, no single
+pass is a large share of the forward, so a fusion that removes one pass per
+layer moves the forward by about the clock's noise on this machine. A
+fusion worth keeping would have to remove a pass that is a large share,
+and on MiniLM at 130 tokens none is.

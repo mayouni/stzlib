@@ -375,39 +375,6 @@ pub fn mmSourceW(v: usize, comptime bias: bool, comptime wf16: bool) []const u8 
     };
 }
 
-/// GK4: variant v (bias fused, weights f32 or f16) with an elementwise
-/// EPILOGUE applied at its store: every `cc[r * p.n + c] = v;` becomes
-/// `v = EXPR; cc[r * p.n + c] = v;`, after the bias. The template, not a pass:
-/// no graph, no planner. `expr` is what stz_gpu_wgsl_epilogue wrote. Returns
-/// the text in `out`, or null when it does not fit.
-pub fn mmEpilogueSource(v: usize, wf16: bool, expr: []const u8, out: []u8) ?[]const u8 {
-    const base = if (wf16) mmSourceW(v, true, true) else mmSourceW(v, true, false);
-    const needle = "      cc[r * p.n + c] = v;\n";
-    var w: usize = 0;
-    var i: usize = 0;
-    while (i < base.len) {
-        if (i + needle.len <= base.len and std.mem.eql(u8, base[i .. i + needle.len], needle)) {
-            const add = "      v = ";
-            if (w + add.len + expr.len + 2 + needle.len > out.len) return null;
-            @memcpy(out[w..][0..add.len], add);
-            w += add.len;
-            @memcpy(out[w..][0..expr.len], expr);
-            w += expr.len;
-            @memcpy(out[w..][0..2], ";\n");
-            w += 2;
-            @memcpy(out[w..][0..needle.len], needle);
-            w += needle.len;
-            i += needle.len;
-        } else {
-            if (w + 1 > out.len) return null;
-            out[w] = base[i];
-            w += 1;
-            i += 1;
-        }
-    }
-    return out[0..w];
-}
-
 fn comptimeReplace(comptime s: []const u8, comptime needle: []const u8, comptime with: []const u8) []const u8 {
     @setEvalBranchQuota(1000000);
     comptime var out: []const u8 = "";

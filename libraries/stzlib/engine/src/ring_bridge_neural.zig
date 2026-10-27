@@ -356,13 +356,7 @@ fn ring_BackboneWeightBytes(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retnumber(p, nbb.neural_backbone_weight_bytes());
 }
 
-// GK4: GELU in the up-projection's store, and the forward's dispatch count
-fn ring_BackboneSetFusedGelu(p: *anyopaque) callconv(.c) void {
-    nbb.neural_backbone_set_fused_gelu(@intFromFloat(R.ring_vm_api_getnumber(p, 1)));
-}
-fn ring_BackboneFusedGelu(p: *anyopaque) callconv(.c) void {
-    R.ring_vm_api_retnumber(p, @floatFromInt(nbb.neural_backbone_fused_gelu()));
-}
+// GK4: the forward's dispatch count
 fn ring_BackboneDispatches(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retnumber(p, nbb.neural_backbone_dispatches());
 }
@@ -557,8 +551,6 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralbackbonesupported", .func = &ring_BackboneSupported },
     .{ .name = "stzengineneuralbackbonesetmintokens", .func = &ring_BackboneSetMinTokens },
     .{ .name = "stzengineneuralbackbonesetweightsf16", .func = &ring_BackboneSetWeightsF16 },
-    .{ .name = "stzengineneuralbackbonesetfusedgelu", .func = &ring_BackboneSetFusedGelu },
-    .{ .name = "stzengineneuralbackbonefusedgelu", .func = &ring_BackboneFusedGelu },
     .{ .name = "stzengineneuralbackbonedispatches", .func = &ring_BackboneDispatches },
     .{ .name = "stzengineneuralbackboneweightsf16", .func = &ring_BackboneWeightsF16 },
     .{ .name = "stzengineneuralbackbonef16available", .func = &ring_BackboneF16Available },

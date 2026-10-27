@@ -37,7 +37,6 @@ const embed = @import("neural_embed.zig");
 const ngpu = @import("neural_gpu.zig");
 const ops = @import("gpu_ops.zig"); // GK2b: the matmul variants and their table
 const verify = @import("gpu_verify.zig"); // GK2c: the checker, for the attention foundry
-const wgsl = @import("gpu_wgsl.zig"); // GK4: the epilogue, from a spec
 
 const c = @cImport({
     @cInclude("ggml.h");
@@ -592,35 +591,15 @@ pub export fn neural_backbone_weight_bytes() callconv(.c) f64 {
     return g_weight_bytes_last;
 }
 
-// GK4: the FFN's GELU applied in the up-projection's store, a KernelMaker
-// spec turned into the matmul's epilogue -- one dispatch fewer per layer.
-// Off unless asked; the measurement decides whether it stays.
-const GELU_EPILOGUE_SPEC = "in x\nout y\nbody { @y = 0.5 * @x * (1 + tanh(0.7978845608 * @x * (1 + 0.044715 * @x * @x))) }";
-var g_want_fused_gelu = false;
-var g_fused_last = false;
+// GK4: the dispatches of the last forward -- a count, immune to ambient load.
+// GK4 measured GELU fused into the up-projection's store with it (62 -> 56 per
+// forward on MiniLM) and the clock did not confirm a gain; the fused form was
+// removed (SOFTANZA_GPU_PLAN.md, GK4 STATUS). The count stays an instrument.
 var g_dispatches_last: f64 = 0;
-var g_gelu_expr_buf: [256]u8 = undefined;
-var g_gelu_expr: []const u8 = "";
-var g_epi_src_buf: [32768]u8 = undefined;
 
-pub export fn neural_backbone_set_fused_gelu(on: c_int) callconv(.c) void {
-    g_want_fused_gelu = on != 0;
-}
-/// 1 when the last forward applied GELU in the up-projection's store.
-pub export fn neural_backbone_fused_gelu() callconv(.c) c_int {
-    return @intFromBool(g_fused_last);
-}
-/// The dispatches the last forward made (a count, immune to ambient load).
+/// The dispatches the last forward made.
 pub export fn neural_backbone_dispatches() callconv(.c) f64 {
     return g_dispatches_last;
-}
-
-fn geluExpr() ?[]const u8 {
-    if (g_gelu_expr.len > 0) return g_gelu_expr;
-    const n = wgsl.stz_gpu_wgsl_epilogue(GELU_EPILOGUE_SPEC.ptr, @floatFromInt(GELU_EPILOGUE_SPEC.len), &g_gelu_expr_buf, g_gelu_expr_buf.len);
-    if (n <= 0) return null;
-    g_gelu_expr = g_gelu_expr_buf[0..@intCast(n)];
-    return g_gelu_expr;
 }
 var g_slots: [SLOTS]Slot = @splat(.{});
 var g_slot_n: usize = 0;
@@ -858,7 +837,6 @@ pub export fn neural_backbone_forward(ids_ptr: [*c]const i32, n_tok_in: c_int, o
     }
     g_half = g_want_f16 and gpu.hasF16();
     g_weight_bytes_last = 0;
-    const fused = g_want_fused_gelu and geluExpr() != null;
     const disp0 = gpu.stz_gpu_counter(gpu.CTR_DISPATCH_COUNT);
 
     // ---- CPU-side embedding gather (tiny: n_tok rows), then ONE upload
@@ -932,14 +910,9 @@ pub export fn neural_backbone_forward(ids_ptr: [*c]const i32, n_tok_in: c_int, o
         ok = ok and mmBias(K_MM, bx, tensorId(ctx, "blk.{d}.attn_output.weight", .{L}, true), tensorId(ctx, "blk.{d}.attn_output.bias", .{L}, false), bq, n_tok, n_embd, n_embd);
         ok = ok and lnStep(K_LN, bq, by, tensorId(ctx, "blk.{d}.attn_output_norm.weight", .{L}, false), tensorId(ctx, "blk.{d}.attn_output_norm.bias", .{L}, false), bx, n_tok, n_embd, eps, 1);
         // FFN: bf = gelu(bx @ Wup + bup); bq = bf @ Wdn + bdn
-        if (fused) {
-            // GK4: GELU in the store of the up-projection, no pass of its own
-            ok = ok and mmBiasEpi(K_MM, bx, tensorId(ctx, "blk.{d}.ffn_up.weight", .{L}, true), tensorId(ctx, "blk.{d}.ffn_up.bias", .{L}, false), bf, n_tok, n_embd, n_ffn, g_gelu_expr);
-        } else {
-            ok = ok and mmBias(K_MM, bx, tensorId(ctx, "blk.{d}.ffn_up.weight", .{L}, true), tensorId(ctx, "blk.{d}.ffn_up.bias", .{L}, false), bf, n_tok, n_embd, n_ffn);
-            const gp = GeluParams{ .n = @intCast(n_tok * n_ffn) };
-            ok = ok and dispatchP(K_GELU, &gp, &.{bf}, ceilDiv(n_tok * n_ffn, WG), 1);
-        }
+        ok = ok and mmBias(K_MM, bx, tensorId(ctx, "blk.{d}.ffn_up.weight", .{L}, true), tensorId(ctx, "blk.{d}.ffn_up.bias", .{L}, false), bf, n_tok, n_embd, n_ffn);
+        const gp = GeluParams{ .n = @intCast(n_tok * n_ffn) };
+        ok = ok and dispatchP(K_GELU, &gp, &.{bf}, ceilDiv(n_tok * n_ffn, WG), 1);
         ok = ok and mmBias(K_MM, bf, tensorId(ctx, "blk.{d}.ffn_down.weight", .{L}, true), tensorId(ctx, "blk.{d}.ffn_down.bias", .{L}, false), bq, n_tok, n_ffn, n_embd);
         // LN(bq + bx) -> by  (input of the next layer)
         ok = ok and lnStep(K_LN, bq, bx, tensorId(ctx, "blk.{d}.layer_output_norm.weight", .{L}, false), tensorId(ctx, "blk.{d}.layer_output_norm.bias", .{L}, false), by, n_tok, n_embd, eps, 1);
@@ -954,25 +927,8 @@ pub export fn neural_backbone_forward(ids_ptr: [*c]const i32, n_tok_in: c_int, o
     if (gpu.stz_gpu_sync() != gpu.OK) return 0;
     if (gpu.stz_gpu_buffer_read(bp, @ptrCast(out), @floatFromInt(n_embd * 4)) != gpu.OK) return 0;
     g_half_last = g_half;
-    g_fused_last = fused;
     g_dispatches_last = gpu.stz_gpu_counter(gpu.CTR_DISPATCH_COUNT) - disp0;
     return 1;
-}
-
-fn mmBiasEpi(kern_generic: i64, a: i64, b: i64, bias: i64, out: i64, m: usize, k: usize, n: usize, expr: []const u8) bool {
-    _ = kern_generic;
-    if (b == 0 or out == 0) return false;
-    const v = ops.mmVariantFor(m, k, n);
-    const src = ops.mmEpilogueSource(v, g_half, expr, &g_epi_src_buf) orelse return false;
-    const kern = gpu.stz_gpu_kernel_compile(src.ptr, @floatFromInt(src.len));
-    if (kern == 0) return false;
-    if (v != ops.MM_GENERIC) gpu.bumpCounter(gpu.CTR_VARIANT_DISPATCH, 1);
-    g_weight_bytes_last += @floatFromInt(k * n * @as(usize, if (g_half) 2 else 4));
-    const has_bias: u32 = if (bias != 0) 1 else 0;
-    const p = MmParams{ .m = @intCast(m), .k = @intCast(k), .n = @intCast(n), .has_bias = has_bias };
-    const bb = if (bias != 0) bias else b;
-    const g = ops.mmGeometry(v, m, n);
-    return dispatchP(kern, &p, &.{ a, b, bb, out }, g.wx, g.wy);
 }
 
 fn mmBias(kern_generic: i64, a: i64, b: i64, bias: i64, out: i64, m: usize, k: usize, n: usize) bool {
