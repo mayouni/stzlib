@@ -7,6 +7,8 @@
   body { font-family: ui-monospace, monospace; margin: 0; padding: 16px; background: var(--bg); color: var(--fg); max-width: 1100px; }
   h1 { font-size: 1.1rem; margin: 0 0 .5rem; }
   .task { background: var(--panel); padding: 1rem; white-space: pre-wrap; line-height: 1.45; margin-bottom: 1rem; }
+  .task .h1, .task .h2, .task .h3 { font-size: 1.15em; }
+  .task code { background: rgba(127,127,127,.18); padding: 0 .25em; }
   textarea { width: 100%; box-sizing: border-box; min-height: 9rem; background: #0b0e11; color: var(--fg); border: 1px solid #2a323c; padding: .6rem; font: inherit; font-size: 1rem; }
   button { font: inherit; font-size: 1rem; padding: .5rem 1.2rem; background: #2a323c; color: var(--fg); border: 0; cursor: pointer; margin-top: .5rem; }
   #verdict { font-size: 1.6rem; margin: 1rem 0; min-height: 2rem; }
@@ -165,6 +167,20 @@ function judge(got, ref, mask, n, suffix) {
 }
 
 let puzzle;
+let runs = 0;
+// the task is a small markdown: headings, **bold**, *italic*, `code`. Rendered here by hand so the
+// page needs no library; everything else stays as written (the div is pre-wrap)
+function littleMarkdown(md) {
+  const esc = md.replace(/\r/g, "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return esc.split("\n").map(line => {
+    const h = line.match(/^(#{1,3})\s+(.*)$/);
+    if (h) return `<b class="h${h[1].length}">${h[2]}</b>`;
+    return line
+      .replace(/`([^`]+)`/g, "<code>$1</code>")
+      .replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>")
+      .replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, "$1<i>$2</i>");
+  }).join("\n");
+}
 async function load() {
   // the course's own list of puzzles, from its manifest
   try {
@@ -180,7 +196,7 @@ async function load() {
   };
   let task = "";
   try { task = await text(exDir + `task.${lang}.md`); } catch { task = await text(exDir + "task.en.md"); }
-  el("task").textContent = task;
+  el("task").innerHTML = littleMarkdown(task);
   el("title").textContent = `Kernel puzzles · ${id}`;
   el("spec").value = puzzle.starter;
 }
@@ -203,7 +219,7 @@ function dataFor(spec, n) {
 async function grade(learner) {
   const refSpec = puzzle.reference;
   const t = learner.replace(/\r/g, "").trim();
-  if (t === "" || t === puzzle.starter.replace(/\r/g, "").trim() || !specLines(learner, "body").length) return { verdict: "waiting for your implementation", cls: "wait" };
+  if (t === "" || t === puzzle.starter.replace(/\r/g, "").trim() || !specLines(learner, "body").length) return { verdict: "waiting for your implementation", cls: "wait", note: "the description has no body line yet: add one below the out line, such as  body { @c = @a * 2 }" };
   // the learner's inputs and scalars must be the task's, in the task's order: one params block serves both sides
   const refIns = specLines(refSpec, "in"), refSc = specLines(refSpec, "scalar");
   const lIns = specLines(learner, "in"), lSc = specLines(learner, "scalar");
@@ -240,12 +256,18 @@ function judgeCpu(cand, ref, n, suffix) {
   return null;
 }
 el("run").addEventListener("click", async () => {
-  el("verdict").textContent = "running..."; el("verdict").className = "wait"; el("timing").textContent = "";
+  // every click is acknowledged on the page -- a run number and the clock, whatever the verdict --
+  // so a verdict that reads the same as the last one is still seen to be a NEW verdict
+  runs += 1;
+  const stamp = `run ${runs} at ${new Date().toLocaleTimeString()}`;
+  el("verdict").textContent = "running..."; el("verdict").className = "wait"; el("timing").textContent = stamp;
+  el("run").disabled = true;
   try {
     const r = await grade(el("spec").value);
     el("verdict").textContent = r.verdict; el("verdict").className = r.cls;
-    el("timing").textContent = (r.ms !== undefined ? `kernel ${r.ms.toFixed(2)} ms on the device` : "") + (r.flops ? `, ${r.flops} operations in the reference` : "") + (r.note ? ` -- ${r.note}` : "");
-  } catch (e) { el("verdict").textContent = "error: " + e.message; el("verdict").className = "bad"; }
+    el("timing").textContent = stamp + (r.ms !== undefined ? ` -- kernel ${r.ms.toFixed(2)} ms on the device` : "") + (r.flops ? `, ${r.flops} operations in the reference` : "") + (r.note ? ` -- ${r.note}` : "");
+  } catch (e) { el("verdict").textContent = "error: " + e.message; el("verdict").className = "bad"; el("timing").textContent = stamp; }
+  el("run").disabled = false;
 });
 await load();
 </script>
