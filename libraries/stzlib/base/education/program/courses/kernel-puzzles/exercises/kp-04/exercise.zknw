@@ -10,3 +10,6 @@ facts
 
     kp-04 | elements | 4000
     kp-04 | input-a | half
+
+    kp-04 | has-mistake | 02-off-by-one
+    kp-04 | has-mistake | 03-only-the-index

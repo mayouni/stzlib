@@ -10,3 +10,6 @@ facts
 
     kp-01 | elements | 4000
     kp-01 | input-a | ramp
+
+    kp-01 | has-mistake | 02-times-three
+    kp-01 | has-mistake | 03-reads-the-index

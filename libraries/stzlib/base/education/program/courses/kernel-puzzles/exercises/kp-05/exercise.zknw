@@ -11,3 +11,6 @@ facts
     kp-05 | elements | 4000
     kp-05 | input-a | ramp
     kp-05 | needs | device
+
+    kp-05 | has-mistake | 02-no-guard-at-all
+    kp-05 | has-mistake | 03-too-tight

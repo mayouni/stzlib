@@ -12,3 +12,6 @@ facts
     kp-08 | input-c | tenths
     kp-08 | input-length-c | m
     kp-08 | scalar-m | 1024
+
+    kp-08 | has-mistake | 02-one-short
+    kp-08 | has-mistake | 03-copies-the-first

@@ -15,11 +15,21 @@
   .ok { color: var(--ok); } .bad { color: var(--bad); } .wait { color: var(--wait); }
   pre { background: var(--panel); padding: .8rem; overflow-x: auto; max-height: 18rem; }
   .dim { color: var(--dim); }
+  .move { border-left: 3px solid var(--wait); background: var(--panel); padding: .7rem 1rem; margin: 0 0 .7rem; line-height: 1.5; }
+  .move b { color: var(--wait); }
+  .tries { margin: .4rem 0 .6rem; line-height: 2; }
+  .tries button { font-size: .9rem; padding: .25rem .7rem; margin: 0 .3rem 0 0; }
+  .tries a { color: var(--dim); }
+  #trynote { margin: 0 0 .4rem; }
+  [dir=rtl] { text-align: right; }
 </style>
 <h1 id="title">Kernel puzzles</h1>
 <div class="dim" id="list"></div>
 <div class="dim" id="where">loading...</div>
 <div class="task" id="task"></div>
+<div class="move" id="move"></div>
+<div class="tries" id="tries"></div>
+<div class="dim" id="trynote"></div>
 <textarea id="spec" spellcheck="false"></textarea>
 <div><button id="run">Run the kernel</button> <span class="dim" id="timing"></span></div>
 <div id="verdict" class="wait">waiting for your implementation</div>
@@ -42,7 +52,7 @@ const el = (s) => document.getElementById(s);
 const exDir = `../exercises/${id}/`;
 
 async function text(path) {
-  const r = await fetch(path);
+  const r = await fetch(path, { cache: "no-store" }); // the course files are small and may change under the page
   if (!r.ok) throw new Error(`${path}: ${r.status}`);
   return await r.text();
 }
@@ -168,6 +178,62 @@ function judge(got, ref, mask, n, suffix) {
 
 let puzzle;
 let runs = 0;
+// WHAT THE LEARNER DOES, said right above the box. Added 2026-10-27 after the author worked the
+// page and did not know what their move was: the task explained the kernel, nothing explained
+// the page. Hausa falls back to English until a speaker writes it.
+const MOVE = {
+  en: { title: "Your move",
+        text: "The box below holds the kernel's <b>description</b>. The lines already there name the inputs and the output. Add the <b>body</b> line -- what every thread writes -- and, where the puzzle asks for it, the <b>guard</b> line; then press <b>Run the kernel</b>. Your kernel runs on this machine's GPU and the checker's verdict appears under the button, naming the first element that differs. Try as often as you like.",
+        tries: "Try a mistake first, to see what a verdict looks like:", answer: "I give up -- show the answer", shown: "the reference, as the checker holds it -- press Run to see it verified" },
+  fr: { title: "A vous de jouer",
+        text: "La boite ci-dessous contient la <b>description</b> du noyau. Les lignes deja presentes nomment les entrees et la sortie. Ajoutez la ligne <b>body</b> -- ce que chaque fil ecrit -- et, quand l'enigme le demande, la ligne <b>guard</b> ; puis appuyez sur <b>Run the kernel</b>. Votre noyau s'execute sur le GPU de cette machine et le verdict du verificateur apparait sous le bouton, avec le premier element qui differe. Essayez autant de fois que vous voulez.",
+        tries: "Essayez d'abord une erreur, pour voir a quoi ressemble un verdict :", answer: "J'abandonne -- montrer la reponse", shown: "la reference, telle que le verificateur la detient -- appuyez sur Run pour la voir verifiee" },
+  ar: { title: "دورك",
+        text: "الصندوق أدناه يحمل <b>وصف</b> النواة. الأسطر الموجودة تسمّي المدخلات والمخرج. أضف سطر <b>body</b> -- ما يكتبه كل خيط -- وسطر <b>guard</b> حين تطلبه الأحجية، ثم اضغط <b>Run the kernel</b>. تعمل نواتك على معالج الرسوميات في هذا الجهاز ويظهر حكم المدقّق تحت الزر مع أول عنصر مختلف. جرّب كما تشاء.",
+        tries: "جرّب خطأً أولاً لترى شكل الحكم:", answer: "أستسلم -- أظهر الجواب", shown: "المرجع كما يحمله المدقّق -- اضغط Run لتراه موثّقاً" },
+};
+MOVE.ha = MOVE.en;
+// a sibling program under wrong/ is Ring that builds the same description through the face;
+// read it back into the description's lines, and keep its head comment as the note
+function specFromRing(src) {
+  const out = [], notes = [];
+  for (const raw of src.split(/\r?\n/)) {
+    const l = raw.trim();
+    let m;
+    if (l.startsWith("#")) { notes.push(l.replace(/^#\s?/, "")); continue; }
+    if ((m = l.match(/^k\.TakesVector\(:(\w+)\)/))) out.push("in " + m[1]);
+    else if ((m = l.match(/^k\.TakesScalar\(:(\w+)/))) out.push("scalar " + m[1]);
+    else if ((m = l.match(/^k\.ReturnsVector\(:(\w+)\)/))) out.push("out " + m[1]);
+    else if (/^k\.WithoutGuard\(\)/.test(l)) out.push("guard none");
+    else if ((m = l.match(/^k\.Guard\('(.*)'\)/))) out.push("guard " + m[1]);
+    else if ((m = l.match(/^k\.ForEachElement\('(.*)'\)/))) out.push("body " + m[1]);
+  }
+  return { spec: out.join("\n") + "\n", note: notes.join(" ") };
+}
+function humanize(name) { return name.replace(/^\d+-/, "").replace(/-s-/g, "'s ").replace(/-/g, " "); }
+async function showMove(fs) {
+  const t = MOVE[lang] || MOVE.en;
+  const mv = el("move");
+  mv.innerHTML = `<b>${t.title}.</b> ${t.text}`;
+  if (lang === "ar") { mv.dir = "rtl"; el("task").dir = "rtl"; }
+  const names = fs.filter(p => p[1].toLowerCase() === "has-mistake").map(p => p[2]);
+  const row = el("tries");
+  row.textContent = "";
+  if (names.length) row.append(t.tries + " ");
+  for (const name of names) {
+    const b = document.createElement("button");
+    b.textContent = humanize(name);
+    b.addEventListener("click", async () => {
+      const r = specFromRing(await text(exDir + `wrong/${name}.ring`));
+      el("spec").value = r.spec; el("trynote").textContent = r.note;
+      el("run").click();
+    });
+    row.append(b);
+  }
+  const a = document.createElement("a"); a.href = "#"; a.textContent = t.answer;
+  a.addEventListener("click", (e) => { e.preventDefault(); el("spec").value = puzzle.reference; el("trynote").textContent = t.shown; });
+  row.append(" ", a);
+}
 // the task is a small markdown: headings, **bold**, *italic*, `code`. Rendered here by hand so the
 // page needs no library; everything else stays as written (the div is pre-wrap)
 function littleMarkdown(md) {
@@ -199,6 +265,7 @@ async function load() {
   el("task").innerHTML = littleMarkdown(task);
   el("title").textContent = `Kernel puzzles · ${id}`;
   el("spec").value = puzzle.starter;
+  await showMove(fs);
 }
 function dataFor(spec, n) {
   const inputs = [], scalars = [];

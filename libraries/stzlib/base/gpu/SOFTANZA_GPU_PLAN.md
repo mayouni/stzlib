@@ -3059,11 +3059,46 @@ the page was handed over: kp-05 answers *write-outside at element 4001*,
 answers *verified* for the fold (10.8 ms, 2,048 operations in the
 reference) and *mismatch at element 1* for the copy, in French too.
 
-**PERCEPTGATE — not yet met.** The author asked for the page to work two
-puzzles themselves. Until that happens and their words are recorded here,
-this rung is BUILT, not DONE: every number above is an instrument's. The
-page is served from the course folder (`python -m http.server 8780`, from
-`courses/kernel-puzzles`) at `runner/puzzle.html?p=kp-05`.
+**PERCEPTGATE — met on 2026-10-27, and the verdict was NO.** The author,
+Mansour Ayouni, opened the page, pressed *Run the kernel* on the untouched
+starter and reported, in their words: *"When i click 'Run the kernel' i get
+nothing"*, then, with the run now stamped on the page and the verdict
+unchanged: *"i don't understand what happens!"*. The grader was right
+both times (the starter has no body line, so the verdict was *waiting for
+your implementation* before and after the click) and the page was wrong
+both times: nothing on it said what the person's move was. The task
+explained the kernel; nothing explained the page. Every counter above was
+green while the first reader could not start.
+
+**What the page does now, 2026-10-27.** Every click prints *run N at
+HH:MM:SS* before the verdict and the button is disabled while the device
+works, so the same verdict twice is still seen to be new. A *Your move*
+block sits directly above the box (en, fr, ar; ha falls back to en): the
+box holds the description, the lines there name the inputs and output,
+add the body line and, where asked, the guard line, press Run, the verdict
+names the first element that differs. Under it, one button per named
+mistake of the exercise (`has-mistake` facts, added to each
+`exercise.zknw`; the page reads the `wrong/` sibling's Ring back into the
+description's lines and keeps its head comment as the note) fills the box
+and runs at once, so the learner sees a verdict in one click before
+writing a line; and *I give up -- show the answer* puts the reference in
+the box. The task's small markdown renders instead of showing raw. Found
+on the way: a checkout turns the task files into CRLF and a JavaScript
+`.` does not match the carriage return, so a line-anchored regex over
+fetched text fails silently on Windows; the renderer strips `` first.
+
+Run end to end on the author's behalf, by real keystrokes and clicks in
+the desktop app's browser pane on the Intel iGPU, 2026-10-27 22:11-22:16:
+kp-05 *write-outside at element 4001* (guard none), *mismatch at element
+4000* (`@i < n - 1`), *verified* (`@i < n`, 3.2 ms); kp-08 *mismatch at
+element 1* (the copy), *verified* (the fold, 8.0 ms, 2,048 operations in
+the reference); the two mistake buttons of kp-05 give their two verdicts
+with their notes; the answer link verifies. The desktop face on rnxc with
+the new facts: starter waits, reference verifies on the CPU, a mistake
+named, for kp-01/05/08 (12/12). The author's own reading of the REPAIRED
+page is still owed: the rung is DONE when they say the page told them what
+to do. The page is served from the course folder (`python -m http.server
+8780`, from `courses/kernel-puzzles`) at `runner/puzzle.html?p=kp-05`.
 
 Next: the author's two puzzles and their verdict, written here with their
 name; then **KP3** (gated: workgroup memory and a barrier for the tiled

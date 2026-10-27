@@ -11,3 +11,6 @@ facts
     kp-03 | elements | 4000
     kp-03 | input-a | ramp
     kp-03 | scalar-alpha | 2.5
+
+    kp-03 | has-mistake | 02-hard-coded
+    kp-03 | has-mistake | 03-adds-it

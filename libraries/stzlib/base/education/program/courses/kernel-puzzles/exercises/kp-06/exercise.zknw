@@ -10,3 +10,6 @@ facts
 
     kp-06 | elements | 4000
     kp-06 | input-a | mod13
+
+    kp-06 | has-mistake | 02-no-edge-guard
+    kp-06 | has-mistake | 03-forgets-itself

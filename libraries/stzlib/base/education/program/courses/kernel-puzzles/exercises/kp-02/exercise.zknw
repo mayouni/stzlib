@@ -11,3 +11,6 @@ facts
     kp-02 | elements | 4000
     kp-02 | input-a | ramp
     kp-02 | input-b | half
+
+    kp-02 | has-mistake | 02-minus
+    kp-02 | has-mistake | 03-ignores-b

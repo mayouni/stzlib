@@ -11,3 +11,6 @@ facts
     kp-07 | elements | 1024
     kp-07 | input-a | tenths
     kp-07 | input-length-a | 16384
+
+    kp-07 | has-mistake | 02-one-short
+    kp-07 | has-mistake | 03-overlapping-windows
