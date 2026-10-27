@@ -69,8 +69,34 @@ func StzKernelMakerFromSpec(pcSpec)
 			_oK_.Guard(ring_trim(StzRight(_cLine_, len(_cLine_) - 6)))
 		but StzLeft(_cLine_, 5) = "body "
 			_oK_.ForEachElement(ring_trim(StzRight(_cLine_, len(_cLine_) - 5)))
+		but StzLeft(_cLine_, 7) = "shared "
+			# the engine checks the size; the face keeps the text as written
+			_acW_ = StzSplit(ring_trim(StzRight(_cLine_, len(_cLine_) - 7)), " ")
+			if len(_acW_) != 2
+				StzRaise("StzKernelMakerFromSpec: a shared line is 'shared NAME SIZE', not '" + _cLine_ + "'.")
+			ok
+			_oK_.Shared(_acW_[1], _acW_[2])
+		but StzLeft(_cLine_, 6) = "stage "
+			_oK_.Stage(ring_trim(StzRight(_cLine_, len(_cLine_) - 6)))
+		but StzLeft(_cLine_, 7) = "reduce "
+			_acW_ = StzSplit(ring_trim(StzRight(_cLine_, len(_cLine_) - 7)), " ")
+			if len(_acW_) != 2
+				StzRaise("StzKernelMakerFromSpec: a reduce line is 'reduce NAME sum|max|min', not '" + _cLine_ + "'.")
+			ok
+			_oK_.Reduce(_acW_[1], _acW_[2])
+		but StzLeft(_cLine_, 6) = "tiles "
+			_cR_ = ring_trim(StzRight(_cLine_, len(_cLine_) - 6))
+			_acW_ = StzSplit(_cR_, " ")
+			if len(_acW_) < 2
+				StzRaise("StzKernelMakerFromSpec: a tiles line is 'tiles VAR { count }', not '" + _cLine_ + "'.")
+			ok
+			_oK_.Tiles(_acW_[1], ring_trim(StzRight(_cR_, len(_cR_) - len(_acW_[1]))))
+		but StzLeft(_cLine_, 11) = "accumulate "
+			_oK_.Accumulate(ring_trim(StzRight(_cLine_, len(_cLine_) - 11)))
+		but StzLeft(_cLine_, 6) = "width "
+			_oK_.Width(ring_trim(StzRight(_cLine_, len(_cLine_) - 6)))
 		else
-			StzRaise("StzKernelMakerFromSpec: unknown line '" + _cLine_ + "' (in, scalar, out, guard, body).")
+			StzRaise("StzKernelMakerFromSpec: unknown line '" + _cLine_ + "' (in, scalar, out, width, shared, stage, reduce, tiles, accumulate, guard, body).")
 		ok
 	next
 	return _oK_
@@ -186,6 +212,70 @@ class stzKernelPuzzle from stzObject
 		next
 		return _aB_
 
+	# Returns the hidden shape's element count when the puzzle declares one, or 0 when the checker derives it.
+	#
+	#   returns    a number
+	#   note       KP3 (2026-10-27): a matrix's hidden shape is another matrix, with its own width and
+	#              depth; the facts hidden-elements, hidden-scalar-NAME and hidden-input-length-NAME
+	#              give it, and the hidden inputs are the same recipes at those lengths, reversed
+	#   see        HiddenBindings
+	def HiddenElements()
+		_c_ = This._Fact("hidden-elements")
+		if _c_ = ""
+			return 0
+		ok
+		return 0 + _c_
+
+	# Returns the hidden shape's inputs and scalars when the puzzle declares one, as the bindings a maker takes.
+	#
+	#   returns    a list of [ name, value ] pairs; empty when the puzzle declares no hidden shape
+	#   see        HiddenElements, Bindings
+	def HiddenBindings()
+		_nN_ = This.HiddenElements()
+		if _nN_ = 0
+			return []
+		ok
+		_aB_ = []
+		_nL_ = len(@aFacts)
+		for _i_ = 1 to _nL_
+			_cRel_ = lower(@aFacts[_i_][2])
+			if StzLeft(_cRel_, 6) = "input-" and StzLeft(_cRel_, 13) != "input-length-"
+				_cName_ = StzRight(_cRel_, len(_cRel_) - 6)
+				_nLen_ = _nN_
+				_cLen_ = This._Fact("hidden-input-length-" + _cName_)
+				if _cLen_ != ""
+					_nLen_ = 0 + _cLen_
+				ok
+				_aV_ = This._Recipe(@aFacts[_i_][3], _nLen_)
+				_aR_ = []
+				for _j_ = _nLen_ to 1 step -1
+					_aR_ + _aV_[_j_]
+				next
+				_aB_ + [ _cName_, _aR_ ]
+			but StzLeft(_cRel_, 7) = "scalar-"
+				_cName_ = StzRight(_cRel_, len(_cRel_) - 7)
+				_cH_ = This._Fact("hidden-scalar-" + _cName_)
+				if _cH_ = ""
+					_aB_ + [ _cName_, 0 + @aFacts[_i_][3] ]
+				else
+					_aB_ + [ _cName_, 0 + _cH_ ]
+				ok
+			ok
+		next
+		return _aB_
+
+	# Returns the allowed difference per element, from the band fact, or 0.000001.
+	#
+	#   returns    a number
+	#   note       an exp or a long sum on the device rounds differently from the CPU; the band is
+	#              set from a measurement and written in the puzzle's facts
+	def Band()
+		_c_ = This._Fact("band")
+		if _c_ = ""
+			return 0.000001
+		ok
+		return 0 + _c_
+
 	# Grades a learner's kernel against the reference and answers the verdict in words the promise can match.
 	#
 	#   pLearner   a stzKernelMaker, or the description as text
@@ -205,8 +295,12 @@ class stzKernelPuzzle from stzObject
 		_nN_ = This.Elements()
 		if StzEngineGpuInit($cStzGpuRuntime) != 0 and StzEngineGpuIsAvailable() != 0
 			_oG_ = new stzGpu
+			_aOpt_ = [ :n = _nN_, :band = This.Band() ]
+			if This.HiddenElements() > 0
+				_aOpt_ + [ "hidden", [ [ "n", This.HiddenElements() ], [ "bindings", This.HiddenBindings() ] ] ]
+			ok
 			try
-				_aV_ = _oG_.VerifySpecWith(_oRef_, _oK_, _aB_, [ :n = _nN_ ])
+				_aV_ = _oG_.VerifySpecWith(_oRef_, _oK_, _aB_, _aOpt_)
 			catch
 				return "refused: " + cCatchError
 			done
@@ -226,6 +320,79 @@ class stzKernelPuzzle from stzObject
 			end
 		ok
 		return This._GradeOnCpu(_oRef_, _oK_, _aB_, _nN_)
+
+	# Measures where the learner's kernel stands under this device's two roofs: its bandwidth against the copy floor, its operations against the compute peak.
+	#
+	#   pLearner   a stzKernelMaker, or the description as text
+	#   returns    a hashlist with :elements, :bytes, :flops, :ms (the best dispatch and sync, on the
+	#              wall clock the copy floor is measured with), :gpums (-1 without timestamps), :gbs,
+	#              :floorgbs, :bandwidthfraction, :gflops, :peakgflops, :peakfraction and :bound
+	#              (memory or compute); or a text when the kernel cannot run (the verdict words of
+	#              Grade, or "no device")
+	#   note       KP3 (2026-10-27): the size is the puzzle's roofline-elements fact (4,194,304 when
+	#              absent); the inputs are filled on the device, so no list crosses; bytes and
+	#              operations are the ESSENTIAL ones -- each input read once, the output written once,
+	#              the reference's operations per element -- the roofline's convention, so a kernel
+	#              that does more than it must shows a smaller fraction
+	#   see        Grade
+	def Roofline(pLearner)
+		_r_ = This._Prepare(pLearner)
+		if isString(_r_)
+			return _r_
+		ok
+		_oK_ = _r_
+		if NOT (StzEngineGpuInit($cStzGpuRuntime) != 0 and StzEngineGpuIsAvailable() != 0)
+			return "no device"
+		ok
+		_oRef_ = StzKernelMakerFromSpec(@cReference)
+		_nN_ = 4194304
+		_c_ = This._Fact("roofline-elements")
+		if _c_ != ""
+			_nN_ = 0 + _c_
+		ok
+		_nKer_ = StzEngineGpuKernelCompile(_oK_.ToWGSL())
+		if _nKer_ = 0
+			return "refused: " + StzEngineGpuLastError()
+		ok
+		_aIds_ = []
+		_nIn_ = len(_oRef_.InputNames())
+		for _i_ = 1 to _nIn_ + 1
+			_nId_ = StzEngineGpuBufferNew(_nN_ * 4)
+			if _nId_ = 0
+				_FreeIds(_aIds_)
+				return "refused: no device buffer of " + (_nN_ * 4) + " bytes"
+			ok
+			if _i_ <= _nIn_
+				StzEngineGpuBufferFillLcg(_nId_, _nN_, 7 + _i_)
+			ok
+			_aIds_ + _nId_
+		next
+		_aScal_ = _OrderedScalars(_oRef_, This.Bindings())
+		_nBytes_ = (_nIn_ + 1) * _nN_ * 4
+		_nFlops_ = _oRef_.OperationsPerElement() * _nN_
+		_nSt_ = StzEngineGpuVerifyRoofline(_nKer_, _nN_, _aScal_, _aIds_, ceil(_nN_ / 256.0), _nBytes_, _nFlops_, 7)
+		_FreeIds(_aIds_)
+		if _nSt_ != 0
+			return "refused: the roofline could not run (" + StzEngineGpuLastError() + ")"
+		ok
+		_cBound_ = "memory"
+		if StzEngineGpuVerifyResult(30) = 2
+			_cBound_ = "compute"
+		ok
+		return [
+			:elements = _nN_,
+			:bytes = _nBytes_,
+			:flops = _nFlops_,
+			:ms = StzEngineGpuVerifyResult(24),
+			:gpums = StzEngineGpuVerifyResult(25),
+			:gbs = StzEngineGpuVerifyResult(26),
+			:floorgbs = StzEngineGpuVerifyResult(10),
+			:bandwidthfraction = StzEngineGpuVerifyResult(27),
+			:gflops = StzEngineGpuVerifyResult(28),
+			:peakgflops = StzEngineGpuVerifyResult(17),
+			:peakfraction = StzEngineGpuVerifyResult(29),
+			:bound = _cBound_
+		]
 
 	# Grades on the CPU alone, by the interpreter at both shapes, whatever device the machine has.
 	#
@@ -280,6 +447,9 @@ class stzKernelPuzzle from stzObject
 		if _cV_ != "verified"
 			return _cV_
 		ok
+		if This.HiddenElements() > 0
+			return This._CompareOnCpu(poRef, poK, This.HiddenBindings(), This.HiddenElements(), "-hidden")
+		ok
 		# the hidden shape: odd, tile-uneven, the reversed tail of each input
 		_nB_ = floor(nN * 5 / 7)
 		if _nB_ < 1
@@ -316,6 +486,7 @@ class stzKernelPuzzle from stzObject
 		catch
 			return "refused: " + StzReplace(cCatchError, "stzKernelMaker: ", "")
 		done
+		_nBand_ = This.Band()
 		for _i_ = 1 to nN
 			_r_ = _aR_[_i_]
 			_c_ = _aC_[_i_]
@@ -324,7 +495,7 @@ class stzKernelPuzzle from stzObject
 			if _bRNan_ and _bCNan_
 				loop
 			ok
-			if _bRNan_ or _bCNan_ or fabs(_r_ - _c_) > 0.000001
+			if _bRNan_ or _bCNan_ or fabs(_r_ - _c_) > _nBand_
 				return "mismatch" + cSuffix + " at element " + _i_
 			ok
 		next
@@ -356,8 +527,10 @@ class stzKernelPuzzle from stzObject
 				_a_ + 1
 			on "tenths"
 				_a_ + ((_i_ % 10) / 10.0)
+			on "mod7"
+				_a_ + ((_i_ * 3) % 7)
 			other
-				StzRaise("stzKernelPuzzle '" + @cId + "': unknown data recipe '" + pcRecipe + "' (ramp, half, mod13, ones, tenths).")
+				StzRaise("stzKernelPuzzle '" + @cId + "': unknown data recipe '" + pcRecipe + "' (ramp, half, mod13, mod7, ones, tenths).")
 			end
 		next
 		return _a_

@@ -52,6 +52,9 @@ class stzKernelMaker from stzObject
 	@cBody = ""
 	@cWgsl = ""
 	@cGuard = ""
+	@cWidth = ""
+	@aShared = []
+	@aSchedule = []
 
 	# Creates an empty kernel description, to be filled with the vectors, scalars, output and body of an elementwise computation.
 	#
@@ -118,6 +121,76 @@ class stzKernelMaker from stzObject
 	#   see        ForEachElement, WithoutGuard
 	def Guard(pcW)
 		@cGuard = lower("" + pcW)
+		@cWgsl = ""
+		return This
+
+	# Declares an array of floats in the workgroup's shared memory, which the threads of one group write in a stage and read after it.
+	#
+	#   pcName     the array's name, read in an expression as @Name[index]
+	#   nSize      the number of floats, from 1 to 1024 (a group has 16 KB of shared memory in all)
+	#   returns    the object itself
+	#   note       KP3 (2026-10-27): WGSL fills it with zeros when the group starts
+	#   see        Stage, Reduce
+	def Shared(pcName, nSize)
+		@aShared + ("shared " + lower("" + pcName) + " " + nSize)
+		@cWgsl = ""
+		return This
+
+	# Adds a stage to the schedule: every thread of the group writes one slot of a shared array, then all wait at a barrier.
+	#
+	#   pcW        the write in braces, such as '{ @t[@l] = @a }' -- the slot, then the value
+	#   returns    the object itself
+	#   note       a stage may read the inputs, the group's names (@l, @g, @lx, @ly, @row, @col), the
+	#              scalars and the OTHER shared arrays; reading the array it writes is refused, because
+	#              the threads would race
+	#   see        Shared, Reduce, Tiles
+	def Stage(pcW)
+		@aSchedule + ("stage " + pcW)
+		@cWgsl = ""
+		return This
+
+	# Adds a reduce to the schedule: the halving tree over a shared array, with a barrier at each step; the result lands in slot 0.
+	#
+	#   pcName     the shared array, whose size is a power of two up to 256
+	#   pcOp       sum, max or min
+	#   returns    the object itself
+	#   see        Stage, Shared
+	def Reduce(pcName, pcOp)
+		@aSchedule + ("reduce " + lower("" + pcName) + " " + lower("" + pcOp))
+		@cWgsl = ""
+		return This
+
+	# Opens the tiles loop: the stages and the accumulate added after this call repeat, the variable counting from 0.
+	#
+	#   pcVar      the loop variable's name, read bare in the stages after it
+	#   pcCount    the number of turns in braces, over scalars, n and numbers only: '{ k / 16 }'
+	#   returns    the object itself
+	#   note       the count must be the same for every thread, or a barrier inside the loop would wait
+	#              for threads that left it
+	#   see        Accumulate, Width
+	def Tiles(pcVar, pcCount)
+		@aSchedule + ("tiles " + lower("" + pcVar) + " " + pcCount)
+		@cWgsl = ""
+		return This
+
+	# Adds the accumulate line inside the tiles loop: each thread's running value @acc, kept across turns and read by the body.
+	#
+	#   pcW        the update in braces, such as '{ @acc = @acc + sum(j, 0, 16, @x[j] * @y[j]) }'
+	#   returns    the object itself
+	#   see        Tiles
+	def Accumulate(pcW)
+		@aSchedule + ("accumulate " + pcW)
+		@cWgsl = ""
+		return This
+
+	# Makes the output a matrix of the given width, worked in 16 x 16 tiles: each group computes one tile, and @row and @col name a thread's cell.
+	#
+	#   pW         a declared scalar's name or a number, a multiple of 16
+	#   returns    the object itself
+	#   note       the element count must be a whole number of 16-row tiles of that width
+	#   see        Tiles
+	def Width(pW)
+		@cWidth = lower("" + pW)
 		@cWgsl = ""
 		return This
 
@@ -268,6 +341,17 @@ class stzKernelMaker from stzObject
 		if @cOut != ""
 			_c_ += "out " + @cOut + char(10)
 		ok
+		if @cWidth != ""
+			_c_ += "width " + @cWidth + char(10)
+		ok
+		_nL_ = len(@aShared)
+		for _i_ = 1 to _nL_
+			_c_ += @aShared[_i_] + char(10)
+		next
+		_nL_ = len(@aSchedule)
+		for _i_ = 1 to _nL_
+			_c_ += @aSchedule[_i_] + char(10)
+		next
 		if @cGuard != ""
 			_c_ += "guard " + @cGuard + char(10)
 		ok

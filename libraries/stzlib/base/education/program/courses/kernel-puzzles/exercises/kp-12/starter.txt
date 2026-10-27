@@ -1,0 +1,4 @@
+in a
+in b
+scalar alpha
+out c

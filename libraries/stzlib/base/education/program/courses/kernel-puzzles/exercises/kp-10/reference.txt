@@ -1,0 +1,13 @@
+in a
+in b
+scalar k
+scalar w
+out c
+width w
+shared ta 256
+shared tb 256
+tiles t { k / 16 }
+stage { @ta[@ly * 16 + @lx] = @a[@row * k + t * 16 + @lx] }
+stage { @tb[@ly * 16 + @lx] = @b[(t * 16 + @ly) * w + @col] }
+accumulate { @acc = @acc + sum(j, 0, 16, @ta[@ly * 16 + j] * @tb[j * 16 + @lx]) }
+body { @c = @acc }

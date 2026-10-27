@@ -1,0 +1,13 @@
+# The starter, untouched: no body yet.
+k = StzKernelMakerQ()
+k.TakesVector(:a)
+k.TakesVector(:b)
+k.TakesScalar(:k)
+k.TakesScalar(:w)
+k.ReturnsVector(:c)
+k.Width(:w)
+k.Shared(:ta, 256)
+k.Shared(:tb, 256)
+k.Tiles(:t, '{ k / 16 }')
+k.Stage('{ @ta[@ly * 16 + @lx] = @a[@row * k + t * 16 + @lx] }')
+? StzKernelPuzzleQ("kp-10").Grade(k)

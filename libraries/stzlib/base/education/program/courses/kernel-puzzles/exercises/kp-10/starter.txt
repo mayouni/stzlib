@@ -1,0 +1,10 @@
+in a
+in b
+scalar k
+scalar w
+out c
+width w
+shared ta 256
+shared tb 256
+tiles t { k / 16 }
+stage { @ta[@ly * 16 + @lx] = @a[@row * k + t * 16 + @lx] }

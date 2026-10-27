@@ -1,0 +1,9 @@
+in a
+out c
+shared m 256
+shared s 256
+stage { @m[@l] = @a }
+reduce m max
+stage { @s[@l] = exp(@a - @m[0]) }
+reduce s sum
+body { @c = exp(@a - @m[0]) / @s[0] }

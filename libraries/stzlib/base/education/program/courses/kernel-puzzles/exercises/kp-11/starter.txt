@@ -1,0 +1,4 @@
+in a
+out c
+shared m 256
+shared s 256

@@ -1,0 +1,10 @@
+# Right too: every thread reads its whole row and column from memory, k numbers each, no tiles.
+k = StzKernelMakerQ()
+k.TakesVector(:a)
+k.TakesVector(:b)
+k.TakesScalar(:k)
+k.TakesScalar(:w)
+k.ReturnsVector(:c)
+k.Width(:w)
+k.ForEachElement('{ @c = sum(j, 0, k, @a[@row * k + j] * @b[j * w + @col]) }')
+? StzKernelPuzzleQ("kp-10").Grade(k)

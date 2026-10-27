@@ -46,17 +46,51 @@ const sw = if (want_sound) @import("soundwasm.zig") else struct {};
 const sdsp = if (want_sound) @import("sounddsp.zig") else struct {};
 const sins = if (want_sound) @import("soundinstr.zig") else struct {};
 
-// -- marshalling heap (always present): a bump allocator over a static buffer in
-//    linear memory. 16-aligned so marshalled f64 views are aligned; kept small
-//    because wasm-ld emits it as real bytes (the edge marshals only a few rows).
-var heap: [1 << 13]u8 align(16) = undefined; // 8 KiB
-var heap_off: usize = 0;
+// -- marshalling heap (always present). Two parts:
+//    NEAR: a 64 KiB arena right after the module's image (__heap_base, past the
+//    data and the stack), for the small marshalling most pages do;
+//    FAR: for anything larger, pages THIS allocator grows itself, at the end of
+//    the memory -- never pages a page grew for its own use (stz-music.js claims
+//    the region above the module and relies on the module not allocating there).
+//    Until 2026-10-27 the heap was a static 8 KiB buffer that answered 0 when
+//    full, and the puzzle page never checked: a puzzle with more than 8 KiB of
+//    data wrote its inputs and its output at address 0, one over the other.
+//    One-input puzzles passed by luck; puzzle 2, with two inputs, read b where
+//    a was owed and refused its own reference in the browser. Found by KP3's
+//    browser check. 16-aligned so f64 views are aligned; 0 means "no room".
+extern const __heap_base: u8;
+const NEAR: usize = 64 * 1024;
+var near_off: usize = 0;
+var far_base: usize = 0;
+var far_end: usize = 0;
+var far_off: usize = 0;
 
 export fn stz_alloc(n: usize) callconv(.c) u32 {
-    const base = std.mem.alignForward(usize, heap_off, 8);
-    if (base + n > heap.len) return 0;
-    heap_off = base + n;
-    return @intCast(@intFromPtr(&heap[base]));
+    const start = std.mem.alignForward(usize, @intFromPtr(&__heap_base), 16);
+    const nb = std.mem.alignForward(usize, near_off, 16);
+    if (nb + n <= NEAR) {
+        near_off = nb + n;
+        return @intCast(start + nb);
+    }
+    var fb = std.mem.alignForward(usize, far_off, 16);
+    if (far_end != 0 and far_base + fb + n <= far_end) {
+        far_off = fb + n;
+        return @intCast(far_base + fb);
+    }
+    const size = @wasmMemorySize(0) * 65536;
+    if (far_end == 0 or far_end != size) {
+        // first far request, or the page grew the memory after us: a fresh region at the end
+        far_base = size;
+        far_end = size;
+        far_off = 0;
+        fb = 0;
+    }
+    const need = far_base + fb + n - far_end;
+    const pages = (need + 65535) / 65536;
+    if (@wasmMemoryGrow(0, pages) < 0) return 0;
+    far_end += pages * 65536;
+    far_off = fb + n;
+    return @intCast(far_base + fb);
 }
 
 export fn stz_free(ptr: u32, n: usize) callconv(.c) void {
@@ -65,7 +99,8 @@ export fn stz_free(ptr: u32, n: usize) callconv(.c) void {
 }
 
 export fn stz_reset() callconv(.c) void {
-    heap_off = 0;
+    near_off = 0;
+    far_off = 0;
 }
 
 // A version/ABI probe the bridge calls to confirm it loaded a stz.wasm.
@@ -174,6 +209,14 @@ fn spec_eval_masked(ins_ptr: u32, n_ins: i32, lens_ptr: u32, scalars_ptr: u32, n
 }
 fn spec_eval_flops() callconv(.c) f64 {
     return gpu_wgsl.stz_gpu_spec_eval_flops();
+}
+// KP3: the roof kernels, so a browser measures its adapter's roofs with GK3's texts
+fn roof_wgsl(which: i32, out_ptr: u32, cap: usize) callconv(.c) i32 {
+    const out: [*]u8 = @ptrFromInt(@as(usize, out_ptr));
+    return gpu_wgsl.stz_gpu_roof_wgsl(which, out, @floatFromInt(cap));
+}
+fn roof_number(which: i32) callconv(.c) f64 {
+    return gpu_wgsl.stz_gpu_roof_number(which);
 }
 
 
@@ -391,6 +434,8 @@ comptime {
         @export(&spec_compile, .{ .name = "stz_gpu_spec_compile" });
         @export(&spec_eval_masked, .{ .name = "stz_gpu_spec_eval_masked" });
         @export(&spec_eval_flops, .{ .name = "stz_gpu_spec_eval_flops" });
+        @export(&roof_wgsl, .{ .name = "stz_gpu_roof_wgsl" });
+        @export(&roof_number, .{ .name = "stz_gpu_roof_number" });
     }
     if (want_graph) {
         // graph.zig's functions are already callconv(.c) with a pointer/handle

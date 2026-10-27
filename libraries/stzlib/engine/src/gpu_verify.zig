@@ -71,7 +71,15 @@ pub const R_FLOPS = 18; // GK3: the FLOPs the caller declared for the candidate 
 pub const R_MIN_MS_COMPUTE = 19; // GK3: the compute-only floor for those FLOPs, ms
 pub const R_PEAK_WARM = 20; // GK3: dispatches of the peak kernel until its time stopped improving
 pub const R_MARGIN = 21; // GK6: floats of NaN margin after the output region (0 = none)
-pub const RESULT_SLOTS = 24;
+// KP3: a kernel under the two roofs (stz_gpu_verify_roofline)
+pub const R_ROOF_MS = 24; // best dispatch+sync wall time, the floor's own instrument
+pub const R_ROOF_GPU_MS = 25; // best GPU-clock time, -1 without timestamps
+pub const R_ROOF_GBS = 26; // bytes over the wall time
+pub const R_ROOF_BW_FRACTION = 27; // of the measured copy floor
+pub const R_ROOF_GFLOPS = 28;
+pub const R_ROOF_PEAK_FRACTION = 29; // of the measured (or pinned) compute peak
+pub const R_ROOF_BOUND = 30; // 1 = under the bandwidth roof, 2 = under the compute roof (by intensity)
+pub const RESULT_SLOTS = 32;
 
 /// GK6: the NaN margin after a spec-checked candidate's output region. One
 /// workgroup's worth: a kernel that drops its bounds guard writes up to 255
@@ -163,7 +171,7 @@ pub fn stz_gpu_verify_declare_flops(visible: f64, hidden: f64) callconv(.c) void
     declared_flops_b = if (hidden > 0) hidden else 0;
 }
 
-pub const COPY_N: usize = 4 * 1024 * 1024; // 16 MB in + 16 MB out per copy
+pub const COPY_N = wgsl.COPY_N;
 
 pub const SUBMIT_WGSL =
     \\struct StzTile { xoff: u32, p0: u32, p1: u32, p2: u32 };
@@ -173,69 +181,19 @@ pub const SUBMIT_WGSL =
     \\fn main() { o[0] = o[0] + f32(tile.xoff); }
 ;
 
-pub const COPY_WGSL =
-    \\struct StzTile { xoff: u32, p0: u32, p1: u32, p2: u32 };
-    \\@group(0) @binding(0) var<uniform> tile : StzTile;
-    \\@group(0) @binding(1) var<storage, read> a : array<f32>;
-    \\@group(0) @binding(2) var<storage, read_write> o : array<f32>;
-    \\@compute @workgroup_size(256)
-    \\fn main(@builtin(global_invocation_id) gid : vec3<u32>) {
-    \\  let i = gid.x + tile.xoff * 256u;
-    \\  if (i < 4194304u) { o[i] = a[i]; }
-    \\}
-;
+// KP3: the copy kernel and the peak kernel live in gpu_wgsl.zig, which the wasm
+// carries, so a browser measures its roofs with the same texts.
+pub const COPY_WGSL = wgsl.COPY_WGSL;
 
-// ---------------------------------------------------------------- the peak kernel (GK3)
-// A register-only fma kernel: `chains` independent accumulators per thread
-// through p.iters rounds of fma(x, m, b) with m and b from the params uniform
-// (so nothing folds at compile time), the body unrolled `unroll` times so the
-// loop's counter, compare and branch are amortised over unroll*chains fmas.
-// Every accumulator is a NAMED SCALAR -- GK2b's lesson: an array indexed by a
-// loop variable lands in local memory and measures the memory, not the ALU.
-pub fn fmaSource(comptime chains: usize, comptime unroll: usize) []const u8 {
-    @setEvalBranchQuota(400000);
-    {
-        comptime var s: []const u8 =
-            \\struct StzTile { xoff : u32, p0 : u32, p1 : u32, p2 : u32 }
-            \\@group(0) @binding(0) var<uniform> tile : StzTile;
-            \\struct P { iters : u32, n : u32, m : f32, b : f32 }
-            \\@group(0) @binding(1) var<uniform> p : P;
-            \\@group(0) @binding(2) var<storage, read> a : array<f32>;
-            \\@group(0) @binding(3) var<storage, read_write> o : array<f32>;
-            \\@compute @workgroup_size(256)
-            \\fn main(@builtin(global_invocation_id) gid : vec3<u32>) {
-            \\  let i = gid.x + tile.xoff * 256u;
-            \\  if (i >= p.n) { return; }
-            \\  let s = a[i];
-            \\
-        ;
-        for (0..chains) |k| {
-            s = s ++ std.fmt.comptimePrint("  var x{d} = s + {d}.0 * 0.125;\n", .{ k, k });
-        }
-        s = s ++ "  for (var k = 0u; k < p.iters; k = k + 1u) {\n";
-        for (0..unroll) |_| {
-            for (0..chains) |k| {
-                s = s ++ std.fmt.comptimePrint("    x{d} = fma(x{d}, p.m, p.b);\n", .{ k, k });
-            }
-        }
-        s = s ++ "  }\n  o[i] = x0";
-        for (1..chains) |k| {
-            s = s ++ std.fmt.comptimePrint(" + x{d}", .{k});
-        }
-        s = s ++ ";\n}\n";
-        return s;
-    }
-}
+pub const fmaSource = wgsl.fmaSource;
 
 pub const PeakParams = extern struct { iters: u32, n: u32, m: f32, b: f32 };
-/// The densest variant the probe measured (16 chains, body x16: 256 fma per
-/// round) reached 97% of 2048 lanes x 2 x the 3050's 2.1 GHz max clock.
-pub const PEAK_CHAINS: usize = 16;
-pub const PEAK_UNROLL: usize = 16;
-pub const PEAK_WGSL = fmaSource(PEAK_CHAINS, PEAK_UNROLL);
-pub const PEAK_THREADS: usize = 4096 * 256; // 1,048,576: enough waves for any adapter here
-pub const PEAK_ROUNDS: u32 = 1024; // 4 ms on the 3050, ~35 ms on the iGPU: a BURST, on purpose
-pub const PEAK_FLOPS: f64 = @as(f64, @floatFromInt(PEAK_THREADS * PEAK_CHAINS * 2)) * @as(f64, @floatFromInt(PEAK_ROUNDS));
+pub const PEAK_CHAINS = wgsl.PEAK_CHAINS;
+pub const PEAK_UNROLL = wgsl.PEAK_UNROLL;
+pub const PEAK_WGSL = wgsl.PEAK_WGSL;
+pub const PEAK_THREADS = wgsl.PEAK_THREADS;
+pub const PEAK_ROUNDS = wgsl.PEAK_ROUNDS;
+pub const PEAK_FLOPS = wgsl.PEAK_FLOPS;
 
 fn onDeviceClose() void {
     floors_ready = false;
@@ -423,6 +381,64 @@ fn ensureFloors() bool {
     return true;
 }
 
+/// KP3: one fresh round of the bus floors, FOLDED IN: the submit floor only
+/// gets smaller and the copy bandwidth only larger, because a floor is the
+/// fastest the device does. Measured 2026-10-27: the System's checker runs four
+/// learner programs side by side, each measuring its floors while the others
+/// had the device; a floor read in that slow state made a 4,096-element SAXPY
+/// "impossible" in 2 of 8 self-proofs -- the GK0 control's failure, under
+/// contention instead of a cold card. Returns whether either floor improved.
+fn foldBusFloors() bool {
+    const ks = gpu.stz_gpu_kernel_compile(SUBMIT_WGSL.ptr, @floatFromInt(SUBMIT_WGSL.len));
+    if (ks == 0) return false;
+    const tiny = gpu.stz_gpu_buffer_new(256);
+    if (tiny == 0) return false;
+    defer _ = gpu.stz_gpu_buffer_free(tiny);
+    const ids1 = [_]i64{tiny};
+    const kc = gpu.stz_gpu_kernel_compile(COPY_WGSL.ptr, @floatFromInt(COPY_WGSL.len));
+    if (kc == 0) return false;
+    const nbytes: f64 = @floatFromInt(COPY_N * 4);
+    const src = gpu.stz_gpu_buffer_new(nbytes);
+    if (src == 0) return false;
+    defer _ = gpu.stz_gpu_buffer_free(src);
+    const dst = gpu.stz_gpu_buffer_new(nbytes);
+    if (dst == 0) return false;
+    defer _ = gpu.stz_gpu_buffer_free(dst);
+    const ids2 = [_]i64{ src, dst };
+    const wx: f64 = @floatFromInt(COPY_N / 256);
+    _ = minPlainDispatchMs(ks, &ids1, 1, 1);
+    const sm = minPlainDispatchMs(ks, &ids1, 1, 7) orelse return false;
+    _ = minPlainDispatchMs(kc, &ids2, wx, 1);
+    const cm = minPlainDispatchMs(kc, &ids2, wx, 5) orelse return false;
+    var better = false;
+    if (sm < submit_floor_ms) {
+        submit_floor_ms = sm;
+        better = true;
+    }
+    if (cm > 0) {
+        const bps = (2.0 * nbytes) / (cm / 1000.0);
+        if (bps > floor_bps) {
+            floor_bps = bps;
+            better = true;
+        }
+    }
+    return better;
+}
+
+/// Before a time is refused as impossible by the BUS floors, measure them again
+/// (twice at most) and judge against the faster reading. Returns the new floor.
+fn confirmBusRefusal(bytes: f64, flops: f64, ms: f64, min_ms: f64) f64 {
+    var m = min_ms;
+    var tries: usize = 0;
+    while (ms < m and tries < 2) : (tries += 1) {
+        if (!foldBusFloors()) break;
+        m = minPossibleMs(bytes, flops, floor_bps, submit_floor_ms, effectivePeak());
+    }
+    result[R_FLOOR_GBS] = floor_bps / 1e9;
+    result[R_SUBMIT_FLOOR_MS] = submit_floor_ms;
+    return m;
+}
+
 /// ~`ms` of back-to-back dense dispatches: the thing that moves the governor.
 fn burstCompute(ms: u64) bool {
     const kp = gpu.stz_gpu_kernel_compile(PEAK_WGSL.ptr, @floatFromInt(PEAK_WGSL.len));
@@ -565,6 +581,51 @@ pub fn minComputeMs(flops: f64, peak: f64) f64 {
 
 pub fn judgeWith(bytes: f64, flops: f64, ms: f64, bps: f64, submit_ms: f64, peak: f64) i32 {
     return if (ms < minPossibleMs(bytes, flops, bps, submit_ms, peak)) V_IMPOSSIBLE else V_VERIFIED;
+}
+
+/// KP3: where a kernel stands under this device's two roofs. Runs `kernel`
+/// on the caller's buffers `reps` times (after two warm dispatches) and keeps
+/// the best dispatch+sync wall time -- the instrument the copy floor is
+/// measured with, so the fraction is like for like -- and the best GPU-clock
+/// time beside it when there are timestamps. `bytes` and `flops` are the
+/// kernel's ESSENTIAL traffic and work (each input read once, the output
+/// written once; one per operator per element): the roofline's convention,
+/// so a kernel that rereads memory shows a lower fraction, which is the point.
+/// The kernel's intensity (flops / bytes) against the ridge (peak / bandwidth)
+/// says which roof is the lower one for it. 0, or -1 with no device.
+pub fn stz_gpu_verify_roofline(kernel: i64, params: [*]const u8, plen: f64, ids: [*]const i64, nids: i32, wx: f64, bytes: f64, flops: f64, reps: f64) callconv(.c) i32 {
+    if (!ensureFloors()) return -1;
+    const pr = params[0..@intFromFloat(plen)];
+    const id = ids[0..@intCast(nids)];
+    const two = ensureTs();
+    var g: f64 = 0;
+    _ = timedDispatch(kernel, pr, id, wx, false, &g) orelse return -1;
+    _ = timedDispatch(kernel, pr, id, wx, false, &g) orelse return -1;
+    var best_wall: f64 = std.math.inf(f64);
+    var best_gpu: f64 = std.math.inf(f64);
+    const n: usize = if (reps >= 1) @intFromFloat(reps) else 7;
+    for (0..n) |_| {
+        const wall = timedDispatch(kernel, pr, id, wx, two, &g) orelse return -1;
+        if (wall < best_wall) best_wall = wall;
+        if (g > 0 and g < best_gpu) best_gpu = g;
+    }
+    const peak = effectivePeak();
+    result[R_ROOF_MS] = best_wall;
+    result[R_ROOF_GPU_MS] = if (best_gpu == std.math.inf(f64)) -1 else best_gpu;
+    const gbs = bytes / (best_wall / 1000.0) / 1e9;
+    result[R_ROOF_GBS] = gbs;
+    result[R_FLOOR_GBS] = floor_bps / 1e9;
+    result[R_ROOF_BW_FRACTION] = if (floor_bps > 0) gbs / (floor_bps / 1e9) else 0;
+    const gflops = flops / (best_wall / 1000.0) / 1e9;
+    result[R_ROOF_GFLOPS] = gflops;
+    result[R_PEAK_GFLOPS] = peak / 1e9;
+    result[R_ROOF_PEAK_FRACTION] = if (peak > 0) gflops / (peak / 1e9) else 0;
+    const ridge = if (floor_bps > 0) peak / floor_bps else 0;
+    result[R_ROOF_BOUND] = if (bytes > 0 and flops / bytes >= ridge) 2 else 1;
+    result[R_BYTES] = bytes;
+    result[R_FLOPS] = flops;
+    result[R_SUBMIT_FLOOR_MS] = submit_floor_ms;
+    return 0;
 }
 
 /// Is a dispatch over `bytes` in `ms` physically possible on this device?
@@ -908,6 +969,10 @@ pub fn stz_gpu_verify(
         result[R_MIN_MS] = min_ms;
         result[R_MIN_MS_COMPUTE] = minComputeMs(flops_a, p2);
     }
+    if (faster < min_ms) {
+        min_ms = confirmBusRefusal(bytes, flops_a, faster, min_ms);
+        result[R_MIN_MS] = min_ms;
+    }
     if (ref_min < min_ms) {
         result[R_VERDICT] = V_REF_IMPOSSIBLE;
         return gpu.OK;
@@ -1128,6 +1193,10 @@ pub fn stz_gpu_verify_spec(
         min_ms = minPossibleMs(bytes, flops_a, floor_bps, submit_floor_ms, p2);
         result[R_MIN_MS] = min_ms;
         result[R_MIN_MS_COMPUTE] = minComputeMs(flops_a, p2);
+    }
+    if (cand_min < min_ms) {
+        min_ms = confirmBusRefusal(bytes, flops_a, cand_min, min_ms);
+        result[R_MIN_MS] = min_ms;
     }
     if (cand_min < min_ms) {
         result[R_VERDICT] = V_IMPOSSIBLE;

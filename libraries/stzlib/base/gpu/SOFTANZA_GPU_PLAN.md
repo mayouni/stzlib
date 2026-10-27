@@ -3112,3 +3112,126 @@ Next: the author's two puzzles and their verdict, written here with their
 name; then **KP3** (gated: workgroup memory and a barrier for the tiled
 matmul, softmax and the bandwidth puzzle that reads GK3's roofline) or
 **GK5** (f16 weights on the device), whichever the author names.
+
+## KP3 STATUS — built 2026-10-27: the group's memory, puzzles 9 to 12, the roofline in the page; the person is owed
+
+**What the grammar admits now.** KP0 stopped at the reduction one thread
+can do. KP3 admits what a tiled matrix product needs, each in the
+transpiler and the interpreter through one parser, refused in the same
+words by both:
+
+| line | what it is | the kernel's side |
+|---|---|---|
+| `shared t 256` | an array of floats in the group's memory, 1 to 1,024, 16 KB in all | `var<workgroup>`, zeroed by the kernel itself at entry |
+| `stage { @t[@l] = @a }` | one write per thread, then a barrier | the write under a bounds test, `workgroupBarrier()` after |
+| `reduce t sum` (`max`, `min`) | the halving tree into slot 0, a barrier per step | a uniform loop over `s_ = size / 2 ...` |
+| `tiles t { k / 16 }` | the stages and the accumulate after it repeat; the count over scalars, `n` and numbers only, so every thread reaches every barrier | a `for` over `t_t` |
+| `accumulate { @acc = ... }` | a thread's running value across turns, read by the body | `var acc`, a barrier after |
+| `width w` | the output a matrix in 16 x 16 tiles; `@row`, `@col`, `@lx`, `@ly` | the group's tile from `wid.x`, the cell from `l` |
+
+`@l` and `@g` (the thread's place in its group, the group's number) are
+readable anywhere. In a stage or an accumulate, `@a` alone is a bounded
+read, because those lines run for every thread of the group, the ones
+past the input included. The six refusals: a stage that reads the array
+it writes ("the threads would race"); a tiles count that reads anything
+per thread; `@row` without a width line; a shared array read without a
+slot; a reduce over a size that is not a power of two up to 256; an
+accumulate outside a tiles loop. The interpreter runs a **group at a time**:
+every item of the schedule over all 256 threads before the next starts,
+which is what a barrier promises. A spec with none of these lines emits the
+same WGSL as before, byte for byte (the GK6 test holds it).
+
+**Measured, RTX 3050 through wgpu-native under rnxc, 2026-10-27:**
+
+| kernel | verdict | note |
+|---|---|---|
+| each group of 4,096 reversed through a stage | verified at the visible shape and the derived hidden one (2,925, last group partial) | 0.0041 ms on the GPU clock |
+| a kernel reading shared memory no stage wrote | mismatch at element 1 | **passed the visible shape before the kernel zeroed its own memory** |
+| a reduce, the sum of each group | verified | |
+| softmax of 16 rows of 256 | verified; the device's `exp` within **0.47 billionths** of the CPU's at band 0 | without the max: 0.93 billionths, verified at the default band |
+| tiled product, 32 x 64 times 64 x 48, hidden 16 x 80 times 80 x 32 | verified | 0.0110 ms on the GPU clock |
+| the plain loop, same product | verified | 0.0174 ms |
+| one tile only | mismatch at element 1 | |
+
+**Three defects found on the way, one of them older than this rung.**
+
+- **wgpu-native did not zero workgroup memory.** WGSL promises it. A
+  kernel with no stage read the previous kernel's values on the 3050 and
+  passed the visible shape; only the hidden shape caught it. The kernel now
+  zeroes its shared arrays itself before the schedule, so every runtime means
+  what the interpreter means. The guard assertion runs the filling kernel
+  first, then the one that reads without a stage.
+- **The browser runner wrote at address 0 since KP1.** The wasm's
+  marshalling heap was a static 8 KiB buffer that answered 0 when full, and
+  the page never checked. A puzzle with more than 8 KiB of data put its
+  inputs and its output at address 0, one over the other. One-input puzzles
+  passed by luck; puzzle 2, with two inputs, read `b` where `a` was owed and
+  would have refused its own reference in a browser. KP2's spot checks
+  (puzzles 5 and 8) never touched it.
+  The heap is now a 64 KiB arena after the module's image plus pages it grows
+  itself (never pages a page claimed: `stz-music.js` grows a region above the
+  module and relies on that), and the page refuses a failed allocation. All
+  twelve puzzles were then run in the pane: every reference verified, every
+  mistake named as on the desktop.
+- **"impossible" under contention.** The System's checker runs four learner
+  programs side by side, each measuring its floors while the others had the
+  device. A floor read in that slow state made puzzle 12's SAXPY "impossible"
+  in 2 of 8 self-proofs. GK3 already re-measured the compute peak before a
+  refusal by compute; the checker now folds a fresh round of the bus floors
+  in (twice at most, the faster reading kept) before any refusal from a real
+  dispatch. 0 of 8 after. The judge on fabricated numbers is unchanged.
+
+**The puzzles**, chapter five ("the group's memory") and chapter six ("the
+roofline") of the course, each with facts, reference, starter, promise
+`verified`, two right and three wrong programs, and tasks in en, fr, ar, ha
+(the last three marked provisional) ending with what the GPU did differently
+from a loop:
+
+| puzzle | reference | the mistakes, as both runners name them |
+|---|---|---|
+| kp-09 each group reversed | `stage { @t[@l] = @a }`, `@c = @t[255 - @l]` | no stage: mismatch at 1; the whole vector reversed: mismatch at 1 |
+| kp-10 tiled product | two stages per turn, `accumulate`, `@c = @acc` | one tile: mismatch at 1; b's tile along the wrong axis: mismatch at 1; the plain loop is the second right answer |
+| kp-11 softmax per row | `reduce m max`, `reduce s sum`, divide | forgets to divide: mismatch at 1; divides by `@s[@l]`: mismatch at 2; without the max is right here |
+| kp-12 SAXPY under the roofs | `@c = alpha * @a + @b` | forgets alpha: mismatch at 2; alpha on both: mismatch at 2 |
+
+A puzzle may now declare its hidden shape whole (`hidden-elements`,
+`hidden-scalar-NAME`, `hidden-input-length-NAME`; the hidden inputs are the
+same recipes at those lengths, reversed): a matrix's hidden shape is another
+matrix, not a reversed tail. `VerifySpecWith` takes `:hidden`, and the
+bridge a twelfth argument for the hidden shape's own scalars. A `band` fact
+sets the compare's allowance, and a `mod7` recipe joins the five.
+
+**The roofline (puzzle 12).** GK3's copy and peak kernels moved to
+`gpu_wgsl.zig`, so `stz.wasm` carries them (`stz_gpu_roof_wgsl`,
+`stz_gpu_roof_number`) and a browser measures its own adapter's roofs with
+the same texts. The desktop face's `Roofline()` times the learner's kernel on
+4,194,304 elements filled on the device (no list crosses) with the floor's
+own instrument, the best dispatch and sync on the wall clock; the page times
+batches of ten dispatches per submission, divided by ten, for the roofs and
+the kernel alike. One dispatch timed with its wait read SAXPY at 174% of the
+copy roof in the browser; the wait resolves late by a millisecond or more.
+Bytes and operations are the essential ones, each input read once and the
+output written once, so a kernel that rereads memory shows a smaller share.
+
+| runner, adapter | SAXPY | SAXPY with 64 extra reads | SAXPY again |
+|---|---|---|---|
+| desktop face, RTX 3050 | 0.53 ms, 1.04 of the copy roof | 0.97 ms, 0.57 | 0.53 ms, 1.05 |
+| browser page, Intel iGPU | 0.93 ms, 97% of 55.9 GB/s | 2.75 ms, 28% of 64.5 GB/s | 1.03 ms, 99% of 49.3 GB/s |
+
+Both read "the bandwidth roof is the lower one" (0.17 operations per byte).
+SAXPY at or a little over the copy roof is within the floor's own noise:
+the copy floor is itself a best-of on the same wall clock.
+
+**Edge proof: 26/26** in the desktop app's browser pane on the Intel iGPU,
+eight cases, three new (`shared-reverse`, `reduce`, `tiled-matmul`): the wasm
+emits byte-identical WGSL and the browser's results equal the 3050's exactly.
+
+**Guard:** `base/test/gpu/gpu_shared_narrated.ring`, 58 assertions, run
+under `rnxc` from the vehicle, two minutes, most of it the System's checker
+proving four exercises by running 20 programs. The power source read AC
+(Windows battery status 2) at 23:41.
+
+**PERCEPTGATE — not yet met.** I ran every puzzle in the pane by script and
+read the roofline sentence; that is an instrument's reading, not a person's.
+The rung is BUILT until the author works one of puzzles 9 to 12 in the page
+and says what it did.

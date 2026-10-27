@@ -1,0 +1,18 @@
+knowledge "kp-12"
+
+facts
+    kp-12 | is-a | exercise
+    kp-12 | in-course | kernel-puzzles
+    kp-12 | in-chapter | the-roofline
+    kp-12 | puzzle-number | 12
+    kp-12 | teaches | a-kernel-under-the-two-roofs
+    kp-12 | starts | red
+
+    kp-12 | elements | 4096
+    kp-12 | input-a | ramp
+    kp-12 | input-b | half
+    kp-12 | scalar-alpha | 2.5
+    kp-12 | roofline-elements | 4194304
+
+    kp-12 | has-mistake | 02-forgets-alpha
+    kp-12 | has-mistake | 03-alpha-on-both

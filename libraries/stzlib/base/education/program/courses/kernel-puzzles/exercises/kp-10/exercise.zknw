@@ -1,0 +1,25 @@
+knowledge "kp-10"
+
+facts
+    kp-10 | is-a | exercise
+    kp-10 | in-course | kernel-puzzles
+    kp-10 | in-chapter | the-group-s-memory
+    kp-10 | puzzle-number | 10
+    kp-10 | teaches | a-tiled-matrix-product
+    kp-10 | starts | red
+
+    kp-10 | elements | 1536
+    kp-10 | input-a | mod13
+    kp-10 | input-b | mod7
+    kp-10 | input-length-a | 2048
+    kp-10 | input-length-b | 3072
+    kp-10 | scalar-k | 64
+    kp-10 | scalar-w | 48
+    kp-10 | hidden-elements | 512
+    kp-10 | hidden-scalar-k | 80
+    kp-10 | hidden-scalar-w | 32
+    kp-10 | hidden-input-length-a | 1280
+    kp-10 | hidden-input-length-b | 2560
+
+    kp-10 | has-mistake | 02-one-tile-only
+    kp-10 | has-mistake | 03-b-tile-sideways

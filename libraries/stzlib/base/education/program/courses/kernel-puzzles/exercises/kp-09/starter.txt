@@ -1,0 +1,3 @@
+in a
+out c
+shared t 256

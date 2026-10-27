@@ -33,6 +33,7 @@
 <textarea id="spec" spellcheck="false"></textarea>
 <div><button id="run">Run the kernel</button> <span class="dim" id="timing"></span></div>
 <div id="verdict" class="wait">waiting for your implementation</div>
+<div id="roof" class="move" style="display:none"></div>
 <pre id="wgsl" class="dim"></pre>
 <script type="module">
 // THE BROWSER RUNNER (KP1 of SOFTANZA_GPU_PLAN.md). One description, two
@@ -72,6 +73,7 @@ function recipe(name, len) {
       case "mod13": a[i] = (i * 7) % 13; break;
       case "ones": a[i] = 1; break;
       case "tenths": a[i] = (i % 10) / 10; break;
+      case "mod7": a[i] = (i * 3) % 7; break;
       default: throw new Error(`unknown data recipe '${name}'`);
     }
   }
@@ -91,18 +93,20 @@ function hiddenInput(v, n, nB) {
 }
 
 const memory = new WebAssembly.Memory({ initial: 64 });
-const { instance } = await WebAssembly.instantiateStreaming(fetch("./stz.wasm"), { env: { memory } });
+const { instance } = await WebAssembly.instantiateStreaming(fetch("./stz.wasm", { cache: "no-store" }), { env: { memory } });
 const E = instance.exports;
 const enc = new TextEncoder();
-function putBytes(bytes) { const p = E.stz_alloc(bytes.length); new Uint8Array(memory.buffer, p, bytes.length).set(bytes); return p; }
-function putF32(arr) { const p = E.stz_alloc(arr.length * 4); new Float32Array(memory.buffer, p, arr.length).set(arr); return p; }
-function putF64(arr) { const p = E.stz_alloc(arr.length * 8); new Float64Array(memory.buffer, p, arr.length).set(arr); return p; }
-function putU32(arr) { const p = E.stz_alloc(arr.length * 4); new Uint32Array(memory.buffer, p, arr.length).set(arr); return p; }
-function wasmError() { const p = E.stz_alloc(256); const n = E.stz_gpu_wgsl_error(p, 256); return new TextDecoder().decode(new Uint8Array(memory.buffer, p, n)); }
+// every allocation is checked: 0 is "no room", and writing there corrupts the module (it did, until 2026-10-27)
+function alloc(bytes) { const p = E.stz_alloc(bytes); if (!p) throw new Error(`the engine's memory refused ${bytes} bytes`); return p; }
+function putBytes(bytes) { const p = alloc(bytes.length); new Uint8Array(memory.buffer, p, bytes.length).set(bytes); return p; }
+function putF32(arr) { const p = alloc(arr.length * 4); new Float32Array(memory.buffer, p, arr.length).set(arr); return p; }
+function putF64(arr) { const p = alloc(arr.length * 8); new Float64Array(memory.buffer, p, arr.length).set(arr); return p; }
+function putU32(arr) { const p = alloc(arr.length * 4); new Uint32Array(memory.buffer, p, arr.length).set(arr); return p; }
+function wasmError() { const p = alloc(256); const n = E.stz_gpu_wgsl_error(p, 256); return new TextDecoder().decode(new Uint8Array(memory.buffer, p, n)); }
 function transpile(spec) {
   E.stz_reset();
-  const sp = putBytes(enc.encode(spec)); const out = E.stz_alloc(8192);
-  const n = E.stz_gpu_wgsl_elementwise(sp, enc.encode(spec).length, out, 8192);
+  const sp = putBytes(enc.encode(spec)); const out = alloc(16384);
+  const n = E.stz_gpu_wgsl_elementwise(sp, enc.encode(spec).length, out, 16384);
   if (n < 0) return { error: wasmError() };
   return { wgsl: new TextDecoder().decode(new Uint8Array(memory.buffer, out, n)) };
 }
@@ -115,7 +119,7 @@ function interpret(spec, inputs, scalars, n) {
   const insP = putU32(new Uint32Array(ptrs));
   const lensP = putF64(new Float64Array(inputs.map(v => v.length)));
   const scP = putF32(new Float32Array(scalars.length ? scalars : [0]));
-  const outP = E.stz_alloc(n * 4); const maskP = E.stz_alloc(n);
+  const outP = alloc(n * 4); const maskP = alloc(n);
   if (E.stz_gpu_spec_eval_masked(insP, inputs.length, lensP, scP, scalars.length, n, outP, maskP) !== 0) throw new Error("the interpreter could not evaluate the reference");
   return { ref: new Float32Array(memory.buffer, outP, n).slice(), mask: new Uint8Array(memory.buffer, maskP, n).slice(), flops: E.stz_gpu_spec_eval_flops() };
 }
@@ -165,13 +169,113 @@ async function runKernel(wgsl, inputs, scalars, n) {
   return { got, ms };
 }
 
-// the verdict words are the desktop face's, letter for letter
+// ---- KP3: the roofline. The roofs are measured here, on this adapter, with the engine's own
+// copy and peak kernels (stz.wasm carries their texts), on the instrument the native floor uses:
+// the best of several dispatch-and-wait times on the wall clock. Measured once per page load.
+function roofText(which) {
+  E.stz_reset();
+  const out = alloc(65536);
+  const n = E.stz_gpu_roof_wgsl(which, out, 65536);
+  if (n < 0) throw new Error("the engine gave no roof kernel");
+  return new TextDecoder().decode(new Uint8Array(memory.buffer, out, n));
+}
+// A browser's wait for the device resolves late by a millisecond or more, which swamps a kernel of
+// two: one dispatch timed with its wait read SAXPY at 174% of the copy roof on 2026-10-27. So each
+// sample is a BATCH of dispatches in one submission, its time divided by the batch -- for the roofs
+// and the learner's kernel alike, so the fraction compares like with like.
+const BATCH = 10;
+async function bestOf(pipeline, bind, groups, reps) {
+  let best = Infinity;
+  for (let r = 0; r < reps; r++) {
+    const enc2 = device.createCommandEncoder();
+    for (let b = 0; b < BATCH; b++) {
+      const pass = enc2.beginComputePass();
+      pass.setPipeline(pipeline); pass.setBindGroup(0, bind); pass.dispatchWorkgroups(groups); pass.end();
+    }
+    const t0 = performance.now();
+    device.queue.submit([enc2.finish()]);
+    await device.queue.onSubmittedWorkDone();
+    best = Math.min(best, (performance.now() - t0) / BATCH);
+  }
+  return best;
+}
+function storage(bytes, fill) {
+  const b = device.createBuffer({ size: bytes, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST });
+  if (fill) { const f = new Float32Array(bytes / 4); for (let i = 0; i < f.length; i++) f[i] = (i % 97) * 0.01; device.queue.writeBuffer(b, 0, f); }
+  return b;
+}
+function uniform(data) {
+  const b = device.createBuffer({ size: Math.max(16, data.byteLength), usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
+  device.queue.writeBuffer(b, 0, data);
+  return b;
+}
+let roofs = null;
+async function measureRoofs() {
+  if (roofs) return roofs;
+  const tile = uniform(new Uint32Array([0, 0, 0, 0]));
+  // the compute roof: GK3's register-only fma kernel, warmed for a second first (GK3: a cold
+  // device reads half its peak)
+  const peakN = E.stz_gpu_roof_number(1), iters = E.stz_gpu_roof_number(2), peakFlops = E.stz_gpu_roof_number(3);
+  const pm = device.createShaderModule({ code: roofText(1) });
+  const pp = device.createComputePipeline({ layout: "auto", compute: { module: pm, entryPoint: "main" } });
+  const prm = new ArrayBuffer(16);
+  new Uint32Array(prm, 0, 2).set([iters, peakN]); new Float32Array(prm, 8, 2).set([0.999, 0.001]);
+  const pbind = device.createBindGroup({ layout: pp.getBindGroupLayout(0), entries: [
+    { binding: 0, resource: { buffer: tile } }, { binding: 1, resource: { buffer: uniform(prm) } },
+    { binding: 2, resource: { buffer: storage(peakN * 4, true) } }, { binding: 3, resource: { buffer: storage(peakN * 4, false) } }] });
+  const t0 = performance.now();
+  while (performance.now() - t0 < 1000) await bestOf(pp, pbind, peakN / 256, 1);
+  const peakMs = await bestOf(pp, pbind, peakN / 256, 5);
+  // the bandwidth roof: GK3's copy kernel, 16 MB in and 16 MB out
+  const copyN = E.stz_gpu_roof_number(0);
+  const cm = device.createShaderModule({ code: roofText(0) });
+  const cp = device.createComputePipeline({ layout: "auto", compute: { module: cm, entryPoint: "main" } });
+  const cbind = device.createBindGroup({ layout: cp.getBindGroupLayout(0), entries: [
+    { binding: 0, resource: { buffer: tile } }, { binding: 1, resource: { buffer: storage(copyN * 4, true) } },
+    { binding: 2, resource: { buffer: storage(copyN * 4, false) } }] });
+  await bestOf(cp, cbind, copyN / 256, 3);
+  const copyMs = await bestOf(cp, cbind, copyN / 256, 5);
+  roofs = { gbs: (2 * copyN * 4) / (copyMs / 1000) / 1e9, gflops: peakFlops / (peakMs / 1000) / 1e9 };
+  return roofs;
+}
+async function roofline(wgsl, refSpec, nIns, scalars, opsPerElement) {
+  const r = await measureRoofs();
+  const N = parseInt(fact(puzzle.facts, "roofline-elements"), 10);
+  const module = device.createShaderModule({ code: wgsl });
+  const pipeline = device.createComputePipeline({ layout: "auto", compute: { module, entryPoint: "main" } });
+  const pbuf = new ArrayBuffer(64);
+  new Uint32Array(pbuf, 0, 2).set([N, 0]);
+  if (scalars.length) new Float32Array(pbuf, 8, scalars.length).set(scalars);
+  const entries = [{ binding: 0, resource: { buffer: uniform(new Uint32Array([0, 0, 0, 0])) } }, { binding: 1, resource: { buffer: uniform(new Uint8Array(pbuf)) } }];
+  for (let k = 0; k < nIns; k++) entries.push({ binding: 2 + k, resource: { buffer: storage(N * 4, true) } });
+  entries.push({ binding: 2 + nIns, resource: { buffer: storage(N * 4, false) } });
+  const bind = device.createBindGroup({ layout: pipeline.getBindGroupLayout(0), entries });
+  await bestOf(pipeline, bind, N / 256, 3);
+  const ms = await bestOf(pipeline, bind, N / 256, 7);
+  const bytes = (nIns + 1) * N * 4, flops = opsPerElement * N;
+  const gbs = bytes / (ms / 1000) / 1e9, gflops = flops / (ms / 1000) / 1e9;
+  const ridge = r.gflops / r.gbs;
+  return { N, ms, bytes, flops, gbs, gflops, roofGbs: r.gbs, roofGflops: r.gflops, bw: gbs / r.gbs, peak: gflops / r.gflops,
+           bound: flops / bytes >= ridge ? "compute" : "memory" };
+}
+function roofSentence(x) {
+  const mb = (x.bytes / 1e6).toFixed(1);
+  return `On ${x.N.toLocaleString("en")} elements your kernel moved ${mb} MB in ${x.ms.toFixed(2)} ms: ` +
+    `${x.gbs.toFixed(1)} GB/s, ${(100 * x.bw).toFixed(0)}% of this device's copy bandwidth (${x.roofGbs.toFixed(1)} GB/s). ` +
+    `It did ${(x.flops / 1e6).toFixed(1)} million operations: ${x.gflops.toFixed(1)} GFLOP/s, ${(100 * x.peak).toFixed(2)}% ` +
+    `of its multiply-add peak (${x.roofGflops.toFixed(0)} GFLOP/s). At ${(x.flops / x.bytes).toFixed(2)} operations per byte, ` +
+    `the ${x.bound === "memory" ? "bandwidth" : "compute"} roof is the lower one for it. ` +
+    `(Wall clock: the best of 7 batches of ${BATCH} dispatches, each batch timed with its wait and divided by ${BATCH}; the roofs were measured the same way.)`;
+}
+
+// the verdict words are the desktop face's, letter for letter; the band is the puzzle's
+function band() { const b = fact(puzzle.facts, "band"); return b ? parseFloat(b) : 1e-6; }
 function judge(got, ref, mask, n, suffix) {
   for (let k = n; k < n + MARGIN; k++) if (!Number.isNaN(got[k])) return `write-outside at element ${k + 1}`;
   for (let i = 0; i < n; i++) {
     if (mask[i] === 0) { if (!Number.isNaN(got[i])) return `mismatch${suffix} at element ${i + 1}`; continue; }
     const d = Math.abs(got[i] - ref[i]);
-    if (!(d <= 1e-6)) return `mismatch${suffix} at element ${i + 1}`;
+    if (!(d <= band())) return `mismatch${suffix} at element ${i + 1}`;
   }
   return null;
 }
@@ -204,6 +308,12 @@ function specFromRing(src) {
     if ((m = l.match(/^k\.TakesVector\(:(\w+)\)/))) out.push("in " + m[1]);
     else if ((m = l.match(/^k\.TakesScalar\(:(\w+)/))) out.push("scalar " + m[1]);
     else if ((m = l.match(/^k\.ReturnsVector\(:(\w+)\)/))) out.push("out " + m[1]);
+    else if ((m = l.match(/^k\.Width\(:?(\w+)\)/))) out.push("width " + m[1]);
+    else if ((m = l.match(/^k\.Shared\(:(\w+),\s*(\d+)\)/))) out.push("shared " + m[1] + " " + m[2]);
+    else if ((m = l.match(/^k\.Stage\('(.*)'\)/))) out.push("stage " + m[1]);
+    else if ((m = l.match(/^k\.Reduce\(:(\w+),\s*:(\w+)\)/))) out.push("reduce " + m[1] + " " + m[2]);
+    else if ((m = l.match(/^k\.Tiles\(:(\w+),\s*'(.*)'\)/))) out.push("tiles " + m[1] + " " + m[2]);
+    else if ((m = l.match(/^k\.Accumulate\('(.*)'\)/))) out.push("accumulate " + m[1]);
     else if (/^k\.WithoutGuard\(\)/.test(l)) out.push("guard none");
     else if ((m = l.match(/^k\.Guard\('(.*)'\)/))) out.push("guard " + m[1]);
     else if ((m = l.match(/^k\.ForEachElement\('(.*)'\)/))) out.push("body " + m[1]);
@@ -283,6 +393,22 @@ function dataFor(spec, n) {
   }
   return { inputs, scalars };
 }
+// KP3: a hidden shape declared whole -- hidden-elements, hidden-scalar-NAME, hidden-input-length-NAME;
+// the hidden inputs are the same recipes at those lengths, reversed (the face does the same)
+function hiddenDeclared(spec) {
+  const hn = parseInt(fact(puzzle.facts, "hidden-elements") || "0", 10);
+  if (!hn) return null;
+  const inputs = [], scalars = [];
+  for (const name of specLines(spec, "in")) {
+    const len = parseInt(fact(puzzle.facts, "hidden-input-length-" + name) || String(hn), 10);
+    inputs.push(recipe(fact(puzzle.facts, "input-" + name), len).reverse());
+  }
+  for (const name of specLines(spec, "scalar")) {
+    const v = fact(puzzle.facts, "hidden-scalar-" + name) || fact(puzzle.facts, "scalar-" + name);
+    scalars.push(parseFloat(v));
+  }
+  return { n: hn, inputs, scalars };
+}
 async function grade(learner) {
   const refSpec = puzzle.reference;
   const t = learner.replace(/\r/g, "").trim();
@@ -297,28 +423,32 @@ async function grade(learner) {
   el("wgsl").textContent = tr.wgsl;
   const n = puzzle.n;
   const { inputs, scalars } = dataFor(refSpec, n);
-  const nB = hiddenCount(n);
-  const hidden = inputs.map(v => hiddenInput(v, n, nB));
+  const hd = hiddenDeclared(refSpec);
+  const nB = hd ? hd.n : hiddenCount(n);
+  const hidden = hd ? hd.inputs : inputs.map(v => hiddenInput(v, n, nB));
+  const scalarsB = hd ? hd.scalars : scalars;
   const refA = interpret(refSpec, inputs, scalars, n);
-  const refB = interpret(refSpec, hidden, scalars, nB);
+  const refB = interpret(refSpec, hidden, scalarsB, nB);
   if (!device) {
     // no WebGPU: the interpreter grades the learner's text too (values only; the margin needs a device)
-    const candA = interpret(learner, inputs, scalars, n), candB = interpret(learner, hidden, scalars, nB);
+    const candA = interpret(learner, inputs, scalars, n), candB = interpret(learner, hidden, scalarsB, nB);
     const vA = judgeCpu(candA, refA, n, ""); if (vA) return { verdict: vA, cls: "bad" };
     const vB = judgeCpu(candB, refB, nB, "-hidden"); if (vB) return { verdict: vB, cls: "bad" };
     return { verdict: "verified", cls: "ok", note: "interpreter only (no WebGPU): values at both shapes; the margin needs a device" };
   }
   const a = await runKernel(tr.wgsl, inputs, scalars, n);
   const vA = judge(a.got, refA.ref, refA.mask, n, ""); if (vA) return { verdict: vA, cls: "bad", ms: a.ms };
-  const b = await runKernel(tr.wgsl, hidden, scalars, nB);
+  const b = await runKernel(tr.wgsl, hidden, scalarsB, nB);
   const vB = judge(b.got, refB.ref, refB.mask, nB, "-hidden"); if (vB) return { verdict: vB, cls: "bad", ms: a.ms };
-  return { verdict: "verified", cls: "ok", ms: a.ms, flops: refA.flops };
+  let roof = null;
+  if (fact(puzzle.facts, "roofline-elements")) roof = await roofline(tr.wgsl, refSpec, inputs.length, scalars, refA.flops / n);
+  return { verdict: "verified", cls: "ok", ms: a.ms, flops: refA.flops, roof };
 }
 function judgeCpu(cand, ref, n, suffix) {
   for (let i = 0; i < n; i++) {
     const rn = Number.isNaN(ref.ref[i]), cn = Number.isNaN(cand.ref[i]);
     if (rn && cn) continue;
-    if (rn || cn || Math.abs(ref.ref[i] - cand.ref[i]) > 1e-6) return `mismatch${suffix} at element ${i + 1}`;
+    if (rn || cn || Math.abs(ref.ref[i] - cand.ref[i]) > band()) return `mismatch${suffix} at element ${i + 1}`;
   }
   return null;
 }
@@ -328,13 +458,17 @@ el("run").addEventListener("click", async () => {
   runs += 1;
   const stamp = `run ${runs} at ${new Date().toLocaleTimeString()}`;
   el("verdict").textContent = "running..."; el("verdict").className = "wait"; el("timing").textContent = stamp;
+  el("roof").style.display = "none";
   el("run").disabled = true;
   try {
     const r = await grade(el("spec").value);
     el("verdict").textContent = r.verdict; el("verdict").className = r.cls;
     el("timing").textContent = stamp + (r.ms !== undefined ? ` -- kernel ${r.ms.toFixed(2)} ms on the device` : "") + (r.flops ? `, ${r.flops} operations in the reference` : "") + (r.note ? ` -- ${r.note}` : "");
+    if (r.roof) { el("roof").textContent = roofSentence(r.roof); el("roof").style.display = "block"; }
   } catch (e) { el("verdict").textContent = "error: " + e.message; el("verdict").className = "bad"; el("timing").textContent = stamp; }
   el("run").disabled = false;
 });
+// the grader's parts, for inspection from the console (nothing on the page reads them)
+window.__puzzle = { grade, interpret, transpile, runKernel, dataFor, hiddenDeclared, get puzzle() { return puzzle; } };
 await load();
 </script>

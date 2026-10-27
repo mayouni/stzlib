@@ -584,8 +584,10 @@ fn ring_Verify(p: *anyopaque) callconv(.c) void {
     )));
 }
 
-// GK6. VerifySpec(cSpec, kCand, nA, aScalars, aIdsA, wxA, nB, aIdsB, wxB, reps, band) -> status.
+// GK6. VerifySpec(cSpec, kCand, nA, aScalars, aIdsA, wxA, nB, aIdsB, wxB, reps, band [, aScalarsB]) -> status.
 // Each id list is the inputs then the CANDIDATE's output buffer (n + margin floats).
+// KP3: a twelfth argument gives the hidden shape its OWN scalars -- a matrix's
+// hidden shape has another width and depth; without it both shapes share aScalars.
 fn ring_VerifySpec(p: *anyopaque) callconv(.c) void {
     const spec = getStr(p, 1);
     var blob_a: [64]u8 = undefined;
@@ -594,7 +596,8 @@ fn ring_VerifySpec(p: *anyopaque) callconv(.c) void {
         rn(p, gpu.BAD_ARG);
         return;
     };
-    const lb = packParams(p, @intFromFloat(gn(p, 7)), 4, &blob_b) orelse {
+    const scal_b: c_int = if (R.ring_vm_api_paracount(p) >= 12) 12 else 4;
+    const lb = packParams(p, @intFromFloat(gn(p, 7)), scal_b, &blob_b) orelse {
         rn(p, gpu.BAD_ARG);
         return;
     };
@@ -627,6 +630,22 @@ fn ring_VerifySpec(p: *anyopaque) callconv(.c) void {
         gn(p, 10),
         gn(p, 11),
     )));
+}
+
+// KP3. VerifyRoofline(hKernel, nElems, aScalars, aIds, wx, bytes, flops, reps) -> status
+// (0, or -1 with no device); the numbers are read with VerifyResult(24..30).
+fn ring_VerifyRoofline(p: *anyopaque) callconv(.c) void {
+    var blob: [64]u8 = undefined;
+    const l = packParams(p, @intFromFloat(gn(p, 2)), 3, &blob) orelse {
+        rn(p, gpu.BAD_ARG);
+        return;
+    };
+    var ids: [8]i64 = undefined;
+    const ni = readIds(p, 4, &ids) orelse {
+        rn(p, gpu.BAD_ARG);
+        return;
+    };
+    rn(p, @floatFromInt(verify.stz_gpu_verify_roofline(@intFromFloat(gn(p, 1)), &blob, @floatFromInt(l), &ids, @intCast(ni), gn(p, 5), gn(p, 6), gn(p, 7), gn(p, 8))));
 }
 
 // GK6. VerifyError() -> the checker's own refusal text (spec refused; shape)
@@ -2208,6 +2227,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuverifyresult", .func = &ring_VerifyResult },
     .{ .name = "stzenginegpuverifyspec", .func = &ring_VerifySpec },
     .{ .name = "stzenginegpuverifyerror", .func = &ring_VerifyError },
+    .{ .name = "stzenginegpuverifyroofline", .func = &ring_VerifyRoofline },
     .{ .name = "stzenginegpuspeceval", .func = &ring_SpecEval },
     .{ .name = "stzenginegpuspecflops", .func = &ring_SpecFlops },
     .{ .name = "stzenginegpuspecevalflops", .func = &ring_SpecEvalFlops },

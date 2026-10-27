@@ -130,6 +130,30 @@ fn nameIn(list: []const Name, count: usize, s: []const u8) ?usize {
 /// The declarations a spec makes, and its body's right-hand side -- what
 /// the transpiler EMITS and (GK6) what the interpreter EVALUATES, read by
 /// one parser so the two can never disagree about what a spec says.
+// KP3: workgroup memory. A spec may declare up to MAX_SHARED arrays of f32
+// in the group's shared memory, MAX_SHARED_SIZE floats each (4 x 1024 x 4 B =
+// 16 KB, WebGPU's default workgroup storage limit), and a SCHEDULE of items
+// that run before the body: a STAGE (every thread writes one slot, then a
+// barrier), a REDUCE (the halving tree over one array, barriers between its
+// steps, the result in slot 0) and, inside a `tiles` loop, an ACCUMULATE (a
+// per-thread running value, @acc). Items after the `tiles` line belong to the
+// loop; items before it run once.
+pub const MAX_SHARED = 4;
+pub const MAX_SHARED_SIZE = 1024;
+pub const MAX_ITEMS = 12;
+pub const GROUP = 256;
+pub const TILE = 16; // a `width` kernel's group is a TILE x TILE square of the output
+
+pub const ItemKind = enum(u8) { stage, reduce, accumulate };
+pub const ReduceOp = enum(u8) { sum, max, min };
+pub const Item = struct {
+    kind: ItemKind = .stage,
+    shared: usize = 0, // stage / reduce: which array
+    index: []const u8 = "", // stage: the slot expression
+    value: []const u8 = "", // stage: the value; accumulate: the new @acc
+    op: ReduceOp = .sum,
+};
+
 pub const Decl = struct {
     ins: [MAX_VECS]Name = undefined,
     n_ins: usize = 0,
@@ -141,15 +165,57 @@ pub const Decl = struct {
     // had before); "none" = the learner omits it; anything else = the
     // learner's own boolean expression over @i, n, the scalars and the inputs.
     guard: ?[]const u8 = null,
+    // KP3
+    shared: [MAX_SHARED]Name = undefined,
+    shared_size: [MAX_SHARED]usize = @splat(0),
+    n_shared: usize = 0,
+    items: [MAX_ITEMS]Item = undefined,
+    n_items: usize = 0,
+    loop_from: ?usize = null, // the first item inside the `tiles` loop
+    tiles: []const u8 = "", // the loop count expression (empty: no loop)
+    tilevar: Name = .{},
+    width: []const u8 = "", // a scalar name or a literal (empty: 1-D)
+    has_acc: bool = false,
+
+    fn sharedIndex(self: *const Decl, s: []const u8) ?usize {
+        return nameIn(self.shared[0..], self.n_shared, s);
+    }
 };
 
 // KP0: names the grammar keeps for itself. `i` is the element index (@i in
 // a body), `n` the element count (bare, in a body or a guard). A vector or
-// scalar may not take them.
+// scalar may not take them. KP3 adds the group's names.
 fn reservedName(s: []const u8) ?[]const u8 {
     if (std.mem.eql(u8, s, "i")) return "'i' is the element index (@i); it cannot be declared";
     if (std.mem.eql(u8, s, "n")) return "'n' is the element count; it cannot be declared";
+    if (std.mem.eql(u8, s, "l")) return "'l' is the thread's index in its group (@l); it cannot be declared";
+    if (std.mem.eql(u8, s, "g")) return "'g' is the group's index (@g); it cannot be declared";
+    if (std.mem.eql(u8, s, "lx") or std.mem.eql(u8, s, "ly") or std.mem.eql(u8, s, "row") or std.mem.eql(u8, s, "col"))
+        return "'lx', 'ly', 'row' and 'col' are the tile's names (@row, @col); they cannot be declared";
+    if (std.mem.eql(u8, s, "acc")) return "'acc' is the accumulator (@acc); it cannot be declared";
     return null;
+}
+
+fn parseSize(s: []const u8) ?usize {
+    if (s.len == 0 or s.len > 6) return null;
+    var v: usize = 0;
+    for (s) |ch| {
+        if (ch < '0' or ch > '9') return null;
+        v = v * 10 + (ch - '0');
+    }
+    return v;
+}
+
+fn isPow2(v: usize) bool {
+    return v != 0 and (v & (v - 1)) == 0;
+}
+
+// `{ ... }` -> the inside, trimmed; the braces are the W-string's and optional
+fn unbrace(s: []const u8) []const u8 {
+    var b = std.mem.trim(u8, s, " \t");
+    if (b.len >= 2 and b[0] == '{' and b[b.len - 1] == '}')
+        b = std.mem.trim(u8, b[1 .. b.len - 1], " \t");
+    return b;
 }
 
 /// Parse the directive lines and the single assignment. Returns 0, or -1
@@ -200,6 +266,104 @@ fn parseDecl(text: []const u8, d: *Decl) i32 {
             if (g.len == 0) return fail("empty guard (write 'guard none' to omit it)", .{});
             if (d.guard != null) return fail("only one guard line", .{});
             d.guard = g;
+        } else if (std.mem.startsWith(u8, line, "shared ")) {
+            // KP3: `shared NAME SIZE`
+            const rest = std.mem.trim(u8, line[7..], " \t");
+            const sp = std.mem.indexOfAny(u8, rest, " \t") orelse
+                return fail("shared needs a name and a size: 'shared t 256'", .{});
+            var lowered: Name = .{};
+            if (!lowerInto(&lowered, rest[0..sp]) or !validIdent(lowered.slice()))
+                return fail("bad shared name: '{s}'", .{rest[0..sp]});
+            if (reservedName(lowered.slice())) |why| return fail("{s}", .{why});
+            if (nameIn(d.ins[0..], d.n_ins, lowered.slice()) != null or nameIn(d.scalars[0..], d.n_scalars, lowered.slice()) != null or
+                d.sharedIndex(lowered.slice()) != null)
+                return fail("shared '{s}' is already a name here", .{lowered.slice()});
+            const size = parseSize(std.mem.trim(u8, rest[sp..], " \t")) orelse
+                return fail("shared '{s}' needs a whole number of floats: 'shared {s} 256'", .{ lowered.slice(), lowered.slice() });
+            if (size == 0 or size > MAX_SHARED_SIZE)
+                return fail("shared '{s}': {d} floats; a group's array holds 1 to {d}", .{ lowered.slice(), size, MAX_SHARED_SIZE });
+            if (d.n_shared == MAX_SHARED) return fail("too many shared arrays (max {d})", .{MAX_SHARED});
+            var total: usize = size;
+            for (0..d.n_shared) |s| total += d.shared_size[s];
+            if (total > MAX_SHARED_SIZE * MAX_SHARED)
+                return fail("shared memory over {d} floats in all (a group has 16 KB)", .{MAX_SHARED_SIZE * MAX_SHARED});
+            d.shared[d.n_shared] = lowered;
+            d.shared_size[d.n_shared] = size;
+            d.n_shared += 1;
+        } else if (std.mem.startsWith(u8, line, "stage ")) {
+            // KP3: `stage { @t[index] = value }` -- one write per thread, then a barrier
+            const b = unbrace(line[6..]);
+            if (b.len == 0 or b[0] != '@') return fail("a stage is '@shared[index] = expression'", .{});
+            const eq = std.mem.indexOfScalar(u8, b, '=') orelse return fail("stage has no '='", .{});
+            const lhs = std.mem.trim(u8, b[1..eq], " \t");
+            const br = std.mem.indexOfScalar(u8, lhs, '[') orelse
+                return fail("a stage writes one slot of a shared array: '@t[@l] = ...'", .{});
+            var lowered: Name = .{};
+            if (!lowerInto(&lowered, std.mem.trim(u8, lhs[0..br], " \t")))
+                return fail("bad shared name in the stage", .{});
+            const si = d.sharedIndex(lowered.slice()) orelse
+                return fail("stage writes '@{s}', which is not a shared array (declare it: 'shared {s} 256')", .{ lowered.slice(), lowered.slice() });
+            if (lhs[lhs.len - 1] != ']') return fail("stage's slot is missing ']'", .{});
+            const index = std.mem.trim(u8, lhs[br + 1 .. lhs.len - 1], " \t");
+            if (index.len == 0) return fail("stage's slot is empty: '@{s}[@l]'", .{lowered.slice()});
+            const value = std.mem.trim(u8, b[eq + 1 ..], " \t");
+            if (value.len == 0) return fail("stage has no value after '='", .{});
+            if (d.n_items == MAX_ITEMS) return fail("too many stages (max {d})", .{MAX_ITEMS});
+            d.items[d.n_items] = .{ .kind = .stage, .shared = si, .index = index, .value = value };
+            d.n_items += 1;
+        } else if (std.mem.startsWith(u8, line, "reduce ")) {
+            // KP3: `reduce NAME sum|max|min`
+            const rest = std.mem.trim(u8, line[7..], " \t");
+            const sp = std.mem.indexOfAny(u8, rest, " \t") orelse
+                return fail("reduce needs an array and an operation: 'reduce t sum'", .{});
+            var lowered: Name = .{};
+            if (!lowerInto(&lowered, rest[0..sp])) return fail("bad shared name in reduce", .{});
+            const si = d.sharedIndex(lowered.slice()) orelse
+                return fail("reduce over '{s}', which is not a shared array", .{lowered.slice()});
+            if (!isPow2(d.shared_size[si]) or d.shared_size[si] > GROUP)
+                return fail("reduce over '{s}' needs a size that is a power of two up to {d}, not {d}", .{ lowered.slice(), GROUP, d.shared_size[si] });
+            var opn: Name = .{};
+            if (!lowerInto(&opn, std.mem.trim(u8, rest[sp..], " \t"))) return fail("bad reduce operation", .{});
+            const op: ReduceOp = if (std.mem.eql(u8, opn.slice(), "sum")) .sum else if (std.mem.eql(u8, opn.slice(), "max")) .max else if (std.mem.eql(u8, opn.slice(), "min")) .min else return fail("reduce knows sum, max and min, not '{s}'", .{opn.slice()});
+            if (d.n_items == MAX_ITEMS) return fail("too many stages (max {d})", .{MAX_ITEMS});
+            d.items[d.n_items] = .{ .kind = .reduce, .shared = si, .op = op };
+            d.n_items += 1;
+        } else if (std.mem.startsWith(u8, line, "accumulate ")) {
+            // KP3: `accumulate { @acc = expression }` -- inside the tiles loop only
+            if (d.tiles.len == 0) return fail("accumulate belongs inside a tiles loop: write the 'tiles' line first", .{});
+            if (d.has_acc) return fail("only one accumulate line", .{});
+            const b = unbrace(line[11..]);
+            const eq = std.mem.indexOfScalar(u8, b, '=') orelse return fail("accumulate is '@acc = expression'", .{});
+            var lowered: Name = .{};
+            const lhs = std.mem.trim(u8, b[0..eq], " \t");
+            if (lhs.len < 2 or lhs[0] != '@' or !lowerInto(&lowered, lhs[1..]) or !std.mem.eql(u8, lowered.slice(), "acc"))
+                return fail("accumulate assigns '@acc', not '{s}'", .{lhs});
+            const value = std.mem.trim(u8, b[eq + 1 ..], " \t");
+            if (value.len == 0) return fail("accumulate has no value after '='", .{});
+            if (d.n_items == MAX_ITEMS) return fail("too many stages (max {d})", .{MAX_ITEMS});
+            d.items[d.n_items] = .{ .kind = .accumulate, .value = value };
+            d.n_items += 1;
+            d.has_acc = true;
+        } else if (std.mem.startsWith(u8, line, "width ")) {
+            // KP3: `width w` -- a scalar name or a literal; the output is 2-D, the group a 16x16 tile
+            if (d.width.len != 0) return fail("only one width line", .{});
+            d.width = std.mem.trim(u8, line[6..], " \t");
+            if (d.width.len == 0) return fail("width needs a scalar or a number: 'width w'", .{});
+        } else if (std.mem.startsWith(u8, line, "tiles ")) {
+            // KP3: `tiles t { count }` -- the items after this line repeat count times
+            if (d.tiles.len != 0) return fail("only one tiles line", .{});
+            const rest = std.mem.trim(u8, line[6..], " \t");
+            const sp = std.mem.indexOfAny(u8, rest, " \t{") orelse
+                return fail("tiles needs a variable and a count: 'tiles t {{ k / 16 }}'", .{});
+            if (!lowerInto(&d.tilevar, rest[0..sp]) or !validIdent(d.tilevar.slice()))
+                return fail("tiles' variable must be a name, got '{s}'", .{rest[0..sp]});
+            if (reservedName(d.tilevar.slice()) != null or nameIn(d.ins[0..], d.n_ins, d.tilevar.slice()) != null or
+                nameIn(d.scalars[0..], d.n_scalars, d.tilevar.slice()) != null or d.sharedIndex(d.tilevar.slice()) != null)
+                return fail("tiles' variable '{s}' is already a name here", .{d.tilevar.slice()});
+            const cnt = unbrace(rest[sp..]);
+            if (cnt.len == 0) return fail("tiles needs a count: 'tiles t {{ k / 16 }}'", .{});
+            d.tiles = cnt;
+            d.loop_from = d.n_items;
         } else {
             return fail("unknown spec line: '{s}'", .{line});
         }
@@ -209,6 +373,17 @@ fn parseDecl(text: []const u8, d: *Decl) i32 {
     if (body.len == 0) return fail("no body (ForEachElement missing)", .{});
     if (nameIn(d.ins[0..], d.n_ins, d.out_name.slice()) != null)
         return fail("'{s}' is both input and output", .{d.out_name.slice()});
+    if (d.tiles.len != 0 and d.loop_from.? == d.n_items)
+        return fail("the tiles loop is empty: a stage or an accumulate must follow the tiles line", .{});
+    if (d.width.len != 0) {
+        if (parseSize(d.width)) |v| {
+            if (v == 0 or v % TILE != 0) return fail("width {d} is not a multiple of {d}", .{ v, TILE });
+        } else {
+            var lowered: Name = .{};
+            if (!lowerInto(&lowered, d.width) or nameIn(d.scalars[0..], d.n_scalars, lowered.slice()) == null)
+                return fail("width must be a declared scalar or a number, not '{s}'", .{d.width});
+        }
+    }
 
     // tolerate the W-string's outer braces: '{ @c = ... }'
     var b = body;
@@ -227,6 +402,132 @@ fn parseDecl(text: []const u8, d: *Decl) i32 {
     d.rhs = std.mem.trim(u8, b[eq + 1 ..], " \t");
     if (d.rhs.len == 0) return fail("empty expression", .{});
     return 0;
+}
+
+fn widthText(d: *const Decl, buf: []u8) ?[]const u8 {
+    if (parseSize(d.width)) |v| return std.fmt.bufPrint(buf, "{d}u", .{v}) catch null;
+    var lowered: Name = .{};
+    if (!lowerInto(&lowered, d.width)) return null;
+    return std.fmt.bufPrint(buf, "u32(p.s_{s})", .{lowered.slice()}) catch null;
+}
+
+/// KP3: the kernel of a spec that uses the group -- shared arrays, a schedule
+/// of stages, reduces and a tiles loop with an accumulator, or the group's own
+/// names. Every thread of a group reaches every barrier: the schedule runs
+/// for all of them, the guard wraps the body only.
+fn emitGroupKernel(w: *Cursor, d: *const Decl, rw: *const Rewriter, expr: []const u8, prelude: []const u8, guard: []const u8, guard_none: bool, guard_custom: bool, items: []const u8) i32 {
+    var num: [32]u8 = undefined;
+    w.put("struct StzTile { xoff : u32, p0 : u32, p1 : u32, p2 : u32 }\n");
+    w.put("@group(0) @binding(0) var<uniform> tile : StzTile;\n");
+    w.put("struct P { n : u32, pad : u32");
+    for (0..d.n_scalars) |s| {
+        w.put(", s_");
+        w.put(d.scalars[s].slice());
+        w.put(" : f32");
+    }
+    w.put(" }\n@group(0) @binding(1) var<uniform> p : P;\n");
+    var bind: usize = 2;
+    for (0..d.n_ins) |s| {
+        const ns = std.fmt.bufPrint(&num, "{d}", .{bind}) catch return -1;
+        w.put("@group(0) @binding(");
+        w.put(ns);
+        w.put(") var<storage, read> v_");
+        w.put(d.ins[s].slice());
+        w.put(" : array<f32>;\n");
+        bind += 1;
+    }
+    {
+        const ns = std.fmt.bufPrint(&num, "{d}", .{bind}) catch return -1;
+        w.put("@group(0) @binding(");
+        w.put(ns);
+        w.put(") var<storage, read_write> v_");
+        w.put(d.out_name.slice());
+        w.put(" : array<f32>;\n");
+    }
+    for (0..d.n_shared) |s| {
+        const ns = std.fmt.bufPrint(&num, "{d}", .{d.shared_size[s]}) catch return -1;
+        w.put("var<workgroup> w_");
+        w.put(d.shared[s].slice());
+        w.put(" : array<f32, ");
+        w.put(ns);
+        w.put(">;\n");
+    }
+    for (0..d.n_ins) |s| {
+        if (!rw.used_rd[s]) continue;
+        w.put("fn rd_");
+        w.put(d.ins[s].slice());
+        w.put("(k : i32) -> f32 {\n  if (k < 0 || u32(k) >= arrayLength(&v_");
+        w.put(d.ins[s].slice());
+        w.put(")) { return 0.0; }\n  return v_");
+        w.put(d.ins[s].slice());
+        w.put("[u32(k)];\n}\n");
+    }
+    for (0..d.n_shared) |s| {
+        if (!rw.used_sh[s]) continue;
+        const ns = std.fmt.bufPrint(&num, "{d}", .{d.shared_size[s]}) catch return -1;
+        w.put("fn sh_");
+        w.put(d.shared[s].slice());
+        w.put("(k : i32) -> f32 {\n  if (k < 0 || k >= ");
+        w.put(ns);
+        w.put(") { return 0.0; }\n  return w_");
+        w.put(d.shared[s].slice());
+        w.put("[u32(k)];\n}\n");
+    }
+    w.put("@compute @workgroup_size(256)\n");
+    w.put("fn main(@builtin(workgroup_id) wid : vec3<u32>, @builtin(local_invocation_index) l : u32) {\n");
+    w.put("  let g = wid.x + tile.xoff;\n");
+    if (d.width.len == 0) {
+        w.put("  let i = g * 256u + l;\n");
+    } else {
+        var wb: [64]u8 = undefined;
+        const wt = widthText(d, &wb) orelse return fail("bad width '{s}'", .{d.width});
+        w.put("  let tpr = ");
+        w.put(wt);
+        w.put(" / 16u;\n  let row = (g / tpr) * 16u + l / 16u;\n  let col = (g % tpr) * 16u + l % 16u;\n  let i = row * ");
+        w.put(wt);
+        w.put(" + col;\n");
+    }
+    w.put("  _ = p.n;\n");
+    for (0..d.n_ins) |s| {
+        if (rw.used_in[s]) continue;
+        w.put("  _ = arrayLength(&v_");
+        w.put(d.ins[s].slice());
+        w.put(");\n");
+    }
+    if (d.has_acc) w.put("  var acc : f32 = 0.0;\n");
+    // WGSL promises zeroed workgroup memory; wgpu-native 29 on this machine did
+    // not give it (measured 2026-10-27: a kernel with no stage read the previous
+    // kernel's values on the RTX 3050 and passed the visible shape). The kernel
+    // keeps the promise itself, so every runtime means what the interpreter means.
+    if (d.n_shared > 0) {
+        for (0..d.n_shared) |s| {
+            const ns = std.fmt.bufPrint(&num, "{d}", .{d.shared_size[s]}) catch return -1;
+            w.put("  for (var z_ : u32 = l; z_ < ");
+            w.put(ns);
+            w.put("u; z_ = z_ + 256u) { w_");
+            w.put(d.shared[s].slice());
+            w.put("[z_] = 0.0; }\n");
+        }
+        w.put("  workgroupBarrier();\n");
+    }
+    w.put(items);
+    if (!guard_none) {
+        if (guard_custom) {
+            w.put("  if (");
+            w.put(guard);
+            w.put(") {\n");
+        } else w.put("  if (i < p.n) {\n");
+    }
+    w.put(prelude);
+    w.put("    v_");
+    w.put(d.out_name.slice());
+    w.put("[i] = ");
+    w.put(expr);
+    w.put(";\n");
+    if (!guard_none) w.put("  }\n");
+    w.put("}\n");
+    if (w.overflow) return fail("kernel too large for the output buffer", .{});
+    return @intCast(w.len);
 }
 
 /// Transpile a spec into WGSL. Returns the WGSL length written into `out`
@@ -263,11 +564,141 @@ pub fn stz_gpu_wgsl_elementwise(spec: [*]const u8, spec_len: f64, out: [*]u8, ca
             guard_kind = .custom;
             rw.compare = true;
             rw.loopvar = null;
+            rw.where = .guard;
             if (rw.rewrite(g, &guard) < 0) return -1;
+            rw.where = .body;
             rw.compare = false;
             if (guard.overflow) return fail("guard too long", .{});
         }
     }
+    // ---- KP3: the schedule, rewritten item by item into one block of text
+    var count_buf: [512]u8 = undefined;
+    var count = Cursor{ .buf = &count_buf };
+    if (d.tiles.len != 0) {
+        rw.where = .count;
+        if (rw.rewrite(d.tiles, &count) < 0) return -1;
+        if (count.overflow) return fail("tiles count too long", .{});
+    }
+    var items_buf: [12288]u8 = undefined;
+    var items = Cursor{ .buf = &items_buf };
+    if (d.n_items > 0) {
+        var idx_buf: [1024]u8 = undefined;
+        var val_buf: [2048]u8 = undefined;
+        var pre_buf: [2048]u8 = undefined;
+        const body_prelude = rw.prelude;
+        for (0..d.n_items) |k| {
+            const it = d.items[k];
+            const inside = d.loop_from != null and k >= d.loop_from.?;
+            const ind: []const u8 = if (inside) "    " else "  ";
+            if (d.loop_from) |lf| {
+                if (k == lf) {
+                    items.put("  for (var t_");
+                    items.put(d.tilevar.slice());
+                    items.put(" : i32 = 0; t_");
+                    items.put(d.tilevar.slice());
+                    items.put(" < i32(");
+                    items.put(count.items());
+                    items.put("); t_");
+                    items.put(d.tilevar.slice());
+                    items.put(" = t_");
+                    items.put(d.tilevar.slice());
+                    items.put(" + 1) {\n");
+                }
+            }
+            var idx = Cursor{ .buf = &idx_buf };
+            var val = Cursor{ .buf = &val_buf };
+            var pre = Cursor{ .buf = &pre_buf };
+            rw.prelude = &pre;
+            rw.in_loop = inside;
+            switch (it.kind) {
+                .stage => {
+                    rw.where = .stage;
+                    rw.stage_target = it.shared;
+                    if (rw.rewrite(it.index, &idx) < 0) return -1;
+                    if (rw.rewrite(it.value, &val) < 0) return -1;
+                    rw.stage_target = null;
+                    var num: [16]u8 = undefined;
+                    const sz = std.fmt.bufPrint(&num, "{d}", .{d.shared_size[it.shared]}) catch return -1;
+                    items.put(ind);
+                    items.put("{\n");
+                    items.put(pre.items());
+                    items.put(ind);
+                    items.put("  let ix = i32(");
+                    items.put(idx.items());
+                    items.put(");\n");
+                    items.put(ind);
+                    items.put("  if (ix >= 0 && ix < ");
+                    items.put(sz);
+                    items.put(") { w_");
+                    items.put(d.shared[it.shared].slice());
+                    items.put("[ix] = ");
+                    items.put(val.items());
+                    items.put("; }\n");
+                    items.put(ind);
+                    items.put("}\n");
+                    items.put(ind);
+                    items.put("workgroupBarrier();\n");
+                },
+                .reduce => {
+                    const nm = d.shared[it.shared].slice();
+                    var num: [16]u8 = undefined;
+                    const half = std.fmt.bufPrint(&num, "{d}u", .{d.shared_size[it.shared] / 2}) catch return -1;
+                    items.put(ind);
+                    items.put("for (var s_ : u32 = ");
+                    items.put(half);
+                    items.put("; s_ > 0u; s_ = s_ / 2u) {\n");
+                    items.put(ind);
+                    items.put("  if (l < s_) { w_");
+                    items.put(nm);
+                    items.put("[l] = ");
+                    switch (it.op) {
+                        .sum => {
+                            items.put("w_");
+                            items.put(nm);
+                            items.put("[l] + w_");
+                            items.put(nm);
+                            items.put("[l + s_]");
+                        },
+                        .max, .min => {
+                            items.put(if (it.op == .max) "max(w_" else "min(w_");
+                            items.put(nm);
+                            items.put("[l], w_");
+                            items.put(nm);
+                            items.put("[l + s_])");
+                        },
+                    }
+                    items.put("; }\n");
+                    items.put(ind);
+                    items.put("  workgroupBarrier();\n");
+                    items.put(ind);
+                    items.put("}\n");
+                },
+                .accumulate => {
+                    rw.where = .accumulate;
+                    if (rw.rewrite(it.value, &val) < 0) return -1;
+                    items.put(ind);
+                    items.put("{\n");
+                    items.put(pre.items());
+                    items.put(ind);
+                    items.put("  acc = ");
+                    items.put(val.items());
+                    items.put(";\n");
+                    items.put(ind);
+                    items.put("}\n");
+                    items.put(ind);
+                    items.put("workgroupBarrier();\n");
+                },
+            }
+            if (idx.overflow or val.overflow or pre.overflow) return fail("a stage is too long", .{});
+        }
+        if (d.loop_from != null) items.put("  }\n");
+        rw.prelude = body_prelude;
+        rw.in_loop = false;
+        rw.where = .body;
+        if (items.overflow) return fail("the schedule is too long", .{});
+    }
+    const kp3 = d.n_shared > 0 or d.n_items > 0 or d.width.len > 0 or rw.used_group;
+
     // ---- emit the kernel straight into the caller's buffer
     var w = Cursor{ .buf = out[0..@intFromFloat(cap)] };
     const put = struct {
@@ -275,6 +706,7 @@ pub fn stz_gpu_wgsl_elementwise(spec: [*]const u8, spec_len: f64, out: [*]u8, ca
             l.put(s);
         }
     }.f;
+    if (kp3) return emitGroupKernel(&w, &d, &rw, expr.items(), prelude.items(), guard.items(), guard_kind == .none, guard_kind == .custom, items.items());
 
     put(&w, "struct StzTile { xoff : u32, p0 : u32, p1 : u32, p2 : u32 }\n");
     put(&w, "@group(0) @binding(0) var<uniform> tile : StzTile;\n");
@@ -380,6 +812,27 @@ pub fn stz_gpu_wgsl_elementwise(spec: [*]const u8, spec_len: f64, out: [*]u8, ca
 //                       k is a bare name inside e; one sum may not nest in
 //                       another (KP3's shared memory is the next step up)
 //   < <= > >= == != and or    in the GUARD only; a body stays arithmetic
+// KP3: where an expression stands decides what it may read. The transpiler and
+// the interpreter refuse the same things with the same words.
+pub const Where = enum { body, guard, stage, accumulate, count };
+const MSG_COUNT = "the tiles count must be the same for every thread: scalars, n and numbers only";
+const MSG_SUMCOUNT = "a sum is not admitted in the tiles count";
+const MSG_ROWCOL = "'@{s}' needs a width line (a 2-D output in 16 x 16 tiles)";
+const MSG_ACC = "'@acc' is read in the accumulate line and the body, once an accumulate line exists";
+const MSG_SHNOIDX = "'@{s}' is a shared array: read one slot, as in '@{s}[@l]'";
+const MSG_RACE = "a stage cannot read the array it writes ('@{s}'): the threads would race; stage into a second array";
+
+fn groupName(s: []const u8) ?[]const u8 {
+    // the WGSL each group name reads as, f32 like every value of the grammar
+    if (std.mem.eql(u8, s, "l")) return "f32(l)";
+    if (std.mem.eql(u8, s, "g")) return "f32(g)";
+    if (std.mem.eql(u8, s, "lx")) return "f32(l % 16u)";
+    if (std.mem.eql(u8, s, "ly")) return "f32(l / 16u)";
+    if (std.mem.eql(u8, s, "row")) return "f32(row)";
+    if (std.mem.eql(u8, s, "col")) return "f32(col)";
+    return null;
+}
+
 const Rewriter = struct {
     d: *const Decl,
     prelude: *Cursor,
@@ -388,6 +841,12 @@ const Rewriter = struct {
     compare: bool = false,
     used_rd: [MAX_VECS]bool = @splat(false),
     used_in: [MAX_VECS]bool = @splat(false), // KP1: an input the body never reads must still be BOUND
+    // KP3
+    where: Where = .body,
+    in_loop: bool = false,
+    stage_target: ?usize = null,
+    used_group: bool = false,
+    used_sh: [MAX_SHARED]bool = @splat(false),
 
     fn matching(text: []const u8, open_at: usize) ?usize {
         var depth: usize = 0;
@@ -413,9 +872,50 @@ const Rewriter = struct {
                 var nm: Name = .{};
                 if (j == i + 1 or !lowerInto(&nm, rhs[i + 1 .. j]))
                     return fail("bad @name at '{s}'", .{rhs[i..@min(i + 8, rhs.len)]});
+                if (self.where == .count) return fail(MSG_COUNT, .{});
                 if (std.mem.eql(u8, nm.slice(), "i")) {
                     expr.put("f32(i)");
                     i = j;
+                    continue;
+                }
+                // KP3: the group's own names
+                if (groupName(nm.slice())) |wg| {
+                    if ((std.mem.eql(u8, nm.slice(), "row") or std.mem.eql(u8, nm.slice(), "col")) and self.d.width.len == 0)
+                        return fail(MSG_ROWCOL, .{nm.slice()});
+                    self.used_group = true;
+                    expr.put(wg);
+                    i = j;
+                    continue;
+                }
+                if (std.mem.eql(u8, nm.slice(), "acc")) {
+                    if (!self.d.has_acc or !(self.where == .accumulate or self.where == .body)) return fail(MSG_ACC, .{});
+                    expr.put("acc");
+                    i = j;
+                    continue;
+                }
+                if (self.d.sharedIndex(nm.slice())) |si| {
+                    var k2 = j;
+                    while (k2 < rhs.len and (rhs[k2] == ' ' or rhs[k2] == '\t')) : (k2 += 1) {}
+                    if (k2 >= rhs.len or rhs[k2] != '[') return fail(MSG_SHNOIDX, .{ nm.slice(), nm.slice() });
+                    if (self.stage_target) |st| {
+                        if (st == si) return fail(MSG_RACE, .{nm.slice()});
+                    }
+                    const close = matching(rhs, k2) orelse return fail("missing ']' after '@{s}['", .{nm.slice()});
+                    var inner_buf: [1024]u8 = undefined;
+                    var inner = Cursor{ .buf = &inner_buf };
+                    const saved = self.compare;
+                    self.compare = false;
+                    if (self.rewrite(rhs[k2 + 1 .. close], &inner) < 0) return -1;
+                    self.compare = saved;
+                    if (inner.len == 0) return fail("empty index in '@{s}[]'", .{nm.slice()});
+                    self.used_sh[si] = true;
+                    self.used_group = true;
+                    expr.put("sh_");
+                    expr.put(nm.slice());
+                    expr.put("(i32(");
+                    expr.put(inner.items());
+                    expr.put("))");
+                    i = close + 1;
                     continue;
                 }
                 const idx = nameIn(self.d.ins[0..], self.d.n_ins, nm.slice()) orelse {
@@ -445,6 +945,16 @@ const Rewriter = struct {
                     i = close + 1;
                     continue;
                 }
+                if (self.where == .stage or self.where == .accumulate) {
+                    // KP3: a schedule item runs for EVERY thread of the group, the
+                    // ones past the input included, so its own element is a bounded read
+                    self.used_rd[idx] = true;
+                    expr.put("rd_");
+                    expr.put(nm.slice());
+                    expr.put("(i32(i))");
+                    i = j;
+                    continue;
+                }
                 expr.put("v_");
                 expr.put(nm.slice());
                 expr.put("[i]");
@@ -470,6 +980,13 @@ const Rewriter = struct {
                         continue;
                     }
                 }
+                if (self.in_loop and self.d.tiles.len != 0 and std.mem.eql(u8, word, self.d.tilevar.slice())) {
+                    expr.put("f32(t_");
+                    expr.put(word);
+                    expr.put(")");
+                    i = j;
+                    continue;
+                }
                 if (std.mem.eql(u8, word, "and") or std.mem.eql(u8, word, "or")) {
                     if (!self.compare) return fail("'{s}' belongs to the guard line, not to a body", .{word});
                     expr.put(if (word[0] == 'a') " && " else " || ");
@@ -483,6 +1000,7 @@ const Rewriter = struct {
                     continue;
                 }
                 if (std.mem.eql(u8, word, "sum")) {
+                    if (self.where == .count) return fail(MSG_SUMCOUNT, .{});
                     if (self.loopvar != null) return fail("a sum inside a sum is not admitted (one level; shared memory is KP3's)", .{});
                     var k = j;
                     while (k < rhs.len and (rhs[k] == ' ' or rhs[k] == '\t')) : (k += 1) {}
@@ -604,6 +1122,105 @@ const Rewriter = struct {
     }
 };
 
+
+// ===========================================================================
+// THE ROOFS (GK3's numbers, moved here by KP3 so stz.wasm carries them): the
+// copy kernel whose time is the device's bandwidth floor, and the register-
+// only fma kernel whose time is its compute peak. One text for the native
+// checker and for a browser measuring its own adapter.
+// ===========================================================================
+
+pub const COPY_N: usize = 4 * 1024 * 1024; // 16 MB in + 16 MB out per copy
+
+pub const COPY_WGSL =
+    \\struct StzTile { xoff: u32, p0: u32, p1: u32, p2: u32 };
+    \\@group(0) @binding(0) var<uniform> tile : StzTile;
+    \\@group(0) @binding(1) var<storage, read> a : array<f32>;
+    \\@group(0) @binding(2) var<storage, read_write> o : array<f32>;
+    \\@compute @workgroup_size(256)
+    \\fn main(@builtin(global_invocation_id) gid : vec3<u32>) {
+    \\  let i = gid.x + tile.xoff * 256u;
+    \\  if (i < 4194304u) { o[i] = a[i]; }
+    \\}
+;
+
+// ---------------------------------------------------------------- the peak kernel (GK3)
+// A register-only fma kernel: `chains` independent accumulators per thread
+// through p.iters rounds of fma(x, m, b) with m and b from the params uniform
+// (so nothing folds at compile time), the body unrolled `unroll` times so the
+// loop's counter, compare and branch are amortised over unroll*chains fmas.
+// Every accumulator is a NAMED SCALAR -- GK2b's lesson: an array indexed by a
+// loop variable lands in local memory and measures the memory, not the ALU.
+pub fn fmaSource(comptime chains: usize, comptime unroll: usize) []const u8 {
+    @setEvalBranchQuota(400000);
+    {
+        comptime var s: []const u8 =
+            \\struct StzTile { xoff : u32, p0 : u32, p1 : u32, p2 : u32 }
+            \\@group(0) @binding(0) var<uniform> tile : StzTile;
+            \\struct P { iters : u32, n : u32, m : f32, b : f32 }
+            \\@group(0) @binding(1) var<uniform> p : P;
+            \\@group(0) @binding(2) var<storage, read> a : array<f32>;
+            \\@group(0) @binding(3) var<storage, read_write> o : array<f32>;
+            \\@compute @workgroup_size(256)
+            \\fn main(@builtin(global_invocation_id) gid : vec3<u32>) {
+            \\  let i = gid.x + tile.xoff * 256u;
+            \\  if (i >= p.n) { return; }
+            \\  let s = a[i];
+            \\
+        ;
+        for (0..chains) |k| {
+            s = s ++ std.fmt.comptimePrint("  var x{d} = s + {d}.0 * 0.125;\n", .{ k, k });
+        }
+        s = s ++ "  for (var k = 0u; k < p.iters; k = k + 1u) {\n";
+        for (0..unroll) |_| {
+            for (0..chains) |k| {
+                s = s ++ std.fmt.comptimePrint("    x{d} = fma(x{d}, p.m, p.b);\n", .{ k, k });
+            }
+        }
+        s = s ++ "  }\n  o[i] = x0";
+        for (1..chains) |k| {
+            s = s ++ std.fmt.comptimePrint(" + x{d}", .{k});
+        }
+        s = s ++ ";\n}\n";
+        return s;
+    }
+}
+
+/// The densest variant the probe measured (16 chains, body x16: 256 fma per
+/// round) reached 97% of 2048 lanes x 2 x the 3050's 2.1 GHz max clock.
+pub const PEAK_CHAINS: usize = 16;
+pub const PEAK_UNROLL: usize = 16;
+pub const PEAK_WGSL = fmaSource(PEAK_CHAINS, PEAK_UNROLL);
+pub const PEAK_THREADS: usize = 4096 * 256; // 1,048,576: enough waves for any adapter here
+pub const PEAK_ROUNDS: u32 = 1024; // 4 ms on the 3050, ~35 ms on the iGPU: a BURST, on purpose
+pub const PEAK_FLOPS: f64 = @as(f64, @floatFromInt(PEAK_THREADS * PEAK_CHAINS * 2)) * @as(f64, @floatFromInt(PEAK_ROUNDS));
+
+/// KP3: the roof kernels' texts for a runner that measures its own adapter:
+/// which 0 = the copy kernel, 1 = the peak kernel. Returns the length, or -1.
+pub fn stz_gpu_roof_wgsl(which: i32, out: [*]u8, cap: f64) callconv(.c) i32 {
+    const s: []const u8 = switch (which) {
+        0 => COPY_WGSL,
+        1 => PEAK_WGSL,
+        else => return -1,
+    };
+    const c: usize = @intFromFloat(cap);
+    if (s.len > c) return -1;
+    @memcpy(out[0..s.len], s);
+    return @intCast(s.len);
+}
+
+/// KP3: the roof kernels' numbers: 0 the copy's element count, 1 the peak's
+/// thread count, 2 its loop iterations (rounds / unroll), 3 its FLOPs per dispatch.
+pub fn stz_gpu_roof_number(which: i32) callconv(.c) f64 {
+    return switch (which) {
+        0 => @floatFromInt(COPY_N),
+        1 => @floatFromInt(PEAK_THREADS),
+        2 => @floatFromInt(PEAK_ROUNDS / @as(u32, @intCast(PEAK_UNROLL))),
+        3 => PEAK_FLOPS,
+        else => 0,
+    };
+}
+
 // ===========================================================================
 // THE INTERPRETER (GK6 of SOFTANZA_GPU_PLAN.md) -- the spec, evaluated on
 // the CPU, as the checker's REFERENCE for a kernel that has no Zig twin
@@ -632,6 +1249,8 @@ const Op = enum(u8) {
     // KP0
     k_index, k_n, k_var, rd, sum_begin, sum_end,
     c_lt, c_le, c_gt, c_ge, c_eq, c_ne, l_and, l_or,
+    // KP3
+    k_local, k_group, k_lx, k_ly, k_row, k_col, k_acc, k_tile, sh_rd,
     f_abs, f_min, f_max, f_sqrt, f_exp, f_log, f_sin, f_cos, f_tan, f_floor, f_ceil,
     f_pow, f_clamp, f_sign, f_fract, f_round, f_mix, f_smoothstep, f_step, f_atan2,
     f_asin, f_acos, f_inversesqrt, f_length, f_distance,
@@ -690,6 +1309,59 @@ var g_guard: Program = .{}; // KP0: the guard's program; g_guard_kind says wheth
 var g_guard_kind: enum { default, none, custom } = .default;
 var g_eval_flops: f64 = 0; // KP0: operations executed by the last eval, loops included
 
+// KP3: the group's description, compiled. The interpreter runs a GROUP at a
+// time: every item of the schedule over all 256 threads before the next one
+// starts -- which is what a barrier promises the kernel.
+const Kp3 = struct {
+    on: bool = false,
+    n_shared: usize = 0,
+    sizes: [MAX_SHARED]usize = @splat(0),
+    kinds: [MAX_ITEMS]ItemKind = undefined,
+    shared_of: [MAX_ITEMS]usize = undefined,
+    ops: [MAX_ITEMS]ReduceOp = undefined,
+    n_items: usize = 0,
+    loop_from: usize = 0, // == n_items when there is no tiles loop
+    has_tiles: bool = false,
+    has_acc: bool = false,
+    width_lit: usize = 0, // a literal width, or 0
+    width_scalar: ?usize = null, // a scalar width
+};
+var g_kp3: Kp3 = .{};
+var g_item_idx: [MAX_ITEMS]Program = undefined;
+var g_item_val: [MAX_ITEMS]Program = undefined;
+var g_count: Program = .{};
+var g_sh: [MAX_SHARED][MAX_SHARED_SIZE]f32 = undefined;
+var g_acc: [GROUP]f32 = undefined;
+var g_tmp_ix: [GROUP]f32 = undefined;
+var g_tmp_v: [GROUP]f32 = undefined;
+
+/// One thread, as a program sees it.
+const Thread = struct {
+    i: usize,
+    n: usize,
+    l: usize = 0,
+    g: usize = 0,
+    row: usize = 0,
+    col: usize = 0,
+    acc: f32 = 0,
+    tile: f32 = 0,
+};
+
+fn compileInto(p: *Program, text: []const u8, d: *const Decl, where: Where, in_loop: bool, stage_target: ?usize) i32 {
+    p.* = .{};
+    var ps = Parser{ .s = text, .d = d, .p = p, .where = where, .in_loop = in_loop, .stage_target = stage_target };
+    if (ps.expr() < 0) return -1;
+    if (ps.peek() != 0) {
+        const c = ps.peek();
+        if (c == '<' or c == '>' or c == '=' or c == '!') return fail("'{c}' is a comparison; comparisons belong to the guard line", .{c});
+        return fail("unexpected '{c}' after the expression", .{c});
+    }
+    p.n_ins = d.n_ins;
+    p.n_scalars = d.n_scalars;
+    p.ready = true;
+    return if (ps.used_group) 1 else 0;
+}
+
 // ---- a recursive-descent compiler over the rhs, WGSL precedence
 const Parser = struct {
     s: []const u8,
@@ -699,6 +1371,11 @@ const Parser = struct {
     depth: usize = 0,
     compare: bool = false,
     loopvar: ?Name = null,
+    // KP3
+    where: Where = .body,
+    in_loop: bool = false,
+    stage_target: ?usize = null,
+    used_group: bool = false,
 
     // guard := andexpr ('or' andexpr)*   -- KP0, compare mode only
     fn orexpr(self: *Parser) i32 {
@@ -832,9 +1509,43 @@ const Parser = struct {
             var nm: Name = .{};
             if (j == self.i + 1 or !lowerInto(&nm, self.s[self.i + 1 .. j]))
                 return fail("bad @name at '{s}'", .{self.s[self.i..@min(self.i + 8, self.s.len)]});
+            if (self.where == .count) return fail(MSG_COUNT, .{});
             if (std.mem.eql(u8, nm.slice(), "i")) {
                 self.i = j;
                 return self.emit(.k_index, 0);
+            }
+            // KP3: the group's own names, the accumulator, a shared slot
+            if (groupName(nm.slice()) != null) {
+                const s = nm.slice();
+                if ((std.mem.eql(u8, s, "row") or std.mem.eql(u8, s, "col")) and self.d.width.len == 0)
+                    return fail(MSG_ROWCOL, .{s});
+                self.used_group = true;
+                self.i = j;
+                const op: Op = if (std.mem.eql(u8, s, "l")) .k_local else if (std.mem.eql(u8, s, "g")) .k_group else if (std.mem.eql(u8, s, "lx")) .k_lx else if (std.mem.eql(u8, s, "ly")) .k_ly else if (std.mem.eql(u8, s, "row")) .k_row else .k_col;
+                return self.emit(op, 0);
+            }
+            if (std.mem.eql(u8, nm.slice(), "acc")) {
+                if (!self.d.has_acc or !(self.where == .accumulate or self.where == .body)) return fail(MSG_ACC, .{});
+                self.i = j;
+                return self.emit(.k_acc, 0);
+            }
+            if (self.d.sharedIndex(nm.slice())) |si| {
+                self.i = j;
+                if (self.peek() != '[') return fail(MSG_SHNOIDX, .{ nm.slice(), nm.slice() });
+                if (self.stage_target) |st| {
+                    if (st == si) return fail(MSG_RACE, .{nm.slice()});
+                }
+                self.i += 1;
+                const saved = self.compare;
+                self.compare = false;
+                const r = self.expr();
+                self.compare = saved;
+                if (r < 0) return -1;
+                if (self.peek() != ']') return fail("missing ']' after '@{s}['", .{nm.slice()});
+                self.i += 1;
+                self.used_group = true;
+                self.p.flops += 1;
+                return self.emit(.sh_rd, @intCast(si));
             }
             const idx = nameIn(self.d.ins[0..], self.d.n_ins, nm.slice()) orelse {
                 if (std.mem.eql(u8, nm.slice(), self.d.out_name.slice()))
@@ -842,6 +1553,12 @@ const Parser = struct {
                 return fail("undeclared vector '@{s}'", .{nm.slice()});
             };
             self.i = j;
+            if (self.peek() != '[' and (self.where == .stage or self.where == .accumulate)) {
+                // a schedule item's own element is a bounded read, as the kernel's rd_ is
+                if (self.emit(.k_index, 0) < 0) return -1;
+                self.p.flops += 1;
+                return self.emit(.rd, @intCast(idx));
+            }
             if (self.peek() == '[') {
                 // a neighbour read: the index expression, then rd
                 self.i += 1;
@@ -868,12 +1585,15 @@ const Parser = struct {
             if (self.loopvar) |lv| {
                 if (std.mem.eql(u8, nm.slice(), lv.slice())) return self.emit(.k_var, @intCast(self.p.nsum - 1));
             }
+            if (self.in_loop and self.d.tiles.len != 0 and std.mem.eql(u8, nm.slice(), self.d.tilevar.slice()))
+                return self.emit(.k_tile, 0);
             if (std.mem.eql(u8, nm.slice(), "and") or std.mem.eql(u8, nm.slice(), "or"))
                 return fail("'{s}' belongs to the guard line, not to a body", .{nm.slice()});
             if (nameIn(self.d.scalars[0..], self.d.n_scalars, nm.slice())) |si| {
                 return self.emit(.k_scalar, @intCast(si));
             }
             if (std.mem.eql(u8, nm.slice(), "sum")) {
+                if (self.where == .count) return fail(MSG_SUMCOUNT, .{});
                 if (self.loopvar != null) return fail("a sum inside a sum is not admitted (one level; shared memory is KP3's)", .{});
                 if (self.p.nsum >= MAX_SUMS) return fail("too many sums (max {d})", .{MAX_SUMS});
                 if (self.peek() != '(') return fail("sum needs '(var, from, to, expression)'", .{});
@@ -954,17 +1674,16 @@ pub fn stz_gpu_spec_compile(spec: [*]const u8, spec_len: f64) callconv(.c) i32 {
     const text = spec[0..@intFromFloat(spec_len)];
     err_len = 0;
     g_prog = .{};
+    g_kp3 = .{};
     var d: Decl = .{};
     if (parseDecl(text, &d) < 0) return -1;
-    var ps = Parser{ .s = d.rhs, .d = &d, .p = &g_prog };
-    if (ps.expr() < 0) return -1;
-    if (ps.peek() != 0) {
-        const c = ps.peek();
-        if (c == '<' or c == '>' or c == '=' or c == '!') return fail("'{c}' is a comparison; comparisons belong to the guard line", .{c});
-        return fail("unexpected '{c}' after the expression", .{c});
+    var used_group = false;
+    {
+        const r = compileInto(&g_prog, d.rhs, &d, .body, false, null);
+        if (r < 0) return -1;
+        if (r == 1) used_group = true;
     }
-    g_prog.n_ins = d.n_ins;
-    g_prog.n_scalars = d.n_scalars;
+    g_prog.ready = false; // set again only when everything compiled
     // KP0: the guard
     g_guard = .{};
     g_guard_kind = .default;
@@ -973,12 +1692,52 @@ pub fn stz_gpu_spec_compile(spec: [*]const u8, spec_len: f64) callconv(.c) i32 {
             g_guard_kind = .none;
         } else {
             g_guard_kind = .custom;
-            var pg = Parser{ .s = g, .d = &d, .p = &g_guard, .compare = true };
+            var pg = Parser{ .s = g, .d = &d, .p = &g_guard, .compare = true, .where = .guard };
             if (pg.orexpr() < 0) return -1;
             if (pg.peek() != 0) return fail("unexpected '{c}' after the guard", .{pg.peek()});
+            if (pg.used_group) used_group = true;
             g_guard.ready = true;
         }
     }
+    // KP3: the schedule, the tiles count, the width
+    if (d.tiles.len != 0) {
+        if (compileInto(&g_count, d.tiles, &d, .count, false, null) < 0) return -1;
+    }
+    for (0..d.n_items) |k| {
+        const it = d.items[k];
+        const inside = d.loop_from != null and k >= d.loop_from.?;
+        g_kp3.kinds[k] = it.kind;
+        g_kp3.shared_of[k] = it.shared;
+        g_kp3.ops[k] = it.op;
+        switch (it.kind) {
+            .stage => {
+                if (compileInto(&g_item_idx[k], it.index, &d, .stage, inside, it.shared) < 0) return -1;
+                if (compileInto(&g_item_val[k], it.value, &d, .stage, inside, it.shared) < 0) return -1;
+                g_prog.flops += g_item_idx[k].flops + g_item_val[k].flops;
+            },
+            .accumulate => {
+                if (compileInto(&g_item_val[k], it.value, &d, .accumulate, inside, null) < 0) return -1;
+                g_prog.flops += g_item_val[k].flops;
+            },
+            .reduce => g_prog.flops += 1,
+        }
+    }
+    g_kp3.n_items = d.n_items;
+    g_kp3.loop_from = d.loop_from orelse d.n_items;
+    g_kp3.has_tiles = d.tiles.len != 0;
+    g_kp3.has_acc = d.has_acc;
+    g_kp3.n_shared = d.n_shared;
+    for (0..d.n_shared) |s| g_kp3.sizes[s] = d.shared_size[s];
+    if (d.width.len != 0) {
+        if (parseSize(d.width)) |v| {
+            g_kp3.width_lit = v;
+        } else {
+            var lowered: Name = .{};
+            _ = lowerInto(&lowered, d.width);
+            g_kp3.width_scalar = nameIn(d.scalars[0..], d.n_scalars, lowered.slice());
+        }
+    }
+    g_kp3.on = d.n_shared > 0 or d.n_items > 0 or d.width.len > 0 or used_group;
     g_prog.ready = true;
     return 0;
 }
@@ -1025,7 +1784,9 @@ fn toIndex(x: f32) ?usize {
 const Frame = struct { v: f32 = 0, to: f32 = 0, acc: f32 = 0 };
 
 /// Run one program over element `i`. Returns the value, or null on a stack fault.
-fn runProgram(p: *const Program, i: usize, n: usize, ins: [*]const [*]const f32, lens: [*]const f64, scalars: [*]const f32, ops_out: *f64) ?f32 {
+fn runProgram(p: *const Program, th: *const Thread, ins: [*]const [*]const f32, lens: [*]const f64, scalars: [*]const f32, ops_out: *f64) ?f32 {
+    const i = th.i;
+    const n = th.n;
     var st: [STACK]f32 = undefined;
     var sp: usize = 0;
     var frames: [MAX_SUMS]Frame = undefined;
@@ -1063,6 +1824,27 @@ fn runProgram(p: *const Program, i: usize, n: usize, ins: [*]const [*]const f32,
                 if (sp >= STACK) return null;
                 st[sp] = frames[p.args[k]].v;
                 sp += 1;
+            },
+            .k_local, .k_group, .k_lx, .k_ly, .k_row, .k_col, .k_acc, .k_tile => {
+                if (sp >= STACK) return null;
+                st[sp] = switch (p.ops[k]) {
+                    .k_local => @floatFromInt(th.l),
+                    .k_group => @floatFromInt(th.g),
+                    .k_lx => @floatFromInt(th.l % TILE),
+                    .k_ly => @floatFromInt(th.l / TILE),
+                    .k_row => @floatFromInt(th.row),
+                    .k_col => @floatFromInt(th.col),
+                    .k_acc => th.acc,
+                    .k_tile => th.tile,
+                    else => unreachable,
+                };
+                sp += 1;
+            },
+            .sh_rd => {
+                if (sp < 1) return null;
+                const which = p.args[k];
+                st[sp - 1] = if (toIndex(st[sp - 1])) |ix| (if (ix < g_kp3.sizes[which]) g_sh[which][ix] else 0.0) else 0.0;
+                ops += 1;
             },
             .rd => {
                 if (sp < 1) return null;
@@ -1202,18 +1984,135 @@ pub fn stz_gpu_spec_eval_masked(ins: [*]const [*]const f32, n_ins: i32, lens: [*
     if (n_scalars < 0 or @as(usize, @intCast(n_scalars)) < g_prog.n_scalars) return -1;
     const n: usize = @intFromFloat(nf);
     g_eval_flops = 0;
+    if (g_kp3.on) return evalGroups(ins, lens, scalars, n, out, mask);
     var i: usize = 0;
     while (i < n) : (i += 1) {
+        const t = Thread{ .i = i, .n = n };
         if (g_guard_kind == .custom) {
-            const g = runProgram(&g_guard, i, n, ins, lens, scalars, &g_eval_flops) orelse return -1;
+            const g = runProgram(&g_guard, &t, ins, lens, scalars, &g_eval_flops) orelse return -1;
             if (g == 0) {
                 out[i] = std.math.nan(f32);
                 if (mask) |m| m[i] = 0;
                 continue;
             }
         }
-        out[i] = runProgram(&g_prog, i, n, ins, lens, scalars, &g_eval_flops) orelse return -1;
+        out[i] = runProgram(&g_prog, &t, ins, lens, scalars, &g_eval_flops) orelse return -1;
         if (mask) |m| m[i] = 1;
+    }
+    return 0;
+}
+
+/// The thread at local index l of group g: its element, and in a width
+/// kernel its row and column -- the mapping the kernel's prologue computes.
+fn threadAt(g: usize, l: usize, n: usize, width: usize) Thread {
+    if (width == 0) return .{ .i = g * GROUP + l, .n = n, .l = l, .g = g };
+    const tpr = width / TILE;
+    const row = (g / tpr) * TILE + l / TILE;
+    const col = (g % tpr) * TILE + l % TILE;
+    return .{ .i = row * width + col, .n = n, .l = l, .g = g, .row = row, .col = col };
+}
+
+fn runItem(k: usize, g: usize, n: usize, width: usize, tile: f32, ins: [*]const [*]const f32, lens: [*]const f64, scalars: [*]const f32) bool {
+    switch (g_kp3.kinds[k]) {
+        .stage => {
+            // every thread computes its slot and value from the state BEFORE the
+            // stage, then all write: the barrier after it is what the kernel waits on
+            for (0..GROUP) |l| {
+                var t = threadAt(g, l, n, width);
+                t.acc = g_acc[l];
+                t.tile = tile;
+                g_tmp_ix[l] = runProgram(&g_item_idx[k], &t, ins, lens, scalars, &g_eval_flops) orelse return false;
+                g_tmp_v[l] = runProgram(&g_item_val[k], &t, ins, lens, scalars, &g_eval_flops) orelse return false;
+            }
+            const s = g_kp3.shared_of[k];
+            for (0..GROUP) |l| {
+                if (toIndex(g_tmp_ix[l])) |ix| {
+                    if (ix < g_kp3.sizes[s]) g_sh[s][ix] = g_tmp_v[l];
+                }
+            }
+        },
+        .reduce => {
+            const s = g_kp3.shared_of[k];
+            var half = g_kp3.sizes[s] / 2;
+            while (half > 0) : (half /= 2) {
+                for (0..half) |l| {
+                    const a = g_sh[s][l];
+                    const b = g_sh[s][l + half];
+                    g_sh[s][l] = switch (g_kp3.ops[k]) {
+                        .sum => a + b,
+                        .max => @max(a, b),
+                        .min => @min(a, b),
+                    };
+                    g_eval_flops += 1;
+                }
+            }
+        },
+        .accumulate => {
+            for (0..GROUP) |l| {
+                var t = threadAt(g, l, n, width);
+                t.acc = g_acc[l];
+                t.tile = tile;
+                g_tmp_v[l] = runProgram(&g_item_val[k], &t, ins, lens, scalars, &g_eval_flops) orelse return false;
+            }
+            for (0..GROUP) |l| g_acc[l] = g_tmp_v[l];
+        },
+    }
+    return true;
+}
+
+/// KP3: evaluate a spec that uses the group, one group at a time.
+fn evalGroups(ins: [*]const [*]const f32, lens: [*]const f64, scalars: [*]const f32, n: usize, out: [*]f32, mask: ?[*]u8) i32 {
+    var width: usize = g_kp3.width_lit;
+    if (g_kp3.width_scalar) |si| {
+        const v = scalars[si];
+        if (!(v > 0 and v < 1048576.0) or @trunc(v) != v) {
+            _ = fail("the width scalar must be a whole number above 0", .{});
+            return -1;
+        }
+        width = @intFromFloat(v);
+    }
+    if (width != 0) {
+        if (width % TILE != 0) {
+            _ = fail("width {d} is not a multiple of {d}", .{ width, TILE });
+            return -1;
+        }
+        if (n % (TILE * width) != 0) {
+            _ = fail("{d} elements are not whole 16-row tiles of width {d}", .{ n, width });
+            return -1;
+        }
+    }
+    const groups = (n + GROUP - 1) / GROUP;
+    for (0..groups) |g| {
+        for (0..g_kp3.n_shared) |s| @memset(g_sh[s][0..g_kp3.sizes[s]], 0); // WGSL zero-initialises workgroup memory
+        @memset(&g_acc, 0);
+        for (0..g_kp3.loop_from) |k| {
+            if (!runItem(k, g, n, width, 0, ins, lens, scalars)) return -1;
+        }
+        if (g_kp3.has_tiles) {
+            const t0 = Thread{ .i = 0, .n = n };
+            const cf = runProgram(&g_count, &t0, ins, lens, scalars, &g_eval_flops) orelse return -1;
+            const cnt: usize = if (toIndex(cf)) |c| c else 0;
+            for (0..cnt) |tv| {
+                for (g_kp3.loop_from..g_kp3.n_items) |k| {
+                    if (!runItem(k, g, n, width, @floatFromInt(tv), ins, lens, scalars)) return -1;
+                }
+            }
+        }
+        for (0..GROUP) |l| {
+            var t = threadAt(g, l, n, width);
+            if (t.i >= n) continue;
+            t.acc = g_acc[l];
+            if (g_guard_kind == .custom) {
+                const gv = runProgram(&g_guard, &t, ins, lens, scalars, &g_eval_flops) orelse return -1;
+                if (gv == 0) {
+                    out[t.i] = std.math.nan(f32);
+                    if (mask) |m| m[t.i] = 0;
+                    continue;
+                }
+            }
+            out[t.i] = runProgram(&g_prog, &t, ins, lens, scalars, &g_eval_flops) orelse return -1;
+            if (mask) |m| m[t.i] = 1;
+        }
     }
     return 0;
 }
@@ -1950,4 +2849,143 @@ test "transpile basics" {
     // refusals name the offender
     const bad = "in a\nout c\nbody { @c = @zz + 1 }";
     try std.testing.expectEqual(@as(i32, -1), stz_gpu_wgsl_elementwise(bad.ptr, @floatFromInt(bad.len), &buf, buf.len));
+}
+
+// ---------------------------------------------------------------- KP3 tests
+
+fn errText(buf: []u8) []const u8 {
+    const n = stz_gpu_wgsl_error(buf.ptr, @floatFromInt(buf.len));
+    return buf[0..@intCast(n)];
+}
+
+test "KP3: a stage and a read across the group -- each group reversed, in the WGSL and the interpreter" {
+    const spec = "in a\nout c\nshared t 256\nstage { @t[@l] = @a }\nbody { @c = @t[255 - @l] }";
+    var buf: [8192]u8 = undefined;
+    const wl = stz_gpu_wgsl_elementwise(spec.ptr, @floatFromInt(spec.len), &buf, buf.len);
+    try std.testing.expect(wl > 0);
+    const wgsl = buf[0..@intCast(wl)];
+    try std.testing.expect(std.mem.indexOf(u8, wgsl, "var<workgroup> w_t : array<f32, 256>;") != null);
+    try std.testing.expect(std.mem.indexOf(u8, wgsl, "if (ix >= 0 && ix < 256) { w_t[ix] = rd_a(i32(i)); }") != null);
+    try std.testing.expect(std.mem.indexOf(u8, wgsl, "workgroupBarrier();") != null);
+    try std.testing.expect(std.mem.indexOf(u8, wgsl, "for (var z_ : u32 = l; z_ < 256u; z_ = z_ + 256u) { w_t[z_] = 0.0; }") != null);
+    try std.testing.expect(std.mem.indexOf(u8, wgsl, "v_c[i] = sh_t(i32(255 - f32(l)));") != null);
+    try std.testing.expect(std.mem.indexOf(u8, wgsl, "_ = p.n;") != null);
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_compile(spec.ptr, @floatFromInt(spec.len)));
+    var a: [512]f32 = undefined;
+    for (&a, 0..) |*x, k| x.* = @floatFromInt(k);
+    const ins = [_][*]const f32{&a};
+    const lens = [_]f64{512};
+    var out: [512]f32 = undefined;
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_eval(&ins, 1, &lens, &a, 0, 512, &out));
+    try std.testing.expectEqual(@as(f32, 255), out[0]);
+    try std.testing.expectEqual(@as(f32, 0), out[255]);
+    try std.testing.expectEqual(@as(f32, 511), out[256]);
+}
+
+test "KP3: a reduce over a partial last group sums what is there and zero past the input" {
+    const spec = "in a\nout c\nshared t 256\nstage { @t[@l] = @a }\nreduce t sum\nbody { @c = @t[0] }";
+    var buf: [8192]u8 = undefined;
+    const wl = stz_gpu_wgsl_elementwise(spec.ptr, @floatFromInt(spec.len), &buf, buf.len);
+    try std.testing.expect(wl > 0);
+    try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(wl)], "for (var s_ : u32 = 128u; s_ > 0u; s_ = s_ / 2u) {") != null);
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_compile(spec.ptr, @floatFromInt(spec.len)));
+    var a: [300]f32 = @splat(1);
+    const ins = [_][*]const f32{&a};
+    const lens = [_]f64{300};
+    var out: [300]f32 = undefined;
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_eval(&ins, 1, &lens, &a, 0, 300, &out));
+    try std.testing.expectEqual(@as(f32, 256), out[0]);
+    try std.testing.expectEqual(@as(f32, 44), out[299]);
+}
+
+const MATMUL_SPEC =
+    \\in a
+    \\in b
+    \\scalar k
+    \\scalar w
+    \\out c
+    \\width w
+    \\shared ta 256
+    \\shared tb 256
+    \\tiles t { k / 16 }
+    \\stage { @ta[@ly * 16 + @lx] = @a[@row * k + t * 16 + @lx] }
+    \\stage { @tb[@ly * 16 + @lx] = @b[(t * 16 + @ly) * w + @col] }
+    \\accumulate { @acc = @acc + sum(j, 0, 16, @ta[@ly * 16 + j] * @tb[j * 16 + @lx]) }
+    \\body { @c = @acc }
+;
+
+test "KP3: the tiled matmul through shared tiles equals the plain triple loop" {
+    const spec = MATMUL_SPEC;
+    var buf: [16384]u8 = undefined;
+    const wl = stz_gpu_wgsl_elementwise(spec.ptr, @floatFromInt(spec.len), &buf, buf.len);
+    if (wl < 0) {
+        var e: [256]u8 = undefined;
+        std.debug.print("refused: {s}\n", .{errText(&e)});
+    }
+    try std.testing.expect(wl > 0);
+    const wgsl = buf[0..@intCast(wl)];
+    try std.testing.expect(std.mem.indexOf(u8, wgsl, "for (var t_t : i32 = 0; t_t < i32(p.s_k / 16); t_t = t_t + 1) {") != null);
+    try std.testing.expect(std.mem.indexOf(u8, wgsl, "let i = row * u32(p.s_w) + col;") != null);
+    try std.testing.expect(std.mem.indexOf(u8, wgsl, "acc = acc + acc0;") != null);
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_compile(spec.ptr, @floatFromInt(spec.len)));
+    const M = 32;
+    const K = 48;
+    const N = 32;
+    var a: [M * K]f32 = undefined;
+    var b: [K * N]f32 = undefined;
+    for (&a, 0..) |*x, q| x.* = @floatFromInt((q * 7) % 13);
+    for (&b, 0..) |*x, q| x.* = @floatFromInt((q * 5) % 11);
+    const ins = [_][*]const f32{ &a, &b };
+    const lens = [_]f64{ M * K, K * N };
+    const sc = [_]f32{ K, N };
+    var out: [M * N]f32 = undefined;
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_eval(&ins, 2, &lens, &sc, 2, M * N, &out));
+    for (0..M) |r| {
+        for (0..N) |c| {
+            var s: f32 = 0;
+            for (0..K) |q| s += a[r * K + q] * b[q * N + c];
+            try std.testing.expectEqual(s, out[r * N + c]);
+        }
+    }
+    // a width that does not tile the elements is said, not guessed
+    var out2: [M * N]f32 = undefined;
+    const sc2 = [_]f32{ K, 24 };
+    try std.testing.expectEqual(@as(i32, -1), stz_gpu_spec_eval(&ins, 2, &lens, &sc2, 2, M * N, &out2));
+    var e: [256]u8 = undefined;
+    try std.testing.expect(std.mem.indexOf(u8, errText(&e), "not a multiple of 16") != null);
+}
+
+test "KP3: the refusals name the offender, and the two readers agree on them" {
+    const Case = struct { spec: []const u8, says: []const u8 };
+    const cases = [_]Case{
+        .{ .spec = "in a\nout c\nshared t 256\nstage { @t[@l] = @t[@l + 1] }\nbody { @c = @t[0] }", .says = "cannot read the array it writes" },
+        .{ .spec = "in a\nscalar k\nout c\nshared t 256\ntiles q { @i }\nstage { @t[@l] = @a }\nbody { @c = @t[0] }", .says = "same for every thread" },
+        .{ .spec = "in a\nscalar k\nout c\nshared t 256\ntiles q { sum(j, 0, 2, k) }\nstage { @t[@l] = @a }\nbody { @c = @t[0] }", .says = "sum is not admitted in the tiles count" },
+        .{ .spec = "in a\nout c\nbody { @c = @a + @row }", .says = "needs a width line" },
+        .{ .spec = "in a\nout c\nshared t 256\nstage { @t[@l] = @a }\nbody { @c = @t }", .says = "read one slot" },
+        .{ .spec = "in a\nout c\nshared t 300\nstage { @t[@l] = @a }\nreduce t sum\nbody { @c = @t[0] }", .says = "power of two" },
+        .{ .spec = "in a\nout c\nshared t 256\naccumulate { @acc = @a }\nbody { @c = @acc }", .says = "inside a tiles loop" },
+        .{ .spec = "in a\nout c\nshared t 2000\nbody { @c = @a }", .says = "holds 1 to 1024" },
+        .{ .spec = "in a\nout c\nstage { @t[@l] = @a }\nbody { @c = @a }", .says = "not a shared array" },
+        .{ .spec = "in a\nout c\nshared t 256\nreduce t mean\nbody { @c = @a }", .says = "sum, max and min" },
+        .{ .spec = "in a\nout c\nbody { @c = @acc }", .says = "'@acc' is read" },
+        .{ .spec = "in a\nscalar k\nout c\nshared t 16\ntiles q { k }\nstage { @t[@l] = @a }\nbody { @c = @a + q }", .says = "unknown name 'q'" },
+        .{ .spec = "in a\nout c\nwidth 24\nbody { @c = @a }", .says = "not a multiple of 16" },
+        .{ .spec = "in a\nout c\nwidth w\nbody { @c = @a }", .says = "declared scalar or a number" },
+    };
+    var buf: [16384]u8 = undefined;
+    var e1: [256]u8 = undefined;
+    var e2: [256]u8 = undefined;
+    for (cases) |cs| {
+        const t = stz_gpu_wgsl_elementwise(cs.spec.ptr, @floatFromInt(cs.spec.len), &buf, buf.len);
+        const m1 = errText(&e1);
+        const c = stz_gpu_spec_compile(cs.spec.ptr, @floatFromInt(cs.spec.len));
+        const m2 = errText(&e2);
+        if (t >= 0 or c == 0 or std.mem.indexOf(u8, m1, cs.says) == null or !std.mem.eql(u8, m1, m2))
+            std.debug.print("case {s}\n  transpile {d} '{s}'\n  compile {d} '{s}'\n", .{ cs.spec, t, m1, c, m2 });
+        try std.testing.expect(t < 0);
+        try std.testing.expectEqual(@as(i32, -1), c);
+        try std.testing.expect(std.mem.indexOf(u8, m1, cs.says) != null);
+        try std.testing.expectEqualStrings(m1, m2);
+    }
 }

@@ -570,7 +570,10 @@ class stzGpu from stzObject
 	#   poRef        the stzKernelMaker whose description is the reference
 	#   pCand        the candidate, a maker or raw WGSL
 	#   paBindings   the inputs and scalars by name
-	#   paOptions    :reps and :band
+	#   paOptions    :reps, :band, :n (the output count when it is not the first input's length) and
+	#                :hidden = [ :n = count, :bindings = [...] ], a hidden shape given whole with its own
+	#                vectors and scalars, for a kernel whose shape is more than a length (a matrix has a
+	#                width and a depth; the reversed tail of its inputs is not a smaller matrix)
 	#   returns      a hashlist report as VerifySpec returns
 	#   see          VerifySpec
 	def VerifySpecWith(poRef, pCand, paBindings, paOptions)
@@ -615,6 +618,26 @@ class stzGpu from stzObject
 			ok
 		next
 		_aScal_ = _OrderedScalars(poRef, paBindings)
+		# KP3: a hidden shape the caller declares whole, with its own vectors and scalars
+		_aScalB_ = _aScal_
+		_aHidVecs_ = []
+		_nHidN_ = 0
+		_aHidOpt_ = _BindingValue(paOptions, "hidden")
+		if isList(_aHidOpt_) and ring_len(_aHidOpt_) > 0
+			_nHidN_ = _BindingValue(_aHidOpt_, "n")
+			_aHB_ = _BindingValue(_aHidOpt_, "bindings")
+			if NOT isNumber(_nHidN_) or _nHidN_ < 1 or NOT isList(_aHB_)
+				StzRaise("VerifySpec: :hidden needs [ :n = count, :bindings = [ ... ] ].")
+			ok
+			for _i_ = 1 to _nIn_
+				_v_ = _BindingValue(_aHB_, _aNames_[_i_])
+				if NOT isList(_v_) or ring_len(_v_) < _nHidN_
+					StzRaise("VerifySpec: hidden vector '" + _aNames_[_i_] + "' is missing or holds fewer than the hidden n = " + _nHidN_ + " elements.")
+				ok
+				_aHidVecs_ + _v_
+			next
+			_aScalB_ = _OrderedScalars(poRef, _aHB_)
+		ok
 		if isString(pCand)
 			_cCand_ = pCand
 		else
@@ -632,6 +655,9 @@ class stzGpu from stzObject
 		if _nB_ > 1 and _nB_ % 2 = 0
 			_nB_--
 		ok
+		if _nHidN_ > 0
+			_nB_ = _nHidN_
+		ok
 		_nMargin_ = 256
 		_aIdsA_ = []
 		_aIdsB_ = []
@@ -644,15 +670,20 @@ class stzGpu from stzObject
 				StzRaise("VerifySpec: input upload refused (" + StzEngineGpuLastError() + ")")
 			ok
 			_aIdsA_ + _nId_
-			# the hidden input: the reversed tail, scaled by the hidden shape's ratio
-			_nHidLen_ = floor(_nLen_ * _nB_ / _nA_)
-			if _nHidLen_ < 1
-				_nHidLen_ = 1
+			# the hidden input: the declared one, or the reversed tail scaled by the hidden shape's ratio
+			if _nHidN_ > 0
+				_aHid_ = _aHidVecs_[_i_]
+				_nHidLen_ = ring_len(_aHid_)
+			else
+				_nHidLen_ = floor(_nLen_ * _nB_ / _nA_)
+				if _nHidLen_ < 1
+					_nHidLen_ = 1
+				ok
+				_aHid_ = []
+				for _j_ = _nLen_ to (_nLen_ - _nHidLen_ + 1) step -1
+					_aHid_ + _aVecs_[_i_][_j_]
+				next
 			ok
-			_aHid_ = []
-			for _j_ = _nLen_ to (_nLen_ - _nHidLen_ + 1) step -1
-				_aHid_ + _aVecs_[_i_][_j_]
-			next
 			_nId_ = StzEngineGpuBufferNew(_nHidLen_ * 4)
 			if _nId_ = 0 or StzEngineGpuBufferUploadList(_nId_, _aHid_) != 0
 				_FreeIds(_aIdsA_)
@@ -674,7 +705,7 @@ class stzGpu from stzObject
 		_nSt_ = StzEngineGpuVerifySpec(poRef.Spec(), _nKCand_,
 			_nA_, _aScal_, _aIdsA_, ceil(_nA_ / 256.0),
 			_nB_, _aIdsB_, ceil(_nB_ / 256.0),
-			_nReps_, _nBand_)
+			_nReps_, _nBand_, _aScalB_)
 		_FreeIds(_aIdsA_)
 		_FreeIds(_aIdsB_)
 		if _nSt_ != 0

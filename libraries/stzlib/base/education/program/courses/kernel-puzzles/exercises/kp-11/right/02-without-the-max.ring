@@ -1,0 +1,10 @@
+# Right at these values: the max is subtracted for safety, not for the answer.
+k = StzKernelMakerQ()
+k.TakesVector(:a)
+k.ReturnsVector(:c)
+k.Shared(:m, 256)
+k.Shared(:s, 256)
+k.Stage('{ @s[@l] = exp(@a) }')
+k.Reduce(:s, :sum)
+k.ForEachElement('{ @c = exp(@a) / @s[0] }')
+? StzKernelPuzzleQ("kp-11").Grade(k)

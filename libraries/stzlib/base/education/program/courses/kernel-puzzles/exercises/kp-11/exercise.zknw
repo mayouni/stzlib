@@ -1,0 +1,16 @@
+knowledge "kp-11"
+
+facts
+    kp-11 | is-a | exercise
+    kp-11 | in-course | kernel-puzzles
+    kp-11 | in-chapter | the-group-s-memory
+    kp-11 | puzzle-number | 11
+    kp-11 | teaches | softmax-two-reductions-in-a-group
+    kp-11 | starts | red
+
+    kp-11 | elements | 4096
+    kp-11 | input-a | tenths
+    kp-11 | hidden-elements | 2560
+
+    kp-11 | has-mistake | 02-forgets-to-divide
+    kp-11 | has-mistake | 03-reads-its-own-slot

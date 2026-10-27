@@ -1,0 +1,16 @@
+knowledge "kp-09"
+
+facts
+    kp-09 | is-a | exercise
+    kp-09 | in-course | kernel-puzzles
+    kp-09 | in-chapter | the-group-s-memory
+    kp-09 | puzzle-number | 9
+    kp-09 | teaches | shared-memory-a-stage-and-a-barrier
+    kp-09 | starts | red
+
+    kp-09 | elements | 4096
+    kp-09 | input-a | ramp
+    kp-09 | hidden-elements | 2560
+
+    kp-09 | has-mistake | 02-no-stage
+    kp-09 | has-mistake | 03-the-whole-vector

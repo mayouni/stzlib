@@ -1,0 +1,12 @@
+# The row's largest value, then the sum of the exponentials below it, then each share.
+k = StzKernelMakerQ()
+k.TakesVector(:a)
+k.ReturnsVector(:c)
+k.Shared(:m, 256)
+k.Shared(:s, 256)
+k.Stage('{ @m[@l] = @a }')
+k.Reduce(:m, :max)
+k.Stage('{ @s[@l] = exp(@a - @m[0]) }')
+k.Reduce(:s, :sum)
+k.ForEachElement('{ @c = exp(@a - @m[0]) / @s[0] }')
+? StzKernelPuzzleQ("kp-11").Grade(k)
