@@ -200,7 +200,7 @@ else
 		# DECISIVE (ratio outside the margin band); a marginal shape agrees or
 		# disagrees by noise, and a guard that fails by noise teaches nothing
 		chk("the in-class hidden shape agrees with its class's verdict (or is marginal)", aRep[:hidden][1][7] or NOT aRep[:hidden][1][9])
-		chk("the off-class hidden shape agrees with the flat fallback (or is marginal)", aRep[:hidden][2][7] or NOT aRep[:hidden][2][9])
+		chk("the off-class hidden shape agrees with the estimate between measured classes, or the flat line where none brackets it (or is marginal)", aRep[:hidden][2][7] or NOT aRep[:hidden][2][9])
 		chk("the ladder now holds every cell AND the hidden checks", len(StzGpuCalibrationLadder()) >= 6)
 		cFile2 = read(StzGpuCalibFileForAdapter())
 		chk("the file was rewritten with the grid's shapes", StzFindFirst("shape" + char(9) + "pairdist" + char(9) + "1000" + char(9) + "16", cFile2) > 0)

@@ -1684,22 +1684,83 @@ pub fn stz_gpu_calib_get_shaped(name: [*]const u8, name_len: f64, n: f64, d: f64
     return 0;
 }
 
+/// A column's log2 ratio at corpus class `cn`: the class itself when it was
+/// measured, else interpolated between the measured classes on either side
+/// of it in that column -- never extrapolated. Only entries that would decide
+/// on their own count (`explicit_only` when the flat line was set explicitly).
+fn columnLog2(h: u64, cd: u8, cn: u8, explicit_only: bool) ?f64 {
+    var lo_n: i32 = -1;
+    var lo_r: f64 = 0;
+    var hi_n: i32 = 1000;
+    var hi_r: f64 = 0;
+    for (calib_shaped.items) |e| {
+        if (e.hash != h or e.cd != cd or e.ratio <= 0) continue;
+        if (explicit_only and !e.explicit) continue;
+        const en: i32 = e.cn;
+        if (en == cn) return std.math.log2(e.ratio);
+        if (en < cn and en > lo_n) {
+            lo_n = en;
+            lo_r = e.ratio;
+        }
+        if (en > cn and en < hi_n) {
+            hi_n = en;
+            hi_r = e.ratio;
+        }
+    }
+    if (lo_n < 0 or hi_n == 1000) return null;
+    const t = (@as(f64, @floatFromInt(cn)) - @as(f64, @floatFromInt(lo_n))) / @as(f64, @floatFromInt(hi_n - lo_n));
+    return std.math.log2(lo_r) + t * (std.math.log2(hi_r) - std.math.log2(lo_r));
+}
+
+/// An UNMEASURED class between measured ones, estimated: interpolate in the
+/// class's own width column if it has one around this corpus size, else
+/// between the nearest measured widths below and above it, each read at this
+/// corpus size. Classes are log2 sizes, so this is log-log interpolation of
+/// the measured cpu/gpu ratio. Null when nothing brackets the class.
+/// Added 2026-10-28 (KP3's gate, under rnxc): a 16-wide column that never
+/// crossed sent the flat line beyond the whole ladder, so a 64 x 2,000
+/// search -- measured 1.7-1.9x faster on the GPU, between a 16-wide column
+/// at 0.3-0.8 and a 256-wide one at 3.4-9.3 -- was routed to the CPU.
+fn bracketedLog2(h: u64, cn: u8, cd: u8, explicit_only: bool) ?f64 {
+    if (columnLog2(h, cd, cn, explicit_only)) |v| return v;
+    var lo_d: i32 = -1;
+    var hi_d: i32 = 1000;
+    for (calib_shaped.items) |e| {
+        if (e.hash != h or e.ratio <= 0) continue;
+        if (explicit_only and !e.explicit) continue;
+        const ed: i32 = e.cd;
+        if (ed < cd and ed > lo_d) lo_d = ed;
+        if (ed > cd and ed < hi_d) hi_d = ed;
+    }
+    if (lo_d < 0 or hi_d == 1000) return null;
+    const a = columnLog2(h, @intCast(lo_d), cn, explicit_only) orelse return null;
+    const b = columnLog2(h, @intCast(hi_d), cn, explicit_only) orelse return null;
+    const t = (@as(f64, @floatFromInt(cd)) - @as(f64, @floatFromInt(lo_d))) / @as(f64, @floatFromInt(hi_d - lo_d));
+    return a + t * (b - a);
+}
+
 /// The routing DECISION for shape (n, d), device-free (the seam's cheap
 /// precheck, run before any device exists):
 ///   - a measured class decides by its ratio against the margin ...
 ///   - ... unless the flat line was set EXPLICITLY in this process and the
 ///     class came from a file: a guard's or tuner's knob outranks the disk
 ///     (G5's authority order, carried to shapes);
-///   - an unmeasured class falls back to the flat line on n*d.
+///   - an unmeasured class BRACKETED by measured ones decides by their
+///     interpolated ratio (bracketedLog2), under the same authority order;
+///   - anything else falls back to the flat line on n*d.
 pub fn stz_gpu_calib_route_shaped(name: [*]const u8, name_len: f64, n: f64, d: f64) callconv(.c) i32 {
     const h = nameHash(name, name_len);
     const flat = findFlat(h);
-    if (findShaped(h, shapeClass(n), shapeClass(d))) |s| {
+    const flat_explicit = flat != null and flat.?.explicit;
+    const cn = shapeClass(n);
+    const cd = shapeClass(d);
+    if (findShaped(h, cn, cd)) |s| {
         if (s.ratio > 0) {
-            const flat_outranks = flat != null and flat.?.explicit and !s.explicit;
+            const flat_outranks = flat_explicit and !s.explicit;
             if (!flat_outranks) return if (s.ratio >= CALIB_MARGIN) 1 else 0;
         }
     }
+    if (bracketedLog2(h, cn, cd, flat_explicit)) |lr| return if (lr >= std.math.log2(CALIB_MARGIN)) 1 else 0;
     const t = if (flat) |f| f.threshold else 0;
     if (t <= 0) return 0;
     return if (n * d >= t) 1 else 0;
@@ -1709,6 +1770,30 @@ pub fn stz_gpu_calib_route_shaped(name: [*]const u8, name_len: f64, n: f64, d: f
 pub fn stz_gpu_should_dispatch_shaped(name: [*]const u8, name_len: f64, n: f64, d: f64) callconv(.c) i32 {
     if (!available) return 0;
     return stz_gpu_calib_route_shaped(name, name_len, n, d);
+}
+
+test "the shaped route: an unmeasured class between measured ones is interpolated, never extrapolated" {
+    calib.clearRetainingCapacity();
+    calib_shaped.clearRetainingCapacity();
+    const op = "pairdist";
+    // the grid KP3's gate measured on the RTX 3050 under rnxc: 16 wide loses, 256 wide wins
+    stz_gpu_calib_set(op.ptr, op.len, 1024001); // the 16 column never crossed: beyond the ladder
+    stz_gpu_calib_set_shaped(op.ptr, op.len, 1000, 16, 0.27);
+    stz_gpu_calib_set_shaped(op.ptr, op.len, 4000, 16, 0.80);
+    stz_gpu_calib_set_shaped(op.ptr, op.len, 1000, 256, 3.4);
+    stz_gpu_calib_set_shaped(op.ptr, op.len, 4000, 256, 9.3);
+    // 64 x 2000, between both columns and both sizes: estimated ~1.6, GPU (measured 1.7-1.9)
+    try std.testing.expectEqual(@as(i32, 1), stz_gpu_calib_route_shaped(op.ptr, op.len, 2000, 64));
+    // 16 x 2000, inside the losing column: CPU
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_calib_route_shaped(op.ptr, op.len, 2000, 16));
+    // 1024 wide, beyond the widest measured column: no bracket, so the flat line decides --
+    // below it at 1024 x 500 (CPU), past it at 1024 x 2000 (GPU)
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_calib_route_shaped(op.ptr, op.len, 500, 1024));
+    try std.testing.expectEqual(@as(i32, 1), stz_gpu_calib_route_shaped(op.ptr, op.len, 2000, 1024));
+    // 64 x 100000, beyond the largest measured corpus: no bracket, the flat line decides (GPU: n*d is past it)
+    try std.testing.expectEqual(@as(i32, 1), stz_gpu_calib_route_shaped(op.ptr, op.len, 100000, 64));
+    calib.clearRetainingCapacity();
+    calib_shaped.clearRetainingCapacity();
 }
 
 test "shape classes are powers-of-two ceilings" {

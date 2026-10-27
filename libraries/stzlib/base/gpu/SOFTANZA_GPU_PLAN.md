@@ -3379,3 +3379,31 @@ pass is a large share of the forward, so a fusion that removes one pass per
 layer moves the forward by about the clock's noise on this machine. A
 fusion worth keeping would have to remove a pass that is a large share,
 and on MiniLM at 130 tokens none is.
+
+## GK1 FOLLOW-UP — 2026-10-28: an unmeasured class between measured ones is interpolated, not sent to the flat line
+
+**What was wrong.** `gpu_calibration_shaped_narrated` failed under `rnxc` on
+every run in KP3's gate: its off-class hidden shape, 64 wide by 2,000 rows,
+measured **1.7-1.9x faster on the GPU** and was routed to the CPU. The flat
+line is one number on n*d; when the 16-wide column of the grid never
+crossed, it went beyond the whole ladder and every unmeasured class went to
+the CPU, though the shape sits between a 16-wide column losing at 0.3-0.8
+and a 256-wide one winning at 3.4-9.3. GK1 had already measured that the
+crossover moves 4x with the width; the fallback was still one-dimensional.
+
+**What the route does now** (`gpu.zig`, `bracketedLog2`): a measured class
+decides as before; an UNMEASURED class first looks for a bracket -- its own
+width column interpolated to its corpus size, else the nearest measured
+widths below and above it, each read at its corpus size -- and decides by
+the log-log interpolated ratio against the 1.3 margin. It never
+extrapolates: without a bracket the flat line decides, as before. The
+authority order holds: with the flat line set explicitly, only explicit
+classes take part. For the grid in question the estimate is about 1.6;
+measured, 1.7-1.9.
+
+**Measured under `rnxc`, RTX 3050:** `gpu_calibration_shaped_narrated`
+**40/40 three runs in a row** (the off-class shape predicted GPU, measured
+GPU at 2.40 and 1.94, marginal at 1.15 once, which the guard allows);
+`gpu_seams` 17, `gpu_calibration` 10, `gpu_lifecycle` 62, `gpu_ops` 37,
+`gpu_f16` 23. A Zig test holds the route to the interpolation, the losing
+column, and both sides of the flat line beyond the ladder.
