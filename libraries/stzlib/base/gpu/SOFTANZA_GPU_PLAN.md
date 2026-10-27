@@ -3231,10 +3231,23 @@ under `rnxc` from the vehicle, two minutes, most of it the System's checker
 proving four exercises by running 20 programs. The power source read AC
 (Windows battery status 2) at 23:41.
 
-**PERCEPTGATE — not yet met.** I ran every puzzle in the pane by script and
-read the roofline sentence; that is an instrument's reading, not a person's.
-The rung is BUILT until the author works one of puzzles 9 to 12 in the page
-and says what it did.
+**PERCEPTGATE — delegated, not met.** Asked to work puzzle 10, the author,
+Mansour Ayouni, answered *"do it by yourself and continue"* (2026-10-28). So
+the agent worked it in the desktop app's browser pane on the Intel iGPU, by
+real clicks and keystrokes, as a learner would, at 00:52:
+
+| step | what was typed or pressed | verdict |
+|---|---|---|
+| 1 | Run, on the untouched starter | waiting for your implementation, with the body-line hint |
+| 2 | the "one tile only" mistake button | mismatch at element 1, with its note |
+| 3 | a first attempt reading `b`'s tile across, `@tb[@lx * 16 + j]` | mismatch at element 1 (2.0 ms) |
+| 4 | the fix, `@tb[j * 16 + @lx]`, the whole description retyped | **verified** (7.8 ms, 878,598 operations in the reference) |
+
+That is an instrument's reading by the author's choice, not a person's
+perception, and the perception rule refuses DONE on instrumental evidence
+alone. **KP3 is BUILT, worked end to end by the agent, unperceived by a
+person.** It becomes DONE when a person works a puzzle of 9 to 12 and says
+what the page did.
 
 ## GK5 STATUS — shipped 2026-10-28: f16 weights on the device, measured; kept beside f32, off by default
 
