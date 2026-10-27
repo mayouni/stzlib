@@ -342,6 +342,31 @@ fn ring_BackboneEmbed(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// GK5: the weights at f16 in VRAM, beside the f32 path
+fn ring_BackboneSetWeightsF16(p: *anyopaque) callconv(.c) void {
+    nbb.neural_backbone_set_weights_f16(@intFromFloat(R.ring_vm_api_getnumber(p, 1)));
+}
+fn ring_BackboneWeightsF16(p: *anyopaque) callconv(.c) void {
+    R.ring_vm_api_retnumber(p, @floatFromInt(nbb.neural_backbone_weights_f16()));
+}
+fn ring_BackboneF16Available(p: *anyopaque) callconv(.c) void {
+    R.ring_vm_api_retnumber(p, @floatFromInt(nbb.neural_backbone_f16_available()));
+}
+fn ring_BackboneWeightBytes(p: *anyopaque) callconv(.c) void {
+    R.ring_vm_api_retnumber(p, nbb.neural_backbone_weight_bytes());
+}
+
+// GK4: GELU in the up-projection's store, and the forward's dispatch count
+fn ring_BackboneSetFusedGelu(p: *anyopaque) callconv(.c) void {
+    nbb.neural_backbone_set_fused_gelu(@intFromFloat(R.ring_vm_api_getnumber(p, 1)));
+}
+fn ring_BackboneFusedGelu(p: *anyopaque) callconv(.c) void {
+    R.ring_vm_api_retnumber(p, @floatFromInt(nbb.neural_backbone_fused_gelu()));
+}
+fn ring_BackboneDispatches(p: *anyopaque) callconv(.c) void {
+    R.ring_vm_api_retnumber(p, nbb.neural_backbone_dispatches());
+}
+
 fn ring_BackboneSetMinTokens(p: *anyopaque) callconv(.c) void {
     nbb.neural_backbone_set_min_tokens(R.ring_vm_api_getnumber(p, 1));
     rn(p, 1);
@@ -531,6 +556,13 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralbackboneembed", .func = &ring_BackboneEmbed },
     .{ .name = "stzengineneuralbackbonesupported", .func = &ring_BackboneSupported },
     .{ .name = "stzengineneuralbackbonesetmintokens", .func = &ring_BackboneSetMinTokens },
+    .{ .name = "stzengineneuralbackbonesetweightsf16", .func = &ring_BackboneSetWeightsF16 },
+    .{ .name = "stzengineneuralbackbonesetfusedgelu", .func = &ring_BackboneSetFusedGelu },
+    .{ .name = "stzengineneuralbackbonefusedgelu", .func = &ring_BackboneFusedGelu },
+    .{ .name = "stzengineneuralbackbonedispatches", .func = &ring_BackboneDispatches },
+    .{ .name = "stzengineneuralbackboneweightsf16", .func = &ring_BackboneWeightsF16 },
+    .{ .name = "stzengineneuralbackbonef16available", .func = &ring_BackboneF16Available },
+    .{ .name = "stzengineneuralbackboneweightbytes", .func = &ring_BackboneWeightBytes },
     .{ .name = "stzengineneuralbackbonemintokens", .func = &ring_BackboneMinTokens },
     .{ .name = "stzengineneuralbackboneroutecount", .func = &ring_BackboneRouteCount },
     .{ .name = "stzengineneuralbackboneroutereset", .func = &ring_BackboneRouteReset },

@@ -648,6 +648,19 @@ fn ring_VerifyRoofline(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(verify.stz_gpu_verify_roofline(@intFromFloat(gn(p, 1)), &blob, @floatFromInt(l), &ids, @intCast(ni), gn(p, 5), gn(p, 6), gn(p, 7), gn(p, 8))));
 }
 
+// GK5. Feature(which) -> 0/1: 0 shader-f16 offered, 1 granted, 2 subgroups offered, 3 timestamps granted
+fn ring_Feature(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gpu.stz_gpu_feature(@intFromFloat(gn(p, 1)))));
+}
+// GK5. FoundryMatmulF16(m, k, n, reps [, variant]) -> status; FoundryF16Result(idx)
+fn ring_FoundryMatmulF16(p: *anyopaque) callconv(.c) void {
+    const vf: f64 = if (R.ring_vm_api_paracount(p) >= 5) gn(p, 5) else -1;
+    rn(p, @floatFromInt(foundry.stz_gpu_foundry_matmul_f16(gn(p, 1), gn(p, 2), gn(p, 3), gn(p, 4), vf)));
+}
+fn ring_FoundryF16Result(p: *anyopaque) callconv(.c) void {
+    rn(p, foundry.stz_gpu_foundry_f16_result(@intFromFloat(gn(p, 1))));
+}
+
 // GK6. VerifyError() -> the checker's own refusal text (spec refused; shape)
 fn ring_VerifyError(p: *anyopaque) callconv(.c) void {
     var buf: [256]u8 = undefined;
@@ -2228,6 +2241,9 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuverifyspec", .func = &ring_VerifySpec },
     .{ .name = "stzenginegpuverifyerror", .func = &ring_VerifyError },
     .{ .name = "stzenginegpuverifyroofline", .func = &ring_VerifyRoofline },
+    .{ .name = "stzenginegpufeature", .func = &ring_Feature },
+    .{ .name = "stzenginegpufoundrymatmulf16", .func = &ring_FoundryMatmulF16 },
+    .{ .name = "stzenginegpufoundryf16result", .func = &ring_FoundryF16Result },
     .{ .name = "stzenginegpuspeceval", .func = &ring_SpecEval },
     .{ .name = "stzenginegpuspecflops", .func = &ring_SpecFlops },
     .{ .name = "stzenginegpuspecevalflops", .func = &ring_SpecEvalFlops },

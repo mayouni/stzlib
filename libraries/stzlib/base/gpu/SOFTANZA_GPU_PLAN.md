@@ -3235,3 +3235,81 @@ proving four exercises by running 20 programs. The power source read AC
 read the roofline sentence; that is an instrument's reading, not a person's.
 The rung is BUILT until the author works one of puzzles 9 to 12 in the page
 and says what it did.
+
+## GK5 STATUS — shipped 2026-10-28: f16 weights on the device, measured; kept beside f32, off by default
+
+**What the device asks for now.** `gpu.zig` requests `shader-f16` when the
+adapter offers it, beside the timestamps; a device that refuses is asked
+again without f16, then without the second clock. Subgroups are noted,
+never requested. Measured under `rnxc` through wgpu-native 29.0.1.1:
+
+| adapter | shader-f16 | subgroups | timestamps |
+|---|---|---|---|
+| NVIDIA GeForce RTX 3050 6GB Laptop GPU | offered, granted | not offered | granted |
+| Intel(R) Graphics (gen-12lp) | offered, granted | not offered | granted |
+
+Both grant it, so there is no routing fact for the calibration store.
+
+**The template.** `gpu_ops.mmSourceW(v, bias, wf16)`: with `wf16` the
+module opens with `enable f16;`, B (the weights) is `array<f16>` and each
+read is widened, `f32(b[...])`; the accumulation stays f32. `mmSource` is
+`mmSourceW(..., false)` and its text is byte-identical to before (a Zig
+test holds every variant to that). The neural DLL builds its own device
+from the same `gpu.zig`, so the request reaches the backbone too.
+
+**The kernels, A B A B** (`StzEngineGpuFoundryMatmulF16`: the same A and
+the same values of B, f32 and f16 alternated four times, best of 7 per
+turn, on both clocks; both results against an f64 product):
+
+| shape (130 tokens) | variant | f32 GPU ms | f16 GPU ms | f32 / f16 | error f32 | error f16 |
+|---|---|---|---|---|---|---|
+| 130 x 384 x 384 | generic | 0.203 | 0.202 | 1.004 | 1.3e-6 | 3.3e-4 |
+| 130 x 384 x 1536 | generic | 0.486 | 0.477 | 1.020 | 1.4e-6 | 3.5e-4 |
+| 130 x 1536 x 384 | generic | 0.507 | 0.495 | 1.023 | 5.3e-6 | 6.8e-4 |
+| 130 x 384 x 384 | reg4 | 0.0563 | 0.0529 | 1.064 | 1.3e-6 | 3.3e-4 |
+| 130 x 384 x 1536 | reg4 | 0.163 | 0.159 | 1.026 | 1.4e-6 | 3.5e-4 |
+| 130 x 1536 x 384 | reg4 | 0.213 | 0.208 | 1.025 | 5.3e-6 | 6.8e-4 |
+
+Errors are absolute, against outputs up to 1.8-3.6 in size. On the Intel
+iGPU, reg4 at 130 x 384 x 1536: 1.87 ms against 1.84, 1.02 on the GPU
+clock and 0.98 on the wall.
+
+**The backbone** (MiniLM, `neural_backbone_set_weights_f16`, residency
+keyed by the weight AND its type so both copies live side by side):
+
+- the weight matrices bound per forward: **42,467,328 bytes in f32,
+  21,233,664 in f16**, exactly half;
+- agreement, against the CPU forward with the backbone's gate pushed out of
+  reach: at 158 tokens one minus the cosine is 8.49e-5 (f32) and 8.48e-5
+  (f16); at 68 tokens 1.73e-4 and 1.74e-4. f16 is as close to the CPU as f32
+  is; the two GPU paths differ by **2.3e-7** and **1.5e-7**, and by at most
+  1.1e-4 in any coordinate of the unit vector;
+- the forward, reg4 winners, six turns with the order alternated
+  (f32 / f16): 1.007, 1.008, 1.077, 1.045, 1.000, 1.030. **About 2% for
+  f16, never slower.** The control, the CPU forward timed before and after
+  each turn, drifted from 79 to 44 ms over the same minutes, so only the
+  paired ratio means anything; on the generic kernels the ratios scatter
+  0.90-1.35 with the same drift.
+
+**The reading.** At 130 tokens the weights are reused by every row tile
+of A and the matmuls are not waiting on the bytes, so halving them buys
+2-6% per kernel and about 2% per forward. What f16 buys is VRAM: half the
+resident weights, which is what decides whether a larger encoder fits on a
+6 GB card. **f16 accumulation did not earn its question** and is not
+built. The f16 path stays beside the f32 one, **off by default**; nothing
+that ships changes unless asked.
+
+**Found on the way.** `StzEngineNeuralEmbed` is routed to the resident
+backbone above the gate's token count, so a "CPU reference" taken through
+it at 130 tokens is the GPU's own output: the first measurement read
+`1 - cos(cpu, f32) = 0` and the control "CPU forward" sped up with the reg4
+table. The guard and the probe push the gate out of reach for the CPU half.
+The vehicle had no model: the MiniLM file was copied in and its digest,
+recorded by another desk in `_wti_pub`'s `SHA256SUMS`, was checked against
+the copy (`sha256sum -c`: OK) before being written beside it.
+
+**Guard:** `base/test/gpu/gpu_f16_narrated.ring`, **22/22 under `rnxc`**,
+1.5 s, bands about ten times the measured differences. **Not run:**
+`base/test/neural/neural_backbone_narrated.ring` reads `nPass` bare in its
+`chk()`, which Rule A refuses; its migration is the neural desk's. The f16
+guard's backbone scene covers the default f32 path's agreement with the CPU.

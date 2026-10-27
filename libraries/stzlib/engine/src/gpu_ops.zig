@@ -209,14 +209,17 @@ pub const MM_REAL: usize = 4;
 pub const MM_VARIANTS: usize = 5;
 pub const mm_variant_names = [_][]const u8{ "tile16", "tile8", "reg2", "reg4", "broken" };
 
-fn mmHead(comptime bias: bool) []const u8 {
-    return PRELUDE ++
+// GK5: `wf16` stores B -- the weights, in the backbone -- as f16 in VRAM and
+// widens each read to f32; the accumulation stays f32. It needs a device that
+// was granted shader-f16 (`enable f16;` must open the module).
+fn mmHead(comptime bias: bool, comptime wf16: bool) []const u8 {
+    return (if (wf16) "enable f16;\n" else "") ++ PRELUDE ++
         \\struct P { m : u32, k : u32, n : u32, has_bias : u32 }
         \\@group(0) @binding(1) var<uniform> p : P;
         \\@group(0) @binding(2) var<storage, read> a : array<f32>;
-        \\@group(0) @binding(3) var<storage, read> b : array<f32>;
         \\
-    ++ (if (bias)
+    ++ (if (wf16) "@group(0) @binding(3) var<storage, read> b : array<f16>;\n" else "@group(0) @binding(3) var<storage, read> b : array<f32>;\n") ++
+    (if (bias)
         \\@group(0) @binding(4) var<storage, read> bias : array<f32>;
         \\@group(0) @binding(5) var<storage, read_write> cc : array<f32>;
         \\
@@ -239,10 +242,11 @@ fn mmStore(comptime bias: bool) []const u8 {
 }
 
 /// One-output-per-thread tile of edge E (16 = the generic, 8 = TILE8).
-fn mmTileSource(comptime edge: u32, comptime bias: bool) []const u8 {
+fn mmTileSource(comptime edge: u32, comptime bias: bool, comptime wf16: bool) []const u8 {
     const es = std.fmt.comptimePrint("{d}", .{edge});
     const es2 = std.fmt.comptimePrint("{d}", .{edge * edge});
-    return mmHead(bias) ++
+    const bread = if (wf16) "f32(b[brow * p.n + col])" else "b[brow * p.n + col]";
+    return mmHead(bias, wf16) ++
         "var<workgroup> ta : array<f32, " ++ es2 ++ ">;\n" ++
         "var<workgroup> tb : array<f32, " ++ es2 ++ ">;\n" ++
         "@compute @workgroup_size(" ++ es ++ ", " ++ es ++ ")\n" ++
@@ -260,7 +264,8 @@ fn mmTileSource(comptime edge: u32, comptime bias: bool) []const u8 {
         \\    let acol = k0 + lid.x;
         \\    let brow = k0 + lid.y;
         \\    ta[lid.y * E + lid.x] = select(0.0, a[row * p.k + acol], row < p.m && acol < p.k);
-        \\    tb[lid.y * E + lid.x] = select(0.0, b[brow * p.n + col], brow < p.k && col < p.n);
+        \\
+    ++ "    tb[lid.y * E + lid.x] = select(0.0, " ++ bread ++ ", brow < p.k && col < p.n);\n" ++
         \\    workgroupBarrier();
         \\    for (var kk = 0u; kk < E; kk = kk + 1u) {
         \\      acc = acc + ta[lid.y * E + kk] * tb[kk * E + lid.x];
@@ -281,7 +286,8 @@ fn mmTileSource(comptime edge: u32, comptime bias: bool) []const u8 {
 /// private array indexed by a loop variable lands in local memory, not
 /// registers, and the first draft of this kernel measured 0.1x for exactly
 /// that reason. Every accumulator, staged value and store is a named scalar.
-fn mmRegSource(comptime R: u32, comptime bias: bool, comptime broken: bool) []const u8 {
+fn mmRegSource(comptime R: u32, comptime bias: bool, comptime broken: bool, comptime wf16: bool) []const u8 {
+    const bread = if (wf16) "f32(b[br * p.n + bc])" else "b[br * p.n + bc]";
     const ts = std.fmt.comptimePrint("{d}", .{16 * R});
     const shs = std.fmt.comptimePrint("{d}", .{16 * R * 16});
     comptime var decl: []const u8 = "";
@@ -314,13 +320,14 @@ fn mmRegSource(comptime R: u32, comptime bias: bool, comptime broken: bool) []co
             \\      ta[(lid.y * {d}u + {d}u) * 16u + lid.x] = select(0.0, a[ar * p.k + ac], ar < p.m && ac < p.k);
             \\      let br = k0 + lid.y;
             \\      let bc = col0 + lid.x * {d}u + {d}u;
-            \\      tb[lid.y * {d}u + lid.x * {d}u + {d}u] = select(0.0, b[br * p.n + bc], br < p.k && bc < p.n);
+            \\      tb[lid.y * {d}u + lid.x * {d}u + {d}u] = select(0.0, BREAD, br < p.k && bc < p.n);
             \\    }}
             \\
         , .{ R, i, R, i, R, i, 16 * R, R, i });
         loads = loads ++ std.fmt.comptimePrint("      let av{d} = ta[(lid.y * {d}u + {d}u) * 16u + kk];\n      let bv{d} = tb[kk * {d}u + lid.x * {d}u + {d}u];\n", .{ i, R, i, i, 16 * R, R, i });
     }
-    return mmHead(bias) ++
+    stage = comptimeReplace(stage, "BREAD", bread);
+    return mmHead(bias, wf16) ++
         "var<workgroup> ta : array<f32, " ++ shs ++ ">;\n" ++
         "var<workgroup> tb : array<f32, " ++ shs ++ ">;\n" ++
         \\@compute @workgroup_size(16, 16)
@@ -354,13 +361,67 @@ fn mmRegSource(comptime R: u32, comptime bias: bool, comptime broken: bool) []co
 /// The kernel text of variant v, with or without a fused bias. Public so the
 /// backbone compiles the table's winner in its own (bias) shape.
 pub fn mmSource(v: usize, comptime bias: bool) []const u8 {
+    return mmSourceW(v, bias, false);
+}
+
+/// GK5: the same variants with the weights (B) stored as f16 when `wf16`.
+pub fn mmSourceW(v: usize, comptime bias: bool, comptime wf16: bool) []const u8 {
     return switch (v) {
-        MM_TILE8 => comptime mmTileSource(8, bias),
-        MM_REG2 => comptime mmRegSource(2, bias, false),
-        MM_REG4 => comptime mmRegSource(4, bias, false),
-        MM_BROKEN => comptime mmRegSource(2, bias, true),
-        else => comptime mmTileSource(16, bias),
+        MM_TILE8 => comptime mmTileSource(8, bias, wf16),
+        MM_REG2 => comptime mmRegSource(2, bias, false, wf16),
+        MM_REG4 => comptime mmRegSource(4, bias, false, wf16),
+        MM_BROKEN => comptime mmRegSource(2, bias, true, wf16),
+        else => comptime mmTileSource(16, bias, wf16),
     };
+}
+
+/// GK4: variant v (bias fused, weights f32 or f16) with an elementwise
+/// EPILOGUE applied at its store: every `cc[r * p.n + c] = v;` becomes
+/// `v = EXPR; cc[r * p.n + c] = v;`, after the bias. The template, not a pass:
+/// no graph, no planner. `expr` is what stz_gpu_wgsl_epilogue wrote. Returns
+/// the text in `out`, or null when it does not fit.
+pub fn mmEpilogueSource(v: usize, wf16: bool, expr: []const u8, out: []u8) ?[]const u8 {
+    const base = if (wf16) mmSourceW(v, true, true) else mmSourceW(v, true, false);
+    const needle = "      cc[r * p.n + c] = v;\n";
+    var w: usize = 0;
+    var i: usize = 0;
+    while (i < base.len) {
+        if (i + needle.len <= base.len and std.mem.eql(u8, base[i .. i + needle.len], needle)) {
+            const add = "      v = ";
+            if (w + add.len + expr.len + 2 + needle.len > out.len) return null;
+            @memcpy(out[w..][0..add.len], add);
+            w += add.len;
+            @memcpy(out[w..][0..expr.len], expr);
+            w += expr.len;
+            @memcpy(out[w..][0..2], ";\n");
+            w += 2;
+            @memcpy(out[w..][0..needle.len], needle);
+            w += needle.len;
+            i += needle.len;
+        } else {
+            if (w + 1 > out.len) return null;
+            out[w] = base[i];
+            w += 1;
+            i += 1;
+        }
+    }
+    return out[0..w];
+}
+
+fn comptimeReplace(comptime s: []const u8, comptime needle: []const u8, comptime with: []const u8) []const u8 {
+    @setEvalBranchQuota(1000000);
+    comptime var out: []const u8 = "";
+    comptime var i: usize = 0;
+    inline while (i < s.len) {
+        if (i + needle.len <= s.len and std.mem.eql(u8, s[i .. i + needle.len], needle)) {
+            out = out ++ with;
+            i += needle.len;
+        } else {
+            out = out ++ s[i .. i + 1];
+            i += 1;
+        }
+    }
+    return out;
 }
 
 pub fn mmVariantEligible(v: usize, m: usize, k: usize, n: usize) bool {
@@ -1009,4 +1070,16 @@ test "the matmul table classes shapes and never holds the broken sibling" {
     try std.testing.expectEqual(@as(usize, 24 * 4), g.wx); // 64x64 tiles on a linear grid
     try std.testing.expectEqual(@as(usize, 1), g.wy);
     stz_gpu_variant_clear();
+}
+
+test "GK5: the f32 template is unchanged, and the f16 one stores B as f16 and widens each read" {
+    inline for (.{ MM_GENERIC, MM_TILE8, MM_REG2, MM_REG4 }) |v| {
+        try std.testing.expectEqualStrings(mmSource(v, true), mmSourceW(v, true, false));
+        const h = mmSourceW(v, true, true);
+        try std.testing.expect(std.mem.startsWith(u8, h, "enable f16;\n"));
+        try std.testing.expect(std.mem.indexOf(u8, h, "var<storage, read> b : array<f16>;") != null);
+        try std.testing.expect(std.mem.indexOf(u8, h, "f32(b[") != null);
+        try std.testing.expect(std.mem.indexOf(u8, h, "BREAD") == null);
+        try std.testing.expect(std.mem.indexOf(u8, mmSourceW(v, true, false), "f16") == null);
+    }
 }

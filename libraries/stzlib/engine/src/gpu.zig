@@ -192,6 +192,28 @@ var selected_adapter: i32 = -1;
 // device that refuses the request is re-requested WITHOUT (one clock).
 const ts_feats = [_]c.WGPUFeatureName{c.WGPUFeatureName_TimestampQuery};
 var g_timestamps = false;
+// GK5: shader-f16, requested when the adapter offers it (a device that refuses
+// it is re-requested without it, then without timestamps); subgroups NOTED,
+// never requested -- nothing here uses them yet.
+var g_feats: [2]c.WGPUFeatureName = undefined;
+var g_f16 = false;
+var g_f16_offered = false;
+var g_subgroups_offered = false;
+/// The device on this adapter was granted shader-f16: `enable f16;` compiles.
+pub fn hasF16() bool {
+    return available and g_f16;
+}
+/// GK5: the adapter's features as this device met them. which: 0 shader-f16
+/// offered, 1 shader-f16 granted, 2 subgroups offered, 3 timestamps granted.
+pub fn stz_gpu_feature(which: i32) callconv(.c) i32 {
+    return switch (which) {
+        0 => @intFromBool(g_f16_offered),
+        1 => @intFromBool(available and g_f16),
+        2 => @intFromBool(g_subgroups_offered),
+        3 => @intFromBool(available and g_timestamps),
+        else => 0,
+    };
+}
 /// Set by the checker around ONE immediate dispatch: the compute pass then
 /// writes begin/end timestamps into this query set. Null = plain pass.
 pub var g_pass_ts: ?*const c.WGPUPassTimestampWrites = null;
@@ -570,22 +592,36 @@ fn openDeviceOn(idx: usize) i32 {
         .userdata2 = null,
     };
     g_timestamps = fns.wgpuAdapterHasFeature(adapters[idx], c.WGPUFeatureName_TimestampQuery) != 0;
-    if (g_timestamps) {
-        desc.requiredFeatureCount = 1;
-        desc.requiredFeatures = &ts_feats;
-    }
-    g_device_ready = false;
-    g_requested_device = null;
-    _ = fns.wgpuAdapterRequestDevice(adapters[idx], &desc, cbinfo);
-    while (!g_device_ready) fns.wgpuInstanceProcessEvents(instance);
-    if (g_requested_device == null and g_timestamps) {
-        // advertised, then refused: the device without the second clock
-        g_timestamps = false;
-        desc.requiredFeatureCount = 0;
-        desc.requiredFeatures = null;
+    g_f16_offered = fns.wgpuAdapterHasFeature(adapters[idx], c.WGPUFeatureName_ShaderF16) != 0;
+    g_subgroups_offered = fns.wgpuAdapterHasFeature(adapters[idx], c.WGPUFeatureName_Subgroups) != 0;
+    g_f16 = g_f16_offered;
+    while (true) {
+        var nf: usize = 0;
+        if (g_timestamps) {
+            g_feats[nf] = c.WGPUFeatureName_TimestampQuery;
+            nf += 1;
+        }
+        if (g_f16) {
+            g_feats[nf] = c.WGPUFeatureName_ShaderF16;
+            nf += 1;
+        }
+        desc.requiredFeatureCount = nf;
+        desc.requiredFeatures = if (nf > 0) &g_feats else null;
         g_device_ready = false;
+        g_requested_device = null;
         _ = fns.wgpuAdapterRequestDevice(adapters[idx], &desc, cbinfo);
         while (!g_device_ready) fns.wgpuInstanceProcessEvents(instance);
+        if (g_requested_device != null) break;
+        // advertised, then refused: drop shader-f16 first, then the second clock
+        if (g_f16) {
+            g_f16 = false;
+            continue;
+        }
+        if (g_timestamps) {
+            g_timestamps = false;
+            continue;
+        }
+        break;
     }
     device = g_requested_device orelse return 0;
     queue = fns.wgpuDeviceGetQueue(device);

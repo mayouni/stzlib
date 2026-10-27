@@ -67,6 +67,9 @@ pub const MAX_SCALARS = 14; // 64-byte params uniform: 8B (n+pad) + 14*4B
 const FUNC_WHITELIST = [_][]const u8{
     "abs", "min", "max", "sqrt", "exp", "log", "sin", "cos", "tan",
     "floor", "ceil", "pow", "clamp", "sign", "fract", "round",
+    // GK4: the backbone's GELU is written with tanh; an epilogue that says the
+    // same thing must be able to
+    "tanh",
     // A SURFACE language needs the surface verbs. Without mix and
     // smoothstep a material cannot blend or make a soft edge, which is most
     // of what materials do -- the list was a compute kernel's list.
@@ -402,6 +405,32 @@ fn parseDecl(text: []const u8, d: *Decl) i32 {
     d.rhs = std.mem.trim(u8, b[eq + 1 ..], " \t");
     if (d.rhs.len == 0) return fail("empty expression", .{});
     return 0;
+}
+
+/// GK4: an elementwise EPILOGUE for a matmul's store, from a spec with one
+/// input -- the value the store holds -- and one output:
+///     in x
+///     out y
+///     body { @y = 0.5 * @x * (1 + tanh(0.7978845608 * @x * (1 + 0.044715 * @x * @x))) }
+/// The WGSL expression is written into `out` with the input read as `v`
+/// (the store's own variable). No scalars (the matmul's params are its own),
+/// no guard, no index, no neighbour, no sum, no schedule. Length, or -1.
+pub fn stz_gpu_wgsl_epilogue(spec: [*]const u8, spec_len: f64, out: [*]u8, cap: f64) callconv(.c) i32 {
+    const text = spec[0..@intFromFloat(spec_len)];
+    err_len = 0;
+    var d: Decl = .{};
+    if (parseDecl(text, &d) < 0) return -1;
+    if (d.n_ins != 1) return fail("an epilogue takes one value (one 'in' line), not {d}", .{d.n_ins});
+    if (d.n_scalars != 0) return fail("an epilogue takes no scalars: the matmul's parameters are its own", .{});
+    if (d.guard != null) return fail("an epilogue has no guard: the store already bounds it", .{});
+    if (d.n_shared != 0 or d.n_items != 0 or d.width.len != 0) return fail("an epilogue is elementwise: no shared memory, no schedule, no width", .{});
+    var prelude_buf: [16]u8 = undefined;
+    var prelude = Cursor{ .buf = &prelude_buf };
+    var rw = Rewriter{ .d = &d, .prelude = &prelude, .epi = true };
+    var w = Cursor{ .buf = out[0..@intFromFloat(cap)] };
+    if (rw.rewrite(d.rhs, &w) < 0) return -1;
+    if (w.overflow) return fail("epilogue too long", .{});
+    return @intCast(w.len);
 }
 
 fn widthText(d: *const Decl, buf: []u8) ?[]const u8 {
@@ -847,6 +876,8 @@ const Rewriter = struct {
     stage_target: ?usize = null,
     used_group: bool = false,
     used_sh: [MAX_SHARED]bool = @splat(false),
+    // GK4: an EPILOGUE reads its one value as `v`, the matmul store's own
+    epi: bool = false,
 
     fn matching(text: []const u8, open_at: usize) ?usize {
         var depth: usize = 0;
@@ -873,6 +904,16 @@ const Rewriter = struct {
                 if (j == i + 1 or !lowerInto(&nm, rhs[i + 1 .. j]))
                     return fail("bad @name at '{s}'", .{rhs[i..@min(i + 8, rhs.len)]});
                 if (self.where == .count) return fail(MSG_COUNT, .{});
+                if (self.epi) {
+                    // the one value the store holds, and nothing beside it
+                    var k3 = j;
+                    while (k3 < rhs.len and (rhs[k3] == ' ' or rhs[k3] == '\t')) : (k3 += 1) {}
+                    if (!std.mem.eql(u8, nm.slice(), self.d.ins[0].slice()) or (k3 < rhs.len and rhs[k3] == '['))
+                        return fail("an epilogue reads its one value, @{s}, and numbers: not '@{s}'", .{ self.d.ins[0].slice(), nm.slice() });
+                    expr.put("v");
+                    i = j;
+                    continue;
+                }
                 if (std.mem.eql(u8, nm.slice(), "i")) {
                     expr.put("f32(i)");
                     i = j;
@@ -999,6 +1040,8 @@ const Rewriter = struct {
                     i = j;
                     continue;
                 }
+                if (self.epi and (std.mem.eql(u8, word, "n") or std.mem.eql(u8, word, "sum")))
+                    return fail("an epilogue reads its one value and numbers: not '{s}'", .{word});
                 if (std.mem.eql(u8, word, "sum")) {
                     if (self.where == .count) return fail(MSG_SUMCOUNT, .{});
                     if (self.loopvar != null) return fail("a sum inside a sum is not admitted (one level; shared memory is KP3's)", .{});
@@ -1254,6 +1297,7 @@ const Op = enum(u8) {
     f_abs, f_min, f_max, f_sqrt, f_exp, f_log, f_sin, f_cos, f_tan, f_floor, f_ceil,
     f_pow, f_clamp, f_sign, f_fract, f_round, f_mix, f_smoothstep, f_step, f_atan2,
     f_asin, f_acos, f_inversesqrt, f_length, f_distance,
+    f_tanh, // GK4
 };
 
 const Fn = struct { name: []const u8, op: Op, arity: u8 };
@@ -1271,6 +1315,7 @@ const FUNCS = [_]Fn{
     .{ .name = "asin", .op = .f_asin, .arity = 1 },         .{ .name = "acos", .op = .f_acos, .arity = 1 },
     .{ .name = "inversesqrt", .op = .f_inversesqrt, .arity = 1 },
     .{ .name = "length", .op = .f_length, .arity = 1 },     .{ .name = "distance", .op = .f_distance, .arity = 2 },
+    .{ .name = "tanh", .op = .f_tanh, .arity = 1 },
 };
 const VECTOR_ONLY = [_][]const u8{ "dot", "cross", "normalize", "reflect", "vec2", "vec3", "vec4" };
 
@@ -1951,6 +1996,7 @@ fn runProgram(p: *const Program, th: *const Thread, ins: [*]const [*]const f32, 
                     .f_asin => std.math.asin(x),
                     .f_acos => std.math.acos(x),
                     .f_inversesqrt => 1.0 / @sqrt(x),
+                    .f_tanh => std.math.tanh(x),
                     else => unreachable,
                 };
                 ops += 1;
@@ -2988,4 +3034,32 @@ test "KP3: the refusals name the offender, and the two readers agree on them" {
         try std.testing.expect(std.mem.indexOf(u8, m1, cs.says) != null);
         try std.testing.expectEqualStrings(m1, m2);
     }
+}
+
+test "GK4: an epilogue reads its one value as v, says GELU with tanh, and refuses the rest" {
+    const gelu = "in x\nout y\nbody { @y = 0.5 * @x * (1 + tanh(0.7978845608 * @x * (1 + 0.044715 * @x * @x))) }";
+    var buf: [1024]u8 = undefined;
+    const n = stz_gpu_wgsl_epilogue(gelu.ptr, @floatFromInt(gelu.len), &buf, buf.len);
+    try std.testing.expect(n > 0);
+    try std.testing.expectEqualStrings("0.5 * v * (1 + tanh(0.7978845608 * v * (1 + 0.044715 * v * v)))", buf[0..@intCast(n)]);
+    // the interpreter means the same thing by tanh
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_compile(gelu.ptr, @floatFromInt(gelu.len)));
+    const x = [_]f32{ -3, -0.5, 0, 0.5, 3 };
+    const ins = [_][*]const f32{&x};
+    const lens = [_]f64{5};
+    var out: [5]f32 = undefined;
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_eval(&ins, 1, &lens, &x, 0, 5, &out));
+    for (x, out) |xi, yi| {
+        const want = 0.5 * xi * (1 + std.math.tanh(0.7978845608 * xi * (1 + 0.044715 * xi * xi)));
+        try std.testing.expectApproxEqAbs(want, yi, 1e-6);
+    }
+    const bad = [_][]const u8{
+        "in a\nin b\nout y\nbody { @y = @a + @b }",
+        "in a\nscalar k\nout y\nbody { @y = @a * k }",
+        "in a\nout y\nguard { @i < n }\nbody { @y = @a }",
+        "in a\nout y\nbody { @y = @a + @i }",
+        "in a\nout y\nbody { @y = @a[@i + 1] }",
+        "in a\nout y\nbody { @y = sum(k, 0, 4, 1) }",
+    };
+    for (bad) |s| try std.testing.expect(stz_gpu_wgsl_epilogue(s.ptr, @floatFromInt(s.len), &buf, buf.len) < 0);
 }
