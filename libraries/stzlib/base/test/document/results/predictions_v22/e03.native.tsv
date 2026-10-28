@@ -1,0 +1,37 @@
+page_header	0	Druckserver PS-400 · Installationsanleitung · Version 3.1
+heading	1	Installationsanleitung für den Druckserver PS-400
+paragraph	0	Ausgabe Oktober 2026 – gültig ab Firmware 3.1
+heading	2	1 Einleitung
+paragraph	0	Diese Anleitung beschreibt die Erstinstallation des Druckservers in einem Firmennetzwerk. Sie richtet sich an Administratorinnen und Administratoren mit Grundkenntnissen in Linux.
+paragraph	0	Hinweis: Lesen Sie vor Beginn das Kapitel zu den Systemvoraussetzungen vollständig durch.
+heading	2	2 Systemvoraussetzungen
+paragraph	0	Die folgenden Werte gelten für einen Server, der ausschließlich als Druckserver betrieben wird.
+caption	0	Tabelle 1: Hardware- und Softwarevoraussetzungen
+table	0	KomponenteTestbetriebTestbetriebProduktivbetriebProduktivbetriebKomponenteMinimumEmpfohlenMinimumEmpfohlenProzessor2 Kerne4 Kerne4 Kerne8 KerneArbeitsspeicher2 GB4 GB8 GB16 GBFestplatte20 GB40 GB100 GB250 GB SSDNetzwerk100 Mbit/s1 Gbit/s1 Gbit/s2 × 1 Gbit/s (gebündelt)BetriebssystemDebian 12 oder Ubuntu Server 24.04 LTS, jeweils 64 BitDebian 12 oder Ubuntu Server 24.04 LTS, jeweils 64 BitDebian 12 oder Ubuntu Server 24.04 LTS, jeweils 64 BitDebian 12 oder Ubuntu Server 24.04 LTS, jeweils 64 Bit
+heading	2	3 Installation
+paragraph	0	Die Installation erfolgt in fünf Schritten.
+list_item	0	1. Laden Sie das Installationspaket aus dem Händlerportal herunter.
+list_item	0	2. Prüfen Sie die Prüfsumme des Pakets.
+list_item	0	3. Installieren Sie das Paket mit dem Paketmanager.
+list_item	0	4. Passen Sie die Konfigurationsdatei an:
+list_item	1	a. Tragen Sie den Hostnamen des Servers ein.
+list_item	1	b. Legen Sie den Port für die Weboberfläche fest.
+list_item	1	c. Aktivieren Sie bei Bedarf die Verschlüsselung.
+list_item	0	5. Starten Sie den Dienst neu.
+heading	3	3.1 Befehle für die Schritte 2 und 3
+code	0	sha256sum ps400-server_3.1.2_amd64.deb\nsudo apt install ./ps400-server_3.1.2_amd64.deb\nsudo systemctl enable --now ps400
+page_footer	0	Seite 1 von 2
+page_header	0	Druckserver PS-400 · Installationsanleitung · Version 3.1
+heading	2	4 Konfiguration
+paragraph	0	Die zentrale Konfigurationsdatei liegt unter /etc/ps400/server.conf. Kommentarzeilen beginnen mit einem Semikolon.
+heading	3	4.1 Beispielkonfiguration
+code	0	[server]\nhostname   = druck01.intern.example\nweb_port   = 8631\nlog_level  = info\n\n[tls]\nenabled    = true\nzertifikat = /etc/ps400/tls/server.pem\nschluessel = /etc/ps400/tls/server.key\n\n[warteschlange]\nmax_auftraege     = 500\naufbewahrung_tage = 14
+heading	3	4.2 Wichtige Parameter
+table	0	ParameterStandardwertBedeutunghostname–Vollständiger Name des Servers im Netzwerkweb_port8631Port der Weboberflächemax_auftraege200Höchstzahl gleichzeitig gespeicherter Druckaufträgeaufbewahrung_tage7Tage, nach denen abgeschlossene Aufträge gelöscht
+paragraph	0	werden
+heading	2	5 Fehlerbehebung
+list_item	0	– Der Dienst startet nicht: Prüfen Sie die Protokolldatei unter /var/log/ps400/server.log.
+list_item	0	– Die Weboberfläche ist nicht erreichbar: Kontrollieren Sie die Firewall-Regeln für Port 8631.
+list_item	0	– Drucker werden nicht gefunden: Aktivieren Sie die automatische Erkennung in der Weboberfläche.
+paragraph	0	Nach einem Neustart übernimmt der Dienst alle Änderungen an der Konfiguration automatisch. Weitere Informationen finden Sie im Administrationshandbuch.
+page_footer	0	Seite 2 von 2

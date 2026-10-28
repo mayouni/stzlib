@@ -1,0 +1,151 @@
+{
+  "id": "e23",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Ripoti ya Mwaka 2025/2026",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Ripoti ya Mwaka 2025/2026"
+    },
+    {
+      "level": 2,
+      "text": "1. Utangulizi"
+    },
+    {
+      "level": 2,
+      "text": "2. Uzalishaji na mauzo"
+    },
+    {
+      "level": 2,
+      "text": "3. Mafanikio makuu"
+    },
+    {
+      "level": 2,
+      "text": "4. Changamoto"
+    },
+    {
+      "level": 2,
+      "text": "5. Taarifa ya fedha"
+    },
+    {
+      "level": 2,
+      "text": "6. Mpango wa mwaka ujao"
+    }
+  ],
+  "key_sentences": [
+    "Mwaka huu ulikuwa wa mafanikio kwa wanachama wa chama chetu licha ya mvua kuchelewa.",
+    "Jumla ya wanachama hai iliongezeka kutoka 412 hadi 468.",
+    "Bei ya wastani iliyolipwa kwa wakulima ilipanda kwa asilimia saba ikilinganishwa na msimu uliopita.",
+    "Bodi inapendekeza gawio la TSh 150 kwa kila kilo iliyouzwa kupitia chama.",
+    "Tunawashukuru wanachama wote kwa ushirikiano wao."
+  ],
+  "tables": [
+    {
+      "caption": "Jedwali 1: Uzalishaji wa misimu mitatu",
+      "rows": [
+        [
+          "Msimu",
+          "Kilo za kahawa",
+          "Bei ya wastani (TSh/kilo)",
+          "Mapato (TSh milioni)"
+        ],
+        [
+          "2023/2024",
+          "186,400",
+          "4,850",
+          "904.0"
+        ],
+        [
+          "2024/2025",
+          "201,750",
+          "5,120",
+          "1,033.0"
+        ],
+        [
+          "2025/2026",
+          "229,300",
+          "5,480",
+          "1,256.6"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Mapato yote",
+          "TSh 1,284,900,000"
+        ],
+        [
+          "Malipo kwa wakulima",
+          "TSh 1,105,000,000"
+        ],
+        [
+          "Gharama za uendeshaji",
+          "TSh 128,600,000"
+        ],
+        [
+          "Ziada ya mwaka",
+          "TSh 51,300,000"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Kukamilika kwa ujenzi wa stoo mpya ya kuhifadhi kahawa."
+    },
+    {
+      "level": 0,
+      "text": "Mafunzo ya kilimo bora kwa wakulima 160."
+    },
+    {
+      "level": 0,
+      "text": "Kupata cheti cha kahawa endelevu kwa mara ya kwanza."
+    },
+    {
+      "level": 0,
+      "text": "(i) Bei ya mbolea iliongezeka kwa kiasi kikubwa."
+    },
+    {
+      "level": 0,
+      "text": "(ii) Barabara za vijijini huharibika wakati wa mvua."
+    },
+    {
+      "level": 0,
+      "text": "(iii) Baadhi ya wanachama bado hawajarejesha mikopo ya pembejeo."
+    },
+    {
+      "level": 0,
+      "text": "1. Kuongeza idadi ya wanachama hadi 520."
+    },
+    {
+      "level": 0,
+      "text": "2. Kununua mashine ya kukoboa kahawa."
+    },
+    {
+      "level": 1,
+      "text": "a) Gharama inakadiriwa kuwa TSh milioni 85."
+    },
+    {
+      "level": 1,
+      "text": "b) Fedha zitatoka kwenye ziada na mkopo wa benki."
+    },
+    {
+      "level": 0,
+      "text": "3. Kuanzisha kitalu cha miche bora."
+    }
+  ],
+  "furniture": [
+    "Chama cha Ushirika wa Wakulima wa Kahawa Mlima Kijani",
+    "Ukurasa 1 kati ya 2",
+    "Ukurasa 2 kati ya 2"
+  ],
+  "languages": [
+    "sw"
+  ],
+  "code": [],
+  "notes": "Swahili annual report of a farmers' cooperative, 2 pages (forced break before section 4). Running header and 'Ukurasa n kati ya N' are CSS margin boxes. Headings carry typed numbers. Table 1: rule under the header and a closing rule only, caption below the table. Section 3 list: disc markers drawn by CSS. Section 4 uses typed lower-roman markers '(i)' '(ii)' '(iii)' with a hanging indent. The finance panel is a boxed key/value table without header row. Section 6 uses typed '1.' inline with nested typed 'a)' 'b)'. The presentation line under the title and the signature line are body text."
+}

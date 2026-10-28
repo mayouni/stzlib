@@ -1,0 +1,173 @@
+{
+  "id": "e20",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "THÔNG BÁO TUYỂN DỤNG",
+  "headings": [
+    {
+      "level": 1,
+      "text": "THÔNG BÁO TUYỂN DỤNG"
+    },
+    {
+      "level": 2,
+      "text": "I. VỊ TRÍ VÀ SỐ LƯỢNG"
+    },
+    {
+      "level": 2,
+      "text": "II. QUYỀN LỢI"
+    },
+    {
+      "level": 2,
+      "text": "III. HỒ SƠ ỨNG TUYỂN"
+    },
+    {
+      "level": 2,
+      "text": "IV. THỜI GIAN VÀ ĐỊA ĐIỂM NỘP HỒ SƠ"
+    }
+  ],
+  "key_sentences": [
+    "Công ty Cổ phần Thực phẩm Sông Hậu thông báo tuyển dụng nhân sự cho nhà máy chế biến tại Khu công nghiệp Trà Nóc.",
+    "Ứng viên trúng tuyển sẽ được ký hợp đồng lao động và hưởng đầy đủ chế độ theo quy định.",
+    "Hồ sơ nhận từ ngày 21 tháng 10 đến hết ngày 30 tháng 11 năm 2026, trong giờ hành chính.",
+    "Ứng viên có thể nộp trực tiếp tại phòng Nhân sự hoặc gửi qua đường bưu điện.",
+    "Công ty chỉ liên hệ với những ứng viên đạt yêu cầu vòng sơ tuyển."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "STT",
+          "Vị trí",
+          "Số lượng",
+          "Yêu cầu chính",
+          "Mức lương (triệu đồng/tháng)"
+        ],
+        [
+          "1",
+          "Kỹ sư công nghệ thực phẩm",
+          "03",
+          "Tốt nghiệp đại học chuyên ngành công nghệ thực phẩm Có ít nhất 2 năm kinh nghiệm",
+          "15 – 20"
+        ],
+        [
+          "2",
+          "Nhân viên kiểm tra chất lượng (QC)",
+          "05",
+          "Tốt nghiệp cao đẳng trở lên Ưu tiên có chứng chỉ HACCP",
+          "9 – 12"
+        ],
+        [
+          "3",
+          "Kỹ thuật viên bảo trì cơ điện",
+          "04",
+          "Tốt nghiệp trung cấp nghề điện hoặc cơ khí",
+          "10 – 13"
+        ],
+        [
+          "4",
+          "Công nhân vận hành dây chuyền",
+          "30",
+          "Từ 18 đến 40 tuổi, sức khỏe tốt",
+          "7 – 8,5"
+        ],
+        [
+          "Tổng cộng",
+          "Tổng cộng",
+          "42",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Địa chỉ",
+          "Lô 16, Khu công nghiệp Trà Nóc 2, quận Ô Môn, TP. Cần Thơ"
+        ],
+        [
+          "Điện thoại",
+          "0292 3841 556"
+        ],
+        [
+          "Thư điện tử",
+          "tuyendung@songhaufood.example"
+        ],
+        [
+          "Người liên hệ",
+          "Chị Trần Thị Ngọc Hân"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "- Lương tháng 13 và thưởng theo kết quả kinh doanh."
+    },
+    {
+      "level": 0,
+      "text": "- Đóng bảo hiểm xã hội, bảo hiểm y tế và bảo hiểm thất nghiệp đầy đủ."
+    },
+    {
+      "level": 0,
+      "text": "- Được cấp đồng phục, bữa ăn giữa ca và xe đưa đón từ trung tâm thành phố."
+    },
+    {
+      "level": 0,
+      "text": "- Được đào tạo nâng cao tay nghề định kỳ hằng năm."
+    },
+    {
+      "level": 0,
+      "text": "1. Đơn xin việc ghi rõ vị trí ứng tuyển."
+    },
+    {
+      "level": 0,
+      "text": "2. Sơ yếu lý lịch có xác nhận của địa phương."
+    },
+    {
+      "level": 0,
+      "text": "3. Bản sao các văn bằng, chứng chỉ liên quan:"
+    },
+    {
+      "level": 1,
+      "text": "a) bằng tốt nghiệp;"
+    },
+    {
+      "level": 1,
+      "text": "b) chứng chỉ ngoại ngữ, tin học (nếu có)."
+    },
+    {
+      "level": 0,
+      "text": "4. Giấy khám sức khỏe trong vòng 6 tháng."
+    },
+    {
+      "level": 0,
+      "text": "- Bảng tin công ty;"
+    },
+    {
+      "level": 0,
+      "text": "- Trang thông tin tuyển dụng;"
+    },
+    {
+      "level": 0,
+      "text": "- Lưu: VT, NS."
+    }
+  ],
+  "furniture": [
+    "CÔNG TY CỔ PHẦN THỰC PHẨM SÔNG HẬU",
+    "Số: 112/TB-SH",
+    "CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM",
+    "Độc lập - Tự do - Hạnh phúc",
+    "Cần Thơ, ngày 20 tháng 10 năm 2026",
+    "Trang 1/2",
+    "Trang 2/2"
+  ],
+  "languages": [
+    "vi"
+  ],
+  "code": [],
+  "notes": "Vietnamese company recruitment notice in the national administrative layout, 2 pages (forced break before section III). The header is two side-by-side blocks (company name and document number on the left; national name, motto and place/date on the right) and is furniture, read left block then right block. 'Trang n/N' is a CSS margin box. Section headings carry typed Roman numerals. Position table: full grid, cells of two lines (joined with one space), total row merges two columns and leaves a merged empty cell (given as \"\" twice). Benefits use typed '-' markers with a hanging indent; documents list uses typed '1.' with nested typed 'a)' 'b)'. The contact panel is a boxed key/value table (no header). At the end, 'Nơi nhận' (left, with typed '-' items) and the signature block (right) are side by side, read left first. All text is NFC."
+}

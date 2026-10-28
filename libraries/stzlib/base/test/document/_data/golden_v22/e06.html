@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Detecting Slow Leaks in District Metered Areas from Night-Flow Records</title>
+<style>
+@page { size: A4; margin: 2cm 1.8cm 2cm 1.8cm;  @top-center { content: "Lakeside Water Research Institute · Technical Report TR-2026-07"; font-family: Calibri; font-size: 8.5pt; color: #555; } @bottom-center { content: counter(page, decimal); font-family: Calibri; font-size: 8.5pt; color: #555; } }
+
+body { font-family: Cambria; font-size: 10pt; color: #111; line-height: 1.38; }
+h1 { font-family: Calibri; font-size: 18pt; text-align: center; margin: 0 0 6px; color: #12355b; }
+.auth { text-align: center; font-size: 10.5pt; margin: 0; }
+.aff { text-align: center; font-style: italic; font-size: 9pt; color: #444; margin: 0 0 10px; }
+.abs { border-top: 1px solid #12355b; border-bottom: 1px solid #12355b; padding: 4px 1cm 6px; margin-bottom: 10px; }
+.abs h2 { text-align: center; margin: 2px 0; }
+.cols { columns: 2; column-gap: 0.8cm; text-align: justify; }
+h2 { font-family: Calibri; font-size: 11.5pt; color: #12355b; margin: 10px 0 3px; break-after: avoid; }
+h3 { font-family: Calibri; font-size: 10pt; font-style: italic; color: #12355b; margin: 8px 0 2px; break-after: avoid; }
+p { margin: 0 0 5px; }
+ul { margin: 2px 0 5px; padding-left: 1.2em; }
+pre.code { font-family: Consolas; font-size: 8.5pt; background: #f4f6f8; padding: 5px 6px; margin: 4px 0 6px; border-left: 3px solid #12355b; }
+.tcap { font-family: Calibri; font-size: 9pt; font-weight: bold; margin: 6px 0 2px; text-align: left; }
+table.t1 { border-collapse: collapse; width: 100%; font-size: 9pt; border-top: 1.5px solid #000; border-bottom: 1.5px solid #000; break-inside: avoid; }
+table.t1 th { border-bottom: 0.75px solid #000; padding: 2px 4px; text-align: right; }
+table.t1 td { padding: 1px 4px; text-align: right; }
+table.t1 th:first-child, table.t1 td:first-child { text-align: left; }
+table.t1 tr.tot td { border-top: 0.75px solid #000; }
+.ref { display: flex; font-size: 9pt; margin: 2px 0; text-align: left; } .ref .mk { flex: 0 0 2em; } .ref .tx { flex: 1; }
+.fn { font-size: 8.5pt; border-top: 0.5px solid #888; padding-top: 3px; margin-top: 8px; }
+sup { font-size: 7pt; }
+
+</style>
+</head>
+<body>
+<h1>Detecting Slow Leaks in District Metered Areas from Night-Flow Records</h1>
+<p class="auth">R. Okonkwo, L. Haverkamp and T. Sato</p>
+<p class="aff">Lakeside Water Research Institute, Network Performance Group</p>
+<div class="abs">
+<h2>Abstract</h2>
+<p>We describe a simple screening method that flags district metered areas whose minimum night flow rises steadily over several weeks. Applied to 214 areas over eighteen months, the method found 37 slow leaks that routine inspection had missed.</p>
+</div><div class="cols">
+<h2>1 Introduction</h2>
+<p>Most water lost from a distribution network escapes through small leaks that run for months before anyone reports them. Such leaks rarely surface, because the water drains into the gravel bed around the pipe or into a nearby sewer. Night flow is the most sensitive indicator of such leaks because legitimate demand is lowest between 02:00 and 04:00.<sup>1</sup></p>
+<p>Utilities already divide their networks into district metered areas, each fed through one or two metered inlets. The inlet records are therefore a free source of evidence, but they are seldom examined night by night. This report sets out a screening rule that a control-room operator can run each morning without specialist software.</p>
+<h2>2 Method</h2>
+<p>The method compares each night’s minimum flow with a rolling baseline built from the previous four weeks. A leak shows up as a baseline that climbs and does not come back down.</p>
+<h3>2.1 Data preparation</h3>
+<ul class="lv0"><li>Readings are taken every 15 minutes from the inlet meters of each area.</li><li>Nights with missing readings are removed rather than interpolated.</li><li>Holiday periods are excluded because demand patterns change.</li></ul>
+<h3>2.2 Trend test</h3>
+<p>An area is flagged when the baseline grows by more than 0.4 litres per second for 21 consecutive nights. The rule is written below in plain pseudo-code.</p>
+<pre class="code">for each area a:
+    b = median(minflow[a], window=28)
+    if rising(b, nights=21, step=0.4):
+        flag(a)</pre>
+<p>The threshold of 0.4 litres per second was chosen from a trial on twelve areas with known leak histories. Lower thresholds doubled the number of alarms without finding more leaks.</p>
+<h2>3 Results</h2>
+<p>The rule ran daily from April 2025 to September 2026 on every area with complete inlet data. Of the 46 areas flagged, 37 were confirmed as leaks by field crews.</p>
+<p class="tcap">Table 1. Leaks found by area type</p><table class="t1"><thead><tr><th>Area type</th><th>Areas</th><th>Flagged</th><th>Confirmed</th></tr></thead><tbody><tr><td>Residential</td><td>148</td><td>31</td><td>26</td></tr><tr><td>Mixed use</td><td>47</td><td>9</td><td>7</td></tr><tr><td>Industrial</td><td>19</td><td>6</td><td>4</td></tr><tr class="tot"><td>Total</td><td>214</td><td>46</td><td>37</td></tr></tbody></table>
+<p>The median time from the first flag to the repair was 19 days. Repaired leaks reduced night flow in their areas by between 0.6 and 3.1 litres per second.</p>
+<h2>4 Discussion</h2>
+<p>False alarms were mostly caused by new connections that had not yet been recorded in the billing system. Two further alarms came from a meter whose battery was failing and which reported flow in bursts. Both causes can be removed by checking the connection register and the meter status before a crew is sent.</p>
+<p>Industrial areas remain the hardest to screen, since some factories run night shifts that vary from week to week. For those areas a baseline built per weekday may perform better, and this is being tested.</p>
+<h2>5 Conclusions</h2>
+<p>The method needs no hydraulic model and can run on data that utilities already collect. We recommend that it be added to the morning checks of the control room from January 2027.</p>
+<h2>References</h2>
+<div class="ref lv0" style="margin-inline-start:0.00em"><span class="mk">[1]</span><span class="tx">A. Lindqvist, “Minimum night flow analysis in practice,” Journal of Network Operations, vol. 12, pp. 44–58, 2019.</span></div><div class="ref lv0" style="margin-inline-start:0.00em"><span class="mk">[2]</span><span class="tx">M. Duarte and K. Ibe, Water Loss Control Handbook, 3rd ed. Northbridge Press, 2021.</span></div><div class="ref lv0" style="margin-inline-start:0.00em"><span class="mk">[3]</span><span class="tx">Lakeside Water Research Institute, “Meter data quality guidelines,” Internal report IR-2024-03, 2024.</span></div>
+<p class="fn"><sup>1</sup> Local time; the analysis ignores the change to summer time.</p>
+</div>
+</body>
+</html>

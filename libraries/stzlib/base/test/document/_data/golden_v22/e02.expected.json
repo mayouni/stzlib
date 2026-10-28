@@ -1,0 +1,261 @@
+{
+  "id": "e02",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Compte rendu de l’assemblée générale ordinaire",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Compte rendu de l’assemblée générale ordinaire"
+    },
+    {
+      "level": 2,
+      "text": "Participants"
+    },
+    {
+      "level": 2,
+      "text": "Ordre du jour"
+    },
+    {
+      "level": 2,
+      "text": "1. Approbation du compte rendu de l’AG 2025"
+    },
+    {
+      "level": 2,
+      "text": "2. Rapport moral et rapport d’activité"
+    },
+    {
+      "level": 3,
+      "text": "Activités de l’année"
+    },
+    {
+      "level": 3,
+      "text": "Difficultés rencontrées"
+    },
+    {
+      "level": 2,
+      "text": "3. Rapport financier et vote du budget 2026"
+    },
+    {
+      "level": 2,
+      "text": "4. Renouvellement du bureau"
+    },
+    {
+      "level": 2,
+      "text": "5. Questions diverses"
+    },
+    {
+      "level": 2,
+      "text": "Relevé des actions"
+    }
+  ],
+  "key_sentences": [
+    "Vingt-sept adhérents sur quarante et un étaient présents ou représentés, le quorum est donc atteint.",
+    "Le compte rendu de l’assemblée générale du 15 mars 2025 est approuvé à l’unanimité.",
+    "La présidente rappelle que l’association gère désormais trois jardins et soixante-deux parcelles.",
+    "Deux épisodes de sécheresse ont obligé le bureau à limiter l’arrosage en juillet.",
+    "Le budget prévisionnel 2026 est adopté par vingt-cinq voix pour et deux abstentions.",
+    "Inès Moreau est élue trésorière à l’unanimité.",
+    "La séance est levée à 12 h 15."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Nom",
+          "Qualité",
+          "Présence"
+        ],
+        [
+          "Claire Vasseur",
+          "Présidente",
+          "présente"
+        ],
+        [
+          "Martin Leboucq",
+          "Trésorier",
+          "présent"
+        ],
+        [
+          "Nadia Ferhat",
+          "Secrétaire",
+          "présente"
+        ],
+        [
+          "Paul-Émile Garnier",
+          "Membre du bureau",
+          "excusé, pouvoir à C. Vasseur"
+        ],
+        [
+          "Inès Moreau",
+          "Adhérente",
+          "présente"
+        ]
+      ]
+    },
+    {
+      "caption": "Budget prévisionnel 2026 (en euros)",
+      "rows": [
+        [
+          "Poste",
+          "Réalisé 2025",
+          "Prévu 2026"
+        ],
+        [
+          "Recettes",
+          "Recettes",
+          "Recettes"
+        ],
+        [
+          "Cotisations des adhérents",
+          "2 460",
+          "2 600"
+        ],
+        [
+          "Subvention municipale",
+          "3 000",
+          "3 000"
+        ],
+        [
+          "Vente de plants",
+          "845",
+          "900"
+        ],
+        [
+          "Total des recettes",
+          "6 305",
+          "6 500"
+        ],
+        [
+          "Dépenses",
+          "Dépenses",
+          "Dépenses"
+        ],
+        [
+          "Eau et entretien",
+          "1 920",
+          "2 150"
+        ],
+        [
+          "Achat d’outillage",
+          "1 310",
+          "800"
+        ],
+        [
+          "Assurance",
+          "412",
+          "430"
+        ],
+        [
+          "Fête des récoltes",
+          "1 150",
+          "1 300"
+        ],
+        [
+          "Réserve pour imprévus",
+          "—",
+          "1 820"
+        ],
+        [
+          "Total des dépenses",
+          "4 792",
+          "6 500"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Action",
+          "Responsable",
+          "Échéance"
+        ],
+        [
+          "Commander deux récupérateurs d’eau de 1 000 litres",
+          "Bureau",
+          "30 avril 2026"
+        ],
+        [
+          "Mettre à jour le règlement intérieur et le soumettre au vote",
+          "Nadia Ferhat",
+          "15 mai 2026"
+        ],
+        [
+          "Organiser la fête des récoltes",
+          "Commission animation",
+          "19 septembre 2026"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. Approbation du compte rendu de l’AG 2025"
+    },
+    {
+      "level": 0,
+      "text": "2. Rapport moral et rapport d’activité"
+    },
+    {
+      "level": 0,
+      "text": "3. Rapport financier et vote du budget 2026"
+    },
+    {
+      "level": 1,
+      "text": "a) présentation des comptes 2025"
+    },
+    {
+      "level": 1,
+      "text": "b) vote du budget prévisionnel"
+    },
+    {
+      "level": 0,
+      "text": "4. Renouvellement du bureau"
+    },
+    {
+      "level": 0,
+      "text": "5. Questions diverses"
+    },
+    {
+      "level": 0,
+      "text": "ateliers de compostage, un samedi par mois d’avril à octobre ;"
+    },
+    {
+      "level": 0,
+      "text": "fête des récoltes le 20 septembre, avec plus de 300 visiteurs ;"
+    },
+    {
+      "level": 0,
+      "text": "accueil de deux classes de l’école des Tilleuls pour un cycle de plantations ;"
+    },
+    {
+      "level": 0,
+      "text": "création d’une grainothèque ouverte à tous les habitants du quartier."
+    },
+    {
+      "level": 0,
+      "text": "• Installation de récupérateurs d’eau de pluie sur les abris de jardin."
+    },
+    {
+      "level": 0,
+      "text": "• Demande d’un composteur collectif par les habitants de la résidence voisine."
+    },
+    {
+      "level": 0,
+      "text": "• Proposition d’une journée portes ouvertes au printemps."
+    }
+  ],
+  "furniture": [
+    "Association des Jardins partagés de Bellerive — Compte rendu de l’AG du 14 mars 2026",
+    "Page 1 sur 2",
+    "Page 2 sur 2"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "Association meeting minutes, 2 pages; text flows from page 1 to page 2 without a forced break. Running header (CSS margin box, italic) on every page, page number 'Page n sur N' bottom right. Participants table has no rules at all. Agenda ('Ordre du jour') is a typed list: markers '1.' to '5.' and nested 'a)' 'b)' are typed characters set apart by a hanging indent (flex). Section headings carry typed numbers ('1. ...'). 'Activités de l’année' list uses en-dash markers drawn by CSS ::before (not in the text). 'Questions diverses' uses typed bullets '•' inline. Budget table: rules between rows only, section rows 'Recettes' and 'Dépenses' span 3 columns (repeated), totals are rows; thousands separators are non-breaking spaces (given as spaces). Action table: rules between rows, multi-line cells top-aligned. Signature block: two side-by-side boxes, read left then right. Apostrophes are U+2019."
+}

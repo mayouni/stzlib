@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Invoice</title>
+<style>
+@page { size: A4; margin: 1.5cm 1.8cm 2.2cm 1.8cm;  @bottom-center { content: "Harrow & Finch Joinery Ltd · Registered in England and Wales No. 09417263 · VAT GB 318 5520 47"; font-family: Calibri; font-size: 8pt; color: #7a6a5c; } }
+
+body { font-family: Calibri; font-size: 10.5pt; color: #2b2b2b; margin: 0; }
+.top { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #7a4b2a; padding-bottom: 8px; }
+.lh .name { font-size: 20pt; font-weight: bold; color: #7a4b2a; letter-spacing: 0.5px; }
+.lh div { line-height: 1.25; }
+table.kv { border: 1.5px solid #7a4b2a; border-collapse: collapse; font-size: 9.5pt; }
+table.kv td { padding: 2px 8px; }
+table.kv td:first-child { color: #7a4b2a; font-weight: bold; }
+h1 { font-size: 26pt; font-weight: normal; color: #7a4b2a; margin: 14px 0 8px; letter-spacing: 3px; }
+.boxes { display: flex; gap: 14px; margin-bottom: 12px; }
+.box { flex: 1; border: 1px solid #c9b8a8; background: #faf6f1; padding: 6px 10px; line-height: 1.3; }
+.box .lbl { font-weight: bold; color: #7a4b2a; text-transform: none; font-size: 9pt; margin-bottom: 2px; }
+table.items { width: 100%; border-collapse: collapse; margin: 8px 0 10px; }
+table.items th, table.items td { border: 1px solid #8c7b6b; padding: 4px 6px; vertical-align: top; }
+table.items th { background: #7a4b2a; color: #fff; font-weight: bold; text-align: left; }
+table.items td.n, table.items th.n { text-align: right; }
+table.items tr.tot td { font-weight: bold; background: #f1e9df; }
+table.items tr.tot td:first-child { text-align: right; }
+h2 { font-size: 13pt; color: #7a4b2a; margin: 12px 0 4px; border-bottom: 1px solid #c9b8a8; }
+.pay { display: flex; gap: 20px; align-items: flex-start; }
+table.bank { border: 1px solid #7a4b2a; border-collapse: collapse; font-size: 10pt; }
+table.bank td { padding: 3px 10px; border-bottom: 1px dotted #c9b8a8; }
+ul { margin: 4px 0; padding-left: 20px; } ul.lv1 { list-style-type: circle; }
+p { margin: 4px 0; line-height: 1.35; }
+
+</style>
+</head>
+<body>
+<div class="top"><div class="lh">
+<div class="name">Harrow &amp; Finch Joinery Ltd</div>
+<div>Unit 7, Millbrook Trading Estate</div>
+<div>Ashcombe, Wiltshire SN14 6QT</div>
+<div>Tel. 01249 550 318 · accounts@harrowfinch.example</div></div>
+<table class="kv"><tbody><tr><td>Invoice number</td><td>HF-2026-0418</td></tr><tr><td>Invoice date</td><td>12 October 2026</td></tr><tr><td>Due date</td><td>11 November 2026</td></tr><tr><td>Your order</td><td>PO 7731</td></tr><tr><td>Account</td><td>HF-C-0219</td></tr></tbody></table>
+</div>
+<h1>Invoice</h1>
+<div class="boxes"><div class="box">
+<div class="lbl">Bill to</div>
+<div>Orchard Lane Primary School</div>
+<div>Attn: Business Manager</div>
+<div>14 Orchard Lane</div>
+<div>Corsley, Wiltshire BA12 7QF</div>
+</div><div class="box">
+<div class="lbl">Deliver to</div>
+<div>Orchard Lane Primary School, Site Office</div>
+<div>Rear gate, Back Lane</div>
+<div>Corsley BA12 7QH</div>
+<div>Access on weekdays 08:00–09:00 only</div>
+</div></div>
+<p>Thank you for choosing us for the classroom storage project. This invoice covers the second and final stage of the works described in quotation Q-2026-112. The works were completed on 9 October 2026 and signed off by your site manager.</p>
+<table class="items"><colgroup><col style="width:7%"><col style="width:49%"><col style="width:8%"><col style="width:9%"><col style="width:13%"><col style="width:14%"></colgroup><thead><tr><th>No.</th><th>Description</th><th class="n">Qty</th><th>Unit</th><th class="n">Unit price (£)</th><th class="n">Amount (£)</th></tr></thead><tbody><tr><td>1</td><td>Oak veneer storage unit, 1800 × 900 mm, with adjustable shelves</td><td class="n">6</td><td>each</td><td class="n">412.00</td><td class="n">2,472.00</td></tr><tr><td>2</td><td>Coat hook rail in solid ash<br>1200 mm long, eight hooks</td><td class="n">10</td><td>each</td><td class="n">38.50</td><td class="n">385.00</td></tr><tr><td>3</td><td>Reading nook bench with lift-up lid</td><td class="n">2</td><td>each</td><td class="n">655.00</td><td class="n">1,310.00</td></tr><tr><td>4</td><td>Site installation, two fitters</td><td class="n">14</td><td>hour</td><td class="n">42.00</td><td class="n">588.00</td></tr><tr><td>5</td><td>Removal and disposal of old fittings</td><td class="n">1</td><td>lot</td><td class="n">120.00</td><td class="n">120.00</td></tr><tr class="tot"><td colspan="5">Subtotal</td><td class="n">4,875.00</td></tr><tr class="tot"><td colspan="5">VAT at 20%</td><td class="n">975.00</td></tr><tr class="tot"><td colspan="5">Less deposit paid on 3 March 2026</td><td class="n">−1,462.50</td></tr><tr class="tot"><td colspan="5">Total due</td><td class="n">4,387.50</td></tr></tbody></table>
+<div class="pay"><div style="flex:1">
+<h2>Payment details</h2>
+<table class="bank"><tbody><tr><td>Bank</td><td>Wessex Mutual Bank</td></tr><tr><td>Account name</td><td>Harrow &amp; Finch Joinery Ltd</td></tr><tr><td>Sort code</td><td>40-17-62</td></tr><tr><td>Account number</td><td>51883047</td></tr><tr><td>Reference</td><td>HF-2026-0418</td></tr></tbody></table>
+</div><div style="flex:1.4">
+<h2>Terms</h2>
+<ul class="lv0"><li>Payment is due within 30 days of the invoice date.</li><li>We accept bank transfer and cheque.<ul class="lv1"><li>Please quote the invoice number as your reference.</li><li>Cheques should be made payable to Harrow &amp; Finch Joinery Ltd.</li></ul></li><li>Late payments may incur interest at 4% above base rate.</li><li>All goods remain our property until paid in full.</li></ul>
+</div></div>
+<p>We guarantee all fitted furniture for five years from the date of installation. If you have any questions about this invoice, please contact our accounts team.</p>
+</body>
+</html>

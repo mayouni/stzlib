@@ -1,0 +1,154 @@
+{
+  "id": "e13",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Quillstack 4.2 Release Notes",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Quillstack 4.2 Release Notes"
+    },
+    {
+      "level": 2,
+      "text": "Highlights"
+    },
+    {
+      "level": 2,
+      "text": "New features"
+    },
+    {
+      "level": 3,
+      "text": "Offline editing"
+    },
+    {
+      "level": 3,
+      "text": "Full list of changes"
+    },
+    {
+      "level": 2,
+      "text": "Breaking changes"
+    },
+    {
+      "level": 2,
+      "text": "Upgrading"
+    },
+    {
+      "level": 3,
+      "text": "Configuration"
+    },
+    {
+      "level": 2,
+      "text": "Known issues"
+    }
+  ],
+  "key_sentences": [
+    "Quillstack 4.2 adds offline editing, a faster search index and a new permissions model for shared spaces.",
+    "Most installations can upgrade in place without downtime.",
+    "Pages you have opened in the last 30 days stay editable when the connection drops.",
+    "Back up the database and the attachments folder before you upgrade.",
+    "Version 4.2.1 is planned for the second half of November.",
+    "Report problems through the support portal."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "ID",
+          "Area",
+          "Description",
+          "Workaround"
+        ],
+        [
+          "QS-4812",
+          "Editor",
+          "Images pasted while offline are not uploaded after reconnecting.",
+          "Insert the image again once you are online."
+        ],
+        [
+          "QS-4830",
+          "Search",
+          "Results for words shorter than three characters may be incomplete.",
+          "None; fixed in 4.2.1."
+        ],
+        [
+          "QS-4857",
+          "Administration",
+          "Group delegation does not apply to archived spaces.",
+          "Unarchive the space, then delegate."
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Editor"
+    },
+    {
+      "level": 1,
+      "text": "Offline drafts are stored in the browser and synchronised on reconnect."
+    },
+    {
+      "level": 1,
+      "text": "Tables can now be pasted from spreadsheets with their formatting kept."
+    },
+    {
+      "level": 2,
+      "text": "Merged cells are preserved."
+    },
+    {
+      "level": 2,
+      "text": "Formulas are pasted as values."
+    },
+    {
+      "level": 0,
+      "text": "Search"
+    },
+    {
+      "level": 1,
+      "text": "The index is rebuilt incrementally, which cuts reindexing time by about 70%."
+    },
+    {
+      "level": 1,
+      "text": "Results can be filtered by space and by author."
+    },
+    {
+      "level": 0,
+      "text": "Administration"
+    },
+    {
+      "level": 1,
+      "text": "Space owners can delegate permissions to groups."
+    },
+    {
+      "level": 1,
+      "text": "The audit log can be exported as CSV."
+    },
+    {
+      "level": 0,
+      "text": "1. The configuration key search.engine has been renamed to search.backend."
+    },
+    {
+      "level": 0,
+      "text": "2. Support for PostgreSQL 13 has been removed; use version 14 or later."
+    },
+    {
+      "level": 0,
+      "text": "3. The legacy endpoint /api/v1/export now returns 410 Gone."
+    }
+  ],
+  "furniture": [
+    "Quillstack 4.2 — Release Notes",
+    "1 / 2",
+    "2 / 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "$ quillstack backup --output /var/backups/qs-$(date +%F).tar.gz\n$ sudo systemctl stop quillstack\n$ sudo apt install quillstack=4.2.0-1\n$ quillstack migrate --check\n$ sudo systemctl start quillstack",
+    "search:\n  backend: tantivy        # was: engine\n  index_path: /var/lib/quillstack/index\n  rebuild: incremental\n\noffline:\n  enabled: true\n  max_draft_age_days: 30\n\npermissions:\n  delegate_to_groups: true"
+  ],
+  "notes": "Software release notes, 2 pages (forced break before 'Upgrading'). Running header top left and the page number 'n / N' bottom right are CSS margin boxes. The change list is a three-level <ul> whose disc, circle and square markers are drawn by CSS. 'Breaking changes' uses typed '1.' '2.' '3.' markers set apart by a hanging indent. Two code blocks in Courier New: shell commands (with '$ ' prompts, kept as typed) and a YAML file with a trailing comment. 'Known issues' table: rules between rows only, cells of several lines top-aligned; identifiers in the first column."
+}

@@ -1,0 +1,197 @@
+{
+  "id": "e03",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Installationsanleitung für den Druckserver PS-400",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Installationsanleitung für den Druckserver PS-400"
+    },
+    {
+      "level": 2,
+      "text": "1 Einleitung"
+    },
+    {
+      "level": 2,
+      "text": "2 Systemvoraussetzungen"
+    },
+    {
+      "level": 2,
+      "text": "3 Installation"
+    },
+    {
+      "level": 3,
+      "text": "3.1 Befehle für die Schritte 2 und 3"
+    },
+    {
+      "level": 2,
+      "text": "4 Konfiguration"
+    },
+    {
+      "level": 3,
+      "text": "4.1 Beispielkonfiguration"
+    },
+    {
+      "level": 3,
+      "text": "4.2 Wichtige Parameter"
+    },
+    {
+      "level": 2,
+      "text": "5 Fehlerbehebung"
+    }
+  ],
+  "key_sentences": [
+    "Diese Anleitung beschreibt die Erstinstallation des Druckservers in einem Firmennetzwerk.",
+    "Sie richtet sich an Administratorinnen und Administratoren mit Grundkenntnissen in Linux.",
+    "Hinweis: Lesen Sie vor Beginn das Kapitel zu den Systemvoraussetzungen vollständig durch.",
+    "Die zentrale Konfigurationsdatei liegt unter /etc/ps400/server.conf.",
+    "Nach einem Neustart übernimmt der Dienst alle Änderungen an der Konfiguration automatisch.",
+    "Weitere Informationen finden Sie im Administrationshandbuch."
+  ],
+  "tables": [
+    {
+      "caption": "Tabelle 1: Hardware- und Softwarevoraussetzungen",
+      "rows": [
+        [
+          "Komponente",
+          "Testbetrieb",
+          "Testbetrieb",
+          "Produktivbetrieb",
+          "Produktivbetrieb"
+        ],
+        [
+          "Komponente",
+          "Minimum",
+          "Empfohlen",
+          "Minimum",
+          "Empfohlen"
+        ],
+        [
+          "Prozessor",
+          "2 Kerne",
+          "4 Kerne",
+          "4 Kerne",
+          "8 Kerne"
+        ],
+        [
+          "Arbeitsspeicher",
+          "2 GB",
+          "4 GB",
+          "8 GB",
+          "16 GB"
+        ],
+        [
+          "Festplatte",
+          "20 GB",
+          "40 GB",
+          "100 GB",
+          "250 GB SSD"
+        ],
+        [
+          "Netzwerk",
+          "100 Mbit/s",
+          "1 Gbit/s",
+          "1 Gbit/s",
+          "2 × 1 Gbit/s (gebündelt)"
+        ],
+        [
+          "Betriebssystem",
+          "Debian 12 oder Ubuntu Server 24.04 LTS, jeweils 64 Bit",
+          "Debian 12 oder Ubuntu Server 24.04 LTS, jeweils 64 Bit",
+          "Debian 12 oder Ubuntu Server 24.04 LTS, jeweils 64 Bit",
+          "Debian 12 oder Ubuntu Server 24.04 LTS, jeweils 64 Bit"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Parameter",
+          "Standardwert",
+          "Bedeutung"
+        ],
+        [
+          "hostname",
+          "–",
+          "Vollständiger Name des Servers im Netzwerk"
+        ],
+        [
+          "web_port",
+          "8631",
+          "Port der Weboberfläche"
+        ],
+        [
+          "max_auftraege",
+          "200",
+          "Höchstzahl gleichzeitig gespeicherter Druckaufträge"
+        ],
+        [
+          "aufbewahrung_tage",
+          "7",
+          "Tage, nach denen abgeschlossene Aufträge gelöscht werden"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Laden Sie das Installationspaket aus dem Händlerportal herunter."
+    },
+    {
+      "level": 0,
+      "text": "Prüfen Sie die Prüfsumme des Pakets."
+    },
+    {
+      "level": 0,
+      "text": "Installieren Sie das Paket mit dem Paketmanager."
+    },
+    {
+      "level": 0,
+      "text": "Passen Sie die Konfigurationsdatei an:"
+    },
+    {
+      "level": 1,
+      "text": "Tragen Sie den Hostnamen des Servers ein."
+    },
+    {
+      "level": 1,
+      "text": "Legen Sie den Port für die Weboberfläche fest."
+    },
+    {
+      "level": 1,
+      "text": "Aktivieren Sie bei Bedarf die Verschlüsselung."
+    },
+    {
+      "level": 0,
+      "text": "Starten Sie den Dienst neu."
+    },
+    {
+      "level": 0,
+      "text": "– Der Dienst startet nicht: Prüfen Sie die Protokolldatei unter /var/log/ps400/server.log."
+    },
+    {
+      "level": 0,
+      "text": "– Die Weboberfläche ist nicht erreichbar: Kontrollieren Sie die Firewall-Regeln für Port 8631."
+    },
+    {
+      "level": 0,
+      "text": "– Drucker werden nicht gefunden: Aktivieren Sie die automatische Erkennung in der Weboberfläche."
+    }
+  ],
+  "furniture": [
+    "Druckserver PS-400 · Installationsanleitung · Version 3.1",
+    "Seite 1 von 2",
+    "Seite 2 von 2"
+  ],
+  "languages": [
+    "de"
+  ],
+  "code": [
+    "sha256sum ps400-server_3.1.2_amd64.deb\nsudo apt install ./ps400-server_3.1.2_amd64.deb\nsudo systemctl enable --now ps400",
+    "[server]\nhostname   = druck01.intern.example\nweb_port   = 8631\nlog_level  = info\n\n[tls]\nenabled    = true\nzertifikat = /etc/ps400/tls/server.pem\nschluessel = /etc/ps400/tls/server.key\n\n[warteschlange]\nmax_auftraege     = 500\naufbewahrung_tage = 14"
+  ],
+  "notes": "Technische Anleitung, 2 Seiten (Seitenumbruch vor Kapitel 4). Running header top left and 'Seite n von N' bottom right are CSS margin boxes. Headings carry typed chapter numbers. Table 1 has a two-level header: 'Komponente' spans two header rows, 'Testbetrieb' and 'Produktivbetrieb' each span two columns (texts repeated in the grid); the last row merges four columns. Full grid. The installation steps are an <ol>: decimal numbers and nested lower-alpha letters are drawn by CSS, not typed. 'Fehlerbehebung' uses typed en-dash markers with a hanging indent. Two code blocks in Consolas (shell commands and an INI file). Parameter table: a rule under the header only (and one closing rule). The 'Hinweis' box is body text."
+}

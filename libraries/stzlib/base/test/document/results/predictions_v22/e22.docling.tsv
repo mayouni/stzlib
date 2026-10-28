@@ -1,0 +1,22 @@
+page_header	0	HALVARD ELECTRIC
+page_header	0	Product data sheet
+heading	1	PSU-450 Series DIN-Rail Power Supplies
+paragraph	0	The PSU-450 series converts single-phase mains into a stable 24 V or 48 V supply for control cabinets. All models are cooled by natural convection and need no fan.
+heading	1	Key features
+list_item	0	Wide input range for use on any mains supply
+list_item	0	Power reserve of 20% for five seconds
+list_item	0	DC OK relay contact for remote monitoring
+list_item	0	Tool-free mounting on 35 mm rails
+heading	1	Table 1. Output ratings by model
+table	0	OutputOutputOutputEfficiencyWidthWeightModelVoltageCurrentPowerPSU-450-2424 V DC10 A240 W93.5%40 mm0.62 kgPSU-450-24H24 V DC20 A480 W94.8%60 mm0.98 kgPSU-450-4848 V DC5 A240 W94.0%40 mm0.61 kgPSU-450-48H48 V DC10 A480 W95.2%60 mm0.97 kg
+heading	1	Derating and installation
+paragraph	0	Above 60 °C the output power must be reduced by 2.5% per degree. Leave at least 25 mm of free space above and below each unit so that air can circulate. Two units of the same model can be connected in parallel for redundancy. In that case, fit a redundancy module to decouple the outputs.
+heading	1	Ordering information
+table	0	General dataInput voltage100-240 V ACFrequency50/60 HzOperating temperature-25 to +70 °CProtection classIP20MTBF> 900,000 h
+table	0	Order codeDescriptionHE-450-24PSU-450-24 with screw terminalsHE-450-24HPSU-450-24H with screw terminalsHE-450-48PPSU-450-48 with push-in terminalsHE-450-48HPPSU-450-48H with push-in terminals
+heading	1	Typical applications
+list_item	0	Machine control cabinets
+list_item	0	Building automation panels
+list_item	0	Conveyor and packaging lines
+list_item	0	Water treatment plants
+page_footer	0	Halvard Electric · DS-PSU-450 Rev. C · October 2026 · Specifications subject to change without notice

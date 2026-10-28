@@ -1,0 +1,189 @@
+{
+  "id": "e22",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "PSU-450 Series DIN-Rail Power Supplies",
+  "headings": [
+    {
+      "level": 1,
+      "text": "PSU-450 Series DIN-Rail Power Supplies"
+    },
+    {
+      "level": 2,
+      "text": "Key features"
+    },
+    {
+      "level": 2,
+      "text": "Typical applications"
+    },
+    {
+      "level": 2,
+      "text": "Derating and installation"
+    },
+    {
+      "level": 2,
+      "text": "Ordering information"
+    }
+  ],
+  "key_sentences": [
+    "The PSU-450 series converts single-phase mains into a stable 24 V or 48 V supply for control cabinets.",
+    "All models are cooled by natural convection and need no fan.",
+    "Above 60 °C the output power must be reduced by 2.5% per degree.",
+    "Two units of the same model can be connected in parallel for redundancy."
+  ],
+  "tables": [
+    {
+      "caption": "Table 1. Output ratings by model",
+      "rows": [
+        [
+          "Model",
+          "Output",
+          "Output",
+          "Output",
+          "Efficiency",
+          "Width",
+          "Weight"
+        ],
+        [
+          "Model",
+          "Voltage",
+          "Current",
+          "Power",
+          "Efficiency",
+          "Width",
+          "Weight"
+        ],
+        [
+          "PSU-450-24",
+          "24 V DC",
+          "10 A",
+          "240 W",
+          "93.5%",
+          "40 mm",
+          "0.62 kg"
+        ],
+        [
+          "PSU-450-24H",
+          "24 V DC",
+          "20 A",
+          "480 W",
+          "94.8%",
+          "60 mm",
+          "0.98 kg"
+        ],
+        [
+          "PSU-450-48",
+          "48 V DC",
+          "5 A",
+          "240 W",
+          "94.0%",
+          "40 mm",
+          "0.61 kg"
+        ],
+        [
+          "PSU-450-48H",
+          "48 V DC",
+          "10 A",
+          "480 W",
+          "95.2%",
+          "60 mm",
+          "0.97 kg"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Input voltage",
+          "100–240 V AC"
+        ],
+        [
+          "Frequency",
+          "50/60 Hz"
+        ],
+        [
+          "Operating temperature",
+          "−25 to +70 °C"
+        ],
+        [
+          "Protection class",
+          "IP20"
+        ],
+        [
+          "MTBF",
+          "> 900,000 h"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Order code",
+          "Description"
+        ],
+        [
+          "HE-450-24",
+          "PSU-450-24 with screw terminals"
+        ],
+        [
+          "HE-450-24H",
+          "PSU-450-24H with screw terminals"
+        ],
+        [
+          "HE-450-48P",
+          "PSU-450-48 with push-in terminals"
+        ],
+        [
+          "HE-450-48HP",
+          "PSU-450-48H with push-in terminals"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Wide input range for use on any mains supply"
+    },
+    {
+      "level": 0,
+      "text": "Power reserve of 20% for five seconds"
+    },
+    {
+      "level": 0,
+      "text": "DC OK relay contact for remote monitoring"
+    },
+    {
+      "level": 0,
+      "text": "Tool-free mounting on 35 mm rails"
+    },
+    {
+      "level": 0,
+      "text": "Machine control cabinets"
+    },
+    {
+      "level": 0,
+      "text": "Building automation panels"
+    },
+    {
+      "level": 0,
+      "text": "Conveyor and packaging lines"
+    },
+    {
+      "level": 0,
+      "text": "Water treatment plants"
+    }
+  ],
+  "furniture": [
+    "HALVARD ELECTRIC",
+    "Product data sheet",
+    "Halvard Electric · DS-PSU-450 Rev. C · October 2026 · Specifications subject to change without notice"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Product data sheet, one page. The top band ('HALVARD ELECTRIC' and 'Product data sheet') is furniture, as is the footer margin box. 'Key features' and 'Typical applications' are two side-by-side boxes read box by box, left first; their lists use disc markers drawn by CSS. Table 1 has a two-level header: 'Model', 'Efficiency', 'Width' and 'Weight' span both header rows, 'Output' spans three columns (texts repeated in the grid); full grid. The 'General data' boxed key/value panel (no header) floats at the right of the derating paragraph: a table beside text, read after that paragraph's heading and before its text. The ordering table has no lines at all."
+}

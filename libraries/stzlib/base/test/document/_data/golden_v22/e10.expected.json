@@ -1,0 +1,137 @@
+{
+  "id": "e10",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Programme — Day One",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Programme — Day One"
+    },
+    {
+      "level": 2,
+      "text": "Practical information"
+    },
+    {
+      "level": 2,
+      "text": "Contacts"
+    },
+    {
+      "level": 2,
+      "text": "Wi-Fi"
+    }
+  ],
+  "key_sentences": [
+    "Welcome to the second annual conference of the Northshore Library Network.",
+    "This year’s theme is reading in a changing community.",
+    "All sessions in the Lecture Theatre will be recorded and published within two weeks.",
+    "Please wear your badge at all times while in the building."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Time",
+          "Session",
+          "Room"
+        ],
+        [
+          "Morning",
+          "Morning",
+          "Morning"
+        ],
+        [
+          "08:30–09:15",
+          "Registration and coffee",
+          "Atrium"
+        ],
+        [
+          "09:15–09:30",
+          "Opening remarks Director, Northshore Library Network",
+          "Lecture Theatre"
+        ],
+        [
+          "09:30–10:30",
+          "Keynote: The library as a third place Dr Amara Lindqvist-Obi",
+          "Lecture Theatre"
+        ],
+        [
+          "10:30–11:00",
+          "Break",
+          "Atrium"
+        ],
+        [
+          "11:00–12:30",
+          "Workshop A: Running a repair café Workshop B: Story time for multilingual families",
+          "Room 2.04 Room 2.06"
+        ],
+        [
+          "Afternoon",
+          "Afternoon",
+          "Afternoon"
+        ],
+        [
+          "13:30–14:30",
+          "Panel: Keeping small branches open",
+          "Lecture Theatre"
+        ],
+        [
+          "14:30–15:30",
+          "Lightning talks Six speakers, ten minutes each",
+          "Room 1.10"
+        ],
+        [
+          "15:30–16:00",
+          "Closing remarks and prize draw",
+          "Lecture Theatre"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Registration desk",
+          "ext. 210"
+        ],
+        [
+          "First aid",
+          "ext. 222"
+        ],
+        [
+          "Lost property",
+          "Atrium desk"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Lunch is served in the Atrium from 12:30."
+    },
+    {
+      "level": 0,
+      "text": "Cloakroom on the ground floor, next to the lifts."
+    },
+    {
+      "level": 0,
+      "text": "Quiet room: Room 1.02, open all day."
+    },
+    {
+      "level": 0,
+      "text": "Step-free access from the Quay Street entrance."
+    }
+  ],
+  "furniture": [
+    "NORTHSHORE LIBRARY NETWORK",
+    "Annual Conference 2026 · Harbourside Civic Centre · 6–7 November",
+    "Northshore Library Network · Conference 2026 · Programme subject to change"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Conference programme, one page, two columns: a main column (left) with the timetable and a shaded sidebar (right) with practical information. Reading order is box by box: main column first, then the sidebar. The banner line (network name and conference dates) is furniture; the footer is a CSS margin box. Timetable: zebra bands, no rules; 'Morning' and 'Afternoon' are section rows spanning three columns (repeated); several cells hold two lines (joined with one space), top-aligned. The sidebar list uses square markers drawn by CSS; the contacts panel is a borderless key/value table (no header row)."
+}

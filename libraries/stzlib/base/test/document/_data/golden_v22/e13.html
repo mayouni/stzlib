@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Quillstack 4.2 Release Notes</title>
+<style>
+@page { size: A4; margin: 2.2cm 2cm 2cm 2cm;  @top-left { content: "Quillstack 4.2 — Release Notes"; font-family: "Segoe UI"; font-size: 8pt; color: #5a6b7d; } @bottom-right { content: counter(page, decimal) " / " counter(pages, decimal); font-family: "Segoe UI"; font-size: 8pt; color: #5a6b7d; } }
+
+body { font-family: "Segoe UI"; font-size: 10pt; color: #1f2933; line-height: 1.45; }
+h1 { font-size: 22pt; font-weight: normal; color: #0b7a75; margin: 0; }
+.rel { color: #5a6b7d; margin: 0 0 12px; }
+h2 { font-size: 14pt; font-weight: normal; color: #0b7a75; border-bottom: 1px solid #b9d9d7; margin: 16px 0 6px; }
+h3 { font-size: 10.5pt; margin: 10px 0 2px; }
+p { margin: 4px 0; }
+ul { margin: 2px 0; padding-left: 1.4em; } ul.lv1 { list-style-type: circle; } ul.lv2 { list-style-type: square; }
+.tl { display: flex; margin: 3px 0; } .tl .mk { flex: 0 0 1.6em; font-weight: bold; color: #b5452d; } .tl .tx { flex: 1; }
+pre.code { font-family: "Courier New"; font-size: 9pt; background: #1f2933; color: #e6edf3; padding: 8px 12px; margin: 6px 0; line-height: 1.35; border-radius: 3px; }
+table.ki { border-collapse: collapse; width: 100%; font-size: 9.5pt; margin-top: 6px; }
+table.ki th { text-align: left; color: #0b7a75; padding: 3px 6px; border-bottom: 1px solid #0b7a75; }
+table.ki td { padding: 4px 6px; border-bottom: 1px solid #d5dde5; vertical-align: top; }
+.brk { break-before: page; }
+
+</style>
+</head>
+<body>
+<h1>Quillstack 4.2 Release Notes</h1>
+<p class="rel">Released 27 October 2026 · Build 4.2.0-1</p>
+<h2>Highlights</h2>
+<p>Quillstack 4.2 adds offline editing, a faster search index and a new permissions model for shared spaces. Most installations can upgrade in place without downtime.</p>
+<h2>New features</h2>
+<h3>Offline editing</h3>
+<p>Pages you have opened in the last 30 days stay editable when the connection drops. Changes are kept as drafts and merged when you are back online.</p>
+<h3>Full list of changes</h3>
+<ul class="lv0"><li>Editor<ul class="lv1"><li>Offline drafts are stored in the browser and synchronised on reconnect.</li><li>Tables can now be pasted from spreadsheets with their formatting kept.<ul class="lv2"><li>Merged cells are preserved.</li><li>Formulas are pasted as values.</li></ul></li></ul></li><li>Search<ul class="lv1"><li>The index is rebuilt incrementally, which cuts reindexing time by about 70%.</li><li>Results can be filtered by space and by author.</li></ul></li><li>Administration<ul class="lv1"><li>Space owners can delegate permissions to groups.</li><li>The audit log can be exported as CSV.</li></ul></li></ul>
+<h2>Breaking changes</h2>
+<div class="tl lv0" style="margin-inline-start:0.00em"><span class="mk">1.</span><span class="tx">The configuration key search.engine has been renamed to search.backend.</span></div><div class="tl lv0" style="margin-inline-start:0.00em"><span class="mk">2.</span><span class="tx">Support for PostgreSQL 13 has been removed; use version 14 or later.</span></div><div class="tl lv0" style="margin-inline-start:0.00em"><span class="mk">3.</span><span class="tx">The legacy endpoint /api/v1/export now returns 410 Gone.</span></div>
+<div class="brk"></div>
+<h2>Upgrading</h2>
+<p>Back up the database and the attachments folder before you upgrade. The commands below assume a Debian-based server.</p>
+<pre class="code">$ quillstack backup --output /var/backups/qs-$(date +%F).tar.gz
+$ sudo systemctl stop quillstack
+$ sudo apt install quillstack=4.2.0-1
+$ quillstack migrate --check
+$ sudo systemctl start quillstack</pre>
+<h3>Configuration</h3>
+<p>After upgrading, update quillstack.yaml as shown below.</p>
+<pre class="code">search:
+  backend: tantivy        # was: engine
+  index_path: /var/lib/quillstack/index
+  rebuild: incremental
+
+offline:
+  enabled: true
+  max_draft_age_days: 30
+
+permissions:
+  delegate_to_groups: true</pre>
+<h2>Known issues</h2>
+<table class="ki"><colgroup><col style="width:12%"><col style="width:16%"><col style="width:42%"><col style="width:30%"></colgroup><thead><tr><th>ID</th><th>Area</th><th>Description</th><th>Workaround</th></tr></thead><tbody><tr><td>QS-4812</td><td>Editor</td><td>Images pasted while offline are not uploaded after reconnecting.</td><td>Insert the image again once you are online.</td></tr><tr><td>QS-4830</td><td>Search</td><td>Results for words shorter than three characters may be incomplete.</td><td>None; fixed in 4.2.1.</td></tr><tr><td>QS-4857</td><td>Administration</td><td>Group delegation does not apply to archived spaces.</td><td>Unarchive the space, then delegate.</td></tr></tbody></table>
+<p>Version 4.2.1 is planned for the second half of November. Report problems through the support portal.</p>
+</body>
+</html>

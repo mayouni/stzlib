@@ -1,0 +1,40 @@
+page_header	0	Quillstack 4.2 — Release Notes
+heading	1	Quillstack 4.2 Release Notes
+paragraph	0	Released 27 October 2026 · Build 4.2.0-1
+heading	2	Highlights
+paragraph	0	Quillstack 4.2 adds offline editing, a faster search index and a new permissions model for shared spaces. Most installations can upgrade in place without downtime.
+heading	2	New features
+heading	3	Offline editing
+paragraph	0	Pages you have opened in the last 30 days stay editable when the connection drops. Changes are kept as drafts and merged when you are back online.
+heading	3	Full list of changes
+list_item	0	Editor
+list_item	1	Offline drafts are stored in the browser and synchronised on reconnect.
+list_item	1	Tables can now be pasted from spreadsheets with their formatting kept.
+list_item	2	Merged cells are preserved.
+list_item	2	Formulas are pasted as values.
+list_item	0	Search
+list_item	1	The index is rebuilt incrementally, which cuts reindexing time by about 70%.
+list_item	1	Results can be filtered by space and by author.
+list_item	0	Administration
+list_item	1	Space owners can delegate permissions to groups.
+list_item	1	The audit log can be exported as CSV.
+heading	2	Breaking changes
+list_item	0	1. The configuration key search.engine has been renamed to search.backend.
+list_item	0	2. Support for PostgreSQL 13 has been removed; use version 14 or later.
+list_item	0	3. The legacy endpoint /api/v1/export now returns 410 Gone.
+page_footer	0	1 / 2
+page_header	0	Quillstack 4.2 — Release Notes
+heading	2	Upgrading
+paragraph	0	Back up the database and the attachments folder before you upgrade. The commands below assume a Debian-based server.
+code	0	$ quillstack backup --output /var/backups/qs-$(date +%F).tar.gz\n$ sudo systemctl stop quillstack\n$ sudo apt install quillstack=4.2.0-1\n$ quillstack migrate --check\n$ sudo systemctl start quillstack
+heading	3	Configuration
+paragraph	0	After upgrading, update quillstack.yaml as shown below.
+code	0	search:\n  backend: tantivy        # was: engine\n  index_path: /var/lib/quillstack/index\n  rebuild: incremental\n\noffline:\n  enabled: true\n  max_draft_age_days: 30\n\npermissions:\n  delegate_to_groups: true
+heading	2	Known issues
+table	0	IDAreaDescriptionWorkaroundQS-4812EditorImages pasted while offline are notInsert the image again onceuploaded after reconnecting.uploaded after reconnecting.uploaded after reconnecting.you are online.QS-4830SearchResults for words shorter than threeNone; fixed in 4.2.1.
+paragraph	0	QS-4857
+paragraph	0	Administration characters may be incomplete.
+paragraph	0	Group delegation does not apply to archived spaces.
+paragraph	0	Unarchive the space, then delegate.
+paragraph	0	Version 4.2.1 is planned for the second half of November. Report problems through the support portal.
+page_footer	0	2 / 2

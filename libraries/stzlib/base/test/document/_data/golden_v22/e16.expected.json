@@ -1,0 +1,204 @@
+{
+  "id": "e16",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "Section 4: Leave and Absence",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Section 4: Leave and Absence"
+    },
+    {
+      "level": 2,
+      "text": "I. Annual leave"
+    },
+    {
+      "level": 3,
+      "text": "Booking leave"
+    },
+    {
+      "level": 3,
+      "text": "Carrying leave over"
+    },
+    {
+      "level": 2,
+      "text": "II. Sickness absence"
+    },
+    {
+      "level": 3,
+      "text": "Certification"
+    },
+    {
+      "level": 3,
+      "text": "Company sick pay"
+    },
+    {
+      "level": 3,
+      "text": "Return to work"
+    },
+    {
+      "level": 2,
+      "text": "III. Family leave"
+    },
+    {
+      "level": 2,
+      "text": "IV. Other leave"
+    },
+    {
+      "level": 2,
+      "text": "V. Requests and appeals"
+    }
+  ],
+  "key_sentences": [
+    "This section explains the leave you are entitled to and how to arrange time away from work.",
+    "It applies to all employees, whatever their contract or working pattern.",
+    "Full-time employees receive 27 days of annual leave a year, plus bank holidays.",
+    "If you are unable to work because of illness, tell your manager by telephone before 09:30 on the first day.",
+    "The Trust offers maternity, paternity, adoption and shared parental leave in line with the statutory schemes.",
+    "If a request for leave is refused, you may ask for the decision to be reviewed by a director within ten working days.",
+    "Questions about this section should be addressed to the People Team."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Annual leave",
+          "27 days plus bank holidays"
+        ],
+        [
+          "Carry-over",
+          "Up to 5 days"
+        ],
+        [
+          "Sick pay",
+          "Up to 26 weeks"
+        ],
+        [
+          "Parental leave",
+          "18 weeks, unpaid"
+        ],
+        [
+          "Volunteering",
+          "2 days a year"
+        ]
+      ]
+    },
+    {
+      "caption": "Table 4.1 Annual leave by length of service",
+      "rows": [
+        [
+          "Length of service",
+          "Annual leave",
+          "Additional benefit"
+        ],
+        [
+          "Less than 2 years",
+          "27 days",
+          "—"
+        ],
+        [
+          "2 to 5 years",
+          "28 days",
+          "One wellbeing day a year"
+        ],
+        [
+          "More than 5 years",
+          "30 days",
+          "One wellbeing day a year Option to buy up to 5 extra days"
+        ]
+      ]
+    },
+    {
+      "caption": "Table 4.2 Company sick pay in any rolling twelve months",
+      "rows": [
+        [
+          "Length of service",
+          "Full pay",
+          "Half pay"
+        ],
+        [
+          "During probation",
+          "2 weeks",
+          "2 weeks"
+        ],
+        [
+          "Up to 2 years",
+          "8 weeks",
+          "8 weeks"
+        ],
+        [
+          "2 to 5 years",
+          "13 weeks",
+          "13 weeks"
+        ],
+        [
+          "More than 5 years",
+          "26 weeks",
+          "26 weeks"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "(a) Request leave through the staff portal at least two weeks in advance."
+    },
+    {
+      "level": 0,
+      "text": "(b) Your manager will respond within five working days."
+    },
+    {
+      "level": 0,
+      "text": "(c) Requests for more than ten consecutive days need the approval of a director, who will consider:"
+    },
+    {
+      "level": 1,
+      "text": "(i) the needs of the service during the period requested;"
+    },
+    {
+      "level": 1,
+      "text": "(ii) leave already approved for other members of the team."
+    },
+    {
+      "level": 0,
+      "text": "(d) Leave is booked in half days or whole days."
+    },
+    {
+      "level": 0,
+      "text": "(a) For absences of up to seven calendar days, you complete a self-certification form."
+    },
+    {
+      "level": 0,
+      "text": "(b) For longer absences, you provide a fit note from a doctor."
+    },
+    {
+      "level": 0,
+      "text": "Bereavement leave: up to five days of paid leave on the death of a close relative."
+    },
+    {
+      "level": 0,
+      "text": "Volunteering: two days of paid leave a year for work with a registered charity."
+    },
+    {
+      "level": 0,
+      "text": "Jury service: paid leave for the whole period, less any allowance you receive from the court."
+    },
+    {
+      "level": 0,
+      "text": "Medical appointments: reasonable paid time off, arranged at the start or end of the day where possible."
+    }
+  ],
+  "furniture": [
+    "Brindlemoor Housing Trust · Staff Handbook · Section 4",
+    "Page 1 of 3",
+    "Page 2 of 3",
+    "Page 3 of 3"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Staff handbook chapter, 3 pages (forced breaks before II and IV). Running header and 'Page n of N' are CSS margin boxes. Level-2 headings carry typed Roman numerals ('I. Annual leave'). The 'At a glance' boxed key/value panel (no header row) floats at the right of the introduction: a table beside text; it is listed first in tables and read after the title block, before the introduction paragraphs. Lists use typed '(a)'..'(d)' markers with nested typed '(i)' '(ii)', set apart by a hanging indent. Table 4.1: full grid, a cell of two lines (joined with one space), top-aligned. Table 4.2: zebra bands, no rules. The 'Other leave' list uses disc markers drawn by CSS; each item begins with a bold lead-in."
+}

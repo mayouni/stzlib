@@ -1,0 +1,202 @@
+{
+  "id": "e01",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Invoice",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Invoice"
+    },
+    {
+      "level": 2,
+      "text": "Payment details"
+    },
+    {
+      "level": 2,
+      "text": "Terms"
+    }
+  ],
+  "key_sentences": [
+    "Thank you for choosing us for the classroom storage project.",
+    "This invoice covers the second and final stage of the works described in quotation Q-2026-112.",
+    "The works were completed on 9 October 2026 and signed off by your site manager.",
+    "We guarantee all fitted furniture for five years from the date of installation.",
+    "If you have any questions about this invoice, please contact our accounts team."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Invoice number",
+          "HF-2026-0418"
+        ],
+        [
+          "Invoice date",
+          "12 October 2026"
+        ],
+        [
+          "Due date",
+          "11 November 2026"
+        ],
+        [
+          "Your order",
+          "PO 7731"
+        ],
+        [
+          "Account",
+          "HF-C-0219"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "No.",
+          "Description",
+          "Qty",
+          "Unit",
+          "Unit price (£)",
+          "Amount (£)"
+        ],
+        [
+          "1",
+          "Oak veneer storage unit, 1800 × 900 mm, with adjustable shelves",
+          "6",
+          "each",
+          "412.00",
+          "2,472.00"
+        ],
+        [
+          "2",
+          "Coat hook rail in solid ash 1200 mm long, eight hooks",
+          "10",
+          "each",
+          "38.50",
+          "385.00"
+        ],
+        [
+          "3",
+          "Reading nook bench with lift-up lid",
+          "2",
+          "each",
+          "655.00",
+          "1,310.00"
+        ],
+        [
+          "4",
+          "Site installation, two fitters",
+          "14",
+          "hour",
+          "42.00",
+          "588.00"
+        ],
+        [
+          "5",
+          "Removal and disposal of old fittings",
+          "1",
+          "lot",
+          "120.00",
+          "120.00"
+        ],
+        [
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "4,875.00"
+        ],
+        [
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "975.00"
+        ],
+        [
+          "Less deposit paid on 3 March 2026",
+          "Less deposit paid on 3 March 2026",
+          "Less deposit paid on 3 March 2026",
+          "Less deposit paid on 3 March 2026",
+          "Less deposit paid on 3 March 2026",
+          "−1,462.50"
+        ],
+        [
+          "Total due",
+          "Total due",
+          "Total due",
+          "Total due",
+          "Total due",
+          "4,387.50"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Bank",
+          "Wessex Mutual Bank"
+        ],
+        [
+          "Account name",
+          "Harrow & Finch Joinery Ltd"
+        ],
+        [
+          "Sort code",
+          "40-17-62"
+        ],
+        [
+          "Account number",
+          "51883047"
+        ],
+        [
+          "Reference",
+          "HF-2026-0418"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Payment is due within 30 days of the invoice date."
+    },
+    {
+      "level": 0,
+      "text": "We accept bank transfer and cheque."
+    },
+    {
+      "level": 1,
+      "text": "Please quote the invoice number as your reference."
+    },
+    {
+      "level": 1,
+      "text": "Cheques should be made payable to Harrow & Finch Joinery Ltd."
+    },
+    {
+      "level": 0,
+      "text": "Late payments may incur interest at 4% above base rate."
+    },
+    {
+      "level": 0,
+      "text": "All goods remain our property until paid in full."
+    }
+  ],
+  "furniture": [
+    "Harrow & Finch Joinery Ltd",
+    "Unit 7, Millbrook Trading Estate",
+    "Ashcombe, Wiltshire SN14 6QT",
+    "Tel. 01249 550 318 · accounts@harrowfinch.example",
+    "Harrow & Finch Joinery Ltd · Registered in England and Wales No. 09417263 · VAT GB 318 5520 47"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Single-page trade invoice. Letterhead (four lines, top left) is furniture; the boxed panel at top right (Invoice number, dates, references) is a key/value table with no header row, listed first in tables. 'Bill to' and 'Deliver to' are two side-by-side boxes whose reading order is box by box, left box first; their labels are box labels, not headings. Line-item table is a full grid; item 2's description cell has two lines (joined with one space); the four total rows merge the first five columns, so the merged text repeats five times. The payment-details panel is a boxed key/value table without header. Terms list: disc and circle markers drawn by CSS (not in the text). The footer line is a CSS page-margin box."
+}

@@ -1,0 +1,132 @@
+{
+  "id": "e06",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Detecting Slow Leaks in District Metered Areas from Night-Flow Records",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Detecting Slow Leaks in District Metered Areas from Night-Flow Records"
+    },
+    {
+      "level": 2,
+      "text": "Abstract"
+    },
+    {
+      "level": 2,
+      "text": "1 Introduction"
+    },
+    {
+      "level": 2,
+      "text": "2 Method"
+    },
+    {
+      "level": 3,
+      "text": "2.1 Data preparation"
+    },
+    {
+      "level": 3,
+      "text": "2.2 Trend test"
+    },
+    {
+      "level": 2,
+      "text": "3 Results"
+    },
+    {
+      "level": 2,
+      "text": "4 Discussion"
+    },
+    {
+      "level": 2,
+      "text": "5 Conclusions"
+    },
+    {
+      "level": 2,
+      "text": "References"
+    }
+  ],
+  "key_sentences": [
+    "We describe a simple screening method that flags district metered areas whose minimum night flow rises steadily over several weeks.",
+    "Applied to 214 areas over eighteen months, the method found 37 slow leaks that routine inspection had missed.",
+    "Most water lost from a distribution network escapes through small leaks that run for months before anyone reports them.",
+    "An area is flagged when the baseline grows by more than 0.4 litres per second for 21 consecutive nights.",
+    "Of the 46 areas flagged, 37 were confirmed as leaks by field crews.",
+    "False alarms were mostly caused by new connections that had not yet been recorded in the billing system.",
+    "The method needs no hydraulic model and can run on data that utilities already collect."
+  ],
+  "tables": [
+    {
+      "caption": "Table 1. Leaks found by area type",
+      "rows": [
+        [
+          "Area type",
+          "Areas",
+          "Flagged",
+          "Confirmed"
+        ],
+        [
+          "Residential",
+          "148",
+          "31",
+          "26"
+        ],
+        [
+          "Mixed use",
+          "47",
+          "9",
+          "7"
+        ],
+        [
+          "Industrial",
+          "19",
+          "6",
+          "4"
+        ],
+        [
+          "Total",
+          "214",
+          "46",
+          "37"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Readings are taken every 15 minutes from the inlet meters of each area."
+    },
+    {
+      "level": 0,
+      "text": "Nights with missing readings are removed rather than interpolated."
+    },
+    {
+      "level": 0,
+      "text": "Holiday periods are excluded because demand patterns change."
+    },
+    {
+      "level": 0,
+      "text": "[1] A. Lindqvist, “Minimum night flow analysis in practice,” Journal of Network Operations, vol. 12, pp. 44–58, 2019."
+    },
+    {
+      "level": 0,
+      "text": "[2] M. Duarte and K. Ibe, Water Loss Control Handbook, 3rd ed. Northbridge Press, 2021."
+    },
+    {
+      "level": 0,
+      "text": "[3] Lakeside Water Research Institute, “Meter data quality guidelines,” Internal report IR-2024-03, 2024."
+    }
+  ],
+  "furniture": [
+    "Lakeside Water Research Institute · Technical Report TR-2026-07",
+    "1",
+    "2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "for each area a:\n    b = median(minflow[a], window=28)\n    if rising(b, nights=21, step=0.4):\n        flag(a)"
+  ],
+  "notes": "Two-column technical report, 2 pages. Title block and abstract span the full width; the body runs in two CSS columns, read column by column (left column top to bottom, then right column), continuing onto page 2. Running header and the bare page number ('1', '2') at the bottom are CSS margin boxes. Author and affiliation lines are body text, not headings. The sentence ending with superscript '1' has a footnote marker and is left out of key_sentences; its footnote text sits at the end of the body. Section 2.1 list: disc bullets drawn by CSS. References use typed '[n]' markers set apart by a hanging indent. Table 1 has a rule under the header and above the total row only; its caption is above it. One pseudo-code block in Consolas."
+}

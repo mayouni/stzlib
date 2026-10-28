@@ -1,0 +1,35 @@
+page_header	0	Lakeside Water Research Institute · Technical Report TR-2026-07
+heading	1	Detecting Slow Leaks in District Metered Areas from Night-Flow Records
+paragraph	0	R. Okonkwo, L. Haverkamp and T. Sato
+paragraph	0	Lakeside Water Research Institute, Network Performance Group
+heading	2	Abstract
+paragraph	0	We describe a simple screening method that flags district metered areas whose minimum night flow rises steadily over several weeks. Applied to 214 areas over eighteen months, the method found 37 slow leaks that routine inspection had missed.
+heading	2	1 Introduction
+paragraph	0	Most water lost from a distribution network escapes through small leaks that run for months before anyone reports them. Such leaks rarely surface, because the water drains into the gravel bed around the pipe or into a nearby sewer. Night flow is the most sensitive indicator of such leaks because legitimate demand is lowest between 02:00 and 04:00.1 Utilities already divide their networks into district metered areas, each fed through one or two metered inlets. The inlet records are therefore a free source of evidence, but they are seldom examined night by night. This report sets out a screening rule that a controlroom operator can run each morning without specialist software.
+heading	2	2 Method
+paragraph	0	The method compares each night’s minimum flow with a rolling baseline built from the previous four weeks. A leak shows up as a baseline that climbs and does not come back down.
+heading	3	2.1 Data preparation
+list_item	0	Readings are taken every 15 minutes from the inlet meters of each area.
+list_item	0	Nights with missing readings are removed rather than interpolated.
+list_item	0	Holiday periods are excluded because demand patterns change.
+heading	3	2.2 Trend test
+paragraph	0	An area is flagged when the baseline grows by more than 0.4 litres per second for 21 consecutive nights. The rule is written below in plain pseudo-code.
+code	0	for each area a:\n    b = median(minflow[a], window=28)\n    if rising(b, nights=21, step=0.4):\n       flag(a)
+paragraph	0	The threshold of 0.4 litres per second was chosen from a trial on twelve areas with known leak histories. Lower thresholds doubled the number of alarms without finding more leaks.
+heading	2	3 Results
+paragraph	0	The rule ran daily from April 2025 to September 2026 on every area with complete inlet data. Of the 46 areas flagged, 37 were confirmed as leaks by field crews.
+caption	0	Table 1. Leaks found by area type
+table	0	Area typeAreasFlaggedConfirmedResidential1483126Mixed use4797Industrial1964Total2144637
+paragraph	0	The median time from the first flag to the repair was 19 days. Repaired leaks reduced night flow in their areas by between 0.6 and 3.1 litres per second.
+heading	2	4 Discussion
+paragraph	0	False alarms were mostly caused by new connections that had not yet been recorded in the billing system. Two further alarms came from a meter whose battery was failing and which reported flow in bursts. Both causes can be removed by checking the connection register and the meter status before a crew is sent. Industrial areas remain the hardest to screen, since some factories run night shifts that vary from week to week. For those areas a baseline built per weekday may perform better, and this is being tested.
+heading	2	5 Conclusions
+paragraph	0	The method needs no hydraulic model and can run on data that utilities already collect. We recommend that it be added to the morning checks of the control room from January 2027.
+page_footer	0	1
+page_header	0	Lakeside Water Research Institute · Technical Report TR-2026-07
+heading	2	References
+list_item	0	[1] A. Lindqvist, “Minimum night flow analysis in practice,” Journal of Network Operations, vol. 12, pp. 44–58, 2019.
+list_item	1	[2] M. Duarte and K. Ibe, Water Loss Control Handbook, 3rd ed. Northbridge Press, 2021.
+list_item	1	[3] Lakeside Water Research Institute, “Meter data quality guidelines,” Internal report IR-2024-03, 2024.
+paragraph	0	1 Local time; the analysis ignores the change to summer time.
+page_footer	0	2

@@ -1,0 +1,150 @@
+{
+  "id": "e21",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Regulamin korzystania z parkingu osiedlowego",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Regulamin korzystania z parkingu osiedlowego"
+    },
+    {
+      "level": 2,
+      "text": "§ 1. Postanowienia ogólne"
+    },
+    {
+      "level": 2,
+      "text": "§ 2. Zasady parkowania"
+    },
+    {
+      "level": 2,
+      "text": "§ 3. Opłaty"
+    },
+    {
+      "level": 2,
+      "text": "§ 4. Odpowiedzialność"
+    },
+    {
+      "level": 2,
+      "text": "§ 5. Postanowienia końcowe"
+    }
+  ],
+  "key_sentences": [
+    "Niniejszy regulamin obowiązuje od dnia 1 listopada 2026 r.",
+    "Opłaty wnosi się z góry do 15. dnia każdego miesiąca na rachunek Spółdzielni.",
+    "Wysokość opłat może zostać zmieniona uchwałą Zarządu.",
+    "Spółdzielnia nie ponosi odpowiedzialności za szkody powstałe w pojazdach pozostawionych na parkingu.",
+    "Naruszenie postanowień regulaminu może skutkować cofnięciem identyfikatora."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Rodzaj miejsca",
+          "Opłata miesięczna"
+        ],
+        [
+          "Miejsce ogólnodostępne",
+          "40,00 zł"
+        ],
+        [
+          "Miejsce zastrzeżone",
+          "95,00 zł"
+        ],
+        [
+          "Miejsce dla motocykla",
+          "20,00 zł"
+        ],
+        [
+          "Identyfikator dodatkowy",
+          "15,00 zł (opłata jednorazowa)"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. Regulamin określa zasady korzystania z parkingu osiedlowego przy ul. Kasztanowej 4–12."
+    },
+    {
+      "level": 0,
+      "text": "2. Parking jest przeznaczony wyłącznie dla mieszkańców osiedla oraz ich gości."
+    },
+    {
+      "level": 0,
+      "text": "3. Ilekroć w regulaminie jest mowa o:"
+    },
+    {
+      "level": 1,
+      "text": "1) Spółdzielni – należy przez to rozumieć Spółdzielnię Mieszkaniową „Zielony Jar”;"
+    },
+    {
+      "level": 1,
+      "text": "2) użytkowniku – należy przez to rozumieć osobę posiadającą ważny identyfikator parkingowy;"
+    },
+    {
+      "level": 1,
+      "text": "3) identyfikatorze – należy przez to rozumieć kartę wydaną przez Spółdzielnię."
+    },
+    {
+      "level": 0,
+      "text": "1. Na parkingu obowiązują przepisy ruchu drogowego."
+    },
+    {
+      "level": 0,
+      "text": "2. Zabrania się:"
+    },
+    {
+      "level": 1,
+      "text": "1) parkowania na miejscach zastrzeżonych bez uprawnienia;"
+    },
+    {
+      "level": 1,
+      "text": "2) pozostawiania pojazdów niesprawnych technicznie dłużej niż 7 dni;"
+    },
+    {
+      "level": 1,
+      "text": "3) mycia pojazdów oraz dokonywania napraw, z wyjątkiem:"
+    },
+    {
+      "level": 2,
+      "text": "a) wymiany żarówek,"
+    },
+    {
+      "level": 2,
+      "text": "b) uzupełniania płynów eksploatacyjnych;"
+    },
+    {
+      "level": 1,
+      "text": "4) składowania przedmiotów na miejscach postojowych."
+    },
+    {
+      "level": 0,
+      "text": "3. Prędkość pojazdów na terenie parkingu nie może przekraczać 10 km/h."
+    },
+    {
+      "level": 0,
+      "text": "4. Identyfikator parkingowy należy umieścić w widocznym miejscu za przednią szybą pojazdu."
+    },
+    {
+      "level": 0,
+      "text": "1. W sprawach nieuregulowanych regulaminem decyzje podejmuje Zarząd Spółdzielni."
+    },
+    {
+      "level": 0,
+      "text": "2. Regulamin wchodzi w życie z dniem 1 listopada 2026 r."
+    }
+  ],
+  "furniture": [
+    "Spółdzielnia Mieszkaniowa „Zielony Jar” · Regulamin parkingu",
+    "Strona 1 z 2",
+    "Strona 2 z 2"
+  ],
+  "languages": [
+    "pl"
+  ],
+  "code": [],
+  "notes": "Polish housing-cooperative regulation, 2 pages (forced break before § 3). Running header and 'Strona n z N' are CSS margin boxes. Paragraph headings '§ 1. ...' are level 2. Three typed list levels, all with a hanging indent: ustęp '1.' (level 0), punkt '1)' (level 1), litera 'a)' (level 2); markers are typed. Definitions use an en dash. Fee table: zebra bands, no rules, one cell of two lines. Polish quotation marks „ ” are typed. The approval line under the title is body text."
+}

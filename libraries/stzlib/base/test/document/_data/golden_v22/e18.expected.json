@@ -1,0 +1,166 @@
+{
+  "id": "e18",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Aylık Bakım Raporu — Ekim 2026",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Aylık Bakım Raporu — Ekim 2026"
+    },
+    {
+      "level": 2,
+      "text": "1. Özet"
+    },
+    {
+      "level": 2,
+      "text": "2. Yapılan işler"
+    },
+    {
+      "level": 2,
+      "text": "3. Arızalar"
+    },
+    {
+      "level": 2,
+      "text": "4. Öneriler"
+    }
+  ],
+  "key_sentences": [
+    "Ekim ayında planlanan 42 bakım işinin 39'u zamanında tamamlandı.",
+    "Üç iş, yedek parça teslimatındaki gecikme nedeniyle Kasım ayına ertelendi.",
+    "Ertelenen işler için gerekli parçaların 10 Kasım tarihine kadar teslim edilmesi bekleniyor.",
+    "Bir sonraki rapor 5 Aralık 2026 tarihinde sunulacaktır."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Tesis",
+          "Merkez Depo ve İdari Bina"
+        ],
+        [
+          "Rapor no",
+          "BKM-2026-10"
+        ],
+        [
+          "Hazırlayan",
+          "Teknik Hizmetler Birimi"
+        ],
+        [
+          "Dönem",
+          "1–31 Ekim 2026"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Sıra",
+          "Ekipman",
+          "Yapılan iş",
+          "Tarih",
+          "Durum"
+        ],
+        [
+          "1",
+          "Kompresör K-2",
+          "Yağ ve filtre değişimi",
+          "03.10.2026",
+          "Tamamlandı"
+        ],
+        [
+          "2",
+          "Yangın pompası",
+          "Aylık çalıştırma testi",
+          "07.10.2026",
+          "Tamamlandı"
+        ],
+        [
+          "3",
+          "Asansör A-1",
+          "Halat ve fren kontrolü",
+          "12.10.2026",
+          "Tamamlandı"
+        ],
+        [
+          "4",
+          "Klima santrali KS-3",
+          "Kayış değişimi",
+          "15.10.2026",
+          "Ertelendi"
+        ],
+        [
+          "5",
+          "Jeneratör",
+          "Yük testi (2 saat)",
+          "21.10.2026",
+          "Tamamlandı"
+        ],
+        [
+          "6",
+          "Çatı drenajı",
+          "Oluk temizliği",
+          "24.10.2026",
+          "Tamamlandı"
+        ],
+        [
+          "7",
+          "Yükleme rampası R-4",
+          "Hidrolik hortum değişimi",
+          "28.10.2026",
+          "Ertelendi"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Depo aydınlatmasında iki armatür arızalandı."
+    },
+    {
+      "level": 1,
+      "text": "Armatürler 9 Ekim'de değiştirildi."
+    },
+    {
+      "level": 1,
+      "text": "Sürücü kartları garanti kapsamında iade edildi."
+    },
+    {
+      "level": 0,
+      "text": "İdari binada su sızıntısı tespit edildi."
+    },
+    {
+      "level": 1,
+      "text": "Sızıntının kaynağı ikinci kattaki vana olarak belirlendi."
+    },
+    {
+      "level": 1,
+      "text": "Vana aynı gün değiştirildi ve zemin kurutuldu."
+    },
+    {
+      "level": 0,
+      "text": "• Klima santralleri için yedek kayış stoku oluşturulmalıdır."
+    },
+    {
+      "level": 0,
+      "text": "• Yükleme rampalarının hidrolik sistemleri yılda iki kez kontrol edilmelidir."
+    },
+    {
+      "level": 0,
+      "text": "• Asansör bakım sözleşmesi Ocak ayında yenilenmelidir."
+    }
+  ],
+  "furniture": [
+    "Kuzeyrüzgârı Tesis Yönetimi A.Ş.",
+    "Organize Sanayi Bölgesi 4. Cadde No: 12, Nilüfer / Bursa",
+    "Sayfa 1 / 1"
+  ],
+  "languages": [
+    "tr"
+  ],
+  "code": [],
+  "notes": "Turkish monthly maintenance report, one page. Letterhead (two lines) is furniture; 'Sayfa 1 / 1' is a CSS margin box. The report data panel is a boxed key/value table without header row. Works table: zebra bands, header rule only. 'Arızalar' is an <ol> whose upper-roman numerals and nested lower-alpha letters are drawn by CSS (not in the text). 'Öneriler' uses typed '•' bullets set apart by a hanging indent. Section headings carry typed numbers ('1. Özet')."
+}

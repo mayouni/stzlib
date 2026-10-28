@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>采购订单</title>
+<style>
+@page { size: A4; margin: 1.8cm 2cm 2cm 2cm;  @bottom-center { content: "第 " counter(page, decimal) " 页 共 " counter(pages, decimal) " 页"; font-family: SimSun; font-size: 9pt; } }
+
+body { font-family: SimSun; font-size: 10.5pt; color: #111; line-height: 1.55; }
+.lh { border-bottom: 2px solid #b0212b; padding-bottom: 4px; margin-bottom: 8px; }
+.lh .n { font-family: "Microsoft YaHei"; font-size: 15pt; font-weight: bold; color: #b0212b; }
+.lh div { font-size: 9pt; }
+h1 { font-family: "Microsoft YaHei"; font-size: 20pt; text-align: center; margin: 4px 0 8px; letter-spacing: 0.5em; }
+h2 { font-family: "Microsoft YaHei"; font-size: 11.5pt; margin: 10px 0 3px; }
+p { margin: 3px 0; text-indent: 2em; }
+.pair { display: flex; gap: 12px; }
+table.kv { flex: 1; border: 1px solid #555; border-collapse: collapse; font-size: 9.5pt; }
+table.kv td { padding: 2px 6px; border-bottom: 1px solid #ccc; }
+table.kv td:first-child { width: 28%; background: #f3eded; }
+table.items { width: 100%; border-collapse: collapse; font-size: 9.5pt; border-bottom: 1.5px solid #111; margin: 4px 0; }
+table.items th { border-top: 1.5px solid #111; border-bottom: 1px solid #111; padding: 3px 4px; font-family: "Microsoft YaHei"; }
+table.items td { padding: 3px 4px; text-align: center; }
+table.items td.l { text-align: left; } table.items td.r { text-align: right; }
+table.items tr.tot td { border-top: 1px solid #111; font-weight: bold; }
+.tl { display: flex; margin: 1px 0 1px 2em; } .tl .mk { flex: 0 0 3em; } .tl .tx { flex: 1; }
+.sig { display: flex; margin-top: 18px; } .sig div { flex: 1; }
+
+</style>
+</head>
+<body>
+<div class="lh">
+<div class="n">瑞丰机电设备（苏州）有限公司</div>
+<div>地址：江苏省苏州市工业园区星湖路88号</div>
+<div>电话：0512-6655 8810 传真：0512-6655 8811</div>
+</div>
+<h1>采购订单</h1>
+<div class="pair">
+<table class="kv"><tbody><tr><td>供方</td><td>华北精工轴承有限公司</td></tr><tr><td>联系人</td><td>刘建华</td></tr><tr><td>电话</td><td>022-2857 4410</td></tr><tr><td>订单编号</td><td>PO-2026-1037</td></tr></tbody></table>
+<table class="kv"><tbody><tr><td>需方</td><td>瑞丰机电设备（苏州）有限公司</td></tr><tr><td>联系人</td><td>陈雅婷</td></tr><tr><td>电话</td><td>0512-6655 8823</td></tr><tr><td>下单日期</td><td>2026年10月20日</td></tr></tbody></table>
+</div>
+<p>根据双方友好协商，需方向供方订购下列产品，具体条款如下。</p>
+<h2>一、订购明细</h2>
+<table class="items"><colgroup><col style="width:7%"><col style="width:13%"><col style="width:30%"><col style="width:7%"><col style="width:9%"><col style="width:15%"><col style="width:19%"></colgroup><thead><tr><th>序号</th><th>物料编码</th><th>名称及规格</th><th>单位</th><th>数量</th><th>单价（元）</th><th>金额（元）</th></tr></thead><tbody><tr><td>1</td><td>BR-6205</td><td class="l">深沟球轴承 6205-2RS</td><td>套</td><td>400</td><td class="r">18.60</td><td class="r">7,440.00</td></tr><tr><td>2</td><td>BR-6308</td><td class="l">深沟球轴承 6308-ZZ</td><td>套</td><td>150</td><td class="r">46.80</td><td class="r">7,020.00</td></tr><tr><td>3</td><td>SL-3052</td><td class="l">骨架油封 30×52×7</td><td>只</td><td>600</td><td class="r">3.20</td><td class="r">1,920.00</td></tr><tr><td>4</td><td>BS-0815</td><td class="l">立式轴承座 UCP208</td><td>个</td><td>80</td><td class="r">62.50</td><td class="r">5,000.00</td></tr><tr class="tot"><td colspan="6">合计</td><td class="r">21,380.00</td></tr></tbody></table>
+<p>金额合计（大写）：贰万壹仟叁佰捌拾元整 以上价格均含13%增值税及运费。</p>
+<h2>二、交货要求</h2>
+<div class="tl lv0" style="margin-inline-start:0.00em"><span class="mk">（一）</span><span class="tx">交货日期：2026年11月15日前一次性交清。</span></div><div class="tl lv0" style="margin-inline-start:0.00em"><span class="mk">（二）</span><span class="tx">交货地点：需方苏州仓库，卸货由供方负责。</span></div><div class="tl lv0" style="margin-inline-start:0.00em"><span class="mk">（三）</span><span class="tx">包装要求：</span></div>
+<div class="tl lv1" style="margin-inline-start:2.20em"><span class="mk">1.</span><span class="tx">每套轴承独立包装，外箱标明物料编码及数量；</span></div><div class="tl lv1" style="margin-inline-start:2.20em"><span class="mk">2.</span><span class="tx">外箱须防潮，堆码不超过五层。</span></div>
+<h2>三、验收与付款</h2>
+<p>需方在收货后五个工作日内完成验收。 验收合格后，需方于三十日内以银行转账方式支付全部货款。 如发现质量问题，供方应在七日内免费更换。</p>
+<h2>四、其他</h2>
+<p>本订单经双方签字盖章后生效，传真件与原件具有同等效力。</p>
+<div class="sig"><div>供方（盖章）：<br>日期：</div><div>需方（盖章）：<br>日期：</div></div>
+</body>
+</html>

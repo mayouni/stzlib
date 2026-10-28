@@ -1,0 +1,85 @@
+{
+  "id": "e24",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "ประกาศบริษัท สยามนครา ดิจิทัล จำกัด",
+  "headings": [
+    {
+      "level": 1,
+      "text": "ประกาศบริษัท สยามนครา ดิจิทัล จำกัด"
+    },
+    {
+      "level": 2,
+      "text": "เรื่อง การปิดปรับปรุงระบบบริการออนไลน์"
+    }
+  ],
+  "key_sentences": [
+    "บริษัทจะดำเนินการปรับปรุงระบบบริการออนไลน์เพื่อเพิ่มความปลอดภัยและความเสถียรของระบบ",
+    "ในระหว่างการปรับปรุงลูกค้าจะไม่สามารถเข้าใช้งานระบบได้ชั่วคราว",
+    "บริษัทขออภัยในความไม่สะดวกมา ณ โอกาสนี้",
+    "จึงประกาศมาเพื่อทราบโดยทั่วกัน"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "ลำดับ",
+          "ระบบ",
+          "วันที่ปิดปรับปรุง",
+          "เวลา"
+        ],
+        [
+          "๑",
+          "ระบบชำระเงินออนไลน์",
+          "๘ พฤศจิกายน ๒๕๖๙",
+          "๐๐.๐๐ – ๐๔.๐๐ น."
+        ],
+        [
+          "๒",
+          "แอปพลิเคชันบนโทรศัพท์มือถือ",
+          "๘ พฤศจิกายน ๒๕๖๙",
+          "๐๑.๐๐ – ๐๕.๐๐ น."
+        ],
+        [
+          "๓",
+          "ระบบสมาชิกและบัญชีผู้ใช้",
+          "๙ พฤศจิกายน ๒๕๖๙",
+          "๐๐.๐๐ – ๐๓.๐๐ น."
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "๑. ทำรายการที่จำเป็นให้เสร็จก่อนเวลาปิดปรับปรุง"
+    },
+    {
+      "level": 0,
+      "text": "๒. งดทำรายการชำระเงินในช่วงเวลาดังกล่าว"
+    },
+    {
+      "level": 0,
+      "text": "๓. หากพบปัญหาหลังการปรับปรุง ให้ติดต่อศูนย์บริการลูกค้า"
+    },
+    {
+      "level": 1,
+      "text": "ก. ทางโทรศัพท์หมายเลข ๐๒ ๖๔๑ ๓๓๐๐"
+    },
+    {
+      "level": 1,
+      "text": "ข. ทางอีเมล support@siamnakhara.example"
+    }
+  ],
+  "furniture": [
+    "บริษัท สยามนครา ดิจิทัล จำกัด",
+    "เลขที่ ๘๘/๑๔ ถนนวิภาวดีรังสิต แขวงดินแดง เขตดินแดง กรุงเทพฯ ๑๐๔๐๐",
+    "หน้า ๑ จาก ๑"
+  ],
+  "languages": [
+    "th"
+  ],
+  "code": [],
+  "notes": "Thai company announcement, one page, Thai digits throughout (U+0E50-U+0E59), including the page-number margin box 'หน้า ๑ จาก ๑'. Letterhead (two lines) is furniture. Thai writes no spaces between words; spaces separate clauses and sentences, and a line wrapped inside a sentence joins with no space. Key sentences are given as written, without the following space. The schedule table is a full grid; its cells wrap naturally and join with no space. Customer instructions use typed Thai-digit markers '๑.' and nested typed Thai-letter markers 'ก.' 'ข.', set apart by a hanging indent and recorded with one space after the marker. The date line and the signature block are body text."
+}
