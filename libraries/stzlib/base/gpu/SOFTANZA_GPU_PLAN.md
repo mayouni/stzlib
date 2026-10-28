@@ -3573,6 +3573,77 @@ of `gpu_verify_narrated.ring` (39): the 1024^3 tile16 product forced into
 eight chunks reads 7.5 ms against 6.4 ms in one submit, where the old
 clock would have read about 0.8.
 
+## GK2d STATUS — shipped 2026-10-28: three new matmul variants; at 1024 and above the distance to cuBLAS is less than half what GC0 measured
+
+**What reg4 did that cost it**, read after GC0's table: each thread owned
+four ADJACENT columns, so its B loads were strided across the warp and its
+shared-memory reads collided in the banks. The new generator
+(`mmStridedSourceP` in `gpu_ops.zig`) gives a thread rows `lid.y + 16 i`
+and columns `lid.x + 16 j`, stores the A tile transposed with one float of
+padding, stages by the linear thread index, and unrolls the K loop with
+named scalars. Three variants, each under the foundry's checker:
+
+| variant | per thread | tile | K step | workgroup memory |
+|---|---|---|---|---|
+| reg4s | 4 x 4, strided | 64 x 64 | 16 | 8.1 KB |
+| reg8 | 8 x 8, strided | 128 x 128 | 8 | 8.0 KB |
+| reg8p | reg8, the next K tile prefetched into registers while the current one is multiplied | 128 x 128 | 8 | 8.0 KB |
+
+The broken sibling keeps its index 4, because guards select it by its bit.
+The new variants sit after it, and `mmIsReal` replaces every "below
+MM_REAL" test: the table, the foundry's default mask, its winner, and the
+f16 path. `stzGpu.FoundryMatmulWith` now walks the variants by name.
+
+**Measured on the RTX 3050 under `rnxc`, alternated cuBLAS, ours, cuBLAS,
+ours; each cell the better turn:**
+
+| shape | reg4 | reg4s | reg8 | reg8p | best | cuBLAS f32 | best / cuBLAS | GC0's reg4 / cuBLAS |
+|---|---|---|---|---|---|---|---|---|
+| 130 x 384 x 384 | 0.0622 | 0.0477 | 0.1011 | 0.0986 | reg4s | 0.0459 | 1.04 | 1.51 |
+| 130 x 384 x 1536 | 0.1640 | 0.1515 | 0.1826 | 0.1749 | reg4s | 0.0686 | 2.21 | 2.51 |
+| 130 x 1536 x 384 | 0.2128 | 0.2073 | 0.4212 | 0.4007 | reg4s | 0.0685 | 3.03 | 2.37 |
+| 256 x 256 x 256 | 0.0401 | 0.0334 | 0.0701 | 0.0685 | reg4s | 0.0245 | 1.36 | 1.65 |
+| 512 x 512 x 512 | 0.2123 | 0.1942 | 0.1556 | 0.1501 | reg8p | 0.0818 | 1.84 | 2.52 |
+| 1024 x 1024 x 1024 | 1.3957 | 1.1994 | 1.0046 | 0.9634 | reg8p | 0.5938 | 1.62 | 2.50 |
+| 2048 x 2048 x 2048 | 10.2933 | 11.4203 | 7.1495 | 5.6038 | reg8p | 5.3760 | 1.04 | 2.32 |
+| 4096 x 4096 x 4096 | 94.0087 | 87.7663 | 55.7064 | 53.7447 | reg8p | 34.5610 | 1.56 | 2.98 |
+
+(milliseconds on the GPU clock.) **The done-when is met**: at 1024, 2048
+and 4096 the excess over cuBLAS fell from 1.50, 1.32 and 1.98 to 0.62, 0.04
+and 0.56. reg8p beat reg8 in all 16 pairs (eight shapes, two turns), by 2%
+to 5% where neither moved and by more at 2048, so it stays. On the third
+MiniLM shape our time improved 3% while cuBLAS's best turn ran 24% faster
+than in GC0; that ratio is cuBLAS's variance, not a loss. On MiniLM's
+130-row shapes reg4s wins by 3% to 23%; reg8's 128-row tiles leave too few
+workgroups there (two row tiles for 130 rows). The 130 x 1536 x 384 shape
+has only 18 workgroups of 64 x 64 for a k of 1,536: the gap that remains
+there is SPLIT-K's to close, which needs a second pass (WGSL has no float
+atomics) and is named GK2e.
+
+**The backbone, held by witnesses, not by agreement alone.** Each new
+variant forced into the neural DLL's table compiled one kernel and
+dispatched 36 matrix products per forward, with the bias fused, in f32 and
+with f16 weights. The embeddings were identical to nine digits across
+reg4, reg4s, reg8 and reg8p: every variant sums k in the same order, so
+each rounds the same. 1 - cos to the CPU forward stayed 1.73e-4 (f32) and
+1.74e-4 (f16) at 68 tokens. On this machine the foundry stored reg4s for
+130 x 384 x 384 and 130 x 384 x 1536, and reg4 for 130 x 1536 x 384,
+where the two are within 3%.
+
+**A dead assertion found and fixed**: `gpu_foundry_matmul_narrated.ring`
+read the broken variant's verdict at slot 28 since GK3 moved `F_BASE` to
+10. Slot 28 belongs to a masked variant and was always 0, so "the checker
+REFUSED it" held whatever the checker said. It reads slot 30 now, which
+also reads 0, for the right reason.
+
+**Gates, under `rnxc`:** ops 37, foundry 27, verify 39, f16 23, lifecycle
+62, seams 17, calibration shaped 40. The matmul foundry guard passes every
+assertion through scene 4, with six variants verified in five cells and
+six dispatched through the op, each equal to the generic. Its scene 5
+stops at `StzNeuralVariantsSync`, as before: the Ring++ worktree lacks it,
+and main's `stzNeuralModel` is not Rule-A clean. Zig: ops 8, foundry 1,
+gpu 4, fuzz 22.
+
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 
 **Where the plane stands.** The charge GK3 to KP3 is through. A kernel can
@@ -3619,7 +3690,9 @@ GK4 was.
 
 **GK2d, added by GC0's table**: the foundry gains larger register tiles (8 x 8 per thread), vec4 loads and double-buffered shared tiles, each a variant under the checker; done when reg4's successor halves the f32 distance at 1024 and above; killed if no variant beats reg4 by the foundry's margin.
 
-**This desk's order**: GT0, GZ0 and GC0 (done 2026-10-28, see their STATUS sections above), then GK2d, then once the author rules on the
+**GK2e, added by GK2d's table**: split-K for the narrow, deep products (130 x 1536 x 384 has 18 workgroups of 64 x 64), as two passes under the checker; killed if the two passes cost more than they save at MiniLM's shapes.
+
+**This desk's order**: GT0, GZ0, GC0 and GK2d (done 2026-10-28, see their STATUS sections above), then GK2e, then once the author rules on the
 benchmark tool, then GL0. GT0 comes first because every later rung adds
 grammar, and a fuzz that already exists covers each addition the day it
 lands.

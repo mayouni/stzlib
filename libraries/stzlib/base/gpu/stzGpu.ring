@@ -1237,7 +1237,7 @@ class stzGpu from stzObject
 	#              from the code
 	#   warning    writes the variant table to the calibration file; a refused shape raises an error
 	#   see        FoundryMatmulWith, FoundryAttention
-	#@ aka  THE MATMUL FOUNDRY (GK2b's matmul leg). C(m x n) = A(m x k) B(k x n): tile16 (the generic), tile8, reg2, reg4 under the checker at the asked shape and a hidden one; the winner recorded for the (m, n, k) class under the op name "matmul" and persisted. The backbone compiles the table's winner for its own shapes with the bias fused.
+	#@ aka  THE MATMUL FOUNDRY (GK2b's matmul leg). C(m x n) = A(m x k) B(k x n): tile16 (the generic), tile8, reg2, reg4, and GK2d's reg4s, reg8 and reg8p under the checker at the asked shape and a hidden one; the winner recorded for the (m, n, k) class under the op name "matmul" and persisted. The backbone compiles the table's winner for its own shapes with the bias fused.
 	def FoundryMatmul(m, k, n)
 		return This.FoundryMatmulWith(m, k, n, 7)
 
@@ -1259,14 +1259,19 @@ class stzGpu from stzObject
 			StzRaise("FoundryMatmul: the foundry refused to run (status " + _nSt_ +
 				": " + StzEngineGpuFirstError() + ").")
 		ok
-		_nCount_ = StzEngineGpuFoundryResult(0)
 		_aV_ = []
-		for _v_ = 1 to _nCount_
+		# every variant by name, the generic excepted; one the run masked out (the checker's
+		# negative sibling, which sits between the real ones since GK2d) reads -2 and is skipped
+		_v_ = 1
+		while StzEngineGpuMmVariantName(_v_) != ""
 			_nB_ = 10 + _v_ * 5
-			_aV_ + [ StzEngineGpuMmVariantName(_v_), StzEngineGpuFoundryResult(_nB_),
-			         StzEngineGpuFoundryResult(_nB_ + 1), StzEngineGpuFoundryResult(_nB_ + 2),
-			         StzEngineGpuFoundryResult(_nB_ + 3), StzEngineGpuFoundryResult(_nB_ + 4) ]
-		next
+			if StzEngineGpuFoundryResult(_nB_) != -2
+				_aV_ + [ StzEngineGpuMmVariantName(_v_), StzEngineGpuFoundryResult(_nB_),
+				         StzEngineGpuFoundryResult(_nB_ + 1), StzEngineGpuFoundryResult(_nB_ + 2),
+				         StzEngineGpuFoundryResult(_nB_ + 3), StzEngineGpuFoundryResult(_nB_ + 4) ]
+			ok
+			_v_++
+		end
 		_nW_ = StzEngineGpuFoundryResult(3)
 		_bStored_ = FALSE
 		if _nW_ > 0

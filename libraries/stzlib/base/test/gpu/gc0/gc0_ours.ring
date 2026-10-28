@@ -1,7 +1,7 @@
 # GC0 -- the foundry's matrix product on the same shapes gc0_cublas.py times.
 #
 # For each shape the foundry runs every real variant (tile16, tile8, reg2,
-# reg4) under the checker -- a visible and a hidden shape against the generic
+# reg4, and GK2d's reg4s and reg8) under the checker -- a visible and a hidden shape against the generic
 # kernel, warm, best of the repetitions, on the GPU clock where the adapter
 # has timestamps -- and prints each variant's time and GFLOP/s, and the best.
 # A variant the checker refuses prints as refused and never counts.
@@ -14,7 +14,7 @@ load "../../../stzBase.ring"
 decimals(4)
 aShapes = [ [ 130, 384, 384 ], [ 130, 384, 1536 ], [ 130, 1536, 384 ],
 	[ 256, 256, 256 ], [ 512, 512, 512 ], [ 1024, 1024, 1024 ], [ 2048, 2048, 2048 ], [ 4096, 4096, 4096 ] ]
-aNames = [ "tile16", "tile8", "reg2", "reg4" ]
+aNames = [ "tile16", "tile8", "reg2", "reg4", "broken", "reg4s", "reg8", "reg8p" ]
 oG = new stzGpu
 if NOT oG.IsAvailable()
 	? "no device"
@@ -37,7 +37,10 @@ for q = 1 to nS
 	nBest = StzEngineGpuFoundryResult(1)
 	cBest = "tile16"
 	cLine = "" + m + " x " + k + " x " + n + "  clocks " + nClocks + "  tile16 " + StzEngineGpuFoundryResult(1) + " ms"
-	for v = 1 to 3
+	for v = 1 to 7
+		if v = 4
+			loop # the checker's negative sibling, never a candidate
+		ok
 		nBase = 10 + v * 5
 		nV = StzEngineGpuFoundryResult(nBase)
 		if nV = 1

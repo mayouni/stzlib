@@ -222,10 +222,18 @@ pub fn stz_gpu_foundry_matmul(mf: f64, kf: f64, nf: f64, reps: f64, maskf: f64) 
     const n: usize = @intFromFloat(nf);
     if (m == 0 or k == 0 or n == 0) return gpu.BAD_ARG;
     var mask: u32 = @intFromFloat(maskf);
-    if (mask == 0) mask = (@as(u32, 1) << ops.MM_REAL) - 2;
+    if (mask == 0) {
+        for (1..ops.MM_VARIANTS) |rv| {
+            if (ops.mmIsReal(rv)) mask |= @as(u32, 1) << @intCast(rv);
+        }
+    }
     const m2: usize = @max(1, ((m * 5) / 7) | 1);
     const n2: usize = @max(1, ((n * 5) / 7) | 1);
-    result[F_COUNT] = @floatFromInt(ops.MM_REAL - 1);
+    var n_real: usize = 0;
+    for (1..ops.MM_VARIANTS) |rv| {
+        if (ops.mmIsReal(rv)) n_real += 1;
+    }
+    result[F_COUNT] = @floatFromInt(n_real);
     result[F_HIDDEN_N] = @floatFromInt(n2);
     _ = verify.stz_gpu_wake(400);
 
@@ -303,7 +311,7 @@ pub fn stz_gpu_foundry_matmul(mf: f64, kf: f64, nf: f64, reps: f64, maskf: f64) 
         result[base + 3] = verify.stz_gpu_verify_result(verify.R_SPEEDUP_GPU);
         result[base + 4] = verify.stz_gpu_verify_result(verify.R_SPEEDUP);
         const ratio = if (clocks >= 2) result[base + 3] else result[base + 4];
-        if (v < ops.MM_REAL and ratio > best_ratio) {
+        if (ops.mmIsReal(v) and ratio > best_ratio) {
             best_ratio = ratio;
             best_v = v;
         }
@@ -388,7 +396,7 @@ pub fn stz_gpu_foundry_matmul_f16(mf: f64, kf: f64, nf: f64, reps: f64, vf: f64)
     if (gpu.stz_gpu_buffer_write(ids[1], @ptrCast(b.ptr), @floatFromInt(k * n * 4)) != gpu.OK) return gpu.GPU_ERROR;
     if (gpu.stz_gpu_buffer_write(ids[2], @ptrCast(bh.ptr), @floatFromInt(k * n * 2)) != gpu.OK) return gpu.GPU_ERROR;
     // vf >= 0 names the variant (the backbone's GK2b winners are register-blocked); < 0 asks the table
-    const v: usize = if (vf >= 0 and vf < @as(f64, @floatFromInt(ops.MM_REAL))) @intFromFloat(vf) else ops.mmVariantFor(m, k, n);
+    const v: usize = if (vf >= 0 and vf < @as(f64, @floatFromInt(ops.MM_VARIANTS)) and ops.mmIsReal(@intFromFloat(vf))) @intFromFloat(vf) else ops.mmVariantFor(m, k, n);
     hres[H_VARIANT] = @floatFromInt(v);
     const s32 = ops.mmSourceW(v, false, false);
     const s16 = ops.mmSourceW(v, false, true);

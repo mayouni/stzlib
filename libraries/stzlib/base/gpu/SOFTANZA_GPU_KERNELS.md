@@ -337,9 +337,11 @@ device.*
 - **Reach CUDA's peak.** WebGPU cannot reach tensor cores, asynchronous
   copies or more than one GPU, and warp-level operations only where an
   adapter offers subgroups. Measured against cuBLAS on the same laptop
-  (2026-10-28): our best f32 product is 1.5x to 3.0x slower than cuBLAS's
-  f32, and the tensor cores add a further 2x to 3x that only a second
-  backend could reach. The plan's GC0 STATUS holds the table.
+  (2026-10-28, after GK2d's variants): our best f32 product is 1.04x to
+  1.84x cuBLAS's f32 time on square shapes, 1.04x to 3.0x on MiniLM's
+  narrow ones. The tensor cores add a further 1.3x to 3.4x that only a
+  second backend could reach. The plan's GC0 and GK2d STATUS sections
+  hold the tables.
 - **Integer types, atomics, 3-D grids, general loops and branches.** The
   bounded sum and the tiles loop are the only loops. Every value is f32.
 - **Run beyond one machine.** Everything was measured on one Windows

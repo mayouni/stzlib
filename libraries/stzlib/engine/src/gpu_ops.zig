@@ -204,10 +204,19 @@ pub const MM_GENERIC: usize = 0;
 pub const MM_TILE8: usize = 1;
 pub const MM_REG2: usize = 2;
 pub const MM_REG4: usize = 3;
-pub const MM_BROKEN: usize = 4; // test only
-pub const MM_REAL: usize = 4;
-pub const MM_VARIANTS: usize = 5;
-pub const mm_variant_names = [_][]const u8{ "tile16", "tile8", "reg2", "reg4", "broken" };
+pub const MM_BROKEN: usize = 4; // test only -- kept at 4: guards select it by its bit (16)
+pub const MM_REAL: usize = 4; // the first test-only index; real variants also sit ABOVE it since GK2d (mmIsReal)
+pub const MM_REG4S: usize = 5; // GK2d: 4x4 per thread, STRIDED ownership, transposed padded A tile
+pub const MM_REG8: usize = 6; // GK2d: 8x8 per thread, a 128x128 tile, 8-wide K steps
+pub const MM_REG8P: usize = 7; // GK2d: reg8 with the next tile prefetched into registers (double buffering)
+pub const MM_VARIANTS: usize = 8;
+pub const mm_variant_names = [_][]const u8{ "tile16", "tile8", "reg2", "reg4", "broken", "reg4s", "reg8", "reg8p" };
+
+/// A variant the table may hold and the foundry may crown: every one but the
+/// checker's negative sibling.
+pub fn mmIsReal(v: usize) bool {
+    return v < MM_VARIANTS and v != MM_BROKEN;
+}
 
 // GK5: `wf16` stores B -- the weights, in the backbone -- as f16 in VRAM and
 // widens each read to f32; the accumulation stays f32. It needs a device that
@@ -358,6 +367,144 @@ fn mmRegSource(comptime R: u32, comptime bias: bool, comptime broken: bool, comp
     ;
 }
 
+/// GK2d: register-blocked with STRIDED ownership. 16x16 threads, each an
+/// RM x RN block, a (16 RM) x (16 RN) tile, KS-wide K steps. What reg4 did
+/// that this does not, found reading it after GC0 measured 2.4x to cuBLAS:
+///   - a thread owned R ADJACENT columns, so its B loads were strided across
+///     the warp and its shared reads (lid.x * R + j) collided in the banks;
+///     here a thread owns columns lid.x, lid.x + 16, ... and rows lid.y,
+///     lid.y + 16, ...: neighbours read neighbours, in global and in shared
+///   - the A tile is stored TRANSPOSED (k-major) with one float of padding,
+///     so a thread reads its RM values of one k-column at stride 16 and the
+///     staging stores (stride TM + 1) land in distinct banks
+///   - staging is by the linear thread index, so 256 threads fill a tile of
+///     any shape, consecutive threads reading consecutive addresses
+///   - the K loop body is unrolled with named scalars, as reg4 learned
+/// Workgroup memory: ((TM + 1) + TN) * KS floats -- 8 KB for both forms.
+fn mmStridedSource(comptime RM: u32, comptime RN: u32, comptime KS: u32, comptime bias: bool, comptime wf16: bool) []const u8 {
+    return mmStridedSourceP(RM, RN, KS, false, bias, wf16);
+}
+
+/// `prefetch`: the next K tile is read from global memory into registers
+/// BEFORE the multiply-adds of the current one, and written to the shared
+/// tiles after them -- the loads' latency hides behind the arithmetic.
+fn mmStridedSourceP(comptime RM: u32, comptime RN: u32, comptime KS: u32, comptime prefetch: bool, comptime bias: bool, comptime wf16: bool) []const u8 {
+    @setEvalBranchQuota(20_000_000);
+    const TM = 16 * RM;
+    const TN = 16 * RN;
+    const PADM = TM + 1;
+    const a_per = TM * KS / 256;
+    const b_per = KS * TN / 256;
+    const bread = if (wf16) "f32(b[gk * p.n + gc])" else "b[gk * p.n + gc]";
+    comptime var decl: []const u8 = "";
+    comptime var stage: []const u8 = "";
+    comptime var inner: []const u8 = "";
+    comptime var store: []const u8 = "";
+    inline for (0..RM) |i| {
+        inline for (0..RN) |j| {
+            decl = decl ++ std.fmt.comptimePrint("  var acc{d}_{d} = 0.0;\n", .{ i, j });
+            store = store ++ std.fmt.comptimePrint(
+                \\  {{
+                \\    let r = row0 + lid.y + {d}u;
+                \\    let c = col0 + lid.x + {d}u;
+                \\    var v = acc{d}_{d};
+                \\
+            , .{ 16 * i, 16 * j, i, j }) ++
+                "    if (r < p.m && c < p.n) {\n" ++ mmStore(bias) ++ "    }\n  }\n";
+        }
+    }
+    inline for (0..a_per) |q| {
+        stage = stage ++ std.fmt.comptimePrint(
+            \\    {{
+            \\      let e = tid + {d}u;
+            \\      let r = e / {d}u;
+            \\      let kc = e % {d}u;
+            \\      let gr = row0 + r;
+            \\      let gk = k0 + kc;
+            \\      ta[kc * {d}u + r] = select(0.0, a[gr * p.k + gk], gr < p.m && gk < p.k);
+            \\    }}
+            \\
+        , .{ 256 * q, KS, KS, PADM });
+    }
+    inline for (0..b_per) |q| {
+        stage = stage ++ std.fmt.comptimePrint(
+            \\    {{
+            \\      let e = tid + {d}u;
+            \\      let kr = e / {d}u;
+            \\      let c = e % {d}u;
+            \\      let gk = k0 + kr;
+            \\      let gc = col0 + c;
+            \\      tb[kr * {d}u + c] = select(0.0, BREAD, gk < p.k && gc < p.n);
+            \\    }}
+            \\
+        , .{ 256 * q, TN, TN, TN });
+    }
+    stage = comptimeReplace(stage, "BREAD", bread);
+    // prefetch: the same reads at k1 = k0 + KS into registers, then the same stores from them
+    comptime var fetch: []const u8 = "";
+    comptime var put: []const u8 = "";
+    inline for (0..a_per) |q| {
+        fetch = fetch ++ std.fmt.comptimePrint(
+            \\    var pa{d} = 0.0;
+            \\    {{
+            \\      let e = tid + {d}u;
+            \\      let gr = row0 + e / {d}u;
+            \\      let gk = k1 + e % {d}u;
+            \\      pa{d} = select(0.0, a[gr * p.k + gk], gr < p.m && gk < p.k);
+            \\    }}
+            \\
+        , .{ q, 256 * q, KS, KS, q });
+        put = put ++ std.fmt.comptimePrint("    {{ let e = tid + {d}u; ta[(e % {d}u) * {d}u + e / {d}u] = pa{d}; }}\n", .{ 256 * q, KS, PADM, KS, q });
+    }
+    inline for (0..b_per) |q| {
+        fetch = fetch ++ std.fmt.comptimePrint(
+            \\    var pb{d} = 0.0;
+            \\    {{
+            \\      let e = tid + {d}u;
+            \\      let gk = k1 + e / {d}u;
+            \\      let gc = col0 + e % {d}u;
+            \\      pb{d} = select(0.0, BREAD, gk < p.k && gc < p.n);
+            \\    }}
+            \\
+        , .{ q, 256 * q, TN, TN, q });
+        put = put ++ std.fmt.comptimePrint("    {{ let e = tid + {d}u; tb[(e / {d}u) * {d}u + e % {d}u] = pb{d}; }}\n", .{ 256 * q, TN, TN, TN, q });
+    }
+    fetch = comptimeReplace(fetch, "BREAD", bread);
+    inline for (0..KS) |kk| {
+        inner = inner ++ "    {\n";
+        inline for (0..RM) |i| inner = inner ++ std.fmt.comptimePrint("      let a{d} = ta[{d}u + lid.y];\n", .{ i, kk * PADM + 16 * i });
+        inline for (0..RN) |j| inner = inner ++ std.fmt.comptimePrint("      let b{d} = tb[{d}u + lid.x];\n", .{ j, kk * TN + 16 * j });
+        inline for (0..RM) |i| {
+            inline for (0..RN) |j| inner = inner ++ std.fmt.comptimePrint("      acc{d}_{d} = acc{d}_{d} + a{d} * b{d};\n", .{ i, j, i, j, i, j });
+        }
+        inner = inner ++ "    }\n";
+    }
+    return mmHead(bias, wf16) ++
+        std.fmt.comptimePrint("var<workgroup> ta : array<f32, {d}>;\nvar<workgroup> tb : array<f32, {d}>;\n", .{ PADM * KS, KS * TN }) ++
+        \\@compute @workgroup_size(16, 16)
+        \\fn main(@builtin(workgroup_id) wid : vec3<u32>, @builtin(local_invocation_id) lid : vec3<u32>, @builtin(local_invocation_index) tid : u32) {
+        \\  let id = wid.x + tile.xoff;
+        \\
+    ++ std.fmt.comptimePrint("  let tiles_x = (p.n + {d}u) / {d}u;\n  let row0 = (id / tiles_x) * {d}u;\n  let col0 = (id % tiles_x) * {d}u;\n", .{ TN - 1, TN, TM, TN }) ++
+        decl ++
+        std.fmt.comptimePrint("  let steps = (p.k + {d}u) / {d}u;\n", .{ KS - 1, KS }) ++
+        (if (prefetch)
+        // the first tile staged before the loop; each turn fetches the next
+        // into registers, computes the current, then stores what it fetched
+        "  {\n    let k0 = 0u;\n" ++ stage ++ "  }\n  workgroupBarrier();\n" ++
+            "  for (var t = 0u; t < steps; t = t + 1u) {\n" ++
+            std.fmt.comptimePrint("    let k1 = (t + 1u) * {d}u;\n", .{KS}) ++
+            fetch ++ inner ++
+            "    workgroupBarrier();\n" ++ put ++ "    workgroupBarrier();\n  }\n"
+    else
+        "  for (var t = 0u; t < steps; t = t + 1u) {\n" ++
+            std.fmt.comptimePrint("    let k0 = t * {d}u;\n", .{KS}) ++
+            stage ++ "    workgroupBarrier();\n" ++ inner ++ "    workgroupBarrier();\n  }\n") ++
+        store ++
+        \\}
+    ;
+}
+
 /// The kernel text of variant v, with or without a fused bias. Public so the
 /// backbone compiles the table's winner in its own (bias) shape.
 pub fn mmSource(v: usize, comptime bias: bool) []const u8 {
@@ -371,6 +518,9 @@ pub fn mmSourceW(v: usize, comptime bias: bool, comptime wf16: bool) []const u8 
         MM_REG2 => comptime mmRegSource(2, bias, false, wf16),
         MM_REG4 => comptime mmRegSource(4, bias, false, wf16),
         MM_BROKEN => comptime mmRegSource(2, bias, true, wf16),
+        MM_REG4S => comptime mmStridedSource(4, 4, 16, bias, wf16),
+        MM_REG8 => comptime mmStridedSource(8, 8, 8, bias, wf16),
+        MM_REG8P => comptime mmStridedSourceP(8, 8, 8, true, bias, wf16),
         else => comptime mmTileSource(16, bias, wf16),
     };
 }
@@ -407,7 +557,8 @@ pub fn mmGeometry(v: usize, m: usize, n: usize) Geometry {
     const edge: usize = switch (v) {
         MM_TILE8 => 8,
         MM_REG2, MM_BROKEN => 32,
-        MM_REG4 => 64,
+        MM_REG4, MM_REG4S => 64,
+        MM_REG8, MM_REG8P => 128,
         else => 16,
     };
     return .{ .wx = ceilDiv(n, edge) * ceilDiv(m, edge), .wy = 1 };
@@ -416,8 +567,8 @@ pub fn mmGeometry(v: usize, m: usize, n: usize) Geometry {
 /// The table's choice for (m, n, k), degraded to an eligible variant.
 pub fn mmVariantFor(m: usize, k: usize, n: usize) usize {
     const want: usize = @intFromFloat(stz_gpu_variant_get("matmul", 6, @floatFromInt(m), @floatFromInt(n), @floatFromInt(k)));
-    var v = if (want < MM_REAL) want else MM_GENERIC;
-    while (v > MM_GENERIC and !mmVariantEligible(v, m, k, n)) v -= 1;
+    var v = if (mmIsReal(want)) want else MM_GENERIC;
+    if (!mmVariantEligible(v, m, k, n)) v = MM_GENERIC; // every variant is eligible today; never walk onto MM_BROKEN
     return v;
 }
 
@@ -677,7 +828,12 @@ fn findVariant(h: u64, cm: u8, cn: u8, cd: u8) ?*VarEntry {
 
 pub fn stz_gpu_variant_set(name: [*]const u8, name_len: f64, m: f64, n: f64, d: f64, vf: f64) callconv(.c) i32 {
     const v: usize = @intFromFloat(@max(vf, 0));
-    if (v >= PD_REAL) return gpu.BAD_ARG; // the table never holds a test variant
+    // the table never holds a test variant; matmul's real ones sit on both
+    // sides of its test index since GK2d, so it asks mmIsReal
+    const nm = name[0..@intFromFloat(name_len)];
+    if (std.mem.eql(u8, nm, "matmul")) {
+        if (!mmIsReal(v)) return gpu.BAD_ARG;
+    } else if (v >= PD_REAL) return gpu.BAD_ARG;
     const h = nameHash(name, name_len);
     const cm = gpu.shapeClass(m);
     const cn = gpu.shapeClass(n);
@@ -1040,7 +1196,7 @@ test "the matmul table classes shapes and never holds the broken sibling" {
 }
 
 test "GK5: the f32 template is unchanged, and the f16 one stores B as f16 and widens each read" {
-    inline for (.{ MM_GENERIC, MM_TILE8, MM_REG2, MM_REG4 }) |v| {
+    inline for (.{ MM_GENERIC, MM_TILE8, MM_REG2, MM_REG4, MM_REG4S, MM_REG8, MM_REG8P }) |v| {
         try std.testing.expectEqualStrings(mmSource(v, true), mmSourceW(v, true, false));
         const h = mmSourceW(v, true, true);
         try std.testing.expect(std.mem.startsWith(u8, h, "enable f16;\n"));

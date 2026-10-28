@@ -2,10 +2,11 @@
 # GK0's checker, on the shapes the neural backbone dispatches
 # (SOFTANZA_GPU_PLAN.md, section GK).
 #
-# C(m x n) = A(m x k) B(k x n). Four kernels on one contract, every one on a
+# C(m x n) = A(m x k) B(k x n). Seven kernels on one contract, every one on a
 # LINEAR workgroup grid so the checker can judge them all: tile16 (the G0
 # spike kernel, the generic), tile8, reg2 (each thread a 2x2 block), reg4
-# (4x4). A broken sibling (reg2 with one element wrong) exists for the
+# (4x4), and GK2d's reg4s (4x4, strided ownership), reg8 (8x8 over a 128 x
+# 128 tile) and reg8p (reg8 with the next tile prefetched). A broken sibling (reg2 with one element wrong) exists for the
 # checker to refuse. The winner per (m, n, k) class lands in the variant
 # table under "matmul", is persisted beside pairdist's rows, and the
 # backbone compiles that winner with its bias fused for its own shapes.
@@ -74,14 +75,17 @@ else
 		nCells++
 		if bAll nAllOk++ ok
 	next
-	chk("three real variants were proposed", len(aR[:variants]) = 3)
+	chk("six real variants were proposed (GK2d added reg4s, reg8, reg8p)", len(aR[:variants]) = 6)
 	chk("every variant is VERIFIED in every cell (right at every shape it was shown and hidden)", nAllOk = nCells)
 	chk("the hidden shape is another, odd n", aR[:hiddenn] != 1536 and (aR[:hiddenn] % 2) = 1)
 
 	? ""
 	? "-- Scene 2: the broken sibling is refused, and the table will not take it --"
 	nSt = StzEngineGpuFoundryMatmul(64, 384, 384, 3, 16)
-	nBroken = StzEngineGpuFoundryResult(8 + 4 * 5)
+	# the broken variant's verdict: F_BASE (10) + 4 x 5. This read 8 + 4 x 5 = 28 -- a masked
+	# variant's slot, always 0 -- from GK3 (which moved F_BASE to 10) until GK2d found it, so
+	# "refused" held whatever the checker said
+	nBroken = StzEngineGpuFoundryResult(10 + 4 * 5)
 	? "  broken (mask bit 4): verified flag " + nBroken + "   winner " + StzEngineGpuFoundryResult(3)
 	chk("the foundry ran the broken variant when asked", nSt = 0 and nBroken != -2)
 	chk("...and the checker REFUSED it (one element off is not the same product)", nBroken = 0)
@@ -103,7 +107,7 @@ else
 	StzEngineGpuOpMatmul(hA, hB, hC, nM, nK, nN)
 	aGen = StzEngineGpuBufferDownloadList(hC, nM * nN)
 	chk("with the table cleared, the generic multiplied (the variant counter still)", StzEngineGpuCounter(14) = nV0 and len(aGen) = nM * nN)
-	for cV in [ 1, 2, 3 ]
+	for cV in [ 1, 2, 3, 5, 6, 7 ] # 4 is the broken sibling, which the table refuses
 		StzEngineGpuVariantSet("matmul", nM, nN, nK, cV)
 		nV0 = StzEngineGpuCounter(14)
 		StzEngineGpuOpMatmul(hA, hB, hC, nM, nK, nN)
