@@ -545,10 +545,27 @@ EndScenario()
 Scenario("List markers in the conventions of many languages")
 	Then("a decimal pair", StzFindFirst("1.1 Dues are payable", "" + @@(StzPdfQ("_data/golden_v20/c01.pdf").ListItems())) > 0, 1)
 	Then("a number and a dash, set apart, not a table", StzFindFirst("1- Ticari fatura (2 sayfa)", "" + @@(StzPdfQ("_data/golden_v20/c18.pdf").ListItems())) > 0, 1)
-	Then("a full-width CJK marker", StzFindFirst("（1）平日朝7時台", "" + @@(StzPdfQ("_data/golden_v20/c06.pdf").ListItems())) > 0, 1)
+	Then("a full-width CJK marker, set apart from its text by a gap", StzFindFirst("（1） 平日朝7時台", "" + @@(StzPdfQ("_data/golden_v20/c06.pdf").ListItems())) > 0, 1)
 	Then("a Devanagari letter in brackets", StzFindFirst("(क) फ़ोटोयुक्त पासपोर्ट", "" + @@(StzPdfQ("_data/golden_v20/c16.pdf").ListItems())) > 0, 1)
 	aT = StzPdfQ("_data/golden_v4/g09.pdf").Tables()[1]
 	Then("a figure like 850.00 is a table cell, never a list marker", @@(aT[2]), @@([ "Rent", "850.00", "850.00", "850.00", "2,550.00" ]))
+EndScenario()
+
+# ---- the twenty-first round: scripts, CJK markers, tables ruled between their rows (golden_v14, v17, v21)
+
+Scenario("Thai headings, markers in any script's digits, CJK markers, and tables ruled between their rows")
+	Then("a Thai title is a heading", StzFindFirst("ใบยืนยันการจองห้องพัก", "" + @@(StzPdfQ("_data/golden_v21/d21.pdf").Headings())) > 0, 1)
+	Then("a Thai-digit marker opens a list item", StzFindFirst("๑. ยกเลิกก่อนวันเข้าพัก", "" + @@(StzPdfQ("_data/golden_v21/d21.pdf").ListItems())) > 0, 1)
+	Then("a full-width marker set apart by a gap takes a space", StzFindFirst("１． 価格には配送料", "" + @@(StzPdfQ("_data/golden_v21/d05.pdf").ListItems())) > 0, 1)
+	Then("and one set close stays as written", StzFindFirst("（1）網口の幅", "" + @@(StzPdfQ("_data/golden_v17/z23.pdf").ListItems())) > 0, 1)
+	o = StzPdfQ("_data/golden_v21/d17.pdf")
+	Then("a full-width bracketed marker standing apart joins its text", StzFindFirst("（１） 文書とは", "" + @@(o.ListItems())) > 0, 1)
+	Then("a circled digit is a marker", StzFindFirst("① 紙の文書は", "" + @@(o.ListItems())) > 0, 1)
+	aT = StzPdfQ("_data/golden_v21/d11.pdf").Tables()[1]
+	Then("a table ruled only between its rows is found, a centred cell spanning two columns", @@(aT[2]), @@([ "08:30", "Registration and coffee", "Registration and coffee" ]))
+	Then("a heading between two such tables stays a heading", StzFindFirst("18 ноября, среда", "" + @@(StzPdfQ("_data/golden_v14/w24.pdf").Headings())) > 0, 1)
+	aT = StzPdfQ("_data/golden_v21/d22.pdf").Tables()[2]
+	Then("a group label over two columns makes a two-row header", @@(aT[1]), @@([ "Lp.", "Parametr", "Jednostka", "Wynik ± U", "Wymagania", "Wymagania", "Metoda badawcza" ]))
 EndScenario()
 
 Scenario("A file that is not a readable PDF is refused with the reason")
