@@ -3074,6 +3074,19 @@ fn findTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.ArrayList
 // A table drawn WITHOUT lines: at least three consecutive rows, each holding two or more fragments, whose
 // fragments fall into the same columns (the empty vertical bands they leave), and whose cells are short --
 // mostly three words or fewer, which is what tells a table from two or three columns of prose.
+// Words of running text, counting two characters as a word in scripts written without spaces
+fn proseWords(t: []const u8) usize {
+    var n = wordCount(t);
+    var view = std.unicode.Utf8View.init(t) catch return n;
+    var it = view.iterator();
+    var ns: usize = 0;
+    while (it.nextCodepoint()) |cp| {
+        if (isNoSpaceCp(cp)) ns += 1;
+    }
+    n += ns / 2;
+    return n;
+}
+
 fn wordCount(t: []const u8) usize {
     var n: usize = 0;
     var in_word = false;
@@ -3233,13 +3246,13 @@ fn findAlignedTablesIn(a: Allocator, frags: []Frag, lane0: f32, lane1: f32, tabl
             for (run) |row| {
                 if (row.len < 2) continue;
                 if (row.len != 2) two_col = false;
-                words2 += wordCount(frags[row[row.len - 1]].text);
+                words2 += proseWords(frags[row[row.len - 1]].text);
             }
             for (run) |row| {
                 if (row.len < 2 or !two_col) continue;
                 n0 += 1;
                 const mt = frags[row[0]].text;
-                if (mt.len <= 8) {
+                if (mt.len <= 12) {
                     const probe = std.mem.concat(a, u8, &.{ mt, " x" }) catch continue;
                     if (startsListMarker(probe) == mt.len + 1) nm += 1;
                 }
@@ -4343,6 +4356,43 @@ fn otherListMarker(t: []const u8) ?usize {
     var view = std.unicode.Utf8View.init(t) catch return null;
     var it = view.iterator();
     const c0 = it.nextCodepoint() orelse return null;
+    // a circled or bracketed digit as one character: "①", "❶", "⑴", "⒈" -- then a space, or the text itself in a
+    // script written without spaces
+    if ((c0 >= 0x2460 and c0 <= 0x249B) or (c0 >= 0x2776 and c0 <= 0x2793)) {
+        const e = it.i;
+        if (e < t.len and t[e] == ' ') return e + 1;
+        if (std.mem.startsWith(u8, t[e..], "\u{3000}")) return e + 3;
+        var v2 = std.unicode.Utf8View.init(t[e..]) catch return null;
+        var it2 = v2.iterator();
+        if (it2.nextCodepoint()) |nx| if (isNoSpaceCp(nx)) return e;
+        return null;
+    }
+    // full-width digits then a full-width full stop, an ideographic comma or a full-width bracket ("１．", "２、",
+    // "３）"), and a CJK numeral or a katakana letter then the ideographic comma ("一、", "イ、")
+    {
+        var nd: usize = 0;
+        var cp = c0;
+        while (cp >= 0xFF10 and cp <= 0xFF19 and nd < 2) {
+            nd += 1;
+            cp = it.nextCodepoint() orelse return null;
+        }
+        const cjk_num = std.mem.indexOfScalar(u21, &[_]u21{ 0x4E00, 0x4E8C, 0x4E09, 0x56DB, 0x4E94, 0x516D, 0x4E03, 0x516B, 0x4E5D, 0x5341 }, c0) != null;
+        const kana = c0 >= 0x30A1 and c0 <= 0x30FA;
+        var ok = false;
+        if (nd > 0 and (cp == 0xFF0E or cp == 0x3001 or cp == 0xFF09)) ok = true;
+        if (nd == 0 and (cjk_num or kana)) {
+            const nx = it.nextCodepoint() orelse return null;
+            if (nx == 0x3001) ok = true;
+        }
+        if (ok) {
+            var e = it.i;
+            if (e < t.len and t[e] == ' ') e += 1 else if (std.mem.startsWith(u8, t[e..], "\u{3000}")) e += 3;
+            if (e < t.len) return e;
+            return null;
+        }
+        it = view.iterator();
+        _ = it.nextCodepoint();
+    }
     // full-width brackets round digits or CJK numerals
     if (c0 == 0xFF08) {
         var n: usize = 0;
@@ -4593,7 +4643,7 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
         }
         dropLineNumbers(frags.items);
         for (frags.items) |*mk| {
-            if (mk.text.len == 0 or mk.text.len > 6) continue;
+            if (mk.text.len == 0 or mk.text.len > 12) continue;
             const t2 = try std.mem.concat(a, u8, &.{ mk.text, " x" });
             if (startsListMarker(t2) != mk.text.len + 1) continue;
             for (frags.items) |*it| {
