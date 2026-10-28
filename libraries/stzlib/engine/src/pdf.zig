@@ -3179,6 +3179,7 @@ fn findLadderTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.Arr
                     if (g.size < 1.1 * msz) big = false;
                 }
                 head[bk] = n > 0 and spans <= 1 and (all_bold or big or ys.items[bk + 1] - ys.items[bk] > 1.3 * med);
+                if (n == 0 and (bk == 0 or bk + 1 == nb0)) head[bk] = true;
             }
             var rs: usize = 0;
             var re: usize = 0;
@@ -3209,6 +3210,7 @@ fn findLadderTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.Arr
         var bands = try a.alloc(std.ArrayList(u32), nb + 1); // band 0: a header above the first rule
         for (bands) |*b| b.* = .empty;
         var clash = false;
+        var above: std.ArrayList(u32) = .empty;
         for (frags, 0..) |f, k| {
             if (f.text.len == 0) continue;
             const cx = (f.x0 + f.x1) / 2;
@@ -3219,11 +3221,40 @@ fn findLadderTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.Arr
                 var bi: usize = 0;
                 while (bi + 1 < nb and cy > ys.items[bi + 1]) bi += 1;
                 try bands[bi + 1].append(a, @intCast(k));
-            } else if (cy < ys.items[0] and f.y1 <= ys.items[0] + 1 and f.base > ys.items[0] - 2.2 * f.size and f.table < 0 and f.size <= 1.1 * msz) {
-                try bands[0].append(a, @intCast(k));
+            } else if (cy < ys.items[0] and f.y1 <= ys.items[0] + 1 and f.base > ys.items[0] - 4.5 * f.size and f.table < 0 and f.size <= 1.1 * msz) {
+                try above.append(a, @intCast(k));
             }
         }
         if (clash) continue;
+        // (the header's line nearest the rule, then the narrow lines just above it -- a group label over some
+        //  columns, never a caption or prose running across the table)
+        {
+            const ByBaseDesc = struct {
+                f: []Frag,
+                fn lt(ctx: @This(), l: u32, r: u32) bool {
+                    return ctx.f[l].base > ctx.f[r].base;
+                }
+            };
+            std.mem.sort(u32, above.items, ByBaseDesc{ .f = frags }, ByBaseDesc.lt);
+            var low_base: f32 = 1e9;
+            var lines: usize = 0;
+            for (above.items) |k| {
+                const f = frags[k];
+                if (f.base > ys.items[0] - 2.2 * f.size) {
+                    if (low_base > 1e8 or f.base < low_base - 0.3 * f.size) lines += 1;
+                    low_base = @min(low_base, f.base);
+                    try bands[0].append(a, k);
+                    continue;
+                }
+                if (low_base > 1e8) break;
+                const new_line = f.base < low_base - 0.3 * f.size;
+                if (new_line and (f.base < low_base - 1.6 * f.size or lines >= 3)) break;
+                if (f.x1 - f.x0 > 0.4 * (lx1 - lx0)) break;
+                if (new_line) lines += 1;
+                low_base = @min(low_base, f.base);
+                try bands[0].append(a, k);
+            }
+        }
         // the cells of a band: fragments that overlap across x merge into one cell
         const Span = struct { x0: f32, x1: f32 };
         var spans = try a.alloc([]Span, nb + 1);
@@ -3279,8 +3310,11 @@ fn findLadderTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.Arr
         var size: f32 = 0;
         var ty0 = ys.items[0];
         const tix: i32 = @intCast(tables.items.len);
+        var first_row = true;
         for (bands, 0..) |b, bi| {
             if (b.items.len == 0 or (bi == 0 and !take_head)) continue;
+            const is_first = first_row;
+            first_row = false;
             var cells = try a.alloc(std.ArrayList(u8), maxc);
             for (cells) |*c| c.* = .empty;
             // top to bottom, then left to right
@@ -3292,10 +3326,64 @@ fn findLadderTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.Arr
                 }
             };
             std.mem.sort(u32, b.items, ByYX{ .f = frags }, ByYX.lt);
+            if (is_first) {
+                var grouped = false;
+                for (b.items) |k| {
+                    const f = frags[k];
+                    var ncov: usize = 0;
+                    for (0..maxc) |ci| {
+                        if (!(f.x1 <= bounds[ci] or f.x0 >= bounds[ci + 1])) ncov += 1;
+                    }
+                    if (ncov < 2 or ncov >= maxc) continue;
+                    for (b.items) |k2| {
+                        const g = frags[k2];
+                        if (k2 != k and g.base > f.base + 0.5 * f.size and g.x0 < f.x1 and g.x1 > f.x0) grouped = true;
+                    }
+                }
+                if (grouped) {
+                    var grp = try a.alloc(std.ArrayList(u8), maxc);
+                    var own = try a.alloc(std.ArrayList(u8), maxc);
+                    for (grp) |*c| c.* = .empty;
+                    for (own) |*c| c.* = .empty;
+                    for (b.items) |k| {
+                        const f = &frags[k];
+                        var ncov: usize = 0;
+                        for (0..maxc) |ci| {
+                            if (!(f.x1 <= bounds[ci] or f.x0 >= bounds[ci + 1])) ncov += 1;
+                        }
+                        for (0..maxc) |ci| {
+                            if (f.x1 <= bounds[ci] or f.x0 >= bounds[ci + 1]) continue;
+                            const c = if (ncov >= 2) &grp[ci] else &own[ci];
+                            if (c.items.len > 0) try c.append(a, ' ');
+                            try c.appendSlice(a, f.text);
+                        }
+                        f.table = tix;
+                        size = @max(size, f.size);
+                        ty0 = @min(ty0, f.y0);
+                    }
+                    var row1 = try a.alloc([]const u8, maxc);
+                    var row2 = try a.alloc([]const u8, maxc);
+                    for (0..maxc) |ci| {
+                        row1[ci] = if (grp[ci].items.len > 0) grp[ci].items else own[ci].items;
+                        row2[ci] = own[ci].items;
+                    }
+                    try rows.append(a, row1);
+                    try rows.append(a, row2);
+                    continue;
+                }
+            }
+            const section = spans[bi].len == 1 and blk: {
+                const sp = spans[bi][0];
+                var ncov: usize = 0;
+                for (0..maxc) |ci| {
+                    if (!(sp.x1 <= bounds[ci] or sp.x0 >= bounds[ci + 1])) ncov += 1;
+                }
+                break :blk ncov >= 2;
+            };
             for (b.items) |k| {
                 const f = &frags[k];
                 for (0..maxc) |ci| {
-                    if (f.x1 <= bounds[ci] or f.x0 >= bounds[ci + 1]) continue;
+                    if (!section and (f.x1 <= bounds[ci] or f.x0 >= bounds[ci + 1])) continue;
                     const c = &cells[ci];
                     if (c.items.len > 0) try c.append(a, ' ');
                     try c.appendSlice(a, f.text);
@@ -5319,11 +5407,16 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
             if (j2 >= final.items.len) break;
             const t2 = final.items[j2];
             if (t1.kind == .table and t2.kind == .table and t2.page == tail_page + 1 and t1.rows.len > 0 and t2.rows.len > 0 and t1.rows[0].len == t2.rows[0].len) {
-                var same_head = true;
-                for (t1.rows[0], t2.rows[0]) |c1, c2| if (!eq(c1, c2)) {
-                    same_head = false;
-                };
-                const from: usize = if (same_head) 1 else 0;
+                // (the header repeated at the top of the next page is dropped -- all of its rows, for a header of
+                //  two or three)
+                var from: usize = 0;
+                while (from < 3 and from < t1.rows.len and from + 1 < t2.rows.len and t1.rows[from].len == t2.rows[from].len) : (from += 1) {
+                    var same = true;
+                    for (t1.rows[from], t2.rows[from]) |c1, c2| if (!eq(c1, c2)) {
+                        same = false;
+                    };
+                    if (!same) break;
+                }
                 var rows = try a.alloc([][]const u8, t1.rows.len + t2.rows.len - from);
                 @memcpy(rows[0..t1.rows.len], t1.rows);
                 @memcpy(rows[t1.rows.len..], t2.rows[from..]);
