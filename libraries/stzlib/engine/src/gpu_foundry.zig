@@ -321,6 +321,158 @@ pub fn stz_gpu_foundry_matmul(mf: f64, kf: f64, nf: f64, reps: f64, maskf: f64) 
     return gpu.OK;
 }
 
+// ---------------------------------------------------------------- GK2e
+// Split-K, a TWO-PASS candidate, so the checker's one-kernel verify cannot
+// take it: the foundry runs it here the way verify runs one kernel. The
+// generic kernel is the reference at a visible and a hidden shape (m and n
+// moved, k kept, as GK2b's hidden shape does); the pair must agree within
+// the foundry's band; then the pair and a single-pass RIVAL (the variant
+// the caller names, the best one so far) are timed alternately, warm, on
+// both clocks, and the pair's time is judged against the floors by the
+// checker's own judge, so an impossible time is refused here too.
+pub const K_VERIFIED = 0; // 1 right at both shapes; 0 not; -1 the judge refused its time
+pub const K_DIFF_A = 1;
+pub const K_DIFF_B = 2;
+pub const K_RIVAL_GPU_MS = 3;
+pub const K_SPLIT_GPU_MS = 4;
+pub const K_RIVAL_WALL_MS = 5;
+pub const K_SPLIT_WALL_MS = 6;
+pub const K_RATIO_GPU = 7; // rival / split: above 1 means split-K is faster
+pub const K_RATIO_WALL = 8;
+pub const K_CLOCKS = 9;
+pub const K_SPLITS = 10;
+pub const K_WORKGROUPS = 11; // the first pass's
+pub const K_JUDGE = 12; // the checker's judge on the pair's time (0 verified, 3 impossible)
+pub const K_SLOTS = 16;
+var kresult: [K_SLOTS]f64 = @splat(0);
+
+pub fn stz_gpu_foundry_splitk_result(idx: i32) callconv(.c) f64 {
+    if (idx < 0 or idx >= K_SLOTS) return 0;
+    return kresult[@intCast(idx)];
+}
+
+fn readF32(id: i64, out: []f32) bool {
+    return gpu.stz_gpu_buffer_read(id, @ptrCast(out.ptr), @floatFromInt(out.len * 4)) == gpu.OK;
+}
+
+fn runOnce(k: i64, params: []const u8, ids: []const i64, wx: usize) bool {
+    if (gpu.stz_gpu_dispatch_params(k, params.ptr, @floatFromInt(params.len), ids.ptr, @intCast(ids.len), @floatFromInt(wx), 1) != gpu.OK) return false;
+    return gpu.stz_gpu_sync() == gpu.OK;
+}
+
+const SplitShape = struct { m: usize, k: usize, n: usize, a: i64, b: i64, ref: i64, out: i64, part: i64 };
+
+/// The pair at one shape into s.out; the max |out - ref|, or null on a device error.
+fn splitAgainstRef(ks: i64, kr: i64, kg: i64, sh: SplitShape, splits: usize) ?f64 {
+    const pg = ops.MmParams{ .m = @intCast(sh.m), .k = @intCast(sh.k), .n = @intCast(sh.n), .pad = 0 };
+    const ps = ops.MmParams{ .m = @intCast(sh.m), .k = @intCast(sh.k), .n = @intCast(sh.n), .pad = @intCast(splits) };
+    const pr = ops.MmParams{ .m = @intCast(sh.m), .k = @intCast(splits), .n = @intCast(sh.n), .pad = 0 };
+    if (!runOnce(kg, std.mem.asBytes(&pg), &.{ sh.a, sh.b, sh.ref }, ops.mmGeometry(ops.MM_GENERIC, sh.m, sh.n).wx)) return null;
+    if (!runOnce(ks, std.mem.asBytes(&ps), &.{ sh.a, sh.b, sh.part }, ops.mmSplitGeometry(sh.m, sh.n, splits).wx)) return null;
+    if (!runOnce(kr, std.mem.asBytes(&pr), &.{ sh.part, sh.out }, (sh.m * sh.n + 255) / 256)) return null;
+    const alloc = std.heap.c_allocator;
+    const x = alloc.alloc(f32, sh.m * sh.n) catch return null;
+    defer alloc.free(x);
+    const y = alloc.alloc(f32, sh.m * sh.n) catch return null;
+    defer alloc.free(y);
+    if (!readF32(sh.ref, x) or !readF32(sh.out, y)) return null;
+    var worst: f64 = 0;
+    for (x, y) |u, v| {
+        const d: f64 = @abs(@as(f64, u) - @as(f64, v));
+        if (!(d <= worst)) worst = if (d != d) std.math.inf(f64) else d;
+    }
+    return worst;
+}
+
+/// Split-K for C(m x n) = A(m x k) B(k x n) in `splits` slices of k, against
+/// the generic (correctness) and the single-pass variant `rival` (time).
+pub fn stz_gpu_foundry_matmul_splitk(mf: f64, kf: f64, nf: f64, sf: f64, reps: f64, rivalf: f64) callconv(.c) i32 {
+    kresult = @splat(0);
+    if (!gpu.isAvail()) {
+        gpu.countFallback();
+        return gpu.FALLBACK;
+    }
+    const m: usize = @intFromFloat(mf);
+    const k: usize = @intFromFloat(kf);
+    const n: usize = @intFromFloat(nf);
+    const splits: usize = @intFromFloat(sf);
+    const rival: usize = @intFromFloat(rivalf);
+    if (m == 0 or k == 0 or n == 0 or splits < 1 or splits > 64 or !ops.mmIsReal(rival)) return gpu.BAD_ARG;
+    const m2: usize = @max(1, ((m * 5) / 7) | 1);
+    const n2: usize = @max(1, ((n * 5) / 7) | 1);
+    kresult[K_SPLITS] = @floatFromInt(splits);
+    kresult[K_WORKGROUPS] = @floatFromInt(ops.mmSplitGeometry(m, n, splits).wx);
+    _ = verify.stz_gpu_wake(400);
+
+    var ids: [12]i64 = @splat(0);
+    defer for (ids) |id| {
+        if (id > 0) _ = gpu.stz_gpu_buffer_free(id);
+    };
+    const sizes = [_]usize{ m * k, k * n, m * n, m * n, splits * m * n, m * n, m2 * k, k * n2, m2 * n2, m2 * n2, splits * m2 * n2 };
+    for (sizes, 0..) |sz, i| {
+        ids[i] = gpu.stz_gpu_buffer_new(@floatFromInt(sz * 4));
+        if (ids[i] <= 0) return gpu.GPU_ERROR;
+    }
+    if (!fillBuffer(ids[0], m * k, 31337) or !fillBuffer(ids[1], k * n, 4242)) return gpu.GPU_ERROR;
+    if (!fillBuffer(ids[6], m2 * k, 8675309) or !fillBuffer(ids[7], k * n2, 271828)) return gpu.GPU_ERROR;
+    const kg = ops.mmKernelFor(ops.MM_GENERIC);
+    const kv = ops.mmKernelFor(rival);
+    const ks = ops.mmSplitKernel();
+    const kr = ops.mmReduceKernel(false);
+    if (kg == 0 or kv == 0 or ks == 0 or kr == 0) return gpu.GPU_ERROR;
+
+    // 1. right, at the visible shape and the hidden one
+    const band: f64 = 2e-5 * @as(f64, @floatFromInt(k));
+    const da = splitAgainstRef(ks, kr, kg, .{ .m = m, .k = k, .n = n, .a = ids[0], .b = ids[1], .ref = ids[2], .out = ids[3], .part = ids[4] }, splits) orelse return gpu.GPU_ERROR;
+    const db = splitAgainstRef(ks, kr, kg, .{ .m = m2, .k = k, .n = n2, .a = ids[6], .b = ids[7], .ref = ids[8], .out = ids[9], .part = ids[10] }, splits) orelse return gpu.GPU_ERROR;
+    kresult[K_DIFF_A] = da;
+    kresult[K_DIFF_B] = db;
+    if (!(da <= band) or !(db <= band)) return gpu.OK; // K_VERIFIED stays 0
+
+    // 2. the time: the rival alone, then the pair, alternated, warm, both clocks
+    const two = verify.ensureTs();
+    kresult[K_CLOCKS] = if (two) 2 else 1;
+    const pv = ops.MmParams{ .m = @intCast(m), .k = @intCast(k), .n = @intCast(n), .pad = 0 };
+    const ps = ops.MmParams{ .m = @intCast(m), .k = @intCast(k), .n = @intCast(n), .pad = @intCast(splits) };
+    const pr = ops.MmParams{ .m = @intCast(m), .k = @intCast(splits), .n = @intCast(n), .pad = 0 };
+    const gv = ops.mmGeometry(rival, m, n);
+    const gs = ops.mmSplitGeometry(m, n, splits);
+    const wr: f64 = @floatFromInt((m * n + 255) / 256);
+    const ids_v = [_]i64{ ids[0], ids[1], ids[5] };
+    const ids_s = [_]i64{ ids[0], ids[1], ids[4] };
+    const ids_r = [_]i64{ ids[4], ids[3] };
+    var best_v: f64 = std.math.inf(f64);
+    var best_s: f64 = std.math.inf(f64);
+    var bestg_v: f64 = std.math.inf(f64);
+    var bestg_s: f64 = std.math.inf(f64);
+    const nreps: usize = @intFromFloat(@max(reps, 3));
+    var r: usize = 0;
+    while (r < nreps + 1) : (r += 1) {
+        var g1: f64 = -1;
+        const w1 = verify.timedDispatch(kv, std.mem.asBytes(&pv), &ids_v, @floatFromInt(gv.wx), two, &g1) orelse return gpu.GPU_ERROR;
+        var g2: f64 = -1;
+        const w2 = verify.timedPair(ks, std.mem.asBytes(&ps), &ids_s, @floatFromInt(gs.wx), kr, std.mem.asBytes(&pr), &ids_r, wr, two, &g2) orelse return gpu.GPU_ERROR;
+        if (r == 0) continue; // the first turn warms both
+        best_v = @min(best_v, w1);
+        best_s = @min(best_s, w2);
+        if (g1 >= 0) bestg_v = @min(bestg_v, g1);
+        if (g2 >= 0) bestg_s = @min(bestg_s, g2);
+    }
+    kresult[K_RIVAL_WALL_MS] = best_v;
+    kresult[K_SPLIT_WALL_MS] = best_s;
+    kresult[K_RIVAL_GPU_MS] = if (bestg_v < std.math.inf(f64)) bestg_v else -1;
+    kresult[K_SPLIT_GPU_MS] = if (bestg_s < std.math.inf(f64)) bestg_s else -1;
+    kresult[K_RATIO_WALL] = best_v / best_s;
+    kresult[K_RATIO_GPU] = if (two and bestg_s > 0) bestg_v / bestg_s else kresult[K_RATIO_WALL];
+    // 3. the checker's judge on the pair's time: the bytes both passes touch, the product's FLOPs
+    const bytes: f64 = @floatFromInt((m * k + k * n + 2 * splits * m * n + m * n) * 4);
+    const flops: f64 = 2.0 * @as(f64, @floatFromInt(m * k * n));
+    const judged = verify.stz_gpu_verify_judge_flops(bytes, flops, best_s);
+    kresult[K_JUDGE] = @floatFromInt(judged);
+    kresult[K_VERIFIED] = if (judged == verify.V_VERIFIED) 1 else -1;
+    return gpu.OK;
+}
+
 // ---------------------------------------------------------------- GK5
 // The table's matmul variant for (m, k, n), with its weights in f32 and in
 // f16, on the same A and the same values of B: alternated A B A B, each turn

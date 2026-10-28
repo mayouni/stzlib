@@ -765,6 +765,31 @@ pub fn timedDispatch(kernel: i64, params: []const u8, ids: []const i64, wx: f64,
     return wall;
 }
 
+/// GK2e: two dispatches timed as ONE -- the first pass writes the start
+/// timestamp and the second the end, so the GPU clock spans both and the
+/// gap between their submits, which a two-pass op pays.
+pub fn timedPair(k1: i64, p1: []const u8, ids1: []const i64, wx1: f64, k2: i64, p2: []const u8, ids2: []const i64, wx2: f64, two_clocks: bool, gpu_ms: *f64) ?f64 {
+    var timer = std.time.Timer.start() catch return null;
+    var first: c.WGPUPassTimestampWrites = undefined;
+    var second: c.WGPUPassTimestampWrites = undefined;
+    if (two_clocks) {
+        first = ts_writes;
+        first.endOfPassWriteIndex = c.WGPU_QUERY_SET_INDEX_UNDEFINED;
+        second = ts_writes;
+        second.beginningOfPassWriteIndex = c.WGPU_QUERY_SET_INDEX_UNDEFINED;
+        gpu.g_pass_ts = &first;
+    }
+    const st1 = gpu.stz_gpu_dispatch_params(k1, p1.ptr, @floatFromInt(p1.len), ids1.ptr, @intCast(ids1.len), wx1, 1);
+    if (two_clocks) gpu.g_pass_ts = &second;
+    const st2 = gpu.stz_gpu_dispatch_params(k2, p2.ptr, @floatFromInt(p2.len), ids2.ptr, @intCast(ids2.len), wx2, 1);
+    gpu.g_pass_ts = null;
+    if (st1 != gpu.OK or st2 != gpu.OK) return null;
+    if (gpu.stz_gpu_sync() != gpu.OK) return null;
+    const wall = @as(f64, @floatFromInt(timer.read())) / 1e6;
+    gpu_ms.* = if (two_clocks) readTimestampsMs() else -1;
+    return wall;
+}
+
 /// Read `n` f32 from a device buffer into `out`.
 fn readF32(id: i64, out: []f32) bool {
     const bytes: [*]u8 = @ptrCast(out.ptr);

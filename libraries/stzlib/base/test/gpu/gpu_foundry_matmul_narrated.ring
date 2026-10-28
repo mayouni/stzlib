@@ -130,6 +130,20 @@ else
 	StzEngineGpuBufferFree(hC)
 
 	? ""
+	? "-- Scene 3b: split-K, a two-pass candidate, under the foundry (GK2e) --"
+	# measured 2026-10-28 on the RTX 3050, S = 4 against reg4s: 1.16 to 1.21x faster at
+	# 130 x 1536 x 384 (MiniLM's down-projection), 1.48x at 256 x 1536 x 384, and SLOWER where
+	# k is shallow (0.70 to 0.86x at 130 x 384 x 1536): it pays only where k is deep
+	StzEngineGpuFoundrySplitK(256, 1536, 384, 4, 7, 5)
+	? "  256 x 1536 x 384, S = 4: reg4s " + StzEngineGpuFoundrySplitKResult(3) + " ms, split-K " + StzEngineGpuFoundrySplitKResult(4) + " ms, ratio " + StzEngineGpuFoundrySplitKResult(7) + "   diff " + StzEngineGpuFoundrySplitKResult(1) + " / hidden " + StzEngineGpuFoundrySplitKResult(2)
+	chk("split-K's two passes agree with the generic at the visible and the hidden shape, and the judge accepts their time", StzEngineGpuFoundrySplitKResult(0) = 1)
+	chk("...and where k is deep they beat the best single pass (ratio over 1.1; measured 1.48)", StzEngineGpuFoundrySplitKResult(7) > 1.1)
+	StzEngineGpuFoundrySplitK(130, 384, 1536, 4, 7, 5)
+	? "  130 x 384 x 1536, S = 4: ratio " + StzEngineGpuFoundrySplitKResult(7)
+	chk("...where k is shallow they lose to it (ratio under 1; measured 0.70 to 0.86)", StzEngineGpuFoundrySplitKResult(0) = 1 and StzEngineGpuFoundrySplitKResult(7) < 1)
+	chk("a split count out of range is refused", StzEngineGpuFoundrySplitK(130, 384, 384, 0, 3, 5) != 0 and StzEngineGpuFoundrySplitK(130, 384, 384, 4, 3, 4) != 0)
+
+	? ""
 	? "-- Scene 4: the neural DLL's own table takes the persisted verdict --"
 	StzEngineNeuralVariantClear()
 	StzEngineNeuralVariantSet("matmul", 256, 1536, 384, 3)

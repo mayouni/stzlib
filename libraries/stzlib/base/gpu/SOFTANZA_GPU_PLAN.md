@@ -3644,6 +3644,64 @@ stops at `StzNeuralVariantsSync`, as before: the Ring++ worktree lacks it,
 and main's `stzNeuralModel` is not Rule-A clean. Zig: ops 8, foundry 1,
 gpu 4, fuzz 22.
 
+## GK2e STATUS — measured 2026-10-28: split-K is right and pays only where k is deep; kept as a capability, NOT wired into the backbone
+
+**What was built.** Split-K's two passes (`gpu_ops.zig`): the first is
+reg4s's generator in a split mode (`mmStridedSourceX`): workgroup g takes
+tile g % tiles and slice g / tiles of k, and stores its partial product in
+a workspace. With the switch off, the text of reg4s, reg8 and reg8p stays
+byte for byte the same; their twelve forms were hashed before and after.
+The second pass sums the S partials IN SLICE ORDER and adds the bias once,
+so the result does not depend on which workgroup finished first. The
+checker judges one kernel, so the foundry runs the pair itself
+(`stz_gpu_foundry_matmul_splitk`). The generic kernel is the reference at
+a visible and a hidden shape, within the foundry's band. The pair and a
+single-pass rival are timed alternately on both clocks, the pair as ONE
+span (`verify.timedPair`: the first pass writes the start, the second the
+end). The checker's judge rules on the pair's time.
+
+**Measured on the RTX 3050 under `rnxc`, S = 4 unless named, against
+reg4s (GPU clock):**
+
+| shape | reg4s ms | split-K ms | rival / split |
+|---|---|---|---|
+| 130 x 1536 x 384 (MiniLM's down-projection) | 0.209 to 0.275 | 0.173 to 0.237 | 1.16 to 1.21 (S = 2: 1.13; S = 6: 1.21; S = 8: 1.19) |
+| 256 x 1536 x 384 | 0.320 | 0.215 | 1.48 to 1.49 |
+| 130 x 3072 x 768 (a BERT-base-sized down-projection) | 0.63 | 0.59 to 0.65 | 0.97 to 1.07 |
+| 130 x 384 x 1536 | 0.151 to 0.152 | 0.177 to 0.214 | 0.70 to 0.86 |
+| 130 x 384 x 384 | 0.052 to 0.061 | 0.064 to 0.071 | 0.80 to 0.94 |
+
+Every pair agreed with the generic at both shapes (largest difference
+0.0011 against a band of 0.03 at k = 1,536), and the judge accepted every
+time.
+
+**Why it is not in the backbone.** At 130 tokens it saves about 0.036 ms
+on one of the three products, six times per forward: about 0.2 ms of a
+forward near 8 ms, roughly 2.5%. GK4 measured that this machine's forward
+clock cannot confirm a change of that size: a control moved 60% inside a
+turn. Wiring it in would need a workspace in the residency, a split form
+of the f16 weights, and a two-pass dispatch in `mmBias`. That is code the
+clock cannot vouch for, so by GK4's rule it is not added. The capability
+and its instrument stay, because the table is clear about where split-K
+pays: deep k with few output tiles, 1.48x at 256 tokens.
+
+**What would change the decision**: a consumer whose deep products have
+few output tiles (long sequences on a narrow model, which 256 x 1536 x 384
+stands for), or a forward clock that can see 2%. The latter is the
+per-pass GPU timing the backbone does not keep yet.
+
+**Where the remaining distance to cuBLAS is, on MiniLM's shapes**: 130 rows
+in 64-row tiles compute 192 rows, 32% of them padding, and reg4s's 64 x 64
+tile tops out near 1 TFLOP/s (it does 1.0 at 256^3). cuBLAS's 2.2 TFLOP/s
+there needs a tile that wastes fewer rows, and more work per thread. That
+is a variant, named here and not opened: 32-row tiles with 8 columns per
+thread.
+
+**Gates, under `rnxc`:** the matmul foundry guard's new scene 3b (4)
+passes, and all earlier scenes pass. Its scene 5 stops on
+`StzNeuralVariantsSync` as before. ops 37, foundry 27, verify 39, f16 23,
+lifecycle 62. Zig: ops 8, foundry 1, verify 25, gpu 4, fuzz 22.
+
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 
 **Where the plane stands.** The charge GK3 to KP3 is through. A kernel can
@@ -3692,7 +3750,7 @@ GK4 was.
 
 **GK2e, added by GK2d's table**: split-K for the narrow, deep products (130 x 1536 x 384 has 18 workgroups of 64 x 64), as two passes under the checker; killed if the two passes cost more than they save at MiniLM's shapes.
 
-**This desk's order**: GT0, GZ0, GC0 and GK2d (done 2026-10-28, see their STATUS sections above), then GK2e, then once the author rules on the
+**This desk's order**: GT0, GZ0, GC0, GK2d and GK2e (done 2026-10-28, see their STATUS sections above; GK2e measured and kept out of the backbone), then once the author rules on the
 benchmark tool, then GL0. GT0 comes first because every later rung adds
 grammar, and a fuzz that already exists covers each addition the day it
 lands.

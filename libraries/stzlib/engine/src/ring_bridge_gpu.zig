@@ -658,6 +658,13 @@ fn ring_FoundryMatmulF16(p: *anyopaque) callconv(.c) void {
     const vf: f64 = if (R.ring_vm_api_paracount(p) >= 5) gn(p, 5) else -1;
     rn(p, @floatFromInt(foundry.stz_gpu_foundry_matmul_f16(gn(p, 1), gn(p, 2), gn(p, 3), gn(p, 4), vf)));
 }
+// GK2e. FoundrySplitK(m, k, n, splits, reps, rival) -> status; FoundrySplitKResult(idx)
+fn ring_FoundrySplitK(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(foundry.stz_gpu_foundry_matmul_splitk(gn(p, 1), gn(p, 2), gn(p, 3), gn(p, 4), gn(p, 5), gn(p, 6))));
+}
+fn ring_FoundrySplitKResult(p: *anyopaque) callconv(.c) void {
+    rn(p, foundry.stz_gpu_foundry_splitk_result(@intFromFloat(gn(p, 1))));
+}
 fn ring_FoundryF16Result(p: *anyopaque) callconv(.c) void {
     rn(p, foundry.stz_gpu_foundry_f16_result(@intFromFloat(gn(p, 1))));
 }
@@ -2306,6 +2313,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuverifyerror", .func = &ring_VerifyError },
     .{ .name = "stzenginegpuverifyroofline", .func = &ring_VerifyRoofline },
     .{ .name = "stzenginegpufeature", .func = &ring_Feature },
+    .{ .name = "stzenginegpufoundrysplitk", .func = &ring_FoundrySplitK },
+    .{ .name = "stzenginegpufoundrysplitkresult", .func = &ring_FoundrySplitKResult },
     .{ .name = "stzenginegpufuzzrun", .func = &ring_FuzzRun },
     .{ .name = "stzenginegpuspecsanitizenext", .func = &ring_SpecSanitizeNext },
     .{ .name = "stzenginegpusanitizereport", .func = &ring_SanitizeReport },

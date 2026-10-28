@@ -389,6 +389,17 @@ fn mmStridedSource(comptime RM: u32, comptime RN: u32, comptime KS: u32, comptim
 /// BEFORE the multiply-adds of the current one, and written to the shared
 /// tiles after them -- the loads' latency hides behind the arithmetic.
 fn mmStridedSourceP(comptime RM: u32, comptime RN: u32, comptime KS: u32, comptime prefetch: bool, comptime bias: bool, comptime wf16: bool) []const u8 {
+    return mmStridedSourceX(RM, RN, KS, prefetch, false, bias, wf16);
+}
+
+/// GK2e: `split` makes the kernel the FIRST of split-K's two passes. The
+/// workgroups are p.has_bias (read as S, the split count) times the tiles:
+/// workgroup g takes tile g % tiles and the g / tiles-th slice of k, and
+/// stores its partial product at slice * m * n in the output, which is the
+/// workspace. mmReduceSource sums the S partials in slice order. With
+/// `split` off the text is the GK2d kernel, byte for byte.
+fn mmStridedSourceX(comptime RM: u32, comptime RN: u32, comptime KS: u32, comptime prefetch: bool, comptime split: bool, comptime bias: bool, comptime wf16: bool) []const u8 {
+    if (split and (prefetch or bias)) @compileError("split-K's first pass has no prefetch and no bias (the second pass adds it)");
     @setEvalBranchQuota(20_000_000);
     const TM = 16 * RM;
     const TN = 16 * RN;
@@ -440,6 +451,7 @@ fn mmStridedSourceP(comptime RM: u32, comptime RN: u32, comptime KS: u32, compti
         , .{ 256 * q, TN, TN, TN });
     }
     stage = comptimeReplace(stage, "BREAD", bread);
+    if (split) stage = comptimeReplace(stage, "gk < p.k", "gk < klim");
     // prefetch: the same reads at k1 = k0 + KS into registers, then the same stores from them
     comptime var fetch: []const u8 = "";
     comptime var put: []const u8 = "";
@@ -483,9 +495,34 @@ fn mmStridedSourceP(comptime RM: u32, comptime RN: u32, comptime KS: u32, compti
         std.fmt.comptimePrint("var<workgroup> ta : array<f32, {d}>;\nvar<workgroup> tb : array<f32, {d}>;\n", .{ PADM * KS, KS * TN }) ++
         \\@compute @workgroup_size(16, 16)
         \\fn main(@builtin(workgroup_id) wid : vec3<u32>, @builtin(local_invocation_id) lid : vec3<u32>, @builtin(local_invocation_index) tid : u32) {
-        \\  let id = wid.x + tile.xoff;
         \\
-    ++ std.fmt.comptimePrint("  let tiles_x = (p.n + {d}u) / {d}u;\n  let row0 = (id / tiles_x) * {d}u;\n  let col0 = (id % tiles_x) * {d}u;\n", .{ TN - 1, TN, TM, TN }) ++
+    ++ (if (split)
+        std.fmt.comptimePrint(
+            \\  let tiles_x = (p.n + {d}u) / {d}u;
+            \\  let tiles = tiles_x * ((p.m + {d}u) / {d}u);
+            \\  let idall = wid.x + tile.xoff;
+            \\  let slice = idall / tiles;
+            \\  let id = idall % tiles;
+            \\  let row0 = (id / tiles_x) * {d}u;
+            \\  let col0 = (id % tiles_x) * {d}u;
+            \\
+        , .{ TN - 1, TN, TM - 1, TM, TM, TN }) ++ decl ++
+            std.fmt.comptimePrint(
+            \\  let nsplit = max(p.has_bias, 1u);
+            \\  let kslice = ((p.k + nsplit - 1u) / nsplit + {d}u) / {d}u * {d}u;
+            \\  let kb = slice * kslice;
+            \\  let klim = min(p.k, kb + kslice);
+            \\  let steps = select(0u, (klim - kb + {d}u) / {d}u, klim > kb);
+            \\  for (var t = 0u; t < steps; t = t + 1u) {{
+            \\    let k0 = kb + t * {d}u;
+            \\
+        , .{ KS - 1, KS, KS, KS - 1, KS, KS }) ++
+            stage ++ "    workgroupBarrier();\n" ++ inner ++ "    workgroupBarrier();\n  }\n" ++
+            comptimeReplace(store, "      cc[r * p.n + c] = v;", "      cc[slice * p.m * p.n + r * p.n + c] = v;") ++
+            "}\n"
+    else
+        "  let id = wid.x + tile.xoff;\n" ++
+        std.fmt.comptimePrint("  let tiles_x = (p.n + {d}u) / {d}u;\n  let row0 = (id / tiles_x) * {d}u;\n  let col0 = (id % tiles_x) * {d}u;\n", .{ TN - 1, TN, TM, TN }) ++
         decl ++
         std.fmt.comptimePrint("  let steps = (p.k + {d}u) / {d}u;\n", .{ KS - 1, KS }) ++
         (if (prefetch)
@@ -501,8 +538,57 @@ fn mmStridedSourceP(comptime RM: u32, comptime RN: u32, comptime KS: u32, compti
             std.fmt.comptimePrint("    let k0 = t * {d}u;\n", .{KS}) ++
             stage ++ "    workgroupBarrier();\n" ++ inner ++ "    workgroupBarrier();\n  }\n") ++
         store ++
+        "}");
+}
+
+/// GK2e: split-K's second pass. P is { m, k := S, n, has_bias }; the S
+/// partials of every output are summed IN SLICE ORDER, so the result does not
+/// depend on which workgroup finished first, and the bias is added once.
+fn mmReduceSource(comptime bias: bool) []const u8 {
+    return PRELUDE ++
+        \\struct P { m : u32, k : u32, n : u32, has_bias : u32 }
+        \\@group(0) @binding(1) var<uniform> p : P;
+        \\@group(0) @binding(2) var<storage, read> part : array<f32>;
+        \\
+    ++ (if (bias)
+        \\@group(0) @binding(3) var<storage, read> bias : array<f32>;
+        \\@group(0) @binding(4) var<storage, read_write> cc : array<f32>;
+        \\
+    else
+        \\@group(0) @binding(3) var<storage, read_write> cc : array<f32>;
+        \\
+    ) ++
+        \\@compute @workgroup_size(256)
+        \\fn main(@builtin(global_invocation_id) gid : vec3<u32>) {
+        \\  let i = gid.x + tile.xoff * 256u;
+        \\  let total = p.m * p.n;
+        \\  if (i >= total) { return; }
+        \\  var v = 0.0;
+        \\  for (var s = 0u; s < p.k; s = s + 1u) { v = v + part[s * total + i]; }
+        \\
+    ++ (if (bias) "  if (p.has_bias == 1u) { v = v + bias[i % p.n]; }\n" else "") ++
+        \\  cc[i] = v;
         \\}
     ;
+}
+
+/// GK2e: the first pass (reg4s's tile, 4 x 4 per thread over 64 x 64, k in
+/// S slices) and the second (the ordered sum), compiled.
+pub fn mmSplitKernel() i64 {
+    return compile(comptime mmStridedSourceX(4, 4, 16, false, true, false, false));
+}
+pub fn mmReduceKernel(comptime bias: bool) i64 {
+    return compile(comptime mmReduceSource(bias));
+}
+pub fn mmSplitSourceText() []const u8 {
+    return comptime mmStridedSourceX(4, 4, 16, false, true, false, false);
+}
+pub fn mmReduceSourceText(comptime bias: bool) []const u8 {
+    return comptime mmReduceSource(bias);
+}
+/// The first pass's grid: every 64 x 64 tile, S times.
+pub fn mmSplitGeometry(m: usize, n: usize, splits: usize) Geometry {
+    return .{ .wx = ceilDiv(n, 64) * ceilDiv(m, 64) * splits, .wy = 1 };
 }
 
 /// The kernel text of variant v, with or without a fused bias. Public so the
