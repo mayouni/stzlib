@@ -2898,7 +2898,13 @@ fn makeFrag(a: Allocator, gl: []Glyph, ids_in: []u32, text: []const u8, page_no:
                 // (between two glyphs of a no-space script a gap is a space only when it is wide: full-width
                 //  punctuation and justification open gaps that are not word breaks)
                 const cjk = isNoSpaceCp(lastCp(buf.items)) and isNoSpaceCp(firstCp(t));
-                if (!cjk or gap > 0.6 * g.size) try buf.append(a, ' ');
+                // (but a list marker set apart from its text by a visible gap is followed by a space: "１． 価格",
+                //  where "（1）網口" set close stays as it is)
+                const marker_gap = cjk and gap > 0.2 * g.size and buf.items.len <= 12 and blk: {
+                    const probe = std.mem.concat(a, u8, &.{ buf.items, " x" }) catch break :blk false;
+                    break :blk startsListMarker(probe) == buf.items.len + 1;
+                };
+                if (!cjk or gap > 0.6 * g.size or marker_gap) try buf.append(a, ' ');
             }
         }
         if (mono or !(t.len == 1 and t[0] == ' ' and buf.items.len > 0 and buf.items[buf.items.len - 1] == ' ')) try buf.appendSlice(a, t);
