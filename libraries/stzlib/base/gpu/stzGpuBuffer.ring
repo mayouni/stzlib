@@ -153,18 +153,21 @@ class stzGpuBuffer from stzObject
 			StzRaise("ApplyQ: the kernel refused to compile: " + StzEngineGpuLastError())
 		ok
 		_aScal_ = _OrderedScalars(oKernel, paScalars)
-		_nOut_ = StzEngineGpuBufferNew(@nCount * 4)
+		# GL0 (typed buffers): @nCount counts floats; an element is the input's width of them
+		_nE_ = floor(@nCount / oKernel.InputWidth(oKernel.InputNames()[1]))
+		_nOutF_ = _nE_ * oKernel.OutputWidth()
+		_nOut_ = StzEngineGpuBufferNew(_nOutF_ * 4)
 		if _nOut_ = 0
 			StzRaise("ApplyQ: no device buffer for the result (" +
 				StzEngineGpuLastError() + ")")
 		ok
-		_nSt_ = StzEngineGpuDispatchParams(_nK_, @nCount, _aScal_,
-			[@nId, _nOut_], ceil(@nCount / 256.0))
+		_nSt_ = StzEngineGpuDispatchParams(_nK_, _nE_, _aScal_,
+			[@nId, _nOut_], ceil(_nE_ / 256.0))
 		if _nSt_ != 0
 			StzEngineGpuBufferFree(_nOut_)
 			StzRaise("ApplyQ: dispatch refused (status " + _nSt_ + ").")
 		ok
-		return new stzGpuBuffer([_nOut_, @nCount])
+		return new stzGpuBuffer([_nOut_, _nOutF_])
 
 	# Frees the device buffer and marks this object empty.
 	#

@@ -777,7 +777,9 @@ fn ring_SpecEval(p: *anyopaque) callconv(.c) void {
             scal[i] = @floatCast(R.ring_item_getnumber(item));
         }
     }
-    const res = allocator.alloc(f32, n) catch {
+    // GL0 (typed buffers): a vecN output gives N numbers per element
+    const ow: usize = @intFromFloat(wgsl.stz_gpu_spec_out_width());
+    const res = allocator.alloc(f32, n * ow) catch {
         R.ring_vm_api_retlist(p, out);
         return;
     };
@@ -820,6 +822,27 @@ fn ring_SanitizeCount(p: *anyopaque) callconv(.c) void {
 }
 fn ring_SanitizeLine(p: *anyopaque) callconv(.c) void {
     rn(p, wgsl.stz_gpu_sanitize_line(@intFromFloat(gn(p, 1))));
+}
+
+// GL0 (typed buffers). SpecOutWidth(cSpec) -> the output's floats per element
+// (1, or a vector's 2 to 4); SpecInWidth(cSpec, k) -> input k's (k from 1).
+// The engine's reading of the declarations, so no host parses them itself.
+fn ring_SpecOutWidth(p: *anyopaque) callconv(.c) void {
+    const spec = getStr(p, 1);
+    if (wgsl.stz_gpu_spec_compile(spec.ptr, @floatFromInt(spec.len)) != 0) {
+        rn(p, 1);
+        return;
+    }
+    rn(p, wgsl.stz_gpu_spec_out_width());
+}
+fn ring_SpecInWidth(p: *anyopaque) callconv(.c) void {
+    const spec = getStr(p, 1);
+    const k: i32 = @intFromFloat(gn(p, 2));
+    if (wgsl.stz_gpu_spec_compile(spec.ptr, @floatFromInt(spec.len)) != 0) {
+        rn(p, 1);
+        return;
+    }
+    rn(p, wgsl.stz_gpu_spec_in_width(k - 1));
 }
 
 // KP0. SpecEvalFlops() -> the operations the last SpecEval executed, loops included
@@ -2329,6 +2352,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuspeceval", .func = &ring_SpecEval },
     .{ .name = "stzenginegpuspecflops", .func = &ring_SpecFlops },
     .{ .name = "stzenginegpuspecevalflops", .func = &ring_SpecEvalFlops },
+    .{ .name = "stzenginegpuspecoutwidth", .func = &ring_SpecOutWidth },
+    .{ .name = "stzenginegpuspecinwidth", .func = &ring_SpecInWidth },
     .{ .name = "stzenginegpuverifyjudge", .func = &ring_VerifyJudge },
     .{ .name = "stzenginegpuverifyjudgeflops", .func = &ring_VerifyJudgeFlops },
     .{ .name = "stzenginegpuverifydeclareflops", .func = &ring_VerifyDeclareFlops },

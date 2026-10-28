@@ -3928,6 +3928,74 @@ fuzz 23, sanitizer 25, shared 60, puzzles 95 (nine chapters), spec reference
 real i32 buffers), then atomics on them, a general bounded loop, and 3-D
 grids.
 
+## GL0 STATUS — fourth admission landed 2026-10-28: buffers of vectors, in and out
+
+**What it is.** `in p vec3` and `out q vec2`: a buffer of N floats per
+element, packed. `@p` is the element's vector and `@p[k]` a neighbour's (a
+zero vector outside), and a vecN output's body gives a vecN. The rung as
+named had a second half, real i32 buffers. It was **re-scoped on the way, and
+here is why**: values reach the engine from Ring as numbers, so an i32 input
+buffer would only move the f32-to-i32 conversion from the kernel to the
+upload, and add a converting copy wherever a float buffer met an int kernel.
+The buffer that does need to be i32 is atomics' output, `atomic<i32>`, which
+the engine creates itself. So it lands with atomics.
+
+**The width is the engine's to read.** `stz_gpu_spec_in_width(k)` and
+`stz_gpu_spec_out_width()` (and `SpecInWidth`/`SpecOutWidth` in Ring,
+`InputWidth`/`OutputWidth` on the maker) give every host the engine's own
+reading of the declarations. Each host then sizes the output n·W floats with
+its NaN margin and keeps one mask byte per element: the checker
+(`gpu_verify.zig`, whose masked comparison names elements), the fuzz, the
+face (`VerifySpecWith`, `RunQWith`, `ApplyOnQ`, `ApplyQ` chains, `UploadQ` of
+rows, `EvaluateOn`), the puzzle grader and the browser runner. The browser
+runner also refuses a learner whose declared widths differ from the task's,
+since one layout of the data serves both sides.
+
+**Byte-identity check**: the 18,000-kernel corpus is identical after the
+change (the store and the neighbour helper are now written by one function
+each, which give the old text for one float per element).
+
+**Measured on the RTX 3050 under `rnxc`, seed 20261028:**
+
+| run | result |
+|---|---|
+| the fuzz's typed-buffer kind (kind 8, mask bit 11: a number input, one or two vector inputs of widths 2 to 4, longer for neighbours; a vector or number output; a guard now and then) | 300 generated, 300 agree (267 exactly); 22,687 elements a guard left unwritten checked so; nothing stored past the region |
+| its control | 170 of 211 caught; of eight escapes read, seven cannot change an answer (guards that are always false, a mutated index feeding a component the swizzle drops, a `+` in the `when` branch never chosen) |
+| the six float kinds and the vector kind | unchanged: 219 and 199 exactly, as before |
+
+**Found on the way, both fixed:**
+- the puzzle's data builder appended each row as `_a_ + [ _r_ ]`, which in
+  Ring nests the row one level too deep; the interpreter then read pairs past
+  a buffer half as long and **crashed the process**. The rows are fixed, the
+  interpreter's own-element read is now bounded by the input's length (a
+  short input reads 0, never past its end), and the face refuses an input
+  that is not a whole number of elements, in words;
+- the generator's first guard for this kind wrote `@i < n and A or B`, which
+  both readers rightly refuse; it is parenthesised.
+
+**The puzzle**: kp-16, *turn the points*, in the vector chapter: a buffer of
+`vec2`s in and out, turned by the angle whose cosine is 0.6. There are three
+right answers (the formula, two dots, the point plus its quarter turn) and
+four named mistakes. The browser runner on the Intel iGPU gave the same
+eight verdicts, loaded a mistake from its Ring file, and still verified
+puzzles 6, 10 and 15 and named element 4001 for kp-05's missing guard. **No
+person has worked it.**
+
+**A regression of the ints rung, found by this rung's wider gate**: since
+a9dbb6ddf the typed readers answered a stray character (`@a * 2 ; 1`) with
+"unexpected ';' after the expression", where the transpiler used to say
+"character ';' is not part of the elementwise language". The ints rung did not
+run `gpu_declarative_narrated`, which asserts the old words. Both readers now
+name a foreign character again.
+
+**Gates, under `rnxc` on the RTX 3050:** buffers 33, vec 36, int 37, when 34,
+grammar 43, fuzz 23, sanitizer 25, shared 60, puzzles 95, spec reference 34,
+verify 39, ops 37, foundry 27, f16 23, lifecycle 62, seams 17, batch 13,
+declarative 20; Zig 30 plus 33 in the checker.
+
+**What is left of GL0**, in order: atomics (with the engine-made
+`atomic<i32>` output buffer), a general bounded loop, 3-D grids.
+
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 
 **Where the plane stands.** The charge GK3 to KP3 is through. A kernel can
@@ -3977,6 +4045,6 @@ GK4 was.
 **GK2e, added by GK2d's table**: split-K for the narrow, deep products (130 x 1536 x 384 has 18 workgroups of 64 x 64), as two passes under the checker; killed if the two passes cost more than they save at MiniLM's shapes.
 
 **This desk's order**: GT0, GZ0, GC0, GK2d and GK2e (done 2026-10-28, see their STATUS sections above; GK2e measured and kept out of the backbone; GK2f's narrow tiles measured and refused), then GL0, which started
-2026-10-28 (its first three admissions, `when`, ints and vectors, are in the GL0 STATUS sections above). GT0 comes first because every later rung adds
+2026-10-28 (its first four admissions, `when`, ints, vectors and buffers of vectors, are in the GL0 STATUS sections above). GT0 comes first because every later rung adds
 grammar, and a fuzz that already exists covers each addition the day it
 lands.

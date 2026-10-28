@@ -210,6 +210,14 @@ fn spec_eval_masked(ins_ptr: u32, n_ins: i32, lens_ptr: u32, scalars_ptr: u32, n
 fn spec_eval_flops() callconv(.c) f64 {
     return gpu_wgsl.stz_gpu_spec_eval_flops();
 }
+// GL0 (typed buffers): floats per element of the output and of input k, from
+// the description compiled last
+fn spec_out_width() callconv(.c) f64 {
+    return gpu_wgsl.stz_gpu_spec_out_width();
+}
+fn spec_in_width(k: i32) callconv(.c) f64 {
+    return gpu_wgsl.stz_gpu_spec_in_width(k);
+}
 // GZ0: the same evaluation with the sanitizer watching; the report is text
 fn spec_sanitize(ins_ptr: u32, n_ins: i32, lens_ptr: u32, scalars_ptr: u32, n_scalars: i32, n: usize, out_ptr: u32, mask_ptr: u32) callconv(.c) i32 {
     const ins: [*]const [*]const f32 = @ptrFromInt(@as(usize, ins_ptr));
@@ -447,6 +455,8 @@ comptime {
         @export(&spec_compile, .{ .name = "stz_gpu_spec_compile" });
         @export(&spec_eval_masked, .{ .name = "stz_gpu_spec_eval_masked" });
         @export(&spec_eval_flops, .{ .name = "stz_gpu_spec_eval_flops" });
+        @export(&spec_out_width, .{ .name = "stz_gpu_spec_out_width" });
+        @export(&spec_in_width, .{ .name = "stz_gpu_spec_in_width" });
         @export(&spec_sanitize, .{ .name = "stz_gpu_spec_sanitize" });
         @export(&sanitize_report, .{ .name = "stz_gpu_sanitize_report" });
         @export(&roof_wgsl, .{ .name = "stz_gpu_roof_wgsl" });

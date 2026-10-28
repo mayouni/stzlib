@@ -19,7 +19,8 @@
 # Ints (GL0): TakesIntVector, TakesIntScalar and ReturnsIntVector declare
 # whole numbers; int(...) and float(...) convert between the two types.
 # Vectors (GL0): vec2/vec3/vec4(...), .x .zyx, dot length distance normalize
-# cross reflect -- values inside the body; inputs and outputs stay numbers.
+# cross reflect; TakesVectorOf(:p, :vec3) and ReturnsVectorOf(:q, :vec2)
+# declare buffers of them, N numbers per element.
 # The whole language, with the group lines (Shared, Stage, Reduce, Tiles,
 # Accumulate, Width), is in SOFTANZA_GPU_KERNELS.md beside this file.
 # Anything else REFUSES at ToWGSL() time with a message naming the offender.
@@ -58,6 +59,8 @@ class stzKernelMaker from stzObject
 	@cOut = ""
 	@aIntNames = [] # GL0: the inputs and scalars declared to hold ints
 	@bIntOut = 0
+	@aVecWords = [] # GL0 (typed buffers): [ name, "vec3" ] for an input of vectors
+	@cOutVec = ""
 	@cBody = ""
 	@cWgsl = ""
 	@cGuard = ""
@@ -116,6 +119,67 @@ class stzKernelMaker from stzObject
 		@aIntNames + lower("" + pcName)
 		return This
 
+	# Declares an input whose elements are of a type: :float, :int, or :vec2, :vec3, :vec4, a vector of floats per element (GL0).
+	#
+	#   pcName     the input's name, stored in lower case and used as @Name in the body
+	#   pcType     :float, :int, :vec2, :vec3 or :vec4
+	#   returns    the maker itself, so calls chain
+	#   note       an input of vec3s is bound as a list of three-number lists, one per element, and
+	#              travels packed, three floats per element; @Name is the element's vector and
+	#              @Name[k] another element's, a zero vector outside
+	#   see        TakesVector, TakesIntVector, ReturnsVectorOf
+	def TakesVectorOf(pcName, pcType)
+		_c_ = lower("" + pcType)
+		if _c_ = "int"
+			return This.TakesIntVector(pcName)
+		ok
+		This.TakesVector(pcName)
+		if _c_ != "float"
+			@aVecWords + [ lower("" + pcName), _c_ ]
+		ok
+		return This
+
+	# Declares the single output with elements of a type: :float, :int, or :vec2, :vec3, :vec4 (GL0).
+	#
+	#   pcName     the output's name, stored in lower case and assigned as @Name in the body
+	#   pcType     :float, :int, :vec2, :vec3 or :vec4
+	#   returns    the maker itself, so calls chain
+	#   note       an output of vec3s comes back as three numbers per element, in a row: the
+	#              body's value must be a vec3
+	#   see        ReturnsVector, TakesVectorOf
+	def ReturnsVectorOf(pcName, pcType)
+		_c_ = lower("" + pcType)
+		if _c_ = "int"
+			return This.ReturnsIntVector(pcName)
+		ok
+		This.ReturnsVector(pcName)
+		if _c_ != "float"
+			@cOutVec = _c_
+		ok
+		return This
+
+	# Returns how many numbers one element of an input holds: 1, or a vector's 2 to 4 (GL0).
+	#
+	#   pcName     the input's name
+	#   returns    a number, read by the engine from the description
+	#   see        OutputWidth, TakesVectorOf
+	def InputWidth(pcName)
+		_c_ = lower("" + pcName)
+		_nL_ = len(@aIns)
+		for _i_ = 1 to _nL_
+			if @aIns[_i_] = _c_
+				return StzEngineGpuSpecInWidth(This.Spec(), _i_)
+			ok
+		next
+		return 1
+
+	# Returns how many numbers one element of the output holds: 1, or a vector's 2 to 4 (GL0).
+	#
+	#   returns    a number, read by the engine from the description
+	#   see        InputWidth, ReturnsVectorOf
+	def OutputWidth()
+		return StzEngineGpuSpecOutWidth(This.Spec())
+
 	# Declares the single output vector as holding whole numbers: the body's value is an int (GL0).
 	#
 	#   pcName     the output's name, stored in lower case and assigned as @Name in the body
@@ -136,6 +200,7 @@ class stzKernelMaker from stzObject
 	def ReturnsVector(pcName)
 		@cOut = lower("" + pcName)
 		@bIntOut = 0
+		@cOutVec = ""
 		@cWgsl = ""
 		return This
 
@@ -328,8 +393,14 @@ class stzKernelMaker from stzObject
 			if NOT isList(_v_) or len(_v_) = 0
 				StzRaise("stzKernelMaker: vector '" + @aIns[_i_] + "' is missing from the bindings.")
 			ok
+			# GL0 (typed buffers): an input of vectors is a list of rows, or the rows flat
+			_nW_ = This.InputWidth(@aIns[_i_])
+			_v_ = _StzKernelFlat(_v_)
 			if _n_ = 0
-				_n_ = len(_v_)
+				_n_ = floor(len(_v_) / _nW_)
+			ok
+			if len(_v_) % _nW_ != 0
+				StzRaise("stzKernelMaker: vector '" + @aIns[_i_] + "' holds " + len(_v_) + " numbers, not a whole number of its " + _nW_ + "-number elements.")
 			ok
 			_nV_ = len(_v_)
 			_aLens_ + _nV_
@@ -430,6 +501,9 @@ class stzKernelMaker from stzObject
 			if @bIntOut
 				_c_ += " int"
 			ok
+			if @cOutVec != ""
+				_c_ += " " + @cOutVec
+			ok
 			_c_ += char(10)
 		ok
 		if @cWidth != ""
@@ -456,6 +530,12 @@ class stzKernelMaker from stzObject
 		for _i_ = 1 to _nL_
 			if @aIntNames[_i_] = pcName
 				return " int"
+			ok
+		next
+		_nL_ = len(@aVecWords)
+		for _i_ = 1 to _nL_
+			if @aVecWords[_i_][1] = pcName
+				return " " + @aVecWords[_i_][2]
 			ok
 		next
 		return ""

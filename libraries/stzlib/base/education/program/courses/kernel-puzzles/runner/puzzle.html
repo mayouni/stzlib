@@ -87,10 +87,12 @@ function specLines(spec, head) {
 // a list as Ring's @@ writes it: [ "a", "b" ], and [ ] when empty -- the face's words
 function ringList(xs) { return xs.length ? `[ ${xs.map(x => `"${x}"`).join(", ")} ]` : "[ ]"; }
 function hiddenCount(n) { let b = Math.floor(n * 5 / 7); if (b < 1) b = 1; if (b > 1 && b % 2 === 0) b--; return b; }
-function hiddenInput(v, n, nB) {
-  let hl = Math.floor(v.length * nB / n); if (hl < 1) hl = 1;
-  const h = new Float32Array(hl);
-  for (let j = 0; j < hl; j++) h[j] = v[v.length - 1 - j]; // the reversed tail
+// the reversed tail, element by element: a vecN input keeps each element's N floats in order (GL0)
+function hiddenInput(v, n, nB, w = 1) {
+  const len = Math.floor(v.length / w);
+  let hl = Math.floor(len * nB / n); if (hl < 1) hl = 1;
+  const h = new Float32Array(hl * w);
+  for (let j = 0; j < hl; j++) for (let c = 0; c < w; c++) h[j * w + c] = v[(len - 1 - j) * w + c];
   return h;
 }
 
@@ -112,6 +114,14 @@ function transpile(spec) {
   if (n < 0) return { error: wasmError() };
   return { wgsl: new TextDecoder().decode(new Uint8Array(memory.buffer, out, n)) };
 }
+// GL0 (typed buffers): the floats per element of each input and of the output, as the
+// engine reads the declarations -- the page never parses a type word itself
+function widths(spec) {
+  E.stz_reset();
+  const sp = putBytes(enc.encode(spec));
+  if (E.stz_gpu_spec_compile(sp, enc.encode(spec).length) !== 0) return null;
+  return { ins: specLines(spec, "in").map((_, k) => E.stz_gpu_spec_in_width(k)), out: E.stz_gpu_spec_out_width() };
+}
 // the reference, interpreted on this machine by the checker's own interpreter
 function interpret(spec, inputs, scalars, n) {
   E.stz_reset();
@@ -121,9 +131,10 @@ function interpret(spec, inputs, scalars, n) {
   const insP = putU32(new Uint32Array(ptrs));
   const lensP = putF64(new Float64Array(inputs.map(v => v.length)));
   const scP = putF32(new Float32Array(scalars.length ? scalars : [0]));
-  const outP = alloc(n * 4); const maskP = alloc(n);
+  const w = E.stz_gpu_spec_out_width();
+  const outP = alloc(n * w * 4); const maskP = alloc(n);
   if (E.stz_gpu_spec_eval_masked(insP, inputs.length, lensP, scP, scalars.length, n, outP, maskP) !== 0) throw new Error("the interpreter could not evaluate the reference");
-  return { ref: new Float32Array(memory.buffer, outP, n).slice(), mask: new Uint8Array(memory.buffer, maskP, n).slice(), flops: E.stz_gpu_spec_eval_flops() };
+  return { ref: new Float32Array(memory.buffer, outP, n * w).slice(), mask: new Uint8Array(memory.buffer, maskP, n).slice(), flops: E.stz_gpu_spec_eval_flops(), w };
 }
 
 // GZ0: the learner's kernel, run by the interpreter with the sanitizer watching -- what the
@@ -137,7 +148,7 @@ function sanitize(spec, inputs, scalars, n) {
   const insP = putU32(new Uint32Array(ptrs));
   const lensP = putF64(new Float64Array(inputs.map(v => v.length)));
   const scP = putF32(new Float32Array(scalars.length ? scalars : [0]));
-  const outP = alloc(n * 4); const maskP = alloc(n);
+  const outP = alloc(n * E.stz_gpu_spec_out_width() * 4); const maskP = alloc(n);
   if (E.stz_gpu_spec_sanitize(insP, inputs.length, lensP, scP, scalars.length, n, outP, maskP) < 0) return null;
   const rp = alloc(4096); const rn = E.stz_gpu_sanitize_report(rp, 4096);
   const lines = new TextDecoder().decode(new Uint8Array(memory.buffer, rp, rn)).split("\n").filter(x => x);
@@ -155,7 +166,7 @@ if (navigator.gpu) {
 }
 if (!device) el("where").textContent = "no WebGPU in this browser: the kernel cannot run here";
 
-async function runKernel(wgsl, inputs, scalars, n) {
+async function runKernel(wgsl, inputs, scalars, n, w = 1) {
   const mk = (usage, size) => device.createBuffer({ size, usage });
   const module = device.createShaderModule({ code: wgsl });
   const pipeline = device.createComputePipeline({ layout: "auto", compute: { module, entryPoint: "main" } });
@@ -169,7 +180,7 @@ async function runKernel(wgsl, inputs, scalars, n) {
   const entries = [{ binding: 0, resource: { buffer: tile } }, { binding: 1, resource: { buffer: params } }];
   let b = 2;
   for (const v of inputs) { const buf = mk(GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST, v.length * 4); device.queue.writeBuffer(buf, 0, v); entries.push({ binding: b++, resource: { buffer: buf } }); }
-  const total = n + MARGIN;
+  const total = n * w + MARGIN;
   const out = mk(GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST | GPUBufferUsage.COPY_SRC, total * 4);
   device.queue.writeBuffer(out, 0, new Float32Array(total).fill(NaN)); // the region AND the margin, NaN before the kernel runs
   entries.push({ binding: b, resource: { buffer: out } });
@@ -294,11 +305,13 @@ function roofSentence(x) {
 
 // the verdict words are the desktop face's, letter for letter; the band is the puzzle's
 function band() { const b = fact(puzzle.facts, "band"); return b ? parseFloat(b) : 1e-6; }
-function judge(got, ref, mask, n, suffix) {
-  for (let k = n; k < n + MARGIN; k++) if (!Number.isNaN(got[k])) return `write-outside at element ${k + 1}`;
-  for (let i = 0; i < n; i++) {
-    if (mask[i] === 0) { if (!Number.isNaN(got[i])) return `mismatch${suffix} at element ${i + 1}`; continue; }
-    const d = Math.abs(got[i] - ref[i]);
+// GL0 (typed buffers): w floats per element, one mask byte per element; a verdict names the element
+function judge(got, ref, mask, n, suffix, w = 1) {
+  for (let k = n * w; k < n * w + MARGIN; k++) if (!Number.isNaN(got[k])) return `write-outside at element ${n + Math.floor((k - n * w) / w) + 1}`;
+  for (let k = 0; k < n * w; k++) {
+    const i = Math.floor(k / w);
+    if (mask[i] === 0) { if (!Number.isNaN(got[k])) return `mismatch${suffix} at element ${i + 1}`; continue; }
+    const d = Math.abs(got[k] - ref[k]);
     if (!(d <= band())) return `mismatch${suffix} at element ${i + 1}`;
   }
   return null;
@@ -335,6 +348,8 @@ function specFromRing(src) {
     else if ((m = l.match(/^k\.TakesIntScalar\(:(\w+)/))) out.push("scalar " + m[1] + " int");
     else if ((m = l.match(/^k\.ReturnsVector\(:(\w+)\)/))) out.push("out " + m[1]);
     else if ((m = l.match(/^k\.ReturnsIntVector\(:(\w+)\)/))) out.push("out " + m[1] + " int");
+    else if ((m = l.match(/^k\.TakesVectorOf\(:(\w+),\s*:(\w+)\)/))) out.push("in " + m[1] + (m[2] === "float" ? "" : " " + m[2]));
+    else if ((m = l.match(/^k\.ReturnsVectorOf\(:(\w+),\s*:(\w+)\)/))) out.push("out " + m[1] + (m[2] === "float" ? "" : " " + m[2]));
     else if ((m = l.match(/^k\.Width\(:?(\w+)\)/))) out.push("width " + m[1]);
     else if ((m = l.match(/^k\.Shared\(:(\w+),\s*(\d+)\)/))) out.push("shared " + m[1] + " " + m[2]);
     else if ((m = l.match(/^k\.Stage\('(.*)'\)/))) out.push("stage " + m[1]);
@@ -406,12 +421,13 @@ async function load() {
 }
 function dataFor(spec, n) {
   const inputs = [], scalars = [];
-  for (const name of specLines(spec, "in")) {
+  const ws = (widths(spec) || { ins: [] }).ins;
+  for (const [k, name] of specLines(spec, "in").entries()) {
     const r = fact(puzzle.facts, "input-" + name);
     if (!r) throw new Error(`the puzzle binds no input '${name}'`);
     let lenS = fact(puzzle.facts, "input-length-" + name);
     if (lenS && !/^\d+$/.test(lenS)) lenS = fact(puzzle.facts, "scalar-" + lenS.toLowerCase()); // a length may name a scalar
-    inputs.push(recipe(r, lenS ? parseInt(lenS, 10) : n));
+    inputs.push(recipe(r, (lenS ? parseInt(lenS, 10) : n) * (ws[k] || 1))); // a vecN input: N floats per element
   }
   for (const name of specLines(spec, "scalar")) {
     const v = fact(puzzle.facts, "scalar-" + name);
@@ -426,9 +442,11 @@ function hiddenDeclared(spec) {
   const hn = parseInt(fact(puzzle.facts, "hidden-elements") || "0", 10);
   if (!hn) return null;
   const inputs = [], scalars = [];
-  for (const name of specLines(spec, "in")) {
+  const ws = (widths(spec) || { ins: [] }).ins;
+  for (const [k, name] of specLines(spec, "in").entries()) {
     const len = parseInt(fact(puzzle.facts, "hidden-input-length-" + name) || String(hn), 10);
-    inputs.push(recipe(fact(puzzle.facts, "input-" + name), len).reverse());
+    const w = ws[k] || 1, v = recipe(fact(puzzle.facts, "input-" + name), len * w);
+    inputs.push(hiddenInput(v, len, len, w)); // reversed element by element
   }
   for (const name of specLines(spec, "scalar")) {
     const v = fact(puzzle.facts, "hidden-scalar-" + name) || fact(puzzle.facts, "scalar-" + name);
@@ -447,12 +465,17 @@ async function grade(learner) {
     return { verdict: `refused: your inputs ${ringList(lIns)} and scalars ${ringList(lSc)} are not the task's ${ringList(refIns)} and ${ringList(refSc)} in the task's order`, cls: "bad" };
   const tr = transpile(learner);
   if (tr.error) return { verdict: "refused: " + tr.error, cls: "bad" };
+  // GL0 (typed buffers): one layout of the data serves both sides, so the widths must be the task's
+  const wRef = widths(refSpec), wLrn = widths(learner);
+  if (wRef && wLrn && (wRef.ins.join(",") !== wLrn.ins.join(",") || wRef.out !== wLrn.out))
+    return { verdict: "refused: your declarations' types are not the task's: an input or the output holds vectors of another width", cls: "bad" };
+  const W = wRef ? wRef.out : 1;
   el("wgsl").textContent = tr.wgsl;
   const n = puzzle.n;
   const { inputs, scalars } = dataFor(refSpec, n);
   const hd = hiddenDeclared(refSpec);
   const nB = hd ? hd.n : hiddenCount(n);
-  const hidden = hd ? hd.inputs : inputs.map(v => hiddenInput(v, n, nB));
+  const hidden = hd ? hd.inputs : inputs.map((v, k) => hiddenInput(v, n, nB, wRef ? wRef.ins[k] : 1));
   const scalarsB = hd ? hd.scalars : scalars;
   // GZ0: a race is named before anything runs -- the device may keep either write, so no
   // comparison of values can stand for it (the desktop face's Grade says the same words)
@@ -464,23 +487,23 @@ async function grade(learner) {
   if (!device) {
     // no WebGPU: the interpreter grades the learner's text too (values only; the margin needs a device)
     const candA = interpret(learner, inputs, scalars, n), candB = interpret(learner, hidden, scalarsB, nB);
-    const vA = judgeCpu(candA, refA, n, ""); if (vA) return { verdict: vA, cls: "bad", san: sanLines };
-    const vB = judgeCpu(candB, refB, nB, "-hidden"); if (vB) return { verdict: vB, cls: "bad", san: sanLines };
+    const vA = judgeCpu(candA, refA, n, "", W); if (vA) return { verdict: vA, cls: "bad", san: sanLines };
+    const vB = judgeCpu(candB, refB, nB, "-hidden", W); if (vB) return { verdict: vB, cls: "bad", san: sanLines };
     return { verdict: "verified", cls: "ok", san: sanLines, note: "interpreter only (no WebGPU): values at both shapes; the margin needs a device" };
   }
-  const a = await runKernel(tr.wgsl, inputs, scalars, n);
-  const vA = judge(a.got, refA.ref, refA.mask, n, ""); if (vA) return { verdict: vA, cls: "bad", ms: a.ms, san: sanLines };
-  const b = await runKernel(tr.wgsl, hidden, scalarsB, nB);
-  const vB = judge(b.got, refB.ref, refB.mask, nB, "-hidden"); if (vB) return { verdict: vB, cls: "bad", ms: a.ms, san: sanLines };
+  const a = await runKernel(tr.wgsl, inputs, scalars, n, W);
+  const vA = judge(a.got, refA.ref, refA.mask, n, "", W); if (vA) return { verdict: vA, cls: "bad", ms: a.ms, san: sanLines };
+  const b = await runKernel(tr.wgsl, hidden, scalarsB, nB, W);
+  const vB = judge(b.got, refB.ref, refB.mask, nB, "-hidden", W); if (vB) return { verdict: vB, cls: "bad", ms: a.ms, san: sanLines };
   let roof = null;
   if (fact(puzzle.facts, "roofline-elements")) roof = await roofline(tr.wgsl, refSpec, inputs.length, scalars, refA.flops / n);
   return { verdict: "verified", cls: "ok", ms: a.ms, flops: refA.flops, roof, san: sanLines };
 }
-function judgeCpu(cand, ref, n, suffix) {
-  for (let i = 0; i < n; i++) {
-    const rn = Number.isNaN(ref.ref[i]), cn = Number.isNaN(cand.ref[i]);
+function judgeCpu(cand, ref, n, suffix, w = 1) {
+  for (let k = 0; k < n * w; k++) {
+    const rn = Number.isNaN(ref.ref[k]), cn = Number.isNaN(cand.ref[k]);
     if (rn && cn) continue;
-    if (rn || cn || Math.abs(ref.ref[i] - cand.ref[i]) > band()) return `mismatch${suffix} at element ${i + 1}`;
+    if (rn || cn || Math.abs(ref.ref[k] - cand.ref[k]) > band()) return `mismatch${suffix} at element ${Math.floor(k / w) + 1}`;
   }
   return null;
 }

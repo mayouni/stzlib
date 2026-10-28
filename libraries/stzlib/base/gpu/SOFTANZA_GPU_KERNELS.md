@@ -160,9 +160,8 @@ out c
 body { @c = max(dot(normalize(vec3(@nx, @ny, @nz)), normalize(vec3(sx, sy, sz))), 0) }
 ```
 
-`vec2`, `vec3` and `vec4` hold two to four floats, as **values inside a
-kernel**: an input and an output are still numbers, so a vector is built
-and reduced within one expression.
+`vec2`, `vec3` and `vec4` hold two to four floats. Inside a kernel they
+are values; an input or the output may hold them too (3.1d).
 
 | written | means |
 |---|---|
@@ -175,8 +174,42 @@ and reduced within one expression.
 | `when(c, v, w)` | one vector or the other |
 
 A vector is not compared whole (compare `v.x`, or a `dot`), does not stand
-where a number is needed (an output, an index, a sum's body), and holds
-floats (`vec2(@k, 1)` with an int `k` is refused).
+where a number is needed (a number output, an index, a sum's body), and
+holds floats (`vec2(@k, 1)` with an int `k` is refused).
+
+### 3.1d Buffers of vectors (GL0)
+
+```
+in p vec2
+scalar c
+scalar s
+out q vec2
+body { @q = vec2(c * @p.x - s * @p.y, s * @p.x + c * @p.y) }
+```
+
+A declaration may end with `vec2`, `vec3` or `vec4`. Such a buffer holds N
+floats per element, side by side and packed: element i is floats N·i to
+N·i + N - 1. `@p` is the element's vector, and `@p[k]` another element's,
+with a zero vector outside the buffer. The body of a `vecN` output must give
+a `vecN`. A scalar is always one number.
+
+**The engine reads the widths, once.** Every host sizes its buffers from
+`stz_gpu_spec_in_width` and `stz_gpu_spec_out_width`, never from its own parse
+of a declaration. That includes the checker, the fuzz, the Ring face
+(`InputWidth`, `OutputWidth`) and the browser runner. Each sizes the output
+n·W floats with the NaN margin after it, keeps one mask byte per element,
+and names a mismatch by element.
+
+In Ring, `TakesVectorOf(:p, :vec2)` and `ReturnsVectorOf(:q, :vec2)` declare
+them. An input of vectors is bound as a list of rows, `[ [ x, y ], ... ]`,
+and the output comes back flat, W numbers per element, as a device download
+does. `UploadQ` takes rows too, and `ApplyQ` chains count elements by each
+kernel's widths.
+
+**Ints are not in this.** An `int` buffer still crosses as f32, exact to
+16,777,216, because the values reach the engine from Ring as numbers; a real
+`i32` buffer would only move the conversion. The atomics rung brings one,
+because `atomic<i32>` needs it.
 
 ### 3.2 The group's own memory
 
@@ -246,6 +279,8 @@ because they share one parser.
 | two widths meeting, `vec2(...) + vec3(...)` | a vector meets one of its own width, or a number |
 | a number given to a function beside a vector, `min(v, 0)` | WGSL has one type per call: `min(v, vec2(0))` |
 | a component past the width, `vec2(...).z` | a vec2's letters are `x y` |
+| a vecN output given another value, `@q = 1` | the output holds vecNs |
+| a scalar declared a vector, `scalar s vec2` | a scalar is one number |
 | a comparison used as a number, `(@a > 0) * 2` | on the device a comparison is a truth value; write `when(@a > 0, 2, 0)` |
 | a number used as a condition, `when(@a, 1, 0)` or `guard { @a }` | a condition compares: `@a != 0` |
 | a chain, `0 < @a < 2` | write `0 < @a and @a < 2` |
@@ -368,7 +403,7 @@ reported 174% of the copy roof, which is a clock artefact, not speed.
 
 ## 7. The puzzles
 
-Fifteen puzzles in nine chapters teach the GPU from the map to the tiled
+Sixteen puzzles in nine chapters teach the GPU from the map to the tiled
 product, then the branch, the whole number and the vector:
 
 | chapter | puzzles |
@@ -381,7 +416,7 @@ product, then the branch, the whole number and the vector:
 | the roofline | 12 how fast can it be |
 | the branch | 13 two prices (GL0: `when`, and the same answer without it) |
 | whole numbers | 14 roll the dice (GL0: an int keeps the digits a float loses) |
-| the vector | 15 light on a surface (GL0: `vec3`, `dot`, `normalize`) |
+| the vector | 15 light on a surface (GL0: `vec3`, `dot`, `normalize`) · 16 turn the points (a buffer of `vec2`s in and out) |
 
 An exercise is a folder in the Learning System's shape: `exercise.zknw`,
 `task.<lang>.md` in English, French, Arabic and Hausa, `promise.ring`, a
@@ -410,7 +445,7 @@ desktop produce identical results on every case it holds.
 
 The author worked puzzles 1 to 8. After the page gained a "Your move"
 block and buttons that load a known mistake, the author said those told
-them what to do. Puzzles 9 to 15 are built and checked by instruments;
+them what to do. Puzzles 9 to 16 are built and checked by instruments;
 **no person has worked one yet**.
 
 ## 8. Choices measured into the library
@@ -482,4 +517,5 @@ Run with Ring++ from `base/test/gpu/`: `rnxc <guard>.ring`.
 | `gpu_when_narrated.ring` | GL0's `when`: both readers, the condition's shape and its refusals, the device, the fuzz's SWAP control, puzzle 13 |
 | `gpu_int_narrated.ring` | GL0's ints: declarations, typing, refusals in both readers' words, the device at every edge, the fuzz's int kind, puzzle 14 |
 | `gpu_vec_narrated.ring` | GL0's vectors: construction, swizzles, spreading, the vector functions, refusals, the device, the fuzz's vector kind, puzzle 15 |
+| `gpu_buffers_narrated.ring` | GL0's buffers of vectors: declarations, both readers, every host path that makes a buffer, the fuzz's typed-buffer kind, puzzle 16 |
 | `edge_proof/edge_proof.html` | the browser and the desktop agree, case by case |

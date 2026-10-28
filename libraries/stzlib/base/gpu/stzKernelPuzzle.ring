@@ -56,17 +56,49 @@ func StzKernelPuzzlesFolder()
 #   note       KP1 (2026-10-24): the bridge between the two runners; Spec() of the result is the
 #              text again, line for line
 #   see        stzKernelMaker.Spec
-# GL0: a declaration's name and whether it holds ints, from 'a', 'a int' or
-# 'a float'; another word is kept on the name, for the engine to refuse.
+# GL0: a declaration's name and its type word, from 'a', 'a int', 'a float' or
+# 'a vec3'; another word is kept on the name, for the engine to refuse.
 func _StzKernelDecl(pcRest)
 	_c_ = ring_trim(pcRest)
 	_acW_ = StzSplit(_c_, " ")
-	if len(_acW_) = 2 and lower(_acW_[2]) = "int"
-		return [ _acW_[1], 1 ]
-	but len(_acW_) = 2 and lower(_acW_[2]) = "float"
-		return [ _acW_[1], 0 ]
+	if len(_acW_) = 2
+		_cT_ = lower(_acW_[2])
+		if _cT_ = "int" or _cT_ = "float" or _cT_ = "vec2" or _cT_ = "vec3" or _cT_ = "vec4"
+			return [ _acW_[1], _cT_ ]
+		ok
 	ok
-	return [ _c_, 0 ]
+	return [ _c_, "float" ]
+
+# GL0 (typed buffers): rows of an input of vectors, flat -- a flat list is kept.
+func _StzKernelFlat(paV)
+	if len(paV) = 0 or NOT isList(paV[1])
+		return paV
+	ok
+	_a_ = []
+	_nL_ = len(paV)
+	for _i_ = 1 to _nL_
+		_nC_ = len(paV[_i_])
+		for _j_ = 1 to _nC_
+			_a_ + paV[_i_][_j_]
+		next
+	next
+	return _a_
+
+# GL0 (typed buffers): a flat list of numbers as rows of nW, one per element.
+func _StzKernelRows(paV, nW)
+	if nW <= 1 or len(paV) = 0 or isList(paV[1])
+		return paV
+	ok
+	_a_ = []
+	_nE_ = floor(len(paV) / nW)
+	for _i_ = 0 to _nE_ - 1
+		_r_ = []
+		for _j_ = 1 to nW
+			_r_ + paV[_i_ * nW + _j_]
+		next
+		_a_ + _r_ # Ring appends a list as one element: the row
+	next
+	return _a_
 
 func StzKernelMakerFromSpec(pcSpec)
 	_oK_ = new stzKernelMaker
@@ -79,25 +111,19 @@ func StzKernelMakerFromSpec(pcSpec)
 		ok
 		if StzLeft(_cLine_, 3) = "in "
 			_aD_ = _StzKernelDecl(StzRight(_cLine_, len(_cLine_) - 3))
-			if _aD_[2]
-				_oK_.TakesIntVector(_aD_[1])
-			else
-				_oK_.TakesVector(_aD_[1])
-			ok
+			_oK_.TakesVectorOf(_aD_[1], _aD_[2])
 		but StzLeft(_cLine_, 7) = "scalar "
 			_aD_ = _StzKernelDecl(StzRight(_cLine_, len(_cLine_) - 7))
-			if _aD_[2]
+			if _aD_[2] = "int"
 				_oK_.TakesIntScalar(_aD_[1])
-			else
+			but _aD_[2] = "float"
 				_oK_.TakesScalar(_aD_[1])
+			else
+				_oK_.TakesScalar(_aD_[1] + " " + _aD_[2])
 			ok
 		but StzLeft(_cLine_, 4) = "out "
 			_aD_ = _StzKernelDecl(StzRight(_cLine_, len(_cLine_) - 4))
-			if _aD_[2]
-				_oK_.ReturnsIntVector(_aD_[1])
-			else
-				_oK_.ReturnsVector(_aD_[1])
-			ok
+			_oK_.ReturnsVectorOf(_aD_[1], _aD_[2])
 		but StzLeft(_cLine_, 6) = "guard "
 			_oK_.Guard(ring_trim(StzRight(_cLine_, len(_cLine_) - 6)))
 		but StzLeft(_cLine_, 5) = "body "
@@ -241,7 +267,9 @@ class stzKernelPuzzle from stzObject
 					ok
 					_nLen_ = 0 + _cLen_
 				ok
-				_aB_ + [ _cName_, This._Recipe(@aFacts[_i_][3], _nLen_) ]
+				# GL0 (typed buffers): an input of vecNs takes N numbers of its recipe per element
+				_nW_ = StzKernelMakerFromSpec(@cReference).InputWidth(_cName_)
+				_aB_ + [ _cName_, _StzKernelRows(This._Recipe(@aFacts[_i_][3], _nLen_ * _nW_), _nW_) ]
 			but StzLeft(_cRel_, 7) = "scalar-"
 				_aB_ + [ StzRight(_cRel_, len(_cRel_) - 7), 0 + @aFacts[_i_][3] ]
 			ok
@@ -561,7 +589,9 @@ class stzKernelPuzzle from stzObject
 			return "refused: " + StzReplace(cCatchError, "stzKernelMaker: ", "")
 		done
 		_nBand_ = This.Band()
-		for _i_ = 1 to nN
+		# GL0 (typed buffers): W numbers per element of the output, a mismatch named by element
+		_nW_ = poRef.OutputWidth()
+		for _i_ = 1 to nN * _nW_
 			_r_ = _aR_[_i_]
 			_c_ = _aC_[_i_]
 			_bRNan_ = NOT (_r_ = _r_)
@@ -570,7 +600,7 @@ class stzKernelPuzzle from stzObject
 				loop
 			ok
 			if _bRNan_ or _bCNan_ or fabs(_r_ - _c_) > _nBand_
-				return "mismatch" + cSuffix + " at element " + _i_
+				return "mismatch" + cSuffix + " at element " + ceil(_i_ / _nW_)
 			ok
 		next
 		return "verified"

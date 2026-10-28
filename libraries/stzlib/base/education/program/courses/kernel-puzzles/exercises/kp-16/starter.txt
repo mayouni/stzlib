@@ -1,0 +1,4 @@
+in p vec2
+scalar c
+scalar s
+out q vec2

@@ -169,6 +169,10 @@ pub const Decl = struct {
     in_int: [MAX_VECS]bool = @splat(false),
     sc_int: [MAX_SCALARS]bool = @splat(false),
     out_int: bool = false,
+    // GL0 (typed buffers): floats per element, 1 or a vector's 2 to 4. A vecN
+    // buffer holds element i at floats N*i .. N*i + N - 1, packed.
+    in_w: [MAX_VECS]u8 = @splat(1),
+    out_w: u8 = 1,
     rhs: []const u8 = "",
     // KP0: the guard line. null = the engine's default (i < n, as every kernel
     // had before); "none" = the learner omits it; anything else = the
@@ -223,14 +227,17 @@ fn isPow2(v: usize) bool {
 
 /// GL0: a declaration's name and its type word: 'k' or 'k float' is a float,
 /// 'k int' an int. Null, with the reason, for any other word.
-fn declType(rest: []const u8, int: *bool) ?[]const u8 {
+fn declType(rest: []const u8, int: *bool, w: *u8) ?[]const u8 {
     int.* = false;
+    w.* = 1;
     const sp = std.mem.indexOfAny(u8, rest, " \t") orelse return rest;
     const ty = std.mem.trim(u8, rest[sp..], " \t");
     if (std.ascii.eqlIgnoreCase(ty, "int")) {
         int.* = true;
+    } else if (std.ascii.eqlIgnoreCase(ty, "vec2") or std.ascii.eqlIgnoreCase(ty, "vec3") or std.ascii.eqlIgnoreCase(ty, "vec4")) {
+        w.* = ty[3] - '0'; // GL0 (typed buffers)
     } else if (!std.ascii.eqlIgnoreCase(ty, "float")) {
-        _ = fail("'{s}' is not a type: a declaration ends with int or float, or with its name", .{ty});
+        _ = fail("'{s}' is not a type: a declaration ends with int, float, vec2, vec3 or vec4, or with its name", .{ty});
         return null;
     }
     return rest[0..sp];
@@ -260,8 +267,10 @@ fn parseDecl(text: []const u8, d: *Decl) i32 {
         if (line.len == 0) continue;
         if (std.mem.startsWith(u8, line, "in ")) {
             var int = false;
-            const nm = declType(std.mem.trim(u8, line[3..], " \t"), &int) orelse return -1;
+            var w: u8 = 1;
+            const nm = declType(std.mem.trim(u8, line[3..], " \t"), &int, &w) orelse return -1;
             d.in_int[d.n_ins] = int;
+            d.in_w[d.n_ins] = w;
             var lowered: Name = .{};
             if (!lowerInto(&lowered, nm) or !validIdent(lowered.slice()))
                 return fail("bad input name: '{s}'", .{nm});
@@ -272,7 +281,9 @@ fn parseDecl(text: []const u8, d: *Decl) i32 {
             d.n_ins += 1;
         } else if (std.mem.startsWith(u8, line, "scalar ")) {
             var int = false;
-            const nm = declType(std.mem.trim(u8, line[7..], " \t"), &int) orelse return -1;
+            var w: u8 = 1;
+            const nm = declType(std.mem.trim(u8, line[7..], " \t"), &int, &w) orelse return -1;
+            if (w != 1) return fail("a scalar is one number: '{s}' cannot be a vector", .{nm});
             if (d.n_scalars < MAX_SCALARS) d.sc_int[d.n_scalars] = int;
             var lowered: Name = .{};
             if (!lowerInto(&lowered, nm) or !validIdent(lowered.slice()))
@@ -283,7 +294,7 @@ fn parseDecl(text: []const u8, d: *Decl) i32 {
             d.scalars[d.n_scalars] = lowered;
             d.n_scalars += 1;
         } else if (std.mem.startsWith(u8, line, "out ")) {
-            const nm = declType(std.mem.trim(u8, line[4..], " \t"), &d.out_int) orelse return -1;
+            const nm = declType(std.mem.trim(u8, line[4..], " \t"), &d.out_int, &d.out_w) orelse return -1;
             if (have_out) return fail("only one output (ForEachElement writes one vector)", .{});
             if (!lowerInto(&d.out_name, nm) or !validIdent(d.out_name.slice()))
                 return fail("bad output name: '{s}'", .{nm});
@@ -438,6 +449,85 @@ fn parseDecl(text: []const u8, d: *Decl) i32 {
     return 0;
 }
 
+/// GL0 (typed buffers): the output's store. One float per element is the
+/// store every kernel always had, byte for byte; a vecN output stores its
+/// components at N*i .. N*i + N - 1.
+fn putStore(w: *Cursor, d: *const Decl, expr: []const u8) void {
+    const o = d.out_name.slice();
+    if (d.out_w == 1) {
+        w.put("v_");
+        w.put(o);
+        w.put("[i] = ");
+        w.put(expr);
+        w.putc(';');
+        return;
+    }
+    w.put("let o_ = ");
+    w.put(expr);
+    w.putc(';');
+    var num: [4]u8 = undefined;
+    const ns = std.fmt.bufPrint(&num, "{d}", .{d.out_w}) catch return;
+    for (0..d.out_w) |j| {
+        w.put(" v_");
+        w.put(o);
+        w.putc('[');
+        w.put(ns);
+        w.put("u * i");
+        if (j > 0) {
+            w.put(" + ");
+            w.putc("0123"[j]);
+            w.putc('u');
+        }
+        w.put("] = o_.");
+        w.putc("xyzw"[j]);
+        w.putc(';');
+    }
+}
+
+/// A neighbour read of input `name`: 0 (or a zero vector) outside its range.
+fn putRd(w: *Cursor, name: []const u8, width: u8) void {
+    if (width == 1) {
+        w.put("fn rd_");
+        w.put(name);
+        w.put("(k : i32) -> f32 {\n  if (k < 0 || u32(k) >= arrayLength(&v_");
+        w.put(name);
+        w.put(")) { return 0.0; }\n  return v_");
+        w.put(name);
+        w.put("[u32(k)];\n}\n");
+        return;
+    }
+    const ty = if (width == 2) "vec2<f32>" else if (width == 3) "vec3<f32>" else "vec4<f32>";
+    var num: [4]u8 = undefined;
+    const ns = std.fmt.bufPrint(&num, "{d}", .{width}) catch return;
+    w.put("fn rd_");
+    w.put(name);
+    w.put("(k : i32) -> ");
+    w.put(ty);
+    w.put(" {\n  if (k < 0 || u32(k) >= arrayLength(&v_");
+    w.put(name);
+    w.put(") / ");
+    w.put(ns);
+    w.put("u) { return ");
+    w.put(ty);
+    w.put("(0.0); }\n  let b = ");
+    w.put(ns);
+    w.put("u * u32(k);\n  return ");
+    w.put(ty);
+    w.put("(");
+    for (0..width) |j| {
+        if (j > 0) w.put(", ");
+        w.put("v_");
+        w.put(name);
+        w.put(if (j == 0) "[b" else "[b + ");
+        if (j > 0) {
+            w.putc("0123"[j]);
+            w.putc('u');
+        }
+        w.put("]");
+    }
+    w.put(");\n}\n");
+}
+
 fn usesRem(texts: []const []const u8) bool {
     for (texts) |t| {
         if (std.mem.indexOf(u8, t, "stz_rem(") != null) return true;
@@ -496,13 +586,7 @@ fn emitGroupKernel(w: *Cursor, d: *const Decl, rw: *const Rewriter, expr: []cons
     if (usesRem(&.{ expr, prelude, guard, gpre, items })) w.put(REM_WGSL);
     for (0..d.n_ins) |s| {
         if (!rw.used_rd[s]) continue;
-        w.put("fn rd_");
-        w.put(d.ins[s].slice());
-        w.put("(k : i32) -> f32 {\n  if (k < 0 || u32(k) >= arrayLength(&v_");
-        w.put(d.ins[s].slice());
-        w.put(")) { return 0.0; }\n  return v_");
-        w.put(d.ins[s].slice());
-        w.put("[u32(k)];\n}\n");
+        putRd(w, d.ins[s].slice(), d.in_w[s]);
     }
     for (0..d.n_shared) |s| {
         if (!rw.used_sh[s]) continue;
@@ -562,11 +646,9 @@ fn emitGroupKernel(w: *Cursor, d: *const Decl, rw: *const Rewriter, expr: []cons
         } else w.put("  if (i < p.n) {\n");
     }
     w.put(prelude);
-    w.put("    v_");
-    w.put(d.out_name.slice());
-    w.put("[i] = ");
-    w.put(expr);
-    w.put(";\n");
+    w.put("    ");
+    putStore(w, d, expr);
+    w.put("\n");
     if (!guard_none) w.put("  }\n");
     w.put("}\n");
     if (w.overflow) return fail("kernel too large for the output buffer", .{});
@@ -796,13 +878,7 @@ pub fn stz_gpu_wgsl_elementwise(spec: [*]const u8, spec_len: f64, out: [*]u8, ca
     if (usesRem(&.{ expr.items(), prelude.items(), guard.items(), gpre.items() })) put(&w, REM_WGSL);
     for (0..n_ins) |s| {
         if (!rw.used_rd[s]) continue;
-        put(&w, "fn rd_");
-        put(&w, ins[s].slice());
-        put(&w, "(k : i32) -> f32 {\n  if (k < 0 || u32(k) >= arrayLength(&v_");
-        put(&w, ins[s].slice());
-        put(&w, ")) { return 0.0; }\n  return v_");
-        put(&w, ins[s].slice());
-        put(&w, "[u32(k)];\n}\n");
+        putRd(&w, ins[s].slice(), d.in_w[s]);
     }
     put(&w, "@compute @workgroup_size(256)\n");
     put(&w, "fn main(@builtin(global_invocation_id) gid : vec3<u32>) {\n");
@@ -820,11 +896,9 @@ pub fn stz_gpu_wgsl_elementwise(spec: [*]const u8, spec_len: f64, out: [*]u8, ca
     }
     if (guard_kind == .default and prelude.len == 0) {
         // the form every kernel had before KP0, byte for byte
-        put(&w, "  if (i < p.n) { v_");
-        put(&w, out_name.slice());
-        put(&w, "[i] = ");
-        put(&w, expr.items());
-        put(&w, "; }\n}\n");
+        put(&w, "  if (i < p.n) { ");
+        putStore(&w, &d, expr.items());
+        put(&w, " }\n}\n");
     } else {
         // a guard line is the learner's: the params uniform may go unread, and
         // a kernel that never reads p gets a layout without binding 1 (GK6's
@@ -841,11 +915,9 @@ pub fn stz_gpu_wgsl_elementwise(spec: [*]const u8, spec_len: f64, out: [*]u8, ca
             .none => {},
         }
         put(&w, prelude.items());
-        put(&w, "    v_");
-        put(&w, out_name.slice());
-        put(&w, "[i] = ");
-        put(&w, expr.items());
-        put(&w, ";\n");
+        put(&w, "    ");
+        putStore(&w, &d, expr.items());
+        put(&w, "\n");
         if (guard_kind != .none) put(&w, "  }\n");
         put(&w, "}\n");
     }
@@ -1015,6 +1087,7 @@ fn ctorWidth(word: []const u8) u8 {
     return 0;
 }
 const MSG_VECNUM = "a vector stands where a number is needed: reduce it, with .x, dot(...) or length(...)";
+const MSG_OUTV = "the output '@{s}' holds vec{d}s: its value must be a vec{d}";
 const MSG_VECCMP = "a vector is not compared whole: compare a component (.x) or a length";
 const MSG_VECW = "vectors of two widths meet at '{s}'";
 const MSG_VECONE = "'{s}' takes values of one type: write vec{d}(x) to spread a number across a vector";
@@ -1258,6 +1331,12 @@ fn logicWordAt(s: []const u8, from: usize) ?[]const u8 {
     return if (isLogicWord(s[i..j])) s[i..j] else null;
 }
 const MSG_LOGIC = "'{s}' belongs to the guard line, not to a body";
+const MSG_CHAR = "character '{c}' is not part of the elementwise language";
+/// A character the language can write at all: a leftover one that is not is
+/// named as foreign, not as an unexpected token (both readers, the same words).
+fn exprChar(c: u8) bool {
+    return std.ascii.isAlphanumeric(c) or std.mem.indexOfScalar(u8, "@_.()[],+-*/%<>=! \t", c) != null;
+}
 
 fn isLogicWord(w: []const u8) bool {
     return std.ascii.eqlIgnoreCase(w, "and") or std.ascii.eqlIgnoreCase(w, "or");
@@ -1450,12 +1529,17 @@ const Rewriter = struct {
         if (c != 0) {
             if (c == '<' or c == '>' or c == '=' or c == '!') return fail(MSG_CMP, .{c});
             if (logicWordAt(self.s, self.i)) |w| return fail(MSG_LOGIC, .{w});
+            if (!exprChar(c)) return fail(MSG_CHAR, .{c});
             return fail("unexpected '{c}' after the expression", .{c});
         }
         return self.sinkW(tyOf(r), start, sink);
     }
 
     fn sinkW(self: *Rewriter, t: Ty, start: usize, sink: Sink) i32 {
+        if (sink == .body and self.d.out_w > 1) {
+            if (t != vecOf(self.d.out_w)) return fail(MSG_OUTV, .{ self.d.out_name.slice(), self.d.out_w, self.d.out_w });
+            return 0;
+        }
         if (isVec(t)) return fail(MSG_VECNUM, .{});
         switch (sink) {
             .body => {
@@ -1768,12 +1852,32 @@ const Rewriter = struct {
                 self.out.put("(i32(");
                 if (self.indexW(nm.slice()) < 0) return -1;
                 self.out.put("))");
+            } else if (self.d.in_w[idx] > 1) {
+                // GL0 (typed buffers): element i of a vecN input, its N floats
+                const wd = self.d.in_w[idx];
+                self.out.put(if (wd == 2) "vec2<f32>(" else if (wd == 3) "vec3<f32>(" else "vec4<f32>(");
+                for (0..wd) |jj| {
+                    if (jj > 0) self.out.put(", ");
+                    self.out.put("v_");
+                    self.out.put(nm.slice());
+                    self.out.putc('[');
+                    self.out.putc('0' + wd);
+                    self.out.put("u * i");
+                    if (jj > 0) {
+                        self.out.put(" + ");
+                        self.out.putc('0' + @as(u8, @intCast(jj)));
+                        self.out.putc('u');
+                    }
+                    self.out.putc(']');
+                }
+                self.out.putc(')');
             } else {
                 self.out.put("v_");
                 self.out.put(nm.slice());
                 self.out.put("[i]");
             }
             if (int) self.out.put(")");
+            if (self.d.in_w[idx] > 1) return tyR(vecOf(self.d.in_w[idx]));
             return tyR(if (int) .i else .f);
         }
         if (std.ascii.isAlphabetic(c) or c == '_') {
@@ -2172,6 +2276,8 @@ const Op = enum(u8) {
     // GL0 (vectors): the vector functions' names, and the vector ops
     f_dot, f_cross, f_normalize, f_reflect,
     splat, swz, vmap, v_dot, v_len, v_dist, v_norm, v_cross, v_refl,
+    // GL0 (typed buffers): a vecN input's own element, and a bounded read of one
+    k_inv, rdv,
 };
 
 const Fn = struct { name: []const u8, op: Op, arity: u8 };
@@ -2393,10 +2499,18 @@ fn compileInto(p: *Program, text: []const u8, d: *const Decl, where: Where, in_l
         const c = ps.peek();
         if (c == '<' or c == '>' or c == '=' or c == '!') return fail(MSG_CMP, .{c});
         if (logicWordAt(ps.s, ps.i)) |w| return fail(MSG_LOGIC, .{w});
+        if (!exprChar(c)) return fail(MSG_CHAR, .{c});
         return fail("unexpected '{c}' after the expression", .{c});
     }
     // GL0: where the value goes decides its type, as the rewriter's sinkW does
     const t = tyOf(r);
+    if (sink == .body and d.out_w > 1) {
+        if (t != vecOf(d.out_w)) return fail(MSG_OUTV, .{ d.out_name.slice(), d.out_w, d.out_w });
+        p.n_ins = d.n_ins;
+        p.n_scalars = d.n_scalars;
+        p.ready = true;
+        return if (ps.used_group) 1 else 0;
+    }
     if (isVec(t)) return fail(MSG_VECNUM, .{});
     switch (sink) {
         .body => {
@@ -2774,7 +2888,21 @@ const Parser = struct {
             };
             self.i = j;
             const vflag: u16 = if (self.d.in_int[idx]) INT_VAL else 0;
-            const t: Ty = if (self.d.in_int[idx]) .i else .f;
+            const t: Ty = if (self.d.in_w[idx] > 1) vecOf(self.d.in_w[idx]) else if (self.d.in_int[idx]) .i else .f;
+            if (self.d.in_w[idx] > 1) {
+                // GL0 (typed buffers): the width rides in the op's argument
+                const wa: u16 = @as(u16, @intCast(idx)) | (@as(u16, self.d.in_w[idx]) << 8);
+                if (self.peek() == '[') {
+                    const flag = self.index(nm.slice());
+                    if (flag < 0) return -1;
+                    if (self.emit(.rdv, wa | @as(u16, @intCast(flag))) < 0) return -1;
+                } else if (self.where == .stage or self.where == .accumulate) {
+                    if (self.emit(.k_index, 0) < 0) return -1;
+                    self.p.flops += 1;
+                    if (self.emit(.rdv, wa) < 0) return -1;
+                } else if (self.emit(.k_inv, wa) < 0) return -1;
+                return tyR(t);
+            }
             if (self.peek() != '[' and (self.where == .stage or self.where == .accumulate)) {
                 // a schedule item's own element is a bounded read, as the kernel's rd_ is
                 if (self.emit(.k_index, 0) < 0) return -1;
@@ -3072,6 +3200,8 @@ pub fn stz_gpu_spec_compile(spec: [*]const u8, spec_len: f64) callconv(.c) i32 {
         }
     }
     g_kp3.on = d.n_shared > 0 or d.n_items > 0 or d.width.len > 0 or used_group;
+    g_out_w = d.out_w;
+    for (0..MAX_VECS) |k| g_in_w[k] = d.in_w[k];
     g_prog.ready = true;
     return 0;
 }
@@ -3083,6 +3213,19 @@ pub fn stz_gpu_spec_eval_flops() callconv(.c) f64 {
 }
 
 /// Operations per element of the compiled spec (0 if none is compiled).
+/// GL0 (typed buffers): the floats per element of the output, and of input
+/// k, in the description compiled last -- so a host sizes its buffers from
+/// the engine's reading, never from its own parse of the declarations.
+var g_out_w: usize = 1;
+var g_in_w: [MAX_VECS]usize = @splat(1);
+pub fn stz_gpu_spec_out_width() callconv(.c) f64 {
+    return @floatFromInt(g_out_w);
+}
+pub fn stz_gpu_spec_in_width(k: i32) callconv(.c) f64 {
+    if (k < 0 or k >= MAX_VECS) return 1;
+    return @floatFromInt(g_in_w[@intCast(k)]);
+}
+
 pub fn stz_gpu_spec_flops() callconv(.c) f64 {
     return if (g_prog.ready) g_prog.flops else 0;
 }
@@ -3203,7 +3346,7 @@ fn applyF(op: Op, x: f32, y: f32, z: f32) f32 {
 }
 
 /// Run one program over element `i`. Returns the value, or null on a stack fault.
-fn runProgram(p: *const Program, th: *const Thread, ins: [*]const [*]const f32, lens: [*]const f64, scalars: [*]const f32, ops_out: *f64) ?f32 {
+fn runProgram(p: *const Program, th: *const Thread, ins: [*]const [*]const f32, lens: [*]const f64, scalars: [*]const f32, ops_out: *f64, res: ?[]f32) ?f32 {
     const i = th.i;
     const n = th.n;
     var st: [STACK]u32 = undefined;
@@ -3223,7 +3366,8 @@ fn runProgram(p: *const Program, th: *const Thread, ins: [*]const [*]const f32, 
             },
             .k_in => {
                 if (sp >= STACK) return null;
-                const x = ins[arg & ARG_MASK][i];
+                // bounded: a host that hands an input shorter than n reads 0, never past it
+                const x = if (i < @as(usize, @intFromFloat(lens[arg & ARG_MASK]))) ins[arg & ARG_MASK][i] else 0;
                 st[sp] = if (int) ib(toI32(x)) else fb(x);
                 sp += 1;
             },
@@ -3312,6 +3456,25 @@ fn runProgram(p: *const Program, th: *const Thread, ins: [*]const [*]const f32, 
                 ops += 1;
             },
             .w_else => next = p.jump[k],
+            .k_inv, .rdv => {
+                const which = arg & 0xFF & ARG_MASK & 0x0F;
+                const wd: usize = (arg >> 8) & 7;
+                var e: ?usize = i;
+                if (p.ops[k] == .k_inv and i >= @as(usize, @intFromFloat(lens[which])) / wd) e = null; // bounded, as k_in
+                if (p.ops[k] == .rdv) {
+                    if (sp < 1) return null;
+                    e = if (arg & INT_IDX != 0) iIndex(iv(st[sp - 1])) else toIndex(fv(st[sp - 1]));
+                    sp -= 1;
+                    const len: usize = @as(usize, @intFromFloat(lens[which])) / wd;
+                    if (e) |ex| {
+                        if (ex >= len) e = null;
+                    }
+                    ops += 1;
+                }
+                if (sp + wd > STACK) return null;
+                for (0..wd) |j2| st[sp + j2] = if (e) |ex| fb(ins[which][ex * wd + j2]) else 0;
+                sp += wd;
+            },
             .neg => {
                 if (sp < 1) return null;
                 st[sp - 1] = fb(-fv(st[sp - 1]));
@@ -3418,14 +3581,14 @@ fn runProgram(p: *const Program, th: *const Thread, ins: [*]const [*]const f32, 
                     from[q] = base;
                     base += if (spread[q]) 1 else nv;
                 }
-                var res: [4]f32 = undefined;
+                var vres: [4]f32 = undefined;
                 for (0..nv) |j2| {
                     var xs: [3]f32 = .{ 0, 0, 0 };
                     for (0..ar) |q| xs[q] = fv(st[from[q] + (if (spread[q]) 0 else j2)]);
-                    res[j2] = applyF(opf, xs[0], xs[1], xs[2]);
+                    vres[j2] = applyF(opf, xs[0], xs[1], xs[2]);
                 }
                 sp -= need;
-                for (0..nv) |j2| st[sp + j2] = fb(res[j2]);
+                for (0..nv) |j2| st[sp + j2] = fb(vres[j2]);
                 sp += nv;
                 ops += @floatFromInt(nv);
             },
@@ -3488,9 +3651,31 @@ fn runProgram(p: *const Program, th: *const Thread, ins: [*]const [*]const f32, 
         }
         k = next;
     }
+    if (res) |r| {
+        // GL0 (typed buffers): a vecN body leaves its N components
+        if (sp != r.len) return null;
+        for (r, 0..) |*x, j2| x.* = fv(st[j2]);
+        ops_out.* += ops;
+        return r[0];
+    }
     if (sp != 1) return null;
     ops_out.* += ops;
     return fv(st[0]);
+}
+
+/// GL0 (typed buffers): element i's value written at out[W*i ..], W the
+/// output's floats per element (1, or a vector's width).
+fn runBody(t: *const Thread, ins: [*]const [*]const f32, lens: [*]const f64, scalars: [*]const f32, out: [*]f32, i: usize) bool {
+    const w: usize = g_out_w;
+    if (w == 1) {
+        out[i] = runProgram(&g_prog, t, ins, lens, scalars, &g_eval_flops, null) orelse return false;
+        return true;
+    }
+    _ = runProgram(&g_prog, t, ins, lens, scalars, &g_eval_flops, out[w * i .. w * i + w]) orelse return false;
+    return true;
+}
+fn unwritten(out: [*]f32, i: usize) void {
+    for (0..g_out_w) |j| out[g_out_w * i + j] = std.math.nan(f32);
 }
 
 /// Evaluate the compiled spec over `n` elements: `ins` points at n_ins arrays,
@@ -3519,14 +3704,14 @@ pub fn stz_gpu_spec_eval_masked(ins: [*]const [*]const f32, n_ins: i32, lens: [*
     while (i < n) : (i += 1) {
         const t = Thread{ .i = i, .n = n };
         if (g_guard_kind == .custom) {
-            const g = runProgram(&g_guard, &t, ins, lens, scalars, &g_eval_flops) orelse return -1;
+            const g = runProgram(&g_guard, &t, ins, lens, scalars, &g_eval_flops, null) orelse return -1;
             if (g == 0) {
-                out[i] = std.math.nan(f32);
+                unwritten(out, i);
                 if (mask) |m| m[i] = 0;
                 continue;
             }
         }
-        out[i] = runProgram(&g_prog, &t, ins, lens, scalars, &g_eval_flops) orelse return -1;
+        if (!runBody(&t, ins, lens, scalars, out, i)) return -1;
         if (mask) |m| m[i] = 1;
     }
     return 0;
@@ -3553,8 +3738,8 @@ fn runItem(k: usize, g: usize, n: usize, width: usize, tile: f32, ins: [*]const 
                 var t = threadAt(g, l, n, width);
                 t.acc = g_acc[l];
                 t.tile = tile;
-                g_tmp_ix[l] = runProgram(&g_item_idx[k], &t, ins, lens, scalars, &g_eval_flops) orelse return false;
-                g_tmp_v[l] = runProgram(&g_item_val[k], &t, ins, lens, scalars, &g_eval_flops) orelse return false;
+                g_tmp_ix[l] = runProgram(&g_item_idx[k], &t, ins, lens, scalars, &g_eval_flops, null) orelse return false;
+                g_tmp_v[l] = runProgram(&g_item_val[k], &t, ins, lens, scalars, &g_eval_flops, null) orelse return false;
             }
             const s = g_kp3.shared_of[k];
             if (g_san) @memset(g_san_writer[0..g_kp3.sizes[s]], NOBODY);
@@ -3608,7 +3793,7 @@ fn runItem(k: usize, g: usize, n: usize, width: usize, tile: f32, ins: [*]const 
                 var t = threadAt(g, l, n, width);
                 t.acc = g_acc[l];
                 t.tile = tile;
-                g_tmp_v[l] = runProgram(&g_item_val[k], &t, ins, lens, scalars, &g_eval_flops) orelse return false;
+                g_tmp_v[l] = runProgram(&g_item_val[k], &t, ins, lens, scalars, &g_eval_flops, null) orelse return false;
             }
             for (0..GROUP) |l| g_acc[l] = g_tmp_v[l];
         },
@@ -3649,7 +3834,7 @@ fn evalGroups(ins: [*]const [*]const f32, lens: [*]const f64, scalars: [*]const 
         }
         if (g_kp3.has_tiles) {
             const t0 = Thread{ .i = 0, .n = n };
-            const cf = runProgram(&g_count, &t0, ins, lens, scalars, &g_eval_flops) orelse return -1;
+            const cf = runProgram(&g_count, &t0, ins, lens, scalars, &g_eval_flops, null) orelse return -1;
             const cnt: usize = if (toIndex(cf)) |c| c else 0;
             for (0..cnt) |tv| {
                 for (g_kp3.loop_from..g_kp3.n_items) |k| {
@@ -3664,16 +3849,16 @@ fn evalGroups(ins: [*]const [*]const f32, lens: [*]const f64, scalars: [*]const 
             if (g_guard_kind == .custom) {
                 g_san_line = g_kp3.guard_line;
                 g_san_where = .guard;
-                const gv = runProgram(&g_guard, &t, ins, lens, scalars, &g_eval_flops) orelse return -1;
+                const gv = runProgram(&g_guard, &t, ins, lens, scalars, &g_eval_flops, null) orelse return -1;
                 if (gv == 0) {
-                    out[t.i] = std.math.nan(f32);
+                    unwritten(out, t.i);
                     if (mask) |m| m[t.i] = 0;
                     continue;
                 }
             }
             g_san_line = g_kp3.body_line;
             g_san_where = .body;
-            out[t.i] = runProgram(&g_prog, &t, ins, lens, scalars, &g_eval_flops) orelse return -1;
+            if (!runBody(&t, ins, lens, scalars, out, t.i)) return -1;
             if (mask) |m| m[t.i] = 1;
         }
     }
@@ -4754,6 +4939,87 @@ test "GL0 vectors: the refusals, in one reader's words and the other's" {
             std.debug.print("\nthe interpreter admitted: {s}\n", .{c.spec});
             return error.Admitted;
         }
+        const el2 = stz_gpu_wgsl_error(&e, e.len);
+        if (!std.mem.eql(u8, e1[0..@intCast(el1)], e[0..@intCast(el2)]) or std.mem.indexOf(u8, e[0..@intCast(el2)], c.words) == null) {
+            std.debug.print("\n{s}\n  transpiler:  {s}\n  interpreter: {s}\n", .{ c.spec, e1[0..@intCast(el1)], e[0..@intCast(el2)] });
+            return error.WrongWords;
+        }
+    }
+}
+
+fn evalMasked(spec: []const u8, cols: []const []const f32, n: usize, out: []f32, mask: []u8) !void {
+    if (stz_gpu_spec_compile(spec.ptr, @floatFromInt(spec.len)) != 0) {
+        var e: [256]u8 = undefined;
+        const el = stz_gpu_wgsl_error(&e, e.len);
+        std.debug.print("\n{s}\n  -> {s}\n", .{ spec, e[0..@intCast(el)] });
+        return error.Refused;
+    }
+    var ins: [4][*]const f32 = undefined;
+    var lens: [4]f64 = undefined;
+    for (cols, 0..) |c, k| {
+        ins[k] = c.ptr;
+        lens[k] = @floatFromInt(c.len);
+    }
+    const sc = [_]f32{0};
+    if (stz_gpu_spec_eval_masked(&ins, @intCast(cols.len), &lens, &sc, 0, @floatFromInt(n), out.ptr, mask.ptr) != 0) return error.EvalFailed;
+}
+
+test "GL0 typed buffers: a vecN input or output holds N floats per element, packed" {
+    var mask: [8]u8 = undefined;
+    // a vec3 input: element i is floats 3i .. 3i + 2
+    const ln = "in p vec3\nout c\nbody { @c = length(@p) }";
+    try wgslHas(ln, "v_c[i] = length(vec3<f32>(v_p[3u * i], v_p[3u * i + 1u], v_p[3u * i + 2u]));");
+    var o3: [3]f32 = undefined;
+    try evalMasked(ln, &.{&.{ 3, 4, 0, 0, 0, 0, 1, 2, 2 }}, 3, &o3, &mask);
+    try std.testing.expectEqualSlices(f32, &.{ 5, 0, 3 }, &o3);
+    try std.testing.expectEqual(@as(f64, 3), stz_gpu_spec_in_width(0));
+    try std.testing.expectEqual(@as(f64, 1), stz_gpu_spec_out_width());
+    // a vec2 output: element i stored at floats 2i and 2i + 1
+    const rot = "in p vec2\nout q vec2\nbody { @q = vec2(-@p.y, @p.x) }";
+    try wgslHas(rot, "let o_ = vec2<f32>(-vec2<f32>(v_p[2u * i], v_p[2u * i + 1u]).y, vec2<f32>(v_p[2u * i], v_p[2u * i + 1u]).x); v_q[2u * i] = o_.x; v_q[2u * i + 1u] = o_.y; }");
+    var o4: [4]f32 = undefined;
+    try evalMasked(rot, &.{&.{ 1, 2, 3, 4 }}, 2, &o4, &mask);
+    try std.testing.expectEqualSlices(f32, &.{ -2, 1, -4, 3 }, &o4);
+    try std.testing.expectEqual(@as(f64, 2), stz_gpu_spec_out_width());
+    // a neighbour of a vec2 input: a zero vector outside its elements
+    const nb = "in p vec2\nout c\nbody { @c = @p[@i + 1].x + @p[@i - 1].y }";
+    try wgslHas(nb, "fn rd_p(k : i32) -> vec2<f32> {\n  if (k < 0 || u32(k) >= arrayLength(&v_p) / 2u) { return vec2<f32>(0.0); }\n  let b = 2u * u32(k);\n  return vec2<f32>(v_p[b], v_p[b + 1u]);\n}\n");
+    try evalMasked(nb, &.{&.{ 1, 2, 3, 4, 5, 6 }}, 3, &o3, &mask);
+    try std.testing.expectEqualSlices(f32, &.{ 3, 7, 4 }, &o3);
+    // a guard over a vector output: an element left unwritten is N NaNs, one mask byte
+    const gd = "in p vec2\nout q vec2\nguard { @i < n and @p.x > 2 }\nbody { @q = @p * 2 }";
+    try evalMasked(gd, &.{&.{ 1, 2, 3, 4 }}, 2, &o4, &mask);
+    try std.testing.expect(o4[0] != o4[0] and o4[1] != o4[1]);
+    try std.testing.expectEqualSlices(f32, &.{ 6, 8 }, o4[2..4]);
+    try std.testing.expectEqualSlices(u8, &.{ 0, 1 }, mask[0..2]);
+    // a stage reads a vector input's own element through the bounded read
+    const st = "in p vec2\nout c\nshared t 256\nstage { @t[@l] = @p.x + @p.y }\nbody { @c = @t[255 - @l] }";
+    var big: [512]f32 = undefined;
+    for (&big, 0..) |*v, k| v.* = @floatFromInt(k);
+    var o256: [256]f32 = undefined;
+    var m256: [256]u8 = undefined;
+    try evalMasked(st, &.{&big}, 256, &o256, &m256);
+    try std.testing.expectEqual(@as(f32, 510 + 511), o256[0]);
+    try std.testing.expectEqual(@as(f32, 0 + 1), o256[255]);
+}
+
+test "GL0 typed buffers: the refusals, in one reader's words and the other's" {
+    var buf: [8192]u8 = undefined;
+    const Case = struct { spec: []const u8, words: []const u8 };
+    const refused = [_]Case{
+        .{ .spec = "in p vec2\nout q vec2\nbody { @q = 1 }", .words = "the output '@q' holds vec2s: its value must be a vec2" },
+        .{ .spec = "in p vec2\nout q vec3\nbody { @q = @p }", .words = "the output '@q' holds vec3s: its value must be a vec3" },
+        .{ .spec = "in p vec2\nout c\nbody { @c = @p }", .words = "a vector stands where a number is needed" },
+        .{ .spec = "in p vec2\nscalar s vec2\nout c\nbody { @c = 1 }", .words = "a scalar is one number" },
+        .{ .spec = "in p vec5\nout c\nbody { @c = 1 }", .words = "'vec5' is not a type" },
+    };
+    for (refused) |c| {
+        var e: [256]u8 = undefined;
+        if (stz_gpu_wgsl_elementwise(c.spec.ptr, @floatFromInt(c.spec.len), &buf, buf.len) != -1) return error.Admitted;
+        const el1 = stz_gpu_wgsl_error(&e, e.len);
+        var e1: [256]u8 = undefined;
+        @memcpy(e1[0..@intCast(el1)], e[0..@intCast(el1)]);
+        if (stz_gpu_spec_compile(c.spec.ptr, @floatFromInt(c.spec.len)) != -1) return error.Admitted;
         const el2 = stz_gpu_wgsl_error(&e, e.len);
         if (!std.mem.eql(u8, e1[0..@intCast(el1)], e[0..@intCast(el2)]) or std.mem.indexOf(u8, e[0..@intCast(el2)], c.words) == null) {
             std.debug.print("\n{s}\n  transpiler:  {s}\n  interpreter: {s}\n", .{ c.spec, e1[0..@intCast(el1)], e[0..@intCast(el2)] });

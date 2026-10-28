@@ -804,10 +804,17 @@ const Compare = struct { maxabs: f64, first_bad: i64 };
 /// and that is the first bad element. A written element follows the band's
 /// rule, NaN agreeing with nothing.
 fn compareMasked(ref: []const f32, cand: []const f32, mask: []const u8, band: f64) Compare {
+    return compareMaskedW(ref, cand, mask, band, 1);
+}
+
+/// GL0 (typed buffers): w floats per element, one mask byte per element; the
+/// first bad one is named as an ELEMENT, the unit a learner wrote.
+fn compareMaskedW(ref: []const f32, cand: []const f32, mask: []const u8, band: f64, w: usize) Compare {
     var maxabs: f64 = 0;
     var first_bad: i64 = -1;
-    for (ref, cand, mask, 0..) |x, y, m, i| {
-        if (m == 0) {
+    for (ref, cand, 0..) |x, y, k| {
+        const i = k / w;
+        if (mask[i] == 0) {
             if (y == y and first_bad < 0) first_bad = @intCast(i); // written where unwritten was owed
             continue;
         }
@@ -1042,8 +1049,9 @@ fn checkSpecShape(kcand: i64, params: []const u8, ids: []const i64, n: usize, wx
     for (0..@min(n_scal, wgsl.MAX_SCALARS)) |k| {
         scal[k] = @bitCast(std.mem.readInt(u32, params[8 + k * 4 ..][0..4], .little));
     }
-    // the REFERENCE: the spec, on the CPU, timed
-    const ref = alloc.alloc(f32, n) catch return null;
+    // the REFERENCE: the spec, on the CPU, timed. GL0: w floats per element
+    const w: usize = @intFromFloat(wgsl.stz_gpu_spec_out_width());
+    const ref = alloc.alloc(f32, n * w) catch return null;
     defer alloc.free(ref);
     const mask = alloc.alloc(u8, n) catch return null;
     defer alloc.free(mask);
@@ -1052,7 +1060,7 @@ fn checkSpecShape(kcand: i64, params: []const u8, ids: []const i64, n: usize, wx
     const cpu_ms = @as(f64, @floatFromInt(t.read())) / 1e6;
     const flops = wgsl.stz_gpu_spec_eval_flops();
     // the candidate's region and margin, NaN before it runs
-    const total = n + MARGIN;
+    const total = n * w + MARGIN;
     const cand = alloc.alloc(f32, total) catch return null;
     defer alloc.free(cand);
     @memset(cand, std.math.nan(f32));
@@ -1062,13 +1070,13 @@ fn checkSpecShape(kcand: i64, params: []const u8, ids: []const i64, n: usize, wx
     if (!readF32(ids[n_in], cand)) return null;
     // the margin: anything that is not NaN was written past the region
     var outside: i64 = -1;
-    for (cand[n..total], 0..) |x, k| {
+    for (cand[n * w .. total], 0..) |x, k| {
         if (x == x) {
-            outside = @intCast(n + k);
+            outside = @intCast(n + k / w);
             break;
         }
     }
-    const cmp = compareMasked(ref, cand[0..n], mask, band);
+    const cmp = compareMaskedW(ref, cand[0 .. n * w], mask, band, w);
     result[slot_maxabs] = cmp.maxabs;
     return .{ .outside = outside, .cmp = cmp, .cpu_ms = cpu_ms, .flops = flops };
 }
@@ -1137,7 +1145,10 @@ pub fn stz_gpu_verify_spec(
     for ([_]struct { ids: []const i64, n: usize, name: []const u8 }{ .{ .ids = ia, .n = na, .name = "visible" }, .{ .ids = ib, .n = nb, .name = "hidden" } }) |sh| {
         for (sh.ids, 0..) |id, k| {
             const have = gpu.rawBufferSize(id) / 4;
-            const need = if (k == sh.ids.len - 1) sh.n + MARGIN else sh.n;
+            // GL0: a vecN input or output holds N floats per element
+            const out_w: usize = @intFromFloat(wgsl.stz_gpu_spec_out_width());
+            const in_w: usize = @intFromFloat(wgsl.stz_gpu_spec_in_width(@intCast(k)));
+            const need = if (k == sh.ids.len - 1) sh.n * out_w + MARGIN else sh.n * in_w;
             if (have < need) {
                 verr("shape: the {s} shape declares n = {d} but buffer {d} holds {d} floats and needs {d}{s}", .{ sh.name, sh.n, k, have, need, if (k == sh.ids.len - 1) " (n plus the NaN margin)" else "" });
                 return gpu.BAD_ARG;

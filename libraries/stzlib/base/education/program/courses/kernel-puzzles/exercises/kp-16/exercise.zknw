@@ -1,0 +1,20 @@
+knowledge "kp-16"
+
+facts
+    kp-16 | is-a | exercise
+    kp-16 | in-course | kernel-puzzles
+    kp-16 | in-chapter | the-vector
+    kp-16 | puzzle-number | 16
+    kp-16 | teaches | a-buffer-of-vectors-in-and-out
+    kp-16 | starts | red
+
+    kp-16 | elements | 4000
+    kp-16 | input-p | tenths
+    kp-16 | scalar-c | 0.6
+    kp-16 | scalar-s | 0.8
+    kp-16 | band | 0.00001
+
+    kp-16 | has-mistake | 02-the-other-way
+    kp-16 | has-mistake | 03-the-components-crossed
+    kp-16 | has-mistake | 04-y-forgotten
+    kp-16 | has-mistake | 05-a-number-for-a-point

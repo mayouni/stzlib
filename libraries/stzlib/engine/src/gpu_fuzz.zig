@@ -48,17 +48,18 @@ pub const K_GROUP: u8 = 4; // shared arrays, stages, reductions
 pub const K_TILES: u8 = 5; // tiles, accumulate, width
 pub const K_INT: u8 = 6; // GL0: ints -- declared, wrapping, divided by zero, converted
 pub const K_VEC: u8 = 7; // GL0: vectors -- built, swizzled, spread, combined, reduced
-pub const KINDS: usize = 8;
+pub const K_VIO: u8 = 8; // GL0: typed buffers -- vector inputs and outputs, N floats per element
+pub const KINDS: usize = 9;
 /// The mask bit of kind k. Bits 6 to 8 are the controls, so the int kind
 /// takes bit 9: a mask written before GL0 (63) asks for the six it always meant.
 pub fn kindBit(k: usize) u32 {
     return if (k < 6) @as(u32, 1) << @intCast(k) else @as(u32, 1) << @intCast(k + 3);
 }
 fn genSlot(k: usize) usize {
-    return if (k < 6) R_GEN_KIND + k else if (k == K_INT) R_GEN_INT else R_GEN_VEC;
+    return if (k < 6) R_GEN_KIND + k else if (k == K_INT) R_GEN_INT else if (k == K_VEC) R_GEN_VEC else R_GEN_VIO;
 }
 fn badSlot(k: usize) usize {
-    return if (k < 6) R_BAD_KIND + k else if (k == K_INT) R_BAD_INT else R_BAD_VEC;
+    return if (k < 6) R_BAD_KIND + k else if (k == K_INT) R_BAD_INT else if (k == K_VEC) R_BAD_VEC else R_BAD_VIO;
 }
 /// mask bit 6: MUTATE -- the run's own control. Each kernel's WGSL gets its
 /// first ' + ' in the stored expression turned into ' - ' (a kernel with none
@@ -115,7 +116,9 @@ pub const R_GEN_INT = 40; // GL0: int cases generated
 pub const R_BAD_INT = 41; // ... and defective
 pub const R_GEN_VEC = 42; // GL0: vector cases generated
 pub const R_BAD_VEC = 43; // ... and defective
-pub const R_SLOTS = 44;
+pub const R_GEN_VIO = 44; // GL0: typed-buffer cases generated
+pub const R_BAD_VIO = 45; // ... and defective
+pub const R_SLOTS = 46;
 
 var result: [R_SLOTS]f64 = @splat(0);
 var first_buf: [SPEC_CAP + 256]u8 = undefined;
@@ -186,6 +189,8 @@ pub const Case = struct {
     sc: [MAX_SC]f32 = @splat(0),
     sc_name: [MAX_SC][]const u8 = @splat(""),
     in_int: [MAX_IN]bool = @splat(false), // GL0: an int input gets whole numbers
+    in_w: [MAX_IN]u8 = @splat(1), // GL0: floats per element of each input
+    out_w: u8 = 1,
     data_seed: u64 = 0,
 
     pub fn text(self: *const Case) []const u8 {
@@ -230,9 +235,12 @@ const Gen = struct {
         while (guard < 64) : (guard += 1) {
             switch (self.pick(11)) {
                 0, 1 => if (cx.elem and self.c.n_ins > 0) {
-                    self.w.s("@");
-                    self.w.s(IN_NAMES[self.pick(self.c.n_ins)]);
-                    return;
+                    const k = self.pick(self.c.n_ins);
+                    if (self.c.in_w[k] == 1) {
+                        self.w.s("@");
+                        self.w.s(IN_NAMES[k]);
+                        return;
+                    }
                 },
                 2 => if (self.c.n_sc > 0) {
                     self.w.s(self.c.sc_name[self.pick(self.c.n_sc)]);
@@ -715,6 +723,28 @@ const Gen = struct {
         self.w.s(")");
     }
     fn vatom(self: *Gen, n: u8, cx: Ctx) void {
+        // only a case with a vector input draws here, so the vector kind's
+        // cases stay the ones it always generated
+        var vin = false;
+        for (0..self.c.n_ins) |k| vin = vin or self.c.in_w[k] > 1;
+        if (vin and self.chance(40)) {
+            for (0..self.c.n_ins) |k| {
+                const wk = self.c.in_w[k];
+                if (wk == n) {
+                    switch (self.pick(3)) {
+                        0 => self.w.f("@{s}", .{IN_NAMES[k]}),
+                        1 => self.w.f("@{s}[@i + {d}]", .{ IN_NAMES[k], self.int(1, 3) }),
+                        else => self.w.f("@{s}[@i - 1]", .{IN_NAMES[k]}),
+                    }
+                    return;
+                }
+                if (wk > n) {
+                    const SW = [_][]const u8{ "", "", ".yx", ".zxy" };
+                    self.w.f("@{s}{s}", .{ IN_NAMES[k], SW[n] });
+                    return;
+                }
+            }
+        }
         // a vec4 has no wider vector to swizzle from: it takes the other forms
         switch (if (n == 4) ([_]usize{ 0, 2, 3 })[self.pick(3)] else self.pick(4)) {
             0 => {
@@ -1014,6 +1044,41 @@ pub fn generate(seed: u64, index: u64, kind: u8, c: *Case) void {
                 w.s("body { @res = @acc }\n");
             }
         },
+        K_VIO => {
+            // a, a number; b and maybe x, vectors; the output a vector or a number
+            c.n_ins = g.int(2, MAX_IN);
+            c.in_w[0] = 1;
+            for (1..c.n_ins) |k| c.in_w[k] = @intCast(g.int(2, 4));
+            c.n = g.pickN();
+            for (0..c.n_ins) |k| {
+                w.f("in {s}{s}\n", .{ IN_NAMES[k], switch (c.in_w[k]) {
+                    2 => " vec2",
+                    3 => " vec3",
+                    4 => " vec4",
+                    else => "",
+                } });
+                // a neighbour read may reach past n: some inputs are longer
+                const extra: usize = if (g.chance(30)) g.int(1, 20) else 0;
+                c.in_len[k] = (c.n + extra) * c.in_w[k];
+            }
+            c.out_w = if (g.chance(30)) 1 else @intCast(g.int(2, 4));
+            w.s(switch (c.out_w) {
+                2 => "out res vec2\n",
+                3 => "out res vec3\n",
+                4 => "out res vec4\n",
+                else => "out res\n",
+            });
+            const cx = Ctx{};
+            g.muls = 0;
+            if (g.chance(15)) {
+                w.s("guard { @i < n and (");
+                g.cond(0, cx);
+                w.s(") }\n");
+            }
+            w.s("body { @res = ");
+            if (c.out_w == 1) g.vreduce(cx) else g.vexpr(c.out_w, 3, cx);
+            w.s(" }\n");
+        },
         K_VEC => {
             g.declare(g.int(1, MAX_IN), g.int(0, MAX_SC));
             c.n = g.pickN();
@@ -1132,7 +1197,9 @@ fn runCase(index: u64, c: *const Case, kernel: i64, rel: f64) void {
     fillInputs(c, &host);
 
     // the interpreter
-    const ref = alloc.alloc(f32, c.n) catch return;
+    // GL0 (typed buffers): w floats per element of the output, one mask byte per element
+    const ow: usize = @intFromFloat(wgsl.stz_gpu_spec_out_width());
+    const ref = alloc.alloc(f32, c.n * ow) catch return;
     defer alloc.free(ref);
     const mask = alloc.alloc(u8, c.n) catch return;
     defer alloc.free(mask);
@@ -1170,7 +1237,7 @@ fn runCase(index: u64, c: *const Case, kernel: i64, rel: f64) void {
             return;
         }
     }
-    const total = c.n + MARGIN;
+    const total = c.n * ow + MARGIN;
     const cand = alloc.alloc(f32, total) catch return;
     defer alloc.free(cand);
     @memset(cand, std.math.nan(f32));
@@ -1196,26 +1263,29 @@ fn runCase(index: u64, c: *const Case, kernel: i64, rel: f64) void {
     if (c.exact) result[R_EXACT] += 1 else result[R_INEXACT] += 1;
 
     // the margin: anything that is not NaN was written past the region
-    for (cand[c.n..total], 0..) |x, k| {
+    for (cand[c.n * ow .. total], 0..) |x, k| {
         if (x == x) {
-            bad(index, c, R_WRITE_OUTSIDE, "stored past the output region", @intCast(c.n + k));
+            bad(index, c, R_WRITE_OUTSIDE, "stored past the output region", @intCast(c.n + k / ow));
             return;
         }
     }
     var worst: f64 = 0;
     var nonfinite = false;
     g_written = 0;
-    for (ref, cand[0..c.n], mask, 0..) |x, y, m, i| {
-        result[R_ELEMENTS] += 1;
+    for (ref, cand[0 .. c.n * ow], 0..) |x, y, kf| {
+        const i = kf / ow;
+        const m = mask[i];
+        const first = kf % ow == 0;
+        if (first) result[R_ELEMENTS] += 1;
         if (m == 0) {
-            result[R_UNWRITTEN] += 1;
+            if (first) result[R_UNWRITTEN] += 1;
             if (y == y) {
                 bad(index, c, R_WRITE_OUTSIDE, "stored where the guard left the element unwritten", @intCast(i));
                 return;
             }
             continue;
         }
-        g_written += 1;
+        if (first) g_written += 1;
         if (!std.math.isFinite(x)) {
             nonfinite = true;
             continue;
@@ -1243,8 +1313,12 @@ fn runCase(index: u64, c: *const Case, kernel: i64, rel: f64) void {
 
 /// The control's one wrong operator: the first ' + ' after the output's
 /// store, in place. False when the stored expression has none.
+fn storeAt(w: []const u8) ?usize {
+    return std.mem.indexOf(u8, w, "v_res[i] = ") orelse std.mem.indexOf(u8, w, "let o_ = ");
+}
+
 fn mutateWgsl(w: []u8) bool {
-    const store = std.mem.indexOf(u8, w, "v_res[i] = ") orelse return false;
+    const store = storeAt(w) orelse return false;
     const end = std.mem.indexOfScalarPos(u8, w, store, ';') orelse return false;
     const plus = std.mem.indexOf(u8, w[store..end], " + ") orelse return false;
     w[store + plus + 1] = '-';
@@ -1255,7 +1329,7 @@ fn mutateWgsl(w: []u8) bool {
 /// gets its two values exchanged, in place (the rewriter writes
 /// select((f), (t), (c)), so the two spans are bracketed). False with none.
 fn swapSelect(w: []u8) bool {
-    const store = std.mem.indexOf(u8, w, "v_res[i] = ") orelse return false;
+    const store = storeAt(w) orelse return false;
     const end = std.mem.indexOfScalarPos(u8, w, store, ';') orelse return false;
     const at = std.mem.indexOf(u8, w[store..end], "select(") orelse return false;
     const a0 = store + at + 7;

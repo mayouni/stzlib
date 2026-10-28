@@ -141,6 +141,8 @@ class stzGpu from stzObject
 		if NOT isList(paNumbers) or len(paNumbers) = 0
 			StzRaise("UploadQ: give me a non-empty list of numbers.")
 		ok
+		# GL0 (typed buffers): rows of numbers (one per vector element) travel flat
+		paNumbers = _StzKernelFlat(paNumbers)
 		_nId_ = StzEngineGpuBufferNew(ring_len(paNumbers) * 4)
 		if _nId_ = 0
 			StzRaise("UploadQ: no device buffer (" + StzEngineGpuLastError() + ")")
@@ -214,6 +216,7 @@ class stzGpu from stzObject
 					"' is missing from the bindings (give [ :" +
 					_aNames_[_i_] + " = aNumbers ]).")
 			ok
+			_v_ = _StzKernelRows(_v_, poKernel.InputWidth(_aNames_[_i_])) # GL0: rows, one per element
 			if _nElems_ = 0
 				_nElems_ = ring_len(_v_)
 			ok
@@ -223,6 +226,7 @@ class stzGpu from stzObject
 		if isNumber(_nOptN_) and _nOptN_ > 0
 			_nElems_ = _nOptN_
 		ok
+		_nOutW_ = poKernel.OutputWidth()
 		# an input may be LONGER than n (KP0: a stencil or a sum reads it by its
 		# own length), never shorter: the kernel would read past it
 		for _i_ = 1 to _nIn_
@@ -242,7 +246,7 @@ class stzGpu from stzObject
 		# upload inputs (temporaries), make the resident output
 		_aIds_ = []
 		for _i_ = 1 to _nIn_
-			_nId_ = StzEngineGpuBufferNew(ring_len(_aVecs_[_i_]) * 4)
+			_nId_ = StzEngineGpuBufferNew(ring_len(_aVecs_[_i_]) * poKernel.InputWidth(_aNames_[_i_]) * 4)
 			_bOk_ = _nId_ > 0
 			if _bOk_
 				_bOk_ = StzEngineGpuBufferUploadList(_nId_, _aVecs_[_i_]) = 0
@@ -253,7 +257,7 @@ class stzGpu from stzObject
 			ok
 			_aIds_ + _nId_
 		next
-		_nOut_ = StzEngineGpuBufferNew(_nElems_ * 4)
+		_nOut_ = StzEngineGpuBufferNew(_nElems_ * _nOutW_ * 4)
 		if _nOut_ = 0
 			_FreeIds(_aIds_)
 			StzRaise("RunQ: no device buffer for the result.")
@@ -271,7 +275,7 @@ class stzGpu from stzObject
 			StzEngineGpuBufferFree(_nOut_)
 			StzRaise("RunQ: dispatch refused (status " + _nSt_ + ").")
 		ok
-		return new stzGpuBuffer([_nOut_, _nElems_])
+		return new stzGpuBuffer([_nOut_, _nElems_ * _nOutW_])
 
 	# Runs a multi-input kernel over buffers that are already resident, with no transfer, and returns the result as a new resident buffer.
 	#
@@ -297,11 +301,13 @@ class stzGpu from stzObject
 				StzRaise("ApplyOnQ: '" + _aNames_[_i_] +
 					"' must be bound to an stzGpuBuffer.")
 			ok
+			# GL0 (typed buffers): a buffer counts floats; an element of a vecN input is N of them
+			_nE_ = floor(_o_.Count() / poKernel.InputWidth(_aNames_[_i_]))
 			if _nElems_ = 0
-				_nElems_ = _o_.Count()
-			but _o_.Count() != _nElems_
+				_nElems_ = _nE_
+			but _nE_ != _nElems_
 				StzRaise("ApplyOnQ: buffer lengths disagree (" +
-					_o_.Count() + " vs " + _nElems_ + ").")
+					_nE_ + " vs " + _nElems_ + " elements).")
 			ok
 			_aIds_ + _o_.Id_()
 		next
@@ -311,7 +317,8 @@ class stzGpu from stzObject
 		if _nK_ = 0
 			StzRaise("ApplyOnQ: the kernel refused to compile: " + StzEngineGpuFirstError())
 		ok
-		_nOut_ = StzEngineGpuBufferNew(_nElems_ * 4)
+		_nOutW_ = poKernel.OutputWidth()
+		_nOut_ = StzEngineGpuBufferNew(_nElems_ * _nOutW_ * 4)
 		if _nOut_ = 0
 			StzRaise("ApplyOnQ: no device buffer for the result.")
 		ok
@@ -322,7 +329,7 @@ class stzGpu from stzObject
 			StzEngineGpuBufferFree(_nOut_)
 			StzRaise("ApplyOnQ: dispatch refused (status " + _nSt_ + ").")
 		ok
-		return new stzGpuBuffer([_nOut_, _nElems_])
+		return new stzGpuBuffer([_nOut_, _nElems_ * _nOutW_])
 
 	# Measures where the GPU starts to beat the CPU on this machine for pairwise distances, stores the crossover and saves it.
 	#
@@ -600,11 +607,14 @@ class stzGpu from stzObject
 			if NOT isList(_v_) or ring_len(_v_) = 0
 				StzRaise("VerifySpec: vector '" + _aNames_[_i_] + "' is missing from the bindings.")
 			ok
+			# GL0 (typed buffers): an input of vectors as rows, so n and the hidden tail count elements
+			_v_ = _StzKernelRows(_v_, poRef.InputWidth(_aNames_[_i_]))
 			if _nA_ = 0
 				_nA_ = ring_len(_v_)
 			ok
 			_aVecs_ + _v_
 		next
+		_nOutW_ = poRef.OutputWidth()
 		_nOptN_ = _BindingValue(paOptions, "n")
 		if isNumber(_nOptN_) and _nOptN_ > 0
 			_nA_ = _nOptN_
@@ -630,7 +640,7 @@ class stzGpu from stzObject
 				StzRaise("VerifySpec: :hidden needs [ :n = count, :bindings = [ ... ] ].")
 			ok
 			for _i_ = 1 to _nIn_
-				_v_ = _BindingValue(_aHB_, _aNames_[_i_])
+				_v_ = _StzKernelRows(_BindingValue(_aHB_, _aNames_[_i_]), poRef.InputWidth(_aNames_[_i_]))
 				if NOT isList(_v_) or ring_len(_v_) < _nHidN_
 					StzRaise("VerifySpec: hidden vector '" + _aNames_[_i_] + "' is missing or holds fewer than the hidden n = " + _nHidN_ + " elements.")
 				ok
@@ -663,7 +673,8 @@ class stzGpu from stzObject
 		_aIdsB_ = []
 		for _i_ = 1 to _nIn_
 			_nLen_ = ring_len(_aVecs_[_i_])
-			_nId_ = StzEngineGpuBufferNew(_nLen_ * 4)
+			_nInW_ = poRef.InputWidth(_aNames_[_i_])
+			_nId_ = StzEngineGpuBufferNew(_nLen_ * _nInW_ * 4)
 			if _nId_ = 0 or StzEngineGpuBufferUploadList(_nId_, _aVecs_[_i_]) != 0
 				_FreeIds(_aIdsA_)
 				_FreeIds(_aIdsB_)
@@ -684,7 +695,7 @@ class stzGpu from stzObject
 					_aHid_ + _aVecs_[_i_][_j_]
 				next
 			ok
-			_nId_ = StzEngineGpuBufferNew(_nHidLen_ * 4)
+			_nId_ = StzEngineGpuBufferNew(_nHidLen_ * _nInW_ * 4)
 			if _nId_ = 0 or StzEngineGpuBufferUploadList(_nId_, _aHid_) != 0
 				_FreeIds(_aIdsA_)
 				_FreeIds(_aIdsB_)
@@ -693,8 +704,8 @@ class stzGpu from stzObject
 			_aIdsB_ + _nId_
 		next
 		# the candidate's outputs carry the NaN margin after the region
-		_nOutA_ = StzEngineGpuBufferNew((_nA_ + _nMargin_) * 4)
-		_nOutB_ = StzEngineGpuBufferNew((_nB_ + _nMargin_) * 4)
+		_nOutA_ = StzEngineGpuBufferNew((_nA_ * _nOutW_ + _nMargin_) * 4)
+		_nOutB_ = StzEngineGpuBufferNew((_nB_ * _nOutW_ + _nMargin_) * 4)
 		if _nOutA_ = 0 or _nOutB_ = 0
 			_FreeIds(_aIdsA_)
 			_FreeIds(_aIdsB_)

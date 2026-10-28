@@ -41,6 +41,7 @@ facts
     whole-numbers | has-exercise | kp-14
     the-vector | is-a | chapter
     the-vector | has-exercise | kp-15
+    the-vector | has-exercise | kp-16
 
     kernel-puzzles | has-exercise | kp-01
     kernel-puzzles | has-exercise | kp-02
@@ -57,3 +58,4 @@ facts
     kernel-puzzles | has-exercise | kp-13
     kernel-puzzles | has-exercise | kp-14
     kernel-puzzles | has-exercise | kp-15
+    kernel-puzzles | has-exercise | kp-16

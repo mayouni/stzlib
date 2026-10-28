@@ -1,0 +1,5 @@
+in p vec2
+scalar c
+scalar s
+out q vec2
+body { @q = vec2(c * @p.x - s * @p.y, s * @p.x + c * @p.y) }
