@@ -1539,10 +1539,25 @@ fn dispatchInternal(kernel: i64, params: ?[]const u8, buf_ids: [*]const i64, nbu
         // nothing -- FrameEnd owns the one submit. Outside one, behave
         // exactly as before: own encoder, own submit.
         const enc = if (g_frame_open) g_frame_enc else fns.wgpuDeviceCreateCommandEncoder(device, null);
-        // GK0: the checker's timestamp writes ride THIS pass when armed
+        // GK0: the checker's timestamp writes ride THIS pass when armed.
+        // GC0 (2026-10-28): a dispatch split into chunks writes its START in
+        // the first chunk's pass and its END in the last one's, so the GPU
+        // clock spans every chunk (and the gaps between their submits, which
+        // the split costs). Until then every chunk wrote both into the same
+        // two slots and the clock read the LAST chunk alone: tile8 at 4096 x
+        // 4096 x 4096 (eight chunks) read 75 ms where the wall clock said 600,
+        // and won the foundry's race at that shape.
         var pdesc = std.mem.zeroes(c.WGPUComputePassDescriptor);
-        pdesc.timestampWrites = g_pass_ts;
-        const pass = fns.wgpuCommandEncoderBeginComputePass(enc, if (g_pass_ts != null) &pdesc else null);
+        var ts_chunk: c.WGPUPassTimestampWrites = undefined;
+        if (g_pass_ts) |ts| {
+            ts_chunk = ts.*;
+            if (off != 0) ts_chunk.beginningOfPassWriteIndex = c.WGPU_QUERY_SET_INDEX_UNDEFINED;
+            if (off + chunk < total_x) ts_chunk.endOfPassWriteIndex = c.WGPU_QUERY_SET_INDEX_UNDEFINED;
+            const first = off == 0;
+            const last = off + chunk >= total_x;
+            pdesc.timestampWrites = if (first or last) &ts_chunk else null;
+        }
+        const pass = fns.wgpuCommandEncoderBeginComputePass(enc, if (pdesc.timestampWrites != null) &pdesc else null);
         fns.wgpuComputePassEncoderSetPipeline(pass, k.pipeline);
         fns.wgpuComputePassEncoderSetBindGroup(pass, 0, bg, 0, null);
         fns.wgpuComputePassEncoderDispatchWorkgroups(pass, chunk, y, 1);

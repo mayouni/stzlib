@@ -28,6 +28,10 @@
 #   - the second clock, when present, reads GPU time INSIDE the wall time;
 #     absent, ONE clock is recorded, never a failure
 #   - without a device, Verify refuses by name
+#   - a dispatch the engine SPLITS (over its TDR limit of workgroups per
+#     submit) is timed whole on the GPU clock: forced into eight chunks, the
+#     1024^3 tile16 product reads what it reads in one (GC0, 2026-10-28: the
+#     clock read the last chunk alone, 1/8 of tile8 at 4096^3)
 
 load "../../stzBase.ring"
 
@@ -50,6 +54,25 @@ kDouble.ReturnsVector(:c)
 kDouble.ForEachElement('{ @c = @a * 2 }')
 
 oG = new stzGpu
+if oG.IsAvailable()
+	? ""
+	? "-- GC0: a split dispatch is timed whole on the GPU clock --"
+	nLimit = StzEngineGpuTileLimit()
+	StzEngineGpuFoundryMatmul(1024, 1024, 1024, 5, 2)
+	nWhole = StzEngineGpuFoundryResult(1)
+	StzEngineGpuSetTileLimit(512)
+	StzEngineGpuFoundryMatmul(1024, 1024, 1024, 5, 2)
+	nSplit = StzEngineGpuFoundryResult(1)
+	nSplitWall = StzEngineGpuFoundryResult(2)
+	StzEngineGpuSetTileLimit(nLimit)
+	? "  tile16 at 1024^3: one submit " + nWhole + " ms, eight submits " + nSplit + " ms on the GPU clock (wall " + nSplitWall + " ms)"
+	chk("eight chunks read the whole dispatch, not the last chunk (within 0.8x to 2x of one submit)",
+		nWhole > 0 and nSplit > 0.8 * nWhole and nSplit < 2 * nWhole)
+	chk("...and the GPU clock stays inside the wall clock", nSplit <= nSplitWall)
+	chk("...and the limit is restored (" + StzEngineGpuTileLimit() + ")", StzEngineGpuTileLimit() = nLimit)
+ok
+
+
 if NOT oG.IsAvailable()
 	? "  NO GPU ON THIS MACHINE -- the checker needs a device; the refusal scene is the CI coverage"
 else

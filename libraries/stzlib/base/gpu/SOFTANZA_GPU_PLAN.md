@@ -3512,6 +3512,67 @@ reference 34, declarative 20, verify 36, shared 60 (two new cases), puzzle
 with the sanitizer's sentences under them, and the reference is verified
 with nothing said.
 
+## GC0 STATUS — measured 2026-10-28: the distance to cuBLAS is about 2.4x in f32, and the tensor cores are a second, larger distance
+
+**The instrument.** `base/test/gpu/gc0/gc0_cublas.py` times NVIDIA's cuBLAS
+through ctypes on CUDA events (the GPU's clock), warm, best of 7, in three
+modes: strict f32 on the CUDA cores (`cublasSgemm`, the fair comparison),
+TF32 tensor-core math, and f16 inputs with f32 accumulation on the tensor
+cores (`cublasGemmEx`, the hardware's ceiling). Sixteen sampled entries of
+every product are checked against an f64 sum. It runs from a separate venv
+(`D:\GitHub\_bench_cublas`, the author's ruling of 2026-10-28: a benchmark
+tool, never a dependency; `nvidia-cublas-cu12` 12.6.4.1 and
+`nvidia-cuda-runtime-cu12` 12.6.77, 435 MB). Our side is
+`gc0/gc0_ours.ring` under `rnxc`: the foundry runs tile16, tile8, reg2 and
+reg4 under the checker, on the GPU clock, best of 7.
+
+**Measured on the RTX 3050 Laptop GPU, driver 561.00, mains power,
+alternated cuBLAS, ours, cuBLAS, ours; each cell the better of the two
+turns:**
+
+| shape m x k x n | ours (reg4) ms | GFLOP/s | cuBLAS f32 ms | GFLOP/s | ours / f32 | cuBLAS TF32 ms | cuBLAS f16 ms | ours / f16 |
+|---|---|---|---|---|---|---|---|---|
+| 130 x 384 x 384 | 0.0604 | 635 | 0.0399 | 960 | 1.51 | 0.0399 | 0.0174 | 3.5 |
+| 130 x 384 x 1536 | 0.1645 | 932 | 0.0655 | 2340 | 2.51 | 0.0492 | 0.0379 | 4.3 |
+| 130 x 1536 x 384 | 0.2138 | 717 | 0.0901 | 1702 | 2.37 | 0.0612 | 0.0266 | 8.0 |
+| 256 x 256 x 256 | 0.0402 | 835 | 0.0244 | 1378 | 1.65 | 0.0113 | 0.0092 | 4.4 |
+| 512 x 512 x 512 | 0.2115 | 1269 | 0.0840 | 3197 | 2.52 | 0.0737 | 0.0625 | 3.4 |
+| 1024 x 1024 x 1024 | 1.4328 | 1499 | 0.5742 | 3740 | 2.50 | 0.3377 | 0.1905 | 7.5 |
+| 2048 x 2048 x 2048 | 12.6161 | 1362 | 5.4272 | 3166 | 2.32 | 3.5973 | 1.6394 | 7.7 |
+| 4096 x 4096 x 4096 | 95.5687 | 1438 | 32.1055 | 4281 | 2.98 | 16.2714 | 9.4198 | 10.1 |
+
+Our side moved by at most 4% between turns. **cuBLAS moved by up to 45% on
+the small shapes** (8% to 45% up to 1024, 0% and 3% at 2048 and 4096), so its small
+rows are its better turn and the ratios there are the honest LOWER bound of
+the distance. Every cuBLAS product matched the f64 samples (f32 within
+7e-7, TF32 and f16 within 6e-5).
+
+**What the table says:**
+
+1. **In f32, on the same CUDA cores, we are 1.5x to 3.0x slower, about
+   2.4x in the middle.** That distance is the kernel, not WebGPU: cuBLAS
+   reaches 51% of the measured f32 peak at 4096, reg4 reaches 17%. Larger
+   register tiles, vectorized loads and double-buffered shared tiles are
+   what separate them, and all of them are expressible in WGSL. This is
+   the closable part, and it belongs to a foundry rung (GK2d below).
+2. **The tensor cores are a second distance**: TF32 is a further 1.0x to
+   2.2x over cuBLAS f32, f16 a further 1.3x to 3.4x. WebGPU has no way to
+   ask for them. Only GV0 (Vulkan with cooperative matrices) can.
+3. **GV0's kill line is not met**: the route is not within 2x of cuBLAS on
+   Softanza's shapes (1.5x, 2.5x and 2.4x on MiniLM's three). So GV0 stays
+   open, for the Principal to decide, and the order is GK2d first: it
+   closes the part of the distance that needs no second backend.
+
+**A measurement defect found on the way, fixed** (`gpu.zig`): a dispatch
+over the TDR limit of 32,768 workgroups per submit is split into chunks,
+and every chunk wrote its timestamps into the same two slots, so the GPU
+clock read the LAST chunk alone. tile8 at 4096^3 (eight chunks) read 75 ms
+where the wall clock said 600, and won the foundry's race at that shape.
+The first chunk now writes the start and the last the end. Held by a scene
+of `gpu_verify_narrated.ring` (39): the 1024^3 tile16 product forced into
+eight chunks reads 7.5 ms against 6.4 ms in one submit, where the old
+clock would have read about 0.8.
+
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 
 **Where the plane stands.** The charge GK3 to KP3 is through. A kernel can
@@ -3541,7 +3602,7 @@ GK4 was.
 | **GT2** | a platform matrix: AMD, Apple, Linux; Chrome, Edge, Firefox, Safari | the guards and the edge proof pass, or each failure is named, on each machine | none | waits on machines only the author can provide |
 | **GT3** | a long run: a backbone forward and the checker repeated for an hour | memory and handle counts are flat; a lost device is reported and recovered, not crashed | none | this desk |
 | **GZ0** | the interpreter as a sanitizer: a shared-memory race, a read past a shared array and a barrier not every thread reaches are reported with the line that caused them | each defect class has a negative puzzle that the sanitizer names and the device does not | if a race the device shows is missed, the sanitizer is wrong and is fixed before it ships | this desk |
-| **GC0** | the distance to cuBLAS: the foundry's matmul against the vendor's, same laptop, same shapes, both clocks | a table of ratios on MiniLM's shapes and on square shapes from 256 to 4,096 | none: the number is the deliverable | needs a benchmark-only tool on the machine (PyTorch or a cuBLAS sample); the no-new-dependency rule makes that the author's call |
+| **GC0** | MEASURED 2026-10-28 (see GC0 STATUS): the distance to cuBLAS: the foundry's matmul against the vendor's, same laptop, same shapes, both clocks | a table of ratios on MiniLM's shapes and on square shapes from 256 to 4,096 | none: the number is the deliverable | needs a benchmark-only tool on the machine (PyTorch or a cuBLAS sample); the no-new-dependency rule makes that the author's call |
 | **GL0** | the language grows: integer and vector types, atomics, 2-D and 3-D grids, a general bounded loop, branches | each admission has a puzzle, a refusal list, and agreement between both readers | an admission that the interpreter cannot mirror exactly is refused | this desk; after GT0, so the fuzz covers each admission as it lands |
 | **GL1** | subgroup operations where an adapter offers them, with the interpreter's own reading of them | a reduction measured faster with subgroups than with shared memory, on an adapter that offers them | no gain on the clock: recorded and removed, as GK4 | waits on an adapter that offers subgroups; neither on this machine does |
 | **GB0** | the library layer: convolution, scan, sort, top-k, segmented reductions, sparse-dense product, each through the foundry and the checker | each op has a CPU reference, a hidden shape, a roof fraction and a route | an op whose GPU route never wins on any measured shape is not routed | this desk; each op is a rung of its own |
@@ -3556,7 +3617,9 @@ GK4 was.
 - **NEURAL-GUARD-RPP**: the backbone guard reads `nPass` bare -> the neural desk, routed 2026-10-28.
 - **DOC-GATE-RUN**: the documentation gate loads main's library and cannot run under `rnxc`. The KP and GK public methods were read against its rules by hand on 2026-10-28: three briefs over 140 characters, one stray block and one undocumented parameter were fixed. A machine run is owed when GT1 lands.
 
-**This desk's order**: GT0 and GZ0 (both SHIPPED 2026-10-28, see their STATUS sections above), then GC0 once the author rules on the
+**GK2d, added by GC0's table**: the foundry gains larger register tiles (8 x 8 per thread), vec4 loads and double-buffered shared tiles, each a variant under the checker; done when reg4's successor halves the f32 distance at 1024 and above; killed if no variant beats reg4 by the foundry's margin.
+
+**This desk's order**: GT0, GZ0 and GC0 (done 2026-10-28, see their STATUS sections above), then GK2d, then once the author rules on the
 benchmark tool, then GL0. GT0 comes first because every later rung adds
 grammar, and a fuzz that already exists covers each addition the day it
 lands.

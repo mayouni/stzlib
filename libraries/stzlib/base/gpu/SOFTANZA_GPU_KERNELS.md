@@ -336,8 +336,10 @@ device.*
 
 - **Reach CUDA's peak.** WebGPU cannot reach tensor cores, asynchronous
   copies or more than one GPU, and warp-level operations only where an
-  adapter offers subgroups. The tuned product is good for this engine
-  and has not been compared with cuBLAS.
+  adapter offers subgroups. Measured against cuBLAS on the same laptop
+  (2026-10-28): our best f32 product is 1.5x to 3.0x slower than cuBLAS's
+  f32, and the tensor cores add a further 2x to 3x that only a second
+  backend could reach. The plan's GC0 STATUS holds the table.
 - **Integer types, atomics, 3-D grids, general loops and branches.** The
   bounded sum and the tiles loop are the only loops. Every value is f32.
 - **Run beyond one machine.** Everything was measured on one Windows

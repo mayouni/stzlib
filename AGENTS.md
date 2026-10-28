@@ -113,7 +113,7 @@ cd libraries/stzlib/engine && zig build -Ddomains=stz_gpu -j2
 
 The GPU plane, eight guards in one folder, each needing a device: the sanitizer (GZ0, 25), the random-kernel fuzz (GT0, 23;
 3 s warm, about a minute the first time a machine compiles its kernels), the checker with its compute
-ceiling (GK3, 36), the user kernel's own reference (GK6, 34), f16 weights (GK5, 23), the grammar's admissions (KP0, 43),
+ceiling and a split dispatch timed whole (GK3, GC0; 39), the user kernel's own reference (GK6, 34), f16 weights (GK5, 23), the grammar's admissions (KP0, 43),
 the group's memory and puzzles 9-12 (KP3, 58) and the kernel puzzles (KP1-KP2, 95: the course `libraries/stzlib/base/education/program/courses/kernel-puzzles`,
 graded by `libraries/stzlib/base/gpu/stzKernelPuzzle.ring` on the desktop and by
 `libraries/stzlib/base/education/program/courses/kernel-puzzles/runner/puzzle.html` in a browser
