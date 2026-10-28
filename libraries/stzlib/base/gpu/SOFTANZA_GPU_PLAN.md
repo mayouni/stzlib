@@ -3407,3 +3407,52 @@ GPU at 2.40 and 1.94, marginal at 1.15 once, which the guard allows);
 `gpu_seams` 17, `gpu_calibration` 10, `gpu_lifecycle` 62, `gpu_ops` 37,
 `gpu_f16` 23. A Zig test holds the route to the interpolation, the losing
 column, and both sides of the flat line beyond the ladder.
+
+## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
+
+**Where the plane stands.** The charge GK3 to KP3 is through. A kernel can
+be described, transpiled, interpreted, checked at a hidden shape, placed
+under measured roofs and taught as a puzzle, in the desktop engine and in
+a browser. The reader's account is `SOFTANZA_GPU_KERNELS.md`. What is
+missing is documentation outside this folder, testing a production team
+could rely on, and the capabilities that separate this layer from CUDA.
+
+**The ceiling, named before the plan.** WebGPU cannot reach tensor cores,
+asynchronous copies or several GPUs, and reaches warp-level operations
+only where an adapter offers subgroups. Matching CUDA's peak through
+WebGPU alone is not a goal this plan can reach. The goal is **portable
+kernels that are checked, measured, and within a KNOWN distance of the
+vendor libraries on the shapes Softanza uses**. The distance is measured
+first (GC0), and the second backend (GV0) is gated on it.
+
+**The rungs, in order.** Each has a kill line written now, before it is
+measured. A rung that crosses its kill line is recorded and closed, as
+GK4 was.
+
+| rung | what | done when | kill line | owner, and what it waits on |
+|---|---|---|---|---|
+| **GD0** | documentation: this folder's design document; the site's GPU guide and atlas; a book chapter | the design document exists (done, 2026-10-28); the site and book desks have the request | none | the site and book desks, through Central |
+| **GT0** | a random-kernel fuzz: descriptions generated from the grammar, transpiled and interpreted, compared on the device; seeded, counted, a fixed budget per run | a guard runs N generated kernels of every line kind and prints how many agreed, how many were refused, and each disagreement with its seed | none: a disagreement is a bug, not a reason to stop | this desk |
+| **GT1** | the guards on main's library under Ring++, not on the vehicle's overlay | every GPU guard runs from a checkout of main under `rnxc` | none | waits on the Principal's ruling on the library's Rule A migration |
+| **GT2** | a platform matrix: AMD, Apple, Linux; Chrome, Edge, Firefox, Safari | the guards and the edge proof pass, or each failure is named, on each machine | none | waits on machines only the author can provide |
+| **GT3** | a long run: a backbone forward and the checker repeated for an hour | memory and handle counts are flat; a lost device is reported and recovered, not crashed | none | this desk |
+| **GZ0** | the interpreter as a sanitizer: a shared-memory race, a read past a shared array and a barrier not every thread reaches are reported with the line that caused them | each defect class has a negative puzzle that the sanitizer names and the device does not | if a race the device shows is missed, the sanitizer is wrong and is fixed before it ships | this desk |
+| **GC0** | the distance to cuBLAS: the foundry's matmul against the vendor's, same laptop, same shapes, both clocks | a table of ratios on MiniLM's shapes and on square shapes from 256 to 4,096 | none: the number is the deliverable | needs a benchmark-only tool on the machine (PyTorch or a cuBLAS sample); the no-new-dependency rule makes that the author's call |
+| **GL0** | the language grows: integer and vector types, atomics, 2-D and 3-D grids, a general bounded loop, branches | each admission has a puzzle, a refusal list, and agreement between both readers | an admission that the interpreter cannot mirror exactly is refused | this desk; after GT0, so the fuzz covers each admission as it lands |
+| **GL1** | subgroup operations where an adapter offers them, with the interpreter's own reading of them | a reduction measured faster with subgroups than with shared memory, on an adapter that offers them | no gain on the clock: recorded and removed, as GK4 | waits on an adapter that offers subgroups; neither on this machine does |
+| **GB0** | the library layer: convolution, scan, sort, top-k, segmented reductions, sparse-dense product, each through the foundry and the checker | each op has a CPU reference, a hidden shape, a roof fraction and a route | an op whose GPU route never wins on any measured shape is not routed | this desk; each op is a rung of its own |
+| **GQ0** | recorded submission: a forward's dispatches recorded once and replayed, the role CUDA graphs play | the backbone forward's submit cost measured before and after | under 10% of the forward: recorded and closed | this desk |
+| **GQ1** | a fusion planner that merges passes only where the dispatch count AND the clock agree | a merged pair kept by measurement, or the planner closed with its numbers | GK4's rule: within the clock's noise, removed | this desk; after GQ0 |
+| **GV0** | a second backend for the hardware ceiling: Vulkan with cooperative matrices, reaching tensor cores on NVIDIA, AMD and Intel, under the same description and checker | a matmul measured through it against the WebGPU route and against cuBLAS | GC0 shows the WebGPU route within 2x of cuBLAS on Softanza's shapes; or the build needs an external SDK (G6's K2 invariant: SPIR-V must come from this repository's own code, the way WGSL does) | the Principal decides whether to open it, after GC0 |
+
+**Owed before any of these, and not this desk's alone:**
+
+- **PERCEPTGATE-KP3**: one of puzzles 9 to 12 worked by a person, with a sentence -> the author.
+- **DOOR-GUARD-RPP**: the agent door guard is not Rule-A clean and still names `ring` -> the render desk, routed 2026-10-28.
+- **NEURAL-GUARD-RPP**: the backbone guard reads `nPass` bare -> the neural desk, routed 2026-10-28.
+- **DOC-GATE-RUN**: the documentation gate loads main's library and cannot run under `rnxc`. The KP and GK public methods were read against its rules by hand on 2026-10-28: three briefs over 140 characters, one stray block and one undocumented parameter were fixed. A machine run is owed when GT1 lands.
+
+**This desk's order**: GT0, then GZ0, then GC0 once the author rules on the
+benchmark tool, then GL0. GT0 comes first because every later rung adds
+grammar, and a fuzz that already exists covers each addition the day it
+lands.

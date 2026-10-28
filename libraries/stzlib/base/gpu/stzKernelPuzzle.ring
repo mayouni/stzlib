@@ -43,7 +43,9 @@ func StzKernelPuzzlesFolder()
 	next
 	return StzLeft($cEngineDir, _nSlash_ - 1) + "/base/education/program/courses/kernel-puzzles/exercises"
 
-# Builds a stzKernelMaker from a description text (the in / scalar / out / guard / body lines a maker's Spec() writes), so a description read from a file or typed in a page becomes a maker.
+# Builds a stzKernelMaker from a description text, so a description read from a file or typed in a page becomes a maker.
+#
+# The text holds the lines a maker's Spec() writes: in, scalar, out, guard, body and the group lines.
 #
 #   pcSpec     the description, one directive per line
 #   returns    a stzKernelMaker
@@ -167,6 +169,9 @@ class stzKernelPuzzle from stzObject
 		return @cStarter
 
 	# Returns the task text in a language (en, fr, ar, ha), or an empty text when the puzzle has none in it.
+	#
+	#   pcLang     the language code: en, fr, ar or ha
+	#   returns    a text, the task in markdown
 	def Task(pcLang)
 		_cF_ = @cFolder + "/task." + lower("" + pcLang) + ".md"
 		if fexists(_cF_)
@@ -321,7 +326,7 @@ class stzKernelPuzzle from stzObject
 		ok
 		return This._GradeOnCpu(_oRef_, _oK_, _aB_, _nN_)
 
-	# Measures where the learner's kernel stands under this device's two roofs: its bandwidth against the copy floor, its operations against the compute peak.
+	# Measures where the learner's kernel stands under this device's two roofs, the copy floor and the compute peak.
 	#
 	#   pLearner   a stzKernelMaker, or the description as text
 	#   returns    a hashlist with :elements, :bytes, :flops, :ms (the best dispatch and sync, on the

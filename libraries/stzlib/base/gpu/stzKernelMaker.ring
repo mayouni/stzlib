@@ -14,7 +14,9 @@
 # The body is LITERAL (the W lessons): ONE assignment `@Out = expression`,
 # where the expression may use declared vectors as @Name, declared scalars
 # by bare name, numbers, + - * / % ( ) and this function set:
-#   abs min max sqrt exp log sin cos tan floor ceil pow clamp sign fract round
+#   abs min max sqrt exp log sin cos tan tanh floor ceil pow clamp sign fract round
+# The whole language, with the group lines (Shared, Stage, Reduce, Tiles,
+# Accumulate, Width), is in SOFTANZA_GPU_KERNELS.md beside this file.
 # Anything else REFUSES at ToWGSL() time with a message naming the offender.
 # The transpiler itself lives in the ENGINE (gpu_wgsl.zig) -- any binding
 # gets it; this class is one face.
@@ -208,11 +210,9 @@ class stzKernelMaker from stzObject
 	def GuardText()
 		return @cGuard
 
-	# Returns the declared input vectors, lower-cased, in the order declared.
+	# Evaluates the description on the CPU over the given vectors and scalars, with the engine's interpreter; needs no GPU.
 	#
-	#   returns    a list of texts
-	#   see        TakesVector, ScalarNames
-	# Evaluates the description on the CPU over the given vectors and scalars, by the engine's interpreter of the same grammar the transpiler reads; needs no GPU.
+	# The interpreter reads the same grammar the transpiler reads, from the same parser.
 	#
 	#   paBindings   the input vectors by name (lists of numbers, one length) and the scalars by name
 	#   returns      a list of numbers, one per element -- what the kernel must produce

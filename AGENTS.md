@@ -120,14 +120,17 @@ with WebGPU, the course folder served over http). The standalone probe `librarie
 prints every adapter's peak with its spread (build it with `zig build-exe`, run it with
 `libraries/stzlib/engine/vendor/wgpu/lib/wgpu_native.dll` as its one argument), and the edge proof
 `libraries/stzlib/base/test/gpu/edge_proof/edge_proof.html` runs eight kernels in a browser
-byte-identical to the native engine (fixture from `libraries/stzlib/base/test/gpu/edge_proof/gen_fixture.ring`):
+byte-identical to the native engine (fixture from `libraries/stzlib/base/test/gpu/edge_proof/gen_fixture.ring`).
+Run the guards with Ring++'s `rnxc`, not `ring`. The kernel language, the checker and the puzzles are
+described for a reader in `libraries/stzlib/base/gpu/SOFTANZA_GPU_KERNELS.md`; the next rungs are the
+section NEXT of `libraries/stzlib/base/gpu/SOFTANZA_GPU_PLAN.md`:
 
 ```bash
-cd libraries/stzlib/base/test/gpu && ring gpu_verify_narrated.ring && ring gpu_spec_reference_narrated.ring && ring gpu_f16_narrated.ring
+cd libraries/stzlib/base/test/gpu && rnxc gpu_verify_narrated.ring && rnxc gpu_spec_reference_narrated.ring && rnxc gpu_f16_narrated.ring
 ```
 
 ```bash
-cd libraries/stzlib/base/test/gpu && ring gpu_grammar_narrated.ring && ring gpu_shared_narrated.ring && ring gpu_puzzle_narrated.ring
+cd libraries/stzlib/base/test/gpu && rnxc gpu_grammar_narrated.ring && rnxc gpu_shared_narrated.ring && rnxc gpu_puzzle_narrated.ring
 ```
 
 The standalone probe beside it prints every adapter's peak with its spread, A B A B against
