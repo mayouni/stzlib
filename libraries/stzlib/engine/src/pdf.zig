@@ -2524,12 +2524,22 @@ fn isSectionRow(row: [][]const u8) bool {
     return true;
 }
 
+// A decimal digit of a script other than Latin: the ten digits that start at each of these code points
+fn isScriptDigit(cp: u21) bool {
+    const zeros = [_]u21{ 0x0660, 0x06F0, 0x07C0, 0x0966, 0x09E6, 0x0A66, 0x0AE6, 0x0B66, 0x0BE6, 0x0C66, 0x0CE6, 0x0D66, 0x0DE6, 0x0E50, 0x0ED0, 0x0F20, 0x1040, 0x17E0, 0x1810, 0xFF10 };
+    for (zeros) |z| {
+        if (cp >= z and cp <= z + 9) return true;
+    }
+    return false;
+}
+
 fn hasLetter(t: []const u8) bool {
     var view = std.unicode.Utf8View.init(t) catch return true;
     var it = view.iterator();
     while (it.nextCodepoint()) |cp| {
         if (isLtrCp(cp) or isRtlCp(cp)) return true;
-        if ((cp >= 0x0900 and cp <= 0x0DFF) or (cp >= 0x1200 and cp <= 0x137F) or cp >= 0x3040) return true;
+        if ((cp >= 0x0530 and cp <= 0x058F) or (cp >= 0x0900 and cp <= 0x10FF) or (cp >= 0x1200 and cp <= 0x137F) or
+            (cp >= 0x1780 and cp <= 0x17FF) or (cp >= 0x1E00 and cp <= 0x1FFF) or cp >= 0x3040) return true;
     }
     return false;
 }
@@ -4267,16 +4277,17 @@ fn startsListMarker(t: []const u8) usize {
         // (a square bracket holds a number only: [a] is an editor's note, not a list)
         if (ok_inner and !(close == ']' and !digits) and j + 1 < t.len and t[j] == close and t[j + 1] == ' ') return j + 2;
     }
-    // Arabic-Indic or Persian digits, then a full stop, a bracket, a dash or the Urdu full stop, then a space
+    // the decimal digits of another script (Arabic-Indic, Persian, Devanagari, Bengali, Thai, Khmer ...), then a full
+    // stop, a bracket, a dash or the Urdu full stop, then a space
     {
         var j: usize = 0;
         var nd: usize = 0;
         while (j + 1 < t.len and nd < 3) {
             const sl = std.unicode.utf8ByteSequenceLength(t[j]) catch break;
-            if (sl != 2) break;
-            const cp = std.unicode.utf8Decode(t[j .. j + 2]) catch break;
-            if (!((cp >= 0x0660 and cp <= 0x0669) or (cp >= 0x06F0 and cp <= 0x06F9))) break;
-            j += 2;
+            if (sl < 2 or j + sl > t.len) break;
+            const cp = std.unicode.utf8Decode(t[j .. j + sl]) catch break;
+            if (!isScriptDigit(cp)) break;
+            j += sl;
             nd += 1;
         }
         if (nd > 0 and j < t.len) {
