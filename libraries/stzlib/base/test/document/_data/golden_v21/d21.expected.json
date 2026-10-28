@@ -1,0 +1,183 @@
+{
+  "id": "d21",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "ใบยืนยันการจองห้องพัก",
+  "headings": [
+    {
+      "level": 1,
+      "text": "ใบยืนยันการจองห้องพัก"
+    },
+    {
+      "level": 2,
+      "text": "เงื่อนไขการยกเลิก"
+    },
+    {
+      "level": 2,
+      "text": "สิ่งที่รวมอยู่ในราคา"
+    },
+    {
+      "level": 2,
+      "text": "ข้อแนะนำก่อนการเดินทาง"
+    }
+  ],
+  "key_sentences": [
+    "โรงแรมริมธาร เชียงดาว ขอขอบคุณที่ท่านเลือกใช้บริการของเรา",
+    "ทางโรงแรมขอยืนยันการจองห้องพักของท่านตามรายละเอียดด้านล่างนี้",
+    "การยกเลิกหรือเลื่อนวันเข้าพักต้องแจ้งเป็นลายลักษณ์อักษรทางอีเมลเท่านั้น",
+    "กรุณาแสดงบัตรประจำตัวประชาชนหรือหนังสือเดินทางของผู้จองเมื่อลงทะเบียนเข้าพัก",
+    "หากท่านคาดว่าจะเดินทางถึงโรงแรมหลังเวลา 22:00 น. กรุณาแจ้งให้ทางโรงแรมทราบล่วงหน้าทางโทรศัพท์",
+    "ในช่วงเดือนตุลาคมอุณหภูมิตอนเช้าอาจต่ำกว่า 15 องศาเซลเซียส จึงควรเตรียมเสื้อกันหนาวมาด้วย"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "ชื่อผู้จอง",
+          "คุณวิภาวรรณ ทองสุข"
+        ],
+        [
+          "ผู้เข้าพัก",
+          "ผู้ใหญ่ 2 ท่าน เด็ก 1 ท่าน"
+        ],
+        [
+          "โทรศัพท์",
+          "081 000 4527"
+        ],
+        [
+          "อีเมล",
+          "wipawan.t@mail.example"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "วันเข้าพัก",
+          "วันศุกร์ที่ 9 ตุลาคม 2569 หลังเวลา 14:00 น."
+        ],
+        [
+          "วันออก",
+          "วันอาทิตย์ที่ 11 ตุลาคม 2569 ก่อนเวลา 12:00 น."
+        ],
+        [
+          "ประเภทห้อง",
+          "ห้องดีลักซ์ วิวภูเขา"
+        ],
+        [
+          "จำนวน",
+          "1 ห้อง 2 คืน"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "รายการ",
+          "จำนวน",
+          "ราคาต่อหน่วย (บาท)",
+          "จำนวนเงิน (บาท)"
+        ],
+        [
+          "ห้องดีลักซ์ วิวภูเขา รวมอาหารเช้า",
+          "2 คืน",
+          "2,400.00",
+          "4,800.00"
+        ],
+        [
+          "เตียงเสริมสำหรับเด็ก",
+          "2 คืน",
+          "450.00",
+          "900.00"
+        ],
+        [
+          "รถรับส่งจากสถานีขนส่งเชียงดาว",
+          "1 เที่ยว",
+          "300.00",
+          "300.00"
+        ],
+        [
+          "รวม",
+          "รวม",
+          "รวม",
+          "6,000.00"
+        ],
+        [
+          "ค่าบริการ 10%",
+          "ค่าบริการ 10%",
+          "ค่าบริการ 10%",
+          "600.00"
+        ],
+        [
+          "ภาษีมูลค่าเพิ่ม 7%",
+          "ภาษีมูลค่าเพิ่ม 7%",
+          "ภาษีมูลค่าเพิ่ม 7%",
+          "462.00"
+        ],
+        [
+          "ยอดรวมทั้งสิ้น",
+          "ยอดรวมทั้งสิ้น",
+          "ยอดรวมทั้งสิ้น",
+          "7,062.00"
+        ],
+        [
+          "ชำระเงินมัดจำแล้ว เมื่อวันที่ 15 ก.ย. 2569",
+          "ชำระเงินมัดจำแล้ว เมื่อวันที่ 15 ก.ย. 2569",
+          "ชำระเงินมัดจำแล้ว เมื่อวันที่ 15 ก.ย. 2569",
+          "3,000.00"
+        ],
+        [
+          "ยอดคงเหลือที่ต้องชำระ ณ วันเข้าพัก",
+          "ยอดคงเหลือที่ต้องชำระ ณ วันเข้าพัก",
+          "ยอดคงเหลือที่ต้องชำระ ณ วันเข้าพัก",
+          "4,062.00"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "๑. ยกเลิกก่อนวันเข้าพักไม่น้อยกว่า 7 วัน โรงแรมคืนเงินมัดจำเต็มจำนวน"
+    },
+    {
+      "level": 0,
+      "text": "๒. ยกเลิกภายใน 3 ถึง 6 วันก่อนวันเข้าพัก โรงแรมคืนเงินมัดจำร้อยละ 50"
+    },
+    {
+      "level": 0,
+      "text": "๓. ยกเลิกน้อยกว่า 3 วันก่อนวันเข้าพักหรือไม่มาเข้าพักตามกำหนด โรงแรมขอสงวนสิทธิ์ไม่คืนเงินมัดจำ"
+    },
+    {
+      "level": 0,
+      "text": "อาหารเช้าแบบบุฟเฟต์สำหรับผู้ใหญ่ 2 ท่านและเด็ก 1 ท่าน"
+    },
+    {
+      "level": 0,
+      "text": "อินเทอร์เน็ตไร้สายทั่วบริเวณโรงแรม"
+    },
+    {
+      "level": 0,
+      "text": "ที่จอดรถในร่มสำหรับรถยนต์ 1 คัน"
+    },
+    {
+      "level": 0,
+      "text": "ชุดชาและกาแฟพร้อมน้ำดื่มในห้องพักทุกวัน"
+    }
+  ],
+  "furniture": [
+    "โรงแรมริมธาร เชียงดาว",
+    "129 หมู่ 5 ตำบลเชียงดาว อำเภอเชียงดาว จังหวัดเชียงใหม่ 50170",
+    "โทร. 053 999 012 · reservations@rimthan.example",
+    "เอกสารนี้ออกโดยระบบอัตโนมัติและไม่ต้องลงลายมือชื่อ",
+    "หน้า 1 จาก 1"
+  ],
+  "languages": [
+    "th"
+  ],
+  "code": [],
+  "notes": "Thai hotel booking confirmation of a fictional hotel, 1 page, Leelawadee UI. Thai is written without spaces between words: a line wrapped inside a sentence joins with NO space. Thai sentences carry no final punctuation; in the source each sentence is separated from the next by one space, and each key sentence is one such unit. Dates are in the Buddhist era (2569 = 2026). The dark band at the top (hotel name, address line, contact line) is a letterhead: furniture. The booking number and issue date line, the salutation \"เรียน ...\" and the closing \"ขอแสดงความนับถือ / ฝ่ายสำรองห้องพัก\" are body metadata, not sentences. Two boxes sit SIDE BY SIDE (guest data left, stay details right), read box by box, left box first; each holds a key/value table without header row, and the box labels are labels, not headings. In the charges table the summary rows (\"รวม\" ... \"ยอดคงเหลือ...\") have a label spanning the first three columns, so the label repeats in those three grid cells. The cancellation list uses TYPED Thai-digit markers \"๑.\" \"๒.\" \"๓.\" set apart by a hanging indent. The \"included\" list uses CSS \"thai\" markers, which LOOK the same (๑. ๒. ...) but are not in the text. The two last sections sit side by side as two columns: the left section (heading and its list) is read before the right one."
+}

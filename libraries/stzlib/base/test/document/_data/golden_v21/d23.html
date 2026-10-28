@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="nl" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Werkinstructie: automatische back-up van de praktijkserver</title>
+<style>
+*{-webkit-print-color-adjust:exact;print-color-adjust:exact;box-sizing:border-box}
+html,body{margin:0;padding:0}
+.page{position:relative;overflow:hidden;break-after:page}
+.page:last-child{break-after:auto}
+.content{height:100%}
+table{border-collapse:collapse}
+pre{margin:0}
+@page{size:A4;margin:0}
+
+.page{width:210mm;height:296mm;padding:24mm 22mm 20mm 26mm}
+body{font-family:"Gill Sans MT";font-size:10.5pt;color:#23272b}
+.hdr{position:absolute;top:10mm;left:26mm;right:22mm;display:flex;justify-content:space-between;font-size:8.5pt;color:#5b6770}
+.hdr .l{font-family:Rockwell;font-weight:bold;color:#2f6b3a;font-size:10pt}
+.ftr{position:absolute;bottom:9mm;left:26mm;right:22mm;display:flex;justify-content:space-between;font-size:8.5pt;color:#5b6770;border-top:0.5pt solid #b7c2b9;padding-top:1.5mm}
+h1{font-family:Rockwell;font-weight:bold;font-size:19pt;color:#2f6b3a;margin:0 0 3mm;line-height:1.2}
+h2{font-family:Rockwell;font-weight:bold;font-size:13pt;color:#2f6b3a;margin:5mm 0 1.5mm}
+h3{font-family:Rockwell;font-weight:normal;font-size:11pt;color:#23272b;margin:3.5mm 0 1mm}
+p{margin:0 0 1.8mm;line-height:1.4}
+table.rev{width:100%;font-size:8.5pt;margin-bottom:3mm;border:0.6pt solid #b7c2b9}
+table.rev th{background:#e7efe8;text-align:left;padding:1mm 2mm;border:0.6pt solid #b7c2b9}
+table.rev td{padding:1mm 2mm;border:0.6pt solid #b7c2b9}
+table.raci{width:100%;font-size:9.5pt;margin:1mm 0 1mm}
+table.raci th{font-weight:bold;text-align:center;padding:1.2mm 2mm;border-bottom:1pt solid #2f6b3a;vertical-align:bottom}
+table.raci th:first-child{text-align:left}
+table.raci td{text-align:center;padding:1.2mm 2mm}
+table.raci td:first-child{text-align:left}
+.legend{font-size:8.5pt;color:#5b6770;margin-bottom:2mm}
+pre.code{font-family:"Courier New";font-size:8.8pt;line-height:1.35;background:#f3f4f1;border-left:2.5pt solid #2f6b3a;padding:2mm 3mm;margin:1.5mm 0 2.5mm;white-space:pre}
+ol.st{padding-left:6mm;margin:0 0 1.5mm;line-height:1.4}
+ol.st ul{list-style:none;padding-left:2mm;margin:0.5mm 0}
+ul.sq{list-style:square;padding-left:6mm;margin:0 0 2mm;line-height:1.4}
+.boxes{display:flex;gap:5mm;margin:2mm 0 2mm}
+.box{flex:1;padding:2mm 3mm;border:0.8pt solid}
+.box.w{border-color:#b5482c;background:#fbeee9}
+.box.t{border-color:#2f6b3a;background:#eef5ef}
+.box .lbl{font-family:Rockwell;font-weight:bold;margin-bottom:0.8mm}
+.box p{margin:0}
+ul.docs{list-style:none;padding:0;margin:0 0 3mm;line-height:1.5}
+ul.docs li{padding-left:5mm;text-indent:-5mm}
+
+</style>
+</head>
+<body>
+<div class="page"><div class="hdr"><span class="l">Fysiotherapie De Lindehof</span><span>WI-ICT-04 · versie 3.0</span></div><div class="content"><h1>Werkinstructie: automatische back-up van de praktijkserver</h1><table class="rev"><thead><tr><th>Versie</th><th>Datum</th><th>Auteur</th><th>Wijziging</th></tr></thead><tbody><tr><td>1.0</td><td>12-01-2024</td><td>M. de Bruin</td><td>Eerste uitgave</td></tr><tr><td>2.0</td><td>03-03-2025</td><td>M. de Bruin</td><td>Nieuwe NAS als back-updoel</td></tr><tr><td>3.0</td><td>14-09-2026</td><td>S. Yilmaz</td><td>Versleuteling en e-mailmeldingen toegevoegd</td></tr></tbody></table><h2>1 Doel</h2><p>Deze werkinstructie beschrijft hoe de dagelijkse back-up van de praktijkserver is ingericht en hoe medewerkers controleren of die geslaagd is. Een betrouwbare back-up is nodig omdat de server de agenda, de behandeldossiers en de financiële administratie bevat.</p><h2>2 Toepassingsgebied</h2><p>De instructie geldt voor de server in de technische ruimte op de eerste verdieping. Werkplekken en laptops vallen er niet onder; daarvoor geldt werkinstructie WI-ICT-02.</p><h2>3 Verantwoordelijkheden</h2><p>In de tabel hieronder staat wie welke taak uitvoert.</p><table class="raci"><thead><tr><th>Taak</th><th>Praktijkmanager</th><th>ICT-beheerder</th><th>Medewerker van dienst</th></tr></thead><tbody><tr><td>Instellen en wijzigen van de back-uptaak</td><td>I</td><td>U, V</td><td>—</td></tr><tr><td>Dagelijkse controle van het logbestand</td><td>V</td><td>I</td><td>U</td></tr><tr><td>Maandelijkse hersteltest</td><td>I</td><td>U, V</td><td>—</td></tr><tr><td>Melden van storingen</td><td>I</td><td>U</td><td>U</td></tr></tbody></table><div class="legend">U = uitvoerend, V = verantwoordelijk, I = geïnformeerd</div><h2>4 Werkwijze</h2><h3>4.1 Instellingen van de back-uptaak</h3><p>De back-uptaak leest zijn instellingen uit het bestand backup.ini in de map C:\Beheer\Backup. Wijzig dit bestand alleen in overleg met de ICT-beheerder.</p><pre class="code">[backup]
+bron       = D:\Praktijkdata
+doel       = \\NAS-LINDEHOF\backup\server01
+schema     = dagelijks 22:30
+bewaren    = 30 dagen
+versleutel = ja
+melding    = ict@lindehof.example</pre></div><div class="ftr"><span>Geprinte versies zijn ongecontroleerd</span><span>Pagina 1 van 2</span></div></div>
+<div class="page"><div class="hdr"><span class="l">Fysiotherapie De Lindehof</span><span>WI-ICT-04 · versie 3.0</span></div><div class="content"><h3>4.2 De taak handmatig starten</h3><ol class="st"><li>Meld je aan op de server met het beheeraccount.</li><li>Open PowerShell als administrator.</li><li>Voer de onderstaande opdrachten uit en controleer het resultaat:<ul><li>a. LastRunTime toont de huidige datum en tijd;</li><li>b. LastTaskResult is 0.</li></ul></li><li>Noteer de handmatige back-up in het logboek van de beheerplanner.</li></ol><pre class="code">Start-ScheduledTask -TaskName "Backup Praktijkserver"
+Get-ScheduledTaskInfo -TaskName "Backup Praktijkserver" |
+    Select-Object LastRunTime, LastTaskResult</pre><h3>4.3 Controle van het logbestand</h3><p>Elke ochtend controleert de medewerker van dienst het logbestand van de afgelopen nacht. Een geslaagde back-up eindigt met resultaatcode 0, zoals in het voorbeeld hieronder.</p><pre class="code">2026-10-05 22:30:02  START  taak 'Backup Praktijkserver'
+2026-10-05 22:41:57  OK     12.418 bestanden, 18,6 GB
+2026-10-05 22:41:58  EINDE  resultaatcode 0</pre><p>Neem dezelfde dag contact op met de ICT-beheerder als:</p><ul class="sq"><li>de regel met EINDE ontbreekt;</li><li>de resultaatcode anders is dan 0;</li><li>de omvang van de back-up meer dan 20% afwijkt van die van de vorige nacht.</li></ul><h2>5 Herstel van bestanden</h2><p>Het terugzetten van bestanden gebeurt uitsluitend door de ICT-beheerder of de praktijkmanager.</p><div class="boxes"><div class="box w"><div class="lbl">Let op</div><p>Zet een bestand nooit terug over het origineel heen. Herstel het altijd eerst naar de map C:\Herstel en vergelijk daar de inhoud.</p></div><div class="box t"><div class="lbl">Tip</div><p>De back-ups van de laatste 30 dagen staan als aparte mappen op de NAS. Elke mapnaam begint met de datum, bijvoorbeeld 2026-10-05.</p></div></div><h2>6 Gerelateerde documenten</h2><ul class="docs"><li>– WI-ICT-02 Back-up van werkplekken en laptops</li><li>– PR-AVG-01 Privacybeleid en bewaartermijnen</li><li>– FO-ICT-07 Logboek beheerplanner</li></ul><p>Vastgesteld door de praktijkmanager op 14 september 2026.</p></div><div class="ftr"><span>Geprinte versies zijn ongecontroleerd</span><span>Pagina 2 van 2</span></div></div>
+</body>
+</html>

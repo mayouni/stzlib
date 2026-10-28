@@ -1,0 +1,169 @@
+{
+  "id": "d18",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "2025 Faaliyet Raporu",
+  "headings": [
+    {
+      "level": 1,
+      "text": "2025 Faaliyet Raporu"
+    },
+    {
+      "level": 2,
+      "text": "Yılın öne çıkanları"
+    },
+    {
+      "level": 3,
+      "text": "Burslar"
+    },
+    {
+      "level": 3,
+      "text": "Kütüphaneler"
+    },
+    {
+      "level": 3,
+      "text": "Öğretmen eğitimi"
+    },
+    {
+      "level": 2,
+      "text": "Programlara göre harcamalar"
+    },
+    {
+      "level": 2,
+      "text": "Mali durum"
+    },
+    {
+      "level": 2,
+      "text": "2026 yılı hedefleri"
+    },
+    {
+      "level": 2,
+      "text": "Teşekkür"
+    }
+  ],
+  "key_sentences": [
+    "Vakfımız 2025 yılında dört ilde, kırk iki köy okulunda eğitim desteği sağladı.",
+    "Yıl içinde 1.240 ortaokul ve lise öğrencisine aylık burs verildi.",
+    "Toplam 27.000 kitap gönüllüler tarafından tasnif edildi.",
+    "Atölyeler bu yıl ilk kez çevrim içi olarak da sunuldu.",
+    "Vakfın 2025 yılı toplam geliri 36 milyon lira olarak gerçekleşti.",
+    "Yönetim giderlerinin toplam harcamalar içindeki payı yüzde dokuz ile hedeflenen sınırın altında kaldı.",
+    "Yıl sonunda vakfın acil durum fonunda altı aylık harcamayı karşılayacak kaynak bulunmaktaydı.",
+    "Tüm destekçilerimize içten teşekkür ederiz."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Program",
+          "Yararlanıcı",
+          "Harcama (TL)",
+          "Pay"
+        ],
+        [
+          "Burs programı",
+          "1.240",
+          "18.600.000",
+          "%52"
+        ],
+        [
+          "Köy kütüphaneleri",
+          "18 okul",
+          "5.400.000",
+          "%15"
+        ],
+        [
+          "Öğretmen atölyeleri",
+          "310",
+          "3.900.000",
+          "%11"
+        ],
+        [
+          "Okul ulaşım desteği",
+          "640",
+          "4.700.000",
+          "%13"
+        ],
+        [
+          "Yönetim giderleri",
+          "—",
+          "3.200.000",
+          "%9"
+        ],
+        [
+          "Toplam",
+          "—",
+          "35.800.000",
+          "%100"
+        ]
+      ]
+    },
+    {
+      "caption": "Tablo 2. Gelirlerin dağılımı",
+      "rows": [
+        [
+          "Gelir kaynağı",
+          "Tutar (TL)"
+        ],
+        [
+          "Bireysel bağışlar",
+          "14.900.000"
+        ],
+        [
+          "Kurumsal bağışlar",
+          "16.300.000"
+        ],
+        [
+          "Vakıf varlık gelirleri",
+          "4.800.000"
+        ],
+        [
+          "Toplam gelir",
+          "36.000.000"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Burs programını genişletmek"
+    },
+    {
+      "level": 1,
+      "text": "burslu öğrenci sayısını 1.500 öğrenciye çıkarmak"
+    },
+    {
+      "level": 1,
+      "text": "üniversiteye hazırlık desteği başlatmak"
+    },
+    {
+      "level": 0,
+      "text": "On iki yeni köy kütüphanesi kurmak"
+    },
+    {
+      "level": 0,
+      "text": "Öğretmen eğitimlerini yaygınlaştırmak"
+    },
+    {
+      "level": 1,
+      "text": "çevrim içi atölye sayısını iki katına çıkarmak"
+    },
+    {
+      "level": 1,
+      "text": "okul müdürleri için yönetim eğitimi düzenlemek"
+    }
+  ],
+  "furniture": [
+    "Yeşil Vadi Eğitim Vakfı",
+    "2025 Faaliyet Raporu Özeti",
+    "Sayfa 1 / 2",
+    "Sayfa 2 / 2"
+  ],
+  "languages": [
+    "tr"
+  ],
+  "code": [],
+  "notes": "Turkish annual report summary of a fictional education foundation, 2 pages. Running header in two parts; footer \"Sayfa N / 2\". The subtitle under the title is not a heading. Three KPI boxes sit SIDE BY SIDE; reading order is box by box, left to right; each box title is a level 3 heading. The programme table is zebra striped with a total row. On page 2 a small income table floats at the right BESIDE body text (caption given). The goals list uses CSS decimal markers with a nested CSS lower-alpha level."
+}

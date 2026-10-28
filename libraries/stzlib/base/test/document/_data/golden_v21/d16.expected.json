@@ -1,0 +1,346 @@
+{
+  "id": "d16",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Orçamento sintético de obra",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Orçamento sintético de obra"
+    },
+    {
+      "level": 2,
+      "text": "Observações"
+    }
+  ],
+  "key_sentences": [
+    "Este orçamento apresenta os serviços necessários para a reforma da cobertura, das instalações elétricas e dos sanitários da escola.",
+    "Os quantitativos foram levantados em vistoria realizada em 23 de fevereiro de 2026.",
+    "Este orçamento tem validade de 60 dias a partir da data de emissão.",
+    "Alterações no projeto poderão exigir a revisão dos quantitativos."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Item",
+          "Código",
+          "Descrição do serviço",
+          "Unid.",
+          "Quant.",
+          "Preço unit. (R$)",
+          "Total (R$)",
+          "Peso (%)"
+        ],
+        [
+          "1 SERVIÇOS PRELIMINARES",
+          "1 SERVIÇOS PRELIMINARES",
+          "1 SERVIÇOS PRELIMINARES",
+          "1 SERVIÇOS PRELIMINARES",
+          "1 SERVIÇOS PRELIMINARES",
+          "1 SERVIÇOS PRELIMINARES",
+          "1 SERVIÇOS PRELIMINARES",
+          "1 SERVIÇOS PRELIMINARES"
+        ],
+        [
+          "1.1",
+          "74209",
+          "Placa de obra em chapa de aço galvanizado",
+          "m²",
+          "6,00",
+          "412,30",
+          "2.473,80",
+          "0,93"
+        ],
+        [
+          "1.2",
+          "98459",
+          "Tapume de chapa de madeira compensada, com pintura",
+          "m²",
+          "84,00",
+          "96,15",
+          "8.076,60",
+          "3,03"
+        ],
+        [
+          "1.3",
+          "93207",
+          "Barracão de obra para depósito e escritório",
+          "m²",
+          "18,00",
+          "845,72",
+          "15.222,96",
+          "5,71"
+        ],
+        [
+          "Subtotal 1",
+          "Subtotal 1",
+          "Subtotal 1",
+          "Subtotal 1",
+          "Subtotal 1",
+          "Subtotal 1",
+          "25.773,36",
+          "9,67"
+        ],
+        [
+          "2 COBERTURA",
+          "2 COBERTURA",
+          "2 COBERTURA",
+          "2 COBERTURA",
+          "2 COBERTURA",
+          "2 COBERTURA",
+          "2 COBERTURA",
+          "2 COBERTURA"
+        ],
+        [
+          "2.1",
+          "97647",
+          "Remoção de telhas de fibrocimento, sem reaproveitamento",
+          "m²",
+          "620,00",
+          "6,84",
+          "4.240,80",
+          "1,59"
+        ],
+        [
+          "2.2",
+          "92543",
+          "Trama de madeira com ripas e caibros para telhado",
+          "m²",
+          "620,00",
+          "58,90",
+          "36.518,00",
+          "13,70"
+        ],
+        [
+          "2.3",
+          "94207",
+          "Telhamento com telha cerâmica tipo romana",
+          "m²",
+          "620,00",
+          "71,45",
+          "44.299,00",
+          "16,62"
+        ],
+        [
+          "2.4",
+          "94229",
+          "Calha em chapa galvanizada, desenvolvimento de 50 cm",
+          "m",
+          "96,00",
+          "118,60",
+          "11.385,60",
+          "4,27"
+        ],
+        [
+          "Subtotal 2",
+          "Subtotal 2",
+          "Subtotal 2",
+          "Subtotal 2",
+          "Subtotal 2",
+          "Subtotal 2",
+          "96.443,40",
+          "36,18"
+        ],
+        [
+          "3 INSTALAÇÕES ELÉTRICAS",
+          "3 INSTALAÇÕES ELÉTRICAS",
+          "3 INSTALAÇÕES ELÉTRICAS",
+          "3 INSTALAÇÕES ELÉTRICAS",
+          "3 INSTALAÇÕES ELÉTRICAS",
+          "3 INSTALAÇÕES ELÉTRICAS",
+          "3 INSTALAÇÕES ELÉTRICAS",
+          "3 INSTALAÇÕES ELÉTRICAS"
+        ],
+        [
+          "3.1",
+          "91926",
+          "Cabo de cobre flexível isolado de 2,5 mm²",
+          "m",
+          "1.850,00",
+          "4,92",
+          "9.102,00",
+          "3,41"
+        ],
+        [
+          "3.2",
+          "91953",
+          "Interruptor simples com placa, instalado",
+          "un",
+          "64,00",
+          "31,40",
+          "2.009,60",
+          "0,75"
+        ],
+        [
+          "3.3",
+          "97586",
+          "Luminária de sobrepor com duas lâmpadas de LED",
+          "un",
+          "112,00",
+          "186,25",
+          "20.860,00",
+          "7,83"
+        ],
+        [
+          "3.4",
+          "101893",
+          "Quadro de distribuição para 24 disjuntores, embutido",
+          "un",
+          "4,00",
+          "1.284,50",
+          "5.138,00",
+          "1,93"
+        ],
+        [
+          "Subtotal 3",
+          "Subtotal 3",
+          "Subtotal 3",
+          "Subtotal 3",
+          "Subtotal 3",
+          "Subtotal 3",
+          "37.109,60",
+          "13,92"
+        ],
+        [
+          "4 SANITÁRIOS",
+          "4 SANITÁRIOS",
+          "4 SANITÁRIOS",
+          "4 SANITÁRIOS",
+          "4 SANITÁRIOS",
+          "4 SANITÁRIOS",
+          "4 SANITÁRIOS",
+          "4 SANITÁRIOS"
+        ],
+        [
+          "4.1",
+          "86932",
+          "Vaso sanitário com caixa acoplada, instalado",
+          "un",
+          "14,00",
+          "642,80",
+          "8.999,20",
+          "3,38"
+        ],
+        [
+          "4.2",
+          "86939",
+          "Lavatório de louça com coluna, instalado",
+          "un",
+          "12,00",
+          "398,75",
+          "4.785,00",
+          "1,80"
+        ],
+        [
+          "4.3",
+          "87265",
+          "Revestimento cerâmico de paredes, placas de 30 x 60 cm",
+          "m²",
+          "310,00",
+          "94,20",
+          "29.202,00",
+          "10,96"
+        ],
+        [
+          "4.4",
+          "87620",
+          "Contrapiso e piso cerâmico antiderrapante",
+          "m²",
+          "145,00",
+          "112,40",
+          "16.298,00",
+          "6,11"
+        ],
+        [
+          "Subtotal 4",
+          "Subtotal 4",
+          "Subtotal 4",
+          "Subtotal 4",
+          "Subtotal 4",
+          "Subtotal 4",
+          "59.284,20",
+          "22,24"
+        ],
+        [
+          "5 ADMINISTRAÇÃO E LIMPEZA",
+          "5 ADMINISTRAÇÃO E LIMPEZA",
+          "5 ADMINISTRAÇÃO E LIMPEZA",
+          "5 ADMINISTRAÇÃO E LIMPEZA",
+          "5 ADMINISTRAÇÃO E LIMPEZA",
+          "5 ADMINISTRAÇÃO E LIMPEZA",
+          "5 ADMINISTRAÇÃO E LIMPEZA",
+          "5 ADMINISTRAÇÃO E LIMPEZA"
+        ],
+        [
+          "5.1",
+          "90778",
+          "Engenheiro civil de obra, com encargos",
+          "h",
+          "160,00",
+          "252,10",
+          "40.336,00",
+          "15,13"
+        ],
+        [
+          "5.2",
+          "99803",
+          "Limpeza final da obra",
+          "m²",
+          "1.420,00",
+          "5,30",
+          "7.526,00",
+          "2,82"
+        ],
+        [
+          "Subtotal 5",
+          "Subtotal 5",
+          "Subtotal 5",
+          "Subtotal 5",
+          "Subtotal 5",
+          "Subtotal 5",
+          "47.862,00",
+          "17,96"
+        ],
+        [
+          "TOTAL GERAL",
+          "TOTAL GERAL",
+          "TOTAL GERAL",
+          "TOTAL GERAL",
+          "TOTAL GERAL",
+          "TOTAL GERAL",
+          "266.472,56",
+          "100,00"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1) Os preços incluem materiais, mão de obra e encargos sociais."
+    },
+    {
+      "level": 0,
+      "text": "2) O BDI de 24,5 % já está aplicado aos preços unitários."
+    },
+    {
+      "level": 0,
+      "text": "3) O prazo estimado de execução é de 120 dias corridos."
+    }
+  ],
+  "furniture": [
+    "Construtora Pedra Alta Ltda.",
+    "Orçamento sintético n.º 117/2026",
+    "Reforma da Escola Municipal Jardim das Acácias",
+    "Preços com base na tabela de referência de fevereiro de 2026, sem desoneração",
+    "Folha 1 de 2",
+    "Folha 2 de 2"
+  ],
+  "languages": [
+    "pt"
+  ],
+  "code": [],
+  "notes": "Brazilian construction budget on LANDSCAPE A4, 2 pages. Running header: company name (left) and project lines (right), each listed once; footer has a fixed note (left) and \"Folha N de 2\" (right). One WIDE table of 8 columns continues across both pages with its header repeated on page 2: it is ONE table with the header row once. Section rows (\"1 SERVIÇOS PRELIMINARES\" etc.) span all 8 columns and subtotal labels span 7 columns, so their text repeats in each covered grid cell. The observations list uses TYPED \"1)\" markers with a hanging indent."
+}

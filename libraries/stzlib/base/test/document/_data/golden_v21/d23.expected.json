@@ -1,0 +1,190 @@
+{
+  "id": "d23",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Werkinstructie: automatische back-up van de praktijkserver",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Werkinstructie: automatische back-up van de praktijkserver"
+    },
+    {
+      "level": 2,
+      "text": "1 Doel"
+    },
+    {
+      "level": 2,
+      "text": "2 Toepassingsgebied"
+    },
+    {
+      "level": 2,
+      "text": "3 Verantwoordelijkheden"
+    },
+    {
+      "level": 2,
+      "text": "4 Werkwijze"
+    },
+    {
+      "level": 3,
+      "text": "4.1 Instellingen van de back-uptaak"
+    },
+    {
+      "level": 3,
+      "text": "4.2 De taak handmatig starten"
+    },
+    {
+      "level": 3,
+      "text": "4.3 Controle van het logbestand"
+    },
+    {
+      "level": 2,
+      "text": "5 Herstel van bestanden"
+    },
+    {
+      "level": 2,
+      "text": "6 Gerelateerde documenten"
+    }
+  ],
+  "key_sentences": [
+    "Deze werkinstructie beschrijft hoe de dagelijkse back-up van de praktijkserver is ingericht en hoe medewerkers controleren of die geslaagd is.",
+    "Een betrouwbare back-up is nodig omdat de server de agenda, de behandeldossiers en de financiële administratie bevat.",
+    "De instructie geldt voor de server in de technische ruimte op de eerste verdieping.",
+    "De back-uptaak leest zijn instellingen uit het bestand backup.ini in de map C:\\Beheer\\Backup.",
+    "Elke ochtend controleert de medewerker van dienst het logbestand van de afgelopen nacht.",
+    "Een geslaagde back-up eindigt met resultaatcode 0, zoals in het voorbeeld hieronder.",
+    "Zet een bestand nooit terug over het origineel heen.",
+    "De back-ups van de laatste 30 dagen staan als aparte mappen op de NAS."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Versie",
+          "Datum",
+          "Auteur",
+          "Wijziging"
+        ],
+        [
+          "1.0",
+          "12-01-2024",
+          "M. de Bruin",
+          "Eerste uitgave"
+        ],
+        [
+          "2.0",
+          "03-03-2025",
+          "M. de Bruin",
+          "Nieuwe NAS als back-updoel"
+        ],
+        [
+          "3.0",
+          "14-09-2026",
+          "S. Yilmaz",
+          "Versleuteling en e-mailmeldingen toegevoegd"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Taak",
+          "Praktijkmanager",
+          "ICT-beheerder",
+          "Medewerker van dienst"
+        ],
+        [
+          "Instellen en wijzigen van de back-uptaak",
+          "I",
+          "U, V",
+          "—"
+        ],
+        [
+          "Dagelijkse controle van het logbestand",
+          "V",
+          "I",
+          "U"
+        ],
+        [
+          "Maandelijkse hersteltest",
+          "I",
+          "U, V",
+          "—"
+        ],
+        [
+          "Melden van storingen",
+          "I",
+          "U",
+          "U"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Meld je aan op de server met het beheeraccount."
+    },
+    {
+      "level": 0,
+      "text": "Open PowerShell als administrator."
+    },
+    {
+      "level": 0,
+      "text": "Voer de onderstaande opdrachten uit en controleer het resultaat:"
+    },
+    {
+      "level": 1,
+      "text": "a. LastRunTime toont de huidige datum en tijd;"
+    },
+    {
+      "level": 1,
+      "text": "b. LastTaskResult is 0."
+    },
+    {
+      "level": 0,
+      "text": "Noteer de handmatige back-up in het logboek van de beheerplanner."
+    },
+    {
+      "level": 0,
+      "text": "de regel met EINDE ontbreekt;"
+    },
+    {
+      "level": 0,
+      "text": "de resultaatcode anders is dan 0;"
+    },
+    {
+      "level": 0,
+      "text": "de omvang van de back-up meer dan 20% afwijkt van die van de vorige nacht."
+    },
+    {
+      "level": 0,
+      "text": "– WI-ICT-02 Back-up van werkplekken en laptops"
+    },
+    {
+      "level": 0,
+      "text": "– PR-AVG-01 Privacybeleid en bewaartermijnen"
+    },
+    {
+      "level": 0,
+      "text": "– FO-ICT-07 Logboek beheerplanner"
+    }
+  ],
+  "furniture": [
+    "Fysiotherapie De Lindehof",
+    "WI-ICT-04 · versie 3.0",
+    "Geprinte versies zijn ongecontroleerd",
+    "Pagina 1 van 2",
+    "Pagina 2 van 2"
+  ],
+  "languages": [
+    "nl"
+  ],
+  "code": [
+    "[backup]\nbron       = D:\\Praktijkdata\ndoel       = \\\\NAS-LINDEHOF\\backup\\server01\nschema     = dagelijks 22:30\nbewaren    = 30 dagen\nversleutel = ja\nmelding    = ict@lindehof.example",
+    "Start-ScheduledTask -TaskName \"Backup Praktijkserver\"\nGet-ScheduledTaskInfo -TaskName \"Backup Praktijkserver\" |\n    Select-Object LastRunTime, LastTaskResult",
+    "2026-10-05 22:30:02  START  taak 'Backup Praktijkserver'\n2026-10-05 22:41:57  OK     12.418 bestanden, 18,6 GB\n2026-10-05 22:41:58  EINDE  resultaatcode 0"
+  ],
+  "notes": "Dutch work instruction (werkinstructie) of a fictional physiotherapy practice, 2 pages: Gill Sans MT body, Rockwell headings, three code blocks in Courier New (an INI configuration with backslash paths, a PowerShell command of three lines whose third line is indented by four spaces, and a log excerpt whose columns are aligned by runs of spaces; whitespace inside code is exact). Running header in two parts (practice name left, document code right) and footer in two parts (\"Geprinte versies zijn ongecontroleerd\" left, \"Pagina N van 2\" right), each listed once except the page numbers. Headings carry TYPED numbers without a trailing dot (\"1 Doel\", \"4.1 ...\"). The revision table at the top is fully ruled; the responsibilities table is borderless except the rule under its header, with centred letter codes; the legend line under it is body text but not a sentence. Steps use CSS decimal markers (not in the text); their nested level uses TYPED \"a.\" \"b.\" markers inline. The call-out list uses CSS square bullets; the list of related documents uses TYPED en-dash markers with a hanging indent. In section 5 two boxes (\"Let op\", \"Tip\") sit SIDE BY SIDE and are read box by box, left box first; their labels are labels, not headings. Backslashes in body sentences are literal."
+}

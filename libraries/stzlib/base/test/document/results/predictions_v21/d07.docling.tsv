@@ -1,0 +1,48 @@
+page_header	0	Journal of Estuarine Monitoring · Vol. 18 (2026)
+page_header	0	Salinity drift in tidal reed beds
+heading	1	Seasonal salinity drift in restored tidal reed beds: a three year sensor record
+paragraph	0	Maren Holloway, Tobias Arkwright and Inés Calder
+paragraph	0	Department of Coastal Science, Northmoor Institute of Technology Received 4 November 2025; accepted 19 January 2026
+paragraph	0	Abstract We report three years of continuous salinity measurements from eleven sensors placed in two restored reed beds. Salinity rose by an average of 0.8 practical salinity units per year at the landward stations. The rise was strongest after dry summers and did not reverse during the following winters. These results suggest that restored beds may need active freshwater management within a decade.
+heading	1	1 Introduction
+paragraph	0	Tidal reed beds protect estuary banks from erosion and provide habitat for many bird species. Several restoration schemes have been completed along the northern coast since 2015. Their long term salinity balance, however, is rarely measured after the first year of monitoring. 1
+paragraph	0	Salinity matters because common reed tolerates brackish water only up to a threshold. Above that threshold, growth slows and the plants are replaced by salt marsh species. A slow drift towards that threshold can therefore change the character of a restored site without any visible event.
+paragraph	0	Earlier studies of restored sites have relied mostly on spot samples taken a few times each year. Spot samples can miss short events and are easily biased by the state of the tide at the time of the visit. Continuous sensors avoid both problems, although they need regular cleaning and checking.
+paragraph	0	This paper presents the first continuous record from two restored reed beds on the northern coast. We ask whether salinity has changed since restoration, whether any change differs between seaward and landward positions, and whether dry summers leave a lasting mark.
+heading	1	2 Methods
+heading	1	2.1 Study sites
+paragraph	0	Two sites were studied, each with a different history of restoration:
+paragraph	0	1 An exception is the five year record kept by the regional water authority at a single station.
+list_item	0	Hallow Flats, a former grazing marsh reopened to the tide in 2017;
+list_item	0	Brennick Reach, a reed bed planted on dredged silt in 2019.
+paragraph	0	Both sites lie within four kilometres of each other and share the same tidal regime. They differ mainly in the age of the reed stands and in the height of the sediment surface.
+heading	1	2.2 Sensors and sampling
+paragraph	0	Conductivity sensors were fixed to steel posts at 30 cm below the sediment surface. Readings were taken every fifteen minutes and transmitted daily over a radio link. Each sensor was cleaned and checked against a handheld meter every six weeks.
+paragraph	0	Sensor positions were chosen along a transect from the seaward edge to the landward bank. At each site, sensors were placed in the seaward third of the bed and in the landward third.
+heading	1	2.3 Data analysis
+paragraph	0	Daily means were computed from the raw readings after removing values recorded during maintenance visits. Annual trends were estimated with a linear model that included a seasonal term.
+paragraph	0	Rainfall and river flow data were obtained from the regional gauging network. Dry summers were defined as those with less than 70 per cent of the long term mean rainfall between June and August.
+page_footer	0	112
+page_header	0	Journal of Estuarine Monitoring · Vol. 18 (2026)
+page_header	0	Salinity drift in tidal reed beds
+heading	1	3 Results
+paragraph	0	Mean salinity increased at nine of the eleven stations. Table 1 summarises the annual means for each site and position.
+table	0	Site and position202320242025TrendHallow, seaward6.16.46.6+0.25Hallow, landward3.24.14.8+0.80Brennick, seaward5.45.55.9+0.25Brennick, landward2.73.44.3+0.80
+caption	0	Table 1. Annual mean salinity (practical salinity units) and linear trend per year.
+paragraph	0	The landward stations showed the largest increase at both sites. At these stations the summer peaks of 2024 and 2025 exceeded the values of the preceding winter by more than two units.
+paragraph	0	No station recorded a sustained decrease over the study period. Short drops after heavy rain lasted less than ten days in every case.
+paragraph	0	The difference between seaward and landward stations narrowed each year. In 2023 the landward stations were on average 3.0 units fresher than the seaward ones, and by 2025 the gap had fallen to 1.7 units.
+heading	1	4 Discussion
+paragraph	0	The drift we observed is slow but persistent. If the current trend continues, the landward stations at both sites will reach the tolerance threshold of common reed within nine to twelve years.
+paragraph	0	Restoration plans for similar sites should therefore include a long monitoring period and a budget for freshwater inflow. Simple measures such as reopening field drains could slow the drift at low cost.
+paragraph	0	Two mechanisms could explain the drift. The first is a gradual rise of the sediment surface, which reduces the flushing of the bed by fresh water from the land. The second is the reduced flow of the small streams that feed the landward bank during dry years.
+paragraph	0	Our record cannot yet separate these mechanisms, but the sharp steps after dry summers point to the second.
+heading	1	5 Conclusions
+paragraph	0	Salinity in both restored reed beds has risen steadily since monitoring began. Continued measurement, together with simple trials of freshwater inflow, is the most useful next step.
+heading	1	Acknowledgements
+paragraph	0	We thank the site wardens for access and for their help with sensor maintenance.
+heading	1	References
+list_item	0	Pellow, R. and Stanmore, J. (2019) Reed tolerance to brackish water in estuarine margins. Coastal Ecology Letters 7, 44 to 58.
+list_item	0	Northern Estuaries Partnership (2021) Restoration schemes on the northern coast: a review of the first five years.
+list_item	0	Varga, L. (2023) Sensor drift and cleaning intervals in sediment conductivity probes. Field Instruments 12, 201 to 215.
+page_footer	0	113

@@ -431,6 +431,23 @@ golden_v20: 24 realistic documents in 17 languages besides English (Chinese, Jap
 
 Time for the 24 documents: native 0.1 s, Docling 437 s. The native reader leads on five measures, ties on order and code, and Docling leads on tables by a hair (0.678 against 0.671). Lists are low for BOTH readers, and the cause is read off the output: this set types list markers in many conventions -- "1.1", "（1）", "（一）", "※", "(क)", "1-", "1.ª", "א." -- that the native reader does not know, and where such markers stand apart from their text, the marker column and the text column are taken for a two-column table. Round 20.
 
+**Twentieth round: list markers in many conventions; then golden_v21.** Fixed on golden_v20 (now a development set) and checked on all twenty sets:
+- list markers in the conventions documents in many languages use: multi-level decimals ("1.1", "2.3.4" -- never a figure like "850.00": the first form read a budget table's amounts as markers and dissolved it, and was guarded before keeping), "1-", Spanish ordinals, full-width CJK "（1）"/"（一）", reference and shape bullets, a letter of any non-Latin script in brackets "(क)", a single non-Latin letter then "." or ")" ("א.", "б)");
+- a standing-apart marker joins only a fragment that starts with a word, never a figure;
+- a first column of list markers beside running text is a list, not a two-column table;
+- an italic numbered line is a heading, as an italic plain line is.
+
+On the development sets, lists: v20 0.53 -> 0.79, v6 0.74 -> 0.94, v10 0.90 -> 0.97, v17 0.87 -> 0.96, v19 0.86 -> 0.92, v14 0.75 -> 0.81, v12 0.82 -> 0.86, v5 0.63 -> 0.69, many documents 0 -> 1.00; headings v20 0.865 -> 0.875; golden_v1 to v4 stay at 1.00. Costs: text on three documents (0.99 -> 0.87, 1.00 -> 0.85, 1.00 -> 0.84) and a little on four tables. Guard 186 assertions under Ring++.
+
+golden_v21: 24 realistic documents in 19 languages besides English (Persian, Thai, Vietnamese, Hebrew and Arabic among them), 17 of 2-3 pages, three right-to-left documents with lists and tables, ten with side-by-side boxes read box by box, three with code; written by two independent agents who saw no reader, no output and no earlier set -- the first stopped after d18 on an API error, the second wrote d19-d24 and the README reading only d01-d18 of this set; the second looked at screenshots of its own HTML pages, never of the PDFs; no person has looked at the pages (unperceived); reader frozen at 66ec5c544 (5d1638458 before the rebase); both readers ran once:
+
+| golden_v21, realistic | text | order | headings | tables | lists | furniture | code | heading precision |
+|---|---|---|---|---|---|---|---|---|
+| Softanza native (Ring++) | **0.96** | **1.00** | **0.89** | **0.82** | **0.76** | **0.91** | **1.00** | **0.90** |
+| Docling 2.141 | 0.78 | 0.99 | 0.88 | 0.73 | 0.50 | 0.88 | 0.39 | 0.82 |
+
+Time for the 24 documents: native 0.09 s, Docling 107 s. The native reader leads on all eight measures, the third set where it does (after golden_v17 and golden_v19); lists, the round's subject, lead by 0.26. Where Docling does better, document by document: tables on seven documents (a table read as nothing on d11, 0.27 against 0.59 on d22, 0.62 against 0.95 on d24), lists on four (d05 and d17 find no list item where Docling finds three in four), headings on three. The worst native document is d21, Thai: text 0.50, no heading and no list item found. On d19, Persian, two of seven sentences are missed; the zero-width non-joiners are not the cause -- the native output keeps them as the source has them. Causes on d21, d05, d17 and the tables not yet looked into: round 21.
+
 **Perceived (2026-10-24):** the author looked through every rendered page of golden_v9 to golden_v13 -- the sets whose own authors could not look at them -- and judged them: "they look great". Those five sets are no longer unperceived; the sets before them were generated the same way and are not covered by this look.
 
 **Not measured**: Granite-Docling-258M (not downloaded), the GPU, scanned golden pages with an expected text, PDFs from producers other than Chrome (both golden sets are Chrome-made and tagged; the native reader does not read the tags).

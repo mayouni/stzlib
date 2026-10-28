@@ -1,0 +1,37 @@
+heading	1	Laboratorium Badań Wody "Czysty Nurt" sp. z o.o.
+paragraph	0	ul. Torfowa 7, 87-100 Toruń · tel. 56 600 41 20 · biuro@czystynurt.example Wpis do rejestru laboratoriów: LBW/017/2024
+heading	1	Sprawozdanie z badań
+paragraph	0	nr 412/W/2026 z dnia 18 marca 2026 r.
+table	0	ZleceniodawcaZakład Wodociągów Gminy Lipowa Dolina, ul. Polna 3, 87-199 Lipowa DolinaNr zleceniaZ/118/2026Rodzaj próbkiwoda przeznaczona do spożycia przez ludziKod próbkiW/412/1Miejsce pobraniaStacja uzdatniania wody Lipowa Dolina, kran na wyjściu do sieciData pobrania10.03.2026, godz. 8:40Pobrałpróbobiorca laboratorium wg PN-ISO 5667-5Data przyjęcia10.03.2026, godz. 10:15Stan próbkibez zastrzeżeń, temperatura 6 °COkres badań10.03-17.03.2026
+paragraph	0	Badania wykonano w ramach monitoringu kontrolnego jakości wody prowadzonego przez zleceniodawcę. Próbka została dostarczona do laboratorium w pojemnikach chłodzonych, w warunkach zapewniających jej trwałość.
+heading	1	1. Wyniki badań
+paragraph	0	Wyniki podano wraz z niepewnością rozszerzoną U. Wartości poprzedzone znakiem "<" oznaczają wynik poniżej granicy oznaczalności metody.
+table	0	WymaganiaWymaganiaLp.ParametrJednostkaWynik ± Umin.maks.Metoda badawczaA. Parametry fizykochemiczneA. Parametry fizykochemiczneA. Parametry fizykochemiczneA. Parametry fizykochemiczneA. Parametry fizykochemiczneA. Parametry fizykochemiczneA. Parametry fizykochemiczne1Barwamg/l Pt5-15PN-EN ISO 7887, metoda D2MętnośćNTU0,32 ± 0,05-1,0PN-EN ISO 7027-13Odczyn pH-7,4 ± 0,16,59,5PN-EN ISO 105234Przewodność elektryczna w 20 °CµS/cm512 ± 26-2500PN-EN 278885Żelazoµg/l48 ± 7-200PN-ISO 63326Manganµg/l< 10-50PN-ISO 63337Azotanymg/l6,8 ± 0,6-50PN-EN ISO 10304-18Azotynymg/l< 0,03-0,50PN-EN 267779Jon amonowymg/l0,08 ± 0,02-0,50PN-ISO 7150-110Chlorkimg/l31 ± 3-250PN-EN ISO 10304-111Siarczanymg/l64 ± 6-250PN-EN ISO 10304-112Twardość ogólnamg CaCO3/l285 ± 1460500PN-ISO 6059
+page_footer	0	Wyniki badań dotyczą wyłącznie badanych próbek. Sprawozdanie nie może być powielane inaczej niż w całości bez pisemnej zgody laboratorium. F-07/PB-03, wydanie 4
+page_footer	0	Strona 1 z 2
+page_header	0	Laboratorium Badań Wody "Czysty Nurt" sp. z o.o.
+page_header	0	Sprawozdanie nr 412/W/2026
+table	0	WymaganiaWymaganiaLp.ParametrJednostkaWynik ± Umin.maks.Metoda badawcza13Chlor wolnymg/l0,12 ± 0,03-0,30PN-EN ISO 7393-2B. Parametry mikrobiologiczneB. Parametry mikrobiologiczne14Bakterie grupy colijtk/100 ml0-0PN-EN ISO 9308-115Escherichia colijtk/100 ml0-0PN-EN ISO 9308-116Enterokokijtk/100 ml0-0PN-EN ISO 7899-217Ogólna liczba mikroorganizmów w 22 °Cjtk/1 ml12-100PN-EN ISO 622218Clostridium perfringensjtk/100 ml0-0PN-EN ISO 14189
+heading	1	2. Ocena wyników
+paragraph	0	W zakresie wykonanych badań próbka spełnia wymagania stawiane wodzie przeznaczonej do spożycia przez ludzi.
+paragraph	0	Niepewność rozszerzona U odpowiada poziomowi ufności około 95% przy współczynniku rozszerzenia k = 2. Ocenę zgodności z wymaganiami przeprowadzono bez uwzględnienia niepewności pomiaru.
+heading	1	3. Uwagi
+list_item	0	Próbkę pobrano zgodnie z planem pobierania próbek PP-04/2026 uzgodnionym ze zleceniodawcą.
+list_item	0	Badania mikrobiologiczne rozpoczęto w ciągu 6 godzin od pobrania próbki.
+list_item	0	Laboratorium zaleca:
+list_item	0	ponowne oznaczenie chloru wolnego po płukaniu sieci wodociągowej,
+list_item	0	kontrolę mętności w punktach końcowych sieci w kwietniu 2026 r.
+list_item	0	Sprawozdanie sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla zleceniodawcy i laboratorium.
+heading	1	4. Objaśnienia skrótów
+paragraph	0	jtk jednostki tworzące kolonie
+paragraph	0	NTU nefelometryczne jednostki mętności
+paragraph	0	U
+paragraph	0	niepewność rozszerzona
+paragraph	0	PN Polska Norma
+heading	1	Sprawdził:
+paragraph	0	mgr inż. Katarzyna Wróbel Kierownik Działu Fizykochemii
+paragraph	0	Zatwierdził:
+paragraph	0	dr Tomasz Sikora
+paragraph	0	Kierownik Laboratorium
+page_footer	0	Wyniki badań dotyczą wyłącznie badanych próbek. Sprawozdanie nie może być powielane inaczej niż w całości bez pisemnej zgody laboratorium. F-07/PB-03, wydanie 4
+page_footer	0	Strona 2 z 2

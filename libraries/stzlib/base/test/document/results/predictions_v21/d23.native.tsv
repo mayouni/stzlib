@@ -1,0 +1,48 @@
+page_header	0	Fysiotherapie De Lindehof
+page_header	0	WI-ICT-04 · versie 3.0
+heading	1	Werkinstructie: automatische back-up van de praktijkserver
+table	0	VersieDatumAuteurWijziging1.012-01-2024M. de BruinEerste uitgave2.003-03-2025M. de BruinNieuwe NAS als back-updoel3.014-09-2026S. YilmazVersleuteling en e-mailmeldingen toegevoegd
+heading	2	1 Doel
+paragraph	0	Deze werkinstructie beschrijft hoe de dagelijkse back-up van de praktijkserver is ingericht en hoe medewerkers controleren of die geslaagd is. Een betrouwbare back-up is nodig omdat de server de agenda, de behandeldossiers en de financiële administratie bevat.
+heading	2	2 Toepassingsgebied
+paragraph	0	De instructie geldt voor de server in de technische ruimte op de eerste verdieping. Werkplekken en laptops vallen er niet onder; daarvoor geldt werkinstructie WI-ICT-02.
+heading	2	3 Verantwoordelijkheden
+caption	0	In de tabel hieronder staat wie welke taak uitvoert.
+table	0	TaakPraktijkmanagerICT-beheerderMedewerker van dienstInstellen en wijzigen van de back-uptaakIU, V—Dagelijkse controle van het logbestandVIUMaandelijkse hersteltestIU, V—Melden van storingenIUU
+paragraph	0	U = uitvoerend, V = verantwoordelijk, I = geïnformeerd
+heading	2	4 Werkwijze
+list_item	0	4.1 Instellingen van de back-uptaak
+paragraph	0	De back-uptaak leest zijn instellingen uit het bestand backup.ini in de map C:\\Beheer\\Backup. Wijzig dit bestand alleen in overleg met de ICT-beheerder.
+code	0	[backup]\nbron       = D:\\Praktijkdata\ndoel       = \\\\NAS-LINDEHOF\\backup\\server01\nschema     = dagelijks 22:30\nbewaren    = 30 dagen\nversleutel = ja\nmelding    = ict@lindehof.example
+page_footer	0	Geprinte versies zijn ongecontroleerd
+page_footer	0	Pagina 1 van 2
+page_header	0	Fysiotherapie De Lindehof
+page_header	0	WI-ICT-04 · versie 3.0
+list_item	0	4.2 De taak handmatig starten
+list_item	1	1. Meld je aan op de server met het beheeraccount.
+list_item	1	2. Open PowerShell als administrator.
+list_item	1	3. Voer de onderstaande opdrachten uit en controleer het resultaat:
+list_item	2	a. LastRunTime toont de huidige datum en tijd;
+list_item	2	b. LastTaskResult is 0.
+list_item	1	4. Noteer de handmatige back-up in het logboek van de beheerplanner.
+code	0	Start-ScheduledTask -TaskName "Backup Praktijkserver"\nGet-ScheduledTaskInfo -TaskName "Backup Praktijkserver" |\n    Select-Object LastRunTime, LastTaskResult
+list_item	0	4.3 Controle van het logbestand
+paragraph	0	Elke ochtend controleert de medewerker van dienst het logbestand van de afgelopen nacht. Een geslaagde back-up eindigt met resultaatcode 0, zoals in het voorbeeld hieronder.
+code	0	2026-10-05 22:30:02  START  taak 'Backup Praktijkserver'\n2026-10-05 22:41:57  OK     12.418 bestanden, 18,6 GB\n2026-10-05 22:41:58  EINDE  resultaatcode 0
+paragraph	0	Neem dezelfde dag contact op met de ICT-beheerder als:
+list_item	0	de regel met EINDE ontbreekt;
+list_item	0	de resultaatcode anders is dan 0;
+list_item	0	de omvang van de back-up meer dan 20% afwijkt van die van de vorige nacht.
+heading	2	5 Herstel van bestanden
+paragraph	0	Het terugzetten van bestanden gebeurt uitsluitend door de ICT-beheerder of de praktijkmanager.
+heading	3	Let op
+paragraph	0	Zet een bestand nooit terug over het origineel heen. Herstel het altijd eerst naar de map C:\\Herstel en vergelijk daar de inhoud.
+heading	3	Tip
+paragraph	0	De back-ups van de laatste 30 dagen staan als aparte mappen op de NAS. Elke mapnaam begint met de datum, bijvoorbeeld 2026-10-05.
+heading	2	6 Gerelateerde documenten
+list_item	0	– WI-ICT-02 Back-up van werkplekken en laptops
+list_item	0	– PR-AVG-01 Privacybeleid en bewaartermijnen
+list_item	0	– FO-ICT-07 Logboek beheerplanner
+paragraph	0	Vastgesteld door de praktijkmanager op 14 september 2026.
+page_footer	0	Geprinte versies zijn ongecontroleerd
+page_footer	0	Pagina 2 van 2

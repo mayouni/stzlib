@@ -1,0 +1,218 @@
+{
+  "id": "d24",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Grannbladet",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Grannbladet"
+    },
+    {
+      "level": 2,
+      "text": "Ordföranden har ordet"
+    },
+    {
+      "level": 2,
+      "text": "Stambytet börjar i januari"
+    },
+    {
+      "level": 3,
+      "text": "Så går arbetet till"
+    },
+    {
+      "level": 3,
+      "text": "Tänk på"
+    },
+    {
+      "level": 2,
+      "text": "Nytt system för matavfall"
+    },
+    {
+      "level": 2,
+      "text": "Nya maskiner i tvättstugan"
+    },
+    {
+      "level": 2,
+      "text": "Välkomna, nya grannar!"
+    },
+    {
+      "level": 2,
+      "text": "Kalender hösten 2026"
+    },
+    {
+      "level": 2,
+      "text": "Gemensam städdag 24 oktober"
+    },
+    {
+      "level": 2,
+      "text": "Laddplatser i garaget"
+    },
+    {
+      "level": 2,
+      "text": "Från styrelsen i korthet"
+    },
+    {
+      "level": 2,
+      "text": "Inför föreningsstämman"
+    },
+    {
+      "level": 2,
+      "text": "Gården i vinter"
+    }
+  ],
+  "key_sentences": [
+    "Hösten har kommit till Lönngatan och med den en ny säsong för föreningen.",
+    "Vi vet att många av er har frågor, och därför ägnar vi en stor del av detta nummer åt projektet.",
+    "Arbetet börjar i januari 2027 och genomförs trappuppgång för trappuppgång.",
+    "Under ombyggnaden står duschvagnar och toaletter på gården.",
+    "Från den 1 november sorteras matavfall i bruna kärl i soprummet.",
+    "De nya maskinerna drar ungefär hälften så mycket el som de gamla.",
+    "Vi samlas vid porten klockan tio och delar upp oss i arbetslag.",
+    "Platserna hyrs ut för 450 kronor i månaden utöver den vanliga garageavgiften.",
+    "Alla medlemmar har rätt att lämna motioner, det vill säga förslag som stämman ska ta ställning till.",
+    "Felanmälan görs till förvaltaren på telefon 08-555 010 00 vardagar mellan klockan 8 och 16."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Datum",
+          "Tid",
+          "Aktivitet",
+          "Plats"
+        ],
+        [
+          "lör 24 okt",
+          "10.00–14.00",
+          "Gemensam städdag",
+          "Gården"
+        ],
+        [
+          "tis 3 nov",
+          "18.30",
+          "Informationsmöte om stambytet",
+          "Föreningslokalen"
+        ],
+        [
+          "tors 12 nov",
+          "19.00",
+          "Styrelsemöte",
+          "Föreningslokalen"
+        ],
+        [
+          "sön 29 nov",
+          "15.00",
+          "Adventsfika för alla boende",
+          "Föreningslokalen"
+        ],
+        [
+          "ons 9 dec",
+          "hela dagen",
+          "Sista dag för motioner till föreningsstämman",
+          "Brevlådan i entrén"
+        ]
+      ]
+    },
+    {
+      "caption": "Avgifter från 1 januari 2027",
+      "rows": [
+        [
+          "Avgift",
+          "Nu",
+          "Från 2027"
+        ],
+        [
+          "Årsavgift per kvm",
+          "712 kr",
+          "745 kr"
+        ],
+        [
+          "Garageplats per månad",
+          "1 100 kr",
+          "1 150 kr"
+        ],
+        [
+          "Laddplats per månad",
+          "—",
+          "450 kr"
+        ],
+        [
+          "Källarförråd per månad",
+          "120 kr",
+          "120 kr"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Entreprenören besiktigar varje lägenhet under november."
+    },
+    {
+      "level": 0,
+      "text": "Du väljer kakel, klinker och porslin vid ett visningstillfälle."
+    },
+    {
+      "level": 0,
+      "text": "Badrummet rivs och nya ledningar dras genom schaktet."
+    },
+    {
+      "level": 0,
+      "text": "Det nya badrummet kakelsätts, provtrycks och besiktigas."
+    },
+    {
+      "level": 0,
+      "text": "» Töm badrumsskåpen senast en vecka före starten."
+    },
+    {
+      "level": 0,
+      "text": "» Ta ner speglar och lampor som du vill behålla."
+    },
+    {
+      "level": 0,
+      "text": "» Meddela styrelsen om du har husdjur som behöver tas om hand."
+    },
+    {
+      "level": 0,
+      "text": "kratta löv och klippa buskarna mot gatan,"
+    },
+    {
+      "level": 0,
+      "text": "rensa cykelrummet från övergivna cyklar,"
+    },
+    {
+      "level": 0,
+      "text": "tvätta fönstren i trapphusen,"
+    },
+    {
+      "level": 0,
+      "text": "byta sand i barnens sandlåda."
+    },
+    {
+      "level": 0,
+      "text": "• Hissen i port B har fått ny styrning och stannar nu jämnt vid varje våning."
+    },
+    {
+      "level": 0,
+      "text": "• Föreningens nya webbplats öppnar i november."
+    },
+    {
+      "level": 0,
+      "text": "• Andrahandsuthyrning kräver alltid styrelsens skriftliga godkännande."
+    }
+  ],
+  "furniture": [
+    "Medlemsblad för Brf Lönnen 4 · Nummer 3 · Oktober 2026",
+    "Grannbladet nr 3 · oktober 2026",
+    "Sida 1 av 2",
+    "Sida 2 av 2"
+  ],
+  "languages": [
+    "sv"
+  ],
+  "code": [],
+  "notes": "Swedish newsletter of a fictional housing cooperative (bostadsrättsförening), 2 pages, Goudy Old Style body and Tw Cen MT headings. The masthead \"Grannbladet\" is the title (level 1, letter-spaced, given as the plain word); the line under it (\"Medlemsblad för ...\") is masthead furniture. Page 1 is set in THREE COLUMNS with column rules and is read column by column, top to bottom; articles and paragraphs flow from one column into the next, so a sentence may start at the foot of one column and end at the head of the next (it is given whole). The signature line \"Eva Lindqvist, ordförande\" is not a sentence. Page 2 starts with a full-width calendar table (borderless apart from dotted row rules; its heading is the level 2 heading above it, caption null), then TWO COLUMNS read column by column. Lists: stambyte steps use CSS decimal markers (not in text); \"Tänk på\" uses TYPED \"»\" markers with a hanging indent; the städdag list uses CSS-drawn en-dash markers (list-style string, not in text); \"Från styrelsen i korthet\" uses TYPED \"•\" bullets inline. The fee table is zebra striped and has a real caption; its amounts use a NO-BREAK SPACE as thousands separator (\"1 100 kr\"), given as an ordinary space. The shaded boxes (the question on page 1, the fault-report note at the end of page 2) are body text. Times are written the Swedish way (\"18.30\")."
+}

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Tax Invoice</title>
+<style>
+*{-webkit-print-color-adjust:exact;print-color-adjust:exact;box-sizing:border-box}
+html,body{margin:0;padding:0}
+.page{position:relative;overflow:hidden;break-after:page}
+.page:last-child{break-after:auto}
+.content{height:100%}
+table{border-collapse:collapse}
+pre{margin:0}
+@page{size:A4;margin:2cm}
+.page{width:170mm;height:256mm}
+body{font-family:"Segoe UI";font-size:10pt;color:#222}
+.lh{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid #0b6e4f;padding-bottom:4mm;margin-bottom:7mm}
+.lh .nm{font-size:17pt;font-weight:700;color:#0b6e4f}
+.lh .ad{text-align:right;font-size:8.5pt;color:#555;line-height:1.45}
+h1{font-size:20pt;font-weight:300;letter-spacing:1px;margin:0 0 5mm 0;color:#0b6e4f}
+.two{display:flex;gap:10mm;margin-bottom:7mm}
+.two>div{flex:1}
+.lbl{font-size:8pt;font-weight:600;color:#0b6e4f;margin-bottom:1.5mm}
+.bill{border-left:3px solid #cde5da;padding-left:3mm;line-height:1.5}
+table.kv td{padding:1mm 0;font-size:9.5pt}
+table.kv td:first-child{color:#666;padding-right:6mm}
+table.items{width:100%;margin-bottom:6mm}
+table.items th{background:#0b6e4f;color:#fff;font-weight:600;text-align:left;padding:2mm;font-size:9pt}
+table.items td{padding:2mm;border-bottom:1px solid #dde}
+table.items .n{text-align:right;white-space:nowrap}
+table.items th.n{text-align:right}
+table.items td.tl{text-align:right;border-bottom:none;color:#555}
+table.items td.gt{text-align:right;font-weight:700;border-top:2px solid #0b6e4f;border-bottom:none}
+h2{font-size:11pt;font-weight:600;color:#0b6e4f;margin:5mm 0 2mm}
+p{margin:0 0 2.5mm;line-height:1.45}
+ul{margin:1mm 0 0 0;padding-left:6mm;list-style:square;line-height:1.5}
+.ftr{position:absolute;bottom:0;left:0;right:0;border-top:1px solid #ccc;padding-top:2mm;font-size:7.5pt;color:#777;text-align:center}
+
+</style>
+</head>
+<body>
+<div class="page"><div class="content"><div class="lh"><div class="nm">Harbourline Print &amp; Bind Ltd</div><div class="ad">Unit 7, Quayside Works, Port Elver PE4 2QT<br>accounts@harbourline.example · 01632 960418</div></div><h1>Tax Invoice</h1><div class="two"><div><div class="lbl">Bill to</div><div class="bill">Fenwick Valley Rowing Club<br>Attn: Club Secretary<br>The Boathouse, Mill Lane<br>Ashcombe AC3 9RD</div></div><div><div class="lbl">Invoice details</div><table class="kv"><tbody><tr><td>Invoice number</td><td>HPB-26-0418</td></tr><tr><td>Invoice date</td><td>3 March 2026</td></tr><tr><td>Due date</td><td>2 April 2026</td></tr><tr><td>Purchase order</td><td>FVRC/114</td></tr></tbody></table></div></div><table class="items"><thead><tr><th>Description</th><th class="n">Qty</th><th class="n">Unit price</th><th class="n">Amount</th></tr></thead><tbody><tr><td>Regatta programme, 24 pages, A5 saddle stitched</td><td class="n">400</td><td class="n">£1.85</td><td class="n">£740.00</td></tr><tr><td>Entry forms, A4 single sided</td><td class="n">250</td><td class="n">£0.12</td><td class="n">£30.00</td></tr><tr><td>Vinyl banner 3 m × 0.8 m with eyelets</td><td class="n">2</td><td class="n">£96.00</td><td class="n">£192.00</td></tr><tr><td>Correx course markers, numbered 1 to 12</td><td class="n">12</td><td class="n">£8.50</td><td class="n">£102.00</td></tr><tr><td>Artwork amendments (hourly)</td><td class="n">1.5</td><td class="n">£42.00</td><td class="n">£63.00</td></tr><tr><td>Delivery to Ashcombe</td><td class="n">1</td><td class="n">£18.00</td><td class="n">£18.00</td></tr><tr><td colspan="3" class="tl">Subtotal</td><td class="n tl">£1,145.00</td></tr><tr><td colspan="3" class="tl">VAT at 20%</td><td class="n tl">£229.00</td></tr><tr><td colspan="3" class="gt">Total due</td><td class="gt">£1,374.00</td></tr></tbody></table><h2>Payment terms</h2><p>Payment is due within 30 days of the invoice date. Please quote the invoice number as the reference on every payment so that we can match it to your account.</p><p>We accept bank transfer and card payments by telephone. Accounts that remain unpaid after the due date may be charged interest at the statutory rate.</p><h2>Notes</h2><ul><li>Programmes were delivered in two boxes of 200 on 27 February.</li><li>The second banner was reprinted at no charge after a colour fault.</li><li>Unused course markers can be stored by us until the autumn head race.</li></ul><p>Thank you for choosing Harbourline again this season. If you have any questions about this invoice, please contact our accounts team.</p></div><div class="ftr">Registered in England and Wales No. 08814426 · VAT registration GB 318 4420 61</div></div>
+</body>
+</html>

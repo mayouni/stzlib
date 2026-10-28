@@ -1,0 +1,339 @@
+{
+  "id": "d20",
+  "difficulty": "medium",
+  "pages": 3,
+  "title": "Hướng dẫn sử dụng nồi cơm điện tử VK-18D",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Hướng dẫn sử dụng nồi cơm điện tử VK-18D"
+    },
+    {
+      "level": 2,
+      "text": "1. Lưu ý an toàn"
+    },
+    {
+      "level": 2,
+      "text": "2. Thông số kỹ thuật"
+    },
+    {
+      "level": 2,
+      "text": "3. Các bộ phận chính"
+    },
+    {
+      "level": 2,
+      "text": "4. Hướng dẫn sử dụng"
+    },
+    {
+      "level": 3,
+      "text": "4.1. Nấu cơm"
+    },
+    {
+      "level": 3,
+      "text": "4.2. Các chức năng nấu"
+    },
+    {
+      "level": 3,
+      "text": "4.3. Hẹn giờ nấu"
+    },
+    {
+      "level": 2,
+      "text": "5. Vệ sinh và bảo quản"
+    },
+    {
+      "level": 2,
+      "text": "6. Xử lý sự cố"
+    },
+    {
+      "level": 2,
+      "text": "7. Bảo hành"
+    }
+  ],
+  "key_sentences": [
+    "Vui lòng đọc kỹ hướng dẫn này trước khi sử dụng và giữ lại để tham khảo khi cần.",
+    "Bảng dưới đây liệt kê các thông số chính của sản phẩm.",
+    "Số thứ tự của các bộ phận trùng với số ghi trên hình minh họa ở mặt sau hộp sản phẩm.",
+    "Thời gian nấu thực tế phụ thuộc vào loại gạo, lượng nước và nhiệt độ phòng.",
+    "Chức năng hẹn giờ cho phép cơm chín vào thời điểm mong muốn trong vòng 24 giờ.",
+    "Không nên hẹn giờ quá 12 giờ với gạo đã vo trong những ngày nắng nóng.",
+    "Sản phẩm được bảo hành 24 tháng kể từ ngày mua đối với các lỗi do nhà sản xuất.",
+    "Chế độ bảo hành không áp dụng cho các hư hỏng do sử dụng sai hướng dẫn, rơi vỡ hoặc tự ý sửa chữa."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Model",
+          "VK-18D"
+        ],
+        [
+          "Dung tích",
+          "1,8 lít (10 cốc gạo)"
+        ],
+        [
+          "Điện áp định mức",
+          "220 V – 50 Hz"
+        ],
+        [
+          "Công suất",
+          "860 W"
+        ],
+        [
+          "Chất liệu lòng nồi",
+          "Hợp kim nhôm phủ chống dính 5 lớp"
+        ],
+        [
+          "Kích thước (D × R × C)",
+          "38 × 29 × 26 cm"
+        ],
+        [
+          "Khối lượng",
+          "4,2 kg"
+        ],
+        [
+          "Phụ kiện kèm theo",
+          "Cốc đong, muỗng xới cơm, xửng hấp"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Chức năng",
+          "Thời gian nấu (phút)",
+          "Thời gian nấu (phút)",
+          "Lượng gạo tối đa",
+          "Ghi chú"
+        ],
+        [
+          "Chức năng",
+          "Tối thiểu",
+          "Tối đa",
+          "Lượng gạo tối đa",
+          "Ghi chú"
+        ],
+        [
+          "Cơm trắng",
+          "35",
+          "50",
+          "10 cốc",
+          "—"
+        ],
+        [
+          "Cơm gạo lứt",
+          "60",
+          "80",
+          "6 cốc",
+          "Ngâm gạo trước 2 giờ"
+        ],
+        [
+          "Cháo",
+          "70",
+          "90",
+          "2 cốc",
+          "Thêm nước đến vạch “Cháo”"
+        ],
+        [
+          "Nấu nhanh",
+          "25",
+          "30",
+          "6 cốc",
+          "Cơm hơi cứng hơn bình thường"
+        ],
+        [
+          "Hấp",
+          "15",
+          "60",
+          "—",
+          "Dùng xửng hấp kèm theo"
+        ],
+        [
+          "Hầm",
+          "60",
+          "240",
+          "—",
+          "Chỉnh thời gian theo món"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Hiện tượng",
+          "Nguyên nhân",
+          "Cách khắc phục"
+        ],
+        [
+          "Cơm bị sống",
+          "Lượng nước quá ít",
+          "Thêm nước đúng vạch theo số cốc gạo."
+        ],
+        [
+          "Cơm bị sống",
+          "Lòng nồi đặt lệch, không tiếp xúc đều với mâm nhiệt",
+          "Xoay nhẹ lòng nồi cho khớp và lau sạch mâm nhiệt."
+        ],
+        [
+          "Cơm bị nhão",
+          "Lượng nước quá nhiều",
+          "Giảm lượng nước khoảng nửa vạch so với số cốc gạo."
+        ],
+        [
+          "Màn hình báo lỗi E1",
+          "Cảm biến nhiệt bị hỏng",
+          "Ngừng sử dụng và liên hệ trung tâm bảo hành."
+        ],
+        [
+          "Màn hình báo lỗi E2",
+          "Nồi quá nóng do bật khi chưa đặt lòng nồi",
+          "Rút điện, chờ nồi nguội rồi đặt lòng nồi vào."
+        ],
+        [
+          "Hơi thoát ra ở viền nắp",
+          "Gioăng cao su bị bẩn hoặc bị lệch",
+          "Vệ sinh gioăng và lắp lại đúng vị trí."
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Tổng đài chăm sóc khách hàng",
+          "028 3999 0118 (8:00 – 20:00, kể cả Chủ nhật)"
+        ],
+        [
+          "Thư điện tử",
+          "hotro@vankhe.example"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Chỉ sử dụng nguồn điện xoay chiều 220 V, 50 Hz có dây nối đất."
+    },
+    {
+      "level": 0,
+      "text": "Không nhúng thân nồi, dây nguồn hoặc phích cắm vào nước hay bất kỳ chất lỏng nào."
+    },
+    {
+      "level": 0,
+      "text": "Không mở nắp khi nồi đang nấu hoặc đang xả hơi, vì hơi nước nóng có thể gây bỏng."
+    },
+    {
+      "level": 0,
+      "text": "Rút phích cắm điện trong các trường hợp sau:"
+    },
+    {
+      "level": 1,
+      "text": "+ khi không sử dụng nồi trong thời gian dài,"
+    },
+    {
+      "level": 1,
+      "text": "+ trước khi vệ sinh hoặc di chuyển nồi,"
+    },
+    {
+      "level": 1,
+      "text": "+ khi phát hiện mùi khét hoặc tiếng động bất thường."
+    },
+    {
+      "level": 0,
+      "text": "Để xa tầm tay trẻ em và không đặt nồi gần bếp ga, lò sưởi hoặc rèm cửa."
+    },
+    {
+      "level": 0,
+      "text": "(1) Nắp trong có van thoát hơi"
+    },
+    {
+      "level": 0,
+      "text": "(2) Nút mở nắp"
+    },
+    {
+      "level": 0,
+      "text": "(3) Bảng điều khiển"
+    },
+    {
+      "level": 0,
+      "text": "(4) Lòng nồi"
+    },
+    {
+      "level": 0,
+      "text": "(5) Mâm nhiệt"
+    },
+    {
+      "level": 0,
+      "text": "(6) Thân nồi"
+    },
+    {
+      "level": 0,
+      "text": "(7) Tay cầm"
+    },
+    {
+      "level": 0,
+      "text": "(8) Dây nguồn"
+    },
+    {
+      "level": 0,
+      "text": "(9) Cốc đong"
+    },
+    {
+      "level": 0,
+      "text": "(10) Muỗng xới cơm"
+    },
+    {
+      "level": 0,
+      "text": "Bước 1: Đong gạo bằng cốc đong kèm theo và vo sạch gạo."
+    },
+    {
+      "level": 0,
+      "text": "Bước 2: Cho gạo vào lòng nồi, thêm nước đến vạch tương ứng với số cốc gạo."
+    },
+    {
+      "level": 0,
+      "text": "Bước 3: Lau khô mặt ngoài lòng nồi, đặt vào thân nồi và đóng nắp cho đến khi nghe tiếng “tách”."
+    },
+    {
+      "level": 0,
+      "text": "Bước 4: Cắm điện, chọn chức năng bằng nút “Menu” rồi nhấn “Bắt đầu”."
+    },
+    {
+      "level": 0,
+      "text": "Bước 5: Khi nồi chuyển sang chế độ giữ ấm, để cơm thêm 10 phút rồi mới mở nắp và đảo đều."
+    },
+    {
+      "level": 0,
+      "text": "Rút phích cắm và chờ nồi nguội hẳn trước khi vệ sinh."
+    },
+    {
+      "level": 0,
+      "text": "Rửa lòng nồi bằng miếng bọt biển mềm; không dùng búi sắt hoặc chất tẩy mạnh."
+    },
+    {
+      "level": 0,
+      "text": "Tháo nắp trong và van thoát hơi để rửa sau mỗi lần nấu cháo hoặc hầm."
+    },
+    {
+      "level": 0,
+      "text": "Lau thân nồi và mâm nhiệt bằng khăn ẩm, tuyệt đối không xối nước."
+    }
+  ],
+  "furniture": [
+    "Nồi cơm điện tử VK-18D",
+    "Hướng dẫn sử dụng",
+    "VÂN KHÊ",
+    "Gia dụng cho mọi nhà",
+    "Trang 1/3",
+    "Trang 2/3",
+    "Trang 3/3"
+  ],
+  "languages": [
+    "vi"
+  ],
+  "code": [],
+  "notes": "Vietnamese user manual for a fictional rice cooker, 3 pages, Candara body and Constantia headings; all text NFC (precomposed Vietnamese letters with stacked diacritics). Running header in two parts (product left, \"Hướng dẫn sử dụng\" right) listed once each; centred footer \"Trang N/3\". The brand line at the top of page 1 (\"VÂN KHÊ\", letter-spaced, given as plain words, and its tagline) is a letterhead: furniture. Headings carry TYPED decimal numbers (\"1.\", \"4.1.\"). Safety list: CSS disc bullets, its nested level uses TYPED \"+\" markers inline. Parts list: TYPED \"(1)\" markers with a hanging indent, laid out in TWO COLUMNS inside the page and read column by column, (1) to (5) then (6) to (10). Steps: TYPED \"Bước 1:\" markers set apart by a hanging indent. Cleaning list: CSS square bullets. The specifications table is a zebra key/value table with no header row. The functions table has a TWO-LEVEL header: \"Thời gian nấu (phút)\" spans \"Tối thiểu\" and \"Tối đa\"; the other header cells span both header rows and repeat in both expected header rows. The troubleshooting table is ruled with horizontal lines only, cells of several lines top-aligned, and \"Cơm bị sống\" spans two rows (its text repeats in both grid rows). The contact box on page 3 is a small key/value table with no header row."
+}

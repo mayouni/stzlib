@@ -1,0 +1,124 @@
+{
+  "id": "d14",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "2026년 상반기 경력직 채용 공고",
+  "headings": [
+    {
+      "level": 1,
+      "text": "2026년 상반기 경력직 채용 공고"
+    },
+    {
+      "level": 2,
+      "text": "1. 모집 분야 및 자격 요건"
+    },
+    {
+      "level": 2,
+      "text": "2. 근무 조건"
+    },
+    {
+      "level": 2,
+      "text": "3. 전형 절차"
+    },
+    {
+      "level": 2,
+      "text": "4. 지원 방법"
+    }
+  ],
+  "key_sentences": [
+    "한빛에너지솔루션은 태양광 발전 설비의 설계부터 유지 보수까지 책임지는 에너지 전문 기업입니다.",
+    "사업 확대에 따라 함께 성장할 경력직 인재를 아래와 같이 모집합니다.",
+    "근무지는 본사가 있는 세종시이며, 유지 보수 분야는 충청권 현장 근무를 포함합니다.",
+    "급여는 경력과 역량을 고려하여 회사 내규에 따라 협의합니다.",
+    "여러분의 많은 관심과 지원을 기다립니다.",
+    "지원자는 한 분야에만 지원할 수 있으며, 중복 지원 시 모든 지원이 무효로 처리됩니다."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "모집 분야",
+          "인원",
+          "주요 업무",
+          "자격 요건"
+        ],
+        [
+          "발전소 설계",
+          "2명",
+          "태양광 발전소 배치 설계 구조 검토 및 인허가 도서 작성",
+          "관련 경력 3년 이상 전기기사 자격증 소지자"
+        ],
+        [
+          "유지 보수",
+          "3명",
+          "발전 설비 정기 점검 고장 진단 및 수리",
+          "관련 경력 2년 이상 운전면허 1종 보통"
+        ],
+        [
+          "사업 관리",
+          "1명",
+          "사업 일정 및 예산 관리 협력사 관리",
+          "관련 경력 5년 이상"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "접수 기간",
+          "2026년 3월 16일(월) ~ 3월 29일(일) 23:59"
+        ],
+        [
+          "접수 방법",
+          "회사 채용 누리집을 통한 온라인 접수"
+        ],
+        [
+          "제출 서류",
+          "이력서, 경력 기술서, 자격증 사본"
+        ],
+        [
+          "문의",
+          "인사팀 채용 담당"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "① 서류 전형"
+    },
+    {
+      "level": 0,
+      "text": "② 실무 면접"
+    },
+    {
+      "level": 1,
+      "text": "- 발전소 설계 분야는 과제 발표 포함"
+    },
+    {
+      "level": 1,
+      "text": "- 면접 일정은 개별 안내"
+    },
+    {
+      "level": 0,
+      "text": "③ 임원 면접"
+    },
+    {
+      "level": 0,
+      "text": "④ 건강 검진 및 최종 합격"
+    }
+  ],
+  "furniture": [
+    "한빛에너지솔루션 주식회사",
+    "깨끗한 전력을 모든 가정에",
+    "- 1 -"
+  ],
+  "languages": [
+    "ko"
+  ],
+  "code": [],
+  "notes": "Korean job posting of a fictional company, 1 page. The company name and tagline above the title are a letterhead (furniture). The recruitment table has multi-line cells vertically centred. The application key/value table is borderless with no header row. The process list uses TYPED circled digits \"①\" \"②\" with a hanging indent; its nested items use TYPED hyphen markers \"-\" inline. The note line starting \"※\" is body text. Footer \"- 1 -\"."
+}

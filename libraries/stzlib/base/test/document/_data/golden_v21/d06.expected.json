@@ -1,0 +1,158 @@
+{
+  "id": "d06",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "Contrato de arrendamiento de local comercial",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Contrato de arrendamiento de local comercial"
+    },
+    {
+      "level": 2,
+      "text": "REUNIDOS"
+    },
+    {
+      "level": 2,
+      "text": "EXPONEN"
+    },
+    {
+      "level": 2,
+      "text": "CLÁUSULAS"
+    },
+    {
+      "level": 3,
+      "text": "Primera. Objeto"
+    },
+    {
+      "level": 3,
+      "text": "Segunda. Duración"
+    },
+    {
+      "level": 3,
+      "text": "Tercera. Renta"
+    },
+    {
+      "level": 3,
+      "text": "Cuarta. Fianza y garantías"
+    },
+    {
+      "level": 3,
+      "text": "Quinta. Obras y conservación"
+    },
+    {
+      "level": 3,
+      "text": "Sexta. Gastos y suministros"
+    },
+    {
+      "level": 3,
+      "text": "Séptima. Cesión y subarriendo"
+    },
+    {
+      "level": 3,
+      "text": "Octava. Resolución"
+    },
+    {
+      "level": 3,
+      "text": "Novena. Notificaciones"
+    },
+    {
+      "level": 3,
+      "text": "Décima. Jurisdicción"
+    }
+  ],
+  "key_sentences": [
+    "En Valdemora, a 2 de marzo de 2026.",
+    "El arrendador cede en arrendamiento a la arrendataria el local descrito en el expositivo primero, que esta acepta en el estado en que se encuentra.",
+    "Llegado su vencimiento, podrá prorrogarse por periodos anuales si ninguna de las partes comunica su voluntad contraria con tres meses de antelación.",
+    "A partir del cuarto año, la renta se actualizará anualmente conforme al índice de referencia que publique el organismo estadístico oficial.",
+    "Las reparaciones ordinarias derivadas del uso del local serán de cuenta de la arrendataria.",
+    "El impuesto sobre bienes inmuebles será abonado por el arrendador.",
+    "Todas las comunicaciones entre las partes se realizarán por escrito en los domicilios indicados en el encabezamiento.",
+    "Y en prueba de conformidad, las partes firman el presente contrato por duplicado y a un solo efecto en el lugar y la fecha indicados."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Periodo",
+          "Renta mensual",
+          "IVA (21 %)",
+          "Total mensual"
+        ],
+        [
+          "Abril 2026 a marzo 2027",
+          "1.150,00 €",
+          "241,50 €",
+          "1.391,50 €"
+        ],
+        [
+          "Abril 2027 a marzo 2028",
+          "1.200,00 €",
+          "252,00 €",
+          "1.452,00 €"
+        ],
+        [
+          "Abril 2028 a marzo 2029",
+          "1.250,00 €",
+          "262,50 €",
+          "1.512,50 €"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "I. Que el arrendador es propietario del local comercial situado en la planta baja del edificio de la plaza Mayor, número 3, con una superficie útil de ochenta y seis metros cuadrados."
+    },
+    {
+      "level": 0,
+      "text": "II. Que el local se encuentra libre de arrendatarios y ocupantes y en condiciones adecuadas para el uso al que se destina."
+    },
+    {
+      "level": 0,
+      "text": "III. Que la arrendataria está interesada en arrendar dicho local para destinarlo a obrador y despacho de pan y repostería."
+    },
+    {
+      "level": 0,
+      "text": "IV. Que ambas partes han convenido formalizar el presente contrato con arreglo a las siguientes cláusulas."
+    },
+    {
+      "level": 0,
+      "text": "a) dos mensualidades de renta en concepto de fianza legal;"
+    },
+    {
+      "level": 0,
+      "text": "b) una garantía adicional equivalente a una mensualidad, que se devolverá al término del contrato;"
+    },
+    {
+      "level": 0,
+      "text": "c) el importe de la primera mensualidad de renta."
+    },
+    {
+      "level": 0,
+      "text": "a) la falta de pago de dos mensualidades de renta;"
+    },
+    {
+      "level": 0,
+      "text": "b) la realización de obras no autorizadas;"
+    },
+    {
+      "level": 0,
+      "text": "c) el cambio de destino del local sin acuerdo previo."
+    }
+  ],
+  "furniture": [
+    "Contrato de arrendamiento n.º LC 031/2026",
+    "Página 1 de 3",
+    "Página 2 de 3",
+    "Página 3 de 3"
+  ],
+  "languages": [
+    "es"
+  ],
+  "code": [],
+  "notes": "Spanish commercial lease contract, 3 pages. Running header (contract reference) on every page, footer \"Página N de 3\". The recitals use TYPED roman numerals \"I.\", \"II.\"... set apart by a hanging indent; lettered sub-lists use TYPED \"a)\", \"b)\" inline. Clause headings are level 3 under the section headings REUNIDOS / EXPONEN / CLÁUSULAS. The REUNIDOS and EXPONEN headings are letter-spaced: given as plain words. The rent table is ruled at top and bottom only. The two signature boxes at the end sit side by side."
+}

@@ -1,0 +1,110 @@
+{
+  "id": "d09",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "הודעה להורים על הטיול השנתי לשכבת ה׳",
+  "headings": [
+    {
+      "level": 1,
+      "text": "הודעה להורים על הטיול השנתי לשכבת ה׳"
+    },
+    {
+      "level": 2,
+      "text": "לוח הזמנים"
+    },
+    {
+      "level": 2,
+      "text": "ציוד נדרש"
+    },
+    {
+      "level": 2,
+      "text": "כללי התנהגות"
+    }
+  ],
+  "key_sentences": [
+    "הטיול השנתי של שכבת ה׳ יתקיים ביום רביעי, 25 במרץ 2026, באזור נחל השקמה.",
+    "הטיול נועד לחזק את הקשר של התלמידים לטבע ולמורשת האזור.",
+    "התלמידים ילוו על ידי המחנכות, מדריכים מוסמכים ומאבטח.",
+    "עלות הטיול כלולה בתשלומי ההורים לשנת הלימודים.",
+    "תלמיד שאינו יכול להשתתף מסיבה רפואית יגיע לבית הספר כרגיל.",
+    "נשמח לעמוד לרשותכם בכל שאלה."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "שעה",
+          "פעילות",
+          "מקום"
+        ],
+        [
+          "07:45",
+          "התכנסות ויציאה באוטובוסים",
+          "חניית בית הספר"
+        ],
+        [
+          "09:00",
+          "מסלול הליכה לאורך הנחל",
+          "שמורת נחל השקמה"
+        ],
+        [
+          "11:30",
+          "ארוחת צהריים ומשחקים",
+          "חורשת האקליפטוס"
+        ],
+        [
+          "13:00",
+          "סדנת צפרות",
+          "מרכז המבקרים"
+        ],
+        [
+          "14:30",
+          "חזרה משוערת לבית הספר",
+          "חניית בית הספר"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "שלושה ליטרים של מים לפחות"
+    },
+    {
+      "level": 0,
+      "text": "כובע וקרם הגנה"
+    },
+    {
+      "level": 0,
+      "text": "ארוחת בוקר וארוחת צהריים ארוזות"
+    },
+    {
+      "level": 0,
+      "text": "נעליים סגורות ונוחות להליכה"
+    },
+    {
+      "level": 0,
+      "text": "• יש להישמע להוראות המדריכים בכל עת."
+    },
+    {
+      "level": 0,
+      "text": "• אין להתרחק מהקבוצה בזמן ההליכה."
+    },
+    {
+      "level": 0,
+      "text": "• הטלפונים הניידים יישארו בתיק."
+    }
+  ],
+  "furniture": [
+    "בית הספר היסודי אורנים",
+    "רחוב הדקל 12, קריית השקמה",
+    "טלפון 08-9000000",
+    "עמוד 1 מתוך 1"
+  ],
+  "languages": [
+    "he"
+  ],
+  "code": [],
+  "notes": "Hebrew school letter to parents, 1 page, right-to-left, logical order. Letterhead (school name, address line) is furniture; footer \"עמוד 1 מתוך 1\". The equipment list uses CSS Hebrew letter markers (list-style hebrew: א. ב. ג.) not in the text; the rules list uses TYPED \"•\" bullets inline. The schedule table is borderless apart from rules under rows; cells are given right to left. The tear-off slip at the bottom holds form labels with blank lines; it is not a heading and its labels are not key sentences."
+}

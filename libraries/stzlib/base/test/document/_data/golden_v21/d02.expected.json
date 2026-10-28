@@ -1,0 +1,215 @@
+{
+  "id": "d02",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Compte rendu de la réunion du conseil d’administration",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Compte rendu de la réunion du conseil d’administration"
+    },
+    {
+      "level": 2,
+      "text": "1. Présences"
+    },
+    {
+      "level": 2,
+      "text": "2. Ordre du jour"
+    },
+    {
+      "level": 2,
+      "text": "3. Délibérations"
+    },
+    {
+      "level": 3,
+      "text": "3.1 Approbation du compte rendu précédent"
+    },
+    {
+      "level": 3,
+      "text": "3.2 Budget des semences et des plants"
+    },
+    {
+      "level": 3,
+      "text": "3.3 Arrosage collectif"
+    },
+    {
+      "level": 2,
+      "text": "4. Décisions"
+    },
+    {
+      "level": 2,
+      "text": "5. Actions à mener"
+    },
+    {
+      "level": 2,
+      "text": "6. Questions diverses"
+    }
+  ],
+  "key_sentences": [
+    "Neuf administrateurs sur onze étaient présents ou représentés.",
+    "Deux adhérents assistent à la réunion sans droit de vote.",
+    "Le compte rendu de la réunion du 15 janvier est approuvé à l’unanimité.",
+    "Le trésorier présente le budget prévisionnel de la saison.",
+    "Le conseil examine le planning d’arrosage proposé par la commission technique.",
+    "Un adhérent signale que la serrure du portail nord ferme mal.",
+    "La présidente fera intervenir un serrurier avant la fin du mois.",
+    "L’ordre du jour étant épuisé, la séance est levée à 21 h 40."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Date",
+          "jeudi 12 mars 2026, 19 h 00"
+        ],
+        [
+          "Lieu",
+          "Maison des associations, salle Tilleul"
+        ],
+        [
+          "Présidence",
+          "Mme Odile Ferrand"
+        ],
+        [
+          "Secrétaire de séance",
+          "M. Bastien Laval"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Poste",
+          "Prévu (€)",
+          "Engagé (€)"
+        ],
+        [
+          "Semences potagères",
+          "420,00",
+          "312,40"
+        ],
+        [
+          "Plants de tomates et de courges",
+          "260,00",
+          "95,00"
+        ],
+        [
+          "Terreau et compost",
+          "180,00",
+          "180,00"
+        ],
+        [
+          "Petit outillage",
+          "140,00",
+          "38,90"
+        ],
+        [
+          "Total",
+          "1 000,00",
+          "626,30"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Action",
+          "Responsable",
+          "Échéance"
+        ],
+        [
+          "Commander les plants de tomates auprès de la pépinière du Moulin",
+          "M. Laval",
+          "31 mars 2026"
+        ],
+        [
+          "Afficher le planning d’arrosage et le faire circuler par courriel",
+          "Mme Ferrand",
+          "15 juin 2026"
+        ],
+        [
+          "Demander trois devis pour la cuve",
+          "Commission technique",
+          "prochain conseil"
+        ],
+        [
+          "Préparer les affiches des portes ouvertes",
+          "Mme Nadia Brun",
+          "30 avril 2026"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Approbation du compte rendu du 15 janvier 2026"
+    },
+    {
+      "level": 0,
+      "text": "Budget des semences et des plants pour la saison"
+    },
+    {
+      "level": 0,
+      "text": "Organisation de l’arrosage collectif pendant l’été"
+    },
+    {
+      "level": 0,
+      "text": "Calendrier des journées portes ouvertes"
+    },
+    {
+      "level": 0,
+      "text": "Questions diverses"
+    },
+    {
+      "level": 0,
+      "text": "– chaque parcelle désigne un référent pour la période du 1er juillet au 31 août ;"
+    },
+    {
+      "level": 0,
+      "text": "– les tours d’arrosage sont affichés sur le panneau du cabanon ;"
+    },
+    {
+      "level": 1,
+      "text": "le matin avant 9 heures en semaine,"
+    },
+    {
+      "level": 1,
+      "text": "le soir après 19 heures le week-end ;"
+    },
+    {
+      "level": 0,
+      "text": "– la récupération d’eau de pluie reste prioritaire sur le réseau communal."
+    },
+    {
+      "level": 0,
+      "text": "a) Le budget des semences et des plants est adopté à l’unanimité."
+    },
+    {
+      "level": 0,
+      "text": "b) Le planning d’arrosage est adopté par huit voix pour et une abstention."
+    },
+    {
+      "level": 0,
+      "text": "c) Deux journées portes ouvertes auront lieu le samedi 23 mai et le samedi 19 septembre."
+    },
+    {
+      "level": 0,
+      "text": "d) La commission technique est chargée de chiffrer l’achat d’une seconde cuve de 1 000 litres."
+    }
+  ],
+  "furniture": [
+    "Association des Jardins partagés du Clos Fleuri",
+    "Conseil d’administration · 12 mars 2026",
+    "Page 1 sur 2",
+    "Page 2 sur 2"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "Procès-verbal of a gardening association's board, 2 pages. Running header (two parts on one line: association name left, document reference right, given as two furniture entries) and footer 'Page N sur 2'. Agenda list: CSS decimal markers (not in text). Dash list under 3.3: the en-dash markers are TYPED; its nested list uses CSS circle bullets. Decisions list: typed markers 'a)', 'b)'... set apart by a hanging indent. The meeting key/value table has no header row. The two signature boxes at the end sit side by side."
+}

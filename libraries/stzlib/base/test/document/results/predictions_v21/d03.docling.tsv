@@ -1,0 +1,42 @@
+page_header	0	Stadtwerke Lindenbrück · IT-Betrieb
+page_header	0	Betriebshandbuch Druckdienste
+heading	1	Einrichtung des zentralen Druckservers
+paragraph	0	Betriebsanleitung für Administratorinnen und Administratoren
+heading	1	1 Zweck
+paragraph	0	Diese Anleitung beschreibt die Einrichtung des zentralen Druckservers für alle Verwaltungsstandorte. Sie ersetzt die bisherige Fassung vom Oktober 2024. Abweichungen vom beschriebenen Verfahren sind mit der Leitung des Rechenzentrums abzustimmen.
+heading	1	2 Voraussetzungen
+paragraph	0	Vor Beginn der Arbeiten müssen folgende Bedingungen erfüllt sein:
+list_item	0	ein virtueller Server mit mindestens 4 GB Arbeitsspeicher
+list_item	0	zwei Prozessorkerne
+list_item	0	40 GB freier Speicherplatz
+list_item	0	eine feste IP-Adresse im Verwaltungsnetz
+list_item	0	Zugang zum zentralen Verzeichnisdienst mit einem Dienstkonto
+list_item	0	die aktuellen Treiberpakete der eingesetzten Druckermodelle
+heading	1	3 Installation
+heading	1	3.1 Pakete installieren
+paragraph	0	Melden Sie sich mit einem Administratorkonto an und führen Sie die folgenden Befehle aus.
+paragraph	0	sudo apt update
+paragraph	0	sudo apt install --yes cups cups-filters printer-driver-gutenprint
+paragraph	0	sudo systemctl enable --now cups
+heading	1	3.2 Konfiguration anpassen
+list_item	0	Sichern Sie die mitgelieferte Konfigurationsdatei.
+list_item	0	Öffnen Sie die Datei /etc/cups/cupsd.conf in einem Texteditor.
+list_item	0	Ersetzen Sie die Abschnitte für Port und Zugriff durch den unten gezeigten Auszug.
+list_item	0	Starten Sie den Dienst neu und prüfen Sie das Protokoll auf Fehlermeldungen.
+page_footer	0	Dokument IT-BH-017 · Version 2.3 · Stand 02/2026
+page_footer	0	Seite 1 von 2
+page_header	0	Stadtwerke Lindenbrück · IT-Betrieb
+page_header	0	Betriebshandbuch Druckdienste
+paragraph	0	Der folgende Auszug zeigt die geänderten Abschnitte der Konfiguration.
+code	0	Port 631 ServerAlias druck.verwaltung.local DefaultEncryption Required <Location /> Order allow,deny Allow from 10.20.0.0/16 </Location> <Location /admin> AuthType Default Require group druckadmins </Location>
+paragraph	0	Hinweis: Ohne verschlüsselte Verbindung lehnen die Arbeitsplätze ab dem Sommer jede Druckanfrage ab.
+heading	1	4 Freigegebene Ports
+paragraph	0	Die Firewall des Verwaltungsnetzes muss die folgenden Verbindungen zulassen.
+table	0	DienstPortProtokollRichtungIPP über TLS631TCPeingehendDruckerkommunikation (RAW)9100TCPausgehendSNMP Statusabfrage161UDPausgehendVerzeichnisdienst (LDAPS)636TCPausgehendZeitsynchronisation123UDPausgehend
+heading	1	5 Betrieb und Wartung
+heading	1	5.1 Tägliche Kontrolle
+paragraph	0	Prüfen Sie jeden Morgen die Warteschlangen auf hängende Aufträge. Aufträge, die älter als 24 Stunden sind, werden automatisch gelöscht.
+heading	1	5.2 Störungen
+paragraph	0	Bei einem Ausfall des Servers drucken die Arbeitsplätze nicht über einen Ersatzweg. Melden Sie Störungen deshalb sofort an die Leitstelle unter der internen Rufnummer 4711.
+page_footer	0	Dokument IT-BH-017 · Version 2.3 · Stand 02/2026
+page_footer	0	Seite 2 von 2

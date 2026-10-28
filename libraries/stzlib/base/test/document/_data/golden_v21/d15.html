@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Tidewater API 4.2 Release Notes</title>
+<style>
+*{-webkit-print-color-adjust:exact;print-color-adjust:exact;box-sizing:border-box}
+html,body{margin:0;padding:0}
+.page{position:relative;overflow:hidden;break-after:page}
+.page:last-child{break-after:auto}
+.content{height:100%}
+table{border-collapse:collapse}
+pre{margin:0}
+@page{size:A4;margin:0}
+.page{width:210mm;height:296mm;padding:20mm 20mm 18mm 20mm}
+body{font-family:Roboto;font-size:10pt;color:#24292f}
+.hdr{position:absolute;top:9mm;left:20mm;right:20mm;font-size:8pt;color:#57606a;display:flex;justify-content:space-between}
+.ftr{position:absolute;bottom:9mm;left:20mm;right:20mm;font-size:8pt;color:#57606a;text-align:center}
+h1{font-size:20pt;font-weight:bold;margin:0 0 1mm}
+.meta{color:#57606a;font-size:9pt;margin-bottom:5mm}
+h2{font-size:13pt;margin:6mm 0 2mm;padding-bottom:1mm;border-bottom:0.6pt solid #d0d7de}
+h3{font-size:10.5pt;margin:4mm 0 1.5mm}
+p{margin:0 0 2mm;line-height:1.5}
+pre.code{font-family:Consolas;font-size:8.6pt;background:#f6f8fa;border:0.6pt solid #d0d7de;border-radius:4px;padding:2.5mm 3mm;margin:1.5mm 0 3mm;line-height:1.4;white-space:pre}
+ul.hl{padding-left:5mm;margin:1mm 0 3mm;line-height:1.5;list-style:disc}
+ul.hl ul{list-style:circle;padding-left:5mm}
+ul.hl ul ul{list-style:square}
+table.dep{width:100%;font-size:9pt;margin:1mm 0 3mm}
+table.dep th{text-align:left;background:#f6f8fa;border:0.6pt solid #d0d7de;padding:1.5mm 2mm}
+table.dep td{border:0.6pt solid #d0d7de;padding:1.5mm 2mm;font-size:9pt}
+.warn{border-left:3pt solid #bf8700;background:#fff8c5;padding:2mm 3mm;margin:2mm 0 3mm}
+ol.up{padding-left:6mm;margin:1mm 0 2mm;line-height:1.5}
+
+</style>
+</head>
+<body>
+<div class="page"><div class="hdr"><span>Tidewater Platform Documentation</span><span>Release notes 4.2</span></div><div class="content"><h1>Tidewater API 4.2 Release Notes</h1><div class="meta">Released 9 March 2026 · Applies to all hosted and self managed installations</div><p>Version 4.2 introduces batch uploads, a new rate limit header and several fixes to webhook delivery. Two older endpoints are deprecated and will be removed in version 5.0. Please read the breaking changes section before upgrading a production system.</p><h2>Highlights</h2><ul class="hl"><li>Batch uploads of up to 500 records in a single request<ul><li>Partial failures are reported per record</li><li>Each batch returns a job identifier<ul><li>Jobs can be polled or followed by webhook</li></ul></li></ul></li><li>A new header reports the remaining request allowance</li><li>Webhook retries now follow an exponential schedule</li></ul><h2>Breaking changes</h2><div class="warn"><p>Timestamps in all responses are now returned in UTC with an explicit offset. Clients that parse local time strings must be updated before the upgrade.</p></div><h2>New features</h2><h3>Batch uploads</h3><p>Send an array of records to the batch endpoint. The response contains a job identifier and the number of records accepted.</p><pre class="code">{
+  "job_id": "job_7f3a91",
+  "accepted": 498,
+  "rejected": 2,
+  "status": "queued"
+}</pre><h3>Rate limit header</h3><p>Every response now carries a header with the number of requests left in the current window. The window length is sixty seconds for all plans.</p></div><div class="ftr">Page 1 of 2</div></div>
+<div class="page"><div class="hdr"><span>Tidewater Platform Documentation</span><span>Release notes 4.2</span></div><div class="content"><h2>Deprecations</h2><p>The following endpoints still work in version 4.2 but return a deprecation warning.</p><table class="dep"><thead><tr><th>Endpoint</th><th>Replacement</th><th>Removal</th></tr></thead><tbody><tr><td>POST /v3/records/import</td><td>POST /v4/records/batch</td><td>Version 5.0</td></tr><tr><td>GET /v3/events/stream</td><td>Webhook subscriptions</td><td>Version 5.0</td></tr></tbody></table><h2>Fixed issues</h2><ul class="hl"><li>Webhooks were sometimes delivered twice after a network timeout.</li><li>Search results ignored the page size parameter above 100.<ul><li>The limit is now enforced at 250 results per page.</li></ul></li><li>Exports of empty collections returned an error instead of an empty file.</li></ul><h2>Upgrade guide</h2><ol class="up"><li>Back up the configuration directory.</li><li>Pull the new image and restart the service.</li><li>Update the client settings shown below.</li></ol><pre class="code">docker pull registry.tidewater.example/api:4.2.0
+docker compose up -d api</pre><pre class="code">client:
+  api_version: "4.2"
+  timestamps: utc
+  retry:
+    max_attempts: 5
+    backoff: exponential</pre><p>After the upgrade, check the service log for deprecation warnings during the first day of traffic. Contact support if any client fails to parse the new timestamp format.</p></div><div class="ftr">Page 2 of 2</div></div>
+</body>
+</html>

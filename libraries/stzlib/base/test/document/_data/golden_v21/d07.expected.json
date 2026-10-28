@@ -1,0 +1,141 @@
+{
+  "id": "d07",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Seasonal salinity drift in restored tidal reed beds: a three year sensor record",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Seasonal salinity drift in restored tidal reed beds: a three year sensor record"
+    },
+    {
+      "level": 2,
+      "text": "Abstract"
+    },
+    {
+      "level": 2,
+      "text": "1 Introduction"
+    },
+    {
+      "level": 2,
+      "text": "2 Methods"
+    },
+    {
+      "level": 3,
+      "text": "2.1 Study sites"
+    },
+    {
+      "level": 3,
+      "text": "2.2 Sensors and sampling"
+    },
+    {
+      "level": 3,
+      "text": "2.3 Data analysis"
+    },
+    {
+      "level": 2,
+      "text": "3 Results"
+    },
+    {
+      "level": 2,
+      "text": "4 Discussion"
+    },
+    {
+      "level": 2,
+      "text": "5 Conclusions"
+    },
+    {
+      "level": 2,
+      "text": "Acknowledgements"
+    },
+    {
+      "level": 2,
+      "text": "References"
+    }
+  ],
+  "key_sentences": [
+    "We report three years of continuous salinity measurements from eleven sensors placed in two restored reed beds.",
+    "Salinity matters because common reed tolerates brackish water only up to a threshold.",
+    "We ask whether salinity has changed since restoration, whether any change differs between seaward and landward positions, and whether dry summers leave a lasting mark.",
+    "Each sensor was cleaned and checked against a handheld meter every six weeks.",
+    "Dry summers were defined as those with less than 70 per cent of the long term mean rainfall between June and August.",
+    "Short drops after heavy rain lasted less than ten days in every case.",
+    "Two mechanisms could explain the drift.",
+    "We thank the site wardens for access and for their help with sensor maintenance."
+  ],
+  "tables": [
+    {
+      "caption": "Table 1. Annual mean salinity (practical salinity units) and linear trend per year.",
+      "rows": [
+        [
+          "Site and position",
+          "2023",
+          "2024",
+          "2025",
+          "Trend"
+        ],
+        [
+          "Hallow, seaward",
+          "6.1",
+          "6.4",
+          "6.6",
+          "+0.25"
+        ],
+        [
+          "Hallow, landward",
+          "3.2",
+          "4.1",
+          "4.8",
+          "+0.80"
+        ],
+        [
+          "Brennick, seaward",
+          "5.4",
+          "5.5",
+          "5.9",
+          "+0.25"
+        ],
+        [
+          "Brennick, landward",
+          "2.7",
+          "3.4",
+          "4.3",
+          "+0.80"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "– Hallow Flats, a former grazing marsh reopened to the tide in 2017;"
+    },
+    {
+      "level": 0,
+      "text": "– Brennick Reach, a reed bed planted on dredged silt in 2019."
+    },
+    {
+      "level": 0,
+      "text": "[1] Pellow, R. and Stanmore, J. (2019) Reed tolerance to brackish water in estuarine margins. Coastal Ecology Letters 7, 44 to 58."
+    },
+    {
+      "level": 0,
+      "text": "[2] Northern Estuaries Partnership (2021) Restoration schemes on the northern coast: a review of the first five years."
+    },
+    {
+      "level": 0,
+      "text": "[3] Varga, L. (2023) Sensor drift and cleaning intervals in sediment conductivity probes. Field Instruments 12, 201 to 215."
+    }
+  ],
+  "furniture": [
+    "Journal of Estuarine Monitoring · Vol. 18 (2026)",
+    "Salinity drift in tidal reed beds",
+    "112",
+    "113"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Two-page journal article. Running header has two parts (journal and short title), listed as two furniture entries; page numbers are bare numbers \"112\" (right) and \"113\" (left). Title, authors and abstract span the full width; the body is in TWO COLUMNS read column by column. \"Abstract\" is an inline run-in heading at level 2. A sentence with footnote marker 1 is excluded from key_sentences; the footnote text at the bottom of page 1 is not furniture and not a key sentence. Table 1 sits inside the left column of page 2 and is ruled only at top, under the header and at the bottom. The site list uses TYPED en-dash markers with a hanging indent; references use TYPED \"[1]\" markers with a hanging indent (given as list items)."
+}

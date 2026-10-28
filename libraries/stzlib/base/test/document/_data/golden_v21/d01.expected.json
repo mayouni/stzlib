@@ -1,0 +1,141 @@
+{
+  "id": "d01",
+  "difficulty": "easy",
+  "pages": 1,
+  "title": "Tax Invoice",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Tax Invoice"
+    },
+    {
+      "level": 2,
+      "text": "Payment terms"
+    },
+    {
+      "level": 2,
+      "text": "Notes"
+    }
+  ],
+  "key_sentences": [
+    "Payment is due within 30 days of the invoice date.",
+    "Please quote the invoice number as the reference on every payment so that we can match it to your account.",
+    "We accept bank transfer and card payments by telephone.",
+    "Accounts that remain unpaid after the due date may be charged interest at the statutory rate.",
+    "Thank you for choosing Harbourline again this season.",
+    "If you have any questions about this invoice, please contact our accounts team."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Invoice number",
+          "HPB-26-0418"
+        ],
+        [
+          "Invoice date",
+          "3 March 2026"
+        ],
+        [
+          "Due date",
+          "2 April 2026"
+        ],
+        [
+          "Purchase order",
+          "FVRC/114"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Description",
+          "Qty",
+          "Unit price",
+          "Amount"
+        ],
+        [
+          "Regatta programme, 24 pages, A5 saddle stitched",
+          "400",
+          "£1.85",
+          "£740.00"
+        ],
+        [
+          "Entry forms, A4 single sided",
+          "250",
+          "£0.12",
+          "£30.00"
+        ],
+        [
+          "Vinyl banner 3 m × 0.8 m with eyelets",
+          "2",
+          "£96.00",
+          "£192.00"
+        ],
+        [
+          "Correx course markers, numbered 1 to 12",
+          "12",
+          "£8.50",
+          "£102.00"
+        ],
+        [
+          "Artwork amendments (hourly)",
+          "1.5",
+          "£42.00",
+          "£63.00"
+        ],
+        [
+          "Delivery to Ashcombe",
+          "1",
+          "£18.00",
+          "£18.00"
+        ],
+        [
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "£1,145.00"
+        ],
+        [
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "£229.00"
+        ],
+        [
+          "Total due",
+          "Total due",
+          "Total due",
+          "£1,374.00"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Programmes were delivered in two boxes of 200 on 27 February."
+    },
+    {
+      "level": 0,
+      "text": "The second banner was reprinted at no charge after a colour fault."
+    },
+    {
+      "level": 0,
+      "text": "Unused course markers can be stored by us until the autumn head race."
+    }
+  ],
+  "furniture": [
+    "Harbourline Print & Bind Ltd",
+    "Unit 7, Quayside Works, Port Elver PE4 2QT",
+    "accounts@harbourline.example · 01632 960418",
+    "Registered in England and Wales No. 08814426 · VAT registration GB 318 4420 61"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Single-page supplier invoice. The letterhead name and address block are furniture. \"Bill to\" and \"Invoice details\" are labels, not headings. The two boxes under the title sit side by side; reading order is box by box (bill-to box first, then the details key/value table). Totals rows span the first three columns, so their label is repeated in those three grid cells. The bullet list under Notes is drawn by CSS (square bullets)."
+}

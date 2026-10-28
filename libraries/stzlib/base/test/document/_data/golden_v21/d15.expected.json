@@ -1,0 +1,145 @@
+{
+  "id": "d15",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Tidewater API 4.2 Release Notes",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Tidewater API 4.2 Release Notes"
+    },
+    {
+      "level": 2,
+      "text": "Highlights"
+    },
+    {
+      "level": 2,
+      "text": "Breaking changes"
+    },
+    {
+      "level": 2,
+      "text": "New features"
+    },
+    {
+      "level": 3,
+      "text": "Batch uploads"
+    },
+    {
+      "level": 3,
+      "text": "Rate limit header"
+    },
+    {
+      "level": 2,
+      "text": "Deprecations"
+    },
+    {
+      "level": 2,
+      "text": "Fixed issues"
+    },
+    {
+      "level": 2,
+      "text": "Upgrade guide"
+    }
+  ],
+  "key_sentences": [
+    "Version 4.2 introduces batch uploads, a new rate limit header and several fixes to webhook delivery.",
+    "Please read the breaking changes section before upgrading a production system.",
+    "Timestamps in all responses are now returned in UTC with an explicit offset.",
+    "Send an array of records to the batch endpoint.",
+    "The response contains a job identifier and the number of records accepted.",
+    "The window length is sixty seconds for all plans.",
+    "The following endpoints still work in version 4.2 but return a deprecation warning.",
+    "Contact support if any client fails to parse the new timestamp format."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Endpoint",
+          "Replacement",
+          "Removal"
+        ],
+        [
+          "POST /v3/records/import",
+          "POST /v4/records/batch",
+          "Version 5.0"
+        ],
+        [
+          "GET /v3/events/stream",
+          "Webhook subscriptions",
+          "Version 5.0"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Batch uploads of up to 500 records in a single request"
+    },
+    {
+      "level": 1,
+      "text": "Partial failures are reported per record"
+    },
+    {
+      "level": 1,
+      "text": "Each batch returns a job identifier"
+    },
+    {
+      "level": 2,
+      "text": "Jobs can be polled or followed by webhook"
+    },
+    {
+      "level": 0,
+      "text": "A new header reports the remaining request allowance"
+    },
+    {
+      "level": 0,
+      "text": "Webhook retries now follow an exponential schedule"
+    },
+    {
+      "level": 0,
+      "text": "Webhooks were sometimes delivered twice after a network timeout."
+    },
+    {
+      "level": 0,
+      "text": "Search results ignored the page size parameter above 100."
+    },
+    {
+      "level": 1,
+      "text": "The limit is now enforced at 250 results per page."
+    },
+    {
+      "level": 0,
+      "text": "Exports of empty collections returned an error instead of an empty file."
+    },
+    {
+      "level": 0,
+      "text": "Back up the configuration directory."
+    },
+    {
+      "level": 0,
+      "text": "Pull the new image and restart the service."
+    },
+    {
+      "level": 0,
+      "text": "Update the client settings shown below."
+    }
+  ],
+  "furniture": [
+    "Tidewater Platform Documentation",
+    "Release notes 4.2",
+    "Page 1 of 2",
+    "Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "{\n  \"job_id\": \"job_7f3a91\",\n  \"accepted\": 498,\n  \"rejected\": 2,\n  \"status\": \"queued\"\n}",
+    "docker pull registry.tidewater.example/api:4.2.0\ndocker compose up -d api",
+    "client:\n  api_version: \"4.2\"\n  timestamps: utc\n  retry:\n    max_attempts: 5\n    backoff: exponential"
+  ],
+  "notes": "Software release notes, 2 pages, with three code blocks in Consolas (JSON, shell, YAML). Running header in two parts, footer \"Page N of 2\". Bullet lists are CSS-drawn, nested to three levels (disc, circle, square). The upgrade steps use CSS decimal markers. Endpoint names in table cells are in the body font, not code. The warning box is body text."
+}

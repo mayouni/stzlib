@@ -1,0 +1,168 @@
+{
+  "id": "d17",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "文書管理規程",
+  "headings": [
+    {
+      "level": 1,
+      "text": "文書管理規程"
+    },
+    {
+      "level": 2,
+      "text": "第1章 総則"
+    },
+    {
+      "level": 3,
+      "text": "第1条（目的）"
+    },
+    {
+      "level": 3,
+      "text": "第2条（適用範囲）"
+    },
+    {
+      "level": 3,
+      "text": "第3条（定義）"
+    },
+    {
+      "level": 2,
+      "text": "第2章 文書の管理"
+    },
+    {
+      "level": 3,
+      "text": "第4条（文書管理責任者）"
+    },
+    {
+      "level": 3,
+      "text": "第5条（文書の作成）"
+    },
+    {
+      "level": 2,
+      "text": "第3章 保存及び廃棄"
+    },
+    {
+      "level": 3,
+      "text": "第6条（保存期間）"
+    },
+    {
+      "level": 3,
+      "text": "第7条（電子データの保存）"
+    },
+    {
+      "level": 3,
+      "text": "第8条（廃棄）"
+    },
+    {
+      "level": 2,
+      "text": "附則"
+    }
+  ],
+  "key_sentences": [
+    "この規程は、当社における文書の作成、保管、保存及び廃棄に関する基本的な事項を定め、業務の効率化と情報の適切な管理を図ることを目的とする。",
+    "この規程は、当社の役員及び従業員が業務上作成し、又は取得したすべての文書に適用する。",
+    "この規程において使用する用語の定義は、次のとおりとする。",
+    "各部署の長は、当該部署の文書管理責任者として、所管する文書を適切に管理しなければならない。",
+    "文書の保存期間は、法令に定めがあるものを除き、次の表のとおりとする。",
+    "電子データは、改ざんを防止できる方法により保存しなければならない。",
+    "保存期間を経過した文書は、文書管理責任者の承認を得て、次の方法により廃棄する。",
+    "この規程は、2026年3月1日から施行する。"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "文書の種類",
+          "保存期間",
+          "保存部署"
+        ],
+        [
+          "定款、株主総会議事録",
+          "永久",
+          "総務部"
+        ],
+        [
+          "取締役会議事録",
+          "10年",
+          "総務部"
+        ],
+        [
+          "会計帳簿、決算書類",
+          "10年",
+          "経理部"
+        ],
+        [
+          "契約書",
+          "契約終了後7年",
+          "各部署"
+        ],
+        [
+          "配送伝票、受領書",
+          "5年",
+          "物流管理部"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "（１） 文書とは、業務上作成又は取得した書類、図面及び電磁的記録をいう。"
+    },
+    {
+      "level": 0,
+      "text": "（２） 保管とは、文書を各部署において業務に利用できる状態で管理することをいう。"
+    },
+    {
+      "level": 0,
+      "text": "（３） 保存とは、保管期間を経過した文書を書庫又は記録媒体において管理することをいう。"
+    },
+    {
+      "level": 0,
+      "text": "（１） 作成日、作成者及び所管部署を明記すること。"
+    },
+    {
+      "level": 0,
+      "text": "（２） 機密の程度に応じて、次の区分を表示すること。"
+    },
+    {
+      "level": 1,
+      "text": "極秘"
+    },
+    {
+      "level": 1,
+      "text": "社外秘"
+    },
+    {
+      "level": 1,
+      "text": "一般"
+    },
+    {
+      "level": 0,
+      "text": "（３） 取引先に提出する文書は、所定の様式を用いること。"
+    },
+    {
+      "level": 0,
+      "text": "① 紙の文書は、裁断又は溶解処理を行う。"
+    },
+    {
+      "level": 0,
+      "text": "② 電子データは、復元できない方法で消去する。"
+    },
+    {
+      "level": 0,
+      "text": "③ 廃棄した文書は、廃棄記録簿に記載する。"
+    }
+  ],
+  "furniture": [
+    "株式会社さくら物流 社内規程",
+    "規程番号 総務-003",
+    "－ １ －",
+    "－ ２ －"
+  ],
+  "languages": [
+    "ja"
+  ],
+  "code": [],
+  "notes": "Japanese internal regulation (文書管理規程), 2 pages. Running header in two parts; footer page numbers \"－ 1 －\" with full-width dashes. Chapters are level 2 headings (\"第1章 総則\"), articles are level 3 headings (\"第1条（目的）\"). Items use TYPED full-width parenthesised numbers \"（１）\" set apart by a hanging indent; sub-items under item (２) of 第5条 use CSS katakana-iroha markers (イ、ロ、ハ、), not in the text; the list in 第8条 uses TYPED circled digits \"①\" with a hanging indent. The retention table has cells vertically centred and one cell spanning two rows (its text repeats in both grid rows). No spaces between words: wrapped lines join with no space."
+}

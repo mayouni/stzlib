@@ -1,0 +1,40 @@
+page_header	0	Tidewater Platform Documentation
+page_header	0	Release notes 4.2
+heading	1	Tidewater API 4.2 Release Notes
+paragraph	0	Released 9 March 2026 · Applies to all hosted and self managed installations
+paragraph	0	Version 4.2 introduces batch uploads, a new rate limit header and several fixes to webhook delivery. Two older endpoints are deprecated and will be removed in version 5.0. Please read the breaking changes section before upgrading a production system.
+heading	1	Highlights
+list_item	0	Batch uploads of up to 500 records in a single request
+list_item	0	Partial failures are reported per record
+list_item	0	Each batch returns a job identifier
+list_item	0	Jobs can be polled or followed by webhook
+list_item	0	A new header reports the remaining request allowance
+list_item	0	Webhook retries now follow an exponential schedule
+heading	1	Breaking changes
+paragraph	0	Timestamps in all responses are now returned in UTC with an explicit offset. Clients that parse local time strings must be updated before the upgrade.
+heading	1	New features
+heading	1	Batch uploads
+paragraph	0	Send an array of records to the batch endpoint. The response contains a job identifier and the number of records accepted.
+code	0	{ "job _ id": "job _ 7f3a91" , "accepted": 498, "rejected": 2, "status": "queued" }
+heading	1	Rate limit header
+paragraph	0	Every response now carries a header with the number of requests left in the current window. The window length is sixty seconds for all plans.
+page_footer	0	Page 1 of 2
+page_header	0	Tidewater Platform Documentation
+page_header	0	Release notes 4.2
+heading	1	Deprecations
+paragraph	0	The following endpoints still work in version 4.2 but return a deprecation warning.
+table	0	EndpointReplacementRemovalPOST /v3/records/importPOST /v4/records/batchVersion 5.0GET /v3/events/streamWebhook subscriptionsVersion 5.0
+heading	1	Fixed issues
+list_item	0	Webhooks were sometimes delivered twice after a network timeout.
+list_item	0	Search results ignored the page size parameter above 100.
+list_item	0	The limit is now enforced at 250 results per page.
+list_item	0	Exports of empty collections returned an error instead of an empty file.
+heading	1	Upgrade guide
+list_item	0	Back up the configuration directory.
+list_item	0	Pull the new image and restart the service.
+list_item	0	Update the client settings shown below.
+code	0	docker pull registry.tidewater.example/api:4.2.0
+code	0	docker compose up -d api
+code	0	client: api _ version: "4.2" timestamps: utc retry: max _ attempts: 5 backoff: exponential
+paragraph	0	After the upgrade, check the service log for deprecation warnings during the first day of traffic. Contact support if any client fails to parse the new timestamp format.
+page_footer	0	Page 2 of 2

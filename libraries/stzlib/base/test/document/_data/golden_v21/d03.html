@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Einrichtung des zentralen Druckservers</title>
+<style>
+*{-webkit-print-color-adjust:exact;print-color-adjust:exact;box-sizing:border-box}
+html,body{margin:0;padding:0}
+.page{position:relative;overflow:hidden;break-after:page}
+.page:last-child{break-after:auto}
+.content{height:100%}
+table{border-collapse:collapse}
+pre{margin:0}
+@page{size:A4;margin:0}
+.page{width:210mm;height:296mm;padding:20mm 20mm 20mm 25mm}
+body{font-family:Calibri;font-size:11pt;color:#202020}
+.hdr{position:absolute;top:9mm;left:25mm;right:20mm;font-size:8.5pt;color:#555;display:flex;justify-content:space-between;border-bottom:0.5pt solid #999;padding-bottom:1mm}
+.ftr{position:absolute;bottom:9mm;left:25mm;right:20mm;font-size:8.5pt;color:#555;display:flex;justify-content:space-between;border-top:0.5pt solid #999;padding-top:1mm}
+h1{font-size:19pt;color:#004a7c;margin:0 0 1mm;font-weight:bold}
+.sub{font-size:11pt;color:#555;margin:0 0 6mm}
+h2{font-size:13pt;color:#004a7c;margin:6mm 0 2mm;border-bottom:1pt solid #cfdbe6;padding-bottom:0.5mm}
+h3{font-size:11pt;color:#004a7c;margin:4mm 0 1.5mm}
+p{margin:0 0 2.2mm;line-height:1.38}
+pre.code{font-family:Consolas;font-size:8.8pt;background:#f3f5f7;border-left:3pt solid #004a7c;padding:2.5mm 3mm;margin:2mm 0 3mm;line-height:1.35;white-space:pre}
+table.zebra{width:100%;font-size:10pt;margin:2mm 0 3mm}
+table.zebra th{background:#004a7c;color:#fff;text-align:left;padding:1.3mm 2mm}
+table.zebra td{padding:1.3mm 2mm}
+table.zebra tbody tr:nth-child(even) td{background:#e8eff5}
+ol.steps{padding-left:7mm;margin:1mm 0 3mm;line-height:1.42}
+ol.steps li{margin-bottom:0.8mm}
+ul.req{padding-left:6mm;margin:1mm 0 3mm;list-style:disc;line-height:1.42}
+ul.req ul{list-style:'– ';padding-left:6mm}
+.hint{border:0.8pt solid #e0a800;background:#fff8e1;padding:2mm 3mm;margin:3mm 0}
+
+</style>
+</head>
+<body>
+<div class="page"><div class="hdr"><span>Stadtwerke Lindenbrück · IT-Betrieb</span><span>Betriebshandbuch Druckdienste</span></div><div class="content"><h1>Einrichtung des zentralen Druckservers</h1><p class="sub">Betriebsanleitung für Administratorinnen und Administratoren</p><h2>1 Zweck</h2><p>Diese Anleitung beschreibt die Einrichtung des zentralen Druckservers für alle Verwaltungsstandorte. Sie ersetzt die bisherige Fassung vom Oktober 2024. Abweichungen vom beschriebenen Verfahren sind mit der Leitung des Rechenzentrums abzustimmen.</p><h2>2 Voraussetzungen</h2><p>Vor Beginn der Arbeiten müssen folgende Bedingungen erfüllt sein:</p><ul class="req"><li>ein virtueller Server mit mindestens 4 GB Arbeitsspeicher<ul><li>zwei Prozessorkerne</li><li>40 GB freier Speicherplatz</li></ul></li><li>eine feste IP-Adresse im Verwaltungsnetz</li><li>Zugang zum zentralen Verzeichnisdienst mit einem Dienstkonto</li><li>die aktuellen Treiberpakete der eingesetzten Druckermodelle</li></ul><h2>3 Installation</h2><h3>3.1 Pakete installieren</h3><p>Melden Sie sich mit einem Administratorkonto an und führen Sie die folgenden Befehle aus.</p><pre class="code">sudo apt update
+sudo apt install --yes cups cups-filters printer-driver-gutenprint
+sudo systemctl enable --now cups</pre><h3>3.2 Konfiguration anpassen</h3><ol class="steps"><li>Sichern Sie die mitgelieferte Konfigurationsdatei.</li><li>Öffnen Sie die Datei /etc/cups/cupsd.conf in einem Texteditor.</li><li>Ersetzen Sie die Abschnitte für Port und Zugriff durch den unten gezeigten Auszug.</li><li>Starten Sie den Dienst neu und prüfen Sie das Protokoll auf Fehlermeldungen.</li></ol></div><div class="ftr"><span>Dokument IT-BH-017 · Version 2.3 · Stand 02/2026</span><span>Seite 1 von 2</span></div></div>
+<div class="page"><div class="hdr"><span>Stadtwerke Lindenbrück · IT-Betrieb</span><span>Betriebshandbuch Druckdienste</span></div><div class="content"><p>Der folgende Auszug zeigt die geänderten Abschnitte der Konfiguration.</p><pre class="code">Port 631
+ServerAlias druck.verwaltung.local
+DefaultEncryption Required
+
+&lt;Location /&gt;
+  Order allow,deny
+  Allow from 10.20.0.0/16
+&lt;/Location&gt;
+
+&lt;Location /admin&gt;
+  AuthType Default
+  Require group druckadmins
+&lt;/Location&gt;</pre><div class="hint"><p><b>Hinweis:</b> Ohne verschlüsselte Verbindung lehnen die Arbeitsplätze ab dem Sommer jede Druckanfrage ab.</p></div><h2>4 Freigegebene Ports</h2><p>Die Firewall des Verwaltungsnetzes muss die folgenden Verbindungen zulassen.</p><table class="zebra"><thead><tr><th>Dienst</th><th>Port</th><th>Protokoll</th><th>Richtung</th></tr></thead><tbody><tr><td>IPP über TLS</td><td>631</td><td>TCP</td><td>eingehend</td></tr><tr><td>Druckerkommunikation (RAW)</td><td>9100</td><td>TCP</td><td>ausgehend</td></tr><tr><td>SNMP Statusabfrage</td><td>161</td><td>UDP</td><td>ausgehend</td></tr><tr><td>Verzeichnisdienst (LDAPS)</td><td>636</td><td>TCP</td><td>ausgehend</td></tr><tr><td>Zeitsynchronisation</td><td>123</td><td>UDP</td><td>ausgehend</td></tr></tbody></table><h2>5 Betrieb und Wartung</h2><h3>5.1 Tägliche Kontrolle</h3><p>Prüfen Sie jeden Morgen die Warteschlangen auf hängende Aufträge. Aufträge, die älter als 24 Stunden sind, werden automatisch gelöscht.</p><h3>5.2 Störungen</h3><p>Bei einem Ausfall des Servers drucken die Arbeitsplätze nicht über einen Ersatzweg. Melden Sie Störungen deshalb sofort an die Leitstelle unter der internen Rufnummer 4711.</p></div><div class="ftr"><span>Dokument IT-BH-017 · Version 2.3 · Stand 02/2026</span><span>Seite 2 von 2</span></div></div>
+</body>
+</html>

@@ -1,0 +1,146 @@
+{
+  "id": "d05",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "御見積書",
+  "headings": [
+    {
+      "level": 1,
+      "text": "御見積書"
+    },
+    {
+      "level": 2,
+      "text": "備考"
+    }
+  ],
+  "key_sentences": [
+    "平素より格別のお引き立てを賜り、厚く御礼申し上げます。",
+    "下記の通りお見積り申し上げますので、ご検討のほどよろしくお願い申し上げます。",
+    "ご不明な点がございましたら、担当までお気軽にお問い合わせください。",
+    "今後とも何卒よろしくお願い申し上げます。"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "件名",
+          "環境測定機器一式"
+        ],
+        [
+          "お見積金額",
+          "¥1,353,000（税込）"
+        ],
+        [
+          "納期",
+          "ご注文後 約4週間"
+        ],
+        [
+          "有効期限",
+          "発行日より30日間"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "No.",
+          "品名・仕様",
+          "数量",
+          "単位",
+          "単価",
+          "金額"
+        ],
+        [
+          "1",
+          "デジタル温湿度計 TH-200 校正証明書付き",
+          "6",
+          "台",
+          "38,000",
+          "228,000"
+        ],
+        [
+          "2",
+          "粉じん計 PD-55",
+          "2",
+          "台",
+          "245,000",
+          "490,000"
+        ],
+        [
+          "3",
+          "騒音計 SL-12 風防・三脚含む",
+          "2",
+          "台",
+          "132,000",
+          "264,000"
+        ],
+        [
+          "4",
+          "データロガー用ソフトウェア",
+          "1",
+          "式",
+          "120,000",
+          "120,000"
+        ],
+        [
+          "5",
+          "設置・操作説明（半日）",
+          "1",
+          "式",
+          "128,000",
+          "128,000"
+        ],
+        [
+          "小計",
+          "小計",
+          "小計",
+          "小計",
+          "小計",
+          "1,230,000"
+        ],
+        [
+          "消費税（10%）",
+          "消費税（10%）",
+          "消費税（10%）",
+          "消費税（10%）",
+          "消費税（10%）",
+          "123,000"
+        ],
+        [
+          "合計",
+          "合計",
+          "合計",
+          "合計",
+          "合計",
+          "1,353,000"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "１． 価格には配送料が含まれております。"
+    },
+    {
+      "level": 0,
+      "text": "２． 校正証明書は製品ごとに一部発行いたします。"
+    },
+    {
+      "level": 0,
+      "text": "３． 設置作業は平日の午前9時から午後5時までの対応となります。"
+    },
+    {
+      "level": 0,
+      "text": "４． お支払い条件は月末締め翌月末払いとさせていただきます。"
+    }
+  ],
+  "furniture": [],
+  "languages": [
+    "ja"
+  ],
+  "code": [],
+  "notes": "Japanese quotation (御見積書), 1 page. The title is letter-spaced; given as plain text. Issue date/number block top right is body metadata, not a sentence. Two boxes side by side: recipient (left) then issuer (right); reading order box by box. Summary key/value table has no header row. In the items table the subtotal/tax/total rows span four columns, so the label repeats in those grid cells. Remarks list: TYPED full-width markers \"１．\" \"２．\" set apart by a hanging indent. Japanese has no spaces between words: wrapped lines join with no space."
+}

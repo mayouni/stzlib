@@ -1,0 +1,158 @@
+{
+  "id": "d03",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Einrichtung des zentralen Druckservers",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Einrichtung des zentralen Druckservers"
+    },
+    {
+      "level": 2,
+      "text": "1 Zweck"
+    },
+    {
+      "level": 2,
+      "text": "2 Voraussetzungen"
+    },
+    {
+      "level": 2,
+      "text": "3 Installation"
+    },
+    {
+      "level": 3,
+      "text": "3.1 Pakete installieren"
+    },
+    {
+      "level": 3,
+      "text": "3.2 Konfiguration anpassen"
+    },
+    {
+      "level": 2,
+      "text": "4 Freigegebene Ports"
+    },
+    {
+      "level": 2,
+      "text": "5 Betrieb und Wartung"
+    },
+    {
+      "level": 3,
+      "text": "5.1 Tägliche Kontrolle"
+    },
+    {
+      "level": 3,
+      "text": "5.2 Störungen"
+    }
+  ],
+  "key_sentences": [
+    "Diese Anleitung beschreibt die Einrichtung des zentralen Druckservers für alle Verwaltungsstandorte.",
+    "Abweichungen vom beschriebenen Verfahren sind mit der Leitung des Rechenzentrums abzustimmen.",
+    "Vor Beginn der Arbeiten müssen folgende Bedingungen erfüllt sein:",
+    "Der folgende Auszug zeigt die geänderten Abschnitte der Konfiguration.",
+    "Ohne verschlüsselte Verbindung lehnen die Arbeitsplätze ab dem Sommer jede Druckanfrage ab.",
+    "Prüfen Sie jeden Morgen die Warteschlangen auf hängende Aufträge.",
+    "Aufträge, die älter als 24 Stunden sind, werden automatisch gelöscht.",
+    "Melden Sie Störungen deshalb sofort an die Leitstelle unter der internen Rufnummer 4711."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Dienst",
+          "Port",
+          "Protokoll",
+          "Richtung"
+        ],
+        [
+          "IPP über TLS",
+          "631",
+          "TCP",
+          "eingehend"
+        ],
+        [
+          "Druckerkommunikation (RAW)",
+          "9100",
+          "TCP",
+          "ausgehend"
+        ],
+        [
+          "SNMP Statusabfrage",
+          "161",
+          "UDP",
+          "ausgehend"
+        ],
+        [
+          "Verzeichnisdienst (LDAPS)",
+          "636",
+          "TCP",
+          "ausgehend"
+        ],
+        [
+          "Zeitsynchronisation",
+          "123",
+          "UDP",
+          "ausgehend"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "ein virtueller Server mit mindestens 4 GB Arbeitsspeicher"
+    },
+    {
+      "level": 1,
+      "text": "zwei Prozessorkerne"
+    },
+    {
+      "level": 1,
+      "text": "40 GB freier Speicherplatz"
+    },
+    {
+      "level": 0,
+      "text": "eine feste IP-Adresse im Verwaltungsnetz"
+    },
+    {
+      "level": 0,
+      "text": "Zugang zum zentralen Verzeichnisdienst mit einem Dienstkonto"
+    },
+    {
+      "level": 0,
+      "text": "die aktuellen Treiberpakete der eingesetzten Druckermodelle"
+    },
+    {
+      "level": 0,
+      "text": "Sichern Sie die mitgelieferte Konfigurationsdatei."
+    },
+    {
+      "level": 0,
+      "text": "Öffnen Sie die Datei /etc/cups/cupsd.conf in einem Texteditor."
+    },
+    {
+      "level": 0,
+      "text": "Ersetzen Sie die Abschnitte für Port und Zugriff durch den unten gezeigten Auszug."
+    },
+    {
+      "level": 0,
+      "text": "Starten Sie den Dienst neu und prüfen Sie das Protokoll auf Fehlermeldungen."
+    }
+  ],
+  "furniture": [
+    "Stadtwerke Lindenbrück · IT-Betrieb",
+    "Betriebshandbuch Druckdienste",
+    "Dokument IT-BH-017 · Version 2.3 · Stand 02/2026",
+    "Seite 1 von 2",
+    "Seite 2 von 2"
+  ],
+  "languages": [
+    "de"
+  ],
+  "code": [
+    "sudo apt update\nsudo apt install --yes cups cups-filters printer-driver-gutenprint\nsudo systemctl enable --now cups",
+    "Port 631\nServerAlias druck.verwaltung.local\nDefaultEncryption Required\n\n<Location />\n  Order allow,deny\n  Allow from 10.20.0.0/16\n</Location>\n\n<Location /admin>\n  AuthType Default\n  Require group druckadmins\n</Location>"
+  ],
+  "notes": "German IT operations manual, 2 pages, running header (left and right parts given separately) and footer with document number and \"Seite N von 2\". Two code blocks in Consolas. The prerequisites list has CSS disc bullets and a nested level whose dash markers are CSS-drawn (list-style string), so no marker is in the text. The installation steps use CSS decimal markers. The port table is zebra striped. The hint box \"Hinweis:\" is body text."
+}
