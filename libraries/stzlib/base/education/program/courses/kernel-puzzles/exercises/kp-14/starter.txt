@@ -1,0 +1,2 @@
+in a int
+out c int

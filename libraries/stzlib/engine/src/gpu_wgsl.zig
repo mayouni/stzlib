@@ -165,6 +165,10 @@ pub const Decl = struct {
     scalars: [MAX_SCALARS]Name = undefined,
     n_scalars: usize = 0,
     out_name: Name = .{},
+    // GL0 (types): which declarations hold ints ('in k int'); f32 otherwise
+    in_int: [MAX_VECS]bool = @splat(false),
+    sc_int: [MAX_SCALARS]bool = @splat(false),
+    out_int: bool = false,
     rhs: []const u8 = "",
     // KP0: the guard line. null = the engine's default (i < n, as every kernel
     // had before); "none" = the learner omits it; anything else = the
@@ -217,6 +221,21 @@ fn isPow2(v: usize) bool {
     return v != 0 and (v & (v - 1)) == 0;
 }
 
+/// GL0: a declaration's name and its type word: 'k' or 'k float' is a float,
+/// 'k int' an int. Null, with the reason, for any other word.
+fn declType(rest: []const u8, int: *bool) ?[]const u8 {
+    int.* = false;
+    const sp = std.mem.indexOfAny(u8, rest, " \t") orelse return rest;
+    const ty = std.mem.trim(u8, rest[sp..], " \t");
+    if (std.ascii.eqlIgnoreCase(ty, "int")) {
+        int.* = true;
+    } else if (!std.ascii.eqlIgnoreCase(ty, "float")) {
+        _ = fail("'{s}' is not a type: a declaration ends with int or float, or with its name", .{ty});
+        return null;
+    }
+    return rest[0..sp];
+}
+
 // `{ ... }` -> the inside, trimmed; the braces are the W-string's and optional
 fn unbrace(s: []const u8) []const u8 {
     var b = std.mem.trim(u8, s, " \t");
@@ -240,7 +259,9 @@ fn parseDecl(text: []const u8, d: *Decl) i32 {
         const line = std.mem.trim(u8, raw, " \t\r");
         if (line.len == 0) continue;
         if (std.mem.startsWith(u8, line, "in ")) {
-            const nm = std.mem.trim(u8, line[3..], " \t");
+            var int = false;
+            const nm = declType(std.mem.trim(u8, line[3..], " \t"), &int) orelse return -1;
+            d.in_int[d.n_ins] = int;
             var lowered: Name = .{};
             if (!lowerInto(&lowered, nm) or !validIdent(lowered.slice()))
                 return fail("bad input name: '{s}'", .{nm});
@@ -250,7 +271,9 @@ fn parseDecl(text: []const u8, d: *Decl) i32 {
             d.ins[d.n_ins] = lowered;
             d.n_ins += 1;
         } else if (std.mem.startsWith(u8, line, "scalar ")) {
-            const nm = std.mem.trim(u8, line[7..], " \t");
+            var int = false;
+            const nm = declType(std.mem.trim(u8, line[7..], " \t"), &int) orelse return -1;
+            if (d.n_scalars < MAX_SCALARS) d.sc_int[d.n_scalars] = int;
             var lowered: Name = .{};
             if (!lowerInto(&lowered, nm) or !validIdent(lowered.slice()))
                 return fail("bad scalar name: '{s}'", .{nm});
@@ -260,7 +283,7 @@ fn parseDecl(text: []const u8, d: *Decl) i32 {
             d.scalars[d.n_scalars] = lowered;
             d.n_scalars += 1;
         } else if (std.mem.startsWith(u8, line, "out ")) {
-            const nm = std.mem.trim(u8, line[4..], " \t");
+            const nm = declType(std.mem.trim(u8, line[4..], " \t"), &d.out_int) orelse return -1;
             if (have_out) return fail("only one output (ForEachElement writes one vector)", .{});
             if (!lowerInto(&d.out_name, nm) or !validIdent(d.out_name.slice()))
                 return fail("bad output name: '{s}'", .{nm});
@@ -415,6 +438,13 @@ fn parseDecl(text: []const u8, d: *Decl) i32 {
     return 0;
 }
 
+fn usesRem(texts: []const []const u8) bool {
+    for (texts) |t| {
+        if (std.mem.indexOf(u8, t, "stz_rem(") != null) return true;
+    }
+    return false;
+}
+
 fn widthText(d: *const Decl, buf: []u8) ?[]const u8 {
     if (parseSize(d.width)) |v| return std.fmt.bufPrint(buf, "{d}u", .{v}) catch null;
     var lowered: Name = .{};
@@ -426,7 +456,7 @@ fn widthText(d: *const Decl, buf: []u8) ?[]const u8 {
 /// of stages, reduces and a tiles loop with an accumulator, or the group's own
 /// names. Every thread of a group reaches every barrier: the schedule runs
 /// for all of them, the guard wraps the body only.
-fn emitGroupKernel(w: *Cursor, d: *const Decl, rw: *const Rewriter, expr: []const u8, prelude: []const u8, guard: []const u8, guard_none: bool, guard_custom: bool, items: []const u8) i32 {
+fn emitGroupKernel(w: *Cursor, d: *const Decl, rw: *const Rewriter, expr: []const u8, prelude: []const u8, guard: []const u8, gpre: []const u8, guard_none: bool, guard_custom: bool, items: []const u8) i32 {
     var num: [32]u8 = undefined;
     w.put("struct StzTile { xoff : u32, p0 : u32, p1 : u32, p2 : u32 }\n");
     w.put("@group(0) @binding(0) var<uniform> tile : StzTile;\n");
@@ -463,6 +493,7 @@ fn emitGroupKernel(w: *Cursor, d: *const Decl, rw: *const Rewriter, expr: []cons
         w.put(ns);
         w.put(">;\n");
     }
+    if (usesRem(&.{ expr, prelude, guard, gpre, items })) w.put(REM_WGSL);
     for (0..d.n_ins) |s| {
         if (!rw.used_rd[s]) continue;
         w.put("fn rd_");
@@ -524,6 +555,7 @@ fn emitGroupKernel(w: *Cursor, d: *const Decl, rw: *const Rewriter, expr: []cons
     w.put(items);
     if (!guard_none) {
         if (guard_custom) {
+            w.put(gpre);
             w.put("  if (");
             w.put(guard);
             w.put(") {\n");
@@ -563,10 +595,14 @@ pub fn stz_gpu_wgsl_elementwise(spec: [*]const u8, spec_len: f64, out: [*]u8, ca
     var prelude_buf: [4096]u8 = undefined;
     var prelude = Cursor{ .buf = &prelude_buf };
     var rw = Rewriter{ .d = &d, .prelude = &prelude };
-    if (rw.rewrite(rhs, &expr) < 0) return -1;
+    if (d.out_int) expr.put("f32(");
+    if (rw.top(rhs, &expr, .body) < 0) return -1;
+    if (d.out_int) expr.put(")");
     if (expr.overflow or prelude.overflow) return fail("expression too long", .{});
     var guard_buf: [1024]u8 = undefined;
     var guard = Cursor{ .buf = &guard_buf };
+    var gpre_buf: [2048]u8 = undefined;
+    var gpre = Cursor{ .buf = &gpre_buf };
     var guard_kind: enum { default, none, custom } = .default;
     if (d.guard) |g| {
         if (std.mem.eql(u8, g, "none")) {
@@ -574,12 +610,16 @@ pub fn stz_gpu_wgsl_elementwise(spec: [*]const u8, spec_len: f64, out: [*]u8, ca
         } else {
             guard_kind = .custom;
             if (!condShape(g)) return fail(MSG_COND, .{});
-            rw.compare = true;
-            rw.loopvar = null;
+            // GL0 (found by the int fuzz): a sum in the guard writes its loop
+            // into a prelude of its own, placed BEFORE the guard's if. In the
+            // body's, inside the if, the guard read an accumulator not yet
+            // declared, and the device refused every such kernel since KP0.
             rw.where = .guard;
-            if (rw.rewrite(g, &guard) < 0) return -1;
+            rw.prelude = &gpre;
+            if (rw.top(g, &guard, .guard) < 0) return -1;
+            rw.prelude = &prelude;
             rw.where = .body;
-            rw.compare = false;
+            if (gpre.overflow) return fail("guard too long", .{});
             if (guard.overflow) return fail("guard too long", .{});
         }
     }
@@ -588,7 +628,7 @@ pub fn stz_gpu_wgsl_elementwise(spec: [*]const u8, spec_len: f64, out: [*]u8, ca
     var count = Cursor{ .buf = &count_buf };
     if (d.tiles.len != 0) {
         rw.where = .count;
-        if (rw.rewrite(d.tiles, &count) < 0) return -1;
+        if (rw.top(d.tiles, &count, .count) < 0) return -1;
         if (count.overflow) return fail("tiles count too long", .{});
     }
     var items_buf: [12288]u8 = undefined;
@@ -626,8 +666,8 @@ pub fn stz_gpu_wgsl_elementwise(spec: [*]const u8, spec_len: f64, out: [*]u8, ca
                 .stage => {
                     rw.where = .stage;
                     rw.stage_target = it.shared;
-                    if (rw.rewrite(it.index, &idx) < 0) return -1;
-                    if (rw.rewrite(it.value, &val) < 0) return -1;
+                    if (rw.top(it.index, &idx, .stage_index) < 0) return -1;
+                    if (rw.top(it.value, &val, .stage_value) < 0) return -1;
                     rw.stage_target = null;
                     var num: [16]u8 = undefined;
                     const sz = std.fmt.bufPrint(&num, "{d}", .{d.shared_size[it.shared]}) catch return -1;
@@ -687,7 +727,7 @@ pub fn stz_gpu_wgsl_elementwise(spec: [*]const u8, spec_len: f64, out: [*]u8, ca
                 },
                 .accumulate => {
                     rw.where = .accumulate;
-                    if (rw.rewrite(it.value, &val) < 0) return -1;
+                    if (rw.top(it.value, &val, .acc_value) < 0) return -1;
                     items.put(ind);
                     items.put("{\n");
                     items.put(pre.items());
@@ -718,7 +758,7 @@ pub fn stz_gpu_wgsl_elementwise(spec: [*]const u8, spec_len: f64, out: [*]u8, ca
             l.put(s);
         }
     }.f;
-    if (kp3) return emitGroupKernel(&w, &d, &rw, expr.items(), prelude.items(), guard.items(), guard_kind == .none, guard_kind == .custom, items.items());
+    if (kp3) return emitGroupKernel(&w, &d, &rw, expr.items(), prelude.items(), guard.items(), gpre.items(), guard_kind == .none, guard_kind == .custom, items.items());
 
     put(&w, "struct StzTile { xoff : u32, p0 : u32, p1 : u32, p2 : u32 }\n");
     put(&w, "@group(0) @binding(0) var<uniform> tile : StzTile;\n");
@@ -753,6 +793,7 @@ pub fn stz_gpu_wgsl_elementwise(spec: [*]const u8, spec_len: f64, out: [*]u8, ca
     // input's own range it answers 0.0 -- the interpreter says the same --
     // so a stencil's edges are the learner's to guard, and an unguarded edge
     // is a wrong VALUE the compare names, not undefined behaviour.
+    if (usesRem(&.{ expr.items(), prelude.items(), guard.items(), gpre.items() })) put(&w, REM_WGSL);
     for (0..n_ins) |s| {
         if (!rw.used_rd[s]) continue;
         put(&w, "fn rd_");
@@ -792,6 +833,7 @@ pub fn stz_gpu_wgsl_elementwise(spec: [*]const u8, spec_len: f64, out: [*]u8, ca
         switch (guard_kind) {
             .default => put(&w, "  if (i < p.n) {\n"),
             .custom => {
+                put(&w, gpre.items());
                 put(&w, "  if (");
                 put(&w, guard.items());
                 put(&w, ") {\n");
@@ -815,6 +857,8 @@ pub fn stz_gpu_wgsl_elementwise(spec: [*]const u8, spec_len: f64, out: [*]u8, ca
 // ---------------------------------------------------------------- the rewriter (KP0)
 // The body and the guard are rewritten by ONE routine, recursive so a sum's
 // bounds and body, and a neighbour read's index, are the same language.
+// GL0 made it a typed recursive descent beside the interpreter's (the types
+// are in the GL0 block below the messages).
 // What it admits beyond the GK0 grammar, each a KP0 admission:
 //   @i                  the element index, as f32(i)
 //   n                   the element count, as f32(p.n)
@@ -844,6 +888,129 @@ const MSG_WHEN = "when takes 3 arguments: when(condition, value if true, value i
 const MSG_COND = "a condition compares values, as in '@a > 0': a bare value is not a condition, and a comparison is not a value";
 const MSG_CMP = "'{c}' is a comparison; comparisons belong to a guard line or to the condition of a when";
 
+// GL0 (types, 2026-10-28): a value is an f32, an i32 or a truth value. A
+// whole-number literal and the language's counting names (@i, n, @l, @g, @lx,
+// @ly, @row, @col, a sum's variable, the tiles variable) are UNTYPED: they
+// take the type of the value they meet, and are f32 when they meet none --
+// which is what every description before GL0 meant. An int and a float never
+// meet without a conversion, int(...) or float(...), as in WGSL. Buffers stay
+// f32: an int input is read through i32(...), an int output written through
+// f32(...), so a value crosses exactly up to 16,777,216.
+const Ty = enum(u8) { f, i, b, u };
+fn tyOf(r: i32) Ty {
+    return @enumFromInt(@as(u8, @intCast(r)));
+}
+fn tyR(t: Ty) i32 {
+    return @intFromEnum(t);
+}
+const Sink = enum { body, guard, stage_index, stage_value, acc_value, count };
+const MSG_MIXTY = "an int and a float meet at '{s}': convert one, with float(...) or int(...)";
+const MSG_FLOATFN = "'{s}' works on floats: write {s}(float(...))";
+const MSG_BIGINT = "'{s}' is too large for an int (the largest is 2147483647)";
+const MSG_OUTI = "the output '@{s}' holds ints; its value is a float: write int(...)";
+const MSG_OUTF = "the output '@{s}' holds floats; its value is an int: write float(...)";
+const MSG_SHI = "a shared array holds floats; the value is an int: write float(...)";
+const MSG_ACCI = "'@acc' holds a float; the value is an int: write float(...)";
+
+// The rewriter writes an untyped number with a placeholder where its type
+// goes -- one byte after a literal's digits, three in front of a counting
+// name's parenthesis -- and settles them when the type is known.
+const PH_LIT: u8 = 1;
+const PH_TY: u8 = 2;
+const PH_TY3 = "\x02\x02\x02";
+// GL0 (measured 2026-10-28, RTX 3050, wgpu-native 29): the device takes an
+// i32 '%' as UNSIGNED -- -7 % 4 is 1 there, -3 in WGSL -- while its '/', its
+// wrapping and its comparisons are WGSL's. So an i32 remainder is never
+// handed to it: the rewriter writes stz_rem(a, b), a - (a / b) * b with
+// WGSL's answer for a zero divisor, and a float '%' stays WGSL's own. A '%'
+// whose type is not known yet is written between three markers, settled
+// into one form or the other.
+const PH_RA: u8 = 4; // where the left operand starts
+const PH_RO: u8 = 3; // the operator
+const PH_RZ: u8 = 5; // where the right operand ends
+const REM_WGSL = "fn stz_rem(a : i32, b : i32) -> i32 {\n  if (b == 0) { return 0; }\n  return a - (a / b) * b;\n}\n";
+
+fn insertAt(c: *Cursor, pos: usize, ch: u8) void {
+    if (c.overflow or c.len + 1 > c.buf.len) {
+        c.overflow = true;
+        return;
+    }
+    std.mem.copyBackwards(u8, c.buf[pos + 1 .. c.len + 1], c.buf[pos..c.len]);
+    c.buf[pos] = ch;
+    c.len += 1;
+}
+
+/// Settle every placeholder written in `c` since `from` to `to` (f or i). A
+/// whole-number literal past i32 is refused there, as the interpreter refuses it.
+fn settleText(c: *Cursor, from: usize, to: Ty) i32 {
+    if (std.mem.indexOfAny(u8, c.buf[from..c.len], &[_]u8{ PH_RA, PH_RO, PH_RZ }) != null) {
+        // a remainder's markers change the length: rebuild the tail
+        var tmp: [16384]u8 = undefined;
+        const tail = c.len - from;
+        if (tail > tmp.len) {
+            c.overflow = true;
+            return 0;
+        }
+        @memcpy(tmp[0..tail], c.buf[from..c.len]);
+        c.len = from;
+        for (tmp[0..tail]) |ch| {
+            switch (ch) {
+                PH_RA => if (to == .i) c.put("stz_rem("),
+                PH_RO => if (to == .i) {
+                    while (c.len > from and c.buf[c.len - 1] == ' ') c.len -= 1;
+                    c.putc(',');
+                } else c.putc('%'),
+                PH_RZ => if (to == .i) c.putc(')'),
+                else => c.putc(ch),
+            }
+        }
+    }
+    var k = from;
+    while (k < c.len) : (k += 1) {
+        if (c.buf[k] == PH_LIT) {
+            if (to == .i) {
+                var j = k;
+                while (j > 0 and std.ascii.isDigit(c.buf[j - 1])) : (j -= 1) {}
+                const v = std.fmt.parseInt(i64, c.buf[j..k], 10) catch std.math.maxInt(i64);
+                if (v > std.math.maxInt(i32)) return fail(MSG_BIGINT, .{c.buf[j..k]});
+            }
+            c.buf[k] = if (to == .i) 'i' else 'f';
+        } else if (c.buf[k] == PH_TY and k + 3 <= c.len) {
+            @memcpy(c.buf[k .. k + 3], if (to == .i) "i32" else "f32");
+            k += 2;
+        }
+    }
+    return 0;
+}
+
+/// The functions WGSL gives both types; every other one takes floats.
+fn isGeneric(op: Op) bool {
+    return op == .f_abs or op == .f_min or op == .f_max or op == .f_clamp or op == .f_sign;
+}
+/// The i32 form of an f32 op (the op itself when it has none).
+fn intForm(op: Op) Op {
+    return switch (op) {
+        .add => .i_add,
+        .sub => .i_sub,
+        .mul => .i_mul,
+        .div => .i_div,
+        .mod => .i_mod,
+        .neg => .i_neg,
+        .f_min => .i_min,
+        .f_max => .i_max,
+        .f_abs => .i_abs,
+        .f_clamp => .i_clamp,
+        .f_sign => .i_sign,
+        .c_lt => .ic_lt,
+        .c_le => .ic_le,
+        .c_gt => .ic_gt,
+        .c_ge => .ic_ge,
+        .c_eq => .ic_eq,
+        .c_ne => .ic_ne,
+        else => op,
+    };
+}
+
 // GL0: the SHAPE of a condition, read from its source by both readers before
 // either compiles it, so they cannot split on it. A condition is comparisons
 // joined by 'and' and 'or', each comparison between two values, grouped by
@@ -871,6 +1038,18 @@ fn wordEnd(s: []const u8, i: usize) usize {
     while (j < s.len and identChar(s[j])) : (j += 1) {}
     return j;
 }
+
+/// GL0: 'and' or 'or' at s[i] (after spacing), the word itself, or null --
+/// so a body that uses one is told where it belongs, by both readers.
+fn logicWordAt(s: []const u8, from: usize) ?[]const u8 {
+    var i = from;
+    while (i < s.len and (s[i] == ' ' or s[i] == '\t')) : (i += 1) {}
+    if (i >= s.len or !std.ascii.isAlphabetic(s[i])) return null;
+    var j = i;
+    while (j < s.len and (std.ascii.isAlphanumeric(s[j]) or s[j] == '_')) : (j += 1) {}
+    return if (isLogicWord(s[i..j])) s[i..j] else null;
+}
+const MSG_LOGIC = "'{s}' belongs to the guard line, not to a body";
 
 fn isLogicWord(w: []const u8) bool {
     return std.ascii.eqlIgnoreCase(w, "and") or std.ascii.eqlIgnoreCase(w, "or");
@@ -1013,6 +1192,17 @@ const Rewriter = struct {
     stage_target: ?usize = null,
     used_group: bool = false,
     used_sh: [MAX_SHARED]bool = @splat(false),
+    // GL0 (types): the rewriter is a recursive descent over the text that
+    // writes WGSL as it reads, one construct for each of the interpreter's,
+    // so the two refuse in the same order with the same words. It keeps the
+    // source's own spacing and parentheses, so WGSL reads the precedence
+    // again, by itself.
+    s: []const u8 = "",
+    i: usize = 0,
+    out: *Cursor = undefined,
+    depth: usize = 0,
+    nands: i32 = 0,
+    top_sums: usize = 0,
 
     fn matching(text: []const u8, open_at: usize) ?usize {
         var depth: usize = 0;
@@ -1028,327 +1218,580 @@ const Rewriter = struct {
         return null;
     }
 
-    fn rewrite(self: *Rewriter, rhs: []const u8, expr: *Cursor) i32 {
-        var i: usize = 0;
-        var pdepth: usize = 0;
-        var seen_and: [MAX_DEPTH + 1]bool = @splat(false);
-        var seen_or: [MAX_DEPTH + 1]bool = @splat(false);
-        while (i < rhs.len) {
-            const ch = rhs[i];
-            if (ch == '@') {
-                var j = i + 1;
-                while (j < rhs.len and (std.ascii.isAlphanumeric(rhs[j]) or rhs[j] == '_')) : (j += 1) {}
-                var nm: Name = .{};
-                if (j == i + 1 or !lowerInto(&nm, rhs[i + 1 .. j]))
-                    return fail("bad @name at '{s}'", .{rhs[i..@min(i + 8, rhs.len)]});
-                if (self.where == .count) return fail(MSG_COUNT, .{});
-                if (std.mem.eql(u8, nm.slice(), "i")) {
-                    expr.put("f32(i)");
-                    i = j;
-                    continue;
-                }
-                // KP3: the group's own names
-                if (groupName(nm.slice())) |wg| {
-                    if ((std.mem.eql(u8, nm.slice(), "row") or std.mem.eql(u8, nm.slice(), "col")) and self.d.width.len == 0)
-                        return fail(MSG_ROWCOL, .{nm.slice()});
-                    self.used_group = true;
-                    expr.put(wg);
-                    i = j;
-                    continue;
-                }
-                if (std.mem.eql(u8, nm.slice(), "acc")) {
-                    if (!self.d.has_acc or !(self.where == .accumulate or self.where == .body)) return fail(MSG_ACC, .{});
-                    expr.put("acc");
-                    i = j;
-                    continue;
-                }
-                if (self.d.sharedIndex(nm.slice())) |si| {
-                    var k2 = j;
-                    while (k2 < rhs.len and (rhs[k2] == ' ' or rhs[k2] == '\t')) : (k2 += 1) {}
-                    if (k2 >= rhs.len or rhs[k2] != '[') return fail(MSG_SHNOIDX, .{ nm.slice(), nm.slice() });
-                    if (self.stage_target) |st| {
-                        if (st == si) return fail(MSG_RACE, .{nm.slice()});
-                    }
-                    const close = matching(rhs, k2) orelse return fail("missing ']' after '@{s}['", .{nm.slice()});
-                    var inner_buf: [1024]u8 = undefined;
-                    var inner = Cursor{ .buf = &inner_buf };
-                    const saved = self.compare;
-                    self.compare = false;
-                    if (self.rewrite(rhs[k2 + 1 .. close], &inner) < 0) return -1;
-                    self.compare = saved;
-                    if (inner.len == 0) return fail("empty index in '@{s}[]'", .{nm.slice()});
-                    self.used_sh[si] = true;
-                    self.used_group = true;
-                    expr.put("sh_");
-                    expr.put(nm.slice());
-                    expr.put("(i32(");
-                    expr.put(inner.items());
-                    expr.put("))");
-                    i = close + 1;
-                    continue;
-                }
-                const idx = nameIn(self.d.ins[0..], self.d.n_ins, nm.slice()) orelse {
-                    if (std.mem.eql(u8, nm.slice(), self.d.out_name.slice()))
-                        return fail("the output '@{s}' cannot be read", .{nm.slice()});
-                    return fail("undeclared vector '@{s}'", .{nm.slice()});
-                };
-                self.used_in[idx] = true;
-                // a neighbour read?
-                var k = j;
-                while (k < rhs.len and (rhs[k] == ' ' or rhs[k] == '\t')) : (k += 1) {}
-                if (k < rhs.len and rhs[k] == '[') {
-                    const close = matching(rhs, k) orelse return fail("missing ']' after '@{s}['", .{nm.slice()});
-                    var inner_buf: [1024]u8 = undefined;
-                    var inner = Cursor{ .buf = &inner_buf };
-                    const saved = self.compare;
-                    self.compare = false;
-                    if (self.rewrite(rhs[k + 1 .. close], &inner) < 0) return -1;
-                    self.compare = saved;
-                    if (inner.len == 0) return fail("empty index in '@{s}[]'", .{nm.slice()});
-                    self.used_rd[idx] = true;
-                    expr.put("rd_");
-                    expr.put(nm.slice());
-                    expr.put("(i32(");
-                    expr.put(inner.items());
-                    expr.put("))");
-                    i = close + 1;
-                    continue;
-                }
-                if (self.where == .stage or self.where == .accumulate) {
-                    // KP3: a schedule item runs for EVERY thread of the group, the
-                    // ones past the input included, so its own element is a bounded read
-                    self.used_rd[idx] = true;
-                    expr.put("rd_");
-                    expr.put(nm.slice());
-                    expr.put("(i32(i))");
-                    i = j;
-                    continue;
-                }
-                expr.put("v_");
-                expr.put(nm.slice());
-                expr.put("[i]");
-                i = j;
-            } else if (std.ascii.isAlphabetic(ch) or ch == '_') {
-                var j = i;
-                while (j < rhs.len and (std.ascii.isAlphanumeric(rhs[j]) or rhs[j] == '_')) : (j += 1) {}
-                var nm: Name = .{};
-                if (!lowerInto(&nm, rhs[i..j]))
-                    return fail("name too long at '{s}'", .{rhs[i..@min(i + 8, rhs.len)]});
-                const word = nm.slice();
-                if (std.mem.eql(u8, word, "n")) {
-                    expr.put("f32(p.n)");
-                    i = j;
-                    continue;
-                }
-                if (self.loopvar) |lv| {
-                    if (std.mem.eql(u8, word, lv.slice())) {
-                        expr.put("f32(k_");
-                        expr.put(word);
-                        expr.put(")");
-                        i = j;
-                        continue;
-                    }
-                }
-                if (self.in_loop and self.d.tiles.len != 0 and std.mem.eql(u8, word, self.d.tilevar.slice())) {
-                    expr.put("f32(t_");
-                    expr.put(word);
-                    expr.put(")");
-                    i = j;
-                    continue;
-                }
-                if (std.mem.eql(u8, word, "and") or std.mem.eql(u8, word, "or")) {
-                    if (!self.compare) return fail("'{s}' belongs to the guard line, not to a body", .{word});
-                    const lvl = @min(pdepth, MAX_DEPTH);
-                    if (word[0] == 'a') seen_and[lvl] = true else seen_or[lvl] = true;
-                    if (seen_and[lvl] and seen_or[lvl]) return fail(MSG_MIX, .{});
-                    expr.put(if (word[0] == 'a') " && " else " || ");
-                    i = j;
-                    continue;
-                }
-                if (nameIn(self.d.scalars[0..], self.d.n_scalars, word) != null) {
-                    expr.put("p.s_");
-                    expr.put(word);
-                    i = j;
-                    continue;
-                }
-                if (std.mem.eql(u8, word, "when")) {
-                    // GL0: a conditional value. WGSL's select takes the value
-                    // if FALSE first -- select(f, t, c) -- so the order is
-                    // written here once, and the fuzz's SWAP control is what
-                    // proves a swapped pair would be caught.
-                    var k = j;
-                    while (k < rhs.len and (rhs[k] == ' ' or rhs[k] == '\t')) : (k += 1) {}
-                    if (k >= rhs.len or rhs[k] != '(') return fail(MSG_WHEN, .{});
-                    const close = matching(rhs, k) orelse return fail("when is missing ')'", .{});
-                    var parts: [3][]const u8 = undefined;
-                    if (splitTop(rhs, k, close, &parts) != 3) return fail(MSG_WHEN, .{});
-                    if (!condShape(parts[0])) return fail(MSG_COND, .{});
-                    var c_buf: [4096]u8 = undefined;
-                    var t_buf: [4096]u8 = undefined;
-                    var f_buf: [4096]u8 = undefined;
-                    var cnd = Cursor{ .buf = &c_buf };
-                    var tv = Cursor{ .buf = &t_buf };
-                    var fv = Cursor{ .buf = &f_buf };
-                    const saved = self.compare;
-                    self.compare = true;
-                    const rc = self.rewrite(parts[0], &cnd);
-                    self.compare = false;
-                    const rt = if (rc < 0) rc else self.rewrite(parts[1], &tv);
-                    const rf = if (rt < 0) rt else self.rewrite(parts[2], &fv);
-                    self.compare = saved;
-                    if (rf < 0) return -1;
-                    if (cnd.overflow or tv.overflow or fv.overflow) return fail("when is too long", .{});
-                    expr.put("select((");
-                    expr.put(fv.items());
-                    expr.put("), (");
-                    expr.put(tv.items());
-                    expr.put("), (");
-                    expr.put(cnd.items());
-                    expr.put("))");
-                    i = close + 1;
-                    continue;
-                }
-                if (std.mem.eql(u8, word, "sum")) {
-                    if (self.where == .count) return fail(MSG_SUMCOUNT, .{});
-                    if (self.loopvar != null) return fail("a sum inside a sum is not admitted (one level; shared memory is KP3's)", .{});
-                    var k = j;
-                    while (k < rhs.len and (rhs[k] == ' ' or rhs[k] == '\t')) : (k += 1) {}
-                    if (k >= rhs.len or rhs[k] != '(') return fail("sum needs '(var, from, to, expression)'", .{});
-                    const close = matching(rhs, k) orelse return fail("sum is missing ')'", .{});
-                    // split the four arguments at top-level commas
-                    var parts: [4][]const u8 = undefined;
-                    var np: usize = 0;
-                    var start = k + 1;
-                    var depth: usize = 0;
-                    var q = k + 1;
-                    while (q <= close) : (q += 1) {
-                        const c2 = rhs[q];
-                        if (c2 == '(' or c2 == '[') depth += 1;
-                        if ((c2 == ')' or c2 == ']') and q < close) depth -= 1;
-                        if (q == close or (c2 == ',' and depth == 0)) {
-                            if (np == 4) return fail("sum takes 4 arguments (var, from, to, expression)", .{});
-                            parts[np] = std.mem.trim(u8, rhs[start..q], " \t");
-                            np += 1;
-                            start = q + 1;
-                        }
-                    }
-                    if (np != 4) return fail("sum takes 4 arguments (var, from, to, expression), got {d}", .{np});
-                    var lv: Name = .{};
-                    if (!lowerInto(&lv, parts[0]) or !validIdent(lv.slice()))
-                        return fail("sum's variable must be a name, got '{s}'", .{parts[0]});
-                    if (reservedName(lv.slice()) != null or nameIn(self.d.ins[0..], self.d.n_ins, lv.slice()) != null or
-                        nameIn(self.d.scalars[0..], self.d.n_scalars, lv.slice()) != null)
-                        return fail("sum's variable '{s}' is already a name here", .{lv.slice()});
-                    var from_buf: [512]u8 = undefined;
-                    var to_buf: [512]u8 = undefined;
-                    var body_buf: [2048]u8 = undefined;
-                    var from = Cursor{ .buf = &from_buf };
-                    var to = Cursor{ .buf = &to_buf };
-                    var body = Cursor{ .buf = &body_buf };
-                    const saved = self.compare;
-                    self.compare = false;
-                    if (self.rewrite(parts[1], &from) < 0) return -1;
-                    if (self.rewrite(parts[2], &to) < 0) return -1;
-                    self.loopvar = lv;
-                    const r = self.rewrite(parts[3], &body);
-                    self.loopvar = null;
-                    self.compare = saved;
-                    if (r < 0) return -1;
-                    if (from.len == 0 or to.len == 0 or body.len == 0) return fail("sum's arguments cannot be empty", .{});
-                    var num: [8]u8 = undefined;
-                    const acc = std.fmt.bufPrint(&num, "acc{d}", .{self.nsum}) catch return -1;
-                    self.nsum += 1;
-                    self.prelude.put("    var ");
-                    self.prelude.put(acc);
-                    self.prelude.put(" : f32 = 0.0;\n    for (var k_");
-                    self.prelude.put(lv.slice());
-                    self.prelude.put(" : i32 = i32(");
-                    self.prelude.put(from.items());
-                    self.prelude.put("); k_");
-                    self.prelude.put(lv.slice());
-                    self.prelude.put(" < i32(");
-                    self.prelude.put(to.items());
-                    self.prelude.put("); k_");
-                    self.prelude.put(lv.slice());
-                    self.prelude.put(" = k_");
-                    self.prelude.put(lv.slice());
-                    self.prelude.put(" + 1) { ");
-                    self.prelude.put(acc);
-                    self.prelude.put(" = ");
-                    self.prelude.put(acc);
-                    self.prelude.put(" + (");
-                    self.prelude.put(body.items());
-                    self.prelude.put("); }\n");
-                    expr.put(acc);
-                    i = close + 1;
-                    continue;
-                }
-                // GT0 (2026-10-28): names arrive folded to lower case; the
-                // whitelist holds WGSL's own spelling (inverseSqrt), so compare
-                // without case and EMIT the whitelist's spelling. Found by the
-                // random-kernel fuzz: the transpiler refused every inversesqrt
-                // the interpreter admitted.
-                var is_func = false;
-                var fname: []const u8 = word;
-                for (FUNC_WHITELIST) |f| {
-                    if (std.ascii.eqlIgnoreCase(f, word)) {
-                        is_func = true;
-                        fname = f;
-                        break;
-                    }
-                }
-                if (std.mem.eql(u8, word, "vec2") or std.mem.eql(u8, word, "vec3") or std.mem.eql(u8, word, "vec4")) {
-                    expr.put(word);
-                    expr.put("<f32>");
-                    i = j;
-                    continue;
-                }
-                if (!is_func)
-                    return fail("unknown name '{s}' (not a declared scalar, not a whitelisted function)", .{word});
-                var k = j;
-                while (k < rhs.len and (rhs[k] == ' ' or rhs[k] == '\t')) : (k += 1) {}
-                if (k >= rhs.len or rhs[k] != '(')
-                    return fail("function '{s}' needs '('", .{word});
-                expr.put(fname);
-                i = j;
-            } else if (std.ascii.isDigit(ch) or ch == '.') {
-                var j = i;
-                while (j < rhs.len and (std.ascii.isDigit(rhs[j]) or rhs[j] == '.')) : (j += 1) {}
-                expr.put(rhs[i..j]);
-                // GT0 (2026-10-28): every value of the grammar is f32, so every
-                // literal is written as one. Left untyped, a call made only of
-                // literals -- ceil(0.5), smoothstep(-1, 1, 0) -- is an ABSTRACT
-                // expression outside a constant one, and naga refuses the whole
-                // kernel ("Abstract types may only appear in constant
-                // expressions"). Found by the random-kernel fuzz on the RTX 3050.
-                expr.putc('f');
-                i = j;
-            } else if (ch == '<' or ch == '>' or ch == '=' or ch == '!') {
-                if (!self.compare) return fail(MSG_CMP, .{ch});
-                const two = i + 1 < rhs.len and rhs[i + 1] == '=';
-                if (ch == '=' and !two) return fail("use '==' to compare in a guard", .{});
-                if (ch == '!' and !two) return fail("'!' alone is not admitted; use '!='", .{});
-                expr.put(rhs[i .. i + (if (two) @as(usize, 2) else 1)]);
-                i += if (two) 2 else 1;
-            } else if (ch == '+' or ch == '-' or ch == '*' or ch == '/' or ch == '%' or
-                ch == '(' or ch == ')' or ch == ',' or ch == ' ' or ch == '\t')
-            {
-                if (ch == '(') {
-                    pdepth += 1;
-                    if (pdepth <= MAX_DEPTH) {
-                        seen_and[pdepth] = false;
-                        seen_or[pdepth] = false;
-                    }
-                } else if (ch == ')' and pdepth > 0) pdepth -= 1;
-                expr.putc(ch);
-                i += 1;
-            } else if (ch == '[' or ch == ']') {
-                return fail("'[' follows a vector name only (@a[...])", .{});
-            } else {
-                return fail("character '{c}' is not part of the elementwise language", .{ch});
-            }
+    /// Rewrite one expression of the description into `cur`, read as `sink`
+    /// asks: its type settled, its trailing text refused as the interpreter
+    /// refuses it. 0, or -1 with the reason.
+    fn top(self: *Rewriter, text: []const u8, cur: *Cursor, sink: Sink) i32 {
+        self.s = text;
+        self.i = 0;
+        self.out = cur;
+        self.depth = 0;
+        self.top_sums = 0;
+        const start = cur.len;
+        if (sink == .guard) {
+            self.compare = true;
+            const r = self.orW();
+            self.compare = false;
+            if (r < 0) return -1;
+            if (self.peekW() != 0) return fail("unexpected '{c}' after the guard", .{self.peekW()});
+            return 0;
+        }
+        const r = self.exprW();
+        if (r < 0) return -1;
+        const c = self.peekW();
+        if (c != 0) {
+            if (c == '<' or c == '>' or c == '=' or c == '!') return fail(MSG_CMP, .{c});
+            if (logicWordAt(self.s, self.i)) |w| return fail(MSG_LOGIC, .{w});
+            return fail("unexpected '{c}' after the expression", .{c});
+        }
+        return self.sinkW(tyOf(r), start, sink);
+    }
+
+    fn sinkW(self: *Rewriter, t: Ty, start: usize, sink: Sink) i32 {
+        switch (sink) {
+            .body => {
+                const want: Ty = if (self.d.out_int) .i else .f;
+                if (t == .u) return settleText(self.out, start, want);
+                if (t != want) return if (want == .i) fail(MSG_OUTI, .{self.d.out_name.slice()}) else fail(MSG_OUTF, .{self.d.out_name.slice()});
+                return 0;
+            },
+            .stage_value => {
+                if (t == .i) return fail(MSG_SHI, .{});
+                return if (t == .u) settleText(self.out, start, .f) else 0;
+            },
+            .acc_value => {
+                if (t == .i) return fail(MSG_ACCI, .{});
+                return if (t == .u) settleText(self.out, start, .f) else 0;
+            },
+            .stage_index, .count => return if (t == .u) settleText(self.out, start, .f) else 0,
+            .guard => return 0,
+        }
+    }
+
+    fn unifyW(self: *Rewriter, a: Ty, b: Ty, from_a: usize, from_b: usize, at: []const u8) i32 {
+        if (a == b) return tyR(a);
+        if (a == .b or b == .b) return fail(MSG_COND, .{});
+        if (a == .u) return if (settleText(self.out, from_a, b) < 0) -1 else tyR(b);
+        if (b == .u) return if (settleText(self.out, from_b, a) < 0) -1 else tyR(a);
+        return fail(MSG_MIXTY, .{at});
+    }
+
+    // ---- reading, copying the spacing as it goes
+    fn skipW(self: *Rewriter) void {
+        while (self.i < self.s.len and (self.s[self.i] == ' ' or self.s[self.i] == '\t')) : (self.i += 1) self.out.putc(self.s[self.i]);
+    }
+    fn peekW(self: *Rewriter) u8 {
+        self.skipW();
+        return if (self.i < self.s.len) self.s[self.i] else 0;
+    }
+    /// The next character after the spacing, the spacing dropped (between a
+    /// name and its '[', where WGSL's text has none).
+    fn peekDrop(self: *Rewriter) u8 {
+        while (self.i < self.s.len and (self.s[self.i] == ' ' or self.s[self.i] == '\t')) : (self.i += 1) {}
+        return if (self.i < self.s.len) self.s[self.i] else 0;
+    }
+    fn wordW(self: *Rewriter, w: []const u8) bool {
+        self.skipW();
+        if (self.i + w.len > self.s.len) return false;
+        if (!std.ascii.eqlIgnoreCase(self.s[self.i .. self.i + w.len], w)) return false;
+        const after = self.i + w.len;
+        if (after < self.s.len and (std.ascii.isAlphanumeric(self.s[after]) or self.s[after] == '_')) return false;
+        self.i = after;
+        return true;
+    }
+    fn noCmpW(self: *Rewriter) i32 {
+        const c = self.peekW();
+        if (!self.compare and (c == '<' or c == '>' or c == '=' or c == '!')) return fail(MSG_CMP, .{c});
+        if (!self.compare) {
+            if (logicWordAt(self.s, self.i)) |w| return fail(MSG_LOGIC, .{w});
         }
         return 0;
+    }
+
+    // guard := andexpr ('or' andexpr)*
+    fn orW(self: *Rewriter) i32 {
+        const first = self.andW();
+        if (first < 0) return -1;
+        var ands = self.nands > 0;
+        var ors = false;
+        while (self.wordW("or")) {
+            ors = true;
+            self.out.put(" || ");
+            const r = self.andW();
+            if (r < 0) return -1;
+            if (self.nands > 0) ands = true;
+            if (ands) return fail(MSG_MIX, .{});
+        }
+        if (ors and ands) return fail(MSG_MIX, .{});
+        return if (ors) tyR(.b) else first;
+    }
+    fn andW(self: *Rewriter) i32 {
+        const first = self.cmpW();
+        if (first < 0) return -1;
+        var n: i32 = 0;
+        while (self.wordW("and")) {
+            self.out.put(" && ");
+            if (self.cmpW() < 0) return -1;
+            n += 1;
+        }
+        self.nands = n;
+        return if (n > 0) tyR(.b) else first;
+    }
+    fn cmpW(self: *Rewriter) i32 {
+        const start = self.out.len;
+        const a = self.exprW();
+        if (a < 0) return -1;
+        const c = self.peekW();
+        if (c == '<' or c == '>' or c == '=' or c == '!') {
+            const two = self.i + 1 < self.s.len and self.s[self.i + 1] == '=';
+            if (c == '=' and !two) return fail("use '==' to compare in a guard", .{});
+            if (c == '!' and !two) return fail("'!' alone is not admitted; use '!='", .{});
+            const op = self.s[self.i .. self.i + (if (two) @as(usize, 2) else 1)];
+            self.out.put(op);
+            self.i += op.len;
+            const mid = self.out.len;
+            const b = self.exprW();
+            if (b < 0) return -1;
+            const t = self.unifyW(tyOf(a), tyOf(b), start, mid, op);
+            if (t < 0) return -1;
+            if (tyOf(t) == .u and settleText(self.out, start, .f) < 0) return -1;
+            return tyR(.b);
+        }
+        return a;
+    }
+
+    // expr := term (('+' | '-') term)*
+    fn exprW(self: *Rewriter) i32 {
+        if (self.depth >= MAX_DEPTH) return fail("expression nested too deep", .{});
+        self.depth += 1;
+        defer self.depth -= 1;
+        const start = self.out.len;
+        var t = self.termW();
+        if (t < 0) return -1;
+        while (true) {
+            const c = self.peekW();
+            if (c != '+' and c != '-') break;
+            self.out.putc(c);
+            self.i += 1;
+            const mid = self.out.len;
+            const r = self.termW();
+            if (r < 0) return -1;
+            t = self.unifyW(tyOf(t), tyOf(r), start, mid, if (c == '+') "+" else "-");
+            if (t < 0) return -1;
+        }
+        return t;
+    }
+    // term := unary (('*' | '/' | '%') unary)*
+    fn termW(self: *Rewriter) i32 {
+        const start = self.out.len;
+        var t = self.unaryW();
+        if (t < 0) return -1;
+        while (true) {
+            const c = self.peekW();
+            if (c != '*' and c != '/' and c != '%') break;
+            if (c == '%') {
+                // the marker goes after the spacing the term began with
+                var at = start;
+                while (at < self.out.len and (self.out.buf[at] == ' ' or self.out.buf[at] == '\t')) at += 1;
+                insertAt(self.out, at, PH_RA);
+            }
+            self.out.putc(if (c == '%') PH_RO else c);
+            self.i += 1;
+            const mid = self.out.len;
+            const r = self.unaryW();
+            if (r < 0) return -1;
+            if (c == '%') self.out.putc(PH_RZ);
+            t = self.unifyW(tyOf(t), tyOf(r), start + @intFromBool(c == '%'), mid, if (c == '*') "*" else if (c == '/') "/" else "%");
+            if (t < 0) return -1;
+            if (c == '%' and tyOf(t) != .u and settleText(self.out, start, tyOf(t)) < 0) return -1;
+        }
+        return t;
+    }
+    fn unaryW(self: *Rewriter) i32 {
+        const c = self.peekW();
+        if (c == '-' or c == '+') {
+            self.out.putc(c);
+            self.i += 1;
+            return self.unaryW();
+        }
+        return self.primaryW();
+    }
+
+    /// An index inside '[' ']': its own expression, settled to f32 when it is
+    /// an untyped number (the kernel's i32(...) takes either type).
+    fn indexW(self: *Rewriter, nm: []const u8) i32 {
+        self.i += 1;
+        const saved = self.compare;
+        self.compare = false;
+        const start = self.out.len;
+        const r = self.exprW();
+        const r2 = if (r < 0) r else self.noCmpW();
+        self.compare = saved;
+        if (r2 < 0) return -1;
+        if (tyOf(r) == .u and settleText(self.out, start, .f) < 0) return -1;
+        if (self.peekW() != ']') return fail("missing ']' after '@{s}['", .{nm});
+        self.i += 1;
+        return 0;
+    }
+
+    fn primaryW(self: *Rewriter) i32 {
+        const c = self.peekW();
+        if (c == 0) return fail("expression ends where a value was expected", .{});
+        if (c == '(') {
+            self.out.putc('(');
+            self.i += 1;
+            const r = if (self.compare) self.orW() else self.exprW();
+            if (r < 0 or self.noCmpW() < 0) return -1;
+            if (self.peekW() != ')') return fail("missing ')'", .{});
+            self.out.putc(')');
+            self.i += 1;
+            return r;
+        }
+        if (std.ascii.isDigit(c) or c == '.') {
+            var j = self.i;
+            while (j < self.s.len and (std.ascii.isDigit(self.s[j]) or self.s[j] == '.')) : (j += 1) {}
+            const lit = self.s[self.i..j];
+            _ = std.fmt.parseFloat(f32, lit) catch return fail("bad number '{s}'", .{lit});
+            self.out.put(lit);
+            self.i = j;
+            // GT0: every literal is written typed, never abstract. GL0: a whole
+            // number takes the type of the value it meets (f32 when it meets
+            // none); one with a decimal point is a float.
+            if (std.mem.indexOfScalar(u8, lit, '.') != null) {
+                self.out.putc('f');
+                return tyR(.f);
+            }
+            self.out.putc(PH_LIT);
+            return tyR(.u);
+        }
+        if (c == '@') {
+            var j = self.i + 1;
+            while (j < self.s.len and (std.ascii.isAlphanumeric(self.s[j]) or self.s[j] == '_')) : (j += 1) {}
+            var nm: Name = .{};
+            if (j == self.i + 1 or !lowerInto(&nm, self.s[self.i + 1 .. j]))
+                return fail("bad @name at '{s}'", .{self.s[self.i..@min(self.i + 8, self.s.len)]});
+            if (self.where == .count) return fail(MSG_COUNT, .{});
+            if (std.mem.eql(u8, nm.slice(), "i")) {
+                self.i = j;
+                self.out.put(PH_TY3 ++ "(i)");
+                return tyR(.u);
+            }
+            if (groupName(nm.slice())) |wg| {
+                const sn = nm.slice();
+                if ((std.mem.eql(u8, sn, "row") or std.mem.eql(u8, sn, "col")) and self.d.width.len == 0)
+                    return fail(MSG_ROWCOL, .{sn});
+                self.used_group = true;
+                self.i = j;
+                self.out.put(PH_TY3);
+                self.out.put(wg[3..]);
+                return tyR(.u);
+            }
+            if (std.mem.eql(u8, nm.slice(), "acc")) {
+                if (!self.d.has_acc or !(self.where == .accumulate or self.where == .body)) return fail(MSG_ACC, .{});
+                self.i = j;
+                self.out.put("acc");
+                return tyR(.f);
+            }
+            if (self.d.sharedIndex(nm.slice())) |si| {
+                self.i = j;
+                if (self.peekDrop() != '[') return fail(MSG_SHNOIDX, .{ nm.slice(), nm.slice() });
+                if (self.stage_target) |st| {
+                    if (st == si) return fail(MSG_RACE, .{nm.slice()});
+                }
+                self.out.put("sh_");
+                self.out.put(nm.slice());
+                self.out.put("(i32(");
+                if (self.indexW(nm.slice()) < 0) return -1;
+                self.out.put("))");
+                self.used_sh[si] = true;
+                self.used_group = true;
+                return tyR(.f);
+            }
+            const idx = nameIn(self.d.ins[0..], self.d.n_ins, nm.slice()) orelse {
+                if (std.mem.eql(u8, nm.slice(), self.d.out_name.slice()))
+                    return fail("the output '@{s}' cannot be read", .{nm.slice()});
+                return fail("undeclared vector '@{s}'", .{nm.slice()});
+            };
+            self.used_in[idx] = true;
+            self.i = j;
+            const int = self.d.in_int[idx];
+            if (int) self.out.put("i32(");
+            const here = self.i;
+            const next = self.peekDrop();
+            if (next != '[') self.i = here; // the spacing after a plain read is the source's
+            if (next != '[' and (self.where == .stage or self.where == .accumulate)) {
+                // KP3: a schedule item runs for EVERY thread of the group, the
+                // ones past the input included, so its own element is a bounded read
+                self.used_rd[idx] = true;
+                self.out.put("rd_");
+                self.out.put(nm.slice());
+                self.out.put("(i32(i))");
+            } else if (next == '[') {
+                self.used_rd[idx] = true;
+                self.out.put("rd_");
+                self.out.put(nm.slice());
+                self.out.put("(i32(");
+                if (self.indexW(nm.slice()) < 0) return -1;
+                self.out.put("))");
+            } else {
+                self.out.put("v_");
+                self.out.put(nm.slice());
+                self.out.put("[i]");
+            }
+            if (int) self.out.put(")");
+            return tyR(if (int) .i else .f);
+        }
+        if (std.ascii.isAlphabetic(c) or c == '_') {
+            var j = self.i;
+            while (j < self.s.len and (std.ascii.isAlphanumeric(self.s[j]) or self.s[j] == '_')) : (j += 1) {}
+            var nm: Name = .{};
+            if (!lowerInto(&nm, self.s[self.i..j]))
+                return fail("name too long at '{s}'", .{self.s[self.i..@min(self.i + 8, self.s.len)]});
+            self.i = j;
+            const word = nm.slice();
+            if (std.mem.eql(u8, word, "n")) {
+                self.out.put(PH_TY3 ++ "(p.n)");
+                return tyR(.u);
+            }
+            if (self.loopvar) |lv| {
+                if (std.mem.eql(u8, word, lv.slice())) {
+                    self.out.put(PH_TY3 ++ "(k_");
+                    self.out.put(word);
+                    self.out.put(")");
+                    return tyR(.u);
+                }
+            }
+            if (self.in_loop and self.d.tiles.len != 0 and std.mem.eql(u8, word, self.d.tilevar.slice())) {
+                self.out.put(PH_TY3 ++ "(t_");
+                self.out.put(word);
+                self.out.put(")");
+                return tyR(.u);
+            }
+            if (std.mem.eql(u8, word, "and") or std.mem.eql(u8, word, "or"))
+                return fail("'{s}' belongs to the guard line, not to a body", .{word});
+            if (nameIn(self.d.scalars[0..], self.d.n_scalars, word)) |si| {
+                const int = self.d.sc_int[si];
+                if (int) self.out.put("i32(");
+                self.out.put("p.s_");
+                self.out.put(word);
+                if (int) self.out.put(")");
+                return tyR(if (int) .i else .f);
+            }
+            if (std.mem.eql(u8, word, "when")) return self.whenW();
+            if (std.mem.eql(u8, word, "sum")) return self.sumW();
+            for (VECTOR_ONLY) |v| {
+                if (std.mem.eql(u8, v, word))
+                    return fail("'{s}' works on vectors; an elementwise kernel has none", .{word});
+            }
+            return self.callW(word);
+        }
+        return fail("character '{c}' is not part of the elementwise language", .{c});
+    }
+
+    // GL0: a conditional value. WGSL's select takes the value if FALSE first
+    // -- select(f, t, c) -- so the order is written here once, and the fuzz's
+    // SWAP control is what proves a swapped pair would be caught.
+    fn whenW(self: *Rewriter) i32 {
+        if (self.peekDrop() != '(') return fail(MSG_WHEN, .{});
+        const close = matching(self.s, self.i) orelse return fail("when is missing ')'", .{});
+        var parts: [3][]const u8 = undefined;
+        if (splitTop(self.s, self.i, close, &parts) != 3) return fail(MSG_WHEN, .{});
+        if (!condShape(parts[0])) return fail(MSG_COND, .{});
+        self.i += 1;
+        var c_buf: [4096]u8 = undefined;
+        var t_buf: [4096]u8 = undefined;
+        var f_buf: [4096]u8 = undefined;
+        var cnd = Cursor{ .buf = &c_buf };
+        var tv = Cursor{ .buf = &t_buf };
+        var fvc = Cursor{ .buf = &f_buf };
+        const outer = self.out;
+        const saved = self.compare;
+        defer {
+            self.out = outer;
+            self.compare = saved;
+        }
+        self.out = &cnd;
+        self.compare = true;
+        if (self.orW() < 0) return -1;
+        self.compare = false;
+        if (self.peekW() != ',') return fail(MSG_WHEN, .{});
+        self.i += 1;
+        self.out = &tv;
+        const tt = self.exprW();
+        if (tt < 0 or self.noCmpW() < 0) return -1;
+        if (self.peekW() != ',') return fail(MSG_WHEN, .{});
+        self.i += 1;
+        self.out = &fvc;
+        const tf = self.exprW();
+        if (tf < 0 or self.noCmpW() < 0) return -1;
+        if (self.peekW() != ')') return fail("when is missing ')'", .{});
+        self.i += 1;
+        self.out = outer;
+        if (cnd.overflow or tv.overflow or fvc.overflow) return fail("when is too long", .{});
+        const start = outer.len;
+        outer.put("select((");
+        outer.put(std.mem.trim(u8, fvc.items(), " \t"));
+        outer.put("), (");
+        outer.put(std.mem.trim(u8, tv.items(), " \t"));
+        outer.put("), (");
+        outer.put(std.mem.trim(u8, cnd.items(), " \t"));
+        outer.put("))");
+        return self.unifyW(tyOf(tt), tyOf(tf), start, start, "when");
+    }
+
+    // KP0: a bounded loop. A prelude accumulates the body over k in [from,
+    // to) and the expression reads the accumulator. GL0: the accumulator has
+    // the body's type, an untyped body counting as f32.
+    fn sumW(self: *Rewriter) i32 {
+        if (self.where == .count) return fail(MSG_SUMCOUNT, .{});
+        if (self.loopvar != null) return fail("a sum inside a sum is not admitted (one level; shared memory is KP3's)", .{});
+        if (self.top_sums >= MAX_SUMS) return fail("too many sums (max {d})", .{MAX_SUMS});
+        if (self.peekDrop() != '(') return fail("sum needs '(var, from, to, expression)'", .{});
+        {
+            const close = matching(self.s, self.i) orelse return fail("sum is missing ')'", .{});
+            var parts: [4][]const u8 = undefined;
+            const np = splitTop(self.s, self.i, close, &parts);
+            if (np != 4) return fail("sum takes 4 arguments (var, from, to, expression), got {d}", .{np});
+        }
+        self.i += 1;
+        _ = self.peekDrop();
+        var k = self.i;
+        while (k < self.s.len and (std.ascii.isAlphanumeric(self.s[k]) or self.s[k] == '_')) : (k += 1) {}
+        var lv: Name = .{};
+        if (k == self.i or !lowerInto(&lv, self.s[self.i..k]) or !validIdent(lv.slice()))
+            return fail("sum's variable must be a name, got '{s}'", .{self.s[self.i..@min(k, self.i + 8)]});
+        if (reservedName(lv.slice()) != null or nameIn(self.d.ins[0..], self.d.n_ins, lv.slice()) != null or
+            nameIn(self.d.scalars[0..], self.d.n_scalars, lv.slice()) != null)
+            return fail("sum's variable '{s}' is already a name here", .{lv.slice()});
+        self.i = k;
+        if (self.peekDrop() != ',') return fail("sum takes 4 arguments (var, from, to, expression)", .{});
+        self.i += 1;
+        var from_buf: [512]u8 = undefined;
+        var to_buf: [512]u8 = undefined;
+        var body_buf: [2048]u8 = undefined;
+        var from = Cursor{ .buf = &from_buf };
+        var to = Cursor{ .buf = &to_buf };
+        var body = Cursor{ .buf = &body_buf };
+        const outer = self.out;
+        const saved = self.compare;
+        defer {
+            self.out = outer;
+            self.compare = saved;
+            self.loopvar = null;
+        }
+        self.compare = false;
+        self.out = &from;
+        const tfrom = self.exprW();
+        if (tfrom < 0 or self.noCmpW() < 0) return -1;
+        if (tyOf(tfrom) == .u and settleText(&from, 0, .f) < 0) return -1;
+        if (self.peekDrop() != ',') return fail("sum takes 4 arguments (var, from, to, expression)", .{});
+        self.i += 1;
+        self.out = &to;
+        const tto = self.exprW();
+        if (tto < 0 or self.noCmpW() < 0) return -1;
+        if (tyOf(tto) == .u and settleText(&to, 0, .f) < 0) return -1;
+        if (self.peekDrop() != ',') return fail("sum takes 4 arguments (var, from, to, expression)", .{});
+        self.i += 1;
+        self.top_sums += 1;
+        self.loopvar = lv;
+        self.out = &body;
+        const tb = self.exprW();
+        if (tb < 0 or self.noCmpW() < 0) return -1;
+        self.loopvar = null;
+        if (self.peekDrop() != ')') return fail("sum is missing ')'", .{});
+        self.i += 1;
+        const bt: Ty = if (tyOf(tb) == .u) .f else tyOf(tb);
+        if (tyOf(tb) == .u and settleText(&body, 0, .f) < 0) return -1;
+        if (from.overflow or to.overflow or body.overflow) return fail("sum is too long", .{});
+        var num: [8]u8 = undefined;
+        const acc = std.fmt.bufPrint(&num, "acc{d}", .{self.nsum}) catch return -1;
+        self.nsum += 1;
+        const lvs = lv.slice();
+        self.prelude.put("    var ");
+        self.prelude.put(acc);
+        self.prelude.put(if (bt == .i) " : i32 = 0i;\n    for (var k_" else " : f32 = 0.0;\n    for (var k_");
+        self.prelude.put(lvs);
+        self.prelude.put(" : i32 = i32(");
+        self.prelude.put(std.mem.trim(u8, from.items(), " \t"));
+        self.prelude.put("); k_");
+        self.prelude.put(lvs);
+        self.prelude.put(" < i32(");
+        self.prelude.put(std.mem.trim(u8, to.items(), " \t"));
+        self.prelude.put("); k_");
+        self.prelude.put(lvs);
+        self.prelude.put(" = k_");
+        self.prelude.put(lvs);
+        self.prelude.put(" + 1) { ");
+        self.prelude.put(acc);
+        self.prelude.put(" = ");
+        self.prelude.put(acc);
+        self.prelude.put(" + (");
+        self.prelude.put(std.mem.trim(u8, body.items(), " \t"));
+        self.prelude.put("); }\n");
+        outer.put(acc);
+        return tyR(bt);
+    }
+
+    /// A function, or GL0's two conversions. abs min max clamp sign take
+    /// either type and keep it; every other function takes floats.
+    fn callW(self: *Rewriter, word: []const u8) i32 {
+        const conv: ?Ty = if (std.mem.eql(u8, word, "int")) .i else if (std.mem.eql(u8, word, "float")) .f else null;
+        var fun: ?Fn = null;
+        if (conv == null) {
+            for (FUNCS) |f| {
+                if (std.mem.eql(u8, f.name, word)) fun = f;
+            }
+            if (fun == null) return fail("unknown name '{s}' (not a declared scalar, not a whitelisted function)", .{word});
+        }
+        const name: []const u8 = if (fun) |f| f.name else word;
+        const arity: u8 = if (fun) |f| f.arity else 1;
+        const generic = if (fun) |f| isGeneric(f.op) else false;
+        if (self.peekDrop() != '(') return fail("function '{s}' needs '('", .{name});
+        // the WGSL spelling: the whitelist's (inverseSqrt), or the conversion's
+        var spelled: []const u8 = name;
+        if (conv) |cv| spelled = if (cv == .i) "i32" else "f32" else {
+            for (FUNC_WHITELIST) |f| {
+                if (std.ascii.eqlIgnoreCase(f, name)) spelled = f;
+            }
+        }
+        const start = self.out.len;
+        self.out.put(spelled);
+        self.out.putc('(');
+        self.i += 1;
+        var argc: u8 = 0;
+        var t: Ty = .u;
+        if (self.peekW() != ')') {
+            while (true) {
+                const at = self.out.len;
+                const r = self.exprW();
+                if (r < 0 or self.noCmpW() < 0) return -1;
+                const a = tyOf(r);
+                if (conv) |cv| {
+                    if (a == .u and settleText(self.out, at, cv) < 0) return -1;
+                    t = cv;
+                } else if (generic) {
+                    const u = if (argc == 0) r else self.unifyW(t, a, start, at, name);
+                    if (u < 0) return -1;
+                    t = tyOf(u);
+                } else {
+                    if (a == .i) return fail(MSG_FLOATFN, .{ name, name });
+                    if (a == .u and settleText(self.out, at, .f) < 0) return -1;
+                    t = .f;
+                }
+                argc += 1;
+                if (self.peekW() == ',') {
+                    self.out.putc(',');
+                    self.i += 1;
+                    continue;
+                }
+                break;
+            }
+        }
+        if (self.peekW() != ')') return fail("function '{s}' is missing ')'", .{name});
+        self.out.putc(')');
+        self.i += 1;
+        if (argc != arity) return fail("function '{s}' takes {d} argument(s), got {d}", .{ name, arity, argc });
+        return tyR(if (conv) |cv| cv else t);
     }
 };
 
@@ -1491,6 +1934,10 @@ const Op = enum(u8) {
     // a side effect, so the result is the same, and the sanitizer watches the
     // reads the result depends on.
     w_if, w_else,
+    // GL0 (types): the i32 forms, and the two conversions
+    i_add, i_sub, i_mul, i_div, i_mod, i_neg, i_min, i_max, i_abs, i_clamp, i_sign,
+    ic_lt, ic_le, ic_gt, ic_ge, ic_eq, ic_ne,
+    cv_fi, cv_if,
 };
 
 const Fn = struct { name: []const u8, op: Op, arity: u8 };
@@ -1522,7 +1969,7 @@ pub const Program = struct {
     ops: [MAX_OPS]Op = undefined,
     args: [MAX_OPS]u16 = undefined,
     n: usize = 0,
-    consts: [MAX_CONSTS]f32 = undefined,
+    consts: [MAX_CONSTS]u32 = undefined, // GL0: the bits, an f32's or an i32's
     n_consts: usize = 0,
     n_ins: usize = 0,
     n_scalars: usize = 0,
@@ -1702,14 +2149,37 @@ const Thread = struct {
     tile: f32 = 0,
 };
 
-fn compileInto(p: *Program, text: []const u8, d: *const Decl, where: Where, in_loop: bool, stage_target: ?usize) i32 {
+fn compileInto(p: *Program, text: []const u8, d: *const Decl, where: Where, in_loop: bool, stage_target: ?usize, sink: Sink) i32 {
     p.* = .{};
     var ps = Parser{ .s = text, .d = d, .p = p, .where = where, .in_loop = in_loop, .stage_target = stage_target };
-    if (ps.expr() < 0) return -1;
+    const r = ps.expr();
+    if (r < 0) return -1;
     if (ps.peek() != 0) {
         const c = ps.peek();
         if (c == '<' or c == '>' or c == '=' or c == '!') return fail(MSG_CMP, .{c});
+        if (logicWordAt(ps.s, ps.i)) |w| return fail(MSG_LOGIC, .{w});
         return fail("unexpected '{c}' after the expression", .{c});
+    }
+    // GL0: where the value goes decides its type, as the rewriter's sinkW does
+    const t = tyOf(r);
+    switch (sink) {
+        .body => {
+            const want: Ty = if (d.out_int) .i else .f;
+            if (t == .u) {
+                if (ps.settle(0, want) < 0) return -1;
+            } else if (t != want) return if (want == .i) fail(MSG_OUTI, .{d.out_name.slice()}) else fail(MSG_OUTF, .{d.out_name.slice()});
+            // the kernel writes f32(value) into the f32 buffer
+            if (want == .i and ps.emit(.cv_if, 0) < 0) return -1;
+        },
+        .stage_value, .acc_value => {
+            if (t == .i) return if (sink == .stage_value) fail(MSG_SHI, .{}) else fail(MSG_ACCI, .{});
+            if (t == .u and ps.settle(0, .f) < 0) return -1;
+        },
+        .stage_index, .count => {
+            if (t == .u and ps.settle(0, .f) < 0) return -1;
+            if (t == .i and ps.emit(.cv_if, 0) < 0) return -1;
+        },
+        .guard => {},
     }
     p.n_ins = d.n_ins;
     p.n_scalars = d.n_scalars;
@@ -1731,28 +2201,83 @@ const Parser = struct {
     in_loop: bool = false,
     stage_target: ?usize = null,
     used_group: bool = false,
+    // GL0 (types): the operations an untyped number wrote, in order. A
+    // sub-expression's are the tail from its mark; meeting a typed value
+    // settles them (an op retyped, a literal's bits rewritten), and they leave
+    // the list. Settled to f32 they stay as written: f32 is how they were emitted.
+    poly: [MAX_OPS]u16 = undefined,
+    npoly: usize = 0,
+    lit_at: [MAX_CONSTS]u16 = undefined, // a whole-number literal's place and length in s
+    lit_len: [MAX_CONSTS]u8 = undefined,
+    nands: i32 = 0,
+
+    fn mark(self: *const Parser) usize {
+        return self.npoly;
+    }
+    fn polyOp(self: *Parser) i32 {
+        if (self.npoly >= MAX_OPS) return fail("expression too long (over {d} operations)", .{MAX_OPS});
+        self.poly[self.npoly] = @intCast(self.p.n - 1);
+        self.npoly += 1;
+        return 0;
+    }
+    fn settle(self: *Parser, from: usize, to: Ty) i32 {
+        var k = from;
+        while (k < self.npoly) : (k += 1) {
+            const at = self.poly[k];
+            if (to == .f) continue;
+            const op = self.p.ops[at];
+            switch (op) {
+                .k_const => {
+                    const c = self.p.args[at];
+                    const txt = self.s[self.lit_at[c] .. self.lit_at[c] + self.lit_len[c]];
+                    const v = std.fmt.parseInt(i64, txt, 10) catch std.math.maxInt(i64);
+                    if (v > std.math.maxInt(i32)) return fail(MSG_BIGINT, .{txt});
+                    self.p.consts[c] = ib(@intCast(v));
+                },
+                .k_index, .k_n, .k_local, .k_group, .k_lx, .k_ly, .k_row, .k_col, .k_var, .k_tile => self.p.args[at] |= INT_VAL,
+                else => self.p.ops[at] = intForm(op),
+            }
+        }
+        self.npoly = from;
+        return 0;
+    }
+    fn unify(self: *Parser, a: Ty, b: Ty, ma: usize, mb: usize, at: []const u8) i32 {
+        if (a == b) return tyR(a);
+        if (a == .b or b == .b) return fail(MSG_COND, .{});
+        if (a == .u) return if (self.settle(ma, b) < 0) -1 else tyR(b);
+        if (b == .u) return if (self.settle(mb, a) < 0) -1 else tyR(a);
+        return fail(MSG_MIXTY, .{at});
+    }
+    /// Emit the f32 form of `op` at type t: the i32 form when t is i, and
+    /// remembered as untyped when t is u.
+    fn emitT(self: *Parser, op: Op, t: Ty) i32 {
+        if (self.emit(if (t == .i) intForm(op) else op, 0) < 0) return -1;
+        if (t == .u) return self.polyOp();
+        return 0;
+    }
 
     // guard := andexpr ('or' andexpr)*   -- KP0, compare mode only
     fn orexpr(self: *Parser) i32 {
         const first = self.andexpr();
         if (first < 0) return -1;
-        var ands = first > 0;
+        var ands = self.nands > 0;
         var ors = false;
         while (self.word("or")) {
             ors = true;
             const r = self.andexpr();
             if (r < 0) return -1;
-            if (r > 0) ands = true;
+            if (self.nands > 0) ands = true;
             if (ands) return fail(MSG_MIX, .{});
             if (self.emit(.l_or, 0) < 0) return -1;
             self.p.flops += 1;
         }
         if (ors and ands) return fail(MSG_MIX, .{});
-        return 0;
+        return if (ors) tyR(.b) else first;
     }
-    // returns the number of 'and's joined at this level, or -1
+    // the type of what it joined; the number of 'and's in self.nands
     fn andexpr(self: *Parser) i32 {
-        if (self.cmp() < 0) return -1;
+        const first = self.cmp();
+        if (first < 0) return -1;
         var n: i32 = 0;
         while (self.word("and")) {
             if (self.cmp() < 0) return -1;
@@ -1760,22 +2285,32 @@ const Parser = struct {
             self.p.flops += 1;
             n += 1;
         }
-        return n;
+        self.nands = n;
+        return if (n > 0) tyR(.b) else first;
     }
     fn cmp(self: *Parser) i32 {
-        if (self.expr() < 0) return -1;
+        const ma = self.mark();
+        const a = self.expr();
+        if (a < 0) return -1;
         const c = self.peek();
         if (c == '<' or c == '>' or c == '=' or c == '!') {
             const two = self.i + 1 < self.s.len and self.s[self.i + 1] == '=';
             if (c == '=' and !two) return fail("use '==' to compare in a guard", .{});
             if (c == '!' and !two) return fail("'!' alone is not admitted; use '!='", .{});
             const op: Op = if (c == '<') (if (two) .c_le else .c_lt) else if (c == '>') (if (two) .c_ge else .c_gt) else if (c == '=') .c_eq else .c_ne;
-            self.i += if (two) 2 else 1;
-            if (self.expr() < 0) return -1;
-            if (self.emit(op, 0) < 0) return -1;
+            const txt = self.s[self.i .. self.i + (if (two) @as(usize, 2) else 1)];
+            self.i += txt.len;
+            const mb = self.mark();
+            const b = self.expr();
+            if (b < 0) return -1;
+            const t = self.unify(tyOf(a), tyOf(b), ma, mb, txt);
+            if (t < 0) return -1;
+            if (tyOf(t) == .u and self.settle(ma, .f) < 0) return -1;
+            if (self.emit(if (tyOf(t) == .i) intForm(op) else op, 0) < 0) return -1;
             self.p.flops += 1;
+            return tyR(.b);
         }
-        return 0;
+        return a;
     }
     // consume a bare word if it is exactly `w`
     fn word(self: *Parser, w: []const u8) bool {
@@ -1800,6 +2335,9 @@ const Parser = struct {
     fn noCmp(self: *Parser) i32 {
         const c = self.peek();
         if (!self.compare and (c == '<' or c == '>' or c == '=' or c == '!')) return fail(MSG_CMP, .{c});
+        if (!self.compare) {
+            if (logicWordAt(self.s, self.i)) |w| return fail(MSG_LOGIC, .{w});
+        }
         return 0;
     }
     fn emit(self: *Parser, op: Op, arg: u16) i32 {
@@ -1812,40 +2350,51 @@ const Parser = struct {
         if (self.depth >= MAX_DEPTH) return fail("expression nested too deep", .{});
         self.depth += 1;
         defer self.depth -= 1;
-        if (self.term() < 0) return -1;
+        const ma = self.mark();
+        var t = self.term();
+        if (t < 0) return -1;
         while (true) {
             const c = self.peek();
-            if (c == '+' or c == '-') {
-                self.i += 1;
-                if (self.term() < 0) return -1;
-                if (self.emit(if (c == '+') .add else .sub, 0) < 0) return -1;
-                self.p.flops += 1;
-            } else break;
+            if (c != '+' and c != '-') break;
+            self.i += 1;
+            const mb = self.mark();
+            const r = self.term();
+            if (r < 0) return -1;
+            t = self.unify(tyOf(t), tyOf(r), ma, mb, if (c == '+') "+" else "-");
+            if (t < 0) return -1;
+            if (self.emitT(if (c == '+') .add else .sub, tyOf(t)) < 0) return -1;
+            self.p.flops += 1;
         }
-        return 0;
+        return t;
     }
     // term := unary (('*' | '/' | '%') unary)*
     fn term(self: *Parser) i32 {
-        if (self.unary() < 0) return -1;
+        const ma = self.mark();
+        var t = self.unary();
+        if (t < 0) return -1;
         while (true) {
             const c = self.peek();
-            if (c == '*' or c == '/' or c == '%') {
-                self.i += 1;
-                if (self.unary() < 0) return -1;
-                if (self.emit(if (c == '*') .mul else if (c == '/') .div else .mod, 0) < 0) return -1;
-                self.p.flops += 1;
-            } else break;
+            if (c != '*' and c != '/' and c != '%') break;
+            self.i += 1;
+            const mb = self.mark();
+            const r = self.unary();
+            if (r < 0) return -1;
+            t = self.unify(tyOf(t), tyOf(r), ma, mb, if (c == '*') "*" else if (c == '/') "/" else "%");
+            if (t < 0) return -1;
+            if (self.emitT(if (c == '*') .mul else if (c == '/') .div else .mod, tyOf(t)) < 0) return -1;
+            self.p.flops += 1;
         }
-        return 0;
+        return t;
     }
     // unary := '-' unary | primary
     fn unary(self: *Parser) i32 {
         if (self.peek() == '-') {
             self.i += 1;
-            if (self.unary() < 0) return -1;
-            if (self.emit(.neg, 0) < 0) return -1;
+            const t = self.unary();
+            if (t < 0) return -1;
+            if (self.emitT(.neg, tyOf(t)) < 0) return -1;
             self.p.flops += 1;
-            return 0;
+            return t;
         }
         if (self.peek() == '+') {
             self.i += 1;
@@ -1853,6 +2402,25 @@ const Parser = struct {
         }
         return self.primary();
     }
+
+    /// An index inside '[' ']': settled to f32 when untyped; an i32 index
+    /// marks its read op (INT_IDX). Returns the flag to add, or -1.
+    fn index(self: *Parser, nm: []const u8) i32 {
+        self.i += 1;
+        const saved = self.compare;
+        self.compare = false;
+        const m = self.mark();
+        const r = self.expr();
+        const r2 = if (r < 0) r else self.noCmp();
+        self.compare = saved;
+        if (r2 < 0) return -1;
+        if (tyOf(r) == .u and self.settle(m, .f) < 0) return -1;
+        if (self.peek() != ']') return fail("missing ']' after '@{s}['", .{nm});
+        self.i += 1;
+        self.p.flops += 1;
+        return if (tyOf(r) == .i) INT_IDX else 0;
+    }
+
     // primary := number | '@' name | name '(' args ')' | scalar | '(' expr ')'
     fn primary(self: *Parser) i32 {
         const c = self.peek();
@@ -1862,12 +2430,11 @@ const Parser = struct {
             // GT0 (2026-10-28): in a guard a parenthesis may hold a condition,
             // '@i < n and (A or B)', as the transpiler always let through to
             // WGSL; the interpreter read only arithmetic there and refused it
-            if (self.compare) {
-                if (self.orexpr() < 0) return -1;
-            } else if (self.expr() < 0 or self.noCmp() < 0) return -1;
+            const r = if (self.compare) self.orexpr() else self.expr();
+            if (r < 0 or self.noCmp() < 0) return -1;
             if (self.peek() != ')') return fail("missing ')'", .{});
             self.i += 1;
-            return 0;
+            return r;
         }
         if (std.ascii.isDigit(c) or c == '.') {
             var j = self.i;
@@ -1875,11 +2442,17 @@ const Parser = struct {
             const v = std.fmt.parseFloat(f32, self.s[self.i..j]) catch
                 return fail("bad number '{s}'", .{self.s[self.i..j]});
             if (self.p.n_consts >= MAX_CONSTS) return fail("too many numbers in the expression", .{});
-            self.p.consts[self.p.n_consts] = v;
-            const r = self.emit(.k_const, @intCast(self.p.n_consts));
+            const ci = self.p.n_consts;
+            self.p.consts[ci] = fb(v);
+            self.lit_at[ci] = @intCast(self.i);
+            self.lit_len[ci] = @intCast(@min(j - self.i, 255));
             self.p.n_consts += 1;
+            const whole = std.mem.indexOfScalar(u8, self.s[self.i..j], '.') == null;
             self.i = j;
-            return r;
+            if (self.emit(.k_const, @intCast(ci)) < 0) return -1;
+            if (!whole) return tyR(.f);
+            if (self.polyOp() < 0) return -1;
+            return tyR(.u);
         }
         if (c == '@') {
             var j = self.i + 1;
@@ -1890,7 +2463,8 @@ const Parser = struct {
             if (self.where == .count) return fail(MSG_COUNT, .{});
             if (std.mem.eql(u8, nm.slice(), "i")) {
                 self.i = j;
-                return self.emit(.k_index, 0);
+                if (self.emit(.k_index, 0) < 0 or self.polyOp() < 0) return -1;
+                return tyR(.u);
             }
             // KP3: the group's own names, the accumulator, a shared slot
             if (groupName(nm.slice()) != null) {
@@ -1900,12 +2474,14 @@ const Parser = struct {
                 self.used_group = true;
                 self.i = j;
                 const op: Op = if (std.mem.eql(u8, s, "l")) .k_local else if (std.mem.eql(u8, s, "g")) .k_group else if (std.mem.eql(u8, s, "lx")) .k_lx else if (std.mem.eql(u8, s, "ly")) .k_ly else if (std.mem.eql(u8, s, "row")) .k_row else .k_col;
-                return self.emit(op, 0);
+                if (self.emit(op, 0) < 0 or self.polyOp() < 0) return -1;
+                return tyR(.u);
             }
             if (std.mem.eql(u8, nm.slice(), "acc")) {
                 if (!self.d.has_acc or !(self.where == .accumulate or self.where == .body)) return fail(MSG_ACC, .{});
                 self.i = j;
-                return self.emit(.k_acc, 0);
+                if (self.emit(.k_acc, 0) < 0) return -1;
+                return tyR(.f);
             }
             if (self.d.sharedIndex(nm.slice())) |si| {
                 self.i = j;
@@ -1913,17 +2489,11 @@ const Parser = struct {
                 if (self.stage_target) |st| {
                     if (st == si) return fail(MSG_RACE, .{nm.slice()});
                 }
-                self.i += 1;
-                const saved = self.compare;
-                self.compare = false;
-                const r = if (self.expr() < 0) -1 else self.noCmp();
-                self.compare = saved;
-                if (r < 0) return -1;
-                if (self.peek() != ']') return fail("missing ']' after '@{s}['", .{nm.slice()});
-                self.i += 1;
+                const flag = self.index(nm.slice());
+                if (flag < 0) return -1;
                 self.used_group = true;
-                self.p.flops += 1;
-                return self.emit(.sh_rd, @intCast(si));
+                if (self.emit(.sh_rd, @as(u16, @intCast(si)) | @as(u16, @intCast(flag))) < 0) return -1;
+                return tyR(.f);
             }
             const idx = nameIn(self.d.ins[0..], self.d.n_ins, nm.slice()) orelse {
                 if (std.mem.eql(u8, nm.slice(), self.d.out_name.slice()))
@@ -1931,26 +2501,24 @@ const Parser = struct {
                 return fail("undeclared vector '@{s}'", .{nm.slice()});
             };
             self.i = j;
+            const vflag: u16 = if (self.d.in_int[idx]) INT_VAL else 0;
+            const t: Ty = if (self.d.in_int[idx]) .i else .f;
             if (self.peek() != '[' and (self.where == .stage or self.where == .accumulate)) {
                 // a schedule item's own element is a bounded read, as the kernel's rd_ is
                 if (self.emit(.k_index, 0) < 0) return -1;
                 self.p.flops += 1;
-                return self.emit(.rd, @intCast(idx));
+                if (self.emit(.rd, @as(u16, @intCast(idx)) | vflag) < 0) return -1;
+                return tyR(t);
             }
             if (self.peek() == '[') {
                 // a neighbour read: the index expression, then rd
-                self.i += 1;
-                const saved = self.compare;
-                self.compare = false;
-                const r = if (self.expr() < 0) -1 else self.noCmp();
-                self.compare = saved;
-                if (r < 0) return -1;
-                if (self.peek() != ']') return fail("missing ']' after '@{s}['", .{nm.slice()});
-                self.i += 1;
-                self.p.flops += 1;
-                return self.emit(.rd, @intCast(idx));
+                const flag = self.index(nm.slice());
+                if (flag < 0) return -1;
+                if (self.emit(.rd, @as(u16, @intCast(idx)) | vflag | @as(u16, @intCast(flag))) < 0) return -1;
+                return tyR(t);
             }
-            return self.emit(.k_in, @intCast(idx));
+            if (self.emit(.k_in, @as(u16, @intCast(idx)) | vflag) < 0) return -1;
+            return tyR(t);
         }
         if (std.ascii.isAlphabetic(c) or c == '_') {
             var j = self.i;
@@ -1959,119 +2527,188 @@ const Parser = struct {
             if (!lowerInto(&nm, self.s[self.i..j]))
                 return fail("name too long at '{s}'", .{self.s[self.i..@min(self.i + 8, self.s.len)]});
             self.i = j;
-            if (std.mem.eql(u8, nm.slice(), "n")) return self.emit(.k_n, 0);
-            if (self.loopvar) |lv| {
-                if (std.mem.eql(u8, nm.slice(), lv.slice())) return self.emit(.k_var, @intCast(self.p.nsum - 1));
+            if (std.mem.eql(u8, nm.slice(), "n")) {
+                if (self.emit(.k_n, 0) < 0 or self.polyOp() < 0) return -1;
+                return tyR(.u);
             }
-            if (self.in_loop and self.d.tiles.len != 0 and std.mem.eql(u8, nm.slice(), self.d.tilevar.slice()))
-                return self.emit(.k_tile, 0);
+            if (self.loopvar) |lv| {
+                if (std.mem.eql(u8, nm.slice(), lv.slice())) {
+                    if (self.emit(.k_var, @intCast(self.p.nsum - 1)) < 0 or self.polyOp() < 0) return -1;
+                    return tyR(.u);
+                }
+            }
+            if (self.in_loop and self.d.tiles.len != 0 and std.mem.eql(u8, nm.slice(), self.d.tilevar.slice())) {
+                if (self.emit(.k_tile, 0) < 0 or self.polyOp() < 0) return -1;
+                return tyR(.u);
+            }
             if (std.mem.eql(u8, nm.slice(), "and") or std.mem.eql(u8, nm.slice(), "or"))
                 return fail("'{s}' belongs to the guard line, not to a body", .{nm.slice()});
             if (nameIn(self.d.scalars[0..], self.d.n_scalars, nm.slice())) |si| {
-                return self.emit(.k_scalar, @intCast(si));
+                const int = self.d.sc_int[si];
+                if (self.emit(.k_scalar, @as(u16, @intCast(si)) | (if (int) INT_VAL else 0)) < 0) return -1;
+                return tyR(if (int) .i else .f);
             }
-            if (std.mem.eql(u8, nm.slice(), "when")) {
-                if (self.peek() != '(') return fail(MSG_WHEN, .{});
-                const close = Rewriter.matching(self.s, self.i) orelse return fail("when is missing ')'", .{});
-                var parts: [3][]const u8 = undefined;
-                if (splitTop(self.s, self.i, close, &parts) != 3) return fail(MSG_WHEN, .{});
-                if (!condShape(parts[0])) return fail(MSG_COND, .{});
-                self.i += 1;
-                const saved = self.compare;
-                self.compare = true;
-                if (self.orexpr() < 0) return -1;
-                self.compare = false;
-                if (self.peek() != ',') return fail(MSG_WHEN, .{});
-                self.i += 1;
-                const at_if = self.p.n;
-                if (self.emit(.w_if, 0) < 0) return -1;
-                if (self.expr() < 0 or self.noCmp() < 0) return -1;
-                if (self.peek() != ',') return fail(MSG_WHEN, .{});
-                self.i += 1;
-                const at_else = self.p.n;
-                if (self.emit(.w_else, 0) < 0) return -1;
-                self.p.jump[at_if] = @intCast(self.p.n);
-                if (self.expr() < 0 or self.noCmp() < 0) return -1;
-                if (self.peek() != ')') return fail("when is missing ')'", .{});
-                self.i += 1;
-                self.p.jump[at_else] = @intCast(self.p.n);
-                self.compare = saved;
-                self.p.flops += 1;
-                return 0;
-            }
-            if (std.mem.eql(u8, nm.slice(), "sum")) {
-                if (self.where == .count) return fail(MSG_SUMCOUNT, .{});
-                if (self.loopvar != null) return fail("a sum inside a sum is not admitted (one level; shared memory is KP3's)", .{});
-                if (self.p.nsum >= MAX_SUMS) return fail("too many sums (max {d})", .{MAX_SUMS});
-                if (self.peek() != '(') return fail("sum needs '(var, from, to, expression)'", .{});
-                self.i += 1;
-                self.skip();
-                var k = self.i;
-                while (k < self.s.len and (std.ascii.isAlphanumeric(self.s[k]) or self.s[k] == '_')) : (k += 1) {}
-                var lv: Name = .{};
-                if (k == self.i or !lowerInto(&lv, self.s[self.i..k]) or !validIdent(lv.slice()))
-                    return fail("sum's variable must be a name, got '{s}'", .{self.s[self.i..@min(k, self.i + 8)]});
-                if (reservedName(lv.slice()) != null or nameIn(self.d.ins[0..], self.d.n_ins, lv.slice()) != null or
-                    nameIn(self.d.scalars[0..], self.d.n_scalars, lv.slice()) != null)
-                    return fail("sum's variable '{s}' is already a name here", .{lv.slice()});
-                self.i = k;
-                if (self.peek() != ',') return fail("sum takes 4 arguments (var, from, to, expression)", .{});
-                self.i += 1;
-                const saved = self.compare;
-                self.compare = false;
-                if (self.expr() < 0 or self.noCmp() < 0) return -1; // from
-                if (self.peek() != ',') return fail("sum takes 4 arguments (var, from, to, expression)", .{});
-                self.i += 1;
-                if (self.expr() < 0 or self.noCmp() < 0) return -1; // to
-                if (self.peek() != ',') return fail("sum takes 4 arguments (var, from, to, expression)", .{});
-                self.i += 1;
-                const slot = self.p.nsum;
-                self.p.sumvar[slot] = lv;
-                self.p.nsum += 1;
-                const begin = self.p.n;
-                if (self.emit(.sum_begin, @intCast(slot)) < 0) return -1;
-                self.loopvar = lv;
-                const r = if (self.expr() < 0) -1 else self.noCmp();
-                self.loopvar = null;
-                self.compare = saved;
-                if (r < 0) return -1;
-                if (self.peek() != ')') return fail("sum is missing ')'", .{});
-                self.i += 1;
-                self.p.jump[begin] = @intCast(self.p.n);
-                self.p.jump[self.p.n] = @intCast(begin);
-                self.p.flops += 1;
-                return self.emit(.sum_end, @intCast(slot));
-            }
+            if (std.mem.eql(u8, nm.slice(), "when")) return self.when();
+            if (std.mem.eql(u8, nm.slice(), "sum")) return self.sum();
             for (VECTOR_ONLY) |v| {
                 if (std.mem.eql(u8, v, nm.slice()))
                     return fail("'{s}' works on vectors; an elementwise kernel has none", .{nm.slice()});
             }
-            var fun: ?Fn = null;
-            for (FUNCS) |f| {
-                if (std.mem.eql(u8, f.name, nm.slice())) fun = f;
-            }
-            const f = fun orelse return fail("unknown name '{s}' (not a declared scalar, not a whitelisted function)", .{nm.slice()});
-            if (self.peek() != '(') return fail("function '{s}' needs '('", .{f.name});
-            self.i += 1;
-            var argc: u8 = 0;
-            if (self.peek() != ')') {
-                while (true) {
-                    if (self.expr() < 0 or self.noCmp() < 0) return -1;
-                    argc += 1;
-                    if (self.peek() == ',') {
-                        self.i += 1;
-                        continue;
-                    }
-                    break;
-                }
-            }
-            if (self.peek() != ')') return fail("function '{s}' is missing ')'", .{f.name});
-            self.i += 1;
-            if (argc != f.arity) return fail("function '{s}' takes {d} argument(s), got {d}", .{ f.name, f.arity, argc });
-            self.p.flops += 1;
-            return self.emit(f.op, 0);
+            return self.call(nm.slice());
         }
         return fail("character '{c}' is not part of the elementwise language", .{c});
+    }
+
+    fn when(self: *Parser) i32 {
+        if (self.peek() != '(') return fail(MSG_WHEN, .{});
+        const close = Rewriter.matching(self.s, self.i) orelse return fail("when is missing ')'", .{});
+        var parts: [3][]const u8 = undefined;
+        if (splitTop(self.s, self.i, close, &parts) != 3) return fail(MSG_WHEN, .{});
+        if (!condShape(parts[0])) return fail(MSG_COND, .{});
+        self.i += 1;
+        const saved = self.compare;
+        defer self.compare = saved;
+        self.compare = true;
+        if (self.orexpr() < 0) return -1;
+        self.compare = false;
+        if (self.peek() != ',') return fail(MSG_WHEN, .{});
+        self.i += 1;
+        const at_if = self.p.n;
+        if (self.emit(.w_if, 0) < 0) return -1;
+        const mt = self.mark();
+        const tt = self.expr();
+        if (tt < 0 or self.noCmp() < 0) return -1;
+        if (self.peek() != ',') return fail(MSG_WHEN, .{});
+        self.i += 1;
+        const at_else = self.p.n;
+        if (self.emit(.w_else, 0) < 0) return -1;
+        self.p.jump[at_if] = @intCast(self.p.n);
+        const mf = self.mark();
+        const tf = self.expr();
+        if (tf < 0 or self.noCmp() < 0) return -1;
+        if (self.peek() != ')') return fail("when is missing ')'", .{});
+        self.i += 1;
+        self.p.jump[at_else] = @intCast(self.p.n);
+        self.p.flops += 1;
+        return self.unify(tyOf(tt), tyOf(tf), mt, mf, "when");
+    }
+
+    fn sum(self: *Parser) i32 {
+        if (self.where == .count) return fail(MSG_SUMCOUNT, .{});
+        if (self.loopvar != null) return fail("a sum inside a sum is not admitted (one level; shared memory is KP3's)", .{});
+        if (self.p.nsum >= MAX_SUMS) return fail("too many sums (max {d})", .{MAX_SUMS});
+        if (self.peek() != '(') return fail("sum needs '(var, from, to, expression)'", .{});
+        {
+            const close = Rewriter.matching(self.s, self.i) orelse return fail("sum is missing ')'", .{});
+            var parts: [4][]const u8 = undefined;
+            const np = splitTop(self.s, self.i, close, &parts);
+            if (np != 4) return fail("sum takes 4 arguments (var, from, to, expression), got {d}", .{np});
+        }
+        self.i += 1;
+        self.skip();
+        var k = self.i;
+        while (k < self.s.len and (std.ascii.isAlphanumeric(self.s[k]) or self.s[k] == '_')) : (k += 1) {}
+        var lv: Name = .{};
+        if (k == self.i or !lowerInto(&lv, self.s[self.i..k]) or !validIdent(lv.slice()))
+            return fail("sum's variable must be a name, got '{s}'", .{self.s[self.i..@min(k, self.i + 8)]});
+        if (reservedName(lv.slice()) != null or nameIn(self.d.ins[0..], self.d.n_ins, lv.slice()) != null or
+            nameIn(self.d.scalars[0..], self.d.n_scalars, lv.slice()) != null)
+            return fail("sum's variable '{s}' is already a name here", .{lv.slice()});
+        self.i = k;
+        if (self.peek() != ',') return fail("sum takes 4 arguments (var, from, to, expression)", .{});
+        self.i += 1;
+        const saved = self.compare;
+        defer self.compare = saved;
+        self.compare = false;
+        // the bounds: f32 when untyped, an i32 bound read as f32 by sum_begin
+        var bound: usize = 0;
+        while (bound < 2) : (bound += 1) {
+            const m = self.mark();
+            const tb = self.expr();
+            if (tb < 0 or self.noCmp() < 0) return -1;
+            if (tyOf(tb) == .u and self.settle(m, .f) < 0) return -1;
+            if (tyOf(tb) == .i and self.emit(.cv_if, 0) < 0) return -1;
+            if (self.peek() != ',') return fail("sum takes 4 arguments (var, from, to, expression)", .{});
+            self.i += 1;
+        }
+        const slot = self.p.nsum;
+        self.p.sumvar[slot] = lv;
+        self.p.nsum += 1;
+        const begin = self.p.n;
+        if (self.emit(.sum_begin, @intCast(slot)) < 0) return -1;
+        self.loopvar = lv;
+        const m = self.mark();
+        const r = self.expr();
+        const r2 = if (r < 0) r else self.noCmp();
+        self.loopvar = null;
+        if (r2 < 0) return -1;
+        if (self.peek() != ')') return fail("sum is missing ')'", .{});
+        self.i += 1;
+        const bt: Ty = if (tyOf(r) == .u) .f else tyOf(r);
+        if (tyOf(r) == .u and self.settle(m, .f) < 0) return -1;
+        self.p.jump[begin] = @intCast(self.p.n);
+        self.p.jump[self.p.n] = @intCast(begin);
+        self.p.flops += 1;
+        if (self.emit(.sum_end, @as(u16, @intCast(slot)) | (if (bt == .i) INT_VAL else 0)) < 0) return -1;
+        return tyR(bt);
+    }
+
+    fn call(self: *Parser, fname: []const u8) i32 {
+        const conv: ?Ty = if (std.mem.eql(u8, fname, "int")) .i else if (std.mem.eql(u8, fname, "float")) .f else null;
+        var fun: ?Fn = null;
+        if (conv == null) {
+            for (FUNCS) |f| {
+                if (std.mem.eql(u8, f.name, fname)) fun = f;
+            }
+            if (fun == null) return fail("unknown name '{s}' (not a declared scalar, not a whitelisted function)", .{fname});
+        }
+        const name: []const u8 = if (fun) |f| f.name else fname;
+        const arity: u8 = if (fun) |f| f.arity else 1;
+        const generic = if (fun) |f| isGeneric(f.op) else false;
+        if (self.peek() != '(') return fail("function '{s}' needs '('", .{name});
+        self.i += 1;
+        const start = self.mark();
+        var argc: u8 = 0;
+        var t: Ty = .u;
+        var from: Ty = .u; // a conversion's argument type
+        if (self.peek() != ')') {
+            while (true) {
+                const at = self.mark();
+                const r = self.expr();
+                if (r < 0 or self.noCmp() < 0) return -1;
+                const a = tyOf(r);
+                if (conv) |cv| {
+                    if (a == .u and self.settle(at, cv) < 0) return -1;
+                    from = if (a == .u) cv else a;
+                    t = cv;
+                } else if (generic) {
+                    const u = if (argc == 0) r else self.unify(t, a, start, at, name);
+                    if (u < 0) return -1;
+                    t = tyOf(u);
+                } else {
+                    if (a == .i) return fail(MSG_FLOATFN, .{ name, name });
+                    if (a == .u and self.settle(at, .f) < 0) return -1;
+                    t = .f;
+                }
+                argc += 1;
+                if (self.peek() == ',') {
+                    self.i += 1;
+                    continue;
+                }
+                break;
+            }
+        }
+        if (self.peek() != ')') return fail("function '{s}' is missing ')'", .{name});
+        self.i += 1;
+        if (argc != arity) return fail("function '{s}' takes {d} argument(s), got {d}", .{ name, arity, argc });
+        if (conv) |cv| {
+            if (cv == .i and from == .f and self.emit(.cv_fi, 0) < 0) return -1;
+            if (cv == .f and from == .i and self.emit(.cv_if, 0) < 0) return -1;
+            return tyR(cv);
+        }
+        self.p.flops += 1;
+        if (self.emitT(fun.?.op, t) < 0) return -1;
+        return tyR(t);
     }
 };
 
@@ -2086,7 +2723,7 @@ pub fn stz_gpu_spec_compile(spec: [*]const u8, spec_len: f64) callconv(.c) i32 {
     if (parseDecl(text, &d) < 0) return -1;
     var used_group = false;
     {
-        const r = compileInto(&g_prog, d.rhs, &d, .body, false, null);
+        const r = compileInto(&g_prog, d.rhs, &d, .body, false, null, .body);
         if (r < 0) return -1;
         if (r == 1) used_group = true;
     }
@@ -2109,7 +2746,7 @@ pub fn stz_gpu_spec_compile(spec: [*]const u8, spec_len: f64) callconv(.c) i32 {
     }
     // KP3: the schedule, the tiles count, the width
     if (d.tiles.len != 0) {
-        if (compileInto(&g_count, d.tiles, &d, .count, false, null) < 0) return -1;
+        if (compileInto(&g_count, d.tiles, &d, .count, false, null, .count) < 0) return -1;
     }
     for (0..d.n_items) |k| {
         const it = d.items[k];
@@ -2120,12 +2757,12 @@ pub fn stz_gpu_spec_compile(spec: [*]const u8, spec_len: f64) callconv(.c) i32 {
         g_kp3.lines[k] = it.line;
         switch (it.kind) {
             .stage => {
-                if (compileInto(&g_item_idx[k], it.index, &d, .stage, inside, it.shared) < 0) return -1;
-                if (compileInto(&g_item_val[k], it.value, &d, .stage, inside, it.shared) < 0) return -1;
+                if (compileInto(&g_item_idx[k], it.index, &d, .stage, inside, it.shared, .stage_index) < 0) return -1;
+                if (compileInto(&g_item_val[k], it.value, &d, .stage, inside, it.shared, .stage_value) < 0) return -1;
                 g_prog.flops += g_item_idx[k].flops + g_item_val[k].flops;
             },
             .accumulate => {
-                if (compileInto(&g_item_val[k], it.value, &d, .accumulate, inside, null) < 0) return -1;
+                if (compileInto(&g_item_val[k], it.value, &d, .accumulate, inside, null, .acc_value) < 0) return -1;
                 g_prog.flops += g_item_val[k].flops;
             },
             .reduce => g_prog.flops += 1,
@@ -2193,96 +2830,143 @@ fn toIndex(x: f32) ?usize {
     return @intCast(k);
 }
 
-const Frame = struct { v: f32 = 0, to: f32 = 0, acc: f32 = 0 };
+const Frame = struct { v: f32 = 0, to: f32 = 0, acc: u32 = 0 };
+
+// GL0 (types): a stack slot holds 32 bits, read as the op's own type. An
+// f32 slot keeps its bits; a bool is 1.0 or 0.0, as the comparisons always
+// pushed. The flags ride on an op's argument.
+inline fn fv(x: u32) f32 {
+    return @bitCast(x);
+}
+inline fn fb(x: f32) u32 {
+    return @bitCast(x);
+}
+inline fn iv(x: u32) i32 {
+    return @bitCast(x);
+}
+inline fn ib(x: i32) u32 {
+    return @bitCast(x);
+}
+const INT_VAL: u16 = 0x8000; // the value the op pushes (or a sum accumulates) is an i32
+const INT_IDX: u16 = 0x4000; // the index a read takes is an i32
+const ARG_MASK: u16 = 0x3FFF;
+
+/// WGSL's i32(f32): toward zero, saturating at the ends of the range an f32
+/// can hold -- 2147483520 is the largest f32 below 2^31 (measured on the RTX
+/// 3050: int(3e9) is 2147483520). NaN, which WGSL leaves to the device, is
+/// the most negative int there, and here.
+fn toI32(x: f32) i32 {
+    if (x != x) return std.math.minInt(i32);
+    if (x >= 2147483520.0) return 2147483520;
+    if (x <= -2147483648.0) return std.math.minInt(i32);
+    return @intFromFloat(@trunc(x));
+}
+/// WGSL's integer division and remainder: by zero, and the most negative
+/// value by -1, give the dividend and 0 (naga writes the same polyfill).
+fn iDiv(a: i32, b: i32) i32 {
+    if (b == 0 or (a == std.math.minInt(i32) and b == -1)) return a;
+    return @divTrunc(a, b);
+}
+fn iRem(a: i32, b: i32) i32 {
+    if (b == 0 or (a == std.math.minInt(i32) and b == -1)) return 0;
+    return @rem(a, b);
+}
+fn iIndex(x: i32) ?usize {
+    return if (x < 0) null else @intCast(x);
+}
 
 /// Run one program over element `i`. Returns the value, or null on a stack fault.
 fn runProgram(p: *const Program, th: *const Thread, ins: [*]const [*]const f32, lens: [*]const f64, scalars: [*]const f32, ops_out: *f64) ?f32 {
     const i = th.i;
     const n = th.n;
-    var st: [STACK]f32 = undefined;
+    var st: [STACK]u32 = undefined;
     var sp: usize = 0;
     var frames: [MAX_SUMS]Frame = undefined;
     var ops: f64 = 0;
     var k: usize = 0;
     while (k < p.n) {
         var next = k + 1;
+        const arg = p.args[k];
+        const int = arg & INT_VAL != 0;
         switch (p.ops[k]) {
             .k_const => {
                 if (sp >= STACK) return null;
-                st[sp] = p.consts[p.args[k]];
+                st[sp] = p.consts[arg];
                 sp += 1;
             },
             .k_in => {
                 if (sp >= STACK) return null;
-                st[sp] = ins[p.args[k]][i];
+                const x = ins[arg & ARG_MASK][i];
+                st[sp] = if (int) ib(toI32(x)) else fb(x);
                 sp += 1;
             },
             .k_scalar => {
                 if (sp >= STACK) return null;
-                st[sp] = scalars[p.args[k]];
+                const x = scalars[arg & ARG_MASK];
+                st[sp] = if (int) ib(toI32(x)) else fb(x);
                 sp += 1;
             },
-            .k_index => {
+            .k_var, .k_tile => {
                 if (sp >= STACK) return null;
-                st[sp] = @floatFromInt(i);
+                const x: f32 = if (p.ops[k] == .k_var) frames[arg & ARG_MASK].v else th.tile;
+                st[sp] = if (int) ib(toI32(x)) else fb(x);
                 sp += 1;
             },
-            .k_n => {
+            .k_index, .k_n, .k_local, .k_group, .k_lx, .k_ly, .k_row, .k_col => {
                 if (sp >= STACK) return null;
-                st[sp] = @floatFromInt(n);
-                sp += 1;
-            },
-            .k_var => {
-                if (sp >= STACK) return null;
-                st[sp] = frames[p.args[k]].v;
-                sp += 1;
-            },
-            .k_local, .k_group, .k_lx, .k_ly, .k_row, .k_col, .k_acc, .k_tile => {
-                if (sp >= STACK) return null;
-                st[sp] = switch (p.ops[k]) {
-                    .k_local => @floatFromInt(th.l),
-                    .k_group => @floatFromInt(th.g),
-                    .k_lx => @floatFromInt(th.l % TILE),
-                    .k_ly => @floatFromInt(th.l / TILE),
-                    .k_row => @floatFromInt(th.row),
-                    .k_col => @floatFromInt(th.col),
-                    .k_acc => th.acc,
-                    .k_tile => th.tile,
+                const w: usize = switch (p.ops[k]) {
+                    .k_index => i,
+                    .k_n => n,
+                    .k_local => th.l,
+                    .k_group => th.g,
+                    .k_lx => th.l % TILE,
+                    .k_ly => th.l / TILE,
+                    .k_row => th.row,
+                    .k_col => th.col,
                     else => unreachable,
                 };
+                st[sp] = if (int) ib(@truncate(@as(i64, @intCast(w)))) else fb(@floatFromInt(w));
+                sp += 1;
+            },
+            .k_acc => {
+                if (sp >= STACK) return null;
+                st[sp] = fb(th.acc);
                 sp += 1;
             },
             .sh_rd => {
                 if (sp < 1) return null;
-                const which = p.args[k];
-                if (g_san) sanSlot(th, which, st[sp - 1]);
-                st[sp - 1] = if (toIndex(st[sp - 1])) |ix| (if (ix < g_kp3.sizes[which]) g_sh[which][ix] else 0.0) else 0.0;
+                const which = arg & ARG_MASK;
+                const ixo: ?usize = if (arg & INT_IDX != 0) iIndex(iv(st[sp - 1])) else toIndex(fv(st[sp - 1]));
+                if (g_san) sanSlot(th, which, if (arg & INT_IDX != 0) @floatFromInt(iv(st[sp - 1])) else fv(st[sp - 1]));
+                st[sp - 1] = fb(if (ixo) |ix| (if (ix < g_kp3.sizes[which]) g_sh[which][ix] else 0.0) else 0.0);
                 ops += 1;
             },
             .rd => {
                 if (sp < 1) return null;
-                const which = p.args[k];
+                const which = arg & ARG_MASK;
                 const len: usize = @intFromFloat(lens[which]);
-                st[sp - 1] = if (toIndex(st[sp - 1])) |ix| (if (ix < len) ins[which][ix] else 0.0) else 0.0;
+                const ixo: ?usize = if (arg & INT_IDX != 0) iIndex(iv(st[sp - 1])) else toIndex(fv(st[sp - 1]));
+                const x: f32 = if (ixo) |ix| (if (ix < len) ins[which][ix] else 0.0) else 0.0;
+                st[sp - 1] = if (int) ib(toI32(x)) else fb(x);
                 ops += 1;
             },
             .sum_begin => {
                 if (sp < 2) return null;
-                const slot = p.args[k];
-                frames[slot] = .{ .v = @trunc(st[sp - 2]), .to = @trunc(st[sp - 1]), .acc = 0 };
+                const slot = arg & ARG_MASK;
+                frames[slot] = .{ .v = @trunc(fv(st[sp - 2])), .to = @trunc(fv(st[sp - 1])), .acc = 0 };
                 sp -= 2;
                 if (!(frames[slot].v < frames[slot].to)) {
                     // an empty range: the sum is 0, skip to after sum_end
                     if (sp >= STACK) return null;
-                    st[sp] = 0;
+                    st[sp] = 0; // 0.0 and 0 have the same bits
                     sp += 1;
                     next = @as(usize, p.jump[k]) + 1;
                 }
             },
             .sum_end => {
                 if (sp < 1) return null;
-                const slot = p.args[k];
-                frames[slot].acc += st[sp - 1];
+                const slot = arg & ARG_MASK;
+                frames[slot].acc = if (int) ib(iv(frames[slot].acc) +% iv(st[sp - 1])) else fb(fv(frames[slot].acc) + fv(st[sp - 1]));
                 sp -= 1;
                 frames[slot].v += 1;
                 ops += 1;
@@ -2294,23 +2978,65 @@ fn runProgram(p: *const Program, th: *const Thread, ins: [*]const [*]const f32, 
                     sp += 1;
                 }
             },
-            .neg => {
-                if (sp < 1) return null;
-                st[sp - 1] = -st[sp - 1];
-                ops += 1;
-            },
             .w_if => {
                 if (sp < 1) return null;
                 sp -= 1;
-                if (st[sp] == 0) next = p.jump[k];
+                if (fv(st[sp]) == 0) next = p.jump[k];
                 ops += 1;
             },
             .w_else => next = p.jump[k],
+            .neg => {
+                if (sp < 1) return null;
+                st[sp - 1] = fb(-fv(st[sp - 1]));
+                ops += 1;
+            },
+            .i_neg, .i_abs, .i_sign, .cv_fi, .cv_if => {
+                if (sp < 1) return null;
+                const x = st[sp - 1];
+                st[sp - 1] = switch (p.ops[k]) {
+                    .i_neg => ib(0 -% iv(x)),
+                    .i_abs => ib(if (iv(x) < 0) 0 -% iv(x) else iv(x)),
+                    .i_sign => ib(if (iv(x) > 0) 1 else if (iv(x) < 0) -1 else 0),
+                    .cv_fi => ib(toI32(fv(x))),
+                    .cv_if => fb(@floatFromInt(iv(x))),
+                    else => unreachable,
+                };
+                ops += 1;
+            },
+            .i_add, .i_sub, .i_mul, .i_div, .i_mod, .i_min, .i_max, .ic_lt, .ic_le, .ic_gt, .ic_ge, .ic_eq, .ic_ne => {
+                if (sp < 2) return null;
+                const a2 = iv(st[sp - 2]);
+                const b2 = iv(st[sp - 1]);
+                st[sp - 2] = switch (p.ops[k]) {
+                    .i_add => ib(a2 +% b2),
+                    .i_sub => ib(a2 -% b2),
+                    .i_mul => ib(a2 *% b2),
+                    .i_div => ib(iDiv(a2, b2)),
+                    .i_mod => ib(iRem(a2, b2)),
+                    .i_min => ib(@min(a2, b2)),
+                    .i_max => ib(@max(a2, b2)),
+                    .ic_lt => fb(if (a2 < b2) 1.0 else 0.0),
+                    .ic_le => fb(if (a2 <= b2) 1.0 else 0.0),
+                    .ic_gt => fb(if (a2 > b2) 1.0 else 0.0),
+                    .ic_ge => fb(if (a2 >= b2) 1.0 else 0.0),
+                    .ic_eq => fb(if (a2 == b2) 1.0 else 0.0),
+                    .ic_ne => fb(if (a2 != b2) 1.0 else 0.0),
+                    else => unreachable,
+                };
+                sp -= 1;
+                ops += 1;
+            },
+            .i_clamp => {
+                if (sp < 3) return null;
+                st[sp - 3] = ib(@min(@max(iv(st[sp - 3]), iv(st[sp - 2])), iv(st[sp - 1])));
+                sp -= 2;
+                ops += 1;
+            },
             .add, .sub, .mul, .div, .mod, .f_min, .f_max, .f_pow, .f_step, .f_atan2, .f_distance, .c_lt, .c_le, .c_gt, .c_ge, .c_eq, .c_ne, .l_and, .l_or => {
                 if (sp < 2) return null;
-                const a2 = st[sp - 2];
-                const b2 = st[sp - 1];
-                st[sp - 2] = switch (p.ops[k]) {
+                const a2 = fv(st[sp - 2]);
+                const b2 = fv(st[sp - 1]);
+                st[sp - 2] = fb(switch (p.ops[k]) {
                     .add => a2 + b2,
                     .sub => a2 - b2,
                     .mul => a2 * b2,
@@ -2331,16 +3057,16 @@ fn runProgram(p: *const Program, th: *const Thread, ins: [*]const [*]const f32, 
                     .l_and => if (a2 != 0 and b2 != 0) 1.0 else 0.0,
                     .l_or => if (a2 != 0 or b2 != 0) 1.0 else 0.0,
                     else => unreachable,
-                };
+                });
                 sp -= 1;
                 ops += 1;
             },
             .f_clamp, .f_mix, .f_smoothstep => {
                 if (sp < 3) return null;
-                const x = st[sp - 3];
-                const y = st[sp - 2];
-                const z = st[sp - 1];
-                st[sp - 3] = switch (p.ops[k]) {
+                const x = fv(st[sp - 3]);
+                const y = fv(st[sp - 2]);
+                const z = fv(st[sp - 1]);
+                st[sp - 3] = fb(switch (p.ops[k]) {
                     .f_clamp => @min(@max(x, y), z),
                     .f_mix => x * (1.0 - z) + y * z,
                     .f_smoothstep => blk: {
@@ -2348,14 +3074,14 @@ fn runProgram(p: *const Program, th: *const Thread, ins: [*]const [*]const f32, 
                         break :blk t * t * (3.0 - 2.0 * t);
                     },
                     else => unreachable,
-                };
+                });
                 sp -= 2;
                 ops += 1;
             },
             else => {
                 if (sp < 1) return null;
-                const x = st[sp - 1];
-                st[sp - 1] = switch (p.ops[k]) {
+                const x = fv(st[sp - 1]);
+                st[sp - 1] = fb(switch (p.ops[k]) {
                     .f_abs, .f_length => @abs(x),
                     .f_sqrt => @sqrt(x),
                     .f_exp => @exp(x),
@@ -2373,7 +3099,7 @@ fn runProgram(p: *const Program, th: *const Thread, ins: [*]const [*]const f32, 
                     .f_inversesqrt => 1.0 / @sqrt(x),
                     .f_tanh => std.math.tanh(x),
                     else => unreachable,
-                };
+                });
                 ops += 1;
             },
         }
@@ -2381,7 +3107,7 @@ fn runProgram(p: *const Program, th: *const Thread, ins: [*]const [*]const f32, 
     }
     if (sp != 1) return null;
     ops_out.* += ops;
-    return st[0];
+    return fv(st[0]);
 }
 
 /// Evaluate the compiled spec over `n` elements: `ins` points at n_ins arrays,
@@ -2750,10 +3476,10 @@ test "GK6: what the transpiler refuses the interpreter refuses, and the same spe
         const c = stz_gpu_spec_compile(s.ptr, @floatFromInt(s.len));
         try std.testing.expectEqual(t >= 0, c == 0);
     }
-    // the interpreter refuses more than the transpiler in exactly one place: a
-    // vector-only name, which the transpiler passes to WGSL to fail there
+    // a vector-only name: until GL0 the transpiler passed it to WGSL to fail
+    // there; the typed rewriter refuses it as the interpreter does
     const vec = "in a\nin b\nout c\nbody { @c = dot(@a, @b) }";
-    try std.testing.expect(stz_gpu_wgsl_elementwise(vec.ptr, @floatFromInt(vec.len), &buf, buf.len) >= 0);
+    try std.testing.expectEqual(@as(i32, -1), stz_gpu_wgsl_elementwise(vec.ptr, @floatFromInt(vec.len), &buf, buf.len));
     try std.testing.expectEqual(@as(i32, -1), stz_gpu_spec_compile(vec.ptr, @floatFromInt(vec.len)));
     // a wrong arity is a refusal naming the function
     const ar = "in a\nout c\nbody { @c = clamp(@a, 1.0) }";
@@ -3450,6 +4176,126 @@ test "GL0: a condition's shape is read once, so both readers refuse the same tex
             const el = stz_gpu_wgsl_error(&e, e.len);
             std.debug.print("\n{s}\n  -> {s}\n", .{ o, e[0..@intCast(el)] });
             return error.Refused;
+        }
+    }
+}
+
+fn evalSc(spec: []const u8, a: []const f32, sc: []const f32, out: []f32) !void {
+    if (stz_gpu_spec_compile(spec.ptr, @floatFromInt(spec.len)) != 0) {
+        var e: [256]u8 = undefined;
+        const el = stz_gpu_wgsl_error(&e, e.len);
+        std.debug.print("\n{s}\n  -> {s}\n", .{ spec, e[0..@intCast(el)] });
+        return error.Refused;
+    }
+    const ins = [_][*]const f32{a.ptr};
+    const lens = [_]f64{@floatFromInt(a.len)};
+    if (stz_gpu_spec_eval(&ins, 1, &lens, sc.ptr, @intCast(sc.len), @floatFromInt(out.len), out.ptr) != 0) return error.EvalFailed;
+}
+
+fn wgslHas(spec: []const u8, needle: []const u8) !void {
+    var buf: [16384]u8 = undefined;
+    const n = stz_gpu_wgsl_elementwise(spec.ptr, @floatFromInt(spec.len), &buf, buf.len);
+    if (n <= 0 or std.mem.indexOf(u8, buf[0..@intCast(n)], needle) == null) {
+        std.debug.print("\n{s}\n  wanted: {s}\n  got: {s}\n", .{ spec, needle, if (n > 0) buf[0..@intCast(n)] else "(refused)" });
+        return error.NotWritten;
+    }
+}
+
+test "GL0 types: an int is declared, a whole number takes its partner's type, and i32 means what WGSL says" {
+    var out: [5]f32 = undefined;
+    // arithmetic: truncating division, a remainder with the dividend's sign
+    const ar = "in a int\nscalar k int\nout c int\nbody { @c = (@a * 3 + k) / 2 - @a % 4 }";
+    // the remainder is the helper's: the device takes an i32 '%' as unsigned
+    try wgslHas(ar, "v_c[i] = f32((i32(v_a[i]) * 3i + i32(p.s_k)) / 2i - stz_rem(i32(v_a[i]), 4i));");
+    try wgslHas(ar, "fn stz_rem(a : i32, b : i32) -> i32 {");
+    try evalSc(ar, &.{ -7, -1, 0, 5, 9.9 }, &.{1}, &out);
+    try std.testing.expectEqualSlices(f32, &.{ -7, 0, 0, 7, 13 }, &out);
+    // by zero: the dividend, and 0 -- naga's polyfill, WGSL's rule
+    const dz = "in a int\nout c int\nbody { @c = @a / (@a - @a) + @a % 0 }";
+    var o3: [3]f32 = undefined;
+    try evalSc(dz, &.{ 5, -3, 0 }, &.{}, &o3);
+    try std.testing.expectEqualSlices(f32, &.{ 5, -3, 0 }, &o3);
+    // the product wraps on 32 bits, as on every GPU and CPU
+    const wr = "in a int\nout c int\nbody { @c = (@a * 2147483647) % 1000 }";
+    var o2: [2]f32 = undefined;
+    try evalSc(wr, &.{ 2, 3 }, &.{}, &o2);
+    try std.testing.expectEqualSlices(f32, &.{ -2, 645 }, &o2);
+    // int(x) goes toward zero and saturates at the largest f32 below 2^31;
+    // NaN is the most negative int (both measured on the RTX 3050)
+    const cv = "in a\nout c int\nbody { @c = int(@a) }";
+    try wgslHas(cv, "v_c[i] = f32(i32(v_a[i]));");
+    try evalSc(cv, &.{ 2.7, -2.7, 3e9, -3e9, std.math.nan(f32) }, &.{}, &out);
+    try std.testing.expectEqualSlices(f32, &.{ 2, -2, 2147483520.0, -2147483648.0, -2147483648.0 }, &out);
+    // float(i), and a whole number meeting a float stays a float
+    const fl = "in a int\nout c\nbody { @c = float(@a) / 2 }";
+    try wgslHas(fl, "v_c[i] = f32(i32(v_a[i])) / 2f;");
+    try evalSc(fl, &.{ 3, -3, 0, 1, 2 }, &.{}, &out);
+    try std.testing.expectEqualSlices(f32, &.{ 1.5, -1.5, 0, 0.5, 1 }, &out);
+    // untyped alone is f32, as before GL0: 3 / 4 is 0.75
+    const un = "in a\nout c\nbody { @c = 3 / 4 + @a * 0 }";
+    try wgslHas(un, "3f / 4f");
+    // the counting names adopt too: @i meets an int
+    const ix = "in a int\nout c int\nbody { @c = @i * @a + n }";
+    try wgslHas(ix, "v_c[i] = f32(i32(i) * i32(v_a[i]) + i32(p.n));");
+    try evalSc(ix, &.{ 1, 1, 1, 1, 2 }, &.{}, &out);
+    try std.testing.expectEqualSlices(f32, &.{ 5, 6, 7, 8, 13 }, &out);
+    // a sum of ints accumulates in an i32; a when of ints; the generic functions
+    const sm = "in a int\nout c int\nbody { @c = sum(k, 0, 3, @a[@i + k]) + when(@a > 2, min(@a, 4), abs(@a)) + clamp(@a, -1, 1) * sign(@a) }";
+    try wgslHas(sm, "var acc0 : i32 = 0i;");
+    try evalSc(sm, &.{ -2, 3, 5, 1, 9 }, &.{}, &out);
+    // i0: -2+3+5=6, |-2|=2, clamp -1 * sign -1 = 1 -> 9; i1: 3+5+1=9, min(3,4)=3, 1*1 -> 13
+    // i2: 5+1+9=15, 4, 1 -> 20; i3: 1+9+0=10, 1, 1 -> 12; i4: 9+0+0=9, 4, 1 -> 14
+    try std.testing.expectEqualSlices(f32, &.{ 9, 13, 20, 12, 14 }, &out);
+    // an int guard
+    const gd = "in a int\nout c\nguard { @i < n and @a % 2 == 1 }\nbody { @c = 1 }";
+    // @i and n meet each other only, so they compare as f32, as every guard did
+    try wgslHas(gd, "f32(i) < f32(p.n)");
+    try wgslHas(gd, "stz_rem(i32(v_a[i]), 2i) == 1i");
+    // an int index reads the same element as its f32 twin
+    const nb = "in a\nin q int\nout c\nbody { @c = @a[@q] }";
+    try wgslHas(nb, "rd_a(i32(i32(v_q[i])))");
+    // a sum in a guard: its loop is written before the guard's if, not inside
+    // it (the int fuzz found every such kernel refused by the device since KP0)
+    const gs = "in a\nout c\nguard { @i < n and sum(k, 0, 2, @a[@i + k]) > 0 }\nbody { @c = 1 }";
+    var gb: [8192]u8 = undefined;
+    const gn = stz_gpu_wgsl_elementwise(gs.ptr, @floatFromInt(gs.len), &gb, gb.len);
+    try std.testing.expect(gn > 0);
+    const gw = gb[0..@intCast(gn)];
+    try std.testing.expect(std.mem.indexOf(u8, gw, "var acc0").? < std.mem.indexOf(u8, gw, "if (f32(i)").?);
+}
+
+test "GL0 types: the refusals, in one reader's words and the other's" {
+    var buf: [8192]u8 = undefined;
+    const Case = struct { spec: []const u8, words: []const u8 };
+    const refused = [_]Case{
+        .{ .spec = "in a int\nout c\nbody { @c = float(@a) + @a }", .words = "an int and a float meet at '+'" },
+        .{ .spec = "in a int\nout c int\nbody { @c = @a + 0.5 }", .words = "meet at '+'" },
+        .{ .spec = "in a int\nout c int\nbody { @c = sqrt(@a) }", .words = "'sqrt' works on floats: write sqrt(float(...))" },
+        .{ .spec = "in a\nout c int\nbody { @c = @a }", .words = "holds ints; its value is a float" },
+        .{ .spec = "in a int\nout c\nbody { @c = @a }", .words = "holds floats; its value is an int" },
+        .{ .spec = "in a int\nout c int\nbody { @c = @a + 2147483648 }", .words = "'2147483648' is too large for an int" },
+        .{ .spec = "in a int\nout c\nguard { @a > 0.5 }\nbody { @c = 1 }", .words = "meet at '>'" },
+        .{ .spec = "in a int\nout c int\nbody { @c = when(@a > 0, @a, 0.5) }", .words = "meet at 'when'" },
+        .{ .spec = "in a int\nout c int\nbody { @c = min(@a, 0.5) }", .words = "meet at 'min'" },
+        .{ .spec = "in a word\nout c\nbody { @c = 1 }", .words = "'word' is not a type" },
+        .{ .spec = "in a int\nout c\nshared t 256\nstage { @t[@l] = @a }\nbody { @c = @t[0] }", .words = "a shared array holds floats" },
+        .{ .spec = "in a int\nout c\nbody { @c = int(@a, 1) }", .words = "function 'int' takes 1 argument(s), got 2" },
+    };
+    for (refused) |c| {
+        var e: [256]u8 = undefined;
+        if (stz_gpu_wgsl_elementwise(c.spec.ptr, @floatFromInt(c.spec.len), &buf, buf.len) != -1) {
+            std.debug.print("\nthe transpiler admitted: {s}\n", .{c.spec});
+            return error.Admitted;
+        }
+        const el1 = stz_gpu_wgsl_error(&e, e.len);
+        var e1: [256]u8 = undefined;
+        @memcpy(e1[0..@intCast(el1)], e[0..@intCast(el1)]);
+        try std.testing.expectEqual(@as(i32, -1), stz_gpu_spec_compile(c.spec.ptr, @floatFromInt(c.spec.len)));
+        const el2 = stz_gpu_wgsl_error(&e, e.len);
+        try std.testing.expectEqualStrings(e1[0..@intCast(el1)], e[0..@intCast(el2)]);
+        if (std.mem.indexOf(u8, e[0..@intCast(el2)], c.words) == null) {
+            std.debug.print("\n{s}\n  -> {s}\n", .{ c.spec, e[0..@intCast(el2)] });
+            return error.WrongWords;
         }
     }
 }

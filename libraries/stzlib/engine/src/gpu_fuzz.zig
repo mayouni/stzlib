@@ -46,7 +46,19 @@ pub const K_NEIGH: u8 = 2; // ... reading neighbours, inputs longer than n
 pub const K_SUM: u8 = 3; // ... with a bounded sum
 pub const K_GROUP: u8 = 4; // shared arrays, stages, reductions
 pub const K_TILES: u8 = 5; // tiles, accumulate, width
-pub const KINDS: usize = 6;
+pub const K_INT: u8 = 6; // GL0: ints -- declared, wrapping, divided by zero, converted
+pub const KINDS: usize = 7;
+/// The mask bit of kind k. Bits 6 to 8 are the controls, so the int kind
+/// takes bit 9: a mask written before GL0 (63) asks for the six it always meant.
+pub fn kindBit(k: usize) u32 {
+    return if (k < 6) @as(u32, 1) << @intCast(k) else @as(u32, 1) << 9;
+}
+fn genSlot(k: usize) usize {
+    return if (k < 6) R_GEN_KIND + k else R_GEN_INT;
+}
+fn badSlot(k: usize) usize {
+    return if (k < 6) R_BAD_KIND + k else R_BAD_INT;
+}
 /// mask bit 6: MUTATE -- the run's own control. Each kernel's WGSL gets its
 /// first ' + ' in the stored expression turned into ' - ' (a kernel with none
 /// is skipped); a fuzz that judges those agreeing proves nothing about the
@@ -98,7 +110,9 @@ pub const R_SAN_QUIET = 38; // GZ0: cases with a dropped write, a read past an a
 pub const R_WHEN = 26; // GL0: cases whose description holds a when()
 pub const R_GEN_KIND = 20; // + kind: cases generated of that kind
 pub const R_BAD_KIND = 30; // + kind: defective cases of that kind
-pub const R_SLOTS = 40;
+pub const R_GEN_INT = 40; // GL0: int cases generated
+pub const R_BAD_INT = 41; // ... and defective
+pub const R_SLOTS = 44;
 
 var result: [R_SLOTS]f64 = @splat(0);
 var first_buf: [SPEC_CAP + 256]u8 = undefined;
@@ -168,6 +182,7 @@ pub const Case = struct {
     n_sc: usize = 0,
     sc: [MAX_SC]f32 = @splat(0),
     sc_name: [MAX_SC][]const u8 = @splat(""),
+    in_int: [MAX_IN]bool = @splat(false), // GL0: an int input gets whole numbers
     data_seed: u64 = 0,
 
     pub fn text(self: *const Case) []const u8 {
@@ -195,6 +210,7 @@ const Gen = struct {
     w: *W,
     c: *Case,
     muls: u8 = 0,
+    sums: u8 = 0, // GL0: sums written in this case (an expression holds at most 4)
 
     fn pick(self: *Gen, n: usize) usize {
         return self.r.uintLessThan(usize, n);
@@ -487,6 +503,130 @@ const Gen = struct {
         self.exact(1, cx);
     }
 
+    // ---- GL0: an int expression. Exact by nature: an i32 op rounds nowhere
+    // and wraps the same on every device, so every int case agrees bit for bit.
+    fn iatom(self: *Gen) void {
+        var tries: usize = 0;
+        while (tries < 32) : (tries += 1) {
+            switch (self.pick(9)) {
+                0, 1 => if (self.intIn()) |nm| {
+                    self.w.f("@{s}", .{nm});
+                    return;
+                },
+                2 => if (self.intIn()) |nm| {
+                    const k = self.int(1, 4);
+                    switch (self.pick(3)) {
+                        0 => self.w.f("@{s}[@i + {d}]", .{ nm, k }),
+                        1 => self.w.f("@{s}[@i - {d}]", .{ nm, k }),
+                        else => self.w.f("@{s}[(@i * 3) % 7]", .{nm}),
+                    }
+                    return;
+                },
+                3 => if (self.c.n_sc > 0) {
+                    self.w.s(self.c.sc_name[self.pick(self.c.n_sc)]);
+                    return;
+                },
+                4, 5 => {
+                    const L = [_][]const u8{ "0", "1", "2", "3", "7", "13", "100", "1000", "65536", "2147483647", "1103515245", "1664525" };
+                    self.w.s(L[self.pick(L.len)]);
+                    return;
+                },
+                6 => {
+                    const P = [_][]const u8{ "(@i % 9)", "(@i - 100)", "n", "(n - @i)" };
+                    self.w.s(P[self.pick(P.len)]);
+                    return;
+                },
+                7 => if (self.floatIn()) |nm| {
+                    // a float read as an int: toward zero
+                    switch (self.pick(3)) {
+                        0 => self.w.f("int(@{s} * 4)", .{nm}),
+                        1 => self.w.f("int(@{s})", .{nm}),
+                        else => self.w.f("int(floor(@{s} * 8) / 2)", .{nm}),
+                    }
+                    return;
+                },
+                else => if (self.intIn()) |nm| {
+                    if (self.sums < 3) {
+                        self.sums += 1;
+                        self.w.f("sum(k, 0, 3, @{s}[@i + k])", .{nm});
+                        return;
+                    }
+                },
+            }
+        }
+        self.w.s("1");
+    }
+    fn intIn(self: *Gen) ?[]const u8 {
+        var have: [MAX_IN]usize = undefined;
+        var nh: usize = 0;
+        for (0..self.c.n_ins) |k| {
+            if (self.c.in_int[k]) {
+                have[nh] = k;
+                nh += 1;
+            }
+        }
+        return if (nh == 0) null else IN_NAMES[have[self.pick(nh)]];
+    }
+    fn floatIn(self: *Gen) ?[]const u8 {
+        for (0..self.c.n_ins) |k| {
+            if (!self.c.in_int[k]) return IN_NAMES[k];
+        }
+        return null;
+    }
+    fn iexpr(self: *Gen, depth: u8) void {
+        if (depth == 0 or self.chance(20)) return self.iatom();
+        const d = depth - 1;
+        switch (self.pick(14)) {
+            0, 1 => self.ibin(" + ", d),
+            2 => self.ibin(" - ", d),
+            3, 4 => self.ibin(" * ", d), // wraps: mirrored, not avoided
+            5 => self.ibin(" / ", d), // by zero too: WGSL's answer is the dividend
+            6, 7 => self.ibin(" % ", d), // a negative dividend: the device's own '%' is wrong here
+            8 => {
+                self.w.s(if (self.chance(50)) "min(" else "max(");
+                self.iexpr(d);
+                self.w.s(", ");
+                self.iexpr(d);
+                self.w.s(")");
+            },
+            9 => {
+                self.w.s(if (self.chance(50)) "abs(" else "sign(");
+                self.iexpr(d);
+                self.w.s(")");
+            },
+            10 => {
+                self.w.s("clamp(");
+                self.iexpr(d);
+                self.w.s(", -50, 50)");
+            },
+            11 => {
+                const OPS = [_][]const u8{ " < ", " <= ", " > ", " >= ", " == ", " != " };
+                self.w.s("when(");
+                self.iexpr(d);
+                self.w.s(OPS[self.pick(OPS.len)]);
+                self.iatom();
+                self.w.s(", ");
+                self.iexpr(d);
+                self.w.s(", ");
+                self.iexpr(d);
+                self.w.s(")");
+            },
+            12 => {
+                self.w.s("(-");
+                self.iexpr(d);
+                self.w.s(")");
+            },
+            else => self.iatom(),
+        }
+    }
+    fn ibin(self: *Gen, op: []const u8, d: u8) void {
+        self.w.s("(");
+        self.iexpr(d);
+        self.w.s(op);
+        self.iexpr(d);
+        self.w.s(")");
+    }
+
     fn declare(self: *Gen, n_ins: usize, n_sc: usize) void {
         self.c.n_ins = n_ins;
         self.c.n_sc = n_sc;
@@ -711,6 +851,42 @@ pub fn generate(seed: u64, index: u64, kind: u8, c: *Case) void {
                 w.s("body { @res = @acc }\n");
             }
         },
+        K_INT => {
+            const ni = g.int(1, MAX_IN);
+            c.n_ins = ni;
+            var any = false;
+            for (0..ni) |k| {
+                c.in_int[k] = g.chance(70);
+                if (c.in_int[k]) any = true;
+            }
+            if (!any) c.in_int[0] = true;
+            for (0..ni) |k| w.f("in {s}{s}\n", .{ IN_NAMES[k], if (c.in_int[k]) " int" else "" });
+            c.n_sc = g.int(0, 2);
+            for (0..c.n_sc) |k| {
+                w.f("scalar {s} int\n", .{SC_NAMES[k]});
+                c.sc[k] = @floatFromInt(r.intRangeAtMost(i32, -20, 20));
+                c.sc_name[k] = SC_NAMES[k];
+            }
+            c.n = g.pickN();
+            for (0..ni) |k| c.in_len[k] = if (g.chance(30)) c.n + g.int(1, 50) else c.n;
+            const float_out = g.chance(20);
+            w.s(if (float_out) "out res\n" else "out res int\n");
+            if (g.chance(20)) {
+                w.s("guard { @i < n and ");
+                g.iexpr(1);
+                w.s(" != ");
+                g.iatom();
+                w.s(" }\n");
+            }
+            w.s("body { @res = ");
+            if (float_out) {
+                // an int crossing back: f32(i) rounds to nearest, the same everywhere
+                w.s("float(");
+                g.iexpr(3);
+                w.s(") * 0.5");
+            } else g.iexpr(3);
+            w.s(" }\n");
+        },
         else => {},
     }
     c.len = if (w.over) 0 else w.len;
@@ -722,7 +898,11 @@ fn fillInputs(c: *const Case, host: *[MAX_IN][]f32) void {
     var prng = std.Random.DefaultPrng.init(c.data_seed);
     const r = prng.random();
     for (0..c.n_ins) |k| {
-        for (host[k]) |*v| v.* = dyadic(r);
+        for (host[k]) |*v| v.* = if (!c.in_int[k]) dyadic(r) else switch (r.uintLessThan(u8, 10)) {
+            0 => @floatFromInt(r.intRangeAtMost(i32, -(1 << 20), 1 << 20)),
+            1 => dyadic(r), // read through int(): toward zero
+            else => @floatFromInt(r.intRangeAtMost(i32, -300, 300)),
+        };
     }
 }
 
@@ -747,7 +927,7 @@ fn bad(index: u64, c: *const Case, slot: usize, what: []const u8, elem: i64) voi
 
 fn badv(index: u64, c: *const Case, slot: usize, what: []const u8, elem: i64, ref: f64, dev: f64) void {
     result[slot] += 1;
-    result[R_BAD_KIND + c.kind] += 1;
+    result[badSlot(c.kind)] += 1;
     record(index, c, what, elem);
     if (ref == ref or dev == dev) {
         logLine("case {d}, kind {d}: {s} at element {d}: interpreter {d}, device {d}\n", .{ index, c.kind, what, elem, ref, dev });
@@ -950,7 +1130,7 @@ pub fn stz_gpu_fuzz_run(seedf: f64, countf: f64, maskf: f64, rel: f64) callconv(
     var kinds: [KINDS]u8 = undefined;
     var nk: usize = 0;
     for (0..KINDS) |k| {
-        if (mask & (@as(u32, 1) << @intCast(k)) != 0) {
+        if (mask & kindBit(k) != 0) {
             kinds[nk] = @intCast(k);
             nk += 1;
         }
@@ -964,7 +1144,7 @@ pub fn stz_gpu_fuzz_run(seedf: f64, countf: f64, maskf: f64, rel: f64) callconv(
     while (i < count) : (i += 1) {
         generate(seed, i, kinds[@intCast(i % nk)], &c);
         result[R_GENERATED] += 1;
-        result[R_GEN_KIND + c.kind] += 1;
+        result[genSlot(c.kind)] += 1;
         if (std.mem.indexOf(u8, c.text(), "when(") != null) result[R_WHEN] += 1;
         if (c.len == 0) {
             bad(i, &c, R_REFUSED_BOTH, "the generator overflowed its buffer", -1);
@@ -991,6 +1171,9 @@ pub fn stz_gpu_fuzz_run(seedf: f64, countf: f64, maskf: f64, rel: f64) callconv(
         const kernel = gpu.stz_gpu_kernel_compile(&out, @floatFromInt(wl));
         if (kernel <= 0) {
             bad(i, &c, R_COMPILE_FAILED, "the device refused the WGSL", -1);
+            // GL0: the compiler's own first words, which name the line
+            const fe = gpu.firstError();
+            logLine("  {s}\n", .{fe[0..@min(fe.len, 400)]});
             continue;
         }
         // the interpreter's program is the last one compiled: recompile it,
@@ -1014,7 +1197,7 @@ pub fn stz_gpu_fuzz_case(seedf: f64, indexf: f64, maskf: f64, out: [*]u8, cap: f
     var kinds: [KINDS]u8 = undefined;
     var nk: usize = 0;
     for (0..KINDS) |k| {
-        if (mask & (@as(u32, 1) << @intCast(k)) != 0) {
+        if (mask & kindBit(k) != 0) {
             kinds[nk] = @intCast(k);
             nk += 1;
         }

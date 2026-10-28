@@ -39,7 +39,7 @@ pr()
 oP = StzProgramQ("../../education/program")
 chk("the program declares the course kernel-puzzles", StzFindFirst("kernel-puzzles", oP.Courses()) > 0)
 oCk = oP.CourseQ("kernel-puzzles")
-chk("...and the course has seven chapters (KP2's four, KP3's group memory and roofline, GL0's branch)", len(oCk.ChapterIds()) = 7)
+chk("...and the course has eight chapters (KP2's four, KP3's group memory and roofline, GL0's branch and whole numbers)", len(oCk.ChapterIds()) = 8)
 bOpens = TRUE
 try
 	oC = oP.CourseQ("kernel-puzzles")

@@ -3811,6 +3811,69 @@ them, a type a comparison can have, which replaces the shape check with a
 typed one), a general bounded loop, atomics (they need integers), 3-D
 grids. One admission per commit.
 
+## GL0 STATUS — second admission landed 2026-10-28: whole numbers, and a typed pair of readers
+
+**What it is.** A value is an f32, an i32 or a truth value. A declaration
+names the type (`in a int`, `scalar k int`, `out c int`). A whole number
+without a decimal point, and the counting names (`@i`, `n`, `@l`, `@g`, a
+sum's variable ...), take the type of the value they meet. Meeting none,
+they are f32, which keeps every earlier description's meaning. An int and
+a float meet only through `int(...)` or `float(...)`. Buffers stay f32, so
+an int crosses exactly up to 2^24 and is exact over its whole range inside.
+
+**How.** Both readers were rebuilt as typed recursive descents, one
+construct for each of the other's. The interpreter retypes the ops an
+untyped number wrote once its partner is known. The rewriter writes
+placeholder bytes and settles them, and keeps the source's spacing so WGSL
+reads the precedence again by itself. Its stack is 32-bit slots read as each
+op's type. **Byte-identity check**: the transpiler's WGSL, the interpreter's
+admissions and its static operation counts were dumped for 18,000 generated
+kernels before the change and after it, and they are identical.
+
+**Two device defects found, both closed in the transpiler:**
+
+| found | what the device did | what the transpiler does now |
+|---|---|---|
+| probing the edges | the RTX 3050 (wgpu-native 29) took an i32 `%` as UNSIGNED: `-7 % 4` was 1, `(2 * 2147483647) % 100000` was 67294; `/`, wrapping and comparisons were WGSL's | never writes WGSL's `%` for an int: `stz_rem(a, b)`, `a - (a / b) * b`, 0 for a zero divisor |
+| the int fuzz, first run | a `sum` in a GUARD had its loop written inside the guard's `if`, after the guard read it: every such kernel was refused since KP0 (16 of 300) | the guard's sums go in a prelude of their own, before its `if` |
+
+**And one meaning measured, not assumed**: `int()` past the range is
+2,147,483,520 (the largest f32 below 2^31), and of NaN -2,147,483,648, on
+the device. The interpreter follows. WGSL leaves NaN to the device, so
+another adapter may differ, and the checker would then name it.
+
+**The fuzz's int kind** (kind 6, mask bit 9, so a mask written before GL0
+asks for the six kinds it always meant). It covers wrapping products,
+division and remainder by any value (zero included), conversions from float
+inputs, int neighbours, int sums and int `when`s. **Measured on the RTX 3050,
+seed 20261028**: 300 int kernels, every one compiled, all 300 agree bit for
+bit. The control caught 100 of 124 mutants; of ten escapes read, nine cannot
+change an answer and one was a condition the data never reached. The six
+float kinds, rewritten by the new readers: 300 agree, 219 exactly, as
+before.
+
+**The puzzle**: kp-14, *roll the dice*, in a new chapter, *whole numbers*.
+One step of a classic generator, `(seed x 1664525 + 1013904223) % 1000`. In
+floats it is wrong from element 1, because 1,013,904,223 becomes
+1,013,904,192. There are three right answers (one keeps only the last
+digits, `(@a * 525 + 223) % 1000`) and four named mistakes. The browser
+runner on the Intel iGPU's WebGPU gave the desktop's seven verdicts, and
+puzzles 6, 10, 11 and 13 still verify there. **No person has worked it.**
+
+**Changed on the way**: a vector-only name (`dot`) is refused by the
+transpiler too (it used to pass it to WGSL to fail there). The face reads a
+description through the interpreter before looking up bindings, so a
+refused one is refused in the interpreter's words. The fuzz logs naga's
+first error with each compile failure.
+
+**Gates, under `rnxc` on the RTX 3050:** int 37, when 34, grammar 43,
+fuzz 23, sanitizer 25, shared 60, puzzles 95 (eight chapters), spec
+reference 34, verify 39, ops 37, foundry 27, f16 23, lifecycle 62; Zig 26.
+
+**What is left of GL0**, in order: vector types, a general bounded loop,
+atomics (they need ints in a real i32 buffer, which this rung does not
+add), and 3-D grids.
+
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 
 **Where the plane stands.** The charge GK3 to KP3 is through. A kernel can
@@ -3860,6 +3923,6 @@ GK4 was.
 **GK2e, added by GK2d's table**: split-K for the narrow, deep products (130 x 1536 x 384 has 18 workgroups of 64 x 64), as two passes under the checker; killed if the two passes cost more than they save at MiniLM's shapes.
 
 **This desk's order**: GT0, GZ0, GC0, GK2d and GK2e (done 2026-10-28, see their STATUS sections above; GK2e measured and kept out of the backbone; GK2f's narrow tiles measured and refused), then GL0, which started
-2026-10-28 (its first admission, `when`, is in GL0 STATUS above). GT0 comes first because every later rung adds
+2026-10-28 (its first two admissions, `when` and ints, are in the GL0 STATUS sections above). GT0 comes first because every later rung adds
 grammar, and a fuzz that already exists covers each addition the day it
 lands.

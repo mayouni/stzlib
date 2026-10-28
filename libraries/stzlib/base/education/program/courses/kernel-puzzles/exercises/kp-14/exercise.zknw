@@ -1,0 +1,17 @@
+knowledge "kp-14"
+
+facts
+    kp-14 | is-a | exercise
+    kp-14 | in-course | kernel-puzzles
+    kp-14 | in-chapter | whole-numbers
+    kp-14 | puzzle-number | 14
+    kp-14 | teaches | an-int-keeps-every-digit
+    kp-14 | starts | red
+
+    kp-14 | elements | 4000
+    kp-14 | input-a | mod13
+
+    kp-14 | has-mistake | 02-in-floats
+    kp-14 | has-mistake | 03-no-parentheses
+    kp-14 | has-mistake | 04-a-float-in-an-int-kernel
+    kp-14 | has-mistake | 05-an-int-into-a-float-output

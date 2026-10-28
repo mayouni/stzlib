@@ -16,6 +16,8 @@
 # by bare name, numbers, + - * / % ( ) and this function set:
 #   abs min max sqrt exp log sin cos tan tanh floor ceil pow clamp sign fract round
 # and the choice when(condition, value if true, value if false) (GL0).
+# Ints (GL0): TakesIntVector, TakesIntScalar and ReturnsIntVector declare
+# whole numbers; int(...) and float(...) convert between the two types.
 # The whole language, with the group lines (Shared, Stage, Reduce, Tiles,
 # Accumulate, Width), is in SOFTANZA_GPU_KERNELS.md beside this file.
 # Anything else REFUSES at ToWGSL() time with a message naming the offender.
@@ -52,6 +54,8 @@ class stzKernelMaker from stzObject
 	@aIns = []
 	@aScalars = []
 	@cOut = ""
+	@aIntNames = [] # GL0: the inputs and scalars declared to hold ints
+	@bIntOut = 0
 	@cBody = ""
 	@cWgsl = ""
 	@cGuard = ""
@@ -87,6 +91,40 @@ class stzKernelMaker from stzObject
 		@cWgsl = ""
 		return This
 
+	# Declares an input vector of whole numbers, read in the body as an int (GL0).
+	#
+	#   pcName     the vector's name, stored in lower case and used as @Name in the body
+	#   returns    the maker itself, so calls chain
+	#   note       the buffer still holds floats: each element is read through int(), toward zero, so a
+	#              value crosses exactly up to 16,777,216; an int and a float meet only through
+	#              int(...) or float(...)
+	#   see        TakesVector, TakesIntScalar, ReturnsIntVector
+	def TakesIntVector(pcName)
+		This.TakesVector(pcName)
+		@aIntNames + lower("" + pcName)
+		return This
+
+	# Declares a scalar parameter that holds a whole number, read in the body as an int (GL0).
+	#
+	#   pcName     the scalar's name, stored in lower case and used bare in the body
+	#   returns    the maker itself, so calls chain
+	#   see        TakesScalar, TakesIntVector
+	def TakesIntScalar(pcName)
+		This.TakesScalar(pcName)
+		@aIntNames + lower("" + pcName)
+		return This
+
+	# Declares the single output vector as holding whole numbers: the body's value is an int (GL0).
+	#
+	#   pcName     the output's name, stored in lower case and assigned as @Name in the body
+	#   returns    the maker itself, so calls chain
+	#   note       the value is written as a float, so a result crosses exactly up to 16,777,216
+	#   see        ReturnsVector, TakesIntVector
+	def ReturnsIntVector(pcName)
+		This.ReturnsVector(pcName)
+		@bIntOut = 1
+		return This
+
 	# Declares the single output vector by name.
 	#
 	#   pcName     the output's name, stored in lower case and assigned as @Name in the body
@@ -95,6 +133,7 @@ class stzKernelMaker from stzObject
 	#   see        ForEachElement, OutputName
 	def ReturnsVector(pcName)
 		@cOut = lower("" + pcName)
+		@bIntOut = 0
 		@cWgsl = ""
 		return This
 
@@ -272,6 +311,13 @@ class stzKernelMaker from stzObject
 		if _nIn_ = 0
 			StzRaise("stzKernelMaker: no TakesVector input to evaluate over.")
 		ok
+		# GL0: the interpreter reads the description before the bindings are looked up,
+		# so a refused description is refused in the interpreter's own words
+		StzEngineGpuSpecFlops(This.Spec())
+		_cErr_ = StzEngineGpuWgslError()
+		if _cErr_ != ""
+			StzRaise("stzKernelMaker: " + _cErr_)
+		ok
 		_aFlat_ = []
 		_aLens_ = []
 		_n_ = 0
@@ -371,14 +417,18 @@ class stzKernelMaker from stzObject
 		_c_ = ""
 		_nL_ = len(@aIns)
 		for _i_ = 1 to _nL_
-			_c_ += "in " + @aIns[_i_] + char(10)
+			_c_ += "in " + @aIns[_i_] + This._IntWord(@aIns[_i_]) + char(10)
 		next
 		_nL_ = len(@aScalars)
 		for _i_ = 1 to _nL_
-			_c_ += "scalar " + @aScalars[_i_] + char(10)
+			_c_ += "scalar " + @aScalars[_i_] + This._IntWord(@aScalars[_i_]) + char(10)
 		next
 		if @cOut != ""
-			_c_ += "out " + @cOut + char(10)
+			_c_ += "out " + @cOut
+			if @bIntOut
+				_c_ += " int"
+			ok
+			_c_ += char(10)
 		ok
 		if @cWidth != ""
 			_c_ += "width " + @cWidth + char(10)
@@ -398,6 +448,15 @@ class stzKernelMaker from stzObject
 			_c_ += "body " + @cBody
 		ok
 		return _c_
+
+	def _IntWord(pcName)
+		_nL_ = len(@aIntNames)
+		for _i_ = 1 to _nL_
+			if @aIntNames[_i_] = pcName
+				return " int"
+			ok
+		next
+		return ""
 
 	# Returns the WGSL compute kernel the engine generates from the declarations, after checking them; needs no GPU.
 	#

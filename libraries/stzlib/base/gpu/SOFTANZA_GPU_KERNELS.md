@@ -57,8 +57,9 @@ the browser build gets **the same code**, not a port of it.
 
 ## 3. The kernel language
 
-A description is a set of lines. Every value is a 32-bit float on the
-device. Names fold to lower case, as Ring does.
+A description is a set of lines. A value is a 32-bit float, a 32-bit
+int (GL0) or, in a condition, a truth value. Names fold to lower case, as
+Ring does.
 
 ### 3.1 The elementwise kernel
 
@@ -111,6 +112,39 @@ value, and until GL0 those three reached the device and failed there in
 the compiler's words. Both readers now read the shape from the source
 with one routine, before either compiles it, so they cannot disagree on
 it.
+
+### 3.1b Whole numbers (GL0)
+
+```
+in a int
+out c int
+body { @c = (@a * 1664525 + 1013904223) % 1000 }
+```
+
+A declaration ends with its type: `in a int`, `scalar k int`, `out c int`;
+nothing, or `float`, is a float. Every operation on ints is an int's: `/`
+drops the remainder, `%` keeps the dividend's sign, and a product past
+2,147,483,647 wraps around, as on every CPU. Divided by zero, an int gives
+the dividend and its remainder 0, as WGSL says.
+
+**A number without a decimal point takes the type of the value it meets**,
+and so do the counting names `@i`, `n`, `@l`, `@g`, `@lx`, `@ly`, `@row`,
+`@col`, a sum's variable and the tiles variable. In `@k + 1`, the `1` is an
+int; in `@a + 1` it is a float. Meeting nothing, it is a float, which is
+what every description before GL0 meant: `3 / 4` is still 0.75. A number
+with a decimal point is a float.
+
+**An int and a float never meet without saying so**: `@k + 0.5` is
+refused; write `float(@k) + 0.5` or `@k + int(0.5)`. `int(x)` goes toward
+zero and saturates at 2,147,483,520 (the largest float below 2^31) and at
+-2,147,483,648; a NaN gives -2,147,483,648, as the device does. `abs min
+max clamp sign` and `when` take either type; every other function takes
+floats. A shared array and `@acc` hold floats.
+
+**The buffers stay floats.** An int input is read through `i32(...)` and an
+int output written through `f32(...)`, so a value crosses exactly up to
+16,777,216. An int's arithmetic inside the kernel is exact over its whole
+range.
 
 ### 3.2 The group's own memory
 
@@ -170,6 +204,11 @@ because they share one parser.
 | a shared array read without an index | a slot is the unit, as in `@t[@l]` |
 | a reserved name used as a user name | `i n l g lx ly row col acc` belong to the language |
 | `and` beside `or` without parentheses | WGSL refuses it in a browser; write `(A and B) or C` |
+| an int and a float meeting, `@k + 0.5` | WGSL has no silent conversion; write `float(@k)` or `int(0.5)` |
+| a float function on an int, `sqrt(@k)` | write `sqrt(float(@k))` |
+| a float into an int output, or an int into a float one | write `int(...)` or `float(...)` |
+| a whole number past 2,147,483,647 meeting an int | it is not an int |
+| a type word other than `int` or `float` | a declaration ends with its type, or with its name |
 | a comparison used as a number, `(@a > 0) * 2` | on the device a comparison is a truth value; write `when(@a > 0, 2, 0)` |
 | a number used as a condition, `when(@a, 1, 0)` or `guard { @a }` | a condition compares: `@a != 0` |
 | a chain, `0 < @a < 2` | write `0 < @a and @a < 2` |
@@ -209,6 +248,12 @@ A `when` is WGSL's `select`, which computes both values and keeps one; the
 interpreter jumps over the value it does not keep. Neither value can have
 a side effect, so the answer is the same, and the sanitizer watches only
 the reads the answer depends on.
+
+Since GL0 both readers are typed recursive descents, one construct for
+each of the other's, so they refuse in the same order with the same words.
+The transpiler keeps the source's own spacing and parentheses, so WGSL
+reads the precedence a second time by itself. When it was rebuilt, it wrote
+the same WGSL, byte for byte, for 18,000 generated kernels.
 
 Two readers of one parsed description give a reference that **was not
 produced by the thing being tested**. If the transpiler emits a wrong
@@ -281,8 +326,8 @@ reported 174% of the copy roof, which is a clock artefact, not speed.
 
 ## 7. The puzzles
 
-Thirteen puzzles in seven chapters teach the GPU from the map to the
-tiled product, and then the branch:
+Fourteen puzzles in eight chapters teach the GPU from the map to the
+tiled product, then the branch and the whole number:
 
 | chapter | puzzles |
 |---|---|
@@ -293,6 +338,7 @@ tiled product, and then the branch:
 | the group's memory | 9 the group's own memory · 10 a matrix product in tiles · 11 softmax, one row per group |
 | the roofline | 12 how fast can it be |
 | the branch | 13 two prices (GL0: `when`, and the same answer without it) |
+| whole numbers | 14 roll the dice (GL0: an int keeps the digits a float loses) |
 
 An exercise is a folder in the Learning System's shape: `exercise.zknw`,
 `task.<lang>.md` in English, French, Arabic and Hausa, `promise.ring`, a
@@ -321,7 +367,7 @@ desktop produce identical results on every case it holds.
 
 The author worked puzzles 1 to 8. After the page gained a "Your move"
 block and buttons that load a known mistake, the author said those told
-them what to do. Puzzles 9 to 13 are built and checked by instruments;
+them what to do. Puzzles 9 to 14 are built and checked by instruments;
 **no person has worked one yet**.
 
 ## 8. Choices measured into the library
@@ -332,6 +378,8 @@ them what to do. Puzzles 9 to 13 are built and checked by instruments;
 | merge GELU into the matrix product's store | **removed** | 62 to 56 dispatches per forward, and the clock moved within its own noise |
 | route a shape nobody measured | **interpolate** between measured shapes, log-log, never beyond them | a flat line sent a search the GPU runs 1.7 to 1.9 times faster to the CPU |
 | double precision on the GPU | **refused** at the start | WebGPU has no f64 |
+| WGSL's `%` on an int | **never written**: the transpiler writes `stz_rem(a, b)`, `a - (a / b) * b` | on the RTX 3050 (wgpu-native 29) the compiler took an i32 `%` as unsigned: `-7 % 4` was 1, where WGSL says -3; its `/`, its wrapping and its comparisons were WGSL's |
+| `int()` past the range, and of NaN | **the device's answer**: 2,147,483,520 at the top, -2,147,483,648 for NaN | measured on the RTX 3050; WGSL leaves NaN to the device, so another one may differ |
 
 Half precision is requested whenever the adapter offers it; both adapters
 on the development machine grant it. Subgroups are noted, never
@@ -389,4 +437,5 @@ Run with Ring++ from `base/test/gpu/`: `rnxc <guard>.ring`.
 | `gpu_sanitizer_narrated.ring` | the four defects named, the unwritable ones refused, races as puzzle verdicts, 300 injected races all named |
 | `gpu_fuzz_narrated.ring` | generated kernels of six kinds through both readers and the device; the control that each wrong operator is caught |
 | `gpu_when_narrated.ring` | GL0's `when`: both readers, the condition's shape and its refusals, the device, the fuzz's SWAP control, puzzle 13 |
+| `gpu_int_narrated.ring` | GL0's ints: declarations, typing, refusals in both readers' words, the device at every edge, the fuzz's int kind, puzzle 14 |
 | `edge_proof/edge_proof.html` | the browser and the desktop agree, case by case |

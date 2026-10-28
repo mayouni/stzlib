@@ -56,6 +56,18 @@ func StzKernelPuzzlesFolder()
 #   note       KP1 (2026-10-24): the bridge between the two runners; Spec() of the result is the
 #              text again, line for line
 #   see        stzKernelMaker.Spec
+# GL0: a declaration's name and whether it holds ints, from 'a', 'a int' or
+# 'a float'; another word is kept on the name, for the engine to refuse.
+func _StzKernelDecl(pcRest)
+	_c_ = ring_trim(pcRest)
+	_acW_ = StzSplit(_c_, " ")
+	if len(_acW_) = 2 and lower(_acW_[2]) = "int"
+		return [ _acW_[1], 1 ]
+	but len(_acW_) = 2 and lower(_acW_[2]) = "float"
+		return [ _acW_[1], 0 ]
+	ok
+	return [ _c_, 0 ]
+
 func StzKernelMakerFromSpec(pcSpec)
 	_oK_ = new stzKernelMaker
 	_acLines_ = StzSplit(StzReplace(pcSpec, char(13), ""), char(10))
@@ -66,11 +78,26 @@ func StzKernelMakerFromSpec(pcSpec)
 			loop
 		ok
 		if StzLeft(_cLine_, 3) = "in "
-			_oK_.TakesVector(ring_trim(StzRight(_cLine_, len(_cLine_) - 3)))
+			_aD_ = _StzKernelDecl(StzRight(_cLine_, len(_cLine_) - 3))
+			if _aD_[2]
+				_oK_.TakesIntVector(_aD_[1])
+			else
+				_oK_.TakesVector(_aD_[1])
+			ok
 		but StzLeft(_cLine_, 7) = "scalar "
-			_oK_.TakesScalar(ring_trim(StzRight(_cLine_, len(_cLine_) - 7)))
+			_aD_ = _StzKernelDecl(StzRight(_cLine_, len(_cLine_) - 7))
+			if _aD_[2]
+				_oK_.TakesIntScalar(_aD_[1])
+			else
+				_oK_.TakesScalar(_aD_[1])
+			ok
 		but StzLeft(_cLine_, 4) = "out "
-			_oK_.ReturnsVector(ring_trim(StzRight(_cLine_, len(_cLine_) - 4)))
+			_aD_ = _StzKernelDecl(StzRight(_cLine_, len(_cLine_) - 4))
+			if _aD_[2]
+				_oK_.ReturnsIntVector(_aD_[1])
+			else
+				_oK_.ReturnsVector(_aD_[1])
+			ok
 		but StzLeft(_cLine_, 6) = "guard "
 			_oK_.Guard(ring_trim(StzRight(_cLine_, len(_cLine_) - 6)))
 		but StzLeft(_cLine_, 5) = "body "

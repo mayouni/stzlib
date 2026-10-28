@@ -80,8 +80,9 @@ function recipe(name, len) {
   }
   return a;
 }
+// the declared NAMES: 'in a int' declares a, an int (GL0) -- the type word is the engine's to read
 function specLines(spec, head) {
-  return spec.split(/\r?\n/).map(l => l.trim()).filter(l => l.startsWith(head + " ")).map(l => l.slice(head.length + 1).trim().toLowerCase());
+  return spec.split(/\r?\n/).map(l => l.trim()).filter(l => l.startsWith(head + " ")).map(l => l.slice(head.length + 1).trim().toLowerCase().split(/\s+/)[0]);
 }
 // a list as Ring's @@ writes it: [ "a", "b" ], and [ ] when empty -- the face's words
 function ringList(xs) { return xs.length ? `[ ${xs.map(x => `"${x}"`).join(", ")} ]` : "[ ]"; }
@@ -329,8 +330,11 @@ function specFromRing(src) {
     let m;
     if (l.startsWith("#")) { notes.push(l.replace(/^#\s?/, "")); continue; }
     if ((m = l.match(/^k\.TakesVector\(:(\w+)\)/))) out.push("in " + m[1]);
+    else if ((m = l.match(/^k\.TakesIntVector\(:(\w+)\)/))) out.push("in " + m[1] + " int");
     else if ((m = l.match(/^k\.TakesScalar\(:(\w+)/))) out.push("scalar " + m[1]);
+    else if ((m = l.match(/^k\.TakesIntScalar\(:(\w+)/))) out.push("scalar " + m[1] + " int");
     else if ((m = l.match(/^k\.ReturnsVector\(:(\w+)\)/))) out.push("out " + m[1]);
+    else if ((m = l.match(/^k\.ReturnsIntVector\(:(\w+)\)/))) out.push("out " + m[1] + " int");
     else if ((m = l.match(/^k\.Width\(:?(\w+)\)/))) out.push("width " + m[1]);
     else if ((m = l.match(/^k\.Shared\(:(\w+),\s*(\d+)\)/))) out.push("shared " + m[1] + " " + m[2]);
     else if ((m = l.match(/^k\.Stage\('(.*)'\)/))) out.push("stage " + m[1]);
