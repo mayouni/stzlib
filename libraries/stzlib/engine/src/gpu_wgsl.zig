@@ -573,6 +573,7 @@ pub fn stz_gpu_wgsl_elementwise(spec: [*]const u8, spec_len: f64, out: [*]u8, ca
             guard_kind = .none;
         } else {
             guard_kind = .custom;
+            if (!condShape(g)) return fail(MSG_COND, .{});
             rw.compare = true;
             rw.loopvar = null;
             rw.where = .guard;
@@ -822,7 +823,9 @@ pub fn stz_gpu_wgsl_elementwise(spec: [*]const u8, spec_len: f64, out: [*]u8, ca
 //                       [from, to) and the expression reads the accumulator;
 //                       k is a bare name inside e; one sum may not nest in
 //                       another (KP3's shared memory is the next step up)
-//   < <= > >= == != and or    in the GUARD only; a body stays arithmetic
+//   < <= > >= == != and or    in a CONDITION only: the guard, or a when's first
+//                       argument; a body is otherwise arithmetic
+//   when(c, t, f)       GL0: select((f), (t), (c)), the false value first
 // KP3: where an expression stands decides what it may read. The transpiler and
 // the interpreter refuse the same things with the same words.
 pub const Where = enum { body, guard, stage, accumulate, count };
@@ -836,6 +839,154 @@ const MSG_RACE = "a stage cannot read the array it writes ('@{s}'): the threads 
 // parentheses -- Chrome's compiler says so, naga let it through -- so the same
 // guard ran on the desktop and failed in a browser. Both readers refuse it.
 const MSG_MIX = "'and' and 'or' side by side need parentheses, as WGSL requires: write (A and B) or C";
+// GL0 (2026-10-28): the conditional value, and the shape every condition has.
+const MSG_WHEN = "when takes 3 arguments: when(condition, value if true, value if false)";
+const MSG_COND = "a condition compares values, as in '@a > 0': a bare value is not a condition, and a comparison is not a value";
+const MSG_CMP = "'{c}' is a comparison; comparisons belong to a guard line or to the condition of a when";
+
+// GL0: the SHAPE of a condition, read from its source by both readers before
+// either compiles it, so they cannot split on it. A condition is comparisons
+// joined by 'and' and 'or', each comparison between two values, grouped by
+// parentheses; a value holds no comparison, except inside a when's own
+// condition. WGSL types a comparison as bool and refuses one used as a number
+// ('(@a < 0) + 1', 'max(@a < 0, 1)') or a number used as a condition
+// ('guard { @a }'). Those reached the device and failed there in naga's words;
+// they are refused here in the learner's.
+fn identChar(c: u8) bool {
+    return std.ascii.isAlphanumeric(c) or c == '_' or c == '@';
+}
+
+/// The length of a comparison operator at s[i], 0 if none. A lone '=' or '!'
+/// counts, so the reader that compiles it names the right spelling.
+fn relAt(s: []const u8, i: usize) usize {
+    const c = s[i];
+    const two = i + 1 < s.len and s[i + 1] == '=';
+    if (c == '<' or c == '>' or c == '=' or c == '!') return if (two) 2 else 1;
+    return 0;
+}
+
+/// The end of the bare word starting at s[i] (s[i] alphabetic or '_').
+fn wordEnd(s: []const u8, i: usize) usize {
+    var j = i;
+    while (j < s.len and identChar(s[j])) : (j += 1) {}
+    return j;
+}
+
+fn isLogicWord(w: []const u8) bool {
+    return std.ascii.eqlIgnoreCase(w, "and") or std.ascii.eqlIgnoreCase(w, "or");
+}
+
+/// Split s[open+1 .. close] at the commas outside any bracket. Returns the
+/// number of parts (more than parts.len means too many).
+fn splitTop(s: []const u8, open: usize, close: usize, parts: [][]const u8) usize {
+    var np: usize = 0;
+    var start = open + 1;
+    var depth: usize = 0;
+    var q = open + 1;
+    while (q <= close) : (q += 1) {
+        const c = s[q];
+        if (q < close and (c == '(' or c == '[')) depth += 1;
+        if (q < close and (c == ')' or c == ']') and depth > 0) depth -= 1;
+        if (q == close or (c == ',' and depth == 0)) {
+            if (np < parts.len) parts[np] = std.mem.trim(u8, s[start..q], " \t");
+            np += 1;
+            start = q + 1;
+        }
+    }
+    return np;
+}
+
+pub fn condShape(src: []const u8) bool {
+    return isCond(std.mem.trim(u8, src, " \t"), 0);
+}
+
+fn isCond(s0: []const u8, level: usize) bool {
+    const s = std.mem.trim(u8, s0, " \t");
+    if (s.len == 0 or level > MAX_DEPTH) return false;
+    // joined by 'and' / 'or' at the top: every part is a condition
+    var depth: usize = 0;
+    var start: usize = 0;
+    var joined = false;
+    var i: usize = 0;
+    while (i < s.len) {
+        const c = s[i];
+        if (c == '(' or c == '[') depth += 1 else if ((c == ')' or c == ']') and depth > 0) depth -= 1 else if (depth == 0 and (std.ascii.isAlphabetic(c) or c == '_') and (i == 0 or !identChar(s[i - 1]))) {
+            const j = wordEnd(s, i);
+            if (isLogicWord(s[i..j])) {
+                if (!isCond(s[start..i], level + 1)) return false;
+                start = j;
+                joined = true;
+            }
+            i = j;
+            continue;
+        }
+        i += 1;
+    }
+    if (joined) return isCond(s[start..], level + 1);
+    // a condition in parentheses
+    if (s[0] == '(') {
+        if (Rewriter.matching(s, 0)) |m| {
+            if (m == s.len - 1) return isCond(s[1 .. s.len - 1], level + 1);
+        }
+    }
+    // one comparison between two values
+    depth = 0;
+    var at: ?usize = null;
+    var width: usize = 0;
+    i = 0;
+    while (i < s.len) : (i += 1) {
+        const c = s[i];
+        if (c == '(' or c == '[') depth += 1 else if ((c == ')' or c == ']') and depth > 0) depth -= 1 else if (depth == 0) {
+            const r = relAt(s, i);
+            if (r > 0) {
+                if (at != null) return false; // 'a < b < c'
+                at = i;
+                width = r;
+                i += r - 1;
+            }
+        }
+    }
+    const k = at orelse return false;
+    return isValue(s[0..k], level + 1) and isValue(s[k + width ..], level + 1);
+}
+
+fn isValue(s0: []const u8, level: usize) bool {
+    const s = std.mem.trim(u8, s0, " \t");
+    if (s.len == 0) return false;
+    if (level > MAX_DEPTH) return false;
+    var i: usize = 0;
+    var last_word: []const u8 = "";
+    while (i < s.len) {
+        const c = s[i];
+        if (std.ascii.isAlphabetic(c) or c == '_' or c == '@') {
+            const j = wordEnd(s, i);
+            last_word = s[i..j];
+            if (isLogicWord(last_word)) return false;
+            i = j;
+            continue;
+        }
+        if (c == '(' or c == '[') {
+            const m = Rewriter.matching(s, i) orelse return true; // the reader names the missing bracket
+            var parts: [8][]const u8 = undefined;
+            const np = splitTop(s, i, m, &parts);
+            if (c == '(' and std.ascii.eqlIgnoreCase(last_word, "when")) {
+                // a when's own condition; a wrong count is the reader's to name
+                if (np == 3 and (!isCond(parts[0], level + 1) or !isValue(parts[1], level + 1) or !isValue(parts[2], level + 1))) return false;
+            } else {
+                for (parts[0..@min(np, parts.len)]) |part| {
+                    if (part.len != 0 and !isValue(part, level + 1)) return false;
+                }
+            }
+            last_word = "";
+            i = m + 1;
+            continue;
+        }
+        if (relAt(s, i) > 0) return false;
+        if (c != ' ' and c != '\t') last_word = "";
+        i += 1;
+    }
+    return true;
+}
 
 fn groupName(s: []const u8) ?[]const u8 {
     // the WGSL each group name reads as, f32 like every value of the grammar
@@ -1020,6 +1171,43 @@ const Rewriter = struct {
                     i = j;
                     continue;
                 }
+                if (std.mem.eql(u8, word, "when")) {
+                    // GL0: a conditional value. WGSL's select takes the value
+                    // if FALSE first -- select(f, t, c) -- so the order is
+                    // written here once, and the fuzz's SWAP control is what
+                    // proves a swapped pair would be caught.
+                    var k = j;
+                    while (k < rhs.len and (rhs[k] == ' ' or rhs[k] == '\t')) : (k += 1) {}
+                    if (k >= rhs.len or rhs[k] != '(') return fail(MSG_WHEN, .{});
+                    const close = matching(rhs, k) orelse return fail("when is missing ')'", .{});
+                    var parts: [3][]const u8 = undefined;
+                    if (splitTop(rhs, k, close, &parts) != 3) return fail(MSG_WHEN, .{});
+                    if (!condShape(parts[0])) return fail(MSG_COND, .{});
+                    var c_buf: [4096]u8 = undefined;
+                    var t_buf: [4096]u8 = undefined;
+                    var f_buf: [4096]u8 = undefined;
+                    var cnd = Cursor{ .buf = &c_buf };
+                    var tv = Cursor{ .buf = &t_buf };
+                    var fv = Cursor{ .buf = &f_buf };
+                    const saved = self.compare;
+                    self.compare = true;
+                    const rc = self.rewrite(parts[0], &cnd);
+                    self.compare = false;
+                    const rt = if (rc < 0) rc else self.rewrite(parts[1], &tv);
+                    const rf = if (rt < 0) rt else self.rewrite(parts[2], &fv);
+                    self.compare = saved;
+                    if (rf < 0) return -1;
+                    if (cnd.overflow or tv.overflow or fv.overflow) return fail("when is too long", .{});
+                    expr.put("select((");
+                    expr.put(fv.items());
+                    expr.put("), (");
+                    expr.put(tv.items());
+                    expr.put("), (");
+                    expr.put(cnd.items());
+                    expr.put("))");
+                    i = close + 1;
+                    continue;
+                }
                 if (std.mem.eql(u8, word, "sum")) {
                     if (self.where == .count) return fail(MSG_SUMCOUNT, .{});
                     if (self.loopvar != null) return fail("a sum inside a sum is not admitted (one level; shared memory is KP3's)", .{});
@@ -1136,7 +1324,7 @@ const Rewriter = struct {
                 expr.putc('f');
                 i = j;
             } else if (ch == '<' or ch == '>' or ch == '=' or ch == '!') {
-                if (!self.compare) return fail("'{c}' is a comparison; comparisons belong to the guard line", .{ch});
+                if (!self.compare) return fail(MSG_CMP, .{ch});
                 const two = i + 1 < rhs.len and rhs[i + 1] == '=';
                 if (ch == '=' and !two) return fail("use '==' to compare in a guard", .{});
                 if (ch == '!' and !two) return fail("'!' alone is not admitted; use '!='", .{});
@@ -1297,6 +1485,12 @@ const Op = enum(u8) {
     f_pow, f_clamp, f_sign, f_fract, f_round, f_mix, f_smoothstep, f_step, f_atan2,
     f_asin, f_acos, f_inversesqrt, f_length, f_distance,
     f_tanh, // GK4
+    // GL0: when(c, t, f). w_if pops c and jumps to the false value when it is
+    // 0; w_else jumps past the false value. The device computes both values
+    // and selects; the interpreter computes the chosen one. Neither value has
+    // a side effect, so the result is the same, and the sanitizer watches the
+    // reads the result depends on.
+    w_if, w_else,
 };
 
 const Fn = struct { name: []const u8, op: Op, arity: u8 };
@@ -1514,7 +1708,7 @@ fn compileInto(p: *Program, text: []const u8, d: *const Decl, where: Where, in_l
     if (ps.expr() < 0) return -1;
     if (ps.peek() != 0) {
         const c = ps.peek();
-        if (c == '<' or c == '>' or c == '=' or c == '!') return fail("'{c}' is a comparison; comparisons belong to the guard line", .{c});
+        if (c == '<' or c == '>' or c == '=' or c == '!') return fail(MSG_CMP, .{c});
         return fail("unexpected '{c}' after the expression", .{c});
     }
     p.n_ins = d.n_ins;
@@ -1601,6 +1795,13 @@ const Parser = struct {
         self.skip();
         return if (self.i < self.s.len) self.s[self.i] else 0;
     }
+    // GL0: a comparison where a value ends is named as one, as the rewriter
+    // names it, not as the bracket it stands before
+    fn noCmp(self: *Parser) i32 {
+        const c = self.peek();
+        if (!self.compare and (c == '<' or c == '>' or c == '=' or c == '!')) return fail(MSG_CMP, .{c});
+        return 0;
+    }
     fn emit(self: *Parser, op: Op, arg: u16) i32 {
         if (!self.p.emit(op, arg)) return fail("expression too long (over {d} operations)", .{MAX_OPS});
         return 0;
@@ -1663,7 +1864,7 @@ const Parser = struct {
             // WGSL; the interpreter read only arithmetic there and refused it
             if (self.compare) {
                 if (self.orexpr() < 0) return -1;
-            } else if (self.expr() < 0) return -1;
+            } else if (self.expr() < 0 or self.noCmp() < 0) return -1;
             if (self.peek() != ')') return fail("missing ')'", .{});
             self.i += 1;
             return 0;
@@ -1715,7 +1916,7 @@ const Parser = struct {
                 self.i += 1;
                 const saved = self.compare;
                 self.compare = false;
-                const r = self.expr();
+                const r = if (self.expr() < 0) -1 else self.noCmp();
                 self.compare = saved;
                 if (r < 0) return -1;
                 if (self.peek() != ']') return fail("missing ']' after '@{s}['", .{nm.slice()});
@@ -1741,7 +1942,7 @@ const Parser = struct {
                 self.i += 1;
                 const saved = self.compare;
                 self.compare = false;
-                const r = self.expr();
+                const r = if (self.expr() < 0) -1 else self.noCmp();
                 self.compare = saved;
                 if (r < 0) return -1;
                 if (self.peek() != ']') return fail("missing ']' after '@{s}['", .{nm.slice()});
@@ -1769,6 +1970,35 @@ const Parser = struct {
             if (nameIn(self.d.scalars[0..], self.d.n_scalars, nm.slice())) |si| {
                 return self.emit(.k_scalar, @intCast(si));
             }
+            if (std.mem.eql(u8, nm.slice(), "when")) {
+                if (self.peek() != '(') return fail(MSG_WHEN, .{});
+                const close = Rewriter.matching(self.s, self.i) orelse return fail("when is missing ')'", .{});
+                var parts: [3][]const u8 = undefined;
+                if (splitTop(self.s, self.i, close, &parts) != 3) return fail(MSG_WHEN, .{});
+                if (!condShape(parts[0])) return fail(MSG_COND, .{});
+                self.i += 1;
+                const saved = self.compare;
+                self.compare = true;
+                if (self.orexpr() < 0) return -1;
+                self.compare = false;
+                if (self.peek() != ',') return fail(MSG_WHEN, .{});
+                self.i += 1;
+                const at_if = self.p.n;
+                if (self.emit(.w_if, 0) < 0) return -1;
+                if (self.expr() < 0 or self.noCmp() < 0) return -1;
+                if (self.peek() != ',') return fail(MSG_WHEN, .{});
+                self.i += 1;
+                const at_else = self.p.n;
+                if (self.emit(.w_else, 0) < 0) return -1;
+                self.p.jump[at_if] = @intCast(self.p.n);
+                if (self.expr() < 0 or self.noCmp() < 0) return -1;
+                if (self.peek() != ')') return fail("when is missing ')'", .{});
+                self.i += 1;
+                self.p.jump[at_else] = @intCast(self.p.n);
+                self.compare = saved;
+                self.p.flops += 1;
+                return 0;
+            }
             if (std.mem.eql(u8, nm.slice(), "sum")) {
                 if (self.where == .count) return fail(MSG_SUMCOUNT, .{});
                 if (self.loopvar != null) return fail("a sum inside a sum is not admitted (one level; shared memory is KP3's)", .{});
@@ -1789,10 +2019,10 @@ const Parser = struct {
                 self.i += 1;
                 const saved = self.compare;
                 self.compare = false;
-                if (self.expr() < 0) return -1; // from
+                if (self.expr() < 0 or self.noCmp() < 0) return -1; // from
                 if (self.peek() != ',') return fail("sum takes 4 arguments (var, from, to, expression)", .{});
                 self.i += 1;
-                if (self.expr() < 0) return -1; // to
+                if (self.expr() < 0 or self.noCmp() < 0) return -1; // to
                 if (self.peek() != ',') return fail("sum takes 4 arguments (var, from, to, expression)", .{});
                 self.i += 1;
                 const slot = self.p.nsum;
@@ -1801,7 +2031,7 @@ const Parser = struct {
                 const begin = self.p.n;
                 if (self.emit(.sum_begin, @intCast(slot)) < 0) return -1;
                 self.loopvar = lv;
-                const r = self.expr();
+                const r = if (self.expr() < 0) -1 else self.noCmp();
                 self.loopvar = null;
                 self.compare = saved;
                 if (r < 0) return -1;
@@ -1826,7 +2056,7 @@ const Parser = struct {
             var argc: u8 = 0;
             if (self.peek() != ')') {
                 while (true) {
-                    if (self.expr() < 0) return -1;
+                    if (self.expr() < 0 or self.noCmp() < 0) return -1;
                     argc += 1;
                     if (self.peek() == ',') {
                         self.i += 1;
@@ -1869,6 +2099,7 @@ pub fn stz_gpu_spec_compile(spec: [*]const u8, spec_len: f64) callconv(.c) i32 {
             g_guard_kind = .none;
         } else {
             g_guard_kind = .custom;
+            if (!condShape(g)) return fail(MSG_COND, .{});
             var pg = Parser{ .s = g, .d = &d, .p = &g_guard, .compare = true, .where = .guard };
             if (pg.orexpr() < 0) return -1;
             if (pg.peek() != 0) return fail("unexpected '{c}' after the guard", .{pg.peek()});
@@ -2068,6 +2299,13 @@ fn runProgram(p: *const Program, th: *const Thread, ins: [*]const [*]const f32, 
                 st[sp - 1] = -st[sp - 1];
                 ops += 1;
             },
+            .w_if => {
+                if (sp < 1) return null;
+                sp -= 1;
+                if (st[sp] == 0) next = p.jump[k];
+                ops += 1;
+            },
+            .w_else => next = p.jump[k],
             .add, .sub, .mul, .div, .mod, .f_min, .f_max, .f_pow, .f_step, .f_atan2, .f_distance, .c_lt, .c_le, .c_gt, .c_ge, .c_eq, .c_ne, .l_and, .l_or => {
                 if (sp < 2) return null;
                 const a2 = st[sp - 2];
@@ -3122,6 +3360,97 @@ test "GT0: 'and' beside 'or' without parentheses is refused by both readers, as 
     for (ok) |o| {
         try std.testing.expect(stz_gpu_wgsl_elementwise(o.ptr, @floatFromInt(o.len), &buf, buf.len) > 0);
         try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_compile(o.ptr, @floatFromInt(o.len)));
+    }
+}
+
+fn evalOne(spec: []const u8, a: []const f32, sc: []const f32, out: []f32) !void {
+    if (stz_gpu_spec_compile(spec.ptr, @floatFromInt(spec.len)) != 0) return error.Refused;
+    const ins = [_][*]const f32{a.ptr};
+    const lens = [_]f64{@floatFromInt(a.len)};
+    if (stz_gpu_spec_eval(&ins, 1, &lens, sc.ptr, @intCast(sc.len), @floatFromInt(out.len), out.ptr) != 0) return error.EvalFailed;
+}
+
+test "GL0: when(c, t, f) is one value in both readers, and WGSL's select gets its false value first" {
+    var buf: [8192]u8 = undefined;
+    const relu = "in a\nout c\nbody { @c = when(@a > 0, @a, 0) }";
+    const n = stz_gpu_wgsl_elementwise(relu.ptr, @floatFromInt(relu.len), &buf, buf.len);
+    try std.testing.expect(n > 0);
+    try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "select((0f), (v_a[i]), (v_a[i]>0f))") != null or
+        std.mem.indexOf(u8, buf[0..@intCast(n)], "select((0f), (v_a[i]), (v_a[i] > 0f))") != null);
+    const a = [_]f32{ -2, -0.5, 0, 0.5, 3 };
+    var out: [5]f32 = undefined;
+    try evalOne(relu, &a, &.{}, &out);
+    try std.testing.expectEqualSlices(f32, &.{ 0, 0, 0, 0.5, 3 }, &out);
+    // nested, with and/or, a neighbour and a sum in its values, a scalar in its condition
+    const deep = "in a\nscalar s\nout c\nbody { @c = when(@a < s or (@i > 2 and @a > 2), when(@a < -1, -1, @a[@i + 1]), sum(k, 0, 3, @a[k])) }";
+    try std.testing.expect(stz_gpu_wgsl_elementwise(deep.ptr, @floatFromInt(deep.len), &buf, buf.len) > 0);
+    try evalOne(deep, &a, &.{0}, &out);
+    // @a < 0: -2 -> -1, -0.5 -> @a[2] = 0; 0 and 0.5 -> sum = -2.5; 3 at i = 4 -> @a[5] = 0 (outside)
+    try std.testing.expectEqualSlices(f32, &.{ -1, 0, -2.5, -2.5, 0 }, &out);
+    // the static count holds both values, the condition and the select; the run counts the path taken
+    try std.testing.expect(stz_gpu_spec_flops() >= 7);
+    // in a guard and in a stage, too
+    const g = "in a\nout c\nguard { @i < n and when(@a > 0, @a, -@a) > 1 }\nbody { @c = 1 }";
+    try std.testing.expect(stz_gpu_wgsl_elementwise(g.ptr, @floatFromInt(g.len), &buf, buf.len) > 0);
+    try evalOne(g, &a, &.{}, &out);
+    try std.testing.expectEqual(@as(f32, 1), out[0]);
+    try std.testing.expect(out[1] != out[1]);
+    try std.testing.expectEqual(@as(f32, 1), out[4]);
+}
+
+test "GL0: a condition's shape is read once, so both readers refuse the same texts with the same words" {
+    var buf: [8192]u8 = undefined;
+    const Case = struct { spec: []const u8, words: []const u8 };
+    const refused = [_]Case{
+        .{ .spec = "in a\nout c\nbody { @c = when(@a, 1, 0) }", .words = "a bare value is not a condition" },
+        .{ .spec = "in a\nout c\nbody { @c = when(@a > 0, 1) }", .words = "when takes 3 arguments" },
+        .{ .spec = "in a\nout c\nbody { @c = when(@a > 0, 1, 0, 2) }", .words = "when takes 3 arguments" },
+        .{ .spec = "in a\nout c\nbody { @c = when }", .words = "when takes 3 arguments" },
+        .{ .spec = "in a\nout c\nbody { @c = when(@a > 0, @a > 1, 0) }", .words = "is a comparison" },
+        .{ .spec = "in a\nout c\nbody { @c = when((@a > 0) + 1 > 0, 1, 0) }", .words = "a comparison is not a value" },
+        .{ .spec = "in a\nout c\nbody { @c = when(0 < @a < 2, 1, 0) }", .words = "a condition compares" },
+        .{ .spec = "in a\nout c\nbody { @c = when(@a > 0 and @a < 1 or @a > 5, 1, 0) }", .words = "need parentheses" },
+        .{ .spec = "in a\nout c\nbody { @c = when(when(@a > 0, 1, 0), 1, 0) }", .words = "a bare value is not a condition" },
+        // a comparison inside a body's brackets is named as one by both readers
+        .{ .spec = "in a\nout c\nbody { @c = (@a > 0) + 1 }", .words = "'>' is a comparison" },
+        .{ .spec = "in a\nout c\nbody { @c = @a[@i > 0] }", .words = "'>' is a comparison" },
+        .{ .spec = "in a\nout c\nbody { @c = max(@a > 0, 1) }", .words = "'>' is a comparison" },
+        .{ .spec = "in a\nout c\nbody { @c = sum(k, 0, 3 > 1, @a[k]) }", .words = "'>' is a comparison" },
+        // the guard's holes this closes: each reached the device and failed in naga's words
+        .{ .spec = "in a\nout c\nguard { @a }\nbody { @c = 1 }", .words = "a bare value is not a condition" },
+        .{ .spec = "in a\nout c\nguard { @i < n and @a }\nbody { @c = 1 }", .words = "a bare value is not a condition" },
+        .{ .spec = "in a\nout c\nguard { max(@a < 0, 1) > 0 }\nbody { @c = 1 }", .words = "a comparison is not a value" },
+        .{ .spec = "in a\nout c\nguard { (@i < n) * 2 > 0 }\nbody { @c = 1 }", .words = "a comparison is not a value" },
+    };
+    for (refused) |c| {
+        var e: [256]u8 = undefined;
+        try std.testing.expectEqual(@as(i32, -1), stz_gpu_wgsl_elementwise(c.spec.ptr, @floatFromInt(c.spec.len), &buf, buf.len));
+        const el1 = stz_gpu_wgsl_error(&e, e.len);
+        var e1: [256]u8 = undefined;
+        @memcpy(e1[0..@intCast(el1)], e[0..@intCast(el1)]);
+        try std.testing.expectEqual(@as(i32, -1), stz_gpu_spec_compile(c.spec.ptr, @floatFromInt(c.spec.len)));
+        const el2 = stz_gpu_wgsl_error(&e, e.len);
+        try std.testing.expectEqualStrings(e1[0..@intCast(el1)], e[0..@intCast(el2)]);
+        if (std.mem.indexOf(u8, e[0..@intCast(el2)], c.words) == null) {
+            std.debug.print("\n{s}\n  -> {s}\n", .{ c.spec, e[0..@intCast(el2)] });
+            return error.WrongWords;
+        }
+    }
+    const admitted = [_][]const u8{
+        "in a\nout c\nguard { (@i < n) }\nbody { @c = 1 }",
+        "in a\nout c\nguard { ((@i < n)) and (@a > 0 or @a < -1) }\nbody { @c = 1 }",
+        "in a\nout c\nguard { (@a + 1) * 2 > 0 and @i < n }\nbody { @c = 1 }",
+        "in a\nout c\nguard { @a[@i + 1] >= max(@a, 0) }\nbody { @c = 1 }",
+        "in a\nout c\nbody { @c = when((@a > 0), 1, 0) + when(@a <= 0, 2, 3) }",
+        "in a\nout c\nshared t 256\nstage { @t[@l] = when(@a > 0, @a, 0) }\nreduce t max\nbody { @c = @t[0] }",
+    };
+    for (admitted) |o| {
+        if (stz_gpu_wgsl_elementwise(o.ptr, @floatFromInt(o.len), &buf, buf.len) <= 0 or stz_gpu_spec_compile(o.ptr, @floatFromInt(o.len)) != 0) {
+            var e: [256]u8 = undefined;
+            const el = stz_gpu_wgsl_error(&e, e.len);
+            std.debug.print("\n{s}\n  -> {s}\n", .{ o, e[0..@intCast(el)] });
+            return error.Refused;
+        }
     }
 }
 

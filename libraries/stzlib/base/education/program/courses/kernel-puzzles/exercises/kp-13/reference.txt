@@ -1,0 +1,4 @@
+in a
+scalar t
+out c
+body { @c = when(@a <= t, @a, t + 2 * (@a - t)) }

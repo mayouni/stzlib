@@ -57,6 +57,13 @@ pub const MUTATE: u32 = 1 << 6;
 /// sanitizer must name: one it misses is the sanitizer's defect (its kill line).
 pub const RACE: u32 = 1 << 7;
 var g_inject_race: bool = false;
+/// mask bit 8: SWAP -- GL0's control for when(). Each kernel's WGSL gets the
+/// two values of the first select in its stored expression exchanged, the
+/// mistake WGSL's false-first order invites (a kernel with none is skipped).
+/// Counted in the MUTATE slots; a swap the run judges agreeing is a kernel
+/// whose condition never varied over its elements, or whose two values were
+/// equal wherever it did.
+pub const SWAP: u32 = 1 << 8;
 
 const SPEC_CAP = 4096;
 const WGSL_CAP = 65536;
@@ -88,6 +95,7 @@ pub const R_CAUGHT = 19; // ... and of those, the ones the run judged defective
 pub const R_UNWRITTEN = 36; // elements a guard left unwritten, checked to stay so
 pub const R_SAN_RACE = 37; // GZ0: cases the sanitizer found a race in (the generator writes none: must be 0)
 pub const R_SAN_QUIET = 38; // GZ0: cases with a dropped write, a read past an array or of an unwritten slot
+pub const R_WHEN = 26; // GL0: cases whose description holds a when()
 pub const R_GEN_KIND = 20; // + kind: cases generated of that kind
 pub const R_BAD_KIND = 30; // + kind: defective cases of that kind
 pub const R_SLOTS = 40;
@@ -279,7 +287,7 @@ const Gen = struct {
     fn exact(self: *Gen, depth: u8, cx: Ctx) void {
         if (depth == 0 or self.chance(25)) return self.atom(cx);
         const d = depth - 1;
-        switch (self.pick(18)) {
+        switch (self.pick(19)) {
             0 => self.bin(" + ", d, cx),
             1 => self.bin(" - ", d, cx),
             2 => if (self.muls < 2) {
@@ -322,6 +330,16 @@ const Gen = struct {
                 self.w.s("(");
                 self.exact(d, cx);
                 self.w.s(" - -0.5)");
+            },
+            17 => {
+                // GL0: an exact condition picks one of two exact values
+                self.w.s("when(");
+                self.cond(d, cx);
+                self.w.s(", ");
+                self.exact(d, cx);
+                self.w.s(", ");
+                self.exact(d, cx);
+                self.w.s(")");
             },
             else => self.atom(cx),
         }
@@ -394,7 +412,16 @@ const Gen = struct {
     fn value(self: *Gen, cx: Ctx, inexact_pct: u8) void {
         self.muls = 0;
         if (!self.chance(inexact_pct)) return self.exact(3, cx);
-        switch (self.pick(5)) {
+        switch (self.pick(6)) {
+            5 => {
+                self.w.s("when(");
+                self.cond(1, cx);
+                self.w.s(", ");
+                self.inexact(cx);
+                self.w.s(", ");
+                self.exact(2, cx);
+                self.w.s(")");
+            },
             0 => self.inexact(cx),
             1 => {
                 self.w.s("(");
@@ -423,6 +450,31 @@ const Gen = struct {
                 self.w.s(", ");
                 self.inexact(cx);
                 self.w.s(", 0.5)");
+            },
+        }
+    }
+
+    /// GL0: a when's condition, from exact values only, so a last-ulp
+    /// difference can never choose the other value. Leaves the product
+    /// budget alone: the condition sits inside an expression.
+    fn cond(self: *Gen, d: u8, cx: Ctx) void {
+        const OPS = [_][]const u8{ " < ", " <= ", " > ", " >= ", " == ", " != " };
+        switch (self.pick(6)) {
+            0 => {
+                self.w.s("(");
+                self.exact(0, cx);
+                self.w.s(OPS[self.pick(OPS.len)]);
+                self.exact(0, cx);
+                self.w.s(if (self.chance(50)) ") and (" else ") or (");
+                self.exact(0, cx);
+                self.w.s(OPS[self.pick(OPS.len)]);
+                self.exact(0, cx);
+                self.w.s(")");
+            },
+            else => {
+                self.exact(d, cx);
+                self.w.s(OPS[self.pick(OPS.len)]);
+                self.exact(0, cx);
             },
         }
     }
@@ -842,6 +894,42 @@ fn mutateWgsl(w: []u8) bool {
     return true;
 }
 
+/// SWAP's one wrong operator: the first select in the stored expression
+/// gets its two values exchanged, in place (the rewriter writes
+/// select((f), (t), (c)), so the two spans are bracketed). False with none.
+fn swapSelect(w: []u8) bool {
+    const store = std.mem.indexOf(u8, w, "v_res[i] = ") orelse return false;
+    const end = std.mem.indexOfScalarPos(u8, w, store, ';') orelse return false;
+    const at = std.mem.indexOf(u8, w[store..end], "select(") orelse return false;
+    const a0 = store + at + 7;
+    const m0 = closeOf(w, a0) orelse return false;
+    if (m0 + 3 >= w.len or w[m0 + 1] != ',' or w[m0 + 2] != ' ') return false;
+    const a1 = m0 + 3;
+    const m1 = closeOf(w, a1) orelse return false;
+    var tmp: [WGSL_CAP]u8 = undefined;
+    const f_len = m0 + 1 - a0;
+    const t_len = m1 + 1 - a1;
+    @memcpy(tmp[0..t_len], w[a1 .. m1 + 1]);
+    @memcpy(tmp[t_len .. t_len + 2], ", ");
+    @memcpy(tmp[t_len + 2 .. t_len + 2 + f_len], w[a0 .. m0 + 1]);
+    @memcpy(w[a0 .. m1 + 1], tmp[0 .. m1 + 1 - a0]);
+    return true;
+}
+
+fn closeOf(w: []const u8, open: usize) ?usize {
+    if (open >= w.len or w[open] != '(') return null;
+    var depth: usize = 0;
+    var j = open;
+    while (j < w.len) : (j += 1) {
+        if (w[j] == '(') depth += 1;
+        if (w[j] == ')') {
+            depth -= 1;
+            if (depth == 0) return j;
+        }
+    }
+    return null;
+}
+
 /// Generate `count` cases of the kinds in `mask` (bit k = kind k), round
 /// robin, from `seed`; judge each on the device (when one is available) and
 /// through the interpreter. `rel` is the inexact band. Returns gpu.OK, or
@@ -855,7 +943,8 @@ pub fn stz_gpu_fuzz_run(seedf: f64, countf: f64, maskf: f64, rel: f64) callconv(
     const seed: u64 = @intFromFloat(seedf);
     const count: u64 = @intFromFloat(countf);
     const mask: u32 = @intFromFloat(maskf);
-    const mutate = mask & MUTATE != 0;
+    const swap = mask & SWAP != 0;
+    const mutate = mask & MUTATE != 0 or swap;
     g_inject_race = mask & RACE != 0;
     defer g_inject_race = false;
     var kinds: [KINDS]u8 = undefined;
@@ -876,6 +965,7 @@ pub fn stz_gpu_fuzz_run(seedf: f64, countf: f64, maskf: f64, rel: f64) callconv(
         generate(seed, i, kinds[@intCast(i % nk)], &c);
         result[R_GENERATED] += 1;
         result[R_GEN_KIND + c.kind] += 1;
+        if (std.mem.indexOf(u8, c.text(), "when(") != null) result[R_WHEN] += 1;
         if (c.len == 0) {
             bad(i, &c, R_REFUSED_BOTH, "the generator overflowed its buffer", -1);
             continue;
@@ -894,7 +984,7 @@ pub fn stz_gpu_fuzz_run(seedf: f64, countf: f64, maskf: f64, rel: f64) callconv(
         if (!device) continue;
         const wl: usize = @intCast(a_wgsl);
         if (mutate) {
-            if (!mutateWgsl(out[0..wl])) continue;
+            if (!(if (swap) swapSelect(out[0..wl]) else mutateWgsl(out[0..wl]))) continue;
             result[R_MUTATED] += 1;
         }
         const before = result[R_DISAGREED] + result[R_WRITE_OUTSIDE];

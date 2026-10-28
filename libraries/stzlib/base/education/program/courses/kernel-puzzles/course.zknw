@@ -13,6 +13,7 @@ facts
     kernel-puzzles | has-chapter-04 | the-reduction
     kernel-puzzles | has-chapter-05 | the-group-s-memory
     kernel-puzzles | has-chapter-06 | the-roofline
+    kernel-puzzles | has-chapter-07 | the-branch
 
     the-elementwise-kernel | is-a | chapter
     the-elementwise-kernel | has-exercise | kp-01
@@ -32,6 +33,8 @@ facts
     the-group-s-memory | has-exercise | kp-11
     the-roofline | is-a | chapter
     the-roofline | has-exercise | kp-12
+    the-branch | is-a | chapter
+    the-branch | has-exercise | kp-13
 
     kernel-puzzles | has-exercise | kp-01
     kernel-puzzles | has-exercise | kp-02
@@ -45,3 +48,4 @@ facts
     kernel-puzzles | has-exercise | kp-10
     kernel-puzzles | has-exercise | kp-11
     kernel-puzzles | has-exercise | kp-12
+    kernel-puzzles | has-exercise | kp-13

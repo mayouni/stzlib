@@ -95,9 +95,22 @@ default guard keeps every thread inside the output.
 - **functions**: `abs min max sqrt exp log sin cos tan tanh floor ceil
   pow clamp sign fract round mix smoothstep step atan2 asin acos
   inversesqrt length distance`;
-- **in the guard only**: `< <= > >= == !=`, `and`, `or`, and parentheses
-  around a condition. `and` beside `or` needs parentheses, as WGSL
-  requires: `(A and B) or C`.
+- **a choice** (GL0): `when(condition, a, b)` is `a` where the condition
+  holds and `b` where it does not, anywhere a value may stand, nested if
+  need be: `@c = when(@a > 0, @a, 0)`;
+- **in a condition only** (the guard line, and a `when`'s first
+  argument): `< <= > >= == !=`, `and`, `or`, and parentheses around a
+  condition. `and` beside `or` needs parentheses, as WGSL requires:
+  `(A and B) or C`.
+
+**A condition's shape.** A condition is comparisons between values,
+joined by `and` and `or` and grouped by parentheses. A comparison is not
+a number and a number is not a condition: `(@a > 0) * 2`, `max(@a < 0,
+1)` and `guard { @a }` are refused. WGSL types a comparison as a truth
+value, and until GL0 those three reached the device and failed there in
+the compiler's words. Both readers now read the shape from the source
+with one routine, before either compiles it, so they cannot disagree on
+it.
 
 ### 3.2 The group's own memory
 
@@ -157,6 +170,10 @@ because they share one parser.
 | a shared array read without an index | a slot is the unit, as in `@t[@l]` |
 | a reserved name used as a user name | `i n l g lx ly row col acc` belong to the language |
 | `and` beside `or` without parentheses | WGSL refuses it in a browser; write `(A and B) or C` |
+| a comparison used as a number, `(@a > 0) * 2` | on the device a comparison is a truth value; write `when(@a > 0, 2, 0)` |
+| a number used as a condition, `when(@a, 1, 0)` or `guard { @a }` | a condition compares: `@a != 0` |
+| a chain, `0 < @a < 2` | write `0 < @a and @a < 2` |
+| a `when` without exactly three arguments | the condition, the value if true, the value if false |
 | too many lines, arrays or floats | the limits above |
 
 The emitted kernel **zeroes its own shared arrays** before the first
@@ -188,6 +205,10 @@ same description on the CPU. It simulates one group at a time, every
 thread through each item of the schedule before the next item starts, so
 a barrier means what it means on the device. Its arithmetic is f32 with
 WGSL's meanings: `%` truncates and `round` goes to even.
+A `when` is WGSL's `select`, which computes both values and keeps one; the
+interpreter jumps over the value it does not keep. Neither value can have
+a side effect, so the answer is the same, and the sanitizer watches only
+the reads the answer depends on.
 
 Two readers of one parsed description give a reference that **was not
 produced by the thing being tested**. If the transpiler emits a wrong
@@ -260,8 +281,8 @@ reported 174% of the copy roof, which is a clock artefact, not speed.
 
 ## 7. The puzzles
 
-Twelve puzzles in six chapters teach the GPU from the map to the tiled
-product:
+Thirteen puzzles in seven chapters teach the GPU from the map to the
+tiled product, and then the branch:
 
 | chapter | puzzles |
 |---|---|
@@ -271,9 +292,10 @@ product:
 | the reduction | 7 many hands, first pass · 8 many hands, the fold |
 | the group's memory | 9 the group's own memory · 10 a matrix product in tiles · 11 softmax, one row per group |
 | the roofline | 12 how fast can it be |
+| the branch | 13 two prices (GL0: `when`, and the same answer without it) |
 
 An exercise is a folder in the Learning System's shape: `exercise.zknw`,
-`task.<lang>.md` in English, French and Arabic, `promise.ring`, a
+`task.<lang>.md` in English, French, Arabic and Hausa, `promise.ring`, a
 `reference.txt` the learner's kernel must match and a `starter.txt` that
 fails with "waiting for your implementation". Facts in `exercise.zknw`
 build the data, so the Ring runner and the browser runner grade one spec
@@ -299,7 +321,7 @@ desktop produce identical results on every case it holds.
 
 The author worked puzzles 1 to 8. After the page gained a "Your move"
 block and buttons that load a known mistake, the author said those told
-them what to do. Puzzles 9 to 12 are built and checked by instruments;
+them what to do. Puzzles 9 to 13 are built and checked by instruments;
 **no person has worked one yet**.
 
 ## 8. Choices measured into the library
@@ -366,4 +388,5 @@ Run with Ring++ from `base/test/gpu/`: `rnxc <guard>.ring`.
 | `gpu_calibration_shaped_narrated.ring` | routing by shape, interpolation between measured classes |
 | `gpu_sanitizer_narrated.ring` | the four defects named, the unwritable ones refused, races as puzzle verdicts, 300 injected races all named |
 | `gpu_fuzz_narrated.ring` | generated kernels of six kinds through both readers and the device; the control that each wrong operator is caught |
+| `gpu_when_narrated.ring` | GL0's `when`: both readers, the condition's shape and its refusals, the device, the fuzz's SWAP control, puzzle 13 |
 | `edge_proof/edge_proof.html` | the browser and the desktop agree, case by case |

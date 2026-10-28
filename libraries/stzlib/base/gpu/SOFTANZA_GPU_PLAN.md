@@ -3745,6 +3745,72 @@ failure before its scene 5 (six variants); ops 37. Every existing kernel
 text was hashed before and after the variants were added: 33 forms,
 byte-identical.
 
+## GL0 STATUS — first admission landed 2026-10-28: the conditional value, `when(condition, a, b)`
+
+GL0 grows the language one admission at a time. Each admission comes with
+a puzzle, a list of refusals and the two readers agreeing, under the fuzz
+and the sanitizer from the day it lands. **The first is the choice between
+two values**, chosen first because the later admissions (bounded loops,
+integer types, atomics) all need a condition that can stand inside an
+expression.
+
+**What it is.** `when(c, t, f)` stands wherever a value may, nested if
+need be. The transpiler writes WGSL's `select((f), (t), (c))`, whose FALSE
+value comes first. The order is written once, in the rewriter. The
+interpreter compiles two jumps around the values, so it computes only the
+value it keeps. Neither value has a side effect, so the answer is the
+device's. The sanitizer watches only the reads the answer depends on: a
+read the device makes and throws away is not a defect.
+
+**The shape of a condition, read once.** Both readers run one routine
+over a condition's source text before either compiles it (`condShape`
+in `gpu_wgsl.zig`). A condition is comparisons between two values, joined
+by and / or and grouped by parentheses. A comparison is not a number, and
+a number is not a condition. That closed four holes the guard line had had
+since KP0. `guard { @a }`, `guard { @i < n and @a }`, `max(@a < 0, 1) > 0`
+and `(@i < n) * 2 > 0` were admitted by both readers and failed on the
+device in naga's words (WGSL types a comparison as bool). A comparison
+inside a body's brackets is now named as one by the interpreter too, where
+it used to say "missing ')'".
+
+**The fuzz writes it.** `when` is one of the exact forms. Its condition is
+built from exact values only, so a last-ulp difference can never pick the
+other value. A new control, **SWAP** (mask bit 8), exchanges the two
+values of the first `select` in each kernel's store, which is the mistake
+WGSL's order invites.
+
+**Measured on the RTX 3050 under `rnxc`**, seed 20261028, 300 kernels:
+
+| run | result |
+|---|---|
+| plain | 45 of 300 hold a `when`; 300 agree (219 exactly); no split, no compile failure |
+| SWAP | 32 kernels swapped, 28 caught; the 4 escapes were read and none can change an answer: a guard that writes nothing, a `when` multiplied by tanh(0), and two whose values are one text |
+
+**The puzzle**: kp-13, *two prices*, in a new chapter, *the branch*. The
+first `t` units cost 1 and each unit past `t` costs 2. It has three right
+answers: the `when`, a form with no branch (`@a + max(@a - t, 0)`), and
+the boundary on the other side. It has four named mistakes: the two prices
+swapped, the base forgotten, a number as the condition, and a comparison
+used as 0 or 1. The task is in en, fr, ar and ha; the fr, ar and ha texts
+are provisional translations, like the others. The browser runner on the
+Intel iGPU's WebGPU gave the same seven verdicts as the desktop. **No
+person has worked it yet.**
+
+**Gates, under `rnxc` on the RTX 3050:** when 34, grammar 43, fuzz 23,
+sanitizer 25, shared 60, puzzles 95 (with seven chapters now), spec
+reference 34, verify 39, ops 37; Zig 24 (two GL0 tests). **One flake,
+named and not fixed**: on the first gate run, kp-06's ProveItself refused
+its right answer `01-the-blur.ring` once. Graded in one process, the same
+text was verified every time. Five later ProveItself runs were clean, and
+the failing run's output was not captured. ProveItself runs up to four
+graders side by side on one device, which is the likely cause:
+KP-PROVE-FLAKE, open.
+
+**What is left of GL0**, in order: integer and vector types (and with
+them, a type a comparison can have, which replaces the shape check with a
+typed one), a general bounded loop, atomics (they need integers), 3-D
+grids. One admission per commit.
+
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 
 **Where the plane stands.** The charge GK3 to KP3 is through. A kernel can
@@ -3793,7 +3859,7 @@ GK4 was.
 
 **GK2e, added by GK2d's table**: split-K for the narrow, deep products (130 x 1536 x 384 has 18 workgroups of 64 x 64), as two passes under the checker; killed if the two passes cost more than they save at MiniLM's shapes.
 
-**This desk's order**: GT0, GZ0, GC0, GK2d and GK2e (done 2026-10-28, see their STATUS sections above; GK2e measured and kept out of the backbone; GK2f's narrow tiles measured and refused), then once the author rules on the
-benchmark tool, then GL0. GT0 comes first because every later rung adds
+**This desk's order**: GT0, GZ0, GC0, GK2d and GK2e (done 2026-10-28, see their STATUS sections above; GK2e measured and kept out of the backbone; GK2f's narrow tiles measured and refused), then GL0, which started
+2026-10-28 (its first admission, `when`, is in GL0 STATUS above). GT0 comes first because every later rung adds
 grammar, and a fuzz that already exists covers each addition the day it
 lands.

@@ -15,6 +15,7 @@
 # where the expression may use declared vectors as @Name, declared scalars
 # by bare name, numbers, + - * / % ( ) and this function set:
 #   abs min max sqrt exp log sin cos tan tanh floor ceil pow clamp sign fract round
+# and the choice when(condition, value if true, value if false) (GL0).
 # The whole language, with the group lines (Shared, Stage, Reduce, Tiles,
 # Accumulate, Width), is in SOFTANZA_GPU_KERNELS.md beside this file.
 # Anything else REFUSES at ToWGSL() time with a message naming the offender.
@@ -119,7 +120,7 @@ class stzKernelMaker from stzObject
 	#   note       KP0 (2026-10-24): without this call the engine guards with i < n as it always did;
 	#              with none, the kernel writes every thread's element and a checker's NaN margin
 	#              catches the ones past the region; the comparisons < <= > >= == != and the words
-	#              and / or are admitted here and nowhere else
+	#              and / or are admitted here and in the condition of a when, nowhere else
 	#   see        ForEachElement, WithoutGuard
 	def Guard(pcW)
 		@cGuard = lower("" + pcW)

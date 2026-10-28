@@ -1,0 +1,18 @@
+knowledge "kp-13"
+
+facts
+    kp-13 | is-a | exercise
+    kp-13 | in-course | kernel-puzzles
+    kp-13 | in-chapter | the-branch
+    kp-13 | puzzle-number | 13
+    kp-13 | teaches | a-branch-is-a-choice-between-two-values
+    kp-13 | starts | red
+
+    kp-13 | elements | 4000
+    kp-13 | input-a | mod13
+    kp-13 | scalar-t | 6
+
+    kp-13 | has-mistake | 02-values-swapped
+    kp-13 | has-mistake | 03-the-base-forgotten
+    kp-13 | has-mistake | 04-a-bare-condition
+    kp-13 | has-mistake | 05-a-comparison-as-a-number
