@@ -3702,6 +3702,49 @@ passes, and all earlier scenes pass. Its scene 5 stops on
 `StzNeuralVariantsSync` as before. ops 37, foundry 27, verify 39, f16 23,
 lifecycle 62. Zig: ops 8, foundry 1, verify 25, gpu 4, fuzz 22.
 
+## GK2f STATUS — measured and REFUSED 2026-10-28: narrow tiles do not close MiniLM's gap; padding was not the cause
+
+**The hypothesis GK2e named**: 130 rows in 64-row tiles compute 192 rows, a
+third of them padding, so narrower tiles would close the gap to cuBLAS on
+MiniLM's shapes. Three variants from GK2d's strided generator tested it,
+each under the foundry's checker, all three verified at every shape:
+
+| variant | per thread | tile | rows computed for 130 |
+|---|---|---|---|
+| r2x8 (the one named) | 2 x 8 | 32 x 128 | 160 |
+| r2x4 | 2 x 4 | 32 x 64 | 160 |
+| r1x8 | 1 x 8 | 16 x 128 | 144 |
+
+**Measured on the RTX 3050 under `rnxc`, GPU clock, ms:**
+
+| shape | reg4s (incumbent) | r2x8 | r2x4 | r1x8 |
+|---|---|---|---|---|
+| 130 x 384 x 384 | 0.0475 | 0.0558 | 0.0597 | 0.0862 |
+| 130 x 384 x 1536 | 0.1515 | 0.1479 | 0.1631 | 0.2403 |
+| 130 x 1536 x 384 | 0.2076 | 0.2454 | 0.2349 | 0.3570 |
+| 256 x 256 x 256 | 0.0334 | 0.0394 | 0.0416 | 0.0589 |
+
+Alternated duels, four turns each: r2x8 beat reg4s at 130 x 384 x 1536 in
+4 of 4, by about 2% (0.148 against 0.151), and lost at 130 x 384 x 384 in
+4 of 4, by about 17%. r2x4 and r1x8 won nowhere.
+
+**Verdict**: the foundry crowns a variant at a margin of 1.3, and the
+narrow family's best result is 1.02 over the incumbent. **All three are
+removed**; the code is the GK2e commit's. Fewer padded rows also mean each
+staged column of B serves fewer rows, and on this GPU the lost reuse costs
+more than the padding saved. **What remains between reg4s and cuBLAS on
+MiniLM's shapes is the kernel's own rate** (reg4s tops out near 1 TFLOP/s;
+cuBLAS reaches 2.2 on the down-projection), not its tiling of 130 rows.
+
+**The same duels re-checked GK2d's reg8p** after one run showed plain reg8
+ahead at 1024 and 2048: reg8p won 3 of 4 at 1024, and 4 of 4 at 2048 and
+4096. The reversal was that run's noise, and reg8p stays.
+
+**Gates after the revert, under `rnxc`:** the matmul foundry guard has no
+failure before its scene 5 (six variants); ops 37. Every existing kernel
+text was hashed before and after the variants were added: 33 forms,
+byte-identical.
+
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 
 **Where the plane stands.** The charge GK3 to KP3 is through. A kernel can
@@ -3750,7 +3793,7 @@ GK4 was.
 
 **GK2e, added by GK2d's table**: split-K for the narrow, deep products (130 x 1536 x 384 has 18 workgroups of 64 x 64), as two passes under the checker; killed if the two passes cost more than they save at MiniLM's shapes.
 
-**This desk's order**: GT0, GZ0, GC0, GK2d and GK2e (done 2026-10-28, see their STATUS sections above; GK2e measured and kept out of the backbone), then once the author rules on the
+**This desk's order**: GT0, GZ0, GC0, GK2d and GK2e (done 2026-10-28, see their STATUS sections above; GK2e measured and kept out of the backbone; GK2f's narrow tiles measured and refused), then once the author rules on the
 benchmark tool, then GL0. GT0 comes first because every later rung adds
 grammar, and a fuzz that already exists covers each addition the day it
 lands.
