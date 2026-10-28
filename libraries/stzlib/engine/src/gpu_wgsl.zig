@@ -825,6 +825,10 @@ const MSG_ROWCOL = "'@{s}' needs a width line (a 2-D output in 16 x 16 tiles)";
 const MSG_ACC = "'@acc' is read in the accumulate line and the body, once an accumulate line exists";
 const MSG_SHNOIDX = "'@{s}' is a shared array: read one slot, as in '@{s}[@l]'";
 const MSG_RACE = "a stage cannot read the array it writes ('@{s}'): the threads would race; stage into a second array";
+// GT0 (2026-10-28): WGSL refuses '&&' and '||' side by side without
+// parentheses -- Chrome's compiler says so, naga let it through -- so the same
+// guard ran on the desktop and failed in a browser. Both readers refuse it.
+const MSG_MIX = "'and' and 'or' side by side need parentheses, as WGSL requires: write (A and B) or C";
 
 fn groupName(s: []const u8) ?[]const u8 {
     // the WGSL each group name reads as, f32 like every value of the grammar
@@ -868,6 +872,9 @@ const Rewriter = struct {
 
     fn rewrite(self: *Rewriter, rhs: []const u8, expr: *Cursor) i32 {
         var i: usize = 0;
+        var pdepth: usize = 0;
+        var seen_and: [MAX_DEPTH + 1]bool = @splat(false);
+        var seen_or: [MAX_DEPTH + 1]bool = @splat(false);
         while (i < rhs.len) {
             const ch = rhs[i];
             if (ch == '@') {
@@ -993,6 +1000,9 @@ const Rewriter = struct {
                 }
                 if (std.mem.eql(u8, word, "and") or std.mem.eql(u8, word, "or")) {
                     if (!self.compare) return fail("'{s}' belongs to the guard line, not to a body", .{word});
+                    const lvl = @min(pdepth, MAX_DEPTH);
+                    if (word[0] == 'a') seen_and[lvl] = true else seen_or[lvl] = true;
+                    if (seen_and[lvl] and seen_or[lvl]) return fail(MSG_MIX, .{});
                     expr.put(if (word[0] == 'a') " && " else " || ");
                     i = j;
                     continue;
@@ -1078,10 +1088,17 @@ const Rewriter = struct {
                     i = close + 1;
                     continue;
                 }
+                // GT0 (2026-10-28): names arrive folded to lower case; the
+                // whitelist holds WGSL's own spelling (inverseSqrt), so compare
+                // without case and EMIT the whitelist's spelling. Found by the
+                // random-kernel fuzz: the transpiler refused every inversesqrt
+                // the interpreter admitted.
                 var is_func = false;
+                var fname: []const u8 = word;
                 for (FUNC_WHITELIST) |f| {
-                    if (std.mem.eql(u8, f, word)) {
+                    if (std.ascii.eqlIgnoreCase(f, word)) {
                         is_func = true;
+                        fname = f;
                         break;
                     }
                 }
@@ -1097,12 +1114,19 @@ const Rewriter = struct {
                 while (k < rhs.len and (rhs[k] == ' ' or rhs[k] == '\t')) : (k += 1) {}
                 if (k >= rhs.len or rhs[k] != '(')
                     return fail("function '{s}' needs '('", .{word});
-                expr.put(word);
+                expr.put(fname);
                 i = j;
             } else if (std.ascii.isDigit(ch) or ch == '.') {
                 var j = i;
                 while (j < rhs.len and (std.ascii.isDigit(rhs[j]) or rhs[j] == '.')) : (j += 1) {}
                 expr.put(rhs[i..j]);
+                // GT0 (2026-10-28): every value of the grammar is f32, so every
+                // literal is written as one. Left untyped, a call made only of
+                // literals -- ceil(0.5), smoothstep(-1, 1, 0) -- is an ABSTRACT
+                // expression outside a constant one, and naga refuses the whole
+                // kernel ("Abstract types may only appear in constant
+                // expressions"). Found by the random-kernel fuzz on the RTX 3050.
+                expr.putc('f');
                 i = j;
             } else if (ch == '<' or ch == '>' or ch == '=' or ch == '!') {
                 if (!self.compare) return fail("'{c}' is a comparison; comparisons belong to the guard line", .{ch});
@@ -1114,6 +1138,13 @@ const Rewriter = struct {
             } else if (ch == '+' or ch == '-' or ch == '*' or ch == '/' or ch == '%' or
                 ch == '(' or ch == ')' or ch == ',' or ch == ' ' or ch == '\t')
             {
+                if (ch == '(') {
+                    pdepth += 1;
+                    if (pdepth <= MAX_DEPTH) {
+                        seen_and[pdepth] = false;
+                        seen_or[pdepth] = false;
+                    }
+                } else if (ch == ')' and pdepth > 0) pdepth -= 1;
                 expr.putc(ch);
                 i += 1;
             } else if (ch == '[' or ch == ']') {
@@ -1385,22 +1416,33 @@ const Parser = struct {
 
     // guard := andexpr ('or' andexpr)*   -- KP0, compare mode only
     fn orexpr(self: *Parser) i32 {
-        if (self.andexpr() < 0) return -1;
+        const first = self.andexpr();
+        if (first < 0) return -1;
+        var ands = first > 0;
+        var ors = false;
         while (self.word("or")) {
-            if (self.andexpr() < 0) return -1;
+            ors = true;
+            const r = self.andexpr();
+            if (r < 0) return -1;
+            if (r > 0) ands = true;
+            if (ands) return fail(MSG_MIX, .{});
             if (self.emit(.l_or, 0) < 0) return -1;
             self.p.flops += 1;
         }
+        if (ors and ands) return fail(MSG_MIX, .{});
         return 0;
     }
+    // returns the number of 'and's joined at this level, or -1
     fn andexpr(self: *Parser) i32 {
         if (self.cmp() < 0) return -1;
+        var n: i32 = 0;
         while (self.word("and")) {
             if (self.cmp() < 0) return -1;
             if (self.emit(.l_and, 0) < 0) return -1;
             self.p.flops += 1;
+            n += 1;
         }
-        return 0;
+        return n;
     }
     fn cmp(self: *Parser) i32 {
         if (self.expr() < 0) return -1;
@@ -1492,7 +1534,12 @@ const Parser = struct {
         if (c == 0) return fail("expression ends where a value was expected", .{});
         if (c == '(') {
             self.i += 1;
-            if (self.expr() < 0) return -1;
+            // GT0 (2026-10-28): in a guard a parenthesis may hold a condition,
+            // '@i < n and (A or B)', as the transpiler always let through to
+            // WGSL; the interpreter read only arithmetic there and refused it
+            if (self.compare) {
+                if (self.orexpr() < 0) return -1;
+            } else if (self.expr() < 0) return -1;
             if (self.peek() != ')') return fail("missing ')'", .{});
             self.i += 1;
             return 0;
@@ -2136,7 +2183,7 @@ test "GK6: the shared parser leaves the transpiler's WGSL byte-identical (the ed
         \\@compute @workgroup_size(256)
         \\fn main(@builtin(global_invocation_id) gid : vec3<u32>) {
         \\  let i = gid.x + tile.xoff * 256u;
-        \\  if (i < p.n) { v_y[i] = clamp(sqrt(abs(v_x[i])) * p.s_k - p.s_b, 0.0, 10.5) % 3 + round(v_x[i] / 2); }
+        \\  if (i < p.n) { v_y[i] = clamp(sqrt(abs(v_x[i])) * p.s_k - p.s_b, 0.0f, 10.5f) % 3f + round(v_x[i] / 2f); }
         \\}
         \\
     ;
@@ -2192,7 +2239,7 @@ test "KP0: the four admissions, in the WGSL and in the interpreter, and p is alw
     n = stz_gpu_wgsl_elementwise(s2.ptr, @floatFromInt(s2.len), &buf, buf.len);
     try std.testing.expect(n > 0);
     try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "_ = p.n;") != null);
-    try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "if (f32(i) < f32(p.n) - 2) {") != null);
+    try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "if (f32(i) < f32(p.n) - 2f) {") != null);
     try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_compile(s2.ptr, @floatFromInt(s2.len)));
     try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_eval(&ins, 1, &lens, &none, 0, 8, &out));
     try std.testing.expectEqual(@as(f32, 12), out[5]);
@@ -2210,7 +2257,7 @@ test "KP0: the four admissions, in the WGSL and in the interpreter, and p is alw
     n = stz_gpu_wgsl_elementwise(s3.ptr, @floatFromInt(s3.len), &buf, buf.len);
     try std.testing.expect(n > 0);
     try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "fn rd_a(k : i32) -> f32 {") != null);
-    try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "rd_a(i32(f32(i) - 1)) + v_a[i] + rd_a(i32(f32(i) + 1))") != null);
+    try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "rd_a(i32(f32(i) - 1f)) + v_a[i] + rd_a(i32(f32(i) + 1f))") != null);
     try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_compile(s3.ptr, @floatFromInt(s3.len)));
     try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_eval(&ins, 1, &lens, &none, 0, 8, &out));
     try std.testing.expectEqual(@as(f32, 0 + 1 + 2), out[0]);
@@ -2222,7 +2269,7 @@ test "KP0: the four admissions, in the WGSL and in the interpreter, and p is alw
     n = stz_gpu_wgsl_elementwise(s4.ptr, @floatFromInt(s4.len), &buf, buf.len);
     try std.testing.expect(n > 0);
     try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "var acc0 : f32 = 0.0;") != null);
-    try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "for (var k_k : i32 = i32(0); k_k < i32(4); k_k = k_k + 1) { acc0 = acc0 + (rd_a(i32(f32(i) * 4 + f32(k_k)))); }") != null);
+    try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "for (var k_k : i32 = i32(0f); k_k < i32(4f); k_k = k_k + 1) { acc0 = acc0 + (rd_a(i32(f32(i) * 4f + f32(k_k)))); }") != null);
     try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "v_c[i] = acc0;") != null);
     try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_compile(s4.ptr, @floatFromInt(s4.len)));
     try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_eval(&ins, 1, &lens, &none, 0, 2, &out));
@@ -2241,7 +2288,7 @@ test "KP0: the four admissions, in the WGSL and in the interpreter, and p is alw
     // the default form is unchanged: no `_ = p.n;`, the one-line if
     const s0 = "in a\nout c\nbody { @c = @a * 2 }";
     n = stz_gpu_wgsl_elementwise(s0.ptr, @floatFromInt(s0.len), &buf, buf.len);
-    try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "  if (i < p.n) { v_c[i] = v_a[i] * 2; }\n}\n") != null);
+    try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "  if (i < p.n) { v_c[i] = v_a[i] * 2f; }\n}\n") != null);
     try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "_ = p.n;") == null);
 }
 
@@ -2508,9 +2555,11 @@ fn compileExpr(
                     continue;
                 }
                 var is_func = false;
+                var fname: []const u8 = nm.slice();
                 for (FUNC_WHITELIST) |f| {
-                    if (std.mem.eql(u8, f, nm.slice())) {
+                    if (std.ascii.eqlIgnoreCase(f, nm.slice())) {
                         is_func = true;
+                        fname = f;
                         break;
                     }
                 }
@@ -2523,7 +2572,7 @@ fn compileExpr(
                     _ = fail("function '{s}' needs '('", .{nm.slice()});
                     return false;
                 }
-                expr.put(nm.slice());
+                expr.put(fname);
             }
             i = j;
             if (swizzlable and i < rhs.len and rhs[i] == '.') {
@@ -2824,7 +2873,12 @@ test "fragment transpile: builtins, swizzles, and refusals" {
     const n = stz_gpu_wgsl_fragment(spec.ptr, @floatFromInt(spec.len), &buf, buf.len);
     try std.testing.expect(n > 0);
     const wgsl = buf[0..@intCast(n)];
-    try std.testing.expect(std.mem.indexOf(u8, wgsl, "return m.c_base * (1.0 + m.s_glow * f_normal.y);") != null);
+    // since C4 (f96f03093, 2026-08-12) a colour is shaded in LINEAR light and
+    // encoded to sRGB once, at the return; this line still expected the old
+    // sRGB-space form and had failed since that commit (found by GT0's run of
+    // this module's tests, 2026-10-28)
+    try std.testing.expect(std.mem.indexOf(u8, wgsl, "let stz_out = lc_base * (1.0 + m.s_glow * f_normal.y);") != null);
+    try std.testing.expect(std.mem.indexOf(u8, wgsl, "stzToSrgb3(stz_out.rgb)") != null);
     // it must be a COMPLETE shader, not a loose fragment
     try std.testing.expect(std.mem.indexOf(u8, wgsl, "@vertex") != null);
     try std.testing.expect(std.mem.indexOf(u8, wgsl, "@fragment") != null);
@@ -2842,6 +2896,70 @@ test "fragment transpile: builtins, swizzles, and refusals" {
     };
     for (cases) |c| {
         try std.testing.expectEqual(@as(i32, -1), stz_gpu_wgsl_fragment(c.ptr, @floatFromInt(c.len), &buf, buf.len));
+    }
+}
+
+test "GT0: a camel-case WGSL function is admitted in any case and emitted in WGSL's spelling" {
+    var buf: [4096]u8 = undefined;
+    const spec = "in a\nout c\nbody { @c = inversesqrt(abs(@a) + 0.5) + InverseSqrt(2) }";
+    const n = stz_gpu_wgsl_elementwise(spec.ptr, @floatFromInt(spec.len), &buf, buf.len);
+    try std.testing.expect(n > 0);
+    const w = buf[0..@intCast(n)];
+    try std.testing.expect(std.mem.indexOf(u8, w, "inverseSqrt(abs(v_a[i]) + 0.5f) + inverseSqrt(2f") != null);
+    try std.testing.expect(std.mem.indexOf(u8, w, "inversesqrt") == null);
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_compile(spec.ptr, @floatFromInt(spec.len)));
+    // the material language shares the whitelist
+    const frag = "color base\nbody { @out = base * inversesqrt(2.0) }";
+    const fnn = stz_gpu_wgsl_fragment(frag.ptr, @floatFromInt(frag.len), &buf, buf.len);
+    try std.testing.expect(fnn > 0);
+    try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(fnn)], "inverseSqrt(2.0)") != null);
+}
+
+test "GT0: a guard's parenthesis may hold a condition, in both readers, with one meaning" {
+    var buf: [4096]u8 = undefined;
+    const spec = "in a\nout c\nguard { @i < n and (@a > 1 or @i < 2) }\nbody { @c = @a * 2 }";
+    try std.testing.expect(stz_gpu_wgsl_elementwise(spec.ptr, @floatFromInt(spec.len), &buf, buf.len) > 0);
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_compile(spec.ptr, @floatFromInt(spec.len)));
+    const a = [_]f32{ 0, 0, 0, 3, 0.5 };
+    const ins = [_][*]const f32{&a};
+    const lens = [_]f64{5};
+    const sc = [_]f32{0};
+    var out: [5]f32 = undefined;
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_eval(&ins, 1, &lens, &sc, 0, 5, &out));
+    // elements 0 and 1 by the index, 3 by the value; 2 and 4 refused (NaN: unwritten)
+    try std.testing.expectEqual(@as(f32, 0), out[0]);
+    try std.testing.expectEqual(@as(f32, 0), out[1]);
+    try std.testing.expect(out[2] != out[2]);
+    try std.testing.expectEqual(@as(f32, 6), out[3]);
+    try std.testing.expect(out[4] != out[4]);
+    // a body still reads a parenthesis as arithmetic only
+    const body = "in a\nout c\nbody { @c = (@a > 1) }";
+    try std.testing.expectEqual(@as(i32, -1), stz_gpu_spec_compile(body.ptr, @floatFromInt(body.len)));
+}
+
+test "GT0: 'and' beside 'or' without parentheses is refused by both readers, as WGSL refuses it" {
+    var buf: [4096]u8 = undefined;
+    const mixed = [_][]const u8{
+        "in a\nout c\nguard { @i < n and @a > 0 or @a < -1 }\nbody { @c = @a }",
+        "in a\nout c\nguard { @a < -1 or @i < n and @a > 0 }\nbody { @c = @a }",
+        "in a\nout c\nguard { @i < n and (@a > 0 or @a < -1 and @a > -5) }\nbody { @c = @a }",
+    };
+    for (mixed) |m| {
+        try std.testing.expectEqual(@as(i32, -1), stz_gpu_wgsl_elementwise(m.ptr, @floatFromInt(m.len), &buf, buf.len));
+        try std.testing.expectEqual(@as(i32, -1), stz_gpu_spec_compile(m.ptr, @floatFromInt(m.len)));
+        var e: [256]u8 = undefined;
+        const el = stz_gpu_wgsl_error(&e, e.len);
+        try std.testing.expect(std.mem.indexOf(u8, e[0..@intCast(el)], "need parentheses") != null);
+    }
+    const ok = [_][]const u8{
+        "in a\nout c\nguard { (@i < n and @a > 0) or (@i < n and @a < -1) }\nbody { @c = @a }",
+        "in a\nout c\nguard { @i < n and @a > 0 and @a < 5 }\nbody { @c = @a }",
+        "in a\nout c\nguard { @i < 2 or @i > 5 or @a > 1 }\nbody { @c = @a }",
+        "in a\nout c\nguard { @i < n and (@a > 0 or @a < -1) }\nbody { @c = max(@a, 1) }",
+    };
+    for (ok) |o| {
+        try std.testing.expect(stz_gpu_wgsl_elementwise(o.ptr, @floatFromInt(o.len), &buf, buf.len) > 0);
+        try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_compile(o.ptr, @floatFromInt(o.len)));
     }
 }
 
@@ -2875,7 +2993,7 @@ test "KP3: a stage and a read across the group -- each group reversed, in the WG
     try std.testing.expect(std.mem.indexOf(u8, wgsl, "if (ix >= 0 && ix < 256) { w_t[ix] = rd_a(i32(i)); }") != null);
     try std.testing.expect(std.mem.indexOf(u8, wgsl, "workgroupBarrier();") != null);
     try std.testing.expect(std.mem.indexOf(u8, wgsl, "for (var z_ : u32 = l; z_ < 256u; z_ = z_ + 256u) { w_t[z_] = 0.0; }") != null);
-    try std.testing.expect(std.mem.indexOf(u8, wgsl, "v_c[i] = sh_t(i32(255 - f32(l)));") != null);
+    try std.testing.expect(std.mem.indexOf(u8, wgsl, "v_c[i] = sh_t(i32(255f - f32(l)));") != null);
     try std.testing.expect(std.mem.indexOf(u8, wgsl, "_ = p.n;") != null);
     try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_compile(spec.ptr, @floatFromInt(spec.len)));
     var a: [512]f32 = undefined;
@@ -2931,7 +3049,7 @@ test "KP3: the tiled matmul through shared tiles equals the plain triple loop" {
     }
     try std.testing.expect(wl > 0);
     const wgsl = buf[0..@intCast(wl)];
-    try std.testing.expect(std.mem.indexOf(u8, wgsl, "for (var t_t : i32 = 0; t_t < i32(p.s_k / 16); t_t = t_t + 1) {") != null);
+    try std.testing.expect(std.mem.indexOf(u8, wgsl, "for (var t_t : i32 = 0; t_t < i32(p.s_k / 16f); t_t = t_t + 1) {") != null);
     try std.testing.expect(std.mem.indexOf(u8, wgsl, "let i = row * u32(p.s_w) + col;") != null);
     try std.testing.expect(std.mem.indexOf(u8, wgsl, "acc = acc + acc0;") != null);
     try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_compile(spec.ptr, @floatFromInt(spec.len)));
@@ -3002,7 +3120,7 @@ test "GK4: tanh means in the interpreter what it means in WGSL, and the transpil
     var buf: [2048]u8 = undefined;
     const n = stz_gpu_wgsl_elementwise(gelu.ptr, @floatFromInt(gelu.len), &buf, buf.len);
     try std.testing.expect(n > 0);
-    try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "tanh(0.7978845608 * v_x[i]") != null);
+    try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(n)], "tanh(0.7978845608f * v_x[i]") != null);
     try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_compile(gelu.ptr, @floatFromInt(gelu.len)));
     const x = [_]f32{ -3, -0.5, 0, 0.5, 3 };
     const ins = [_][*]const f32{&x};

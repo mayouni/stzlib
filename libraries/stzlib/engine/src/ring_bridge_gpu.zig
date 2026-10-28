@@ -19,6 +19,7 @@ const surf = @import("gpu_surface.zig");
 const gm = @import("gpu_math.zig");
 const verify = @import("gpu_verify.zig");
 const foundry = @import("gpu_foundry.zig");
+const fuzz = @import("gpu_fuzz.zig");
 const gfft = @import("gpu_fft.zig");
 const R = @import("ring_api.zig");
 
@@ -659,6 +660,37 @@ fn ring_FoundryMatmulF16(p: *anyopaque) callconv(.c) void {
 }
 fn ring_FoundryF16Result(p: *anyopaque) callconv(.c) void {
     rn(p, foundry.stz_gpu_foundry_f16_result(@intFromFloat(gn(p, 1))));
+}
+
+// GT0. FuzzRun(seed, count, mask, rel) -> status: generate count kernels of the
+// kinds in mask from seed, run each on the device and through the interpreter;
+// FuzzResult(i) reads a slot; FuzzFirst() is the first defective case, named
+// and written out; FuzzCase(seed, index, mask) regenerates one description.
+fn ring_FuzzRun(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(fuzz.stz_gpu_fuzz_run(gn(p, 1), gn(p, 2), gn(p, 3), gn(p, 4))));
+}
+fn ring_FuzzResult(p: *anyopaque) callconv(.c) void {
+    rn(p, fuzz.stz_gpu_fuzz_result(@intFromFloat(gn(p, 1))));
+}
+fn ring_FuzzFirst(p: *anyopaque) callconv(.c) void {
+    var buf: [4352]u8 = undefined;
+    const n = fuzz.stz_gpu_fuzz_first(&buf, buf.len);
+    R.ring_vm_api_retstring2(p, &buf, @intCast(n));
+}
+fn ring_FuzzLog(p: *anyopaque) callconv(.c) void {
+    const buf = std.heap.c_allocator.alloc(u8, 32768) catch return;
+    defer std.heap.c_allocator.free(buf);
+    const n = fuzz.stz_gpu_fuzz_log(buf.ptr, @floatFromInt(buf.len));
+    R.ring_vm_api_retstring2(p, buf.ptr, @intCast(n));
+}
+fn ring_FuzzCase(p: *anyopaque) callconv(.c) void {
+    var buf: [4096]u8 = undefined;
+    const n = fuzz.stz_gpu_fuzz_case(gn(p, 1), gn(p, 2), gn(p, 3), &buf, buf.len);
+    if (n < 0) {
+        R.ring_vm_api_retstring2(p, &buf, 0);
+        return;
+    }
+    R.ring_vm_api_retstring2(p, &buf, @intCast(n));
 }
 
 // GK6. VerifyError() -> the checker's own refusal text (spec refused; shape)
@@ -2242,6 +2274,11 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuverifyerror", .func = &ring_VerifyError },
     .{ .name = "stzenginegpuverifyroofline", .func = &ring_VerifyRoofline },
     .{ .name = "stzenginegpufeature", .func = &ring_Feature },
+    .{ .name = "stzenginegpufuzzrun", .func = &ring_FuzzRun },
+    .{ .name = "stzenginegpufuzzresult", .func = &ring_FuzzResult },
+    .{ .name = "stzenginegpufuzzfirst", .func = &ring_FuzzFirst },
+    .{ .name = "stzenginegpufuzzcase", .func = &ring_FuzzCase },
+    .{ .name = "stzenginegpufuzzlog", .func = &ring_FuzzLog },
     .{ .name = "stzenginegpufoundrymatmulf16", .func = &ring_FoundryMatmulF16 },
     .{ .name = "stzenginegpufoundryf16result", .func = &ring_FoundryF16Result },
     .{ .name = "stzenginegpuspeceval", .func = &ring_SpecEval },

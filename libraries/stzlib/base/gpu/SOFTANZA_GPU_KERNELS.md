@@ -90,11 +90,14 @@ default guard keeps every thread inside the output.
 - **a bounded sum**: `sum(k, from, to, expression)` adds the expression
   for `k` from `from` up to, but not including, `to`; a sum cannot sit
   inside another sum;
-- **arithmetic**: `+ - * / %`, parentheses, numbers;
+- **arithmetic**: `+ - * / %`, parentheses, numbers; every number is an
+  f32 in the kernel (`3 / 4` is 0.75, written `3f / 4f`);
 - **functions**: `abs min max sqrt exp log sin cos tan tanh floor ceil
   pow clamp sign fract round mix smoothstep step atan2 asin acos
   inversesqrt length distance`;
-- **in the guard only**: `< <= > >= == !=`, `and`, `or`.
+- **in the guard only**: `< <= > >= == !=`, `and`, `or`, and parentheses
+  around a condition. `and` beside `or` needs parentheses, as WGSL
+  requires: `(A and B) or C`.
 
 ### 3.2 The group's own memory
 
@@ -153,6 +156,7 @@ because they share one parser.
 | `@row` or `@col` without a `width` line | they have no meaning in a 1-D kernel |
 | a shared array read without an index | a slot is the unit, as in `@t[@l]` |
 | a reserved name used as a user name | `i n l g lx ly row col acc` belong to the language |
+| `and` beside `or` without parentheses | WGSL refuses it in a browser; write `(A and B) or C` |
 | too many lines, arrays or floats | the limits above |
 
 The emitted kernel **zeroes its own shared arrays** before the first
@@ -316,6 +320,12 @@ requested; neither adapter offers them.
 
 ## 10. What it does not do
 
+*Since 2026-10-28 the grammar is also checked by kernels nobody wrote: the
+random-kernel fuzz (`gpu_fuzz.zig`, section GT0 STATUS of the plan). Its
+first run found four defects every hand-written guard had passed, among
+them a silent wrong answer: an untyped `3 / 4` was integer division on the
+device.*
+
 - **Reach CUDA's peak.** WebGPU cannot reach tensor cores, asynchronous
   copies or more than one GPU, and warp-level operations only where an
   adapter offers subgroups. The tuned product is good for this engine
@@ -342,4 +352,5 @@ Run with Ring++ from `base/test/gpu/`: `rnxc <guard>.ring`.
 | `gpu_puzzle_narrated.ring` | the twelve puzzles, both runners, the chapters |
 | `gpu_f16_narrated.ring` | half-precision weights and the forward's dispatch count |
 | `gpu_calibration_shaped_narrated.ring` | routing by shape, interpolation between measured classes |
+| `gpu_fuzz_narrated.ring` | generated kernels of six kinds through both readers and the device; the control that each wrong operator is caught |
 | `edge_proof/edge_proof.html` | the browser and the desktop agree, case by case |

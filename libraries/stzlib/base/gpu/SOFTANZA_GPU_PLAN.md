@@ -3408,6 +3408,67 @@ GPU at 2.40 and 1.94, marginal at 1.15 once, which the guard allows);
 `gpu_f16` 23. A Zig test holds the route to the interpolation, the losing
 column, and both sides of the flat line beyond the ladder.
 
+## GT0 STATUS — shipped 2026-10-28: the random-kernel fuzz, and the four defects its first run found
+
+**What it is.** `engine/src/gpu_fuzz.zig` generates descriptions from the
+grammar in six kinds (a map; a map under a guard; neighbour reads over
+longer inputs; a bounded sum; shared arrays with stages and reductions; the
+tiles loop, 2-D and 1-D), runs each through BOTH readers' admission, on the
+device, and through the interpreter, and counts. Case `index` of run `seed`
+is the same description on every machine (`StzEngineGpuFuzzCase`), so a
+defect is reproduced from two numbers. Guard: `gpu_fuzz_narrated.ring`, 23
+assertions.
+
+**The exactness discipline**, which is what makes a disagreement mean a
+defect: inputs, scalars and literals are eighths of small magnitude, so
+`+ - *`, floor, round, fract, sign, step, min, max, clamp, abs, mix with a
+dyadic weight and `%` or `/` by a power of two round NOWHERE; a description
+built only of those must agree bit for bit. An inexact operation (sin, exp,
+log, pow, a general division ...) takes exact arguments and never feeds a
+discontinuous function, a guard or an index. Stage indices are permutations
+of the thread index, so no two threads write one slot.
+
+**The four defects of the first run** (all in `gpu_wgsl.zig`, every other
+guard green before it):
+
+| defect | how it showed | fixed by |
+|---|---|---|
+| `inverseSqrt` | names are folded to lower case and the whitelist held WGSL's camel case: the transpiler refused every `inversesqrt` the interpreter admitted, and a match would have emitted a name WGSL lacks | the lookup ignores case and emits the whitelist's spelling (the material language shares the fix) |
+| a guard's parenthesis | `@i < n and (A or B)` reached WGSL; the interpreter refused it, "missing ')'" | in a guard a parenthesis holds a condition |
+| untyped literals | a call made only of literals, `ceil(0.5)`, is abstract outside a constant expression and the device refused the kernel; and `3 / 4` was **integer division on the device, 0 where the grammar means 0.75**: a silent wrong answer, -0.475 where the interpreter said -0.042 | every literal is written `f32`: `0.5f`, `4f` |
+| `and` beside `or` | naga accepts `a && b \|\| c`; Chrome 152 refuses it, "mixing '&&' and '\|\|' requires parenthesis": one guard ran on the desktop and failed in a browser | both readers refuse it, naming the parentheses, as WGSL does |
+
+And one stale test found on the way: `fragment transpile` had expected the
+sRGB-space form since C4 (`f96f03093`, 2026-08-12) moved shading to linear
+light. The code was right; the assertion now reads the linear form.
+
+**Measured on the RTX 3050, mains power, under `rnxc`:**
+
+| measure | value |
+|---|---|
+| seeds 1 to 7 and 11, 120 + 1,800 + 300 kernels | every one admitted by both readers, compiled, and agreeing after the fixes |
+| the guard's seed, 300 kernels | 222 exact (bit for bit), 78 inexact; 281,557 elements compared, 15,357 left unwritten by a guard and checked so |
+| the inexact band | 1e-5 of the value; the worst difference 0.10 of it |
+| the control: one ' + ' made ' - ' in each kernel's store | seed 11: 144 of 158 caught; the guard's seed: 156 of 171. Each of the 14 escapes on seed 11 was read: a guard that writes nothing, a single element whose flipped term is 0, or a term that is zero everywhere (the fractional part of an integer). None could change an answer |
+| time | the guard 3.2 s when the driver has seen its kernels, 57 s the first time on a machine (300 kernels compiled once into the driver's cache) |
+
+**The other gates after the literal change**, under `rnxc`: grammar 43
+(one pinned line updated to the typed form), shared 58, spec reference 34,
+verify 36, declarative 20, puzzle 95, material maker 35 (the Ring++
+worktree's copy); Zig 18 of 18; the edge proof 26 of 26 in Chrome on the
+Intel adapter, the fixture regenerated.
+
+**Not run, and why:** `gg5_material_language.ring` and main's copy of
+`material_maker_narrated.ring` stop at load under `rnxc` (a top-level name
+read bare, Rule A); they are the graphics desk's. The material language's
+literals are still copied untyped, so `ceil(0.5)` in a material is the same
+abstract expression; the fuzz does not generate materials, so this is
+named for the graphics desk, not measured.
+
+**What the fuzz does not cover yet:** the material language; a general
+division feeding a discontinuous function (excluded by design); a race (the
+generator never writes one; GZ0's sanitizer is the instrument for it).
+
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 
 **Where the plane stands.** The charge GK3 to KP3 is through. A kernel can
@@ -3452,7 +3513,7 @@ GK4 was.
 - **NEURAL-GUARD-RPP**: the backbone guard reads `nPass` bare -> the neural desk, routed 2026-10-28.
 - **DOC-GATE-RUN**: the documentation gate loads main's library and cannot run under `rnxc`. The KP and GK public methods were read against its rules by hand on 2026-10-28: three briefs over 140 characters, one stray block and one undocumented parameter were fixed. A machine run is owed when GT1 lands.
 
-**This desk's order**: GT0, then GZ0, then GC0 once the author rules on the
+**This desk's order**: GT0 (SHIPPED 2026-10-28, see GT0 STATUS above), then GZ0, then GC0 once the author rules on the
 benchmark tool, then GL0. GT0 comes first because every later rung adds
 grammar, and a fuzz that already exists covers each addition the day it
 lands.
