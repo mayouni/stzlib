@@ -3071,6 +3071,243 @@ fn findTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.ArrayList
     }
 }
 
+// A table ruled only between its rows: a ladder of four or more horizontal rules of one width, each gap a row
+// (so a cell of two lines, or a cell centred across two columns, stays in its row). The columns are read off the
+// rows that hold the most cells; a cell that crosses a column boundary spans the columns it covers and repeats
+// its text in each. A row above the first rule whose cells fall in two columns or more is the header.
+fn findLadderTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.ArrayList(TableOut)) !void {
+    var segs: std.ArrayList(Rule) = .empty;
+    for (rules) |r| {
+        if (r.y1 - r.y0 <= 2.5 and r.x1 - r.x0 > 2.5) try segs.append(a, r);
+    }
+    if (segs.items.len < 4) return;
+    const BySeg = struct {
+        fn lt(_: void, l: Rule, r: Rule) bool {
+            if (@abs(l.y0 - r.y0) > 1) return l.y0 < r.y0;
+            return l.x0 < r.x0;
+        }
+    };
+    std.mem.sort(Rule, segs.items, {}, BySeg.lt);
+    // (a row's rule drawn as one segment per cell, end to end, is one rule)
+    var hs: std.ArrayList(Rule) = .empty;
+    for (segs.items) |r| {
+        if (hs.items.len > 0) {
+            const l = &hs.items[hs.items.len - 1];
+            if (@abs(l.y0 - r.y0) <= 1 and r.x0 <= l.x1 + 2 and r.x0 >= l.x0) {
+                l.x1 = @max(l.x1, r.x1);
+                l.y1 = @max(l.y1, r.y1);
+                continue;
+            }
+        }
+        try hs.append(a, r);
+    }
+    {
+        var k: usize = 0;
+        while (k < hs.items.len) {
+            if (hs.items[k].x1 - hs.items[k].x0 < 60) _ = hs.orderedRemove(k) else k += 1;
+        }
+    }
+    if (hs.items.len < 4) return;
+    const used = try a.alloc(bool, hs.items.len);
+    @memset(used, false);
+    for (hs.items, 0..) |r0, h0| {
+        if (used[h0]) continue;
+        var ys: std.ArrayList(f32) = .empty;
+        var yi: std.ArrayList(usize) = .empty;
+        try ys.append(a, (r0.y0 + r0.y1) / 2);
+        try yi.append(a, h0);
+        used[h0] = true;
+        for (hs.items[h0 + 1 ..], h0 + 1..) |r, j| {
+            if (used[j]) continue;
+            if (@abs(r.x0 - r0.x0) > 3 or @abs(r.x1 - r0.x1) > 3) continue;
+            const y = (r.y0 + r.y1) / 2;
+            const dy = y - ys.items[ys.items.len - 1];
+            if (dy < 3) { // (a double rule)
+                used[j] = true;
+                continue;
+            }
+            if (dy > 60) break;
+            try ys.append(a, y);
+            try yi.append(a, j);
+            used[j] = true;
+        }
+        if (ys.items.len < 4) continue;
+        const lx0 = r0.x0;
+        const lx1 = r0.x1;
+        var msz: f32 = 0;
+        // a heading's underline is not a row rule, nor is the next table's top rule: a band holding one cell, all
+        // bold or set larger than the cells (or set further apart than the rows), is a heading -- the ladder is the
+        // first run of three bands or more without one, and the rules after it go back for the next table
+        {
+            const nb0 = ys.items.len - 1;
+            const gaps = try a.alloc(f32, nb0);
+            for (gaps, 0..) |*g, k| g.* = ys.items[k + 1] - ys.items[k];
+            std.mem.sort(f32, gaps, {}, std.sort.asc(f32));
+            const med = gaps[gaps.len / 2];
+            var sizes: std.ArrayList(f32) = .empty;
+            for (frags) |g| {
+                const cx = (g.x0 + g.x1) / 2;
+                const cy = (g.y0 + g.y1) / 2;
+                if (g.text.len > 0 and cx >= lx0 and cx <= lx1 and cy > ys.items[0] and cy < ys.items[nb0]) try sizes.append(a, g.size);
+            }
+            if (sizes.items.len == 0) continue;
+            std.mem.sort(f32, sizes.items, {}, std.sort.asc(f32));
+            msz = sizes.items[sizes.items.len / 2];
+            const head = try a.alloc(bool, nb0);
+            for (0..nb0) |bk| {
+                var n: usize = 0;
+                var spans: usize = 0;
+                var sx0: f32 = 1e9;
+                var sx1: f32 = -1e9;
+                var all_bold = true;
+                var big = true;
+                for (frags) |g| {
+                    const cx = (g.x0 + g.x1) / 2;
+                    const cy = (g.y0 + g.y1) / 2;
+                    if (g.text.len == 0 or cx < lx0 or cx > lx1 or cy < ys.items[bk] or cy > ys.items[bk + 1]) continue;
+                    n += 1;
+                    if (g.x0 > sx1 + 0.3 * g.size or g.x1 < sx0 - 0.3 * g.size) spans += 1;
+                    sx0 = @min(sx0, g.x0);
+                    sx1 = @max(sx1, g.x1);
+                    if (!g.bold) all_bold = false;
+                    if (g.size < 1.1 * msz) big = false;
+                }
+                head[bk] = n > 0 and spans <= 1 and (all_bold or big or ys.items[bk + 1] - ys.items[bk] > 1.3 * med);
+            }
+            var rs: usize = 0;
+            var re: usize = 0;
+            var found = false;
+            var bk: usize = 0;
+            while (bk < nb0) {
+                if (head[bk]) {
+                    bk += 1;
+                    continue;
+                }
+                var be = bk;
+                while (be < nb0 and !head[be]) be += 1;
+                if (be - bk >= 3) {
+                    rs = bk;
+                    re = be;
+                    found = true;
+                    break;
+                }
+                bk = be;
+            }
+            if (!found) continue;
+            // (the rules below the run are free for a ladder of their own)
+            for (yi.items[re + 1 ..]) |ri| used[ri] = false;
+            ys.items = ys.items[rs .. re + 1];
+        }
+        const nb = ys.items.len - 1;
+        // the fragments of each row band; none may belong to a table already
+        var bands = try a.alloc(std.ArrayList(u32), nb + 1); // band 0: a header above the first rule
+        for (bands) |*b| b.* = .empty;
+        var clash = false;
+        for (frags, 0..) |f, k| {
+            if (f.text.len == 0) continue;
+            const cx = (f.x0 + f.x1) / 2;
+            const cy = (f.y0 + f.y1) / 2;
+            if (cx < lx0 or cx > lx1) continue;
+            if (cy > ys.items[0] and cy < ys.items[nb]) {
+                if (f.table >= 0) clash = true;
+                var bi: usize = 0;
+                while (bi + 1 < nb and cy > ys.items[bi + 1]) bi += 1;
+                try bands[bi + 1].append(a, @intCast(k));
+            } else if (cy < ys.items[0] and f.y1 <= ys.items[0] + 1 and f.base > ys.items[0] - 2.2 * f.size and f.table < 0 and f.size <= 1.1 * msz) {
+                try bands[0].append(a, @intCast(k));
+            }
+        }
+        if (clash) continue;
+        // the cells of a band: fragments that overlap across x merge into one cell
+        const Span = struct { x0: f32, x1: f32 };
+        var spans = try a.alloc([]Span, nb + 1);
+        var maxc: usize = 0;
+        var nonempty: usize = 0;
+        for (bands, 0..) |b, bi| {
+            var sp: std.ArrayList(Span) = .empty;
+            const ByX = struct {
+                f: []Frag,
+                fn lt(ctx: @This(), l: u32, r: u32) bool {
+                    return ctx.f[l].x0 < ctx.f[r].x0;
+                }
+            };
+            std.mem.sort(u32, b.items, ByX{ .f = frags }, ByX.lt);
+            for (b.items) |k| {
+                const f = frags[k];
+                if (sp.items.len > 0 and f.x0 <= sp.items[sp.items.len - 1].x1 + 0.3 * f.size) {
+                    sp.items[sp.items.len - 1].x1 = @max(sp.items[sp.items.len - 1].x1, f.x1);
+                } else try sp.append(a, .{ .x0 = f.x0, .x1 = f.x1 });
+            }
+            spans[bi] = sp.items;
+            if (bi > 0) {
+                if (sp.items.len > 0) nonempty += 1;
+                maxc = @max(maxc, sp.items.len);
+            }
+        }
+        if (maxc < 2 or nonempty * 4 < nb * 3) continue;
+        // the columns: from the body rows holding the most cells
+        var full: usize = 0;
+        var cols = try a.alloc(Span, maxc);
+        for (cols) |*c| c.* = .{ .x0 = 1e9, .x1 = -1e9 };
+        for (spans[1..]) |sp| {
+            if (sp.len != maxc) continue;
+            full += 1;
+            for (sp, 0..) |c, ci| {
+                cols[ci].x0 = @min(cols[ci].x0, c.x0);
+                cols[ci].x1 = @max(cols[ci].x1, c.x1);
+            }
+        }
+        if (full < 2 or full * 5 < nonempty * 2) continue;
+        var ok = true;
+        for (cols[1..], 1..) |c, ci| {
+            if (c.x0 <= cols[ci - 1].x1) ok = false;
+        }
+        if (!ok) continue;
+        var bounds = try a.alloc(f32, maxc + 1);
+        bounds[0] = lx0;
+        bounds[maxc] = lx1;
+        for (1..maxc) |ci| bounds[ci] = (cols[ci - 1].x1 + cols[ci].x0) / 2;
+        // a header above the first rule only when its cells fall in two columns or more
+        const take_head = spans[0].len >= 2 and spans[0].len <= maxc;
+        var rows: std.ArrayList([][]const u8) = .empty;
+        var size: f32 = 0;
+        var ty0 = ys.items[0];
+        const tix: i32 = @intCast(tables.items.len);
+        for (bands, 0..) |b, bi| {
+            if (b.items.len == 0 or (bi == 0 and !take_head)) continue;
+            var cells = try a.alloc(std.ArrayList(u8), maxc);
+            for (cells) |*c| c.* = .empty;
+            // top to bottom, then left to right
+            const ByYX = struct {
+                f: []Frag,
+                fn lt(ctx: @This(), l: u32, r: u32) bool {
+                    if (@abs(ctx.f[l].base - ctx.f[r].base) > 0.3 * ctx.f[l].size) return ctx.f[l].base < ctx.f[r].base;
+                    return ctx.f[l].x0 < ctx.f[r].x0;
+                }
+            };
+            std.mem.sort(u32, b.items, ByYX{ .f = frags }, ByYX.lt);
+            for (b.items) |k| {
+                const f = &frags[k];
+                for (0..maxc) |ci| {
+                    if (f.x1 <= bounds[ci] or f.x0 >= bounds[ci + 1]) continue;
+                    const c = &cells[ci];
+                    if (c.items.len > 0) try c.append(a, ' ');
+                    try c.appendSlice(a, f.text);
+                }
+                f.table = tix;
+                size = @max(size, f.size);
+                if (bi == 0) ty0 = @min(ty0, f.y0);
+            }
+            var row = try a.alloc([]const u8, maxc);
+            for (cells, 0..) |c, ci| row[ci] = c.items;
+            try rows.append(a, row);
+        }
+        var cb = try a.alloc([2]f32, maxc);
+        for (0..maxc) |ci| cb[ci] = .{ bounds[ci], bounds[ci + 1] };
+        try tables.append(a, .{ .x0 = lx0, .y0 = ty0, .x1 = lx1, .y1 = ys.items[nb], .rows = rows.items, .size = size, .cols = cb });
+    }
+}
+
 // A table drawn WITHOUT lines: at least three consecutive rows, each holding two or more fragments, whose
 // fragments fall into the same columns (the empty vertical bands they leave), and whose cells are short --
 // mostly three words or fewer, which is what tells a table from two or three columns of prose.
@@ -3735,6 +3972,8 @@ fn stackTables(a: Allocator, frags: []Frag, tables: *std.ArrayList(TableOut)) !v
                     if (f.text.len == 0 or f.table >= 0) continue;
                     if (f.y0 >= t1.y1 - 1 and f.y1 <= t2.y0 + 1 and (f.x0 + f.x1) / 2 > t1.x0 - 5 and (f.x0 + f.x1) / 2 < t1.x1 + 5) {
                         if (wordCount(f.text) > 8) foreign = true;
+                        // (a heading set larger than the cells, between two tables, is a heading: "18 ноября, среда")
+                        if (f.size >= 1.15 * @max(t1.size, t2.size)) foreign = true;
                         try between.append(a, @intCast(k));
                     }
                 }
@@ -4670,6 +4909,7 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
         try growTables(a, frags.items, &tables);
         try findAlignedTables(a, frags.items, &tables);
         try growTables(a, frags.items, &tables);
+        try findLadderTables(a, frags.items, pg.rules, &tables);
         try stackTables(a, frags.items, &tables);
         // units: the fragments outside tables, plus one unit per table
         var units: std.ArrayList(Frag) = .empty;
