@@ -1,0 +1,3 @@
+in a
+out h atomic 13
+body { @h[@a] += 1 }

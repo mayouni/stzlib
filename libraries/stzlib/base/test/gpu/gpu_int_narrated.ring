@@ -40,8 +40,8 @@ kAr = StzKernelMakerFromSpec("in a int" + NLc + "scalar k int" + NLc + "out c in
 cW = kAr.ToWGSL()
 chk("the declarations read back as written: Spec() is 'in a int', 'scalar k int', 'out c int'",
 	StzFindFirst("in a int", kAr.Spec()) = 1 and StzFindFirst("scalar k int", kAr.Spec()) > 0 and StzFindFirst("out c int", kAr.Spec()) > 0)
-chk("the WGSL reads the int input and scalar through i32(), writes 3i and 2i, and the output through f32()",
-	StzFindFirst("v_c[i] = f32((i32(v_a[i]) * 3i + i32(p.s_k)) / 2i - stz_rem(i32(v_a[i]), 4i));", cW) > 0)
+chk("the WGSL reads the int input and scalar through i32(), writes 3i and 2i, the int / and % through helpers, and the output through f32()",
+	StzFindFirst("v_c[i] = f32(stz_div((i32(v_a[i]) * 3i + i32(p.s_k)), 2i) - stz_rem(i32(v_a[i]), 4i));", cW) > 0)
 aR = kAr.EvaluateOn([ :a = [ -7, -1, 0, 5, 9.9 ], :k = 1 ])
 chk("the interpreter: (a * 3 + 1) / 2 - a % 4 over -7 -1 0 5 9.9 gives -7 0 0 7 13 (a / truncates; 9.9 reads as 9)",
 	aR[1] = -7 and aR[2] = 0 and aR[3] = 0 and aR[4] = 7 and aR[5] = 13)

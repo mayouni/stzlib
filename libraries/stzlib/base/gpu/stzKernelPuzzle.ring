@@ -122,8 +122,14 @@ func StzKernelMakerFromSpec(pcSpec)
 				_oK_.TakesScalar(_aD_[1] + " " + _aD_[2])
 			ok
 		but StzLeft(_cLine_, 4) = "out "
-			_aD_ = _StzKernelDecl(StzRight(_cLine_, len(_cLine_) - 4))
-			_oK_.ReturnsVectorOf(_aD_[1], _aD_[2])
+			_acO_ = StzSplit(ring_trim(StzRight(_cLine_, len(_cLine_) - 4)), " ")
+			if len(_acO_) = 3 and lower(_acO_[2]) = "atomic"
+				# GL0 (atomics): out NAME atomic SIZE
+				_oK_.ReturnsAtomic(_acO_[1], 0 + _acO_[3])
+			else
+				_aD_ = _StzKernelDecl(StzRight(_cLine_, len(_cLine_) - 4))
+				_oK_.ReturnsVectorOf(_aD_[1], _aD_[2])
+			ok
 		but StzLeft(_cLine_, 6) = "guard "
 			_oK_.Guard(ring_trim(StzRight(_cLine_, len(_cLine_) - 6)))
 		but StzLeft(_cLine_, 5) = "body "
@@ -591,7 +597,10 @@ class stzKernelPuzzle from stzObject
 		_nBand_ = This.Band()
 		# GL0 (typed buffers): W numbers per element of the output, a mismatch named by element
 		_nW_ = poRef.OutputWidth()
-		for _i_ = 1 to nN * _nW_
+		if poRef.OutputIsAtomic() = 1
+			_nW_ = 1 # GL0 (atomics): the counters, each its own element
+		ok
+		for _i_ = 1 to poRef.OutputLength(nN)
 			_r_ = _aR_[_i_]
 			_c_ = _aC_[_i_]
 			_bRNan_ = NOT (_r_ = _r_)

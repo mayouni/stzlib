@@ -218,6 +218,16 @@ fn spec_out_width() callconv(.c) f64 {
 fn spec_in_width(k: i32) callconv(.c) f64 {
     return gpu_wgsl.stz_gpu_spec_in_width(k);
 }
+// GL0 (atomics): an output of SIZE counters, and where they start
+fn spec_out_atomic() callconv(.c) f64 {
+    return gpu_wgsl.stz_gpu_spec_out_atomic();
+}
+fn spec_out_size() callconv(.c) f64 {
+    return gpu_wgsl.stz_gpu_spec_out_size();
+}
+fn spec_out_identity() callconv(.c) f64 {
+    return gpu_wgsl.stz_gpu_spec_out_identity();
+}
 // GZ0: the same evaluation with the sanitizer watching; the report is text
 fn spec_sanitize(ins_ptr: u32, n_ins: i32, lens_ptr: u32, scalars_ptr: u32, n_scalars: i32, n: usize, out_ptr: u32, mask_ptr: u32) callconv(.c) i32 {
     const ins: [*]const [*]const f32 = @ptrFromInt(@as(usize, ins_ptr));
@@ -457,6 +467,9 @@ comptime {
         @export(&spec_eval_flops, .{ .name = "stz_gpu_spec_eval_flops" });
         @export(&spec_out_width, .{ .name = "stz_gpu_spec_out_width" });
         @export(&spec_in_width, .{ .name = "stz_gpu_spec_in_width" });
+        @export(&spec_out_atomic, .{ .name = "stz_gpu_spec_out_atomic" });
+        @export(&spec_out_size, .{ .name = "stz_gpu_spec_out_size" });
+        @export(&spec_out_identity, .{ .name = "stz_gpu_spec_out_identity" });
         @export(&spec_sanitize, .{ .name = "stz_gpu_spec_sanitize" });
         @export(&sanitize_report, .{ .name = "stz_gpu_sanitize_report" });
         @export(&roof_wgsl, .{ .name = "stz_gpu_roof_wgsl" });

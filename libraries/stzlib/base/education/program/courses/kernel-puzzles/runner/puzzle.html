@@ -120,7 +120,9 @@ function widths(spec) {
   E.stz_reset();
   const sp = putBytes(enc.encode(spec));
   if (E.stz_gpu_spec_compile(sp, enc.encode(spec).length) !== 0) return null;
-  return { ins: specLines(spec, "in").map((_, k) => E.stz_gpu_spec_in_width(k)), out: E.stz_gpu_spec_out_width() };
+  return { ins: specLines(spec, "in").map((_, k) => E.stz_gpu_spec_in_width(k)), out: E.stz_gpu_spec_out_width(),
+           // GL0 (atomics): SIZE i32 counters, and the value they start at
+           atomic: E.stz_gpu_spec_out_atomic() === 1, size: E.stz_gpu_spec_out_size(), identity: E.stz_gpu_spec_out_identity() };
 }
 // the reference, interpreted on this machine by the checker's own interpreter
 function interpret(spec, inputs, scalars, n) {
@@ -132,9 +134,10 @@ function interpret(spec, inputs, scalars, n) {
   const lensP = putF64(new Float64Array(inputs.map(v => v.length)));
   const scP = putF32(new Float32Array(scalars.length ? scalars : [0]));
   const w = E.stz_gpu_spec_out_width();
-  const outP = alloc(n * w * 4); const maskP = alloc(n);
+  const len = E.stz_gpu_spec_out_atomic() === 1 ? E.stz_gpu_spec_out_size() : n * w; // an atomic output: its counters
+  const outP = alloc(Math.max(len, n * w) * 4); const maskP = alloc(n);
   if (E.stz_gpu_spec_eval_masked(insP, inputs.length, lensP, scP, scalars.length, n, outP, maskP) !== 0) throw new Error("the interpreter could not evaluate the reference");
-  return { ref: new Float32Array(memory.buffer, outP, n * w).slice(), mask: new Uint8Array(memory.buffer, maskP, n).slice(), flops: E.stz_gpu_spec_eval_flops(), w };
+  return { ref: new Float32Array(memory.buffer, outP, len).slice(), mask: new Uint8Array(memory.buffer, maskP, n).slice(), flops: E.stz_gpu_spec_eval_flops(), w };
 }
 
 // GZ0: the learner's kernel, run by the interpreter with the sanitizer watching -- what the
@@ -148,7 +151,7 @@ function sanitize(spec, inputs, scalars, n) {
   const insP = putU32(new Uint32Array(ptrs));
   const lensP = putF64(new Float64Array(inputs.map(v => v.length)));
   const scP = putF32(new Float32Array(scalars.length ? scalars : [0]));
-  const outP = alloc(n * E.stz_gpu_spec_out_width() * 4); const maskP = alloc(n);
+  const outP = alloc(Math.max(n * E.stz_gpu_spec_out_width(), E.stz_gpu_spec_out_size()) * 4); const maskP = alloc(n);
   if (E.stz_gpu_spec_sanitize(insP, inputs.length, lensP, scP, scalars.length, n, outP, maskP) < 0) return null;
   const rp = alloc(4096); const rn = E.stz_gpu_sanitize_report(rp, 4096);
   const lines = new TextDecoder().decode(new Uint8Array(memory.buffer, rp, rn)).split("\n").filter(x => x);
@@ -166,7 +169,7 @@ if (navigator.gpu) {
 }
 if (!device) el("where").textContent = "no WebGPU in this browser: the kernel cannot run here";
 
-async function runKernel(wgsl, inputs, scalars, n, w = 1) {
+async function runKernel(wgsl, inputs, scalars, n, w = 1, atom = null) {
   const mk = (usage, size) => device.createBuffer({ size, usage });
   const module = device.createShaderModule({ code: wgsl });
   const pipeline = device.createComputePipeline({ layout: "auto", compute: { module, entryPoint: "main" } });
@@ -180,9 +183,12 @@ async function runKernel(wgsl, inputs, scalars, n, w = 1) {
   const entries = [{ binding: 0, resource: { buffer: tile } }, { binding: 1, resource: { buffer: params } }];
   let b = 2;
   for (const v of inputs) { const buf = mk(GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST, v.length * 4); device.queue.writeBuffer(buf, 0, v); entries.push({ binding: b++, resource: { buffer: buf } }); }
-  const total = n * w + MARGIN;
+  const region = atom ? atom.size : n * w;
+  const total = region + MARGIN;
   const out = mk(GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST | GPUBufferUsage.COPY_SRC, total * 4);
-  device.queue.writeBuffer(out, 0, new Float32Array(total).fill(NaN)); // the region AND the margin, NaN before the kernel runs
+  const init = new Float32Array(total).fill(NaN); // the region AND the margin, NaN before the kernel runs
+  if (atom) new Int32Array(init.buffer, 0, atom.size).fill(atom.identity); // GL0: the counters at their identity
+  device.queue.writeBuffer(out, 0, init);
   entries.push({ binding: b, resource: { buffer: out } });
   const stage = mk(GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST, total * 4);
   let bind;
@@ -201,6 +207,7 @@ async function runKernel(wgsl, inputs, scalars, n, w = 1) {
   await stage.mapAsync(GPUMapMode.READ);
   const got = new Float32Array(stage.getMappedRange()).slice();
   stage.unmap();
+  if (atom) { const iv = new Int32Array(got.buffer, 0, atom.size).slice(); for (let k = 0; k < atom.size; k++) got[k] = iv[k]; } // i32 counters, as numbers
   return { got, ms };
 }
 
@@ -350,6 +357,7 @@ function specFromRing(src) {
     else if ((m = l.match(/^k\.ReturnsIntVector\(:(\w+)\)/))) out.push("out " + m[1] + " int");
     else if ((m = l.match(/^k\.TakesVectorOf\(:(\w+),\s*:(\w+)\)/))) out.push("in " + m[1] + (m[2] === "float" ? "" : " " + m[2]));
     else if ((m = l.match(/^k\.ReturnsVectorOf\(:(\w+),\s*:(\w+)\)/))) out.push("out " + m[1] + (m[2] === "float" ? "" : " " + m[2]));
+    else if ((m = l.match(/^k\.ReturnsAtomic\(:(\w+),\s*(\d+)\)/))) out.push("out " + m[1] + " atomic " + m[2]);
     else if ((m = l.match(/^k\.Width\(:?(\w+)\)/))) out.push("width " + m[1]);
     else if ((m = l.match(/^k\.Shared\(:(\w+),\s*(\d+)\)/))) out.push("shared " + m[1] + " " + m[2]);
     else if ((m = l.match(/^k\.Stage\('(.*)'\)/))) out.push("stage " + m[1]);
@@ -470,6 +478,10 @@ async function grade(learner) {
   if (wRef && wLrn && (wRef.ins.join(",") !== wLrn.ins.join(",") || wRef.out !== wLrn.out))
     return { verdict: "refused: your declarations' types are not the task's: an input or the output holds vectors of another width", cls: "bad" };
   const W = wRef ? wRef.out : 1;
+  // GL0 (atomics): the counters are compared all of them, one number each, whatever n is
+  const atom = wRef && wRef.atomic ? { size: wRef.size, identity: wRef.identity } : null;
+  if (atom && !(wLrn && wLrn.atomic && wLrn.size === atom.size))
+    return { verdict: `refused: the task's output is ${atom.size} atomic counters; declare it 'out NAME atomic ${atom.size}'`, cls: "bad" };
   el("wgsl").textContent = tr.wgsl;
   const n = puzzle.n;
   const { inputs, scalars } = dataFor(refSpec, n);
@@ -487,14 +499,15 @@ async function grade(learner) {
   if (!device) {
     // no WebGPU: the interpreter grades the learner's text too (values only; the margin needs a device)
     const candA = interpret(learner, inputs, scalars, n), candB = interpret(learner, hidden, scalarsB, nB);
-    const vA = judgeCpu(candA, refA, n, "", W); if (vA) return { verdict: vA, cls: "bad", san: sanLines };
-    const vB = judgeCpu(candB, refB, nB, "-hidden", W); if (vB) return { verdict: vB, cls: "bad", san: sanLines };
+    const vA = atom ? judgeCpu(candA, refA, atom.size, "", 1) : judgeCpu(candA, refA, n, "", W); if (vA) return { verdict: vA, cls: "bad", san: sanLines };
+    const vB = atom ? judgeCpu(candB, refB, atom.size, "-hidden", 1) : judgeCpu(candB, refB, nB, "-hidden", W); if (vB) return { verdict: vB, cls: "bad", san: sanLines };
     return { verdict: "verified", cls: "ok", san: sanLines, note: "interpreter only (no WebGPU): values at both shapes; the margin needs a device" };
   }
-  const a = await runKernel(tr.wgsl, inputs, scalars, n, W);
-  const vA = judge(a.got, refA.ref, refA.mask, n, "", W); if (vA) return { verdict: vA, cls: "bad", ms: a.ms, san: sanLines };
-  const b = await runKernel(tr.wgsl, hidden, scalarsB, nB, W);
-  const vB = judge(b.got, refB.ref, refB.mask, nB, "-hidden", W); if (vB) return { verdict: vB, cls: "bad", ms: a.ms, san: sanLines };
+  const ones = atom ? new Uint8Array(atom.size).fill(1) : null;
+  const a = await runKernel(tr.wgsl, inputs, scalars, n, W, atom);
+  const vA = atom ? judge(a.got, refA.ref, ones, atom.size, "", 1) : judge(a.got, refA.ref, refA.mask, n, "", W); if (vA) return { verdict: vA, cls: "bad", ms: a.ms, san: sanLines };
+  const b = await runKernel(tr.wgsl, hidden, scalarsB, nB, W, atom);
+  const vB = atom ? judge(b.got, refB.ref, ones, atom.size, "-hidden", 1) : judge(b.got, refB.ref, refB.mask, nB, "-hidden", W); if (vB) return { verdict: vB, cls: "bad", ms: a.ms, san: sanLines };
   let roof = null;
   if (fact(puzzle.facts, "roofline-elements")) roof = await roofline(tr.wgsl, refSpec, inputs.length, scalars, refA.flops / n);
   return { verdict: "verified", cls: "ok", ms: a.ms, flops: refA.flops, roof, san: sanLines };

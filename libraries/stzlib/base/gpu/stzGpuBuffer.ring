@@ -81,6 +81,10 @@ class stzGpuBuffer from stzObject
 	def init(paIdCount)
 		@nId = paIdCount[1]
 		@nCount = paIdCount[2]
+		@bInts = 0
+		if len(paIdCount) >= 3
+			@bInts = paIdCount[3] # GL0 (atomics): the buffer holds i32 counters
+		ok
 
 	# Returns the engine id of the device buffer, 0 once the buffer was freed through this object.
 	#
@@ -113,7 +117,11 @@ class stzGpuBuffer from stzObject
 	#   see        Count, ApplyQ
 	#@ aka  The vector, back on the CPU. Raises if the buffer was freed or evicted.
 	def Download()
-		_a_ = StzEngineGpuBufferDownloadList(@nId, @nCount)
+		if @bInts
+			_a_ = StzEngineGpuBufferDownloadI32List(@nId, @nCount)
+		else
+			_a_ = StzEngineGpuBufferDownloadList(@nId, @nCount)
+		ok
 		if len(_a_) != @nCount
 			StzRaise("stzGpuBuffer: download failed -- the buffer is gone " +
 				"(freed, evicted, or the device was lost).")
@@ -147,6 +155,9 @@ class stzGpuBuffer from stzObject
 				" vectors -- ApplyQ() chains single-input kernels; use " +
 				"stzGpu.ApplyOnQ() for multi-input ones.")
 		ok
+		if @bInts
+			StzRaise("ApplyQ: this buffer holds an atomic output's whole-number counters; Download() them before another kernel reads them as floats.")
+		ok
 		_cW_ = oKernel.ToWGSL()
 		_nK_ = StzEngineGpuKernelCompile(_cW_)
 		if _nK_ = 0
@@ -155,8 +166,12 @@ class stzGpuBuffer from stzObject
 		_aScal_ = _OrderedScalars(oKernel, paScalars)
 		# GL0 (typed buffers): @nCount counts floats; an element is the input's width of them
 		_nE_ = floor(@nCount / oKernel.InputWidth(oKernel.InputNames()[1]))
-		_nOutF_ = _nE_ * oKernel.OutputWidth()
+		_nOutF_ = oKernel.OutputLength(_nE_)
 		_nOut_ = StzEngineGpuBufferNew(_nOutF_ * 4)
+		_bAtom_ = oKernel.OutputIsAtomic() = 1
+		if _bAtom_ and _nOut_ != 0
+			StzEngineGpuBufferFillI32(_nOut_, StzEngineGpuSpecOutIdentity(oKernel.Spec()), _nOutF_)
+		ok
 		if _nOut_ = 0
 			StzRaise("ApplyQ: no device buffer for the result (" +
 				StzEngineGpuLastError() + ")")
@@ -167,7 +182,7 @@ class stzGpuBuffer from stzObject
 			StzEngineGpuBufferFree(_nOut_)
 			StzRaise("ApplyQ: dispatch refused (status " + _nSt_ + ").")
 		ok
-		return new stzGpuBuffer([_nOut_, _nOutF_])
+		return new stzGpuBuffer([_nOut_, _nOutF_, _bAtom_])
 
 	# Frees the device buffer and marks this object empty.
 	#

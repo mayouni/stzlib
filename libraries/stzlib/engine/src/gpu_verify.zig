@@ -1051,7 +1051,10 @@ fn checkSpecShape(kcand: i64, params: []const u8, ids: []const i64, n: usize, wx
     }
     // the REFERENCE: the spec, on the CPU, timed. GL0: w floats per element
     const w: usize = @intFromFloat(wgsl.stz_gpu_spec_out_width());
-    const ref = alloc.alloc(f32, n * w) catch return null;
+    // GL0 (atomics): SIZE counters, compared all of them, whatever n is
+    const atomic = wgsl.stz_gpu_spec_out_atomic() == 1;
+    const nout: usize = if (atomic) @intFromFloat(wgsl.stz_gpu_spec_out_size()) else n * w;
+    const ref = alloc.alloc(f32, @max(nout, n * w)) catch return null;
     defer alloc.free(ref);
     const mask = alloc.alloc(u8, n) catch return null;
     defer alloc.free(mask);
@@ -1060,23 +1063,36 @@ fn checkSpecShape(kcand: i64, params: []const u8, ids: []const i64, n: usize, wx
     const cpu_ms = @as(f64, @floatFromInt(t.read())) / 1e6;
     const flops = wgsl.stz_gpu_spec_eval_flops();
     // the candidate's region and margin, NaN before it runs
-    const total = n * w + MARGIN;
+    const total = nout + MARGIN;
     const cand = alloc.alloc(f32, total) catch return null;
     defer alloc.free(cand);
     @memset(cand, std.math.nan(f32));
+    // the counters at their identity, written as bits (min='s identity is NaN-shaped as a float)
+    const cbits: [*]u32 = @ptrCast(cand.ptr);
+    if (atomic) @memset(cbits[0..nout], @as(u32, @bitCast(@as(i32, @intFromFloat(wgsl.stz_gpu_spec_out_identity())))));
     if (gpu.stz_gpu_buffer_write(ids[n_in], @ptrCast(cand.ptr), @floatFromInt(total * 4)) != gpu.OK) return null;
     var dummy: f64 = 0;
     _ = timedDispatch(kcand, params, ids, wx, false, &dummy) orelse return null;
     if (!readF32(ids[n_in], cand)) return null;
     // the margin: anything that is not NaN was written past the region
     var outside: i64 = -1;
-    for (cand[n * w .. total], 0..) |x, k| {
+    if (atomic) {
+        // the counters' i32 bits, read as numbers; the margin keeps its NaN bits
+        for (0..nout) |k| cand[k] = @floatFromInt(@as(i32, @bitCast(cbits[k])));
+    }
+    for (cand[nout..total], 0..) |x, k| {
         if (x == x) {
-            outside = @intCast(n + k / w);
+            outside = @intCast(if (atomic) nout + k else n + k / w);
             break;
         }
     }
-    const cmp = compareMaskedW(ref, cand[0 .. n * w], mask, band, w);
+    var ones: []u8 = &.{};
+    if (atomic) {
+        ones = alloc.alloc(u8, nout) catch return null;
+        @memset(ones, 1);
+    }
+    defer if (atomic) alloc.free(ones);
+    const cmp = if (atomic) compareMaskedW(ref[0..nout], cand[0..nout], ones, band, 1) else compareMaskedW(ref[0 .. n * w], cand[0 .. n * w], mask, band, w);
     result[slot_maxabs] = cmp.maxabs;
     return .{ .outside = outside, .cmp = cmp, .cpu_ms = cpu_ms, .flops = flops };
 }
@@ -1148,7 +1164,8 @@ pub fn stz_gpu_verify_spec(
             // GL0: a vecN input or output holds N floats per element
             const out_w: usize = @intFromFloat(wgsl.stz_gpu_spec_out_width());
             const in_w: usize = @intFromFloat(wgsl.stz_gpu_spec_in_width(@intCast(k)));
-            const need = if (k == sh.ids.len - 1) sh.n * out_w + MARGIN else sh.n * in_w;
+            const nout: usize = if (wgsl.stz_gpu_spec_out_atomic() == 1) @intFromFloat(wgsl.stz_gpu_spec_out_size()) else sh.n * out_w;
+            const need = if (k == sh.ids.len - 1) nout + MARGIN else sh.n * in_w;
             if (have < need) {
                 verr("shape: the {s} shape declares n = {d} but buffer {d} holds {d} floats and needs {d}{s}", .{ sh.name, sh.n, k, have, need, if (k == sh.ids.len - 1) " (n plus the NaN margin)" else "" });
                 return gpu.BAD_ARG;

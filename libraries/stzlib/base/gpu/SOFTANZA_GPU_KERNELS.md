@@ -208,8 +208,35 @@ kernel's widths.
 
 **Ints are not in this.** An `int` buffer still crosses as f32, exact to
 16,777,216, because the values reach the engine from Ring as numbers; a real
-`i32` buffer would only move the conversion. The atomics rung brings one,
-because `atomic<i32>` needs it.
+`i32` buffer would only move the conversion. Atomic outputs (3.1e) are the
+one i32 buffer, because `atomic<i32>` needs it.
+
+### 3.1e Counters many threads write (GL0)
+
+```
+in a
+out h atomic 13
+body { @h[@a] += 1 }
+```
+
+`out h atomic 13` is 13 i32 counters, and the body adds to one of them:
+`@h[index] += value`, or `max=` to keep the larger, `min=` the smaller. The
+transpiler writes WGSL's `atomicAdd`, `atomicMax` or `atomicMin` into an
+engine-made `array<atomic<i32>>`. An index outside the counters is dropped.
+`+=` counters start at 0, `max=` at -2,147,483,648, `min=` at 2,147,483,647,
+and every host fills them so. The value is an int; **an index that meets no
+type is an int too**, unlike an ordinary index: as an f32, `@h[@i % 55]` lost
+threads, because the device's float `%` gave 55 for some multiples of 55.
+
+Add, max and min on ints give one answer in any order, so the interpreter's
+counters are the device's, bit for bit, however the threads arrive. The
+output is the counters, SIZE of them, whatever n is. In Ring,
+`ReturnsAtomic(:h, 13)` declares it; a buffer of counters downloads as ints
+and is refused as the input of a next kernel.
+
+An int `/` is written `stz_div(a, b)`, as `%` is `stz_rem(a, b)`. Between two
+literals WGSL folds `1i / 0i` when the kernel is made and refuses it, where
+the language's answer is the dividend.
 
 ### 3.2 The group's own memory
 
@@ -281,6 +308,9 @@ because they share one parser.
 | a component past the width, `vec2(...).z` | a vec2's letters are `x y` |
 | a vecN output given another value, `@q = 1` | the output holds vecNs |
 | a scalar declared a vector, `scalar s vec2` | a scalar is one number |
+| a float added to a counter, `@h[k] += 0.5` | an atomic output holds ints |
+| a counter assigned or stored, `@h = 1`, `@h[k] = 1` | it is written `@h[k] += value`, `max=` or `min=` |
+| an index into a plain output, `@c[@i] += 1` | declare it `out c atomic SIZE` |
 | a comparison used as a number, `(@a > 0) * 2` | on the device a comparison is a truth value; write `when(@a > 0, 2, 0)` |
 | a number used as a condition, `when(@a, 1, 0)` or `guard { @a }` | a condition compares: `@a != 0` |
 | a chain, `0 < @a < 2` | write `0 < @a and @a < 2` |
@@ -403,8 +433,8 @@ reported 174% of the copy roof, which is a clock artefact, not speed.
 
 ## 7. The puzzles
 
-Sixteen puzzles in nine chapters teach the GPU from the map to the tiled
-product, then the branch, the whole number and the vector:
+Seventeen puzzles in ten chapters teach the GPU from the map to the tiled
+product, then the branch, the whole number, the vector and the counter:
 
 | chapter | puzzles |
 |---|---|
@@ -417,6 +447,7 @@ product, then the branch, the whole number and the vector:
 | the branch | 13 two prices (GL0: `when`, and the same answer without it) |
 | whole numbers | 14 roll the dice (GL0: an int keeps the digits a float loses) |
 | the vector | 15 light on a surface (GL0: `vec3`, `dot`, `normalize`) · 16 turn the points (a buffer of `vec2`s in and out) |
+| the counter | 17 count the votes (GL0: an atomic output, many threads, one counter) |
 
 An exercise is a folder in the Learning System's shape: `exercise.zknw`,
 `task.<lang>.md` in English, French, Arabic and Hausa, `promise.ring`, a
@@ -445,7 +476,7 @@ desktop produce identical results on every case it holds.
 
 The author worked puzzles 1 to 8. After the page gained a "Your move"
 block and buttons that load a known mistake, the author said those told
-them what to do. Puzzles 9 to 16 are built and checked by instruments;
+them what to do. Puzzles 9 to 17 are built and checked by instruments;
 **no person has worked one yet**.
 
 ## 8. Choices measured into the library
@@ -518,4 +549,5 @@ Run with Ring++ from `base/test/gpu/`: `rnxc <guard>.ring`.
 | `gpu_int_narrated.ring` | GL0's ints: declarations, typing, refusals in both readers' words, the device at every edge, the fuzz's int kind, puzzle 14 |
 | `gpu_vec_narrated.ring` | GL0's vectors: construction, swizzles, spreading, the vector functions, refusals, the device, the fuzz's vector kind, puzzle 15 |
 | `gpu_buffers_narrated.ring` | GL0's buffers of vectors: declarations, both readers, every host path that makes a buffer, the fuzz's typed-buffer kind, puzzle 16 |
+| `gpu_atomic_narrated.ring` | GL0's atomics: add, max, min, identities, dropped indices, the device on every path, the fuzz's atomic kind and its rotated-operation control, puzzle 17 |
 | `edge_proof/edge_proof.html` | the browser and the desktop agree, case by case |

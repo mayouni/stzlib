@@ -1,0 +1,17 @@
+knowledge "kp-17"
+
+facts
+    kp-17 | is-a | exercise
+    kp-17 | in-course | kernel-puzzles
+    kp-17 | in-chapter | the-counter
+    kp-17 | puzzle-number | 17
+    kp-17 | teaches | many-threads-one-counter
+    kp-17 | starts | red
+
+    kp-17 | elements | 4000
+    kp-17 | input-a | mod13
+
+    kp-17 | has-mistake | 02-the-votes-added-up
+    kp-17 | has-mistake | 03-one-candidate-off
+    kp-17 | has-mistake | 04-the-largest-not-the-count
+    kp-17 | has-mistake | 05-half-a-vote

@@ -239,6 +239,61 @@ fn ring_BufferUploadListU32(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(gpu.stz_gpu_buffer_write(id, @ptrCast(staging.ptr), @floatFromInt(n * 4))));
 }
 
+// GL0 (atomics). BufferFillI32(id, nValue, nCount) -> status: nCount i32s of
+// one value (an atomic output's identity); BufferDownloadI32List(id, nCount)
+// -> nCount numbers read as i32s (an atomic output's counters).
+fn ring_BufferFillI32(p: *anyopaque) callconv(.c) void {
+    const id: i64 = @intFromFloat(gn(p, 1));
+    const v: i32 = @intFromFloat(gn(p, 2));
+    const n: usize = @intFromFloat(gn(p, 3));
+    if (n == 0) {
+        rn(p, gpu.BAD_ARG);
+        return;
+    }
+    const staging = allocator.alloc(i32, n) catch {
+        rn(p, gpu.BAD_ARG);
+        return;
+    };
+    defer allocator.free(staging);
+    @memset(staging, v);
+    rn(p, @floatFromInt(gpu.stz_gpu_buffer_write(id, @ptrCast(staging.ptr), @floatFromInt(n * 4))));
+}
+fn ring_BufferDownloadI32List(p: *anyopaque) callconv(.c) void {
+    const id: i64 = @intFromFloat(gn(p, 1));
+    const n: usize = @intFromFloat(gn(p, 2));
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    if (n == 0) {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    }
+    const staging = allocator.alloc(i32, n) catch {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    defer allocator.free(staging);
+    if (gpu.stz_gpu_buffer_read(id, @ptrCast(staging.ptr), @floatFromInt(n * 4)) == gpu.OK) {
+        for (staging) |v| R.ring_list_adddouble(out, @floatFromInt(v));
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+// GL0 (atomics). SpecOutAtomic(cSpec) -> 1 when the output is SIZE counters;
+// SpecOutSize(cSpec) -> SIZE; SpecOutIdentity(cSpec) -> the counters' start
+fn ring_SpecOutAtomic(p: *anyopaque) callconv(.c) void {
+    const spec = getStr(p, 1);
+    if (wgsl.stz_gpu_spec_compile(spec.ptr, @floatFromInt(spec.len)) != 0) return rn(p, 0);
+    rn(p, wgsl.stz_gpu_spec_out_atomic());
+}
+fn ring_SpecOutSize(p: *anyopaque) callconv(.c) void {
+    const spec = getStr(p, 1);
+    if (wgsl.stz_gpu_spec_compile(spec.ptr, @floatFromInt(spec.len)) != 0) return rn(p, 0);
+    rn(p, wgsl.stz_gpu_spec_out_size());
+}
+fn ring_SpecOutIdentity(p: *anyopaque) callconv(.c) void {
+    const spec = getStr(p, 1);
+    if (wgsl.stz_gpu_spec_compile(spec.ptr, @floatFromInt(spec.len)) != 0) return rn(p, 0);
+    rn(p, wgsl.stz_gpu_spec_out_identity());
+}
+
 // DownloadList(id, nCount) -> Ring list of nCount numbers ([] on failure).
 fn ring_BufferDownloadList(p: *anyopaque) callconv(.c) void {
     const id: i64 = @intFromFloat(gn(p, 1));
@@ -779,7 +834,9 @@ fn ring_SpecEval(p: *anyopaque) callconv(.c) void {
     }
     // GL0 (typed buffers): a vecN output gives N numbers per element
     const ow: usize = @intFromFloat(wgsl.stz_gpu_spec_out_width());
-    const res = allocator.alloc(f32, n * ow) catch {
+    // GL0 (atomics): SIZE counters, whatever n is
+    const nres: usize = if (wgsl.stz_gpu_spec_out_atomic() == 1) @intFromFloat(wgsl.stz_gpu_spec_out_size()) else n * ow;
+    const res = allocator.alloc(f32, @max(nres, n * ow)) catch {
         R.ring_vm_api_retlist(p, out);
         return;
     };
@@ -800,7 +857,7 @@ fn ring_SpecEval(p: *anyopaque) callconv(.c) void {
         R.ring_vm_api_retlist(p, out);
         return;
     }
-    for (res) |x| R.ring_list_adddouble(out, @floatCast(x));
+    for (res[0..nres]) |x| R.ring_list_adddouble(out, @floatCast(x));
     R.ring_vm_api_retlist(p, out);
 }
 
@@ -2300,6 +2357,11 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpubufferuploadlist", .func = &ring_BufferUploadList },
     .{ .name = "stzenginegpubufferuploadlistu32", .func = &ring_BufferUploadListU32 },
     .{ .name = "stzenginegpubufferdownloadlist", .func = &ring_BufferDownloadList },
+    .{ .name = "stzenginegpubufferfilli32", .func = &ring_BufferFillI32 },
+    .{ .name = "stzenginegpubufferdownloadi32list", .func = &ring_BufferDownloadI32List },
+    .{ .name = "stzenginegpuspecoutatomic", .func = &ring_SpecOutAtomic },
+    .{ .name = "stzenginegpuspecoutsize", .func = &ring_SpecOutSize },
+    .{ .name = "stzenginegpuspecoutidentity", .func = &ring_SpecOutIdentity },
     .{ .name = "stzenginegpukernelcompile", .func = &ring_KernelCompile },
     .{ .name = "stzenginegpudispatch", .func = &ring_Dispatch },
     .{ .name = "stzenginegpusync", .func = &ring_Sync },

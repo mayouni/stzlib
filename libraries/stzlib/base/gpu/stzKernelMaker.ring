@@ -20,7 +20,8 @@
 # whole numbers; int(...) and float(...) convert between the two types.
 # Vectors (GL0): vec2/vec3/vec4(...), .x .zyx, dot length distance normalize
 # cross reflect; TakesVectorOf(:p, :vec3) and ReturnsVectorOf(:q, :vec2)
-# declare buffers of them, N numbers per element.
+# declare buffers of them, N numbers per element. Atomics (GL0):
+# ReturnsAtomic(:h, 13) and a body '@h[index] += value' (or max=, min=).
 # The whole language, with the group lines (Shared, Stage, Reduce, Tiles,
 # Accumulate, Width), is in SOFTANZA_GPU_KERNELS.md beside this file.
 # Anything else REFUSES at ToWGSL() time with a message naming the offender.
@@ -61,6 +62,8 @@ class stzKernelMaker from stzObject
 	@bIntOut = 0
 	@aVecWords = [] # GL0 (typed buffers): [ name, "vec3" ] for an input of vectors
 	@cOutVec = ""
+	@nAtomic = 0 # GL0 (atomics): the counters of an atomic output
+	@bAtomic = 0
 	@cBody = ""
 	@cWgsl = ""
 	@cGuard = ""
@@ -158,6 +161,41 @@ class stzKernelMaker from stzObject
 		ok
 		return This
 
+	# Declares the single output as nSize whole-number counters that any thread may add to, or raise, or lower (GL0).
+	#
+	#   pcName     the output's name, stored in lower case and written as @Name[index] in the body
+	#   nSize      how many counters, 1 to 65536
+	#   returns    the maker itself, so calls chain
+	#   note       the body is '@h[index] += value', or max= or min=, the value an int; an index
+	#              outside the counters is dropped; += counters start at 0, max= at the most negative
+	#              int, min= at the most positive. The order the threads arrive in cannot change the
+	#              result, so the CPU interpreter's answer is the device's
+	#   see        ReturnsVector, OutputLength
+	def ReturnsAtomic(pcName, nSize)
+		This.ReturnsVector(pcName)
+		@nAtomic = 0 + nSize
+		@bAtomic = 1 # a size the engine refuses is still written, for it to refuse
+		return This
+
+	# Returns how many numbers the output holds for nN elements: nN, nN times a vector's width, or an atomic output's counters (GL0).
+	#
+	#   nN         the element count
+	#   returns    a number, read by the engine from the description
+	#   see        OutputWidth, ReturnsAtomic
+	def OutputLength(nN)
+		_c_ = This.Spec()
+		if StzEngineGpuSpecOutAtomic(_c_) = 1
+			return StzEngineGpuSpecOutSize(_c_)
+		ok
+		return nN * StzEngineGpuSpecOutWidth(_c_)
+
+	# Returns 1 when the output is an atomic output's counters (GL0).
+	#
+	#   returns    1 or 0
+	#   see        ReturnsAtomic
+	def OutputIsAtomic()
+		return StzEngineGpuSpecOutAtomic(This.Spec())
+
 	# Returns how many numbers one element of an input holds: 1, or a vector's 2 to 4 (GL0).
 	#
 	#   pcName     the input's name
@@ -201,6 +239,8 @@ class stzKernelMaker from stzObject
 		@cOut = lower("" + pcName)
 		@bIntOut = 0
 		@cOutVec = ""
+		@nAtomic = 0
+		@bAtomic = 0
 		@cWgsl = ""
 		return This
 
@@ -503,6 +543,9 @@ class stzKernelMaker from stzObject
 			ok
 			if @cOutVec != ""
 				_c_ += " " + @cOutVec
+			ok
+			if @bAtomic
+				_c_ += " atomic " + @nAtomic
 			ok
 			_c_ += char(10)
 		ok

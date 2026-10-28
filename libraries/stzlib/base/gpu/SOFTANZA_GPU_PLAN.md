@@ -3996,6 +3996,64 @@ declarative 20; Zig 30 plus 33 in the checker.
 **What is left of GL0**, in order: atomics (with the engine-made
 `atomic<i32>` output buffer), a general bounded loop, 3-D grids.
 
+## GL0 STATUS — fifth admission landed 2026-10-28: atomics, counters many threads write
+
+**What it is.** `out h atomic SIZE` (a literal, 1 to 65,536) is SIZE i32
+counters in an engine-made `array<atomic<i32>>`, the real i32 buffer the
+typed-buffer rung deferred to here. The body is `@h[index] += value`, `max=`
+or `min=`, the value an int. An index outside the counters is dropped, and the
+counters start at their operation's identity, which every host fills (the
+checker, the fuzz, `RunQWith`, `ApplyOnQ`, `ApplyQ`, the browser runner). Add,
+max and min on ints give one answer in any order, so the interpreter's count
+is the device's however the threads arrive. In Ring, `ReturnsAtomic(:h, 13)`.
+A buffer of counters downloads as ints and refuses to be the next kernel's
+float input.
+
+**Found by this rung's fuzz, and decided:**
+
+| found | what happened | now |
+|---|---|---|
+| 99 of 300 refused by the device, first run | the `stz_rem` helper was emitted only for the value and the guard, not for the index text | the index text is scanned too |
+| 6 exact disagreements | an untyped index was f32, as every index before it. `@h[@i % 55]`: the device's float `%` (x - y·trunc(x/y), division approximate) gave 55 for some multiples of 55 and the thread was dropped; and products past 2^24 rounded under fused multiply-add | **an untyped counter index is an int** (ordinary indices keep their f32 default); an int index keeps its own bits in the interpreter |
+| 1 refused by the device | `1i / 0i` between literals is a constant expression WGSL folds and refuses | **an int `/` is written `stz_div(a, b)`**, as `%` is `stz_rem`: the dividend for a zero divisor, WGSL's answer, everywhere |
+
+**The control was weak and was replaced.** Flipping a `+` in an atomic
+store mostly hit the index and moved a contribution to a dropped bin: 29 of
+68 caught. The atomic control now rotates the operation (`atomicAdd` to
+`atomicMax` to `atomicMin` to `atomicAdd`, all one length) and catches 257
+of 300. Of seven escapes read, none can change an answer: every index was
+dropped, or each counter had one contribution, where add and max agree.
+
+**Measured on the RTX 3050 under `rnxc`, seed 20261028:** the atomic kind
+(kind 9, mask bit 12; int and float inputs, 1 to 64 counters, indices
+in range, wrapped or anywhere, a guard now and then): **300 of 300 agree
+bit for bit**. The int kind, its `/` now through `stz_div`: 300 of 300, as
+before.
+
+**Found on the way, fixed:** the fuzz's own Zig test sized its reference
+`n` floats since the typed-buffer rung, so a vecN case wrote past it
+without a failure; it is sized for every output now. And one crash at
+process exit inside `wgpu_native`, after a refused `ApplyQ` chain, did not
+reproduce in two reruns (named, open: GPU-EXIT-FLAKE).
+
+**The puzzle**: kp-17, *count the votes*, in a new chapter, *the counter*.
+4,000 votes for 13 candidates; three right answers and four named mistakes,
+the verdicts worked out from the data recipe before the first run (candidates
+0, 7, 1, 8, 2, 9, 3, 10 and 4 get 308 votes, the rest 307; one candidate off
+first differs at element 5). The browser runner on the Intel iGPU gave the
+same verdicts and loaded a mistake from its Ring file. **No person has worked
+it.**
+
+**Gates, under `rnxc` on the RTX 3050:** atomic 36, buffers 33, vec 36, int
+37, when 34, grammar 43, fuzz 23, sanitizer 25, shared 60, puzzles 95 (ten
+chapters), spec reference 34, verify 39, ops 37, foundry 27, f16 23,
+lifecycle 62, seams 17, batch 13, declarative 20; Zig 32 (fuzz) and 35
+(checker). The 18,000-kernel corpus is byte-identical.
+
+**What is left of GL0**, in order: a general bounded loop, 3-D grids; and
+the privatized histogram the task names (shared-memory atomics) when a
+puzzle needs it.
+
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 
 **Where the plane stands.** The charge GK3 to KP3 is through. A kernel can
@@ -4045,6 +4103,6 @@ GK4 was.
 **GK2e, added by GK2d's table**: split-K for the narrow, deep products (130 x 1536 x 384 has 18 workgroups of 64 x 64), as two passes under the checker; killed if the two passes cost more than they save at MiniLM's shapes.
 
 **This desk's order**: GT0, GZ0, GC0, GK2d and GK2e (done 2026-10-28, see their STATUS sections above; GK2e measured and kept out of the backbone; GK2f's narrow tiles measured and refused), then GL0, which started
-2026-10-28 (its first four admissions, `when`, ints, vectors and buffers of vectors, are in the GL0 STATUS sections above). GT0 comes first because every later rung adds
+2026-10-28 (its first five admissions, `when`, ints, vectors, buffers of vectors and atomics, are in the GL0 STATUS sections above). GT0 comes first because every later rung adds
 grammar, and a fuzz that already exists covers each addition the day it
 lands.

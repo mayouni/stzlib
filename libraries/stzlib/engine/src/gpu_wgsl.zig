@@ -159,6 +159,11 @@ pub const Item = struct {
     line: u16 = 0, // GZ0: the description's line, 1-based, for the sanitizer's reports
 };
 
+pub const AtomOp = enum(u8) { add, max, min };
+pub const MAX_ATOM: usize = 65536;
+const MSG_ATOMFORM = "an atomic output is written '@{s}[index] += value' (or max=, min=)";
+const MSG_ATOMF = "an atomic output holds ints; the value is a float: write int(...)";
+
 pub const Decl = struct {
     ins: [MAX_VECS]Name = undefined,
     n_ins: usize = 0,
@@ -173,6 +178,12 @@ pub const Decl = struct {
     // buffer holds element i at floats N*i .. N*i + N - 1, packed.
     in_w: [MAX_VECS]u8 = @splat(1),
     out_w: u8 = 1,
+    // GL0 (atomics): 'out h atomic 16' -- SIZE i32 counters any thread may add
+    // to (or max, or min), written '@h[index] += value'
+    out_atomic: bool = false,
+    out_size: usize = 0,
+    atom_op: AtomOp = .add,
+    atom_index: []const u8 = "",
     rhs: []const u8 = "",
     // KP0: the guard line. null = the engine's default (i < n, as every kernel
     // had before); "none" = the learner omits it; anything else = the
@@ -294,7 +305,20 @@ fn parseDecl(text: []const u8, d: *Decl) i32 {
             d.scalars[d.n_scalars] = lowered;
             d.n_scalars += 1;
         } else if (std.mem.startsWith(u8, line, "out ")) {
-            const nm = declType(std.mem.trim(u8, line[4..], " \t"), &d.out_int, &d.out_w) orelse return -1;
+            const rest = std.mem.trim(u8, line[4..], " \t");
+            var nm: []const u8 = rest;
+            var toks = std.mem.tokenizeAny(u8, rest, " \t");
+            const t0 = toks.next() orelse "";
+            const t1 = toks.next() orelse "";
+            if (std.ascii.eqlIgnoreCase(t1, "atomic")) {
+                // GL0 (atomics): out NAME atomic SIZE
+                const sz = parseSize(toks.next() orelse "") orelse 0;
+                if (sz == 0 or sz > MAX_ATOM or toks.next() != null)
+                    return fail("an atomic output is 'out {s} atomic SIZE', SIZE a whole number from 1 to {d}", .{ t0, MAX_ATOM });
+                d.out_atomic = true;
+                d.out_size = sz;
+                nm = t0;
+            } else nm = declType(rest, &d.out_int, &d.out_w) orelse return -1;
             if (have_out) return fail("only one output (ForEachElement writes one vector)", .{});
             if (!lowerInto(&d.out_name, nm) or !validIdent(d.out_name.slice()))
                 return fail("bad output name: '{s}'", .{nm});
@@ -435,9 +459,40 @@ fn parseDecl(text: []const u8, d: *Decl) i32 {
     if (b.len >= 2 and b[0] == '{' and b[b.len - 1] == '}')
         b = std.mem.trim(u8, b[1 .. b.len - 1], " \t");
 
+    // ---- GL0 (atomics): @h[index] += value, max= or min=
+    if (d.out_atomic) {
+        if (b.len == 0 or b[0] != '@') return fail(MSG_ATOMFORM, .{d.out_name.slice()});
+        const br = std.mem.indexOfScalar(u8, b, '[') orelse return fail(MSG_ATOMFORM, .{d.out_name.slice()});
+        var hn: Name = .{};
+        if (!lowerInto(&hn, std.mem.trim(u8, b[1..br], " \t")) or !std.mem.eql(u8, hn.slice(), d.out_name.slice()))
+            return fail("body writes '@{s}' but the output is '@{s}'", .{ std.mem.trim(u8, b[1..br], " \t"), d.out_name.slice() });
+        const close = Rewriter.matching(b, br) orelse return fail("missing ']' after '@{s}['", .{d.out_name.slice()});
+        d.atom_index = std.mem.trim(u8, b[br + 1 .. close], " \t");
+        if (d.atom_index.len == 0) return fail("the index of '@{s}[]' is empty", .{d.out_name.slice()});
+        const tail = std.mem.trim(u8, b[close + 1 ..], " \t");
+        var vstart: usize = 0;
+        if (std.mem.startsWith(u8, tail, "+=")) {
+            d.atom_op = .add;
+            vstart = 2;
+        } else if (std.ascii.startsWithIgnoreCase(tail, "max=")) {
+            d.atom_op = .max;
+            vstart = 4;
+        } else if (std.ascii.startsWithIgnoreCase(tail, "min=")) {
+            d.atom_op = .min;
+            vstart = 4;
+        } else return fail(MSG_ATOMFORM, .{d.out_name.slice()});
+        d.rhs = std.mem.trim(u8, tail[vstart..], " \t");
+        if (d.rhs.len == 0) return fail("empty expression", .{});
+        return 0;
+    }
     // ---- the single assignment: @out = rhs
     if (b.len == 0 or b[0] != '@')
         return fail("body must be '@{s} = expression'", .{d.out_name.slice()});
+    if (std.mem.indexOfScalar(u8, b, '[')) |br| {
+        if (std.mem.indexOfScalar(u8, b, '=')) |eq0| {
+            if (br < eq0) return fail("'@{s}[...]' writes an atomic output: declare it 'out {s} atomic SIZE'", .{ d.out_name.slice(), d.out_name.slice() });
+        }
+    }
     const eq = std.mem.indexOfScalar(u8, b, '=') orelse
         return fail("body has no '='", .{});
     const lhs = std.mem.trim(u8, b[1..eq], " \t");
@@ -454,6 +509,27 @@ fn parseDecl(text: []const u8, d: *Decl) i32 {
 /// components at N*i .. N*i + N - 1.
 fn putStore(w: *Cursor, d: *const Decl, expr: []const u8) void {
     const o = d.out_name.slice();
+    if (d.out_atomic) {
+        // GL0 (atomics): an index outside the counters is dropped, as a stage's is
+        var num: [12]u8 = undefined;
+        const ns = std.fmt.bufPrint(&num, "{d}", .{d.out_size}) catch return;
+        w.put("{ let k_ = i32(");
+        w.put(g_atom_idx_text);
+        w.put("); if (k_ >= 0 && k_ < ");
+        w.put(ns);
+        w.put(") { ");
+        w.put(switch (d.atom_op) {
+            .add => "atomicAdd",
+            .max => "atomicMax",
+            .min => "atomicMin",
+        });
+        w.put("(&v_");
+        w.put(o);
+        w.put("[u32(k_)], ");
+        w.put(expr);
+        w.put("); } }");
+        return;
+    }
     if (d.out_w == 1) {
         w.put("v_");
         w.put(o);
@@ -528,6 +604,13 @@ fn putRd(w: *Cursor, name: []const u8, width: u8) void {
     w.put(");\n}\n");
 }
 
+fn usesDiv(texts: []const []const u8) bool {
+    for (texts) |t| {
+        if (std.mem.indexOf(u8, t, "stz_div(") != null) return true;
+    }
+    return false;
+}
+
 fn usesRem(texts: []const []const u8) bool {
     for (texts) |t| {
         if (std.mem.indexOf(u8, t, "stz_rem(") != null) return true;
@@ -573,7 +656,7 @@ fn emitGroupKernel(w: *Cursor, d: *const Decl, rw: *const Rewriter, expr: []cons
         w.put(ns);
         w.put(") var<storage, read_write> v_");
         w.put(d.out_name.slice());
-        w.put(" : array<f32>;\n");
+        w.put(if (d.out_atomic) " : array<atomic<i32>>;\n" else " : array<f32>;\n");
     }
     for (0..d.n_shared) |s| {
         const ns = std.fmt.bufPrint(&num, "{d}", .{d.shared_size[s]}) catch return -1;
@@ -583,7 +666,8 @@ fn emitGroupKernel(w: *Cursor, d: *const Decl, rw: *const Rewriter, expr: []cons
         w.put(ns);
         w.put(">;\n");
     }
-    if (usesRem(&.{ expr, prelude, guard, gpre, items })) w.put(REM_WGSL);
+    if (usesRem(&.{ expr, prelude, guard, gpre, items, g_atom_idx_text })) w.put(REM_WGSL);
+    if (usesDiv(&.{ expr, prelude, guard, gpre, items, g_atom_idx_text })) w.put(DIV_WGSL);
     for (0..d.n_ins) |s| {
         if (!rw.used_rd[s]) continue;
         putRd(w, d.ins[s].slice(), d.in_w[s]);
@@ -677,9 +761,19 @@ pub fn stz_gpu_wgsl_elementwise(spec: [*]const u8, spec_len: f64, out: [*]u8, ca
     var prelude_buf: [4096]u8 = undefined;
     var prelude = Cursor{ .buf = &prelude_buf };
     var rw = Rewriter{ .d = &d, .prelude = &prelude };
-    if (d.out_int) expr.put("f32(");
-    if (rw.top(rhs, &expr, .body) < 0) return -1;
-    if (d.out_int) expr.put(")");
+    var aidx_buf: [1024]u8 = undefined;
+    var aidx = Cursor{ .buf = &aidx_buf };
+    if (d.out_atomic) {
+        // GL0 (atomics): the value an int, the index any number, both read in the body's place
+        if (rw.top(rhs, &expr, .atom_value) < 0) return -1;
+        if (rw.top(d.atom_index, &aidx, .atom_index) < 0) return -1;
+        if (aidx.overflow) return fail("the index is too long", .{});
+    } else {
+        if (d.out_int) expr.put("f32(");
+        if (rw.top(rhs, &expr, .body) < 0) return -1;
+        if (d.out_int) expr.put(")");
+    }
+    g_atom_idx_text = aidx.items();
     if (expr.overflow or prelude.overflow) return fail("expression too long", .{});
     var guard_buf: [1024]u8 = undefined;
     var guard = Cursor{ .buf = &guard_buf };
@@ -869,13 +963,14 @@ pub fn stz_gpu_wgsl_elementwise(spec: [*]const u8, spec_len: f64, out: [*]u8, ca
         put(&w, num_s);
         put(&w, ") var<storage, read_write> v_");
         put(&w, out_name.slice());
-        put(&w, " : array<f32>;\n");
+        put(&w, if (d.out_atomic) " : array<atomic<i32>>;\n" else " : array<f32>;\n");
     }
     // KP0: a neighbour read is a helper per input it is used on. Out of the
     // input's own range it answers 0.0 -- the interpreter says the same --
     // so a stencil's edges are the learner's to guard, and an unguarded edge
     // is a wrong VALUE the compare names, not undefined behaviour.
-    if (usesRem(&.{ expr.items(), prelude.items(), guard.items(), gpre.items() })) put(&w, REM_WGSL);
+    if (usesRem(&.{ expr.items(), prelude.items(), guard.items(), gpre.items(), g_atom_idx_text })) put(&w, REM_WGSL);
+    if (usesDiv(&.{ expr.items(), prelude.items(), guard.items(), gpre.items(), g_atom_idx_text })) put(&w, DIV_WGSL);
     for (0..n_ins) |s| {
         if (!rw.used_rd[s]) continue;
         putRd(&w, ins[s].slice(), d.in_w[s]);
@@ -975,7 +1070,11 @@ fn tyOf(r: i32) Ty {
 fn tyR(t: Ty) i32 {
     return @intFromEnum(t);
 }
-const Sink = enum { body, guard, stage_index, stage_value, acc_value, count };
+const Sink = enum { body, guard, stage_index, stage_value, acc_value, count, atom_value, atom_index };
+/// GL0 (atomics): the index text the transpiler wrote, read by putStore while
+/// the kernel text is assembled (one transpile at a time, as every module
+/// slot here).
+var g_atom_idx_text: []const u8 = "";
 const MSG_MIXTY = "an int and a float meet at '{s}': convert one, with float(...) or int(...)";
 const MSG_FLOATFN = "'{s}' works on floats: write {s}(float(...))";
 const MSG_BIGINT = "'{s}' is too large for an int (the largest is 2147483647)";
@@ -1000,6 +1099,12 @@ const PH_TY3 = "\x02\x02\x02";
 const PH_RA: u8 = 4; // where the left operand starts
 const PH_RO: u8 = 3; // the operator
 const PH_RZ: u8 = 5; // where the right operand ends
+// GL0 (atomics, found by its fuzz): an int '/' goes through stz_div too.
+// Between two literals, WGSL folds 1i / 0i at compile time and refuses the
+// kernel; the language's answer, the dividend, is the one stz_div gives.
+const PH_DA: u8 = 6; // where a division's left operand starts
+const PH_DO: u8 = 7; // the division's operator
+const DIV_WGSL = "fn stz_div(a : i32, b : i32) -> i32 {\n  if (b == 0i || (a == -2147483647i - 1i && b == -1i)) { return a; }\n  return a / b;\n}\n";
 const REM_WGSL = "fn stz_rem(a : i32, b : i32) -> i32 {\n  if (b == 0) { return 0; }\n  return a - (a / b) * b;\n}\n";
 
 fn insertAt(c: *Cursor, pos: usize, ch: u8) void {
@@ -1015,7 +1120,7 @@ fn insertAt(c: *Cursor, pos: usize, ch: u8) void {
 /// Settle every placeholder written in `c` since `from` to `to` (f or i). A
 /// whole-number literal past i32 is refused there, as the interpreter refuses it.
 fn settleText(c: *Cursor, from: usize, to: Ty) i32 {
-    if (std.mem.indexOfAny(u8, c.buf[from..c.len], &[_]u8{ PH_RA, PH_RO, PH_RZ }) != null) {
+    if (std.mem.indexOfAny(u8, c.buf[from..c.len], &[_]u8{ PH_RA, PH_RO, PH_RZ, PH_DA, PH_DO }) != null) {
         // a remainder's markers change the length: rebuild the tail
         var tmp: [16384]u8 = undefined;
         const tail = c.len - from;
@@ -1028,6 +1133,11 @@ fn settleText(c: *Cursor, from: usize, to: Ty) i32 {
         for (tmp[0..tail]) |ch| {
             switch (ch) {
                 PH_RA => if (to == .i) c.put("stz_rem("),
+                PH_DA => if (to == .i) c.put("stz_div("),
+                PH_DO => if (to == .i) {
+                    while (c.len > from and c.buf[c.len - 1] == ' ') c.len -= 1;
+                    c.putc(',');
+                } else c.putc('/'),
                 PH_RO => if (to == .i) {
                     while (c.len > from and c.buf[c.len - 1] == ' ') c.len -= 1;
                     c.putc(',');
@@ -1542,6 +1652,10 @@ const Rewriter = struct {
         }
         if (isVec(t)) return fail(MSG_VECNUM, .{});
         switch (sink) {
+            .atom_value => {
+                if (t == .f) return fail(MSG_ATOMF, .{});
+                return if (t == .u) settleText(self.out, start, .i) else 0;
+            },
             .body => {
                 const want: Ty = if (self.d.out_int) .i else .f;
                 if (t == .u) return settleText(self.out, start, want);
@@ -1557,6 +1671,10 @@ const Rewriter = struct {
                 return if (t == .u) settleText(self.out, start, .f) else 0;
             },
             .stage_index, .count => return if (t == .u) settleText(self.out, start, .f) else 0,
+            // GL0 (atomics): counters are indexed by ints -- an untyped index is
+            // one. As an f32, @h[@i % 55] lost elements: the device's float '%'
+            // gave 55 for some multiples of 55, and the thread was dropped
+            .atom_index => return if (t == .u) settleText(self.out, start, .i) else 0,
             .guard => return 0,
         }
     }
@@ -1691,21 +1809,22 @@ const Rewriter = struct {
         while (true) {
             const c = self.peekW();
             if (c != '*' and c != '/' and c != '%') break;
-            if (c == '%') {
+            const marked = c == '%' or c == '/';
+            if (marked) {
                 // the marker goes after the spacing the term began with
                 var at = start;
                 while (at < self.out.len and (self.out.buf[at] == ' ' or self.out.buf[at] == '\t')) at += 1;
-                insertAt(self.out, at, PH_RA);
+                insertAt(self.out, at, if (c == '%') PH_RA else PH_DA);
             }
-            self.out.putc(if (c == '%') PH_RO else c);
+            self.out.putc(if (c == '%') PH_RO else if (c == '/') PH_DO else c);
             self.i += 1;
             const mid = self.out.len;
             const r = self.unaryW();
             if (r < 0) return -1;
-            if (c == '%') self.out.putc(PH_RZ);
-            t = self.arithW(tyOf(t), tyOf(r), start + @intFromBool(c == '%'), mid, if (c == '*') "*" else if (c == '/') "/" else "%");
+            if (marked) self.out.putc(PH_RZ);
+            t = self.arithW(tyOf(t), tyOf(r), start + @intFromBool(marked), mid, if (c == '*') "*" else if (c == '/') "/" else "%");
             if (t < 0) return -1;
-            if (c == '%' and tyOf(t) != .u and settleText(self.out, start, tyOf(t)) < 0) return -1;
+            if (marked and tyOf(t) != .u and settleText(self.out, start, tyOf(t)) < 0) return -1;
         }
         return t;
     }
@@ -2529,6 +2648,16 @@ fn compileInto(p: *Program, text: []const u8, d: *const Decl, where: Where, in_l
             if (t == .u and ps.settle(0, .f) < 0) return -1;
             if (t == .i and ps.emit(.cv_if, 0) < 0) return -1;
         },
+        .atom_value => {
+            if (t == .f) return fail(MSG_ATOMF, .{});
+            if (t == .u and ps.settle(0, .i) < 0) return -1;
+        },
+        .atom_index => {
+            // an untyped index is an int, as the rewriter's; an int one keeps its
+            // own bits, so one past 2^24 does not round into another counter
+            if (t == .u and ps.settle(0, .i) < 0) return -1;
+            g_atom_idx_int = t != .f;
+        },
         .guard => {},
     }
     p.n_ins = d.n_ins;
@@ -3136,10 +3265,18 @@ pub fn stz_gpu_spec_compile(spec: [*]const u8, spec_len: f64) callconv(.c) i32 {
     if (parseDecl(text, &d) < 0) return -1;
     var used_group = false;
     {
-        const r = compileInto(&g_prog, d.rhs, &d, .body, false, null, .body);
+        const r = compileInto(&g_prog, d.rhs, &d, .body, false, null, if (d.out_atomic) .atom_value else .body);
         if (r < 0) return -1;
         if (r == 1) used_group = true;
+        if (d.out_atomic) {
+            const r2 = compileInto(&g_atom_idx, d.atom_index, &d, .body, false, null, .atom_index);
+            if (r2 < 0) return -1;
+            if (r2 == 1) used_group = true;
+        }
     }
+    g_atomic = d.out_atomic;
+    g_atom_size = d.out_size;
+    g_atom_op = d.atom_op;
     g_prog.ready = false; // set again only when everything compiled
     // KP0: the guard
     g_guard = .{};
@@ -3651,6 +3788,7 @@ fn runProgram(p: *const Program, th: *const Thread, ins: [*]const [*]const f32, 
         }
         k = next;
     }
+    if (sp >= 1) g_last_bits = st[sp - 1]; // GL0 (atomics): an int result's own bits
     if (res) |r| {
         // GL0 (typed buffers): a vecN body leaves its N components
         if (sp != r.len) return null;
@@ -3666,6 +3804,24 @@ fn runProgram(p: *const Program, th: *const Thread, ins: [*]const [*]const f32, 
 /// GL0 (typed buffers): element i's value written at out[W*i ..], W the
 /// output's floats per element (1, or a vector's width).
 fn runBody(t: *const Thread, ins: [*]const [*]const f32, lens: [*]const f64, scalars: [*]const f32, out: [*]f32, i: usize) bool {
+    if (g_atomic) {
+        // GL0 (atomics): the index as WGSL's i32() reads it, the value's own bits;
+        // add, max and min on ints are the same in any order, so the device's
+        // order does not matter and the interpreter's need not be its
+        const fk = runProgram(&g_atom_idx, t, ins, lens, scalars, &g_eval_flops, null) orelse return false;
+        const k = if (g_atom_idx_int) iv(g_last_bits) else toI32(fk);
+        _ = runProgram(&g_prog, t, ins, lens, scalars, &g_eval_flops, null) orelse return false;
+        const v = iv(g_last_bits);
+        if (k >= 0 and @as(usize, @intCast(k)) < g_atom_size) {
+            const c = &g_atom[@intCast(k)];
+            c.* = switch (g_atom_op) {
+                .add => c.* +% v,
+                .max => @max(c.*, v),
+                .min => @min(c.*, v),
+            };
+        }
+        return true;
+    }
     const w: usize = g_out_w;
     if (w == 1) {
         out[i] = runProgram(&g_prog, t, ins, lens, scalars, &g_eval_flops, null) orelse return false;
@@ -3675,7 +3831,34 @@ fn runBody(t: *const Thread, ins: [*]const [*]const f32, lens: [*]const f64, sca
     return true;
 }
 fn unwritten(out: [*]f32, i: usize) void {
+    if (g_atomic) return; // a refused thread adds nothing
     for (0..g_out_w) |j| out[g_out_w * i + j] = std.math.nan(f32);
+}
+
+/// GL0 (atomics): the counters, at their operation's identity, before a run;
+/// written out as numbers after it.
+var g_atomic: bool = false;
+var g_atom_size: usize = 0;
+var g_atom_op: AtomOp = .add;
+var g_atom: [MAX_ATOM]i32 = undefined;
+var g_atom_idx: Program = .{};
+var g_atom_idx_int: bool = false;
+var g_last_bits: u32 = 0;
+pub fn atomIdentity(op: AtomOp) i32 {
+    return switch (op) {
+        .add => 0,
+        .max => std.math.minInt(i32),
+        .min => std.math.maxInt(i32),
+    };
+}
+pub fn stz_gpu_spec_out_atomic() callconv(.c) f64 {
+    return if (g_atomic) 1 else 0;
+}
+pub fn stz_gpu_spec_out_size() callconv(.c) f64 {
+    return @floatFromInt(g_atom_size);
+}
+pub fn stz_gpu_spec_out_identity() callconv(.c) f64 {
+    return @floatFromInt(atomIdentity(g_atom_op));
 }
 
 /// Evaluate the compiled spec over `n` elements: `ins` points at n_ins arrays,
@@ -3699,6 +3882,10 @@ pub fn stz_gpu_spec_eval_masked(ins: [*]const [*]const f32, n_ins: i32, lens: [*
     if (n_scalars < 0 or @as(usize, @intCast(n_scalars)) < g_prog.n_scalars) return -1;
     const n: usize = @intFromFloat(nf);
     g_eval_flops = 0;
+    if (g_atomic) @memset(g_atom[0..g_atom_size], atomIdentity(g_atom_op));
+    defer if (g_atomic) {
+        for (0..g_atom_size) |k| out[k] = @floatFromInt(g_atom[k]);
+    };
     if (g_kp3.on) return evalGroups(ins, lens, scalars, n, out, mask);
     var i: usize = 0;
     while (i < n) : (i += 1) {
@@ -4774,7 +4961,8 @@ test "GL0 types: an int is declared, a whole number takes its partner's type, an
     // arithmetic: truncating division, a remainder with the dividend's sign
     const ar = "in a int\nscalar k int\nout c int\nbody { @c = (@a * 3 + k) / 2 - @a % 4 }";
     // the remainder is the helper's: the device takes an i32 '%' as unsigned
-    try wgslHas(ar, "v_c[i] = f32((i32(v_a[i]) * 3i + i32(p.s_k)) / 2i - stz_rem(i32(v_a[i]), 4i));");
+    try wgslHas(ar, "v_c[i] = f32(stz_div((i32(v_a[i]) * 3i + i32(p.s_k)), 2i) - stz_rem(i32(v_a[i]), 4i));");
+    try wgslHas(ar, "fn stz_div(a : i32, b : i32) -> i32 {");
     try wgslHas(ar, "fn stz_rem(a : i32, b : i32) -> i32 {");
     try evalSc(ar, &.{ -7, -1, 0, 5, 9.9 }, &.{1}, &out);
     try std.testing.expectEqualSlices(f32, &.{ -7, 0, 0, 7, 13 }, &out);
@@ -5012,6 +5200,65 @@ test "GL0 typed buffers: the refusals, in one reader's words and the other's" {
         .{ .spec = "in p vec2\nout c\nbody { @c = @p }", .words = "a vector stands where a number is needed" },
         .{ .spec = "in p vec2\nscalar s vec2\nout c\nbody { @c = 1 }", .words = "a scalar is one number" },
         .{ .spec = "in p vec5\nout c\nbody { @c = 1 }", .words = "'vec5' is not a type" },
+    };
+    for (refused) |c| {
+        var e: [256]u8 = undefined;
+        if (stz_gpu_wgsl_elementwise(c.spec.ptr, @floatFromInt(c.spec.len), &buf, buf.len) != -1) return error.Admitted;
+        const el1 = stz_gpu_wgsl_error(&e, e.len);
+        var e1: [256]u8 = undefined;
+        @memcpy(e1[0..@intCast(el1)], e[0..@intCast(el1)]);
+        if (stz_gpu_spec_compile(c.spec.ptr, @floatFromInt(c.spec.len)) != -1) return error.Admitted;
+        const el2 = stz_gpu_wgsl_error(&e, e.len);
+        if (!std.mem.eql(u8, e1[0..@intCast(el1)], e[0..@intCast(el2)]) or std.mem.indexOf(u8, e[0..@intCast(el2)], c.words) == null) {
+            std.debug.print("\n{s}\n  transpiler:  {s}\n  interpreter: {s}\n", .{ c.spec, e1[0..@intCast(el1)], e[0..@intCast(el2)] });
+            return error.WrongWords;
+        }
+    }
+}
+
+test "GL0 atomics: '@h[index] += value' on SIZE i32 counters, the same in any order" {
+    var mask: [8]u8 = undefined;
+    // a histogram: an index outside the counters is dropped
+    const hist = "in a\nout h atomic 4\nbody { @h[@a] += 1 }";
+    try wgslHas(hist, "var<storage, read_write> v_h : array<atomic<i32>>;");
+    try wgslHas(hist, "{ let k_ = i32(v_a[i]); if (k_ >= 0 && k_ < 4) { atomicAdd(&v_h[u32(k_)], 1i); } }");
+    var o4: [4]f32 = undefined;
+    try evalMasked(hist, &.{&.{ 0, 1, 1, 3, 5, -1 }}, 6, &o4, &mask);
+    try std.testing.expectEqualSlices(f32, &.{ 1, 2, 0, 1 }, &o4);
+    try std.testing.expectEqual(@as(f64, 1), stz_gpu_spec_out_atomic());
+    try std.testing.expectEqual(@as(f64, 4), stz_gpu_spec_out_size());
+    try std.testing.expectEqual(@as(f64, 0), stz_gpu_spec_out_identity());
+    // max and min start at their identity: a slot nobody touched reads it
+    const mx = "in a int\nout m atomic 3\nbody { @m[@i % 2] max= @a }";
+    try wgslHas(mx, "atomicMax(&v_m[u32(k_)], i32(v_a[i]))");
+    var o3: [3]f32 = undefined;
+    try evalMasked(mx, &.{&.{ 3, -7, 9, 2 }}, 4, &o3, &mask);
+    try std.testing.expectEqualSlices(f32, &.{ 9, 2, -2147483648.0 }, &o3);
+    const mn = "in a int\nout m atomic 2\nbody { @m[0] min= @a * 2 }";
+    var o2: [2]f32 = undefined;
+    try evalMasked(mn, &.{&.{ 3, -7, 9 }}, 3, &o2, &mask);
+    try std.testing.expectEqualSlices(f32, &.{ -14, 2147483648.0 }, &o2);
+    // a guard leaves a thread out; a sum and a when may feed the value
+    const gd = "in a\nout h atomic 2\nguard { @i < n and @a > 0 }\nbody { @h[@a % 2] += when(@a > 2, 10, 1) }";
+    try evalMasked(gd, &.{&.{ 1, 2, 3, -1, 4 }}, 5, &o2, &mask);
+    try std.testing.expectEqualSlices(f32, &.{ 1 + 10, 1 + 10 }, &o2);
+    // the adds wrap, as on the device
+    const wr = "in a int\nout h atomic 1\nbody { @h[0] += 2147483647 }";
+    var o1: [1]f32 = undefined;
+    try evalMasked(wr, &.{&.{ 0, 0 }}, 2, &o1, &mask);
+    try std.testing.expectEqual(@as(f32, -2), o1[0]);
+}
+
+test "GL0 atomics: the refusals, in one reader's words and the other's" {
+    var buf: [8192]u8 = undefined;
+    const Case = struct { spec: []const u8, words: []const u8 };
+    const refused = [_]Case{
+        .{ .spec = "in a\nout h atomic 4\nbody { @h[@a] += 0.5 }", .words = "an atomic output holds ints" },
+        .{ .spec = "in a\nout h atomic 4\nbody { @h = 1 }", .words = "an atomic output is written '@h[index] += value'" },
+        .{ .spec = "in a\nout h atomic 4\nbody { @h[@a] = 1 }", .words = "an atomic output is written" },
+        .{ .spec = "in a\nout c\nbody { @c[@i] += 1 }", .words = "writes an atomic output: declare it 'out c atomic SIZE'" },
+        .{ .spec = "in a\nout h atomic 0\nbody { @h[0] += 1 }", .words = "SIZE a whole number from 1 to 65536" },
+        .{ .spec = "in a\nout h atomic 4\nbody { @h[vec2(1, 2)] += 1 }", .words = "a vector stands where a number is needed" },
     };
     for (refused) |c| {
         var e: [256]u8 = undefined;

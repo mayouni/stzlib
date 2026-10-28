@@ -49,17 +49,18 @@ pub const K_TILES: u8 = 5; // tiles, accumulate, width
 pub const K_INT: u8 = 6; // GL0: ints -- declared, wrapping, divided by zero, converted
 pub const K_VEC: u8 = 7; // GL0: vectors -- built, swizzled, spread, combined, reduced
 pub const K_VIO: u8 = 8; // GL0: typed buffers -- vector inputs and outputs, N floats per element
-pub const KINDS: usize = 9;
+pub const K_ATOM: u8 = 9; // GL0: atomics -- many threads adding, maxing or mining into SIZE counters
+pub const KINDS: usize = 10;
 /// The mask bit of kind k. Bits 6 to 8 are the controls, so the int kind
 /// takes bit 9: a mask written before GL0 (63) asks for the six it always meant.
 pub fn kindBit(k: usize) u32 {
     return if (k < 6) @as(u32, 1) << @intCast(k) else @as(u32, 1) << @intCast(k + 3);
 }
 fn genSlot(k: usize) usize {
-    return if (k < 6) R_GEN_KIND + k else if (k == K_INT) R_GEN_INT else if (k == K_VEC) R_GEN_VEC else R_GEN_VIO;
+    return if (k < 6) R_GEN_KIND + k else if (k == K_INT) R_GEN_INT else if (k == K_VEC) R_GEN_VEC else if (k == K_VIO) R_GEN_VIO else R_GEN_ATOM;
 }
 fn badSlot(k: usize) usize {
-    return if (k < 6) R_BAD_KIND + k else if (k == K_INT) R_BAD_INT else if (k == K_VEC) R_BAD_VEC else R_BAD_VIO;
+    return if (k < 6) R_BAD_KIND + k else if (k == K_INT) R_BAD_INT else if (k == K_VEC) R_BAD_VEC else if (k == K_VIO) R_BAD_VIO else R_BAD_ATOM;
 }
 /// mask bit 6: MUTATE -- the run's own control. Each kernel's WGSL gets its
 /// first ' + ' in the stored expression turned into ' - ' (a kernel with none
@@ -118,7 +119,9 @@ pub const R_GEN_VEC = 42; // GL0: vector cases generated
 pub const R_BAD_VEC = 43; // ... and defective
 pub const R_GEN_VIO = 44; // GL0: typed-buffer cases generated
 pub const R_BAD_VIO = 45; // ... and defective
-pub const R_SLOTS = 46;
+pub const R_GEN_ATOM = 46; // GL0: atomic cases generated
+pub const R_BAD_ATOM = 47; // ... and defective
+pub const R_SLOTS = 48;
 
 var result: [R_SLOTS]f64 = @splat(0);
 var first_buf: [SPEC_CAP + 256]u8 = undefined;
@@ -1044,6 +1047,52 @@ pub fn generate(seed: u64, index: u64, kind: u8, c: *Case) void {
                 w.s("body { @res = @acc }\n");
             }
         },
+        K_ATOM => {
+            // GL0 (atomics): '@res[index] op value' -- an index outside the
+            // counters is dropped, and add, max and min agree in any order
+            c.n_ins = g.int(1, 2);
+            var any = false;
+            for (0..c.n_ins) |k| {
+                c.in_int[k] = g.chance(60);
+                if (c.in_int[k]) any = true;
+            }
+            if (!any) c.in_int[0] = true;
+            for (0..c.n_ins) |k| w.f("in {s}{s}\n", .{ IN_NAMES[k], if (c.in_int[k]) " int" else "" });
+            c.n_sc = g.int(0, 1);
+            for (0..c.n_sc) |k| {
+                w.f("scalar {s} int\n", .{SC_NAMES[k]});
+                c.sc[k] = @floatFromInt(r.intRangeAtMost(i32, -20, 20));
+                c.sc_name[k] = SC_NAMES[k];
+            }
+            c.n = g.pickN();
+            for (0..c.n_ins) |k| c.in_len[k] = c.n;
+            const size = g.int(1, 64);
+            w.f("out res atomic {d}\n", .{size});
+            if (g.chance(20)) {
+                w.s("guard { @i < n and ");
+                g.iexpr(1);
+                w.s(" != ");
+                g.iatom();
+                w.s(" }\n");
+            }
+            w.s("body { @res[");
+            switch (g.pick(3)) {
+                0 => w.f("@i % {d}", .{size}),
+                1 => {
+                    w.s("(");
+                    g.iexpr(2);
+                    w.f(") % {d}", .{size}); // may be negative: dropped
+                },
+                else => g.iexpr(2), // anywhere, mostly outside: dropped
+            }
+            w.s(switch (g.pick(3)) {
+                0 => "] += ",
+                1 => "] max= ",
+                else => "] min= ",
+            });
+            if (g.chance(30)) w.s("1") else g.iexpr(2);
+            w.s(" }\n");
+        },
         K_VIO => {
             // a, a number; b and maybe x, vectors; the output a vector or a number
             c.n_ins = g.int(2, MAX_IN);
@@ -1198,8 +1247,13 @@ fn runCase(index: u64, c: *const Case, kernel: i64, rel: f64) void {
 
     // the interpreter
     // GL0 (typed buffers): w floats per element of the output, one mask byte per element
-    const ow: usize = @intFromFloat(wgsl.stz_gpu_spec_out_width());
-    const ref = alloc.alloc(f32, c.n * ow) catch return;
+    const ow0: usize = @intFromFloat(wgsl.stz_gpu_spec_out_width());
+    // GL0 (atomics): SIZE counters, one float each once read, every one compared
+    const atomic = wgsl.stz_gpu_spec_out_atomic() == 1;
+    const asz: usize = @intFromFloat(wgsl.stz_gpu_spec_out_size());
+    const ow: usize = if (atomic) 1 else ow0;
+    const ne: usize = if (atomic) asz else c.n; // the region's elements
+    const ref = alloc.alloc(f32, @max(ne * ow, c.n * ow0)) catch return;
     defer alloc.free(ref);
     const mask = alloc.alloc(u8, c.n) catch return;
     defer alloc.free(mask);
@@ -1237,10 +1291,13 @@ fn runCase(index: u64, c: *const Case, kernel: i64, rel: f64) void {
             return;
         }
     }
-    const total = c.n * ow + MARGIN;
+    const total = ne * ow + MARGIN;
     const cand = alloc.alloc(f32, total) catch return;
     defer alloc.free(cand);
     @memset(cand, std.math.nan(f32));
+    // the counters at their identity, written as bits (min='s identity is NaN-shaped as a float)
+    const cbits: [*]u32 = @ptrCast(cand.ptr);
+    if (atomic) @memset(cbits[0..asz], @as(u32, @bitCast(@as(i32, @intFromFloat(wgsl.stz_gpu_spec_out_identity())))));
     const out_id = gpu.stz_gpu_buffer_new(@floatFromInt(total * 4));
     ids[c.n_ins] = out_id;
     if (out_id <= 0 or gpu.stz_gpu_buffer_write(out_id, @ptrCast(cand.ptr), @floatFromInt(total * 4)) != gpu.OK) {
@@ -1263,18 +1320,21 @@ fn runCase(index: u64, c: *const Case, kernel: i64, rel: f64) void {
     if (c.exact) result[R_EXACT] += 1 else result[R_INEXACT] += 1;
 
     // the margin: anything that is not NaN was written past the region
-    for (cand[c.n * ow .. total], 0..) |x, k| {
+    if (atomic) {
+        for (0..asz) |k| cand[k] = @floatFromInt(@as(i32, @bitCast(cbits[k])));
+    }
+    for (cand[ne * ow .. total], 0..) |x, k| {
         if (x == x) {
-            bad(index, c, R_WRITE_OUTSIDE, "stored past the output region", @intCast(c.n + k / ow));
+            bad(index, c, R_WRITE_OUTSIDE, "stored past the output region", @intCast(ne + k / ow));
             return;
         }
     }
     var worst: f64 = 0;
     var nonfinite = false;
     g_written = 0;
-    for (ref, cand[0 .. c.n * ow], 0..) |x, y, kf| {
+    for (ref[0 .. ne * ow], cand[0 .. ne * ow], 0..) |x, y, kf| {
         const i = kf / ow;
-        const m = mask[i];
+        const m: u8 = if (atomic) 1 else mask[i];
         const first = kf % ow == 0;
         if (first) result[R_ELEMENTS] += 1;
         if (m == 0) {
@@ -1314,10 +1374,20 @@ fn runCase(index: u64, c: *const Case, kernel: i64, rel: f64) void {
 /// The control's one wrong operator: the first ' + ' after the output's
 /// store, in place. False when the stored expression has none.
 fn storeAt(w: []const u8) ?usize {
-    return std.mem.indexOf(u8, w, "v_res[i] = ") orelse std.mem.indexOf(u8, w, "let o_ = ");
+    return std.mem.indexOf(u8, w, "v_res[i] = ") orelse std.mem.indexOf(u8, w, "let o_ = ") orelse std.mem.indexOf(u8, w, "{ let k_ = ");
 }
 
 fn mutateWgsl(w: []u8) bool {
+    // GL0 (atomics): an atomic store's one wrong operator is its operation --
+    // add, max and min rotated, in place (the three names are one length)
+    if (std.mem.indexOf(u8, w, "atomic")) |_| {
+        for ([_][2][]const u8{ .{ "atomicAdd(", "atomicMax(" }, .{ "atomicMax(", "atomicMin(" }, .{ "atomicMin(", "atomicAdd(" } }) |pair| {
+            if (std.mem.indexOf(u8, w, pair[0])) |at| {
+                @memcpy(w[at .. at + pair[1].len], pair[1]);
+                return true;
+            }
+        }
+    }
     const store = storeAt(w) orelse return false;
     const end = std.mem.indexOfScalarPos(u8, w, store, ';') orelse return false;
     const plus = std.mem.indexOf(u8, w[store..end], " + ") orelse return false;
@@ -1504,7 +1574,7 @@ test "the fuzz: every generated description is admitted by both readers, and the
             }
             var scal: [wgsl.MAX_SCALARS]f32 = @splat(0);
             for (0..c.n_sc) |k| scal[k] = c.sc[k];
-            const ref = try alloc.alloc(f32, c.n);
+            const ref = try alloc.alloc(f32, @max(c.n * c.out_w, 64));
             defer alloc.free(ref);
             try std.testing.expectEqual(@as(i32, 0), wgsl.stz_gpu_spec_eval(&ptrs, @intCast(c.n_ins), &lens, &scal, @intCast(c.n_sc), @floatFromInt(c.n), ref.ptr));
             ran += 1;

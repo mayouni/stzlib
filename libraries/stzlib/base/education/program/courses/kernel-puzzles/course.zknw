@@ -16,6 +16,7 @@ facts
     kernel-puzzles | has-chapter-07 | the-branch
     kernel-puzzles | has-chapter-08 | whole-numbers
     kernel-puzzles | has-chapter-09 | the-vector
+    kernel-puzzles | has-chapter-10 | the-counter
 
     the-elementwise-kernel | is-a | chapter
     the-elementwise-kernel | has-exercise | kp-01
@@ -42,6 +43,8 @@ facts
     the-vector | is-a | chapter
     the-vector | has-exercise | kp-15
     the-vector | has-exercise | kp-16
+    the-counter | is-a | chapter
+    the-counter | has-exercise | kp-17
 
     kernel-puzzles | has-exercise | kp-01
     kernel-puzzles | has-exercise | kp-02
@@ -59,3 +62,4 @@ facts
     kernel-puzzles | has-exercise | kp-14
     kernel-puzzles | has-exercise | kp-15
     kernel-puzzles | has-exercise | kp-16
+    kernel-puzzles | has-exercise | kp-17
