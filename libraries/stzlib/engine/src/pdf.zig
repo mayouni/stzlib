@@ -3402,6 +3402,54 @@ fn findLadderTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.Arr
     }
 }
 
+// A group label over some of a table's columns, set just above its header ("Wymagania" centred over "min." and
+// "maks."): the header becomes two rows -- the label over the columns it covers, the header cell itself elsewhere --
+// with the old header row under it.
+fn groupHeaders(a: Allocator, frags: []Frag, tables: *std.ArrayList(TableOut)) !void {
+    for (tables.items, 0..) |*t, ti| {
+        if (t.rows.len < 2 or t.cols.len < 3 or t.rows[0].len != t.cols.len) continue;
+        const n = t.cols.len;
+        var lab = try a.alloc([]const u8, n);
+        for (lab) |*l| l.* = "";
+        var found: std.ArrayList(usize) = .empty;
+        for (frags, 0..) |f, k| {
+            if (f.text.len == 0 or f.table >= 0) continue;
+            if (f.y1 > t.y0 + 1 or f.y1 < t.y0 - 1.8 * f.size) continue;
+            if (f.size > 1.1 * t.size or f.x1 - f.x0 > 0.6 * (t.x1 - t.x0)) continue;
+            // (a label of a few words inside the table's width, never a caption starting at its edge)
+            if (proseWords(f.text) > 4 or f.x0 < t.x0 + f.size or f.x1 > t.x1 - f.size) continue;
+            // (a caption is centred on the whole table; a group label on its own columns)
+            if (@abs((f.x0 + f.x1) / 2 - (t.x0 + t.x1) / 2) < 0.1 * (t.x1 - t.x0)) continue;
+            var c0: usize = n;
+            var c1: usize = 0;
+            for (t.cols, 0..) |c, ci| {
+                if (f.x1 > c[0] and f.x0 < c[1]) {
+                    c0 = @min(c0, ci);
+                    c1 = ci;
+                }
+            }
+            if (c0 >= n or c1 == c0 or c1 - c0 + 1 >= n) continue;
+            // (centred over the columns it covers, as a group label is; a caption starts at the table's edge)
+            const mid = (t.cols[c0][0] + t.cols[c1][1]) / 2;
+            const w = t.cols[c1][1] - t.cols[c0][0];
+            if (@abs((f.x0 + f.x1) / 2 - mid) > 0.15 * w) continue;
+            for (c0..c1 + 1) |ci| lab[ci] = f.text;
+            try found.append(a, k);
+        }
+        if (found.items.len == 0) continue;
+        var top = try a.alloc([]const u8, n);
+        for (0..n) |ci| top[ci] = if (lab[ci].len > 0) lab[ci] else t.rows[0][ci];
+        var rows = try a.alloc([][]const u8, t.rows.len + 1);
+        rows[0] = top;
+        @memcpy(rows[1..], t.rows);
+        t.rows = rows;
+        for (found.items) |k| {
+            frags[k].table = @intCast(ti);
+            t.y0 = @min(t.y0, frags[k].y0);
+        }
+    }
+}
+
 // A table drawn WITHOUT lines: at least three consecutive rows, each holding two or more fragments, whose
 // fragments fall into the same columns (the empty vertical bands they leave), and whose cells are short --
 // mostly three words or fewer, which is what tells a table from two or three columns of prose.
@@ -5005,6 +5053,7 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
         try growTables(a, frags.items, &tables);
         try findLadderTables(a, frags.items, pg.rules, &tables);
         try stackTables(a, frags.items, &tables);
+        try groupHeaders(a, frags.items, &tables);
         // units: the fragments outside tables, plus one unit per table
         var units: std.ArrayList(Frag) = .empty;
         for (frags.items) |f| if (f.table < 0 and f.text.len > 0) try units.append(a, f);
