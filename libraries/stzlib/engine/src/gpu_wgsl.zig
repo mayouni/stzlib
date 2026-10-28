@@ -156,6 +156,7 @@ pub const Item = struct {
     index: []const u8 = "", // stage: the slot expression
     value: []const u8 = "", // stage: the value; accumulate: the new @acc
     op: ReduceOp = .sum,
+    line: u16 = 0, // GZ0: the description's line, 1-based, for the sanitizer's reports
 };
 
 pub const Decl = struct {
@@ -180,6 +181,8 @@ pub const Decl = struct {
     tilevar: Name = .{},
     width: []const u8 = "", // a scalar name or a literal (empty: 1-D)
     has_acc: bool = false,
+    body_line: u16 = 0, // GZ0
+    guard_line: u16 = 0,
 
     fn sharedIndex(self: *const Decl, s: []const u8) ?usize {
         return nameIn(self.shared[0..], self.n_shared, s);
@@ -231,7 +234,9 @@ fn parseDecl(text: []const u8, d: *Decl) i32 {
 
     // ---- parse the directive lines
     var lines = std.mem.splitScalar(u8, text, '\n');
+    var line_no: u16 = 0;
     while (lines.next()) |raw| {
+        line_no +|= 1;
         const line = std.mem.trim(u8, raw, " \t\r");
         if (line.len == 0) continue;
         if (std.mem.startsWith(u8, line, "in ")) {
@@ -263,7 +268,9 @@ fn parseDecl(text: []const u8, d: *Decl) i32 {
             have_out = true;
         } else if (std.mem.startsWith(u8, line, "body ")) {
             body = std.mem.trim(u8, line[5..], " \t");
+            d.body_line = line_no;
         } else if (std.mem.startsWith(u8, line, "guard ")) {
+            d.guard_line = line_no;
             var g = std.mem.trim(u8, line[6..], " \t");
             if (g.len >= 2 and g[0] == '{' and g[g.len - 1] == '}')
                 g = std.mem.trim(u8, g[1 .. g.len - 1], " \t");
@@ -313,7 +320,7 @@ fn parseDecl(text: []const u8, d: *Decl) i32 {
             const value = std.mem.trim(u8, b[eq + 1 ..], " \t");
             if (value.len == 0) return fail("stage has no value after '='", .{});
             if (d.n_items == MAX_ITEMS) return fail("too many stages (max {d})", .{MAX_ITEMS});
-            d.items[d.n_items] = .{ .kind = .stage, .shared = si, .index = index, .value = value };
+            d.items[d.n_items] = .{ .kind = .stage, .shared = si, .index = index, .value = value, .line = line_no };
             d.n_items += 1;
         } else if (std.mem.startsWith(u8, line, "reduce ")) {
             // KP3: `reduce NAME sum|max|min`
@@ -330,7 +337,7 @@ fn parseDecl(text: []const u8, d: *Decl) i32 {
             if (!lowerInto(&opn, std.mem.trim(u8, rest[sp..], " \t"))) return fail("bad reduce operation", .{});
             const op: ReduceOp = if (std.mem.eql(u8, opn.slice(), "sum")) .sum else if (std.mem.eql(u8, opn.slice(), "max")) .max else if (std.mem.eql(u8, opn.slice(), "min")) .min else return fail("reduce knows sum, max and min, not '{s}'", .{opn.slice()});
             if (d.n_items == MAX_ITEMS) return fail("too many stages (max {d})", .{MAX_ITEMS});
-            d.items[d.n_items] = .{ .kind = .reduce, .shared = si, .op = op };
+            d.items[d.n_items] = .{ .kind = .reduce, .shared = si, .op = op, .line = line_no };
             d.n_items += 1;
         } else if (std.mem.startsWith(u8, line, "accumulate ")) {
             // KP3: `accumulate { @acc = expression }` -- inside the tiles loop only
@@ -345,7 +352,7 @@ fn parseDecl(text: []const u8, d: *Decl) i32 {
             const value = std.mem.trim(u8, b[eq + 1 ..], " \t");
             if (value.len == 0) return fail("accumulate has no value after '='", .{});
             if (d.n_items == MAX_ITEMS) return fail("too many stages (max {d})", .{MAX_ITEMS});
-            d.items[d.n_items] = .{ .kind = .accumulate, .value = value };
+            d.items[d.n_items] = .{ .kind = .accumulate, .value = value, .line = line_no };
             d.n_items += 1;
             d.has_acc = true;
         } else if (std.mem.startsWith(u8, line, "width ")) {
@@ -1362,6 +1369,10 @@ const Kp3 = struct {
     has_acc: bool = false,
     width_lit: usize = 0, // a literal width, or 0
     width_scalar: ?usize = null, // a scalar width
+    lines: [MAX_ITEMS]u16 = @splat(0), // GZ0
+    body_line: u16 = 0,
+    guard_line: u16 = 0,
+    names: [MAX_SHARED]Name = undefined,
 };
 var g_kp3: Kp3 = .{};
 var g_item_idx: [MAX_ITEMS]Program = undefined;
@@ -1371,6 +1382,119 @@ var g_sh: [MAX_SHARED][MAX_SHARED_SIZE]f32 = undefined;
 var g_acc: [GROUP]f32 = undefined;
 var g_tmp_ix: [GROUP]f32 = undefined;
 var g_tmp_v: [GROUP]f32 = undefined;
+
+// ---------------------------------------------------------------- GZ0: the sanitizer
+// The interpreter runs a group a stage at a time, so it sees what the device
+// cannot report: which thread wrote each slot, and which reads found nothing
+// written. The grammar already makes some defects unwritable -- every barrier
+// stands outside any branch, a tiles count is the same for every thread, a
+// stage cannot read the array it writes -- so four remain, and the sanitizer
+// names each with the description's line, the threads and the slot:
+//   race       two threads of one stage write one slot: the device keeps any
+//              one of the writes, the interpreter the last thread's
+//   dropped    a stage writes past its array: the kernel drops the write
+//   past       a read past a shared array: it reads 0
+//   unwritten  a read of a slot no stage of this group wrote: it reads the
+//              zero the kernel filled; a max or min reduce counts such a slot
+//              (the zero takes part), a sum does not (it adds nothing)
+// It runs only when asked (stz_gpu_spec_sanitize); the plain evaluation pays
+// one branch per read and per stage.
+pub const SAN_RACE = 0;
+pub const SAN_DROPPED = 1;
+pub const SAN_PAST = 2;
+pub const SAN_UNWRITTEN = 3;
+pub const SAN_KINDS = 4;
+const NOBODY: u16 = 0xFFFF;
+const SanWhere = enum(u8) { stage, reduce, accumulate, body, guard };
+const SanFinding = struct {
+    count: f64 = 0,
+    line: u16 = 0,
+    where: SanWhere = .body,
+    group: usize = 0,
+    a: usize = 0, // the thread (for a race, the first writer)
+    b: usize = 0, // a race's second writer
+    slot: i64 = 0,
+    arr: usize = 0,
+    same: bool = true, // a race: every colliding write carried one value so far
+};
+var g_san: bool = false;
+var g_san_f: [SAN_KINDS]SanFinding = @splat(.{});
+var g_san_written: [MAX_SHARED][MAX_SHARED_SIZE]bool = undefined;
+var g_san_writer: [MAX_SHARED_SIZE]u16 = undefined;
+var g_san_line: u16 = 0;
+var g_san_where: SanWhere = .body;
+var g_san_group: usize = 0;
+
+fn sanNote(kind: usize, f: SanFinding) void {
+    const cur = &g_san_f[kind];
+    if (cur.count == 0) {
+        cur.* = f;
+        cur.count = 1;
+    } else {
+        cur.count += 1;
+        if (kind == SAN_RACE and !f.same) cur.same = false;
+    }
+}
+
+fn sanSlot(th: *const Thread, which: usize, raw: f32) void {
+    const ix_opt = toIndex(raw);
+    if (ix_opt == null or ix_opt.? >= g_kp3.sizes[which]) {
+        sanNote(SAN_PAST, .{ .line = g_san_line, .where = g_san_where, .group = th.g, .a = th.l, .slot = if (raw == raw and @abs(raw) < 1e15) @intFromFloat(@trunc(raw)) else -1, .arr = which });
+        return;
+    }
+    if (!g_san_written[which][ix_opt.?])
+        sanNote(SAN_UNWRITTEN, .{ .line = g_san_line, .where = g_san_where, .group = th.g, .a = th.l, .slot = @intCast(ix_opt.?), .arr = which });
+}
+
+/// Run the compiled description as stz_gpu_spec_eval_masked does, with the
+/// sanitizer watching. Returns the number of defect kinds found (0: clean),
+/// or -1 when the evaluation itself refused. A description with no shared
+/// memory has nothing for it to watch and returns 0.
+pub fn stz_gpu_spec_sanitize(ins: [*]const [*]const f32, n_ins: i32, lens: [*]const f64, scalars: [*]const f32, n_scalars: i32, nf: f64, out: [*]f32, mask: ?[*]u8) callconv(.c) i32 {
+    g_san_f = @splat(.{});
+    g_san = true;
+    defer g_san = false;
+    if (stz_gpu_spec_eval_masked(ins, n_ins, lens, scalars, n_scalars, nf, out, mask) != 0) return -1;
+    var kinds: i32 = 0;
+    for (g_san_f) |f| {
+        if (f.count > 0) kinds += 1;
+    }
+    return kinds;
+}
+
+/// How many times the last sanitized run met a defect of `kind` (SAN_*).
+pub fn stz_gpu_sanitize_count(kind: i32) callconv(.c) f64 {
+    if (kind < 0 or kind >= SAN_KINDS) return 0;
+    return g_san_f[@intCast(kind)].count;
+}
+
+/// The line of the first defect of `kind`, 0 when there is none.
+pub fn stz_gpu_sanitize_line(kind: i32) callconv(.c) f64 {
+    if (kind < 0 or kind >= SAN_KINDS) return 0;
+    return @floatFromInt(g_san_f[@intCast(kind)].line);
+}
+
+/// The last sanitized run, one sentence per defect kind found, each naming
+/// the line, the threads, the slot and what the device does instead.
+pub fn stz_gpu_sanitize_report(out: [*]u8, cap: f64) callconv(.c) i32 {
+    var w = Cursor{ .buf = out[0..@intFromFloat(cap)] };
+    var num: [512]u8 = undefined;
+    const wname = [_][]const u8{ "a stage", "a reduce", "the accumulate line", "the body", "the guard" };
+    for (g_san_f, 0..) |f, k| {
+        if (f.count == 0) continue;
+        const arr = g_kp3.names[f.arr].slice();
+        const size = g_kp3.sizes[f.arr];
+        const where = wname[@intFromEnum(f.where)];
+        const line = switch (k) {
+            SAN_RACE => std.fmt.bufPrint(&num, "race: line {d}, {s}: threads {d} and {d} of group {d} both write slot {d} of @{s}; the device keeps any one of the writes ({d} writes collided{s})\n", .{ f.line, where, f.a, f.b, f.group, f.slot, arr, @as(u64, @intFromFloat(f.count)), if (f.same) ", each with the same value, so the answer does not depend on it" else "" }),
+            SAN_DROPPED => std.fmt.bufPrint(&num, "dropped: line {d}, {s}: thread {d} of group {d} writes slot {d} of @{s}, which holds {d}; the write is dropped ({d} writes dropped)\n", .{ f.line, where, f.a, f.group, f.slot, arr, size, @as(u64, @intFromFloat(f.count)) }),
+            SAN_PAST => std.fmt.bufPrint(&num, "past: line {d}, {s}: thread {d} of group {d} reads slot {d} of @{s}, which holds {d}; it reads 0 ({d} reads)\n", .{ f.line, where, f.a, f.group, f.slot, arr, size, @as(u64, @intFromFloat(f.count)) }),
+            else => std.fmt.bufPrint(&num, "unwritten: line {d}, {s}: thread {d} of group {d} reads slot {d} of @{s}, which no stage wrote; it reads the 0 the kernel filled ({d} reads)\n", .{ f.line, where, f.a, f.group, f.slot, arr, @as(u64, @intFromFloat(f.count)) }),
+        } catch continue;
+        w.put(line);
+    }
+    return @intCast(w.len);
+}
 
 /// One thread, as a program sees it.
 const Thread = struct {
@@ -1762,6 +1886,7 @@ pub fn stz_gpu_spec_compile(spec: [*]const u8, spec_len: f64) callconv(.c) i32 {
         g_kp3.kinds[k] = it.kind;
         g_kp3.shared_of[k] = it.shared;
         g_kp3.ops[k] = it.op;
+        g_kp3.lines[k] = it.line;
         switch (it.kind) {
             .stage => {
                 if (compileInto(&g_item_idx[k], it.index, &d, .stage, inside, it.shared) < 0) return -1;
@@ -1781,6 +1906,9 @@ pub fn stz_gpu_spec_compile(spec: [*]const u8, spec_len: f64) callconv(.c) i32 {
     g_kp3.has_acc = d.has_acc;
     g_kp3.n_shared = d.n_shared;
     for (0..d.n_shared) |s| g_kp3.sizes[s] = d.shared_size[s];
+    for (0..d.n_shared) |s| g_kp3.names[s] = d.shared[s];
+    g_kp3.body_line = d.body_line;
+    g_kp3.guard_line = d.guard_line;
     if (d.width.len != 0) {
         if (parseSize(d.width)) |v| {
             g_kp3.width_lit = v;
@@ -1896,6 +2024,7 @@ fn runProgram(p: *const Program, th: *const Thread, ins: [*]const [*]const f32, 
             .sh_rd => {
                 if (sp < 1) return null;
                 const which = p.args[k];
+                if (g_san) sanSlot(th, which, st[sp - 1]);
                 st[sp - 1] = if (toIndex(st[sp - 1])) |ix| (if (ix < g_kp3.sizes[which]) g_sh[which][ix] else 0.0) else 0.0;
                 ops += 1;
             },
@@ -2071,6 +2200,8 @@ fn runItem(k: usize, g: usize, n: usize, width: usize, tile: f32, ins: [*]const 
         .stage => {
             // every thread computes its slot and value from the state BEFORE the
             // stage, then all write: the barrier after it is what the kernel waits on
+            g_san_line = g_kp3.lines[k];
+            g_san_where = .stage;
             for (0..GROUP) |l| {
                 var t = threadAt(g, l, n, width);
                 t.acc = g_acc[l];
@@ -2079,14 +2210,36 @@ fn runItem(k: usize, g: usize, n: usize, width: usize, tile: f32, ins: [*]const 
                 g_tmp_v[l] = runProgram(&g_item_val[k], &t, ins, lens, scalars, &g_eval_flops) orelse return false;
             }
             const s = g_kp3.shared_of[k];
+            if (g_san) @memset(g_san_writer[0..g_kp3.sizes[s]], NOBODY);
             for (0..GROUP) |l| {
                 if (toIndex(g_tmp_ix[l])) |ix| {
-                    if (ix < g_kp3.sizes[s]) g_sh[s][ix] = g_tmp_v[l];
+                    if (ix < g_kp3.sizes[s]) {
+                        g_sh[s][ix] = g_tmp_v[l];
+                        if (g_san) {
+                            const prev = g_san_writer[ix];
+                            if (prev != NOBODY) sanNote(SAN_RACE, .{ .line = g_kp3.lines[k], .where = .stage, .group = g, .a = prev, .b = l, .slot = @intCast(ix), .arr = s, .same = g_tmp_v[prev] == g_tmp_v[l] });
+                            g_san_writer[ix] = @intCast(l);
+                            g_san_written[s][ix] = true;
+                        }
+                        continue;
+                    }
+                }
+                if (g_san) {
+                    const raw = g_tmp_ix[l];
+                    sanNote(SAN_DROPPED, .{ .line = g_kp3.lines[k], .where = .stage, .group = g, .a = l, .slot = if (raw == raw and @abs(raw) < 1e15) @intFromFloat(@trunc(raw)) else -1, .arr = s });
                 }
             }
         },
         .reduce => {
             const s = g_kp3.shared_of[k];
+            if (g_san and g_kp3.ops[k] != .sum) {
+                // a max or a min over a slot no stage wrote counts its zero
+                for (0..g_kp3.sizes[s]) |ix| {
+                    if (!g_san_written[s][ix]) {
+                        sanNote(SAN_UNWRITTEN, .{ .line = g_kp3.lines[k], .where = .reduce, .group = g, .a = if (ix < GROUP) ix else 0, .slot = @intCast(ix), .arr = s });
+                    }
+                }
+            }
             var half = g_kp3.sizes[s] / 2;
             while (half > 0) : (half /= 2) {
                 for (0..half) |l| {
@@ -2102,6 +2255,8 @@ fn runItem(k: usize, g: usize, n: usize, width: usize, tile: f32, ins: [*]const 
             }
         },
         .accumulate => {
+            g_san_line = g_kp3.lines[k];
+            g_san_where = .accumulate;
             for (0..GROUP) |l| {
                 var t = threadAt(g, l, n, width);
                 t.acc = g_acc[l];
@@ -2138,6 +2293,9 @@ fn evalGroups(ins: [*]const [*]const f32, lens: [*]const f64, scalars: [*]const 
     const groups = (n + GROUP - 1) / GROUP;
     for (0..groups) |g| {
         for (0..g_kp3.n_shared) |s| @memset(g_sh[s][0..g_kp3.sizes[s]], 0); // WGSL zero-initialises workgroup memory
+        if (g_san) {
+            for (0..g_kp3.n_shared) |s| @memset(g_san_written[s][0..g_kp3.sizes[s]], false);
+        }
         @memset(&g_acc, 0);
         for (0..g_kp3.loop_from) |k| {
             if (!runItem(k, g, n, width, 0, ins, lens, scalars)) return -1;
@@ -2157,6 +2315,8 @@ fn evalGroups(ins: [*]const [*]const f32, lens: [*]const f64, scalars: [*]const 
             if (t.i >= n) continue;
             t.acc = g_acc[l];
             if (g_guard_kind == .custom) {
+                g_san_line = g_kp3.guard_line;
+                g_san_where = .guard;
                 const gv = runProgram(&g_guard, &t, ins, lens, scalars, &g_eval_flops) orelse return -1;
                 if (gv == 0) {
                     out[t.i] = std.math.nan(f32);
@@ -2164,6 +2324,8 @@ fn evalGroups(ins: [*]const [*]const f32, lens: [*]const f64, scalars: [*]const 
                     continue;
                 }
             }
+            g_san_line = g_kp3.body_line;
+            g_san_where = .body;
             out[t.i] = runProgram(&g_prog, &t, ins, lens, scalars, &g_eval_flops) orelse return -1;
             if (mask) |m| m[t.i] = 1;
         }
@@ -2961,6 +3123,107 @@ test "GT0: 'and' beside 'or' without parentheses is refused by both readers, as 
         try std.testing.expect(stz_gpu_wgsl_elementwise(o.ptr, @floatFromInt(o.len), &buf, buf.len) > 0);
         try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_compile(o.ptr, @floatFromInt(o.len)));
     }
+}
+
+fn sanitizeFor(spec: []const u8, n: usize, a: []const f32) !i32 {
+    if (stz_gpu_spec_compile(spec.ptr, @floatFromInt(spec.len)) != 0) return error.Refused;
+    const ins = [_][*]const f32{a.ptr};
+    const lens = [_]f64{@floatFromInt(a.len)};
+    const sc = [_]f32{0};
+    var out: [1024]f32 = undefined;
+    var mask: [1024]u8 = undefined;
+    return stz_gpu_spec_sanitize(&ins, 1, &lens, &sc, 0, @floatFromInt(n), &out, &mask);
+}
+
+fn sanitizeReport(buf: []u8) []const u8 {
+    const n = stz_gpu_sanitize_report(buf.ptr, @floatFromInt(buf.len));
+    return buf[0..@intCast(n)];
+}
+
+test "GZ0: the sanitizer names a race -- two threads of one stage, one slot -- with the line and the threads" {
+    var a: [512]f32 = undefined;
+    for (&a, 0..) |*v, i| v.* = @floatFromInt(i);
+    var rb: [2048]u8 = undefined;
+    const race = "in a\nout c\nshared t 256\nstage { @t[@l % 4] = @a }\nbody { @c = @t[0] }";
+    try std.testing.expectEqual(@as(i32, 1), try sanitizeFor(race, 512, &a));
+    try std.testing.expectEqual(@as(f64, 2 * 252), stz_gpu_sanitize_count(SAN_RACE)); // 252 collisions per group, 2 groups
+    try std.testing.expectEqual(@as(f64, 4), stz_gpu_sanitize_line(SAN_RACE));
+    const r = sanitizeReport(&rb);
+    try std.testing.expect(std.mem.indexOf(u8, r, "race: line 4, a stage: threads 0 and 4 of group 0 both write slot 0 of @t") != null);
+    try std.testing.expect(std.mem.indexOf(u8, r, "same value") == null);
+    // one value from every thread: still named, and said to be harmless
+    const same = "in a\nout c\nshared t 256\nstage { @t[@l % 4] = 1 }\nbody { @c = @t[0] }";
+    try std.testing.expectEqual(@as(i32, 1), try sanitizeFor(same, 256, a[0..256]));
+    try std.testing.expect(std.mem.indexOf(u8, sanitizeReport(&rb), "the same value, so the answer does not depend on it") != null);
+}
+
+test "GZ0: a write past the array, a read past it, and a read of a slot nobody wrote" {
+    var a: [256]f32 = undefined;
+    for (&a, 0..) |*v, i| v.* = @floatFromInt(i);
+    var rb: [2048]u8 = undefined;
+    // the array holds 128; threads 128 to 255 stage past it
+    const dropped = "in a\nout c\nshared t 128\nstage { @t[@l] = @a }\nbody { @c = @t[@l % 128] }";
+    try std.testing.expectEqual(@as(i32, 1), try sanitizeFor(dropped, 256, &a));
+    try std.testing.expectEqual(@as(f64, 128), stz_gpu_sanitize_count(SAN_DROPPED));
+    try std.testing.expect(std.mem.indexOf(u8, sanitizeReport(&rb), "dropped: line 4, a stage: thread 128 of group 0 writes slot 128 of @t, which holds 128") != null);
+    // thread 255 reads slot 256
+    const past = "in a\nout c\nshared t 256\nstage { @t[@l] = @a }\nbody { @c = @t[@l + 1] }";
+    try std.testing.expectEqual(@as(i32, 1), try sanitizeFor(past, 256, &a));
+    try std.testing.expectEqual(@as(f64, 1), stz_gpu_sanitize_count(SAN_PAST));
+    try std.testing.expect(std.mem.indexOf(u8, sanitizeReport(&rb), "past: line 5, the body: thread 255 of group 0 reads slot 256 of @t, which holds 256; it reads 0") != null);
+    // puzzle 9's second mistake: no stage at all
+    const nostage = "in a\nout c\nshared t 256\nbody { @c = @t[255 - @l] }";
+    try std.testing.expectEqual(@as(i32, 1), try sanitizeFor(nostage, 256, &a));
+    try std.testing.expectEqual(@as(f64, 256), stz_gpu_sanitize_count(SAN_UNWRITTEN));
+    try std.testing.expect(std.mem.indexOf(u8, sanitizeReport(&rb), "unwritten: line 4, the body: thread 0 of group 0 reads slot 255 of @t, which no stage wrote") != null);
+}
+
+test "GZ0: a max over slots no stage wrote counts their zero; a sum over them does not" {
+    var a: [256]f32 = undefined;
+    for (&a, 0..) |*v, i| v.* = -1 - @as(f32, @floatFromInt(i)); // every value negative: the zero wins a max
+    var rb: [2048]u8 = undefined;
+    const mx = "in a\nout c\nshared t 256\nstage { @t[@l % 128] = @a }\nreduce t max\nbody { @c = @t[0] }";
+    _ = try sanitizeFor(mx, 256, &a);
+    try std.testing.expect(stz_gpu_sanitize_count(SAN_UNWRITTEN) == 128); // slots 128..255
+    try std.testing.expectEqual(@as(f64, 5), stz_gpu_sanitize_line(SAN_UNWRITTEN));
+    try std.testing.expect(std.mem.indexOf(u8, sanitizeReport(&rb), "unwritten: line 5, a reduce:") != null);
+    try std.testing.expect(stz_gpu_sanitize_count(SAN_RACE) > 0); // and @l % 128 collides: two threads per slot
+    const sum = "in a\nout c\nshared t 256\nstage { @t[@l * 2] = @a }\nreduce t sum\nbody { @c = @t[0] }";
+    _ = try sanitizeFor(sum, 256, &a);
+    try std.testing.expectEqual(@as(f64, 0), stz_gpu_sanitize_count(SAN_UNWRITTEN));
+    try std.testing.expectEqual(@as(f64, 128), stz_gpu_sanitize_count(SAN_DROPPED));
+}
+
+test "GZ0: the puzzles' references are clean, and watching does not change an answer" {
+    var a: [3072]f32 = undefined;
+    for (&a, 0..) |*v, i| v.* = @as(f32, @floatFromInt(i % 13)) - 6;
+    const refs = [_][]const u8{
+        "in a\nout c\nshared t 256\nstage { @t[@l] = @a }\nbody { @c = @t[255 - @l] }",
+        "in a\nout c\nshared t 256\nstage { @t[@l] = @a }\nreduce t sum\nbody { @c = @t[0] }",
+        "in a\nout c\nshared t 256\nstage { @t[@l] = @a }\nreduce t max\nbody { @c = @t[0] }",
+    };
+    for (refs) |r| {
+        try std.testing.expectEqual(@as(i32, 0), try sanitizeFor(r, 1024, a[0..1024]));
+        // the same answer with and without the sanitizer
+        const ins = [_][*]const f32{&a};
+        const lens = [_]f64{1024};
+        const sc = [_]f32{0};
+        var o1: [1024]f32 = undefined;
+        var o2: [1024]f32 = undefined;
+        var m: [1024]u8 = undefined;
+        try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_eval(&ins, 1, &lens, &sc, 0, 1024, &o1));
+        _ = stz_gpu_spec_sanitize(&ins, 1, &lens, &sc, 0, 1024, &o2, &m);
+        try std.testing.expectEqualSlices(f32, &o1, &o2);
+    }
+    // the tiled product of puzzle 10: clean
+    const mm = "in a\nin b\nscalar k\nscalar w\nout c\nwidth w\nshared ta 256\nshared tb 256\ntiles t { k / 16 }\nstage { @ta[@ly * 16 + @lx] = @a[@row * k + t * 16 + @lx] }\nstage { @tb[@ly * 16 + @lx] = @b[(t * 16 + @ly) * w + @col] }\naccumulate { @acc = @acc + sum(j, 0, 16, @ta[@ly * 16 + j] * @tb[j * 16 + @lx]) }\nbody { @c = @acc }";
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_compile(mm.ptr, @floatFromInt(mm.len)));
+    const ins2 = [_][*]const f32{ &a, &a };
+    const lens2 = [_]f64{ 32 * 64, 64 * 48 };
+    const sc2 = [_]f32{ 64, 48 };
+    var o: [32 * 48]f32 = undefined;
+    var m2: [32 * 48]u8 = undefined;
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_sanitize(&ins2, 2, &lens2, &sc2, 2, 32 * 48, &o, &m2));
 }
 
 test "transpile basics" {

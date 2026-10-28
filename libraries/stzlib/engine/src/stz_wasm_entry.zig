@@ -210,6 +210,19 @@ fn spec_eval_masked(ins_ptr: u32, n_ins: i32, lens_ptr: u32, scalars_ptr: u32, n
 fn spec_eval_flops() callconv(.c) f64 {
     return gpu_wgsl.stz_gpu_spec_eval_flops();
 }
+// GZ0: the same evaluation with the sanitizer watching; the report is text
+fn spec_sanitize(ins_ptr: u32, n_ins: i32, lens_ptr: u32, scalars_ptr: u32, n_scalars: i32, n: usize, out_ptr: u32, mask_ptr: u32) callconv(.c) i32 {
+    const ins: [*]const [*]const f32 = @ptrFromInt(@as(usize, ins_ptr));
+    const lens: [*]const f64 = @ptrFromInt(@as(usize, lens_ptr));
+    const scalars: [*]const f32 = @ptrFromInt(@as(usize, scalars_ptr));
+    const out: [*]f32 = @ptrFromInt(@as(usize, out_ptr));
+    const mask: ?[*]u8 = if (mask_ptr == 0) null else @ptrFromInt(@as(usize, mask_ptr));
+    return gpu_wgsl.stz_gpu_spec_sanitize(ins, n_ins, lens, scalars, n_scalars, @floatFromInt(n), out, mask);
+}
+fn sanitize_report(out_ptr: u32, cap: usize) callconv(.c) i32 {
+    const out: [*]u8 = @ptrFromInt(@as(usize, out_ptr));
+    return gpu_wgsl.stz_gpu_sanitize_report(out, @floatFromInt(cap));
+}
 // KP3: the roof kernels, so a browser measures its adapter's roofs with GK3's texts
 fn roof_wgsl(which: i32, out_ptr: u32, cap: usize) callconv(.c) i32 {
     const out: [*]u8 = @ptrFromInt(@as(usize, out_ptr));
@@ -434,6 +447,8 @@ comptime {
         @export(&spec_compile, .{ .name = "stz_gpu_spec_compile" });
         @export(&spec_eval_masked, .{ .name = "stz_gpu_spec_eval_masked" });
         @export(&spec_eval_flops, .{ .name = "stz_gpu_spec_eval_flops" });
+        @export(&spec_sanitize, .{ .name = "stz_gpu_spec_sanitize" });
+        @export(&sanitize_report, .{ .name = "stz_gpu_sanitize_report" });
         @export(&roof_wgsl, .{ .name = "stz_gpu_roof_wgsl" });
         @export(&roof_number, .{ .name = "stz_gpu_roof_number" });
     }

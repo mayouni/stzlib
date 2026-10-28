@@ -24,7 +24,11 @@
 # The verdict is ONE WORD or a short phrase the promise can match:
 #   verified · mismatch at element K · mismatch-hidden at element K ·
 #   write-outside at element K · impossible · refused: <why> ·
-#   waiting for your implementation
+#   race at line L · waiting for your implementation
+# A race is named before anything runs: two threads of one stage writing one
+# slot leave the device free to keep either write, so no comparison of values
+# can stand for it (GZ0). Sanitize() gives the sentence behind it, and the
+# quieter defects the device runs without a word.
 # On a machine without a device the grading is the interpreter's alone, at
 # both shapes, in the same words; a store past the region cannot be seen
 # there (the margin needs a device). GradeOnCpu is that path, callable.
@@ -285,8 +289,8 @@ class stzKernelPuzzle from stzObject
 	#
 	#   pLearner   a stzKernelMaker, or the description as text
 	#   returns    a text: verified, mismatch at element K, mismatch-hidden at element K,
-	#              write-outside at element K, impossible, refused: why, or waiting for your
-	#              implementation
+	#              write-outside at element K, impossible, refused: why, race at line L, or waiting
+	#              for your implementation
 	#   note       with a device, the checker's VerifySpec with the NaN margin; without one, the
 	#              interpreter alone at both shapes, and the verdict says so after the word
 	def Grade(pLearner)
@@ -295,6 +299,10 @@ class stzKernelPuzzle from stzObject
 			return _r_
 		ok
 		_oK_ = _r_
+		_cRace_ = This._RaceVerdict(_oK_)
+		if _cRace_ != ""
+			return _cRace_
+		ok
 		_oRef_ = StzKernelMakerFromSpec(@cReference)
 		_aB_ = This.Bindings()
 		_nN_ = This.Elements()
@@ -411,9 +419,43 @@ class stzKernelPuzzle from stzObject
 		if isString(_r_)
 			return _r_
 		ok
+		_cRace_ = This._RaceVerdict(_r_)
+		if _cRace_ != ""
+			return _cRace_
+		ok
 		return This._GradeOnCpu(StzKernelMakerFromSpec(@cReference), _r_, This.Bindings(), This.Elements())
 
 	# A maker ready to grade, or the verdict that ends the grading before any run
+	# Runs the learner's kernel on the CPU with the sanitizer watching, at the puzzle's visible shape, and returns what it found.
+	#
+	#   pLearner   a stzKernelMaker, or the description as text
+	#   returns    a list of texts, one per defect kind, each naming the line, the threads and the slot;
+	#              empty when the kernel is clean, or when it cannot be evaluated (Grade says why)
+	#   note       GZ0 (2026-10-28): a race is also Grade's verdict; a write or a read past an array,
+	#              and a read of a slot nobody wrote, run on the device without a word and are said here
+	#   see        Grade
+	def Sanitize(pLearner)
+		_r_ = This._Prepare(pLearner)
+		if isString(_r_)
+			return []
+		ok
+		try
+			return _r_.SanitizeOnWith(This.Bindings(), [ :n = This.Elements() ])
+		catch
+			return []
+		done
+
+	def _RaceVerdict(poK)
+		try
+			poK.SanitizeOnWith(This.Bindings(), [ :n = This.Elements() ])
+		catch
+			return ""
+		done
+		if StzEngineGpuSanitizeCount(0) > 0
+			return "race at line " + StzEngineGpuSanitizeLine(0)
+		ok
+		return ""
+
 	def _Prepare(pLearner)
 		if isString(pLearner)
 			_cText_ = StzReplace(pLearner, char(13), "")

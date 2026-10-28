@@ -201,6 +201,8 @@ aCases = [
 	[ "kp-09", "in a" + NLc + "out c" + NLc + "shared t 256" + NLc + "stage { @t[255 - @l] = @a }" + NLc + "body { @c = @t[@l] }", "verified" ],
 	[ "kp-09", "in a" + NLc + "out c" + NLc + "shared t 256" + NLc + "body { @c = @t[255 - @l] }", "mismatch at element 1" ],
 	[ "kp-09", "in a" + NLc + "out c" + NLc + "shared t 256" + NLc + "body { @c = @a[n - 1 - @i] }", "mismatch at element 1" ],
+	[ "kp-09", "in a" + NLc + "out c" + NLc + "shared t 256" + NLc + "stage { @t[@l % 128] = @a }" + NLc + "body { @c = @t[255 - @l] }", "race at line 4" ],
+	[ "kp-09", "in a" + NLc + "out c" + NLc + "shared t 128" + NLc + "stage { @t[@l] = @a }" + NLc + "body { @c = @t[255 - @l] }", "mismatch at element 1" ],
 	[ "kp-10", cMm, "verified" ],
 	[ "kp-10", cPl, "verified" ],
 	[ "kp-10", StzReplace(cMm, "tiles t { k / 16 }", "tiles t { 1 }"), "mismatch at element 1" ],
@@ -241,8 +243,12 @@ if bDevice
 	for cId in acPuzzles
 		oE = StzExerciseQ("../../education/program/courses/kernel-puzzles/exercises/" + cId)
 		aPr = oE.ProveItself()
+		nWrong = 3
+		if cId = "kp-09"
+			nWrong = 5 # GZ0 added a race and an array too short
+		ok
 		chk(cId + ": wrong refused " + aPr[:wrong] + ", right accepted " + aPr[:right] + ", failures " + @@(aPr[:failures]),
-			aPr[:wrong] = 3 and aPr[:right] = 2 and len(aPr[:failures]) = 0)
+			aPr[:wrong] = nWrong and aPr[:right] = 2 and len(aPr[:failures]) = 0)
 	next
 ok
 ? "  (scene 2: " + ((clock() - $t0) / clockspersecond()) + " s)"

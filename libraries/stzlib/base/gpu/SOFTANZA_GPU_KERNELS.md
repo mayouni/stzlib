@@ -197,6 +197,13 @@ the device against itself could not see that.
 The interpreter is also the **no-GPU path**: a puzzle is graded on a
 machine with no device, in the same verdict words.
 
+And it is a **sanitizer**. Run with it watching (`SanitizeOn`), it names
+four defects the device runs without a word, each with the line, the
+threads and the slot: two threads of one stage writing one slot (a race),
+a stage writing past its array, a read past a shared array, and a read of a
+slot no stage wrote. Comparing values cannot stand in for it: of 900 races
+the fuzz injected, values showed 383; the sanitizer named all 900.
+
 ## 5. The checker
 
 `stzGpu.VerifySpec(reference, candidate, bindings)` and its options form
@@ -215,6 +222,7 @@ The verdicts:
 
 | verdict | means |
 |---|---|
+| race at line L | two threads of one stage write one slot; named before anything runs |
 | verified | right at both shapes, in a possible time |
 | mismatch at element K | wrong where it was shown |
 | mismatch-hidden at element K | right where it was shown, wrong where it was not |
@@ -352,5 +360,6 @@ Run with Ring++ from `base/test/gpu/`: `rnxc <guard>.ring`.
 | `gpu_puzzle_narrated.ring` | the twelve puzzles, both runners, the chapters |
 | `gpu_f16_narrated.ring` | half-precision weights and the forward's dispatch count |
 | `gpu_calibration_shaped_narrated.ring` | routing by shape, interpolation between measured classes |
+| `gpu_sanitizer_narrated.ring` | the four defects named, the unwritable ones refused, races as puzzle verdicts, 300 injected races all named |
 | `gpu_fuzz_narrated.ring` | generated kernels of six kinds through both readers and the device; the control that each wrong operator is caught |
 | `edge_proof/edge_proof.html` | the browser and the desktop agree, case by case |

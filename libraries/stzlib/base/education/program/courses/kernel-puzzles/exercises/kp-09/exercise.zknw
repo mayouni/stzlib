@@ -14,3 +14,5 @@ facts
 
     kp-09 | has-mistake | 02-no-stage
     kp-09 | has-mistake | 03-the-whole-vector
+    kp-09 | has-mistake | 04-two-threads-one-slot
+    kp-09 | has-mistake | 05-an-array-too-short

@@ -775,12 +775,44 @@ fn ring_SpecEval(p: *anyopaque) callconv(.c) void {
         return;
     };
     defer allocator.free(res);
-    if (wgsl.stz_gpu_spec_eval(&ptrs, @intCast(n_in), &lens, &scal, @intCast(n_scal), @floatFromInt(n), res.ptr) != 0) {
+    const sanitize = g_sanitize_next;
+    g_sanitize_next = false;
+    if (sanitize) {
+        const mk = allocator.alloc(u8, n) catch {
+            R.ring_vm_api_retlist(p, out);
+            return;
+        };
+        defer allocator.free(mk);
+        if (wgsl.stz_gpu_spec_sanitize(&ptrs, @intCast(n_in), &lens, &scal, @intCast(n_scal), @floatFromInt(n), res.ptr, mk.ptr) < 0) {
+            R.ring_vm_api_retlist(p, out);
+            return;
+        }
+    } else if (wgsl.stz_gpu_spec_eval(&ptrs, @intCast(n_in), &lens, &scal, @intCast(n_scal), @floatFromInt(n), res.ptr) != 0) {
         R.ring_vm_api_retlist(p, out);
         return;
     }
     for (res) |x| R.ring_list_adddouble(out, @floatCast(x));
     R.ring_vm_api_retlist(p, out);
+}
+
+// GZ0. SpecSanitizeNext() -> the next SpecEval runs under the sanitizer;
+// SanitizeReport() -> one sentence per defect kind it met (empty: clean);
+// SanitizeCount(kind) -> how often (0 race, 1 dropped write, 2 read past, 3 unwritten read)
+var g_sanitize_next: bool = false;
+fn ring_SpecSanitizeNext(p: *anyopaque) callconv(.c) void {
+    g_sanitize_next = true;
+    rn(p, 1);
+}
+fn ring_SanitizeReport(p: *anyopaque) callconv(.c) void {
+    var buf: [4096]u8 = undefined;
+    const n = wgsl.stz_gpu_sanitize_report(&buf, buf.len);
+    R.ring_vm_api_retstring2(p, &buf, @intCast(n));
+}
+fn ring_SanitizeCount(p: *anyopaque) callconv(.c) void {
+    rn(p, wgsl.stz_gpu_sanitize_count(@intFromFloat(gn(p, 1))));
+}
+fn ring_SanitizeLine(p: *anyopaque) callconv(.c) void {
+    rn(p, wgsl.stz_gpu_sanitize_line(@intFromFloat(gn(p, 1))));
 }
 
 // KP0. SpecEvalFlops() -> the operations the last SpecEval executed, loops included
@@ -2275,6 +2307,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuverifyroofline", .func = &ring_VerifyRoofline },
     .{ .name = "stzenginegpufeature", .func = &ring_Feature },
     .{ .name = "stzenginegpufuzzrun", .func = &ring_FuzzRun },
+    .{ .name = "stzenginegpuspecsanitizenext", .func = &ring_SpecSanitizeNext },
+    .{ .name = "stzenginegpusanitizereport", .func = &ring_SanitizeReport },
+    .{ .name = "stzenginegpusanitizecount", .func = &ring_SanitizeCount },
+    .{ .name = "stzenginegpusanitizeline", .func = &ring_SanitizeLine },
     .{ .name = "stzenginegpufuzzresult", .func = &ring_FuzzResult },
     .{ .name = "stzenginegpufuzzfirst", .func = &ring_FuzzFirst },
     .{ .name = "stzenginegpufuzzcase", .func = &ring_FuzzCase },

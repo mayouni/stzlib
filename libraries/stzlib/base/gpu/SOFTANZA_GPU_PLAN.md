@@ -139,8 +139,12 @@ go/no-go in G6.
     aC = oG.Run(k, [ :A = a1, :B = a2 ])
 
     # chained, resident:
-    b1 = oG.Upload(aBig)
-    b2 = oG.Apply(k1, b1).Apply(k2).Apply(k3)      # no readback between
+    b1 = oG.UploadQ(aBig)
+    b2 = b1.ApplyQ(k1).ApplyQ(k2).ApplyQ(k3)       # no readback between
+    # (corrected 2026-10-28: this sketch predates G4 and named an Apply that
+    # never shipped; the chain lives on the buffer and takes the Q, and
+    # ApplyOnQ on stzGpu serves a kernel of several inputs. Run under rnxc:
+    # [ 1, 2, 3, 4 ] through x*2, x+1, x*x gives [ 9, 25, 49, 81 ])
     aOut = b2.Download()
 
 **Level-2 seams (silent):** embedding/knn/ann distance scans at corpus
@@ -3469,6 +3473,45 @@ named for the graphics desk, not measured.
 division feeding a discontinuous function (excluded by design); a race (the
 generator never writes one; GZ0's sanitizer is the instrument for it).
 
+## GZ0 STATUS — shipped 2026-10-28: the interpreter as a sanitizer; a race is a verdict
+
+**What the grammar already makes unwritable**, so the sanitizer does not
+look for it: a barrier some threads skip (every barrier stands outside any
+branch, and the tiles count is refused unless it is the same for every
+thread), and a stage reading the array it writes (refused, "the threads
+would race"). The guard holds both by their refusals and checks that no
+barrier of the tiled product's kernel sits inside the guard's branch.
+
+**What remains, and what the sanitizer names** with the description's line,
+the threads, the group and the slot (`gpu_wgsl.zig`, `stz_gpu_spec_sanitize`,
+the same interpreter, watching):
+
+| defect | the device does | measured on the RTX 3050 under `rnxc` |
+|---|---|---|
+| race: two threads of one stage write one slot | keeps any one of the writes | 900 races injected by the fuzz: the sanitizer named **900**; comparing values showed **383** -- 517 came back verified |
+| dropped: a stage writes past its array | drops the write | the checker says verified; the sanitizer names it |
+| past: a read past a shared array | reads 0 | the checker says verified; the sanitizer names it |
+| unwritten: a read of a slot no stage wrote | reads the zero the kernel filled | the checker says verified; the sanitizer names it. A `max` or `min` reduce over such a slot counts its zero and is named; a `sum` adds nothing and is not |
+
+And the other way: 900 generated kernels without a race, sanitized as the
+fuzz runs them, gave **no false race**; 72 of them carried a quieter defect
+that the device ran without a word.
+
+**Where it shows.** `stzKernelMaker.SanitizeOn(bindings)` returns one
+sentence per defect kind. A puzzle's `Grade` and `GradeOnCpu` name a race
+BEFORE anything runs: `race at line L`, because the device may keep either
+write and no comparison of values can stand for it. `Sanitize(kernel)` gives
+the sentences, and the browser runner shows them under the verdict, in the
+same words, through `stz.wasm`. Puzzle 9 gained two mistakes, a race and an
+array too short; its no-stage mistake already showed the unwritten read.
+
+**Gates, under `rnxc`:** sanitizer 25 (new), fuzz 23, grammar 43, spec
+reference 34, declarative 20, verify 36, shared 60 (two new cases), puzzle
+95; Zig 22. The puzzle page in Chrome: the race mistake reads "race at line
+4", the short array and the no-stage mistakes keep their mismatch verdicts
+with the sanitizer's sentences under them, and the reference is verified
+with nothing said.
+
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 
 **Where the plane stands.** The charge GK3 to KP3 is through. A kernel can
@@ -3513,7 +3556,7 @@ GK4 was.
 - **NEURAL-GUARD-RPP**: the backbone guard reads `nPass` bare -> the neural desk, routed 2026-10-28.
 - **DOC-GATE-RUN**: the documentation gate loads main's library and cannot run under `rnxc`. The KP and GK public methods were read against its rules by hand on 2026-10-28: three briefs over 140 characters, one stray block and one undocumented parameter were fixed. A machine run is owed when GT1 lands.
 
-**This desk's order**: GT0 (SHIPPED 2026-10-28, see GT0 STATUS above), then GZ0, then GC0 once the author rules on the
+**This desk's order**: GT0 and GZ0 (both SHIPPED 2026-10-28, see their STATUS sections above), then GC0 once the author rules on the
 benchmark tool, then GL0. GT0 comes first because every later rung adds
 grammar, and a fuzz that already exists covers each addition the day it
 lands.

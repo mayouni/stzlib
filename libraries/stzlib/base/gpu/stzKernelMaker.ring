@@ -232,6 +232,41 @@ class stzKernelMaker from stzObject
 	#   returns      a list of n numbers
 	#   see          EvaluateOn
 	def EvaluateOnWith(paBindings, paOptions)
+		return This._EvaluateOn(paBindings, paOptions, 0)
+
+	# Runs the description on the CPU over the given inputs with the sanitizer watching, and returns what it found.
+	#
+	#   paBindings   the input vectors and the scalars by name, as EvaluateOn takes them
+	#   returns      a list of texts, one per defect kind found, each naming the line, the threads and
+	#                the slot; an empty list when the description is clean
+	#   note         GZ0 (2026-10-28): four defects the device runs without a word -- two threads of one
+	#                stage writing one slot (a race: the device keeps any one write), a stage writing
+	#                past its array (dropped), a read past a shared array (it reads 0), a read of a slot
+	#                no stage wrote (it reads the zero the kernel filled; a max or min reduce counts it,
+	#                a sum does not). A description with no shared memory is clean by construction
+	#   see          SanitizeOnWith, EvaluateOn
+	def SanitizeOn(paBindings)
+		return This.SanitizeOnWith(paBindings, [])
+
+	# Does the same as SanitizeOn with options, such as the number of elements to produce.
+	#
+	#   paBindings   the input vectors and the scalars by name
+	#   paOptions    :n the output count, as EvaluateOnWith takes it
+	#   returns      a list of texts, empty when the description is clean
+	#   see          SanitizeOn
+	def SanitizeOnWith(paBindings, paOptions)
+		This._EvaluateOn(paBindings, paOptions, 1)
+		_aLines_ = []
+		_aR_ = StzSplit(StzEngineGpuSanitizeReport(), char(10))
+		_nR_ = len(_aR_)
+		for _i_ = 1 to _nR_
+			if _aR_[_i_] != ""
+				_aLines_ + _aR_[_i_]
+			ok
+		next
+		return _aLines_
+
+	def _EvaluateOn(paBindings, paOptions, bSanitize)
 		_nIn_ = len(@aIns)
 		if _nIn_ = 0
 			StzRaise("stzKernelMaker: no TakesVector input to evaluate over.")
@@ -266,6 +301,9 @@ class stzKernelMaker from stzObject
 			ok
 			_aScal_ + _s_
 		next
+		if bSanitize
+			StzEngineGpuSpecSanitizeNext()
+		ok
 		_aOut_ = StzEngineGpuSpecEval(This.Spec(), _aFlat_, _aLens_, _n_, _aScal_)
 		if len(_aOut_) = 0
 			StzRaise("stzKernelMaker: " + StzEngineGpuWgslError())

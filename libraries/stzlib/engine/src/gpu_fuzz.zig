@@ -52,6 +52,11 @@ pub const KINDS: usize = 6;
 /// is skipped); a fuzz that judges those agreeing proves nothing about the
 /// ones it judged agreeing without the mutation.
 pub const MUTATE: u32 = 1 << 6;
+/// mask bit 7: RACE -- GZ0's control. Every shared-memory kernel's first stage
+/// writes through an index two or more threads share, so each is a race the
+/// sanitizer must name: one it misses is the sanitizer's defect (its kill line).
+pub const RACE: u32 = 1 << 7;
+var g_inject_race: bool = false;
 
 const SPEC_CAP = 4096;
 const WGSL_CAP = 65536;
@@ -81,6 +86,8 @@ pub const R_EXACT_DISAGREED = 17;
 pub const R_MUTATED = 18; // MUTATE runs: kernels whose WGSL was given one wrong operator
 pub const R_CAUGHT = 19; // ... and of those, the ones the run judged defective
 pub const R_UNWRITTEN = 36; // elements a guard left unwritten, checked to stay so
+pub const R_SAN_RACE = 37; // GZ0: cases the sanitizer found a race in (the generator writes none: must be 0)
+pub const R_SAN_QUIET = 38; // GZ0: cases with a dropped write, a read past an array or of an unwritten slot
 pub const R_GEN_KIND = 20; // + kind: cases generated of that kind
 pub const R_BAD_KIND = 30; // + kind: defective cases of that kind
 pub const R_SLOTS = 40;
@@ -568,8 +575,11 @@ pub fn generate(seed: u64, index: u64, kind: u8, c: *Case) void {
             w.f("shared sa {d}\n", .{size});
             if (two) w.s("shared sb 256\n");
             const PERM = [_][]const u8{ "@l", "255 - @l", "(@l + 37) % 256", "@lx * 16 + @ly", "@ly * 16 + @lx" };
+            const SHARED_SLOT = [_][]const u8{ "(@l % 64)", "floor(@l / 2)", "@lx * 16", "(@l % 128)" };
             const gcx = Ctx{ .group = true };
-            w.f("stage {{ @sa[{s}] = ", .{PERM[g.pick(PERM.len)]});
+            if (g_inject_race) {
+                w.f("stage {{ @sa[{s}] = ", .{SHARED_SLOT[g.pick(SHARED_SLOT.len)]});
+            } else w.f("stage {{ @sa[{s}] = ", .{PERM[g.pick(PERM.len)]});
             g.value(gcx, 25);
             w.s(" }\n");
             if (two) {
@@ -725,9 +735,18 @@ fn runCase(index: u64, c: *const Case, kernel: i64, rel: f64) void {
     }
     var scal: [wgsl.MAX_SCALARS]f32 = @splat(0);
     for (0..c.n_sc) |k| scal[k] = c.sc[k];
-    if (wgsl.stz_gpu_spec_eval_masked(&ptrs, @intCast(c.n_ins), &lens, &scal, @intCast(c.n_sc), @floatFromInt(c.n), ref.ptr, mask.ptr) != 0) {
+    // GZ0: the reference runs under the sanitizer (it changes no value: a Zig test holds that)
+    const kinds = wgsl.stz_gpu_spec_sanitize(&ptrs, @intCast(c.n_ins), &lens, &scal, @intCast(c.n_sc), @floatFromInt(c.n), ref.ptr, mask.ptr);
+    if (kinds < 0) {
         bad(index, c, R_ADMISSION_SPLIT, "the interpreter compiled it and then refused to run it", -1);
         return;
+    }
+    if (wgsl.stz_gpu_sanitize_count(wgsl.SAN_RACE) > 0) {
+        result[R_SAN_RACE] += 1;
+        if (!g_inject_race) logLine("case {d}, kind {d}: the sanitizer found a race the generator cannot write\n", .{ index, c.kind });
+    } else {
+        if (g_inject_race and c.kind == K_GROUP) logLine("case {d}, kind {d}: an injected race the sanitizer MISSED\n", .{ index, c.kind });
+        if (kinds > 0) result[R_SAN_QUIET] += 1;
     }
 
     // the device
@@ -837,6 +856,8 @@ pub fn stz_gpu_fuzz_run(seedf: f64, countf: f64, maskf: f64, rel: f64) callconv(
     const count: u64 = @intFromFloat(countf);
     const mask: u32 = @intFromFloat(maskf);
     const mutate = mask & MUTATE != 0;
+    g_inject_race = mask & RACE != 0;
+    defer g_inject_race = false;
     var kinds: [KINDS]u8 = undefined;
     var nk: usize = 0;
     for (0..KINDS) |k| {

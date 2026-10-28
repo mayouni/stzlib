@@ -33,6 +33,7 @@
 <textarea id="spec" spellcheck="false"></textarea>
 <div><button id="run">Run the kernel</button> <span class="dim" id="timing"></span></div>
 <div id="verdict" class="wait">waiting for your implementation</div>
+<div class="move" id="san" style="display:none"></div>
 <div id="roof" class="move" style="display:none"></div>
 <pre id="wgsl" class="dim"></pre>
 <script type="module">
@@ -123,6 +124,28 @@ function interpret(spec, inputs, scalars, n) {
   if (E.stz_gpu_spec_eval_masked(insP, inputs.length, lensP, scP, scalars.length, n, outP, maskP) !== 0) throw new Error("the interpreter could not evaluate the reference");
   return { ref: new Float32Array(memory.buffer, outP, n).slice(), mask: new Uint8Array(memory.buffer, maskP, n).slice(), flops: E.stz_gpu_spec_eval_flops() };
 }
+
+// GZ0: the learner's kernel, run by the interpreter with the sanitizer watching -- what the
+// device runs without a word: two threads of one stage writing one slot (a race), a write or
+// a read past a shared array, a read of a slot no stage wrote. Null when it cannot be run.
+function sanitize(spec, inputs, scalars, n) {
+  E.stz_reset();
+  const sp = putBytes(enc.encode(spec));
+  if (E.stz_gpu_spec_compile(sp, enc.encode(spec).length) !== 0) return null;
+  const ptrs = inputs.map(v => putF32(v));
+  const insP = putU32(new Uint32Array(ptrs));
+  const lensP = putF64(new Float64Array(inputs.map(v => v.length)));
+  const scP = putF32(new Float32Array(scalars.length ? scalars : [0]));
+  const outP = alloc(n * 4); const maskP = alloc(n);
+  if (E.stz_gpu_spec_sanitize(insP, inputs.length, lensP, scP, scalars.length, n, outP, maskP) < 0) return null;
+  const rp = alloc(4096); const rn = E.stz_gpu_sanitize_report(rp, 4096);
+  const lines = new TextDecoder().decode(new Uint8Array(memory.buffer, rp, rn)).split("\n").filter(x => x);
+  const race = lines.find(x => x.startsWith("race: "));
+  return { lines, raceLine: race ? (race.match(/^race: line (\d+)/) || [])[1] : null };
+}
+const SAN = { en: "The sanitizer watched the interpreter run your kernel. What the device does not say:",
+              fr: "Le sanitizer a observe l'interpreteur executer votre noyau. Ce que le GPU ne dit pas :",
+              ar: "\u0631\u0627\u0642\u0628 \u0627\u0644\u0645\u0639\u0642\u0645 \u0627\u0644\u0645\u0641\u0633\u0631 \u0648\u0647\u0648 \u064a\u0634\u063a\u0644 \u0646\u0648\u0627\u062a\u0643. \u0645\u0627 \u0644\u0627 \u064a\u0642\u0648\u0644\u0647 \u0627\u0644\u062c\u0647\u0627\u0632:" };
 
 let device = null;
 if (navigator.gpu) {
@@ -427,22 +450,27 @@ async function grade(learner) {
   const nB = hd ? hd.n : hiddenCount(n);
   const hidden = hd ? hd.inputs : inputs.map(v => hiddenInput(v, n, nB));
   const scalarsB = hd ? hd.scalars : scalars;
+  // GZ0: a race is named before anything runs -- the device may keep either write, so no
+  // comparison of values can stand for it (the desktop face's Grade says the same words)
+  const san = sanitize(learner, inputs, scalars, n);
+  const sanLines = san ? san.lines : [];
+  if (san && san.raceLine) return { verdict: `race at line ${san.raceLine}`, cls: "bad", san: sanLines };
   const refA = interpret(refSpec, inputs, scalars, n);
   const refB = interpret(refSpec, hidden, scalarsB, nB);
   if (!device) {
     // no WebGPU: the interpreter grades the learner's text too (values only; the margin needs a device)
     const candA = interpret(learner, inputs, scalars, n), candB = interpret(learner, hidden, scalarsB, nB);
-    const vA = judgeCpu(candA, refA, n, ""); if (vA) return { verdict: vA, cls: "bad" };
-    const vB = judgeCpu(candB, refB, nB, "-hidden"); if (vB) return { verdict: vB, cls: "bad" };
-    return { verdict: "verified", cls: "ok", note: "interpreter only (no WebGPU): values at both shapes; the margin needs a device" };
+    const vA = judgeCpu(candA, refA, n, ""); if (vA) return { verdict: vA, cls: "bad", san: sanLines };
+    const vB = judgeCpu(candB, refB, nB, "-hidden"); if (vB) return { verdict: vB, cls: "bad", san: sanLines };
+    return { verdict: "verified", cls: "ok", san: sanLines, note: "interpreter only (no WebGPU): values at both shapes; the margin needs a device" };
   }
   const a = await runKernel(tr.wgsl, inputs, scalars, n);
-  const vA = judge(a.got, refA.ref, refA.mask, n, ""); if (vA) return { verdict: vA, cls: "bad", ms: a.ms };
+  const vA = judge(a.got, refA.ref, refA.mask, n, ""); if (vA) return { verdict: vA, cls: "bad", ms: a.ms, san: sanLines };
   const b = await runKernel(tr.wgsl, hidden, scalarsB, nB);
-  const vB = judge(b.got, refB.ref, refB.mask, nB, "-hidden"); if (vB) return { verdict: vB, cls: "bad", ms: a.ms };
+  const vB = judge(b.got, refB.ref, refB.mask, nB, "-hidden"); if (vB) return { verdict: vB, cls: "bad", ms: a.ms, san: sanLines };
   let roof = null;
   if (fact(puzzle.facts, "roofline-elements")) roof = await roofline(tr.wgsl, refSpec, inputs.length, scalars, refA.flops / n);
-  return { verdict: "verified", cls: "ok", ms: a.ms, flops: refA.flops, roof };
+  return { verdict: "verified", cls: "ok", ms: a.ms, flops: refA.flops, roof, san: sanLines };
 }
 function judgeCpu(cand, ref, n, suffix) {
   for (let i = 0; i < n; i++) {
@@ -458,13 +486,20 @@ el("run").addEventListener("click", async () => {
   runs += 1;
   const stamp = `run ${runs} at ${new Date().toLocaleTimeString()}`;
   el("verdict").textContent = "running..."; el("verdict").className = "wait"; el("timing").textContent = stamp;
-  el("roof").style.display = "none";
+  el("roof").style.display = "none"; el("san").style.display = "none";
   el("run").disabled = true;
   try {
     const r = await grade(el("spec").value);
     el("verdict").textContent = r.verdict; el("verdict").className = r.cls;
     el("timing").textContent = stamp + (r.ms !== undefined ? ` -- kernel ${r.ms.toFixed(2)} ms on the device` : "") + (r.flops ? `, ${r.flops} operations in the reference` : "") + (r.note ? ` -- ${r.note}` : "");
     if (r.roof) { el("roof").textContent = roofSentence(r.roof); el("roof").style.display = "block"; }
+    if (r.san && r.san.length) {
+      const box = el("san"); box.textContent = "";
+      const h = document.createElement("b"); h.textContent = SAN[lang] || SAN.en; box.append(h);
+      for (const line of r.san) { const d = document.createElement("div"); d.textContent = line; box.append(d); }
+      if (lang === "ar") box.dir = "rtl";
+      box.style.display = "block";
+    }
   } catch (e) { el("verdict").textContent = "error: " + e.message; el("verdict").className = "bad"; el("timing").textContent = stamp; }
   el("run").disabled = false;
 });
