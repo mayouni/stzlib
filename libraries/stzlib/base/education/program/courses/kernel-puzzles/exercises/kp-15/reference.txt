@@ -1,0 +1,8 @@
+in nx
+in ny
+in nz
+scalar sx
+scalar sy
+scalar sz
+out c
+body { @c = max(dot(normalize(vec3(@nx, @ny, @nz)), normalize(vec3(sx, sy, sz))), 0) }

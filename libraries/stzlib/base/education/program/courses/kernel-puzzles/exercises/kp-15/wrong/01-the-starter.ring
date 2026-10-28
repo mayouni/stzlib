@@ -1,0 +1,10 @@
+# The starter, untouched: no body yet.
+k = StzKernelMakerQ()
+k.TakesVector(:nx)
+k.TakesVector(:ny)
+k.TakesVector(:nz)
+k.TakesScalar(:sx)
+k.TakesScalar(:sy)
+k.TakesScalar(:sz)
+k.ReturnsVector(:c)
+? StzKernelPuzzleQ("kp-15").Grade(k)

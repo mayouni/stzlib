@@ -1,0 +1,11 @@
+# Without max, a surface facing away gets negative light: element 1 is -1/3.
+k = StzKernelMakerQ()
+k.TakesVector(:nx)
+k.TakesVector(:ny)
+k.TakesVector(:nz)
+k.TakesScalar(:sx)
+k.TakesScalar(:sy)
+k.TakesScalar(:sz)
+k.ReturnsVector(:c)
+k.ForEachElement('{ @c = dot(normalize(vec3(@nx, @ny, @nz)), normalize(vec3(sx, sy, sz))) }')
+? StzKernelPuzzleQ("kp-15").Grade(k)

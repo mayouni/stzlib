@@ -47,17 +47,18 @@ pub const K_SUM: u8 = 3; // ... with a bounded sum
 pub const K_GROUP: u8 = 4; // shared arrays, stages, reductions
 pub const K_TILES: u8 = 5; // tiles, accumulate, width
 pub const K_INT: u8 = 6; // GL0: ints -- declared, wrapping, divided by zero, converted
-pub const KINDS: usize = 7;
+pub const K_VEC: u8 = 7; // GL0: vectors -- built, swizzled, spread, combined, reduced
+pub const KINDS: usize = 8;
 /// The mask bit of kind k. Bits 6 to 8 are the controls, so the int kind
 /// takes bit 9: a mask written before GL0 (63) asks for the six it always meant.
 pub fn kindBit(k: usize) u32 {
-    return if (k < 6) @as(u32, 1) << @intCast(k) else @as(u32, 1) << 9;
+    return if (k < 6) @as(u32, 1) << @intCast(k) else @as(u32, 1) << @intCast(k + 3);
 }
 fn genSlot(k: usize) usize {
-    return if (k < 6) R_GEN_KIND + k else R_GEN_INT;
+    return if (k < 6) R_GEN_KIND + k else if (k == K_INT) R_GEN_INT else R_GEN_VEC;
 }
 fn badSlot(k: usize) usize {
-    return if (k < 6) R_BAD_KIND + k else R_BAD_INT;
+    return if (k < 6) R_BAD_KIND + k else if (k == K_INT) R_BAD_INT else R_BAD_VEC;
 }
 /// mask bit 6: MUTATE -- the run's own control. Each kernel's WGSL gets its
 /// first ' + ' in the stored expression turned into ' - ' (a kernel with none
@@ -112,6 +113,8 @@ pub const R_GEN_KIND = 20; // + kind: cases generated of that kind
 pub const R_BAD_KIND = 30; // + kind: defective cases of that kind
 pub const R_GEN_INT = 40; // GL0: int cases generated
 pub const R_BAD_INT = 41; // ... and defective
+pub const R_GEN_VEC = 42; // GL0: vector cases generated
+pub const R_BAD_VEC = 43; // ... and defective
 pub const R_SLOTS = 44;
 
 var result: [R_SLOTS]f64 = @splat(0);
@@ -627,6 +630,166 @@ const Gen = struct {
         self.w.s(")");
     }
 
+    // ---- GL0: a vector of width n. Exact as the scalar forms are: its
+    // components are exact values, and +, -, the products under the budget,
+    // dot, cross, reflect, floor, min, max, a dyadic mix and when round nowhere.
+    fn vexpr(self: *Gen, n: u8, depth: u8, cx: Ctx) void {
+        if (depth == 0 or self.chance(20)) return self.vatom(n, cx);
+        const d = depth - 1;
+        switch (self.pick(13)) {
+            0, 1 => self.vbin(" + ", n, d, cx),
+            2 => self.vbin(" - ", n, d, cx),
+            3 => if (self.muls < 2) {
+                self.muls += 1;
+                self.w.s("(");
+                self.vexpr(n, d, cx);
+                self.w.s(" * ");
+                self.exact(0, cx);
+                self.w.s(")");
+            } else self.vbin(" + ", n, d, cx),
+            4 => {
+                self.w.s("(-");
+                self.vexpr(n, d, cx);
+                self.w.s(")");
+            },
+            5 => {
+                const F = [_][]const u8{ "abs(", "floor(", "ceil(", "fract(", "sign(" };
+                self.w.s(F[self.pick(F.len)]);
+                self.vexpr(n, d, cx);
+                self.w.s(")");
+            },
+            6 => {
+                self.w.s(if (self.chance(50)) "min(" else "max(");
+                self.vexpr(n, d, cx);
+                self.w.s(", ");
+                self.vexpr(n, d, cx);
+                self.w.s(")");
+            },
+            7 => {
+                self.w.s("mix(");
+                self.vexpr(n, d, cx);
+                self.w.s(", ");
+                self.vexpr(n, d, cx);
+                self.w.s(if (self.chance(50)) ", 0.5)" else ", 0.25)");
+            },
+            8 => {
+                self.w.s("when(");
+                self.cond(0, cx);
+                self.w.s(", ");
+                self.vexpr(n, d, cx);
+                self.w.s(", ");
+                self.vexpr(n, d, cx);
+                self.w.s(")");
+            },
+            9 => if (n == 3 and self.muls == 0) {
+                self.muls = 2;
+                self.w.s("cross(");
+                self.vatom(3, cx);
+                self.w.s(", ");
+                self.vatom(3, cx);
+                self.w.s(")");
+            } else self.vbin(" - ", n, d, cx),
+            10 => if (self.muls == 0) {
+                self.muls = 2;
+                self.w.s("reflect(");
+                self.vatom(n, cx);
+                self.w.s(", ");
+                self.vatom(n, cx);
+                self.w.s(")");
+            } else self.vbin(" + ", n, d, cx),
+            11 => {
+                self.w.s("step(");
+                self.vexpr(n, d, cx);
+                self.w.s(", ");
+                self.vexpr(n, d, cx);
+                self.w.s(")");
+            },
+            else => self.vatom(n, cx),
+        }
+    }
+    fn vbin(self: *Gen, op: []const u8, n: u8, d: u8, cx: Ctx) void {
+        self.w.s("(");
+        self.vexpr(n, d, cx);
+        self.w.s(op);
+        if (self.chance(25)) self.exact(0, cx) else self.vexpr(n, d, cx); // a number spread across it
+        self.w.s(")");
+    }
+    fn vatom(self: *Gen, n: u8, cx: Ctx) void {
+        // a vec4 has no wider vector to swizzle from: it takes the other forms
+        switch (if (n == 4) ([_]usize{ 0, 2, 3 })[self.pick(3)] else self.pick(4)) {
+            0 => {
+                self.w.f("vec{d}(", .{n});
+                self.exact(0, cx);
+                self.w.s(")");
+            },
+            1 => if (n < 4) {
+                // a swizzle of a wider vector
+                const SW = [_][]const u8{ "", "", ".zx", ".yzx" };
+                self.w.s("vec4(");
+                for (0..4) |k| {
+                    if (k > 0) self.w.s(", ");
+                    self.exact(0, cx);
+                }
+                self.w.f("){s}", .{SW[n]});
+            } else self.vatom(n, cx),
+            2 => if (n >= 3) {
+                // a vector and a number make a wider one
+                self.w.f("vec{d}(", .{n});
+                self.vatom(n - 1, cx);
+                self.w.s(", ");
+                self.exact(0, cx);
+                self.w.s(")");
+            } else self.vatom(2, cx),
+            else => {
+                self.w.f("vec{d}(", .{n});
+                for (0..n) |k| {
+                    if (k > 0) self.w.s(", ");
+                    self.exact(1, cx);
+                }
+                self.w.s(")");
+            },
+        }
+    }
+    /// A number from a vector: a component, or a dot (exact under the
+    /// budget); now and then a length or a distance, which round.
+    fn vreduce(self: *Gen, cx: Ctx) void {
+        const n: u8 = @intCast(self.int(2, 4));
+        switch (self.pick(6)) {
+            0, 1 => {
+                self.w.s("(");
+                self.vexpr(n, 2, cx);
+                self.w.s(if (n == 2) ").y" else if (n == 3) ").z" else ").w");
+            },
+            2 => {
+                self.w.s("(");
+                self.vexpr(n, 2, cx);
+                self.w.s(").x");
+            },
+            3 => if (self.muls == 0) {
+                self.muls = 2;
+                self.w.s("dot(");
+                self.vexpr(n, 1, cx);
+                self.w.s(", ");
+                self.vexpr(n, 1, cx);
+                self.w.s(")");
+            } else self.vreduce(cx),
+            4 => {
+                self.c.exact = false;
+                self.w.s("length(");
+                self.vexpr(n, 2, cx);
+                self.w.s(")");
+            },
+            else => {
+                self.c.exact = false;
+                self.w.s("distance(");
+                self.vexpr(n, 1, cx);
+                self.w.s(", ");
+                self.vexpr(n, 1, cx);
+                self.w.s(")");
+            },
+        }
+    }
+
     fn declare(self: *Gen, n_ins: usize, n_sc: usize) void {
         self.c.n_ins = n_ins;
         self.c.n_sc = n_sc;
@@ -850,6 +1013,20 @@ pub fn generate(seed: u64, index: u64, kind: u8, c: *Case) void {
                 w.f("accumulate {{ @acc = {s} }}\n", .{ACC[g.pick(ACC.len)]});
                 w.s("body { @res = @acc }\n");
             }
+        },
+        K_VEC => {
+            g.declare(g.int(1, MAX_IN), g.int(0, MAX_SC));
+            c.n = g.pickN();
+            for (0..c.n_ins) |k| c.in_len[k] = c.n;
+            const cx = Ctx{};
+            w.s("body { @res = ");
+            g.muls = 0;
+            g.vreduce(cx);
+            if (g.chance(40)) {
+                w.s(" + ");
+                g.exact(1, cx);
+            }
+            w.s(" }\n");
         },
         K_INT => {
             const ni = g.int(1, MAX_IN);

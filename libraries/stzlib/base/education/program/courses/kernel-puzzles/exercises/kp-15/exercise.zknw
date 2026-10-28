@@ -1,0 +1,23 @@
+knowledge "kp-15"
+
+facts
+    kp-15 | is-a | exercise
+    kp-15 | in-course | kernel-puzzles
+    kp-15 | in-chapter | the-vector
+    kp-15 | puzzle-number | 15
+    kp-15 | teaches | a-vector-is-one-value-of-several-numbers
+    kp-15 | starts | red
+
+    kp-15 | elements | 4000
+    kp-15 | input-nx | tenths
+    kp-15 | input-ny | ones
+    kp-15 | input-nz | mod7
+    kp-15 | scalar-sx | 2
+    kp-15 | scalar-sy | -1
+    kp-15 | scalar-sz | -2
+    kp-15 | band | 0.00001
+
+    kp-15 | has-mistake | 02-the-normal-left-long
+    kp-15 | has-mistake | 03-no-max
+    kp-15 | has-mistake | 04-the-light-left-long
+    kp-15 | has-mistake | 05-a-vector-for-an-output

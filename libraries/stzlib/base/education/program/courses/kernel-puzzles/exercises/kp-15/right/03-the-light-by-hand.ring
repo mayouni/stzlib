@@ -1,0 +1,11 @@
+# The light (2, -1, -2) is 3 long, so a third of it is its direction.
+k = StzKernelMakerQ()
+k.TakesVector(:nx)
+k.TakesVector(:ny)
+k.TakesVector(:nz)
+k.TakesScalar(:sx)
+k.TakesScalar(:sy)
+k.TakesScalar(:sz)
+k.ReturnsVector(:c)
+k.ForEachElement('{ @c = max(dot(normalize(vec3(@nx, @ny, @nz)), vec3(sx, sy, sz) / 3), 0) }')
+? StzKernelPuzzleQ("kp-15").Grade(k)

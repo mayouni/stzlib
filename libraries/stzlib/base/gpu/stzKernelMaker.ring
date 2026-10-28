@@ -18,6 +18,8 @@
 # and the choice when(condition, value if true, value if false) (GL0).
 # Ints (GL0): TakesIntVector, TakesIntScalar and ReturnsIntVector declare
 # whole numbers; int(...) and float(...) convert between the two types.
+# Vectors (GL0): vec2/vec3/vec4(...), .x .zyx, dot length distance normalize
+# cross reflect -- values inside the body; inputs and outputs stay numbers.
 # The whole language, with the group lines (Shared, Stage, Reduce, Tiles,
 # Accumulate, Width), is in SOFTANZA_GPU_KERNELS.md beside this file.
 # Anything else REFUSES at ToWGSL() time with a message naming the offender.

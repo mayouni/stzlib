@@ -1,0 +1,11 @@
+# A dot product does not care which vector comes first.
+k = StzKernelMakerQ()
+k.TakesVector(:nx)
+k.TakesVector(:ny)
+k.TakesVector(:nz)
+k.TakesScalar(:sx)
+k.TakesScalar(:sy)
+k.TakesScalar(:sz)
+k.ReturnsVector(:c)
+k.ForEachElement('{ @c = max(dot(normalize(vec3(sx, sy, sz)), normalize(vec3(@nx, @ny, @nz))), 0) }')
+? StzKernelPuzzleQ("kp-15").Grade(k)

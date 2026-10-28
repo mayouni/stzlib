@@ -1,0 +1,11 @@
+# The output holds one number per element; a vector is refused until it is reduced.
+k = StzKernelMakerQ()
+k.TakesVector(:nx)
+k.TakesVector(:ny)
+k.TakesVector(:nz)
+k.TakesScalar(:sx)
+k.TakesScalar(:sy)
+k.TakesScalar(:sz)
+k.ReturnsVector(:c)
+k.ForEachElement('{ @c = normalize(vec3(@nx, @ny, @nz)) }')
+? StzKernelPuzzleQ("kp-15").Grade(k)

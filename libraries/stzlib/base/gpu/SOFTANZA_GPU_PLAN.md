@@ -3874,6 +3874,60 @@ reference 34, verify 39, ops 37, foundry 27, f16 23, lifecycle 62; Zig 26.
 atomics (they need ints in a real i32 buffer, which this rung does not
 add), and 3-D grids.
 
+## GL0 STATUS — third admission landed 2026-10-28: vectors, as values inside a kernel
+
+**What it is.** `vec2`, `vec3`, `vec4` of f32, built from numbers (or a
+vector and numbers, or one number spread), read by component (`.x`, any
+order of `x y z w`), combined component by component with a number spread
+across them, given to every float function component by component, and
+reduced by `dot`, `length`, `distance`; `normalize`, `cross`, `reflect` and
+`when` give vectors back. **Inputs and outputs stay numbers.** A vector input
+or output needs interleaved buffers, which changes buffer sizes in the
+checker, the fuzz, the face and the browser runner; that plumbing belongs
+with the real i32 buffers atomics need, so it is the next rung's.
+
+**How.** One shared decision, `planCall`, says what a call means once its
+arguments' types are known. Both readers consult it after parsing, so they
+refuse in the same words; each parses, writes and computes on its own. The
+interpreter keeps a vecN in N consecutive slots. Arithmetic and float
+functions become one `vmap` op carrying the f32 op, the width and which
+operands are spread. Every component goes through `applyF`, the one
+definition the scalar ops now use too. **Byte-identity check repeated**: the
+18,000-kernel corpus is identical after vectors as well.
+
+**Measured on the RTX 3050 under `rnxc`, seed 20261028:**
+
+| run | result |
+|---|---|
+| the fuzz's vector kind (kind 7, mask bit 10) | 300 generated, none refused by both readers, no split, no compile failure; 300 agree, 199 exactly, the worst inexact at 0.024 of the band |
+| its control | 157 of 173 mutants caught |
+| five hand-written kernels (length, swizzles, cross/reflect/mix/when/floor, normalize/distance, max/clamp/smoothstep) | all verified, the exact ones at maxdiff 0 |
+
+The generator had one defect of its own, caught by the refused-by-both count
+before any device ran: asked for a vec4, it sometimes wrote a swizzled vec3.
+
+**Not a vector difference, found on the way**: `dot(sin(v), w)` misses the
+checker's default band (0.000001) by 0.000002, and so does its scalar twin
+`sin(x) * w.x + ...`, with no vector in it. It is the device's `sin`, as before
+GL0.
+
+**The puzzle**: kp-15, *light on a surface*, in a new chapter, *the vector*.
+Lambert's law, `max(dot(normalize(n), normalize(sun)), 0)`, with the normal
+as three inputs and the sun as three scalars. (They were `lx ly lz` until
+the guard said those are the tile's names.) Three right answers and four
+named mistakes; the verdicts (elements 8 and 1) were worked out by hand from
+the data recipes before the first run. The band is 0.00001, for the square
+roots. The browser runner on the Intel iGPU gave the same eight verdicts.
+**No person has worked it.**
+
+**Gates, under `rnxc` on the RTX 3050:** vec 36, int 37, when 34, grammar 43,
+fuzz 23, sanitizer 25, shared 60, puzzles 95 (nine chapters), spec reference
+34, verify 39, ops 37, foundry 27, f16 23, lifecycle 62; Zig 28.
+
+**What is left of GL0**, in order: typed buffers (vector inputs and outputs,
+real i32 buffers), then atomics on them, a general bounded loop, and 3-D
+grids.
+
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 
 **Where the plane stands.** The charge GK3 to KP3 is through. A kernel can
@@ -3923,6 +3977,6 @@ GK4 was.
 **GK2e, added by GK2d's table**: split-K for the narrow, deep products (130 x 1536 x 384 has 18 workgroups of 64 x 64), as two passes under the checker; killed if the two passes cost more than they save at MiniLM's shapes.
 
 **This desk's order**: GT0, GZ0, GC0, GK2d and GK2e (done 2026-10-28, see their STATUS sections above; GK2e measured and kept out of the backbone; GK2f's narrow tiles measured and refused), then GL0, which started
-2026-10-28 (its first two admissions, `when` and ints, are in the GL0 STATUS sections above). GT0 comes first because every later rung adds
+2026-10-28 (its first three admissions, `when`, ints and vectors, are in the GL0 STATUS sections above). GT0 comes first because every later rung adds
 grammar, and a fuzz that already exists covers each addition the day it
 lands.

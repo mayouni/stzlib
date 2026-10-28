@@ -1,0 +1,7 @@
+in nx
+in ny
+in nz
+scalar sx
+scalar sy
+scalar sz
+out c

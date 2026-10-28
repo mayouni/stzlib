@@ -896,7 +896,7 @@ const MSG_CMP = "'{c}' is a comparison; comparisons belong to a guard line or to
 // meet without a conversion, int(...) or float(...), as in WGSL. Buffers stay
 // f32: an int input is read through i32(...), an int output written through
 // f32(...), so a value crosses exactly up to 16,777,216.
-const Ty = enum(u8) { f, i, b, u };
+const Ty = enum(u8) { f, i, b, u, v2, v3, v4 };
 fn tyOf(r: i32) Ty {
     return @enumFromInt(@as(u8, @intCast(r)));
 }
@@ -981,6 +981,214 @@ fn settleText(c: *Cursor, from: usize, to: Ty) i32 {
         }
     }
     return 0;
+}
+
+// GL0 (vectors, 2026-10-28): vec2, vec3 and vec4 of f32, as VALUES inside a
+// kernel -- built from numbers, read by component (.x, .zyx), combined
+// component by component, reduced by dot, length and distance. An input or
+// an output is still a number, so a vector is built at the start of an
+// expression and reduced before its end. A number meeting a vector in
+// arithmetic is spread across it (WGSL's own rule); a function takes one
+// type, except mix's weight.
+fn isVec(t: Ty) bool {
+    return t == .v2 or t == .v3 or t == .v4;
+}
+fn vecWidth(t: Ty) u8 {
+    return switch (t) {
+        .v2 => 2,
+        .v3 => 3,
+        .v4 => 4,
+        else => 1,
+    };
+}
+fn vecOf(n: u8) Ty {
+    return switch (n) {
+        2 => .v2,
+        3 => .v3,
+        else => .v4,
+    };
+}
+fn ctorWidth(word: []const u8) u8 {
+    if (std.mem.eql(u8, word, "vec2")) return 2;
+    if (std.mem.eql(u8, word, "vec3")) return 3;
+    if (std.mem.eql(u8, word, "vec4")) return 4;
+    return 0;
+}
+const MSG_VECNUM = "a vector stands where a number is needed: reduce it, with .x, dot(...) or length(...)";
+const MSG_VECCMP = "a vector is not compared whole: compare a component (.x) or a length";
+const MSG_VECW = "vectors of two widths meet at '{s}'";
+const MSG_VECONE = "'{s}' takes values of one type: write vec{d}(x) to spread a number across a vector";
+const MSG_VECINT = "a vector holds floats: write float(...)";
+const MSG_VECFN = "'{s}' works on vectors: build one, as in vec3(@x, @y, @z)";
+const MSG_CROSS = "cross takes two vec3s";
+const MSG_CTOR = "vec{d} takes {d} numbers, vectors whose widths add to {d}, or one number to spread";
+const MSG_CONVVEC = "'{s}' converts a number, not a vector";
+const MSG_SWZNUM = "'.{s}' reads a vector's components, and this value is a number";
+const MSG_SWZBAD = "'.{s}' is not a component of this vector: a vec{d}'s letters are {s}";
+
+/// A number and a vector, or two vectors, meeting in arithmetic: the check
+/// both readers make (the untyped side is then settled to f32 by each).
+fn vecMeet(a: Ty, b: Ty, at: []const u8) i32 {
+    if (a == .b or b == .b) return fail(MSG_COND, .{});
+    if (isVec(a) and isVec(b)) return if (a == b) 0 else fail(MSG_VECW, .{at});
+    const sc = if (isVec(a)) b else a;
+    if (sc == .i) return fail(MSG_VECINT, .{});
+    return 0;
+}
+/// when's two values, a function's arguments: one type, no spreading.
+fn vecSame(a: Ty, b: Ty, at: []const u8) i32 {
+    if (a == b) return 0;
+    if (isVec(a) and isVec(b)) return fail(MSG_VECW, .{at});
+    return fail(MSG_VECONE, .{ at, if (isVec(a)) vecWidth(a) else vecWidth(b) });
+}
+
+/// A swizzle: the value it gives and the interpreter's encoding of it --
+/// the source width - 2, the count - 1, then two bits per component.
+const Swz = struct { out: Ty, arg: u16 };
+fn swizzleOf(t: Ty, letters: []const u8) ?Swz {
+    if (!isVec(t)) {
+        _ = fail(MSG_SWZNUM, .{letters});
+        return null;
+    }
+    const n = vecWidth(t);
+    const names = "xyzw"[0..n];
+    if (letters.len > 4) {
+        _ = fail(MSG_SWZBAD, .{ letters, n, names });
+        return null;
+    }
+    var arg: u16 = @as(u16, n - 2) | (@as(u16, @intCast(letters.len - 1)) << 2);
+    for (letters, 0..) |ch, k| {
+        const ix = std.mem.indexOfScalar(u8, names, std.ascii.toLower(ch)) orelse {
+            _ = fail(MSG_SWZBAD, .{ letters, n, names });
+            return null;
+        };
+        arg |= @as(u16, @intCast(ix)) << @intCast(4 + 2 * k);
+    }
+    return .{ .out = if (letters.len == 1) .f else vecOf(@intCast(letters.len)), .arg = arg };
+}
+
+/// GL0 (vectors): what a call means once its arguments' types are known --
+/// decided once, here, for both readers, which parse, write and compute it
+/// each their own way.
+const CallMode = enum { conv, scalar, vmap, vdot, vlen, vdist, vnorm, vcross, vrefl, ctor, splat };
+const CallPlan = struct { mode: CallMode, result: Ty, settle: ?Ty = null, n: u8 = 1, mask: u8 = 0 };
+fn planCall(name: []const u8, fun: ?Fn, conv: ?Ty, ctor: u8, args: []const Ty) ?CallPlan {
+    for (args) |a| {
+        if (a == .b) {
+            _ = fail(MSG_COND, .{});
+            return null;
+        }
+    }
+    if (ctor != 0) {
+        var total: usize = 0;
+        for (args) |a| {
+            if (a == .i) {
+                _ = fail(MSG_VECINT, .{});
+                return null;
+            }
+            total += vecWidth(a);
+        }
+        if (args.len == 1 and !isVec(args[0])) return .{ .mode = .splat, .result = vecOf(ctor), .settle = .f, .n = ctor };
+        if (total != ctor) {
+            _ = fail(MSG_CTOR, .{ ctor, ctor, ctor });
+            return null;
+        }
+        return .{ .mode = .ctor, .result = vecOf(ctor), .settle = .f, .n = ctor };
+    }
+    if (conv) |cv| {
+        if (isVec(args[0])) {
+            _ = fail(MSG_CONVVEC, .{name});
+            return null;
+        }
+        return .{ .mode = .conv, .result = cv, .settle = if (args[0] == .u) cv else null };
+    }
+    const f = fun.?;
+    var any_vec = false;
+    for (args) |a| any_vec = any_vec or isVec(a);
+    const vonly = f.op == .f_dot or f.op == .f_cross or f.op == .f_normalize or f.op == .f_reflect;
+    if (vonly or ((f.op == .f_length or f.op == .f_distance) and any_vec)) {
+        for (args) |a| {
+            if (!isVec(a)) {
+                if (vonly) {
+                    _ = fail(MSG_VECFN, .{name});
+                } else _ = vecSame(args[0], a, name);
+                return null;
+            }
+            if (a != args[0]) {
+                _ = fail(MSG_VECW, .{name});
+                return null;
+            }
+        }
+        const n = vecWidth(args[0]);
+        if (f.op == .f_cross and n != 3) {
+            _ = fail(MSG_CROSS, .{});
+            return null;
+        }
+        return switch (f.op) {
+            .f_dot => .{ .mode = .vdot, .result = .f, .n = n },
+            .f_length => .{ .mode = .vlen, .result = .f, .n = n },
+            .f_distance => .{ .mode = .vdist, .result = .f, .n = n },
+            .f_normalize => .{ .mode = .vnorm, .result = args[0], .n = n },
+            .f_cross => .{ .mode = .vcross, .result = .v3, .n = 3 },
+            else => .{ .mode = .vrefl, .result = args[0], .n = n },
+        };
+    }
+    if (!any_vec) {
+        if (isGeneric(f.op)) {
+            var t: Ty = .u;
+            for (args) |a| {
+                if (t == .u) {
+                    t = a;
+                } else if (a != .u and a != t) {
+                    _ = fail(MSG_MIXTY, .{name});
+                    return null;
+                }
+            }
+            return .{ .mode = .scalar, .result = t, .settle = if (t != .u) t else null };
+        }
+        for (args) |a| {
+            if (a == .i) {
+                _ = fail(MSG_FLOATFN, .{ name, name });
+                return null;
+            }
+        }
+        return .{ .mode = .scalar, .result = .f, .settle = .f };
+    }
+    // a function applied component by component
+    var v: Ty = .u;
+    for (args) |a| {
+        if (isVec(a)) {
+            v = a;
+            break;
+        }
+    }
+    var mask: u8 = 0;
+    for (args, 0..) |a, k| {
+        if (isVec(a)) {
+            if (a != v) {
+                _ = fail(MSG_VECW, .{name});
+                return null;
+            }
+        } else if (f.op == .f_mix and k == 2 and (a == .f or a == .u)) {
+            mask |= 4; // mix(v, w, t): one weight for every component, as WGSL allows
+        } else if (a == .i) {
+            _ = fail(MSG_VECINT, .{});
+            return null;
+        } else {
+            _ = fail(MSG_VECONE, .{ name, vecWidth(v) });
+            return null;
+        }
+    }
+    return .{ .mode = .vmap, .result = v, .settle = .f, .n = vecWidth(v), .mask = mask };
+}
+
+/// vmap's argument: the f32 op, the width - 1, the operand count - 1, and
+/// which operands are numbers spread across the width.
+fn vmapArg(op: Op, n: u8, arity: u8, mask: u8) u16 {
+    return @as(u16, @intFromEnum(op)) | (@as(u16, n - 1) << 7) | (@as(u16, arity - 1) << 9) | (@as(u16, mask) << 11);
+}
+comptime {
+    std.debug.assert(@typeInfo(Op).@"enum".fields.len <= 128);
 }
 
 /// The functions WGSL gives both types; every other one takes floats.
@@ -1248,6 +1456,7 @@ const Rewriter = struct {
     }
 
     fn sinkW(self: *Rewriter, t: Ty, start: usize, sink: Sink) i32 {
+        if (isVec(t)) return fail(MSG_VECNUM, .{});
         switch (sink) {
             .body => {
                 const want: Ty = if (self.d.out_int) .i else .f;
@@ -1268,6 +1477,14 @@ const Rewriter = struct {
         }
     }
 
+    /// Arithmetic: numbers unify; a vector meets one of its width, or a number spread across it.
+    fn arithW(self: *Rewriter, a: Ty, b: Ty, from_a: usize, from_b: usize, at: []const u8) i32 {
+        if (!isVec(a) and !isVec(b)) return self.unifyW(a, b, from_a, from_b, at);
+        if (vecMeet(a, b, at) < 0) return -1;
+        if (a == .u and settleText(self.out, from_a, .f) < 0) return -1;
+        if (b == .u and settleText(self.out, from_b, .f) < 0) return -1;
+        return tyR(if (isVec(a)) a else b);
+    }
     fn unifyW(self: *Rewriter, a: Ty, b: Ty, from_a: usize, from_b: usize, at: []const u8) i32 {
         if (a == b) return tyR(a);
         if (a == .b or b == .b) return fail(MSG_COND, .{});
@@ -1352,6 +1569,7 @@ const Rewriter = struct {
             const mid = self.out.len;
             const b = self.exprW();
             if (b < 0) return -1;
+            if (isVec(tyOf(a)) or isVec(tyOf(b))) return fail(MSG_VECCMP, .{});
             const t = self.unifyW(tyOf(a), tyOf(b), start, mid, op);
             if (t < 0) return -1;
             if (tyOf(t) == .u and settleText(self.out, start, .f) < 0) return -1;
@@ -1376,7 +1594,7 @@ const Rewriter = struct {
             const mid = self.out.len;
             const r = self.termW();
             if (r < 0) return -1;
-            t = self.unifyW(tyOf(t), tyOf(r), start, mid, if (c == '+') "+" else "-");
+            t = self.arithW(tyOf(t), tyOf(r), start, mid, if (c == '+') "+" else "-");
             if (t < 0) return -1;
         }
         return t;
@@ -1401,7 +1619,7 @@ const Rewriter = struct {
             const r = self.unaryW();
             if (r < 0) return -1;
             if (c == '%') self.out.putc(PH_RZ);
-            t = self.unifyW(tyOf(t), tyOf(r), start + @intFromBool(c == '%'), mid, if (c == '*') "*" else if (c == '/') "/" else "%");
+            t = self.arithW(tyOf(t), tyOf(r), start + @intFromBool(c == '%'), mid, if (c == '*') "*" else if (c == '/') "/" else "%");
             if (t < 0) return -1;
             if (c == '%' and tyOf(t) != .u and settleText(self.out, start, tyOf(t)) < 0) return -1;
         }
@@ -1428,13 +1646,30 @@ const Rewriter = struct {
         const r2 = if (r < 0) r else self.noCmpW();
         self.compare = saved;
         if (r2 < 0) return -1;
+        if (isVec(tyOf(r))) return fail(MSG_VECNUM, .{});
         if (tyOf(r) == .u and settleText(self.out, start, .f) < 0) return -1;
         if (self.peekW() != ']') return fail("missing ']' after '@{s}['", .{nm});
         self.i += 1;
         return 0;
     }
 
+    // primary := atom ('.' components)*  -- GL0: a swizzle, written as itself
     fn primaryW(self: *Rewriter) i32 {
+        const r = self.atomW();
+        if (r < 0) return -1;
+        var t = tyOf(r);
+        while (self.i + 1 < self.s.len and self.s[self.i] == '.' and std.ascii.isAlphabetic(self.s[self.i + 1])) {
+            var j = self.i + 1;
+            while (j < self.s.len and std.ascii.isAlphanumeric(self.s[j])) : (j += 1) {}
+            const sw = swizzleOf(t, self.s[self.i + 1 .. j]) orelse return -1;
+            self.out.putc('.');
+            for (self.s[self.i + 1 .. j]) |ch| self.out.putc(std.ascii.toLower(ch));
+            self.i = j;
+            t = sw.out;
+        }
+        return tyR(t);
+    }
+    fn atomW(self: *Rewriter) i32 {
         const c = self.peekW();
         if (c == 0) return fail("expression ends where a value was expected", .{});
         if (c == '(') {
@@ -1579,10 +1814,6 @@ const Rewriter = struct {
             }
             if (std.mem.eql(u8, word, "when")) return self.whenW();
             if (std.mem.eql(u8, word, "sum")) return self.sumW();
-            for (VECTOR_ONLY) |v| {
-                if (std.mem.eql(u8, v, word))
-                    return fail("'{s}' works on vectors; an elementwise kernel has none", .{word});
-            }
             return self.callW(word);
         }
         return fail("character '{c}' is not part of the elementwise language", .{c});
@@ -1627,6 +1858,7 @@ const Rewriter = struct {
         if (self.peekW() != ')') return fail("when is missing ')'", .{});
         self.i += 1;
         self.out = outer;
+        if ((isVec(tyOf(tt)) or isVec(tyOf(tf))) and vecSame(tyOf(tt), tyOf(tf), "when") < 0) return -1;
         if (cnd.overflow or tv.overflow or fvc.overflow) return fail("when is too long", .{});
         const start = outer.len;
         outer.put("select((");
@@ -1683,12 +1915,14 @@ const Rewriter = struct {
         self.out = &from;
         const tfrom = self.exprW();
         if (tfrom < 0 or self.noCmpW() < 0) return -1;
+        if (isVec(tyOf(tfrom))) return fail(MSG_VECNUM, .{});
         if (tyOf(tfrom) == .u and settleText(&from, 0, .f) < 0) return -1;
         if (self.peekDrop() != ',') return fail("sum takes 4 arguments (var, from, to, expression)", .{});
         self.i += 1;
         self.out = &to;
         const tto = self.exprW();
         if (tto < 0 or self.noCmpW() < 0) return -1;
+        if (isVec(tyOf(tto))) return fail(MSG_VECNUM, .{});
         if (tyOf(tto) == .u and settleText(&to, 0, .f) < 0) return -1;
         if (self.peekDrop() != ',') return fail("sum takes 4 arguments (var, from, to, expression)", .{});
         self.i += 1;
@@ -1697,6 +1931,7 @@ const Rewriter = struct {
         self.out = &body;
         const tb = self.exprW();
         if (tb < 0 or self.noCmpW() < 0) return -1;
+        if (isVec(tyOf(tb))) return fail(MSG_VECNUM, .{});
         self.loopvar = null;
         if (self.peekDrop() != ')') return fail("sum is missing ')'", .{});
         self.i += 1;
@@ -1736,20 +1971,21 @@ const Rewriter = struct {
     /// either type and keep it; every other function takes floats.
     fn callW(self: *Rewriter, word: []const u8) i32 {
         const conv: ?Ty = if (std.mem.eql(u8, word, "int")) .i else if (std.mem.eql(u8, word, "float")) .f else null;
+        const ctor = ctorWidth(word);
         var fun: ?Fn = null;
-        if (conv == null) {
+        if (conv == null and ctor == 0) {
             for (FUNCS) |f| {
                 if (std.mem.eql(u8, f.name, word)) fun = f;
             }
             if (fun == null) return fail("unknown name '{s}' (not a declared scalar, not a whitelisted function)", .{word});
         }
         const name: []const u8 = if (fun) |f| f.name else word;
-        const arity: u8 = if (fun) |f| f.arity else 1;
-        const generic = if (fun) |f| isGeneric(f.op) else false;
         if (self.peekDrop() != '(') return fail("function '{s}' needs '('", .{name});
-        // the WGSL spelling: the whitelist's (inverseSqrt), or the conversion's
+        // the WGSL spelling: the whitelist's (inverseSqrt), a conversion's, a constructor's
         var spelled: []const u8 = name;
-        if (conv) |cv| spelled = if (cv == .i) "i32" else "f32" else {
+        if (ctor != 0) {
+            spelled = if (ctor == 2) "vec2<f32>" else if (ctor == 3) "vec3<f32>" else "vec4<f32>";
+        } else if (conv) |cv| spelled = if (cv == .i) "i32" else "f32" else {
             for (FUNC_WHITELIST) |f| {
                 if (std.ascii.eqlIgnoreCase(f, name)) spelled = f;
             }
@@ -1758,26 +1994,14 @@ const Rewriter = struct {
         self.out.put(spelled);
         self.out.putc('(');
         self.i += 1;
+        var args: [4]Ty = undefined;
         var argc: u8 = 0;
-        var t: Ty = .u;
         if (self.peekW() != ')') {
             while (true) {
-                const at = self.out.len;
                 const r = self.exprW();
                 if (r < 0 or self.noCmpW() < 0) return -1;
-                const a = tyOf(r);
-                if (conv) |cv| {
-                    if (a == .u and settleText(self.out, at, cv) < 0) return -1;
-                    t = cv;
-                } else if (generic) {
-                    const u = if (argc == 0) r else self.unifyW(t, a, start, at, name);
-                    if (u < 0) return -1;
-                    t = tyOf(u);
-                } else {
-                    if (a == .i) return fail(MSG_FLOATFN, .{ name, name });
-                    if (a == .u and settleText(self.out, at, .f) < 0) return -1;
-                    t = .f;
-                }
+                if (argc == 4) return fail("function '{s}' takes at most 4 arguments", .{name});
+                args[argc] = tyOf(r);
                 argc += 1;
                 if (self.peekW() == ',') {
                     self.out.putc(',');
@@ -1790,8 +2014,15 @@ const Rewriter = struct {
         if (self.peekW() != ')') return fail("function '{s}' is missing ')'", .{name});
         self.out.putc(')');
         self.i += 1;
-        if (argc != arity) return fail("function '{s}' takes {d} argument(s), got {d}", .{ name, arity, argc });
-        return tyR(if (conv) |cv| cv else t);
+        if (ctor == 0) {
+            const arity: u8 = if (fun) |f| f.arity else 1;
+            if (argc != arity) return fail("function '{s}' takes {d} argument(s), got {d}", .{ name, arity, argc });
+        }
+        const plan = planCall(name, fun, conv, ctor, args[0..argc]) orelse return -1;
+        if (plan.settle) |st| {
+            if (settleText(self.out, start, st) < 0) return -1;
+        }
+        return tyR(plan.result);
     }
 };
 
@@ -1938,6 +2169,9 @@ const Op = enum(u8) {
     i_add, i_sub, i_mul, i_div, i_mod, i_neg, i_min, i_max, i_abs, i_clamp, i_sign,
     ic_lt, ic_le, ic_gt, ic_ge, ic_eq, ic_ne,
     cv_fi, cv_if,
+    // GL0 (vectors): the vector functions' names, and the vector ops
+    f_dot, f_cross, f_normalize, f_reflect,
+    splat, swz, vmap, v_dot, v_len, v_dist, v_norm, v_cross, v_refl,
 };
 
 const Fn = struct { name: []const u8, op: Op, arity: u8 };
@@ -1956,8 +2190,9 @@ const FUNCS = [_]Fn{
     .{ .name = "inversesqrt", .op = .f_inversesqrt, .arity = 1 },
     .{ .name = "length", .op = .f_length, .arity = 1 },     .{ .name = "distance", .op = .f_distance, .arity = 2 },
     .{ .name = "tanh", .op = .f_tanh, .arity = 1 },
+    .{ .name = "dot", .op = .f_dot, .arity = 2 },           .{ .name = "cross", .op = .f_cross, .arity = 2 },
+    .{ .name = "normalize", .op = .f_normalize, .arity = 1 }, .{ .name = "reflect", .op = .f_reflect, .arity = 2 },
 };
-const VECTOR_ONLY = [_][]const u8{ "dot", "cross", "normalize", "reflect", "vec2", "vec3", "vec4" };
 
 pub const MAX_OPS = 512;
 pub const MAX_CONSTS = 128;
@@ -2162,6 +2397,7 @@ fn compileInto(p: *Program, text: []const u8, d: *const Decl, where: Where, in_l
     }
     // GL0: where the value goes decides its type, as the rewriter's sinkW does
     const t = tyOf(r);
+    if (isVec(t)) return fail(MSG_VECNUM, .{});
     switch (sink) {
         .body => {
             const want: Ty = if (d.out_int) .i else .f;
@@ -2241,6 +2477,24 @@ const Parser = struct {
         self.npoly = from;
         return 0;
     }
+    /// Arithmetic, as the rewriter's arithW: emits the op and returns its type.
+    fn arith(self: *Parser, op: Op, a: Ty, b: Ty, ma: usize, mb: usize, at: []const u8) i32 {
+        if (!isVec(a) and !isVec(b)) {
+            const t = self.unify(a, b, ma, mb, at);
+            if (t < 0) return -1;
+            if (self.emitT(op, tyOf(t)) < 0) return -1;
+            self.p.flops += 1;
+            return t;
+        }
+        if (vecMeet(a, b, at) < 0) return -1;
+        if (a == .u and self.settle(ma, .f) < 0) return -1;
+        if (b == .u and self.settle(mb, .f) < 0) return -1;
+        const v = if (isVec(a)) a else b;
+        const mask: u8 = (if (isVec(a)) @as(u8, 0) else 1) | (if (isVec(b)) @as(u8, 0) else 2);
+        if (self.emit(.vmap, vmapArg(op, vecWidth(v), 2, mask)) < 0) return -1;
+        self.p.flops += @floatFromInt(vecWidth(v));
+        return tyR(v);
+    }
     fn unify(self: *Parser, a: Ty, b: Ty, ma: usize, mb: usize, at: []const u8) i32 {
         if (a == b) return tyR(a);
         if (a == .b or b == .b) return fail(MSG_COND, .{});
@@ -2303,6 +2557,7 @@ const Parser = struct {
             const mb = self.mark();
             const b = self.expr();
             if (b < 0) return -1;
+            if (isVec(tyOf(a)) or isVec(tyOf(b))) return fail(MSG_VECCMP, .{});
             const t = self.unify(tyOf(a), tyOf(b), ma, mb, txt);
             if (t < 0) return -1;
             if (tyOf(t) == .u and self.settle(ma, .f) < 0) return -1;
@@ -2360,10 +2615,8 @@ const Parser = struct {
             const mb = self.mark();
             const r = self.term();
             if (r < 0) return -1;
-            t = self.unify(tyOf(t), tyOf(r), ma, mb, if (c == '+') "+" else "-");
+            t = self.arith(if (c == '+') .add else .sub, tyOf(t), tyOf(r), ma, mb, if (c == '+') "+" else "-");
             if (t < 0) return -1;
-            if (self.emitT(if (c == '+') .add else .sub, tyOf(t)) < 0) return -1;
-            self.p.flops += 1;
         }
         return t;
     }
@@ -2379,10 +2632,8 @@ const Parser = struct {
             const mb = self.mark();
             const r = self.unary();
             if (r < 0) return -1;
-            t = self.unify(tyOf(t), tyOf(r), ma, mb, if (c == '*') "*" else if (c == '/') "/" else "%");
+            t = self.arith(if (c == '*') .mul else if (c == '/') .div else .mod, tyOf(t), tyOf(r), ma, mb, if (c == '*') "*" else if (c == '/') "/" else "%");
             if (t < 0) return -1;
-            if (self.emitT(if (c == '*') .mul else if (c == '/') .div else .mod, tyOf(t)) < 0) return -1;
-            self.p.flops += 1;
         }
         return t;
     }
@@ -2392,6 +2643,11 @@ const Parser = struct {
             self.i += 1;
             const t = self.unary();
             if (t < 0) return -1;
+            if (isVec(tyOf(t))) {
+                if (self.emit(.vmap, vmapArg(.neg, vecWidth(tyOf(t)), 1, 0)) < 0) return -1;
+                self.p.flops += @floatFromInt(vecWidth(tyOf(t)));
+                return t;
+            }
             if (self.emitT(.neg, tyOf(t)) < 0) return -1;
             self.p.flops += 1;
             return t;
@@ -2414,6 +2670,7 @@ const Parser = struct {
         const r2 = if (r < 0) r else self.noCmp();
         self.compare = saved;
         if (r2 < 0) return -1;
+        if (isVec(tyOf(r))) return fail(MSG_VECNUM, .{});
         if (tyOf(r) == .u and self.settle(m, .f) < 0) return -1;
         if (self.peek() != ']') return fail("missing ']' after '@{s}['", .{nm});
         self.i += 1;
@@ -2421,8 +2678,23 @@ const Parser = struct {
         return if (tyOf(r) == .i) INT_IDX else 0;
     }
 
-    // primary := number | '@' name | name '(' args ')' | scalar | '(' expr ')'
+    // primary := atom ('.' components)*  -- GL0: a swizzle
     fn primary(self: *Parser) i32 {
+        const r = self.atom();
+        if (r < 0) return -1;
+        var t = tyOf(r);
+        while (self.i + 1 < self.s.len and self.s[self.i] == '.' and std.ascii.isAlphabetic(self.s[self.i + 1])) {
+            var j = self.i + 1;
+            while (j < self.s.len and std.ascii.isAlphanumeric(self.s[j])) : (j += 1) {}
+            const sw = swizzleOf(t, self.s[self.i + 1 .. j]) orelse return -1;
+            if (self.emit(.swz, sw.arg) < 0) return -1;
+            self.i = j;
+            t = sw.out;
+        }
+        return tyR(t);
+    }
+    // atom := number | '@' name | name '(' args ')' | scalar | '(' expr ')'
+    fn atom(self: *Parser) i32 {
         const c = self.peek();
         if (c == 0) return fail("expression ends where a value was expected", .{});
         if (c == '(') {
@@ -2550,10 +2822,6 @@ const Parser = struct {
             }
             if (std.mem.eql(u8, nm.slice(), "when")) return self.when();
             if (std.mem.eql(u8, nm.slice(), "sum")) return self.sum();
-            for (VECTOR_ONLY) |v| {
-                if (std.mem.eql(u8, v, nm.slice()))
-                    return fail("'{s}' works on vectors; an elementwise kernel has none", .{nm.slice()});
-            }
             return self.call(nm.slice());
         }
         return fail("character '{c}' is not part of the elementwise language", .{c});
@@ -2590,6 +2858,7 @@ const Parser = struct {
         self.i += 1;
         self.p.jump[at_else] = @intCast(self.p.n);
         self.p.flops += 1;
+        if (isVec(tyOf(tt)) or isVec(tyOf(tf))) return if (vecSame(tyOf(tt), tyOf(tf), "when") < 0) -1 else tt;
         return self.unify(tyOf(tt), tyOf(tf), mt, mf, "when");
     }
 
@@ -2626,6 +2895,7 @@ const Parser = struct {
             const m = self.mark();
             const tb = self.expr();
             if (tb < 0 or self.noCmp() < 0) return -1;
+            if (isVec(tyOf(tb))) return fail(MSG_VECNUM, .{});
             if (tyOf(tb) == .u and self.settle(m, .f) < 0) return -1;
             if (tyOf(tb) == .i and self.emit(.cv_if, 0) < 0) return -1;
             if (self.peek() != ',') return fail("sum takes 4 arguments (var, from, to, expression)", .{});
@@ -2642,6 +2912,7 @@ const Parser = struct {
         const r2 = if (r < 0) r else self.noCmp();
         self.loopvar = null;
         if (r2 < 0) return -1;
+        if (isVec(tyOf(r))) return fail(MSG_VECNUM, .{});
         if (self.peek() != ')') return fail("sum is missing ')'", .{});
         self.i += 1;
         const bt: Ty = if (tyOf(r) == .u) .f else tyOf(r);
@@ -2655,41 +2926,26 @@ const Parser = struct {
 
     fn call(self: *Parser, fname: []const u8) i32 {
         const conv: ?Ty = if (std.mem.eql(u8, fname, "int")) .i else if (std.mem.eql(u8, fname, "float")) .f else null;
+        const ctor = ctorWidth(fname);
         var fun: ?Fn = null;
-        if (conv == null) {
+        if (conv == null and ctor == 0) {
             for (FUNCS) |f| {
                 if (std.mem.eql(u8, f.name, fname)) fun = f;
             }
             if (fun == null) return fail("unknown name '{s}' (not a declared scalar, not a whitelisted function)", .{fname});
         }
         const name: []const u8 = if (fun) |f| f.name else fname;
-        const arity: u8 = if (fun) |f| f.arity else 1;
-        const generic = if (fun) |f| isGeneric(f.op) else false;
         if (self.peek() != '(') return fail("function '{s}' needs '('", .{name});
         self.i += 1;
         const start = self.mark();
+        var args: [4]Ty = undefined;
         var argc: u8 = 0;
-        var t: Ty = .u;
-        var from: Ty = .u; // a conversion's argument type
         if (self.peek() != ')') {
             while (true) {
-                const at = self.mark();
                 const r = self.expr();
                 if (r < 0 or self.noCmp() < 0) return -1;
-                const a = tyOf(r);
-                if (conv) |cv| {
-                    if (a == .u and self.settle(at, cv) < 0) return -1;
-                    from = if (a == .u) cv else a;
-                    t = cv;
-                } else if (generic) {
-                    const u = if (argc == 0) r else self.unify(t, a, start, at, name);
-                    if (u < 0) return -1;
-                    t = tyOf(u);
-                } else {
-                    if (a == .i) return fail(MSG_FLOATFN, .{ name, name });
-                    if (a == .u and self.settle(at, .f) < 0) return -1;
-                    t = .f;
-                }
+                if (argc == 4) return fail("function '{s}' takes at most 4 arguments", .{name});
+                args[argc] = tyOf(r);
                 argc += 1;
                 if (self.peek() == ',') {
                     self.i += 1;
@@ -2700,15 +2956,44 @@ const Parser = struct {
         }
         if (self.peek() != ')') return fail("function '{s}' is missing ')'", .{name});
         self.i += 1;
-        if (argc != arity) return fail("function '{s}' takes {d} argument(s), got {d}", .{ name, arity, argc });
-        if (conv) |cv| {
-            if (cv == .i and from == .f and self.emit(.cv_fi, 0) < 0) return -1;
-            if (cv == .f and from == .i and self.emit(.cv_if, 0) < 0) return -1;
-            return tyR(cv);
+        if (ctor == 0) {
+            const arity: u8 = if (fun) |f| f.arity else 1;
+            if (argc != arity) return fail("function '{s}' takes {d} argument(s), got {d}", .{ name, arity, argc });
         }
-        self.p.flops += 1;
-        if (self.emitT(fun.?.op, t) < 0) return -1;
-        return tyR(t);
+        const plan = planCall(name, fun, conv, ctor, args[0..argc]) orelse return -1;
+        if (plan.settle) |st| {
+            if (self.settle(start, st) < 0) return -1;
+        }
+        const n: f64 = @floatFromInt(plan.n);
+        switch (plan.mode) {
+            .conv => {
+                if (conv.? == .i and args[0] == .f and self.emit(.cv_fi, 0) < 0) return -1;
+                if (conv.? == .f and args[0] == .i and self.emit(.cv_if, 0) < 0) return -1;
+            },
+            .scalar => {
+                self.p.flops += 1;
+                if (self.emitT(fun.?.op, plan.result) < 0) return -1;
+            },
+            .vmap => {
+                self.p.flops += n;
+                if (self.emit(.vmap, vmapArg(fun.?.op, plan.n, argc, plan.mask)) < 0) return -1;
+            },
+            .ctor => {},
+            .splat => if (self.emit(.splat, plan.n) < 0) return -1,
+            else => {
+                const op: Op = switch (plan.mode) {
+                    .vdot => .v_dot,
+                    .vlen => .v_len,
+                    .vdist => .v_dist,
+                    .vnorm => .v_norm,
+                    .vcross => .v_cross,
+                    else => .v_refl,
+                };
+                self.p.flops += 2 * n;
+                if (self.emit(op, plan.n) < 0) return -1;
+            },
+        }
+        return tyR(plan.result);
     }
 };
 
@@ -2875,6 +3160,48 @@ fn iIndex(x: i32) ?usize {
     return if (x < 0) null else @intCast(x);
 }
 
+/// The f32 meaning of an op on up to three operands -- ONE definition, used for
+/// a number and for every component of a vector (GL0), so the two cannot drift.
+fn applyF(op: Op, x: f32, y: f32, z: f32) f32 {
+    return switch (op) {
+        .add => x + y,
+        .sub => x - y,
+        .mul => x * y,
+        .div => x / y,
+        .mod => wgslMod(x, y),
+        .neg => -x,
+        .f_min => @min(x, y),
+        .f_max => @max(x, y),
+        .f_pow => std.math.pow(f32, x, y),
+        .f_step => if (y < x) 0.0 else 1.0,
+        .f_atan2 => std.math.atan2(x, y),
+        .f_distance => @abs(x - y),
+        .f_clamp => @min(@max(x, y), z),
+        .f_mix => x * (1.0 - z) + y * z,
+        .f_smoothstep => blk: {
+            const t = @min(@max((z - x) / (y - x), 0.0), 1.0);
+            break :blk t * t * (3.0 - 2.0 * t);
+        },
+        .f_abs, .f_length => @abs(x),
+        .f_sqrt => @sqrt(x),
+        .f_exp => @exp(x),
+        .f_log => @log(x),
+        .f_sin => @sin(x),
+        .f_cos => @cos(x),
+        .f_tan => @tan(x),
+        .f_floor => @floor(x),
+        .f_ceil => @ceil(x),
+        .f_sign => if (x > 0) 1.0 else if (x < 0) -1.0 else x,
+        .f_fract => x - @floor(x),
+        .f_round => roundEven(x),
+        .f_asin => std.math.asin(x),
+        .f_acos => std.math.acos(x),
+        .f_inversesqrt => 1.0 / @sqrt(x),
+        .f_tanh => std.math.tanh(x),
+        else => std.math.nan(f32),
+    };
+}
+
 /// Run one program over element `i`. Returns the value, or null on a stack fault.
 fn runProgram(p: *const Program, th: *const Thread, ins: [*]const [*]const f32, lens: [*]const f64, scalars: [*]const f32, ops_out: *f64) ?f32 {
     const i = th.i;
@@ -3037,17 +3364,6 @@ fn runProgram(p: *const Program, th: *const Thread, ins: [*]const [*]const f32, 
                 const a2 = fv(st[sp - 2]);
                 const b2 = fv(st[sp - 1]);
                 st[sp - 2] = fb(switch (p.ops[k]) {
-                    .add => a2 + b2,
-                    .sub => a2 - b2,
-                    .mul => a2 * b2,
-                    .div => a2 / b2,
-                    .mod => wgslMod(a2, b2),
-                    .f_min => @min(a2, b2),
-                    .f_max => @max(a2, b2),
-                    .f_pow => std.math.pow(f32, a2, b2),
-                    .f_step => if (b2 < a2) 0.0 else 1.0,
-                    .f_atan2 => std.math.atan2(a2, b2),
-                    .f_distance => @abs(a2 - b2),
                     .c_lt => if (a2 < b2) 1.0 else 0.0,
                     .c_le => if (a2 <= b2) 1.0 else 0.0,
                     .c_gt => if (a2 > b2) 1.0 else 0.0,
@@ -3056,50 +3372,117 @@ fn runProgram(p: *const Program, th: *const Thread, ins: [*]const [*]const f32, 
                     .c_ne => if (a2 != b2) 1.0 else 0.0,
                     .l_and => if (a2 != 0 and b2 != 0) 1.0 else 0.0,
                     .l_or => if (a2 != 0 or b2 != 0) 1.0 else 0.0,
-                    else => unreachable,
+                    else => applyF(p.ops[k], a2, b2, 0),
                 });
                 sp -= 1;
                 ops += 1;
             },
             .f_clamp, .f_mix, .f_smoothstep => {
                 if (sp < 3) return null;
-                const x = fv(st[sp - 3]);
-                const y = fv(st[sp - 2]);
-                const z = fv(st[sp - 1]);
-                st[sp - 3] = fb(switch (p.ops[k]) {
-                    .f_clamp => @min(@max(x, y), z),
-                    .f_mix => x * (1.0 - z) + y * z,
-                    .f_smoothstep => blk: {
-                        const t = @min(@max((z - x) / (y - x), 0.0), 1.0);
-                        break :blk t * t * (3.0 - 2.0 * t);
-                    },
-                    else => unreachable,
-                });
+                st[sp - 3] = fb(applyF(p.ops[k], fv(st[sp - 3]), fv(st[sp - 2]), fv(st[sp - 1])));
                 sp -= 2;
                 ops += 1;
             },
+            // GL0 (vectors): a vecN is N slots in a row
+            .splat => {
+                const nv: usize = arg;
+                if (sp < 1 or sp - 1 + nv > STACK) return null;
+                for (1..nv) |j2| st[sp - 1 + j2] = st[sp - 1];
+                sp += nv - 1;
+            },
+            .swz => {
+                const nv: usize = (arg & 3) + 2;
+                const m: usize = ((arg >> 2) & 3) + 1;
+                if (sp < nv or sp - nv + m > STACK) return null;
+                var tmp: [4]u32 = undefined;
+                for (0..nv) |j2| tmp[j2] = st[sp - nv + j2];
+                sp -= nv;
+                for (0..m) |q| {
+                    st[sp] = tmp[(arg >> @intCast(4 + 2 * q)) & 3];
+                    sp += 1;
+                }
+            },
+            .vmap => {
+                const opf: Op = @enumFromInt(arg & 0x7F);
+                const nv: usize = ((arg >> 7) & 3) + 1;
+                const ar: usize = ((arg >> 9) & 3) + 1;
+                const mask = (arg >> 11) & 7;
+                var need: usize = 0;
+                for (0..ar) |q| need += if (mask & (@as(u16, 1) << @intCast(q)) != 0) 1 else nv;
+                if (sp < need) return null;
+                var base = sp - need;
+                var from: [3]usize = undefined; // where each operand starts
+                var spread: [3]bool = undefined;
+                for (0..ar) |q| {
+                    spread[q] = mask & (@as(u16, 1) << @intCast(q)) != 0;
+                    from[q] = base;
+                    base += if (spread[q]) 1 else nv;
+                }
+                var res: [4]f32 = undefined;
+                for (0..nv) |j2| {
+                    var xs: [3]f32 = .{ 0, 0, 0 };
+                    for (0..ar) |q| xs[q] = fv(st[from[q] + (if (spread[q]) 0 else j2)]);
+                    res[j2] = applyF(opf, xs[0], xs[1], xs[2]);
+                }
+                sp -= need;
+                for (0..nv) |j2| st[sp + j2] = fb(res[j2]);
+                sp += nv;
+                ops += @floatFromInt(nv);
+            },
+            .v_dot, .v_dist, .v_refl => {
+                const nv: usize = arg;
+                if (sp < 2 * nv) return null;
+                const a0 = sp - 2 * nv;
+                const b0 = sp - nv;
+                var acc: f32 = 0;
+                for (0..nv) |j2| {
+                    const x = fv(st[a0 + j2]);
+                    const y = fv(st[b0 + j2]);
+                    acc += if (p.ops[k] == .v_dist) (x - y) * (x - y) else x * y;
+                }
+                if (p.ops[k] == .v_refl) {
+                    // reflect(e1, e2) = e1 - 2 * dot(e2, e1) * e2
+                    for (0..nv) |j2| st[a0 + j2] = fb(fv(st[a0 + j2]) - 2.0 * acc * fv(st[b0 + j2]));
+                    sp = b0;
+                } else {
+                    st[a0] = fb(if (p.ops[k] == .v_dist) @sqrt(acc) else acc);
+                    sp = a0 + 1;
+                }
+                ops += @floatFromInt(2 * nv);
+            },
+            .v_len, .v_norm => {
+                const nv: usize = arg;
+                if (sp < nv) return null;
+                const a0 = sp - nv;
+                var acc: f32 = 0;
+                for (0..nv) |j2| acc += fv(st[a0 + j2]) * fv(st[a0 + j2]);
+                const len = @sqrt(acc);
+                if (p.ops[k] == .v_norm) {
+                    for (0..nv) |j2| st[a0 + j2] = fb(fv(st[a0 + j2]) / len);
+                } else {
+                    st[a0] = fb(len);
+                    sp = a0 + 1;
+                }
+                ops += @floatFromInt(2 * nv);
+            },
+            .v_cross => {
+                if (sp < 6) return null;
+                const a0 = sp - 6;
+                const ax = fv(st[a0]);
+                const ay = fv(st[a0 + 1]);
+                const az = fv(st[a0 + 2]);
+                const bx = fv(st[a0 + 3]);
+                const by = fv(st[a0 + 4]);
+                const bz = fv(st[a0 + 5]);
+                st[a0] = fb(ay * bz - az * by);
+                st[a0 + 1] = fb(az * bx - ax * bz);
+                st[a0 + 2] = fb(ax * by - ay * bx);
+                sp = a0 + 3;
+                ops += 6;
+            },
             else => {
                 if (sp < 1) return null;
-                const x = fv(st[sp - 1]);
-                st[sp - 1] = fb(switch (p.ops[k]) {
-                    .f_abs, .f_length => @abs(x),
-                    .f_sqrt => @sqrt(x),
-                    .f_exp => @exp(x),
-                    .f_log => @log(x),
-                    .f_sin => @sin(x),
-                    .f_cos => @cos(x),
-                    .f_tan => @tan(x),
-                    .f_floor => @floor(x),
-                    .f_ceil => @ceil(x),
-                    .f_sign => if (x > 0) 1.0 else if (x < 0) -1.0 else x,
-                    .f_fract => x - @floor(x),
-                    .f_round => roundEven(x),
-                    .f_asin => std.math.asin(x),
-                    .f_acos => std.math.acos(x),
-                    .f_inversesqrt => 1.0 / @sqrt(x),
-                    .f_tanh => std.math.tanh(x),
-                    else => unreachable,
-                });
+                st[sp - 1] = fb(applyF(p.ops[k], fv(st[sp - 1]), 0, 0));
                 ops += 1;
             },
         }
@@ -4295,6 +4678,85 @@ test "GL0 types: the refusals, in one reader's words and the other's" {
         try std.testing.expectEqualStrings(e1[0..@intCast(el1)], e[0..@intCast(el2)]);
         if (std.mem.indexOf(u8, e[0..@intCast(el2)], c.words) == null) {
             std.debug.print("\n{s}\n  -> {s}\n", .{ c.spec, e[0..@intCast(el2)] });
+            return error.WrongWords;
+        }
+    }
+}
+
+fn evalIns(spec: []const u8, cols: []const []const f32, out: []f32) !void {
+    if (stz_gpu_spec_compile(spec.ptr, @floatFromInt(spec.len)) != 0) {
+        var e: [256]u8 = undefined;
+        const el = stz_gpu_wgsl_error(&e, e.len);
+        std.debug.print("\n{s}\n  -> {s}\n", .{ spec, e[0..@intCast(el)] });
+        return error.Refused;
+    }
+    var ins: [4][*]const f32 = undefined;
+    var lens: [4]f64 = undefined;
+    for (cols, 0..) |c, k| {
+        ins[k] = c.ptr;
+        lens[k] = @floatFromInt(c.len);
+    }
+    const sc = [_]f32{0};
+    if (stz_gpu_spec_eval(&ins, @intCast(cols.len), &lens, &sc, 0, @floatFromInt(out.len), out.ptr) != 0) return error.EvalFailed;
+}
+
+test "GL0 vectors: built from numbers, read by component, combined, reduced -- in both readers" {
+    var o3: [3]f32 = undefined;
+    const ln = "in x\nin y\nin z\nout d\nbody { @d = length(vec3(@x, @y, @z)) }";
+    try wgslHas(ln, "v_d[i] = length(vec3<f32>(v_x[i], v_y[i], v_z[i]));");
+    try evalIns(ln, &.{ &.{ 3, 0, 1 }, &.{ 4, 0, 2 }, &.{ 0, 0, 2 } }, &o3);
+    try std.testing.expectEqualSlices(f32, &.{ 5, 0, 3 }, &o3);
+    // a number spread across a vector, a swizzle of a swizzle, a dot
+    const sw = "in a\nout c\nbody { @c = (vec3(@a, 1, 2) * 2 + 1).zyx.x + dot(vec2(@a, 1), vec2(3, 4)) }";
+    try wgslHas(sw, "(vec3<f32>(v_a[i], 1f, 2f) * 2f + 1f).zyx.x + dot(vec2<f32>(v_a[i], 1f), vec2<f32>(3f, 4f))");
+    try evalIns(sw, &.{&.{ 0, 1, 2 }}, &o3);
+    try std.testing.expectEqualSlices(f32, &.{ 9, 12, 15 }, &o3);
+    // cross, normalize, reflect, mix with one weight, when of vectors, floor by component
+    const fx = "in a\nout c\nbody { @c = cross(vec3(1, 0, 0), vec3(0, @a, 0)).z + normalize(vec2(@a, 0)).x + reflect(vec2(1, -1), vec2(0, 1)).y + mix(vec2(0, 2), vec2(4, 6), 0.5).y + when(@a > 1, vec2(10, 20), vec2(30, 40)).y + floor(vec2(@a * 1.5, 0)).x }";
+    try wgslHas(fx, "select((vec2<f32>(30f, 40f)), (vec2<f32>(10f, 20f)), (v_a[i] > 1f)).y");
+    try evalIns(fx, &.{&.{ 1, 2, 3 }}, &o3);
+    try std.testing.expectEqualSlices(f32, &.{ 48, 31, 33 }, &o3);
+    // a constructor of a vector and numbers, and one number spread
+    const ct = "in a\nout c\nbody { @c = vec4(vec2(@a, 1), 2, 3).w + vec3(@a).y - (-vec2(@a, 5)).y }";
+    try evalIns(ct, &.{&.{ 0, 1, 2 }}, &o3);
+    try std.testing.expectEqualSlices(f32, &.{ 8, 9, 10 }, &o3);
+}
+
+test "GL0 vectors: the refusals, in one reader's words and the other's" {
+    var buf: [8192]u8 = undefined;
+    const Case = struct { spec: []const u8, words: []const u8 };
+    const refused = [_]Case{
+        .{ .spec = "in a\nout c\nbody { @c = vec3(@a, 1, 2) }", .words = "a vector stands where a number is needed" },
+        .{ .spec = "in a\nout c\nbody { @c = when(vec2(@a, 1) > 0, 1, 0) }", .words = "a vector is not compared whole" },
+        .{ .spec = "in a\nout c\nbody { @c = (vec2(1, 2) + vec3(1, 2, 3)).x }", .words = "vectors of two widths meet at '+'" },
+        .{ .spec = "in a\nout c\nbody { @c = min(vec2(@a, 1), 0).x }", .words = "'min' takes values of one type: write vec2(x)" },
+        .{ .spec = "in a\nout c\nbody { @c = vec3(1, 2).x }", .words = "vec3 takes 3 numbers" },
+        .{ .spec = "in a\nout c\nbody { @c = dot(@a, 2) }", .words = "'dot' works on vectors" },
+        .{ .spec = "in a\nout c\nbody { @c = cross(vec2(1, 2), vec2(3, 4)).x }", .words = "cross takes two vec3s" },
+        .{ .spec = "in a\nout c\nbody { @c = @a.x }", .words = "'.x' reads a vector's components, and this value is a number" },
+        .{ .spec = "in a\nout c\nbody { @c = vec2(@a, 1).z }", .words = "'.z' is not a component of this vector: a vec2's letters are xy" },
+        .{ .spec = "in k int\nout c\nbody { @c = vec2(@k, 1).x }", .words = "a vector holds floats" },
+        .{ .spec = "in a\nout c\nbody { @c = int(vec2(1, 2)) }", .words = "'int' converts a number, not a vector" },
+        .{ .spec = "in a\nout c\nbody { @c = @a[vec2(1, 2)] }", .words = "a vector stands where a number is needed" },
+        .{ .spec = "in a\nout c\nbody { @c = sum(k, 0, 2, vec2(k, 1)).x }", .words = "a vector stands where a number is needed" },
+        .{ .spec = "in a\nout c\nbody { @c = when(@a > 0, vec2(1, 2), 3).x }", .words = "'when' takes values of one type" },
+    };
+    for (refused) |c| {
+        var e: [256]u8 = undefined;
+        if (stz_gpu_wgsl_elementwise(c.spec.ptr, @floatFromInt(c.spec.len), &buf, buf.len) != -1) {
+            std.debug.print("\nthe transpiler admitted: {s}\n", .{c.spec});
+            return error.Admitted;
+        }
+        const el1 = stz_gpu_wgsl_error(&e, e.len);
+        var e1: [256]u8 = undefined;
+        @memcpy(e1[0..@intCast(el1)], e[0..@intCast(el1)]);
+        if (stz_gpu_spec_compile(c.spec.ptr, @floatFromInt(c.spec.len)) != -1) {
+            std.debug.print("\nthe interpreter admitted: {s}\n", .{c.spec});
+            return error.Admitted;
+        }
+        const el2 = stz_gpu_wgsl_error(&e, e.len);
+        if (!std.mem.eql(u8, e1[0..@intCast(el1)], e[0..@intCast(el2)]) or std.mem.indexOf(u8, e[0..@intCast(el2)], c.words) == null) {
+            std.debug.print("\n{s}\n  transpiler:  {s}\n  interpreter: {s}\n", .{ c.spec, e1[0..@intCast(el1)], e[0..@intCast(el2)] });
             return error.WrongWords;
         }
     }

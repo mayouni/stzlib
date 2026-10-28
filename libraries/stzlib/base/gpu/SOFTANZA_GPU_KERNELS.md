@@ -58,7 +58,8 @@ the browser build gets **the same code**, not a port of it.
 ## 3. The kernel language
 
 A description is a set of lines. A value is a 32-bit float, a 32-bit
-int (GL0) or, in a condition, a truth value. Names fold to lower case, as
+int (GL0), a vector of two to four floats (GL0) or, in a condition, a truth
+value. Names fold to lower case, as
 Ring does.
 
 ### 3.1 The elementwise kernel
@@ -146,6 +147,37 @@ int output written through `f32(...)`, so a value crosses exactly up to
 16,777,216. An int's arithmetic inside the kernel is exact over its whole
 range.
 
+### 3.1c Vectors (GL0)
+
+```
+in nx
+in ny
+in nz
+scalar sx
+scalar sy
+scalar sz
+out c
+body { @c = max(dot(normalize(vec3(@nx, @ny, @nz)), normalize(vec3(sx, sy, sz))), 0) }
+```
+
+`vec2`, `vec3` and `vec4` hold two to four floats, as **values inside a
+kernel**: an input and an output are still numbers, so a vector is built
+and reduced within one expression.
+
+| written | means |
+|---|---|
+| `vec3(@x, @y, @z)` | a vector from numbers; `vec4(v2, 1, 0)` from a vector and numbers; `vec3(1)` one number spread |
+| `v.x`, `v.zyx` | one component, or several in any order (`x y z w`) |
+| `v + w`, `v * 2` | component by component; a number meeting a vector is spread across it |
+| `sin(v)`, `max(v, w)`, `mix(v, w, 0.5)` | every float function, component by component; its arguments have one type, except mix's weight |
+| `dot(v, w)`, `length(v)`, `distance(v, w)` | a number |
+| `normalize(v)`, `cross(v, w)`, `reflect(v, n)` | a vector (cross: two vec3s) |
+| `when(c, v, w)` | one vector or the other |
+
+A vector is not compared whole (compare `v.x`, or a `dot`), does not stand
+where a number is needed (an output, an index, a sum's body), and holds
+floats (`vec2(@k, 1)` with an int `k` is refused).
+
 ### 3.2 The group's own memory
 
 A GPU runs threads in **groups** of 256 that share a small fast memory.
@@ -209,6 +241,11 @@ because they share one parser.
 | a float into an int output, or an int into a float one | write `int(...)` or `float(...)` |
 | a whole number past 2,147,483,647 meeting an int | it is not an int |
 | a type word other than `int` or `float` | a declaration ends with its type, or with its name |
+| a vector where a number is needed, `@c = vec3(...)` | reduce it: `.x`, `dot(...)`, `length(...)` |
+| a vector compared whole, `v > 0` | compare a component or a dot |
+| two widths meeting, `vec2(...) + vec3(...)` | a vector meets one of its own width, or a number |
+| a number given to a function beside a vector, `min(v, 0)` | WGSL has one type per call: `min(v, vec2(0))` |
+| a component past the width, `vec2(...).z` | a vec2's letters are `x y` |
 | a comparison used as a number, `(@a > 0) * 2` | on the device a comparison is a truth value; write `when(@a > 0, 2, 0)` |
 | a number used as a condition, `when(@a, 1, 0)` or `guard { @a }` | a condition compares: `@a != 0` |
 | a chain, `0 < @a < 2` | write `0 < @a and @a < 2` |
@@ -253,7 +290,12 @@ Since GL0 both readers are typed recursive descents, one construct for
 each of the other's, so they refuse in the same order with the same words.
 The transpiler keeps the source's own spacing and parentheses, so WGSL
 reads the precedence a second time by itself. When it was rebuilt, it wrote
-the same WGSL, byte for byte, for 18,000 generated kernels.
+the same WGSL, byte for byte, for 18,000 generated kernels, and did again
+when vectors were added. What a call means once its arguments' types are
+known is decided once, for both (`planCall`); each still parses, writes and
+computes it its own way. The interpreter keeps a vector in consecutive stack
+slots and computes each component through the one function that computes a
+number (`applyF`), so the two meanings cannot drift apart.
 
 Two readers of one parsed description give a reference that **was not
 produced by the thing being tested**. If the transpiler emits a wrong
@@ -326,8 +368,8 @@ reported 174% of the copy roof, which is a clock artefact, not speed.
 
 ## 7. The puzzles
 
-Fourteen puzzles in eight chapters teach the GPU from the map to the
-tiled product, then the branch and the whole number:
+Fifteen puzzles in nine chapters teach the GPU from the map to the tiled
+product, then the branch, the whole number and the vector:
 
 | chapter | puzzles |
 |---|---|
@@ -339,6 +381,7 @@ tiled product, then the branch and the whole number:
 | the roofline | 12 how fast can it be |
 | the branch | 13 two prices (GL0: `when`, and the same answer without it) |
 | whole numbers | 14 roll the dice (GL0: an int keeps the digits a float loses) |
+| the vector | 15 light on a surface (GL0: `vec3`, `dot`, `normalize`) |
 
 An exercise is a folder in the Learning System's shape: `exercise.zknw`,
 `task.<lang>.md` in English, French, Arabic and Hausa, `promise.ring`, a
@@ -367,7 +410,7 @@ desktop produce identical results on every case it holds.
 
 The author worked puzzles 1 to 8. After the page gained a "Your move"
 block and buttons that load a known mistake, the author said those told
-them what to do. Puzzles 9 to 14 are built and checked by instruments;
+them what to do. Puzzles 9 to 15 are built and checked by instruments;
 **no person has worked one yet**.
 
 ## 8. Choices measured into the library
@@ -438,4 +481,5 @@ Run with Ring++ from `base/test/gpu/`: `rnxc <guard>.ring`.
 | `gpu_fuzz_narrated.ring` | generated kernels of six kinds through both readers and the device; the control that each wrong operator is caught |
 | `gpu_when_narrated.ring` | GL0's `when`: both readers, the condition's shape and its refusals, the device, the fuzz's SWAP control, puzzle 13 |
 | `gpu_int_narrated.ring` | GL0's ints: declarations, typing, refusals in both readers' words, the device at every edge, the fuzz's int kind, puzzle 14 |
+| `gpu_vec_narrated.ring` | GL0's vectors: construction, swizzles, spreading, the vector functions, refusals, the device, the fuzz's vector kind, puzzle 15 |
 | `edge_proof/edge_proof.html` | the browser and the desktop agree, case by case |

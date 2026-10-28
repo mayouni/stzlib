@@ -111,7 +111,7 @@ cd libraries/stzlib/engine && zig build -j2
 cd libraries/stzlib/engine && zig build -Ddomains=stz_gpu -j2
 ```
 
-The GPU plane, ten guards in one folder, each needing a device: whole numbers and puzzle 14 (GL0, 37), the conditional value and puzzle 13 (GL0, 34), the sanitizer (GZ0, 25), the random-kernel fuzz (GT0, 23;
+The GPU plane, eleven guards in one folder, each needing a device: vectors and puzzle 15 (GL0, 36), whole numbers and puzzle 14 (GL0, 37), the conditional value and puzzle 13 (GL0, 34), the sanitizer (GZ0, 25), the random-kernel fuzz (GT0, 23;
 3 s warm, about a minute the first time a machine compiles its kernels), the checker with its compute
 ceiling and a split dispatch timed whole (GK3, GC0; 39), the user kernel's own reference (GK6, 34), f16 weights (GK5, 23), the grammar's admissions (KP0, 43),
 the group's memory and puzzles 9-12 (KP3, 58) and the kernel puzzles (KP1-KP2, 95: the course `libraries/stzlib/base/education/program/courses/kernel-puzzles`,
@@ -131,7 +131,7 @@ cd libraries/stzlib/base/test/gpu && rnxc gpu_verify_narrated.ring && rnxc gpu_s
 ```
 
 ```bash
-cd libraries/stzlib/base/test/gpu && rnxc gpu_grammar_narrated.ring && rnxc gpu_shared_narrated.ring && rnxc gpu_puzzle_narrated.ring && rnxc gpu_fuzz_narrated.ring && rnxc gpu_sanitizer_narrated.ring && rnxc gpu_when_narrated.ring && rnxc gpu_int_narrated.ring
+cd libraries/stzlib/base/test/gpu && rnxc gpu_grammar_narrated.ring && rnxc gpu_shared_narrated.ring && rnxc gpu_puzzle_narrated.ring && rnxc gpu_fuzz_narrated.ring && rnxc gpu_sanitizer_narrated.ring && rnxc gpu_when_narrated.ring && rnxc gpu_int_narrated.ring && rnxc gpu_vec_narrated.ring
 ```
 
 The standalone probe beside it prints every adapter's peak with its spread, A B A B against

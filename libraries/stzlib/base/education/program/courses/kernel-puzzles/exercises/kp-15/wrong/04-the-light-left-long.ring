@@ -1,0 +1,11 @@
+# The light is 3 long, so every lit surface is three times too bright.
+k = StzKernelMakerQ()
+k.TakesVector(:nx)
+k.TakesVector(:ny)
+k.TakesVector(:nz)
+k.TakesScalar(:sx)
+k.TakesScalar(:sy)
+k.TakesScalar(:sz)
+k.ReturnsVector(:c)
+k.ForEachElement('{ @c = max(dot(normalize(vec3(@nx, @ny, @nz)), vec3(sx, sy, sz)), 0) }')
+? StzKernelPuzzleQ("kp-15").Grade(k)

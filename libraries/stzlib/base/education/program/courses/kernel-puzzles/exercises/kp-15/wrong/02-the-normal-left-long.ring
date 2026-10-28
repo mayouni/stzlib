@@ -1,0 +1,11 @@
+# The normal is not one long: the first lit surface, element 8, comes out too bright.
+k = StzKernelMakerQ()
+k.TakesVector(:nx)
+k.TakesVector(:ny)
+k.TakesVector(:nz)
+k.TakesScalar(:sx)
+k.TakesScalar(:sy)
+k.TakesScalar(:sz)
+k.ReturnsVector(:c)
+k.ForEachElement('{ @c = max(dot(vec3(@nx, @ny, @nz), normalize(vec3(sx, sy, sz))), 0) }')
+? StzKernelPuzzleQ("kp-15").Grade(k)
