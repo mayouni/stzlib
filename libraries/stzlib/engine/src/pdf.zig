@@ -5223,7 +5223,8 @@ fn otherListMarker(t: []const u8) ?usize {
     const own_letter = (c0 >= 0x0E01 and c0 <= 0x0E2E) or (c0 >= 0xAC00 and c0 <= 0xD7A3) or (c0 >= 0x3041 and c0 <= 0x30FA);
     if (c0 >= 0x0370 and (isLtrCp(c0) or isRtlCp(c0) or own_letter) and !isMarkCp(c0)) {
         const p = it.nextCodepoint() orelse return null;
-        if ((p == '.' or p == ')') and it.i < t.len and t[it.i] == ' ') return it.i + 1;
+        // (or a dash, the Arabic convention: "أ-", "ب-")
+        if ((p == '.' or p == ')' or p == '-') and it.i < t.len and t[it.i] == ' ') return it.i + 1;
         // a katakana letter alone, set apart before its text, is the iroha marker of Japanese documents ("ア")
         // (the markers of the a-i-u-e-o order and the i-ro-ha order only: a letter-spaced title starts with
         //  any letter -- "ダ イ ヤ")
@@ -5708,6 +5709,12 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
                 b.kind = if (top) .page_header else .page_footer;
                 continue;
             }
+            // (one small line at the very foot of the page is its footer however long: "Forum 2026 · Centre · Programme
+            //  subject to change")
+            if (bottom and b.kind == .paragraph and body > 0 and b.lines == 1 and b.size <= 0.92 * body and b.y0 > 0.92 * h and b.text.len > 0 and b.text[b.text.len - 1] != '.') {
+                b.kind = .page_footer;
+                continue;
+            }
         }
         if (b.kind == .list_item and startsListMarker(b.text) > 0 and body > 0 and b.lines == 1 and b.text.len <= 120 and
             (b.size >= 1.08 * body or (b.bold and b.text[b.text.len - 1] != '.') or
@@ -5736,7 +5743,8 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
         if (body > 0 and b.size >= 1.15 * body and short) {
             b.kind = .heading;
             try hsizes.append(a, b.size);
-        } else if (b.bold and short and !ends and b.size >= 0.95 * body and b.lines == 1) {
+        } else if (b.bold and short and !ends and (b.size >= 0.95 * body or (firstCp(b.text) >= 0x0600 and firstCp(b.text) <= 0x06FF and b.size >= 0.85 * body)) and b.lines == 1) {
+            // (an Arabic heading's face may look larger at a smaller size than the body's: 14 pt bold over 16 pt)
             b.kind = .heading;
             try hsizes.append(a, b.size);
         } else if (b.italic and short and !ends and b.size >= 0.95 * body and b.lines == 1 and b.text.len <= 80 and !startsQuote(b.text)) {
@@ -6021,7 +6029,15 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
             const c = &final.items[k - 1];
             // (a HEADING above a table is its caption only when it names itself with a number -- "Table 2",
             //  "Tableau 1"; 65 of the 84 captions in golden_v1..v16 hold a digit, and a bold section title does not)
-            const numbered = std.mem.indexOfAny(u8, c.text, "0123456789") != null;
+            // (in any script's digits: "جدول ١")
+            const numbered = std.mem.indexOfAny(u8, c.text, "0123456789") != null or blk: {
+                var view = std.unicode.Utf8View.init(c.text) catch break :blk false;
+                var it = view.iterator();
+                while (it.nextCodepoint()) |cp| {
+                    if (isScriptDigit(cp)) break :blk true;
+                }
+                break :blk false;
+            };
             if (c.page == t.page and (c.kind == .paragraph or (c.kind == .heading and c.size <= 1.05 * t.size and numbered)) and c.lines <= 2 and t.y0 - c.y1 <= 2.0 * c.size and c.x1 > t.x0 and c.x0 < t.x1) {
                 // (a heading in larger type than the table is a section heading, not the table's caption)
                 c.kind = .caption;
