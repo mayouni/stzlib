@@ -3886,11 +3886,21 @@ fn findAlignedTablesIn(a: Allocator, frags: []Frag, lane0: f32, lane1: f32, tabl
         {
             var lx: f32 = -1e9;
             const w0 = run[0].len;
-            for (run) |row| {
-                if (row.len != w0 or w0 < 2 or w0 > 4) {
+            for (run) |row_in| {
+                if (row_in.len != w0 or w0 < 2 or w0 > 4) {
                     keyval = false;
                     break;
                 }
+                // (the row's cells left to right: a label in another face sits a point off its value's baseline,
+                //  and the row lists it second)
+                const row = try a.dupe(u32, row_in);
+                const ByX0 = struct {
+                    f: []Frag,
+                    fn lt(ctx: @This(), l2: u32, r2: u32) bool {
+                        return ctx.f[l2].x0 < ctx.f[r2].x0;
+                    }
+                };
+                std.mem.sort(u32, row, ByX0{ .f = frags }, ByX0.lt);
                 const l = frags[row[0]];
                 const v = frags[row[w0 - 1]];
                 // (a list set in two columns is not one: its items carry bullets)
