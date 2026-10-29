@@ -3809,6 +3809,50 @@ fn findAlignedTablesIn(a: Allocator, frags: []Frag, lane0: f32, lane1: f32, tabl
             }
         }
     }
+    // a cell spanning two rows, centred between them ("101동" over its two lifts): a one-cell line on a baseline
+    // midway between two fuller rows, in a column both leave empty, belongs to both rows and repeats in each
+    {
+        var spanned: std.ArrayList([]u32) = .empty;
+        var q: usize = 0;
+        while (q < rows.items.len) : (q += 1) {
+            const lone = rows.items[q];
+            if (lone.len == 1 and q > 0 and q + 1 < rows.items.len and rows.items[q - 1].len >= 2 and rows.items[q + 1].len >= 2 and spanned.items.len > 0) {
+                const g = frags[lone[0]];
+                const up = rows.items[q - 1];
+                const dn = rows.items[q + 1];
+                const ub = frags[up[0]].base;
+                const db = frags[dn[0]].base;
+                // (a short label in the first column, left of every cell of both rows, and the two rows cells of one
+                //  table: as many, column by column)
+                var ok = @abs(g.base - (ub + db) / 2) <= 0.3 * g.size and db - ub <= 3.2 * g.size and proseWords(g.text) <= 4 and up.len == dn.len;
+                for (up) |k| {
+                    if (frags[k].x0 < g.x1 + 1) ok = false;
+                }
+                for (dn) |k| {
+                    if (frags[k].x0 < g.x1 + 1) ok = false;
+                }
+                if (ok) for (up, dn) |uk, dk| {
+                    if (@abs(frags[uk].x0 - frags[dk].x0) > 2 and @abs(frags[uk].x1 - frags[dk].x1) > 2 and @abs((frags[uk].x0 + frags[uk].x1) - (frags[dk].x0 + frags[dk].x1)) > 4) ok = false;
+                };
+                if (ok) {
+                    const prev = spanned.items[spanned.items.len - 1];
+                    // (last in the row: a row's first cell stands for its baseline)
+                    var r1 = try a.alloc(u32, prev.len + 1);
+                    @memcpy(r1[0..prev.len], prev);
+                    r1[prev.len] = lone[0];
+                    spanned.items[spanned.items.len - 1] = r1;
+                    var r2 = try a.alloc(u32, dn.len + 1);
+                    @memcpy(r2[0..dn.len], dn);
+                    r2[dn.len] = lone[0];
+                    try spanned.append(a, r2);
+                    q += 1;
+                    continue;
+                }
+            }
+            try spanned.append(a, lone);
+        }
+        rows = spanned;
+    }
     // a cell of two lines beside cells of one, centred in their row (the default): the one-line cells sit on a
     // baseline BETWEEN the two lines of the tall cell -- three baseline rows that are one table row
     {
