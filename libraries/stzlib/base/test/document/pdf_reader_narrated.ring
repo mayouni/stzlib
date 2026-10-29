@@ -653,6 +653,28 @@ Scenario("A grid ruled between its columns only, and a letterhead address under 
 	Then("a letterhead's address under its name, beside the title, is letterhead", StzFindFirst("88/14 ถนนมิตรภาพ", "" + @@(o.Furniture())) > 0, 1)
 EndScenario()
 
+# ---- the twenty-ninth round: row-group labels, grids without outer rules, section rows in two columns, markers (golden_v29)
+
+Scenario("Row-group labels repeat down their rows, and a grid without outer rules keeps its end columns")
+	aT = StzPdfQ("_data/golden_v29/p19.pdf").Tables()
+	Then("a label standing beside its three rows repeats in each", @@(aT[2][4]), @@([ "Mlimani", "Kituo Na. 3", "Ujenzi unaendelea", "—" ]))
+	Then("and the next group takes its own label from its first row", aT[2][5][1], "Bondeni")
+	Then("a total whose label spans the cells between repeats it", @@(aT[2][len(aT[2])]), @@([ "Jumla", "Jumla", "Jumla", "962" ]))
+	aT = StzPdfQ("_data/golden_v29/p09.pdf").Tables()
+	Then("a grid ruled between its columns only keeps the column outside its last rule", @@(aT[2][2]), @@([ "1", "안전", "통학로 보행자 안전펜스 설치", "180", "교통행정과" ]))
+	aT = StzPdfQ("_data/golden_v29/p24.pdf").Tables()
+	Then("a bold label filling a shaded row spans the two columns", @@(aT[1][2]), @@([ "Algemeen", "Algemeen" ]))
+	Then("and the table holds all its sections in one", len(aT[1]), 15)
+	Then("a cell wrapped under its row at a leading above one and a third stays in its row", @@(StzPdfQ("_data/golden_v29/p04.pdf").Tables()[2][3]), @@([ "LV-204", "Lizenzdatei abgelaufen", "Neue Lizenz im Kundenportal anfordern und nach /etc/lv- server/ kopieren." ]))
+EndScenario()
+
+Scenario("Ethiopic and Chinese list markers, and a two-line bold title")
+	Then("an Ethiopic numeral and a full stop is a list marker", StzFindFirst("፩. የልጁን የክትባት ካርድ፤", "" + @@(StzPdfQ("_data/golden_v29/p23.pdf").ListItems())) > 0, 1)
+	Then("and an Ethiopic letter and a bracket too", StzFindFirst("ሀ) የሰላም በር ጤና ጣቢያ", "" + @@(StzPdfQ("_data/golden_v29/p23.pdf").ListItems())) > 0, 1)
+	Then("a Chinese number set against its text with no space is a list marker", StzFindFirst("1.本报告仅对所检样品负责。", "" + @@(StzPdfQ("_data/golden_v29/p07.pdf").ListItems())) > 0, 1)
+	Then("a bold title of two lines, larger than the body, is a heading", StzFindFirst("АКТ № 47", "" + @@(StzPdfQ("_data/golden_v29/p10.pdf").Headings())) > 0, 1)
+EndScenario()
+
 Scenario("A file that is not a readable PDF is refused with the reason")
 	bRaised = 0
 	cWhy = ""

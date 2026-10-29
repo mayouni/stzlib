@@ -588,6 +588,21 @@ golden_v29: 24 realistic documents in 20 languages besides English (Arabic, Hebr
 
 Time for the 24 documents: native 0.08 s, Docling 84 s. The native reader leads on seven measures and ties on order. Where Docling does better, document by document: tables on six (p09 0.24 against 0.94, p24 0.17 against 0.83, p19 0.12 against 0.80, p04 0.63 against 0.95), lists on two (p23, Amharic, 0.33 against 1.00; p07, Chinese, 0.43 against 1.00), furniture on three, text on one. Code is low for the native reader too (0.50: three blocks in three documents). Causes not yet looked into: round 29.
 
+**Twenty-ninth round: row-group labels, grids without outer rules, section rows in two columns, more list markers; then golden_v30.** Fixed on golden_v29 (now a development set) and checked on all twenty-nine sets:
+- a first column of row-group labels, each set centred beside the rows it spans ("Mlimani" beside its three stations): the groups tile the body from its first row, so the size of each follows from where its label stands, and the label repeats in each row; a last row holding a label and a figure with empty cells between is a total, its label spanning them. The ladder gives way to such a table when a rule walls the label column off down its whole height; without that wall the exception took a left panel for a label column (n06);
+- a grid ruled between its columns but with no outer vertical rules (a statement whose rows have only bottom borders): the first and last columns lie outside the outermost verticals, bounded by the horizontal rules' ends;
+- a bold label alone in a band is a section row in a two-column table too (it needed three columns), repeated across both: a spec sheet's "Algemeen" / "Prestaties";
+- a ladder holding wrapped cells (two lines in every cell of a band) is clean when its lines sit closer than 0.85 of a one-line band and padding stands round the band once; this stopped such a ladder from being dissolved for a table read line by line. Measured on the way: the pitch alone took three merged-row bands for wrapped cells (v10 q11, 0.80 -> 0.11); the padding test took them back;
+- a wrapped line at a leading up to 1.5 (it was 1.35) stays in a row of an unruled table when it continues the row's LAST cell and fewer than two rules run down the rows: a 10 pt Calibri table sets 13.8 pt; looser leading in the middle columns took a statement apart (g03), and an eagerly read unruled table took a ruled ladder from its own rules (p22);
+- Ethiopic digits and syllables are list markers ("፩." and "ሀ)"), and a number and a full stop set against Chinese text with no space ("1.本报告");
+- a bold title of two lines, larger than the body, is a heading (it needed one line).
+
+Tried and withdrawn: the same 1.5 leading for a row of several cells under its row (k19 lost the text of three rows to its tall-cell merge), and the 1.5 leading for every continuation line.
+
+On the development sets, against round 28 frozen: tables v29 0.77 -> 0.87, v28 0.79 -> 0.82, v27 0.755 -> 0.766; lists v29 0.89 -> 0.95, v28 0.88 -> 0.90, v15 0.92 -> 0.94, v13 0.84 -> 0.86; headings v29 0.92 -> 0.97, v28 0.98 -> 0.99, v23 0.97 -> 0.98, v5 0.86 -> 0.87. Costs: heading precision v18 -0.006, v21 -0.004, v25 -0.004, v26 -0.004, v27 -0.004. Not reached: p03 (an Arabic mark off the line splits "أولاً" into three fragments), p06, p13, p01 (tables), p12 (furniture), p22 (code). Guard 246 assertions under Ring++.
+
+golden_v30: DLV30
+
 **Perceived (2026-10-24):** the author looked through every rendered page of golden_v9 to golden_v13 -- the sets whose own authors could not look at them -- and judged them: "they look great". Those five sets are no longer unperceived; the sets before them were generated the same way and are not covered by this look.
 
 **Perceived (2026-10-29):** the author looked at the generated documents of golden_v14 to golden_v22 and judged them: "they are ok". Those nine sets are no longer unperceived.
