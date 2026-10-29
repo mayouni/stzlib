@@ -850,6 +850,7 @@ const Font = struct {
     bold: bool = false,
     italic: bool = false,
     mono: bool = false,
+    t3_face: []const u8 = "", // a Type3 font's descriptor face name, without its subset tag (a browser's synthetic bold?)
 
     fn text(f: *const Font, code: u32) []const u8 {
         if (f.cmap.get(code)) |t| return t;
@@ -973,6 +974,12 @@ fn parseToUnicode(f: *Font, a: Allocator, data: []const u8) !void {
     }
 }
 
+// A font name without its subset tag: "AAAAAA+FranklinGothic-Book" -> "FranklinGothic-Book"
+fn faceBase(n: []const u8) []const u8 {
+    if (n.len > 7 and n[6] == '+') return n[7..];
+    return n;
+}
+
 fn loadFont(d: *Doc, fd: *Dict) !*Font {
     const a = d.a;
     const f = try a.create(Font);
@@ -1091,6 +1098,14 @@ fn loadFont(d: *Doc, fd: *Dict) !*Font {
                 if (v != 0) f.wscale = @floatCast(@abs(v));
             }
         }
+        // (a Type3 font whose descriptor names a real, upright face may be that face emboldened by the browser --
+        //  the descriptor still says weight 400, the outlines are drawn thicker; whether it is, the page's other
+        //  fonts tell: see fontFor)
+        if (desc) |dd| {
+            const fnm = d.get(dd, "FontName");
+            const upright = (numOf(d.get(dd, "ItalicAngle")) orelse 0) == 0;
+            if (fnm == .name and upright) f.t3_face = faceBase(fnm.name);
+        }
     }
     const tu = d.resolve(fd.get("ToUnicode") orelse .nul);
     if (tu == .stream) {
@@ -1195,6 +1210,30 @@ const Interp = struct {
         const key = @intFromPtr(fd);
         if (it.fonts.get(key)) |f| return f;
         const f = loadFont(it.d, fd) catch return null;
+        // a synthetic bold: the Type3 face has a twin on the page drawn from the real font file (k03's headings in
+        // FranklinGothic-Book emboldened beside its body in FranklinGothic-Book) -- a variable font drawn entirely
+        // as Type3 (Bahnschrift) has no such twin and keeps the weight its name says
+        if (f.t3_face.len > 0 and !f.bold) {
+            for (fdict.vals) |ov| {
+                const od = it.d.dictOf(ov) orelse continue;
+                if (od == fd) continue;
+                const sub = it.d.resolve(od.get("Subtype") orelse .nul);
+                if (sub == .name and eq(sub.name, "Type3")) continue;
+                var desc_d: ?*Dict = it.d.dictOf(od.get("FontDescriptor") orelse .nul);
+                if (desc_d == null) {
+                    const dfs = it.d.resolve(od.get("DescendantFonts") orelse .nul);
+                    if (dfs == .arr and dfs.arr.len > 0) {
+                        if (it.d.dictOf(dfs.arr[0])) |df0| desc_d = it.d.dictOf(df0.get("FontDescriptor") orelse .nul);
+                    }
+                }
+                const dd = desc_d orelse continue;
+                const nm = it.d.resolve(dd.get("FontName") orelse .nul);
+                if (nm == .name and eq(faceBase(nm.name), f.t3_face)) {
+                    f.bold = true;
+                    break;
+                }
+            }
+        }
         it.fonts.put(it.a, key, f) catch {};
         return f;
     }
@@ -5868,7 +5907,9 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
                 const beside = (b.x1 < tblk.x0 or b.x0 > tblk.x1) and b.y0 < tblk.y1 and b.size < tblk.size;
                 if (!((b.y1 < tblk.y0 or beside) and b.y1 < 0.18 * h and b.size <= @max(tblk.size, if (letter) |l| merged.items[l].size else 0))) continue;
                 // a letterhead holds a logo name (in capitals) and short lines (an address), never a sentence
-                const logo = b.kind == .heading and !hasLower(b.text);
+                // (or a short bold name smaller than the title: "Sahel Learning Partnership" in a browser's bold)
+                //  -- above the title only: a sidebar's heading beside it is a heading)
+                const logo = b.kind == .heading and (!hasLower(b.text) or (b.y1 < tblk.y0 and b.size < 0.9 * tblk.size and wordCount(b.text) <= 6 and b.lines <= 2));
                 // (address lines read together as one block: up to eight words a line, and no sentence's full stop)
                 const ends_stop = b.text.len > 0 and b.text[b.text.len - 1] == '.';
                 const short_line = b.kind == .paragraph and ((b.lines <= 3 and wordCount(b.text) <= 12) or (b.lines <= 4 and wordCount(b.text) <= 8 * b.lines and !ends_stop));
