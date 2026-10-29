@@ -3315,9 +3315,52 @@ fn findLadderTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.Arr
                 const ti: usize = @intCast(f.table);
                 if (std.mem.indexOfScalar(usize, hit.items, ti) == null) try hit.append(a, ti);
             }
+            // (and a table read line by line inside a ladder whose rows are nearly all of several lines -- cells of two
+            //  lines beside cells centred between them -- gives way: the rules say where each row ends)
+            var tall_rows = false;
+            {
+                var nb_ne: usize = 0;
+                var nb_multi: usize = 0;
+                for (0..nb) |bk| {
+                    var bases: std.ArrayList(f32) = .empty;
+                    for (frags) |g| {
+                        const cx = (g.x0 + g.x1) / 2;
+                        const cy = (g.y0 + g.y1) / 2;
+                        if (g.text.len == 0 or cx < lx0 or cx > lx1 or cy < ys.items[bk] or cy > ys.items[bk + 1]) continue;
+                        var seen = false;
+                        for (bases.items) |bb| {
+                            if (@abs(bb - g.base) <= 0.3 * g.size) seen = true;
+                        }
+                        if (!seen) try bases.append(a, g.base);
+                    }
+                    if (bases.items.len == 0) continue;
+                    nb_ne += 1;
+                    // (a row of TALL cells beside SHORT ones: the lines of each cell, its fragments overlapping in x
+                    //  -- two rows merged by a missing rule have two lines in every cell)
+                    var minl: usize = 99;
+                    var maxl: usize = 0;
+                    for (frags) |g| {
+                        const cx = (g.x0 + g.x1) / 2;
+                        const cy = (g.y0 + g.y1) / 2;
+                        if (g.text.len == 0 or cx < lx0 or cx > lx1 or cy < ys.items[bk] or cy > ys.items[bk + 1]) continue;
+                        var nl: usize = 0;
+                        for (frags) |h2| {
+                            const hx = (h2.x0 + h2.x1) / 2;
+                            const hy = (h2.y0 + h2.y1) / 2;
+                            if (h2.text.len == 0 or hx < lx0 or hx > lx1 or hy < ys.items[bk] or hy > ys.items[bk + 1]) continue;
+                            if (h2.x0 < g.x1 and h2.x1 > g.x0) nl += 1;
+                        }
+                        minl = @min(minl, nl);
+                        maxl = @max(maxl, nl);
+                    }
+                    if (bases.items.len >= 2 and minl == 1 and maxl >= 2) nb_multi += 1;
+                }
+                tall_rows = nb_ne >= 3 and nb_multi * 4 >= nb_ne * 3;
+            }
             for (hit.items) |ti| {
                 const t = tables.items[ti];
-                if (t.ruled or !(t.x0 < lx0 - 2 * msz or t.x1 > lx1 + 2 * msz)) continue;
+                const inside = t.x0 >= lx0 - 5 and t.x1 <= lx1 + 5 and t.y0 >= ys.items[0] - 3 * msz and t.y1 <= ys.items[nb] + 3;
+                if (t.ruled or !(t.x0 < lx0 - 2 * msz or t.x1 > lx1 + 2 * msz or (tall_rows and inside and t.rows.len > nb))) continue;
                 // (two tables side by side, read as one: its header is the same header twice, and it is split later)
                 if (t.rows.len > 0 and t.rows[0].len >= 4 and t.rows[0].len % 2 == 0) {
                     const h = t.rows[0].len / 2;
@@ -3643,8 +3686,80 @@ fn wordCount(t: []const u8) usize {
     return n;
 }
 
-fn findAlignedTables(a: Allocator, frags: []Frag, tables: *std.ArrayList(TableOut)) !void {
+fn findAlignedTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.ArrayList(TableOut)) !void {
+    // a vertical rule between two columns of text -- tall, with text close on both sides -- separates them: the
+    // text beside it is read for tables one side at a time, so two columns' wrapped lines never pair into rows
+    var seps: std.ArrayList(Rule) = .empty;
+    for (rules) |r| {
+        if (r.x1 - r.x0 > 2.5 or r.y1 - r.y0 < 100) continue;
+        const x = (r.x0 + r.x1) / 2;
+        var left = false;
+        var right = false;
+        for (frags) |f| {
+            if (f.text.len == 0 or f.y1 < r.y0 or f.y0 > r.y1) continue;
+            if (f.x1 <= x and x - f.x1 < 3 * f.size) left = true;
+            if (f.x0 >= x and f.x0 - x < 3 * f.size) right = true;
+        }
+        if (left and right) try seps.append(a, r);
+    }
+    if (seps.items.len == 0) return findAlignedTablesIn(a, frags, -1e9, 1e9, tables);
+    const held = std.math.maxInt(i32) - 1;
+    const inBand = struct {
+        fn f(ss: []Rule, g: Frag) ?usize {
+            const cy = (g.y0 + g.y1) / 2;
+            for (ss, 0..) |r, k| {
+                if (cy >= r.y0 and cy <= r.y1) return k;
+            }
+            return null;
+        }
+    }.f;
+    for (frags) |*f| {
+        if (f.table < 0 and inBand(seps.items, f.*) != null) f.table = held;
+    }
     try findAlignedTablesIn(a, frags, -1e9, 1e9, tables);
+    for (seps.items, 0..) |r, si| {
+        const x = (r.x0 + r.x1) / 2;
+        for ([_]bool{ true, false }) |left_side| {
+            // (only that side's text beside the rule: everything else free is held out of this reading)
+            const out_held = std.math.maxInt(i32) - 2;
+            for (frags) |*f| {
+                if (f.table < 0) f.table = out_held;
+            }
+            for (frags) |*f| {
+                if (f.table != held) continue;
+                const cx = (f.x0 + f.x1) / 2;
+                if ((inBand(seps.items, f.*) orelse 99999) == si and (cx < x) == left_side) f.table = -1;
+            }
+            try findAlignedTablesIn(a, frags, -1e9, 1e9, tables);
+            for (frags) |*f| {
+                if (f.table < 0 and inBand(seps.items, f.*) != null) f.table = held;
+                if (f.table < 0 or f.table == out_held) f.table = -1;
+            }
+        }
+    }
+    for (frags) |*f| {
+        if (f.table == held) f.table = -1;
+    }
+}
+
+// Three baseline rows that are one table row: the lines of one or more two-line cells above and below, and one-line
+// cells centred between them in other columns
+fn tallTriple(frags: []Frag, rows: [][]u32, q: usize) bool {
+    if (!(q + 2 < rows.len and rows[q].len >= 1 and rows[q].len == rows[q + 2].len and rows[q].len <= 3 and rows[q + 1].len >= 1)) return false;
+    const mid = rows[q + 1];
+    for (rows[q], rows[q + 2]) |uk, dk| {
+        const up = frags[uk];
+        const dn = frags[dk];
+        // (a body cell: a two-line HEADER cell is gathered by the header band, and merged here it joined the
+        //  table above)
+        if (!(@abs(up.x0 - dn.x0) <= 1.0 and dn.base - up.base <= 1.6 * up.size and @abs(up.size - dn.size) <= 0.05 * up.size and !up.bold and !dn.bold)) return false;
+        for (mid) |mk| {
+            const g = frags[mk];
+            if (!(g.base > up.base + 0.2 * up.size and g.base < dn.base - 0.2 * up.size)) return false;
+            if (g.x1 > @min(up.x0, dn.x0) - 1 and g.x0 < @max(up.x1, dn.x1) + 1) return false; // not in a tall cell's column
+        }
+    }
+    return true;
 }
 
 fn findAlignedTablesIn(a: Allocator, frags: []Frag, lane0: f32, lane1: f32, tables: *std.ArrayList(TableOut)) !void {
@@ -3681,23 +3796,19 @@ fn findAlignedTablesIn(a: Allocator, frags: []Frag, lane0: f32, lane1: f32, tabl
         var merged_rows: std.ArrayList([]u32) = .empty;
         var q: usize = 0;
         while (q < rows.items.len) {
-            if (q + 2 < rows.items.len and rows.items[q].len == 1 and rows.items[q + 2].len == 1 and rows.items[q + 1].len >= 1) {
-                const up = frags[rows.items[q][0]];
-                const dn = frags[rows.items[q + 2][0]];
+            // (several tall cells too -- "Removal of the old deck / Dépose de l'ancien tablier" beside "Closed /
+            //  Fermée" -- their lines paired column by column)
+            //  (with several tall cells, only where the shape repeats in the next or previous three lines, as a
+            //  table's rows do -- a single coincidence across two page columns merged a letterhead into a table)
+            if (tallTriple(frags, rows.items, q)) {
                 const mid = rows.items[q + 1];
-                // (a body cell: a two-line HEADER cell is gathered by the header band, and merged here it joined
-                //  the table above)
-                var ok = @abs(up.x0 - dn.x0) <= 1.0 and dn.base - up.base <= 1.6 * up.size and @abs(up.size - dn.size) <= 0.05 * up.size and !up.bold and !dn.bold;
-                for (mid) |mk| {
-                    const g = frags[mk];
-                    if (!(g.base > up.base + 0.2 * up.size and g.base < dn.base - 0.2 * up.size)) ok = false;
-                    if (g.x1 > @min(up.x0, dn.x0) - 1 and g.x0 < @max(up.x1, dn.x1) + 1) ok = false; // not in the tall cell's column
-                }
+                const ok = rows.items[q].len == 1 or (q + 5 < rows.items.len and tallTriple(frags, rows.items, q + 3)) or (q >= 3 and tallTriple(frags, rows.items, q - 3));
                 if (ok) {
-                    var row = try a.alloc(u32, mid.len + 2);
-                    row[0] = rows.items[q][0];
-                    @memcpy(row[1 .. mid.len + 1], mid);
-                    row[mid.len + 1] = rows.items[q + 2][0];
+                    const nu = rows.items[q].len;
+                    var row = try a.alloc(u32, mid.len + 2 * nu);
+                    @memcpy(row[0..nu], rows.items[q]);
+                    @memcpy(row[nu .. nu + mid.len], mid);
+                    @memcpy(row[nu + mid.len ..], rows.items[q + 2]);
                     // cells in their column order; the tall cell's two lines stay top to bottom
                     const ByX2 = struct {
                         f: []Frag,
@@ -5220,7 +5331,7 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
         var tables: std.ArrayList(TableOut) = .empty;
         try findTables(a, frags.items, pg.rules, &tables);
         try growTables(a, frags.items, &tables);
-        try findAlignedTables(a, frags.items, &tables);
+        try findAlignedTables(a, frags.items, pg.rules, &tables);
         try growTables(a, frags.items, &tables);
         {
             // (a zebra table has no rules: the edges of its shaded rows bound every row, shaded or not)
@@ -5288,7 +5399,7 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
                 for (frags.items, 0..) |*f, fk| {
                     if (f.table < 0 and std.mem.indexOfScalar(u32, rel, @intCast(fk)) == null) f.table = held;
                 }
-                try findAlignedTables(a, frags.items, &tables);
+                try findAlignedTables(a, frags.items, pg.rules, &tables);
                 for (frags.items) |*f| {
                     if (f.table == held) f.table = -1;
                 }
