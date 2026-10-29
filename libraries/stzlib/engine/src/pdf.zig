@@ -4198,11 +4198,12 @@ fn inNarrowParagraph(frags: []Frag, f: Frag) bool {
             var na: ?Frag = null;
             var nbl: ?Frag = null;
             for (frags) |o| {
-                if (o.text.len == 0 or @abs(o.x0 - f.x0) >= 2 or proseWords(o.text) < 5) continue;
-                if (above) |u| if (o.y1 <= u.y0 + 1 and u.y0 - o.y1 < 0.45 * f.size) {
+                if (o.text.len == 0 or proseWords(o.text) < 5) continue;
+                // (the same left edge -- or a first line indented, up to two and a half ems, over the lines below)
+                if (above) |u| if (o.y1 <= u.y0 + 1 and u.y0 - o.y1 < 0.45 * f.size and (@abs(o.x0 - u.x0) < 2 or (o.x0 > u.x0 and o.x0 - u.x0 <= 2.5 * f.size))) {
                     na = o;
                 };
-                if (below) |d| if (o.y0 >= d.y1 - 1 and o.y0 - d.y1 < 0.45 * f.size) {
+                if (below) |d| if (o.y0 >= d.y1 - 1 and o.y0 - d.y1 < 0.45 * f.size and (@abs(o.x0 - d.x0) < 2 or (d.x0 > o.x0 and d.x0 - o.x0 <= 2.5 * f.size))) {
                     nbl = o;
                 };
             }
