@@ -587,6 +587,18 @@ Scenario("Zebra tables, letterheads over a smaller title, and markers in a docum
 	Then("but a letter-spaced title opening on katakana keeps its spelling", StzFindFirst("ダイヤ改正のお知らせ", "" + @@(StzPdfQ("_data/golden_v20/c06.pdf").Headings())) > 0, 1)
 EndScenario()
 
+# ---- the twenty-third round: column rules, tall rows, ladders kept whole, letterheads beside the title (golden_v6, v23)
+
+Scenario("Columns split by a rule, rows of tall cells, clean ladders, and letterheads beside or over the title")
+	o = StzPdfQ("_data/golden_v23/f23.pdf")
+	Then("a vertical rule between two columns keeps each column's list whole", StzFindFirst("The riverside path will be diverted over the Mill Road bridge.", "" + @@(o.ListItems())) > 0, 1)
+	Then("a row of two-line cells beside cells centred between them is one row", @@(o.Tables()[1][2]), @@([ "1", "03/11–14/11/2026", "Removal of the old deck Dépose de l’ancien tablier", "Closed Fermée" ]))
+	Then("a ladder that cannot take a table's place leaves it whole", @@(StzPdfQ("_data/golden_v6/k01.pdf").Tables()[2][1]), @@([ "Réf.", "Désignation", "Qté", "Unité", "P.U. HT (FCFA)", "Montant HT (FCFA)" ]))
+	Then("a letterhead beside the title is furniture", StzFindFirst("บริษัท เรือนไม้ดีไซน์ จำกัด", "" + @@(StzPdfQ("_data/golden_v23/f22.pdf").Furniture())) > 0, 1)
+	Then("a letterhead's name over an e-mail line is furniture", StzFindFirst("नवप्रभात विद्या निकेतन", "" + @@(StzPdfQ("_data/golden_v23/f12.pdf").Furniture())) > 0, 1)
+	Then("the katakana middle dot is a bullet", StzFindFirst("・試験運用は第2ラインに限定して実施する。", "" + @@(StzPdfQ("_data/golden_v23/f05.pdf").ListItems())) > 0, 1)
+EndScenario()
+
 Scenario("A file that is not a readable PDF is refused with the reason")
 	bRaised = 0
 	cWhy = ""
