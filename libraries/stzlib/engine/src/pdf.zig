@@ -4935,7 +4935,7 @@ fn isMonoProse(t: []const u8) bool {
 
 fn startsListMarker(t: []const u8) usize {
     // returns the byte length of the marker (with its trailing space), 0 when the text does not start a list item
-    const bullets = [_][]const u8{ "\u{2022}", "\u{25E6}", "\u{25AA}", "\u{25CF}", "\u{25CB}", "\u{25A0}", "\u{2023}", "\u{2043}", "\u{2013}", "\u{2192}", "\u{2713}", "\u{2714}", "-", "*", "\u{00B7}", "\u{203B}", "\u{25C6}", "\u{25C7}", "\u{25B6}", "\u{25BA}", "\u{27A2}", "\u{2014}", "\u{25A1}", "\u{2610}", "\u{2611}", "\u{2612}" };
+    const bullets = [_][]const u8{ "\u{2022}", "\u{25E6}", "\u{25AA}", "\u{25CF}", "\u{25CB}", "\u{25A0}", "\u{2023}", "\u{2043}", "\u{2013}", "\u{2192}", "\u{2713}", "\u{2714}", "-", "*", "\u{00B7}", "\u{203B}", "\u{25C6}", "\u{25C7}", "\u{25B6}", "\u{25BA}", "\u{27A2}", "\u{2014}", "\u{25A1}", "\u{2610}", "\u{2611}", "\u{2612}", "\u{30FB}" };
     if (otherListMarker(t)) |n| return n;
     for (bullets) |b| {
         if (std.mem.startsWith(u8, t, b)) {
