@@ -1,0 +1,36 @@
+heading	1	Tidewater 2.4 Release Notes
+paragraph	0	A command-line tool for syncing project folders across machines
+paragraph	0	Tidewater 2.4 adds resumable transfers, a faster change scanner and a new configuration format. This document explains how to install the release and what changed since version 2.3.
+heading	2	Installation
+list_item	0	1. Download the archive for your platform and unpack it into any folder.
+list_item	0	2. Add the folder to your PATH.
+list_item	0	3. Check the installation by running the command below.
+code	0	tidewater --version\n# tidewater 2.4.0 (build 5817)
+heading	2	Configuration
+heading	3	Example configuration file
+paragraph	0	The configuration file lives in the project root and is read every time the tool starts.
+code	0	sync:\n  source: ./project\n  target: //nas01/backup/project\n  exclude:
+list_item	0	- "*.tmp"
+list_item	0	- ".cache/"
+code	0	retry:\n  attempts: 5\n  delay_seconds: 30
+heading	3	Options
+table	0	OptionTypeDefaultDescriptionsync.sourcepath.Folder to read changes fromsync.targetpathnoneDestination folder or network sharesync.excludelist[]Patterns that are never copiedretry.attemptsinteger3Number of tries before a transfer failsretry.delay_secondsinteger10Pause between two tries
+page_footer	0	Tidewater 2.4.0 release notes
+page_footer	0	Page 1 of 2
+heading	2	What is new
+paragraph	0	Resumable transfers: an interrupted copy continues where it stopped. A change scanner that is about three times faster on large folders. A new configuration format based on YAML. Clearer error messages that name the file and the reason.
+heading	3	Breaking changes
+list_item	0	– The old .ini configuration file is no longer read.
+list_item	0	– The flag --dry is now called --preview.
+list_item	0	– Exit code 4 now means a partial transfer and not an error.
+heading	2	Command reference
+table	0	CommandPurposetidewater syncCopy new and changed files to the targettidewater statusList files that differ from the targettidewater resumeContinue the last interrupted transfer
+heading	3	Running a preview
+paragraph	0	Use the preview flag to see what a sync would do without copying anything.
+code	0	tidewater sync --preview\n3 files would be copied, 1 file would be removed
+heading	2	Known issues
+list_item	0	1. Paths longer than 260 characters are skipped on older Windows versions.
+list_item	0	2. The status command may report a file twice if it is renamed during a scan.
+paragraph	0	Report problems on the project tracker and include the output of the status command.
+page_footer	0	Tidewater 2.4.0 release notes
+page_footer	0	Page 2 of 2

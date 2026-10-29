@@ -622,7 +622,15 @@ Not fixed, and why: r22's sidebar label sits between two lines of the paragraph 
 
 On the development sets, against round 29 frozen: lists v30 0.85 -> 0.98, v29 0.95 -> 0.98, v14 0.81 -> 0.87, v26 0.79 -> 0.83, v27 0.87 -> 0.90, v25 0.83 -> 0.87, v28 0.90 -> 0.92; tables v30 0.94 -> 0.97, v6 0.74 -> 0.76; text v30 0.96 -> 0.99; headings v30 0.98 -> 1.00; furniture v18 0.92 -> 0.95; heading precision v30 0.878 -> 0.895. No set lost on any measure. Guard 256 assertions under Ring++.
 
-golden_v31: DLV31
+golden_v31: 24 realistic documents in 17 languages (English in eight; Arabic, Hebrew and Persian right to left; Chinese, Japanese, Korean, Hindi, Thai, Greek, Polish, Turkish and others), 19 of 2-3 pages, code in four, by a thirty-first independent agent who saw no reader, no output and no earlier set and ran no extractor or rasterizer (layout checked by DOM geometry only; the running header and page-number lines of s21 assume what the margin boxes printed); no one has looked at the pages (unperceived); reader frozen at d46a1329b; both readers ran once:
+
+| golden_v31, realistic | text | order | headings | tables | lists | furniture | code | heading precision |
+|---|---|---|---|---|---|---|---|---|
+| Softanza native (Ring++) | **0.98** | 1.00 | **1.00** | **0.88** | **0.82** | **0.89** | **0.92** | **0.94** |
+| Docling 2.141 | 0.75 | 1.00 | 0.85 | 0.71 | 0.40 | 0.74 | 0.33 | 0.77 |
+
+Time for the 24 documents: native 0.07 s, Docling 114 s. The native reader leads on six measures and on heading precision, and ties on order. Where Docling does better, document by document: tables on four (s12 0.48 against 0.99, s23 0.28 against 0.98, s24 0.47 against 0.68, s04 0.81 against 0.93), lists on one (s05, Chinese, 0.00 against 0.73), furniture on one (s08). Causes not yet looked into: round 31.
+
 
 **Perceived (2026-10-24):** the author looked through every rendered page of golden_v9 to golden_v13 -- the sets whose own authors could not look at them -- and judged them: "they look great". Those five sets are no longer unperceived; the sets before them were generated the same way and are not covered by this look.
 

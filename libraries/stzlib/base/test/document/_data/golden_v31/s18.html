@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tidewater 2.4 Release Notes</title>
+<style>
+
+@page { size: A4; margin: 0 }
+* { box-sizing: border-box }
+html, body { margin: 0; padding: 0 }
+.pg { position: relative; width: 210mm; height: 296.4mm; overflow: hidden; break-after: page; page-break-after: always }
+.pg:last-child { break-after: auto; page-break-after: auto }
+.ft { position: absolute; left: 20mm; right: 20mm; bottom: 10mm; display: flex; justify-content: space-between }
+.hd { position: absolute; left: 20mm; right: 20mm; top: 9mm; display: flex; justify-content: space-between }
+table { border-collapse: collapse }
+p { margin: 0 0 0.6em }
+
+.pg { padding: 0 18mm 18mm; font-family: 'Segoe UI', sans-serif; font-size: 9.5pt; line-height: 1.5; color: #1f2430 }
+.band { margin: 0 -18mm 10px; background: #2b3a8c; color: #fff; padding: 12mm 18mm 8mm } .band h1 { margin: 0; font-size: 24pt } .band .sub { color: #c9d1ff; font-size: 10pt }
+h2 { font-size: 14pt; margin: 14px 0 4px; color: #2b3a8c; border-bottom: 1px solid #c9d1ff } h3 { font-size: 11pt; margin: 10px 0 2px }
+pre.code { font-family: Consolas, monospace; font-size: 9pt; background: #11162b; color: #e6e9ff; padding: 8px 12px; border-radius: 4px; margin: 5px 0; line-height: 1.35 }
+code { font-family: Consolas, monospace; background: #eceefa; padding: 0 3px }
+table.opt { width: 100%; font-size: 9pt; margin: 6px 0 } table.opt th { text-align: left; background: #eceefa; padding: 4px 8px; border-bottom: 2px solid #2b3a8c } table.opt td { padding: 3px 8px; border-bottom: 1px solid #dde; vertical-align: top }
+table.opt td:first-child { font-family: Consolas, monospace }
+.bl { list-style: none; padding: 0; margin: 4px 0 } .bl li { position: relative; padding-left: 1.3em; margin: 1px 0 } .bl li::before { content: ""; position: absolute; left: 0.2em; top: 0.55em; width: 0.4em; height: 0.4em; background: #2b3a8c; transform: rotate(45deg) }
+.li { margin-bottom: 2px }
+.ft { font-size: 8.5pt; color: #666; border-top: 1px solid #ccd; padding-top: 3px }
+
+</style>
+</head>
+<body>
+<div class="pg">
+<div class="band">
+<h1>Tidewater 2.4 Release Notes</h1>
+<p class="sub">A command-line tool for syncing project folders across machines</p>
+</div>
+<p>Tidewater 2.4 adds resumable transfers, a faster change scanner and a new configuration format. This document explains how to install the release and what changed since version 2.3.</p>
+<h2>Installation</h2>
+<div class="li" style="margin-left:0.20em;padding-left:1.50em;text-indent:-1.50em"><span class="mk" style="display:inline-block;width:1.20em;text-indent:0">1.</span><span class="tx">Download the archive for your platform and unpack it into any folder.</span></div>
+<div class="li" style="margin-left:0.20em;padding-left:1.50em;text-indent:-1.50em"><span class="mk" style="display:inline-block;width:1.20em;text-indent:0">2.</span><span class="tx">Add the folder to your PATH.</span></div>
+<div class="li" style="margin-left:0.20em;padding-left:1.50em;text-indent:-1.50em"><span class="mk" style="display:inline-block;width:1.20em;text-indent:0">3.</span><span class="tx">Check the installation by running the command below.</span></div>
+<pre class="code">tidewater --version
+# tidewater 2.4.0 (build 5817)</pre>
+<h2>Configuration</h2>
+<h3>Example configuration file</h3>
+<p>The configuration file lives in the project root and is read every time the tool starts.</p>
+<pre class="code">sync:
+  source: ./project
+  target: //nas01/backup/project
+  exclude:
+    - "*.tmp"
+    - ".cache/"
+retry:
+  attempts: 5
+  delay_seconds: 30</pre>
+<h3>Options</h3>
+<table class="opt"><colgroup><col style="width:26%"><col style="width:12%"><col style="width:12%"><col style="width:50%"></colgroup><thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody><tr><td>sync.source</td><td>path</td><td>.</td><td>Folder to read changes from</td></tr><tr><td>sync.target</td><td>path</td><td>none</td><td>Destination folder or network share</td></tr><tr><td>sync.exclude</td><td>list</td><td>[]</td><td>Patterns that are never copied</td></tr><tr><td>retry.attempts</td><td>integer</td><td>3</td><td>Number of tries before a transfer fails</td></tr><tr><td>retry.delay_seconds</td><td>integer</td><td>10</td><td>Pause between two tries</td></tr></tbody></table>
+<div class="ft" style="position:absolute;left:18mm;right:18mm;bottom:10mm"><span>Tidewater 2.4.0 release notes</span><span>Page 1 of 2</span></div>
+</div>
+<div class="pg">
+<div style="height:16mm"></div>
+<h2>What is new</h2>
+<ul class="bl">
+<li>Resumable transfers: an interrupted copy continues where it stopped.</li>
+<li>A change scanner that is about three times faster on large folders.</li>
+<li>A new configuration format based on YAML.</li>
+<li>Clearer error messages that name the file and the reason.</li>
+</ul>
+<h3>Breaking changes</h3>
+<div class="li" style="margin-left:0.30em;padding-left:1.10em;text-indent:-1.10em"><span class="mk" style="display:inline-block;width:0.80em;text-indent:0">–</span><span class="tx">The old .ini configuration file is no longer read.</span></div>
+<div class="li" style="margin-left:0.30em;padding-left:1.10em;text-indent:-1.10em"><span class="mk" style="display:inline-block;width:0.80em;text-indent:0">–</span><span class="tx">The flag --dry is now called --preview.</span></div>
+<div class="li" style="margin-left:0.30em;padding-left:1.10em;text-indent:-1.10em"><span class="mk" style="display:inline-block;width:0.80em;text-indent:0">–</span><span class="tx">Exit code 4 now means a partial transfer and not an error.</span></div>
+<h2>Command reference</h2>
+<table class="opt"><colgroup><col style="width:30%"><col style="width:70%"></colgroup><thead><tr><th>Command</th><th>Purpose</th></tr></thead><tbody><tr><td>tidewater sync</td><td>Copy new and changed files to the target</td></tr><tr><td>tidewater status</td><td>List files that differ from the target</td></tr><tr><td>tidewater resume</td><td>Continue the last interrupted transfer</td></tr></tbody></table>
+<h3>Running a preview</h3>
+<p>Use the preview flag to see what a sync would do without copying anything.</p>
+<pre class="code">tidewater sync --preview
+3 files would be copied, 1 file would be removed</pre>
+<h2>Known issues</h2>
+<div class="li" style="margin-left:0.20em;padding-left:1.50em;text-indent:-1.50em"><span class="mk" style="display:inline-block;width:1.20em;text-indent:0">1.</span><span class="tx">Paths longer than 260 characters are skipped on older Windows versions.</span></div>
+<div class="li" style="margin-left:0.20em;padding-left:1.50em;text-indent:-1.50em"><span class="mk" style="display:inline-block;width:1.20em;text-indent:0">2.</span><span class="tx">The status command may report a file twice if it is renamed during a scan.</span></div>
+<p style="margin-top:6px">Report problems on the project tracker and include the output of the status command.</p>
+<div class="ft" style="position:absolute;left:18mm;right:18mm;bottom:10mm"><span>Tidewater 2.4.0 release notes</span><span>Page 2 of 2</span></div>
+</div>
+</body>
+</html>

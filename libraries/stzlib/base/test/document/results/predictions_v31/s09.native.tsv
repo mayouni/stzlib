@@ -1,0 +1,54 @@
+page_header	0	Nordlicht Haustechnik GmbH
+page_header	0	AVB Wartungsverträge · Stand 1. Oktober 2026
+heading	1	Allgemeine Vertragsbedingungen für Wartungsverträge
+paragraph	0	Diese Bedingungen gelten für alle Wartungsverträge zwischen der Nordlicht Haustechnik GmbH (nachfolgend „Auftragnehmer“) und ihren Kunden (nachfolgend „Auftraggeber“).
+heading	2	§ 1 Geltungsbereich
+list_item	0	(1) Die Bedingungen gelten für die Wartung von Heizungs-, Lüftungs- und Klimaanlagen.
+list_item	0	(2) Abweichende Bedingungen des Auftraggebers werden nicht Vertragsbestandteil, es sei denn, der
+paragraph	0	Auftragnehmer stimmt ihrer Geltung ausdrücklich schriftlich zu.
+heading	2	§ 2 Leistungsumfang
+paragraph	0	Der Auftragnehmer arbeitet nach den anerkannten Regeln der Technik und den geltenden Sicherheitsvorschriften.
+list_item	0	(1) Der Auftragnehmer führt folgende Leistungen aus:
+list_item	1	a) die jährliche Inspektion der Anlage nach Herstellervorgabe;
+list_item	1	b) die Reinigung und Einstellung der Bauteile, insbesondere aa) der Brenner und Wärmetauscher, bb) der Filter und Luftkanäle;
+list_item	1	c) die schriftliche Dokumentation der durchgeführten Arbeiten.
+list_item	0	(2) Nicht im Leistungsumfang enthalten sind Reparaturen und der Austausch von Verschleißteilen.
+heading	2	§ 3 Vergütung
+caption	0	Die Höhe der Vergütung richtet sich nach der bei Vertragsschluss gültigen Preisliste.
+table	0	AnlagentypJahrespauschale (EUR)Anfahrt (EUR)Gasheizung bis 30 kW189,0035,00Ölheizung bis 30 kW219,0035,00Lüftungsanlage, Wohnhaus149,0028,00Klimaanlage (Split-Gerät)129,0028,00
+list_item	0	(1) Rechnungen sind innerhalb von vierzehn Tagen ohne Abzug zu zahlen.
+list_item	0	(2) Bei Zahlungsverzug ist der Auftragnehmer berechtigt, Verzugszinsen in gesetzlicher Höhe zu verlangen.
+page_footer	0	Seite 1 von 3
+page_header	0	Nordlicht Haustechnik GmbH
+page_header	0	AVB Wartungsverträge · Stand 1. Oktober 2026
+heading	2	§ 4 Haftung
+list_item	0	(1) Der Auftragnehmer haftet unbeschränkt bei Vorsatz und grober Fahrlässigkeit sowie bei der
+paragraph	0	Verletzung von Leben, Körper und Gesundheit.
+list_item	0	(2) Bei leichter Fahrlässigkeit haftet der Auftragnehmer nur für die Verletzung wesentlicher
+paragraph	0	Vertragspflichten, und zwar
+list_item	0	a) begrenzt auf den vorhersehbaren, vertragstypischen Schaden;
+list_item	0	b) höchstens bis zur Höhe der vereinbarten Jahrespauschale.
+heading	2	§ 5 Laufzeit und Kündigung
+paragraph	0	Der Vertrag beginnt mit der Unterzeichnung durch beide Parteien.
+list_item	0	(1) Der Vertrag läuft zunächst für ein Jahr und verlängert sich jeweils um ein weiteres Jahr, wenn er nicht drei Monate vor Ablauf gekündigt wird.
+list_item	0	(2) Das Recht zur außerordentlichen Kündigung aus wichtigem Grund bleibt unberührt.
+list_item	0	(3) Die Kündigung bedarf der Textform.
+heading	2	§ 6 Datenschutz
+paragraph	0	Der Auftragnehmer verarbeitet personenbezogene Daten des Auftraggebers ausschließlich zur Durchführung des Vertrags. Eine Weitergabe an Dritte erfolgt nur, soweit dies zur Vertragserfüllung erforderlich ist.
+paragraph	0	Verarbeitet werden insbesondere:
+list_item	0	Name und Anschrift
+list_item	0	Telefonnummer und E-Mail-Adresse
+list_item	0	Angaben zur Anlage und zu den Wartungsterminen
+page_footer	0	Seite 2 von 3
+page_header	0	Nordlicht Haustechnik GmbH
+page_header	0	AVB Wartungsverträge · Stand 1. Oktober 2026
+heading	2	§ 7 Schlussbestimmungen
+list_item	0	(1) Es gilt das Recht der Bundesrepublik Deutschland.
+list_item	0	(2) Sollte eine Bestimmung unwirksam sein, bleibt die Wirksamkeit der übrigen Bestimmungen unberührt.
+paragraph	0	Gerichtsstand ist, soweit gesetzlich zulässig, der Sitz des Auftragnehmers.
+heading	2	Anlage 1: Wartungsintervalle
+table	0	AnlagentypIntervallUmfangGasheizungjährlichInspektion, Reinigung, AbgasmessungÖlheizungjährlichInspektion, Reinigung, DüsenwechselLüftungsanlagehalbjährlichFilterwechsel, Kontrolle der LuftkanäleKlimaanlagejährlichReinigung, Kältemittelkontrolle
+heading	2	Anlage 2: Fernüberwachung
+paragraph	0	Für die Fernüberwachung wird auf der Steuerung folgende Konfiguration hinterlegt.
+code	0	[fernwartung]\nintervall_minuten = 15\nalarm_schwelle_c  = 85\nbenachrichtigung  = wartung@nordlicht-haustechnik.example
+page_footer	0	Seite 3 von 3

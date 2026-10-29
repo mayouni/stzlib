@@ -1,0 +1,22 @@
+heading	1	Harbour Lettings Ltd.
+paragraph	0	Form RP-12 · Please complete in black ink
+heading	1	Rental Property Inspection Checklist
+paragraph	0	Use this form at the start and at the end of every tenancy. Both the tenant and the agent must sign it on the day of the inspection.
+paragraph	0	Property address
+paragraph	0	Tenant name
+paragraph	0	Date of inspection
+paragraph	0	Type of inspection
+heading	1	How to complete this form
+list_item	0	Walk through each room together with the tenant.
+list_item	0	Tick one box for each item: Good, Fair or Poor.
+list_item	0	Describe any damage in the notes column.
+heading	1	Room-by-room checklist
+table	0	ItemConditionNotesKitchenCooker and hobGood Fair PoorSink and tapsGood Fair PoorCupboards and worktopsGood Fair PoorBathroomBath and showerGood Fair PoorToilet and basinGood Fair PoorVentilation fanGood Fair PoorLiving roomWalls and ceilingGood Fair PoorCarpet or flooringGood Fair PoorWindows and blindsGood Fair Poor
+page_footer	0	Form RP-12 · Page 1 of 2
+heading	1	Meters and keys
+table	0	ItemReading or numberNotesElectricity meterGas meterWater meterNumber of keys handed over
+heading	1	Declaration
+paragraph	0	I confirm that I have inspected the property together with the agent and that this form is a fair record of its condition. I understand that any damage not listed here may be charged to me at the end of the tenancy.
+paragraph	0	The agent will give the tenant a signed copy of this form within three working days.
+paragraph	0	Tenant signature and date Agent signature and date
+page_footer	0	Form RP-12 · Page 2 of 2

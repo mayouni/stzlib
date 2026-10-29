@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Seasonal Shoreline Retreat on Gravel Beaches: A Two-Year Survey</title>
+<style>
+
+@page { size: A4; margin: 0 }
+* { box-sizing: border-box }
+html, body { margin: 0; padding: 0 }
+.pg { position: relative; width: 210mm; height: 296.4mm; overflow: hidden; break-after: page; page-break-after: always }
+.pg:last-child { break-after: auto; page-break-after: auto }
+.ft { position: absolute; left: 20mm; right: 20mm; bottom: 10mm; display: flex; justify-content: space-between }
+.hd { position: absolute; left: 20mm; right: 20mm; top: 9mm; display: flex; justify-content: space-between }
+table { border-collapse: collapse }
+p { margin: 0 0 0.6em }
+
+.pg { padding: 22mm 18mm 18mm; font-family: Constantia, serif; font-size: 10.5pt; line-height: 1.42; color: #111 }
+h1 { font-size: 17pt; text-align: center; margin: 2px 0 4px; line-height: 1.2 }
+.aff { text-align: center; font-size: 9pt; color: #444; margin-bottom: 8px; display: block }
+h2 { font-size: 11pt; margin: 10px 0 3px } h3 { font-size: 9.5pt; font-style: italic; margin: 6px 0 2px }
+.abs { margin: 6px 12mm 8px; text-align: justify; font-size: 9pt } .abs h2 { margin-top: 0; font-size: 10pt }
+.cols { column-count: 2; column-gap: 8mm; text-align: justify } .cols p { margin: 0 0 5px; text-indent: 1em } .cols h2 { text-indent: 0 }
+pre.code { font-family: Consolas, monospace; font-size: 8.5pt; line-height: 1.3; background: #f4f4f4; border: 1px solid #bbb; padding: 4px 6px; margin: 4px 0; break-inside: avoid }
+table.bk { margin: 4px auto 8px; font-size: 9pt; border-top: 1.5px solid #000; border-bottom: 1.5px solid #000 } table.bk th { border-bottom: 0.75px solid #000; padding: 3px 14px; text-align: right } table.bk td { padding: 2px 14px; text-align: right }
+table.bk th:first-child, table.bk td:first-child { text-align: left }
+.cap { text-align: center; font-size: 9pt; margin: 6px 0 2px }
+.li { margin-bottom: 2px; text-align: left }
+.refs .li { font-size: 8.5pt; text-align: left }
+.fn { font-size: 8pt; border-top: 0.5px solid #777; width: 30%; padding-top: 2px; position: absolute; left: 18mm; bottom: 17mm }
+.hd { font-size: 8pt; font-style: italic; color: #555; border-bottom: 0.5px solid #888; padding-bottom: 2px; left: 18mm; right: 18mm } .ft { justify-content: center; font-size: 9pt }
+
+</style>
+</head>
+<body>
+<div class="pg">
+<div class="hd"><span>Eastvale Coastal Papers</span><span>Vol. 12, No. 3</span></div>
+<h1>Seasonal Shoreline Retreat on Gravel Beaches: A Two-Year Survey</h1>
+<div class="aff"><span>Eastvale Institute for Coastal Studies</span></div>
+<div class="abs">
+<h2>Abstract</h2>
+<p>We surveyed five gravel beaches along the Eastvale coast every month between October 2024 and September 2026. Mean shoreline retreat was 3.6 m over the two years, but individual sites ranged from 1.1 m to 6.8 m. Retreat was strongly seasonal and was concentrated in months with more than two storm events.</p>
+</div>
+<div class="cols">
+<h2>1 Introduction</h2>
+<p>Gravel beaches protect many small coastal communities, yet they are monitored far less often than sandy shores. Their steep profiles respond quickly to waves, and a single storm can move material by several metres.</p>
+<p>Earlier surveys on this coast were made once a year and could not separate storm damage from slow trends. Retreat peaked in the winter of 2025.<sup>1</sup></p>
+<p>Managers need to know whether retreat is steady or driven by a few events. The answer decides how often a beach must be surveyed and where defences should be built.</p>
+<p>This paper reports the first two years of a monthly survey designed to fill that gap. It describes the field method, the results for five sites and the lessons for coastal managers.</p>
+<h2>2 Methods</h2>
+<p>Each site was visited on the first Monday of the month at low tide. We recorded the shoreline with a handheld receiver following three steps.</p>
+<p class="li" style="margin-left:0.40em">(i) walk the mean high-water line from the north marker to the south marker;</p>
+<p class="li" style="margin-left:0.40em">(ii) record one position every two metres along the line;</p>
+<p class="li" style="margin-left:0.40em">(iii) repeat the walk if the receiver reports an error above 0.1 m.</p>
+</div>
+<div class="fn"><sup>1</sup> Winter is defined as December to February.</div>
+<div class="ft"><span>1</span></div>
+</div>
+<div class="pg">
+<div class="hd"><span>Eastvale Coastal Papers</span><span>Vol. 12, No. 3</span></div>
+<div style="height:2mm"></div>
+<div class="cols">
+<h3>2.1 Processing</h3>
+<p>Positions were converted to distances from a fixed baseline with the short script below.</p>
+<pre class="code">import numpy as np
+
+def retreat(before, after):
+    # positions in metres from baseline
+    return float(np.mean(after - before))</pre>
+<h2>3 Results</h2>
+<p>Table 1 summarises the survey. The longest retreat occurred at Long Shingle, where the beach lost 14.3 m in a single month.</p>
+<p>Retreat was largest between November and February at every site. In the five summer months the shoreline moved by less than 0.4 m in total.</p>
+<p>Harbour Wall, protected by a masonry wall, retreated least. All other sites lost between 2.3 m and 6.8 m on average.</p>
+</div>
+<div class="cap"><b>Table 1.</b> Shoreline retreat by site, October 2024 to September 2026.</div><table class="bk"><thead><tr><th>Site</th><th>Mean retreat (m)</th><th>Maximum (m)</th><th>Storm events</th></tr></thead><tbody><tr><td>North Spit</td><td>4.2</td><td>9.8</td><td>6</td></tr><tr><td>Harbour Wall</td><td>1.1</td><td>2.7</td><td>6</td></tr><tr><td>Long Shingle</td><td>6.8</td><td>14.3</td><td>7</td></tr><tr><td>Mill Point</td><td>3.5</td><td>8.1</td><td>5</td></tr><tr><td>South Cove</td><td>2.3</td><td>5.0</td><td>7</td></tr></tbody></table>
+<div class="cols">
+<h2>4 Discussion</h2>
+<p>The strong link between storm count and retreat suggests that monthly surveys are the minimum needed to manage these beaches. Sites with a hard defence behind the beach lost material more slowly, but they also had a narrower beach to begin with.</p>
+<p>Our results are limited to five sites and two winters. Longer records are needed to separate storm effects from sea-level trends.</p>
+</div>
+<div class="ft"><span>2</span></div>
+</div>
+<div class="pg">
+<div class="hd"><span>Eastvale Coastal Papers</span><span>Vol. 12, No. 3</span></div>
+<div style="height:2mm"></div>
+<div class="cols">
+<h2>5 Conclusion</h2>
+<p>Gravel beaches on this coast retreat in short bursts, not steadily. A monthly survey is cheap, repeatable and sufficient to follow these bursts.</p>
+<p>We recommend extending the programme to the remaining eleven beaches and adding a wave gauge at Long Shingle.</p>
+<h2>Acknowledgements</h2>
+<p>The survey was carried out by volunteers from the Eastvale Beach Watch group.</p>
+</div>
+<h2 style="margin-top:8px">References</h2>
+<div class="refs">
+<div class="li" style="margin-left:0.00em;padding-left:2.00em;text-indent:-2.00em"><span class="mk" style="display:inline-block;width:1.70em;text-indent:0">[1]</span><span class="tx">Hale, T. (2019). Gravel beach dynamics: a review. Journal of Coastal Notes, 8(2), 41–60.</span></div>
+<div class="li" style="margin-left:0.00em;padding-left:2.00em;text-indent:-2.00em"><span class="mk" style="display:inline-block;width:1.70em;text-indent:0">[2]</span><span class="tx">Ibarra, P. and Wood, K. (2021). Storm clustering and shingle transport. Coastal Papers Quarterly, 14(1), 3–19.</span></div>
+<div class="li" style="margin-left:0.00em;padding-left:2.00em;text-indent:-2.00em"><span class="mk" style="display:inline-block;width:1.70em;text-indent:0">[3]</span><span class="tx">Marsh, E. (2022). Low-cost shoreline positioning. Survey Methods Review, 5(4), 112–125.</span></div>
+<div class="li" style="margin-left:0.00em;padding-left:2.00em;text-indent:-2.00em"><span class="mk" style="display:inline-block;width:1.70em;text-indent:0">[4]</span><span class="tx">Tallis, R. (2023). Hard defences and beach width. Eastvale Coastal Papers, 9(3), 77–90.</span></div>
+<div class="li" style="margin-left:0.00em;padding-left:2.00em;text-indent:-2.00em"><span class="mk" style="display:inline-block;width:1.70em;text-indent:0">[5]</span><span class="tx">Voss, A. (2025). Monthly versus annual surveys. Coastal Notes Letters, 2(1), 1–8.</span></div>
+</div>
+<div class="ft"><span>3</span></div>
+</div>
+</body>
+</html>

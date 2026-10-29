@@ -1,0 +1,178 @@
+{
+  "id": "s12",
+  "difficulty": "Turkish payroll summary in landscape: nine-column wide table with total row, key/value panel, text beside a small table, 1) numbered notes",
+  "pages": 1,
+  "title": "Maaş Bordrosu: Ocak–Haziran 2026",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Maaş Bordrosu: Ocak–Haziran 2026"
+    },
+    {
+      "level": 2,
+      "text": "Açıklamalar"
+    }
+  ],
+  "key_sentences": [
+    "Bu bordro, çalışanın Ocak–Haziran 2026 dönemindeki aylık ödeme ve kesintilerini özetler.",
+    "Tüm tutarlar Türk lirası cinsinden gösterilmiştir.",
+    "Bordro ile ilgili sorularınızı insan kaynakları birimine iletebilirsiniz.",
+    "Yıllık izin bakiyeniz sağdaki tabloda gösterilmiştir."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Sicil no",
+          "1042"
+        ],
+        [
+          "Görev",
+          "Muhasebe uzmanı"
+        ],
+        [
+          "Departman",
+          "Mali İşler"
+        ],
+        [
+          "Dönem",
+          "Ocak–Haziran 2026"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Ay",
+          "Brüt maaş",
+          "SGK işçi payı (%14)",
+          "İşsizlik sigortası (%1)",
+          "Gelir vergisi",
+          "Damga vergisi",
+          "Yemek yardımı",
+          "Diğer kesintiler",
+          "Net ödenen"
+        ],
+        [
+          "Ocak",
+          "52.000,00",
+          "7.280,00",
+          "520,00",
+          "6.630,00",
+          "394,68",
+          "4.500,00",
+          "0,00",
+          "41.675,32"
+        ],
+        [
+          "Şubat",
+          "52.000,00",
+          "7.280,00",
+          "520,00",
+          "6.630,00",
+          "394,68",
+          "4.500,00",
+          "0,00",
+          "41.675,32"
+        ],
+        [
+          "Mart",
+          "55.000,00",
+          "7.700,00",
+          "550,00",
+          "7.012,50",
+          "417,45",
+          "4.500,00",
+          "350,00",
+          "43.470,05"
+        ],
+        [
+          "Nisan",
+          "55.000,00",
+          "7.700,00",
+          "550,00",
+          "7.012,50",
+          "417,45",
+          "4.500,00",
+          "350,00",
+          "43.470,05"
+        ],
+        [
+          "Mayıs",
+          "55.000,00",
+          "7.700,00",
+          "550,00",
+          "7.012,50",
+          "417,45",
+          "4.500,00",
+          "350,00",
+          "43.470,05"
+        ],
+        [
+          "Haziran",
+          "58.000,00",
+          "8.120,00",
+          "580,00",
+          "7.395,00",
+          "440,22",
+          "4.500,00",
+          "350,00",
+          "45.614,78"
+        ],
+        [
+          "Toplam",
+          "327.000,00",
+          "45.780,00",
+          "3.270,00",
+          "41.692,50",
+          "2.481,93",
+          "27.000,00",
+          "1.400,00",
+          "259.375,57"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Hak edilen izin",
+          "20 gün"
+        ],
+        [
+          "Kullanılan izin",
+          "6 gün"
+        ],
+        [
+          "Kalan izin",
+          "14 gün"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1) Brüt maaş, aylık sabit ücret ile varsa ek ödemelerin toplamını gösterir."
+    },
+    {
+      "level": 0,
+      "text": "2) Gelir vergisi, kümülatif matrah üzerinden örnek olarak hesaplanmıştır."
+    },
+    {
+      "level": 0,
+      "text": "3) Yemek yardımı vergiden istisnadır ve net ödemeye eklenmiştir."
+    }
+  ],
+  "furniture": [
+    "Örnek Lojistik A.Ş. Gizli – yalnızca çalışan için",
+    "Örnek Lojistik A.Ş. – Maaş Bordrosu Sayfa 1/1"
+  ],
+  "languages": [
+    "tr"
+  ],
+  "code": [],
+  "notes": "Landscape A4. Numbers use Turkish formatting (dot thousands, comma decimals). Wide table: nine columns, header cells wrap onto two lines (a header cell of several lines is given with its lines joined by one space); the last row is the total row of the same table. The first table (employee panel) is a key/value panel without a header row. At the bottom, a paragraph and a small leave-balance table stand side by side: read the paragraph first, then the table. Notes are a TYPED list '1)' '2)' '3)' set inline in the text. The running header (left and right parts, one line) and the footer line are furniture."
+}

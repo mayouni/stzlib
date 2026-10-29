@@ -1,0 +1,247 @@
+{
+  "id": "s11",
+  "difficulty": "Spanish quotation: two-level table header, chapter rows, subtotal and total rows, European number format, lettered nested list, two signature boxes side by side",
+  "pages": 2,
+  "title": "Presupuesto n.º 2026-118",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Presupuesto n.º 2026-118"
+    },
+    {
+      "level": 2,
+      "text": "Detalle de las partidas"
+    },
+    {
+      "level": 2,
+      "text": "Condiciones"
+    },
+    {
+      "level": 2,
+      "text": "Forma de pago"
+    }
+  ],
+  "key_sentences": [
+    "Les presentamos el presupuesto para la reforma integral de la cocina, según la visita realizada el pasado 28 de octubre.",
+    "Los precios incluyen mano de obra y materiales, y el IVA se indica por separado.",
+    "El plazo de ejecución estimado es de tres semanas a partir de la firma del presupuesto.",
+    "Los pagos se realizarán mediante transferencia bancaria en un plazo máximo de cinco días desde cada hito."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Cliente",
+          "Vivienda unifamiliar, calle del Olivo 9"
+        ],
+        [
+          "Fecha",
+          "3 de noviembre de 2026"
+        ],
+        [
+          "Validez",
+          "30 días"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Descripción",
+          "Medición",
+          "Medición",
+          "Precio en euros",
+          "Precio en euros"
+        ],
+        [
+          "Descripción",
+          "Cantidad",
+          "Unidad",
+          "Unitario",
+          "Importe"
+        ],
+        [
+          "1. Demolición y albañilería",
+          "1. Demolición y albañilería",
+          "1. Demolición y albañilería",
+          "1. Demolición y albañilería",
+          "1. Demolición y albañilería"
+        ],
+        [
+          "1.1 Retirada de muebles y alicatado antiguo",
+          "1",
+          "ud",
+          "380,00",
+          "380,00"
+        ],
+        [
+          "1.2 Alicatado de paredes con azulejo cerámico",
+          "18",
+          "m²",
+          "32,50",
+          "585,00"
+        ],
+        [
+          "1.3 Solado de gres porcelánico",
+          "9",
+          "m²",
+          "41,00",
+          "369,00"
+        ],
+        [
+          "Subtotal demolición y albañilería",
+          "Subtotal demolición y albañilería",
+          "Subtotal demolición y albañilería",
+          "Subtotal demolición y albañilería",
+          "1.334,00"
+        ],
+        [
+          "2. Instalaciones",
+          "2. Instalaciones",
+          "2. Instalaciones",
+          "2. Instalaciones",
+          "2. Instalaciones"
+        ],
+        [
+          "2.1 Punto de agua fría y caliente",
+          "3",
+          "ud",
+          "95,00",
+          "285,00"
+        ],
+        [
+          "2.2 Punto de luz y enchufes",
+          "6",
+          "ud",
+          "48,00",
+          "288,00"
+        ],
+        [
+          "Subtotal instalaciones",
+          "Subtotal instalaciones",
+          "Subtotal instalaciones",
+          "Subtotal instalaciones",
+          "573,00"
+        ],
+        [
+          "3. Mobiliario",
+          "3. Mobiliario",
+          "3. Mobiliario",
+          "3. Mobiliario",
+          "3. Mobiliario"
+        ],
+        [
+          "3.1 Muebles bajos y altos de cocina",
+          "1",
+          "ud",
+          "2.850,00",
+          "2.850,00"
+        ],
+        [
+          "3.2 Encimera de cuarzo de 3,2 m",
+          "1",
+          "ud",
+          "960,00",
+          "960,00"
+        ],
+        [
+          "Subtotal mobiliario",
+          "Subtotal mobiliario",
+          "Subtotal mobiliario",
+          "Subtotal mobiliario",
+          "3.810,00"
+        ],
+        [
+          "Base imponible",
+          "Base imponible",
+          "Base imponible",
+          "Base imponible",
+          "5.717,00"
+        ],
+        [
+          "IVA (21 %)",
+          "IVA (21 %)",
+          "IVA (21 %)",
+          "IVA (21 %)",
+          "1.200,57"
+        ],
+        [
+          "Total del presupuesto",
+          "Total del presupuesto",
+          "Total del presupuesto",
+          "Total del presupuesto",
+          "6.917,57"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Hito",
+          "Porcentaje",
+          "Importe (euros)"
+        ],
+        [
+          "Firma del presupuesto",
+          "30 %",
+          "2.075,27"
+        ],
+        [
+          "Mitad de la obra",
+          "40 %",
+          "2.767,03"
+        ],
+        [
+          "Entrega de la cocina",
+          "30 %",
+          "2.075,27"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. El presupuesto tiene una validez de treinta días desde su fecha de emisión."
+    },
+    {
+      "level": 0,
+      "text": "2. No están incluidos en este presupuesto:"
+    },
+    {
+      "level": 1,
+      "text": "a) la legalización de nuevas instalaciones eléctricas;"
+    },
+    {
+      "level": 1,
+      "text": "b) los electrodomésticos y la grifería, que elegirá el cliente;"
+    },
+    {
+      "level": 1,
+      "text": "c) cualquier trabajo no descrito en las partidas anteriores."
+    },
+    {
+      "level": 0,
+      "text": "3. Los cambios solicitados durante la obra se presupuestarán por separado."
+    },
+    {
+      "level": 0,
+      "text": "4. La garantía de la obra es de dos años."
+    }
+  ],
+  "furniture": [
+    "Reformas Calamar S.L.",
+    "Calle del Muelle 31, 28001 Valdeolmos · Tel. 900 555 014 · info@calamar-reformas.example",
+    "Reformas Calamar S.L. · Presupuesto n.º 2026-118 Página 1 de 2",
+    "Presupuesto n.º 2026-118 Reformas Calamar S.L.",
+    "Reformas Calamar S.L. · Presupuesto n.º 2026-118 Página 2 de 2"
+  ],
+  "languages": [
+    "es"
+  ],
+  "code": [],
+  "notes": "Numbers use the Spanish format (dot for thousands, comma for decimals); cells are given as written. In the budget table the header has two levels: 'Descripción' spans two rows, 'Medición' spans two columns (Cantidad, Unidad) and 'Precio en euros' spans two columns (Unitario, Importe). The three chapter rows ('1. ...') span all five columns (text repeated in every grid cell); subtotal rows span the first four columns. Conditions on page 2 are a TYPED list: level 0 '1.' '2.', level 1 'a)' 'b)' 'c)', marker set apart by a hanging indent. The two empty signature boxes at the end are side by side (client first, contractor second) and contain only captions that are not listed. Letterhead (two lines), the page 2 running header and the footers are furniture."
+}

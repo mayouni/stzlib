@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>طرح درس: مبانی آمار و احتمال</title>
+<style>
+
+@page { size: A4; margin: 0 }
+* { box-sizing: border-box }
+html, body { margin: 0; padding: 0 }
+.pg { position: relative; width: 210mm; height: 296.4mm; overflow: hidden; break-after: page; page-break-after: always }
+.pg:last-child { break-after: auto; page-break-after: auto }
+.ft { position: absolute; left: 20mm; right: 20mm; bottom: 10mm; display: flex; justify-content: space-between }
+.hd { position: absolute; left: 20mm; right: 20mm; top: 9mm; display: flex; justify-content: space-between }
+table { border-collapse: collapse }
+p { margin: 0 0 0.6em }
+
+.pg { padding: 20mm 22mm; font-family: Arial, sans-serif; font-size: 10.5pt; line-height: 1.7; color: #1a1a1a }
+.lh { font-size: 15pt; font-weight: bold; color: #1b3a6b } .lh2 { font-size: 9pt; color: #666; border-bottom: 2px solid #1b3a6b; padding-bottom: 4px; margin-bottom: 10px; display: block }
+h1 { font-size: 20pt; margin: 4px 0 6px; color: #1b3a6b } h2 { font-size: 13pt; margin: 12px 0 2px; color: #1b3a6b }
+table.kv { border: 1px solid #1b3a6b; margin: 6px 0; font-size: 10pt; line-height: 1.5 } table.kv td { padding: 3px 12px; border-bottom: 1px solid #ccd } table.kv td:first-child { background: #e9eef7; font-weight: bold }
+table.plan { width: 100%; font-size: 10pt; line-height: 1.5; margin: 4px 0 } table.plan th { background: #1b3a6b; color: #fff; padding: 4px 8px; text-align: right } table.plan td { padding: 4px 8px; border-bottom: 1px solid #ccd }
+table.plan tr:nth-child(even) td { background: #f1f4fa }
+.bl { list-style: none; padding: 0; margin: 4px 0 } .bl li { position: relative; padding-right: 1.3em } .bl li::before { content: ""; position: absolute; right: 0.3em; top: 0.8em; width: 0.35em; height: 0.35em; background: #1b3a6b; border-radius: 50% }
+.li { margin-bottom: 2px }
+.ft { font-size: 9pt; color: #777; justify-content: center } .hd { font-size: 9pt; color: #777; border-bottom: 1px solid #ccc; left: 22mm; right: 22mm }
+
+</style>
+</head>
+<body>
+<div class="pg">
+<div class="lh"><span>دانشگاه ساحل · دانشکده علوم پایه</span></div>
+<div class="lh2"><span>گروه آمار · نیمسال اول ۱۴۰۵–۱۴۰۶</span></div>
+<h1>طرح درس: مبانی آمار و احتمال</h1>
+<p>این درس مفاهیم پایه آمار توصیفی و احتمال را برای دانشجویان سال اول معرفی می‌کند. دانشجویان در پایان ترم باید بتوانند داده‌ها را خلاصه کنند و نتایج را تفسیر کنند.</p>
+<table class="kv"><tr><td>کد درس</td><td>۱۲۰۴۰۱</td></tr><tr><td>تعداد واحد</td><td>۳</td></tr><tr><td>پیش‌نیاز</td><td>ریاضی عمومی</td></tr><tr><td>زمان کلاس</td><td>یکشنبه و سه‌شنبه، ساعت ۱۰ تا ۱۲</td></tr></table>
+<h2>اهداف درس</h2>
+<div class="li" style="margin-left:0.20em;padding-left:1.90em;text-indent:-1.90em"><span class="mk" style="display:inline-block;width:1.60em;text-indent:0">۱.</span><span class="tx">آشنایی با انواع داده‌ها و روش‌های نمایش آن‌ها</span></div>
+<div class="li" style="margin-left:0.20em;padding-left:1.90em;text-indent:-1.90em"><span class="mk" style="display:inline-block;width:1.60em;text-indent:0">۲.</span><span class="tx">محاسبه شاخص‌های مرکزی و پراکندگی</span></div>
+<div class="li" style="margin-left:0.20em;padding-left:1.90em;text-indent:-1.90em"><span class="mk" style="display:inline-block;width:1.60em;text-indent:0">۳.</span><span class="tx">درک مفهوم احتمال و متغیر تصادفی، شامل:</span></div>
+<div class="li" style="margin-left:2.10em;padding-left:1.90em;text-indent:-1.90em"><span class="mk" style="display:inline-block;width:1.60em;text-indent:0">الف)</span><span class="tx">احتمال شرطی</span></div>
+<div class="li" style="margin-left:2.10em;padding-left:1.90em;text-indent:-1.90em"><span class="mk" style="display:inline-block;width:1.60em;text-indent:0">ب)</span><span class="tx">توزیع‌های دوجمله‌ای و نرمال</span></div>
+<h2>برنامه هفتگی</h2>
+<table class="plan"><colgroup><col style="width:12%"><col style="width:58%"><col style="width:30%"></colgroup><thead><tr><th>هفته</th><th>موضوع</th><th>منبع</th></tr></thead><tbody><tr><td>۱</td><td>مقدمه و انواع داده‌ها</td><td>فصل ۱</td></tr><tr><td>۲</td><td>جدول‌ها و نمودارهای فراوانی</td><td>فصل ۲</td></tr><tr><td>۳</td><td>میانگین، میانه و نما</td><td>فصل ۳</td></tr><tr><td>۴</td><td>واریانس و انحراف معیار</td><td>فصل ۳</td></tr><tr><td>۵</td><td>مبانی احتمال</td><td>فصل ۴</td></tr><tr><td>۶</td><td>آزمون میان‌ترم</td><td>—</td></tr></tbody></table>
+<div class="ft"><span>صفحه ۱ از ۲</span></div>
+</div>
+<div class="pg">
+<div class="hd"><span>طرح درس: مبانی آمار و احتمال</span><span>دانشگاه ساحل</span></div>
+<div style="height:6mm"></div>
+<h2>نحوه ارزیابی</h2>
+<p>نمره نهایی از مجموع چهار بخش زیر به دست می‌آید.</p>
+<table class="plan"><colgroup><col style="width:40%"><col style="width:30%"><col style="width:30%"></colgroup><thead><tr><th>بخش</th><th>سهم از نمره</th><th>زمان</th></tr></thead><tbody><tr><td>تمرین‌های هفتگی</td><td>۲۰ درصد</td><td>هر هفته</td></tr><tr><td>آزمون میان‌ترم</td><td>۳۰ درصد</td><td>هفته ششم</td></tr><tr><td>پروژه گروهی</td><td>۱۰ درصد</td><td>پایان ترم</td></tr><tr><td>آزمون پایان‌ترم</td><td>۴۰ درصد</td><td>زمان‌بندی دانشگاه</td></tr></tbody></table>
+<h2>منابع پیشنهادی</h2>
+<ul class="bl">
+<li>کتاب مبانی آمار و احتمال برای دانشجویان مهندسی</li>
+<li>جزوه‌های هفتگی که در سامانه آموزش قرار می‌گیرد</li>
+<li>مجموعه داده‌های نمونه برای تمرین‌های عملی</li>
+</ul>
+<h2>قوانین کلاس</h2>
+<p>حضور منظم در کلاس شرط شرکت در آزمون پایان‌ترم است. تمرین‌هایی که با تأخیر ارسال شوند نمره کامل نخواهند گرفت.</p>
+<p>پرسش‌های خود را می‌توانید در ساعت‌های رفع اشکال یا از طریق سامانه آموزش مطرح کنید.</p>
+<div class="ft"><span>صفحه ۲ از ۲</span></div>
+</div>
+</body>
+</html>

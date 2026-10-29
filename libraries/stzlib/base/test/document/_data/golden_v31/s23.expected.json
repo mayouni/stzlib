@@ -1,0 +1,249 @@
+{
+  "id": "s23",
+  "difficulty": "Italian recipe booklet: ingredient tables beside method lists (box by box), three marker conventions (1. / 1) / roman I.), zebra summary table, decorated bullets",
+  "pages": 2,
+  "title": "Ricette di famiglia",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Ricette di famiglia"
+    },
+    {
+      "level": 2,
+      "text": "Ragù alla casalinga"
+    },
+    {
+      "level": 2,
+      "text": "Tiramisù"
+    },
+    {
+      "level": 2,
+      "text": "Frittata di zucchine"
+    },
+    {
+      "level": 2,
+      "text": "Consigli"
+    },
+    {
+      "level": 2,
+      "text": "In sintesi"
+    }
+  ],
+  "key_sentences": [
+    "Questo ragù si prepara la domenica mattina e si mangia con le tagliatelle fresche.",
+    "La cottura lenta è il segreto di un sugo denso e profumato.",
+    "Il tiramisù va preparato la sera prima, perché deve riposare in frigorifero per almeno otto ore.",
+    "Questa frittata è un piatto semplice che si può servire sia calda sia fredda.",
+    "Buon appetito a tutta la famiglia e a chi si siede alla nostra tavola."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Ingrediente",
+          "Quantità"
+        ],
+        [
+          "Carne macinata di manzo",
+          "500 g"
+        ],
+        [
+          "Polpa di pomodoro",
+          "400 g"
+        ],
+        [
+          "Carota",
+          "1"
+        ],
+        [
+          "Sedano",
+          "1 costa"
+        ],
+        [
+          "Cipolla",
+          "1"
+        ],
+        [
+          "Vino rosso",
+          "1 bicchiere"
+        ],
+        [
+          "Olio d’oliva",
+          "3 cucchiai"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Ingrediente",
+          "Quantità"
+        ],
+        [
+          "Mascarpone",
+          "500 g"
+        ],
+        [
+          "Uova",
+          "4"
+        ],
+        [
+          "Zucchero",
+          "100 g"
+        ],
+        [
+          "Savoiardi",
+          "300 g"
+        ],
+        [
+          "Caffè freddo",
+          "300 ml"
+        ],
+        [
+          "Cacao amaro",
+          "q.b."
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Ingrediente",
+          "Quantità"
+        ],
+        [
+          "Uova",
+          "6"
+        ],
+        [
+          "Zucchine",
+          "3"
+        ],
+        [
+          "Parmigiano grattugiato",
+          "4 cucchiai"
+        ],
+        [
+          "Menta fresca",
+          "qualche foglia"
+        ],
+        [
+          "Sale e olio",
+          "q.b."
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Ricetta",
+          "Preparazione",
+          "Cottura",
+          "Porzioni"
+        ],
+        [
+          "Ragù alla casalinga",
+          "30 minuti",
+          "2 ore",
+          "6"
+        ],
+        [
+          "Tiramisù",
+          "40 minuti",
+          "nessuna",
+          "8"
+        ],
+        [
+          "Frittata di zucchine",
+          "15 minuti",
+          "15 minuti",
+          "4"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. Tritare finemente la cipolla, la carota e il sedano."
+    },
+    {
+      "level": 0,
+      "text": "2. Soffriggere il trito nell’olio per dieci minuti a fuoco basso."
+    },
+    {
+      "level": 0,
+      "text": "3. Aggiungere la carne e farla rosolare, sgranandola con un cucchiaio di legno."
+    },
+    {
+      "level": 0,
+      "text": "4. Sfumare con il vino rosso e lasciare evaporare."
+    },
+    {
+      "level": 0,
+      "text": "5. Unire la polpa di pomodoro, salare e cuocere a fuoco lento per due ore."
+    },
+    {
+      "level": 0,
+      "text": "1) Montare i tuorli con lo zucchero fino a ottenere una crema chiara."
+    },
+    {
+      "level": 0,
+      "text": "2) Aggiungere il mascarpone e mescolare con delicatezza."
+    },
+    {
+      "level": 0,
+      "text": "3) Montare gli albumi a neve e incorporarli alla crema."
+    },
+    {
+      "level": 0,
+      "text": "4) Bagnare i savoiardi nel caffè e disporli in una pirofila."
+    },
+    {
+      "level": 0,
+      "text": "5) Alternare strati di savoiardi e crema, poi spolverare di cacao."
+    },
+    {
+      "level": 0,
+      "text": "I. Tagliare le zucchine a rondelle e farle dorare in padella."
+    },
+    {
+      "level": 0,
+      "text": "II. Sbattere le uova con il parmigiano, il sale e la menta."
+    },
+    {
+      "level": 0,
+      "text": "III. Versare le uova sulle zucchine e cuocere a fuoco basso con il coperchio."
+    },
+    {
+      "level": 0,
+      "text": "IV. Girare la frittata con l’aiuto di un piatto e cuocere ancora due minuti."
+    },
+    {
+      "level": 0,
+      "text": "Preparare tutti gli ingredienti prima di cominciare."
+    },
+    {
+      "level": 0,
+      "text": "Assaggiare e aggiustare di sale solo alla fine."
+    },
+    {
+      "level": 0,
+      "text": "Usare uova a temperatura ambiente."
+    }
+  ],
+  "furniture": [
+    "Quaderno di cucina · Edizione di Natale 2026",
+    "Pagina 1 di 2",
+    "Pagina 2 di 2"
+  ],
+  "languages": [
+    "it"
+  ],
+  "code": [],
+  "notes": "Each recipe has an ingredient table and a method list standing side by side: the reading order is the table (left) first, then the numbered method (right). Method markers are TYPED and set apart by a hanging indent: recipe 1 uses '1.' '2.', recipe 2 uses '1)' '2)', recipe 3 uses roman capitals 'I.' 'II.'. The tips list on page 2 is drawn by CSS (a decorative leaf), so no marker is typed. The summary table is zebra-banded. The top line and the footers 'Pagina N di 2' are furniture."
+}

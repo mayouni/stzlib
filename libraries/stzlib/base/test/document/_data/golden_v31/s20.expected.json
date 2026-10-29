@@ -1,0 +1,173 @@
+{
+  "id": "s20",
+  "difficulty": "Product brochure: coloured hero band, text column beside a boxed key/value spec panel, round bullets drawn by CSS, zebra model table, nested numbered care list",
+  "pages": 2,
+  "title": "Aurora 600 Air Purifier",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Aurora 600 Air Purifier"
+    },
+    {
+      "level": 2,
+      "text": "Cleaner air without the noise"
+    },
+    {
+      "level": 3,
+      "text": "Key features"
+    },
+    {
+      "level": 3,
+      "text": "Specifications"
+    },
+    {
+      "level": 2,
+      "text": "Choose your model"
+    },
+    {
+      "level": 2,
+      "text": "Care and maintenance"
+    },
+    {
+      "level": 2,
+      "text": "Warranty and service"
+    },
+    {
+      "level": 3,
+      "text": "Contact"
+    }
+  ],
+  "key_sentences": [
+    "The Aurora 600 removes dust, pollen and smoke particles from rooms of up to 45 square metres.",
+    "Its three-stage filter captures 99.97% of particles larger than 0.3 microns.",
+    "A night mode lowers the fan to a whisper, so the unit can run while you sleep.",
+    "All prices include delivery within the United Kingdom.",
+    "Never wash the main filter, because water destroys the filter fibres.",
+    "Every Aurora purifier is covered by a three-year warranty from the date of purchase.",
+    "The warranty covers faults in materials and workmanship but not damage caused by misuse."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Coverage",
+          "Up to 45 m²"
+        ],
+        [
+          "Airflow",
+          "420 m³/h"
+        ],
+        [
+          "Noise level",
+          "24 dB at night mode"
+        ],
+        [
+          "Power",
+          "38 W"
+        ],
+        [
+          "Dimensions",
+          "30 × 30 × 62 cm"
+        ],
+        [
+          "Weight",
+          "6.4 kg"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Model",
+          "Room size",
+          "Noise (night)",
+          "Price"
+        ],
+        [
+          "Aurora 300",
+          "up to 25 m²",
+          "22 dB",
+          "£129"
+        ],
+        [
+          "Aurora 600",
+          "up to 45 m²",
+          "24 dB",
+          "£189"
+        ],
+        [
+          "Aurora 900",
+          "up to 70 m²",
+          "27 dB",
+          "£259"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Telephone",
+          "0800 555 0142"
+        ],
+        [
+          "Email",
+          "support@aurora-home.example"
+        ],
+        [
+          "Opening hours",
+          "Monday to Friday, 9 am to 5 pm"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Three-stage filter with washable pre-filter"
+    },
+    {
+      "level": 0,
+      "text": "Air quality light that changes colour with the room"
+    },
+    {
+      "level": 0,
+      "text": "Sleep timer from one to twelve hours"
+    },
+    {
+      "level": 0,
+      "text": "Filter change reminder after 4,000 hours"
+    },
+    {
+      "level": 0,
+      "text": "1. Switch off the unit and unplug it before any cleaning."
+    },
+    {
+      "level": 0,
+      "text": "2. Clean the filters as follows:"
+    },
+    {
+      "level": 1,
+      "text": "(a) wash the pre-filter under lukewarm water once a month;"
+    },
+    {
+      "level": 1,
+      "text": "(b) let it dry completely before refitting it;"
+    },
+    {
+      "level": 0,
+      "text": "3. Replace the main filter when the indicator turns red."
+    }
+  ],
+  "furniture": [
+    "Aurora Home Systems Page 1 of 2",
+    "Aurora Home Systems Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "The title sits in a coloured band together with a tagline (the tagline is a phrase, not a sentence, and is not in key_sentences). On page 1 a text column and a boxed key/value specification panel stand side by side: the reading order is the text column first (heading, sentences, feature bullets), then the panel. The feature bullets are drawn by CSS (no marker typed). The specification panel and the delivery panel are key/value tables without a header row. The care steps on page 2 are TYPED '1.' '2.' '3.' with a hanging indent and typed '(a)' '(b)' beneath step 2. The footer lines are furniture."
+}

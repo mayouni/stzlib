@@ -1,0 +1,176 @@
+{
+  "id": "s01",
+  "difficulty": "invoice with section rows, zebra table, totals, side-by-side address boxes",
+  "pages": 1,
+  "title": "Invoice INV-2026-0417",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Invoice INV-2026-0417"
+    },
+    {
+      "level": 2,
+      "text": "Items supplied"
+    },
+    {
+      "level": 2,
+      "text": "Payment terms"
+    },
+    {
+      "level": 2,
+      "text": "Delivery notes"
+    }
+  ],
+  "key_sentences": [
+    "Payment is due within 30 days of the invoice date.",
+    "Overdue balances carry interest at 4% above the base rate until they are settled.",
+    "Please quote the invoice number with every transfer.",
+    "Goods remain the property of the supplier until the invoice has been paid in full."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Invoice date",
+          "12 March 2026"
+        ],
+        [
+          "Due date",
+          "11 April 2026"
+        ],
+        [
+          "Customer reference",
+          "PO-88213"
+        ],
+        [
+          "Currency",
+          "Pound sterling (GBP)"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Code",
+          "Description",
+          "Qty",
+          "Unit price",
+          "Amount"
+        ],
+        [
+          "Dry goods",
+          "Dry goods",
+          "Dry goods",
+          "Dry goods",
+          "Dry goods"
+        ],
+        [
+          "FL-001",
+          "Strong white flour, 16 kg sack",
+          "12",
+          "14.50",
+          "174.00"
+        ],
+        [
+          "SG-014",
+          "Caster sugar, 25 kg sack",
+          "4",
+          "31.20",
+          "124.80"
+        ],
+        [
+          "YE-003",
+          "Fresh yeast, 500 g block",
+          "20",
+          "2.35",
+          "47.00"
+        ],
+        [
+          "Packaging",
+          "Packaging",
+          "Packaging",
+          "Packaging",
+          "Packaging"
+        ],
+        [
+          "BX-210",
+          "Cake box, 10 in, pack of 50",
+          "6",
+          "18.90",
+          "113.40"
+        ],
+        [
+          "PB-007",
+          "Kraft paper bags, pack of 500",
+          "3",
+          "22.00",
+          "66.00"
+        ],
+        [
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "525.20"
+        ],
+        [
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "105.04"
+        ],
+        [
+          "Total due",
+          "Total due",
+          "Total due",
+          "Total due",
+          "630.24"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Account name",
+          "Harbourline Supplies Ltd."
+        ],
+        [
+          "Sort code",
+          "00-00-00"
+        ],
+        [
+          "Account number",
+          "00000000"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Deliveries are made every Tuesday and Friday before noon."
+    },
+    {
+      "level": 0,
+      "text": "Damaged goods must be reported within 48 hours of receipt."
+    },
+    {
+      "level": 0,
+      "text": "Returns are accepted only with a credit note number."
+    }
+  ],
+  "furniture": [
+    "Harbourline Supplies Ltd.",
+    "14 Quayside Road, Brightmouth BM4 2QT · +44 20 5550 0142 · accounts@harbourline.example",
+    "Harbourline Supplies Ltd. – thank you for your custom Page 1 of 1"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Letterhead (two lines at the top) and the footer line are furniture; 'Harbourline Supplies Ltd.' is not a heading. The Bill to / Ship to boxes sit side by side and are read box by box (Bill to first); their text is not listed in key_sentences. Table 1 (invoice facts) and table 3 (bank details) are key/value tables without a header row: their first row is the first pair. Table 2: 'Dry goods' and 'Packaging' are section rows spanning five columns (text repeated in all five grid cells); totals rows span the first four columns. Bullets in the delivery list are drawn by CSS. The footer is one line (left text and page number joined by one space)."
+}

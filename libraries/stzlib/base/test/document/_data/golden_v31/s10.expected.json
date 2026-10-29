@@ -1,0 +1,197 @@
+{
+  "id": "s10",
+  "difficulty": "French conference programme: two-column running text, borderless timetable, 1° / dash / bullet typed markers, boxed key/value panel",
+  "pages": 2,
+  "title": "Colloque « L’eau et les territoires »",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Colloque « L’eau et les territoires »"
+    },
+    {
+      "level": 2,
+      "text": "Présentation"
+    },
+    {
+      "level": 2,
+      "text": "Jeudi 14 mai 2027"
+    },
+    {
+      "level": 2,
+      "text": "Les ateliers du jeudi après-midi"
+    },
+    {
+      "level": 2,
+      "text": "Vendredi 15 mai 2027"
+    },
+    {
+      "level": 2,
+      "text": "Informations pratiques"
+    }
+  ],
+  "key_sentences": [
+    "Le colloque annuel de l’association Rives & Savoirs réunit chaque année des chercheurs, des élus et des gestionnaires autour d’un thème commun.",
+    "Cette édition est consacrée aux rapports entre l’eau et les territoires.",
+    "L’eau façonne les paysages, les activités économiques et les modes de vie.",
+    "Face au changement climatique, les territoires doivent repenser la manière dont ils la stockent, la partagent et la protègent.",
+    "Pendant deux jours, les intervenants présenteront des retours d’expérience venus de huit régions.",
+    "Chaque séance laissera un temps important aux questions de la salle.",
+    "L’entrée est libre, mais l’inscription préalable est obligatoire avant le 30 avril.",
+    "Les participants sont invités à se présenter à l’accueil munis du justificatif d’inscription."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Heure",
+          "Intervention",
+          "Salle"
+        ],
+        [
+          "09:00",
+          "Accueil des participants",
+          "Hall"
+        ],
+        [
+          "09:30",
+          "Ouverture du colloque",
+          "Amphithéâtre A"
+        ],
+        [
+          "10:00",
+          "Conférence inaugurale : l’eau, ressource partagée",
+          "Amphithéâtre A"
+        ],
+        [
+          "11:15",
+          "Pause",
+          "Hall"
+        ],
+        [
+          "11:45",
+          "Table ronde : la gestion des crues",
+          "Amphithéâtre A"
+        ],
+        [
+          "12:30",
+          "Déjeuner",
+          "Restaurant"
+        ],
+        [
+          "14:00",
+          "Ateliers en parallèle (voir la page suivante)",
+          "Salles 1 à 3"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Heure",
+          "Intervention",
+          "Salle"
+        ],
+        [
+          "09:00",
+          "Séance plénière : restitution des ateliers",
+          "Amphithéâtre A"
+        ],
+        [
+          "10:30",
+          "Conférence : les droits de l’eau",
+          "Amphithéâtre A"
+        ],
+        [
+          "11:30",
+          "Débat avec la salle",
+          "Amphithéâtre A"
+        ],
+        [
+          "12:00",
+          "Clôture du colloque",
+          "Amphithéâtre A"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Lieu",
+          "Maison des Sciences de Valmont, 12 rue des Tanneurs"
+        ],
+        [
+          "Accès",
+          "Tramway ligne B, arrêt « Tanneurs »"
+        ],
+        [
+          "Repas",
+          "Déjeuner en commun, 18 euros"
+        ],
+        [
+          "Contact",
+          "contact@rives-savoirs.example"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1° Atelier 1 : sécheresse et agriculture"
+    },
+    {
+      "level": 1,
+      "text": "– retours d’expérience de trois coopératives agricoles ;"
+    },
+    {
+      "level": 1,
+      "text": "– présentation d’un outil de prévision des besoins en irrigation."
+    },
+    {
+      "level": 0,
+      "text": "2° Atelier 2 : eau potable et petites communes"
+    },
+    {
+      "level": 1,
+      "text": "– mutualisation des services entre communes voisines ;"
+    },
+    {
+      "level": 1,
+      "text": "– financement des réseaux et prix de l’eau."
+    },
+    {
+      "level": 0,
+      "text": "3° Atelier 3 : rivières urbaines"
+    },
+    {
+      "level": 1,
+      "text": "– renaturation des berges en centre-ville."
+    },
+    {
+      "level": 0,
+      "text": "• une pièce d’identité"
+    },
+    {
+      "level": 0,
+      "text": "• votre justificatif d’inscription"
+    },
+    {
+      "level": 0,
+      "text": "• un moyen de paiement pour le déjeuner"
+    }
+  ],
+  "furniture": [
+    "Association Rives & Savoirs",
+    "Page 1 sur 2",
+    "Association Rives & Savoirs Colloque 2027",
+    "Page 2 sur 2"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "The presentation text is set in TWO CSS COLUMNS; the reading order is column by column (the whole left column, then the whole right column). A sentence may continue from the bottom of the left column to the top of the right one. The letterhead line, the running header of page 2 and the footers 'Page N sur 2' are furniture. Timetables are borderless (a thin rule under the header only). The workshop list uses TYPED markers: level 0 '1°' '2°' '3°' set apart by a hanging indent, level 1 typed en dashes '–'; the 'Apportez' list uses typed bullets '•'. The last table is a boxed key/value panel without a header row."
+}

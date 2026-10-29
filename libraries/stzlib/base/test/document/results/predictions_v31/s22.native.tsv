@@ -1,0 +1,51 @@
+heading	1	Laboratory Safety Handbook
+paragraph	0	Marlow Research Institute · Second edition, valid from 1 September 2026
+heading	2	1 Introduction
+heading	3	1.1 Purpose
+paragraph	0	This handbook sets out the rules that keep everyone safe in the institute’s laboratories. It applies to staff, students and visitors from the moment they enter a laboratory.
+heading	3	1.2 Scope
+paragraph	0	The rules cover three areas of daily work.
+list_item	0	Personal protective equipment
+list_item	0	Handling, storage and disposal of chemicals
+list_item	0	Emergency procedures and first aid
+paragraph	0	Never work alone in a laboratory after 18:00.
+heading	2	2 Personal protective equipment
+heading	3	2.1 Required equipment
+caption	0	The table shows which equipment is required for each type of task.
+table	0	TaskLab coatGlovesGogglesFace shieldWeighing solidsRequiredRequiredOptional—Handling acids and basesRequiredRequiredRequiredOptionalWorking with solventsRequiredRequiredRequired—Using the autoclaveRequiredHeat-resistantRequiredRequired
+page_footer	0	– 1 –
+page_header	0	Marlow Research Institute
+page_header	0	Laboratory Safety Handbook, 2nd edition
+heading	3	2.2 Care of equipment
+paragraph	0	Protective equipment must be checked before every use and replaced when it is damaged.
+list_item	0	1. Check the equipment before use
+list_item	1	a. look for cracks, holes and stains
+list_item	1	b. check that goggles seal against the face
+list_item	0	2. Store coats and goggles outside the laboratory
+list_item	0	3. Report damaged equipment to the safety officer
+heading	2	3 Chemical handling
+heading	3	3.1 Storage
+paragraph	0	Chemicals are stored by hazard class and never alphabetically. Flammable liquids belong in the ventilated cabinet next to the door.
+heading	3	3.2 Spills
+paragraph	0	Do not try to clean up a spill of an unknown substance.
+paragraph	0	In case of a small spill, proceed as follows:
+list_item	0	1. Warn the people around you and stop the work
+list_item	0	2. Put on gloves and goggles, then
+list_item	1	a. cover the spill with absorbent material
+list_item	1	b. sweep the material into a labelled bag
+list_item	0	3. Wash the area with water and soap
+heading	3	3.3 Waste
+table	0	Waste streamContainerExamplesHalogenated solventsRed can with vent capChloroform, dichloromethaneOther organic solventsBlue canEthanol, acetone, hexaneSharpsYellow puncture-proof boxNeedles, broken glassAqueous solutionsWhite canisterBuffers, dilute acids and bases
+page_footer	0	– 2 –
+page_header	0	Marlow Research Institute
+page_header	0	Laboratory Safety Handbook, 2nd edition
+heading	2	4 Emergencies
+heading	3	4.1 Contacts
+table	0	Fire and ambulance112Institute security (24 hours)ext. 5000Safety officerext. 5120Poison information0800 555 0199
+heading	3	4.2 Evacuation
+paragraph	0	When the alarm sounds, leave the laboratory immediately and close the door behind you. Do not use the lifts, and do not return until the safety officer allows it.
+paragraph	0	Gather at the assembly point in the east car park and report to your group leader.
+heading	2	5 Document control
+caption	0	This handbook is reviewed every year by the safety committee. Printed copies are not controlled; the current version is on the intranet.
+table	0	EditionDateChange1stMarch 2023First issue2ndSeptember 2026New waste streams, updated contacts
+page_footer	0	– 3 –

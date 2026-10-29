@@ -1,0 +1,173 @@
+{
+  "id": "s13",
+  "difficulty": "Polish library rules: 1) / a) / dash typed numbering, zebra table, rules-only hours table, check-mark bullets drawn by CSS",
+  "pages": 2,
+  "title": "Regulamin korzystania z wypożyczalni",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Regulamin korzystania z wypożyczalni"
+    },
+    {
+      "level": 2,
+      "text": "1. Zapisy czytelników"
+    },
+    {
+      "level": 2,
+      "text": "2. Wypożyczanie zbiorów"
+    },
+    {
+      "level": 2,
+      "text": "3. Zwrot i odpowiedzialność"
+    },
+    {
+      "level": 2,
+      "text": "4. Godziny otwarcia"
+    },
+    {
+      "level": 2,
+      "text": "5. Zasady zachowania w czytelni"
+    },
+    {
+      "level": 2,
+      "text": "6. Postanowienia końcowe"
+    }
+  ],
+  "key_sentences": [
+    "Regulamin określa zasady zapisów, wypożyczania i zwrotu zbiorów w Bibliotece Gminnej w Wierzbinach.",
+    "Korzystanie z wypożyczalni jest bezpłatne dla wszystkich mieszkańców gminy.",
+    "Jednorazowo można wypożyczyć do dziesięciu książek i trzech czasopism.",
+    "Prolongatę można zamówić telefonicznie lub przez stronę internetową biblioteki, najpóźniej w dniu upływu terminu zwrotu.",
+    "Zbiory można zwracać także po godzinach pracy, wrzucając je do skrzynki przy wejściu.",
+    "Regulamin wchodzi w życie z dniem ogłoszenia i jest dostępny w wypożyczalni oraz na stronie internetowej biblioteki.",
+    "Wszelkie wątpliwości dotyczące interpretacji regulaminu rozstrzyga dyrektor biblioteki."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Rodzaj zbiorów",
+          "Okres wypożyczenia",
+          "Prolongata",
+          "Kara za dzień zwłoki"
+        ],
+        [
+          "Książki",
+          "30 dni",
+          "2 razy",
+          "0,20 zł"
+        ],
+        [
+          "Czasopisma",
+          "14 dni",
+          "1 raz",
+          "0,10 zł"
+        ],
+        [
+          "Audiobooki i filmy",
+          "14 dni",
+          "brak",
+          "0,50 zł"
+        ],
+        [
+          "Księgozbiór podręczny",
+          "tylko na miejscu",
+          "–",
+          "–"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Dzień",
+          "Wypożyczalnia",
+          "Czytelnia"
+        ],
+        [
+          "Poniedziałek – piątek",
+          "9:00–17:00",
+          "9:00–19:00"
+        ],
+        [
+          "Sobota",
+          "9:00–13:00",
+          "9:00–13:00"
+        ],
+        [
+          "Niedziela",
+          "nieczynna",
+          "nieczynna"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1) Zapisu dokonuje się na podstawie dokumentu tożsamości."
+    },
+    {
+      "level": 0,
+      "text": "2) Dzieci poniżej 13. roku życia zapisuje rodzic lub opiekun, który:"
+    },
+    {
+      "level": 1,
+      "text": "a) okazuje swój dokument tożsamości;"
+    },
+    {
+      "level": 1,
+      "text": "b) podpisuje oświadczenie o odpowiedzialności za zbiory."
+    },
+    {
+      "level": 0,
+      "text": "3) Czytelnik otrzymuje kartę biblioteczną, która jest ważna przez pięć lat."
+    },
+    {
+      "level": 0,
+      "text": "1) Czytelnik odpowiada za zniszczenie lub zgubienie wypożyczonych zbiorów."
+    },
+    {
+      "level": 0,
+      "text": "2) W razie zniszczenia czytelnik jest obowiązany:"
+    },
+    {
+      "level": 1,
+      "text": "a) zakupić taką samą pozycję albo"
+    },
+    {
+      "level": 2,
+      "text": "– wskazaną przez bibliotekarza pozycję o podobnej wartości;"
+    },
+    {
+      "level": 1,
+      "text": "b) wpłacić odszkodowanie w wysokości ustalonej przez dyrektora biblioteki."
+    },
+    {
+      "level": 0,
+      "text": "Należy zachować ciszę i wyłączyć dźwięk telefonu."
+    },
+    {
+      "level": 0,
+      "text": "Do czytelni nie wolno wnosić napojów ani jedzenia."
+    },
+    {
+      "level": 0,
+      "text": "Z komputerów można korzystać przez godzinę dziennie."
+    }
+  ],
+  "furniture": [
+    "Biblioteka Gminna w Wierzbinach",
+    "ul. Szkolna 4, Wierzbiny · tel. 555 014 200 · biblioteka@wierzbiny.example",
+    "Strona 1 z 2",
+    "Biblioteka Gminna w Wierzbinach Regulamin wypożyczalni",
+    "Strona 2 z 2"
+  ],
+  "languages": [
+    "pl"
+  ],
+  "code": [],
+  "notes": "Letterhead (two lines), the page 2 running header and the footers 'Strona N z 2' are furniture. Section headings carry a typed number ('1. ...'), included in the heading text. Typed list markers set apart by a hanging indent: level 0 '1)' '2)' '3)', level 1 'a)' 'b)', level 2 an en dash '–'. The 'Cisza w czytelni' list on page 2 is drawn by CSS (a check mark): no marker in the text. The fee table is zebra-banded (no vertical lines)."
+}

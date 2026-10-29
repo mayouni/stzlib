@@ -1,0 +1,16 @@
+page_header	0	Harbourline Supplies Ltd.
+page_header	0	14 Quayside Road, Brightmouth BM4 2QT · +44 20 5550 0142 · accounts@harbourline.example
+heading	1	Invoice INV-2026-0417
+table	0	Invoice date12 March 2026Due date11 April 2026Customer referencePO-88213CurrencyPound sterling (GBP)Bill toShip toNorthgate Community BakeryNorthgate Community BakeryNorthgate Community Bakery, Depot7 Mill LaneUnit 3, Canal WorksBrightmouth BM1 9AABrightmouth BM2 3DL
+heading	3	Items supplied
+table	0	CodeDescriptionQtyUnit priceAmountDry goodsDry goodsDry goodsDry goodsDry goodsFL-001Strong white flour, 16 kg sack1214.50174.00SG-014Caster sugar, 25 kg sack431.20124.80YE-003Fresh yeast, 500 g block202.3547.00PackagingPackagingPackagingPackagingPackagingBX-210Cake box, 10 in, pack of 50618.90113.40PB-007Kraft paper bags, pack of 500322.0066.00SubtotalSubtotalSubtotalSubtotal525.20VAT at 20%VAT at 20%VAT at 20%VAT at 20%105.04Total dueTotal dueTotal dueTotal due630.24
+heading	3	Payment terms
+caption	0	Payment is due within 30 days of the invoice date. Overdue balances carry interest at 4% above the base rate until they are settled. Please quote the invoice number with every transfer.
+table	0	Account nameHarbourline Supplies Ltd.Sort code00-00-00Account number00000000
+heading	3	Delivery notes
+list_item	0	Deliveries are made every Tuesday and Friday before noon.
+list_item	0	Damaged goods must be reported within 48 hours of receipt.
+list_item	0	Returns are accepted only with a credit note number.
+paragraph	0	Goods remain the property of the supplier until the invoice has been paid in full.
+page_footer	0	Harbourline Supplies Ltd. – thank you for your custom
+page_footer	0	Page 1 of 1

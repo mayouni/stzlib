@@ -1,0 +1,183 @@
+{
+  "id": "s24",
+  "difficulty": "Printed form: labels with empty answer cells (not headings), check boxes drawn by CSS, grid checklist with room section rows, two signature areas side by side",
+  "pages": 2,
+  "title": "Rental Property Inspection Checklist",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Rental Property Inspection Checklist"
+    },
+    {
+      "level": 2,
+      "text": "How to complete this form"
+    },
+    {
+      "level": 2,
+      "text": "Room-by-room checklist"
+    },
+    {
+      "level": 2,
+      "text": "Meters and keys"
+    },
+    {
+      "level": 2,
+      "text": "Declaration"
+    }
+  ],
+  "key_sentences": [
+    "Use this form at the start and at the end of every tenancy.",
+    "Both the tenant and the agent must sign it on the day of the inspection.",
+    "I confirm that I have inspected the property together with the agent and that this form is a fair record of its condition.",
+    "I understand that any damage not listed here may be charged to me at the end of the tenancy.",
+    "The agent will give the tenant a signed copy of this form within three working days."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Property address",
+          ""
+        ],
+        [
+          "Tenant name",
+          ""
+        ],
+        [
+          "Date of inspection",
+          ""
+        ],
+        [
+          "Type of inspection",
+          ""
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Item",
+          "Condition",
+          "Notes"
+        ],
+        [
+          "Kitchen",
+          "Kitchen",
+          "Kitchen"
+        ],
+        [
+          "Cooker and hob",
+          "GoodFairPoor",
+          ""
+        ],
+        [
+          "Sink and taps",
+          "GoodFairPoor",
+          ""
+        ],
+        [
+          "Cupboards and worktops",
+          "GoodFairPoor",
+          ""
+        ],
+        [
+          "Bathroom",
+          "Bathroom",
+          "Bathroom"
+        ],
+        [
+          "Bath and shower",
+          "GoodFairPoor",
+          ""
+        ],
+        [
+          "Toilet and basin",
+          "GoodFairPoor",
+          ""
+        ],
+        [
+          "Ventilation fan",
+          "GoodFairPoor",
+          ""
+        ],
+        [
+          "Living room",
+          "Living room",
+          "Living room"
+        ],
+        [
+          "Walls and ceiling",
+          "GoodFairPoor",
+          ""
+        ],
+        [
+          "Carpet or flooring",
+          "GoodFairPoor",
+          ""
+        ],
+        [
+          "Windows and blinds",
+          "GoodFairPoor",
+          ""
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Item",
+          "Reading or number",
+          "Notes"
+        ],
+        [
+          "Electricity meter",
+          "",
+          ""
+        ],
+        [
+          "Gas meter",
+          "",
+          ""
+        ],
+        [
+          "Water meter",
+          "",
+          ""
+        ],
+        [
+          "Number of keys handed over",
+          "",
+          ""
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Walk through each room together with the tenant."
+    },
+    {
+      "level": 0,
+      "text": "Tick one box for each item: Good, Fair or Poor."
+    },
+    {
+      "level": 0,
+      "text": "Describe any damage in the notes column."
+    }
+  ],
+  "furniture": [
+    "Harbour Lettings Ltd.",
+    "Form RP-12 · Please complete in black ink",
+    "Form RP-12 · Page 1 of 2",
+    "Form RP-12 · Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "This is a FORM: the labels ('Property address', 'Tenant name', ...) are table labels, not headings, and the answer cells are empty strings in the expected tables. The check boxes are small squares drawn by CSS next to the words Good, Fair and Poor; each condition cell therefore reads 'Good Fair Poor'. The 'Notes' cells are empty. 'Kitchen', 'Bathroom' and 'Living room' are section rows spanning three columns (text repeated in each grid cell). The instructions are a list numbered by CSS (no marker typed). The two signature areas at the end are side by side (tenant first, then landlord's agent) and consist of empty lines with captions that are not listed. The letterhead (two lines) and the footer lines 'Form RP-12 · Page N of 2' are furniture."
+}

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rental Property Inspection Checklist</title>
+<style>
+
+@page { size: A4; margin: 0 }
+* { box-sizing: border-box }
+html, body { margin: 0; padding: 0 }
+.pg { position: relative; width: 210mm; height: 296.4mm; overflow: hidden; break-after: page; page-break-after: always }
+.pg:last-child { break-after: auto; page-break-after: auto }
+.ft { position: absolute; left: 20mm; right: 20mm; bottom: 10mm; display: flex; justify-content: space-between }
+.hd { position: absolute; left: 20mm; right: 20mm; top: 9mm; display: flex; justify-content: space-between }
+table { border-collapse: collapse }
+p { margin: 0 0 0.6em }
+
+.pg { padding: 16mm 18mm; font-family: Arial, sans-serif; font-size: 10pt; line-height: 1.45; color: #111 }
+.lh { font-size: 15pt; font-weight: bold; color: #333 } .lh2 { font-size: 8.5pt; color: #666; border-bottom: 3px solid #333; padding-bottom: 3px; margin-bottom: 8px; display: block }
+h1 { font-size: 18pt; margin: 4px 0 6px } h2 { font-size: 12pt; margin: 12px 0 4px; background: #eee; padding: 3px 8px }
+table.form { width: 100%; margin: 4px 0 } table.form td { border: 1px solid #555; padding: 5px 8px; height: 8mm } table.form td:first-child { width: 28%; background: #f1f1f1; font-weight: bold }
+table.chk { width: 100%; font-size: 9.5pt } table.chk th { background: #333; color: #fff; padding: 4px 8px; text-align: left } table.chk td { border: 1px solid #555; padding: 3px 8px; vertical-align: middle } table.chk td.sec { background: #ddd; font-weight: bold }
+.cb { display: inline-block; width: 3mm; height: 3mm; border: 1px solid #000; margin: 0 1mm 0 3mm; vertical-align: -0.5mm } .cb:first-child { margin-left: 0 }
+ol.ins { margin: 4px 0; padding-left: 1.6em } ol.ins li { margin: 2px 0 }
+.sig { display: flex; gap: 10mm; margin-top: 10mm } .sig > div { flex: 1; border-top: 1px solid #000; padding-top: 2px; font-size: 8.5pt; color: #444 }
+.ft { font-size: 8.5pt; color: #666; border-top: 1px solid #aaa; padding-top: 3px }
+
+</style>
+</head>
+<body>
+<div class="pg">
+<div class="lh"><span>Harbour Lettings Ltd.</span></div>
+<div class="lh2"><span>Form RP-12 · Please complete in black ink</span></div>
+<h1>Rental Property Inspection Checklist</h1>
+<p>Use this form at the start and at the end of every tenancy. Both the tenant and the agent must sign it on the day of the inspection.</p>
+<table class="form"><tr><td>Property address</td><td></td></tr><tr><td>Tenant name</td><td></td></tr><tr><td>Date of inspection</td><td></td></tr><tr><td>Type of inspection</td><td></td></tr></table>
+<h2>How to complete this form</h2>
+<ol class="ins" style="list-style-type:decimal;">
+<li>Walk through each room together with the tenant.</li>
+<li>Tick one box for each item: Good, Fair or Poor.</li>
+<li>Describe any damage in the notes column.</li>
+</ol>
+<h2>Room-by-room checklist</h2>
+<table class="chk"><colgroup><col style="width:34%"><col style="width:40%"><col style="width:26%"></colgroup><thead><tr><th>Item</th><th>Condition</th><th>Notes</th></tr></thead><tbody><tr><td colspan="3" class="sec">Kitchen</td></tr><tr><td>Cooker and hob</td><td><span class="cb"></span>Good<span class="cb"></span>Fair<span class="cb"></span>Poor</td><td></td></tr><tr><td>Sink and taps</td><td><span class="cb"></span>Good<span class="cb"></span>Fair<span class="cb"></span>Poor</td><td></td></tr><tr><td>Cupboards and worktops</td><td><span class="cb"></span>Good<span class="cb"></span>Fair<span class="cb"></span>Poor</td><td></td></tr><tr><td colspan="3" class="sec">Bathroom</td></tr><tr><td>Bath and shower</td><td><span class="cb"></span>Good<span class="cb"></span>Fair<span class="cb"></span>Poor</td><td></td></tr><tr><td>Toilet and basin</td><td><span class="cb"></span>Good<span class="cb"></span>Fair<span class="cb"></span>Poor</td><td></td></tr><tr><td>Ventilation fan</td><td><span class="cb"></span>Good<span class="cb"></span>Fair<span class="cb"></span>Poor</td><td></td></tr><tr><td colspan="3" class="sec">Living room</td></tr><tr><td>Walls and ceiling</td><td><span class="cb"></span>Good<span class="cb"></span>Fair<span class="cb"></span>Poor</td><td></td></tr><tr><td>Carpet or flooring</td><td><span class="cb"></span>Good<span class="cb"></span>Fair<span class="cb"></span>Poor</td><td></td></tr><tr><td>Windows and blinds</td><td><span class="cb"></span>Good<span class="cb"></span>Fair<span class="cb"></span>Poor</td><td></td></tr></tbody></table>
+<div class="ft"><span>Form RP-12 · Page 1 of 2</span></div>
+</div>
+<div class="pg">
+<div style="height:4mm"></div>
+<h2>Meters and keys</h2>
+<table class="chk"><colgroup><col style="width:34%"><col style="width:40%"><col style="width:26%"></colgroup><thead><tr><th>Item</th><th>Reading or number</th><th>Notes</th></tr></thead><tbody><tr><td>Electricity meter</td><td></td><td></td></tr><tr><td>Gas meter</td><td></td><td></td></tr><tr><td>Water meter</td><td></td><td></td></tr><tr><td>Number of keys handed over</td><td></td><td></td></tr></tbody></table>
+<h2>Declaration</h2>
+<p>I confirm that I have inspected the property together with the agent and that this form is a fair record of its condition. I understand that any damage not listed here may be charged to me at the end of the tenancy.</p>
+<p>The agent will give the tenant a signed copy of this form within three working days.</p>
+<div class="sig">
+<div>Tenant signature and date</div>
+<div>Agent signature and date</div>
+</div>
+<div class="ft"><span>Form RP-12 · Page 2 of 2</span></div>
+</div>
+</body>
+</html>

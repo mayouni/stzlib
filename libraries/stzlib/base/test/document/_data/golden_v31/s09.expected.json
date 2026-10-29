@@ -1,0 +1,227 @@
+{
+  "id": "s09",
+  "difficulty": "German contract terms: section signs, (1)/a)/aa) nested typed numbering, price table with row rules only, three pages, soft hyphens",
+  "pages": 3,
+  "title": "Allgemeine Vertragsbedingungen für Wartungsverträge",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Allgemeine Vertragsbedingungen für Wartungsverträge"
+    },
+    {
+      "level": 2,
+      "text": "§ 1 Geltungsbereich"
+    },
+    {
+      "level": 2,
+      "text": "§ 2 Leistungsumfang"
+    },
+    {
+      "level": 2,
+      "text": "§ 3 Vergütung"
+    },
+    {
+      "level": 2,
+      "text": "§ 4 Haftung"
+    },
+    {
+      "level": 2,
+      "text": "§ 5 Laufzeit und Kündigung"
+    },
+    {
+      "level": 2,
+      "text": "§ 6 Datenschutz"
+    },
+    {
+      "level": 2,
+      "text": "§ 7 Schlussbestimmungen"
+    },
+    {
+      "level": 2,
+      "text": "Anlage 1: Wartungsintervalle"
+    },
+    {
+      "level": 2,
+      "text": "Anlage 2: Fernüberwachung"
+    }
+  ],
+  "key_sentences": [
+    "Diese Bedingungen gelten für alle Wartungsverträge zwischen der Nordlicht Haustechnik GmbH (nachfolgend „Auftragnehmer“) und ihren Kunden (nachfolgend „Auftraggeber“).",
+    "Der Auftragnehmer arbeitet nach den anerkannten Regeln der Technik und den geltenden Sicherheitsvorschriften.",
+    "Die Höhe der Vergütung richtet sich nach der bei Vertragsschluss gültigen Preisliste.",
+    "Der Vertrag beginnt mit der Unterzeichnung durch beide Parteien.",
+    "Der Auftragnehmer verarbeitet personenbezogene Daten des Auftraggebers ausschließlich zur Durchführung des Vertrags.",
+    "Eine Weitergabe an Dritte erfolgt nur, soweit dies zur Vertragserfüllung erforderlich ist.",
+    "Gerichtsstand ist, soweit gesetzlich zulässig, der Sitz des Auftragnehmers.",
+    "Für die Fernüberwachung wird auf der Steuerung folgende Konfiguration hinterlegt."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Anlagentyp",
+          "Jahrespauschale (EUR)",
+          "Anfahrt (EUR)"
+        ],
+        [
+          "Gasheizung bis 30 kW",
+          "189,00",
+          "35,00"
+        ],
+        [
+          "Ölheizung bis 30 kW",
+          "219,00",
+          "35,00"
+        ],
+        [
+          "Lüftungsanlage, Wohnhaus",
+          "149,00",
+          "28,00"
+        ],
+        [
+          "Klimaanlage (Split-Gerät)",
+          "129,00",
+          "28,00"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Anlagentyp",
+          "Intervall",
+          "Umfang"
+        ],
+        [
+          "Gasheizung",
+          "jährlich",
+          "Inspektion, Reinigung, Abgasmessung"
+        ],
+        [
+          "Ölheizung",
+          "jährlich",
+          "Inspektion, Reinigung, Düsenwechsel"
+        ],
+        [
+          "Lüftungsanlage",
+          "halbjährlich",
+          "Filterwechsel, Kontrolle der Luftkanäle"
+        ],
+        [
+          "Klimaanlage",
+          "jährlich",
+          "Reinigung, Kältemittelkontrolle"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "(1) Die Bedingungen gelten für die Wartung von Heizungs-, Lüftungs- und Klimaanlagen."
+    },
+    {
+      "level": 0,
+      "text": "(2) Abweichende Bedingungen des Auftraggebers werden nicht Vertragsbestandteil, es sei denn, der Auftragnehmer stimmt ihrer Geltung ausdrücklich schriftlich zu."
+    },
+    {
+      "level": 0,
+      "text": "(1) Der Auftragnehmer führt folgende Leistungen aus:"
+    },
+    {
+      "level": 1,
+      "text": "a) die jährliche Inspektion der Anlage nach Herstellervorgabe;"
+    },
+    {
+      "level": 1,
+      "text": "b) die Reinigung und Einstellung der Bauteile, insbesondere"
+    },
+    {
+      "level": 2,
+      "text": "aa) der Brenner und Wärmetauscher,"
+    },
+    {
+      "level": 2,
+      "text": "bb) der Filter und Luftkanäle;"
+    },
+    {
+      "level": 1,
+      "text": "c) die schriftliche Dokumentation der durchgeführten Arbeiten."
+    },
+    {
+      "level": 0,
+      "text": "(2) Nicht im Leistungsumfang enthalten sind Reparaturen und der Austausch von Verschleißteilen."
+    },
+    {
+      "level": 0,
+      "text": "(1) Rechnungen sind innerhalb von vierzehn Tagen ohne Abzug zu zahlen."
+    },
+    {
+      "level": 0,
+      "text": "(2) Bei Zahlungsverzug ist der Auftragnehmer berechtigt, Verzugszinsen in gesetzlicher Höhe zu verlangen."
+    },
+    {
+      "level": 0,
+      "text": "(1) Der Auftragnehmer haftet unbeschränkt bei Vorsatz und grober Fahrlässigkeit sowie bei der Verletzung von Leben, Körper und Gesundheit."
+    },
+    {
+      "level": 0,
+      "text": "(2) Bei leichter Fahrlässigkeit haftet der Auftragnehmer nur für die Verletzung wesentlicher Vertragspflichten, und zwar"
+    },
+    {
+      "level": 1,
+      "text": "a) begrenzt auf den vorhersehbaren, vertragstypischen Schaden;"
+    },
+    {
+      "level": 1,
+      "text": "b) höchstens bis zur Höhe der vereinbarten Jahrespauschale."
+    },
+    {
+      "level": 0,
+      "text": "(1) Der Vertrag läuft zunächst für ein Jahr und verlängert sich jeweils um ein weiteres Jahr, wenn er nicht drei Monate vor Ablauf gekündigt wird."
+    },
+    {
+      "level": 0,
+      "text": "(2) Das Recht zur außerordentlichen Kündigung aus wichtigem Grund bleibt unberührt."
+    },
+    {
+      "level": 0,
+      "text": "(3) Die Kündigung bedarf der Textform."
+    },
+    {
+      "level": 0,
+      "text": "Name und Anschrift"
+    },
+    {
+      "level": 0,
+      "text": "Telefonnummer und E-Mail-Adresse"
+    },
+    {
+      "level": 0,
+      "text": "Angaben zur Anlage und zu den Wartungsterminen"
+    },
+    {
+      "level": 0,
+      "text": "(1) Es gilt das Recht der Bundesrepublik Deutschland."
+    },
+    {
+      "level": 0,
+      "text": "(2) Sollte eine Bestimmung unwirksam sein, bleibt die Wirksamkeit der übrigen Bestimmungen unberührt."
+    }
+  ],
+  "furniture": [
+    "Nordlicht Haustechnik GmbH AVB Wartungsverträge · Stand 1. Oktober 2026",
+    "Seite 1 von 3",
+    "Seite 2 von 3",
+    "Seite 3 von 3"
+  ],
+  "languages": [
+    "de"
+  ],
+  "code": [
+    "[fernwartung]\nintervall_minuten = 15\nalarm_schwelle_c  = 85\nbenachrichtigung  = wartung@nordlicht-haustechnik.example"
+  ],
+  "notes": "Justified text with soft hyphens (U+00AD) inside some long words: a word may be broken across lines with a visible hyphen and is given WHOLE in the expected text. Clause headings are written '§ N Title' (section sign plus number are part of the heading text); 'Anlage 1' and 'Anlage 2' are headings too. Numbered clauses are TYPED list items set inline in the paragraph: level 0 '(1)' '(2)', level 1 'a)' 'b)', level 2 'aa)' 'bb)'. They are listed as list items and are not repeated in key_sentences; key_sentences come from the unnumbered paragraphs. The running header (left and right parts on one line) is listed once, with the three footer lines 'Seite N von 3'. The data-protection bullets are drawn by CSS. The code block (Anlage 2) is monospaced; its lines are joined with \\n."
+}

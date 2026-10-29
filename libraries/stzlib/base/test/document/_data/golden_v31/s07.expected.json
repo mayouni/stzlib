@@ -1,0 +1,179 @@
+{
+  "id": "s07",
+  "difficulty": "Korean maintenance-fee statement: wide table with section rows, subtotals and zebra bands; two summary boxes side by side; Hangul-letter list markers",
+  "pages": 2,
+  "title": "2026년 9월분 관리비 고지서",
+  "headings": [
+    {
+      "level": 1,
+      "text": "2026년 9월분 관리비 고지서"
+    },
+    {
+      "level": 2,
+      "text": "부과 내역"
+    },
+    {
+      "level": 2,
+      "text": "납부 안내"
+    },
+    {
+      "level": 2,
+      "text": "연락처"
+    }
+  ],
+  "key_sentences": [
+    "이 고지서는 102동 1504호 세대의 9월 한 달 동안의 관리비 부과 내역을 안내합니다.",
+    "전월과 비교한 증감 내역도 함께 표시했습니다.",
+    "전기료는 날씨가 선선해져 냉방 사용량이 줄어 전월보다 감소했습니다.",
+    "관리비는 납부 기한까지 관리사무소 지정 계좌로 납부해 주시기 바랍니다.",
+    "기한을 넘기면 연체료가 부과됩니다.",
+    "이의가 있으신 경우 고지서를 받은 날부터 7일 이내에 관리사무소로 문의하여 주십시오."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "항목",
+          "당월 부과액",
+          "전월 부과액",
+          "증감"
+        ],
+        [
+          "공용 관리비",
+          "공용 관리비",
+          "공용 관리비",
+          "공용 관리비"
+        ],
+        [
+          "일반관리비",
+          "58,200",
+          "57,900",
+          "+300"
+        ],
+        [
+          "청소비",
+          "21,400",
+          "21,400",
+          "0"
+        ],
+        [
+          "경비비",
+          "36,800",
+          "36,800",
+          "0"
+        ],
+        [
+          "승강기 유지비",
+          "7,500",
+          "7,500",
+          "0"
+        ],
+        [
+          "공용 관리비 소계",
+          "123,900",
+          "123,600",
+          "+300"
+        ],
+        [
+          "개별 사용료",
+          "개별 사용료",
+          "개별 사용료",
+          "개별 사용료"
+        ],
+        [
+          "전기료",
+          "64,300",
+          "71,250",
+          "-6,950"
+        ],
+        [
+          "수도료",
+          "18,900",
+          "17,600",
+          "+1,300"
+        ],
+        [
+          "난방비",
+          "12,100",
+          "8,400",
+          "+3,700"
+        ],
+        [
+          "개별 사용료 소계",
+          "95,300",
+          "97,250",
+          "-1,950"
+        ],
+        [
+          "합계",
+          "219,200",
+          "220,850",
+          "-1,650"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "관리사무소",
+          "031-555-0142"
+        ],
+        [
+          "운영 시간",
+          "평일 오전 9시부터 오후 6시까지"
+        ],
+        [
+          "방문 위치",
+          "본관 1층 관리사무소"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. 납부 방법"
+    },
+    {
+      "level": 1,
+      "text": "가. 자동이체: 매월 납부 기한에 자동으로 출금됩니다."
+    },
+    {
+      "level": 1,
+      "text": "나. 계좌 입금: 고지서에 표시된 가상계좌로 입금합니다."
+    },
+    {
+      "level": 1,
+      "text": "다. 방문 납부: 관리사무소에서 카드로 결제할 수 있습니다."
+    },
+    {
+      "level": 0,
+      "text": "2. 유의 사항"
+    },
+    {
+      "level": 1,
+      "text": "가. 연체료는 납부 기한이 지난 날부터 매일 계산됩니다."
+    },
+    {
+      "level": 1,
+      "text": "나. 이사를 하시는 경우 정산을 위해 사전에 관리사무소에 알려 주시기 바랍니다."
+    },
+    {
+      "level": 0,
+      "text": "3. 이의 신청"
+    }
+  ],
+  "furniture": [
+    "푸른마을 아파트 관리사무소",
+    "경기도 푸른시 맑은로 120 · 문의 031-555-0142",
+    "1 / 2",
+    "2 / 2"
+  ],
+  "languages": [
+    "ko"
+  ],
+  "code": [],
+  "notes": "Letterhead (two lines) and the page-number footers ('1 / 2', '2 / 2') are furniture. The two summary boxes (amount due, due date) are side by side, read box by box; their text is not listed in key_sentences. In the fee table '공용 관리비' and '개별 사용료' are section rows spanning four columns (text repeated in the four grid cells); subtotal and total rows are ordinary rows of the same table. A minus sign is the ASCII hyphen-minus. Lists on page 2: TYPED markers set apart by a hanging indent; level 0 '1.' '2.', level 1 Hangul letters with a full stop ('가.' '나.' '다.')."
+}

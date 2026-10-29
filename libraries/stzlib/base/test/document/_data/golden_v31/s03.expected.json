@@ -1,0 +1,172 @@
+{
+  "id": "s03",
+  "difficulty": "RTL programme catalogue: Hebrew-letter lists, nested lists, two boxes side by side, centred multi-line cells",
+  "pages": 2,
+  "title": "קטלוג חוגים לשנת הלימודים תשפ״ו",
+  "headings": [
+    {
+      "level": 1,
+      "text": "קטלוג חוגים לשנת הלימודים תשפ״ו"
+    },
+    {
+      "level": 2,
+      "text": "החוגים בקיצור"
+    },
+    {
+      "level": 3,
+      "text": "חוגי ילדים"
+    },
+    {
+      "level": 3,
+      "text": "חוגי מבוגרים"
+    },
+    {
+      "level": 2,
+      "text": "לוח החוגים"
+    },
+    {
+      "level": 2,
+      "text": "איך נרשמים"
+    },
+    {
+      "level": 2,
+      "text": "ביטולים והחזרים"
+    }
+  ],
+  "key_sentences": [
+    "במרכז הקהילתי פועלים השנה שבעים חוגים לכל הגילאים, מהגן ועד גיל הזהב.",
+    "ההרשמה נפתחת באחד באוגוסט ומתקיימת עד מילוי המקומות.",
+    "הרשמה לחוג מתבצעת בארבעה שלבים בלבד, וההרשמה תקפה רק אחרי תשלום מלא.",
+    "ביטול הרשמה במשך שבועיים מתחילת החוג מזכה בהחזר מלא.",
+    "ביטול מאוחר יותר ייבחן לגופו באופן פרטני מול המנהל הקהילתי."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "שם החוג",
+          "ימים",
+          "שעה",
+          "מחיר לסמסטר"
+        ],
+        [
+          "ציור ויצירה",
+          "יום א׳ ויום ד׳",
+          "16:00",
+          "₪480"
+        ],
+        [
+          "שחמט למתחילים",
+          "יום ב׳",
+          "17:30",
+          "₪390"
+        ],
+        [
+          "יוגה בבוקר",
+          "יום ג׳ ויום ה׳",
+          "08:00",
+          "₪620"
+        ],
+        [
+          "אנגלית מדוברת",
+          "יום ד׳",
+          "19:00",
+          "₪540"
+        ],
+        [
+          "בישול בריא",
+          "יום ה׳",
+          "10:00",
+          "₪450"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "טלפון המזכירות",
+          "03-5550142"
+        ],
+        [
+          "שעות קבלת קהל",
+          "ימים א׳–ה׳, 09:00–13:00"
+        ],
+        [
+          "דוא״ל",
+          "hagiva@center.example"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "ציור ויצירה"
+    },
+    {
+      "level": 0,
+      "text": "מוזיקה ותזמורת"
+    },
+    {
+      "level": 0,
+      "text": "שחמט למתחילים"
+    },
+    {
+      "level": 0,
+      "text": "רובוטיקה בסיסית"
+    },
+    {
+      "level": 0,
+      "text": "יוגה בבוקר"
+    },
+    {
+      "level": 0,
+      "text": "אנגלית מדוברת"
+    },
+    {
+      "level": 0,
+      "text": "צילום בסיסי"
+    },
+    {
+      "level": 0,
+      "text": "בישול בריא"
+    },
+    {
+      "level": 0,
+      "text": "א. ממלאים טופס הרשמה באתר או במזכירות, ומציינים את שם המשתתף ואת החוג הרצוי."
+    },
+    {
+      "level": 0,
+      "text": "ב. מצרפים אישור רפואי לחוגים שדורשים מאמץ גופני:"
+    },
+    {
+      "level": 1,
+      "text": "1) יוגה בבוקר"
+    },
+    {
+      "level": 1,
+      "text": "2) רובוטיקה בסיסית"
+    },
+    {
+      "level": 0,
+      "text": "ג. משלמים את התשלום באמצעות כרטיס אשראי או העברה בנקאית."
+    },
+    {
+      "level": 0,
+      "text": "ד. מקבלים אישור בהודעה תוך שלושה ימי עסקים."
+    }
+  ],
+  "furniture": [
+    "מרכז קהילתי “הגבעה” הרשמה במזכירות או באתר המרכז",
+    "עמוד 1 מתוך 2",
+    "קטלוג חוגים תשפ״ו מרכז קהילתי “הגבעה”",
+    "עמוד 2 מתוך 2"
+  ],
+  "languages": [
+    "he"
+  ],
+  "code": [],
+  "notes": "Right-to-left. The coloured band at the top of page 1 (two parts on one line), the running header of page 2 and the page-number lines are furniture. Two boxes (children's classes, adult classes) stand side by side; the READING ORDER IS BOX BY BOX, the right-hand box (children) first because the page is right-to-left. Lists: the box lists are drawn by CSS (no marker typed); the registration list uses TYPED Hebrew letters with a full stop (א. ב. ג.) at level 0 and typed digits with a parenthesis (1) 2)) at level 1. Table cells are in logical order (rightmost column first); the day cell of the first row has two lines joined by one space."
+}

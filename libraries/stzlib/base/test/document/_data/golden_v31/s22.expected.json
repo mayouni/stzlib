@@ -1,0 +1,258 @@
+{
+  "id": "s22",
+  "difficulty": "Laboratory safety handbook: decimal-numbered headings (1, 1.1), CSS-numbered nested lists, warning boxes, centred matrix table, multi-line top-aligned cells, three pages",
+  "pages": 3,
+  "title": "Laboratory Safety Handbook",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Laboratory Safety Handbook"
+    },
+    {
+      "level": 2,
+      "text": "1 Introduction"
+    },
+    {
+      "level": 3,
+      "text": "1.1 Purpose"
+    },
+    {
+      "level": 3,
+      "text": "1.2 Scope"
+    },
+    {
+      "level": 2,
+      "text": "2 Personal protective equipment"
+    },
+    {
+      "level": 3,
+      "text": "2.1 Required equipment"
+    },
+    {
+      "level": 3,
+      "text": "2.2 Care of equipment"
+    },
+    {
+      "level": 2,
+      "text": "3 Chemical handling"
+    },
+    {
+      "level": 3,
+      "text": "3.1 Storage"
+    },
+    {
+      "level": 3,
+      "text": "3.2 Spills"
+    },
+    {
+      "level": 3,
+      "text": "3.3 Waste"
+    },
+    {
+      "level": 2,
+      "text": "4 Emergencies"
+    },
+    {
+      "level": 3,
+      "text": "4.1 Contacts"
+    },
+    {
+      "level": 3,
+      "text": "4.2 Evacuation"
+    },
+    {
+      "level": 2,
+      "text": "5 Document control"
+    }
+  ],
+  "key_sentences": [
+    "This handbook sets out the rules that keep everyone safe in the institute’s laboratories.",
+    "It applies to staff, students and visitors from the moment they enter a laboratory.",
+    "Never work alone in a laboratory after 18:00.",
+    "The table shows which equipment is required for each type of task.",
+    "Chemicals are stored by hazard class and never alphabetically.",
+    "Flammable liquids belong in the ventilated cabinet next to the door.",
+    "When the alarm sounds, leave the laboratory immediately and close the door behind you.",
+    "Do not use the lifts, and do not return until the safety officer allows it.",
+    "This handbook is reviewed every year by the safety committee.",
+    "Printed copies are not controlled; the current version is on the intranet."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Task",
+          "Lab coat",
+          "Gloves",
+          "Goggles",
+          "Face shield"
+        ],
+        [
+          "Weighing solids",
+          "Required",
+          "Required",
+          "Optional",
+          "—"
+        ],
+        [
+          "Handling acids and bases",
+          "Required",
+          "Required",
+          "Required",
+          "Optional"
+        ],
+        [
+          "Working with solvents",
+          "Required",
+          "Required",
+          "Required",
+          "—"
+        ],
+        [
+          "Using the autoclave",
+          "Required",
+          "Heat-resistant",
+          "Required",
+          "Required"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Waste stream",
+          "Container",
+          "Examples"
+        ],
+        [
+          "Halogenated solvents",
+          "Red can with vent cap",
+          "Chloroform, dichloromethane"
+        ],
+        [
+          "Other organic solvents",
+          "Blue can",
+          "Ethanol, acetone, hexane"
+        ],
+        [
+          "Sharps",
+          "Yellow puncture-proof box",
+          "Needles, broken glass"
+        ],
+        [
+          "Aqueous solutions",
+          "White canister",
+          "Buffers, dilute acids and bases"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Fire and ambulance",
+          "112"
+        ],
+        [
+          "Institute security (24 hours)",
+          "ext. 5000"
+        ],
+        [
+          "Safety officer",
+          "ext. 5120"
+        ],
+        [
+          "Poison information",
+          "0800 555 0199"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Edition",
+          "Date",
+          "Change"
+        ],
+        [
+          "1st",
+          "March 2023",
+          "First issue"
+        ],
+        [
+          "2nd",
+          "September 2026",
+          "New waste streams, updated contacts"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Personal protective equipment"
+    },
+    {
+      "level": 0,
+      "text": "Handling, storage and disposal of chemicals"
+    },
+    {
+      "level": 0,
+      "text": "Emergency procedures and first aid"
+    },
+    {
+      "level": 0,
+      "text": "Check the equipment before use"
+    },
+    {
+      "level": 1,
+      "text": "look for cracks, holes and stains"
+    },
+    {
+      "level": 1,
+      "text": "check that goggles seal against the face"
+    },
+    {
+      "level": 0,
+      "text": "Store coats and goggles outside the laboratory"
+    },
+    {
+      "level": 0,
+      "text": "Report damaged equipment to the safety officer"
+    },
+    {
+      "level": 0,
+      "text": "Warn the people around you and stop the work"
+    },
+    {
+      "level": 0,
+      "text": "Put on gloves and goggles, then"
+    },
+    {
+      "level": 1,
+      "text": "cover the spill with absorbent material"
+    },
+    {
+      "level": 1,
+      "text": "sweep the material into a labelled bag"
+    },
+    {
+      "level": 0,
+      "text": "Wash the area with water and soap"
+    }
+  ],
+  "furniture": [
+    "– 1 –",
+    "Marlow Research Institute Laboratory Safety Handbook, 2nd edition",
+    "– 2 –",
+    "– 3 –"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Headings carry typed decimal numbers ('1 Introduction', '1.1 Purpose'), included in the heading text; levels: title 1, numbered sections 2, numbered sub-sections 3. The warning boxes are body text (one key sentence each). Bulleted lists are drawn by CSS squares; the two numbered lists (storage rules, spill steps) are numbered by CSS (decimal, with lower-alpha beneath) so NO marker is typed. The 'protective equipment' table has centred cells; the waste table has cells of several lines (<br>) given with their lines joined by one space, top-aligned. The running header (page 2 and 3, listed once) and the footers '– 1 –', '– 2 –', '– 3 –' (en dashes) are furniture; page 1 carries the footer only. key_sentences is a SELECTION (evenly spaced, in reading order) of the sentences of the body text, not all of them. key_sentences is a SELECTION (evenly spaced, in reading order) of the sentences of the body text, not all of them."
+}

@@ -1,0 +1,165 @@
+{
+  "id": "s06",
+  "difficulty": "Japanese meeting minutes: circled-number and full-width parenthesised markers, borderless agenda table, boxed key/value panel, rules-only table",
+  "pages": 2,
+  "title": "第12回 町内会定例会 議事録",
+  "headings": [
+    {
+      "level": 1,
+      "text": "第12回 町内会定例会 議事録"
+    },
+    {
+      "level": 2,
+      "text": "議題"
+    },
+    {
+      "level": 2,
+      "text": "決定事項"
+    },
+    {
+      "level": 2,
+      "text": "報告事項"
+    },
+    {
+      "level": 2,
+      "text": "防災訓練の概要"
+    },
+    {
+      "level": 2,
+      "text": "次回の予定"
+    }
+  ],
+  "key_sentences": [
+    "議事は滞りなく進行し、すべての議案が出席者の賛成多数で可決された。",
+    "会計より、今年度上半期の収支について報告があり、出席者全員が了承した。",
+    "防災係より、避難経路の点検結果について報告があった。",
+    "冒頭の発言では、子ども会から夏祭りの手伝いをしたいという申し出があった。"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "日時",
+          "2026年6月14日（日）午前10時〜11時30分"
+        ],
+        [
+          "場所",
+          "桜ヶ丘集会所 2階"
+        ],
+        [
+          "出席者",
+          "役員8名、会員22名"
+        ],
+        [
+          "記録",
+          "書記"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "時間",
+          "議題",
+          "担当"
+        ],
+        [
+          "10:00",
+          "開会・前回議事録の確認",
+          "会長"
+        ],
+        [
+          "10:15",
+          "上半期の収支報告",
+          "会計"
+        ],
+        [
+          "10:35",
+          "夏祭りの開催について",
+          "会長"
+        ],
+        [
+          "10:55",
+          "防災訓練の実施計画",
+          "防災係"
+        ],
+        [
+          "11:15",
+          "その他・閉会",
+          "会長"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "項目",
+          "内容",
+          "備考"
+        ],
+        [
+          "日程",
+          "9月20日（日）午前9時",
+          "雨天時は集会所内で実施"
+        ],
+        [
+          "内容",
+          "避難訓練・消火器の使い方・非常食の試食",
+          "消防署の協力を依頼中"
+        ],
+        [
+          "参加費",
+          "無料",
+          "事前申し込み不要"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "① 夏祭りは8月23日（土）に開催することを承認した。"
+    },
+    {
+      "level": 1,
+      "text": "（１） 会場は桜ヶ丘公園とする。"
+    },
+    {
+      "level": 1,
+      "text": "（２） 屋台の出店者は6月末までに募集する。"
+    },
+    {
+      "level": 0,
+      "text": "② 防災訓練を9月に実施する。"
+    },
+    {
+      "level": 0,
+      "text": "③ 会費の値上げは見送り、次回の総会で再度検討する。"
+    },
+    {
+      "level": 0,
+      "text": "・ 日時：2026年9月13日（日）午前10時"
+    },
+    {
+      "level": 0,
+      "text": "・ 場所：桜ヶ丘集会所 2階"
+    },
+    {
+      "level": 0,
+      "text": "・ 議題：防災訓練の結果報告、来年度予算案"
+    }
+  ],
+  "furniture": [
+    "桜ヶ丘町内会",
+    "- 1 -",
+    "- 2 -"
+  ],
+  "languages": [
+    "ja"
+  ],
+  "code": [],
+  "notes": "No spaces between words; a wrapped line joins with NO space. The letterhead line and the footer page number ('- 1 -') are furniture; the running header of page 2 is listed once. The first table is a boxed key/value panel (no header row). The agenda table has no lines at all. List markers are TYPED: circled digits (① ② ③) at level 0 and full-width parenthesised digits (（１）) at level 1, set apart by a hanging indent; the 'next meeting' list uses typed '・' bullets. Full-width digits and punctuation are kept as written."
+}

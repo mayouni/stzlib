@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Invoice INV-2026-0417</title>
+<style>
+
+@page { size: A4; margin: 0 }
+* { box-sizing: border-box }
+html, body { margin: 0; padding: 0 }
+.pg { position: relative; width: 210mm; height: 296.4mm; overflow: hidden; break-after: page; page-break-after: always }
+.pg:last-child { break-after: auto; page-break-after: auto }
+.ft { position: absolute; left: 20mm; right: 20mm; bottom: 10mm; display: flex; justify-content: space-between }
+.hd { position: absolute; left: 20mm; right: 20mm; top: 9mm; display: flex; justify-content: space-between }
+table { border-collapse: collapse }
+p { margin: 0 0 0.6em }
+
+.pg { padding: 16mm 20mm; font-family: Calibri, sans-serif; font-size: 11pt; color: #1b2a2f }
+.lh1 { font-size: 20pt; font-weight: bold; color: #0b6e6e; letter-spacing: 0.5px }
+.lh2 { font-size: 9pt; color: #55666b; border-bottom: 2px solid #0b6e6e; padding-bottom: 6px; margin-bottom: 14px; display: block }
+h1 { font-size: 22pt; margin: 6px 0 10px; color: #0b6e6e }
+h2 { font-size: 13pt; margin: 14px 0 6px; color: #0b6e6e }
+.two { display: flex; gap: 16px; margin: 8px 0 }
+.box { flex: 1; border: 1px solid #9bb; padding: 8px 10px; border-radius: 4px; background: #f3f9f9; font-size: 10.5pt }
+.box b { display: block; color: #0b6e6e; margin-bottom: 3px }
+table.kv td { padding: 2px 14px 2px 0; font-size: 10.5pt } table.kv td:first-child { color: #55666b; width: 120px }
+table.items { width: 100%; font-size: 10.5pt; margin-top: 4px }
+table.items th { background: #0b6e6e; color: #fff; text-align: left; padding: 5px 8px }
+table.items td { padding: 4px 8px }
+table.items tr:nth-child(even) td { background: #eef6f6 }
+table.items td.sec { font-weight: bold; background: #d6e9e9 !important; color: #0b4e4e }
+table.items td.num, table.items th.num { text-align: right }
+table.items td.tot { text-align: right; font-weight: bold; border-top: 1px solid #0b6e6e }
+.bl { list-style: none; padding: 0; margin: 4px 0 8px }
+.bl li { position: relative; padding-left: 1.3em; margin: 2px 0 }
+.bl li::before { content: ""; position: absolute; left: 0.35em; top: 0.5em; width: 0.38em; height: 0.38em; background: #0b6e6e; border-radius: 50% }
+.ft { font-size: 9pt; color: #55666b; border-top: 1px solid #9bb; padding-top: 4px }
+
+</style>
+</head>
+<body>
+<div class="pg">
+<div class="lh1"><span>Harbourline Supplies Ltd.</span></div>
+<div class="lh2"><span>14 Quayside Road, Brightmouth BM4 2QT &middot; +44 20 5550 0142 &middot; accounts@harbourline.example</span></div>
+<h1>Invoice INV-2026-0417</h1>
+<table class="kv"><tr><td>Invoice date</td><td>12 March 2026</td></tr><tr><td>Due date</td><td>11 April 2026</td></tr><tr><td>Customer reference</td><td>PO-88213</td></tr><tr><td>Currency</td><td>Pound sterling (GBP)</td></tr></table>
+<div class="two">
+<div class="box"><b>Bill to</b>Northgate Community Bakery<br>7 Mill Lane<br>Brightmouth BM1 9AA</div>
+<div class="box"><b>Ship to</b>Northgate Community Bakery, Depot<br>Unit 3, Canal Works<br>Brightmouth BM2 3DL</div>
+</div>
+<h2>Items supplied</h2>
+<table class="items"><thead><tr><th>Code</th><th>Description</th><th class="num">Qty</th><th class="num">Unit price</th><th class="num">Amount</th></tr></thead><tbody><tr><td colspan="5" class="sec">Dry goods</td></tr><tr><td>FL-001</td><td>Strong white flour, 16 kg sack</td><td class="num">12</td><td class="num">14.50</td><td class="num">174.00</td></tr><tr><td>SG-014</td><td>Caster sugar, 25 kg sack</td><td class="num">4</td><td class="num">31.20</td><td class="num">124.80</td></tr><tr><td>YE-003</td><td>Fresh yeast, 500 g block</td><td class="num">20</td><td class="num">2.35</td><td class="num">47.00</td></tr><tr><td colspan="5" class="sec">Packaging</td></tr><tr><td>BX-210</td><td>Cake box, 10 in, pack of 50</td><td class="num">6</td><td class="num">18.90</td><td class="num">113.40</td></tr><tr><td>PB-007</td><td>Kraft paper bags, pack of 500</td><td class="num">3</td><td class="num">22.00</td><td class="num">66.00</td></tr><tr><td colspan="4" class="tot">Subtotal</td><td class="tot">525.20</td></tr><tr><td colspan="4" class="tot">VAT at 20%</td><td class="tot">105.04</td></tr><tr><td colspan="4" class="tot">Total due</td><td class="tot">630.24</td></tr></tbody></table>
+<h2>Payment terms</h2>
+<p>Payment is due within 30 days of the invoice date. Overdue balances carry interest at 4% above the base rate until they are settled. Please quote the invoice number with every transfer.</p>
+<table class="kv"><tr><td>Account name</td><td>Harbourline Supplies Ltd.</td></tr><tr><td>Sort code</td><td>00-00-00</td></tr><tr><td>Account number</td><td>00000000</td></tr></table>
+<h2>Delivery notes</h2>
+<ul class="bl">
+<li>Deliveries are made every Tuesday and Friday before noon.</li>
+<li>Damaged goods must be reported within 48 hours of receipt.</li>
+<li>Returns are accepted only with a credit note number.</li>
+</ul>
+<p>Goods remain the property of the supplier until the invoice has been paid in full.</p>
+<div class="ft"><span>Harbourline Supplies Ltd. &ndash; thank you for your custom</span><span>Page 1 of 1</span></div>
+</div>
+</body>
+</html>

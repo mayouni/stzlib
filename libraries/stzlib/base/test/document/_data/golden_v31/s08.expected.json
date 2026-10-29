@@ -1,0 +1,145 @@
+{
+  "id": "s08",
+  "difficulty": "Hindi admission circular: Devanagari numerals and letters as typed list markers, CSS-numbered list, two-level table header with centred cells, boxes side by side",
+  "pages": 2,
+  "title": "कक्षा १ से ८ में प्रवेश की सूचना",
+  "headings": [
+    {
+      "level": 1,
+      "text": "कक्षा १ से ८ में प्रवेश की सूचना"
+    },
+    {
+      "level": 2,
+      "text": "उपलब्ध सीटें और शुल्क"
+    },
+    {
+      "level": 2,
+      "text": "प्रवेश की पात्रता"
+    },
+    {
+      "level": 2,
+      "text": "प्रवेश की प्रक्रिया"
+    },
+    {
+      "level": 2,
+      "text": "महत्वपूर्ण तिथियाँ"
+    }
+  ],
+  "key_sentences": [
+    "सूर्योदय बाल विद्यालय में शैक्षणिक सत्र २०२७–२८ के लिए कक्षा १ से ८ तक में प्रवेश प्रारंभ हो गए हैं।",
+    "आवेदन पत्र १ दिसंबर से २० जनवरी तक विद्यालय कार्यालय में उपलब्ध रहेंगे।",
+    "प्रवेश परीक्षा में अंग्रेज़ी, गणित और हिंदी के सरल प्रश्न पूछे जाएंगे।",
+    "परीक्षा का उद्देश्य बच्चों की समझ का आकलन करना है, किसी को रोकना नहीं।"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "कक्षा",
+          "सीटें",
+          "शुल्क (रुपये)",
+          "शुल्क (रुपये)"
+        ],
+        [
+          "कक्षा",
+          "सीटें",
+          "मासिक",
+          "प्रवेश"
+        ],
+        [
+          "कक्षा १–३",
+          "४०",
+          "८५०",
+          "३,०००"
+        ],
+        [
+          "कक्षा ४–५",
+          "३० प्रति कक्षा",
+          "१,०००",
+          "३,०००"
+        ],
+        [
+          "कक्षा ६–८",
+          "२५ प्रति कक्षा",
+          "१,२५०",
+          "४,५००"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "आवेदन प्रारंभ",
+          "१ दिसंबर २०२६"
+        ],
+        [
+          "अंतिम तिथि",
+          "२० जनवरी २०२७"
+        ],
+        [
+          "प्रवेश परीक्षा",
+          "६ फ़रवरी २०२७"
+        ],
+        [
+          "परिणाम",
+          "१५ फ़रवरी २०२७"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "क. कक्षा १ के लिए बच्चे की आयु ३१ मार्च तक छह वर्ष पूर्ण होनी चाहिए।"
+    },
+    {
+      "level": 0,
+      "text": "ख. उच्च कक्षाओं के लिए पिछली कक्षा की अंकतालिका आवश्यक है।"
+    },
+    {
+      "level": 0,
+      "text": "ग. आवेदन के साथ निम्नलिखित दस्तावेज़ जमा करें:"
+    },
+    {
+      "level": 1,
+      "text": "१. जन्म प्रमाण पत्र"
+    },
+    {
+      "level": 1,
+      "text": "२. निवास प्रमाण"
+    },
+    {
+      "level": 1,
+      "text": "३. पासपोर्ट आकार के दो फ़ोटो"
+    },
+    {
+      "level": 0,
+      "text": "आवेदन पत्र विद्यालय कार्यालय से लें और सभी खाने सावधानी से भरें।"
+    },
+    {
+      "level": 0,
+      "text": "आवेदन पत्र के साथ सभी दस्तावेज़ अंतिम तिथि तक जमा करें।"
+    },
+    {
+      "level": 0,
+      "text": "प्रवेश परीक्षा में उपस्थित हों।"
+    },
+    {
+      "level": 0,
+      "text": "परिणाम घोषित होने पर शुल्क जमा करके प्रवेश सुनिश्चित करें।"
+    }
+  ],
+  "furniture": [
+    "सूर्योदय बाल विद्यालय",
+    "गांधी मार्ग, नई बस्ती — फोन: 0000-555-0142",
+    "पृष्ठ १ / २",
+    "पृष्ठ २ / २"
+  ],
+  "languages": [
+    "hi"
+  ],
+  "code": [],
+  "notes": "Letterhead band (name) and address line, plus footers 'पृष्ठ १ / २' and 'पृष्ठ २ / २', are furniture. The fee table has a two-level header: 'कक्षा' and 'सीटें' span two rows, 'शुल्क (रुपये)' spans two columns (text repeated in each grid cell). Typed markers: level 0 Devanagari letters with a full stop (क. ख. ग.), level 1 Devanagari digits (१. २. ३.). The admission steps on page 2 are numbered by CSS (list-style devanagari), so no marker is typed. Two boxes (contact, documents) sit side by side; reading order is box by box (left box first)."
+}

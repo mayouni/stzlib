@@ -1,0 +1,135 @@
+{
+  "id": "s19",
+  "difficulty": "Committee minutes: (a)/(i) nested typed markers, 1.1 numbering, two attendance boxes side by side, action table with centred and top-aligned multi-line cells",
+  "pages": 1,
+  "title": "Minutes of the Committee Meeting, 8 October 2026",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Minutes of the Committee Meeting, 8 October 2026"
+    },
+    {
+      "level": 3,
+      "text": "Present"
+    },
+    {
+      "level": 3,
+      "text": "Apologies"
+    },
+    {
+      "level": 2,
+      "text": "Matters arising"
+    },
+    {
+      "level": 2,
+      "text": "Treasurer’s report"
+    },
+    {
+      "level": 2,
+      "text": "Actions"
+    }
+  ],
+  "key_sentences": [
+    "The meeting opened at 7.30 pm and the chair welcomed the new members.",
+    "The minutes of the September meeting were approved without changes.",
+    "The treasurer reported a balance of £2,140 and no unpaid invoices.",
+    "Rents for the next year will stay at the current level.",
+    "The meeting closed at 9.05 pm and the next meeting will be held on 12 November."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Action",
+          "Owner",
+          "Due"
+        ],
+        [
+          "Order the new pump and arrange a fitter",
+          "Water officer",
+          "30 October"
+        ],
+        [
+          "Replace the two taps in the lower field",
+          "Two plot representatives",
+          "15 November"
+        ],
+        [
+          "Post the bonfire notice and update the website",
+          "Secretary",
+          "12 October"
+        ],
+        [
+          "Write to the households at the top of the waiting list",
+          "Chair",
+          "31 October"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Chair"
+    },
+    {
+      "level": 0,
+      "text": "Treasurer"
+    },
+    {
+      "level": 0,
+      "text": "Secretary"
+    },
+    {
+      "level": 0,
+      "text": "Two plot representatives"
+    },
+    {
+      "level": 0,
+      "text": "Vice chair"
+    },
+    {
+      "level": 0,
+      "text": "Water officer"
+    },
+    {
+      "level": 0,
+      "text": "1.1 Water supply. The committee reviewed the repairs to the main tank and agreed that:"
+    },
+    {
+      "level": 1,
+      "text": "(a) the new pump will be installed before the first frost;"
+    },
+    {
+      "level": 1,
+      "text": "(b) two taps will be replaced in the lower field, namely"
+    },
+    {
+      "level": 2,
+      "text": "(i) the tap by plot 14;"
+    },
+    {
+      "level": 2,
+      "text": "(ii) the tap by the compost bins;"
+    },
+    {
+      "level": 0,
+      "text": "1.2 Waiting list. There are now 23 households waiting for a plot."
+    },
+    {
+      "level": 0,
+      "text": "1.3 Winter rules. The notice about bonfires will be posted on the gate."
+    }
+  ],
+  "furniture": [
+    "Brightmouth Allotment Society",
+    "Registered charity · Meetings held at the Pavilion, Mill Lane",
+    "Brightmouth Allotment Society – Minutes, 8 October 2026"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "The letterhead (two lines) and the footer line are furniture. The two attendance boxes (Present, Apologies) sit side by side and are read box by box, Present first; their lists are drawn by CSS (no marker typed). Typed markers: level 0 '1.1' '1.2' '1.3' (decimal outline numbers set inline), level 1 '(a)' '(b)', level 2 lowercase roman '(i)' '(ii)'. In the action table, cells of the 'Owner' and 'Due' columns are centred both ways while the 'Action' column is top-aligned; a cell with two lines (<br>) is given with its lines joined by one space."
+}
