@@ -2684,7 +2684,10 @@ fn fragments(a: Allocator, pg: Page, page_no: u32, text: []const u8, out: *std.A
                 right = @max(right, g.x + g.w);
                 if (gap > 1.1 * @max(prev.size, g.size)) cut = true;
                 // a producer that writes its spaces leaves no wide gap between two visible glyphs of one phrase
-                if (row_spaces and gap > 0.5 * @max(prev.size, g.size) and !isBlankGlyph(glyphText(text, prev)) and !isBlankGlyph(glyphText(text, g))) cut = true;
+                // (but a CJK title letter-spaced by half an em is one phrase: "采 购 订 单")
+                const cjk_pair = isNoSpaceCp(firstCp(glyphText(text, prev))) and isNoSpaceCp(firstCp(glyphText(text, g)));
+                const lim: f32 = if (cjk_pair) 0.8 else 0.5;
+                if (row_spaces and gap > lim * @max(prev.size, g.size) and !isBlankGlyph(glyphText(text, prev)) and !isBlankGlyph(glyphText(text, g))) cut = true;
             }
             if (!cut) continue;
             try out.append(a, try makeFrag(a, gl, row.items[st..k], text, page_no));
@@ -5548,12 +5551,48 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
             if (b.y0 > 0.3 * h) continue;
             if (title == null or b.size > merged.items[title.?].size) title = k;
         }
+        // (an organisation's name set larger than the title, at the very top, over short lines of figures -- an
+        //  address, a telephone, a registration -- is a letterhead: the next heading down is the title)
+        var letter: ?usize = null;
+        if (title) |ti| {
+            const h = page_list.items[0].height;
+            const top = merged.items[ti];
+            if (top.y1 < 0.12 * h) {
+                var below: ?usize = null;
+                for (merged.items, 0..) |b, k| {
+                    if (b.page != 1 or b.kind != .heading or b.y0 <= top.y1 or b.y0 > 0.3 * h or b.size < 0.75 * top.size) continue;
+                    if (below == null or b.y0 < merged.items[below.?].y0) below = k;
+                }
+                if (below) |bk| {
+                    var figures = false;
+                    for (merged.items) |b| {
+                        if (b.page != 1 or b.kind != .paragraph or b.y0 < top.y1 or b.y1 > merged.items[bk].y0) continue;
+                        var run: usize = 0;
+                        var best: usize = 0;
+                        for (b.text) |c| {
+                            if (c >= '0' and c <= '9') run += 1 else run = 0;
+                            best = @max(best, run);
+                        }
+                        // (a postcode, a telephone or a registration number -- five digits running -- never a date)
+                        if (b.lines <= 3 and best >= 5 and b.y1 < 0.18 * h) figures = true;
+                    }
+                    if (figures) {
+                        letter = ti;
+                        title = bk;
+                    }
+                }
+            }
+        }
         if (title) |ti| {
             const tblk = merged.items[ti];
             const h = page_list.items[0].height;
             for (merged.items, 0..) |*b, k| {
                 if (k == ti or b.page != 1) continue;
-                if (!(b.y1 < tblk.y0 and b.y1 < 0.18 * h and b.size <= tblk.size)) continue;
+                if (letter != null and k == letter.?) {
+                    b.kind = .page_header;
+                    continue;
+                }
+                if (!(b.y1 < tblk.y0 and b.y1 < 0.18 * h and b.size <= @max(tblk.size, if (letter) |l| merged.items[l].size else 0))) continue;
                 // a letterhead holds a logo name (in capitals) and short lines (an address), never a sentence
                 const logo = b.kind == .heading and !hasLower(b.text);
                 // (address lines read together as one block: up to eight words a line, and no sentence's full stop)
