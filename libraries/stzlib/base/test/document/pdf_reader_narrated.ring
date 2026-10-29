@@ -622,6 +622,18 @@ Scenario("Arabic headings set smaller than the body, Arabic dash markers, a long
 	Then("a Demi face is bold: a section title in it is a heading", StzFindFirst("Section 1 — Personal details", "" + @@(StzPdfQ("_data/golden_v25/h15.pdf").Headings())) > 0, 1)
 EndScenario()
 
+# ---- the twenty-sixth round: a browser's synthetic bold, letterhead names, columns from the header (golden_v10, v11, v22, v26)
+
+Scenario("A browser's synthetic bold, short bold letterhead names, and columns read off a header")
+	Then("a heading in a browser's synthetic bold is a heading", StzFindFirst("I. Erlaubnis", "" + @@(StzPdfQ("_data/golden_v26/k03.pdf").Headings())) > 0, 1)
+	o = StzPdfQ("_data/golden_v11/r18.pdf")
+	Then("a variable font drawn as Type3 keeps its weights: its bold heading stays apart", StzFindFirst("Sprawozdanie z meczu 11. kolejki", "" + @@(o.Headings())) > 0, 1)
+	Then("and its regular body is no heading", StzFindFirst("Mecz rozegrano", "" + @@(o.Headings())), 0)
+	Then("a short bold name above the title is letterhead", StzFindFirst("Sahel Learning Partnership", "" + @@(StzPdfQ("_data/golden_v10/q23.pdf").Furniture())) > 0, 1)
+	Then("but a sidebar heading beside the title stays a heading", StzFindFirst("Practical information", "" + @@(StzPdfQ("_data/golden_v22/e10.pdf").Headings())) > 0, 1)
+	Then("a statement whose debit and credit never share a row takes its columns from the header", @@(StzPdfQ("_data/golden_v26/k06.pdf").Tables()[1][2]), @@([ "01/09", "01/09", "RECIBO COMUNIDAD DE PROPIETARIOS C/ Almendros 12 · Septiembre", "85,00", "", "3.327,58" ]))
+EndScenario()
+
 Scenario("A file that is not a readable PDF is refused with the reason")
 	bRaised = 0
 	cWhy = ""
