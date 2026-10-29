@@ -469,6 +469,8 @@ Time for the 24 documents: native 0.1 s, Docling 169 s. The native reader leads 
 
 **Perceived (2026-10-24):** the author looked through every rendered page of golden_v9 to golden_v13 -- the sets whose own authors could not look at them -- and judged them: "they look great". Those five sets are no longer unperceived; the sets before them were generated the same way and are not covered by this look.
 
+**Perceived (2026-10-29):** the author looked at the generated documents of golden_v14 to golden_v22 and judged them: "they are ok". Those nine sets are no longer unperceived.
+
 **Not measured**: Granite-Docling-258M (not downloaded), the GPU, scanned golden pages with an expected text, PDFs from producers other than Chrome (both golden sets are Chrome-made and tagged; the native reader does not read the tags).
 
 ---
