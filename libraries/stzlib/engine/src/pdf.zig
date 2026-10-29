@@ -2981,6 +2981,25 @@ fn makeFrag(a: Allocator, gl: []Glyph, ids_in: []u32, text: []const u8, page_no:
         prev = g;
     }
     var trimmed: []const u8 = trimSpace(buf.items);
+    // a CJK title letter-spaced wide ("御 見 積 書"): single characters of a script without spaces, three or more,
+    // each set apart by one space, are one word
+    {
+        var ok = true;
+        var n: usize = 0;
+        var it_toks = std.mem.splitScalar(u8, trimmed, ' ');
+        while (it_toks.next()) |tok| {
+            n += 1;
+            const cl = std.unicode.utf8ByteSequenceLength(if (tok.len > 0) tok[0] else 0) catch 0;
+            if (tok.len == 0 or cl != tok.len or !isNoSpaceCp(firstCp(tok))) ok = false;
+        }
+        if (ok and n >= 3) {
+            var joined: std.ArrayList(u8) = .empty;
+            for (trimmed) |c| {
+                if (c != ' ') try joined.append(a, c);
+            }
+            trimmed = joined.items;
+        }
+    }
     if (rtl > 0) trimmed = try arabicLogical(a, trimmed);
     return .{
         .page = page_no,
