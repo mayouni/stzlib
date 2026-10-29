@@ -4435,6 +4435,18 @@ fn growTables(a: Allocator, frags: []Frag, tables: *std.ArrayList(TableOut)) !vo
         var pending_section: ?u32 = null;
         var headers: usize = 0;
         var header_bold = false;
+        // (a table drawn as a full grid whose first row is already a header, all bold, takes no header rows from
+        //  above: the key/value panel and the address over an invoice's items grid are not its header)
+        if (t.ruled) {
+            var any = false;
+            var top_bold = true;
+            for (frags) |f| {
+                if (f.table != @as(i32, @intCast(ti)) or f.text.len == 0 or f.y0 > t.y0 + 1.5 * t.size) continue;
+                any = true;
+                if (!f.bold) top_bold = false;
+            }
+            if (any and top_bold) hguard = 6;
+        }
         while (hguard < 6) : (hguard += 1) {
             var band = try bandAbove(a, frags, t.*, edge);
             if (band.len == 0) break;
