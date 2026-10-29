@@ -2711,6 +2711,26 @@ fn fragments(a: Allocator, pg: Page, page_no: u32, text: []const u8, out: *std.A
     for (rows.items) |*row| {
         std.mem.sort(u32, row.items, ByX{ .g = gl }, ByX.lt);
         const row_spaces = page_spaces;
+        // a justified line: four or more word gaps wider than a column cut, all alike, between pieces of real words --
+        // the spaces were stretched, there is no column
+        var justified = false;
+        {
+            var gmin: f32 = 1e9;
+            var gmax: f32 = 0;
+            var ng: usize = 0;
+            var rt: f32 = gl[row.items[0]].x + gl[row.items[0]].w;
+            for (row.items[1..], 1..) |gk, q| {
+                const gap = gl[gk].x - rt;
+                rt = @max(rt, gl[gk].x + gl[gk].w);
+                const em = @max(gl[row.items[q - 1]].size, gl[gk].size);
+                if (gap > 1.1 * em) {
+                    ng += 1;
+                    gmin = @min(gmin, gap / em);
+                    gmax = @max(gmax, gap / em);
+                }
+            }
+            justified = ng >= 4 and gmax <= 1.5 * gmin and gmax < 3.0 and row.items.len >= 4 * (ng + 1) and rt - gl[row.items[0]].x >= 0.7 * pg.width;
+        }
         var st: usize = 0;
         var k: usize = 1;
         var right: f32 = gl[row.items[0]].x + gl[row.items[0]].w;
@@ -2722,12 +2742,27 @@ fn fragments(a: Allocator, pg: Page, page_no: u32, text: []const u8, out: *std.A
                 // (from the furthest right edge so far: a mark drawn inside its letter leaves no gap after it)
                 const gap = g.x - right;
                 right = @max(right, g.x + g.w);
-                if (gap > 1.1 * @max(prev.size, g.size)) cut = true;
+                if (gap > 1.1 * @max(prev.size, g.size) and !justified) cut = true;
                 // a producer that writes its spaces leaves no wide gap between two visible glyphs of one phrase
                 // (but a CJK title letter-spaced by half an em is one phrase: "采 购 订 单")
                 const cjk_pair = isNoSpaceCp(firstCp(glyphText(text, prev))) and isNoSpaceCp(firstCp(glyphText(text, g)));
                 const lim: f32 = if (cjk_pair) 0.8 else 0.5;
+                // a right-to-left item's marker, set apart at the row's right end (digits and a stop or brackets, three
+                // glyphs or fewer): it belongs to the line, whose text it hangs from
+                var marker_tail = false;
+                if (gap > 0.5 * @max(prev.size, g.size) and gap <= 3.5 * @max(prev.size, g.size) and row.items.len - k <= 3 and row.items.len - k >= 2) {
+                    var digit = false;
+                    var punct = false;
+                    var only = true;
+                    for (row.items[k..]) |mk| {
+                        const t0 = glyphText(text, gl[mk]);
+                        const c0 = firstCp(t0);
+                        if (isScriptDigit(c0) or (c0 >= '0' and c0 <= '9')) digit = true else if (c0 == '.' or c0 == ')' or c0 == '(' or c0 == '[' or c0 == ']') punct = true else only = false;
+                    }
+                    if (digit and punct and only and isRtlCp(firstCp(glyphText(text, gl[row.items[k - 1]])))) marker_tail = true;
+                }
                 if (row_spaces and gap > lim * @max(prev.size, g.size) and !isBlankGlyph(glyphText(text, prev)) and !isBlankGlyph(glyphText(text, g))) cut = true;
+                if (marker_tail) cut = false;
             }
             if (!cut) continue;
             try out.append(a, try makeFrag(a, gl, row.items[st..k], text, page_no));
@@ -2987,13 +3022,16 @@ fn makeFrag(a: Allocator, gl: []Glyph, ids_in: []u32, text: []const u8, page_no:
     {
         var ok = true;
         var n: usize = 0;
+        var singles: usize = 0;
         var it_toks = std.mem.splitScalar(u8, trimmed, ' ');
         while (it_toks.next()) |tok| {
             n += 1;
             const cl = std.unicode.utf8ByteSequenceLength(if (tok.len > 0) tok[0] else 0) catch 0;
-            if (tok.len == 0 or cl != tok.len or !isNoSpaceCp(firstCp(tok))) ok = false;
+            if (tok.len > 0 and cl == tok.len) singles += 1;
+            // (a title in large type may keep a word whole among its spaced letters: the spacing is not even)
+            if (tok.len == 0 or !isNoSpaceCp(firstCp(tok)) or (cl != tok.len and !(size >= 18 and trimmed.len <= 30))) ok = false;
         }
-        if (ok and n >= 3) {
+        if (ok and n >= 3 or (ok and n == 2 and singles >= 1 and size >= 18 and trimmed.len <= 30)) {
             var joined: std.ArrayList(u8) = .empty;
             for (trimmed) |c| {
                 if (c != ' ') try joined.append(a, c);
@@ -3304,7 +3342,7 @@ fn findLadderTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.Arr
             if (hs.items[k].x1 - hs.items[k].x0 < 60) _ = hs.orderedRemove(k) else k += 1;
         }
     }
-    if (hs.items.len < 4) return &.{};
+    if (hs.items.len < 3) return &.{};
     const used = try a.alloc(bool, hs.items.len);
     @memset(used, false);
     for (hs.items, 0..) |r0, h0| {
@@ -3328,9 +3366,19 @@ fn findLadderTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.Arr
             try yi.append(a, j);
             used[j] = true;
         }
-        if (ys.items.len < 4) continue;
+        if (ys.items.len < 3) continue;
         const lx0 = r0.x0;
         const lx1 = r0.x1;
+        // (three rules make two rows: a table only under a bold header just above the first -- three or more cells)
+        if (ys.items.len == 3) {
+            var nbold: usize = 0;
+            for (frags) |g| {
+                const cx = (g.x0 + g.x1) / 2;
+                if (g.text.len == 0 or !g.bold or cx < lx0 or cx > lx1 or g.y1 > ys.items[0] + 1 or g.y1 < ys.items[0] - 3 * g.size) continue;
+                nbold += 1;
+            }
+            if (nbold < 3) continue;
+        }
         var msz: f32 = 0;
         // a section row drawn with no rule under it shares its band with the row below: a lone bold label over a
         // line of cells is split from it at the gap between them ("Eritrograma" over "Hemácias 4,21 ...")
@@ -3449,7 +3497,7 @@ fn findLadderTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.Arr
                 }
                 var be = bk;
                 while (be < nb0 and !head[be]) be += 1;
-                if (be - bk >= 3) {
+                if (be - bk >= (if (nb0 == 2) @as(usize, 2) else 3)) {
                     rs = bk;
                     re = be;
                     found = true;
@@ -5534,6 +5582,8 @@ fn otherListMarker(t: []const u8) ?usize {
         if (groups == 1 and i + 1 < t.len and t[i] == '-' and t[i + 1] == ' ') return i + 2;
         if (groups == 1 and i + 3 < t.len and t[i] == '.' and (std.mem.startsWith(u8, t[i + 1 ..], "\u{00AA} ") or std.mem.startsWith(u8, t[i + 1 ..], "\u{00BA} "))) return i + 4;
     }
+    // the Persian "alef" marker, three letters: "الف)"
+    if (std.mem.startsWith(u8, t, "الف) ")) return 9;
     var view = std.unicode.Utf8View.init(t) catch return null;
     var it = view.iterator();
     const c0 = it.nextCodepoint() orelse return null;
@@ -5591,6 +5641,17 @@ fn otherListMarker(t: []const u8) ?usize {
         }
         return null;
     }
+    // a reference number in square brackets, in the digits of another script: "[۱]"
+    if (c0 == '[') {
+        var n: usize = 0;
+        while (it.nextCodepoint()) |cp| {
+            if (cp == ']') break;
+            n += 1;
+            if (!isScriptDigit(cp) or n > 3) return null;
+        } else return null;
+        if (n >= 1 and it.i < t.len and t[it.i] == ' ') return it.i + 1;
+        return null;
+    }
     // a letter of any non-Latin script in brackets
     if (c0 == '(') {
         const l = it.nextCodepoint() orelse return null;
@@ -5603,7 +5664,7 @@ fn otherListMarker(t: []const u8) ?usize {
     }
     // a single non-Latin letter then "." or ")"
     // (Thai consonants, Hangul syllables and kana count too: "ก.", "가.", "ア)")
-    const own_letter = (c0 >= 0x0E01 and c0 <= 0x0E2E) or (c0 >= 0xAC00 and c0 <= 0xD7A3) or (c0 >= 0x3041 and c0 <= 0x30FA) or (c0 >= 0x1200 and c0 <= 0x135A);
+    const own_letter = (c0 >= 0x0E01 and c0 <= 0x0E2E) or (c0 >= 0xAC00 and c0 <= 0xD7A3) or (c0 >= 0x3041 and c0 <= 0x30FA) or (c0 >= 0x1200 and c0 <= 0x135A) or (c0 >= 0x10D0 and c0 <= 0x10FA);
     if (c0 >= 0x0370 and (isLtrCp(c0) or isRtlCp(c0) or own_letter) and !isMarkCp(c0)) {
         const p = it.nextCodepoint() orelse return null;
         // (or a dash, the Arabic convention: "أ-", "ب-")
@@ -6002,6 +6063,10 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
                 if (same_style and below and overlap and !item) {
                     if (b.kind == .list_item) {
                         join = if (list_rtl) f.x1 <= list_x + 0.5 * f.size else f.x0 >= list_x - 0.5 * f.size;
+                        // (a line wrapped flush with the marker -- an item set "inside" -- when the item has not ended
+                        //  and the line goes on in lower case)
+                        if (!join and !list_rtl and f.x0 >= b.x0 - 0.5 * f.size and startsLower(f.text) and cur_text.items.len > 0 and
+                            std.mem.indexOfScalar(u8, ".;:!?", cur_text.items[cur_text.items.len - 1]) == null) join = true;
                     } else join = true;
                 }
             }
@@ -6086,7 +6151,20 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
             const key = try normFurniture(a, b.text);
             const pagesn = if (marg.get(key)) |m| m.count() else 0;
             // (a page number is never set larger than the body: "AquaSense 300" at the top of a page is a title)
-            if (pagesn >= 2 or (isPageNumber(b.text) and (body <= 0 or b.size <= 1.05 * body))) {
+            // (a title repeated as a small running header: the same words at a much smaller size elsewhere make the
+            //  large one the title, not furniture)
+            var title_copy = false;
+            if (pagesn >= 2 and b.bold and b.size >= 1.8 * body) {
+                for (merged.items) |o| {
+                    if (o.size < 0.75 * b.size and o.page != b.page and eq(try normFurniture(a, o.text), key)) title_copy = true;
+                }
+                // (centred on the page: a masthead or a letterhead stands at a side)
+                if (title_copy) {
+                    const pw = page_list.items[b.page - 1].width;
+                    if (@abs((b.x0 + b.x1) / 2 - pw / 2) > 0.06 * pw) title_copy = false;
+                }
+            }
+            if ((pagesn >= 2 and !title_copy) or (isPageNumber(b.text) and (body <= 0 or b.size <= 1.05 * body))) {
                 b.kind = if (top) .page_header else .page_footer;
                 continue;
             }
@@ -6227,8 +6305,10 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
                         if (b.page != 1 or b.kind != .paragraph or b.y0 < top.y1 or b.y1 > merged.items[bk].y0) continue;
                         var run: usize = 0;
                         var best: usize = 0;
-                        for (b.text) |c| {
-                            if (c >= '0' and c <= '9') run += 1 else run = 0;
+                        var dv = std.unicode.Utf8View.init(b.text) catch continue;
+                        var dit = dv.iterator();
+                        while (dit.nextCodepoint()) |c| {
+                            if ((c >= '0' and c <= '9') or isScriptDigit(c)) run += 1 else run = 0;
                             best = @max(best, run);
                         }
                         // (a postcode, a telephone or a registration number -- five digits running -- never a date)

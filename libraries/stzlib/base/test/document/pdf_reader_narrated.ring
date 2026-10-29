@@ -675,6 +675,24 @@ Scenario("Ethiopic and Chinese list markers, and a two-line bold title")
 	Then("a bold title of two lines, larger than the body, is a heading", StzFindFirst("АКТ № 47", "" + @@(StzPdfQ("_data/golden_v29/p10.pdf").Headings())) > 0, 1)
 EndScenario()
 
+# ---- the thirtieth round: right-to-left markers, flush-wrapped items, a three-rule table, justified lines (golden_v30)
+
+Scenario("Markers set apart at the right, items wrapped flush with their marker, and a table of two ruled rows")
+	Then("a right-to-left item's digit and stop, set apart from its text, head the item", StzFindFirst("١. تعبئة نموذج طلب الإجازة", "" + @@(StzPdfQ("_data/golden_v30/r05.pdf").ListItems())) > 0, 1)
+	Then("and a bracketed reference number in Persian digits is a marker", StzFindFirst("[۲] آمار توصیفی با نرم", "" + @@(StzPdfQ("_data/golden_v30/r14.pdf").ListItems())) > 0, 1)
+	Then("a Latin number and a bracket on a Hebrew line is a nested marker", StzFindFirst("1) בדיקה חודשית", "" + @@(StzPdfQ("_data/golden_v30/r06.pdf").ListItems())) > 0, 1)
+	Then("a Georgian letter and a stop is a list marker", StzFindFirst("ბ. მონაწილეობა უფასოა.", "" + @@(StzPdfQ("_data/golden_v30/r16.pdf").ListItems())) > 0, 1)
+	Then("a line wrapped flush with its marker joins the item while the item goes on", StzFindFirst("а) запрашивать у подразделений информацию, необходимую для организации закупок;", "" + @@(StzPdfQ("_data/golden_v30/r10.pdf").ListItems())) > 0, 1)
+	aT = StzPdfQ("_data/golden_v30/r04.pdf").Tables()
+	Then("a table of a header and two ruled rows joins the rows of its next page", len(aT[1]), 5)
+	Then("and keeps the header once", aT[1][1][1], "Concepto")
+	o = StzPdfQ("_data/golden_v30/r10.pdf")
+	o = StzPdfQ("_data/golden_v30/r10.pdf")
+	Then("a justified line, its words far apart, stays one line of its paragraph: the last sentence is whole", StzFindFirst("За ненадлежащее исполнение обязанностей он отвечает в порядке, установленном трудовым законодательством.", "" + @@(o.Paragraphs())) > 0, 1)
+	Then("a title repeated as a small running header is still the title", StzFindFirst("智能温控器 TH-200 使用说明书", "" + @@(StzPdfQ("_data/golden_v30/r08.pdf").Headings())) > 0, 1)
+	Then("a title letter-spaced with uneven gaps is one word", StzFindFirst("御見積書", "" + @@(StzPdfQ("_data/golden_v30/r07.pdf").Headings())) > 0, 1)
+EndScenario()
+
 Scenario("A file that is not a readable PDF is refused with the reason")
 	bRaised = 0
 	cWhy = ""

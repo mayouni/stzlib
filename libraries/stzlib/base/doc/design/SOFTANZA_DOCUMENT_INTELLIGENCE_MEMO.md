@@ -611,6 +611,19 @@ golden_v30: 24 realistic documents in 19 languages (English in six; Arabic, Hebr
 Time for the 24 documents: native 0.06 s, Docling 90 s. The native reader leads on six measures and on heading precision; furniture is level (0.892 against 0.893). Where Docling does better, document by document: tables on two (r04 0.20 against 0.60; r16 0.72 against 0.93), lists on three (r10 0.46 against 0.69; r14 0.12 against 0.25; r16 0.40 against 0.60), furniture on four (r05, r13, r20, r22), text on three (r08, r10, r22). Causes not yet looked into: round 30.
 
 
+**Thirtieth round: right-to-left markers, flush-wrapped items, three-rule tables, justified lines; then golden_v31.** Fixed on golden_v30 (now a development set) and checked on all thirty sets:
+- a right-to-left item's marker (digits and a stop, or brackets, three glyphs or fewer) set apart at the row's right end is part of the line, so "١." and "[۲]" head their items, nested levels with them; Persian reference numbers in square brackets and the three-letter marker "الف)" are markers;
+- a line wrapped flush with its marker (an item set "inside") joins the item while the item has not ended and the line goes on in lower case;
+- Georgian letters are list markers; a justified line, four or more equal word gaps wider than a column cut between real words and the line spanning 0.7 of the page, is one line, not a row of columns (a narrower row cannot be told from columns by its gaps: a three-column newsletter's gutter is 1.2 em);
+- a table of a bold header and two ruled rows (three rules) is a ladder, and joins the next page's rows; an organisation's letterhead is found by five digits in any script;
+- a title repeated as a small running header on the other pages, set bold, centred and 1.8 times the body, stays a title (a masthead at a side, or in the page's header band, stays furniture: four sets lost furniture before the rule was narrowed); a letter-spaced CJK title keeps its spacing even when one word stays whole.
+
+Not fixed, and why: r22's sidebar label sits between two lines of the paragraph beside it (the reading order interleaves them); r20's menu rows carry a smaller description line under each dish (a different size breaks the run); r16's key/value panel has rows far apart because its values wrap. The measure cannot count r13, r15, r12 and r01 furniture (the organisation's name is inside a body sentence), and r08's title is also its running header (counted as furniture or as heading, never both).
+
+On the development sets, against round 29 frozen: lists v30 0.85 -> 0.98, v29 0.95 -> 0.98, v14 0.81 -> 0.87, v26 0.79 -> 0.83, v27 0.87 -> 0.90, v25 0.83 -> 0.87, v28 0.90 -> 0.92; tables v30 0.94 -> 0.97, v6 0.74 -> 0.76; text v30 0.96 -> 0.99; headings v30 0.98 -> 1.00; furniture v18 0.92 -> 0.95; heading precision v30 0.878 -> 0.895. No set lost on any measure. Guard 256 assertions under Ring++.
+
+golden_v31: DLV31
+
 **Perceived (2026-10-24):** the author looked through every rendered page of golden_v9 to golden_v13 -- the sets whose own authors could not look at them -- and judged them: "they look great". Those five sets are no longer unperceived; the sets before them were generated the same way and are not covered by this look.
 
 **Perceived (2026-10-29):** the author looked at the generated documents of golden_v14 to golden_v22 and judged them: "they are ok". Those nine sets are no longer unperceived.
