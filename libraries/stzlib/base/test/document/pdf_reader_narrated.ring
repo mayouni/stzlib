@@ -610,6 +610,18 @@ Scenario("Floated tables beside narrow paragraphs, cells spanning two rows, and 
 	Then("an invoice item with its description on a second line is one row", @@(StzPdfQ("_data/golden_v24/g01.pdf").Tables()[1][2]), @@([ "1", "Perfect-bound annual report 64 pp, 170 gsm silk cover", "750", "£4.12", "£3,090.00" ]))
 EndScenario()
 
+# ---- the twenty-fifth round: Arabic headings and markers, foot lines, Demi faces (golden_v19, v25)
+
+Scenario("Arabic headings set smaller than the body, Arabic dash markers, a long foot line, a Demi face")
+	o = StzPdfQ("_data/golden_v25/h04.pdf")
+	Then("a bold Arabic line at 0.85 of the body is a heading", StzFindFirst("أولا: الإجازة السنوية", "" + @@(o.Headings())) > 0, 1)
+	Then("a letter and a dash is an Arabic list marker", StzFindFirst("أ- يستحق الموظف", "" + @@(o.ListItems())) > 0, 1)
+	Then("a table's caption numbered in Arabic-Indic digits is a caption, not a heading", StzFindFirst("جدول (١)", "" + @@(o.Headings())), 0)
+	Then("but a Hebrew month label is no heading", StzFindFirst("ינואר", "" + @@(StzPdfQ("_data/golden_v19/b10.pdf").Headings())), 0)
+	Then("one small line at the page foot is its footer however long", StzFindFirst("Programme subject to change", "" + @@(StzPdfQ("_data/golden_v25/h17.pdf").Furniture())) > 0, 1)
+	Then("a Demi face is bold: a section title in it is a heading", StzFindFirst("Section 1 — Personal details", "" + @@(StzPdfQ("_data/golden_v25/h15.pdf").Headings())) > 0, 1)
+EndScenario()
+
 Scenario("A file that is not a readable PDF is refused with the reason")
 	bRaised = 0
 	cWhy = ""
