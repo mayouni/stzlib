@@ -5706,7 +5706,9 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
                             best = @max(best, run);
                         }
                         // (a postcode, a telephone or a registration number -- five digits running -- never a date)
-                        if (b.lines <= 3 and best >= 5 and b.y1 < 0.18 * h) figures = true;
+                        // (or an e-mail or web address: a telephone is often written in groups, "0510-2440 718")
+                        const contact = std.mem.indexOfScalar(u8, b.text, '@') != null or std.mem.indexOf(u8, b.text, "www.") != null;
+                        if (b.lines <= 3 and (best >= 5 or contact) and b.y1 < 0.18 * h) figures = true;
                     }
                     if (figures) {
                         letter = ti;
@@ -5724,7 +5726,9 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
                     b.kind = .page_header;
                     continue;
                 }
-                if (!(b.y1 < tblk.y0 and b.y1 < 0.18 * h and b.size <= @max(tblk.size, if (letter) |l| merged.items[l].size else 0))) continue;
+                // (above the title, or beside it in the top band: a company's block left, the title right)
+                const beside = (b.x1 < tblk.x0 or b.x0 > tblk.x1) and b.y0 < tblk.y1 and b.size < tblk.size;
+                if (!((b.y1 < tblk.y0 or beside) and b.y1 < 0.18 * h and b.size <= @max(tblk.size, if (letter) |l| merged.items[l].size else 0))) continue;
                 // a letterhead holds a logo name (in capitals) and short lines (an address), never a sentence
                 const logo = b.kind == .heading and !hasLower(b.text);
                 // (address lines read together as one block: up to eight words a line, and no sentence's full stop)
