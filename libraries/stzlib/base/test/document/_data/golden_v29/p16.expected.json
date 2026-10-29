@@ -1,0 +1,173 @@
+{
+  "id": "p16",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "KONUT KİRA SÖZLEŞMESİ",
+  "headings": [
+    {
+      "level": 1,
+      "text": "KONUT KİRA SÖZLEŞMESİ"
+    },
+    {
+      "level": 2,
+      "text": "GENEL KOŞULLAR"
+    },
+    {
+      "level": 3,
+      "text": "Madde 1 – Sözleşmenin konusu"
+    },
+    {
+      "level": 3,
+      "text": "Madde 2 – Kira bedelinin ödenmesi"
+    },
+    {
+      "level": 3,
+      "text": "Madde 3 – Kullanım amacı"
+    },
+    {
+      "level": 3,
+      "text": "Madde 4 – Kiracının yükümlülükleri"
+    },
+    {
+      "level": 3,
+      "text": "Madde 5 – Kiraya verenin yükümlülükleri"
+    },
+    {
+      "level": 3,
+      "text": "Madde 6 – Depozito"
+    },
+    {
+      "level": 3,
+      "text": "Madde 7 – Demirbaşlar"
+    },
+    {
+      "level": 3,
+      "text": "Madde 8 – Kira artışı"
+    },
+    {
+      "level": 3,
+      "text": "Madde 9 – Son hükümler"
+    }
+  ],
+  "key_sentences": [
+    "Bu sözleşme, yukarıda adresi yazılı konutun kiraya verilmesine ilişkin koşulları düzenler.",
+    "Kiracı, kira bedelini her ayın beşinci gününe kadar kiraya verenin banka hesabına yatırmakla yükümlüdür.",
+    "Kiralanan, yalnızca konut olarak kullanılabilir.",
+    "Depozito, sözleşmenin sona ermesinden sonra kiralananın hasarsız teslim edilmesi hâlinde iade edilir.",
+    "Bu sözleşme iki nüsha olarak düzenlenmiş ve taraflarca okunarak imzalanmıştır."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Kiraya veren",
+          "Nermin Aksoylu, T.C. Kimlik No: 2xx xxx xx 418"
+        ],
+        [
+          "Kiracı",
+          "Barış Erkılıç, T.C. Kimlik No: 3xx xxx xx 207"
+        ],
+        [
+          "Kiralananın adresi",
+          "Gülbahar Mahallesi, Ilgaz Sokak No: 14 Daire: 6, Karşıyaka / İzmir"
+        ],
+        [
+          "Kiralananın cinsi",
+          "Konut (3+1, 115 m²)"
+        ],
+        [
+          "Aylık kira bedeli",
+          "18.500 TL (on sekiz bin beş yüz Türk lirası)"
+        ],
+        [
+          "Depozito",
+          "37.000 TL"
+        ],
+        [
+          "Kira başlangıç tarihi",
+          "1 Kasım 2026"
+        ],
+        [
+          "Kira süresi",
+          "Bir (1) yıl"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Demirbaş",
+          "Adet",
+          "Durumu"
+        ],
+        [
+          "Ankastre fırın ve ocak",
+          "1",
+          "Çalışır, temiz"
+        ],
+        [
+          "Kombi (yoğuşmalı)",
+          "1",
+          "Ekim 2026 bakımı yapıldı"
+        ],
+        [
+          "Mutfak dolapları",
+          "1 takım",
+          "Bir kapak menteşesi gevşek"
+        ],
+        [
+          "Klima (salon)",
+          "1",
+          "Çalışır"
+        ],
+        [
+          "Perde rayı",
+          "5",
+          "Sağlam"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "a) kiralananı özenle kullanmak ve komşulara saygı göstermek,"
+    },
+    {
+      "level": 0,
+      "text": "b) apartman yönetim planına ve site kurallarına uymak,"
+    },
+    {
+      "level": 0,
+      "text": "c) elektrik, su, doğal gaz ve internet giderlerini zamanında ödemek,"
+    },
+    {
+      "level": 0,
+      "text": "d) olağan kullanımdan doğan küçük onarımları kendi hesabına yaptırmak."
+    },
+    {
+      "level": 0,
+      "text": "a) ana yapı elemanları ile çatıdaki onarımları yaptırmak,"
+    },
+    {
+      "level": 0,
+      "text": "b) kombi ve tesisatın yıllık bakım masrafını karşılamak,"
+    },
+    {
+      "level": 0,
+      "text": "c) aidat dışındaki olağanüstü yönetim giderlerini ödemek."
+    }
+  ],
+  "furniture": [
+    "Paraf: .............. ..............",
+    "Sayfa 1 / 2",
+    "Sayfa 2 / 2"
+  ],
+  "languages": [
+    "tr"
+  ],
+  "code": [],
+  "notes": "Turkish residential lease. \"GENEL KOŞULLAR\" (centred, underlined) is a level-2 heading; the article headings \"Madde 1 – …\" to \"Madde 9 – …\" are level 3. Article headings \"Madde 1 – …\" are TYPED and use an en dash. Parties panel: boxed key/value table with no header row, key column shaded. Lists in Madde 4 and Madde 5: TYPED \"a)\" \"b)\" \"c)\" \"d)\" markers with a hanging indent. Inventory table (Madde 7): rules above and below the header and between rows, no vertical lines. Bottom-left initials line \"Paraf: …\" and bottom-right \"Sayfa N / 2\" are CSS page-margin boxes on every page. ID numbers are masked with \"x\" in the source. The place/date line and the two signature blocks (side by side, read left then right) are body text."
+}

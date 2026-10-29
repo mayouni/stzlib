@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Tax Invoice</title>
+<style>
+
+@page { size: A4; margin: 2cm; }
+body { font-family: "Segoe UI"; font-size: 9.5pt; color: #222; margin: 0; }
+.lh { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid #0b6e69; padding-bottom: 8px; }
+.lh .org { font-size: 17pt; font-weight: 600; color: #0b6e69; }
+.lh .addr { text-align: right; font-size: 8pt; line-height: 1.35; color: #555; }
+h1 { font-size: 22pt; font-weight: 600; margin: 18px 0 10px 0; color: #111; }
+h2 { font-size: 11pt; font-weight: 600; color: #0b6e69; margin: 16px 0 6px 0; }
+.boxes { display: flex; gap: 14px; }
+.box { flex: 1; border: 1px solid #9cc; border-radius: 4px; padding: 8px 10px; }
+.box .lab { font-size: 7.5pt; letter-spacing: 1px; color: #0b6e69; font-weight: 600; margin-bottom: 4px; }
+.box p { margin: 0; line-height: 1.4; }
+table.kv td { padding: 1px 6px 1px 0; vertical-align: top; }
+table.kv td:first-child { color: #555; width: 42%; }
+table.items { width: 100%; border-collapse: collapse; margin-top: 16px; }
+table.items th { background: #0b6e69; color: #fff; font-weight: 600; text-align: left; padding: 5px 6px; }
+table.items td { padding: 5px 6px; vertical-align: top; }
+table.items tbody tr:nth-child(even) td { background: #e8f3f2; }
+table.items .n { text-align: right; white-space: nowrap; }
+table.items th.n { text-align: right; }
+table.items .sub { color: #666; font-size: 8.5pt; }
+table.items tfoot td { padding: 4px 6px; text-align: right; }
+table.items tfoot tr.tot td { border-top: 2px solid #0b6e69; font-weight: 600; font-size: 11pt; }
+ul.terms { margin: 4px 0 0 0; padding-left: 18px; }
+ul.terms li { margin: 2px 0; }
+ul.terms ul { list-style-type: circle; padding-left: 18px; }
+.foot { margin-top: 26px; border-top: 1px solid #ccc; padding-top: 5px; font-size: 7.5pt; color: #777; text-align: center; }
+
+</style>
+</head>
+<body>
+
+<div class="lh"><div class="org">Brackwater Signal Design Ltd</div><div class="addr">Unit 7, Tannery Yard, York YO1 9WD<br>accounts@brackwater-signal.example<br>+44 1904 552 018</div></div>
+<h1 class="" >Tax Invoice</h1>
+<div class="boxes">
+ <div class="box"><div class="lab">BILL TO</div><p>Orchard Lane Physiotherapy Clinic<br>Attn: Accounts Payable<br>14 Kestrel Row, Whitby YO21 3PQ</p></div>
+ <div class="box"><div class="lab">INVOICE DETAILS</div>
+  <table class="kv"><tr><td>Invoice number</td><td>BSD-2026-0418</td></tr><tr><td>Issue date</td><td>3 October 2026</td></tr><tr><td>Due date</td><td>2 November 2026</td></tr><tr><td>Purchase order</td><td>OLP-PO-7731</td></tr></table></div>
+</div>
+<table class="items" >
+
+<thead>
+<tr>
+<th>#</th>
+<th>Description</th>
+<th class="n">Qty</th>
+<th class="n">Unit price</th>
+<th class="n">Amount</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>1</td>
+<td>Brand identity refresh<br><span class="sub">Discovery workshops, two half-day sessions</span></td>
+<td class="n">1</td>
+<td class="n">2,400.00</td>
+<td class="n">2,400.00</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Logo system<br><span class="sub">Primary mark, monogram and clear-space rules</span></td>
+<td class="n">1</td>
+<td class="n">3,150.00</td>
+<td class="n">3,150.00</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Stationery set<br><span class="sub">Letterhead, compliments slip, business card</span></td>
+<td class="n">3</td>
+<td class="n">280.00</td>
+<td class="n">840.00</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Reception signage drawings, revision B<br><span class="sub">Charged by the hour</span></td>
+<td class="n">12</td>
+<td class="n">85.00</td>
+<td class="n">1,020.00</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Print management<br><span class="sub">500 cards on 400 gsm uncoated board</span></td>
+<td class="n">1</td>
+<td class="n">365.00</td>
+<td class="n">365.00</td>
+</tr>
+</tbody><tfoot>
+<tr>
+<td colspan="4">Subtotal</td>
+<td>7,775.00</td>
+</tr>
+<tr>
+<td colspan="4">VAT at 20%</td>
+<td>1,555.00</td>
+</tr>
+<tr class="tot">
+<td colspan="4">Total due (GBP)</td>
+<td>&pound;9,330.00</td>
+</tr>
+</tfoot>
+</table>
+<h2 class="" >Payment terms</h2>
+<ul class="terms" >
+<li>Payment is due within 30 days of the issue date.</li>
+<li>Pay by bank transfer to the account below, quoting the invoice number.<ul class="terms" >
+<li>Account name: Brackwater Signal Design Ltd</li>
+<li>Sort code 40-17-62, account 51148830</li>
+</ul></li>
+<li>Late payments accrue interest at 4% above the base rate.</li>
+</ul>
+<h2 class="" >Notes</h2>
+<p>Thank you for choosing us for the refresh of your clinic identity. The signage drawings will be issued to your fit-out contractor once this invoice is settled.</p>
+<div class="foot">Registered in England and Wales, company no. 10583472 &middot; VAT reg. GB 318 2207 54</div>
+
+</body>
+</html>

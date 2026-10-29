@@ -570,6 +570,24 @@ golden_v28: 24 realistic documents in 18 languages besides English (Arabic, Hebr
 
 Time for the 24 documents: native 0.09 s, Docling 170 s. The native reader leads on all eight measures, the sixth set where it does; text and headings are its highest on any new set. Where Docling does better, document by document: tables on six (n06, a bank statement across pages, 0.10 against 0.78; n16 0.47 against 0.96; n09 0.50 against 0.94; n02 0.27 against 0.73), headings on three, furniture on three (n17 0.25 against 1.00), lists on two (n09). Causes not yet looked into: round 28.
 
+**Twenty-eighth round: grids ruled between columns only, section rows with no rule, letterhead addresses; then golden_v29.** Fixed on golden_v28 (now a development set) and checked on all twenty-eight sets:
+- a grid ruled between its columns but not between its items (a quotation: a rule under the header and rules round the totals) held its whole body in one grid row, each column one cell ("1 2 3 4 5"): a grid row far taller than the grid's others, with three baselines or more each filling most columns, is a row per baseline. Measured on the way: splitting on baselines touching two columns took wrapped cells for rows on eighteen sets; full rows only still cost ten; the row-height sign cost none;
+- a section row drawn with no rule under it shares its ladder band with the row below: a lone bold label over a line of cells is split from it;
+- a letterhead's address under its name, beside the title's subtitle, is letterhead (paragraphs only: the wider reach took sidebar headings).
+
+Tried and withdrawn: splitting a four-column key/value table into two panels at a wide gutter (n06) -- it never fired on n06 and cost tables on six sets (v4 1.00 -> 0.875).
+
+On the development sets, against round 27 frozen: tables v28 0.76 -> 0.79, v22 0.91 -> 0.94, v5 0.84 -> 0.85; furniture v28 0.79 -> 0.82, v13 0.80 -> 0.82, v7 0.75 -> 0.76. Costs: heading precision v24 0.809 -> 0.796, v8 -0.005, tables v24 -0.002. Not reached: n06 (two key/value panels side by side read as one table; its movements table loses the header and merges debit and credit), n16 (its ladder's bands hold two data rows each), n09 (a Chinese specification sheet). Guard 235 assertions under Ring++.
+
+golden_v29: 24 realistic documents in 20 languages besides English (Arabic, Hebrew and Persian right to left, Japanese, Chinese, Korean, Hindi, Thai, Vietnamese, and Amharic in the Ethiopic script for the first time), 14 of 2-3 pages, running headers drawn by CSS page-margin boxes, code in three documents, by a twenty-ninth independent agent who saw no reader, no output and no earlier set; no one has looked at the pages (unperceived); reader frozen at ffa2446d8; both readers ran once:
+
+| golden_v29, realistic | text | order | headings | tables | lists | furniture | code | heading precision |
+|---|---|---|---|---|---|---|---|---|
+| Softanza native (Ring++) | **0.97** | 1.00 | **0.92** | **0.77** | **0.89** | **0.81** | **0.50** | **0.81** |
+| Docling 2.141 | 0.81 | 1.00 | 0.76 | 0.72 | 0.58 | 0.77 | 0.00 | 0.67 |
+
+Time for the 24 documents: native 0.08 s, Docling 84 s. The native reader leads on seven measures and ties on order. Where Docling does better, document by document: tables on six (p09 0.24 against 0.94, p24 0.17 against 0.83, p19 0.12 against 0.80, p04 0.63 against 0.95), lists on two (p23, Amharic, 0.33 against 1.00; p07, Chinese, 0.43 against 1.00), furniture on three, text on one. Code is low for the native reader too (0.50: three blocks in three documents). Causes not yet looked into: round 29.
+
 **Perceived (2026-10-24):** the author looked through every rendered page of golden_v9 to golden_v13 -- the sets whose own authors could not look at them -- and judged them: "they look great". Those five sets are no longer unperceived; the sets before them were generated the same way and are not covered by this look.
 
 **Perceived (2026-10-29):** the author looked at the generated documents of golden_v14 to golden_v22 and judged them: "they are ok". Those nine sets are no longer unperceived.

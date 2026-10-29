@@ -1,0 +1,223 @@
+{
+  "id": "p19",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Ripoti ya Maendeleo ya Mradi wa Maji",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Ripoti ya Maendeleo ya Mradi wa Maji"
+    },
+    {
+      "level": 2,
+      "text": "1. Utangulizi"
+    },
+    {
+      "level": 2,
+      "text": "2. Kazi zilizofanyika"
+    },
+    {
+      "level": 3,
+      "text": "2.1 Ujenzi wa tanki"
+    },
+    {
+      "level": 3,
+      "text": "2.2 Mabomba na mafunzo"
+    },
+    {
+      "level": 2,
+      "text": "3. Hali ya vituo vya maji"
+    },
+    {
+      "level": 2,
+      "text": "4. Changamoto"
+    },
+    {
+      "level": 2,
+      "text": "5. Mpango wa robo ijayo"
+    }
+  ],
+  "key_sentences": [
+    "Mradi wa maji wa Kilimahewa unalenga kuwapatia wakazi wa vijiji vinne maji safi na salama karibu na makazi yao.",
+    "Ripoti hii inaeleza kazi zilizofanyika kati ya Julai na Septemba 2026.",
+    "Kwa ujumla, mradi unaendelea vizuri ingawa kuna changamoto za vipuri.",
+    "Jedwali lifuatalo linaonyesha hali ya kila kituo hadi tarehe 30 Septemba 2026.",
+    "Katika robo ya nne, jumuiya imepanga kufanya yafuatayo."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Wanufaika",
+          "4,820"
+        ],
+        [
+          "Vituo vilivyokamilika",
+          "9 kati ya 12"
+        ],
+        [
+          "Bajeti iliyotumika",
+          "68%"
+        ],
+        [
+          "Muda uliobaki",
+          "miezi 5"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Kijiji",
+          "Kituo",
+          "Hali",
+          "Watumiaji (kaya)"
+        ],
+        [
+          "Mlimani",
+          "Kituo Na. 1",
+          "Kinatoa maji",
+          "112"
+        ],
+        [
+          "Mlimani",
+          "Kituo Na. 2",
+          "Kinatoa maji",
+          "96"
+        ],
+        [
+          "Mlimani",
+          "Kituo Na. 3",
+          "Ujenzi unaendelea",
+          "—"
+        ],
+        [
+          "Bondeni",
+          "Kituo Na. 4",
+          "Kinatoa maji",
+          "140"
+        ],
+        [
+          "Bondeni",
+          "Kituo Na. 5",
+          "Kinatoa maji",
+          "88"
+        ],
+        [
+          "Bondeni",
+          "Kituo Na. 6",
+          "Ujenzi unaendelea",
+          "—"
+        ],
+        [
+          "Mwembeni",
+          "Kituo Na. 7",
+          "Kinatoa maji",
+          "121"
+        ],
+        [
+          "Mwembeni",
+          "Kituo Na. 8",
+          "Kimeharibika, kinasubiri vipuri",
+          "74"
+        ],
+        [
+          "Mwembeni",
+          "Kituo Na. 9",
+          "Kinatoa maji",
+          "103"
+        ],
+        [
+          "Majengo",
+          "Kituo Na. 10",
+          "Kinatoa maji",
+          "131"
+        ],
+        [
+          "Majengo",
+          "Kituo Na. 11",
+          "Kinatoa maji",
+          "97"
+        ],
+        [
+          "Majengo",
+          "Kituo Na. 12",
+          "Ujenzi unaendelea",
+          "—"
+        ],
+        [
+          "Jumla",
+          "Jumla",
+          "Jumla",
+          "962"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Tanki la lita 150,000 limejengwa na kupimwa kwa kujaza maji kwa siku saba."
+    },
+    {
+      "level": 0,
+      "text": "Mabomba ya kilomita 6.4 yamelazwa kutoka chanzo hadi kijiji cha Majengo."
+    },
+    {
+      "level": 0,
+      "text": "Mafundi wanne wa kijiji wamepata mafunzo ya ukarabati wa pampu."
+    },
+    {
+      "level": 0,
+      "text": "Kamati za maji za vijiji vinne zimechaguliwa upya."
+    },
+    {
+      "level": 0,
+      "text": "Upatikanaji wa vipuri vya pampu ni wa polepole:"
+    },
+    {
+      "level": 1,
+      "text": "vipuri huagizwa kutoka mjini na huchukua wiki tatu kufika;"
+    },
+    {
+      "level": 1,
+      "text": "bei ya vipuri imepanda kwa asilimia 15 tangu Juni."
+    },
+    {
+      "level": 0,
+      "text": "Baadhi ya kaya bado hazijalipa ada ya mwezi ya shilingi 1,500."
+    },
+    {
+      "level": 0,
+      "text": "Mvua za mapema zilichelewesha uchimbaji wa mitaro katika kijiji cha Majengo."
+    },
+    {
+      "level": 0,
+      "text": "Kukamilisha vituo vitatu vilivyobaki kabla ya Desemba."
+    },
+    {
+      "level": 0,
+      "text": "Kuweka akiba ya vipuri muhimu katika ofisi ya jumuiya."
+    },
+    {
+      "level": 0,
+      "text": "Kufanya mikutano ya hadhara kuhusu ada na utunzaji wa vituo."
+    },
+    {
+      "level": 0,
+      "text": "Kupima ubora wa maji katika vituo vyote."
+    }
+  ],
+  "furniture": [
+    "Jumuiya ya Watumia Maji Kilimahewa · S.L.P. 214, Kilimahewa",
+    "Ukurasa 1 kati ya 2",
+    "Ukurasa 2 kati ya 2"
+  ],
+  "languages": [
+    "sw"
+  ],
+  "code": [],
+  "notes": "Swahili quarterly project report. The organisation line at the top is a letterhead (furniture); \"Ukurasa N kati ya 2\" is a CSS page-margin box. Page 1 has a main column and a boxed sidebar \"Muhtasari\" at the right; the sidebar is read AFTER the main column. \"Muhtasari\" is a box label, not a heading; its key/value table has no header row. Bullets of both square lists are drawn by CSS. Challenges list: decimal numbers drawn by CSS with a nested lower-roman level drawn by CSS. Water-point table: filled header, zebra bands; village names span three rows each (repeated); the \"Jumla\" total row spans three columns. The end of page 2 is set in two CSS columns, so the plan list sits beside other text."
+}

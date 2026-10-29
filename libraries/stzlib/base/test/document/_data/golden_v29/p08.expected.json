@@ -1,0 +1,138 @@
+{
+  "id": "p08",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "הודעה לדיירים: תקציב אחזקה לשנת 2027",
+  "headings": [
+    {
+      "level": 1,
+      "text": "הודעה לדיירים: תקציב אחזקה לשנת 2027"
+    },
+    {
+      "level": 2,
+      "text": "פירוט התקציב"
+    },
+    {
+      "level": 2,
+      "text": "אופן התשלום"
+    },
+    {
+      "level": 2,
+      "text": "תזכורות"
+    }
+  ],
+  "key_sentences": [
+    "ועד הבית מתכבד להציג את תקציב האחזקה לשנת 2027, כפי שאושר באסיפת הדיירים מיום 22 באוקטובר 2026.",
+    "דמי הוועד החודשיים יעודכנו החל מחודש ינואר 2027.",
+    "העדכון נובע בעיקר מהתייקרות חוזה הניקיון ומהחלפת משאבת המים במרתף.",
+    "החלוקה נעשתה שווה בשווה בין 24 הדירות בבניין."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "סעיף",
+          "סכום שנתי (₪)",
+          "חלק לדירה לחודש (₪)"
+        ],
+        [
+          "ניקיון חדר מדרגות",
+          "21,600",
+          "75.00"
+        ],
+        [
+          "גינון",
+          "7,200",
+          "25.00"
+        ],
+        [
+          "חשמל משותף",
+          "9,360",
+          "32.50"
+        ],
+        [
+          "אחזקת מעלית",
+          "12,960",
+          "45.00"
+        ],
+        [
+          "קרן שיפוצים",
+          "14,400",
+          "50.00"
+        ],
+        [
+          "ביטוח מבנה",
+          "4,320",
+          "15.00"
+        ],
+        [
+          "סה״כ",
+          "69,840",
+          "242.50"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "יו״ר הוועד:",
+          "נועה ברזילי, דירה 9"
+        ],
+        [
+          "גזבר:",
+          "איתן שגיא, דירה 17"
+        ],
+        [
+          "טלפון הוועד:",
+          "050-7734120"
+        ],
+        [
+          "שעות פנייה:",
+          "א׳–ה׳, 18:00–20:00"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "א. הוראת קבע בבנק – הדרך המומלצת."
+    },
+    {
+      "level": 0,
+      "text": "ב. העברה בנקאית לחשבון הוועד עד ה-10 בכל חודש."
+    },
+    {
+      "level": 0,
+      "text": "ג. מזומן לגזבר הוועד, בתיאום מראש בלבד."
+    },
+    {
+      "level": 0,
+      "text": "אין להשאיר אופניים ועגלות בלובי הכניסה."
+    },
+    {
+      "level": 0,
+      "text": "פינוי גזם יתקיים ביום ראשון האחרון של כל חודש."
+    },
+    {
+      "level": 1,
+      "text": "יש להניח את הגזם ליד הפח הירוק בלבד."
+    },
+    {
+      "level": 0,
+      "text": "תקלות במעלית יש לדווח ישירות לחברת השירות בטלפון 03-5550147."
+    }
+  ],
+  "furniture": [
+    "ועד הבית",
+    "רחוב הדקל 14, רמת אלון",
+    "ההודעה נמסרה לכל הדירות ותלויה גם בלוח המודעות שבלובי."
+  ],
+  "languages": [
+    "he"
+  ],
+  "code": [],
+  "notes": "Right-to-left Hebrew notice; all text in logical order. The coloured band at the top (committee name at the right, address at the left) is a letterhead (furniture), as is the small centred footer line. Fees table: zebra bands, filled header, no rules except a heavy line above the total row; cells listed rightmost column first; the total row \"סה״כ\" is part of the table. Payment list: TYPED Hebrew-letter markers \"א.\" \"ב.\" \"ג.\" with a hanging indent. Reminders list: bullets drawn by CSS (disc, nested circle). The \"אנשי קשר\" sidebar box sits to the LEFT of the main column and is read AFTER it; its contact block is a borderless key/value table with no lines at all. \"אנשי קשר\" is a box label, not a heading. Phone numbers and \"א׳–ה׳, 18:00–20:00\" keep their typed order."
+}

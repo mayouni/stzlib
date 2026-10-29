@@ -1,0 +1,136 @@
+{
+  "id": "p18",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "THÔNG BÁO Về việc tuyển sinh lớp 6 năm học 2027–2028",
+  "headings": [
+    {
+      "level": 1,
+      "text": "THÔNG BÁO Về việc tuyển sinh lớp 6 năm học 2027–2028"
+    },
+    {
+      "level": 2,
+      "text": "1. Đối tượng tuyển sinh"
+    },
+    {
+      "level": 2,
+      "text": "2. Chỉ tiêu tuyển sinh"
+    },
+    {
+      "level": 2,
+      "text": "3. Hồ sơ đăng ký"
+    },
+    {
+      "level": 2,
+      "text": "4. Thời gian và địa điểm"
+    }
+  ],
+  "key_sentences": [
+    "Trường Trung học cơ sở Hoa Sen thông báo kế hoạch tuyển sinh lớp 6 năm học 2027–2028 như sau.",
+    "Nhà trường tuyển sinh theo hình thức xét tuyển, không tổ chức thi.",
+    "Năm học 2027–2028, nhà trường tuyển 11 lớp với tổng chỉ tiêu 436 học sinh.",
+    "Phụ huynh nộp hồ sơ trực tiếp tại văn phòng nhà trường hoặc đăng ký trực tuyến trên cổng tuyển sinh của quận.",
+    "Hồ sơ được nhận từ ngày 15 đến ngày 30 tháng 6 năm 2027, trong giờ hành chính.",
+    "Kết quả xét tuyển được công bố vào ngày 10 tháng 7 năm 2027."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Loại lớp",
+          "Số lớp",
+          "Số học sinh/lớp",
+          "Tổng chỉ tiêu"
+        ],
+        [
+          "Lớp học hai buổi/ngày",
+          "8",
+          "42",
+          "336"
+        ],
+        [
+          "Lớp tăng cường tiếng Anh",
+          "2",
+          "35",
+          "70"
+        ],
+        [
+          "Lớp hòa nhập",
+          "1",
+          "30",
+          "30"
+        ],
+        [
+          "Tổng cộng",
+          "11",
+          "",
+          "436"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "a) Học sinh đã hoàn thành chương trình tiểu học, sinh năm 2016;"
+    },
+    {
+      "level": 0,
+      "text": "b) Có nơi thường trú hoặc tạm trú tại phường Hoa Sen hoặc phường Bến Gỗ;"
+    },
+    {
+      "level": 0,
+      "text": "c) Học sinh khuyết tật có nhu cầu học hòa nhập được ưu tiên xét tuyển."
+    },
+    {
+      "level": 0,
+      "text": "a) Hồ sơ gồm:"
+    },
+    {
+      "level": 1,
+      "text": "- Đơn đăng ký tuyển sinh theo mẫu của nhà trường;"
+    },
+    {
+      "level": 1,
+      "text": "- Bản sao giấy khai sinh hợp lệ;"
+    },
+    {
+      "level": 1,
+      "text": "- Học bạ cấp tiểu học bản chính;"
+    },
+    {
+      "level": 1,
+      "text": "- Bản sao giấy xác nhận thông tin về cư trú."
+    },
+    {
+      "level": 0,
+      "text": "b) Hồ sơ được đựng trong túi có ghi rõ họ tên và số điện thoại của cha mẹ học sinh."
+    },
+    {
+      "level": 0,
+      "text": "- Phòng GD&ĐT quận (để báo cáo);"
+    },
+    {
+      "level": 0,
+      "text": "- Cha mẹ học sinh;"
+    },
+    {
+      "level": 0,
+      "text": "- Lưu: VT."
+    }
+  ],
+  "furniture": [
+    "PHÒNG GIÁO DỤC VÀ ĐÀO TẠO QUẬN BÌNH LỘC",
+    "TRƯỜNG THCS HOA SEN",
+    "Số: 112/TB-THCSHS",
+    "CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM",
+    "Độc lập – Tự do – Hạnh phúc",
+    "Bình Lộc, ngày 20 tháng 10 năm 2026"
+  ],
+  "languages": [
+    "vi"
+  ],
+  "code": [],
+  "notes": "Vietnamese administrative notice in the standard two-block header layout. The two header blocks are SIDE BY SIDE and read box by box: the issuing body (left: department, school, reference number) then the national motto block (right: motto, slogan, place and date). They are listed as furniture (letterhead), one visible line per entry. The title is two centred lines (\"THÔNG BÁO\" + subtitle) joined by one space. Section headings carry TYPED numbers \"1.\" to \"4.\". Lists: TYPED \"a)\" \"b)\" \"c)\" markers; a nested level of TYPED \"-\" markers under \"a) Hồ sơ gồm:\"; the recipients list \"Nơi nhận:\" (bottom left, beside the signature block) has TYPED \"-\" markers. Quota table: full grid, the \"Tổng cộng\" row is part of the table, its empty cell is \"\". All Vietnamese letters are precomposed (NFC). The signature block (title and name at the bottom right) is body text."
+}

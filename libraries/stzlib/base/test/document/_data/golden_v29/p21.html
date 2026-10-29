@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>طرح درس هیدرولوژی مهندسی</title>
+<style>
+
+@page { size: A4; margin: 2.2cm 2cm 2cm 2cm;
+  @top-right { content: "دانشکده مهندسی عمران و منابع آب"; font-family: Tahoma; font-size: 8pt; color: #555; }
+  @top-left { content: "نیمسال اول ۱۴۰۵–۱۴۰۶"; font-family: Tahoma; font-size: 8pt; color: #555; }
+  @bottom-center { content: "صفحه " counter(page, persian) " از " counter(pages, persian); font-family: Tahoma; font-size: 8.5pt; } }
+body { font-family: Tahoma; font-size: 9.5pt; line-height: 1.75; color: #1b1b1b; margin: 0; direction: rtl; }
+.uni { text-align: center; font-size: 10pt; color: #3a5a40; }
+h1 { text-align: center; font-size: 16pt; font-weight: bold; margin: 2px 0 12px 0; color: #3a5a40; }
+h2 { font-size: 11.5pt; font-weight: bold; color: #3a5a40; margin: 14px 0 4px 0; border-right: 4px solid #3a5a40; padding-right: 6px; }
+p { margin: 0 0 5px 0; text-align: justify; }
+table.info { width: 100%; border: 1px solid #3a5a40; border-collapse: collapse; }
+table.info th, table.info td { padding: 3px 8px; border: 1px solid #b9c9bb; text-align: right; }
+table.info th { background: #edf3ee; font-weight: bold; width: 18%; }
+table.week { width: 100%; border-collapse: collapse; margin: 6px 0; }
+table.week th { background: #3a5a40; color: #fff; padding: 3px 6px; text-align: right; font-weight: bold; }
+table.week td { padding: 2px 6px; border-bottom: 1px solid #c9d6ca; vertical-align: top; }
+table.week td.c { text-align: center; width: 8%; }
+table.week tr { break-inside: avoid; }
+ul.sq { list-style-type: square; padding-right: 1.4em; padding-left: 0; margin: 4px 0; }
+ol.fa { list-style-type: persian; padding-right: 1.8em; padding-left: 0; margin: 4px 0; }
+ol.fa li { margin: 1px 0; }
+.harf p { margin: 0 0 2px 0; padding-right: 2.2em; text-indent: -2.2em; }
+.harf ul { margin: 0 2.2em 2px 0; padding-right: 1.2em; padding-left: 0; list-style-type: disc; }
+.src p { margin: 0 0 2px 0; padding-right: 1.6em; text-indent: -1.6em; }
+
+</style>
+</head>
+<body>
+
+<div class="uni">دانشگاه صنعتی کوهسار</div>
+<h1 class="" >طرح درس هیدرولوژی مهندسی</h1>
+<table class="info" >
+
+<tbody>
+<tr>
+<th>نام درس</th>
+<td>هیدرولوژی مهندسی</td>
+<th>کد درس</th>
+<td>۲۲۱۴</td>
+</tr>
+<tr>
+<th>تعداد واحد</th>
+<td>۳</td>
+<th>درس پیشنیاز</th>
+<td>مکانیک سیالات</td>
+</tr>
+<tr>
+<th>زمان کلاس</th>
+<td>شنبه و دوشنبه، ساعت ۱۰:۳۰ تا ۱۲:۰۰</td>
+<th>مکان</th>
+<td>ساختمان شماره ۲، کلاس ۲۰۴</td>
+</tr>
+<tr>
+<th>مدرس</th>
+<td>دکتر مریم صدرایی</td>
+<th>ساعت پاسخگویی</th>
+<td>سه شنبه، ساعت ۹ تا ۱۱</td>
+</tr>
+</tbody>
+</table>
+<h2 class="" >هدف درس</h2>
+<p>هدف این درس آشنایی دانشجویان با فرایندهای چرخه آب و روش برآورد رواناب است. در پایان نیمسال، دانشجو باید بتواند هیدروگراف سیل یک حوضه کوچک را محاسبه کند.</p>
+<p>این درس پایه دروس سازه های آبی، مدیریت سیلاب و مهندسی رودخانه است و دانشجویان رشته مهندسی عمران و مهندسی آب آن را در نیمسال پنجم می گذرانند.</p>
+<h2 class="" >پیامدهای یادگیری</h2>
+<ul class="sq" >
+<li>محاسبه بارش متوسط حوضه با روش های مختلف</li>
+<li>برآورد تبخیر و تعرق با استفاده از داده های هواشناسی</li>
+<li>تحلیل هیدروگراف و استخراج هیدروگراف واحد</li>
+<li>روندیابی سیل در مخزن و رودخانه</li>
+<li>تحلیل فراوانی سیلاب با توزیع های آماری</li>
+</ul>
+<h2 class="" >برنامه هفتگی</h2>
+<p>جدول زیر ترتیب موضوعات را در شانزده هفته نیمسال نشان می دهد.</p>
+<table class="week" >
+
+<thead>
+<tr>
+<th>هفته</th>
+<th>موضوع</th>
+<th>مطالعه</th>
+</tr>
+</thead><tbody>
+<tr>
+<td class="c">۱</td>
+<td>چرخه آب و بیلان آبی حوضه</td>
+<td>فصل ۱</td>
+</tr>
+<tr>
+<td class="c">۲</td>
+<td>بارش: اندازه گیری و تحلیل داده</td>
+<td>فصل ۲</td>
+</tr>
+<tr>
+<td class="c">۳</td>
+<td>بارش متوسط حوضه و روش تیسن</td>
+<td>فصل ۲</td>
+</tr>
+<tr>
+<td class="c">۴</td>
+<td>تبخیر و تعرق</td>
+<td>فصل ۳</td>
+</tr>
+<tr>
+<td class="c">۵</td>
+<td>نفوذ و رطوبت خاک</td>
+<td>فصل ۴</td>
+</tr>
+<tr>
+<td class="c">۶</td>
+<td>ویژگی های فیزیکی حوضه آبریز</td>
+<td>فصل ۵</td>
+</tr>
+<tr>
+<td class="c">۷</td>
+<td>رواناب سطحی و روش استدلالی</td>
+<td>فصل ۶</td>
+</tr>
+<tr>
+<td class="c">۸</td>
+<td>آزمون میانی</td>
+<td>—</td>
+</tr>
+<tr>
+<td class="c">۹</td>
+<td>هیدروگراف و جداسازی جریان پایه</td>
+<td>فصل ۷</td>
+</tr>
+<tr>
+<td class="c">۱۰</td>
+<td>هیدروگراف واحد</td>
+<td>فصل ۷</td>
+</tr>
+<tr>
+<td class="c">۱۱</td>
+<td>هیدروگراف واحد مصنوعی</td>
+<td>فصل ۸</td>
+</tr>
+<tr>
+<td class="c">۱۲</td>
+<td>روندیابی سیل در مخزن</td>
+<td>فصل ۹</td>
+</tr>
+<tr>
+<td class="c">۱۳</td>
+<td>روندیابی سیل در رودخانه</td>
+<td>فصل ۹</td>
+</tr>
+<tr>
+<td class="c">۱۴</td>
+<td>تحلیل فراوانی سیلاب</td>
+<td>فصل ۱۰</td>
+</tr>
+<tr>
+<td class="c">۱۵</td>
+<td>آب زیرزمینی: مفاهیم پایه</td>
+<td>فصل ۱۱</td>
+</tr>
+<tr>
+<td class="c">۱۶</td>
+<td>ارائه پروژه ها و جمع بندی</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h2 class="" >شیوه ارزشیابی</h2>
+<ol class="fa" >
+<li>تمرین های هفتگی: ۲۰ درصد</li>
+<li>آزمون میانی: ۲۵ درصد</li>
+<li>پروژه درسی: ۱۵ درصد</li>
+<li>آزمون پایانی: ۴۰ درصد</li>
+</ol>
+<p>نمره قبولی در این درس ده از بیست است.</p>
+<h2 class="" >مقررات کلاس</h2>
+<div class="harf" >
+<p>الف) حضور در کلاس الزامی است و غیبت بیش از سه جلسه به حذف درس منجر خواهد شد.</p>
+<p>ب) پروژه درسی به صورت گروهی انجام می شود:<ul class="" >
+<li>هر گروه حداکثر سه نفر است؛</li>
+<li>گزارش نهایی باید حداکثر ۱۵ صفحه باشد؛</li>
+<li>ارائه شفاهی هر گروه ده دقیقه طول می کشد.</li>
+</ul></p>
+<p>ج) استفاده از ماشین حساب مهندسی در آزمون ها مجاز است.</p>
+</div>
+<p>تمرین هر هفته باید تا پیش از جلسه بعد در سامانه آموزشی بارگذاری شود.</p>
+<h2 class="" >منابع</h2>
+<div class="src" >
+<p>۱. کاظمی نیا، ر. مبانی هیدرولوژی کاربردی. تهران: نشر آبنگار، ۱۴۰۱.</p>
+<p>۲. جزوه درسی مدرس، قابل دریافت از سامانه آموزشی دانشکده.</p>
+<p>۳. مجموعه داده های بارش و دبی ایستگاه های حوضه کوهسار، سال های ۱۳۹۰ تا ۱۴۰۴.</p>
+</div>
+
+</body>
+</html>

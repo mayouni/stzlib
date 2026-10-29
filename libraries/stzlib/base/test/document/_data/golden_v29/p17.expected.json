@@ -1,0 +1,309 @@
+{
+  "id": "p17",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Sprawozdanie finansowe za rok obrotowy 2026",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Sprawozdanie finansowe za rok obrotowy 2026"
+    },
+    {
+      "level": 2,
+      "text": "Bilans – aktywa"
+    },
+    {
+      "level": 2,
+      "text": "Bilans – pasywa"
+    },
+    {
+      "level": 2,
+      "text": "Komentarz zarządu"
+    },
+    {
+      "level": 2,
+      "text": "Objaśnienia"
+    }
+  ],
+  "key_sentences": [
+    "Suma bilansowa wzrosła w ciągu roku o 10,0%, do 15 001,9 tys. zł.",
+    "Wzrost wynika przede wszystkim z inwestycji w nową linię do produkcji jogurtów.",
+    "Przychody netto ze sprzedaży wzrosły do 18 064,0 tys. zł.",
+    "Zysk netto był wyższy o 18,7% niż przed rokiem.",
+    "Wskaźniki płynności pozostają na bezpiecznym poziomie."
+  ],
+  "tables": [
+    {
+      "caption": "Bilans – aktywa (w tys. zł)",
+      "rows": [
+        [
+          "Wyszczególnienie",
+          "Nota",
+          "Stan na 31.12.2025",
+          "Stan na 31.12.2026",
+          "Zmiana (tys. zł)",
+          "Zmiana (%)"
+        ],
+        [
+          "AKTYWA",
+          "AKTYWA",
+          "AKTYWA",
+          "AKTYWA",
+          "AKTYWA",
+          "AKTYWA"
+        ],
+        [
+          "A. Aktywa trwałe",
+          "",
+          "8 412,5",
+          "9 087,3",
+          "674,8",
+          "8,0"
+        ],
+        [
+          "I. Wartości niematerialne i prawne",
+          "1",
+          "312,0",
+          "288,4",
+          "(23,6)",
+          "(7,6)"
+        ],
+        [
+          "II. Rzeczowe aktywa trwałe",
+          "2",
+          "7 640,2",
+          "8 351,6",
+          "711,4",
+          "9,3"
+        ],
+        [
+          "III. Należności długoterminowe",
+          "",
+          "85,0",
+          "72,0",
+          "(13,0)",
+          "(15,3)"
+        ],
+        [
+          "IV. Inwestycje długoterminowe",
+          "3",
+          "375,3",
+          "375,3",
+          "0,0",
+          "0,0"
+        ],
+        [
+          "B. Aktywa obrotowe",
+          "",
+          "5 230,8",
+          "5 914,6",
+          "683,8",
+          "13,1"
+        ],
+        [
+          "I. Zapasy",
+          "4",
+          "2 104,6",
+          "2 388,1",
+          "283,5",
+          "13,5"
+        ],
+        [
+          "II. Należności krótkoterminowe",
+          "5",
+          "1 877,9",
+          "2 216,7",
+          "338,8",
+          "18,0"
+        ],
+        [
+          "III. Inwestycje krótkoterminowe",
+          "",
+          "1 186,4",
+          "1 247,9",
+          "61,5",
+          "5,2"
+        ],
+        [
+          "IV. Krótkoterminowe rozliczenia międzyokresowe",
+          "",
+          "61,9",
+          "61,9",
+          "0,0",
+          "0,0"
+        ],
+        [
+          "Aktywa razem",
+          "",
+          "13 643,3",
+          "15 001,9",
+          "1 358,6",
+          "10,0"
+        ]
+      ]
+    },
+    {
+      "caption": "Bilans – pasywa (w tys. zł)",
+      "rows": [
+        [
+          "Wyszczególnienie",
+          "Nota",
+          "Stan na 31.12.2025",
+          "Stan na 31.12.2026",
+          "Zmiana (tys. zł)",
+          "Zmiana (%)"
+        ],
+        [
+          "PASYWA",
+          "PASYWA",
+          "PASYWA",
+          "PASYWA",
+          "PASYWA",
+          "PASYWA"
+        ],
+        [
+          "A. Kapitał (fundusz) własny",
+          "",
+          "7 905,1",
+          "8 744,0",
+          "838,9",
+          "10,6"
+        ],
+        [
+          "I. Kapitał podstawowy",
+          "6",
+          "2 000,0",
+          "2 000,0",
+          "0,0",
+          "0,0"
+        ],
+        [
+          "II. Kapitał zapasowy",
+          "",
+          "4 870,4",
+          "5 515,7",
+          "645,3",
+          "13,2"
+        ],
+        [
+          "III. Zysk netto",
+          "",
+          "1 034,7",
+          "1 228,3",
+          "193,6",
+          "18,7"
+        ],
+        [
+          "B. Zobowiązania i rezerwy na zobowiązania",
+          "",
+          "5 738,2",
+          "6 257,9",
+          "519,7",
+          "9,1"
+        ],
+        [
+          "I. Rezerwy na zobowiązania",
+          "7",
+          "412,0",
+          "455,6",
+          "43,6",
+          "10,6"
+        ],
+        [
+          "II. Zobowiązania długoterminowe",
+          "8",
+          "2 260,0",
+          "1 980,0",
+          "(280,0)",
+          "(12,4)"
+        ],
+        [
+          "III. Zobowiązania krótkoterminowe",
+          "8",
+          "2 966,2",
+          "3 722,3",
+          "756,1",
+          "25,5"
+        ],
+        [
+          "IV. Rozliczenia międzyokresowe",
+          "",
+          "100,0",
+          "100,0",
+          "0,0",
+          "0,0"
+        ],
+        [
+          "Pasywa razem",
+          "",
+          "13 643,3",
+          "15 001,9",
+          "1 358,6",
+          "10,0"
+        ]
+      ]
+    },
+    {
+      "caption": "Wybrane wskaźniki",
+      "rows": [
+        [
+          "Wskaźnik",
+          "2025",
+          "2026"
+        ],
+        [
+          "Rentowność netto",
+          "6,1%",
+          "6,8%"
+        ],
+        [
+          "Płynność bieżąca",
+          "1,76",
+          "1,59"
+        ],
+        [
+          "Udział kapitału własnego w pasywach",
+          "57,9%",
+          "58,3%"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1) Kwoty ujemne podano w nawiasach."
+    },
+    {
+      "level": 0,
+      "text": "2) Noty objaśniające zawierają w szczególności:"
+    },
+    {
+      "level": 1,
+      "text": "a) zestawienie zmian środków trwałych (noty 1–2),"
+    },
+    {
+      "level": 1,
+      "text": "b) strukturę zapasów i należności (noty 4–5),"
+    },
+    {
+      "level": 1,
+      "text": "c) harmonogram spłaty kredytów (nota 8)."
+    },
+    {
+      "level": 0,
+      "text": "3) Dane za 2025 r. zostały zbadane przez biegłego rewidenta."
+    }
+  ],
+  "furniture": [
+    "Zakład Mleczarski Dąbrówka Sp. z o.o.",
+    "Sprawozdanie finansowe za 2026 r.",
+    "strona 1 z 2",
+    "strona 2 z 2"
+  ],
+  "languages": [
+    "pl"
+  ],
+  "code": [],
+  "notes": "Polish balance sheet on A4 LANDSCAPE pages. Running header (company left, report title right) and \"strona N z 2\" are CSS page-margin boxes. Two wide balance tables (assets on page 1, liabilities on page 2), each ruled only above/below the header, above group rows and around the total row, with no vertical lines. Each has a full-width section row (\"AKTYWA\" / \"PASYWA\") spanning all six columns, repeated; group rows A./B. and the \"razem\" total rows are rows of the same table. The table captions given are the headings above them plus the unit; the unit line \"w tys. zł\" is set right-aligned above each table. Negative amounts are in parentheses; thousands separators are non-breaking spaces given as plain spaces. The \"Wybrane wskaźniki\" table is FLOATED RIGHT beside the management commentary text; its caption is a real <caption>. Text reading order: commentary paragraphs, then the explanations. Explanations list: TYPED \"1)\" \"2)\" \"3)\" with a nested level of TYPED \"a)\" \"b)\" \"c)\", hanging indents."
+}

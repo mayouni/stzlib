@@ -1,0 +1,154 @@
+{
+  "id": "p22",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "IT Operations Report — Q3 2026",
+  "headings": [
+    {
+      "level": 1,
+      "text": "IT Operations Report — Q3 2026"
+    },
+    {
+      "level": 2,
+      "text": "1. Summary"
+    },
+    {
+      "level": 2,
+      "text": "2. Major incidents"
+    },
+    {
+      "level": 2,
+      "text": "3. Monitoring changes"
+    },
+    {
+      "level": 2,
+      "text": "4. Projects"
+    },
+    {
+      "level": 2,
+      "text": "5. Storage capacity"
+    }
+  ],
+  "key_sentences": [
+    "All core services met their availability targets this quarter.",
+    "The service desk resolved tickets faster than in any quarter since 2024.",
+    "Three major incidents affected tenants directly.",
+    "Each incident has a completed review, and all eleven follow-up actions are tracked in the problem register.",
+    "At the current growth rate the object store will need expansion within eighteen months."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Date",
+          "Service",
+          "Impact",
+          "Duration",
+          "Root cause"
+        ],
+        [
+          "9 Jul",
+          "Tenant portal",
+          "Logins failed for all tenants",
+          "1 h 12 min",
+          "Expired TLS certificate on the identity proxy; renewal job had been disabled during a migration."
+        ],
+        [
+          "22 Aug",
+          "Repairs line (telephony)",
+          "Calls dropped after 30 seconds",
+          "47 min",
+          "Carrier routing change, reverted by the carrier."
+        ],
+        [
+          "14 Sep",
+          "Rent payments",
+          "Card payments delayed, no data lost",
+          "2 h 05 min",
+          "Database failover stalled on a full transaction log."
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Storage cluster",
+          "Used (TB)",
+          "Free (TB)",
+          "Growth per month"
+        ],
+        [
+          "Primary SAN",
+          "182.4",
+          "57.6",
+          "2.1%"
+        ],
+        [
+          "Backup vault",
+          "411.0",
+          "189.0",
+          "3.4%"
+        ],
+        [
+          "Object store",
+          "64.8",
+          "135.2",
+          "5.9%"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Laptop refresh for housing officers"
+    },
+    {
+      "level": 1,
+      "text": "186 of 240 devices replaced"
+    },
+    {
+      "level": 1,
+      "text": "Remaining devices scheduled for October:"
+    },
+    {
+      "level": 2,
+      "text": "North and East area teams"
+    },
+    {
+      "level": 2,
+      "text": "Contact centre supervisors"
+    },
+    {
+      "level": 0,
+      "text": "Move of the repairs system to the new data centre"
+    },
+    {
+      "level": 1,
+      "text": "Rehearsal completed on 28 September"
+    },
+    {
+      "level": 1,
+      "text": "Cut-over planned for 8 November"
+    },
+    {
+      "level": 0,
+      "text": "Retirement of the legacy document store (delayed to Q1 2027)"
+    }
+  ],
+  "furniture": [
+    "NORTHGATE MUTUAL HOUSING GROUP · IT OPERATIONS",
+    "Internal · Q3 2026",
+    "1 of 2",
+    "2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "groups:\n  - name: tenant-portal\n    rules:\n      - alert: PortalHighLatency\n        expr: histogram_quantile(0.95, sum by (le) (rate(portal_request_seconds_bucket[5m]))) > 1.5\n        for: 10m\n        labels:\n          severity: page\n        annotations:\n          summary: \"Portal p95 latency above 1.5 s for 10 minutes\""
+  ],
+  "notes": "IT operations report. The dark band at the top is a letterhead (furniture); \"Internal · Q3 2026\" (bottom left) and \"N of 2\" (bottom right) are CSS page-margin boxes. Four KPI boxes sit SIDE BY SIDE and read box by box, each as label, value, comparison line; they are not a table. Incident table: rule under the header and between rows only; Duration cells are vertically CENTRED, other cells top-aligned; three cells are two lines joined by one space. Code block: a YAML alert rule in Consolas (indentation exact). Projects list: three levels of bullets drawn by CSS (disc, circle, square). Storage table: rules under header and between rows, numbers right-aligned, not full width."
+}

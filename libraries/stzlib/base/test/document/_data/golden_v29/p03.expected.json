@@ -1,0 +1,163 @@
+{
+  "id": "p03",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "تعميم بشأن تنظيم جمع النفايات المنزلية",
+  "headings": [
+    {
+      "level": 1,
+      "text": "تعميم بشأن تنظيم جمع النفايات المنزلية"
+    },
+    {
+      "level": 2,
+      "text": "أولاً: مواعيد الجمع"
+    },
+    {
+      "level": 2,
+      "text": "ثانياً: التزامات السكان"
+    },
+    {
+      "level": 2,
+      "text": "ثالثاً: المخالفات والعقوبات"
+    },
+    {
+      "level": 2,
+      "text": "رابعاً: الاستعلامات"
+    }
+  ],
+  "key_sentences": [
+    "تعلن بلدية وادي الريحان لسكان الأحياء كافة عن اعتماد جدول جديد لجمع النفايات المنزلية ابتداءً من يوم الأحد الأول من شهر نوفمبر ٢٠٢٦.",
+    "يهدف هذا الجدول إلى تقليص مدة بقاء الأكياس في الشوارع وتحسين نظافة الأحياء.",
+    "يبين الجدول التالي أيام الجمع وساعات مرور الشاحنات في كل حي.",
+    "يُطلب من السكان إخراج النفايات قبل موعد مرور الشاحنة بنصف ساعة على الأكثر، مع احترام ما يلي:",
+    "يتعرض كل مخالف لأحكام هذا التعميم لغرامة مالية وفق القرار البلدي المعمول به.",
+    "تبقى مصالح البلدية في خدمة المواطنين لأي استفسار أو اقتراح."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "الحي",
+          "أيام الجمع",
+          "ساعة المرور",
+          "ملاحظات"
+        ],
+        [
+          "حي النخيل",
+          "الأحد والثلاثاء والخميس",
+          "06:00 – 07:30",
+          "—"
+        ],
+        [
+          "حي المحطة",
+          "الأحد والثلاثاء والخميس",
+          "07:30 – 09:00",
+          "الشارع الرئيسي يوميًا"
+        ],
+        [
+          "حي الزيتون",
+          "الاثنين والأربعاء والسبت",
+          "06:00 – 07:30",
+          "—"
+        ],
+        [
+          "المدينة القديمة",
+          "يوميًا عدا الجمعة",
+          "21:00 – 23:00",
+          "جمع ليلي بشاحنات صغيرة"
+        ],
+        [
+          "المنطقة الصناعية",
+          "الاثنين والخميس",
+          "14:00 – 16:00",
+          "للنفايات المنزلية فقط"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "الهاتف الأخضر",
+          "٠٨٠٠ ٤٤ ١٢ ٣٠"
+        ],
+        [
+          "البريد الإلكتروني",
+          "nadhafa@wadi-rayhan.example"
+        ],
+        [
+          "أيام الاستقبال",
+          "من الأحد إلى الخميس"
+        ],
+        [
+          "ساعات الاستقبال",
+          "من الثامنة صباحًا إلى الثالثة بعد الظهر"
+        ],
+        [
+          "العنوان",
+          "مقر البلدية، شارع الاستقلال، الطابق الأول"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "وضع النفايات في أكياس محكمة الإغلاق."
+    },
+    {
+      "level": 0,
+      "text": "فرز النفايات إلى ثلاثة أصناف:"
+    },
+    {
+      "level": 1,
+      "text": "أ) النفايات العضوية وبقايا الطعام؛"
+    },
+    {
+      "level": 1,
+      "text": "ب) الورق والكرتون والبلاستيك؛"
+    },
+    {
+      "level": 1,
+      "text": "ج) الزجاج والمعادن."
+    },
+    {
+      "level": 0,
+      "text": "عدم وضع الأكياس بجانب الأشجار أو على الأرصفة الضيقة."
+    },
+    {
+      "level": 0,
+      "text": "إبلاغ البلدية عن الحاويات المكسورة أو الممتلئة."
+    },
+    {
+      "level": 0,
+      "text": "رمي النفايات في الأودية أو الأراضي الشاغرة."
+    },
+    {
+      "level": 0,
+      "text": "حرق النفايات داخل الأحياء السكنية."
+    },
+    {
+      "level": 0,
+      "text": "إخراج الأكياس بعد مرور الشاحنة."
+    },
+    {
+      "level": 0,
+      "text": "ترك مخلفات البناء على الطريق العام دون ترخيص."
+    }
+  ],
+  "furniture": [
+    "بلدية وادي الريحان",
+    "مديرية النظافة والبيئة",
+    "الرقم: ٤٧/٢٠٢٦",
+    "التاريخ: ١٢ أكتوبر ٢٠٢٦",
+    "الصفحة ١ من ٢",
+    "الصفحة ٢ من ٢"
+  ],
+  "languages": [
+    "ar"
+  ],
+  "code": [],
+  "notes": "Right-to-left Arabic official circular. All texts are in logical order. Letterhead (municipality and directorate at the right, reference number and date at the left) is furniture. Page numbers \"الصفحة ١ من ٢\" use Arabic-Indic digits and are a CSS page-margin box. Schedule table: rules under the header and between rows only, no vertical lines; cells listed rightmost column first; times are typed with Western digits and an en dash. Numbered list of obligations: Arabic-Indic numerals DRAWN BY CSS (list-style arabic-indic), not in the text; its nested sub-list uses TYPED Arabic-letter markers \"أ)\" \"ب)\" \"ج)\" with a hanging indent. Offences list: square bullets drawn by CSS. Enquiries panel: boxed key/value table with no header row (key column first in reading order); the phone number is four groups of Arabic-Indic digits given in logical order (the first group is drawn rightmost). The signature block (title and name, set at the left) is body text, not a heading."
+}

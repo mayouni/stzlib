@@ -1,0 +1,178 @@
+{
+  "id": "p14",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Small Research Grant Application",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Small Research Grant Application"
+    },
+    {
+      "level": 2,
+      "text": "Part I. Applicant"
+    },
+    {
+      "level": 2,
+      "text": "Part II. Project"
+    },
+    {
+      "level": 3,
+      "text": "Summary"
+    },
+    {
+      "level": 3,
+      "text": "Objectives"
+    },
+    {
+      "level": 2,
+      "text": "Part III. Budget"
+    },
+    {
+      "level": 2,
+      "text": "Part IV. Declaration"
+    }
+  ],
+  "key_sentences": [
+    "Complete all four parts of this form and return it with your CV before 15 January 2027.",
+    "Incomplete applications will not be reviewed.",
+    "Seagrass meadows store carbon, shelter juvenile fish and protect the shoreline from erosion.",
+    "This project will measure how much light reaches the meadows of one estuary and relate it to the sediment carried by the river.",
+    "Overheads are not eligible and must not be included in the amounts above.",
+    "I confirm that the information given in this application is complete and accurate.",
+    "I agree that the Foundation may share a summary of the project with its reviewers."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Item",
+          "Amount (EUR)",
+          "Amount (EUR)",
+          "Amount (EUR)"
+        ],
+        [
+          "Item",
+          "Year 1",
+          "Year 2",
+          "Total"
+        ],
+        [
+          "Personnel",
+          "Personnel",
+          "Personnel",
+          "Personnel"
+        ],
+        [
+          "Research assistant, 0.5 FTE",
+          "14,200",
+          "14,600",
+          "28,800"
+        ],
+        [
+          "Student fieldwork stipends",
+          "3,000",
+          "3,000",
+          "6,000"
+        ],
+        [
+          "Equipment",
+          "Equipment",
+          "Equipment",
+          "Equipment"
+        ],
+        [
+          "Water-quality sonde",
+          "6,850",
+          "—",
+          "6,850"
+        ],
+        [
+          "Laboratory sample freezer",
+          "4,100",
+          "—",
+          "4,100"
+        ],
+        [
+          "Travel and fieldwork",
+          "Travel and fieldwork",
+          "Travel and fieldwork",
+          "Travel and fieldwork"
+        ],
+        [
+          "Boat hire, 12 days per year",
+          "2,400",
+          "2,400",
+          "4,800"
+        ],
+        [
+          "Conference attendance",
+          "—",
+          "1,250",
+          "1,250"
+        ],
+        [
+          "Total requested",
+          "30,550",
+          "21,250",
+          "51,800"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Received",
+          "Reference",
+          "Reviewer",
+          "Decision"
+        ],
+        [
+          "",
+          "",
+          "",
+          ""
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "(a) to map the extent of seagrass meadows in the Skarvik estuary using drone imagery and ground-truth transects;"
+    },
+    {
+      "level": 0,
+      "text": "(b) to measure how sediment load affects shoot density, in particular:"
+    },
+    {
+      "level": 1,
+      "text": "(i) after spring floods,"
+    },
+    {
+      "level": 1,
+      "text": "(ii) near the two dredged shipping channels, and"
+    },
+    {
+      "level": 1,
+      "text": "(iii) in the sheltered northern bays used as a reference;"
+    },
+    {
+      "level": 0,
+      "text": "(c) to share a monitoring protocol that volunteer groups can repeat every summer."
+    }
+  ],
+  "furniture": [
+    "Halden Foundation for Coastal Research",
+    "Form HF-2 (rev. 2026)",
+    "HF-2 · 1/2",
+    "HF-2 · 2/2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Grant application form, filled in. Running header (foundation name left, form number right) and the footer \"HF-2 · N/2\" are CSS page-margin boxes. Form fields are bordered boxes with a small label above a value; labels are NOT headings and the fields are not tables. Funding-category checkboxes are drawn by CSS (the ticked one is \"Field research\"); the box glyphs are not text. Part headings \"Part I.\" to \"Part IV.\" carry TYPED Roman numerals; \"Summary\" and \"Objectives\" are level-3 headings. Objectives list: TYPED \"(a)\" \"(b)\" \"(c)\" markers with a hanging indent and a nested level of TYPED lower-roman markers \"(i)\" \"(ii)\" \"(iii)\". Budget table: full grid, two-level header (\"Item\" spans both header rows, \"Amount (EUR)\" spans Year 1 / Year 2 / Total); section rows Personnel / Equipment / Travel and fieldwork span all four columns (repeated); the Total requested row is part of the table. \"FOR OFFICE USE ONLY\" is a box label (not a heading) above a full-grid table whose second row is four empty cells \"\"."
+}

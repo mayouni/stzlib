@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>IT Operations Report — Q3 2026</title>
+<style>
+
+@page { size: A4; margin: 2cm 2cm 2cm 2cm;
+  @bottom-left { content: "Internal · Q3 2026"; font-family: Roboto; font-size: 7.5pt; color: #777; }
+  @bottom-right { content: counter(page) " of " counter(pages); font-family: Roboto; font-size: 7.5pt; color: #777; } }
+body { font-family: Roboto; font-size: 9.5pt; line-height: 1.45; color: #202124; margin: 0; }
+.band { font-family: "Roboto Condensed"; font-size: 9pt; text-transform: none; color: #fff; background: #263238; padding: 5px 10px; letter-spacing: 1.5px; }
+h1 { font-family: "Roboto Condensed"; font-weight: bold; font-size: 24pt; margin: 10px 0 10px 0; }
+h2 { font-family: "Roboto Condensed"; font-weight: bold; font-size: 14pt; margin: 16px 0 4px 0; color: #263238; break-after: avoid; }
+p { margin: 0 0 6px 0; }
+.kpis { display: flex; gap: 10px; margin: 6px 0 4px 0; }
+.kpi { flex: 1; border-top: 4px solid #00897b; background: #f1f5f4; padding: 6px 8px; }
+.kpi .l { font-size: 8pt; color: #555; }
+.kpi .v { font-family: "Roboto Condensed"; font-size: 18pt; font-weight: bold; color: #00695c; }
+.kpi .c { font-size: 8pt; color: #00695c; }
+table.inc { width: 100%; border-collapse: collapse; font-size: 9pt; margin: 6px 0; }
+table.inc th { font-family: "Roboto Condensed"; font-weight: bold; text-align: left; padding: 4px 6px; border-bottom: 2px solid #263238; }
+table.inc td { padding: 4px 6px; border-bottom: 1px solid #cfd8dc; vertical-align: middle; }
+table.inc td.c { text-align: center; }
+table.inc td.t { vertical-align: top; }
+pre.code { font-family: Consolas; font-size: 8.3pt; line-height: 1.35; background: #fafafa; border: 1px solid #cfd8dc; padding: 6px 8px; white-space: pre; break-inside: avoid; }
+ul.p1 { list-style-type: disc; padding-left: 1.3em; margin: 4px 0; }
+ul.p1 ul { list-style-type: circle; padding-left: 1.3em; }
+ul.p1 ul ul { list-style-type: square; }
+table.cap { border-collapse: collapse; font-size: 9pt; margin: 6px 0; width: 70%; }
+table.cap th { font-family: "Roboto Condensed"; font-weight: bold; text-align: right; padding: 3px 8px; border-bottom: 1px solid #263238; }
+table.cap th:first-child, table.cap td:first-child { text-align: left; }
+table.cap td { text-align: right; padding: 3px 8px; border-bottom: 1px solid #e0e0e0; }
+.pb { break-before: page; }
+
+</style>
+</head>
+<body>
+
+<div class="band">NORTHGATE MUTUAL HOUSING GROUP · IT OPERATIONS</div>
+<h1 class="" >IT Operations Report — Q3 2026</h1>
+<div class="kpis"><div class="kpi"><div class="l">Service availability</div><div class="v">99.94%</div><div class="c">target 99.90%</div></div><div class="kpi"><div class="l">Major incidents (P1 / P2)</div><div class="v">3 / 11</div><div class="c">Q2: 5 / 14</div></div><div class="kpi"><div class="l">Median ticket resolution</div><div class="v">5.2 h</div><div class="c">Q2: 6.8 h</div></div><div class="kpi"><div class="l">Change success rate</div><div class="v">97.6%</div><div class="c">412 changes</div></div></div>
+<h2 class="" >1. Summary</h2>
+<p>All core services met their availability targets this quarter. The service desk resolved tickets faster than in any quarter since 2024.</p>
+<p>Three major incidents affected tenants directly. Two of the three were caused by configuration that drifted from its documented state.</p>
+<h2 class="" >2. Major incidents</h2>
+<table class="inc" >
+
+<thead>
+<tr>
+<th>Date</th>
+<th>Service</th>
+<th>Impact</th>
+<th>Duration</th>
+<th>Root cause</th>
+</tr>
+</thead><tbody>
+<tr>
+<td class="t">9 Jul</td>
+<td class="t">Tenant portal</td>
+<td class="t">Logins failed for all tenants</td>
+<td class="c">1 h 12 min</td>
+<td class="t">Expired TLS certificate on the identity proxy;<br>renewal job had been disabled during a migration.</td>
+</tr>
+<tr>
+<td class="t">22 Aug</td>
+<td class="t">Repairs line (telephony)</td>
+<td class="t">Calls dropped after 30 seconds</td>
+<td class="c">47 min</td>
+<td class="t">Carrier routing change, reverted by the carrier.</td>
+</tr>
+<tr>
+<td class="t">14 Sep</td>
+<td class="t">Rent payments</td>
+<td class="t">Card payments delayed,<br>no data lost</td>
+<td class="c">2 h 05 min</td>
+<td class="t">Database failover stalled on a full transaction log.</td>
+</tr>
+</tbody>
+</table>
+<p>Each incident has a completed review, and all eleven follow-up actions are tracked in the problem register.</p>
+<h2 class="" >3. Monitoring changes</h2>
+<p>Alerts now page the on-call engineer only when a user-facing service degrades. The new latency rule for the tenant portal is shown below.</p>
+<pre class="code">groups:
+  - name: tenant-portal
+    rules:
+      - alert: PortalHighLatency
+        expr: histogram_quantile(0.95, sum by (le) (rate(portal_request_seconds_bucket[5m]))) &gt; 1.5
+        for: 10m
+        labels:
+          severity: page
+        annotations:
+          summary: &quot;Portal p95 latency above 1.5 s for 10 minutes&quot;</pre>
+<div class="pb"></div>
+<h2 class="" >4. Projects</h2>
+<ul class="p1" >
+<li>Laptop refresh for housing officers<ul class="p1" >
+<li>186 of 240 devices replaced</li>
+<li>Remaining devices scheduled for October:<ul class="p1" >
+<li>North and East area teams</li>
+<li>Contact centre supervisors</li>
+</ul></li>
+</ul></li>
+<li>Move of the repairs system to the new data centre<ul class="p1" >
+<li>Rehearsal completed on 28 September</li>
+<li>Cut-over planned for 8 November</li>
+</ul></li>
+<li>Retirement of the legacy document store (delayed to Q1 2027)</li>
+</ul>
+<h2 class="" >5. Storage capacity</h2>
+<p>At the current growth rate the object store will need expansion within eighteen months.</p>
+<table class="cap" >
+
+<thead>
+<tr>
+<th>Storage cluster</th>
+<th>Used (TB)</th>
+<th>Free (TB)</th>
+<th>Growth per month</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>Primary SAN</td>
+<td>182.4</td>
+<td>57.6</td>
+<td>2.1%</td>
+</tr>
+<tr>
+<td>Backup vault</td>
+<td>411.0</td>
+<td>189.0</td>
+<td>3.4%</td>
+</tr>
+<tr>
+<td>Object store</td>
+<td>64.8</td>
+<td>135.2</td>
+<td>5.9%</td>
+</tr>
+</tbody>
+</table>
+<p>Prepared by the Infrastructure and Service Desk teams, 6 October 2026.</p>
+
+</body>
+</html>

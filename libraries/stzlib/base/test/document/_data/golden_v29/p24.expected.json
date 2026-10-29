@@ -1,0 +1,169 @@
+{
+  "id": "p24",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Warmtepompboiler HWP-200",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Warmtepompboiler HWP-200"
+    },
+    {
+      "level": 2,
+      "text": "Productomschrijving"
+    },
+    {
+      "level": 2,
+      "text": "Voordelen"
+    },
+    {
+      "level": 2,
+      "text": "Montage"
+    }
+  ],
+  "key_sentences": [
+    "Wijzigingen in uitvoering en specificaties voorbehouden.",
+    "De HWP-200 verwarmt tapwater met een kleine warmtepomp die warmte uit de omgevingslucht haalt.",
+    "Daardoor verbruikt hij veel minder stroom dan een gewone elektrische boiler.",
+    "Bij een gezin van vier personen bedraagt de besparing ongeveer 1.100 kWh per jaar."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Technische gegevens",
+          "Technische gegevens"
+        ],
+        [
+          "Algemeen",
+          "Algemeen"
+        ],
+        [
+          "Inhoud",
+          "200 liter"
+        ],
+        [
+          "Afmetingen (h × Ø)",
+          "1.710 × 600 mm"
+        ],
+        [
+          "Gewicht (leeg)",
+          "86 kg"
+        ],
+        [
+          "Prestaties",
+          "Prestaties"
+        ],
+        [
+          "COP (A15/W10-55)",
+          "3,4"
+        ],
+        [
+          "Opwarmtijd 10–55 °C",
+          "7 u 20 min"
+        ],
+        [
+          "Max. watertemperatuur",
+          "62 °C 65 °C met elektrisch element"
+        ],
+        [
+          "Elektrisch",
+          "Elektrisch"
+        ],
+        [
+          "Aansluiting",
+          "230 V / 50 Hz"
+        ],
+        [
+          "Opgenomen vermogen",
+          "0,45 kW 2,0 kW met element"
+        ],
+        [
+          "Geluidsniveau",
+          "49 dB(A)"
+        ],
+        [
+          "Koudemiddel",
+          "Koudemiddel"
+        ],
+        [
+          "Type en vulling",
+          "R290 (propaan), 150 g"
+        ]
+      ]
+    },
+    {
+      "caption": "Energielabel",
+      "rows": [
+        [
+          "Toepassing",
+          "Label",
+          "Profiel"
+        ],
+        [
+          "Warm tapwater",
+          "A+",
+          "L"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Tot 70% minder energieverbruik dan een elektrische boiler"
+    },
+    {
+      "level": 0,
+      "text": "Gebruikt binnenlucht of ventilatielucht als warmtebron"
+    },
+    {
+      "level": 0,
+      "text": "Natuurlijk koudemiddel met een zeer laag broeikaseffect"
+    },
+    {
+      "level": 0,
+      "text": "Bediening en storingsmeldingen via de app"
+    },
+    {
+      "level": 0,
+      "text": "Plaats het toestel op een vlakke, vorstvrije ondergrond die het gevulde gewicht van circa 290 kg kan dragen."
+    },
+    {
+      "level": 0,
+      "text": "Houd rondom minimaal 50 cm vrij voor onderhoud en luchtcirculatie."
+    },
+    {
+      "level": 0,
+      "text": "Sluit de condensafvoer aan op het riool met een sifon."
+    },
+    {
+      "level": 0,
+      "text": "Laat de eerste inbedrijfstelling uitvoeren door een erkend installateur."
+    },
+    {
+      "level": 0,
+      "text": "1. Warmtepompboiler met geïntegreerd elektrisch element"
+    },
+    {
+      "level": 0,
+      "text": "2. Inlaatcombinatie volgens NEN 1006, 8 bar"
+    },
+    {
+      "level": 0,
+      "text": "3. Installatie- en gebruikershandleiding"
+    }
+  ],
+  "furniture": [
+    "Duinwater Installatietechniek B.V.",
+    "PRODUCTINFORMATIEBLAD",
+    "Havenkade 41, 1781 AB Den Helder · www.duinwater.example",
+    "Versie 2026-10 · art.nr. 40.2200"
+  ],
+  "languages": [
+    "nl"
+  ],
+  "code": [],
+  "notes": "Dutch product data sheet in two grid columns: the left column holds the specification table and a tinted note box, the right column the description and lists. Reading order: left column, then right column. The brand line and \"PRODUCTINFORMATIEBLAD\" (letter-spaced) at the top and the two footer lines at the bottom are furniture. Specification table: boxed key/value table whose header row \"Technische gegevens\" and section rows (Algemeen, Prestaties, Elektrisch, Koudemiddel) span both columns and are repeated; two values are two lines joined by one space. The small \"Energielabel\" table (real <caption>) is FLOATED RIGHT beside the description text, which wraps around it. Lists: Voordelen has CSS disc bullets (hanging); Montage has CSS decimal markers placed INSIDE the text block (markers inline, wrapped lines return under the marker); the delivery list has TYPED \"1.\" \"2.\" \"3.\" markers inline with no hanging indent. Decimal commas and thousands dots are Dutch conventions."
+}

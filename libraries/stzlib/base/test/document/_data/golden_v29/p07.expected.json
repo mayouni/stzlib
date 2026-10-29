@@ -1,0 +1,209 @@
+{
+  "id": "p07",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "产品质量检验报告",
+  "headings": [
+    {
+      "level": 1,
+      "text": "产品质量检验报告"
+    },
+    {
+      "level": 2,
+      "text": "一、检验结论"
+    },
+    {
+      "level": 2,
+      "text": "二、检验项目及结果"
+    },
+    {
+      "level": 2,
+      "text": "三、说明"
+    }
+  ],
+  "key_sentences": [
+    "经检验，所检样品的各项指标均符合Q/HX 012-2025的要求，判定该批次产品合格。",
+    "样品由委托单位送检，委托单位对样品的代表性负责。",
+    "本次共检验10个项目，样品外包装完好，无破损。",
+    "保温效能测试在环境温度（20±2）℃条件下进行。"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "产品名称",
+          "不锈钢真空保温杯",
+          "型号规格",
+          "BW-500（500 mL）"
+        ],
+        [
+          "委托单位",
+          "杭溪日用制品有限公司",
+          "生产日期",
+          "2026-08-21"
+        ],
+        [
+          "检验类别",
+          "委托检验",
+          "样品数量",
+          "6件"
+        ],
+        [
+          "收样日期",
+          "2026-09-28",
+          "检验日期",
+          "2026-09-29至2026-10-10"
+        ],
+        [
+          "检验依据",
+          "Q/HX 012-2025《不锈钢真空保温杯》企业标准",
+          "Q/HX 012-2025《不锈钢真空保温杯》企业标准",
+          "Q/HX 012-2025《不锈钢真空保温杯》企业标准"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "序号",
+          "检验项目",
+          "检验项目",
+          "技术要求",
+          "检验结果",
+          "单项判定"
+        ],
+        [
+          "序号",
+          "类别",
+          "项目",
+          "技术要求",
+          "检验结果",
+          "单项判定"
+        ],
+        [
+          "1",
+          "外观",
+          "表面质量",
+          "表面应光洁，无明显划痕、凹陷",
+          "符合",
+          "合格"
+        ],
+        [
+          "2",
+          "外观",
+          "标志",
+          "应标明容量、材质及生产者名称",
+          "符合",
+          "合格"
+        ],
+        [
+          "3",
+          "容量",
+          "实际容量",
+          "不低于标称容量的95%",
+          "506 mL",
+          "合格"
+        ],
+        [
+          "4",
+          "保温性能",
+          "保温效能",
+          "6 h后水温不低于60 ℃",
+          "68 ℃",
+          "合格"
+        ],
+        [
+          "5",
+          "安全性能",
+          "密封性",
+          "倒置15 min无渗漏",
+          "无渗漏",
+          "合格"
+        ],
+        [
+          "6",
+          "安全性能",
+          "耐冲击",
+          "自1 m高度跌落后无破损、无脱焊",
+          "无破损",
+          "合格"
+        ],
+        [
+          "7",
+          "安全性能",
+          "杯盖扭矩",
+          "开启扭矩不大于2.5 N·m",
+          "1.8 N·m",
+          "合格"
+        ],
+        [
+          "8",
+          "材料",
+          "内胆材质",
+          "应采用06Cr19Ni10或更高等级不锈钢",
+          "06Cr19Ni10",
+          "合格"
+        ],
+        [
+          "9",
+          "材料",
+          "重金属迁移",
+          "铅、镉、铬、镍迁移量符合限量要求",
+          "未检出",
+          "合格"
+        ],
+        [
+          "10",
+          "使用说明",
+          "说明书",
+          "应注明使用及清洁方法",
+          "符合",
+          "合格"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1.本报告仅对所检样品负责。"
+    },
+    {
+      "level": 0,
+      "text": "2.本报告未加盖检验检测专用章无效，复制报告未重新加盖专用章无效。"
+    },
+    {
+      "level": 0,
+      "text": "3.对检验结果如有异议，应于收到报告之日起十五日内提出，并提交以下材料："
+    },
+    {
+      "level": 1,
+      "text": "（1）书面复检申请；"
+    },
+    {
+      "level": 1,
+      "text": "（2）原检验报告；"
+    },
+    {
+      "level": 1,
+      "text": "（3）委托单位营业执照复印件。"
+    },
+    {
+      "level": 0,
+      "text": "4.本报告共两页，涂改无效。"
+    }
+  ],
+  "furniture": [
+    "报告编号：HH-2026-10-0387",
+    "华衡产品检测技术中心",
+    "第 1 页 共 2 页",
+    "第 2 页 共 2 页"
+  ],
+  "languages": [
+    "zh"
+  ],
+  "code": [],
+  "notes": "Chinese product inspection report. The organisation line at the top (letter-spaced) is a letterhead (furniture), not a heading. Report number (top right) and \"第 N 页 共 2 页\" (bottom centre) are CSS page-margin boxes. The first table is a 4-column key/value form with no header row; the \"检验依据\" value spans three columns and is repeated. Results table: full grid, two-level header (\"检验项目\" spans 类别 and 项目; 序号/技术要求/检验结果/单项判定 span both header rows); category cells 外观, 安全性能 and 材料 span 2, 3 and 2 rows and are repeated. The notes list continues onto page 2 together with the signature line. Section headings carry TYPED Chinese ordinals \"一、\" \"二、\" \"三、\". The notes list has TYPED \"1.\" markers with no space after the marker, and a nested level with TYPED full-width \"（1）\" markers. Lines wrapped inside a Chinese sentence join with no space; the spaces in \"20 ℃\", \"506 mL\", \"1 m\" are real spaces. The three signature names and the seal note are body text."
+}

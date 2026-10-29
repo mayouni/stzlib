@@ -1,0 +1,464 @@
+{
+  "id": "p06",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "Extracto de cuenta corriente",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Extracto de cuenta corriente"
+    },
+    {
+      "level": 2,
+      "text": "Detalle de movimientos"
+    },
+    {
+      "level": 2,
+      "text": "Información importante"
+    }
+  ],
+  "key_sentences": [
+    "Le remitimos el detalle de los movimientos de su cuenta durante el mes de octubre.",
+    "Los importes se expresan en euros.",
+    "Le recordamos las condiciones aplicables a este extracto.",
+    "Para cualquier aclaración puede dirigirse a su oficina o llamar al 976 140 412 de lunes a viernes."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Resumen del periodo",
+          "Resumen del periodo"
+        ],
+        [
+          "Saldo anterior",
+          "18.412,37 €"
+        ],
+        [
+          "Total abonos",
+          "13.451,05 €"
+        ],
+        [
+          "Total cargos",
+          "11.312,48 €"
+        ],
+        [
+          "Saldo final",
+          "20.550,94 €"
+        ],
+        [
+          "Número de movimientos",
+          "43"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Fecha",
+          "Fecha valor",
+          "Concepto",
+          "Cargo",
+          "Abono",
+          "Saldo"
+        ],
+        [
+          "Saldo anterior al 30/09/2026",
+          "Saldo anterior al 30/09/2026",
+          "Saldo anterior al 30/09/2026",
+          "Saldo anterior al 30/09/2026",
+          "Saldo anterior al 30/09/2026",
+          "18.412,37"
+        ],
+        [
+          "01/10",
+          "01/10",
+          "Ingreso en efectivo Oficina 0412 Valdeherrera",
+          "",
+          "721,12",
+          "19.133,49"
+        ],
+        [
+          "02/10",
+          "02/10",
+          "Ingreso en efectivo Oficina 0412 Valdeherrera",
+          "",
+          "341,57",
+          "19.475,06"
+        ],
+        [
+          "02/10",
+          "02/10",
+          "Transferencia recibida Colegio Público Virgen del Pilar",
+          "",
+          "653,78",
+          "20.128,84"
+        ],
+        [
+          "03/10",
+          "04/10",
+          "Liquidación TPV Terminal 00418 · ventas del día",
+          "",
+          "1.106,63",
+          "21.235,47"
+        ],
+        [
+          "03/10",
+          "04/10",
+          "Liquidación TPV Terminal 00418 · ventas del día",
+          "",
+          "899,48",
+          "22.134,95"
+        ],
+        [
+          "03/10",
+          "03/10",
+          "Transferencia recibida Residencia Los Almendros",
+          "",
+          "940,67",
+          "23.075,62"
+        ],
+        [
+          "06/10",
+          "06/10",
+          "Comisión mantenimiento Cuenta negocios",
+          "12,00",
+          "",
+          "23.063,62"
+        ],
+        [
+          "07/10",
+          "07/10",
+          "Pago con tarjeta *4417 Molinos Harineros San Roque",
+          "690,74",
+          "",
+          "22.372,88"
+        ],
+        [
+          "07/10",
+          "07/10",
+          "Pago con tarjeta *4417 Molinos Harineros San Roque",
+          "510,71",
+          "",
+          "21.862,17"
+        ],
+        [
+          "08/10",
+          "08/10",
+          "Transferencia recibida Colegio Público Virgen del Pilar",
+          "",
+          "600,29",
+          "22.462,46"
+        ],
+        [
+          "08/10",
+          "08/10",
+          "Ingreso en efectivo Oficina 0412 Valdeherrera",
+          "",
+          "438,78",
+          "22.901,24"
+        ],
+        [
+          "09/10",
+          "09/10",
+          "Ingreso en efectivo Oficina 0412 Valdeherrera",
+          "",
+          "663,96",
+          "23.565,20"
+        ],
+        [
+          "09/10",
+          "09/10",
+          "Comisión mantenimiento Cuenta negocios",
+          "12,00",
+          "",
+          "23.553,20"
+        ],
+        [
+          "10/10",
+          "10/10",
+          "Transferencia recibida Colegio Público Virgen del Pilar",
+          "",
+          "545,10",
+          "24.098,30"
+        ],
+        [
+          "10/10",
+          "10/10",
+          "Comisión mantenimiento Cuenta negocios",
+          "12,00",
+          "",
+          "24.086,30"
+        ],
+        [
+          "10/10",
+          "11/10",
+          "Liquidación TPV Terminal 00418 · ventas del día",
+          "",
+          "1.119,68",
+          "25.205,98"
+        ],
+        [
+          "13/10",
+          "13/10",
+          "Comisión mantenimiento Cuenta negocios",
+          "12,00",
+          "",
+          "25.193,98"
+        ],
+        [
+          "13/10",
+          "13/10",
+          "Adeudo domiciliado Gas Natural Comarcal",
+          "259,14",
+          "",
+          "24.934,84"
+        ],
+        [
+          "14/10",
+          "14/10",
+          "Recibo electricidad Comercializadora Eléctrica del Jalón",
+          "557,01",
+          "",
+          "24.377,83"
+        ],
+        [
+          "15/10",
+          "15/10",
+          "Recibo seguro Mutua Aragonesa de Comercio",
+          "96,00",
+          "",
+          "24.281,83"
+        ],
+        [
+          "15/10",
+          "15/10",
+          "Transferencia emitida Nómina personal de obrador",
+          "1.491,01",
+          "",
+          "22.790,82"
+        ],
+        [
+          "15/10",
+          "15/10",
+          "Comisión mantenimiento Cuenta negocios",
+          "12,00",
+          "",
+          "22.778,82"
+        ],
+        [
+          "16/10",
+          "16/10",
+          "Adeudo domiciliado Gas Natural Comarcal",
+          "267,48",
+          "",
+          "22.511,34"
+        ],
+        [
+          "17/10",
+          "17/10",
+          "Ingreso en efectivo Oficina 0412 Valdeherrera",
+          "",
+          "644,99",
+          "23.156,33"
+        ],
+        [
+          "17/10",
+          "17/10",
+          "Pago con tarjeta *4417 Molinos Harineros San Roque",
+          "673,40",
+          "",
+          "22.482,93"
+        ],
+        [
+          "20/10",
+          "20/10",
+          "Recibo seguro Mutua Aragonesa de Comercio",
+          "96,00",
+          "",
+          "22.386,93"
+        ],
+        [
+          "20/10",
+          "21/10",
+          "Liquidación TPV Terminal 00418 · ventas del día",
+          "",
+          "1.133,87",
+          "23.520,80"
+        ],
+        [
+          "21/10",
+          "21/10",
+          "Recibo seguro Mutua Aragonesa de Comercio",
+          "96,00",
+          "",
+          "23.424,80"
+        ],
+        [
+          "22/10",
+          "22/10",
+          "Comisión mantenimiento Cuenta negocios",
+          "12,00",
+          "",
+          "23.412,80"
+        ],
+        [
+          "22/10",
+          "22/10",
+          "Recibo electricidad Comercializadora Eléctrica del Jalón",
+          "471,84",
+          "",
+          "22.940,96"
+        ],
+        [
+          "22/10",
+          "22/10",
+          "Transferencia emitida Nómina personal de obrador",
+          "1.235,38",
+          "",
+          "21.705,58"
+        ],
+        [
+          "23/10",
+          "24/10",
+          "Liquidación TPV Terminal 00418 · ventas del día",
+          "",
+          "1.073,72",
+          "22.779,30"
+        ],
+        [
+          "23/10",
+          "23/10",
+          "Comisión mantenimiento Cuenta negocios",
+          "12,00",
+          "",
+          "22.767,30"
+        ],
+        [
+          "24/10",
+          "24/10",
+          "Comisión mantenimiento Cuenta negocios",
+          "12,00",
+          "",
+          "22.755,30"
+        ],
+        [
+          "24/10",
+          "24/10",
+          "Transferencia emitida Nómina personal de obrador",
+          "1.399,88",
+          "",
+          "21.355,42"
+        ],
+        [
+          "27/10",
+          "27/10",
+          "Transferencia emitida Nómina personal de obrador",
+          "1.195,06",
+          "",
+          "20.160,36"
+        ],
+        [
+          "28/10",
+          "28/10",
+          "Transferencia recibida Residencia Los Almendros",
+          "",
+          "1.279,57",
+          "21.439,93"
+        ],
+        [
+          "29/10",
+          "29/10",
+          "Pago con tarjeta *4417 Molinos Harineros San Roque",
+          "715,04",
+          "",
+          "20.724,89"
+        ],
+        [
+          "30/10",
+          "30/10",
+          "Pago con tarjeta *4417 Molinos Harineros San Roque",
+          "420,58",
+          "",
+          "20.304,31"
+        ],
+        [
+          "30/10",
+          "30/10",
+          "Pago con tarjeta *4417 Molinos Harineros San Roque",
+          "791,01",
+          "",
+          "19.513,30"
+        ],
+        [
+          "30/10",
+          "30/10",
+          "Adeudo domiciliado Gas Natural Comarcal",
+          "250,20",
+          "",
+          "19.263,10"
+        ],
+        [
+          "31/10",
+          "31/10",
+          "Transferencia recibida Colegio Público Virgen del Pilar",
+          "",
+          "478,99",
+          "19.742,09"
+        ],
+        [
+          "31/10",
+          "31/10",
+          "Transferencia recibida Residencia Los Almendros",
+          "",
+          "808,85",
+          "20.550,94"
+        ],
+        [
+          "Totales del periodo",
+          "Totales del periodo",
+          "Totales del periodo",
+          "11.312,48",
+          "13.451,05",
+          ""
+        ],
+        [
+          "Saldo final al 31/10/2026",
+          "Saldo final al 31/10/2026",
+          "Saldo final al 31/10/2026",
+          "Saldo final al 31/10/2026",
+          "Saldo final al 31/10/2026",
+          "20.550,94"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Dispone de un mes desde la fecha de este extracto para comunicarnos cualquier discrepancia."
+    },
+    {
+      "level": 0,
+      "text": "Los movimientos con fecha valor posterior al cierre aparecerán en el extracto de noviembre."
+    },
+    {
+      "level": 0,
+      "text": "Puede consultar sus extractos de los últimos cinco años en la banca a distancia."
+    }
+  ],
+  "furniture": [
+    "Caja Solidaria de Valdeherrera",
+    "Extracto de cuenta corriente · octubre 2026",
+    "Página 1 de 3",
+    "Página 2 de 3",
+    "Página 3 de 3"
+  ],
+  "languages": [
+    "es"
+  ],
+  "code": [],
+  "notes": "Running header (bank name left, statement title right) and \"Página N de 3\" (bottom left) are CSS page-margin boxes. The recipient address block (dashed box, left) and the \"Resumen del periodo\" key/value panel (right) are SIDE BY SIDE and read box by box: address first, then the summary. The summary panel title \"Resumen del periodo\" spans both columns and is its header row (repeated twice). The movements table runs across all three pages; Chrome repeats its header row at the top of each page, but it is ONE table with the header row given once. Section rows \"Saldo anterior…\", \"Totales del periodo\" and \"Saldo final…\" are rows of the same table; their spanning label cells are repeated. Empty Cargo/Abono cells are \"\". Each Concepto cell is two lines (concept + grey counterparty) joined by one space. Table rules: thick lines above and below the header, thin rules between rows, no vertical lines. The movements table is set in Arial Narrow; the rest in Arial. Bullets of the information list are drawn by CSS. The small legal paragraph at the end is body text."
+}

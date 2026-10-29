@@ -1,0 +1,130 @@
+{
+  "id": "p01",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Tax Invoice",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Tax Invoice"
+    },
+    {
+      "level": 2,
+      "text": "Payment terms"
+    },
+    {
+      "level": 2,
+      "text": "Notes"
+    }
+  ],
+  "key_sentences": [
+    "Payment is due within 30 days of the issue date.",
+    "Late payments accrue interest at 4% above the base rate.",
+    "Thank you for choosing us for the refresh of your clinic identity.",
+    "The signage drawings will be issued to your fit-out contractor once this invoice is settled."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "#",
+          "Description",
+          "Qty",
+          "Unit price",
+          "Amount"
+        ],
+        [
+          "1",
+          "Brand identity refresh Discovery workshops, two half-day sessions",
+          "1",
+          "2,400.00",
+          "2,400.00"
+        ],
+        [
+          "2",
+          "Logo system Primary mark, monogram and clear-space rules",
+          "1",
+          "3,150.00",
+          "3,150.00"
+        ],
+        [
+          "3",
+          "Stationery set Letterhead, compliments slip, business card",
+          "3",
+          "280.00",
+          "840.00"
+        ],
+        [
+          "4",
+          "Reception signage drawings, revision B Charged by the hour",
+          "12",
+          "85.00",
+          "1,020.00"
+        ],
+        [
+          "5",
+          "Print management 500 cards on 400 gsm uncoated board",
+          "1",
+          "365.00",
+          "365.00"
+        ],
+        [
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "7,775.00"
+        ],
+        [
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "1,555.00"
+        ],
+        [
+          "Total due (GBP)",
+          "Total due (GBP)",
+          "Total due (GBP)",
+          "Total due (GBP)",
+          "£9,330.00"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Payment is due within 30 days of the issue date."
+    },
+    {
+      "level": 0,
+      "text": "Pay by bank transfer to the account below, quoting the invoice number."
+    },
+    {
+      "level": 1,
+      "text": "Account name: Brackwater Signal Design Ltd"
+    },
+    {
+      "level": 1,
+      "text": "Sort code 40-17-62, account 51148830"
+    },
+    {
+      "level": 0,
+      "text": "Late payments accrue interest at 4% above the base rate."
+    }
+  ],
+  "furniture": [
+    "Brackwater Signal Design Ltd",
+    "Unit 7, Tannery Yard, York YO1 9WD",
+    "accounts@brackwater-signal.example",
+    "+44 1904 552 018",
+    "Registered in England and Wales, company no. 10583472 · VAT reg. GB 318 2207 54"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Letterhead (organisation name and three address lines) is furniture, not a heading. \"BILL TO\" and \"INVOICE DETAILS\" are box labels (letter-spaced, uppercase in the source), not headings. The two boxes sit SIDE BY SIDE and read box by box: Bill to first, then Invoice details; the Invoice details box holds a borderless key/value table, which is not listed in tables. Line-item table: zebra bands, header row filled, Description cells are two lines (item + grey sub-line) joined by one space. Subtotal, VAT and Total rows are rows of the same table; their label cell spans four columns and is repeated four times. Payment-terms list: bullets drawn by CSS (disc, nested circle); markers are not in the text. The registration line at the bottom is a footer (furniture)."
+}

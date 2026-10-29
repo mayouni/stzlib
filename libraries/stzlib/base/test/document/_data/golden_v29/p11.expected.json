@@ -1,0 +1,162 @@
+{
+  "id": "p11",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Νέα της Βιβλιοθήκης",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Νέα της Βιβλιοθήκης"
+    },
+    {
+      "level": 2,
+      "text": "Ανακαινισμένο παιδικό τμήμα"
+    },
+    {
+      "level": 2,
+      "text": "640 νέοι τίτλοι"
+    },
+    {
+      "level": 2,
+      "text": "Πρόγραμμα εκδηλώσεων Νοεμβρίου"
+    },
+    {
+      "level": 2,
+      "text": "Κανόνες δανεισμού"
+    },
+    {
+      "level": 3,
+      "text": "Συλλογή ρούχων"
+    },
+    {
+      "level": 3,
+      "text": "Νέος σταθμός επιστροφής"
+    }
+  ],
+  "key_sentences": [
+    "Το παιδικό τμήμα της βιβλιοθήκης άνοιξε ξανά τις πόρτες του μετά από τέσσερις μήνες εργασιών.",
+    "Ο χώρος διαθέτει πλέον γωνιά ανάγνωσης για νήπια και δύο υπολογιστές με εκπαιδευτικά προγράμματα.",
+    "Η συλλογή μας εμπλουτίστηκε με 640 νέους τίτλους χάρη σε δωρεές αναγνωστών.",
+    "Η συμμετοχή σε όλες τις εκδηλώσεις είναι δωρεάν.",
+    "Για τα εργαστήρια απαιτείται προεγγραφή στο γραφείο δανεισμού."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Δευτέρα – Παρασκευή",
+          "08:30 – 20:00"
+        ],
+        [
+          "Σάββατο",
+          "09:00 – 14:00"
+        ],
+        [
+          "Κυριακή",
+          "Κλειστά"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Ημερομηνία",
+          "Εκδήλωση",
+          "Ώρα",
+          "Χώρος"
+        ],
+        [
+          "Τετ. 4/11",
+          "Ώρα παραμυθιού για παιδιά 4–6 ετών",
+          "17:30",
+          "Παιδικό τμήμα"
+        ],
+        [
+          "Σάβ. 7/11",
+          "Εργαστήριο βιβλιοδεσίας για ενήλικες αρχάριους",
+          "10:00",
+          "Αίθουσα Α"
+        ],
+        [
+          "Πέμ. 12/11",
+          "Παρουσίαση βιβλίου: «Τα πλοία του Οκτώβρη»",
+          "19:00",
+          "Αναγνωστήριο"
+        ],
+        [
+          "Τρ. 17/11",
+          "Λέσχη ανάγνωσης: συζήτηση για το διήγημα",
+          "18:30",
+          "Αίθουσα Β"
+        ],
+        [
+          "Σάβ. 21/11",
+          "Εργαστήριο ψηφιακών δεξιοτήτων για άτομα άνω των 60",
+          "11:00",
+          "Εργαστήριο Η/Υ"
+        ],
+        [
+          "Παρ. 27/11",
+          "Προβολή ντοκιμαντέρ για την ιστορία της πόλης",
+          "19:30",
+          "Αίθουσα Α"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "μυθιστορήματα σύγχρονων Ελλήνων συγγραφέων,"
+    },
+    {
+      "level": 0,
+      "text": "βιβλία γνώσεων για παιδιά δημοτικού,"
+    },
+    {
+      "level": 0,
+      "text": "οδηγούς εκμάθησης ξένων γλωσσών,"
+    },
+    {
+      "level": 0,
+      "text": "κόμικς και εικονογραφημένα βιβλία."
+    },
+    {
+      "level": 0,
+      "text": "α) Ο δανεισμός διαρκεί 21 ημέρες και ανανεώνεται μία φορά."
+    },
+    {
+      "level": 0,
+      "text": "β) Μπορείτε να ανανεώσετε τα βιβλία σας:"
+    },
+    {
+      "level": 1,
+      "text": "στο γραφείο δανεισμού,"
+    },
+    {
+      "level": 1,
+      "text": "τηλεφωνικά στο 210 6014 377,"
+    },
+    {
+      "level": 1,
+      "text": "μέσω του ηλεκτρονικού καταλόγου."
+    },
+    {
+      "level": 0,
+      "text": "γ) Για κάθε ημέρα καθυστέρησης δεν χρεώνεται πρόστιμο, αλλά αναστέλλεται ο νέος δανεισμός."
+    }
+  ],
+  "furniture": [
+    "Δημοτική Βιβλιοθήκη Ανατολικής Πεύκης",
+    "Τεύχος 18 · Φθινόπωρο 2026",
+    "σελ. 1",
+    "σελ. 2"
+  ],
+  "languages": [
+    "el"
+  ],
+  "code": [],
+  "notes": "Greek library newsletter. The masthead line (library name left, issue right) is a letterhead (furniture); \"σελ. N\" bottom right is a CSS page-margin box. Page 1 is a three-column grid: article 1, article 2 and a tinted sidebar \"Ωράριο λειτουργίας\". Reading order is column by column: article 1, then article 2, then the sidebar. \"Ωράριο λειτουργίας\" is a box label, not a heading; its opening hours are a borderless key/value table with no header row. The list of new titles is beside the other columns; its Greek-letter markers α. β. γ. δ. are DRAWN BY CSS (lower-greek). The italic pull quote under the grid is body text but not a key sentence. Events table on page 2: rule under the header and between rows, no vertical lines; two cells are two lines joined by one space. Loan rules: TYPED \"α)\" \"β)\" \"γ)\" markers with a hanging indent; the nested level has circle bullets drawn by CSS. The end of page 2 is set in two CSS columns with two level-3 headings."
+}

@@ -1,0 +1,158 @@
+{
+  "id": "p09",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "2027년 주민참여예산 사업 선정 결과 보고",
+  "headings": [
+    {
+      "level": 1,
+      "text": "2027년 주민참여예산 사업 선정 결과 보고"
+    },
+    {
+      "level": 2,
+      "text": "Ⅰ. 추진 개요"
+    },
+    {
+      "level": 2,
+      "text": "Ⅱ. 선정 결과"
+    },
+    {
+      "level": 2,
+      "text": "Ⅲ. 향후 계획"
+    }
+  ],
+  "key_sentences": [
+    "주민참여예산위원회 심사와 주민 온라인 투표를 거쳐 2027년 주민참여예산 사업 7건을 최종 선정하였음.",
+    "선정 사업의 총사업비는 6억 7천만 원임.",
+    "올해 투표 참여자는 지난해보다 1,214명 늘어 역대 최다를 기록하였음.",
+    "안전 분야 사업이 3건으로 가장 많았으며, 통학로 안전펜스 설치 사업이 최다 득표를 얻었음.",
+    "선정 결과는 10월 말까지 투표 참여자에게 문자로 안내할 예정임."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "담당",
+          "팀장",
+          "과장"
+        ],
+        [
+          "",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "caption": "(단위: 백만원)",
+      "rows": [
+        [
+          "연번",
+          "분야",
+          "사업명",
+          "사업비",
+          "소관부서"
+        ],
+        [
+          "1",
+          "안전",
+          "통학로 보행자 안전펜스 설치",
+          "180",
+          "교통행정과"
+        ],
+        [
+          "2",
+          "안전",
+          "골목길 태양광 보안등 교체",
+          "95",
+          "안전총괄과"
+        ],
+        [
+          "3",
+          "안전",
+          "경로당 자동심장충격기 보급",
+          "42",
+          "보건정책과"
+        ],
+        [
+          "4",
+          "환경",
+          "하천변 산책로 그늘막 조성",
+          "130",
+          "공원녹지과"
+        ],
+        [
+          "5",
+          "환경",
+          "공동주택 음식물 감량기 시범 설치",
+          "88",
+          "청소행정과"
+        ],
+        [
+          "6",
+          "복지·문화",
+          "작은도서관 야간 개방 운영",
+          "64",
+          "문화체육과"
+        ],
+        [
+          "7",
+          "복지·문화",
+          "1인 가구 반찬 나눔 사업",
+          "71",
+          "복지정책과"
+        ],
+        [
+          "합계",
+          "합계",
+          "합계",
+          "670",
+          ""
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "○ 근거: 「한빛구 주민참여예산제 운영 조례」 제9조"
+    },
+    {
+      "level": 0,
+      "text": "○ 추진 경과"
+    },
+    {
+      "level": 1,
+      "text": "- 사업 공모(4. 1.~5. 31.): 총 87건 접수"
+    },
+    {
+      "level": 1,
+      "text": "- 부서 검토 및 분과위원회 심사(6월~8월): 31건 상정"
+    },
+    {
+      "level": 1,
+      "text": "- 주민 온라인 투표(9. 8.~9. 21.): 4,926명 참여"
+    },
+    {
+      "level": 0,
+      "text": "가. 선정 사업은 2027년도 본예산(안)에 반영하여 구의회에 제출"
+    },
+    {
+      "level": 0,
+      "text": "나. 사업별 추진 상황을 분기마다 구 누리집에 공개"
+    },
+    {
+      "level": 0,
+      "text": "다. 미선정 사업 중 시급한 사업은 부서 자체 예산으로 추진 검토"
+    }
+  ],
+  "furniture": [
+    "한빛구청 기획예산과"
+  ],
+  "languages": [
+    "ko"
+  ],
+  "code": [],
+  "notes": "Korean administrative report (개조식 style). The department line at the top left is a letterhead (furniture). The approval box (결재란: 담당/팀장/과장) is a small full-grid table BESIDE the title at the top right; its signature row is empty, three \"\" cells. The boxed summary paragraph under the header is body text. Lists: TYPED \"○\" markers with a nested level of TYPED \"-\" markers (hanging indents), and TYPED \"가.\" \"나.\" \"다.\" markers in Ⅲ. Section headings carry TYPED Roman numerals \"Ⅰ.\" \"Ⅱ.\" \"Ⅲ.\" (U+2160..U+2162). Results table: partly ruled (heavy top and bottom rules, vertical lines between columns, light row rules, no outer vertical border); 분야 cells span 3, 2 and 2 rows and are repeated; the 합계 row spans three columns and its last cell is empty. Its unit note \"(단위: 백만원)\" is set right-aligned above the table and is given as the caption. The closing \"끝.\" is not a key sentence."
+}

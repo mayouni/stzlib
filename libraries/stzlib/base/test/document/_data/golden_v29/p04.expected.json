@@ -1,0 +1,252 @@
+{
+  "id": "p04",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "Betriebshandbuch LV-Server 5",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Betriebshandbuch LV-Server 5"
+    },
+    {
+      "level": 2,
+      "text": "1 Systemvoraussetzungen"
+    },
+    {
+      "level": 2,
+      "text": "2 Installation"
+    },
+    {
+      "level": 3,
+      "text": "2.1 Paket einspielen"
+    },
+    {
+      "level": 3,
+      "text": "2.2 Dienst einrichten"
+    },
+    {
+      "level": 4,
+      "text": "2.2.1 Parameter der Datei lv-server.conf"
+    },
+    {
+      "level": 2,
+      "text": "3 Datensicherung"
+    },
+    {
+      "level": 2,
+      "text": "4 Fehlerbehebung"
+    },
+    {
+      "level": 2,
+      "text": "5 Aktualisierung"
+    },
+    {
+      "level": 3,
+      "text": "5.1 Versionsverlauf"
+    }
+  ],
+  "key_sentences": [
+    "Dieses Handbuch beschreibt Installation, Konfiguration und Betrieb des Lagerverwaltungsservers.",
+    "Es richtet sich an Administratoren, die mit Linux und PostgreSQL vertraut sind.",
+    "Für einen Standort mit bis zu 40 Handscannern gelten die folgenden Werte.",
+    "Nach jeder Änderung an der Konfiguration muss der Dienst neu gestartet werden.",
+    "Der Server bringt ein eigenes Sicherungswerkzeug mit.",
+    "Prüfen Sie mindestens einmal im Quartal, ob sich eine Sicherung tatsächlich wiederherstellen lässt."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Komponente",
+          "Mindestens",
+          "Empfohlen"
+        ],
+        [
+          "Prozessor",
+          "4 Kerne, 2,4 GHz",
+          "8 Kerne, 3,0 GHz"
+        ],
+        [
+          "Arbeitsspeicher",
+          "8 GB",
+          "32 GB"
+        ],
+        [
+          "Festplatte",
+          "120 GB SSD",
+          "500 GB NVMe, gespiegelt"
+        ],
+        [
+          "Betriebssystem",
+          "Debian 12 oder Ubuntu 24.04 LTS",
+          "Debian 12"
+        ],
+        [
+          "Datenbank",
+          "PostgreSQL 15",
+          "PostgreSQL 16 auf eigenem Host"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Parameter",
+          "Standardwert",
+          "Bedeutung"
+        ],
+        [
+          "port",
+          "8443",
+          "TCP-Port der Weboberfläche und der REST-Schnittstelle."
+        ],
+        [
+          "worker",
+          "Anzahl der Kerne",
+          "Zahl der parallelen Arbeitsprozesse. Werte über 16 bringen keinen messbaren Gewinn."
+        ],
+        [
+          "protokoll",
+          "/var/log/lv-server/server.log",
+          "Pfad der Protokolldatei. Das Verzeichnis muss dem Dienstkonto gehören."
+        ],
+        [
+          "bind_adresse",
+          "127.0.0.1",
+          "Netzwerkadresse, an die sich der Dienst bindet. Für den Zugriff aus dem Lagernetz 0.0.0.0 eintragen."
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Fehlercode",
+          "Ursache",
+          "Maßnahme"
+        ],
+        [
+          "LV-101",
+          "Datenbank nicht erreichbar",
+          "Host und Port im Abschnitt [datenbank] prüfen."
+        ],
+        [
+          "LV-204",
+          "Lizenzdatei abgelaufen",
+          "Neue Lizenz im Kundenportal anfordern und nach /etc/lv-server/ kopieren."
+        ],
+        [
+          "LV-310",
+          "Scanner meldet unbekannte Lagerplatznummer",
+          "Stammdaten des Lagerplatzes anlegen oder Etikett neu drucken."
+        ],
+        [
+          "LV-415",
+          "Sicherungsziel voll",
+          "Ältere Sicherungen auslagern oder --behalte verringern."
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Version",
+          "Datum",
+          "Wesentliche Änderungen"
+        ],
+        [
+          "5.2",
+          "03/2026",
+          "Mehrlagerfähigkeit, neue Inventurliste"
+        ],
+        [
+          "5.3",
+          "06/2026",
+          "REST-Schnittstelle für Versanddienstleister"
+        ],
+        [
+          "5.4",
+          "09/2026",
+          "Sicherungswerkzeug lv-backup, schnellere Kommissionierlisten"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Melden Sie sich als Benutzer mit Administratorrechten am Server an."
+    },
+    {
+      "level": 0,
+      "text": "Prüfen Sie vor der Installation:"
+    },
+    {
+      "level": 1,
+      "text": "ob die Datenbank vom Server aus erreichbar ist,"
+    },
+    {
+      "level": 1,
+      "text": "ob Port 8443 in der Firewall freigegeben ist,"
+    },
+    {
+      "level": 1,
+      "text": "ob die Lizenzdatei lizenz.lvk vorliegt."
+    },
+    {
+      "level": 0,
+      "text": "Kopieren Sie das Installationspaket in ein temporäres Verzeichnis."
+    },
+    {
+      "level": 0,
+      "text": "Führen Sie die folgenden Befehle nacheinander aus:"
+    },
+    {
+      "level": 0,
+      "text": "– vollständige Sicherung der Datenbank jede Nacht,"
+    },
+    {
+      "level": 0,
+      "text": "– Kopie der Konfigurationsdateien unter /etc/lv-server/,"
+    },
+    {
+      "level": 0,
+      "text": "– Aufbewahrung der letzten 14 Sicherungen auf einem getrennten Datenträger."
+    },
+    {
+      "level": 0,
+      "text": "Erstellen Sie eine vollständige Sicherung wie in Kapitel 3 beschrieben."
+    },
+    {
+      "level": 0,
+      "text": "Beenden Sie den Dienst mit systemctl stop lv-server."
+    },
+    {
+      "level": 0,
+      "text": "Installieren Sie das neue Paket mit dpkg -i."
+    },
+    {
+      "level": 0,
+      "text": "Starten Sie den Dienst und prüfen Sie das Protokoll auf Warnungen."
+    }
+  ],
+  "furniture": [
+    "LV-Server 5 · Betriebshandbuch",
+    "Stand: Oktober 2026",
+    "Seite 1 von 3",
+    "Seite 2 von 3",
+    "Seite 3 von 3"
+  ],
+  "languages": [
+    "de"
+  ],
+  "code": [
+    "sudo dpkg -i lv-server_5.4.2_amd64.deb\nsudo systemctl enable lv-server\nsudo systemctl start lv-server\nsystemctl status lv-server --no-pager",
+    "[datenbank]\nhost     = db01.lager.intern\nport     = 5432\nname     = lagerwerk\nbenutzer = lv_dienst\n\n[server]\nbind_adresse = 0.0.0.0\nport         = 8443\nworker       = 8\nprotokoll    = /var/log/lv-server/server.log",
+    "# Tägliche Sicherung um 02:15 Uhr\n15 2 * * * /opt/lv-server/bin/lv-backup --ziel /mnt/sicherung --behalte 14"
+  ],
+  "notes": "Running header (left \"LV-Server 5 · Betriebshandbuch\", right \"Stand: Oktober 2026\") and footer \"Seite N von 3\" are CSS page-margin boxes. Headings carry TYPED section numbers (\"1\", \"2.1\", \"2.2.1\") as part of their text; levels: title 1, chapters 2, sections 3, subsection 4. Installation steps: decimal numbers drawn by CSS; nested sub-list with \"a)\" \"b)\" \"c)\" markers also drawn by CSS (::marker), so neither is in the text. Backup list: TYPED en-dash markers \"–\" with a hanging indent. Four tables are ruled under the header only (no other lines); in the parameter table some cells are two lines (top-aligned) and are joined by one space. Three code blocks set in Consolas; inline code words in body and tables are Consolas too. The \"Hinweis\" box is body text, its bold label \"Hinweis:\" is not a heading."
+}

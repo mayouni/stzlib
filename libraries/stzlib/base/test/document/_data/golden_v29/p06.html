@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Extracto de cuenta corriente</title>
+<style>
+
+@page { size: A4; margin: 2.4cm 1.8cm 2cm 1.8cm;
+  @top-left { content: "Caja Solidaria de Valdeherrera"; font-family: Arial; font-weight: bold; font-size: 8.5pt; color: #7a1f2b; }
+  @top-right { content: "Extracto de cuenta corriente · octubre 2026"; font-family: Arial; font-size: 8.5pt; color: #555; }
+  @bottom-left { content: "Página " counter(page) " de " counter(pages); font-family: Arial; font-size: 8pt; color: #555; } }
+body { font-family: Arial; font-size: 9pt; color: #222; margin: 0; }
+h1 { font-size: 16pt; color: #7a1f2b; margin: 0 0 10px 0; font-weight: bold; }
+h2 { font-size: 11pt; color: #7a1f2b; margin: 14px 0 5px 0; font-weight: bold; }
+p { margin: 0 0 5px 0; line-height: 1.4; }
+.top { display: flex; gap: 22px; margin-bottom: 12px; }
+.dest { flex: 1; padding: 10px 12px; line-height: 1.45; font-size: 10pt; border: 1px dashed #bbb; }
+.resumen { flex: 1; }
+table.res { width: 100%; border: 1.5px solid #7a1f2b; border-collapse: collapse; }
+table.res th { background: #7a1f2b; color: #fff; text-align: left; padding: 3px 8px; font-weight: bold; }
+table.res td { padding: 2px 8px; border-bottom: 1px solid #ead6d9; }
+table.res td.n { text-align: right; white-space: nowrap; }
+table.mov { width: 100%; border-collapse: collapse; font-family: "Arial Narrow"; font-size: 9.5pt; }
+table.mov thead th { border-top: 1.5px solid #333; border-bottom: 1.5px solid #333; padding: 4px 5px; text-align: left; font-weight: bold; }
+table.mov thead th.n { text-align: right; }
+table.mov td { padding: 3px 5px; border-bottom: 0.5px solid #d8d8d8; vertical-align: top; }
+table.mov td.n { text-align: right; white-space: nowrap; }
+table.mov td .ref { color: #777; font-size: 8.5pt; }
+table.mov tr.sec td { background: #f3e9ea; font-weight: bold; }
+table.mov tr { break-inside: avoid; }
+ul.info { margin: 4px 0; padding-left: 16px; list-style-type: disc; }
+ul.info li { margin: 2px 0; }
+.legal { margin-top: 12px; font-size: 7.5pt; color: #666; border-top: 1px solid #ccc; padding-top: 4px; }
+
+</style>
+</head>
+<body>
+
+<h1 class="" >Extracto de cuenta corriente</h1>
+<div class="top">
+ <div class="dest">Panadería Hermanos Oyarzun, S.L.<br>Calle del Horno Viejo, 7<br>50297 Valdeherrera (Zaragoza)</div>
+ <div class="resumen"><table class="res" >
+
+<thead>
+<tr>
+<th colspan="2">Resumen del periodo</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>Saldo anterior</td>
+<td class="n">18.412,37 €</td>
+</tr>
+<tr>
+<td>Total abonos</td>
+<td class="n">13.451,05 €</td>
+</tr>
+<tr>
+<td>Total cargos</td>
+<td class="n">11.312,48 €</td>
+</tr>
+<tr>
+<td>Saldo final</td>
+<td class="n">20.550,94 €</td>
+</tr>
+<tr>
+<td>Número de movimientos</td>
+<td class="n">43</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>Cuenta: ES76 3190 0412 5523 0018 7741 · Titular: Panadería Hermanos Oyarzun, S.L. · Periodo: 01/10/2026 – 31/10/2026</p>
+<p>Le remitimos el detalle de los movimientos de su cuenta durante el mes de octubre. Los importes se expresan en euros.</p>
+<h2 class="" >Detalle de movimientos</h2>
+<table class="mov" >
+
+<thead>
+<tr>
+<th>Fecha</th>
+<th>Fecha valor</th>
+<th>Concepto</th>
+<th class="n">Cargo</th>
+<th class="n">Abono</th>
+<th class="n">Saldo</th>
+</tr>
+</thead><tbody>
+<tr class="sec">
+<td colspan="5">Saldo anterior al 30/09/2026</td>
+<td class="n">18.412,37</td>
+</tr>
+<tr>
+<td>01/10</td>
+<td>01/10</td>
+<td>Ingreso en efectivo<br><span class="ref">Oficina 0412 Valdeherrera</span></td>
+<td class="n"></td>
+<td class="n">721,12</td>
+<td class="n">19.133,49</td>
+</tr>
+<tr>
+<td>02/10</td>
+<td>02/10</td>
+<td>Ingreso en efectivo<br><span class="ref">Oficina 0412 Valdeherrera</span></td>
+<td class="n"></td>
+<td class="n">341,57</td>
+<td class="n">19.475,06</td>
+</tr>
+<tr>
+<td>02/10</td>
+<td>02/10</td>
+<td>Transferencia recibida<br><span class="ref">Colegio Público Virgen del Pilar</span></td>
+<td class="n"></td>
+<td class="n">653,78</td>
+<td class="n">20.128,84</td>
+</tr>
+<tr>
+<td>03/10</td>
+<td>04/10</td>
+<td>Liquidación TPV<br><span class="ref">Terminal 00418 · ventas del día</span></td>
+<td class="n"></td>
+<td class="n">1.106,63</td>
+<td class="n">21.235,47</td>
+</tr>
+<tr>
+<td>03/10</td>
+<td>04/10</td>
+<td>Liquidación TPV<br><span class="ref">Terminal 00418 · ventas del día</span></td>
+<td class="n"></td>
+<td class="n">899,48</td>
+<td class="n">22.134,95</td>
+</tr>
+<tr>
+<td>03/10</td>
+<td>03/10</td>
+<td>Transferencia recibida<br><span class="ref">Residencia Los Almendros</span></td>
+<td class="n"></td>
+<td class="n">940,67</td>
+<td class="n">23.075,62</td>
+</tr>
+<tr>
+<td>06/10</td>
+<td>06/10</td>
+<td>Comisión mantenimiento<br><span class="ref">Cuenta negocios</span></td>
+<td class="n">12,00</td>
+<td class="n"></td>
+<td class="n">23.063,62</td>
+</tr>
+<tr>
+<td>07/10</td>
+<td>07/10</td>
+<td>Pago con tarjeta *4417<br><span class="ref">Molinos Harineros San Roque</span></td>
+<td class="n">690,74</td>
+<td class="n"></td>
+<td class="n">22.372,88</td>
+</tr>
+<tr>
+<td>07/10</td>
+<td>07/10</td>
+<td>Pago con tarjeta *4417<br><span class="ref">Molinos Harineros San Roque</span></td>
+<td class="n">510,71</td>
+<td class="n"></td>
+<td class="n">21.862,17</td>
+</tr>
+<tr>
+<td>08/10</td>
+<td>08/10</td>
+<td>Transferencia recibida<br><span class="ref">Colegio Público Virgen del Pilar</span></td>
+<td class="n"></td>
+<td class="n">600,29</td>
+<td class="n">22.462,46</td>
+</tr>
+<tr>
+<td>08/10</td>
+<td>08/10</td>
+<td>Ingreso en efectivo<br><span class="ref">Oficina 0412 Valdeherrera</span></td>
+<td class="n"></td>
+<td class="n">438,78</td>
+<td class="n">22.901,24</td>
+</tr>
+<tr>
+<td>09/10</td>
+<td>09/10</td>
+<td>Ingreso en efectivo<br><span class="ref">Oficina 0412 Valdeherrera</span></td>
+<td class="n"></td>
+<td class="n">663,96</td>
+<td class="n">23.565,20</td>
+</tr>
+<tr>
+<td>09/10</td>
+<td>09/10</td>
+<td>Comisión mantenimiento<br><span class="ref">Cuenta negocios</span></td>
+<td class="n">12,00</td>
+<td class="n"></td>
+<td class="n">23.553,20</td>
+</tr>
+<tr>
+<td>10/10</td>
+<td>10/10</td>
+<td>Transferencia recibida<br><span class="ref">Colegio Público Virgen del Pilar</span></td>
+<td class="n"></td>
+<td class="n">545,10</td>
+<td class="n">24.098,30</td>
+</tr>
+<tr>
+<td>10/10</td>
+<td>10/10</td>
+<td>Comisión mantenimiento<br><span class="ref">Cuenta negocios</span></td>
+<td class="n">12,00</td>
+<td class="n"></td>
+<td class="n">24.086,30</td>
+</tr>
+<tr>
+<td>10/10</td>
+<td>11/10</td>
+<td>Liquidación TPV<br><span class="ref">Terminal 00418 · ventas del día</span></td>
+<td class="n"></td>
+<td class="n">1.119,68</td>
+<td class="n">25.205,98</td>
+</tr>
+<tr>
+<td>13/10</td>
+<td>13/10</td>
+<td>Comisión mantenimiento<br><span class="ref">Cuenta negocios</span></td>
+<td class="n">12,00</td>
+<td class="n"></td>
+<td class="n">25.193,98</td>
+</tr>
+<tr>
+<td>13/10</td>
+<td>13/10</td>
+<td>Adeudo domiciliado<br><span class="ref">Gas Natural Comarcal</span></td>
+<td class="n">259,14</td>
+<td class="n"></td>
+<td class="n">24.934,84</td>
+</tr>
+<tr>
+<td>14/10</td>
+<td>14/10</td>
+<td>Recibo electricidad<br><span class="ref">Comercializadora Eléctrica del Jalón</span></td>
+<td class="n">557,01</td>
+<td class="n"></td>
+<td class="n">24.377,83</td>
+</tr>
+<tr>
+<td>15/10</td>
+<td>15/10</td>
+<td>Recibo seguro<br><span class="ref">Mutua Aragonesa de Comercio</span></td>
+<td class="n">96,00</td>
+<td class="n"></td>
+<td class="n">24.281,83</td>
+</tr>
+<tr>
+<td>15/10</td>
+<td>15/10</td>
+<td>Transferencia emitida<br><span class="ref">Nómina personal de obrador</span></td>
+<td class="n">1.491,01</td>
+<td class="n"></td>
+<td class="n">22.790,82</td>
+</tr>
+<tr>
+<td>15/10</td>
+<td>15/10</td>
+<td>Comisión mantenimiento<br><span class="ref">Cuenta negocios</span></td>
+<td class="n">12,00</td>
+<td class="n"></td>
+<td class="n">22.778,82</td>
+</tr>
+<tr>
+<td>16/10</td>
+<td>16/10</td>
+<td>Adeudo domiciliado<br><span class="ref">Gas Natural Comarcal</span></td>
+<td class="n">267,48</td>
+<td class="n"></td>
+<td class="n">22.511,34</td>
+</tr>
+<tr>
+<td>17/10</td>
+<td>17/10</td>
+<td>Ingreso en efectivo<br><span class="ref">Oficina 0412 Valdeherrera</span></td>
+<td class="n"></td>
+<td class="n">644,99</td>
+<td class="n">23.156,33</td>
+</tr>
+<tr>
+<td>17/10</td>
+<td>17/10</td>
+<td>Pago con tarjeta *4417<br><span class="ref">Molinos Harineros San Roque</span></td>
+<td class="n">673,40</td>
+<td class="n"></td>
+<td class="n">22.482,93</td>
+</tr>
+<tr>
+<td>20/10</td>
+<td>20/10</td>
+<td>Recibo seguro<br><span class="ref">Mutua Aragonesa de Comercio</span></td>
+<td class="n">96,00</td>
+<td class="n"></td>
+<td class="n">22.386,93</td>
+</tr>
+<tr>
+<td>20/10</td>
+<td>21/10</td>
+<td>Liquidación TPV<br><span class="ref">Terminal 00418 · ventas del día</span></td>
+<td class="n"></td>
+<td class="n">1.133,87</td>
+<td class="n">23.520,80</td>
+</tr>
+<tr>
+<td>21/10</td>
+<td>21/10</td>
+<td>Recibo seguro<br><span class="ref">Mutua Aragonesa de Comercio</span></td>
+<td class="n">96,00</td>
+<td class="n"></td>
+<td class="n">23.424,80</td>
+</tr>
+<tr>
+<td>22/10</td>
+<td>22/10</td>
+<td>Comisión mantenimiento<br><span class="ref">Cuenta negocios</span></td>
+<td class="n">12,00</td>
+<td class="n"></td>
+<td class="n">23.412,80</td>
+</tr>
+<tr>
+<td>22/10</td>
+<td>22/10</td>
+<td>Recibo electricidad<br><span class="ref">Comercializadora Eléctrica del Jalón</span></td>
+<td class="n">471,84</td>
+<td class="n"></td>
+<td class="n">22.940,96</td>
+</tr>
+<tr>
+<td>22/10</td>
+<td>22/10</td>
+<td>Transferencia emitida<br><span class="ref">Nómina personal de obrador</span></td>
+<td class="n">1.235,38</td>
+<td class="n"></td>
+<td class="n">21.705,58</td>
+</tr>
+<tr>
+<td>23/10</td>
+<td>24/10</td>
+<td>Liquidación TPV<br><span class="ref">Terminal 00418 · ventas del día</span></td>
+<td class="n"></td>
+<td class="n">1.073,72</td>
+<td class="n">22.779,30</td>
+</tr>
+<tr>
+<td>23/10</td>
+<td>23/10</td>
+<td>Comisión mantenimiento<br><span class="ref">Cuenta negocios</span></td>
+<td class="n">12,00</td>
+<td class="n"></td>
+<td class="n">22.767,30</td>
+</tr>
+<tr>
+<td>24/10</td>
+<td>24/10</td>
+<td>Comisión mantenimiento<br><span class="ref">Cuenta negocios</span></td>
+<td class="n">12,00</td>
+<td class="n"></td>
+<td class="n">22.755,30</td>
+</tr>
+<tr>
+<td>24/10</td>
+<td>24/10</td>
+<td>Transferencia emitida<br><span class="ref">Nómina personal de obrador</span></td>
+<td class="n">1.399,88</td>
+<td class="n"></td>
+<td class="n">21.355,42</td>
+</tr>
+<tr>
+<td>27/10</td>
+<td>27/10</td>
+<td>Transferencia emitida<br><span class="ref">Nómina personal de obrador</span></td>
+<td class="n">1.195,06</td>
+<td class="n"></td>
+<td class="n">20.160,36</td>
+</tr>
+<tr>
+<td>28/10</td>
+<td>28/10</td>
+<td>Transferencia recibida<br><span class="ref">Residencia Los Almendros</span></td>
+<td class="n"></td>
+<td class="n">1.279,57</td>
+<td class="n">21.439,93</td>
+</tr>
+<tr>
+<td>29/10</td>
+<td>29/10</td>
+<td>Pago con tarjeta *4417<br><span class="ref">Molinos Harineros San Roque</span></td>
+<td class="n">715,04</td>
+<td class="n"></td>
+<td class="n">20.724,89</td>
+</tr>
+<tr>
+<td>30/10</td>
+<td>30/10</td>
+<td>Pago con tarjeta *4417<br><span class="ref">Molinos Harineros San Roque</span></td>
+<td class="n">420,58</td>
+<td class="n"></td>
+<td class="n">20.304,31</td>
+</tr>
+<tr>
+<td>30/10</td>
+<td>30/10</td>
+<td>Pago con tarjeta *4417<br><span class="ref">Molinos Harineros San Roque</span></td>
+<td class="n">791,01</td>
+<td class="n"></td>
+<td class="n">19.513,30</td>
+</tr>
+<tr>
+<td>30/10</td>
+<td>30/10</td>
+<td>Adeudo domiciliado<br><span class="ref">Gas Natural Comarcal</span></td>
+<td class="n">250,20</td>
+<td class="n"></td>
+<td class="n">19.263,10</td>
+</tr>
+<tr>
+<td>31/10</td>
+<td>31/10</td>
+<td>Transferencia recibida<br><span class="ref">Colegio Público Virgen del Pilar</span></td>
+<td class="n"></td>
+<td class="n">478,99</td>
+<td class="n">19.742,09</td>
+</tr>
+<tr>
+<td>31/10</td>
+<td>31/10</td>
+<td>Transferencia recibida<br><span class="ref">Residencia Los Almendros</span></td>
+<td class="n"></td>
+<td class="n">808,85</td>
+<td class="n">20.550,94</td>
+</tr>
+<tr class="sec">
+<td colspan="3">Totales del periodo</td>
+<td class="n">11.312,48</td>
+<td class="n">13.451,05</td>
+<td class="n"></td>
+</tr>
+<tr class="sec">
+<td colspan="5">Saldo final al 31/10/2026</td>
+<td class="n">20.550,94</td>
+</tr>
+</tbody>
+</table>
+<h2 class="" >Información importante</h2>
+<p>Le recordamos las condiciones aplicables a este extracto.</p>
+<ul class="info" >
+<li>Dispone de un mes desde la fecha de este extracto para comunicarnos cualquier discrepancia.</li>
+<li>Los movimientos con fecha valor posterior al cierre aparecerán en el extracto de noviembre.</li>
+<li>Puede consultar sus extractos de los últimos cinco años en la banca a distancia.</li>
+</ul>
+<p>Para cualquier aclaración puede dirigirse a su oficina o llamar al 976 140 412 de lunes a viernes.</p>
+<div class="legal">Caja Solidaria de Valdeherrera, Sociedad Cooperativa de Crédito. Inscrita en el Registro de Cooperativas con el número 3190. Sus depósitos están garantizados hasta 100.000 € por titular.</div>
+
+</body>
+</html>

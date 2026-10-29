@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Tessellate Sync 4.2 Release Notes</title>
+<style>
+
+@page { size: A4; margin: 2.2cm 2.3cm 2cm 2.3cm;
+  @top-center { content: "Tessellate Sync 4.2 — Release Notes"; font-family: "Trebuchet MS"; font-size: 8pt; color: #888; }
+  @bottom-right { content: counter(page) " · Tessellate Sync 4.2"; font-family: "Trebuchet MS"; font-size: 8pt; color: #888; } }
+body { font-family: "Trebuchet MS"; font-size: 10pt; line-height: 1.5; color: #262626; margin: 0; }
+h1 { font-size: 23pt; margin: 0; color: #5b2a86; font-weight: bold; }
+.rel { color: #777; margin: 0 0 12px 0; }
+h2 { font-size: 13.5pt; color: #5b2a86; margin: 16px 0 4px 0; font-weight: bold; break-after: avoid; }
+h3 { font-size: 11pt; margin: 10px 0 3px 0; font-weight: bold; break-after: avoid; }
+p { margin: 0 0 6px 0; }
+pre.code { font-family: "Courier New"; font-size: 8.8pt; background: #1f1b24; color: #e9e3f0; padding: 8px 10px; border-radius: 4px; line-height: 1.35; white-space: pre; break-inside: avoid; margin: 6px 0 8px 0; }
+code { font-family: "Courier New"; font-size: 9.5pt; background: #f0ebf5; padding: 0 2px; }
+.typed > p { margin: 0 0 2px 0; padding-left: 1em; text-indent: -1em; }
+.typed .typed { margin-left: 1em; }
+.typed .typed p { padding-left: 1em; text-indent: -1em; }
+ul.sq { list-style-type: square; padding-left: 1.3em; margin: 4px 0; }
+ul.sq li { margin: 1px 0; }
+table.compat { border-collapse: collapse; margin: 6px 0; }
+table.compat th { text-align: left; padding: 2px 22px 2px 0; color: #5b2a86; font-weight: bold; }
+table.compat td { padding: 2px 22px 2px 0; vertical-align: top; }
+table.dep { width: 100%; border-collapse: collapse; margin: 6px 0; font-size: 9.5pt; }
+table.dep th { text-align: left; padding: 3px 8px; background: #5b2a86; color: #fff; font-weight: bold; }
+table.dep td { padding: 3px 8px; }
+table.dep tbody tr:nth-child(even) td { background: #efe8f6; }
+ol.up { padding-left: 1.5em; margin: 4px 0; }
+ol.up li { margin: 2px 0; }
+
+</style>
+</head>
+<body>
+
+<h1 class="" >Tessellate Sync 4.2 Release Notes</h1>
+<p class="rel">Released 14 October 2026 · build 4.2.0.1187</p>
+<h2 class="" >Highlights</h2>
+<p>Version 4.2 introduces selective sync rules and a command-line report of sync conflicts. It also makes the first sync of large folders up to three times faster.</p>
+<p>This release is a free update for all customers with an active subscription.</p>
+<h2 class="" >New features</h2>
+<h3 class="" >Selective sync rules</h3>
+<p>You can now choose which files are synced by listing include and exclude patterns in a rules file. Patterns are matched relative to the root of the synced folder:</p>
+<pre class="code"># .tessellate/rules.yaml
+sync:
+  include:
+    - &quot;projects/**&quot;
+    - &quot;invoices/2026/*.pdf&quot;
+  exclude:
+    - &quot;**/node_modules/**&quot;
+    - &quot;*.tmp&quot;
+  max_file_size: 2GB</pre>
+<h3 class="" >Conflict report</h3>
+<p>The new <code>tess conflicts</code> command lists every file that changed on both sides, with the decision the client took:</p>
+<pre class="code">$ tess conflicts --since 7d --format table
+PATH                        LOCAL     REMOTE    ACTION
+projects/atlas/plan.md      10:42:07  10:41:55  keep both
+invoices/2026/0918.pdf      09:03:12  09:05:40  remote wins</pre>
+<h2 class="" >Improvements</h2>
+<div class="typed" >
+<p>• Faster first sync on large folders:<div class="typed" >
+<p>– the initial scan now runs on four threads by default;</p>
+<p>– unchanged files are skipped by size and modification time before hashing.</p>
+</div></p>
+<p>• The tray icon shows the number of files still waiting to upload.</p>
+<p>• Proxy support:<div class="typed" >
+<p>– authenticated HTTP proxies are supported;</p>
+<p>– the proxy can be read from the operating system settings.</p>
+</div></p>
+</div>
+<h2 class="" >Fixed issues</h2>
+<ul class="sq" >
+<li>TS-2291: renaming a folder while offline no longer duplicates its contents.</li>
+<li>TS-2304: file names with trailing spaces are synced on all platforms.</li>
+<li>TS-2317: the client no longer stops when the disk is almost full; it pauses and warns instead.</li>
+<li>TS-2342: shared links keep their expiry date after the file is edited.</li>
+</ul>
+<h2 class="" >Compatibility</h2>
+<table class="compat" >
+
+<thead>
+<tr>
+<th>Platform</th>
+<th>Minimum version</th>
+<th>Notes</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>Windows</td>
+<td>10 (22H2)</td>
+<td>ARM64 build available</td>
+</tr>
+<tr>
+<td>macOS</td>
+<td>13 Ventura</td>
+<td>Universal binary</td>
+</tr>
+<tr>
+<td>Linux</td>
+<td>glibc 2.31</td>
+<td>AppImage and .deb packages</td>
+</tr>
+<tr>
+<td>Server</td>
+<td>4.0</td>
+<td>Clients 4.2 refuse servers older than 4.0</td>
+</tr>
+</tbody>
+</table>
+<h2 class="" >Deprecated settings</h2>
+<p>The following settings still work in 4.2 but print a warning at start-up.</p>
+<table class="dep" >
+
+<thead>
+<tr>
+<th>Setting</th>
+<th>Replacement</th>
+<th>Removed in</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>sync.ignore_file</code></td>
+<td><code>sync.exclude</code> in rules.yaml</td>
+<td>5.0</td>
+</tr>
+<tr>
+<td><code>net.legacy_tls</code></td>
+<td>none; TLS 1.2 or later is required</td>
+<td>4.3</td>
+</tr>
+<tr>
+<td><code>ui.compact_tray</code></td>
+<td><code>ui.tray_style: compact</code></td>
+<td>5.0</td>
+</tr>
+</tbody>
+</table>
+<h2 class="" >Upgrading</h2>
+<ol class="up" >
+<li>Close the client on every device that uses the account.</li>
+<li>Install version 4.2 over the existing installation; settings are kept.</li>
+<li>Start the client and move any <code>sync.ignore_file</code> patterns into <code>rules.yaml</code>.</li>
+</ol>
+<p>If you manage clients centrally, the MSI package accepts the same command-line options as version 4.1.</p>
+
+</body>
+</html>

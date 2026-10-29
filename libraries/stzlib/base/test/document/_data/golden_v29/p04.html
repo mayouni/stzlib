@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Betriebshandbuch LV-Server 5</title>
+<style>
+
+@page { size: A4; margin: 2.3cm 2cm 2cm 2.5cm;
+  @top-left { content: "LV-Server 5 · Betriebshandbuch"; font-family: Calibri; font-size: 8.5pt; color: #555; border-bottom: 0.5pt solid #999; }
+  @top-right { content: "Stand: Oktober 2026"; font-family: Calibri; font-size: 8.5pt; color: #555; border-bottom: 0.5pt solid #999; }
+  @bottom-center { content: "Seite " counter(page) " von " counter(pages); font-family: Calibri; font-size: 9pt; } }
+body { font-family: Calibri; font-size: 10.5pt; line-height: 1.38; color: #202020; margin: 0; }
+h1, h2, h3 { font-family: Cambria; font-weight: bold; color: #17375e; break-after: avoid; }
+h1 { font-size: 22pt; margin: 0 0 4px 0; }
+.ver { color: #555; margin: 0 0 14px 0; }
+h2 { font-size: 15pt; margin: 18px 0 6px 0; }
+h3 { font-size: 12pt; margin: 12px 0 4px 0; }
+h4 { font-family: Cambria; font-size: 10.5pt; font-weight: bold; font-style: normal; margin: 10px 0 3px 0; color: #17375e; }
+p { margin: 0 0 6px 0; }
+pre.code { font-family: Consolas; font-size: 9pt; background: #f4f6f9; border: 1px solid #cdd5df; border-left: 3px solid #17375e; padding: 6px 9px; line-height: 1.3; break-inside: avoid; white-space: pre; margin: 6px 0 8px 0; }
+table.rule { border-collapse: collapse; width: 100%; margin: 6px 0 10px 0; font-size: 10pt; }
+table.rule th { text-align: left; border-bottom: 1.5px solid #17375e; padding: 3px 8px 3px 0; font-weight: bold; }
+table.rule td { padding: 3px 8px 3px 0; vertical-align: top; }
+table.rule td code { font-family: Consolas; font-size: 9pt; }
+ol.steps { margin: 4px 0 6px 0; padding-left: 1.6em; }
+ol.steps li { margin: 2px 0; }
+ol.sub { list-style-type: lower-alpha; padding-left: 1.6em; margin: 2px 0; }
+ol.sub li::marker { content: counter(list-item, lower-alpha) ") "; }
+.dash { margin: 4px 0 6px 0.4em; }
+.dash p { margin: 0 0 2px 0; padding-left: 1.1em; text-indent: -1.1em; }
+.hinweis { border: 1px solid #d9a400; background: #fff8e1; padding: 6px 10px; margin: 10px 0; break-inside: avoid; }
+.hinweis b { color: #8a6500; }
+
+</style>
+</head>
+<body>
+
+<h1 class="" >Betriebshandbuch LV-Server 5</h1>
+<p class="ver">Version 5.4 · für Systemadministratoren</p>
+<p>Dieses Handbuch beschreibt Installation, Konfiguration und Betrieb des Lagerverwaltungsservers. Es richtet sich an Administratoren, die mit Linux und PostgreSQL vertraut sind.</p>
+<p>Die Beschreibung der Lagerprozesse selbst finden Sie im Anwenderhandbuch.</p>
+<h2 class="" >1 Systemvoraussetzungen</h2>
+<p>Für einen Standort mit bis zu 40 Handscannern gelten die folgenden Werte.</p>
+<table class="rule" >
+
+<thead>
+<tr>
+<th>Komponente</th>
+<th>Mindestens</th>
+<th>Empfohlen</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>Prozessor</td>
+<td>4 Kerne, 2,4 GHz</td>
+<td>8 Kerne, 3,0 GHz</td>
+</tr>
+<tr>
+<td>Arbeitsspeicher</td>
+<td>8 GB</td>
+<td>32 GB</td>
+</tr>
+<tr>
+<td>Festplatte</td>
+<td>120 GB SSD</td>
+<td>500 GB NVMe, gespiegelt</td>
+</tr>
+<tr>
+<td>Betriebssystem</td>
+<td>Debian 12 oder Ubuntu 24.04 LTS</td>
+<td>Debian 12</td>
+</tr>
+<tr>
+<td>Datenbank</td>
+<td>PostgreSQL 15</td>
+<td>PostgreSQL 16 auf eigenem Host</td>
+</tr>
+</tbody>
+</table>
+<h2 class="" >2 Installation</h2>
+<h3 class="" >2.1 Paket einspielen</h3>
+<ol class="steps" >
+<li>Melden Sie sich als Benutzer mit Administratorrechten am Server an.</li>
+<li>Prüfen Sie vor der Installation:<ol class="sub" >
+<li>ob die Datenbank vom Server aus erreichbar ist,</li>
+<li>ob Port 8443 in der Firewall freigegeben ist,</li>
+<li>ob die Lizenzdatei <code>lizenz.lvk</code> vorliegt.</li>
+</ol></li>
+<li>Kopieren Sie das Installationspaket in ein temporäres Verzeichnis.</li>
+<li>Führen Sie die folgenden Befehle nacheinander aus:</li>
+</ol>
+<pre class="code">sudo dpkg -i lv-server_5.4.2_amd64.deb
+sudo systemctl enable lv-server
+sudo systemctl start lv-server
+systemctl status lv-server --no-pager</pre>
+<p>Nach dem Start meldet der Befehl <code>systemctl status</code> den Zustand „active (running)“.</p>
+<h3 class="" >2.2 Dienst einrichten</h3>
+<p>Die zentrale Konfigurationsdatei liegt unter <code>/etc/lv-server/lv-server.conf</code>. Ein vollständiges Beispiel:</p>
+<pre class="code">[datenbank]
+host     = db01.lager.intern
+port     = 5432
+name     = lagerwerk
+benutzer = lv_dienst
+
+[server]
+bind_adresse = 0.0.0.0
+port         = 8443
+worker       = 8
+protokoll    = /var/log/lv-server/server.log</pre>
+<h4 class="" >2.2.1 Parameter der Datei lv-server.conf</h4>
+<table class="rule" >
+
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Standardwert</th>
+<th>Bedeutung</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>port</code></td>
+<td>8443</td>
+<td>TCP-Port der Weboberfläche und der REST-Schnittstelle.</td>
+</tr>
+<tr>
+<td><code>worker</code></td>
+<td>Anzahl der Kerne</td>
+<td>Zahl der parallelen Arbeitsprozesse.<br>Werte über 16 bringen keinen messbaren Gewinn.</td>
+</tr>
+<tr>
+<td><code>protokoll</code></td>
+<td>/var/log/lv-server/server.log</td>
+<td>Pfad der Protokolldatei. Das Verzeichnis muss dem Dienstkonto gehören.</td>
+</tr>
+<tr>
+<td><code>bind_adresse</code></td>
+<td>127.0.0.1</td>
+<td>Netzwerkadresse, an die sich der Dienst bindet.<br>Für den Zugriff aus dem Lagernetz 0.0.0.0 eintragen.</td>
+</tr>
+</tbody>
+</table>
+<div class="hinweis"><b>Hinweis:</b> Nach jeder Änderung an der Konfiguration muss der Dienst neu gestartet werden.</div>
+<h2 class="" >3 Datensicherung</h2>
+<p>Der Server bringt ein eigenes Sicherungswerkzeug mit. Die Sicherung umfasst:</p>
+<div class="dash" >
+<p>– vollständige Sicherung der Datenbank jede Nacht,</p>
+<p>– Kopie der Konfigurationsdateien unter <code>/etc/lv-server/</code>,</p>
+<p>– Aufbewahrung der letzten 14 Sicherungen auf einem getrennten Datenträger.</p>
+</div>
+<p>Zur Einrichtung genügt ein Eintrag in der Crontab des Dienstkontos:</p>
+<pre class="code"># Tägliche Sicherung um 02:15 Uhr
+15 2 * * * /opt/lv-server/bin/lv-backup --ziel /mnt/sicherung --behalte 14</pre>
+<p>Prüfen Sie mindestens einmal im Quartal, ob sich eine Sicherung tatsächlich wiederherstellen lässt.</p>
+<h2 class="" style="break-before: page">4 Fehlerbehebung</h2>
+<p>Die folgende Tabelle nennt die häufigsten Fehlercodes im Protokoll.</p>
+<table class="rule" >
+
+<thead>
+<tr>
+<th>Fehlercode</th>
+<th>Ursache</th>
+<th>Maßnahme</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>LV-101</td>
+<td>Datenbank nicht erreichbar</td>
+<td>Host und Port im Abschnitt [datenbank] prüfen.</td>
+</tr>
+<tr>
+<td>LV-204</td>
+<td>Lizenzdatei abgelaufen</td>
+<td>Neue Lizenz im Kundenportal anfordern und nach /etc/lv-server/ kopieren.</td>
+</tr>
+<tr>
+<td>LV-310</td>
+<td>Scanner meldet unbekannte Lagerplatznummer</td>
+<td>Stammdaten des Lagerplatzes anlegen oder Etikett neu drucken.</td>
+</tr>
+<tr>
+<td>LV-415</td>
+<td>Sicherungsziel voll</td>
+<td>Ältere Sicherungen auslagern oder <code>--behalte</code> verringern.</td>
+</tr>
+</tbody>
+</table>
+<p>Lässt sich ein Fehler nicht beheben, wenden Sie sich mit dem Protokollauszug an den Support.</p>
+<h2 class="" >5 Aktualisierung</h2>
+<p>Aktualisierungen werden als neues Paket ausgeliefert und über das vorhandene installiert:</p>
+<ol class="steps" >
+<li>Erstellen Sie eine vollständige Sicherung wie in Kapitel 3 beschrieben.</li>
+<li>Beenden Sie den Dienst mit <code>systemctl stop lv-server</code>.</li>
+<li>Installieren Sie das neue Paket mit <code>dpkg -i</code>.</li>
+<li>Starten Sie den Dienst und prüfen Sie das Protokoll auf Warnungen.</li>
+</ol>
+<p>Die Datenbankstruktur wird beim ersten Start der neuen Version automatisch angepasst. Der Vorgang kann bei großen Beständen einige Minuten dauern.</p>
+<h3 class="" >5.1 Versionsverlauf</h3>
+<table class="rule" >
+
+<thead>
+<tr>
+<th>Version</th>
+<th>Datum</th>
+<th>Wesentliche Änderungen</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>5.2</td>
+<td>03/2026</td>
+<td>Mehrlagerfähigkeit, neue Inventurliste</td>
+</tr>
+<tr>
+<td>5.3</td>
+<td>06/2026</td>
+<td>REST-Schnittstelle für Versanddienstleister</td>
+</tr>
+<tr>
+<td>5.4</td>
+<td>09/2026</td>
+<td>Sicherungswerkzeug lv-backup, schnellere Kommissionierlisten</td>
+</tr>
+</tbody>
+</table>
+
+</body>
+</html>

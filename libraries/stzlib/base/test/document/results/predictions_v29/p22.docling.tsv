@@ -1,0 +1,30 @@
+page_header	0	NORTHGATE MUTUAL HOUSING GROUP · IT OPERATIONS
+heading	1	IT Operations Report - Q3 2026
+table	0	Service availabilityMajor incidents (P1 / P2)Median ticket resolutionChange success rate99.94%3 / 115.2 h97.6%target 99.90%Q2: 5 / 14Q2: 6.8 h412 changes
+heading	1	1. Summary
+paragraph	0	All core services met their availability targets this quarter. The service desk resolved tickets faster than in any quarter since 2024.
+paragraph	0	Three major incidents affected tenants directly. Two of the three were caused by configuration that drifted from its documented state.
+heading	1	2. Major incidents
+table	0	DateServiceImpactDurationRoot cause9 JulTenant portalLogins failed for all tenants1 h 12 minExpired TLS certificate on the identity proxy; renewal job had been disabled during a migration.22 AugRepairs line (telephony)Calls dropped after 30 seconds47 minCarrier routing change, reverted by the carrier.14 SepRent paymentsCard payments delayed, no data lost2 h 05 minDatabase failover stalled on a full transaction log.
+paragraph	0	Each incident has a completed review, and all eleven follow-up actions are tracked in the problem register.
+heading	1	3. Monitoring changes
+paragraph	0	Alerts now page the on-call engineer only when a user-facing service degrades. The new latency rule for the tenant portal is shown below.
+code	0	groups: - name: tenant-portal rules: - alert: PortalHighLatency expr: histogram _quantile(0.95, sum by (le) (rate(portal _ request _ seconds _ bucket[5m]))) > 1.5 for: 10m labels: severity: page annotations: summary: "Portal p95 latency above 1.5 s for 10 minutes"
+page_footer	0	Internal · Q3 2026
+page_footer	0	1 of 2
+heading	1	4. Projects
+list_item	0	Laptop refresh for housing officers
+list_item	0	186 of 240 devices replaced
+list_item	0	Remaining devices scheduled for October:
+list_item	0	North and East area teams
+list_item	0	Contact centre supervisors
+list_item	0	Move of the repairs system to the new data centre
+list_item	0	Rehearsal completed on 28 September
+list_item	0	Cut-over planned for 8 November
+list_item	0	Retirement of the legacy document store (delayed to Q1 2027)
+heading	1	5. Storage capacity
+paragraph	0	At the current growth rate the object store will need expansion within eighteen months.
+table	0	Storage clusterUsed (TB)Free (TB)Growth per monthPrimary SAN182.457.62.1%Backup vault411.0189.03.4%Object store64.8135.25.9%
+paragraph	0	Prepared by the Infrastructure and Service Desk teams, 6 October 2026.
+page_footer	0	Internal · Q3 2026
+page_footer	0	2 of 2

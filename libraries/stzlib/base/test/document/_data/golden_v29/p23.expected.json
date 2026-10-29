@@ -1,0 +1,106 @@
+{
+  "id": "p23",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "የክትባት ዘመቻ ማስታወቂያ",
+  "headings": [
+    {
+      "level": 1,
+      "text": "የክትባት ዘመቻ ማስታወቂያ"
+    },
+    {
+      "level": 2,
+      "text": "የሚሰጡ አገልግሎቶች"
+    },
+    {
+      "level": 2,
+      "text": "ምን ይዘው ይምጡ"
+    },
+    {
+      "level": 2,
+      "text": "የክትባት ቦታዎች"
+    }
+  ],
+  "key_sentences": [
+    "የሰላም በር ጤና ጣቢያ ከጥቅምት 24 እስከ ጥቅምት 28 ቀን 2019 ዓ.ም. የልጆች ክትባት ዘመቻ ያካሂዳል።",
+    "ክትባቱ በነፃ ይሰጣል።",
+    "የክትባት ካርድ የሌላቸው ልጆችም መከተብ ይችላሉ።",
+    "ወላጆች ልጆቻቸውን ይዘው እንዲመጡ በአክብሮት እንጠይቃለን።",
+    "ለተጨማሪ መረጃ የጤና ጣቢያውን በስልክ ቁጥር 011 555 0192 ማግኘት ይቻላል።"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "ዕድሜ",
+          "ክትባት ወይም አገልግሎት",
+          "የሚሰጥበት ቦታ"
+        ],
+        [
+          "ከ9 ወር እስከ 5 ዓመት",
+          "የኩፍኝ ክትባት",
+          "ጤና ጣቢያ እና ትምህርት ቤቶች"
+        ],
+        [
+          "ከ6 ወር እስከ 5 ዓመት",
+          "ቫይታሚን ኤ",
+          "ጤና ጣቢያ"
+        ],
+        [
+          "ከ1 እስከ 5 ዓመት",
+          "የአንጀት ትላትል መድኃኒት",
+          "ትምህርት ቤቶች"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "፩. የልጁን የክትባት ካርድ፤"
+    },
+    {
+      "level": 0,
+      "text": "፪. የወላጅ ወይም የአሳዳጊ መታወቂያ፤"
+    },
+    {
+      "level": 0,
+      "text": "፫. ለልጁ ውሃ እና መክሰስ።"
+    },
+    {
+      "level": 0,
+      "text": "ሀ) የሰላም በር ጤና ጣቢያ፣ ዋናው ግቢ"
+    },
+    {
+      "level": 0,
+      "text": "ለ) ቀበሌ 05 የመጀመሪያ ደረጃ ትምህርት ቤት"
+    },
+    {
+      "level": 0,
+      "text": "ሐ) የገበያ አዳራሽ፣ ቅዳሜ ብቻ"
+    },
+    {
+      "level": 0,
+      "text": "ትኩሳት ያለበት ልጅ ከመከተቡ በፊት ለጤና ባለሙያ ያሳውቁ።"
+    },
+    {
+      "level": 0,
+      "text": "ክትባቱ ከተሰጠ በኋላ ለ15 ደቂቃ በጣቢያው ይቆዩ።"
+    },
+    {
+      "level": 0,
+      "text": "ልጁ ከክትባቱ በኋላ ቢታመም ወደ ጤና ጣቢያው ይምጡ።"
+    }
+  ],
+  "furniture": [
+    "የሰላም በር ጤና ጣቢያ",
+    "የእናቶች እና የህፃናት ጤና ክፍል",
+    "የሰላም በር ጤና ጣቢያ · ስልክ 011 555 0192 · ክፍት ከሰኞ እስከ ቅዳሜ"
+  ],
+  "languages": [
+    "am"
+  ],
+  "code": [],
+  "notes": "Amharic (Ethiopic script) public health notice. Words are separated by spaces; sentences end with the Ethiopic full stop \"።\" (U+1362); \"፣\" and \"፤\" are the Ethiopic comma and semicolon. Dates are in the Ethiopian calendar (2019 ዓ.ም.). The centre name and department line at the top are a letterhead; the line at the bottom is a footer (both furniture). Service table: full grid with filled header. What-to-bring list: TYPED Ethiopic numerals \"፩.\" \"፪.\" \"፫.\" with a hanging indent. Sites list: TYPED Ethiopic-syllable markers \"ሀ)\" \"ለ)\" \"ሐ)\" (the traditional ordering). The dashed reminder box \"ማሳሰቢያ\" sits to the RIGHT of the two lists and is read after them; its label is not a heading and its bullets are drawn by CSS. The date line is body text."
+}

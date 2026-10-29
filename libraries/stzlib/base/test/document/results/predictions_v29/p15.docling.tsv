@@ -1,0 +1,47 @@
+page_header	0	Tessellate Sync 4.2 - Release Notes
+heading	1	Tessellate Sync 4.2 Release Notes
+paragraph	0	Released 14 October 2026 · build 4.2.0.1187
+heading	1	Highlights
+paragraph	0	Version 4.2 introduces selective sync rules and a command-line report of sync conflicts. It also makes the first sync of large folders up to three times faster.
+paragraph	0	This release is a free update for all customers with an active subscription.
+heading	1	New features
+heading	1	Selective sync rules
+paragraph	0	You can now choose which files are synced by listing include and exclude patterns in a rules file. Patterns are matched relative to the root of the synced folder:
+paragraph	0	
+heading	1	Conflict report
+paragraph	0	The new tess conflicts command lists every file that changed on both sides, with the decision the client took:
+paragraph	0	
+heading	1	Improvements
+list_item	0	Faster first sync on large folders: - the initial scan now runs on four threads by default; - unchanged files are skipped by size and modification time before hashing.
+list_item	0	The tray icon shows the number of files still waiting to upload.
+list_item	0	Proxy support:
+paragraph	0	- authenticated HTTP proxies are supported;
+paragraph	0	- the proxy can be read from the operating system settings.
+heading	1	Fixed issues
+list_item	0	TS-2291: renaming a folder while offline no longer duplicates its contents.
+list_item	0	TS-2304: file names with trailing spaces are synced on all platforms.
+list_item	0	TS-2317: the client no longer stops when the disk is almost full; it pauses and warns instead.
+list_item	0	TS-2342: shared links keep their expiry date after the file is edited.
+page_footer	0	1 · Tessellate Sync 4.2
+heading	1	Compatibility
+paragraph	0	Platform Minimum version Notes
+paragraph	0	Windows 10 (22H2)
+paragraph	0	macOS
+paragraph	0	13 Ventura
+paragraph	0	Linux
+paragraph	0	Server glibc 2.31
+paragraph	0	ARM64 build available
+paragraph	0	Universal binary
+paragraph	0	AppImage and .deb packages
+paragraph	0	4.0
+paragraph	0	Clients 4.2 refuse servers older than 4.0
+heading	1	Deprecated settings
+paragraph	0	The following settings still work in 4.2 but print a warning at start-up.
+table	0	SettingReplacementRemoved insync.ignore _ filesync.exclude in rules.yaml5.0net.legacy _ tlsnone; TLS 1.2 or later is required4.3ui.compact _ trayui.tray _ style: compact5.0
+heading	1	Upgrading
+list_item	0	Close the client on every device that uses the account.
+list_item	0	Install version 4.2 over the existing installation; settings are kept.
+list_item	0	Start the client and move any sync.ignore _ file patterns into rules.yaml.
+paragraph	0	If you manage clients centrally, the MSI package accepts the same command-line options as version 4.1.
+page_header	0	Tessellate Sync 4.2 - Release Notes
+page_footer	0	2 · Tessellate Sync 4.2

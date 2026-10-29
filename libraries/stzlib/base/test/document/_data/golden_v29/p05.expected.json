@@ -1,0 +1,155 @@
+{
+  "id": "p05",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "第3回 新物流センター建設プロジェクト定例会議 議事録",
+  "headings": [
+    {
+      "level": 1,
+      "text": "第3回 新物流センター建設プロジェクト定例会議 議事録"
+    },
+    {
+      "level": 2,
+      "text": "１．前回議事録の確認"
+    },
+    {
+      "level": 2,
+      "text": "２．工事進捗報告"
+    },
+    {
+      "level": 2,
+      "text": "３．課題と対応"
+    },
+    {
+      "level": 2,
+      "text": "４．課題一覧"
+    },
+    {
+      "level": 2,
+      "text": "５．次回予定"
+    }
+  ],
+  "key_sentences": [
+    "前回議事録は原案のとおり承認された。",
+    "基礎工事は予定より3日遅れているが、全体工程への影響はない見込みである。",
+    "倉庫管理システムの選定は、2社の提案を比較したうえで11月中に決定する。",
+    "課題の状況は毎週金曜日に共有フォルダの一覧表で更新する。",
+    "次回会議は11月12日（木）14時から本社7階第2会議室で開催する。",
+    "設計事務所には鉄骨搬入計画の説明を依頼した。"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "日時",
+          "2026年10月15日（木）14:00～15:30"
+        ],
+        [
+          "場所",
+          "本社7階 第2会議室（オンライン併用）"
+        ],
+        [
+          "出席者",
+          "高森（施設部）、柚木（物流企画課）、早川（情報システム部）、 三浦（総務部）、設計事務所 青葉建築設計 2名"
+        ],
+        [
+          "記録",
+          "柚木"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "No.",
+          "課題",
+          "担当",
+          "期限",
+          "状況"
+        ],
+        [
+          "1",
+          "第3工区の打設日程の再調整と、 協力会社への周知",
+          "施設部",
+          "10/20",
+          "対応中"
+        ],
+        [
+          "2",
+          "搬入路拡幅に関する市への申請書類の作成",
+          "施設部",
+          "11/5",
+          "未着手"
+        ],
+        [
+          "3",
+          "倉庫管理システム2社案の比較表作成 （費用・連携方式・保守体制）",
+          "情報システム部",
+          "11/2",
+          "対応中"
+        ],
+        [
+          "4",
+          "近隣説明会の会場予約と案内文の作成",
+          "総務部",
+          "10/31",
+          "完了"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "（１）基礎工事の進捗は計画比92%で、杭打ちは全数完了した。"
+    },
+    {
+      "level": 0,
+      "text": "（２）コンクリート打設は天候不良により3日遅れている。"
+    },
+    {
+      "level": 1,
+      "text": "・第3工区の打設を10月20日に変更する。"
+    },
+    {
+      "level": 1,
+      "text": "・養生期間を短縮しないことを確認した。"
+    },
+    {
+      "level": 0,
+      "text": "（３）鉄骨の発注は予定どおり完了しており、搬入は12月上旬となる。"
+    },
+    {
+      "level": 0,
+      "text": "（１）倉庫管理システムの選定"
+    },
+    {
+      "level": 1,
+      "text": "・A社案は初期費用が低いが、既存の基幹システムとの連携に追加開発が必要となる。"
+    },
+    {
+      "level": 1,
+      "text": "・B社案は標準機能で連携できるが、年間保守費用が高い。"
+    },
+    {
+      "level": 0,
+      "text": "（２）搬入路の拡幅について、市の道路課と協議を行った。"
+    },
+    {
+      "level": 0,
+      "text": "（３）近隣住民向け説明会の開催日程を調整する。"
+    }
+  ],
+  "furniture": [
+    "社外秘",
+    "－ 1 －",
+    "－ 2 －"
+  ],
+  "languages": [
+    "ja"
+  ],
+  "code": [],
+  "notes": "Japanese meeting minutes, horizontal writing. The boxed key/value header block (日時/場所/出席者/記録) is a table with no header row; the attendee cell is two lines joined by one space. Section headings carry TYPED full-width numbers \"１．\" to \"５．\" (U+FF11.. + U+FF0E). Sub-items carry TYPED full-width parenthesised markers \"（１）\" with a hanging indent and NO space after the marker; nested items carry a TYPED \"・\" (U+30FB) marker, also with no space. Lines wrapped inside a Japanese sentence join with no space. Action table: full grid; \"施設部\" spans two rows and is repeated; task cells of two lines are top-aligned, short cells centred. \"社外秘\" (confidential stamp, top right) and the page number \"－ N －\" (full-width hyphens U+FF0D) are CSS page-margin boxes. The closing \"以上\" (right-aligned end mark) is not a key sentence."
+}

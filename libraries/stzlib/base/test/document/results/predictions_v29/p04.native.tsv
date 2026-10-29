@@ -1,0 +1,59 @@
+page_header	0	LV-Server 5 · Betriebshandbuch
+page_header	0	Stand: Oktober 2026
+heading	1	Betriebshandbuch LV-Server 5
+paragraph	0	Version 5.4 · für Systemadministratoren
+paragraph	0	Dieses Handbuch beschreibt Installation, Konfiguration und Betrieb des Lagerverwaltungsservers. Es richtet sich an Administratoren, die mit Linux und PostgreSQL vertraut sind. Die Beschreibung der Lagerprozesse selbst finden Sie im Anwenderhandbuch.
+heading	2	1 Systemvoraussetzungen
+caption	0	Für einen Standort mit bis zu 40 Handscannern gelten die folgenden Werte.
+table	0	KomponenteMindestensEmpfohlenProzessor4 Kerne, 2,4 GHz8 Kerne, 3,0 GHzArbeitsspeicher8 GB32 GBFestplatte120 GB SSD500 GB NVMe, gespiegeltBetriebssystemDebian 12 oder Ubuntu 24.04 LTSDebian 12DatenbankPostgreSQL 15PostgreSQL 16 auf eigenem Host
+heading	2	2 Installation
+heading	3	2.1 Paket einspielen
+list_item	0	1. Melden Sie sich als Benutzer mit Administratorrechten am Server an.
+list_item	0	2. Prüfen Sie vor der Installation:
+list_item	1	a) ob die Datenbank vom Server aus erreichbar ist,
+list_item	1	b) ob Port 8443 in der Firewall freigegeben ist,
+list_item	1	c) ob die Lizenzdatei lizenz.lvk vorliegt.
+list_item	0	3. Kopieren Sie das Installationspaket in ein temporäres Verzeichnis.
+list_item	0	4. Führen Sie die folgenden Befehle nacheinander aus:
+code	0	sudo dpkg -i lv-server_5.4.2_amd64.deb\nsudo systemctl enable lv-server\nsudo systemctl start lv-server\nsystemctl status lv-server --no-pager
+paragraph	0	Nach dem Start meldet der Befehl systemctl status den Zustand „active (running)“.
+heading	3	2.2 Dienst einrichten
+paragraph	0	Die zentrale Konfigurationsdatei liegt unter /etc/lv-server/lv-server.conf. Ein vollständiges Beispiel:
+code	0	[datenbank]\nhost     = db01.lager.intern\nport     = 5432\nname     = lagerwerk\nbenutzer = lv_dienst\n\n[server]\nbind_adresse = 0.0.0.0\nport         = 8443\nworker       = 8\nprotokoll    = /var/log/lv-server/server.log
+page_footer	0	Seite 1 von 3
+page_header	0	LV-Server 5 · Betriebshandbuch
+page_header	0	Stand: Oktober 2026
+heading	4	2.2.1 Parameter der Datei lv-server.conf
+paragraph	0	Parameter
+code	0	port\n\nworker\n\n\nprotokoll\n\n\nbind_adresse
+heading	4	Standardwert
+paragraph	0	8443 Anzahl der Kerne
+paragraph	0	/var/log/lvserver/server.log 127.0.0.1
+heading	4	Bedeutung
+paragraph	0	TCP-Port der Weboberfläche und der REST-Schnittstelle. Zahl der parallelen Arbeitsprozesse. Werte über 16 bringen keinen messbaren Gewinn. Pfad der Protokolldatei. Das Verzeichnis muss dem Dienstkonto gehören. Netzwerkadresse, an die sich der Dienst bindet. Für den Zugriff aus dem Lagernetz 0.0.0.0 eintragen.
+paragraph	0	Hinweis: Nach jeder Änderung an der Konfiguration muss der Dienst neu gestartet werden.
+heading	2	3 Datensicherung
+paragraph	0	Der Server bringt ein eigenes Sicherungswerkzeug mit. Die Sicherung umfasst:
+list_item	0	– vollständige Sicherung der Datenbank jede Nacht,
+list_item	0	– Kopie der Konfigurationsdateien unter /etc/lv-server/,
+list_item	0	– Aufbewahrung der letzten 14 Sicherungen auf einem getrennten Datenträger.
+paragraph	0	Zur Einrichtung genügt ein Eintrag in der Crontab des Dienstkontos:
+code	0	# Tägliche Sicherung um 02:15 Uhr\n15 2 * * * /opt/lv-server/bin/lv-backup --ziel /mnt/sicherung --behalte 14
+paragraph	0	Prüfen Sie mindestens einmal im Quartal, ob sich eine Sicherung tatsächlich wiederherstellen lässt.
+page_footer	0	Seite 2 von 3
+page_header	0	LV-Server 5 · Betriebshandbuch
+page_header	0	Stand: Oktober 2026
+heading	2	4 Fehlerbehebung
+caption	0	Die folgende Tabelle nennt die häufigsten Fehlercodes im Protokoll.
+table	0	FehlercodeUrsacheMaßnahmeLV-101Datenbank nicht erreichbarHost und Port im Abschnitt [datenbank] prüfen.LV-204Lizenzdatei abgelaufenNeue Lizenz im Kundenportal anfordern und nach /etc/lv-server/ kopieren.server/ kopieren.server/ kopieren.LV-310Scanner meldet unbekannteStammdaten des Lagerplatzes anlegen oder Etikett neuLagerplatznummerLagerplatznummerdrucken.LV-415Sicherungsziel vollÄltere Sicherungen auslagern oder --behalte verringern.
+paragraph	0	Lässt sich ein Fehler nicht beheben, wenden Sie sich mit dem Protokollauszug an den Support.
+heading	2	5 Aktualisierung
+paragraph	0	Aktualisierungen werden als neues Paket ausgeliefert und über das vorhandene installiert:
+list_item	0	1. Erstellen Sie eine vollständige Sicherung wie in Kapitel 3 beschrieben.
+list_item	0	2. Beenden Sie den Dienst mit systemctl stop lv-server.
+list_item	0	3. Installieren Sie das neue Paket mit dpkg -i.
+list_item	0	4. Starten Sie den Dienst und prüfen Sie das Protokoll auf Warnungen.
+paragraph	0	Die Datenbankstruktur wird beim ersten Start der neuen Version automatisch angepasst. Der Vorgang kann bei großen Beständen einige Minuten dauern.
+heading	3	5.1 Versionsverlauf
+table	0	VersionDatumWesentliche Änderungen5.203/2026Mehrlagerfähigkeit, neue Inventurliste5.306/2026REST-Schnittstelle für Versanddienstleister5.409/2026Sicherungswerkzeug lv-backup, schnellere Kommissionierlisten
+page_footer	0	Seite 3 von 3

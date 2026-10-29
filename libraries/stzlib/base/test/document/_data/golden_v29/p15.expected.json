@@ -1,0 +1,184 @@
+{
+  "id": "p15",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Tessellate Sync 4.2 Release Notes",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Tessellate Sync 4.2 Release Notes"
+    },
+    {
+      "level": 2,
+      "text": "Highlights"
+    },
+    {
+      "level": 2,
+      "text": "New features"
+    },
+    {
+      "level": 3,
+      "text": "Selective sync rules"
+    },
+    {
+      "level": 3,
+      "text": "Conflict report"
+    },
+    {
+      "level": 2,
+      "text": "Improvements"
+    },
+    {
+      "level": 2,
+      "text": "Fixed issues"
+    },
+    {
+      "level": 2,
+      "text": "Compatibility"
+    },
+    {
+      "level": 2,
+      "text": "Deprecated settings"
+    },
+    {
+      "level": 2,
+      "text": "Upgrading"
+    }
+  ],
+  "key_sentences": [
+    "Version 4.2 introduces selective sync rules and a command-line report of sync conflicts.",
+    "It also makes the first sync of large folders up to three times faster.",
+    "This release is a free update for all customers with an active subscription.",
+    "You can now choose which files are synced by listing include and exclude patterns in a rules file.",
+    "The following settings still work in 4.2 but print a warning at start-up.",
+    "If you manage clients centrally, the MSI package accepts the same command-line options as version 4.1."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Platform",
+          "Minimum version",
+          "Notes"
+        ],
+        [
+          "Windows",
+          "10 (22H2)",
+          "ARM64 build available"
+        ],
+        [
+          "macOS",
+          "13 Ventura",
+          "Universal binary"
+        ],
+        [
+          "Linux",
+          "glibc 2.31",
+          "AppImage and .deb packages"
+        ],
+        [
+          "Server",
+          "4.0",
+          "Clients 4.2 refuse servers older than 4.0"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Setting",
+          "Replacement",
+          "Removed in"
+        ],
+        [
+          "sync.ignore_file",
+          "sync.exclude in rules.yaml",
+          "5.0"
+        ],
+        [
+          "net.legacy_tls",
+          "none; TLS 1.2 or later is required",
+          "4.3"
+        ],
+        [
+          "ui.compact_tray",
+          "ui.tray_style: compact",
+          "5.0"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "• Faster first sync on large folders:"
+    },
+    {
+      "level": 1,
+      "text": "– the initial scan now runs on four threads by default;"
+    },
+    {
+      "level": 1,
+      "text": "– unchanged files are skipped by size and modification time before hashing."
+    },
+    {
+      "level": 0,
+      "text": "• The tray icon shows the number of files still waiting to upload."
+    },
+    {
+      "level": 0,
+      "text": "• Proxy support:"
+    },
+    {
+      "level": 1,
+      "text": "– authenticated HTTP proxies are supported;"
+    },
+    {
+      "level": 1,
+      "text": "– the proxy can be read from the operating system settings."
+    },
+    {
+      "level": 0,
+      "text": "TS-2291: renaming a folder while offline no longer duplicates its contents."
+    },
+    {
+      "level": 0,
+      "text": "TS-2304: file names with trailing spaces are synced on all platforms."
+    },
+    {
+      "level": 0,
+      "text": "TS-2317: the client no longer stops when the disk is almost full; it pauses and warns instead."
+    },
+    {
+      "level": 0,
+      "text": "TS-2342: shared links keep their expiry date after the file is edited."
+    },
+    {
+      "level": 0,
+      "text": "Close the client on every device that uses the account."
+    },
+    {
+      "level": 0,
+      "text": "Install version 4.2 over the existing installation; settings are kept."
+    },
+    {
+      "level": 0,
+      "text": "Start the client and move any sync.ignore_file patterns into rules.yaml."
+    }
+  ],
+  "furniture": [
+    "Tessellate Sync 4.2 — Release Notes",
+    "1 · Tessellate Sync 4.2",
+    "2 · Tessellate Sync 4.2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "# .tessellate/rules.yaml\nsync:\n  include:\n    - \"projects/**\"\n    - \"invoices/2026/*.pdf\"\n  exclude:\n    - \"**/node_modules/**\"\n    - \"*.tmp\"\n  max_file_size: 2GB",
+    "$ tess conflicts --since 7d --format table\nPATH                        LOCAL     REMOTE    ACTION\nprojects/atlas/plan.md      10:42:07  10:41:55  keep both\ninvoices/2026/0918.pdf      09:03:12  09:05:40  remote wins"
+  ],
+  "notes": "Software release notes. Running title (top centre) and \"N · Tessellate Sync 4.2\" (bottom right) are CSS page-margin boxes; the page-number lines are listed once per page. Two code blocks in Courier New (a YAML rules file and a terminal session with aligned columns; spacing inside code is exact). Inline code words are Courier New as well. Improvements: TYPED \"•\" bullets with a nested level of TYPED en-dash \"–\" markers, both with hanging indents. Fixed issues: square bullets drawn by CSS. Upgrading: decimal numbers drawn by CSS. Compatibility table has NO lines at all (no rules, no fills). Deprecated-settings table: filled header and zebra bands, no rules."
+}
