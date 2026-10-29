@@ -1,0 +1,188 @@
+{
+  "id": "n24",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "The Quayside Post",
+  "headings": [
+    {
+      "level": 1,
+      "text": "The Quayside Post"
+    },
+    {
+      "level": 2,
+      "text": "New ferry terminal opens to passengers"
+    },
+    {
+      "level": 3,
+      "text": "In this issue"
+    },
+    {
+      "level": 3,
+      "text": "Dates for your diary"
+    },
+    {
+      "level": 3,
+      "text": "Did you know?"
+    },
+    {
+      "level": 2,
+      "text": "News in brief"
+    },
+    {
+      "level": 3,
+      "text": "Canteen menu"
+    },
+    {
+      "level": 3,
+      "text": "Cycle shelter"
+    },
+    {
+      "level": 3,
+      "text": "Pilot boat refit"
+    },
+    {
+      "level": 2,
+      "text": "From the chief executive"
+    },
+    {
+      "level": 2,
+      "text": "Winter maintenance programme"
+    },
+    {
+      "level": 3,
+      "text": "What will be closed"
+    },
+    {
+      "level": 3,
+      "text": "How to report a defect"
+    },
+    {
+      "level": 2,
+      "text": "Safety: working near the quay edge"
+    },
+    {
+      "level": 3,
+      "text": "Cold water shock"
+    }
+  ],
+  "key_sentences": [
+    "After two years of construction, the new passenger terminal at the West Quay welcomed its first travellers on 14 September.",
+    "She also thanked the ferry crews, who kept services running throughout the works despite the temporary berths.",
+    "Staff who have photographs of the old hall are invited to lend them to the communications team for the next display.",
+    "Staff who cycle to work can collect a free light set from reception.",
+    "The months ahead will be busy, with the winter maintenance programme and the move of the ticket office.",
+    "The inner lock will operate on a reduced timetable during January.",
+    "Each jacket has a service date on its label and must be returned for inspection when that date is reached.",
+    "Congratulations to all of them, and thank you for your service to the harbour."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "6 Nov",
+          "Open day for families at the pilot station"
+        ],
+        [
+          "20 Nov",
+          "Fire drill, all harbour buildings"
+        ],
+        [
+          "4 Dec",
+          "Charity quiz in the canteen, 18:00"
+        ],
+        [
+          "18 Dec",
+          "Last ferry before the holiday timetable"
+        ]
+      ]
+    },
+    {
+      "caption": "Staff milestones this quarter",
+      "rows": [
+        [
+          "Name",
+          "Department",
+          "Role",
+          "Years of service"
+        ],
+        [
+          "Morwenna Pascoe",
+          "Marine operations",
+          "Pilot boat coxswain",
+          "30"
+        ],
+        [
+          "Daniel Okafor",
+          "Engineering",
+          "Lock gate technician",
+          "20"
+        ],
+        [
+          "Priya Raman",
+          "Finance",
+          "Accounts officer",
+          "10"
+        ],
+        [
+          "Tomasz Wiśniewski",
+          "Security",
+          "Gatehouse supervisor",
+          "10"
+        ],
+        [
+          "Elin Hughes",
+          "Customer services",
+          "Ticket office assistant",
+          "5"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "New ferry terminal opens"
+    },
+    {
+      "level": 0,
+      "text": "Winter maintenance programme"
+    },
+    {
+      "level": 0,
+      "text": "Safety: working near the quay edge"
+    },
+    {
+      "level": 0,
+      "text": "Staff milestones"
+    },
+    {
+      "level": 0,
+      "text": "1. Make the area safe and warn other people nearby."
+    },
+    {
+      "level": 0,
+      "text": "2. Take a photograph if it is safe to do so."
+    },
+    {
+      "level": 0,
+      "text": "3. Log the defect in the maintenance app, giving the berth number."
+    },
+    {
+      "level": 0,
+      "text": "4. Tell your supervisor before the end of your shift."
+    }
+  ],
+  "furniture": [
+    "Issue 37 · Autumn 2026",
+    "Staff newsletter of the Port Kellan Harbour Authority",
+    "Page 1",
+    "The Quayside Post",
+    "Page 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Staff newsletter, two pages; body in Georgia, headings and furniture in Century Gothic. The masthead name 'The Quayside Post' is the title (level 1); the issue lines beside it, the page-2 running header (name, issue) and the page numbers 'Page 1', 'Page 2' are furniture. Page 1: the lead article (a letter-spaced uppercase kicker 'PROJECTS' in body text, a level-2 headline, then a two-column body set with CSS columns) stands beside a shaded sidebar. Reading order: lead article column 1, then column 2, then the sidebar (its level-3 headings 'In this issue', 'Dates for your diary', 'Did you know?'), then the full-width 'News in brief' strip below them, whose three short items (level-3 headings) are set in three CSS columns read column by column, then the shaded 'From the chief executive' box (level 2) whose text runs in two CSS columns. The sidebar contents list is a CSS-drawn disc list; the diary is a key/value table without header row and with rules between rows only. Page 2: three CSS columns separated by rules, read column by column, with level-2 and level-3 headings; the reporting procedure is a TYPED '1.'–'4.' list with a hanging indent inside a column; the pull quote in curly quotation marks is body text, not a key sentence. The staff milestones table under the columns has a caption, a coloured header row and zebra bands."
+}

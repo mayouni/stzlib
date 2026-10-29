@@ -1,0 +1,160 @@
+{
+  "id": "n05",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "第３回理事会議事録",
+  "headings": [
+    {
+      "level": 1,
+      "text": "第３回理事会議事録"
+    },
+    {
+      "level": 2,
+      "text": "１．開会"
+    },
+    {
+      "level": 2,
+      "text": "２．議事"
+    },
+    {
+      "level": 3,
+      "text": "（１）第１号議案：駐輪場の増設について"
+    },
+    {
+      "level": 3,
+      "text": "（２）第２号議案：防犯カメラの更新について"
+    },
+    {
+      "level": 3,
+      "text": "（３）報告事項"
+    },
+    {
+      "level": 2,
+      "text": "３．その他"
+    },
+    {
+      "level": 2,
+      "text": "４．閉会"
+    }
+  ],
+  "key_sentences": [
+    "理事長が開会を宣言し、理事の過半数が出席しているため本理事会が成立することを確認した。",
+    "続いて、前回理事会の議事録が全員一致で承認された。",
+    "これを受けて、東側植栽帯の一部を駐輪場に転用する案について審議を行った。",
+    "管理会社より、設置から12年が経過した防犯カメラ８台の更新見積りが提示された。",
+    "理事から、個人情報保護の観点で映像の閲覧手順を明文化すべきとの意見が出された。",
+    "管理会社が運用細則の案を作成し、次回理事会で改めて審議することとした。",
+    "管理会社は各棟の掲示板に工程表を掲示すると回答した。",
+    "以上をもって全ての議事を終了し、理事長が午前11時45分に閉会を宣言した。"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "日時",
+          "2026年9月27日（日）午前10時00分〜午前11時45分"
+        ],
+        [
+          "場所",
+          "みなと台マンション集会室（管理棟１階）"
+        ],
+        [
+          "出席者",
+          "理事７名中６名（理事長、副理事長、会計担当理事、理事３名）、管理会社担当者１名"
+        ],
+        [
+          "欠席者",
+          "防災担当理事１名"
+        ],
+        [
+          "議事録作成",
+          "書記担当理事"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "番号",
+          "工事内容",
+          "業者",
+          "状況",
+          "完了予定"
+        ],
+        [
+          "1",
+          "給水ポンプのオーバーホール",
+          "みなと設備工業",
+          "完了",
+          "2026年8月"
+        ],
+        [
+          "2",
+          "エントランス自動ドアのセンサー交換",
+          "北斗ドアサービス",
+          "完了",
+          "2026年9月"
+        ],
+        [
+          "3",
+          "屋上防水の部分補修（Ｂ棟）",
+          "青葉防水",
+          "施工中",
+          "2026年10月"
+        ],
+        [
+          "4",
+          "駐車場のライン引き直し",
+          "未定",
+          "見積中",
+          "2026年12月"
+        ],
+        [
+          "5",
+          "共用廊下照明のLED化（全棟）",
+          "ひかり電設",
+          "契約済",
+          "2027年1月"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "①東側植栽帯の約60平方メートルを二段式ラックの駐輪場とする。"
+    },
+    {
+      "level": 0,
+      "text": "②工事費は修繕積立金ではなく管理費会計の予備費から支出する。"
+    },
+    {
+      "level": 0,
+      "text": "③利用料は１台につき月額200円とし、来年４月から徴収する。"
+    },
+    {
+      "level": 0,
+      "text": "１．秋の防災訓練は11月15日（日）午前に実施する。"
+    },
+    {
+      "level": 0,
+      "text": "２．自治会との合同清掃は12月6日（日）とし、詳細は掲示で案内する。"
+    },
+    {
+      "level": 0,
+      "text": "３．次回理事会は10月25日（日）午前10時から集会室で開催する。"
+    }
+  ],
+  "furniture": [
+    "みなと台マンション管理組合",
+    "－ 1 －",
+    "－ 2 －"
+  ],
+  "languages": [
+    "ja"
+  ],
+  "code": [],
+  "notes": "Japanese minutes of a condominium board meeting, two pages. The association name at the top right of each page is a running header (furniture, listed once); page numbers '－ 1 －' and '－ 2 －' are furniture. Text is written without spaces between words: a line wrapped inside a sentence joins with no space. The meeting information block is a full-grid key/value table whose left column cells are header-styled (th) but it has no header row. Heading levels: title (1), numbered sections １．…４． (2), sub-items （１）…（３） (3); the full-width digits and brackets are part of the heading text. Lists use TYPED markers written inline with no space after the marker: circled digits ①②③ on page 1 and full-width '１．' '２．' '３．' on page 2. The report table has rules under the header and between rows only. The closing '以上' and the boxed signature statement are body text but are not used as key sentences."
+}

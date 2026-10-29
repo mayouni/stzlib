@@ -1,0 +1,126 @@
+{
+  "id": "n18",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Olağan Genel Kurul Toplantısına Çağrı",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Olağan Genel Kurul Toplantısına Çağrı"
+    },
+    {
+      "level": 2,
+      "text": "Gündem"
+    },
+    {
+      "level": 2,
+      "text": "Toplantı bilgileri"
+    },
+    {
+      "level": 2,
+      "text": "Katılım koşulları"
+    }
+  ],
+  "key_sentences": [
+    "Derneğimizin olağan genel kurul toplantısı, aşağıda belirtilen gün, saat ve yerde yapılacaktır.",
+    "Toplantıda yönetim ve denetim kurullarının iki yıllık çalışmaları görüşülecek ve yeni kurullar seçilecektir.",
+    "Bütün üyelerimizin katılımını önemle rica ederiz.",
+    "Çoğunluk sağlanamadığı takdirde toplantı, ikinci toplantı tarihinde çoğunluk aranmaksızın yapılacaktır.",
+    "Aidat ödemeleri toplantı günü saat 10:00’a kadar dernek saymanlığına yapılabilir."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Tarih",
+          "22 Kasım 2026, Pazar"
+        ],
+        [
+          "Saat",
+          "10:30"
+        ],
+        [
+          "Yer",
+          "Ayvalık Ticaret Odası toplantı salonu"
+        ],
+        [
+          "İkinci toplantı",
+          "29 Kasım 2026, aynı saat ve yerde"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Açılış ve yoklama"
+    },
+    {
+      "level": 0,
+      "text": "Divan kurulunun seçimi"
+    },
+    {
+      "level": 0,
+      "text": "Saygı duruşu ve İstiklal Marşı"
+    },
+    {
+      "level": 0,
+      "text": "Yönetim kurulu faaliyet raporunun okunması"
+    },
+    {
+      "level": 0,
+      "text": "Denetim kurulu raporunun okunması"
+    },
+    {
+      "level": 0,
+      "text": "Raporların görüşülmesi ve ibrası"
+    },
+    {
+      "level": 0,
+      "text": "2027–2028 tahmini bütçesinin görüşülmesi"
+    },
+    {
+      "level": 0,
+      "text": "Üye aidatlarının belirlenmesi"
+    },
+    {
+      "level": 0,
+      "text": "Ortak bal dolum tesisi projesinin görüşülmesi"
+    },
+    {
+      "level": 0,
+      "text": "Yönetim ve denetim kurullarının seçimi"
+    },
+    {
+      "level": 0,
+      "text": "Dilek ve temenniler"
+    },
+    {
+      "level": 0,
+      "text": "Kapanış"
+    },
+    {
+      "level": 0,
+      "text": "- Aidat borcu bulunmayan üyeler oy kullanabilir."
+    },
+    {
+      "level": 0,
+      "text": "- Üyeler kimlik kartlarını yanlarında getirmelidir."
+    },
+    {
+      "level": 0,
+      "text": "- Vekâleten oy kullanılamaz."
+    }
+  ],
+  "furniture": [
+    "KUZEY EGE ARICILAR DERNEĞİ",
+    "Kuruluş: 1998 · Kütük No: 10-047-012",
+    "Cumhuriyet Cad. No: 27/3 Ayvalık / Balıkesir · Tel: 0266 312 47 80 · iletisim@kuzeyegearicilar.example"
+  ],
+  "languages": [
+    "tr"
+  ],
+  "code": [],
+  "notes": "Turkish association letter calling an ordinary general assembly, one page, Corbel. Furniture: the association name and registration line at the top and the address footer. The reference strip (Sayı / Konu / place and date) and the salutation are body text but not key sentences. The agenda is a CSS-drawn decimal ordered list (markers not in the text) set in two CSS columns: reading order runs down the first column (items 1–6) and then the second (items 7–12). Two shaded boxes side by side are read box by box: 'Toplantı bilgileri' (heading plus a borderless key/value table without header row) and 'Katılım koşulları' (heading plus a TYPED hyphen '-' list with a hanging indent). The signature block is body text."
+}

@@ -1,0 +1,235 @@
+{
+  "id": "n19",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "ĐỀ CƯƠNG HỌC PHẦN",
+  "headings": [
+    {
+      "level": 1,
+      "text": "ĐỀ CƯƠNG HỌC PHẦN"
+    },
+    {
+      "level": 2,
+      "text": "1. Mục tiêu học phần"
+    },
+    {
+      "level": 2,
+      "text": "2. Chuẩn đầu ra của học phần"
+    },
+    {
+      "level": 2,
+      "text": "3. Nội dung và lịch trình giảng dạy"
+    },
+    {
+      "level": 2,
+      "text": "4. Phương pháp đánh giá"
+    },
+    {
+      "level": 2,
+      "text": "5. Tài liệu học tập"
+    }
+  ],
+  "key_sentences": [
+    "Học phần cung cấp cho sinh viên những kiến thức nền tảng về mạch điện một chiều và xoay chiều.",
+    "Sau khi hoàn thành học phần, sinh viên có thể đọc sơ đồ, đo các đại lượng điện và lắp đặt được các mạch điện đơn giản.",
+    "Mỗi tiết học kéo dài 45 phút.",
+    "Các buổi thực hành được tổ chức tại xưởng điện của trường, mỗi nhóm không quá 18 sinh viên.",
+    "Sinh viên vắng quá 20% số tiết của học phần sẽ không được dự thi kết thúc học phần.",
+    "Điểm học phần được tính theo thang điểm 10 và làm tròn đến một chữ số thập phân."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Mã học phần",
+          "KTD1203",
+          "Số tín chỉ",
+          "3 (2 lý thuyết, 1 thực hành)"
+        ],
+        [
+          "Ngành đào tạo",
+          "Điện công nghiệp",
+          "Trình độ",
+          "Cao đẳng"
+        ],
+        [
+          "Học phần tiên quyết",
+          "Toán ứng dụng",
+          "Học kỳ",
+          "I, năm học 2026–2027"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Mã",
+          "Mô tả chuẩn đầu ra",
+          "Mức độ"
+        ],
+        [
+          "CĐR1",
+          "Giải thích được định luật Ôm và các định luật Kiếc-khốp",
+          "Hiểu"
+        ],
+        [
+          "CĐR2",
+          "Tính toán được công suất trong mạch xoay chiều một pha và ba pha",
+          "Vận dụng"
+        ],
+        [
+          "CĐR3",
+          "Lắp đặt và kiểm tra được mạch chiếu sáng theo sơ đồ cho trước",
+          "Vận dụng"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Tuần",
+          "Nội dung",
+          "Số tiết",
+          "Số tiết",
+          "Chuẩn đầu ra"
+        ],
+        [
+          "Tuần",
+          "Nội dung",
+          "Lý thuyết",
+          "Thực hành",
+          "Chuẩn đầu ra"
+        ],
+        [
+          "1–2",
+          "Chương 1. Khái niệm cơ bản về mạch điện",
+          "6",
+          "0",
+          "CĐR1"
+        ],
+        [
+          "3–4",
+          "Chương 2. Mạch điện một chiều",
+          "6",
+          "4",
+          "CĐR1"
+        ],
+        [
+          "5–7",
+          "Chương 3. Mạch điện xoay chiều một pha",
+          "8",
+          "4",
+          "CĐR2"
+        ],
+        [
+          "8",
+          "Kiểm tra giữa kỳ",
+          "2",
+          "0",
+          "CĐR1, CĐR2"
+        ],
+        [
+          "9–11",
+          "Chương 4. Mạch điện xoay chiều ba pha",
+          "6",
+          "6",
+          "CĐR2"
+        ],
+        [
+          "12–14",
+          "Chương 5. Lắp đặt mạch chiếu sáng dân dụng",
+          "2",
+          "16",
+          "CĐR3"
+        ],
+        [
+          "15",
+          "Ôn tập và tổng kết",
+          "0",
+          "0",
+          "CĐR1–CĐR3"
+        ],
+        [
+          "Tổng cộng",
+          "Tổng cộng",
+          "30",
+          "30",
+          ""
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Hình thức",
+          "Nội dung",
+          "Tỷ trọng"
+        ],
+        [
+          "Chuyên cần",
+          "Tham dự đầy đủ các buổi học",
+          "10%"
+        ],
+        [
+          "Kiểm tra giữa kỳ",
+          "Bài viết 60 phút, chương 1 đến chương 3",
+          "20%"
+        ],
+        [
+          "Thực hành",
+          "Bài thực hành lắp đặt mạch chiếu sáng",
+          "30%"
+        ],
+        [
+          "Thi kết thúc học phần",
+          "Bài viết 90 phút, toàn bộ nội dung",
+          "40%"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "a) Về kiến thức: trình bày được các định luật cơ bản của mạch điện;"
+    },
+    {
+      "level": 0,
+      "text": "b) Về kỹ năng: sử dụng thành thạo đồng hồ vạn năng và ampe kìm;"
+    },
+    {
+      "level": 0,
+      "text": "c) Về thái độ: tuân thủ các quy định an toàn điện trong phòng thực hành."
+    },
+    {
+      "level": 0,
+      "text": "Giáo trình Kỹ thuật điện cơ bản, Nhà xuất bản Giáo dục Việt Nam, 2024."
+    },
+    {
+      "level": 0,
+      "text": "Tập bài giảng và bài thực hành của Khoa Điện, lưu hành nội bộ."
+    },
+    {
+      "level": 0,
+      "text": "Tiêu chuẩn TCVN 9206:2012 về đặt thiết bị điện trong nhà ở và công trình công cộng."
+    }
+  ],
+  "furniture": [
+    "SỞ LAO ĐỘNG – THƯƠNG BINH VÀ XÃ HỘI TỈNH HÀ LAM",
+    "TRƯỜNG CAO ĐẲNG KỸ THUẬT SÔNG LAM",
+    "CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM",
+    "Độc lập – Tự do – Hạnh phúc",
+    "Trang 1/2",
+    "Đề cương học phần KTD1203 – Kỹ thuật điện cơ bản",
+    "Trang 2/2"
+  ],
+  "languages": [
+    "vi"
+  ],
+  "code": [],
+  "notes": "Vietnamese course syllabus, two pages, Tahoma. Vietnamese is written with precomposed letters (NFC). Furniture: the official two-block header on page 1 (left: the provincial department and the college name; right: the national name and the motto line 'Độc lập – Tự do – Hạnh phúc'), the running header on page 2 and the page numbers 'Trang 1/2', 'Trang 2/2'. The course name under the title is a subtitle in body text. The general-information block is a full-grid key/value table with two pairs per row and no header row. The schedule table has a two-level header ('Tuần', 'Nội dung' and 'Chuẩn đầu ra' span two header rows; 'Số tiết' spans 'Lý thuyết' and 'Thực hành'); both header rows are given. It runs from page 1 to page 2 with its header repeated on page 2 (given once); '(xem tiếp trang sau)' is a continuation note, not part of the table. The total row's label spans two columns. Objectives use TYPED markers 'a)' 'b)' 'c)' with a hanging indent; the reading list is a CSS-drawn decimal list (markers not in the text). The closing signature titles are body text."
+}

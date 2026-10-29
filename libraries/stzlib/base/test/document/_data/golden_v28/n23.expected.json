@@ -1,0 +1,348 @@
+{
+  "id": "n23",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "Safety Data Sheet: KLARSOL Industrial Degreaser 500",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Safety Data Sheet: KLARSOL Industrial Degreaser 500"
+    },
+    {
+      "level": 2,
+      "text": "SECTION 1: Identification of the substance/mixture and of the company/undertaking"
+    },
+    {
+      "level": 3,
+      "text": "1.1 Product identifier"
+    },
+    {
+      "level": 3,
+      "text": "1.2 Relevant identified uses and uses advised against"
+    },
+    {
+      "level": 3,
+      "text": "1.3 Details of the supplier of the safety data sheet"
+    },
+    {
+      "level": 2,
+      "text": "SECTION 2: Hazards identification"
+    },
+    {
+      "level": 3,
+      "text": "2.1 Classification of the substance or mixture"
+    },
+    {
+      "level": 3,
+      "text": "2.2 Label elements"
+    },
+    {
+      "level": 3,
+      "text": "2.3 Other hazards"
+    },
+    {
+      "level": 2,
+      "text": "SECTION 3: Composition/information on ingredients"
+    },
+    {
+      "level": 3,
+      "text": "3.2 Mixtures"
+    },
+    {
+      "level": 2,
+      "text": "SECTION 4: First aid measures"
+    },
+    {
+      "level": 3,
+      "text": "4.1 Description of first aid measures"
+    },
+    {
+      "level": 3,
+      "text": "4.2 Most important symptoms and effects"
+    },
+    {
+      "level": 2,
+      "text": "SECTION 5: Firefighting measures"
+    },
+    {
+      "level": 2,
+      "text": "SECTION 6: Accidental release measures"
+    },
+    {
+      "level": 2,
+      "text": "SECTION 7: Handling and storage"
+    },
+    {
+      "level": 2,
+      "text": "SECTION 8: Exposure controls/personal protection"
+    },
+    {
+      "level": 3,
+      "text": "8.1 Control parameters"
+    },
+    {
+      "level": 3,
+      "text": "8.2 Exposure controls"
+    },
+    {
+      "level": 2,
+      "text": "SECTION 9: Physical and chemical properties"
+    },
+    {
+      "level": 2,
+      "text": "SECTION 10: Stability and reactivity"
+    },
+    {
+      "level": 2,
+      "text": "SECTION 16: Other information"
+    }
+  ],
+  "key_sentences": [
+    "Water-based alkaline cleaner for removing oil and grease from metal surfaces in industrial settings.",
+    "The mixture does not contain substances assessed as PBT or vPvB.",
+    "Contact with the eyes causes pain, redness and a risk of permanent damage.",
+    "The product is not flammable.",
+    "Absorb spills with sand or another inert material and place in a closed container for disposal.",
+    "Store in the original container at temperatures between 5 °C and 35 °C.",
+    "Contact with strong acids releases heat.",
+    "This safety data sheet replaces all earlier versions."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Product name",
+          "KLARSOL Industrial Degreaser 500"
+        ],
+        [
+          "Product code",
+          "MCP-KL500"
+        ],
+        [
+          "UFI",
+          "N7Q0-T0VG-8005-2K4R"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Supplier",
+          "Merrow Chemical Products Ltd. Unit 12, Riverside Works, Leek ST13 6DT, United Kingdom"
+        ],
+        [
+          "Telephone",
+          "+44 1538 300 410"
+        ],
+        [
+          "E-mail (competent person)",
+          "sds@merrow-chemical.example"
+        ],
+        [
+          "1.4 Emergency telephone number",
+          "+44 1538 300 499 (24 hours)"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Hazard class and category",
+          "Hazard statement"
+        ],
+        [
+          "Acute Tox. 4 (oral)",
+          "H302: Harmful if swallowed."
+        ],
+        [
+          "Acute Tox. 4 (inhalation)",
+          "H332: Harmful if inhaled."
+        ],
+        [
+          "Skin Irrit. 2",
+          "H315: Causes skin irritation."
+        ],
+        [
+          "Eye Dam. 1",
+          "H318: Causes serious eye damage."
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Substance",
+          "Identifiers",
+          "Concentration (% w/w)",
+          "Classification (EC) No 1272/2008"
+        ],
+        [
+          "2-butoxyethanol",
+          "CAS 111-76-2 EC 203-905-0",
+          "5 – < 10",
+          "Acute Tox. 4, H302, H312, H332 Skin Irrit. 2, H315; Eye Irrit. 2, H319"
+        ],
+        [
+          "Sodium metasilicate",
+          "CAS 6834-92-0 EC 229-912-9",
+          "1 – < 3",
+          "Met. Corr. 1, H290 Skin Corr. 1B, H314; STOT SE 3, H335"
+        ],
+        [
+          "Alcohols, C9–11, ethoxylated",
+          "CAS 68439-46-3 Polymer",
+          "1 – < 5",
+          "Acute Tox. 4, H302 Eye Dam. 1, H318"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Substance",
+          "Long-term exposure limit (8-h TWA)",
+          "Long-term exposure limit (8-h TWA)",
+          "Short-term exposure limit (15 min)",
+          "Short-term exposure limit (15 min)",
+          "Source"
+        ],
+        [
+          "Substance",
+          "ppm",
+          "mg/m³",
+          "ppm",
+          "mg/m³",
+          "Source"
+        ],
+        [
+          "2-butoxyethanol",
+          "25",
+          "123",
+          "50",
+          "246",
+          "UK EH40/2005"
+        ],
+        [
+          "Sodium metasilicate",
+          "–",
+          "–",
+          "–",
+          "–",
+          "No limit established"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Eye protection",
+          "Tightly fitting safety goggles (EN 166)."
+        ],
+        [
+          "Hand protection",
+          "Nitrile rubber gloves, thickness at least 0.4 mm, breakthrough time over 480 minutes (EN ISO 374)."
+        ],
+        [
+          "Respiratory protection",
+          "Not normally required; use a filter mask type A2/P2 when spraying in confined spaces."
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Property",
+          "Value",
+          "Method"
+        ],
+        [
+          "Physical state",
+          "Liquid",
+          "Visual"
+        ],
+        [
+          "Colour",
+          "Pale yellow",
+          "Visual"
+        ],
+        [
+          "pH (undiluted)",
+          "12.8",
+          "ISO 4316"
+        ],
+        [
+          "Relative density at 20 °C",
+          "1.06",
+          "OECD 109"
+        ],
+        [
+          "Solubility in water",
+          "Fully miscible",
+          "–"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "P280 Wear protective gloves and eye protection."
+    },
+    {
+      "level": 0,
+      "text": "P301+P312 IF SWALLOWED: Call a POISON CENTRE or doctor if you feel unwell."
+    },
+    {
+      "level": 0,
+      "text": "P305+P351+P338 IF IN EYES: Rinse cautiously with water for several minutes. Remove contact lenses, if present and easy to do. Continue rinsing."
+    },
+    {
+      "level": 0,
+      "text": "P501 Dispose of contents and container in accordance with local regulations."
+    },
+    {
+      "level": 0,
+      "text": "After inhalation: move the person to fresh air and keep at rest."
+    },
+    {
+      "level": 0,
+      "text": "After skin contact: remove contaminated clothing and wash the skin with plenty of water."
+    },
+    {
+      "level": 0,
+      "text": "After eye contact: rinse immediately with plenty of water for at least 15 minutes."
+    },
+    {
+      "level": 1,
+      "text": "Hold the eyelids apart while rinsing."
+    },
+    {
+      "level": 1,
+      "text": "Get medical attention without delay."
+    },
+    {
+      "level": 0,
+      "text": "After ingestion: rinse the mouth with water. Do not induce vomiting."
+    }
+  ],
+  "furniture": [
+    "SAFETY DATA SHEET · KLARSOL Industrial Degreaser 500",
+    "Revision 4.1 · Date of issue 03/09/2026",
+    "Merrow Chemical Products Ltd.",
+    "Page 1 of 3",
+    "Page 2 of 3",
+    "Page 3 of 3"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Safety data sheet in Arial Narrow, three pages. Furniture: the running header (document type and product on the left, revision and date on the right; listed once), the footer company name (listed once) and 'Page 1 of 3' … 'Page 3 of 3'. The regulation line under the title is a subtitle in body text. Section bars 'SECTION n: …' are level-2 headings; numbered subsections '1.1 …' are level-3 headings (underlined). Sections 11–15 are deliberately absent from this abridged sheet; numbering jumps from 10 to 16. Key/value blocks (product identifier, supplier, exposure controls) are borderless tables without a header row; the supplier cell has two lines joined with one space; the key '1.4 Emergency telephone number' sits inside that table and is not a heading. Grids: the hazard table, the composition table (cells of two lines joined with one space; concentration cells read e.g. '5 – < 10'), the exposure-limit table with a two-level header ('Substance' and 'Source' span two rows; each limit spans 'ppm' and 'mg/m³'; both header rows given) and the properties table. The signal word DANGER is in a red letter-spaced frame (body text). Precautionary statements are a TYPED list whose markers are the P-codes (e.g. 'P280', 'P301+P312') set in a hanging column; first-aid measures are a CSS-drawn square-bullet list with a nested square-bullet list (markers not in the text)."
+}

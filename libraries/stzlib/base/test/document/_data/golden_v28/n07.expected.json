@@ -1,0 +1,190 @@
+{
+  "id": "n07",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Runbook RB-112: Primary database failover",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Runbook RB-112: Primary database failover"
+    },
+    {
+      "level": 2,
+      "text": "1. Purpose and scope"
+    },
+    {
+      "level": 3,
+      "text": "Before you start"
+    },
+    {
+      "level": 2,
+      "text": "2. Preconditions"
+    },
+    {
+      "level": 2,
+      "text": "3. Procedure"
+    },
+    {
+      "level": 3,
+      "text": "3.1 Confirm that the primary is down"
+    },
+    {
+      "level": 3,
+      "text": "3.2 Fence the old primary"
+    },
+    {
+      "level": 3,
+      "text": "3.3 Promote the standby"
+    },
+    {
+      "level": 3,
+      "text": "3.4 Point the applications to the new primary"
+    },
+    {
+      "level": 2,
+      "text": "4. Verification"
+    },
+    {
+      "level": 2,
+      "text": "5. Escalation contacts"
+    },
+    {
+      "level": 2,
+      "text": "6. Version history"
+    }
+  ],
+  "key_sentences": [
+    "This runbook describes how to promote the standby PostgreSQL server when the primary in the Leeds data centre becomes unavailable.",
+    "It applies to the order management cluster only.",
+    "Other clusters use automatic failover and are covered by RB-090.",
+    "Do not promote the standby while the primary is still accepting writes, because this creates two diverging timelines.",
+    "Check the replication status from the standby and note the last received log position in the incident record.",
+    "Run the promotion on the standby host and wait until the server leaves recovery mode.",
+    "Update the service discovery record so that the write endpoint resolves to the promoted server.",
+    "The change below is applied through the configuration repository and takes effect within two minutes."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Role",
+          "Team",
+          "Hours",
+          "Contact"
+        ],
+        [
+          "Duty database engineer",
+          "Platform Database",
+          "24/7",
+          "pager group dba-oncall"
+        ],
+        [
+          "Incident commander",
+          "Service Management",
+          "24/7",
+          "ext. 4400"
+        ],
+        [
+          "Order management owner",
+          "Commerce Systems",
+          "08:00–18:00",
+          "ext. 4127"
+        ],
+        [
+          "Network on call",
+          "Infrastructure",
+          "24/7",
+          "pager group net-oncall"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Version",
+          "Date",
+          "Change"
+        ],
+        [
+          "3.0",
+          "14 Mar 2026",
+          "Moved to PostgreSQL 16"
+        ],
+        [
+          "3.1",
+          "9 Jun 2026",
+          "Added fencing step"
+        ],
+        [
+          "3.2",
+          "2 Oct 2026",
+          "Updated contacts and YAML path"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. The incident has been declared in the incident channel and an incident commander is named."
+    },
+    {
+      "level": 0,
+      "text": "2. Replication lag on the standby is below 30 seconds, or the business has accepted the loss of recent orders."
+    },
+    {
+      "level": 0,
+      "text": "3. You have a terminal on the bastion host with the dba-oncall role."
+    },
+    {
+      "level": 0,
+      "text": "1. Remove the old primary from the load balancer pool:"
+    },
+    {
+      "level": 1,
+      "text": "1.1 open the pool definition for orders-db-rw;"
+    },
+    {
+      "level": 1,
+      "text": "1.2 set the old primary to drain and confirm that active connections fall to zero."
+    },
+    {
+      "level": 0,
+      "text": "2. Stop the PostgreSQL service on the old primary if the host still responds."
+    },
+    {
+      "level": 0,
+      "text": "3. Record the time of fencing in the incident timeline."
+    },
+    {
+      "level": 0,
+      "text": "Place a test order in the staging tenant and confirm that it is stored."
+    },
+    {
+      "level": 0,
+      "text": "Check that the error rate on the order API has returned to its normal level."
+    },
+    {
+      "level": 0,
+      "text": "Rebuild a new standby from the promoted server within 24 hours."
+    }
+  ],
+  "furniture": [
+    "Larkspur Logistics · IT Operations",
+    "RB-112 Primary database failover",
+    "Classification: INTERNAL",
+    "Page 1 of 2",
+    "Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "$ ssh dba@pg-orders-b.leeds.internal\n$ sudo -u postgres psql -c \"SELECT pg_last_wal_receive_lsn(), now() - pg_last_xact_replay_timestamp() AS lag;\"",
+    "$ sudo -u postgres pg_ctl promote -D /var/lib/postgresql/16/main\n$ sudo -u postgres psql -tAc \"SELECT pg_is_in_recovery();\"\nf",
+    "# config/orders/database.yaml\nwrite_endpoint:\n  host: pg-orders-b.leeds.internal\n  port: 5432\n  pool_size: 40\nread_endpoints:\n  - host: pg-orders-c.york.internal\n    port: 5432"
+  ],
+  "notes": "IT runbook, two pages. Furniture: running header (organisation, runbook name; listed once), footer 'Classification: INTERNAL' (listed once) and 'Page 1 of 2' / 'Page 2 of 2'. Section numbers ('1.', '3.1') are part of the heading text. 'Before you start' is a level-3 heading inside a red warning box. Three code blocks in Consolas (two shell sessions with '$' prompts, one YAML file); code is given exactly, without line numbers. The preconditions and fencing lists use TYPED decimal markers '1.' '2.' with a hanging indent and nested TYPED '1.1', '1.2' markers; the verification list uses CSS-drawn disc bullets (not in the text). The escalation table has rules between rows only; the version history table is a full grid."
+}

@@ -1,0 +1,339 @@
+{
+  "id": "n15",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "Annual Report and Financial Statements for the year ended 31 March 2026",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Annual Report and Financial Statements for the year ended 31 March 2026"
+    },
+    {
+      "level": 2,
+      "text": "Chair’s statement"
+    },
+    {
+      "level": 2,
+      "text": "Financial review"
+    },
+    {
+      "level": 3,
+      "text": "Reserves policy"
+    },
+    {
+      "level": 2,
+      "text": "Balance sheet"
+    },
+    {
+      "level": 2,
+      "text": "Notes to the financial statements"
+    },
+    {
+      "level": 3,
+      "text": "1. Accounting policies"
+    },
+    {
+      "level": 3,
+      "text": "2. Staff costs"
+    },
+    {
+      "level": 3,
+      "text": "3. Related party transactions"
+    }
+  ],
+  "key_sentences": [
+    "This has been a year of steady progress for the Trust and for the 2,140 households who live in our homes.",
+    "Our tenants told us that repairs matter more to them than anything else.",
+    "Total income rose by 10.4% to £8.66 million, mainly because of higher rental income and a capital grant for the Lindley scheme.",
+    "All income and expenditure derives from continuing activities.",
+    "The board aims to hold free reserves equal to at least three months of operating expenditure.",
+    "The financial statements have been prepared under the historical cost convention, modified to include certain investments at fair value.",
+    "The average number of employees during the year was 87, an increase of 14 compared with the previous year.",
+    "Their tenancies are on the same terms as those of other tenants and they cannot use their position to their advantage."
+  ],
+  "tables": [
+    {
+      "caption": "Statement of financial activities (£000)",
+      "rows": [
+        [
+          "",
+          "Unrestricted funds",
+          "Restricted funds",
+          "Total",
+          "Total"
+        ],
+        [
+          "",
+          "Unrestricted funds",
+          "Restricted funds",
+          "2026",
+          "2025"
+        ],
+        [
+          "Income from",
+          "Income from",
+          "Income from",
+          "Income from",
+          "Income from"
+        ],
+        [
+          "Donations and legacies",
+          "412",
+          "96",
+          "508",
+          "471"
+        ],
+        [
+          "Charitable activities: rents and service charges",
+          "6,842",
+          "–",
+          "6,842",
+          "6,519"
+        ],
+        [
+          "Grants",
+          "–",
+          "1,250",
+          "1,250",
+          "830"
+        ],
+        [
+          "Investment income",
+          "58",
+          "–",
+          "58",
+          "22"
+        ],
+        [
+          "Total income",
+          "7,312",
+          "1,346",
+          "8,658",
+          "7,842"
+        ],
+        [
+          "Expenditure on",
+          "Expenditure on",
+          "Expenditure on",
+          "Expenditure on",
+          "Expenditure on"
+        ],
+        [
+          "Raising funds",
+          "141",
+          "–",
+          "141",
+          "133"
+        ],
+        [
+          "Housing management and maintenance",
+          "4,926",
+          "312",
+          "5,238",
+          "4,987"
+        ],
+        [
+          "Tenant support services",
+          "1,388",
+          "905",
+          "2,293",
+          "2,051"
+        ],
+        [
+          "Total expenditure",
+          "6,455",
+          "1,217",
+          "7,672",
+          "7,171"
+        ],
+        [
+          "Net income for the year",
+          "857",
+          "129",
+          "986",
+          "671"
+        ],
+        [
+          "Funds brought forward at 1 April",
+          "5,420",
+          "744",
+          "6,164",
+          "5,493"
+        ],
+        [
+          "Funds carried forward at 31 March",
+          "6,277",
+          "873",
+          "7,150",
+          "6,164"
+        ]
+      ]
+    },
+    {
+      "caption": "Balance sheet at 31 March 2026 (£000)",
+      "rows": [
+        [
+          "",
+          "2026",
+          "2025"
+        ],
+        [
+          "Fixed assets",
+          "Fixed assets",
+          "Fixed assets"
+        ],
+        [
+          "Housing properties",
+          "18,940",
+          "18,312"
+        ],
+        [
+          "Other tangible assets",
+          "412",
+          "455"
+        ],
+        [
+          "",
+          "19,352",
+          "18,767"
+        ],
+        [
+          "Current assets",
+          "Current assets",
+          "Current assets"
+        ],
+        [
+          "Debtors",
+          "638",
+          "590"
+        ],
+        [
+          "Cash at bank and in hand",
+          "2,104",
+          "1,688"
+        ],
+        [
+          "",
+          "2,742",
+          "2,278"
+        ],
+        [
+          "Creditors: amounts falling due within one year",
+          "(1,416)",
+          "(1,301)"
+        ],
+        [
+          "Net current assets",
+          "1,326",
+          "977"
+        ],
+        [
+          "Creditors: amounts falling due after more than one year",
+          "(13,528)",
+          "(13,580)"
+        ],
+        [
+          "Net assets",
+          "7,150",
+          "6,164"
+        ],
+        [
+          "Funds",
+          "Funds",
+          "Funds"
+        ],
+        [
+          "Unrestricted funds",
+          "6,277",
+          "5,420"
+        ],
+        [
+          "Restricted funds",
+          "873",
+          "744"
+        ],
+        [
+          "Total funds",
+          "7,150",
+          "6,164"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "",
+          "2026 £000",
+          "2025 £000"
+        ],
+        [
+          "Wages and salaries",
+          "2,914",
+          "2,402"
+        ],
+        [
+          "Social security costs",
+          "296",
+          "241"
+        ],
+        [
+          "Pension costs",
+          "238",
+          "190"
+        ],
+        [
+          "Total staff costs",
+          "3,448",
+          "2,833"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Rental income is recognised in the period to which it relates, net of rent losses from empty homes."
+    },
+    {
+      "level": 0,
+      "text": "Housing properties are stated at cost less depreciation, and depreciation is charged on each major component separately:"
+    },
+    {
+      "level": 1,
+      "text": "structure over 100 years;"
+    },
+    {
+      "level": 1,
+      "text": "roofs over 60 years;"
+    },
+    {
+      "level": 1,
+      "text": "kitchens over 20 years and bathrooms over 30 years."
+    },
+    {
+      "level": 0,
+      "text": "Capital grants are recognised as income when the conditions attached to them have been met."
+    },
+    {
+      "level": 0,
+      "text": "(a) No board member received remuneration during the year."
+    },
+    {
+      "level": 0,
+      "text": "(b) Travel expenses of £2,180 were reimbursed to six board members."
+    },
+    {
+      "level": 0,
+      "text": "(c) The Trust purchased no goods or services from businesses connected with board members."
+    }
+  ],
+  "furniture": [
+    "Fernhill Housing Trust · Registered charity no. 1190457"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Charity annual report and accounts, set in continuous flow over several A4 pages with no running header, footer or page numbers; page breaks fall where the browser placed them. The only furniture is the organisation line above the title. Headings in Gill Sans MT: the report name is the title (level 1), sections are level 2 and notes are level 3. The key-figures strip (four shaded panels with a number and a label) is not a table. A sentence carrying the footnote marker '1' is excluded from key sentences; the footnote itself is small print. The statement of financial activities has a two-level header: the empty corner, 'Unrestricted funds' and 'Restricted funds' each span two header rows and 'Total' spans '2026' and '2025'; both header rows are given. Section rows ('Income from', 'Expenditure on', 'Fixed assets', ...) span all columns and are repeated. Subtotal rows of the balance sheet have an empty label cell. Dashes '–' mark nil amounts; negative amounts are in brackets. Tables are rules-only (rules under headers and above totals, double rule under grand totals). If a table is cut by a page break the browser repeats its header rows; it is still one table. Lists: note 1 is a CSS-drawn lower-alpha list with a nested list whose en-dash markers are drawn by CSS ::before (not in the text); note 3 uses TYPED '(a)' '(b)' '(c)' markers with a hanging indent."
+}

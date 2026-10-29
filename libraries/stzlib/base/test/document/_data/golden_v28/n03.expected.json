@@ -1,0 +1,405 @@
+{
+  "id": "n03",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "Quartalsbericht zum 30. September 2026",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Quartalsbericht zum 30. September 2026"
+    },
+    {
+      "level": 3,
+      "text": "Kennzahlen im Überblick"
+    },
+    {
+      "level": 2,
+      "text": "Überblick"
+    },
+    {
+      "level": 2,
+      "text": "Geschäftsverlauf"
+    },
+    {
+      "level": 3,
+      "text": "Netze"
+    },
+    {
+      "level": 3,
+      "text": "Erzeugung"
+    },
+    {
+      "level": 3,
+      "text": "Personal"
+    },
+    {
+      "level": 3,
+      "text": "Vertrieb"
+    },
+    {
+      "level": 2,
+      "text": "Segmentberichterstattung"
+    },
+    {
+      "level": 2,
+      "text": "Investitionen"
+    },
+    {
+      "level": 2,
+      "text": "Ausblick"
+    },
+    {
+      "level": 2,
+      "text": "Finanzkalender"
+    }
+  ],
+  "key_sentences": [
+    "Die Nordwerk Energie AG hat im dritten Quartal 2026 ihren Wachstumskurs fortgesetzt.",
+    "Das operative Ergebnis vor Zinsen und Steuern verbesserte sich auf 118,0 Millionen Euro.",
+    "Die Zahl der Netzanschlüsse für Wärmepumpen und Ladepunkte hat sich gegenüber dem Vorjahr nahezu verdoppelt.",
+    "Das Gasturbinenkraftwerk Rodenkirchen stand wegen einer planmäßigen Revision drei Wochen still.",
+    "Im Herbst haben 96 Auszubildende und dual Studierende ihre Ausbildung bei Nordwerk begonnen.",
+    "Die folgende Übersicht zeigt Umsatz und EBIT der Segmente für die ersten neun Monate.",
+    "Rund zwei Drittel davon entfielen auf den Ausbau und die Modernisierung der Netze.",
+    "Risiken ergeben sich vor allem aus der Entwicklung der Großhandelspreise und aus Lieferengpässen bei Transformatoren."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "in Mio. €",
+          "Q3 2026",
+          "Q3 2025",
+          "Veränd."
+        ],
+        [
+          "Umsatz",
+          "1.284,6",
+          "1.197,3",
+          "+7,3 %"
+        ],
+        [
+          "EBITDA",
+          "212,4",
+          "188,9",
+          "+12,4 %"
+        ],
+        [
+          "EBIT",
+          "118,0",
+          "101,5",
+          "+16,3 %"
+        ],
+        [
+          "Konzernergebnis",
+          "71,2",
+          "60,8",
+          "+17,1 %"
+        ],
+        [
+          "Investitionen",
+          "164,9",
+          "139,0",
+          "+18,6 %"
+        ],
+        [
+          "Mitarbeitende",
+          "6.412",
+          "6.255",
+          "+2,5 %"
+        ]
+      ]
+    },
+    {
+      "caption": "Tabelle 1: Segmentkennzahlen, erste neun Monate",
+      "rows": [
+        [
+          "Segment",
+          "Umsatz (Mio. €)",
+          "Umsatz (Mio. €)",
+          "EBIT (Mio. €)",
+          "EBIT (Mio. €)"
+        ],
+        [
+          "Segment",
+          "9M 2026",
+          "9M 2025",
+          "9M 2026",
+          "9M 2025"
+        ],
+        [
+          "Regulierte Geschäfte",
+          "Regulierte Geschäfte",
+          "Regulierte Geschäfte",
+          "Regulierte Geschäfte",
+          "Regulierte Geschäfte"
+        ],
+        [
+          "Stromnetze",
+          "1.102,4",
+          "1.031,7",
+          "141,3",
+          "129,8"
+        ],
+        [
+          "Gasnetze",
+          "418,9",
+          "402,2",
+          "52,6",
+          "50,1"
+        ],
+        [
+          "Wettbewerbliche Geschäfte",
+          "Wettbewerbliche Geschäfte",
+          "Wettbewerbliche Geschäfte",
+          "Wettbewerbliche Geschäfte",
+          "Wettbewerbliche Geschäfte"
+        ],
+        [
+          "Erzeugung",
+          "866,0",
+          "812,5",
+          "97,4",
+          "84,0"
+        ],
+        [
+          "Vertrieb",
+          "1.307,2",
+          "1.255,8",
+          "38,9",
+          "41,6"
+        ],
+        [
+          "Dienstleistungen",
+          "171,5",
+          "160,3",
+          "9,8",
+          "8,2"
+        ],
+        [
+          "Konzern",
+          "3.866,0",
+          "3.662,5",
+          "340,0",
+          "313,7"
+        ]
+      ]
+    },
+    {
+      "caption": "Tabelle 2: Wesentliche Investitionsprojekte",
+      "rows": [
+        [
+          "Nr.",
+          "Projekt",
+          "Segment",
+          "Budget (Mio. €)",
+          "Status"
+        ],
+        [
+          "01",
+          "Umspannwerk Brake, Erweiterung 110 kV",
+          "Stromnetze",
+          "38,5",
+          "im Bau"
+        ],
+        [
+          "02",
+          "Umspannwerk Elsfleth, Neubau",
+          "Stromnetze",
+          "44,0",
+          "im Bau"
+        ],
+        [
+          "03",
+          "Ortsnetzstationen Wesermarsch",
+          "Stromnetze",
+          "17,2",
+          "laufend"
+        ],
+        [
+          "04",
+          "Kabelersatz Mittelspannung Nord",
+          "Stromnetze",
+          "26,8",
+          "laufend"
+        ],
+        [
+          "05",
+          "Intelligente Messsysteme, Rollout Stufe 2",
+          "Stromnetze",
+          "31,4",
+          "laufend"
+        ],
+        [
+          "06",
+          "Gasdruckregelanlage Varel",
+          "Gasnetze",
+          "6,9",
+          "abgeschlossen"
+        ],
+        [
+          "07",
+          "Wasserstofftauglichkeit Leitung Jade",
+          "Gasnetze",
+          "12,3",
+          "Planung"
+        ],
+        [
+          "08",
+          "Windpark Hohe Geest",
+          "Erzeugung",
+          "96,0",
+          "abgeschlossen"
+        ],
+        [
+          "09",
+          "Batteriespeicher Rodenkirchen 40 MW",
+          "Erzeugung",
+          "29,5",
+          "im Bau"
+        ],
+        [
+          "10",
+          "Revision Gasturbine Rodenkirchen",
+          "Erzeugung",
+          "8,7",
+          "abgeschlossen"
+        ],
+        [
+          "11",
+          "Photovoltaik-Freifläche Ovelgönne",
+          "Erzeugung",
+          "22,1",
+          "Genehmigung"
+        ],
+        [
+          "12",
+          "Kundenportal und Abrechnungssystem",
+          "Vertrieb",
+          "14,6",
+          "laufend"
+        ],
+        [
+          "13",
+          "Ladeparks an Autobahnraststätten",
+          "Vertrieb",
+          "18,0",
+          "im Bau"
+        ],
+        [
+          "14",
+          "Wärmenetz Nordenham, erster Abschnitt",
+          "Dienstleistungen",
+          "21,7",
+          "Planung"
+        ],
+        [
+          "15",
+          "Leitstelle Netzbetrieb, Modernisierung",
+          "Stromnetze",
+          "9,4",
+          "laufend"
+        ],
+        [
+          "16",
+          "Glasfaseranbindung der Umspannwerke",
+          "Stromnetze",
+          "7,8",
+          "laufend"
+        ],
+        [
+          "17",
+          "Freileitung Jaderberg–Varel, Ertüchtigung",
+          "Stromnetze",
+          "11,2",
+          "Planung"
+        ],
+        [
+          "18",
+          "Biogas-Einspeiseanlage Butjadingen",
+          "Gasnetze",
+          "5,4",
+          "im Bau"
+        ],
+        [
+          "19",
+          "Schulungszentrum Netztechnik",
+          "Dienstleistungen",
+          "4,9",
+          "abgeschlossen"
+        ],
+        [
+          "20",
+          "IT-Sicherheit Leittechnik",
+          "Stromnetze",
+          "6,3",
+          "laufend"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "12. März 2027",
+          "Geschäftsbericht 2026"
+        ],
+        [
+          "7. Mai 2027",
+          "Quartalsmitteilung Q1 2027"
+        ],
+        [
+          "18. Juni 2027",
+          "Hauptversammlung in Oldenburg"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "die Erneuerung von 38 Ortsnetzstationen im Landkreis Wesermarsch,"
+    },
+    {
+      "level": 0,
+      "text": "der Ausbau der Umspannwerke Brake und Elsfleth,"
+    },
+    {
+      "level": 0,
+      "text": "die Digitalisierung der Zählerinfrastruktur mit 21.000 intelligenten Messsystemen."
+    },
+    {
+      "level": 0,
+      "text": "durchschnittliche Windverhältnisse im vierten Quartal,"
+    },
+    {
+      "level": 0,
+      "text": "keine weiteren Verzögerungen bei den Genehmigungsverfahren,"
+    },
+    {
+      "level": 1,
+      "text": "insbesondere für die Photovoltaik-Freifläche Ovelgönne,"
+    },
+    {
+      "level": 1,
+      "text": "sowie für den ersten Abschnitt des Wärmenetzes Nordenham,"
+    },
+    {
+      "level": 0,
+      "text": "stabile regulatorische Rahmenbedingungen für die Netzentgelte."
+    }
+  ],
+  "furniture": [
+    "Nordwerk Energie AG",
+    "Quartalsbericht Q3 2026",
+    "Seite 1 von 3",
+    "Seite 2 von 3",
+    "Seite 3 von 3"
+  ],
+  "languages": [
+    "de"
+  ],
+  "code": [],
+  "notes": "Three A4 pages. Running header 'Nordwerk Energie AG' (left) and 'Quartalsbericht Q3 2026' (right) repeats on every page and is listed once; the footer page number 'Seite N von 3' is listed once per page. Page 1: a full-width shaded key-figures box (heading 'Kennzahlen im Überblick' plus a table) sits above a two-column body set with CSS columns; the reading order is the box first, then column 1, then column 2. Table 1 has a two-level header: 'Segment' spans both header rows, 'Umsatz (Mio. €)' and 'EBIT (Mio. €)' each span two columns; both header rows are given; section rows span all five columns and are repeated five times. Table 2 (zebra bands, header row in colour) runs from page 2 to page 3; its header row is repeated on page 3 but is given once; the line 'Fortsetzung auf der nächsten Seite' is a continuation note, not part of the table. Lists: the page-1 list uses CSS-drawn square bullets; the page-3 list uses CSS-drawn decimal numbers (nested decimal for level 1); markers are not in the text. The small closing disclaimer is body text in small print. German number format (1.284,6)."
+}

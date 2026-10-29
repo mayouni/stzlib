@@ -1,0 +1,43 @@
+page_header	0	Larkspur Logistics · IT Operations
+page_header	0	RB-112 Primary database failover
+heading	1	Runbook RB-112: Primary database failover
+paragraph	0	Owner: Platform Database Team · Version 3.2 · Last reviewed 2 October 2026
+heading	2	1. Purpose and scope
+paragraph	0	This runbook describes how to promote the standby PostgreSQL server when the primary in the Leeds data centre becomes unavailable. It applies to the order management cluster only. Other clusters use automatic failover and are covered by RB-090.
+heading	3	Before you start
+paragraph	0	Do not promote the standby while the primary is still accepting writes, because this creates two diverging timelines. If you are unsure, page the duty database engineer first.
+heading	2	2. Preconditions
+list_item	0	1. The incident has been declared in the incident channel and an incident commander is named.
+list_item	0	2. Replication lag on the standby is below 30 seconds, or the business has accepted the loss of recent orders.
+list_item	0	3. You have a terminal on the bastion host with the dba-oncall role.
+heading	2	3. Procedure
+heading	3	3.1 Confirm that the primary is down
+paragraph	0	Check the replication status from the standby and note the last received log position in the incident record.
+code	0	$ ssh dba@pg-orders-b.leeds.internal\n$ sudo -u postgres psql -c "SELECT pg_last_wal_receive_lsn(), now() - pg_last_xact_replay_timestamp() AS lag;"
+heading	3	3.2 Fence the old primary
+list_item	0	1. Remove the old primary from the load balancer pool:
+list_item	1	1.1 open the pool definition for orders-db-rw;
+list_item	1	1.2 set the old primary to drain and confirm that active connections fall to zero.
+list_item	0	2. Stop the PostgreSQL service on the old primary if the host still responds.
+list_item	0	3. Record the time of fencing in the incident timeline.
+heading	3	3.3 Promote the standby
+paragraph	0	Run the promotion on the standby host and wait until the server leaves recovery mode.
+code	0	$ sudo -u postgres pg_ctl promote -D /var/lib/postgresql/16/main\n$ sudo -u postgres psql -tAc "SELECT pg_is_in_recovery();"\nf
+page_footer	0	Classification: INTERNAL
+page_footer	0	Page 1 of 2
+page_header	0	Larkspur Logistics · IT Operations
+page_header	0	RB-112 Primary database failover
+heading	3	3.4 Point the applications to the new primary
+paragraph	0	Update the service discovery record so that the write endpoint resolves to the promoted server. The change below is applied through the configuration repository and takes effect within two minutes.
+code	0	# config/orders/database.yaml\nwrite_endpoint:\n  host: pg-orders-b.leeds.internal\n  port: 5432\n  pool_size: 40\nread_endpoints:
+list_item	0	- host: pg-orders-c.york.internal\n  port: 5432
+heading	2	4. Verification
+list_item	0	Place a test order in the staging tenant and confirm that it is stored.
+list_item	0	Check that the error rate on the order API has returned to its normal level.
+list_item	0	Rebuild a new standby from the promoted server within 24 hours.
+heading	2	5. Escalation contacts
+table	0	RoleTeamHoursContactDuty database engineerPlatform Database24/7pager group dba-oncallIncident commanderService Management24/7ext. 4400Order management ownerCommerce Systems08:00–18:00ext. 4127Network on callInfrastructure24/7pager group net-oncall
+heading	2	6. Version history
+table	0	VersionDateChange3.014 Mar 2026Moved to PostgreSQL 163.19 Jun 2026Added fencing step3.22 Oct 2026Updated contacts and YAML path
+page_footer	0	Classification: INTERNAL
+page_footer	0	Page 2 of 2

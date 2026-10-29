@@ -1,0 +1,144 @@
+{
+  "id": "n20",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "فیش حقوقی مهر ۱۴۰۵",
+  "headings": [
+    {
+      "level": 1,
+      "text": "فیش حقوقی مهر ۱۴۰۵"
+    },
+    {
+      "level": 2,
+      "text": "حقوق و مزایا"
+    },
+    {
+      "level": 2,
+      "text": "کسورات"
+    },
+    {
+      "level": 3,
+      "text": "توضیحات"
+    }
+  ],
+  "key_sentences": [
+    "مبلغ خالص پرداختی در تاریخ ۳۰ مهر ۱۴۰۵ به حساب شما واریز شده است.",
+    "در صورت مشاهده هرگونه مغایرت، حداکثر تا پایان آبان با واحد منابع انسانی تماس بگیرید.",
+    "از ابتدای آبان، فیش‌های حقوقی فقط از طریق سامانه کارکنان در دسترس خواهد بود.",
+    "نسخه کاغذی تنها به درخواست کارمند چاپ می‌شود."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "نام و نام خانوادگی",
+          "مریم رضوانی",
+          "شماره پرسنلی",
+          "۴۷۱۲۰",
+          "واحد",
+          "کنترل کیفیت"
+        ],
+        [
+          "سمت",
+          "کارشناس آزمایشگاه",
+          "کارکرد",
+          "۳۰ روز",
+          "شماره حساب",
+          "۰۱۰۴۵۸۲۲۷۶۰۰۹"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "شرح",
+          "مبلغ (ریال)"
+        ],
+        [
+          "حقوق پایه",
+          "۱۴۵٬۰۰۰٬۰۰۰"
+        ],
+        [
+          "حق مسکن",
+          "۹٬۰۰۰٬۰۰۰"
+        ],
+        [
+          "بن خواربار",
+          "۱۴٬۰۰۰٬۰۰۰"
+        ],
+        [
+          "حق اولاد",
+          "۷٬۱۶۶٬۰۰۰"
+        ],
+        [
+          "اضافه‌کاری (۱۲ ساعت)",
+          "۱۵٬۰۶۰٬۰۰۰"
+        ],
+        [
+          "جمع حقوق و مزایا",
+          "۱۹۰٬۲۲۶٬۰۰۰"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "شرح",
+          "مبلغ (ریال)"
+        ],
+        [
+          "بیمه تأمین اجتماعی (سهم کارمند)",
+          "۱۲٬۸۱۴٬۲۰۰"
+        ],
+        [
+          "مالیات بر حقوق",
+          "۹٬۴۵۰٬۰۰۰"
+        ],
+        [
+          "قسط وام مسکن",
+          "۶٬۰۰۰٬۰۰۰"
+        ],
+        [
+          "جمع کسورات",
+          "۲۸٬۲۶۴٬۲۰۰"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "مانده وام مسکن پس از این قسط ۴۲٬۰۰۰٬۰۰۰ ریال است."
+    },
+    {
+      "level": 0,
+      "text": "اضافه‌کاری بر اساس گزارش سامانه حضور و غیاب محاسبه شده است."
+    },
+    {
+      "level": 0,
+      "text": "معافیت مالیاتی ماهانه طبق قانون بودجه سال ۱۴۰۵ اعمال شده است."
+    },
+    {
+      "level": 0,
+      "text": "الف) درخواست کتبی با امضای شما؛"
+    },
+    {
+      "level": 0,
+      "text": "ب) نامه بانک یا مؤسسه اعتباری درخواست‌کننده."
+    }
+  ],
+  "furniture": [
+    "شرکت صنایع غذایی دشت سبز",
+    "واحد منابع انسانی · کارخانه شماره ۲",
+    "این فیش به صورت الکترونیکی صادر شده و نیازی به مهر و امضا ندارد.",
+    "صفحه ۱ از ۱"
+  ],
+  "languages": [
+    "fa"
+  ],
+  "code": [],
+  "notes": "Persian (Farsi) monthly pay slip, right-to-left, one page, Segoe UI; all text in logical order. Furniture: company name and HR unit line at the top, and the footer (electronic-issue notice and 'صفحه ۱ از ۱'). Persian digits (U+06F0–U+06F9) and the Arabic thousands separator '٬' (U+066C) are used and must be kept. Some words contain a zero-width non-joiner (U+200C), e.g. 'اضافه‌کاری', which is kept in the expected text. The employee panel is a shaded borderless key/value table with three pairs per row and no header row; cells are listed rightmost first. Two tables stand side by side (earnings on the right, deductions on the left in visual terms), each under its own level-2 heading; the reading order is the earnings box first, then the deductions box. The framed net-pay line ('خالص پرداختی' and the amount) is not a table. The notes list is CSS-drawn with list-style-type persian (markers not in the text); the second list uses TYPED Persian letter markers 'الف)' 'ب)' with a hanging indent."
+}

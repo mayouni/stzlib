@@ -1,0 +1,211 @@
+{
+  "id": "n16",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "LAUDO DE EXAMES LABORATORIAIS",
+  "headings": [
+    {
+      "level": 1,
+      "text": "LAUDO DE EXAMES LABORATORIAIS"
+    },
+    {
+      "level": 2,
+      "text": "Hemograma completo"
+    },
+    {
+      "level": 2,
+      "text": "Bioquímica"
+    },
+    {
+      "level": 3,
+      "text": "Observações"
+    }
+  ],
+  "key_sentences": [
+    "Os valores desejáveis de lípides seguem a diretriz brasileira de dislipidemias em vigor.",
+    "Para a glicose, valores entre 100 e 125 mg/dL indicam glicemia de jejum alterada.",
+    "Os resultados marcados com asterisco estão fora do intervalo de referência.",
+    "A interpretação dos resultados deve ser feita pelo médico solicitante, considerando o quadro clínico da paciente."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Paciente",
+          "Rosângela Ferreira Matos",
+          "Pedido nº",
+          "2026-118402"
+        ],
+        [
+          "Nascimento",
+          "14/03/1979 (47 anos)",
+          "Sexo",
+          "Feminino"
+        ],
+        [
+          "Médico",
+          "Dr. Otávio Neves – CRM-MG 41.207",
+          "Convênio",
+          "Particular"
+        ],
+        [
+          "Coleta",
+          "21/10/2026 07:42",
+          "Liberação",
+          "21/10/2026 15:10"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Exame",
+          "Resultado",
+          "Unidade",
+          "Valores de referência"
+        ],
+        [
+          "Eritrograma",
+          "Eritrograma",
+          "Eritrograma",
+          "Eritrograma"
+        ],
+        [
+          "Hemácias",
+          "4,21",
+          "milhões/mm³",
+          "3,90 a 5,03"
+        ],
+        [
+          "Hemoglobina",
+          "11,6 *",
+          "g/dL",
+          "Mulheres: 12,0 a 15,5 Homens: 13,5 a 17,5"
+        ],
+        [
+          "Hematócrito",
+          "35,8",
+          "%",
+          "Mulheres: 35,0 a 45,0 Homens: 40,0 a 50,0"
+        ],
+        [
+          "VCM",
+          "85,0",
+          "fL",
+          "80,0 a 98,0"
+        ],
+        [
+          "Leucograma",
+          "Leucograma",
+          "Leucograma",
+          "Leucograma"
+        ],
+        [
+          "Leucócitos",
+          "6.380",
+          "/mm³",
+          "3.500 a 10.500"
+        ],
+        [
+          "Neutrófilos",
+          "58,2",
+          "%",
+          "40,0 a 70,0"
+        ],
+        [
+          "Linfócitos",
+          "31,5",
+          "%",
+          "20,0 a 45,0"
+        ],
+        [
+          "Plaquetograma",
+          "Plaquetograma",
+          "Plaquetograma",
+          "Plaquetograma"
+        ],
+        [
+          "Plaquetas",
+          "248.000",
+          "/mm³",
+          "150.000 a 450.000"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Exame",
+          "Resultado",
+          "Unidade",
+          "Valores de referência"
+        ],
+        [
+          "Glicose",
+          "92",
+          "mg/dL",
+          "70 a 99"
+        ],
+        [
+          "Colesterol total",
+          "212 *",
+          "mg/dL",
+          "Desejável: inferior a 190"
+        ],
+        [
+          "HDL-colesterol",
+          "54",
+          "mg/dL",
+          "Desejável: superior a 40"
+        ],
+        [
+          "Triglicerídeos",
+          "131",
+          "mg/dL",
+          "Desejável: inferior a 150"
+        ],
+        [
+          "Ferritina",
+          "14,2 *",
+          "ng/mL",
+          "Mulheres: 15,0 a 150,0 Homens: 30,0 a 400,0"
+        ],
+        [
+          "TSH",
+          "2,31",
+          "µUI/mL",
+          "0,45 a 4,50"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1) Valores de referência para adultos, conforme a bula dos reagentes utilizados."
+    },
+    {
+      "level": 0,
+      "text": "2) Amostra de ferritina reanalisada e resultado confirmado."
+    },
+    {
+      "level": 0,
+      "text": "3) Este laudo só tem validade com a assinatura eletrônica do responsável técnico."
+    }
+  ],
+  "furniture": [
+    "Laboratório Vale Verde de Análises Clínicas",
+    "Rua dos Inconfidentes, 812 – Centro – Lavras/MG",
+    "(35) 3821-4400 · atendimento@valeverde-lab.example",
+    "Responsável técnico: Dra. Helena Bastos Prado · CNES 2716541",
+    "Página 1 de 1"
+  ],
+  "languages": [
+    "pt"
+  ],
+  "code": [],
+  "notes": "Brazilian Portuguese laboratory report, one page. Furniture: the laboratory name and the two address/contact lines at the top, and the footer (technical manager line, 'Página 1 de 1'). The patient panel is a boxed key/value table with two key/value pairs per row and no header row; it comes BEFORE the title 'LAUDO DE EXAMES LABORATORIAIS' (letter-spaced, level 1). Section bars 'Hemograma completo' and 'Bioquímica' are level-2 headings; the material/method lines under them are small body text. Result tables have a rule under the header and hairlines between rows; section rows ('Eritrograma', 'Leucograma', 'Plaquetograma') span all four columns and are repeated. Reference-range cells of two lines (top-aligned) are joined with one space. Out-of-range results carry a typed asterisk after a space (e.g. '11,6 *'). The observations box has a level-3 heading and a TYPED '1)' '2)' '3)' list with a hanging indent. The signature block is body text, not a key sentence."
+}

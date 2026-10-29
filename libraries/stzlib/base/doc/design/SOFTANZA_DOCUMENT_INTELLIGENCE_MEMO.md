@@ -553,6 +553,23 @@ golden_v27: 24 realistic documents in 14 languages besides English (ten scripts:
 
 Time for the 24 documents: native 0.08 s, Docling 102 s. The native reader leads on seven measures, Docling on order by 0.008 (m24, 0.80 against 1.00). Where Docling does better, document by document: tables on six (m01 0.02 against 0.88, m21 nothing against 0.97, m06 0.34 against 0.93, m18, m07, m16), furniture on three (m14 0.20 against 0.60), lists on two, headings on one (m08). Headings are this set's weak measure for both readers (0.85 and 0.72). Causes not yet looked into: round 27.
 
+**Twenty-seventh round: grids that keep their own header, letter-spaced CJK titles; then golden_v28.** Fixed on golden_v27 (now a development set) and checked on all twenty-seven sets:
+- a table drawn as a full grid whose first row is already a bold header takes no header rows from above (an invoice's key/value panel and address over its items grid, m01; k16's key/value line) -- stopping growth for every grid cost six sets in round 26, the bold header is the narrower sign;
+- a CJK title letter-spaced wide ("御 見 積 書"): single characters of a script without spaces, three or more, each set apart by one space, are one word.
+
+Tried and withdrawn: a wider row tolerance for Arabic glyphs, so that "لاً" (a ligature carrying its vowel marks, half an em off the line) joins "أولاً" -- it split m04's headings further and moved twelve sets both ways.
+
+On the development sets, against round 26 frozen: tables v26 0.82 -> 0.85, v27 0.75 -> 0.76; headings v27 0.85 -> 0.89, v21 0.93 -> 0.95, v24 0.93 -> 0.95; nothing fell. A short round: the remaining golden_v27 misses each need a design of their own -- a key/value panel of two rows (m21; the aligned finder wants three), a definitions table whose definitions are real prose (m21), Arabic marks off the line (m04), m01's items grid still taking a row of its panel. Guard 232 assertions under Ring++.
+
+golden_v28: 24 realistic documents in 18 languages besides English (Arabic, Hebrew and Persian right to left, Japanese, Chinese, Korean, Hindi, Thai, Vietnamese among them), 13 of 2-3 pages, three tables across pages, one landscape page, code in one document only (n07), by a twenty-eighth independent agent who saw no reader, no output and no earlier set; no one has looked at the pages (unperceived); reader frozen at 1719303b8; both readers ran once:
+
+| golden_v28, realistic | text | order | headings | tables | lists | furniture | code | heading precision |
+|---|---|---|---|---|---|---|---|---|
+| Softanza native (Ring++) | **0.99** | **1.00** | **0.98** | **0.76** | **0.88** | **0.79** | **0.67** | **0.87** |
+| Docling 2.141 | 0.81 | 0.99 | 0.81 | 0.67 | 0.52 | 0.72 | 0.00 | 0.78 |
+
+Time for the 24 documents: native 0.09 s, Docling 170 s. The native reader leads on all eight measures, the sixth set where it does; text and headings are its highest on any new set. Where Docling does better, document by document: tables on six (n06, a bank statement across pages, 0.10 against 0.78; n16 0.47 against 0.96; n09 0.50 against 0.94; n02 0.27 against 0.73), headings on three, furniture on three (n17 0.25 against 1.00), lists on two (n09). Causes not yet looked into: round 28.
+
 **Perceived (2026-10-24):** the author looked through every rendered page of golden_v9 to golden_v13 -- the sets whose own authors could not look at them -- and judged them: "they look great". Those five sets are no longer unperceived; the sets before them were generated the same way and are not covered by this look.
 
 **Perceived (2026-10-29):** the author looked at the generated documents of golden_v14 to golden_v22 and judged them: "they are ok". Those nine sets are no longer unperceived.

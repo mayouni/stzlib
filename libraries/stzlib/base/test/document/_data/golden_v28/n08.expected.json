@@ -1,0 +1,138 @@
+{
+  "id": "n08",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "נוהל עבודה מרחוק",
+  "headings": [
+    {
+      "level": 1,
+      "text": "נוהל עבודה מרחוק"
+    },
+    {
+      "level": 2,
+      "text": "1. מטרה"
+    },
+    {
+      "level": 2,
+      "text": "2. תחולה"
+    },
+    {
+      "level": 2,
+      "text": "3. כללים כלליים"
+    },
+    {
+      "level": 2,
+      "text": "4. ציוד ואבטחת מידע"
+    }
+  ],
+  "key_sentences": [
+    "נוהל זה קובע את הכללים לעבודה מהבית או ממקום אחר מחוץ למשרדי העמותה.",
+    "מטרתו לאפשר גמישות לעובדים תוך שמירה על איכות השירות לקהל ועל אבטחת המידע.",
+    "הנוהל חל על כל עובדי העמותה שהשלימו שלושה חודשי עבודה לפחות.",
+    "הנוהל אינו חל על מתנדבים ועל עובדים במשמרות בשטח.",
+    "עובד אשר יפר את הוראות הנוהל עלול לאבד את הזכאות לעבודה מרחוק.",
+    "שאלות בנושא יש להפנות למחלקת משאבי אנוש."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "מספר נוהל",
+          "מ״א-07",
+          "תאריך תחילה",
+          "1 בנובמבר 2026"
+        ],
+        [
+          "גרסה",
+          "2",
+          "גורם אחראי",
+          "מנהלת משאבי אנוש"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "תפקיד",
+          "ימים בשבוע",
+          "אישור נדרש"
+        ],
+        [
+          "עובדי מטה ומנהלה",
+          "עד 2",
+          "ממונה ישיר"
+        ],
+        [
+          "רכזי תוכניות",
+          "עד 1",
+          "ממונה ישיר ומנהל התוכנית"
+        ],
+        [
+          "עובדי מוקד הפניות",
+          "0",
+          "לא רלוונטי"
+        ],
+        [
+          "מנהלי מחלקות",
+          "עד 2",
+          "המנכ״ל"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "א. עבודה מרחוק מותנית באישור מראש של הממונה הישיר."
+    },
+    {
+      "level": 0,
+      "text": "ב. העובד יהיה זמין בטלפון ובדואר האלקטרוני בשעות הליבה:"
+    },
+    {
+      "level": 1,
+      "text": "1. בימים א׳ עד ה׳ בין השעות 09:00 ל־14:00;"
+    },
+    {
+      "level": 1,
+      "text": "2. בימי ו׳ אין חובת זמינות, אלא אם נקבע אחרת."
+    },
+    {
+      "level": 0,
+      "text": "ג. ישיבות צוות שבועיות יתקיימו במשרד, ונוכחות בהן היא חובה."
+    },
+    {
+      "level": 0,
+      "text": "ד. העובד ידווח על שעות העבודה במערכת הנוכחות כרגיל."
+    },
+    {
+      "level": 0,
+      "text": "העמותה תספק לעובד מחשב נייד ואוזניות."
+    },
+    {
+      "level": 0,
+      "text": "אין להעביר מידע על מקבלי שירות לדואר אלקטרוני פרטי."
+    },
+    {
+      "level": 0,
+      "text": "יש להתחבר לרשת העמותה רק דרך החיבור המאובטח."
+    },
+    {
+      "level": 0,
+      "text": "יש לנעול את המחשב בכל פעם שמתרחקים ממנו."
+    }
+  ],
+  "furniture": [
+    "עמותת גשר לקהילה",
+    "מחלקת משאבי אנוש",
+    "נוהל מ״א-07 · גרסה 2",
+    "עמוד 1 מתוך 1"
+  ],
+  "languages": [
+    "he"
+  ],
+  "code": [],
+  "notes": "Right-to-left Hebrew HR procedure, one page; all text in logical order. The coloured band at the top (association name and department) and the footer line ('נוהל מ״א-07 · גרסה 2' and 'עמוד 1 מתוך 1') are furniture. The procedure details box is a key/value table of two rows with two key/value pairs per row and no header row; cells are listed rightmost first. Section numbers '1.'–'4.' are part of the heading text. Section 3 uses TYPED Hebrew-letter markers 'א.' 'ב.' 'ג.' 'ד.' with a hanging indent and a nested TYPED '1.' '2.' list. Section 4 is a CSS-drawn ordered list with list-style-type hebrew (markers not in the text). The roles table has a coloured header and zebra rows. Hebrew geresh/gershayim are written with the punctuation characters ׳ (U+05F3) and ״ (U+05F4)."
+}

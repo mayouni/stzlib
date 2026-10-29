@@ -1,0 +1,303 @@
+{
+  "id": "n06",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Extracto de cuenta corriente",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Extracto de cuenta corriente"
+    },
+    {
+      "level": 3,
+      "text": "Datos de la cuenta"
+    },
+    {
+      "level": 3,
+      "text": "Resumen del periodo"
+    },
+    {
+      "level": 2,
+      "text": "Detalle de movimientos"
+    },
+    {
+      "level": 2,
+      "text": "Información importante"
+    }
+  ],
+  "key_sentences": [
+    "Le rogamos que compruebe los movimientos de este extracto.",
+    "Si observa alguna operación que no reconoce, comuníquelo a su oficina en un plazo de quince días.",
+    "Este documento no es válido como certificado de saldo.",
+    "Puede solicitar un certificado firmado en cualquier oficina o a través de la banca digital.",
+    "El depósito está garantizado por el Fondo de Garantía de Depósitos de Entidades de Crédito hasta 100.000 € por titular."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Titular",
+          "Lucía Herrero Campos"
+        ],
+        [
+          "Producto",
+          "Cuenta Nómina Plus"
+        ],
+        [
+          "IBAN",
+          "ES12 3060 0217 4100 0582 9134"
+        ],
+        [
+          "BIC",
+          "BCOEESMM060"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Saldo anterior",
+          "3.482,15 €"
+        ],
+        [
+          "Total abonos",
+          "2.183,12 €"
+        ],
+        [
+          "Total cargos",
+          "1.557,73 €"
+        ],
+        [
+          "Saldo final",
+          "4.107,54 €"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Fecha",
+          "F. valor",
+          "Concepto",
+          "Cargo (€)",
+          "Abono (€)",
+          "Saldo (€)"
+        ],
+        [
+          "01/09",
+          "",
+          "Saldo anterior",
+          "",
+          "",
+          "3.482,15"
+        ],
+        [
+          "01/09",
+          "01/09",
+          "Recibo Comunidad de Propietarios Calle Alfarería 12",
+          "65,40",
+          "",
+          "3.416,75"
+        ],
+        [
+          "01/09",
+          "01/09",
+          "Recibo alquiler plaza de garaje",
+          "75,00",
+          "",
+          "3.341,75"
+        ],
+        [
+          "03/09",
+          "02/09",
+          "Compra tarjeta *4417 Supermercado El Trigal",
+          "84,37",
+          "",
+          "3.257,38"
+        ],
+        [
+          "04/09",
+          "04/09",
+          "Recibo Ribera Energía Factura 2026-09-118734",
+          "61,82",
+          "",
+          "3.195,56"
+        ],
+        [
+          "05/09",
+          "05/09",
+          "Bizum recibido de M. Ortega",
+          "",
+          "23,50",
+          "3.219,06"
+        ],
+        [
+          "08/09",
+          "07/09",
+          "Compra tarjeta *4417 Farmacia Plaza Mayor",
+          "18,95",
+          "",
+          "3.200,11"
+        ],
+        [
+          "09/09",
+          "09/09",
+          "Reintegro cajero Valdemora Centro",
+          "100,00",
+          "",
+          "3.100,11"
+        ],
+        [
+          "10/09",
+          "10/09",
+          "Recibo seguro hogar Póliza 448-201",
+          "212,60",
+          "",
+          "2.887,51"
+        ],
+        [
+          "12/09",
+          "11/09",
+          "Compra tarjeta *4417 Estación de servicio Los Olmos",
+          "58,00",
+          "",
+          "2.829,51"
+        ],
+        [
+          "15/09",
+          "15/09",
+          "Transferencia emitida Academia de Idiomas Lírica",
+          "120,00",
+          "",
+          "2.709,51"
+        ],
+        [
+          "16/09",
+          "16/09",
+          "Recibo telefonía e internet",
+          "44,90",
+          "",
+          "2.664,61"
+        ],
+        [
+          "18/09",
+          "17/09",
+          "Compra internet Librería Atenea",
+          "31,20",
+          "",
+          "2.633,41"
+        ],
+        [
+          "19/09",
+          "19/09",
+          "Devolución compra Librería Atenea",
+          "",
+          "12,40",
+          "2.645,81"
+        ],
+        [
+          "22/09",
+          "21/09",
+          "Compra tarjeta *4417 Supermercado El Trigal",
+          "96,15",
+          "",
+          "2.549,66"
+        ],
+        [
+          "23/09",
+          "23/09",
+          "Recibo agua municipal Tercer trimestre",
+          "38,74",
+          "",
+          "2.510,92"
+        ],
+        [
+          "25/09",
+          "25/09",
+          "Transferencia recibida Nómina septiembre Talleres Arlanza",
+          "",
+          "2.146,80",
+          "4.657,72"
+        ],
+        [
+          "26/09",
+          "26/09",
+          "Compra tarjeta *4417 Restaurante La Era",
+          "47,60",
+          "",
+          "4.610,12"
+        ],
+        [
+          "29/09",
+          "29/09",
+          "Traspaso a cuenta de ahorro",
+          "500,00",
+          "",
+          "4.110,12"
+        ],
+        [
+          "30/09",
+          "30/09",
+          "Comisión de mantenimiento",
+          "3,00",
+          "",
+          "4.107,12"
+        ],
+        [
+          "30/09",
+          "30/09",
+          "Liquidación de intereses",
+          "",
+          "0,42",
+          "4.107,54"
+        ],
+        [
+          "Saldo final a 30/09/2026",
+          "Saldo final a 30/09/2026",
+          "Saldo final a 30/09/2026",
+          "1.557,73",
+          "2.183,12",
+          "4.107,54"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "– Las compras con tarjeta se cargan en la fecha en que el comercio las liquida."
+    },
+    {
+      "level": 0,
+      "text": "– La comisión de mantenimiento no se aplica si se cumple alguna de estas condiciones:"
+    },
+    {
+      "level": 1,
+      "text": "· nómina domiciliada igual o superior a 1.000 € al mes;"
+    },
+    {
+      "level": 1,
+      "text": "· saldo medio mensual superior a 6.000 €."
+    },
+    {
+      "level": 0,
+      "text": "– Los intereses se liquidan mensualmente al tipo nominal del 0,15 % anual."
+    }
+  ],
+  "furniture": [
+    "Caja Rural de Valdemora",
+    "Oficina 0217 · Valdemora Centro · Tel. 947 500 217",
+    "Caja Rural de Valdemora, S. Coop. de Crédito · NIF F-09000000 · Plaza de Castilla 4, 09400 Valdemora",
+    "Página 1 de 2",
+    "Extracto de cuenta corriente · Septiembre 2026 · IBAN ES12 3060 0217 4100 0582 9134",
+    "Página 2 de 2"
+  ],
+  "languages": [
+    "es"
+  ],
+  "code": [],
+  "notes": "Spanish current-account statement, two pages. Furniture: bank name and branch line (page 1 letterhead), the running header line on page 2, the footer legal line (both pages, listed once) and 'Página 1 de 2' / 'Página 2 de 2'. The customer address block is body text. Two boxes side by side ('Datos de la cuenta' and 'Resumen del periodo', each a heading plus a key/value table without header row) are read box by box. The transactions table is borderless with zebra bands and a rule under the header; it runs from page 1 to page 2, its header row is repeated on page 2 but given once; 'Continúa en la página siguiente' is not part of the table. Concepts of two lines are joined with one space. The opening 'Saldo anterior' row has empty cells; the closing row's label spans three columns and is repeated three times. The notes list uses TYPED en-dash markers '–' with a hanging indent and a nested TYPED middle-dot '·' list. Spanish number format (3.482,15)."
+}

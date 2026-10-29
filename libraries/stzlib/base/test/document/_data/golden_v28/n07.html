@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Runbook RB-112: Primary database failover</title>
+<style>
+@page{size:A4;margin:0}
+html,body{margin:0;padding:0}
+.page{width:210mm;height:296mm;position:relative;box-sizing:border-box;break-after:page;page-break-after:always;overflow:visible}
+.page:last-child{break-after:auto;page-break-after:auto}
+*{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.tl .ti{display:flex}.tl.typed .mk{flex:none}.tl .tl{margin-inline-start:8mm}
+
+body{font-family:Roboto,sans-serif;font-size:9.5pt;color:#1e1e1e;line-height:1.45}
+.page{padding:22mm 18mm 18mm 18mm}
+.rh{position:absolute;top:9mm;left:18mm;right:18mm;display:flex;justify-content:space-between;font-size:8pt;color:#5a5a5a;border-bottom:2px solid #e07a1f;padding-bottom:2px}
+.pf{position:absolute;bottom:9mm;left:18mm;right:18mm;font-size:8pt;color:#5a5a5a;display:flex;justify-content:space-between}
+h1{font-size:19pt;font-weight:700;margin:0 0 2px 0}
+.meta{font-size:8.5pt;color:#5a5a5a;margin-bottom:8px}
+h2{font-size:12.5pt;font-weight:700;margin:12px 0 4px 0;color:#b35a10}
+h3{font-size:10pt;font-weight:700;margin:8px 0 3px 0}
+p{margin:0 0 5px 0}
+pre.code{font-family:Consolas,monospace;font-size:8.5pt;background:#f4f4f4;border-left:3px solid #e07a1f;padding:5px 8px;margin:4px 0 7px 0;line-height:1.35;white-space:pre}
+.warn{border:1.5px solid #c0392b;background:#fdf0ee;padding:5px 8px;margin:6px 0}
+.warn h3{margin:0 0 2px 0;color:#c0392b}
+.warn p{margin:0}
+.tl{margin:2px 0 6px 0}
+.tl .ti{margin-bottom:3px}
+.tl.typed .mk{width:8mm;font-weight:700}
+.tl .tl{margin:2px 0 3px 8mm}
+.tl .tl.typed .mk{width:10mm}
+table.esc{border-collapse:collapse;width:100%;font-size:9pt;margin:4px 0 6px 0}
+table.esc th{text-align:left;font-weight:700;color:#5a5a5a;padding:3px 5px;border-bottom:1px solid #999}
+table.esc td{padding:3px 5px;border-bottom:0.5px solid #ccc}
+table.ver{border-collapse:collapse;font-size:8.5pt;margin-top:4px}
+table.ver th,table.ver td{border:0.6px solid #999;padding:2px 6px;text-align:left}
+table.ver th{background:#eee;font-weight:700}
+
+</style>
+</head>
+<body>
+<div class="page "><div class="rh"><span class="" style="">Larkspur Logistics · IT Operations</span><span class="" style="">RB-112 Primary database failover</span></div>
+<h1 class="" style="">Runbook RB-112: Primary database failover</h1>
+<div class="meta">Owner: Platform Database Team · Version 3.2 · Last reviewed 2 October 2026</div>
+<h2 class="" style="">1. Purpose and scope</h2>
+<p class="" style="">This runbook describes how to promote the standby PostgreSQL server when the primary in the Leeds data centre becomes unavailable. It applies to the order management cluster only. Other clusters use automatic failover and are covered by RB-090.</p>
+<div class="warn"><h3 class="" style="">Before you start</h3><p class="" style="">Do not promote the standby while the primary is still accepting writes, because this creates two diverging timelines. If you are unsure, page the duty database engineer first.</p></div>
+<h2 class="" style="">2. Preconditions</h2>
+<div class="tl typed lvl0 " >
+<div class="ti"><span class="mk">1.</span><span class="tx">The incident has been declared in the incident channel and an incident commander is named.</span></div>
+<div class="ti"><span class="mk">2.</span><span class="tx">Replication lag on the standby is below 30 seconds, or the business has accepted the loss of recent orders.</span></div>
+<div class="ti"><span class="mk">3.</span><span class="tx">You have a terminal on the bastion host with the dba-oncall role.</span></div>
+</div>
+<h2 class="" style="">3. Procedure</h2>
+<h3 class="" style="">3.1 Confirm that the primary is down</h3>
+<p class="" style="">Check the replication status from the standby and note the last received log position in the incident record.</p>
+<pre class="code">$ ssh dba@pg-orders-b.leeds.internal
+$ sudo -u postgres psql -c "SELECT pg_last_wal_receive_lsn(), now() - pg_last_xact_replay_timestamp() AS lag;"</pre>
+<h3 class="" style="">3.2 Fence the old primary</h3>
+<div class="tl typed lvl0 " >
+<div class="ti"><span class="mk">1.</span><span class="tx">Remove the old primary from the load balancer pool:</span></div>
+<div class="tl typed lvl1 " >
+<div class="ti"><span class="mk">1.1</span><span class="tx">open the pool definition for orders-db-rw;</span></div>
+<div class="ti"><span class="mk">1.2</span><span class="tx">set the old primary to drain and confirm that active connections fall to zero.</span></div>
+</div>
+<div class="ti"><span class="mk">2.</span><span class="tx">Stop the PostgreSQL service on the old primary if the host still responds.</span></div>
+<div class="ti"><span class="mk">3.</span><span class="tx">Record the time of fencing in the incident timeline.</span></div>
+</div>
+<h3 class="" style="">3.3 Promote the standby</h3>
+<p class="" style="">Run the promotion on the standby host and wait until the server leaves recovery mode.</p>
+<pre class="code">$ sudo -u postgres pg_ctl promote -D /var/lib/postgresql/16/main
+$ sudo -u postgres psql -tAc "SELECT pg_is_in_recovery();"
+f</pre>
+<div class="pf"><span class="" style="">Classification: INTERNAL</span><span class="" style="">Page 1 of 2</span></div></div><div class="page "><div class="rh"><span class="" style="">Larkspur Logistics · IT Operations</span><span class="" style="">RB-112 Primary database failover</span></div>
+<h3 class="" style="">3.4 Point the applications to the new primary</h3>
+<p class="" style="">Update the service discovery record so that the write endpoint resolves to the promoted server. The change below is applied through the configuration repository and takes effect within two minutes.</p>
+<pre class="code"># config/orders/database.yaml
+write_endpoint:
+  host: pg-orders-b.leeds.internal
+  port: 5432
+  pool_size: 40
+read_endpoints:
+  - host: pg-orders-c.york.internal
+    port: 5432</pre>
+<h2 class="" style="">4. Verification</h2>
+<ul class="" >
+<li>Place a test order in the staging tenant and confirm that it is stored.</li>
+<li>Check that the error rate on the order API has returned to its normal level.</li>
+<li>Rebuild a new standby from the promoted server within 24 hours.</li>
+</ul>
+<h2 class="" style="">5. Escalation contacts</h2>
+<table class="esc " >
+
+<thead><tr class=""><th>Role</th><th>Team</th><th>Hours</th><th>Contact</th></tr></thead>
+<tbody><tr class=""><td>Duty database engineer</td><td>Platform Database</td><td>24/7</td><td>pager group dba-oncall</td></tr>
+<tr class=""><td>Incident commander</td><td>Service Management</td><td>24/7</td><td>ext. 4400</td></tr>
+<tr class=""><td>Order management owner</td><td>Commerce Systems</td><td>08:00–18:00</td><td>ext. 4127</td></tr>
+<tr class=""><td>Network on call</td><td>Infrastructure</td><td>24/7</td><td>pager group net-oncall</td></tr></tbody>
+</table>
+<h2 class="" style="">6. Version history</h2>
+<table class="ver " >
+
+<thead><tr class=""><th>Version</th><th>Date</th><th>Change</th></tr></thead>
+<tbody><tr class=""><td>3.0</td><td>14 Mar 2026</td><td>Moved to PostgreSQL 16</td></tr>
+<tr class=""><td>3.1</td><td>9 Jun 2026</td><td>Added fencing step</td></tr>
+<tr class=""><td>3.2</td><td>2 Oct 2026</td><td>Updated contacts and YAML path</td></tr></tbody>
+</table>
+<div class="pf"><span class="" style="">Classification: INTERNAL</span><span class="" style="">Page 2 of 2</span></div></div>
+</body>
+</html>

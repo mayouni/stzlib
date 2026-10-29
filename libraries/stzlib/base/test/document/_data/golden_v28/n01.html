@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>INVOICE</title>
+<style>
+@page{size:A4;margin:2cm}
+html,body{margin:0;padding:0}
+.flow{width:170mm}
+*{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.tl .ti{display:flex}.tl.typed .mk{flex:none}.tl .tl{margin-inline-start:8mm}
+
+body{font-family:Calibri,sans-serif;font-size:10.5pt;color:#1d2733}
+.top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #0b5d7a;padding-bottom:8px}
+.org{font-size:16pt;font-weight:bold;color:#0b5d7a}
+.addr{font-size:9pt;color:#44525e;line-height:1.35}
+h1{font-size:24pt;font-weight:300;letter-spacing:6px;color:#0b5d7a;margin:0 0 4px 0;text-align:right}
+table.meta{border-collapse:collapse;font-size:9.5pt;margin-left:auto}
+table.meta td{padding:1px 0 1px 14px;text-align:right}
+table.meta td:first-child{color:#5b6874}
+.parties{display:flex;gap:10mm;margin:12px 0 10px 0}
+.box{flex:1;border:1px solid #b8c7d1;padding:6px 9px;font-size:10pt;line-height:1.35}
+.lbl{font-size:8pt;font-weight:bold;color:#0b5d7a;letter-spacing:1px;margin-bottom:2px}
+table.items{width:100%;border-collapse:collapse;font-size:9.5pt}
+table.items th{background:#0b5d7a;color:#fff;font-weight:bold;padding:4px 6px;border:1px solid #0b5d7a;text-align:left}
+table.items td{border:1px solid #b8c7d1;padding:4px 6px;vertical-align:top}
+table.items td.n,table.items th.n{text-align:right;white-space:nowrap}
+table.items tr.sum td{border:none;padding:2px 6px}
+table.items tr.sum td.l{text-align:right;color:#44525e}
+table.items tr.tot td{border-top:2px solid #0b5d7a;font-weight:bold;font-size:11pt;padding-top:5px}
+table.items tr.tot td.l{text-align:right}
+h2{font-size:12pt;color:#0b5d7a;margin:14px 0 4px 0;border-bottom:1px solid #b8c7d1;padding-bottom:2px}
+.pay{display:flex;gap:8mm;align-items:flex-start}
+.pay p{flex:1.2;margin:0 0 6px 0;line-height:1.4}
+table.bank{flex:1;border:1.5px solid #0b5d7a;border-collapse:collapse;font-size:9.5pt;background:#eef4f7}
+table.bank td{padding:3px 8px}
+table.bank td:first-child{font-weight:bold;color:#0b5d7a}
+ul.notes{margin:4px 0 0 0;padding-left:18px;line-height:1.4}
+ul.notes li{margin-bottom:2px}
+ul.notes ul{list-style:circle;padding-left:18px}
+.foot{margin-top:18px;border-top:1px solid #b8c7d1;padding-top:4px;font-size:8pt;color:#5b6874;text-align:center}
+
+</style>
+</head>
+<body>
+<div class="flow"><div class="top"><div>
+<div class="org" style="">Halvorsen Marine Supply Ltd.</div>
+<div class="addr"><div class="" style="">Unit 7, Harbour Trade Park, Aberdeen AB11 5QT</div><div class="" style="">Tel. +44 1224 550 180 · accounts@halvorsen-marine.example</div><div class="" style="">VAT Reg. No. GB 482 1937 55</div></div></div><div>
+<h1 class="" style="">INVOICE</h1>
+<table class="meta " >
+
+<tbody><tr class=""><td>Invoice no.</td><td>INV-2026-0418</td></tr>
+<tr class=""><td>Invoice date</td><td>14 October 2026</td></tr>
+<tr class=""><td>Customer ref.</td><td>PO 77-3150</td></tr>
+<tr class=""><td>Due date</td><td>13 November 2026</td></tr></tbody>
+</table>
+</div></div>
+<div class="parties"><div class="box"><div class="lbl">BILL TO</div>Kittiwake Ferries Ltd.<br>Accounts Payable<br>2 Quayside Road<br>Lerwick, Shetland ZE1 0LL</div><div class="box"><div class="lbl">SHIP TO</div>MV Fair Isle Venture<br>c/o Berth 4, Holmsgarth Terminal<br>Lerwick, Shetland ZE1 0PR<br>Attn. Chief Engineer</div></div>
+<table class="items " >
+
+<thead><tr class=""><th>Item</th><th>Description</th><th class="n">Qty</th><th class="n">Unit price (GBP)</th><th class="n">Amount (GBP)</th></tr></thead>
+<tbody><tr class=""><td>HMS-2210</td><td>Stainless steel bow shackle, 12 mm<br>Grade 316, working load limit 1.5 t</td><td class="n">40</td><td class="n">6.85</td><td class="n">274.00</td></tr>
+<tr class=""><td>HMS-4031</td><td>Mooring line, 3-strand nylon, 24 mm<br>Coil of 100 m, white</td><td class="n">2</td><td class="n">418.00</td><td class="n">836.00</td></tr>
+<tr class=""><td>HMS-0877</td><td>Cylindrical fender 300 × 1100 mm</td><td class="n">6</td><td class="n">92.50</td><td class="n">555.00</td></tr>
+<tr class=""><td>HMS-1502</td><td>Galvanised thimble, 24 mm</td><td class="n">25</td><td class="n">2.40</td><td class="n">60.00</td></tr>
+<tr class=""><td>HMS-9100</td><td>Rigging inspection on site, half day<br>Report issued 9 October 2026</td><td class="n">1</td><td class="n">380.00</td><td class="n">380.00</td></tr>
+<tr class="sum"><td colspan="4" class="l">Subtotal</td><td class="n">2,105.00</td></tr>
+<tr class="sum"><td colspan="4" class="l">Delivery to Lerwick</td><td class="n">45.00</td></tr>
+<tr class="sum"><td colspan="4" class="l">VAT at 20%</td><td class="n">430.00</td></tr>
+<tr class="tot"><td colspan="4" class="l">Total due (GBP)</td><td class="n">2,580.00</td></tr></tbody>
+</table>
+<h2 class="" style="">Payment instructions</h2>
+<div class="pay">
+<p class="" style="">Please pay the total due within 30 days of the invoice date. Quote the invoice number INV-2026-0418 as the payment reference so that we can match your transfer. Interest may be charged on overdue amounts at 4% above the Bank of England base rate.</p>
+<table class="bank " >
+
+<tbody><tr class=""><td>Account name</td><td>Halvorsen Marine Supply Ltd.</td></tr>
+<tr class=""><td>Sort code</td><td>80-22-61</td></tr>
+<tr class=""><td>Account no.</td><td>41930275</td></tr>
+<tr class=""><td>IBAN</td><td>GB71 HMSB 8022 6141 9302 75</td></tr></tbody>
+</table>
+</div>
+<h2 class="" style="">Notes</h2>
+<ul class="notes" >
+<li>Goods remain our property until the invoice has been paid in full.</li>
+<li>Claims for short delivery must reach us within 7 days of receipt.<ul class="" >
+<li>Report damaged items with photographs of the packaging.</li>
+<li>Keep the delivery note signed by the driver.</li>
+</ul></li>
+<li>The inspection report for the MV Fair Isle Venture was sent to the chief engineer by e-mail.</li>
+</ul>
+<p class="" style="">Thank you for your continued business. For questions about this invoice, call our accounts team on extension 214.</p>
+<div class="foot" style="">Registered in Scotland No. SC481920 · Registered office as above</div></div>
+</body>
+</html>

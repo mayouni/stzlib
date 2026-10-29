@@ -1,0 +1,18 @@
+page_header	0	Halvorsen Marine Supply Ltd.
+page_header	0	Unit 7, Harbour Trade Park, Aberdeen AB11 5QT Tel. +44 1224 550 180 · accounts@halvorsen-marine.example VAT Reg. No. GB 482 1937 55
+heading	1	INVOICE
+paragraph	0	Invoice no. Invoice date Customer ref. Due date
+paragraph	0	INV-2026-0418 14 October 2026 PO 77-3150 13 November 2026
+table	0	BILL TOSHIP TOKittiwake Ferries Ltd.MV Fair Isle VentureAccounts Payablec/o Berth 4, Holmsgarth Terminal2 Quayside RoadLerwick, Shetland ZE1 0PRLerwick, Shetland ZE1 0LLAttn. Chief Engineer
+table	0	ItemDescriptionQtyUnit price (GBP)Amount (GBP)HMS-2210Stainless steel bow shackle, 12 mm Grade 316, working load limit 1.5 t406.85274.00HMS-4031Mooring line, 3-strand nylon, 24 mm Coil of 100 m, white2418.00836.00HMS-0877Cylindrical fender 300 × 1100 mm692.50555.00HMS-1502Galvanised thimble, 24 mm252.4060.00HMS-9100Rigging inspection on site, half day Report issued 9 October 20261380.00380.00SubtotalSubtotalSubtotalSubtotal2,105.00Delivery to LerwickDelivery to LerwickDelivery to LerwickDelivery to Lerwick45.00VAT at 20%VAT at 20%VAT at 20%VAT at 20%430.00Total due (GBP)Total due (GBP)Total due (GBP)Total due (GBP)2,580.00
+heading	3	Payment instructions
+paragraph	0	Please pay the total due within 30 days of the invoice date. Quote the invoice number INV-2026-0418 as the payment reference so that we can match your transfer. Interest may be charged on overdue amounts at 4% above the Bank of England base rate.
+heading	3	Notes
+table	0	Account nameHalvorsen Marine Supply Ltd.Sort code80-22-61Account no.41930275IBANGB71 HMSB 8022 6141 9302 75
+list_item	0	Goods remain our property until the invoice has been paid in full.
+list_item	0	Claims for short delivery must reach us within 7 days of receipt.
+list_item	1	Report damaged items with photographs of the packaging.
+list_item	1	Keep the delivery note signed by the driver.
+list_item	0	The inspection report for the MV Fair Isle Venture was sent to the chief engineer by e-mail.
+paragraph	0	Thank you for your continued business. For questions about this invoice, call our accounts team on extension 214.
+paragraph	0	Registered in Scotland No. SC481920 · Registered office as above

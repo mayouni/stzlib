@@ -1,0 +1,103 @@
+{
+  "id": "n02",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Objet : travaux de réfection de la rue des Tanneurs et fermeture temporaire à la circulation",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Objet : travaux de réfection de la rue des Tanneurs et fermeture temporaire à la circulation"
+    }
+  ],
+  "key_sentences": [
+    "Le conseil municipal a décidé, par délibération du 11 septembre 2026, de rénover la chaussée et les trottoirs de la rue des Tanneurs.",
+    "Les travaux seront réalisés par l’entreprise Routes du Bocage pour le compte de la commune.",
+    "Afin de limiter la gêne occasionnée, le chantier sera conduit en trois phases successives :",
+    "Pendant toute la durée du chantier, les dispositions suivantes s’appliqueront :",
+    "Pour toute question, vous pouvez contacter les services techniques du lundi au vendredi, de 8 h 30 à 12 h 00.",
+    "Une réunion d’information se tiendra à la salle des fêtes le jeudi 29 octobre à 18 h 30.",
+    "Nous vous prions de bien vouloir excuser la gêne occasionnée et vous remercions de votre compréhension."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Nos réf. :",
+          "ST/VO/2026-117"
+        ],
+        [
+          "Affaire suivie par :",
+          "Hélène Morvan, technicienne voirie"
+        ],
+        [
+          "Pièce jointe :",
+          "plan de déviation"
+        ]
+      ]
+    },
+    {
+      "caption": "Calendrier prévisionnel des travaux",
+      "rows": [
+        [
+          "Phase",
+          "Tronçon",
+          "Période",
+          "Stationnement"
+        ],
+        [
+          "1",
+          "De la place de la Halle au n° 24",
+          "du 2 au 13 novembre",
+          "interdit des deux côtés"
+        ],
+        [
+          "2",
+          "Du n° 24 au carrefour de la rue Neuve",
+          "du 16 au 27 novembre",
+          "autorisé côté pair"
+        ],
+        [
+          "3",
+          "Pose des enrobés sur toute la rue",
+          "les 1er et 2 décembre",
+          "interdit, accès riverains fermé"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1) l’accès des riverains à leur garage restera possible en dehors de la phase 3 ;"
+    },
+    {
+      "level": 0,
+      "text": "2) la collecte des ordures ménagères sera maintenue aux jours habituels :"
+    },
+    {
+      "level": 1,
+      "text": "a) les bacs devront être déposés au carrefour de la rue Neuve la veille au soir ;"
+    },
+    {
+      "level": 1,
+      "text": "b) les agents municipaux les ramèneront devant chaque habitation après la collecte."
+    },
+    {
+      "level": 0,
+      "text": "3) une déviation sera mise en place par la rue du Moulin et l’avenue de la Gare."
+    }
+  ],
+  "furniture": [
+    "COMMUNE DE VAUCLERC-SUR-ORNE",
+    "Services techniques municipaux",
+    "2, place de la Halle – 14290 Vauclerc-sur-Orne",
+    "Mairie de Vauclerc-sur-Orne – Tél. 02 31 64 18 20 – mairie@vauclerc-sur-orne.example",
+    "1/1"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "Official letter. The commune name, service and address at the top and the two footer lines (contact line and the page number 1/1) are furniture. The addressee block, the date line, the salutation, the closing formula and the signature are body text but are not used as key sentences. The reference block (Nos réf., Affaire suivie par, Pièce jointe) is a borderless key/value table without header row. The subject line 'Objet : …' is the title (level-1 heading). French typography: a non-breaking space precedes ':' and follows 'n°'; in expected text it is an ordinary space. The phase table has a rule under the header only and a caption above it. The numbered list uses TYPED markers '1)', '2)', '3)' with nested TYPED letter markers 'a)', 'b)' set apart by a hanging indent; expected items keep the marker followed by one space."
+}
