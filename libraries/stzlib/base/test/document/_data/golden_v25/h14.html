@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="el" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>ΟΙΚ-204 Περίγραμμα</title>
+<style>
+
+@page { size: A4; margin: 0 }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box }
+html, body { margin: 0; padding: 0; background: #fff }
+.page { width: 210mm; height: 296mm; position: relative; display: flex; flex-direction: column; break-after: page; page-break-after: always }
+.page:last-child { break-after: auto; page-break-after: auto }
+.main { flex: 1 1 auto; min-height: 0 }
+
+body { font-family: "Palatino Linotype", serif; font-size: 10pt; color: #1d1d1d; line-height: 1.42 }
+.page { padding: 13mm 18mm 10mm 18mm }
+.lh { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid #23395d; padding-bottom: 1.5mm; margin-bottom: 5mm; font-size: 9pt; color: #23395d }
+.lh .u { font-size: 12pt; font-weight: bold }
+h1 { font-size: 16pt; margin: 0 0 0.5mm 0; color: #23395d }
+.code { font-style: italic; margin-bottom: 3mm; color: #444 }
+h2 { font-size: 11pt; margin: 3.5mm 0 1mm 0; color: #23395d; font-variant: normal }
+p { margin: 0 0 1.8mm 0; text-align: justify }
+.grid { display: flex; gap: 8mm }
+.grid > div { flex: 1 }
+table.kv { border-collapse: collapse; font-size: 9.5pt; width: 100% }
+table.kv td { padding: 0.4mm 3mm 0.4mm 0; vertical-align: top }
+table.kv td:first-child { font-weight: bold; white-space: nowrap; color: #23395d }
+ol.gr { list-style-type: lower-greek; padding-left: 7mm; margin: 0 0 2mm 0 }
+table.wk { width: 100%; border-collapse: collapse; font-size: 9pt; margin: 1mm 0 2mm 0 }
+table.wk th { text-align: left; font-weight: bold; color: #23395d; padding: 0.7mm 2mm; border-bottom: 1.2px solid #23395d }
+table.wk td { padding: 0.7mm 2mm; border-bottom: 0.4px solid #b9c3d6; vertical-align: top }
+table.wk td:first-child { text-align: center; width: 9mm }
+table.ev { border-collapse: collapse; font-size: 9.5pt; width: 100% }
+table.ev td { padding: 0.8mm 2mm; border-bottom: 0.4px solid #b9c3d6 }
+table.ev td:last-child { text-align: right }
+table.ev tr:last-child td { font-weight: bold; border-bottom: 1.2px solid #23395d }
+p.it { margin: 0 0 1mm 4mm; text-align: left }
+.foot { display: flex; justify-content: space-between; font-size: 8pt; color: #555; border-top: 0.5px solid #23395d; padding-top: 1mm }
+
+</style>
+</head>
+<body>
+<div class="page"><div class="lh"><span class="u">Πανεπιστήμιο Νότιας Αιγηίδας</span><span>Τμήμα Οικονομικών Επιστημών</span></div><div class="main"><h1>Περίγραμμα Μαθήματος: Εισαγωγή στη Στατιστική</h1><div class="code">Κωδικός ΟΙΚ-204 · Χειμερινό εξάμηνο 2026–27</div><div class="grid"><div><table class="kv"><tbody><tr><td>Διδάσκουσα</td><td>Δρ Ελένη Καραμπέτσου</td></tr><tr><td>Γραφείο</td><td>Κτίριο Β, αίθουσα 214</td></tr><tr><td>Ώρες γραφείου</td><td>Τετάρτη <span style="white-space:nowrap">11:00–13:00</span></td></tr><tr><td>Διαλέξεις</td><td>Τρίτη <span style="white-space:nowrap">10:00–13:00,</span> Αμφιθέατρο Β</td></tr><tr><td>Πιστωτικές μονάδες</td><td>6 ECTS</td></tr></tbody></table></div><div><h2>Στόχοι του μαθήματος</h2><p>Με την ολοκλήρωση του μαθήματος οι φοιτητές θα μπορούν:</p><ol class="gr"><li>να περιγράφουν ένα σύνολο δεδομένων με κατάλληλα μέτρα και διαγράμματα,</li><li>να εφαρμόζουν βασικές κατανομές πιθανότητας,</li><li>να κατασκευάζουν διαστήματα εμπιστοσύνης και να ελέγχουν υποθέσεις,</li><li>να ερμηνεύουν τα αποτελέσματα μιας απλής παλινδρόμησης.</li></ol></div></div><h2>Περιγραφή</h2><p>Το μάθημα εισάγει τις βασικές έννοιες της περιγραφικής και της επαγωγικής στατιστικής με έμφαση στις εφαρμογές στην οικονομία. Κάθε εβδομάδα περιλαμβάνει μία διάλεξη και ένα εργαστήριο στον υπολογιστή. Δεν απαιτούνται προηγούμενες γνώσεις πέρα από τα μαθηματικά του λυκείου.</p><h2>Εβδομαδιαίο πρόγραμμα</h2><table class="wk"><thead><tr><th>Εβδ.</th><th>Θεματική ενότητα</th><th>Μελέτη</th></tr></thead><tbody><tr><td>1</td><td>Δεδομένα, μεταβλητές και κλίμακες μέτρησης</td><td>Κεφ. 1</td></tr><tr><td>2</td><td>Πίνακες συχνοτήτων και γραφήματα</td><td>Κεφ. 2</td></tr><tr><td>3</td><td>Μέτρα θέσης και διασποράς</td><td>Κεφ. 3</td></tr><tr><td>4</td><td>Πιθανότητες και δεσμευμένη πιθανότητα</td><td>Κεφ. 4</td></tr><tr><td>5</td><td>Διωνυμική και κανονική κατανομή</td><td>Κεφ. 5</td></tr><tr><td>6</td><td>Δειγματοληψία και κατανομή του μέσου</td><td>Κεφ. 6</td></tr><tr><td>7</td><td>Ενδιάμεση πρόοδος</td><td>–</td></tr><tr><td>8</td><td>Διαστήματα εμπιστοσύνης</td><td>Κεφ. 7</td></tr><tr><td>9</td><td>Έλεγχος υποθέσεων για έναν μέσο</td><td>Κεφ. 8</td></tr><tr><td>10</td><td>Σύγκριση δύο πληθυσμών</td><td>Κεφ. 9</td></tr><tr><td>11</td><td>Συσχέτιση και απλή γραμμική παλινδρόμηση</td><td>Κεφ. 10</td></tr><tr><td>12</td><td>Επανάληψη και παρουσιάσεις εργασιών</td><td>–</td></tr></tbody></table><div class="grid"><div><h2>Αξιολόγηση</h2><table class="ev"><tbody><tr><td>Ενδιάμεση πρόοδος</td><td>30%</td></tr><tr><td>Ομαδική εργασία</td><td>20%</td></tr><tr><td>Τελική εξέταση</td><td>50%</td></tr><tr><td>Σύνολο</td><td>100%</td></tr></tbody></table></div><div><h2>Κανόνες</h2><p class="it">α) Η παρουσία στα εργαστήρια είναι υποχρεωτική.</p><p class="it">β) Οι εργασίες υποβάλλονται μόνο μέσω της πλατφόρμας του μαθήματος.</p><p class="it">γ) Εκπρόθεσμες εργασίες δεν βαθμολογούνται.</p></div></div><p>Για να περάσει κανείς το μάθημα πρέπει να συγκεντρώσει τουλάχιστον 5 στις 10 μονάδες στο σύνολο και 4 στις 10 στην τελική εξέταση. Τα βασικά συγγράμματα διατίθενται δωρεάν μέσω της υπηρεσίας διανομής συγγραμμάτων.</p></div><div class="foot"><span>ΟΙΚ-204 · Έκδοση 1.2 · Σεπτέμβριος 2026</span><span>Σελίδα 1 από 1</span></div></div>
+</body>
+</html>

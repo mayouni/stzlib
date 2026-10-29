@@ -1,0 +1,80 @@
+{
+  "id": "h15",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "New Starter Details",
+  "headings": [
+    {
+      "level": 1,
+      "text": "New Starter Details"
+    },
+    {
+      "level": 2,
+      "text": "Section 1 — Personal details"
+    },
+    {
+      "level": 2,
+      "text": "Section 2 — Role details"
+    },
+    {
+      "level": 2,
+      "text": "Section 3 — Emergency contact"
+    },
+    {
+      "level": 2,
+      "text": "Section 4 — Declaration"
+    }
+  ],
+  "key_sentences": [
+    "Please complete this form in block capitals and return it to People Services before your first day of work.",
+    "Fields marked with an asterisk (*) are required.",
+    "We use these details only to set up your employment, pay and pension records.",
+    "They are kept for six years after your employment ends and then deleted.",
+    "I confirm that the information I have given on this form is correct and complete."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Received by",
+          "",
+          "Date received",
+          ""
+        ],
+        [
+          "Employee number",
+          "",
+          "Payroll entry date",
+          ""
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. Scan or photograph every page."
+    },
+    {
+      "level": 0,
+      "text": "2. E-mail the files to people@kestrelvalley.example."
+    },
+    {
+      "level": 0,
+      "text": "3. Bring your passport or birth certificate on your first day."
+    }
+  ],
+  "furniture": [
+    "Kestrel Valley Housing Trust",
+    "People Services",
+    "Form HR-03 · revised 09/2026",
+    "Kestrel Valley Housing Trust is a registered charity and a registered provider of social housing.",
+    "Page 1 of 1"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Blank HR form of a fictional housing association, one page. Form field labels (e.g. \"First name(s) *\", \"Contract type *\") and the checkbox options (Permanent, Fixed term, Casual) are NOT headings and NOT key sentences; the field boxes and checkboxes are drawn by CSS and contain no text. Section titles in reversed (white on purple) bars are level-2 headings. Two dashed boxes stand side by side under the introduction: \"How to return this form\" (left; a list with TYPED markers \"1.\" \"2.\" \"3.\") and \"How we use your data\" (right; two key sentences). Reading order is box by box, left then right. The box titles are not headings. The \"FOR OFFICE USE ONLY\" panel holds a four-column key/value grid with empty value cells (empty strings), no header row. Letterhead: organisation, department and the boxed form code, listed as furniture."
+}

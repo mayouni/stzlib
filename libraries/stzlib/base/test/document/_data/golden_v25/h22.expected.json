@@ -1,0 +1,153 @@
+{
+  "id": "h22",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Instrukcja instalacji sterownika OGRÓD-6",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Instrukcja instalacji sterownika OGRÓD-6"
+    },
+    {
+      "level": 2,
+      "text": "Dane techniczne"
+    },
+    {
+      "level": 2,
+      "text": "Zawartość opakowania"
+    },
+    {
+      "level": 2,
+      "text": "Montaż krok po kroku"
+    },
+    {
+      "level": 2,
+      "text": "Plik konfiguracyjny"
+    },
+    {
+      "level": 2,
+      "text": "Rozwiązywanie problemów"
+    }
+  ],
+  "key_sentences": [
+    "Sterownik OGRÓD-6 steruje pracą do sześciu sekcji nawadniania i może być programowany z panelu lub przez sieć Wi-Fi.",
+    "Przed rozpoczęciem montażu należy przeczytać całą instrukcję.",
+    "Podłączenie do sieci 230 V powinien wykonać elektryk z odpowiednimi uprawnieniami.",
+    "Ustawienia można też wczytać z karty microSD w postaci pliku tekstowego."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Napięcie zasilania",
+          "230 V AC, 50 Hz"
+        ],
+        [
+          "Wyjście na elektrozawory",
+          "24 V AC, maks. 0,5 A na sekcję"
+        ],
+        [
+          "Liczba sekcji",
+          "6"
+        ],
+        [
+          "Stopień ochrony",
+          "IP44"
+        ],
+        [
+          "Temperatura pracy",
+          "od 0 do 50 °C"
+        ],
+        [
+          "Łączność",
+          "Wi-Fi 2,4 GHz"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Objaw",
+          "Możliwa przyczyna",
+          "Rozwiązanie"
+        ],
+        [
+          "Wyświetlacz nie świeci",
+          "Brak zasilania",
+          "Sprawdź wtyczkę zasilacza i bezpiecznik."
+        ],
+        [
+          "Sekcja nie włącza się",
+          "Luźny przewód lub uszkodzony elektrozawór",
+          "Dokręć zacisk i zmierz napięcie na zaworze."
+        ],
+        [
+          "Program nie startuje",
+          "Aktywny czujnik deszczu",
+          "Poczekaj, aż czujnik wyschnie, lub wyłącz go w menu."
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "sterownik z pokrywą zaciskową"
+    },
+    {
+      "level": 0,
+      "text": "zasilacz wtykowy 24 V"
+    },
+    {
+      "level": 0,
+      "text": "zestaw kołków i wkrętów"
+    },
+    {
+      "level": 0,
+      "text": "czujnik deszczu z przewodem 10 m"
+    },
+    {
+      "level": 0,
+      "text": "skrócona instrukcja obsługi"
+    },
+    {
+      "level": 0,
+      "text": "Wybierz miejsce osłonięte od deszczu i bezpośredniego słońca, w pobliżu gniazda elektrycznego."
+    },
+    {
+      "level": 0,
+      "text": "Przykręć sterownik do ściany za pomocą dołączonych kołków."
+    },
+    {
+      "level": 0,
+      "text": "Podłącz przewody elektrozaworów do zacisków:"
+    },
+    {
+      "level": 1,
+      "text": "a) przewód wspólny do zacisku COM,"
+    },
+    {
+      "level": 1,
+      "text": "b) przewody sekcji do zacisków od Z1 do Z6."
+    },
+    {
+      "level": 0,
+      "text": "Podłącz czujnik deszczu do zacisków SEN i włącz zasilanie."
+    }
+  ],
+  "furniture": [
+    "AQUARION",
+    "Sterownik nawadniania OGRÓD-6 · model AQ-6W",
+    "Aquarion sp. z o.o. · serwis@aquarion.example",
+    "Instrukcja instalacji · wydanie 2/2026 · strona 1 z 1"
+  ],
+  "languages": [
+    "pl"
+  ],
+  "code": [
+    "[siec]\nssid = Ogrod_Dom\ntryb = dhcp\n\n[sekcja1]\nnazwa = Trawnik przod\nstart = 05:30\nczas_min = 20\ndni = pn,sr,pt"
+  ],
+  "notes": "Polish installation guide for a fictional irrigation controller, one page. The red \"UWAGA\" (warning) box: the word UWAGA is a label, followed inline by the box sentences; the first sentence is a key sentence. Two columns side by side: \"Dane techniczne\" (left; a boxed key/value table, no header row) and \"Zawartość opakowania\" (right; CSS-drawn disc bullets). Reading order: left column with its heading, then right column with its heading. Installation steps: decimal numbers DRAWN BY CSS; step 3 has a nested level of TYPED markers \"a)\" \"b)\". One configuration block in Courier New (INI style, with an empty line between the two sections); it uses ASCII only. The troubleshooting table is ruled under its header only."
+}

@@ -1,0 +1,146 @@
+{
+  "id": "h12",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "अर्धवार्षिक परीक्षा २०२६–२७ : समय-सारणी एवं निर्देश",
+  "headings": [
+    {
+      "level": 1,
+      "text": "अर्धवार्षिक परीक्षा २०२६–२७ : समय-सारणी एवं निर्देश"
+    },
+    {
+      "level": 2,
+      "text": "परीक्षा कार्यक्रम"
+    },
+    {
+      "level": 2,
+      "text": "परीक्षार्थियों के लिए निर्देश"
+    },
+    {
+      "level": 2,
+      "text": "साथ लाने योग्य सामग्री"
+    }
+  ],
+  "key_sentences": [
+    "सभी विद्यार्थियों एवं अभिभावकों को सूचित किया जाता है कि कक्षा ९ और १० की अर्धवार्षिक परीक्षाएँ १७ नवंबर २०२६ से आरंभ होंगी।",
+    "परीक्षाएँ प्रतिदिन प्रातः ९:३० बजे से दोपहर १२:३० बजे तक होंगी।",
+    "परीक्षा परिणाम १५ दिसंबर २०२६ को विद्यालय के सूचना पट पर घोषित किया जाएगा।",
+    "अभिभावक-शिक्षक बैठक २० दिसंबर २०२६ को प्रातः १० बजे आयोजित की जाएगी।"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "दिनांक",
+          "दिन",
+          "विषय",
+          "विषय"
+        ],
+        [
+          "दिनांक",
+          "दिन",
+          "कक्षा ९",
+          "कक्षा १०"
+        ],
+        [
+          "१७.११.२०२६",
+          "मंगलवार",
+          "हिंदी",
+          "अंग्रेज़ी"
+        ],
+        [
+          "१९.११.२०२६",
+          "गुरुवार",
+          "गणित",
+          "विज्ञान"
+        ],
+        [
+          "२१.११.२०२६",
+          "शनिवार",
+          "विज्ञान",
+          "गणित"
+        ],
+        [
+          "२४.११.२०२६",
+          "मंगलवार",
+          "सामाजिक विज्ञान",
+          "हिंदी"
+        ],
+        [
+          "२६.११.२०२६",
+          "गुरुवार",
+          "अंग्रेज़ी",
+          "सामाजिक विज्ञान"
+        ],
+        [
+          "२८.११.२०२६",
+          "शनिवार",
+          "संस्कृत अथवा कंप्यूटर विज्ञान",
+          "संस्कृत अथवा कंप्यूटर विज्ञान"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "१. परीक्षार्थी परीक्षा आरंभ होने से कम से कम २० मिनट पहले विद्यालय पहुँचें।"
+    },
+    {
+      "level": 0,
+      "text": "२. प्रवेश पत्र के बिना किसी भी विद्यार्थी को परीक्षा कक्ष में प्रवेश नहीं दिया जाएगा।"
+    },
+    {
+      "level": 0,
+      "text": "३. परीक्षा कक्ष में निम्नलिखित वस्तुएँ पूर्णतः वर्जित हैं:"
+    },
+    {
+      "level": 1,
+      "text": "मोबाइल फ़ोन तथा स्मार्ट घड़ी,"
+    },
+    {
+      "level": 1,
+      "text": "किसी भी प्रकार की लिखित सामग्री।"
+    },
+    {
+      "level": 0,
+      "text": "४. अनुपस्थित रहने पर पुनः परीक्षा केवल चिकित्सा प्रमाण पत्र प्रस्तुत करने पर ही ली जाएगी।"
+    },
+    {
+      "level": 0,
+      "text": "प्रवेश पत्र"
+    },
+    {
+      "level": 0,
+      "text": "नीले या काले पेन"
+    },
+    {
+      "level": 0,
+      "text": "पेंसिल और रबर"
+    },
+    {
+      "level": 0,
+      "text": "ज्यामिति बॉक्स"
+    },
+    {
+      "level": 0,
+      "text": "पानी की पारदर्शी बोतल"
+    },
+    {
+      "level": 0,
+      "text": "विद्यालय पहचान पत्र"
+    }
+  ],
+  "furniture": [
+    "सरस्वती विद्या निकेतन उच्चतर माध्यमिक विद्यालय",
+    "रामगढ़ खुर्द, ज़िला सीतापुर · संबद्धता संख्या ००४१२",
+    "दूरभाष: ०००००-२४१२०० · ईमेल: office@svn-ramgarh.example",
+    "पृष्ठ १ / १"
+  ],
+  "languages": [
+    "hi"
+  ],
+  "code": [],
+  "notes": "Hindi school circular (fictional school), one page, Devanagari digits throughout except the e-mail address. The circular number and date line above the title is body text, not a heading. Exam table: full grid with a TWO-LEVEL header (first two rows): \"दिनांक\" and \"दिन\" span two header rows, \"विषय\" spans two columns; the last row has one subject spanning both class columns; merged texts are repeated. The table has no caption; the heading \"परीक्षा कार्यक्रम\" above it is a level-2 heading. Instructions list: TYPED Devanagari markers \"१.\" to \"४.\" in a hanging column, with a nested level of CSS-drawn disc bullets. The materials list has Devanagari numerals DRAWN BY CSS (list-style-type: devanagari) and is laid out in TWO columns (reading order: down the first column, then the second). Letterhead (boxed, two lines) and footer (contact line and \"पृष्ठ १ / १\") are furniture. The signature block is body text, not a key sentence."
+}

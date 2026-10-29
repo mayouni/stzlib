@@ -1,0 +1,166 @@
+{
+  "id": "h16",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Política de Viagens Corporativas",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Política de Viagens Corporativas"
+    },
+    {
+      "level": 2,
+      "text": "CAPÍTULO I — DISPOSIÇÕES GERAIS"
+    },
+    {
+      "level": 2,
+      "text": "CAPÍTULO II — SOLICITAÇÃO E APROVAÇÃO"
+    },
+    {
+      "level": 2,
+      "text": "CAPÍTULO III — DIÁRIAS E REEMBOLSOS"
+    },
+    {
+      "level": 2,
+      "text": "CAPÍTULO IV — DISPOSIÇÕES FINAIS"
+    }
+  ],
+  "key_sentences": [
+    "Esta política estabelece as regras para a solicitação, a aprovação e a prestação de contas das viagens realizadas a serviço da empresa.",
+    "Viagens com antecedência menor somente serão aprovadas mediante justificativa do gestor.",
+    "As passagens e a hospedagem são reservadas exclusivamente pela agência de viagens contratada.",
+    "A diária destina-se a cobrir as despesas de hospedagem e alimentação e é paga conforme os valores do Anexo I.",
+    "Os casos não previstos nesta política serão decididos pela Diretoria de Recursos Humanos.",
+    "Esta política revoga a versão 3.0, de março de 2024, e entra em vigor na data indicada no quadro de controle."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Área responsável",
+          "Recursos Humanos e Controladoria"
+        ],
+        [
+          "Aprovação",
+          "Diretoria Executiva, em 14/10/2026"
+        ],
+        [
+          "Vigência",
+          "a partir de 1º de novembro de 2026"
+        ]
+      ]
+    },
+    {
+      "caption": "Anexo I — Valores de diárias",
+      "rows": [
+        [
+          "Abrangência",
+          "Destino",
+          "Hospedagem (por noite)",
+          "Alimentação (por dia)"
+        ],
+        [
+          "Nacional",
+          "Capitais e Distrito Federal",
+          "R$ 480,00",
+          "R$ 140,00"
+        ],
+        [
+          "Nacional",
+          "Cidades com mais de 200 mil habitantes",
+          "R$ 360,00",
+          "R$ 110,00"
+        ],
+        [
+          "Nacional",
+          "Demais localidades",
+          "R$ 260,00",
+          "R$ 90,00"
+        ],
+        [
+          "Internacional",
+          "América do Sul",
+          "US$ 160,00",
+          "US$ 70,00"
+        ],
+        [
+          "Internacional",
+          "Demais países",
+          "US$ 240,00",
+          "US$ 95,00"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "I – aos empregados de todas as unidades do Grupo;"
+    },
+    {
+      "level": 0,
+      "text": "II – aos estagiários e aprendizes, quando a viagem for autorizada pelo gestor;"
+    },
+    {
+      "level": 0,
+      "text": "III – aos consultores contratados, nos termos do respectivo contrato."
+    },
+    {
+      "level": 0,
+      "text": "I – sete dias, para viagens nacionais;"
+    },
+    {
+      "level": 0,
+      "text": "II – vinte e um dias, para viagens internacionais."
+    },
+    {
+      "level": 0,
+      "text": "I – avaliar a necessidade da viagem e a possibilidade de substituí-la por reunião a distância;"
+    },
+    {
+      "level": 0,
+      "text": "II – aprovar o orçamento da viagem, observando:"
+    },
+    {
+      "level": 1,
+      "text": "a) os valores de diárias fixados no Anexo I;"
+    },
+    {
+      "level": 1,
+      "text": "b) a disponibilidade orçamentária do centro de custo;"
+    },
+    {
+      "level": 1,
+      "text": "c) a escolha da tarifa aérea mais econômica disponível no momento da reserva."
+    },
+    {
+      "level": 0,
+      "text": "III – conferir a prestação de contas no prazo de cinco dias úteis."
+    },
+    {
+      "level": 0,
+      "text": "relatório de viagem assinado pelo empregado;"
+    },
+    {
+      "level": 0,
+      "text": "notas fiscais ou recibos das despesas reembolsáveis;"
+    },
+    {
+      "level": 0,
+      "text": "cartões de embarque ou comprovantes equivalentes."
+    }
+  ],
+  "furniture": [
+    "Grupo Araucária Logística",
+    "POL-RH-007 · Política de Viagens Corporativas · versão 3.1",
+    "Documento de uso interno. Cópias impressas não são controladas.",
+    "Página 1 de 2",
+    "Página 2 de 2"
+  ],
+  "languages": [
+    "pt"
+  ],
+  "code": [],
+  "notes": "Brazilian Portuguese internal travel policy (fictional group), two pages, in the style of a regulation: chapters (level-2 headings in capitals, typed as capitals) and articles \"Art. 1º\" ... \"Art. 9º\" set inline in bold at the start of paragraphs (part of the paragraph text; key sentences exclude the article label). Lists with TYPED Roman-numeral markers \"I –\" \"II –\" \"III –\" (en dash) in a hanging column; under Art. 4º, item II has a nested level of TYPED \"a)\" \"b)\" \"c)\". The list under Art. 7º has decimal markers DRAWN BY CSS. Key/value control table at the top: no header row. Annex table: full grid, caption \"Anexo I — Valores de diárias\"; \"Nacional\" spans three rows and \"Internacional\" two, both vertically centred and repeated; two header cells and one body cell hold two lines joined with one space. Running header (organisation, document code) and the footer note are listed once; footer \"Página n de 2\" per page."
+}

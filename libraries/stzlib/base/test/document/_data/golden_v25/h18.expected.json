@@ -1,0 +1,128 @@
+{
+  "id": "h18",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "کارت ضمانت و شرایط خدمات پس از فروش",
+  "headings": [
+    {
+      "level": 1,
+      "text": "کارت ضمانت و شرایط خدمات پس از فروش"
+    },
+    {
+      "level": 2,
+      "text": "پوشش ضمانت"
+    },
+    {
+      "level": 2,
+      "text": "شرایط استفاده از ضمانت"
+    },
+    {
+      "level": 2,
+      "text": "موارد خارج از ضمانت"
+    }
+  ],
+  "key_sentences": [
+    "این دستگاه از تاریخ خرید در برابر نقص فنی ناشی از ساخت ضمانت شده است.",
+    "مدت و نوع ضمانت هر بخش در جدول زیر آمده است.",
+    "لطفاً این کارت را تا پایان دوره ضمانت نزد خود نگه دارید.",
+    "برای ثبت درخواست تعمیر می‌توانید با مرکز تماس شرکت تماس بگیرید."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "نام دستگاه",
+          "جاروبرقی آرین مدل VX-820"
+        ],
+        [
+          "شماره سریال",
+          "VX820-1405-077341"
+        ],
+        [
+          "تاریخ خرید",
+          "۱۴۰۵/۰۸/۰۲"
+        ],
+        [
+          "نام فروشگاه",
+          "فروشگاه نور، شعبه مرکزی"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "بخش دستگاه",
+          "مدت ضمانت",
+          "نوع خدمت"
+        ],
+        [
+          "موتور",
+          "۲۴ ماه",
+          "تعویض رایگان"
+        ],
+        [
+          "برد الکترونیکی",
+          "۱۸ ماه",
+          "تعمیر یا تعویض رایگان"
+        ],
+        [
+          "بدنه و لوله",
+          "۶ ماه",
+          "تعمیر رایگان"
+        ],
+        [
+          "کیسه و فیلتر",
+          "بدون ضمانت (قطعه مصرفی)",
+          "بدون ضمانت (قطعه مصرفی)"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "ارائه همین کارت همراه با فاکتور خرید هنگام مراجعه به مرکز خدمات الزامی است."
+    },
+    {
+      "level": 0,
+      "text": "تعمیرات فقط در مراکز خدمات مجاز شرکت انجام می‌شود."
+    },
+    {
+      "level": 0,
+      "text": "زمان انجام تعمیر حداکثر ده روز کاری از تاریخ تحویل دستگاه است."
+    },
+    {
+      "level": 0,
+      "text": "در صورت تعویض قطعه، مدت ضمانت قطعه جدید برابر با باقی‌مانده ضمانت دستگاه خواهد بود."
+    },
+    {
+      "level": 0,
+      "text": "الف) آسیب ناشی از ضربه، سقوط یا ورود مایعات به داخل دستگاه؛"
+    },
+    {
+      "level": 0,
+      "text": "ب) استفاده از برق با ولتاژ نامناسب یا نوسان شدید برق؛"
+    },
+    {
+      "level": 0,
+      "text": "ج) باز کردن دستگاه توسط افراد غیرمجاز؛"
+    },
+    {
+      "level": 0,
+      "text": "د) استفاده تجاری از دستگاهی که برای مصرف خانگی ساخته شده است."
+    }
+  ],
+  "furniture": [
+    "شرکت آرین‌تک پارس",
+    "تولیدکننده لوازم خانگی برقی",
+    "مرکز تماس خدمات پس از فروش: ۰۲۱-۰۰۰۰۴۱۲۰ · همه روزه به جز تعطیلات رسمی، ساعت ۸ تا ۲۰",
+    "www.ariantech.example"
+  ],
+  "languages": [
+    "fa"
+  ],
+  "code": [],
+  "notes": "Right-to-left Persian (Farsi) warranty card of a fictional manufacturer, one page, logical order throughout. Persian digits (U+06F0..U+06F9) in dates and numbers; Latin model and serial numbers embedded left-to-right. Persian words contain ZERO WIDTH NON-JOINER (U+200C), e.g. \"آرین‌تک\", \"می‌شود\", \"باقی‌مانده\"; expected text keeps it. At the top, a boxed key/value table (no header row; right) stands beside an empty dashed stamp box labelled \"مهر و امضای فروشنده\" (left); the stamp label is a form label, not a key sentence. Coverage table: header row, zebra rows, no vertical rules; the last row's value spans two columns and is repeated. Cells are listed rightmost column first. Conditions list: Persian numerals DRAWN BY CSS (list-style-type: persian), recorded without markers. Exclusions list: TYPED Persian letter markers \"الف)\" \"ب)\" \"ج)\" \"د)\" in a hanging column. The header band (company name and line of business) and the footer (call centre line, web address) are furniture."
+}

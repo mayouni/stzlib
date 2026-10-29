@@ -1,0 +1,158 @@
+{
+  "id": "h05",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "第12回 製品品質委員会 議事録",
+  "headings": [
+    {
+      "level": 1,
+      "text": "第12回 製品品質委員会 議事録"
+    },
+    {
+      "level": 2,
+      "text": "１．報告事項"
+    },
+    {
+      "level": 2,
+      "text": "２．審議事項"
+    },
+    {
+      "level": 2,
+      "text": "３．決定事項"
+    },
+    {
+      "level": 2,
+      "text": "４．今後の対応"
+    }
+  ],
+  "key_sentences": [
+    "品質保証部より、9月度の品質実績について次のとおり報告があった。",
+    "外観傷の再発防止策について審議を行った。",
+    "製造部からは、梱包工程の作業台に保護シートを敷く案と、製品ごとに専用の仕切り板を設ける案の二つが提示された。",
+    "次回の委員会は2026年11月18日（水）14時から、同じ会議室で開催する予定である。"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "日時",
+          "2026年10月21日（水）14:00～15:30"
+        ],
+        [
+          "場所",
+          "本社3階 第2会議室"
+        ],
+        [
+          "出席者",
+          "高木（委員長）、村井、佐野、大島、北川、林"
+        ],
+        [
+          "欠席者",
+          "杉本（出張のため）"
+        ],
+        [
+          "記録",
+          "林"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "No.",
+          "対応事項",
+          "担当部署",
+          "担当者",
+          "期限"
+        ],
+        [
+          "1",
+          "梱包仕様書の改訂 （緩衝材の変更を反映）",
+          "製造部",
+          "佐野",
+          "11月7日"
+        ],
+        [
+          "2",
+          "外観傷の原因調査",
+          "製造部",
+          "大島",
+          "11月14日"
+        ],
+        [
+          "3",
+          "測定器の操作教育 （夜勤者を含む全員）",
+          "品質保証部",
+          "北川",
+          "11月28日"
+        ],
+        [
+          "4",
+          "不良率集計方法の見直し案作成",
+          "生産技術部",
+          "村井",
+          "12月5日"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "（１） 9月度の工程内不良率は0.42％となり、目標値の0.50％を下回った。"
+    },
+    {
+      "level": 0,
+      "text": "（２） 顧客からの苦情は2件で、いずれも梱包時の外観傷に関するものであった。"
+    },
+    {
+      "level": 1,
+      "text": "① 1件目は輸送中の擦れによるもので、緩衝材の変更により対応済みである。"
+    },
+    {
+      "level": 1,
+      "text": "② 2件目は原因を調査中であり、次回の委員会で報告する。"
+    },
+    {
+      "level": 0,
+      "text": "（３） 新型三次元測定器の導入後、検査時間が1台あたり約3分短縮された。"
+    },
+    {
+      "level": 0,
+      "text": "・ 保護シートは消耗品であるため、交換の頻度と基準を明確にすべきである。"
+    },
+    {
+      "level": 0,
+      "text": "・ 夜勤帯の作業者にも同じ手順が確実に伝わるよう、教育記録を残す必要がある。"
+    },
+    {
+      "level": 0,
+      "text": "・ 顧客への報告書には、対策の実施日と効果確認の予定日を記載する。"
+    },
+    {
+      "level": 0,
+      "text": "梱包工程の作業台に保護シートを敷く対策を、11月1日から全ラインで実施する。"
+    },
+    {
+      "level": 0,
+      "text": "保護シートの交換基準は製造部が作成し、品質保証部が確認する。"
+    },
+    {
+      "level": 0,
+      "text": "効果の確認は12月の委員会で行う。"
+    }
+  ],
+  "furniture": [
+    "株式会社みなと精機 品質保証部",
+    "社外秘",
+    "- 1 -",
+    "- 2 -"
+  ],
+  "languages": [
+    "ja"
+  ],
+  "code": [],
+  "notes": "Cells written on two lines (e.g. \"梱包仕様書の改訂\" + \"（緩衝材の変更を反映）\") are joined with ONE space, following the table-cell rule; the no-space rule applies only to a sentence that wraps. Japanese meeting minutes of a fictional company, two pages. Japanese has no spaces between words: a sentence wrapped across lines joins with NO space. The meeting key/value table (日時, 場所, ...) is a full grid without header row. Table header cells are not headings. Headings carry TYPED full-width numbers \"１．\" \"２．\"; they are part of the heading text. List under 報告事項: TYPED full-width parenthesised markers \"（１）\" in a hanging column, with a nested level of TYPED circled numbers \"①\" \"②\". List under 審議事項: TYPED \"・\" (katakana middle dot) markers. List under 決定事項: markers DRAWN BY CSS (cjk-decimal, \"一、\"), recorded without them. In the action table \"製造部\" spans two rows and is repeated; two cells hold two lines joined with one space. Header: company/department line and a boxed \"社外秘\" (confidential) stamp, listed once. Footer page numbers \"- 1 -\" and \"- 2 -\". The closing \"以上\" is a conventional end mark, not a key sentence."
+}

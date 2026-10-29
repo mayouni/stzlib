@@ -500,6 +500,23 @@ golden_v24: 24 realistic documents in 18 languages besides English (Arabic, Hebr
 
 Time for the 24 documents: native 0.06 s, Docling 107 s. The native reader leads on seven measures and Docling on tables, by 0.008. The tables are this set's lesson: the native reader finds NO table on five documents where Docling finds most of one -- g14 (Korean notice, 0.83), g19 (two-column conference paper, 1.00), g21 (Swahili minutes, 0.94), g23 (Portuguese inspection report, 0.85) -- and little on g01 (invoice, 0.14 against 0.52) and g22 (landscape purchase order, 0.03 against 0.32). Furniture on five documents (g13 0.50 against 1.00, g22 nothing against 0.50) and lists on two. Causes not yet looked into: round 24.
 
+**Twenty-fourth round: tables beside narrow paragraphs, spanning cells, wrapped cells; then golden_v25.** Fixed on golden_v24 (now a development set) and checked on all twenty-four sets:
+- a line is prose when it belongs to a narrow paragraph -- three lines or more of five words or more one under the other, at a paragraph's leading, running on from line to line, a first line indented allowed -- so a key/value table floated beside a column of six-to-eight-word lines is no longer swallowed by it (g21: no table -> both). Without the leading and running-on conditions a table's description column counted as prose (v6 tables .728 -> .665);
+- the key/value test reads each row left to right (a label in another face sits a point off its value's baseline); sorting the rows themselves moved two other documents;
+- a cell spanning two rows, centred between them, is in both rows -- only a short first-column label between two rows of the same shape (lone lines were pulled into rows on eight sets before);
+- the second line of a top-aligned cell (an invoice item's description under its title) stays in its table's run (g01's items table, never found before).
+
+On the development sets, against round 23 frozen: golden_v24 tables 0.65 -> 0.77 (Docling 0.66); tables v13 0.77 -> 0.82, v18 0.76 -> 0.80, v19 0.79 -> 0.82, v23 0.83 -> 0.85; heading precision up on eight sets. Costs: tables v10 0.831 -> 0.826 (a last row's second line, q17), furniture v13 0.781 -> 0.775, headings v17 -0.004. Not reached: g19's table in a two-column paper has its rows now but not its columns (sensor name and unit cost in one cell); g22, a landscape purchase order. Guard 217 assertions under Ring++.
+
+golden_v25: 24 realistic documents in 16 languages besides English (Arabic, Hebrew and Persian right to left, Japanese, Chinese, Korean, Hindi, Thai, Vietnamese among them), 11 of 2-3 pages, cells spanning rows, forms, reports, letters, running headers drawn by CSS page-margin boxes in four documents, by a twenty-fifth independent agent who saw no reader, no output and no earlier set; no one has looked at the pages (unperceived); reader frozen at aacf66596; both readers ran once:
+
+| golden_v25, realistic | text | order | headings | tables | lists | furniture | code | heading precision |
+|---|---|---|---|---|---|---|---|---|
+| Softanza native (Ring++) | **0.97** | 0.99 | **0.92** | **0.84** | **0.82** | 0.79 | **0.75** | **0.72** |
+| Docling 2.141 | 0.82 | **1.00** | 0.79 | 0.66 | 0.52 | **0.81** | 0.00 | 0.64 |
+
+Time for the 24 documents: native 0.09 s, Docling 84 s. The native reader leads on six measures, Docling on order (by 0.008: h07, Hebrew, 0.80 against 1.00) and on furniture (by 0.021: seven documents, h17 nothing against 1.00 -- a landscape page whose running header is a CSS margin box). Elsewhere Docling does better on tables on five documents (h09 0.10 against 0.55, h23 0.34 against 0.73), lists on three, text on two, headings on one (h04, Arabic, 0.20 against 1.00). Heading precision is the lowest of recent sets for both readers (0.72 and 0.64). Causes not yet looked into: round 25.
+
 **Perceived (2026-10-24):** the author looked through every rendered page of golden_v9 to golden_v13 -- the sets whose own authors could not look at them -- and judged them: "they look great". Those five sets are no longer unperceived; the sets before them were generated the same way and are not covered by this look.
 
 **Perceived (2026-10-29):** the author looked at the generated documents of golden_v14 to golden_v22 and judged them: "they are ok". Those nine sets are no longer unperceived.

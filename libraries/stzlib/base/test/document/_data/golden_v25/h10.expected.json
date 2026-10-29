@@ -1,0 +1,128 @@
+{
+  "id": "h10",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Field Evaluation of Low-Cost Capacitive Soil Moisture Sensors under Drip Irrigation",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Field Evaluation of Low-Cost Capacitive Soil Moisture Sensors under Drip Irrigation"
+    },
+    {
+      "level": 2,
+      "text": "1 Introduction"
+    },
+    {
+      "level": 2,
+      "text": "2 Methods"
+    },
+    {
+      "level": 3,
+      "text": "2.1 Site and plots"
+    },
+    {
+      "level": 3,
+      "text": "2.2 Sensors and reference measurements"
+    },
+    {
+      "level": 2,
+      "text": "3 Results"
+    },
+    {
+      "level": 2,
+      "text": "4 Discussion"
+    },
+    {
+      "level": 2,
+      "text": "5 Recommendations"
+    },
+    {
+      "level": 2,
+      "text": "References"
+    }
+  ],
+  "key_sentences": [
+    "We compared four models of low-cost capacitive soil moisture sensors with gravimetric reference samples over one irrigation season in a semi-arid vegetable plot.",
+    "After a site-specific calibration, three of the four models estimated volumetric water content within three percentage points of the reference.",
+    "Reference samples were taken twice a week with a soil corer next to each sensor and dried at 105 °C for 24 hours.",
+    "Table 1 lists the root mean square error of each model before and after calibration.",
+    "Errors were larger in the clay loam than in the sandy loam for every model."
+  ],
+  "tables": [
+    {
+      "caption": "Table 1. Error in volumetric water content (percentage points) for the validation period; failures are sensors that stopped reporting.",
+      "rows": [
+        [
+          "Model",
+          "RMSE raw",
+          "RMSE cal.",
+          "Failures"
+        ],
+        [
+          "A",
+          "7.8",
+          "2.4",
+          "0"
+        ],
+        [
+          "B",
+          "6.1",
+          "2.1",
+          "1"
+        ],
+        [
+          "C",
+          "10.9",
+          "5.7",
+          "3"
+        ],
+        [
+          "D",
+          "8.3",
+          "2.9",
+          "0"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "(a) Calibrate each model in the soil where it will be used, at least with a two-point procedure."
+    },
+    {
+      "level": 0,
+      "text": "(b) Seal the electronics and cable entry before installation."
+    },
+    {
+      "level": 0,
+      "text": "(c) Install the sensor several days before relying on its readings, so that the soil can settle around it."
+    },
+    {
+      "level": 0,
+      "text": "(d) Replace sensors that show a steady upward drift between irrigations."
+    },
+    {
+      "level": 0,
+      "text": "[1] Ombasa, R. (2025). Gravimetric sampling protocol for raised beds. Station Methods Note 14."
+    },
+    {
+      "level": 0,
+      "text": "[2] Fairweather, L. and Valcarce, T. (2024). Logging irrigation events with open hardware. Technical Report TR-24-03."
+    },
+    {
+      "level": 0,
+      "text": "[3] Dry Hollow Agricultural Research Station (2023). Soil survey of the valley floor plots. Internal report."
+    }
+  ],
+  "furniture": [
+    "Dry Hollow Agricultural Research Station · Technical Report TR-26-07",
+    "1",
+    "2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Station technical report: title, authors, affiliation and a ruled abstract span the page; the body is set in TWO columns that read column by column and continue onto page 2. Running header (top centre, italic) and page numbers \"1\", \"2\" (bottom centre) are CSS @page margin boxes, present only in the PDF. Table 1 sits inside a column, beside the text of the other column; booktabs-style rules (top, under header, bottom) and a caption above it. A footnote marker \"1\" (superscript) follows the sentence ending \"...for agricultural use.\"; that sentence is excluded from key_sentences. The footnote text is printed as a small ruled note at the end of the second column; it is body text, not a key sentence. Lists with TYPED markers: \"(a)\" to \"(d)\" and the reference markers \"[1]\" to \"[3]\", both in hanging columns. The authors and affiliation lines are body text, not headings. The degree sign in \"105 °C\" is U+00B0."
+}

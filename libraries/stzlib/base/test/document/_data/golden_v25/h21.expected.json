@@ -1,0 +1,191 @@
+{
+  "id": "h21",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Terms and Conditions of Storage",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Terms and Conditions of Storage"
+    },
+    {
+      "level": 2,
+      "text": "1. Definitions"
+    },
+    {
+      "level": 2,
+      "text": "2. The Agreement"
+    },
+    {
+      "level": 2,
+      "text": "3. Use of the Unit"
+    },
+    {
+      "level": 2,
+      "text": "4. Charges and Payment"
+    },
+    {
+      "level": 2,
+      "text": "5. Access"
+    },
+    {
+      "level": 2,
+      "text": "6. Insurance"
+    },
+    {
+      "level": 2,
+      "text": "7. Liability"
+    },
+    {
+      "level": 2,
+      "text": "8. Ending the Agreement"
+    },
+    {
+      "level": 2,
+      "text": "9. Unpaid Charges and Sale of Goods"
+    },
+    {
+      "level": 2,
+      "text": "10. General"
+    }
+  ],
+  "key_sentences": [
+    "These terms apply to every storage agreement between Harbourline Self Storage Ltd and its customers.",
+    "Please read them carefully, in particular clauses 7 and 9, which limit our liability and allow us to sell goods if charges remain unpaid.",
+    "The Customer may enter the Store during Access Hours using the personal code issued to them.",
+    "The Goods are stored at the Customer's own risk and are not insured by us.",
+    "On the last day the Customer must remove all Goods, leave the Unit clean and empty, and remove their padlock.",
+    "If any part of these terms is found to be invalid, the rest of the terms remain in force."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Agreement",
+          "the storage agreement signed by the Customer, together with these terms"
+        ],
+        [
+          "Access Hours",
+          "the hours displayed at the Store during which the Customer may enter it"
+        ],
+        [
+          "Customer",
+          "the person or business named in the Agreement"
+        ],
+        [
+          "Goods",
+          "everything kept in the Unit, including packaging"
+        ],
+        [
+          "Store",
+          "the self storage building in which the Unit is located"
+        ],
+        [
+          "Unit",
+          "the storage space allocated to the Customer"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "2.1 The Agreement starts on the date shown in it and continues for at least the minimum period of four weeks."
+    },
+    {
+      "level": 0,
+      "text": "2.2 After the minimum period the Agreement continues from week to week until ended under clause 8."
+    },
+    {
+      "level": 0,
+      "text": "2.3 The Customer confirms that the details given to us are true and will tell us promptly of any change of address, telephone number or e-mail address."
+    },
+    {
+      "level": 0,
+      "text": "3.1 The Unit may be used only for storing Goods. It must not be used as an office, a workshop or living accommodation."
+    },
+    {
+      "level": 0,
+      "text": "3.2 The Customer must not store:"
+    },
+    {
+      "level": 1,
+      "text": "(a) food or anything else that attracts vermin;"
+    },
+    {
+      "level": 1,
+      "text": "(b) living animals or plants;"
+    },
+    {
+      "level": 1,
+      "text": "(c) hazardous items, including:"
+    },
+    {
+      "level": 2,
+      "text": "(i) flammable liquids, gas cylinders or fireworks;"
+    },
+    {
+      "level": 2,
+      "text": "(ii) chemicals, asbestos or other toxic material;"
+    },
+    {
+      "level": 1,
+      "text": "(d) cash, securities or items of special value such as jewellery or works of art."
+    },
+    {
+      "level": 0,
+      "text": "3.3 The Customer must keep the Unit locked with a padlock of their own choice and must not give the key to anyone not named in the Agreement."
+    },
+    {
+      "level": 0,
+      "text": "4.1 Storage charges are payable four weeks in advance, on the start date and on every fourth week after it."
+    },
+    {
+      "level": 0,
+      "text": "4.2 Payment is made by card or direct debit. We do not accept cash at the Store."
+    },
+    {
+      "level": 0,
+      "text": "4.3 We may change the charges by giving at least 28 days notice in writing."
+    },
+    {
+      "level": 0,
+      "text": "4.4 A fee of 15 pounds is added to any payment that is more than 7 days late."
+    },
+    {
+      "level": 0,
+      "text": "7.1 We are not liable for loss of or damage to the Goods unless it is caused by our negligence or deliberate act."
+    },
+    {
+      "level": 0,
+      "text": "7.2 Our total liability under the Agreement is limited to 1,000 pounds, except for death or personal injury caused by our negligence, for which liability is not limited."
+    },
+    {
+      "level": 0,
+      "text": "7.3 The Customer is responsible for any damage caused to the Store, to other units or to any person by the Goods or by the Customer's use of the Unit."
+    },
+    {
+      "level": 0,
+      "text": "9.1 If charges are unpaid for 14 days, we may refuse access to the Unit and over-lock it."
+    },
+    {
+      "level": 0,
+      "text": "9.2 If charges remain unpaid for 42 days, we may sell or dispose of the Goods after writing to the Customer at least 14 days beforehand."
+    },
+    {
+      "level": 0,
+      "text": "9.3 The money from any sale is used first to pay our costs and the unpaid charges; any balance is held for the Customer for six years."
+    }
+  ],
+  "furniture": [
+    "Harbourline Self Storage Ltd — Terms and Conditions of Storage (HSS-TC 2026/2)",
+    "Page 1",
+    "Page 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Standard terms and conditions of a fictional self-storage company, set in TWO columns with a vertical column rule; the columns read column by column and continue on page 2. The running header (top left) and \"Page 1\" / \"Page 2\" (bottom right) are CSS @page margin boxes, present only in the PDF. The title, the dated sub-line and the italic introduction span the full width above the columns. The sub-line is body text, not a heading. Clause lists use TYPED hierarchical markers in hanging columns: \"2.1\" ... at level 0, \"(a)\" \"(b)\" ... at level 1, \"(i)\" \"(ii)\" at level 2. Definitions: a borderless key/value table without header row inside the first column. The boxed note at the end of the second column is body text (no key sentence)."
+}

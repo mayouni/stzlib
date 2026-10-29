@@ -1,0 +1,38 @@
+page_header	0	Tidewater Sync 4.2 - Release Notes
+heading	1	Tidewater Sync 4.2 Release Notes
+paragraph	0	Version 4.2.0 · released 26 October 2026
+paragraph	0	Tidewater Sync 4.2 is a feature release that adds scheduled two-way synchronisation for object stores and retires the legacy XML job format. Existing 4.x installations can be upgraded in place once their job files have been converted.
+heading	1	Highlights
+list_item	0	Two-way synchronisation for S3-compatible and Azure Blob targets, with conflict detection based on object version identifiers.
+list_item	0	A scheduler built into the agent, so external cron entries are no longer required.
+list_item	0	intervals from one minute to seven days
+list_item	0	optional quiet windows during which no transfers start
+list_item	0	Resumable transfers for files larger than 4 GB.
+list_item	0	A new validate command that checks job files without contacting any target.
+heading	1	Upgrading
+heading	1	Before you upgrade
+list_item	0	Stop all running jobs and wait until the agent reports an idle state.
+list_item	0	Back up the configuration directory, including:
+list_item	0	the job definitions in jobs/
+list_item	0	the credential store secrets.db
+list_item	0	Install the 4.2 package over the existing installation.
+heading	1	Converting job files
+paragraph	0	Job files written in the XML format must be converted before the agent is restarted. The converter writes a YAML file next to each XML file and leaves the original untouched.
+code	0	$ tidewater-sync convert --from xml --to yaml jobs/* $ tidewater-sync validate jobs/ $ tidewater-sync agent restart
+heading	1	Configuration
+paragraph	0	The following keys are new or have changed default values in this release.
+table	0	KeyDefaultDescriptionschedule.every1hInterval between two runs of the job. Accepts units m, h and d.schedule.window(none)Quiet window in local time during which no new transfer starts.targets[].two _ wayfalseEnables two-way synchronisation for the target.conflict.policykeep-bothWhat to do when both sides changed: keep-both, prefer-source or prefer-target.retry.attempts3Number of retries for a failed transfer before the job is marked as failed.retry.backofflinearDelay strategy between retries: linear or exponential.
+code	0	.xml
+page_footer	0	Page 1 of 2
+page_header	0	Tidewater Sync 4.2 - Release Notes
+table	0	KeyDefaultDescriptiontransfer.chunk _ size64MBSize of the parts used for resumable uploads.
+paragraph	0	A minimal job file using the new scheduler looks like this:
+code	0	schedule: every: 15m window: "22:00-06:00" targets: - name: archive-eu type: s3 bucket: tw-archive-eu two _ way: true retry: attempts: 5 backoff: exponential
+heading	1	Deprecations and removals
+list_item	0	The XML job format is no longer read by the agent.
+list_item	0	The --legacy-auth option has been removed; use access keys or managed identities instead.
+list_item	0	The Windows Server 2016 package is deprecated and will not be built after version 4.4.
+heading	1	Known issues
+paragraph	0	Two-way synchronisation does not yet preserve custom metadata on Azure Blob targets. A fix is planned for version 4.2.1. Until then, jobs that rely on metadata should keep one-way mode.
+paragraph	0	On systems with more than 64 processor cores, the agent may report an inflated transfer rate in its status output. The transfers themselves are not affected.
+page_footer	0	Page 2 of 2

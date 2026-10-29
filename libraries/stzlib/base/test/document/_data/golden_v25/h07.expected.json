@@ -1,0 +1,148 @@
+{
+  "id": "h07",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "הסכם שכירות לשטח משרדים",
+  "headings": [
+    {
+      "level": 1,
+      "text": "הסכם שכירות לשטח משרדים"
+    },
+    {
+      "level": 2,
+      "text": "1. מבוא ופרשנות"
+    },
+    {
+      "level": 2,
+      "text": "2. המושכר"
+    },
+    {
+      "level": 2,
+      "text": "3. תקופת השכירות"
+    },
+    {
+      "level": 2,
+      "text": "4. התחייבויות השוכר"
+    },
+    {
+      "level": 2,
+      "text": "5. דמי שכירות ותשלומים"
+    },
+    {
+      "level": 2,
+      "text": "6. בטחונות"
+    },
+    {
+      "level": 2,
+      "text": "7. שונות"
+    }
+  ],
+  "key_sentences": [
+    "המשכיר הוא הבעלים הרשום של הנכס ורשאי להשכירו.",
+    "השוכר מעוניין לשכור את הנכס לשימוש כמשרד לתכנון אדריכלי.",
+    "המשכיר משכיר בזאת לשוכר שטח משרדים בקומה השלישית בבניין ברחוב הדקל 18, רמת הגפן, בשטח של כ-140 מ\"ר.",
+    "תקופת השכירות היא 24 חודשים, החל מיום 1 בדצמבר 2026 ועד ליום 30 בנובמבר 2028.",
+    "דמי השכירות החודשיים הם 18,500 ₪ בתוספת מע\"מ כדין.",
+    "כל שינוי בהסכם זה ייעשה בכתב בלבד ובחתימת שני הצדדים."
+  ],
+  "tables": [
+    {
+      "caption": "טבלת תשלומים לשנה הראשונה",
+      "rows": [
+        [
+          "תשלום",
+          "תקופה",
+          "מועד התשלום",
+          "סכום לפני מע\"מ (₪)"
+        ],
+        [
+          "1",
+          "דצמבר 2026 – פברואר 2027",
+          "1.12.2026",
+          "55,500"
+        ],
+        [
+          "2",
+          "מרץ – מאי 2027",
+          "1.3.2027",
+          "55,500"
+        ],
+        [
+          "3",
+          "יוני – אוגוסט 2027",
+          "1.6.2027",
+          "55,500"
+        ],
+        [
+          "4",
+          "ספטמבר – נובמבר 2027",
+          "1.9.2027",
+          "55,500"
+        ],
+        [
+          "סה\"כ לשנה הראשונה",
+          "סה\"כ לשנה הראשונה",
+          "סה\"כ לשנה הראשונה",
+          "222,000"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1.1 המבוא להסכם זה והנספחים המצורפים אליו מהווים חלק בלתי נפרד ממנו."
+    },
+    {
+      "level": 0,
+      "text": "1.2 כותרות הסעיפים נועדו לנוחות בלבד ולא ישמשו לפרשנות ההסכם."
+    },
+    {
+      "level": 0,
+      "text": "1.3 כל האמור בלשון זכר משמע גם בלשון נקבה, וכן להפך."
+    },
+    {
+      "level": 0,
+      "text": "לשלם את דמי השכירות ואת דמי הניהול במועדם."
+    },
+    {
+      "level": 0,
+      "text": "לשמור על המושכר במצב תקין ונקי, ולתקן על חשבונו כל נזק שנגרם בשימוש שאינו סביר."
+    },
+    {
+      "level": 0,
+      "text": "לא לבצע שינויים במושכר ללא הסכמת המשכיר מראש ובכתב."
+    },
+    {
+      "level": 0,
+      "text": "לשאת בתשלומי החשמל, המים והארנונה בגין תקופת השכירות."
+    },
+    {
+      "level": 0,
+      "text": "6.1 להבטחת התחייבויותיו ימסור השוכר למשכיר, במועד חתימת ההסכם:"
+    },
+    {
+      "level": 1,
+      "text": "(א) ערבות בנקאית אוטונומית בסך 60,000 ₪;"
+    },
+    {
+      "level": 1,
+      "text": "(ב) שטר חוב חתום על ידי מנהלי השוכר."
+    },
+    {
+      "level": 0,
+      "text": "6.2 הערבות תוחזר לשוכר בתום תקופת השכירות, לאחר שימציא אישורים על תשלום כל החשבונות."
+    }
+  ],
+  "furniture": [
+    "הסכם שכירות — רחוב הדקל 18, רמת הגפן",
+    "נוסח לחתימה",
+    "עמוד 1 מתוך 2",
+    "עמוד 2 מתוך 2"
+  ],
+  "languages": [
+    "he"
+  ],
+  "code": [],
+  "notes": "Right-to-left Hebrew office lease agreement (fictional parties and address), two pages, logical order throughout; digits are European. The two party boxes (המשכיר, השוכר) stand side by side; reading order is box by box, the RIGHT box first (right-to-left page). Box labels are not headings. Clause lists use TYPED markers \"1.1\" \"1.2\" \"1.3\" and \"6.1\" \"6.2\" in a hanging column; under 6.1 a nested level of TYPED markers \"(א)\" \"(ב)\". The list of tenant obligations (section 4) has Hebrew-letter markers DRAWN BY CSS (list-style-type: hebrew, \"א.\" \"ב.\" ...), recorded without them. Payment table: header rules and row rules only; total label spans three columns and is repeated. Cells listed rightmost column first. The abbreviation quote in בע\"מ, מ\"ר, מע\"מ, סה\"כ is an ASCII double quote. Running header (two parts) listed once; footer \"עמוד n מתוך 2\" per page. The line under the title (date of signing) and the signature labels are body text but not key sentences."
+}

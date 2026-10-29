@@ -1,0 +1,323 @@
+{
+  "id": "h09",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Extracto de cuenta corriente",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Extracto de cuenta corriente"
+    },
+    {
+      "level": 2,
+      "text": "Movimientos"
+    },
+    {
+      "level": 2,
+      "text": "Información importante"
+    }
+  ],
+  "key_sentences": [
+    "Le rogamos que compruebe los movimientos de este extracto y nos comunique cualquier discrepancia en el plazo de 30 días.",
+    "Transcurrido ese plazo sin reclamación, el extracto se considerará conforme.",
+    "Los depósitos mantenidos en esta entidad están garantizados por el Fondo de Garantía de Depósitos hasta 100.000 euros por titular.",
+    "Puede consultar sus movimientos en cualquier momento a través de la banca digital."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "F. operación",
+          "F. valor",
+          "Concepto",
+          "Cargo",
+          "Abono",
+          "Saldo"
+        ],
+        [
+          "01/10/2026",
+          "01/10/2026",
+          "Cuota préstamo 0412-77 Amortización y retribución",
+          "1.286,40",
+          "",
+          "23.032,15"
+        ],
+        [
+          "02/10/2026",
+          "02/10/2026",
+          "Transferencia recibida Construcciones Gállego, S.L. · Fra. 2026/311",
+          "",
+          "6.534,00",
+          "29.566,15"
+        ],
+        [
+          "03/10/2026",
+          "03/10/2026",
+          "Recibo · Suministros Eléctricos del Cierzo",
+          "612,37",
+          "",
+          "28.953,78"
+        ],
+        [
+          "03/10/2026",
+          "03/10/2026",
+          "Pago con tarjeta · Estación de servicio Km 14",
+          "88,90",
+          "",
+          "28.864,88"
+        ],
+        [
+          "06/10/2026",
+          "06/10/2026",
+          "Ingreso de efectivo en oficina",
+          "",
+          "1.450,00",
+          "30.314,88"
+        ],
+        [
+          "07/10/2026",
+          "07/10/2026",
+          "Recibo · Seguros La Muela, póliza 55-01923",
+          "342,15",
+          "",
+          "29.972,73"
+        ],
+        [
+          "08/10/2026",
+          "08/10/2026",
+          "Transferencia emitida Recambios Ebro Norte, S.A. · pedido 8812",
+          "3.915,20",
+          "",
+          "26.057,53"
+        ],
+        [
+          "09/10/2026",
+          "09/10/2026",
+          "Pago con tarjeta · Ferretería Industrial Alfajarín",
+          "126,45",
+          "",
+          "25.931,08"
+        ],
+        [
+          "10/10/2026",
+          "10/10/2026",
+          "Transferencia recibida Ayuntamiento de Villanueva del Cierzo · Fra. 2026/298",
+          "",
+          "2.190,60",
+          "28.121,68"
+        ],
+        [
+          "13/10/2026",
+          "13/10/2026",
+          "Recibo · Telefonía y datos, octubre",
+          "74,99",
+          "",
+          "28.046,69"
+        ],
+        [
+          "14/10/2026",
+          "14/10/2026",
+          "Pago con tarjeta · Estación de servicio Km 14",
+          "92,30",
+          "",
+          "27.954,39"
+        ],
+        [
+          "15/10/2026",
+          "15/10/2026",
+          "Transferencia recibida Transportes Moncayo, S.L. · Fra. 2026/317",
+          "",
+          "3.872,15",
+          "31.826,54"
+        ],
+        [
+          "16/10/2026",
+          "16/10/2026",
+          "Liquidación TPV, ventas del 1 al 15",
+          "",
+          "4.310,80",
+          "36.137,34"
+        ],
+        [
+          "17/10/2026",
+          "17/10/2026",
+          "Recibo · Alquiler nave 3, octubre",
+          "1.650,00",
+          "",
+          "34.487,34"
+        ],
+        [
+          "20/10/2026",
+          "20/10/2026",
+          "Transferencia emitida Aceites y Lubricantes Huerva · pedido 451",
+          "1.208,64",
+          "",
+          "33.278,70"
+        ],
+        [
+          "21/10/2026",
+          "21/10/2026",
+          "Impuestos · Modelo 303, tercer trimestre",
+          "2.845,33",
+          "",
+          "30.433,37"
+        ],
+        [
+          "22/10/2026",
+          "22/10/2026",
+          "Pago con tarjeta · Restaurante El Tozal",
+          "46,20",
+          "",
+          "30.387,17"
+        ],
+        [
+          "23/10/2026",
+          "23/10/2026",
+          "Transferencia recibida Agrícola Hermanos Lasheras · Fra. 2026/322",
+          "",
+          "1.286,90",
+          "31.674,07"
+        ],
+        [
+          "27/10/2026",
+          "27/10/2026",
+          "Seguros sociales, septiembre",
+          "3.120,48",
+          "",
+          "28.553,59"
+        ],
+        [
+          "28/10/2026",
+          "28/10/2026",
+          "Transferencia emitida Nóminas de octubre, 6 empleados",
+          "11.480,00",
+          "",
+          "17.073,59"
+        ],
+        [
+          "29/10/2026",
+          "29/10/2026",
+          "Ingreso de cheque n.º 4471023",
+          "",
+          "980,00",
+          "18.053,59"
+        ],
+        [
+          "30/10/2026",
+          "31/10/2026",
+          "Liquidación TPV, ventas del 16 al 31",
+          "",
+          "5.120,45",
+          "23.174,04"
+        ],
+        [
+          "31/10/2026",
+          "31/10/2026",
+          "Comisión de mantenimiento",
+          "15,00",
+          "",
+          "23.159,04"
+        ],
+        [
+          "31/10/2026",
+          "31/10/2026",
+          "Intereses a su favor",
+          "",
+          "2,41",
+          "23.161,45"
+        ],
+        [
+          "Totales del periodo",
+          "Totales del periodo",
+          "Totales del periodo",
+          "26.904,41",
+          "25.747,31",
+          "23.161,45"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Saldo anterior a 30/09/2026",
+          "24.318,55 €"
+        ],
+        [
+          "Total abonos (+)",
+          "25.747,31 €"
+        ],
+        [
+          "Total cargos (−)",
+          "26.904,41 €"
+        ],
+        [
+          "Saldo final a 31/10/2026",
+          "23.161,45 €"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Titular",
+          "Talleres Mecánicos Ruiz Abad, S.L."
+        ],
+        [
+          "IBAN",
+          "ES00 0412 0000 0018 3376 22"
+        ],
+        [
+          "BIC",
+          "SCLAESXX412"
+        ],
+        [
+          "Periodo",
+          "del 01/10/2026 al 31/10/2026"
+        ],
+        [
+          "Moneda",
+          "Euro"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Los cargos por recibos domiciliados pueden devolverse en un plazo de ocho semanas desde la fecha del cargo."
+    },
+    {
+      "level": 0,
+      "text": "Las comisiones aplicadas este mes son:"
+    },
+    {
+      "level": 1,
+      "text": "mantenimiento de cuenta: 15,00 €"
+    },
+    {
+      "level": 1,
+      "text": "transferencias por banca digital: sin coste"
+    },
+    {
+      "level": 0,
+      "text": "El tipo de interés acreedor vigente es del 0,10 % nominal anual."
+    }
+  ],
+  "furniture": [
+    "Banco Sierra Clara",
+    "Oficina 0412 · Paseo de la Ribera 21",
+    "50410 Villanueva del Cierzo · Tel. 976 000 412",
+    "Banco Sierra Clara, S.A. · Inscrito en el Registro de Entidades con el n.º 0412 · NIF A-00000412",
+    "Página 1 de 2",
+    "Extracto de cuenta · ES00 0412 0000 0018 3376 22 · octubre 2026 · continuación",
+    "Página 2 de 2"
+  ],
+  "languages": [
+    "es"
+  ],
+  "code": [],
+  "notes": "Spanish business current-account statement of a fictional bank and customer, two pages. Numbers use Spanish format (thousands \".\", decimals \",\"); all account identifiers are fictitious. Page 1: the customer address block (left, uppercase, not key sentences) stands beside a boxed key/value summary panel \"Resumen del periodo\" (right; no header row; its title is not a heading). Below it a borderless key/value table of account data. The movements table is zebra-banded, continues on page 2 with its header row repeated there (listed once), and ends with a totals row whose label spans three columns (repeated). Empty debit/credit cells are empty strings. Several concept cells hold two lines joined with one space. Page 2 carries a running header line instead of the bank letterhead. Footer: legal line (listed once) and \"Página n de 2\". The \"Información importante\" list has square bullets DRAWN BY CSS with a nested CSS level."
+}

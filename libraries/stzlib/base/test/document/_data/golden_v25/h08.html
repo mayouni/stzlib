@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>采购订单</title>
+<style>
+
+@page { size: A4; margin: 0 }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box }
+html, body { margin: 0; padding: 0; background: #fff }
+.page { width: 210mm; height: 296mm; position: relative; display: flex; flex-direction: column; break-after: page; page-break-after: always }
+.page:last-child { break-after: auto; page-break-after: auto }
+.main { flex: 1 1 auto; min-height: 0 }
+
+body { font-family: SimSun, serif; font-size: 10.5pt; color: #111; line-height: 1.65 }
+.page { padding: 13mm 17mm 11mm 17mm }
+.lh { text-align: center; border-bottom: 3px double #a11d21; padding-bottom: 2mm; margin-bottom: 4mm }
+.lh .cn { font-family: "Microsoft YaHei", sans-serif; font-weight: bold; font-size: 17pt; color: #a11d21; letter-spacing: 3px }
+.lh .en { font-family: "Microsoft YaHei", sans-serif; font-size: 8pt; color: #a11d21 }
+.lh .ad { font-size: 8.5pt; color: #444 }
+h1 { font-family: "Microsoft YaHei", sans-serif; font-size: 18pt; text-align: center; margin: 0 0 3mm 0; letter-spacing: 12px }
+h2 { font-family: "Microsoft YaHei", sans-serif; font-size: 11pt; margin: 3mm 0 1mm 0 }
+p { margin: 0 0 1.5mm 0; text-indent: 2em }
+table { width: 100%; border-collapse: collapse }
+table.hd { font-size: 10pt; margin-bottom: 3mm }
+table.hd td { border: 0.8px solid #555; padding: 0.8mm 2mm }
+table.hd td.k { background: #f3e9e9; width: 22mm; text-align: center; font-family: "Microsoft YaHei", sans-serif }
+table.it { font-size: 9.5pt; margin: 2mm 0 3mm 0 }
+table.it th { font-family: "Microsoft YaHei", sans-serif; background: #f3e9e9; border: 0.8px solid #555; padding: 1mm; font-weight: bold }
+table.it td { border: 0.8px solid #555; padding: 1mm 1.5mm; text-align: center; vertical-align: middle }
+table.it td.l { text-align: left }
+table.it td.r { text-align: right }
+table.it tr.sum td { font-family: "Microsoft YaHei", sans-serif; font-weight: bold }
+ol.cn1 { list-style: none; padding: 0; margin: 0 0 2mm 0 }
+ol.cn1 > li { display: grid; grid-template-columns: 2.2em 1fr }
+ol.cn1 ol { grid-column: 2; list-style: none; padding: 0; margin: 0 }
+ol.cn1 ol > li { display: grid; grid-template-columns: 3em 1fr }
+ol.dec { padding-left: 7mm; margin: 0 0 2mm 0 }
+.sig { display: flex; gap: 10mm; margin-top: 5mm }
+.sig div { flex: 1; border: 0.8px solid #888; height: 26mm; padding: 2mm 3mm; font-family: "Microsoft YaHei", sans-serif; font-size: 9.5pt }
+.foot { text-align: center; font-size: 9pt; color: #444 }
+
+</style>
+</head>
+<body>
+<div class="page"><div class="lh"><div class="cn">江城精密仪器有限公司</div><div class="en">JIANGCHENG PRECISION INSTRUMENTS CO., LTD.</div><div class="ad">地址：江城市高新区科创路88号　电话：(0755) 0000 1188</div></div><div class="main"><h1>采购订单</h1><table class="hd"><tbody><tr><td class="k">订单编号</td><td><span style="white-space:nowrap">JC-PO-2026-0917</span></td><td class="k">订单日期</td><td>2026年10月16日</td></tr><tr><td class="k">供应商</td><td>华岳电子元件有限公司</td><td class="k">联系人</td><td>周经理</td></tr><tr><td class="k">交货地点</td><td colspan="3">江城市高新区科创路88号 2号仓库</td></tr></tbody></table><p>根据双方签订的年度供货框架协议，现向贵司采购以下物料，请按本订单要求组织生产并按时交货。</p><table class="it"><thead><tr><th>类别</th><th>序号</th><th>物料编码</th><th>名称及规格</th><th>单位</th><th>数量</th><th>单价（元）</th><th>金额（元）</th></tr></thead><tbody><tr><td rowspan="3">电子元件</td><td>1</td><td><span style="white-space:nowrap">E-1003</span></td><td class="l">贴片电阻 0603 10kΩ ±1%</td><td>盘</td><td>20</td><td class="r">45.00</td><td class="r">900.00</td></tr><tr><td>2</td><td><span style="white-space:nowrap">E-2210</span></td><td class="l">陶瓷电容 0805 100nF 50V</td><td>盘</td><td>15</td><td class="r">62.00</td><td class="r">930.00</td></tr><tr><td>3</td><td><span style="white-space:nowrap">E-3341</span></td><td class="l">稳压芯片 LDO 3.3V <span style="white-space:nowrap">SOT-223</span></td><td>只</td><td>500</td><td class="r">1.85</td><td class="r">925.00</td></tr><tr><td rowspan="2">结构件</td><td>4</td><td><span style="white-space:nowrap">S-0120</span></td><td class="l">铝合金外壳 120×80×35mm</td><td>件</td><td>200</td><td class="r">18.60</td><td class="r">3,720.00</td></tr><tr><td>5</td><td><span style="white-space:nowrap">S-0315</span></td><td class="l">不锈钢螺丝 M3×8<br>（每包100颗）</td><td>包</td><td>40</td><td class="r">12.50</td><td class="r">500.00</td></tr><tr class="sum"><td colspan="7">合计</td><td class="r">6,975.00</td></tr><tr class="sum"><td colspan="2">金额大写</td><td colspan="6" class="l">人民币陆仟玖佰柒拾伍元整</td></tr></tbody></table><h2>订单条款</h2><ol class="cn1"><li><span class="mk">一、</span> <span class="tx">交货期限：供应商应于2026年10月30日前将全部货物送达指定地点。</span></li><li><span class="mk">二、</span> <span class="tx">质量要求：</span><ol><li><span class="mk">（一）</span> <span class="tx">所有电子元件须符合RoHS标准，并随货提供出厂检验报告；</span></li><li><span class="mk">（二）</span> <span class="tx">结构件表面不得有划痕、毛刺或变形。</span></li></ol></li><li><span class="mk">三、</span> <span class="tx">付款方式：货到验收合格后30日内，以银行转账方式支付全部货款。</span></li><li><span class="mk">四、</span> <span class="tx">以上价格均含13%增值税，运费由供应商承担。</span></li></ol><p>逾期交货的，每逾期一日，供应商应按未交货部分金额的千分之五支付违约金。</p><h2>收货说明</h2><ol class="dec"><li>送货时请携带本订单复印件及送货单一式两份。</li><li>仓库收货时间为工作日8:30至17:00，节假日不收货。</li></ol><p>请供应商在收到本订单后两个工作日内签字盖章并回传确认。如有疑问，请与采购部联系。</p><div class="sig"><div>采购方（盖章）：<br>经办人：<br>日期：</div><div>供应商确认（盖章）：<br>负责人：<br>日期：</div></div></div><div class="foot">第 1 页 共 1 页</div></div>
+</body>
+</html>

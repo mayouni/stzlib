@@ -1,0 +1,38 @@
+page_header	0	AQUARION
+page_header	0	Sterownik nawadniania OGRÓD-6 · model AQ-6W
+heading	1	Instrukcja instalacji sterownika OGRÓD-6
+paragraph	0	Sterownik OGRÓD-6 steruje pracą do sześciu sekcji nawadniania i może być programowany z panelu lub przez sieć Wi-Fi. Przed rozpoczęciem montażu należy przeczytać całą instrukcję.
+heading	4	UWAGA
+paragraph	0	Podłączenie do sieci 230 V powinien wykonać elektryk z odpowiednimi uprawnieniami. Wszystkie prace przy przewodach wykonuj przy wyłączonym zasilaniu.
+heading	3	Dane techniczne
+heading	3	Zawartość opakowania
+list_item	0	sterownik z pokrywą zaciskową
+list_item	0	zasilacz wtykowy 24 V
+list_item	0	zestaw kołków i wkrętów
+list_item	0	czujnik deszczu z przewodem 10 m
+list_item	0	skrócona instrukcja obsługi
+table	0	Napięcie zasilania230 V AC, 50 HzWyjście na elektrozawory24 V AC, maks. 0,5 A na sekcjęLiczba sekcji6Stopień ochronyIP44Temperatura pracyod 0 do 50 °CŁącznośćWi-Fi 2,4 GHz
+heading	3	Montaż krok po kroku
+list_item	0	1. Wybierz miejsce osłonięte od deszczu i bezpośredniego słońca, w pobliżu gniazda elektrycznego.
+list_item	0	2. Przykręć sterownik do ściany za pomocą dołączonych kołków.
+list_item	0	3. Podłącz przewody elektrozaworów do zacisków:
+list_item	1	a) przewód wspólny do zacisku COM,
+list_item	1	b) przewody sekcji do zacisków od Z1 do Z6.
+list_item	0	4. Podłącz czujnik deszczu do zacisków SEN i włącz zasilanie.
+heading	3	Plik konfiguracyjny
+paragraph	0	Ustawienia można też wczytać z karty microSD w postaci pliku tekstowego. Przykładowy plik dla jednej sekcji:
+code	0	[siec]\nssid = Ogrod_Dom\ntryb = dhcp\n\n[sekcja1]\nnazwa = Trawnik przod\nstart = 05:30\nczas_min = 20\ndni = pn,sr,pt
+heading	3	Rozwiązywanie problemów
+paragraph	0	Objaw
+paragraph	0	Wyświetlacz nie świeci Sekcja nie włącza się
+paragraph	0	Program nie startuje
+paragraph	0	Możliwa przyczyna
+paragraph	0	Brak zasilania
+paragraph	0	Luźny przewód lub uszkodzony elektrozawór
+paragraph	0	Aktywny czujnik deszczu
+page_footer	0	Aquarion sp. z o.o. · serwis@aquarion.example
+paragraph	0	Rozwiązanie
+paragraph	0	Sprawdź wtyczkę zasilacza i bezpiecznik.
+paragraph	0	Dokręć zacisk i zmierz napięcie na zaworze.
+paragraph	0	Poczekaj, aż czujnik wyschnie, lub wyłącz go w menu.
+page_footer	0	Instrukcja instalacji · wydanie 2/2026 · strona 1 z 1

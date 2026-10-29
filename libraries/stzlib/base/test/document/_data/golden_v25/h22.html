@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pl" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>OGRÓD-6 Instrukcja instalacji</title>
+<style>
+
+@page { size: A4; margin: 0 }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box }
+html, body { margin: 0; padding: 0; background: #fff }
+.page { width: 210mm; height: 296mm; position: relative; display: flex; flex-direction: column; break-after: page; page-break-after: always }
+.page:last-child { break-after: auto; page-break-after: auto }
+.main { flex: 1 1 auto; min-height: 0 }
+
+body { font-family: "Trebuchet MS", sans-serif; font-size: 9.4pt; color: #1d2a33; line-height: 1.42 }
+.page { padding: 11mm 15mm 9mm 15mm }
+.rh { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 3px solid #0a7f6f; padding-bottom: 1.5mm; margin-bottom: 4mm }
+.rh .br { font-weight: bold; font-size: 13pt; color: #0a7f6f; letter-spacing: 2px }
+.rh .pr { font-size: 8.5pt; color: #4b5a63 }
+h1 { font-size: 16pt; margin: 0 0 2mm 0; color: #0a7f6f }
+h2 { font-size: 11pt; margin: 3mm 0 1mm 0; color: #0a7f6f }
+p { margin: 0 0 1.5mm 0 }
+.warn { border: 1.5px solid #c62828; background: #fdecea; padding: 1.5mm 3mm; margin: 2mm 0 }
+.warn .wt { color: #c62828; font-weight: bold; letter-spacing: 1px }
+.two { display: flex; gap: 7mm }
+.two > div { flex: 1 }
+table.spec { width: 100%; border: 1.2px solid #0a7f6f; border-collapse: collapse; font-size: 8.8pt }
+table.spec td { padding: 0.7mm 2mm; border-bottom: 0.5px solid #b3d6d0 }
+table.spec td:first-child { background: #e6f4f1; width: 40% }
+ul.box { padding-left: 5mm; margin: 0 }
+ol.steps { padding-left: 6mm; margin: 0 0 1.5mm 0 }
+ol.steps li { margin-bottom: 0.6mm }
+ol.steps ol { list-style: none; padding: 0; margin: 0.3mm 0 0 0 }
+ol.steps ol li { display: grid; grid-template-columns: 5mm 1fr; margin: 0 }
+pre { font-family: "Courier New", monospace; font-size: 8.6pt; background: #f2f5f6; border: 0.6px solid #c4cfd4; padding: 1.5mm 3mm; margin: 1mm 0 2mm 0; line-height: 1.3 }
+table.tr { width: 100%; border-collapse: collapse; font-size: 8.8pt }
+table.tr th { text-align: left; border-bottom: 1.2px solid #0a7f6f; padding: 0.6mm 2mm; color: #0a7f6f }
+table.tr td { padding: 0.8mm 2mm; vertical-align: top }
+.foot { display: flex; justify-content: space-between; font-size: 7.8pt; color: #4b5a63; border-top: 0.6px solid #0a7f6f; padding-top: 1mm }
+
+</style>
+</head>
+<body>
+<div class="page"><div class="rh"><span class="br">AQUARION</span><span class="pr">Sterownik nawadniania OGRÓD-6 · model AQ-6W</span></div><div class="main"><h1>Instrukcja instalacji sterownika <span style="white-space:nowrap">OGRÓD-6</span></h1><p>Sterownik <span style="white-space:nowrap">OGRÓD-6</span> steruje pracą do sześciu sekcji nawadniania i może być programowany z panelu lub przez sieć <span style="white-space:nowrap">Wi-Fi.</span> Przed rozpoczęciem montażu należy przeczytać całą instrukcję.</p><div class="warn"><span class="wt">UWAGA</span> Podłączenie do sieci 230 V powinien wykonać elektryk z odpowiednimi uprawnieniami. Wszystkie prace przy przewodach wykonuj przy wyłączonym zasilaniu.</div><div class="two"><div><h2>Dane techniczne</h2><table class="spec"><tbody><tr><td>Napięcie zasilania</td><td>230 V AC, 50 Hz</td></tr><tr><td>Wyjście na elektrozawory</td><td>24 V AC, maks. 0,5 A na sekcję</td></tr><tr><td>Liczba sekcji</td><td>6</td></tr><tr><td>Stopień ochrony</td><td>IP44</td></tr><tr><td>Temperatura pracy</td><td>od 0 do 50 °C</td></tr><tr><td>Łączność</td><td><span style="white-space:nowrap">Wi-Fi</span> 2,4 GHz</td></tr></tbody></table></div><div><h2>Zawartość opakowania</h2><ul class="box"><li>sterownik z pokrywą zaciskową</li><li>zasilacz wtykowy 24 V</li><li>zestaw kołków i wkrętów</li><li>czujnik deszczu z przewodem 10 m</li><li>skrócona instrukcja obsługi</li></ul></div></div><h2>Montaż krok po kroku</h2><ol class="steps"><li>Wybierz miejsce osłonięte od deszczu i bezpośredniego słońca, w pobliżu gniazda elektrycznego.</li><li>Przykręć sterownik do ściany za pomocą dołączonych kołków.</li><li>Podłącz przewody elektrozaworów do zacisków:<ol><li><span class="mk">a)</span> <span class="tx">przewód wspólny do zacisku COM,</span></li><li><span class="mk">b)</span> <span class="tx">przewody sekcji do zacisków od Z1 do Z6.</span></li></ol></li><li>Podłącz czujnik deszczu do zacisków SEN i włącz zasilanie.</li></ol><h2>Plik konfiguracyjny</h2><p>Ustawienia można też wczytać z karty microSD w postaci pliku tekstowego. Przykładowy plik dla jednej sekcji:</p><pre>[siec]
+ssid = Ogrod_Dom
+tryb = dhcp
+
+[sekcja1]
+nazwa = Trawnik przod
+start = 05:30
+czas_min = 20
+dni = pn,sr,pt</pre><h2>Rozwiązywanie problemów</h2><table class="tr"><thead><tr><th>Objaw</th><th>Możliwa przyczyna</th><th>Rozwiązanie</th></tr></thead><tbody><tr><td>Wyświetlacz nie świeci</td><td>Brak zasilania</td><td>Sprawdź wtyczkę zasilacza i bezpiecznik.</td></tr><tr><td>Sekcja nie włącza się</td><td>Luźny przewód lub uszkodzony elektrozawór</td><td>Dokręć zacisk i zmierz napięcie na zaworze.</td></tr><tr><td>Program nie startuje</td><td>Aktywny czujnik deszczu</td><td>Poczekaj, aż czujnik wyschnie, lub wyłącz go w menu.</td></tr></tbody></table></div><div class="foot"><span>Aquarion sp. z o.o. · serwis@aquarion.example</span><span>Instrukcja instalacji · wydanie 2/2026 · strona 1 z 1</span></div></div>
+</body>
+</html>

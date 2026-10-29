@@ -1,0 +1,34 @@
+page_header	0	Dry Hollow Agricultural Research Station · Technical Report TR-26-07
+heading	1	Field Evaluation of Low-Cost Capacitive Soil Moisture Sensors under Drip Irrigation
+paragraph	0	Teodora Valcarce, Rhys Ombasa and Linnea Fairweather
+paragraph	0	Soil and Water Unit, Dry Hollow Agricultural Research Station
+paragraph	0	Abstract. We compared four models of low-cost capacitive soil moisture sensors with gravimetric reference samples over one irrigation season in a semi-arid vegetable plot. After a site-specific calibration, three of the four models estimated volumetric water content within three percentage points of the reference. Uncalibrated readings were biased upwards in all models, most strongly in the clay loam beds.
+heading	2	1 Introduction
+paragraph	0	Irrigation scheduling on small farms is still largely based on fixed calendars. Sensors that report soil water content could help growers apply water only when the crop needs it, but laboratory-grade probes cost several hundred dollars each and are rarely bought for plots smaller than one hectare. Capacitive sensors sold for hobby electronics cost less than ten dollars and have become popular in community gardens and extension demonstrations. Their accuracy in field soils, however, is poorly documented, and manufacturers publish no calibration for agricultural use. This report summarises a season-long comparison
+paragraph	0	1
+paragraph	0	carried out at the station between April and September 2026.
+heading	2	2 Methods
+heading	3	2.1 Site and plots
+paragraph	0	The trial used six raised beds planted with tomato and pepper and irrigated by surface drip lines. Three beds lie on a sandy loam and three on a clay loam, both typical of the valley floor. Each bed received one sensor of every model, installed at a depth of 15 cm and 10 cm from the drip line.
+heading	3	2.2 Sensors and reference measurements
+paragraph	0	Four commercially available models, labelled A to D in this report, were read every 30 minutes by a battery-powered logger. Reference samples were taken twice a week with a soil corer next to each sensor and dried at 105 °C for 24 hours. Bulk density was measured once per bed at the start of the season and used to convert gravimetric to volumetric water content. Calibration curves were fitted separately for each model and soil type using the first half of the season, and the second half was kept for validation.
+heading	2	3 Results
+paragraph	0	Table 1 lists the root mean square error of each model before and after calibration. All models overestimated water content when the factory conversion was used, with errors between 6 and 11 percentage points.
+caption	0	Table 1. Error in volumetric water content (percentage points) for the validation period; failures are sensors that stopped reporting.
+table	0	ModelRMSE raw RMSE cal.FailuresA7.82.40B6.12.11C10.95.73D8.32.90
+paragraph	0	After calibration, models A, B and D stayed within three percentage points of the reference in both soils. Model C remained unreliable: its readings drifted upwards after each irrigation event and three of its six units failed before the end of the season, two of them after water entered the unsealed connector. Errors were larger in the clay loam than in the sandy loam for every model. The difference was most visible in the first days after transplanting, when the soil around the sensor had not yet settled.
+heading	2	4 Discussion
+paragraph	0	The results show that cheap capacitive sensors can support irrigation decisions, provided that they are calibrated for the soil in which they are used. A two-point calibration, using one sample taken at field capacity and one taken before irrigation, captured most of the improvement obtained with the full curve. Durability is a greater concern than accuracy. Coating the electronics with a conformal lacquer and sealing the cable entry with heat-shrink tubing prevented failures in models A and D, which were treated in this way from the start.
+heading	2	5 Recommendations
+list_item	0	(a) Calibrate each model in the soil where it will be used, at least with a two-point procedure.
+list_item	0	(b) Seal the electronics and cable entry before installation.
+page_footer	0	1
+page_header	0	Dry Hollow Agricultural Research Station · Technical Report TR-26-07
+list_item	0	(c) Install the sensor several days before relying on its readings, so that the soil can settle around it.
+list_item	0	(d) Replace sensors that show a steady upward drift between irrigations.
+heading	2	References
+list_item	0	[1] Ombasa, R. (2025). Gravimetric sampling protocol for raised beds. Station Methods Note 14.
+list_item	1	[2] Fairweather, L. and Valcarce, T. (2024). Logging irrigation events with open hardware. Technical Report TR-24-03.
+list_item	1	[3] Dry Hollow Agricultural Research Station (2023). Soil survey of the valley floor plots. Internal report.
+paragraph	0	1 Some sellers publish conversion formulas, but none of those found by the authors stated the soil used to derive them.
+page_footer	0	2

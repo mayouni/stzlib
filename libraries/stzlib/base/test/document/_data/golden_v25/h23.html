@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>CoA SC26-1043</title>
+<style>
+
+@page { size: A4; margin: 0 }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box }
+html, body { margin: 0; padding: 0; background: #fff }
+.page { width: 210mm; height: 296mm; position: relative; display: flex; flex-direction: column; break-after: page; page-break-after: always }
+.page:last-child { break-after: auto; page-break-after: auto }
+.main { flex: 1 1 auto; min-height: 0 }
+
+body { font-family: Roboto, sans-serif; font-size: 8.8pt; color: #222; line-height: 1.38 }
+.page { padding: 12mm 13mm 9mm 13mm }
+.lh { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4mm }
+.lh .org { font-family: "Roboto Condensed", sans-serif; font-weight: bold; font-size: 15pt; color: #12355b }
+.lh .ad { font-size: 7.8pt; color: #555; text-align: right; line-height: 1.35 }
+h1 { font-family: "Roboto Condensed", sans-serif; font-size: 20pt; margin: 0 0 3mm 0; color: #12355b; border-bottom: 2px solid #12355b; padding-bottom: 1mm }
+h2 { font-family: "Roboto Condensed", sans-serif; font-size: 11pt; margin: 3mm 0 1mm 0; color: #12355b }
+p { margin: 0 0 1.5mm 0 }
+.panels { display: flex; gap: 5mm }
+.panel { flex: 1; border: 1px solid #9fb3c8; }
+.panel .pt { background: #12355b; color: #fff; font-family: "Roboto Condensed", sans-serif; font-weight: bold; padding: 0.8mm 2.5mm }
+table.kv { width: 100%; border-collapse: collapse; font-size: 8.5pt }
+table.kv td { padding: 0.7mm 2.5mm; border-bottom: 0.4px solid #d5dee8 }
+table.kv td:first-child { color: #4d6580; width: 42% }
+table.res { width: 100%; border-collapse: collapse; font-family: "Roboto Condensed", sans-serif; font-size: 8.4pt; margin-top: 1mm }
+table.res th { border-bottom: 1px solid #12355b; padding: 0.8mm 1.5mm; text-align: left; vertical-align: bottom; font-weight: bold; color: #12355b }
+table.res thead tr:first-child th { border-top: 1.5px solid #12355b }
+table.res th.g { text-align: center; border-bottom: 0.5px solid #12355b }
+table.res td { padding: 0.9mm 1.5mm; border-bottom: 0.4px solid #c9d4e0; vertical-align: top }
+table.res td.n { text-align: right; white-space: nowrap }
+table.res td.ok { color: #1b6e2a; font-weight: bold }
+.sigs { display: flex; gap: 8mm; margin-top: 5mm }
+.sig { flex: 1; border-top: 1px solid #333; padding-top: 1mm }
+.sig .r { color: #4d6580 }
+.foot { display: flex; justify-content: space-between; font-size: 7.5pt; color: #666; border-top: 0.5px solid #9fb3c8; padding-top: 1mm }
+
+</style>
+</head>
+<body>
+<div class="page"><div class="lh"><div class="org">Meridian Bioprocess Materials</div><div class="ad">Quality Control Laboratory<br>4 Fenwick Science Park, Lowmoor LM7 3RT<br>qc@meridian-bpm.example</div></div><div class="main"><h1>Certificate of Analysis</h1><div class="panels"><div class="panel"><div class="pt">Product</div><table class="kv"><tbody><tr><td>Product name</td><td>Sodium chloride, low endotoxin</td></tr><tr><td>Catalogue number</td><td><span style="white-space:nowrap">MBM-SC-500</span></td></tr><tr><td>Grade</td><td>Pharmacopoeial, for bioprocessing</td></tr><tr><td>Pack size</td><td>25 kg drum</td></tr></tbody></table></div><div class="panel"><div class="pt">Lot</div><table class="kv"><tbody><tr><td>Lot number</td><td><span style="white-space:nowrap">SC26-1043</span></td></tr><tr><td>Date of manufacture</td><td>06 October 2026</td></tr><tr><td>Retest date</td><td>05 October 2029</td></tr><tr><td>Storage</td><td>Below 30 °C, keep container closed</td></tr></tbody></table></div></div><h2>Test results</h2><p>The lot described above was tested against the current product specification, and the results are reported below.</p><table class="res"><thead><tr><th rowspan="2">Test</th><th rowspan="2">Method</th><th rowspan="2">Unit</th><th colspan="2" class="g">Specification</th><th rowspan="2">Result</th><th rowspan="2">Status</th><th rowspan="2">Analyst</th><th rowspan="2">Date</th></tr><tr><th>Lower</th><th>Upper</th></tr></thead><tbody><tr><td>Assay (dried basis)</td><td>Ph. Eur. 0193</td><td>%</td><td class="n">99.0</td><td class="n">100.5</td><td class="n">99.8</td><td class="ok">Pass</td><td>R. Feld</td><td>12 Oct 2026</td></tr><tr><td>Loss on drying</td><td>Ph. Eur. 2.2.32</td><td>%</td><td class="n">–</td><td class="n">0.5</td><td class="n">0.12</td><td class="ok">Pass</td><td>R. Feld</td><td>12 Oct 2026</td></tr><tr><td>pH (5 % solution)</td><td>USP &lt;791&gt;</td><td>–</td><td class="n">5.0</td><td class="n">9.0</td><td class="n">6.4</td><td class="ok">Pass</td><td>T. Ansah</td><td>13 Oct 2026</td></tr><tr><td>Bacterial endotoxins</td><td>Ph. Eur. 2.6.14</td><td>EU/g</td><td class="n">–</td><td class="n">0.5</td><td class="n">&lt; 0.1</td><td class="ok">Pass</td><td>M. Kowal</td><td>14 Oct 2026</td></tr><tr><td>Total aerobic microbial count</td><td>Ph. Eur. 2.6.12</td><td>CFU/g</td><td class="n">–</td><td class="n">100</td><td class="n">&lt; 10</td><td class="ok">Pass</td><td>M. Kowal</td><td>19 Oct 2026</td></tr><tr><td>Sulfates</td><td>Ph. Eur. 0193</td><td>ppm</td><td class="n">–</td><td class="n">200</td><td class="n">&lt; 50</td><td class="ok">Pass</td><td>T. Ansah</td><td>13 Oct 2026</td></tr><tr><td>Iron</td><td>Ph. Eur. 2.4.9</td><td>ppm</td><td class="n">–</td><td class="n">2</td><td class="n">&lt; 1</td><td class="ok">Pass</td><td>R. Feld</td><td>12 Oct 2026</td></tr><tr><td>Heavy metals (as Pb)</td><td><span style="white-space:nowrap">ICP-MS,</span> <span style="white-space:nowrap">QC-M-071</span></td><td>ppm</td><td class="n">–</td><td class="n">5</td><td class="n">0.3</td><td class="ok">Pass</td><td>T. Ansah</td><td>15 Oct 2026</td></tr><tr><td>Appearance</td><td>Visual, <span style="white-space:nowrap">QC-M-002</span></td><td>–</td><td colspan="2">White crystalline powder</td><td class="n">Conforms</td><td class="ok">Pass</td><td>T. Ansah</td><td>12 Oct 2026</td></tr></tbody></table><h2>Conclusion</h2><p>All results comply with the specification, and the lot is released for sale. This certificate was generated from the laboratory information system and is valid without a handwritten signature. Raw data are kept for at least ten years after the retest date.</p><div class="sigs"><div class="sig"><b>Reviewed by</b><br>Rosa Feld<br><span class="r">Senior Analyst, Quality Control</span><br>20 October 2026</div><div class="sig"><b>Approved by</b><br>Daniel Okafor<br><span class="r">Head of Quality Assurance</span><br>21 October 2026</div></div></div><div class="foot"><span>Form QA-F-112 rev. 4 · This document may only be reproduced in full.</span><span>Page 1 of 1</span></div></div>
+</body>
+</html>

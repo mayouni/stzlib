@@ -1,0 +1,165 @@
+{
+  "id": "h06",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Tidewater Sync 4.2 Release Notes",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Tidewater Sync 4.2 Release Notes"
+    },
+    {
+      "level": 2,
+      "text": "Highlights"
+    },
+    {
+      "level": 2,
+      "text": "Upgrading"
+    },
+    {
+      "level": 3,
+      "text": "Before you upgrade"
+    },
+    {
+      "level": 3,
+      "text": "Converting job files"
+    },
+    {
+      "level": 2,
+      "text": "Configuration"
+    },
+    {
+      "level": 2,
+      "text": "Deprecations and removals"
+    },
+    {
+      "level": 2,
+      "text": "Known issues"
+    }
+  ],
+  "key_sentences": [
+    "Tidewater Sync 4.2 is a feature release that adds scheduled two-way synchronisation for object stores and retires the legacy XML job format.",
+    "Existing 4.x installations can be upgraded in place once their job files have been converted.",
+    "Job files written in the XML format must be converted before the agent is restarted.",
+    "The following keys are new or have changed default values in this release.",
+    "Two-way synchronisation does not yet preserve custom metadata on Azure Blob targets."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Key",
+          "Default",
+          "Description"
+        ],
+        [
+          "schedule.every",
+          "1h",
+          "Interval between two runs of the job. Accepts units m, h and d."
+        ],
+        [
+          "schedule.window",
+          "(none)",
+          "Quiet window in local time during which no new transfer starts."
+        ],
+        [
+          "targets[].two_way",
+          "false",
+          "Enables two-way synchronisation for the target."
+        ],
+        [
+          "conflict.policy",
+          "keep-both",
+          "What to do when both sides changed: keep-both, prefer-source or prefer-target."
+        ],
+        [
+          "retry.attempts",
+          "3",
+          "Number of retries for a failed transfer before the job is marked as failed."
+        ],
+        [
+          "retry.backoff",
+          "linear",
+          "Delay strategy between retries: linear or exponential."
+        ],
+        [
+          "transfer.chunk_size",
+          "64MB",
+          "Size of the parts used for resumable uploads."
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Two-way synchronisation for S3-compatible and Azure Blob targets, with conflict detection based on object version identifiers."
+    },
+    {
+      "level": 0,
+      "text": "A scheduler built into the agent, so external cron entries are no longer required."
+    },
+    {
+      "level": 1,
+      "text": "intervals from one minute to seven days"
+    },
+    {
+      "level": 1,
+      "text": "optional quiet windows during which no transfers start"
+    },
+    {
+      "level": 0,
+      "text": "Resumable transfers for files larger than 4 GB."
+    },
+    {
+      "level": 0,
+      "text": "A new validate command that checks job files without contacting any target."
+    },
+    {
+      "level": 0,
+      "text": "Stop all running jobs and wait until the agent reports an idle state."
+    },
+    {
+      "level": 0,
+      "text": "Back up the configuration directory, including:"
+    },
+    {
+      "level": 1,
+      "text": "the job definitions in jobs/"
+    },
+    {
+      "level": 1,
+      "text": "the credential store secrets.db"
+    },
+    {
+      "level": 0,
+      "text": "Install the 4.2 package over the existing installation."
+    },
+    {
+      "level": 0,
+      "text": "– The XML job format is no longer read by the agent."
+    },
+    {
+      "level": 0,
+      "text": "– The --legacy-auth option has been removed; use access keys or managed identities instead."
+    },
+    {
+      "level": 0,
+      "text": "– The Windows Server 2016 package is deprecated and will not be built after version 4.4."
+    }
+  ],
+  "furniture": [
+    "Tidewater Sync 4.2 — Release Notes",
+    "Page 1 of 2",
+    "Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "$ tidewater-sync convert --from xml --to yaml jobs/*.xml\n$ tidewater-sync validate jobs/\n$ tidewater-sync agent restart",
+    "schedule:\n  every: 15m\n  window: \"22:00-06:00\"\ntargets:\n  - name: archive-eu\n    type: s3\n    bucket: tw-archive-eu\n    two_way: true\nretry:\n  attempts: 5\n  backoff: exponential"
+  ],
+  "notes": "Release notes in a single flowing column with @page margins of 2 cm; the running header (top right) and the page number line (bottom centre) are CSS @page margin boxes, so they exist only in the PDF, not in the HTML body. Two code blocks in Consolas: a shell session (three lines, each starting with \"$ \") and a YAML job file; indentation is significant. The configuration table is ruled under its header only; keys and defaults are set in Consolas. Description cells wrap naturally. Highlights: CSS-drawn disc bullets with a nested CSS circle level. \"Before you upgrade\": CSS-drawn decimal numbers with a nested CSS lower-alpha level. \"Deprecations\": TYPED en-dash markers \"–\" in a hanging indent. Inline code words (validate, jobs/, secrets.db, --legacy-auth) are set in Consolas inside sentences; they are body text, not code blocks. The line \"Version 4.2.0 · released 26 October 2026\" is body text under the title."
+}

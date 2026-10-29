@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>TR-26-07 Soil moisture sensors</title>
+<style>
+
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box }
+html, body { margin: 0; padding: 0; background: #fff }
+
+@page { size: A4; margin: 2cm 1.8cm;
+  @top-center { content: "Dry Hollow Agricultural Research Station · Technical Report TR-26-07"; font-family: Cambria, serif; font-style: italic; font-size: 8pt; color: #555 }
+  @bottom-center { content: counter(page); font-family: Cambria, serif; font-size: 9pt }
+}
+body { font-family: Cambria, serif; font-size: 9.6pt; color: #111; line-height: 1.38 }
+h1 { font-size: 17pt; text-align: center; margin: 0 0 2mm 0; line-height: 1.2 }
+.auth { text-align: center; font-size: 10pt; margin-bottom: 0.5mm }
+.aff { text-align: center; font-size: 8.5pt; font-style: italic; color: #444; margin-bottom: 4mm }
+.abs { border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 2mm 6mm; margin: 0 0 5mm 0; font-size: 9pt }
+.abs b { font-variant: normal }
+.cols { column-count: 2; column-gap: 7mm; text-align: justify }
+h2 { font-size: 10.5pt; margin: 3mm 0 1mm 0; break-after: avoid }
+h3 { font-size: 9.6pt; font-style: italic; font-weight: normal; margin: 2mm 0 0.5mm 0; break-after: avoid }
+p { margin: 0 0 1.6mm 0; text-indent: 4mm }
+h2 + p, h3 + p, .abs p { text-indent: 0 }
+sup { font-size: 6.5pt; line-height: 0 }
+table.res { width: 100%; border-collapse: collapse; font-size: 8.3pt; margin: 2mm 0 3mm 0; break-inside: avoid }
+table.res caption { text-align: left; font-size: 8.3pt; padding-bottom: 1mm }
+table.res th { border-top: 1.2px solid #000; border-bottom: 0.6px solid #000; padding: 0.6mm 1mm; font-weight: bold }
+table.res td { padding: 0.6mm 1mm; text-align: right }
+table.res td:first-child { text-align: left }
+table.res tr:last-child td { border-bottom: 1.2px solid #000 }
+ol.rec { list-style: none; padding: 0; margin: 0 0 2mm 0; text-align: left }
+ol.rec li { display: grid; grid-template-columns: 6mm 1fr; margin-bottom: 0.8mm }
+ol.refs { list-style: none; padding: 0; margin: 0; font-size: 8.3pt; text-align: left }
+ol.refs li { display: grid; grid-template-columns: 6mm 1fr; margin-bottom: 0.8mm }
+.fn { font-size: 7.8pt; border-top: 0.5px solid #000; padding-top: 1mm; margin-top: 3mm; text-align: left }
+.fn p { text-indent: 0 }
+
+</style>
+</head>
+<body>
+<h1>Field Evaluation of <span style="white-space:nowrap">Low-Cost</span> Capacitive Soil Moisture Sensors under Drip Irrigation</h1><div class="auth">Teodora Valcarce, Rhys Ombasa and Linnea Fairweather</div><div class="aff">Soil and Water Unit, Dry Hollow Agricultural Research Station</div><div class="abs"><p><b>Abstract.</b> We compared four models of <span style="white-space:nowrap">low-cost</span> capacitive soil moisture sensors with gravimetric reference samples over one irrigation season in a <span style="white-space:nowrap">semi-arid</span> vegetable plot. After a <span style="white-space:nowrap">site-specific</span> calibration, three of the four models estimated volumetric water content within three percentage points of the reference. Uncalibrated readings were biased upwards in all models, most strongly in the clay loam beds.</p></div><div class="cols"><h2>1 Introduction</h2><p>Irrigation scheduling on small farms is still largely based on fixed calendars. Sensors that report soil water content could help growers apply water only when the crop needs it, but <span style="white-space:nowrap">laboratory-grade</span> probes cost several hundred dollars each and are rarely bought for plots smaller than one hectare.</p><p>Capacitive sensors sold for hobby electronics cost less than ten dollars and have become popular in community gardens and extension demonstrations. Their accuracy in field soils, however, is poorly documented, and manufacturers publish no calibration for agricultural use.<sup>1</sup> This report summarises a <span style="white-space:nowrap">season-long</span> comparison carried out at the station between April and September 2026.</p><h2>2 Methods</h2><h3>2.1 Site and plots</h3><p>The trial used six raised beds planted with tomato and pepper and irrigated by surface drip lines. Three beds lie on a sandy loam and three on a clay loam, both typical of the valley floor. Each bed received one sensor of every model, installed at a depth of 15 cm and 10 cm from the drip line.</p><h3>2.2 Sensors and reference measurements</h3><p>Four commercially available models, labelled A to D in this report, were read every 30 minutes by a <span style="white-space:nowrap">battery-powered</span> logger. Reference samples were taken twice a week with a soil corer next to each sensor and dried at 105 °C for 24 hours. Bulk density was measured once per bed at the start of the season and used to convert gravimetric to volumetric water content.</p><p>Calibration curves were fitted separately for each model and soil type using the first half of the season, and the second half was kept for validation.</p><h2>3 Results</h2><p>Table 1 lists the root mean square error of each model before and after calibration. All models overestimated water content when the factory conversion was used, with errors between 6 and 11 percentage points.</p><table class="res"><caption>Table 1. Error in volumetric water content (percentage points) for the validation period; failures are sensors that stopped reporting.</caption><thead><tr><th>Model</th><th>RMSE raw</th><th>RMSE cal.</th><th>Failures</th></tr></thead><tbody><tr><td>A</td><td>7.8</td><td>2.4</td><td>0</td></tr><tr><td>B</td><td>6.1</td><td>2.1</td><td>1</td></tr><tr><td>C</td><td>10.9</td><td>5.7</td><td>3</td></tr><tr><td>D</td><td>8.3</td><td>2.9</td><td>0</td></tr></tbody></table><p>After calibration, models A, B and D stayed within three percentage points of the reference in both soils. Model C remained unreliable: its readings drifted upwards after each irrigation event and three of its six units failed before the end of the season, two of them after water entered the unsealed connector.</p><p>Errors were larger in the clay loam than in the sandy loam for every model. The difference was most visible in the first days after transplanting, when the soil around the sensor had not yet settled.</p><h2>4 Discussion</h2><p>The results show that cheap capacitive sensors can support irrigation decisions, provided that they are calibrated for the soil in which they are used. A <span style="white-space:nowrap">two-point</span> calibration, using one sample taken at field capacity and one taken before irrigation, captured most of the improvement obtained with the full curve.</p><p>Durability is a greater concern than accuracy. Coating the electronics with a conformal lacquer and sealing the cable entry with <span style="white-space:nowrap">heat-shrink</span> tubing prevented failures in models A and D, which were treated in this way from the start.</p><h2>5 Recommendations</h2><ol class="rec"><li><span class="mk">(a)</span> <span class="tx">Calibrate each model in the soil where it will be used, at least with a <span style="white-space:nowrap">two-point</span> procedure.</span></li><li><span class="mk">(b)</span> <span class="tx">Seal the electronics and cable entry before installation.</span></li><li><span class="mk">(c)</span> <span class="tx">Install the sensor several days before relying on its readings, so that the soil can settle around it.</span></li><li><span class="mk">(d)</span> <span class="tx">Replace sensors that show a steady upward drift between irrigations.</span></li></ol><h2>References</h2><ol class="refs"><li><span class="mk">[1]</span> <span class="tx">Ombasa, R. (2025). Gravimetric sampling protocol for raised beds. Station Methods Note 14.</span></li><li><span class="mk">[2]</span> <span class="tx">Fairweather, L. and Valcarce, T. (2024). Logging irrigation events with open hardware. Technical Report <span style="white-space:nowrap">TR-24-03.</span></span></li><li><span class="mk">[3]</span> <span class="tx">Dry Hollow Agricultural Research Station (2023). Soil survey of the valley floor plots. Internal report.</span></li></ol><div class="fn"><p><sup>1</sup> Some sellers publish conversion formulas, but none of those found by the authors stated the soil used to derive them.</p></div></div>
+</body>
+</html>

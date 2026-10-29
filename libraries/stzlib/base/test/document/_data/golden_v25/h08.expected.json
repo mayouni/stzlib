@@ -1,0 +1,181 @@
+{
+  "id": "h08",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "采购订单",
+  "headings": [
+    {
+      "level": 1,
+      "text": "采购订单"
+    },
+    {
+      "level": 2,
+      "text": "订单条款"
+    },
+    {
+      "level": 2,
+      "text": "收货说明"
+    }
+  ],
+  "key_sentences": [
+    "根据双方签订的年度供货框架协议，现向贵司采购以下物料，请按本订单要求组织生产并按时交货。",
+    "逾期交货的，每逾期一日，供应商应按未交货部分金额的千分之五支付违约金。",
+    "请供应商在收到本订单后两个工作日内签字盖章并回传确认。",
+    "如有疑问，请与采购部联系。"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "订单编号",
+          "JC-PO-2026-0917",
+          "订单日期",
+          "2026年10月16日"
+        ],
+        [
+          "供应商",
+          "华岳电子元件有限公司",
+          "联系人",
+          "周经理"
+        ],
+        [
+          "交货地点",
+          "江城市高新区科创路88号 2号仓库",
+          "江城市高新区科创路88号 2号仓库",
+          "江城市高新区科创路88号 2号仓库"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "类别",
+          "序号",
+          "物料编码",
+          "名称及规格",
+          "单位",
+          "数量",
+          "单价（元）",
+          "金额（元）"
+        ],
+        [
+          "电子元件",
+          "1",
+          "E-1003",
+          "贴片电阻 0603 10kΩ ±1%",
+          "盘",
+          "20",
+          "45.00",
+          "900.00"
+        ],
+        [
+          "电子元件",
+          "2",
+          "E-2210",
+          "陶瓷电容 0805 100nF 50V",
+          "盘",
+          "15",
+          "62.00",
+          "930.00"
+        ],
+        [
+          "电子元件",
+          "3",
+          "E-3341",
+          "稳压芯片 LDO 3.3V SOT-223",
+          "只",
+          "500",
+          "1.85",
+          "925.00"
+        ],
+        [
+          "结构件",
+          "4",
+          "S-0120",
+          "铝合金外壳 120×80×35mm",
+          "件",
+          "200",
+          "18.60",
+          "3,720.00"
+        ],
+        [
+          "结构件",
+          "5",
+          "S-0315",
+          "不锈钢螺丝 M3×8 （每包100颗）",
+          "包",
+          "40",
+          "12.50",
+          "500.00"
+        ],
+        [
+          "合计",
+          "合计",
+          "合计",
+          "合计",
+          "合计",
+          "合计",
+          "合计",
+          "6,975.00"
+        ],
+        [
+          "金额大写",
+          "金额大写",
+          "人民币陆仟玖佰柒拾伍元整",
+          "人民币陆仟玖佰柒拾伍元整",
+          "人民币陆仟玖佰柒拾伍元整",
+          "人民币陆仟玖佰柒拾伍元整",
+          "人民币陆仟玖佰柒拾伍元整",
+          "人民币陆仟玖佰柒拾伍元整"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "一、 交货期限：供应商应于2026年10月30日前将全部货物送达指定地点。"
+    },
+    {
+      "level": 0,
+      "text": "二、 质量要求："
+    },
+    {
+      "level": 1,
+      "text": "（一） 所有电子元件须符合RoHS标准，并随货提供出厂检验报告；"
+    },
+    {
+      "level": 1,
+      "text": "（二） 结构件表面不得有划痕、毛刺或变形。"
+    },
+    {
+      "level": 0,
+      "text": "三、 付款方式：货到验收合格后30日内，以银行转账方式支付全部货款。"
+    },
+    {
+      "level": 0,
+      "text": "四、 以上价格均含13%增值税，运费由供应商承担。"
+    },
+    {
+      "level": 0,
+      "text": "送货时请携带本订单复印件及送货单一式两份。"
+    },
+    {
+      "level": 0,
+      "text": "仓库收货时间为工作日8:30至17:00，节假日不收货。"
+    }
+  ],
+  "furniture": [
+    "江城精密仪器有限公司",
+    "JIANGCHENG PRECISION INSTRUMENTS CO., LTD.",
+    "地址：江城市高新区科创路88号 电话：(0755) 0000 1188",
+    "第 1 页 共 1 页"
+  ],
+  "languages": [
+    "zh"
+  ],
+  "code": [],
+  "notes": "The two-line name cell \"不锈钢螺丝 M3×8\" + \"（每包100颗）\" is joined with ONE space (table-cell rule); the no-space rule applies only to a sentence that wraps. Simplified Chinese purchase order of a fictional company, one page. Chinese is written without spaces between words: a sentence wrapped across lines joins with NO space. Body paragraphs have a two-character first-line indent. The header key/value grid has four columns (two label/value pairs per row) and no header row; the last value spans three columns and is repeated. Item table, full grid: the first column \"类别\" (category) spans three and two rows and is repeated; \"合计\" spans seven columns, \"金额大写\" two and its amount in Chinese capital numerals six -- all repeated. One name cell holds two lines joined with one space. Terms list: TYPED markers \"一、\" to \"四、\" in a hanging column, nested TYPED \"（一）\" \"（二）\". The \"收货说明\" list has decimal markers DRAWN BY CSS, recorded without them. The two signature boxes at the foot (purchaser, supplier) are labels with empty fields, not key sentences. Letterhead lines (Chinese name, English name, address) and the page line \"第 1 页 共 1 页\" are furniture."
+}

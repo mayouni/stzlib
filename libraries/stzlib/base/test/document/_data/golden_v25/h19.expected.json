@@ -1,0 +1,136 @@
+{
+  "id": "h19",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "BIÊN BẢN BÀN GIAO TÀI SẢN",
+  "headings": [
+    {
+      "level": 1,
+      "text": "BIÊN BẢN BÀN GIAO TÀI SẢN"
+    },
+    {
+      "level": 2,
+      "text": "1. Danh mục tài sản bàn giao"
+    },
+    {
+      "level": 2,
+      "text": "2. Hồ sơ, tài liệu bàn giao"
+    },
+    {
+      "level": 2,
+      "text": "3. Ý kiến của các bên"
+    }
+  ],
+  "key_sentences": [
+    "Hôm nay, vào lúc 9 giờ 00 ngày 26 tháng 10 năm 2026, tại văn phòng Công ty, chúng tôi gồm:",
+    "Bên A chuyển sang công tác tại Chi nhánh Đà Nẵng từ ngày 01/11/2026.",
+    "Bên B nhận bàn giao thay mặt Công ty.",
+    "Biên bản kết thúc vào lúc 10 giờ 15 cùng ngày.",
+    "Biên bản được lập thành 02 bản có giá trị pháp lý như nhau, mỗi bên giữ 01 bản."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "STT",
+          "Tên tài sản",
+          "Mã tài sản",
+          "Số lượng",
+          "Tình trạng",
+          "Ghi chú"
+        ],
+        [
+          "1",
+          "Máy tính xách tay 14 inch",
+          "TS-LT-0218",
+          "01",
+          "Hoạt động bình thường, vỏ có vết xước nhỏ",
+          "Kèm bộ sạc"
+        ],
+        [
+          "2",
+          "Màn hình rời 24 inch",
+          "TS-MH-0107",
+          "01",
+          "Hoạt động bình thường",
+          ""
+        ],
+        [
+          "3",
+          "Điện thoại bàn",
+          "TS-ĐT-0055",
+          "01",
+          "Hoạt động bình thường",
+          ""
+        ],
+        [
+          "4",
+          "Thẻ ra vào tòa nhà",
+          "TV-1182",
+          "01",
+          "Còn hiệu lực",
+          "Khóa thẻ sau bàn giao"
+        ],
+        [
+          "5",
+          "Chìa khóa tủ hồ sơ",
+          "CK-0309",
+          "02",
+          "Đầy đủ",
+          ""
+        ],
+        [
+          "Tổng cộng",
+          "Tổng cộng",
+          "Tổng cộng",
+          "06",
+          "",
+          ""
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "- Hồ sơ khách hàng khu vực phía Bắc (bản giấy, 03 bìa);"
+    },
+    {
+      "level": 0,
+      "text": "- Dữ liệu trên máy tính, gồm:"
+    },
+    {
+      "level": 1,
+      "text": "+ danh sách khách hàng năm 2026;"
+    },
+    {
+      "level": 1,
+      "text": "+ các báo giá đã gửi trong quý III."
+    },
+    {
+      "level": 0,
+      "text": "- Hộp thư điện tử công việc đã được chuyển quyền quản lý cho Bên B."
+    },
+    {
+      "level": 0,
+      "text": "a) Bên A cam kết đã bàn giao đầy đủ tài sản và tài liệu được giao quản lý."
+    },
+    {
+      "level": 0,
+      "text": "b) Bên B đã kiểm tra và xác nhận tình trạng tài sản như mô tả ở trên."
+    }
+  ],
+  "furniture": [
+    "CÔNG TY TNHH THƯƠNG MẠI",
+    "VÀ DỊCH VỤ HỒNG LAM",
+    "Số: 25/2026/BB-HCNS",
+    "CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM",
+    "Độc lập - Tự do - Hạnh phúc"
+  ],
+  "languages": [
+    "vi"
+  ],
+  "code": [],
+  "notes": "Vietnamese asset handover minutes in the standard administrative layout (fictional company and persons), one page, no page number. Document header: two blocks side by side -- company name and document number (left), national title and motto (right), each centred; read block by block, left then right. They are listed as furniture (letterhead), not as headings. The place/date line (right, italic) and the subtitle in parentheses under the title are body text, not headings or key sentences. Party boxes BÊN GIAO (Bên A) and BÊN NHẬN (Bên B) stand side by side; reading order is box by box, left then right; each ends with one key sentence. Box labels are not headings. Asset table: full grid; \"Tổng cộng\" spans three columns and the empty remark cell two columns (repeated). One status cell holds two lines joined with one space. Lists: TYPED hyphen markers \"-\" with a nested level of TYPED \"+\" markers (common in Vietnamese administrative texts), and TYPED \"a)\" \"b)\", all in hanging columns. All Vietnamese text is NFC."
+}

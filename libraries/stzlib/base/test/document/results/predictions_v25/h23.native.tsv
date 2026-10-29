@@ -1,0 +1,20 @@
+heading	2	Meridian Bioprocess Materials
+heading	1	Certificate of Analysis
+heading	4	Product
+page_header	0	Quality Control Laboratory 4 Fenwick Science Park, Lowmoor LM7 3RT qc@meridian-bpm.example
+heading	4	Lot
+table	0	Product nameSodium chloride, low endotoxinCatalogue numberMBM-SC-500GradePharmacopoeial, for bioprocessingPack size25 kg drum
+heading	3	Test results
+table	0	Lot numberSC26-1043Date of manufacture06 October 2026Retest date05 October 2029StorageBelow 30 °C, keep container closed
+paragraph	0	The lot described above was tested against the current product specification, and the results are reported below.
+caption	0	Specification
+table	0	TestMethodUnitLowerUpperResultStatusAnalystDateAssay (dried basis)Ph. Eur. 0193%99.0100.5R. Feld12 Oct 2026Loss on dryingPh. Eur. 2.2.32%–0.5R. Feld12 Oct 2026pH (5 % solution)USP <791>–5.09.0T. Ansah13 Oct 2026Bacterial endotoxinsPh. Eur. 2.6.14EU/g–0.5< 0.1PassM. Kowal14 Oct 2026Total aerobic microbial countPh. Eur. 2.6.12CFU/g–100< 10PassM. Kowal19 Oct 2026SulfatesPh. Eur. 0193ppm–200< 50PassT. Ansah13 Oct 2026IronPh. Eur. 2.4.9ppm–2< 1PassR. Feld12 Oct 2026Heavy metals (as Pb)ICP-MS, QC-M-071ppm–5T. Ansah15 Oct 2026AppearanceVisual, QC-M-002–White crystalline powderConformsPassT. Ansah12 Oct 2026
+heading	4	99.8 Pass
+heading	4	0.12 Pass
+heading	4	6.4 Pass
+heading	4	0.3 Pass
+heading	3	Conclusion
+paragraph	0	All results comply with the specification, and the lot is released for sale. This certificate was generated from the laboratory information system and is valid without a handwritten signature. Raw data are kept for at least ten years after the retest date.
+table	0	Reviewed byApproved byRosa FeldDaniel OkaforSenior Analyst, Quality ControlHead of Quality Assurance20 October 202621 October 2026
+page_footer	0	Form QA-F-112 rev. 4 · This document may only be reproduced in full.
+page_footer	0	Page 1 of 1

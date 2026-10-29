@@ -1,0 +1,88 @@
+{
+  "id": "h02",
+  "difficulty": "easy",
+  "pages": 1,
+  "title": null,
+  "headings": [],
+  "key_sentences": [
+    "La commune engagera, à compter du lundi 9 novembre 2026, des travaux de réfection de la chaussée et des trottoirs de la rue des Tilleuls.",
+    "Ce chantier, d’une durée prévisionnelle de six semaines, sera conduit par tranches successives afin de limiter la gêne pour les riverains.",
+    "Le calendrier prévisionnel des tranches figure ci-dessous.",
+    "Il sera également affiché en mairie et publié sur le site internet de la commune.",
+    "Le technicien chargé du suivi du chantier tiendra une permanence chaque mardi, de 9 h à 11 h, en mairie.",
+    "Je vous prie d’agréer, Madame, l’expression de mes salutations distinguées."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Nos réf. :",
+          "ST/VOI/2026-118"
+        ],
+        [
+          "Affaire suivie par :",
+          "Bruno Lécuyer, technicien voirie"
+        ],
+        [
+          "Téléphone :",
+          "02 54 00 31 18"
+        ]
+      ]
+    },
+    {
+      "caption": "Calendrier prévisionnel",
+      "rows": [
+        [
+          "Tranche",
+          "Section concernée",
+          "Période"
+        ],
+        [
+          "1",
+          "du n° 1 au n° 21",
+          "du 9 au 20 novembre"
+        ],
+        [
+          "2",
+          "du n° 23 au n° 47",
+          "du 23 novembre au 4 décembre"
+        ],
+        [
+          "3",
+          "carrefour de la rue du Moulin",
+          "du 7 au 18 décembre"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1) le stationnement sera interdit des deux côtés de la voie, de 7 h 30 à 18 h ;"
+    },
+    {
+      "level": 0,
+      "text": "2) l’accès aux garages restera possible en dehors des heures de mise en œuvre des enrobés ;"
+    },
+    {
+      "level": 0,
+      "text": "3) la collecte des ordures ménagères sera maintenue, les bacs devant être déposés à l’angle de la rue du Moulin ;"
+    },
+    {
+      "level": 0,
+      "text": "4) un cheminement piéton balisé sera aménagé sur le trottoir opposé à la tranche en cours."
+    }
+  ],
+  "furniture": [
+    "COMMUNE DE VALMONT-SUR-ARDIÈRE",
+    "Services techniques municipaux",
+    "Hôtel de ville — 3, place de la Halle — 41870 Valmont-sur-Ardière",
+    "Tél. 02 54 00 31 00 — mairie@valmont-ardiere.example"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "Official letter from a fictional French town hall; no title and no headings (the bold \"Objet\" line is the letter subject, not a heading). The reference block (Nos réf., Affaire suivie par, Téléphone) is a borderless two-column key/value table without header row; labels end with a no-break space and a colon. The numbered list uses TYPED markers \"1)\" to \"4)\" set inline at the start of indented paragraphs. The small schedule table is ruled under its header only and has the caption \"Calendrier prévisionnel\". French typography: no-break spaces before colons and semicolons (count as spaces), typographic apostrophe U+2019 kept as is. The recipient address block, date line, salutation and signature block are body text but not key sentences."
+}

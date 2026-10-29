@@ -1,0 +1,202 @@
+{
+  "id": "h13",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "견적서",
+  "headings": [
+    {
+      "level": 1,
+      "text": "견적서"
+    },
+    {
+      "level": 2,
+      "text": "견적 조건"
+    },
+    {
+      "level": 2,
+      "text": "참고 사항"
+    }
+  ],
+  "key_sentences": [
+    "아래와 같이 견적합니다.",
+    "본 견적서의 금액은 부가가치세를 포함한 금액입니다.",
+    "문의 사항이 있으시면 영업팀 담당자에게 연락해 주시기 바랍니다.",
+    "귀사의 무궁한 발전을 기원합니다."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "공 급 자",
+          "등록번호",
+          "000-00-41207",
+          "000-00-41207",
+          "000-00-41207"
+        ],
+        [
+          "공 급 자",
+          "상호",
+          "한빛오피스가구(주)",
+          "대표자",
+          "최민서"
+        ],
+        [
+          "공 급 자",
+          "주소",
+          "경기도 한빛시 산업로 41번길 7",
+          "경기도 한빛시 산업로 41번길 7",
+          "경기도 한빛시 산업로 41번길 7"
+        ],
+        [
+          "공 급 자",
+          "전화",
+          "031-000-4120",
+          "담당",
+          "영업팀 윤재희"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "번호",
+          "품명",
+          "규격",
+          "수량",
+          "단가",
+          "공급가액",
+          "비고"
+        ],
+        [
+          "1",
+          "사무용 책상",
+          "1600×800",
+          "12",
+          "320,000",
+          "3,840,000",
+          ""
+        ],
+        [
+          "2",
+          "사무용 의자",
+          "메쉬, 팔걸이형",
+          "12",
+          "185,000",
+          "2,220,000",
+          ""
+        ],
+        [
+          "3",
+          "회의용 테이블",
+          "2400×1200",
+          "2",
+          "890,000",
+          "1,780,000",
+          ""
+        ],
+        [
+          "4",
+          "수납장",
+          "3단, 잠금장치",
+          "8",
+          "240,000",
+          "1,920,000",
+          ""
+        ],
+        [
+          "5",
+          "파티션",
+          "H1200, 패브릭",
+          "20",
+          "145,000",
+          "2,900,000",
+          ""
+        ],
+        [
+          "6",
+          "배송 및 설치",
+          "수도권",
+          "1식",
+          "1,340,000",
+          "1,340,000",
+          "엘리베이터 사용"
+        ],
+        [
+          "공급가액 합계",
+          "공급가액 합계",
+          "공급가액 합계",
+          "공급가액 합계",
+          "공급가액 합계",
+          "14,000,000",
+          ""
+        ],
+        [
+          "부가가치세 (10%)",
+          "부가가치세 (10%)",
+          "부가가치세 (10%)",
+          "부가가치세 (10%)",
+          "부가가치세 (10%)",
+          "1,400,000",
+          ""
+        ],
+        [
+          "합계",
+          "합계",
+          "합계",
+          "합계",
+          "합계",
+          "15,400,000",
+          ""
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. 납기: 발주 후 3주 이내"
+    },
+    {
+      "level": 0,
+      "text": "2. 결제 조건:"
+    },
+    {
+      "level": 1,
+      "text": "가. 계약금 30%는 발주 시 지급"
+    },
+    {
+      "level": 1,
+      "text": "나. 잔금 70%는 설치 완료 후 7일 이내 지급"
+    },
+    {
+      "level": 0,
+      "text": "3. 유효 기간: 견적일로부터 30일"
+    },
+    {
+      "level": 0,
+      "text": "4. 보증 기간: 설치일로부터 2년 (소모품 제외)"
+    },
+    {
+      "level": 0,
+      "text": "색상은 샘플 확인 후 확정하며, 확정 후에는 변경이 어렵습니다."
+    },
+    {
+      "level": 0,
+      "text": "기존 가구의 철거 및 폐기는 견적에 포함되어 있지 않습니다."
+    },
+    {
+      "level": 0,
+      "text": "설치 일정은 고객사와 협의하여 주말에도 진행할 수 있습니다."
+    }
+  ],
+  "furniture": [
+    "한빛오피스가구(주) · www.hanbit-office.example · 본 견적서는 전자 문서로 발행되었습니다."
+  ],
+  "languages": [
+    "ko"
+  ],
+  "code": [],
+  "notes": "Korean quotation of a fictional furniture supplier to a fictional customer, one page. Korean uses spaces between words. The customer block (left: \"… 귀하\", date, quotation number) stands beside the supplier panel (right); reading order: customer block, then supplier panel. Supplier panel: a boxed key/value grid with no header row; its first column is a vertical label \"공 급 자\" printed one syllable per line and spanning four rows -- recorded as \"공 급 자\" (lines joined with one space) repeated in the four rows; two values span three columns and are repeated. The boxed total line (\"합계금액 (부가세 포함)\" ... \"₩15,400,000\") above the table is body text, not a table. Item table: full grid; the three totals rows have labels spanning five columns (repeated); empty remark cells are empty strings. List \"견적 조건\": TYPED \"1.\" to \"4.\" with a nested level of TYPED Hangul markers \"가.\" \"나.\". List \"참고 사항\": Hangul markers DRAWN BY CSS (list-style-type: hangul), recorded without them. The title \"견적서\" is letter-spaced; it is given as plain text."
+}

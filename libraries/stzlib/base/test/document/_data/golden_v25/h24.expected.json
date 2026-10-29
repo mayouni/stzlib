@@ -1,0 +1,147 @@
+{
+  "id": "h24",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Millbrook Matters",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Millbrook Matters"
+    },
+    {
+      "level": 2,
+      "text": "New play area opens on the Green"
+    },
+    {
+      "level": 2,
+      "text": "Heating repairs: what happens next"
+    },
+    {
+      "level": 2,
+      "text": "Meet your new committee"
+    },
+    {
+      "level": 3,
+      "text": "Chair"
+    },
+    {
+      "level": 3,
+      "text": "Treasurer"
+    },
+    {
+      "level": 3,
+      "text": "Secretary"
+    },
+    {
+      "level": 3,
+      "text": "Members"
+    }
+  ],
+  "key_sentences": [
+    "After two years of fundraising and three months of building work, the new play area on Millbrook Green opened on Saturday 10 October.",
+    "The project cost 48,000 pounds, of which more than a third was raised by residents themselves.",
+    "The housing association has confirmed that the boilers in Ash and Beech Houses will be replaced before the end of January.",
+    "The committee meets on the first Tuesday of every month in the community room.",
+    "Five residents were elected to the committee at the annual meeting in September.",
+    "All events are free, and everyone living on the estate is welcome.",
+    "Glass now goes in the green bins only."
+  ],
+  "tables": [
+    {
+      "caption": "Autumn events",
+      "rows": [
+        [
+          "Date",
+          "Event",
+          "Place",
+          "Time"
+        ],
+        [
+          "Sat 7 Nov",
+          "Bulb planting on the Green",
+          "Millbrook Green",
+          "10:00–12:00"
+        ],
+        [
+          "Thu 12 Nov",
+          "Energy advice drop-in",
+          "Community room",
+          "14:00–17:00"
+        ],
+        [
+          "Sat 21 Nov",
+          "Quiz night",
+          "Community room",
+          "19:00"
+        ],
+        [
+          "Sun 6 Dec",
+          "Winter fair and toy swap",
+          "Community room and car park",
+          "11:00–15:00"
+        ],
+        [
+          "Fri 18 Dec",
+          "Carol singing",
+          "Meet at Cedar House",
+          "18:30"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "New play area opens"
+    },
+    {
+      "level": 0,
+      "text": "Heating repairs"
+    },
+    {
+      "level": 0,
+      "text": "Meet your new committee"
+    },
+    {
+      "level": 0,
+      "text": "Autumn events"
+    },
+    {
+      "level": 0,
+      "text": "Dates for your diary"
+    },
+    {
+      "level": 0,
+      "text": "3 Nov Committee meeting, 7 pm"
+    },
+    {
+      "level": 0,
+      "text": "16 Nov Bulky waste collection"
+    },
+    {
+      "level": 0,
+      "text": "1 Dec Committee meeting, 7 pm"
+    },
+    {
+      "level": 0,
+      "text": "24 Dec Estate office closes at noon"
+    },
+    {
+      "level": 0,
+      "text": "4 Jan Estate office reopens"
+    }
+  ],
+  "furniture": [
+    "The newsletter of the Millbrook Tenants’ Association",
+    "Issue 37",
+    "Autumn 2026",
+    "Millbrook Matters · Autumn 2026",
+    "1",
+    "2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Tenants' association newsletter (fictional estate and people), two pages. The masthead title \"Millbrook Matters\" is the level-1 heading; the tagline, issue number and season in the masthead are furniture. Each page has a main area at left and a sidebar of shaded boxes at right. Reading order per page: the main area first (articles in order), then the sidebar boxes top to bottom. Page 1: the play-area article is set in THREE columns (read column by column) with a pull quote between paragraphs; the pull quote is body text but not a key sentence. The heating article is in TWO columns. Page 2: the committee article in three columns with level-3 role headings, then a zebra events table with caption \"Autumn events\". Sidebar box titles (\"In this issue\", \"Contact us\", \"Dates for your diary\", \"Recycling reminder\") are labels, not headings. \"In this issue\" has CSS-drawn disc bullets. \"Dates for your diary\" uses TYPED dates as markers (\"3 Nov\", \"16 Nov\" ...) in a hanging column, recorded as \"3 Nov Committee meeting, 7 pm\" etc. Typographic apostrophes (U+2019) and quotation marks (U+201C/U+201D) are kept. Footer \"Millbrook Matters · Autumn 2026\" (listed once) and page numbers \"1\", \"2\"."
+}

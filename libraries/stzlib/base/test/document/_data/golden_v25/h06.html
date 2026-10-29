@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Tidewater Sync 4.2 Release Notes</title>
+<style>
+
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box }
+html, body { margin: 0; padding: 0; background: #fff }
+
+@page { size: A4; margin: 2cm;
+  @top-right { content: "Tidewater Sync 4.2 — Release Notes"; font-family: "Segoe UI", sans-serif; font-size: 8pt; color: #5f6b7a }
+  @bottom-center { content: "Page " counter(page) " of " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 8pt; color: #5f6b7a }
+}
+body { font-family: "Segoe UI", sans-serif; font-size: 9.8pt; color: #1f2933; line-height: 1.5 }
+h1 { font-size: 21pt; font-weight: 600; margin: 0 0 1mm 0; color: #0b4f6c }
+h2 { font-size: 13pt; font-weight: 600; margin: 6mm 0 1.5mm 0; color: #0b4f6c; border-bottom: 1px solid #c4d3dd; padding-bottom: 0.8mm }
+h3 { font-size: 10.5pt; font-weight: 600; margin: 3mm 0 1mm 0 }
+p { margin: 0 0 2mm 0 }
+.date { color: #5f6b7a; margin-bottom: 4mm }
+pre { font-family: Consolas, monospace; font-size: 8.8pt; background: #f3f6f8; border-left: 3px solid #0b4f6c; padding: 2mm 3mm; margin: 1mm 0 3mm 0; line-height: 1.35; white-space: pre }
+code { font-family: Consolas, monospace; font-size: 9pt }
+ul.hl { padding-left: 5mm; margin: 0 0 2mm 0 }
+ul.hl ul { list-style-type: circle; padding-left: 5mm }
+ol.steps { padding-left: 6mm; margin: 0 0 2mm 0 }
+ol.steps ol { list-style-type: lower-alpha; padding-left: 6mm }
+ul.dep { list-style: none; padding: 0; margin: 0 0 2mm 0 }
+ul.dep li { padding-left: 5mm; text-indent: -5mm }
+ul.dep .mk { display: inline-block; width: 4mm; text-indent: 0 }
+table.cfg { width: 100%; border-collapse: collapse; font-size: 9pt; margin: 1mm 0 3mm 0 }
+table.cfg th { text-align: left; border-bottom: 1.5px solid #0b4f6c; padding: 1mm 2mm; font-weight: 600 }
+table.cfg td { padding: 1mm 2mm; vertical-align: top }
+table.cfg td:first-child, table.cfg td:nth-child(2) { font-family: Consolas, monospace; white-space: nowrap }
+
+</style>
+</head>
+<body>
+<h1>Tidewater Sync 4.2 Release Notes</h1><p class="date">Version 4.2.0 · released 26 October 2026</p><p>Tidewater Sync 4.2 is a feature release that adds scheduled <span style="white-space:nowrap">two-way</span> synchronisation for object stores and retires the legacy XML job format. Existing 4.x installations can be upgraded in place once their job files have been converted.</p><h2>Highlights</h2><ul class="hl"><li><span style="white-space:nowrap">Two-way</span> synchronisation for <span style="white-space:nowrap">S3-compatible</span> and Azure Blob targets, with conflict detection based on object version identifiers.</li><li>A scheduler built into the agent, so external cron entries are no longer required.<ul><li>intervals from one minute to seven days</li><li>optional quiet windows during which no transfers start</li></ul></li><li>Resumable transfers for files larger than 4 GB.</li><li>A new <code>validate</code> command that checks job files without contacting any target.</li></ul><h2>Upgrading</h2><h3>Before you upgrade</h3><ol class="steps"><li>Stop all running jobs and wait until the agent reports an idle state.</li><li>Back up the configuration directory, including:<ol><li>the job definitions in <code>jobs/</code></li><li>the credential store <code>secrets.db</code></li></ol></li><li>Install the 4.2 package over the existing installation.</li></ol><h3>Converting job files</h3><p>Job files written in the XML format must be converted before the agent is restarted. The converter writes a YAML file next to each XML file and leaves the original untouched.</p><pre>$ tidewater-sync convert --from xml --to yaml jobs/*.xml
+$ tidewater-sync validate jobs/
+$ tidewater-sync agent restart</pre><h2>Configuration</h2><p>The following keys are new or have changed default values in this release.</p><table class="cfg"><thead><tr><th>Key</th><th>Default</th><th>Description</th></tr></thead><tbody><tr><td>schedule.every</td><td>1h</td><td>Interval between two runs of the job. Accepts units m, h and d.</td></tr><tr><td>schedule.window</td><td>(none)</td><td>Quiet window in local time during which no new transfer starts.</td></tr><tr><td>targets[].two_way</td><td>false</td><td>Enables <span style="white-space:nowrap">two-way</span> synchronisation for the target.</td></tr><tr><td>conflict.policy</td><td><span style="white-space:nowrap">keep-both</span></td><td>What to do when both sides changed: <span style="white-space:nowrap">keep-both,</span> <span style="white-space:nowrap">prefer-source</span> or <span style="white-space:nowrap">prefer-target.</span></td></tr><tr><td>retry.attempts</td><td>3</td><td>Number of retries for a failed transfer before the job is marked as failed.</td></tr><tr><td>retry.backoff</td><td>linear</td><td>Delay strategy between retries: linear or exponential.</td></tr><tr><td>transfer.chunk_size</td><td>64MB</td><td>Size of the parts used for resumable uploads.</td></tr></tbody></table><p>A minimal job file using the new scheduler looks like this:</p><pre>schedule:
+  every: 15m
+  window: "22:00-06:00"
+targets:
+  - name: archive-eu
+    type: s3
+    bucket: tw-archive-eu
+    two_way: true
+retry:
+  attempts: 5
+  backoff: exponential</pre><h2>Deprecations and removals</h2><ul class="dep"><li><span class="mk">–</span> <span class="tx">The XML job format is no longer read by the agent.</span></li><li><span class="mk">–</span> <span class="tx">The <code><span style="white-space:nowrap">--legacy-auth</span></code> option has been removed; use access keys or managed identities instead.</span></li><li><span class="mk">–</span> <span class="tx">The Windows Server 2016 package is deprecated and will not be built after version 4.4.</span></li></ul><h2>Known issues</h2><p><span style="white-space:nowrap">Two-way</span> synchronisation does not yet preserve custom metadata on Azure Blob targets. A fix is planned for version 4.2.1. Until then, jobs that rely on metadata should keep <span style="white-space:nowrap">one-way</span> mode.</p><p>On systems with more than 64 processor cores, the agent may report an inflated transfer rate in its status output. The transfers themselves are not affected.</p>
+</body>
+</html>

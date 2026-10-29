@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Extracto de cuenta</title>
+<style>
+
+@page { size: A4; margin: 0 }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box }
+html, body { margin: 0; padding: 0; background: #fff }
+.page { width: 210mm; height: 296mm; position: relative; display: flex; flex-direction: column; break-after: page; page-break-after: always }
+.page:last-child { break-after: auto; page-break-after: auto }
+.main { flex: 1 1 auto; min-height: 0 }
+
+body { font-family: Verdana, sans-serif; font-size: 8.3pt; color: #222; line-height: 1.45 }
+.page { padding: 12mm 15mm 10mm 15mm }
+.lh { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5mm }
+.lh .bank { font-size: 15pt; font-weight: bold; color: #00616e }
+.lh .bank span { color: #e08a00 }
+.lh .of { font-size: 7.5pt; color: #555; text-align: right }
+.rh { font-size: 7.5pt; color: #555; border-bottom: 1px solid #00616e; padding-bottom: 1mm; margin-bottom: 4mm }
+h1 { font-size: 13pt; color: #00616e; margin: 0 0 3mm 0 }
+h2 { font-size: 9.5pt; color: #00616e; margin: 4mm 0 1.5mm 0 }
+p { margin: 0 0 1.8mm 0 }
+.top { display: flex; gap: 8mm; margin-bottom: 4mm }
+.win { flex: 1; padding: 3mm 0 0 0; line-height: 1.5 }
+.sum { flex: 0 0 78mm; border: 1.5px solid #00616e; border-radius: 1.5mm; padding: 2mm 3mm }
+.sum .st { font-weight: bold; color: #00616e; margin-bottom: 1mm }
+table.ks { width: 100%; border-collapse: collapse }
+table.ks td { padding: 0.6mm 0 }
+table.ks td:last-child { text-align: right; white-space: nowrap }
+table.ks tr.fin td { border-top: 1px solid #00616e; font-weight: bold }
+table.acc { border-collapse: collapse; margin-bottom: 3mm }
+table.acc td { padding: 0.4mm 6mm 0.4mm 0 }
+table.acc td:first-child { color: #00616e; font-weight: bold }
+table.mov { width: 100%; border-collapse: collapse; font-size: 7.8pt }
+table.mov th { background: #00616e; color: #fff; padding: 1.2mm 1.5mm; text-align: left; font-weight: bold }
+table.mov td { padding: 1mm 1.5mm; vertical-align: top }
+table.mov tbody tr:nth-child(even) td { background: #e6f2f3 }
+table.mov td.n, table.mov th.n { text-align: right; white-space: nowrap }
+table.mov tr.tot td { background: #fff; border-top: 1.5px solid #00616e; font-weight: bold }
+ul.inf { list-style-type: square; padding-left: 5mm; margin: 0 0 2mm 0 }
+ul.inf li { margin-bottom: 0.8mm }
+.foot { display: flex; justify-content: space-between; font-size: 7pt; color: #666; border-top: 0.5px solid #aaa; padding-top: 1.2mm }
+
+</style>
+</head>
+<body>
+<div class="page"><div class="lh"><div class="bank">Banco <span>Sierra Clara</span></div><div class="of">Oficina 0412 · Paseo de la Ribera 21<br>50410 Villanueva del Cierzo · Tel. 976 000 412</div></div><div class="main"><h1>Extracto de cuenta corriente</h1><div class="top"><div class="win">TALLERES MECÁNICOS RUIZ ABAD, S.L.<br>Polígono El Saso, nave 3<br>50410 Villanueva del Cierzo<br>Zaragoza</div><div class="sum"><div class="st">Resumen del periodo</div><table class="ks"><tbody><tr><td>Saldo anterior a 30/09/2026</td><td>24.318,55 €</td></tr><tr><td>Total abonos (+)</td><td>25.747,31 €</td></tr><tr><td>Total cargos (−)</td><td>26.904,41 €</td></tr><tr class="fin"><td>Saldo final a 31/10/2026</td><td>23.161,45 €</td></tr></tbody></table></div></div><table class="acc"><tbody><tr><td>Titular</td><td>Talleres Mecánicos Ruiz Abad, S.L.</td></tr><tr><td>IBAN</td><td>ES00 0412 0000 0018 3376 22</td></tr><tr><td>BIC</td><td>SCLAESXX412</td></tr><tr><td>Periodo</td><td>del 01/10/2026 al 31/10/2026</td></tr><tr><td>Moneda</td><td>Euro</td></tr></tbody></table><h2>Movimientos</h2><table class="mov"><colgroup><col style="width:21mm"><col style="width:19mm"><col><col style="width:20mm"><col style="width:20mm"><col style="width:22mm"></colgroup><thead><tr><th>F. operación</th><th>F. valor</th><th>Concepto</th><th class="n">Cargo</th><th class="n">Abono</th><th class="n">Saldo</th></tr></thead><tbody><tr><td>01/10/2026</td><td>01/10/2026</td><td>Cuota préstamo <span style="white-space:nowrap">0412-77</span><br>Amortización y retribución</td><td class="n">1.286,40</td><td class="n"></td><td class="n">23.032,15</td></tr><tr><td>02/10/2026</td><td>02/10/2026</td><td>Transferencia recibida<br>Construcciones Gállego, S.L. · Fra. 2026/311</td><td class="n"></td><td class="n">6.534,00</td><td class="n">29.566,15</td></tr><tr><td>03/10/2026</td><td>03/10/2026</td><td>Recibo · Suministros Eléctricos del Cierzo</td><td class="n">612,37</td><td class="n"></td><td class="n">28.953,78</td></tr><tr><td>03/10/2026</td><td>03/10/2026</td><td>Pago con tarjeta · Estación de servicio Km 14</td><td class="n">88,90</td><td class="n"></td><td class="n">28.864,88</td></tr><tr><td>06/10/2026</td><td>06/10/2026</td><td>Ingreso de efectivo en oficina</td><td class="n"></td><td class="n">1.450,00</td><td class="n">30.314,88</td></tr><tr><td>07/10/2026</td><td>07/10/2026</td><td>Recibo · Seguros La Muela, póliza <span style="white-space:nowrap">55-01923</span></td><td class="n">342,15</td><td class="n"></td><td class="n">29.972,73</td></tr><tr><td>08/10/2026</td><td>08/10/2026</td><td>Transferencia emitida<br>Recambios Ebro Norte, S.A. · pedido 8812</td><td class="n">3.915,20</td><td class="n"></td><td class="n">26.057,53</td></tr><tr><td>09/10/2026</td><td>09/10/2026</td><td>Pago con tarjeta · Ferretería Industrial Alfajarín</td><td class="n">126,45</td><td class="n"></td><td class="n">25.931,08</td></tr><tr><td>10/10/2026</td><td>10/10/2026</td><td>Transferencia recibida<br>Ayuntamiento de Villanueva del Cierzo · Fra. 2026/298</td><td class="n"></td><td class="n">2.190,60</td><td class="n">28.121,68</td></tr><tr><td>13/10/2026</td><td>13/10/2026</td><td>Recibo · Telefonía y datos, octubre</td><td class="n">74,99</td><td class="n"></td><td class="n">28.046,69</td></tr><tr><td>14/10/2026</td><td>14/10/2026</td><td>Pago con tarjeta · Estación de servicio Km 14</td><td class="n">92,30</td><td class="n"></td><td class="n">27.954,39</td></tr><tr><td>15/10/2026</td><td>15/10/2026</td><td>Transferencia recibida<br>Transportes Moncayo, S.L. · Fra. 2026/317</td><td class="n"></td><td class="n">3.872,15</td><td class="n">31.826,54</td></tr><tr><td>16/10/2026</td><td>16/10/2026</td><td>Liquidación TPV, ventas del 1 al 15</td><td class="n"></td><td class="n">4.310,80</td><td class="n">36.137,34</td></tr><tr><td>17/10/2026</td><td>17/10/2026</td><td>Recibo · Alquiler nave 3, octubre</td><td class="n">1.650,00</td><td class="n"></td><td class="n">34.487,34</td></tr><tr><td>20/10/2026</td><td>20/10/2026</td><td>Transferencia emitida<br>Aceites y Lubricantes Huerva · pedido 451</td><td class="n">1.208,64</td><td class="n"></td><td class="n">33.278,70</td></tr></tbody></table></div><div class="foot"><span>Banco Sierra Clara, S.A. · Inscrito en el Registro de Entidades con el n.º 0412 · NIF A-00000412</span><span>Página 1 de 2</span></div></div><div class="page"><div class="rh">Extracto de cuenta · ES00 0412 0000 0018 3376 22 · octubre 2026 · continuación</div><div class="main"><table class="mov"><colgroup><col style="width:21mm"><col style="width:19mm"><col><col style="width:20mm"><col style="width:20mm"><col style="width:22mm"></colgroup><thead><tr><th>F. operación</th><th>F. valor</th><th>Concepto</th><th class="n">Cargo</th><th class="n">Abono</th><th class="n">Saldo</th></tr></thead><tbody><tr><td>21/10/2026</td><td>21/10/2026</td><td>Impuestos · Modelo 303, tercer trimestre</td><td class="n">2.845,33</td><td class="n"></td><td class="n">30.433,37</td></tr><tr><td>22/10/2026</td><td>22/10/2026</td><td>Pago con tarjeta · Restaurante El Tozal</td><td class="n">46,20</td><td class="n"></td><td class="n">30.387,17</td></tr><tr><td>23/10/2026</td><td>23/10/2026</td><td>Transferencia recibida<br>Agrícola Hermanos Lasheras · Fra. 2026/322</td><td class="n"></td><td class="n">1.286,90</td><td class="n">31.674,07</td></tr><tr><td>27/10/2026</td><td>27/10/2026</td><td>Seguros sociales, septiembre</td><td class="n">3.120,48</td><td class="n"></td><td class="n">28.553,59</td></tr><tr><td>28/10/2026</td><td>28/10/2026</td><td>Transferencia emitida<br>Nóminas de octubre, 6 empleados</td><td class="n">11.480,00</td><td class="n"></td><td class="n">17.073,59</td></tr><tr><td>29/10/2026</td><td>29/10/2026</td><td>Ingreso de cheque n.º 4471023</td><td class="n"></td><td class="n">980,00</td><td class="n">18.053,59</td></tr><tr><td>30/10/2026</td><td>31/10/2026</td><td>Liquidación TPV, ventas del 16 al 31</td><td class="n"></td><td class="n">5.120,45</td><td class="n">23.174,04</td></tr><tr><td>31/10/2026</td><td>31/10/2026</td><td>Comisión de mantenimiento</td><td class="n">15,00</td><td class="n"></td><td class="n">23.159,04</td></tr><tr><td>31/10/2026</td><td>31/10/2026</td><td>Intereses a su favor</td><td class="n"></td><td class="n">2,41</td><td class="n">23.161,45</td></tr><tr class="tot"><td colspan="3">Totales del periodo</td><td class="n">26.904,41</td><td class="n">25.747,31</td><td class="n">23.161,45</td></tr></tbody></table><h2>Información importante</h2><p>Le rogamos que compruebe los movimientos de este extracto y nos comunique cualquier discrepancia en el plazo de 30 días. Transcurrido ese plazo sin reclamación, el extracto se considerará conforme.</p><ul class="inf"><li>Los cargos por recibos domiciliados pueden devolverse en un plazo de ocho semanas desde la fecha del cargo.</li><li>Las comisiones aplicadas este mes son:<ul><li>mantenimiento de cuenta: 15,00 €</li><li>transferencias por banca digital: sin coste</li></ul></li><li>El tipo de interés acreedor vigente es del 0,10 % nominal anual.</li></ul><p>Los depósitos mantenidos en esta entidad están garantizados por el Fondo de Garantía de Depósitos hasta 100.000 euros por titular. Puede consultar sus movimientos en cualquier momento a través de la banca digital.</p></div><div class="foot"><span>Banco Sierra Clara, S.A. · Inscrito en el Registro de Entidades con el n.º 0412 · NIF A-00000412</span><span>Página 2 de 2</span></div></div>
+</body>
+</html>

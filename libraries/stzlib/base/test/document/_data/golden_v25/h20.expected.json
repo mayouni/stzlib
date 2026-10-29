@@ -1,0 +1,123 @@
+{
+  "id": "h20",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "ประกาศรับสมัครพนักงาน",
+  "headings": [
+    {
+      "level": 1,
+      "text": "ประกาศรับสมัครพนักงาน"
+    },
+    {
+      "level": 2,
+      "text": "คุณสมบัติทั่วไปของผู้สมัคร"
+    },
+    {
+      "level": 2,
+      "text": "สวัสดิการ"
+    },
+    {
+      "level": 2,
+      "text": "เอกสารประกอบการสมัคร"
+    }
+  ],
+  "key_sentences": [
+    "บริษัทมีความประสงค์จะรับสมัครบุคคลเพื่อบรรจุเป็นพนักงานประจำในตำแหน่งต่าง ๆ รวม ๕ อัตรา ดังรายละเอียดต่อไปนี้",
+    "ผู้สนใจสามารถยื่นใบสมัครได้ที่ฝ่ายบุคคล สำนักงานใหญ่ หรือส่งทางไปรษณีย์อิเล็กทรอนิกส์ได้ตั้งแต่บัดนี้จนถึงวันที่ ๓๐ พฤศจิกายน ๒๕๖๙",
+    "บริษัทจะติดต่อกลับเฉพาะผู้ที่ผ่านการคัดเลือกเบื้องต้นเท่านั้น",
+    "การพิจารณาคัดเลือกประกอบด้วยการสอบข้อเขียนและการสัมภาษณ์"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "ตำแหน่ง",
+          "จำนวน",
+          "สถานที่ปฏิบัติงาน",
+          "เงินเดือน (บาท)"
+        ],
+        [
+          "เจ้าหน้าที่บัญชี",
+          "๑",
+          "สำนักงานใหญ่ สระบุรี",
+          "๑๘,๐๐๐–๒๒,๐๐๐"
+        ],
+        [
+          "พนักงานขายภาคสนาม",
+          "๒",
+          "สาขานครราชสีมา",
+          "๑๕,๐๐๐ และค่าคอมมิชชัน"
+        ],
+        [
+          "ช่างซ่อมบำรุงเครื่องจักร",
+          "๑",
+          "โรงงานหนองแค",
+          "๑๖,๐๐๐–๒๐,๐๐๐"
+        ],
+        [
+          "เจ้าหน้าที่คลังสินค้า",
+          "๑",
+          "โรงงานหนองแค",
+          "๑๓,๐๐๐–๑๕,๐๐๐"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "มีสัญชาติไทย อายุระหว่าง ๒๒ ถึง ๔๐ ปี"
+    },
+    {
+      "level": 0,
+      "text": "สำเร็จการศึกษาในสาขาที่เกี่ยวข้องกับตำแหน่งที่สมัคร"
+    },
+    {
+      "level": 0,
+      "text": "มีความรู้ด้านคอมพิวเตอร์ขั้นพื้นฐาน"
+    },
+    {
+      "level": 0,
+      "text": "สามารถเริ่มงานได้ภายในเดือนธันวาคม ๒๕๖๙"
+    },
+    {
+      "level": 0,
+      "text": "• ประกันสังคมและประกันสุขภาพกลุ่ม"
+    },
+    {
+      "level": 0,
+      "text": "• โบนัสประจำปีตามผลประกอบการ"
+    },
+    {
+      "level": 0,
+      "text": "• ชุดยูนิฟอร์มและรถรับส่งพนักงาน"
+    },
+    {
+      "level": 0,
+      "text": "• วันหยุดพักผ่อนประจำปี ๑๐ วัน"
+    },
+    {
+      "level": 0,
+      "text": "๑) ใบสมัครที่กรอกข้อความครบถ้วน พร้อมรูปถ่ายขนาด ๑ นิ้ว"
+    },
+    {
+      "level": 0,
+      "text": "๒) สำเนาบัตรประจำตัวประชาชนและสำเนาทะเบียนบ้าน"
+    },
+    {
+      "level": 0,
+      "text": "๓) สำเนาวุฒิการศึกษาและหนังสือรับรองการทำงาน (ถ้ามี)"
+    }
+  ],
+  "furniture": [
+    "บริษัท สยามเกษตรรุ่งเรือง จำกัด",
+    "เลขที่ ๔๑ ถนนพหลโยธิน ตำบลหนองแค อำเภอเมือง จังหวัดสระบุรี",
+    "ฝ่ายบุคคล โทร. ๐ ๓๖๐๐ ๔๑๒๐ · hr@siamkaset.example"
+  ],
+  "languages": [
+    "th"
+  ],
+  "code": [],
+  "notes": "Thai job announcement of a fictional company, one page; Thai digits throughout; year in the Buddhist era (๒๕๖๙ = 2026). Thai is written without spaces between words; spaces separate phrases. Key sentences keep the spaces printed between phrases; a sentence wrapped across lines joins with NO space. Thai sentences carry no final full stop. Body paragraphs have a first-line indent. Positions table: header row, zebra bands, no lines. Two lists side by side: \"คุณสมบัติทั่วไปของผู้สมัคร\" (left; Thai numerals DRAWN BY CSS, list-style-type: thai, recorded without markers) and \"สวัสดิการ\" (right; TYPED \"•\" bullets). Reading order: the left column with its heading, then the right column with its heading. \"เอกสารประกอบการสมัคร\": TYPED Thai-numeral markers \"๑)\" \"๒)\" \"๓)\" in a hanging column. The date-of-announcement and signature block at bottom right is body text, not key sentences. Letterhead (name, address) and footer contact line are furniture."
+}
