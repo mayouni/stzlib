@@ -6095,7 +6095,9 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
                     continue;
                 }
                 // (above the title, or beside it in the top band: a company's block left, the title right)
-                const beside = (b.x1 < tblk.x0 or b.x0 > tblk.x1) and b.y0 < tblk.y1 and b.size < tblk.size;
+                // (the company's address under its name, beside the title's subtitle, is beside it too)
+                const reach: f32 = if (b.kind == .paragraph) 2 * tblk.size else 0;
+                const beside = (b.x1 < tblk.x0 or b.x0 > tblk.x1) and b.y0 < tblk.y1 + reach and b.size < tblk.size;
                 if (!((b.y1 < tblk.y0 or beside) and b.y1 < 0.18 * h and b.size <= @max(tblk.size, if (letter) |l| merged.items[l].size else 0))) continue;
                 // a letterhead holds a logo name (in capitals) and short lines (an address), never a sentence
                 // (or a short bold name smaller than the title: "Sahel Learning Partnership" in a browser's bold)
