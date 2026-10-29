@@ -1,0 +1,177 @@
+{
+  "id": "g16",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Torna ve Freze Tezgâhlarında Çalışma Talimatı",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Torna ve Freze Tezgâhlarında Çalışma Talimatı"
+    },
+    {
+      "level": 2,
+      "text": "1. Amaç"
+    },
+    {
+      "level": 2,
+      "text": "2. Kapsam"
+    },
+    {
+      "level": 2,
+      "text": "3. Kişisel Koruyucu Donanım"
+    },
+    {
+      "level": 2,
+      "text": "4. Çalışma Kuralları"
+    },
+    {
+      "level": 2,
+      "text": "5. Yasaklar"
+    },
+    {
+      "level": 2,
+      "text": "6. Acil Durumda"
+    }
+  ],
+  "key_sentences": [
+    "Bu talimatın amacı, talaşlı imalat atölyesindeki torna ve freze tezgâhlarında güvenli çalışma yöntemlerini belirlemektir.",
+    "Talimat, iş kazalarını ve meslek hastalıklarını önlemeye yöneliktir.",
+    "Bu talimat; atölyede çalışan tüm operatörleri, stajyerleri ve bakım personelini kapsar.",
+    "Atölyeye geçici olarak giren ziyaretçiler de talimattaki yasaklara uymakla yükümlüdür.",
+    "Dönen parçalara yakın çalışırken eldiven takılmaz, çünkü eldivenin tezgâha kapılma tehlikesi vardır.",
+    "Bir kaza durumunda tezgâh acil durdurma butonu ile hemen durdurulur.",
+    "Yaralıya ilk yardım eğitimi almış personel müdahale eder ve dahili 112 numaralı hat aranır.",
+    "Kaza yeri, inceleme tamamlanana kadar değiştirilmez."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Donanım",
+          "Torna",
+          "Freze",
+          "Taşlama"
+        ],
+        [
+          "Koruyucu gözlük",
+          "Zorunlu",
+          "Zorunlu",
+          "Zorunlu"
+        ],
+        [
+          "Yüz siperi",
+          "Gerekli değil",
+          "Gerekli değil",
+          "Zorunlu"
+        ],
+        [
+          "Çelik burunlu ayakkabı",
+          "Zorunlu",
+          "Zorunlu",
+          "Zorunlu"
+        ],
+        [
+          "Kulak tıkacı",
+          "Zorunlu",
+          "Zorunlu",
+          "Zorunlu"
+        ],
+        [
+          "İş eldiveni",
+          "Yasak",
+          "Yasak",
+          "Gerekli değil"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Hazırlayan",
+          "Kontrol Eden",
+          "Onaylayan"
+        ],
+        [
+          "Sinan Kaplan",
+          "Elif Arslan Doğru",
+          "Murat Özkaya"
+        ],
+        [
+          "İSG Uzmanı",
+          "Üretim Müdürü",
+          "Genel Müdür"
+        ],
+        [
+          "",
+          "",
+          ""
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "4.1. Tezgâh çalıştırılmadan önce koruyucu kapakların yerinde olduğu kontrol edilir."
+    },
+    {
+      "level": 0,
+      "text": "4.2. İş parçası ve kesici takım sıkıca bağlanmadan tezgâh çalıştırılmaz."
+    },
+    {
+      "level": 0,
+      "text": "4.3. Talaşlar elle değil, fırça veya talaş kancası ile temizlenir."
+    },
+    {
+      "level": 0,
+      "text": "4.4. Tezgâh arızalandığında:"
+    },
+    {
+      "level": 1,
+      "text": "a) tezgâh durdurulur ve ana şalter kapatılır;"
+    },
+    {
+      "level": 1,
+      "text": "b) şaltere “ARIZALI – ÇALIŞTIRMAYINIZ” kartı asılır;"
+    },
+    {
+      "level": 1,
+      "text": "c) durum vardiya amirine bildirilir."
+    },
+    {
+      "level": 0,
+      "text": "4.5. Çalışma alanı her vardiya sonunda temizlenir ve yağ birikintileri giderilir."
+    },
+    {
+      "level": 0,
+      "text": "Bol giysi, kravat, yüzük, saat ve kolye ile tezgâhta çalışmak"
+    },
+    {
+      "level": 0,
+      "text": "Saçları açık bırakmak; uzun saçlar bone ile toplanmalıdır"
+    },
+    {
+      "level": 0,
+      "text": "Tezgâh çalışırken ölçü almak veya iş parçasına dokunmak"
+    },
+    {
+      "level": 0,
+      "text": "Basınçlı hava ile giysi ve vücut temizlemek"
+    }
+  ],
+  "furniture": [
+    "AKYOL METAL SANAYİ A.Ş.",
+    "İŞ SAĞLIĞI VE GÜVENLİĞİ TALİMATI",
+    "Doküman No: İSG-TL-012",
+    "Yayın Tarihi: 04.05.2026",
+    "Revizyon No: 02",
+    "Sayfa: 1 / 1"
+  ],
+  "languages": [
+    "tr"
+  ],
+  "code": [],
+  "notes": "Turkish workshop safety instruction. The bordered document-control block at the top (company name, 'İŞ SAĞLIĞI VE GÜVENLİĞİ TALİMATI', and four control lines incl. 'Sayfa: 1 / 1') is page furniture drawn with boxes, NOT a table; the document title is the level-1 heading below it. Section headings carry TYPED numbers. The protective-equipment table has a full grid and a header row. The work-rule list uses TYPED markers '4.1.' to '4.5.' with nested TYPED 'a)' 'b)' 'c)', hanging indents. The prohibitions list sits in a red-bordered box with CSS square bullets (not in text). The signature table (header row, names, titles, and an empty signature row given as three \"\") ends the page."
+}

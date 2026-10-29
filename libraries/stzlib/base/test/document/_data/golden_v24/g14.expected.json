@@ -1,0 +1,119 @@
+{
+  "id": "g14",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "승강기 교체 공사 안내",
+  "headings": [
+    {
+      "level": 1,
+      "text": "승강기 교체 공사 안내"
+    }
+  ],
+  "key_sentences": [
+    "우리 단지 101동과 102동의 승강기가 설치된 지 20년이 지나 노후 승강기 교체 공사를 아래와 같이 실시합니다.",
+    "공사 기간 동안 다소 불편하시더라도 입주민 여러분의 너그러운 양해를 부탁드립니다.",
+    "새 승강기는 정전 시 가장 가까운 층까지 자동으로 운행하는 비상 구출 장치를 갖추고 있습니다.",
+    "입주민 여러분의 협조에 다시 한 번 감사드립니다."
+  ],
+  "tables": [
+    {
+      "caption": "호기별 공사 일정",
+      "rows": [
+        [
+          "동",
+          "호기",
+          "공사 시작",
+          "공사 종료"
+        ],
+        [
+          "101동",
+          "1호기",
+          "11월 9일(월)",
+          "11월 20일(금)"
+        ],
+        [
+          "101동",
+          "2호기",
+          "11월 23일(월)",
+          "12월 4일(금)"
+        ],
+        [
+          "102동",
+          "1호기",
+          "11월 23일(월)",
+          "12월 4일(금)"
+        ],
+        [
+          "102동",
+          "2호기",
+          "12월 7일(월)",
+          "12월 18일(금)"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "관리사무소",
+          "031-718-2405"
+        ],
+        [
+          "시공업체 현장사무소",
+          "031-718-2477"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. 공사 기간: 2026년 11월 9일(월) ~ 2026년 12월 18일(금)"
+    },
+    {
+      "level": 0,
+      "text": "2. 공사 대상: 101동 1·2호기, 102동 1·2호기 (호기별 순차 진행)"
+    },
+    {
+      "level": 0,
+      "text": "3. 시공 업체: 한빛엘리베이터(주)"
+    },
+    {
+      "level": 0,
+      "text": "4. 협조 사항"
+    },
+    {
+      "level": 1,
+      "text": "가. 공사 중인 승강기는 운행이 중지되므로 같은 동의 다른 승강기를 이용해 주시기 바랍니다."
+    },
+    {
+      "level": 1,
+      "text": "나. 이삿짐 운반은 공사 기간 중 사전 예약제로 운영합니다."
+    },
+    {
+      "level": 1,
+      "text": "다. 거동이 불편한 세대는 관리사무소에 미리 알려 주시면 지원해 드리겠습니다."
+    },
+    {
+      "level": 0,
+      "text": "○ 공사 소음은 평일 오전 9시부터 오후 6시 사이에만 발생하도록 하겠습니다."
+    },
+    {
+      "level": 0,
+      "text": "○ 주말과 공휴일에는 공사를 하지 않습니다."
+    },
+    {
+      "level": 0,
+      "text": "※ 공사 일정은 자재 수급 상황에 따라 다소 변경될 수 있습니다."
+    }
+  ],
+  "furniture": [
+    "햇살마을 3단지 관리사무소 공지",
+    "햇살마을 3단지 관리사무소 · 경기도 성남시 분당구 햇살로 120 · 전화 031-718-2405"
+  ],
+  "languages": [
+    "ko"
+  ],
+  "code": [],
+  "notes": "Korean apartment-management notice. Page margins are zero and the furniture is placed in the body: a full-width green top bar ('햇살마을 3단지 관리사무소 공지') and a fixed footer line at the bottom of the page. The letter-spaced word '아래' (\"below\") is a centred separator, not a heading. Main list: TYPED markers '1.' to '4.' with nested TYPED Korean-syllable markers '가.' '나.' '다.', hanging indents. The schedule table has a caption above it, a shaded header, rules only above and below, and the 동 column uses row spans (repeated in each covered cell). A second TYPED list with '○' bullets and a '※' note sits in a column BESIDE a boxed 문의 (contact) panel holding a borderless key/value table; read the list first, then the box. Date and sender lines at the end are body but not sentences."
+}

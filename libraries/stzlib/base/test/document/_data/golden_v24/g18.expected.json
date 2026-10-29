@@ -1,0 +1,146 @@
+{
+  "id": "g18",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "THÔNG BÁO",
+  "headings": [
+    {
+      "level": 1,
+      "text": "THÔNG BÁO"
+    },
+    {
+      "level": 2,
+      "text": "Về việc tuyển dụng nhân sự đợt 2 năm 2026"
+    },
+    {
+      "level": 3,
+      "text": "1. Vị trí và số lượng tuyển dụng"
+    },
+    {
+      "level": 3,
+      "text": "2. Quyền lợi"
+    },
+    {
+      "level": 3,
+      "text": "3. Hồ sơ dự tuyển"
+    },
+    {
+      "level": 3,
+      "text": "4. Thời gian và địa điểm nhận hồ sơ"
+    }
+  ],
+  "key_sentences": [
+    "Hồ sơ được nhận từ ngày 26/10/2026 đến hết ngày 20/11/2026, trong giờ hành chính.",
+    "Ứng viên nộp hồ sơ trực tiếp tại Phòng Hành chính – Nhân sự, Lô B7, Khu công nghiệp Trà Nóc, hoặc gửi qua thư điện tử tuyendung@songhauxanh.example.",
+    "Công ty chỉ liên hệ với những ứng viên có hồ sơ phù hợp.",
+    "Hồ sơ không được trả lại."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "STT",
+          "Vị trí",
+          "Số lượng",
+          "Yêu cầu",
+          "Mức lương (triệu đồng/tháng)"
+        ],
+        [
+          "1",
+          "Kỹ sư công nghệ thực phẩm",
+          "02",
+          "Tốt nghiệp đại học chuyên ngành công nghệ thực phẩm; ưu tiên có kinh nghiệm",
+          "14–18"
+        ],
+        [
+          "2",
+          "Nhân viên kiểm soát chất lượng (QC)",
+          "04",
+          "Tốt nghiệp cao đẳng trở lên",
+          "9–11"
+        ],
+        [
+          "3",
+          "Công nhân vận hành máy đóng gói",
+          "15",
+          "Tốt nghiệp trung học phổ thông; sức khỏe tốt",
+          "7–8,5"
+        ],
+        [
+          "4",
+          "Nhân viên kho",
+          "03",
+          "Biết sử dụng xe nâng là một lợi thế",
+          "7,5–9"
+        ],
+        [
+          "Tổng cộng",
+          "Tổng cộng",
+          "24",
+          "",
+          ""
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "- Ký hợp đồng lao động chính thức sau hai tháng thử việc."
+    },
+    {
+      "level": 0,
+      "text": "- Được đóng bảo hiểm xã hội, bảo hiểm y tế và bảo hiểm thất nghiệp đầy đủ theo quy định."
+    },
+    {
+      "level": 0,
+      "text": "- Được hưởng lương tháng thứ 13 và thưởng theo kết quả kinh doanh."
+    },
+    {
+      "level": 0,
+      "text": "- Có xe đưa đón công nhân từ trung tâm thành phố."
+    },
+    {
+      "level": 0,
+      "text": "a) Đơn xin việc ghi rõ vị trí dự tuyển;"
+    },
+    {
+      "level": 0,
+      "text": "b) Sơ yếu lý lịch có xác nhận của địa phương;"
+    },
+    {
+      "level": 0,
+      "text": "c) Bản sao các văn bằng, chứng chỉ liên quan;"
+    },
+    {
+      "level": 0,
+      "text": "d) Giấy khám sức khỏe còn thời hạn sáu tháng."
+    },
+    {
+      "level": 0,
+      "text": "- Như trên;"
+    },
+    {
+      "level": 0,
+      "text": "- Bảng tin công ty;"
+    },
+    {
+      "level": 0,
+      "text": "- Lưu: VT, HCNS."
+    }
+  ],
+  "furniture": [
+    "CÔNG TY TNHH THỰC PHẨM",
+    "SÔNG HẬU XANH",
+    "Số: 15/2026/TB-SHX",
+    "CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM",
+    "Độc lập - Tự do - Hạnh phúc",
+    "Cần Thơ, ngày 20 tháng 10 năm 2026"
+  ],
+  "languages": [
+    "vi"
+  ],
+  "code": [],
+  "notes": "Vietnamese administrative notice in the standard two-block heading: left block (company name on two lines, document number) and right block (national name, motto, place and date) are furniture, one visible line per entry. Title 'THÔNG BÁO' (level 1, typed in capitals) and the subject line (level 2); section lines '1.' to '4.' are level-3 headings with TYPED numbers. The position table has a full grid; the last header cell has two lines joined with one space; the total row's label spans two columns and its last cell spans two columns (both repeated per covered cell; the empty one as \"\"). Lists: TYPED hyphen markers '-' for benefits and for the 'Nơi nhận' distribution list (bottom left, beside the director's signature block on the right; read left block then right); TYPED 'a)' to 'd)' for the application documents. All Vietnamese text is precomposed (NFC)."
+}

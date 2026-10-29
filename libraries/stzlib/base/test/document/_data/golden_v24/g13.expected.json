@@ -1,0 +1,126 @@
+{
+  "id": "g13",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "परिपत्र",
+  "headings": [
+    {
+      "level": 1,
+      "text": "परिपत्र"
+    },
+    {
+      "level": 2,
+      "text": "अर्धवार्षिक परीक्षा 2026-27 की समय-सारणी"
+    },
+    {
+      "level": 2,
+      "text": "आवश्यक निर्देश"
+    }
+  ],
+  "key_sentences": [
+    "आपको सूचित किया जाता है कि कक्षा छह से आठ तक की अर्धवार्षिक परीक्षाएँ 9 नवंबर 2026 से आरंभ होंगी।",
+    "परीक्षाएँ प्रतिदिन प्रातः 9:00 बजे से 11:30 बजे तक होंगी।",
+    "परीक्षा के दिनों में विद्यालय की छुट्टी दोपहर 12:00 बजे होगी।",
+    "12 नवंबर 2026, गुरुवार को परीक्षा नहीं होगी और विद्यालय में अवकाश रहेगा।",
+    "परीक्षा परिणाम 5 दिसंबर 2026 को अभिभावक-शिक्षक बैठक में दिए जाएँगे।",
+    "आपसे अनुरोध है कि आप अपने बच्चे की तैयारी में पूरा सहयोग करें।"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "दिनांक",
+          "दिन",
+          "विषय"
+        ],
+        [
+          "09.11.2026",
+          "सोमवार",
+          "हिंदी"
+        ],
+        [
+          "10.11.2026",
+          "मंगलवार",
+          "गणित"
+        ],
+        [
+          "11.11.2026",
+          "बुधवार",
+          "अंग्रेज़ी"
+        ],
+        [
+          "13.11.2026",
+          "शुक्रवार",
+          "विज्ञान"
+        ],
+        [
+          "14.11.2026",
+          "शनिवार",
+          "सामाजिक विज्ञान"
+        ],
+        [
+          "16.11.2026",
+          "सोमवार",
+          "संस्कृत"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "छात्र/छात्रा का नाम",
+          "",
+          "कक्षा व वर्ग",
+          ""
+        ],
+        [
+          "अभिभावक का नाम",
+          "",
+          "अभिभावक के हस्ताक्षर",
+          ""
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "१. विद्यार्थी परीक्षा आरंभ होने से पंद्रह मिनट पहले विद्यालय पहुँचें।"
+    },
+    {
+      "level": 0,
+      "text": "२. प्रवेश पत्र के बिना किसी भी विद्यार्थी को परीक्षा कक्ष में प्रवेश नहीं मिलेगा।"
+    },
+    {
+      "level": 0,
+      "text": "३. विद्यार्थी अपने साथ केवल निम्नलिखित सामग्री लाएँ:"
+    },
+    {
+      "level": 1,
+      "text": "(क) नीला या काला बॉलपॉइंट पेन, पेंसिल और रबर;"
+    },
+    {
+      "level": 1,
+      "text": "(ख) ज्यामिति बॉक्स, केवल गणित की परीक्षा के दिन;"
+    },
+    {
+      "level": 1,
+      "text": "(ग) पारदर्शी पानी की बोतल।"
+    },
+    {
+      "level": 0,
+      "text": "४. मोबाइल फ़ोन तथा कोई भी इलेक्ट्रॉनिक उपकरण लाना पूर्णतः वर्जित है।"
+    }
+  ],
+  "furniture": [
+    "आदर्श बाल विद्यालय, नयागाँव",
+    "संबद्धता संख्या 2130457 · स्टेशन रोड, नयागाँव · दूरभाष 0145-2662190"
+  ],
+  "languages": [
+    "hi"
+  ],
+  "code": [],
+  "notes": "Hindi school circular. Letterhead (school name, then affiliation/address/phone line) is furniture; the circular number and date line under it is body (not listed, not sentences). Title 'परिपत्र' (level 1) with the subject as a level-2 heading; 'आवश्यक निर्देश' is a second level-2 heading. The exam timetable is a centred full-grid table with a header row, Latin digits. The instructions list uses TYPED Devanagari-digit markers '१.' to '४.' and nested TYPED Devanagari-letter markers '(क)' '(ख)' '(ग)', all with hanging indents. Sentences end with the danda '।'. The tear-off slip at the bottom (below a dashed cut line) is a form: a key/value table of two label/blank pairs per row with empty values given as \"\". The signature block is body but not a sentence."
+}

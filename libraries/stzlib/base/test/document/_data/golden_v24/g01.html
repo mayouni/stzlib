@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en-GB" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Tax Invoice</title>
+<style>
+
+@page { size: A4; margin: 2cm 2cm 2.4cm 2cm;
+  @bottom-center { content: "Registered in England No. 08841270 \00B7  VAT No. GB 318 4471 26";
+    font-family: Calibri; font-size: 8pt; color: #666; } }
+body { font-family: Calibri, sans-serif; font-size: 10.5pt; color: #222; margin: 0; }
+.lh { display: flex; justify-content: space-between; border-bottom: 3px solid #1d6f72; padding-bottom: 8px; }
+.lh .org { font-family: Cambria, serif; font-size: 17pt; color: #1d6f72; font-weight: bold; }
+.lh .addr { text-align: right; font-size: 9pt; line-height: 1.35; color: #444; }
+h1 { font-family: Cambria, serif; font-size: 26pt; color: #1d6f72; margin: 18px 0 6px; font-weight: normal; }
+h2 { font-family: Cambria, serif; font-size: 13pt; margin: 18px 0 6px; color: #1d6f72; }
+.top { display: flex; gap: 14px; align-items: flex-start; }
+.box { flex: 1; border: 1px solid #bcd; padding: 6px 10px; font-size: 10pt; line-height: 1.35; }
+.box .lbl { font-weight: bold; color: #1d6f72; font-size: 9pt; margin-bottom: 3px; }
+table.meta { border: 1.5px solid #1d6f72; border-collapse: collapse; font-size: 9.5pt; }
+table.meta td { padding: 3px 8px; }
+table.meta td:first-child { color: #1d6f72; font-weight: bold; }
+table.items { width: 100%; border-collapse: collapse; margin-top: 18px; }
+table.items th { text-align: left; border-bottom: 2px solid #1d6f72; padding: 5px 6px; font-size: 9.5pt; color: #1d6f72; }
+table.items td { padding: 6px 6px; vertical-align: top; }
+table.items td.n, table.items th.n { text-align: right; }
+table.items tr.tot td { border-top: 1px solid #999; }
+table.items tr.grand td { font-weight: bold; border-top: 2px solid #1d6f72; font-size: 11.5pt; }
+ol.typed, ol.typed ol { list-style: none; padding-left: 0; margin: 4px 0; }
+ol.typed li { padding-left: 1.6em; text-indent: -1.6em; margin: 3px 0; }
+ol.typed ol { margin-left: 1.6em; }
+ol.typed .mk { display: inline-block; width: 1.6em; text-indent: 0; }
+table.bank { border-collapse: collapse; background: #eef5f5; font-size: 9.5pt; }
+table.bank td { padding: 3px 10px; }
+
+</style>
+</head>
+<body>
+<div class="lh"><div>
+<div class="org">Larkspur Print &amp; Bindery Ltd.</div>
+</div><div>
+<div class="addr">Unit 7, Kestrel Way Trading Estate<br>Norwich NR6 4QT<br>Tel. 01603 550 218 · accounts@larkspur-print.example</div>
+</div></div>
+<h1>Tax Invoice</h1>
+<div class="top"><div class="box"><div class="lbl">Invoice to</div>Finance Office<br>Halvergate Rowing Trust<br>3 Staithe Lane<br>Reedham NR13 3TQ</div>
+<div class="box"><div class="lbl">Deliver to</div>The Boathouse<br>Halvergate Rowing Trust<br>Ferry Road<br>Reedham NR13 3HA</div><div>
+<table class="meta"><tbody><tr><td>Invoice number</td><td>INV-2026-0418</td></tr><tr><td>Invoice date</td><td>14 October 2026</td></tr><tr><td>Your order</td><td>PO 55102</td></tr><tr><td>Due date</td><td>13 November 2026</td></tr></tbody></table>
+</div></div>
+<table class="items"><thead><tr><th>Item</th><th>Description</th><th class="n">Qty</th><th class="n">Unit price</th><th class="n">Amount</th></tr></thead><tbody><tr><td>1</td><td><strong>Perfect-bound annual report</strong><br>64 pp, 170 gsm silk cover</td><td class="n">750</td><td class="n">£4.12</td><td class="n">£3,090.00</td></tr><tr><td>2</td><td><strong>Saddle-stitched regatta programme</strong><br>16 pp, two colours throughout</td><td class="n">2,000</td><td class="n">£0.86</td><td class="n">£1,720.00</td></tr><tr><td>3</td><td><strong>Colour proof</strong><br>Wet proof on the chosen stock</td><td class="n">2</td><td class="n">£65.00</td><td class="n">£130.00</td></tr><tr><td>4</td><td><strong>Delivery</strong><br>Pallet service to two addresses</td><td class="n">1</td><td class="n">£148.00</td><td class="n">£148.00</td></tr><tr class="tot"><td class="n" colspan="4">Subtotal</td><td class="n">£5,088.00</td></tr><tr><td class="n" colspan="4">VAT at 20%</td><td class="n">£1,017.60</td></tr><tr class="grand"><td class="n" colspan="4">Total due</td><td class="n">£6,105.60</td></tr></tbody></table>
+<p style="margin-top:16px">Thank you for your order. The goods listed above were delivered on 9 October 2026 and signed for by your boathouse steward. Please quote the invoice number on every remittance so that we can match your payment quickly.</p>
+<h2>Payment terms</h2>
+<ol class="typed lv0"><li><span class="mk">1)</span> Payment is due within 30 days of the invoice date.</li><li><span class="mk">2)</span> Late payments attract interest at 8% above the base rate, as permitted by statute.<ol class="lv1"><li><span class="mk">a)</span> A first reminder is sent seven days after the due date.</li><li><span class="mk">b)</span> A fixed recovery charge of £70 applies to debts of £10,000 or more.</li></ol></li><li><span class="mk">3)</span> Title in the goods remains with Larkspur Print &amp; Bindery Ltd. until the invoice is paid in full.</li></ol>
+<h2>How to pay</h2>
+<p>We prefer payment by bank transfer to the account below. Cheques are no longer accepted after the closure of our town-centre branch.</p>
+<table class="bank"><tbody><tr><td>Bank</td><td>Wherry Valley Building Society</td></tr><tr><td>Account name</td><td>Larkspur Print &amp; Bindery Ltd.</td></tr><tr><td>Sort code</td><td>40-12-76</td></tr><tr><td>Account number</td><td>31926604</td></tr></tbody></table>
+</body>
+</html>

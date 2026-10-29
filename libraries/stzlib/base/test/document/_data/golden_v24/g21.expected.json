@@ -1,0 +1,178 @@
+{
+  "id": "g21",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Kumbukumbu za Mkutano Mkuu wa Mwaka 2026",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Kumbukumbu za Mkutano Mkuu wa Mwaka 2026"
+    },
+    {
+      "level": 2,
+      "text": "Ajenda"
+    },
+    {
+      "level": 2,
+      "text": "Taarifa ya Fedha"
+    },
+    {
+      "level": 2,
+      "text": "Maazimio"
+    },
+    {
+      "level": 2,
+      "text": "Mengineyo"
+    }
+  ],
+  "key_sentences": [
+    "Mkutano ulifanyika tarehe 17 Oktoba 2026 katika ukumbi wa chama, kuanzia saa nne asubuhi.",
+    "Mwenyekiti aliwakaribisha wanachama na kuwashukuru kwa kuhudhuria kwa wingi licha ya mvua za asubuhi.",
+    "Kumbukumbu za mkutano uliopita zilisomwa na kuthibitishwa bila marekebisho.",
+    "Mweka hazina, Bw. Daudi Lyimo, aliwasilisha taarifa ya fedha ya mwaka 2025/2026.",
+    "Alieleza kwamba mauzo ya kahawa yaliongezeka kwa asilimia kumi na mbili ikilinganishwa na mwaka uliopita.",
+    "Gharama za usafirishaji zilipanda kutokana na ubovu wa barabara ya kwenda kiwandani.",
+    "Wanachama waliuliza maswali kuhusu mishahara ya watumishi, na mweka hazina aliyajibu kwa kina.",
+    "Mkutano ulifungwa saa tisa alasiri kwa sala."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Wanachama waliohudhuria",
+          "186"
+        ],
+        [
+          "Wanachama wote",
+          "241"
+        ],
+        [
+          "Akidi",
+          "Imetimia"
+        ],
+        [
+          "Mwenyekiti",
+          "Bi. Rehema Mwakasege"
+        ],
+        [
+          "Katibu",
+          "Bw. Joseph Kimaro"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Kipengele",
+          "Kiasi (TSh)"
+        ],
+        [
+          "Mapato",
+          "Mapato"
+        ],
+        [
+          "Mauzo ya kahawa",
+          "412,600,000"
+        ],
+        [
+          "Ada za uanachama",
+          "3,615,000"
+        ],
+        [
+          "Jumla ya mapato",
+          "416,215,000"
+        ],
+        [
+          "Matumizi",
+          "Matumizi"
+        ],
+        [
+          "Malipo kwa wakulima",
+          "358,900,000"
+        ],
+        [
+          "Usafirishaji na usindikaji",
+          "31,480,000"
+        ],
+        [
+          "Mishahara na utawala",
+          "14,250,000"
+        ],
+        [
+          "Jumla ya matumizi",
+          "404,630,000"
+        ],
+        [
+          "Ziada",
+          "11,585,000"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Kufungua mkutano"
+    },
+    {
+      "level": 0,
+      "text": "Kuthibitisha kumbukumbu za mkutano uliopita"
+    },
+    {
+      "level": 0,
+      "text": "Taarifa ya fedha"
+    },
+    {
+      "level": 0,
+      "text": "Bei ya kahawa kwa msimu ujao"
+    },
+    {
+      "level": 0,
+      "text": "Uchaguzi wa wajumbe wa bodi"
+    },
+    {
+      "level": 0,
+      "text": "Mengineyo"
+    },
+    {
+      "level": 0,
+      "text": "(a) Mkutano ulipitisha taarifa ya fedha ya mwaka 2025/2026 kama ilivyowasilishwa."
+    },
+    {
+      "level": 0,
+      "text": "(b) Malipo ya pili kwa wakulima yatakuwa shilingi 450 kwa kila kilo ya kahawa safi."
+    },
+    {
+      "level": 1,
+      "text": "(i) Malipo yatafanyika kupitia benki ifikapo tarehe 30 Novemba 2026."
+    },
+    {
+      "level": 1,
+      "text": "(ii) Wakulima wasio na akaunti za benki watalipwa kupitia simu ya mkononi."
+    },
+    {
+      "level": 0,
+      "text": "(c) Wajumbe watatu wapya wa bodi walichaguliwa kwa kura za siri."
+    },
+    {
+      "level": 0,
+      "text": "Wanachama walikumbushwa kuchuma kahawa iliyoiva pekee ili kulinda ubora."
+    },
+    {
+      "level": 0,
+      "text": "Mafunzo ya kupogoa miche yatafanyika mwezi Januari 2027."
+    }
+  ],
+  "furniture": [
+    "CHAMA CHA USHIRIKA WA WAKULIMA WA KAHAWA MLIMA KIJANI",
+    "S.L.P. 214, Kibaoni · Simu 0754 318 902 · Nambari ya usajili KLM/1187",
+    "Ukurasa 1 wa 1"
+  ],
+  "languages": [
+    "sw"
+  ],
+  "code": [],
+  "notes": "Swahili minutes of a cooperative's annual general meeting. Letterhead (name and address line beside a plain brown oval) is furniture; footer 'Ukurasa N wa M' once per page. The attendance key/value table (no header) FLOATS at the right of the opening paragraph and the agenda; the finance table FLOATS at the right of the treasurer's paragraph (table beside text). Read order: heading, attendance table, opening paragraph, agenda; then 'Taarifa ya Fedha', finance table, paragraph. The finance table is partly ruled: no grid, a rule above each total and a heavier rule above 'Ziada', two full-width section rows (Mapato, Matumizi). Lists: the agenda is CSS-numbered (decimal drawn by CSS); the resolutions use TYPED '(a)' '(b)' '(c)' with nested TYPED roman '(i)' '(ii)'; 'Mengineyo' uses CSS circle bullets. Signature lines at the end are not sentences."
+}

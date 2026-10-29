@@ -1,0 +1,207 @@
+{
+  "id": "g23",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Relatório de Vistoria Técnica Predial",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Relatório de Vistoria Técnica Predial"
+    },
+    {
+      "level": 2,
+      "text": "1. Objetivo"
+    },
+    {
+      "level": 2,
+      "text": "2. Metodologia"
+    },
+    {
+      "level": 2,
+      "text": "3. Constatações"
+    },
+    {
+      "level": 3,
+      "text": "3.1 Fachadas"
+    },
+    {
+      "level": 3,
+      "text": "3.2 Cobertura e subsolo"
+    },
+    {
+      "level": 2,
+      "text": "4. Recomendações"
+    },
+    {
+      "level": 2,
+      "text": "5. Conclusão"
+    }
+  ],
+  "key_sentences": [
+    "Este relatório apresenta o resultado da vistoria técnica realizada nas áreas comuns do condomínio, a pedido do síndico.",
+    "A vistoria foi visual e não destrutiva, complementada por ensaios simples de campo.",
+    "Foram utilizados os seguintes recursos:",
+    "As anomalias críticas envolvem risco à segurança dos usuários e exigem providências imediatas.",
+    "As demais decorrem principalmente da falta de manutenção preventiva nos últimos cinco anos.",
+    "O revestimento cerâmico da fachada norte apresenta som cavo em cerca de 18% da área ensaiada.",
+    "Em três pontos as pastilhas já se desprenderam, e há fragmentos acumulados na marquise do acesso principal.",
+    "No subsolo, as fissuras das vigas de transição têm abertura inferior a 0,3 mm e não mostraram evolução nas últimas medições do zelador.",
+    "A edificação apresenta condições regulares de conservação, com duas anomalias críticas que exigem ação imediata.",
+    "Uma nova vistoria deve ser realizada após a conclusão das obras da fachada."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Cliente",
+          "Condomínio Residencial Jardim das Paineiras"
+        ],
+        [
+          "Endereço",
+          "Rua das Paineiras, 455, Campinas/SP"
+        ],
+        [
+          "Data da vistoria",
+          "14/10/2026"
+        ],
+        [
+          "Responsável técnico",
+          "Eng.ª Civil Fernanda Rocha Lima"
+        ]
+      ]
+    },
+    {
+      "caption": "Distribuição por grau de risco",
+      "rows": [
+        [
+          "Grau de risco",
+          "Itens"
+        ],
+        [
+          "Crítico",
+          "2"
+        ],
+        [
+          "Médio",
+          "3"
+        ],
+        [
+          "Mínimo",
+          "1"
+        ],
+        [
+          "Total",
+          "6"
+        ]
+      ]
+    },
+    {
+      "caption": "Tabela 1 – Anomalias constatadas",
+      "rows": [
+        [
+          "Item",
+          "Local",
+          "Anomalia",
+          "Grau de risco",
+          "Prazo"
+        ],
+        [
+          "1",
+          "Fachada norte, 8º ao 12º pavimento",
+          "Desplacamento de pastilhas cerâmicas com risco de queda",
+          "Crítico",
+          "Imediato"
+        ],
+        [
+          "2",
+          "Cobertura, casa de máquinas",
+          "Infiltração pela laje e corrosão de armaduras",
+          "Crítico",
+          "30 dias"
+        ],
+        [
+          "3",
+          "Subsolo, garagem G2",
+          "Fissuras em vigas de transição",
+          "Médio",
+          "90 dias"
+        ],
+        [
+          "4",
+          "Áreas comuns do térreo",
+          "Iluminação de emergência inoperante em dois pontos",
+          "Médio",
+          "30 dias"
+        ],
+        [
+          "5",
+          "Reservatório superior",
+          "Tampa de inspeção sem vedação",
+          "Médio",
+          "60 dias"
+        ],
+        [
+          "6",
+          "Playground",
+          "Desgaste do piso emborrachado",
+          "Mínimo",
+          "180 dias"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "a) inspeção das fachadas com drone e percussão em pontos acessíveis por balancim;"
+    },
+    {
+      "level": 0,
+      "text": "b) medição de umidade com higrômetro de contato nas paredes do subsolo;"
+    },
+    {
+      "level": 0,
+      "text": "c) registro fotográfico de todas as anomalias, numerado conforme a tabela da seção 3;"
+    },
+    {
+      "level": 0,
+      "text": "d) entrevista com o zelador sobre o histórico de manutenção."
+    },
+    {
+      "level": 0,
+      "text": "Isolar imediatamente a faixa de calçada sob a fachada norte e instalar bandeja de proteção."
+    },
+    {
+      "level": 0,
+      "text": "Contratar projeto de recuperação da fachada, incluindo:"
+    },
+    {
+      "level": 1,
+      "text": "mapeamento completo por percussão em todos os pavimentos;"
+    },
+    {
+      "level": 1,
+      "text": "especificação de argamassa colante adequada à exposição solar."
+    },
+    {
+      "level": 0,
+      "text": "Impermeabilizar a laje da casa de máquinas e tratar as armaduras corroídas."
+    },
+    {
+      "level": 0,
+      "text": "Instalar selos de monitoramento nas fissuras do subsolo e repetir a medição em 90 dias."
+    }
+  ],
+  "furniture": [
+    "Alicerce Engenharia Diagnóstica",
+    "RVT-2026-118",
+    "Folha 1 de 2",
+    "Folha 2 de 2"
+  ],
+  "languages": [
+    "pt"
+  ],
+  "code": [],
+  "notes": "Brazilian Portuguese building-inspection report. Running header (firm name left, report number right; @page margin boxes, listed once) and 'Folha N de M' footer once per page. The identification block under the title is a BORDERLESS key/value table (no header). In section 3, a small boxed table with its caption above FLOATS at the right of the opening paragraph (table beside text; read the paragraph and the floated table as separate blocks, table first in source order). Tabela 1 has a caption above, a rule under the header and dotted rules between rows; some Anomalia cells have two lines (joined with one space) and cells are vertically centred. Lists: TYPED 'a)'-'d)' markers for the methodology; CSS square bullets with nested CSS disc bullets for the recommendations (no markers in text). Ordinal indicators 'º' and 'ª' are typed characters."
+}

@@ -1,0 +1,171 @@
+{
+  "id": "g15",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "The Riverside Plot",
+  "headings": [
+    {
+      "level": 1,
+      "text": "The Riverside Plot"
+    },
+    {
+      "level": 2,
+      "text": "Record harvest at the autumn show"
+    },
+    {
+      "level": 3,
+      "text": "Water and the dry summer"
+    },
+    {
+      "level": 3,
+      "text": "Rents for 2027"
+    },
+    {
+      "level": 3,
+      "text": "Dates for your diary"
+    },
+    {
+      "level": 3,
+      "text": "Committee"
+    },
+    {
+      "level": 2,
+      "text": "From the plots"
+    },
+    {
+      "level": 3,
+      "text": "Plot 14: a first year without digging"
+    },
+    {
+      "level": 3,
+      "text": "Plot 52: saving your own tomato seed"
+    },
+    {
+      "level": 2,
+      "text": "Show results"
+    },
+    {
+      "level": 2,
+      "text": "Notices"
+    }
+  ],
+  "key_sentences": [
+    "This year's autumn show drew 214 entries from 61 plot holders, the largest number since the society was founded in 1974.",
+    "She praised the quality of the root vegetables and singled out the onions as the best she had seen this season.",
+    "Eleven young growers showed decorated marrows, sunflower heads and miniature gardens laid out in seed trays.",
+    "The committee thanks all members who kept to the watering rota, which meant that no plot was left without water for more than two days.",
+    "At the general meeting members agreed to keep the annual rent at £38 for a full plot and £21 for a half plot.",
+    "Rents are due by 1 February and can be paid at the trading hut on Sunday mornings.",
+    "Instead of digging, they covered the ground with cardboard and a thick layer of compost.",
+    "Harry Blunt has grown the same plum tomato for twenty-two years from his own seed.",
+    "Members can collect a free packet of his seed at the November swap.",
+    "Leave them in the box at the trading hut or send them to the newsletter editor."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Chair",
+          "Desmond Okafor"
+        ],
+        [
+          "Secretary",
+          "Lin Parry"
+        ],
+        [
+          "Treasurer",
+          "Gwen Tallis"
+        ],
+        [
+          "Lettings",
+          "Ravi Mehta"
+        ],
+        [
+          "Newsletter",
+          "Bea Lindqvist"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Class",
+          "Winner",
+          "Plot"
+        ],
+        [
+          "Longest runner bean",
+          "Aled Morgan",
+          "7"
+        ],
+        [
+          "Heaviest onion",
+          "Priya Desai",
+          "33"
+        ],
+        [
+          "Five potatoes, one variety",
+          "Tom Cardew",
+          "18"
+        ],
+        [
+          "Jar of chutney",
+          "Mags Heron",
+          "41"
+        ],
+        [
+          "Children's decorated marrow",
+          "Isla Ferreira (age 8)",
+          "22"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1 November: bulb and seed swap at the trading hut, 10:00"
+    },
+    {
+      "level": 0,
+      "text": "15 November: working party on the boundary hedges"
+    },
+    {
+      "level": 0,
+      "text": "6 December: mince pies and plot photographs in the pavilion"
+    },
+    {
+      "level": 0,
+      "text": "7 February: general meeting at St Anne's church hall"
+    },
+    {
+      "level": 0,
+      "text": "• The trading hut now sells peat-free compost at £6.50 a bag."
+    },
+    {
+      "level": 0,
+      "text": "• Please keep the main track clear for the delivery lorry on Thursday mornings."
+    },
+    {
+      "level": 1,
+      "text": "– Cars may park in the lay-by beside the gate instead."
+    },
+    {
+      "level": 0,
+      "text": "• Lost: a green-handled pruning saw near plot 30, please return it to the hut."
+    }
+  ],
+  "furniture": [
+    "NEWSLETTER OF THE RIVERSIDE ALLOTMENT SOCIETY · ISSUE 37 · AUTUMN 2026",
+    "The Riverside Plot · Autumn 2026",
+    "page 1",
+    "page 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Society newsletter. The masthead name 'The Riverside Plot' is the title (level 1); the masthead line under it (typed in capitals) and the footer (@page bottom-left, listed once) are furniture; the page number 'page N' is listed once per page. Page 1: the lead article runs in TWO columns (read left column then right) inside the left two-thirds; a shaded SIDEBAR on the right follows it in reading order and holds a CSS-bulleted list (markers not in text) and a borderless key/value table (no header). A pull quote inside the article repeats a phrase and is not in key_sentences. Page 2 starts with a forced break: two boxed stories SIDE BY SIDE read box by box (left box, then right), each with its own level-3 heading; the results table has NO lines at all (header row first); the notices list uses TYPED '•' bullets with a nested TYPED '–' item and hanging indents."
+}

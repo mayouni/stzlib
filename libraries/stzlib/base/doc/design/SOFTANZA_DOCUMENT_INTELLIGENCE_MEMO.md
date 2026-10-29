@@ -483,6 +483,23 @@ golden_v23: 24 realistic documents in 17 languages besides English (Arabic, Hebr
 
 Time for the 24 documents: native 0.06 s, Docling 169 s. The native reader leads on all eight measures, the fourth set where it does. Where Docling does better, document by document: tables on seven (f15, a balance sheet across pages, 0.04 against 0.58; f01, a tax invoice, 0.13 against 0.68; f23, a bilingual notice, nothing against 0.80), furniture on five (f12 0.20 against 1.00, f22 0.40 against 1.00 -- letterheads), lists on three (f05 nothing against 0.43), text on two and headings on one (f23 again). Causes not yet looked into: round 23.
 
+**Twenty-third round: column rules, tall rows, ladders kept whole, letterheads beside the title; then golden_v24.** Fixed on golden_v23 (now a development set) and checked on all twenty-three sets:
+- a tall vertical rule with text close on both sides separates two columns: the text beside it is read for tables one side at a time, everything else held out of each reading (f23's English and French columns had paired their wrapped list lines into a table);
+- several two-line cells beside one-line cells centred between them are one row where the shape repeats over the neighbouring lines (one coincidence merged n06's letterhead into a table before the repetition was required); a ladder whose rows are mostly tall cells beside short ones, or a clean ladder (no band that could be two rows merged by a missing rule) holding more rows than the table read inside it, takes that table's place -- all or nothing: a partial dissolve broke k01's and p16's tables on the way;
+- a lone bold band of the cells' size at the rows' spacing is a section row ("ATIVO"), and a lone bold label with the rest of its row empty fills the row ("Hemogram" -- found by the guard when a clean ladder took h18's table);
+- a block beside the title in the top band, smaller than it, is letterhead; a name larger than the title is a letterhead over an e-mail or web address too ("0510-2440 718" holds no five-digit run); the katakana middle dot "・" is a typed bullet.
+
+On the development sets, against round 22 frozen: every measure rose or held on all twenty-two earlier sets -- tables v15 0.82 -> 0.89, v19 0.72 -> 0.79, v11 0.73 -> 0.79, v14 0.86 -> 0.90, v8 0.81 -> 0.84; furniture v7 0.62 -> 0.73, v8 0.65 -> 0.71, v12 0.65 -> 0.70; heading precision up on twelve sets; golden_v23 text 0.96 -> 0.98, tables 0.79 -> 0.84, lists 0.86 -> 0.93, furniture 0.81 -> 0.86. Not reached: f15's sub-section rows carry no rule, so a ladder band holds two rows and its table still starts late; f01's invoice table. Guard 212 assertions under Ring++.
+
+golden_v24: 24 realistic documents in 18 languages besides English (Arabic, Hebrew and Persian right to left, Japanese, Chinese, Korean, Hindi, Thai, Vietnamese among them), 14 of 2-3 pages, forms, statements, letters and mixed layouts, by a twenty-fourth independent agent who saw no reader, no output and no earlier set; no one has looked at the pages (unperceived); reader frozen at d54b177e4; both readers ran once:
+
+| golden_v24, realistic | text | order | headings | tables | lists | furniture | code | heading precision |
+|---|---|---|---|---|---|---|---|---|
+| Softanza native (Ring++) | **0.94** | **1.00** | **0.93** | 0.65 | **0.92** | **0.79** | **0.83** | **0.79** |
+| Docling 2.141 | 0.72 | 0.99 | 0.83 | **0.66** | 0.43 | 0.73 | 0.17 | 0.71 |
+
+Time for the 24 documents: native 0.06 s, Docling 107 s. The native reader leads on seven measures and Docling on tables, by 0.008. The tables are this set's lesson: the native reader finds NO table on five documents where Docling finds most of one -- g14 (Korean notice, 0.83), g19 (two-column conference paper, 1.00), g21 (Swahili minutes, 0.94), g23 (Portuguese inspection report, 0.85) -- and little on g01 (invoice, 0.14 against 0.52) and g22 (landscape purchase order, 0.03 against 0.32). Furniture on five documents (g13 0.50 against 1.00, g22 nothing against 0.50) and lists on two. Causes not yet looked into: round 24.
+
 **Perceived (2026-10-24):** the author looked through every rendered page of golden_v9 to golden_v13 -- the sets whose own authors could not look at them -- and judged them: "they look great". Those five sets are no longer unperceived; the sets before them were generated the same way and are not covered by this look.
 
 **Perceived (2026-10-29):** the author looked at the generated documents of golden_v14 to golden_v22 and judged them: "they are ok". Those nine sets are no longer unperceived.

@@ -1,0 +1,42 @@
+page_header	0	Alicerce Engenharia Diagnóstica
+page_header	0	RVT-2026-118
+heading	1	Relatório de Vistoria Técnica Predial
+paragraph	0	Cliente Condomínio Residencial Jardim das Paineiras
+paragraph	0	Endereço Rua das Paineiras, 455, Campinas/SP
+paragraph	0	Data da vistoria
+paragraph	0	14/10/2026
+paragraph	0	Responsável técnico Eng.
+paragraph	0	ª Civil Fernanda Rocha Lima
+heading	1	1. Objetivo
+paragraph	0	Este relatório apresenta o resultado da vistoria técnica realizada nas áreas comuns do condomínio, a pedido do síndico. O objetivo é avaliar o estado de conservação da edificação e indicar as intervenções necessárias, em ordem de prioridade.
+heading	1	2. Metodologia
+paragraph	0	A vistoria foi visual e não destrutiva, complementada por ensaios simples de campo. Foram utilizados os seguintes recursos:
+list_item	0	inspeção das fachadas com drone e percussão em pontos acessíveis por balancim;
+list_item	0	medição de umidade com higrômetro de contato nas paredes do subsolo;
+list_item	0	registro fotográfico de todas as anomalias, numerado conforme a tabela da seção 3;
+list_item	0	entrevista com o zelador sobre o histórico de manutenção.
+heading	1	3. Constatações
+paragraph	0	Foram identificadas seis anomalias nas áreas comuns, das quais duas foram classificadas como de risco crítico. As anomalias críticas envolvem risco à segurança dos usuários e exigem providências imediatas. As demais decorrem principalmente da falta de manutenção preventiva nos últimos cinco anos. A classificação segue a norma técnica brasileira de inspeção predial.
+heading	1	Distribuição por grau de risco
+table	0	Grau de riscoItensCrítico2Médio3Mínimo1Total6
+table	0	ItemLocalAnomaliaGrau de riscoPrazo1Fachada norte, 8º ao 12º pavimentoDesplacamento de pastilhas cerâmicas com risco de quedaCríticoImediato2Cobertura, casa de máquinasInfiltração pela laje e corrosão de armadurasCrítico30 dias3Subsolo, garagem G2Fissuras em vigas de transiçãoMédio90 dias4Áreas comuns do térreoIluminação de emergência inoperante em dois pontosMédio30 dias5Reservatório superiorTampa de inspeção sem vedaçãoMédio60 dias6PlaygroundDesgaste do piso emborrachadoMínimo180 dias
+caption	0	Tabela 1 - Anomalias constatadas
+heading	1	3.1 Fachadas
+paragraph	0	O revestimento cerâmico da fachada norte apresenta som cavo em cerca de 18% da área ensaiada. Em três pontos as pastilhas já se desprenderam, e há fragmentos acumulados na marquise do acesso principal.
+page_footer	0	Folha 1 de 2
+page_header	0	Alicerce Engenharia Diagnóstica
+page_header	0	RVT-2026-118
+heading	1	3.2 Cobertura e subsolo
+paragraph	0	A laje da casa de máquinas apresenta manchas de umidade e armaduras expostas com corrosão avançada. No subsolo, as fissuras das vigas de transição têm abertura inferior a 0,3 mm e não mostraram evolução nas últimas medições do zelador.
+heading	1	4. Recomendações
+list_item	0	Isolar imediatamente a faixa de calçada sob a fachada norte e instalar bandeja de proteção.
+list_item	0	Contratar projeto de recuperação da fachada, incluindo:
+list_item	0	mapeamento completo por percussão em todos os pavimentos;
+list_item	0	especificação de argamassa colante adequada à exposição solar.
+list_item	0	Impermeabilizar a laje da casa de máquinas e tratar as armaduras corroídas.
+list_item	0	Instalar selos de monitoramento nas fissuras do subsolo e repetir a medição em 90 dias.
+heading	1	5. Conclusão
+paragraph	0	A edificação apresenta condições regulares de conservação, com duas anomalias críticas que exigem ação imediata. Recomenda-se que o condomínio aprove em assembleia um plano de manutenção para os próximos três anos. Uma nova vistoria deve ser realizada após a conclusão das obras da fachada.
+paragraph	0	Eng. ª Civil Fernanda Rocha Lima
+paragraph	0	Responsável técnica
+page_footer	0	Folha 2 de 2

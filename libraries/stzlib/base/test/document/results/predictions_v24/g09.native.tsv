@@ -1,0 +1,49 @@
+page_header	0	OPS-RB-017 · Edge proxy certificate rotation
+page_header	0	Internal — Platform Operations
+heading	1	Runbook: Rotating TLS Certificates on the Edge Proxy Fleet
+table	0	OwnerPlatform Operations (Team Kestrel)Last reviewed2026-09-30Severity if missedSEV-2: browsers reject the expired certificateEstimated time45 minutes for all three pools
+heading	2	1. Purpose
+paragraph	0	This runbook replaces the public TLS certificate on every edge proxy before the current one expires. The certificate is renewed automatically, but installing it is still a manual, host-by-host operation. Follow the steps in order and do not skip the health check between hosts.
+heading	2	2. Before you start
+list_item	0	You hold the on-call role or have written approval from the on-call engineer.
+list_item	0	Your workstation can reach the bastion host and the secrets vault.
+list_item	1	Test vault access with a read of a non-sensitive key.
+list_item	1	Make sure your session token is valid for at least two hours.
+list_item	0	No other change is scheduled on the edge fleet in the same window.
+list_item	0	The renewed bundle is at least 24 hours old, so that every OCSP responder knows it.
+heading	3	Warning
+paragraph	0	Never reload more than one host of the same pool at a time. A pool with two hosts out of rotation cannot absorb a traffic peak, and the load balancer will start shedding requests.
+heading	2	3. Hosts in scope
+table	0	PoolHostsRegionDrain orderDrain order Notesedge-fraedge-fra-01 edge-fra-02 edge-fra-03Frankfurt1Busiest pool; rotate outside 08:00–11:00 UTCedge-dubedge-dub-01 edge-dub-02Dublin2edge-dub-02 also serves the status pageedge-madedge-mad-01 edge-mad-02Madrid3None
+heading	2	4. Procedure
+heading	3	4.1 Preparation
+list_item	0	1. Announce the change in the operations channel and open a change record.
+list_item	0	2. Fetch the renewed bundle from the vault and verify its chain and expiry date:
+code	0	vault kv get -field=bundle secret/edge/tls/2026 > /tmp/edge-2026.pem\nopenssl verify -CAfile /etc/ssl/internal-root.pem /tmp/edge-2026.pem\nopenssl x509 -in /tmp/edge-2026.pem -noout -enddate
+heading	3	4.2 Rolling the pools
+list_item	0	3. For each pool, in the drain order of section 3, repeat for every host:
+page_footer	0	1 / 2
+page_header	0	OPS-RB-017 · Edge proxy certificate rotation
+page_header	0	Internal — Platform Operations
+list_item	0	a. Remove the host from the load balancer and wait until fewer than 20 connections remain.
+list_item	0	b. Copy the bundle to the host and reload the proxy.
+list_item	0	c. Run the health check, then return the host to the load balancer.
+paragraph	0	For the first Frankfurt host the commands are:
+code	0	edgectl drain edge-fra-01 --wait --max-conns 20\nscp /tmp/edge-2026.pem edge-fra-01:/etc/edgeproxy/tls/current.pem\nssh edge-fra-01 'sudo systemctl reload edgeproxy'\nedgectl health edge-fra-01 && edgectl undrain edge-fra-01
+heading	3	4.3 Verification
+list_item	0	4. From a machine outside the corporate network, confirm that every pool serves the new expiry date.
+list_item	0	5. Close the change record and post the new expiry date in the operations channel.
+heading	2	5. Configuration reference
+paragraph	0	The proxy reads the certificate path and the reload behaviour from the following section of its configuration file.
+code	0	tls:\n  certificate: /etc/edgeproxy/tls/current.pem\n  min_version: "1.2"\n  ciphers:
+list_item	0	- TLS_AES_128_GCM_SHA256
+list_item	0	- TLS_CHACHA20_POLY1305_SHA256
+code	0	ocsp_stapling: true\nreload:\n  grace_period: 30s\n  drain_timeout: 120s
+paragraph	0	A reload keeps existing connections open for the grace period, so clients finish their requests on the old certificate. Do not shorten the drain timeout during a rotation.
+heading	2	6. Rollback
+paragraph	0	If a host fails its health check after the reload, stop the rotation and roll that host back.
+paragraph	0	R1.
+paragraph	0	Copy the previous bundle, kept as previous.pem on every host, over current.pem. R2. Reload the proxy and run the health check again. R3. Leave the host drained if the check still fails, and page the network team.
+heading	2	7. Escalation
+page_footer	0	2 / 2
+table	0	Time since startAction30 minutesTell the on-call lead that the rotation is running late.60 minutesPage the network team and pause the rotation.Expiry within 24 hoursOpen a SEV-2 incident and follow the incident process.

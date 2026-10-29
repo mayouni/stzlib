@@ -1,0 +1,139 @@
+{
+  "id": "g24",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "ประกาศคณะเกษตรศาสตร์",
+  "headings": [
+    {
+      "level": 1,
+      "text": "ประกาศคณะเกษตรศาสตร์"
+    },
+    {
+      "level": 2,
+      "text": "เรื่อง รับสมัครนักศึกษาเพื่อรับทุนการศึกษา ประจำปีการศึกษา ๒๕๖๙"
+    },
+    {
+      "level": 3,
+      "text": "๑. ประเภทและจำนวนทุน"
+    },
+    {
+      "level": 3,
+      "text": "๒. คุณสมบัติของผู้สมัคร"
+    },
+    {
+      "level": 3,
+      "text": "๓. เอกสารประกอบการสมัคร"
+    },
+    {
+      "level": 3,
+      "text": "๔. กำหนดการ"
+    }
+  ],
+  "key_sentences": [
+    "ด้วยคณะเกษตรศาสตร์ได้รับเงินบริจาคจากศิษย์เก่าและภาคเอกชนเพื่อจัดสรรเป็นทุนการศึกษาแก่นักศึกษาที่มีผลการเรียนดีแต่ขาดแคลนทุนทรัพย์",
+    "จึงประกาศรับสมัครนักศึกษาเพื่อรับทุนการศึกษา ดังรายละเอียดต่อไปนี้",
+    "ผู้สนใจสามารถรับใบสมัครได้ที่งานกิจการนักศึกษา อาคารเกษตรศาสตร์ ๑ ชั้น ๒ ในวันและเวลาราชการ",
+    "หรือดาวน์โหลดจากเว็บไซต์ของคณะ",
+    "จึงประกาศมาเพื่อทราบโดยทั่วกัน"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "ประเภททุน",
+          "จำนวนทุน",
+          "มูลค่าทุน (บาทต่อปี)",
+          "คุณสมบัติเพิ่มเติม"
+        ],
+        [
+          "ทุนเรียนดี",
+          "๕",
+          "๒๐,๐๐๐",
+          "เกรดเฉลี่ยสะสมไม่ต่ำกว่า ๓.๒๕"
+        ],
+        [
+          "ทุนขาดแคลนทุนทรัพย์",
+          "๑๐",
+          "๑๕,๐๐๐",
+          "รายได้ครอบครัวไม่เกิน ๒๐๐,๐๐๐ บาทต่อปี"
+        ],
+        [
+          "ทุนกิจกรรมเพื่อชุมชน",
+          "๔",
+          "๑๐,๐๐๐",
+          "มีผลงานบำเพ็ญประโยชน์ต่อชุมชนอย่างต่อเนื่อง"
+        ],
+        [
+          "รวม",
+          "๑๙",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "รับสมัคร",
+          "๓ – ๒๐ พฤศจิกายน ๒๕๖๙"
+        ],
+        [
+          "สอบสัมภาษณ์",
+          "๒๖ พฤศจิกายน ๒๕๖๙"
+        ],
+        [
+          "ประกาศผล",
+          "๔ ธันวาคม ๒๕๖๙"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "(๑) เป็นนักศึกษาระดับปริญญาตรีของคณะเกษตรศาสตร์ ชั้นปีที่ ๒ ถึงชั้นปีที่ ๔"
+    },
+    {
+      "level": 0,
+      "text": "(๒) มีความประพฤติดีและไม่เคยถูกลงโทษทางวินัย"
+    },
+    {
+      "level": 0,
+      "text": "(๓) ไม่ได้รับทุนการศึกษาอื่นในปีการศึกษาเดียวกัน ยกเว้น"
+    },
+    {
+      "level": 1,
+      "text": "ก. ทุนกู้ยืมเพื่อการศึกษาของรัฐ"
+    },
+    {
+      "level": 1,
+      "text": "ข. ทุนอาหารกลางวันของมหาวิทยาลัย"
+    },
+    {
+      "level": 0,
+      "text": "ใบสมัครที่กรอกข้อมูลครบถ้วนพร้อมรูปถ่าย"
+    },
+    {
+      "level": 0,
+      "text": "สำเนาบัตรประจำตัวนักศึกษา"
+    },
+    {
+      "level": 0,
+      "text": "ใบแสดงผลการเรียนภาคการศึกษาล่าสุด"
+    },
+    {
+      "level": 0,
+      "text": "หนังสือรับรองรายได้ของครอบครัว"
+    }
+  ],
+  "furniture": [
+    "มหาวิทยาลัยดอยสายหมอก"
+  ],
+  "languages": [
+    "th"
+  ],
+  "code": [],
+  "notes": "Thai faculty announcement. Thai is written without spaces between words and without sentence-final punctuation: key_sentences are the space-delimited clauses of the body paragraphs, as typed; a line wrapped inside a clause joins with NO space; the single spaces typed between clauses are real. Thai digits (U+0E50-0E59) are typed throughout. Letterhead: a drawn circular seal and the university name (furniture). Title (level 1) and the 'เรื่อง …' subject line (level 2); numbered section lines '๑.'-'๔.' are level-3 headings with TYPED Thai-digit numbers. The scholarship table has a double rule under the header only and a total row with its last cell spanning two columns (repeated, \"\"). Lists: TYPED '(๑)'-'(๓)' with nested TYPED Thai-letter markers 'ก.' 'ข.'; the documents list uses CSS disc bullets (not in text). The schedule is a boxed key/value table without header. The date line and the signature block are not sentences."
+}

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Extracto de cuenta</title>
+<style>
+
+@page { size: A4; margin: 1.6cm 1.8cm 2.9cm 1.8cm;
+  @bottom-left { content: "Caja Solidaria de Valdemora, S. Coop. de Crédito \00B7  Registro de Entidades n.º 3197"; font-family: Verdana; font-size: 6.5pt; color: #666; }
+  @bottom-right { content: "Página " counter(page) " de " counter(pages); font-family: Verdana; font-size: 7.5pt; } }
+@page :first { margin-top: 1.6cm; }
+body { font-family: Verdana, sans-serif; font-size: 8pt; color: #222; margin: 0; line-height: 1.4; }
+.lh { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.logo { width: 34px; height: 34px; background: #b8322a; border-radius: 6px; }
+.lh .name { font-size: 15pt; font-weight: bold; color: #b8322a; line-height: 1.1; }
+.lh .tag { font-size: 7.5pt; color: #777; }
+h1 { font-size: 13pt; margin: 4px 0 8px; color: #333; font-weight: bold; }
+.two { display: flex; gap: 12px; margin-bottom: 10px; }
+.two > div { flex: 1; border: 1px solid #ccc; border-radius: 4px; padding: 6px 10px; }
+.two .lbl { font-size: 7pt; font-weight: bold; color: #b8322a; margin-bottom: 3px; }
+table.sum { border-collapse: collapse; width: 100%; }
+table.sum td { padding: 1px 0; }
+table.sum td.r { text-align: right; font-weight: bold; }
+table.mov { width: 100%; border-collapse: collapse; }
+table.mov thead th { background: #b8322a; color: #fff; padding: 4px 5px; text-align: left; font-size: 7.5pt; }
+table.mov th.r, table.mov td.r { text-align: right; }
+table.mov td { padding: 2px 5px; vertical-align: top; }
+table.mov tbody tr:nth-child(odd) td { background: #f6eeed; }
+table.mov tr.fin td { background: #fff !important; border-top: 1.5px solid #b8322a; font-weight: bold; }
+table.mov td.neg { color: #9b1c14; }
+h2 { font-size: 10pt; color: #b8322a; margin: 14px 0 4px; }
+ul.sq { list-style-type: square; padding-left: 1.6em; margin: 2px 0; }
+ul.sq ul { list-style-type: "– "; padding-left: 1.4em; }
+p { margin: 0 0 6px; }
+
+</style>
+</head>
+<body>
+<div class="lh"><div class="logo"></div><div>
+<div class="name">Caja Solidaria de Valdemora</div>
+<div class="tag">Oficina 0218 · Plaza de España 3 · 44280 Valdemora</div>
+</div></div>
+<h1>Extracto de cuenta</h1>
+<div class="two"><div><div class="lbl">Titular</div>Lucía Ferrer Albadalejo<br>Calle Olmo 9, 3.º B<br>44280 Valdemora (Teruel)</div><div><div class="lbl">Resumen del periodo</div>
+<table class="sum"><tbody><tr><td>Cuenta</td><td class="r">ES76 9999 0218 4100 0031 7745</td></tr><tr><td>Periodo</td><td class="r">01/09/2026 – 30/09/2026</td></tr><tr><td>Saldo inicial</td><td class="r">2.418,36 €</td></tr><tr><td>Total abonos</td><td class="r">2.186,48 €</td></tr><tr><td>Total cargos</td><td class="r">-2.454,58 €</td></tr><tr><td>Saldo final</td><td class="r">2.150,26 €</td></tr></tbody></table>
+</div></div>
+<p>Le informamos de los movimientos de su cuenta corriente durante el mes de septiembre de 2026. Los importes negativos corresponden a cargos y los positivos a abonos.</p>
+<table class="mov"><thead><tr><th>Fecha</th><th>Fecha valor</th><th>Concepto</th><th class="r">Importe (€)</th><th class="r">Saldo (€)</th></tr></thead><tbody><tr><td>01/09</td><td></td><td>Saldo anterior</td><td class="r"></td><td class="r">2.418,36</td></tr><tr><td>01/09</td><td>01/09</td><td>Recibo alquiler vivienda<br>Ref. septiembre 2026</td><td class="r neg">-650,00</td><td class="r">1.768,36</td></tr><tr><td>01/09</td><td>01/09</td><td>Transferencia recibida<br>Nómina Talleres Arcos S.L.</td><td class="r">1.842,17</td><td class="r">3.610,53</td></tr><tr><td>02/09</td><td>02/09</td><td>Recibo agua<br>Aguas Municipales de Valdemora</td><td class="r neg">-38,42</td><td class="r">3.572,11</td></tr><tr><td>03/09</td><td>03/09</td><td>Compra tarjeta *4417<br>Supermercado La Huerta</td><td class="r neg">-64,85</td><td class="r">3.507,26</td></tr><tr><td>03/09</td><td>03/09</td><td>Compra tarjeta *4417<br>Farmacia Plaza Mayor</td><td class="r neg">-12,30</td><td class="r">3.494,96</td></tr><tr><td>04/09</td><td>04/09</td><td>Recibo electricidad<br>Luz del Moncayo</td><td class="r neg">-71,96</td><td class="r">3.423,00</td></tr><tr><td>05/09</td><td>05/09</td><td>Reintegro cajero<br>Oficina 0218</td><td class="r neg">-100,00</td><td class="r">3.323,00</td></tr><tr><td>06/09</td><td>06/09</td><td>Compra tarjeta *4417<br>Estación de servicio El Cruce</td><td class="r neg">-55,00</td><td class="r">3.268,00</td></tr><tr><td>08/09</td><td>08/09</td><td>Transferencia enviada<br>A Pablo Ferrer Gil</td><td class="r neg">-50,00</td><td class="r">3.218,00</td></tr><tr><td>08/09</td><td>08/09</td><td>Compra en línea *4417<br>Librería Papel y Tinta</td><td class="r neg">-23,90</td><td class="r">3.194,10</td></tr><tr><td>09/09</td><td>09/09</td><td>Recibo seguro hogar<br>Póliza trimestral</td><td class="r neg">-96,40</td><td class="r">3.097,70</td></tr><tr><td>10/09</td><td>10/09</td><td>Compra tarjeta *4417<br>Supermercado La Huerta</td><td class="r neg">-81,27</td><td class="r">3.016,43</td></tr><tr><td>11/09</td><td>11/09</td><td>Recibo teléfono e internet<br>Ondanet Comunicaciones</td><td class="r neg">-44,99</td><td class="r">2.971,44</td></tr><tr><td>12/09</td><td>12/09</td><td>Abono devolución<br>Librería Papel y Tinta</td><td class="r">23,90</td><td class="r">2.995,34</td></tr><tr><td>13/09</td><td>13/09</td><td>Compra tarjeta *4417<br>Mercado de abastos, puesto 14</td><td class="r neg">-18,60</td><td class="r">2.976,74</td></tr><tr><td>15/09</td><td>15/09</td><td>Recibo comunidad de propietarios<br>Calle Olmo 9</td><td class="r neg">-45,00</td><td class="r">2.931,74</td></tr><tr><td>15/09</td><td>15/09</td><td>Cuota mensual<br>Gimnasio Valdemora Activa</td><td class="r neg">-32,00</td><td class="r">2.899,74</td></tr><tr><td>16/09</td><td>16/09</td><td>Compra tarjeta *4417<br>Óptica Miranda</td><td class="r neg">-129,00</td><td class="r">2.770,74</td></tr><tr><td>17/09</td><td>17/09</td><td>Reintegro cajero<br>Oficina 0218</td><td class="r neg">-60,00</td><td class="r">2.710,74</td></tr><tr><td>18/09</td><td>18/09</td><td>Compra tarjeta *4417<br>Supermercado La Huerta</td><td class="r neg">-57,43</td><td class="r">2.653,31</td></tr><tr><td>19/09</td><td>19/09</td><td>Transferencia recibida<br>De Elena Albadalejo Ruiz</td><td class="r">120,00</td><td class="r">2.773,31</td></tr><tr><td>20/09</td><td>20/09</td><td>Compra tarjeta *4417<br>Restaurante Los Arcos</td><td class="r neg">-46,50</td><td class="r">2.726,81</td></tr><tr><td>22/09</td><td>22/09</td><td>Recibo comedor escolar<br>Colegio San Isidro</td><td class="r neg">-88,00</td><td class="r">2.638,81</td></tr><tr><td>22/09</td><td>22/09</td><td>Compra tarjeta *4417<br>Estación de servicio El Cruce</td><td class="r neg">-60,00</td><td class="r">2.578,81</td></tr><tr><td>23/09</td><td>23/09</td><td>Compra en línea *4417<br>Billetes tren regional</td><td class="r neg">-34,75</td><td class="r">2.544,06</td></tr><tr><td>24/09</td><td>24/09</td><td>Compra tarjeta *4417<br>Ferretería Blasco</td><td class="r neg">-16,20</td><td class="r">2.527,86</td></tr><tr><td>25/09</td><td>25/09</td><td>Compra tarjeta *4417<br>Supermercado La Huerta</td><td class="r neg">-72,14</td><td class="r">2.455,72</td></tr><tr><td>26/09</td><td>29/09</td><td>Ingreso de cheque<br>Oficina 0218</td><td class="r">200,00</td><td class="r">2.655,72</td></tr><tr><td>27/09</td><td>27/09</td><td>Compra tarjeta *4417<br>Panadería Santa Ana</td><td class="r neg">-9,80</td><td class="r">2.645,92</td></tr><tr><td>29/09</td><td>29/09</td><td>Traspaso a cuenta de ahorro<br>…0457</td><td class="r neg">-300,00</td><td class="r">2.345,92</td></tr><tr><td>30/09</td><td>30/09</td><td>Liquidación de intereses<br>Periodo 01/09 – 30/09</td><td class="r">0,41</td><td class="r">2.346,33</td></tr><tr><td>30/09</td><td>30/09</td><td>Compra tarjeta *4417<br>Farmacia Plaza Mayor</td><td class="r neg">-8,45</td><td class="r">2.337,88</td></tr><tr><td>30/09</td><td>30/09</td><td>Recibo préstamo personal<br>Cuota 18 de 48</td><td class="r neg">-187,62</td><td class="r">2.150,26</td></tr><tr class="fin"><td>30/09</td><td></td><td>Saldo final</td><td class="r"></td><td class="r">2.150,26</td></tr></tbody></table>
+<h2>Información importante</h2>
+<ul class="sq lv0"><li>Puede consultar sus movimientos en cualquier momento desde la banca en línea o la aplicación móvil.</li><li>Si detecta un cargo que no reconoce, comuníquelo a su oficina lo antes posible.<ul class="lv1"><li>Para los recibos domiciliados dispone de ocho semanas para solicitar la devolución.</li><li>Las operaciones con tarjeta pueden reclamarse en el plazo de trece meses.</li></ul></li><li>Este extracto no requiere firma y tiene plena validez como justificante de las operaciones.</li></ul>
+<p style="margin-top:8px">Conserve este documento junto con sus demás comprobantes bancarios. Para cualquier consulta, su gestora en la oficina 0218 es Marta Pellicer Sanz.</p>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Техническое задание на разработку системы учёта посетителей</title>
+<style>
+
+@page { size: A4; margin: 2cm 1.5cm 2cm 3cm;
+  @top-center { content: counter(page); font-family: "Times New Roman"; font-size: 11pt; } }
+body { font-family: "Times New Roman", serif; font-size: 12pt; line-height: 1.4; margin: 0; text-align: justify; color: #000; }
+.appr { width: 52%; margin-left: auto; text-align: left; line-height: 1.5; margin-bottom: 20px; }
+h1 { font-size: 13pt; text-align: center; font-weight: bold; margin: 0 0 16px; line-height: 1.5; }
+h2 { font-size: 12pt; font-weight: bold; margin: 14px 0 4px; }
+h3 { font-size: 12pt; font-weight: bold; font-style: italic; margin: 8px 0 2px; }
+p { margin: 0 0 4px; text-indent: 1.25cm; }
+.tl { margin: 1px 0; padding-left: 1.25cm; text-indent: -0.6cm; }
+.tl .mk { display: inline-block; width: 0.6cm; text-indent: 0; }
+ul.dash { list-style-type: "– "; padding-left: 1.25cm; margin: 2px 0 4px; }
+table.g { border-collapse: collapse; width: 100%; font-size: 11pt; margin: 4px 0 8px; }
+table.g th, table.g td { border: 0.75pt solid #000; padding: 2px 5px; vertical-align: top; text-align: left; }
+table.g th { font-weight: bold; text-align: center; vertical-align: middle; }
+table.g td.c { text-align: center; }
+pre.code { font-family: "Courier New", monospace; font-size: 9.5pt; line-height: 1.25; border: 0.75pt solid #000; padding: 6px 10px; margin: 4px 0 8px 1.25cm; }
+.sig { display: flex; gap: 30px; margin-top: 24px; }
+.sig > div { flex: 1; line-height: 1.6; }
+
+</style>
+</head>
+<body>
+<div class="appr">УТВЕРЖДАЮ<br>Директор ООО «Северный терминал»<br>____________ А. В. Корнилов<br>«12» октября 2026 г.</div>
+<h1>ТЕХНИЧЕСКОЕ ЗАДАНИЕ<br>на разработку системы учёта посетителей складского комплекса</h1>
+<h2>1. Общие сведения</h2>
+<h3>1.1. Наименование системы</h3>
+<p>Полное наименование: автоматизированная система учёта посетителей складского комплекса «Ладога-3». Краткое наименование: АСУП.</p>
+<h3>1.2. Заказчик и исполнитель</h3>
+<p>Заказчиком является ООО «Северный терминал», исполнителем — ООО «Кедр Софт». Работы выполняются на основании договора № 41/26 от 5 октября 2026 г.</p>
+<h2>2. Назначение и цели создания системы</h2>
+<h3>2.1. Назначение системы</h3>
+<p>Система предназначена для регистрации посетителей, водителей и сотрудников подрядных организаций на контрольно-пропускном пункте складского комплекса. Она заменяет бумажный журнал посетителей, который ведётся в настоящее время.</p>
+<h3>2.2. Цели создания системы</h3>
+<p>Создание системы должно обеспечить:</p>
+<div class="tl tl0"><span class="mk">а)</span> сокращение времени оформления пропуска до двух минут;</div><div class="tl tl0"><span class="mk">б)</span> достоверный учёт времени пребывания посетителей на территории;</div><div class="tl tl0"><span class="mk">в)</span> оперативное формирование отчётов для службы безопасности;</div><div class="tl tl0"><span class="mk">г)</span> исключение повторного ввода данных постоянных посетителей.</div>
+<h2>3. Требования к системе</h2>
+<h3>3.1. Требования к функциям</h3>
+<p>Система должна выполнять следующие функции:</p>
+<ul class="dash lv0"><li>регистрация посетителя по документу, удостоверяющему личность;</li><li>печать разового пропуска со штрихкодом;</li><li>фиксация времени входа и выхода при сканировании пропуска;</li><li>ведение списка лиц, которым запрещён доступ;</li><li>выгрузка данных в учётную систему заказчика.</li></ul>
+<h3>3.2. Требования к характеристикам</h3>
+<table class="g"><thead><tr><th>№ п/п</th><th>Наименование показателя</th><th>Значение</th><th>Примечание</th></tr></thead><tbody><tr><td class="c">1</td><td>Количество одновременно работающих рабочих мест</td><td>не менее 4</td><td>КПП № 1 и КПП № 2</td></tr><tr><td class="c">2</td><td>Время оформления разового пропуска</td><td>не более 2 мин</td><td>без учёта очереди</td></tr><tr><td class="c">3</td><td>Срок хранения записей о посещениях</td><td>3 года</td><td>далее — архив</td></tr><tr><td class="c">4</td><td>Время восстановления после сбоя</td><td>не более 1 ч</td><td>—</td></tr><tr><td class="c">5</td><td>Доступность в рабочее время</td><td>не менее 99,5 %</td><td>круглосуточно</td></tr></tbody></table>
+<h3>3.3. Формат обмена данными</h3>
+<p>Сведения о посещениях передаются в учётную систему заказчика в формате JSON один раз в час. Пример записи о посещении приведён ниже.</p>
+<pre class="code">{
+  &quot;visit_id&quot;: &quot;L3-2026-104882&quot;,
+  &quot;person&quot;: {&quot;last_name&quot;: &quot;Смирнова&quot;, &quot;doc_type&quot;: &quot;passport&quot;},
+  &quot;gate&quot;: &quot;KPP-1&quot;,
+  &quot;time_in&quot;: &quot;2026-11-16T08:42:10+03:00&quot;,
+  &quot;time_out&quot;: &quot;2026-11-16T11:05:37+03:00&quot;,
+  &quot;purpose&quot;: &quot;delivery&quot;
+}</pre>
+<h2>4. Порядок контроля и приёмки</h2>
+<div class="tl tl0"><span class="mk">1)</span> Предварительные испытания проводятся исполнителем на тестовом стенде.</div><div class="tl tl0"><span class="mk">2)</span> Опытная эксплуатация длится не менее одного месяца на КПП № 1.</div><div class="tl tl0"><span class="mk">3)</span> Приёмочные испытания проводит комиссия, назначенная приказом заказчика.</div><div class="tl tl0"><span class="mk">4)</span> По результатам испытаний подписывается акт о приёмке системы в постоянную эксплуатацию.</div>
+<h2>5. Сроки выполнения работ</h2>
+<table class="g"><thead><tr><th>Этап</th><th>Содержание работ</th><th>Срок</th><th>Результат</th></tr></thead><tbody><tr><td class="c">1</td><td>Обследование и проектирование</td><td>до 30.11.2026</td><td>Технический проект</td></tr><tr><td class="c">2</td><td>Разработка и настройка<br>программного обеспечения</td><td>до 31.01.2027</td><td>Дистрибутив,<br>руководство оператора</td></tr><tr><td class="c">3</td><td>Опытная эксплуатация</td><td>до 15.03.2027</td><td>Журнал опытной<br>эксплуатации</td></tr><tr><td class="c">4</td><td>Приёмочные испытания</td><td>до 31.03.2027</td><td>Акт приёмки</td></tr></tbody></table>
+<p>Изменения настоящего технического задания оформляются дополнением, подписанным обеими сторонами.</p>
+<div class="sig"><div>От Заказчика:<br>Начальник службы безопасности<br>____________ И. Н. Белова</div><div>От Исполнителя:<br>Руководитель проекта<br>____________ Д. С. Ершов</div></div>
+</body>
+</html>

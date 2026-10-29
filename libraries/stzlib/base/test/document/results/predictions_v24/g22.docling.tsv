@@ -1,0 +1,29 @@
+heading	1	Harrowgate Joinery Supplies Ltd
+paragraph	0	Units 3-5, Tannery Yard, Kendrick FX7 2LB · purchasing@harrowgate-joinery.example · 01632 970 551
+heading	1	Supplier
+paragraph	0	Northmoor Timber Merchants Riverside Saw Mills, Ellerby Road Northmoor NM3 8QD Account no. NTM-4471
+heading	1	Deliver to
+paragraph	0	Harrowgate Joinery Supplies Ltd
+paragraph	0	Goods-in bay 2, Tannery Yard
+paragraph	0	Kendrick FX7 2LB
+paragraph	0	Forklift on site, 07:30-15:00
+heading	1	Invoice to
+paragraph	0	Accounts Payable
+paragraph	0	Harrowgate Joinery Supplies Ltd Units 3-5, Tannery Yard Kendrick FX7 2LB
+table	0	LineSupplier codeDescriptionSpecies / gradeDimensions (mm)Qty UnitUnit price (£)DiscountLine total (£)1OAK-PSE-2045Oak boards, planed all roundEuropean oak, prime grade20 × 145 × 2400120 board38.60 5%4,400.402ASH-SAW-5020Ash sawn boards, kiln driedEuropean ash, 1st & 2nd50 × 200 × 300024 board61.255%1,396.503SPR-CLS-3863Spruce studsC24 graded spruce38 × 63 × 2400400 length3.180%1,272.004PLY-BIR-18Birch plywood sheetsBirch, BB/BB face18 × 1220 × 244030 sheet72.407.5%2,009.105MDF-MR-25Moisture-resistant MDFMR MDF, E125 × 1220 × 244016 sheet41.900%670.406DOW-BEE-12Beech dowels, flutedBeechØ 12 × 1000200 length0.940%188.007GLU-PVA-D3Wood glue, D3 water resistant-5 litre tub12 tub23.750%285.008SAN-P120-RSanding rolls, P120Aluminium oxide115 mm × 50 m10 roll18.2010%163.80Goodstotal10,385.20Carriage145.00VAT at 20%2,106.04
+paragraph	0	Order total (GBP)
+paragraph	0	12,636.24
+heading	1	Delivery instructions
+list_item	0	Deliver on one vehicle with a tail lift; sheet materials must arrive flat on bearers.
+list_item	0	Quote the PO number on the delivery note and on every invoice.
+list_item	0	Hardwood boards must carry their grading stamp and chain-of-custody certificate.
+heading	1	Authorisation
+paragraph	0	Authorised by Mairead Quinlan, Operations Manager
+paragraph	0	Budget code STK-TIM-2026-Q4
+paragraph	0	Signature
+paragraph	0	This order is placed under our standard terms of purchase, which are available on request. Please confirm acceptance of the order and the delivery date within two working days. Any change to price, quantity or specification must be agreed in writing before dispatch. Part deliveries will not be accepted without the buyer's prior approval.
+heading	1	Purchase Order
+paragraph	0	PO number HJS-PO-26-0931
+paragraph	0	Order date 27 October 2026
+paragraph	0	Required by 10 November 2026
+paragraph	0	Buyer Callum Ashdown

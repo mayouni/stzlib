@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Runbook: Rotating TLS Certificates on the Edge Proxy Fleet</title>
+<style>
+
+@page { size: A4; margin: 2cm 2cm 2cm 2cm;
+  @top-left { content: "OPS-RB-017 \00B7  Edge proxy certificate rotation"; font-family: "Segoe UI"; font-size: 8pt; color: #5f6b7a; }
+  @top-right { content: "Internal \2014  Platform Operations"; font-family: "Segoe UI"; font-size: 8pt; color: #5f6b7a; }
+  @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI"; font-size: 8.5pt; color: #5f6b7a; } }
+body { font-family: "Segoe UI", sans-serif; font-size: 10pt; line-height: 1.45; color: #1f2933; margin: 0; }
+h1 { font-size: 19pt; font-weight: 600; margin: 0 0 8px; color: #0b3d91; }
+h2 { font-size: 13pt; font-weight: 600; margin: 16px 0 4px; color: #0b3d91; }
+h3 { font-size: 10.5pt; font-weight: 600; margin: 10px 0 2px; }
+p { margin: 0 0 6px; }
+table.meta { border-collapse: collapse; border: 1px solid #c3cfe2; background: #f4f7fc; font-size: 9pt; margin-bottom: 8px; }
+table.meta td { padding: 2px 10px; }
+table.meta td:first-child { font-weight: 600; color: #0b3d91; }
+ul.chk { padding-left: 1.4em; margin: 2px 0 6px; }
+ul.chk ul { list-style-type: circle; }
+.warn { border-left: 5px solid #d97706; background: #fff7e6; padding: 6px 12px; margin: 8px 0; }
+.warn .t { font-weight: 600; color: #b45309; }
+table.hosts { border-collapse: collapse; width: 100%; font-size: 9pt; margin: 4px 0 6px; }
+table.hosts th { text-align: left; font-weight: 600; padding: 3px 6px; border-bottom: 1.5px solid #0b3d91; }
+table.hosts td { padding: 3px 6px; border-bottom: 0.75px solid #d0d7e2; vertical-align: top; }
+ol.steps { padding-left: 1.6em; margin: 2px 0 4px; }
+ol.steps ol { list-style-type: lower-alpha; padding-left: 1.5em; }
+pre.code { font-family: Consolas, monospace; font-size: 8.5pt; line-height: 1.35; background: #f1f3f5; border: 1px solid #dde1e6;
+           padding: 6px 10px; margin: 4px 0 8px 1.6em; white-space: pre; }
+pre.yaml { margin-left: 0; }
+.tl { margin: 2px 0; padding-left: 2.4em; text-indent: -2.4em; }
+.tl .mk { display: inline-block; width: 2.4em; text-indent: 0; font-weight: 600; color: #0b3d91; }
+table.esc { border-collapse: collapse; font-size: 9pt; }
+table.esc th, table.esc td { border: 1px solid #c3cfe2; padding: 3px 8px; text-align: left; vertical-align: top; }
+table.esc th { background: #e6ecf6; font-weight: 600; }
+code.i { font-family: Consolas, monospace; font-size: 9pt; background: #f1f3f5; padding: 0 3px; }
+
+</style>
+</head>
+<body>
+<h1>Runbook: Rotating TLS Certificates on the Edge Proxy Fleet</h1>
+<table class="meta"><tbody><tr><td>Owner</td><td>Platform Operations (Team Kestrel)</td></tr><tr><td>Last reviewed</td><td>2026-09-30</td></tr><tr><td>Severity if missed</td><td>SEV-2: browsers reject the expired certificate</td></tr><tr><td>Estimated time</td><td>45 minutes for all three pools</td></tr></tbody></table>
+<h2>1. Purpose</h2>
+<p>This runbook replaces the public TLS certificate on every edge proxy before the current one expires. The certificate is renewed automatically, but installing it is still a manual, host-by-host operation. Follow the steps in order and do not skip the health check between hosts.</p>
+<h2>2. Before you start</h2>
+<ul class="chk lv0"><li>You hold the on-call role or have written approval from the on-call engineer.</li><li>Your workstation can reach the bastion host and the secrets vault.<ul class="lv1"><li>Test vault access with a read of a non-sensitive key.</li><li>Make sure your session token is valid for at least two hours.</li></ul></li><li>No other change is scheduled on the edge fleet in the same window.</li><li>The renewed bundle is at least 24 hours old, so that every OCSP responder knows it.</li></ul>
+<div class="warn"><div class="t">Warning</div>
+<p>Never reload more than one host of the same pool at a time. A pool with two hosts out of rotation cannot absorb a traffic peak, and the load balancer will start shedding requests.</p>
+</div>
+<h2>3. Hosts in scope</h2>
+<table class="hosts"><thead><tr><th>Pool</th><th>Hosts</th><th>Region</th><th>Drain order</th><th>Notes</th></tr></thead><tbody><tr><td>edge-fra</td><td>edge-fra-01<br>edge-fra-02<br>edge-fra-03</td><td>Frankfurt</td><td>1</td><td>Busiest pool; rotate outside 08:00–11:00 UTC</td></tr><tr><td>edge-dub</td><td>edge-dub-01<br>edge-dub-02</td><td>Dublin</td><td>2</td><td>edge-dub-02 also serves the status page</td></tr><tr><td>edge-mad</td><td>edge-mad-01<br>edge-mad-02</td><td>Madrid</td><td>3</td><td>None</td></tr></tbody></table>
+<h2>4. Procedure</h2>
+<h3>4.1 Preparation</h3>
+<ol class="steps lv0"><li>Announce the change in the operations channel and open a change record.</li><li>Fetch the renewed bundle from the vault and verify its chain and expiry date:</li></ol>
+<pre class="code">vault kv get -field=bundle secret/edge/tls/2026 &gt; /tmp/edge-2026.pem
+openssl verify -CAfile /etc/ssl/internal-root.pem /tmp/edge-2026.pem
+openssl x509 -in /tmp/edge-2026.pem -noout -enddate</pre>
+<h3>4.2 Rolling the pools</h3>
+<ol class="steps lv0" start="3"><li>For each pool, in the drain order of section 3, repeat for every host:<ol class="lv1"><li>Remove the host from the load balancer and wait until fewer than 20 connections remain.</li><li>Copy the bundle to the host and reload the proxy.</li><li>Run the health check, then return the host to the load balancer.</li></ol></li></ol>
+<p style="margin-left:1.6em">For the first Frankfurt host the commands are:</p>
+<pre class="code">edgectl drain edge-fra-01 --wait --max-conns 20
+scp /tmp/edge-2026.pem edge-fra-01:/etc/edgeproxy/tls/current.pem
+ssh edge-fra-01 &#x27;sudo systemctl reload edgeproxy&#x27;
+edgectl health edge-fra-01 &amp;&amp; edgectl undrain edge-fra-01</pre>
+<h3>4.3 Verification</h3>
+<ol class="steps lv0" start="4"><li>From a machine outside the corporate network, confirm that every pool serves the new expiry date.</li><li>Close the change record and post the new expiry date in the operations channel.</li></ol>
+<h2>5. Configuration reference</h2>
+<p>The proxy reads the certificate path and the reload behaviour from the following section of its configuration file.</p>
+<pre class="code yaml">tls:
+  certificate: /etc/edgeproxy/tls/current.pem
+  min_version: &quot;1.2&quot;
+  ciphers:
+    - TLS_AES_128_GCM_SHA256
+    - TLS_CHACHA20_POLY1305_SHA256
+  ocsp_stapling: true
+reload:
+  grace_period: 30s
+  drain_timeout: 120s</pre>
+<p>A reload keeps existing connections open for the grace period, so clients finish their requests on the old certificate. Do not shorten the drain timeout during a rotation.</p>
+<h2>6. Rollback</h2>
+<p>If a host fails its health check after the reload, stop the rotation and roll that host back.</p>
+<div class="tl tl0"><span class="mk">R1.</span> Copy the previous bundle, kept as previous.pem on every host, over current.pem.</div><div class="tl tl0"><span class="mk">R2.</span> Reload the proxy and run the health check again.</div><div class="tl tl0"><span class="mk">R3.</span> Leave the host drained if the check still fails, and page the network team.</div>
+<h2>7. Escalation</h2>
+<table class="esc"><thead><tr><th>Time since start</th><th>Action</th></tr></thead><tbody><tr><td>30 minutes</td><td>Tell the on-call lead that the rotation is running late.</td></tr><tr><td>60 minutes</td><td>Page the network team and pause the rotation.</td></tr><tr><td>Expiry within 24 hours</td><td>Open a SEV-2 incident and follow the incident process.</td></tr></tbody></table>
+</body>
+</html>

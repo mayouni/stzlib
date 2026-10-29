@@ -1,0 +1,165 @@
+{
+  "id": "g01",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Tax Invoice",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Tax Invoice"
+    },
+    {
+      "level": 2,
+      "text": "Payment terms"
+    },
+    {
+      "level": 2,
+      "text": "How to pay"
+    }
+  ],
+  "key_sentences": [
+    "The goods listed above were delivered on 9 October 2026 and signed for by your boathouse steward.",
+    "Please quote the invoice number on every remittance so that we can match your payment quickly.",
+    "We prefer payment by bank transfer to the account below.",
+    "Cheques are no longer accepted after the closure of our town-centre branch."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Invoice number",
+          "INV-2026-0418"
+        ],
+        [
+          "Invoice date",
+          "14 October 2026"
+        ],
+        [
+          "Your order",
+          "PO 55102"
+        ],
+        [
+          "Due date",
+          "13 November 2026"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Item",
+          "Description",
+          "Qty",
+          "Unit price",
+          "Amount"
+        ],
+        [
+          "1",
+          "Perfect-bound annual report 64 pp, 170 gsm silk cover",
+          "750",
+          "£4.12",
+          "£3,090.00"
+        ],
+        [
+          "2",
+          "Saddle-stitched regatta programme 16 pp, two colours throughout",
+          "2,000",
+          "£0.86",
+          "£1,720.00"
+        ],
+        [
+          "3",
+          "Colour proof Wet proof on the chosen stock",
+          "2",
+          "£65.00",
+          "£130.00"
+        ],
+        [
+          "4",
+          "Delivery Pallet service to two addresses",
+          "1",
+          "£148.00",
+          "£148.00"
+        ],
+        [
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "£5,088.00"
+        ],
+        [
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "£1,017.60"
+        ],
+        [
+          "Total due",
+          "Total due",
+          "Total due",
+          "Total due",
+          "£6,105.60"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Bank",
+          "Wherry Valley Building Society"
+        ],
+        [
+          "Account name",
+          "Larkspur Print & Bindery Ltd."
+        ],
+        [
+          "Sort code",
+          "40-12-76"
+        ],
+        [
+          "Account number",
+          "31926604"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1) Payment is due within 30 days of the invoice date."
+    },
+    {
+      "level": 0,
+      "text": "2) Late payments attract interest at 8% above the base rate, as permitted by statute."
+    },
+    {
+      "level": 1,
+      "text": "a) A first reminder is sent seven days after the due date."
+    },
+    {
+      "level": 1,
+      "text": "b) A fixed recovery charge of £70 applies to debts of £10,000 or more."
+    },
+    {
+      "level": 0,
+      "text": "3) Title in the goods remains with Larkspur Print & Bindery Ltd. until the invoice is paid in full."
+    }
+  ],
+  "furniture": [
+    "Larkspur Print & Bindery Ltd.",
+    "Unit 7, Kestrel Way Trading Estate",
+    "Norwich NR6 4QT",
+    "Tel. 01603 550 218 · accounts@larkspur-print.example",
+    "Registered in England No. 08841270 · VAT No. GB 318 4471 26"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Letterhead (organisation name and three address lines) is furniture, not a heading; the registration line is an @page bottom margin box. The 'Invoice to' and 'Deliver to' address boxes sit side by side and read box by box (left box, then right box), followed by the boxed key/value invoice panel to their right. Line-item table: rule under the header only, a rule above Subtotal, description cells of two lines (bold product name + spec) joined with one space; Subtotal/VAT/Total labels span four columns and are repeated in each covered cell. Payment-terms list: markers '1)' and 'a)' are TYPED in the text with a hanging indent (no CSS markers). Two key/value tables have no header row (the first row is data)."
+}

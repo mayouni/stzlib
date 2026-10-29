@@ -1,0 +1,61 @@
+page_header	0	Alicerce Engenharia Diagnóstica
+page_header	0	RVT-2026-118
+heading	1	Relatório de Vistoria Técnica Predial
+paragraph	0	Cliente
+paragraph	0	Condomínio Residencial Jardim das Paineiras
+paragraph	0	Endereço Data da vistoria Responsável técnico
+paragraph	0	Rua das Paineiras, 455, Campinas/SP 14/10/2026 Eng.ª Civil Fernanda Rocha Lima
+heading	2	1. Objetivo
+paragraph	0	Este relatório apresenta o resultado da vistoria técnica realizada nas áreas comuns do condomínio, a pedido do síndico. O objetivo é avaliar o estado de conservação da edificação e indicar as intervenções necessárias, em ordem de prioridade.
+heading	2	2. Metodologia
+paragraph	0	A vistoria foi visual e não destrutiva, complementada por ensaios simples de campo. Foram utilizados os seguintes recursos:
+list_item	0	a) inspeção das fachadas com drone e percussão em pontos acessíveis por balancim;
+list_item	0	b) medição de umidade com higrômetro de contato nas paredes do subsolo;
+list_item	0	c) registro fotográfico de todas as anomalias, numerado conforme a tabela da seção 3;
+list_item	0	d) entrevista com o zelador sobre o histórico de manutenção.
+heading	2	3. Constatações
+paragraph	0	Foram identificadas seis anomalias nas áreas comuns,
+paragraph	0	Distribuição por grau de risco
+paragraph	0	das quais duas foram classificadas como de risco crítico.
+paragraph	0	Grau de risco
+paragraph	0	Itens
+paragraph	0	As anomalias críticas envolvem risco à segurança dos
+paragraph	0	Crítico
+paragraph	0	2
+paragraph	0	usuários e exigem providências imediatas. As demais
+paragraph	0	Médio
+paragraph	0	3
+paragraph	0	decorrem principalmente da falta de manutenção
+paragraph	0	Mínimo
+paragraph	0	1
+paragraph	0	preventiva nos últimos cinco anos. A classificação segue a
+paragraph	0	Total
+paragraph	0	6
+paragraph	0	norma técnica brasileira de inspeção predial.
+paragraph	0	Tabela 1 – Anomalias constatadas
+paragraph	0	Grau de
+paragraph	0	Item
+paragraph	0	Local
+paragraph	0	Anomalia
+paragraph	0	Prazo
+paragraph	0	risco
+caption	0	Desplacamento de pastilhas
+table	0	1Fachada norte, 8º ao 12º cerâmicas pavimento com risco de quedaCríticoImediato2Cobertura, casa de máquinas Infiltração pela laje e corrosão de armadurasCrítico30 dias3Subsolo, garagem G2 Fissuras em vigas de transiçãoMédio90 dias4Áreas comuns do térreo em dois pontosIluminação de emergência inoperante Médio30 dias5Reservatório superior Tampa de inspeção sem vedaçãoMédio60 dias6Playground Desgaste do piso emborrachadoMínimo180 dias
+heading	3	3.1 Fachadas
+paragraph	0	O revestimento cerâmico da fachada norte apresenta som cavo em cerca de 18% da área ensaiada. Em três pontos as pastilhas já se desprenderam, e há fragmentos acumulados na marquise do acesso principal.
+page_footer	0	Folha 1 de 2
+page_header	0	Alicerce Engenharia Diagnóstica
+page_header	0	RVT-2026-118
+heading	3	3.2 Cobertura e subsolo
+paragraph	0	A laje da casa de máquinas apresenta manchas de umidade e armaduras expostas com corrosão avançada. No subsolo, as fissuras das vigas de transição têm abertura inferior a 0,3 mm e não mostraram evolução nas últimas medições do zelador.
+heading	2	4. Recomendações
+list_item	0	Isolar imediatamente a faixa de calçada sob a fachada norte e instalar bandeja de proteção.
+list_item	0	Contratar projeto de recuperação da fachada, incluindo:
+list_item	1	mapeamento completo por percussão em todos os pavimentos;
+list_item	1	especificação de argamassa colante adequada à exposição solar.
+list_item	0	Impermeabilizar a laje da casa de máquinas e tratar as armaduras corroídas.
+list_item	0	Instalar selos de monitoramento nas fissuras do subsolo e repetir a medição em 90 dias.
+heading	2	5. Conclusão
+paragraph	0	A edificação apresenta condições regulares de conservação, com duas anomalias críticas que exigem ação imediata. Recomenda-se que o condomínio aprove em assembleia um plano de manutenção para os próximos três anos. Uma nova vistoria deve ser realizada após a conclusão das obras da fachada.
+paragraph	0	Eng.ª Civil Fernanda Rocha Lima Responsável técnica
+page_footer	0	Folha 2 de 2

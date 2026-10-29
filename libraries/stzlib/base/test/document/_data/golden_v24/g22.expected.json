@@ -1,0 +1,250 @@
+{
+  "id": "g22",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Purchase Order",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Purchase Order"
+    },
+    {
+      "level": 2,
+      "text": "Delivery instructions"
+    },
+    {
+      "level": 2,
+      "text": "Authorisation"
+    }
+  ],
+  "key_sentences": [
+    "This order is placed under our standard terms of purchase, which are available on request.",
+    "Please confirm acceptance of the order and the delivery date within two working days.",
+    "Any change to price, quantity or specification must be agreed in writing before dispatch.",
+    "Part deliveries will not be accepted without the buyer's prior approval."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "PO number",
+          "HJS-PO-26-0931"
+        ],
+        [
+          "Order date",
+          "27 October 2026"
+        ],
+        [
+          "Required by",
+          "10 November 2026"
+        ],
+        [
+          "Buyer",
+          "Callum Ashdown"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Line",
+          "Supplier code",
+          "Description",
+          "Species / grade",
+          "Dimensions (mm)",
+          "Qty",
+          "Unit",
+          "Unit price (£)",
+          "Discount",
+          "Line total (£)"
+        ],
+        [
+          "1",
+          "OAK-PSE-2045",
+          "Oak boards, planed all round",
+          "European oak, prime grade",
+          "20 × 145 × 2400",
+          "120",
+          "board",
+          "38.60",
+          "5%",
+          "4,400.40"
+        ],
+        [
+          "2",
+          "ASH-SAW-5020",
+          "Ash sawn boards, kiln dried",
+          "European ash, 1st & 2nd",
+          "50 × 200 × 3000",
+          "24",
+          "board",
+          "61.25",
+          "5%",
+          "1,396.50"
+        ],
+        [
+          "3",
+          "SPR-CLS-3863",
+          "Spruce studs",
+          "C24 graded spruce",
+          "38 × 63 × 2400",
+          "400",
+          "length",
+          "3.18",
+          "0%",
+          "1,272.00"
+        ],
+        [
+          "4",
+          "PLY-BIR-18",
+          "Birch plywood sheets",
+          "Birch, BB/BB face",
+          "18 × 1220 × 2440",
+          "30",
+          "sheet",
+          "72.40",
+          "7.5%",
+          "2,009.10"
+        ],
+        [
+          "5",
+          "MDF-MR-25",
+          "Moisture-resistant MDF",
+          "MR MDF, E1",
+          "25 × 1220 × 2440",
+          "16",
+          "sheet",
+          "41.90",
+          "0%",
+          "670.40"
+        ],
+        [
+          "6",
+          "DOW-BEE-12",
+          "Beech dowels, fluted",
+          "Beech",
+          "Ø 12 × 1000",
+          "200",
+          "length",
+          "0.94",
+          "0%",
+          "188.00"
+        ],
+        [
+          "7",
+          "GLU-PVA-D3",
+          "Wood glue, D3 water resistant",
+          "—",
+          "5 litre tub",
+          "12",
+          "tub",
+          "23.75",
+          "0%",
+          "285.00"
+        ],
+        [
+          "8",
+          "SAN-P120-R",
+          "Sanding rolls, P120",
+          "Aluminium oxide",
+          "115 mm × 50 m",
+          "10",
+          "roll",
+          "18.20",
+          "10%",
+          "163.80"
+        ],
+        [
+          "Goods total",
+          "Goods total",
+          "Goods total",
+          "Goods total",
+          "Goods total",
+          "Goods total",
+          "Goods total",
+          "Goods total",
+          "Goods total",
+          "10,385.20"
+        ],
+        [
+          "Carriage",
+          "Carriage",
+          "Carriage",
+          "Carriage",
+          "Carriage",
+          "Carriage",
+          "Carriage",
+          "Carriage",
+          "Carriage",
+          "145.00"
+        ],
+        [
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "2,106.04"
+        ],
+        [
+          "Order total (GBP)",
+          "Order total (GBP)",
+          "Order total (GBP)",
+          "Order total (GBP)",
+          "Order total (GBP)",
+          "Order total (GBP)",
+          "Order total (GBP)",
+          "Order total (GBP)",
+          "Order total (GBP)",
+          "12,636.24"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Authorised by",
+          "Mairead Quinlan, Operations Manager"
+        ],
+        [
+          "Budget code",
+          "STK-TIM-2026-Q4"
+        ],
+        [
+          "Signature",
+          ""
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. Deliver on one vehicle with a tail lift; sheet materials must arrive flat on bearers."
+    },
+    {
+      "level": 0,
+      "text": "2. Quote the PO number on the delivery note and on every invoice."
+    },
+    {
+      "level": 0,
+      "text": "3. Hardwood boards must carry their grading stamp and chain-of-custody certificate."
+    }
+  ],
+  "furniture": [
+    "Harrowgate Joinery Supplies Ltd",
+    "Units 3–5, Tannery Yard, Kendrick FX7 2LB · purchasing@harrowgate-joinery.example · 01632 970 551"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Landscape purchase order with a WIDE ten-column line-item table in Roboto Condensed. Letterhead (company name and contact line) is furniture. Three address boxes SIDE BY SIDE (Supplier, Deliver to, Invoice to) read box by box, left to right; their address lines are not sentences. The PO details panel at the top right is a key/value table without header. Line-item table: dark header row with two-line cells joined with one space, light rules between rows, totals rows (Goods total, Carriage, VAT, Order total) whose labels span nine columns and repeat in each covered cell; line totals are computed (quantity × unit price less discount). Under the table, two columns: TYPED '1.'-'3.' delivery instructions (left) and a key/value authorisation table with an empty Signature cell (right)."
+}

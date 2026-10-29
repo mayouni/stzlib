@@ -1,0 +1,205 @@
+{
+  "id": "g07",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "家用除湿机使用说明书",
+  "headings": [
+    {
+      "level": 1,
+      "text": "家用除湿机使用说明书"
+    },
+    {
+      "level": 2,
+      "text": "一、安全注意事项"
+    },
+    {
+      "level": 2,
+      "text": "二、产品规格"
+    },
+    {
+      "level": 2,
+      "text": "三、操作说明"
+    },
+    {
+      "level": 3,
+      "text": "（一）控制面板"
+    },
+    {
+      "level": 3,
+      "text": "（二）设定目标湿度"
+    },
+    {
+      "level": 3,
+      "text": "（三）排水方式"
+    },
+    {
+      "level": 2,
+      "text": "四、故障排除"
+    },
+    {
+      "level": 2,
+      "text": "五、保修说明"
+    }
+  ],
+  "key_sentences": [
+    "感谢您选购清岚家用除湿机。",
+    "使用本产品前，请仔细阅读本说明书，并妥善保管以备日后查阅。",
+    "本机提供水箱排水和连续排水两种方式。",
+    "水箱满水时，满水指示灯亮起，机器自动停止运行，倒掉积水并放回水箱后即可继续工作。",
+    "如需长时间连续运行，可将附带的排水管接到机身背面的排水口，并引至地漏。",
+    "出现下列情况时，请先按表中方法自行检查，无法排除时再联系售后服务中心。",
+    "自购买之日起，整机保修一年，压缩机保修三年。",
+    "因使用不当、私自拆修或不可抗力造成的损坏，不属于免费保修范围。",
+    "申请保修时，请出示购机发票和本说明书所附的保修卡。"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "项目",
+          "参数"
+        ],
+        [
+          "额定电压",
+          "220 V~ / 50 Hz"
+        ],
+        [
+          "额定功率",
+          "280 W"
+        ],
+        [
+          "除湿量",
+          "20 L/天（30 ℃，80%RH）"
+        ],
+        [
+          "水箱容量",
+          "3.5 L"
+        ],
+        [
+          "适用面积",
+          "20–35 m²"
+        ],
+        [
+          "运行噪声",
+          "≤ 42 dB(A)"
+        ],
+        [
+          "净重",
+          "12.6 kg"
+        ],
+        [
+          "外形尺寸",
+          "350 × 245 × 560 mm"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "故障现象",
+          "可能原因",
+          "处理方法"
+        ],
+        [
+          "机器不运转",
+          "电源插头未插好 水箱已满或未放好",
+          "重新插好电源插头 倒掉积水并放好水箱"
+        ],
+        [
+          "除湿效果差",
+          "室温过低 门窗未关闭 过滤网堵塞",
+          "在5 ℃以上的环境中使用 关闭门窗 清洗过滤网"
+        ],
+        [
+          "运行噪声大",
+          "机器放置不平稳",
+          "将机器放在平整坚固的地面上"
+        ],
+        [
+          "显示屏显示“E1”",
+          "湿度传感器故障",
+          "停止使用，并联系售后服务中心"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. 请使用额定电压为220 V、频率为50 Hz的电源插座，并确保插座可靠接地。"
+    },
+    {
+      "level": 0,
+      "text": "2. 机器运行时，请勿移动机器或抽出水箱。"
+    },
+    {
+      "level": 0,
+      "text": "3. 以下场所禁止使用本机："
+    },
+    {
+      "level": 1,
+      "text": "（1） 浴室等可能溅水的场所；"
+    },
+    {
+      "level": 1,
+      "text": "（2） 存放易燃、易爆气体的场所；"
+    },
+    {
+      "level": 1,
+      "text": "（3） 环境温度低于5 ℃或高于35 ℃的场所。"
+    },
+    {
+      "level": 0,
+      "text": "4. 清洁或保养前，务必先关机并拔下电源插头。"
+    },
+    {
+      "level": 0,
+      "text": "5. 电源线损坏时，必须由专业维修人员更换，以免发生危险。"
+    },
+    {
+      "level": 0,
+      "text": "电源键：开启或关闭机器。"
+    },
+    {
+      "level": 0,
+      "text": "模式键：在自动、连续除湿和干衣三种模式之间切换。"
+    },
+    {
+      "level": 0,
+      "text": "湿度键：以5%为单位设定目标湿度，范围为35%至80%。"
+    },
+    {
+      "level": 0,
+      "text": "定时键：设定1至24小时的定时开机或关机。"
+    },
+    {
+      "level": 0,
+      "text": "童锁键：长按3秒锁定或解锁全部按键。"
+    },
+    {
+      "level": 0,
+      "text": "按电源键开机，显示屏显示当前室内湿度。"
+    },
+    {
+      "level": 0,
+      "text": "反复按湿度键，直至显示屏显示所需的目标湿度。"
+    },
+    {
+      "level": 0,
+      "text": "停止操作5秒后，设定自动生效，显示屏恢复显示室内湿度。"
+    }
+  ],
+  "furniture": [
+    "清岚 DH-20B 除湿机 使用说明书",
+    "客服热线：400-618-2077",
+    "第 1 页 共 2 页",
+    "第 2 页 共 2 页"
+  ],
+  "languages": [
+    "zh"
+  ],
+  "code": [],
+  "notes": "Simplified Chinese user manual. Running header (@page top) and the hotline line (@page bottom-right) are listed once; '第 N 页 共 M 页' once per page. Section headings carry TYPED Chinese numbering '一、' (level 2) and '（一）' (level 3). The safety list uses TYPED markers '1.' and nested full-width '（1）'. The control-panel list (CSS disc bullets, not in the text) sits in a column BESIDE a 提示 tip box; reading order is the list, then the box (the tip box sentences are not in key_sentences). The humidity steps are an ordered list whose markers are drawn by CSS (list-style cjk-decimal), not in the text. Spec table: boxed, header row, dashed row rules. Troubleshooting table: full grid, cells of two or three lines, vertically centred, joined with one space. Lines wrapped inside a Chinese sentence join with no space; spaces written between Chinese and Latin units (220 V) are real spaces."
+}

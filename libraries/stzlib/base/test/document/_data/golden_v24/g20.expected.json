@@ -1,0 +1,213 @@
+{
+  "id": "g20",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "UMOWA NAJMU LOKALU UŻYTKOWEGO nr 7/2026",
+  "headings": [
+    {
+      "level": 1,
+      "text": "UMOWA NAJMU LOKALU UŻYTKOWEGO nr 7/2026"
+    },
+    {
+      "level": 2,
+      "text": "§ 1. Przedmiot umowy"
+    },
+    {
+      "level": 2,
+      "text": "§ 2. Czas trwania umowy"
+    },
+    {
+      "level": 2,
+      "text": "§ 3. Czynsz i opłaty"
+    },
+    {
+      "level": 2,
+      "text": "§ 4. Obowiązki stron"
+    },
+    {
+      "level": 2,
+      "text": "§ 5. Postanowienia końcowe"
+    },
+    {
+      "level": 2,
+      "text": "Załącznik nr 1 – Protokół zdawczo-odbiorczy"
+    }
+  ],
+  "key_sentences": [
+    "Wynajmujący zobowiązuje się do utrzymywania budynku i jego instalacji w stanie przydatnym do umówionego użytku.",
+    "Piec ceramiczny Najemcy może zostać podłączony wyłącznie przez elektryka posiadającego odpowiednie uprawnienia.",
+    "W dniu 1 grudnia 2026 r. Wynajmujący wydał, a Najemca przyjął lokal nr U3 wraz z następującym wyposażeniem.",
+    "Stan liczników w dniu wydania lokalu: energia elektryczna 18 422 kWh, woda zimna 312,7 m³.",
+    "Strony nie wnoszą zastrzeżeń co do stanu lokalu, z wyjątkiem uwagi zapisanej w pozycji 2."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Składnik opłaty",
+          "Kwota netto (zł)",
+          "VAT 23% (zł)",
+          "Kwota brutto (zł)"
+        ],
+        [
+          "Czynsz najmu",
+          "2 247,00",
+          "516,81",
+          "2 763,81"
+        ],
+        [
+          "Zaliczka na media",
+          "420,00",
+          "96,60",
+          "516,60"
+        ],
+        [
+          "Opłata za wywóz odpadów",
+          "85,00",
+          "19,55",
+          "104,55"
+        ],
+        [
+          "Razem",
+          "2 752,00",
+          "632,96",
+          "3 384,96"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Lp.",
+          "Wyposażenie",
+          "Ilość",
+          "Stan techniczny"
+        ],
+        [
+          "1",
+          "Drzwi wejściowe przeszklone z zamkiem dwupunktowym",
+          "1",
+          "dobry"
+        ],
+        [
+          "2",
+          "Okna PCV z roletami zewnętrznymi",
+          "3",
+          "dobry, jedna roleta wymaga regulacji"
+        ],
+        [
+          "3",
+          "Grzejniki stalowe z zaworami termostatycznymi",
+          "4",
+          "dobry"
+        ],
+        [
+          "4",
+          "Umywalka z baterią i podgrzewaczem wody",
+          "1",
+          "bardzo dobry"
+        ],
+        [
+          "5",
+          "Klucze do lokalu",
+          "3 komplety",
+          "—"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. Wynajmujący oddaje Najemcy w najem lokal użytkowy nr U3, położony na parterze budynku przy ul. Wiślanej 14 w Toruniu, o łącznej powierzchni 64,20 m²."
+    },
+    {
+      "level": 0,
+      "text": "2. Lokal składa się z:"
+    },
+    {
+      "level": 1,
+      "text": "1) sali sprzedaży o powierzchni 38,50 m²,"
+    },
+    {
+      "level": 1,
+      "text": "2) pracowni o powierzchni 19,30 m²,"
+    },
+    {
+      "level": 1,
+      "text": "3) zaplecza socjalnego z WC o powierzchni 6,40 m²."
+    },
+    {
+      "level": 0,
+      "text": "3. Najemca będzie prowadził w lokalu pracownię ceramiki oraz sprzedaż wyrobów rękodzielniczych."
+    },
+    {
+      "level": 0,
+      "text": "1. Umowa zostaje zawarta na czas określony od dnia 1 grudnia 2026 r. do dnia 30 listopada 2029 r."
+    },
+    {
+      "level": 0,
+      "text": "2. Wydanie lokalu nastąpi na podstawie protokołu zdawczo-odbiorczego, stanowiącego załącznik nr 1 do umowy."
+    },
+    {
+      "level": 0,
+      "text": "1. Opłaty płatne są z góry do dziesiątego dnia każdego miesiąca na rachunek bankowy Wynajmującego."
+    },
+    {
+      "level": 0,
+      "text": "2. Czynsz najmu podlega corocznej waloryzacji:"
+    },
+    {
+      "level": 1,
+      "text": "a) o średnioroczny wskaźnik cen towarów i usług konsumpcyjnych ogłoszony przez Prezesa GUS,"
+    },
+    {
+      "level": 1,
+      "text": "b) począwszy od dnia 1 stycznia 2028 r."
+    },
+    {
+      "level": 0,
+      "text": "3. Zaliczka na media podlega rozliczeniu raz w roku według wskazań podliczników."
+    },
+    {
+      "level": 0,
+      "text": "używania lokalu zgodnie z jego przeznaczeniem i przepisami przeciwpożarowymi,"
+    },
+    {
+      "level": 0,
+      "text": "dokonywania na własny koszt drobnych napraw i bieżącej konserwacji lokalu,"
+    },
+    {
+      "level": 0,
+      "text": "niezwłocznego zawiadamiania Wynajmującego o awariach instalacji,"
+    },
+    {
+      "level": 0,
+      "text": "nieoddawania lokalu w podnajem bez pisemnej zgody Wynajmującego."
+    },
+    {
+      "level": 0,
+      "text": "1. Zmiany umowy wymagają formy pisemnej pod rygorem nieważności."
+    },
+    {
+      "level": 0,
+      "text": "2. W sprawach nieuregulowanych umową mają zastosowanie przepisy Kodeksu cywilnego."
+    },
+    {
+      "level": 0,
+      "text": "3. Umowę sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze stron."
+    }
+  ],
+  "furniture": [
+    "Strona 1 z 3",
+    "Strona 2 z 3",
+    "Strona 3 z 3"
+  ],
+  "languages": [
+    "pl"
+  ],
+  "code": [],
+  "notes": "Polish lease contract with an annex. The two party descriptions sit in boxes SIDE BY SIDE and read box by box (lessor left, then lessee); they are body text but not key sentences. Paragraph headings '§ 1. …' are level 2 (the § number is typed). Lists: TYPED '1.' markers with nested TYPED '1)' and 'a)' markers and hanging indents; § 4 uses a CSS-numbered list (decimal drawn by CSS, not in text). The fee table has a full grid, a header row and a 'Razem' total row; thousands are separated by non-breaking spaces (given as spaces). The annex starts on a new page (forced break) and has its own level-2 heading and a full-grid table. Two signature blocks side by side close the contract and the annex. Footer 'Strona N z M' once per page."
+}

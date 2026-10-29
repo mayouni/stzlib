@@ -1,0 +1,127 @@
+{
+  "id": "g19",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Low-cost soil moisture sensors for smallholder irrigation scheduling: a field comparison",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Low-cost soil moisture sensors for smallholder irrigation scheduling: a field comparison"
+    },
+    {
+      "level": 2,
+      "text": "1 Introduction"
+    },
+    {
+      "level": 2,
+      "text": "2 Materials and methods"
+    },
+    {
+      "level": 3,
+      "text": "2.1 Study sites"
+    },
+    {
+      "level": 3,
+      "text": "2.2 Sensors and reference"
+    },
+    {
+      "level": 2,
+      "text": "3 Results"
+    },
+    {
+      "level": 2,
+      "text": "4 Discussion"
+    },
+    {
+      "level": 2,
+      "text": "5 Conclusions"
+    },
+    {
+      "level": 2,
+      "text": "Acknowledgements"
+    },
+    {
+      "level": 2,
+      "text": "References"
+    }
+  ],
+  "key_sentences": [
+    "Smallholder farmers rarely measure soil moisture because commercial probes are expensive.",
+    "Irrigation scheduled from the cheaper sensors used 23 percent less water than the farmers' usual practice with no loss of yield.",
+    "Over-watering wastes pumping energy and leaches nitrogen, while under-watering during flowering reduces yield sharply.",
+    "This paper reports a season-long comparison carried out on working farms rather than on an experimental station.",
+    "Soils ranged from a sandy loam to a clay loam, and each farm irrigated from its own shallow well.",
+    "A data logger recorded the raw readings every thirty minutes and sent a daily summary by text message.",
+    "Both capacitive sensors reached a root mean square error close to two volumetric percentage points.",
+    "The main cost of a useful low-cost system is not the sensor but the calibration visit.",
+    "Farmers valued the daily text message more than the raw numbers, and three of them asked to keep the loggers after the trial.",
+    "Further work will test the sensors in maize and over two consecutive seasons."
+  ],
+  "tables": [
+    {
+      "caption": "Table 1: Agreement of the four sensors with gravimetric samples (n = 48 per sensor).",
+      "rows": [
+        [
+          "Sensor",
+          "Unit cost (USD)",
+          "RMSE (vol. %)",
+          "R²",
+          "Drift after 90 days (vol. %)"
+        ],
+        [
+          "Capacitive A",
+          "6.40",
+          "2.1",
+          "0.93",
+          "0.8"
+        ],
+        [
+          "Capacitive B",
+          "11.90",
+          "1.8",
+          "0.95",
+          "0.5"
+        ],
+        [
+          "Gypsum block",
+          "4.75",
+          "4.6",
+          "0.71",
+          "6.2"
+        ],
+        [
+          "TDR reference",
+          "390.00",
+          "1.1",
+          "0.98",
+          "0.3"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "[1] A. Mensah and R. Doyle, “Sensor-based irrigation on small farms: a review,” Journal of Field Water Management, vol. 14, pp. 101–118, 2023."
+    },
+    {
+      "level": 0,
+      "text": "[2] K. Fehér, Capacitive Soil Sensing in Practice. Budapest: Agro Technical Press, 2022."
+    },
+    {
+      "level": 0,
+      "text": "[3] S. Ndlovu, P. Varga and C. Okonjo, “Calibrating hobby-grade moisture sensors for clay soils,” in Proc. Eighth Regional Conference on Water for Agriculture, 2024, pp. 55–62."
+    }
+  ],
+  "furniture": [
+    "Proceedings of the Ninth Regional Conference on Water for Agriculture, 2026",
+    "Okonjo, Varga and Sithole · Low-cost soil moisture sensors",
+    "1",
+    "2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Two-column conference paper. Running header differs: page 1 carries the proceedings line, later pages the authors/short title (both @page margin boxes, each listed once); bare page numbers at the bottom centre, once per page. Title, author line with superscript affiliation marks and the affiliation block are full width; the abstract is a ruled full-width block whose sentences are body text. The body is a TWO-COLUMN flow (read left column, then right, then page 2). Headings have TYPED numbers ('1 Introduction', '2.1 Study sites'); 'Acknowledgements' and 'References' are unnumbered level-2 headings. Table 1 is a booktabs-style table (rules at top, under the header and at the bottom only) with its caption ABOVE. One sentence carries footnote marker 1 and is excluded from key_sentences; the footnote text sits at the end of the article under a short rule. Words containing SOFT HYPHENS (U+00AD) may be broken at a line end with a visible hyphen; they are given whole without the hyphen. References use TYPED markers '[1]' to '[3]' with a hanging indent."
+}

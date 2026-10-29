@@ -1,0 +1,250 @@
+{
+  "id": "g02",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "Rapport d'activité 2025",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Rapport d'activité 2025"
+    },
+    {
+      "level": 2,
+      "text": "Le mot de la directrice"
+    },
+    {
+      "level": 2,
+      "text": "1. Fréquentation et prêts"
+    },
+    {
+      "level": 3,
+      "text": "1.1 Les entrées"
+    },
+    {
+      "level": 3,
+      "text": "1.2 Les prêts par support"
+    },
+    {
+      "level": 2,
+      "text": "2. Action culturelle"
+    },
+    {
+      "level": 3,
+      "text": "2.1 Les publics éloignés"
+    },
+    {
+      "level": 2,
+      "text": "3. Moyens et perspectives"
+    },
+    {
+      "level": 3,
+      "text": "3.1 Le budget de fonctionnement"
+    },
+    {
+      "level": 3,
+      "text": "3.2 Les orientations pour 2026"
+    }
+  ],
+  "key_sentences": [
+    "L'année 2025 restera celle de la réouverture complète de la médiathèque après dix-huit mois de travaux.",
+    "Nous avons accueilli davantage de familles le samedi matin, et les prêts de bandes dessinées n'ont jamais été aussi nombreux.",
+    "Les chiffres présentés ont été arrêtés au 31 décembre 2025.",
+    "Le compteur installé à l'entrée principale a enregistré 96 418 passages, contre 81 077 l'année précédente.",
+    "Le nombre d'inscrits actifs atteint 7 932 personnes, soit un habitant sur quatre du territoire.",
+    "Le recul des DVD se poursuit pour la quatrième année consécutive.",
+    "La programmation a privilégié les formats courts et les partenariats avec les associations locales.",
+    "Les principaux rendez-vous de l'année sont rappelés ci-dessous.",
+    "Trois actions nouvelles ont été engagées en direction des publics qui ne fréquentent pas la médiathèque :",
+    "Le projet d'établissement fixe trois orientations, que le conseil est invité à approuver."
+  ],
+  "tables": [
+    {
+      "caption": "Tableau 1 – Prêts par support, tous sites, 2024-2025",
+      "rows": [
+        [
+          "Support",
+          "2024",
+          "2024",
+          "2025",
+          "2025",
+          "Évolution"
+        ],
+        [
+          "Support",
+          "Prêts",
+          "Part",
+          "Prêts",
+          "Part",
+          "Évolution"
+        ],
+        [
+          "Livres adultes",
+          "48 210",
+          "41,1 %",
+          "50 935",
+          "41,3 %",
+          "+5,7 %"
+        ],
+        [
+          "Livres jeunesse",
+          "39 870",
+          "34,0 %",
+          "42 118",
+          "34,1 %",
+          "+5,6 %"
+        ],
+        [
+          "Bandes dessinées",
+          "14 655",
+          "12,5 %",
+          "16 402",
+          "13,3 %",
+          "+11,9 %"
+        ],
+        [
+          "Presse",
+          "6 120",
+          "5,2 %",
+          "5 498",
+          "4,5 %",
+          "−10,2 %"
+        ],
+        [
+          "DVD",
+          "5 480",
+          "4,7 %",
+          "4 610",
+          "3,7 %",
+          "−15,9 %"
+        ],
+        [
+          "Jeux de société",
+          "2 905",
+          "2,5 %",
+          "3 870",
+          "3,1 %",
+          "+33,2 %"
+        ],
+        [
+          "Total",
+          "117 240",
+          "100 %",
+          "123 433",
+          "100 %",
+          "+5,3 %"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Poste",
+          "Réalisé 2025 (€)"
+        ],
+        [
+          "Acquisitions documentaires",
+          "92 400"
+        ],
+        [
+          "Abonnements et ressources numériques",
+          "31 750"
+        ],
+        [
+          "Action culturelle",
+          "27 900"
+        ],
+        [
+          "Fournitures et équipement",
+          "18 650"
+        ],
+        [
+          "Maintenance informatique",
+          "15 600"
+        ],
+        [
+          "Total",
+          "186 300"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "un cycle de lectures musicales en six séances, qui a réuni 412 spectateurs ;"
+    },
+    {
+      "level": 1,
+      "text": "dont deux séances hors les murs, au foyer rural de Saint-Aubin ;"
+    },
+    {
+      "level": 1,
+      "text": "et une séance bilingue en langue des signes française ;"
+    },
+    {
+      "level": 0,
+      "text": "le festival « Bulles d'automne », consacré à la bande dessinée régionale ;"
+    },
+    {
+      "level": 0,
+      "text": "quatorze ateliers d'initiation au numérique pour les seniors ;"
+    },
+    {
+      "level": 0,
+      "text": "l'exposition « Moulins et rivières », prêtée par les archives départementales."
+    },
+    {
+      "level": 0,
+      "text": "– des dépôts de livres renouvelés chaque trimestre à l'EHPAD des Tilleuls ;"
+    },
+    {
+      "level": 0,
+      "text": "– une permanence mensuelle à la maison France services de Vaucelles ;"
+    },
+    {
+      "level": 0,
+      "text": "– des valises de lecture confiées aux deux assistantes maternelles du relais petite enfance."
+    },
+    {
+      "level": 0,
+      "text": "I. Élargir les horaires d'ouverture :"
+    },
+    {
+      "level": 1,
+      "text": "1° ouverture le mardi jusqu'à 19 heures à la médiathèque centrale ;"
+    },
+    {
+      "level": 1,
+      "text": "2° ouverture du point lecture de Vaucelles le samedi matin."
+    },
+    {
+      "level": 0,
+      "text": "II. Renouveler le fonds documentaire de l'annexe de Saint-Aubin, dont un tiers a plus de quinze ans."
+    },
+    {
+      "level": 0,
+      "text": "III. Préparer la mise en réseau informatique avec les bibliothèques des communes voisines :"
+    },
+    {
+      "level": 1,
+      "text": "1° choix d'un logiciel commun avant l'été ;"
+    },
+    {
+      "level": 1,
+      "text": "2° carte unique de lecteur au 1 er janvier 2027."
+    }
+  ],
+  "furniture": [
+    "Médiathèque intercommunale des Trois-Rivières",
+    "Rapport d'activité 2025",
+    "Page 1 sur 3",
+    "Page 2 sur 3",
+    "Page 3 sur 3"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "Running header: two @page margin boxes on every page (left: organisation, right: report title), listed once; footer 'Page N sur M' once per page. French typography: non-breaking spaces before ':' ';' and inside guillemets, and as thousands separators (counted as ordinary spaces); U+2212 minus in the table. Headings carry TYPED section numbers ('1.', '1.1'). Tableau 1 has a two-level header (Support and Évolution span two header rows; 2024 and 2025 span two columns), caption below the table, total row last. Lists: the first list's disc/circle bullets are drawn by CSS (nested level 1); the dash list '–' is TYPED with a hanging indent; the orientation list uses TYPED roman numerals 'I.' and nested TYPED '1°' markers. The budget table has a rule under the header, dotted row rules and a total row."
+}

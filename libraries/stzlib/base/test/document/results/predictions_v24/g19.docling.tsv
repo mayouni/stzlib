@@ -1,0 +1,33 @@
+page_header	0	Proceedings of the Ninth Regional Conference on Water for Agriculture, 2026
+heading	1	Low-cost soil moisture sensors for smallholder irrigation scheduling: a field comparison
+paragraph	0	Chidinma Okonjo 1, * , Péter Varga 2 and Lindiwe Sithole 1
+paragraph	0	1 Department of Agricultural Engineering, Highveld Institute of Technology 2 Centre for Irrigation Research, Tisza Valley Agricultural College * Corresponding author: c.okonjo@hit-agri.example
+paragraph	0	Abstract. Smallholder farmers rarely measure soil moisture because commercial probes are expensive. We compared two capacitive sensors and a gypsum resistance block, each costing less than 20 US dollars, with a time-domain reflectometry reference over one dry season. Both capacitive sensors tracked the reference closely after a site-specific calibration, while the gypsum blocks drifted by up to six percentage points. Irrigation scheduled from the cheaper sensors used 23 percent less water than the farmers' usual practice with no loss of yield.
+paragraph	0	Keywords: soil moisture; capacitive sensor; irrigation scheduling; smallholder agriculture
+heading	1	1 Introduction
+paragraph	0	Irrigation decisions on small farms are usually made by eye or by habit. Over-watering wastes pumping energy and leaches nitrogen, while under-watering during flowering reduces yield sharply. Soil moisture sensors could support better decisions, but researchgrade probes based on time-domain reflectometry cost several hundred dollars each. 1
+paragraph	0	Low-cost capacitive sensors have become widely available through the hobby electronics market. Their readings depend on soil texture and temperature, so a field cali­bration is needed before they can be trusted. This paper reports a season-long comparison carried out on working farms rather than on an experimental station.
+heading	1	2 Materials and methods
+heading	1	2.1 Study sites
+paragraph	0	The trial ran from May to September 2025 on six farms growing tomatoes under furrow irrigation. Soils ranged from a sandy loam to a clay loam, and each farm irrigated from its own shallow well.
+heading	1	2.2 Sensors and reference
+paragraph	0	Each farm received two capacitive sensors of different makes, one gypsum block and one time-domain reflectometry probe installed at a depth of 20 cm. Gravimetric samples were taken every two weeks to check the reference and to fit a linear cali­bration for each sensor and soil. A data logger recorded the raw readings every thirty minutes and sent a daily summary by text message.
+heading	1	3 Results
+paragraph	0	Table 1 summarises the agreement between each sensor and the gravimetric samples after calibration.
+table	0	SensorUnit cost (USD)RMSE (vol. %)R²Drift after 90 days (vol. %)Capacitive A6.402.10.930.8Capacitive B11.901.80.950.5Gypsum block4.754.60.716.2TDR reference390.001.10.980.3
+caption	0	Table 1: Agreement of the four sensors with gravimetric samples (n = 48 per sensor).
+paragraph	0	Both capacitive sensors reached a root mean square error close to two volu­metric percentage points. The gypsum blocks responded slowly after irrigation and lost sensitivity as salts accumulated around them. On the two clay loam farms, the uncalibrated capacitive readings overestimated soil moisture by about five points.
+heading	1	4 Discussion
+paragraph	0	The main cost of a useful low-cost system is not the sensor but the calibration visit. A single calibration per soil type proved sufficient, which suggests that extension services could calibrate once for a whole village. Farmers valued the daily text message more than the raw numbers, and three of them asked to keep the loggers after the trial.
+heading	1	5 Conclusions
+paragraph	0	Calibrated capacitive sensors costing under 12 US dollars can schedule furrow irrigation of tomatoes as well as a reference probe. Gypsum blocks are not recommended in saline soils. Further work will test the sensors in maize and over two consecutive seasons.
+heading	1	Acknowledgements
+paragraph	0	We thank the six participating farmers and the district extension officers for their time.
+page_footer	0	1
+page_header	0	Okonjo, Varga and Sithole · Low-cost soil moisture sensors
+heading	1	References
+list_item	0	A. Mensah and R. Doyle, "Sensor-based irrigation on small farms: a review, " Journal of Field Water Management, vol. 14, pp. 101-118, 2023.
+list_item	0	K. Fehér, Capacitive Soil Sensing in Practice. Budapest: Agro Technical Press, 2022.
+list_item	0	S. Ndlovu, P. Varga and C. Okonjo, "Calibrating hobbygrade moisture sensors for clay soils, " in Proc. Eighth Regional Conference on Water for Agriculture, 2024, pp. 55-62.
+paragraph	0	1 Prices quoted are retail prices in 2025, excluding delivery and import duties.
+page_footer	0	2

@@ -1,0 +1,217 @@
+{
+  "id": "g12",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Small Grants Programme 2027: Application Form",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Small Grants Programme 2027: Application Form"
+    },
+    {
+      "level": 2,
+      "text": "Part A: About your organisation"
+    },
+    {
+      "level": 2,
+      "text": "Part B: Your project"
+    },
+    {
+      "level": 3,
+      "text": "B1 Project title"
+    },
+    {
+      "level": 3,
+      "text": "B2 Describe your project"
+    },
+    {
+      "level": 3,
+      "text": "B3 Who will benefit?"
+    },
+    {
+      "level": 2,
+      "text": "Part C: Budget"
+    },
+    {
+      "level": 2,
+      "text": "Part D: Declaration"
+    }
+  ],
+  "key_sentences": [
+    "The Small Grants Programme funds community projects in Fernshire with awards of up to £3,000.",
+    "Please read the guidance notes before completing this form.",
+    "Since March 2025 our volunteers have repaired lamps, toasters, bicycles and clothing for local residents in the village hall.",
+    "Sessions are free, and visitors learn to carry out simple repairs themselves.",
+    "We now want to meet every month instead of every second month, and to train four volunteers to test electrical items safely.",
+    "Last year 312 people brought items to our sessions, and two thirds of them were over sixty.",
+    "We estimate that the extra sessions will keep about two tonnes of goods out of landfill each year.",
+    "Give the full cost of the project and show how much you are asking the Foundation to pay."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "A1 Organisation name",
+          "Millbrook Repair Café CIO"
+        ],
+        [
+          "A2 Charity or company number",
+          "1199357"
+        ],
+        [
+          "A3 Contact person and role",
+          "Dr Amara Okonkwo-Hale, Chair of trustees"
+        ],
+        [
+          "A4 Address",
+          "The Old Forge, Mill Lane Millbrook, Fernshire FN4 2PL"
+        ],
+        [
+          "A5 Telephone and email",
+          "01632 960 418 · hello@millbrookrepair.example"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Item",
+          "Description",
+          "Total cost (£)",
+          "Funded by",
+          "Funded by"
+        ],
+        [
+          "Item",
+          "Description",
+          "Total cost (£)",
+          "Foundation (£)",
+          "Other sources (£)"
+        ],
+        [
+          "Tools and consumables",
+          "Soldering stations, sewing machine, spare parts",
+          "1,450",
+          "1,200",
+          "250"
+        ],
+        [
+          "Venue hire",
+          "Village hall, 12 sessions at £45",
+          "540",
+          "540",
+          "0"
+        ],
+        [
+          "Volunteer training",
+          "Electrical safety testing course for four volunteers",
+          "880",
+          "660",
+          "220"
+        ],
+        [
+          "Publicity",
+          "Posters, leaflets and a banner",
+          "310",
+          "310",
+          "0"
+        ],
+        [
+          "Insurance",
+          "Public liability cover for one year",
+          "420",
+          "0",
+          "420"
+        ],
+        [
+          "Total",
+          "Total",
+          "3,600",
+          "2,710",
+          "890"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Signed",
+          ""
+        ],
+        [
+          "Name",
+          "Amara Okonkwo-Hale"
+        ],
+        [
+          "Date",
+          "3 November 2026"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Reference",
+          "",
+          "Received",
+          ""
+        ],
+        [
+          "Assessed by",
+          "",
+          "Decision",
+          ""
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Write clearly in black or blue ink, or complete the form on screen."
+    },
+    {
+      "level": 0,
+      "text": "Answer every question; write “not applicable” where a question does not apply."
+    },
+    {
+      "level": 0,
+      "text": "Attach your most recent annual accounts and a copy of your safeguarding policy."
+    },
+    {
+      "level": 0,
+      "text": "Return the form by 15 January 2027 to grants@fernhollow.example."
+    },
+    {
+      "level": 0,
+      "text": "(i) the information in this application is true and complete;"
+    },
+    {
+      "level": 0,
+      "text": "(ii) the organisation has a bank account that needs two signatures;"
+    },
+    {
+      "level": 0,
+      "text": "(iii) any grant will be spent only on the project described above;"
+    },
+    {
+      "level": 0,
+      "text": "(iv) we will send the Foundation a short report within three months of the project ending."
+    }
+  ],
+  "furniture": [
+    "Fernhollow Community Foundation",
+    "Form CG-2 · Applicants complete Parts A to D",
+    "Form CG-2 (2027) · Page 1 of 2",
+    "Form CG-2 (2027) · Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Completed application form. Letterhead line (foundation name; form reference on the right) is furniture; the footer 'Form CG-2 (2027) · Page N of M' is listed once per page. Form labels (A1…A6, Signed, Name, Date, office fields) are NOT headings; B1-B3 are level-3 headings. Field blocks are laid out as key/value tables with no header row (label, boxed value); an empty field is given as \"\". The address value has two lines joined with one space. The A6 checkbox row is drawn with CSS boxes (one filled) and is not a list. The instructions list is CSS-numbered (decimal drawn by CSS, not in text); the declaration list uses TYPED roman markers '(i)' to '(iv)' with a hanging indent. The budget table has a two-level header (Item, Description and Total cost span two header rows; 'Funded by' spans two columns) and a total row whose label spans two columns. The 'For office use only' panel is a dashed box holding a 4-column key/value table with empty cells."
+}

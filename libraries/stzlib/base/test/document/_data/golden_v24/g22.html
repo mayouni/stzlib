@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en-GB" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Purchase Order</title>
+<style>
+
+@page { size: A4 landscape; margin: 1.5cm; }
+body { font-family: Roboto, sans-serif; font-size: 8.6pt; line-height: 1.35; margin: 0; color: #1e1e1e; }
+.top { display: flex; justify-content: space-between; align-items: flex-start; }
+.org { font-family: "Roboto Condensed"; font-weight: bold; font-size: 16pt; color: #234a2b; }
+.orga { font-size: 8pt; color: #555; }
+h1 { font-family: "Roboto Condensed"; font-weight: bold; font-size: 22pt; margin: 0; color: #234a2b; text-align: right; }
+table.po { border-collapse: collapse; font-size: 8.5pt; margin-left: auto; }
+table.po td { padding: 1px 0 1px 12px; text-align: right; }
+table.po td:first-child { color: #555; }
+.boxes { display: flex; gap: 5mm; margin: 8px 0; }
+.boxes > div { flex: 1; border-top: 3px solid #234a2b; background: #f1f5f1; padding: 4px 8px; }
+.boxes .l { font-family: "Roboto Condensed"; font-weight: bold; color: #234a2b; text-transform: none; }
+table.w { width: 100%; border-collapse: collapse; font-family: "Roboto Condensed"; font-size: 8.4pt; }
+table.w th { background: #234a2b; color: #fff; font-weight: bold; padding: 3px 4px; text-align: left; vertical-align: bottom; }
+table.w td { padding: 3px 4px; border-bottom: 0.6px solid #c5d3c7; vertical-align: top; }
+table.w .n { text-align: right; }
+table.w tr.t td { border-bottom: none; padding: 1.5px 4px; }
+table.w tr.t1 td { border-top: 1.2px solid #234a2b; }
+table.w tr.g td { font-weight: bold; font-size: 9.5pt; border-top: 1.2px solid #234a2b; border-bottom: 2px solid #234a2b; }
+.bot { display: flex; gap: 10mm; margin-top: 10px; }
+.bot > div { flex: 1; }
+h2 { font-family: "Roboto Condensed"; font-weight: bold; font-size: 10pt; margin: 0 0 3px; color: #234a2b; }
+.tl { margin: 1px 0; padding-left: 1.3em; text-indent: -1.3em; }
+.tl .mk { display: inline-block; width: 1.3em; text-indent: 0; }
+table.auth { border-collapse: collapse; }
+table.auth td { padding: 2px 10px 2px 0; }
+table.auth td:first-child { color: #555; }
+p { margin: 4px 0; }
+
+</style>
+</head>
+<body>
+<div class="top"><div>
+<div class="org">Harrowgate Joinery Supplies Ltd</div>
+<div class="orga">Units 3–5, Tannery Yard, Kendrick FX7 2LB · purchasing@harrowgate-joinery.example · 01632 970 551</div>
+</div><div>
+<h1>Purchase Order</h1>
+<table class="po"><tbody><tr><td>PO number</td><td>HJS-PO-26-0931</td></tr><tr><td>Order date</td><td>27 October 2026</td></tr><tr><td>Required by</td><td>10 November 2026</td></tr><tr><td>Buyer</td><td>Callum Ashdown</td></tr></tbody></table>
+</div></div>
+<div class="boxes"><div><div class="l">Supplier</div>Northmoor Timber Merchants<br>Riverside Saw Mills, Ellerby Road<br>Northmoor NM3 8QD<br>Account no. NTM-4471</div><div><div class="l">Deliver to</div>Harrowgate Joinery Supplies Ltd<br>Goods-in bay 2, Tannery Yard<br>Kendrick FX7 2LB<br>Forklift on site, 07:30–15:00</div><div><div class="l">Invoice to</div>Accounts Payable<br>Harrowgate Joinery Supplies Ltd<br>Units 3–5, Tannery Yard<br>Kendrick FX7 2LB</div></div>
+<table class="w"><thead><tr><th>Line</th><th>Supplier code</th><th>Description</th><th>Species / grade</th><th>Dimensions (mm)</th><th class="n">Qty</th><th>Unit</th><th class="n">Unit price<br>(£)</th><th class="n">Discount</th><th class="n">Line total<br>(£)</th></tr></thead><tbody><tr><td>1</td><td>OAK-PSE-2045</td><td>Oak boards, planed all round</td><td>European oak, prime grade</td><td>20 × 145 × 2400</td><td class="n">120</td><td>board</td><td class="n">38.60</td><td class="n">5%</td><td class="n">4,400.40</td></tr><tr><td>2</td><td>ASH-SAW-5020</td><td>Ash sawn boards, kiln dried</td><td>European ash, 1st &amp; 2nd</td><td>50 × 200 × 3000</td><td class="n">24</td><td>board</td><td class="n">61.25</td><td class="n">5%</td><td class="n">1,396.50</td></tr><tr><td>3</td><td>SPR-CLS-3863</td><td>Spruce studs</td><td>C24 graded spruce</td><td>38 × 63 × 2400</td><td class="n">400</td><td>length</td><td class="n">3.18</td><td class="n">0%</td><td class="n">1,272.00</td></tr><tr><td>4</td><td>PLY-BIR-18</td><td>Birch plywood sheets</td><td>Birch, BB/BB face</td><td>18 × 1220 × 2440</td><td class="n">30</td><td>sheet</td><td class="n">72.40</td><td class="n">7.5%</td><td class="n">2,009.10</td></tr><tr><td>5</td><td>MDF-MR-25</td><td>Moisture-resistant MDF</td><td>MR MDF, E1</td><td>25 × 1220 × 2440</td><td class="n">16</td><td>sheet</td><td class="n">41.90</td><td class="n">0%</td><td class="n">670.40</td></tr><tr><td>6</td><td>DOW-BEE-12</td><td>Beech dowels, fluted</td><td>Beech</td><td>Ø 12 × 1000</td><td class="n">200</td><td>length</td><td class="n">0.94</td><td class="n">0%</td><td class="n">188.00</td></tr><tr><td>7</td><td>GLU-PVA-D3</td><td>Wood glue, D3 water resistant</td><td>—</td><td>5 litre tub</td><td class="n">12</td><td>tub</td><td class="n">23.75</td><td class="n">0%</td><td class="n">285.00</td></tr><tr><td>8</td><td>SAN-P120-R</td><td>Sanding rolls, P120</td><td>Aluminium oxide</td><td>115 mm × 50 m</td><td class="n">10</td><td>roll</td><td class="n">18.20</td><td class="n">10%</td><td class="n">163.80</td></tr><tr class="t t1"><td class="n" colspan="9">Goods total</td><td class="n">10,385.20</td></tr><tr class="t"><td class="n" colspan="9">Carriage</td><td class="n">145.00</td></tr><tr class="t"><td class="n" colspan="9">VAT at 20%</td><td class="n">2,106.04</td></tr><tr class="g"><td class="n" colspan="9">Order total (GBP)</td><td class="n">12,636.24</td></tr></tbody></table>
+<div class="bot"><div>
+<h2>Delivery instructions</h2>
+<div class="tl tl0"><span class="mk">1.</span> Deliver on one vehicle with a tail lift; sheet materials must arrive flat on bearers.</div><div class="tl tl0"><span class="mk">2.</span> Quote the PO number on the delivery note and on every invoice.</div><div class="tl tl0"><span class="mk">3.</span> Hardwood boards must carry their grading stamp and chain-of-custody certificate.</div>
+</div><div>
+<h2>Authorisation</h2>
+<table class="auth"><tbody><tr><td>Authorised by</td><td>Mairead Quinlan, Operations Manager</td></tr><tr><td>Budget code</td><td>STK-TIM-2026-Q4</td></tr><tr><td>Signature</td><td></td></tr></tbody></table>
+</div></div>
+<p>This order is placed under our standard terms of purchase, which are available on request. Please confirm acceptance of the order and the delivery date within two working days. Any change to price, quantity or specification must be agreed in writing before dispatch. Part deliveries will not be accepted without the buyer&#x27;s prior approval.</p>
+</body>
+</html>

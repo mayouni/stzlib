@@ -1,0 +1,324 @@
+{
+  "id": "g03",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Betriebs- und Heizkostenabrechnung 2025",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Betriebs- und Heizkostenabrechnung 2025"
+    },
+    {
+      "level": 2,
+      "text": "Erläuterungen zur Abrechnung"
+    },
+    {
+      "level": 2,
+      "text": "Hinweise zur Zahlung"
+    }
+  ],
+  "key_sentences": [
+    "hiermit erhalten Sie die Abrechnung der Betriebs- und Heizkosten für das Kalenderjahr 2025.",
+    "Grundlage ist § 556 BGB in Verbindung mit der Betriebskostenverordnung sowie die Heizkostenverordnung.",
+    "Die Wohnfläche Ihrer Wohnung beträgt 78,40 m², die Gesamtwohnfläche der Wohnanlage 1.246,50 m².",
+    "Die Kosten werden nach den im Mietvertrag vereinbarten Umlageschlüsseln auf die 16 Wohnungen der Anlage verteilt.",
+    "Verbrauchsabhängige Kosten beruhen auf den Ablesewerten der geeichten Zähler zum Jahreswechsel.",
+    "In der folgenden Aufstellung sind alle Beträge in Euro angegeben.",
+    "Ihren Anteil an den Gesamtkosten stellen wir den im Jahr 2025 geleisteten Vorauszahlungen gegenüber.",
+    "Daraus ergibt sich der folgende Nachzahlungsbetrag.",
+    "Bitte überweisen Sie den Nachzahlungsbetrag bis zum 31.07.2026 unter Angabe Ihrer Mieternummer.",
+    "Ab dem 1. August 2026 beträgt Ihre monatliche Vorauszahlung 265,00 Euro."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Objekt",
+          "Wiesentalstraße 39–43"
+        ],
+        [
+          "Abrechnungszeitraum",
+          "01.01.2025 – 31.12.2025"
+        ],
+        [
+          "Mieternummer",
+          "WT-41-032"
+        ],
+        [
+          "Ansprechpartner",
+          "Herr Jonas Feldmeier"
+        ],
+        [
+          "Telefon",
+          "0761 4093-27"
+        ],
+        [
+          "Datum",
+          "18.06.2026"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Kostenart",
+          "Gesamtkosten €",
+          "Umlageschlüssel",
+          "Einheiten gesamt",
+          "Ihre Einheiten",
+          "Ihr Anteil €"
+        ],
+        [
+          "A. Betriebskosten nach § 2 BetrKV",
+          "A. Betriebskosten nach § 2 BetrKV",
+          "A. Betriebskosten nach § 2 BetrKV",
+          "A. Betriebskosten nach § 2 BetrKV",
+          "A. Betriebskosten nach § 2 BetrKV",
+          "A. Betriebskosten nach § 2 BetrKV"
+        ],
+        [
+          "Grundsteuer",
+          "4.812,40",
+          "Wohnfläche m²",
+          "1.246,50",
+          "78,40",
+          "302,68"
+        ],
+        [
+          "Wasserversorgung",
+          "6.230,18",
+          "Verbrauch m³ Kaltwasser",
+          "2.140",
+          "131",
+          "381,38"
+        ],
+        [
+          "Entwässerung",
+          "5.118,70",
+          "Verbrauch m³ Kaltwasser",
+          "2.140",
+          "131",
+          "313,34"
+        ],
+        [
+          "Straßenreinigung",
+          "612,00",
+          "Wohnfläche m²",
+          "1.246,50",
+          "78,40",
+          "38,49"
+        ],
+        [
+          "Müllbeseitigung",
+          "3.954,60",
+          "Personen",
+          "38",
+          "2",
+          "208,14"
+        ],
+        [
+          "Gebäudereinigung",
+          "4.380,00",
+          "Wohnfläche m²",
+          "1.246,50",
+          "78,40",
+          "275,48"
+        ],
+        [
+          "Gartenpflege",
+          "2.215,25",
+          "Wohnfläche m²",
+          "1.246,50",
+          "78,40",
+          "139,33"
+        ],
+        [
+          "Allgemeinstrom",
+          "1.487,33",
+          "Wohnfläche m²",
+          "1.246,50",
+          "78,40",
+          "93,55"
+        ],
+        [
+          "Schornsteinreinigung",
+          "398,20",
+          "Wohneinheiten",
+          "16",
+          "1",
+          "24,89"
+        ],
+        [
+          "Sach- und Haftpflichtversicherung",
+          "3.106,90",
+          "Wohnfläche m²",
+          "1.246,50",
+          "78,40",
+          "195,41"
+        ],
+        [
+          "Hauswart",
+          "5.640,00",
+          "Wohnfläche m²",
+          "1.246,50",
+          "78,40",
+          "354,73"
+        ],
+        [
+          "Aufzug (Wartung und Strom)",
+          "2.874,15",
+          "Wohneinheiten",
+          "16",
+          "1",
+          "179,63"
+        ],
+        [
+          "Kabelanschluss",
+          "1.536,00",
+          "Wohneinheiten",
+          "16",
+          "1",
+          "96,00"
+        ],
+        [
+          "Wartung der Rauchwarnmelder",
+          "288,00",
+          "Wohneinheiten",
+          "16",
+          "1",
+          "18,00"
+        ],
+        [
+          "Summe Betriebskosten",
+          "Summe Betriebskosten",
+          "Summe Betriebskosten",
+          "Summe Betriebskosten",
+          "Summe Betriebskosten",
+          "2.621,05"
+        ],
+        [
+          "B. Heiz- und Warmwasserkosten nach HeizkostenV",
+          "B. Heiz- und Warmwasserkosten nach HeizkostenV",
+          "B. Heiz- und Warmwasserkosten nach HeizkostenV",
+          "B. Heiz- und Warmwasserkosten nach HeizkostenV",
+          "B. Heiz- und Warmwasserkosten nach HeizkostenV",
+          "B. Heiz- und Warmwasserkosten nach HeizkostenV"
+        ],
+        [
+          "Heizung, Grundkosten (30 %)",
+          "3.936,37",
+          "Wohnfläche m²",
+          "1.246,50",
+          "78,40",
+          "247,58"
+        ],
+        [
+          "Heizung, Verbrauchskosten (70 %)",
+          "9.184,87",
+          "Verbrauchs- einheiten",
+          "18.420",
+          "1.096",
+          "546,50"
+        ],
+        [
+          "Warmwasser, Grundkosten (50 %)",
+          "2.811,69",
+          "Wohnfläche m²",
+          "1.246,50",
+          "78,40",
+          "176,84"
+        ],
+        [
+          "Warmwasser, Verbrauchskosten (50 %)",
+          "2.811,69",
+          "Verbrauch m³ Warmwasser",
+          "612",
+          "38,50",
+          "176,88"
+        ],
+        [
+          "Geräte- und Ablesedienst",
+          "1.162,40",
+          "Wohneinheiten",
+          "16",
+          "1",
+          "72,65"
+        ],
+        [
+          "Summe Heiz- und Warmwasserkosten",
+          "Summe Heiz- und Warmwasserkosten",
+          "Summe Heiz- und Warmwasserkosten",
+          "Summe Heiz- und Warmwasserkosten",
+          "Summe Heiz- und Warmwasserkosten",
+          "1.220,45"
+        ],
+        [
+          "Ihr Gesamtanteil",
+          "Ihr Gesamtanteil",
+          "Ihr Gesamtanteil",
+          "Ihr Gesamtanteil",
+          "Ihr Gesamtanteil",
+          "3.841,50"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Ihr Gesamtanteil",
+          "3.841,50 €"
+        ],
+        [
+          "abzüglich Vorauszahlungen (12 × 245,00 €)",
+          "−2.940,00 €"
+        ],
+        [
+          "Nachzahlung",
+          "901,50 €"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. Die Kosten der Wasserversorgung und der Entwässerung werden nach dem abgelesenen Verbrauch verteilt."
+    },
+    {
+      "level": 0,
+      "text": "2. Die Heizkosten werden zu 30 % nach der Wohnfläche und zu 70 % nach dem erfassten Verbrauch verteilt."
+    },
+    {
+      "level": 1,
+      "text": "a) Die Ablesung erfolgte am 08.01.2026 durch den beauftragten Messdienst."
+    },
+    {
+      "level": 1,
+      "text": "b) Ihre Verbrauchseinheiten können Sie dem beiliegenden Einzelnachweis entnehmen."
+    },
+    {
+      "level": 0,
+      "text": "3. Belege können nach vorheriger Terminvereinbarung in unserem Büro eingesehen werden."
+    },
+    {
+      "level": 0,
+      "text": "4. Einwendungen gegen diese Abrechnung sind spätestens zwölf Monate nach Zugang mitzuteilen."
+    }
+  ],
+  "furniture": [
+    "Hausverwaltung Lindenhof",
+    "GmbH · Immobilienverwaltung seit 1987",
+    "Hausverwaltung Lindenhof GmbH · Am Mühlbach 12 · 79098 Freiburg im Breisgau",
+    "Amtsgericht Freiburg HRB 712045 · Geschäftsführerin: Petra Albsteiger",
+    "Seite 1 von 2",
+    "Seite 2 von 2"
+  ],
+  "languages": [
+    "de"
+  ],
+  "code": [],
+  "notes": "Letter: the small underlined sender line and the recipient address are body (window-envelope block) and not listed; the brand block top-right (two lines) is letterhead furniture; the info panel under it is a borderless key/value table with no header row. Two-line footer (@page bottom-left) is listed once; 'Seite N von M' once per page. The main cost table is ONE table that runs across the page break (Chrome repeats the header row on the next page; it is listed once). It has zebra rows, two full-width section rows (A., B.), two subtotal rows and a grand total whose labels span five columns and repeat in each covered cell; some key cells have two lines joined with one space ('Verbrauchs-' + 'einheiten' is a hyphen at a forced line break inside a cell and is given whole as 'Verbrauchseinheiten'). Shares are computed (cost × own units ÷ all units, rounded to the cent). The 'Erläuterungen' list uses TYPED markers '1.' and 'a)' with hanging indents."
+}
