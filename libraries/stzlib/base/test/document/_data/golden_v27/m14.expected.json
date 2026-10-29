@@ -1,0 +1,49 @@
+{
+  "id": "m14",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": null,
+  "headings": [],
+  "key_sentences": [
+    "Votre demande de permis de construire relative à l’extension d’une maison d’habitation, déposée le 2 octobre 2026, a été enregistrée sous le numéro rappelé en objet.",
+    "Après examen, il apparaît que le dossier est incomplet.",
+    "Ces pièces doivent être déposées en mairie ou adressées au service dans un délai de trois mois à compter de la réception du présent courrier.",
+    "À défaut, votre demande fera l’objet d’une décision tacite de rejet.",
+    "Le délai d’instruction de deux mois ne commencera à courir qu’à compter de la réception du dossier complet."
+  ],
+  "tables": [],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1° le plan de masse coté dans les trois dimensions (pièce PCMI 2), faisant apparaître :"
+    },
+    {
+      "level": 1,
+      "text": "a) les distances de l’extension par rapport aux limites séparatives ;"
+    },
+    {
+      "level": 1,
+      "text": "b) l’emplacement des places de stationnement."
+    },
+    {
+      "level": 0,
+      "text": "2° une notice précisant les matériaux et les couleurs des façades et de la toiture (pièce PCMI 4) ;"
+    },
+    {
+      "level": 0,
+      "text": "3° deux photographies permettant de situer le terrain dans le paysage proche et lointain (pièces PCMI 7 et PCMI 8)."
+    }
+  ],
+  "furniture": [
+    "Communauté de communes du Val de Lorvenne",
+    "Pôle aménagement et urbanisme",
+    "2, place de la Halle – 41290 Lorvenne-sur-Cher",
+    "Tél. 02 54 71 30 00 – urbanisme@cc-lorvenne.example",
+    "Toute correspondance doit être adressée à M. le Président de la Communauté de communes."
+  ],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "Formal French administrative letter with no title and no headings (title null, headings empty). Letterhead block (top left, four lines) and the line in the bottom margin are furniture. The sender-reference block, the addressee block (placed for a window envelope), the place-and-date line, the \"Objet :\" line and the registered-mail mention are body text but not sentences of the letter. The list uses typed French administrative markers \"1°\", \"2°\", \"3°\" with a hanging indent and a nested level of typed \"a)\", \"b)\". Non-breaking spaces before \":\" and \";\" (French typography) count as ordinary spaces."
+}

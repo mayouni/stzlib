@@ -535,6 +535,24 @@ golden_v26: 24 realistic documents in 16 languages besides English (Arabic, Hebr
 
 Time for the 24 documents: native 0.09 s, Docling 93 s. The native reader leads on all eight measures, the fifth set where it does. Where Docling does better, document by document: tables on five (k06, a bank statement across pages, 0.02 against 0.72; k16, landscape lab report, 0.31 against 0.96; k13 0.29 against 1.00; k21 0.50 against 0.96), headings on four (k03 0.17 against 1.00 -- its headings' bold is synthesised by the browser, drawn as fill-and-stroke from a regular face), furniture on five, text on four, lists on three. Causes not yet looked into: round 26.
 
+**Twenty-sixth round: a browser's synthetic bold, letterhead names, columns from the header; then golden_v27.** Fixed on golden_v26 (now a development set) and checked on all twenty-six sets:
+- Chrome draws a face it has no bold for as Type3 outlines whose descriptor still names the regular face at weight 400: such a Type3 font is bold when the page also carries that face from its real font file. A variable font drawn entirely as Type3 (Bahnschrift) has no twin and keeps the weight its name says -- marking every named Type3 bold made r18's body bold on the way. This synthetic bold was behind many sets: headings and furniture rose across twenty;
+- with those bold names now seen, a short bold name above the title and smaller than it is letterhead -- above only, a sidebar heading beside the title stays a heading;
+- a ladder whose body rows never fill every column (a statement's debit and credit) takes its columns from the header row, each widened to the body cells centred in it.
+
+Tried and withdrawn: no growth for a table drawn as a full grid (k16's key/value line above its grid) -- tables fell on six sets (v9 0.893 -> 0.829), headers outside the rules need it.
+
+On the development sets, against round 25 frozen: golden_v26 headings 0.91 -> 0.94, tables 0.80 -> 0.82, lists 0.76 -> 0.79, furniture 0.87 -> 0.91; furniture up on twenty sets (v15 0.85 -> 0.89, v12 0.70 -> 0.75, v9 0.65 -> 0.69, v23 0.85 -> 0.89); headings v9 0.97 -> 1.00, v10 0.86 -> 0.90, v5 0.83 -> 0.86; heading precision up on twenty-one sets. Cost: headings v6 0.984 -> 0.959 (k09's largest heading is "Rx", taken for the title, so the real title above it reads as a letterhead name). Not reached: k16 (a line above a grid table taken as its first row), h09 (its ladder still gives way). Guard 229 assertions under Ring++.
+
+golden_v27: 24 realistic documents in 14 languages besides English (ten scripts: Arabic and Hebrew right to left, Japanese, Chinese, Korean, Hindi, Thai, Greek, Russian among them), 16 of 2-3 pages, by a twenty-seventh independent agent who saw no reader, no output and no earlier set; the agent was stopped by a network error after finishing all 24 documents, and a second agent wrote only the set's README from its own files; no one has looked at the pages (unperceived); reader frozen at ddeedc18c; both readers ran once:
+
+| golden_v27, realistic | text | order | headings | tables | lists | furniture | code | heading precision |
+|---|---|---|---|---|---|---|---|---|
+| Softanza native (Ring++) | **0.96** | 0.99 | **0.85** | **0.75** | **0.87** | **0.79** | **1.00** | **0.77** |
+| Docling 2.141 | 0.73 | **1.00** | 0.72 | 0.69 | 0.47 | 0.74 | 0.00 | 0.64 |
+
+Time for the 24 documents: native 0.08 s, Docling 102 s. The native reader leads on seven measures, Docling on order by 0.008 (m24, 0.80 against 1.00). Where Docling does better, document by document: tables on six (m01 0.02 against 0.88, m21 nothing against 0.97, m06 0.34 against 0.93, m18, m07, m16), furniture on three (m14 0.20 against 0.60), lists on two, headings on one (m08). Headings are this set's weak measure for both readers (0.85 and 0.72). Causes not yet looked into: round 27.
+
 **Perceived (2026-10-24):** the author looked through every rendered page of golden_v9 to golden_v13 -- the sets whose own authors could not look at them -- and judged them: "they look great". Those five sets are no longer unperceived; the sets before them were generated the same way and are not covered by this look.
 
 **Perceived (2026-10-29):** the author looked at the generated documents of golden_v14 to golden_v22 and judged them: "they are ok". Those nine sets are no longer unperceived.

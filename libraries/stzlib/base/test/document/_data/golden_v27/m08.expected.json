@@ -1,0 +1,183 @@
+{
+  "id": "m08",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "客户服务中心2026年前三季度工作总结",
+  "headings": [
+    {
+      "level": 1,
+      "text": "客户服务中心2026年前三季度工作总结"
+    },
+    {
+      "level": 2,
+      "text": "一、主要工作完成情况"
+    },
+    {
+      "level": 3,
+      "text": "（一）服务质量稳步提升"
+    },
+    {
+      "level": 3,
+      "text": "（二）在线服务渠道建设"
+    },
+    {
+      "level": 3,
+      "text": "（三）队伍建设"
+    },
+    {
+      "level": 2,
+      "text": "二、存在的问题"
+    },
+    {
+      "level": 2,
+      "text": "三、第四季度工作计划"
+    }
+  ],
+  "key_sentences": [
+    "2026年前三季度，客户服务中心围绕“提质、增效、降投诉”的年度目标，扎实推进各项工作，主要服务指标均好于去年同期。",
+    "通过优化排班和完善知识库，来电接通率提高到95.8%，平均响应时长缩短至26秒。",
+    "在线渠道是今年工作的重点。",
+    "目前在线渠道受理量已占总量的43%，较年初提高了11个百分点。",
+    "新增高级客服专员8名，团队整体业务水平明显提高。",
+    "客户服务中心将继续以客户满意为标准，确保全年目标任务圆满完成。"
+  ],
+  "tables": [
+    {
+      "caption": "表1 主要服务指标对比",
+      "rows": [
+        [
+          "类别",
+          "指标",
+          "2025年前三季度",
+          "2026年前三季度",
+          "同比变化"
+        ],
+        [
+          "效率",
+          "来电接通率",
+          "91.2%",
+          "95.8%",
+          "+4.6个百分点"
+        ],
+        [
+          "效率",
+          "平均响应时长（秒）",
+          "38",
+          "26",
+          "-31.6%"
+        ],
+        [
+          "质量",
+          "一次解决率",
+          "78.5%",
+          "84.1%",
+          "+5.6个百分点"
+        ],
+        [
+          "质量",
+          "客户满意度（分）",
+          "4.52",
+          "4.71",
+          "+0.19"
+        ],
+        [
+          "质量",
+          "投诉量（件）",
+          "1,284",
+          "963",
+          "-25.0%"
+        ]
+      ]
+    },
+    {
+      "caption": "表2 各渠道受理量（单位：万件）",
+      "rows": [
+        [
+          "渠道",
+          "第一季度",
+          "第二季度",
+          "第三季度",
+          "合计"
+        ],
+        [
+          "电话",
+          "7.8",
+          "7.6",
+          "8.3",
+          "23.7"
+        ],
+        [
+          "在线",
+          "4.9",
+          "5.8",
+          "7.2",
+          "17.9"
+        ],
+        [
+          "合计",
+          "12.7",
+          "13.4",
+          "15.5",
+          "41.6"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. 上线智能问答助手，覆盖常见问题约1,200条；"
+    },
+    {
+      "level": 0,
+      "text": "2. 开通公众号人工客服，服务时间延长至每日22:00；"
+    },
+    {
+      "level": 0,
+      "text": "3. 建立在线工单系统，实现投诉处理全流程跟踪。"
+    },
+    {
+      "level": 0,
+      "text": "１． 高峰时段人力仍显紧张，节假日前后接通率波动较大；"
+    },
+    {
+      "level": 0,
+      "text": "２． 智能问答对复杂业务的识别准确率不高，转人工比例偏高；"
+    },
+    {
+      "level": 0,
+      "text": "３． 部分投诉跨部门协调时间较长，影响客户体验。"
+    },
+    {
+      "level": 0,
+      "text": "做好年末业务高峰保障，提前完成人员储备和应急预案。"
+    },
+    {
+      "level": 1,
+      "text": "（1） 储备兼职客服20名；"
+    },
+    {
+      "level": 1,
+      "text": "（2） 十二月中旬开展全流程应急演练。"
+    },
+    {
+      "level": 0,
+      "text": "完成智能问答二期建设，力争转人工比例下降至30%以下。"
+    },
+    {
+      "level": 0,
+      "text": "推行投诉“首问负责制”，跨部门投诉处理时限压缩至3个工作日。"
+    }
+  ],
+  "furniture": [
+    "青川数码科技有限公司",
+    "内部资料 注意保密",
+    "第 1 页 共 2 页",
+    "第 2 页 共 2 页"
+  ],
+  "languages": [
+    "zh"
+  ],
+  "code": [],
+  "notes": "Simplified Chinese report; no spaces between words, and a line wrapped inside a sentence joins with no space. The ideographic space U+3000 (in the header, the page number and the captions) counts as a space. Paragraphs have a two-character first-line indent. Running header (company name left, confidentiality notice right) and the centred page number \"第 n 页 共 N 页\" are furniture. Headings carry their typed numbering in the text: \"一、\" at level 2 and \"（一）\" at level 3. Lists: section (二) uses typed half-width \"1.\" markers; section 二 uses typed full-width \"１．\" markers; section 三 uses a CSS-drawn cjk-ideographic list (markers \"一、二、三、\" not in the text) with a nested level of typed \"（1）\" markers. Table 1 has a full grid and category cells \"效率\" and \"质量\" spanning two and three rows; Table 2 is a three-line table (rules at top, under the header and at the bottom, plus one rule above the total row). Captions \"表1\"/\"表2\" are above their tables. The closing sign-off (department and date) is right-aligned body text."
+}

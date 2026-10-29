@@ -1,0 +1,111 @@
+{
+  "id": "m13",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "वार्षिक आम सभा की सूचना",
+  "headings": [
+    {
+      "level": 1,
+      "text": "वार्षिक आम सभा की सूचना"
+    },
+    {
+      "level": 2,
+      "text": "वर्ष 2025-26 की मुख्य उपलब्धियाँ"
+    },
+    {
+      "level": 2,
+      "text": "सदस्यों के लिए आवश्यक निर्देश"
+    }
+  ],
+  "key_sentences": [
+    "समिति के सभी सदस्यों को सूचित किया जाता है कि समिति की वार्षिक आम सभा रविवार, 8 नवंबर 2026 को प्रातः 11:00 बजे पंचायत भवन, हरितपुर में आयोजित की जाएगी।",
+    "सभा में निम्नलिखित विषयों पर विचार किया जाएगा:",
+    "पिछले वर्ष की तुलना में समिति के सदस्यों की संख्या और ऋण वितरण दोनों में वृद्धि हुई है।",
+    "गणपूर्ति के अभाव में सभा आधे घंटे के लिए स्थगित की जाएगी और उसके बाद उसी स्थान पर पुनः आरंभ होगी।",
+    "वार्षिक लेखों की प्रति सभा से सात दिन पहले समिति कार्यालय में देखी जा सकती है।"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "मद",
+          "2024-25",
+          "2025-26"
+        ],
+        [
+          "सदस्य संख्या",
+          "1,412",
+          "1,486"
+        ],
+        [
+          "खाद वितरण (टन)",
+          "820",
+          "905"
+        ],
+        [
+          "फसल ऋण वितरण (₹ लाख)",
+          "214.5",
+          "238.0"
+        ],
+        [
+          "शुद्ध लाभ (₹ लाख)",
+          "6.8",
+          "8.1"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "पिछली आम सभा की कार्यवाही की पुष्टि।"
+    },
+    {
+      "level": 0,
+      "text": "वर्ष 2025-26 के लेखा-परीक्षित वार्षिक लेखों का अनुमोदन।"
+    },
+    {
+      "level": 0,
+      "text": "वर्ष 2026-27 के बजट पर चर्चा एवं स्वीकृति।"
+    },
+    {
+      "level": 0,
+      "text": "नए खाद गोदाम के निर्माण का प्रस्ताव।"
+    },
+    {
+      "level": 0,
+      "text": "अध्यक्ष की अनुमति से अन्य विषय।"
+    },
+    {
+      "level": 0,
+      "text": "(क) सभा में भाग लेने के लिए सदस्य अपना पहचान पत्र अवश्य साथ लाएँ।"
+    },
+    {
+      "level": 0,
+      "text": "(ख) जिन सदस्यों पर 31 अक्टूबर 2026 तक कोई राशि बकाया है, वे मतदान में भाग नहीं ले सकेंगे।"
+    },
+    {
+      "level": 0,
+      "text": "(ग) किसी विषय पर लिखित सुझाव 1 नवंबर 2026 तक इन माध्यमों से भेजे जा सकते हैं:"
+    },
+    {
+      "level": 1,
+      "text": "– समिति कार्यालय में सीधे जमा करके;"
+    },
+    {
+      "level": 1,
+      "text": "– डाक द्वारा समिति के पते पर।"
+    }
+  ],
+  "furniture": [
+    "हरितपुर बहुउद्देशीय किसान सहकारी समिति लि.",
+    "पंजीयन संख्या 1184/2009 · ग्राम व डाकघर हरितपुर, जिला सोनगढ़",
+    "पृष्ठ १ / १"
+  ],
+  "languages": [
+    "hi"
+  ],
+  "code": [],
+  "notes": "Hindi notice in Devanagari. Letterhead (society name and registration/address line) and the page number \"पृष्ठ १ / १\" in Devanagari digits are furniture. The reference number (left) and date (right) line under the letterhead is body text. The title is underlined. The agenda is a CSS-drawn ordered list with Devanagari numerals (list-style-type: devanagari; markers not in the text). The instructions list uses typed markers \"(क)\", \"(ख)\", \"(ग)\" with a hanging indent, and a nested level of typed en dashes. The table has zebra bands, no vertical rules. The signature block (right-aligned) and the boxed note are body text."
+}

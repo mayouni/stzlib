@@ -1,0 +1,262 @@
+{
+  "id": "m03",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Protokoll der ordentlichen Eigentümerversammlung 2026",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Protokoll der ordentlichen Eigentümerversammlung 2026"
+    },
+    {
+      "level": 2,
+      "text": "Eröffnung und Beschlussfähigkeit"
+    },
+    {
+      "level": 2,
+      "text": "Tagesordnung"
+    },
+    {
+      "level": 2,
+      "text": "TOP 1 – Jahresabrechnung 2025"
+    },
+    {
+      "level": 2,
+      "text": "TOP 2 – Wirtschaftsplan 2027"
+    },
+    {
+      "level": 2,
+      "text": "TOP 3 – Sanierung der Tiefgarage"
+    },
+    {
+      "level": 2,
+      "text": "TOP 4 – Erneuerung der Gegensprechanlage"
+    },
+    {
+      "level": 2,
+      "text": "TOP 5 – Verschiedenes"
+    },
+    {
+      "level": 2,
+      "text": "Übersicht der Abstimmungsergebnisse"
+    }
+  ],
+  "key_sentences": [
+    "Die Versammlungsleiterin eröffnet die Versammlung um 18:30 Uhr und begrüßt die anwesenden Eigentümerinnen und Eigentümer.",
+    "Sie stellt fest, dass zur Versammlung form- und fristgerecht eingeladen wurde.",
+    "Die Versammlung ist damit beschlussfähig.",
+    "Der Verwaltungsbeirat hat die Belege am 2. Juli 2026 stichprobenartig geprüft und keine Beanstandungen festgestellt.",
+    "Das Gutachten des Ingenieurbüros vom April 2026 bestätigt Schäden an der Bodenplatte und an zwei Stützen.",
+    "Der Antrag wird auf die nächste Versammlung vertagt, da bisher nur ein Angebot vorliegt.",
+    "Die Versammlungsleiterin schließt die Versammlung um 20:55 Uhr."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Eigentümergemeinschaft",
+          "WEG Lindenhof, Kastanienallee 12–16"
+        ],
+        [
+          "Datum",
+          "Donnerstag, 18. September 2026"
+        ],
+        [
+          "Ort",
+          "Gemeindesaal St. Markus, Raum 2"
+        ],
+        [
+          "Beginn",
+          "18:30 Uhr"
+        ],
+        [
+          "Ende",
+          "20:55 Uhr"
+        ],
+        [
+          "Versammlungsleitung",
+          "Ines Wachter (Verwaltung)"
+        ],
+        [
+          "Protokollführung",
+          "Jonas Pfleiderer (Verwaltungsbeirat)"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Kostengruppe",
+          "2026 (€)",
+          "2027 (€)",
+          "Veränderung"
+        ],
+        [
+          "Hausmeister und Reinigung",
+          "31.200",
+          "32.400",
+          "+3,8 %"
+        ],
+        [
+          "Heizung und Warmwasser",
+          "54.900",
+          "51.300",
+          "−6,6 %"
+        ],
+        [
+          "Versicherungen",
+          "12.750",
+          "13.900",
+          "+9,0 %"
+        ],
+        [
+          "Strom Allgemeinflächen",
+          "6.100",
+          "6.300",
+          "+3,3 %"
+        ],
+        [
+          "Verwaltervergütung",
+          "16.560",
+          "16.560",
+          "0,0 %"
+        ],
+        [
+          "Sonstiges",
+          "5.890",
+          "6.140",
+          "+4,2 %"
+        ],
+        [
+          "Zuführung Erhaltungsrücklage",
+          "20.000",
+          "22.000",
+          "+10,0 %"
+        ],
+        [
+          "Summe",
+          "147.400",
+          "148.600",
+          "+0,8 %"
+        ]
+      ]
+    },
+    {
+      "caption": "Stimmen nach Miteigentumsanteilen (MEA)",
+      "rows": [
+        [
+          "TOP",
+          "Gegenstand",
+          "Ja",
+          "Nein",
+          "Enthaltung",
+          "Ergebnis"
+        ],
+        [
+          "1",
+          "Jahresabrechnung 2025",
+          "612,40",
+          "31,10",
+          "40,75",
+          "angenommen"
+        ],
+        [
+          "1",
+          "Entlastung des Beirats",
+          "590,05",
+          "52,90",
+          "41,30",
+          "angenommen"
+        ],
+        [
+          "2",
+          "Wirtschaftsplan 2027",
+          "655,75",
+          "0,00",
+          "28,50",
+          "angenommen"
+        ],
+        [
+          "3",
+          "Sanierung Tiefgarage (Angebot b)",
+          "498,60",
+          "143,15",
+          "42,50",
+          "angenommen"
+        ],
+        [
+          "4",
+          "Gegensprechanlage",
+          "–",
+          "–",
+          "–",
+          "vertagt"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Jahresabrechnung 2025 und Entlastung des Verwaltungsbeirats"
+    },
+    {
+      "level": 0,
+      "text": "Wirtschaftsplan 2027"
+    },
+    {
+      "level": 0,
+      "text": "Sanierung der Tiefgarage"
+    },
+    {
+      "level": 0,
+      "text": "Erneuerung der Gegensprechanlage"
+    },
+    {
+      "level": 0,
+      "text": "Verschiedenes"
+    },
+    {
+      "level": 0,
+      "text": "a) Bautechnik Rehm GmbH: 187.400 € brutto, Ausführung März bis Mai 2027;"
+    },
+    {
+      "level": 0,
+      "text": "b) Ostermann Betonsanierung: 172.950 € brutto, Ausführung April bis Juli 2027;"
+    },
+    {
+      "level": 1,
+      "text": "– zuzüglich Baustelleneinrichtung von 6.800 €;"
+    },
+    {
+      "level": 1,
+      "text": "– Gewährleistung fünf Jahre;"
+    },
+    {
+      "level": 0,
+      "text": "c) Kaczmarek Bau: 201.300 € brutto, Ausführung ab Februar 2027."
+    },
+    {
+      "level": 0,
+      "text": "– Die Fahrradabstellanlage im Hof wird im Oktober um zwölf Plätze erweitert."
+    },
+    {
+      "level": 0,
+      "text": "– Die Eigentümer werden gebeten, Sperrmüll nicht im Kellergang abzustellen."
+    }
+  ],
+  "furniture": [
+    "WEG Lindenhof · Protokoll vom 18.09.2026",
+    "Brenner & Kloss Hausverwaltung GmbH",
+    "Lerchenweg 21 · 37199 Altmühlhausen · Telefon 05561 70440",
+    "Seite 1 von 2",
+    "Seite 2 von 2"
+  ],
+  "languages": [
+    "de"
+  ],
+  "code": [],
+  "notes": "Letterhead (two lines) and the footer (left: community and date; right: \"Seite n von N\") are furniture. The meeting-data table at the top is a borderless key/value table with no header row. The agenda is a CSS-drawn decimal list (markers \"1.\" to \"5.\" are not in the text). The offers list uses typed \"a)\", \"b)\", \"c)\" markers with a hanging indent and a nested level of typed en-dash markers; the TOP 5 list has typed en-dash markers set inline. The Wirtschaftsplan table has a rule under the header only; the voting table has rules between rows only, and its TOP cell \"1\" spans two rows. The \"Beschluss:\" boxes are body text. The two signature blocks at the end sit side by side and read box by box (left first)."
+}

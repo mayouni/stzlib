@@ -1,0 +1,42 @@
+page_header	0	Calderbrook Institute for Urban Policy
+page_header	0	Policy Brief 2026/07
+heading	1	Street Trees and Summer Heat: Evidence from Ashworth
+paragraph	0	Nadia Okonkwo-Reyes and Tomasz Weller
+paragraph	0	October 2026
+heading	1	Summary
+paragraph	0	Neighbourhoods in Ashworth with more tree canopy were markedly cooler on hot summer afternoons. Using two summers of readings from 52 street-level sensors, we estimate that every ten additional points of canopy cover lower afternoon air temperature by about 0.4 °C. The effect is largest in dense residential streets, which are also where canopy is scarcest.
+heading	1	1 Introduction
+paragraph	0	Heat is the deadliest weather hazard in most temperate cities, yet it receives a fraction of the attention given to flooding. Trees cool streets in two ways: they shade surfaces that would otherwise store heat, and they release water vapour through their leaves. How much cooling a city can expect from planting, however, depends on local conditions that national guidance cannot capture.
+paragraph	0	Ashworth, a city of about 210,000 people, adopted a target of 25% canopy cover by 2040. 1 This brief asks what that target is worth in degrees, and where new trees would do the most good.
+heading	1	2 Data and method
+heading	1	2.1 Temperature records
+paragraph	0	The council installed 52 shaded air-temperature sensors on lamp posts in May 2024. We use readings taken between 14:00 and 17:00 on the 61
+table	0	Model (1)Model (2)Model (3)Canopy cover (per 10 points)-0.42-0.37-0.35Impervious surface (per 10 points)(0.06)(0.05) 0.21(0.07) 0.19Distance to coast (km)(0.04)(0.05) 0.08Observations3,1723,172(0.03) 3,172R²0.310.440.47
+caption	0	Table 1. Estimated effect on afternoon air temperature (°C)
+paragraph	0	The cooling associated with canopy is roughly twice as large in streets with terraced housing as in streets of detached houses. We find no evidence that the effect weakens on the hottest days. 2
+heading	1	4 Discussion
+paragraph	0	Our estimates are associations, not experiments: greener streets may differ from others in ways we do not observe. Even so, the size of the effect is in
+paragraph	0	days of the 2024 and 2025 summers on which the airport station recorded more than 25 °C.
+heading	1	2.2 Canopy and surfaces
+paragraph	0	Canopy cover and impervious surface were measured from aerial imagery within 100 metres of each sensor. Distance to the coast was added because sea breezes cool the southern districts on many afternoons.
+table	0	DistrictSensorsCanopy (%)Old Town119Riverside1417Northfield1524Hollin Park1231
+caption	0	Table 2. Sensors and mean canopy cover by district
+heading	1	3 Results
+paragraph	0	Table 1 reports three regression models of mean afternoon temperature. The canopy coefficient is stable across specifications, falling only slightly when surfaces and coastal distance are taken into account.
+page_footer	0	Page 1
+page_header	0	Street trees and summer heat
+page_header	0	Policy Brief 2026/07
+paragraph	0	line with studies from other temperate cities. Raising canopy in the Old Town from 9% to 25% would, on our central estimate, lower afternoon temperatures there by around 0.6 °C.
+heading	1	5 Recommendations
+list_item	0	Prioritise planting where canopy is lowest and heat exposure is highest:
+list_item	0	(i) the Old Town and the terraced streets of Riverside;
+list_item	0	(ii) routes to schools, clinics and care homes.
+list_item	0	Protect existing mature trees, which provide far more shade than new planting for at least fifteen years.
+list_item	0	Keep the sensor network running so that the effect of new planting can be measured directly.
+heading	1	References
+list_item	0	Ashworth City Council (2023). Urban Forest Strategy 2023-2040. Ashworth: City Council.
+list_item	0	Lindqvist, M. and Ferreira, A. (2021). Canopy cover and street-level air temperature in five northern cities. Journal of Urban Climate Studies 14(2), 88-104.
+list_item	0	Weller, T. (2025). A low-cost sensor network for urban heat. Calderbrook Working Paper 25/03.
+paragraph	0	1 Canopy cover was 16% at the time of the most recent survey in 2023.
+paragraph	0	2 Results for days above 28 °C are available from the authors.
+page_footer	0	Page 2

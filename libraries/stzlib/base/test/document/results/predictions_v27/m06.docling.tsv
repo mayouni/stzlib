@@ -1,0 +1,41 @@
+page_header	0	Larkspur Queue Service · Operations Guide · Rev. 3.2
+page_header	0	INTERNAL
+heading	1	Larkspur Queue Service: Deployment and Operations Guide
+table	0	Document IDLQS-OPS-004Revision3.2OwnerPlatform OperationsLast reviewed6 October 2026
+heading	1	1 Overview
+paragraph	0	Larkspur is the internal message broker used by the billing, notification and audit services. Each production cluster runs three brokers, and every partition is replicated to all three of them. This guide describes how to configure a broker, how to upgrade a cluster without downtime and what to do when the most common alarms fire.
+heading	1	2 Prerequisites
+list_item	0	A host from the queue-node image, version 2026.09 or later, with:
+list_item	0	at least 8 CPU cores and 32 GB of memory;
+list_item	0	a dedicated NVMe volume of 500 GB or more for the data directory.
+list_item	0	Membership of the lqs-operators group, which grants access to the lqsctl command.
+list_item	0	An open change ticket for any work on a production cluster.
+heading	1	3 Configuration
+paragraph	0	The broker reads a single YAML file at start-up and does not reload it while running. A minimal production file looks like this:
+code	0	# /etc/larkspur/broker.yaml broker: listen: 0.0.0.0:7420 data _ dir: /var/lib/larkspur max _ message _ bytes: 1048576 retention: hours: 72 max _ disk _gb: 400 replication: factor: 3 ack: quorum
+table	0	ParameterDefaultDescriptionlisten0.0.0.0:7420Address and port on which the broker accepts client connections.data _ dir/var/lib/larkspurDirectory for segment files. It must be on local storage, never on a network share.max _ message _ bytes1048576Largest accepted message in bytes. Larger messages are rejected with error LQ-413.retention.hours72How long acknowledged messages are kept before compaction.replication.factor3Number of brokers that hold a copy of each partition.replication.ackquorumWhen a write is confirmed: leader, quorum or all.
+heading	1	4 Rolling upgrade
+page_footer	0	Tallowmere Systems · Platform Operations
+page_footer	0	1 / 2
+page_header	0	Larkspur Queue Service · Operations Guide · Rev. 3.2
+page_header	0	INTERNAL
+heading	1	4.1 Before you start
+paragraph	0	Upgrade one broker at a time and wait until the cluster reports all partitions in sync before moving to the next one. A full upgrade of a three-broker cluster usually takes about forty minutes.
+heading	1	4.2 Steps
+list_item	0	Drain the broker so that it stops leading partitions:
+list_item	0	run the drain command shown below;
+list_item	0	confirm in the dashboard that its leader count has dropped to zero.
+list_item	0	Stop the service and install the new package.
+list_item	0	Start the service and check its status.
+list_item	0	Wait for re-synchronisation, then repeat from step 1 for the next broker.
+list_item	0	$ lqsctl broker drain --id 2 --timeout 300s
+list_item	0	$ sudo systemctl stop larkspur-broker
+list_item	0	$ sudo dnf install larkspur-broker-3.2.1
+list_item	0	$ sudo systemctl start larkspur-broker
+list_item	0	$ lqsctl broker status --id 2
+paragraph	0	Warning: never stop a second broker while any partition is under-replicated. With a replication factor of 3 and quorum acknowledgement, losing two brokers makes the affected partitions read-only.
+heading	1	5 Troubleshooting
+table	0	Alarm or symptomLikely causeActionLQS-DiskHigh (data volume above 85 %)Retention too long for the current traffic, or a consumer group has stopped.Check consumer lag first. Lower retention.hours only after agreement with the service owner.LQS-UnderReplicatedA broker is down or its network is saturated.Check broker status; if a broker is down, follow the restart runbook RB-17.Producers receive LQ-413Messages larger than max _ message _ bytes.Ask the producing team to split messages; do not raise the limit above 4 MB.Slow acknowledgementsVolume latency above 5 ms.Open a ticket with Storage Engineering and attach the iostat output.
+paragraph	0	If an alarm is not listed here, page the on-call engineer through the usual escalation channel.
+page_footer	0	Tallowmere Systems · Platform Operations
+page_footer	0	2 / 2

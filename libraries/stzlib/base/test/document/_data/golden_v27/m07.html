@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr"><head><meta charset="utf-8"><title>Boletín de calificaciones</title><style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+table{border-collapse:collapse}
+.tl .ti{break-inside:avoid}
+.tl.hang>.ti{display:grid;grid-template-columns:var(--mk,1.8em) 1fr}
+.tl.hang>.ti>.mk{grid-column:1}
+.tl.hang>.ti>.tx{grid-column:2}
+.tl.inline>.ti>.tl{margin-inline-start:1.6em}
+
+
+@page{size:A4;margin:2cm;
+  @bottom-center{content:"Página " counter(page) " de " counter(pages);font-family:'Trebuchet MS';font-size:8.5pt;color:#555}}
+body{font-family:'Trebuchet MS';font-size:9.2pt;line-height:1.32;color:#222}
+.band{background:#6b2d5c;color:#fff;padding:8px 12px;display:flex;justify-content:space-between;align-items:center}
+.band .n{font-family:Georgia;font-size:15pt;font-weight:bold}
+.band .a{font-size:8.5pt;text-align:right;line-height:1.35}
+h1{font-family:Georgia;font-size:19pt;color:#6b2d5c;margin:10px 0 0;font-weight:normal}
+.sub{font-size:11pt;color:#555;margin:0 0 10px}
+table.al{width:100%;border:1.5px solid #6b2d5c;margin-bottom:12px}
+table.al td{padding:3px 8px;font-size:9.5pt}
+table.al td:nth-child(odd){color:#6b2d5c;font-weight:bold;width:17%}
+table.nt{width:100%;font-size:8.6pt}
+table.nt th{background:#6b2d5c;color:#fff;padding:3px 5px;border:1px solid #fff;font-weight:bold}
+table.nt td{padding:2px 5px;vertical-align:middle}
+table.nt td.c{text-align:center}
+table.nt tbody tr:nth-child(odd){background:#f6eef4}
+table.nt tr.sec td{background:#e2cbdc !important;font-weight:bold;font-family:Georgia}
+table.nt tr.tot td{border-top:2px solid #6b2d5c;font-weight:bold;background:#fff !important}
+h2{font-family:Georgia;font-size:12.5pt;color:#6b2d5c;margin:14px 0 4px;font-weight:bold}
+.obs{display:flex;gap:16px;align-items:flex-start}
+.obs .t{flex:1}
+.obs .t p{margin:0 0 5px;text-align:justify}
+table.esc{font-size:8.8pt;border:1px solid #bbb;flex:0 0 5.3cm}
+table.esc th{background:#eee;padding:2px 6px;text-align:left}
+table.esc td{padding:1px 6px}
+.tl.inline .ti{margin:2px 0}
+.sig{display:flex;gap:1.5cm;margin-top:12px}
+.sig>div{flex:1;border-top:1px solid #777;padding-top:3px;font-size:9pt;text-align:center}
+.slip{border:1.5px dashed #888;margin-top:10px;padding:5px 10px;font-size:8.6pt}
+</style></head><body><div class="band"><div class="n">Colegio Arroyo de las Encinas</div><div class="a">Calle del Molino Viejo, 14 · 28794 Villaclara del Henares<br>Tel. 918 55 02 31 · secretaria@arroyoencinas.example</div></div><h1>Boletín de calificaciones</h1><p class="sub">Primera evaluación · Curso 2026-2027</p><table class="al"><tbody><tr><td>Alumna</td><td>Lucía Ferrer Ibáñez</td><td>Curso</td><td>2.º de ESO, grupo B</td></tr><tr><td>Tutora</td><td>Marta Olmedo Ruiz</td><td>N.º de expediente</td><td>2024/0417</td></tr></tbody></table><table class="nt"><colgroup><col style="width:27%"><col style="width:9%"><col style="width:12%"><col style="width:11%"><col style="width:12%"><col></colgroup><thead><tr><th rowspan="2">Materia</th><th colspan="2">Calificación</th><th colspan="2">Faltas de asistencia</th><th rowspan="2">Observaciones</th></tr><tr><th>Numérica</th><th>Literal</th><th>Justificadas</th><th>Injustificadas</th></tr></thead><tbody><tr class="sec"><td colspan="6">Ámbito lingüístico y social</td></tr><tr><td>Lengua Castellana y Literatura</td><td class="c">8</td><td>Notable</td><td class="c">1</td><td class="c">0</td><td>Muy buena expresión escrita.</td></tr><tr><td>Geografía e Historia</td><td class="c">7</td><td>Notable</td><td class="c">1</td><td class="c">0</td><td>—</td></tr><tr><td>Inglés</td><td class="c">9</td><td>Sobresaliente</td><td class="c">0</td><td class="c">0</td><td>—</td></tr><tr><td>Francés (optativa)</td><td class="c">6</td><td>Bien</td><td class="c">2</td><td class="c">1</td><td>Debe mejorar la comprensión oral.</td></tr><tr class="sec"><td colspan="6">Ámbito científico-tecnológico</td></tr><tr><td>Matemáticas</td><td class="c">5</td><td>Suficiente</td><td class="c">1</td><td class="c">0</td><td>Conviene repasar fracciones y ecuaciones de primer grado.</td></tr><tr><td>Física y Química</td><td class="c">6</td><td>Bien</td><td class="c">1</td><td class="c">0</td><td>—</td></tr><tr><td>Tecnología y Digitalización</td><td class="c">8</td><td>Notable</td><td class="c">0</td><td class="c">0</td><td>Excelente proyecto de robótica.</td></tr><tr class="sec"><td colspan="6">Otras materias</td></tr><tr><td>Educación Física</td><td class="c">9</td><td>Sobresaliente</td><td class="c">0</td><td class="c">0</td><td>—</td></tr><tr><td>Música</td><td class="c">7</td><td>Notable</td><td class="c">0</td><td class="c">0</td><td>—</td></tr><tr><td>Tutoría</td><td colspan="2" class="c">No calificable</td><td class="c">0</td><td class="c">0</td><td>—</td></tr><tr class="tot"><td colspan="3">Total de faltas</td><td class="c">6</td><td class="c">1</td><td></td></tr></tbody></table><h2>Observaciones de la tutora</h2><div class="obs"><div class="t"><p>Lucía ha tenido un primer trimestre muy positivo y participa con interés en todas las materias. Destaca su capacidad de trabajo en equipo y su responsabilidad en las tareas diarias.</p><p>En Matemáticas necesita afianzar los contenidos básicos antes de la segunda evaluación. Recomendaciones para el segundo trimestre:</p><div class="tl inline lv0"><div class="ti"><span class="mk">—</span> Dedicar veinte minutos diarios a la práctica de Matemáticas.</div><div class="ti"><span class="mk">—</span> Leer al menos un libro al mes de la lista recomendada por el departamento.</div><div class="ti"><span class="mk">—</span> Participar más en las actividades orales de Francés.</div></div></div><table class="esc"><thead><tr><th>Escala</th><th>Nota</th></tr></thead><tbody><tr><td>Insuficiente</td><td>1 a 4</td></tr><tr><td>Suficiente</td><td>5</td></tr><tr><td>Bien</td><td>6</td></tr><tr><td>Notable</td><td>7 y 8</td></tr><tr><td>Sobresaliente</td><td>9 y 10</td></tr></tbody></table></div><p style="margin-top:8px">Las familias pueden solicitar una entrevista con la tutora a través de la secretaría del centro.</p><div class="sig"><div>La tutora<br>Marta Olmedo Ruiz</div><div>El director<br>Andrés Quintana Gil</div></div><div class="slip"><div>Recibí el boletín de calificaciones de la primera evaluación. Devuélvase firmado al tutor antes del 19 de diciembre de 2026.</div><div style="margin-top:14px">Firma del padre, la madre o el tutor legal: ______________________________</div></div></body></html>

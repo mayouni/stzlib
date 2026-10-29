@@ -1,0 +1,48 @@
+page_header	0	Larkspur Queue Service · Operations Guide · Rev. 3.2
+page_header	0	INTERNAL
+heading	1	Larkspur Queue Service: Deployment and Operations Guide
+paragraph	0	Document ID Owner
+paragraph	0	LQS-OPS-004 Platform Operations
+paragraph	0	Revision Last reviewed
+paragraph	0	3.2 6 October 2026
+heading	2	1 Overview
+paragraph	0	Larkspur is the internal message broker used by the billing, notification and audit services. Each production cluster runs three brokers, and every partition is replicated to all three of them. This guide describes how to configure a broker, how to upgrade a cluster without downtime and what to do when the most common alarms fire.
+heading	2	2 Prerequisites
+list_item	0	A host from the queue-node image, version 2026.09 or later, with:
+list_item	1	at least 8 CPU cores and 32 GB of memory;
+list_item	1	a dedicated NVMe volume of 500 GB or more for the data directory.
+list_item	0	Membership of the lqs-operators group, which grants access to the lqsctl command.
+list_item	0	An open change ticket for any work on a production cluster.
+heading	2	3 Configuration
+paragraph	0	The broker reads a single YAML file at start-up and does not reload it while running. A minimal production file looks like this:
+code	0	# /etc/larkspur/broker.yaml\nbroker:\n  listen: 0.0.0.0:7420\n  data_dir: /var/lib/larkspur\n  max_message_bytes: 1048576\n  retention:\n    hours: 72\n    max_disk_gb: 400\nreplication:\n  factor: 3\n  ack: quorum
+paragraph	0	Parameter
+code	0	listen\n\n\ndata_dir\n\n\nmax_message_bytes
+paragraph	0	Default
+code	0	0.0.0.0:7420\n\n\n/var/lib/larkspur\n\n\n1048576
+paragraph	0	Description
+paragraph	0	Address and port on which the broker accepts client connections. Directory for segment files. It must be on local storage, never on a network share. Largest accepted message in bytes. Larger messages are rejected with error LQ-413.
+table	0	retention.hours72How long acknowledged messages are kept before compaction.replication.factor3replication.ackquorumWhen a write is confirmed:
+paragraph	0	Number of brokers that hold a copy of each partition.
+paragraph	0	leader, quorum or all.
+heading	2	4 Rolling upgrade
+page_footer	0	Tallowmere Systems · Platform Operations
+page_footer	0	1 / 2
+page_header	0	Larkspur Queue Service · Operations Guide · Rev. 3.2
+page_header	0	INTERNAL
+heading	3	4.1 Before you start
+paragraph	0	Upgrade one broker at a time and wait until the cluster reports all partitions in sync before moving to the next one. A full upgrade of a three-broker cluster usually takes about forty minutes.
+heading	3	4.2 Steps
+list_item	0	1. Drain the broker so that it stops leading partitions:
+list_item	1	a. run the drain command shown below;
+list_item	1	b. confirm in the dashboard that its leader count has dropped to zero.
+list_item	0	2. Stop the service and install the new package.
+list_item	0	3. Start the service and check its status.
+list_item	0	4. Wait for re-synchronisation, then repeat from step 1 for the next broker.
+code	0	$ lqsctl broker drain --id 2 --timeout 300s\n$ sudo systemctl stop larkspur-broker\n$ sudo dnf install larkspur-broker-3.2.1\n$ sudo systemctl start larkspur-broker\n$ lqsctl broker status --id 2
+paragraph	0	Warning: never stop a second broker while any partition is under-replicated. With a replication factor of 3 and quorum acknowledgement, losing two brokers makes the affected partitions read-only.
+heading	2	5 Troubleshooting
+table	0	Alarm or symptomLikely causeActionLQS-DiskHigh (data volume above 85 %)Retention too long for the current traffic, or a consumer group has stopped.Check consumer lag first. Lower retention.hours only after agreement with the service owner.LQS-UnderReplicatedA broker is down or its network is saturated.Check broker status; if a broker is down, follow the restart runbook RB-17.Producers receive LQ-413Messages larger than max_message_bytes.Ask the producing team to split messages; do not raise the limit above 4 MB.Slow acknowledgementsVolume latency above 5 ms.Open a ticket with Storage Engineering and attach the iostat output.
+paragraph	0	If an alarm is not listed here, page the on-call engineer through the usual escalation channel.
+page_footer	0	Tallowmere Systems · Platform Operations
+page_footer	0	2 / 2

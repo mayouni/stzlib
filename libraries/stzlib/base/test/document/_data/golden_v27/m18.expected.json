@@ -1,0 +1,193 @@
+{
+  "id": "m18",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Street Trees and Summer Heat: Evidence from Ashworth",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Street Trees and Summer Heat: Evidence from Ashworth"
+    },
+    {
+      "level": 2,
+      "text": "Summary"
+    },
+    {
+      "level": 2,
+      "text": "1 Introduction"
+    },
+    {
+      "level": 2,
+      "text": "2 Data and method"
+    },
+    {
+      "level": 3,
+      "text": "2.1 Temperature records"
+    },
+    {
+      "level": 3,
+      "text": "2.2 Canopy and surfaces"
+    },
+    {
+      "level": 2,
+      "text": "3 Results"
+    },
+    {
+      "level": 2,
+      "text": "4 Discussion"
+    },
+    {
+      "level": 2,
+      "text": "5 Recommendations"
+    },
+    {
+      "level": 2,
+      "text": "References"
+    }
+  ],
+  "key_sentences": [
+    "Neighbourhoods in Ashworth with more tree canopy were markedly cooler on hot summer afternoons.",
+    "The effect is largest in dense residential streets, which are also where canopy is scarcest.",
+    "Trees cool streets in two ways: they shade surfaces that would otherwise store heat, and they release water vapour through their leaves.",
+    "The council installed 52 shaded air-temperature sensors on lamp posts in May 2024.",
+    "The cooling associated with canopy is roughly twice as large in streets with terraced housing as in streets of detached houses.",
+    "Even so, the size of the effect is in line with studies from other temperate cities."
+  ],
+  "tables": [
+    {
+      "caption": "Table 2. Sensors and mean canopy cover by district",
+      "rows": [
+        [
+          "District",
+          "Sensors",
+          "Canopy (%)"
+        ],
+        [
+          "Old Town",
+          "11",
+          "9"
+        ],
+        [
+          "Riverside",
+          "14",
+          "17"
+        ],
+        [
+          "Northfield",
+          "15",
+          "24"
+        ],
+        [
+          "Hollin Park",
+          "12",
+          "31"
+        ]
+      ]
+    },
+    {
+      "caption": "Table 1. Estimated effect on afternoon air temperature (°C)",
+      "rows": [
+        [
+          "",
+          "Model (1)",
+          "Model (2)",
+          "Model (3)"
+        ],
+        [
+          "Canopy cover (per 10 points)",
+          "−0.42",
+          "−0.37",
+          "−0.35"
+        ],
+        [
+          "",
+          "(0.06)",
+          "(0.05)",
+          "(0.07)"
+        ],
+        [
+          "Impervious surface (per 10 points)",
+          "",
+          "0.21",
+          "0.19"
+        ],
+        [
+          "",
+          "",
+          "(0.04)",
+          "(0.05)"
+        ],
+        [
+          "Distance to coast (km)",
+          "",
+          "",
+          "0.08"
+        ],
+        [
+          "",
+          "",
+          "",
+          "(0.03)"
+        ],
+        [
+          "Observations",
+          "3,172",
+          "3,172",
+          "3,172"
+        ],
+        [
+          "R²",
+          "0.31",
+          "0.44",
+          "0.47"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. Prioritise planting where canopy is lowest and heat exposure is highest:"
+    },
+    {
+      "level": 1,
+      "text": "(i) the Old Town and the terraced streets of Riverside;"
+    },
+    {
+      "level": 1,
+      "text": "(ii) routes to schools, clinics and care homes."
+    },
+    {
+      "level": 0,
+      "text": "2. Protect existing mature trees, which provide far more shade than new planting for at least fifteen years."
+    },
+    {
+      "level": 0,
+      "text": "3. Keep the sensor network running so that the effect of new planting can be measured directly."
+    },
+    {
+      "level": 0,
+      "text": "[1] Ashworth City Council (2023). Urban Forest Strategy 2023–2040. Ashworth: City Council."
+    },
+    {
+      "level": 0,
+      "text": "[2] Lindqvist, M. and Ferreira, A. (2021). Canopy cover and street-level air temperature in five northern cities. Journal of Urban Climate Studies 14(2), 88–104."
+    },
+    {
+      "level": 0,
+      "text": "[3] Weller, T. (2025). A low-cost sensor network for urban heat. Calderbrook Working Paper 25/03."
+    }
+  ],
+  "furniture": [
+    "Street trees and summer heat",
+    "Policy Brief 2026/07",
+    "Calderbrook Institute for Urban Policy",
+    "Page 1",
+    "Page 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Two-page policy brief. The institute line at the top of page 1 (institute name; the brief number at its right is the same text as the running header) is furniture, as are the running header from page 2 (short title left, brief number right) and the page number \"Page n\" centred in the footer. The author line and date under the title are body text. The summary box spans the full width; the rest of the body is set in two CSS columns and reads column by column. Table 1 (booktabs style: rules at top, under the header and at the bottom, plus a rule above \"Observations\") spans both columns; its standard-error rows have an empty first cell; the header row starts with an empty cell. Table 2 is a small table inside the left column with a rule under the header only. Captions are above the tables. Recommendations use typed \"1.\" markers with nested typed lower-case roman \"(i)\", \"(ii)\"; references use typed \"[1]\" markers; all with hanging indents. Sentences with footnote markers (1, 2) and the footnotes themselves are excluded from key sentences."
+}

@@ -1,0 +1,27 @@
+page_header	0	A Q U A V E N T
+page_header	0	Datenblatt DB-AQV-40-160
+heading	1	Normpumpe AQV 40-160
+heading	3	Einstufige Kreiselpumpe nach EN 733 für Wasser und wasserähnliche Medien
+heading	2	Technische Daten
+table	0	Fördermenge max.48 m³/hFörderhöhe max.36 mDrehzahl2.900 1/minMotorleistung5,5 kWMediumtemperatur−10 bis +110 °CNenndruckPN 10Schutzart MotorIP55Gewicht64 kg
+heading	2	Werkstoffe
+paragraph	0	Bauteil Spiralgehäuse Laufrad Welle Gleitringdichtung
+paragraph	0	Werkstoff EN-GJL-250 CuSn10 1.4021 SiC/Kohle
+page_footer	0	Technische Änderungen vorbehalten · Ausgabe 10/2026
+heading	2	Anwendung
+paragraph	0	Die AQV 40-160 eignet sich für die Wasserversorgung, für Heiz- und Kühlkreisläufe sowie für die Bewässerung. Das Fördermedium darf keine abrasiven oder langfaserigen Bestandteile enthalten.
+heading	2	Merkmale
+list_item	0	Back-Pull-Out-Bauweise: Laufrad und Motor lassen sich ausbauen, ohne die Rohrleitungen zu lösen
+list_item	0	Wartungsarme Gleitringdichtung, wahlweise mit
+list_item	1	EPDM-Elastomeren für Trinkwasser
+list_item	1	FKM-Elastomeren für Medien bis 140 °C
+list_item	0	Kataphoretische Tauchlackierung des Gehäuses für hohen Korrosionsschutz
+list_item	0	Motor der Effizienzklasse IE3, für Frequenzumrichterbetrieb geeignet
+heading	2	Kennlinienpunkte
+caption	0	Die Werte gelten für die Nenndrehzahl und den vollen Laufraddurchmesser von 169 mm.1
+table	0	Fördermenge Q (m³/h)1020304048Förderhöhe H (m)35,534,031,226,822,0Wirkungsgrad η (%)4863706861NPSH erforderlich (m)1,41,82,53,64,9Leistungsbedarf P2 (kW)2,02,93,64,34,7
+heading	2	Abmessungen
+table	0	Nennweite SaugseiteDN 65Nennweite DruckseiteDN 40Baulänge545 mmBauhöhe405 mm
+paragraph	0	Für den Einbau gelten die Hinweise der Betriebsanleitung BA-AQV-04. Ersatzteile sind ab Lager innerhalb von zwei Arbeitstagen lieferbar.
+paragraph	0	1 Gemessen mit Wasser von 20 °C nach ISO 9906, Klasse 2B.
+page_footer	0	Seite 1/1

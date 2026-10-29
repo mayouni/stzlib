@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr"><head><meta charset="utf-8"><title>Tax Invoice</title><style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+table{border-collapse:collapse}
+.tl .ti{break-inside:avoid}
+.tl.hang>.ti{display:grid;grid-template-columns:var(--mk,1.8em) 1fr}
+.tl.hang>.ti>.mk{grid-column:1}
+.tl.hang>.ti>.tx{grid-column:2}
+.tl.inline>.ti>.tl{margin-inline-start:1.6em}
+
+
+@page{size:A4;margin:2cm;
+  @bottom-center{content:"Registered in England and Wales No. 08816204 \00B7  Registered office as above";font-family:Calibri;font-size:8pt;color:#666}}
+body{font-family:Calibri;font-size:10.5pt;color:#222;line-height:1.3}
+.lh{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid #1f4e79;padding-bottom:8px}
+.lh .name{font-family:Cambria;font-size:16pt;letter-spacing:.14em;color:#1f4e79;font-weight:bold}
+.lh .addr{text-align:right;font-size:9pt;line-height:1.35;color:#444}
+h1{font-family:Cambria;font-size:24pt;color:#1f4e79;margin:16px 0 12px;font-weight:normal}
+.two{display:flex;gap:28px;align-items:flex-start;margin-bottom:16px}
+.to{flex:1}
+.lbl{font-size:8.5pt;color:#1f4e79;font-weight:bold;margin-bottom:3px}
+.to p{margin:0}
+.kv{flex:0 0 7.6cm;border:1.5px solid #1f4e79}
+.kv table{width:100%}
+.kv td{padding:3px 8px;font-size:9.5pt}
+.kv td:first-child{color:#555;width:48%}
+.kv tr+tr td{border-top:1px solid #c9d6e3}
+table.items{width:100%;margin:6px 0 12px}
+table.items th,table.items td{border:1px solid #8aa1b8;padding:4px 6px;vertical-align:top;font-size:9.5pt}
+table.items th{background:#1f4e79;color:#fff;text-align:left}
+table.items td.n,table.items th.n{text-align:right;white-space:nowrap}
+table.items tr.sum td{font-weight:bold;background:#eef3f8}
+table.items tr.due td{font-weight:bold;background:#1f4e79;color:#fff;font-size:10.5pt}
+.pay{display:flex;gap:28px;align-items:flex-start}
+.pay .txt{flex:1}
+.bank{flex:0 0 7.6cm;background:#f3f6f9;padding:8px 10px}
+.bank table td{padding:2px 6px 2px 0;font-size:9.5pt}
+ul.lv0{margin:6px 0 0 1.2em;padding:0}
+</style></head><body><div class="lh"><div class="name">HALVORSEN PRECISION COMPONENTS</div><div class="addr">Unit 14, Brackwater Industrial Park<br>Dunmere DN4 7QX<br>Tel. 01632 960 418 · accounts@halvorsen-pc.example<br>VAT Reg. No. GB 418 2207 61</div></div><h1>Tax Invoice</h1><div class="two"><div class="to"><div class="lbl">Invoice to</div><p>Marlow &amp; Teague Fabrication</p><p>Accounts Payable</p><p>3 Fennick Row</p><p>Ashcombe AC2 9LP</p></div><div class="kv"><table><tbody><tr><td>Invoice number</td><td>HPC-2026-0917</td></tr><tr><td>Invoice date</td><td>14 October 2026</td></tr><tr><td>Customer account</td><td>C-0388</td></tr><tr><td>Your order</td><td>PO 55120</td></tr><tr><td>Payment due</td><td>13 November 2026</td></tr></tbody></table></div></div><table class="items"><colgroup><col style="width:2.2cm"><col><col style="width:1.2cm"><col style="width:2.4cm"><col style="width:1.3cm"><col style="width:2.4cm"></colgroup><thead><tr><th>Item</th><th>Description</th><th class="n">Qty</th><th class="n">Unit price (£)</th><th class="n">VAT</th><th class="n">Amount (£)</th></tr></thead><tbody><tr><td>HPC-B204</td><td>Stainless hex bolt M8 × 40, A4-70, box of 100</td><td class="n">12</td><td class="n">18.40</td><td class="n">20%</td><td class="n">220.80</td></tr><tr><td>HPC-W118</td><td>Spring washer M8, zinc plated, box of 250</td><td class="n">6</td><td class="n">7.95</td><td class="n">20%</td><td class="n">47.70</td></tr><tr><td>HPC-S560</td><td>Linear guide rail 560 mm with two carriages and end stops</td><td class="n">4</td><td class="n">86.25</td><td class="n">20%</td><td class="n">345.00</td></tr><tr><td>HPC-C031</td><td>Flexible shaft coupling 8–10 mm, aluminium</td><td class="n">10</td><td class="n">14.60</td><td class="n">20%</td><td class="n">146.00</td></tr><tr><td>HPC-K900</td><td>Calibration of torque wrench (customer's own), including certificate</td><td class="n">2</td><td class="n">42.00</td><td class="n">20%</td><td class="n">84.00</td></tr><tr><td>HPC-D001</td><td>Technical drawings, printed set</td><td class="n">1</td><td class="n">25.00</td><td class="n">0%</td><td class="n">25.00</td></tr><tr><td>CAR-STD</td><td>Carriage, standard next-day delivery</td><td class="n">1</td><td class="n">12.50</td><td class="n">20%</td><td class="n">12.50</td></tr><tr class="sum"><td colspan="5">Net total</td><td class="n">881.00</td></tr><tr class="sum"><td colspan="5">VAT at 20% on £856.00</td><td class="n">171.20</td></tr><tr class="sum"><td colspan="5">Invoice total</td><td class="n">1,052.20</td></tr><tr><td colspan="5">Less deposit received 2 October 2026</td><td class="n">−200.00</td></tr><tr class="due"><td colspan="5">Balance due</td><td class="n">852.20</td></tr></tbody></table><div class="pay"><div class="txt"><p>Thank you for your order of 2 October 2026. Items HPC-K900 and HPC-D001 were delivered separately on 9 October 2026.</p><p>Payment is due within 30 days of the invoice date. A late payment charge of 1.5% per month may be applied to overdue balances.</p><ul class="lv0" style="list-style-type:disc"><li>Please quote the invoice number with every payment.</li><li>Goods remain our property until they have been paid for in full.</li><li>Queries about this invoice must be raised within 14 days.</li></ul></div><div class="bank"><div class="lbl">Bank details</div><table><tbody><tr><td>Bank</td><td>Corran Mutual Bank</td></tr><tr><td>Account name</td><td>Halvorsen Precision Components Ltd</td></tr><tr><td>Sort code</td><td>40-12-77</td></tr><tr><td>Account number</td><td>61203348</td></tr><tr><td>Reference</td><td>HPC-2026-0917</td></tr></tbody></table></div></div></body></html>

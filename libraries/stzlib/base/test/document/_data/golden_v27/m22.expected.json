@@ -1,0 +1,180 @@
+{
+  "id": "m22",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Regulamin konkursu fotograficznego „Światło nad rzeką”",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Regulamin konkursu fotograficznego „Światło nad rzeką”"
+    },
+    {
+      "level": 2,
+      "text": "§ 1. Organizator"
+    },
+    {
+      "level": 2,
+      "text": "§ 2. Cel konkursu"
+    },
+    {
+      "level": 2,
+      "text": "§ 3. Uczestnicy"
+    },
+    {
+      "level": 2,
+      "text": "§ 4. Zasady zgłaszania prac"
+    },
+    {
+      "level": 2,
+      "text": "§ 5. Ocena prac i nagrody"
+    },
+    {
+      "level": 2,
+      "text": "§ 6. Prawa autorskie"
+    },
+    {
+      "level": 2,
+      "text": "§ 7. Postanowienia końcowe"
+    }
+  ],
+  "key_sentences": [
+    "Celem konkursu jest pokazanie piękna doliny rzeki Lipówki o różnych porach dnia i roku.",
+    "Konkurs ma także zachęcić mieszkańców do aktywnego spędzania czasu na świeżym powietrzu.",
+    "Prace można nadsyłać do 30 listopada 2026 r. do godziny 23.59.",
+    "Zgłoszone fotografie oceni jury powołane przez dyrektora Gminnego Ośrodka Kultury.",
+    "Udział w konkursie oznacza akceptację niniejszego regulaminu."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Miejsce",
+          "Kategoria „Młodzież”",
+          "Kategoria „Dorośli”"
+        ],
+        [
+          "I miejsce",
+          "tablet graficzny",
+          "1500 zł"
+        ],
+        [
+          "II miejsce",
+          "karta podarunkowa 300 zł",
+          "1000 zł"
+        ],
+        [
+          "III miejsce",
+          "karta podarunkowa 200 zł",
+          "600 zł"
+        ],
+        [
+          "Wyróżnienia",
+          "dyplomy i publikacja zdjęć w kalendarzu gminy na rok 2027",
+          "dyplomy i publikacja zdjęć w kalendarzu gminy na rok 2027"
+        ]
+      ]
+    },
+    {
+      "caption": "Harmonogram konkursu",
+      "rows": [
+        [
+          "Termin nadsyłania prac",
+          "30 listopada 2026 r."
+        ],
+        [
+          "Obrady jury",
+          "1–7 grudnia 2026 r."
+        ],
+        [
+          "Ogłoszenie wyników",
+          "10 grudnia 2026 r."
+        ],
+        [
+          "Wernisaż i wręczenie nagród",
+          "18 grudnia 2026 r., godz. 17.00"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. Organizatorem konkursu jest Gminny Ośrodek Kultury w Lipowie Małym, ul. Szkolna 4, zwany dalej „Organizatorem”."
+    },
+    {
+      "level": 0,
+      "text": "2. Konkurs jest współfinansowany ze środków budżetu Gminy Lipowo Małe."
+    },
+    {
+      "level": 0,
+      "text": "1. Konkurs ma charakter otwarty i jest skierowany do fotografów amatorów."
+    },
+    {
+      "level": 0,
+      "text": "2. Prace oceniane są w dwóch kategoriach wiekowych:"
+    },
+    {
+      "level": 1,
+      "text": "1) „Młodzież” – osoby w wieku od 13 do 17 lat;"
+    },
+    {
+      "level": 1,
+      "text": "2) „Dorośli” – osoby, które ukończyły 18 lat."
+    },
+    {
+      "level": 0,
+      "text": "3. W konkursie nie mogą brać udziału pracownicy Organizatora ani członkowie ich rodzin."
+    },
+    {
+      "level": 0,
+      "text": "1. Każdy uczestnik może zgłosić najwyżej trzy fotografie."
+    },
+    {
+      "level": 0,
+      "text": "2. Zdjęcia należy przesłać w formie cyfrowej na adres konkurs@gok-lipowo.example, dołączając:"
+    },
+    {
+      "level": 1,
+      "text": "1) wypełnioną kartę zgłoszenia;"
+    },
+    {
+      "level": 1,
+      "text": "2) w przypadku osób niepełnoletnich – zgodę rodzica lub opiekuna prawnego, zawierającą:"
+    },
+    {
+      "level": 2,
+      "text": "a) imię i nazwisko opiekuna,"
+    },
+    {
+      "level": 2,
+      "text": "b) numer telefonu kontaktowego."
+    },
+    {
+      "level": 0,
+      "text": "3. Pliki powinny mieć format JPG, a dłuższy bok zdjęcia – co najmniej 3000 pikseli."
+    },
+    {
+      "level": 0,
+      "text": "4. Dopuszczalna jest podstawowa obróbka zdjęć, w tym korekta kontrastu i kadrowanie; fotomontaże nie będą oceniane."
+    },
+    {
+      "level": 0,
+      "text": "1. Uczestnik oświadcza, że jest autorem zgłoszonych fotografii i że osoby na nich widoczne wyraziły zgodę na publikację wizerunku."
+    },
+    {
+      "level": 0,
+      "text": "2. Uczestnik udziela Organizatorowi nieodpłatnej licencji na wykorzystanie zdjęć w celach promocyjnych, z podaniem imienia i nazwiska autora."
+    }
+  ],
+  "furniture": [
+    "Gminny Ośrodek Kultury w Lipowie Małym",
+    "Strona 1 z 2",
+    "Strona 2 z 2"
+  ],
+  "languages": [
+    "pl"
+  ],
+  "code": [],
+  "notes": "Polish competition rules. Running header (organiser, centred) and the page number \"Strona n z N\" are furniture. Headings are centred and carry the paragraph sign and number (\"§ 1. Organizator\"). Lists use the Polish legal hierarchy of typed markers with hanging indents: \"1.\" (ustęp), \"1)\" (punkt), \"a)\" (litera). The prize table has a full grid, zebra bands, and a last row whose value spans two columns. The schedule (\"Harmonogram konkursu\", caption above) is a boxed key/value table with dotted rules between rows and no header. Polish quotation marks „ ” are part of the text."
+}

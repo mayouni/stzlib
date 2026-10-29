@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ru" dir="ltr"><head><meta charset="utf-8"><title>ТЕХНИЧЕСКОЕ ЗАДАНИЕ на разработку информационной системы учёта заявок</title><style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+table{border-collapse:collapse}
+.tl .ti{break-inside:avoid}
+.tl.hang>.ti{display:grid;grid-template-columns:var(--mk,1.8em) 1fr}
+.tl.hang>.ti>.mk{grid-column:1}
+.tl.hang>.ti>.tx{grid-column:2}
+.tl.inline>.ti>.tl{margin-inline-start:1.6em}
+
+
+@page{size:A4;margin:2cm 1.5cm 2cm 2.5cm;
+  @top-center{content:counter(page);font-family:'Times New Roman';font-size:11pt}}
+@page:first{@top-center{content:none}}
+body{font-family:'Times New Roman';font-size:12pt;line-height:1.35;color:#000}
+.appr{margin-left:55%;font-size:11.5pt;line-height:1.45;margin-bottom:26px}
+.appr .t{font-weight:bold;letter-spacing:.2em}
+h1{font-family:Arial;font-size:15pt;text-align:center;margin:0 0 18px;font-weight:bold;line-height:1.4}
+h1 span{font-size:12.5pt;font-weight:normal}
+h2{font-family:Arial;font-size:12.5pt;margin:14px 0 4px;font-weight:bold}
+h3{font-family:Arial;font-size:11.5pt;margin:8px 0 3px;font-weight:bold;font-style:italic}
+p{margin:0 0 5px;text-indent:1.25cm;text-align:justify}
+.tl.hang.lv0{--mk:1.6em;margin:2px 0 6px 1.25cm}
+.tl.hang.lv1{--mk:1.2em}
+table.g{width:100%;font-size:11pt;margin:4px 0 8px}
+table.g th,table.g td{border:1px solid #000;padding:3px 5px;vertical-align:top}
+table.g th{font-weight:bold;text-align:center;vertical-align:middle}
+table.g td.c{text-align:center}
+.cap{text-align:right;font-size:11pt;margin-top:8px}
+</style></head><body><div class="appr"><div class="t">УТВЕРЖДАЮ</div><div>Генеральный директор</div><div>ООО «Кедровый Лог»</div><div>____________ В. А. Соболев</div><div>«12» октября 2026 г.</div></div><h1>ТЕХНИЧЕСКОЕ ЗАДАНИЕ<br><span>на разработку информационной системы учёта заявок</span></h1><h2>1. Общие сведения</h2><h3>1.1. Наименование системы</h3><p>Полное наименование: информационная система учёта заявок клиентов (далее – Система). Краткое наименование: ИС «Заявка».</p><h3>1.2. Заказчик и исполнитель</h3><p>Заказчик: ООО «Кедровый Лог». Исполнитель: ООО «Северная программная мастерская».</p><h3>1.3. Сроки выполнения работ</h3><p>Начало работ – 2 ноября 2026 г., окончание работ – 30 апреля 2027 г.</p><h2>2. Назначение и цели создания Системы</h2><p>Система предназначена для приёма, регистрации и контроля исполнения заявок, поступающих от клиентов по телефону, электронной почте и через сайт. Целями создания Системы являются:</p><div class="tl hang lv0"><div class="ti"><span class="mk">1)</span><div class="tx">сокращение среднего срока обработки заявки с пяти до двух рабочих дней;</div></div><div class="ti"><span class="mk">2)</span><div class="tx">исключение потери заявок при передаче между подразделениями;</div></div><div class="ti"><span class="mk">3)</span><div class="tx">получение руководством достоверной отчётности в режиме реального времени.</div></div></div><h2>3. Требования к Системе</h2><h3>3.1. Функциональные требования</h3><p>Система должна обеспечивать выполнение следующих функций:</p><div class="tl hang lv0"><div class="ti"><span class="mk">а)</span><div class="tx">регистрация заявки с присвоением уникального номера;</div></div><div class="ti"><span class="mk">б)</span><div class="tx">распределение заявок между исполнителями:<div class="tl hang lv1"><div class="ti"><span class="mk">–</span><div class="tx">автоматически – по типу заявки и загрузке сотрудников;</div></div><div class="ti"><span class="mk">–</span><div class="tx">вручную – руководителем подразделения.</div></div></div></div></div><div class="ti"><span class="mk">в)</span><div class="tx">уведомление клиента о смене статуса заявки по электронной почте и SMS;</div></div><div class="ti"><span class="mk">г)</span><div class="tx">формирование отчётов по срокам исполнения и по видам заявок.</div></div></div><h3>3.2. Требования к производительности</h3><div class="cap">Таблица 1</div><table class="g"><colgroup><col style="width:1.6cm"><col><col style="width:4.2cm"></colgroup><thead><tr><th>№ п/п</th><th>Показатель</th><th>Значение</th></tr></thead><tbody><tr><td class="c">1</td><td>Количество одновременно работающих пользователей</td><td>не менее 150</td></tr><tr><td class="c">2</td><td>Время открытия карточки заявки</td><td>не более 2 с</td></tr><tr><td class="c">3</td><td>Время формирования месячного отчёта</td><td>не более 30 с</td></tr><tr><td class="c">4</td><td>Коэффициент готовности</td><td>не ниже 0,99</td></tr></tbody></table><h2>4. Состав и содержание работ</h2><div class="cap">Таблица 2</div><table class="g"><colgroup><col style="width:1.4cm"><col><col style="width:3.4cm"><col style="width:5cm"></colgroup><thead><tr><th>Этап</th><th>Содержание работ</th><th>Срок</th><th>Результат</th></tr></thead><tbody><tr><td class="c">1</td><td>Обследование деятельности заказчика,<br>уточнение требований</td><td>ноябрь 2026 г.</td><td>Отчёт об обследовании</td></tr><tr><td class="c">2</td><td>Проектирование Системы</td><td>декабрь 2026 г.</td><td>Технический проект</td></tr><tr><td class="c">3</td><td>Разработка и отладка программного обеспечения</td><td>январь – март 2027 г.</td><td>Программное обеспечение,<br>программа испытаний</td></tr><tr><td class="c">4</td><td>Опытная эксплуатация,<br>обучение персонала</td><td>апрель 2027 г.</td><td>Акт приёмки в постоянную эксплуатацию</td></tr></tbody></table><h2>5. Порядок контроля и приёмки</h2><p>Приёмка Системы осуществляется комиссией, состав которой утверждается приказом заказчика. По результатам испытаний оформляется акт, подписываемый представителями обеих сторон.</p><p>Замечания комиссии устраняются исполнителем в срок не более десяти рабочих дней.</p></body></html>

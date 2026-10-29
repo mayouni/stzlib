@@ -1,0 +1,197 @@
+{
+  "id": "m06",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Larkspur Queue Service: Deployment and Operations Guide",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Larkspur Queue Service: Deployment and Operations Guide"
+    },
+    {
+      "level": 2,
+      "text": "1 Overview"
+    },
+    {
+      "level": 2,
+      "text": "2 Prerequisites"
+    },
+    {
+      "level": 2,
+      "text": "3 Configuration"
+    },
+    {
+      "level": 2,
+      "text": "4 Rolling upgrade"
+    },
+    {
+      "level": 3,
+      "text": "4.1 Before you start"
+    },
+    {
+      "level": 3,
+      "text": "4.2 Steps"
+    },
+    {
+      "level": 2,
+      "text": "5 Troubleshooting"
+    }
+  ],
+  "key_sentences": [
+    "Larkspur is the internal message broker used by the billing, notification and audit services.",
+    "Each production cluster runs three brokers, and every partition is replicated to all three of them.",
+    "The broker reads a single YAML file at start-up and does not reload it while running.",
+    "Upgrade one broker at a time and wait until the cluster reports all partitions in sync before moving to the next one.",
+    "If an alarm is not listed here, page the on-call engineer through the usual escalation channel."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Document ID",
+          "LQS-OPS-004",
+          "Revision",
+          "3.2"
+        ],
+        [
+          "Owner",
+          "Platform Operations",
+          "Last reviewed",
+          "6 October 2026"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Parameter",
+          "Default",
+          "Description"
+        ],
+        [
+          "listen",
+          "0.0.0.0:7420",
+          "Address and port on which the broker accepts client connections."
+        ],
+        [
+          "data_dir",
+          "/var/lib/larkspur",
+          "Directory for segment files. It must be on local storage, never on a network share."
+        ],
+        [
+          "max_message_bytes",
+          "1048576",
+          "Largest accepted message in bytes. Larger messages are rejected with error LQ-413."
+        ],
+        [
+          "retention.hours",
+          "72",
+          "How long acknowledged messages are kept before compaction."
+        ],
+        [
+          "replication.factor",
+          "3",
+          "Number of brokers that hold a copy of each partition."
+        ],
+        [
+          "replication.ack",
+          "quorum",
+          "When a write is confirmed: leader, quorum or all."
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Alarm or symptom",
+          "Likely cause",
+          "Action"
+        ],
+        [
+          "LQS-DiskHigh (data volume above 85 %)",
+          "Retention too long for the current traffic, or a consumer group has stopped.",
+          "Check consumer lag first. Lower retention.hours only after agreement with the service owner."
+        ],
+        [
+          "LQS-UnderReplicated",
+          "A broker is down or its network is saturated.",
+          "Check broker status; if a broker is down, follow the restart runbook RB-17."
+        ],
+        [
+          "Producers receive LQ-413",
+          "Messages larger than max_message_bytes.",
+          "Ask the producing team to split messages; do not raise the limit above 4 MB."
+        ],
+        [
+          "Slow acknowledgements",
+          "Volume latency above 5 ms.",
+          "Open a ticket with Storage Engineering and attach the iostat output."
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "A host from the queue-node image, version 2026.09 or later, with:"
+    },
+    {
+      "level": 1,
+      "text": "at least 8 CPU cores and 32 GB of memory;"
+    },
+    {
+      "level": 1,
+      "text": "a dedicated NVMe volume of 500 GB or more for the data directory."
+    },
+    {
+      "level": 0,
+      "text": "Membership of the lqs-operators group, which grants access to the lqsctl command."
+    },
+    {
+      "level": 0,
+      "text": "An open change ticket for any work on a production cluster."
+    },
+    {
+      "level": 0,
+      "text": "Drain the broker so that it stops leading partitions:"
+    },
+    {
+      "level": 1,
+      "text": "run the drain command shown below;"
+    },
+    {
+      "level": 1,
+      "text": "confirm in the dashboard that its leader count has dropped to zero."
+    },
+    {
+      "level": 0,
+      "text": "Stop the service and install the new package."
+    },
+    {
+      "level": 0,
+      "text": "Start the service and check its status."
+    },
+    {
+      "level": 0,
+      "text": "Wait for re-synchronisation, then repeat from step 1 for the next broker."
+    }
+  ],
+  "furniture": [
+    "Larkspur Queue Service · Operations Guide · Rev. 3.2",
+    "INTERNAL",
+    "Tallowmere Systems · Platform Operations",
+    "1 / 2",
+    "2 / 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "# /etc/larkspur/broker.yaml\nbroker:\n  listen: 0.0.0.0:7420\n  data_dir: /var/lib/larkspur\n  max_message_bytes: 1048576\n  retention:\n    hours: 72\n    max_disk_gb: 400\nreplication:\n  factor: 3\n  ack: quorum",
+    "$ lqsctl broker drain --id 2 --timeout 300s\n$ sudo systemctl stop larkspur-broker\n$ sudo dnf install larkspur-broker-3.2.1\n$ sudo systemctl start larkspur-broker\n$ lqsctl broker status --id 2"
+  ],
+  "notes": "Running header (left: guide name and revision; right: \"INTERNAL\") and footer (left: organisation; right: page number \"n / N\") are furniture; the left and right parts of a header or footer line are separate entries. Two code blocks in Consolas: a YAML configuration and a shell session; the \"$ \" prompts are part of the code text. The parameters table has a rule under the header only and no other lines; two Description cells contain an explicit line break (lines joined by a space). The troubleshooting table has a full grid; its first-column cell \"LQS-DiskHigh (data volume above 85 %)\" has two lines. Lists: section 2 uses CSS-drawn disc bullets with nested circle bullets; section 4.2 uses CSS-drawn decimal numbers with nested lower-alpha letters (markers not in the text). The document-control panel at the top is a key/value table of two rows and four cells per row, no header. The warning box is body text."
+}

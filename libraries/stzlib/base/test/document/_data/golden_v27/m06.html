@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr"><head><meta charset="utf-8"><title>Larkspur Queue Service: Deployment and Operations Guide</title><style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+table{border-collapse:collapse}
+.tl .ti{break-inside:avoid}
+.tl.hang>.ti{display:grid;grid-template-columns:var(--mk,1.8em) 1fr}
+.tl.hang>.ti>.mk{grid-column:1}
+.tl.hang>.ti>.tx{grid-column:2}
+.tl.inline>.ti>.tl{margin-inline-start:1.6em}
+
+
+@page{size:A4;margin:2cm;
+  @top-left{content:"Larkspur Queue Service \00B7  Operations Guide \00B7  Rev. 3.2";font-family:'Segoe UI';font-size:8pt;color:#666}
+  @top-right{content:"INTERNAL";font-family:'Segoe UI Semibold';font-size:8pt;color:#b0361e}
+  @bottom-right{content:counter(page) " / " counter(pages);font-family:'Segoe UI';font-size:8.5pt;color:#444}
+  @bottom-left{content:"Tallowmere Systems \00B7  Platform Operations";font-family:'Segoe UI';font-size:8pt;color:#666}}
+body{font-family:'Segoe UI';font-size:9.8pt;line-height:1.45;color:#202124}
+h1{font-family:'Segoe UI Semibold';font-weight:normal;font-size:20pt;color:#2b4a8b;margin:0 0 8px}
+h2{font-family:'Segoe UI Semibold';font-weight:normal;font-size:13.5pt;color:#2b4a8b;margin:16px 0 4px}
+h3{font-family:'Segoe UI Semibold';font-weight:normal;font-size:11pt;margin:10px 0 3px}
+p{margin:0 0 6px}
+table.dc{font-size:8.8pt;margin:0 0 10px;border:1px solid #c4cde0}
+table.dc td{padding:2px 10px;border-right:1px solid #c4cde0}
+table.dc td:nth-child(odd){color:#5b6b8c;background:#eef1f8}
+pre{font-family:Consolas;font-size:8.8pt;background:#f5f6f8;border-left:3px solid #2b4a8b;padding:6px 10px;margin:4px 0 10px;line-height:1.35;white-space:pre}
+table.par{width:100%;font-size:9pt;margin:4px 0 10px}
+table.par th{text-align:left;border-bottom:1.5px solid #2b4a8b;padding:3px 6px;font-family:'Segoe UI Semibold';font-weight:normal}
+table.par td{padding:3px 6px;vertical-align:top}
+table.par td:first-child,table.par td:nth-child(2){font-family:Consolas;white-space:nowrap}
+table.ts{width:100%;font-size:9pt;margin:4px 0 10px}
+table.ts th,table.ts td{border:1px solid #9aa6bf;padding:3px 6px;vertical-align:top}
+table.ts th{background:#2b4a8b;color:#fff;font-family:'Segoe UI Semibold';font-weight:normal;text-align:left}
+ul.lv0,ol.lv0{margin:3px 0 8px 1.5em;padding:0}
+ul.lv1,ol.lv1{margin:1px 0 2px 1.4em;padding:0}
+li{margin:1px 0}
+.warn{border:1px solid #d9822b;background:#fff6ec;padding:6px 10px;margin:8px 0}
+.warn b{color:#b0361e}
+</style></head><body><h1>Larkspur Queue Service: Deployment and Operations Guide</h1><table class="dc"><tbody><tr><td>Document ID</td><td>LQS-OPS-004</td><td>Revision</td><td>3.2</td></tr><tr><td>Owner</td><td>Platform Operations</td><td>Last reviewed</td><td>6 October 2026</td></tr></tbody></table><h2>1 Overview</h2><p>Larkspur is the internal message broker used by the billing, notification and audit services. Each production cluster runs three brokers, and every partition is replicated to all three of them. This guide describes how to configure a broker, how to upgrade a cluster without downtime and what to do when the most common alarms fire.</p><h2>2 Prerequisites</h2><ul class="lv0" style="list-style-type:disc"><li>A host from the <i>queue-node</i> image, version 2026.09 or later, with:<ul class="lv1" style="list-style-type:circle"><li>at least 8 CPU cores and 32 GB of memory;</li><li>a dedicated NVMe volume of 500 GB or more for the data directory.</li></ul></li><li>Membership of the <i>lqs-operators</i> group, which grants access to the lqsctl command.</li><li>An open change ticket for any work on a production cluster.</li></ul><h2>3 Configuration</h2><p>The broker reads a single YAML file at start-up and does not reload it while running. A minimal production file looks like this:</p><pre># /etc/larkspur/broker.yaml
+broker:
+  listen: 0.0.0.0:7420
+  data_dir: /var/lib/larkspur
+  max_message_bytes: 1048576
+  retention:
+    hours: 72
+    max_disk_gb: 400
+replication:
+  factor: 3
+  ack: quorum</pre><table class="par"><colgroup><col style="width:4.2cm"><col style="width:3.5cm"><col></colgroup><thead><tr><th>Parameter</th><th>Default</th><th>Description</th></tr></thead><tbody><tr><td>listen</td><td>0.0.0.0:7420</td><td>Address and port on which the broker accepts client connections.</td></tr><tr><td>data_dir</td><td>/var/lib/larkspur</td><td>Directory for segment files.<br>It must be on local storage, never on a network share.</td></tr><tr><td>max_message_bytes</td><td>1048576</td><td>Largest accepted message in bytes. Larger messages are rejected with error LQ-413.</td></tr><tr><td>retention.hours</td><td>72</td><td>How long acknowledged messages are kept before compaction.</td></tr><tr><td>replication.factor</td><td>3</td><td>Number of brokers that hold a copy of each partition.</td></tr><tr><td>replication.ack</td><td>quorum</td><td>When a write is confirmed:<br>leader, quorum or all.</td></tr></tbody></table><h2>4 Rolling upgrade</h2><h3>4.1 Before you start</h3><p>Upgrade one broker at a time and wait until the cluster reports all partitions in sync before moving to the next one. A full upgrade of a three-broker cluster usually takes about forty minutes.</p><h3>4.2 Steps</h3><ol class="lv0" style="list-style-type:decimal"><li>Drain the broker so that it stops leading partitions:<ol class="lv1" style="list-style-type:lower-alpha"><li>run the drain command shown below;</li><li>confirm in the dashboard that its leader count has dropped to zero.</li></ol></li><li>Stop the service and install the new package.</li><li>Start the service and check its status.</li><li>Wait for re-synchronisation, then repeat from step 1 for the next broker.</li></ol><pre>$ lqsctl broker drain --id 2 --timeout 300s
+$ sudo systemctl stop larkspur-broker
+$ sudo dnf install larkspur-broker-3.2.1
+$ sudo systemctl start larkspur-broker
+$ lqsctl broker status --id 2</pre><div class="warn"><b>Warning:</b> never stop a second broker while any partition is under-replicated. With a replication factor of 3 and quorum acknowledgement, losing two brokers makes the affected partitions read-only.</div><h2>5 Troubleshooting</h2><table class="ts"><colgroup><col style="width:4.4cm"><col style="width:5.4cm"><col></colgroup><thead><tr><th>Alarm or symptom</th><th>Likely cause</th><th>Action</th></tr></thead><tbody><tr><td>LQS-DiskHigh<br>(data volume above 85 %)</td><td>Retention too long for the current traffic, or a consumer group has stopped.</td><td>Check consumer lag first. Lower retention.hours only after agreement with the service owner.</td></tr><tr><td>LQS-UnderReplicated</td><td>A broker is down or its network is saturated.</td><td>Check broker status; if a broker is down, follow the restart runbook RB-17.</td></tr><tr><td>Producers receive LQ-413</td><td>Messages larger than max_message_bytes.</td><td>Ask the producing team to split messages; do not raise the limit above 4 MB.</td></tr><tr><td>Slow acknowledgements</td><td>Volume latency above 5 ms.</td><td>Open a ticket with Storage Engineering and attach the iostat output.</td></tr></tbody></table><p>If an alarm is not listed here, page the on-call engineer through the usual escalation channel.</p></body></html>

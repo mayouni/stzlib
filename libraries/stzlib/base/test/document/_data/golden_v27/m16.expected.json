@@ -1,0 +1,209 @@
+{
+  "id": "m16",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "Normpumpe AQV 40-160",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Normpumpe AQV 40-160"
+    },
+    {
+      "level": 2,
+      "text": "Technische Daten"
+    },
+    {
+      "level": 2,
+      "text": "Werkstoffe"
+    },
+    {
+      "level": 2,
+      "text": "Anwendung"
+    },
+    {
+      "level": 2,
+      "text": "Merkmale"
+    },
+    {
+      "level": 2,
+      "text": "Kennlinienpunkte"
+    },
+    {
+      "level": 2,
+      "text": "Abmessungen"
+    }
+  ],
+  "key_sentences": [
+    "Die AQV 40-160 eignet sich für die Wasserversorgung, für Heiz- und Kühlkreisläufe sowie für die Bewässerung.",
+    "Das Fördermedium darf keine abrasiven oder langfaserigen Bestandteile enthalten.",
+    "Für den Einbau gelten die Hinweise der Betriebsanleitung BA-AQV-04.",
+    "Ersatzteile sind ab Lager innerhalb von zwei Arbeitstagen lieferbar."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Fördermenge max.",
+          "48 m³/h"
+        ],
+        [
+          "Förderhöhe max.",
+          "36 m"
+        ],
+        [
+          "Drehzahl",
+          "2.900 1/min"
+        ],
+        [
+          "Motorleistung",
+          "5,5 kW"
+        ],
+        [
+          "Mediumtemperatur",
+          "−10 bis +110 °C"
+        ],
+        [
+          "Nenndruck",
+          "PN 10"
+        ],
+        [
+          "Schutzart Motor",
+          "IP55"
+        ],
+        [
+          "Gewicht",
+          "64 kg"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Bauteil",
+          "Werkstoff"
+        ],
+        [
+          "Spiralgehäuse",
+          "EN-GJL-250"
+        ],
+        [
+          "Laufrad",
+          "CuSn10"
+        ],
+        [
+          "Welle",
+          "1.4021"
+        ],
+        [
+          "Gleitringdichtung",
+          "SiC/Kohle"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Fördermenge Q (m³/h)",
+          "10",
+          "20",
+          "30",
+          "40",
+          "48"
+        ],
+        [
+          "Förderhöhe H (m)",
+          "35,5",
+          "34,0",
+          "31,2",
+          "26,8",
+          "22,0"
+        ],
+        [
+          "Wirkungsgrad η (%)",
+          "48",
+          "63",
+          "70",
+          "68",
+          "61"
+        ],
+        [
+          "NPSH erforderlich (m)",
+          "1,4",
+          "1,8",
+          "2,5",
+          "3,6",
+          "4,9"
+        ],
+        [
+          "Leistungsbedarf P2 (kW)",
+          "2,0",
+          "2,9",
+          "3,6",
+          "4,3",
+          "4,7"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Nennweite Saugseite",
+          "DN 65"
+        ],
+        [
+          "Nennweite Druckseite",
+          "DN 40"
+        ],
+        [
+          "Baulänge",
+          "545 mm"
+        ],
+        [
+          "Bauhöhe",
+          "405 mm"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Back-Pull-Out-Bauweise: Laufrad und Motor lassen sich ausbauen, ohne die Rohrleitungen zu lösen"
+    },
+    {
+      "level": 0,
+      "text": "Wartungsarme Gleitringdichtung, wahlweise mit"
+    },
+    {
+      "level": 1,
+      "text": "EPDM-Elastomeren für Trinkwasser"
+    },
+    {
+      "level": 1,
+      "text": "FKM-Elastomeren für Medien bis 140 °C"
+    },
+    {
+      "level": 0,
+      "text": "Kataphoretische Tauchlackierung des Gehäuses für hohen Korrosionsschutz"
+    },
+    {
+      "level": 0,
+      "text": "Motor der Effizienzklasse IE3, für Frequenzumrichterbetrieb geeignet"
+    }
+  ],
+  "furniture": [
+    "Technische Änderungen vorbehalten · Ausgabe 10/2026",
+    "AQUAVENT",
+    "Datenblatt DB-AQV-40-160",
+    "Seite 1/1"
+  ],
+  "languages": [
+    "de"
+  ],
+  "code": [],
+  "notes": "Product data sheet with a sidebar. The brand band (letter-spaced \"AQUAVENT\", given as the plain word, and the data-sheet number) and the footer (left: \"Technische Änderungen vorbehalten · Ausgabe 10/2026\"; right: \"Seite 1/1\") are furniture. The line under the title is a subtitle in body text, not a heading. The left sidebar (\"Technische Daten\" boxed key/value table without header, \"Werkstoffe\" table with a rule under the header) and the right main column read box by box, sidebar first. The \"Kennlinienpunkte\" table is wide, its first row (Q values) is the header row and its first column holds the row labels; it has rules between rows only. The \"Abmessungen\" table is a borderless key/value table with no header. Bullets are drawn by CSS (square, nested disc). The sentence with the footnote marker \"1\" and the footnote itself are not key sentences. Minus sign in \"−10\" is U+2212; η is Greek eta; in \"P2\" the 2 is a subscript (HTML sub element) and is given as a plain digit."
+}

@@ -1,0 +1,155 @@
+{
+  "id": "m05",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "御見積書",
+  "headings": [
+    {
+      "level": 1,
+      "text": "御見積書"
+    }
+  ],
+  "key_sentences": [
+    "このたびはお問い合わせいただき、誠にありがとうございます。",
+    "下記のとおりお見積り申し上げます。",
+    "ご不明な点がございましたら、担当者までお気軽にお問い合わせください。",
+    "ご検討のほど、よろしくお願い申し上げます。"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "見積番号",
+          "Q-2026-1187"
+        ],
+        [
+          "発行日",
+          "2026年10月15日"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "納期",
+          "ご注文後 約4週間"
+        ],
+        [
+          "受渡場所",
+          "貴社指定場所"
+        ],
+        [
+          "支払条件",
+          "月末締め翌月末 銀行振込"
+        ],
+        [
+          "有効期限",
+          "発行日より30日間"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "番号",
+          "品名・仕様",
+          "数量",
+          "単位",
+          "単価（円）",
+          "金額（円）"
+        ],
+        [
+          "1",
+          "ノートPC（14型・メモリ16GB・SSD 512GB）",
+          "6",
+          "台",
+          "148,000",
+          "888,000"
+        ],
+        [
+          "2",
+          "液晶モニター 27型 WQHD",
+          "6",
+          "台",
+          "32,500",
+          "195,000"
+        ],
+        [
+          "3",
+          "ドッキングステーション（USB-C）",
+          "6",
+          "台",
+          "18,000",
+          "108,000"
+        ],
+        [
+          "4",
+          "初期設定・データ移行作業",
+          "1",
+          "式",
+          "69,000",
+          "69,000"
+        ],
+        [
+          "小計",
+          "小計",
+          "小計",
+          "小計",
+          "小計",
+          "1,260,000"
+        ],
+        [
+          "消費税（10%）",
+          "消費税（10%）",
+          "消費税（10%）",
+          "消費税（10%）",
+          "消費税（10%）",
+          "126,000"
+        ],
+        [
+          "合計",
+          "合計",
+          "合計",
+          "合計",
+          "合計",
+          "1,386,000"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "１． 本見積書の有効期限は発行日より30日間です。"
+    },
+    {
+      "level": 0,
+      "text": "２． 機器の仕様は、メーカーの都合により同等品に変更となる場合があります。"
+    },
+    {
+      "level": 0,
+      "text": "３． 設定作業には以下の内容を含みます。"
+    },
+    {
+      "level": 1,
+      "text": "（１） OSの初期設定およびユーザーアカウントの作成"
+    },
+    {
+      "level": 1,
+      "text": "（２） 既存PCからのデータ移行（1台あたり50GBまで）"
+    },
+    {
+      "level": 0,
+      "text": "４． 上記以外の作業が発生した場合は、別途お見積りいたします。"
+    }
+  ],
+  "furniture": [],
+  "languages": [
+    "ja"
+  ],
+  "code": [],
+  "notes": "Japanese quotation. The title is letter-spaced and given as its plain characters. The customer block (left: addressee, greeting, total-amount box, conditions table) and the issuer block (right: company, postal code, address, telephone, person in charge) sit side by side and read box by box, left first; the issuer block is body text, not furniture. The total-amount box (\"御見積金額 ￥1,386,000（税込）\") is not a table. Document number and date at top right form a small borderless key/value table; the conditions panel is a ruled key/value table; neither has a header row. Items table: full grid, subtotal/tax/total rows merge the first five columns. The 備考 list uses typed full-width markers \"１．\" and nested \"（１）\" with hanging indents. Lines wrapped inside a sentence join with no space. The ideographic space U+3000 counts as a space (collapsed to one ASCII space). The 備考 box label is not a heading."
+}

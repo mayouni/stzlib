@@ -1,0 +1,223 @@
+{
+  "id": "m12",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Fourteenth Northern Coastal Hydrology Symposium",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Fourteenth Northern Coastal Hydrology Symposium"
+    },
+    {
+      "level": 3,
+      "text": "Practical information"
+    },
+    {
+      "level": 2,
+      "text": "Day 1 – Tuesday 9 June"
+    },
+    {
+      "level": 2,
+      "text": "Day 2 – Wednesday 10 June"
+    },
+    {
+      "level": 3,
+      "text": "Social programme"
+    },
+    {
+      "level": 3,
+      "text": "Registration fees"
+    }
+  ],
+  "key_sentences": [
+    "The symposium brings together hydrologists, engineers and planners who work on estuaries, tidal rivers and low-lying coastal land.",
+    "This year the programme gives particular attention to compound flooding, where storm surge and river discharge arrive together.",
+    "Speakers are asked to load their slides in the preparation room at least one hour before their session.",
+    "Workshop W1 runs for three hours and has thirty places, which are allocated in order of registration.",
+    "Places at the symposium dinner must be booked with your registration and cannot be added on site."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Registration",
+          "Foyer, from 08:00 both days"
+        ],
+        [
+          "Wi-Fi",
+          "Network NCHS-Guest"
+        ],
+        [
+          "Cloakroom",
+          "Lower ground floor"
+        ],
+        [
+          "Help desk",
+          "Ext. 2040"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Time",
+          "Harbour Hall",
+          "Estuary Room",
+          "Dune Room"
+        ],
+        [
+          "09:00",
+          "Opening plenary Keynote: Forty years of tide-gauge records, and what they still hide Chair: Dr Hanne Solberg",
+          "Opening plenary Keynote: Forty years of tide-gauge records, and what they still hide Chair: Dr Hanne Solberg",
+          "Opening plenary Keynote: Forty years of tide-gauge records, and what they still hide Chair: Dr Hanne Solberg"
+        ],
+        [
+          "10:15",
+          "Coffee break",
+          "Coffee break",
+          "Coffee break"
+        ],
+        [
+          "10:45",
+          "Session 1A Storm surge forecasting",
+          "Session 1B Sediment transport in tidal channels",
+          "Session 1C Groundwater salinisation"
+        ],
+        [
+          "12:30",
+          "Lunch – Terrace Restaurant",
+          "Lunch – Terrace Restaurant",
+          "Lunch – Terrace Restaurant"
+        ],
+        [
+          "13:30",
+          "Session 2A Compound flooding: case studies",
+          "Session 2B Remote sensing of shorelines",
+          "Workshop W1 Open-source flood models: hands-on (bring a laptop)"
+        ],
+        [
+          "15:00",
+          "Session 3A Early-warning systems",
+          "Session 3B Wetland restoration",
+          "Workshop W1 Open-source flood models: hands-on (bring a laptop)"
+        ],
+        [
+          "16:30",
+          "Poster session and reception",
+          "Poster session and reception",
+          "Poster session and reception"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Time",
+          "Harbour Hall",
+          "Estuary Room",
+          "Dune Room"
+        ],
+        [
+          "09:00",
+          "Session 4A River–sea interaction",
+          "Session 4B Urban drainage at the coast",
+          "Session 4C Data assimilation"
+        ],
+        [
+          "10:30",
+          "Coffee break",
+          "Coffee break",
+          "Coffee break"
+        ],
+        [
+          "11:00",
+          "Panel: Who pays for coastal adaptation? Regional authorities, insurers and residents in discussion",
+          "Panel: Who pays for coastal adaptation? Regional authorities, insurers and residents in discussion",
+          "Panel: Who pays for coastal adaptation? Regional authorities, insurers and residents in discussion"
+        ],
+        [
+          "12:30",
+          "Lunch – Terrace Restaurant",
+          "Lunch – Terrace Restaurant",
+          "Lunch – Terrace Restaurant"
+        ],
+        [
+          "13:30",
+          "Session 5A Climate scenarios for estuaries",
+          "Field visit Marrowick tidal barrier (coach leaves from the main entrance)",
+          "Field visit Marrowick tidal barrier (coach leaves from the main entrance)"
+        ],
+        [
+          "16:00",
+          "Closing plenary and award for the best student poster",
+          "Closing plenary and award for the best student poster",
+          "Closing plenary and award for the best student poster"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Category",
+          "Early",
+          "Standard"
+        ],
+        [
+          "Full delegate",
+          "€420",
+          "€495"
+        ],
+        [
+          "Student",
+          "€160",
+          "€190"
+        ],
+        [
+          "One day",
+          "€240",
+          "€270"
+        ],
+        [
+          "Symposium dinner",
+          "€65",
+          "€65"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Tuesday 9 June"
+    },
+    {
+      "level": 1,
+      "text": "18:30 Welcome drinks in the foyer"
+    },
+    {
+      "level": 1,
+      "text": "19:30 Symposium dinner at the Old Customs House"
+    },
+    {
+      "level": 0,
+      "text": "Wednesday 10 June"
+    },
+    {
+      "level": 1,
+      "text": "17:00 Guided walk along the sea wall (about 90 minutes)"
+    }
+  ],
+  "furniture": [
+    "NCHS 2026 – Programme – 1",
+    "NCHS 2026 – Programme – 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Conference programme. The masthead band holds the letter-spaced kicker \"PROGRAMME\" (given as the plain word, body text), the title and a date/venue line. Footer \"NCHS 2026 – Programme – n\" is furniture. Page 2 starts with a forced page break. Page 1: introduction (left) and the \"Practical information\" sidebar (right) read box by box; the sidebar holds a borderless key/value table with no header. Page 2: the social-programme column (left, CSS-drawn disc bullets with nested circle bullets) and the \"Registration fees\" sidebar (right) also read box by box. Programme tables: full grid; plenary and break rows span the three room columns; Workshop W1 spans two rows; the field visit spans two columns; most cells have two or three lines (session code, title, chair), joined by a space."
+}

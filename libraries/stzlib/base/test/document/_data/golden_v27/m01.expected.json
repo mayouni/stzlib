@@ -1,0 +1,206 @@
+{
+  "id": "m01",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Tax Invoice",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Tax Invoice"
+    }
+  ],
+  "key_sentences": [
+    "Thank you for your order of 2 October 2026.",
+    "Items HPC-K900 and HPC-D001 were delivered separately on 9 October 2026.",
+    "Payment is due within 30 days of the invoice date.",
+    "A late payment charge of 1.5% per month may be applied to overdue balances."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Invoice number",
+          "HPC-2026-0917"
+        ],
+        [
+          "Invoice date",
+          "14 October 2026"
+        ],
+        [
+          "Customer account",
+          "C-0388"
+        ],
+        [
+          "Your order",
+          "PO 55120"
+        ],
+        [
+          "Payment due",
+          "13 November 2026"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Item",
+          "Description",
+          "Qty",
+          "Unit price (£)",
+          "VAT",
+          "Amount (£)"
+        ],
+        [
+          "HPC-B204",
+          "Stainless hex bolt M8 × 40, A4-70, box of 100",
+          "12",
+          "18.40",
+          "20%",
+          "220.80"
+        ],
+        [
+          "HPC-W118",
+          "Spring washer M8, zinc plated, box of 250",
+          "6",
+          "7.95",
+          "20%",
+          "47.70"
+        ],
+        [
+          "HPC-S560",
+          "Linear guide rail 560 mm with two carriages and end stops",
+          "4",
+          "86.25",
+          "20%",
+          "345.00"
+        ],
+        [
+          "HPC-C031",
+          "Flexible shaft coupling 8–10 mm, aluminium",
+          "10",
+          "14.60",
+          "20%",
+          "146.00"
+        ],
+        [
+          "HPC-K900",
+          "Calibration of torque wrench (customer's own), including certificate",
+          "2",
+          "42.00",
+          "20%",
+          "84.00"
+        ],
+        [
+          "HPC-D001",
+          "Technical drawings, printed set",
+          "1",
+          "25.00",
+          "0%",
+          "25.00"
+        ],
+        [
+          "CAR-STD",
+          "Carriage, standard next-day delivery",
+          "1",
+          "12.50",
+          "20%",
+          "12.50"
+        ],
+        [
+          "Net total",
+          "Net total",
+          "Net total",
+          "Net total",
+          "Net total",
+          "881.00"
+        ],
+        [
+          "VAT at 20% on £856.00",
+          "VAT at 20% on £856.00",
+          "VAT at 20% on £856.00",
+          "VAT at 20% on £856.00",
+          "VAT at 20% on £856.00",
+          "171.20"
+        ],
+        [
+          "Invoice total",
+          "Invoice total",
+          "Invoice total",
+          "Invoice total",
+          "Invoice total",
+          "1,052.20"
+        ],
+        [
+          "Less deposit received 2 October 2026",
+          "Less deposit received 2 October 2026",
+          "Less deposit received 2 October 2026",
+          "Less deposit received 2 October 2026",
+          "Less deposit received 2 October 2026",
+          "−200.00"
+        ],
+        [
+          "Balance due",
+          "Balance due",
+          "Balance due",
+          "Balance due",
+          "Balance due",
+          "852.20"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Bank",
+          "Corran Mutual Bank"
+        ],
+        [
+          "Account name",
+          "Halvorsen Precision Components Ltd"
+        ],
+        [
+          "Sort code",
+          "40-12-77"
+        ],
+        [
+          "Account number",
+          "61203348"
+        ],
+        [
+          "Reference",
+          "HPC-2026-0917"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Please quote the invoice number with every payment."
+    },
+    {
+      "level": 0,
+      "text": "Goods remain our property until they have been paid for in full."
+    },
+    {
+      "level": 0,
+      "text": "Queries about this invoice must be raised within 14 days."
+    }
+  ],
+  "furniture": [
+    "HALVORSEN PRECISION COMPONENTS",
+    "Unit 14, Brackwater Industrial Park",
+    "Dunmere DN4 7QX",
+    "Tel. 01632 960 418 · accounts@halvorsen-pc.example",
+    "VAT Reg. No. GB 418 2207 61",
+    "Registered in England and Wales No. 08816204 · Registered office as above"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Letterhead (organisation name letter-spaced, address lines) and the registration line in the bottom page margin are furniture. The \"Invoice to\" address block (left) and the boxed invoice-details panel (right) sit side by side; reading order is box by box, left box first. Below the items table the payment text with its list (left) and the bank-details panel (right) are side by side, also read box by box. The two key/value panels have no header row. In the items table, total rows merge the first five columns (text repeated in each covered cell). List bullets are drawn by CSS (disc). The minus sign in the deposit row is U+2212."
+}

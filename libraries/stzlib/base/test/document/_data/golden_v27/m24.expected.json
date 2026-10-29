@@ -1,0 +1,181 @@
+{
+  "id": "m24",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "The Kiln Street Bulletin",
+  "headings": [
+    {
+      "level": 1,
+      "text": "The Kiln Street Bulletin"
+    },
+    {
+      "level": 2,
+      "text": "Roof repairs finally under way"
+    },
+    {
+      "level": 2,
+      "text": "A new committee for 2027"
+    },
+    {
+      "level": 2,
+      "text": "Garden corner"
+    },
+    {
+      "level": 2,
+      "text": "Rent and charges for 2027"
+    },
+    {
+      "level": 2,
+      "text": "From the members’ meeting"
+    }
+  ],
+  "key_sentences": [
+    "After two wet winters and a long search for a contractor, work on the roofs of numbers 2 to 18 started on 5 October.",
+    "Residents whose homes are covered by scaffolding will receive a letter a week before it goes up.",
+    "Any member who has lived in the co-operative for at least a year can be nominated.",
+    "This year we have three hundred bulbs to plant, so bring gloves, a trowel and a friend on 7 November.",
+    "At the general meeting members agreed a rent increase of 2.8%, below the limit set by the housing regulator.",
+    "The full minutes can be borrowed from the office or read on the noticeboard."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "7 Nov",
+          "Bulb planting, communal garden, 10:00"
+        ],
+        [
+          "19 Nov",
+          "Committee nominations close"
+        ],
+        [
+          "3 Dec",
+          "General meeting, community room, 19:00"
+        ],
+        [
+          "13 Dec",
+          "Winter fair and soup lunch"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Home",
+          "Rent 2026",
+          "Rent 2027",
+          "Service charge",
+          "Total 2027"
+        ],
+        [
+          "One-bedroom flat",
+          "£96.40",
+          "£99.10",
+          "£8.20",
+          "£107.30"
+        ],
+        [
+          "Two-bedroom flat",
+          "£112.60",
+          "£115.75",
+          "£8.20",
+          "£123.95"
+        ],
+        [
+          "Two-bedroom house",
+          "£124.80",
+          "£128.29",
+          "£5.60",
+          "£133.89"
+        ],
+        [
+          "Three-bedroom house",
+          "£138.50",
+          "£142.38",
+          "£5.60",
+          "£147.98"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Emergency repairs",
+          "0161 555 0199 (24 hours)"
+        ],
+        [
+          "Routine repairs",
+          "repairs@kilnstreet.example"
+        ],
+        [
+          "Gas safety checks",
+          "0161 555 0142"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Monday",
+          "09:30–13:00"
+        ],
+        [
+          "Wednesday",
+          "13:00–17:30"
+        ],
+        [
+          "Friday",
+          "09:30–12:00"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Roof repairs under way"
+    },
+    {
+      "level": 0,
+      "text": "A new committee for 2027"
+    },
+    {
+      "level": 0,
+      "text": "Garden corner"
+    },
+    {
+      "level": 0,
+      "text": "Rent and charges for 2027"
+    },
+    {
+      "level": 0,
+      "text": "From the members’ meeting"
+    },
+    {
+      "level": 0,
+      "text": "1) to replace the entry-phone system at numbers 20 to 36 next spring;"
+    },
+    {
+      "level": 0,
+      "text": "2) to give the youth club the use of the community room on Friday evenings;"
+    },
+    {
+      "level": 0,
+      "text": "3) to set aside £1,500 for new bicycle stands near the garden gate."
+    }
+  ],
+  "furniture": [
+    "Kiln Street Bulletin – Autumn 2026",
+    "1",
+    "2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Two-page co-operative newsletter. The masthead title \"The Kiln Street Bulletin\" is the document title; the issue line under it is body text. The footer (left: bulletin and season; right: bare page number) is furniture. Page 1: a tinted sidebar on the left (\"In this issue\" list, then \"Dates for your diary\", a borderless key/value table with no header) and a main area set in two CSS columns on the right; reading order is the sidebar first, then the main area column by column. Box titles in the sidebar and on page 2 are labels, not headings; the italic byline is body text. The \"In this issue\" list has CSS-drawn en-dash markers (list-style-type with a string value; markers not in the text). Page 2 starts with a forced page break. The rent table has rules under the header and between rows. The decisions list uses typed \"1)\" markers with a hanging indent. The two boxes at the bottom of page 2 (\"Repairs: who to call\", \"Office opening hours\") sit side by side and read box by box, left first; each holds a key/value table with no header."
+}

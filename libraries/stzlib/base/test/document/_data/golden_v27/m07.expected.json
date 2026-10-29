@@ -1,0 +1,228 @@
+{
+  "id": "m07",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Boletín de calificaciones",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Boletín de calificaciones"
+    },
+    {
+      "level": 2,
+      "text": "Observaciones de la tutora"
+    }
+  ],
+  "key_sentences": [
+    "Lucía ha tenido un primer trimestre muy positivo y participa con interés en todas las materias.",
+    "Destaca su capacidad de trabajo en equipo y su responsabilidad en las tareas diarias.",
+    "En Matemáticas necesita afianzar los contenidos básicos antes de la segunda evaluación.",
+    "Las familias pueden solicitar una entrevista con la tutora a través de la secretaría del centro."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Alumna",
+          "Lucía Ferrer Ibáñez",
+          "Curso",
+          "2.º de ESO, grupo B"
+        ],
+        [
+          "Tutora",
+          "Marta Olmedo Ruiz",
+          "N.º de expediente",
+          "2024/0417"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Materia",
+          "Calificación",
+          "Calificación",
+          "Faltas de asistencia",
+          "Faltas de asistencia",
+          "Observaciones"
+        ],
+        [
+          "Materia",
+          "Numérica",
+          "Literal",
+          "Justificadas",
+          "Injustificadas",
+          "Observaciones"
+        ],
+        [
+          "Ámbito lingüístico y social",
+          "Ámbito lingüístico y social",
+          "Ámbito lingüístico y social",
+          "Ámbito lingüístico y social",
+          "Ámbito lingüístico y social",
+          "Ámbito lingüístico y social"
+        ],
+        [
+          "Lengua Castellana y Literatura",
+          "8",
+          "Notable",
+          "1",
+          "0",
+          "Muy buena expresión escrita."
+        ],
+        [
+          "Geografía e Historia",
+          "7",
+          "Notable",
+          "1",
+          "0",
+          "—"
+        ],
+        [
+          "Inglés",
+          "9",
+          "Sobresaliente",
+          "0",
+          "0",
+          "—"
+        ],
+        [
+          "Francés (optativa)",
+          "6",
+          "Bien",
+          "2",
+          "1",
+          "Debe mejorar la comprensión oral."
+        ],
+        [
+          "Ámbito científico-tecnológico",
+          "Ámbito científico-tecnológico",
+          "Ámbito científico-tecnológico",
+          "Ámbito científico-tecnológico",
+          "Ámbito científico-tecnológico",
+          "Ámbito científico-tecnológico"
+        ],
+        [
+          "Matemáticas",
+          "5",
+          "Suficiente",
+          "1",
+          "0",
+          "Conviene repasar fracciones y ecuaciones de primer grado."
+        ],
+        [
+          "Física y Química",
+          "6",
+          "Bien",
+          "1",
+          "0",
+          "—"
+        ],
+        [
+          "Tecnología y Digitalización",
+          "8",
+          "Notable",
+          "0",
+          "0",
+          "Excelente proyecto de robótica."
+        ],
+        [
+          "Otras materias",
+          "Otras materias",
+          "Otras materias",
+          "Otras materias",
+          "Otras materias",
+          "Otras materias"
+        ],
+        [
+          "Educación Física",
+          "9",
+          "Sobresaliente",
+          "0",
+          "0",
+          "—"
+        ],
+        [
+          "Música",
+          "7",
+          "Notable",
+          "0",
+          "0",
+          "—"
+        ],
+        [
+          "Tutoría",
+          "No calificable",
+          "No calificable",
+          "0",
+          "0",
+          "—"
+        ],
+        [
+          "Total de faltas",
+          "Total de faltas",
+          "Total de faltas",
+          "6",
+          "1",
+          ""
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Escala",
+          "Nota"
+        ],
+        [
+          "Insuficiente",
+          "1 a 4"
+        ],
+        [
+          "Suficiente",
+          "5"
+        ],
+        [
+          "Bien",
+          "6"
+        ],
+        [
+          "Notable",
+          "7 y 8"
+        ],
+        [
+          "Sobresaliente",
+          "9 y 10"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "— Dedicar veinte minutos diarios a la práctica de Matemáticas."
+    },
+    {
+      "level": 0,
+      "text": "— Leer al menos un libro al mes de la lista recomendada por el departamento."
+    },
+    {
+      "level": 0,
+      "text": "— Participar más en las actividades orales de Francés."
+    }
+  ],
+  "furniture": [
+    "Colegio Arroyo de las Encinas",
+    "Calle del Molino Viejo, 14 · 28794 Villaclara del Henares",
+    "Tel. 918 55 02 31 · secretaria@arroyoencinas.example",
+    "Página 1 de 1"
+  ],
+  "languages": [
+    "es"
+  ],
+  "code": [],
+  "notes": "Letterhead band (school name, address, contact) and the page number \"Página 1 de 1\" are furniture. Student panel: boxed key/value table of two rows with two pairs each, no header. Grades table: two-level header (\"Materia\" and \"Observaciones\" span both header rows, \"Calificación\" and \"Faltas de asistencia\" each span two columns), section rows spanning all six columns, zebra bands, \"No calificable\" spans two columns, and a total row whose label spans three columns (its last cell is empty). The tutor comments (left) and the grading-scale table (right) sit side by side and read box by box, text first. The recommendations list uses typed em-dash markers inline. Signature blocks and the dashed return slip are body text. The signature line of underscores is not a sentence."
+}

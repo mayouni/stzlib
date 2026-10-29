@@ -1,0 +1,129 @@
+{
+  "id": "m15",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Application to Hire a Community Hall",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Application to Hire a Community Hall"
+    },
+    {
+      "level": 2,
+      "text": "Section A – About you"
+    },
+    {
+      "level": 2,
+      "text": "Section B – Your booking"
+    },
+    {
+      "level": 2,
+      "text": "Section C – Hire charges"
+    },
+    {
+      "level": 2,
+      "text": "Section D – Conditions of hire"
+    },
+    {
+      "level": 2,
+      "text": "Section E – Declaration"
+    }
+  ],
+  "key_sentences": [
+    "Please complete all sections in block capitals and return the form at least 21 days before the date of your event.",
+    "Bookings are not confirmed until you receive a written confirmation from the bookings clerk.",
+    "If alcohol is to be sold, you must obtain a temporary event notice from the district council and attach a copy to this form.",
+    "A refundable damage deposit of £75.00 is payable for every booking.",
+    "I have read the conditions of hire and agree to keep to them.",
+    "I understand that the deposit may be kept in part or in full to cover any damage or extra cleaning."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Room",
+          "Monday to Friday, 08:00–18:00",
+          "Evenings and weekends"
+        ],
+        [
+          "Main hall",
+          "£18.00 per hour",
+          "£24.00 per hour"
+        ],
+        [
+          "Small hall",
+          "£9.50 per hour",
+          "£12.50 per hour"
+        ],
+        [
+          "Kitchen",
+          "£6.00 per booking",
+          "£6.00 per booking"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Booking reference",
+          "Date received",
+          "Deposit paid",
+          "Approved by"
+        ],
+        [
+          "",
+          "",
+          "",
+          ""
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "The hirer must be aged 18 or over and must be present throughout the booking."
+    },
+    {
+      "level": 0,
+      "text": "The hirer is responsible for:"
+    },
+    {
+      "level": 1,
+      "text": "the behaviour of all guests;"
+    },
+    {
+      "level": 1,
+      "text": "leaving the hall clean and tidy, with all rubbish removed;"
+    },
+    {
+      "level": 1,
+      "text": "switching off lights and heating and locking all doors."
+    },
+    {
+      "level": 0,
+      "text": "No more than the stated number of people may be in a room at any time."
+    },
+    {
+      "level": 0,
+      "text": "Decorations must not be fixed to walls or ceilings with nails, tape or adhesive putty."
+    },
+    {
+      "level": 0,
+      "text": "Bookings cancelled less than 7 days before the event will be charged in full."
+    }
+  ],
+  "furniture": [
+    "Brindlecombe Parish Council",
+    "Form HB1 (rev. 2026)",
+    "Form HB1 · Page 1 of 2",
+    "Form HB1 · Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "A two-page application form. Running header (council name left, form number right) and the centred footer \"Form HB1 · Page n of N\" are furniture. Section titles \"Section A – About you\" etc. are level-2 headings; field labels (Full name, Postcode, ...) and the empty answer boxes are form fields, not headings and not tables. Check-box options (\"Main hall (up to 120 people)\", \"Yes\", \"No\") are drawn boxes next to labels, not list items. The hire-charges table has rules between rows only. The conditions list (Section D) is a CSS-drawn decimal list with a nested CSS-drawn lower-roman level (markers not in the text). The \"For office use only\" table has a full grid; its second row is empty (four empty strings). Page 2 starts with a forced page break."
+}

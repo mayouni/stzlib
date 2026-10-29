@@ -1,0 +1,183 @@
+{
+  "id": "m21",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Remote and Hybrid Working Policy",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Remote and Hybrid Working Policy"
+    },
+    {
+      "level": 2,
+      "text": "I. Purpose"
+    },
+    {
+      "level": 2,
+      "text": "II. Scope"
+    },
+    {
+      "level": 2,
+      "text": "III. Definitions"
+    },
+    {
+      "level": 2,
+      "text": "IV. Eligibility and requests"
+    },
+    {
+      "level": 2,
+      "text": "V. Equipment and expenses"
+    },
+    {
+      "level": 2,
+      "text": "VI. Health, safety and data protection"
+    },
+    {
+      "level": 2,
+      "text": "VII. Review"
+    }
+  ],
+  "key_sentences": [
+    "This policy explains when employees may work away from an Association office and what both sides can expect when they do.",
+    "The policy applies to all employees, including those on fixed-term contracts.",
+    "The Association provides the equipment that employees need to work safely at home.",
+    "The Director of People will review this policy every two years, or sooner if the law changes.",
+    "Employees and the recognised trade union will be consulted on any significant change."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Policy owner",
+          "Director of People",
+          "Approved",
+          "15 September 2026"
+        ],
+        [
+          "Applies to",
+          "All employees",
+          "Next review",
+          "September 2028"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Base location",
+          "The office named in the employee’s contract, where they work when not working remotely."
+        ],
+        [
+          "Hybrid worker",
+          "An employee who regularly divides their working week between home and their base location."
+        ],
+        [
+          "Remote worker",
+          "An employee whose contract names their home as their place of work."
+        ],
+        [
+          "Core hours",
+          "10:00 to 15:00, Monday to Friday, when all employees should be available."
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Item",
+          "Provided by the Association",
+          "Notes"
+        ],
+        [
+          "Laptop and headset",
+          "Yes",
+          "Remains Association property and must be returned on leaving."
+        ],
+        [
+          "Monitor, keyboard and mouse",
+          "Yes, on request",
+          "Delivered and collected by the IT service desk."
+        ],
+        [
+          "Office chair",
+          "After a workstation assessment",
+          "Up to £250 including delivery."
+        ],
+        [
+          "Broadband and electricity",
+          "No",
+          "A flat allowance of £18 per month is paid to remote workers only."
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "4.1 Any employee who has completed their probation period may ask to become a hybrid worker."
+    },
+    {
+      "level": 0,
+      "text": "4.2 A manager will normally agree a request unless:"
+    },
+    {
+      "level": 1,
+      "text": "(a) the role requires the employee to be on site, for example:"
+    },
+    {
+      "level": 2,
+      "text": "(i) caretaking and grounds maintenance;"
+    },
+    {
+      "level": 2,
+      "text": "(ii) reception and face-to-face tenancy support;"
+    },
+    {
+      "level": 1,
+      "text": "(b) the employee’s home does not offer a safe and private place to work; or"
+    },
+    {
+      "level": 1,
+      "text": "(c) the team would be unable to provide the agreed level of service to residents."
+    },
+    {
+      "level": 0,
+      "text": "4.3 A decision must be given in writing within 28 days of the request."
+    },
+    {
+      "level": 0,
+      "text": "4.4 An employee whose request is refused may appeal to the Director of People within 14 days."
+    },
+    {
+      "level": 0,
+      "text": "complete the online workstation assessment within their first month of hybrid working;"
+    },
+    {
+      "level": 0,
+      "text": "keep residents’ personal information out of sight of other members of the household;"
+    },
+    {
+      "level": 0,
+      "text": "lock their laptop whenever they leave it, even briefly;"
+    },
+    {
+      "level": 0,
+      "text": "report any accident or near miss through the usual incident form."
+    }
+  ],
+  "furniture": [
+    "Orrin Valley Housing Association",
+    "Policy HR-14 · Version 2.1",
+    "Uncontrolled when printed. The current version is on the staff intranet.",
+    "Page 1 of 2",
+    "Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Running header (association left, policy number and version right) and footer (left: control notice; right: \"Page n of N\") are furniture. Sections use typed upper-case roman numerals in the heading text (\"I. Purpose\"). The document-control panel is a boxed key/value table (two rows of two pairs, no header). Definitions are a borderless two-column key/value table with no header. Section IV is a three-level typed list with hanging indents: clause numbers \"4.1\", \"4.2\", ..., then \"(a)\", \"(b)\", then lower-case roman \"(i)\", \"(ii)\". The equipment table has a tinted header and rules between rows only. Section VI uses CSS-drawn disc bullets."
+}

@@ -1,0 +1,275 @@
+{
+  "id": "m02",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "Rapport d'activité 2025",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Rapport d’activité 2025"
+    },
+    {
+      "level": 2,
+      "text": "Le mot de la présidente"
+    },
+    {
+      "level": 2,
+      "text": "Faits marquants"
+    },
+    {
+      "level": 3,
+      "text": "Un troisième jardin"
+    },
+    {
+      "level": 3,
+      "text": "Le compostage partagé"
+    },
+    {
+      "level": 3,
+      "text": "Ateliers et animations"
+    },
+    {
+      "level": 2,
+      "text": "Rapport financier"
+    },
+    {
+      "level": 2,
+      "text": "Vie associative"
+    },
+    {
+      "level": 3,
+      "text": "Gouvernance"
+    },
+    {
+      "level": 3,
+      "text": "Nos partenaires"
+    },
+    {
+      "level": 2,
+      "text": "Perspectives 2026"
+    },
+    {
+      "level": 3,
+      "text": "Calendrier prévisionnel"
+    }
+  ],
+  "key_sentences": [
+    "L’année 2025 restera celle de notre troisième jardin, ouvert en mai sur l’ancienne friche de la rue des Tanneurs.",
+    "Grâce à l’engagement de cent douze bénévoles, nous avons accueilli plus de quatre cents habitants lors de nos ateliers.",
+    "Le jardin des Tanneurs compte désormais vingt-quatre parcelles individuelles et un verger collectif de onze arbres fruitiers.",
+    "Chaque site est désormais suivi par au moins deux référents formés.",
+    "Au total, cinquante-sept ateliers ont réuni 1 186 participants, dont un tiers d’enfants.",
+    "Les comptes de l’exercice 2025 se soldent par un excédent de 3 420 euros, affecté au fonds de réserve.",
+    "Le conseil d’administration s’est réuni huit fois et l’assemblée générale a rassemblé quatre-vingt-dix adhérents le 22 mars.",
+    "Ce rapport sera soumis à l’approbation de l’assemblée générale du 21 mars 2026."
+  ],
+  "tables": [
+    {
+      "caption": "Tableau 1 – Compte de résultat simplifié (en euros)",
+      "rows": [
+        [
+          "Poste",
+          "Réalisé 2024",
+          "Réalisé 2024",
+          "Réalisé 2025",
+          "Réalisé 2025"
+        ],
+        [
+          "Poste",
+          "Montant (€)",
+          "Part",
+          "Montant (€)",
+          "Part"
+        ],
+        [
+          "Produits",
+          "Produits",
+          "Produits",
+          "Produits",
+          "Produits"
+        ],
+        [
+          "Cotisations des adhérents",
+          "6 840",
+          "17 %",
+          "8 115",
+          "18 %"
+        ],
+        [
+          "Subventions publiques",
+          "20 900",
+          "52 %",
+          "20 700",
+          "46 %"
+        ],
+        [
+          "Mécénat et dons",
+          "7 260",
+          "18 %",
+          "9 450",
+          "21 %"
+        ],
+        [
+          "Ventes de plants et prestations",
+          "5 200",
+          "13 %",
+          "6 735",
+          "15 %"
+        ],
+        [
+          "Charges",
+          "Charges",
+          "Charges",
+          "Charges",
+          "Charges"
+        ],
+        [
+          "Achats de matériel et semences",
+          "9 310",
+          "24 %",
+          "10 280",
+          "25 %"
+        ],
+        [
+          "Salaire de la coordinatrice (mi-temps)",
+          "18 600",
+          "47 %",
+          "19 150",
+          "46 %"
+        ],
+        [
+          "Assurances et location de terrains",
+          "6 120",
+          "16 %",
+          "6 400",
+          "15 %"
+        ],
+        [
+          "Communication et événements",
+          "5 080",
+          "13 %",
+          "5 750",
+          "14 %"
+        ],
+        [
+          "Résultat de l’exercice",
+          "+1 090",
+          "–",
+          "+3 420",
+          "–"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Échéance",
+          "Action"
+        ],
+        [
+          "Mars 2026",
+          "Assemblée générale et vote du budget"
+        ],
+        [
+          "Avril 2026",
+          "Ouverture des sites de compostage de l’Est"
+        ],
+        [
+          "Juin 2026",
+          "Fête des jardins, journée portes ouvertes"
+        ],
+        [
+          "Octobre 2026",
+          "Bilan à mi-parcours devant le conseil"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1) jardinage au naturel, avec douze séances consacrées :"
+    },
+    {
+      "level": 1,
+      "text": "a) aux semis et au repiquage ;"
+    },
+    {
+      "level": 1,
+      "text": "b) à la taille des arbres fruitiers ;"
+    },
+    {
+      "level": 1,
+      "text": "c) à la gestion de l’eau en période de sécheresse ;"
+    },
+    {
+      "level": 0,
+      "text": "2) alimentation et cuisine de saison, en partenariat avec l’école Jules-Ferry ;"
+    },
+    {
+      "level": 0,
+      "text": "3) biodiversité, avec l’installation de quatorze nichoirs et d’un hôtel à insectes."
+    },
+    {
+      "level": 0,
+      "text": "– la Ville et ses services techniques ;"
+    },
+    {
+      "level": 0,
+      "text": "– le syndicat intercommunal de collecte des déchets ;"
+    },
+    {
+      "level": 0,
+      "text": "– la Fondation Terre Commune ;"
+    },
+    {
+      "level": 0,
+      "text": "– les écoles Jules-Ferry et du Port ;"
+    },
+    {
+      "level": 0,
+      "text": "– la boulangerie coopérative L’Épi d’Or."
+    },
+    {
+      "level": 0,
+      "text": "1) Consolider les trois jardins existants"
+    },
+    {
+      "level": 1,
+      "text": "a) créer un poste de jardinier animateur à temps partiel ;"
+    },
+    {
+      "level": 1,
+      "text": "b) renouveler les clôtures du jardin du Port."
+    },
+    {
+      "level": 0,
+      "text": "2) Étendre le compostage"
+    },
+    {
+      "level": 1,
+      "text": "a) ouvrir trois nouveaux sites dans le quartier Est ;"
+    },
+    {
+      "level": 1,
+      "text": "b) former vingt référents supplémentaires."
+    },
+    {
+      "level": 0,
+      "text": "3) Ouvrir l’association à de nouveaux publics, notamment les résidents de la maison de retraite des Glycines."
+    }
+  ],
+  "furniture": [
+    "Les Jardins du Canal",
+    "Rapport d’activité 2025",
+    "Page 1 sur 3",
+    "Page 2 sur 3",
+    "Page 3 sur 3"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "Running header (association name left, report title right) appears from page 2 only; page numbers \"Page n sur N\" are centred in the bottom margin. The \"Faits marquants\" section is set in two CSS columns; reading order is column by column. Soft hyphens (U+00AD) are placed in two long words in the columns and give them whole if a break occurs. Lists: \"1)\" and \"a)\" markers are typed text with hanging indents; the partners list uses typed en-dash markers set inline. No list marker is drawn by CSS. Table 1 has a two-level header (two header rows; \"Poste\" spans both, each year spans two columns), section rows \"Produits\" and \"Charges\" spanning all five columns, zebra bands, and a total row. The calendar table at the end has no rules at all. The final line with the registered office is the last body line, not furniture. The subtitle line under the title is body text, not a heading. Pages 2 and 3 start with forced page breaks."
+}

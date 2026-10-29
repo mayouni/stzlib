@@ -1,0 +1,139 @@
+{
+  "id": "m20",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Yıllık İzin Talep Formu",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Yıllık İzin Talep Formu"
+    },
+    {
+      "level": 2,
+      "text": "1. Personel Bilgileri"
+    },
+    {
+      "level": 2,
+      "text": "2. İzin Bilgileri"
+    },
+    {
+      "level": 2,
+      "text": "3. Onaylar"
+    },
+    {
+      "level": 2,
+      "text": "4. Açıklamalar"
+    }
+  ],
+  "key_sentences": [
+    "Yukarıda belirtilen tarihler arasında yıllık ücretli iznimi kullanmak istiyorum.",
+    "Bilgilerin doğruluğunu beyan ederim.",
+    "İzin dönüşünde işe başlama tarihinde görevime başlayacağımı taahhüt ederim.",
+    "Talebimin değerlendirilmesini saygılarımla arz ederim."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Adı Soyadı",
+          "Elif Karaca",
+          "Sicil No",
+          "20417"
+        ],
+        [
+          "Departman",
+          "Kalite Güvence",
+          "Görevi",
+          "Laboratuvar Uzmanı"
+        ],
+        [
+          "İşe Giriş Tarihi",
+          "03.04.2019",
+          "Kalan İzin Hakkı",
+          "17 gün"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "İzin Türü",
+          "Başlangıç Tarihi",
+          "Bitiş Tarihi",
+          "İşe Başlama Tarihi",
+          "Gün Sayısı"
+        ],
+        [
+          "Yıllık ücretli izin",
+          "16.11.2026",
+          "27.11.2026",
+          "30.11.2026",
+          "10 iş günü"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "",
+          "Talep Eden Personel",
+          "Birim Yöneticisi",
+          "İnsan Kaynakları"
+        ],
+        [
+          "Adı Soyadı",
+          "Elif Karaca",
+          "Murat Demirtaş",
+          "Seda Aksoy"
+        ],
+        [
+          "Tarih",
+          "20.10.2026",
+          "21.10.2026",
+          "22.10.2026"
+        ],
+        [
+          "İmza",
+          "",
+          "",
+          ""
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "• İzin talepleri, izin başlangıç tarihinden en az 15 gün önce İnsan Kaynakları Müdürlüğüne iletilmelidir."
+    },
+    {
+      "level": 0,
+      "text": "• Yıllık izin, 4857 sayılı İş Kanunu ve şirket izin yönetmeliği hükümlerine göre kullandırılır."
+    },
+    {
+      "level": 0,
+      "text": "• Onaylanmamış izin kullanımı devamsızlık olarak değerlendirilir."
+    },
+    {
+      "level": 0,
+      "text": "• Formun eksiksiz doldurulması talep eden personelin sorumluluğundadır."
+    }
+  ],
+  "furniture": [
+    "Bu form elektronik ortamda saklanır. Islak imzalı aslı İK arşivinde tutulur.",
+    "EKİNOVA GIDA SANAYİ A.Ş.",
+    "İnsan Kaynakları Müdürlüğü",
+    "Form No: İK-FR-012",
+    "Revizyon: 03",
+    "Yürürlük: 01.02.2026",
+    "Sayfa 1/1"
+  ],
+  "languages": [
+    "tr"
+  ],
+  "code": [],
+  "notes": "A filled-in Turkish leave-request form. The header box (company name and department on the left; form number, revision and effective date on the right) and the footer (left: archive notice; right: \"Sayfa 1/1\") are furniture. Section titles \"1. Personel Bilgileri\" etc. are level-2 headings and carry their typed numbers. The personnel table is a full-grid key/value table of three rows with two label/value pairs each (no header row); the leave table has a header row and one data row; the approval table has an empty top-left header cell and an empty signature row. The address/telephone line and the travel-leave line with two drawn check boxes (\"Var\", \"Yok\", the second filled) are body text, not list items. The notes list (section 4) uses typed bullet characters \"•\" with a hanging indent."
+}

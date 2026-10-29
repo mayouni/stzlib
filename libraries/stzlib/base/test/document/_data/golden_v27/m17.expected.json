@@ -1,0 +1,202 @@
+{
+  "id": "m17",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "2026년 하반기 직무교육 운영 계획",
+  "headings": [
+    {
+      "level": 1,
+      "text": "2026년 하반기 직무교육 운영 계획"
+    },
+    {
+      "level": 2,
+      "text": "1. 추진 배경"
+    },
+    {
+      "level": 2,
+      "text": "2. 교육 개요"
+    },
+    {
+      "level": 2,
+      "text": "3. 세부 교육 과정"
+    },
+    {
+      "level": 2,
+      "text": "4. 운영 방법"
+    },
+    {
+      "level": 2,
+      "text": "5. 소요 예산"
+    },
+    {
+      "level": 2,
+      "text": "6. 행정 사항"
+    }
+  ],
+  "key_sentences": [
+    "생산 설비의 자동화가 확대됨에 따라 현장 인력의 설비 운영 및 데이터 분석 역량을 강화할 필요가 있습니다.",
+    "또한 상반기 교육 만족도 조사에서 실습 중심 과정을 늘려 달라는 의견이 많았습니다.",
+    "교육 시간은 근무 시간으로 인정되며, 집합교육 참가자에게는 중식이 제공됩니다.",
+    "부득이하게 불참하는 경우에는 교육 시작 3일 전까지 인사팀에 알려 주시기 바랍니다.",
+    "문의 사항은 인사팀 교육파트(내선 2214)로 연락해 주시기 바랍니다."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "문서번호",
+          "인사-2026-031",
+          "작성일",
+          "2026. 10. 12."
+        ],
+        [
+          "작성부서",
+          "인사팀 교육파트",
+          "보존기간",
+          "3년"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "구분",
+          "과정명",
+          "대상",
+          "시간",
+          "방식"
+        ],
+        [
+          "직무 필수",
+          "설비 예방정비 기초",
+          "설비 부문 신입",
+          "16시간",
+          "집합"
+        ],
+        [
+          "직무 필수",
+          "품질관리 통계 실무",
+          "품질 부문 전원",
+          "12시간",
+          "집합"
+        ],
+        [
+          "직무 필수",
+          "산업안전 법정교육",
+          "전 직원",
+          "8시간",
+          "온라인"
+        ],
+        [
+          "역량 강화",
+          "생산 데이터 분석 입문",
+          "희망자 (40명)",
+          "20시간",
+          "집합+온라인"
+        ],
+        [
+          "역량 강화",
+          "현장 리더십 과정",
+          "신임 반장·조장",
+          "12시간",
+          "집합"
+        ],
+        [
+          "합계",
+          "합계",
+          "합계",
+          "68시간",
+          ""
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "항목",
+          "금액(원)",
+          "비고"
+        ],
+        [
+          "외부 강사료",
+          "14,400,000",
+          "48시간 × 300,000원"
+        ],
+        [
+          "교재 및 실습 재료비",
+          "5,580,000",
+          "186명 × 30,000원"
+        ],
+        [
+          "온라인 콘텐츠 이용료",
+          "3,720,000",
+          "186명 × 20,000원"
+        ],
+        [
+          "합계",
+          "23,700,000",
+          ""
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "가. 기간: 2026년 11월 2일 ~ 12월 18일 (7주)"
+    },
+    {
+      "level": 0,
+      "text": "나. 대상: 생산·품질·설비 부문 직원 186명"
+    },
+    {
+      "level": 0,
+      "text": "다. 장소: 본사 교육센터 및 온라인 학습관"
+    },
+    {
+      "level": 0,
+      "text": "라. 방법: 집합교육과 온라인 과정 병행"
+    },
+    {
+      "level": 0,
+      "text": "가. 신청 절차"
+    },
+    {
+      "level": 1,
+      "text": "1) 각 부서장은 10월 23일까지 교육 대상자 명단을 인사팀에 제출합니다."
+    },
+    {
+      "level": 1,
+      "text": "2) 인사팀은 10월 28일까지 과정별 배정 결과를 안내합니다."
+    },
+    {
+      "level": 0,
+      "text": "나. 이수 기준"
+    },
+    {
+      "level": 1,
+      "text": "1) 집합교육: 출석률 80% 이상"
+    },
+    {
+      "level": 1,
+      "text": "2) 온라인 과정: 진도율 100% 및 평가 60점 이상"
+    },
+    {
+      "level": 2,
+      "text": "가) 평가는 과정 종료 후 1주일 이내에 응시해야 합니다."
+    }
+  ],
+  "furniture": [
+    "새솔소재 주식회사 인사팀",
+    "- 1 -",
+    "- 2 -"
+  ],
+  "languages": [
+    "ko"
+  ],
+  "code": [],
+  "notes": "Korean internal plan. Running header (team name, top right) and the page number \"- n -\" are furniture. Lines break only at spaces (word-break: keep-all), so a wrapped line joins with a space where the text has one. Headings carry their typed numbers (\"1.\", \"2.\"). Lists use the Korean hierarchy of typed markers with hanging indents: \"가.\", \"나.\" at the first level, \"1)\", \"2)\" at the second and \"가)\" at the third. The document-control panel is a ruled key/value table with no header (two rows of two pairs). The course table has a full grid with category cells spanning three and two rows and a total row whose label spans three columns (last cell empty). The budget table has a rule under the header and above the total only. The closing \"끝.\" is body text."
+}

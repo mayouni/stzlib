@@ -1,0 +1,81 @@
+{
+  "id": "m23",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "ประกาศ เรื่อง การปิดปรับปรุงระบบน้ำประปาและลิฟต์โดยสาร",
+  "headings": [
+    {
+      "level": 1,
+      "text": "ประกาศ เรื่อง การปิดปรับปรุงระบบน้ำประปาและลิฟต์โดยสาร"
+    }
+  ],
+  "key_sentences": [
+    "ด้วยนิติบุคคลอาคารชุดมีกำหนดดำเนินการบำรุงรักษาระบบน้ำประปาและลิฟต์โดยสารประจำปี เพื่อให้ระบบต่าง ๆ ใช้งานได้อย่างปลอดภัยและมีประสิทธิภาพ",
+    "นิติบุคคลอาคารชุดขออภัยในความไม่สะดวกมา ณ โอกาสนี้",
+    "หากมีข้อสงสัยกรุณาติดต่อสำนักงานนิติบุคคลในวันและเวลาทำการ",
+    "จึงประกาศมาเพื่อทราบโดยทั่วกัน"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "วันที่",
+          "เวลา",
+          "อาคาร",
+          "รายการ"
+        ],
+        [
+          "วันเสาร์ที่ 7 พฤศจิกายน 2569",
+          "09.00–15.00 น.",
+          "อาคาร A",
+          "ปิดน้ำประปาเพื่อล้างถังเก็บน้ำบนดาดฟ้า"
+        ],
+        [
+          "วันอาทิตย์ที่ 8 พฤศจิกายน 2569",
+          "09.00–15.00 น.",
+          "อาคาร B",
+          "ปิดน้ำประปาเพื่อล้างถังเก็บน้ำบนดาดฟ้า"
+        ],
+        [
+          "วันจันทร์ที่ 9 ถึงวันพุธที่ 11 พฤศจิกายน 2569",
+          "10.00–16.00 น.",
+          "อาคาร A และ B",
+          "ปิดลิฟต์ตัวที่ 2 เพื่อเปลี่ยนสลิงและระบบเบรก"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "๑. กรุณาสำรองน้ำไว้ใช้ล่วงหน้าก่อนวันปิดน้ำ"
+    },
+    {
+      "level": 0,
+      "text": "๒. ในช่วงปิดลิฟต์ ขอความร่วมมือใช้ลิฟต์ตัวที่ 1 หรือบันไดหนีไฟ"
+    },
+    {
+      "level": 0,
+      "text": "๓. หากมีผู้สูงอายุหรือผู้ป่วยที่ต้องการความช่วยเหลือในการขนย้ายสิ่งของ โปรดแจ้งสำนักงานนิติบุคคลภายในวันที่ 5 พฤศจิกายน 2569 ได้ ๒ ช่องทาง ดังนี้"
+    },
+    {
+      "level": 1,
+      "text": "ก. ทางโทรศัพท์ หมายเลข 02-555-0172"
+    },
+    {
+      "level": 1,
+      "text": "ข. ทางไลน์ทางการของอาคาร"
+    }
+  ],
+  "furniture": [
+    "นิติบุคคลอาคารชุด บ้านสวนริมคลอง",
+    "เลขที่ 88 ถนนประชาร่วมใจ แขวงคลองสาม เขตบางกะปิ กรุงเทพมหานคร 10240",
+    "หน้า ๑/๑"
+  ],
+  "languages": [
+    "th"
+  ],
+  "code": [],
+  "notes": "Thai announcement. Thai is written without spaces between words; spaces separate phrases and sentences and are kept as typed, and a line wrapped inside a phrase joins with no space. Thai sentences have no final punctuation. Letterhead (juristic-person name and address line) and the page number \"หน้า ๑/๑\" in Thai digits are furniture. The title has two lines (\"ประกาศ\" and the subject line), joined by a space. Years are in the Buddhist era (2569 = 2026). The salutation line and the bold label above the list are body text. The schedule table has a full grid; the time cell and the task cell of the water-tank rows each span two rows. The list uses typed Thai-digit markers \"๑.\", \"๒.\", \"๓.\" with hanging indents and a nested level of typed Thai-letter markers \"ก.\", \"ข.\". The signature block is body text."
+}
