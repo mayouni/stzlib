@@ -3157,6 +3157,80 @@ fn findTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.ArrayList
                 rows[ri][ci] = if (cells[k].items.len > 0) cells[k].items else gtext[Find.f(cg, @intCast(k))];
             }
         }
+        // a grid ruled between its columns but not between its body rows holds several rows in one grid row: when
+        // three baselines or more run across it and most carry cells in two columns or more, each is a row
+        // (a quotation's items, "1 2 3 4 5" stacked in one cell before)
+        {
+            const tix: i32 = @intCast(tables.items.len);
+            var out_rows: std.ArrayList([][]const u8) = .empty;
+            for (0..nr) |ri| {
+                var bases: std.ArrayList(f32) = .empty;
+                for (frags) |f| {
+                    if (f.table != tix or f.text.len == 0) continue;
+                    const my = (f.y0 + f.y1) / 2;
+                    if (my <= cy[ri] or my >= cy[ri + 1]) continue;
+                    var seen = false;
+                    for (bases.items) |bb| {
+                        if (@abs(bb - f.base) <= 0.3 * f.size) seen = true;
+                    }
+                    if (!seen) try bases.append(a, f.base);
+                }
+                var split = false;
+                if (bases.items.len >= 3) {
+                    var wide: usize = 0;
+                    for (bases.items) |bb| {
+                        var cols_on = try a.alloc(bool, nc);
+                        @memset(cols_on, false);
+                        for (frags) |f| {
+                            if (f.table != tix or f.text.len == 0 or @abs(f.base - bb) > 0.3 * f.size) continue;
+                            const my = (f.y0 + f.y1) / 2;
+                            if (my <= cy[ri] or my >= cy[ri + 1]) continue;
+                            const mx = (f.x0 + f.x1) / 2;
+                            var ci: usize = 0;
+                            while (ci + 1 < cx.len and mx > cx[ci + 1]) ci += 1;
+                            if (ci < nc) cols_on[ci] = true;
+                        }
+                        var nn: usize = 0;
+                        for (cols_on) |o| {
+                            if (o) nn += 1;
+                        }
+                        // (a row fills most columns; a wrapped cell's second line fills one or two)
+                        if (nn >= 2 and nn * 10 >= nc * 6) wide += 1;
+                    }
+                    // (and only for a grid row far taller than the grid's others -- the body of a grid ruled between
+                    //  its columns but not its rows; in a grid ruled under every row, the rows are of a height)
+                    const hts = try a.alloc(f32, nr);
+                    for (0..nr) |q| hts[q] = cy[q + 1] - cy[q];
+                    std.mem.sort(f32, hts, {}, std.sort.asc(f32));
+                    const med_h = hts[nr / 2];
+                    split = wide + 1 >= bases.items.len and cy[ri + 1] - cy[ri] >= 2.5 * med_h;
+                }
+                if (!split) {
+                    try out_rows.append(a, rows[ri]);
+                    continue;
+                }
+                std.mem.sort(f32, bases.items, {}, std.sort.asc(f32));
+                for (bases.items) |bb| {
+                    var sub = try a.alloc(std.ArrayList(u8), nc);
+                    for (sub) |*c| c.* = .empty;
+                    for (frags) |f| {
+                        if (f.table != tix or f.text.len == 0 or @abs(f.base - bb) > 0.3 * f.size) continue;
+                        const my = (f.y0 + f.y1) / 2;
+                        if (my <= cy[ri] or my >= cy[ri + 1]) continue;
+                        const mx = (f.x0 + f.x1) / 2;
+                        var ci: usize = 0;
+                        while (ci + 1 < cx.len and mx > cx[ci + 1]) ci += 1;
+                        if (ci >= nc) continue;
+                        if (sub[ci].items.len > 0) try sub[ci].append(a, ' ');
+                        try sub[ci].appendSlice(a, f.text);
+                    }
+                    var row = try a.alloc([]const u8, nc);
+                    for (sub, 0..) |c, ci| row[ci] = c.items;
+                    try out_rows.append(a, row);
+                }
+            }
+            rows = out_rows.items;
+        }
         var bands = try a.alloc([2]f32, nc);
         for (0..nc) |ci| bands[ci] = .{ cx[ci], cx[ci + 1] };
         // the table ends at its last horizontal rule: column rules running on below it frame rows the grid
