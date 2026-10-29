@@ -5529,7 +5529,8 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
                 for (bands, 0..) |g, bj| {
                     if (bi == bj or !nearrow[bj] or @abs(g.x0 - f.x0) > 3 or @abs(g.x1 - f.x1) > 3) continue;
                     const gap = if (g.y0 >= f.y1) g.y0 - f.y1 else if (f.y0 >= g.y1) f.y0 - g.y1 else 0;
-                    if (gap <= 1.6 * @max(f.y1 - f.y0, g.y1 - g.y0)) run = true;
+                    // (an unshaded row between two bands may hold two lines: the gap is then nearly two bands tall)
+                    if (gap <= 2.6 * @max(f.y1 - f.y0, g.y1 - g.y0)) run = true;
                 }
                 if (!run) continue;
                 try lad.append(a, .{ .x0 = f.x0, .x1 = f.x1, .y0 = f.y0, .y1 = f.y0 });
