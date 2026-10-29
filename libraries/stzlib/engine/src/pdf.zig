@@ -3231,6 +3231,46 @@ fn findLadderTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.Arr
         const lx0 = r0.x0;
         const lx1 = r0.x1;
         var msz: f32 = 0;
+        // a section row drawn with no rule under it shares its band with the row below: a lone bold label over a
+        // line of cells is split from it at the gap between them ("Eritrograma" over "Hemácias 4,21 ...")
+        {
+            var bk: usize = 0;
+            while (bk + 1 < ys.items.len) : (bk += 1) {
+                const y0 = ys.items[bk];
+                const y1 = ys.items[bk + 1];
+                var top_base: f32 = 1e9;
+                for (frags) |g| {
+                    const cx = (g.x0 + g.x1) / 2;
+                    const cy = (g.y0 + g.y1) / 2;
+                    if (g.text.len == 0 or cx < lx0 or cx > lx1 or cy < y0 or cy > y1) continue;
+                    top_base = @min(top_base, g.base);
+                }
+                if (top_base > 1e8) continue;
+                var n_top: usize = 0;
+                var top_bold = true;
+                var top_y1: f32 = -1e9;
+                var n_low: usize = 0;
+                var low_y0: f32 = 1e9;
+                for (frags) |g| {
+                    const cx = (g.x0 + g.x1) / 2;
+                    const cy = (g.y0 + g.y1) / 2;
+                    if (g.text.len == 0 or cx < lx0 or cx > lx1 or cy < y0 or cy > y1) continue;
+                    if (@abs(g.base - top_base) <= 0.3 * g.size) {
+                        n_top += 1;
+                        if (!g.bold) top_bold = false;
+                        top_y1 = @max(top_y1, g.y1);
+                    } else {
+                        n_low += 1;
+                        low_y0 = @min(low_y0, g.y0);
+                    }
+                }
+                if (n_top == 1 and top_bold and n_low >= 2 and low_y0 > top_y1) {
+                    try ys.insert(a, bk + 1, (top_y1 + low_y0) / 2);
+                    try yi.insert(a, bk + 1, std.math.maxInt(usize)); // (no rule of the page)
+                    bk += 1;
+                }
+            }
+        }
         // a heading's underline is not a row rule, nor is the next table's top rule: a band holding one cell, all
         // bold or set larger than the cells (or set further apart than the rows), is a heading -- the ladder is the
         // first run of three bands or more without one, and the rules after it go back for the next table
@@ -3318,7 +3358,9 @@ fn findLadderTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.Arr
             }
             if (!found) continue;
             // (the rules below the run are free for a ladder of their own)
-            for (yi.items[re + 1 ..]) |ri| used[ri] = false;
+            for (yi.items[re + 1 ..]) |ri| {
+                if (ri < used.len) used[ri] = false;
+            }
             ys.items = ys.items[rs .. re + 1];
             // a zebra table's last row, unshaded, has no edge below it: the line just under the last edge, its
             // cells in two columns or more and no further than a row, is a row of the table
