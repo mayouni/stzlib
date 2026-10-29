@@ -3572,7 +3572,12 @@ fn findLadderTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.Arr
                 for (0..maxc) |ci| {
                     if (!(sp.x1 <= bounds[ci] or sp.x0 >= bounds[ci + 1])) ncov += 1;
                 }
-                break :blk ncov >= 2;
+                // (or a lone bold label, every other cell of the row empty: "Hemogram")
+                var all_bold = true;
+                for (b.items) |k| {
+                    if (!frags[k].bold) all_bold = false;
+                }
+                break :blk ncov >= 2 or (all_bold and maxc >= 3);
             };
             for (b.items) |k| {
                 const f = &frags[k];
