@@ -1,2 +1,2 @@
 
-load "stzcore.ring"
+load "stzCore.ring"

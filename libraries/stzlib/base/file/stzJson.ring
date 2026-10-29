@@ -4,7 +4,7 @@
 	Engine-backed utility functions (StzJsonIsValid, StzJsonPretty, etc.)
 */
 
-load "stzjsonfuncs.ring"
+load "stzJsonFuncs.ring"
 
 func StzJsonQ(p)
 	return new stzJson(p)
