@@ -1079,7 +1079,7 @@ fn loadFont(d: *Doc, fd: *Dict) !*Font {
     var lower_buf: [128]u8 = undefined;
     const ln = @min(base_name.len, lower_buf.len);
     const lower = std.ascii.lowerString(lower_buf[0..ln], base_name[0..ln]);
-    if (std.mem.indexOf(u8, lower, "bold") != null or std.mem.indexOf(u8, lower, "black") != null or std.mem.indexOf(u8, lower, "heavy") != null or std.mem.indexOf(u8, lower, "semibold") != null) f.bold = true;
+    if (std.mem.indexOf(u8, lower, "bold") != null or std.mem.indexOf(u8, lower, "black") != null or std.mem.indexOf(u8, lower, "heavy") != null or std.mem.indexOf(u8, lower, "semibold") != null or std.mem.indexOf(u8, lower, "demi") != null) f.bold = true; // ("FranklinGothic-Demi" is a semibold)
     if (std.mem.indexOf(u8, lower, "italic") != null or std.mem.indexOf(u8, lower, "oblique") != null) f.italic = true;
     if (std.mem.indexOf(u8, lower, "mono") != null or std.mem.indexOf(u8, lower, "courier") != null or std.mem.indexOf(u8, lower, "consol") != null or std.mem.indexOf(u8, lower, "menlo") != null) f.mono = true;
     // a Type3 font gives its widths in glyph units, turned into text space by its own FontMatrix (Chrome draws
