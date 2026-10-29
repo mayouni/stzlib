@@ -568,6 +568,25 @@ Scenario("Thai headings, markers in any script's digits, CJK markers, and tables
 	Then("a group label over two columns makes a two-row header", @@(aT[1]), @@([ "Lp.", "Parametr", "Jednostka", "Wynik ± U", "Wymagania", "Wymagania", "Metoda badawcza" ]))
 EndScenario()
 
+# ---- the twenty-second round: zebra tables, letterheads, markers in a document's own letters (golden_v15, v20, v22)
+
+Scenario("Zebra tables, letterheads over a smaller title, and markers in a document's own letters")
+	o = StzPdfQ("_data/golden_v22/e10.pdf")
+	aT = o.Tables()
+	Then("a zebra table, its rows bounded by the shaded bands", @@(aT[1][3]), @@([ "08:30–09:15", "Registration and coffee", "Atrium" ]))
+	Then("and its last, unshaded row is kept", @@(aT[1][len(aT[1])]), @@([ "15:30–16:00", "Closing remarks and prize draw", "Lecture Theatre" ]))
+	Then("the sidebar beside it is a table of its own", @@(aT[2][1]), @@([ "Registration desk", "ext. 210" ]))
+	Then("a heading over each of several tables in a column stays a heading", StzFindFirst("100 m damer (vind −0,4)", "" + @@(StzPdfQ("_data/golden_v15/x22.pdf").Headings())) > 0, 1)
+	o = StzPdfQ("_data/golden_v22/e08.pdf")
+	Then("a letter-spaced CJK title is one heading", StzFindFirst("采购订单", "" + @@(o.Headings())) > 0, 1)
+	Then("and the letterhead above it is furniture", StzFindFirst("瑞丰机电设备（苏州）有限公司", "" + @@(o.Furniture())) > 0, 1)
+	Then("a letterhead's name set larger than the title is furniture", StzFindFirst("सरस्वती विद्या निकेतन", "" + @@(StzPdfQ("_data/golden_v22/e14.pdf").Furniture())) > 0, 1)
+	Then("a Korean letter marker", StzFindFirst("가. 납품 기한", "" + @@(StzPdfQ("_data/golden_v22/e17.pdf").ListItems())) > 0, 1)
+	Then("a Thai letter marker under a Thai-digit item", StzFindFirst("ก. ทางโทรศัพท์", "" + @@(StzPdfQ("_data/golden_v22/e24.pdf").ListItems())) > 0, 1)
+	Then("a katakana marker standing apart", StzFindFirst("ア 私物のUSBメモリ", "" + @@(StzPdfQ("_data/golden_v22/e05.pdf").ListItems())) > 0, 1)
+	Then("but a letter-spaced title opening on katakana keeps its spelling", StzFindFirst("ダイヤ改正のお知らせ", "" + @@(StzPdfQ("_data/golden_v20/c06.pdf").Headings())) > 0, 1)
+EndScenario()
+
 Scenario("A file that is not a readable PDF is refused with the reason")
 	bRaised = 0
 	cWhy = ""
