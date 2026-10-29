@@ -3210,7 +3210,9 @@ fn findLadderTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.Arr
                     if (!g.bold) all_bold = false;
                     if (g.size < 1.1 * msz) big = false;
                 }
-                head[bk] = n > 0 and spans <= 1 and (all_bold or big or ys.items[bk + 1] - ys.items[bk] > 1.3 * med);
+                // (a bold section row of the cells' size, at the rows' own spacing, is a row: "ATIVO")
+                const hgt = ys.items[bk + 1] - ys.items[bk];
+                head[bk] = n > 0 and spans <= 1 and ((all_bold and hgt > 1.1 * med) or big or hgt > 1.3 * med);
                 // (a tall band whose top line is a lone bold line at the table's left edge holds the NEXT table's
                 //  heading over its header row: the ladder breaks there)
                 if (!head[bk] and n > 1 and ys.items[bk + 1] - ys.items[bk] > 1.5 * med) {
@@ -3318,8 +3320,9 @@ fn findLadderTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.Arr
             // (and a table read line by line inside a ladder whose rows are nearly all of several lines -- cells of two
             //  lines beside cells centred between them -- gives way: the rules say where each row ends)
             var tall_rows = false;
+            var clean = true; // (no band could be two rows merged by a missing rule)
+            var nb_ne: usize = 0;
             {
-                var nb_ne: usize = 0;
                 var nb_multi: usize = 0;
                 for (0..nb) |bk| {
                     var bases: std.ArrayList(f32) = .empty;
@@ -3354,13 +3357,20 @@ fn findLadderTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.Arr
                         maxl = @max(maxl, nl);
                     }
                     if (bases.items.len >= 2 and minl == 1 and maxl >= 2) nb_multi += 1;
+                    if (bases.items.len >= 2 and !(minl == 1 and maxl >= 2)) clean = false;
                 }
                 tall_rows = nb_ne >= 3 and nb_multi * 4 >= nb_ne * 3;
             }
-            for (hit.items) |ti| {
+            // (all or nothing: a table that keeps its place makes the ladder give way, and then none is dissolved)
+            var gives = try a.alloc(bool, hit.items.len);
+            var all_give = true;
+            for (hit.items, 0..) |ti, hk| {
                 const t = tables.items[ti];
                 const inside = t.x0 >= lx0 - 5 and t.x1 <= lx1 + 5 and t.y0 >= ys.items[0] - 3 * msz and t.y1 <= ys.items[nb] + 3;
-                if (t.ruled or !(t.x0 < lx0 - 2 * msz or t.x1 > lx1 + 2 * msz or (tall_rows and inside and t.rows.len > nb))) continue;
+                gives[hk] = true;
+                // (or a clean ladder holding more rows than the table read inside it: its header and first
+                //  section rows were left out)
+                if (t.ruled or !(t.x0 < lx0 - 2 * msz or t.x1 > lx1 + 2 * msz or (tall_rows and inside and t.rows.len > nb) or (clean and inside and t.rows.len + 1 < nb_ne))) gives[hk] = false;
                 // (two tables side by side, read as one: its header is the same header twice, and it is split later)
                 if (t.rows.len > 0 and t.rows[0].len >= 4 and t.rows[0].len % 2 == 0) {
                     const h = t.rows[0].len / 2;
@@ -3368,8 +3378,12 @@ fn findLadderTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.Arr
                     for (0..h) |q| {
                         if (!eq(t.rows[0][q], t.rows[0][q + h])) twice = false;
                     }
-                    if (twice) continue;
+                    if (twice) gives[hk] = false;
                 }
+                if (!gives[hk]) all_give = false;
+            }
+            for (hit.items) |ti| {
+                if (!all_give) break;
                 tables.items[ti].rows = &.{};
                 for (frags, 0..) |*f, fk| {
                     if (f.table == @as(i32, @intCast(ti))) {
