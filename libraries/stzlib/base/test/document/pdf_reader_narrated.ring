@@ -643,6 +643,16 @@ Scenario("A grid with a bold header takes nothing from above, and a letter-space
 	Then("a grid whose first row is a bold header starts at that header", aT[len(aT)][1][1], "Sample ref.")
 EndScenario()
 
+# ---- the twenty-eighth round: grids ruled between columns only, section rows without a rule, letterheads (golden_v28)
+
+Scenario("A grid ruled between its columns only, and a letterhead address under its name")
+	o = StzPdfQ("_data/golden_v28/n17.pdf")
+	aT = o.Tables()
+	Then("a grid with no rules between its items holds a row per item", @@(aT[2][2]), @@([ "1", "กระดาษถ่ายเอกสาร A4 80 แกรม", "60", "รีม", "125.00", "7,500.00" ]))
+	Then("and its last item is a row of its own", aT[2][6][1], "5")
+	Then("a letterhead's address under its name, beside the title, is letterhead", StzFindFirst("88/14 ถนนมิตรภาพ", "" + @@(o.Furniture())) > 0, 1)
+EndScenario()
+
 Scenario("A file that is not a readable PDF is refused with the reason")
 	bRaised = 0
 	cWhy = ""
