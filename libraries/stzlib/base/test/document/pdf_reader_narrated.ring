@@ -634,6 +634,15 @@ Scenario("A browser's synthetic bold, short bold letterhead names, and columns r
 	Then("a statement whose debit and credit never share a row takes its columns from the header", @@(StzPdfQ("_data/golden_v26/k06.pdf").Tables()[1][2]), @@([ "01/09", "01/09", "RECIBO COMUNIDAD DE PROPIETARIOS C/ Almendros 12 · Septiembre", "85,00", "", "3.327,58" ]))
 EndScenario()
 
+# ---- the twenty-seventh round: grids that keep their own header, letter-spaced CJK titles (golden_v26, v27)
+
+Scenario("A grid with a bold header takes nothing from above, and a letter-spaced CJK title is one word")
+	Then("a letter-spaced CJK title is one word", StzFindFirst("御見積書", "" + @@(StzPdfQ("_data/golden_v27/m05.pdf").Headings())) > 0, 1)
+	Then("but its spaced letters are no heading of their own", StzFindFirst("御 見", "" + @@(StzPdfQ("_data/golden_v27/m05.pdf").Headings())), 0)
+	aT = StzPdfQ("_data/golden_v26/k16.pdf").Tables()
+	Then("a grid whose first row is a bold header starts at that header", aT[len(aT)][1][1], "Sample ref.")
+EndScenario()
+
 Scenario("A file that is not a readable PDF is refused with the reason")
 	bRaised = 0
 	cWhy = ""
