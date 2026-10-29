@@ -4111,10 +4111,61 @@ fn findAlignedTablesIn(a: Allocator, frags: []Frag, lane0: f32, lane1: f32, tabl
 // of a borderless table, even when it shares a baseline with one in the next column.
 fn isProseLine(frags: []Frag, f: Frag) bool {
     if (isLongProse(frags, f)) return true;
+    if (inNarrowParagraph(frags, f)) return true;
     // the last line of a paragraph: right under a long prose line that starts where it starts
     for (frags) |o| {
         if (o.text.len == 0) continue;
-        if (@abs(o.x0 - f.x0) < 2 and o.y1 <= f.y0 + 1 and f.y0 - o.y1 < 0.8 * f.size and isLongProse(frags, o)) return true;
+        if (@abs(o.x0 - f.x0) < 2 and o.y1 <= f.y0 + 1 and f.y0 - o.y1 < 0.8 * f.size and (isLongProse(frags, o) or inNarrowParagraph(frags, o))) return true;
+    }
+    return false;
+}
+
+fn startsLower(t: []const u8) bool {
+    var view = std.unicode.Utf8View.init(t) catch return false;
+    var it = view.iterator();
+    const c = it.nextCodepoint() orelse return false;
+    if (c < 0x80) return std.ascii.isLower(@intCast(c));
+    // (a lower-case letter of Latin, Greek or Cyrillic: its upper-case form differs)
+    return (c >= 0xDF and c <= 0xFF and c != 0xF7) or (c >= 0x3B1 and c <= 0x3C9) or (c >= 0x430 and c <= 0x45F);
+}
+
+fn inNarrowParagraph(frags: []Frag, f: Frag) bool {
+    // a line of a narrow paragraph -- a column beside a floated table: three lines or more of five words or more,
+    // one under the other from the same left edge, set at the leading of a paragraph (a table's rows carry
+    // padding) and running on from line to line (a line starting in lower case continues a sentence; a table's
+    // next row starts an item of its own)
+    if (proseWords(f.text) >= 5) {
+        var above: ?Frag = f;
+        var below: ?Frag = f;
+        var n: usize = 1;
+        var runs_on: usize = 0;
+        var step: usize = 0;
+        while (step < 2) : (step += 1) {
+            var na: ?Frag = null;
+            var nbl: ?Frag = null;
+            for (frags) |o| {
+                if (o.text.len == 0 or @abs(o.x0 - f.x0) >= 2 or proseWords(o.text) < 5) continue;
+                if (above) |u| if (o.y1 <= u.y0 + 1 and u.y0 - o.y1 < 0.45 * f.size) {
+                    na = o;
+                };
+                if (below) |d| if (o.y0 >= d.y1 - 1 and o.y0 - d.y1 < 0.45 * f.size) {
+                    nbl = o;
+                };
+            }
+            if (na != null) {
+                n += 1;
+                if (above) |u| if (startsLower(u.text)) {
+                    runs_on += 1;
+                };
+            }
+            if (nbl) |d| {
+                n += 1;
+                if (startsLower(d.text)) runs_on += 1;
+            }
+            above = na;
+            below = nbl;
+        }
+        if (n >= 3 and runs_on >= 1) return true;
     }
     return false;
 }
