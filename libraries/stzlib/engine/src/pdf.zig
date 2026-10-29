@@ -1150,6 +1150,7 @@ const GState = struct {
     tl: f64 = 0,
     rise: f64 = 0,
     tr: u8 = 0, // text render mode; 2 = fill and stroke, how a browser draws a bold it has no face for
+    fill_white: bool = false, // the non-stroking colour is white (a white band behind a row is no band)
 };
 
 // An open marked-content span: its ActualText (null when none), the glyph count at its start, and the extent of
@@ -1168,6 +1169,7 @@ const Interp = struct {
     glyphs: *std.ArrayList(Glyph),
     rules: *std.ArrayList(Rule),
     dots: *std.ArrayList(Rule),
+    fills: *std.ArrayList(Rule),
     text: *std.ArrayList(u8),
     fonts: *std.AutoHashMapUnmanaged(usize, *Font),
     page_top: f64,
@@ -1289,6 +1291,20 @@ const Interp = struct {
         }
         it.pb = .{ 1e18, 1e18, -1e18, -1e18 };
         it.curved = false;
+        if (keep and fill and !it.gs.fill_white) {
+            for (it.path.items) |r| {
+                const w = @abs(r[2] - r[0]);
+                const h = @abs(r[3] - r[1]);
+                if (w >= 20 and h >= 5 and h <= 80) {
+                    try it.fills.append(it.a, .{
+                        .x0 = @floatCast(@min(r[0], r[2]) - it.page_left),
+                        .x1 = @floatCast(@max(r[0], r[2]) - it.page_left),
+                        .y0 = @floatCast(it.page_top - @max(r[1], r[3])),
+                        .y1 = @floatCast(it.page_top - @min(r[1], r[3])),
+                    });
+                }
+            }
+        }
         if (keep) {
             for (it.path.items) |r| {
                 const x0 = @min(r[0], r[2]);
@@ -1440,6 +1456,18 @@ const Interp = struct {
                         else => {},
                     };
                 }
+            } else if (eq(op, "rg") or eq(op, "g") or eq(op, "k") or eq(op, "sc") or eq(op, "scn")) {
+                var white = n.len > 0;
+                var nn: usize = 0;
+                for (n) |v| {
+                    if (v != .num) continue;
+                    nn += 1;
+                    const c = nv(v);
+                    if (eq(op, "k")) {
+                        if (c > 0.02) white = false;
+                    } else if (c < 0.98) white = false;
+                }
+                it.gs.fill_white = white and nn > 0;
             } else if (eq(op, "re")) {
                 if (n.len >= 4) {
                     const x = nv(n[0]);
@@ -2562,7 +2590,7 @@ fn persianDigits(a: Allocator, t: []const u8) ![]const u8 {
     return if (changed) out.items else t;
 }
 
-const Page = struct { glyphs: []Glyph, rules: []Rule, dots: []Rule, width: f32, height: f32 };
+const Page = struct { glyphs: []Glyph, rules: []Rule, dots: []Rule, fills: []Rule = &.{}, width: f32, height: f32 };
 
 fn trimSpace(t: []const u8) []const u8 {
     var s0: usize = 0;
@@ -2929,7 +2957,7 @@ fn makeFrag(a: Allocator, gl: []Glyph, ids_in: []u32, text: []const u8, page_no:
 }
 
 // A table: a region boxed by ruling lines that holds several fragments on several rows. Cells come from the rulings.
-const TableOut = struct { x0: f32, y0: f32, x1: f32, y1: f32, rows: [][][]const u8, size: f32, cols: [][2]f32 = &.{} };
+const TableOut = struct { x0: f32, y0: f32, x1: f32, y1: f32, rows: [][][]const u8, size: f32, cols: [][2]f32 = &.{}, ruled: bool = false };
 
 fn clusterVals(a: Allocator, vals: []f32, tol: f32) ![]f32 {
     std.mem.sort(f32, vals, {}, std.sort.asc(f32));
@@ -3073,7 +3101,7 @@ fn findTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.ArrayList
         // the table ends at its last horizontal rule: column rules running on below it frame rows the grid
         // does not hold (a timetable ruled only in its header), which another table may take
         const tbot = @min(by1, cy[cy.len - 1] + 1);
-        try tables.append(a, .{ .x0 = bx0, .y0 = by0, .x1 = bx1, .y1 = tbot, .rows = rows, .size = size, .cols = bands });
+        try tables.append(a, .{ .x0 = bx0, .y0 = by0, .x1 = bx1, .y1 = tbot, .rows = rows, .size = size, .cols = bands, .ruled = true });
     }
 }
 
@@ -3081,12 +3109,13 @@ fn findTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.ArrayList
 // (so a cell of two lines, or a cell centred across two columns, stays in its row). The columns are read off the
 // rows that hold the most cells; a cell that crosses a column boundary spans the columns it covers and repeats
 // its text in each. A row above the first rule whose cells fall in two columns or more is the header.
-fn findLadderTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.ArrayList(TableOut)) !void {
+fn findLadderTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.ArrayList(TableOut)) ![]u32 {
+    var released: std.ArrayList(u32) = .empty;
     var segs: std.ArrayList(Rule) = .empty;
     for (rules) |r| {
         if (r.y1 - r.y0 <= 2.5 and r.x1 - r.x0 > 2.5) try segs.append(a, r);
     }
-    if (segs.items.len < 4) return;
+    if (segs.items.len < 4) return &.{};
     const BySeg = struct {
         fn lt(_: void, l: Rule, r: Rule) bool {
             if (@abs(l.y0 - r.y0) > 1) return l.y0 < r.y0;
@@ -3113,7 +3142,7 @@ fn findLadderTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.Arr
             if (hs.items[k].x1 - hs.items[k].x0 < 60) _ = hs.orderedRemove(k) else k += 1;
         }
     }
-    if (hs.items.len < 4) return;
+    if (hs.items.len < 4) return &.{};
     const used = try a.alloc(bool, hs.items.len);
     @memset(used, false);
     for (hs.items, 0..) |r0, h0| {
@@ -3179,6 +3208,30 @@ fn findLadderTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.Arr
                     if (g.size < 1.1 * msz) big = false;
                 }
                 head[bk] = n > 0 and spans <= 1 and (all_bold or big or ys.items[bk + 1] - ys.items[bk] > 1.3 * med);
+                // (a tall band whose top line is a lone bold line at the table's left edge holds the NEXT table's
+                //  heading over its header row: the ladder breaks there)
+                if (!head[bk] and n > 1 and ys.items[bk + 1] - ys.items[bk] > 1.5 * med) {
+                    var top_base: f32 = 1e9;
+                    for (frags) |g| {
+                        const cx = (g.x0 + g.x1) / 2;
+                        const cy = (g.y0 + g.y1) / 2;
+                        if (g.text.len == 0 or cx < lx0 or cx > lx1 or cy < ys.items[bk] or cy > ys.items[bk + 1]) continue;
+                        top_base = @min(top_base, g.base);
+                    }
+                    var tn: usize = 0;
+                    var t_ok = true;
+                    var lower = false;
+                    for (frags) |g| {
+                        const cx = (g.x0 + g.x1) / 2;
+                        const cy = (g.y0 + g.y1) / 2;
+                        if (g.text.len == 0 or cx < lx0 or cx > lx1 or cy < ys.items[bk] or cy > ys.items[bk + 1]) continue;
+                        if (@abs(g.base - top_base) <= 0.3 * g.size) {
+                            tn += 1;
+                            if (!(g.bold or g.size >= 1.1 * msz) or g.x0 > lx0 + 1.5 * g.size) t_ok = false;
+                        } else lower = true;
+                    }
+                    if (tn == 1 and t_ok and lower) head[bk] = true;
+                }
                 if (n == 0 and (bk == 0 or bk + 1 == nb0)) head[bk] = true;
             }
             var rs: usize = 0;
@@ -3204,11 +3257,82 @@ fn findLadderTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.Arr
             // (the rules below the run are free for a ladder of their own)
             for (yi.items[re + 1 ..]) |ri| used[ri] = false;
             ys.items = ys.items[rs .. re + 1];
+            // a zebra table's last row, unshaded, has no edge below it: the line just under the last edge, its
+            // cells in two columns or more and no further than a row, is a row of the table
+            {
+                const ylast = ys.items[ys.items.len - 1];
+                var lo: f32 = 1e9;
+                var hi: f32 = -1e9;
+                var pieces: std.ArrayList([2]f32) = .empty;
+                for (frags) |g| {
+                    const cx = (g.x0 + g.x1) / 2;
+                    if (g.text.len == 0 or g.table >= 0 or cx < lx0 or cx > lx1) continue;
+                    if (g.y0 < ylast or g.y0 > ylast + 0.6 * med) continue;
+                    lo = @min(lo, g.y0);
+                    hi = @max(hi, g.y1);
+                    try pieces.append(a, .{ g.x0, g.x1 });
+                }
+                if (pieces.items.len >= 2 and hi - ylast <= 1.2 * med) {
+                    const ByX0 = struct {
+                        fn lt(_: void, l: [2]f32, r: [2]f32) bool {
+                            return l[0] < r[0];
+                        }
+                    };
+                    std.mem.sort([2]f32, pieces.items, {}, ByX0.lt);
+                    var n_sp: usize = 1;
+                    var end = pieces.items[0][1];
+                    for (pieces.items[1..]) |pc| {
+                        if (pc[0] > end + 2) n_sp += 1;
+                        end = @max(end, pc[1]);
+                    }
+                    // (and nothing runs on right under it: a row, not the first line of a paragraph)
+                    var follows = false;
+                    for (frags) |g| {
+                        const cx = (g.x0 + g.x1) / 2;
+                        if (g.text.len == 0 or cx < lx0 or cx > lx1) continue;
+                        if (g.y0 > hi and g.y0 < hi + 0.3 * med) follows = true;
+                    }
+                    if (n_sp >= 2 and !follows) try ys.append(a, hi + 2);
+                }
+            }
         }
         const nb = ys.items.len - 1;
         // the fragments of each row band; none may belong to a table already
         var bands = try a.alloc(std.ArrayList(u32), nb + 1); // band 0: a header above the first rule
         for (bands) |*b| b.* = .empty;
+        // (a table found earlier without lines that runs across the ladder's edge mixes its rows with text beside it
+        //  -- a timetable and the sidebar next to it: it gives way, and its text outside is read again)
+        {
+            var hit: std.ArrayList(usize) = .empty;
+            for (frags) |f| {
+                if (f.text.len == 0 or f.table < 0) continue;
+                const cx = (f.x0 + f.x1) / 2;
+                const cy = (f.y0 + f.y1) / 2;
+                if (cx < lx0 or cx > lx1 or cy < ys.items[0] or cy > ys.items[nb]) continue;
+                const ti: usize = @intCast(f.table);
+                if (std.mem.indexOfScalar(usize, hit.items, ti) == null) try hit.append(a, ti);
+            }
+            for (hit.items) |ti| {
+                const t = tables.items[ti];
+                if (t.ruled or !(t.x0 < lx0 - 2 * msz or t.x1 > lx1 + 2 * msz)) continue;
+                // (two tables side by side, read as one: its header is the same header twice, and it is split later)
+                if (t.rows.len > 0 and t.rows[0].len >= 4 and t.rows[0].len % 2 == 0) {
+                    const h = t.rows[0].len / 2;
+                    var twice = true;
+                    for (0..h) |q| {
+                        if (!eq(t.rows[0][q], t.rows[0][q + h])) twice = false;
+                    }
+                    if (twice) continue;
+                }
+                tables.items[ti].rows = &.{};
+                for (frags, 0..) |*f, fk| {
+                    if (f.table == @as(i32, @intCast(ti))) {
+                        f.table = -1;
+                        try released.append(a, @intCast(fk));
+                    }
+                }
+            }
+        }
         var clash = false;
         var above: std.ArrayList(u32) = .empty;
         for (frags, 0..) |f, k| {
@@ -3241,12 +3365,15 @@ fn findLadderTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.Arr
             for (above.items) |k| {
                 const f = frags[k];
                 if (f.base > ys.items[0] - 2.2 * f.size) {
+                    // (a table's title over it starts at its edge and runs across columns: not a header cell)
+                    if (f.x0 < lx0 + f.size and f.x1 - f.x0 > 0.4 * (lx1 - lx0)) continue;
                     if (low_base > 1e8 or f.base < low_base - 0.3 * f.size) lines += 1;
                     low_base = @min(low_base, f.base);
                     try bands[0].append(a, k);
                     continue;
                 }
                 if (low_base > 1e8) break;
+                if (f.x0 < lx0 + f.size) break; // (a line at the table's left edge above its header is a title)
                 const new_line = f.base < low_base - 0.3 * f.size;
                 if (new_line and (f.base < low_base - 1.6 * f.size or lines >= 3)) break;
                 if (f.x1 - f.x0 > 0.4 * (lx1 - lx0)) break;
@@ -3372,7 +3499,14 @@ fn findLadderTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.Arr
                     continue;
                 }
             }
-            const section = spans[bi].len == 1 and blk: {
+            // (a section row is a label: a lone figure, "(22,500)", is a cell of its column)
+            const lettered = blk2: {
+                for (b.items) |k| {
+                    if (hasLetter(frags[k].text)) break :blk2 true;
+                }
+                break :blk2 false;
+            };
+            const section = spans[bi].len == 1 and lettered and blk: {
                 const sp = spans[bi][0];
                 var ncov: usize = 0;
                 for (0..maxc) |ci| {
@@ -3400,6 +3534,32 @@ fn findLadderTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.Arr
         for (0..maxc) |ci| cb[ci] = .{ bounds[ci], bounds[ci + 1] };
         try tables.append(a, .{ .x0 = lx0, .y0 = ty0, .x1 = lx1, .y1 = ys.items[nb], .rows = rows.items, .size = size, .cols = cb });
     }
+    return released.items;
+}
+
+// The filled rectangles of a page joined row by row: a row's background painted one cell at a time, end to end at
+// the same height, is one band
+fn mergeFillRows(a: Allocator, fills: []Rule) ![]Rule {
+    const xs = try a.dupe(Rule, fills);
+    const ByYX = struct {
+        fn lt(_: void, l: Rule, r: Rule) bool {
+            if (@abs(l.y0 - r.y0) > 1) return l.y0 < r.y0;
+            return l.x0 < r.x0;
+        }
+    };
+    std.mem.sort(Rule, xs, {}, ByYX.lt);
+    var out: std.ArrayList(Rule) = .empty;
+    for (xs) |r| {
+        if (out.items.len > 0) {
+            const l = &out.items[out.items.len - 1];
+            if (@abs(l.y0 - r.y0) <= 1 and @abs(l.y1 - r.y1) <= 1 and r.x0 <= l.x1 + 2 and r.x0 >= l.x0) {
+                l.x1 = @max(l.x1, r.x1);
+                continue;
+            }
+        }
+        try out.append(a, r);
+    }
+    return out.items;
 }
 
 // A group label over some of a table's columns, set just above its header ("Wymagania" centred over "min." and
@@ -4974,7 +5134,8 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
         var glyphs: std.ArrayList(Glyph) = .empty;
         var rules: std.ArrayList(Rule) = .empty;
         var dots: std.ArrayList(Rule) = .empty;
-        var it = Interp{ .d = &d, .a = a, .glyphs = &glyphs, .rules = &rules, .dots = &dots, .text = &text_bytes, .fonts = &fonts, .page_top = pg.box[3], .page_left = pg.box[0] };
+        var fills: std.ArrayList(Rule) = .empty;
+        var it = Interp{ .d = &d, .a = a, .glyphs = &glyphs, .rules = &rules, .dots = &dots, .fills = &fills, .text = &text_bytes, .fonts = &fonts, .page_top = pg.box[3], .page_left = pg.box[0] };
         const contents = d.resolve(pg.dict.get("Contents") orelse .nul);
         var data: std.ArrayList(u8) = .empty;
         switch (contents) {
@@ -4992,7 +5153,7 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
         }
         it.run(data.items, pg.res) catch {};
         res.glyphs += glyphs.items.len;
-        try page_list.append(a, .{ .glyphs = glyphs.items, .rules = rules.items, .dots = dots.items, .width = @floatCast(pg.box[2] - pg.box[0]), .height = @floatCast(pg.box[3] - pg.box[1]) });
+        try page_list.append(a, .{ .glyphs = glyphs.items, .rules = rules.items, .dots = dots.items, .fills = fills.items, .width = @floatCast(pg.box[2] - pg.box[0]), .height = @floatCast(pg.box[3] - pg.box[1]) });
     }
     const tb = text_bytes.items;
     {
@@ -5051,7 +5212,78 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
         try growTables(a, frags.items, &tables);
         try findAlignedTables(a, frags.items, &tables);
         try growTables(a, frags.items, &tables);
-        try findLadderTables(a, frags.items, pg.rules, &tables);
+        {
+            // (a zebra table has no rules: the edges of its shaded rows bound every row, shaded or not)
+            var lad: std.ArrayList(Rule) = .empty;
+            try lad.appendSlice(a, pg.rules);
+            // (only bands in a run: two or more of one width, each gap between them no taller than a band -- a code
+            //  block's grey box, a callout or a shaded heading bar alone is no zebra)
+            const bands = try mergeFillRows(a, pg.fills);
+            // (and a band holds a row's cells: text in two columns or more, none of it code)
+            const rowlike = try a.alloc(bool, bands.len);
+            const codeband = try a.alloc(bool, bands.len);
+            for (bands, 0..) |f, bi| {
+                var pieces: std.ArrayList([2]f32) = .empty;
+                var code = false;
+                for (frags.items) |g| {
+                    const cy = (g.y0 + g.y1) / 2;
+                    if (g.text.len == 0 or cy < f.y0 or cy > f.y1 or g.x1 < f.x0 or g.x0 > f.x1) continue;
+                    if (g.mono) code = true;
+                    try pieces.append(a, .{ g.x0, g.x1 });
+                }
+                const ByX0 = struct {
+                    fn lt(_: void, l: [2]f32, r: [2]f32) bool {
+                        return l[0] < r[0];
+                    }
+                };
+                std.mem.sort([2]f32, pieces.items, {}, ByX0.lt);
+                var n_sp: usize = 0;
+                var end: f32 = -1e9;
+                for (pieces.items) |pc| {
+                    if (pc[0] > end + 2) n_sp += 1;
+                    end = @max(end, pc[1]);
+                }
+                rowlike[bi] = n_sp >= 2 and !code;
+                if (code) rowlike[bi] = false;
+                codeband[bi] = code;
+            }
+            // (a shaded section row holds one cell: it counts beside a row band of the same width close by)
+            const nearrow = try a.alloc(bool, bands.len);
+            for (bands, 0..) |f, bi| {
+                nearrow[bi] = rowlike[bi];
+                if (rowlike[bi] or codeband[bi]) continue;
+                for (bands, 0..) |g, bj| {
+                    if (bi == bj or !rowlike[bj] or @abs(g.x0 - f.x0) > 3 or @abs(g.x1 - f.x1) > 3) continue;
+                    const gap = if (g.y0 >= f.y1) g.y0 - f.y1 else if (f.y0 >= g.y1) f.y0 - g.y1 else 0;
+                    if (gap <= 3.0 * @max(f.y1 - f.y0, g.y1 - g.y0)) nearrow[bi] = true;
+                }
+            }
+            for (bands, 0..) |f, bi| {
+                if (!nearrow[bi]) continue;
+                var run = false;
+                for (bands, 0..) |g, bj| {
+                    if (bi == bj or !nearrow[bj] or @abs(g.x0 - f.x0) > 3 or @abs(g.x1 - f.x1) > 3) continue;
+                    const gap = if (g.y0 >= f.y1) g.y0 - f.y1 else if (f.y0 >= g.y1) f.y0 - g.y1 else 0;
+                    if (gap <= 1.6 * @max(f.y1 - f.y0, g.y1 - g.y0)) run = true;
+                }
+                if (!run) continue;
+                try lad.append(a, .{ .x0 = f.x0, .x1 = f.x1, .y0 = f.y0, .y1 = f.y0 });
+                try lad.append(a, .{ .x0 = f.x0, .x1 = f.x1, .y0 = f.y1, .y1 = f.y1 });
+            }
+            // (the text a dissolved table leaves outside the ladder is read again for tables of its own)
+            const rel = try findLadderTables(a, frags.items, lad.items, &tables);
+            if (rel.len > 0) {
+                // (only the released text: every other free fragment is held out of this second reading)
+                const held = std.math.maxInt(i32);
+                for (frags.items, 0..) |*f, fk| {
+                    if (f.table < 0 and std.mem.indexOfScalar(u32, rel, @intCast(fk)) == null) f.table = held;
+                }
+                try findAlignedTables(a, frags.items, &tables);
+                for (frags.items) |*f| {
+                    if (f.table == held) f.table = -1;
+                }
+            }
+        }
         try stackTables(a, frags.items, &tables);
         try groupHeaders(a, frags.items, &tables);
         // units: the fragments outside tables, plus one unit per table
