@@ -1,0 +1,175 @@
+{
+ "id": "r24",
+ "difficulty": "Two-page Vietnamese tour itinerary: letterhead, schedule table with rowspan day cells, typed hyphen and bullet lists, price table with total-like surcharge row, \"1)\" list with nested \"a)\", heavy diacritics.",
+ "pages": 2,
+ "title": "Lịch trình tham quan Hà Nội 3 ngày 2 đêm",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Lịch trình tham quan Hà Nội 3 ngày 2 đêm"
+  },
+  {
+   "level": 2,
+   "text": "Lịch trình chi tiết"
+  },
+  {
+   "level": 2,
+   "text": "Chương trình bao gồm"
+  },
+  {
+   "level": 2,
+   "text": "Không bao gồm"
+  },
+  {
+   "level": 2,
+   "text": "Giá tour"
+  },
+  {
+   "level": 2,
+   "text": "Lưu ý"
+  }
+ ],
+ "key_sentences": [
+  "Chương trình dành cho đoàn từ 10 đến 20 khách, bao gồm vé tham quan, bữa ăn và xe đưa đón.",
+  "Quý khách vui lòng đọc kỹ lịch trình dưới đây trước ngày khởi hành.",
+  "Giá trên đã bao gồm thuế giá trị gia tăng.",
+  "Quý khách đăng ký trước ngày khởi hành ít nhất mười bốn ngày sẽ được giảm năm phần trăm.",
+  "Chúng tôi rất hân hạnh được đón tiếp quý khách và chúc quý khách có một chuyến đi thật vui vẻ."
+ ],
+ "tables": [
+  {
+   "caption": "Bảng 1: Lịch trình theo ngày",
+   "rows": [
+    [
+     "Ngày",
+     "Giờ",
+     "Hoạt động"
+    ],
+    [
+     "Ngày 1",
+     "08:00",
+     "Đón đoàn tại sân bay Nội Bài"
+    ],
+    [
+     "Ngày 1",
+     "10:30",
+     "Nhận phòng khách sạn và nghỉ ngơi"
+    ],
+    [
+     "Ngày 1",
+     "14:00",
+     "Tham quan Văn Miếu – Quốc Tử Giám"
+    ],
+    [
+     "Ngày 2",
+     "07:30",
+     "Ăn sáng tại khách sạn"
+    ],
+    [
+     "Ngày 2",
+     "09:00",
+     "Tham quan Hoàng thành Thăng Long"
+    ],
+    [
+     "Ngày 2",
+     "15:00",
+     "Đi thuyền trên Hồ Tây"
+    ],
+    [
+     "Ngày 3",
+     "08:00",
+     "Tham quan làng gốm Bát Tràng"
+    ],
+    [
+     "Ngày 3",
+     "13:00",
+     "Ăn trưa và tiễn đoàn ra sân bay"
+    ]
+   ]
+  },
+  {
+   "caption": "Bảng 2: Giá tour trọn gói",
+   "rows": [
+    [
+     "Số lượng khách",
+     "Giá mỗi người (VNĐ)"
+    ],
+    [
+     "Từ 10 đến 14 khách",
+     "3.450.000"
+    ],
+    [
+     "Từ 15 đến 20 khách",
+     "3.150.000"
+    ],
+    [
+     "Phụ thu phòng đơn",
+     "800.000"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "- Xe điều hòa đưa đón theo chương trình"
+  },
+  {
+   "level": 0,
+   "text": "- Hai đêm nghỉ tại khách sạn ba sao, phòng đôi"
+  },
+  {
+   "level": 0,
+   "text": "- Các bữa ăn được ghi trong lịch trình"
+  },
+  {
+   "level": 0,
+   "text": "- Vé tham quan và hướng dẫn viên tiếng Việt"
+  },
+  {
+   "level": 0,
+   "text": "• Đồ uống ngoài bữa ăn"
+  },
+  {
+   "level": 0,
+   "text": "• Chi phí cá nhân và tiền tip"
+  },
+  {
+   "level": 0,
+   "text": "• Bảo hiểm du lịch"
+  },
+  {
+   "level": 0,
+   "text": "1) Giấy tờ tùy thân"
+  },
+  {
+   "level": 1,
+   "text": "a) Khách người Việt mang theo căn cước công dân."
+  },
+  {
+   "level": 1,
+   "text": "b) Khách nước ngoài mang theo hộ chiếu còn hạn."
+  },
+  {
+   "level": 0,
+   "text": "2) Trang phục lịch sự khi vào tham quan các di tích."
+  },
+  {
+   "level": 0,
+   "text": "3) Quý khách cần có mặt tại điểm đón trước giờ khởi hành mười lăm phút."
+  }
+ ],
+ "furniture": [
+  "Công ty Du lịch Sen Vàng",
+  "15 phố Hàng Bông, Hà Nội",
+  "Điện thoại 024 5550 123",
+  "Trang 1/2",
+  "Sen Vàng · Lịch trình tham quan Hà Nội",
+  "Trang 2/2"
+ ],
+ "languages": [
+  "vi"
+ ],
+ "code": [],
+ "notes": "Vietnamese with stacked diacritics (precomposed NFC). Table 1 (schedule): header row [Ngày, Giờ, Hoạt động]; the day cells (\"Ngày 1\", \"Ngày 2\", \"Ngày 3\") span three, three and two rows, so each day text is repeated in the grid cells it covers. Lists: \"Chương trình bao gồm\" uses typed hyphens \"-\" (inline); \"Không bao gồm\" uses typed bullets \"•\" (inline); \"Lưu ý\" uses typed \"1)\" \"2)\" \"3)\" with nested typed \"a)\" \"b)\" (hanging indent). Table 2 (prices) has a header row and a caption paragraph above it. Letterhead and the page lines \"Trang 1/2\" and \"Trang 2/2\" are furniture; the running header on page 2 is listed once."
+}

@@ -1,0 +1,120 @@
+{
+ "id": "r18",
+ "difficulty": "Flowing two-column scientific paper: full-width title block, abstract, numbered headings, inline (i)(ii) list, booktabs table (rules at top, under header, at bottom), footnote, bracketed reference list with hanging indent; margin-box running header and \"p. k\".",
+ "pages": 2,
+ "title": "Adaptive Sampling of Coastal Sensor Networks Under Intermittent Connectivity",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Adaptive Sampling of Coastal Sensor Networks Under Intermittent Connectivity"
+  },
+  {
+   "level": 2,
+   "text": "1 Introduction"
+  },
+  {
+   "level": 2,
+   "text": "2 Method"
+  },
+  {
+   "level": 3,
+   "text": "2.1 Outage model"
+  },
+  {
+   "level": 3,
+   "text": "2.2 Rate controller"
+  },
+  {
+   "level": 2,
+   "text": "3 Results"
+  },
+  {
+   "level": 2,
+   "text": "4 Conclusion"
+  },
+  {
+   "level": 2,
+   "text": "References"
+  }
+ ],
+ "key_sentences": [
+  "Coastal sensor networks lose connectivity whenever a storm or a tide interrupts the radio link.",
+  "We present a sampling scheme that adapts the measurement rate to the expected length of the outage.",
+  "A reading that cannot be sent must be stored, and storage on a small node is limited.",
+  "The tidal component is predicted from the published tide table, so no training data is needed.",
+  "The adaptive scheme loses the fewest readings while its energy use stays close to that of the slow fixed scheme.",
+  "The deployment covered 40 nodes on 12 piers and 8 buoys between April and September.",
+  "Adapting the sampling rate to the predicted outage length reduces data loss without a measurable cost in latency."
+ ],
+ "tables": [
+  {
+   "caption": "Table 1. Loss, energy and delay of three sampling schemes",
+   "rows": [
+    [
+     "Scheme",
+     "Lost (%)",
+     "Energy (kJ/day)",
+     "Delay (min)"
+    ],
+    [
+     "Fixed, 1 per min",
+     "14.2",
+     "3.1",
+     "1.0"
+    ],
+    [
+     "Fixed, 1 per 5 min",
+     "11.5",
+     "1.1",
+     "4.8"
+    ],
+    [
+     "Adaptive (ours)",
+     "8.8",
+     "2.7",
+     "2.2"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "(i) a compact model of outage length based on the tide table;"
+  },
+  {
+   "level": 0,
+   "text": "(ii) a rate controller that needs no tuning on the node;"
+  },
+  {
+   "level": 0,
+   "text": "(iii) a field evaluation over six months on 40 nodes."
+  },
+  {
+   "level": 0,
+   "text": "[1] Okafor, L., and Brandt, T. (2021). Duty cycling in tidal radio links. Journal of Sensor Systems, 9(2), 101–118."
+  },
+  {
+   "level": 0,
+   "text": "[2] Lindqvist, S. (2019). Buffer management on constrained nodes. Proceedings of the Workshop on Ocean Observation, 44–51."
+  },
+  {
+   "level": 0,
+   "text": "[3] Mendes, R., et al. (2022). Predicting outage lengths from tide tables. Marine Technology Letters, 14(1), 22–30."
+  },
+  {
+   "level": 0,
+   "text": "[4] Tanaka, H. (2020). Energy accounting for battery-powered buoys. Sensors and Actuators in the Sea, 5(4), 301–315."
+  }
+ ],
+ "furniture": [
+  "Journal of Sensor Systems · Vol. 12 · No. 3",
+  "p. 1",
+  "p. 2"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [],
+ "notes": "Reading order is COLUMN BY COLUMN (the whole left column of a page, then the right column; text continues from the bottom of the right column of page 1 to the top of the left column of page 2). The title block and abstract span both columns. Table 1 is a booktabs-style table: rules only above the header, under the header and below the last row; its caption is a paragraph below the table (\"Table 1. ...\"), so cap_pos is below. The footnote line \"1 Sensor identifiers are anonymised.\" is small text at the end of the Methods section; the sentence carrying its marker is excluded from key_sentences. The author line is body text, not a heading. List: typed \"(i)\" \"(ii)\" \"(iii)\" inline. References: typed \"[1]\" ... \"[4]\" with hanging indent (set apart). Margin-box header \"Journal of Sensor Systems · Vol. 12 · No. 3\" listed once; footers \"p. 1\" ... one per page."
+}

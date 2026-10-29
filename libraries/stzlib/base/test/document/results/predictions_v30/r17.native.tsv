@@ -1,0 +1,37 @@
+page_header	0	Tidewater Sync · Command-line Guide
+heading	1	Tidewater Sync 2.4 – Command-line Guide
+paragraph	0	Tidewater Sync copies a directory tree to remote storage on a schedule. This guide explains how to install the tool, write its configuration file and diagnose the most common failures.
+heading	2	1. Installation
+paragraph	0	The tool needs Python 3.10 or later. Install it from the package index and check the version number afterwards.
+code	0	$ pip install tidewater-sync\n$ tidewater --version\ntidewater 2.4.1
+heading	2	2. Configuration
+heading	3	2.1 The configuration file
+paragraph	0	By default the tool reads tidewater.yaml from the current directory. A minimal file looks like this:
+code	0	# tidewater.yaml\nsource: /srv/data/exports\ntarget: s3://example-bucket/backups\nschedule: "0 2 * * *"\nretention_days: 30\nexclude:
+list_item	0	- "*.tmp"
+list_item	0	- ".cache/"
+paragraph	0	Every key is described in the table below. Unknown keys are rejected so that typing mistakes are caught early.
+caption	0	Table 1: Configuration options
+table	0	OptionTypeDefaultDescriptionsourcepath—Directory to read from. It must exist and be readable.targetURL—Destination, for example a bucket or an SFTP path.schedulecron"0 2 * * *"When to run in daemon mode.retention_daysinteger30Days to keep old snapshots before they are deleted.excludelist[]Glob patterns that are skipped.
+page_footer	0	– 1 –
+page_header	0	Tidewater Sync · Command-line Guide
+heading	3	2.2 Environment variables
+paragraph	0	The following variables override the file and are useful in containers:
+list_item	0	TIDEWATER_CONFIG – path of the configuration file
+list_item	0	TIDEWATER_LOG_LEVEL – one of debug, info, warning or error
+list_item	0	TIDEWATER_DRY_RUN – set to 1 to list actions without copying
+heading	2	3. Running the tool
+paragraph	0	Run tidewater sync once to copy the changes since the last run, or tidewater daemon to keep running on the configured schedule. The process always finishes the file it is copying before it stops. A summary line is printed at the end of every run.
+paragraph	0	Table 2: Exit codes
+heading	2	4. Troubleshooting
+paragraph	0	If a run fails, work through the following steps in order:
+list_item	0	1. Run again with the log level set to debug.
+list_item	1	- Look for lines with "level": "error".
+list_item	1	- Note the retry counter of the failed upload.
+table	0	CodeMeaning0Success1Configuration error2Network failure3Partial transfer
+list_item	0	2. Check that the target is reachable from the machine that runs the tool.
+list_item	0	3. Verify the credentials and the clock of the machine, because expired signatures are rejected.
+paragraph	0	A failed upload is reported as a JSON record similar to the following one:
+code	0	{\n  "level": "error",\n  "msg": "upload failed",\n  "file": "reports/2026-03.csv",\n  "retry": 3\n}
+paragraph	0	If the problem persists, attach the log file to your support request together with the output of tidewater --version.
+page_footer	0	– 2 –

@@ -1,0 +1,128 @@
+{
+ "id": "r06",
+ "difficulty": "Two-page Hebrew RTL service agreement: letterhead, numbered headings, Hebrew-letter list with nested \"1)\", decimal clause list 3.1-3.3 with hanging markers, RTL price table with merged total row, side-by-side signature boxes.",
+ "pages": 2,
+ "title": "הסכם שירותי תחזוקה",
+ "headings": [
+  {
+   "level": 1,
+   "text": "הסכם שירותי תחזוקה"
+  },
+  {
+   "level": 2,
+   "text": "1. כללי"
+  },
+  {
+   "level": 2,
+   "text": "2. היקף השירותים"
+  },
+  {
+   "level": 2,
+   "text": "3. תמורה ותנאי תשלום"
+  },
+  {
+   "level": 2,
+   "text": "4. תקופת ההסכם"
+  },
+  {
+   "level": 2,
+   "text": "5. סודיות"
+  },
+  {
+   "level": 2,
+   "text": "6. הוראות כלליות"
+  }
+ ],
+ "key_sentences": [
+  "הסכם זה נערך ונחתם ביום 3 בפברואר 2026 בין חברת מגדלור שירותי תחזוקה בע״מ (להלן: ״הספק״) לבין ועד הבית ברחוב הדקל 12 (להלן: ״הלקוח״).",
+  "הצדדים מסכימים כי הספק יספק ללקוח את השירותים המפורטים בהסכם זה, בהתאם לתנאים המפורטים להלן.",
+  "המבוא להסכם זה מהווה חלק בלתי נפרד ממנו.",
+  "ההסכם ייכנס לתוקף ביום 1 במרץ 2026 ויעמוד בתוקפו למשך שנים-עשר חודשים.",
+  "כל צד רשאי להפסיק את ההסכם בהודעה מוקדמת בכתב של שישים יום.",
+  "הספק מתחייב לשמור בסוד כל מידע שיגיע אליו אגב מתן השירותים, ולא להעבירו לצד שלישי ללא הסכמת הלקוח.",
+  "כל שינוי בהסכם זה ייעשה בכתב ובחתימת שני הצדדים."
+ ],
+ "tables": [
+  {
+   "caption": "טבלה 1: תמורה חודשית",
+   "rows": [
+    [
+     "השירות",
+     "תדירות",
+     "מחיר חודשי (₪)"
+    ],
+    [
+     "ניקיון חדרי המדרגות",
+     "פעמיים בשבוע",
+     "1,800"
+    ],
+    [
+     "גינון",
+     "פעם בשבוע",
+     "650"
+    ],
+    [
+     "תחזוקת מעלית",
+     "חודשית",
+     "1,250"
+    ],
+    [
+     "סה״כ",
+     "סה״כ",
+     "3,700"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "א. ניקיון חדרי המדרגות והלובי."
+  },
+  {
+   "level": 0,
+   "text": "ב. גינון וטיפול בחצר המשותפת."
+  },
+  {
+   "level": 0,
+   "text": "ג. תחזוקה שוטפת של המעלית, לרבות:"
+  },
+  {
+   "level": 1,
+   "text": "1) בדיקה חודשית של מערכות הבטיחות."
+  },
+  {
+   "level": 1,
+   "text": "2) טיפול בתקלות תוך 24 שעות מקבלת הדיווח."
+  },
+  {
+   "level": 0,
+   "text": "ד. טיפול בתקלות חשמל ואינסטלציה בשטחים המשותפים."
+  },
+  {
+   "level": 0,
+   "text": "3.1 התמורה אינה כוללת מע״מ, והוא יתווסף לפי השיעור הקבוע בחוק."
+  },
+  {
+   "level": 0,
+   "text": "3.2 התשלום יבוצע עד העשירי בכל חודש בהעברה בנקאית."
+  },
+  {
+   "level": 0,
+   "text": "3.3 איחור בתשלום יגרור ריבית פיגורים כמקובל בחוק."
+  }
+ ],
+ "furniture": [
+  "מגדלור שירותי תחזוקה בע״מ",
+  "רחוב הנמל 8, חיפה",
+  "טלפון 04-5550142",
+  "עמוד 1 מתוך 2",
+  "הסכם שירותי תחזוקה · מגדלור שירותי תחזוקה בע״מ",
+  "עמוד 2 מתוך 2"
+ ],
+ "languages": [
+  "he"
+ ],
+ "code": [],
+ "notes": "Right-to-left. Lists: section 2 uses typed Hebrew letters \"א.\" \"ב.\" \"ג.\" \"ד.\" (level 0) and typed \"1)\" \"2)\" (level 1), hanging indent; section 3 uses typed \"3.1\" \"3.2\" \"3.3\" with hanging indent. Table 1: header row, 3 service rows and a total row whose first cell (\"סה״כ\") spans two columns, so its text appears in the first two grid cells; columns listed rightmost first. Caption is a paragraph above the table. The two signature boxes at the end are side by side (RTL: the Supplier box is on the right and read first; the Client box second); their text is not a key sentence. Hebrew quotation marks are the gershayim ״ and the abbreviation mark ״ in בע״מ; hyphen in שנים-עשר is a real hyphen. Running header appears on page 2 only; page lines \"עמוד 1 מתוך 2\" and \"עמוד 2 מתוך 2\"."
+}

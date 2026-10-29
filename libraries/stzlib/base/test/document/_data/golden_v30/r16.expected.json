@@ -1,0 +1,120 @@
+{
+ "id": "r16",
+ "difficulty": "One-page Georgian conference programme: banner, two side-by-side boxes (text+list | key/value panel), borderless time table, Georgian-letter list with nested \"1)\".",
+ "pages": 1,
+ "title": "კონფერენცია „ციფრული განათლება 2026“",
+ "headings": [
+  {
+   "level": 1,
+   "text": "კონფერენცია „ციფრული განათლება 2026“"
+  },
+  {
+   "level": 2,
+   "text": "ძირითადი ინფორმაცია"
+  },
+  {
+   "level": 2,
+   "text": "პროგრამა"
+  }
+ ],
+ "key_sentences": [
+  "კონფერენცია ეძღვნება ციფრული ტექნოლოგიების გამოყენებას სასკოლო განათლებაში.",
+  "ღონისძიება გაიმართება 2026 წლის 22 მაისს თბილისში.",
+  "კონფერენციის მასალები მონაწილეებს ელექტრონული ფორმით გადაეცემათ.",
+  "დამატებითი ინფორმაციისთვის ეწვიეთ ფონდის ვებგვერდს ან დაგვიკავშირდით ელფოსტით."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "თარიღი",
+     "22 მაისი 2026"
+    ],
+    [
+     "დრო",
+     "09:30–14:30"
+    ],
+    [
+     "ადგილი",
+     "კონფერენციების ცენტრი, მთავარი დარბაზი"
+    ],
+    [
+     "ენა",
+     "ქართული"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "დრო",
+     "აქტივობა",
+     "ადგილი"
+    ],
+    [
+     "09:30",
+     "რეგისტრაცია და მისალმება",
+     "ფოიე"
+    ],
+    [
+     "10:00",
+     "გახსნითი სიტყვა",
+     "მთავარი დარბაზი"
+    ],
+    [
+     "10:30",
+     "პლენარული სესია: ციფრული უნარები სკოლაში",
+     "მთავარი დარბაზი"
+    ],
+    [
+     "12:00",
+     "შესვენება",
+     "ფოიე"
+    ],
+    [
+     "12:30",
+     "პრაქტიკული სემინარები",
+     "ოთახები 2–4"
+    ],
+    [
+     "14:00",
+     "დახურვა და შეჯამება",
+     "მთავარი დარბაზი"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "ა. რეგისტრაცია ხდება ვებგვერდზე 10 მაისამდე."
+  },
+  {
+   "level": 1,
+   "text": "1) შეავსეთ ონლაინ ფორმა"
+  },
+  {
+   "level": 1,
+   "text": "2) დაადასტურეთ მონაწილეობა ელფოსტით"
+  },
+  {
+   "level": 0,
+   "text": "ბ. მონაწილეობა უფასოა."
+  },
+  {
+   "level": 0,
+   "text": "გ. ადგილების რაოდენობა შეზღუდულია."
+  }
+ ],
+ "furniture": [
+  "საქართველოს განათლების მოდერნიზაციის ფონდი",
+  "გვერდი 1"
+ ],
+ "languages": [
+  "ka"
+ ],
+ "code": [],
+ "notes": "Georgian (Mkhedruli). Section \"ძირითადი ინფორმაცია\" has TWO BOXES SIDE BY SIDE: left box (paragraph + registration list), right box (boxed key/value panel table); reading order is box by box, left first. Table 1 is the key/value panel in the right box (no header row). Table 2 (programme) has NO LINES AT ALL; header row distinguished by bold type. List: typed Georgian letters \"ა.\" \"ბ.\" \"გ.\" with nested typed \"1)\" \"2)\". Page line \"გვერდი 1\" is furniture; the banner organisation line is furniture."
+}

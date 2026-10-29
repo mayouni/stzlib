@@ -1,0 +1,137 @@
+{
+ "id": "r22",
+ "difficulty": "Two-page community newsletter: masthead, headline article with a table BESIDE the text (sidebar), pull quote, CSS bullets, two-column page 2 (numbered \"1)\" list beside text), zebra fares table with centred cells, mixed alignment and colour.",
+ "pages": 2,
+ "title": "New Ferry Timetable Starts in May",
+ "headings": [
+  {
+   "level": 1,
+   "text": "New Ferry Timetable Starts in May"
+  },
+  {
+   "level": 2,
+   "text": "Harbour clean-up day"
+  },
+  {
+   "level": 2,
+   "text": "Lighthouse open day"
+  },
+  {
+   "level": 2,
+   "text": "Your questions answered"
+  },
+  {
+   "level": 2,
+   "text": "Fares from May"
+  },
+  {
+   "level": 2,
+   "text": "Library news"
+  }
+ ],
+ "key_sentences": [
+  "From 4 May the harbour ferry will run every 30 minutes between the old quay and the island, seven days a week.",
+  "The council confirmed the new timetable after a successful trial last autumn.",
+  "Cyclists can now board without booking, and the larger vessel has room for twelve bicycles and four pushchairs.",
+  "Volunteers are needed for the spring clean-up of the slipway and the beach on Saturday 23 May.",
+  "The harbour master reminds all boat owners that the speed limit inside the harbour is five knots.",
+  "Children under five travel free, and concession fares apply to holders of a council discount card."
+ ],
+ "tables": [
+  {
+   "caption": "Upcoming events",
+   "rows": [
+    [
+     "Date",
+     "Event"
+    ],
+    [
+     "4 May",
+     "New ferry timetable begins"
+    ],
+    [
+     "16 May",
+     "Fish market on the old quay"
+    ],
+    [
+     "23 May",
+     "Harbour clean-up day"
+    ],
+    [
+     "6 Jun",
+     "Regatta and prize-giving"
+    ]
+   ]
+  },
+  {
+   "caption": "Table 2: Ferry fares from 4 May 2026",
+   "rows": [
+    [
+     "Ticket",
+     "Adult",
+     "Child",
+     "Concession"
+    ],
+    [
+     "Single",
+     "£3.20",
+     "£1.60",
+     "£2.00"
+    ],
+    [
+     "Return",
+     "£5.80",
+     "£2.90",
+     "£3.60"
+    ],
+    [
+     "Weekly pass",
+     "£19.00",
+     "£9.50",
+     "£12.00"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "Waterproof boots or wellingtons"
+  },
+  {
+   "level": 0,
+   "text": "Gloves, if you have them"
+  },
+  {
+   "level": 0,
+   "text": "A reusable bottle of water"
+  },
+  {
+   "level": 0,
+   "text": "1) Choose your date and time on the council website."
+  },
+  {
+   "level": 0,
+   "text": "2) Select the number of passengers and bicycles."
+  },
+  {
+   "level": 0,
+   "text": "3) Pay by card or buy a weekly pass."
+  },
+  {
+   "level": 0,
+   "text": "4) Show the ticket on your phone when you board."
+  }
+ ],
+ "furniture": [
+  "The Harbour Gazette",
+  "SPRING 2026 · ISSUE 14 · FREE TO ALL RESIDENTS",
+  "Gazette · page 1",
+  "Gazette · page 2"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [],
+ "notes": "Masthead lines are furniture (not headings). The title is the lead headline \"New Ferry Timetable Starts in May\". On page 1 the article text (main column) and the \"Upcoming events\" table (sidebar) sit SIDE BY SIDE: reading order is main column first, then the sidebar. The centred pull quote is a quotation that is not repeated elsewhere and is not in key_sentences; the right-aligned byline is not a key sentence. Table 1 (sidebar) has a caption \"Upcoming events\" shown as a small heading paragraph above it, zebra-banded. The bullet list on page 1 (\"What to bring\") uses bullets DRAWN BY CSS (round dots; no marker in text). On page 2 the \"How to book\" list (typed \"1)\" \"2)\" \"3)\" \"4)\", inline) is in the left box and the harbour-master notes in the right box: reading order is left box then right box. Table 2 (fares) is zebra-banded with centred price cells. Footers \"Gazette · page 1\" and \"Gazette · page 2\" are furniture."
+}

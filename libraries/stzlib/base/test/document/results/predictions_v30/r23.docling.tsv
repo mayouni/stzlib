@@ -1,0 +1,26 @@
+page_header	0	Riverside Analytical Laboratory Accredited testing · 22 Mill Lane, Ashford AS1 4QT Tel 01234 555 019 · lab@riverside-lab.example
+heading	1	Water Quality Test Report
+table	0	Report numberWQ-2026-0382Date reported14 April 2026ClientAshford Parish CouncilSample typeDrinking waterSampling pointVillage hall, kitchen tapDate sampled9 April 2026
+paragraph	0	This report presents the results of the chemical and microbiological analysis of one drinking-water sample. The sample was received in good condition and analysed within 24 hours of collection.
+heading	1	1. Chemical analysis
+heading	1	Table 1: Chemical parameters
+table	0	ParameterMethodResult †LimitStatusNitrate (as NO3)ISO 10304-1 ion chromatography4.8 mg/l50 mg/lPassAmmonium (as NH4)ISO 11732 flow analysis< 0.05 mg/l0.50 mg/lPassChlorideISO 10304-1 ion chromatography18 mg/l250 mg/lPassIronISO 11885 ICP-OES0.31 mg/l0.20 mg/lFailLeadISO 17294-2 ICP-MS2.1 µg/l10 µg/lPasspHISO 10523 electrometric7.46.5 - 9.5PassTurbidityISO 7027 nephelometric0.9 NTU4 NTUPass
+paragraph	0	† Results are the mean of three replicate measurements.
+heading	1	2. Microbiological analysis
+heading	1	Table 2: Microbiological parameters
+table	0	OrganismMethodResultLimitEscherichia coliISO 9308-10 per 100 ml0 per 100 mlColiform bacteriaISO 9308-10 per 100 ml0 per 100 mlColony count, 22 °CISO 622212 per mlno abnormal change
+page_footer	0	Report WQ-2026-0382 · Page 1 of 2
+heading	1	3. Conclusion
+paragraph	0	The sample meets the drinking-water standard for all parameters except iron, which exceeds the limit of 0.20 mg/l. The elevated iron content does not pose a health risk, but it can cause staining and a metallic taste.
+heading	1	4. Recommendations
+list_item	0	Flush the kitchen tap for two minutes before drawing water for drinking.
+list_item	0	Inspect the internal pipework of the village hall for corrosion.
+list_item	0	Repeat the iron analysis on a new sample after the inspection.
+heading	1	5. Sampling and handling
+paragraph	0	The sample was collected by a trained sampler in a sterilised borosilicate bottle after the tap had been run for one minute. It was kept at 4 °C during transport. The results relate only to the sample as received.
+paragraph	0	This report shall not be reproduced except in full without the written approval of the laboratory.
+paragraph	0	Analyst
+paragraph	0	Date: 14 April 2026
+paragraph	0	Authorised signatory
+paragraph	0	Date: 14 April 2026
+page_footer	0	Report WQ-2026-0382 · Page 2 of 2

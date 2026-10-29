@@ -1,0 +1,173 @@
+{
+ "id": "r01",
+ "difficulty": "One-page invoice: letterhead, boxed key/value panel, zebra grid line-item table with merged total rows, borderless bank table, typed dash list.",
+ "pages": 1,
+ "title": "Invoice 2026-0417",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Invoice 2026-0417"
+  },
+  {
+   "level": 2,
+   "text": "Bank details"
+  },
+  {
+   "level": 2,
+   "text": "Terms"
+  }
+ ],
+ "key_sentences": [
+  "All goods were delivered to your yard at Dunmore on 5 March 2026.",
+  "Payment is due within 30 days of the invoice date.",
+  "Please quote the invoice number as the payment reference.",
+  "We thank you for your order and look forward to supplying you again."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Invoice number",
+     "2026-0417",
+     "Invoice date",
+     "12 March 2026"
+    ],
+    [
+     "Customer",
+     "Dunmore Boatyard Ltd",
+     "Due date",
+     "11 April 2026"
+    ],
+    [
+     "Customer ref.",
+     "PO-55871",
+     "Currency",
+     "GBP"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "No.",
+     "Description",
+     "Qty",
+     "Unit price (£)",
+     "Amount (£)"
+    ],
+    [
+     "1",
+     "Marine rope, 12 mm, 100 m coil",
+     "4",
+     "86.50",
+     "346.00"
+    ],
+    [
+     "2",
+     "Stainless steel shackle, 10 mm",
+     "24",
+     "7.25",
+     "174.00"
+    ],
+    [
+     "3",
+     "LED navigation light set",
+     "2",
+     "119.00",
+     "238.00"
+    ],
+    [
+     "4",
+     "Anti-fouling paint, 2.5 l",
+     "6",
+     "54.80",
+     "328.80"
+    ],
+    [
+     "5",
+     "Fender, 25 x 80 cm",
+     "8",
+     "31.40",
+     "251.20"
+    ],
+    [
+     "6",
+     "Delivery, pallet freight",
+     "1",
+     "45.00",
+     "45.00"
+    ],
+    [
+     "Subtotal",
+     "Subtotal",
+     "Subtotal",
+     "Subtotal",
+     "1,383.00"
+    ],
+    [
+     "VAT at 20 %",
+     "VAT at 20 %",
+     "VAT at 20 %",
+     "VAT at 20 %",
+     "276.60"
+    ],
+    [
+     "Total due",
+     "Total due",
+     "Total due",
+     "Total due",
+     "1,659.60"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Account name",
+     "Harbourline Marine Supplies Ltd"
+    ],
+    [
+     "Sort code",
+     "00-00-00"
+    ],
+    [
+     "Account number",
+     "12345678"
+    ],
+    [
+     "Reference",
+     "INV 2026-0417"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "– Goods remain the property of Harbourline Marine Supplies Ltd until paid in full."
+  },
+  {
+   "level": 0,
+   "text": "– Late payments carry interest at 4 % above the Bank of England base rate."
+  },
+  {
+   "level": 0,
+   "text": "– Damaged or missing items must be reported within 7 days of delivery."
+  }
+ ],
+ "furniture": [
+  "Harbourline Marine Supplies Ltd",
+  "14 Quay Road, Eastport EP3 9QR",
+  "Tel +44 20 7946 0000 · accounts@harbourline.example",
+  "Registered in England and Wales, company no. 00000000",
+  "Page 1 of 1"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [],
+ "notes": "Letterhead lines (organisation, address, contact) are furniture, not headings. The \"Invoice 2026-0417\" heading is the title. Table 1 is a boxed 4-column key/value panel with no header row (head row = first row). Table 2 is the line-item table; the three total rows use a label cell spanning the first four columns, so the label is repeated in all four grid cells. Table 3 is a borderless 2-column key/value table (bank details). The three list items are typed en-dashes at level 0 (marker \"–\" is part of the text). The footer has two lines; page number is typed \"Page 1 of 1\"."
+}

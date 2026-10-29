@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Tidewater Sync 2.4 – Command-line Guide</title>
+<style>
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+table{border-collapse:collapse}
+ul.L{list-style:none;margin:0;padding:0}
+ul.L ul.L{margin-top:.15em}
+ul.L li{margin:0;padding:0}
+ul.L.inline .mk{display:inline}
+ul.L.hang .row{display:flex;align-items:flex-start}
+ul.L.hang .row .mk{flex:none}
+ul.L.shape li{position:relative}
+pre.code{white-space:pre;margin:0}
+
+
+
+@page{size:A4;margin:22mm 20mm 22mm 20mm;
+ @top-left{content:"Tidewater Sync · Command-line Guide";font:8.5pt 'Segoe UI';color:#666}
+ @bottom-center{content:"– " counter(page) " –";font:9pt 'Segoe UI';color:#666}}
+body{font-family:'Segoe UI',sans-serif;font-size:10.5pt;line-height:1.55;color:#1d1d1d}
+h1{font-size:25pt;margin:0 0 6px;color:#0f5132;font-weight:600}
+h2{font-size:16pt;margin:22px 0 6px;color:#0f5132;font-weight:600;border-bottom:2px solid #b7dcc8;padding-bottom:2px;break-after:avoid}
+h3{font-size:12.5pt;margin:14px 0 4px;color:#1d5c3f;font-weight:600;break-after:avoid}
+p{margin:0 0 8px}
+pre.code{font-family:Consolas,monospace;font-size:9.5pt;background:#f3f6f4;border:1px solid #cfe0d6;border-left:4px solid #0f5132;padding:8px 12px;margin:6px 0 12px;line-height:1.4;break-inside:avoid}
+table.z{width:100%;font-size:9.5pt;margin:6px 0 12px}
+table.z th{background:#0f5132;color:#fff;padding:5px 8px;text-align:left;font-weight:600}
+table.z td{padding:5px 8px;vertical-align:top}
+table.z tbody tr:nth-child(even){background:#eaf4ee}
+tr{break-inside:avoid}
+.two{display:flex;gap:8mm;align-items:flex-start;margin:6px 0 10px}
+.two>div.l{flex:1.5}
+.two>div.r{flex:1}
+table.r{width:100%;font-size:9.5pt}
+table.r th{text-align:left;border-bottom:2px solid #0f5132;padding:3px 6px}
+table.r td{padding:3px 6px;border-bottom:1px solid #bcd6c7}
+.cap{font-weight:600;font-size:9.5pt;margin:6px 0 2px;color:#444}
+ul.L.shape li{padding-left:1.3em;margin-bottom:2px}
+ul.L.shape li.sq::before{content:"";position:absolute;left:.3em;top:.65em;width:.4em;height:.4em;background:#0f5132}
+ul.L.inline li{margin-bottom:3px}
+ul.L.lv0{margin-left:1.2em}
+ul.L.lv1{margin-left:1.6em}
+
+</style>
+</head>
+<body>
+<h1 >Tidewater Sync 2.4 – Command-line Guide</h1><p >Tidewater Sync copies a directory tree to remote storage on a schedule. This guide explains how to install the tool, write its configuration file and diagnose the most common failures.</p><h2 >1. Installation</h2><p >The tool needs Python 3.10 or later. Install it from the package index and check the version number afterwards.</p><pre class="code ">$ pip install tidewater-sync
+$ tidewater --version
+tidewater 2.4.1</pre><h2 >2. Configuration</h2><h3 >2.1 The configuration file</h3><p >By default the tool reads tidewater.yaml from the current directory. A minimal file looks like this:</p><pre class="code "># tidewater.yaml
+source: /srv/data/exports
+target: s3://example-bucket/backups
+schedule: "0 2 * * *"
+retention_days: 30
+exclude:
+  - "*.tmp"
+  - ".cache/"</pre><p >Every key is described in the table below. Unknown keys are rejected so that typing mistakes are caught early.</p><p class="cap">Table 1: Configuration options</p><table class="z" ><colgroup><col style="width:18%"><col style="width:12%"><col style="width:20%"><col style="width:50%"></colgroup><thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody><tr><td>source</td><td>path</td><td>—</td><td>Directory to read from.<br>It must exist and be readable.</td></tr><tr><td>target</td><td>URL</td><td>—</td><td>Destination, for example<br>a bucket or an SFTP path.</td></tr><tr><td>schedule</td><td>cron</td><td>"0 2 * * *"</td><td>When to run in daemon mode.</td></tr><tr><td>retention_days</td><td>integer</td><td>30</td><td>Days to keep old snapshots<br>before they are deleted.</td></tr><tr><td>exclude</td><td>list</td><td>[]</td><td>Glob patterns that are skipped.</td></tr></tbody></table><h3 >2.2 Environment variables</h3><p >The following variables override the file and are useful in containers:</p><ul class="L shape lv0 "><li class="sq">TIDEWATER_CONFIG – path of the configuration file</li><li class="sq">TIDEWATER_LOG_LEVEL – one of debug, info, warning or error</li><li class="sq">TIDEWATER_DRY_RUN – set to 1 to list actions without copying</li></ul><h2 >3. Running the tool</h2><div class="two"><div class="l"><p >Run tidewater sync once to copy the changes since the last run, or tidewater daemon to keep running on the configured schedule. The process always finishes the file it is copying before it stops. A summary line is printed at the end of every run.</p></div><div class="r"><p class="cap">Table 2: Exit codes</p><table class="r" ><thead><tr><th>Code</th><th>Meaning</th></tr></thead><tbody><tr><td>0</td><td>Success</td></tr><tr><td>1</td><td>Configuration error</td></tr><tr><td>2</td><td>Network failure</td></tr><tr><td>3</td><td>Partial transfer</td></tr></tbody></table></div></div><h2 >4. Troubleshooting</h2><p >If a run fails, work through the following steps in order:</p><ul class="L inline lv0 "><li><span class=mk>1.</span> Run again with the log level set to debug.<ul class="L inline lv1 "><li>- Look for lines with "level": "error".</li><li>- Note the retry counter of the failed upload.</li></ul></li><li><span class=mk>2.</span> Check that the target is reachable from the machine that runs the tool.</li><li><span class=mk>3.</span> Verify the credentials and the clock of the machine, because expired signatures are rejected.</li></ul><p >A failed upload is reported as a JSON record similar to the following one:</p><pre class="code ">{
+  "level": "error",
+  "msg": "upload failed",
+  "file": "reports/2026-03.csv",
+  "retry": 3
+}</pre><p >If the problem persists, attach the log file to your support request together with the output of tidewater --version.</p>
+</body>
+</html>

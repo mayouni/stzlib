@@ -1,0 +1,161 @@
+{
+ "id": "r17",
+ "difficulty": "Flowing English command-line guide: headings to level 3, three code blocks (shell, YAML, JSON), zebra option table with multi-line cells, side-by-side text and exit-code table, CSS bullets, typed numbered list with dashes; margin-box running header and \"– k –\" page numbers.",
+ "pages": 2,
+ "title": "Tidewater Sync 2.4 – Command-line Guide",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Tidewater Sync 2.4 – Command-line Guide"
+  },
+  {
+   "level": 2,
+   "text": "1. Installation"
+  },
+  {
+   "level": 2,
+   "text": "2. Configuration"
+  },
+  {
+   "level": 3,
+   "text": "2.1 The configuration file"
+  },
+  {
+   "level": 3,
+   "text": "2.2 Environment variables"
+  },
+  {
+   "level": 2,
+   "text": "3. Running the tool"
+  },
+  {
+   "level": 2,
+   "text": "4. Troubleshooting"
+  }
+ ],
+ "key_sentences": [
+  "Tidewater Sync copies a directory tree to remote storage on a schedule.",
+  "This guide explains how to install the tool, write its configuration file and diagnose the most common failures.",
+  "The tool needs Python 3.10 or later.",
+  "Unknown keys are rejected so that typing mistakes are caught early.",
+  "Run tidewater sync once to copy the changes since the last run, or tidewater daemon to keep running on the configured schedule.",
+  "The process always finishes the file it is copying before it stops.",
+  "If the problem persists, attach the log file to your support request together with the output of tidewater --version."
+ ],
+ "tables": [
+  {
+   "caption": "Table 1: Configuration options",
+   "rows": [
+    [
+     "Option",
+     "Type",
+     "Default",
+     "Description"
+    ],
+    [
+     "source",
+     "path",
+     "—",
+     "Directory to read from. It must exist and be readable."
+    ],
+    [
+     "target",
+     "URL",
+     "—",
+     "Destination, for example a bucket or an SFTP path."
+    ],
+    [
+     "schedule",
+     "cron",
+     "\"0 2 * * *\"",
+     "When to run in daemon mode."
+    ],
+    [
+     "retention_days",
+     "integer",
+     "30",
+     "Days to keep old snapshots before they are deleted."
+    ],
+    [
+     "exclude",
+     "list",
+     "[]",
+     "Glob patterns that are skipped."
+    ]
+   ]
+  },
+  {
+   "caption": "Table 2: Exit codes",
+   "rows": [
+    [
+     "Code",
+     "Meaning"
+    ],
+    [
+     "0",
+     "Success"
+    ],
+    [
+     "1",
+     "Configuration error"
+    ],
+    [
+     "2",
+     "Network failure"
+    ],
+    [
+     "3",
+     "Partial transfer"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "TIDEWATER_CONFIG – path of the configuration file"
+  },
+  {
+   "level": 0,
+   "text": "TIDEWATER_LOG_LEVEL – one of debug, info, warning or error"
+  },
+  {
+   "level": 0,
+   "text": "TIDEWATER_DRY_RUN – set to 1 to list actions without copying"
+  },
+  {
+   "level": 0,
+   "text": "1. Run again with the log level set to debug."
+  },
+  {
+   "level": 1,
+   "text": "- Look for lines with \"level\": \"error\"."
+  },
+  {
+   "level": 1,
+   "text": "- Note the retry counter of the failed upload."
+  },
+  {
+   "level": 0,
+   "text": "2. Check that the target is reachable from the machine that runs the tool."
+  },
+  {
+   "level": 0,
+   "text": "3. Verify the credentials and the clock of the machine, because expired signatures are rejected."
+  }
+ ],
+ "furniture": [
+  "Tidewater Sync · Command-line Guide",
+  "– 1 –",
+  "– 2 –"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [
+  "$ pip install tidewater-sync\n$ tidewater --version\ntidewater 2.4.1",
+  "# tidewater.yaml\nsource: /srv/data/exports\ntarget: s3://example-bucket/backups\nschedule: \"0 2 * * *\"\nretention_days: 30\nexclude:\n  - \"*.tmp\"\n  - \".cache/\"",
+  "{\n  \"level\": \"error\",\n  \"msg\": \"upload failed\",\n  \"file\": \"reports/2026-03.csv\",\n  \"retry\": 3\n}"
+ ],
+ "notes": "Header \"Tidewater Sync · Command-line Guide\" (@page margin box) is listed once; footers \"– 1 –\", \"– 2 –\", ... are listed per page. Code blocks are exact (shell session with $ prompts; YAML configuration with a comment line; JSON log record); indentation is spaces. Table 1 (options) is zebra-banded with 2-line cells (join lines with one space); em dash \"—\" marks an empty default. Section 3 has two boxes SIDE BY SIDE (left: explanatory text; right: exit-code table, Table 2 with rules between rows only); reading order is box by box, left box first. The environment-variable list uses bullets drawn by CSS (no marker in text). Troubleshooting list: typed \"1.\" \"2.\" \"3.\" with nested typed hyphens \"-\". Page breaks fall where the browser puts them."
+}

@@ -1,0 +1,166 @@
+{
+ "id": "r03",
+ "difficulty": "Two-page French meeting minutes: running header, \"1)\" / \"a)\" nested typed lists, headings H1-H3, rules-between-rows budget table, top-aligned multi-line action table, side-by-side signature boxes.",
+ "pages": 2,
+ "title": "Procès-verbal de la réunion du conseil syndical du 18 mars 2026",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Procès-verbal de la réunion du conseil syndical du 18 mars 2026"
+  },
+  {
+   "level": 2,
+   "text": "1. Ouverture de la séance"
+  },
+  {
+   "level": 2,
+   "text": "2. Ordre du jour"
+  },
+  {
+   "level": 2,
+   "text": "3. Délibérations"
+  },
+  {
+   "level": 3,
+   "text": "3.1 Toiture"
+  },
+  {
+   "level": 3,
+   "text": "3.2 Budget"
+  },
+  {
+   "level": 2,
+   "text": "4. Relevé des actions"
+  },
+  {
+   "level": 2,
+   "text": "5. Clôture de la séance"
+  }
+ ],
+ "key_sentences": [
+  "La séance est ouverte à 18 h 30 sous la présidence de Mme Aubert.",
+  "Le quorum étant atteint, le conseil peut valablement délibérer.",
+  "Le conseil a examiné les trois devis reçus pour la réfection de l’étanchéité.",
+  "Le conseil demande donc deux devis complémentaires avant de soumettre une résolution à l’assemblée générale.",
+  "La hausse du chauffage s’explique par le nouveau contrat de fourniture.",
+  "L’ordre du jour étant épuisé, la séance est levée à 20 h 05.",
+  "Le présent procès-verbal sera soumis à l’approbation de la prochaine réunion du conseil syndical."
+ ],
+ "tables": [
+  {
+   "caption": "Tableau 1 : Charges prévisionnelles de la copropriété",
+   "rows": [
+    [
+     "Poste",
+     "Exercice 2025 (€)",
+     "Prévision 2026 (€)",
+     "Écart"
+    ],
+    [
+     "Chauffage collectif",
+     "41 200",
+     "44 900",
+     "+9 %"
+    ],
+    [
+     "Eau et assainissement",
+     "18 350",
+     "18 800",
+     "+2 %"
+    ],
+    [
+     "Entretien des espaces verts",
+     "7 600",
+     "7 600",
+     "0 %"
+    ],
+    [
+     "Assurance de l’immeuble",
+     "12 480",
+     "13 100",
+     "+5 %"
+    ],
+    [
+     "Fonds de travaux",
+     "15 000",
+     "20 000",
+     "+33 %"
+    ]
+   ]
+  },
+  {
+   "caption": "Tableau 2 : Actions décidées",
+   "rows": [
+    [
+     "Action",
+     "Responsable",
+     "Échéance"
+    ],
+    [
+     "Demander deux devis complémentaires pour la réfection de l’étanchéité",
+     "M. Delcourt",
+     "15 avril 2026"
+    ],
+    [
+     "Faire vérifier les attestations de garantie décennale des entreprises consultées",
+     "Mme Lefèvre",
+     "30 avril 2026"
+    ],
+    [
+     "Préparer le projet de résolution pour l’assemblée générale",
+     "Mme Aubert",
+     "15 mai 2026"
+    ],
+    [
+     "Mettre à jour le registre des interventions",
+     "M. Okonkwo",
+     "31 mai 2026"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "1) Approbation du compte rendu de la réunion précédente"
+  },
+  {
+   "level": 0,
+   "text": "2) Travaux de la toiture"
+  },
+  {
+   "level": 1,
+   "text": "a) Examen des devis des entreprises consultées"
+  },
+  {
+   "level": 1,
+   "text": "b) Calendrier des interventions"
+  },
+  {
+   "level": 0,
+   "text": "3) Budget prévisionnel 2026"
+  },
+  {
+   "level": 1,
+   "text": "a) Charges courantes"
+  },
+  {
+   "level": 1,
+   "text": "b) Fonds de travaux"
+  },
+  {
+   "level": 0,
+   "text": "4) Questions diverses"
+  }
+ ],
+ "furniture": [
+  "Résidence Les Tilleuls · Conseil syndical",
+  "Page 1/2",
+  "Page 2/2"
+ ],
+ "languages": [
+  "fr"
+ ],
+ "code": [],
+ "notes": "Running header \"Résidence Les Tilleuls · Conseil syndical\" appears on both pages (listed once); footers \"Page 1/2\" and \"Page 2/2\" are listed per page. The agenda lists use typed markers \"1)\" at level 0 and \"a)\" at level 1, inline. French typography uses non-breaking spaces before \":\" and in thousands (treated as spaces). Table 1 (budget) has rules between rows only; its caption is a paragraph above. Table 2 (actions) has multi-line cells (lines broken with <br>) that are top-aligned; join lines with one space. The two signature boxes at the end sit side by side; reading order is box by box (left box then right box). Their text is not a key sentence, a heading or a list."
+}

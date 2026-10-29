@@ -1,0 +1,177 @@
+{
+ "id": "r07",
+ "difficulty": "Two-page Japanese quotation: letterhead, key/value panel, grid item table with merged total rows, full-width markers （１）, circled ① and typed ・ bullets, kanji-numeral list 一、二、.",
+ "pages": 2,
+ "title": "御見積書",
+ "headings": [
+  {
+   "level": 1,
+   "text": "御見積書"
+  },
+  {
+   "level": 2,
+   "text": "別紙 お見積条件"
+  },
+  {
+   "level": 2,
+   "text": "別紙 工事の流れ"
+  }
+ ],
+ "key_sentences": [
+  "下記のとおり御見積り申し上げます。",
+  "有効期限は発行日より30日間とさせていただきます。",
+  "本見積書の内容についてご不明な点がございましたら、担当までお問い合わせください。",
+  "以上の内容でお引き受けできる場合は、同封の注文書にご記入のうえご返送ください。"
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "件名",
+     "事務所空調設備更新工事"
+    ],
+    [
+     "お見積金額",
+     "金 1,030,700 円（税込）"
+    ],
+    [
+     "納期",
+     "2026年5月29日"
+    ],
+    [
+     "お支払条件",
+     "工事完了後、月末締め翌月末払い"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "品名",
+     "数量",
+     "単価（円）",
+     "金額（円）"
+    ],
+    [
+     "業務用エアコン本体（天井カセット型）",
+     "4",
+     "168,000",
+     "672,000"
+    ],
+    [
+     "冷媒配管工事",
+     "1",
+     "120,000",
+     "120,000"
+    ],
+    [
+     "電気配線工事",
+     "1",
+     "85,000",
+     "85,000"
+    ],
+    [
+     "既存機器撤去・処分費",
+     "1",
+     "60,000",
+     "60,000"
+    ],
+    [
+     "小計",
+     "小計",
+     "小計",
+     "937,000"
+    ],
+    [
+     "消費税（10％）",
+     "消費税（10％）",
+     "消費税（10％）",
+     "93,700"
+    ],
+    [
+     "合計",
+     "合計",
+     "合計",
+     "1,030,700"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "（１） 支払条件：工事完了後の検収をもって請求書を発行し、月末締め翌月末払いとします。"
+  },
+  {
+   "level": 0,
+   "text": "（２） 工事範囲"
+  },
+  {
+   "level": 1,
+   "text": "① 本見積書に記載の項目に限ります。"
+  },
+  {
+   "level": 1,
+   "text": "② 天井補強工事および内装復旧工事は含まれておりません。"
+  },
+  {
+   "level": 0,
+   "text": "（３） 保証"
+  },
+  {
+   "level": 1,
+   "text": "① 機器本体は製造元の保証（1年）に準じます。"
+  },
+  {
+   "level": 1,
+   "text": "② 工事部分は引渡し後1年間保証いたします。"
+  },
+  {
+   "level": 0,
+   "text": "一、 作業は平日の午前9時から午後5時までを基本とします。"
+  },
+  {
+   "level": 0,
+   "text": "二、 建物の管理規則により夜間作業が必要な場合は、別途費用をご相談いたします。"
+  },
+  {
+   "level": 0,
+   "text": "三、 資材価格の著しい変動があった場合は、再見積りをお願いすることがあります。"
+  },
+  {
+   "level": 0,
+   "text": "・ 現地調査およびご要望のヒアリング"
+  },
+  {
+   "level": 0,
+   "text": "・ 工事計画書の作成とご確認"
+  },
+  {
+   "level": 0,
+   "text": "・ 機器の搬入および既存設備の撤去"
+  },
+  {
+   "level": 0,
+   "text": "・ 据付・配管・配線工事"
+  },
+  {
+   "level": 0,
+   "text": "・ 試運転、検査およびお引渡し"
+  }
+ ],
+ "furniture": [
+  "ひかり設備株式会社",
+  "〒100-0000 東京都千代田区桜町1-2-3",
+  "電話 03-5550-0123",
+  "ページ 1 / 2",
+  "御見積書 No. 2026-0318",
+  "ページ 2 / 2"
+ ],
+ "languages": [
+  "ja"
+ ],
+ "code": [],
+ "notes": "Japanese without spaces between words: a line wrapped inside a sentence joins with NO space. Table 1 (key/value panel, no header row). Table 2 (items) has a header row; the three bottom rows have a label cell spanning three columns (text repeated in three grid cells). Page 2 lists: level 0 typed full-width \"（１）\" \"（２）\" \"（３）\"; level 1 typed circled digits \"①\" \"②\" (inline). A second list \"一、\" \"二、\" \"三、\" uses typed kanji numerals, and a third list (工事の流れ) uses typed middle-dot bullets \"・\". Letterhead lines and the page lines \"ページ 1 / 2\" / \"ページ 2 / 2\" are furniture; the page-2 running header \"御見積書 No. 2026-0318\" is listed once."
+}

@@ -1,0 +1,242 @@
+{
+ "id": "r21",
+ "difficulty": "Flowing Italian tender specification: Art. headings, three-level typed list \"1.\" / \"1.1\" / \"a)\" with hanging markers, long partly ruled table across pages with total row, typed \"a)\" duties list; margin-box header and \"Pagina k di N\".",
+ "pages": 3,
+ "title": "Capitolato speciale d’appalto per la manutenzione del verde pubblico",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Capitolato speciale d’appalto per la manutenzione del verde pubblico"
+  },
+  {
+   "level": 2,
+   "text": "Art. 1 – Oggetto dell’appalto"
+  },
+  {
+   "level": 2,
+   "text": "Art. 2 – Durata"
+  },
+  {
+   "level": 2,
+   "text": "Art. 3 – Prestazioni richieste"
+  },
+  {
+   "level": 2,
+   "text": "Art. 4 – Elenco delle aree e frequenze"
+  },
+  {
+   "level": 2,
+   "text": "Art. 5 – Obblighi dell’appaltatore"
+  },
+  {
+   "level": 2,
+   "text": "Art. 6 – Penali"
+  },
+  {
+   "level": 2,
+   "text": "Art. 7 – Pagamenti"
+  }
+ ],
+ "key_sentences": [
+  "Il presente capitolato disciplina l’affidamento del servizio di manutenzione ordinaria delle aree verdi del Comune di Valdoro.",
+  "L’appalto ha durata di tre anni a decorrere dalla data del verbale di consegna del servizio.",
+  "Le aree oggetto dell’appalto, le relative superfici e il numero minimo di interventi annui sono riportati nella tabella seguente.",
+  "L’importo complessivo delle penali non può superare il dieci per cento del valore dell’appalto."
+ ],
+ "tables": [
+  {
+   "caption": "Tabella 1: Aree, superfici e importi annui",
+   "rows": [
+    [
+     "Area",
+     "Superficie (m²)",
+     "Interventi annui",
+     "Importo annuo (€)"
+    ],
+    [
+     "Parco Centrale",
+     "42.000",
+     "16",
+     "38.400"
+    ],
+    [
+     "Parco del Lago",
+     "28.500",
+     "14",
+     "24.900"
+    ],
+    [
+     "Parco delle Rose",
+     "9.200",
+     "14",
+     "8.100"
+    ],
+    [
+     "Giardini della Stazione",
+     "3.800",
+     "18",
+     "4.600"
+    ],
+    [
+     "Giardino della Biblioteca",
+     "1.900",
+     "14",
+     "1.900"
+    ],
+    [
+     "Giardini di via Verdi",
+     "2.600",
+     "14",
+     "2.700"
+    ],
+    [
+     "Piazza del Mercato",
+     "1.100",
+     "12",
+     "1.150"
+    ],
+    [
+     "Viale dei Tigli",
+     "5.400",
+     "10",
+     "6.200"
+    ],
+    [
+     "Viale della Libertà",
+     "4.800",
+     "10",
+     "5.500"
+    ],
+    [
+     "Via dei Platani",
+     "3.900",
+     "10",
+     "4.300"
+    ],
+    [
+     "Corso Garibaldi",
+     "3.200",
+     "8",
+     "3.300"
+    ],
+    [
+     "Scuola primaria Dante",
+     "5.400",
+     "12",
+     "4.700"
+    ],
+    [
+     "Scuola media Leopardi",
+     "7.800",
+     "12",
+     "6.900"
+    ],
+    [
+     "Asilo nido Girasole",
+     "2.300",
+     "12",
+     "2.050"
+    ],
+    [
+     "Palestra comunale",
+     "3.100",
+     "10",
+     "2.600"
+    ],
+    [
+     "Campo sportivo",
+     "14.200",
+     "14",
+     "11.900"
+    ],
+    [
+     "Cimitero monumentale",
+     "11.500",
+     "12",
+     "9.800"
+    ],
+    [
+     "Area cani di via Po",
+     "1.600",
+     "12",
+     "1.400"
+    ],
+    [
+     "Totale",
+     "152.300",
+     "",
+     "140.400"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "1. Sfalcio dei tappeti erbosi"
+  },
+  {
+   "level": 1,
+   "text": "1.1 Interventi regolari nelle aree a uso intensivo"
+  },
+  {
+   "level": 2,
+   "text": "a) con taglio a un’altezza non superiore a 5 cm;"
+  },
+  {
+   "level": 2,
+   "text": "b) con raccolta immediata del materiale di risulta;"
+  },
+  {
+   "level": 1,
+   "text": "1.2 Interventi di contenimento nelle aree naturalistiche"
+  },
+  {
+   "level": 0,
+   "text": "2. Potatura e cura delle alberature"
+  },
+  {
+   "level": 1,
+   "text": "2.1 Potatura di formazione e di contenimento delle chiome"
+  },
+  {
+   "level": 1,
+   "text": "2.2 Abbattimento degli esemplari ritenuti pericolosi dal direttore dell’esecuzione"
+  },
+  {
+   "level": 0,
+   "text": "3. Manutenzione delle aiuole e delle siepi"
+  },
+  {
+   "level": 0,
+   "text": "4. Pulizia delle aree e svuotamento dei cestini"
+  },
+  {
+   "level": 0,
+   "text": "a) impiegare personale in numero adeguato e dotato di idonei dispositivi di protezione;"
+  },
+  {
+   "level": 0,
+   "text": "b) comunicare con almeno quarantotto ore di anticipo il calendario degli interventi;"
+  },
+  {
+   "level": 0,
+   "text": "c) smaltire i rifiuti vegetali presso impianti autorizzati e conservare i relativi formulari;"
+  },
+  {
+   "level": 0,
+   "text": "d) segnalare tempestivamente al Comune ogni situazione di pericolo riscontrata."
+  }
+ ],
+ "furniture": [
+  "Comune di Valdoro · Capitolato speciale d’appalto",
+  "Pagina 1 di 3",
+  "Pagina 2 di 3",
+  "Pagina 3 di 3"
+ ],
+ "languages": [
+  "it"
+ ],
+ "code": [],
+ "notes": "Running header (margin box) listed once; footers \"Pagina k di N\" one per page. The list in Art. 3 has typed markers: level 0 \"1.\" \"2.\" \"3.\", level 1 \"1.1\" \"1.2\" (decimal hierarchical, number of the item inside its parent: \"1.1\" under \"1.\") and level 2 \"a)\" \"b)\"; all with hanging indent. Art. 5 list: typed \"a)\" \"b)\" \"c)\". Table 1 is PARTLY RULED: rules under the header, after each group of rows (park / gardens / avenues / other sites) and above the total row; no vertical rules. It may continue across pages as ONE table (header row repeated by the renderer, listed once); the last row \"Totale\" is a total row. Thousands separators are dots (Italian). Caption is a paragraph above the table."
+}

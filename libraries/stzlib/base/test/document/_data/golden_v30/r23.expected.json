@@ -1,0 +1,180 @@
+{
+ "id": "r23",
+ "difficulty": "Two-page laboratory report: letterhead, boxed 4-column key/value panel, results tables with two-line top-aligned cells and vertically centred status cells, table footnote, roman-numeral hanging list, side-by-side signature boxes.",
+ "pages": 2,
+ "title": "Water Quality Test Report",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Water Quality Test Report"
+  },
+  {
+   "level": 2,
+   "text": "1. Chemical analysis"
+  },
+  {
+   "level": 2,
+   "text": "2. Microbiological analysis"
+  },
+  {
+   "level": 2,
+   "text": "3. Conclusion"
+  },
+  {
+   "level": 2,
+   "text": "4. Recommendations"
+  },
+  {
+   "level": 2,
+   "text": "5. Sampling and handling"
+  }
+ ],
+ "key_sentences": [
+  "This report presents the results of the chemical and microbiological analysis of one drinking-water sample.",
+  "The sample was received in good condition and analysed within 24 hours of collection.",
+  "The sample meets the drinking-water standard for all parameters except iron, which exceeds the limit of 0.20 mg/l.",
+  "The elevated iron content does not pose a health risk, but it can cause staining and a metallic taste.",
+  "The results relate only to the sample as received."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Report number",
+     "WQ-2026-0382",
+     "Date reported",
+     "14 April 2026"
+    ],
+    [
+     "Client",
+     "Ashford Parish Council",
+     "Sample type",
+     "Drinking water"
+    ],
+    [
+     "Sampling point",
+     "Village hall, kitchen tap",
+     "Date sampled",
+     "9 April 2026"
+    ]
+   ]
+  },
+  {
+   "caption": "Table 1: Chemical parameters",
+   "rows": [
+    [
+     "Parameter",
+     "Method",
+     "Result †",
+     "Limit",
+     "Status"
+    ],
+    [
+     "Nitrate (as NO3)",
+     "ISO 10304-1 ion chromatography",
+     "4.8 mg/l",
+     "50 mg/l",
+     "Pass"
+    ],
+    [
+     "Ammonium (as NH4)",
+     "ISO 11732 flow analysis",
+     "< 0.05 mg/l",
+     "0.50 mg/l",
+     "Pass"
+    ],
+    [
+     "Chloride",
+     "ISO 10304-1 ion chromatography",
+     "18 mg/l",
+     "250 mg/l",
+     "Pass"
+    ],
+    [
+     "Iron",
+     "ISO 11885 ICP-OES",
+     "0.31 mg/l",
+     "0.20 mg/l",
+     "Fail"
+    ],
+    [
+     "Lead",
+     "ISO 17294-2 ICP-MS",
+     "2.1 µg/l",
+     "10 µg/l",
+     "Pass"
+    ],
+    [
+     "pH",
+     "ISO 10523 electrometric",
+     "7.4",
+     "6.5 – 9.5",
+     "Pass"
+    ],
+    [
+     "Turbidity",
+     "ISO 7027 nephelometric",
+     "0.9 NTU",
+     "4 NTU",
+     "Pass"
+    ]
+   ]
+  },
+  {
+   "caption": "Table 2: Microbiological parameters",
+   "rows": [
+    [
+     "Organism",
+     "Method",
+     "Result",
+     "Limit"
+    ],
+    [
+     "Escherichia coli",
+     "ISO 9308-1",
+     "0 per 100 ml",
+     "0 per 100 ml"
+    ],
+    [
+     "Coliform bacteria",
+     "ISO 9308-1",
+     "0 per 100 ml",
+     "0 per 100 ml"
+    ],
+    [
+     "Colony count, 22 °C",
+     "ISO 6222",
+     "12 per ml",
+     "no abnormal change"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "i. Flush the kitchen tap for two minutes before drawing water for drinking."
+  },
+  {
+   "level": 0,
+   "text": "ii. Inspect the internal pipework of the village hall for corrosion."
+  },
+  {
+   "level": 0,
+   "text": "iii. Repeat the iron analysis on a new sample after the inspection."
+  }
+ ],
+ "furniture": [
+  "Riverside Analytical Laboratory",
+  "Accredited testing · 22 Mill Lane, Ashford AS1 4QT",
+  "Tel 01234 555 019 · lab@riverside-lab.example",
+  "Report WQ-2026-0382 · Page 1 of 2",
+  "Report WQ-2026-0382 · Page 2 of 2"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [],
+ "notes": "Table 1 is the boxed key/value panel (4 columns, label/value pairs; no header row). Table 2 (chemical analysis) has a header row (its \"Result †\" header cell carries the dagger); cells of the first two columns have two lines (joined with one space) and are TOP-aligned, while the \"Status\" cells are vertically CENTRED. Subscript digits in \"NO3\" and \"NH4\" are plain digits in the expected text. Table 3 (microbiology) is a small full grid. The footnote under Table 1 starts with a dagger † and is small body text; it is not a key sentence. List \"Recommendations\": typed lowercase roman \"i.\" \"ii.\" \"iii.\" with hanging indent. The two signature boxes at the end are SIDE BY SIDE (reading order left then right) and are not key sentences. Letterhead lines are furniture. Footers on each page: \"Report WQ-2026-0382 · Page 1 of 2\" and \"Report WQ-2026-0382 · Page 2 of 2\"."
+}

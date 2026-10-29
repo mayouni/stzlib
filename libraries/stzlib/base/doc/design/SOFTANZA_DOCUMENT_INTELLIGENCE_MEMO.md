@@ -601,7 +601,15 @@ Tried and withdrawn: the same 1.5 leading for a row of several cells under its r
 
 On the development sets, against round 28 frozen: tables v29 0.77 -> 0.87, v28 0.79 -> 0.82, v27 0.755 -> 0.766; lists v29 0.89 -> 0.95, v28 0.88 -> 0.90, v15 0.92 -> 0.94, v13 0.84 -> 0.86; headings v29 0.92 -> 0.97, v28 0.98 -> 0.99, v23 0.97 -> 0.98, v5 0.86 -> 0.87. Costs: heading precision v18 -0.006, v21 -0.004, v25 -0.004, v26 -0.004, v27 -0.004. Not reached: p03 (an Arabic mark off the line splits "أولاً" into three fragments), p06, p13, p01 (tables), p12 (furniture), p22 (code). Guard 246 assertions under Ring++.
 
-golden_v30: DLV30
+golden_v30: 24 realistic documents in 19 languages (English in six; Arabic, Hebrew and Persian right to left; Japanese, Chinese, Korean, Hindi, Thai, Georgian, Vietnamese and others), 19 of 2-3 pages, running headers drawn by CSS page-margin boxes in five, code in two, by a thirtieth independent agent who saw no reader, no output and no earlier set and ran no extractor or rasterizer (its expectations come from the HTML, so the page breaks of its five flowing documents and the soft hyphens of r02 are unchecked in the PDFs); no one has looked at the pages (unperceived); reader frozen at 9494d729e; both readers ran once:
+
+| golden_v30, realistic | text | order | headings | tables | lists | furniture | code | heading precision |
+|---|---|---|---|---|---|---|---|---|
+| Softanza native (Ring++) | **0.96** | **1.00** | **0.98** | **0.94** | **0.85** | 0.89 | **0.83** | **0.88** |
+| Docling 2.141 | 0.73 | 0.98 | 0.72 | 0.75 | 0.32 | 0.89 | 0.17 | 0.66 |
+
+Time for the 24 documents: native 0.06 s, Docling 90 s. The native reader leads on six measures and on heading precision; furniture is level (0.892 against 0.893). Where Docling does better, document by document: tables on two (r04 0.20 against 0.60; r16 0.72 against 0.93), lists on three (r10 0.46 against 0.69; r14 0.12 against 0.25; r16 0.40 against 0.60), furniture on four (r05, r13, r20, r22), text on three (r08, r10, r22). Causes not yet looked into: round 30.
+
 
 **Perceived (2026-10-24):** the author looked through every rendered page of golden_v9 to golden_v13 -- the sets whose own authors could not look at them -- and judged them: "they look great". Those five sets are no longer unperceived; the sets before them were generated the same way and are not covered by this look.
 

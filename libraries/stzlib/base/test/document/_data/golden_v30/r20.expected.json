@@ -1,0 +1,221 @@
+{
+ "id": "r20",
+ "difficulty": "Two-page Portuguese menu: centred masthead, two boxes side by side (starters | mains) each with a borderless two-line-cell price table, boxed key/value panel, rules-between-rows table, typed \"(1)\" allergen list and dash list.",
+ "pages": 2,
+ "title": "Ementa de primavera",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Ementa de primavera"
+  },
+  {
+   "level": 2,
+   "text": "Entradas"
+  },
+  {
+   "level": 2,
+   "text": "Pratos principais"
+  },
+  {
+   "level": 2,
+   "text": "Horário de funcionamento"
+  },
+  {
+   "level": 2,
+   "text": "Sobremesas"
+  },
+  {
+   "level": 2,
+   "text": "Bebidas"
+  },
+  {
+   "level": 2,
+   "text": "Alergénios"
+  },
+  {
+   "level": 2,
+   "text": "Notas"
+  }
+ ],
+ "key_sentences": [
+  "Todos os pratos são preparados no próprio dia com produtos da região.",
+  "Informe-nos sobre quaisquer alergias antes de fazer o pedido.",
+  "As sobremesas são preparadas diariamente na nossa cozinha.",
+  "Peça-nos a sugestão do chefe.",
+  "Agradecemos a sua visita e desejamos-lhe uma boa refeição."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Prato",
+     "Preço"
+    ],
+    [
+     "Pão, azeitonas e manteiga Para começar a refeição",
+     "3,50 €"
+    ],
+    [
+     "Caldo verde Couve, batata e chouriço",
+     "5,00 €"
+    ],
+    [
+     "Salada de polvo Polvo cozido com pimento e coentros",
+     "11,50 €"
+    ],
+    [
+     "Pastéis de bacalhau Seis unidades com arroz de tomate",
+     "8,00 €"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Prato",
+     "Preço"
+    ],
+    [
+     "Bacalhau à Brás Bacalhau desfiado com batata palha e ovos",
+     "16,50 €"
+    ],
+    [
+     "Arroz de pato Pato assado no forno com chouriço",
+     "15,00 €"
+    ],
+    [
+     "Dourada grelhada Com legumes salteados",
+     "17,00 €"
+    ],
+    [
+     "Bife à casa Bife com ovo estrelado e batatas fritas",
+     "14,50 €"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Almoço",
+     "12:00 às 15:00"
+    ],
+    [
+     "Jantar",
+     "19:00 às 22:30"
+    ],
+    [
+     "Encerramento",
+     "Às segundas-feiras"
+    ],
+    [
+     "Reservas",
+     "21 555 0147"
+    ]
+   ]
+  },
+  {
+   "caption": "Tabela 1: Sobremesas da casa",
+   "rows": [
+    [
+     "Sobremesa",
+     "Descrição",
+     "Preço"
+    ],
+    [
+     "Pudim de ovos",
+     "Receita da casa com caramelo (3)",
+     "4,50 €"
+    ],
+    [
+     "Arroz doce",
+     "Com canela, servido frio (3, 4)",
+     "4,00 €"
+    ],
+    [
+     "Tarte de amêndoa",
+     "Com gelado de baunilha (1, 3, 4)",
+     "5,50 €"
+    ],
+    [
+     "Fruta da época",
+     "Seleção do dia",
+     "3,50 €"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Bebida",
+     "Copo",
+     "Garrafa"
+    ],
+    [
+     "Vinho da casa, tinto ou branco",
+     "3,00 €",
+     "12,00 €"
+    ],
+    [
+     "Vinho verde",
+     "3,50 €",
+     "14,00 €"
+    ],
+    [
+     "Cerveja",
+     "2,00 €",
+     "—"
+    ],
+    [
+     "Água mineral",
+     "1,50 €",
+     "2,50 €"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "(1) Glúten"
+  },
+  {
+   "level": 0,
+   "text": "(2) Peixe e produtos à base de peixe"
+  },
+  {
+   "level": 0,
+   "text": "(3) Ovos e produtos à base de ovos"
+  },
+  {
+   "level": 0,
+   "text": "(4) Leite e lactose"
+  },
+  {
+   "level": 0,
+   "text": "– Os preços incluem IVA à taxa legal em vigor."
+  },
+  {
+   "level": 0,
+   "text": "– Aceitamos pagamento em numerário e por cartão."
+  },
+  {
+   "level": 0,
+   "text": "– O couvert é opcional e só é cobrado se for consumido."
+  }
+ ],
+ "furniture": [
+  "Casa do Rio",
+  "RESTAURANTE · COZINHA TRADICIONAL",
+  "Página 1",
+  "Página 2"
+ ],
+ "languages": [
+  "pt"
+ ],
+ "code": [],
+ "notes": "Section \"Entradas e pratos principais\" has TWO BOXES SIDE BY SIDE; reading order is box by box: the whole left box (Entradas) first, then the right box (Pratos principais). Tables 1 and 2 (price tables inside the boxes) have no lines at all; their first column cells have two lines (dish name, then a description) that are joined with one space. Table 3 is a boxed key/value panel without header row (opening hours). Table 4 (Sobremesas) has rules between rows only. Table 5 (Bebidas) is a small grid; \"—\" means no price. Lists: typed \"(1)\" \"(2)\" \"(3)\" \"(4)\" (allergens, hanging indent) and typed en-dashes \"–\". Masthead lines and the page lines \"Página 1\" and \"Página 2\" are furniture; the restaurant name is not a heading."
+}

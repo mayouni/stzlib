@@ -1,0 +1,153 @@
+{
+ "id": "r08",
+ "difficulty": "Two-page Simplified Chinese user manual: running header, headings with 一、, zebra spec table, decimal \"1.\" and \"（1）\" lists, \"（一）\" list, boxed warning paragraph, full grid FAQ table.",
+ "pages": 2,
+ "title": "智能温控器 TH-200 使用说明书",
+ "headings": [
+  {
+   "level": 1,
+   "text": "智能温控器 TH-200 使用说明书"
+  },
+  {
+   "level": 2,
+   "text": "一、产品概述"
+  },
+  {
+   "level": 2,
+   "text": "二、技术参数"
+  },
+  {
+   "level": 2,
+   "text": "三、安装步骤"
+  },
+  {
+   "level": 2,
+   "text": "四、使用方法"
+  },
+  {
+   "level": 2,
+   "text": "五、常见问题"
+  },
+  {
+   "level": 2,
+   "text": "六、保修说明"
+  }
+ ],
+ "key_sentences": [
+  "感谢您选购本公司的智能温控器。",
+  "使用前请仔细阅读本说明书，并妥善保管以备日后查阅。",
+  "TH-200 智能温控器适用于电地暖、电热膜和小型壁挂炉等采暖设备，支持本地按键操作，也可以通过手机应用远程控制。",
+  "注意：安装必须由具有资质的电工完成，通电状态下严禁拆装本产品。",
+  "本产品自购买之日起享受两年免费保修。",
+  "如需售后服务，请拨打客户服务热线 400-000-0000，并准备好产品序列号。"
+ ],
+ "tables": [
+  {
+   "caption": "表 1 主要技术参数",
+   "rows": [
+    [
+     "项目",
+     "参数"
+    ],
+    [
+     "额定电压",
+     "AC 220 V，50 Hz"
+    ],
+    [
+     "控温范围",
+     "5 ℃ 至 35 ℃"
+    ],
+    [
+     "控温精度",
+     "±0.5 ℃"
+    ],
+    [
+     "最大负载",
+     "16 A"
+    ],
+    [
+     "工作环境",
+     "0 ℃ 至 40 ℃，相对湿度不大于 85 %"
+    ],
+    [
+     "通信方式",
+     "Wi-Fi 2.4 GHz"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "现象",
+     "处理方法"
+    ],
+    [
+     "屏幕不亮",
+     "检查电源接线是否牢固，并确认断路器已经合上。"
+    ],
+    [
+     "无法连接网络",
+     "确认路由器工作在 2.4 GHz 频段，然后重新进行配网。"
+    ],
+    [
+     "温度显示偏差",
+     "在设置菜单中进行温度校准，每次可校准 ±3 ℃。"
+    ],
+    [
+     "加热设备不工作",
+     "检查负载是否超过 16 A，并确认加热设备接线端子无松动。"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "1. 切断电源，并用验电笔确认线路无电。"
+  },
+  {
+   "level": 0,
+   "text": "2. 取下旧面板，并记录各根导线的接线位置。"
+  },
+  {
+   "level": 1,
+   "text": "（1） 电源线接 L 端子和 N 端子。"
+  },
+  {
+   "level": 1,
+   "text": "（2） 加热设备接 1 号端子和 2 号端子。"
+  },
+  {
+   "level": 0,
+   "text": "3. 将温控器底座用螺丝固定在墙面接线盒上。"
+  },
+  {
+   "level": 0,
+   "text": "4. 扣合面板，恢复供电后检查屏幕是否正常显示。"
+  },
+  {
+   "level": 0,
+   "text": "（一） 开机与关机：长按电源键三秒，屏幕亮起或熄灭。"
+  },
+  {
+   "level": 0,
+   "text": "（二） 设定温度：按上键或下键调节目标温度，每次变化 0.5 ℃。"
+  },
+  {
+   "level": 0,
+   "text": "（三） 定时功能：在应用中设置工作日和周末的不同时段，温控器会自动执行。"
+  }
+ ],
+ "furniture": [
+  "晨光电器有限公司",
+  "智能温控器 TH-200 使用说明书",
+  "第 1 页，共 2 页",
+  "第 2 页，共 2 页"
+ ],
+ "languages": [
+  "zh"
+ ],
+ "code": [],
+ "notes": "Chinese without spaces between words: a line wrapped inside a sentence joins with NO space. Headings carry typed Chinese numerals (\"一、产品概述\"). Table 1 (specifications) is a zebra-banded 2-column table with a caption paragraph above it (\"表 1　主要技术参数\"). Table 2 (FAQ) is a full grid. List 1 (installation) uses typed \"1.\" \"2.\" \"3.\" \"4.\" at level 0 and typed full-width-parenthesis \"（1）\" \"（2）\" at level 1, inline. List 2 (usage) uses typed \"（一）\" \"（二）\" \"（三）\". The boxed warning paragraph starting with \"注意：\" is body text (a key sentence). Running header listed once; page lines \"第 1 页，共 2 页\" and \"第 2 页，共 2 页\"."
+}

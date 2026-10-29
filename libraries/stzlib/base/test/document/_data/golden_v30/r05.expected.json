@@ -1,0 +1,141 @@
+{
+ "id": "r05",
+ "difficulty": "Two-page Arabic RTL circular: letterhead, boxed key/value panel, Arabic-letter and Arabic-Indic numbered lists, RTL table with multi-line cell, CSS square bullets, Arabic-Indic page numbers.",
+ "pages": 2,
+ "title": "تعميم رقم ١٤ لسنة ٢٠٢٦ بشأن الإجازة السنوية للعاملين",
+ "headings": [
+  {
+   "level": 1,
+   "text": "تعميم رقم ١٤ لسنة ٢٠٢٦ بشأن الإجازة السنوية للعاملين"
+  },
+  {
+   "level": 2,
+   "text": "أولًا: أحكام عامة"
+  },
+  {
+   "level": 2,
+   "text": "ثانيًا: مدة الإجازة"
+  },
+  {
+   "level": 2,
+   "text": "ثالثًا: إجراءات الطلب"
+  },
+  {
+   "level": 2,
+   "text": "رابعًا: أحكام ختامية"
+  }
+ ],
+ "key_sentences": [
+  "تود إدارة الموارد البشرية إعلام جميع العاملين بالضوابط الجديدة المنظمة للإجازة السنوية خلال العام ٢٠٢٦.",
+  "ويُعمل بهذه الضوابط اعتبارًا من الأول من أبريل.",
+  "تُحدَّد مدة الإجازة السنوية وفق سنوات الخدمة، كما يوضح الجدول التالي.",
+  "يُلغى كل ما يتعارض مع هذا التعميم من تعليمات سابقة.",
+  "وللاستفسار يمكن التواصل مع إدارة الموارد البشرية على الرقم الداخلي ٢٢٠ خلال ساعات الدوام الرسمي."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "الموضوع",
+     "ضوابط الإجازة السنوية للعام ٢٠٢٦"
+    ],
+    [
+     "التاريخ",
+     "١٥ مارس ٢٠٢٦"
+    ],
+    [
+     "المرسل إليه",
+     "جميع العاملين في الإدارات والفروع"
+    ]
+   ]
+  },
+  {
+   "caption": "الجدول ١: مدة الإجازة السنوية",
+   "rows": [
+    [
+     "سنوات الخدمة",
+     "عدد الأيام",
+     "ملاحظات"
+    ],
+    [
+     "أقل من ٥ سنوات",
+     "٢١ يومًا",
+     "تُحتسب أيام العمل الفعلية فقط"
+    ],
+    [
+     "من ٥ إلى ١٠ سنوات",
+     "٢٦ يومًا",
+     "يجوز ترحيل ٥ أيام إلى العام التالي"
+    ],
+    [
+     "أكثر من ١٠ سنوات",
+     "٣٠ يومًا",
+     "يجوز ترحيل ٧ أيام إلى العام التالي"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "أ- تستحق الإجازة السنوية بعد إتمام ستة أشهر من الخدمة الفعلية."
+  },
+  {
+   "level": 0,
+   "text": "ب- يقدَّم طلب الإجازة قبل موعدها بأسبوعين على الأقل."
+  },
+  {
+   "level": 0,
+   "text": "ج- لا يجوز تجزئة الإجازة إلى أكثر من ثلاث فترات في السنة الواحدة."
+  },
+  {
+   "level": 0,
+   "text": "د- تُحتسب أيام العطل الرسمية التي تقع خلال الإجازة من أيام الإجازة."
+  },
+  {
+   "level": 0,
+   "text": "١. تعبئة نموذج طلب الإجازة عبر البوابة الإلكترونية."
+  },
+  {
+   "level": 1,
+   "text": "أ- اختيار نوع الإجازة وتاريخ البداية."
+  },
+  {
+   "level": 1,
+   "text": "ب- إرفاق الموافقة المبدئية من المدير المباشر."
+  },
+  {
+   "level": 0,
+   "text": "٢. مراجعة الطلب من إدارة الموارد البشرية خلال ثلاثة أيام عمل."
+  },
+  {
+   "level": 0,
+   "text": "٣. استلام إشعار القبول عبر البريد الإلكتروني الرسمي."
+  },
+  {
+   "level": 0,
+   "text": "نموذج الطلب موقعًا من مقدمه."
+  },
+  {
+   "level": 0,
+   "text": "صورة من بطاقة الهوية المهنية."
+  },
+  {
+   "level": 0,
+   "text": "ما يثبت الحاجة إلى الإجازة في الحالات الطارئة."
+  }
+ ],
+ "furniture": [
+  "مؤسسة النخيل للخدمات التعليمية",
+  "ص.ب ٤٥٦٧ · الإدارة العامة · هاتف ٠١١٥٥٥٠١٢٣",
+  "صفحة ١ من ٢",
+  "تعميم داخلي · مؤسسة النخيل للخدمات التعليمية",
+  "صفحة ٢ من ٢"
+ ],
+ "languages": [
+  "ar"
+ ],
+ "code": [],
+ "notes": "Right-to-left document. Table cells are listed in logical order (rightmost column first). Table 1 is a boxed 2-column key/value panel with no header row. Table 2 has a header row and a caption paragraph above it; its last column has two-line cells (join with one space). List markers are TYPED: level 0 \"أ-\" \"ب-\" \"ج-\" (Arabic letters followed by a hyphen, hanging indent) in section 1; \"١.\" \"٢.\" \"٣.\" (Arabic-Indic digits) with nested \"أ-\" \"ب-\" in section 3. The document-types list on page 2 uses bullets DRAWN BY CSS (small squares), so no marker is in the text. Digits throughout are Arabic-Indic. Running header and letterhead are furniture; page lines are \"صفحة ١ من ٢\" and \"صفحة ٢ من ٢\". The letterhead organisation is not a heading."
+}

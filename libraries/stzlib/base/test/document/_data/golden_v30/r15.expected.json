@@ -1,0 +1,137 @@
+{
+ "id": "r15",
+ "difficulty": "One-page Turkish annual-report summary: running header/footer, partly ruled indicator table (rules under header and between rows, no verticals), CSS round bullets, \"1)\" list with nested \"a)\", boxed key/value panel; dotted and dotless i.",
+ "pages": 1,
+ "title": "2025 Faaliyet Raporu Özeti",
+ "headings": [
+  {
+   "level": 1,
+   "text": "2025 Faaliyet Raporu Özeti"
+  },
+  {
+   "level": 2,
+   "text": "Öne çıkan göstergeler"
+  },
+  {
+   "level": 2,
+   "text": "Stratejik öncelikler"
+  },
+  {
+   "level": 2,
+   "text": "Hedefler"
+  },
+  {
+   "level": 2,
+   "text": "Şirket bilgileri"
+  }
+ ],
+ "key_sentences": [
+  "Deniz Lojistik A.Ş. 2025 yılını güçlü bir büyüme ile tamamlamıştır.",
+  "Şirketimiz bu yıl 1.386 bin ton yük taşıyarak önceki yılın üzerine çıkmıştır.",
+  "Büyümenin temel nedeni, Ege limanlarında açılan iki yeni aktarma merkezidir.",
+  "Raporun tamamına şirketin internet sitesindeki yatırımcı ilişkileri sayfasından ulaşılabilir."
+ ],
+ "tables": [
+  {
+   "caption": "Tablo 1: Temel faaliyet göstergeleri",
+   "rows": [
+    [
+     "Gösterge",
+     "2024",
+     "2025",
+     "Değişim"
+    ],
+    [
+     "Taşınan yük (bin ton)",
+     "1.240",
+     "1.386",
+     "%11,8"
+    ],
+    [
+     "Ciro (milyon TL)",
+     "842",
+     "1.015",
+     "%20,5"
+    ],
+    [
+     "Çalışan sayısı",
+     "318",
+     "341",
+     "%7,2"
+    ],
+    [
+     "Müşteri memnuniyeti (5 üzerinden)",
+     "4,2",
+     "4,5",
+     "%7,1"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Ticaret unvanı",
+     "Deniz Lojistik Anonim Şirketi"
+    ],
+    [
+     "Merkez",
+     "İzmir"
+    ],
+    [
+     "Kuruluş yılı",
+     "1998"
+    ],
+    [
+     "Faaliyet alanı",
+     "Denizyolu ve karayolu yük taşımacılığı"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "Filo yenileme ve düşük emisyonlu araçlara geçiş"
+  },
+  {
+   "level": 0,
+   "text": "Dijital sevkiyat takip sisteminin tüm müşterilere açılması"
+  },
+  {
+   "level": 0,
+   "text": "İş sağlığı ve güvenliği eğitimlerinin yaygınlaştırılması"
+  },
+  {
+   "level": 0,
+   "text": "1) Taşınan yükün 1.500 bin tona çıkarılması"
+  },
+  {
+   "level": 1,
+   "text": "a) iç hat taşımacılığında %8 artış"
+  },
+  {
+   "level": 1,
+   "text": "b) ihracat yüklerinde %10 artış"
+  },
+  {
+   "level": 0,
+   "text": "2) Karbon emisyonunun yüzde beş azaltılması"
+  },
+  {
+   "level": 0,
+   "text": "3) Müşteri memnuniyetinin 4,7 düzeyine yükseltilmesi"
+  }
+ ],
+ "furniture": [
+  "Deniz Lojistik A.Ş.",
+  "Faaliyet Raporu 2025",
+  "Gizlilik: Genel",
+  "Sayfa 1 / 1"
+ ],
+ "languages": [
+  "tr"
+ ],
+ "code": [],
+ "notes": "Turkish with İ/ı/ş/ğ. Table 1 has rules under the header and between rows only; caption is a paragraph above. Table 2 is a boxed key/value panel with no header row. The bullet list under \"Stratejik öncelikler\" uses bullets DRAWN BY CSS (no marker in the text). The list under \"Hedefler\" uses typed \"1)\" at level 0 and typed \"a)\" at level 1. Running header and the footer lines (\"Sayfa 1 / 1\" and \"Gizlilik: Genel\") are furniture."
+}

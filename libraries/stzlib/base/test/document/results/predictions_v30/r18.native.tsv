@@ -1,0 +1,34 @@
+page_header	0	Journal of Sensor Systems · Vol. 12 · No. 3
+heading	1	Adaptive Sampling of Coastal Sensor Networks Under Intermittent Connectivity
+paragraph	0	J. Hartwell and P. Nandakumar
+paragraph	0	Institute of Marine Instrumentation, Port Marlow
+paragraph	0	Abstract. Coastal sensor networks lose connectivity whenever a storm or a tide interrupts the radio link. We present a sampling scheme that adapts the measurement rate to the expected length of the outage. In a six-month deployment of 40 nodes, the scheme reduced lost readings by 38 % while using 13 % less energy than fixed oneminute sampling.
+heading	2	1 Introduction
+paragraph	0	Sensors on buoys and piers report to a shore station over a radio link that is shadowed by waves and interrupted by weather. A reading that cannot be sent must be stored, and storage on a small node is limited. When the buffer is full the oldest readings are overwritten and the record develops gaps. This paper makes three contributions:
+list_item	0	(i) a compact model of outage length based on the
+paragraph	0	tide table;
+list_item	0	(ii) a rate controller that needs no tuning on the node;
+list_item	0	(iii) a field evaluation over six months on 40 nodes.
+paragraph	0	Earlier work on duty cycling assumes that outages are short and independent of each other. Tidal links violate both assumptions, because the shadowing repeats with the tide and lasts for hours rather than seconds. Our scheme therefore treats the outage length as a quantity that can be predicted in advance.
+heading	2	2 Method
+heading	3	2.1 Outage model
+paragraph	0	We model the time between link failures with a mixture of two exponential distributions, one for weather outages and one for tidal shadowing. The tidal component is predicted from the published tide table, so no training data is needed. The model has five parameters, which are fitted once per site from a week of link logs. Fitting takes less than a minute on the shore station and the result is sent to each node as a single small message.
+heading	3	2.2 Rate controller
+paragraph	0	The controller lowers the sampling rate in proportion to the expected outage length, so that the buffer never overflows before the link returns. When the link is restored, it raises the rate again within one cycle. Each node runs the controller independently1, which keeps the network free of coordination traffic.
+paragraph	0	1 Sensor identifiers are anonymised.
+heading	2	3 Results
+paragraph	0	Table 1 compares the adaptive scheme with two fixedrate schemes. The adaptive scheme loses the fewest readings while its energy use stays close to that of the slow fixed scheme.
+table	0	SchemeLost (%)Energy (kJ/day)Delay (min)Fixed, 1 per min14.23.11.0Fixed, 1 per 5 min11.51.14.8Adaptive (ours)8.82.72.2
+caption	0	Table 1. Loss, energy and delay of three sampling schemes
+paragraph	0	The deployment covered 40 nodes on 12 piers and 8 buoys between April and September. Nodes on buoys lost more readings than nodes on piers under every scheme, because their antennas sit close to the water. The difference between the two groups shrank from 9.1 to 3.4 percentage points when the adaptive controller was enabled. Latency was measured as the time between a reading and its arrival at the shore station. The adaptive scheme was slower than the fast fixed scheme but faster than the slow one, as expected from its design. A longer deployment over the winter months is needed to confirm that the tide model holds during storms.
+heading	2	4 Conclusion
+paragraph	0	Adapting the sampling rate to the predicted outage length reduces data loss without a measurable cost in latency. We plan to extend the outage model to networks that use satellite backhaul. The controller code and the deployment logs will be released with the final version of this paper.
+heading	2	References
+list_item	0	[1] Okafor, L., and Brandt, T. (2021). Duty cycling in tidal radio links. Journal of Sensor Systems, 9(2), 101–118.
+page_footer	0	p. 1
+page_header	0	Journal of Sensor Systems · Vol. 12 · No. 3
+list_item	0	[2] Lindqvist, S. (2019). Buffer management on constrained nodes. Proceedings of the Workshop on Ocean Observation, 44–51.
+list_item	0	[3] Mendes, R., et al. (2022). Predicting outage lengths from tide tables. Marine Technology Letters, 14(1), 22–
+page_header	0	30.
+list_item	0	[4] Tanaka, H. (2020). Energy accounting for batterypowered buoys. Sensors and Actuators in the Sea, 5(4), 301–315.
+page_footer	0	p. 2

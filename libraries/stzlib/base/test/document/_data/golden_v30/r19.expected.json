@@ -1,0 +1,413 @@
+{
+ "id": "r19",
+ "difficulty": "Flowing three-page financial statement: 8-column table across pages (header row repeated by the renderer), section rows spanning all columns, subtotal and total rows, numbered notes with roman sub-items; narrow font; margin-box header and \"Page k of N\".",
+ "pages": 3,
+ "title": "Statement of Comprehensive Income",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Statement of Comprehensive Income"
+  },
+  {
+   "level": 2,
+   "text": "Income statement"
+  },
+  {
+   "level": 2,
+   "text": "Notes to the statement"
+  },
+  {
+   "level": 3,
+   "text": "Note 1 – Basis of preparation"
+  },
+  {
+   "level": 3,
+   "text": "Note 2 – Sales"
+  },
+  {
+   "level": 3,
+   "text": "Note 3 – Other income"
+  },
+  {
+   "level": 3,
+   "text": "Note 4 – Goods purchased"
+  },
+  {
+   "level": 3,
+   "text": "Note 5 – Staff costs"
+  },
+  {
+   "level": 3,
+   "text": "Note 6 – Depreciation"
+  },
+  {
+   "level": 3,
+   "text": "Note 7 – Taxation"
+  },
+  {
+   "level": 3,
+   "text": "Note 8 – Related-party transactions"
+  },
+  {
+   "level": 3,
+   "text": "Note 9 – Events after the reporting date"
+  },
+  {
+   "level": 3,
+   "text": "Note 10 – Dividend to members"
+  },
+  {
+   "level": 2,
+   "text": "Approval"
+  }
+ ],
+ "key_sentences": [
+  "Northgate Cooperative Society presents its income statement for the year ended 31 December 2025, with quarterly figures for the current year and totals for the previous year.",
+  "All amounts are stated in thousands of pounds.",
+  "The statement has been prepared under the historical cost convention.",
+  "The board expects the increase to ease during 2026.",
+  "The board proposes a dividend of 4.5 pence in the pound on members’ purchases, payable in May 2026 subject to approval at the annual general meeting."
+ ],
+ "tables": [
+  {
+   "caption": "Table 1: Income statement by quarter, year ended 31 December 2025",
+   "rows": [
+    [
+     "£000",
+     "Note",
+     "Q1",
+     "Q2",
+     "Q3",
+     "Q4",
+     "FY 2025",
+     "FY 2024"
+    ],
+    [
+     "Revenue",
+     "Revenue",
+     "Revenue",
+     "Revenue",
+     "Revenue",
+     "Revenue",
+     "Revenue",
+     "Revenue"
+    ],
+    [
+     "Grocery sales",
+     "2",
+     "4,120",
+     "4,310",
+     "4,480",
+     "5,220",
+     "18,130",
+     "16,840"
+    ],
+    [
+     "Pharmacy sales",
+     "2",
+     "880",
+     "910",
+     "940",
+     "1,010",
+     "3,740",
+     "3,560"
+    ],
+    [
+     "Online orders",
+     "2",
+     "610",
+     "700",
+     "790",
+     "1,120",
+     "3,220",
+     "2,310"
+    ],
+    [
+     "Other income",
+     "3",
+     "95",
+     "102",
+     "98",
+     "140",
+     "435",
+     "410"
+    ],
+    [
+     "Total revenue",
+     "",
+     "5,705",
+     "6,022",
+     "6,308",
+     "7,490",
+     "25,525",
+     "23,120"
+    ],
+    [
+     "Cost of sales",
+     "Cost of sales",
+     "Cost of sales",
+     "Cost of sales",
+     "Cost of sales",
+     "Cost of sales",
+     "Cost of sales",
+     "Cost of sales"
+    ],
+    [
+     "Goods purchased",
+     "4",
+     "(3,380)",
+     "(3,490)",
+     "(3,610)",
+     "(4,240)",
+     "(14,720)",
+     "(13,620)"
+    ],
+    [
+     "Freight and handling",
+     "",
+     "(210)",
+     "(220)",
+     "(230)",
+     "(300)",
+     "(960)",
+     "(880)"
+    ],
+    [
+     "Wastage and shrinkage",
+     "",
+     "(95)",
+     "(92)",
+     "(101)",
+     "(134)",
+     "(422)",
+     "(395)"
+    ],
+    [
+     "Total cost of sales",
+     "",
+     "(3,685)",
+     "(3,802)",
+     "(3,941)",
+     "(4,674)",
+     "(16,102)",
+     "(14,895)"
+    ],
+    [
+     "Gross profit",
+     "",
+     "2,020",
+     "2,220",
+     "2,367",
+     "2,816",
+     "9,423",
+     "8,225"
+    ],
+    [
+     "Operating expenses",
+     "Operating expenses",
+     "Operating expenses",
+     "Operating expenses",
+     "Operating expenses",
+     "Operating expenses",
+     "Operating expenses",
+     "Operating expenses"
+    ],
+    [
+     "Salaries and wages",
+     "5",
+     "(1,010)",
+     "(1,015)",
+     "(1,040)",
+     "(1,090)",
+     "(4,155)",
+     "(3,980)"
+    ],
+    [
+     "Rent and rates",
+     "",
+     "(290)",
+     "(290)",
+     "(290)",
+     "(290)",
+     "(1,160)",
+     "(1,120)"
+    ],
+    [
+     "Utilities",
+     "",
+     "(118)",
+     "(104)",
+     "(97)",
+     "(122)",
+     "(441)",
+     "(415)"
+    ],
+    [
+     "Depreciation",
+     "6",
+     "(160)",
+     "(160)",
+     "(165)",
+     "(170)",
+     "(655)",
+     "(630)"
+    ],
+    [
+     "Marketing",
+     "",
+     "(70)",
+     "(85)",
+     "(80)",
+     "(150)",
+     "(385)",
+     "(330)"
+    ],
+    [
+     "Insurance",
+     "",
+     "(42)",
+     "(42)",
+     "(42)",
+     "(42)",
+     "(168)",
+     "(160)"
+    ],
+    [
+     "IT and software",
+     "",
+     "(88)",
+     "(91)",
+     "(90)",
+     "(96)",
+     "(365)",
+     "(340)"
+    ],
+    [
+     "Professional fees",
+     "",
+     "(35)",
+     "(28)",
+     "(31)",
+     "(52)",
+     "(146)",
+     "(118)"
+    ],
+    [
+     "Other expenses",
+     "",
+     "(64)",
+     "(71)",
+     "(69)",
+     "(88)",
+     "(292)",
+     "(270)"
+    ],
+    [
+     "Total operating expenses",
+     "",
+     "(1,877)",
+     "(1,886)",
+     "(1,904)",
+     "(2,100)",
+     "(7,767)",
+     "(7,363)"
+    ],
+    [
+     "Profit",
+     "Profit",
+     "Profit",
+     "Profit",
+     "Profit",
+     "Profit",
+     "Profit",
+     "Profit"
+    ],
+    [
+     "Operating profit",
+     "",
+     "143",
+     "334",
+     "463",
+     "716",
+     "1,656",
+     "862"
+    ],
+    [
+     "Interest income",
+     "",
+     "12",
+     "13",
+     "15",
+     "16",
+     "56",
+     "41"
+    ],
+    [
+     "Interest expense",
+     "",
+     "(31)",
+     "(30)",
+     "(29)",
+     "(28)",
+     "(118)",
+     "(136)"
+    ],
+    [
+     "Profit before tax",
+     "",
+     "124",
+     "317",
+     "449",
+     "704",
+     "1,594",
+     "767"
+    ],
+    [
+     "Tax charge",
+     "7",
+     "(137)",
+     "(170)",
+     "(199)",
+     "(343)",
+     "(849)",
+     "(648)"
+    ],
+    [
+     "Profit for the year",
+     "",
+     "(13)",
+     "147",
+     "250",
+     "361",
+     "745",
+     "119"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "(i) dividend discounts for members who shop at least twice a month;"
+  },
+  {
+   "level": 0,
+   "text": "(ii) promotional discounts funded by suppliers;"
+  },
+  {
+   "level": 0,
+   "text": "(iii) returns accepted within fourteen days of purchase."
+  }
+ ],
+ "furniture": [
+  "Northgate Cooperative Society · Annual Report 2025",
+  "Page 1 of 3",
+  "Page 2 of 3",
+  "Page 3 of 3"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [],
+ "notes": "Table 1 is ONE table across pages: its header row appears once in expected rows although the renderer repeats it at the top of each page. Section rows (\"Revenue\", \"Cost of sales\", \"Operating expenses\", \"Profit\") span all 8 columns, so their text is repeated in all 8 grid cells. Subtotal rows (\"Total revenue\", etc.) are rows of the same table. All amounts are £000 with thousands commas; negatives are in parentheses. Margin-box header \"Northgate Cooperative Society · Annual Report 2025\" listed once; footers \"Page k of N\" one per page. Notes section: headings level 3 typed \"Note 1 – ...\" ; list items typed \"(i)\" \"(ii)\" inline. Table caption is a paragraph above the table."
+}

@@ -1,0 +1,167 @@
+{
+ "id": "r04",
+ "difficulty": "Flowing Spanish policy (2-3 pages): nested typed lists 1. / (a) / i., typed bullets and en-dash lists, rules-between-rows table, question-mark headings, margin-box running header and \"Página X de N\" footer.",
+ "pages": 3,
+ "title": "Política de teletrabajo",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Política de teletrabajo"
+  },
+  {
+   "level": 2,
+   "text": "1. Objeto y ámbito de aplicación"
+  },
+  {
+   "level": 2,
+   "text": "2. Requisitos y procedimiento"
+  },
+  {
+   "level": 2,
+   "text": "3. Equipo y compensación de gastos"
+  },
+  {
+   "level": 2,
+   "text": "4. Horario y disponibilidad"
+  },
+  {
+   "level": 2,
+   "text": "5. Seguridad de la información"
+  },
+  {
+   "level": 2,
+   "text": "6. Prevención de riesgos laborales"
+  },
+  {
+   "level": 2,
+   "text": "7. Preguntas frecuentes"
+  },
+  {
+   "level": 3,
+   "text": "¿Qué ocurre si falla la conexión a internet?"
+  },
+  {
+   "level": 3,
+   "text": "¿Puedo cambiar los días de teletrabajo?"
+  },
+  {
+   "level": 3,
+   "text": "¿Cuándo termina el acuerdo?"
+  }
+ ],
+ "key_sentences": [
+  "Esta política regula las condiciones en las que el personal de Grupo Mirador puede prestar servicios desde su domicilio.",
+  "Su objetivo es combinar la flexibilidad con la continuidad del servicio a clientes y compañeros.",
+  "La política se aplica a todo el personal con contrato indefinido y una antigüedad mínima de seis meses.",
+  "La empresa entrega un ordenador portátil y una pantalla.",
+  "El horario de referencia es de 9:00 a 17:00, con una hora de flexibilidad en la entrada y en la salida.",
+  "El acceso a los sistemas corporativos se realiza exclusivamente mediante la red privada virtual de la empresa.",
+  "Los documentos confidenciales no deben imprimirse en el domicilio.",
+  "Esta política se revisará cada año y cualquier modificación se comunicará con un mes de antelación."
+ ],
+ "tables": [
+  {
+   "caption": "Tabla 1: Compensación de gastos",
+   "rows": [
+    [
+     "Concepto",
+     "Importe",
+     "Condición"
+    ],
+    [
+     "Conexión a internet",
+     "25,00 € al mes",
+     "Presentar la factura anual del operador"
+    ],
+    [
+     "Suministros",
+     "15,00 € al mes",
+     "Tres o más días de teletrabajo por semana"
+    ],
+    [
+     "Teléfono móvil",
+     "10,00 € al mes",
+     "Solo si el puesto lo requiere"
+    ],
+    [
+     "Silla ergonómica",
+     "180,00 € (pago único)",
+     "Una vez cada cinco años"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "1. Presentar la solicitud ante su responsable directo."
+  },
+  {
+   "level": 1,
+   "text": "(a) La solicitud indica los días de la semana elegidos."
+  },
+  {
+   "level": 1,
+   "text": "(b) Debe incluir la dirección donde se prestará el servicio."
+  },
+  {
+   "level": 1,
+   "text": "(c) Se acompaña de una declaración sobre el espacio de trabajo:"
+  },
+  {
+   "level": 2,
+   "text": "i. disponer de una conexión estable a internet;"
+  },
+  {
+   "level": 2,
+   "text": "ii. contar con un lugar tranquilo y bien iluminado."
+  },
+  {
+   "level": 0,
+   "text": "2. Obtener la aprobación de Recursos Humanos en un plazo máximo de diez días hábiles."
+  },
+  {
+   "level": 0,
+   "text": "3. Firmar el acuerdo individual de teletrabajo."
+  },
+  {
+   "level": 0,
+   "text": "4. Recibir la formación en seguridad de la información."
+  },
+  {
+   "level": 0,
+   "text": "• Reuniones de equipo los martes y jueves a las 10:00."
+  },
+  {
+   "level": 0,
+   "text": "• Respuesta a los mensajes urgentes en un máximo de dos horas."
+  },
+  {
+   "level": 0,
+   "text": "• Registro diario de la jornada en la aplicación de personal."
+  },
+  {
+   "level": 0,
+   "text": "– Trabajar con información confidencial en espacios públicos."
+  },
+  {
+   "level": 0,
+   "text": "– Compartir el equipo de la empresa con familiares o terceros."
+  },
+  {
+   "level": 0,
+   "text": "– Instalar programas no autorizados por el departamento de sistemas."
+  }
+ ],
+ "furniture": [
+  "Página 1 de 3",
+  "Página 2 de 3",
+  "Página 3 de 3",
+  "Grupo Mirador S. A. · Política de teletrabajo"
+ ],
+ "languages": [
+  "es"
+ ],
+ "code": [],
+ "notes": "Running header text and the footers are produced by @page margin boxes (not in the body flow). The header is listed once; one footer line \"Página k de N\" per page. List 1 (Requisitos): typed markers, level 0 \"1.\", level 1 \"(a)\", level 2 \"i.\" (all inline, indentation by padding). List 2: typed \"•\" bullets. List 3: typed \"–\" dashes. The compensation table has rules between rows only (no vertical rules) and a paragraph caption above it. Headings of section 7 are questions and keep their inverted question marks. Page breaks fall where the browser puts them."
+}
