@@ -24,7 +24,7 @@
 
 */
 
-_aLocaleCountriesXT = [
+$_aLocaleCountriesXT = [
     #    1            2                     3           4         5            6            7                         8             9           10
     # Number       Name                  ShortAbbreviation   LongAbbreviation   PhoneCode   DefaultLanguage   Currency                  CurrencyFractionalUnit   CurrencyBase   EmojiFlag
 
@@ -322,7 +322,7 @@ func DefaultCountryForScript(cScript)
 	return StzScriptQ(cScript).DefaultCountry()
 
 func LocaleCountriesXT()
-	return _aLocaleCountriesXT
+	return $_aLocaleCountriesXT
 
 	func CountriesXT()
 		return LocaleCountriesXT()

@@ -569,7 +569,7 @@ class stzList from stzObject
 
 		This._SetContent(paNewList)
 
-		if _bInHistoryUpdate = 0
+		if $_bInHistoryUpdate = 0
 			@TraceObjectHistory(This)
 		ok
 
@@ -13947,28 +13947,28 @@ class stzList from stzObject
 		if pOp = "+"
 
 			if isList(pValue)
-				if _bTheseQ
-					_bTheseQ = 0
+				if $_bTheseQ
+					$_bTheseQ = 0
 					return new stzList( This.ManyAdded(pValue) )
-				but _bThese
-					_bThese = 0
+				but $_bThese
+					$_bThese = 0
 					return This.ManyAdded(pValue)
 				else
 					return This.ItemAdded(pValue)
 				ok
 
 			but @IsStzObject(pValue)
-				if _bAsObject
-					_bAsObject = 0
+				if $_bAsObject
+					$_bAsObject = 0
 					return This.ItemAdded(pValue)
-				but _bAsObjectQ
-					_bAsObjectQ = 0
+				but $_bAsObjectQ
+					$_bAsObjectQ = 0
 					return new stzList( This.ItemAdded(pValue) )
-				but _bTheseQ
-					_bTheseQ = 0
+				but $_bTheseQ
+					$_bTheseQ = 0
 					return new stzList( This.ManyAdded(pValue.Content()) )
-				but _bThese
-					_bThese = 0
+				but $_bThese
+					$_bThese = 0
 					return This.ManyAdded(pValue.Content())
 				else
 					_vOpVal_ = pValue.Content()
@@ -13985,39 +13985,39 @@ class stzList from stzObject
 		but pOp = "-"
 
 			if isList(pValue)
-				if _bTheseQ
-					_bTheseQ = 0
+				if $_bTheseQ
+					$_bTheseQ = 0
 					return new stzList( This.ManyRemoved(pValue) )
-				but _bThese
-					_bThese = 0
+				but $_bThese
+					$_bThese = 0
 					return This.ManyRemoved(pValue)
 				else
 					return This.ItemRemoved(pValue)
 				ok
 
 			but @IsStzlist(pValue)
-				if _bAsObject
-					_bAsObject = 0
+				if $_bAsObject
+					$_bAsObject = 0
 					return This.ItemRemoved(pValue)
-				but _bAsObjectQ
-					_bAsObjectQ = 0
+				but $_bAsObjectQ
+					$_bAsObjectQ = 0
 					return new stzList( This.ItemRemoved(pValue) )
-				but _bTheseQ
-					_bTheseQ = 0
+				but $_bTheseQ
+					$_bTheseQ = 0
 					return new stzList( This.ManyRemoved(pValue.Content()) )
-				but _bThese
-					_bThese = 0
+				but $_bThese
+					$_bThese = 0
 					return This.ManyRemoved(pValue.Content())
 				else
 					return new stzList( This.ItemRemoved(pValue.Content()) )
 				ok
 
 			but @IsStzObject(pValue)
-				if _bAsObject
-					_bAsObject = 0
+				if $_bAsObject
+					$_bAsObject = 0
 					return This.ItemRemoved(pValue)
-				but _bAsObjectQ
-					_bAsObjectQ = 0
+				but $_bAsObjectQ
+					$_bAsObjectQ = 0
 					return new stzList( This.ItemRemoved(pValue) )
 				ok
 				_vOpVal_ = pValue.Content()

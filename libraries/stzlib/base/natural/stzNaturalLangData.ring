@@ -28,7 +28,7 @@
 
 # Glossary of Softanza actions
 
-	_ActionsXT = [
+	$_ActionsXT = [
 	
 		:Uppercase = [
 			:Uppercase, :Uppercased, :IsUppercased, :InUppercase, :Uppercasing

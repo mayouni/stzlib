@@ -39,21 +39,21 @@
 class stzReactiveStream from stzObject
 
 	@streamId = ""
-	@sourceType = STREAM_SOURCE_MANUAL
+	@sourceType = $STREAM_SOURCE_MANUAL
 
 	@aReactiveFuncs = []
 	@errorHandlers = []
 	@concludeHandlers = []
 	@oEngine = ""
-	@isActive = STREAM_STATE_INACTIVE
-	@isConcluded = STREAM_STATE_RUNNING
+	@isActive = $STREAM_STATE_INACTIVE
+	@isConcluded = $STREAM_STATE_RUNNING
 
 	# Transformation functions to apply
 	@transforms = []
 	
 	# Accumulator for reduce operations
 	@accumulator = ""
-	@hasReduceTransform = STREAM_STATE_INACTIVE
+	@hasReduceTransform = $STREAM_STATE_INACTIVE
 
 	# LibUV handle (only for libuv-backed streams)
 	@uvHandle = ""
@@ -63,16 +63,16 @@ class stzReactiveStream from stzObject
 	@overflowStrategy = :BUFFER
 	@currentBufferCount = 0
 	@buffer = []
-	@isOverflowActive = STREAM_STATE_INACTIVE
+	@isOverflowActive = $STREAM_STATE_INACTIVE
 	@droppedCount = 0
 	
 	# Overflow (backpressure) callbacks
 	@overflowHandlers = []
 	@bufferFullHandlers = []
 
-	@hasOverflowConfig = STREAM_STATE_INACTIVE
+	@hasOverflowConfig = $STREAM_STATE_INACTIVE
 
-	@autoConcludeEnabled = STREAM_STATE_ACTIVE
+	@autoConcludeEnabled = $STREAM_STATE_ACTIVE
 	@pendingDataCount = 0
 	@autoConcludeDelay = 100  # milliseconds to wait for more data
 
@@ -96,11 +96,11 @@ class stzReactiveStream from stzObject
 		
 		# Validate source type with expressive constants
 		if not ( find([
-			      STREAM_SOURCE_MANUAL, STREAM_SOURCE_LIBUV, 
-		                STREAM_SOURCE_TIMER, STREAM_SOURCE_FILE,
-		                STREAM_SOURCE_NETWORK, STREAM_SOURCE_SENSOR], sourceType ) )
+			      $STREAM_SOURCE_MANUAL, $STREAM_SOURCE_LIBUV, 
+		                $STREAM_SOURCE_TIMER, $STREAM_SOURCE_FILE,
+		                $STREAM_SOURCE_NETWORK, $STREAM_SOURCE_SENSOR], sourceType ) )
 
-			sourceType = STREAM_SOURCE_MANUAL
+			sourceType = $STREAM_SOURCE_MANUAL
 		ok
 		
 		@sourceType = sourceType
@@ -114,7 +114,7 @@ class stzReactiveStream from stzObject
 	#   see           Filter, Accumulate, OnPassed
 	#@ aka  Store map transformation with expressive constant
 	def Transform(mapFunction)
-		@transforms + [TRANSFORM_MAP, mapFunction]
+		@transforms + [$TRANSFORM_MAP, mapFunction]
 		return self
 
 		def Map(mapFunction)
@@ -128,7 +128,7 @@ class stzReactiveStream from stzObject
 	#   see              Transform, Accumulate, OnPassed
 	#@ aka  Store filter transformation with expressive constant
 	def Filter(filterFunction)
-		@transforms + [TRANSFORM_FILTER, filterFunction]
+		@transforms + [$TRANSFORM_FILTER, filterFunction]
 		return self
 
 		def Where(filterFunction)
@@ -146,8 +146,8 @@ class stzReactiveStream from stzObject
 	#   see              Conclude, OnNoMore, Transform
 	#@ aka  Store reduce transformation with expressive constant
 	def Accumulate(reduceFunction, initialValue)
-		@transforms + [TRANSFORM_REDUCE, reduceFunction, initialValue]
-		@hasReduceTransform = STREAM_STATE_ACTIVE
+		@transforms + [$TRANSFORM_REDUCE, reduceFunction, initialValue]
+		@hasReduceTransform = $STREAM_STATE_ACTIVE
 		@accumulator = initialValue
 		return self
 
@@ -468,7 +468,7 @@ class stzReactiveStream from stzObject
 			return
 		ok
 		
-		@isConcluded = STREAM_STATE_CONCLUDED
+		@isConcluded = $STREAM_STATE_CONCLUDED
 		
 		# If we have a reduce transform, emit the final accumulated result
 		if @hasReduceTransform
@@ -498,8 +498,8 @@ class stzReactiveStream from stzObject
 	#   note       CreateStream of stzReactive has already called it
 	#   see        Stop, Conclude
 	def Start()
-		@isActive = STREAM_STATE_ACTIVE
-		@isConcluded = STREAM_STATE_RUNNING
+		@isActive = $STREAM_STATE_ACTIVE
+		@isConcluded = $STREAM_STATE_RUNNING
 		return self
 		
 	# Makes the stream ignore values until Start is called, and returns it.
@@ -507,7 +507,7 @@ class stzReactiveStream from stzObject
 	#   returns    the stream itself, so calls chain
 	#   see        Start, Cleanup
 	def Stop()
-		@isActive = STREAM_STATE_INACTIVE
+		@isActive = $STREAM_STATE_INACTIVE
 		return self
 		
 	# Stops the stream and releases its libuv handle, if it has one.
@@ -516,7 +516,7 @@ class stzReactiveStream from stzObject
 	#   see        Stop
 	def Cleanup()
 		Stop()
-		if @uvHandle != "" and @sourceType = STREAM_SOURCE_LIBUV
+		if @uvHandle != "" and @sourceType = $STREAM_SOURCE_LIBUV
 			# Clean up LibUV resources
 			@uvHandle = ""
 		ok
@@ -556,7 +556,7 @@ class stzReactiveStream from stzObject
 		if not find([:BUFFER, :DROP, :BLOCK, :LATEST], _strategy_)
 			_strategy_ = :BUFFER
 		ok
-		@hasOverflowConfig = STREAM_STATE_ACTIVE
+		@hasOverflowConfig = $STREAM_STATE_ACTIVE
 		@overflowStrategy = _strategy_
 		@bufferSize = maxBufferSize
 		return self
@@ -597,7 +597,7 @@ class stzReactiveStream from stzObject
 	#   warning    calling it directly also counts the value as dropped
 	#   see        SetOverflowStrategy, OnOverflow
 	def HandleOverflow(data)
-		@isOverflowActive = STREAM_STATE_ACTIVE
+		@isOverflowActive = $STREAM_STATE_ACTIVE
 		
 		# Notify overflow handlers
 		_nLenBack_ = len(@overflowHandlers)
@@ -670,15 +670,15 @@ class stzReactiveStream from stzObject
 			_transformType_ = @transforms[i][1]
 
 			switch _transformType_
-			case TRANSFORM_MAP
+			case $TRANSFORM_MAP
 				_mapFunc_ = @transforms[i][2]
 				processedData = @Map(processedData, _mapFunc_)
 	
-			case TRANSFORM_FILTER
+			case $TRANSFORM_FILTER
 				_filterFunc_ = @transforms[i][2]
 				processedData = @Filter(processedData, _filterFunc_)
 
-			case TRANSFORM_REDUCE
+			case $TRANSFORM_REDUCE
 				_fReduceFunc_ = @transforms[i][2]
 				_nLenData_ = len(processedData)
 				for j = 1 to _nLenData_
@@ -686,7 +686,7 @@ class stzReactiveStream from stzObject
 				next
 				# Reset overflow if buffer is no longer full
 				if @currentBufferCount < @bufferSize and @isOverflowActive
-					@isOverflowActive = STREAM_STATE_INACTIVE
+					@isOverflowActive = $STREAM_STATE_INACTIVE
 				ok
 
 				# Decrement pending counter for reduce transforms
@@ -712,7 +712,7 @@ class stzReactiveStream from stzObject
 		
 		# Reset overflow if buffer is no longer full
 		if @currentBufferCount < @bufferSize and @isOverflowActive
-			@isOverflowActive = STREAM_STATE_INACTIVE
+			@isOverflowActive = $STREAM_STATE_INACTIVE
 		ok
 		
 		# Decrement pending counter after successful processing

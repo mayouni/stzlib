@@ -18,7 +18,7 @@
 #  Full original: git history / natural/archive of this file's ancestors.   #
 #---------------------------------------------------------------------------#
 
-_LastValue = ""
+$_LastValue = ""
 
 func QRT(p, pcType)
 	if NOT isString(pcType)
@@ -36,8 +36,8 @@ func QRT(p, pcType)
 	ok
 
 func LastValue()
-	return _LastValue
+	return $_LastValue
 
 func SetLastValue(value)
-	_LastValue = value
+	$_LastValue = value
 	$cStzExpectMode = :Exactly

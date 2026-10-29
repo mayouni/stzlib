@@ -113,7 +113,7 @@ func StzMetaIsAnyNamedParam(paList)
 
 func StzMetaParamCheckEnabled()
     if $pStzMetaHandle = NULL
-        return _bParamCheck
+        return $_bParamCheck
     ok
     return stz_meta_param_check_enabled()
 
@@ -124,7 +124,7 @@ func StzMetaSetParamCheck(bValue)
     if $pStzMetaHandle != NULL
         stz_meta_set_param_check(bValue)
     ok
-    _bParamCheck = bValue
+    $_bParamCheck = bValue
 
 	func EngineSetParamCheck(bValue)
 		StzMetaSetParamCheck(bValue)
@@ -266,7 +266,7 @@ func _StzMetaAddCSWrapper(oObject, cNonCS, cCS)
 
 func StzMetaHistoryEnabled()
     if $pStzMetaHandle = NULL
-        return _bKeepHisto
+        return $_bKeepHisto
     ok
     return stz_meta_history_enabled()
 
@@ -277,7 +277,7 @@ func StzMetaSetHistory(bValue)
     if $pStzMetaHandle != NULL
         stz_meta_set_history(bValue)
     ok
-    _bKeepHisto = bValue
+    $_bKeepHisto = bValue
 
 	func EngineSetHistory(bValue)
 		StzMetaSetHistory(bValue)

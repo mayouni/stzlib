@@ -24,26 +24,26 @@ Programming, by Heart! By: M.Ayouni╭
  ///  GLOBALS VARIABLES  ///
 ///////////////////////////
 
-_bInHistoryUpdate = 0
+$_bInHistoryUpdate = 0
 
 $TEMP_LIST = [] # A temp list value used with @() inside objects
 $TEMP_STRING = ""
 $TEMP_NUMBER = 0
 $TEMP_OBJECT = ""
 
-_bKeepHisto = 0 // for keeping objec update history
-_aHisto = []
+$_bKeepHisto = 0 // for keeping objec update history
+$_aHisto = []
 
-_aKeepHistoXT = [ 0, "" ]
-_aHistoXT = []
+$_aKeepHistoXT = [ 0, "" ]
+$_aHistoXT = []
 
-_bKeepTime = 0 // for keeping object execution time
+$_bKeepTime = 0 // for keeping object execution time
 _nTimeInSeconds = 0
-_nStartTimeInClocks = 0
+$_nStartTimeInClocks = 0
 
-_aRingTypes = [ :number, :string, :char, :list, :object, :cobject ]
+$_aRingTypes = [ :number, :string, :char, :list, :object, :cobject ]
 
-_aRingTypesXT = [
+$_aRingTypesXT = [
 		[ "number", "numbers" ],
 		[ "string", "strings" ],
 		[ "char", "chars" ],
@@ -51,12 +51,12 @@ _aRingTypesXT = [
 		[ "object", "objects" ]
 	]
 
-@ = 0
+$@ = 0
 
 # Temporary Truth Statement and Negation (read X as Truth)
-bXStatement = 1
+$bXStatement = 1
 
-_aStzFindableTypes = [
+$_aStzFindableTypes = [
 	:stzListOfNumbers, :stzListOfUnicodes, :stzString, :stzMultiString,
 	:stzSubString, :stzItem, :stzStopWords,
 	:stzListOfStrings, :stzListInString, :stzListOfBytes,
@@ -69,25 +69,25 @@ _aStzFindableTypes = [
 ]
 
 _MainValue = ""
-_LastValue = ""
+$_LastValue = ""
 
-_bThese = 0	     	# Used in case like: Q(1:5) - These(3:5) 	--> [1,2]
-_bTheseQ = 0     	# Used in case like: Q(1:5) - TheseQ(3:5) 	--> Q([1,2])
+$_bThese = 0	     	# Used in case like: Q(1:5) - These(3:5) 	--> [1,2]
+$_bTheseQ = 0     	# Used in case like: Q(1:5) - TheseQ(3:5) 	--> Q([1,2])
 
-_bAsObject = 0	# Used in case like: Q(1:2) + Obj(Q(3:4))	--> [ [1,2], Q([3,4]) ]
-_bAsObjectQ = 0
+$_bAsObject = 0	# Used in case like: Q(1:2) + Obj(Q(3:4))	--> [ [1,2], Q([3,4]) ]
+$_bAsObjectQ = 0
 
 _bModifiable = 0	# Used with operators that modify stz objects
 
-_bParamCheck = 1  	# Activates the "# Checking params region" in softanza functions
+$_bParamCheck = 1  	# Activates the "# Checking params region" in softanza functions
 		     	#--> Set it to FALSE if the functions are used inside large loops
 		    	# so you can gain performance (the checks can then be made once,
 		     	# by yourself, outside the loop).
 			# Use the SetParamCheckingTo(FALSE)
 
-_bEarlyCheck = 1	# Used for the same reason as _bParamCheck
+$_bEarlyCheck = 1	# Used for the same reason as _bParamCheck
 
-_nVizWidth = 50		# Default wrap width (columns) for the VizFind* visuals.
+$_nVizWidth = 50		# Default wrap width (columns) for the VizFind* visuals.
 			#--> Change it with SetVizWidth(80); read it with DefaultVizWidth().
 
 cCacheFileName = "stzcache.txt"
@@ -95,7 +95,7 @@ _CacheFileHandler = ""
 
 _cCacheMemoryString = ""
 
-_acRingFunctions = [ // #TODO // Add the new functions added in Ring 1.21
+$_acRingFunctions = [ // #TODO // Add the new functions added in Ring 1.21
 	"acos",
 	"add",
 	"addattribute",
@@ -389,11 +389,11 @@ _acRingKeywords = [
 	"endpackage"
 ]
 
-_nQuietEqualityRatio = 0.09
+$_nQuietEqualityRatio = 0.09
 
 # Softanza keywords used in Conditaional Code (CCode)
 
-_acStzCCKeywords = [
+$_acStzCCKeywords = [
 	:@Number,
 		:@CurrentNumber,
 		:@PreviousNumber,
@@ -526,7 +526,7 @@ func StzFindAll(pThing, pContainer)
 #---
 
 func StzTruthStatement()
-	return bXStatement
+	return $bXStatement
 
 	func TruthStatement()
 		return StzTruthStatement()
@@ -534,7 +534,7 @@ func StzTruthStatement()
 #---
 
 func StzKeepingTime()
-	return _bKeepTime
+	return $_bKeepTime
 
 	func KeepingTime()
 		return StzKeepingTime()
@@ -559,8 +559,8 @@ func StzSetKeepingTimeTo(_bTrueOrFalse_)
 		ok
 	ok
 
-	_bKeepTime = _bTrueOrFalse_
-	_nStartTimeInClocks = clock()
+	$_bKeepTime = _bTrueOrFalse_
+	$_nStartTimeInClocks = clock()
 
 	func SetKeepingTimeTo(_bTrueOrFalse_)
 		StzSetKeepingTimeTo(_bTrueOrFalse_)
@@ -578,7 +578,7 @@ func StzSetKeepingTimeTo(_bTrueOrFalse_)
 		StzSetKeepingTimeTo(_bTrueOrFalse_)
 
 func StzStartObjectTime()
-	_nStartTimeInClocks = clock()
+	$_nStartTimeInClocks = clock()
 
 	func StartObjectTime()
 		StzStartObjectTime()
@@ -804,7 +804,7 @@ func @NXT(_n_, pStrOrItem, pcInStrOrList)
 
 		_aResult_ = []
 	
-		for @i = 1 to _n_
+		for _i_ = 1 to _n_
 			_aResult_ + pStrOrItem
 		next
 	
@@ -926,8 +926,8 @@ func Obj(pObject)
 		ok
 	ok
 
-	_bAsObject = 1
-	_bAsObjectQ = 0
+	$_bAsObject = 1
+	$_bAsObjectQ = 0
 
 	return pObject
 
@@ -953,8 +953,8 @@ func ObjQ(pObject)
 		ok
 	ok
 
-	_bAsObjectQ = 1
-	_bAsObject = 0
+	$_bAsObjectQ = 1
+	$_bAsObject = 0
 
 	return pObject
 
@@ -1005,8 +1005,8 @@ func These(p)
 		ok
 	ok
 
-	_bThese = 1
-	_bTheseQ = 0
+	$_bThese = 1
+	$_bTheseQ = 0
 
 	return p
 	# Must be reset to FALSE everytime These() is used.
@@ -1101,8 +1101,8 @@ func These(p)
 	#>
 
 func TheseNumbers(p)
-	_bThese = 1
-	_bTheseQ = 0
+	$_bThese = 1
+	$_bTheseQ = 0
 
 	if CheckingParams()
 		if NOT isList(p)
@@ -1157,8 +1157,8 @@ func TheseNumbers(p)
 	#>
 
 func TheseChars(p)
-	_bThese = 1
-	_bTheseQ = 0
+	$_bThese = 1
+	$_bTheseQ = 0
 
 	if CheckingParams()
 		if NOT isList(p)
@@ -1213,8 +1213,8 @@ func TheseChars(p)
 	#>
 
 func TheseStrings(p)
-	_bThese = 1
-	_bTheseQ = 0
+	$_bThese = 1
+	$_bTheseQ = 0
 
 	if CheckingParams()
 		if NOT isList(p)
@@ -1269,8 +1269,8 @@ func TheseStrings(p)
 	#>
 
 func TheseLists(p)
-	_bThese = 1
-	_bTheseQ = 0
+	$_bThese = 1
+	$_bTheseQ = 0
 
 	if CheckingParams()
 		if NOT isList(p)
@@ -1325,8 +1325,8 @@ func TheseLists(p)
 	#>
 
 func TheseObjects(p)
-	_bThese = 1
-	_bTheseQ = 0
+	$_bThese = 1
+	$_bTheseQ = 0
 
 	if CheckingParams()
 		if NOT isObject(p)
@@ -1383,8 +1383,8 @@ func TheseObjects(p)
 #--
 
 func TheseStzNumbers(p)
-	_bThese = 1
-	_bTheseQ = 0
+	$_bThese = 1
+	$_bTheseQ = 0
 
 	if CheckingParams()
 		if NOT isList(p)
@@ -1439,8 +1439,8 @@ func TheseStzNumbers(p)
 	#>
 
 func TheseStzChars(p)
-	_bThese = 1
-	_bTheseQ = 0
+	$_bThese = 1
+	$_bTheseQ = 0
 
 	if CheckingParams()
 		if NOT isList(p)
@@ -1495,8 +1495,8 @@ func TheseStzChars(p)
 	#>
 
 func TheseStzStrings(p)
-	_bThese = 1
-	_bTheseQ = 0
+	$_bThese = 1
+	$_bTheseQ = 0
 
 	if CheckingParams()
 		if NOT isList(p)
@@ -1551,8 +1551,8 @@ func TheseStzStrings(p)
 	#>
 
 func TheseStzLists(p)
-	_bThese = 1
-	_bTheseQ = 0
+	$_bThese = 1
+	$_bTheseQ = 0
 
 	if CheckingParams()
 		if NOT isList(p)
@@ -1607,8 +1607,8 @@ func TheseStzLists(p)
 	#>
 
 func TheseStzObjects(p)
-	_bThese = 1
-	_bTheseQ = 0
+	$_bThese = 1
+	$_bTheseQ = 0
 
 	if CheckingParams()
 		if NOT isList(p)
@@ -1675,8 +1675,8 @@ func TheseQ(p)
 		ok
 	ok
 
-	_bTheseQ = 1
-	_bThese = 0
+	$_bTheseQ = 1
+	$_bThese = 0
 
 	return p
 	# _bTheseQ Must be reset to FALSE everytime These() is used.
@@ -1778,8 +1778,8 @@ func TheseNumbersQ(p)
 		ok
 	ok
 
-	_bTheseQ = 1
-	_bThese = 0
+	$_bTheseQ = 1
+	$_bThese = 0
 
 	_nLen_ = len(p)
 	_anResult_ = []
@@ -1834,8 +1834,8 @@ func TheseCharsQ(p)
 		ok
 	ok
 
-	_bTheseQ = 1
-	_bThese = 0
+	$_bTheseQ = 1
+	$_bThese = 0
 
 	_nLen_ = len(p)
 	_acResult_ = []
@@ -1890,8 +1890,8 @@ func TheseStringsQ(p)
 		ok
 	ok
 
-	_bTheseQ = 1
-	_bThese = 0
+	$_bTheseQ = 1
+	$_bThese = 0
 
 	_nLen_ = len(p)
 	_acResult_ = []
@@ -1946,8 +1946,8 @@ func TheseListsQ(p)
 		ok
 	ok
 
-	_bTheseQ = 1
-	_bThese = 0
+	$_bTheseQ = 1
+	$_bThese = 0
 
 	_nLen_ = len(p)
 	_aResult_ = []
@@ -2002,8 +2002,8 @@ func TheseObjectsQ(p)
 		ok
 	ok
 
-	_bTheseQ = 1
-	_bThese = 0
+	$_bTheseQ = 1
+	$_bThese = 0
 
 	_nLen_ = len(p)
 	_aoResult_ = []
@@ -2058,8 +2058,8 @@ func TheseStzNumbersQ(p)
 		ok
 	ok
 
-	_bTheseQ = 1
-	_bThese = 0
+	$_bTheseQ = 1
+	$_bThese = 0
 
 	_nLen_ = len(p)
 	_aoResult_ = []
@@ -2114,8 +2114,8 @@ func TheseStzCharsQ(p)
 		ok
 	ok
 
-	_bTheseQ = 1
-	_bThese = 0
+	$_bTheseQ = 1
+	$_bThese = 0
 
 	_nLen_ = len(p)
 	_aoResult_ = []
@@ -2170,8 +2170,8 @@ func TheseStzStringsQ(p)
 		ok
 	ok
 
-	_bTheseQ = 1
-	_bThese = 0
+	$_bTheseQ = 1
+	$_bThese = 0
 
 	_nLen_ = len(p)
 	_aoResult_ = []
@@ -2226,8 +2226,8 @@ func TheseStzListsQ(p)
 		ok
 	ok
 
-	_bTheseQ = 1
-	_bThese = 0
+	$_bTheseQ = 1
+	$_bThese = 0
 
 	_nLen_ = len(p)
 	_aoResult_ = []
@@ -2282,8 +2282,8 @@ func TheseStzObjectsQ(p)
 		ok
 	ok
 
-	_bTheseQ = 1
-	_bThese = 0
+	$_bTheseQ = 1
+	$_bThese = 0
 
 	_nLen_ = len(p)
 	_aoResult_ = []
@@ -2427,7 +2427,7 @@ func @ForEach(p, pIn)
 	#>
 
 func StzActivateParamChecking()
-	_bParamCheck = 1
+	$_bParamCheck = 1
 
 	func ActivateParamChecking()
 		StzActivateParamChecking()
@@ -2469,7 +2469,7 @@ func StzActivateParamChecking()
 	#>
 
 func StzDesactivateParamChecking()
-	_bParamCheck = 0
+	$_bParamCheck = 0
 
 	func DesactivateParamChecking()
 		StzDesactivateParamChecking()
@@ -2513,7 +2513,7 @@ func StzDesactivateParamChecking()
 	#>
 
 func StzParamChecking()
-	return _bParamCheck
+	return $_bParamCheck
 
 	func ParamChecking()
 		return StzParamChecking()
@@ -2521,22 +2521,22 @@ func StzParamChecking()
 	#< @FunctionAlternativeForms
 
 	func ParamsChecking()
-		return _bParamCheck
+		return $_bParamCheck
 
 	func ParamCheck()
-		return _bParamCheck
+		return $_bParamCheck
 
 	func ParamsCheck()
-		return _bParamCheck
+		return $_bParamCheck
 
 	# NOTE: CheckParam(pValue, p2, p3) is defined in stznamedparams_engine.ring
 	# The 0-arg alias was removed to avoid Ring's redefinition error.
 
 	func CheckingParam()
-		return _bParamCheck
+		return $_bParamCheck
 
 	func CheckParams()
-		return _bParamCheck
+		return $_bParamCheck
 
 	#>
 
@@ -2544,31 +2544,31 @@ func StzParamChecking()
 	# Forgetting the "c" in "Check"
 
 	func ParamCheking()
-		return _bParamCheck
+		return $_bParamCheck
 
 	func ParamsCheking()
-		return _bParamCheck
+		return $_bParamCheck
 
 	func ParamChek()
-		return _bParamCheck
+		return $_bParamCheck
 
 	func ParamsChek()
-		return _bParamCheck
+		return $_bParamCheck
 
 	func ChekParam()
-		return _bParamCheck
+		return $_bParamCheck
 
 	func ChekingParam()
-		return _bParamCheck
+		return $_bParamCheck
 
 	func ChekParams()
-		return _bParamCheck
+		return $_bParamCheck
 
 	func ChekingParams()
-		return _bParamCheck
+		return $_bParamCheck
 
 	func ChekcParams()
-		return _bParamCheck
+		return $_bParamCheck
 
 	#>
 
@@ -2577,13 +2577,13 @@ func StzParamChecking()
 #-- globally with SetVizWidth(80). A width < 1 restores the 50-column default.
 
 func DefaultVizWidth()
-	return _nVizWidth
+	return $_nVizWidth
 
 	func VizWidth()
-		return _nVizWidth
+		return $_nVizWidth
 
 	func GetVizWidth()
-		return _nVizWidth
+		return $_nVizWidth
 
 func SetVizWidth(_n_)
 	if isList(_n_) and len(_n_) = 2 and isString(_n_[1])
@@ -2596,8 +2596,8 @@ func SetVizWidth(_n_)
 	if _n_ < 1
 		_n_ = 50
 	ok
-	_nVizWidth = _n_
-	return _nVizWidth
+	$_nVizWidth = _n_
+	return $_nVizWidth
 
 	func SetVizWidthTo(_n_)
 		return SetVizWidth(_n_)
@@ -2606,13 +2606,13 @@ func SetVizWidth(_n_)
 		return SetVizWidth(_n_)
 
 func ResetVizWidth()
-	_nVizWidth = 50
-	return _nVizWidth
+	$_nVizWidth = 50
+	return $_nVizWidth
 
 #--
 
 func StzEarlyCheck()
-	return _bEarlyCheck
+	return $_bEarlyCheck
 
 	func EarlyCheck()
 		return StzEarlyCheck()
@@ -2621,22 +2621,22 @@ func StzEarlyCheck()
 		return StzEarlyCheck()
 
 func StzEarlyCheckOn()
-	_bEarlyCheck = 1
+	$_bEarlyCheck = 1
 
 	func EarlyCheckOn()
 		StzEarlyCheckOn()
 
 	func ActivateEarlyCheck()
-		_bEarlyCheck = 1
+		$_bEarlyCheck = 1
 
 	func EarlyChecksOn()
-		_bEarlyCheck = 1
+		$_bEarlyCheck = 1
 
 	func ActivateEarlyChecks()
-		_bEarlyCheck = 1
+		$_bEarlyCheck = 1
 
 func StzEarlyCheckOff()
-	_bEarlyCheck = 0
+	$_bEarlyCheck = 0
 
 	func EarlyCheckOff()
 		StzEarlyCheckOff()
@@ -2657,7 +2657,7 @@ func StzSetEarlyCheck(b)
 		ok
 	ok
 
-	_bEarlyCheck = b
+	$_bEarlyCheck = b
 
 	func SetEarlyCheck(b)
 		StzSetEarlyCheck(b)
@@ -2870,7 +2870,7 @@ func StzCaseSensitive(p)
 #--
 
 func StzKeywords()
-	return _acStzCCKeywords
+	return $_acStzCCKeywords
 
 	func StzCCodeKeywords()
 		return StzKeywords()
@@ -2912,7 +2912,7 @@ func StzNSpaces(_n_)
 		return StzNSpaces(_n_)
 
 func StzQuietEqualityRatio()
-	return _nQuietEqualityRatio
+	return $_nQuietEqualityRatio
 
 	func QuietEqualityRatio()
 		return StzQuietEqualityRatio()
@@ -2929,7 +2929,7 @@ func StzSetQuietEqualityRatio(_n_)
 	ok
 
 	if _n_ >= 0 and _n_ <= 1
-		_nQuietEqualityRatio = _n_
+		$_nQuietEqualityRatio = _n_
 	ok
 
 	func SetQuietEqualityRatio(_n_)
@@ -2942,13 +2942,13 @@ func StzSetQuietEqualityRatio(_n_)
 		StzSetQuietEqualityRatio(_n_)
 
 func StzRingTypes()
-	return _aRingTypes
+	return $_aRingTypes
 
 	func RingTypes()
 		return StzRingTypes()
 
 func StzRingFunctions()
-	return _acRingFunctions
+	return $_acRingFunctions
 
 	func RingFunctions()
 		return StzRingFunctions()
@@ -5518,7 +5518,7 @@ func StzNewLine()
 		return StzNewLine()
 
 func StzNumberOfStzFindableTypes()
-	return len(_aStzFindableTypes)
+	return len($_aStzFindableTypes)
 
 	func NumberOfStzFindableTypes()
 		return StzNumberOfStzFindableTypes()
@@ -5545,7 +5545,7 @@ func IsStzFindableType(_cType_)
 		return IsStzFindableType(_cType_)
 
 func StzFindableTypes()
-	return _aStzFindableTypes
+	return $_aStzFindableTypes
 
 func IsStzFindable(p)
 	if NOT ( isObject(p) and IsStzObject(p) )

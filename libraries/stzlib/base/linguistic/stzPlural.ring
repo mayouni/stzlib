@@ -1,7 +1,7 @@
 ﻿#TODO Make a bridge with stzLocale to let the stzPlural class be locale-sensitive
 
 // Systematic plural transformation rules
-PluralRules = [
+$PluralRules = [
     // Irregulars (priority 1)
     [ "^child$", "children", "exact", 1, "irregular" ],
     [ "^man$", "men", "exact", 1, "irregular" ],
@@ -36,7 +36,7 @@ PluralRules = [
 func Plural(str)
 
     _cWord_ = StzLower(trim(str))
-    _aSortedRules_ = SortPluralRulesByPriority(PluralRules)
+    _aSortedRules_ = SortPluralRulesByPriority($PluralRules)
     _nSortedRules1Len_ = len(_aSortedRules_)
     for _iLoopSortedRules1_ = 1 to _nSortedRules1Len_
     	_rule_ = _aSortedRules_[_iLoopSortedRules1_]
@@ -97,13 +97,13 @@ func SortPluralRulesByPriority(rules)
 
 // Helper functions
 func AddPluralRule(pattern, replacement, type, priority, category)
-    PluralRules + [pattern, replacement, type, priority, category]
+    $PluralRules + [pattern, replacement, type, priority, category]
 
 func GetPluralRulesByCategory(category)
     _result_ = []
-    _nPluralRules1Len_ = len(PluralRules)
+    _nPluralRules1Len_ = len($PluralRules)
     for _iLoopPluralRules1_ = 1 to _nPluralRules1Len_
-    	_rule_ = PluralRules[_iLoopPluralRules1_]
+    	_rule_ = $PluralRules[_iLoopPluralRules1_]
         if _rule_[5] = category
             _result_ + _rule_
         ok

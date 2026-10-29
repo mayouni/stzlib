@@ -939,13 +939,13 @@ func StzSemanticLexicon()
 	# entry lists the FORM FAMILY of one canonical action (active, passive,
 	# interrogative, progressive...) -- fold every form into the action's bag.
 
-	_nA_ = len(_ActionsXT)
+	_nA_ = len($_ActionsXT)
 	for _i_ = 1 to _nA_
-		_cId_ = "METHOD_" + upper(_ActionsXT[_i_][1])
+		_cId_ = "METHOD_" + upper($_ActionsXT[_i_][1])
 		if NOT _StzSemOpKnown(_cId_)
 			loop
 		ok
-		_aForms_ = _ActionsXT[_i_][2]
+		_aForms_ = $_ActionsXT[_i_][2]
 		_nF_ = len(_aForms_)
 		for _j_ = 1 to _nF_
 			_StzSemBagAdd(_aBags_, _cId_, lower(_aForms_[_j_]))

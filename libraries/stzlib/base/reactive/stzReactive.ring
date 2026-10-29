@@ -65,7 +65,7 @@ class stzReactiveSystem from stzObject
 	@tasks = []
 	@streams = []
 
-	@isRunning = ENGINE_STOPPED
+	@isRunning = $ENGINE_STOPPED
 
 	# Set by StopSafe on the live system and read by the loop, which is handed the system itself.
 	@bStopNext = 0
@@ -105,7 +105,7 @@ class stzReactiveSystem from stzObject
 		@tasks = []
 		@streams = []
 
-		@isRunning = ENGINE_STOPPED
+		@isRunning = $ENGINE_STOPPED
 		@bStopNext = 0
 
 	# Returns the engine handle of the reactor behind the system, or "" when no reactor backs it.
@@ -141,8 +141,8 @@ class stzReactiveSystem from stzObject
 	#@ aka  Controls the lifecycle of the event loop, managing the execution and cleanup of asynchronous operations.
 	def Start()
 	    # Initiates the reactive system and runs the event loop.
-	    if @isRunning = ENGINE_STOPPED
-	        @isRunning = ENGINE_RUNNING
+	    if @isRunning = $ENGINE_STOPPED
+	        @isRunning = $ENGINE_RUNNING
 	        @bStopNext = 0
 
 	        # (Removed an unconditional sleep(0.1) here -- it added a flat
@@ -151,7 +151,7 @@ class stzReactiveSystem from stzObject
 	        # Execute any pending chunked tasks
 	        _nLenTasks_ = len(@tasks)
 	        for i = 1 to _nLenTasks_
-	            if @tasks[i].@status = TASK_PENDING
+	            if @tasks[i].@status = $TASK_PENDING
 	                @tasks[i].Execute()
 	            ok
 	        next
@@ -162,7 +162,7 @@ class stzReactiveSystem from stzObject
 		# dead snapshot -- the Ring aliasing doctrine) and reads the
 		# stop request StopSafe made on this same live object.
 	        @timerManager.RunLoop(This)
-	        @isRunning = ENGINE_STOPPED
+	        @isRunning = $ENGINE_STOPPED
 	    ok
 
 		# Runs the loop; another spelling of the start call.
@@ -215,7 +215,7 @@ class stzReactiveSystem from stzObject
 		#>
 	def Stop()
 		# Stops the system and cleans up tasks, streams, and handlers.
-		@isRunning = ENGINE_STOPPED
+		@isRunning = $ENGINE_STOPPED
 		@bStopNext = 0
 		@timerManager.Stop()
 
@@ -449,7 +449,7 @@ class stzReactiveSystem from stzObject
 	def CreateStreamXT(id, _sourceType_)
 		# Creates a generic stream with a specified ID and source type.
 		if _sourceType_ = ""
-			_sourceType_ = DEFAULT_STREAM_SOURCE
+			_sourceType_ = $DEFAULT_STREAM_SOURCE
 		ok
 		
 		_stream_ = new stzReactiveStream(id, _sourceType_, self)
@@ -574,13 +574,13 @@ class stzReactiveSystem from stzObject
 			return _nValue_
 		ok
 		if _c_ = "second" or _c_ = "seconds"
-			return _nValue_ * SECOND
+			return _nValue_ * $SECOND
 		ok
 		if _c_ = "minute" or _c_ = "minutes"
-			return _nValue_ * MINUTE
+			return _nValue_ * $MINUTE
 		ok
 		if _c_ = "hour" or _c_ = "hours"
-			return _nValue_ * HOUR
+			return _nValue_ * $HOUR
 		ok
 		return -1
 
@@ -617,7 +617,7 @@ class stzReactiveSystem from stzObject
 		ok
 
 		if _delay_ = ""
-			_delay_ = IMMEDIATE
+			_delay_ = $IMMEDIATE
 		ok
 
 		_timerId_ = "timeout_" + StzEngineRandomInt(0, 999999)
@@ -654,7 +654,7 @@ class stzReactiveSystem from stzObject
 		ok
 
 		if _interval_ = ""
-			_interval_ = DEFAULT_TIMER_DELAY
+			_interval_ = $DEFAULT_TIMER_DELAY
 		ok
 
 		_timerId_ = "interval_" + StzEngineRandomInt(0, 999999)
@@ -709,12 +709,12 @@ class stzReactiveSystem from stzObject
 	#   see         HttpPost, HttpGetXT, Start
 	#@ aka  Handles asynchronous HTTP GET and POST requests for network communication.
 	def HttpGet(url, onSuccess, onError)
-		return This.HttpGetXT(url, onSuccess, onError, DEFAULT_ERROR_HANDLING)
+		return This.HttpGetXT(url, onSuccess, onError, $DEFAULT_ERROR_HANDLING)
 
 	def HttpGetXT(url, onSuccess, onError, _errorHandling_)
 		# Performs an asynchronous HTTP GET request.
 		if _errorHandling_ = ""
-			_errorHandling_ = DEFAULT_ERROR_HANDLING
+			_errorHandling_ = $DEFAULT_ERROR_HANDLING
 		ok
 		return http.Get_(url, onSuccess, onError) # Get is a reserved keyword by Ring
 
@@ -729,12 +729,12 @@ class stzReactiveSystem from stzObject
 	#   see         HttpGet, HttpPostXT, Start
 	#@ aka  --
 	def HttpPost(url, data, onSuccess, onError)
-		return This.HttpPostXT(url, data, onSuccess, onError, DEFAULT_ERROR_HANDLING)
+		return This.HttpPostXT(url, data, onSuccess, onError, $DEFAULT_ERROR_HANDLING)
 
 	def HttpPostXT(url, data, onSuccess, onError, _errorHandling_)
 		# Performs an asynchronous HTTP POST request with data.
 		if _errorHandling_ = ""
-			_errorHandling_ = DEFAULT_ERROR_HANDLING
+			_errorHandling_ = $DEFAULT_ERROR_HANDLING
 		ok
 		return http.Post(url, data, onSuccess, onError)
 

@@ -294,7 +294,7 @@ func StzUnicodeSectionToStzListOfChars(nUnicode1, nUnicode2)
 		return StzUnicodeSectionToStzListOfChars(nUnicode1, nUnicode2)
 
 func StzCurrentUnicodeVersion()
-	return _acUnicodeVersions[ len(_acUnicodeVersions) ]
+	return $_acUnicodeVersions[ len($_acUnicodeVersions) ]
 
 	func CurrentUnicodeVersion()
 		return StzCurrentUnicodeVersion()
@@ -1783,7 +1783,7 @@ class stzStringChar from stzString
 	#   see        IsLatinExtendedA
 	#@ aka  TRUE if the char belongs to the Latin1 Supplement Unicode range.
 	def IsLatin1Supplement()
-		return ring_find(_anLatin1SupplementUnicodes, This.Unicode()) > 0
+		return ring_find($_anLatin1SupplementUnicodes, This.Unicode()) > 0
 
 	# TRUE if the char lies in the Latin Extended-A block, U+0100 to U+017F.
 	#
@@ -1791,7 +1791,7 @@ class stzStringChar from stzString
 	#   see        IsLatinExtendedB
 	#@ aka  TRUE if the char belongs to the Latin Extended A Unicode range.
 	def IsLatinExtendedA()
-		return ring_find(_anLatinExtendedAUnicodes, This.Unicode()) > 0
+		return ring_find($_anLatinExtendedAUnicodes, This.Unicode()) > 0
 
 	# TRUE if the char lies in the Latin Extended-B block, U+0180 to U+024F.
 	#
@@ -1799,7 +1799,7 @@ class stzStringChar from stzString
 	#   see        IsLatinExtendedA
 	#@ aka  TRUE if the char belongs to the Latin Extended B Unicode range.
 	def IsLatinExtendedB()
-		return ring_find(_anLatinExtendedBUnicodes, This.Unicode()) > 0
+		return ring_find($_anLatinExtendedBUnicodes, This.Unicode()) > 0
 
 	# TRUE if the char lies in the Latin Extended Additional block, U+1E00 to U+1EFF.
 	#
@@ -1807,7 +1807,7 @@ class stzStringChar from stzString
 	#   see        IsLatinExtendedA
 	#@ aka  TRUE if the char belongs to the Latin Extended Additional Unicode range.
 	def IsLatinExtendedAdditional()
-		return ring_find(_anLatinExtendedAdditionalUnicodes, This.Unicode()) > 0
+		return ring_find($_anLatinExtendedAdditionalUnicodes, This.Unicode()) > 0
 
 	# TRUE if the char lies in the Latin Extended-C block, U+2C60 to U+2C7F.
 	#
@@ -1815,7 +1815,7 @@ class stzStringChar from stzString
 	#   see        IsLatinExtendedA
 	#@ aka  TRUE if the char belongs to the Latin Extended C Unicode range.
 	def IsLatinExtendedC()
-		return ring_find(_anLatinExtendedCUnicodes, This.Unicode()) > 0
+		return ring_find($_anLatinExtendedCUnicodes, This.Unicode()) > 0
 
 	# TRUE if the char lies in the Latin Extended-D block, U+A720 to U+A7FF.
 	#
@@ -1823,7 +1823,7 @@ class stzStringChar from stzString
 	#   see        IsLatinExtendedA
 	#@ aka  TRUE if the char belongs to the Latin Extended D Unicode range.
 	def IsLatinExtendedD()
-		return ring_find(_anLatinExtendedDUnicodes, This.Unicode()) > 0
+		return ring_find($_anLatinExtendedDUnicodes, This.Unicode()) > 0
 
 	# TRUE if the char lies in the Latin Extended-E block, U+AB30 to U+AB6F.
 	#
@@ -1831,7 +1831,7 @@ class stzStringChar from stzString
 	#   see        IsLatinExtendedA
 	#@ aka  TRUE if the char belongs to the Latin Extended E Unicode range.
 	def IsLatinExtendedE()
-		return ring_find(_anLatinExtendedEUnicodes, This.Unicode()) > 0
+		return ring_find($_anLatinExtendedEUnicodes, This.Unicode()) > 0
 
 	  #=========================#
 	 #   ARABIC CHAR VARIANTS  #
@@ -1874,7 +1874,7 @@ class stzStringChar from stzString
 	#   see        IsArabicExtendedA
 	#@ aka  TRUE if the char belongs to the Arabic Supplement Unicode range.
 	def IsArabicSupplement()
-		return ring_find(_anArabicSupplementUnicodes, This.Unicode()) > 0
+		return ring_find($_anArabicSupplementUnicodes, This.Unicode()) > 0
 
 	# TRUE if the char lies in the Arabic Extended-A block, U+08A0 to U+08FF.
 	#
@@ -1882,7 +1882,7 @@ class stzStringChar from stzString
 	#   see        IsArabicSupplement
 	#@ aka  TRUE if the char belongs to the Arabic Extended A Unicode range.
 	def IsArabicExtendedA()
-		return ring_find(_anArabicExtendedAUnicodes, This.Unicode()) > 0
+		return ring_find($_anArabicExtendedAUnicodes, This.Unicode()) > 0
 
 	# TRUE if the char lies in the Arabic Extended-A block, U+08A0 to U+08FF, as the lettered form does.
 	#
@@ -1898,7 +1898,7 @@ class stzStringChar from stzString
 	#   see        IsArabicPresentationFormA, IsArabicPresentationFormB
 	#@ aka  TRUE if the char belongs to the Arabic Presentation Form Unicode range.
 	def IsArabicPresentationForm()
-		return ring_find(_anArabicPresentationFormUnicodes, This.Unicode()) > 0
+		return ring_find($_anArabicPresentationFormUnicodes, This.Unicode()) > 0
 
 	# TRUE if the char lies in the Arabic Presentation Forms-A block, U+FB50 to U+FDFF.
 	#
@@ -1906,7 +1906,7 @@ class stzStringChar from stzString
 	#   see        IsArabicPresentationFormB
 	#@ aka  TRUE if the char belongs to the Arabic Presentation Form A Unicode range.
 	def IsArabicPresentationFormA()
-		return ring_find(_anArabicPresentationFormAUnicodes, This.Unicode()) > 0
+		return ring_find($_anArabicPresentationFormAUnicodes, This.Unicode()) > 0
 
 	# TRUE if the char lies in the Arabic Presentation Forms-B block, U+FE70 to U+FEFF.
 	#
@@ -1914,7 +1914,7 @@ class stzStringChar from stzString
 	#   see        IsArabicPresentationFormA
 	#@ aka  TRUE if the char belongs to the Arabic Presentation Form B Unicode range.
 	def IsArabicPresentationFormB()
-		return ring_find(_anArabicPresentationFormBUnicodes, This.Unicode()) > 0
+		return ring_find($_anArabicPresentationFormBUnicodes, This.Unicode()) > 0
 
 	# TRUE if the char lies in the Arabic Mathematical Alphabetic Symbols block, U+1EE00 to U+1EEFF.
 	#
@@ -1922,7 +1922,7 @@ class stzStringChar from stzString
 	#   see        IsArabic
 	#@ aka  TRUE if the char belongs to the Arabic Math Alphabetic Symbol Unicode range.
 	def IsArabicMathAlphabeticSymbol()
-		return ring_find(_anArabicMathAlphabeticSymbolUnicodes, This.Unicode()) > 0
+		return ring_find($_anArabicMathAlphabeticSymbolUnicodes, This.Unicode()) > 0
 
 	# TRUE if the char is one of the 24 Quranic annotation signs, U+06D6 to U+06ED.
 	#
@@ -2089,8 +2089,8 @@ class stzStringChar from stzString
 			return "6.0"
 		ok
 		_n_ = _CharUnicodeVersion(_nCpVer_)
-		if _n_ > 0 and _n_ <= len(_acUnicodeVersions)
-			return _acUnicodeVersions[ _n_ ]
+		if _n_ > 0 and _n_ <= len($_acUnicodeVersions)
+			return $_acUnicodeVersions[ _n_ ]
 		else
 			StzRaise("Can't define the unicode version of this character! The number returned by the engine does not fit in the range of the _acUnicodeVersions global list.")
 		ok

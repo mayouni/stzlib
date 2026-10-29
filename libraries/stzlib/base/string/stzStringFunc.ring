@@ -190,8 +190,8 @@ func StzIsInvisibleString(_str_)
 
 	_bResult_ = 1
 
-	for @i = 1 to _nLen_
-		if NOT IsInvisibleChar(_acChars_[@i])
+	for _i_ = 1 to _nLen_
+		if NOT IsInvisibleChar(_acChars_[_i_])
 			_bResult_ = 0
 			exit
 		ok
@@ -2166,7 +2166,7 @@ func StzIsPunct(p)
 #--
 
 func StzMarquerChar()
-	return _cMarquerChar
+	return $_cMarquerChar
 
 	func MarquerChar()
 		return StzMarquerChar()
@@ -2188,22 +2188,22 @@ func StzSetMarquerChar(c)
 		StzRaise("Incorrect param type! c must be a char.")
 	ok
 
-	_cMarquerChar = c
+	$_cMarquerChar = c
 
 	func SetMarquerChar(c)
 		StzSetMarquerChar(c)
 
 	func SetDefaultMarquerChar()
-		_cMarquerChar = c
+		$_cMarquerChar = c
 
 	func @SetMarquerChar()
-		_cMarquerChar = c
+		$_cMarquerChar = c
 
 	func SetMarquer()
-		_cMarquerChar = c
+		$_cMarquerChar = c
 
 	func @SetMarquer()
-		_cMarquerChar = c
+		$_cMarquerChar = c
 
 func StzSplitAtCS(cData, cSubStr, pCaseSensitive)
 	if NOT (isString(cData) and isString(cSubStr))

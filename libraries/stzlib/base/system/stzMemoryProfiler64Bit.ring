@@ -5,19 +5,19 @@ func SizeInBytes64(_item_)
     
 	switch type(_item_)
 	on "NUMBER"
-		return RING_NUMBER_CONTENT_SIZE
+		return $RING_NUMBER_CONTENT_SIZE
 
         on "STRING"
 		_nContentSize_ = len(_item_)
-		if _nContentSize_ <= RING_STRING_ARRAYSIZE
-			return _nContentSize_ + RING_STRING_ARRAYSIZE
+		if _nContentSize_ <= $RING_STRING_ARRAYSIZE
+			return _nContentSize_ + $RING_STRING_ARRAYSIZE
 		else
-			return _nContentSize_ + RING_64BIT_STRING_STRUCTURE_SIZE
+			return _nContentSize_ + $RING_64BIT_STRING_STRUCTURE_SIZE
 		ok
 
 	on "LIST"
-		_nListAdditionalSize_      = RING_64BIT_LIST_STRUCTURE_SIZE
-		_nItemTotalAdditionalSize_ = RING_64BIT_ITEM_STRUCTURE_SIZE + RING_64BIT_ITEMS_STRUCTURE_SIZE
+		_nListAdditionalSize_      = $RING_64BIT_LIST_STRUCTURE_SIZE
+		_nItemTotalAdditionalSize_ = $RING_64BIT_ITEM_STRUCTURE_SIZE + $RING_64BIT_ITEMS_STRUCTURE_SIZE
 
 		_nLen_ = len(_item_)
 		_nResult_ = _nListAdditionalSize_ + (_nLen_ * _nItemTotalAdditionalSize_)
@@ -32,7 +32,7 @@ func SizeInBytes64(_item_)
 			ok
 		next
 
-		_nResult_ += RING_NUMBER_CONTENT_SIZE * _nNum_
+		_nResult_ += $RING_NUMBER_CONTENT_SIZE * _nNum_
 
 		return _nResult_
 
@@ -148,17 +148,17 @@ func SizeInBytes64XT(_item_)
 
 	switch type(_item_)
 	on "NUMBER"
-		return [ "RING_NUMBER_CONTENT_SIZE", RING_NUMBER_CONTENT_SIZE ]
+		return [ "RING_NUMBER_CONTENT_SIZE", $RING_NUMBER_CONTENT_SIZE ]
 
         on "STRING"
 		_nContentSize_ = len(_item_)
 
-		if _nContentSize_ <= RING_STRING_ARRAYSIZE
-			_aResult_ + [ "RING_STRING_ARRAYSIZE", RING_STRING_ARRAYSIZE ]
+		if _nContentSize_ <= $RING_STRING_ARRAYSIZE
+			_aResult_ + [ "RING_STRING_ARRAYSIZE", $RING_STRING_ARRAYSIZE ]
 			_aResult_ + [ "RING_STRING_CONTENT_SIZE", _nContentSize_ ]
 	
 		else
-			_aResult_ + [ "RING_64BIT_STRING_STRUCTURE_SIZE", RING_64BIT_STRING_STRUCTURE_SIZE ]
+			_aResult_ + [ "RING_64BIT_STRING_STRUCTURE_SIZE", $RING_64BIT_STRING_STRUCTURE_SIZE ]
 			_aResult_ + [ "RING_STRING_CONTENT_SIZE", _nContentSize_ ]
 		ok
 
@@ -166,9 +166,9 @@ func SizeInBytes64XT(_item_)
 	on "LIST"
 		_nLen_ = len(_item_)
 
-		_aResult_ + [ "RING_64BIT_LIST_STRUCTURE_SIZE", RING_64BIT_LIST_STRUCTURE_SIZE ]
-		_aResult_ + [ "RING_64BIT_ITEM_STRUCTURE_SIZE * " + _nLen_, RING_64BIT_ITEM_STRUCTURE_SIZE * _nLen_ ]
-		_aResult_ + [ "RING_64BIT_ITEMS_STRUCTURE_SIZE * " + _nLen_, RING_64BIT_ITEMS_STRUCTURE_SIZE * _nLen_ ]
+		_aResult_ + [ "RING_64BIT_LIST_STRUCTURE_SIZE", $RING_64BIT_LIST_STRUCTURE_SIZE ]
+		_aResult_ + [ "RING_64BIT_ITEM_STRUCTURE_SIZE * " + _nLen_, $RING_64BIT_ITEM_STRUCTURE_SIZE * _nLen_ ]
+		_aResult_ + [ "RING_64BIT_ITEMS_STRUCTURE_SIZE * " + _nLen_, $RING_64BIT_ITEMS_STRUCTURE_SIZE * _nLen_ ]
 		_aResult_ + [ "RING_64BIT_ITEMS_CONTENT_SIZE", ContentSize(_item_) ]
 
 		return _aResult_

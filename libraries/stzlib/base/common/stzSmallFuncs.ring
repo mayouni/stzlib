@@ -85,13 +85,13 @@ func StzQH(p)
 # value once per stream (History() consumes and clears the stream);
 # _StzHistoAdd records each op's result.
 func _StzHistoOpen(v)
-	if StzKeepingHistory() = 1 and len(_aHisto) = 0
-		_aHisto + v
+	if StzKeepingHistory() = 1 and len($_aHisto) = 0
+		$_aHisto + v
 	ok
 
 func _StzHistoAdd(v)
 	if StzKeepingHistory() = 1
-		_aHisto + v
+		$_aHisto + v
 	ok
 
 # Global stub: history-tracking toggle. The full implementation will

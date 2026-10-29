@@ -25,17 +25,17 @@
 #-----------------#
 
 # Task Status
-TASK_PENDING = "pending"
-TASK_RUNNING = "running"
-TASK_COMPLETED = "completed"
-TASK_ERROR = "error"
+$TASK_PENDING = "pending"
+$TASK_RUNNING = "running"
+$TASK_COMPLETED = "completed"
+$TASK_ERROR = "error"
 TASK_CANCELLED = "cancelled"
 
 # HTTP Tasks
-HTTP_TASK_GET = "http_get"
-HTTP_TASK_POST = "http_post"
-HTTP_TASK_PUT = "http_put"
-HTTP_TASK_DELETE = "http_delete"
+$HTTP_TASK_GET = "http_get"
+$HTTP_TASK_POST = "http_post"
+$HTTP_TASK_PUT = "http_put"
+$HTTP_TASK_DELETE = "http_delete"
 
 # Holds one piece of asynchronous work, a function with a status, a result, an error and handlers, as the base of every reactive task.
 #
@@ -80,10 +80,10 @@ class stzReactiveTask from stzObject
 	@taskFunc = ""
 	@onComplete = ""
 	@onError = ""
-	@status = TASK_PENDING
+	@status = $TASK_PENDING
 	@result = ""
 	@oEngine = ""
-	@errorHandling = DEFAULT_ERROR_HANDLING
+	@errorHandling = $DEFAULT_ERROR_HANDLING
 	@errorMsg = ""
 	@bReported = 0
 
@@ -103,7 +103,7 @@ class stzReactiveTask from stzObject
 		@taskId = id
 		@taskFunc = f
 		@oEngine = engine
-		@status = TASK_PENDING
+		@status = $TASK_PENDING
 		
 		if errorMode != ""
 			@errorHandling = errorMode
@@ -161,22 +161,22 @@ class stzReactiveTask from stzObject
 		# once the second was corrected the two were identical and the question
 		# had no purpose.
 		try
-			@status = TASK_RUNNING
+			@status = $TASK_RUNNING
 			@result = call @taskFunc()
-			@status = TASK_COMPLETED
+			@status = $TASK_COMPLETED
 			if @onComplete != ""
 				call @onComplete(@result)
 			ok
 
 		catch
-			@status = TASK_ERROR
+			@status = $TASK_ERROR
 
 			# The REAL reason, not a fixed sentence. CatchError() is Ring's, and
 			# it answers "Error (R1) : Can't divide by zero" where this used to
 			# say "Task execution failed" for every failure there is.
 			@errorMsg = CatchError()
-			if NOT (isString(@errorMsg) and @errorMsg != EMPTY_ERROR_MSG)
-				@errorMsg = DEFAULT_TASK_ERROR_MSG
+			if NOT (isString(@errorMsg) and @errorMsg != $EMPTY_ERROR_MSG)
+				@errorMsg = $DEFAULT_TASK_ERROR_MSG
 			ok
 
 			# ...and every mode reports. The old chain ended at `ok`, so a task
@@ -189,15 +189,15 @@ class stzReactiveTask from stzObject
 			# whole point: a fallback should fail loud.
 			@bReported = 0
 
-			if @errorHandling = ERROR_THROW
+			if @errorHandling = $ERROR_THROW
 				@bReported = 1
 				raise(@errorMsg)
 
-			but @errorHandling = ERROR_CALLBACK and @onError != ""
+			but @errorHandling = $ERROR_CALLBACK and @onError != ""
 				@bReported = 1
 				call @onError(@errorMsg)
 
-			but @errorHandling != ERROR_IGNORE
+			but @errorHandling != $ERROR_IGNORE
 				# ERROR_LOG is the documented default and prints by design.
 				# The message is on the object either way -- see Error() -- so
 				# stdout is no longer the only channel, and ERROR_IGNORE can
@@ -235,7 +235,7 @@ class stzReactiveTask from stzObject
 	#   returns    TRUE or FALSE, as 1 or 0
 	#   see        Error, Succeeded
 	def HasFailed()
-		return @status = TASK_ERROR
+		return @status = $TASK_ERROR
 
 	# TRUE if the failure reached somebody: a raise, a handler or the console.
 	#
@@ -252,7 +252,7 @@ class stzReactiveTask from stzObject
 	#   returns    TRUE or FALSE, as 1 or 0
 	#   see        Status, HasFailed
 	def Succeeded()
-		return @status = TASK_COMPLETED
+		return @status = $TASK_COMPLETED
 
 	# Records a successful outcome that was produced outside Execute.
 	#
@@ -263,7 +263,7 @@ class stzReactiveTask from stzObject
 	#   see        Fail, Result
 	#@ aka  -- AN OUTCOME PRODUCED OUTSIDE Execute() -----------------------------------
 	def Complete(pResult)
-		@status = TASK_COMPLETED
+		@status = $TASK_COMPLETED
 		@result = pResult
 		@errorMsg = ""
 		return This
@@ -275,7 +275,7 @@ class stzReactiveTask from stzObject
 	#   note       it sets the status to error and marks the failure as reported
 	#   see        Complete, Error
 	def Fail(pcMsg)
-		@status = TASK_ERROR
+		@status = $TASK_ERROR
 		@errorMsg = "" + pcMsg
 		@bReported = 1      # the caller is reporting it, right here
 		return This

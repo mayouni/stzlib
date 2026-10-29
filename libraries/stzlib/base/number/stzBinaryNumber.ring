@@ -6,14 +6,14 @@ Read this about binary arithmetic opeartions:
 https://sciencing.com/convert-between-base-number-systems-8442032.html
 */
 
-_acBinaryPrefixes = [ "b", "0b" ]
-_cBinaryNumberPrefix = "0b"
+$_acBinaryPrefixes = [ "b", "0b" ]
+$_cBinaryNumberPrefix = "0b"
 
 func StzBinaryNumberQ(cNumber)
 	return new stzBinaryNumber(cNumber)
 
 func BinaryNumberPrefix()
-	return _cBinaryNumberPrefix
+	return $_cBinaryNumberPrefix
 
 	#< @FunctionAlternativeForm
 
@@ -23,12 +23,12 @@ func BinaryNumberPrefix()
 	#>
 
 def BinaryPrefixes()
-	return _acBinaryPrefixes
+	return $_acBinaryPrefixes
 
 def SetBinaryNumberPrefix(pcBinaryPrefix)
 
 	if isString(pcBinaryPrefix) and StzFindFirst(pcBinaryPrefix, BinaryPrefixes()) > 0
-		_cBinaryNumberPrefix = pcBinaryPrefix
+		$_cBinaryNumberPrefix = pcBinaryPrefix
 
 	else
 		StzRaise("Incorrect hex number prefix!")

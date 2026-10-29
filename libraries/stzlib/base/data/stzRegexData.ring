@@ -3,7 +3,7 @@
 #  REGEX DATA NAMED PATTERNS  #
 #-----------------------------#
 
-_$aRegexPatterns_ = [
+$_$aRegexPatterns_ = [
 
 	# String Structure Patterns
 
@@ -583,7 +583,7 @@ _$aRegexPatterns_ = [
 #  REGEX EXPLANATIONS KNWOLEDGBASE  #
 #-----------------------------------#
 
-_$aRegexPatternsExplanations_ = [
+$_$aRegexPatternsExplanations_ = [
 
 	# String patterns
 
@@ -4796,10 +4796,10 @@ _$aRegexPatternsExplanations_ = [
 #-----------------------------------#
 
 func RegexPatterns()
-	return _$aRegexPatterns_
+	return $_$aRegexPatterns_
 
 func RegexPatternsExplanations()
-	return _$aRegexPatternsExplanations_
+	return $_$aRegexPatternsExplanations_
 
 func RegexPatternName(cPatt)
 
@@ -4815,9 +4815,9 @@ func RegexPatternName(cPatt)
 
 	_nLen_ = len(_aPatterns_)
 
-	for @i = 1 to _nLen_
-		if _aPatterns_[@i][2] = cPatt
-			_cResult_ = _aPatterns_[@i][1]
+	for _i_ = 1 to _nLen_
+		if _aPatterns_[_i_][2] = cPatt
+			_cResult_ = _aPatterns_[_i_][1]
 			exit
 		ok
 	next

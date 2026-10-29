@@ -26,24 +26,24 @@
 # the builtin anywhere -- all 40 call sites now route to StzEngineRandomInt
 # (Xoshiro256++, full-range, unbiased). The constant survives only as the
 # default range of RandomNumber(), which the engine handles effortlessly.
-_nRingMaxRandom = 999_999_999
+$_nRingMaxRandom = 999_999_999
 
-_nRingMaxSeed = 1_999_999_999 # Idem
+$_nRingMaxSeed = 1_999_999_999 # Idem
 
-_nRandomRound = 3	# Defines how many decimals are supported in random01()
+$_nRandomRound = 3	# Defines how many decimals are supported in random01()
 
-_nMaxRandomLoop = 1000 	# How many times Softanza loops to find a given random number
+$_nMaxRandomLoop = 1000 	# How many times Softanza loops to find a given random number
 			# before it aborts the process and raises an error
 			#--> Used as a safey featur with while loops inorder to
 			# avoid infite lopps
 
-_nNoRatio = 0
-_nFewRatio = 0.15
-_nSomeRatio = 0.30
-_nHalfRatio = 0.50
-_nManyRatio = 0.70
-_nMostRatio = 0.90
-_nAllRatio = 1
+$_nNoRatio = 0
+$_nFewRatio = 0.15
+$_nSomeRatio = 0.30
+$_nHalfRatio = 0.50
+$_nManyRatio = 0.70
+$_nMostRatio = 0.90
+$_nAllRatio = 1
 
 _nProbablyRatio = 0.50
 _nUnlikelyRatio = 0.05
@@ -53,16 +53,16 @@ _nAlmostRatio = 0.95
 # Probabilistic functions
 
 func DefaultNo()
-	return _nNoRatio
+	return $_nNoRatio
 
 	func DefaultAny()
-		return _nNoRatio
+		return $_nNoRatio
 
 	func _No()
-		return _nNoRatio
+		return $_nNoRatio
 
 	func _Any()
-		return _nNoRatio
+		return $_nNoRatio
 
 func SetNo(_nRatio_)
 
@@ -78,7 +78,7 @@ func SetNo(_nRatio_)
 		ok
 	ok
 
-	_nNoRatio = _nRatio_
+	$_nNoRatio = _nRatio_
 
 	func SetAny(_nRatio_)
 		SetNo(_nRatio_)
@@ -277,10 +277,10 @@ func SomeOneIn(paList)
 #--
 
 func DefaultFew()
-	return _nFewRatio
+	return $_nFewRatio
 
 	func _Few()
-		return _nFewRatio
+		return $_nFewRatio
 
 func SetFew(_nRatio_)
 
@@ -296,7 +296,7 @@ func SetFew(_nRatio_)
 		ok
 	ok
 
-	_nFewRatio = _nRatio_
+	$_nFewRatio = _nRatio_
 
 func Few(paList)
 	return FewXT(paList, DefaultFew())
@@ -398,10 +398,10 @@ func FewXT(paList, nFewRatio)
 #--
 
 func DefaultSome()
-	return _nSomeRatio
+	return $_nSomeRatio
 
 	func _Some()
-		return _nSomeRatio
+		return $_nSomeRatio
 
 func SetSome(_nRatio_)
 
@@ -417,10 +417,10 @@ func SetSome(_nRatio_)
 		ok
 	ok
 
-	_nSomeRatio = _nRatio_
+	$_nSomeRatio = _nRatio_
 
 	func SetSomeTo(_nRatio_)
-		_nSomeRatio = _nRatio_
+		$_nSomeRatio = _nRatio_
 
 func Some(paList)
 	return SomeXT(paList, DefaultSome())
@@ -527,10 +527,10 @@ func SomeXT(paList, nSomeRatio)
 #--
 
 func DefaultHalf()
-	return _nHalfRatio
+	return $_nHalfRatio
 
 	func _Half()
-		return _nHalfRatio
+		return $_nHalfRatio
 
 func SetHalf(_nRatio_)
 
@@ -546,7 +546,7 @@ func SetHalf(_nRatio_)
 		ok
 	ok
 
-	_nHalfRatio = _nRatio_
+	$_nHalfRatio = _nRatio_
 
 func Half(paList)
 	if CheckingParams()
@@ -595,10 +595,10 @@ func HalfXT(paList)
 #--
 
 func DefaultMany()
-	return _nManyRatio
+	return $_nManyRatio
 
 	func _Many()
-		return _nManyRatio
+		return $_nManyRatio
 
 func Among(p)
 	if CheckParams()
@@ -618,7 +618,7 @@ func Among(p)
 		return QQ(Among(p))
 
 func SetMany(_n_)
-	_nManyRatio = _n_
+	$_nManyRatio = _n_
 
 func Many(paList)
 	return ManyXT(paList, DefaultMany())
@@ -721,10 +721,10 @@ func ManyXT(paList, nManyRatio)
 #--
 
 func DefaultMost()
-	return _nMostRatio
+	return $_nMostRatio
 
 	func _Most()
-		return _nMostRatio
+		return $_nMostRatio
 
 func SetMost(_nRatio_)
 
@@ -740,7 +740,7 @@ func SetMost(_nRatio_)
 		ok
 	ok
 
-	_nMostRatio = _nRatio_
+	$_nMostRatio = _nRatio_
 
 func Most(paList)
 	return MostXT(paList, DefaultMost())
@@ -807,7 +807,7 @@ func MostXT(paList, nMostRatio)
 #--
 
 func DefaultAll()
-	return _nAllRatio
+	return $_nAllRatio
 
 	func _All()
 		return n_All
@@ -826,7 +826,7 @@ func SetAll(_nRatio_)
 		ok
 	ok
 
-	_nAllRatio = _nRatio_
+	$_nAllRatio = _nRatio_
 
 func All(paList)
 	if CheckingParams()
@@ -1024,7 +1024,7 @@ func AllNumbers(panList)
 #==
 
 func MaxRandomLoop()
-	return _nMaxRandomLoop
+	return $_nMaxRandomLoop
 
 func SetMaxRandomLoop(_n_)
 	if CheckingParams()
@@ -1033,25 +1033,25 @@ func SetMaxRandomLoop(_n_)
 		ok
 	ok
 
-	_nMaxRandomLoop = _n_
+	$_nMaxRandomLoop = _n_
 
 func RingMaxRandom()
-	return _nRingMaxRandom
+	return $_nRingMaxRandom
 
 	func MaxRingRandom()
 		return RingMaxRandom()
 
 func RingMaxSeed()
-	return _nRingMaxSeed
+	return $_nRingMaxSeed
 
 	func MaxRingSeed()
 		return RingMaxSeed()
 
 func RandomRound()
-	return _nRandomRound
+	return $_nRandomRound
 
 func RandomRoundXT()
-	return pow(10, _nRandomRound)
+	return pow(10, $_nRandomRound)
 
 func SetRandomRound(_n_)
 	if CheckingParams()
@@ -1060,7 +1060,7 @@ func SetRandomRound(_n_)
 		ok
 	ok
 
-	_nRandomRound = _n_
+	$_nRandomRound = _n_
 				
 func StzRandom(_n_)
 	if CheckingParams()

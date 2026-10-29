@@ -54,9 +54,12 @@ func StzWPositions(paItems, pcCondition)
 func _StzWCheckedPositions(paItems, pcCond)
 	_aR_ = []
 	_n_ = len(paItems)
+	# The condition names the engine's @item and @i; here they are _item_ and
+	# _i_, the loop's own locals -- an @name in a plain function is refused
+	# under Ring++'s Rule A. Rewritten before the eval, as FirstNPrimesW does.
+	pcCond = StzReplaceCS(StzReplaceCS(pcCond, "@item", "_item_", 0), "@i", "_i_", 0)
 	for _i_ = 1 to _n_
-		@item = paItems[_i_]
-		@i = _i_
+		_item_ = paItems[_i_]
 		_bW_ = 0
 		try
 			eval("_bW_ = " + pcCond)
@@ -70,9 +73,12 @@ func _StzWCheckedPositions(paItems, pcCond)
 func _StzWCheckedValues(paItems, pcExpr)
 	_aR_ = []
 	_n_ = len(paItems)
+	# The condition names the engine's @item and @i; here they are _item_ and
+	# _i_, the loop's own locals -- an @name in a plain function is refused
+	# under Ring++'s Rule A. Rewritten before the eval, as FirstNPrimesW does.
+	pcExpr = StzReplaceCS(StzReplaceCS(pcExpr, "@item", "_item_", 0), "@i", "_i_", 0)
 	for _i_ = 1 to _n_
-		@item = paItems[_i_]
-		@i = _i_
+		_item_ = paItems[_i_]
 		_vW_ = ""
 		eval("_vW_ = ( " + pcExpr + " )")
 		_aR_ + _vW_

@@ -1,5 +1,5 @@
 
-_aLocaleScriptsXT = [
+$_aLocaleScriptsXT = [
 	/*
 	The unicode abreviations are documented here:
 	https://unicode.org/iso15924/iso15924-codes.html
@@ -210,7 +210,7 @@ func DefaultScriptForCountry(_cCountry_)
 		return StzCountryQ(_cCountry_).DefaultScript()
 
 func LocaleScriptsXT()
-	return _aLocaleScriptsXT
+	return $_aLocaleScriptsXT
 
 func LocaleScripts()
 	_aResult_ = []

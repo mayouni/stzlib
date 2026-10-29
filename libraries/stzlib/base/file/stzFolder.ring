@@ -24,16 +24,16 @@
 #    - Technical details (system files) handled internally
 #
 
-_nMaxTreeDisplayLevel = 5 #TODO //Move it to stzTree.ring and use it there
+$_nMaxTreeDisplayLevel = 5 #TODO //Move it to stzTree.ring and use it there
 
 func DefaultMaxTreeDisplayLevel()
-	return _nMaxTreeDisplayLevel
+	return $_nMaxTreeDisplayLevel
 
 func SetDefaultMaxTreeDisplayLevel(n)
 	if NOT isNumber(n)
 		StzRaise("Incorrect param type! n must be a number.")
 	ok
-	_nMaxTreeDisplayLevel = n
+	$_nMaxTreeDisplayLevel = n
 
 #== Global Helper Functions ==#
 

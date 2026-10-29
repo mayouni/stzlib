@@ -29,13 +29,13 @@ func StzBytesToKiloBytes(n)
 		return StzBytesToKiloBytes(n)
 
 func StzKiloBytesToBits(n)
-	return n * KILOBYTE_TO_BIT_FACTOR
+	return n * $KILOBYTE_TO_BIT_FACTOR
 
 	func KiloBytesToBits(n)
 		return StzKiloBytesToBits(n)
 
 func StzBitsToKiloBytes(n)
-	return n / KILOBYTE_TO_BIT_FACTOR
+	return n / $KILOBYTE_TO_BIT_FACTOR
 
 	func BitsToKiloBytes(n)
 		return StzBitsToKiloBytes(n)
@@ -43,13 +43,13 @@ func StzBitsToKiloBytes(n)
 #--
 
 func StzMegaBytesToKiloBytes(n)
-	return n * MEGABYTE_TO_KILOBYTE_FACTOR
+	return n * $MEGABYTE_TO_KILOBYTE_FACTOR
 
 	func MegaBytesToKiloBytes(n)
 		return StzMegaBytesToKiloBytes(n)
 
 func StzKiloBytesToMegaBytes(n)
-	return n / MEGABYTE_TO_KILOBYTE_FACTOR
+	return n / $MEGABYTE_TO_KILOBYTE_FACTOR
 
 	func KiloBytesToMegaBytes(n)
 		return StzKiloBytesToMegaBytes(n)
@@ -67,13 +67,13 @@ func StzBytesToMegaBytes(n)
 		return StzBytesToMegaBytes(n)
 
 func StzMegaBytesToBits(n)
-	return n * MEGABYTE_TO_BIT_FACTOR
+	return n * $MEGABYTE_TO_BIT_FACTOR
 
 	func MegaBytesToBits(n)
 		return StzMegaBytesToBits(n)
 
 func StzBitsToMegaBytes(n)
-	return n / MEGABYTE_TO_BIT_FACTOR
+	return n / $MEGABYTE_TO_BIT_FACTOR
 
 	func BitsToMegaBytes(n)
 		return StzBitsToMegaBytes(n)
@@ -93,37 +93,37 @@ func StzMegaBytesToGigaBytes(n)
 		return StzMegaBytesToGigaBytes(n)
 
 func StzGigaBytesToKiloBytes(n)
-	return n * GIGABYTE_TO_KILOBYTE_FACTOR
+	return n * $GIGABYTE_TO_KILOBYTE_FACTOR
 
 	func GigaBytesToKiloBytes(n)
 		return StzGigaBytesToKiloBytes(n)
 
 func StzKiloBytesToGigaBytes(n)
-	return n / GIGABYTE_TO_KILOBYTE_FACTOR
+	return n / $GIGABYTE_TO_KILOBYTE_FACTOR
 
 	func KiloBytesToGigaBytes(n)
 		return StzKiloBytesToGigaBytes(n)
 
 func StzGigaBytesToBytes(n)
-	return n * GIGABYTE_TO_BYTE_FACTOR
+	return n * $GIGABYTE_TO_BYTE_FACTOR
 
 	func GigaBytesToBytes(n)
 		return StzGigaBytesToBytes(n)
 
 func StzBytesToGigaBytes(n)
-	return n / GIGABYTE_TO_BYTE_FACTOR
+	return n / $GIGABYTE_TO_BYTE_FACTOR
 
 	func BytesToGigaBytes(n)
 		return StzBytesToGigaBytes(n)
 
 func StzGigaBytesToBits(n)
-	return n * GIGABYTE_TO_BIT_FACTOR
+	return n * $GIGABYTE_TO_BIT_FACTOR
 
 	func GigaBytesToBits(n)
 		return StzGigaBytesToBits(n)
 
 func StzBitsToGigaBytes(n)
-	return n / GIGABYTE_TO_BIT_FACTOR
+	return n / $GIGABYTE_TO_BIT_FACTOR
 
 	func BitsToGigaBytes(n)
 		return StzBitsToGigaBytes(n)
@@ -155,37 +155,37 @@ func StzMegaBytesToTeraBytes(n)
 		return StzMegaBytesToTeraBytes(n)
 
 func StzTeraBytesToKiloBytes(n)
-	return n * TERABYTE_TO_KILOBYTE_FACTOR
+	return n * $TERABYTE_TO_KILOBYTE_FACTOR
 
 	func TeraBytesToKiloBytes(n)
 		return StzTeraBytesToKiloBytes(n)
 
 func StzKiloBytesToTeraBytes(n)
-	return n / TERABYTE_TO_KILOBYTE_FACTOR
+	return n / $TERABYTE_TO_KILOBYTE_FACTOR
 
 	func KiloBytesToTeraBytes(n)
 		return StzKiloBytesToTeraBytes(n)
 
 func StzTeraBytesToBytes(n)
-	return n * TERABYTE_TO_BYTE_FACTOR
+	return n * $TERABYTE_TO_BYTE_FACTOR
 
 	func TeraBytesToBytes(n)
 		return StzTeraBytesToBytes(n)
 
 func StzBytesToTeraBytes(n)
-	return n / TERABYTE_TO_BYTE_FACTOR
+	return n / $TERABYTE_TO_BYTE_FACTOR
 
 	func BytesToTeraBytes(n)
 		return StzBytesToTeraBytes(n)
 
 func StzTeraBytesToBits(n)
-	return n * TERABYTE_TO_BIT_FACTOR
+	return n * $TERABYTE_TO_BIT_FACTOR
 
 	func TeraBytesToBits(n)
 		return StzTeraBytesToBits(n)
 
 func StzBitsToTeraBytes(n)
-	return n / TERABYTE_TO_BIT_FACTOR
+	return n / $TERABYTE_TO_BIT_FACTOR
 
 	func BitsToTeraBytes(n)
 		return StzBitsToTeraBytes(n)
@@ -229,13 +229,13 @@ func StzMegaBytesToPetaBytes(n)
 		return StzMegaBytesToPetaBytes(n)
 
 func StzPetaBytesToKiloBytes(n)
-	return n * PETABYTE_TO_KILOBYTE_FACTOR
+	return n * $PETABYTE_TO_KILOBYTE_FACTOR
 
 	func PetaBytesToKiloBytes(n)
 		return StzPetaBytesToKiloBytes(n)
 
 func StzKiloBytesToPetaBytes(n)
-	return n / PETABYTE_TO_KILOBYTE_FACTOR
+	return n / $PETABYTE_TO_KILOBYTE_FACTOR
 
 	func KiloBytesToPetaBytes(n)
 		return StzKiloBytesToPetaBytes(n)
@@ -315,37 +315,37 @@ func StzMegaBytesToExaBytes(n)
 		return StzMegaBytesToExaBytes(n)
 
 func StzExaBytesToKiloBytes(n)
-	return n * EXABYTE_TO_KILOBYTE_FACTOR
+	return n * $EXABYTE_TO_KILOBYTE_FACTOR
 
 	func ExaBytesToKiloBytes(n)
 		return StzExaBytesToKiloBytes(n)
 
 func StzKiloBytesToExaBytes(n)
-	return n / EXABYTE_TO_KILOBYTE_FACTOR
+	return n / $EXABYTE_TO_KILOBYTE_FACTOR
 
 	func KiloBytesToExaBytes(n)
 		return StzKiloBytesToExaBytes(n)
 
 func StzExaBytesToBytes(n)
-	return n * EXABYTE_TO_BYTE_FACTOR
+	return n * $EXABYTE_TO_BYTE_FACTOR
 
 	func ExaBytesToBytes(n)
 		return StzExaBytesToBytes(n)
 
 func StzBytesToExaBytes(n)
-	return n / EXABYTE_TO_BYTE_FACTOR
+	return n / $EXABYTE_TO_BYTE_FACTOR
 
 	func BytesToExaBytes(n)
 		return StzBytesToExaBytes(n)
 
 func StzExaBytesToBits(n)
-	return n * EXABYTE_TO_BIT_FACTOR
+	return n * $EXABYTE_TO_BIT_FACTOR
 
 	func ExaBytesToBits(n)
 		return StzExaBytesToBits(n)
 
 func StzBitsToExaBytes(n)
-	return n / EXABYTE_TO_BIT_FACTOR
+	return n / $EXABYTE_TO_BIT_FACTOR
 
 	func BitsToExaBytes(n)
 		return StzBitsToExaBytes(n)
@@ -413,37 +413,37 @@ func StzMegaBytesToZettaBytes(n)
 		return StzMegaBytesToZettaBytes(n)
 
 func StzZettaBytesToKiloBytes(n)
-	return n * ZETTABYTE_TO_KILOBYTE_FACTOR
+	return n * $ZETTABYTE_TO_KILOBYTE_FACTOR
 
 	func ZettaBytesToKiloBytes(n)
 		return StzZettaBytesToKiloBytes(n)
 
 func StzKiloBytesToZettaBytes(n)
-	return n / ZETTABYTE_TO_KILOBYTE_FACTOR
+	return n / $ZETTABYTE_TO_KILOBYTE_FACTOR
 
 	func KiloBytesToZettaBytes(n)
 		return StzKiloBytesToZettaBytes(n)
 
 func StzZettaBytesToBytes(n)
-	return n * ZETTABYTE_TO_BYTE_FACTOR
+	return n * $ZETTABYTE_TO_BYTE_FACTOR
 
 	func ZettaBytesToBytes(n)
 		return StzZettaBytesToBytes(n)
 
 func StzBytesToZettaBytes(n)
-	return n / ZETTABYTE_TO_BYTE_FACTOR
+	return n / $ZETTABYTE_TO_BYTE_FACTOR
 
 	func BytesToZettaBytes(n)
 		return StzBytesToZettaBytes(n)
 
 func StzZettaBytesToBits(n)
-	return n * ZETTABYTE_TO_BIT_FACTOR
+	return n * $ZETTABYTE_TO_BIT_FACTOR
 
 	func ZettaBytesToBits(n)
 		return StzZettaBytesToBits(n)
 
 func StzBitsToZettaBytes(n)
-	return n / ZETTABYTE_TO_BIT_FACTOR
+	return n / $ZETTABYTE_TO_BIT_FACTOR
 
 	func BitsToZettaBytes(n)
 		return StzBitsToZettaBytes(n)
@@ -523,37 +523,37 @@ func StzMegaBytesToYottaBytes(n)
 		return StzMegaBytesToYottaBytes(n)
 
 func StzYottaBytesToKiloBytes(n)
-	return n * YOTTABYTE_TO_KILOBYTE_FACTOR
+	return n * $YOTTABYTE_TO_KILOBYTE_FACTOR
 
 	func YottaBytesToKiloBytes(n)
 		return StzYottaBytesToKiloBytes(n)
 
 func StzKiloBytesToYottaBytes(n)
-	return n / YOTTABYTE_TO_KILOBYTE_FACTOR
+	return n / $YOTTABYTE_TO_KILOBYTE_FACTOR
 
 	func KiloBytesToYottaBytes(n)
 		return StzKiloBytesToYottaBytes(n)
 
 func StzYottaBytesToBytes(n)
-	return n * YOTTABYTE_TO_BYTE_FACTOR
+	return n * $YOTTABYTE_TO_BYTE_FACTOR
 
 	func YottaBytesToBytes(n)
 		return StzYottaBytesToBytes(n)
 
 func StzBytesToYottaBytes(n)
-	return n / YOTTABYTE_TO_BYTE_FACTOR
+	return n / $YOTTABYTE_TO_BYTE_FACTOR
 
 	func BytesToYottaBytes(n)
 		return StzBytesToYottaBytes(n)
 
 func StzYottaBytesToBits(n)
-	return n * YOTTABYTE_TO_BIT_FACTOR
+	return n * $YOTTABYTE_TO_BIT_FACTOR
 
 	func YottaBytesToBits(n)
 		return StzYottaBytesToBits(n)
 
 func StzBitsToYottaBytes(n)
-	return n / YOTTABYTE_TO_BIT_FACTOR
+	return n / $YOTTABYTE_TO_BIT_FACTOR
 
 	func BitsToYottaBytes(n)
 		return StzBitsToYottaBytes(n)

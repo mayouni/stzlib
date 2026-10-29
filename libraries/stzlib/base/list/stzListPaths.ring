@@ -86,22 +86,22 @@ func PathsIn(paPath)
     
     	# Generate all possible subpaths
 
-	for @i = 1 to _nLen_
-		_aCurrentPath_ = 1 : @i  # Initialize list with size @i
-		_nLenSubPath_ = @i
+	for _i_ = 1 to _nLen_
+		_aCurrentPath_ = 1 : _i_  # Initialize list with size _i_
+		_nLenSubPath_ = _i_
         
 		# Build the current subpath
 
-		for @j = 1 to _nLenSubPath_
-			_aCurrentPath_[@j] = paPath[@j]  # First fill with the original values
+		for _j_ = 1 to _nLenSubPath_
+			_aCurrentPath_[_j_] = paPath[_j_]  # First fill with the original values
 		next
         
 		# Add the current subpath to results
 
-		_aTempList_ = 1 : @i  # Create a new list for this combination
+		_aTempList_ = 1 : _i_  # Create a new list for this combination
 
-		for @j = 1 to @i
-			_aTempList_[@j] = _aCurrentPath_[@j]
+		for _j_ = 1 to _i_
+			_aTempList_[_j_] = _aCurrentPath_[_j_]
 		next
 
 		_aResult_ + _aTempList_
@@ -218,12 +218,12 @@ func PathsInXT(paPaths)
     
     	# Generate all possible subpaths
 
-	for @i = 1 to _nLen_
-		_aTempPaths_ = PathsIn(paPaths[@i])
+	for _i_ = 1 to _nLen_
+		_aTempPaths_ = PathsIn(paPaths[_i_])
 		_nLenTemp_ = len(_aTempPaths_)
 
-		for @j = 1 to _nLenTemp_
-			_aResult_ + _aTempPaths_[@j]
+		for _j_ = 1 to _nLenTemp_
+			_aResult_ + _aTempPaths_[_j_]
 		next
 
 	next
@@ -306,14 +306,14 @@ func ReducePaths(paPaths)
 	_nLenPaths_ = len(paPaths)
    	_aResult_ = []
 
-	for @i = 1 to _nLenPaths_
+	for _i_ = 1 to _nLenPaths_
 
-		_aPath_ = paPaths[@i]
+		_aPath_ = paPaths[_i_]
         	_bShouldAdd_ = 1
         
-		for @j = 1 to _nLenPaths_
+		for _j_ = 1 to _nLenPaths_
 
-			_aOtherPath_ = paPaths[@j]
+			_aOtherPath_ = paPaths[_j_]
 
             		if _aOtherPath_ != _aPath_ and
                		   IsSubPathOf(_aOtherPath_, _aPath_)
@@ -364,17 +364,17 @@ func SortPaths(paPaths)
 
     	_nLen1_ = _nLen_ - 1
 
-    	for @i = 1 to _nLen1_
+    	for _i_ = 1 to _nLen1_
 
-		_nLen2_ = _nLen_ - @i
+		_nLen2_ = _nLen_ - _i_
 
-        	for @j = 1 to _nLen2_
+        	for _j_ = 1 to _nLen2_
 
-            		if PathIsGreaterThan(_aResult_[@j], _aResult_[@j+1])
+            		if PathIsGreaterThan(_aResult_[_j_], _aResult_[_j_+1])
 
-                		_temp_ = _aResult_[@j]
-                		_aResult_[@j] = _aResult_[@j+1]
-                		_aResult_[@j+1] = _temp_
+                		_temp_ = _aResult_[_j_]
+                		_aResult_[_j_] = _aResult_[_j_+1]
+                		_aResult_[_j_+1] = _temp_
 
             		ok
         	next
@@ -397,9 +397,9 @@ func PathIsGreaterThan(paPath1, paPath2)
     
     	# Compare common positions first
 
-	for @i = 1 to _nMin_
-		if paPath1[@i] != paPath2[@i]
-			return paPath1[@i] > paPath2[@i]
+	for _i_ = 1 to _nMin_
+		if paPath1[_i_] != paPath2[_i_]
+			return paPath1[_i_] > paPath2[_i_]
 		ok
 	next
     
@@ -421,8 +421,8 @@ func IsSubPathOf(paShortPath, paLongPath)
         	return 0
     	ok
     
-    	for @i = 1 to _nLenShort_
-        	if paShortPath[@i] != paLongPath[@i]
+    	for _i_ = 1 to _nLenShort_
+        	if paShortPath[_i_] != paLongPath[_i_]
             		return 0
         	ok
     	next
@@ -441,34 +441,34 @@ func CommonPath(paPaths)
 	_nLenPaths_ = len(paPaths)
 
 	# Find shortest path
-	for @i = 1 to _nLenPaths_
-		if len(paPaths[@i]) < len(_aShortestPath_)
-			_aShortestPath_ = paPaths[@i]
+	for _i_ = 1 to _nLenPaths_
+		if len(paPaths[_i_]) < len(_aShortestPath_)
+			_aShortestPath_ = paPaths[_i_]
 		ok
 	next
 
 	# Try each length from longest to shortest
 	_nLen_ = len(_aShortestPath_)
 	
-	for @n = _nLen_ to 1 step -1
+	for _n_ = _nLen_ to 1 step -1
 		_aCandidate_ = []
 		
-		# Build candidate of length @n
-		for @j = 1 to @n
-			_aCandidate_ + _aShortestPath_[@j]
+		# Build candidate of length _n_
+		for _j_ = 1 to _n_
+			_aCandidate_ + _aShortestPath_[_j_]
 		next
 
 		_bAllMatch_ = 1
 		
-		# Check if all paths match this candidate at length @n
-		for @i = 1 to _nLenPaths_
-			if len(paPaths[@i]) < @n
+		# Check if all paths match this candidate at length _n_
+		for _i_ = 1 to _nLenPaths_
+			if len(paPaths[_i_]) < _n_
 				_bAllMatch_ = 0
 				exit
 			ok
 			
-			for @j = 1 to @n
-				if paPaths[@i][@j] != _aCandidate_[@j]
+			for _j_ = 1 to _n_
+				if paPaths[_i_][_j_] != _aCandidate_[_j_]
 					_bAllMatch_ = 0
 					exit
 				ok
@@ -563,12 +563,12 @@ func PathsSection(paPath1, paPath2)
    	_nStart_ = len(paPath1)
     	_nEnd_ = len(paPath2)
     
-    	for @i = _nStart_ to _nEnd_
+    	for _i_ = _nStart_ to _nEnd_
 
         	_aTemp_ = []
 
-        	for @j = 1 to @i
-            		_aTemp_ + paPath2[@j]
+        	for _j_ = 1 to _i_
+            		_aTemp_ + paPath2[_j_]
         	next
 
         	_aResult_ + _aTemp_

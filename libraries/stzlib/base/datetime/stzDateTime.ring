@@ -135,7 +135,7 @@ $aDateTimeFormats = [
 #=================================================================
 
 # Reference points (in milliseconds from Unix epoch)
-aTimeOrigins = [
+$aTimeOrigins = [
     :UnixEpoch = 0,                      # 1970-01-01
     :YearOne = -62135596800000,          # 1 CE
     :IslamicHijra = -42521587200000,  # 622 CE (Hijra)
@@ -3116,9 +3116,9 @@ class stzDateTime from stzObject
             return 0
         ok
         _cOriginLower_ = StzLower(_cOrigin_)
-        _nTimeOrigins1Len_ = len(aTimeOrigins)
+        _nTimeOrigins1Len_ = len($aTimeOrigins)
         for _iLoopTimeOrigins1_ = 1 to _nTimeOrigins1Len_
-        	_aOrigin_ = aTimeOrigins[_iLoopTimeOrigins1_]
+        	_aOrigin_ = $aTimeOrigins[_iLoopTimeOrigins1_]
             if _aOrigin_[1] = _cOriginLower_  # the table keys are symbols, lowercase already
                 return _aOrigin_[2]
             ok

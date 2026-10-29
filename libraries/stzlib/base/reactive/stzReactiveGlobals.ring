@@ -11,17 +11,17 @@ DEFAULT = ""
 
 # Basic time units
 MILLISECOND = 1
-SECOND = 1000
-MINUTE = 60000
-HOUR = 3600000
+$SECOND = 1000
+$MINUTE = 60000
+$HOUR = 3600000
 
 # Expressive delays
-IMMEDIATE = 0
+$IMMEDIATE = 0
 VERY_SHORT = 100
 SHORT_DELAY = 500
 MEDIUM_DELAY = 1000
 LONG_DELAY = 3000
-ONE_SECOND = 1000
+$ONE_SECOND = 1000
 
 # Timer specific constants
 TIMER_IMMEDIATE_START = 0
@@ -47,8 +47,8 @@ PATIENCE_NORMAL = 50     # Wait 0.5 seconds for new timers
 PATIENCE_LONG = 100      # Wait 1 second for new timers
 
 # Clock conversion
-MS_PER_SECOND = 1000
-CLOCKS_TO_MS_MULTIPLIER = MS_PER_SECOND
+$MS_PER_SECOND = 1000
+CLOCKS_TO_MS_MULTIPLIER = $MS_PER_SECOND
 
 
 #-------------------#
@@ -72,12 +72,12 @@ STREAM_NETWORK = "network"
 STREAM_SENSOR = "sensor"
 
 # Alternative stream source names
-STREAM_SOURCE_MANUAL = "manual"
-STREAM_SOURCE_LIBUV = "libuv" 
-STREAM_SOURCE_TIMER = "timer"
-STREAM_SOURCE_FILE = "file"
-STREAM_SOURCE_NETWORK = "network"
-STREAM_SOURCE_SENSOR = "sensor"
+$STREAM_SOURCE_MANUAL = "manual"
+$STREAM_SOURCE_LIBUV = "libuv" 
+$STREAM_SOURCE_TIMER = "timer"
+$STREAM_SOURCE_FILE = "file"
+$STREAM_SOURCE_NETWORK = "network"
+$STREAM_SOURCE_SENSOR = "sensor"
 
 OPTIMISED_FOR_LIBUV_MESSAGES = "libuv" 
 OPTIMISED_FOR_TIMER_SOURCE = "timer"
@@ -101,18 +101,18 @@ STREAM_CONCLUDED = "completed"
 STREAM_ERROR = "error"
 
 # Alternative stream state names  
-STREAM_STATE_INACTIVE = 0
-STREAM_STATE_ACTIVE = 1
+$STREAM_STATE_INACTIVE = 0
+$STREAM_STATE_ACTIVE = 1
 
 STREAM_STATE_COMPLETED = 1
-STREAM_STATE_CONCLUDED = 1
+$STREAM_STATE_CONCLUDED = 1
 
-STREAM_STATE_RUNNING = 0
+$STREAM_STATE_RUNNING = 0
 
 # Transform operations
-TRANSFORM_MAP = :map
-TRANSFORM_FILTER = :filter
-TRANSFORM_REDUCE = :reduce
+$TRANSFORM_MAP = :map
+$TRANSFORM_FILTER = :filter
+$TRANSFORM_REDUCE = :reduce
 TRANSFORM_DEBOUNCE = :debounce
 TRANSFORM_THROTTLE = :throttle
 TRANSFORM_DISTINCT = :distinct
@@ -141,8 +141,8 @@ STREAM_DISTINCT_CHANGES = "distinct"
 #-------------------#
 
 # Engine States
-ENGINE_STOPPED = 0
-ENGINE_RUNNING = 1
+$ENGINE_STOPPED = 0
+$ENGINE_RUNNING = 1
 ENGINE_STARTING = "starting"
 ENGINE_STOPPING = "stopping"
 
@@ -151,13 +151,13 @@ ENGINE_STOPPING = "stopping"
 #---------------------#
 
 # Reactive modes
-REACTIVE_ON = 1
+$REACTIVE_ON = 1
 REACTIVE_OFF = 0
-BATCH_MODE_ON = 1
-BATCH_MODE_OFF = 0
+$BATCH_MODE_ON = 1
+$BATCH_MODE_OFF = 0
 
 # Watch/Binding behavior
-WATCH_IMMEDIATE = 1
+$WATCH_IMMEDIATE = 1
 WATCH_DEBOUNCED = 0
 WATCH_ALL_CHANGES = 1
 WATCH_DISTINCT_ONLY = 0
@@ -169,9 +169,9 @@ BINDING_AUTO_SYNC = 1
 BINDING_MANUAL_SYNC = 0
 
 # Binding types (BIND_* variants)
-BIND_ONE_WAY = "oneway"
+$BIND_ONE_WAY = "oneway"
 BIND_TWO_WAY = "twoway"
-BIND_AUTO_SYNC = 1
+$BIND_AUTO_SYNC = 1
 BIND_MANUAL_SYNC = 0
 BIND_IMMEDIATE = 1
 BIND_DEFERRED = 0
@@ -226,10 +226,10 @@ EMIT_THROTTLED = "throttled"
 #----------------------#
 
 # Error handling modes
-ERROR_IGNORE = "ignore"
+$ERROR_IGNORE = "ignore"
 ERROR_LOG = "log"
-ERROR_THROW = "throw"
-ERROR_CALLBACK = "callback"
+$ERROR_THROW = "throw"
+$ERROR_CALLBACK = "callback"
 ERROR_DEFAULT = ERROR_LOG
 
 # Default error messages -- the FALLBACK only. Both stzReactiveFunc and
@@ -237,56 +237,56 @@ ERROR_DEFAULT = ERROR_LOG
 # just when it comes back empty. stzReactiveTask used to send the fixed sentence
 # for every failure there is, which is how a class whose every path was broken
 # still looked like it was merely failing.
-DEFAULT_ERROR_MSG = "Function execution failed"
-DEFAULT_TASK_ERROR_MSG = "Task execution failed"
-EMPTY_ERROR_MSG = ""
+$DEFAULT_ERROR_MSG = "Function execution failed"
+$DEFAULT_TASK_ERROR_MSG = "Task execution failed"
+$EMPTY_ERROR_MSG = ""
 
 #--------------------------#
 #  FUNCTION CALL CONSTANTS #
 #--------------------------#
 
 # Function call types
-FUNC_CALL_SYNC = "func_call"
-FUNC_CALL_ASYNC = "func_call_async"
+$FUNC_CALL_SYNC = "func_call"
+$FUNC_CALL_ASYNC = "func_call_async"
 FUNC_CALL_CHUNKED = "func_call_chunked"
 
 # Parameter limits
-MAX_FUNCTION_PARAMS = 10
-NO_PARAMS = 0
+$MAX_FUNCTION_PARAMS = 10
+$NO_PARAMS = 0
 
 # Refusals a reactive function call can report. The param switch used to end
 # in an `other` arm that called the function with NO arguments, so passing
 # eleven surfaced as R19 "Calling function with LESS number of parameters" --
 # the opposite of what the caller had done.
-FUNC_ERROR_PARAMS_NOT_LIST = "Reactive call params must be a list"
-FUNC_ERROR_TOO_MANY_PARAMS = "Reactive call has too many params:"
+$FUNC_ERROR_PARAMS_NOT_LIST = "Reactive call params must be a list"
+$FUNC_ERROR_TOO_MANY_PARAMS = "Reactive call has too many params:"
 
 #---------------------------#
 #  REACTIVE OBJECT CONSTANTS #
 #---------------------------#
 
 # Object modes
-OBJECT_STANDALONE = ""        # For objects created from scratch
+$OBJECT_STANDALONE = ""        # For objects created from scratch
 OBJECT_WRAPPER = "wrapper"      # For wrapping existing objects
 
 # Refusals the configuration surface can report. Each used to be a raise from
 # somewhere else entirely -- a watcher that failed on the next change, a
 # "Bad parameter type!" out of find() on an unrelated set, an R14 from inside
 # BindTo -- rather than a refusal naming the call that was wrong.
-WATCH_ERROR_NOT_A_FUNCTION    = "Watch callback is not a function"
-COMPUTED_ERROR_NOT_A_FUNCTION = "Computed computer is not a function"
-COMPUTED_ERROR_DEPS_NOT_LIST  = "Computed dependencies must be a list"
-BIND_ERROR_TARGET_NOT_OBJECT  = "Bind target must be a reactive object"
+$WATCH_ERROR_NOT_A_FUNCTION    = "Watch callback is not a function"
+$COMPUTED_ERROR_NOT_A_FUNCTION = "Computed computer is not a function"
+$COMPUTED_ERROR_DEPS_NOT_LIST  = "Computed dependencies must be a list"
+$BIND_ERROR_TARGET_NOT_OBJECT  = "Bind target must be a reactive object"
 
 #-----------------#
 #  HTTP CONSTANTS #
 #-----------------#
 
 # HTTP Methods
-HTTP_GET = "GET"
-HTTP_POST = "POST"
-HTTP_PUT = "PUT"
-HTTP_DELETE = "DELETE"
+$HTTP_GET = "GET"
+$HTTP_POST = "POST"
+$HTTP_PUT = "PUT"
+$HTTP_DELETE = "DELETE"
 HTTP_PATCH = "PATCH"
 HTTP_HEAD = "HEAD"
 HTTP_OPTIONS = "OPTIONS"
@@ -308,13 +308,13 @@ CONTENT_TYPE_TEXT = "text/plain"
 USER_AGENT_REACTIVE = "stzReactive/1.0"
 
 # HTTP Responses
-HTTP_RESPONSE_EMPTY = ""
-HTTP_RESPONSE_NULL = ""
+$HTTP_RESPONSE_EMPTY = ""
+$HTTP_RESPONSE_NULL = ""
 
 # HTTP Errors
-HTTP_ERROR_REQUEST_FAILED = "HTTP request failed"
+$HTTP_ERROR_REQUEST_FAILED = "HTTP request failed"
 # A verb the request path cannot issue. It used to become a silent GET.
-HTTP_ERROR_UNKNOWN_METHOD = "HTTP method not supported:"
+$HTTP_ERROR_UNKNOWN_METHOD = "HTTP method not supported:"
 
 HTTP_ERROR_CURL_INIT_FAILED = "Failed to initialize HTTP client"
 HTTP_ERROR_INVALID_RESPONSE = "Invalid HTTP response"
@@ -460,9 +460,9 @@ DNS_RESOLVE_PTR = "PTR"
 #--------------------#
 
 # Stream defaults
-DEFAULT_STREAM_SOURCE = STREAM_MANUAL
-DEFAULT_TIMER_DELAY = MEDIUM_DELAY
-DEFAULT_TIMER_CHECK = CHECK_NORMAL
+$DEFAULT_STREAM_SOURCE = STREAM_MANUAL
+$DEFAULT_TIMER_DELAY = MEDIUM_DELAY
+$DEFAULT_TIMER_CHECK = CHECK_NORMAL
 # PATIENCE_NONE mirrors libuv's uv_run: return as soon as there are no
 # active handles (timers). In Ring's synchronous setup model every timer
 # is registered before RunLoop() and new ones only appear from inside a
@@ -470,16 +470,16 @@ DEFAULT_TIMER_CHECK = CHECK_NORMAL
 # "wait for" once the timer list is empty. The old PATIENCE_NORMAL (50)
 # idled 50 x 10ms = 500ms after all work completed -- the bulk of the
 # reactive perf regression vs the old Ring-libuv backend.
-DEFAULT_PATIENCE = PATIENCE_NONE
+$DEFAULT_PATIENCE = PATIENCE_NONE
 
 # Reactive defaults  
-DEFAULT_REACTIVE_MODE = REACTIVE_ON
-DEFAULT_BATCH_MODE = BATCH_MODE_OFF
-DEFAULT_ERROR_HANDLING = ERROR_LOG
+$DEFAULT_REACTIVE_MODE = $REACTIVE_ON
+$DEFAULT_BATCH_MODE = $BATCH_MODE_OFF
+$DEFAULT_ERROR_HANDLING = ERROR_LOG
 DEFAULT_ASYNC_MODE = PROCESS_ASYNC
-DEFAULT_BINDING_MODE = BINDING_ONE_WAY
-DEFAULT_WATCH_MODE = WATCH_IMMEDIATE
-DEFAULT_SYNC_MODE = BINDING_AUTO_SYNC
+$DEFAULT_BINDING_MODE = BINDING_ONE_WAY
+$DEFAULT_WATCH_MODE = $WATCH_IMMEDIATE
+$DEFAULT_SYNC_MODE = BINDING_AUTO_SYNC
 
 #--------------------------------------------------------------#
 #  DETACHED TIMER TABLE (F5, 2026-07-14)                       #
@@ -507,9 +507,9 @@ $nReaxisDetachedSeq = 0
 # connection has none, and none is invented.
 func StzHttpFailureText(pnStatus)
 	if isNumber(pnStatus) and pnStatus > 0
-		return HTTP_ERROR_REQUEST_FAILED + " (status " + pnStatus + ")"
+		return $HTTP_ERROR_REQUEST_FAILED + " (status " + pnStatus + ")"
 	ok
-	return HTTP_ERROR_REQUEST_FAILED
+	return $HTTP_ERROR_REQUEST_FAILED
 
 func StzReaxisRunAfter(nDelayMs, fCallback)
 	return StzReaxisRunAfterXT(nDelayMs, fCallback, [])

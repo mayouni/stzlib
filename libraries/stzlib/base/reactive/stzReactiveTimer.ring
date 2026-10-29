@@ -40,7 +40,7 @@
 class stzReactiveTimer from stzObject
 
 	@timerId = ""
-	@interval = ONE_SECOND  # milliseconds
+	@interval = $ONE_SECOND  # milliseconds
 	@callback = ""
 	@oEngine = ""
 	@timerHandle = ""     # kept as NULL sentinel for API parity
@@ -172,7 +172,7 @@ class stzReactiveTimer from stzObject
 class stzRingTimer from stzObject
 
 	@timerId = ""
-	@interval = ONE_SECOND    # milliseconds
+	@interval = $ONE_SECOND    # milliseconds
 	@callback = ""
 	@oEngine = ""
 	@obj = ""
@@ -314,8 +314,8 @@ class stzTimerManager from stzObject
 	@timers = []
 	@isRunning = 0
 	@shouldStop = 0
-	@checkFrequency = DEFAULT_TIMER_CHECK  # How often to check @timers (ms)
-	@emptyLoopPatience = DEFAULT_PATIENCE  # How long to wait when no @timers
+	@checkFrequency = $DEFAULT_TIMER_CHECK  # How often to check @timers (ms)
+	@emptyLoopPatience = $DEFAULT_PATIENCE  # How long to wait when no @timers
 	@oReactor = ""       # F5: engine loop backing the waits (NULL = poller)
 
 	# Builds a manager with no timers, a 10 ms wait between ticks and no patience for an idle loop.
@@ -327,8 +327,8 @@ class stzTimerManager from stzObject
 		@timers = []
 		@isRunning = 0
 		@shouldStop = 0
-		@checkFrequency = DEFAULT_TIMER_CHECK
-		@emptyLoopPatience = DEFAULT_PATIENCE
+		@checkFrequency = $DEFAULT_TIMER_CHECK
+		@emptyLoopPatience = $DEFAULT_PATIENCE
 
 	# Sets how long the loop waits between ticks, in milliseconds.
 	#
@@ -387,7 +387,7 @@ class stzTimerManager from stzObject
 				@oReactor.AwaitTimer(_nId_, @checkFrequency + 1000)
 			ok
 		else
-			sleep(@checkFrequency / MS_PER_SECOND)
+			sleep(@checkFrequency / $MS_PER_SECOND)
 		ok
 
 	# Adds a timer to the manager's list.
