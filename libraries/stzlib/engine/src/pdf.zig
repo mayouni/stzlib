@@ -4965,9 +4965,16 @@ fn otherListMarker(t: []const u8) ?usize {
         return null;
     }
     // a single non-Latin letter then "." or ")"
-    if (c0 >= 0x0370 and (isLtrCp(c0) or isRtlCp(c0)) and !isMarkCp(c0)) {
+    // (Thai consonants, Hangul syllables and kana count too: "ก.", "가.", "ア)")
+    const own_letter = (c0 >= 0x0E01 and c0 <= 0x0E2E) or (c0 >= 0xAC00 and c0 <= 0xD7A3) or (c0 >= 0x3041 and c0 <= 0x30FA);
+    if (c0 >= 0x0370 and (isLtrCp(c0) or isRtlCp(c0) or own_letter) and !isMarkCp(c0)) {
         const p = it.nextCodepoint() orelse return null;
         if ((p == '.' or p == ')') and it.i < t.len and t[it.i] == ' ') return it.i + 1;
+        // a katakana letter alone, set apart before its text, is the iroha marker of Japanese documents ("ア")
+        // (the markers of the a-i-u-e-o order and the i-ro-ha order only: a letter-spaced title starts with
+        //  any letter -- "ダ イ ヤ")
+        const iroha = [_]u21{ 0x30A2, 0x30A4, 0x30A6, 0x30A8, 0x30AA, 0x30AB, 0x30AD, 0x30AF, 0x30B1, 0x30B3, 0x30ED, 0x30CF, 0x30CB, 0x30DB, 0x30D8, 0x30C8 };
+        if (std.mem.indexOfScalar(u21, &iroha, c0) != null and p == ' ' and t.len == it.i + 1) return it.i;
     }
     return null;
 }
