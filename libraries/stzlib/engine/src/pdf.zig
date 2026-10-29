@@ -3905,7 +3905,24 @@ fn findAlignedTablesIn(a: Allocator, frags: []Frag, lane0: f32, lane1: f32, tabl
             if (cf.base - pf.base > 3.2 * pf.size) break;
             if (@abs(cf.size - pf.size) > 0.05 * pf.size) break;
             if (rows.items[e].len >= 2) continue;
-            break; // (a wrapped one-cell line was tried as part of the run: it pulled prose into tables -- off)
+            // (a wrapped one-cell line in general was tried as part of the run: it pulled prose into tables -- off;
+            //  but the second line of a top-aligned cell is in: one line under its row, at the left edge of one of
+            //  that row's cells, the next row holding cells again -- an invoice's item under its title)
+            {
+                var last_multi: usize = e - 1;
+                while (last_multi > r and rows.items[last_multi].len < 2) last_multi -= 1;
+                const g = frags[rows.items[e][0]];
+                const pr = frags[rows.items[e - 1][0]];
+                var at_cell = false;
+                for (rows.items[last_multi]) |k| {
+                    if (@abs(frags[k].x0 - g.x0) <= 2) at_cell = true;
+                }
+                const next_cells = e + 1 < rows.items.len and rows.items[e + 1].len >= 2;
+                if (at_cell and g.base - pr.base <= 1.35 * g.size and (next_cells or e + 1 == rows.items.len or rows.items[e + 1].len < 2) and e - last_multi <= 2 and !isProseLine(frags, g)) {
+                    if (next_cells) continue;
+                }
+            }
+            break;
         }
         const run = rows.items[r..e];
         if (run.len < 3) {
@@ -3931,6 +3948,7 @@ fn findAlignedTablesIn(a: Allocator, frags: []Frag, lane0: f32, lane1: f32, tabl
             var lx: f32 = -1e9;
             const w0 = run[0].len;
             for (run) |row_in| {
+                if (row_in.len == 1) continue; // (a value's wrapped second line, joined to its cell later)
                 if (row_in.len != w0 or w0 < 2 or w0 > 4) {
                     keyval = false;
                     break;
