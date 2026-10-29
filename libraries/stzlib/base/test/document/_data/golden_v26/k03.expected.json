@@ -1,0 +1,154 @@
+{
+  "id": "k03",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Bescheid über die Erlaubnis einer Sondernutzung",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Bescheid über die Erlaubnis einer Sondernutzung"
+    },
+    {
+      "level": 2,
+      "text": "I. Erlaubnis"
+    },
+    {
+      "level": 2,
+      "text": "II. Nebenbestimmungen"
+    },
+    {
+      "level": 2,
+      "text": "III. Gebühren"
+    },
+    {
+      "level": 2,
+      "text": "IV. Begründung"
+    },
+    {
+      "level": 2,
+      "text": "Rechtsbehelfsbelehrung"
+    }
+  ],
+  "key_sentences": [
+    "Ihnen wird die widerrufliche Erlaubnis erteilt, auf dem Gehweg vor dem Anwesen Lindenstraße 18 eine Fläche von 24 m² für die Außenbewirtschaftung zu nutzen.",
+    "Die Erlaubnis gilt vom 1. April bis zum 31. Oktober 2027.",
+    "Der Betrag ist innerhalb eines Monats nach Bekanntgabe dieses Bescheides auf das unten genannte Konto zu überweisen.",
+    "Die Nutzung öffentlicher Straßen über den Gemeingebrauch hinaus bedarf nach § 16 des Straßengesetzes einer Erlaubnis.",
+    "Die Gebühr bemisst sich nach der Sondernutzungsgebührensatzung der Stadt in der geltenden Fassung.",
+    "Gegen diesen Bescheid kann innerhalb eines Monats nach Bekanntgabe Widerspruch erhoben werden.",
+    "Bitte bewahren Sie diesen Bescheid während der Öffnungszeiten im Betrieb auf und zeigen Sie ihn bei Kontrollen vor."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Ihr Antrag vom",
+          "2. September 2026"
+        ],
+        [
+          "Aktenzeichen",
+          "32.1-SN-2026/0147"
+        ],
+        [
+          "Sachbearbeitung",
+          "Tobias Okonkwo-Lenz"
+        ],
+        [
+          "Zimmer",
+          "2.14"
+        ],
+        [
+          "Telefon",
+          "07741 9320-214"
+        ],
+        [
+          "Datum",
+          "6. Oktober 2026"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Gebührentatbestand",
+          "Bemessung",
+          "Betrag (EUR)"
+        ],
+        [
+          "Sondernutzung für Außenbewirtschaftung",
+          "24 m² × 7 Monate × 2,10 EUR",
+          "352,80"
+        ],
+        [
+          "Verwaltungsgebühr für den Bescheid",
+          "Pauschale nach Nr. 4.2 des Gebührenverzeichnisses",
+          "45,00"
+        ],
+        [
+          "Summe",
+          "",
+          "397,80"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. Eine Durchgangsbreite von mindestens 1,50 m ist für Fußgänger jederzeit freizuhalten."
+    },
+    {
+      "level": 0,
+      "text": "2. Die Bewirtschaftung ist auf folgende Zeiten beschränkt:"
+    },
+    {
+      "level": 1,
+      "text": "a) montags bis donnerstags von 10:00 bis 22:00 Uhr,"
+    },
+    {
+      "level": 1,
+      "text": "b) freitags und samstags von 10:00 bis 23:00 Uhr,"
+    },
+    {
+      "level": 1,
+      "text": "c) an Sonn- und Feiertagen von 11:00 bis 22:00 Uhr."
+    },
+    {
+      "level": 0,
+      "text": "3. Tische, Stühle und Sonnenschirme sind nach Betriebsschluss so zu sichern, dass sie nicht in den Gehweg hineinragen."
+    },
+    {
+      "level": 0,
+      "text": "4. Werbeanlagen auf der Fläche bedürfen einer gesonderten Genehmigung."
+    },
+    {
+      "level": 0,
+      "text": "Lageplan mit eingezeichneter Fläche"
+    },
+    {
+      "level": 0,
+      "text": "Merkblatt zur Außengastronomie in der Altstadt"
+    }
+  ],
+  "furniture": [
+    "Stadt Hohenbrück",
+    "Ordnungsamt · Abteilung Straßenverkehr",
+    "Stadt Hohenbrück · Ordnungsamt · Marktplatz 3 · 79876 Hohenbrück",
+    "Seite 1 von 2",
+    "Sprechzeiten: Mo–Fr 8:30–12:00 Uhr",
+    "Do zusätzlich 14:00–18:00 Uhr",
+    "Sparkasse Hochrhein",
+    "IBAN DE41 6845 2290 0000 4417 03",
+    "www.hohenbrueck.example",
+    "ordnungsamt@hohenbrueck.example",
+    "Stadt Hohenbrück · Ordnungsamt · Az. 32.1-SN-2026/0147",
+    "Seite 2 von 2"
+  ],
+  "languages": [
+    "de"
+  ],
+  "code": [],
+  "notes": "Two-page German administrative decision (Bescheid) in DIN-style letter layout. Furniture: authority name and office (top right), the small return-address line above the address window, a three-column footer on page 1 (each footer column has two lines, one furniture entry per line), page numbers \"Seite 1 von 2\" / \"Seite 2 von 2\", and the running header on page 2. The recipient address block is body text, not a table. Table 1 is a borderless key/value information block set BESIDE the address block (to its right); read the address block first, then the table. Table 2 (fees) has rules between rows only; its \"Summe\" row has an empty middle cell (\"\"). Conditions under \"II.\" are a TYPED list: \"1.\" to \"4.\" at level 0 and \"a)\" to \"c)\" at level 1, markers in hanging-indent columns. \"Anlagen\" is a label (not a heading) followed by a CSS-drawn square-bullet list. \"Hinweis\" is the label of a boxed note, not a heading. Roman numerals I.–IV. are typed in the heading text."
+}

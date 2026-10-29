@@ -1,0 +1,169 @@
+{
+  "id": "k20",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Polisa ubezpieczenia mieszkania nr MK/2026/0473815",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Polisa ubezpieczenia mieszkania nr MK/2026/0473815"
+    },
+    {
+      "level": 2,
+      "text": "Zakres ubezpieczenia i składka"
+    },
+    {
+      "level": 2,
+      "text": "Postanowienia szczególne"
+    },
+    {
+      "level": 2,
+      "text": "Wyłączenia odpowiedzialności"
+    },
+    {
+      "level": 2,
+      "text": "Jak zgłosić szkodę"
+    },
+    {
+      "level": 2,
+      "text": "Ochrona danych osobowych"
+    }
+  ],
+  "key_sentences": [
+    "Składkę należy opłacić jednorazowo do 15 listopada 2026 r. na indywidualny rachunek podany w wiadomości e-mail potwierdzającej zawarcie umowy.",
+    "Brak zapłaty w terminie nie powoduje ustania ochrony, jeżeli Ubezpieczający zapłaci składkę w ciągu 7 dni od otrzymania wezwania.",
+    "Ochrona obejmuje również pomieszczenie przynależne – piwnicę nr 6.",
+    "Szkodę należy zgłosić niezwłocznie, nie później niż w terminie 7 dni od dnia jej powstania.",
+    "Do zgłoszenia warto dołączyć zdjęcia uszkodzonego mienia.",
+    "Dane są przetwarzane w celu zawarcia i wykonania umowy ubezpieczenia oraz rozpatrywania zgłoszonych szkód.",
+    "Polisę sporządzono w dwóch egzemplarzach, po jednym dla każdej ze stron."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Ryzyko",
+          "Suma ubezpieczenia (zł)",
+          "Składka roczna (zł)"
+        ],
+        [
+          "Pakiet podstawowy",
+          "Pakiet podstawowy",
+          "Pakiet podstawowy"
+        ],
+        [
+          "Mury i elementy stałe",
+          "420 000",
+          "312,00"
+        ],
+        [
+          "Ruchomości domowe",
+          "85 000",
+          "198,00"
+        ],
+        [
+          "Odpowiedzialność cywilna w życiu prywatnym",
+          "200 000",
+          "96,00"
+        ],
+        [
+          "Rozszerzenia",
+          "Rozszerzenia",
+          "Rozszerzenia"
+        ],
+        [
+          "Assistance domowy, wariant Komfort",
+          "bez limitu kwotowego",
+          "48,00"
+        ],
+        [
+          "Szyby i przedmioty szklane",
+          "3 000",
+          "36,00"
+        ],
+        [
+          "Składka łączna",
+          "Składka łączna",
+          "690,00"
+        ],
+        [
+          "Zniżka za kontynuację ubezpieczenia (10%)",
+          "Zniżka za kontynuację ubezpieczenia (10%)",
+          "-69,00"
+        ],
+        [
+          "Do zapłaty",
+          "Do zapłaty",
+          "621,00"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Infolinia",
+          "58 300 44 10, całą dobę"
+        ],
+        [
+          "Formularz internetowy",
+          "kotwica.example/szkody"
+        ],
+        [
+          "Adres korespondencyjny",
+          "ul. Żeglarska 7, 80-831 Gdańsk"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. Ochrona obejmuje również pomieszczenie przynależne – piwnicę nr 6."
+    },
+    {
+      "level": 0,
+      "text": "2. Ruchomości domowe są ubezpieczone od kradzieży z włamaniem pod warunkiem, że:"
+    },
+    {
+      "level": 1,
+      "text": "a) drzwi wejściowe mają co najmniej dwa zamki wielozastawkowe,"
+    },
+    {
+      "level": 1,
+      "text": "b) okna i drzwi balkonowe są zamknięte w czasie nieobecności domowników."
+    },
+    {
+      "level": 0,
+      "text": "3. Udział własny w szkodach spowodowanych zalaniem wynosi 300 zł."
+    },
+    {
+      "level": 0,
+      "text": "szkody powstałe wskutek rażącego niedbalstwa, chyba że umowa stanowi inaczej,"
+    },
+    {
+      "level": 0,
+      "text": "szkody w ruchomościach pozostawionych na balkonie lub w loggii,"
+    },
+    {
+      "level": 0,
+      "text": "utrata danych zapisanych na nośnikach elektronicznych."
+    }
+  ],
+  "furniture": [
+    "TUW Kotwica",
+    "Towarzystwo Ubezpieczeń Wzajemnych „Kotwica”",
+    "ul. Żeglarska 7, 80-831 Gdańsk · infolinia 58 300 44 10",
+    "Ogólne warunki ubezpieczenia OWU-MK/2025 stanowią integralną część polisy.",
+    "Strona 1 z 2",
+    "TUW Kotwica · Polisa nr MK/2026/0473815",
+    "Ubezpieczający: Agnieszka Wróblewska",
+    "Strona 2 z 2"
+  ],
+  "languages": [
+    "pl"
+  ],
+  "code": [],
+  "notes": "Polish home-insurance policy schedule, two pages; body in Corbel, title and headings in Constantia. Letterhead (insurer short name and two lines) and footer (terms line, \"Strona N z 2\") are furniture; page 2 has a running header in two parts. Two boxes stand SIDE BY SIDE under the title (\"Ubezpieczający\", \"Przedmiot ubezpieczenia\"), read box by box; their contents are label/value rows drawn with CSS, NOT tables, and the box titles are labels, not headings. The dark band \"Okres ubezpieczenia: ...\" is body text. Table 1 has rules above and below the header only; italic section rows \"Pakiet podstawowy\" and \"Rozszerzenia\" span all three columns; the total rows \"Składka łączna\", the discount row and \"Do zapłaty\" span the first two columns. Sums insured use non-breaking spaces as thousands separators (given as plain spaces); premiums use a decimal comma. Special provisions are a TYPED list \"1.\" \"2.\" \"3.\" (level 0) with \"a)\" \"b)\" (level 1). Exclusions are a CSS-drawn list whose marker \"»\" comes from list-style-type, so items carry no marker. Table 2 is a boxed key/value table (shaded labels, no header row). Signature captions are body text; typographic Polish quotes „ ” are used in the letterhead."
+}

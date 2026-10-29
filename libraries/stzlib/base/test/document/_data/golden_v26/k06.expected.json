@@ -1,0 +1,315 @@
+{
+  "id": "k06",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Extracto de cuenta corriente",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Extracto de cuenta corriente"
+    },
+    {
+      "level": 2,
+      "text": "Detalle de movimientos"
+    },
+    {
+      "level": 2,
+      "text": "Información importante"
+    }
+  ],
+  "key_sentences": [
+    "Le informamos de que este mes no se le ha cobrado la comisión de mantenimiento, porque tiene domiciliada su nómina en nuestra entidad.",
+    "Si detecta algún movimiento que no reconoce, comuníquelo en el plazo de trece meses desde la fecha del cargo.",
+    "El Fondo de Garantía de Depósitos cubre los saldos hasta 100.000 euros por titular y entidad.",
+    "Para cualquier reclamación puede dirigirse al Servicio de Atención al Cliente, que resolverá en un plazo máximo de quince días hábiles."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Titular",
+          "Inés Barrientos Calvo"
+        ],
+        [
+          "Cuenta",
+          "ES76 3058 0214 6627 1009 4417"
+        ],
+        [
+          "Divisa",
+          "EUR"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Saldo anterior a 31/08/2026",
+          "3.412,58"
+        ],
+        [
+          "Total abonos",
+          "2.018,23"
+        ],
+        [
+          "Total cargos",
+          "1.368,37"
+        ],
+        [
+          "Saldo final a 30/09/2026",
+          "4.062,44"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Fecha",
+          "Fecha valor",
+          "Concepto",
+          "Cargo (€)",
+          "Abono (€)",
+          "Saldo (€)"
+        ],
+        [
+          "01/09",
+          "01/09",
+          "RECIBO COMUNIDAD DE PROPIETARIOS C/ Almendros 12 · Septiembre",
+          "85,00",
+          "",
+          "3.327,58"
+        ],
+        [
+          "01/09",
+          "02/09",
+          "TRANSFERENCIA RECIBIDA Nómina agosto · Talleres Arandilla S.L.",
+          "",
+          "1.946,30",
+          "5.273,88"
+        ],
+        [
+          "03/09",
+          "03/09",
+          "COMPRA TARJETA *4417 Supermercado El Arco · Aranda",
+          "64,18",
+          "",
+          "5.209,70"
+        ],
+        [
+          "04/09",
+          "04/09",
+          "RECIBO ELECTRICIDAD",
+          "72,41",
+          "",
+          "5.137,29"
+        ],
+        [
+          "05/09",
+          "05/09",
+          "BIZUM ENVIADO Cena cumpleaños",
+          "20,00",
+          "",
+          "5.117,29"
+        ],
+        [
+          "06/09",
+          "06/09",
+          "COMPRA TARJETA *4417 Gasolinera Ribera · Roa",
+          "55,03",
+          "",
+          "5.062,26"
+        ],
+        [
+          "08/09",
+          "08/09",
+          "RECIBO SEGURO HOGAR Póliza 88-1450927 · Anual",
+          "219,60",
+          "",
+          "4.842,66"
+        ],
+        [
+          "09/09",
+          "09/09",
+          "RETIRADA CAJERO Oficina 0214",
+          "100,00",
+          "",
+          "4.742,66"
+        ],
+        [
+          "10/09",
+          "10/09",
+          "BIZUM RECIBIDO Lotería compartida",
+          "",
+          "15,00",
+          "4.757,66"
+        ],
+        [
+          "11/09",
+          "11/09",
+          "COMPRA TARJETA *4417 Farmacia Plaza Mayor",
+          "18,35",
+          "",
+          "4.739,31"
+        ],
+        [
+          "12/09",
+          "12/09",
+          "RECIBO TELEFONÍA E INTERNET",
+          "48,90",
+          "",
+          "4.690,41"
+        ],
+        [
+          "15/09",
+          "15/09",
+          "TRANSFERENCIA EMITIDA Alquiler trastero · Septiembre",
+          "45,00",
+          "",
+          "4.645,41"
+        ],
+        [
+          "15/09",
+          "15/09",
+          "COMPRA TARJETA *4417 Librería Duero · Material escolar",
+          "93,72",
+          "",
+          "4.551,69"
+        ],
+        [
+          "16/09",
+          "16/09",
+          "RECIBO AGUA",
+          "31,27",
+          "",
+          "4.520,42"
+        ],
+        [
+          "17/09",
+          "17/09",
+          "COMPRA TARJETA *4417 Supermercado El Arco · Aranda",
+          "88,11",
+          "",
+          "4.432,31"
+        ],
+        [
+          "18/09",
+          "18/09",
+          "DEVOLUCIÓN COMPRA Librería Duero",
+          "",
+          "12,90",
+          "4.445,21"
+        ],
+        [
+          "19/09",
+          "19/09",
+          "RECIBO GIMNASIO MUNICIPAL",
+          "29,00",
+          "",
+          "4.416,21"
+        ],
+        [
+          "22/09",
+          "22/09",
+          "COMPRA TARJETA *4417 Gasolinera Ribera · Roa",
+          "60,21",
+          "",
+          "4.356,00"
+        ],
+        [
+          "23/09",
+          "23/09",
+          "TRANSFERENCIA EMITIDA Cuota asociación vecinal",
+          "30,00",
+          "",
+          "4.326,00"
+        ],
+        [
+          "24/09",
+          "24/09",
+          "COMPRA ONLINE *4417 Billetes de tren Madrid",
+          "47,60",
+          "",
+          "4.278,40"
+        ],
+        [
+          "25/09",
+          "25/09",
+          "RECIBO PRÉSTAMO PERSONAL Cuota 14 de 48",
+          "187,44",
+          "",
+          "4.090,96"
+        ],
+        [
+          "26/09",
+          "26/09",
+          "COMPRA TARJETA *4417 Supermercado El Arco · Aranda",
+          "72,55",
+          "",
+          "4.018,41"
+        ],
+        [
+          "29/09",
+          "29/09",
+          "BIZUM RECIBIDO Gastos compartidos viaje",
+          "",
+          "43,80",
+          "4.062,21"
+        ],
+        [
+          "30/09",
+          "30/09",
+          "COMISIÓN MANTENIMIENTO",
+          "",
+          "",
+          "4.062,21"
+        ],
+        [
+          "30/09",
+          "30/09",
+          "LIQUIDACIÓN INTERESES Tipo nominal 0,10 %",
+          "",
+          "0,23",
+          "4.062,44"
+        ],
+        [
+          "Totales del período",
+          "Totales del período",
+          "Totales del período",
+          "1.368,37",
+          "2.018,23",
+          "4.062,44"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "– Los movimientos se ordenan por fecha de operación; la fecha valor es la que se utiliza para el cálculo de intereses."
+    },
+    {
+      "level": 0,
+      "text": "– El Fondo de Garantía de Depósitos cubre los saldos hasta 100.000 euros por titular y entidad."
+    },
+    {
+      "level": 0,
+      "text": "– Puede consultar el detalle de cada operación en la banca en línea o en cualquier oficina."
+    }
+  ],
+  "furniture": [
+    "Banco Cooperativo del Duero",
+    "Oficina 0214 · Plaza del Trigo 3 · 09400 Aranda de Duero",
+    "Banco Cooperativo del Duero, S.C.C. · Inscrita en el Registro Mercantil de Burgos, hoja BU-9921",
+    "Página 1 de 2",
+    "Extracto de cuenta corriente · ES76 3058 0214 6627 1009 4417",
+    "Septiembre de 2026",
+    "Página 2 de 2"
+  ],
+  "languages": [
+    "es"
+  ],
+  "code": [],
+  "notes": "Spanish current-account statement, two pages, Verdana. Spanish number format (thousands \".\", decimals \",\"). Furniture: bank name and branch line (top left, page 1), footer with registration line and \"Página N de 2\", running header on page 2. The customer address block is body text. Table 1 is a small key/value table (Titular, Cuenta, Divisa) set at the top right beside the bank name. Table 2 is a boxed summary panel; it stands BESIDE two paragraphs (read the panel first, then the paragraphs). Table 3 (movements) is a zebra table that CONTINUES on page 2 with its header repeated visually; it is one table with the header once. Each \"Concepto\" cell may hold two lines (operation, then detail in grey), given joined by one space; empty Cargo/Abono cells are \"\". The commission row has both amounts empty. The last row \"Totales del período\" spans the first three columns. \"Información importante\" lists three items with TYPED en dashes (\"– \") and a hanging indent; the fourth key sentence is the text of the second dash item WITHOUT its dash."
+}

@@ -1,0 +1,185 @@
+{
+  "id": "k01",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Invoice",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Invoice"
+    },
+    {
+      "level": 2,
+      "text": "Payment terms"
+    },
+    {
+      "level": 2,
+      "text": "Notes on the work"
+    }
+  ],
+  "key_sentences": [
+    "Payment is due within 30 days of the invoice date.",
+    "Thank you for asking us to fit out the reading room at the institute.",
+    "The shelving was installed on 9 October and signed off by the building committee the same afternoon.",
+    "The oak has been finished with two coats of hardwax oil.",
+    "Our workmanship guarantee runs for five years from the date of installation."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Invoice number",
+          "INV-2026-0418"
+        ],
+        [
+          "Invoice date",
+          "14 October 2026"
+        ],
+        [
+          "Due date",
+          "13 November 2026"
+        ],
+        [
+          "Your reference",
+          "Reading room shelving"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Item",
+          "Description",
+          "Qty",
+          "Unit price (£)",
+          "Amount (£)"
+        ],
+        [
+          "Materials",
+          "Materials",
+          "Materials",
+          "Materials",
+          "Materials"
+        ],
+        [
+          "M-104",
+          "Solid oak shelving boards, 2400 × 280 × 22 mm",
+          "14",
+          "46.50",
+          "651.00"
+        ],
+        [
+          "M-221",
+          "Brass shelf studs, pack of 50",
+          "3",
+          "12.80",
+          "38.40"
+        ],
+        [
+          "M-318",
+          "Hardwax oil, satin finish, 2.5 litre tin",
+          "2",
+          "39.90",
+          "79.80"
+        ],
+        [
+          "Labour",
+          "Labour",
+          "Labour",
+          "Labour",
+          "Labour"
+        ],
+        [
+          "L-010",
+          "Site survey and measured drawing",
+          "1",
+          "180.00",
+          "180.00"
+        ],
+        [
+          "L-020",
+          "Workshop fabrication, hours",
+          "22",
+          "38.00",
+          "836.00"
+        ],
+        [
+          "L-030",
+          "Installation on site, hours",
+          "9",
+          "42.00",
+          "378.00"
+        ],
+        [
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "2,163.20"
+        ],
+        [
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "432.64"
+        ],
+        [
+          "Total due",
+          "Total due",
+          "Total due",
+          "Total due",
+          "2,595.84"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. Payment is due within 30 days of the invoice date."
+    },
+    {
+      "level": 0,
+      "text": "2. Please pay by bank transfer to sort code 30-96-41, account 20718834, quoting the invoice number as the reference."
+    },
+    {
+      "level": 0,
+      "text": "3. Interest may be charged on overdue amounts at 4% above the Bank of England base rate."
+    },
+    {
+      "level": 0,
+      "text": "The oak has been finished with two coats of hardwax oil."
+    },
+    {
+      "level": 1,
+      "text": "A third coat can be applied after six months if the surface looks dry."
+    },
+    {
+      "level": 1,
+      "text": "Avoid silicone polish, which prevents later re-oiling."
+    },
+    {
+      "level": 0,
+      "text": "Offcuts long enough for a small bookcase have been left in the store room."
+    },
+    {
+      "level": 0,
+      "text": "Our workmanship guarantee runs for five years from the date of installation."
+    }
+  ],
+  "furniture": [
+    "Harrow & Lune Joinery Ltd",
+    "Unit 7, Tannery Yard, Kendal Road, Lancaster LA1 9QX",
+    "Telephone 01524 600 418 · accounts@harrowlune.example",
+    "Registered in England and Wales No. 08844120 · VAT No. GB 318 2290 47",
+    "Page 1 of 1"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Single-page supplier invoice. Letterhead (organisation name and two address lines) and footer are furniture; the organisation name is not a heading. \"BILL TO\" and \"DELIVER TO\" are two boxes side by side, read box by box (left box fully, then right box); their labels are form labels, not headings, and their address lines are not a table. Table 1 is a boxed key/value panel with no header row (left column shaded). Table 2 has rules under the header and above the subtotal only; \"Materials\" and \"Labour\" are section rows spanning all five columns, and Subtotal/VAT/Total due span the first four columns, so their text repeats in each covered cell. Payment terms are a typed decimal list (\"1.\" markers in the text, hanging indent). Notes on the work is a CSS-drawn bullet list (disc at level 0, circle at level 1); its markers are not in the text."
+}

@@ -1,0 +1,243 @@
+{
+  "id": "k22",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Monthly Progress Report No. 7",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Monthly Progress Report No. 7"
+    },
+    {
+      "level": 2,
+      "text": "1 Summary"
+    },
+    {
+      "level": 2,
+      "text": "2 Progress on site"
+    },
+    {
+      "level": 3,
+      "text": "2.1 Structure"
+    },
+    {
+      "level": 3,
+      "text": "2.2 Envelope and services"
+    },
+    {
+      "level": 3,
+      "text": "2.3 Quality"
+    },
+    {
+      "level": 2,
+      "text": "3 Programme risks"
+    },
+    {
+      "level": 2,
+      "text": "4 Health and safety"
+    },
+    {
+      "level": 2,
+      "text": "5 Look-ahead for October"
+    },
+    {
+      "level": 2,
+      "text": "6 Instructions and variations"
+    },
+    {
+      "level": 2,
+      "text": "7 Next progress meeting"
+    }
+  ],
+  "key_sentences": [
+    "Good progress was made on the steel frame in September, and the first-floor slab was poured on 24 September.",
+    "If the network operator confirms the new connection date, we expect to recover five of the ten days by the end of the year.",
+    "There were no reportable accidents during the month.",
+    "Brickwork to the north elevation started on 15 September.",
+    "Two brick panels were rebuilt after the sample panel was rejected for colour variation.",
+    "Ratings are shown as high, medium or low after the mitigation in place.",
+    "Both first-aid cases were minor cuts.",
+    "A toolbox talk on handling sheet materials was given to all trades on 18 September."
+  ],
+  "tables": [
+    {
+      "caption": "Key facts",
+      "rows": [
+        [
+          "Client",
+          "Ashdene Borough Council"
+        ],
+        [
+          "Contract sum",
+          "£3,480,000"
+        ],
+        [
+          "Start on site",
+          "2 March 2026"
+        ],
+        [
+          "Contract completion",
+          "18 June 2027"
+        ],
+        [
+          "Forecast completion",
+          "2 July 2027"
+        ],
+        [
+          "Programme status",
+          "10 working days behind"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Work package",
+          "Planned to date",
+          "Actual to date",
+          "Comment"
+        ],
+        [
+          "Groundworks and drainage",
+          "100%",
+          "100%",
+          "Complete. As-built drainage survey issued on 29 September."
+        ],
+        [
+          "Structural steel frame",
+          "100%",
+          "100%",
+          "Complete, including roof steelwork over the hall."
+        ],
+        [
+          "Floor slabs",
+          "80%",
+          "65%",
+          "Zone C slab moved to October to suit the steel erector’s second visit."
+        ],
+        [
+          "External brickwork",
+          "25%",
+          "15%",
+          "Started late because of the brick delivery; extra gang from 1 October."
+        ],
+        [
+          "Mechanical and electrical first fix",
+          "10%",
+          "5%",
+          "Recovery plan agreed; ground floor classrooms first."
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Ref.",
+          "Risk",
+          "Rating",
+          "Mitigation",
+          "Owner"
+        ],
+        [
+          "R03",
+          "Substation connection later than the revised date of 9 November",
+          "High",
+          "Temporary supply from a generator for testing; weekly calls with the network operator",
+          "Project manager"
+        ],
+        [
+          "R07",
+          "Winter weather delays external brickwork",
+          "Medium",
+          "Scaffold sheeting on the north and east elevations; heated enclosure if needed",
+          "Site manager"
+        ],
+        [
+          "R11",
+          "Long lead time for the hall’s folding partition",
+          "Medium",
+          "Order placed in September; design freeze agreed with the school",
+          "Commercial manager"
+        ],
+        [
+          "R12",
+          "Asbestos found in the link corridor of the existing building",
+          "Low",
+          "Refurbishment survey completed; licensed contractor on standby",
+          "Client"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Ref.",
+          "Description",
+          "Value (£)",
+          "Status"
+        ],
+        [
+          "CI-014",
+          "Additional acoustic panels in the music room",
+          "18,450",
+          "Agreed"
+        ],
+        [
+          "CI-015",
+          "Relocate the cycle shelter to the east boundary",
+          "6,120",
+          "Agreed"
+        ],
+        [
+          "CI-016",
+          "Extra drainage gully at the staff car park",
+          "2,870",
+          "Quoted"
+        ],
+        [
+          "Total of instructions to date",
+          "Total of instructions to date",
+          "27,440",
+          ""
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Complete the zone C floor slab."
+    },
+    {
+      "level": 1,
+      "text": "Install decking and edge trims in the week of 5 October."
+    },
+    {
+      "level": 1,
+      "text": "Pour the slab on 14 October, weather permitting."
+    },
+    {
+      "level": 0,
+      "text": "Continue brickwork to the north and east elevations with two gangs."
+    },
+    {
+      "level": 0,
+      "text": "Start first-fix mechanical and electrical work in the ground floor classrooms."
+    }
+  ],
+  "furniture": [
+    "Calder & Voss Construction",
+    "Project 2219 · Riverside Primary School extension",
+    "Report 2219-MPR-07 · Issued 6 October 2026",
+    "1 / 2",
+    "2 / 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Two-page construction progress report; body in Book Antiqua, headings and labels in Century Gothic. Letterhead line (contractor and project) repeats on both pages and is listed once; footer has the report reference and \"1 / 2\", \"2 / 2\". The reporting-period line under the title is body text. Table 1 \"Key facts\" is a captioned key/value table FLOATED to the right; the summary paragraphs wrap beside it (read the table where it starts, i.e. after the period line and before \"1 Summary\", or treat it as a sidebar). Table 2 has vertical rules between columns and a rule under the header but NO horizontal rules between rows; its comment cells are top-aligned and may wrap. Table 3 (risks) is a full grid with coloured rating cells. Section 4 shows four figure boxes side by side (\"0 reportable accidents\" etc.); they are body text, not a table. Section 5 is a list whose markers \"1\", \"2\", \"3\" and \"1.1\", \"1.2\" are generated by CSS counters, so items carry no marker (level 0 and level 1). Table 4 has a total row whose label spans two columns and whose last cell is empty (\"\"). Section numbers in headings are typed."
+}

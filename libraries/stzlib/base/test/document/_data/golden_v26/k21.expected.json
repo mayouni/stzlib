@@ -1,0 +1,151 @@
+{
+  "id": "k21",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Hướng dẫn sử dụng nồi cơm điện tử SV-18D",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Hướng dẫn sử dụng nồi cơm điện tử SV-18D"
+    },
+    {
+      "level": 2,
+      "text": "1. Lưu ý an toàn"
+    },
+    {
+      "level": 2,
+      "text": "2. Các bước nấu cơm"
+    },
+    {
+      "level": 2,
+      "text": "3. Vệ sinh và bảo quản"
+    },
+    {
+      "level": 2,
+      "text": "4. Thông số kỹ thuật"
+    },
+    {
+      "level": 2,
+      "text": "5. Xử lý sự cố"
+    }
+  ],
+  "key_sentences": [
+    "Cảm ơn quý khách đã chọn sản phẩm của chúng tôi.",
+    "Vui lòng đọc kỹ hướng dẫn trước khi sử dụng và giữ tài liệu này để tham khảo khi cần.",
+    "Rút phích cắm và để nồi nguội hẳn trước khi vệ sinh.",
+    "Van thoát hơi trên nắp nên được tháo ra và rửa sau mỗi lần nấu cháo.",
+    "Thời hạn bảo hành là 24 tháng kể từ ngày mua.",
+    "Bảo hành không áp dụng cho hư hỏng do rơi vỡ hoặc dùng sai điện áp."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Mã sản phẩm",
+          "SV-18D",
+          "Dung tích",
+          "1,8 lít"
+        ],
+        [
+          "Công suất",
+          "860 W",
+          "Điện áp",
+          "220 V – 50 Hz"
+        ],
+        [
+          "Khối lượng",
+          "4,2 kg",
+          "Lòng nồi",
+          "Hợp kim nhôm, phủ chống dính 5 lớp"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Hiện tượng",
+          "Nguyên nhân có thể",
+          "Cách khắc phục"
+        ],
+        [
+          "Cơm bị sống",
+          "Thiếu nước hoặc mở nắp khi đang nấu",
+          "Thêm một ít nước và nấu lại 10 phút"
+        ],
+        [
+          "Cơm bị cháy đáy",
+          "Đáy lòng nồi bị ướt hoặc mâm nhiệt bám bẩn",
+          "Lau khô lòng nồi, vệ sinh mâm nhiệt"
+        ],
+        [
+          "Màn hình báo lỗi E3",
+          "Cảm biến nhiệt độ bị lỗi",
+          "Liên hệ trung tâm bảo hành"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Không nhúng thân nồi vào nước hoặc để nước tràn vào bảng điều khiển."
+    },
+    {
+      "level": 0,
+      "text": "Chỉ sử dụng ổ cắm điện 220 V có nối đất."
+    },
+    {
+      "level": 0,
+      "text": "Không mở nắp trong lúc nấu để tránh bỏng hơi nước."
+    },
+    {
+      "level": 0,
+      "text": "Để xa tầm tay trẻ em khi nồi đang hoạt động."
+    },
+    {
+      "level": 0,
+      "text": "1. Đong gạo bằng cốc đi kèm và vo sạch."
+    },
+    {
+      "level": 0,
+      "text": "2. Cho gạo vào lòng nồi, đổ nước đến vạch tương ứng với số cốc gạo."
+    },
+    {
+      "level": 0,
+      "text": "3. Lau khô mặt ngoài lòng nồi rồi đặt vào thân nồi."
+    },
+    {
+      "level": 0,
+      "text": "4. Đóng nắp và chọn chế độ nấu:"
+    },
+    {
+      "level": 1,
+      "text": "a. “Cơm trắng” cho gạo thường,"
+    },
+    {
+      "level": 1,
+      "text": "b. “Gạo lứt” cho gạo lứt và gạo trộn,"
+    },
+    {
+      "level": 1,
+      "text": "c. “Cháo” cho cháo và súp."
+    },
+    {
+      "level": 0,
+      "text": "5. Nhấn nút “Bắt đầu”. Khi cơm chín, nồi tự chuyển sang chế độ giữ ấm."
+    }
+  ],
+  "furniture": [
+    "SEN VÀNG",
+    "Đồ gia dụng cho mọi gian bếp",
+    "Tổng đài hỗ trợ 1800 6038 (miễn phí)",
+    "Trang 1/1"
+  ],
+  "languages": [
+    "vi"
+  ],
+  "code": [],
+  "notes": "Vietnamese user guide and warranty card for a rice cooker, one page, Droid Sans; all text is NFC (precomposed letters with stacked diacritics). The coloured brand band at the top and the footer (hotline, \"Trang 1/1\") are furniture; \"SEN VÀNG\" is typed in capitals. Sections 1–3 sit in a two-column block read column by column; section 1 is inside a red warning box at the top of the left column and its bullets are drawn by CSS (disc). Section 2 is a TYPED list \"1.\" to \"5.\" (level 0) with \"a.\" \"b.\" \"c.\" (level 1); item 5 contains two sentences. Section numbers are typed in the headings. Table 1 is a boxed key/value table with two label/value pairs per row (no header). Table 2 has a rule under the header and rules between rows. The dashed warranty card at the bottom is a form: \"Phiếu bảo hành\" is its title (a label, not a heading) and the field labels are followed by dotted lines drawn by CSS. Curly double quotes are used around mode names."
+}

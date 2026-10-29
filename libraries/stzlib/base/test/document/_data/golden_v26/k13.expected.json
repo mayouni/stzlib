@@ -1,0 +1,202 @@
+{
+  "id": "k13",
+  "difficulty": "very hard",
+  "pages": 2,
+  "title": "The Riverbank",
+  "headings": [
+    {
+      "level": 1,
+      "text": "The Riverbank"
+    },
+    {
+      "level": 2,
+      "text": "Otters return to Hollins Weir"
+    },
+    {
+      "level": 3,
+      "text": "What made the difference"
+    },
+    {
+      "level": 3,
+      "text": "In this issue"
+    },
+    {
+      "level": 3,
+      "text": "Dates for your diary"
+    },
+    {
+      "level": 2,
+      "text": "Water quality at a glance"
+    },
+    {
+      "level": 2,
+      "text": "Volunteer corner"
+    },
+    {
+      "level": 3,
+      "text": "Join a working party"
+    },
+    {
+      "level": 2,
+      "text": "How the new fish pass works"
+    },
+    {
+      "level": 2,
+      "text": "From the chair"
+    },
+    {
+      "level": 2,
+      "text": "Riverfly results"
+    },
+    {
+      "level": 2,
+      "text": "Become a member"
+    },
+    {
+      "level": 2,
+      "text": "Contact us"
+    }
+  ],
+  "key_sentences": [
+    "Camera traps have recorded a family of otters on the upper river for the first time in more than twenty years.",
+    "The footage was captured in late August by one of the six cameras that volunteers installed along the mill race last spring.",
+    "Their return is a sign that the water quality improvements of the past decade are working.",
+    "The fish pass at Hollins Weir has allowed trout to move upstream again, giving otters a reliable food supply.",
+    "Phosphate at Corley Farm has halved since the reed beds were planted, while the reading below the sewage works remains the weakest on the river.",
+    "This summer our volunteers gave more than 1,400 hours to the river.",
+    "Working parties meet on the second Saturday of each month.",
+    "A counter at the top pool recorded 2,300 trout and 41 salmon between April and September.",
+    "Members receive this newsletter four times a year and can vote at the annual general meeting."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Sampling site",
+          "Phosphate (mg/l)",
+          "Nitrate (mg/l)",
+          "Status"
+        ],
+        [
+          "Millbrook Head",
+          "0.03",
+          "4.1",
+          "Good"
+        ],
+        [
+          "Corley Farm outfall",
+          "0.07",
+          "9.8",
+          "Moderate"
+        ],
+        [
+          "Hollins Weir",
+          "0.05",
+          "7.2",
+          "Good"
+        ],
+        [
+          "Below Ashby sewage works",
+          "0.16",
+          "14.6",
+          "Poor"
+        ],
+        [
+          "Millbrook Bridge",
+          "0.08",
+          "10.3",
+          "Moderate"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Membership",
+          "Per year"
+        ],
+        [
+          "Individual",
+          "£18"
+        ],
+        [
+          "Household",
+          "£25"
+        ],
+        [
+          "Student or under 18",
+          "£5"
+        ],
+        [
+          "Business supporter",
+          "£120"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Otters return to Hollins Weir"
+    },
+    {
+      "level": 0,
+      "text": "Volunteer corner"
+    },
+    {
+      "level": 0,
+      "text": "How the new fish pass works"
+    },
+    {
+      "level": 0,
+      "text": "Membership and contacts"
+    },
+    {
+      "level": 0,
+      "text": "12 Oct – Balsam pull at Corley Farm, 10 am"
+    },
+    {
+      "level": 0,
+      "text": "26 Oct – Annual general meeting, Millbrook Village Hall, 7 pm"
+    },
+    {
+      "level": 0,
+      "text": "9 Nov – Riverfly survey training, 1 pm"
+    },
+    {
+      "level": 0,
+      "text": "7 Dec – Winter walk to the weir, meet at the church"
+    },
+    {
+      "level": 0,
+      "text": "Fish swimming upstream are drawn to the strong flow at the bottom of the pass."
+    },
+    {
+      "level": 0,
+      "text": "They move up a series of pools, each about twenty centimetres higher than the last."
+    },
+    {
+      "level": 0,
+      "text": "Slots between the pools let them rest before the next jump."
+    },
+    {
+      "level": 0,
+      "text": "At the top they rejoin the river above the weir."
+    }
+  ],
+  "furniture": [
+    "Newsletter of the Millbrook Valley Water Trust",
+    "Autumn 2026 · Issue 31",
+    "1",
+    "The Riverbank",
+    "Autumn 2026",
+    "2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Two-page community newsletter; body in Candara, headings in Cambria. The masthead name \"The Riverbank\" is the title (level 1); the trust name and issue line beside it are furniture. Page 1: the lead article spans a two-column block under its headline and standfirst (read column by column), with a pull quote inside the left column (a quote that appears nowhere else); a shaded SIDEBAR on the right is read after the whole article. Below both, the full-width \"Water quality at a glance\" article sets a paragraph BESIDE a zebra table (read the paragraph first); two of its header cells have two lines (e.g. \"Phosphate\" / \"(mg/l)\"), given joined by one space. The sidebar holds a CSS-drawn bullet list (\"In this issue\") and \"Dates for your diary\", a list whose dates are bold and followed by a TYPED en dash (\"12 Oct – Balsam pull ...\"); those items are given with the date as their leading text. Page 2: running header (two parts), a three-column body with a column rule (read column by column), a CSS-numbered list (decimal, no marker in the text), and two boxes SIDE BY SIDE at the foot (\"Become a member\" with a small table that has a rule under its header only, and the dark \"Contact us\" box), read box by box. Page numbers are bare numerals at the outer corners: \"1\" bottom right, \"2\" bottom left. Curly quotes are used in the pull quote."
+}

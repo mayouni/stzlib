@@ -1,0 +1,122 @@
+{
+  "id": "k08",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "חוזר להורים: טיול שנתי לשכבת ה׳",
+  "headings": [
+    {
+      "level": 1,
+      "text": "חוזר להורים: טיול שנתי לשכבת ה׳"
+    },
+    {
+      "level": 2,
+      "text": "לוח הזמנים"
+    },
+    {
+      "level": 2,
+      "text": "הנחיות חשובות"
+    },
+    {
+      "level": 2,
+      "text": "רשימת ציוד"
+    }
+  ],
+  "key_sentences": [
+    "בשבוע הבא תצא שכבת ה׳ לטיול השנתי בגליל העליון.",
+    "הטיול יתקיים ביום שלישי, 27 באוקטובר 2026, והחזרה צפויה בשעות אחר הצהריים.",
+    "מטרת הטיול היא להכיר את הנחלים של האזור ואת סיפור היישובים שלאורכם.",
+    "אנו מבקשים להחזיר את הספח החתום עד יום חמישי, 22 באוקטובר.",
+    "תלמיד שלא יחזיר ספח חתום לא יוכל לצאת לטיול.",
+    "אני מאשר/ת את השתתפות בני/בתי בטיול השנתי ביום שלישי, 27 באוקטובר 2026."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "שעה",
+          "פעילות",
+          "מקום"
+        ],
+        [
+          "07:30",
+          "התכנסות ויציאה מחניית בית הספר",
+          "רחוב הדקל"
+        ],
+        [
+          "09:15",
+          "מסלול הליכה לאורך נחל עמוד",
+          "חניון נחל עמוד"
+        ],
+        [
+          "12:00",
+          "ארוחת צהריים והפסקה",
+          "חורשת האלונים"
+        ],
+        [
+          "13:30",
+          "ביקור במצפה ושיחה על תולדות המקום",
+          "מצפה הימים"
+        ],
+        [
+          "16:00",
+          "חזרה משוערת לבית הספר",
+          "רחוב הדקל"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "א. יש להגיע עם נעלי הליכה סגורות ונוחות."
+    },
+    {
+      "level": 0,
+      "text": "ב. כל תלמיד יביא לפחות שני ליטרים של מים."
+    },
+    {
+      "level": 0,
+      "text": "ג. תלמידים הנוטלים תרופות באופן קבוע:"
+    },
+    {
+      "level": 1,
+      "text": "1. יש למסור את התרופה למחנכת עד יום ראשון."
+    },
+    {
+      "level": 1,
+      "text": "2. יש לצרף הוראות שימוש בכתב, חתומות בידי ההורים."
+    },
+    {
+      "level": 0,
+      "text": "ד. הטלפונים הניידים יישארו בתיק במהלך המסלול."
+    },
+    {
+      "level": 0,
+      "text": "כובע וקרם הגנה"
+    },
+    {
+      "level": 0,
+      "text": "ארוחת בוקר וארוחת צהריים"
+    },
+    {
+      "level": 0,
+      "text": "שקית לאיסוף אשפה"
+    },
+    {
+      "level": 0,
+      "text": "מעיל קל, למקרה של רוח במצפה"
+    }
+  ],
+  "furniture": [
+    "בית הספר היסודי נוף הגליל",
+    "רחוב הדקל 14, כרמיאל · טלפון 04-9887120",
+    "שנת הלימודים תשפ״ז",
+    "עמוד 1 מתוך 1"
+  ],
+  "languages": [
+    "he"
+  ],
+  "code": [],
+  "notes": "Right-to-left Hebrew school circular, one page, Arial. Text in logical order; table rows list cells rightmost column first (שעה, פעילות, מקום). The coloured letterhead band (school name, address line, school year) is furniture. The Hebrew and Gregorian dates under it are body text. Geresh (U+05F3) and gershayim (U+05F4) are used. Instructions are a TYPED list with Hebrew letter markers \"א.\" \"ב.\" \"ג.\" \"ד.\" (level 0) and typed \"1.\" \"2.\" under ג. (level 1). The equipment list is CSS-drawn (disc) and stands BESIDE a boxed contact panel: read the list (right column) first, then the box; the box title \"ליצירת קשר ביום הטיול\" is a label, not a heading, and its lines are body text, not a table. The tear-off slip below the dashed line is a form: \"ספח אישור הורים\" is a form title (not a heading), the field labels (שם התלמיד/ה:, כיתה:, שם ההורה:, חתימה:) are followed by empty ruled lines drawn by CSS (no underscore characters). Schedule times are kept left-to-right (\"07:30\")."
+}

@@ -1,0 +1,204 @@
+{
+  "id": "k07",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Tallyhook 4.2 Release Notes",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Tallyhook 4.2 Release Notes"
+    },
+    {
+      "level": 2,
+      "text": "1 Highlights"
+    },
+    {
+      "level": 2,
+      "text": "2 Breaking changes"
+    },
+    {
+      "level": 3,
+      "text": "2.1 Configuration keys renamed"
+    },
+    {
+      "level": 3,
+      "text": "2.2 Database requirements"
+    },
+    {
+      "level": 2,
+      "text": "3 Upgrade procedure"
+    },
+    {
+      "level": 2,
+      "text": "4 Fixed issues"
+    },
+    {
+      "level": 2,
+      "text": "5 Known limitations"
+    },
+    {
+      "level": 3,
+      "text": "Supported platforms"
+    },
+    {
+      "level": 3,
+      "text": "Deprecated in this release"
+    }
+  ],
+  "key_sentences": [
+    "Tallyhook 4.2 is a feature release.",
+    "It adds scheduled exports, replaces the legacy queue driver and drops support for PostgreSQL 12.",
+    "The old names are rejected at start-up with an explicit error message.",
+    "PostgreSQL 13 or later is required.",
+    "If the check reports an older server, upgrade PostgreSQL first and keep Tallyhook on 4.1 until that is done.",
+    "After the restart, open the status page and confirm that the queue driver is reported as redis-stream.",
+    "Scheduled exports cannot yet write to object storage."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Old key",
+          "New key",
+          "Notes"
+        ],
+        [
+          "queue.backend",
+          "queue.driver",
+          "The value redis-list is no longer accepted."
+        ],
+        [
+          "export.dir",
+          "exports.path",
+          "Relative paths resolve against the data directory."
+        ],
+        [
+          "mail.from",
+          "notifications.sender",
+          "Format unchanged."
+        ],
+        [
+          "api.rate",
+          "api.rate_limit.per_minute",
+          "Default raised from 60 to 120."
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Issue",
+          "Summary",
+          "Component"
+        ],
+        [
+          "#2291",
+          "CSV exports dropped the last row when the file ended without a newline.",
+          "Exports"
+        ],
+        [
+          "#2304",
+          "Timezone offsets were ignored in scheduled reports.",
+          "Scheduler"
+        ],
+        [
+          "#2310",
+          "The login page showed the username in the browser title.",
+          "Web"
+        ],
+        [
+          "#2318",
+          "Webhook retries ignored the configured timeout.",
+          "Integrations"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Scheduled exports can now be defined per workspace."
+    },
+    {
+      "level": 1,
+      "text": "Exports run in the background worker and never block the web process."
+    },
+    {
+      "level": 1,
+      "text": "Failed runs are retried three times with exponential back-off."
+    },
+    {
+      "level": 0,
+      "text": "The new queue driver uses Redis streams instead of lists, which removes the duplicate-delivery problem reported in 4.1."
+    },
+    {
+      "level": 0,
+      "text": "The audit log now records the user agent of every API call."
+    },
+    {
+      "level": 0,
+      "text": "1. Stop the web and worker processes."
+    },
+    {
+      "level": 0,
+      "text": "2. Back up the database and the data directory."
+    },
+    {
+      "level": 1,
+      "text": "2.1 Use pg_dump with the custom format so that tables can be restored one by one."
+    },
+    {
+      "level": 1,
+      "text": "2.2 Copy the data directory to a separate disk."
+    },
+    {
+      "level": 0,
+      "text": "3. Update the configuration file as shown below."
+    },
+    {
+      "level": 0,
+      "text": "4. Run the migrations and start the services again."
+    },
+    {
+      "level": 0,
+      "text": "Ubuntu 22.04 and 24.04"
+    },
+    {
+      "level": 0,
+      "text": "Debian 12"
+    },
+    {
+      "level": 0,
+      "text": "Container image on any OCI runtime"
+    },
+    {
+      "level": 0,
+      "text": "The XML export format"
+    },
+    {
+      "level": 0,
+      "text": "API tokens without an expiry date"
+    },
+    {
+      "level": 0,
+      "text": "The tallyhook-legacy command"
+    }
+  ],
+  "furniture": [
+    "Tallyhook documentation",
+    "Release 4.2.0",
+    "© 2026 The Tallyhook Project · Licensed under CC BY 4.0",
+    "Page 1 of 2",
+    "Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "$ tallyhook doctor --check database\nChecking database version ...... 15.4 (ok)\nChecking pending migrations .... 3 pending\nChecking free disk space ....... 41.2 GB (ok)",
+    "queue:\n  driver: redis-stream\n  url: redis://cache.internal:6379/2\nexports:\n  path: exports/\n  schedule:\n    - name: nightly-ledger\n      cron: \"30 2 * * *\"\n      format: csv\napi:\n  rate_limit:\n    per_minute: 120"
+  ],
+  "notes": "Two-page software release notes in Segoe UI with two code blocks in Consolas (a shell session and a YAML file; indentation inside code is significant and kept). An inline code span \"tallyhook.yml\" is part of a body sentence. Section numbers are typed in the headings (\"1\", \"2.1\"). Highlights is a CSS-drawn bullet list (disc, nested circle). The upgrade procedure is a TYPED list: \"1.\" to \"4.\" at level 0 and \"2.1\", \"2.2\" at level 1, with hanging indent. The list ends at the foot of page 1 and the YAML block it refers to opens page 2. Table 1 has a rule under the header only and no other lines; its key columns are set in Consolas. Table 2 is a zebra table with a dark header. At the foot of page 2 two boxes stand SIDE BY SIDE (\"Supported platforms\" and \"Deprecated in this release\"), each with a level-3 heading and a CSS bullet list; reading order is box by box (left box completely, then right box). Running header (two parts) and footer (licence line and \"Page N of 2\") are furniture."
+}

@@ -1,0 +1,46 @@
+page_header	0	Tallyhook documentation
+page_header	0	Release 4.2.0
+heading	1	Tallyhook 4.2 Release Notes
+paragraph	0	Tallyhook 4.2 is a feature release. It adds scheduled exports, replaces the legacy queue driver and drops support for PostgreSQL 12. Read the breaking changes before you upgrade a production installation.
+heading	1	1 Highlights
+list_item	0	Scheduled exports can now be defined per workspace.
+list_item	0	Exports run in the background worker and never block the web process.
+list_item	0	Failed runs are retried three times with exponential back-off.
+list_item	0	The new queue driver uses Redis streams instead of lists, which removes the duplicate-delivery problem reported in 4.1.
+list_item	0	The audit log now records the user agent of every API call.
+heading	1	2 Breaking changes
+heading	1	2.1 Configuration keys renamed
+paragraph	0	Four keys in tallyhook.yml have new names. The old names are rejected at start-up with an explicit error message.
+table	0	Old keyNew keyNotesqueue.backendqueue.driverThe value redis-list is no longer accepted.export.direxports.pathRelative paths resolve against the data directory.mail.fromnotifications.senderFormat unchanged.api.rateapi.rate _ limit.per _ minuteDefault raised from 60 to 120.
+heading	1	2.2 Database requirements
+paragraph	0	PostgreSQL 13 or later is required. Run the built-in check before upgrading:
+code	0	$ tallyhook doctor --check database Checking database version ...... 15.4 (ok) Checking pending migrations .... 3 pending
+code	0	Checking free disk space ....... 41.2 GB (ok)
+paragraph	0	If the check reports an older server, upgrade PostgreSQL first and keep Tallyhook on 4.1 until that is done.
+heading	1	3 Upgrade procedure
+list_item	0	Stop the web and worker processes.
+list_item	0	Back up the database and the data directory.
+list_item	0	Use pg_ dump with the custom format so that tables can be restored one by one.
+list_item	0	Copy the data directory to a separate disk.
+list_item	0	Update the configuration file as shown below.
+list_item	0	Run the migrations and start the services again.
+page_footer	0	© 2026 The Tallyhook Project · Licensed under CC BY 4.0
+page_footer	0	Page 1 of 2
+page_header	0	Tallyhook documentation
+page_header	0	Release 4.2.0
+code	0	queue: driver: redis-stream url: redis://cache.internal:6379/2 exports: path: exports/ schedule: - name: nightly-ledger cron: "30 2 * * *" format: csv api: rate _ limit: per _ minute: 120
+paragraph	0	After the restart, open the status page and confirm that the queue driver is reported as redis-stream.
+heading	1	4 Fixed issues
+table	0	IssueSummaryComponent#2291CSV exports dropped the last row when the file ended without a newline.Exports#2304Timezone offsets were ignored in scheduled reports.Scheduler#2310The login page showed the username in the browser title.Web#2318Webhook retries ignored the configured timeout.Integrations
+heading	1	5 Known limitations
+paragraph	0	Scheduled exports cannot yet write to object storage. Support is planned for release 4.3.
+heading	1	Supported platforms
+list_item	0	Ubuntu 22.04 and 24.04
+list_item	0	Debian 12
+list_item	0	Container image on any OCI runtime
+heading	1	Deprecated in this release
+list_item	0	The XML export format
+list_item	0	API tokens without an expiry date
+list_item	0	The tallyhook-legacy command
+page_footer	0	© 2026 The Tallyhook Project · Licensed under CC BY 4.0
+page_footer	0	Page 2 of 2

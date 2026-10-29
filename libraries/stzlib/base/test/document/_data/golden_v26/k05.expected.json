@@ -1,0 +1,204 @@
+{
+  "id": "k05",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "第12回 安全衛生委員会 議事録",
+  "headings": [
+    {
+      "level": 1,
+      "text": "第12回 安全衛生委員会 議事録"
+    },
+    {
+      "level": 2,
+      "text": "１．前回議事録の確認"
+    },
+    {
+      "level": 2,
+      "text": "２．労働災害の発生状況"
+    },
+    {
+      "level": 2,
+      "text": "３．審議事項"
+    },
+    {
+      "level": 2,
+      "text": "４．その他"
+    },
+    {
+      "level": 2,
+      "text": "５．配布資料"
+    }
+  ],
+  "key_sentences": [
+    "前回（第11回）の議事録について説明があり、修正意見はなく原案のとおり承認された。",
+    "件数は減少したものの、腰痛による休業日数が増加している点が委員から指摘された。",
+    "出荷場における重量物の取り扱いについて、作業手順を見直す必要があるとの意見で一致した。",
+    "また、産業医より、腰痛は繰り返し発症しやすいため、復帰後の作業内容にも配慮するよう助言があった。",
+    "繁忙期を避け、12月第1週に実施することで合意した。"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "日時",
+          "2026年9月17日（木）15:00～16:30"
+        ],
+        [
+          "場所",
+          "本社3階 第2会議室"
+        ],
+        [
+          "出席者",
+          "委員長 高木、委員 佐野・岩崎・林・大川・本田、 産業医 森（オンライン参加）"
+        ],
+        [
+          "欠席者",
+          "委員 中島"
+        ],
+        [
+          "記録",
+          "総務部 西村"
+        ]
+      ]
+    },
+    {
+      "caption": "表1 労働災害の発生状況（上半期）",
+      "rows": [
+        [
+          "区分",
+          "前年度上半期",
+          "前年度上半期",
+          "今年度上半期",
+          "今年度上半期"
+        ],
+        [
+          "区分",
+          "件数",
+          "休業日数",
+          "件数",
+          "休業日数"
+        ],
+        [
+          "転倒",
+          "3",
+          "12",
+          "1",
+          "0"
+        ],
+        [
+          "挟まれ・巻き込まれ",
+          "1",
+          "21",
+          "1",
+          "5"
+        ],
+        [
+          "切れ・こすれ",
+          "4",
+          "0",
+          "2",
+          "0"
+        ],
+        [
+          "腰痛",
+          "2",
+          "8",
+          "3",
+          "14"
+        ],
+        [
+          "合計",
+          "10",
+          "41",
+          "7",
+          "19"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "委員長",
+          "事務局",
+          "記録"
+        ],
+        [
+          "",
+          "",
+          ""
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "（１）夏季の熱中症対策の振り返り"
+    },
+    {
+      "level": 1,
+      "text": "アWBGT計の設置場所を2か所増やしたことで、作業中断の判断が早くなった。"
+    },
+    {
+      "level": 1,
+      "text": "イ経口補水液の配布は好評であり、来年度も継続する。"
+    },
+    {
+      "level": 0,
+      "text": "（２）腰痛予防の取り組み"
+    },
+    {
+      "level": 1,
+      "text": "ア出荷場の台車を軽量タイプに順次更新する。"
+    },
+    {
+      "level": 1,
+      "text": "イ産業医による腰痛予防講習を11月に実施する。"
+    },
+    {
+      "level": 1,
+      "text": "ウ重量物の取り扱いについて、二人作業とする基準を20kg以上から15kg以上に改める案を、次回までに総務部が作成する。"
+    },
+    {
+      "level": 0,
+      "text": "（３）ストレスチェックの実施時期"
+    },
+    {
+      "level": 1,
+      "text": "ア繁忙期を避け、12月第1週に実施することで合意した。"
+    },
+    {
+      "level": 0,
+      "text": "・次回の委員会は、10月15日（木）15時から開催する。"
+    },
+    {
+      "level": 0,
+      "text": "・安全衛生パトロールは、10月6日に出荷場を対象として行う。"
+    },
+    {
+      "level": 0,
+      "text": "労働災害発生状況報告書（上半期）"
+    },
+    {
+      "level": 0,
+      "text": "熱中症対策実施結果のまとめ"
+    },
+    {
+      "level": 0,
+      "text": "腰痛予防講習の実施計画（案）"
+    }
+  ],
+  "furniture": [
+    "株式会社みなと精機 総務部",
+    "社外秘",
+    "－ 1 －",
+    "－ 2 －"
+  ],
+  "languages": [
+    "ja"
+  ],
+  "code": [],
+  "notes": "Japanese committee minutes, two pages, Yu Gothic. Lines wrapped inside a sentence join with NO space. Running header (company and department on the left, a red-boxed \"社外秘\" on the right) repeats on both pages and is listed once per line; page numbers are centred as \"－ 1 －\" with full-width hyphen-minus (U+FF0D). Headings carry typed full-width numbers \"１．\" to \"５．\". Table 1 is a ruled key/value table (labels in the left column, no header row); the 出席者 cell has two lines, joined by one space. Table 2 has a two-level header (\"区分\" spans both header rows; each year spans two columns) and a total row; its caption is \"表1　労働災害の発生状況（上半期）\" (the ideographic space inside the caption is whitespace and is given as one ASCII space). Section 3 is a TYPED list: full-width \"（１）\" to \"（３）\" at level 0 and katakana \"ア\" \"イ\" \"ウ\" at level 1; marker and text are separated by layout, not by a space character, so items are given as marker immediately followed by the text. Section 4 is a list whose \"・\" bullets are TYPED. Section 5 is a CSS-drawn decimal list (no marker in the text). \"以上\" closes the minutes (body). The last table is an approval stamp block with a header row and one row of three EMPTY stamp cells (given as \"\")."
+}

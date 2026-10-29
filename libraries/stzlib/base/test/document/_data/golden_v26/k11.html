@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>New Patient Registration</title>
+<meta name="inset" content="7">
+<style>
+@page{size:A4;margin:0}
+.page{width:210mm;height:296.6mm}
+*{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+html,body{margin:0;padding:0;background:#fff}
+.page{position:relative;overflow:hidden;break-after:page;page-break-after:always}
+.page:last-child{break-after:auto;page-break-after:auto}
+body{font-family:Calibri;font-size:10.5pt;color:#1a1a1a}
+.page{padding:11mm 16mm 0 16mm}
+.lh{display:flex;justify-content:space-between;align-items:center;border-bottom:2.5px solid #00728f;padding-bottom:2mm}
+.lh .n{font-size:17pt;font-weight:bold;color:#00728f}
+.lh .a{font-size:8.5pt;text-align:right;color:#444;line-height:1.35}
+h1{font-size:17pt;margin:4mm 0 1.5mm 0;color:#00728f}
+h2{font-size:11.5pt;margin:4mm 0 1.5mm 0;background:#00728f;color:#fff;padding:0.8mm 2.5mm}
+p{margin:0 0 1.5mm 0;line-height:1.4}
+.tli{margin:0 0 0.6mm 0;line-height:1.35;padding-left:4mm;text-indent:-4mm}
+.row{display:flex;gap:3mm;margin-bottom:2mm}
+.f{flex:1;border:0.8px solid #7fb3c2;padding:0.6mm 2mm 0.8mm 2mm;min-height:11mm}
+.f .l{font-size:8pt;color:#00728f}
+.v{font-family:"Segoe Print";color:#1f3f9f;font-size:10pt;line-height:1.3}
+.cbrow{display:flex;flex-wrap:wrap;gap:1.5mm 6mm;margin:1mm 0 2mm 0}
+.cb{display:flex;align-items:center;gap:1.8mm}
+.box{display:inline-flex;width:4mm;height:4mm;border:0.8px solid #333;align-items:center;justify-content:center;font-family:"Segoe Print";color:#1f3f9f;font-size:8pt;line-height:1}
+.q{font-weight:bold;margin:1.5mm 0 0.5mm 0}
+table.med{width:100%;border-collapse:collapse;font-size:10pt;margin:1mm 0 2mm 0}
+table.med th{background:#e3f0f4;text-align:left;padding:1mm 2mm;border:0.8px solid #7fb3c2;font-weight:bold}
+table.med td{border:0.8px solid #7fb3c2;padding:0.5mm 2mm;height:7mm}
+.cons{display:flex;gap:5mm;align-items:flex-start}
+.cons .main{flex:1}
+.office{width:52mm;background:#eeeeee;border:1px dashed #777;padding:2mm 3mm;font-size:8.5pt;line-height:1.5}
+.office .t{font-weight:bold;margin-bottom:1mm}
+.office .ol{border-bottom:0.6px solid #777;height:5.5mm;margin-bottom:0.5mm}
+.foot{position:absolute;left:16mm;right:16mm;bottom:9mm;display:flex;justify-content:space-between;font-size:8pt;color:#666;border-top:0.5px solid #aaa;padding-top:1mm}
+</style>
+</head>
+<body>
+<div class="page">
+ <div class="lh furn"><div class="n fl">Brookfield Family Practice</div><div class="a"><div class="fl">22 Orchard Rise, Brookfield BF4 7TQ</div><div class="fl">Reception 01632 960 412 · brookfield.practice.example</div></div></div>
+ <h1>New Patient Registration</h1>
+ <p>Please complete every section of this form and return it to reception with proof of address. We use the information you give us only to provide your care.</p>
+ <p class="tli">• Write clearly and use black or blue ink.</p>
+ <p class="tli">• Children under 16 must be registered by a parent or guardian.</p>
+ <p class="tli">• Ask at reception if you need this form in another language or in large print.</p>
+ <h2>1. Personal details</h2>
+ <div class="row"><div class="f" style="flex:1.2"><div class="l">Surname</div><div class="v">Okafor-Hale</div></div><div class="f" style="flex:1.2"><div class="l">First names</div><div class="v">Daniel James</div></div><div class="f" style="flex:0.8"><div class="l">Date of birth</div><div class="v">14/03/1988</div></div></div>
+ <div class="q">Sex</div>
+ <div class="cbrow"><span class="cb"><span class="box">X</span><span>Male</span></span><span class="cb"><span class="box"></span><span>Female</span></span><span class="cb"><span class="box"></span><span>Prefer to self-describe</span></span><span class="cb"><span class="box"></span><span>Prefer not to say</span></span></div>
+ <div class="row"><div class="f" style="flex:2"><div class="l">Previous practice</div><div class="v">Riverside Health Centre, Lowbridge</div></div><div class="f" style="flex:1"><div class="l">Date you moved to this area</div><div class="v">01/09/2026</div></div></div>
+ <h2>2. Contact details</h2>
+ <div class="row"><div class="f" style="flex:2"><div class="l">Home address</div><div class="v">9 Linnet Close, Brookfield</div></div><div class="f" style="flex:0.7"><div class="l">Postcode</div><div class="v">BF4 8LR</div></div></div>
+ <div class="row"><div class="f" style="flex:1"><div class="l">Mobile telephone</div><div class="v">07700 900 318</div></div><div class="f" style="flex:1.4"><div class="l">Email address</div><div class="v">d.okaforhale@mail.example</div></div></div>
+ <h2>3. Medical history</h2>
+ <div class="q">Do you have any of the following conditions?</div>
+ <div class="cbrow"><span class="cb"><span class="box">X</span><span>Asthma</span></span><span class="cb"><span class="box"></span><span>Diabetes</span></span><span class="cb"><span class="box"></span><span>Heart disease</span></span><span class="cb"><span class="box"></span><span>Epilepsy</span></span><span class="cb"><span class="box"></span><span>High blood pressure</span></span><span class="cb"><span class="box">X</span><span>Allergies</span></span></div>
+ <div class="row"><div class="f" style="flex:1"><div class="l">If you have allergies, please give details</div><div class="v">Penicillin (rash)</div></div></div>
+ <div class="q">Medicines you take regularly</div>
+ <table class="med" data-g="med">
+  <thead><tr><th>Medicine</th><th>Dose</th><th>How often</th></tr></thead>
+  <tbody>
+   <tr><td class="v">Salbutamol inhaler</td><td class="v">100 micrograms</td><td class="v">When needed</td></tr>
+   <tr><td class="v">Beclometasone inhaler</td><td class="v">200 micrograms</td><td class="v">Twice a day</td></tr>
+   <tr><td></td><td></td><td></td></tr>
+  </tbody>
+ </table>
+ <div class="q">Do you smoke?</div>
+ <div class="cbrow"><span class="cb"><span class="box">X</span><span>Never</span></span><span class="cb"><span class="box"></span><span>Former smoker</span></span><span class="cb"><span class="box"></span><span>Current smoker</span></span></div>
+ <h2>4. Consent to share records</h2>
+ <div class="cons">
+  <div class="main">
+   <p>I agree that my records may be transferred from my previous practice to Brookfield Family Practice. I understand that I can withdraw this consent at any time by writing to the practice manager.</p>
+   <div class="cbrow"><span class="cb"><span class="box">X</span><span>I agree</span></span></div>
+   <div class="row"><div class="f" style="flex:1.5"><div class="l">Signature</div><div class="v">D. Okafor-Hale</div></div><div class="f" style="flex:1"><div class="l">Date</div><div class="v">02/10/2026</div></div></div>
+  </div>
+  <div class="office">
+   <div class="t">For practice use only</div>
+   <div>Registered by</div><div class="ol"></div>
+   <div>Date entered</div><div class="ol"></div>
+   <div>Proof of address seen</div><div class="ol"></div>
+  </div>
+ </div>
+ <div class="foot furn"><span class="fl">Form REG-01 · Version 4 · Reviewed March 2026</span><span class="fl">Page 1 of 1</span></div>
+</div>
+</body>
+</html>

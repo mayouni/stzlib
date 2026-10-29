@@ -1,0 +1,321 @@
+{
+  "id": "k24",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "NV-CP 65-200 Centrifugal Process Pump",
+  "headings": [
+    {
+      "level": 1,
+      "text": "NV-CP 65-200 Centrifugal Process Pump"
+    },
+    {
+      "level": 2,
+      "text": "Applications"
+    },
+    {
+      "level": 2,
+      "text": "Design features"
+    },
+    {
+      "level": 2,
+      "text": "Technical data"
+    },
+    {
+      "level": 2,
+      "text": "Performance at 2,950 rpm"
+    },
+    {
+      "level": 2,
+      "text": "Motor options"
+    },
+    {
+      "level": 2,
+      "text": "Remote monitoring"
+    },
+    {
+      "level": 2,
+      "text": "Ordering code"
+    },
+    {
+      "level": 2,
+      "text": "Dimensions"
+    },
+    {
+      "level": 2,
+      "text": "Standards and approvals"
+    }
+  ],
+  "key_sentences": [
+    "The NV-CP 65-200 is an end-suction, back pull-out pump for clean and slightly contaminated liquids.",
+    "The rotating unit can be removed for service without disturbing the pipework or the motor.",
+    "The best efficiency point is at 80 m³/h.",
+    "Do not run the pump for long periods below 15 m³/h, because the liquid in the casing heats up quickly at low flow.",
+    "Pumps with the optional sensor module report their operating data over Modbus RTU.",
+    "Register 40004 is reserved and returns zero."
+  ],
+  "tables": [
+    {
+      "caption": "Hydraulic",
+      "rows": [
+        [
+          "Maximum flow",
+          "120 m³/h"
+        ],
+        [
+          "Maximum head",
+          "58 m"
+        ],
+        [
+          "Rated speed",
+          "2,950 rpm"
+        ],
+        [
+          "Maximum working pressure",
+          "16 bar"
+        ],
+        [
+          "Liquid temperature",
+          "-20 to +140 °C"
+        ],
+        [
+          "Maximum viscosity",
+          "150 mm²/s"
+        ]
+      ]
+    },
+    {
+      "caption": "Construction",
+      "rows": [
+        [
+          "Pump casing",
+          "Ductile iron EN-GJS-400-15"
+        ],
+        [
+          "Impeller",
+          "Stainless steel 1.4408, closed"
+        ],
+        [
+          "Shaft seal",
+          "Single mechanical seal, SiC/SiC/EPDM"
+        ],
+        [
+          "Flanges",
+          "PN 16, DN 80 suction, DN 65 discharge"
+        ],
+        [
+          "Weight, bare shaft",
+          "68 kg"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Flow (m³/h)",
+          "0",
+          "20",
+          "40",
+          "60",
+          "80",
+          "100",
+          "120"
+        ],
+        [
+          "Head (m)",
+          "58.0",
+          "57.2",
+          "55.4",
+          "52.1",
+          "47.3",
+          "40.6",
+          "31.8"
+        ],
+        [
+          "Efficiency (%)",
+          "0",
+          "41",
+          "60",
+          "70",
+          "74",
+          "72",
+          "64"
+        ],
+        [
+          "Shaft power (kW)",
+          "4.1",
+          "7.6",
+          "10.1",
+          "12.2",
+          "13.9",
+          "15.4",
+          "16.2"
+        ],
+        [
+          "NPSH required (m)",
+          "n/a",
+          "1.6",
+          "1.9",
+          "2.4",
+          "3.1",
+          "4.2",
+          "5.8"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Motor frame",
+          "Rated power (kW)",
+          "Supply",
+          "Efficiency class",
+          "Duty point covered"
+        ],
+        [
+          "160M",
+          "11",
+          "400 V, 3-phase, 50 Hz",
+          "IE3",
+          "Up to 55 m³/h"
+        ],
+        [
+          "160L",
+          "15",
+          "400 V, 3-phase, 50 Hz",
+          "IE3",
+          "Up to 95 m³/h"
+        ],
+        [
+          "180M",
+          "18.5",
+          "400 V, 3-phase, 50 Hz",
+          "IE4",
+          "Full curve"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Position",
+          "Meaning",
+          "Options"
+        ],
+        [
+          "NV-CP 65-200",
+          "Pump size",
+          "Discharge DN 65, nominal impeller 200 mm"
+        ],
+        [
+          "150",
+          "Motor power",
+          "110 = 11 kW, 150 = 15 kW, 185 = 18.5 kW"
+        ],
+        [
+          "D",
+          "Material version",
+          "C = cast iron impeller, D = stainless steel impeller"
+        ],
+        [
+          "Q1",
+          "Shaft seal",
+          "Q1 = SiC/SiC/EPDM, Q2 = SiC/carbon/FKM"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Dimension",
+          "a",
+          "f",
+          "h1",
+          "h2",
+          "Baseplate length",
+          "Baseplate width"
+        ],
+        [
+          "mm",
+          "100",
+          "385",
+          "225",
+          "280",
+          "1,120",
+          "460"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Cooling and heating water circuits"
+    },
+    {
+      "level": 0,
+      "text": "Process water in food and beverage plants"
+    },
+    {
+      "level": 0,
+      "text": "Boiler feed at moderate temperatures"
+    },
+    {
+      "level": 0,
+      "text": "Irrigation and water transfer"
+    },
+    {
+      "level": 0,
+      "text": "Washing and cleaning systems"
+    },
+    {
+      "level": 0,
+      "text": "Condensate return"
+    },
+    {
+      "level": 0,
+      "text": "• Back pull-out design: the motor, bearing bracket and impeller come out as one unit."
+    },
+    {
+      "level": 0,
+      "text": "• Replaceable wear rings on the casing and the impeller restore efficiency after years of service."
+    },
+    {
+      "level": 0,
+      "text": "• Bearings are greased for life and sized for at least 25,000 operating hours."
+    },
+    {
+      "level": 0,
+      "text": "• Casing drain and vent connections are tapped G 1/4 as standard."
+    },
+    {
+      "level": 0,
+      "text": "– Dimensions to EN 733"
+    },
+    {
+      "level": 0,
+      "text": "– Drinking water approval for the EPDM seal version"
+    },
+    {
+      "level": 0,
+      "text": "– Declaration of conformity for machinery and low-voltage equipment"
+    }
+  ],
+  "furniture": [
+    "NORRVIK PUMPS",
+    "Product datasheet",
+    "DS-4120 rev. C – September 2026 – Data subject to change without notice.",
+    "1 (2)",
+    "2 (2)"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "[modbus]\naddress  = 17\nbaudrate = 19200\nparity   = even\n\n; holding registers, read only\n40001 = flow_m3h      ; scale 0.1\n40002 = head_m        ; scale 0.1\n40003 = bearing_temp_c\n40005 = run_hours"
+  ],
+  "notes": "Two-page pump datasheet in Lucida Sans with one code block in Courier New (an INI-style gateway configuration whose blank line and aligned spaces are part of the code) and an inline code span in the ordering example. Header (brand, \"Product datasheet\") repeats on both pages and is listed once; footer has the document line and page numbers in the form \"1 (2)\", \"2 (2)\". \"Applications\" is a CSS-drawn bullet list set in TWO columns (read column by column). Two captioned key/value tables stand SIDE BY SIDE under \"Technical data\" (\"Hydraulic\" left, \"Construction\" right), read table by table; no header rows. The performance table has row-header cells in its first column and a header row of flow values. The motor table has row-spanning cells (\"400 V, 3-phase, 50 Hz\" spans three rows, \"IE3\" spans two), repeated in each covered row. The ordering-code table has NO lines at all; its first row is a bold header. Standards are a TYPED en-dash list. \"Design features\" (page 1) is a list with TYPED \"•\" bullets and a hanging indent. The dimensions table has a dark header row and one body row. Section headings are white on teal bands (level 2)."
+}

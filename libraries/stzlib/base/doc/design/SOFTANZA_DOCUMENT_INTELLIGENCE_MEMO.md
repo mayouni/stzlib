@@ -517,6 +517,24 @@ golden_v25: 24 realistic documents in 16 languages besides English (Arabic, Hebr
 
 Time for the 24 documents: native 0.09 s, Docling 84 s. The native reader leads on six measures, Docling on order (by 0.008: h07, Hebrew, 0.80 against 1.00) and on furniture (by 0.021: seven documents, h17 nothing against 1.00 -- a landscape page whose running header is a CSS margin box). Elsewhere Docling does better on tables on five documents (h09 0.10 against 0.55, h23 0.34 against 0.73), lists on three, text on two, headings on one (h04, Arabic, 0.20 against 1.00). Heading precision is the lowest of recent sets for both readers (0.72 and 0.64). Causes not yet looked into: round 25.
 
+**Twenty-fifth round: Arabic headings and markers, foot lines, Demi faces; then golden_v26.** Begun only after round 24 was measured on golden_v25 (the author's ruling: a round's fixes wait for its predecessor's golden measurement). Fixed on golden_v25 (now a development set) and checked on all twenty-five sets:
+- a short bold Arabic line at 0.85 of the body is a heading (an Arabic heading's face can look larger at a smaller size: 14 pt over 16 pt) -- Arabic script only, as Hebrew month labels and box titles came in with it; a caption's number may be in any script's digits ("جدول ١");
+- "أ-" (a letter and a dash) is a list marker;
+- one small line at the very foot of the page is its footer however long (h17, thirteen words, a CSS margin box);
+- a Demi face is bold (FranklinGothic-Demi section titles at 10.5 pt over a 9.6 pt body);
+- zebra bands in a run may stand two bands apart (an unshaded row of two lines between them).
+
+On the development sets, against round 24 frozen: headings v14 0.88 -> 0.92, v15 0.84 -> 0.88, v16 0.88 -> 0.93, v19 0.96 -> 0.99, v20 0.93 -> 0.95; golden_v25 headings 0.92 -> 0.99, furniture 0.79 -> 0.83, lists 0.82 -> 0.83. Costs: heading precision v21 0.915 -> 0.905, v23 0.833 -> 0.825, v8 -0.004. Tried and withdrawn: one row's slack at a ladder's foot (v9 -0.008). Not reached: h09's movements table -- its debit and credit columns are never filled in the same row, so no body row shows all six columns and the ladder cannot find them; h07's reading order (Hebrew). Guard 223 assertions under Ring++.
+
+golden_v26: 24 realistic documents in 16 languages besides English (Arabic, Hebrew and Persian right to left, Japanese, Chinese, Korean, Hindi, Vietnamese among them), 14 of 2-3 pages, four tables across pages, one landscape page, a bold synthesised by Chrome from a regular face (k03), by a twenty-sixth independent agent who saw no reader, no output and no earlier set; no one has looked at the pages (unperceived); reader frozen at d084effba; both readers ran once:
+
+| golden_v26, realistic | text | order | headings | tables | lists | furniture | code | heading precision |
+|---|---|---|---|---|---|---|---|---|
+| Softanza native (Ring++) | **0.93** | **1.00** | **0.91** | **0.80** | **0.76** | **0.87** | **0.75** | **0.77** |
+| Docling 2.141 | 0.77 | 0.98 | 0.84 | 0.68 | 0.42 | 0.83 | 0.00 | 0.70 |
+
+Time for the 24 documents: native 0.09 s, Docling 93 s. The native reader leads on all eight measures, the fifth set where it does. Where Docling does better, document by document: tables on five (k06, a bank statement across pages, 0.02 against 0.72; k16, landscape lab report, 0.31 against 0.96; k13 0.29 against 1.00; k21 0.50 against 0.96), headings on four (k03 0.17 against 1.00 -- its headings' bold is synthesised by the browser, drawn as fill-and-stroke from a regular face), furniture on five, text on four, lists on three. Causes not yet looked into: round 26.
+
 **Perceived (2026-10-24):** the author looked through every rendered page of golden_v9 to golden_v13 -- the sets whose own authors could not look at them -- and judged them: "they look great". Those five sets are no longer unperceived; the sets before them were generated the same way and are not covered by this look.
 
 **Perceived (2026-10-29):** the author looked at the generated documents of golden_v14 to golden_v22 and judged them: "they are ok". Those nine sets are no longer unperceived.

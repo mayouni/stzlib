@@ -1,0 +1,247 @@
+{
+  "id": "k02",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Rapport d’activité 2025",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Rapport d’activité 2025"
+    },
+    {
+      "level": 2,
+      "text": "1. Vie de l’association"
+    },
+    {
+      "level": 3,
+      "text": "1.1 Événements"
+    },
+    {
+      "level": 3,
+      "text": "1.2 Bénévolat"
+    },
+    {
+      "level": 2,
+      "text": "2. Les parcelles"
+    },
+    {
+      "level": 2,
+      "text": "3. Exécution du budget"
+    },
+    {
+      "level": 2,
+      "text": "4. Perspectives 2026"
+    }
+  ],
+  "key_sentences": [
+    "Ce rapport est présenté à l’assemblée générale ordinaire du 14 mars 2026.",
+    "Le conseil d’administration s’est réuni neuf fois, dont deux fois en visioconférence pendant l’épisode de neige de février.",
+    "Nous remercions chaleureusement les trente-deux bénévoles réguliers.",
+    "La liste d’attente reste longue, ce qui confirme le besoin d’un second site.",
+    "Les comptes ont été arrêtés par le trésorier le 31 janvier 2026 et vérifiés par deux adhérents désignés par l’assemblée.",
+    "L’excédent de 680 euros sera affecté au fonds de réserve destiné au second site.",
+    "Le présent rapport a été adopté à l’unanimité par le conseil d’administration le 2 février 2026."
+  ],
+  "tables": [
+    {
+      "caption": "L’association en chiffres",
+      "rows": [
+        [
+          "Foyers adhérents",
+          "187",
+          "Parcelles individuelles",
+          "64"
+        ],
+        [
+          "Bénévoles réguliers",
+          "32",
+          "Parcelles collectives",
+          "4"
+        ],
+        [
+          "Réunions du conseil",
+          "9",
+          "Familles en liste d’attente",
+          "41"
+        ]
+      ]
+    },
+    {
+      "caption": "Tableau 1 – Budget de fonctionnement (en euros)",
+      "rows": [
+        [
+          "Poste",
+          "2024",
+          "2024",
+          "2025",
+          "2025"
+        ],
+        [
+          "Poste",
+          "Prévu",
+          "Réalisé",
+          "Prévu",
+          "Réalisé"
+        ],
+        [
+          "Recettes",
+          "Recettes",
+          "Recettes",
+          "Recettes",
+          "Recettes"
+        ],
+        [
+          "Cotisations des adhérents",
+          "5 600",
+          "5 720",
+          "6 000",
+          "6 545"
+        ],
+        [
+          "Subvention de la commune",
+          "3 000",
+          "3 000",
+          "3 500",
+          "3 500"
+        ],
+        [
+          "Vente de plants et de compost",
+          "1 200",
+          "1 480",
+          "1 400",
+          "1 215"
+        ],
+        [
+          "Total recettes",
+          "9 800",
+          "10 200",
+          "10 900",
+          "11 260"
+        ],
+        [
+          "Dépenses",
+          "Dépenses",
+          "Dépenses",
+          "Dépenses",
+          "Dépenses"
+        ],
+        [
+          "Eau et assurance",
+          "2 900",
+          "2 760",
+          "3 100",
+          "3 380"
+        ],
+        [
+          "Matériel et outillage",
+          "3 400",
+          "3 950",
+          "3 800",
+          "3 120"
+        ],
+        [
+          "Semences et amendements",
+          "1 500",
+          "1 390",
+          "1 600",
+          "1 870"
+        ],
+        [
+          "Animation et communication",
+          "2 000",
+          "1 640",
+          "2 400",
+          "2 210"
+        ],
+        [
+          "Total dépenses",
+          "9 800",
+          "9 740",
+          "10 900",
+          "10 580"
+        ],
+        [
+          "Résultat de l’exercice",
+          "0",
+          "460",
+          "0",
+          "680"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1) Fête des semis, le 12 avril, avec un troc de graines ouvert à tout le quartier."
+    },
+    {
+      "level": 0,
+      "text": "2) Journée portes ouvertes du 21 juin, qui a accueilli près de quatre cents visiteurs."
+    },
+    {
+      "level": 0,
+      "text": "3) Atelier de taille des fruitiers, animé par le verger conservatoire de Voreppe."
+    },
+    {
+      "level": 0,
+      "text": "a) Travaux réalisés :"
+    },
+    {
+      "level": 1,
+      "text": "remplacement de la cuve de récupération d’eau de pluie ;"
+    },
+    {
+      "level": 1,
+      "text": "réfection des allées principales en copeaux de bois ;"
+    },
+    {
+      "level": 1,
+      "text": "pose de bordures en châtaignier autour des carrés surélevés."
+    },
+    {
+      "level": 0,
+      "text": "b) Travaux reportés à 2026 :"
+    },
+    {
+      "level": 1,
+      "text": "construction d’un abri pour les outils collectifs ;"
+    },
+    {
+      "level": 1,
+      "text": "installation d’une deuxième aire de compostage."
+    },
+    {
+      "level": 0,
+      "text": "Ouvrir un second jardin sur le terrain proposé par la commune, rue des Peupliers."
+    },
+    {
+      "level": 1,
+      "text": "Déposer le dossier de bail avant le 30 avril."
+    },
+    {
+      "level": 1,
+      "text": "Organiser une réunion publique avec les riverains."
+    },
+    {
+      "level": 0,
+      "text": "Créer un groupe pédagogique avec les deux écoles du quartier."
+    },
+    {
+      "level": 0,
+      "text": "Renouveler un tiers du conseil d’administration lors de la prochaine assemblée."
+    }
+  ],
+  "furniture": [
+    "Les Jardins partagés de la Vence",
+    "Association loi 1901 · 12, chemin des Vergers · 38120 Saint-Égrève",
+    "Page 1 sur 2",
+    "Les Jardins partagés de la Vence — Rapport d’activité 2025",
+    "Page 2 sur 2"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "Two-page association activity report in Garamond. Page 1: organisation band (furniture, not a heading), title, lead paragraph, then a two-column body read column by column (left column top to bottom, then right). Section numbers (\"1.\", \"1.1\") are typed in the heading text. Lists: \"1) 2) 3)\" and \"a) b)\" are TYPED markers with a hanging indent (level 0); the dash items under a) and b) are drawn by CSS (list-style-type \"– \") and are level 1. Section 4 is a CSS-numbered list (decimal, nested lower-alpha drawn by CSS, so no marker in the text). Page 2 has a running header (furniture). Table 1 is a zebra table with a two-level header (\"Poste\" spans both header rows; \"2024\" and \"2025\" each span two columns), section rows \"Recettes\"/\"Dépenses\" spanning all columns, and total rows. Thousands separators in the table are non-breaking spaces (given as plain spaces). Apostrophes are typographic (U+2019). Below the columns, \"L’association en chiffres\" is a boxed key/value table with two label/value pairs per row (four columns, no header row); its caption is the box title. Page numbers \"Page 1 sur 2\", \"Page 2 sur 2\" are centred at the foot of each page. The signature block is body text."
+}

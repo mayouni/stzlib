@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tallyhook 4.2 Release Notes</title>
+<meta name="inset" content="7">
+<style>
+@page{size:A4;margin:0}
+.page{width:210mm;height:296.6mm}
+*{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+html,body{margin:0;padding:0;background:#fff}
+.page{position:relative;overflow:hidden;break-after:page;page-break-after:always}
+.page:last-child{break-after:auto;page-break-after:auto}
+body{font-family:"Segoe UI";font-size:9.8pt;color:#24292f}
+.page{padding:11mm 19mm 0 19mm}
+.rh{display:flex;justify-content:space-between;font-size:8pt;color:#6e7781;border-bottom:1px solid #d0d7de;padding-bottom:1.5mm}
+h1{font-size:21pt;font-weight:600;margin:7mm 0 2mm 0;color:#0b3d62}
+h2{font-size:13pt;font-weight:600;margin:5mm 0 1.5mm 0;color:#0b3d62;border-bottom:1px solid #d0d7de;padding-bottom:0.8mm}
+h3{font-size:10.5pt;font-weight:600;margin:3.5mm 0 1mm 0}
+p{margin:0 0 2mm 0;line-height:1.5}
+ul{margin:0 0 2mm 0;padding-left:6mm;line-height:1.5}
+ul ul{list-style-type:circle;margin:0}
+code{font-family:Consolas;font-size:9pt;background:#f0f2f4;padding:0 1mm}
+pre.code{font-family:Consolas;font-size:8.6pt;background:#f6f8fa;border:1px solid #d0d7de;border-left:3px solid #0b3d62;padding:2.5mm 3.5mm;margin:1.5mm 0 3mm 0;line-height:1.45;white-space:pre}
+table.keys{width:100%;border-collapse:collapse;font-size:9pt;margin:1mm 0 2mm 0}
+table.keys th{text-align:left;font-weight:600;border-bottom:1.5px solid #24292f;padding:1.2mm 2mm}
+table.keys td{padding:1.2mm 2mm;vertical-align:top}
+table.keys td.k{font-family:Consolas}
+table.fix{width:100%;border-collapse:collapse;font-size:9pt;margin:1mm 0 2mm 0}
+table.fix th{background:#0b3d62;color:#fff;text-align:left;font-weight:600;padding:1.3mm 2mm}
+table.fix td{padding:1.3mm 2mm;vertical-align:top}
+table.fix tr:nth-child(even) td{background:#eef3f8}
+.tli{display:flex;margin:0 0 1mm 0;line-height:1.5}
+.tli .m{flex:none;width:6mm}
+.tli.l1{padding-left:6mm}
+.tli.l1 .m{width:9mm}
+.pair{display:flex;gap:5mm;margin-top:4mm}
+.pair .bx{flex:1;border:1px solid #d0d7de;border-radius:2mm;padding:2.5mm 4mm;background:#fbfcfd}
+.pair .bx h3{margin-top:0}
+.foot{position:absolute;left:19mm;right:19mm;bottom:9mm;display:flex;justify-content:space-between;font-size:7.8pt;color:#6e7781}
+</style>
+</head>
+<body>
+<div class="page">
+ <div class="rh furn"><span class="fl">Tallyhook documentation</span><span class="fl">Release 4.2.0</span></div>
+ <h1>Tallyhook 4.2 Release Notes</h1>
+ <p>Tallyhook 4.2 is a feature release. It adds scheduled exports, replaces the legacy queue driver and drops support for PostgreSQL 12. Read the breaking changes before you upgrade a production installation.</p>
+ <h2>1 Highlights</h2>
+ <ul>
+  <li>Scheduled exports can now be defined per workspace.
+   <ul>
+    <li>Exports run in the background worker and never block the web process.</li>
+    <li>Failed runs are retried three times with exponential back-off.</li>
+   </ul>
+  </li>
+  <li>The new queue driver uses Redis streams instead of lists, which removes the duplicate-delivery problem reported in 4.1.</li>
+  <li>The audit log now records the user agent of every API call.</li>
+ </ul>
+ <h2>2 Breaking changes</h2>
+ <h3>2.1 Configuration keys renamed</h3>
+ <p>Four keys in <code>tallyhook.yml</code> have new names. The old names are rejected at start-up with an explicit error message.</p>
+ <table class="keys" data-g="keys">
+  <thead><tr><th>Old key</th><th>New key</th><th>Notes</th></tr></thead>
+  <tbody>
+   <tr><td class="k">queue.backend</td><td class="k">queue.driver</td><td>The value redis-list is no longer accepted.</td></tr>
+   <tr><td class="k">export.dir</td><td class="k">exports.path</td><td>Relative paths resolve against the data directory.</td></tr>
+   <tr><td class="k">mail.from</td><td class="k">notifications.sender</td><td>Format unchanged.</td></tr>
+   <tr><td class="k">api.rate</td><td class="k">api.rate_limit.per_minute</td><td>Default raised from 60 to 120.</td></tr>
+  </tbody>
+ </table>
+ <h3>2.2 Database requirements</h3>
+ <p>PostgreSQL 13 or later is required. Run the built-in check before upgrading:</p>
+<pre class="code">
+$ tallyhook doctor --check database
+Checking database version ...... 15.4 (ok)
+Checking pending migrations .... 3 pending
+Checking free disk space ....... 41.2 GB (ok)
+</pre>
+ <p>If the check reports an older server, upgrade PostgreSQL first and keep Tallyhook on 4.1 until that is done.</p>
+ <h2>3 Upgrade procedure</h2>
+ <div class="tli"><span class="m">1.</span> <span>Stop the web and worker processes.</span></div>
+ <div class="tli"><span class="m">2.</span> <span>Back up the database and the data directory.</span></div>
+ <div class="tli l1" data-lv="1"><span class="m">2.1</span> <span>Use pg_dump with the custom format so that tables can be restored one by one.</span></div>
+ <div class="tli l1" data-lv="1"><span class="m">2.2</span> <span>Copy the data directory to a separate disk.</span></div>
+ <div class="tli"><span class="m">3.</span> <span>Update the configuration file as shown below.</span></div>
+ <div class="tli"><span class="m">4.</span> <span>Run the migrations and start the services again.</span></div>
+ <div class="foot furn"><span class="fl">© 2026 The Tallyhook Project · Licensed under CC BY 4.0</span><span class="fl">Page 1 of 2</span></div>
+</div>
+<div class="page">
+ <div class="rh furn"><span class="fl">Tallyhook documentation</span><span class="fl">Release 4.2.0</span></div>
+<pre class="code" style="margin-top:7mm">
+queue:
+  driver: redis-stream
+  url: redis://cache.internal:6379/2
+exports:
+  path: exports/
+  schedule:
+    - name: nightly-ledger
+      cron: "30 2 * * *"
+      format: csv
+api:
+  rate_limit:
+    per_minute: 120
+</pre>
+ <p>After the restart, open the status page and confirm that the queue driver is reported as redis-stream.</p>
+ <h2>4 Fixed issues</h2>
+ <table class="fix" data-g="fix">
+  <thead><tr><th>Issue</th><th>Summary</th><th>Component</th></tr></thead>
+  <tbody>
+   <tr><td>#2291</td><td>CSV exports dropped the last row when the file ended without a newline.</td><td>Exports</td></tr>
+   <tr><td>#2304</td><td>Timezone offsets were ignored in scheduled reports.</td><td>Scheduler</td></tr>
+   <tr><td>#2310</td><td>The login page showed the username in the browser title.</td><td>Web</td></tr>
+   <tr><td>#2318</td><td>Webhook retries ignored the configured timeout.</td><td>Integrations</td></tr>
+  </tbody>
+ </table>
+ <h2>5 Known limitations</h2>
+ <p>Scheduled exports cannot yet write to object storage. Support is planned for release 4.3.</p>
+ <div class="pair">
+  <div class="bx">
+   <h3>Supported platforms</h3>
+   <ul>
+    <li>Ubuntu 22.04 and 24.04</li>
+    <li>Debian 12</li>
+    <li>Container image on any OCI runtime</li>
+   </ul>
+  </div>
+  <div class="bx">
+   <h3>Deprecated in this release</h3>
+   <ul>
+    <li>The XML export format</li>
+    <li>API tokens without an expiry date</li>
+    <li>The tallyhook-legacy command</li>
+   </ul>
+  </div>
+ </div>
+ <div class="foot furn"><span class="fl">© 2026 The Tallyhook Project · Licensed under CC BY 4.0</span><span class="fl">Page 2 of 2</span></div>
+</div>
+</body>
+</html>

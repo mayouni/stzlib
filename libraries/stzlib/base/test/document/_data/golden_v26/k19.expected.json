@@ -1,0 +1,323 @@
+{
+  "id": "k19",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "Minutes of the Board Meeting held on 8 October 2026",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Minutes of the Board Meeting held on 8 October 2026"
+    },
+    {
+      "level": 2,
+      "text": "1. Welcome and apologies"
+    },
+    {
+      "level": 2,
+      "text": "2. Declarations of interest"
+    },
+    {
+      "level": 2,
+      "text": "3. Minutes of the previous meeting"
+    },
+    {
+      "level": 2,
+      "text": "4. Finance report for the third quarter"
+    },
+    {
+      "level": 2,
+      "text": "5. Repairs programme"
+    },
+    {
+      "level": 3,
+      "text": "5.1 Window replacement at Albion Court"
+    },
+    {
+      "level": 3,
+      "text": "5.2 Damp and mould cases"
+    },
+    {
+      "level": 2,
+      "text": "6. Rent setting for 2027"
+    },
+    {
+      "level": 2,
+      "text": "7. Action log"
+    },
+    {
+      "level": 2,
+      "text": "8. Any other business"
+    },
+    {
+      "level": 2,
+      "text": "9. Date of next meeting"
+    }
+  ],
+  "key_sentences": [
+    "Apologies were noted as above, and the meeting was quorate.",
+    "Income was slightly below budget because three flats remained empty for longer than expected.",
+    "Members were reluctant to award a contract of this size without a comparison.",
+    "There were fourteen open cases, of which three had been open for more than eight weeks.",
+    "The Board agreed to consult members on an increase of 4.5 per cent, which is below the regulatory limit, and to bring the final proposal to the general meeting in December.",
+    "The Board asked for its thanks to be passed on to the volunteers.",
+    "The meeting closed at 8.40 pm."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Present",
+          "Joanna Pell (Chair), Marcus Ilunga (Treasurer), Ruth Calloway, Dev Anand Marr, Siobhán Keane, Tomasz Wierzba"
+        ],
+        [
+          "In attendance",
+          "Helen Oduya (Chief Officer), Gareth Pryce (Property Manager), Lin Feng (Company Secretary, minutes)"
+        ],
+        [
+          "Apologies",
+          "Abdirahman Yusuf"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Quarter 3, £",
+          "Budget",
+          "Actual",
+          "Variance"
+        ],
+        [
+          "Income",
+          "Income",
+          "Income",
+          "Income"
+        ],
+        [
+          "Rent",
+          "412,000",
+          "405,350",
+          "-6,650"
+        ],
+        [
+          "Service charges",
+          "58,000",
+          "58,900",
+          "900"
+        ],
+        [
+          "Expenditure",
+          "Expenditure",
+          "Expenditure",
+          "Expenditure"
+        ],
+        [
+          "Repairs and maintenance",
+          "96,000",
+          "121,400",
+          "-25,400"
+        ],
+        [
+          "Staff costs",
+          "74,000",
+          "72,150",
+          "1,850"
+        ],
+        [
+          "Operating surplus",
+          "300,000",
+          "270,700",
+          "-29,300"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Ref.",
+          "Action",
+          "Owner",
+          "Due",
+          "Status"
+        ],
+        [
+          "A-41",
+          "Obtain a second quotation for the Albion Court windows before the contract is awarded.",
+          "Property Manager",
+          "30 Oct 2026",
+          "Open"
+        ],
+        [
+          "A-42",
+          "Write to all tenants of Albion Court with the revised programme and the name of the site contact.",
+          "Housing Officer",
+          "23 Oct 2026",
+          "Open"
+        ],
+        [
+          "A-43",
+          "Report the number of open damp and mould cases, with their age, to every Board meeting.",
+          "Property Manager",
+          "Ongoing",
+          "Open"
+        ],
+        [
+          "A-44",
+          "Review the voids policy and propose a target for re-letting time.",
+          "Finance Committee",
+          "10 Dec 2026",
+          "Open"
+        ],
+        [
+          "A-45",
+          "Circulate the draft rent-setting paper to members at least four weeks before the general meeting.",
+          "Company Secretary",
+          "6 Nov 2026",
+          "Open"
+        ],
+        [
+          "A-38",
+          "Renew the employers’ liability insurance.",
+          "Treasurer",
+          "30 Sep 2026",
+          "Completed"
+        ],
+        [
+          "A-39",
+          "Arrange fire-door inspections at Mill Street.",
+          "Property Manager",
+          "15 Sep 2026",
+          "Completed"
+        ],
+        [
+          "A-40",
+          "Publish the annual report on the website.",
+          "Company Secretary",
+          "30 Sep 2026",
+          "Completed"
+        ],
+        [
+          "A-36",
+          "Agree a data-sharing protocol with the local authority for tenancy support referrals.",
+          "Chair",
+          "31 Aug 2026",
+          "Overdue"
+        ],
+        [
+          "A-37",
+          "Recruit two co-opted Board members with financial experience.",
+          "Chair",
+          "31 Dec 2026",
+          "In progress"
+        ],
+        [
+          "A-35",
+          "Replace the door-entry system at Weavers Yard.",
+          "Property Manager",
+          "30 Nov 2026",
+          "In progress"
+        ],
+        [
+          "A-34",
+          "Agree the scope of the stock condition survey with the surveyor.",
+          "Property Manager",
+          "31 Oct 2026",
+          "In progress"
+        ],
+        [
+          "A-33",
+          "Update the complaints policy to reflect the new ombudsman code.",
+          "Chief Officer",
+          "30 Sep 2026",
+          "Completed"
+        ],
+        [
+          "A-32",
+          "Hold a drop-in session for tenants on energy bills.",
+          "Housing Officer",
+          "12 Sep 2026",
+          "Completed"
+        ],
+        [
+          "A-31",
+          "Test the out-of-hours repairs line and report response times.",
+          "Chief Officer",
+          "31 Aug 2026",
+          "Completed"
+        ],
+        [
+          "A-30",
+          "Review the bank mandate after the change of Treasurer.",
+          "Treasurer",
+          "31 Jul 2026",
+          "Completed"
+        ],
+        [
+          "A-29",
+          "Seek legal advice on the lease of the community room.",
+          "Company Secretary",
+          "31 Jul 2026",
+          "Completed"
+        ],
+        [
+          "A-28",
+          "Confirm the date of the annual general meeting with the venue.",
+          "Company Secretary",
+          "30 Jun 2026",
+          "Completed"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "(i) to note the report;"
+    },
+    {
+      "level": 0,
+      "text": "(ii) to approve a revised repairs budget of £480,000 for the year;"
+    },
+    {
+      "level": 0,
+      "text": "(iii) to ask the Finance Committee to review the voids policy before the December meeting."
+    },
+    {
+      "level": 0,
+      "text": "(a) a second quotation would be sought from a contractor on the regional framework;"
+    },
+    {
+      "level": 0,
+      "text": "(b) tenants would be told about the delay in writing, and the letter would explain:"
+    },
+    {
+      "level": 1,
+      "text": "(i) the new expected start date of March 2027;"
+    },
+    {
+      "level": 1,
+      "text": "(ii) how to report draughts or broken catches in the meantime;"
+    },
+    {
+      "level": 0,
+      "text": "(c) the Chair and the Treasurer would be authorised to approve the contract between meetings, up to a value of £210,000."
+    }
+  ],
+  "furniture": [
+    "Thornbury Housing Co-operative Limited",
+    "Registered society No. 31877R · 5 Weavers Yard, Thornbury TB6 1EN",
+    "Page 1 of 3",
+    "Thornbury Housing Co-operative · Board minutes, 8 October 2026",
+    "Confidential until approved",
+    "Page 2 of 3",
+    "Page 3 of 3"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Three-page board minutes in Century Schoolbook. Page 1 carries a centred letterhead (society name and registration line, furniture); pages 2 and 3 carry a two-part italic running header (listed once); every page has a centred \"Page N of 3\". Item numbers are typed in the headings (\"1.\" ... \"9.\"; \"5.1\", \"5.2\" are level-3 italic headings). Table 1 is a borderless key/value attendance table (bold labels, no header row). Table 2 (finance) has a rule under the header, italic section rows \"Income\"/\"Expenditure\" spanning all four columns, and a total row with a double rule; adverse variances carry a hyphen-minus. Lists are TYPED with hanging indents: roman \"(i)\" \"(ii)\" \"(iii)\" under item 4; letters \"(a)\" \"(b)\" \"(c)\" under 5.1 with roman \"(i)\" \"(ii)\" nested at level 1 under (b). Table 3 (action log, zebra, top-aligned cells of several lines) CONTINUES from page 2 to page 3 with its header repeated visually; it is one table with the header once. The signature lines at the end are drawn by CSS; their captions are body text. Typographic apostrophes (U+2019) are used."
+}

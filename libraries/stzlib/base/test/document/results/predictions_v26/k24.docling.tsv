@@ -1,0 +1,44 @@
+page_header	0	NORRVIK PUMPS
+page_header	0	Product datasheet
+heading	1	NV-CP 65-200 Centrifugal Process Pump
+paragraph	0	The NV-CP 65-200 is an end-suction, back pull-out pump for clean and slightly contaminated liquids. The rotating unit can be removed for service without disturbing the pipework or the motor.
+heading	1	Applications
+list_item	0	Cooling and heating water circuits
+list_item	0	Process water in food and beverage plants
+list_item	0	Boiler feed at moderate temperatures
+heading	1	Design features
+list_item	0	Back pull-out design: the motor, bearing bracket and impeller come out as one unit.
+list_item	0	Replaceable wear rings on the casing and the impeller restore efficiency after years of service.
+list_item	0	Bearings are greased for life and sized for at least 25,000 operating hours.
+list_item	0	Casing drain and vent connections are tapped G 1/4 as standard.
+table	0	Technical dataHydraulic Maximum flow120 m³/hConstructionDuctile iron EN-GJS-400-15Maximum head58 mPump casing ImpellerStainless steel 1.4408, closedRated speed2,950 rpmShaft sealSingle mechanical seal, SiC/SiC/EPDMMaximum working pressure16 barFlangesPN 16, DN 80 suction, DN 65 dischargeLiquid temperature-20 to +140 °CWeight, bare shaft68 kgMaximum viscosity150 mm²/s
+heading	1	Performance at 2,950 rpm
+paragraph	0	Values are measured with water at 20 °C to the tolerance class 2B. The best efficiency point is at 80 m³/h.
+table	0	Flow (m³/h)020406080100120Head (m)58.057.255.452.147.340.631.8Efficiency (%)0416070747264Shaft power (kW)4.17.610.112.213.915.416.2NPSH required (m)n/a1.61.92.43.14.25.8
+paragraph	0	Do not run the pump for long periods below 15 m³/h, because the liquid in the casing heats up quickly at low flow.
+table	0	Motor optionsMotor optionsMotor optionsMotor optionsMotor optionsMotor frameRated power (kW)SupplyEfficiency classDuty point covered160M11400 V, 3-phase, 50 HzIE3Up to 55 m³/h160L15400 V, 3-phase, 50 HzIE3Up to 95 m³/h180M18.5400 V, 3-phase, 50 HzIE4Full curve
+list_item	0	Irrigation and water transfer
+list_item	0	Washing and cleaning systems
+list_item	0	Condensate return
+page_footer	0	DS-4120 rev. C - September 2026 - Data subject to change without notice.
+page_footer	0	1 (2)
+page_header	0	NORRVIK PUMPS
+page_header	0	Product datasheet
+heading	1	Remote monitoring
+paragraph	0	Pumps with the optional sensor module report their operating data over Modbus RTU. A typical gateway configuration is shown below.
+code	0	[modbus] address = 17 baudrate = 19200 parity = even ; holding registers, read only 40001 = flow _ m3h ; scale 0.1 40002 = head _ m ; scale 0.1 40003 = bearing _ temp _ c 40005 = run _ hours
+paragraph	0	Register 40004 is reserved and returns zero. Values are refreshed once per second.
+heading	1	Ordering code
+paragraph	0	Example: NV-CP 65-200 / 150 / D / Q1
+paragraph	0	Position Meaning
+heading	1	Options
+table	0	NV-CP 65-200Pump sizeDischarge DN 65, nominal impeller 200 mm150Motor power110 = 11 kW, 150 = 15 kW, 185 = 18.5 kWDMaterial versionC = cast iron impeller, D = stainless steel impellerQ1Shaft sealQ1 = SiC/SiC/EPDM, Q2 = SiC/carbon/FKM
+heading	1	Dimensions
+paragraph	0	Main dimensions of the bare-shaft pump on its baseplate are given in millimetres. Detailed drawings are available on request.
+table	0	Dimensionafh1h2Baseplate lengthBaseplate widthmm1003852252801,120460
+heading	1	Standards and approvals
+list_item	0	Dimensions to EN 733
+list_item	0	Drinking water approval for the EPDM seal version
+list_item	0	Declaration of conformity for machinery and low-voltage equipment
+page_footer	0	DS-4120 rev. C - September 2026 - Data subject to change without notice.
+page_footer	0	2 (2)

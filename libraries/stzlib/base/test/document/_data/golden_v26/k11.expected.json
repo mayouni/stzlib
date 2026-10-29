@@ -1,0 +1,87 @@
+{
+  "id": "k11",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "New Patient Registration",
+  "headings": [
+    {
+      "level": 1,
+      "text": "New Patient Registration"
+    },
+    {
+      "level": 2,
+      "text": "1. Personal details"
+    },
+    {
+      "level": 2,
+      "text": "2. Contact details"
+    },
+    {
+      "level": 2,
+      "text": "3. Medical history"
+    },
+    {
+      "level": 2,
+      "text": "4. Consent to share records"
+    }
+  ],
+  "key_sentences": [
+    "Please complete every section of this form and return it to reception with proof of address.",
+    "We use the information you give us only to provide your care.",
+    "I agree that my records may be transferred from my previous practice to Brookfield Family Practice.",
+    "I understand that I can withdraw this consent at any time by writing to the practice manager."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Medicine",
+          "Dose",
+          "How often"
+        ],
+        [
+          "Salbutamol inhaler",
+          "100 micrograms",
+          "When needed"
+        ],
+        [
+          "Beclometasone inhaler",
+          "200 micrograms",
+          "Twice a day"
+        ],
+        [
+          "",
+          "",
+          ""
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "• Write clearly and use black or blue ink."
+    },
+    {
+      "level": 0,
+      "text": "• Children under 16 must be registered by a parent or guardian."
+    },
+    {
+      "level": 0,
+      "text": "• Ask at reception if you need this form in another language or in large print."
+    }
+  ],
+  "furniture": [
+    "Brookfield Family Practice",
+    "22 Orchard Rise, Brookfield BF4 7TQ",
+    "Reception 01632 960 412 · brookfield.practice.example",
+    "Form REG-01 · Version 4 · Reviewed March 2026",
+    "Page 1 of 1"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Filled-in one-page patient registration form, Calibri, with the entered values in blue Segoe Print (imitating handwriting). Field labels (small teal text at the top of each ruled box, e.g. \"Surname\", \"Date of birth\") and questions (\"Sex\", \"Do you smoke?\") are form labels, not headings and not body sentences; the field boxes are drawn by CSS and are NOT a table. Checkboxes are CSS squares; a ticked box contains a handwritten \"X\" (Segoe Print). The three instructions under the first paragraph are a list with TYPED \"•\" bullets (U+2022) and a hanging indent. Section numbers \"1.\" to \"4.\" are typed in the headings. The only table is \"Medicines you take regularly\" (full grid, header row plus two filled rows and one EMPTY row of three \"\" cells); its question line is a label, not a caption. In section 4 a grey dashed \"For practice use only\" box stands BESIDE the consent text (read the consent column first, then the box); its lines are empty fields. Letterhead and footer are furniture."
+}

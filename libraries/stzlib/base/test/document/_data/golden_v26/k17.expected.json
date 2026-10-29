@@ -1,0 +1,170 @@
+{
+  "id": "k17",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Fiyat Teklifi",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Fiyat Teklifi"
+    },
+    {
+      "level": 2,
+      "text": "Teklif koşulları"
+    }
+  ],
+  "key_sentences": [
+    "Talebiniz üzerine hazırladığımız fiyat teklifimizi bilgilerinize sunarız.",
+    "Otelinizin yeni mutfağı için önerdiğimiz ekipmanlar, günde 400 kişilik servis kapasitesine göre seçilmiştir.",
+    "Teslim süresi, sipariş onayından itibaren 21 iş günüdür.",
+    "Sorularınız için satış temsilcimiz Selin Karaca ile her zaman iletişime geçebilirsiniz.",
+    "Yukarıdaki teklifi koşullarıyla birlikte kabul ediyoruz."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Teklif No",
+          "AT-2026-1184"
+        ],
+        [
+          "Tarih",
+          "19.10.2026"
+        ],
+        [
+          "Geçerlilik",
+          "30 gün"
+        ],
+        [
+          "Satış temsilcisi",
+          "Selin Karaca"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Sıra",
+          "Ürün kodu",
+          "Açıklama",
+          "Miktar",
+          "Birim fiyat (TL)",
+          "Tutar (TL)"
+        ],
+        [
+          "1",
+          "AK-KZ-610",
+          "Endüstriyel bulaşık makinesi, giyotin tip",
+          "1",
+          "186.500,00",
+          "186.500,00"
+        ],
+        [
+          "2",
+          "AK-FR-220",
+          "Elektrikli fritöz, çift hazneli, 2 × 10 litre",
+          "2",
+          "34.750,00",
+          "69.500,00"
+        ],
+        [
+          "3",
+          "AK-BM-090",
+          "Benmari, 4 küvetli, tezgâh üstü",
+          "1",
+          "27.900,00",
+          "27.900,00"
+        ],
+        [
+          "4",
+          "AK-DL-404",
+          "Paslanmaz çelik dolap, sürgü kapaklı, 1600 mm",
+          "3",
+          "18.250,00",
+          "54.750,00"
+        ],
+        [
+          "5",
+          "HZ-MON-01",
+          "Montaj ve devreye alma hizmeti",
+          "1",
+          "12.000,00",
+          "12.000,00"
+        ],
+        [
+          "Ara toplam",
+          "Ara toplam",
+          "Ara toplam",
+          "Ara toplam",
+          "Ara toplam",
+          "350.650,00"
+        ],
+        [
+          "İskonto (%5)",
+          "İskonto (%5)",
+          "İskonto (%5)",
+          "İskonto (%5)",
+          "İskonto (%5)",
+          "-17.532,50"
+        ],
+        [
+          "KDV matrahı",
+          "KDV matrahı",
+          "KDV matrahı",
+          "KDV matrahı",
+          "KDV matrahı",
+          "333.117,50"
+        ],
+        [
+          "KDV (%20)",
+          "KDV (%20)",
+          "KDV (%20)",
+          "KDV (%20)",
+          "KDV (%20)",
+          "66.623,50"
+        ],
+        [
+          "Genel toplam",
+          "Genel toplam",
+          "Genel toplam",
+          "Genel toplam",
+          "Genel toplam",
+          "399.741,00"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1) Fiyatlara nakliye dahildir; montaj yalnızca Marmara ve Ege bölgeleri için geçerlidir."
+    },
+    {
+      "level": 0,
+      "text": "2) Ödeme koşulu: siparişte %40 peşin, teslimatta %60 bakiye."
+    },
+    {
+      "level": 0,
+      "text": "3) Teslim süresi, sipariş onayından itibaren 21 iş günüdür."
+    },
+    {
+      "level": 0,
+      "text": "4) Tüm ürünler iki yıl üretici garantisi kapsamındadır."
+    }
+  ],
+  "furniture": [
+    "Akasya Endüstriyel Mutfak Ekipmanları San. ve Tic. Ltd. Şti.",
+    "Organize Sanayi Bölgesi 4. Cadde No: 18",
+    "41400 Gebze / Kocaeli",
+    "Tel: 0262 751 40 18 · satis@akasyamutfak.example",
+    "Gebze Vergi Dairesi · Mersis No: 0012 3456 7890 0015",
+    "Sayfa 1/1"
+  ],
+  "languages": [
+    "tr"
+  ],
+  "code": [],
+  "notes": "Turkish price quotation, one page, Open Sans (title in Open Sans Light, letter-spaced: read \"Fiyat Teklifi\"). Letterhead (company name, three address lines) and footer (tax office line, \"Sayfa 1/1\") are furniture. The addressee block is body text; Table 1 is a key/value table set BESIDE it on the right (rules between rows, no header). Table 2 has a dark header row and rules between rows; Turkish number format (thousands \".\", decimals \",\"); the five total rows (Ara toplam, İskonto (%5), KDV matrahı, KDV (%20), Genel toplam) span the first five columns and belong to the same table; the discount carries a hyphen-minus. Conditions are a TYPED list \"1)\" to \"4)\". At the foot two boxes stand SIDE BY SIDE (\"Banka bilgileri\", \"Müşteri onayı\"), read box by box; their titles are labels, not headings, and \"Kaşe ve imza:\" is a form label. Dotted capital İ and dotless ı appear and must be kept."
+}

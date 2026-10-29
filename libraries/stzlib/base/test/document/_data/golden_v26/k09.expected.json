@@ -1,0 +1,203 @@
+{
+  "id": "k09",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "青屿市第三中学食堂设备采购项目招标公告",
+  "headings": [
+    {
+      "level": 1,
+      "text": "青屿市第三中学食堂设备采购项目招标公告"
+    },
+    {
+      "level": 2,
+      "text": "一、项目基本情况"
+    },
+    {
+      "level": 3,
+      "text": "（一）采购需求"
+    },
+    {
+      "level": 3,
+      "text": "（二）其他说明"
+    },
+    {
+      "level": 2,
+      "text": "二、申请人的资格要求"
+    },
+    {
+      "level": 2,
+      "text": "三、获取招标文件"
+    },
+    {
+      "level": 2,
+      "text": "四、提交投标文件截止时间、开标时间和地点"
+    },
+    {
+      "level": 2,
+      "text": "五、其他补充事宜"
+    },
+    {
+      "level": 2,
+      "text": "六、联系方式"
+    }
+  ],
+  "key_sentences": [
+    "青屿市公共资源交易中心受青屿市第三中学委托，就该校食堂设备采购项目进行公开招标，欢迎符合条件的供应商参加投标。",
+    "本项目不接受联合体投标，各包可兼投兼中。",
+    "投标人应对所投包内的全部品目进行报价，不完整的报价将被视为无效投标。",
+    "投标文件提交截止时间及开标时间为2026年9月8日9时30分。",
+    "开标地点为青屿市政务服务中心四楼第二开标室，投标人可通过远程开标系统在线参加。",
+    "本项目采用电子投标，纸质投标文件不予接收。"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "项目编号",
+          "QYCG-2026-0815",
+          "采购方式",
+          "公开招标"
+        ],
+        [
+          "预算金额",
+          "人民币186.40万元",
+          "最高限价",
+          "人民币182.00万元"
+        ],
+        [
+          "履行期限",
+          "合同签订后45日内交货，并完成安装调试",
+          "合同签订后45日内交货，并完成安装调试",
+          "合同签订后45日内交货，并完成安装调试"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "包号",
+          "品目名称",
+          "数量",
+          "单位",
+          "品目预算（万元）",
+          "包预算（万元）"
+        ],
+        [
+          "第1包",
+          "商用燃气炒灶",
+          "6",
+          "台",
+          "38.40",
+          "60.80"
+        ],
+        [
+          "第1包",
+          "蒸饭柜",
+          "4",
+          "台",
+          "12.80",
+          "60.80"
+        ],
+        [
+          "第1包",
+          "不锈钢操作台",
+          "20",
+          "张",
+          "9.60",
+          "60.80"
+        ],
+        [
+          "第2包",
+          "通道式洗碗机",
+          "2",
+          "套",
+          "64.00",
+          "79.60"
+        ],
+        [
+          "第2包",
+          "消毒保洁柜",
+          "6",
+          "台",
+          "15.60",
+          "79.60"
+        ],
+        [
+          "第3包",
+          "组合式冷藏冷冻库",
+          "1",
+          "套",
+          "38.00",
+          "46.00"
+        ],
+        [
+          "第3包",
+          "留样冰箱",
+          "2",
+          "台",
+          "8.00",
+          "46.00"
+        ],
+        [
+          "合计",
+          "合计",
+          "合计",
+          "合计",
+          "186.40",
+          "186.40"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1.满足《中华人民共和国政府采购法》第二十二条规定的条件；"
+    },
+    {
+      "level": 0,
+      "text": "2.落实政府采购政策需满足的资格要求："
+    },
+    {
+      "level": 1,
+      "text": "（1）本项目专门面向中小企业采购；"
+    },
+    {
+      "level": 1,
+      "text": "（2）监狱企业、残疾人福利性单位视同小型、微型企业。"
+    },
+    {
+      "level": 0,
+      "text": "3.本项目的特定资格要求：投标人须具有有效的特种设备安装改造维修许可证，或承诺由具备该资质的单位负责安装。"
+    },
+    {
+      "level": 0,
+      "text": "本项目采用电子投标，纸质投标文件不予接收。"
+    },
+    {
+      "level": 0,
+      "text": "本项目不收取投标保证金。"
+    },
+    {
+      "level": 0,
+      "text": "中标结果将在青屿市公共资源交易网公示，公示期为1个工作日。"
+    },
+    {
+      "level": 0,
+      "text": "对本公告有异议的，可在公告期限届满之日起7个工作日内以书面形式提出。"
+    }
+  ],
+  "furniture": [
+    "青屿市政府采购公告",
+    "公告编号：QYCG-2026-0815",
+    "第 1 页 共 2 页",
+    "第 2 页 共 2 页"
+  ],
+  "languages": [
+    "zh"
+  ],
+  "code": [],
+  "notes": "Simplified Chinese public tender notice, two pages; body in SimSun, headings and table labels in Microsoft YaHei. Lines wrapped inside a sentence join with NO space; paragraphs have a two-character first-line indent. Running header (two parts, red rule) repeats on both pages and is listed once; page numbers \"第 1 页 共 2 页\" are centred. Headings carry typed Chinese numerals \"一、\" to \"六、\" (level 2) and \"（一）\" \"（二）\" (level 3). Table 1 is a full-grid key/value table with two label/value pairs per row; in its last row the value spans three columns and is repeated. Table 2 has row-spanning cells: 包号 and 包预算 span the rows of each package and are repeated in every row they cover; every header cell is on one line. The total row \"合计\" spans four columns. Section 二 is a TYPED list: \"1.\" \"2.\" \"3.\" at level 0 and \"（1）\" \"（2）\" at level 1; marker and text are adjacent with no space. Section 五 is a CSS-drawn list with Chinese counting markers \"一、二、三、四、\" (list-style-type cjk-decimal), so the items carry no marker. Section 六 has two boxes SIDE BY SIDE (采购人, 采购代理机构), read box by box; their lines are body text, not tables, and their titles are labels, not headings. The closing signature and date are body text."
+}
