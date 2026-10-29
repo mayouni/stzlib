@@ -1,0 +1,261 @@
+{
+  "id": "f13",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Conference Programme",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Conference Programme"
+    },
+    {
+      "level": 2,
+      "text": "Day 1 — Wednesday 18 November"
+    },
+    {
+      "level": 2,
+      "text": "Day 2 — Thursday 19 November"
+    },
+    {
+      "level": 3,
+      "text": "Practical information"
+    },
+    {
+      "level": 3,
+      "text": "Registration fees"
+    },
+    {
+      "level": 3,
+      "text": "How to book a workshop"
+    }
+  ],
+  "key_sentences": [
+    "All sessions in the Main Hall are streamed live and recorded for members who cannot attend in person.",
+    "Workshops in Studio 3 are limited to 24 participants and require a separate booking.",
+    "Room changes will be announced at the registration desk and on the screens in the foyer.",
+    "The Civic Centre is a ten-minute walk from Saltmarsh station.",
+    "Badges must be worn at all times inside the venue."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Time",
+          "Main Hall",
+          "Main Hall",
+          "Room 2",
+          "Room 2",
+          "Studio 3",
+          "Studio 3"
+        ],
+        [
+          "Time",
+          "Session",
+          "Chair",
+          "Session",
+          "Chair",
+          "Workshop",
+          "Facilitator"
+        ],
+        [
+          "08:30–09:15",
+          "Registration and coffee",
+          "Registration and coffee",
+          "Registration and coffee",
+          "Registration and coffee",
+          "Registration and coffee",
+          "Registration and coffee"
+        ],
+        [
+          "09:15–10:30",
+          "Opening plenary: Libraries as civic infrastructure",
+          "Opening plenary: Libraries as civic infrastructure",
+          "Opening plenary: Libraries as civic infrastructure",
+          "Opening plenary: Libraries as civic infrastructure",
+          "Opening plenary: Libraries as civic infrastructure",
+          "Opening plenary: Libraries as civic infrastructure"
+        ],
+        [
+          "10:45–12:00",
+          "Rural mobile services after the bus cuts",
+          "M. Okafor",
+          "Cataloguing local oral histories",
+          "T. Lindqvist",
+          "Hands-on: repairing water-damaged books",
+          "R. Castellano"
+        ],
+        [
+          "12:00–13:00",
+          "Lunch",
+          "Lunch",
+          "Lunch",
+          "Lunch",
+          "Lunch",
+          "Lunch"
+        ],
+        [
+          "13:00–14:15",
+          "Measuring footfall without cameras",
+          "D. Aranda",
+          "Children's reading clubs in two languages",
+          "S. Haddad",
+          "Grant writing for small branches",
+          "P. Novak"
+        ],
+        [
+          "14:30–15:45",
+          "Panel: open hours with no staff on site",
+          "A. Whitlock",
+          "Digitising parish records",
+          "L. Moreau",
+          "Podcast studio basics",
+          "J. Kwan"
+        ],
+        [
+          "16:00–17:00",
+          "Annual general meeting of members",
+          "Annual general meeting of members",
+          "Annual general meeting of members",
+          "Annual general meeting of members",
+          "Annual general meeting of members",
+          "Annual general meeting of members"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Time",
+          "Main Hall",
+          "Main Hall",
+          "Room 2",
+          "Room 2",
+          "Studio 3",
+          "Studio 3"
+        ],
+        [
+          "Time",
+          "Session",
+          "Chair",
+          "Session",
+          "Chair",
+          "Workshop",
+          "Facilitator"
+        ],
+        [
+          "09:00–10:15",
+          "Keynote: Quiet rooms, loud ideas",
+          "Keynote: Quiet rooms, loud ideas",
+          "Keynote: Quiet rooms, loud ideas",
+          "Keynote: Quiet rooms, loud ideas",
+          "Keynote: Quiet rooms, loud ideas",
+          "Keynote: Quiet rooms, loud ideas"
+        ],
+        [
+          "10:30–11:45",
+          "Library buildings and summer heat",
+          "E. Brandt",
+          "Volunteers: recruiting and keeping them",
+          "K. Mensah",
+          "Hands-on: easy-read leaflets",
+          "N. Petrov"
+        ],
+        [
+          "11:45–12:45",
+          "Lunch and poster session",
+          "Lunch and poster session",
+          "Lunch and poster session",
+          "Lunch and poster session",
+          "Lunch and poster session",
+          "Lunch and poster session"
+        ],
+        [
+          "13:00–14:15",
+          "Shared catalogues across three counties",
+          "H. Ferreira",
+          "Supporting job seekers online",
+          "Y. Tanaka",
+          "Hands-on: 3D printer safety",
+          "O. Dubois"
+        ],
+        [
+          "14:30–15:30",
+          "Closing plenary and awards",
+          "Closing plenary and awards",
+          "Closing plenary and awards",
+          "Closing plenary and awards",
+          "Closing plenary and awards",
+          "Closing plenary and awards"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Category",
+          "Two days (EUR)",
+          "One day (EUR)"
+        ],
+        [
+          "Members",
+          "95.00",
+          "55.00"
+        ],
+        [
+          "Non-members",
+          "140.00",
+          "80.00"
+        ],
+        [
+          "Students and volunteers",
+          "30.00",
+          "20.00"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Cloakroom on the ground floor, open from 08:00 to 18:00"
+    },
+    {
+      "level": 0,
+      "text": "Quiet room for prayer and rest on the first floor, next to Room 2"
+    },
+    {
+      "level": 0,
+      "text": "Step-free access through the east entrance on Harbour Road"
+    },
+    {
+      "level": 0,
+      "text": "Free drinking water at every landing"
+    },
+    {
+      "level": 0,
+      "text": "1) Sign in to the members area with your conference number."
+    },
+    {
+      "level": 0,
+      "text": "2) Choose one workshop per day from the Studio 3 list."
+    },
+    {
+      "level": 0,
+      "text": "3) Bring the confirmation e-mail to the registration desk."
+    }
+  ],
+  "furniture": [
+    "Tidewater Regional Libraries Conference 2026",
+    "Saltmarsh Civic Centre · 18–19 November",
+    "Page 1 of 2",
+    "Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Two-page LANDSCAPE conference programme. Running header is a dark band with the conference name at the left and venue/dates at the right (two furniture entries, listed once); page number bottom right (\"Page 1 of 2\", \"Page 2 of 2\"). Each day is its own table with a two-level header: \"Time\" spans both header rows; \"Main Hall\", \"Room 2\" and \"Studio 3\" each span two columns. Plenary/break rows span the six session columns, so their text repeats in six grid cells. Several session cells are two lines joined with one space. Page 2 bottom: a red-boxed \"Practical information\" panel (CSS circle bullets, no markers in list_items) beside a right column holding the zebra fee table and a list with TYPED \"1)\" \"2)\" \"3)\" markers set inline. Reading order: box first, then right column."
+}

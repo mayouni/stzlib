@@ -1,0 +1,310 @@
+{
+  "id": "f15",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Demonstrações Financeiras Intermediárias",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Demonstrações Financeiras Intermediárias"
+    },
+    {
+      "level": 2,
+      "text": "Balanço patrimonial"
+    },
+    {
+      "level": 2,
+      "text": "Notas explicativas selecionadas"
+    },
+    {
+      "level": 3,
+      "text": "Nota 1 – Contexto operacional"
+    },
+    {
+      "level": 3,
+      "text": "Nota 2 – Principais práticas contábeis"
+    },
+    {
+      "level": 3,
+      "text": "Nota 3 – Uso de estimativas"
+    }
+  ],
+  "key_sentences": [
+    "As demonstrações financeiras intermediárias foram elaboradas de acordo com as práticas contábeis adotadas no Brasil.",
+    "Os valores estão expressos em milhares de reais, exceto quando indicado de outra forma.",
+    "A Companhia tem por objeto a industrialização e a comercialização de leite e derivados.",
+    "As unidades fabris estão localizadas nos municípios de Lavras Novas e Carmo do Serrado.",
+    "A administração autorizou a emissão destas demonstrações em 24 de outubro de 2026."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "(Em milhares de reais)",
+          "Nota",
+          "30/09/2026",
+          "31/12/2025"
+        ],
+        [
+          "ATIVO",
+          "ATIVO",
+          "ATIVO",
+          "ATIVO"
+        ],
+        [
+          "Ativo circulante",
+          "Ativo circulante",
+          "Ativo circulante",
+          "Ativo circulante"
+        ],
+        [
+          "Caixa e equivalentes de caixa",
+          "4",
+          "18.420",
+          "12.915"
+        ],
+        [
+          "Aplicações financeiras",
+          "5",
+          "6.300",
+          "9.050"
+        ],
+        [
+          "Contas a receber de clientes",
+          "6",
+          "41.775",
+          "38.208"
+        ],
+        [
+          "Estoques",
+          "7",
+          "29.640",
+          "24.117"
+        ],
+        [
+          "Tributos a recuperar",
+          "8",
+          "3.912",
+          "4.406"
+        ],
+        [
+          "Despesas antecipadas",
+          "",
+          "1.083",
+          "642"
+        ],
+        [
+          "Total do ativo circulante",
+          "",
+          "101.130",
+          "89.338"
+        ],
+        [
+          "Ativo não circulante",
+          "Ativo não circulante",
+          "Ativo não circulante",
+          "Ativo não circulante"
+        ],
+        [
+          "Depósitos judiciais",
+          "",
+          "2.214",
+          "2.087"
+        ],
+        [
+          "Tributos diferidos",
+          "9",
+          "5.508",
+          "6.130"
+        ],
+        [
+          "Investimentos",
+          "10",
+          "7.400",
+          "7.400"
+        ],
+        [
+          "Imobilizado",
+          "11",
+          "96.385",
+          "91.762"
+        ],
+        [
+          "Intangível",
+          "12",
+          "4.127",
+          "4.590"
+        ],
+        [
+          "Total do ativo não circulante",
+          "",
+          "115.634",
+          "111.969"
+        ],
+        [
+          "Total do ativo",
+          "",
+          "216.764",
+          "201.307"
+        ],
+        [
+          "PASSIVO E PATRIMÔNIO LÍQUIDO",
+          "PASSIVO E PATRIMÔNIO LÍQUIDO",
+          "PASSIVO E PATRIMÔNIO LÍQUIDO",
+          "PASSIVO E PATRIMÔNIO LÍQUIDO"
+        ],
+        [
+          "Passivo circulante",
+          "Passivo circulante",
+          "Passivo circulante",
+          "Passivo circulante"
+        ],
+        [
+          "Fornecedores",
+          "13",
+          "22.840",
+          "19.633"
+        ],
+        [
+          "Empréstimos e financiamentos",
+          "14",
+          "11.200",
+          "14.750"
+        ],
+        [
+          "Salários e encargos sociais",
+          "",
+          "6.915",
+          "5.402"
+        ],
+        [
+          "Tributos a recolher",
+          "",
+          "3.377",
+          "2.981"
+        ],
+        [
+          "Dividendos a pagar",
+          "",
+          "—",
+          "4.200"
+        ],
+        [
+          "Outras contas a pagar",
+          "",
+          "1.508",
+          "1.214"
+        ],
+        [
+          "Total do passivo circulante",
+          "",
+          "45.840",
+          "48.180"
+        ],
+        [
+          "Passivo não circulante",
+          "Passivo não circulante",
+          "Passivo não circulante",
+          "Passivo não circulante"
+        ],
+        [
+          "Empréstimos e financiamentos",
+          "14",
+          "38.600",
+          "31.400"
+        ],
+        [
+          "Provisão para contingências",
+          "15",
+          "2.946",
+          "2.705"
+        ],
+        [
+          "Total do passivo não circulante",
+          "",
+          "41.546",
+          "34.105"
+        ],
+        [
+          "Patrimônio líquido",
+          "Patrimônio líquido",
+          "Patrimônio líquido",
+          "Patrimônio líquido"
+        ],
+        [
+          "Capital social",
+          "16",
+          "90.000",
+          "90.000"
+        ],
+        [
+          "Reservas de lucros",
+          "",
+          "31.522",
+          "31.522"
+        ],
+        [
+          "Ajustes de avaliação patrimonial",
+          "",
+          "(1.240)",
+          "(2.500)"
+        ],
+        [
+          "Lucros acumulados",
+          "",
+          "9.096",
+          "—"
+        ],
+        [
+          "Total do patrimônio líquido",
+          "",
+          "129.378",
+          "119.022"
+        ],
+        [
+          "Total do passivo e patrimônio líquido",
+          "",
+          "216.764",
+          "201.307"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "(i) Os estoques são avaliados pelo custo médio de aquisição ou produção, inferior ao valor realizável líquido."
+    },
+    {
+      "level": 0,
+      "text": "(ii) O imobilizado é registrado pelo custo, deduzido da depreciação calculada pelo método linear."
+    },
+    {
+      "level": 0,
+      "text": "(iii) As receitas são reconhecidas quando o controle dos produtos é transferido ao cliente."
+    },
+    {
+      "level": 0,
+      "text": "perdas esperadas com créditos de liquidação duvidosa;"
+    },
+    {
+      "level": 0,
+      "text": "vida útil dos bens do ativo imobilizado;"
+    },
+    {
+      "level": 0,
+      "text": "provisões para contingências trabalhistas e fiscais."
+    }
+  ],
+  "furniture": [
+    "Laticínios Serra Azul S.A.",
+    "CNPJ 41.208.337/0001-52 · Companhia de capital fechado",
+    "Rua dos Tropeiros, 410 · Lavras Novas · MG"
+  ],
+  "languages": [
+    "pt"
+  ],
+  "code": [],
+  "notes": "Two-page Brazilian Portuguese interim balance sheet in natural page flow (no running header, footer or page numbers; the letterhead at the top of page 1 is furniture, three lines). The balance sheet is ONE table that the browser splits across the page break; its header row is a <thead> that the renderer REPEATS at the top of page 2 - expected lists it once. Section rows (\"ATIVO\", \"PASSIVO E PATRIMÔNIO LÍQUIDO\") and sub-section rows (\"Ativo circulante\" ...) span all four columns, so their text repeats in four grid cells; total rows are rows of the same table. Empty \"Nota\" cells are \"\". Amounts use Brazilian separators (thousands with \".\", R$ mil), negatives in parentheses, nil as \"—\". Rules: lines between rows only, heavier rules above/below the header and a double rule under the grand totals. List markers: \"(i)\" \"(ii)\" \"(iii)\" TYPED with hanging indent; the \"a.\" \"b.\" \"c.\" list under Nota 3 is drawn by CSS (lower-alpha), so items carry no marker. Signature lines at the end are body labels, not recorded."
+}

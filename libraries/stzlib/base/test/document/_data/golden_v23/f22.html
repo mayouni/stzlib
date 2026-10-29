@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="th" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>ใบสั่งซื้อ</title>
+<style>
+
+@page{size:A4;margin:2cm}
+body{font-family:'Leelawadee UI';font-size:10pt;color:#2b2b2b;margin:0;width:170mm;line-height:1.45}
+.top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:3mm}
+.org{font-weight:bold;font-size:13.5pt;color:#7a3b0c}
+.addr{font-size:8.5pt;color:#555}
+.tbox{border:1.5pt solid #7a3b0c;padding:2mm 4mm 3mm 4mm;width:66mm}
+h1{font-size:20pt;margin:0 0 1.5mm 0;color:#7a3b0c;text-align:center;letter-spacing:2px}
+table.kv{width:100%;border-collapse:collapse;font-size:9pt}
+table.kv td{padding:0.6mm 0}
+table.kv td:first-child{color:#666;width:30mm}
+.parties{display:flex;gap:6mm;margin:3mm 0 4mm 0}
+.party{flex:1;border:0.8pt solid #c9b29b;border-radius:2mm;padding:2mm 3mm;font-size:9pt;line-height:1.45}
+.party .lab{font-weight:bold;color:#7a3b0c}
+p{margin:1.5mm 0}
+table.items{width:100%;border-collapse:collapse;font-size:9.3pt;margin:3mm 0}
+table.items th,table.items td{border:0.7pt solid #8c6f55;padding:1mm 2mm;vertical-align:top}
+table.items th{background:#f3e3d3;text-align:center;vertical-align:middle}
+table.items td.c{text-align:center}
+table.items td.n{text-align:right;white-space:nowrap}
+table.items tr.sum td{background:#fbf5ef}
+table.items tr.grand td{background:#f3e3d3;font-weight:bold}
+table.items tr.words td{text-align:center;font-style:normal;color:#5a3a1c}
+h2{font-size:11.5pt;color:#7a3b0c;margin:4mm 0 1.5mm 0}
+ul.cond{list-style:none;margin:1mm 0;padding:0}
+li.th{padding-left:7mm;text-indent:-7mm;margin:0.8mm 0}
+li.th .mk{display:inline-block;width:7mm;text-indent:0}
+ul.sub{list-style:none;margin:0.5mm 0;padding:0}
+ul.sub li.th{padding-left:9mm;text-indent:-9mm}
+ul.sub li.th .mk{width:9mm}
+.sig{display:flex;justify-content:space-around;margin-top:4mm;text-align:center;font-size:9pt}
+.sig .line{width:58mm;border-top:0.7pt dotted #333;padding-top:1.5mm;margin-top:8mm}
+.foot{margin-top:4mm;border-top:0.6pt solid #c9b29b;padding-top:1.5mm;display:flex;justify-content:space-between;font-size:8pt;color:#777}
+
+</style>
+</head>
+<body>
+<div class="top"><div>
+<div class="org">บริษัท เรือนไม้ดีไซน์ จำกัด</div>
+<div class="addr">88/14 หมู่ 5 ตำบลบางใหญ่ อำเภอเมือง จังหวัดนนทบุรี 11000</div>
+<div class="addr">เลขประจำตัวผู้เสียภาษี 0105560000123 · โทร 0 2000 1234</div>
+</div><div class="tbox">
+<h1>ใบสั่งซื้อ</h1>
+<table class="kv"><tbody><tr><td>เลขที่</td><td>PO-2569/0187</td></tr><tr><td>วันที่</td><td>14 ตุลาคม 2569</td></tr><tr><td>กำหนดส่งของ</td><td>28 ตุลาคม 2569</td></tr><tr><td>การชำระเงิน</td><td>เครดิต 30 วัน</td></tr></tbody></table>
+</div></div><div class="parties"><div class="party">
+<div class="lab">ผู้ขาย</div>
+<div>ห้างหุ้นส่วนจำกัด ศรีอรุณค้าไม้</div>
+<div>19 ถนนสายเอเชีย ตำบลคลองหนึ่ง จังหวัดปทุมธานี 12120</div>
+</div><div class="party">
+<div class="lab">สถานที่ส่งของ</div>
+<div>โรงงานเรือนไม้ดีไซน์ อาคาร 2</div>
+<div>88/14 หมู่ 5 ตำบลบางใหญ่ จังหวัดนนทบุรี 11000</div>
+</div></div>
+<p>บริษัทฯ ขอสั่งซื้อสินค้าตามรายการด้านล่างนี้ โปรดจัดส่งสินค้าพร้อมใบกำกับภาษีภายในวันที่กำหนด</p>
+<table class="items"><thead><tr><th>ลำดับ</th><th>รายการ</th><th>จำนวน</th><th>หน่วย</th><th>ราคาต่อหน่วย (บาท)</th><th>จำนวนเงิน (บาท)</th></tr></thead><tbody><tr><td class="c">1</td><td>ไม้ยางพาราแปรรูป ขนาด 1 x 4 นิ้ว ยาว 2 เมตร</td><td class="c">120</td><td class="c">แผ่น</td><td class="n">85.00</td><td class="n">10,200.00</td></tr><tr><td class="c">2</td><td>แผ่นไม้อัด หนา 15 มม.</td><td class="c">40</td><td class="c">แผ่น</td><td class="n">420.00</td><td class="n">16,800.00</td></tr><tr><td class="c">3</td><td>กาวลาเท็กซ์สำหรับงานไม้</td><td class="c">12</td><td class="c">แกลลอน</td><td class="n">350.00</td><td class="n">4,200.00</td></tr><tr><td class="c">4</td><td>น็อตยึดเฟอร์นิเจอร์ พร้อมแหวนรอง</td><td class="c">10</td><td class="c">กล่อง</td><td class="n">180.00</td><td class="n">1,800.00</td></tr><tr><td class="c">5</td><td>กระดาษทรายเบอร์ 120</td><td class="c">50</td><td class="c">แผ่น</td><td class="n">12.00</td><td class="n">600.00</td></tr><tr class="sum"><td colspan="5" class="n">รวมเงิน</td><td class="n">33,600.00</td></tr><tr class="sum"><td colspan="5" class="n">ภาษีมูลค่าเพิ่ม 7%</td><td class="n">2,352.00</td></tr><tr class="grand"><td colspan="5" class="n">รวมทั้งสิ้น</td><td class="n">35,952.00</td></tr><tr class="words"><td colspan="6">(สามหมื่นห้าพันเก้าร้อยห้าสิบสองบาทถ้วน)</td></tr></tbody></table>
+<p>ใบสั่งซื้อนี้มีผลเมื่อผู้ขายลงนามยืนยันและส่งกลับภายใน 3 วันทำการ</p>
+<h2>เงื่อนไขการสั่งซื้อ</h2>
+<ul class="cond"><li class="th"><span class="mk">๑.</span><span class="tx">ผู้ขายต้องส่งสินค้าตามจำนวนและคุณภาพที่ระบุในใบสั่งซื้อนี้</span></li><li class="th"><span class="mk">๒.</span><span class="tx">หากส่งสินค้าล่าช้า บริษัทฯ ขอสงวนสิทธิ์ในการ</span><ul class="sub"><li class="th"><span class="mk">(ก)</span><span class="tx">ปรับเป็นรายวันในอัตราร้อยละ 0.1 ของมูลค่าสินค้าที่ส่งล่าช้า</span></li><li class="th"><span class="mk">(ข)</span><span class="tx">ยกเลิกใบสั่งซื้อทั้งหมดหรือบางส่วน</span></li></ul></li><li class="th"><span class="mk">๓.</span><span class="tx">สินค้าที่ไม่ตรงตามข้อกำหนดจะถูกส่งคืน โดยผู้ขายเป็นผู้รับผิดชอบค่าใช้จ่าย</span></li><li class="th"><span class="mk">๔.</span><span class="tx">กรุณาอ้างอิงเลขที่ใบสั่งซื้อในใบส่งของและใบแจ้งหนี้ทุกฉบับ</span></li></ul>
+<h2>หมายเหตุ</h2>
+<p>กรุณาส่งสินค้าในวันจันทร์ถึงวันศุกร์ เวลา 08.30 ถึง 16.00 น. ติดต่อแผนกคลังสินค้าได้ที่หมายเลขโทรศัพท์ 0 2000 1234 ต่อ 21</p>
+<div class="sig"><div>
+<div class="line">ผู้สั่งซื้อ</div>
+</div><div>
+<div class="line">ผู้อนุมัติ</div>
+</div></div><div class="foot">
+<span>เอกสารนี้ออกโดยระบบจัดซื้อของบริษัท</span>
+<span>หน้า ๑/๑</span>
+</div>
+</body>
+</html>

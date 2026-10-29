@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Runbook RB-112: Deploying the ledger service</title>
+<style>
+@page{size:A4;margin:0}
+html,body{margin:0;padding:0}
+.page{position:relative;width:210mm;height:296.6mm;overflow:hidden;box-sizing:border-box;break-after:page;page-break-after:always}
+.page.last{break-after:auto;page-break-after:auto}
+
+body{font-family:Roboto;font-size:9.8pt;color:#1e1e24}
+.hdr{position:absolute;top:10mm;left:18mm;right:18mm;display:flex;justify-content:space-between;font-size:8pt;color:#6a6a78}
+.ftr{position:absolute;bottom:9mm;left:18mm;right:18mm;display:flex;justify-content:space-between;font-size:8pt;color:#6a6a78;border-top:0.5pt solid #bbb;padding-top:1.5mm}
+.body{position:absolute;top:19mm;bottom:19mm;left:18mm;right:18mm;overflow:hidden}
+h1{font-size:17pt;margin:0 0 3mm 0;color:#4a2a8a;font-weight:bold}
+h2{font-size:12pt;margin:4.5mm 0 1.5mm 0;color:#4a2a8a}
+h3{font-size:10.2pt;margin:3mm 0 1mm 0;color:#1e1e24}
+p{margin:1.2mm 0;line-height:1.4}
+table.kv{border-collapse:collapse;width:100%;background:#f2effa;font-size:9pt;margin-bottom:2mm}
+table.kv td{padding:1.4mm 3mm}
+table.kv td.k{font-weight:bold;color:#4a2a8a;width:30mm}
+pre{font-family:'Courier New';font-size:8.8pt;background:#1f2330;color:#e8e8e8;padding:2.2mm 3.5mm;margin:1.5mm 0 2mm 0;line-height:1.35;border-radius:1.5mm}
+ul.pre{list-style-type:circle;margin:1mm 0;padding-left:6mm}
+ul.pre li{margin:0.8mm 0;line-height:1.35}
+ul.pre ul{list-style-type:square;padding-left:5mm;margin:0.5mm 0}
+ol.proc{list-style-type:decimal;margin:1mm 0;padding-left:6mm}
+ol.proc li{margin:0.9mm 0;line-height:1.35}
+ol.proc ol{list-style-type:lower-alpha;padding-left:5.5mm;margin:0.5mm 0}
+table.rb{border-collapse:collapse;width:100%;font-size:9pt;margin:2mm 0}
+table.rb th{text-align:left;padding:1.5mm 2mm;border-bottom:1.2pt solid #4a2a8a;color:#4a2a8a}
+table.rb td{padding:1.5mm 2mm;border-bottom:0.5pt solid #c8c3d8;vertical-align:top}
+table.nb{border-collapse:collapse;width:100%;font-size:9pt;margin:1mm 0}
+table.nb th{text-align:left;padding:1mm 2mm;color:#6a6a78;font-weight:normal;font-style:italic}
+table.nb td{padding:1mm 2mm}
+.after{border-left:3pt solid #e0a100;background:#fff9e8;padding:2mm 3.5mm;margin:2mm 0}
+.after .t{font-weight:bold;margin-bottom:1mm}
+ul.dash{list-style:none;margin:0;padding:0}
+ul.dash li{margin:0.7mm 0;line-height:1.35}
+
+</style>
+</head>
+<body>
+<div class="page"><div class="hdr">
+<span>Halden Freight Systems · Platform Engineering</span>
+<span>RB-112 · Rev. 7</span>
+</div><div class="body">
+<h1>Runbook RB-112: Deploying the ledger service</h1>
+<table class="kv"><tbody><tr><td class="k">Owner</td><td>Payments platform team</td></tr><tr><td class="k">Escalation</td><td>Ledger on-call engineer, then the platform duty manager</td></tr><tr><td class="k">Last reviewed</td><td>2 October 2026</td></tr><tr><td class="k">Expected duration</td><td>40 minutes, of which 25 minutes are waiting for the rollout</td></tr></tbody></table>
+<h2>1. Purpose</h2>
+<p>This runbook describes how to release a new version of the ledger service to production. It applies to scheduled releases only; emergency fixes follow runbook RB-090.</p>
+<h2>2. Prerequisites</h2>
+<ul class="pre"><li>An approved change ticket with a release window of at least one hour.</li><li>Access to the production cluster through the bastion host:<ul><li>a valid hardware key registered to your account;</li><li>membership of the ledger-deployers group.</li></ul></li><li>A second engineer available to watch the dashboards during the rollout.</li></ul>
+<h2>3. Procedure</h2>
+<h3>3.1 Freeze the release</h3>
+<p>Check out the release tag and confirm that it was signed by the release manager.</p>
+<pre>$ git fetch --tags origin
+$ git checkout release/2026.10.2
+$ ./scripts/verify-signature.sh release/2026.10.2</pre>
+<h3>3.2 Apply the configuration</h3>
+<p>Review the values below against the change ticket before applying them. The pool size must never exceed the connection limit agreed with the database team.</p>
+<pre>ledger:
+  replicas: 4
+  database:
+    pool_size: 32
+    statement_timeout_ms: 5000
+  feature_flags:
+    async_settlement: true</pre>
+<h3>3.3 Roll out</h3>
+<ol class="proc"><li>Announce the start of the release in the operations channel.</li><li>Restart the deployment and follow its progress:<ol><li>pods are replaced one at a time;</li><li>each new pod must pass its readiness check before the next one starts.</li></ol></li><li>Stop and go to section 4 if any pod fails to become ready within five minutes.</li></ol>
+<pre>kubectl -n ledger rollout restart deployment/ledger-api
+kubectl -n ledger rollout status deployment/ledger-api --timeout=10m</pre>
+</div><div class="ftr">
+<span>Internal use only</span>
+<span>Page 1 of 2</span>
+</div></div>
+<div class="page last"><div class="hdr">
+<span>Halden Freight Systems · Platform Engineering</span>
+<span>RB-112 · Rev. 7</span>
+</div><div class="body">
+<h3>3.4 Verify</h3>
+<p>Run the query below fifteen minutes after the last pod has started. Every settlement created in that period should be in the SETTLED or PENDING state.</p>
+<pre>SELECT status, count(*)
+  FROM settlements
+ WHERE created_at &gt; now() - interval '15 minutes'
+ GROUP BY status;</pre>
+<div class="after"><div class="t">After the rollout</div>
+<ul class="dash"><li class="ti">- Close the change ticket and record the release tag.</li><li class="ti">- Post the verification query output in the ticket.</li><li class="ti">- Hand the dashboards back to the on-call engineer.</li></ul>
+</div>
+<h2>4. Rollback</h2>
+<p>Roll back without waiting for approval when any threshold in the table is crossed.</p>
+<table class="rb"><thead><tr><th>Symptom</th><th>Threshold</th><th>Action</th></tr></thead><tbody><tr><td>Error rate on /settle</td><td>above 2% for 5 minutes</td><td>kubectl rollout undo,<br>then page the duty manager</td></tr><tr><td>Settlement latency (p99)</td><td>above 1,500 ms</td><td>Scale to 6 replicas;<br>roll back if no change in 10 minutes</td></tr><tr><td>Database connections</td><td>above 90% of the limit</td><td>Reduce pool_size to 24<br>and redeploy</td></tr><tr><td>Pods not ready</td><td>any pod after 5 minutes</td><td>Roll back immediately</td></tr></tbody></table>
+<h2>5. Contacts</h2>
+<table class="nb"><thead><tr><th>Role</th><th>Team</th><th>Hours</th></tr></thead><tbody><tr><td>Ledger on-call engineer</td><td>Payments platform</td><td>24/7</td></tr><tr><td>Database duty engineer</td><td>Data infrastructure</td><td>07:00 to 22:00</td></tr><tr><td>Platform duty manager</td><td>Platform engineering</td><td>24/7</td></tr></tbody></table>
+<h2>6. Change history</h2>
+<table class="rb"><thead><tr><th>Rev.</th><th>Date</th><th>Change</th></tr></thead><tbody><tr><td>7</td><td>2 Oct 2026</td><td>Added the database connection threshold</td></tr><tr><td>6</td><td>14 Jun 2026</td><td>Replaced the manual canary with a rolling restart</td></tr><tr><td>5</td><td>3 Feb 2026</td><td>Moved the verification query to the read replica</td></tr></tbody></table>
+</div><div class="ftr">
+<span>Internal use only</span>
+<span>Page 2 of 2</span>
+</div></div>
+</body>
+</html>

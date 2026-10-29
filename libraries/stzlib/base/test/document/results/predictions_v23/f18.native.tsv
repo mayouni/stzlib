@@ -1,0 +1,37 @@
+page_header	0	Kuzeybatı Teknik Üniversitesi
+page_header	0	İnşaat Mühendisliği Bölümü
+heading	1	INS 312 Zemin Mekaniği II — Ders İzlencesi
+table	0	Dersin koduINS 312Kredi / AKTS3 / 5Dönem2026–2027 GüzÖğretim diliTürkçeDers saatleriSalı 13:30–16:20DerslikB-204Öğretim üyesiDr. Öğr. Üyesi Selin KaradumanGörüşme saatleriPerşembe 10:00–12:00
+heading	2	1. Dersin amacı
+paragraph	0	Bu ders, zeminlerin kayma direnci ve konsolidasyon davranışının mühendislik problemlerine uygulanmasını amaçlamaktadır. Öğrenciler dönem sonunda istinat yapılarının ve şevlerin stabilitesini temel düzeyde analiz edebilecektir.
+heading	2	2. Öğrenme çıktıları
+paragraph	0	Bu dersi başarıyla tamamlayan öğrenci:
+list_item	0	1. Zeminlerde düşey gerilme artışını farklı yükleme durumları için hesaplar.
+list_item	0	2. Konsolidasyon oturmasının büyüklüğünü ve süresini tahmin eder:
+list_item	1	a. tek boyutlu konsolidasyon teorisini kullanarak,
+list_item	1	b. ön yükleme ve düşey drenlerin etkisini dikkate alarak.
+list_item	0	3. Kayma direnci parametrelerini laboratuvar deney sonuçlarından belirler.
+list_item	0	4. Şevlerin stabilitesini limit denge yöntemleriyle değerlendirir.
+heading	2	3. Haftalık ders planı
+table	0	HaftaKonuOkuma1Derse giriş; zemin mekaniği I konularının tekrarıBölüm 12Zeminlerde gerilme dağılımıBölüm 2Boussinesq ve Westergaard çözümleriBoussinesq ve Westergaard çözümleriBoussinesq ve Westergaard çözümleri333Tek boyutlu konsolidasyon teorisiTek boyutlu konsolidasyon teorisiTek boyutlu konsolidasyon teorisiBölüm 3.1–3.4Bölüm 3.1–3.4Bölüm 3.1–3.4444Konsolidasyon deneyiKonsolidasyon deneyiKonsolidasyon deneyiBölüm 3.5Bölüm 3.5Bölüm 3.5Laboratuvar uygulaması 1Laboratuvar uygulaması 1Laboratuvar uygulaması 1555Oturma hesapları; ön yükleme ve düşey drenlerOturma hesapları; ön yükleme ve düşey drenlerOturma hesapları; ön yükleme ve düşey drenlerBölüm 3.6–3.8Bölüm 3.6–3.8Bölüm 3.6–3.86Kayma direnci ve Mohr–Coulomb yenilme ölçütüBölüm 4.1–4.37Kesme kutusu ve üç eksenli deneyler Laboratuvar uygulaması 2Bölüm 4.4–4.68Ara sınav—9Drenajlı ve drenajsız davranışBölüm 4.710Yanal toprak basınçları: Rankine ve CoulombBölüm 5.1–5.411İstinat duvarlarının tasarımıBölüm 5.5
+paragraph	0	Laboratuvar uygulaması 3
+paragraph	0	Tablo bir sonraki sayfada devam ediyor
+page_footer	0	Sayfa 1 / 2
+page_header	0	Kuzeybatı Teknik Üniversitesi
+page_header	0	İnşaat Mühendisliği Bölümü
+table	0	HaftaKonuOkuma12Sonsuz şevler ve dairesel kayma yüzeyleriBölüm 6.1–6.313Dilim yöntemleri: Fellenius ve BishopBölüm 6.414Genel tekrar ve proje sunumları—
+paragraph	0	Laboratuvar uygulamaları zemin mekaniği laboratuvarında üç kişilik gruplar hâlinde yapılır.
+heading	2	4. Değerlendirme
+table	0	EtkinlikSayıKatkı (%)Ara sınav130Ödevler415Laboratuvar raporları315Final sınavı140Toplam100
+paragraph	0	Final sınavına girebilmek için laboratuvar raporlarının tamamının teslim edilmiş olması gerekir.
+heading	2	5. Ders kuralları
+list_item	0	Derslere devam zorunludur; devamsızlık sınırı %30'dur.
+list_item	0	Ödevler teslim tarihinden sonra kabul edilmez.
+list_item	1	Sağlık raporu olan öğrencilere bir haftalık ek süre verilir.
+list_item	1	Ek süre talebi ders asistanına e-posta ile iletilir.
+list_item	0	Sınavlarda yalnızca bölümün onayladığı hesap makineleri kullanılabilir.
+heading	2	6. Kaynaklar
+list_item	0	[1] Aydınoğlu, M. (2019). Zemin Mekaniğine Giriş. Ankara: Örnek Yayınevi.
+list_item	0	[2] Demirtaş, K. ve Şahin, E. (2021). Geoteknik Mühendisliği Çözümlü Problemler. İstanbul: Kuzey Yayınları.
+list_item	0	[3] Ders notları ve ödev föyleri, bölümün öğrenme yönetim sisteminde paylaşılacaktır.
+page_footer	0	Sayfa 2 / 2

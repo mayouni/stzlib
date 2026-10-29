@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en-GB" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Tax Invoice</title>
+<style>
+
+@page{size:A4;margin:2cm}
+body{font-family:'Segoe UI';font-size:9.5pt;color:#1d2733;margin:0}
+.lh{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid #0b5d7a;padding-bottom:8px;margin-bottom:18px}
+.lh .org{font-size:16pt;font-weight:bold;color:#0b5d7a}
+.lh .addr{text-align:right;font-size:8.5pt;color:#4a5866;line-height:1.35}
+h1{font-size:20pt;font-weight:normal;color:#0b5d7a;margin:0 0 12px 0;letter-spacing:1px}
+h2{font-size:11pt;color:#0b5d7a;margin:18px 0 6px 0}
+.top{display:flex;gap:28px;margin-bottom:16px}
+.billto{flex:1;line-height:1.45}
+.billto .lab{font-size:8pt;color:#6b7785}
+table.kv{border:1px solid #9fb3c2;border-collapse:collapse;width:62mm}
+table.kv td{padding:3px 7px;border-bottom:1px solid #dde5eb}
+table.kv td:first-child{color:#4a5866;background:#eef3f6;width:26mm}
+table.items{width:100%;border-collapse:collapse}
+table.items th{text-align:left;font-weight:bold;border-bottom:1.5px solid #1d2733;padding:4px 5px;font-size:9pt}
+table.items td{padding:4px 5px;border-bottom:1px solid #d3dbe1;vertical-align:top}
+table.items .n{text-align:right;white-space:nowrap}
+table.items tr.sec td{background:#e3eef3;font-weight:bold;color:#0b5d7a}
+table.items tr.tot td{border-bottom:none}
+table.items tr.grand td{border-top:1.5px solid #1d2733;font-weight:bold;font-size:10.5pt}
+ul.notes{margin:4px 0 0 0;padding-left:16px}
+ul.notes li{margin:2px 0}
+p{margin:6px 0;line-height:1.4}
+.foot{margin-top:26px;border-top:1px solid #9fb3c2;padding-top:5px;font-size:7.5pt;color:#6b7785;text-align:center}
+
+</style>
+</head>
+<body>
+<div class="lh"><div>
+<div class="org">Brackenfield Structural Consultants Ltd</div>
+</div><div class="addr">
+<div>14 Tannery Wharf, Lowmoor LM4 7QX</div>
+<div>accounts@brackenfield-sc.example · 01632 960 417</div>
+</div></div>
+<h1>Tax Invoice</h1>
+<div class="top"><div class="billto">
+<div class="lab">Bill to</div>
+<div>Orrin Valley Housing Co-operative</div>
+<div>Attn: Facilities Manager</div>
+<div>2 Mill Lane, Easterby EB9 3RT</div>
+</div>
+<table class="kv"><tbody><tr><td>Invoice no.</td><td>BSC-2026-0417</td></tr><tr><td>Invoice date</td><td>12 October 2026</td></tr><tr><td>Due date</td><td>11 November 2026</td></tr><tr><td>Client ref.</td><td>PO 55-1903</td></tr><tr><td>Project</td><td>Workshop mezzanine</td></tr></tbody></table>
+</div>
+<p>Thank you for instructing us on the mezzanine floor at your Easterby workshop. This invoice covers the survey and design stages completed in September 2026.</p>
+<table class="items"><thead><tr><th>Item</th><th>Description</th><th>Qty</th><th>Unit</th><th class="n">Rate (GBP)</th><th class="n">Amount (GBP)</th></tr></thead><tbody><tr class="sec"><td colspan="6">Phase 1 — Survey</td></tr><tr><td>1.1</td><td>Site measurement survey</td><td class="n">2</td><td>day</td><td class="n">640.00</td><td class="n">1,280.00</td></tr><tr><td>1.2</td><td>Condition report for existing<br>steel frame and base plates</td><td class="n">1</td><td>lump sum</td><td class="n">950.00</td><td class="n">950.00</td></tr><tr class="sec"><td colspan="6">Phase 2 — Design</td></tr><tr><td>2.1</td><td>Structural calculations, mezzanine floor</td><td class="n">18</td><td>hour</td><td class="n">85.00</td><td class="n">1,530.00</td></tr><tr><td>2.2</td><td>General arrangement drawings</td><td class="n">6</td><td>sheet</td><td class="n">120.00</td><td class="n">720.00</td></tr><tr><td>2.3</td><td>Building control liaison</td><td class="n">4</td><td>hour</td><td class="n">85.00</td><td class="n">340.00</td></tr><tr class="tot"><td colspan="5" class="n">Subtotal</td><td class="n">4,820.00</td></tr><tr class="tot"><td colspan="5" class="n">VAT at 20%</td><td class="n">964.00</td></tr><tr class="grand"><td colspan="5" class="n">Total due</td><td class="n">5,784.00</td></tr></tbody></table>
+<h2>Payment</h2>
+<p>Payment is due within 30 days of the invoice date. Please quote the invoice number on every remittance so that we can allocate it promptly. Interest may be charged on balances that remain unpaid after the due date.</p>
+<h2>Notes</h2>
+<ul class="notes"><li>Rates are those agreed in our fee proposal of 3 March 2026.</li><li>Drawings were issued as PDF and DWG files on 29 September 2026.</li><li>Phase 3 (site inspections during construction) will be invoiced separately.</li></ul>
+<div class="foot">Registered in England and Wales No. 08814423 · VAT No. GB 318 4471 09</div>
+</body>
+</html>

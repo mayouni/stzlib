@@ -1,0 +1,144 @@
+{
+  "id": "f14",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "고객 서비스 이용 안내",
+  "headings": [
+    {
+      "level": 1,
+      "text": "고객 서비스 이용 안내"
+    },
+    {
+      "level": 2,
+      "text": "1. 서비스 접수 방법"
+    },
+    {
+      "level": 2,
+      "text": "2. 운영 시간"
+    },
+    {
+      "level": 2,
+      "text": "3. 보증 기간 및 비용"
+    },
+    {
+      "level": 2,
+      "text": "4. 유의 사항"
+    }
+  ],
+  "key_sentences": [
+    "본 안내서는 한결전자 제품을 구입하신 고객께서 수리 및 교환 서비스를 편리하게 이용하실 수 있도록 마련되었습니다.",
+    "서비스를 신청하시기 전에 제품의 모델명과 구입 일자를 확인해 주시기 바랍니다.",
+    "점심시간(12:00~13:00)에는 전화 연결이 지연될 수 있습니다.",
+    "무상 보증 기간은 구입일로부터 1년이며, 영수증 또는 보증서로 구입 일자를 확인합니다.",
+    "기타 문의 사항은 고객센터로 연락해 주시기 바랍니다."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "구분",
+          "평일",
+          "토요일",
+          "일요일·공휴일"
+        ],
+        [
+          "고객센터(전화)",
+          "09:00~18:00",
+          "09:00~13:00",
+          "휴무"
+        ],
+        [
+          "서비스센터(방문)",
+          "09:00~18:00",
+          "09:00~13:00",
+          "휴무"
+        ],
+        [
+          "온라인 접수",
+          "24시간",
+          "24시간",
+          "24시간"
+        ]
+      ]
+    },
+    {
+      "caption": "고객센터 연락처",
+      "rows": [
+        [
+          "대표번호",
+          "02-555-0142"
+        ],
+        [
+          "이메일",
+          "care@hangyeol.example"
+        ],
+        [
+          "주소",
+          "세종특별자치시 한빛로 128, 3층 고객지원팀"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "가. 전화 접수: 고객센터 대표번호로 연락하시면 상담원이 접수를 도와드립니다."
+    },
+    {
+      "level": 0,
+      "text": "나. 온라인 접수: 홈페이지의 '서비스 신청' 메뉴에서 접수할 수 있습니다."
+    },
+    {
+      "level": 1,
+      "text": "1) 회원 로그인 후 제품 등록"
+    },
+    {
+      "level": 1,
+      "text": "2) 증상 선택 및 사진 첨부"
+    },
+    {
+      "level": 1,
+      "text": "3) 방문 희망 일자 선택"
+    },
+    {
+      "level": 0,
+      "text": "다. 방문 접수: 가까운 서비스센터에 제품을 직접 가져오시면 됩니다."
+    },
+    {
+      "level": 0,
+      "text": "보증 기간 내 제품 자체 결함: 무상 수리"
+    },
+    {
+      "level": 0,
+      "text": "고객 과실로 인한 고장: 유상 수리"
+    },
+    {
+      "level": 0,
+      "text": "소모품(배터리, 필터): 구입일로부터 6개월 보증"
+    },
+    {
+      "level": 0,
+      "text": "① 수리 중 저장된 데이터가 삭제될 수 있으니 미리 백업해 주십시오."
+    },
+    {
+      "level": 0,
+      "text": "② 정품이 아닌 부품을 사용한 경우에는 무상 보증을 받을 수 없습니다."
+    },
+    {
+      "level": 0,
+      "text": "③ 수리가 끝난 제품은 30일 이내에 찾아가셔야 합니다."
+    }
+  ],
+  "furniture": [
+    "한결전자 주식회사",
+    "문서번호 CS-2026-114 · 2026년 10월 개정",
+    "한결전자 고객지원팀 · www.hangyeol.example",
+    "- 1 -"
+  ],
+  "languages": [
+    "ko"
+  ],
+  "code": [],
+  "notes": "One-page Korean customer service guide. A coloured letterhead band carries the company name (left) and the document number line (right): two furniture entries. Footer: team/website line at the left and the page number \"- 1 -\" at the right (separate entries). Section headings carry typed numbers (\"1.\", \"2.\") as part of the heading text. List markers: \"가.\" \"나.\" \"다.\" are TYPED with a hanging indent (level 0); nested \"1)\" \"2)\" \"3)\" TYPED (level 1); circled \"①\" \"②\" \"③\" TYPED inline; the disc bullets in section 3 are drawn by CSS (no marker). The hours table has rules under/over the header and under the last row only. In section 3 the bulleted text column is read first, then the boxed contact panel at its right (a key/value table whose caption is \"고객센터 연락처\"). Korean is written with spaces between words and the document breaks lines only at spaces (word-break: keep-all); whitespace collapses as usual."
+}

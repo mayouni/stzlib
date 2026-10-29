@@ -1,0 +1,46 @@
+page_header	0	Halden Freight Systems · Platform Engineering
+page_header	0	RB-112 · Rev. 7
+heading	1	Runbook RB-112: Deploying the ledger service
+table	0	OwnerPayments platform teamEscalationLedger on-call engineer, then the platform duty managerLast reviewed2 October 2026Expected duration40 minutes, of which 25 minutes are waiting for the rollout
+heading	2	1. Purpose
+paragraph	0	This runbook describes how to release a new version of the ledger service to production. It applies to scheduled releases only; emergency fixes follow runbook RB-090.
+heading	2	2. Prerequisites
+list_item	0	An approved change ticket with a release window of at least one hour.
+list_item	0	Access to the production cluster through the bastion host:
+list_item	1	a valid hardware key registered to your account;
+list_item	1	membership of the ledger-deployers group.
+list_item	0	A second engineer available to watch the dashboards during the rollout.
+heading	2	3. Procedure
+heading	3	3.1 Freeze the release
+paragraph	0	Check out the release tag and confirm that it was signed by the release manager.
+code	0	$ git fetch --tags origin\n$ git checkout release/2026.10.2\n$ ./scripts/verify-signature.sh release/2026.10.2
+heading	3	3.2 Apply the configuration
+paragraph	0	Review the values below against the change ticket before applying them. The pool size must never exceed the connection limit agreed with the database team.
+code	0	ledger:\n  replicas: 4\n  database:\n    pool_size: 32\n    statement_timeout_ms: 5000\n  feature_flags:\n    async_settlement: true
+heading	3	3.3 Roll out
+list_item	0	1. Announce the start of the release in the operations channel.
+list_item	0	2. Restart the deployment and follow its progress:
+list_item	1	a. pods are replaced one at a time;
+list_item	1	b. each new pod must pass its readiness check before the next one starts.
+list_item	0	3. Stop and go to section 4 if any pod fails to become ready within five minutes.
+code	0	kubectl -n ledger rollout restart deployment/ledger-api\nkubectl -n ledger rollout status deployment/ledger-api --timeout=10m
+page_footer	0	Internal use only
+page_footer	0	Page 1 of 2
+page_header	0	Halden Freight Systems · Platform Engineering
+page_header	0	RB-112 · Rev. 7
+heading	3	3.4 Verify
+paragraph	0	Run the query below fifteen minutes after the last pod has started. Every settlement created in that period should be in the SETTLED or PENDING state.
+code	0	SELECT status, count(*)\n  FROM settlements\n WHERE created_at > now() - interval '15 minutes'\n GROUP BY status;
+heading	3	After the rollout
+list_item	0	- Close the change ticket and record the release tag.
+list_item	0	- Post the verification query output in the ticket.
+list_item	0	- Hand the dashboards back to the on-call engineer.
+heading	2	4. Rollback
+caption	0	Roll back without waiting for approval when any threshold in the table is crossed.
+table	0	SymptomThresholdActionError rate on /settleabove 2% for 5 minuteskubectl rollout undo, then page the duty managerSettlement latency (p99)above 1,500 msScale to 6 replicas; roll back if no change in 10 minutesDatabase connectionsabove 90% of the limitReduce pool_size to 24 and redeployPods not readyany pod after 5 minutesRoll back immediately
+heading	2	5. Contacts
+table	0	RoleTeamHoursLedger on-call engineerPayments platform24/7Database duty engineerData infrastructure07:00 to 22:00Platform duty managerPlatform engineering24/7
+heading	2	6. Change history
+table	0	Rev.DateChange72 Oct 2026Added the database connection threshold614 Jun 2026Replaced the manual canary with a rolling restart53 Feb 2026Moved the verification query to the read replica
+page_footer	0	Internal use only
+page_footer	0	Page 2 of 2

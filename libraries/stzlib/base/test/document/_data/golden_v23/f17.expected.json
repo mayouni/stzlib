@@ -1,0 +1,207 @@
+{
+  "id": "f17",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Water Quality Test Report",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Water Quality Test Report"
+    },
+    {
+      "level": 2,
+      "text": "Results"
+    },
+    {
+      "level": 2,
+      "text": "Remarks"
+    },
+    {
+      "level": 2,
+      "text": "Interpretation"
+    }
+  ],
+  "key_sentences": [
+    "The sample was analysed in the condition in which it was received.",
+    "Results relate only to the sample tested and are compared with the limits for drinking water supplies.",
+    "The sample does not meet the drinking water limits for coliform bacteria, iron and pH.",
+    "We recommend disinfecting the borehole and taking a repeat sample after 14 days.",
+    "Until a satisfactory result is obtained, water for drinking should be boiled or taken from a bottled supply."
+  ],
+  "tables": [
+    {
+      "caption": "Client details",
+      "rows": [
+        [
+          "Client",
+          "Ashgrove Farm Holidays"
+        ],
+        [
+          "Address",
+          "Ashgrove Lane, Upper Wyke UW3 8NB"
+        ],
+        [
+          "Contact",
+          "Site manager"
+        ],
+        [
+          "Order no.",
+          "AFH-0926"
+        ]
+      ]
+    },
+    {
+      "caption": "Sample details",
+      "rows": [
+        [
+          "Sample ID",
+          "WQ-26-1187-01"
+        ],
+        [
+          "Source",
+          "Private borehole, kitchen tap"
+        ],
+        [
+          "Collected",
+          "14 Oct 2026, 09:40"
+        ],
+        [
+          "Received",
+          "14 Oct 2026, 13:15"
+        ],
+        [
+          "Condition",
+          "Chilled, intact seal"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Parameter",
+          "Method",
+          "Result",
+          "Unit",
+          "Limit",
+          "Assessment"
+        ],
+        [
+          "Microbiological",
+          "Microbiological",
+          "Microbiological",
+          "Microbiological",
+          "Microbiological",
+          "Microbiological"
+        ],
+        [
+          "Escherichia coli",
+          "ISO 9308-1 membrane filtration",
+          "0",
+          "cfu/100 ml",
+          "0",
+          "Complies"
+        ],
+        [
+          "Coliform bacteria",
+          "ISO 9308-1 membrane filtration",
+          "3",
+          "cfu/100 ml",
+          "0",
+          "Does not comply (see remark 1)"
+        ],
+        [
+          "Chemical",
+          "Chemical",
+          "Chemical",
+          "Chemical",
+          "Chemical",
+          "Chemical"
+        ],
+        [
+          "Nitrate (as NO3)",
+          "Ion chromatography",
+          "38.2",
+          "mg/l",
+          "50",
+          "Complies"
+        ],
+        [
+          "Iron",
+          "ICP-OES",
+          "0.41",
+          "mg/l",
+          "0.20",
+          "Does not comply (see remark 2)"
+        ],
+        [
+          "Manganese",
+          "ICP-OES",
+          "0.032",
+          "mg/l",
+          "0.050",
+          "Complies"
+        ],
+        [
+          "Fluoride",
+          "Ion-selective electrode",
+          "0.6",
+          "mg/l",
+          "1.5",
+          "Complies"
+        ],
+        [
+          "Physical",
+          "Physical",
+          "Physical",
+          "Physical",
+          "Physical",
+          "Physical"
+        ],
+        [
+          "pH at 20 °C",
+          "Electrometric",
+          "6.4",
+          "pH units",
+          "6.5 – 9.5",
+          "Does not comply (see remark 3)"
+        ],
+        [
+          "Turbidity",
+          "Nephelometric",
+          "2.8",
+          "NTU",
+          "4",
+          "Complies"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Coliform bacteria were detected while E. coli was absent, which points to surface ingress rather than faecal contamination."
+    },
+    {
+      "level": 0,
+      "text": "Iron above the indicator value can stain sanitary ware and laundry."
+    },
+    {
+      "level": 0,
+      "text": "Slightly acidic water can dissolve copper and lead from older pipework."
+    }
+  ],
+  "furniture": [
+    "Fernhill Analytical Laboratories",
+    "Accredited testing laboratory No. 4471",
+    "Unit 9, Brookside Science Park, Fernhill FH2 6LQ",
+    "lab@fernhill-analytical.example · 01632 960 552",
+    "Report WQ-26-1187 · issued 22 October 2026",
+    "Page 1 of 1"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "One-page laboratory report. Letterhead: organisation name and accreditation line at the left, two address/contact lines at the right (four furniture entries). Footer: report number/issue date at the left and \"Page 1 of 1\" at the right (two entries). Two boxed key/value panels stand side by side, read BOX BY BOX (Client details, then Sample details); each is a 2-column table whose caption is the panel title, no header row. Results table: full grid, header row, three group rows (\"Microbiological\", \"Chemical\", \"Physical\") spanning six columns, cells centred horizontally and vertically; several Method and Assessment cells are two lines joined with one space. The remarks list is drawn by CSS (decimal), so items carry no marker. The tilted \"APPROVED\" stamp and the signature lines are body labels, not recorded."
+}

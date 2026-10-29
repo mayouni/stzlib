@@ -1,0 +1,235 @@
+{
+  "id": "f20",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "Chapter 7: Leave and Absence",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Chapter 7: Leave and Absence"
+    },
+    {
+      "level": 2,
+      "text": "7.1 Purpose and scope"
+    },
+    {
+      "level": 2,
+      "text": "7.2 Annual leave"
+    },
+    {
+      "level": 3,
+      "text": "7.2.1 Entitlement"
+    },
+    {
+      "level": 3,
+      "text": "7.2.2 Booking leave"
+    },
+    {
+      "level": 2,
+      "text": "7.3 Sickness absence"
+    },
+    {
+      "level": 3,
+      "text": "7.3.1 Reporting an absence"
+    },
+    {
+      "level": 3,
+      "text": "7.3.2 Fit notes"
+    },
+    {
+      "level": 3,
+      "text": "7.3.3 Long-term absence"
+    },
+    {
+      "level": 2,
+      "text": "7.4 Special leave"
+    },
+    {
+      "level": 2,
+      "text": "7.5 Related documents"
+    }
+  ],
+  "key_sentences": [
+    "This chapter explains how annual leave, sickness absence and special leave are managed across all branches.",
+    "Your entitlement depends on your length of continuous service on 1 April each year.",
+    "Part-time entitlement is calculated pro rata to contracted hours.",
+    "If you are too unwell to work, telephone your line manager before your shift starts.",
+    "A text message or email is not an acceptable way of reporting sickness.",
+    "Self-certification covers the first seven calendar days of any absence.",
+    "When you return, your manager will hold a short return-to-work meeting with you.",
+    "Special leave is granted at the discretion of the Head of Service.",
+    "It is intended for situations that annual leave cannot reasonably cover.",
+    "Questions about this chapter should be sent to the HR Advice Team."
+  ],
+  "tables": [
+    {
+      "caption": "Table 7.1 Annual leave for full-time staff",
+      "rows": [
+        [
+          "Years of continuous service",
+          "Basic entitlement (days)",
+          "Long-service days",
+          "Total (days)"
+        ],
+        [
+          "Less than 2",
+          "25",
+          "0",
+          "25"
+        ],
+        [
+          "2 to 5",
+          "25",
+          "2",
+          "27"
+        ],
+        [
+          "6 to 10",
+          "25",
+          "4",
+          "29"
+        ],
+        [
+          "More than 10",
+          "25",
+          "6",
+          "31"
+        ]
+      ]
+    },
+    {
+      "caption": "Table 7.2 Special leave",
+      "rows": [
+        [
+          "Reason",
+          "Paid days per year",
+          "Approved by"
+        ],
+        [
+          "Bereavement (close family member)",
+          "Up to 5",
+          "Line manager"
+        ],
+        [
+          "Moving house",
+          "1",
+          "Line manager"
+        ],
+        [
+          "Jury service",
+          "Full period, less any allowance claimed",
+          "Head of Service"
+        ],
+        [
+          "Emergency care of a dependant",
+          "Up to 3",
+          "Line manager"
+        ],
+        [
+          "Public duties, for example as a school governor",
+          "Up to 6",
+          "Head of Service"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "i. Submit requests through the rota system at least four weeks in advance."
+    },
+    {
+      "level": 0,
+      "text": "ii. Your line manager will approve or decline the request within five working days, taking into account:"
+    },
+    {
+      "level": 1,
+      "text": "(a) branch staffing levels during the requested period;"
+    },
+    {
+      "level": 1,
+      "text": "(b) requests already approved for colleagues in the same team;"
+    },
+    {
+      "level": 1,
+      "text": "(c) events that require extra cover, such as:"
+    },
+    {
+      "level": 2,
+      "text": "the summer reading challenge;"
+    },
+    {
+      "level": 2,
+      "text": "school holiday activity weeks;"
+    },
+    {
+      "level": 2,
+      "text": "annual stock-taking days."
+    },
+    {
+      "level": 0,
+      "text": "iii. Requests for more than ten consecutive working days also need the approval of the Branch Manager."
+    },
+    {
+      "level": 0,
+      "text": "give the reason for your absence and say how long you expect it to last;"
+    },
+    {
+      "level": 0,
+      "text": "tell your manager about any work that needs urgent attention, for example:"
+    },
+    {
+      "level": 1,
+      "text": "reserved items waiting to be collected;"
+    },
+    {
+      "level": 1,
+      "text": "room bookings you were due to supervise;"
+    },
+    {
+      "level": 0,
+      "text": "agree when you will next be in contact."
+    },
+    {
+      "level": 0,
+      "text": "• how you are feeling and whether any adjustments to your duties are needed;"
+    },
+    {
+      "level": 0,
+      "text": "• any support available through the occupational health service;"
+    },
+    {
+      "level": 0,
+      "text": "• the dates of any further medical appointments."
+    },
+    {
+      "level": 0,
+      "text": "Chapter 4: Working Time and Rotas"
+    },
+    {
+      "level": 0,
+      "text": "Chapter 9: Health, Safety and Wellbeing"
+    },
+    {
+      "level": 0,
+      "text": "Chapter 12: Casual and Agency Workers"
+    },
+    {
+      "level": 0,
+      "text": "Form HR-17: Request for Special Leave"
+    }
+  ],
+  "furniture": [
+    "Corvane Municipal Libraries",
+    "Staff Handbook · Edition 5",
+    "Chapter 7 — Leave and Absence",
+    "Page 42",
+    "Page 43",
+    "Page 44"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Three-page staff handbook chapter in Times New Roman. Running header: two italic blocks at opposite ends of one line (two furniture entries, listed once). Running footer: chapter name left (listed once) and the page number right (\"Page 42\", \"Page 43\", \"Page 44\", one entry per page). FOOTNOTES: superscript markers 1-3 in the body; the sentences carrying them are not key sentences, and the footnote texts at the foot of pages 1 and 2 (above the footer, under a short rule) are body text that is recorded nowhere: not furniture, not key sentences. Lists: in 7.2.2 level 0 has TYPED lower-roman markers \"i.\" \"ii.\" \"iii.\", level 1 TYPED \"(a)\" \"(b)\" \"(c)\", both with hanging indents; level 2 is drawn by CSS (disc bullets, no marker). In 7.3.1 both levels are drawn by CSS (decimal, then lower-alpha), so no markers. In 7.3.2 the bullets \"•\" are TYPED with a hanging indent. In 7.5 squares are drawn by CSS. Table 7.1: rules above and under the header and under the last row only (booktabs style). Table 7.2: no lines at all; the \"Jury service\" cell holds two lines, top-aligned, joined with one space. The boxed note at the end of page 3 has a bold label \"Who to contact\" that is not a heading."
+}

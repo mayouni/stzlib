@@ -1,0 +1,257 @@
+{
+  "id": "f18",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "INS 312 Zemin Mekaniği II — Ders İzlencesi",
+  "headings": [
+    {
+      "level": 1,
+      "text": "INS 312 Zemin Mekaniği II — Ders İzlencesi"
+    },
+    {
+      "level": 2,
+      "text": "1. Dersin amacı"
+    },
+    {
+      "level": 2,
+      "text": "2. Öğrenme çıktıları"
+    },
+    {
+      "level": 2,
+      "text": "3. Haftalık ders planı"
+    },
+    {
+      "level": 2,
+      "text": "4. Değerlendirme"
+    },
+    {
+      "level": 2,
+      "text": "5. Ders kuralları"
+    },
+    {
+      "level": 2,
+      "text": "6. Kaynaklar"
+    }
+  ],
+  "key_sentences": [
+    "Bu ders, zeminlerin kayma direnci ve konsolidasyon davranışının mühendislik problemlerine uygulanmasını amaçlamaktadır.",
+    "Öğrenciler dönem sonunda istinat yapılarının ve şevlerin stabilitesini temel düzeyde analiz edebilecektir.",
+    "Laboratuvar uygulamaları zemin mekaniği laboratuvarında üç kişilik gruplar hâlinde yapılır.",
+    "Final sınavına girebilmek için laboratuvar raporlarının tamamının teslim edilmiş olması gerekir."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Dersin kodu",
+          "INS 312",
+          "Kredi / AKTS",
+          "3 / 5"
+        ],
+        [
+          "Dönem",
+          "2026–2027 Güz",
+          "Öğretim dili",
+          "Türkçe"
+        ],
+        [
+          "Ders saatleri",
+          "Salı 13:30–16:20",
+          "Derslik",
+          "B-204"
+        ],
+        [
+          "Öğretim üyesi",
+          "Dr. Öğr. Üyesi Selin Karaduman",
+          "Görüşme saatleri",
+          "Perşembe 10:00–12:00"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Hafta",
+          "Konu",
+          "Okuma"
+        ],
+        [
+          "1",
+          "Derse giriş; zemin mekaniği I konularının tekrarı",
+          "Bölüm 1"
+        ],
+        [
+          "2",
+          "Zeminlerde gerilme dağılımı Boussinesq ve Westergaard çözümleri",
+          "Bölüm 2"
+        ],
+        [
+          "3",
+          "Tek boyutlu konsolidasyon teorisi",
+          "Bölüm 3.1–3.4"
+        ],
+        [
+          "4",
+          "Konsolidasyon deneyi Laboratuvar uygulaması 1",
+          "Bölüm 3.5"
+        ],
+        [
+          "5",
+          "Oturma hesapları; ön yükleme ve düşey drenler",
+          "Bölüm 3.6–3.8"
+        ],
+        [
+          "6",
+          "Kayma direnci ve Mohr–Coulomb yenilme ölçütü",
+          "Bölüm 4.1–4.3"
+        ],
+        [
+          "7",
+          "Kesme kutusu ve üç eksenli deneyler Laboratuvar uygulaması 2",
+          "Bölüm 4.4–4.6"
+        ],
+        [
+          "8",
+          "Ara sınav",
+          "—"
+        ],
+        [
+          "9",
+          "Drenajlı ve drenajsız davranış",
+          "Bölüm 4.7"
+        ],
+        [
+          "10",
+          "Yanal toprak basınçları: Rankine ve Coulomb",
+          "Bölüm 5.1–5.4"
+        ],
+        [
+          "11",
+          "İstinat duvarlarının tasarımı Laboratuvar uygulaması 3",
+          "Bölüm 5.5"
+        ],
+        [
+          "12",
+          "Sonsuz şevler ve dairesel kayma yüzeyleri",
+          "Bölüm 6.1–6.3"
+        ],
+        [
+          "13",
+          "Dilim yöntemleri: Fellenius ve Bishop",
+          "Bölüm 6.4"
+        ],
+        [
+          "14",
+          "Genel tekrar ve proje sunumları",
+          "—"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Etkinlik",
+          "Sayı",
+          "Katkı (%)"
+        ],
+        [
+          "Ara sınav",
+          "1",
+          "30"
+        ],
+        [
+          "Ödevler",
+          "4",
+          "15"
+        ],
+        [
+          "Laboratuvar raporları",
+          "3",
+          "15"
+        ],
+        [
+          "Final sınavı",
+          "1",
+          "40"
+        ],
+        [
+          "Toplam",
+          "",
+          "100"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. Zeminlerde düşey gerilme artışını farklı yükleme durumları için hesaplar."
+    },
+    {
+      "level": 0,
+      "text": "2. Konsolidasyon oturmasının büyüklüğünü ve süresini tahmin eder:"
+    },
+    {
+      "level": 1,
+      "text": "a. tek boyutlu konsolidasyon teorisini kullanarak,"
+    },
+    {
+      "level": 1,
+      "text": "b. ön yükleme ve düşey drenlerin etkisini dikkate alarak."
+    },
+    {
+      "level": 0,
+      "text": "3. Kayma direnci parametrelerini laboratuvar deney sonuçlarından belirler."
+    },
+    {
+      "level": 0,
+      "text": "4. Şevlerin stabilitesini limit denge yöntemleriyle değerlendirir."
+    },
+    {
+      "level": 0,
+      "text": "Derslere devam zorunludur; devamsızlık sınırı %30'dur."
+    },
+    {
+      "level": 0,
+      "text": "Ödevler teslim tarihinden sonra kabul edilmez."
+    },
+    {
+      "level": 1,
+      "text": "Sağlık raporu olan öğrencilere bir haftalık ek süre verilir."
+    },
+    {
+      "level": 1,
+      "text": "Ek süre talebi ders asistanına e-posta ile iletilir."
+    },
+    {
+      "level": 0,
+      "text": "Sınavlarda yalnızca bölümün onayladığı hesap makineleri kullanılabilir."
+    },
+    {
+      "level": 0,
+      "text": "[1] Aydınoğlu, M. (2019). Zemin Mekaniğine Giriş. Ankara: Örnek Yayınevi."
+    },
+    {
+      "level": 0,
+      "text": "[2] Demirtaş, K. ve Şahin, E. (2021). Geoteknik Mühendisliği Çözümlü Problemler. İstanbul: Kuzey Yayınları."
+    },
+    {
+      "level": 0,
+      "text": "[3] Ders notları ve ödev föyleri, bölümün öğrenme yönetim sisteminde paylaşılacaktır."
+    }
+  ],
+  "furniture": [
+    "Kuzeybatı Teknik Üniversitesi",
+    "İnşaat Mühendisliği Bölümü",
+    "Sayfa 1 / 2",
+    "Sayfa 2 / 2"
+  ],
+  "languages": [
+    "tr"
+  ],
+  "code": [],
+  "notes": "Two-page Turkish course syllabus. Running header: university name left, department right (two furniture entries, once each); page number bottom right as \"Sayfa 1 / 2\", \"Sayfa 2 / 2\". Course information is a boxed key/value table with TWO key/value pairs per row (4 columns, no header row). The weekly plan is ONE table continued across the page break: weeks 1-11 on page 1, weeks 12-14 on page 2 where the header row is printed again; expected lists the header once and all 14 weeks. The italic line \"Tablo bir sonraki sayfada devam ediyor\" under the page-1 part is a continuation note, not recorded. Several Konu cells are two lines joined with one space. Evaluation table: rules between rows, a Toplam total row. Lists: learning outcomes typed \"1.\" \"2.\" with hanging indent and nested typed \"a.\" \"b.\" (level 1); course rules drawn by CSS (disc, nested circle at level 1: no markers); references typed \"[1]\" \"[2]\" \"[3]\" with hanging indent."
+}

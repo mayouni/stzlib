@@ -1,0 +1,70 @@
+{
+  "id": "f02",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": null,
+  "headings": [],
+  "key_sentences": [
+    "Votre déclaration préalable relative à la construction d’une clôture et d’un abri de jardin a été enregistrée le 2 octobre 2026.",
+    "Après examen, le dossier est incomplet : les pièces suivantes doivent nous parvenir pour que l’instruction puisse se poursuivre.",
+    "Conformément au Code de l’urbanisme, le délai d’instruction ne court qu’à compter de la réception de ces pièces.",
+    "Le calendrier ci-dessous vous est donné à titre indicatif.",
+    "Pour toute question, le service de l’urbanisme vous reçoit sans rendez-vous le mardi et le jeudi matin."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Étape",
+          "Date limite"
+        ],
+        [
+          "Dépôt des pièces complémentaires",
+          "14 janvier 2027"
+        ],
+        [
+          "Notification de la décision",
+          "un mois après réception"
+        ],
+        [
+          "Affichage sur le terrain",
+          "dès la notification"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1) un plan de situation du terrain à une échelle lisible"
+    },
+    {
+      "level": 0,
+      "text": "2) un plan de masse coté faisant apparaître"
+    },
+    {
+      "level": 1,
+      "text": "– l’implantation de l’abri par rapport aux limites séparatives"
+    },
+    {
+      "level": 1,
+      "text": "– la hauteur de la clôture côté rue"
+    },
+    {
+      "level": 0,
+      "text": "3) une notice précisant les matériaux et les couleurs retenus"
+    }
+  ],
+  "furniture": [
+    "Mairie de Montrevaux-le-Haut",
+    "Service de l'urbanisme",
+    "Tél. 05 55 00 41 27 · urbanisme@montrevaux.example",
+    "Hôtel de ville · 3 place du Marché · 47290 Montrevaux-le-Haut"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "One-page French administrative letter. No title and no headings: the \"Objet\" line is part of the reference block, not a heading. Letterhead (three lines, top left) and the bottom address line are furniture; the date line, the addressee block, the reference block and the signature block are body text that is not recorded. The list of missing documents uses typed markers \"1)\" \"2)\" \"3)\" set inline (no hanging indent); its nested items use a typed en dash \"–\" (level 1). The calendar table has a rule under the header only. French spacing: a non-breaking space precedes \":\" and sits inside « »; it is given as an ordinary space."
+}

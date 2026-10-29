@@ -1,0 +1,119 @@
+{
+  "id": "f19",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "اطلاعیه تغییر ساعات حرکت قطارها",
+  "headings": [
+    {
+      "level": 1,
+      "text": "اطلاعیه تغییر ساعات حرکت قطارها"
+    },
+    {
+      "level": 2,
+      "text": "نکات مهم برای مسافران"
+    },
+    {
+      "level": 2,
+      "text": "بازپرداخت هزینه بلیت"
+    }
+  ],
+  "key_sentences": [
+    "مسافران گرامی، برنامه حرکت قطارهای خط شمالی از روز شنبه ۱۵ مهر ۱۴۰۵ تغییر خواهد کرد.",
+    "این تغییر به دلیل تعمیرات اساسی پل راه آهن در نزدیکی ایستگاه باغ نو انجام خواهد شد.",
+    "ساعات جدید در جدول زیر آمده است.",
+    "هزینه بلیت تک سفره قطارهای حذف شده به طور کامل بازپرداخت خواهد شد.",
+    "از شکیبایی شما سپاسگزاریم."
+  ],
+  "tables": [
+    {
+      "caption": "جدول ۱: ساعات حرکت از ایستگاه مرکزی",
+      "rows": [
+        [
+          "شماره قطار",
+          "مقصد",
+          "ساعت حرکت فعلی",
+          "ساعت حرکت جدید"
+        ],
+        [
+          "۱۰۱",
+          "باغ نو",
+          "۶:۱۵",
+          "۶:۰۵"
+        ],
+        [
+          "۱۰۳",
+          "باغ نو",
+          "۷:۴۰",
+          "۷:۳۰"
+        ],
+        [
+          "۱۰۵",
+          "دره سبز",
+          "۹:۰۰",
+          "۹:۲۰"
+        ],
+        [
+          "۱۰۷",
+          "دره سبز",
+          "۱۲:۳۰",
+          "۱۲:۴۵"
+        ],
+        [
+          "۱۰۹",
+          "باغ نو",
+          "۱۷:۱۰",
+          "۱۷:۰۰"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "الف) بلیت ماهانه بدون تغییر معتبر است."
+    },
+    {
+      "level": 0,
+      "text": "ب) در روزهای تعطیل رسمی:"
+    },
+    {
+      "level": 1,
+      "text": "قطار ۱۰۱ حرکت نخواهد کرد."
+    },
+    {
+      "level": 1,
+      "text": "قطار ۱۰۹ با یک ساعت تأخیر حرکت خواهد کرد."
+    },
+    {
+      "level": 0,
+      "text": "پ) اتوبوس جایگزین از ایستگاه باغ نو تا دره سبز در دسترس خواهد بود."
+    },
+    {
+      "level": 0,
+      "text": "ت) برای اطلاعات بیشتر با شماره ۱۵۵۰ تماس بگیرید."
+    },
+    {
+      "level": 0,
+      "text": "اصل بلیت یا رسید خرید"
+    },
+    {
+      "level": 0,
+      "text": "کارت شناسایی معتبر"
+    },
+    {
+      "level": 0,
+      "text": "فرم درخواست تکمیل شده"
+    }
+  ],
+  "furniture": [
+    "شرکت قطار حومه نیکدشت",
+    "دفتر روابط عمومی، خیابان بهار، پلاک ۲۷",
+    "نشانی وبگاه: nikdasht-rail.example",
+    "صفحه ۱ از ۱"
+  ],
+  "languages": [
+    "fa"
+  ],
+  "code": [],
+  "notes": "Persian (right-to-left) public notice, one page, Tahoma. All text is given in logical order. The letterhead (organisation name at the right, office line at the left of the same band) and the footer (web address and page number at opposite ends of one rule) are furniture, one entry per block. The reference number and date line under the letterhead and the signature are body text recorded nowhere. Table: rules only under the last row, coloured header band, zebra rows; cells listed rightmost column first (logical order). Persian digits (U+06F0-U+06F9) are used throughout, as typed. The first list has TYPED Persian letter markers \"الف)\" \"ب)\" \"پ)\" \"ت)\" with a hanging indent, given as marker + one space + text; its two nested level-1 items under \"ب)\" are CSS disc bullets (no marker). The second list is numbered by CSS (list-style-type: persian, drawn ۱. ۲. ۳.), so its items carry no marker. The text contains no zero-width non-joiner."
+}

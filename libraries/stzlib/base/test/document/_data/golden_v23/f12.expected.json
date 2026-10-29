@@ -1,0 +1,129 @@
+{
+  "id": "f12",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "परिपत्र",
+  "headings": [
+    {
+      "level": 1,
+      "text": "परिपत्र"
+    },
+    {
+      "level": 2,
+      "text": "विषय: वार्षिक खेल सप्ताह 2026"
+    },
+    {
+      "level": 2,
+      "text": "आवश्यक निर्देश"
+    }
+  ],
+  "key_sentences": [
+    "विद्यालय में वार्षिक खेल सप्ताह का आयोजन 16 नवंबर से 21 नवंबर 2026 तक किया जाएगा।",
+    "कक्षा 3 से कक्षा 12 तक के सभी विद्यार्थियों को कम से कम एक प्रतियोगिता में भाग लेना अनिवार्य है।",
+    "किसी भी जानकारी के लिए शारीरिक शिक्षा विभाग से संपर्क करें।",
+    "विद्यार्थी इस परिपत्र की पावती अभिभावक के हस्ताक्षर सहित अपनी डायरी में दिखाएँ।"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "दिनांक",
+          "दिन",
+          "कार्यक्रम",
+          "स्थान"
+        ],
+        [
+          "16 नवंबर",
+          "सोमवार",
+          "उद्घाटन समारोह एवं मार्च पास्ट",
+          "मुख्य मैदान"
+        ],
+        [
+          "17 नवंबर",
+          "मंगलवार",
+          "दौड़ (100 मी., 200 मी., 400 मी.)",
+          "मुख्य मैदान"
+        ],
+        [
+          "18 नवंबर",
+          "बुधवार",
+          "कबड्डी एवं खो-खो",
+          "पूर्वी मैदान"
+        ],
+        [
+          "19 नवंबर",
+          "गुरुवार",
+          "शतरंज एवं कैरम",
+          "पुस्तकालय भवन"
+        ],
+        [
+          "20 नवंबर",
+          "शुक्रवार",
+          "रस्साकशी एवं रिले दौड़",
+          "मुख्य मैदान"
+        ],
+        [
+          "21 नवंबर",
+          "शनिवार",
+          "पुरस्कार वितरण समारोह",
+          "सभागार"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "(क) विद्यार्थी प्रतिदिन प्रातः 8:00 बजे तक खेल गणवेश में उपस्थित हों।"
+    },
+    {
+      "level": 0,
+      "text": "(ख) प्रतियोगिताओं के लिए नाम कक्षाध्यापक के पास 10 नवंबर तक जमा करें:"
+    },
+    {
+      "level": 1,
+      "text": "१. प्रत्येक विद्यार्थी अधिकतम तीन प्रतियोगिताओं में भाग ले सकता है;"
+    },
+    {
+      "level": 1,
+      "text": "२. दल-प्रतियोगिताओं के लिए पूरे दल की सूची एक साथ जमा करनी होगी।"
+    },
+    {
+      "level": 0,
+      "text": "(ग) अभिभावक पुरस्कार वितरण समारोह में सादर आमंत्रित हैं।"
+    },
+    {
+      "level": 0,
+      "text": "(घ) खेल सप्ताह के दौरान नियमित कक्षाएँ नहीं होंगी।"
+    },
+    {
+      "level": 0,
+      "text": "पानी की बोतल"
+    },
+    {
+      "level": 0,
+      "text": "खेल के जूते"
+    },
+    {
+      "level": 0,
+      "text": "धूप से बचाव के लिए टोपी"
+    },
+    {
+      "level": 0,
+      "text": "छोटा तौलिया"
+    }
+  ],
+  "furniture": [
+    "नवप्रभात विद्या निकेतन",
+    "मान्यता क्रमांक 2207/उ.मा. · स्थापना वर्ष 1994",
+    "स्टेशन रोड, सरोजपुर – 284 019",
+    "फ़ोन: 0510-2440 718 · ईमेल: office@navprabhat.example",
+    "विद्यालय की वेबसाइट: www.navprabhat.example"
+  ],
+  "languages": [
+    "hi"
+  ],
+  "code": [],
+  "notes": "One-page Hindi school circular in Nirmala UI. Centred letterhead (school name, recognition line, address, contact: four furniture lines) and a website line at the bottom (furniture). The reference number (left) and date (right) under the letterhead, the addressee line, the signature block and the \"प्रतिलिपि\" (copy to) line are body text, not recorded. Title \"परिपत्र\" is letter-spaced (plain word expected); the subject \"विषय: वार्षिक खेल सप्ताह 2026\" is a level-2 heading. Sentences end with the danda \"।\". Schedule table: full grid, coloured header. Instruction list: TYPED Devanagari letter markers \"(क)\" \"(ख)\" \"(ग)\" \"(घ)\" at level 0 and TYPED Devanagari digit markers \"१.\" \"२.\" at level 1, hanging indent. Beside that list, on the right, a dashed box \"आवश्यक सामग्री\" holds a list whose disc bullets are DRAWN BY CSS (no marker). Reading order: the instruction column first, then the box."
+}

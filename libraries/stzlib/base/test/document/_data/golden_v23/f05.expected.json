@@ -1,0 +1,130 @@
+{
+  "id": "f05",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "第3回 品質改善プロジェクト定例会議 議事録",
+  "headings": [
+    {
+      "level": 1,
+      "text": "第3回 品質改善プロジェクト定例会議 議事録"
+    },
+    {
+      "level": 2,
+      "text": "１．前回議事の確認"
+    },
+    {
+      "level": 2,
+      "text": "２．報告事項"
+    },
+    {
+      "level": 2,
+      "text": "３．討議事項"
+    },
+    {
+      "level": 2,
+      "text": "４．決定事項・宿題"
+    },
+    {
+      "level": 2,
+      "text": "５．次回予定"
+    }
+  ],
+  "key_sentences": [
+    "前回会議で決定した検査手順の改訂は、10月15日から全ラインで運用を開始した。",
+    "運用開始後、手順に関する問い合わせは2件であり、いずれも当日中に回答済みである。",
+    "梱包工程で発生している製品表面の傷について、原因と対策を討議した。",
+    "緩衝材の変更による効果を検証するため、11月に試験運用を行うことで合意した。",
+    "次回会議は11月17日（月）14時から同じ会議室で開催する。"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "日時",
+          "2026年10月20日（火）14:00～15:30"
+        ],
+        [
+          "場所",
+          "本社3階 第2会議室"
+        ],
+        [
+          "出席者",
+          "佐伯、宮内、高村、野口（記録）"
+        ],
+        [
+          "欠席者",
+          "石田"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "No.",
+          "内容",
+          "担当",
+          "期限"
+        ],
+        [
+          "1",
+          "緩衝材の試験運用計画を作成する",
+          "高村",
+          "10月31日"
+        ],
+        [
+          "2",
+          "新型測定器の設置場所を確定する",
+          "宮内",
+          "11月7日"
+        ],
+        [
+          "3",
+          "不良率の集計方法を見直し、様式を統一する",
+          "野口",
+          "11月14日"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "（１）9月の不良率は0.82%で、目標の1.0%を下回った。"
+    },
+    {
+      "level": 1,
+      "text": "①外観不良は前月比で約3割減少した。"
+    },
+    {
+      "level": 1,
+      "text": "②寸法不良は横ばいであった。"
+    },
+    {
+      "level": 0,
+      "text": "（２）新型測定器の導入は11月中旬を予定しており、設置工事は休日に行う。"
+    },
+    {
+      "level": 0,
+      "text": "・現行の緩衝材は角部の保護が不十分である。"
+    },
+    {
+      "level": 0,
+      "text": "・試験運用は第2ラインに限定して実施する。"
+    },
+    {
+      "level": 0,
+      "text": "・費用の見積もりは購買課に依頼する。"
+    }
+  ],
+  "furniture": [
+    "株式会社カザミ計装 生産技術部",
+    "社外秘"
+  ],
+  "languages": [
+    "ja"
+  ],
+  "code": [],
+  "notes": "One-page Japanese meeting minutes. Japanese text is written without spaces, so a line wrapped inside a sentence joins with no space and sentences follow each other with no space. Furniture: the organisation/department line (top left) and the boxed \"社外秘\" mark (top right) on one line, listed as two entries. The meeting-data panel is a two-column key/value table in MS Gothic (no header row). Report list: TYPED full-width markers \"（１）\" \"（２）\" with a hanging indent and nested TYPED circled digits \"①\" \"②\"; a typed marker is joined to its text with NO space. The discussion points use a TYPED \"・\" (U+30FB) set inline, also joined with no space. Action table is zebra-banded with a coloured header row. The closing \"以上\" is body text and not recorded. Section numbers \"１．\" are part of the heading text."
+}

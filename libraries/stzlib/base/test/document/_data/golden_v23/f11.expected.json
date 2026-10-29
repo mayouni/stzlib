@@ -1,0 +1,137 @@
+{
+  "id": "f11",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Коммерческое предложение",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Коммерческое предложение"
+    },
+    {
+      "level": 2,
+      "text": "на поставку фасадной системы СП-50 для объекта «Жилой комплекс Озёрный»"
+    },
+    {
+      "level": 2,
+      "text": "Условия поставки"
+    }
+  ],
+  "key_sentences": [
+    "Благодарим вас за запрос и направляем коммерческое предложение на поставку алюминиевой фасадной системы СП-50.",
+    "Цены указаны в рублях с учётом НДС 20 %.",
+    "Основные условия поставки приведены ниже.",
+    "Предложение действительно до 20 ноября 2026 года.",
+    "Будем рады ответить на ваши вопросы и подготовить расчёт для других корпусов комплекса."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "№",
+          "Наименование",
+          "Ед. изм.",
+          "Кол-во",
+          "Цена, руб.",
+          "Сумма, руб."
+        ],
+        [
+          "1",
+          "Профиль стоечный СП-50.01, длина 6 м",
+          "шт.",
+          "240",
+          "4 850,00",
+          "1 164 000,00"
+        ],
+        [
+          "2",
+          "Профиль ригельный СП-50.02, длина 6 м",
+          "шт.",
+          "180",
+          "3 920,00",
+          "705 600,00"
+        ],
+        [
+          "3",
+          "Стеклопакет однокамерный 4М1-16-4И",
+          "м²",
+          "96",
+          "6 300,00",
+          "604 800,00"
+        ],
+        [
+          "4",
+          "Крепёжный комплект (кронштейны, анкеры)",
+          "компл.",
+          "60",
+          "1 150,00",
+          "69 000,00"
+        ],
+        [
+          "5",
+          "Уплотнитель EPDM, бухта 100 м",
+          "бухта",
+          "12",
+          "2 700,00",
+          "32 400,00"
+        ],
+        [
+          "Итого",
+          "Итого",
+          "Итого",
+          "Итого",
+          "Итого",
+          "2 575 800,00"
+        ],
+        [
+          "в том числе НДС (20 %)",
+          "в том числе НДС (20 %)",
+          "в том числе НДС (20 %)",
+          "в том числе НДС (20 %)",
+          "в том числе НДС (20 %)",
+          "429 300,00"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1) Срок изготовления составляет 25 рабочих дней с момента получения предоплаты."
+    },
+    {
+      "level": 0,
+      "text": "2) Порядок оплаты:"
+    },
+    {
+      "level": 1,
+      "text": "— 50 % предоплата по счёту;"
+    },
+    {
+      "level": 1,
+      "text": "— 50 % по факту готовности продукции к отгрузке."
+    },
+    {
+      "level": 0,
+      "text": "3) Доставка автотранспортом поставщика до объекта включена в стоимость."
+    },
+    {
+      "level": 0,
+      "text": "4) Гарантия на профильную систему составляет 10 лет."
+    }
+  ],
+  "furniture": [
+    "ООО «Северный профиль»",
+    "Производство алюминиевых фасадных систем",
+    "190121, г. Светлогорск-на-Неве, ул. Литейная, д. 7, офис 12",
+    "Тел.: +7 812 000-41-77 · sales@sev-profil.example",
+    "ИНН 7801234567 · КПП 780101001",
+    "Система СП-50 сертифицирована · www.sev-profil.example"
+  ],
+  "languages": [
+    "ru"
+  ],
+  "code": [],
+  "notes": "One-page Russian commercial offer on a letterhead (a red vertical bar beside four letterhead lines, each one furniture entry). The outgoing reference (left) and the addressee block (right) are body text set side by side and are not recorded. The italic line under the title is a level-2 heading (the offer subject). Numbers use a space as thousands separator and a comma as decimal mark, given as visible. Items table: full grid in Arial Narrow; the \"Итого\" and \"в том числе НДС (20 %)\" rows have their label spanning the first five columns (repeated five times). Conditions list: TYPED markers \"1)\" ... \"4)\" with a hanging indent at level 0 and TYPED em-dash markers \"—\" at level 1. Salutation, signature line, executor line are body text, not recorded; the certificate line at the bottom is furniture."
+}

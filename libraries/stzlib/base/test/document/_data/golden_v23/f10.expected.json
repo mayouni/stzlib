@@ -1,0 +1,235 @@
+{
+  "id": "f10",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Runbook RB-112: Deploying the ledger service",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Runbook RB-112: Deploying the ledger service"
+    },
+    {
+      "level": 2,
+      "text": "1. Purpose"
+    },
+    {
+      "level": 2,
+      "text": "2. Prerequisites"
+    },
+    {
+      "level": 2,
+      "text": "3. Procedure"
+    },
+    {
+      "level": 3,
+      "text": "3.1 Freeze the release"
+    },
+    {
+      "level": 3,
+      "text": "3.2 Apply the configuration"
+    },
+    {
+      "level": 3,
+      "text": "3.3 Roll out"
+    },
+    {
+      "level": 3,
+      "text": "3.4 Verify"
+    },
+    {
+      "level": 2,
+      "text": "4. Rollback"
+    },
+    {
+      "level": 2,
+      "text": "5. Contacts"
+    },
+    {
+      "level": 2,
+      "text": "6. Change history"
+    }
+  ],
+  "key_sentences": [
+    "This runbook describes how to release a new version of the ledger service to production.",
+    "It applies to scheduled releases only; emergency fixes follow runbook RB-090.",
+    "Check out the release tag and confirm that it was signed by the release manager.",
+    "The pool size must never exceed the connection limit agreed with the database team.",
+    "Run the query below fifteen minutes after the last pod has started.",
+    "Every settlement created in that period should be in the SETTLED or PENDING state.",
+    "Roll back without waiting for approval when any threshold in the table is crossed."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Owner",
+          "Payments platform team"
+        ],
+        [
+          "Escalation",
+          "Ledger on-call engineer, then the platform duty manager"
+        ],
+        [
+          "Last reviewed",
+          "2 October 2026"
+        ],
+        [
+          "Expected duration",
+          "40 minutes, of which 25 minutes are waiting for the rollout"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Symptom",
+          "Threshold",
+          "Action"
+        ],
+        [
+          "Error rate on /settle",
+          "above 2% for 5 minutes",
+          "kubectl rollout undo, then page the duty manager"
+        ],
+        [
+          "Settlement latency (p99)",
+          "above 1,500 ms",
+          "Scale to 6 replicas; roll back if no change in 10 minutes"
+        ],
+        [
+          "Database connections",
+          "above 90% of the limit",
+          "Reduce pool_size to 24 and redeploy"
+        ],
+        [
+          "Pods not ready",
+          "any pod after 5 minutes",
+          "Roll back immediately"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Role",
+          "Team",
+          "Hours"
+        ],
+        [
+          "Ledger on-call engineer",
+          "Payments platform",
+          "24/7"
+        ],
+        [
+          "Database duty engineer",
+          "Data infrastructure",
+          "07:00 to 22:00"
+        ],
+        [
+          "Platform duty manager",
+          "Platform engineering",
+          "24/7"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Rev.",
+          "Date",
+          "Change"
+        ],
+        [
+          "7",
+          "2 Oct 2026",
+          "Added the database connection threshold"
+        ],
+        [
+          "6",
+          "14 Jun 2026",
+          "Replaced the manual canary with a rolling restart"
+        ],
+        [
+          "5",
+          "3 Feb 2026",
+          "Moved the verification query to the read replica"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "An approved change ticket with a release window of at least one hour."
+    },
+    {
+      "level": 0,
+      "text": "Access to the production cluster through the bastion host:"
+    },
+    {
+      "level": 1,
+      "text": "a valid hardware key registered to your account;"
+    },
+    {
+      "level": 1,
+      "text": "membership of the ledger-deployers group."
+    },
+    {
+      "level": 0,
+      "text": "A second engineer available to watch the dashboards during the rollout."
+    },
+    {
+      "level": 0,
+      "text": "Announce the start of the release in the operations channel."
+    },
+    {
+      "level": 0,
+      "text": "Restart the deployment and follow its progress:"
+    },
+    {
+      "level": 1,
+      "text": "pods are replaced one at a time;"
+    },
+    {
+      "level": 1,
+      "text": "each new pod must pass its readiness check before the next one starts."
+    },
+    {
+      "level": 0,
+      "text": "Stop and go to section 4 if any pod fails to become ready within five minutes."
+    },
+    {
+      "level": 0,
+      "text": "- Close the change ticket and record the release tag."
+    },
+    {
+      "level": 0,
+      "text": "- Post the verification query output in the ticket."
+    },
+    {
+      "level": 0,
+      "text": "- Hand the dashboards back to the on-call engineer."
+    }
+  ],
+  "furniture": [
+    "Halden Freight Systems · Platform Engineering",
+    "RB-112 · Rev. 7",
+    "Internal use only",
+    "Page 1 of 2",
+    "Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "$ git fetch --tags origin\n$ git checkout release/2026.10.2\n$ ./scripts/verify-signature.sh release/2026.10.2",
+    "ledger:\n  replicas: 4\n  database:\n    pool_size: 32\n    statement_timeout_ms: 5000\n  feature_flags:\n    async_settlement: true",
+    "kubectl -n ledger rollout restart deployment/ledger-api\nkubectl -n ledger rollout status deployment/ledger-api --timeout=10m",
+    "SELECT status, count(*)\n  FROM settlements\n WHERE created_at > now() - interval '15 minutes'\n GROUP BY status;"
+  ],
+  "notes": "Two-page operations runbook. Running header: left and right blocks are separate furniture entries (listed once). Footer: left \"Internal use only\" (repeated, listed once) and right page-number line \"Page 1 of 2\" / \"Page 2 of 2\". Four code blocks in Courier New, given exactly with their indentation; the \"$ \" shell prompts are part of the visible code. Prerequisites list: CSS-drawn markers (circle at level 0, square at level 1). Procedure list in 3.3: CSS-drawn decimal at level 0 and lower-alpha at level 1 (markers not in list_items). The \"After the rollout\" box holds a list with TYPED \"- \" hyphen markers, inline (no hanging indent). Top panel: shaded 2-column key/value table without rules or header. Rollback table: rule under the header and between rows, cells of two lines (joined with one space); the Change history table uses the same style. Contacts table: no lines at all, italic header row."
+}

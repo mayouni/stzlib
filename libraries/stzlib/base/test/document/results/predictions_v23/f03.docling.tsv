@@ -1,0 +1,52 @@
+page_header	0	Wendeler Drucklufttechnik GmbH
+page_header	0	Betriebsanleitung KS 40 · Ausgabe 03/2026
+heading	1	Betriebsanleitung Kompressorstation KS 40
+paragraph	0	Diese Anleitung gilt für alle Kompressorstationen der Baureihe KS 40 ab Seriennummer 40-2210. Lesen Sie die Anleitung vor der ersten Inbetriebnahme vollständig durch und bewahren Sie sie am Aufstellungsort auf.
+heading	1	1 Sicherheitshinweise
+heading	1	1.1 Bestimmungsgemäße Verwendung
+paragraph	0	Die Station erzeugt ölfreie Druckluft für Werkstätten und kleine Fertigungsbetriebe. Jede andere Verwendung gilt als nicht bestimmungsgemäß.
+paragraph	0	Achtung: Vor allen Arbeiten am Druckbehälter muss die Anlage drucklos gemacht und gegen Wiedereinschalten gesichert werden.
+heading	1	1.2 Persönliche Schutzausrüstung
+list_item	0	Gehörschutz bei geöffneter Schallhaube
+list_item	0	Schutzbrille beim Ablassen des Kondensats
+list_item	0	Schutzhandschuhe bei Arbeiten an heißen Bauteilen
+heading	1	2 Technische Daten
+paragraph	0	Tabelle 1: Kenndaten KS 40
+table	0	KenngrößeWertEinheitLiefermenge bei 8 bar410l/minMaximaler Betriebsdruck10barBehältervolumen90lMotorleistung3,0kWSchalldruckpegel in 1 m Abstand64dB(A)Gewicht ohne Verpackung118kg
+heading	1	3 Inbetriebnahme
+list_item	0	Station auf ebenem, tragfähigem Untergrund aufstellen und mindestens 50 cm Wandabstand einhalten.
+list_item	0	Netzanschluss prüfen:
+list_item	0	Spannung 400 V, 50 Hz
+list_item	0	Absicherung mindestens 16 A träge
+list_item	0	Kondensatablass schließen und Hauptschalter einschalten.
+list_item	0	Drehrichtung am Lüfterrad kontrollieren; bei falscher Drehrichtung zwei Phasen tauschen.
+page_footer	0	Seite 1 von 2
+page_header	0	Wendeler Drucklufttechnik GmbH
+page_header	0	Betriebsanleitung KS 40 · Ausgabe 03/2026
+heading	1	3.1 Konfiguration der Steuerung
+paragraph	0	Die Schaltpunkte werden in der Datei steuerung.ini auf der SD-Karte der Steuerung festgelegt. Nach jeder Änderung muss die Steuerung neu gestartet werden.
+heading	1	[steuerung]
+paragraph	0	modus
+paragraph	0	= automatik
+paragraph	0	druck _
+paragraph	0	druck _
+paragraph	0	ein = 7.5 ; bar
+paragraph	0	aus = 9.0 ; bar
+paragraph	0	nachlaufzeit = 120 ; s
+heading	1	4 Wartung
+paragraph	0	Die folgenden Intervalle gelten für einen Betrieb bei Umgebungstemperaturen bis 30 °C.
+table	0	BauteilTätigkeitIntervall in BetriebsstundenIntervall in BetriebsstundenIntervall in Betriebsstunden50020004000AnsaugfilterReinigen●AnsaugfilterErneuern●SicherheitsventilFunktion prüfen●KeilriemenSpannung prüfen, ggf. nachspannen●VerdichterblockVentilplatten erneuern●
+caption	0	Tabelle 2: Wartungsplan
+paragraph	0	Verschleißteile sind beim Kundendienst unter Angabe der Seriennummer erhältlich.
+list_item	0	Wartungsset 500 h, Bestellnummer 40-900-05
+list_item	0	Wartungsset 2000 h, Bestellnummer 40-900-20
+list_item	0	Ventilplattensatz, Bestellnummer 40-311-02
+heading	1	5 Störungen und Abhilfe
+list_item	0	Kompressor läuft nicht an
+list_item	0	Hauptschalter und Sicherung prüfen.
+list_item	0	Druckschalter auf Fehlermeldung kontrollieren.
+list_item	0	Sicherheitsventil bläst ab
+list_item	0	Einstellung des Druckschalters prüfen.
+list_item	0	Kondensat im Druckluftnetz
+list_item	0	Kondensatablass häufiger betätigen oder automatischen Ablass nachrüsten.
+page_footer	0	Seite 2 von 2

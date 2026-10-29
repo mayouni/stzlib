@@ -1,0 +1,228 @@
+{
+  "id": "f07",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "Tideline",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Tideline"
+    },
+    {
+      "level": 2,
+      "text": "New tide gauge network goes live"
+    },
+    {
+      "level": 2,
+      "text": "Field season in numbers"
+    },
+    {
+      "level": 2,
+      "text": "Archive digitisation reaches 1950"
+    },
+    {
+      "level": 3,
+      "text": "In this issue"
+    },
+    {
+      "level": 3,
+      "text": "Diary dates"
+    },
+    {
+      "level": 3,
+      "text": "Contact"
+    },
+    {
+      "level": 2,
+      "text": "Grants awarded this term"
+    },
+    {
+      "level": 2,
+      "text": "How to contribute"
+    },
+    {
+      "level": 2,
+      "text": "Staff news"
+    },
+    {
+      "level": 2,
+      "text": "Autumn seminar series"
+    }
+  ],
+  "key_sentences": [
+    "Six new tide gauges along the Marrowby estuary began reporting in real time on 2 September.",
+    "The gauges replace a network of float recorders that had been read by hand once a week since 1987.",
+    "Calibration against a portable reference gauge showed agreement within four millimetres at every site.",
+    "The summer field programme was the busiest since the institute opened.",
+    "Four new research grants were confirmed between June and September.",
+    "The newsletter welcomes short articles from staff, students and volunteers.",
+    "Dr Petra Lindqvist joins the sediment group as a postdoctoral researcher from 1 November.",
+    "She comes from a fjord monitoring programme and will lead the new coring work.",
+    "A farewell tea will be held in the common room on his last Friday."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Activity",
+          "2025",
+          "2026"
+        ],
+        [
+          "Survey days at sea",
+          "41",
+          "58"
+        ],
+        [
+          "Sediment cores taken",
+          "126",
+          "173"
+        ],
+        [
+          "Volunteer hours",
+          "910",
+          "1,240"
+        ],
+        [
+          "Seal counts completed",
+          "12",
+          "15"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Project",
+          "Lead",
+          "Funder",
+          "Award (GBP)",
+          "Duration"
+        ],
+        [
+          "Saltmarsh carbon burial across three estuaries",
+          "Dr Ines Halloran",
+          "Coastal Futures Trust",
+          "412,000",
+          "36 months"
+        ],
+        [
+          "Microplastics in mussel beds",
+          "Dr Kofi Mensah-Bright",
+          "North Sea Research Fund",
+          "188,500",
+          "24 months"
+        ],
+        [
+          "Storm surge forecasting for small harbours",
+          "Prof. Alma Rustad",
+          "Regional Resilience Board",
+          "265,000",
+          "30 months"
+        ],
+        [
+          "Citizen seal monitoring",
+          "Tom Ashdown",
+          "Marrowby Community Lottery",
+          "24,800",
+          "12 months"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Date",
+          "Speaker",
+          "Title"
+        ],
+        [
+          "13 Nov",
+          "Dr Ines Halloran",
+          "How much carbon does a saltmarsh really keep?"
+        ],
+        [
+          "27 Nov",
+          "Wen Zhao",
+          "Listening to harbour seals with low-cost hydrophones"
+        ],
+        [
+          "11 Dec",
+          "Prof. Alma Rustad",
+          "Forecasting surge at the scale of a single harbour"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Tide gauge network"
+    },
+    {
+      "level": 0,
+      "text": "Field season in numbers"
+    },
+    {
+      "level": 0,
+      "text": "Grants awarded"
+    },
+    {
+      "level": 0,
+      "text": "How to contribute"
+    },
+    {
+      "level": 0,
+      "text": "Staff news"
+    },
+    {
+      "level": 0,
+      "text": "– 6 Nov: open lecture, \"Saltmarsh carbon\""
+    },
+    {
+      "level": 0,
+      "text": "– 20 Nov: volunteer training day"
+    },
+    {
+      "level": 0,
+      "text": "– 4 Dec: winter seal count"
+    },
+    {
+      "level": 0,
+      "text": "– 11 Dec: library closes for the holidays"
+    },
+    {
+      "level": 0,
+      "text": "Send a draft of no more than 400 words to the communications office."
+    },
+    {
+      "level": 0,
+      "text": "Attach photographs as separate files:"
+    },
+    {
+      "level": 1,
+      "text": "at least 1,600 pixels wide;"
+    },
+    {
+      "level": 1,
+      "text": "with the photographer named in the file name."
+    },
+    {
+      "level": 0,
+      "text": "Copy for the winter issue closes on 14 November."
+    }
+  ],
+  "furniture": [
+    "Tideline · Issue 14 · Autumn 2026",
+    "Page 1",
+    "Page 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Two-page newsletter. Page 1: the masthead title \"Tideline\" (Georgia) with a subtitle line, then a main area set in TWO CSS columns (text flows from the left column to the right column) beside a shaded SIDEBAR on the right. Reading order: masthead, the whole two-column main area, then the sidebar. The sidebar holds \"In this issue\" (disc bullets drawn by CSS, no marker) and \"Diary dates\" (typed en-dash markers with a hanging indent). Page 2: a full-width zebra table (white header on teal, no rules), then two side-by-side blocks read left block first: left \"How to contribute\" is a CSS-drawn ordered list (decimal at level 0, lower-alpha at level 1, markers not in list_items), right \"Staff news\" is prose. Below them, the \"Autumn seminar series\" table has a rule under its header only. The small \"Field season\" table on page 1 (rule under the header only) sits inside the second text column. In the HTML render made by the author the sentence \"The summer field programme was the busiest since the institute opened.\" runs from the foot of the left column to the top of the right column (the PDF was not inspected, so the break may fall elsewhere): it is one sentence. The pull quote on page 1 is a repeated sentence and is not a key sentence. Footer: left block is repeated (listed once), right block is the page-number line (\"Page 1\", \"Page 2\")."
+}

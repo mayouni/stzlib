@@ -1,0 +1,20 @@
+page_header	0	Unit 9, Brookside Science Park, Fernhill FH2 6LQ lab@fernhill-analytical.example · 01632 960 552
+heading	1	Fernhill Analytical Laboratories
+paragraph	0	Accredited testing laboratory No. 4471
+heading	1	Water Quality Test Report
+table	0	Client detailsClientAshgrove Farm HolidaysAddressAshgrove Lane, Upper Wyke UW3 8NBContactSite managerOrder no.AFH-0926
+table	0	Sample detailsSample detailsSample IDWQ-26-1187-01SourcePrivate borehole, kitchen tapCollected14 Oct 2026, 09:40Received14 Oct 2026, 13:15ConditionChilled, intact seal
+paragraph	0	The sample was analysed in the condition in which it was received. Results relate only to the sample tested and are compared with the limits for drinking water supplies.
+heading	1	Results
+table	0	ParameterMethodResultUnitLimitAssessmentMicrobiologicalMicrobiologicalMicrobiologicalMicrobiologicalMicrobiologicalMicrobiologicalEscherichia coliISO 9308-1 membrane filtration0cfu/100 ml0CompliesColiform bacteriaISO 9308-1 membrane filtration3cfu/100 ml0Does not comply (see remark 1)ChemicalChemicalChemicalChemicalChemicalChemicalNitrate (as NO3)Ion chromatography38.2mg/l50CompliesIronICP-OES0.41mg/l0.20Does not comply (see remark 2)ManganeseICP-OES0.032mg/l0.050CompliesFluorideIon-selective electrode0.6mg/l1.5CompliesPhysicalPhysicalPhysicalPhysicalPhysicalPhysicalpH at 20 °CElectrometric6.4pH units6.5 - 9.5Does not comply (see remark 3)TurbidityNephelometric2.8NTU4Complies
+heading	1	Remarks
+list_item	0	Coliform bacteria were detected while E. coli was absent, which points to surface ingress rather than faecal contamination.
+list_item	0	Iron above the indicator value can stain sanitary ware and laundry.
+list_item	0	Slightly acidic water can dissolve copper and lead from older pipework.
+heading	1	Interpretation
+paragraph	0	The sample does not meet the drinking water limits for coliform bacteria, iron and pH. We recommend disinfecting the borehole and taking a repeat sample after 14 days. Until a satisfactory result is obtained, water for drinking should be boiled or taken from a bottled supply.
+paragraph	0	Authorised by: Senior Analyst, Water Section
+paragraph	0	Date of issue: 22 October 2026
+paragraph	0	APPROVED
+page_footer	0	Report WQ-26-1187 · issued 22 October 2026
+page_footer	0	Page 1 of 1

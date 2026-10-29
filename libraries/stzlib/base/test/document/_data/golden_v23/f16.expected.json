@@ -1,0 +1,145 @@
+{
+  "id": "f16",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Τιμοκατάλογος δωματίων 2027",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Τιμοκατάλογος δωματίων 2027"
+    },
+    {
+      "level": 2,
+      "text": "Χαμηλή περίοδος"
+    },
+    {
+      "level": 2,
+      "text": "Υψηλή περίοδος"
+    },
+    {
+      "level": 2,
+      "text": "Περιλαμβάνονται στην τιμή"
+    },
+    {
+      "level": 2,
+      "text": "Όροι ακύρωσης"
+    }
+  ],
+  "key_sentences": [
+    "Οι τιμές αφορούν διανυκτέρευση ανά δωμάτιο και περιλαμβάνουν πρωινό σε μπουφέ.",
+    "Ο φόρος διαμονής δεν περιλαμβάνεται και καταβάλλεται κατά την αναχώρηση.",
+    "Την περίοδο αυτή το εστιατόριο της παραλίας λειτουργεί μόνο για δείπνο.",
+    "Την περίοδο αυτή η πισίνα είναι ανοιχτή από τις 08:00 έως τις 20:00.",
+    "Η ακύρωση χωρίς χρέωση είναι δυνατή έως 21 ημέρες πριν από την άφιξη."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Δωμάτιο",
+          "Τιμή ανά νύχτα"
+        ],
+        [
+          "Δίκλινο με θέα στον κήπο",
+          "85 €"
+        ],
+        [
+          "Δίκλινο με θέα στη θάλασσα",
+          "105 €"
+        ],
+        [
+          "Οικογενειακή σουίτα (4 άτομα)",
+          "150 €"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Δωμάτιο",
+          "Τιμή ανά νύχτα"
+        ],
+        [
+          "Δίκλινο με θέα στον κήπο",
+          "125 €"
+        ],
+        [
+          "Δίκλινο με θέα στη θάλασσα",
+          "155 €"
+        ],
+        [
+          "Οικογενειακή σουίτα (4 άτομα)",
+          "220 €"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "α) Ελάχιστη διαμονή δύο νύχτες."
+    },
+    {
+      "level": 0,
+      "text": "β) Έκπτωση 10% για διαμονή άνω των επτά νυχτών."
+    },
+    {
+      "level": 0,
+      "text": "α) Ελάχιστη διαμονή τέσσερις νύχτες."
+    },
+    {
+      "level": 0,
+      "text": "β) Τον Αύγουστο οι αφίξεις γίνονται μόνο το Σάββατο."
+    },
+    {
+      "level": 0,
+      "text": "Πρωινό σε μπουφέ"
+    },
+    {
+      "level": 0,
+      "text": "Ξαπλώστρες και ομπρέλες στην παραλία"
+    },
+    {
+      "level": 0,
+      "text": "Ασύρματο διαδίκτυο"
+    },
+    {
+      "level": 0,
+      "text": "Στάθμευση στον χώρο του ξενοδοχείου"
+    },
+    {
+      "level": 0,
+      "text": "Καθημερινή καθαριότητα"
+    },
+    {
+      "level": 0,
+      "text": "Μεταφορά από το λιμάνι κατόπιν αιτήματος"
+    },
+    {
+      "level": 0,
+      "text": "Από 20 έως 8 ημέρες πριν από την άφιξη χρεώνεται η πρώτη διανυκτέρευση."
+    },
+    {
+      "level": 0,
+      "text": "Σε ακύρωση εντός 7 ημερών χρεώνεται το 50% της συνολικής διαμονής."
+    },
+    {
+      "level": 0,
+      "text": "Σε περίπτωση μη εμφάνισης χρεώνεται ολόκληρη η διαμονή."
+    }
+  ],
+  "furniture": [
+    "ΞΕΝΟΔΟΧΕΙΟ ΑΛΚΥΟΝΙΔΕΣ",
+    "Παραθαλάσσια διαμονή από το 1987",
+    "Όρμος Καλαμιών, 85300 Λιμενάρια",
+    "τηλ. 210 555 0198 · info@alkyonides.example",
+    "Σελίδα 1 από 1"
+  ],
+  "languages": [
+    "el"
+  ],
+  "code": [],
+  "notes": "One-page Greek hotel tariff leaflet. Letterhead (hotel name, tagline) and the two-line footer (address line, contact line) plus the page number \"Σελίδα 1 από 1\" are furniture. Two boxes stand SIDE BY SIDE (low season left, high season right); reading order is BOX BY BOX: the whole left box (heading, dates, sentence, price table, list) before the right box. Each box holds a zebra price table and a list whose markers \"α)\" \"β)\" are TYPED inline. The \"Περιλαμβάνονται στην τιμή\" list is drawn by CSS (disc bullets) and flows in two CSS columns: read down the left column first. The cancellation list is drawn by CSS as lower-greek (α. β. γ.), so items carry no marker. Season date lines inside the boxes are body labels, not key sentences."
+}

@@ -1,0 +1,141 @@
+{
+  "id": "f23",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "Public Notice",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Public Notice"
+    },
+    {
+      "level": 2,
+      "text": "Temporary closure of the Heron Point footbridge"
+    },
+    {
+      "level": 2,
+      "text": "What this means for you"
+    },
+    {
+      "level": 2,
+      "text": "Contact"
+    },
+    {
+      "level": 1,
+      "text": "Avis public"
+    },
+    {
+      "level": 2,
+      "text": "Fermeture temporaire de la passerelle de la pointe aux Hérons"
+    },
+    {
+      "level": 2,
+      "text": "Ce que cela signifie pour vous"
+    },
+    {
+      "level": 2,
+      "text": "Renseignements"
+    }
+  ],
+  "key_sentences": [
+    "The Heron Point footbridge will be closed from 3 November to 19 December 2026 while its timber deck is replaced.",
+    "The bridge has carried walkers and cyclists across the river since 1987, and an inspection in June found that several deck boards had decayed.",
+    "If you have questions about the works, please call the parks office on 01632 960 552.",
+    "We apologise for any inconvenience.",
+    "La passerelle de la pointe aux Hérons sera fermée du 3 novembre au 19 décembre 2026 pendant le remplacement de son tablier en bois.",
+    "Empruntée par les promeneurs et les cyclistes depuis 1987, elle a fait l’objet en juin d’une inspection qui a révélé la dégradation de plusieurs planches.",
+    "Pour toute question sur les travaux, veuillez appeler le bureau des parcs au 01632 960 552.",
+    "Nous vous prions de nous excuser pour la gêne occasionnée."
+  ],
+  "tables": [
+    {
+      "caption": "Schedule of works / Calendrier des travaux",
+      "rows": [
+        [
+          "Phase",
+          "Dates",
+          "Work Travaux",
+          "Access Accès"
+        ],
+        [
+          "1",
+          "03/11–14/11/2026",
+          "Removal of the old deck Dépose de l’ancien tablier",
+          "Closed Fermée"
+        ],
+        [
+          "2",
+          "17/11–05/12/2026",
+          "Repairs to the steel beams Réparation des poutres en acier",
+          "Closed Fermée"
+        ],
+        [
+          "3",
+          "08/12–19/12/2026",
+          "New deck and handrails Nouveau tablier et garde-corps",
+          "Closed Fermée"
+        ],
+        [
+          "4",
+          "20/12/2026",
+          "Reopening Réouverture",
+          "Open Ouverte"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "The riverside path will be diverted over the Mill Road bridge."
+    },
+    {
+      "level": 1,
+      "text": "The diversion adds about 900 metres to the route."
+    },
+    {
+      "level": 1,
+      "text": "Signs will be placed at both ends of the closure."
+    },
+    {
+      "level": 0,
+      "text": "The car park at Heron Point stays open throughout the works."
+    },
+    {
+      "level": 0,
+      "text": "Guided bird walks will start from the visitor centre instead."
+    },
+    {
+      "level": 0,
+      "text": "– Le sentier riverain sera dévié par le pont de la rue du Moulin."
+    },
+    {
+      "level": 1,
+      "text": "• Le détour allonge le parcours d’environ 900 mètres."
+    },
+    {
+      "level": 1,
+      "text": "• Des panneaux seront installés aux deux extrémités de la fermeture."
+    },
+    {
+      "level": 0,
+      "text": "– Le stationnement de la pointe aux Hérons reste ouvert pendant toute la durée des travaux."
+    },
+    {
+      "level": 0,
+      "text": "– Les sorties ornithologiques guidées partiront du centre d’accueil."
+    }
+  ],
+  "furniture": [
+    "Brightwater Valley Regional Parks Authority",
+    "Autorité régionale des parcs de la vallée de Brightwater",
+    "www.brightwater-parks.example",
+    "Page 1 of 1 / Page 1 de 1"
+  ],
+  "languages": [
+    "en",
+    "fr"
+  ],
+  "code": [],
+  "notes": "Bilingual public notice, one page, Gill Sans MT. The bilingual letterhead (two centred lines, English then French) and the footer (web address left, bilingual page number right, one entry each) are furniture. The body is two columns SIDE BY SIDE separated by a vertical rule: the English column on the left is read COMPLETELY first, then the French column on the right (reading order column by column, never line by line across). Both columns have their own level-1 heading; the title is the English one. Lists: English uses CSS-drawn disc bullets with nested CSS circles (no markers); French uses TYPED dashes \"–\" at level 0 and TYPED \"•\" at level 1, hanging indents (marker + one space + text). Below the columns, a full-width table spans both languages: booktabs-style rules plus light row rules; the two right-hand header cells and body cells hold two lines (English over French), joined with one space; the Access column is centred, vertically middle. Apostrophes in French are U+2019 as typed."
+}

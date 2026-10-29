@@ -1,0 +1,206 @@
+{
+  "id": "f21",
+  "difficulty": "medium",
+  "pages": 2,
+  "title": "Ripoti ya Maendeleo ya Mradi wa Maji Safi wa Kirungu",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Ripoti ya Maendeleo ya Mradi wa Maji Safi wa Kirungu"
+    },
+    {
+      "level": 2,
+      "text": "1. Muhtasari"
+    },
+    {
+      "level": 2,
+      "text": "2. Kazi Zilizokamilika"
+    },
+    {
+      "level": 2,
+      "text": "Kwa Ufupi"
+    },
+    {
+      "level": 2,
+      "text": "3. Matumizi ya Fedha"
+    },
+    {
+      "level": 2,
+      "text": "4. Changamoto"
+    },
+    {
+      "level": 2,
+      "text": "5. Hatua Zinazofuata"
+    },
+    {
+      "level": 2,
+      "text": "6. Shukrani"
+    }
+  ],
+  "key_sentences": [
+    "Katika robo hii, mradi uliendelea kwa kasi nzuri licha ya mvua za mapema mwezi Agosti.",
+    "Vituo sita kati ya vinane vya kuchotea maji sasa vinafanya kazi na vinahudumia kaya 412.",
+    "Kamati za maji za vijiji vitatu zimechaguliwa na kuanza kukusanya michango ya matengenezo.",
+    "Matumizi yamefikia asilimia 73 ya bajeti yote ya mradi.",
+    "Bei ya mabomba ya plastiki ilipanda kwa takriban asilimia 12 kati ya Julai na Septemba.",
+    "Mvua kubwa zilichelewesha uchimbaji wa mitaro katika eneo la Ngozini kwa wiki mbili.",
+    "Ripoti ijayo itawasilishwa mwezi Januari 2027."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Kaya zinazohudumiwa",
+          "412"
+        ],
+        [
+          "Vituo vya maji",
+          "6 kati ya 8"
+        ],
+        [
+          "Urefu wa bomba",
+          "km 4.2"
+        ],
+        [
+          "Bajeti iliyotumika",
+          "73%"
+        ],
+        [
+          "Muda wa mradi",
+          "Jan 2026 hadi Mar 2027"
+        ]
+      ]
+    },
+    {
+      "caption": "Jedwali 1: Bajeti na matumizi hadi 30 Septemba 2026",
+      "rows": [
+        [
+          "Kipengele",
+          "Bajeti (KSh)",
+          "Kilichotumika (KSh)",
+          "Asilimia"
+        ],
+        [
+          "Mabomba na viungio",
+          "1,850,000",
+          "1,512,000",
+          "82%"
+        ],
+        [
+          "Ujenzi wa vituo vya maji",
+          "1,200,000",
+          "870,000",
+          "73%"
+        ],
+        [
+          "Tangi la kuhifadhi maji",
+          "950,000",
+          "760,000",
+          "80%"
+        ],
+        [
+          "Mafunzo ya kamati za maji",
+          "300,000",
+          "96,000",
+          "32%"
+        ],
+        [
+          "Usimamizi na usafiri",
+          "400,000",
+          "214,000",
+          "54%"
+        ],
+        [
+          "Jumla",
+          "4,700,000",
+          "3,452,000",
+          "73%"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1) Bomba kuu la urefu wa kilomita 4.2 limelazwa kutoka chanzo hadi tangi la kuhifadhi."
+    },
+    {
+      "level": 0,
+      "text": "2) Tangi la lita 50,000 limejengwa na kufanyiwa majaribio ya kuvuja."
+    },
+    {
+      "level": 0,
+      "text": "3) Vituo sita vya kuchotea maji vimejengwa katika vijiji vya:"
+    },
+    {
+      "level": 1,
+      "text": "Kirungu Juu (vituo vitatu)"
+    },
+    {
+      "level": 1,
+      "text": "Mwamba (vituo viwili)"
+    },
+    {
+      "level": 1,
+      "text": "Ngozini (kituo kimoja)"
+    },
+    {
+      "level": 0,
+      "text": "4) Mafundi wanne wa kijiji wamepewa mafunzo ya awali ya ukarabati wa mabomba na mabomba ya kuchotea."
+    },
+    {
+      "level": 0,
+      "text": "Halmashauri ya Wilaya ya Kirungu"
+    },
+    {
+      "level": 0,
+      "text": "Mfuko wa Ushirikiano wa Pwani"
+    },
+    {
+      "level": 0,
+      "text": "Kamati za maji za vijiji"
+    },
+    {
+      "level": 0,
+      "text": "Shule ya Msingi Mwamba"
+    },
+    {
+      "level": 0,
+      "text": "– Ucheleweshaji wa vibali vya kuvuka barabara kuu"
+    },
+    {
+      "level": 0,
+      "text": "– Upungufu wa mafundi wenye ujuzi wa kuunganisha mabomba"
+    },
+    {
+      "level": 0,
+      "text": "– Wizi wa viungio viwili katika ghala la muda la Mwamba"
+    },
+    {
+      "level": 0,
+      "text": "a) Kukamilisha vituo viwili vilivyobaki kufikia mwisho wa Novemba 2026."
+    },
+    {
+      "level": 0,
+      "text": "b) Kuendesha mafunzo ya usimamizi wa fedha kwa kamati zote za maji."
+    },
+    {
+      "level": 0,
+      "text": "c) Kuweka mita za maji katika vituo vyote ili kufuatilia matumizi."
+    }
+  ],
+  "furniture": [
+    "Jumuiya ya Maendeleo ya Mto Kirungu",
+    "S.L.P. 218, Kirungu · info@kirungu-maji.example",
+    "Ripoti ya Robo ya Tatu 2026 · Mradi wa Maji Safi wa Kirungu",
+    "Ukurasa 1 kati ya 2",
+    "Jumuiya ya Maendeleo ya Mto Kirungu · Ripoti ya Maendeleo",
+    "Ukurasa 2 kati ya 2"
+  ],
+  "languages": [
+    "sw"
+  ],
+  "code": [],
+  "notes": "Two-page Swahili project progress report. Page 1 has a coloured letterhead band (organisation name and a second line, two furniture entries); page 2 has a small running header line instead. Footer on both pages: report name left (listed once) and \"Ukurasa 1 kati ya 2\" / \"Ukurasa 2 kati ya 2\" right (one entry per page). Page 1 is two columns: the main column is read first, then the right sidebar box (\"Kwa Ufupi\", recorded as a level-2 heading) with a ruled key/value table (no header row) and a CSS square-bullet list beside the main text; section 3 then runs full width below both columns. The line \"Robo ya Tatu: Julai hadi Septemba 2026\" under the title is a subtitle, not a heading. Lists: \"1)\" \"2)\"... TYPED with hanging indent; nested village names CSS disc bullets; \"–\" dashes TYPED; \"a)\" \"b)\" \"c)\" TYPED. Finance table: zebra rows, dark header, total row, caption BELOW the table. The quotation box on page 2 (italic, with an attribution line) is body text recorded nowhere."
+}

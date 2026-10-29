@@ -1,0 +1,248 @@
+{
+  "id": "f09",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "KJ-360 家用空气净化器产品规格书",
+  "headings": [
+    {
+      "level": 1,
+      "text": "KJ-360 家用空气净化器产品规格书"
+    },
+    {
+      "level": 2,
+      "text": "一、产品概述"
+    },
+    {
+      "level": 2,
+      "text": "二、技术参数"
+    },
+    {
+      "level": 2,
+      "text": "三、主要功能"
+    },
+    {
+      "level": 2,
+      "text": "四、包装清单"
+    },
+    {
+      "level": 2,
+      "text": "五、安全注意事项"
+    },
+    {
+      "level": 2,
+      "text": "六、保修政策"
+    }
+  ],
+  "key_sentences": [
+    "KJ-360是一款面向20至45平方米居室的家用空气净化器。",
+    "本机采用三层复合滤网，可同时去除颗粒物、甲醛和异味。",
+    "整机噪声在睡眠模式下不高于28分贝，适合卧室和儿童房使用。",
+    "开箱后请对照下表核对随机附件。",
+    "自购买之日起，整机享受一年免费保修，电机享受三年免费保修。",
+    "滤网属于耗材，不在保修范围之内。",
+    "保修期内因人为损坏或擅自拆机造成的故障，不享受免费维修服务。",
+    "如需维修，请拨打客服电话或通过官方网站提交服务申请。"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "版本",
+          "V1.2",
+          "发布日期",
+          "2026年9月18日"
+        ],
+        [
+          "编制部门",
+          "产品研发部",
+          "审核部门",
+          "质量管理部"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "项目",
+          "参数",
+          "备注"
+        ],
+        [
+          "（一）净化性能",
+          "（一）净化性能",
+          "（一）净化性能"
+        ],
+        [
+          "颗粒物洁净空气量",
+          "360 m³/h",
+          "最高风速档"
+        ],
+        [
+          "甲醛洁净空气量",
+          "120 m³/h",
+          ""
+        ],
+        [
+          "适用面积",
+          "25～43 m²",
+          "按国家标准方法计算"
+        ],
+        [
+          "（二）电气参数",
+          "（二）电气参数",
+          "（二）电气参数"
+        ],
+        [
+          "额定电压",
+          "220 V / 50 Hz",
+          ""
+        ],
+        [
+          "额定功率",
+          "48 W",
+          "最高风速档"
+        ],
+        [
+          "待机功率",
+          "≤0.5 W",
+          ""
+        ],
+        [
+          "（三）外形与重量",
+          "（三）外形与重量",
+          "（三）外形与重量"
+        ],
+        [
+          "外形尺寸",
+          "360 × 220 × 610 mm",
+          "宽 × 深 × 高"
+        ],
+        [
+          "净重",
+          "7.2 kg",
+          "不含包装"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "序号",
+          "名称",
+          "数量"
+        ],
+        [
+          "1",
+          "主机",
+          "1台"
+        ],
+        [
+          "2",
+          "复合滤网（已装入主机）",
+          "1片"
+        ],
+        [
+          "3",
+          "遥控器（含电池）",
+          "1个"
+        ],
+        [
+          "4",
+          "使用说明书",
+          "1份"
+        ],
+        [
+          "5",
+          "保修卡",
+          "1张"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "部件",
+          "保修期",
+          "服务方式"
+        ],
+        [
+          "整机",
+          "1年",
+          "上门或送修"
+        ],
+        [
+          "电机",
+          "3年",
+          "送修"
+        ],
+        [
+          "空气质量传感器",
+          "2年",
+          "送修"
+        ],
+        [
+          "复合滤网",
+          "不保修",
+          "按耗材价格购买"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "１．三档风速与睡眠模式自动切换："
+    },
+    {
+      "level": 1,
+      "text": "①睡眠模式下指示灯自动熄灭；"
+    },
+    {
+      "level": 1,
+      "text": "②风速根据空气质量传感器读数自动调整。"
+    },
+    {
+      "level": 0,
+      "text": "２．滤网寿命提醒，剩余寿命低于10%时指示灯变为红色。"
+    },
+    {
+      "level": 0,
+      "text": "３．童锁功能，长按锁定键3秒即可启用或解除。"
+    },
+    {
+      "level": 0,
+      "text": "请勿在浴室等潮湿场所使用本机。"
+    },
+    {
+      "level": 0,
+      "text": "清洁或更换滤网前务必拔下电源插头。"
+    },
+    {
+      "level": 0,
+      "text": "请勿遮挡进风口和出风口。"
+    },
+    {
+      "level": 0,
+      "text": "儿童须在成人监护下使用。"
+    },
+    {
+      "level": 0,
+      "text": "电源线破损时，须由专业维修人员更换。"
+    }
+  ],
+  "furniture": [
+    "澄川电器有限公司",
+    "KJ-360 产品规格书 · 文件编号 CC-SPEC-2026-031",
+    "第 1 页 共 2 页",
+    "第 2 页 共 2 页"
+  ],
+  "languages": [
+    "zh"
+  ],
+  "code": [],
+  "notes": "Simplified Chinese product specification, two pages. Chinese sentences are written without spaces: a line wrapped inside a sentence joins with NO space, and consecutive sentences join with no space. Running header: left block (company) and right block (document reference) are separate entries, listed once; centred page-number line per page (\"第 1 页 共 2 页\", \"第 2 页 共 2 页\"). Section headings carry TYPED Chinese ordinal markers (\"一、\" ... \"六、\"). The function list in section 三 has TYPED full-width markers \"１．\" \"２．\" \"３．\" at level 0 and circled \"①\" \"②\" at level 1, joined to the text with NO space, hanging indent. The precautions list in section 五 is DRAWN BY CSS (list-style cjk-ideographic, rendered 一、二、...), so its items carry no marker. Parameters table: zebra bands, section rows \"（一）净化性能\" etc. span three columns (repeated). The document-data panel is a 4-column key/value grid with no header row. Section 四 (packing list, borderless table) and the boxed section 五 stand SIDE BY SIDE and read box by box, left first. Warranty table: rules above and below the header and between rows. The closing company name and date (right-aligned) are body text, not recorded."
+}

@@ -1,0 +1,349 @@
+{
+  "id": "f24",
+  "difficulty": "hard",
+  "pages": 3,
+  "title": "Dienstverleningsovereenkomst (SLA) Beheerde Hosting",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Dienstverleningsovereenkomst (SLA) Beheerde Hosting"
+    },
+    {
+      "level": 2,
+      "text": "1 Inleiding"
+    },
+    {
+      "level": 2,
+      "text": "2 Dienstbeschrijving"
+    },
+    {
+      "level": 2,
+      "text": "3 Beschikbaarheid"
+    },
+    {
+      "level": 3,
+      "text": "3.1 Meting"
+    },
+    {
+      "level": 3,
+      "text": "3.2 Normen per dienst"
+    },
+    {
+      "level": 2,
+      "text": "4 Incidentafhandeling"
+    },
+    {
+      "level": 2,
+      "text": "5 Rapportage"
+    },
+    {
+      "level": 2,
+      "text": "6 Wijzigingen en ondertekening"
+    },
+    {
+      "level": 2,
+      "text": "Bijlage A Contactpersonen"
+    },
+    {
+      "level": 2,
+      "text": "Bijlage B Onderhoudsvensters"
+    }
+  ],
+  "key_sentences": [
+    "Deze overeenkomst beschrijft de diensten die Datakwartier Hosting B.V. levert aan Stichting Woonzorg De Brede Akker en de kwaliteit die daarbij is afgesproken.",
+    "Zij vormt een aanvulling op de raamovereenkomst van 14 september 2026.",
+    "De dienstverlener garandeert voor het cliëntendossier een beschikbaarheid van 99,8 procent per kalendermaand.",
+    "Beschikbaarheid wordt gemeten als het percentage minuten waarin de dienst bereikbaar is, exclusief aangekondigd onderhoud.",
+    "Incidenten worden ingedeeld in vier prioriteiten.",
+    "De prioriteit bepaalt de reactietijd en de oplostijd.",
+    "De dienstverlener levert uiterlijk op de tiende werkdag van elke maand een rapportage over de voorgaande maand.",
+    "Wijzigingen in deze overeenkomst zijn alleen geldig als beide partijen ze schriftelijk hebben bevestigd."
+  ],
+  "tables": [
+    {
+      "caption": "Overzicht",
+      "rows": [
+        [
+          "Contractnummer",
+          "DKH-SLA-2026-031"
+        ],
+        [
+          "Klant",
+          "Stichting Woonzorg De Brede Akker"
+        ],
+        [
+          "Ingangsdatum",
+          "1 januari 2027"
+        ],
+        [
+          "Looptijd",
+          "24 maanden"
+        ],
+        [
+          "Opzegtermijn",
+          "3 maanden"
+        ],
+        [
+          "Servicevenster",
+          "maandag tot en met vrijdag, 07:00 tot 19:00 uur"
+        ]
+      ]
+    },
+    {
+      "caption": "Tabel 1 Beschikbaarheid per dienst",
+      "rows": [
+        [
+          "Dienst",
+          "Beschikbaarheid",
+          "Beschikbaarheid",
+          "Servicecredit bij onderschrijding"
+        ],
+        [
+          "Dienst",
+          "Norm",
+          "Minimum",
+          "Servicecredit bij onderschrijding"
+        ],
+        [
+          "Cliëntendossier",
+          "99,8%",
+          "99,5%",
+          "10% van de maandprijs"
+        ],
+        [
+          "Planningssoftware",
+          "99,5%",
+          "99,0%",
+          "5% van de maandprijs"
+        ],
+        [
+          "Netwerkverbinding",
+          "99,9%",
+          "99,5%",
+          "10% van de maandprijs"
+        ],
+        [
+          "E-mail en agenda",
+          "99,5%",
+          "99,0%",
+          "5% van de maandprijs"
+        ]
+      ]
+    },
+    {
+      "caption": "Tabel 2 Prioriteiten",
+      "rows": [
+        [
+          "Prioriteit",
+          "Omschrijving",
+          "Reactietijd",
+          "Oplostijd"
+        ],
+        [
+          "P1",
+          "Dienst volledig onbeschikbaar voor alle gebruikers",
+          "15 minuten",
+          "4 uur"
+        ],
+        [
+          "P2",
+          "Dienst ernstig verstoord of onbeschikbaar voor één locatie",
+          "30 minuten",
+          "8 uur"
+        ],
+        [
+          "P3",
+          "Beperkte verstoring met werkbare omweg",
+          "4 uur",
+          "3 werkdagen"
+        ],
+        [
+          "P4",
+          "Vraag of wijzigingsverzoek",
+          "1 werkdag",
+          "In overleg"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Organisatie",
+          "Datakwartier Hosting B.V."
+        ],
+        [
+          "Naam",
+          "M. van Oorschot"
+        ],
+        [
+          "Functie",
+          "Directeur"
+        ],
+        [
+          "Datum",
+          "2 december 2026"
+        ],
+        [
+          "Handtekening",
+          ""
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Organisatie",
+          "Stichting Woonzorg De Brede Akker"
+        ],
+        [
+          "Naam",
+          "L. Kuipers-Dekker"
+        ],
+        [
+          "Functie",
+          "Bestuurder"
+        ],
+        [
+          "Datum",
+          "4 december 2026"
+        ],
+        [
+          "Handtekening",
+          ""
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Rol",
+          "Dienstverlener",
+          "Klant"
+        ],
+        [
+          "Servicedesk",
+          "servicedesk@datakwartier.example",
+          "ict@bredeakker.example"
+        ],
+        [
+          "Accountmanager",
+          "J. Bakker",
+          "R. Hoekstra"
+        ],
+        [
+          "Technisch contact",
+          "S. el Amrani",
+          "T. Visser"
+        ],
+        [
+          "Escalatie",
+          "Teamleider beheer",
+          "Manager ICT"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Venster",
+          "Moment",
+          "Tijd",
+          "Aankondiging"
+        ],
+        [
+          "Regulier",
+          "Elke tweede dinsdag van de maand",
+          "22:00 tot 02:00",
+          "10 werkdagen vooraf"
+        ],
+        [
+          "Spoedonderhoud",
+          "Na overleg met de klant",
+          "Buiten het servicevenster",
+          "Minimaal 24 uur vooraf"
+        ],
+        [
+          "Jaarlijks",
+          "Derde zaterdag van augustus",
+          "08:00 tot 16:00",
+          "2 maanden vooraf"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "de virtuele servers voor het cliëntendossier en de planningssoftware;"
+    },
+    {
+      "level": 0,
+      "text": "de databaseservers, inclusief dagelijkse back-ups met een bewaartermijn van dertig dagen;"
+    },
+    {
+      "level": 0,
+      "text": "de netwerkverbinding tussen de twee locaties van de klant:"
+    },
+    {
+      "level": 1,
+      "text": "– locatie Akkerweg (hoofdkantoor);"
+    },
+    {
+      "level": 1,
+      "text": "– locatie Zonnehof (zorgcentrum);"
+    },
+    {
+      "level": 0,
+      "text": "de monitoring van beschikbaarheid en capaciteit, 24 uur per dag."
+    },
+    {
+      "level": 0,
+      "text": "1. Servicedesk van de dienstverlener (eerste lijn)."
+    },
+    {
+      "level": 0,
+      "text": "2. Teamleider beheer, zodra de reactietijd is overschreden."
+    },
+    {
+      "level": 0,
+      "text": "3. Accountmanager en contactpersoon van de klant, wanneer:"
+    },
+    {
+      "level": 1,
+      "text": "de oplostijd met meer dan 50 procent wordt overschreden;"
+    },
+    {
+      "level": 1,
+      "text": "binnen één kalendermaand drie of meer P1-incidenten optreden."
+    },
+    {
+      "level": 0,
+      "text": "• de behaalde beschikbaarheid per dienst;"
+    },
+    {
+      "level": 0,
+      "text": "• het aantal incidenten per prioriteit en de gemiddelde oplostijd;"
+    },
+    {
+      "level": 0,
+      "text": "• de geplande en uitgevoerde wijzigingen."
+    }
+  ],
+  "furniture": [
+    "Datakwartier Hosting B.V.",
+    "Dienstverleningsovereenkomst DKH-SLA-2026-031",
+    "Vertrouwelijk",
+    "Pagina 1 van 3",
+    "Pagina 2 van 3",
+    "Pagina 3 van 3"
+  ],
+  "languages": [
+    "nl"
+  ],
+  "code": [],
+  "notes": "Three-page Dutch service level agreement. Running header: two blocks at opposite ends of one rule (two furniture entries, listed once); footer: \"Vertrouwelijk\" left (listed once) and \"Pagina 1 van 3\" ... right (one entry per page). Page 1: the \"Overzicht\" key/value table (caption on a coloured band, no header row) stands BESIDE the introduction text to its right; the text column is read first, then the table. Lists: in section 2 the outer level is drawn by CSS (lower-alpha, no marker) and the nested \"–\" dashes are TYPED; in section 4 \"1.\" \"2.\" \"3.\" are TYPED with a hanging indent and the nested items are CSS disc bullets; in section 5 \"•\" bullets are TYPED INLINE (no hanging indent). Tables: availability (two-level header, \"Beschikbaarheid\" spans \"Norm\" and \"Minimum\"; \"Dienst\" and \"Servicecredit bij onderschrijding\" span both header rows and repeat in both), rules between rows only; priority table full grid with centred cells, two cells of two lines joined with one space; two signature boxes SIDE BY SIDE, each a small key/value table, read box by box (the provider box on the left first, then the client box) and recorded as two tables with captions null; the box titles are body text. Appendix A: no lines at all; Appendix B: zebra rows. Body in Bookman Old Style, tables and furniture in Arial Narrow."
+}

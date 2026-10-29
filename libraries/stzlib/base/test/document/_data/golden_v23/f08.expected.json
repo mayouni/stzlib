@@ -1,0 +1,205 @@
+{
+  "id": "f08",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "נספח מס' 2 לחוזה שכירות",
+  "headings": [
+    {
+      "level": 1,
+      "text": "נספח מס' 2 לחוזה שכירות"
+    },
+    {
+      "level": 2,
+      "text": "הצדדים"
+    },
+    {
+      "level": 2,
+      "text": "1. דמי השכירות"
+    },
+    {
+      "level": 2,
+      "text": "2. חלוקת הוצאות משותפות"
+    },
+    {
+      "level": 2,
+      "text": "3. התחייבויות השוכרת"
+    },
+    {
+      "level": 2,
+      "text": "4. הוראות כלליות"
+    }
+  ],
+  "key_sentences": [
+    "נספח זה נחתם ביום 14 באוקטובר 2026 בין המשכיר לבין השוכר.",
+    "הוא משנה את תנאי התשלום ואת חלוקת ההוצאות המשותפות בבניין.",
+    "להלן התנאים המעודכנים לתשלום דמי השכירות.",
+    "ההוצאות המשותפות של הבניין יחולקו בין הצדדים כמפורט בטבלה שלהלן.",
+    "חשבונות המים והחשמל של הדירה ישולמו על ידי השוכרת ישירות לספקים.",
+    "יתר תנאי החוזה המקורי נותרים בתוקף ללא שינוי.",
+    "בכל סתירה בין נספח זה לבין החוזה המקורי יגברו הוראות הנספח."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "המשכיר",
+          "גבעת אלון ניהול נכסים בע״מ"
+        ],
+        [
+          "השוכרת",
+          "נועה ברזילי"
+        ],
+        [
+          "הנכס",
+          "דירה 7, רחוב הנרקיסים 18, קריית אורן"
+        ],
+        [
+          "תקופת השכירות",
+          "1.11.2026 עד 31.10.2027"
+        ]
+      ]
+    },
+    {
+      "caption": "לוח התשלומים לשנת השכירות",
+      "rows": [
+        [
+          "מועד תשלום",
+          "תקופה",
+          "סכום (₪)",
+          "אמצעי תשלום"
+        ],
+        [
+          "5.11.2026",
+          "נובמבר 2026 עד ינואר 2027",
+          "16,200",
+          "העברה בנקאית"
+        ],
+        [
+          "5.2.2027",
+          "פברואר עד אפריל 2027",
+          "16,200",
+          "העברה בנקאית"
+        ],
+        [
+          "5.5.2027",
+          "מאי עד יולי 2027",
+          "16,200",
+          "העברה בנקאית"
+        ],
+        [
+          "5.8.2027",
+          "אוגוסט עד אוקטובר 2027",
+          "16,200",
+          "העברה בנקאית"
+        ],
+        [
+          "סה״כ",
+          "סה״כ",
+          "64,800",
+          ""
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "סוג ההוצאה",
+          "המשכיר",
+          "השוכרת",
+          "הערות"
+        ],
+        [
+          "דמי ועד בית",
+          "",
+          "100%",
+          ""
+        ],
+        [
+          "ארנונה",
+          "",
+          "100%",
+          "לפי חשבון העירייה"
+        ],
+        [
+          "תיקוני מבנה ומערכות",
+          "100%",
+          "",
+          "למעט נזק שנגרם ברשלנות השוכרת"
+        ],
+        [
+          "ביטוח מבנה",
+          "100%",
+          "",
+          ""
+        ],
+        [
+          "ביטוח תכולה",
+          "",
+          "100%",
+          "לפי בחירת השוכרת"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. דמי השכירות החודשיים יעמדו על 5,400 ₪ החל מיום 1 בנובמבר 2026."
+    },
+    {
+      "level": 0,
+      "text": "2. התשלום יבוצע מראש לכל רבעון, עד היום החמישי של הרבעון:"
+    },
+    {
+      "level": 1,
+      "text": "א. בהעברה בנקאית לחשבון המשכיר;"
+    },
+    {
+      "level": 1,
+      "text": "ב. או בארבעה שיקים דחויים שיימסרו במעמד החתימה."
+    },
+    {
+      "level": 0,
+      "text": "3. איחור של יותר מ-14 ימים יחויב בריבית פיגורים כקבוע בחוזה המקורי."
+    },
+    {
+      "level": 0,
+      "text": "לשמור על הדירה ועל המתקנים שבה במצב תקין."
+    },
+    {
+      "level": 0,
+      "text": "לא לבצע שינויים במבנה ללא אישור בכתב מהמשכיר."
+    },
+    {
+      "level": 0,
+      "text": "לאפשר כניסה לדירה לצורך תיקונים, בתיאום מראש של 48 שעות לפחות:"
+    },
+    {
+      "level": 1,
+      "text": "בימים ראשון עד חמישי, בין השעות 8:00 ל-18:00;"
+    },
+    {
+      "level": 1,
+      "text": "ובמקרה חירום בכל עת."
+    },
+    {
+      "level": 0,
+      "text": "להחזיר את הדירה בתום התקופה כשהיא נקייה ופנויה."
+    }
+  ],
+  "furniture": [
+    "גבעת אלון ניהול נכסים בע״מ",
+    "רחוב הנרקיסים 18, קריית אורן",
+    "טל' 04-6120417 · office@givat-alon.example",
+    "נספח 2 לחוזה שכירות מס' 2026/0583",
+    "עמוד 1 מתוך 2",
+    "עמוד 2 מתוך 2"
+  ],
+  "languages": [
+    "he"
+  ],
+  "code": [],
+  "notes": "Right-to-left Hebrew lease addendum, two pages. All text is given in logical order; table rows list cells rightmost column first. Page 1 carries a letterhead (organisation name on the right, address block on the left; each visible line one furniture entry). Footer on both pages: the right block (addendum reference) is repeated and listed once; the left block is the page-number line \"עמוד 1 מתוך 2\" / \"עמוד 2 מתוך 2\". Section headings carry typed numbers (\"1. דמי השכירות\"). Clause list in section 1: TYPED markers \"1.\" \"2.\" \"3.\" at level 0 and Hebrew letters \"א.\" \"ב.\" at level 1, hanging indent on the right. Section 3 list: markers DRAWN BY CSS (list-style hebrew at level 0, disc at level 1), so items carry no marker. Parties panel: boxed 2-column key/value table, no header row. Payment table: rule under the header only, totals row whose label \"סה״כ\" spans two columns (repeated), last cell empty. Expenses table: full grid, empty cells given as \"\". The two signature boxes at the end stand SIDE BY SIDE and read box by box, right box (המשכיר) first; their labels are not recorded."
+}

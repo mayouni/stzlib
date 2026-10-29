@@ -1,0 +1,177 @@
+{
+  "id": "f06",
+  "difficulty": "hard",
+  "pages": 1,
+  "title": "Solicitud de ayuda para la rehabilitación de fachadas",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Solicitud de ayuda para la rehabilitación de fachadas"
+    },
+    {
+      "level": 2,
+      "text": "1. Datos del solicitante"
+    },
+    {
+      "level": 2,
+      "text": "2. Datos del inmueble"
+    },
+    {
+      "level": 2,
+      "text": "3. Tipo de actuación"
+    },
+    {
+      "level": 2,
+      "text": "4. Documentación que se acompaña"
+    },
+    {
+      "level": 2,
+      "text": "5. Declaración y firma"
+    }
+  ],
+  "key_sentences": [
+    "Rellene el formulario con letras mayúsculas o a máquina.",
+    "Las solicitudes incompletas no podrán tramitarse.",
+    "Indique a continuación el presupuesto de las actuaciones previstas, sin IVA.",
+    "La persona solicitante declara que los datos consignados en esta solicitud son ciertos.",
+    "Asimismo, se compromete a comunicar cualquier otra ayuda recibida para la misma actuación."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Nombre y apellidos",
+          "María Teresa Olmedo Ruiz",
+          "María Teresa Olmedo Ruiz",
+          "María Teresa Olmedo Ruiz"
+        ],
+        [
+          "Domicilio",
+          "C/ Almendros 12, 2.º B",
+          "Código postal",
+          "37990"
+        ],
+        [
+          "Municipio",
+          "Sierra Albarde",
+          "Teléfono",
+          "655 01 02 03"
+        ],
+        [
+          "Correo electrónico",
+          "mt.olmedo@correo.example",
+          "mt.olmedo@correo.example",
+          "mt.olmedo@correo.example"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Dirección",
+          "Plaza de la Fuente 4",
+          "Plaza de la Fuente 4",
+          "Plaza de la Fuente 4"
+        ],
+        [
+          "Año de construcción",
+          "1958",
+          "Número de viviendas",
+          "6"
+        ],
+        [
+          "Superficie de fachada",
+          "240 m²",
+          "Uso principal",
+          "Residencial"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Partida",
+          "Importe (€)"
+        ],
+        [
+          "Andamios y medios auxiliares",
+          "3.200,00"
+        ],
+        [
+          "Reparación de revestimientos",
+          "9.850,00"
+        ],
+        [
+          "Aislamiento térmico por el exterior (SATE)",
+          "14.600,00"
+        ],
+        [
+          "Honorarios técnicos",
+          "2.150,00"
+        ],
+        [
+          "Total presupuesto",
+          "29.800,00"
+        ],
+        [
+          "Ayuda solicitada (40 %)",
+          "11.920,00"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Nº de registro",
+          ""
+        ],
+        [
+          "Fecha de entrada",
+          ""
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "a) Copia del documento de identidad de la persona solicitante."
+    },
+    {
+      "level": 0,
+      "text": "b) Presupuesto detallado firmado por la empresa constructora."
+    },
+    {
+      "level": 0,
+      "text": "c) Acta de la junta de propietarios que aprueba las obras, en la que conste:"
+    },
+    {
+      "level": 1,
+      "text": "– el importe total aprobado;"
+    },
+    {
+      "level": 1,
+      "text": "– el reparto de la cuota entre las viviendas."
+    },
+    {
+      "level": 0,
+      "text": "d) Fotografías en color del estado actual de la fachada."
+    }
+  ],
+  "furniture": [
+    "Oficina Comarcal de Vivienda de Sierra Albarde",
+    "Programa de rehabilitación energética de edificios residenciales",
+    "Modelo RF-02",
+    "Oficina Comarcal de Vivienda · Calle Real 21 · 37990 Sierra Albarde",
+    "Página 1 de 1"
+  ],
+  "languages": [
+    "es"
+  ],
+  "code": [],
+  "notes": "One-page completed Spanish application form. Letterhead (organisation and its sub-line at the left, the boxed form code \"Modelo RF-02\" at the right) and the footer (two blocks at opposite ends of one rule, listed as two entries; the right one is the page-number line) are furniture. The italic instruction line under the title is body text. Section bars \"1. Datos del solicitante\" etc. are level-2 headings. Form grids are boxed tables with shaded label cells and filled-in values, four columns (two label/value pairs per row) or two columns; no header row. The \"Tipo de actuación\" check boxes are drawn by CSS; the \"X\" in a ticked box is a typed letter. These options are NOT recorded as a list. Budget table: full grid with a header row and two total rows. The documents list uses TYPED markers \"a)\" \"b)\" \"c)\" \"d)\" with a hanging indent and nested TYPED \"–\" (level 1). The signature boxes are empty except for their labels and are not recorded. The administration box is a two-column table whose value cells are empty."
+}

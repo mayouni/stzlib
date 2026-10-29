@@ -1,0 +1,43 @@
+heading	1	Oficina Comarcal de Vivienda de Sierra Albarde
+paragraph	0	Programa de rehabilitación energética de edificios residenciales Modelo RF-02
+heading	1	Solicitud de ayuda para la rehabilitación de fachadas
+paragraph	0	Rellene el formulario con letras mayúsculas o a máquina. Las solicitudes incompletas no podrán tramitarse.
+heading	1	1. Datos del solicitante
+paragraph	0	Nombre y apellidos María Teresa Olmedo Ruiz
+paragraph	0	Domicilio
+paragraph	0	Municipio C/ Almendros 12, 2. º B
+paragraph	0	Código postal
+paragraph	0	37990
+paragraph	0	Sierra Albarde Teléfono
+paragraph	0	655 01 02 03
+paragraph	0	Correo electrónico mt.olmedo@correo.example
+heading	1	2. Datos del inmueble
+paragraph	0	Dirección Plaza de la Fuente 4
+paragraph	0	Año de construcción 1958
+paragraph	0	Número de viviendas 6
+paragraph	0	Superficie de fachada 240 m²
+paragraph	0	Uso principal
+heading	1	3. Tipo de actuación
+paragraph	0	X Reparación de revestimientos
+paragraph	0	Residencial
+paragraph	0	Sustitución de carpinterías
+paragraph	0	X Aislamiento térmico por el exterior
+paragraph	0	Eliminación de barreras arquitectónicas
+paragraph	0	Indique a continuación el presupuesto de las actuaciones previstas, sin IVA.
+table	0	PartidaImporte (€)Andamios y medios auxiliares3.200,00Reparación de revestimientos9.850,00Aislamiento térmico por el exterior (SATE)14.600,00Honorarios técnicos2.150,00Total presupuesto29.800,00Ayuda solicitada (40 %)11.920,00
+heading	1	4. Documentación que se acompaña
+list_item	0	Copia del documento de identidad de la persona solicitante.
+list_item	0	Presupuesto detallado firmado por la empresa constructora.
+list_item	0	Acta de la junta de propietarios que aprueba las obras, en la que conste:
+list_item	0	el importe total aprobado;
+list_item	0	el reparto de la cuota entre las viviendas.
+list_item	0	Fotografías en color del estado actual de la fachada.
+heading	1	5. Declaración y firma
+paragraph	0	La persona solicitante declara que los datos consignados en esta solicitud son ciertos. Asimismo, se compromete a comunicar cualquier otra ayuda recibida para la misma actuación.
+paragraph	0	En Sierra Albarde, a 9 de octubre de 2026
+paragraph	0	Firma de la persona solicitante
+heading	1	Espacio reservado para la administración
+paragraph	0	Nº de registro
+paragraph	0	Fecha de entrada
+page_footer	0	Oficina Comarcal de Vivienda · Calle Real 21 · 37990 Sierra Albarde
+page_footer	0	Página 1 de 1

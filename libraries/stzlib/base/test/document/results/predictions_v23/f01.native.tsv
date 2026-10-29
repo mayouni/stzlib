@@ -1,0 +1,36 @@
+heading	2	Brackenfield Structural Consultants Ltd
+heading	1	Tax Invoice
+paragraph	0	Bill to
+paragraph	0	Orrin Valley Housing Co-operative Attn: Facilities Manager 2 Mill Lane, Easterby EB9 3RT
+page_header	0	14 Tannery Wharf, Lowmoor LM4 7QX accounts@brackenfield-sc.example · 01632 960 417
+table	0	Invoice no.BSC-2026-0417Invoice date12 October 2026Due date11 November 2026Client ref.PO 55-1903ProjectWorkshop mezzanine
+paragraph	0	Thank you for instructing us on the mezzanine floor at your Easterby workshop. This invoice covers the survey and design stages completed in September 2026.
+paragraph	0	Item
+paragraph	0	Description
+heading	4	Phase 1 — Survey
+list_item	0	1.1 Site measurement survey
+list_item	0	1.2 Condition report for existing steel frame and base plates
+heading	4	Phase 2 — Design
+list_item	0	2.1 Structural calculations, mezzanine floor
+list_item	0	2.2 General arrangement drawings
+list_item	0	2.3 Building control liaison
+paragraph	0	Qty
+paragraph	0	Unit
+paragraph	0	2
+paragraph	0	day
+paragraph	0	1
+paragraph	0	lump sum
+paragraph	0	Rate (GBP)
+paragraph	0	640.00
+paragraph	0	950.00
+paragraph	0	Amount (GBP)
+paragraph	0	1,280.00
+paragraph	0	950.00
+heading	3	Payment
+table	0	18hour85.001,530.006sheet120.00720.004hour85.00340.00SubtotalSubtotalSubtotal4,820.00VAT at 20%VAT at 20%VAT at 20%964.00Total dueTotal dueTotal due5,784.00
+paragraph	0	Payment is due within 30 days of the invoice date. Please quote the invoice number on every remittance so that we can allocate it promptly. Interest may be charged on balances that remain unpaid after the due date.
+heading	3	Notes
+list_item	0	Rates are those agreed in our fee proposal of 3 March 2026.
+list_item	0	Drawings were issued as PDF and DWG files on 29 September 2026.
+list_item	0	Phase 3 (site inspections during construction) will be invoiced separately.
+paragraph	0	Registered in England and Wales No. 08814423 · VAT No. GB 318 4471 09

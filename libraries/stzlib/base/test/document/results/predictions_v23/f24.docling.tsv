@@ -1,0 +1,73 @@
+page_header	0	Datakwartier Hosting B.V.
+page_header	0	Dienstverleningsovereenkomst DKH-SLA-2026-031
+heading	1	Dienstverleningsovereenkomst (SLA) Beheerde Hosting
+heading	1	1 Inleiding
+paragraph	0	Deze overeenkomst beschrijft de diensten die Datakwartier Hosting B.V. levert aan Stichting Woonzorg De Brede Akker en de kwaliteit die daarbij is afgesproken. Zij vormt een aanvulling op de raamovereenkomst van 14 september 2026. Bij strijdigheid tussen beide documenten gaat deze overeenkomst voor wat betreft de servicenormen.
+paragraph	0	Begrippen die met een hoofdletter zijn geschreven, hebben de betekenis die de raamovereenkomst eraan geeft.
+heading	1	2 Dienstbeschrijving
+paragraph	0	De dienstverlener beheert de volgende onderdelen van de IT-omgeving van de klant:
+list_item	0	de virtuele servers voor het cliëntendossier en de planningssoftware;
+list_item	0	de databaseservers, inclusief dagelijkse back-ups met een bewaartermijn van dertig dagen;
+list_item	0	de netwerkverbinding tussen de twee locaties van de klant:
+list_item	0	locatie Akkerweg (hoofdkantoor);
+list_item	0	locatie Zonnehof (zorgcentrum);
+list_item	0	de monitoring van beschikbaarheid en capaciteit, 24 uur per dag.
+paragraph	0	Werkplekken, printers en mobiele telefoons vallen buiten deze overeenkomst.
+heading	1	3 Beschikbaarheid
+paragraph	0	De dienstverlener garandeert voor het cliëntendossier een beschikbaarheid van 99,8 procent per kalendermaand.
+heading	1	3.1 Meting
+paragraph	0	Beschikbaarheid wordt gemeten als het percentage minuten waarin de dienst bereikbaar is, exclusief aangekondigd onderhoud. De meting gebeurt elke minuut vanaf twee onafhankelijke meetpunten buiten het netwerk van de dienstverlener.
+table	0	OverzichtContractnummerDKH-SLA-2026-031KlantStichting Woonzorg De Brede AkkerIngangsdatum1 januari 2027Looptijd24 maandenOpzegtermijn3 maandenServicevenstermaandag tot en met vrijdag, 07:00 tot 19:00 uur
+page_footer	0	Vertrouwelijk
+page_footer	0	Pagina 1 van 3
+page_header	0	Datakwartier Hosting B.V.
+page_header	0	Dienstverleningsovereenkomst DKH-SLA-2026-031
+heading	1	3.2 Normen per dienst
+heading	1	Tabel 1 Beschikbaarheid per dienst
+table	0	BeschikbaarheidBeschikbaarheidDienstNormMinimumServicecredit bij onderschrijdingCliëntendossier99,8%99,5%10% van de maandprijsPlanningssoftware99,5%99,0%5% van de maandprijsNetwerkverbinding99,9%99,5%10% van de maandprijsE-mail en agenda99,5%99,0%5% van de maandprijs
+heading	1	4 Incidentafhandeling
+paragraph	0	Incidenten worden ingedeeld in vier prioriteiten. De prioriteit bepaalt de reactietijd en de oplostijd.
+heading	1	Tabel 2 Prioriteiten
+table	0	PrioriteitOmschrijvingReactietijdOplostijdP1Dienst volledig onbeschikbaar voor alle gebruikers15 minuten4 uurP2Dienst ernstig verstoord of onbeschikbaar voor één locatie30 minuten8 uurP3Beperkte verstoring met werkbare omweg4 uur3 werkdagenP4Vraag of wijzigingsverzoek1 werkdagIn overleg
+paragraph	0	De reactietijd loopt vanaf het moment dat de melding bij de servicedesk is geregistreerd. Escalatie verloopt in de volgende stappen:
+list_item	0	Servicedesk van de dienstverlener (eerste lijn).
+list_item	0	Teamleider beheer, zodra de reactietijd is overschreden.
+list_item	0	Accountmanager en contactpersoon van de klant, wanneer:
+list_item	0	de oplostijd met meer dan 50 procent wordt overschreden;
+list_item	0	binnen één kalendermaand drie of meer P1-incidenten optreden.
+heading	1	5 Rapportage
+paragraph	0	De dienstverlener levert uiterlijk op de tiende werkdag van elke maand een rapportage over de voorgaande maand. De rapportage bevat ten minste:
+list_item	0	de behaalde beschikbaarheid per dienst;
+list_item	0	het aantal incidenten per prioriteit en de gemiddelde oplostijd;
+list_item	0	de geplande en uitgevoerde wijzigingen.
+paragraph	0	Elk kwartaal bespreken beide partijen de rapportages in een serviceoverleg.
+page_footer	0	Vertrouwelijk
+page_footer	0	Pagina 2 van 3
+page_header	0	Datakwartier Hosting B.V.
+page_header	0	Dienstverleningsovereenkomst DKH-SLA-2026-031
+heading	1	6 Wijzigingen en ondertekening
+paragraph	0	Wijzigingen in deze overeenkomst zijn alleen geldig als beide partijen ze schriftelijk hebben bevestigd. Aldus overeengekomen en in tweevoud ondertekend.
+table	0	Namens de dienstverlenerNamens de dienstverlenerOrganisatieDatakwartier Hosting B.V.NaamM. van OorschotFunctieDirecteurDatum2 december 2026HandtekeningHandtekening
+heading	1	Bijlage A Contactpersonen
+heading	1	Rol
+paragraph	0	Servicedesk
+paragraph	0	Accountmanager
+paragraph	0	Technisch contact Dienstverlener servicedesk@datakwartier.example J. Bakker S. el Amrani
+paragraph	0	Escalatie Teamleider beheer
+heading	1	Bijlage B Onderhoudsvensters
+table	0	VensterMomentTijdAankondigingRegulierElke tweede dinsdag van de maand22:00 tot 02:0010 werkdagen voorafSpoedonderhoudNa overleg met de klantBuiten het servicevensterMinimaal 24 uur voorafJaarlijksDerde zaterdag van augustus08:00 tot 16:002 maanden vooraf
+paragraph	0	Onderhoud binnen deze vensters telt niet mee bij de berekening van de beschikbaarheid.
+heading	1	Namens de klant
+paragraph	0	Organisatie Stichting Woonzorg De Brede Akker
+paragraph	0	Naam
+paragraph	0	Functie L. Kuipers-Dekker Bestuurder
+paragraph	0	Datum
+paragraph	0	4 december 2026
+paragraph	0	Handtekening
+heading	1	Klant
+paragraph	0	ict@bredeakker.example
+paragraph	0	R. Hoekstra
+paragraph	0	T. Visser
+paragraph	0	Manager ICT
+page_footer	0	Vertrouwelijk
+page_footer	0	Pagina 3 van 3

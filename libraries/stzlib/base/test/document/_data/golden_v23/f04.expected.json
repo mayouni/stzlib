@@ -1,0 +1,211 @@
+{
+  "id": "f04",
+  "difficulty": "hard",
+  "pages": 2,
+  "title": "التقرير السنوي لعام ٢٠٢٥",
+  "headings": [
+    {
+      "level": 1,
+      "text": "التقرير السنوي لعام ٢٠٢٥"
+    },
+    {
+      "level": 2,
+      "text": "أولاً: كلمة رئيس مجلس الإدارة"
+    },
+    {
+      "level": 2,
+      "text": "ثانياً: أبرز الإنجازات"
+    },
+    {
+      "level": 2,
+      "text": "ثالثاً: الإنتاج والتسويق"
+    },
+    {
+      "level": 3,
+      "text": "١. التسويق المحلي"
+    },
+    {
+      "level": 3,
+      "text": "٢. التصدير"
+    },
+    {
+      "level": 2,
+      "text": "رابعاً: الملخص المالي"
+    },
+    {
+      "level": 2,
+      "text": "خامساً: خطة عام ٢٠٢٦"
+    }
+  ],
+  "key_sentences": [
+    "يسر مجلس الإدارة أن يقدم إلى الأعضاء التقرير السنوي عن نشاط الجمعية خلال عام ٢٠٢٥.",
+    "وقد شهد العام زيادة ملحوظة في الإنتاج رغم ارتفاع تكاليف النقل والتعبئة.",
+    "نجحت الجمعية هذا العام في افتتاح وحدة تبريد جديدة بسعة ثلاثمئة طن.",
+    "كما وقعت عقدين للتصدير مع شركتين في الأسواق الإقليمية.",
+    "ارتفع إجمالي الإنتاج بنسبة ٧٫٤٪ مقارنة بالعام السابق.",
+    "استوعبت الأسواق المحلية نحو ستين في المئة من الإنتاج.",
+    "بلغت الكميات المصدرة ٤٣٠ طناً، معظمها من صنفي المجهول والخلاص.",
+    "يتقدم المجلس بالشكر إلى جميع الأعضاء والعاملين على جهودهم خلال العام."
+  ],
+  "tables": [
+    {
+      "caption": "بطاقة الجمعية",
+      "rows": [
+        [
+          "تاريخ التأسيس",
+          "٢٠٠٩"
+        ],
+        [
+          "عدد الأعضاء",
+          "١٤٦"
+        ],
+        [
+          "المساحة المزروعة",
+          "٣٨٠ هكتاراً"
+        ],
+        [
+          "عدد العاملين",
+          "٢٣"
+        ]
+      ]
+    },
+    {
+      "caption": "جدول ١: إنتاج التمور حسب الصنف",
+      "rows": [
+        [
+          "الصنف",
+          "الإنتاج (طن)",
+          "الإنتاج (طن)",
+          "نسبة التغير"
+        ],
+        [
+          "الصنف",
+          "٢٠٢٤",
+          "٢٠٢٥",
+          "نسبة التغير"
+        ],
+        [
+          "مجهول",
+          "٤٢٠",
+          "٤٦٥",
+          "+١٠٫٧٪"
+        ],
+        [
+          "سكري",
+          "٣١٠",
+          "٢٩٨",
+          "-٣٫٩٪"
+        ],
+        [
+          "خلاص",
+          "١٨٥",
+          "٢١٠",
+          "+١٣٫٥٪"
+        ],
+        [
+          "برحي",
+          "٩٥",
+          "١١٢",
+          "+١٧٫٩٪"
+        ],
+        [
+          "المجموع",
+          "١٬٠١٠",
+          "١٬٠٨٥",
+          "+٧٫٤٪"
+        ]
+      ]
+    },
+    {
+      "caption": "جدول ٢: الملخص المالي (بآلاف الدراهم)",
+      "rows": [
+        [
+          "البند",
+          "٢٠٢٤",
+          "٢٠٢٥"
+        ],
+        [
+          "إيرادات المبيعات",
+          "٣٬٨٤٠",
+          "٤٬٢١٥"
+        ],
+        [
+          "تكاليف الإنتاج",
+          "٢٬٦١٠",
+          "٢٬٧٩٠"
+        ],
+        [
+          "المصاريف الإدارية",
+          "٤١٠",
+          "٤٣٢"
+        ],
+        [
+          "صافي الفائض",
+          "٨٢٠",
+          "٩٩٣"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "أ. تشغيل وحدة التبريد الجديدة في شهر مارس."
+    },
+    {
+      "level": 0,
+      "text": "ب. تدريب ٦٠ مزارعاً على أساليب الري بالتنقيط:"
+    },
+    {
+      "level": 1,
+      "text": "دورتان في فصل الربيع"
+    },
+    {
+      "level": 1,
+      "text": "ثلاث دورات في فصل الخريف"
+    },
+    {
+      "level": 0,
+      "text": "ج. الحصول على شهادة سلامة الغذاء لخط التعبئة."
+    },
+    {
+      "level": 0,
+      "text": "د. رفع حصة الأعضاء من عائدات المبيعات إلى ٧٢٪."
+    },
+    {
+      "level": 0,
+      "text": "توسيع وحدة التبريد بسعة إضافية قدرها مئتا طن."
+    },
+    {
+      "level": 0,
+      "text": "إنشاء متجر إلكتروني لبيع المنتجات مباشرة إلى المستهلكين."
+    },
+    {
+      "level": 0,
+      "text": "تحديث شبكة الري في المزارع الصغيرة، وتشمل:"
+    },
+    {
+      "level": 1,
+      "text": "مزارع الحي الشمالي"
+    },
+    {
+      "level": 1,
+      "text": "مزارع الحي الجنوبي"
+    },
+    {
+      "level": 0,
+      "text": "عقد الجمعية العمومية في الربع الأول من العام."
+    }
+  ],
+  "furniture": [
+    "جمعية الواحة التعاونية لمنتجي التمور",
+    "التقرير السنوي ٢٠٢٥",
+    "الصفحة ١ من ٢",
+    "الصفحة ٢ من ٢"
+  ],
+  "languages": [
+    "ar"
+  ],
+  "code": [],
+  "notes": "Two-page right-to-left Arabic annual report; all text in logical order, Arabic-Indic digits throughout (decimal separator U+066B, thousands separator U+066C, percent U+066A). Running header band: organisation name at the right end and report name at the left end of the same band, listed as two furniture entries; the footer \"الصفحة ١ من ٢\" / \"الصفحة ٢ من ٢\" is a page-number line per page. Page 1: a paragraph block and a boxed key/value panel side by side (text on the right is read first, then the panel on the left); the panel caption \"بطاقة الجمعية\" is its caption, not a heading. The achievements list uses TYPED abjad letter markers \"أ.\" \"ب.\" \"ج.\" \"د.\" with a hanging indent; its nested level-1 items use disc bullets drawn by CSS. Table 1 has a two-level header: \"الصنف\" and \"نسبة التغير\" span both header rows; \"الإنتاج (طن)\" spans the two year columns. Table 2 is zebra-banded with a rule under the header. The 2026 plan list is numbered by CSS (list-style arabic-indic, markers not in list_items) with nested circle bullets drawn by CSS. Tables are given in logical order, rightmost column first. The signature line is body text, not recorded."
+}

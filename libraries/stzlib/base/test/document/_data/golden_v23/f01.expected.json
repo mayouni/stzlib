@@ -1,0 +1,172 @@
+{
+  "id": "f01",
+  "difficulty": "medium",
+  "pages": 1,
+  "title": "Tax Invoice",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Tax Invoice"
+    },
+    {
+      "level": 2,
+      "text": "Payment"
+    },
+    {
+      "level": 2,
+      "text": "Notes"
+    }
+  ],
+  "key_sentences": [
+    "Thank you for instructing us on the mezzanine floor at your Easterby workshop.",
+    "This invoice covers the survey and design stages completed in September 2026.",
+    "Payment is due within 30 days of the invoice date.",
+    "Please quote the invoice number on every remittance so that we can allocate it promptly.",
+    "Interest may be charged on balances that remain unpaid after the due date."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Invoice no.",
+          "BSC-2026-0417"
+        ],
+        [
+          "Invoice date",
+          "12 October 2026"
+        ],
+        [
+          "Due date",
+          "11 November 2026"
+        ],
+        [
+          "Client ref.",
+          "PO 55-1903"
+        ],
+        [
+          "Project",
+          "Workshop mezzanine"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Item",
+          "Description",
+          "Qty",
+          "Unit",
+          "Rate (GBP)",
+          "Amount (GBP)"
+        ],
+        [
+          "Phase 1 — Survey",
+          "Phase 1 — Survey",
+          "Phase 1 — Survey",
+          "Phase 1 — Survey",
+          "Phase 1 — Survey",
+          "Phase 1 — Survey"
+        ],
+        [
+          "1.1",
+          "Site measurement survey",
+          "2",
+          "day",
+          "640.00",
+          "1,280.00"
+        ],
+        [
+          "1.2",
+          "Condition report for existing steel frame and base plates",
+          "1",
+          "lump sum",
+          "950.00",
+          "950.00"
+        ],
+        [
+          "Phase 2 — Design",
+          "Phase 2 — Design",
+          "Phase 2 — Design",
+          "Phase 2 — Design",
+          "Phase 2 — Design",
+          "Phase 2 — Design"
+        ],
+        [
+          "2.1",
+          "Structural calculations, mezzanine floor",
+          "18",
+          "hour",
+          "85.00",
+          "1,530.00"
+        ],
+        [
+          "2.2",
+          "General arrangement drawings",
+          "6",
+          "sheet",
+          "120.00",
+          "720.00"
+        ],
+        [
+          "2.3",
+          "Building control liaison",
+          "4",
+          "hour",
+          "85.00",
+          "340.00"
+        ],
+        [
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "Subtotal",
+          "4,820.00"
+        ],
+        [
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "VAT at 20%",
+          "964.00"
+        ],
+        [
+          "Total due",
+          "Total due",
+          "Total due",
+          "Total due",
+          "Total due",
+          "5,784.00"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Rates are those agreed in our fee proposal of 3 March 2026."
+    },
+    {
+      "level": 0,
+      "text": "Drawings were issued as PDF and DWG files on 29 September 2026."
+    },
+    {
+      "level": 0,
+      "text": "Phase 3 (site inspections during construction) will be invoiced separately."
+    }
+  ],
+  "furniture": [
+    "Brackenfield Structural Consultants Ltd",
+    "14 Tannery Wharf, Lowmoor LM4 7QX",
+    "accounts@brackenfield-sc.example · 01632 960 417",
+    "Registered in England and Wales No. 08814423 · VAT No. GB 318 4471 09"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Single-page invoice. The letterhead (organisation name left, address block right) and the registration line at the bottom are furniture. The \"Bill to\" address block and the boxed key/value panel sit side by side; the panel is a 2-column table with no header row. Line-item table: rules between rows only, section rows (Phase 1, Phase 2) span all six columns, the Subtotal / VAT / Total rows span the first five columns, so their label repeats in five grid cells. The \"Notes\" list is drawn by CSS (disc bullets), so items carry no marker. Description cell of item 1.2 is two lines joined with one space."
+}
