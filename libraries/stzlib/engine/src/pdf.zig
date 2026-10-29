@@ -3520,7 +3520,51 @@ fn findLadderTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.Arr
                 cols[ci].x1 = @max(cols[ci].x1, c.x1);
             }
         }
-        if (full < 2 or full * 5 < nonempty * 2) continue;
+        // (no body row fills every column -- a statement's debit and credit are never both in one row: the header
+        //  row holding the most cells gives the columns, when nearly every body cell falls in one of them)
+        if (full < 2 or full * 5 < nonempty * 2) {
+            var wi: ?usize = null;
+            for (spans, 0..) |sp, bi| {
+                if (sp.len >= 3 and (wi == null or sp.len > spans[wi.?].len)) wi = bi;
+            }
+            const w = wi orelse continue;
+            if (w > 1) continue; // (the header: above the first rule or in the first band)
+            const ws = spans[w];
+            var hb = try a.alloc(f32, ws.len + 1);
+            hb[0] = lx0;
+            hb[ws.len] = lx1;
+            for (1..ws.len) |ci| hb[ci] = (ws[ci - 1].x1 + ws[ci].x0) / 2;
+            var fit: usize = 0;
+            var all: usize = 0;
+            for (spans, 0..) |sp, bi| {
+                if (bi == w or sp.len < 2) continue;
+                for (sp) |c| {
+                    all += 1;
+                    var crosses: usize = 0;
+                    for (1..ws.len) |ci| {
+                        if (c.x0 < hb[ci] and c.x1 > hb[ci]) crosses += 1;
+                    }
+                    if (crosses == 0) fit += 1;
+                }
+            }
+            if (all < 6 or fit * 10 < all * 9) continue;
+            maxc = ws.len;
+            cols = try a.alloc(Span, maxc);
+            for (ws, 0..) |c, ci| cols[ci] = c;
+            // (each column widened to the body cells centred in it: a long concept runs past its short header)
+            for (spans, 0..) |sp, bi| {
+                if (bi == w or sp.len < 2) continue;
+                for (sp) |c| {
+                    const cx = (c.x0 + c.x1) / 2;
+                    for (0..maxc) |ci| {
+                        if (cx >= hb[ci] and cx < hb[ci + 1]) {
+                            cols[ci].x0 = @min(cols[ci].x0, c.x0);
+                            cols[ci].x1 = @max(cols[ci].x1, c.x1);
+                        }
+                    }
+                }
+            }
+        }
         var ok = true;
         for (cols[1..], 1..) |c, ci| {
             if (c.x0 <= cols[ci - 1].x1) ok = false;
