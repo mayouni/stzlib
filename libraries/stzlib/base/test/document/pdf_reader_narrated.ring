@@ -599,6 +599,17 @@ Scenario("Columns split by a rule, rows of tall cells, clean ladders, and letter
 	Then("the katakana middle dot is a bullet", StzFindFirst("・試験運用は第2ラインに限定して実施する。", "" + @@(StzPdfQ("_data/golden_v23/f05.pdf").ListItems())) > 0, 1)
 EndScenario()
 
+# ---- the twenty-fourth round: tables beside narrow paragraphs, spanning cells, wrapped cells (golden_v24)
+
+Scenario("Floated tables beside narrow paragraphs, cells spanning two rows, and items over two lines")
+	aT = StzPdfQ("_data/golden_v24/g21.pdf").Tables()
+	Then("a key/value table floated beside a narrow paragraph", @@(aT[1][1]), @@([ "Wanachama waliohudhuria", "186" ]))
+	Then("and a second one, its section row across it", @@(aT[2][6]), @@([ "Matumizi", "Matumizi" ]))
+	Then("a label in another face is read before its value", @@(StzPdfQ("_data/golden_v24/g23.pdf").Tables()[1][1]), @@([ "Cliente", "Condomínio Residencial Jardim das Paineiras" ]))
+	Then("a cell spanning two rows repeats in both", @@(StzPdfQ("_data/golden_v24/g14.pdf").Tables()[1][3]), @@([ "101동", "2호기", "11월 23일(월)", "12월 4일(금)" ]))
+	Then("an invoice item with its description on a second line is one row", @@(StzPdfQ("_data/golden_v24/g01.pdf").Tables()[1][2]), @@([ "1", "Perfect-bound annual report 64 pp, 170 gsm silk cover", "750", "£4.12", "£3,090.00" ]))
+EndScenario()
+
 Scenario("A file that is not a readable PDF is refused with the reason")
 	bRaised = 0
 	cWhy = ""
