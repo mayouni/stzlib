@@ -740,6 +740,16 @@ Scenario("Bullets, check boxes, ToUnicode ranges and Type 3 codes as other produ
 	Then("a no-break space is a space, so the marker of a right-to-left item is seen", StzFindFirst("א. אישור פרוטוקול הישיבה הקודמת", "" + @@(StzPdfQ("_data/golden_v34/x16.pdf").ListItems())) > 0, 1)
 EndScenario()
 
+# ---- the thirty-fourth round: bullets drawn as strokes, ASCII check boxes, Arabic marks as shaped by MuPDF (golden_v35)
+
+Scenario("A dash stroke or a box drawn with lines is a bullet, and MuPDF's Arabic marks keep their letters")
+	Then("a short stroke before a line, a dash bullet, makes the line an item", StzFindFirst("Tipos de variables y escalas de medida", "" + @@(StzPdfQ("_data/golden_v35/y13.pdf").ListItems())) > 0, 1)
+	Then("a check box GDI draws as three or four straight lines makes a right-to-left line an item", StzFindFirst("בדיקת לחץ המים", "" + @@(StzPdfQ("_data/golden_v35/y10.pdf").ListItems())) > 0, 1)
+	Then("a check box typed as [x] is a marker", StzFindFirst("[x] Smoke alarms tested in the hall and the kitchen", "" + @@(StzPdfQ("_data/golden_v35/y12.pdf").ListItems())) > 0, 1)
+	Then("a spacing diacritic ligature (U+FC60) is the marks alone, with no space before them", StzFindFirst("المؤمَّن له", "" + @@(StzPdfQ("_data/golden_v35/y11.pdf").Tables())) > 0, 1)
+	Then("a mark stands on the letter whose left edge it is set on, so a damma stays on its taa", StzFindFirst("ما لم تُذكر في ملحق خاص", "" + @@(StzPdfQ("_data/golden_v35/y11.pdf").Paragraphs())) > 0, 1)
+EndScenario()
+
 Scenario("A file that is not a readable PDF is refused with the reason")
 	bRaised = 0
 	cWhy = ""

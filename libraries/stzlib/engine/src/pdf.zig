@@ -1283,6 +1283,10 @@ const Interp = struct {
             // a producer may map its space glyph to a TAB (or a line end), and an accent piece to U+0000
             if (t.len == 1 and (t[0] == 9 or t[0] == 10 or t[0] == 13)) t = " ";
             if (t.len == 1 and t[0] == 0) t = "";
+            // a spacing form of a diacritic -- MuPDF maps its shadda glyph to U+0020 U+0651 -- is the mark alone
+            if (t.len > 2 and t[0] == ' ') {
+                if (isMarkCp(firstCp(t[1..]))) t = t[1..];
+            }
             if (upright and size > 0.5 and it.marked.items.len > 0) {
                 // (inside a marked span every glyph counts for its extent: a conjunct or a vowel sign whose
                 //  ToUnicode is empty still occupies its place, and the span's ActualText names it)
@@ -1340,6 +1344,28 @@ const Interp = struct {
             }
         }
         it.squares.clearRetainingCapacity();
+        // (a box stroked as three or four straight lines -- GDI draws a check box so -- and a lone short stroke, a dash
+        //  bullet, are bullets too)
+        if (keep and !fill and it.pb[0] < 1e17) {
+            const bw = it.pb[2] - it.pb[0];
+            const bh = it.pb[3] - it.pb[1];
+            var straight = it.path.items.len >= 1 and it.path.items.len <= 4;
+            for (it.path.items) |q| {
+                if (@abs(q[2] - q[0]) > 0.5 and @abs(q[3] - q[1]) > 0.5) straight = false;
+            }
+            const boxed = straight and it.path.items.len >= 3 and bw >= 4 and bh >= 4 and bw <= 10 and bh <= 10 and @abs(bw - bh) <= 1.5;
+            const dash = straight and it.path.items.len == 1 and bw >= 3.5 and bw <= 9 and bh <= 0.6;
+            if (boxed or dash) {
+                const cyb = (it.pb[1] + it.pb[3]) / 2;
+                const hh: f64 = if (dash) 1.5 else bh / 2;
+                try it.dots.append(it.a, .{
+                    .x0 = @floatCast(it.pb[0] - it.page_left),
+                    .x1 = @floatCast(it.pb[2] - it.page_left),
+                    .y0 = @floatCast(it.page_top - (cyb + hh)),
+                    .y1 = @floatCast(it.page_top - (cyb - hh)),
+                });
+            }
+        }
         if ((fill or it.curved) and it.pb[0] < 1e17) {
             const w = it.pb[2] - it.pb[0];
             const h = it.pb[3] - it.pb[1];
@@ -2494,7 +2520,12 @@ fn arabicLogical(a: Allocator, t: []const u8) ![]const u8 {
         if (pformOf(cp)) |to| {
             var v2 = std.unicode.Utf8View.init(to) catch continue;
             var it2 = v2.iterator();
-            while (it2.nextCodepoint()) |c2| try cps.append(a, c2);
+            // (the spacing diacritic ligatures, U+FC5E..U+FC62, decompose to a space and marks: the marks alone)
+            const spacing_mark = cp >= 0xFC5E and cp <= 0xFC63;
+            while (it2.nextCodepoint()) |c2| {
+                if (spacing_mark and c2 == 0x20) continue;
+                try cps.append(a, c2);
+            }
             continue;
         }
         if (cp >= 0xFEF5 and cp <= 0xFEFC) {
@@ -2939,7 +2970,39 @@ fn makeFrag(a: Allocator, gl: []Glyph, ids_in: []u32, text: []const u8, page_no:
         var vis: std.ArrayList(u32) = .empty;
         var right: f32 = -1e9;
         var pvk: ?u32 = null;
-        for (ids) |k| {
+        // a mark stands over the letter whose extent holds it, set against the letter's own edge: it goes just before
+        // that letter in the left-to-right order, and so just after it once the line is turned to read from the right
+        // (a damma over the right edge of a letter sorted between that letter and the next, and read on the wrong one)
+        var ids_re: std.ArrayList(u32) = .empty;
+        {
+            var base_for = try a.alloc(?usize, ids.len);
+            for (ids, 0..) |k, q| {
+                base_for[q] = null;
+                const g = gl[k];
+                if (!isMarkCp(firstCp(glyphText(text, g)))) continue;
+                // (the glyph whose left edge the mark stands on -- HarfBuzz anchors a mark at its base's origin)
+                var best: f32 = 0.35 * g.size;
+                for (ids, 0..) |bk, bq| {
+                    const bg = gl[bk];
+                    if (isMarkCp(firstCp(glyphText(text, bg)))) continue;
+                    const dd = @abs(g.x - bg.x);
+                    if (dd < best) {
+                        best = dd;
+                        base_for[q] = bq;
+                    }
+                }
+            }
+            for (ids, 0..) |k, q| {
+                if (isMarkCp(firstCp(glyphText(text, gl[k]))) and base_for[q] != null) continue;
+                for (ids, 0..) |mk, mq| {
+                    if (base_for[mq]) |bq| {
+                        if (bq == q) try ids_re.append(a, mk);
+                    }
+                }
+                try ids_re.append(a, k);
+            }
+        }
+        for (ids_re.items) |k| {
             const g = gl[k];
             const is_mark = isMarkCp(firstCp(glyphText(text, g)));
             if (pvk) |pk| {
@@ -5793,6 +5856,8 @@ fn startsListMarker(t: []const u8) usize {
             return e;
         }
     }
+    // a check box typed in ASCII: "[x] ", "[X] " or "[ ] "
+    if (t.len >= 5 and t[0] == '[' and t[2] == ']' and t[3] == ' ' and (t[1] == 'x' or t[1] == 'X' or t[1] == ' ')) return 4;
     // a bracketed marker: (a) (iv) (12) or [3], then a space
     if (t.len >= 4 and (t[0] == '(' or t[0] == '[')) {
         const close: u8 = if (t[0] == '(') ')' else ']';
