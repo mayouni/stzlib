@@ -10,6 +10,7 @@ const gops = @import("gpu_ops.zig"); // this DLL's own variant table (per-DLL de
 const gbnf = @import("schema_gbnf.zig");
 const gmach = @import("gbnf_machine.zig");
 const R = @import("ring_api.zig");
+const ocrg = @import("ocr_graph.zig"); // O3: PP-OCR graphs on ggml
 
 const rn = R.ring_vm_api_retnumber;
 const gs = R.ring_vm_api_getstring;
@@ -522,7 +523,56 @@ fn ring_GbnfDecodingStatus(p: *anyopaque) callconv(.c) void {
     if (l > 0) R.ring_vm_api_retstring2(p, &buf, @intCast(l)) else R.ring_vm_api_retstring2(p, @constCast(""), 0);
 }
 
+// ---------------------------------------------------------------- OCR graphs (O3)
+
+fn ocrArg(p: *anyopaque, n: c_int) []const u8 {
+    return gs(p, n)[0..@intCast(R.ring_vm_api_getstringsize(p, n))];
+}
+
+// StzEngineNeuralOcrGraphInfo(cModel) -> [ cKind, nOps, nConstants, nParams ], [] when the file is not one
+fn ring_OcrGraphInfo(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    if (ocrg.info(ocrArg(p, 1))) |i| {
+        R.ring_list_addstring2(out, i.kind.ptr, @intCast(i.kind.len));
+        R.ring_list_adddouble(out, @floatFromInt(i.ops));
+        R.ring_list_adddouble(out, @floatFromInt(i.consts));
+        R.ring_list_adddouble(out, @floatFromInt(i.params));
+    } else |_| {}
+    R.ring_vm_api_retlist(p, out);
+}
+
+// StzEngineNeuralOcrGraphParity(cModel, cInputBin, cExpectedBin, cOutputBin, nThreads)
+//   -> [ n, nMaxAbs, nMeanAbs, nCosine, nMs, nArgmaxAgree ], [] on failure (StzEngineNeuralOcrGraphError says why)
+fn ring_OcrGraphParity(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const threads: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 5));
+    if (ocrg.parity(ocrArg(p, 1), ocrArg(p, 2), ocrArg(p, 3), ocrArg(p, 4), if (threads < 1) 4 else threads)) |r| {
+        R.ring_list_adddouble(out, @floatFromInt(r.n));
+        R.ring_list_adddouble(out, r.max_abs);
+        R.ring_list_adddouble(out, r.mean_abs);
+        R.ring_list_adddouble(out, r.cosine);
+        R.ring_list_adddouble(out, r.ms);
+        R.ring_list_adddouble(out, r.argmax_agree);
+    } else |e| {
+        if (ocrg.lastError().len == 0) {
+            const nm = @errorName(e);
+            R.ring_list_addstring2(out, nm.ptr, @intCast(nm.len));
+            R.ring_vm_api_retlist(p, out);
+            return;
+        }
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
+fn ring_OcrGraphError(p: *anyopaque) callconv(.c) void {
+    const e = ocrg.lastError();
+    R.ring_vm_api_retstring2(p, e.ptr, @intCast(e.len));
+}
+
 pub const regs = [_]R.Reg{
+    .{ .name = "stzengineneuralocrgraphinfo", .func = &ring_OcrGraphInfo },
+    .{ .name = "stzengineneuralocrgraphparity", .func = &ring_OcrGraphParity },
+    .{ .name = "stzengineneuralocrgrapherror", .func = &ring_OcrGraphError },
     .{ .name = "stzenginegbnfbegin", .func = &ring_GbnfBegin },
     .{ .name = "stzenginegbnffield", .func = &ring_GbnfField },
     .{ .name = "stzenginegbnfcompile", .func = &ring_GbnfCompile },
