@@ -610,6 +610,51 @@ fn ring_OcrStats(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// StzEngineNeuralOcrMarks(cImage, nPixelsPerPoint, cBoxes) -> [ aMarks, aStrokes ] (O4): what a scanned page shows
+// besides its letters -- each mark [ cKind ("rule", "dot", "fill"), nX0, nY0, nX1, nY1 ] in the image's pixels --
+// and, for each box of cBoxes ("x0 y0 x1 y1;..." -- the OCR lines), the median width of its ink strokes in pixels;
+// [] on failure (StzEngineNeuralOcrGraphError says why)
+fn ring_OcrMarks(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const ppt: f32 = @floatCast(R.ring_vm_api_getnumber(p, 2));
+    var boxes: std.ArrayList([4]f32) = .empty;
+    defer boxes.deinit(std.heap.c_allocator);
+    var it = std.mem.splitScalar(u8, ocrArg(p, 3), ';');
+    while (it.next()) |item| {
+        var f = std.mem.tokenizeScalar(u8, item, ' ');
+        var b: [4]f32 = undefined;
+        var k: usize = 0;
+        while (f.next()) |num| : (k += 1) {
+            if (k >= 4) break;
+            b[k] = std.fmt.parseFloat(f32, num) catch 0;
+        }
+        if (k == 4) boxes.append(std.heap.c_allocator, b) catch {};
+    }
+    var r = ocrp.marksOf(ocrArg(p, 1), if (ppt > 0) ppt else 150.0 / 72.0, boxes.items) catch |e| {
+        if (ocrg.lastError().len == 0) ocrg.setError("{s}", .{@errorName(e)});
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    defer r.free();
+    const ml = R.ring_list_newlist(out) orelse return;
+    for (r.marks) |m| {
+        const row = R.ring_list_newlist(ml) orelse break;
+        const kn: []const u8 = switch (m.kind) {
+            'r' => "rule",
+            'd' => "dot",
+            else => "fill",
+        };
+        R.ring_list_addstring2(row, kn.ptr, @intCast(kn.len));
+        R.ring_list_adddouble(row, m.x0);
+        R.ring_list_adddouble(row, m.y0);
+        R.ring_list_adddouble(row, m.x1);
+        R.ring_list_adddouble(row, m.y1);
+    }
+    const sl = R.ring_list_newlist(out) orelse return;
+    for (r.strokes) |v| R.ring_list_adddouble(sl, v);
+    R.ring_vm_api_retlist(p, out);
+}
+
 fn ring_OcrGraphError(p: *anyopaque) callconv(.c) void {
     const e = ocrg.lastError();
     R.ring_vm_api_retstring2(p, e.ptr, @intCast(e.len));
@@ -622,6 +667,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralocrread", .func = &ring_OcrRead },
     .{ .name = "stzengineneuralocrreadwith", .func = &ring_OcrReadWith },
     .{ .name = "stzengineneuralocrstats", .func = &ring_OcrStats },
+    .{ .name = "stzengineneuralocrmarks", .func = &ring_OcrMarks },
     .{ .name = "stzenginegbnfbegin", .func = &ring_GbnfBegin },
     .{ .name = "stzenginegbnffield", .func = &ring_GbnfField },
     .{ .name = "stzenginegbnfcompile", .func = &ring_GbnfCompile },

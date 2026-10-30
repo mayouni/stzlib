@@ -25,6 +25,12 @@ $aStzOcrCache = []
 # what the platform engine said of its last call (its summary line), for Content() and Show()
 $cStzOcrLastSummary = ""
 
+# the box of each line the platform read, by image path and language, parallel to $aStzOcrCache's lines
+$aStzOcrBoxCache = []
+
+# the implementation that answered the last StzOcrLinesWithBoxes: "platform" or "ppocr"
+$cStzOcrLinesBy = ""
+
 # what the model's last page cost, as the engine reported it: [ boxes, ms detect, ms classify, ms recognise, ms total,
 # lines voted upside down ]
 $aStzOcrModelLastStats = []
@@ -54,6 +60,11 @@ func StzOcrDeclare(paGolden)
 				       :licence = "apache-2.0", :memory = 600,
 				       :languages = [ "fr", "en", "de", "es", "it", "pt", "nl", "zh", "ar", "ru", "uk", "bg" ] ])
 	ok
+	# the measurements filed beside this code are what the registry rules on in a process that has not measured: a
+	# filed measurement must outlive the process that made it, or the per-language choice exists only in a guard
+	if len(StzMeasurementOf("ocr", "platform", _o_.GoldenVersion())) = 0 and fexists(StzOcrMeasurementsFile())
+		StzLoadMeasurements(StzOcrMeasurementsFile())
+	ok
 	if isList(paGolden) and len(_o_.Goldens()) = 0
 		_nG_ = len(paGolden)
 		for _i_ = 1 to _nG_
@@ -61,6 +72,16 @@ func StzOcrDeclare(paGolden)
 		next
 	ok
 	return _o_
+
+# The :ocr measurements shipped with the library (base/ocr/ocr.zmdl.txt), copied from the model guard's filed result
+# (base/test/ocr/results/ocr.zmdl.txt) when the golden set or an implementation changes. They were measured on ONE
+# machine: the floor's score in a language is that machine's language packs.
+func StzOcrMeasurementsFile()
+	_e_ = $cEngineDir
+	if isString(_e_) and len(_e_) >= 7 and right(_e_, 7) = "/engine"
+		return left(_e_, len(_e_) - 7) + "/base/ocr/ocr.zmdl.txt"
+	ok
+	return ""
 
 # Reads an image through the :ocr faculty and returns its text (the lines joined by spaces, pages in order).
 #
@@ -246,6 +267,7 @@ func StzOcrPlatformLines(pcPath, pcLang)
 		if $aStzOcrCache[_i_][1] = _cKey_ return $aStzOcrCache[_i_][2] ok
 	next
 	_cOut_ = sysget("TEMP") + "\stz_ocr_out_" + random(999999) + ".txt"
+	_cBoxOut_ = _cOut_ + ".box"
 	_cCmd_ = "powershell -NoProfile -ExecutionPolicy Bypass -File " + _StzOcrBridgePath() +
 		 " -Path " + char(34) + pcPath + char(34) + " -Lang " + char(34) + pcLang + char(34) + " -Out " + char(34) + _cOut_ + char(34)
 	_cSum_ = trim(StzSystem(_cCmd_))
@@ -263,15 +285,76 @@ func StzOcrPlatformLines(pcPath, pcLang)
 	ok
 	_cText_ = read(_cOut_)
 	remove(_cOut_)
+	_aBoxRaw_ = []
+	if fexists(_cBoxOut_)
+		_aBoxRaw_ = split(read(_cBoxOut_), char(10))
+		remove(_cBoxOut_)
+	ok
 	_aLines_ = []
+	_aBoxes_ = []
 	_aRaw_ = split(_cText_, char(10))
 	_nR_ = len(_aRaw_)
 	for _i_ = 1 to _nR_
 		_cL_ = trim(StzReplace(_aRaw_[_i_], char(13), ""))
-		if _cL_ != "" add(_aLines_, _cL_) ok
+		if _cL_ != ""
+			add(_aLines_, _cL_)
+			_aB_ = []
+			if _i_ <= len(_aBoxRaw_)
+				_aF_ = split(trim(StzReplace(_aBoxRaw_[_i_], char(13), "")), " ")
+				if len(_aF_) = 4 _aB_ = [ 0 + _aF_[1], 0 + _aF_[2], 0 + _aF_[3], 0 + _aF_[4] ] ok
+			ok
+			add(_aBoxes_, _aB_)
+		ok
 	next
 	add($aStzOcrCache, [ _cKey_, _aLines_ ])
+	add($aStzOcrBoxCache, [ _cKey_, _aBoxes_ ])
 	return _aLines_
+
+# The box of each line the platform read on one image, parallel to StzOcrPlatformLines: [ x0, y0, x1, y1 ] in the
+# image's pixels (the union of the line's word rectangles -- TIGHT, unlike a detector's box), [ ] for a line the
+# platform gave none.
+func StzOcrPlatformBoxes(pcPath, pcLang)
+	StzOcrPlatformLines(pcPath, pcLang)
+	_cKey_ = _StzOcrCacheKey(_StzOcrAbsolutePath(pcPath), pcLang)
+	_nC_ = len($aStzOcrBoxCache)
+	for _i_ = 1 to _nC_
+		if $aStzOcrBoxCache[_i_][1] = _cKey_ return $aStzOcrBoxCache[_i_][2] ok
+	next
+	return []
+
+# The lines of one image WITH THEIR BOXES, read by the implementation the :ocr faculty chooses for the language
+# (the registry, per language), in logical order: [ :text, :box = [x0, y0, x1, y1] in the image's pixels, :tight ]
+# -- :tight is 1 for word-tight boxes (the platform) and 0 for a detector's boxes (PP-OCR, grown by its unclip).
+# The implementation that answered is in $cStzOcrLinesBy.
+#
+#   pcImage    the image file
+#   pcLang     a language tag, or "" for the user's own languages
+#   returns    a list of line records
+#   warning    raises, with the faculty's reason, when no implementation can read the language
+func StzOcrLinesWithBoxes(pcImage, pcLang)
+	_o_ = StzOcrQ([ :pages = [ pcImage ], :lang = pcLang ])
+	_o_.Text()
+	$cStzOcrLinesBy = _o_.AnsweredBy()
+	_aOut_ = []
+	if $cStzOcrLinesBy = "ppocr"
+		_aL_ = StzOcrModelLinesXT(pcImage, pcLang)
+		_nL_ = len(_aL_)
+		for _i_ = 1 to _nL_
+			add(_aOut_, [ :text = _aL_[_i_][:text], :box = _aL_[_i_][:box], :tight = 0 ])
+		next
+		return _aOut_
+	ok
+	_aL_ = StzOcrPlatformLines(pcImage, pcLang)
+	_aB_ = StzOcrPlatformBoxes(pcImage, pcLang)
+	_cDir_ = "ltr"
+	if StzOcrLanguageIsRtl(pcLang) _cDir_ = "rtl" ok
+	_nL_ = len(_aL_)
+	for _i_ = 1 to _nL_
+		_aBx_ = []
+		if _i_ <= len(_aB_) _aBx_ = _aB_[_i_] ok
+		add(_aOut_, [ :text = StzOcrLogicalLineXT(_aL_[_i_], _cDir_), :box = _aBx_, :tight = 1 ])
+	next
+	return _aOut_
 
 # the platform wants an absolute path with backslashes
 func _StzOcrAbsolutePath(pcPath)
@@ -293,7 +376,7 @@ func StzOcrLanguageIsRtl(pcLang)
 
 # the bridge to the platform engine: a PowerShell script written once to the temp folder from the text below
 func _StzOcrBridgePath()
-	_cP_ = sysget("TEMP") + "\stz_ocr_bridge_v2.ps1"
+	_cP_ = sysget("TEMP") + "\stz_ocr_bridge_v3.ps1"
 	if NOT fexists(_cP_)
 		write(_cP_, _StzOcrBridgeScript())
 	ok
@@ -302,7 +385,7 @@ func _StzOcrBridgePath()
 func _StzOcrBridgeScript()
 	_q_ = char(34)
 	_n_ = char(10)
-	return "# stz_ocr_bridge_v1.ps1 -- Softanza's :ocr floor on Windows: Windows.Media.Ocr, one image per call" + _n_ +
+	return "# stz_ocr_bridge_v3.ps1 -- Softanza's :ocr floor on Windows: Windows.Media.Ocr, one image per call" + _n_ +
 	"param([string]$Path = '', [string]$Lang = '', [string]$Out = '', [switch]$List)" + _n_ +
 	"$null = [Windows.Media.Ocr.OcrEngine, Windows.Foundation, ContentType=WindowsRuntime]" + _n_ +
 	"$null = [Windows.Graphics.Imaging.BitmapDecoder, Windows.Graphics.Imaging, ContentType=WindowsRuntime]" + _n_ +
@@ -322,11 +405,15 @@ func _StzOcrBridgeScript()
 	"$sw = [Diagnostics.Stopwatch]::StartNew()" + _n_ +
 	"$result = Await ($engine.RecognizeAsync($bitmap)) ([Windows.Media.Ocr.OcrResult])" + _n_ +
 	"$ms = $sw.ElapsedMilliseconds" + _n_ +
-	"$lines = @(); $words = 0" + _n_ +
-	"foreach ($l in $result.Lines) { $lines += $l.Text; $words += @($l.Words).Count }" + _n_ +
+	"$lines = @(); $boxes = @(); $words = 0" + _n_ +
+	"foreach ($l in $result.Lines) { $lines += $l.Text; $ws = @($l.Words); $words += $ws.Count; $x0 = 1e9; $y0 = 1e9; $x1 = 0; $y1 = 0; " +
+	"foreach ($w in $ws) { $r = $w.BoundingRect; if ($r.X -lt $x0) { $x0 = $r.X }; if ($r.Y -lt $y0) { $y0 = $r.Y }; " +
+	"if ($r.X + $r.Width -gt $x1) { $x1 = $r.X + $r.Width }; if ($r.Y + $r.Height -gt $y1) { $y1 = $r.Y + $r.Height } }; " +
+	"$boxes += ('{0} {1} {2} {3}' -f [int]$x0, [int]$y0, [int]$x1, [int]$y1) }" + _n_ +
 	"$text = ($lines -join [string][char]10)" + _n_ +
 	"('lang {0}  image {1}x{2}  lines {3}  words {4}  angle {5}  ms {6}' -f $Lang, $bitmap.PixelWidth, $bitmap.PixelHeight, @($result.Lines).Count, $words, $result.TextAngle, $ms)" + _n_ +
-	"if ($Out -ne '') { [IO.File]::WriteAllText($Out, $text, (New-Object Text.UTF8Encoding $false)) }" + _n_
+	"if ($Out -ne '') { [IO.File]::WriteAllText($Out, $text, (New-Object Text.UTF8Encoding $false)); " +
+	"[IO.File]::WriteAllText($Out + '.box', ($boxes -join [string][char]10), (New-Object Text.UTF8Encoding $false)) }" + _n_
 
 #-------------------------------------#
 #  RIGHT-TO-LEFT: visual to logical   #

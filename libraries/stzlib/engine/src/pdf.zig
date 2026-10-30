@@ -1717,6 +1717,165 @@ const Frag = struct {
     lead_bold: usize = 0, // bytes of a bold lead-in that opens a line of regular text (a run-in heading), 0 if none
 };
 
+/// An OCR line handed to the reader for a page that has NO text layer (O4): its box in the pixels of the page's
+/// largest image (y down -- the image stzPdf.PageImageFile saves and :ocr reads) and its text in logical order.
+/// `tight` is true for word-tight boxes (the platform's word rectangles) and false for a text detector's boxes,
+/// which it grew by its unclip (PP-OCR): the size is estimated differently for each.
+/// `stroke` is the median width of the line's ink strokes in pixels (0 unknown): a line whose strokes are clearly
+/// wider than the page's is set in bold.
+pub const OcrLine = struct { page: u32, x0: f32, y0: f32, x1: f32, y1: f32, text: []const u8, tight: bool = false, stroke: f32 = 0 };
+
+/// A mark recovered from a scanned page's pixels (O4), in the same image pixels as the OCR lines: a rule ('r'), a
+/// dot ('d') or a fill ('f') -- what a born-digital page draws as vector paths and the reader takes from them.
+pub const OcrMark = struct { page: u32, kind: u8, x0: f32, y0: f32, x1: f32, y1: f32 };
+
+// a line is bold when its strokes, relative to its size, are this much wider than the page's median line's
+const OCR_BOLD_RATIO: f32 = 1.3;
+
+/// The image an OCR page was read from: its largest one, as stzPdf.PageImageFile saves it.
+fn ocrImage(pg: Page) ?ImageRef {
+    if (pg.images.len == 0) return null;
+    var best = pg.images[0];
+    for (pg.images) |im| {
+        if (@as(u64, im.w) * im.h > @as(u64, best.w) * best.h) best = im;
+    }
+    if (best.w == 0 or best.h == 0) return null;
+    return best;
+}
+
+/// A scanned page with the rules, dots and fills recovered from its pixels added, in page space.
+fn withOcrMarks(a: Allocator, pg: Page, page_no: u32, marks: []const OcrMark) !Page {
+    const im = ocrImage(pg) orelse return pg;
+    const sx = (im.x1 - im.x0) / @as(f32, @floatFromInt(im.w));
+    const sy = (im.y1 - im.y0) / @as(f32, @floatFromInt(im.h));
+    var rules: std.ArrayList(Rule) = .empty;
+    var dots: std.ArrayList(Rule) = .empty;
+    var fills: std.ArrayList(Rule) = .empty;
+    try rules.appendSlice(a, pg.rules);
+    try dots.appendSlice(a, pg.dots);
+    try fills.appendSlice(a, pg.fills);
+    for (marks) |m| {
+        if (m.page != page_no) continue;
+        const r = Rule{ .x0 = im.x0 + m.x0 * sx, .x1 = im.x0 + m.x1 * sx, .y0 = im.y0 + m.y0 * sy, .y1 = im.y0 + m.y1 * sy };
+        switch (m.kind) {
+            'r' => try rules.append(a, r),
+            'd' => try dots.append(a, r),
+            else => try fills.append(a, r),
+        }
+    }
+    var out = pg;
+    out.rules = rules.items;
+    out.dots = dots.items;
+    out.fills = fills.items;
+    return out;
+}
+
+// An OCR box is not a glyph run: it carries no font size, and the detector grows it by area x 1.6 / perimeter on
+// every side, so a short table cell comes out relatively TALLER than a long line of smaller text. Two estimates,
+// fitted on golden_v36/z09 page 1 (the scan fixture against its born-digital twin, 25 lines of 8.5-20 pt):
+//   - the box height x 0.78                                  (right for long lines, high for short cells)
+//   - 2.0 x the width per character of the box with the detector's margin taken off (right for cells, a little
+//     low for long lines)
+// The smaller of the two keeps cells near the body size and titles the largest -- what the reader's rules compare.
+const OCR_SIZE_PER_HEIGHT: f32 = 0.78;
+const OCR_SIZE_PER_CORE_CHAR: f32 = 2.0;
+const OCR_UNCLIP: f32 = 1.6;
+// A word-tight box (the platform's word rectangles) runs from the tops of the letters to the bottom of the lowest
+// one: down to the descenders when the line has one, only to the baseline when it has none. Calibrated on the same
+// twin (24 lines): size = 1.04 x height with a descender, 1.28 x height without (ratios 1.02-1.04 and 1.23-1.34).
+const OCR_SIZE_PER_TIGHT_DESC: f32 = 1.04;
+const OCR_SIZE_PER_TIGHT_NODESC: f32 = 1.28;
+
+// a letter that goes below the baseline: Latin g j p q y, the cedilla, the comma and semicolon, brackets; Cyrillic
+// р у ф д ц щ; most Arabic letters (an Arabic line always has one)
+fn hasDescender(t: []const u8) bool {
+    var view = std.unicode.Utf8View.init(t) catch return true;
+    var it = view.iterator();
+    while (it.nextCodepoint()) |cp| {
+        switch (cp) {
+            'g', 'j', 'p', 'q', 'y', 'Q', ',', ';', '(', ')', '[', ']', '{', '}', '@', 0xE7, 0x0440, 0x0443, 0x0444, 0x0434, 0x0446, 0x0449 => return true,
+            else => if (cp >= 0x0600 and cp <= 0x06FF) return true,
+        }
+    }
+    return false;
+}
+
+fn ocrSize(w: f32, h: f32, nchars: usize) f32 {
+    const by_h = OCR_SIZE_PER_HEIGHT * h;
+    if (nchars == 0 or w <= 0 or h <= 0) return by_h;
+    // the core box: W = w0 + 2d, H = h0 + 2d, d = unclip * w0 * h0 / (2 (w0 + h0)), solved for h0 by bisection
+    var lo: f32 = 0.01;
+    var hi: f32 = h;
+    for (0..60) |_| {
+        const h0 = (lo + hi) / 2;
+        const d = (h - h0) / 2;
+        const w0 = w - 2 * d;
+        if (OCR_UNCLIP * w0 * h0 / (2 * (w0 + h0)) - d > 0) hi = h0 else lo = h0;
+    }
+    const w0 = w - (h - lo);
+    const by_w = OCR_SIZE_PER_CORE_CHAR * w0 / @as(f32, @floatFromInt(nchars));
+    if (by_w <= 0) return by_h;
+    return @min(by_h, by_w);
+}
+
+/// The OCR lines of one page as reader fragments, placed in page space through the page's largest image. A
+/// fragment keeps the born-digital geometry: its baseline is 0.8 of its size below its top and 0.25 above its
+/// bottom, centred on the OCR box.
+fn ocrFragments(a: Allocator, pg: Page, page_no: u32, ocr: []const OcrLine, out: *std.ArrayList(Frag)) !void {
+    const best = ocrImage(pg) orelse return;
+    const sx = (best.x1 - best.x0) / @as(f32, @floatFromInt(best.w));
+    const sy = (best.y1 - best.y0) / @as(f32, @floatFromInt(best.h));
+    // the page's median stroke relative to size: the bar a bold line clears
+    var ratios: std.ArrayList(f32) = .empty;
+    for (ocr) |l| {
+        if (l.page != page_no or l.stroke <= 0) continue;
+        const h = (l.y1 - l.y0) * sy;
+        if (h > 0) try ratios.append(a, l.stroke * sy / h);
+    }
+    var med: f32 = 0;
+    if (ratios.items.len > 0) {
+        std.sort.pdq(f32, ratios.items, {}, std.sort.asc(f32));
+        med = ratios.items[ratios.items.len / 2];
+    }
+    const first = out.items.len;
+    for (ocr) |l| {
+        if (l.page != page_no) continue;
+        const t = trimSpace(l.text);
+        if (t.len == 0) continue;
+        const x0 = best.x0 + l.x0 * sx;
+        const x1 = best.x0 + l.x1 * sx;
+        const by0 = best.y0 + l.y0 * sy;
+        const by1 = best.y0 + l.y1 * sy;
+        const n = std.unicode.utf8CountCodepoints(t) catch t.len;
+        const size = if (l.tight) (if (hasDescender(t)) OCR_SIZE_PER_TIGHT_DESC else OCR_SIZE_PER_TIGHT_NODESC) * (by1 - by0) else ocrSize(x1 - x0, by1 - by0, n);
+        const base = (by0 + by1) / 2 + 0.275 * size;
+        try out.append(a, .{
+            .page = page_no,
+            .x0 = x0,
+            .x1 = x1,
+            .base = base,
+            .y0 = base - 0.8 * size,
+            .y1 = base + 0.25 * size,
+            .size = size,
+            .bold = med > 0 and l.stroke > 0 and (l.stroke * sy / ((l.y1 - l.y0) * sy)) > OCR_BOLD_RATIO * med,
+            .mono = false,
+            .text = try a.dupe(u8, t),
+        });
+    }
+    // a detector's box can swallow the bullet that opens its line: the line then starts after the dot, so the
+    // reader's own bullet rule (a dot just left of a line, on its middle) sees it
+    for (out.items[first..]) |*f| {
+        for (pg.dots) |dt| {
+            const cy = (dt.y0 + dt.y1) / 2;
+            if (cy < f.y0 or cy > f.y1) continue;
+            if (dt.x0 >= f.x0 - 1 and dt.x1 <= f.x0 + 2.5 * f.size) {
+                f.x0 = dt.x1 + 0.3 * f.size;
+                break;
+            }
+        }
+    }
+}
+
 fn isRtlCp(cp: u21) bool {
     if (isArabicDigit(cp)) return false;
     return (cp >= 0x0590 and cp <= 0x08FF) or (cp >= 0xFB1D and cp <= 0xFDFF) or (cp >= 0xFE70 and cp <= 0xFEFF);
@@ -6416,6 +6575,12 @@ pub const ReadError = error{ NotPdf, Encrypted, NoPages, OutOfMemory };
 
 /// Reads a PDF held in `bytes`. The result owns its memory (one arena): call deinit.
 pub fn read(gpa: Allocator, bytes: []const u8) !Result {
+    return readOcr(gpa, bytes, &.{}, &.{});
+}
+
+/// Reads a PDF, and a page that has no text layer reads its OCR lines instead (O4): they enter the layout as
+/// fragments, so tables, lists, headings, furniture and reading order come from the reader's own rules.
+pub fn readOcr(gpa: Allocator, bytes: []const u8, ocr: []const OcrLine, marks: []const OcrMark) !Result {
     var res = Result{ .arena = std.heap.ArenaAllocator.init(gpa) };
     errdefer res.arena.deinit();
     const a = res.arena.allocator();
@@ -6495,10 +6660,13 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
     var blocks: std.ArrayList(Block) = .empty;
     var all_frags: std.ArrayList(Frag) = .empty;
     var frag_page_start: std.ArrayList(usize) = .empty;
-    for (page_list.items, 0..) |pg, pi| {
+    for (page_list.items, 0..) |pg_read, pi| {
+        // a scanned page (no glyph) read through OCR also takes the rules, dots and fills found in its pixels
+        const pg = if (pg_read.glyphs.len == 0 and marks.len > 0) try withOcrMarks(a, pg_read, @intCast(pi + 1), marks) else pg_read;
         try frag_page_start.append(a, all_frags.items.len);
         var frags: std.ArrayList(Frag) = .empty;
         try fragments(a, pg, @intCast(pi + 1), tb, &frags);
+        if (frags.items.len == 0 and ocr.len > 0) try ocrFragments(a, pg, @intCast(pi + 1), ocr, &frags);
         for (frags.items) |*f| {
             const rtl = isRtlCp(firstCp(f.text));
             for (pg.dots) |dt| {
@@ -7437,10 +7605,14 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
 }
 
 pub fn readFile(gpa: Allocator, path: []const u8) !Result {
+    return readFileOcr(gpa, path, &.{}, &.{});
+}
+
+pub fn readFileOcr(gpa: Allocator, path: []const u8, ocr: []const OcrLine, marks: []const OcrMark) !Result {
     const bytes = try std.fs.cwd().readFileAlloc(gpa, path, 1 << 30);
     defer gpa.free(bytes);
     // every slice a Result holds lives in its arena, never in `bytes`
-    return read(gpa, bytes);
+    return readOcr(gpa, bytes, ocr, marks);
 }
 
 pub fn kindName(k: Kind) []const u8 {

@@ -168,6 +168,87 @@ fn ring_PdfOpen(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(r.pages));
 }
 
+// ---- O4: a scanned PDF read through its OCR lines -----------------------------------------------------------
+// The OCR runs elsewhere (the :ocr faculty, in Ring); its lines are handed over one by one, then the PDF is read
+// with them: a page with no text layer lays its OCR lines out as fragments (pdf.readOcr).
+var g_ocr: std.ArrayList(pdf.OcrLine) = .empty;
+var g_ocr_marks: std.ArrayList(pdf.OcrMark) = .empty;
+var g_ocr_arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+
+// StzEnginePdfOcrClear() -- forgets the OCR lines handed over so far
+fn ring_PdfOcrClear(p: *anyopaque) callconv(.c) void {
+    g_ocr = .empty;
+    g_ocr_marks = .empty;
+    _ = g_ocr_arena.reset(.free_all);
+    rn(p, 1);
+}
+
+// StzEnginePdfOcrAdd(nPage, nX0, nY0, nX1, nY1, cText, bTight, nStroke) -- one OCR line: its box in the pixels of
+// the page's largest image (y down), its text in logical order, bTight 1 for a word-tight box (the platform), 0 for
+// a text detector's grown box (PP-OCR), nStroke the median width of its ink strokes in pixels (0 unknown);
+// -> the number of lines held
+fn ring_PdfOcrAdd(p: *anyopaque) callconv(.c) void {
+    const a = g_ocr_arena.allocator();
+    const text = a.dupe(u8, gs(p, 6)[0..@intCast(gss(p, 6))]) catch {
+        rn(p, -1);
+        return;
+    };
+    g_ocr.append(a, .{
+        .page = @intFromFloat(g(p, 1)),
+        .x0 = @floatCast(g(p, 2)),
+        .y0 = @floatCast(g(p, 3)),
+        .x1 = @floatCast(g(p, 4)),
+        .y1 = @floatCast(g(p, 5)),
+        .text = text,
+        .tight = g(p, 7) != 0,
+        .stroke = @floatCast(g(p, 8)),
+    }) catch {
+        rn(p, -1);
+        return;
+    };
+    rn(p, @floatFromInt(g_ocr.items.len));
+}
+
+// StzEnginePdfOcrMark(nPage, cKind, nX0, nY0, nX1, nY1) -- one mark found in a scanned page's pixels ("rule",
+// "dot" or "fill"), in the same image pixels as the OCR lines; -> the number of marks held
+fn ring_PdfOcrMark(p: *anyopaque) callconv(.c) void {
+    const kind = gs(p, 2)[0..@intCast(gss(p, 2))];
+    g_ocr_marks.append(g_ocr_arena.allocator(), .{
+        .page = @intFromFloat(g(p, 1)),
+        .kind = if (kind.len > 0) kind[0] else 'f',
+        .x0 = @floatCast(g(p, 3)),
+        .y0 = @floatCast(g(p, 4)),
+        .x1 = @floatCast(g(p, 5)),
+        .y1 = @floatCast(g(p, 6)),
+    }) catch {
+        rn(p, -1);
+        return;
+    };
+    rn(p, @floatFromInt(g_ocr_marks.items.len));
+}
+
+// StzEnginePdfOpenOcr(cPath) -- StzEnginePdfOpen, with the OCR lines handed over laid out on the pages that have
+// no text layer; -> the number of pages, or -1 (StzEnginePdfError says why)
+fn ring_PdfOpenOcr(p: *anyopaque) callconv(.c) void {
+    pdfClose();
+    g_pdf_err_len = 0;
+    const path = gs(p, 1)[0..@intCast(gss(p, 1))];
+    const r = pdf.readFileOcr(std.heap.page_allocator, path, g_ocr.items, g_ocr_marks.items) catch |e| {
+        pdfSetError(switch (e) {
+            error.NotPdf => "the file is not a PDF",
+            error.Encrypted => "the PDF is encrypted; it is not read",
+            error.NoPages => "the PDF has no page that could be found",
+            error.FileNotFound => "the file does not exist",
+            error.OutOfMemory => "out of memory while reading the PDF",
+            else => @errorName(e),
+        });
+        rn(p, -1);
+        return;
+    };
+    g_pdf = r;
+    rn(p, @floatFromInt(r.pages));
+}
+
 fn ring_PdfError(p: *anyopaque) callconv(.c) void {
     rs2(p, &g_pdf_err, @intCast(g_pdf_err_len));
 }
@@ -315,6 +396,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginepdfimages", .func = &ring_PdfImages },
     .{ .name = "stzenginepdfimagesave", .func = &ring_PdfImageSave },
     .{ .name = "stzenginepdfclose", .func = &ring_PdfClose },
+    .{ .name = "stzenginepdfocrclear", .func = &ring_PdfOcrClear },
+    .{ .name = "stzenginepdfocradd", .func = &ring_PdfOcrAdd },
+    .{ .name = "stzenginepdfopenocr", .func = &ring_PdfOpenOcr },
+    .{ .name = "stzenginepdfocrmark", .func = &ring_PdfOcrMark },
     .{ .name = "stzenginefilesetreadonly", .func = &ring_FileSetReadOnly },
     .{ .name = "stzenginefilewriteprivate", .func = &ring_FileWritePrivate },
     .{ .name = "stzenginefilesetexecutable", .func = &ring_FileSetExecutable },

@@ -729,3 +729,258 @@ pub fn read(models_dir: []const u8, rec_file: []const u8, image_path: []const u8
     res.ms_total = ms(t_all);
     return res;
 }
+
+// --------------------------------------------------------------------------------------------- page marks (O4)
+
+// What a scanned page shows besides its letters, recovered from its pixels, in the shapes the PDF reader takes
+// from a born-digital page's vector paths (pdf.zig Interp): a RULE (a thin stroke: table borders, separators), a
+// DOT (a small filled shape: a list bullet) and a FILL (a shaded rectangle: a code block, a table header). And
+// per OCR line, the width of its strokes, the cue for bold. Thresholds are the reader's, in pixels at the page's
+// own resolution: `ppt` pixels per point.
+
+pub const Mark = struct { kind: u8, x0: f32, y0: f32, x1: f32, y1: f32 }; // kind 'r' rule, 'd' dot, 'f' fill
+
+pub const Marks = struct {
+    arena: std.heap.ArenaAllocator,
+    marks: []Mark,
+    strokes: []f32, // per box given: the median width of its dark strokes, in pixels (0 when none)
+
+    pub fn free(r: *Marks) void {
+        r.arena.deinit();
+    }
+};
+
+// The thresholds are set from the PAPER, the page's commonest light grey (255 on a rendered page, lower on a real
+// scan): shading is anything 6 levels below it, a rule's ink 30 below (a table's light grey separators, 160-195 on
+// golden_v36/z09), a dot's ink 80 below (a grey bullet, 141 there), and a letter's stroke for the bold cue at 128 or
+// 100 below the paper, whichever is darker.
+const Levels = struct { tint: u8, line: u8, ink: u8, stroke: u8 };
+
+fn levelsOf(gray: []const u8) Levels {
+    var hist = [_]usize{0} ** 256;
+    for (gray) |v| hist[v] += 1;
+    var paper: usize = 255;
+    var best: usize = 0;
+    for (128..256) |v| {
+        if (hist[v] > best) {
+            best = hist[v];
+            paper = v;
+        }
+    }
+    return .{
+        .tint = @intCast(paper -| 6),
+        .line = @intCast(paper -| 30),
+        .ink = @intCast(paper -| 80),
+        .stroke = @intCast(@min(128, paper -| 100)),
+    };
+}
+
+fn inRects(rects: []const Mark, x: f32, y: f32) bool {
+    for (rects) |r| {
+        if (x >= r.x0 and x <= r.x1 and y >= r.y0 and y <= r.y1) return true;
+    }
+    return false;
+}
+
+fn inBox(boxes: []const [4]f32, x: f32, y: f32, pad: f32) bool {
+    for (boxes) |b| {
+        if (x >= b[0] - pad and x <= b[2] + pad and y >= b[1] - pad and y <= b[3] + pad) return true;
+    }
+    return false;
+}
+
+const Seg = struct { s: usize, e: usize, first: usize, last: usize };
+
+/// Runs of `on` pixels at least `min_len` long along one axis, merged across neighbouring lines into segments;
+/// a segment at most `max_thick` lines thick is a rule. `horizontal` scans rows, otherwise columns.
+fn rulesAlong(a: std.mem.Allocator, gray: []const u8, w: usize, h: usize, horizontal: bool, min_len: usize, max_thick: usize, out: *std.ArrayList(Mark), boxes: []const [4]f32, line: u8, fills: []const Mark) !void {
+    const n_lines = if (horizontal) h else w;
+    const n_along = if (horizontal) w else h;
+    var open: std.ArrayList(Seg) = .empty;
+    var next: std.ArrayList(Seg) = .empty;
+    for (0..n_lines + 1) |li| {
+        next.clearRetainingCapacity();
+        if (li < n_lines) {
+            var k: usize = 0;
+            while (k < n_along) {
+                const px = if (horizontal) gray[li * w + k] else gray[k * w + li];
+                if (px >= line) {
+                    k += 1;
+                    continue;
+                }
+                const s = k;
+                while (k < n_along and (if (horizontal) gray[li * w + k] else gray[k * w + li]) < line) k += 1;
+                if (k - s < min_len) continue;
+                // continue an open segment of the line before when the spans agree within 3 px
+                var joined = false;
+                for (open.items) |*o| {
+                    if (o.last == std.math.maxInt(usize)) continue; // already continued by another run
+                    if (o.last + 1 == li and absDiff(o.s, s) <= 3 and absDiff(o.e, k) <= 3) {
+                        try next.append(a, .{ .s = @min(o.s, s), .e = @max(o.e, k), .first = o.first, .last = li });
+                        o.last = std.math.maxInt(usize); // taken
+                        joined = true;
+                        break;
+                    }
+                }
+                if (!joined) try next.append(a, .{ .s = s, .e = k, .first = li, .last = li });
+            }
+        }
+        // the segments not continued are finished
+        for (open.items) |o| {
+            if (o.last == std.math.maxInt(usize)) continue;
+            const thick = o.last - o.first + 1;
+            if (thick > max_thick) continue;
+            const m: Mark = if (horizontal)
+                .{ .kind = 'r', .x0 = @floatFromInt(o.s), .x1 = @floatFromInt(o.e), .y0 = @floatFromInt(o.first), .y1 = @floatFromInt(o.last + 1) }
+            else
+                .{ .kind = 'r', .x0 = @floatFromInt(o.first), .x1 = @floatFromInt(o.last + 1), .y0 = @floatFromInt(o.s), .y1 = @floatFromInt(o.e) };
+            // a stroke inside a line of text is a letter's, and one inside a shading is the edge of its letters
+            if (inBox(boxes, (m.x0 + m.x1) / 2, (m.y0 + m.y1) / 2, 0)) continue;
+            if (inRects(fills, (m.x0 + m.x1) / 2, (m.y0 + m.y1) / 2)) continue;
+            try out.append(a, m);
+        }
+        open.clearRetainingCapacity();
+        try open.appendSlice(a, next.items);
+    }
+}
+
+fn absDiff(x: usize, y: usize) usize {
+    return if (x > y) x - y else y - x;
+}
+
+const Comp = struct { x0: usize, y0: usize, x1: usize, y1: usize, n: usize };
+
+/// The 8-connected components of the pixels below `below`.
+fn components(a: std.mem.Allocator, gray: []const u8, w: usize, h: usize, below: u8) ![]Comp {
+    const seen = try a.alloc(u8, w * h);
+    @memset(seen, 0);
+    var stack: std.ArrayList(u32) = .empty;
+    var out: std.ArrayList(Comp) = .empty;
+    for (0..w * h) |start| {
+        if (gray[start] >= below or seen[start] != 0) continue;
+        var cm = Comp{ .x0 = start % w, .y0 = start / w, .x1 = start % w, .y1 = start / w, .n = 0 };
+        seen[start] = 1;
+        try stack.append(a, @intCast(start));
+        while (stack.pop()) |p32| {
+            const p: usize = p32;
+            const px = p % w;
+            const py = p / w;
+            cm.n += 1;
+            cm.x0 = @min(cm.x0, px);
+            cm.x1 = @max(cm.x1, px);
+            cm.y0 = @min(cm.y0, py);
+            cm.y1 = @max(cm.y1, py);
+            const ylo = if (py > 0) py - 1 else py;
+            const yhi = @min(py + 1, h - 1);
+            const xlo = if (px > 0) px - 1 else px;
+            const xhi = @min(px + 1, w - 1);
+            var yy = ylo;
+            while (yy <= yhi) : (yy += 1) {
+                var xx = xlo;
+                while (xx <= xhi) : (xx += 1) {
+                    const q = yy * w + xx;
+                    if (gray[q] < below and seen[q] == 0) {
+                        seen[q] = 1;
+                        try stack.append(a, @intCast(q));
+                    }
+                }
+            }
+        }
+        try out.append(a, cm);
+    }
+    return out.toOwnedSlice(a);
+}
+
+/// The page marks of an image file, and the stroke width of each box in `boxes` (the OCR lines, image pixels).
+///   ppt   the image's pixels per point (150 dpi: 2.083)
+pub fn marksOf(image_path: []const u8, ppt: f32, boxes: []const [4]f32) !Marks {
+    var res = Marks{ .arena = std.heap.ArenaAllocator.init(gpa), .marks = &.{}, .strokes = &.{} };
+    errdefer res.arena.deinit();
+    const a = res.arena.allocator();
+    var im = try loadImage(image_path);
+    defer im.free();
+    const w = im.w;
+    const h = im.h;
+    const gray = try a.alloc(u8, w * h);
+    for (0..w * h) |i| {
+        const p = im.px.ptr + i * 3;
+        gray[i] = @intFromFloat(@round(0.299 * @as(f32, @floatFromInt(p[0])) + 0.587 * @as(f32, @floatFromInt(p[1])) + 0.114 * @as(f32, @floatFromInt(p[2]))));
+    }
+    var out: std.ArrayList(Mark) = .empty;
+    const lv = levelsOf(gray);
+    // fills: a shaded rectangle at least 20 pt wide and 5 to 80 pt tall, at least 80% of it shaded
+    const tint = try components(a, gray, w, h, lv.tint);
+    for (tint) |cc| {
+        const fw: f32 = @floatFromInt(cc.x1 - cc.x0 + 1);
+        const fh: f32 = @floatFromInt(cc.y1 - cc.y0 + 1);
+        if (fw < 20 * ppt or fh < 5 * ppt or fh > 80 * ppt) continue;
+        if (@as(f32, @floatFromInt(cc.n)) < 0.8 * fw * fh) continue;
+        try out.append(a, .{ .kind = 'f', .x0 = @floatFromInt(cc.x0), .y0 = @floatFromInt(cc.y0), .x1 = @floatFromInt(cc.x1 + 1), .y1 = @floatFromInt(cc.y1 + 1) });
+    }
+    const fills = try a.dupe(Mark, out.items);
+    // rules: a horizontal one at least 28 pt long, a vertical one at least 19 pt (longer than any letter's stroke at
+    // body sizes, shorter than a table's height), each at most 2.5 pt thick, never inside a line of text or a shading
+    const thick: usize = @max(2, @as(usize, @intFromFloat(@ceil(2.5 * ppt))));
+    try rulesAlong(a, gray, w, h, true, @intFromFloat(28 * ppt), thick, &out, boxes, lv.line, fills);
+    try rulesAlong(a, gray, w, h, false, @intFromFloat(19 * ppt), thick, &out, boxes, lv.line, fills);
+    // dots: a filled shape 2.5 to 9 pt on each side, near square, nothing inked just left of it (a bullet opens a line)
+    const ink = try components(a, gray, w, h, lv.ink);
+    for (ink) |cc| {
+        const cw = cc.x1 - cc.x0 + 1;
+        const chh = cc.y1 - cc.y0 + 1;
+        const fw: f32 = @floatFromInt(cw);
+        const fh: f32 = @floatFromInt(chh);
+        if (fw < 2.5 * ppt or fh < 2.5 * ppt or fw > 9 * ppt or fh > 9 * ppt) continue;
+        if (fw > 1.6 * fh or fh > 1.6 * fw) continue;
+        if (@as(f32, @floatFromInt(cc.n)) < 0.7 * fw * fh) continue;
+        var clear = true;
+        const lx0 = if (cc.x0 > 2 * cw) cc.x0 - 2 * cw else 0;
+        var yy = cc.y0;
+        while (yy <= cc.y1 and clear) : (yy += 1) {
+            var xx = lx0;
+            while (xx + 1 < cc.x0) : (xx += 1) {
+                if (gray[yy * w + xx] < lv.ink) {
+                    clear = false;
+                    break;
+                }
+            }
+        }
+        if (!clear) continue;
+        if (inRects(fills, @floatFromInt((cc.x0 + cc.x1) / 2), @floatFromInt((cc.y0 + cc.y1) / 2))) continue;
+        try out.append(a, .{ .kind = 'd', .x0 = @floatFromInt(cc.x0), .y0 = @floatFromInt(cc.y0), .x1 = @floatFromInt(cc.x1 + 1), .y1 = @floatFromInt(cc.y1 + 1) });
+    }
+    res.marks = try out.toOwnedSlice(a);
+    // strokes: in each line's box, the median length of the horizontal runs of ink (a bold face's strokes are wider)
+    const strokes = try a.alloc(f32, boxes.len);
+    var runs: std.ArrayList(u16) = .empty;
+    for (boxes, 0..) |b, bi| {
+        runs.clearRetainingCapacity();
+        const bx0: usize = @intFromFloat(std.math.clamp(b[0], 0, @as(f32, @floatFromInt(w - 1))));
+        const bx1: usize = @intFromFloat(std.math.clamp(b[2], 0, @as(f32, @floatFromInt(w))));
+        const by0: usize = @intFromFloat(std.math.clamp(b[1], 0, @as(f32, @floatFromInt(h - 1))));
+        const by1: usize = @intFromFloat(std.math.clamp(b[3], 0, @as(f32, @floatFromInt(h))));
+        const cap: usize = @max(1, (by1 -| by0) / 2);
+        var yy = by0;
+        while (yy < by1) : (yy += 1) {
+            var xx = bx0;
+            while (xx < bx1) {
+                if (gray[yy * w + xx] >= lv.stroke) {
+                    xx += 1;
+                    continue;
+                }
+                const s = xx;
+                while (xx < bx1 and gray[yy * w + xx] < lv.stroke) xx += 1;
+                const len = xx - s;
+                if (len <= cap) try runs.append(a, @intCast(len));
+            }
+        }
+        if (runs.items.len == 0) {
+            strokes[bi] = 0;
+            continue;
+        }
+        std.sort.pdq(u16, runs.items, {}, std.sort.asc(u16));
+        strokes[bi] = @floatFromInt(runs.items[runs.items.len / 2]);
+    }
+    res.strokes = strokes;
+    return res;
+}

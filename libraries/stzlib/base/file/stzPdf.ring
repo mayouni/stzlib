@@ -44,6 +44,9 @@ class stzPdf from stzObject
 	@aBlocks = []
 	@cText = ""
 	@aImages = []
+	@aOcrBy = []
+	@aOcrMarks = []
+	@cOcrLang = ""
 
 	# Reads the PDF at pcPath through the engine and keeps its blocks, its text and its facts.
 	#
@@ -294,6 +297,12 @@ class stzPdf from stzObject
 
 	# Writes the largest image of a page to a temporary file and returns its path ("" when the page has none).
 	def PageImageFile(pnPage)
+		_nBest_ = This.PageImageNumber(pnPage)
+		if _nBest_ = 0 return "" ok
+		return This.SaveImage(_nBest_, sysget("TEMP") + "\stz_pdf_p" + pnPage + "_" + random(999999))
+
+	# The number in PageImages() of a page's largest image the engine hands out, 0 when it has none.
+	def PageImageNumber(pnPage)
 		_nBest_ = 0
 		_nArea_ = 0
 		_n_ = ring_len(@aImages)
@@ -306,8 +315,7 @@ class stzPdf from stzObject
 				ok
 			ok
 		next
-		if _nBest_ = 0 return "" ok
-		return This.SaveImage(_nBest_, sysget("TEMP") + "\stz_pdf_p" + pnPage + "_" + random(999999))
+		return _nBest_
 
 	# The :ocr reader over the pages' images: the registry picks its implementation (the platform floor until a
 	# model is measured better); its Text() is the pages' text in reading order of the lines.
@@ -330,3 +338,96 @@ class stzPdf from stzObject
 	def TextOrOcr(pcLang)
 		if This.HasText() return @cText ok
 		return This.Ocr(pcLang).Text()
+
+	# Reads the document again with its scanned pages read through OCR (OCR slice O4): each page with no text
+	# layer is read by the :ocr faculty (the registry picks the implementation per language), and its lines, each
+	# with its box, enter the reader's layout as fragments. Blocks(), Text() and Info() are then those of the
+	# scan, built by the reader's own rules: headings, lists, tables, page furniture and reading order.
+	#
+	#   pcLang     the language of the pages ("fr-FR", "ar-SA", "ru-RU"), or "" for the user's own languages
+	#   returns    nothing; ReadOcrQ chains
+	#   note       a page that has a text layer keeps it and is not read by OCR; a font size is ESTIMATED from
+	#              each line's box, and no OCR line is bold (the faculty does not say)
+	#   warning    raises when the faculty cannot read the language, or the PDF cannot be read again
+	def ReadOcr(pcLang)
+		# the pages that already have text keep it
+		_aHas_ = []
+		_nB_ = ring_len(@aBlocks)
+		for _i_ = 1 to _nB_
+			if ring_find(_aHas_, @aBlocks[_i_][1]) = 0 _aHas_ + @aBlocks[_i_][1] ok
+		next
+		StzEnginePdfOcrClear()
+		@aOcrBy = []
+		@aOcrMarks = []
+		_nP_ = This.NumberOfPages()
+		for _i_ = 1 to _nP_
+			if ring_find(_aHas_, _i_) > 0 loop ok
+			_nImg_ = This.PageImageNumber(_i_)
+			if _nImg_ = 0 loop ok
+			_cImg_ = This.PageImageFile(_i_)
+			_aL_ = StzOcrLinesWithBoxes(_cImg_, pcLang)
+			@aOcrBy + [ _i_, $cStzOcrLinesBy, ring_len(_aL_) ]
+			# what the page shows besides its letters (rules, bullets, shadings) and each line's stroke width
+			_nW_ = @aImages[_nImg_][4] - @aImages[_nImg_][2]
+			_nPpt_ = 150 / 72
+			if _nW_ > 0 _nPpt_ = @aImages[_nImg_][6] / _nW_ ok
+			_cBoxes_ = ""
+			_nL_ = ring_len(_aL_)
+			for _k_ = 1 to _nL_
+				_aBx_ = _aL_[_k_][:box]
+				if _k_ > 1 _cBoxes_ += ";" ok
+				if ring_len(_aBx_) = 4
+					_cBoxes_ += "" + _aBx_[1] + " " + _aBx_[2] + " " + _aBx_[3] + " " + _aBx_[4]
+				else
+					_cBoxes_ += "0 0 0 0"
+				ok
+			next
+			_aMk_ = StzEngineNeuralOcrMarks(_cImg_, _nPpt_, _cBoxes_)
+			_aStrokes_ = []
+			if ring_len(_aMk_) = 2
+				_nM_ = ring_len(_aMk_[1])
+				for _k_ = 1 to _nM_
+					_m_ = _aMk_[1][_k_]
+					StzEnginePdfOcrMark(_i_, _m_[1], _m_[2], _m_[3], _m_[4], _m_[5])
+				next
+				_aStrokes_ = _aMk_[2]
+				@aOcrMarks + [ _i_, _nM_ ]
+			ok
+			for _k_ = 1 to _nL_
+				_aBx_ = _aL_[_k_][:box]
+				if ring_len(_aBx_) = 4
+					_nSt_ = 0
+					if _k_ <= ring_len(_aStrokes_) _nSt_ = _aStrokes_[_k_] ok
+					StzEnginePdfOcrAdd(_i_, _aBx_[1], _aBx_[2], _aBx_[3], _aBx_[4], _aL_[_k_][:text], _aL_[_k_][:tight], _nSt_)
+				ok
+			next
+		next
+		_n_ = StzEnginePdfOpenOcr(@cPath)
+		StzEnginePdfOcrClear()
+		if _n_ < 0
+			_cWhy_ = StzEnginePdfError()
+			StzEnginePdfClose()
+			stzraise("Can't re-read the PDF '" + @cPath + "' with its OCR lines: " + _cWhy_ + ".")
+		ok
+		@aInfo = StzEnginePdfInfo()
+		@aBlocks = StzEnginePdfBlocks()
+		@cText = StzEnginePdfText()
+		StzEnginePdfClose()
+		@cOcrLang = "" + pcLang
+
+		def ReadOcrQ(pcLang)
+			This.ReadOcr(pcLang)
+			return This
+
+	# TRUE once ReadOcr laid out at least one page from OCR lines.
+	def IsReadByOcr()
+		return ring_len(@aOcrBy) > 0
+
+	# Which implementation read each scanned page in the last ReadOcr: [ nPage, cImplementation, nLines ] per page
+	# ("platform" or "ppocr").
+	def OcrPages()
+		return @aOcrBy
+
+	# How many marks (rules, bullets, shadings) the last ReadOcr found in each scanned page's pixels: [ nPage, nMarks ].
+	def OcrMarks()
+		return @aOcrMarks
