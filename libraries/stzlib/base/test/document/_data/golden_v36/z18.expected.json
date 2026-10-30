@@ -1,0 +1,194 @@
+{
+  "id": "z18",
+  "difficulty": "hard: Japanese in a Type 3 font (MS Gothic from a TTC), no spaces between words, '一、' typed markers with no gap, '・' bullets, drawn circle bullets, two pages",
+  "pages": 2,
+  "title": "結婚披露宴 式次第",
+  "headings": [
+    {
+      "level": 1,
+      "text": "結婚披露宴 式次第"
+    },
+    {
+      "level": 2,
+      "text": "式次第"
+    },
+    {
+      "level": 2,
+      "text": "お料理"
+    },
+    {
+      "level": 2,
+      "text": "お願い"
+    },
+    {
+      "level": 2,
+      "text": "席次について"
+    },
+    {
+      "level": 2,
+      "text": "アクセスのご案内"
+    }
+  ],
+  "key_sentences": [
+    "本日はご多用のところ、私どもの披露宴にご列席いただき誠にありがとうございます。",
+    "ささやかな宴ではございますが、心ゆくまでおくつろぎください。",
+    "お席はご親族とご友人のテーブルに分かれております。",
+    "受付でお渡しする席札をご確認のうえ、ご着席ください。",
+    "皆様のご来場を心よりお待ち申し上げております。"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "時刻",
+          "内容",
+          "備考"
+        ],
+        [
+          "11:30",
+          "受付開始",
+          "ロビーにて"
+        ],
+        [
+          "12:00",
+          "開宴",
+          "新郎新婦入場"
+        ],
+        [
+          "12:20",
+          "主賓挨拶・乾杯",
+          "起立してご唱和ください"
+        ],
+        [
+          "12:40",
+          "ご歓談・お料理",
+          ""
+        ],
+        [
+          "13:30",
+          "お色直し中座",
+          ""
+        ],
+        [
+          "13:50",
+          "ケーキ入刀",
+          "写真撮影可"
+        ],
+        [
+          "14:30",
+          "両家代表挨拶",
+          ""
+        ],
+        [
+          "14:50",
+          "お開き・お見送り",
+          ""
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "テーブル",
+          "区分",
+          "人数"
+        ],
+        [
+          "A卓",
+          "新郎側親族",
+          "8"
+        ],
+        [
+          "B卓",
+          "新婦側親族",
+          "8"
+        ],
+        [
+          "C卓",
+          "新郎側ご友人",
+          "8"
+        ],
+        [
+          "D卓",
+          "新婦側ご友人",
+          "8"
+        ],
+        [
+          "E卓",
+          "ご同僚",
+          "8"
+        ],
+        [
+          "F卓",
+          "ご恩師",
+          "6"
+        ],
+        [
+          "合計",
+          "",
+          "46"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "一、前菜：旬の野菜と湖産ますのマリネ"
+    },
+    {
+      "level": 0,
+      "text": "二、スープ：とうもろこしの冷製ポタージュ"
+    },
+    {
+      "level": 0,
+      "text": "三、魚料理：スズキのポワレ、レモンバターソース"
+    },
+    {
+      "level": 0,
+      "text": "四、肉料理：国産牛フィレ肉のロースト"
+    },
+    {
+      "level": 0,
+      "text": "五、デザート：季節のフルーツとシャーベット"
+    },
+    {
+      "level": 0,
+      "text": "お料理のアレルギーがある方は、お近くのスタッフにお申し付けください。"
+    },
+    {
+      "level": 0,
+      "text": "写真撮影はご自由にお楽しみください。ただし、フラッシュはご遠慮ください。"
+    },
+    {
+      "level": 0,
+      "text": "お帰りの際は、受付で引出物をお受け取りください。"
+    },
+    {
+      "level": 0,
+      "text": "・湖畔駅から無料送迎バスが10分おきに運行しています。"
+    },
+    {
+      "level": 0,
+      "text": "・お車でお越しの方は、地下駐車場を3時間無料でご利用いただけます。"
+    },
+    {
+      "level": 0,
+      "text": "・お帰りのタクシーはロビーでお手配いたします。"
+    }
+  ],
+  "furniture": [
+    "ホテル湖畔 グランドホール",
+    "〒999-0000 湖畔市水辺町1-2 電話 099-555-0187",
+    "1 / 2 ページ",
+    "結婚披露宴 式次第",
+    "2 / 2 ページ"
+  ],
+  "languages": [
+    "ja"
+  ],
+  "code": [],
+  "notes": "The text is MS Gothic (face 0 of msgothic.ttc) written as Type 3 font procedures by matplotlib: glyph names are uniXXXX style, there may be no ToUnicode map, so a reader relying on a text map may recover nothing; the expected text is the Unicode written. '一、' to '五、' are typed markers with NO visible gap before the dish name (the comma is the only separator), so no space is inserted; the 'ご案内' bullets are typed '・' (U+30FB) also with no gap. The 'お願い' bullets are small filled circles drawn as patches (no marker). The schedule table has only horizontal rules and several empty note cells; the seating table is a full grid with a shaded header and a totals row (合計) with an empty middle cell. Lines are broken between characters; wrapped lines join with no space. Headings are regular weight (only size differs). Producer: matplotlib 3.11.2 PdfPages (pdf.fonttype 3). Fonts from raw /BaseFont and /FontFile* entries: 2 Type 3 font object(s) (glyphs embedded as procedures). MediaBox  0 0 595.28 841.89 ."
+}

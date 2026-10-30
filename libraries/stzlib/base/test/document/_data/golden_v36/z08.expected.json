@@ -1,0 +1,112 @@
+{
+  "id": "z08",
+  "difficulty": "medium: narrow 80 mm receipt page, monospaced Courier, borderless aligned columns drawn with drawString, dashed drawn separators, hyphen list with hanging indent, drawn barcode",
+  "pages": 1,
+  "title": "LOAN RECEIPT",
+  "headings": [
+    {
+      "level": 1,
+      "text": "LOAN RECEIPT"
+    },
+    {
+      "level": 2,
+      "text": "Items borrowed"
+    },
+    {
+      "level": 2,
+      "text": "Reminders"
+    }
+  ],
+  "key_sentences": [
+    "Fines are charged at 20p per day for adult books.",
+    "Children's books are free of charge.",
+    "Please keep this receipt until your items are returned.",
+    "We are open Monday to Saturday from 9am to 6pm."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Card no.",
+          "2900 1174 5532 0"
+        ],
+        [
+          "Date",
+          "6 Nov 2026 14:32"
+        ],
+        [
+          "Counter",
+          "3"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Title",
+          "Due",
+          "Fee"
+        ],
+        [
+          "The Long Winter of Hallam Marsh",
+          "27 Nov 26",
+          "0.00"
+        ],
+        [
+          "Beginner's Guide to Beekeeping",
+          "27 Nov 26",
+          "0.00"
+        ],
+        [
+          "Soups from Six Countries",
+          "4 Dec 26",
+          "0.00"
+        ],
+        [
+          "Atlas of the Night Sky",
+          "13 Nov 26",
+          "0.00"
+        ],
+        [
+          "DVD: Coastal Walks of the North",
+          "13 Nov 26",
+          "1.00"
+        ],
+        [
+          "Fee due today",
+          "",
+          "1.00"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "- Renew your items online or by telephone up to three times."
+    },
+    {
+      "level": 0,
+      "text": "- Return DVDs to the front desk and not to the book drop."
+    },
+    {
+      "level": 0,
+      "text": "- Items reserved by another reader cannot be renewed."
+    }
+  ],
+  "furniture": [
+    "MILLBROOK COUNTY LIBRARY",
+    "Central Branch",
+    "21 Church Lane, Millbrook ML3 2AB",
+    "Tel 01999 555 0128",
+    "000-482-1175",
+    "Thank you for using Millbrook Libraries"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "The page is 80 mm wide (226.8 x 600 pt). Both tables are borderless: columns are separate drawString calls aligned in the Courier character grid, with dashed horizontal rules drawn as vector lines. The first table (card, date, counter) is key/value with no header row. The items table has a header row and a final row 'Fee due today' with an empty middle cell; the long titles wrap onto a second line inside their cell (joined with one space). Hyphens in the Reminders list are typed glyphs followed by a visible gap. Barcode is drawn rectangles with no digits attached; the receipt number below it and the thank-you line are footer furniture. All headings are bold Courier only slightly larger than text. Producer: ReportLab 5.0.1 canvas (low level). Fonts from raw /BaseFont and /FontFile* entries: Helvetica (standard-14, not embedded); Courier-Bold (standard-14, not embedded); Courier (standard-14, not embedded). MediaBox  0 0 226.8 600 ."
+}

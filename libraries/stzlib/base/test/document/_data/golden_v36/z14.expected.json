@@ -1,0 +1,179 @@
+{
+  "id": "z14",
+  "difficulty": "hard: Thai (no spaces between words, stacked tone marks), HarfBuzz-shaped, Thai numerals and letters as list markers, spanned section rows, totals rows with an empty date cell",
+  "pages": 2,
+  "title": "ใบแจ้งยอดค่าที่พัก",
+  "headings": [
+    {
+      "level": 1,
+      "text": "ใบแจ้งยอดค่าที่พัก"
+    },
+    {
+      "level": 2,
+      "text": "ข้อมูลการเข้าพัก"
+    },
+    {
+      "level": 2,
+      "text": "รายการค่าใช้จ่าย"
+    },
+    {
+      "level": 2,
+      "text": "เงื่อนไขการชำระเงิน"
+    },
+    {
+      "level": 2,
+      "text": "ข้อมูลติดต่อ"
+    }
+  ],
+  "key_sentences": [
+    "ขอบคุณที่เลือกพักกับเรา",
+    "โปรดตรวจสอบรายการด้านล่างและแจ้งเจ้าหน้าที่ก่อนชำระเงิน",
+    "สอบถามเพิ่มเติมได้ที่แผนกต้อนรับตลอด 24 ชั่วโมง",
+    "เราหวังว่าจะได้ต้อนรับท่านอีกครั้ง"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "หมายเลขห้อง",
+          "305 ห้องดีลักซ์"
+        ],
+        [
+          "วันที่เข้าพัก",
+          "12 พฤศจิกายน 2569"
+        ],
+        [
+          "วันที่ออก",
+          "15 พฤศจิกายน 2569"
+        ],
+        [
+          "จำนวนผู้เข้าพัก",
+          "2 ท่าน"
+        ],
+        [
+          "เลขที่ใบแจ้งยอด",
+          "F-2569-01874"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "วันที่",
+          "รายการ",
+          "จำนวนเงิน (บาท)"
+        ],
+        [
+          "ค่าห้องพัก",
+          "ค่าห้องพัก",
+          "ค่าห้องพัก"
+        ],
+        [
+          "12 พ.ย. 2569",
+          "ค่าห้องพักดีลักซ์",
+          "2,400.00"
+        ],
+        [
+          "13 พ.ย. 2569",
+          "ค่าห้องพักดีลักซ์",
+          "2,400.00"
+        ],
+        [
+          "14 พ.ย. 2569",
+          "ค่าห้องพักดีลักซ์",
+          "2,400.00"
+        ],
+        [
+          "อาหารและเครื่องดื่ม",
+          "อาหารและเครื่องดื่ม",
+          "อาหารและเครื่องดื่ม"
+        ],
+        [
+          "12 พ.ย. 2569",
+          "อาหารเย็นที่ห้องอาหารริมน้ำ",
+          "1,180.00"
+        ],
+        [
+          "13 พ.ย. 2569",
+          "อาหารเช้าเพิ่ม 1 ท่าน",
+          "320.00"
+        ],
+        [
+          "14 พ.ย. 2569",
+          "เครื่องดื่มจากมินิบาร์",
+          "150.00"
+        ],
+        [
+          "บริการอื่น ๆ",
+          "บริการอื่น ๆ",
+          "บริการอื่น ๆ"
+        ],
+        [
+          "13 พ.ย. 2569",
+          "บริการซักรีด",
+          "260.00"
+        ],
+        [
+          "14 พ.ย. 2569",
+          "รถรับส่งสถานีรถไฟ",
+          "400.00"
+        ],
+        [
+          "",
+          "รวมก่อนภาษีและค่าบริการ",
+          "9,510.00"
+        ],
+        [
+          "",
+          "ค่าบริการ 10%",
+          "951.00"
+        ],
+        [
+          "",
+          "ภาษีมูลค่าเพิ่ม 7%",
+          "732.27"
+        ],
+        [
+          "",
+          "ยอดรวมสุทธิ",
+          "11,193.27"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "๑. ชำระเงินได้ทุกช่องทางที่แจ้งไว้ที่แผนกต้อนรับ"
+    },
+    {
+      "level": 0,
+      "text": "๒. หากต้องการใบกำกับภาษีโปรดแจ้งก่อนออกจากโรงแรม"
+    },
+    {
+      "level": 0,
+      "text": "๓. ค่าเสียหายต่อทรัพย์สินจะคิดตามราคาจริงรวมถึง:"
+    },
+    {
+      "level": 1,
+      "text": "ก. ผ้าปูที่นอนและผ้าขนหนู"
+    },
+    {
+      "level": 1,
+      "text": "ข. อุปกรณ์ไฟฟ้าในห้องพัก"
+    }
+  ],
+  "furniture": [
+    "โรงแรมบ้านริมคลอง",
+    "99 ถนนริมน้ำ อำเภอเมือง จังหวัดสุพรรณบุรี โทร 099 555 0178",
+    "หน้า 1 จาก 2",
+    "หน้า 2 จาก 2"
+  ],
+  "languages": [
+    "th"
+  ],
+  "code": [],
+  "notes": "Thai has no spaces between words; sentences are single lines so no wrap happens, but spaces inside the strings are real separators. The charges table has three spanned section rows (ค่าห้องพัก, อาหารและเครื่องดื่ม, บริการอื่น ๆ; text repeated in each of the three cells) and four totals rows whose date cell is empty. List markers are typed Thai numerals '๑.' '๒.' '๓.' and Thai letters 'ก.' 'ข.' (nested). Dates use the Buddhist-era year 2569. HarfBuzz shaping in MuPDF stacks vowels and tone marks above and below the base; a reader that does not apply the ToUnicode map may lose or reorder those marks. Digits in amounts are ASCII. Producer: PyMuPDF 1.28.2 (MuPDF 1.28.2) Story (HTML+CSS). Fonts from raw /BaseFont and /FontFile* entries: LeelawadeeUI-Bold (embedded); LeelawadeeUI (embedded). MediaBox 0 0 595 842."
+}

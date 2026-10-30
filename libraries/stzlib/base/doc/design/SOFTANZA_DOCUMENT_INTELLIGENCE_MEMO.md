@@ -714,7 +714,15 @@ Time for the 24 documents: native 0.08 s, Docling 125 s. **The native reader sti
 
 Withdrawn or not reached: golden_v35 lists 0.74 -> 0.86 and text 0.86 -> 0.89 on this set, nothing lost elsewhere. Not reached: y16 (Devanagari) and y17 (Thai), whose shaped glyphs are not in the ToUnicode map for ANY reader; y14's twin tables, y04, y08, y05; the GDI headings that differ from the text only by being plain 1.06 times larger; y11's tables, whose expected cell order (label first) contradicts the rule the set itself states (rightmost column first) as the page is laid out -- left unmatched rather than bent to the file. Guard 285 assertions under Ring++.
 
-golden_v36: DLV36
+golden_v36 (the fresh test of round 34): the third non-Chrome set, 24 documents by a thirty-sixth independent agent (a different author from golden_v34 and golden_v35; no reader, no output, no earlier set, no extractor or renderer, nothing opened from the forbidden list; its first run was cut by an API error after all 72 files were written and was resumed for the README; nobody has looked at the pages, so it is unperceived), from ReportLab Platypus (7) and canvas (4), PyMuPDF (5), matplotlib with Type 3 and Type 42 fonts (3) and Microsoft Print to PDF (5); ten in English, fourteen in twelve other languages (Arabic and Hebrew right to left, Thai, Hindi, Chinese, Japanese, Korean, Greek, Russian); 22 of 2-3 pages. Reader frozen at f6391819c, both readers ran once:
+
+| golden_v36, other producers, fresh | text | order | headings | tables | lists | furniture | code | heading precision |
+|---|---|---|---|---|---|---|---|---|
+| Softanza native (Ring++) | **0.90** | 1.00 | **0.87** | **0.74** | **0.73** | **0.84** | **0.67** | **0.83** |
+| Docling 2.141 | 0.73 | 1.00 | 0.77 | 0.69 | 0.45 | 0.80 | 0.33 | 0.75 |
+
+Time for the 24 documents: native 0.08 s, Docling 171 s. **The native reader leads on six measures and ties on order**, as on every set since golden_v29. Set beside golden_v35, the previous fresh non-Chrome set (text 0.86, headings 0.83, tables 0.83, lists 0.74, furniture 0.91, code 0.38): text and headings are 0.03 higher, tables 0.09 and furniture 0.07 lower, lists level, code higher -- every difference within the +-0.05 to +-0.10 that 24 documents allow, and none pointing one way. **That is the stop rule's evidence: two fresh sets from different authors and producers within noise of each other.** Two of the documents cannot be read by either reader (z14 Thai and z16 Hindi, MuPDF-shaped, text 0.00 for both, as y16 and y17 were); the real misses are of the same kinds as before -- right-to-left tables (z12, z13, z20), a ReportLab two-column seed catalogue with drawn bullets (z05 lists 0.00), a Spanish tender table (z06 0.16 against Docling's 1.00), furniture of forms (z03, z08).
+
 
 **Perceived (2026-10-24):** the author looked through every rendered page of golden_v9 to golden_v13 -- the sets whose own authors could not look at them -- and judged them: "they look great". Those five sets are no longer unperceived; the sets before them were generated the same way and are not covered by this look.
 

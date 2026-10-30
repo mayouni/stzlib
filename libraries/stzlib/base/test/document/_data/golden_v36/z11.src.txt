@@ -1,0 +1,1 @@
+ReportLab 5.0.1 canvas (low level); Canvas drawString with embedded Malgun Gothic TTF, lines wrapped on spaces by measured width, check boxes drawn as stroked squares, form boxes drawn with rect/line

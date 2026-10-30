@@ -1,0 +1,144 @@
+{
+  "id": "z13",
+  "difficulty": "hard: Hebrew right-to-left through insert_htmlbox, Arial, Hebrew-letter list markers, zebra key/value table, hyphen list, two pages each a separate htmlbox",
+  "pages": 2,
+  "title": "הצעת עבודה",
+  "headings": [
+    {
+      "level": 1,
+      "text": "הצעת עבודה"
+    },
+    {
+      "level": 2,
+      "text": "תנאי ההעסקה"
+    },
+    {
+      "level": 2,
+      "text": "הטבות נוספות"
+    },
+    {
+      "level": 2,
+      "text": "תנאים מקדימים"
+    },
+    {
+      "level": 2,
+      "text": "לוח זמנים לקליטה"
+    },
+    {
+      "level": 3,
+      "text": "הערות אחרונות"
+    }
+  ],
+  "key_sentences": [
+    "אנו שמחים להציע לך להצטרף לצוות העיצוב שלנו בתפקיד מעצבת מוצר בכירה.",
+    "תחילת העבודה תהיה ביום 4 בינואר 2027 בכפוף להשלמת הליכי הקליטה.",
+    "הצעה זו תקפה עד סוף חודש דצמבר 2026.",
+    "נא להחזיר עותק חתום של המכתב עד היום האחרון שצוין בלוח הזמנים.",
+    "אנו מצפים לשמוע ממך ונשמח לראות אותך בצוות."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "סעיף",
+          "פירוט"
+        ],
+        [
+          "תפקיד",
+          "מעצבת מוצר בכירה"
+        ],
+        [
+          "היקף משרה",
+          "משרה מלאה, 42 שעות שבועיות"
+        ],
+        [
+          "שכר חודשי ברוטו",
+          "24,500 ₪"
+        ],
+        [
+          "תקופת ניסיון",
+          "שלושה חודשים"
+        ],
+        [
+          "ימי חופשה",
+          "22 ימים בשנה"
+        ],
+        [
+          "מקום העבודה",
+          "רחוב הדקל 12, כרמל"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "שלב",
+          "מועד"
+        ],
+        [
+          "חתימה על המכתב",
+          "עד 20 בדצמבר 2026"
+        ],
+        [
+          "יום קליטה והיכרות",
+          "4 בינואר 2027"
+        ],
+        [
+          "סיום תקופת הניסיון",
+          "4 באפריל 2027"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "- קרן השתלמות בהפרשה של 7.5 אחוזים מהשכר."
+    },
+    {
+      "level": 0,
+      "text": "- ארוחת צהריים מסובסדת בימי עבודה."
+    },
+    {
+      "level": 0,
+      "text": "- תקציב שנתי להשתתפות בכנסים ובהדרכות מקצועיות."
+    },
+    {
+      "level": 0,
+      "text": "א. חתימה על הסכם סודיות לפני היום הראשון לעבודה."
+    },
+    {
+      "level": 0,
+      "text": "ב. המצאת תעודת זהות ואישורי השכלה בסריקה."
+    },
+    {
+      "level": 0,
+      "text": "ג. השלמת טופס הקליטה המצורף, הכולל את הפרטים הבאים:"
+    },
+    {
+      "level": 1,
+      "text": "- פרטים אישיים ופרטי חשבון בנק;"
+    },
+    {
+      "level": 1,
+      "text": "- אישור על ניכויים ממס הכנסה;"
+    },
+    {
+      "level": 1,
+      "text": "- פרטי איש קשר לשעת חירום."
+    }
+  ],
+  "furniture": [
+    "סטודיו נחל לעיצוב ופיתוח",
+    "רחוב הדקל 12, כרמל | טלפון 099-5550164",
+    "עמוד 1 מתוך 2",
+    "עמוד 2 מתוך 2"
+  ],
+  "languages": [
+    "he"
+  ],
+  "code": [],
+  "notes": "Right-to-left: table cells are listed in logical order, so the first cell of each row (סעיף, תפקיד, ...) is the RIGHTMOST on the page. The terms table has a shaded header with a rule under it and zebra-shaded alternate rows (no vertical lines); the schedule table likewise. Typed markers: Hebrew letters 'א.' 'ב.' 'ג.' for the main list and typed hyphens '-' for the nested items on page 2 (indented further from the right margin); hyphens before the benefits on page 1. Each page body is one insert_htmlbox call; footers are separate calls. A reader may return visual-order glyphs; expected text is logical order. The currency sign is U+20AA. Producer: PyMuPDF 1.28.2 (MuPDF 1.28.2) Page.insert_htmlbox (HTML+CSS, dir=rtl). Fonts from raw /BaseFont and /FontFile* entries: Arial-BoldMT (embedded); ArialMT (embedded). MediaBox 0 0 595.28 841.89."
+}

@@ -1,0 +1,178 @@
+{
+  "id": "z12",
+  "difficulty": "hard: Arabic right-to-left through MuPDF HTML (shaping, bidi), Arabic-Indic digits, tables whose first logical column sits on the right, Arabic lettered list, two pages",
+  "pages": 2,
+  "title": "سجل التطعيم الصحي للطفل",
+  "headings": [
+    {
+      "level": 1,
+      "text": "سجل التطعيم الصحي للطفل"
+    },
+    {
+      "level": 2,
+      "text": "بيانات الطفل"
+    },
+    {
+      "level": 2,
+      "text": "جدول اللقاحات المعطاة"
+    },
+    {
+      "level": 2,
+      "text": "تعليمات بعد التطعيم"
+    },
+    {
+      "level": 2,
+      "text": "المواعيد القادمة"
+    },
+    {
+      "level": 3,
+      "text": "ملاحظة"
+    }
+  ],
+  "key_sentences": [
+    "يوثق هذا السجل جميع اللقاحات التي حصل عليها الطفل منذ الولادة.",
+    "يرجى إحضاره في كل زيارة إلى المركز وعدم تسليمه لأي جهة أخرى.",
+    "تسجل الممرضة كل جرعة في هذا الجدول وتوقع بجانبها بعد الإعطاء مباشرة.",
+    "تحفظ نسخة إلكترونية من هذا السجل في ملف الطفل لدى المركز.",
+    "يمكن طلب نسخة مطبوعة جديدة عند فقدان السجل الأصلي."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "رقم السجل الصحي",
+          "٢٠٢٦/٤٤١٧"
+        ],
+        [
+          "تاريخ الميلاد",
+          "١٤ مارس ٢٠٢٤"
+        ],
+        [
+          "الجنس",
+          "أنثى"
+        ],
+        [
+          "الطبيب المتابع",
+          "عيادة الأطفال الثانية"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "اللقاح",
+          "الجرعة",
+          "تاريخ الإعطاء",
+          "الموعد القادم",
+          "الملاحظات"
+        ],
+        [
+          "الالتهاب الكبدي الوبائي ب",
+          "الأولى",
+          "١٤ مارس ٢٠٢٤",
+          "١٤ أبريل ٢٠٢٤",
+          "عند الولادة"
+        ],
+        [
+          "شلل الأطفال الفموي",
+          "الأولى",
+          "١٥ مايو ٢٠٢٤",
+          "١٥ يوليو ٢٠٢٤",
+          "لا توجد"
+        ],
+        [
+          "اللقاح الخماسي",
+          "الأولى",
+          "١٥ مايو ٢٠٢٤",
+          "١٥ يوليو ٢٠٢٤",
+          "حرارة خفيفة لمدة يوم"
+        ],
+        [
+          "اللقاح الخماسي",
+          "الثانية",
+          "١٦ يوليو ٢٠٢٤",
+          "١٦ سبتمبر ٢٠٢٤",
+          "لا توجد"
+        ],
+        [
+          "الحصبة والنكاف والحصبة الألمانية",
+          "الأولى",
+          "١٢ مارس ٢٠٢٥",
+          "١٢ سبتمبر ٢٠٢٥",
+          "احمرار مكان الحقن"
+        ],
+        [
+          "الحصبة والنكاف والحصبة الألمانية",
+          "الثانية",
+          "١٣ سبتمبر ٢٠٢٥",
+          "غير مطلوب",
+          "لا توجد"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "اللقاح",
+          "الموعد",
+          "المكان"
+        ],
+        [
+          "الجرعة المعززة من شلل الأطفال",
+          "٢٠ يناير ٢٠٢٧",
+          "غرفة التطعيم الأولى"
+        ],
+        [
+          "لقاح الحصبة المعزز",
+          "٤ أبريل ٢٠٢٧",
+          "غرفة التطعيم الثانية"
+        ],
+        [
+          "الفحص الدوري",
+          "١٨ أكتوبر ٢٠٢٧",
+          "عيادة الأطفال الثانية"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "١. راقب الطفل لمدة ثلاثين دقيقة بعد التطعيم داخل المركز."
+    },
+    {
+      "level": 0,
+      "text": "٢. أعط الطفل الكثير من السوائل وألبسه ملابس خفيفة."
+    },
+    {
+      "level": 0,
+      "text": "٣. اتصل بالمركز على الفور إذا ظهرت إحدى العلامات التالية:"
+    },
+    {
+      "level": 1,
+      "text": "أ. ارتفاع الحرارة فوق ٣٩ درجة؛"
+    },
+    {
+      "level": 1,
+      "text": "ب. صعوبة في التنفس؛"
+    },
+    {
+      "level": 1,
+      "text": "ج. بكاء متواصل لأكثر من ثلاث ساعات."
+    }
+  ],
+  "furniture": [
+    "مركز النخيل للرعاية الصحية الأولية",
+    "شارع الواحة ٧ | هاتف ٠٩٩٩ ٥٥٥ ٠١٤٣",
+    "صفحة ١ من ٢",
+    "صفحة ٢ من ٢"
+  ],
+  "languages": [
+    "ar"
+  ],
+  "code": [],
+  "notes": "Right-to-left: every table lists cells in logical order, i.e. the first cell of each row (رقم السجل الصحي, اللقاح) is the RIGHTMOST column on the page. Digits are Arabic-Indic (U+0660..0669). Each table is a full grid (header row shaded in the vaccination tables; the child data table is key/value with no header row). Typed list markers are '١.' '٢.' '٣.' and the Arabic letters 'أ.' 'ب.' 'ج.' placed at the right margin. A reader may emit the glyphs in visual order and without joined shaping forms; expected text is logical order with unjoined letters (NFC). The page-number lines are added after the story with insert_htmlbox. The ' | ' in the letterhead address line is a typed vertical bar. Producer: PyMuPDF 1.28.2 (MuPDF 1.28.2) Story (HTML+CSS, dir=rtl). Fonts from raw /BaseFont and /FontFile* entries: Tahoma-Bold (embedded); Tahoma (embedded). MediaBox 0 0 595 842."
+}

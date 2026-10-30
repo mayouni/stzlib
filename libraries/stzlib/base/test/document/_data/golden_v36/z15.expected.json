@@ -1,0 +1,244 @@
+{
+  "id": "z15",
+  "difficulty": "hard: positioned insert_text lines, Helvetica base-14 not embedded, Courier block, boxed hazard check list with drawn boxes, tables drawn with draw_rect/draw_line (grid, rules, zebra), two tables side by side, 2 pages",
+  "pages": 2,
+  "title": "Safety Data Sheet - Solvent Wash 40",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Safety Data Sheet - Solvent Wash 40"
+    },
+    {
+      "level": 2,
+      "text": "1. Identification"
+    },
+    {
+      "level": 2,
+      "text": "2. Hazard identification"
+    },
+    {
+      "level": 2,
+      "text": "3. Composition"
+    },
+    {
+      "level": 2,
+      "text": "4. First-aid measures"
+    },
+    {
+      "level": 2,
+      "text": "5. Fire-fighting measures"
+    },
+    {
+      "level": 3,
+      "text": "Suitable extinguishing media"
+    },
+    {
+      "level": 2,
+      "text": "9. Physical and chemical properties"
+    },
+    {
+      "level": 2,
+      "text": "14. Transport information"
+    },
+    {
+      "level": 2,
+      "text": "16. Other information"
+    }
+  ],
+  "key_sentences": [
+    "This sheet follows the 16-section format required for chemical products supplied to professional users.",
+    "Read it fully before handling the product.",
+    "Vapours are heavier than air and may travel to a source of ignition and flash back.",
+    "Cool closed containers exposed to fire with water spray.",
+    "The information relates only to the product named above and not to its use with other materials."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Product name",
+          "Solvent Wash 40"
+        ],
+        [
+          "Product code",
+          "CCS-4040-05"
+        ],
+        [
+          "Recommended use",
+          "Cleaning of metal parts before coating"
+        ],
+        [
+          "Supplier",
+          "Carrick Chemical Supplies Ltd"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Chemical name",
+          "CAS number",
+          "Content (% by weight)"
+        ],
+        [
+          "Acetone",
+          "67-64-1",
+          "60 to 70"
+        ],
+        [
+          "Ethyl acetate",
+          "141-78-6",
+          "20 to 30"
+        ],
+        [
+          "Isopropanol",
+          "67-63-0",
+          "5 to 10"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Property",
+          "Value",
+          "Method"
+        ],
+        [
+          "Appearance",
+          "Clear colourless liquid",
+          "visual"
+        ],
+        [
+          "Flash point",
+          "-17 °C",
+          "closed cup"
+        ],
+        [
+          "Boiling range",
+          "56 to 77 °C",
+          "distillation"
+        ],
+        [
+          "Vapour pressure",
+          "24 kPa at 20 °C",
+          "calculated"
+        ],
+        [
+          "Density",
+          "0.80 g/cm3",
+          "oscillating tube"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Road (ADR)",
+          "Value"
+        ],
+        [
+          "UN number",
+          "1993"
+        ],
+        [
+          "Class",
+          "3"
+        ],
+        [
+          "Packing group",
+          "II"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Sea (IMDG)",
+          "Value"
+        ],
+        [
+          "UN number",
+          "1993"
+        ],
+        [
+          "Class",
+          "3"
+        ],
+        [
+          "Packing group",
+          "II"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Flammable liquid, category 2"
+    },
+    {
+      "level": 0,
+      "text": "Serious eye irritation, category 2"
+    },
+    {
+      "level": 0,
+      "text": "Specific target organ toxicity, single exposure, category 3"
+    },
+    {
+      "level": 0,
+      "text": "Corrosive to metals"
+    },
+    {
+      "level": 0,
+      "text": "Acute toxicity, oral"
+    },
+    {
+      "level": 0,
+      "text": "- Eye contact: rinse with plenty of water for at least 15 minutes and seek medical advice."
+    },
+    {
+      "level": 0,
+      "text": "- Skin contact: remove contaminated clothing and wash the skin with soap and water."
+    },
+    {
+      "level": 0,
+      "text": "- Inhalation: move the person into fresh air and keep them at rest."
+    },
+    {
+      "level": 0,
+      "text": "- Ingestion: rinse the mouth and do not induce vomiting."
+    },
+    {
+      "level": 0,
+      "text": "1) Alcohol-resistant foam."
+    },
+    {
+      "level": 0,
+      "text": "2) Carbon dioxide or dry powder for small fires."
+    },
+    {
+      "level": 0,
+      "text": "3) Water spray for cooling containers only."
+    }
+  ],
+  "furniture": [
+    "Carrick Chemical Supplies Ltd",
+    "Unit 6, Harbour Industrial Estate, Carrick CK4 8TN | Emergency telephone 0800 555 0199",
+    "Safety Data Sheet - Solvent Wash 40 - revision of 4 October 2026",
+    "Page 1 of 2",
+    "Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "H225  Highly flammable liquid and vapour.\nH319  Causes serious eye irritation.\nH336  May cause drowsiness or dizziness."
+  ],
+  "notes": "Everything is positioned text from insert_text (no HTML): headings are bold Helvetica; level-3 heading is regular weight 10.5 pt against 10 pt body. The hazard list is inside a box with five drawn check boxes (crossed for ticked) so those items have no typed marker; hyphen and '1)' markers are typed text. The hazard statements are a monospaced Courier block on a grey fill (the code entry). Identification table is a full grid without header row; Composition is rules-only with header; properties is rules plus zebra fills; the two transport tables (Road (ADR), Sea (IMDG)) sit side by side, each with a header row 'Road (ADR) / Value' and 'Sea (IMDG) / Value'. The degree sign is WinAnsi 0xB0. Producer: PyMuPDF 1.28.2 (MuPDF 1.28.2) Page.insert_text / draw_* (no HTML). Fonts from raw /BaseFont and /FontFile* entries: Helvetica-Bold (standard-14, not embedded); Helvetica (standard-14, not embedded); Courier (standard-14, not embedded); Helvetica-Oblique (standard-14, not embedded). MediaBox 0 0 595.28 841.89."
+}

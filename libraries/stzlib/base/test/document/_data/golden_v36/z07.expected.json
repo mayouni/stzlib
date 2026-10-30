@@ -1,0 +1,314 @@
+{
+  "id": "z07",
+  "difficulty": "hard: two pages, key/value form, two tables side by side, monospaced medication block, drawn check boxes, lab table with section rows across a page break, dash and numeric lists",
+  "pages": 2,
+  "title": "Discharge Summary",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Discharge Summary"
+    },
+    {
+      "level": 2,
+      "text": "Diagnoses"
+    },
+    {
+      "level": 2,
+      "text": "Hospital course"
+    },
+    {
+      "level": 2,
+      "text": "Vital signs"
+    },
+    {
+      "level": 2,
+      "text": "Discharge medications"
+    },
+    {
+      "level": 2,
+      "text": "Laboratory results"
+    },
+    {
+      "level": 2,
+      "text": "Follow-up"
+    },
+    {
+      "level": 2,
+      "text": "Discharge checklist"
+    },
+    {
+      "level": 2,
+      "text": "Advice to the patient"
+    }
+  ],
+  "key_sentences": [
+    "The patient presented with five days of cough, fever and breathlessness.",
+    "Chest imaging showed right lower lobe consolidation and mild pulmonary congestion.",
+    "She was treated with oral amoxicillin and a short course of intravenous furosemide.",
+    "Her oxygen requirement settled by the fourth day and she walked unaided on the ward by the sixth.",
+    "Please weigh yourself every morning and call the ward if your weight rises by more than two kilograms in three days.",
+    "Return to the Emergency Department at once if you become short of breath at rest."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Patient ID",
+          "20-88417",
+          "Age and sex",
+          "54 years, female"
+        ],
+        [
+          "Admitted",
+          "3 October 2026 via Emergency",
+          "Discharged",
+          "9 October 2026 to home"
+        ],
+        [
+          "Ward",
+          "Medical Ward 4B",
+          "Consultant",
+          "Dr R. Okonkwo-Hale"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Measure",
+          "On admission"
+        ],
+        [
+          "Temperature",
+          "38.6 C"
+        ],
+        [
+          "Heart rate",
+          "104 per minute"
+        ],
+        [
+          "Blood pressure",
+          "148/88 mmHg"
+        ],
+        [
+          "Oxygen saturation",
+          "89% on air"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Measure",
+          "At discharge"
+        ],
+        [
+          "Temperature",
+          "36.8 C"
+        ],
+        [
+          "Heart rate",
+          "76 per minute"
+        ],
+        [
+          "Blood pressure",
+          "128/76 mmHg"
+        ],
+        [
+          "Oxygen saturation",
+          "96% on air"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Test",
+          "Result",
+          "Unit",
+          "Reference range",
+          "Flag"
+        ],
+        [
+          "Haematology",
+          "Haematology",
+          "Haematology",
+          "Haematology",
+          "Haematology"
+        ],
+        [
+          "Haemoglobin",
+          "118",
+          "g/L",
+          "120 to 160",
+          "Low"
+        ],
+        [
+          "White cell count",
+          "9.4",
+          "x10^9/L",
+          "4.0 to 11.0",
+          ""
+        ],
+        [
+          "Platelets",
+          "312",
+          "x10^9/L",
+          "150 to 400",
+          ""
+        ],
+        [
+          "C-reactive protein, day 1",
+          "186",
+          "mg/L",
+          "under 5",
+          "High"
+        ],
+        [
+          "C-reactive protein, day 6",
+          "22",
+          "mg/L",
+          "under 5",
+          "High"
+        ],
+        [
+          "Biochemistry",
+          "Biochemistry",
+          "Biochemistry",
+          "Biochemistry",
+          "Biochemistry"
+        ],
+        [
+          "Sodium",
+          "139",
+          "mmol/L",
+          "135 to 145",
+          ""
+        ],
+        [
+          "Potassium",
+          "4.1",
+          "mmol/L",
+          "3.5 to 5.0",
+          ""
+        ],
+        [
+          "Creatinine",
+          "86",
+          "umol/L",
+          "45 to 90",
+          ""
+        ],
+        [
+          "Estimated GFR",
+          "68",
+          "mL/min",
+          "over 60",
+          ""
+        ],
+        [
+          "HbA1c",
+          "49",
+          "mmol/mol",
+          "under 48",
+          "High"
+        ],
+        [
+          "NT-proBNP, admission",
+          "2140",
+          "ng/L",
+          "under 300",
+          "High"
+        ],
+        [
+          "NT-proBNP, discharge",
+          "790",
+          "ng/L",
+          "under 300",
+          "High"
+        ],
+        [
+          "Microbiology",
+          "Microbiology",
+          "Microbiology",
+          "Microbiology",
+          "Microbiology"
+        ],
+        [
+          "Blood cultures",
+          "No growth at 5 days",
+          "",
+          "",
+          ""
+        ],
+        [
+          "Sputum culture",
+          "Mixed oral flora",
+          "",
+          "",
+          ""
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1) Community-acquired pneumonia, right lower lobe."
+    },
+    {
+      "level": 0,
+      "text": "2) Decompensated heart failure with preserved ejection fraction."
+    },
+    {
+      "level": 0,
+      "text": "3) Type 2 diabetes mellitus, stable on oral treatment."
+    },
+    {
+      "level": 0,
+      "text": "- Heart failure clinic in two weeks, with repeat blood tests the day before."
+    },
+    {
+      "level": 0,
+      "text": "- Chest radiograph in six weeks to confirm resolution of the consolidation."
+    },
+    {
+      "level": 0,
+      "text": "- Practice nurse to review the diabetes plan within one month."
+    },
+    {
+      "level": 0,
+      "text": "Medication reviewed with the patient"
+    },
+    {
+      "level": 0,
+      "text": "Written information on heart failure given"
+    },
+    {
+      "level": 0,
+      "text": "District nurse visit arranged"
+    },
+    {
+      "level": 0,
+      "text": "Transport home arranged"
+    }
+  ],
+  "furniture": [
+    "Marlowe General Hospital",
+    "Department of Internal Medicine - 120 Infirmary Road, Marlowe - Tel 01999 555 0166",
+    "Discharge summary - Patient ID 20-88417 - Confidential",
+    "Page 1 of 2",
+    "Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "DRUG          DOSE    ROUTE  FREQ  DURATION\nAmoxicillin   500 mg  PO     TID   7 days\nFurosemide    40 mg   PO     OD    until review\nMetformin     850 mg  PO     BD    continue\nParacetamol   1 g     PO     PRN   max 4 g/day"
+  ],
+  "notes": "The two vital sign tables sit side by side (left: on admission, right: at discharge) and are two separate tables. The laboratory table has three spanned section rows (Haematology, Biochemistry, Microbiology; text repeated across all five cells) and may continue across a page break with the header repeated. The medication block is monospaced Courier; its lines are the code entry (header line included, no line numbers). Check boxes are drawn squares with crossed diagonals for ticked items (no typed marker), so those list items carry no marker; the numbered diagnoses use typed '1)' markers and follow-up items typed hyphens. The key/value box has no header row. Producer: ReportLab 5.0.1 Platypus (SimpleDocTemplate). Fonts from raw /BaseFont and /FontFile* entries: Helvetica (standard-14, not embedded); Helvetica-Bold (standard-14, not embedded); Courier (standard-14, not embedded). MediaBox  0 0 595.2756 841.8898 ."
+}

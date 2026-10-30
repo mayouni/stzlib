@@ -1,0 +1,1 @@
+ReportLab 5.0.1 Platypus (SimpleDocTemplate); SimpleDocTemplate, onFirstPage/onLaterPages canvas furniture, standard-14 Helvetica, page compression on, bullets typed as hyphen glyphs

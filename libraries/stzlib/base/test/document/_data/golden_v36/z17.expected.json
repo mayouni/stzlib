@@ -1,0 +1,168 @@
+{
+  "id": "z17",
+  "difficulty": "hard: matplotlib fig.text lines, two text columns, table inside one column, side-by-side boxes (typed vs drawn bullets), kv grid, wrapped hanging-indent references",
+  "pages": 2,
+  "title": "Low-Cost Soil Moisture Sensing for Smallholder Irrigation",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Low-Cost Soil Moisture Sensing for Smallholder Irrigation"
+    },
+    {
+      "level": 2,
+      "text": "Background"
+    },
+    {
+      "level": 2,
+      "text": "Methods"
+    },
+    {
+      "level": 2,
+      "text": "Results"
+    },
+    {
+      "level": 2,
+      "text": "Conclusions"
+    },
+    {
+      "level": 3,
+      "text": "Key findings"
+    },
+    {
+      "level": 3,
+      "text": "Next steps"
+    },
+    {
+      "level": 2,
+      "text": "Poster details"
+    },
+    {
+      "level": 2,
+      "text": "References"
+    },
+    {
+      "level": 2,
+      "text": "Acknowledgements"
+    }
+  ],
+  "key_sentences": [
+    "Prepared by the Field Systems Group of the Department of Agricultural Engineering.",
+    "Smallholder farmers often irrigate on a fixed calendar because commercial soil moisture sensors cost more than a season's income from a small plot.",
+    "Over one growing season it stayed within 2.5 percent of a reference neutron probe.",
+    "Cheaper sensors exist, but their readings drift as the probe corrodes in wet soil.",
+    "The coated probes stayed within 2.5 percent of the reference throughout the season.",
+    "A coated probe costing under five dollars is accurate enough to schedule irrigation for smallholders.",
+    "Field trials with 200 farms will start in March 2027.",
+    "This work was supported by the Eastbrook Rural Futures Fund."
+  ],
+  "tables": [
+    {
+      "caption": "Table 1. Error against the reference probe",
+      "rows": [
+        [
+          "Sensor",
+          "RMSE (%)",
+          "Cost (USD)"
+        ],
+        [
+          "Coated board probe",
+          "2.1",
+          "4.50"
+        ],
+        [
+          "Bare board probe",
+          "4.8",
+          "3.20"
+        ],
+        [
+          "Commercial probe",
+          "1.6",
+          "62.00"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Poster ID",
+          "P-217"
+        ],
+        [
+          "Session",
+          "Wednesday 14:00 to 15:30"
+        ],
+        [
+          "Board",
+          "31"
+        ],
+        [
+          "Contact",
+          "agritech-posters@eastbrook.example"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. Probes were buried at 15 cm and 30 cm depth in four plots."
+    },
+    {
+      "level": 0,
+      "text": "2. Readings were logged every hour by a battery-powered board."
+    },
+    {
+      "level": 0,
+      "text": "3. Each probe was recalibrated against soil cores every four weeks."
+    },
+    {
+      "level": 0,
+      "text": "• Coating cut drift from 3.1 to 0.4 percent per month."
+    },
+    {
+      "level": 0,
+      "text": "• The probes survived a full season without failures."
+    },
+    {
+      "level": 0,
+      "text": "• Cost per sensor was 7 percent of the commercial unit."
+    },
+    {
+      "level": 0,
+      "text": "Fit solar-powered radio links."
+    },
+    {
+      "level": 0,
+      "text": "Test in sandy and clay soils."
+    },
+    {
+      "level": 0,
+      "text": "Publish the design files openly."
+    },
+    {
+      "level": 0,
+      "text": "[1] Field Systems Group (2024). Annual report on sensor drift. Eastbrook University Press."
+    },
+    {
+      "level": 0,
+      "text": "[2] Irrigation Standards Board (2021). Guidelines for soil moisture measurement, second edition."
+    },
+    {
+      "level": 0,
+      "text": "[3] Agri-Tech Research Day (2025). Proceedings of the poster session on low-cost instrumentation."
+    }
+  ],
+  "furniture": [
+    "Eastbrook University | Field Systems Group",
+    "Agri-Tech Research Day 2026",
+    "Page 1 of 2",
+    "Low-Cost Soil Moisture Sensing - poster abstract",
+    "Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Two columns on page 1 (left: Background, Methods; right: Results, Conclusions), read column by column after the full-width abstract. The Results table sits inside the right column; its caption 'Table 1. Error against the reference probe' is a separate italic line above. Page 2 has two side-by-side boxes read box by box: 'Key findings' with typed '•' bullets followed by a gap, then 'Next steps' with small filled squares drawn as patches (no typed marker). Numbered steps '1.' '2.' '3.' and references '[1]' '[2]' '[3]' are typed; wrapped references are one item each. The 'Poster details' key/value table has no header row. Every line is a separate text object, so a reader must regroup lines into paragraphs; the byline sentence is separate text. Text is TrueType fonttype 42 (Segoe UI subset) with a cmap, so it should be recoverable. Producer: matplotlib 3.11.2 PdfPages (pdf.fonttype 42). Fonts from raw /BaseFont and /FontFile* entries: BOTYQS+SegoeUI (embedded); CQQWZW+SegoeUI (embedded); ZPBRVR+SegoeUI-Bold (embedded); FKQAMA+SegoeUI-Italic (embedded). MediaBox  0 0 595.28 841.89 ."
+}

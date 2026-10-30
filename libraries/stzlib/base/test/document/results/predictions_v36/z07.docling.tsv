@@ -1,0 +1,33 @@
+heading	1	Marlowe General Hospital
+paragraph	0	Department of Internal Medicine - 120 Infirmary Road, Marlowe - Tel 01999 555 0166
+heading	1	Discharge Summary
+table	0	Patient ID20-88417Age and sex54 years, femaleAdmitted3 October 2026 via EmergencyDischarged9 October 2026 to homeWardMedical Ward 4BConsultantDr R. Okonkwo-Hale
+heading	1	Diagnoses
+list_item	0	1) Community-acquired pneumonia, right lower lobe.
+list_item	0	2) Decompensated heart failure with preserved ejection fraction.
+list_item	0	3) Type 2 diabetes mellitus, stable on oral treatment.
+heading	1	Hospital course
+paragraph	0	The patient presented with five days of cough, fever and breathlessness. Chest imaging showed right lower lobe consolidation and mild pulmonary congestion. She was treated with oral amoxicillin and a short course of intravenous furosemide. Her oxygen requirement settled by the fourth day and she walked unaided on the ward by the sixth.
+heading	1	Vital signs
+table	0	MeasureOn admissionTemperature38.6 CHeart rate104 per minuteBlood pressure148/88 mmHgOxygen saturation89% on air
+table	0	MeasureAt dischargeTemperature36.8 CHeart rate76 per minuteBlood pressure128/76 mmHgOxygen saturation96% on air
+heading	1	Discharge medications
+table	0	DRUGDOSEROUTEFREQDURATIONAmoxicillin500 mgPOTID7 daysFurosemide40 mgPOODuntil reviewMetformin850 mgPOBDcontinueParacetamol1 gPOPRNmax 4 g/day
+heading	1	Laboratory results
+paragraph	0	Values below were measured on the day of discharge unless a different day is given in the first column.
+table	0	TestResultUnitReference rangeFlagHaematologyHaemoglobin118g/L120 to 160LowWhite cell count9.4x10^9/L4.0 to 11.0Platelets312x10^9/L150 to 400C-reactive protein, day 1186mg/Lunder 5HighC-reactive protein, day 622mg/Lunder 5HighBiochemistrySodium139mmol/L135 to 145Potassium4.1mmol/L3.5 to 5.0
+page_footer	0	Page 1 of 2
+page_header	0	Discharge summary - Patient ID 20-88417 - Confidential
+table	0	TestResultUnitReference rangeFlagCreatinine86umol/L45 to 90Estimated GFR68mL/minover 60HbA1c49mmol/molunder 48HighNT-proBNP, admission2140ng/Lunder 300HighNT-proBNP, discharge790ng/Lunder 300HighMicrobiologyBlood culturesNo growth at 5 daysSputum cultureMixed oral flora
+heading	1	Follow-up
+list_item	0	- Heart failure clinic in two weeks, with repeat blood tests the day before.
+list_item	0	- Chest radiograph in six weeks to confirm resolution of the consolidation.
+list_item	0	- Practice nurse to review the diabetes plan within one month.
+heading	1	Discharge checklist
+list_item	0	Medication reviewed with the patient
+list_item	0	Written information on heart failure given
+list_item	0	District nurse visit arranged
+list_item	0	Transport home arranged
+heading	1	Advice to the patient
+paragraph	0	Please weigh yourself every morning and call the ward if your weight rises by more than two kilograms in three days. Return to the Emergency Department at once if you become short of breath at rest.
+page_footer	0	Page 2 of 2

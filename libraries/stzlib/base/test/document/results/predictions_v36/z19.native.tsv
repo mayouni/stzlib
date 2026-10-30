@@ -1,0 +1,28 @@
+page_header	0	Eastbrook University - Department of Physics
+heading	1	Physics 101, Problem Sheet 4: Forces on a Slope
+paragraph	0	Attempt all questions and show every step of your working. Hand in your solutions at the Tuesday tutorial.
+heading	2	Formula sheet
+code	0	v = u + a*t\ns = u*t + 0.5*a*t**2\nv**2 = u**2 + 2*a*s\nF = m*a
+heading	2	Questions
+list_item	0	1. A 2.0 kg block slides from rest down a smooth slope inclined at 30° to the horizontal.
+list_item	1	(a) Draw a free-body diagram for the block.
+list_item	1	(b) Show that its acceleration down the slope is 4.9 m/s².
+list_item	1	(c) Find its speed after it has travelled 3.0 m along the slope.
+list_item	0	2. A trolley is released on a slope and timed over a fixed distance of 1.20 m at several angles θ.
+table	0	TrialAngle (°)Time (s)1101.182150.973200.844250.755300.69
+list_item	1	(a) Plot a graph of 1/t² against sin θ.
+list_item	1	(b) Use the gradient to estimate the acceleration due to gravity.
+page_footer	0	Page 1 of 2
+page_header	0	Physics 101 - Problem Sheet 4
+list_item	0	3. A car of mass 1200 kg is parked on a hill. The coefficient of static friction between the tyres and the road is μ = 0.40.
+list_item	1	(a) Calculate the largest slope angle at which the car stays at rest. Your answer should explain which of the following is true:
+list_item	2	(i) the friction force equals the component of weight down the slope;
+list_item	2	(ii) the friction force is at its limiting value μN;
+list_item	2	(iii) the normal reaction equals the weight of the car.
+list_item	1	(b) State one assumption that makes your answer an upper limit.
+list_item	0	4. A skier of mass 70 kg descends a 200 m slope that falls through 40 m.
+list_item	1	(a) Find the gain in kinetic energy if friction is ignored.
+list_item	1	(b) Her actual speed at the bottom is 18 m/s. How much energy was lost?
+heading	2	Notes on marking
+paragraph	0	Marks are given for correct method as well as for correct numerical answers. Answers to selected questions will be posted on the course page on Friday.
+page_footer	0	Page 2 of 2

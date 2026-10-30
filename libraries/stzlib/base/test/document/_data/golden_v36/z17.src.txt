@@ -1,0 +1,1 @@
+matplotlib 3.11.2 PdfPages (pdf.fonttype 42); fig.text for every line (one Text per line), Rectangle/Line2D patches for tables and boxes, Segoe UI embedded as TrueType (fonttype 42), compression level 6

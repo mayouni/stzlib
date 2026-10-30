@@ -1,0 +1,1 @@
+ReportLab 5.0.1 Platypus (SimpleDocTemplate); SimpleDocTemplate, embedded Times New Roman TTF family, tables with only a header rule, repeatRows, page compression off

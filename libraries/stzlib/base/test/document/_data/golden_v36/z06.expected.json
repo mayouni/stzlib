@@ -1,0 +1,275 @@
+{
+  "id": "z06",
+  "difficulty": "hard: Spanish, three pages, header-rule-only tables with multi-line cells continued across pages with repeated header and totals, nested 1) a) lists, embedded Times New Roman",
+  "pages": 3,
+  "title": "Aviso de licitación pública n.º 14/2026",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Aviso de licitación pública n.º 14/2026"
+    },
+    {
+      "level": 2,
+      "text": "1. Objeto del contrato"
+    },
+    {
+      "level": 2,
+      "text": "2. Requisitos de los licitadores"
+    },
+    {
+      "level": 2,
+      "text": "3. Calendario del procedimiento"
+    },
+    {
+      "level": 2,
+      "text": "4. Criterios de adjudicación"
+    },
+    {
+      "level": 2,
+      "text": "5. Información adicional"
+    },
+    {
+      "level": 2,
+      "text": "6. Condiciones de ejecución"
+    },
+    {
+      "level": 2,
+      "text": "7. Garantías y penalidades"
+    }
+  ],
+  "key_sentences": [
+    "El Ayuntamiento de Valdecastro convoca licitación pública, por procedimiento abierto, para la contratación de diez lotes de obras de mejora de espacios públicos.",
+    "Los pliegos completos pueden consultarse en la sede electrónica del Ayuntamiento durante todo el plazo de presentación.",
+    "El objeto del contrato es la ejecución de las obras descritas en la tabla siguiente, cada una de ellas constituida como lote independiente.",
+    "La adjudicación se realizará a la oferta con mejor relación calidad-precio según los criterios de la tabla.",
+    "En caso de empate se preferirá la oferta de la empresa con mayor porcentaje de trabajadores con discapacidad.",
+    "Las consultas sobre los pliegos deberán dirigirse al Servicio de Contratación hasta diez días antes del fin del plazo.",
+    "El presente aviso no constituye oferta ni obliga al Ayuntamiento a adjudicar ninguno de los lotes."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Lote",
+          "Actuación",
+          "Presupuesto base (IVA excluido)",
+          "Plazo (meses)"
+        ],
+        [
+          "1",
+          "Renovación de aceras y bordillos en la calle Mayor, entre la plaza de España y la calle del Molino",
+          "84.500,00 €",
+          "4"
+        ],
+        [
+          "2",
+          "Sustitución de 38 luminarias por tecnología LED en el barrio de la Estación",
+          "41.200,00 €",
+          "3"
+        ],
+        [
+          "3",
+          "Reparación de la cubierta del mercado municipal y de sus bajantes",
+          "96.750,00 €",
+          "5"
+        ],
+        [
+          "4",
+          "Nuevo pavimento de la pista polideportiva del colegio Santa Lucía",
+          "38.900,00 €",
+          "2"
+        ],
+        [
+          "5",
+          "Instalación de juegos infantiles accesibles en el parque del Río",
+          "27.300,00 €",
+          "2"
+        ],
+        [
+          "6",
+          "Renovación de la red de agua potable en el camino de las Huertas, tramo de 640 metros",
+          "138.400,00 €",
+          "6"
+        ],
+        [
+          "7",
+          "Pintura y mejora de la accesibilidad del centro cívico",
+          "52.100,00 €",
+          "3"
+        ],
+        [
+          "8",
+          "Plantación de 120 árboles y renovación del riego en la avenida de la Constitución",
+          "33.650,00 €",
+          "3"
+        ],
+        [
+          "9",
+          "Reasfaltado de la calle del Olivar y señalización horizontal",
+          "72.800,00 €",
+          "2"
+        ],
+        [
+          "10",
+          "Rehabilitación de los vestuarios del polideportivo municipal",
+          "64.300,00 €",
+          "4"
+        ],
+        [
+          "",
+          "Total de los diez lotes",
+          "649.900,00 €",
+          ""
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Fase",
+          "Fecha",
+          "Lugar o medio"
+        ],
+        [
+          "Publicación del anuncio",
+          "2 de noviembre de 2026",
+          "Sede electrónica y Boletín Oficial de la Provincia"
+        ],
+        [
+          "Visita opcional a los emplazamientos",
+          "13 de noviembre de 2026, a las 10:00",
+          "Punto de encuentro en la puerta del Ayuntamiento"
+        ],
+        [
+          "Fin del plazo de presentación de ofertas",
+          "1 de diciembre de 2026, a las 14:00",
+          "Registro electrónico de la plataforma de contratación"
+        ],
+        [
+          "Apertura de las ofertas económicas",
+          "9 de diciembre de 2026, a las 12:00",
+          "Sala de Comisiones, primera planta"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Criterio",
+          "Ponderación"
+        ],
+        [
+          "Precio ofertado",
+          "60 puntos"
+        ],
+        [
+          "Plazo de ejecución",
+          "15 puntos"
+        ],
+        [
+          "Ampliación del periodo de garantía",
+          "15 puntos"
+        ],
+        [
+          "Medidas de reducción de molestias a los vecinos",
+          "10 puntos"
+        ],
+        [
+          "Total",
+          "100 puntos"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Incumplimiento",
+          "Penalidad",
+          "Observaciones"
+        ],
+        [
+          "Retraso en el plazo de ejecución",
+          "0,20 euros por cada 1.000 euros del precio, por día de retraso",
+          "Se aplicará hasta un máximo del diez por ciento del precio del contrato"
+        ],
+        [
+          "Incumplimiento de las medidas de seguridad",
+          "Hasta 3.000 euros por infracción",
+          "Previo informe del coordinador de seguridad y salud"
+        ],
+        [
+          "Falta de limpieza de la zona de obra",
+          "500 euros por requerimiento no atendido en 48 horas",
+          "Se descontará de la siguiente certificación"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1) Solvencia económica y financiera, acreditada por alguno de los medios siguientes:"
+    },
+    {
+      "level": 1,
+      "text": "a) un volumen anual de negocios de al menos el doble del presupuesto base del lote al que se licita;"
+    },
+    {
+      "level": 1,
+      "text": "b) un seguro de responsabilidad civil vigente por importe no inferior a 600.000 euros."
+    },
+    {
+      "level": 0,
+      "text": "2) Solvencia técnica, acreditada mediante la relación de las obras similares ejecutadas en los últimos cinco años."
+    },
+    {
+      "level": 0,
+      "text": "3) Estar al corriente de las obligaciones tributarias y con la Seguridad Social."
+    },
+    {
+      "level": 0,
+      "text": "- Teléfono del Servicio de Contratación: 999 555 0173."
+    },
+    {
+      "level": 0,
+      "text": "- Horario de atención al público: de lunes a viernes, de 9:00 a 14:00."
+    },
+    {
+      "level": 0,
+      "text": "1) El adjudicatario designará un responsable de obra con titulación suficiente, que será el interlocutor único del Ayuntamiento."
+    },
+    {
+      "level": 0,
+      "text": "2) Los trabajos se realizarán en horario de 8:00 a 18:00 de lunes a viernes, salvo autorización expresa de la dirección facultativa."
+    },
+    {
+      "level": 0,
+      "text": "3) El contratista mantendrá accesibles los itinerarios peatonales y los accesos a viviendas y comercios durante toda la obra."
+    },
+    {
+      "level": 0,
+      "text": "4) Los residuos de construcción se gestionarán conforme a la normativa vigente y se entregará el certificado del gestor autorizado."
+    },
+    {
+      "level": 0,
+      "text": "5) Cualquier modificación del proyecto deberá ser aprobada previamente por el órgano de contratación."
+    }
+  ],
+  "furniture": [
+    "Ayuntamiento de Valdecastro",
+    "Concejalía de Obras y Servicios Municipales · Plaza Mayor 1 · 28999 Valdecastro",
+    "Aviso de licitación pública n.º 14/2026",
+    "Página 1 de 3",
+    "Página 2 de 3",
+    "Página 3 de 3"
+  ],
+  "languages": [
+    "es"
+  ],
+  "code": [],
+  "notes": "All five tables have only horizontal rules (above and below the header row, above and below the last row); no verticals and no inner row rules. The lots table has multi-line description cells and a final totals row whose first and last cells are empty; it may break across a page with the header repeated (listed once). List markers '1)' '2)' '3)', 'a)' 'b)' and '-' are typed text. Spanish number format (dots for thousands, comma for decimals). Producer: ReportLab 5.0.1 Platypus (SimpleDocTemplate). Fonts from raw /BaseFont and /FontFile* entries: Helvetica (standard-14, not embedded); AAAAAA+TimesNewRomanPS-BoldMT (embedded); AAAAAA+TimesNewRomanPSMT (embedded); AAAAAA+TimesNewRomanPS-ItalicMT (embedded). MediaBox  0 0 595.2756 841.8898 ."
+}

@@ -1,0 +1,1 @@
+Microsoft Print to PDF (Windows 11, GDI+ System.Drawing.Printing driven from Windows PowerShell 5.1); PrintDocument to Microsoft Print to PDF, DrawString with Microsoft YaHei, headings in the regular face, bullets drawn as filled ellipses

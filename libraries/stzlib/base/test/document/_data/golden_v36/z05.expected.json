@@ -1,0 +1,244 @@
+{
+  "id": "z05",
+  "difficulty": "hard: two-column pages, three heading levels, table inside one column, drawn square bullets, band header, embedded Georgia",
+  "pages": 2,
+  "title": "Autumn Planting Catalogue",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Autumn Planting Catalogue"
+    },
+    {
+      "level": 2,
+      "text": "Garlic"
+    },
+    {
+      "level": 3,
+      "text": "Solent Wight"
+    },
+    {
+      "level": 3,
+      "text": "Early Purple"
+    },
+    {
+      "level": 3,
+      "text": "Elephant Giant"
+    },
+    {
+      "level": 2,
+      "text": "Broad beans"
+    },
+    {
+      "level": 3,
+      "text": "Aquadulce Claudia"
+    },
+    {
+      "level": 3,
+      "text": "Witkiem Manita"
+    },
+    {
+      "level": 3,
+      "text": "Growing notes"
+    },
+    {
+      "level": 2,
+      "text": "Onion sets"
+    },
+    {
+      "level": 3,
+      "text": "Radar"
+    },
+    {
+      "level": 3,
+      "text": "Electric"
+    },
+    {
+      "level": 2,
+      "text": "Leeks"
+    },
+    {
+      "level": 3,
+      "text": "Musselburgh"
+    },
+    {
+      "level": 3,
+      "text": "Bleu de Solaize"
+    },
+    {
+      "level": 2,
+      "text": "Winter lettuce"
+    },
+    {
+      "level": 3,
+      "text": "Winter Density"
+    },
+    {
+      "level": 3,
+      "text": "Arctic King"
+    },
+    {
+      "level": 3,
+      "text": "Rouge d'Hiver"
+    },
+    {
+      "level": 2,
+      "text": "Shallots"
+    },
+    {
+      "level": 3,
+      "text": "Jermor"
+    },
+    {
+      "level": 3,
+      "text": "Red Sun"
+    },
+    {
+      "level": 2,
+      "text": "Spring cabbage"
+    },
+    {
+      "level": 3,
+      "text": "Durham Early"
+    },
+    {
+      "level": 3,
+      "text": "Pixie"
+    },
+    {
+      "level": 2,
+      "text": "Garden helpers"
+    },
+    {
+      "level": 3,
+      "text": "Fleece and cloches"
+    },
+    {
+      "level": 2,
+      "text": "Prices"
+    }
+  ],
+  "key_sentences": [
+    "Everything in this catalogue is suitable for planting between September and December.",
+    "All seed is tested for germination each July and the result is printed on every packet.",
+    "A reliable softneck with large white bulbs that store until the following May.",
+    "Plant each clove with its tip just below the surface.",
+    "The classic autumn sowing, hardy to minus ten degrees.",
+    "It stores until March when dried properly.",
+    "Orders placed before 30 September are dispatched within three working days."
+  ],
+  "tables": [
+    {
+      "caption": "Planting dates",
+      "rows": [
+        [
+          "Variety",
+          "Plant",
+          "Harvest"
+        ],
+        [
+          "Solent Wight",
+          "Oct to Nov",
+          "July"
+        ],
+        [
+          "Early Purple",
+          "Oct to Dec",
+          "June"
+        ],
+        [
+          "Elephant Giant",
+          "Sep to Oct",
+          "August"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Item",
+          "Pack",
+          "Price"
+        ],
+        [
+          "Garlic, Solent Wight",
+          "2 bulbs",
+          "£3.95"
+        ],
+        [
+          "Garlic, Early Purple",
+          "2 bulbs",
+          "£4.25"
+        ],
+        [
+          "Garlic, Elephant Giant",
+          "1 bulb",
+          "£3.50"
+        ],
+        [
+          "Broad bean, Aquadulce",
+          "60 seeds",
+          "£2.40"
+        ],
+        [
+          "Broad bean, Witkiem",
+          "40 seeds",
+          "£2.75"
+        ],
+        [
+          "Onion sets, Radar",
+          "100 sets",
+          "£4.60"
+        ],
+        [
+          "Onion sets, Electric",
+          "100 sets",
+          "£4.90"
+        ],
+        [
+          "Fleece roll",
+          "1 roll",
+          "£8.50"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Sow 5 cm deep and 20 cm apart in a double row."
+    },
+    {
+      "level": 0,
+      "text": "Cover with fleece during hard frosts."
+    },
+    {
+      "level": 0,
+      "text": "Pinch out the growing tips when the first pods set to deter blackfly."
+    },
+    {
+      "level": 0,
+      "text": "Fleece roll, 1.5 m by 10 m, with 12 pegs."
+    },
+    {
+      "level": 0,
+      "text": "Glass cloche, set of two, with steel clips."
+    },
+    {
+      "level": 0,
+      "text": "Bulb planter with a stainless steel blade."
+    }
+  ],
+  "furniture": [
+    "Bridgewater Seed & Bulb Co.",
+    "Autumn 2026",
+    "- 1 -",
+    "- 2 -",
+    "Free postage on orders over £25"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Two columns per page, read column by column (left column first). The title block spans both columns on page 1 only. 'Planting dates' and 'Prices' are tables inside a single column; the first has an italic caption line 'Planting dates' above it (recorded as its caption); the second sits directly under the 'Prices' heading and has no separate caption. Bullets are small filled squares drawn as vector shapes (no typed marker). Heading levels: H1 title, H2 plant groups, H3 variety names (bold italic only slightly larger than body). Producer: ReportLab 5.0.1 Platypus (BaseDocTemplate, multi-column Frames). Fonts from raw /BaseFont and /FontFile* entries: Helvetica (standard-14, not embedded); AAAAAA+Georgia-Bold (embedded); AAAAAA+Georgia-Italic (embedded); AAAAAA+Georgia (embedded); AAAAAA+Georgia-BoldItalic (embedded). MediaBox  0 0 595.2756 841.8898 ."
+}

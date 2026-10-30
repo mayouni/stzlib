@@ -1,0 +1,37 @@
+page_header	0	Eastbrook University | Field Systems Group
+page_header	0	Agri-Tech Research Day 2026
+heading	1	Low-Cost Soil Moisture Sensing for Smallholder Irrigation
+paragraph	0	Prepared by the Field Systems Group of the Department of Agricultural Engineering.
+paragraph	0	Smallholder farmers often irrigate on a fixed calendar because commercial soil moisture sensors cost more than a season's income from a small plot. We tested a coated circuit-board probe that costs under five dollars to build. Over one growing season it stayed within 2.5 percent of a reference neutron probe.
+heading	2	Background
+paragraph	0	Cheaper sensors exist, but their readings drift as the probe corrodes in wet soil. Drift forces farmers to recalibrate often, and few of them have the tools to do so.
+heading	2	Methods
+paragraph	0	We built 40 capacitive probes and compared them with a reference probe over one season.
+list_item	0	1. Probes were buried at 15 cm and 30 cm depth in four plots.
+list_item	0	2. Readings were logged every hour by a battery-powered board.
+list_item	0	3. Each probe was recalibrated against soil cores every four weeks.
+heading	2	Results
+paragraph	0	The coated probes stayed within 2.5 percent of the reference throughout the season.
+caption	0	Table 1. Error against the reference probe
+table	0	SensorRMSE (%)Cost (USD)Coated board probe2.14.50Bare board probe4.83.20Commercial probe1.662.00
+heading	2	Conclusions
+paragraph	0	A coated probe costing under five dollars is accurate enough to schedule irrigation for smallholders. Field trials with 200 farms will start in March 2027.
+page_footer	0	Page 1 of 2
+paragraph	0	Low-Cost Soil Moisture Sensing - poster abstract
+heading	3	Key findings
+list_item	0	• Coating cut drift from 3.1 to 0.4 percent per month.
+list_item	0	• The probes survived a full season without failures.
+list_item	0	• Cost per sensor was 7 percent of the commercial unit.
+heading	3	Next steps
+list_item	0	Fit solar-powered radio links.
+list_item	0	Test in sandy and clay soils.
+list_item	0	Publish the design files openly.
+heading	2	Poster details
+table	0	Poster IDP-217SessionWednesday 14:00 to 15:30Board31Contactagritech-posters@eastbrook.example
+heading	2	References
+list_item	0	[1] Field Systems Group (2024). Annual report on sensor drift. Eastbrook University Press.
+list_item	0	[2] Irrigation Standards Board (2021). Guidelines for soil moisture measurement, second edition.
+list_item	0	[3] Agri-Tech Research Day (2025). Proceedings of the poster session on low-cost instrumentation.
+heading	2	Acknowledgements
+paragraph	0	This work was supported by the Eastbrook Rural Futures Fund. We thank the farmers of the Lower Valley Cooperative for hosting the plots.
+page_footer	0	Page 2 of 2

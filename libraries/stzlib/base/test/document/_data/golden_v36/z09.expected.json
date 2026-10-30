@@ -1,0 +1,224 @@
+{
+  "id": "z09",
+  "difficulty": "medium: French, two timetables side by side, drawn circle bullets and drawn dash bullets, band header, rule-only price table drawn as aligned columns",
+  "pages": 2,
+  "title": "Ligne 12 : Gare routière - Hôpital Saint-Lazare",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Ligne 12 : Gare routière - Hôpital Saint-Lazare"
+    },
+    {
+      "level": 2,
+      "text": "Horaires en semaine (du lundi au vendredi)"
+    },
+    {
+      "level": 2,
+      "text": "À savoir"
+    },
+    {
+      "level": 2,
+      "text": "Tarifs"
+    },
+    {
+      "level": 2,
+      "text": "Accessibilité"
+    },
+    {
+      "level": 3,
+      "text": "Objets trouvés"
+    },
+    {
+      "level": 3,
+      "text": "Nous contacter"
+    }
+  ],
+  "key_sentences": [
+    "La ligne 12 relie la gare routière à l'hôpital Saint-Lazare en vingt-quatre minutes.",
+    "Elle circule toute l'année du lundi au samedi, de 6h40 à 20h15.",
+    "Les tickets s'achètent auprès du conducteur ou aux distributeurs de la gare routière.",
+    "Les enfants de moins de quatre ans voyagent gratuitement.",
+    "Tous les bus de la ligne 12 sont équipés d'une rampe d'accès et d'annonces sonores et visuelles.",
+    "Le conducteur peut déployer la rampe sur simple demande.",
+    "Les objets oubliés dans un bus sont déposés à l'agence de la gare routière sous vingt-quatre heures.",
+    "Ils sont conservés pendant trois mois.",
+    "L'agence est ouverte du lundi au vendredi de 8h00 à 17h30."
+  ],
+  "tables": [
+    {
+      "caption": "Direction Hôpital Saint-Lazare",
+      "rows": [
+        [
+          "Arrêt",
+          "6h40",
+          "7h20",
+          "8h00"
+        ],
+        [
+          "Gare routière",
+          "6h40",
+          "7h20",
+          "8h00"
+        ],
+        [
+          "Place Carnot",
+          "6h44",
+          "7h24",
+          "8h04"
+        ],
+        [
+          "Lycée Descartes",
+          "6h47",
+          "7h27",
+          "8h07"
+        ],
+        [
+          "Marché couvert",
+          "6h51",
+          "7h31",
+          "8h11"
+        ],
+        [
+          "Pont-Neuf",
+          "6h55",
+          "7h35",
+          "8h15"
+        ],
+        [
+          "Clinique des Tilleuls",
+          "6h59",
+          "7h39",
+          "8h19"
+        ],
+        [
+          "Hôpital Saint-Lazare",
+          "7h04",
+          "7h44",
+          "8h24"
+        ]
+      ]
+    },
+    {
+      "caption": "Direction Gare routière",
+      "rows": [
+        [
+          "Arrêt",
+          "6h55",
+          "7h35",
+          "8h15"
+        ],
+        [
+          "Hôpital Saint-Lazare",
+          "6h55",
+          "7h35",
+          "8h15"
+        ],
+        [
+          "Clinique des Tilleuls",
+          "7h00",
+          "7h40",
+          "8h20"
+        ],
+        [
+          "Pont-Neuf",
+          "7h04",
+          "7h44",
+          "8h24"
+        ],
+        [
+          "Marché couvert",
+          "7h08",
+          "7h48",
+          "8h28"
+        ],
+        [
+          "Lycée Descartes",
+          "7h12",
+          "7h52",
+          "8h32"
+        ],
+        [
+          "Place Carnot",
+          "7h15",
+          "7h55",
+          "8h35"
+        ],
+        [
+          "Gare routière",
+          "7h19",
+          "7h59",
+          "8h39"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Titre",
+          "Prix",
+          "Validité"
+        ],
+        [
+          "Ticket à l'unité",
+          "1,60 €",
+          "60 minutes avec correspondance"
+        ],
+        [
+          "Carnet de 10 tickets",
+          "13,50 €",
+          "sans limite de durée"
+        ],
+        [
+          "Abonnement mensuel",
+          "38,00 €",
+          "du 1er au dernier jour du mois"
+        ],
+        [
+          "Abonnement jeune (moins de 26 ans)",
+          "24,00 €",
+          "du 1er au dernier jour du mois"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Les horaires du samedi sont affichés à chaque arrêt."
+    },
+    {
+      "level": 0,
+      "text": "Le bus s'arrête à la demande entre deux arrêts après 20h00."
+    },
+    {
+      "level": 0,
+      "text": "Les poussettes et les fauteuils roulants montent par la porte centrale."
+    },
+    {
+      "level": 0,
+      "text": "Deux emplacements réservés aux fauteuils roulants sont disponibles dans chaque bus."
+    },
+    {
+      "level": 0,
+      "text": "Les chiens guides sont acceptés à bord sans supplément."
+    },
+    {
+      "level": 0,
+      "text": "Les arrêts Place Carnot et Hôpital Saint-Lazare disposent de quais surélevés."
+    }
+  ],
+  "furniture": [
+    "Plaine Mobilité",
+    "Horaires 2026-2027",
+    "plainemobilite.example",
+    "Page 1 / 2",
+    "Page 2 / 2",
+    "Plaine Mobilité - Ligne 12"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "Page 1: the two timetables are placed side by side (left: Direction Hôpital Saint-Lazare, right: Direction Gare routière, each preceded by a bold caption line); they are rules-between-rows tables with a filled dark header band (white header text). Page 1 bullets are filled orange circles and page 2 bullets are short orange dash segments, both drawn shapes (no typed marker). The price table has only a rule under the header and no other lines. The orange square at the top left is a decoration drawn with no text. Level 3 headings are regular weight 11.5 pt versus 10.5 pt body. Accents are WinAnsi Latin-1; euro sign is WinAnsi 0x80. Producer: ReportLab 5.0.1 canvas (low level). Fonts from raw /BaseFont and /FontFile* entries: Helvetica (standard-14, not embedded); Helvetica-Bold (standard-14, not embedded). MediaBox  0 0 595.2756 841.8898 ."
+}

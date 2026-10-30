@@ -1,0 +1,1 @@
+ReportLab 5.0.1 Platypus (SimpleDocTemplate); SimpleDocTemplate with standard-14 Helvetica and Courier, page compression on, Preformatted code block, check boxes drawn as stroked squares

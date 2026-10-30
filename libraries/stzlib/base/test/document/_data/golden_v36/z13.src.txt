@@ -1,0 +1,1 @@
+PyMuPDF 1.28.2 (MuPDF 1.28.2) Page.insert_htmlbox (HTML+CSS, dir=rtl); new_page + insert_htmlbox once per page with embedded Arial via Archive, scale_low=1 so nothing is shrunk, footers with a second insert_htmlbox

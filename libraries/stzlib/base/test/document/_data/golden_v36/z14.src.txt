@@ -1,0 +1,1 @@
+PyMuPDF 1.28.2 (MuPDF 1.28.2) Story (HTML+CSS); fitz.Story with embedded Leelawadee UI, page break before the conditions part, footers added with insert_htmlbox

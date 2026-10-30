@@ -1,0 +1,174 @@
+{
+  "id": "z04",
+  "difficulty": "medium: Chinese embedded YaHei (TTC), CJK wrapping, kv grid of four columns, drawn check boxes, empty table cells, typed bullet glyph and numerals",
+  "pages": 2,
+  "title": "产品保修卡",
+  "headings": [
+    {
+      "level": 1,
+      "text": "产品保修卡"
+    },
+    {
+      "level": 2,
+      "text": "产品信息"
+    },
+    {
+      "level": 2,
+      "text": "保修范围"
+    },
+    {
+      "level": 2,
+      "text": "下列情况不在免费保修范围内"
+    },
+    {
+      "level": 2,
+      "text": "保修记录"
+    },
+    {
+      "level": 2,
+      "text": "注意事项"
+    },
+    {
+      "level": 3,
+      "text": "服务网点"
+    }
+  ],
+  "key_sentences": [
+    "感谢您选购松岭电器产品。",
+    "请妥善保管本卡，并在办理保修时同时出示购机发票。",
+    "自购买之日起，整机享受三年免费保修，内胆和密封圈享受一年免费保修。",
+    "保修期内出现下列非人为故障时，可凭本卡和发票到服务网点免费维修。",
+    "本卡为维修凭证，丢失不补。"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "产品名称",
+          "变频电饭煲",
+          "产品型号",
+          "RC-4018"
+        ],
+        [
+          "购买日期",
+          "2026年3月18日",
+          "发票号码",
+          "30172945"
+        ],
+        [
+          "购买渠道",
+          "松岭官方网店",
+          "保修期限",
+          "整机三年"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "序号",
+          "日期",
+          "故障现象",
+          "处理结果",
+          "维修人员"
+        ],
+        [
+          "1",
+          "2027年1月9日",
+          "按键无反应",
+          "更换控制板",
+          "周工"
+        ],
+        [
+          "2",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "3",
+          "",
+          "",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "城市",
+          "地址",
+          "电话"
+        ],
+        [
+          "青岚市",
+          "和平路88号松岭服务中心",
+          "0999-555-0141"
+        ],
+        [
+          "南渡市",
+          "新华街16号二层",
+          "0998-555-0172"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "• 主板、加热盘及温控器无法正常工作。"
+    },
+    {
+      "level": 0,
+      "text": "• 开关按键失灵或显示屏无显示。"
+    },
+    {
+      "level": 0,
+      "text": "• 正常使用情况下产生的漏电或异常发热。"
+    },
+    {
+      "level": 0,
+      "text": "未按说明书使用、维护造成的损坏。"
+    },
+    {
+      "level": 0,
+      "text": "自行拆卸、改装或使用非原厂配件。"
+    },
+    {
+      "level": 0,
+      "text": "火灾、水灾、雷击等不可抗力造成的损坏。"
+    },
+    {
+      "level": 0,
+      "text": "涂层磨损、外观划痕等正常损耗。"
+    },
+    {
+      "level": 0,
+      "text": "1. 本卡仅在中国大陆地区有效，涂改无效。"
+    },
+    {
+      "level": 0,
+      "text": "2. 维修所更换的零部件归本公司所有。"
+    },
+    {
+      "level": 0,
+      "text": "3. 超过保修期的维修将按公布的价格收取材料费和服务费。"
+    }
+  ],
+  "furniture": [
+    "松岭电器有限公司",
+    "售后服务热线 400-555-0188 · 服务时间 8:30至20:00 · songling.example",
+    "第1页 共2页",
+    "第2页 共2页"
+  ],
+  "languages": [
+    "zh"
+  ],
+  "code": [],
+  "notes": "The four exclusion items have drawn square check boxes (no typed marker) so list_items carry no marker; the three coverage items and the numbered notes have typed markers ('•' glyph U+2022 and '1.' '2.' '3.'). Lines wrap between any two characters (wordWrap CJK), so wrapped lines join with no space. The repair record table has two empty rows with empty cells. The key/value info table has no header row. The page footer counts pages in Chinese form (第1页 共2页) and is drawn as text. Producer: ReportLab 5.0.1 Platypus (SimpleDocTemplate). Fonts from raw /BaseFont and /FontFile* entries: Helvetica (standard-14, not embedded); AAAAAA+MicrosoftYaHei-Bold-0 (embedded); AAAAAA+MicrosoftYaHei-0 (embedded); AAAAAB+MicrosoftYaHei-0 (embedded). MediaBox  0 0 595.2756 841.8898 ."
+}

@@ -1,0 +1,1 @@
+PyMuPDF 1.28.2 (MuPDF 1.28.2) Story (HTML+CSS); fitz.Story with Nirmala UI (face 0 of Nirmala.ttc) embedded, page break before the annex, footers via insert_htmlbox

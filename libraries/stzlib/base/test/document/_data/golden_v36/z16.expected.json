@@ -1,0 +1,144 @@
+{
+  "id": "z16",
+  "difficulty": "hard: Devanagari shaped by HarfBuzz (conjuncts, matras), Devanagari numerals and (क) list markers, zebra table, daṇḍa sentence ends, Nirmala UI from a TTC, two pages",
+  "pages": 2,
+  "title": "वार्षिक खेल दिवस की सूचना",
+  "headings": [
+    {
+      "level": 1,
+      "text": "वार्षिक खेल दिवस की सूचना"
+    },
+    {
+      "level": 2,
+      "text": "कार्यक्रम की रूपरेखा"
+    },
+    {
+      "level": 2,
+      "text": "विद्यार्थियों के लिए निर्देश"
+    },
+    {
+      "level": 2,
+      "text": "अनुलग्नक: प्रतियोगिताओं की सूची"
+    },
+    {
+      "level": 3,
+      "text": "संपर्क"
+    }
+  ],
+  "key_sentences": [
+    "सभी अभिभावकों को सूचित किया जाता है कि विद्यालय का वार्षिक खेल दिवस शनिवार, १४ नवंबर २०२६ को आयोजित किया जाएगा।",
+    "कार्यक्रम प्रातः आठ बजे विद्यालय के खेल मैदान में आरंभ होगा।",
+    "सभी विद्यार्थी निर्धारित खेल वेशभूषा में समय से उपस्थित हों।",
+    "अधिक जानकारी के लिए खेल शिक्षक से संपर्क करें।",
+    "चिकित्सा सहायता के लिए मैदान में एक प्राथमिक उपचार केंद्र होगा।"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "समय",
+          "कार्यक्रम",
+          "स्थान"
+        ],
+        [
+          "८:०० बजे",
+          "ध्वजारोहण और मार्च पास्ट",
+          "मुख्य मैदान"
+        ],
+        [
+          "८:४५ बजे",
+          "दौड़ प्रतियोगिताएँ",
+          "ट्रैक"
+        ],
+        [
+          "१०:३० बजे",
+          "रस्साकशी और संगीत कुर्सी",
+          "मैदान का पूर्वी भाग"
+        ],
+        [
+          "१२:०० बजे",
+          "जलपान",
+          "भोजन कक्ष"
+        ],
+        [
+          "१:०० बजे",
+          "पुरस्कार वितरण",
+          "मंच"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "कक्षा",
+          "प्रतियोगिता",
+          "समूह"
+        ],
+        [
+          "छठी से आठवीं",
+          "५० मीटर दौड़",
+          "बालक और बालिकाएँ"
+        ],
+        [
+          "छठी से आठवीं",
+          "लंबी कूद",
+          "बालक और बालिकाएँ"
+        ],
+        [
+          "नौवीं से दसवीं",
+          "१०० मीटर दौड़",
+          "बालक और बालिकाएँ"
+        ],
+        [
+          "नौवीं से दसवीं",
+          "गोला फेंक",
+          "बालक"
+        ],
+        [
+          "ग्यारहवीं से बारहवीं",
+          "रिले दौड़",
+          "चार-चार के दल"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "१. प्रत्येक विद्यार्थी अपना पहचान पत्र साथ लाए।"
+    },
+    {
+      "level": 0,
+      "text": "२. पानी की बोतल और टोपी अनिवार्य है।"
+    },
+    {
+      "level": 0,
+      "text": "३. निम्नलिखित वस्तुएँ मैदान में लाना मना है:"
+    },
+    {
+      "level": 1,
+      "text": "(क) मोबाइल फोन;"
+    },
+    {
+      "level": 1,
+      "text": "(ख) काँच की बोतलें;"
+    },
+    {
+      "level": 1,
+      "text": "(ग) खाने के पैकेट।"
+    }
+  ],
+  "furniture": [
+    "आदर्श उच्च माध्यमिक विद्यालय",
+    "जयनगर, जिला रामपुर | दूरभाष ०९९९ ५५५ ०१९२",
+    "पृष्ठ १ / २",
+    "पृष्ठ २ / २"
+  ],
+  "languages": [
+    "hi"
+  ],
+  "code": [],
+  "notes": "Devanagari with conjuncts and reordered matras: MuPDF shapes with HarfBuzz and writes glyph ids with a ToUnicode map, so a reader that ignores the map recovers little; expected text is the logical Unicode. Numerals are Devanagari (U+0966..096F). Sentences end with the danda '।'. Both tables are zebra tables with a header rule and thin rules under rows (no verticals). List markers are typed: '१.' '२.' '३.' and '(क)' '(ख)' '(ग)'. Heading levels are regular weight at 20, 14.5 and 12 pt against 11.5 pt body. Producer: PyMuPDF 1.28.2 (MuPDF 1.28.2) Story (HTML+CSS). Fonts from raw /BaseFont and /FontFile* entries: NirmalaUI (embedded). MediaBox 0 0 595 842."
+}

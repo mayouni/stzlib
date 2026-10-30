@@ -1,0 +1,1 @@
+PyMuPDF 1.28.2 (MuPDF 1.28.2) Story (HTML+CSS, dir=rtl); fitz.Story from HTML with dir=rtl and embedded Tahoma, page break before second part, footers added afterwards with insert_htmlbox

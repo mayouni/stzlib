@@ -1,0 +1,205 @@
+{
+  "id": "z02",
+  "difficulty": "medium: German, Times standard-14, full grid tables, nested (a) lists, totals row, numbered headings, no page compression",
+  "pages": 2,
+  "title": "Darlehensangebot für Ihr Wohnbauvorhaben",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Darlehensangebot für Ihr Wohnbauvorhaben"
+    },
+    {
+      "level": 2,
+      "text": "1. Konditionen im Überblick"
+    },
+    {
+      "level": 2,
+      "text": "2. Tilgungsplan der Zinsbindung"
+    },
+    {
+      "level": 2,
+      "text": "3. Bedingungen und Sicherheiten"
+    },
+    {
+      "level": 2,
+      "text": "4. Widerrufsbelehrung"
+    }
+  ],
+  "key_sentences": [
+    "vielen Dank für Ihr Interesse an einer Baufinanzierung bei unserer Bank.",
+    "Auf Grundlage Ihrer Unterlagen vom 14. September 2026 unterbreiten wir Ihnen das folgende verbindliche Angebot.",
+    "Das Angebot gilt bis zum 30. Oktober 2026.",
+    "Die folgende Tabelle zeigt die Entwicklung der Restschuld bei jährlicher Zahlung.",
+    "Sie können Ihre Vertragserklärung innerhalb von 14 Tagen ohne Angabe von Gründen widerrufen.",
+    "Die Frist beginnt nach Abschluss des Vertrags und nachdem Sie alle Pflichtangaben erhalten haben.",
+    "Der Widerruf ist in Textform an die oben genannte Anschrift der Bank zu richten.",
+    "Wir freuen uns auf die Zusammenarbeit mit Ihnen."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Merkmal",
+          "Vereinbarung"
+        ],
+        [
+          "Darlehensbetrag",
+          "180.000,00 €"
+        ],
+        [
+          "Sollzinssatz (fest)",
+          "3,85 % pro Jahr"
+        ],
+        [
+          "Zinsbindung",
+          "10 Jahre bis zum 30. November 2036"
+        ],
+        [
+          "Anfängliche Tilgung",
+          "2,00 % pro Jahr"
+        ],
+        [
+          "Jährliche Rate",
+          "10.530,00 €"
+        ],
+        [
+          "Auszahlung",
+          "nach Eintragung der Grundschuld"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Jahr",
+          "Anfangsschuld",
+          "Zinsen",
+          "Tilgung",
+          "Restschuld"
+        ],
+        [
+          "1",
+          "180.000,00 €",
+          "6.930,00 €",
+          "3.600,00 €",
+          "176.400,00 €"
+        ],
+        [
+          "2",
+          "176.400,00 €",
+          "6.791,40 €",
+          "3.738,60 €",
+          "172.661,40 €"
+        ],
+        [
+          "3",
+          "172.661,40 €",
+          "6.647,46 €",
+          "3.882,54 €",
+          "168.778,86 €"
+        ],
+        [
+          "4",
+          "168.778,86 €",
+          "6.497,99 €",
+          "4.032,01 €",
+          "164.746,85 €"
+        ],
+        [
+          "5",
+          "164.746,85 €",
+          "6.342,75 €",
+          "4.187,25 €",
+          "160.559,60 €"
+        ],
+        [
+          "6",
+          "160.559,60 €",
+          "6.181,54 €",
+          "4.348,46 €",
+          "156.211,14 €"
+        ],
+        [
+          "7",
+          "156.211,14 €",
+          "6.014,13 €",
+          "4.515,87 €",
+          "151.695,27 €"
+        ],
+        [
+          "8",
+          "151.695,27 €",
+          "5.840,27 €",
+          "4.689,73 €",
+          "147.005,54 €"
+        ],
+        [
+          "9",
+          "147.005,54 €",
+          "5.659,71 €",
+          "4.870,29 €",
+          "142.135,25 €"
+        ],
+        [
+          "10",
+          "142.135,25 €",
+          "5.472,21 €",
+          "5.057,79 €",
+          "137.077,46 €"
+        ],
+        [
+          "Summe",
+          "",
+          "62.377,46 €",
+          "42.922,54 €",
+          "137.077,46 €"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. Die Auszahlung setzt die erstrangige Eintragung einer Grundschuld voraus."
+    },
+    {
+      "level": 1,
+      "text": "(a) Die Kosten für Notar und Grundbuchamt trägt der Darlehensnehmer."
+    },
+    {
+      "level": 1,
+      "text": "(b) Die Bank darf die Eintragung bis zur Auszahlung verlangen."
+    },
+    {
+      "level": 0,
+      "text": "2. Der Darlehensnehmer weist vor der Auszahlung eine Gebäudeversicherung nach."
+    },
+    {
+      "level": 0,
+      "text": "3. Sondertilgungen sind bis zu 5 % des ursprünglichen Betrags pro Jahr kostenfrei."
+    },
+    {
+      "level": 1,
+      "text": "(a) Die Sondertilgung ist der Bank vier Wochen vorher anzuzeigen."
+    },
+    {
+      "level": 1,
+      "text": "(b) Eine höhere Sondertilgung führt zu einer Vorfälligkeitsentschädigung."
+    }
+  ],
+  "furniture": [
+    "Bürgerbank Lindenau eG",
+    "Marktplatz 3 · 04999 Lindenau · Telefon 03999 555 0120 · bbl.example",
+    "Darlehensangebot Nr. 2026-HB-04417",
+    "Bürgerbank Lindenau eG · Amtsgericht Lindenau GnR 1187 · Vorstand: Das Vorstandskollegium",
+    "Seite 1 von 2",
+    "Seite 2 von 2"
+  ],
+  "languages": [
+    "de"
+  ],
+  "code": [],
+  "notes": "Both tables use full GRID lines. The first is a two-column key/value table that has a header row (Merkmal, Vereinbarung); the amortisation table ends in a totals row (Summe) whose Anfangsschuld cell is empty. Nested list uses typed markers '1.' and '(a)' drawn as text by bulletText. Euro sign is the WinAnsi glyph of standard-14 Times-Roman. German number format with thousands dots. Producer: ReportLab 5.0.1 Platypus (SimpleDocTemplate). Fonts from raw /BaseFont and /FontFile* entries: Helvetica (standard-14, not embedded); Times-Bold (standard-14, not embedded); Times-Roman (standard-14, not embedded); Times-Italic (standard-14, not embedded). MediaBox  0 0 595.2756 841.8898 ."
+}

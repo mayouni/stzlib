@@ -1,0 +1,146 @@
+{
+  "id": "z19",
+  "difficulty": "medium: matplotlib text lines in Times New Roman (fonttype 42), uncompressed, Unicode symbols (degree, superscript two, Greek), monospaced formula block, three-level question list (1. (a) (i)), data table",
+  "pages": 2,
+  "title": "Physics 101, Problem Sheet 4: Forces on a Slope",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Physics 101, Problem Sheet 4: Forces on a Slope"
+    },
+    {
+      "level": 2,
+      "text": "Formula sheet"
+    },
+    {
+      "level": 2,
+      "text": "Questions"
+    },
+    {
+      "level": 2,
+      "text": "Notes on marking"
+    }
+  ],
+  "key_sentences": [
+    "Attempt all questions and show every step of your working.",
+    "Hand in your solutions at the Tuesday tutorial.",
+    "Marks are given for correct method as well as for correct numerical answers.",
+    "Answers to selected questions will be posted on the course page on Friday."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Trial",
+          "Angle (°)",
+          "Time (s)"
+        ],
+        [
+          "1",
+          "10",
+          "1.18"
+        ],
+        [
+          "2",
+          "15",
+          "0.97"
+        ],
+        [
+          "3",
+          "20",
+          "0.84"
+        ],
+        [
+          "4",
+          "25",
+          "0.75"
+        ],
+        [
+          "5",
+          "30",
+          "0.69"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. A 2.0 kg block slides from rest down a smooth slope inclined at 30° to the horizontal."
+    },
+    {
+      "level": 1,
+      "text": "(a) Draw a free-body diagram for the block."
+    },
+    {
+      "level": 1,
+      "text": "(b) Show that its acceleration down the slope is 4.9 m/s²."
+    },
+    {
+      "level": 1,
+      "text": "(c) Find its speed after it has travelled 3.0 m along the slope."
+    },
+    {
+      "level": 0,
+      "text": "2. A trolley is released on a slope and timed over a fixed distance of 1.20 m at several angles θ."
+    },
+    {
+      "level": 1,
+      "text": "(a) Plot a graph of 1/t² against sin θ."
+    },
+    {
+      "level": 1,
+      "text": "(b) Use the gradient to estimate the acceleration due to gravity."
+    },
+    {
+      "level": 0,
+      "text": "3. A car of mass 1200 kg is parked on a hill. The coefficient of static friction between the tyres and the road is μ = 0.40."
+    },
+    {
+      "level": 1,
+      "text": "(a) Calculate the largest slope angle at which the car stays at rest. Your answer should explain which of the following is true:"
+    },
+    {
+      "level": 2,
+      "text": "(i) the friction force equals the component of weight down the slope;"
+    },
+    {
+      "level": 2,
+      "text": "(ii) the friction force is at its limiting value μN;"
+    },
+    {
+      "level": 2,
+      "text": "(iii) the normal reaction equals the weight of the car."
+    },
+    {
+      "level": 1,
+      "text": "(b) State one assumption that makes your answer an upper limit."
+    },
+    {
+      "level": 0,
+      "text": "4. A skier of mass 70 kg descends a 200 m slope that falls through 40 m."
+    },
+    {
+      "level": 1,
+      "text": "(a) Find the gain in kinetic energy if friction is ignored."
+    },
+    {
+      "level": 1,
+      "text": "(b) Her actual speed at the bottom is 18 m/s. How much energy was lost?"
+    }
+  ],
+  "furniture": [
+    "Eastbrook University - Department of Physics",
+    "Page 1 of 2",
+    "Physics 101 - Problem Sheet 4",
+    "Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "v = u + a*t\ns = u*t + 0.5*a*t**2\nv**2 = u**2 + 2*a*s\nF = m*a"
+  ],
+  "notes": "Question list has three levels with typed markers '1.' '2.' '3.' '4.', '(a)' '(b)' '(c)' and '(i)' '(ii)' '(iii)'; each marker is followed by a visible gap, and a long item wraps to several lines (one item). Question 3's text and its sub-items are separate items. The formula block is monospaced Courier New (code). The data table has only horizontal rules with centred cells. Unicode symbols: degree sign, superscript two, theta and mu. Text is TrueType fonttype 42 with streams uncompressed. Title is bold 21 pt; level-2 headings bold 14 pt against 11.5 pt body. Producer: matplotlib 3.11.2 PdfPages (pdf.fonttype 42, compression 0). Fonts from raw /BaseFont and /FontFile* entries: GLIBWC+CourierNewPSMT (embedded); FILQXE+TimesNewRomanPSMT (embedded); FDANNK+TimesNewRomanPSMT (embedded); BQGRAI+TimesNewRomanPS-BoldMT (embedded); DBUJTH+TimesNewRomanPS-ItalicMT (embedded). MediaBox  0 0 595.28 841.89 ."
+}

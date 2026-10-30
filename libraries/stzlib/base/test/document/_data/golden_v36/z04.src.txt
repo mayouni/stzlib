@@ -1,0 +1,1 @@
+ReportLab 5.0.1 Platypus (SimpleDocTemplate); SimpleDocTemplate, Microsoft YaHei from msyh.ttc subfont 0 embedded, wordWrap CJK, check boxes drawn as stroked squares via custom Flowable

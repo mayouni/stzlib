@@ -1,0 +1,1 @@
+ReportLab 5.0.1 Platypus (BaseDocTemplate, multi-column Frames); BaseDocTemplate with PageTemplates of two Frames per page, embedded Georgia TTF family, drawn square bullets as Flowables in a borderless table

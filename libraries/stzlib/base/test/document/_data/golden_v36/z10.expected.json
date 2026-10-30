@@ -1,0 +1,128 @@
+{
+  "id": "z10",
+  "difficulty": "hard: Greek, landscape certificate with letter-spaced title, centred wrapped text, small table drawn with lines, signature captions, second page with bare columns and Greek-letter list",
+  "pages": 2,
+  "title": "Πιστοποιητικό Αριστείας",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Πιστοποιητικό Αριστείας"
+    },
+    {
+      "level": 2,
+      "text": "Παράρτημα: αποτελέσματα ανά ομάδα"
+    },
+    {
+      "level": 3,
+      "text": "Σημειώσεις για την κατάταξη"
+    }
+  ],
+  "key_sentences": [
+    "Το παρόν πιστοποιητικό απονέμεται στη Μαθητική Ομάδα «Νέα Άρτεμις» του 3ου Γυμνασίου Αγίου Νικολάου για την πρώτη θέση στην κατηγορία «Αυτόνομα οχήματα» του Πανελλήνιου Διαγωνισμού Ρομποτικής 2026.",
+    "Η επιτροπή του διαγωνισμού επιβραβεύει την ομαδική εργασία, τη δημιουργικότητα και την επιμονή των μαθητών.",
+    "Στον τελικό συμμετείχαν δώδεκα ομάδες από όλη τη χώρα και η κατάταξη προέκυψε από το άθροισμα των βαθμών των τριών δοκιμών.",
+    "Οι ομάδες που κατέλαβαν τις τρεις πρώτες θέσεις θα εκπροσωπήσουν τη χώρα στον διεθνή διαγωνισμό του επόμενου έτους."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Κατηγορία",
+          "Θέση",
+          "Βαθμολογία"
+        ],
+        [
+          "Αυτόνομα οχήματα",
+          "1η",
+          "96,5"
+        ],
+        [
+          "Καινοτομία",
+          "2η",
+          "88,0"
+        ],
+        [
+          "Σχεδιασμός ρομπότ",
+          "1η",
+          "94,0"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Θέση",
+          "Ομάδα",
+          "Σχολείο",
+          "Βαθμοί"
+        ],
+        [
+          "1η",
+          "Νέα Άρτεμις",
+          "3ο Γυμνάσιο Αγίου Νικολάου",
+          "279,5"
+        ],
+        [
+          "2η",
+          "Ηλιακοί Σκαραβαίοι",
+          "Πειραματικό Λύκειο Ξάνθης",
+          "274,0"
+        ],
+        [
+          "3η",
+          "Κύματα",
+          "2ο ΕΠΑΛ Καλαμάτας",
+          "268,5"
+        ],
+        [
+          "4η",
+          "Μελισσουργοί",
+          "1ο Γυμνάσιο Κισσάμου",
+          "261,0"
+        ],
+        [
+          "5η",
+          "Αστερισμός",
+          "Λύκειο Αρκαλοχωρίου",
+          "255,0"
+        ],
+        [
+          "6η",
+          "Πυγολαμπίδες",
+          "4ο Γυμνάσιο Ρεθύμνου",
+          "249,5"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "α) Σε περίπτωση ισοβαθμίας προηγείται η ομάδα με τη μεγαλύτερη βαθμολογία στη δοκιμή αυτονομίας."
+    },
+    {
+      "level": 0,
+      "text": "β) Οι βαθμοί στρογγυλοποιούνται στο πλησιέστερο μισό της μονάδας."
+    },
+    {
+      "level": 0,
+      "text": "γ) Ενστάσεις υποβάλλονται εντός πέντε ημερών από την ανακοίνωση των αποτελεσμάτων."
+    }
+  ],
+  "furniture": [
+    "Πανελλήνια Ένωση Μαθητικής Ρομποτικής",
+    "Ο Πρόεδρος της Επιτροπής",
+    "Η Γραμματέας",
+    "Αθήνα, 14 Νοεμβρίου 2026",
+    "Σελίδα 1 από 2",
+    "Πανελλήνιος Διαγωνισμός Ρομποτικής 2026",
+    "Σελίδα 2 από 2"
+  ],
+  "languages": [
+    "el"
+  ],
+  "code": [],
+  "notes": "Landscape A4. The title is drawn with character spacing (setCharSpace 3 pt) so a reader may see gaps between letters. The certificate table is a full grid with a shaded header; its date and signature captions (Ο Πρόεδρος της Επιτροπής, Η Γραμματέας, the date line) are footer furniture beneath drawn signature lines. The body paragraph is centred and wrapped on spaces. Page 2 table has only a header rule; 'α)' 'β)' 'γ)' are typed Greek letters followed by a gap. The level 3 heading is regular weight 16 pt versus 14 pt body. Greek has tonos in lower case; no uppercase text. Producer: ReportLab 5.0.1 canvas (low level). Fonts from raw /BaseFont and /FontFile* entries: Helvetica (standard-14, not embedded); AAAAAA+TimesNewRomanPSMT (embedded); AAAAAA+TimesNewRomanPS-BoldMT (embedded); AAAAAA+TimesNewRomanPS-ItalicMT (embedded). MediaBox  0 0 842 595 ."
+}

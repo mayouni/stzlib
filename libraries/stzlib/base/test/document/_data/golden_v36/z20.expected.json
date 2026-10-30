@@ -1,0 +1,159 @@
+{
+  "id": "z20",
+  "difficulty": "hard: Arabic right-to-left through GDI+ DrawString (StringFormat DirectionRightToLeft), Tahoma, plain-weight headings, boxed form with empty cells, drawn check boxes, Arabic-Indic numerals, totals row",
+  "pages": 2,
+  "title": "نموذج مطالبة تأمين المركبات",
+  "headings": [
+    {
+      "level": 1,
+      "text": "نموذج مطالبة تأمين المركبات"
+    },
+    {
+      "level": 2,
+      "text": "القسم ١: بيانات الوثيقة"
+    },
+    {
+      "level": 2,
+      "text": "القسم ٢: نوع المطالبة"
+    },
+    {
+      "level": 2,
+      "text": "القسم ٣: المستندات المطلوبة"
+    },
+    {
+      "level": 2,
+      "text": "القسم ٤: تفاصيل الأضرار"
+    },
+    {
+      "level": 3,
+      "text": "إقرار المؤمن له"
+    }
+  ],
+  "key_sentences": [
+    "يرجى تعبئة هذا النموذج بخط واضح وإرفاق الوثائق المطلوبة.",
+    "لا يمكن النظر في المطالبة قبل استلام جميع المرفقات.",
+    "يرجى إرفاق المستندات التالية خلال أسبوع من تاريخ الحادث.",
+    "أقر بأن المعلومات الواردة في هذا النموذج صحيحة وكاملة.",
+    "وأتحمل المسؤولية القانونية عن أي بيانات غير صحيحة.",
+    "ستتصل بكم الشركة خلال ثلاثة أيام عمل لتحديد موعد المعاينة."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "رقم الوثيقة",
+          "",
+          "تاريخ الحادث",
+          ""
+        ],
+        [
+          "اسم المؤمن له",
+          "",
+          "رقم الهاتف",
+          ""
+        ],
+        [
+          "رقم المركبة",
+          "",
+          "طراز المركبة",
+          ""
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "البند",
+          "الوصف",
+          "التكلفة التقديرية (ريال)"
+        ],
+        [
+          "الصدام الأمامي",
+          "كسر في الغطاء وتشقق في الطلاء",
+          "٢٤٠٠"
+        ],
+        [
+          "المصباح الأيمن",
+          "تحطم الزجاج الخارجي",
+          "٨٥٠"
+        ],
+        [
+          "الباب الأمامي",
+          "انبعاج في الجزء السفلي",
+          "١٢٠٠"
+        ],
+        [
+          "المرآة الجانبية",
+          "كسر في الغطاء",
+          "٣٢٠"
+        ],
+        [
+          "المجموع",
+          "",
+          "٤٧٧٠"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "توقيع المؤمن له",
+          ""
+        ],
+        [
+          "التاريخ",
+          ""
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "حادث تصادم"
+    },
+    {
+      "level": 0,
+      "text": "سرقة المركبة"
+    },
+    {
+      "level": 0,
+      "text": "كسر الزجاج"
+    },
+    {
+      "level": 0,
+      "text": "أضرار طبيعية"
+    },
+    {
+      "level": 0,
+      "text": "١. صورة من رخصة القيادة سارية المفعول."
+    },
+    {
+      "level": 0,
+      "text": "٢. صورة من رخصة تسجيل المركبة."
+    },
+    {
+      "level": 0,
+      "text": "٣. تقرير الشرطة في حالات التصادم والسرقة."
+    },
+    {
+      "level": 0,
+      "text": "٤. ثلاث صور واضحة للأضرار من جميع الجهات."
+    }
+  ],
+  "furniture": [
+    "شركة واحة الضمان للتأمين",
+    "ص.ب ٣٣٤٠ | هاتف ٠٩٩٩٥٥٥٠١٧٧",
+    "صفحة ١ من ٢",
+    "نموذج مطالبة تأمين المركبات",
+    "صفحة ٢ من ٢"
+  ],
+  "languages": [
+    "ar"
+  ],
+  "code": [],
+  "notes": "Right-to-left: all tables list cells in logical order, so the first cell of each row is the RIGHTMOST on the page (القسم form: label رقم الوثيقة at the far right, then its empty value cell, then the second label). Form value cells are empty. The damage table is a full grid with a shaded header and a totals row (المجموع) with an empty middle cell; the signature box is a 2-row boxed form with empty value cells. Check boxes are drawn squares (first one crossed); their labels are list items without a typed marker. Numbered items use typed Arabic-Indic numerals '١.' to '٤.' as separate text runs at the right margin. Headings are regular weight (font size only) in Tahoma; body 11 pt. The Microsoft Print to PDF output writes fonts as anonymous Type0 TrueType subsets (CIDFont+F1) with a ToUnicode map; the font used was Tahoma, so the family name is not in the file. printed 2 pages Producer: Microsoft Print to PDF (Windows 11, GDI+ System.Drawing.Printing driven from Windows PowerShell 5.1). Fonts from raw /BaseFont and /FontFile* entries: CIDFont+F1 (embedded, Type0/Identity-H, descendant inline; the real family name is not recorded in the file); CIDFont+F2 (embedded, Type0/Identity-H, descendant inline; the real family name is not recorded in the file). MediaBox  0.0 0.0 595.32001 841.92004 ."
+}

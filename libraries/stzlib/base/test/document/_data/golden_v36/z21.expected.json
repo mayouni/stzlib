@@ -1,0 +1,167 @@
+{
+  "id": "z21",
+  "difficulty": "medium: GDI Times New Roman with plain-weight headings only slightly larger than body, key/value rules table, header-rule-only table, hyphen list, 1./(a) nested list, drawn check boxes and empty boxed form",
+  "pages": 2,
+  "title": "Offer of Employment",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Offer of Employment"
+    },
+    {
+      "level": 2,
+      "text": "Terms of the offer"
+    },
+    {
+      "level": 2,
+      "text": "Remuneration"
+    },
+    {
+      "level": 2,
+      "text": "Benefits"
+    },
+    {
+      "level": 2,
+      "text": "Conditions of the offer"
+    },
+    {
+      "level": 2,
+      "text": "Acceptance"
+    }
+  ],
+  "key_sentences": [
+    "We are delighted to offer you the position of Harbour Operations Planner with Harbourlight Marine Services.",
+    "This letter sets out the main terms of your employment.",
+    "The offer is conditional on the satisfactory completion of the checks listed below.",
+    "Please sign and return the enclosed copy of this letter by 18 December 2026.",
+    "We look forward to welcoming you to the team in January."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Term",
+          "Detail"
+        ],
+        [
+          "Position",
+          "Harbour Operations Planner"
+        ],
+        [
+          "Start date",
+          "11 January 2027"
+        ],
+        [
+          "Location",
+          "Port Ellery head office"
+        ],
+        [
+          "Reporting to",
+          "Head of Operations"
+        ],
+        [
+          "Probation",
+          "Six months"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Item",
+          "Amount",
+          "Paid"
+        ],
+        [
+          "Basic salary",
+          "£38,500 per year",
+          "Monthly in arrears"
+        ],
+        [
+          "Shift allowance",
+          "£2,400 per year",
+          "Monthly in arrears"
+        ],
+        [
+          "Annual bonus",
+          "Up to 8% of salary",
+          "In March"
+        ],
+        [
+          "Pension",
+          "6% employer contribution",
+          "Monthly"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Signature",
+          ""
+        ],
+        [
+          "Date",
+          ""
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "- 25 days of annual leave plus public holidays."
+    },
+    {
+      "level": 0,
+      "text": "- Free parking at the Pier Road site."
+    },
+    {
+      "level": 0,
+      "text": "- Subsidised canteen and a cycle-to-work scheme."
+    },
+    {
+      "level": 0,
+      "text": "1. Satisfactory references from two previous employers."
+    },
+    {
+      "level": 0,
+      "text": "2. Proof of the right to work in the United Kingdom, to be shown on your first day, which may include:"
+    },
+    {
+      "level": 1,
+      "text": "(a) a passport or national identity document;"
+    },
+    {
+      "level": 1,
+      "text": "(b) a recent utility bill showing your home address."
+    },
+    {
+      "level": 0,
+      "text": "3. Completion of the medical questionnaire enclosed with this letter."
+    },
+    {
+      "level": 0,
+      "text": "I accept the offer on the terms above"
+    },
+    {
+      "level": 0,
+      "text": "I would like to discuss the offer first"
+    }
+  ],
+  "furniture": [
+    "Harbourlight Marine Services",
+    "Pier Road, Port Ellery PE2 7QD | 01999 555 0112",
+    "Page 1 of 2",
+    "Harbourlight Marine Services - Offer of Employment",
+    "Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Headings are drawn in the regular face at 20 and 13.5 pt (body 11 pt), so only size separates them from text. The terms table has horizontal rules between every row; the remuneration table has only a rule under its header row (plus none elsewhere). Hyphen items on page 1 and '1.' '2.' '3.' with nested '(a)' '(b)' on page 2 are typed text drawn as separate runs. The two acceptance options have drawn empty check boxes (no marker). The signature box is a boxed 2-row form with empty value cells. The font used was Times New Roman; the Microsoft Print to PDF file records fonts as anonymous Type0 TrueType subsets (CIDFont+Fn) with a ToUnicode map. printed 2 pages Producer: Microsoft Print to PDF (Windows 11, GDI+ System.Drawing.Printing driven from Windows PowerShell 5.1). Fonts from raw /BaseFont and /FontFile* entries: CIDFont+F1 (embedded, Type0/Identity-H, descendant inline; the real family name is not recorded in the file); CIDFont+F2 (embedded, Type0/Identity-H, descendant inline; the real family name is not recorded in the file); CIDFont+F3 (embedded, Type0/Identity-H, descendant inline; the real family name is not recorded in the file). MediaBox  0.0 0.0 595.32001 841.92004 ."
+}

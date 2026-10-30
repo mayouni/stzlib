@@ -1,0 +1,1 @@
+ReportLab 5.0.1 canvas (low level); Canvas drawString/rect/line/circle on two A4 pages, standard-14 Helvetica with WinAnsi accents, page compression on

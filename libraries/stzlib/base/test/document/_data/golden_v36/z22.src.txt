@@ -1,0 +1,1 @@
+Microsoft Print to PDF (Windows 11, GDI+ System.Drawing.Printing driven from Windows PowerShell 5.1); PrintDocument to Microsoft Print to PDF; the charges table is drawn in two chunks (header repeated on page 2) with section rows filled grey

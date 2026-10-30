@@ -1,0 +1,1 @@
+Microsoft Print to PDF (Windows 11, GDI+ System.Drawing.Printing driven from Windows PowerShell 5.1); PrintDocument to Microsoft Print to PDF, DrawString with DirectionRightToLeft for every Arabic run, Rectangle/DrawLine for the boxed forms and check boxes, one PrintPage per sheet

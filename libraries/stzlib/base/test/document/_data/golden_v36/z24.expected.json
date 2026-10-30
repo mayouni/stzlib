@@ -1,0 +1,242 @@
+{
+  "id": "z24",
+  "difficulty": "hard: GDI Calibri, key/value boxed form, subject grid with section rows and multi-line comment cells, two small tables side by side, roman-numeral list, hyphen list, empty signature form, plain-weight headings",
+  "pages": 2,
+  "title": "End of Year Report: Year 5",
+  "headings": [
+    {
+      "level": 1,
+      "text": "End of Year Report: Year 5"
+    },
+    {
+      "level": 2,
+      "text": "Progress by subject"
+    },
+    {
+      "level": 2,
+      "text": "Attendance and conduct"
+    },
+    {
+      "level": 2,
+      "text": "Class teacher's comments"
+    },
+    {
+      "level": 2,
+      "text": "Targets for next year"
+    },
+    {
+      "level": 2,
+      "text": "Grading key"
+    },
+    {
+      "level": 2,
+      "text": "Signatures"
+    }
+  ],
+  "key_sentences": [
+    "This report summarises progress across the school year.",
+    "Grades use the scale explained at the end of the report.",
+    "This has been a settled and successful year.",
+    "Reading stamina has improved noticeably since the autumn.",
+    "The pupil is encouraged to take on more leadership roles in Year 6."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Pupil number",
+          "20417",
+          "Class",
+          "5B"
+        ],
+        [
+          "Academic year",
+          "2025/26",
+          "Class teacher",
+          "Mrs J. Marlowe"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Subject",
+          "Term 1",
+          "Term 2",
+          "Term 3",
+          "Teacher's comment"
+        ],
+        [
+          "Core subjects",
+          "Core subjects",
+          "Core subjects",
+          "Core subjects",
+          "Core subjects"
+        ],
+        [
+          "English",
+          "B",
+          "B",
+          "A",
+          "Writes with growing confidence and varied vocabulary."
+        ],
+        [
+          "Mathematics",
+          "C",
+          "B",
+          "B",
+          "Secure with fractions but needs more practice with long division."
+        ],
+        [
+          "Science",
+          "B",
+          "B",
+          "B",
+          "Asks thoughtful questions and records experiments carefully."
+        ],
+        [
+          "Other subjects",
+          "Other subjects",
+          "Other subjects",
+          "Other subjects",
+          "Other subjects"
+        ],
+        [
+          "History",
+          "B",
+          "A",
+          "A",
+          "Researches topics independently and presents them well."
+        ],
+        [
+          "Art",
+          "A",
+          "A",
+          "A",
+          "Uses colour and texture with great imagination."
+        ],
+        [
+          "Physical Education",
+          "A",
+          "B",
+          "A",
+          "A keen team player with excellent stamina."
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Measure",
+          "Sessions"
+        ],
+        [
+          "Possible sessions",
+          "380"
+        ],
+        [
+          "Present",
+          "361"
+        ],
+        [
+          "Authorised absence",
+          "15"
+        ],
+        [
+          "Unauthorised absence",
+          "4"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Area",
+          "Rating"
+        ],
+        [
+          "Behaviour",
+          "Good"
+        ],
+        [
+          "Effort",
+          "Excellent"
+        ],
+        [
+          "Punctuality",
+          "Good"
+        ],
+        [
+          "Homework",
+          "Satisfactory"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Class teacher",
+          ""
+        ],
+        [
+          "Head teacher",
+          ""
+        ],
+        [
+          "Parent or carer",
+          ""
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "- Practise long division for ten minutes each week."
+    },
+    {
+      "level": 0,
+      "text": "- Read one non-fiction book every half term."
+    },
+    {
+      "level": 0,
+      "text": "- Present at least one talk to the whole class."
+    },
+    {
+      "level": 0,
+      "text": "i. Grade A: working above the expected standard."
+    },
+    {
+      "level": 0,
+      "text": "ii. Grade B: working at the expected standard."
+    },
+    {
+      "level": 0,
+      "text": "iii. Grade C: working towards the expected standard."
+    },
+    {
+      "level": 0,
+      "text": "iv. Grade D: needs significant support."
+    },
+    {
+      "level": 0,
+      "text": "I have read this report"
+    }
+  ],
+  "furniture": [
+    "Willowmere Primary School",
+    "Church Lane, Willowmere WM5 1AB | 01999 555 0121",
+    "Willowmere Primary School - Year 5 report - Page 1 of 2",
+    "Willowmere Primary School - Year 5 report - Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "The subject table has two spanned section rows (Core subjects, Other subjects: text repeated across all five cells, grey fill) and teacher comments that wrap onto two lines inside their cell (one cell text, lines joined with a space). It is a full grid with a shaded header. Attendance (left) and conduct (right) are two separate tables side by side; both full grids with shaded headers. The signature form is a boxed 3-row form with empty value cells. Lower-case roman 'i.' to 'iv.' and hyphens are typed text; the 'I have read this report' option has a drawn empty check box (no marker). Headings are regular weight Calibri (23, 15 pt against 11.5 pt). The page footer string includes the school name. Font: Calibri via GDI+; anonymous Type0 TrueType subsets with ToUnicode. printed 2 pages Producer: Microsoft Print to PDF (Windows 11, GDI+ System.Drawing.Printing driven from Windows PowerShell 5.1). Fonts from raw /BaseFont and /FontFile* entries: CIDFont+F1 (embedded, Type0/Identity-H, descendant inline; the real family name is not recorded in the file); CIDFont+F2 (embedded, Type0/Identity-H, descendant inline; the real family name is not recorded in the file); CIDFont+F3 (embedded, Type0/Identity-H, descendant inline; the real family name is not recorded in the file). MediaBox  0.0 0.0 595.32001 841.92004 ."
+}

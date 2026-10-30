@@ -1,0 +1,150 @@
+{
+  "id": "z23",
+  "difficulty": "medium: Chinese CV through GDI+ (Microsoft YaHei), plain-weight headings, boxed form grid with labels, header-rule table, drawn circle bullets, typed numerals and hyphens, CJK line breaks, two pages",
+  "pages": 2,
+  "title": "个人简历",
+  "headings": [
+    {
+      "level": 1,
+      "text": "个人简历"
+    },
+    {
+      "level": 2,
+      "text": "教育背景"
+    },
+    {
+      "level": 2,
+      "text": "工作经历"
+    },
+    {
+      "level": 3,
+      "text": "云杉数据科技有限公司，数据分析师（2021年7月至今）"
+    },
+    {
+      "level": 3,
+      "text": "青岚银行，数据实习生（2019年7月至2019年9月）"
+    },
+    {
+      "level": 2,
+      "text": "专业技能"
+    },
+    {
+      "level": 2,
+      "text": "证书与奖项"
+    },
+    {
+      "level": 2,
+      "text": "自我评价"
+    }
+  ],
+  "key_sentences": [
+    "我对数字敏感，习惯先弄清问题再动手分析。",
+    "我善于与业务同事沟通，能把复杂的结果讲得简单明了。",
+    "我乐于学习新工具，并愿意把经验分享给团队。",
+    "希望在注重数据质量的团队中继续成长。"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "姓名",
+          "林晓雨",
+          "出生年月",
+          "1996年8月"
+        ],
+        [
+          "电话",
+          "099-5550166",
+          "电子邮箱",
+          "xiaoyu.lin@example.com"
+        ],
+        [
+          "现居城市",
+          "青岚市",
+          "求职意向",
+          "数据分析师"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "时间",
+          "学校",
+          "专业",
+          "学历"
+        ],
+        [
+          "2014年9月至2018年6月",
+          "青岚大学",
+          "统计学",
+          "本科"
+        ],
+        [
+          "2018年9月至2021年6月",
+          "南渡理工大学",
+          "数据科学",
+          "硕士"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "负责零售客户的用户分层模型，使复购率提升了12%。"
+    },
+    {
+      "level": 0,
+      "text": "搭建每周业务看板，覆盖六个区域的销售数据。"
+    },
+    {
+      "level": 0,
+      "text": "组织三次内部培训，帮助同事掌握查询语言和可视化工具。"
+    },
+    {
+      "level": 0,
+      "text": "整理信用卡业务的月度报表，并核对异常数据。"
+    },
+    {
+      "level": 0,
+      "text": "协助设计客户满意度问卷并汇总结果。"
+    },
+    {
+      "level": 0,
+      "text": "1. 熟练使用SQL和Python进行数据清洗与建模。"
+    },
+    {
+      "level": 0,
+      "text": "2. 掌握统计检验、回归分析和时间序列预测。"
+    },
+    {
+      "level": 0,
+      "text": "3. 能够用图表向非技术同事清楚地讲解分析结论。"
+    },
+    {
+      "level": 0,
+      "text": "- 2020年 全国研究生数学建模竞赛二等奖"
+    },
+    {
+      "level": 0,
+      "text": "- 2022年 公司年度优秀员工"
+    },
+    {
+      "level": 0,
+      "text": "- 高级数据分析师认证（2023年）"
+    }
+  ],
+  "furniture": [
+    "第1页 共2页",
+    "个人简历",
+    "第2页 共2页"
+  ],
+  "languages": [
+    "zh"
+  ],
+  "code": [],
+  "notes": "The personal-information block is a boxed 4-column key/value form with shaded label cells and no header row. The education table has only a rule under its header row. Bullets under the two jobs are small filled circles drawn as ellipses (no marker); numbered skills use typed '1.' '2.' '3.' and certificates use typed hyphens. Lines are broken between characters and joined with no space. Headings are regular weight Microsoft YaHei (27, 16, 12 pt against 10.5 pt text); the level-3 heading names the employer and role. Page footers read 第1页 共2页. The name and e-mail are invented. Font: Microsoft YaHei (msyh.ttc) via GDI+; the PDF stores anonymous Type0 TrueType subsets with ToUnicode. printed 2 pages Producer: Microsoft Print to PDF (Windows 11, GDI+ System.Drawing.Printing driven from Windows PowerShell 5.1). Fonts from raw /BaseFont and /FontFile* entries: CIDFont+F1 (embedded, Type0/Identity-H, descendant inline; the real family name is not recorded in the file); CIDFont+F2 (embedded, Type0/Identity-H, descendant inline; the real family name is not recorded in the file). MediaBox  0.0 0.0 595.32001 841.92004 ."
+}

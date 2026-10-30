@@ -1,0 +1,1 @@
+matplotlib 3.11.2 PdfPages (pdf.fonttype 3); fig.text per line with MS Gothic (msgothic.ttc face 0) embedded as Type 3 glyph procedures, grid and rules drawn with Line2D, lines broken per character

@@ -1,0 +1,1 @@
+ReportLab 5.0.1 canvas (low level); Canvas text objects with character spacing, embedded Times New Roman, centred lines wrapped by measured width, drawn double border

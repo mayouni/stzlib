@@ -1,0 +1,1 @@
+ReportLab 5.0.1 canvas (low level); Canvas.drawString on a 226.8 x 600 pt page, standard-14 Courier, no page compression, tables as aligned columns with no ruling
