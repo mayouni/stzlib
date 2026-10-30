@@ -1,0 +1,1 @@
+PyMuPDF 1.28.2 insert_text + draw_line with base-14 fonts helv/hebo/tiro/tiit/cour (not embedded); bakery price list in Italian, A4, 2 pages

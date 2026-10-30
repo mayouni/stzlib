@@ -1,0 +1,1 @@
+matplotlib 3.11.2 PdfPages, pdf.fonttype=42, text placed with Axes.text, table grid with plot lines/Rectangle patches; DejaVu Sans / Bold / Sans Mono; laboratory report, A4

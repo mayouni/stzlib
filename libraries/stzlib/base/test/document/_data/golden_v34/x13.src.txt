@@ -1,0 +1,1 @@
+ReportLab 5.0.1 low-level canvas; SimSun (simsun.ttc subfont 0) for body and Microsoft YaHei Bold (msyhbd.ttc) for headings, both embedded TrueType subsets; quotation in Chinese, A4, 2 pages

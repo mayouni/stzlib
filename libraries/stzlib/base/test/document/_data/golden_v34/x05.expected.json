@@ -1,0 +1,182 @@
+{
+ "id": "x05",
+ "difficulty": "medium: Spanish, standard-14 Times, attendance table, agenda 1) list, multi-line cells in an action table, signature block",
+ "pages": 2,
+ "title": "Acta n.º 14/2026 de la reunión ordinaria",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Acta n.º 14/2026 de la reunión ordinaria"
+  },
+  {
+   "level": 2,
+   "text": "Asistentes"
+  },
+  {
+   "level": 2,
+   "text": "Orden del día"
+  },
+  {
+   "level": 2,
+   "text": "Desarrollo de la reunión"
+  },
+  {
+   "level": 3,
+   "text": "1. Aprobación del acta anterior"
+  },
+  {
+   "level": 3,
+   "text": "2. Informe de tesorería"
+  },
+  {
+   "level": 3,
+   "text": "3. Sistema de riego de la parcela norte"
+  },
+  {
+   "level": 2,
+   "text": "Acuerdos adoptados"
+  }
+ ],
+ "key_sentences": [
+  "Se da lectura al acta de la reunión del 12 de mayo.",
+  "No habiendo observaciones, queda aprobada por unanimidad de los presentes.",
+  "La tesorera informa de que los ingresos del trimestre ascienden a 184.320 euros y los gastos a 161.775 euros.",
+  "El saldo en cuenta al 31 de mayo es de 96.540 euros.",
+  "La Junta toma nota del informe.",
+  "Se presentan tres presupuestos para la renovación del riego.",
+  "Tras un breve debate, la Junta decide solicitar una cuarta oferta a un proveedor local antes de adjudicar la obra.",
+  "Sin más asuntos que tratar, la presidenta levanta la sesión a las 20:10 horas."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Fecha",
+     "martes 9 de junio de 2026"
+    ],
+    [
+     "Hora",
+     "de 18:30 a 20:10"
+    ],
+    [
+     "Lugar",
+     "sala de juntas de la cooperativa"
+    ],
+    [
+     "Preside",
+     "Marta Iglesias Ron"
+    ],
+    [
+     "Secretario",
+     "Joaquín Peña Soto"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Nombre",
+     "Cargo",
+     "Asistencia"
+    ],
+    [
+     "Marta Iglesias Ron",
+     "Presidenta",
+     "Presente"
+    ],
+    [
+     "Joaquín Peña Soto",
+     "Secretario",
+     "Presente"
+    ],
+    [
+     "Elena Bustos Carrión",
+     "Tesorera",
+     "Presente"
+    ],
+    [
+     "Ramiro Ochoa Vidal",
+     "Vocal",
+     "Excusado"
+    ],
+    [
+     "Nuria Ferrer Quirós",
+     "Vocal",
+     "Presente"
+    ],
+    [
+     "Tomás Arias Lago",
+     "Vocal",
+     "Presente"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "N.º",
+     "Acuerdo",
+     "Responsable",
+     "Plazo"
+    ],
+    [
+     "14.1",
+     "Aprobar el acta de la reunión del 12 de mayo de 2026.",
+     "Secretario",
+     "Inmediato"
+    ],
+    [
+     "14.2",
+     "Solicitar una cuarta oferta para el riego de la parcela norte y comparar las cuatro propuestas.",
+     "Tesorera",
+     "30 de junio"
+    ],
+    [
+     "14.3",
+     "Publicar el resumen de tesorería en el tablón de la cooperativa.",
+     "Secretario",
+     "15 de junio"
+    ],
+    [
+     "14.4",
+     "Convocar la próxima reunión ordinaria.",
+     "Presidenta",
+     "7 de julio"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "1) Aprobación del acta de la reunión anterior."
+  },
+  {
+   "level": 0,
+   "text": "2) Informe de tesorería del segundo trimestre."
+  },
+  {
+   "level": 0,
+   "text": "3) Renovación del sistema de riego de la parcela norte."
+  },
+  {
+   "level": 0,
+   "text": "4) Ruegos y preguntas."
+  }
+ ],
+ "furniture": [
+  "Cooperativa Agrícola Valle Claro – Junta Directiva",
+  "Vº Bº la Presidenta",
+  "El Secretario",
+  "Página 1 de 2",
+  "Página 2 de 2"
+ ],
+ "languages": [
+  "es"
+ ],
+ "code": [],
+ "notes": "Producer ReportLab 5.0.1 Platypus. Times-Roman, Times-Bold, Times-Italic, Times-BoldItalic, standard-14, NOT embedded, WinAnsi. The first table is a key/value block without a header row. The agenda items are typed '1)' to '4)' (one item each). The 'Acuerdos adoptados' table straddles the page break with its header repeated: ONE table. The signature captions 'Vº Bº la Presidenta' and 'El Secretario' (drawn under rules) are listed as furniture rather than body. Two-line cells in the action table are given joined by one space. 'n.º' uses the masculine ordinal U+00BA."
+}

@@ -1,0 +1,206 @@
+{
+ "id": "x14",
+ "difficulty": "hard: two-column paper, full-width title block and abstract, header-rule table inside a column, typed [n] references, monospaced block, equation line",
+ "pages": 2,
+ "title": "Compact Suffix Rules for Stemming in Morphologically Rich Languages",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Compact Suffix Rules for Stemming in Morphologically Rich Languages"
+  },
+  {
+   "level": 2,
+   "text": "Abstract"
+  },
+  {
+   "level": 2,
+   "text": "1 Introduction"
+  },
+  {
+   "level": 2,
+   "text": "2 Method"
+  },
+  {
+   "level": 3,
+   "text": "2.1 Rule format"
+  },
+  {
+   "level": 3,
+   "text": "2.2 Learning the rules"
+  },
+  {
+   "level": 3,
+   "text": "2.3 Evaluation"
+  },
+  {
+   "level": 3,
+   "text": "2.4 Data"
+  },
+  {
+   "level": 2,
+   "text": "3 Results"
+  },
+  {
+   "level": 3,
+   "text": "3.1 Error analysis"
+  },
+  {
+   "level": 2,
+   "text": "4 Conclusion"
+  },
+  {
+   "level": 2,
+   "text": "Acknowledgements"
+  },
+  {
+   "level": 2,
+   "text": "References"
+  }
+ ],
+ "key_sentences": [
+  "Stemming reduces inflected words to a common form and remains a cheap and effective step in retrieval pipelines.",
+  "On five morphologically rich languages the rules recover 93.8% of the accuracy of a full morphological analyser while using less than one percent of its memory.",
+  "Full morphological analysers solve this problem but need large lexicons and careful maintenance.",
+  "Our contributions are as follows:",
+  "Rules are tried from the longest suffix to the shortest, and the first rule whose condition holds is applied.",
+  "Pairs that appear in both sets are removed from the test set.",
+  "The largest gains appear for Finnish and Hungarian, where long suffix chains are common.",
+  "Finnish needs the most rules because of its many cases and possessive suffixes.",
+  "Homographs are rare in Finnish but frequent in Czech, where many endings are shared by different cases.",
+  "We thank the annotators who checked the test pairs."
+ ],
+ "tables": [
+  {
+   "caption": "Table 1: Accuracy (%) of three stemmers on held-out word pairs.",
+   "rows": [
+    [
+     "Language",
+     "Light",
+     "Rules",
+     "Full"
+    ],
+    [
+     "Finnish",
+     "71.2",
+     "88.9",
+     "96.1"
+    ],
+    [
+     "Turkish",
+     "74.8",
+     "90.3",
+     "95.7"
+    ],
+    [
+     "Hungarian",
+     "69.5",
+     "87.6",
+     "94.9"
+    ],
+    [
+     "Czech",
+     "77.3",
+     "91.8",
+     "96.4"
+    ],
+    [
+     "Polish",
+     "76.1",
+     "91.0",
+     "96.0"
+    ],
+    [
+     "Mean",
+     "73.8",
+     "89.9",
+     "95.8"
+    ]
+   ]
+  },
+  {
+   "caption": "Table 2: Number of rules and size of each rule set.",
+   "rows": [
+    [
+     "Language",
+     "Rules",
+     "Size (KB)"
+    ],
+    [
+     "Finnish",
+     "412",
+     "41"
+    ],
+    [
+     "Turkish",
+     "355",
+     "36"
+    ],
+    [
+     "Hungarian",
+     "389",
+     "38"
+    ],
+    [
+     "Czech",
+     "201",
+     "21"
+    ],
+    [
+     "Polish",
+     "174",
+     "18"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "• a compact rule format that fits in a few kilobytes;"
+  },
+  {
+   "level": 0,
+   "text": "• a learning procedure that needs only lemma and form pairs;"
+  },
+  {
+   "level": 0,
+   "text": "• an evaluation on five languages with released test sets."
+  },
+  {
+   "level": 0,
+   "text": "1. irregular stems, such as vowel changes inside the word;"
+  },
+  {
+   "level": 0,
+   "text": "2. homographs whose lemma depends on context;"
+  },
+  {
+   "level": 0,
+   "text": "3. foreign words and proper names."
+  },
+  {
+   "level": 0,
+   "text": "[1] M. Hartmann. Light stemming for agglutinative languages. Journal of Text Processing, 12(3):45–61, 2019."
+  },
+  {
+   "level": 0,
+   "text": "[2] S. Varga and P. Novak. Learning suffix rules from lemma lists. In Proceedings of the Workshop on Morphology, pages 101–110, 2021."
+  },
+  {
+   "level": 0,
+   "text": "[3] R. Ito. A comparison of stemmers for search. Information Systems Review, 8(1):1–19, 2022."
+  }
+ ],
+ "furniture": [
+  "Proceedings of the Northfield Workshop on Language Technology, 2026",
+  "Page 1 of 2",
+  "Page 2 of 2"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [
+  "rule: -ations -> -ate\nrule: -ing -> \"\" if stem >= 3"
+ ],
+ "notes": "Producer PyMuPDF 1.28.2 (MuPDF) Story from HTML and CSS; the body is poured into two column rectangles per page; the title block and abstract are a separate full-width Story on page 1. Fonts are the MuPDF built-in faces chosen by the CSS families, all EMBEDDED as font files: Charis SIL (serif body, regular/bold/italic), Nimbus Sans (bold headings) and Nimbus Mono PS (the code block); no standard-14 font is referenced. The author line 'Ingrid Lindqvist and Tobias Okafor' and the affiliation are front matter and are not listed in any field. Reading order is column by column: left column top to bottom, then right column, then the next page. Table 1 (header and bottom rules, a Mean row) sits inside a column; its caption is recorded. Bullets and the [1] [2] [3] reference markers are typed text, not generated list markers; references wrap to two lines each and are one item each. The equation 'F1 = 2PR / (P + R)' is a centered body line, not code. Hyphenation is not used."
+}

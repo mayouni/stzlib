@@ -1,0 +1,184 @@
+{
+ "id": "x16",
+ "difficulty": "very hard: Hebrew right-to-left, embedded Arial, RTL tables, Hebrew-letter agenda list, key/value header, signature captions",
+ "pages": 2,
+ "title": "פרוטוקול ישיבת ועד הבית",
+ "headings": [
+  {
+   "level": 1,
+   "text": "פרוטוקול ישיבת ועד הבית"
+  },
+  {
+   "level": 2,
+   "text": "נוכחים"
+  },
+  {
+   "level": 2,
+   "text": "סדר היום"
+  },
+  {
+   "level": 2,
+   "text": "דיון"
+  },
+  {
+   "level": 3,
+   "text": "אישור הפרוטוקול ודיווח כספי"
+  },
+  {
+   "level": 3,
+   "text": "תיקון המעלית"
+  },
+  {
+   "level": 2,
+   "text": "החלטות"
+  },
+  {
+   "level": 2,
+   "text": "הערות"
+  }
+ ],
+ "key_sentences": [
+  "הפרוטוקול של הישיבה הקודמת אושר פה אחד.",
+  "גזבר הוועד דיווח כי יתרת הקופה עומדת על 18,450 שקלים.",
+  "הוועד קיבל את הדיווח ללא הערות.",
+  "המעלית תקולה כבר שלושה שבועות והדיירים מתלוננים על הקושי בעלייה לקומות העליונות.",
+  "נציג חברת התחזוקה הציע שתי חלופות לתיקון.",
+  "לאחר דיון הוחלט לבחור בחלופה הזולה יותר בכפוף לאחריות של שנתיים.",
+  "הישיבה ננעלה בשעה 21:15."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "תאריך:",
+     "14 במאי 2026"
+    ],
+    [
+     "שעה:",
+     "20:00"
+    ],
+    [
+     "מקום:",
+     "חדר הכינוסים בבניין"
+    ],
+    [
+     "מרכזת הישיבה:",
+     "דנה שפירא"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "שם",
+     "תפקיד",
+     "נוכחות"
+    ],
+    [
+     "דנה שפירא",
+     "יושבת ראש",
+     "נוכחת"
+    ],
+    [
+     "יוסי אברהם",
+     "גזבר",
+     "נוכח"
+    ],
+    [
+     "רונית לוי",
+     "מזכירה",
+     "נוכחת"
+    ],
+    [
+     "אמיר כהן",
+     "חבר ועד",
+     "נעדר"
+    ],
+    [
+     "נועה ברק",
+     "חברת ועד",
+     "נוכחת"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "מס'",
+     "החלטה",
+     "אחראי",
+     "מועד"
+    ],
+    [
+     "1",
+     "לאשר את פרוטוקול הישיבה הקודמת",
+     "מזכירת הוועד",
+     "הושלם"
+    ],
+    [
+     "2",
+     "להזמין את תיקון המעלית מחברת התחזוקה",
+     "גזבר",
+     "20 במאי"
+    ],
+    [
+     "3",
+     "לשלוח לדיירים הודעה על השבתת המעלית",
+     "מזכירת הוועד",
+     "16 במאי"
+    ],
+    [
+     "4",
+     "לכנס את הישיבה הבאה",
+     "יושבת הראש",
+     "11 ביוני"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "א. אישור פרוטוקול הישיבה הקודמת"
+  },
+  {
+   "level": 0,
+   "text": "ב. דיווח על מצב הקופה"
+  },
+  {
+   "level": 0,
+   "text": "ג. תיקון המעלית"
+  },
+  {
+   "level": 0,
+   "text": "ד. שונות"
+  },
+  {
+   "level": 0,
+   "text": "• יש לשמור על שקט בחדר המדרגות לאחר השעה 22:00."
+  },
+  {
+   "level": 0,
+   "text": "• אין להשאיר חפצים ליד דלתות הכניסה לדירות."
+  },
+  {
+   "level": 0,
+   "text": "• הודעות לדיירים יתלו בלוח המודעות בקומת הכניסה."
+  }
+ ],
+ "furniture": [
+  "חתימת יושבת הראש",
+  "חתימת המזכירה",
+  "ועד הבית, רחוב הדקל 12 — פרוטוקול",
+  "עמוד 1 מתוך 2",
+  "עמוד 2 מתוך 2"
+ ],
+ "languages": [
+  "he"
+ ],
+ "code": [],
+ "notes": "Producer PyMuPDF 1.28.2 (MuPDF) Story from HTML with dir=rtl; Arial regular/bold embedded via @font-face (font files embedded). Hebrew stored logically and reordered by MuPDF's HTML engine; NOT inspected visually by the author. The key/value block at the top has labels in bold (ending in a colon, which is part of the label as drawn) and is recorded as a table without a header row. The attendee and decisions tables are right-to-left with the first logical column at the RIGHT edge (cells emitted last-to-first because MuPDF does not mirror tables); rows list cells in logical order, rightmost first. Agenda markers are typed Hebrew letters with a period ('א.' 'ב.' 'ג.' 'ד.'); the notes use typed U+2022. 'מס'' in the header uses a geresh typed as an ASCII apostrophe. The two signature captions sit under drawn rules and are listed as furniture. Digits are Western."
+}

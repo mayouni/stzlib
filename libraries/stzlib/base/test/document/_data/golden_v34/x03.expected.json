@@ -1,0 +1,252 @@
+{
+ "id": "x03",
+ "difficulty": "medium: French, embedded TrueType, key/value block, header-rule table with wrapped cells, zebra table, a) b) lists, 1) with (i) nesting",
+ "pages": 2,
+ "title": "Plan de cours : Hydrologie appliquée",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Plan de cours : Hydrologie appliquée"
+  },
+  {
+   "level": 2,
+   "text": "Description du cours"
+  },
+  {
+   "level": 2,
+   "text": "Objectifs d’apprentissage"
+  },
+  {
+   "level": 2,
+   "text": "Calendrier des séances"
+  },
+  {
+   "level": 2,
+   "text": "Évaluation"
+  },
+  {
+   "level": 2,
+   "text": "Règles du cours"
+  },
+  {
+   "level": 2,
+   "text": "Matériel requis"
+  }
+ ],
+ "key_sentences": [
+  "Ce cours présente les principes de l’hydrologie de surface et leur application à la gestion des bassins versants.",
+  "Les séances alternent exposés, exercices de calcul et sorties sur le terrain.",
+  "Aucune connaissance préalable en hydrologie n’est exigée, mais une bonne maîtrise des statistiques de base est recommandée.",
+  "À la fin du cours, l’étudiant sera en mesure de :",
+  "Le manuel de référence est disponible en réserve à la bibliothèque."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Code du cours",
+     "HYD201"
+    ],
+    [
+     "Session",
+     "Automne 2026"
+    ],
+    [
+     "Crédits",
+     "3"
+    ],
+    [
+     "Enseignante",
+     "Mme A. Lavergne"
+    ],
+    [
+     "Local",
+     "B-214"
+    ],
+    [
+     "Heures de disponibilité",
+     "mardi de 14 h à 16 h"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Semaine",
+     "Thème",
+     "Lectures",
+     "Remise"
+    ],
+    [
+     "1",
+     "Le cycle de l’eau et le bilan hydrique",
+     "Chapitre 1",
+     "—"
+    ],
+    [
+     "2",
+     "Climat et précipitations",
+     "Chapitre 2",
+     "Exercice 1"
+    ],
+    [
+     "3",
+     "Interception, infiltration et évapotranspiration",
+     "Chapitre 3 Annexe A",
+     "—"
+    ],
+    [
+     "4",
+     "Écoulement de surface et temps de concentration",
+     "Chapitre 4",
+     "Exercice 2"
+    ],
+    [
+     "5",
+     "Hydrogramme unitaire",
+     "Chapitre 5",
+     "—"
+    ],
+    [
+     "6",
+     "Sortie sur le terrain : jaugeage d’un ruisseau",
+     "Fiche de terrain",
+     "Rapport de terrain"
+    ],
+    [
+     "7",
+     "Examen intermédiaire",
+     "—",
+     "—"
+    ],
+    [
+     "8",
+     "Analyse fréquentielle des débits de crue",
+     "Chapitre 7",
+     "Exercice 3"
+    ],
+    [
+     "9",
+     "Propagation des crues dans un cours d’eau",
+     "Chapitre 8",
+     "—"
+    ],
+    [
+     "10",
+     "Petits ouvrages de drainage",
+     "Chapitre 9 Annexe C",
+     "Exercice 4"
+    ],
+    [
+     "11",
+     "Séance de travail sur le projet",
+     "—",
+     "Plan du projet"
+    ],
+    [
+     "12",
+     "Présentations des projets",
+     "—",
+     "Projet de bassin versant"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Composante",
+     "Pondération",
+     "Date"
+    ],
+    [
+     "Examen intermédiaire",
+     "30 %",
+     "semaine 7"
+    ],
+    [
+     "Quatre exercices",
+     "30 %",
+     "semaines 2, 4, 8 et 10"
+    ],
+    [
+     "Projet de bassin versant",
+     "25 %",
+     "semaine 12"
+    ],
+    [
+     "Examen final",
+     "15 %",
+     "période d’examens"
+    ],
+    [
+     "Total",
+     "100 %",
+     ""
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "a) décrire le cycle de l’eau à l’échelle d’un bassin versant ;"
+  },
+  {
+   "level": 0,
+   "text": "b) estimer les précipitations efficaces à partir de données de stations ;"
+  },
+  {
+   "level": 0,
+   "text": "c) construire et interpréter un hydrogramme unitaire ;"
+  },
+  {
+   "level": 0,
+   "text": "d) évaluer la crue de projet d’un petit ouvrage de drainage."
+  },
+  {
+   "level": 0,
+   "text": "1) La présence aux séances de laboratoire est obligatoire."
+  },
+  {
+   "level": 0,
+   "text": "2) Tout retard de remise entraîne une pénalité de 10 % par jour."
+  },
+  {
+   "level": 0,
+   "text": "3) Le plagiat est sanctionné selon le règlement des études :"
+  },
+  {
+   "level": 1,
+   "text": "(i) la note zéro pour le travail concerné ;"
+  },
+  {
+   "level": 1,
+   "text": "(ii) un avis écrit versé au dossier de l’étudiant."
+  },
+  {
+   "level": 0,
+   "text": "- une calculatrice scientifique non programmable ;"
+  },
+  {
+   "level": 0,
+   "text": "- des bottes de caoutchouc pour la sortie du 17 octobre ;"
+  },
+  {
+   "level": 0,
+   "text": "- un ordinateur portable avec tableur."
+  }
+ ],
+ "furniture": [
+  "Institut supérieur des sciences du territoire — Plan de cours HYD201, automne 2026",
+  "Page 1 sur 2",
+  "Page 2 sur 2"
+ ],
+ "languages": [
+  "fr"
+ ],
+ "code": [],
+ "notes": "Producer ReportLab 5.0.1 Platypus. Calibri, Calibri Bold and Calibri Italic as TrueType subsets, embedded (the bold/italic faces are registered; only used ones appear). French with accented letters precomposed; apostrophes are U+2019. The running header is drawn once per page and listed once; the footer 'Page n sur N' is listed once per page. The first table is a key/value block without a header row. The Évaluation table straddles the page break (header row repeated on page 2): ONE table. The calendar table has header rules only (no vertical lines); its cells of two lines (Chapitre 3 / Annexe A) are given joined by a space. List markers are typed: 'a)' to 'd)', '1)' to '3)' with nested '(i)' '(ii)', and hyphens. The em dash cells in the calendar mean 'none'. The spaces before ':' ';' and '%' are ordinary spaces."
+}

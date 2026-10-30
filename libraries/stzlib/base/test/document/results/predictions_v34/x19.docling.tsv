@@ -1,0 +1,25 @@
+page_header	0	Hartwell Environmental Laboratory
+page_header	0	Report WQ-2026-0142
+heading	1	Water Quality Analysis Report
+paragraph	0	Sample ID
+paragraph	0	Collected WQ-0142-A
+paragraph	0	4 February 2026, 09:40
+paragraph	0	Site Treatment works outlet, Cedar Hill
+paragraph	0	Analyst K. Brandt
+paragraph	0	Method Standard methods, 24th edition
+heading	1	1. Summary
+paragraph	0	All parameters measured were within the limits set by the drinking-water regulations. The sample was received in good condition and analysed within 24 hours of collection.
+heading	1	2. Results
+table	0	ParameterResultUnitLimitStatuspH7.42-6.5 to 9.5PassTurbidity0.8NTU1.0PassConductivity612µS/cm2500PassNitrate38.2mg/L50PassNitrite<0.05mg/L0.5PassAmmonium0.31mg/L0.5PassIron142µg/L200PassLead4.1µg/L10PassColiform bacteria0per 100 mL0PassE. coli0per 100 mL0Pass
+heading	1	Interpretation
+paragraph	0	Nitrate is the highest value relative to its limit, at 76 percent. Iron and lead are well below their limits. No indicator organisms were detected.
+heading	1	3. Calculation
+paragraph	0	Total hardness was calculated from the calcium and magnesium results:
+code	0	Hardness (mg/L CaCO3) = 2.497 * Ca + 4.118 * Mg Ca = 62.4 mg/L, Mg = 11.8 mg/L -> 204.4 mg/L
+paragraph	0	This report relates only to the sample received and may not be reproduced except in full.
+heading	1	Recommendations
+list_item	0	Repeat nitrate testing in the spring.
+list_item	0	Keep the monthly iron check in the routine programme.
+list_item	0	File this report with the works register.
+page_footer	0	Accredited testing laboratory. Results are confidential.
+page_footer	0	Page 1 of 1

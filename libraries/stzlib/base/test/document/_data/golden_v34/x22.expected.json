@@ -1,0 +1,160 @@
+{
+ "id": "x22",
+ "difficulty": "medium: office-print GDI letter, letterhead, running header on page 2, grid + zebra tables, nested 1. / (a) list, two pages",
+ "pages": 2,
+ "title": "Structural Survey Summary: 18 Orchard Row",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Structural Survey Summary: 18 Orchard Row"
+  },
+  {
+   "level": 2,
+   "text": "Summary of findings"
+  },
+  {
+   "level": 2,
+   "text": "Recommendations"
+  },
+  {
+   "level": 2,
+   "text": "Indicative costs"
+  }
+ ],
+ "key_sentences": [
+  "Thank you for instructing us to inspect the above property on 28 April 2026.",
+  "This letter summarises our main findings.",
+  "The full report is enclosed and should be read alongside this summary.",
+  "The house is in fair condition for its age, and we found no sign of serious structural movement.",
+  "The table lists each element that needs attention, with our suggested action and its priority.",
+  "The figures below are indicative only and exclude VAT.",
+  "They should be confirmed by written quotations from your chosen contractors.",
+  "We would be pleased to discuss any of these points with you.",
+  "Please telephone me on 01234 000111 if you would like to arrange a meeting."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Element",
+     "Condition",
+     "Action",
+     "Priority"
+    ],
+    [
+     "Roof covering",
+     "Fair; some slipped tiles",
+     "Repair within 12 months",
+     "Medium"
+    ],
+    [
+     "Chimney stack",
+     "Cracked pointing",
+     "Repoint before autumn",
+     "High"
+    ],
+    [
+     "Timber windows",
+     "Rot to two sills",
+     "Replace the sills",
+     "Medium"
+    ],
+    [
+     "Drainage",
+     "Gully partly blocked",
+     "Clear and test",
+     "Low"
+    ],
+    [
+     "Electrics",
+     "Installation not tested",
+     "Obtain an inspection",
+     "High"
+    ],
+    [
+     "Damp",
+     "No rising damp found",
+     "None required",
+     "None"
+    ],
+    [
+     "Gutters",
+     "Leaking at two joints",
+     "Re-seal the joints",
+     "Low"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Item",
+     "Estimate"
+    ],
+    [
+     "Chimney repointing",
+     "£450 to £650"
+    ],
+    [
+     "Window sills (two)",
+     "£380 to £520"
+    ],
+    [
+     "Roof tile repairs",
+     "£300 to £450"
+    ],
+    [
+     "Gutter re-sealing",
+     "£120 to £180"
+    ],
+    [
+     "Electrical inspection",
+     "£250 to £350"
+    ],
+    [
+     "Total range",
+     "£1,500 to £2,150"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "1. Arrange for the chimney stack to be repointed before the autumn."
+  },
+  {
+   "level": 0,
+   "text": "2. Obtain quotations for the following:"
+  },
+  {
+   "level": 1,
+   "text": "(a) replacement of the two window sills;"
+  },
+  {
+   "level": 1,
+   "text": "(b) re-sealing of the gutter joints."
+  },
+  {
+   "level": 0,
+   "text": "3. Commission an electrical inspection before exchange of contracts."
+  }
+ ],
+ "furniture": [
+  "Calder & Finch Surveyors",
+  "Chartered Building Surveyors",
+  "7 Gresham Court, Ashbourne Road, Eastbury EB2 4TL",
+  "Telephone 01234 000111 · surveys@calderfinch.example",
+  "Page 1 of 2",
+  "Page 2 of 2",
+  "Mr R. Whitcombe · 14 May 2026",
+  "Calder & Finch Surveyors is a trading name of Calder Finch LLP. Registered in England, number OC000000."
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [],
+ "notes": "Producer Microsoft Print to PDF (Windows GDI print path) driven from PowerShell with System.Drawing.Printing.PrintDocument; each line is one DrawString call, table borders are DrawRectangle/DrawLine. Fonts Times New Roman (body) and Arial (letterhead, headings, tables), embedded by the driver as TrueType subsets; none are standard-14. The letterhead (4 lines) is furniture, not a heading. The date, addressee, 'Our ref', salutation and sign-off lines are letter metadata and appear in no field. The bold title line is taken as the document title (level 1). Page 2 has a running header 'Mr R. Whitcombe · 14 May 2026' (listed once) and both pages share the legal footer (listed once) plus 'Page n of 2'. List markers are typed: '1.' '2.' '3.' with nested '(a)' '(b)'. Both tables are grids and neither is split across pages: the findings table (zebra fills) sits on page 1 and the costs table, which ends in a bold grey total row, sits whole at the top of page 2 after its heading and introduction on page 1. Lines are wrapped by the author's measurement, not by the driver."
+}

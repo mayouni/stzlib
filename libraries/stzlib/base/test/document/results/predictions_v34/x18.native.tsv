@@ -1,0 +1,18 @@
+heading	1	Pasticceria Alba Chiara
+page_header	0	Via dei Tigli 18 - 00000 Cittanova Tel. 000 000 0000 · info@albachiara.example
+heading	1	Listino prezzi 2026
+paragraph	0	Benvenuti nella nostra pasticceria, dove ogni mattina prepariamo tutto a mano con ingredienti freschi del territorio. Il listino che segue è valido dal 1° marzo 2026 e sostituisce tutti i precedenti. Le torte intere si ordinano con almeno due giorni di anticipo.
+heading	2	Prodotti e prezzi
+table	0	CodiceProdottoUnitàPrezzo (euro)ColazioneColazioneColazioneColazioneCL-01Cornetto vuotopezzo1,30CL-02Cornetto alla cremapezzo1,60CL-03Cornetto integrale al mielepezzo1,70CL-04Bombolone alla marmellatapezzo1,80CL-05Treccia di pasta sfogliapezzo2,10Torte intereTorte intereTorte intereTorte intereTT-01Torta di mele (24 cm)intera14,00TT-02Crostata di albicocche (24 cm)intera15,50TT-03Torta al cioccolato fondente, senza glutine su richiestaintera22,00TT-04Millefoglie alla vanigliaintera26,00TT-05Torta della nonnaintera18,00Pasticceria mignonPasticceria mignonPasticceria mignonPasticceria mignonMG-01Assortimento classico, 500 gvassoio16,00MG-02Assortimento al cioccolato, 500 gvassoio17,50MG-03Cannoncini alla crema, 12 pezzivassoio14,40MG-04Bignè con panna, 12 pezzivassoio13,20BevandeBevandeBevandeBevandeBV-01Caffè espressotazzina1,10BV-02Cappuccinotazza1,60BV-03Cioccolata caldatazza2,80BV-04Spremuta d'aranciabicchiere3,20BV-05Tè freddobottiglia2,00
+page_footer	0	Pagina 1 di 2
+page_header	0	Alba Chiara - listino prezzi 2026 (continua)
+heading	2	Come ordinare
+list_item	0	1) Telefonare al numero 000 000 0000 oppure passare in negozio.
+list_item	0	2) Indicare il codice del prodotto e la data di ritiro.
+list_item	0	3) Confermare l'ordine entro le ore 12 del giorno precedente.
+heading	2	Condizioni di vendita
+list_item	0	- Prezzi comprensivi di IVA.
+list_item	0	- Su richiesta prepariamo torte per intolleranze alimentari, previa conferma.
+list_item	0	- Il ritiro deve avvenire entro le ore 19 del giorno concordato.
+paragraph	0	Vi aspettiamo in negozio dal martedì alla domenica, dalle 7 alle 19.
+page_footer	0	Pagina 2 di 2

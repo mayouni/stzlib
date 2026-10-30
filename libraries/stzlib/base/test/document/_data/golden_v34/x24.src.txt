@@ -1,0 +1,1 @@
+Microsoft Print to PDF via PowerShell PrintDocument; Calibri regular/bold/italic TrueType; cooperative general-assembly notice in Turkish, A4, 2 pages

@@ -1,0 +1,156 @@
+{
+ "id": "x01",
+ "difficulty": "medium: drawn letterhead, borderless key/value block, grid table with wrapped and two-line cells and spanned totals rows, bullets",
+ "pages": 1,
+ "title": "Invoice 2026-0417",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Invoice 2026-0417"
+  },
+  {
+   "level": 2,
+   "text": "Payment terms"
+  },
+  {
+   "level": 2,
+   "text": "How to pay"
+  }
+ ],
+ "key_sentences": [
+  "Thank you for your order.",
+  "The goods listed below were dispatched on 10 March 2026 to the address held on your account.",
+  "Payment is due within 30 days of the invoice date.",
+  "Late payments are subject to interest at 4% above the Bank of England base rate.",
+  "Please quote the invoice number with every payment.",
+  "Goods remain the property of Larkspur Office Supplies Ltd. until paid for in full."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Invoice date",
+     "12 March 2026"
+    ],
+    [
+     "Payment due",
+     "11 April 2026"
+    ],
+    [
+     "Customer account",
+     "FD-30918"
+    ],
+    [
+     "Purchase order",
+     "PO-7731-B"
+    ],
+    [
+     "Delivery note",
+     "DN-55120"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Item no.",
+     "Description",
+     "Qty",
+     "Unit price",
+     "Amount"
+    ],
+    [
+     "LS-1042",
+     "A4 copier paper, 80 gsm, box of 5 reams",
+     "12",
+     "£21.50",
+     "£258.00"
+    ],
+    [
+     "LS-2210",
+     "Ring binder, lever arch, assorted colours",
+     "40",
+     "£2.15",
+     "£86.00"
+    ],
+    [
+     "LS-3307",
+     "Gel pen, blue, pack of 12",
+     "25",
+     "£6.40",
+     "£160.00"
+    ],
+    [
+     "LS-4120",
+     "Desk tidy, mesh, black",
+     "8",
+     "£7.95",
+     "£63.60"
+    ],
+    [
+     "LS-5501",
+     "Whiteboard marker set, 4 colours (delivered in two boxes)",
+     "10",
+     "£4.20",
+     "£42.00"
+    ],
+    [
+     "Subtotal",
+     "Subtotal",
+     "Subtotal",
+     "Subtotal",
+     "£609.60"
+    ],
+    [
+     "Delivery",
+     "Delivery",
+     "Delivery",
+     "Delivery",
+     "£9.50"
+    ],
+    [
+     "VAT (20%)",
+     "VAT (20%)",
+     "VAT (20%)",
+     "VAT (20%)",
+     "£123.82"
+    ],
+    [
+     "Total due",
+     "Total due",
+     "Total due",
+     "Total due",
+     "£742.92"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "• Bank transfer to sort code 00-00-00, account 00000000."
+  },
+  {
+   "level": 0,
+   "text": "• Cheque payable to Larkspur Office Supplies Ltd."
+  },
+  {
+   "level": 0,
+   "text": "• Card payment by telephone on 01234 000000."
+  }
+ ],
+ "furniture": [
+  "Larkspur Office Supplies Ltd.",
+  "14 Mill Lane, Wetherby, West Yorkshire LS22 0AA",
+  "Tel 01234 000000 · accounts@larkspur-supplies.example",
+  "Registered in England and Wales, company no. 00000000",
+  "Page 1 of 1"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [],
+ "notes": "Producer ReportLab 5.0.1 Platypus. Fonts Helvetica and Helvetica-Bold, standard-14, NOT embedded. Letterhead (three lines) and footer are drawn on every page by a page callback; the letterhead name is not a heading. The first table is a key/value block with no header row (rows are [label, value]). The totals rows (Subtotal, Delivery, VAT, Total due) are rows of the items table whose label cell spans the first four columns, so the label is repeated in those four cells. The bullet markers are typed U+2022 glyphs. The currency sign is the pound sign U+00A3."
+}

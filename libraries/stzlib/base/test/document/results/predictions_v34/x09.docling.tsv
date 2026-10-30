@@ -1,0 +1,46 @@
+page_header	0	Marlowe Quay Consulting · Employee Handbook
+page_header	0	Issued January 2026
+heading	1	Section 4: Leave and Absence
+paragraph	0	This section explains how much leave you are entitled to, how to request it and what happens when you are unable to work. It applies to all employees, whether full time or part time, from the first day of employment.
+heading	1	4.1 Annual leave
+heading	1	Entitlement
+paragraph	0	Your entitlement depends on your length of service on 1 January of the leave year. Part-time employees receive a pro-rata entitlement.
+table	0	Length of serviceDays per yearMaximum carry-overLess than 2 years255 days2 to 4 years275 days5 to 9 years297 days10 years or more3110 days
+heading	1	How to request leave
+paragraph	0	Leave must be approved by your line manager before it is booked. Requests are made through the HR portal at least two weeks ahead. You can also use the command line tool:
+code	0	hr-portal submit --form L-12 --from 2026-08-03 --to 2026-08-07
+paragraph	0	A request is approved only when you receive a confirmation e-mail. The following rules apply to all requests:
+list_item	0	(a) No more than ten consecutive working days may be taken without the written agreement of a director.
+list_item	0	(b) Leave over the year end is handled as follows:
+list_item	0	(i) days carried over must be taken by 31 March;
+list_item	0	(ii) days not taken by that date lapse without payment.
+list_item	0	(c) Teams must agree cover for client work before leave starts.
+heading	1	Peak periods
+paragraph	0	Quarter-end and the two weeks before a major client deadline are treated as peak periods. During a peak period no more than one person from each team may be on leave at the same time. Directors publish the peak calendar in November for the following year, and requests made before then are accepted on a first come, first served basis.
+heading	1	Leaving the company
+paragraph	0	On the last day of employment, any untaken leave is paid at the normal daily rate. If you have taken more leave than you have earned, the difference is deducted from your final pay.
+heading	1	4.2 Public holidays
+paragraph	0	The office is closed on the public holidays below. Staff who are required to work on a public holiday receive a day in lieu.
+table	0	DateDayHoliday1 JanuaryThursdayNew Year's Day3 AprilFridayGood Friday
+page_footer	0	Confidential: for internal use only
+page_footer	0	Page 1 of 3
+page_header	0	Marlowe Quay Consulting · Employee Handbook
+page_header	0	Issued January 2026
+table	0	DateDayHoliday6 AprilMondayEaster Monday4 MayMondayEarly May bank holiday25 MayMondaySpring bank holiday31 AugustMondaySummer bank holiday25 DecemberFridayChristmas Day28 DecemberMondayBoxing Day (substitute day)
+heading	1	4.3 Sickness absence
+paragraph	0	If you are unwell you must tell your line manager before your normal starting time on the first day of absence. Sick pay is paid in full for the first 26 weeks in any rolling twelve months.
+list_item	0	Telephone your line manager; a message left with a colleague is not enough.
+list_item	0	Keep the manager informed every three days if the absence continues.
+list_item	0	Send a medical note to HR from the eighth calendar day.
+paragraph	0	Return-to-work conversations are held after every period of absence of five days or more.
+heading	1	4.4 Types of leave at a glance
+table	0	Type of leaveWho approvesNotice requiredPaid?Annual leaveLine managerTwo weeksYesSick leave, up to 7 daysNot required; self-certificationOn the first dayYesSick leave, over 7 daysHR, with a medical noteOn the first dayYes, see 4.3Compassionate leaveLine managerAs soon as possibleYes, up to 5 daysJury serviceHROn receipt of the summonsYes, less any allowanceMedical appointmentsLine managerOne week where possibleYes, up to 4 hoursStudy leaveDirectorOne monthYes, up to 10 days per yearVolunteering dayLine managerTwo weeksYes, one day per yearParental leaveHREight weeksAs set out in section 5Adoption leaveHREight weeksAs set out in section 5Unpaid leaveDirectorOne monthNoSabbatical, after 7 yearsBoardSix monthsHalf pay for up to 3 monthsMilitary reserve trainingHROn receipt of the call-upYes, for up to 2 weeksReligious observanceLine managerOne weekTaken from annual leaveEmergency dependants' leaveLine managerAs soon as possibleYes, up to 2 daysMarriage or civil partnershipLine managerFour weeksYes, 2 daysHouse moveLine managerOne weekYes, 1 dayPublic officeDirectorOne monthNoProfessional examinationsLine managerOne monthYes, examination days onlyBlood donationLine managerOne weekYes, half a day
+page_footer	0	Confidential: for internal use only
+page_footer	0	Page 2 of 3
+page_header	0	Marlowe Quay Consulting · Employee Handbook
+page_header	0	Issued January 2026
+table	0	Type of leaveWho approvesNotice requiredPaid?Training coursesLine managerTwo weeksYesTrade union dutiesHROne weekYes, reasonable timeFertility treatmentLine managerOne weekYes, appointments onlyDay in lieuLine managerOne weekYesCareer breakBoardSix monthsNo
+heading	1	4.5 Contact
+paragraph	0	Questions about this section should be sent to the People team, who will reply within two working days.
+page_footer	0	Confidential: for internal use only
+page_footer	0	Page 3 of 3

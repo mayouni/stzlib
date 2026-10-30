@@ -1,0 +1,37 @@
+page_header	0	KESTREL INSTRUMENTS
+page_header	0	AX-200 Data Sheet · Rev. C · March 2026
+heading	1	AX-200 Industrial Temperature Sensor
+heading	1	General description
+paragraph	0	The AX-200 is a digital temperature sensor with an I2C interface and a 12-bit resolution. It operates from 2.7 V to 5.5 V and draws less than 250 µA in active mode. An open-drain alert output signals when the temperature crosses a programmable limit.
+heading	1	Features
+list_item	0	Accuracy of ±0.5 °C from -10 °C to 85 °C
+list_item	0	Range of -55 °C to 150 °C
+list_item	0	Four selectable I2C addresses
+list_item	0	Standby current of 0.5 µA typical
+heading	1	Electrical characteristics
+paragraph	0	Unless otherwise noted, limits apply at VDD = 3.3 V and an ambient temperature of 25 °C.
+table	0	ParameterMinTypMaxUnitSupply voltage2.73.35.5VSupply current, active-180250µASupply current, standby-0.52µAOperating temperature-55-150°CAccuracy, -10 °C to 85 °C-0.5±0.250.5°CResolution-0.0078-°CConversion time-3045msI2C clock frequency10-400kHz
+heading	1	Pin description
+table	0	PinNameFunction1VDDPositive supply voltage2SDAI2C data, open drain3SCLI2C clock input4ALERTOver-temperature alarm output, active low5GNDGround
+heading	1	Programming example
+paragraph	0	The temperature register is read with a two-byte transfer. The following sketch assumes the default address of 0x48.
+code	0	// Read the temperature register Wire.beginTransmission(0x48); Wire.write(0x00); Wire.endTransmission(); Wire.requestFrom(0x48, 2); int raw = (Wire.read() << 8) | Wire.read(); float celsius = raw / 128.0;
+heading	1	Ordering information
+heading	1	Applications
+list_item	0	Industrial process control
+list_item	0	Battery chargers
+list_item	0	HVAC and building automation
+list_item	0	Server and rack monitoring
+page_footer	0	Specifications are subject to change without notice.
+page_footer	0	Page 1 of 2
+page_header	0	KESTREL INSTRUMENTS
+page_header	0	AX-200 Data Sheet · Rev. C · March 2026
+table	0	Part numberPackageTemperature gradePackingAX-200-DBSOT-23, 5 pinIndustrialTape and reel, 3,000 piecesAX-200-DMMSOP, 8 pinIndustrialTube, 80 piecesAX-200-ABSOT-23, 5 pinAutomotiveTape and reel, 3,000 pieces
+heading	1	Notes
+list_item	0	All voltages are referenced to GND.
+list_item	0	Accuracy excludes self-heating, which is below 0.1 °C in still air.
+list_item	0	Do not exceed the absolute maximum ratings:
+list_item	0	supply voltage 6.0 V;
+list_item	0	voltage on any pin -0.3 V to VDD + 0.3 V.
+page_footer	0	Specifications are subject to change without notice.
+page_footer	0	Page 2 of 2

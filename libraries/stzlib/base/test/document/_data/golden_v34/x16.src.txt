@@ -1,0 +1,1 @@
+PyMuPDF 1.28.2 fitz.Story from HTML with dir=rtl and Arial via @font-face; committee minutes in Hebrew, A4, 2 pages

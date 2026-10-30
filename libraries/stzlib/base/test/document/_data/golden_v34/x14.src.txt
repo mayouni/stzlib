@@ -1,0 +1,1 @@
+PyMuPDF 1.28.2 fitz.Story from HTML+CSS placed into two column rectangles with DocumentWriter; MuPDF built-in fonts; A4 two-column paper

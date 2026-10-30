@@ -1,0 +1,352 @@
+{
+ "id": "x09",
+ "difficulty": "hard: 3 pages, embedded Georgia, headings to level 3, wrapped table across pages, (a)/(i)/1) lists, Courier command, footer with page x of y",
+ "pages": 3,
+ "title": "Section 4: Leave and Absence",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Section 4: Leave and Absence"
+  },
+  {
+   "level": 2,
+   "text": "4.1 Annual leave"
+  },
+  {
+   "level": 3,
+   "text": "Entitlement"
+  },
+  {
+   "level": 3,
+   "text": "How to request leave"
+  },
+  {
+   "level": 3,
+   "text": "Peak periods"
+  },
+  {
+   "level": 3,
+   "text": "Leaving the company"
+  },
+  {
+   "level": 2,
+   "text": "4.2 Public holidays"
+  },
+  {
+   "level": 2,
+   "text": "4.3 Sickness absence"
+  },
+  {
+   "level": 2,
+   "text": "4.4 Types of leave at a glance"
+  },
+  {
+   "level": 2,
+   "text": "4.5 Contact"
+  }
+ ],
+ "key_sentences": [
+  "This section explains how much leave you are entitled to, how to request it and what happens when you are unable to work.",
+  "Your entitlement depends on your length of service on 1 January of the leave year.",
+  "Leave must be approved by your line manager before it is booked.",
+  "You can also use the command line tool:",
+  "The following rules apply to all requests:",
+  "Directors publish the peak calendar in November for the following year, and requests made before then are accepted on a first come, first served basis.",
+  "If you have taken more leave than you have earned, the difference is deducted from your final pay.",
+  "Staff who are required to work on a public holiday receive a day in lieu.",
+  "Sick pay is paid in full for the first 26 weeks in any rolling twelve months.",
+  "Questions about this section should be sent to the People team, who will reply within two working days."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Length of service",
+     "Days per year",
+     "Maximum carry-over"
+    ],
+    [
+     "Less than 2 years",
+     "25",
+     "5 days"
+    ],
+    [
+     "2 to 4 years",
+     "27",
+     "5 days"
+    ],
+    [
+     "5 to 9 years",
+     "29",
+     "7 days"
+    ],
+    [
+     "10 years or more",
+     "31",
+     "10 days"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Date",
+     "Day",
+     "Holiday"
+    ],
+    [
+     "1 January",
+     "Thursday",
+     "New Year’s Day"
+    ],
+    [
+     "3 April",
+     "Friday",
+     "Good Friday"
+    ],
+    [
+     "6 April",
+     "Monday",
+     "Easter Monday"
+    ],
+    [
+     "4 May",
+     "Monday",
+     "Early May bank holiday"
+    ],
+    [
+     "25 May",
+     "Monday",
+     "Spring bank holiday"
+    ],
+    [
+     "31 August",
+     "Monday",
+     "Summer bank holiday"
+    ],
+    [
+     "25 December",
+     "Friday",
+     "Christmas Day"
+    ],
+    [
+     "28 December",
+     "Monday",
+     "Boxing Day (substitute day)"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Type of leave",
+     "Who approves",
+     "Notice required",
+     "Paid?"
+    ],
+    [
+     "Annual leave",
+     "Line manager",
+     "Two weeks",
+     "Yes"
+    ],
+    [
+     "Sick leave, up to 7 days",
+     "Not required; self-certification",
+     "On the first day",
+     "Yes"
+    ],
+    [
+     "Sick leave, over 7 days",
+     "HR, with a medical note",
+     "On the first day",
+     "Yes, see 4.3"
+    ],
+    [
+     "Compassionate leave",
+     "Line manager",
+     "As soon as possible",
+     "Yes, up to 5 days"
+    ],
+    [
+     "Jury service",
+     "HR",
+     "On receipt of the summons",
+     "Yes, less any allowance"
+    ],
+    [
+     "Medical appointments",
+     "Line manager",
+     "One week where possible",
+     "Yes, up to 4 hours"
+    ],
+    [
+     "Study leave",
+     "Director",
+     "One month",
+     "Yes, up to 10 days per year"
+    ],
+    [
+     "Volunteering day",
+     "Line manager",
+     "Two weeks",
+     "Yes, one day per year"
+    ],
+    [
+     "Parental leave",
+     "HR",
+     "Eight weeks",
+     "As set out in section 5"
+    ],
+    [
+     "Adoption leave",
+     "HR",
+     "Eight weeks",
+     "As set out in section 5"
+    ],
+    [
+     "Unpaid leave",
+     "Director",
+     "One month",
+     "No"
+    ],
+    [
+     "Sabbatical, after 7 years",
+     "Board",
+     "Six months",
+     "Half pay for up to 3 months"
+    ],
+    [
+     "Military reserve training",
+     "HR",
+     "On receipt of the call-up",
+     "Yes, for up to 2 weeks"
+    ],
+    [
+     "Religious observance",
+     "Line manager",
+     "One week",
+     "Taken from annual leave"
+    ],
+    [
+     "Emergency dependants’ leave",
+     "Line manager",
+     "As soon as possible",
+     "Yes, up to 2 days"
+    ],
+    [
+     "Marriage or civil partnership",
+     "Line manager",
+     "Four weeks",
+     "Yes, 2 days"
+    ],
+    [
+     "House move",
+     "Line manager",
+     "One week",
+     "Yes, 1 day"
+    ],
+    [
+     "Public office",
+     "Director",
+     "One month",
+     "No"
+    ],
+    [
+     "Professional examinations",
+     "Line manager",
+     "One month",
+     "Yes, examination days only"
+    ],
+    [
+     "Blood donation",
+     "Line manager",
+     "One week",
+     "Yes, half a day"
+    ],
+    [
+     "Training courses",
+     "Line manager",
+     "Two weeks",
+     "Yes"
+    ],
+    [
+     "Trade union duties",
+     "HR",
+     "One week",
+     "Yes, reasonable time"
+    ],
+    [
+     "Fertility treatment",
+     "Line manager",
+     "One week",
+     "Yes, appointments only"
+    ],
+    [
+     "Day in lieu",
+     "Line manager",
+     "One week",
+     "Yes"
+    ],
+    [
+     "Career break",
+     "Board",
+     "Six months",
+     "No"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "(a) No more than ten consecutive working days may be taken without the written agreement of a director."
+  },
+  {
+   "level": 0,
+   "text": "(b) Leave over the year end is handled as follows:"
+  },
+  {
+   "level": 1,
+   "text": "(i) days carried over must be taken by 31 March;"
+  },
+  {
+   "level": 1,
+   "text": "(ii) days not taken by that date lapse without payment."
+  },
+  {
+   "level": 0,
+   "text": "(c) Teams must agree cover for client work before leave starts."
+  },
+  {
+   "level": 0,
+   "text": "1) Telephone your line manager; a message left with a colleague is not enough."
+  },
+  {
+   "level": 0,
+   "text": "2) Keep the manager informed every three days if the absence continues."
+  },
+  {
+   "level": 0,
+   "text": "3) Send a medical note to HR from the eighth calendar day."
+  }
+ ],
+ "furniture": [
+  "Marlowe Quay Consulting · Employee Handbook",
+  "Issued January 2026",
+  "Confidential: for internal use only",
+  "Page 1 of 3",
+  "Page 2 of 3",
+  "Page 3 of 3"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [
+  "hr-portal submit --form L-12 --from 2026-08-03 --to 2026-08-07"
+ ],
+ "notes": "Producer ReportLab 5.0.1 Platypus. Georgia regular, bold, italic and bold-italic as embedded TrueType subsets; the command block is Courier, standard-14, NOT embedded. Running header (two strings on one line, listed as two furniture entries) and footer with 'Page n of N' per page. The public holidays table (header rule only) straddles the page 1/2 break and the 'Types of leave at a glance' table (grid, zebra, wrapped cells) straddles the page 2/3 break; each repeats its header row on the next page and is ONE table. Cells with a forced line break (Not required; / self-certification) are joined by a space. Markers are typed: '(a)' '(b)' '(c)' with nested '(i)' '(ii)', and '1)' '2)' '3)'. The apostrophes are U+2019."
+}

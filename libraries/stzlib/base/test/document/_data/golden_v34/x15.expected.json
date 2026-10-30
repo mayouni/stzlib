@@ -1,0 +1,166 @@
+{
+ "id": "x15",
+ "difficulty": "very hard: Arabic (shaped, right-to-left), embedded Arial, RTL tables (first column at the right), Arabic-letter list, numbers inside RTL text",
+ "pages": 2,
+ "title": "التقرير السنوي لخدمات النظافة والبيئة لعام 2025",
+ "headings": [
+  {
+   "level": 1,
+   "text": "التقرير السنوي لخدمات النظافة والبيئة لعام 2025"
+  },
+  {
+   "level": 2,
+   "text": "مقدمة"
+  },
+  {
+   "level": 2,
+   "text": "المؤشرات الرئيسية"
+  },
+  {
+   "level": 2,
+   "text": "التحديات"
+  },
+  {
+   "level": 2,
+   "text": "نتائج استطلاع رضا السكان"
+  },
+  {
+   "level": 2,
+   "text": "الميزانية"
+  },
+  {
+   "level": 2,
+   "text": "أولويات عام 2026"
+  }
+ ],
+ "key_sentences": [
+  "يعرض هذا التقرير أبرز أعمال قسم النظافة والبيئة في بلدية الواحة الخضراء خلال عام 2025.",
+  "وقد تم إعداده بناء على بيانات الأداء الشهرية التي رفعتها فرق العمل الميدانية.",
+  "ويهدف إلى إطلاع السكان على مستوى الخدمات ومجالات التحسين.",
+  "يوضح الجدول التالي تطور المؤشرات الرئيسية بين عامي 2024 و2025.",
+  "واجهت الفرق خلال العام عددا من التحديات، من أبرزها:",
+  "وقد عالجت البلدية جزءا من هذه التحديات بتعديل جداول العمل وشراء آليات جديدة.",
+  "أبدى 78% من المشاركين رضاهم عن نظافة الشوارع.",
+  "وطالب 64% منهم بزيادة عدد الحاويات قرب الأسواق.",
+  "بلغت النفقات الإجمالية للقسم 24.0 مليون ريال، وتوزعت على البنود الواردة في الجدول أدناه.",
+  "نأمل أن يسهم هذا التقرير في تعزيز الشفافية والتعاون بين البلدية والسكان."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "المؤشر",
+     "2024",
+     "2025",
+     "التغير"
+    ],
+    [
+     "كمية النفايات المجمعة (طن)",
+     "41,200",
+     "43,850",
+     "زيادة 6.4%"
+    ],
+    [
+     "نسبة إعادة التدوير",
+     "18%",
+     "27%",
+     "زيادة 9 نقاط"
+    ],
+    [
+     "عدد الحاويات الجديدة",
+     "320",
+     "540",
+     "زيادة 68.8%"
+    ],
+    [
+     "شكاوى السكان",
+     "1,480",
+     "1,105",
+     "انخفاض 25.3%"
+    ],
+    [
+     "زمن الاستجابة (ساعة)",
+     "36",
+     "22",
+     "انخفاض 38.9%"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "البند",
+     "المبلغ (مليون ريال)",
+     "النسبة"
+    ],
+    [
+     "جمع النفايات",
+     "12.4",
+     "52%"
+    ],
+    [
+     "التدوير والمعالجة",
+     "5.8",
+     "24%"
+    ],
+    [
+     "نظافة الشوارع",
+     "3.9",
+     "16%"
+    ],
+    [
+     "التوعية والإعلام",
+     "1.9",
+     "8%"
+    ],
+    [
+     "المجموع",
+     "24.0",
+     "100%"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "• ارتفاع درجات الحرارة في فصل الصيف مما أثر على مواعيد الجمع."
+  },
+  {
+   "level": 0,
+   "text": "• نقص الحاويات في الأحياء الجديدة."
+  },
+  {
+   "level": 0,
+   "text": "• تأخر وصول قطع الغيار الخاصة بالآليات."
+  },
+  {
+   "level": 0,
+   "text": "أ) توسيع شبكة الحاويات المخصصة لفرز النفايات في جميع الأحياء."
+  },
+  {
+   "level": 0,
+   "text": "ب) تدريب العاملين على استخدام المعدات الحديثة."
+  },
+  {
+   "level": 0,
+   "text": "ج) إطلاق تطبيق للإبلاغ عن المخالفات والشكاوى."
+  },
+  {
+   "level": 1,
+   "text": "- يشمل ذلك الأحياء الجديدة في الجهة الشمالية."
+  }
+ ],
+ "furniture": [
+  "بلدية الواحة الخضراء — قسم النظافة والبيئة",
+  "صفحة 1 من 2",
+  "صفحة 2 من 2"
+ ],
+ "languages": [
+  "ar"
+ ],
+ "code": [],
+ "notes": "Producer PyMuPDF 1.28.2 (MuPDF) Story from HTML with dir=rtl; Arial regular/bold embedded via @font-face (font files embedded). All Arabic text is stored logically and was shaped and reordered by MuPDF's HTML engine; it was NOT inspected visually by the author. The two tables are right-to-left: MuPDF does not mirror table columns, so the cells were emitted last-to-first and the FIRST logical column (المؤشر / البند) is at the RIGHT edge; rows below list cells in logical order, rightmost first. Digits are Western (0-9). The bullet is a typed U+2022 and the lettered markers are typed Arabic letters with a parenthesis ('أ)' 'ب)' 'ج)'); the nested item has a typed hyphen. Header (right-aligned) and footer 'صفحة n من N' are drawn as separate small stories; the percent sign follows its number in the stored text. Change cells use a word ('زيادة' increase, 'انخفاض' decrease) before the figure."
+}

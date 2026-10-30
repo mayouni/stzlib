@@ -1,0 +1,305 @@
+{
+ "id": "x04",
+ "difficulty": "hard: German, standard-14, table continued across pages with repeated header, zebra rows, section rows, Courier article codes, two-line cells",
+ "pages": 2,
+ "title": "Preisliste Gartenbedarf 2026",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Preisliste Gartenbedarf 2026"
+  },
+  {
+   "level": 2,
+   "text": "Artikelübersicht"
+  },
+  {
+   "level": 2,
+   "text": "Liefer- und Zahlungsbedingungen"
+  }
+ ],
+ "key_sentences": [
+  "Diese Preisliste gilt ab dem 1. April 2026 und ersetzt alle früheren Ausgaben.",
+  "Alle Preise verstehen sich netto in Euro je angegebener Einheit.",
+  "Mengenrabatte gewähren wir ab 50 Stück je Artikel.",
+  "Für Rückfragen erreichen Sie unseren Innendienst montags bis freitags von 8 bis 16 Uhr."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Art.-Nr.",
+     "Bezeichnung",
+     "Einheit",
+     "Preis in €"
+    ],
+    [
+     "Pflanzgefäße",
+     "Pflanzgefäße",
+     "Pflanzgefäße",
+     "Pflanzgefäße"
+    ],
+    [
+     "TG-1001",
+     "Terrakotta-Topf, 20 cm, frostfest",
+     "Stück",
+     "4,90"
+    ],
+    [
+     "TG-1002",
+     "Terrakotta-Topf, 30 cm, frostfest",
+     "Stück",
+     "9,60"
+    ],
+    [
+     "TG-1010",
+     "Pflanzkübel Kunststoff, anthrazit, 40 cm",
+     "Stück",
+     "12,40"
+    ],
+    [
+     "TG-1011",
+     "Pflanzkübel Kunststoff, anthrazit, 60 cm",
+     "Stück",
+     "21,90"
+    ],
+    [
+     "TG-1020",
+     "Blumenkasten, 80 cm, mit Wasserspeicher",
+     "Stück",
+     "8,75"
+    ],
+    [
+     "TG-1021",
+     "Blumenkasten, 100 cm, mit Wasserspeicher",
+     "Stück",
+     "10,95"
+    ],
+    [
+     "TG-1030",
+     "Hängeampel, Metall, Ø 25 cm",
+     "Stück",
+     "6,30"
+    ],
+    [
+     "TG-1040",
+     "Untersetzer rund, 20 cm",
+     "10er-Pack",
+     "7,80"
+    ],
+    [
+     "Erden und Dünger",
+     "Erden und Dünger",
+     "Erden und Dünger",
+     "Erden und Dünger"
+    ],
+    [
+     "ED-2001",
+     "Blumenerde universal, 40 l",
+     "Sack",
+     "5,45"
+    ],
+    [
+     "ED-2002",
+     "Blumenerde universal, 70 l",
+     "Sack",
+     "8,20"
+    ],
+    [
+     "ED-2010",
+     "Kübelpflanzenerde, torffrei, 40 l",
+     "Sack",
+     "7,10"
+    ],
+    [
+     "ED-2020",
+     "Rasendünger, 10 kg für ca. 300 m²",
+     "Sack",
+     "16,90"
+    ],
+    [
+     "ED-2021",
+     "Rasensamen Schatten, 1 kg",
+     "Packung",
+     "11,35"
+    ],
+    [
+     "ED-2030",
+     "Tomatendünger flüssig, 1 l",
+     "Flasche",
+     "6,60"
+    ],
+    [
+     "ED-2031",
+     "Universaldünger Granulat, 2 kg",
+     "Eimer",
+     "9,90"
+    ],
+    [
+     "ED-2040",
+     "Kompostbeschleuniger, 3 kg",
+     "Eimer",
+     "8,45"
+    ],
+    [
+     "ED-2050",
+     "Mulchrinde, 70 l",
+     "Sack",
+     "6,95"
+    ],
+    [
+     "ED-2060",
+     "Gartenkalk, 5 kg",
+     "Sack",
+     "5,15"
+    ],
+    [
+     "Werkzeug",
+     "Werkzeug",
+     "Werkzeug",
+     "Werkzeug"
+    ],
+    [
+     "WZ-3001",
+     "Handschaufel, Edelstahl",
+     "Stück",
+     "7,25"
+    ],
+    [
+     "WZ-3002",
+     "Pflanzenkelle, Edelstahl, schmal",
+     "Stück",
+     "6,85"
+    ],
+    [
+     "WZ-3010",
+     "Gartenschere, Bypass, 21 cm",
+     "Stück",
+     "14,90"
+    ],
+    [
+     "WZ-3011",
+     "Astschere, Teleskopgriff, 70 bis 90 cm",
+     "Stück",
+     "29,50"
+    ],
+    [
+     "WZ-3020",
+     "Spaten, Stahlblatt, Eschenstiel",
+     "Stück",
+     "23,80"
+    ],
+    [
+     "WZ-3021",
+     "Grabegabel, 4 Zinken",
+     "Stück",
+     "25,40"
+    ],
+    [
+     "WZ-3030",
+     "Laubrechen, verstellbar",
+     "Stück",
+     "11,60"
+    ],
+    [
+     "WZ-3040",
+     "Gießkanne, Zink, 10 l",
+     "Stück",
+     "18,70"
+    ],
+    [
+     "WZ-3050",
+     "Arbeitshandschuhe, Größe 9",
+     "Paar",
+     "3,95"
+    ],
+    [
+     "WZ-3051",
+     "Arbeitshandschuhe, Größe 10",
+     "Paar",
+     "3,95"
+    ],
+    [
+     "WZ-3060",
+     "Schubkarre, 100 l, Luftreifen",
+     "Stück",
+     "64,00"
+    ],
+    [
+     "Bewässerung",
+     "Bewässerung",
+     "Bewässerung",
+     "Bewässerung"
+    ],
+    [
+     "BW-4001",
+     "Gartenschlauch, 20 m, 1/2 Zoll, dreilagig",
+     "Stück",
+     "19,90"
+    ],
+    [
+     "BW-4002",
+     "Gartenschlauch, 50 m, 3/4 Zoll, dreilagig",
+     "Stück",
+     "44,50"
+    ],
+    [
+     "BW-4010",
+     "Schlauchwagen, fahrbar, für 60 m",
+     "Stück",
+     "52,00"
+    ],
+    [
+     "BW-4020",
+     "Regner, Viereck, verstellbar",
+     "Stück",
+     "13,40"
+    ],
+    [
+     "BW-4021",
+     "Kreisregner mit Spieß",
+     "Stück",
+     "5,80"
+    ],
+    [
+     "BW-4030",
+     "Tropfschlauch, 25 m",
+     "Rolle",
+     "17,25"
+    ],
+    [
+     "BW-4040",
+     "Bewässerungscomputer, 1 Kreis",
+     "Stück",
+     "27,90"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "• Lieferung frei Haus ab einem Bestellwert von 250 Euro."
+  },
+  {
+   "level": 0,
+   "text": "• Zahlungsziel 14 Tage netto, bei Zahlung innerhalb von 7 Tagen 2 % Skonto."
+  },
+  {
+   "level": 0,
+   "text": "• Versand erfolgt auf Paletten; Transportschäden bitte sofort melden."
+  }
+ ],
+ "furniture": [
+  "Grünhain Gartenhandel GmbH",
+  "Am Rosengarten 7 · 99999 Beispielstadt",
+  "Preise in Euro, zuzüglich 19 % Mehrwertsteuer. Änderungen vorbehalten.",
+  "Seite 1 von 2",
+  "Seite 2 von 2"
+ ],
+ "languages": [
+  "de"
+ ],
+ "code": [],
+ "notes": "Producer ReportLab 5.0.1 Platypus. Fonts Helvetica, Helvetica-Bold and Courier (article numbers), standard-14, NOT embedded, WinAnsi text. One long table (header Art.-Nr. | Bezeichnung | Einheit | Preis in €) continued across pages with its header row repeated; list it as ONE table. The four section rows (Pflanzgefäße, Erden und Dünger, Werkzeug, Bewässerung) span all four columns so their text is repeated in each cell. Cells of two lines (e.g. 'Rasendünger, 10 kg' / 'für ca. 300 m²') are given joined by one space. Zebra fill on alternate item rows. The letterhead name is not a heading. Typed bullets U+2022 at the end. The decimal comma is used in prices; the euro sign appears only in the header cell."
+}

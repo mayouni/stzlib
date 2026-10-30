@@ -1,0 +1,148 @@
+{
+ "id": "x11",
+ "difficulty": "hard: Japanese, embedded MS Gothic (TTC subfont), drawn grid table with spanned totals, typed ・ and （1） markers, stamp box",
+ "pages": 1,
+ "title": "納品書",
+ "headings": [
+  {
+   "level": 1,
+   "text": "納品書"
+  },
+  {
+   "level": 2,
+   "text": "納品内容"
+  },
+  {
+   "level": 2,
+   "text": "備考"
+  }
+ ],
+ "key_sentences": [
+  "下記の商品を納品いたします。",
+  "ご確認のうえ、受領印をお願いいたします。",
+  "ご不明な点がございましたら、上記の電話番号までお問い合わせください。",
+  "今後ともよろしくお願い申し上げます。"
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "納品書番号",
+     "N-260312-07"
+    ],
+    [
+     "納品日",
+     "2026年3月12日"
+    ],
+    [
+     "お届け先",
+     "サンプル工業株式会社 御中"
+    ],
+    [
+     "担当者",
+     "営業部 山川"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "No.",
+     "品名",
+     "数量",
+     "単価（円）",
+     "金額（円）"
+    ],
+    [
+     "1",
+     "コピー用紙 A4（500枚入）",
+     "24",
+     "480",
+     "11,520"
+    ],
+    [
+     "2",
+     "ボールペン（黒・0.5mm）10本入",
+     "15",
+     "650",
+     "9,750"
+    ],
+    [
+     "3",
+     "クリアファイル A4（100枚入）",
+     "6",
+     "1,280",
+     "7,680"
+    ],
+    [
+     "4",
+     "付箋 75×75mm 12冊組",
+     "10",
+     "780",
+     "7,800"
+    ],
+    [
+     "5",
+     "ホワイトボードマーカー（4色）",
+     "8",
+     "520",
+     "4,160"
+    ],
+    [
+     "小計",
+     "小計",
+     "小計",
+     "小計",
+     "40,910"
+    ],
+    [
+     "消費税（10%）",
+     "消費税（10%）",
+     "消費税（10%）",
+     "消費税（10%）",
+     "4,091"
+    ],
+    [
+     "合計金額",
+     "合計金額",
+     "合計金額",
+     "合計金額",
+     "45,001"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "（1）検収は納品後七日以内にお願いいたします。"
+  },
+  {
+   "level": 0,
+   "text": "（2）数量に過不足がある場合は、受領後三日以内にご連絡ください。"
+  },
+  {
+   "level": 0,
+   "text": "・お支払いは月末締め、翌月末日までに銀行振込でお願いいたします。"
+  },
+  {
+   "level": 0,
+   "text": "・返品は未開封の商品に限ります。"
+  }
+ ],
+ "furniture": [
+  "ひので文具商会",
+  "〒000-0000 東京都サンプル区1-2-3",
+  "電話 00-0000-0000",
+  "受領印",
+  "担当印",
+  "1 / 1 ページ"
+ ],
+ "languages": [
+  "ja"
+ ],
+ "code": [],
+ "notes": "Producer ReportLab 5.0.1 low-level canvas (drawString per cell, grid from rect/line). MS Gothic from msgothic.ttc, embedded TrueType subset (CID, Identity-H). Letterhead (3 lines) and the two stamp-box captions 受領印 / 担当印 are furniture; the footer is '1 / 1 ページ'. The first table is a key/value block without a header row. Totals rows (小計, 消費税（10%）, 合計金額): their label cell spans the first four columns, so the label is repeated in those four cells. Two lists are typed: （1） （2） numbered notes and ・ bulleted notes. The key sentences are drawn on two lines of the same paragraph position; Japanese needs no space when lines join."
+}

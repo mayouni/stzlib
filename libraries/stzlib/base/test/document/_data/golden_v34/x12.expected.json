@@ -1,0 +1,104 @@
+{
+ "id": "x12",
+ "difficulty": "medium: form with boxed fields, empty values, drawn check boxes (no text markers), Times standard-14, declaration text, signature lines",
+ "pages": 1,
+ "title": "Community Garden Plot Application",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Community Garden Plot Application"
+  },
+  {
+   "level": 2,
+   "text": "1. Applicant details"
+  },
+  {
+   "level": 2,
+   "text": "2. Plot preferences"
+  },
+  {
+   "level": 2,
+   "text": "3. Declaration"
+  }
+ ],
+ "key_sentences": [
+  "Please complete all sections in block capitals and return the form to the association office.",
+  "Plots are allocated in order of the date the form is received.",
+  "I agree to keep my plot cultivated and free of weeds.",
+  "I will not use chemical pesticides on the site.",
+  "I understand that a plot left unused for three months may be reallocated."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Full name",
+     "AMARA OKONKWO-REYES"
+    ],
+    [
+     "Address",
+     "22 WILLOW WALK, RIVERSIDE"
+    ],
+    [
+     "Postcode",
+     "RV4 2QD"
+    ],
+    [
+     "Telephone",
+     ""
+    ],
+    [
+     "E-mail",
+     "a.reyes@example.test"
+    ],
+    [
+     "Date of birth",
+     ""
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "Small plot (5 m by 4 m)"
+  },
+  {
+   "level": 0,
+   "text": "Medium plot (8 m by 5 m)"
+  },
+  {
+   "level": 0,
+   "text": "Large plot (10 m by 8 m)"
+  },
+  {
+   "level": 0,
+   "text": "I would like a plot near a water tap"
+  },
+  {
+   "level": 0,
+   "text": "I need a raised bed for reduced mobility"
+  },
+  {
+   "level": 0,
+   "text": "I am willing to share a plot"
+  }
+ ],
+ "furniture": [
+  "Riverside Community Garden Association",
+  "Form CG-7",
+  "Signature of applicant",
+  "Date",
+  "For office use only",
+  "Date received:",
+  "Plot number assigned:",
+  "Revised June 2026",
+  "Page 1 of 1"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [],
+ "notes": "Producer ReportLab 5.0.1 low-level canvas. Times-Roman, Times-Bold, Times-Italic and Courier (the filled-in applicant values), all standard-14, NOT embedded. The applicant block is a key/value form drawn as a boxed grid with a shaded label column: it is recorded as a table WITHOUT a header row, rows [label, value], and the empty fields (Telephone, Date of birth) have empty values. The check-box options are lists whose boxes are DRAWN rectangles (and an X drawn as two lines for ticked ones), so the list items carry no typed marker; the two 'Tick ...' lines are lead-ins, not items. The office-use box captions and the signature captions are furniture/form labels; the three declaration lines are separate short sentences."
+}

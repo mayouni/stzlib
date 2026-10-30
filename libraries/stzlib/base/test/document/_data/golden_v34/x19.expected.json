@@ -1,0 +1,177 @@
+{
+ "id": "x19",
+ "difficulty": "hard: matplotlib canvas, TrueType (Type 42) fonts, grid + zebra table, side-by-side boxes, monospaced calculation block, single dense page",
+ "pages": 1,
+ "title": "Water Quality Analysis Report",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Water Quality Analysis Report"
+  },
+  {
+   "level": 2,
+   "text": "1. Summary"
+  },
+  {
+   "level": 2,
+   "text": "2. Results"
+  },
+  {
+   "level": 2,
+   "text": "Interpretation"
+  },
+  {
+   "level": 2,
+   "text": "Recommendations"
+  },
+  {
+   "level": 2,
+   "text": "3. Calculation"
+  }
+ ],
+ "key_sentences": [
+  "All parameters measured were within the limits set by the drinking-water regulations.",
+  "The sample was received in good condition and analysed within 24 hours of collection.",
+  "Nitrate is the highest value relative to its limit, at 76 percent.",
+  "Iron and lead are well below their limits.",
+  "No indicator organisms were detected.",
+  "Total hardness was calculated from the calcium and magnesium results:",
+  "This report relates only to the sample received and may not be reproduced except in full."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Sample ID",
+     "WQ-0142-A"
+    ],
+    [
+     "Collected",
+     "4 February 2026, 09:40"
+    ],
+    [
+     "Site",
+     "Treatment works outlet, Cedar Hill"
+    ],
+    [
+     "Analyst",
+     "K. Brandt"
+    ],
+    [
+     "Method",
+     "Standard methods, 24th edition"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Parameter",
+     "Result",
+     "Unit",
+     "Limit",
+     "Status"
+    ],
+    [
+     "pH",
+     "7.42",
+     "-",
+     "6.5 to 9.5",
+     "Pass"
+    ],
+    [
+     "Turbidity",
+     "0.8",
+     "NTU",
+     "1.0",
+     "Pass"
+    ],
+    [
+     "Conductivity",
+     "612",
+     "µS/cm",
+     "2500",
+     "Pass"
+    ],
+    [
+     "Nitrate",
+     "38.2",
+     "mg/L",
+     "50",
+     "Pass"
+    ],
+    [
+     "Nitrite",
+     "<0.05",
+     "mg/L",
+     "0.5",
+     "Pass"
+    ],
+    [
+     "Ammonium",
+     "0.31",
+     "mg/L",
+     "0.5",
+     "Pass"
+    ],
+    [
+     "Iron",
+     "142",
+     "µg/L",
+     "200",
+     "Pass"
+    ],
+    [
+     "Lead",
+     "4.1",
+     "µg/L",
+     "10",
+     "Pass"
+    ],
+    [
+     "Coliform bacteria",
+     "0",
+     "per 100 mL",
+     "0",
+     "Pass"
+    ],
+    [
+     "E. coli",
+     "0",
+     "per 100 mL",
+     "0",
+     "Pass"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "• Repeat nitrate testing in the spring."
+  },
+  {
+   "level": 0,
+   "text": "• Keep the monthly iron check in the routine programme."
+  },
+  {
+   "level": 0,
+   "text": "• File this report with the works register."
+  }
+ ],
+ "furniture": [
+  "Hartwell Environmental Laboratory",
+  "Report WQ-2026-0142",
+  "Accredited testing laboratory. Results are confidential.",
+  "Page 1 of 1"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [
+  "Hardness (mg/L CaCO3) = 2.497 * Ca + 4.118 * Mg\nCa = 62.4 mg/L, Mg = 11.8 mg/L  ->  204.4 mg/L"
+ ],
+ "notes": "Producer matplotlib 3.11.2 (PdfPages backend), pdf.fonttype 42, so DejaVu Sans, DejaVu Sans Bold, DejaVu Sans Oblique and DejaVu Sans Mono are embedded as TrueType (Type 42-style) fonts. Every string is one Axes.text call; the table grid is drawn with line plots and rectangles. The key/value block at the top has no header row. The Results table is a full grid with zebra fills; the '-' unit and '<0.05' are literal cell text. 'Interpretation' and 'Recommendations' are two boxes side by side: read the left box (heading and paragraph) and then the right box (heading and its three bullet items); bullets are typed U+2022 glyphs and each item wraps to two lines (one item). The calculation block is DejaVu Sans Mono. The dark banner text (company and report number) and the footer line are furniture."
+}

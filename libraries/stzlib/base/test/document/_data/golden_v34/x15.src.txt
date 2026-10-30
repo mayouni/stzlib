@@ -1,0 +1,1 @@
+PyMuPDF 1.28.2 fitz.Story from HTML with dir=rtl and Arial via @font-face (MuPDF shaping/bidi); annual environmental services report in Arabic, A4, 2 pages

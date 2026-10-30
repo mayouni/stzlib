@@ -1,0 +1,202 @@
+{
+ "id": "x24",
+ "difficulty": "medium: Turkish with dotted/dotless i, Calibri via GDI, numbered 1. + a) nesting, program table and totals table, 2 pages",
+ "pages": 2,
+ "title": "Olağan Genel Kurul Toplantısı Duyurusu",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Olağan Genel Kurul Toplantısı Duyurusu"
+  },
+  {
+   "level": 2,
+   "text": "Toplantı Gündemi"
+  },
+  {
+   "level": 2,
+   "text": "Toplantı Programı"
+  },
+  {
+   "level": 2,
+   "text": "Katılım Koşulları"
+  },
+  {
+   "level": 2,
+   "text": "Vekâletname ile Katılım"
+  },
+  {
+   "level": 2,
+   "text": "Aidat Durumu"
+  }
+ ],
+ "key_sentences": [
+  "Kooperatifimizin 2025 yılı olağan genel kurul toplantısı yukarıda belirtilen gün ve yerde yapılacaktır.",
+  "Çoğunluk sağlanamaması hâlinde ikinci toplantı bir hafta sonra aynı yerde ve aynı saatte yapılacaktır.",
+  "Tüm ortaklarımızın katılımını rica ederiz.",
+  "Toplantıya bizzat katılamayacak ortaklar, bir başka ortağı vekil olarak görevlendirebilir.",
+  "Her vekil en fazla iki ortağı temsil edebilir.",
+  "Vekâletnameyle birlikte aşağıdaki belgeler de sunulmalıdır:",
+  "Aşağıdaki tabloda 30 Nisan 2026 itibarıyla blok bazında aidat borcu bulunan daire sayıları gösterilmektedir.",
+  "Borçlu ortaklarımızın toplantıdan önce ödemelerini tamamlamaları oy hakkı bakımından büyük önem taşımaktadır."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Tarih:",
+     "23 Mayıs 2026 Cumartesi"
+    ],
+    [
+     "Saat:",
+     "14.00"
+    ],
+    [
+     "Yer:",
+     "Çınaraltı Sitesi toplantı salonu"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Saat",
+     "Konu",
+     "Sorumlu"
+    ],
+    [
+     "14.00",
+     "Kayıt ve yoklama",
+     "Genel sekreter"
+    ],
+    [
+     "14.20",
+     "Açılış konuşması",
+     "Kurul başkanı"
+    ],
+    [
+     "14.30",
+     "Faaliyet raporunun sunumu",
+     "Yönetim kurulu"
+    ],
+    [
+     "15.00",
+     "Mali raporun sunumu",
+     "Muhasip üye"
+    ],
+    [
+     "15.30",
+     "Soru ve cevap",
+     "Yönetim kurulu"
+    ],
+    [
+     "16.00",
+     "Oylama ve seçim",
+     "Divan başkanı"
+    ],
+    [
+     "17.00",
+     "Kapanış",
+     "Divan başkanı"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Blok",
+     "Daire sayısı",
+     "Borçlu daire"
+    ],
+    [
+     "A Blok",
+     "24",
+     "3"
+    ],
+    [
+     "B Blok",
+     "24",
+     "5"
+    ],
+    [
+     "C Blok",
+     "20",
+     "2"
+    ],
+    [
+     "D Blok",
+     "18",
+     "4"
+    ],
+    [
+     "Toplam",
+     "86",
+     "14"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "1. Açılış ve başkanlık divanının seçimi."
+  },
+  {
+   "level": 0,
+   "text": "2. Yönetim ve denetim kurulu raporlarının okunması."
+  },
+  {
+   "level": 0,
+   "text": "3. Mali tabloların görüşülmesi ve onaylanması."
+  },
+  {
+   "level": 0,
+   "text": "4. Yeni dönem yönetim kurulu seçimi:"
+  },
+  {
+   "level": 1,
+   "text": "a) asıl üyelerin seçimi;"
+  },
+  {
+   "level": 1,
+   "text": "b) yedek üyelerin seçimi."
+  },
+  {
+   "level": 0,
+   "text": "5. Dilek ve temenniler."
+  },
+  {
+   "level": 0,
+   "text": "• Kimlik belgesi ile toplantı salonuna girişte imza atılması zorunludur."
+  },
+  {
+   "level": 0,
+   "text": "• Aidat borcu bulunan ortaklar oy kullanamaz."
+  },
+  {
+   "level": 0,
+   "text": "• Toplantı salonuna video veya ses kayıt cihazı sokulamaz."
+  },
+  {
+   "level": 0,
+   "text": "1) Noter onaylı vekâletname veya kooperatif vekâlet formu."
+  },
+  {
+   "level": 0,
+   "text": "2) Vekil ve asil ortağın kimlik fotokopisi."
+  }
+ ],
+ "furniture": [
+  "Çınaraltı Konut Yapı Kooperatifi",
+  "Yönetim Kurulu",
+  "Sayfa 1 / 2",
+  "Sayfa 2 / 2"
+ ],
+ "languages": [
+  "tr"
+ ],
+ "code": [],
+ "notes": "Producer Microsoft Print to PDF (GDI) driven from PowerShell PrintDocument; Calibri, Calibri Bold and Calibri Italic as embedded TrueType subsets. Turkish with dotted and dotless i (İ ı), ş ğ ç ö ü and circumflex â. The page header is the cooperative name (listed once); the closing lines 'Yönetim Kurulu' and the repeated cooperative name under it are signature block text: only 'Yönetim Kurulu' is recorded (as furniture). The kv block at the top is a table without a header row whose labels carry their colons. Lists: '1.' to '5.' with nested 'a)' 'b)', U+2022 bullets, and '1)' '2)'. The Aidat table has a grey 'Toplam' total row. Lines are wrapped by the author's measurement (the driver does not wrap)."
+}

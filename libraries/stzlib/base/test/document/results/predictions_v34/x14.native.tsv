@@ -1,0 +1,57 @@
+page_header	0	Proceedings of the Northfield Workshop on Language Technology, 2026
+heading	1	Compact Suffix Rules for Stemming in Morphologically Rich Languages
+paragraph	0	Ingrid Lindqvist and Tobias Okafor
+paragraph	0	Department of Computational Linguistics, Northfield Institute
+heading	2	Abstract
+paragraph	0	Stemming reduces inflected words to a common form and remains a cheap and effective step in retrieval pipelines. We present a compact set of suffix rules that can be learned from a few thousand word pairs. On five morphologically rich languages the rules recover 93.8% of the accuracy of a full morphological analyser while using less than one percent of its memory. We release the rule sets and the evaluation scripts.
+heading	2	1 Introduction
+paragraph	0	Morphologically
+paragraph	0	rich
+paragraph	0	languages
+paragraph	0	encode grammatical information in long chains of suffixes. A single Finnish noun can appear in more than two thousand surface forms. Search engines that index only surface forms therefore miss many relevant documents. Full morphological analysers solve this problem but need large lexicons and careful maintenance. Light stemmers need little data but make frequent errors on irregular words. We ask how far a small set of learned rules can close the gap between the two. Our contributions are as follows:
+list_item	0	• a compact rule format that fits in a few kilobytes;
+list_item	0	• a learning procedure that needs only lemma and form pairs;
+list_item	0	• an evaluation on five languages with released test sets.
+heading	2	2 Method
+heading	3	2.1 Rule format
+paragraph	0	A rule removes a suffix and optionally appends a replacement. Rules are tried from the longest suffix to the shortest, and the first rule whose condition holds is applied. Two example rules are shown below.
+code	0	rule: -ations -> -ate\nrule: -ing -> "" if stem >= 3
+paragraph	0	The condition on stem length prevents short words such as sing from being reduced to a meaningless fragment.
+heading	3	2.2 Learning the rules
+paragraph	0	We collect all pairs of an inflected form and its lemma. For each pair the longest common prefix is found, and the remaining suffixes define a candidate rule. A candidate is kept if it is correct for at least 95% of the pairs in which it applies. The final list is sorted by suffix length.
+heading	3	2.3 Evaluation
+paragraph	0	We measure the F1 score, the harmonic mean of precision P and recall R:
+heading	4	F1 = 2PR / (P + R)
+paragraph	0	Scores are averaged over ten random splits of the test pairs.
+heading	3	2.4 Data
+paragraph	0	The word pairs come from public treebanks. For each language we use 4,000 pairs for learning and 1,000 pairs for testing. Pairs that appear in both sets are removed from the test set.
+heading	2	3 Results
+paragraph	0	Table 1 reports accuracy on the held-out pairs. The learned rules outperform the light stemmer on every language and come within a few points of the full analyser. Table 1: Accuracy (%) of three stemmers on held-out
+paragraph	0	Language
+paragraph	0	Finnish Turkish Hungarian Czech Polish Mean word pairs.
+paragraph	0	Light
+paragraph	0	71.2 74.8 69.5 77.3 76.1 73.8
+paragraph	0	Rules
+paragraph	0	88.9 90.3 87.6 91.8 91.0 89.9
+paragraph	0	Full
+paragraph	0	96.1 95.7 94.9 96.4 96.0 95.8
+paragraph	0	The largest gains appear for Finnish and Hungarian, where long suffix chains are common. Errors that remain are mostly irregular stems, which no suffix rule can repair. The rule sets occupy between 18 and 41 kilobytes, against six megabytes or more for the lexicon of the full analyser. Table 2 gives the exact numbers. Table 2: Number of rules and size of each rule set.
+table	0	LanguageRulesSize (KB)Finnish41241Turkish35536Hungarian38938Czech20121Polish17418
+paragraph	0	Finnish needs the most rules because of its many cases and possessive suffixes.
+heading	3	3.1 Error analysis
+page_footer	0	Page 1 of 2
+page_header	0	Proceedings of the Northfield Workshop on Language Technology, 2026
+paragraph	0	We inspected one hundred errors for each language and sorted them into three groups:
+list_item	0	1. irregular stems, such as vowel changes inside the word;
+list_item	0	2. homographs whose lemma depends on context;
+list_item	0	3. foreign words and proper names.
+paragraph	0	Irregular stems account for the largest group in every language. Homographs are rare in Finnish but frequent in Czech, where many endings are shared by different cases. Foreign words and proper names are best handled by a short exception list, which we leave to future work.
+heading	2	4 Conclusion
+paragraph	0	We have shown that a few hundred suffix rules recover most of the benefit of a full morphological analyser. Future work will extend the rule format to prefixes and infixes, and will test the rules in a complete retrieval system.
+heading	2	Acknowledgements
+paragraph	0	We thank the annotators who checked the test pairs. This work was supported by the Northfield Institute research fund.
+heading	2	References
+list_item	0	[1] M. Hartmann. Light stemming for agglutinative languages. Journal of Text Processing, 12(3):45– 61, 2019.
+list_item	0	[2] S. Varga and P. Novak. Learning suffix rules from lemma lists. In Proceedings of the Workshop on Morphology, pages 101–110, 2021.
+list_item	0	[3] R. Ito. A comparison of stemmers for search. Information Systems Review, 8(1):1–19, 2022.
+page_footer	0	Page 2 of 2

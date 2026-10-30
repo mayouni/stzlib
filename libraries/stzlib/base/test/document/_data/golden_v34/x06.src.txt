@@ -1,0 +1,1 @@
+ReportLab 5.0.1 Platypus; Arial regular/bold (arial.ttf, arialbd.ttf) TTFont embedded subset; annual library report in Russian, A4

@@ -1,0 +1,330 @@
+{
+ "id": "x02",
+ "difficulty": "hard: 3 pages, zebra table, table continued across pages with section rows, nested lists with typed markers, monospaced formula block, running header and page x of y",
+ "pages": 3,
+ "title": "Quarterly Operations Report, Second Quarter 2026",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Quarterly Operations Report, Second Quarter 2026"
+  },
+  {
+   "level": 2,
+   "text": "1. Summary"
+  },
+  {
+   "level": 2,
+   "text": "2. Network performance"
+  },
+  {
+   "level": 3,
+   "text": "2.1 Leakage by supply zone"
+  },
+  {
+   "level": 3,
+   "text": "2.2 Customer contacts"
+  },
+  {
+   "level": 2,
+   "text": "3. Capital programme"
+  },
+  {
+   "level": 2,
+   "text": "4. Financial position"
+  },
+  {
+   "level": 2,
+   "text": "5. Recommendations"
+  }
+ ],
+ "key_sentences": [
+  "The Authority delivered 41.2 million cubic metres of treated water between April and June, 2.6% more than in the same quarter last year.",
+  "Leakage fell for the fourth consecutive quarter, helped by the completion of pressure management in three more zones.",
+  "Figures are litres per connection per day, averaged over the quarter.",
+  "The infrastructure leakage index is calculated from the current annual real losses and the unavoidable annual real losses:",
+  "The main reasons for contact were:",
+  "Table 2 lists every scheme that was active during the quarter, grouped by asset type.",
+  "Operating costs came in $0.5 million under budget, mainly because of lower energy prices at the treatment works.",
+  "The figures below are in millions of dollars and are unaudited.",
+  "No new borrowing was drawn during the quarter.",
+  "The next report will cover the third quarter and will be published in October."
+ ],
+ "tables": [
+  {
+   "caption": "Table 1. Leakage by supply zone",
+   "rows": [
+    [
+     "Zone",
+     "Q2 2025",
+     "Q1 2026",
+     "Q2 2026",
+     "Change"
+    ],
+    [
+     "North Ridge",
+     "112",
+     "104",
+     "98",
+     "-6.1%"
+    ],
+    [
+     "Harbour",
+     "131",
+     "125",
+     "121",
+     "-3.2%"
+    ],
+    [
+     "Millbrook",
+     "96",
+     "92",
+     "93",
+     "+1.1%"
+    ],
+    [
+     "Old Town",
+     "148",
+     "139",
+     "130",
+     "-6.5%"
+    ]
+   ]
+  },
+  {
+   "caption": "Table 2. Active capital schemes, Q2 2026",
+   "rows": [
+    [
+     "Ref.",
+     "Scheme",
+     "Budget ($k)",
+     "Spent ($k)",
+     "Status"
+    ],
+    [
+     "Mains renewal",
+     "Mains renewal",
+     "Mains renewal",
+     "Mains renewal",
+     "Mains renewal"
+    ],
+    [
+     "M-101",
+     "North Ridge trunk main, phase 2",
+     "4,200",
+     "3,950",
+     "On site"
+    ],
+    [
+     "M-102",
+     "Harbour Road 300 mm relay",
+     "1,850",
+     "1,120",
+     "On site"
+    ],
+    [
+     "M-107",
+     "Millbrook distribution rings",
+     "960",
+     "210",
+     "Design"
+    ],
+    [
+     "M-110",
+     "Old Town lead service replacement",
+     "2,300",
+     "1,740",
+     "On site"
+    ],
+    [
+     "M-115",
+     "Station Street crossing",
+     "430",
+     "430",
+     "Complete"
+    ],
+    [
+     "Treatment works",
+     "Treatment works",
+     "Treatment works",
+     "Treatment works",
+     "Treatment works"
+    ],
+    [
+     "T-201",
+     "Cedar Hill filter hall refurbishment",
+     "5,600",
+     "3,210",
+     "On site"
+    ],
+    [
+     "T-204",
+     "UV disinfection, Cedar Hill",
+     "3,100",
+     "2,980",
+     "Commissioning"
+    ],
+    [
+     "T-209",
+     "Chemical dosing upgrade, Weir Lane",
+     "1,240",
+     "310",
+     "Design"
+    ],
+    [
+     "T-212",
+     "Sludge thickener replacement",
+     "2,050",
+     "0",
+     "Tender"
+    ],
+    [
+     "Pumping and storage",
+     "Pumping and storage",
+     "Pumping and storage",
+     "Pumping and storage",
+     "Pumping and storage"
+    ],
+    [
+     "P-301",
+     "Harbour booster pumps",
+     "1,430",
+     "1,390",
+     "Complete"
+    ],
+    [
+     "P-305",
+     "North Ridge reservoir roof",
+     "3,380",
+     "2,010",
+     "On site"
+    ],
+    [
+     "P-308",
+     "Telemetry outstations, 40 sites",
+     "770",
+     "415",
+     "On site"
+    ],
+    [
+     "P-311",
+     "Millbrook tower recoating",
+     "1,120",
+     "0",
+     "Tender"
+    ],
+    [
+     "Total",
+     "Total",
+     "28,430",
+     "17,765",
+     ""
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Item",
+     "Q2 2026",
+     "Budget",
+     "Variance"
+    ],
+    [
+     "Operating income",
+     "38.4",
+     "37.9",
+     "+0.5"
+    ],
+    [
+     "Operating costs",
+     "27.1",
+     "27.6",
+     "-0.5"
+    ],
+    [
+     "Net operating surplus",
+     "11.3",
+     "10.3",
+     "+1.0"
+    ],
+    [
+     "Debt service",
+     "6.2",
+     "6.2",
+     "0.0"
+    ],
+    [
+     "Surplus after debt service",
+     "5.1",
+     "4.1",
+     "+1.0"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "• billing and meter queries (38% of contacts);"
+  },
+  {
+   "level": 0,
+   "text": "• discoloured water (29%), of which:"
+  },
+  {
+   "level": 1,
+   "text": "- customers on the North Ridge main (212 contacts);"
+  },
+  {
+   "level": 1,
+   "text": "- customers elsewhere in the network (97 contacts);"
+  },
+  {
+   "level": 0,
+   "text": "• no supply or low pressure (17%);"
+  },
+  {
+   "level": 0,
+   "text": "• other enquiries (16%)."
+  },
+  {
+   "level": 0,
+   "text": "1. Release the contingency held for scheme T-212 once tenders are returned."
+  },
+  {
+   "level": 0,
+   "text": "2. Extend pressure management to the remaining five zones during the next financial year."
+  },
+  {
+   "level": 0,
+   "text": "3. Publish the leakage figures on the Authority website each quarter."
+  },
+  {
+   "level": 0,
+   "text": "4. Approval of the scheme is subject to:"
+  },
+  {
+   "level": 1,
+   "text": "(a) a satisfactory review of the tender evaluation;"
+  },
+  {
+   "level": 1,
+   "text": "(b) confirmation of the funding profile."
+  }
+ ],
+ "furniture": [
+  "Eastmere Water Authority – Quarterly Operations Report",
+  "Q2 2026 – approved for public release",
+  "Page 1 of 3",
+  "Page 2 of 3",
+  "Page 3 of 3"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [
+  "ILI = CARL / UARL\nUARL = (18 * Lm + 0.8 * Nc + 25 * Lp) * P"
+ ],
+ "notes": "Producer ReportLab 5.0.1 Platypus. Fonts Times-Roman, Times-Bold, Times-Italic, Times-BoldItalic and Courier, all standard-14, NOT embedded. Running header and footer drawn by a page callback and listed once; the page number line is listed once per page. Table 2 sits whole on page 2 (it is not split); its section rows (Mains renewal, Treatment works, Pumping and storage) span all five columns, so their text is repeated in each cell, and the Total label spans the first two columns. Table 1 is a zebra table with header rules only. The list markers are typed: U+2022 bullets, hyphen at the nested level, '1.' to '3.' numbers, then '4.' with a nested '(a)' '(b)' level. The monospaced block is in Courier."
+}

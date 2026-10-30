@@ -1,0 +1,1 @@
+matplotlib 3.11.2 PdfPages, pdf.fonttype=3 (Type 3 fonts) with Segoe UI regular/bold from C:/Windows/Fonts via FontProperties(fname); monthly activity report in Portuguese, A4, 2 pages

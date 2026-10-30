@@ -1,0 +1,220 @@
+{
+ "id": "x20",
+ "difficulty": "hard: Portuguese, matplotlib Type 3 fonts (glyph outlines as procedures), table continued across pages, borderless financial table, a) i. 1. lists",
+ "pages": 2,
+ "title": "Relatório Mensal de Atividades",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Relatório Mensal de Atividades"
+  },
+  {
+   "level": 2,
+   "text": "1. Resumo"
+  },
+  {
+   "level": 2,
+   "text": "2. Atividades realizadas"
+  },
+  {
+   "level": 2,
+   "text": "3. Resultados financeiros"
+  },
+  {
+   "level": 2,
+   "text": "4. Próximos passos"
+  },
+  {
+   "level": 2,
+   "text": "5. Contactos"
+  }
+ ],
+ "key_sentences": [
+  "Durante o mês de março a associação realizou catorze atividades para sócios e para a comunidade.",
+  "Participaram, no total, 612 pessoas, mais 9 por cento do que em fevereiro.",
+  "As atividades ao ar livre tiveram a maior adesão, apesar do tempo instável.",
+  "Para o mês de abril a direção propõe o seguinte:"
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Data",
+     "Atividade",
+     "Participantes",
+     "Local"
+    ],
+    [
+     "2 mar",
+     "Caminhada na serra",
+     "48",
+     "Parque da Serra"
+    ],
+    [
+     "4 mar",
+     "Aula de dança de salão",
+     "22",
+     "Salão principal"
+    ],
+    [
+     "6 mar",
+     "Torneio de dominó",
+     "36",
+     "Sala de jogos"
+    ],
+    [
+     "8 mar",
+     "Almoço comemorativo",
+     "95",
+     "Salão principal"
+    ],
+    [
+     "11 mar",
+     "Oficina de cerâmica",
+     "14",
+     "Ateliê"
+    ],
+    [
+     "13 mar",
+     "Cinema ao ar livre",
+     "71",
+     "Jardim"
+    ],
+    [
+     "15 mar",
+     "Passeio de bicicleta",
+     "39",
+     "Ciclovia do rio"
+    ],
+    [
+     "18 mar",
+     "Palestra sobre saúde",
+     "57",
+     "Auditório"
+    ],
+    [
+     "20 mar",
+     "Aula de dança de salão",
+     "24",
+     "Salão principal"
+    ],
+    [
+     "22 mar",
+     "Feira de troca de livros",
+     "63",
+     "Jardim"
+    ],
+    [
+     "25 mar",
+     "Oficina de cerâmica",
+     "15",
+     "Ateliê"
+    ],
+    [
+     "27 mar",
+     "Torneio de damas",
+     "29",
+     "Sala de jogos"
+    ],
+    [
+     "29 mar",
+     "Tarde de jogos para crianças",
+     "43",
+     "Salão principal"
+    ],
+    [
+     "31 mar",
+     "Reunião geral de sócios",
+     "56",
+     "Auditório"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Rubrica",
+     "Orçamento",
+     "Realizado",
+     "Desvio"
+    ],
+    [
+     "Quotas dos sócios",
+     "4 200,00",
+     "4 350,00",
+     "150,00"
+    ],
+    [
+     "Bilheteira e inscrições",
+     "1 800,00",
+     "1 975,00",
+     "175,00"
+    ],
+    [
+     "Despesas com pessoal",
+     "-3 100,00",
+     "-3 100,00",
+     "0,00"
+    ],
+    [
+     "Material e manutenção",
+     "-1 250,00",
+     "-1 410,00",
+     "-160,00"
+    ],
+    [
+     "Saldo do mês",
+     "1 650,00",
+     "1 815,00",
+     "165,00"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "a) Reforçar a divulgação das atividades nas redes sociais;"
+  },
+  {
+   "level": 0,
+   "text": "b) Abrir inscrições para o torneio de verão, que decorre em duas fases:"
+  },
+  {
+   "level": 1,
+   "text": "i. fase de grupos, nas duas primeiras semanas de junho;"
+  },
+  {
+   "level": 1,
+   "text": "ii. fase final, no último fim de semana do mês;"
+  },
+  {
+   "level": 0,
+   "text": "c) Rever o regulamento do uso da sala de jogos."
+  },
+  {
+   "level": 0,
+   "text": "1. Secretaria: segunda a sexta, das 9h às 17h."
+  },
+  {
+   "level": 0,
+   "text": "2. Telefone: 000 000 000."
+  },
+  {
+   "level": 0,
+   "text": "3. Correio eletrónico: secretaria@porsol.example."
+  }
+ ],
+ "furniture": [
+  "Associação Recreativa Pôr do Sol – Relatório mensal",
+  "Página 1 de 2",
+  "Página 2 de 2"
+ ],
+ "languages": [
+  "pt"
+ ],
+ "code": [],
+ "notes": "Producer matplotlib 3.11.2 (PdfPages), pdf.fonttype 3: the fonts (Segoe UI regular, bold and italic) are embedded as Type 3 fonts whose glyphs are drawing procedures, with no FontFile stream. The activities table is ONE table continued over the page break with its header row redrawn on page 2; it has a full grid and wide rows. The financial table has no vertical lines: a rule under the header and a rule above the closing 'Saldo do mês' row; figures use a space as thousands separator and a decimal comma, negatives with a minus sign. List markers are typed: 'a)' 'b)' 'c)' with nested 'i.' 'ii.', and '1.' '2.' '3.'. The running header (italic) is on both pages, listed once; the footer 'Página n de 2' is per page. The en dash in the header is U+2013."
+}

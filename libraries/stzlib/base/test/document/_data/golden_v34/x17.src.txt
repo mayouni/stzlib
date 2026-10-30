@@ -1,0 +1,1 @@
+PyMuPDF 1.28.2 insert_text + draw_line/draw_rect with Malgun Gothic (fontfile, subset-embedded); after-school programme notice in Korean, A4, 2 pages

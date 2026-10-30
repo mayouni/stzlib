@@ -1,0 +1,254 @@
+{
+ "id": "x07",
+ "difficulty": "hard: data sheet, side-by-side boxes read box by box, grid + header-rule tables, Courier code block, many symbols in cells",
+ "pages": 2,
+ "title": "AX-200 Industrial Temperature Sensor",
+ "headings": [
+  {
+   "level": 1,
+   "text": "AX-200 Industrial Temperature Sensor"
+  },
+  {
+   "level": 2,
+   "text": "General description"
+  },
+  {
+   "level": 2,
+   "text": "Features"
+  },
+  {
+   "level": 2,
+   "text": "Applications"
+  },
+  {
+   "level": 2,
+   "text": "Electrical characteristics"
+  },
+  {
+   "level": 2,
+   "text": "Pin description"
+  },
+  {
+   "level": 2,
+   "text": "Programming example"
+  },
+  {
+   "level": 2,
+   "text": "Ordering information"
+  },
+  {
+   "level": 2,
+   "text": "Notes"
+  }
+ ],
+ "key_sentences": [
+  "The AX-200 is a digital temperature sensor with an I2C interface and a 12-bit resolution.",
+  "It operates from 2.7 V to 5.5 V and draws less than 250 µA in active mode.",
+  "An open-drain alert output signals when the temperature crosses a programmable limit.",
+  "Unless otherwise noted, limits apply at VDD = 3.3 V and an ambient temperature of 25 °C.",
+  "The temperature register is read with a two-byte transfer.",
+  "The following sketch assumes the default address of 0x48."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Parameter",
+     "Min",
+     "Typ",
+     "Max",
+     "Unit"
+    ],
+    [
+     "Supply voltage",
+     "2.7",
+     "3.3",
+     "5.5",
+     "V"
+    ],
+    [
+     "Supply current, active",
+     "–",
+     "180",
+     "250",
+     "µA"
+    ],
+    [
+     "Supply current, standby",
+     "–",
+     "0.5",
+     "2",
+     "µA"
+    ],
+    [
+     "Operating temperature",
+     "-55",
+     "–",
+     "150",
+     "°C"
+    ],
+    [
+     "Accuracy, -10 °C to 85 °C",
+     "-0.5",
+     "±0.25",
+     "0.5",
+     "°C"
+    ],
+    [
+     "Resolution",
+     "–",
+     "0.0078",
+     "–",
+     "°C"
+    ],
+    [
+     "Conversion time",
+     "–",
+     "30",
+     "45",
+     "ms"
+    ],
+    [
+     "I2C clock frequency",
+     "10",
+     "–",
+     "400",
+     "kHz"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Pin",
+     "Name",
+     "Function"
+    ],
+    [
+     "1",
+     "VDD",
+     "Positive supply voltage"
+    ],
+    [
+     "2",
+     "SDA",
+     "I2C data, open drain"
+    ],
+    [
+     "3",
+     "SCL",
+     "I2C clock input"
+    ],
+    [
+     "4",
+     "ALERT",
+     "Over-temperature alarm output, active low"
+    ],
+    [
+     "5",
+     "GND",
+     "Ground"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Part number",
+     "Package",
+     "Temperature grade",
+     "Packing"
+    ],
+    [
+     "AX-200-DB",
+     "SOT-23, 5 pin",
+     "Industrial",
+     "Tape and reel, 3,000 pieces"
+    ],
+    [
+     "AX-200-DM",
+     "MSOP, 8 pin",
+     "Industrial",
+     "Tube, 80 pieces"
+    ],
+    [
+     "AX-200-AB",
+     "SOT-23, 5 pin",
+     "Automotive",
+     "Tape and reel, 3,000 pieces"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "• Accuracy of ±0.5 °C from -10 °C to 85 °C"
+  },
+  {
+   "level": 0,
+   "text": "• Range of -55 °C to 150 °C"
+  },
+  {
+   "level": 0,
+   "text": "• Four selectable I2C addresses"
+  },
+  {
+   "level": 0,
+   "text": "• Standby current of 0.5 µA typical"
+  },
+  {
+   "level": 0,
+   "text": "• Industrial process control"
+  },
+  {
+   "level": 0,
+   "text": "• Battery chargers"
+  },
+  {
+   "level": 0,
+   "text": "• HVAC and building automation"
+  },
+  {
+   "level": 0,
+   "text": "• Server and rack monitoring"
+  },
+  {
+   "level": 0,
+   "text": "1. All voltages are referenced to GND."
+  },
+  {
+   "level": 0,
+   "text": "2. Accuracy excludes self-heating, which is below 0.1 °C in still air."
+  },
+  {
+   "level": 0,
+   "text": "3. Do not exceed the absolute maximum ratings:"
+  },
+  {
+   "level": 1,
+   "text": "- supply voltage 6.0 V;"
+  },
+  {
+   "level": 1,
+   "text": "- voltage on any pin -0.3 V to VDD + 0.3 V."
+  }
+ ],
+ "furniture": [
+  "KESTREL INSTRUMENTS",
+  "AX-200 Data Sheet · Rev. C · March 2026",
+  "Specifications are subject to change without notice.",
+  "Page 1 of 2",
+  "Page 2 of 2"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [
+  "// Read the temperature register\nWire.beginTransmission(0x48);\nWire.write(0x00);\nWire.endTransmission();\nWire.requestFrom(0x48, 2);\nint raw = (Wire.read() << 8) | Wire.read();\nfloat celsius = raw / 128.0;"
+ ],
+ "notes": "Producer ReportLab 5.0.1 Platypus. Helvetica, Helvetica-Bold and Courier, standard-14, NOT embedded. A blue banner is drawn on every page with the company name and revision line (furniture, not headings). 'Features' and 'Applications' are two framed boxes side by side: read the Features box completely (heading, then its four bullet items) before the Applications box. Bullets are typed U+2022; Notes use '1.' '2.' '3.' with a nested hyphen level. Electrical characteristics is a full-grid table with zebra rows; the dash cells are en dashes meaning 'not specified'. The pin table has a header rule only. The Ordering table has two-line cells joined by a space. The code block is monospaced Courier; the program text contains '<<' characters."
+}

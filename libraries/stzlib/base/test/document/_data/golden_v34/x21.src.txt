@@ -1,0 +1,1 @@
+Microsoft Print to PDF via PowerShell PrintDocument with StringFormat DirectionRightToLeft (GDI+ shaping); Arial TrueType; Arabic tax invoice, A4, 2 pages

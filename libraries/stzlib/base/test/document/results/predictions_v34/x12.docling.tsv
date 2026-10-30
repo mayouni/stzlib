@@ -1,0 +1,25 @@
+page_header	0	Riverside Community Garden Association
+page_header	0	Form CG-7
+heading	1	Community Garden Plot Application
+paragraph	0	Please complete all sections in block capitals and return the form to the association office. Plots are allocated in order of the date the form is received.
+heading	1	1. Applicant details
+table	0	Full nameAMARA OKONKWO-REYESAddress22 WILLOW WALK, RIVERSIDEPostcodeRV4 2QDTelephoneE-maila.reyes@example.testDate of birth
+heading	1	2. Plot preferences
+paragraph	0	Tick one box for plot size:
+paragraph	0	Small plot (5 m by 4 m)
+paragraph	0	Medium plot (8 m by 5 m)
+paragraph	0	Large plot (10 m by 8 m)
+paragraph	0	Tick all that apply:
+paragraph	0	I would like a plot near a water tap
+paragraph	0	I need a raised bed for reduced mobility
+paragraph	0	I am willing to share a plot
+heading	1	3. Declaration
+paragraph	0	I agree to keep my plot cultivated and free of weeds.
+paragraph	0	I will not use chemical pesticides on the site.
+paragraph	0	I understand that a plot left unused for three months may be reallocated.
+paragraph	0	Signature of applicant Date
+heading	1	For office use only
+paragraph	0	Date received:
+paragraph	0	Plot number assigned:
+page_footer	0	Revised June 2026
+page_footer	0	Page 1 of 1

@@ -1,0 +1,1 @@
+ReportLab 5.0.1 low-level canvas; Times-Roman/Bold/Italic and Courier (filled-in values) standard-14 not embedded; paper form, A4

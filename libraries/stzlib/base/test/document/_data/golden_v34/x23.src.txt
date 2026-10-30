@@ -1,0 +1,1 @@
+Microsoft Print to PDF via PowerShell PrintDocument; Verdana for text and Consolas for times (TrueType); bus timetable, A4, 1 page
