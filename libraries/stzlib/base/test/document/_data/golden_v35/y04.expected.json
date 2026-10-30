@@ -1,0 +1,213 @@
+{
+ "id": "y04",
+ "difficulty": "hard: flight itinerary, 2 pages, Windows GDI+ via Microsoft Print to PDF, Arial, bare aligned-column segment tables with multi-line cells and layover rows, drawn check boxes, nested numbered list",
+ "pages": 2,
+ "title": "Flight itinerary: Lisbon to Auckland",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Flight itinerary: Lisbon to Auckland"
+  },
+  {
+   "level": 2,
+   "text": "Outbound journey"
+  },
+  {
+   "level": 2,
+   "text": "Return journey"
+  },
+  {
+   "level": 2,
+   "text": "Baggage allowance"
+  },
+  {
+   "level": 2,
+   "text": "Before you fly"
+  },
+  {
+   "level": 3,
+   "text": "Important information"
+  }
+ ],
+ "key_sentences": [
+  "Please arrive at the airport three hours before each international departure.",
+  "Boarding closes forty-five minutes before the scheduled departure of each flight.",
+  "Allowance applies per passenger and may differ on flights operated by partner airlines.",
+  "We wish you a pleasant journey and look forward to welcoming you on board."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Booking reference",
+     "QX7M2L",
+     "Ticket number",
+     "987 2200 118 445"
+    ],
+    [
+     "Passenger",
+     "Ms Elena Fontaine",
+     "Issued",
+     "3 October 2026"
+    ],
+    [
+     "Fare",
+     "Economy Flex",
+     "Payment",
+     "Card ending 4417"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Flight",
+     "Departs",
+     "Arrives",
+     "Cabin"
+    ],
+    [
+     "AU 214 Operated by Aurora Air",
+     "Lisbon (LIS) Sat 14 Nov 2026, 10:25",
+     "Doha (DOH) Sat 14 Nov 2026, 18:40",
+     "Economy Flex"
+    ],
+    [
+     "Layover in Doha: 2 hours 35 minutes",
+     "Layover in Doha: 2 hours 35 minutes",
+     "Layover in Doha: 2 hours 35 minutes",
+     "Layover in Doha: 2 hours 35 minutes"
+    ],
+    [
+     "AU 871 Operated by Aurora Air",
+     "Doha (DOH) Sat 14 Nov 2026, 21:15",
+     "Auckland (AKL) Sun 15 Nov 2026, 19:55",
+     "Economy Flex"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Flight",
+     "Departs",
+     "Arrives",
+     "Cabin"
+    ],
+    [
+     "AU 872 Operated by Aurora Air",
+     "Auckland (AKL) Tue 1 Dec 2026, 22:30",
+     "Doha (DOH) Wed 2 Dec 2026, 05:50",
+     "Economy Flex"
+    ],
+    [
+     "Layover in Doha: 1 hour 55 minutes",
+     "Layover in Doha: 1 hour 55 minutes",
+     "Layover in Doha: 1 hour 55 minutes",
+     "Layover in Doha: 1 hour 55 minutes"
+    ],
+    [
+     "AU 213 Operated by Aurora Air",
+     "Doha (DOH) Wed 2 Dec 2026, 07:45",
+     "Lisbon (LIS) Wed 2 Dec 2026, 13:20",
+     "Economy Flex"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Fare",
+     "Checked bag",
+     "Cabin bag",
+     "Seat selection"
+    ],
+    [
+     "Economy Flex",
+     "2 bags, 23 kg each",
+     "1 bag, 8 kg",
+     "Free at check-in"
+    ],
+    [
+     "Infant",
+     "1 bag, 10 kg",
+     "None",
+     "Not available"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "Check that your passport is valid for six months after your arrival date."
+  },
+  {
+   "level": 0,
+   "text": "Complete the online arrival card 72 hours before landing."
+  },
+  {
+   "level": 0,
+   "text": "Check in online from 48 hours before departure."
+  },
+  {
+   "level": 0,
+   "text": "Add the booking reference to your travel insurance."
+  },
+  {
+   "level": 0,
+   "text": "1. Changes to the booking"
+  },
+  {
+   "level": 1,
+   "text": "(a) Name changes are not permitted after ticketing."
+  },
+  {
+   "level": 1,
+   "text": "(b) Date changes are free up to 24 hours before departure."
+  },
+  {
+   "level": 0,
+   "text": "2. Cancellations"
+  },
+  {
+   "level": 1,
+   "text": "(a) A full refund is available within 24 hours of purchase."
+  },
+  {
+   "level": 1,
+   "text": "(b) After that, a fee of 90 euros applies per passenger."
+  },
+  {
+   "level": 0,
+   "text": "3. Delays and disruption"
+  },
+  {
+   "level": 1,
+   "text": "(a) Keep all receipts if the airline cannot offer meals or a hotel."
+  },
+  {
+   "level": 1,
+   "text": "(b) Claims must be sent within six months."
+  }
+ ],
+ "furniture": [
+  "AURORA AIR",
+  "Electronic ticket receipt and itinerary",
+  "Customer service: +351 210 000 000",
+  "www.aurora-air.example",
+  "Aurora Air · Itinerary QX7M2L",
+  "Passenger: Ms Elena Fontaine",
+  "Page 1 of 2",
+  "Page 2 of 2"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [],
+ "notes": "Producer: Microsoft Print to PDF (Windows 11 print-to-file driver) fed by System.Drawing.Printing.PrintDocument from Windows PowerShell 5.1: DrawString per visual line and DrawLine/FillRectangle for rules. Fonts: Arial Regular, Bold and Italic; the driver embeds them as TrueType CID fonts with generic names (CIDFont+F1...), not standard-14. Segment tables are bare aligned columns: only a heavier rule above and below the header row; cells of two lines (flight number and operator, city and date) are joined with one space; the layover rows are section rows merged across four columns with their text repeated. Booking block is a header-less borderless 4-column key/value block. Baggage table is a full grid. 'Before you fly' items have DRAWN check boxes (two ticked), so no marker; 'Important information' is a plain-weight 11.5 pt heading; its nested list has typed '1.' and '(a)' markers. Page footers: 'Page n of N'. | Fonts in PDF: embedded: CIDFont+F1, CIDFont+F2, CIDFont+F3"
+}

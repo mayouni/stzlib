@@ -1,0 +1,144 @@
+{
+ "id": "y06",
+ "difficulty": "medium: recipe card, 6x9 inch page, matplotlib Type 3 text drawn string by string, ingredient table with section rows, numbered method, drawn diamond bullets, two side-by-side boxes",
+ "pages": 1,
+ "title": "Lemon and Thyme Roast Chicken",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Lemon and Thyme Roast Chicken"
+  },
+  {
+   "level": 2,
+   "text": "Ingredients"
+  },
+  {
+   "level": 2,
+   "text": "Method"
+  },
+  {
+   "level": 3,
+   "text": "Cook's notes"
+  },
+  {
+   "level": 3,
+   "text": "Per serving"
+  },
+  {
+   "level": 3,
+   "text": "Keeping"
+  }
+ ],
+ "key_sentences": [
+  "This is a Sunday supper that cooks itself while you do something else.",
+  "The lemon keeps the meat moist and the thyme perfumes the kitchen.",
+  "Pour the lemon juice over the vegetables ten minutes before the end.",
+  "Store covered in the fridge and reheat until piping hot."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Serves",
+     "Preparation",
+     "Cooking"
+    ],
+    [
+     "4 people",
+     "20 minutes",
+     "1 hour 15 minutes"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Quantity",
+     "Item"
+    ],
+    [
+     "For the chicken",
+     "For the chicken"
+    ],
+    [
+     "1",
+     "free-range chicken, about 1.6 kg"
+    ],
+    [
+     "2",
+     "lemons, one sliced and one juiced"
+    ],
+    [
+     "6 sprigs",
+     "fresh thyme"
+    ],
+    [
+     "4 cloves",
+     "garlic, left whole"
+    ],
+    [
+     "40 g",
+     "butter, softened"
+    ],
+    [
+     "For the vegetables",
+     "For the vegetables"
+    ],
+    [
+     "600 g",
+     "small potatoes, halved"
+    ],
+    [
+     "3",
+     "carrots, cut into chunks"
+    ],
+    [
+     "2",
+     "red onions, in wedges"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "1. Heat the oven to 200 degrees and let the chicken stand at room temperature for thirty minutes."
+  },
+  {
+   "level": 0,
+   "text": "2. Rub the butter over the skin and season generously with salt and pepper."
+  },
+  {
+   "level": 0,
+   "text": "3. Put the lemon slices, garlic and half of the thyme inside the cavity."
+  },
+  {
+   "level": 0,
+   "text": "4. Toss the vegetables in olive oil and spread them around the bird in a deep tray."
+  },
+  {
+   "level": 0,
+   "text": "5. Roast for 75 minutes, then rest the chicken for ten minutes before carving."
+  },
+  {
+   "level": 0,
+   "text": "Pour the lemon juice over the vegetables ten minutes before the end."
+  },
+  {
+   "level": 0,
+   "text": "A little white wine in the tray makes a quick gravy."
+  }
+ ],
+ "furniture": [
+  "HARBOUR STREET COOKERY CIRCLE",
+  "Recipe card 17",
+  "Card 17 of 40 · Spring set"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [],
+ "notes": "Producer: matplotlib 3.11.2 PdfPages (pdf.fonttype=3, pdf.compression=0): every string is a separate text object placed with ax.text on an inverted-y axes; rules, fills, discs and boxes are patches and lines. Fonts: Georgia Regular/Bold/Italic converted to Type 3 fonts (glyph procedures inside the file, no ToUnicode map, no embedded TrueType, not standard-14). Page is 6 x 9 inch portrait (432 x 648 pt). The ingredient table has a header row, two merged section rows ('For the chicken', 'For the vegetables'; text repeated in both columns) and rules between rows only; the meta table is a small grid. Method steps carry typed '1.' markers; the cook's notes bullets are DRAWN diamonds (no marker). The two bordered boxes at the bottom (Per serving left, Keeping right) are read box by box; the three nutrition lines are plain lines of the left box, not list items. Furniture: coloured top band (no text), header and footer text lines; page numbers appear only as 'Card 17 of 40'. | Fonts in PDF: Type3 fonts (glyph procedures inside the file): 3"
+}

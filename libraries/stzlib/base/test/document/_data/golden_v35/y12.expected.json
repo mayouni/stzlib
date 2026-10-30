@@ -1,0 +1,440 @@
+{
+ "id": "y12",
+ "difficulty": "medium-hard: lease summary, 3 pages, standard-14 Times, borderless key/value, grid, nested (a)/(i) lists, typed bullets, typed [x] check items, table across pages with repeated header, plain-weight sub-headings",
+ "pages": 3,
+ "title": "Summary of Residential Tenancy Terms",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Summary of Residential Tenancy Terms"
+  },
+  {
+   "level": 2,
+   "text": "1. Parties and property"
+  },
+  {
+   "level": 2,
+   "text": "2. Payments due"
+  },
+  {
+   "level": 2,
+   "text": "3. What the tenant agrees to do"
+  },
+  {
+   "level": 2,
+   "text": "4. What the landlord agrees to do"
+  },
+  {
+   "level": 2,
+   "text": "5. Ending the tenancy"
+  },
+  {
+   "level": 3,
+   "text": "Notice periods"
+  },
+  {
+   "level": 2,
+   "text": "6. Move-in inventory"
+  },
+  {
+   "level": 2,
+   "text": "Schedule of fixtures and fittings"
+  }
+ ],
+ "key_sentences": [
+  "This summary sets out the main terms of the tenancy agreement signed on 12 November 2026.",
+  "It does not replace the agreement itself, and if the two differ the agreement applies.",
+  "The holding fee of 230.00 is credited against the first month's rent, so the first payment is 920.00.",
+  "Either party may end the tenancy after the first six months by giving two months' written notice.",
+  "The tenant must return all keys on the last day and leave the property clean and clear of belongings.",
+  "The deposit is returned within ten days of the end of the tenancy, less any agreed deductions.",
+  "The items below were checked together on the day of the inspection.",
+  "Signed copies of the agreement and the inventory are kept by both parties."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Landlord",
+     "Alder Court Holdings Limited"
+    ],
+    [
+     "Tenant",
+     "Tomas Lindqvist"
+    ],
+    [
+     "Property",
+     "Flat 6, 27 Alder Court, Millbrook, MB3 9QT"
+    ],
+    [
+     "Term",
+     "12 months, 1 December 2026 to 30 November 2027"
+    ],
+    [
+     "Rent",
+     "1,150.00 per calendar month, payable in advance"
+    ],
+    [
+     "Deposit",
+     "1,326.00, held in a government-approved scheme"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Item",
+     "Amount",
+     "Due",
+     "Method"
+    ],
+    [
+     "Holding fee",
+     "230.00",
+     "On signing",
+     "Card"
+    ],
+    [
+     "Tenancy deposit",
+     "1,326.00",
+     "Before move-in",
+     "Bank transfer"
+    ],
+    [
+     "First month's rent",
+     "920.00",
+     "1 December 2026",
+     "Standing order"
+    ],
+    [
+     "Monthly rent",
+     "1,150.00",
+     "1st of each month",
+     "Standing order"
+    ],
+    [
+     "Total due before move-in",
+     "2,476.00",
+     "",
+     ""
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Situation",
+     "Notice required",
+     "Given by"
+    ],
+    [
+     "Ending after six months",
+     "Two months",
+     "Tenant or landlord"
+    ],
+    [
+     "Rent more than 14 days late",
+     "14 days",
+     "Landlord"
+    ],
+    [
+     "Serious damage to the property",
+     "28 days",
+     "Landlord"
+    ],
+    [
+     "Sale of the property",
+     "Two months",
+     "Landlord"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Room",
+     "Item",
+     "Condition",
+     "Notes"
+    ],
+    [
+     "Hall",
+     "Coat hooks (4)",
+     "Good",
+     "Fixed to the wall"
+    ],
+    [
+     "Hall",
+     "Entry phone",
+     "Good",
+     "Working"
+    ],
+    [
+     "Kitchen",
+     "Oven and hob",
+     "Good",
+     "Cleaned before move-in"
+    ],
+    [
+     "Kitchen",
+     "Fridge-freezer",
+     "Fair",
+     "Small dent on the left door"
+    ],
+    [
+     "Kitchen",
+     "Washing machine",
+     "Good",
+     "Manual in the drawer"
+    ],
+    [
+     "Living room",
+     "Curtains and pole",
+     "Good",
+     ""
+    ],
+    [
+     "Living room",
+     "Sofa bed",
+     "Fair",
+     "Mark on the left arm"
+    ],
+    [
+     "Living room",
+     "Wall shelves (3)",
+     "Good",
+     ""
+    ],
+    [
+     "Bedroom 1",
+     "Wardrobe",
+     "Good",
+     "Two keys supplied"
+    ],
+    [
+     "Bedroom 1",
+     "Bed frame and mattress",
+     "Good",
+     "Mattress protector included"
+    ],
+    [
+     "Bedroom 2",
+     "Desk and chair",
+     "Good",
+     ""
+    ],
+    [
+     "Bedroom 2",
+     "Window blind",
+     "Poor",
+     "Cord replaced in November"
+    ],
+    [
+     "Bathroom",
+     "Mirror cabinet",
+     "Good",
+     ""
+    ],
+    [
+     "Bathroom",
+     "Shower screen",
+     "Fair",
+     "Limescale on the lower panel"
+    ],
+    [
+     "Bathroom",
+     "Extractor fan",
+     "Good",
+     "Runs on a timer"
+    ],
+    [
+     "Balcony",
+     "Table and two chairs",
+     "Fair",
+     "Rust on one chair leg"
+    ],
+    [
+     "Cellar store",
+     "Shelving unit",
+     "Good",
+     "Numbered 6"
+    ],
+    [
+     "Cellar store",
+     "Bicycle hook",
+     "Good",
+     ""
+    ],
+    [
+     "Garden",
+     "Garden bench",
+     "Fair",
+     "Paint worn on the seat"
+    ],
+    [
+     "Garden",
+     "Rotary washing line",
+     "Good",
+     ""
+    ],
+    [
+     "Garden",
+     "Shed padlock",
+     "Good",
+     "Two keys supplied"
+    ],
+    [
+     "Hall",
+     "Floor mat",
+     "Good",
+     ""
+    ],
+    [
+     "Kitchen",
+     "Kettle and toaster",
+     "Good",
+     "Supplied by the landlord"
+    ],
+    [
+     "Kitchen",
+     "Extractor hood",
+     "Fair",
+     "Filter due for replacement"
+    ],
+    [
+     "Living room",
+     "Television stand",
+     "Good",
+     ""
+    ],
+    [
+     "Living room",
+     "Floor lamp",
+     "Good",
+     "Bulb replaced"
+    ],
+    [
+     "Bedroom 1",
+     "Bedside tables (2)",
+     "Good",
+     ""
+    ],
+    [
+     "Bedroom 1",
+     "Blackout curtains",
+     "Good",
+     ""
+    ],
+    [
+     "Bedroom 2",
+     "Chest of drawers",
+     "Fair",
+     "One drawer sticks"
+    ],
+    [
+     "Bathroom",
+     "Towel rail",
+     "Good",
+     "Heated"
+    ],
+    [
+     "Bathroom",
+     "Laundry basket",
+     "Good",
+     ""
+    ],
+    [
+     "Balcony",
+     "Plant troughs (3)",
+     "Good",
+     ""
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "(a) pay the rent on time and keep the standing order active;"
+  },
+  {
+   "level": 0,
+   "text": "(b) look after the property and report any damage promptly, in particular:"
+  },
+  {
+   "level": 1,
+   "text": "(i) leaks, damp or any sign of water ingress;"
+  },
+  {
+   "level": 1,
+   "text": "(ii) faults with the heating or the hot water;"
+  },
+  {
+   "level": 1,
+   "text": "(iii) broken locks, windows or door entry equipment;"
+  },
+  {
+   "level": 0,
+   "text": "(c) allow access for repairs on at least 24 hours' written notice;"
+  },
+  {
+   "level": 0,
+   "text": "(d) not sublet any part of the property without the landlord's written consent."
+  },
+  {
+   "level": 0,
+   "text": "• keep the structure, the exterior and the installations for water, gas and electricity in repair;"
+  },
+  {
+   "level": 0,
+   "text": "• protect the deposit in an approved scheme within 30 days of receiving it;"
+  },
+  {
+   "level": 0,
+   "text": "• give the tenant a copy of the gas safety certificate and the energy performance certificate;"
+  },
+  {
+   "level": 0,
+   "text": "• respond to reports of urgent repairs within 48 hours."
+  },
+  {
+   "level": 0,
+   "text": "[x] Smoke alarms tested in the hall and the kitchen"
+  },
+  {
+   "level": 0,
+   "text": "[x] Carbon monoxide alarm fitted next to the boiler"
+  },
+  {
+   "level": 0,
+   "text": "[x] Meter readings recorded: electricity, gas and water"
+  },
+  {
+   "level": 0,
+   "text": "[ ] Window restrictor in the second bedroom to be fitted"
+  },
+  {
+   "level": 0,
+   "text": "[ ] Replacement key for the bin store to be supplied"
+  }
+ ],
+ "furniture": [
+  "Hartwell & Pryor Lettings",
+  "Estate agents and managing agents since 1987",
+  "4 Bridge Street, Millbrook MB1 2AA",
+  "lettings@hartwellpryor.example",
+  "Tenancy summary: Flat 6, 27 Alder Court",
+  "Page 1 of 3",
+  "Page 2 of 3",
+  "Page 3 of 3"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [],
+ "notes": "Producer: ReportLab 5.0.1 Platypus with pageCompression=0 (plain content streams). Fonts: Times-Roman, Times-Bold, Times-Italic standard-14, NOT embedded. Letterhead only on page 1; pages 2 and 3 carry a running header line. Table 1 is a borderless key/value block with no header row; table 2 is a full grid with a merged last-row cell pair (text repeated in covered cells is empty here); table 3 has rules between rows only; the fixtures table is a full grid that runs across pages with the header row repeated (listed once). Lists: (a)(b)(c)(d) with nested (i)(ii)(iii) are typed markers; the landlord list uses typed bullet glyphs; the inventory items carry typed ASCII markers [x] and [ ]. Sub-heading Notice periods is plain Times 12 pt against 11 pt body. | Fonts in PDF: standard-14 / not embedded: Helvetica, Times-Bold, Times-Italic, Times-Roman  (the standard-14 Helvetica entry is only ReportLab's default page resource; no document text is set in it)"
+}

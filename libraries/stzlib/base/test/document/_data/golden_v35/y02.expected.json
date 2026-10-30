@@ -1,0 +1,245 @@
+{
+ "id": "y02",
+ "difficulty": "medium: school report card in French, two pages, grid table with section rows (merged), multi-line cells, a small table split by the page break, drawn check boxes, lettered list",
+ "pages": 2,
+ "title": "Bulletin scolaire du premier trimestre",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Bulletin scolaire du premier trimestre"
+  },
+  {
+   "level": 2,
+   "text": "Résultats par discipline"
+  },
+  {
+   "level": 2,
+   "text": "Vie scolaire"
+  },
+  {
+   "level": 2,
+   "text": "Appréciation générale du conseil de classe"
+  },
+  {
+   "level": 2,
+   "text": "Décision du conseil de classe"
+  },
+  {
+   "level": 2,
+   "text": "Engagements pour le deuxième trimestre"
+  }
+ ],
+ "key_sentences": [
+  "Camille a fourni un travail sérieux et régulier tout au long du trimestre.",
+  "Les résultats sont encourageants dans toutes les disciplines scientifiques.",
+  "Le conseil l'invite à gagner en assurance à l'oral et à soigner la présentation de ses cahiers.",
+  "Signature des parents : à retourner au professeur principal avant le 20 novembre."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Élève",
+     "Camille Roussel",
+     "Professeure principale",
+     "Mme Delmas"
+    ],
+    [
+     "Classe",
+     "4e B (28 élèves)",
+     "Trimestre",
+     "Premier trimestre"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Discipline",
+     "Professeur",
+     "Moyenne élève",
+     "Moyenne classe",
+     "Appréciation"
+    ],
+    [
+     "Enseignements généraux",
+     "Enseignements généraux",
+     "Enseignements généraux",
+     "Enseignements généraux",
+     "Enseignements généraux"
+    ],
+    [
+     "Français",
+     "M. Berthier",
+     "14,5",
+     "12,1",
+     "Travail soigné et participation régulière en classe."
+    ],
+    [
+     "Mathématiques",
+     "Mme Delmas",
+     "15,0",
+     "11,8",
+     "Très bon trimestre, à poursuivre avec la même régularité."
+    ],
+    [
+     "Histoire-géographie",
+     "M. Okafor",
+     "13,0",
+     "12,6",
+     "Connaissances solides ; les croquis doivent être plus soignés."
+    ],
+    [
+     "Physique-chimie",
+     "Mme Lemaire",
+     "12,5",
+     "11,9",
+     "Résultats corrects, davantage d'assurance à l'oral."
+    ],
+    [
+     "Sciences de la vie et de la Terre",
+     "Mme Lemaire",
+     "14,0",
+     "12,7",
+     "Bonne curiosité scientifique et manipulations rigoureuses."
+    ],
+    [
+     "Technologie",
+     "M. Ferrand",
+     "16,0",
+     "13,3",
+     "Projet de groupe remarquable."
+    ],
+    [
+     "Langues vivantes",
+     "Langues vivantes",
+     "Langues vivantes",
+     "Langues vivantes",
+     "Langues vivantes"
+    ],
+    [
+     "Anglais (LV1)",
+     "Mme Hartley",
+     "13,5",
+     "12,0",
+     "Bonne aisance, orthographe à surveiller."
+    ],
+    [
+     "Espagnol (LV2)",
+     "M. Salinas",
+     "11,0",
+     "11,4",
+     "Peut mieux faire : revoir les conjugaisons régulièrement."
+    ],
+    [
+     "Enseignements artistiques et sportifs",
+     "Enseignements artistiques et sportifs",
+     "Enseignements artistiques et sportifs",
+     "Enseignements artistiques et sportifs",
+     "Enseignements artistiques et sportifs"
+    ],
+    [
+     "Arts plastiques",
+     "Mme Quérin",
+     "15,5",
+     "14,0",
+     "Créativité et soin dans les réalisations."
+    ],
+    [
+     "Éducation musicale",
+     "M. Vidal",
+     "14,0",
+     "13,6",
+     "Élève investie dans la chorale."
+    ],
+    [
+     "Éducation physique et sportive",
+     "M. Garnier",
+     "13,0",
+     "12,9",
+     "Participation active, bon esprit d'équipe."
+    ],
+    [
+     "Moyenne générale",
+     "Moyenne générale",
+     "13,8",
+     "12,6",
+     "Ensemble satisfaisant."
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Absences justifiées",
+     "3 demi-journées"
+    ],
+    [
+     "Absences non justifiées",
+     "0"
+    ],
+    [
+     "Retards",
+     "1"
+    ],
+    [
+     "Sanctions",
+     "Aucune"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "Félicitations"
+  },
+  {
+   "level": 0,
+   "text": "Encouragements"
+  },
+  {
+   "level": 0,
+   "text": "Avertissement de travail"
+  },
+  {
+   "level": 0,
+   "text": "Avertissement de comportement"
+  },
+  {
+   "level": 0,
+   "text": "a) Réviser les conjugaisons espagnoles vingt minutes chaque semaine."
+  },
+  {
+   "level": 0,
+   "text": "b) Lire à voix haute un texte de français par semaine, avec un adulte ou en classe."
+  },
+  {
+   "level": 0,
+   "text": "c) Présenter les croquis d'histoire-géographie avec une règle et des couleurs :"
+  },
+  {
+   "level": 1,
+   "text": "1. tracer les légendes à la règle ;"
+  },
+  {
+   "level": 1,
+   "text": "2. utiliser au plus quatre couleurs par carte."
+  }
+ ],
+ "furniture": [
+  "Collège des Trois Rivières",
+  "12 rue des Lavandières, 38000 Grenoble · Vie scolaire : 04 76 00 00 00",
+  "Bulletin de Camille Roussel · 4e B · confidentiel",
+  "Page 1 sur 2",
+  "Page 2 sur 2"
+ ],
+ "languages": [
+  "fr"
+ ],
+ "code": [],
+ "notes": "Producer: ReportLab 5.0.1 Platypus. Fonts: Calibri, Calibri Bold, Calibri Italic TrueType subsets EMBEDDED. The big table has three section rows (merged across the five columns; the merged text is repeated in every covered cell) and a Moyenne generale row whose first two cells are merged; the results table sits whole on page 1; the small Vie scolaire key/value table (four rows, no header) is split by the page break, first row on page 1 and the other three on page 2, and is ONE table in expected. Multi-line cells are joined with one space. Check boxes in the decision list are DRAWN vector squares (one has a drawn tick), so those list items have no marker; the lettered list a) b) c) and the nested 1. 2. markers are typed text. Letterhead (school name and address) and footer drawn per page; French decimal commas. | Fonts in PDF: embedded: AAAAAA+Calibri, AAAAAA+Calibri-Bold; standard-14 / not embedded: Helvetica  (the standard-14 Helvetica entry is only ReportLab's default page resource; no document text is set in it)"
+}

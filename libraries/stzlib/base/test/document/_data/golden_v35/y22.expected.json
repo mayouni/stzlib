@@ -1,0 +1,357 @@
+{
+ "id": "y22",
+ "difficulty": "hard: shipping manifest, 2 pages, canvas Courier standard-14, borderless bare aligned columns, section rows and subtotals, table across pages with repeated header, numbered notes, drawn check boxes",
+ "pages": 2,
+ "title": "SHIPPING MANIFEST",
+ "headings": [
+  {
+   "level": 1,
+   "text": "SHIPPING MANIFEST"
+  },
+  {
+   "level": 2,
+   "text": "CARGO LIST"
+  },
+  {
+   "level": 2,
+   "text": "Dangerous goods declared by the shipper (a ticked box means confirmed):"
+  },
+  {
+   "level": 2,
+   "text": "NOTES"
+  }
+ ],
+ "key_sentences": [
+  "All weights are gross weights declared by the shipper and were not verified at the terminal.",
+  "Containers marked for Tromso must be discharged before 08:00 on the day of arrival.",
+  "Any discrepancy in package counts must be reported to the agent within 24 hours of discharge.",
+  "The vessel is not responsible for damage that existed before loading."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Manifest no.",
+     "HM-2026-1183",
+     "Vessel",
+     "MV Nordic Aster"
+    ],
+    [
+     "Port of loading",
+     "Oslo",
+     "Voyage",
+     "118N"
+    ],
+    [
+     "Port of discharge",
+     "Tromso",
+     "Sailing date",
+     "02 November 2026"
+    ],
+    [
+     "Bill of lading",
+     "NAX-OSL-77412",
+     "Arrival date",
+     "06 November 2026"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Line",
+     "Container",
+     "Description",
+     "Pkgs",
+     "Gross kg",
+     "Vol m3"
+    ],
+    [
+     "CONSIGNEE: Halden Marine Supply AS, Oslo",
+     "CONSIGNEE: Halden Marine Supply AS, Oslo",
+     "CONSIGNEE: Halden Marine Supply AS, Oslo",
+     "CONSIGNEE: Halden Marine Supply AS, Oslo",
+     "CONSIGNEE: Halden Marine Supply AS, Oslo",
+     "CONSIGNEE: Halden Marine Supply AS, Oslo"
+    ],
+    [
+     "01",
+     "TCLU4471920",
+     "Marine paint, 20 l drums",
+     "120",
+     "3,840",
+     "22.4"
+    ],
+    [
+     "02",
+     "TCLU4471921",
+     "Anti-fouling coating, 5 l tins",
+     "400",
+     "2,600",
+     "14.8"
+    ],
+    [
+     "03",
+     "MSKU8830517",
+     "Stainless fasteners, boxed",
+     "90",
+     "5,120",
+     "9.6"
+    ],
+    [
+     "04",
+     "MSKU8830518",
+     "Rope and cordage, coils",
+     "60",
+     "2,210",
+     "18.0"
+    ],
+    [
+     "",
+     "",
+     "Subtotal",
+     "670",
+     "13,770",
+     "64.8"
+    ],
+    [
+     "CONSIGNEE: Fjordline Hardware Ltd, Bergen",
+     "CONSIGNEE: Fjordline Hardware Ltd, Bergen",
+     "CONSIGNEE: Fjordline Hardware Ltd, Bergen",
+     "CONSIGNEE: Fjordline Hardware Ltd, Bergen",
+     "CONSIGNEE: Fjordline Hardware Ltd, Bergen",
+     "CONSIGNEE: Fjordline Hardware Ltd, Bergen"
+    ],
+    [
+     "05",
+     "CAIU2290144",
+     "Hand tools, assorted cartons",
+     "300",
+     "4,480",
+     "31.2"
+    ],
+    [
+     "06",
+     "CAIU2290145",
+     "Hydraulic hose assemblies",
+     "75",
+     "3,190",
+     "12.5"
+    ],
+    [
+     "07",
+     "TGHU6015532",
+     "Pump spares, crated",
+     "14",
+     "2,760",
+     "8.4"
+    ],
+    [
+     "08",
+     "TGHU6015533",
+     "Work gloves, cartons",
+     "520",
+     "1,040",
+     "26.7"
+    ],
+    [
+     "09",
+     "TGHU6015534",
+     "Steel shelving kits",
+     "48",
+     "6,900",
+     "28.3"
+    ],
+    [
+     "",
+     "",
+     "Subtotal",
+     "957",
+     "18,370",
+     "107.1"
+    ],
+    [
+     "CONSIGNEE: Kystvakt Stores, Tromso",
+     "CONSIGNEE: Kystvakt Stores, Tromso",
+     "CONSIGNEE: Kystvakt Stores, Tromso",
+     "CONSIGNEE: Kystvakt Stores, Tromso",
+     "CONSIGNEE: Kystvakt Stores, Tromso",
+     "CONSIGNEE: Kystvakt Stores, Tromso"
+    ],
+    [
+     "10",
+     "OOLU3377810",
+     "Galley equipment, crated",
+     "22",
+     "3,380",
+     "19.1"
+    ],
+    [
+     "11",
+     "OOLU3377811",
+     "Tinned food, cartons",
+     "860",
+     "9,120",
+     "38.6"
+    ],
+    [
+     "12",
+     "OOLU3377812",
+     "Cleaning supplies, cartons",
+     "210",
+     "2,415",
+     "16.3"
+    ],
+    [
+     "13",
+     "HLXU5502468",
+     "Life jackets, cartons",
+     "150",
+     "1,350",
+     "21.0"
+    ],
+    [
+     "14",
+     "HLXU5502469",
+     "Spare mattresses, wrapped",
+     "64",
+     "1,280",
+     "33.8"
+    ],
+    [
+     "15",
+     "HLXU5502470",
+     "Safety signage, tubes",
+     "96",
+     "410",
+     "3.1"
+    ],
+    [
+     "",
+     "",
+     "Subtotal",
+     "1,402",
+     "17,955",
+     "131.9"
+    ],
+    [
+     "CONSIGNEE: Arctic Fisheries Co-op, Hammerfest",
+     "CONSIGNEE: Arctic Fisheries Co-op, Hammerfest",
+     "CONSIGNEE: Arctic Fisheries Co-op, Hammerfest",
+     "CONSIGNEE: Arctic Fisheries Co-op, Hammerfest",
+     "CONSIGNEE: Arctic Fisheries Co-op, Hammerfest",
+     "CONSIGNEE: Arctic Fisheries Co-op, Hammerfest"
+    ],
+    [
+     "16",
+     "TEMU7712035",
+     "Fishing nets, bales",
+     "36",
+     "5,700",
+     "40.2"
+    ],
+    [
+     "17",
+     "TEMU7712036",
+     "Net floats, sacks",
+     "140",
+     "980",
+     "17.9"
+    ],
+    [
+     "18",
+     "TEMU7712037",
+     "Ice-machine spares, crated",
+     "9",
+     "2,140",
+     "7.7"
+    ],
+    [
+     "19",
+     "FCIU9034411",
+     "Insulated crates, stacked",
+     "400",
+     "3,600",
+     "41.0"
+    ],
+    [
+     "20",
+     "FCIU9034412",
+     "Oilskin clothing, cartons",
+     "180",
+     "2,250",
+     "20.5"
+    ],
+    [
+     "21",
+     "FCIU9034413",
+     "Rubber boots, cartons",
+     "220",
+     "3,080",
+     "22.6"
+    ],
+    [
+     "",
+     "",
+     "Subtotal",
+     "985",
+     "17,750",
+     "149.9"
+    ],
+    [
+     "",
+     "",
+     "TOTAL MANIFEST",
+     "4,014",
+     "67,845",
+     "453.7"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "UN 1263 Paint, class 3, packing group III (containers TCLU4471920 and TCLU4471921)"
+  },
+  {
+   "level": 0,
+   "text": "UN 3082 Environmentally hazardous liquid, class 9 (container TCLU4471921)"
+  },
+  {
+   "level": 0,
+   "text": "UN 1950 Aerosols, class 2.1 (none declared on this voyage)"
+  },
+  {
+   "level": 0,
+   "text": "1. All weights are gross weights declared by the shipper and were not verified at the terminal."
+  },
+  {
+   "level": 0,
+   "text": "2. Containers marked for Tromso must be discharged before 08:00 on the day of arrival."
+  },
+  {
+   "level": 0,
+   "text": "3. Any discrepancy in package counts must be reported to the agent within 24 hours of discharge."
+  },
+  {
+   "level": 0,
+   "text": "4. The vessel is not responsible for damage that existed before loading."
+  }
+ ],
+ "furniture": [
+  "NORDIC AXIS FREIGHT LINES",
+  "Harbour Quay 9 · Oslo · Agent code NAX-04",
+  "MANIFEST HM-2026-1183 (continued)",
+  "MV Nordic Aster · voyage 118N",
+  "Page 1 of 2",
+  "Page 2 of 2"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [],
+ "notes": "Producer: ReportLab 5.0.1 canvas API. Fonts: Courier, Courier-Bold, Courier-Oblique standard-14, NOT embedded. The cargo list is a bare aligned-column table (each cell is its own drawString at a column x position; only a rule above and below the header row), with merged CONSIGNEE section rows (grey fill; text repeated in every column in expected), Subtotal rows and a TOTAL MANIFEST row. It breaks across pages and the header row repeats (listed once). Top key/value block is a four-column borderless form with no header row. Dangerous-goods items have DRAWN check boxes (two ticked) so carry no marker; notes carry typed '1.' markers. Headings are bold capitals in the same monospaced face as the body (sizes 17 / 11.5 / 10.5 against 8.5 body). | Fonts in PDF: standard-14 / not embedded: Courier, Courier-Bold, Courier-Oblique, Helvetica  (the standard-14 Helvetica entry is only ReportLab's default page resource; no document text is set in it)"
+}

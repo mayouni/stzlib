@@ -1,0 +1,207 @@
+{
+ "id": "y23",
+ "difficulty": "hard: tax form guide, 2 pages, GDI+ Times New Roman and Courier New, boxed form with empty fields and drawn check boxes, bullets as typed glyphs, grid and section-row tables, monospaced worked example, footnote marker, side-by-side boxes",
+ "pages": 2,
+ "title": "Guide to Completing Form TC-7",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Guide to Completing Form TC-7"
+  },
+  {
+   "level": 2,
+   "text": "Who must file"
+  },
+  {
+   "level": 2,
+   "text": "Filing deadlines"
+  },
+  {
+   "level": 2,
+   "text": "Part A: Personal details"
+  },
+  {
+   "level": 3,
+   "text": "Filing status (tick one box)"
+  },
+  {
+   "level": 2,
+   "text": "Part B: Income"
+  },
+  {
+   "level": 2,
+   "text": "Worked example"
+  },
+  {
+   "level": 2,
+   "text": "Common mistakes"
+  },
+  {
+   "level": 3,
+   "text": "Where to get help"
+  },
+  {
+   "level": 3,
+   "text": "What to bring"
+  }
+ ],
+ "key_sentences": [
+  "You must file Form TC-7 if you received income from more than one source during the tax year.",
+  "Print clearly in capital letters inside the boxes.",
+  "The example below shows how a filer with wages and a little interest completes lines 1 to 5.",
+  "Call the helpline on weekdays between 8 and 18 hours.",
+  "Bring your income statements and last year's return."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Method",
+     "Filing deadline",
+     "Payment due"
+    ],
+    [
+     "Paper return",
+     "31 October 2027",
+     "31 January 2028"
+    ],
+    [
+     "Online return",
+     "31 January 2028",
+     "31 January 2028"
+    ],
+    [
+     "Return prepared by an agent",
+     "31 January 2028",
+     "31 January 2028"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Surname",
+     ""
+    ],
+    [
+     "First names",
+     ""
+    ],
+    [
+     "Date of birth (DD/MM/YYYY)",
+     ""
+    ],
+    [
+     "Tax identification number",
+     ""
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Line",
+     "Description",
+     "Where to find it"
+    ],
+    [
+     "Employment income",
+     "Employment income",
+     "Employment income"
+    ],
+    [
+     "1",
+     "Wages, salaries and bonuses",
+     "Form W-2 box 1"
+    ],
+    [
+     "2",
+     "Taxable benefits in kind",
+     "Employer statement"
+    ],
+    [
+     "Other income",
+     "Other income",
+     "Other income"
+    ],
+    [
+     "3",
+     "Interest from savings",
+     "Bank certificate"
+    ],
+    [
+     "4",
+     "Rent received less costs",
+     "Your own records"
+    ],
+    [
+     "5",
+     "Gains from selling assets",
+     "Contract note"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "• You were self-employed at any time during the year."
+  },
+  {
+   "level": 0,
+   "text": "• You received rent from a property you own."
+  },
+  {
+   "level": 0,
+   "text": "• You sold shares, a business or a second home."
+  },
+  {
+   "level": 1,
+   "text": "- Employees with a single employer and no other income do not need to file."
+  },
+  {
+   "level": 0,
+   "text": "Single"
+  },
+  {
+   "level": 0,
+   "text": "Married or in a civil partnership"
+  },
+  {
+   "level": 0,
+   "text": "Widowed or surviving partner"
+  },
+  {
+   "level": 0,
+   "text": "1) Forgetting to sign and date the declaration on the last page."
+  },
+  {
+   "level": 0,
+   "text": "2) Entering amounts in cents instead of whole currency units."
+  },
+  {
+   "level": 0,
+   "text": "3) Sending the return to the wrong office; use the address printed on the envelope."
+  }
+ ],
+ "furniture": [
+  "Department of Revenue and Customs",
+  "Taxpayer information service",
+  "Form TC-7 guidance",
+  "Guide to Completing Form TC-7",
+  "Form TC-7 guidance notes · revision 10/2026",
+  "Page 1 of 2",
+  "Page 2 of 2",
+  "¹ The amount is reviewed every October."
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [
+  "Line 1  Wages from employer          42,300\nLine 2  Interest income                 180\nLine 3  Total income (1 + 2)         42,480\nLine 4  Standard deduction          -12,800\nLine 5  Taxable income (3 - 4)       29,680"
+ ],
+ "notes": "Producer: Microsoft Print to PDF fed by System.Drawing.Printing.PrintDocument (Windows PowerShell 5.1), DrawString per visual line. Fonts: Times New Roman Regular/Bold/Italic and Courier New (worked example) embedded by the driver as TrueType CID fonts with generic names (CIDFont+F1...), not standard-14. Part A form is a grid with empty field cells (second column empty in expected). Check boxes under 'Filing status' are DRAWN (the second is ticked), no marker; the 'Who must file' bullets are TYPED U+2022 characters with a typed hyphen sub-item at level 1; 'Common mistakes' carries typed '1)' markers. Deadline and income tables are grids; income table has two merged section rows with text repeated across columns. The sentence about the standard deduction ends with a footnote marker (superscript one) and is therefore NOT in key_sentences; the footnote text at the end of page 2 is listed in furniture. The worked example is Courier New code (lines joined with newline). Bordered boxes 'Where to get help' (left) and 'What to bring' (right) are read box by box. Grey rule beneath the footnote is graphics. Page numbers: 'Page n of N'. | Fonts in PDF: embedded: CIDFont+F1, CIDFont+F2, CIDFont+F3, CIDFont+F4"
+}

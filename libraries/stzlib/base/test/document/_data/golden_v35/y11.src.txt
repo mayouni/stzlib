@@ -1,0 +1,1 @@
+PyMuPDF 1.28.2 fitz.Story with HTML dir=rtl and Arial embedded via @font-face, header and footer via insert_htmlbox (rtl)

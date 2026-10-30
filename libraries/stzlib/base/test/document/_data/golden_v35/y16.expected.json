@@ -1,0 +1,195 @@
+{
+ "id": "y16",
+ "difficulty": "very hard: Hindi exam timetable, 2 pages, Devanagari conjuncts shaped by PyMuPDF HTML, zebra grids, Devanagari numerals and letters as typed markers, monospaced code block, plain-weight headings, side-by-side boxes",
+ "pages": 2,
+ "title": "वार्षिक परीक्षा समय-सारणी 2026-27",
+ "headings": [
+  {
+   "level": 1,
+   "text": "वार्षिक परीक्षा समय-सारणी 2026-27"
+  },
+  {
+   "level": 2,
+   "text": "कक्षा 10 की समय-सारणी"
+  },
+  {
+   "level": 2,
+   "text": "कक्षा 12 की समय-सारणी"
+  },
+  {
+   "level": 3,
+   "text": "प्रवेश-पत्र"
+  },
+  {
+   "level": 2,
+   "text": "परीक्षा के नियम"
+  },
+  {
+   "level": 2,
+   "text": "रोल नंबर का प्रारूप"
+  },
+  {
+   "level": 2,
+   "text": "पुस्तकालय और प्रयोगशाला"
+  },
+  {
+   "level": 3,
+   "text": "सहायता"
+  },
+  {
+   "level": 3,
+   "text": "परिणाम"
+  }
+ ],
+ "key_sentences": [
+  "आदर्श उच्च माध्यमिक विद्यालय की वार्षिक परीक्षाएँ मार्च 2027 में आयोजित की जाएँगी।",
+  "सभी विद्यार्थी समय-सारणी ध्यान से पढ़ें और परीक्षा से पहले प्रवेश-पत्र प्राप्त कर लें।",
+  "प्रवेश-पत्र कार्यालय से एक मार्च तक मिलेगा, और उस पर कक्षाध्यापक के हस्ताक्षर होना आवश्यक है।",
+  "रोल नंबर में वर्ष, कक्षा और क्रम संख्या होती है, जैसा नीचे दिखाया गया है।",
+  "किसी भी समस्या के लिए कार्यालय से संपर्क करें।",
+  "परिणाम अप्रैल के पहले सप्ताह में घोषित होगा।"
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "दिनांक",
+     "दिन",
+     "विषय",
+     "समय"
+    ],
+    [
+     "2 मार्च 2027",
+     "मंगलवार",
+     "हिंदी",
+     "10:00 से 1:15 बजे तक"
+    ],
+    [
+     "4 मार्च 2027",
+     "गुरुवार",
+     "अंग्रेज़ी",
+     "10:00 से 1:15 बजे तक"
+    ],
+    [
+     "6 मार्च 2027",
+     "शनिवार",
+     "गणित",
+     "10:00 से 1:15 बजे तक"
+    ],
+    [
+     "9 मार्च 2027",
+     "मंगलवार",
+     "विज्ञान",
+     "10:00 से 1:15 बजे तक"
+    ],
+    [
+     "11 मार्च 2027",
+     "गुरुवार",
+     "सामाजिक विज्ञान",
+     "10:00 से 1:15 बजे तक"
+    ],
+    [
+     "13 मार्च 2027",
+     "शनिवार",
+     "संस्कृत",
+     "10:00 से 12:15 बजे तक"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "दिनांक",
+     "दिन",
+     "विषय",
+     "समय"
+    ],
+    [
+     "3 मार्च 2027",
+     "बुधवार",
+     "भौतिक विज्ञान",
+     "10:00 से 1:15 बजे तक"
+    ],
+    [
+     "5 मार्च 2027",
+     "शुक्रवार",
+     "रसायन विज्ञान",
+     "10:00 से 1:15 बजे तक"
+    ],
+    [
+     "8 मार्च 2027",
+     "सोमवार",
+     "गणित",
+     "10:00 से 1:15 बजे तक"
+    ],
+    [
+     "10 मार्च 2027",
+     "बुधवार",
+     "जीव विज्ञान",
+     "10:00 से 1:15 बजे तक"
+    ],
+    [
+     "12 मार्च 2027",
+     "शुक्रवार",
+     "इतिहास",
+     "10:00 से 1:15 बजे तक"
+    ],
+    [
+     "15 मार्च 2027",
+     "सोमवार",
+     "अर्थशास्त्र",
+     "10:00 से 1:15 बजे तक"
+    ],
+    [
+     "17 मार्च 2027",
+     "बुधवार",
+     "अंग्रेज़ी",
+     "10:00 से 1:15 बजे तक"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "१. परीक्षा कक्ष में निर्धारित समय से तीस मिनट पहले पहुँचें।"
+  },
+  {
+   "level": 0,
+   "text": "२. प्रवेश-पत्र और पहचान-पत्र साथ लाना अनिवार्य है।"
+  },
+  {
+   "level": 1,
+   "text": "क) मोबाइल फोन और स्मार्ट घड़ी कक्ष में नहीं ले जा सकते।"
+  },
+  {
+   "level": 1,
+   "text": "ख) केवल काले या नीले पेन का उपयोग करें।"
+  },
+  {
+   "level": 0,
+   "text": "३. उत्तर-पुस्तिका पर रोल नंबर स्पष्ट अक्षरों में लिखें।"
+  },
+  {
+   "level": 0,
+   "text": "४. परीक्षा समाप्त होने से पहले कोई विद्यार्थी कक्ष से बाहर नहीं जाएगा।"
+  }
+ ],
+ "furniture": [
+  "आदर्श उच्च माध्यमिक विद्यालय",
+  "गांधी मार्ग, नई बस्ती · दूरभाष 0000 000000 · परीक्षा विभाग",
+  "वार्षिक परीक्षा समय-सारणी 2026-27 · आदर्श उच्च माध्यमिक विद्यालय",
+  "परीक्षा विभाग",
+  "पृष्ठ १ / २",
+  "पृष्ठ २ / २"
+ ],
+ "languages": [
+  "hi"
+ ],
+ "code": [
+  "वर्ष-कक्षा-क्रम\n26-10-0417\n26-12-0092"
+ ],
+ "notes": "Producer: PyMuPDF 1.28.2 (MuPDF HTML engine with HarfBuzz shaping), writing only. Font: Nirmala UI (single weight, face 0 of Nirmala.ttc) embedded as TrueType (on page 2 the engine also substituted the built-in Noto Serif Devanagari for one run, visible in the font list); there is no bold face, so headings are plain weight and differ from the body only by size (21, 14, 12.6 against 11.5 pt) and colour. Devanagari conjuncts and matras are encoded in Unicode logical order. Both timetables have a shaded header row and shaded alternate rows. Rules list: typed Devanagari numerals with a full stop (१. २. ३. ४.) at level 0 and typed Devanagari letters with a closing parenthesis (क) ख)) at level 1; no marker is drawn. The two bordered boxes at the end (सहायता left, परिणाम right) are read box by box. The roll-number samples are an ASCII monospaced block (code). Footer page numbers use Devanagari digits: पृष्ठ १ / २. A hyphenated compound such as समय-सारणी keeps its hyphen. | Fonts in PDF: embedded: Nimbus Mono PS Regular, Nirmala UI Regular, Noto Serif Devanagari Regular"
+}

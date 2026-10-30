@@ -1,0 +1,1 @@
+ReportLab 5.0.1 Platypus, Open Sans, Consolas and Segoe UI Symbol TTF subsets embedded, ASCII85+flate streams

@@ -1,0 +1,157 @@
+{
+ "id": "y03",
+ "difficulty": "medium-hard: GP referral letter, 2 pages, canvas text objects line by line, standard-14 Times, manual hyphenation at line ends, drawn bullets and check boxes, borderless aligned results, grid medication table",
+ "pages": 2,
+ "title": "Referral for cardiology assessment: Mr Jonas Becker, born 3 July 1961",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Referral for cardiology assessment: Mr Jonas Becker, born 3 July 1961"
+  },
+  {
+   "level": 2,
+   "text": "Reason for referral"
+  },
+  {
+   "level": 2,
+   "text": "Relevant history"
+  },
+  {
+   "level": 2,
+   "text": "Current medication"
+  },
+  {
+   "level": 2,
+   "text": "Examination and results"
+  },
+  {
+   "level": 2,
+   "text": "Enclosures"
+  }
+ ],
+ "key_sentences": [
+  "Thank you for seeing Mr Becker, a retired bus driver aged 65, who has had episodes of exertional chest tightness for the past eight weeks.",
+  "I would be grateful for your assessment of a possible angina and for advice on further investigations.",
+  "The episodes come on after about ten minutes of brisk walking and settle within five minutes of rest.",
+  "He has had no episodes at rest and no syncope, and there is no history of palpitations.",
+  "On examination there was no evidence of heart failure and the chest was clear.",
+  "I have asked Mr Becker to avoid strenuous exertion until he has been seen and to use his glyceryl trinitrate spray if symptoms come on.",
+  "Please contact me if his symptoms become more frequent or start to occur at rest, and I will arrange an emergency admission."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Medicine",
+     "Dose",
+     "Frequency",
+     "Since"
+    ],
+    [
+     "Ramipril",
+     "5 mg",
+     "Once daily",
+     "2018"
+    ],
+    [
+     "Amlodipine",
+     "5 mg",
+     "Once daily",
+     "2019"
+    ],
+    [
+     "Atorvastatin",
+     "20 mg",
+     "At night",
+     "2021"
+    ],
+    [
+     "Aspirin",
+     "75 mg",
+     "Once daily",
+     "October 2026"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Blood pressure",
+     "138/82 mmHg, seated, left arm"
+    ],
+    [
+     "Pulse",
+     "72 per minute, regular"
+    ],
+    [
+     "Heart sounds",
+     "Normal first and second sounds, no murmurs"
+    ],
+    [
+     "Resting ECG",
+     "Sinus rhythm, no acute ST changes"
+    ],
+    [
+     "Cholesterol",
+     "Total 4.6 mmol/l; LDL 2.4 mmol/l"
+    ],
+    [
+     "HbA1c",
+     "46 mmol/mol"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "Hypertension, diagnosed in 2018 and well controlled on treatment."
+  },
+  {
+   "level": 0,
+   "text": "Type 2 diabetes, diet controlled since 2021."
+  },
+  {
+   "level": 0,
+   "text": "Ex-smoker; stopped in 2015 after thirty pack years."
+  },
+  {
+   "level": 0,
+   "text": "Father had a myocardial infarction at the age of 58."
+  },
+  {
+   "level": 0,
+   "text": "Resting ECG tracing"
+  },
+  {
+   "level": 0,
+   "text": "Blood test results from 9 October 2026"
+  },
+  {
+   "level": 0,
+   "text": "Echocardiogram report (not yet available)"
+  },
+  {
+   "level": 0,
+   "text": "Summary of the patient record"
+  }
+ ],
+ "furniture": [
+  "Marlowe Medical Group",
+  "Westgate Health Centre, 22 Orchard Row, Marlowe ML2 7TD",
+  "Telephone 01632 960118 · Appointments 01632 960119",
+  "14 October 2026",
+  "Our reference: GP/2026/4417",
+  "Referral letter: Mr J. Becker, reference GP/2026/4417",
+  "Confidential patient information",
+  "Page 1 of 2",
+  "Page 2 of 2"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [],
+ "notes": "Producer: ReportLab 5.0.1 canvas API (no Platypus): each visual line is a text object with textLine; paragraphs are wrapped by the generator. Fonts: Times-Roman, Times-Bold, Times-Italic standard-14, NOT embedded. Some words are broken across lines with a trailing hyphen by the generator (here: exer-..., trin-...): the expected key sentences give them WHOLE without the hyphen. Bullets of the history list and the enclosure check marks are DRAWN vector shapes (discs, boxes with a drawn tick), so list_items carry no marker. The results block is borderless aligned columns drawn with drawString (key/value, no header row). The medication table is a full grid with a header row. Letterhead on page 1, running header on page 2, footer with 'Page n of N' on each page. The Reason for referral style headings are bold 11.5 pt over 11 pt body. Title is the bold subject line. | Fonts in PDF: standard-14 / not embedded: Helvetica, Times-Bold, Times-Italic, Times-Roman  (the standard-14 Helvetica entry is only ReportLab's default page resource; no document text is set in it)"
+}

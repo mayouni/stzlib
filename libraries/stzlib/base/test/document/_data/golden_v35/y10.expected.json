@@ -1,0 +1,191 @@
+{
+ "id": "y10",
+ "difficulty": "very hard: Hebrew building safety inspection report, 2 pages, GDI+ right-to-left DrawString, RTL grid tables with merged section rows, nested numbered list with Hebrew letters, drawn check boxes, LTR monospaced block inside RTL page, side-by-side boxes",
+ "pages": 2,
+ "title": "דוח בדיקת בטיחות בבניין מגורים",
+ "headings": [
+  {
+   "level": 1,
+   "text": "דוח בדיקת בטיחות בבניין מגורים"
+  },
+  {
+   "level": 2,
+   "text": "ממצאי הבדיקה"
+  },
+  {
+   "level": 2,
+   "text": "המלצות"
+  },
+  {
+   "level": 2,
+   "text": "בדיקות שבוצעו"
+  },
+  {
+   "level": 3,
+   "text": "הערה"
+  },
+  {
+   "level": 3,
+   "text": "דחיפות"
+  },
+  {
+   "level": 3,
+   "text": "פרטי קשר"
+  }
+ ],
+ "key_sentences": [
+  "הדוח מסכם את בדיקת הבטיחות שנערכה בבניין ביום 12 באוקטובר 2026.",
+  "הבדיקה כללה את מערכות כיבוי האש, את יציאות החירום ואת מערכת החשמל.",
+  "מתוך שמונה פריטים שנבדקו, חמישה תקינים ושלושה נדרשים תיקון.",
+  "הדוח תקף לשנה אחת מיום הבדיקה.",
+  "יומן לוח הגילוי (באנגלית, כפי שנקלט מהמערכת):",
+  "יש לבצע את התיקונים תוך שלושים ימים.",
+  "לשאלות פנו למוקד בטיחות העירייה."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "כתובת הבניין",
+     "רחוב הזית 14, נהר הצפון"
+    ],
+    [
+     "מספר דוח",
+     "318/2026"
+    ],
+    [
+     "תאריך הבדיקה",
+     "12 באוקטובר 2026"
+    ],
+    [
+     "מפקח",
+     "דוד לוי, מהנדס בטיחות"
+    ],
+    [
+     "מספר קומות",
+     "שמונה קומות"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "פריט",
+     "מצב",
+     "הערות"
+    ],
+    [
+     "מערכות כיבוי אש",
+     "מערכות כיבוי אש",
+     "מערכות כיבוי אש"
+    ],
+    [
+     "מטפי כיבוי",
+     "תקין",
+     "כל המטפים נבדקו ותוקפם בתוקף"
+    ],
+    [
+     "ממטרות",
+     "תקין",
+     "לחץ המים תקין"
+    ],
+    [
+     "לוח גילוי אש",
+     "נדרש תיקון",
+     "תקלה בגלאי בקומה השלישית"
+    ],
+    [
+     "יציאות חירום",
+     "יציאות חירום",
+     "יציאות חירום"
+    ],
+    [
+     "דלתות חירום",
+     "תקין",
+     "הדלתות נפתחות בקלות"
+    ],
+    [
+     "מדרגות חירום",
+     "נדרש תיקון",
+     "מעקה רופף בקומה השנייה"
+    ],
+    [
+     "שילוט יציאה",
+     "תקין",
+     "השלטים מוארים"
+    ],
+    [
+     "מערכת חשמל",
+     "מערכת חשמל",
+     "מערכת חשמל"
+    ],
+    [
+     "לוח חשמל ראשי",
+     "תקין",
+     "הלוח נקי ומסומן"
+    ],
+    [
+     "תאורת חירום",
+     "נדרש תיקון",
+     "שתי נורות שרופות בחדר המדרגות"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "1. להחליף את הגלאי התקול בקומה השלישית תוך שבעה ימים."
+  },
+  {
+   "level": 1,
+   "text": "א. לבדוק את כל הגלאים באותה קומה."
+  },
+  {
+   "level": 1,
+   "text": "ב. לתעד את הבדיקה ביומן הבניין."
+  },
+  {
+   "level": 0,
+   "text": "2. לחזק את המעקה במדרגות בקומה השנייה."
+  },
+  {
+   "level": 0,
+   "text": "3. להחליף את נורות תאורת החירום בחדר המדרגות."
+  },
+  {
+   "level": 0,
+   "text": "בדיקת לחץ המים"
+  },
+  {
+   "level": 0,
+   "text": "בדיקת גלאי העשן"
+  },
+  {
+   "level": 0,
+   "text": "בדיקת מערכת הכריזה"
+  },
+  {
+   "level": 0,
+   "text": "בדיקת הגנרטור"
+  }
+ ],
+ "furniture": [
+  "עיריית נהר הצפון",
+  "אגף הנדסה ובטיחות",
+  "טלפון 00-0000000",
+  "דוח בדיקת בטיחות מספר 318/2026",
+  "אגף הנדסה ובטיחות",
+  "עמוד 1 מתוך 2",
+  "עמוד 2 מתוך 2"
+ ],
+ "languages": [
+  "he"
+ ],
+ "code": [
+  "PANEL-3  OK     12:04\nPANEL-4  FAULT  12:09\nPANEL-5  OK     12:15"
+ ],
+ "notes": "Producer: Microsoft Print to PDF fed by System.Drawing.Printing.PrintDocument (Windows PowerShell 5.1), each visual line drawn with DrawString and StringFormatFlags.DirectionRightToLeft, so the driver and GDI+ do the bidi reordering; lines were wrapped by the generator. Text given in LOGICAL order. Fonts: Arial Regular/Bold and Courier New (log block) embedded as TrueType CID fonts with generic names (CIDFont+F1...), not standard-14. Tables are right-to-left: expected cells are listed rightmost column first (פריט, מצב, הערות). The findings table has three merged section rows (text repeated across the three columns). The 5-row data block at the top is a header-less key/value grid (label on the right). Lists: typed '1.' '2.' '3.' at level 0 and typed Hebrew letters 'א.' 'ב.' at level 1; check boxes under בדיקות שבוצעו are DRAWN (two ticked), no marker. 'הערה' is a plain-weight 11.5 pt heading over 10.5 pt body. The log block is LTR monospaced ASCII drawn on a grey fill (code). Bordered boxes: דחיפות (right) then פרטי קשר (left): read right box first. Footer 'עמוד n מתוך N'; letterhead on page 1 right. | Fonts in PDF: embedded: CIDFont+F1, CIDFont+F2, CIDFont+F3"
+}

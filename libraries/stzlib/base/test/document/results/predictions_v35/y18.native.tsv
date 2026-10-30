@@ -1,0 +1,39 @@
+page_header	0	MERIDIAN SOFTWARE COOPERATIVE
+page_header	0	Licence summary
+heading	1	Meridian Toolkit 4.2: Licence Summary
+paragraph	0	This page summarises the Meridian Public Licence, version 2, as it applies to Meridian Toolkit 4.2. The full text of the licence always takes precedence over this summary.
+heading	2	1. What you may do
+list_item	0	1. Install the toolkit on any number of machines owned by your organisation.
+list_item	0	2. Use the toolkit to build and ship your own products, including commercial ones.
+list_item	0	3. Modify the source code and keep the modifications private.
+list_item	0	4. Redistribute unmodified copies of the toolkit with a copy of the licence.
+heading	2	2. Licence tiers
+table	0	TierSeatsSupportPrice per yearCommunityUp to 5Public forum no response time promisedFreeTeam6 to 50Email, next business day1,900 EURBusiness51 to 250Email and chat response within 4 working hours7,400 EUREnterpriseUnlimitedNamed engineer andOn request
+paragraph	0	quarterly review meeting
+heading	2	3. What you may not do
+list_item	0	- Remove or alter the copyright notices in the source files.
+list_item	0	- Offer the toolkit itself as a hosted service to third parties.
+list_item	0	- Use the Meridian name or logo to suggest endorsement of your product.
+list_item	0	- Transfer a seat licence to another organisation without written consent.
+heading	2	4. Attribution and configuration
+paragraph	0	Every source file that you redistribute must keep the header shown below. The licence tier and the seat count are set in the configuration file of each installation.
+code	0	Copyright (c) 2026 Meridian Software Cooperative\nLicensed under the Meridian Public Licence, version 2.\nYou may not use this file except in compliance with the Licence.\n\n[licence]\ntier      = "team"\nseats     = 25\nkey_file  = "/etc/meridian/licence.key"\ntelemetry = false
+heading	2	5. Compliance checklist
+list_item	0	☐ Record the number of active seats every quarter.
+list_item	0	☑ Keep a copy of the licence in every distribution.
+list_item	0	☐ Send the annual seat declaration before 31 January.
+page_footer	0	Meridian Toolkit 4.2
+page_footer	0	Page 1 of 3
+page_header	0	MERIDIAN SOFTWARE COOPERATIVE
+page_header	0	Licence summary
+list_item	0	☑ Store the licence key outside the source repository.
+paragraph	0	Audit rights Meridian may ask for a seat declaration once a year, with thirty days' notice. An audit is limited to records that show how many seats are in use.
+heading	2	6. Bundled third-party components
+table	0	ComponentVersionLicenceObligationRuntime librariesRuntime librariesRuntime librariesRuntime librarieszlib1.3.1ZlibKeep noticelibpng1.6.43libpngKeep noticeFreeType2.13.2FreeType or GPLv2Credit in the documentationHarfBuzz8.5.0MITKeep noticeSQLite3.45.3Public domainNoneOpenSSL3.0.14Apache 2.0Keep notice and state changesBuild toolsBuild toolsBuild toolsBuild toolsCMake3.29BSD 3-clauseNone, build time onlyNinja1.12Apache 2.0None, build time onlyPython3.12PSFNone, build time onlyDoxygen1.10GPLv2None, build time onlySamples and documentationSamples and documentationSamples and documentationSamples and documentationInter font4.0SIL OFL 1.1Keep the font licence fileLucide icons0.4ISCKeep noticePrism1.29MITKeep noticeMermaid10.9MITKeep noticePandoc templates3.2GPLv2Do not ship in productsTest dataTest dataTest dataTest dataUnicode data files15.1Unicode licenceKeep noticeTatoeba excerpts2024CC BY 2.0Credit the authorsNatural Earth5.1Public domainNoneOpenStreetMap extract2024-09ODbLCredit and share-alike for the dataWorld Bank indicators2023CC BY 4.0Credit the sourceGeoNames excerpt2024CC BY 4.0Credit the sourceProject Gutenberg samples2023Public domainRemove the trademark headerOptional plug-insOptional plug-insOptional plug-insOptional plug-inslibwebp1.4.0BSD 3-clauseKeep noticelibjpeg-turbo3.0.3BSD and IJGKeep noticeLua5.4.6MITKeep noticePCRE210.43BSD 3-clauseKeep noticeTotal components: 26Total components: 26Total components: 26Total components: 26
+page_footer	0	Meridian Toolkit 4.2
+page_footer	0	Page 2 of 3
+page_header	0	MERIDIAN SOFTWARE COOPERATIVE
+page_header	0	Licence summary
+paragraph	0	Questions about this summary can be sent to the licensing desk at any time.
+page_footer	0	Meridian Toolkit 4.2
+page_footer	0	Page 3 of 3

@@ -1,0 +1,1 @@
+ReportLab 5.0.1 Platypus, Arial TTF (Cyrillic) and Consolas embedded, ASCII85+flate

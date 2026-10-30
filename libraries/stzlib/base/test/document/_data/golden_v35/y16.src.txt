@@ -1,0 +1,1 @@
+PyMuPDF 1.28.2 fitz.Story with Nirmala UI (Nirmala.ttc) embedded via @font-face, Devanagari shaped by the engine

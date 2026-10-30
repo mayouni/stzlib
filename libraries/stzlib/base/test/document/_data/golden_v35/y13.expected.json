@@ -1,0 +1,288 @@
+{
+ "id": "y13",
+ "difficulty": "hard: Spanish course syllabus, 2 pages, canvas drawString, standard-14 Helvetica with accents, letter-spaced headings, calendar table across pages with repeated header, rules-only and grid tables, nested lists with drawn dashes and typed markers",
+ "pages": 2,
+ "title": "Introducción a la estadística aplicada",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Introducción a la estadística aplicada"
+  },
+  {
+   "level": 2,
+   "text": "1. Descripción"
+  },
+  {
+   "level": 2,
+   "text": "2. Objetivos de aprendizaje"
+  },
+  {
+   "level": 2,
+   "text": "3. Contenidos"
+  },
+  {
+   "level": 2,
+   "text": "4. Calendario de sesiones"
+  },
+  {
+   "level": 2,
+   "text": "5. Evaluación"
+  },
+  {
+   "level": 2,
+   "text": "6. Bibliografía"
+  },
+  {
+   "level": 2,
+   "text": "7. Normas del curso"
+  }
+ ],
+ "key_sentences": [
+  "La asignatura presenta las ideas básicas de la estadística descriptiva e inferencial con ejemplos tomados de las ciencias sociales.",
+  "Se parte de datos reales y se insiste en la interpretación de los resultados más que en el cálculo a mano.",
+  "Marque las condiciones que ya ha comprobado antes del inicio de las clases.",
+  "La asistencia mínima exigida es del 80 por ciento de las sesiones."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Código",
+     "CSO-214",
+     "Créditos",
+     "6 ECTS"
+    ],
+    [
+     "Profesorado",
+     "Dra. Marina Quispe Arce",
+     "Horario",
+     "Martes y jueves, 10:00 a 11:30"
+    ],
+    [
+     "Aula",
+     "Edificio B, aula 2.07",
+     "Tutorías",
+     "Miércoles, 16:00 a 18:00"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Semana",
+     "Tema",
+     "Lectura",
+     "Actividad"
+    ],
+    [
+     "1",
+     "Presentación y tipos de variables",
+     "Cap. 1",
+     "Cuestionario inicial"
+    ],
+    [
+     "2",
+     "Tablas y gráficos",
+     "Cap. 2",
+     "Práctica 1"
+    ],
+    [
+     "3",
+     "Medidas de posición y dispersión",
+     "Cap. 3",
+     "Práctica 2"
+    ],
+    [
+     "4",
+     "Probabilidad básica",
+     "Cap. 4",
+     "Ejercicios en clase"
+    ],
+    [
+     "5",
+     "Variables aleatorias",
+     "Cap. 5",
+     "Práctica 3"
+    ],
+    [
+     "6",
+     "Distribución normal",
+     "Cap. 6",
+     "Prueba corta"
+    ],
+    [
+     "7",
+     "Muestreo y distribuciones muestrales",
+     "Cap. 7",
+     "Práctica 4"
+    ],
+    [
+     "8",
+     "Intervalos de confianza",
+     "Cap. 8",
+     "Ejercicios en clase"
+    ],
+    [
+     "9",
+     "Contraste de hipótesis",
+     "Cap. 9",
+     "Práctica 5"
+    ],
+    [
+     "10",
+     "Comparación de dos grupos",
+     "Cap. 10",
+     "Práctica 6"
+    ],
+    [
+     "11",
+     "Correlación y regresión",
+     "Cap. 11",
+     "Entrega del informe"
+    ],
+    [
+     "12",
+     "Repaso y simulacro de examen",
+     "Todos",
+     "Tutoría colectiva"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Componente",
+     "Peso",
+     "Fecha"
+    ],
+    [
+     "Pruebas cortas (dos)",
+     "20 %",
+     "Semanas 6 y 10"
+    ],
+    [
+     "Prácticas entregadas (seis)",
+     "30 %",
+     "Semanal"
+    ],
+    [
+     "Informe final",
+     "20 %",
+     "Semana 11"
+    ],
+    [
+     "Examen final",
+     "30 %",
+     "Convocatoria oficial"
+    ],
+    [
+     "Total",
+     "100 %",
+     ""
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "1) Describir un conjunto de datos con tablas, gráficos y medidas resumen."
+  },
+  {
+   "level": 0,
+   "text": "2) Aplicar el muestreo aleatorio y estimar un parámetro con su margen de error."
+  },
+  {
+   "level": 0,
+   "text": "3) Contrastar hipótesis sencillas e interpretar el valor p con cautela."
+  },
+  {
+   "level": 0,
+   "text": "4) Redactar un informe breve que comunique las conclusiones a un público no experto."
+  },
+  {
+   "level": 0,
+   "text": "Unidad 1. Describir los datos"
+  },
+  {
+   "level": 1,
+   "text": "Tipos de variables y escalas de medida"
+  },
+  {
+   "level": 1,
+   "text": "Distribuciones de frecuencias y gráficos"
+  },
+  {
+   "level": 1,
+   "text": "Media, mediana y desviación típica"
+  },
+  {
+   "level": 0,
+   "text": "Unidad 2. Probabilidad y muestreo"
+  },
+  {
+   "level": 1,
+   "text": "Experimentos aleatorios y sucesos"
+  },
+  {
+   "level": 1,
+   "text": "Distribución normal y teorema central del límite"
+  },
+  {
+   "level": 0,
+   "text": "Unidad 3. Inferencia"
+  },
+  {
+   "level": 1,
+   "text": "Intervalos de confianza"
+  },
+  {
+   "level": 1,
+   "text": "Pruebas de hipótesis para una y dos muestras"
+  },
+  {
+   "level": 1,
+   "text": "Correlación y regresión lineal simple"
+  },
+  {
+   "level": 0,
+   "text": "[1] Moore, D. y McCabe, G. Introducción a la práctica de la estadística. Barcelona: Editorial Aldea, 2019."
+  },
+  {
+   "level": 0,
+   "text": "[2] Peña, D. Fundamentos de estadística. Madrid: Ediciones Cumbre, 2021."
+  },
+  {
+   "level": 0,
+   "text": "[3] Quispe, M. Cuaderno de prácticas de estadística aplicada. Valle Alto: Servicio de Publicaciones, 2025."
+  },
+  {
+   "level": 0,
+   "text": "Tengo instalada la hoja de cálculo indicada por el profesorado."
+  },
+  {
+   "level": 0,
+   "text": "He leído el calendario y las fechas de entrega."
+  },
+  {
+   "level": 0,
+   "text": "Conozco la política de originalidad de los trabajos."
+  }
+ ],
+ "furniture": [
+  "Universidad del Valle Alto",
+  "Facultad de Ciencias Sociales · Departamento de Métodos Cuantitativos",
+  "Programa de la asignatura CSO-214",
+  "Curso académico 2026-2027",
+  "Página 1 de 2",
+  "Página 2 de 2"
+ ],
+ "languages": [
+  "es"
+ ],
+ "code": [],
+ "notes": "Producer: ReportLab 5.0.1 canvas API with pageCompression=0 (readable content streams). Fonts: Helvetica, Helvetica-Bold, Helvetica-Oblique standard-14, NOT embedded (WinAnsi accents). Section headings are drawn with character spacing (Tc 0.9) so a reader that inserts spaces between spaced glyphs would break them. Units list: unit titles are typed bold lines (level 0); their sub-items carry DRAWN dash strokes (no marker). Objectives carry typed '1)' markers, the bibliography typed '[1]' markers, the norms list DRAWN check boxes (one with a drawn tick). Tables: header-less grid fiche (key/value, labels bold), calendar with rules between rows only and a repeated header row across pages (listed once), evaluation grid with total row. Footer 'Página n de N'. Letterhead is a white-on-navy band on page 1, running header on page 2. | Fonts in PDF: standard-14 / not embedded: Helvetica, Helvetica-Bold, Helvetica-Oblique"
+}

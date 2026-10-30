@@ -1,0 +1,1 @@
+ReportLab 5.0.1 Platypus, standard-14 Times, UNCOMPRESSED page streams (pageCompression=0)

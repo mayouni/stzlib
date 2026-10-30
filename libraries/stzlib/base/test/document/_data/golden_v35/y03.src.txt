@@ -1,0 +1,1 @@
+ReportLab 5.0.1 canvas (low-level), standard-14 Times, text objects, one textLine per visual line

@@ -1,0 +1,38 @@
+page_header	0	Universidad del Valle Alto
+page_header	0	Facultad de Ciencias Sociales · Departamento de Métodos Cuantitativos
+heading	1	Introducción a la estadística aplicada
+heading	3	Programa de la asignatura CSO-214 · primer semestre
+table	0	CódigoCSO-214Créditos6 ECTSProfesoradoDra. Marina Quispe ArceHorarioMartes y jueves, 10:00 a 11:30AulaEdificio B, aula 2.07TutoríasMiércoles, 16:00 a 18:00
+heading	3	1. Descripción
+paragraph	0	La asignaturparesentalasideasbásicasde laestadístidceascriptievainferencicaolnejemplostomados de lascienciassocialesS.e partede datosrealesy se insisteen lainterpretacdieónlosresultadomsás que en el cálculo a mano.
+heading	3	2. Objetivos de aprendizaje
+list_item	0	1) Describir un conjunto de datos con tablas, gráficos y medidas resumen.
+list_item	0	2) Aplicar el muestreo aleatorio y estimar un parámetro con su margen de error.
+list_item	0	3) Contrastar hipótesis sencillas e interpretar el valor p con cautela.
+list_item	0	4) Redactar un informe breve que comunique las conclusiones a un público no experto.
+heading	3	3. Contenidos
+heading	4	Unidad 1. Describir los datos
+paragraph	0	Tipos de variables y escalas de medida Distribuciones de frecuencias y gráficos Media, mediana y desviación típica
+heading	4	Unidad 2. Probabilidad y muestreo
+paragraph	0	Experimentos aleatorios y sucesos Distribución normal y teorema central del límite
+heading	4	Unidad 3. Inferencia
+paragraph	0	Intervalos de confianza Pruebas de hipótesis para una y dos muestras Correlación y regresión lineal simple
+heading	3	4. Calendario de sesiones
+table	0	SemanaTemaLecturaActividad1Presentación y tipos de variablesCap. 1Cuestionario inicial2Tablas y gráficosCap. 2Práctica 13Medidas de posición y dispersiónCap. 3Práctica 24Probabilidad básicaCap. 4Ejercicios en clase5Variables aleatoriasCap. 5Práctica 36Distribución normalCap. 6Prueba corta7Muestreo y distribuciones muestralesCap. 7Práctica 48Intervalos de confianzaCap. 8Ejercicios en clase9Contraste de hipótesisCap. 9Práctica 510Comparación de dos gruposCap. 10Práctica 611Correlación y regresiónCap. 11Entrega del informe12Repaso y simulacro de examenTodosTutoría colectiva
+page_footer	0	Curso académico 2026-2027
+page_footer	0	Página 1 de 2
+page_header	0	Programa de la asignatura CSO-214
+heading	3	5. Evaluación
+table	0	ComponentePesoFechaPruebas cortas (dos)20 %Semanas 6 y 10Prácticas entregadas (seis)30 %SemanalInforme final20 %Semana 11Examen final30 %Convocatoria oficialTotal100 %
+heading	3	6. Bibliografía
+list_item	0	[1] Moore, D. y McCabe, G. Introducción a la práctica de la estadística. Barcelona: Editorial Aldea, 2019.
+list_item	0	[2] Peña, D. Fundamentos de estadística. Madrid: Ediciones Cumbre, 2021.
+list_item	0	[3] Quispe, M. Cuaderno de prácticas de estadística aplicada. Valle Alto: Servicio de Publicaciones, 2025.
+heading	3	7. Normas del curso
+paragraph	0	Marque las condiciones que ya ha comprobado antes del inicio de las clases.
+list_item	0	Tengo instalada la hoja de cálculo indicada por el profesorado.
+list_item	0	He leído el calendario y las fechas de entrega.
+list_item	0	Conozco la política de originalidad de los trabajos.
+paragraph	0	La asistencia mínima exigida es del 80 por ciento de las sesiones.
+page_footer	0	Curso académico 2026-2027
+page_footer	0	Página 2 de 2

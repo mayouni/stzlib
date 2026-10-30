@@ -1,0 +1,150 @@
+{
+ "id": "y24",
+ "difficulty": "very hard: Arabic workshop registration form, 1 page, GDI+ Tahoma right-to-left with Arabic shaping, boxed form with empty fields, drawn check boxes, lettered Arabic list, instalment grid, LTR code block",
+ "pages": 1,
+ "title": "نموذج التسجيل في ورشة أساسيات الكتابة الصحفية",
+ "headings": [
+  {
+   "level": 1,
+   "text": "نموذج التسجيل في ورشة أساسيات الكتابة الصحفية"
+  },
+  {
+   "level": 2,
+   "text": "بيانات المشارك"
+  },
+  {
+   "level": 2,
+   "text": "اختيار الورشة"
+  },
+  {
+   "level": 3,
+   "text": "ضع علامة في المربع المناسب:"
+  },
+  {
+   "level": 2,
+   "text": "طريقة الدفع"
+  },
+  {
+   "level": 2,
+   "text": "تعليمات"
+  }
+ ],
+ "key_sentences": [
+  "يرجى تعبئة هذا النموذج بخط واضح وإعادته إلى مكتب التسجيل قبل بدء الورشة بأسبوع.",
+  "المقاعد محدودة وتُخصص حسب أسبقية التسجيل.",
+  "اكتب رقم المرجع التالي في خانة البيان عند التحويل:",
+  "شكرًا لاختياركم مركز الإبداع للتدريب."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "الاسم الكامل",
+     ""
+    ],
+    [
+     "تاريخ الميلاد",
+     ""
+    ],
+    [
+     "رقم الهاتف",
+     ""
+    ],
+    [
+     "البريد الإلكتروني",
+     ""
+    ],
+    [
+     "المؤهل العلمي",
+     ""
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "الورشة",
+     "اليوم",
+     "الوقت",
+     "الرسوم (ريال)"
+    ],
+    [
+     "الكتابة الإخبارية",
+     "السبت",
+     "9:00 – 13:00",
+     "300"
+    ],
+    [
+     "التحقيق الصحفي",
+     "الأحد",
+     "16:00 – 20:00",
+     "350"
+    ],
+    [
+     "التحرير والتدقيق",
+     "الاثنين",
+     "17:00 – 20:00",
+     "250"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "الكتابة الإخبارية"
+  },
+  {
+   "level": 0,
+   "text": "التحقيق الصحفي"
+  },
+  {
+   "level": 0,
+   "text": "التحرير والتدقيق"
+  },
+  {
+   "level": 0,
+   "text": "نقدًا في مكتب التسجيل"
+  },
+  {
+   "level": 0,
+   "text": "تحويل مصرفي"
+  },
+  {
+   "level": 0,
+   "text": "بطاقة ائتمان"
+  },
+  {
+   "level": 0,
+   "text": "١. يُسترد المبلغ كاملًا عند الإلغاء قبل الورشة بأسبوع."
+  },
+  {
+   "level": 0,
+   "text": "٢. تُمنح شهادة حضور بعد المشاركة في كل الجلسات."
+  },
+  {
+   "level": 1,
+   "text": "أ. يجب ألا تتجاوز نسبة الغياب عشرين بالمئة."
+  },
+  {
+   "level": 1,
+   "text": "ب. تُسلَّم الشهادة في آخر جلسة."
+  }
+ ],
+ "furniture": [
+  "مركز الإبداع للتدريب",
+  "دورات وورش عمل في الكتابة والإعلام",
+  "هاتف 000 0000",
+  "نموذج التسجيل رقم WS-117",
+  "صفحة ١ من ١"
+ ],
+ "languages": [
+  "ar"
+ ],
+ "code": [
+  "Reference: WS-117-2026\nAmount due: see table above"
+ ],
+ "notes": "Producer: Microsoft Print to PDF fed by System.Drawing.Printing.PrintDocument (Windows PowerShell 5.1); each visual line drawn with DrawString and DirectionRightToLeft so GDI+ shapes and reorders the Arabic; the generator wrapped the lines. Text in LOGICAL order. Fonts: Tahoma Regular/Bold and Courier New (reference block) embedded as TrueType CID fonts with generic names (CIDFont+F1...), not standard-14. Tables are right-to-left: expected cells listed rightmost column first. Participant form is a header-less grid whose second (left) cell of every row is an EMPTY field (empty string in expected). Workshop table has a header row and zebra fills; the time column uses an en dash. Check boxes are DRAWN (one ticked per list), no marker; instructions list has typed Arabic-Indic numerals with a full stop (١. ٢.) at level 0 and typed Arabic letters (أ. ب.) at level 1. The line 'ضع علامة في المربع المناسب:' is a bold 10.5 pt label treated as level-3 heading. Reference block is LTR monospaced ASCII on a grey fill (code). Signature lines are drawn rules with labels. Letterhead is white text on a plum band (page 1); footer page number uses Arabic-Indic digits: صفحة ١ من ١. | Fonts in PDF: embedded: CIDFont+F1, CIDFont+F2, CIDFont+F3"
+}

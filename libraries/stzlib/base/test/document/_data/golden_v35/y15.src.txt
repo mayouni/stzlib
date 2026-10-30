@@ -1,0 +1,1 @@
+PyMuPDF 1.28.2 fitz.Story (HTML+CSS serif) in two columns, check boxes and rules drawn with draw_rect/draw_line from element positions

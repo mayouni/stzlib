@@ -1,0 +1,189 @@
+{
+ "id": "y01",
+ "difficulty": "easy-medium: payslip with letterhead, key/value form, zebra table, rules-only table, grid summary, drawn bullets, standard-14 fonts",
+ "pages": 1,
+ "title": "Payslip for October 2026",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Payslip for October 2026"
+  },
+  {
+   "level": 2,
+   "text": "Earnings"
+  },
+  {
+   "level": 2,
+   "text": "Deductions"
+  },
+  {
+   "level": 2,
+   "text": "Summary"
+  },
+  {
+   "level": 2,
+   "text": "Notes"
+  }
+ ],
+ "key_sentences": [
+  "Your pay for October includes the 2026 pay award, which has been backdated to 1 April.",
+  "Net pay of 2,077.49 was sent to your bank on 30 October.",
+  "If anything on this payslip looks wrong, contact Payroll Services within 14 days.",
+  "Please keep this payslip with your tax records."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Employee",
+     "Dana Whitcombe",
+     "Employee no.",
+     "004217"
+    ],
+    [
+     "Department",
+     "Parks and Open Spaces",
+     "Pay period",
+     "01 Oct 2026 to 31 Oct 2026"
+    ],
+    [
+     "Tax code",
+     "1257L",
+     "Payment date",
+     "30 Oct 2026"
+    ],
+    [
+     "NI category",
+     "A",
+     "Pension scheme",
+     "Local Government Scheme"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Description",
+     "Units",
+     "Rate",
+     "Amount"
+    ],
+    [
+     "Basic salary",
+     "1",
+     "2,845.00",
+     "2,845.00"
+    ],
+    [
+     "Shift allowance (hours)",
+     "24.0",
+     "3.25",
+     "78.00"
+    ],
+    [
+     "Overtime at time and a half (hours)",
+     "6.5",
+     "21.42",
+     "139.23"
+    ],
+    [
+     "Weekend working (hours)",
+     "8.0",
+     "9.50",
+     "76.00"
+    ],
+    [
+     "Total gross pay",
+     "",
+     "",
+     "3,138.23"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Description",
+     "Amount"
+    ],
+    [
+     "Income tax",
+     "512.80"
+    ],
+    [
+     "National Insurance",
+     "238.46"
+    ],
+    [
+     "Pension contribution (6.5 per cent)",
+     "203.98"
+    ],
+    [
+     "Student loan repayment, plan 2",
+     "94.00"
+    ],
+    [
+     "Trade union subscription",
+     "11.50"
+    ],
+    [
+     "Total deductions",
+     "1,060.74"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Item",
+     "This period",
+     "Year to date"
+    ],
+    [
+     "Gross pay",
+     "3,138.23",
+     "21,967.61"
+    ],
+    [
+     "Total deductions",
+     "1,060.74",
+     "7,425.18"
+    ],
+    [
+     "Net pay",
+     "2,077.49",
+     "14,542.43"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "Check that the tax code 1257L matches the letter you received from the tax office."
+  },
+  {
+   "level": 0,
+   "text": "Report a change of address or bank details to Payroll Services in writing."
+  },
+  {
+   "level": 0,
+   "text": "Pension contributions are taken before income tax is worked out."
+  }
+ ],
+ "furniture": [
+  "Northgate Regional Council",
+  "Payroll Services, Civic Centre, 14 Canal Street, Northgate NG4 2AB",
+  "Confidential: for the named employee only",
+  "Page 1 of 1"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [],
+ "notes": "Producer: ReportLab 5.0.1 Platypus. Fonts: Helvetica and Helvetica-Bold standard-14, NOT embedded (WinAnsi). Table 1 is a key/value form with no header row (first row is data). Earnings table has a coloured header band and zebra fills and a totals row; Deductions table has rules between rows only and a heavier header rule; Summary table is a full grid. The three Notes bullets are DRAWN vector discs (no glyph), so list_items carry no marker; the Notes heading is plain weight 11 pt against 9.5 pt body. Letterhead and footer drawn on the canvas per page. | Fonts in PDF: standard-14 / not embedded: Helvetica, Helvetica-Bold"
+}

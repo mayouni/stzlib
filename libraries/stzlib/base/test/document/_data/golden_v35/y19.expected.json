@@ -1,0 +1,175 @@
+{
+ "id": "y19",
+ "difficulty": "hard: Greek weather bulletin, 1 page, matplotlib TrueType (fonttype 42) strings, zebra forecast grid, rules table, drawn warning triangles, Greek-letter list, side-by-side boxes",
+ "pages": 1,
+ "title": "Δελτίο καιρού και πρόγνωση για την Κρήτη",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Δελτίο καιρού και πρόγνωση για την Κρήτη"
+  },
+  {
+   "level": 2,
+   "text": "Γενική εικόνα"
+  },
+  {
+   "level": 2,
+   "text": "Πρόγνωση τεσσάρων ημερών"
+  },
+  {
+   "level": 2,
+   "text": "Προειδοποιήσεις"
+  },
+  {
+   "level": 2,
+   "text": "Παρατηρήσεις σταθμών"
+  },
+  {
+   "level": 3,
+   "text": "Σημείωση"
+  },
+  {
+   "level": 3,
+   "text": "Θάλασσα"
+  },
+  {
+   "level": 3,
+   "text": "Ηλιοφάνεια"
+  }
+ ],
+ "key_sentences": [
+  "Ένα βαρομετρικό χαμηλό από τα δυτικά θα επηρεάσει το νησί από το Σάββατο το βράδυ.",
+  "Αναμένονται τοπικές βροχές στα δυτικά και ισχυροί νοτιάδες στο Λιβυκό Πέλαγος.",
+  "Από την Δευτέρα ο καιρός θα βελτιωθεί σταδιακά με άνοδο της θερμοκρασίας.",
+  "Οι τιμές των σταθμών προέρχονται από αυτόματους μετρητές και μπορεί να διορθωθούν."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Έκδοση",
+     "30 Οκτωβρίου 2026, 08:00",
+     "Ισχύει έως",
+     "2 Νοεμβρίου 2026"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Ημέρα",
+     "Ουρανός",
+     "Θερμοκρασία",
+     "Άνεμος",
+     "Βροχή"
+    ],
+    [
+     "Σάββατο 31/10",
+     "Λίγα σύννεφα",
+     "17 – 23 °C",
+     "Ν 4 Beaufort",
+     "0 mm"
+    ],
+    [
+     "Κυριακή 1/11",
+     "Συννεφιά με βροχές",
+     "16 – 21 °C",
+     "ΝΔ 6 Beaufort",
+     "12 mm"
+    ],
+    [
+     "Δευτέρα 2/11",
+     "Αραιή συννεφιά",
+     "15 – 20 °C",
+     "Δ 5 Beaufort",
+     "3 mm"
+    ],
+    [
+     "Τρίτη 3/11",
+     "Σχεδόν αίθριος",
+     "14 – 22 °C",
+     "ΒΔ 3 Beaufort",
+     "0 mm"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Σταθμός",
+     "Θερμοκρασία",
+     "Υγρασία",
+     "Πίεση"
+    ],
+    [
+     "Ηράκλειο",
+     "21,4 °C",
+     "68 %",
+     "1012 hPa"
+    ],
+    [
+     "Χανιά",
+     "19,8 °C",
+     "74 %",
+     "1009 hPa"
+    ],
+    [
+     "Ρέθυμνο",
+     "20,1 °C",
+     "71 %",
+     "1010 hPa"
+    ],
+    [
+     "Σητεία",
+     "22,3 °C",
+     "63 %",
+     "1013 hPa"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "Ισχυροί άνεμοι στο Λιβυκό Πέλαγος την Κυριακή, με ριπές έως 9 Beaufort."
+  },
+  {
+   "level": 0,
+   "text": "Τοπικά πλημμυρικά φαινόμενα στα δυτικά ορεινά τμήματα."
+  },
+  {
+   "level": 0,
+   "text": "Περιορισμός δρομολογίων των πορθμείων προς τις νότιες ακτές."
+  },
+  {
+   "level": 0,
+   "text": "α) Αρκετά ταραγμένη στο νότιο Αιγαίο."
+  },
+  {
+   "level": 0,
+   "text": "β) Κύμα ύψους έως 2,5 μέτρων."
+  },
+  {
+   "level": 0,
+   "text": "α) Σάββατο: έως 7 ώρες."
+  },
+  {
+   "level": 0,
+   "text": "β) Κυριακή: έως 2 ώρες."
+  }
+ ],
+ "furniture": [
+  "Περιφερειακό Κέντρο Μετεωρολογίας Νοτίου Αιγαίου",
+  "Οδός Λιμένος 12, Ηράκλειο · τηλέφωνο 2810 000 000",
+  "Δελτίο καιρού · Κρήτη",
+  "Σελίδα 1 από 1"
+ ],
+ "languages": [
+  "el"
+ ],
+ "code": [],
+ "notes": "Producer: matplotlib 3.11.2 PdfPages with pdf.fonttype=42, DejaVu Sans / Bold / Oblique embedded as TrueType (CID-keyed subsets, ToUnicode maps present). Each string is its own text object; table grids, zebra fills and rules are patches and lines. Forecast grid has a header row and zebra rows; the station table has rules between rows only; the issue block is a header-less 4-column key/value grid (first row is data). Warning items have DRAWN red triangles (no marker). The two bordered boxes (Θάλασσα left, Ηλιοφάνεια right) are read box by box; the Greek-letter markers 'α)' 'β)' inside them are typed text. 'Σημείωση' is a plain-weight 10.5 pt sub-heading over 9.5 pt body. Page number reads 'Σελίδα n από N'. | Fonts in PDF: embedded: CQYJFU+DejaVuSans-Bold, CWMKAH+DejaVuSans, DSPOHT+DejaVuSans-Bold, DSRQMO+DejaVuSans, DYYTEN+DejaVuSans-Oblique, FQBHAX+DejaVuSans-Oblique"
+}

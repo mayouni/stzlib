@@ -1,0 +1,173 @@
+{
+ "id": "y05",
+ "difficulty": "hard: German museum guide, 2 pages, PyMuPDF Story two-column flow, grid table inside a column, typed ol/ul markers, monospaced block, side-by-side boxes as a bordered two-cell table",
+ "pages": 2,
+ "title": "Museumsführer Stadtmuseum Rheinau",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Museumsführer Stadtmuseum Rheinau"
+  },
+  {
+   "level": 2,
+   "text": "Willkommen"
+  },
+  {
+   "level": 2,
+   "text": "Geschichte des Hauses"
+  },
+  {
+   "level": 2,
+   "text": "Praktische Informationen"
+  },
+  {
+   "level": 3,
+   "text": "Führungen"
+  },
+  {
+   "level": 2,
+   "text": "Der Rundgang"
+  },
+  {
+   "level": 2,
+   "text": "Sonderausstellung"
+  },
+  {
+   "level": 2,
+   "text": "Audioguide"
+  },
+  {
+   "level": 2,
+   "text": "Hausordnung"
+  },
+  {
+   "level": 2,
+   "text": "Barrierefreiheit"
+  },
+  {
+   "level": 2,
+   "text": "Für Familien"
+  },
+  {
+   "level": 3,
+   "text": "Kinderrallye"
+  },
+  {
+   "level": 3,
+   "text": "Museumscafé"
+  }
+ ],
+ "key_sentences": [
+  "Herzlich willkommen im Stadtmuseum Rheinau.",
+  "Das Haus zeigt auf drei Etagen, wie sich das Leben am Fluss seit dem Mittelalter verändert hat.",
+  "Der Rundgang dauert etwa neunzig Minuten und ist vollständig barrierefrei.",
+  "Öffentliche Führungen finden jeden Sonntag um 14:00 Uhr statt.",
+  "Gruppen ab acht Personen melden sich bitte zwei Wochen vorher an.",
+  "Den Audioguide erhalten Sie kostenlos an der Kasse.",
+  "Geben Sie die dreistellige Nummer neben dem Ausstellungsstück ein und drücken Sie die grüne Taste.",
+  "Eine Suche nach zehn Tieren im ganzen Haus.",
+  "Kuchen und Getränke im Innenhof.",
+  "Wir wünschen Ihnen einen anregenden Besuch."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Tag",
+     "Öffnungszeiten",
+     "Eintritt"
+    ],
+    [
+     "Dienstag bis Freitag",
+     "10:00 bis 17:00 Uhr",
+     "6 Euro"
+    ],
+    [
+     "Samstag und Sonntag",
+     "11:00 bis 18:00 Uhr",
+     "8 Euro"
+    ],
+    [
+     "Montag",
+     "geschlossen",
+     "-"
+    ],
+    [
+     "Erster Sonntag im Monat",
+     "11:00 bis 18:00 Uhr",
+     "frei"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "1. Erdgeschoss: Fluss und Handel, mit Modellen der alten Hafenanlage."
+  },
+  {
+   "level": 1,
+   "text": "- Lastkahn im Maßstab 1 zu 20"
+  },
+  {
+   "level": 1,
+   "text": "- Zollbuch aus dem Jahr 1583"
+  },
+  {
+   "level": 0,
+   "text": "2. Erster Stock: Handwerk und Alltag in den Werkstätten des 18. Jahrhunderts."
+  },
+  {
+   "level": 1,
+   "text": "- Webstuhl mit Vorführung"
+  },
+  {
+   "level": 1,
+   "text": "- Küche einer Handwerkerfamilie"
+  },
+  {
+   "level": 0,
+   "text": "3. Zweiter Stock: Die Moderne in Fotografien und Tonaufnahmen."
+  },
+  {
+   "level": 1,
+   "text": "- Bildreihe zur Rheinbrücke von 1928"
+  },
+  {
+   "level": 1,
+   "text": "- Hörstation mit Zeitzeugen"
+  },
+  {
+   "level": 0,
+   "text": "(a) Taschen und Rucksäcke bitte an der Garderobe abgeben."
+  },
+  {
+   "level": 0,
+   "text": "(b) Fotografieren ohne Blitz ist erlaubt."
+  },
+  {
+   "level": 0,
+   "text": "(c) Getränke und Speisen sind nur im Café gestattet."
+  },
+  {
+   "level": 0,
+   "text": "(d) Kinder unter zwölf Jahren werden von Erwachsenen begleitet."
+  }
+ ],
+ "furniture": [
+  "Stadtmuseum Rheinau",
+  "Schlossstraße 9 · 77000 Rheinau · Telefon 07000 123456 · museum@rheinau.example",
+  "Museumsführer · Stadtmuseum Rheinau",
+  "Öffnungszeiten finden Sie auch im Internet",
+  "Seite 1 von 2",
+  "Seite 2 von 2"
+ ],
+ "languages": [
+  "de"
+ ],
+ "code": [
+  "Nummer  Ausstellungsstück\n101     Hafenmodell\n102     Zollbuch von 1583\n201     Webstuhl\n301     Hörstation"
+ ],
+ "notes": "Producer: PyMuPDF 1.28.2 (MuPDF HTML engine, Story) used for writing only. Text flows through two columns per page (left column first). Fonts: the engine's built-in sans-serif, monospace and bold/italic faces, see Fonts in PDF. The opening-hours table is a bordered grid with a header row inside the left column; the Familien block is a bordered two-cell table read cell by cell (Kinderrallye, then Museumscafé). List markers are typed characters ('1.' and '- ') inside list items with list-style none; no bullet is a drawn shape. The Audioguide table is a monospaced block (code), lines joined with newline. Furniture inserted per page with insert_htmlbox: letterhead on page 1, running header on page 2, footer 'Seite n von N'. 'Führungen' is a plain-weight 11 pt sub-heading. | Fonts in PDF: embedded: Charis SIL Bold, Charis SIL Italic, Charis SIL Regular, Nimbus Mono PS Regular, Nimbus Sans Bold, Nimbus Sans Italic, Nimbus Sans Regular"
+}

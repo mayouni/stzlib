@@ -1,0 +1,135 @@
+{
+ "id": "y15",
+ "difficulty": "hard: conference abstract book, 2 pages, PyMuPDF Story two-column serif flow, grid with merged cells, superscript affiliation markers, plain-weight sub-heading, drawn check boxes placed from element positions",
+ "pages": 2,
+ "title": "Abstract Book: Day 2",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Abstract Book: Day 2"
+  },
+  {
+   "level": 2,
+   "text": "Programme at a glance"
+  },
+  {
+   "level": 2,
+   "text": "Session 3: Sensors and Sampling"
+  },
+  {
+   "level": 3,
+   "text": "Low-cost turbidity sensors for estuary monitoring"
+  },
+  {
+   "level": 3,
+   "text": "Sampling design for patchy seagrass meadows"
+  },
+  {
+   "level": 3,
+   "text": "Drone imagery for intertidal mapping"
+  },
+  {
+   "level": 2,
+   "text": "Session 4: Models and Uncertainty"
+  },
+  {
+   "level": 3,
+   "text": "Quantifying uncertainty in sea-level projections for small ports"
+  },
+  {
+   "level": 3,
+   "text": "A hybrid wave model trained on buoy records"
+  },
+  {
+   "level": 3,
+   "text": "Communicating flood risk to coastal communities"
+  },
+  {
+   "level": 2,
+   "text": "Poster session"
+  },
+  {
+   "level": 3,
+   "text": "Before you arrive"
+  }
+ ],
+ "key_sentences": [
+  "We compare four low-cost turbidity sensors against a laboratory nephelometer over a six-month deployment.",
+  "The sensors agree within eight per cent after a simple temperature correction.",
+  "Seagrass cover is rarely uniform, so simple random sampling wastes effort.",
+  "We propose an adaptive design that adds samples where the variance is high.",
+  "Mapping the intertidal zone on foot is slow and limited by the tide.",
+  "We flew a small drone at low water and built elevation models with a vertical error below four centimetres.",
+  "Harbour authorities need sea-level projections with honest error bars.",
+  "We combine tide gauge records with regional ice-sheet scenarios and report the full range of outcomes.",
+  "Physical wave models are accurate but expensive to run for every harbour."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Time",
+     "Room A",
+     "Room B"
+    ],
+    [
+     "09:00",
+     "Opening remarks",
+     "Registration desk"
+    ],
+    [
+     "09:30",
+     "Session 3",
+     "Workshop 1"
+    ],
+    [
+     "11:00",
+     "Coffee break",
+     "Coffee break"
+    ],
+    [
+     "11:30",
+     "Session 4",
+     "Workshop 2"
+    ],
+    [
+     "13:00",
+     "Lunch",
+     "Lunch"
+    ],
+    [
+     "14:00",
+     "Poster session",
+     "Poster session"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "Print the poster at A0 size, portrait."
+  },
+  {
+   "level": 0,
+   "text": "Bring four pins; the boards are cork."
+  },
+  {
+   "level": 0,
+   "text": "Collect your lanyard at the registration desk."
+  }
+ ],
+ "furniture": [
+  "Symposium on Coastal Data Science",
+  "14th meeting · Abstract Book",
+  "Harbour Conference Centre, 9 to 11 November 2026",
+  "Page 1 of 2",
+  "Page 2 of 2"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [],
+ "notes": "Producer: PyMuPDF 1.28.2 (MuPDF HTML engine, Story), writing only. Two columns per page, left first. Fonts: the engine's built-in serif family, see Fonts in PDF. The programme table has a header row and three rows whose second cell spans Room A and Room B (colspan; text repeated in both columns in expected). Author lines carry superscript affiliation numbers (typed digits in raised text, not footnote markers in sentences) and a small affiliation key at the end. Abstract titles are H3 (bold 12 pt), Before you arrive is a plain-weight 11 pt heading over 11.5 pt body. The three practical notes have DRAWN check boxes (first with a drawn tick) placed beside list items with draw_rect/draw_polyline, so list_items carry no marker. Key sentences are the first one or two sentences of each abstract. Furniture inserted per page with insert_htmlbox: header (name and meeting), footer with 'Page n of N'. | Fonts in PDF: embedded: Charis SIL Bold, Charis SIL Italic, Charis SIL Regular"
+}

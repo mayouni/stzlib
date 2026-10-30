@@ -1,0 +1,197 @@
+{
+ "id": "y11",
+ "difficulty": "very hard: Arabic insurance policy summary, 2 pages, right-to-left PyMuPDF HTML (dir=rtl), shaped Arabic, RTL grid tables (logical column order right to left), Arabic-Indic and Western numerals, numbered lists with nested hyphens, side-by-side boxes",
+ "pages": 2,
+ "title": "ملخص وثيقة تأمين المنزل",
+ "headings": [
+  {
+   "level": 1,
+   "text": "ملخص وثيقة تأمين المنزل"
+  },
+  {
+   "level": 2,
+   "text": "بيانات الوثيقة"
+  },
+  {
+   "level": 2,
+   "text": "التغطيات الأساسية"
+  },
+  {
+   "level": 3,
+   "text": "ملاحظة حول المقتنيات"
+  },
+  {
+   "level": 2,
+   "text": "الاستثناءات"
+  },
+  {
+   "level": 2,
+   "text": "خطوات تقديم المطالبة"
+  },
+  {
+   "level": 2,
+   "text": "الأقساط"
+  },
+  {
+   "level": 2,
+   "text": "التجديد والإلغاء"
+  },
+  {
+   "level": 3,
+   "text": "هل تحتاج إلى مساعدة؟"
+  },
+  {
+   "level": 3,
+   "text": "ما الذي يجب إحضاره؟"
+  }
+ ],
+ "key_sentences": [
+  "يوضح هذا الملخص أهم شروط وثيقة تأمين المنزل الصادرة عن شركة الأمان الوطنية للتأمين.",
+  "ولا يغني هذا الملخص عن قراءة الوثيقة الكاملة، وعند الاختلاف يؤخذ بنص الوثيقة.",
+  "تغطى المقتنيات الثمينة، مثل المجوهرات واللوحات، حتى مبلغ 20,000 ريال فقط ما لم تُذكر في ملحق خاص.",
+  "يمكن دفع القسط السنوي دفعة واحدة أو على قسطين متساويين.",
+  "تجدد الوثيقة تلقائيًا في نهاية المدة ما لم يخطر أحد الطرفين الآخر كتابةً قبل ثلاثين يومًا.",
+  "يحق للمؤمَّن له إلغاء الوثيقة في أي وقت، ويُردّ إليه جزء من القسط عن المدة المتبقية.",
+  "اتصل بمركز الخدمة على مدار الساعة.",
+  "صورة من الوثيقة وبطاقة الهوية."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "رقم الوثيقة",
+     "HP-2026-48213"
+    ],
+    [
+     "المؤمَّن له",
+     "سالم عبد الرحمن"
+    ],
+    [
+     "عنوان العقار",
+     "الطابق الثالث، شقة 12، شارع النخيل"
+    ],
+    [
+     "مدة التأمين",
+     "سنة واحدة تبدأ في 1 يناير 2027"
+    ],
+    [
+     "القسط السنوي",
+     "1,850 ريال"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "التغطية",
+     "الحد الأقصى (ريال)",
+     "التحمل (ريال)"
+    ],
+    [
+     "الحريق والانفجار",
+     "500,000",
+     "1,000"
+    ],
+    [
+     "السرقة والسطو",
+     "80,000",
+     "2,000"
+    ],
+    [
+     "الأضرار المائية",
+     "60,000",
+     "500"
+    ],
+    [
+     "الكوارث الطبيعية",
+     "150,000",
+     "1,500"
+    ],
+    [
+     "المسؤولية تجاه الغير",
+     "200,000",
+     "لا يوجد"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "الدفعة",
+     "تاريخ الاستحقاق",
+     "المبلغ (ريال)"
+    ],
+    [
+     "الدفعة الأولى",
+     "1 يناير 2027",
+     "925"
+    ],
+    [
+     "الدفعة الثانية",
+     "1 يوليو 2027",
+     "925"
+    ],
+    [
+     "المجموع",
+     "",
+     "1,850"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "١. الأضرار الناتجة عن الحروب والاضطرابات العامة."
+  },
+  {
+   "level": 0,
+   "text": "٢. الأضرار المتعمدة التي يتسبب بها المؤمَّن له."
+  },
+  {
+   "level": 0,
+   "text": "٣. التآكل وسوء الصيانة المعتاد للمبنى."
+  },
+  {
+   "level": 0,
+   "text": "٤. الخسائر غير المباشرة مثل فقدان الإيجار."
+  },
+  {
+   "level": 0,
+   "text": "1. أبلغ الشركة هاتفيًا خلال 48 ساعة من وقوع الحادث."
+  },
+  {
+   "level": 1,
+   "text": "- اذكر رقم الوثيقة وعنوان العقار."
+  },
+  {
+   "level": 1,
+   "text": "- لا تغيّر مكان الأضرار قبل المعاينة."
+  },
+  {
+   "level": 0,
+   "text": "2. أرسل صور الأضرار وقائمة بالمقتنيات المتضررة."
+  },
+  {
+   "level": 0,
+   "text": "3. استلم تقرير المعاين وانتظر قرار الشركة خلال 14 يومًا."
+  }
+ ],
+ "furniture": [
+  "شركة الأمان الوطنية للتأمين",
+  "الخط الساخن 800 1234",
+  "المكتب الرئيسي: شارع الاستقلال 25، المدينة الجديدة",
+  "ملخص وثيقة تأمين المنزل · شركة الأمان الوطنية للتأمين",
+  "وثيقة رقم HP-2026-48213",
+  "صفحة ١ من ٢",
+  "صفحة ٢ من ٢"
+ ],
+ "languages": [
+  "ar"
+ ],
+ "code": [],
+ "notes": "Producer: PyMuPDF 1.28.2 (MuPDF HTML engine with its bidi and Arabic shaping), writing only. Fonts: Arial Regular and Bold embedded as TrueType (names in Fonts in PDF). Right-to-left throughout: text is given in LOGICAL order; table cells are listed in logical order, i.e. the rightmost column first (for the coverage table: التغطية first, then الحد الأقصى, then التحمل). The policy data table is a header-less key/value grid (label cell on the right, shaded); the coverage and instalment tables have shaded header rows; the instalment table has a bold total row with one empty cell. Lists have TYPED markers: Arabic-Indic digits with a full stop for the exclusions, Western '1.' '2.' '3.' for the claim steps with nested typed '- ' sub-items at level 1; no marker is a drawn shape. The two bordered boxes at the end (هل تحتاج إلى مساعدة؟ at the right, ما الذي يجب إحضاره؟ at the left) are read box by box, right box first. Latin letters and Western digits inside Arabic text (HP-2026-48213, 1,850, 48) are LTR runs. 'ملاحظة حول المقتنيات' is a plain-weight 12.5 pt heading over 11.5 pt body. Page numbers use Arabic-Indic digits: صفحة ١ من ٢. | Fonts in PDF: embedded: Arial Bold, Arial Regular"
+}

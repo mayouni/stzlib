@@ -1,0 +1,823 @@
+%PDF-1.4
+%“Œ‹ž ReportLab Generated PDF document (opensource)
+1 0 obj
+<<
+/F1 2 0 R /F2 3 0 R /F3 5 0 R
+>>
+endobj
+2 0 obj
+<<
+/BaseFont /Helvetica /Encoding /WinAnsiEncoding /Name /F1 /Subtype /Type1 /Type /Font
+>>
+endobj
+3 0 obj
+<<
+/BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding /Name /F2 /Subtype /Type1 /Type /Font
+>>
+endobj
+4 0 obj
+<<
+/Contents 10 0 R /MediaBox [ 0 0 595.2756 841.8898 ] /Parent 9 0 R /Resources <<
+/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+>> /Rotate 0 /Trans <<
+
+>> 
+  /Type /Page
+>>
+endobj
+5 0 obj
+<<
+/BaseFont /Helvetica-Oblique /Encoding /WinAnsiEncoding /Name /F3 /Subtype /Type1 /Type /Font
+>>
+endobj
+6 0 obj
+<<
+/Contents 11 0 R /MediaBox [ 0 0 595.2756 841.8898 ] /Parent 9 0 R /Resources <<
+/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+>> /Rotate 0 /Trans <<
+
+>> 
+  /Type /Page
+>>
+endobj
+7 0 obj
+<<
+/PageMode /UseNone /Pages 9 0 R /Type /Catalog
+>>
+endobj
+8 0 obj
+<<
+/Author (anonymous) /CreationDate (D:20261030130047+01'00') /Creator (anonymous) /Keywords () /ModDate (D:20261030130047+01'00') /Producer (ReportLab PDF Library - \(opensource\)) 
+  /Subject (unspecified) /Title (untitled) /Trapped /False
+>>
+endobj
+9 0 obj
+<<
+/Count 2 /Kids [ 4 0 R 6 0 R ] /Type /Pages
+>>
+endobj
+10 0 obj
+<<
+/Length 12279
+>>
+stream
+1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
+.5 w
+0 0 0 RG
+.078431 .211765 .364706 rg
+n 0 779.5276 595.2756 62.3622 re f*
+0 0 0 rg
+0 0 0 RG
+1 1 1 rg
+BT /F2 16 Tf 19.2 TL ET
+BT 1 0 0 1 62.3622 810.7087 Tm (Universidad del Valle Alto) Tj T* ET
+0 0 0 rg
+1 1 1 rg
+BT /F1 9 Tf 10.8 TL ET
+BT 1 0 0 1 62.3622 793.7008 Tm (Facultad de Ciencias Sociales \267 Departamento de M\351todos Cuantitativos) Tj T* ET
+0 0 0 rg
+BT /F2 21 Tf 25.2 TL ET
+BT 1 0 0 1 62.3622 725.1811 Tm (Introducci\363n a la estad\355stica aplicada) Tj T* ET
+BT /F1 11.5 Tf 13.8 TL ET
+BT 1 0 0 1 62.3622 708.1811 Tm (Programa de la asignatura CSO-214 \267 primer semestre) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 66.3622 686.6811 Tm (C\363digo) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 145.7323 686.6811 Tm (CSO-214) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 293.1339 686.6811 Tm (Cr\351ditos) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 361.1654 686.6811 Tm (6 ECTS) Tj T* ET
+0 0 0 RG
+.5 w
+n 62.3622 700.1811 m 515.9055 700.1811 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 62.3622 680.3061 m 515.9055 680.3061 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 62.3622 700.1811 m 62.3622 680.3061 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 141.7323 700.1811 m 141.7323 680.3061 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 289.1339 700.1811 m 289.1339 680.3061 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 357.1654 700.1811 m 357.1654 680.3061 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 515.9055 700.1811 m 515.9055 680.3061 l S
+0 0 0 RG
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 66.3622 666.8061 Tm (Profesorado) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 145.7323 666.8061 Tm (Dra. Marina Quispe Arce) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 293.1339 666.8061 Tm (Horario) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 361.1654 666.8061 Tm (Martes y jueves, 10:00 a 11:30) Tj T* ET
+0 0 0 RG
+.5 w
+n 62.3622 680.3061 m 515.9055 680.3061 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 62.3622 660.4311 m 515.9055 660.4311 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 62.3622 680.3061 m 62.3622 660.4311 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 141.7323 680.3061 m 141.7323 660.4311 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 289.1339 680.3061 m 289.1339 660.4311 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 357.1654 680.3061 m 357.1654 660.4311 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 515.9055 680.3061 m 515.9055 660.4311 l S
+0 0 0 RG
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 66.3622 646.9311 Tm (Aula) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 145.7323 646.9311 Tm (Edificio B, aula 2.07) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 293.1339 646.9311 Tm (Tutor\355as) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 361.1654 646.9311 Tm (Mi\351rcoles, 16:00 a 18:00) Tj T* ET
+0 0 0 RG
+.5 w
+n 62.3622 660.4311 m 515.9055 660.4311 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 62.3622 640.5561 m 515.9055 640.5561 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 62.3622 660.4311 m 62.3622 640.5561 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 141.7323 660.4311 m 141.7323 640.5561 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 289.1339 660.4311 m 289.1339 640.5561 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 357.1654 660.4311 m 357.1654 640.5561 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 515.9055 660.4311 m 515.9055 640.5561 l S
+0 0 0 RG
+.078431 .211765 .364706 rg
+BT 1 0 0 1 62.3622 616.5561 Tm /F2 11.5 Tf 13.8 TL .9 Tc (1. Descripci\363n) Tj ET
+0 0 0 rg
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 62.3622 596.5561 Tm (La) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 76.56443 596.5561 Tm (asignatura) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 126.3367 596.5561 Tm (presenta) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 168.3289 596.5561 Tm (las) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 184.1911 596.5561 Tm (ideas) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 211.1733 596.5561 Tm (b\341sicas) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 248.1556 596.5561 Tm (de) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 262.3578 596.5561 Tm (la) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 273.22 596.5561 Tm (estad\355stica) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 324.1022 596.5561 Tm (descriptiva) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 374.9745 596.5561 Tm (e) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 383.6167 596.5561 Tm (inferencial) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 432.2689 596.5561 Tm (con) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 451.4712 596.5561 Tm (ejemplos) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 494.5634 596.5561 Tm (tomados) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 62.3622 582.5561 Tm (de) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 76.89894 582.5561 Tm (las) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 93.09567 582.5561 Tm (ciencias) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 132.6324 582.5561 Tm (sociales.) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 174.9491 582.5561 Tm (Se) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 190.5959 582.5561 Tm (parte) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 216.8026 582.5561 Tm (de) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 231.3393 582.5561 Tm (datos) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 259.2161 582.5561 Tm (reales) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 289.8628 582.5561 Tm (y) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 298.2795 582.5561 Tm (se) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 312.2563 582.5561 Tm (insiste) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 344.013 582.5561 Tm (en) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 358.5497 582.5561 Tm (la) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 369.7465 582.5561 Tm (interpretaci\363n) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 433.7432 582.5561 Tm (de) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 448.2799 582.5561 Tm (los) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 464.4767 582.5561 Tm (resultados) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 514.0234 582.5561 Tm (m\341s) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 62.3622 568.5561 Tm (que en el c\341lculo a mano.) Tj T* ET
+.078431 .211765 .364706 rg
+BT 1 0 0 1 62.3622 540.5561 Tm /F2 11.5 Tf 13.8 TL .9 Tc (2. Objetivos de aprendizaje) Tj ET
+0 0 0 rg
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 62.3622 520.5561 Tm (1\) Describir un conjunto de datos con tablas, gr\341ficos y medidas resumen.) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 62.3622 505.5561 Tm (2\) Aplicar el muestreo aleatorio y estimar un par\341metro con su margen de error.) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 62.3622 490.5561 Tm (3\) Contrastar hip\363tesis sencillas e interpretar el valor p con cautela.) Tj T* ET
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 62.3622 475.5561 Tm (4\) Redactar un informe breve que comunique las conclusiones a un p\372blico no experto.) Tj T* ET
+.078431 .211765 .364706 rg
+BT 1 0 0 1 62.3622 450.5561 Tm /F2 11.5 Tf 13.8 TL .9 Tc (3. Contenidos) Tj ET
+0 0 0 rg
+BT /F2 10 Tf 12 TL ET
+BT 1 0 0 1 62.3622 427.5561 Tm (Unidad 1. Describir los datos) Tj T* ET
+q
+0 0 0 rg
+0 0 0 RG
+1 w
+n 69.4622 416.2561 m 74.4622 416.2561 l S
+Q
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 86.3622 413.0561 Tm (Tipos de variables y escalas de medida) Tj T* ET
+q
+0 0 0 rg
+0 0 0 RG
+1 w
+n 69.4622 402.7561 m 74.4622 402.7561 l S
+Q
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 86.3622 399.5561 Tm (Distribuciones de frecuencias y gr\341ficos) Tj T* ET
+q
+0 0 0 rg
+0 0 0 RG
+1 w
+n 69.4622 389.2561 m 74.4622 389.2561 l S
+Q
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 86.3622 386.0561 Tm (Media, mediana y desviaci\363n t\355pica) Tj T* ET
+BT /F2 10 Tf 12 TL ET
+BT 1 0 0 1 62.3622 369.0561 Tm (Unidad 2. Probabilidad y muestreo) Tj T* ET
+q
+0 0 0 rg
+0 0 0 RG
+1 w
+n 69.4622 357.7561 m 74.4622 357.7561 l S
+Q
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 86.3622 354.5561 Tm (Experimentos aleatorios y sucesos) Tj T* ET
+q
+0 0 0 rg
+0 0 0 RG
+1 w
+n 69.4622 344.2561 m 74.4622 344.2561 l S
+Q
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 86.3622 341.0561 Tm (Distribuci\363n normal y teorema central del l\355mite) Tj T* ET
+BT /F2 10 Tf 12 TL ET
+BT 1 0 0 1 62.3622 324.0561 Tm (Unidad 3. Inferencia) Tj T* ET
+q
+0 0 0 rg
+0 0 0 RG
+1 w
+n 69.4622 312.7561 m 74.4622 312.7561 l S
+Q
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 86.3622 309.5561 Tm (Intervalos de confianza) Tj T* ET
+q
+0 0 0 rg
+0 0 0 RG
+1 w
+n 69.4622 299.2561 m 74.4622 299.2561 l S
+Q
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 86.3622 296.0561 Tm (Pruebas de hip\363tesis para una y dos muestras) Tj T* ET
+q
+0 0 0 rg
+0 0 0 RG
+1 w
+n 69.4622 285.7561 m 74.4622 285.7561 l S
+Q
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 86.3622 282.5561 Tm (Correlaci\363n y regresi\363n lineal simple) Tj T* ET
+.078431 .211765 .364706 rg
+BT 1 0 0 1 62.3622 258.5561 Tm /F2 11.5 Tf 13.8 TL .9 Tc (4. Calendario de sesiones) Tj ET
+0 0 0 rg
+.5 w
+0 0 0 RG
+.901961 .92549 .952941 rg
+n 62.3622 231.6811 453.5433 20.875 re f*
+0 0 0 rg
+0 0 0 RG
+BT /F2 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 69.65777 238.5561 Tm (Semana) Tj T* ET
+BT /F2 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 117.8858 238.5561 Tm (Tema) Tj T* ET
+BT /F2 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 321.9803 238.5561 Tm (Lectura) Tj T* ET
+BT /F2 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 384.3425 238.5561 Tm (Actividad) Tj T* ET
+.466667 .466667 .466667 RG
+.4 w
+n 62.3622 231.6811 m 515.9055 231.6811 l S
+0 0 0 RG
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 85.23302 217.6811 Tm (1) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 117.8858 217.6811 Tm (Presentaci\363n y tipos de variables) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 321.9803 217.6811 Tm (Cap. 1) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 384.3425 217.6811 Tm (Cuestionario inicial) Tj T* ET
+.466667 .466667 .466667 RG
+.4 w
+n 62.3622 210.8061 m 515.9055 210.8061 l S
+0 0 0 RG
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 85.23302 196.8061 Tm (2) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 117.8858 196.8061 Tm (Tablas y gr\341ficos) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 321.9803 196.8061 Tm (Cap. 2) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 384.3425 196.8061 Tm (Pr\341ctica 1) Tj T* ET
+.466667 .466667 .466667 RG
+.4 w
+n 62.3622 189.9311 m 515.9055 189.9311 l S
+0 0 0 RG
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 85.23302 175.9311 Tm (3) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 117.8858 175.9311 Tm (Medidas de posici\363n y dispersi\363n) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 321.9803 175.9311 Tm (Cap. 3) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 384.3425 175.9311 Tm (Pr\341ctica 2) Tj T* ET
+.466667 .466667 .466667 RG
+.4 w
+n 62.3622 169.0561 m 515.9055 169.0561 l S
+0 0 0 RG
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 85.23302 155.0561 Tm (4) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 117.8858 155.0561 Tm (Probabilidad b\341sica) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 321.9803 155.0561 Tm (Cap. 4) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 384.3425 155.0561 Tm (Ejercicios en clase) Tj T* ET
+.466667 .466667 .466667 RG
+.4 w
+n 62.3622 148.1811 m 515.9055 148.1811 l S
+0 0 0 RG
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 85.23302 134.1811 Tm (5) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 117.8858 134.1811 Tm (Variables aleatorias) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 321.9803 134.1811 Tm (Cap. 5) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 384.3425 134.1811 Tm (Pr\341ctica 3) Tj T* ET
+.466667 .466667 .466667 RG
+.4 w
+n 62.3622 127.3061 m 515.9055 127.3061 l S
+0 0 0 RG
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 85.23302 113.3061 Tm (6) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 117.8858 113.3061 Tm (Distribuci\363n normal) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 321.9803 113.3061 Tm (Cap. 6) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 384.3425 113.3061 Tm (Prueba corta) Tj T* ET
+.466667 .466667 .466667 RG
+.4 w
+n 62.3622 106.4311 m 515.9055 106.4311 l S
+0 0 0 RG
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 85.23302 92.4311 Tm (7) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 117.8858 92.4311 Tm (Muestreo y distribuciones muestrales) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 321.9803 92.4311 Tm (Cap. 7) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 384.3425 92.4311 Tm (Pr\341ctica 4) Tj T* ET
+.466667 .466667 .466667 RG
+.4 w
+n 62.3622 85.5561 m 515.9055 85.5561 l S
+0 0 0 RG
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 85.23302 71.5561 Tm (8) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 117.8858 71.5561 Tm (Intervalos de confianza) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 321.9803 71.5561 Tm (Cap. 8) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 384.3425 71.5561 Tm (Ejercicios en clase) Tj T* ET
+.466667 .466667 .466667 RG
+.4 w
+n 62.3622 64.6811 m 515.9055 64.6811 l S
+0 0 0 RG
+0 0 0 RG
+.4 w
+n 62.3622 42.51969 m 532.9134 42.51969 l S
+0 0 0 RG
+BT /F1 8.5 Tf 10.2 TL ET
+BT 1 0 0 1 62.3622 31.1811 Tm (Curso acad\351mico 2026-2027) Tj T* ET
+BT /F1 8.5 Tf 10.2 TL ET
+BT 1 0 0 1 480.4599 31.1811 Tm (P\341gina 1 de 2) Tj T* ET
+ 
+endstream
+endobj
+11 0 obj
+<<
+/Length 8234
+>>
+stream
+1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
+BT /F3 9 Tf 10.8 TL ET
+BT 1 0 0 1 62.3622 805.0394 Tm (Programa de la asignatura CSO-214) Tj T* ET
+0 0 0 RG
+.5 w
+n 62.3622 797.9528 m 532.9134 797.9528 l S
+0 0 0 RG
+.5 w
+0 0 0 RG
+.901961 .92549 .952941 rg
+n 62.3622 752.9833 453.5433 20.875 re f*
+0 0 0 rg
+0 0 0 RG
+BT /F2 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 69.65777 759.8583 Tm (Semana) Tj T* ET
+BT /F2 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 117.8858 759.8583 Tm (Tema) Tj T* ET
+BT /F2 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 321.9803 759.8583 Tm (Lectura) Tj T* ET
+BT /F2 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 384.3425 759.8583 Tm (Actividad) Tj T* ET
+.466667 .466667 .466667 RG
+.4 w
+n 62.3622 752.9833 m 515.9055 752.9833 l S
+0 0 0 RG
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 85.23302 738.9833 Tm (9) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 117.8858 738.9833 Tm (Contraste de hip\363tesis) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 321.9803 738.9833 Tm (Cap. 9) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 384.3425 738.9833 Tm (Pr\341ctica 5) Tj T* ET
+.466667 .466667 .466667 RG
+.4 w
+n 62.3622 732.1083 m 515.9055 732.1083 l S
+0 0 0 RG
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 82.59202 718.1083 Tm (10) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 117.8858 718.1083 Tm (Comparaci\363n de dos grupos) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 321.9803 718.1083 Tm (Cap. 10) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 384.3425 718.1083 Tm (Pr\341ctica 6) Tj T* ET
+.466667 .466667 .466667 RG
+.4 w
+n 62.3622 711.2333 m 515.9055 711.2333 l S
+0 0 0 RG
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 82.59202 697.2333 Tm (11) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 117.8858 697.2333 Tm (Correlaci\363n y regresi\363n) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 321.9803 697.2333 Tm (Cap. 11) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 384.3425 697.2333 Tm (Entrega del informe) Tj T* ET
+.466667 .466667 .466667 RG
+.4 w
+n 62.3622 690.3583 m 515.9055 690.3583 l S
+0 0 0 RG
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 82.59202 676.3583 Tm (12) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 117.8858 676.3583 Tm (Repaso y simulacro de examen) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 321.9803 676.3583 Tm (Todos) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 384.3425 676.3583 Tm (Tutor\355a colectiva) Tj T* ET
+.466667 .466667 .466667 RG
+.4 w
+n 62.3622 669.4833 m 515.9055 669.4833 l S
+0 0 0 RG
+.078431 .211765 .364706 rg
+BT 1 0 0 1 62.3622 639.4833 Tm /F2 11.5 Tf 13.8 TL .9 Tc (5. Evaluaci\363n) Tj ET
+0 0 0 rg
+.5 w
+0 0 0 RG
+.901961 .92549 .952941 rg
+n 62.3622 613.6083 391.1811 19.875 re f*
+0 0 0 rg
+0 0 0 RG
+BT /F2 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 66.3622 619.9833 Tm (Componente) Tj T* ET
+BT /F2 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 290.7753 619.9833 Tm (Peso) Tj T* ET
+BT /F2 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 321.4803 619.9833 Tm (Fecha) Tj T* ET
+0 0 0 RG
+.5 w
+n 62.3622 633.4833 m 453.5433 633.4833 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 62.3622 613.6083 m 453.5433 613.6083 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 62.3622 633.4833 m 62.3622 613.6083 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 249.4488 633.4833 m 249.4488 613.6083 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 317.4803 633.4833 m 317.4803 613.6083 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 453.5433 633.4833 m 453.5433 613.6083 l S
+0 0 0 RG
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 66.3622 600.1083 Tm (Pruebas cortas \(dos\)) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 291.8298 600.1083 Tm (20 %) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 321.4803 600.1083 Tm (Semanas 6 y 10) Tj T* ET
+0 0 0 RG
+.5 w
+n 62.3622 613.6083 m 453.5433 613.6083 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 62.3622 593.7333 m 453.5433 593.7333 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 62.3622 613.6083 m 62.3622 593.7333 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 249.4488 613.6083 m 249.4488 593.7333 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 317.4803 613.6083 m 317.4803 593.7333 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 453.5433 613.6083 m 453.5433 593.7333 l S
+0 0 0 RG
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 66.3622 580.2333 Tm (Pr\341cticas entregadas \(seis\)) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 291.8298 580.2333 Tm (30 %) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 321.4803 580.2333 Tm (Semanal) Tj T* ET
+0 0 0 RG
+.5 w
+n 62.3622 593.7333 m 453.5433 593.7333 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 62.3622 573.8583 m 453.5433 573.8583 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 62.3622 593.7333 m 62.3622 573.8583 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 249.4488 593.7333 m 249.4488 573.8583 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 317.4803 593.7333 m 317.4803 573.8583 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 453.5433 593.7333 m 453.5433 573.8583 l S
+0 0 0 RG
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 66.3622 560.3583 Tm (Informe final) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 291.8298 560.3583 Tm (20 %) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 321.4803 560.3583 Tm (Semana 11) Tj T* ET
+0 0 0 RG
+.5 w
+n 62.3622 573.8583 m 453.5433 573.8583 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 62.3622 553.9833 m 453.5433 553.9833 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 62.3622 573.8583 m 62.3622 553.9833 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 249.4488 573.8583 m 249.4488 553.9833 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 317.4803 573.8583 m 317.4803 553.9833 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 453.5433 573.8583 m 453.5433 553.9833 l S
+0 0 0 RG
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 66.3622 540.4833 Tm (Examen final) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 291.8298 540.4833 Tm (30 %) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 321.4803 540.4833 Tm (Convocatoria oficial) Tj T* ET
+0 0 0 RG
+.5 w
+n 62.3622 553.9833 m 453.5433 553.9833 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 62.3622 534.1083 m 453.5433 534.1083 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 62.3622 553.9833 m 62.3622 534.1083 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 249.4488 553.9833 m 249.4488 534.1083 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 317.4803 553.9833 m 317.4803 534.1083 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 453.5433 553.9833 m 453.5433 534.1083 l S
+0 0 0 RG
+BT /F2 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 66.3622 520.6083 Tm (Total) Tj T* ET
+BT /F2 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 286.5478 520.6083 Tm (100 %) Tj T* ET
+BT /F2 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 321.4803 520.6083 Tm  T* ET
+0 0 0 RG
+.5 w
+n 62.3622 534.1083 m 453.5433 534.1083 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 62.3622 514.2333 m 453.5433 514.2333 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 62.3622 534.1083 m 62.3622 514.2333 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 249.4488 534.1083 m 249.4488 514.2333 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 317.4803 534.1083 m 317.4803 514.2333 l S
+0 0 0 RG
+0 0 0 RG
+.5 w
+n 453.5433 534.1083 m 453.5433 514.2333 l S
+0 0 0 RG
+.078431 .211765 .364706 rg
+BT 1 0 0 1 62.3622 484.2333 Tm /F2 11.5 Tf 13.8 TL .9 Tc (6. Bibliograf\355a) Tj ET
+0 0 0 rg
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 84.3622 465.2333 Tm ([1] Moore, D. y McCabe, G. Introducci\363n a la pr\341ctica de la estad\355stica. Barcelona: Editorial Aldea, 2019.) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 84.3622 450.2333 Tm ([2] Pe\361a, D. Fundamentos de estad\355stica. Madrid: Ediciones Cumbre, 2021.) Tj T* ET
+BT /F1 9.5 Tf 11.4 TL ET
+BT 1 0 0 1 84.3622 435.2333 Tm ([3] Quispe, M. Cuaderno de pr\341cticas de estad\355stica aplicada. Valle Alto: Servicio de Publicaciones, 2025.) Tj T* ET
+.078431 .211765 .364706 rg
+BT 1 0 0 1 62.3622 409.2333 Tm /F2 11.5 Tf 13.8 TL .9 Tc (7. Normas del curso) Tj ET
+0 0 0 rg
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 62.3622 389.2333 Tm (Marque las condiciones que ya ha comprobado antes del inicio de las clases.) Tj T* ET
+q
+0 0 0 rg
+0 0 0 RG
+.8 w
+n 66.9822 372.0533 6.76 6.76 re S
+Q
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 82.3622 372.2333 Tm (Tengo instalada la hoja de c\341lculo indicada por el profesorado.) Tj T* ET
+q
+0 0 0 rg
+0 0 0 RG
+.8 w
+n 66.9822 356.0533 6.76 6.76 re S
+1.3 w
+n 68.2822 359.4333 m 69.8422 357.3533 l 72.9622 362.0333 l
+S
+Q
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 82.3622 356.2333 Tm (He le\355do el calendario y las fechas de entrega.) Tj T* ET
+q
+0 0 0 rg
+0 0 0 RG
+.8 w
+n 66.9822 340.0533 6.76 6.76 re S
+Q
+BT /F1 10 Tf 12 TL ET
+BT 1 0 0 1 82.3622 340.2333 Tm (Conozco la pol\355tica de originalidad de los trabajos.) Tj T* ET
+BT /F3 10 Tf 12 TL ET
+BT 1 0 0 1 62.3622 320.2333 Tm (La asistencia m\355nima exigida es del 80 por ciento de las sesiones.) Tj T* ET
+0 0 0 RG
+.4 w
+n 62.3622 42.51969 m 532.9134 42.51969 l S
+0 0 0 RG
+BT /F1 8.5 Tf 10.2 TL ET
+BT 1 0 0 1 62.3622 31.1811 Tm (Curso acad\351mico 2026-2027) Tj T* ET
+BT /F1 8.5 Tf 10.2 TL ET
+BT 1 0 0 1 480.4599 31.1811 Tm (P\341gina 2 de 2) Tj T* ET
+ 
+endstream
+endobj
+xref
+0 12
+0000000000 65535 f 
+0000000061 00000 n 
+0000000112 00000 n 
+0000000219 00000 n 
+0000000331 00000 n 
+0000000535 00000 n 
+0000000650 00000 n 
+0000000854 00000 n 
+0000000922 00000 n 
+0000001183 00000 n 
+0000001248 00000 n 
+0000013580 00000 n 
+trailer
+<<
+/ID 
+[<7c2518cb371fb8c85619bb5adfc117f6><7c2518cb371fb8c85619bb5adfc117f6>]
+% ReportLab generated PDF document -- digest (opensource)
+
+/Info 8 0 R
+/Root 7 0 R
+/Size 12
+>>
+startxref
+21866
+%%EOF

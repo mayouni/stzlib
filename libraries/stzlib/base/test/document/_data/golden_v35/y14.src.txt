@@ -1,0 +1,1 @@
+ReportLab 5.0.1 canvas, Malgun Gothic TTF embedded subset, drawString per line

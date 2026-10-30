@@ -1,0 +1,232 @@
+{
+ "id": "y09",
+ "difficulty": "very hard: Japanese health check result notice, 2 pages, GDI+ Yu Gothic, no spaces between words, kinsoku-style punctuation, result grid with merged section rows, nested lists with typed fullwidth markers, drawn check boxes, side-by-side boxes",
+ "pages": 2,
+ "title": "健康診断結果のお知らせ",
+ "headings": [
+  {
+   "level": 1,
+   "text": "健康診断結果のお知らせ"
+  },
+  {
+   "level": 2,
+   "text": "検査結果"
+  },
+  {
+   "level": 2,
+   "text": "総合判定"
+  },
+  {
+   "level": 3,
+   "text": "総合判定: B"
+  },
+  {
+   "level": 2,
+   "text": "生活習慣のアドバイス"
+  },
+  {
+   "level": 2,
+   "text": "再検査のご案内"
+  },
+  {
+   "level": 2,
+   "text": "注意事項"
+  },
+  {
+   "level": 3,
+   "text": "相談窓口"
+  },
+  {
+   "level": 3,
+   "text": "受付時間"
+  }
+ ],
+ "key_sentences": [
+  "判定の目安: A 異常なし、B 軽度の異常、C 要再検査、D 要精密検査。",
+  "今回の結果では、血液検査のうち総コレステロールとLDLコレステロールが基準値をわずかに上回っています。",
+  "その他の項目はすべて基準値の範囲内でした。",
+  "生活習慣を見直し、三か月後に再検査を受けることをおすすめします。",
+  "再検査についてのご希望をお選びください。",
+  "保健師が電話で相談に応じます。",
+  "平日の午前九時から午後五時までです。"
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "受診者",
+     "山田 花子 様",
+     "受診日",
+     "2026年10月5日"
+    ],
+    [
+     "受診番号",
+     "T-20261005-0142",
+     "実施会場",
+     "中央公民館 検診会場"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "検査項目",
+     "結果",
+     "基準値",
+     "判定"
+    ],
+    [
+     "身体計測",
+     "身体計測",
+     "身体計測",
+     "身体計測"
+    ],
+    [
+     "BMI",
+     "22.1",
+     "18.5〜24.9",
+     "A"
+    ],
+    [
+     "腹囲",
+     "78.0 cm",
+     "90.0 cm 未満",
+     "A"
+    ],
+    [
+     "血圧",
+     "血圧",
+     "血圧",
+     "血圧"
+    ],
+    [
+     "収縮期血圧",
+     "128 mmHg",
+     "130 未満",
+     "A"
+    ],
+    [
+     "拡張期血圧",
+     "84 mmHg",
+     "85 未満",
+     "A"
+    ],
+    [
+     "血液検査",
+     "血液検査",
+     "血液検査",
+     "血液検査"
+    ],
+    [
+     "総コレステロール",
+     "214 mg/dL",
+     "140〜199",
+     "B"
+    ],
+    [
+     "LDLコレステロール",
+     "134 mg/dL",
+     "60〜119",
+     "B"
+    ],
+    [
+     "中性脂肪",
+     "96 mg/dL",
+     "30〜149",
+     "A"
+    ],
+    [
+     "血糖(空腹時)",
+     "98 mg/dL",
+     "99 以下",
+     "A"
+    ],
+    [
+     "ヘモグロビン",
+     "13.2 g/dL",
+     "12.0〜15.5",
+     "A"
+    ],
+    [
+     "尿検査",
+     "尿検査",
+     "尿検査",
+     "尿検査"
+    ],
+    [
+     "尿蛋白",
+     "陰性",
+     "陰性",
+     "A"
+    ],
+    [
+     "尿糖",
+     "陰性",
+     "陰性",
+     "A"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "・揚げ物や脂身の多い肉を控え、魚や野菜を中心にした食事にしましょう。"
+  },
+  {
+   "level": 0,
+   "text": "・週に三回以上、三十分程度の速歩きなどの運動を続けましょう。"
+  },
+  {
+   "level": 0,
+   "text": "・禁煙し、お酒は適量にとどめましょう。"
+  },
+  {
+   "level": 0,
+   "text": "再検査を希望します"
+  },
+  {
+   "level": 0,
+   "text": "かかりつけ医で受診します"
+  },
+  {
+   "level": 0,
+   "text": "希望しません"
+  },
+  {
+   "level": 0,
+   "text": "1. この通知書は大切に保管してください。"
+  },
+  {
+   "level": 1,
+   "text": "（1）紛失した場合の再発行はできません。"
+  },
+  {
+   "level": 1,
+   "text": "（2）医療機関で見せると、診察がスムーズです。"
+  },
+  {
+   "level": 0,
+   "text": "2. 結果についてのご質問は下記の窓口でお受けします。"
+  },
+  {
+   "level": 1,
+   "text": "（1）電話での相談は予約が不要です。"
+  }
+ ],
+ "furniture": [
+  "あおば市健康管理センター",
+  "〒000-0000 あおば市中央町1-2-3 · 電話 000-000-0000",
+  "健康診断結果のお知らせ · 受診番号 T-20261005-0142",
+  "あおば市健康管理センター",
+  "1 / 2 ページ",
+  "2 / 2 ページ"
+ ],
+ "languages": [
+  "ja"
+ ],
+ "code": [],
+ "notes": "Producer: Microsoft Print to PDF fed by System.Drawing.Printing.PrintDocument (Windows PowerShell 5.1), DrawString per visual line. Fonts: Yu Gothic Regular and Bold embedded by the driver as TrueType CID fonts with generic names (CIDFont+F1...), not standard-14. Japanese text has no spaces; the generator breaks lines at any character except before closing punctuation, so a wrapped line joins with NO space (only the overview paragraph wraps; it is given as three sentences). The results grid has four merged section rows (身体計測, 血圧, 血液検査, 尿検査; text repeated across the four columns) (the table fits on page 1). Advice bullets are TYPED middle dots U+30FB at the start of each item; numbered notes use typed '1.' at level 0 and typed fullwidth '（1）' at level 1. The re-examination check boxes are DRAWN (the second ticked), no marker. '総合判定: B' is a bold 12 pt line treated as level-3 heading. Bordered boxes 相談窓口 (left) and 受付時間 (right) read box by box. Page number reads '1 / 2 ページ'. | Fonts in PDF: embedded: CIDFont+F1, CIDFont+F2"
+}

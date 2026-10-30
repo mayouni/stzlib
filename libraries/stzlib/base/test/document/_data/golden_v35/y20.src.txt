@@ -1,0 +1,1 @@
+matplotlib 3.11.2 PdfPages, pdf.fonttype 3, Trebuchet MS via FontProperties, compression 9

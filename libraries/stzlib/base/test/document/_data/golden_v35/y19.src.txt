@@ -1,0 +1,1 @@
+matplotlib 3.11.2 PdfPages, pdf.fonttype 42 (TrueType subsets), DejaVu Sans family, Greek text placed string by string

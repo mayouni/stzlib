@@ -1,0 +1,114 @@
+{
+ "id": "y17",
+ "difficulty": "very hard: Thai hotel guest guide, 1 page, Thai script with no spaces between words (spaces only between phrases), stacked vowel and tone marks, Thai numerals as typed markers, grid table, monospaced ASCII block, side-by-side boxes",
+ "pages": 1,
+ "title": "คู่มือสำหรับผู้เข้าพัก",
+ "headings": [
+  {
+   "level": 1,
+   "text": "คู่มือสำหรับผู้เข้าพัก"
+  },
+  {
+   "level": 2,
+   "text": "เวลาให้บริการ"
+  },
+  {
+   "level": 3,
+   "text": "หมายเหตุ"
+  },
+  {
+   "level": 2,
+   "text": "ข้อควรปฏิบัติ"
+  },
+  {
+   "level": 2,
+   "text": "หมายเลขภายใน"
+  },
+  {
+   "level": 3,
+   "text": "ไวไฟ"
+  },
+  {
+   "level": 3,
+   "text": "ซักรีด"
+  }
+ ],
+ "key_sentences": [
+  "ยินดีต้อนรับสู่โรงแรมบ้านริมคลอง",
+  "เราหวังว่าท่านจะมีความสุขกับการพักผ่อนตลอดการเข้าพัก",
+  "คู่มือนี้สรุปบริการและข้อควรปฏิบัติที่สำคัญสำหรับผู้เข้าพักทุกท่าน",
+  "ท่านขอเช็คเอาท์ล่าช้าได้ โดยแจ้งแผนกต้อนรับล่วงหน้า",
+  "รหัสผ่านอยู่ในซองกุญแจห้อง",
+  "ส่งผ้าก่อน 09:00 น. รับคืนวันเดียวกัน"
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "บริการ",
+     "เวลา"
+    ],
+    [
+     "อาหารเช้า",
+     "06:30 - 10:30 น."
+    ],
+    [
+     "สระว่ายน้ำ",
+     "07:00 - 20:00 น."
+    ],
+    [
+     "ห้องออกกำลังกาย",
+     "06:00 - 22:00 น."
+    ],
+    [
+     "แผนกต้อนรับ",
+     "ตลอด 24 ชั่วโมง"
+    ],
+    [
+     "เช็คอิน",
+     "หลัง 14:00 น."
+    ],
+    [
+     "เช็คเอาท์",
+     "ก่อน 12:00 น."
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "๑. กรุณาปิดไฟและเครื่องปรับอากาศเมื่อออกจากห้อง"
+  },
+  {
+   "level": 0,
+   "text": "๒. ห้ามสูบบุหรี่ในห้องพักและพื้นที่ภายในอาคาร"
+  },
+  {
+   "level": 1,
+   "text": "- สูบได้เฉพาะบริเวณสวนที่กำหนด"
+  },
+  {
+   "level": 0,
+   "text": "๓. กรุณาแจ้งแผนกต้อนรับหากต้องการผ้าเช็ดตัวเพิ่ม"
+  },
+  {
+   "level": 0,
+   "text": "๔. โปรดเก็บของมีค่าไว้ในตู้นิรภัยประจำห้อง"
+  }
+ ],
+ "furniture": [
+  "โรงแรมบ้านริมคลอง",
+  "ถนนริมคลอง · โทรศัพท์ 000 000 0000 · แผนกต้อนรับ",
+  "ขอให้ท่านมีความสุขกับการพัก",
+  "หน้า ๑ จาก ๑"
+ ],
+ "languages": [
+  "th"
+ ],
+ "code": [
+  "Reception   dial 0\nRestaurant  dial 5\nTaxi desk   dial 7"
+ ],
+ "notes": "Producer: PyMuPDF 1.28.2 (MuPDF HTML engine), writing only. Fonts: Leelawadee UI Regular and Bold embedded as TrueType. Thai is written without spaces between words; spaces occur only between phrases and every paragraph is a single short line, so no wrapped line occurs in the body (a reader that joins lines needs no space). The subtitle line 'โรงแรมบ้านริมคลอง' under the title is not a heading (plain paragraph, 13 pt). Table 1: opening hours with shaded bold header. Rules list: typed Thai numerals with a full stop (๑. ๒. ๓. ๔.) at level 0 and a typed hyphen sub-item at level 1. The numbered rules and hotel phrases use stacked vowels and tone marks. Monospaced block lists ASCII dial codes (code). The two bordered boxes (ไวไฟ left, ซักรีด right) are read box by box. 'หมายเหตุ' is a plain-weight 12.6 pt heading over 11 pt body. Page number reads หน้า ๑ จาก ๑. | Fonts in PDF: embedded: Leelawadee UI Bold, Leelawadee UI Regular, Nimbus Mono PS Regular"
+}

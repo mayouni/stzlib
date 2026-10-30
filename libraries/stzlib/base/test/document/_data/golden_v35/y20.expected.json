@@ -1,0 +1,295 @@
+{
+ "id": "y20",
+ "difficulty": "hard: Portuguese condominium notice, 2 pages, matplotlib Type 3 strings, two-column text, meter-reading table across pages with repeated header and totals, nested numbered list, side-by-side boxes",
+ "pages": 2,
+ "title": "Comunicado aos condóminos",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Comunicado aos condóminos"
+  },
+  {
+   "level": 2,
+   "text": "Convocatória"
+  },
+  {
+   "level": 2,
+   "text": "Ordem de trabalhos"
+  },
+  {
+   "level": 2,
+   "text": "Leituras de água de outubro"
+  },
+  {
+   "level": 2,
+   "text": "Avisos gerais"
+  },
+  {
+   "level": 2,
+   "text": "Como confirmar presença"
+  },
+  {
+   "level": 2,
+   "text": "Contactos úteis"
+  }
+ ],
+ "key_sentences": [
+  "A administração convoca todos os condóminos para a assembleia geral ordinária de 2026.",
+  "A presença de cada fração é importante para que as deliberações sejam válidas.",
+  "O preço da água em outubro foi de 2,35 € por metro cúbico, incluindo as taxas de saneamento.",
+  "Agradecemos a todos a colaboração habitual."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Data",
+     "18 de novembro de 2026"
+    ],
+    [
+     "Hora",
+     "19h00, em primeira convocatória"
+    ],
+    [
+     "Segunda convocatória",
+     "19h30, com qualquer número de presentes"
+    ],
+    [
+     "Local",
+     "Salão do edifício, piso 0"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Fração",
+     "Leitura anterior",
+     "Leitura atual",
+     "Consumo (m³)",
+     "Valor (€)"
+    ],
+    [
+     "1.º A",
+     "317,5",
+     "331,9",
+     "14,4",
+     "33,84"
+    ],
+    [
+     "1.º B",
+     "389,0",
+     "405,0",
+     "16,0",
+     "37,60"
+    ],
+    [
+     "1.º C",
+     "222,9",
+     "240,2",
+     "17,3",
+     "40,66"
+    ],
+    [
+     "1.º D",
+     "324,0",
+     "338,4",
+     "14,4",
+     "33,84"
+    ],
+    [
+     "2.º A",
+     "391,8",
+     "408,6",
+     "16,8",
+     "39,48"
+    ],
+    [
+     "2.º B",
+     "218,7",
+     "227,9",
+     "9,2",
+     "21,62"
+    ],
+    [
+     "2.º C",
+     "378,2",
+     "390,4",
+     "12,2",
+     "28,67"
+    ],
+    [
+     "2.º D",
+     "390,1",
+     "399,3",
+     "9,2",
+     "21,62"
+    ],
+    [
+     "3.º A",
+     "463,9",
+     "468,3",
+     "4,4",
+     "10,34"
+    ],
+    [
+     "3.º B",
+     "379,8",
+     "389,1",
+     "9,3",
+     "21,86"
+    ],
+    [
+     "3.º C",
+     "129,1",
+     "142,5",
+     "13,4",
+     "31,49"
+    ],
+    [
+     "3.º D",
+     "138,6",
+     "146,0",
+     "7,4",
+     "17,39"
+    ],
+    [
+     "4.º A",
+     "237,0",
+     "243,3",
+     "6,3",
+     "14,80"
+    ],
+    [
+     "4.º B",
+     "179,1",
+     "184,3",
+     "5,2",
+     "12,22"
+    ],
+    [
+     "4.º C",
+     "424,6",
+     "429,9",
+     "5,3",
+     "12,46"
+    ],
+    [
+     "4.º D",
+     "177,9",
+     "183,1",
+     "5,2",
+     "12,22"
+    ],
+    [
+     "5.º A",
+     "447,4",
+     "459,0",
+     "11,6",
+     "27,26"
+    ],
+    [
+     "5.º B",
+     "416,1",
+     "433,5",
+     "17,4",
+     "40,89"
+    ],
+    [
+     "5.º C",
+     "298,3",
+     "307,9",
+     "9,6",
+     "22,56"
+    ],
+    [
+     "5.º D",
+     "260,0",
+     "267,8",
+     "7,8",
+     "18,33"
+    ],
+    [
+     "Total",
+     "",
+     "",
+     "212,4",
+     "499,15"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "1. Aprovação das contas do exercício de 2025."
+  },
+  {
+   "level": 0,
+   "text": "2. Orçamento para 2027:"
+  },
+  {
+   "level": 1,
+   "text": "a) quota mensal de cada fração;"
+  },
+  {
+   "level": 1,
+   "text": "b) fundo de reserva para obras;"
+  },
+  {
+   "level": 0,
+   "text": "3. Substituição do elevador do bloco B."
+  },
+  {
+   "level": 0,
+   "text": "4. Eleição da administração para o biénio 2027-2028."
+  },
+  {
+   "level": 0,
+   "text": "5. Assuntos gerais."
+  },
+  {
+   "level": 0,
+   "text": "O portão da garagem passa a fechar às 23h00 durante o inverno."
+  },
+  {
+   "level": 0,
+   "text": "Os contentores do lixo só podem ser colocados na rua depois das 20h00."
+  },
+  {
+   "level": 0,
+   "text": "As bicicletas devem ficar na arrecadação e não nos corredores."
+  },
+  {
+   "level": 0,
+   "text": "A limpeza das escadas é feita às terças e sextas-feiras de manhã."
+  },
+  {
+   "level": 0,
+   "text": "Respondo por correio eletrónico"
+  },
+  {
+   "level": 0,
+   "text": "Respondo pelo portal do condomínio"
+  },
+  {
+   "level": 0,
+   "text": "Entrego a resposta na portaria"
+  }
+ ],
+ "furniture": [
+  "Condomínio Residencial Jardim das Acácias",
+  "Rua das Acácias, 48 · 3000-123 Coimbra · administracao@acacias.example",
+  "Comunicado aos condóminos · assembleia geral e leituras de água",
+  "Administração do condomínio",
+  "Página 1 de 2",
+  "Página 2 de 2"
+ ],
+ "languages": [
+  "pt"
+ ],
+ "code": [],
+ "notes": "Producer: matplotlib 3.11.2 PdfPages (pdf.fonttype=3, pdf.compression=9): every string is a separate text object. Fonts: Trebuchet MS Regular/Bold/Italic as Type 3 fonts (glyph procedures, no ToUnicode map, no embedded TrueType, not standard-14). Meter table: header row repeated on page 2 (listed once), rules between rows only, bold Total row with two empty cells; decimals use commas. Nested numbered list: '1.' '2.' at level 0 and 'a)' 'b)' at level 1 are typed. The Avisos gerais block is two columns of text read left column first; its square bullets are DRAWN. In the right-hand box of the last pair the three contact lines are plain lines, not list items; check boxes in the left-hand box are DRAWN (one ticked), so those list items carry no marker. Page number reads 'Página n de N'. | Fonts in PDF: Type3 fonts (glyph procedures inside the file): 5"
+}

@@ -1,0 +1,44 @@
+page_header	0	Symposium on Coastal Data Science
+page_header	0	14th meeting · Abstract Book
+heading	1	Abstract Book: Day
+heading	1	2
+paragraph	0	Tuesday 10 November 2026, Harbour Conference Centre
+heading	1	Programme at a glance
+table	0	TimeRoom ARoom B09:00Opening remarksRegistration desk09:30Session 3Workshop 111:00Coffee breakCoffee break11:30Session 4Workshop 213:00LunchLunch14:00Poster sessionPoster session
+heading	1	Session 3: Sensors and Sampling
+heading	1	Low-cost turbidity sensors for estuary monitoring
+paragraph	0	Ana Moreira 1 , Kofi Mensah 2 , Li Wen 1
+paragraph	0	We compare four low-cost turbidity sensors against a laboratory nephelometer over a six-month deployment. The sensors agree within eight per cent after a simple temperature correction. Biofouling is the main source of drift, and a weekly wipe reduces it substantially.
+paragraph	0	Keywords: turbidity; estuary; low-cost sensors
+heading	1	Sampling design for patchy seagrass meadows
+paragraph	0	Jonas Berg 3 , Mei Tanaka 3
+paragraph	0	Seagrass cover is rarely uniform, so simple random sampling wastes effort. We propose an adaptive design that adds samples where the variance is high. In simulations it halves the number of quadrats needed for the same precision.
+paragraph	0	Keywords: seagrass; adaptive sampling; variance
+heading	1	Drone imagery for intertidal mapping Sofia Marchetti 2
+paragraph	0	Mapping the intertidal zone on foot is slow and limited by the tide. We flew a small drone at low water and built elevation models with a vertical error below four centimetres. The method lets a two-person team survey ten kilometres of shore in a day.
+paragraph	0	Keywords: drones; photogrammetry; intertidal
+heading	1	Session 4: Models and Uncertainty
+heading	1	Quantifying uncertainty in sea-level projections for small ports
+paragraph	0	Owen Pritchard 4 , Aisha Bello 4
+paragraph	0	Harbour authorities need sea-level projections with honest error bars. We combine tide gauge records with regional ice-sheet scenarios and report the full range of outcomes. The widest uncertainty comes from the choice of emission scenario after 2070.
+paragraph	0	Keywords: sea level; uncertainty; ports
+heading	1	A hybrid wave model trained on buoy records
+paragraph	0	Priya Venkat 1
+paragraph	0	Physical wave models are accurate but expensive to run for every harbour. A neural network trained on twenty years of buoy data reproduces storm waves at a fraction of the cost. Errors grow for rare events, so the physical model is kept as a cross-check.
+paragraph	0	Keywords: waves; machine learning; buoys
+heading	1	Communicating flood risk to coastal communities
+page_footer	0	Harbour Conference Centre, 9 to 11 November 2026
+page_footer	0	Page 1 of 2
+page_header	0	Symposium on Coastal Data Science
+page_header	0	14th meeting · Abstract Book
+paragraph	0	Hannah Roth 5 , Diego Salas 5
+paragraph	0	Flood maps are often misread as showing certainty. In workshops in three towns we tested maps that show likelihood as shaded bands. Residents using the banded maps made more cautious decisions about moving belongings.
+paragraph	0	Keywords: risk communication; flood maps; workshops
+heading	1	Poster session
+paragraph	0	Before you arrive
+paragraph	0	Print the poster at A0 size, portrait.
+paragraph	0	Bring four pins; the boards are cork.
+paragraph	0	Collect your lanyard at the registration desk.
+paragraph	0	1 Institute of Marine Informatics 2 Delta University 3 Seagrass Research Network 4 Port Authority Analytics 5 Coastal Communities Lab
+page_footer	0	Harbour Conference Centre, 9 to 11 November 2026
+page_footer	0	Page 2 of 2

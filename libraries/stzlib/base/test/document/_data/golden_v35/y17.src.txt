@@ -1,0 +1,1 @@
+PyMuPDF 1.28.2 fitz.Story with Leelawadee UI (LeelawUI.ttf, LeelaUIb.ttf) embedded via @font-face

@@ -1,0 +1,45 @@
+page_header	0	AURORA AIR
+page_header	0	Electronic ticket receipt and itinerary
+page_header	0	Customer service: +351 210 000 000 www.aurora-air.example
+heading	1	Flight itinerary: Lisbon to Auckland
+table	0	Booking referenceQX7M2LTicket number987 2200 118 445PassengerMs Elena FontaineIssued3 October 2026FareEconomy FlexPaymentCard ending 4417
+paragraph	0	Please arrive at the airport three hours before each international departure.
+heading	2	Outbound journey
+table	0	FlightDepartsArrivesCabinAU 214Lisbon (LIS)Doha (DOH)Economy FlexOperated by AuroraSat 14 Nov 2026, 10:25Sat 14 Nov 2026, 18:40
+paragraph	0	Air
+paragraph	0	Layover in Doha: 2 hours 35 minutes
+paragraph	0	AU 871 Operated by Aurora Air
+paragraph	0	Doha (DOH) Sat 14 Nov 2026, 21:15
+paragraph	0	Auckland (AKL) Sun 15 Nov 2026, 19:55
+paragraph	0	Economy Flex
+paragraph	0	Boarding closes forty-five minutes before the scheduled departure of each flight.
+heading	2	Return journey
+table	0	FlightDepartsArrivesCabinAU 872Auckland (AKL)Doha (DOH)Economy FlexOperated by AuroraTue 1 Dec 2026, 22:30Wed 2 Dec 2026, 05:50
+paragraph	0	Air
+paragraph	0	Layover in Doha: 1 hour 55 minutes
+paragraph	0	AU 213 Operated by Aurora Air
+paragraph	0	Doha (DOH) Wed 2 Dec 2026, 07:45
+paragraph	0	Lisbon (LIS) Wed 2 Dec 2026, 13:20
+paragraph	0	Economy Flex
+heading	2	Baggage allowance
+table	0	FareChecked bagCabin bagSeat selectionEconomy Flex2 bags, 23 kg each1 bag, 8 kgFree at check-inInfant1 bag, 10 kgNoneNot available
+paragraph	0	Allowance applies per passenger and may differ on flights operated by partner airlines.
+heading	2	Before you fly
+paragraph	0	Check that your passport is valid for six months after your arrival date. Complete the online arrival card 72 hours before landing.
+page_footer	0	Passenger: Ms Elena Fontaine
+page_footer	0	Page 1 of 2
+page_header	0	Aurora Air · Itinerary QX7M2L
+paragraph	0	Check in online from 48 hours before departure. Add the booking reference to your travel insurance.
+heading	3	Important information
+list_item	0	1. Changes to the booking
+list_item	1	(a) Name changes are not permitted after ticketing.
+list_item	1	(b) Date changes are free up to 24 hours before departure.
+list_item	0	2. Cancellations
+list_item	1	(a) A full refund is available within 24 hours of purchase.
+list_item	1	(b) After that, a fee of 90 euros applies per passenger.
+list_item	0	3. Delays and disruption
+list_item	1	(a) Keep all receipts if the airline cannot offer meals or a hotel.
+list_item	1	(b) Claims must be sent within six months.
+paragraph	0	We wish you a pleasant journey and look forward to welcoming you on board.
+page_footer	0	Passenger: Ms Elena Fontaine
+page_footer	0	Page 2 of 2
