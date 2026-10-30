@@ -10,9 +10,9 @@
 # the classifier, which calls upright Arabic upside down) and PP-OCRv5 mobile Cyrillic.
 #
 # The scenes read golden_v36/z09 (French), golden_v35/y11 (Arabic) and golden_v33/u06 (Russian), rendered at 150 dpi
-# in _data/; check reading order, logical order and that no line of an upright page is turned over; measure the
-# Russian key sentences beside the registry (goldens_ru_u06.ring -- the faculty's set v1 has no Russian); and let
-# the registry measure the model against the platform floor on the 17 goldens. Every sentence was written by an
+# in _data/; check reading order, logical order and that no line of an upright page is turned over; and let the
+# registry measure the model against the platform floor on golden set v2 (26 key sentences), PER LANGUAGE -- the
+# author's ruling of 2026-10-30 (OCR-PERLANG-01) -- and choose per language. Every sentence was written by an
 # author who never saw a reader.
 #
 # The graphs are NOT in the repository (*.gguf is ignored): without libraries/stzlib/models/ocr/ the whole guard
@@ -22,8 +22,7 @@
 
 load "../../stzBase.ring"
 load "../_narrated.ring"
-load "_data/goldens_v1.ring"
-load "_data/goldens_ru_u06.ring"
+load "_data/goldens_v2.ring"
 
 $cDir = "_data/"
 
@@ -33,7 +32,7 @@ if NOT fexists(StzOcrModelDir() + "/ppocr_rec.gguf")
 ok
 
 Scenario("The model is declared on the :ocr faculty as an engine graph, beside the platform floor")
-	o = StzOcrDeclare(StzOcrGoldensV1($cDir))
+	o = StzOcrDeclare(StzOcrGoldensV2($cDir))
 	Then("the faculty has two implementations", @@(o.ImplementationIds()), @@([ "platform", "ppocr" ]))
 	Then("the model is installed: its recogniser is in the models directory", StzImplementationIsInstalled(o.Implementations()[2]), 1)
 EndScenario()
@@ -88,7 +87,7 @@ Scenario("An Arabic page is read with the Arabic recogniser, in logical order, i
 EndScenario()
 
 Scenario("A Russian page is read with the Cyrillic recogniser; the floor has no Russian pack here")
-	aG = StzOcrGoldensRuU06($cDir)
+	aG = goldensIn(StzOcrGoldensV2($cDir), "ru-RU")
 	cRu = _StzOcrModel(aG[1][1], [ :lang = "ru-RU" ])
 	nHit = 0
 	nG = len(aG)
@@ -112,22 +111,63 @@ Scenario("A script with no recogniser here is refused, naming what is missing")
 	Then("and the refusal names the scripts there are", StzFindFirst("Arabic and Cyrillic", cErr) > 0, 1)
 EndScenario()
 
-Scenario("The registry measures the model on the 17 goldens and keeps the floor, saying why")
+Scenario("The registry measures both on golden set v2, per language, and chooses per language")
 	aRows = StzModelRegistryQ().RunGoldens(:ocr)
-	aF = StzModelRegistryQ().MeasurementOf(:ocr, "platform")
-	aM = StzModelRegistryQ().MeasurementOf(:ocr, "ppocr")
-	? "   platform " + aF[:score] + "   ppocr " + aM[:score] + "   (n " + aM[:n] + ")"
-	Then("both were measured", len(aRows), 2)
-	Then("the model finds every French sentence and no Arabic one: 9 of 17", floor(aM[:score] * 17 + 0.5), 9)
-	Then("the floor scores more: its Arabic keeps the periods and the numbers", aF[:score] > aM[:score], 1)
-	oP = StzModelRegistryQ().ResolveQ(:ocr)
-	Then("so the floor answers", oP.Chosen(), "platform")
-	Then("and the plan says the model was rejected", StzFindFirst("rejected ppocr", oP.Why()) > 0, 1)
+	oReg = StzModelRegistryQ()
+	aF = oReg.MeasurementOf(:ocr, "platform")
+	aM = oReg.MeasurementOf(:ocr, "ppocr")
+	? "   whole set (n " + aM[:n] + "): platform " + aF[:score] + "   ppocr " + aM[:score]
+	aLangs = [ "fr", "ar", "ru" ]
+	for i = 1 to 3
+		? "   " + aLangs[i] + ": platform " + oReg.MeasurementOfIn(:ocr, "platform", aLangs[i])[:score] +
+		  "   ppocr " + oReg.MeasurementOfIn(:ocr, "ppocr", aLangs[i])[:score]
+	next
+	Then("both were measured on the 26 items", @@([ len(aRows), aM[:n] ]), @@([ 2, 26 ]))
+	Then("the model finds every French sentence", oReg.MeasurementOfIn(:ocr, "ppocr", "fr")[:score], 1)
+	Then("and no Arabic one", oReg.MeasurementOfIn(:ocr, "ppocr", "ar")[:score], 0)
+	Then("and 8 of the 9 Russian ones", floor(oReg.MeasurementOfIn(:ocr, "ppocr", "ru")[:score] * 9 + 0.5), 8)
+	Then("the floor finds every French sentence", oReg.MeasurementOfIn(:ocr, "platform", "fr")[:score], 1)
+
+	oP = oReg.ResolveQ(StzRequirementQ(:ocr).RequireLanguagesQ([ "ru" ]))
+	? "   ru -> " + oP.Chosen()
+	Then("Russian goes to the model: it beats the floor on the Russian items", oP.Chosen(), "ppocr")
+	Then("and the plan says it was judged on them", StzFindFirst("judged on the 'ru' items", oP.Why()) > 0, 1)
+	oP = oReg.ResolveQ(StzRequirementQ(:ocr).RequireLanguagesQ([ "ar" ]))
+	Then("Arabic stays with the floor", oP.Chosen(), "platform")
+	Then("because the model does not beat it there", StzFindFirst("does not beat the floor", oP.Why()) > 0, 1)
+	oP = oReg.ResolveQ(StzRequirementQ(:ocr).RequireLanguagesQ([ "fr" ]))
+	Then("French stays with the floor: a tie is not strictly better", oP.Chosen(), "platform")
+	oP = oReg.ResolveQ(StzRequirementQ(:ocr).RequireLanguagesQ([ "de" ]))
+	Then("a language with no golden items is judged on the whole set, and the plan says so",
+	     StzFindFirst("has no measured 'de' items", oP.Why()) > 0, 1)
+
+	o2 = StzOcrQ(goldensIn(StzOcrGoldensV2($cDir), "ru-RU")[1][1])
+	Then("read through the faculty, a Russian document is answered by the model", o2.AnsweredBy(), "ppocr")
+	Then("with its lines", o2.NumberOfLines() > 100, 1)
+	Then("and its text holds a Russian key sentence", StzFindFirst("Настоящее руководство описывает подключение устройства и настройку его параметров.", o2.Text()) > 0, 1)
 	StzSaveMeasurements("results/ocr.zmdl.txt")
-	Then("the measurement is filed", fexists("results/ocr.zmdl.txt"), 1)
+	Then("the measurements are filed", fexists("results/ocr.zmdl.txt"), 1)
 EndScenario()
 
+if StzOcrPlatformHas("ar-SA")
+	Scenario("Read through the faculty, an Arabic document is still answered by the floor")
+		o3 = StzOcrQ(goldensIn(StzOcrGoldensV2($cDir), "ar-SA")[1][1])
+		Then("the floor answers Arabic", o3.AnsweredBy(), "platform")
+	EndScenario()
+else
+	? "SKIP: Read through the faculty, an Arabic document is still answered by the floor -- no ar-SA pack on this machine"
+ok
+
 Summary()
+
+# the golden items of one language: the language tag's items of a golden set
+func goldensIn(paG, pcLang)
+	aOut = []
+	nG = len(paG)
+	for i = 1 to nG
+		if paG[i][1][:lang] = pcLang add(aOut, paG[i]) ok
+	next
+	return aOut
 
 func minScore(paL)
 	n = 1

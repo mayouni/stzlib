@@ -250,18 +250,29 @@ func StzResolveFaculty(pReq, paPins)
 		add(_aCand_, _a_)
 	next
 
-	# 4. the quality gate: measured, and STRICTLY better than the measured floor
-	_aFM_ = StzMeasurementOf(_cFac_, _aFloor_[:id], _aFac_[:goldenversion])
+	# 4. the quality gate: measured, and STRICTLY better than the measured floor -- on the requested language's
+	# own measurements when the faculty is measured per language and the requirement names one language
+	_cGold_ = _aFac_[:goldenversion]
+	if HasKey(_aFac_, :langkey) and _aFac_[:langkey] != "" and len(_aReq_[:languages]) = 1
+		_cLg_ = lower(_aReq_[:languages][1])
+		if len(StzMeasurementOf(_cFac_, _aFloor_[:id], _cGold_ + "/" + _cLg_)) > 0
+			_cGold_ = _cGold_ + "/" + _cLg_
+			add(_aWhy_, "judged on the '" + _cLg_ + "' items of golden set " + _aFac_[:goldenversion] + " (the faculty is measured per language)")
+		else
+			add(_aWhy_, "the golden set " + _aFac_[:goldenversion] + " has no measured '" + _cLg_ + "' items: judged on the whole set")
+		ok
+	ok
+	_aFM_ = StzMeasurementOf(_cFac_, _aFloor_[:id], _cGold_)
 	_aElig_ = []
 	for _i_ = 1 to len(_aCand_)
 		_a_ = _aCand_[_i_]
 		if len(_aFM_) = 0
-			add(_aRej_, [ _a_[:id], "the floor is unmeasured on golden set " + _aFac_[:goldenversion] + ": there is no bar to beat" ])
+			add(_aRej_, [ _a_[:id], "the floor is unmeasured on golden set " + _cGold_ + ": there is no bar to beat" ])
 			loop
 		ok
-		_aM_ = StzMeasurementOf(_cFac_, _a_[:id], _aFac_[:goldenversion])
+		_aM_ = StzMeasurementOf(_cFac_, _a_[:id], _cGold_)
 		if len(_aM_) = 0
-			add(_aRej_, [ _a_[:id], "UNMEASURED on golden set " + _aFac_[:goldenversion] + " (unknown is not good)" ])
+			add(_aRej_, [ _a_[:id], "UNMEASURED on golden set " + _cGold_ + " (unknown is not good)" ])
 			loop
 		ok
 		if _aM_[:conformance] < 1
@@ -304,7 +315,7 @@ func StzResolveFaculty(pReq, paPins)
 
 	if len(_aElig_) > 0
 		_aBest_ = _aElig_[1]
-		add(_aWhy_, "'" + _aBest_[1][:id] + "' (" + _aBest_[1][:kind] + ") measured " + _aBest_[2][:score] + " on golden set " + _aFac_[:goldenversion] +
+		add(_aWhy_, "'" + _aBest_[1][:id] + "' (" + _aBest_[1][:kind] + ") measured " + _aBest_[2][:score] + " on golden set " + _cGold_ +
 			    " (n=" + _aBest_[2][:n] + "), which beats the floor's " + _aFM_[:score] + " and the requested " + _aReq_[:quality])
 		for _i_ = 2 to len(_aElig_)
 			add(_aRej_, [ _aElig_[_i_][1][:id], "eligible but ranked lower (" + _aElig_[_i_][2][:score] + " < " + _aBest_[2][:score] + " or a larger footprint)" ])
@@ -334,6 +345,11 @@ func StzRunFaculty(pcFaculty, pInput, paParams, pReq, paPins, pbImplicit)
 		_aReq_ = StzRequirementQ(pcFaculty).Data()
 	ok
 	if isObject(pReq) _aReq_ = pReq.Data() ok
+	# a faculty measured per language: the call's own language is the requirement's, unless one was stated
+	if len(_aReq_[:languages]) = 0
+		_cLg_ = StzGoldenLanguageOf(pcFaculty, pInput, paParams)
+		if _cLg_ != "" _aReq_[:languages] = [ _cLg_ ] ok
+	ok
 	_aPlan_ = StzResolveFaculty(_aReq_, paPins)
 	add($aStzModelTrace, [ :faculty = pcFaculty, :chosen = _aPlan_[:chosen], :implicit = pbImplicit, :refusal = _aPlan_[:refusal], :why = _aPlan_[:why] ])
 	if _aPlan_[:refusal] = 1
@@ -374,20 +390,42 @@ func StzScoreImplementation(pcFaculty, pcImplId, paParams)
 		if $aStzCalibration[_r_][:faculty] = pcFaculty and $aStzCalibration[_r_][:impl] = pcImplId del($aStzCalibration, _r_) ok
 	next
 	_n_ = len(_aG_)
+	# per language, when the faculty is measured so: rows [ lang, ok, valid, n ]
+	_aLg_ = []
 	for _i_ = 1 to _n_
+		_cLg_ = StzGoldenLanguageOf(pcFaculty, _aG_[_i_][1], [])
+		_k_ = 0
+		if _cLg_ != ""
+			for _j_ = 1 to len(_aLg_)
+				if _aLg_[_j_][1] = _cLg_ _k_ = _j_ ok
+			next
+			if _k_ = 0
+				add(_aLg_, [ _cLg_, 0, 0, 0 ])
+				_k_ = len(_aLg_)
+			ok
+			_aLg_[_k_][4] = _aLg_[_k_][4] + 1
+		ok
 		_oP_ = StzRunImplementation(pcFaculty, pcImplId, _aG_[_i_][1], paParams)
 		if _oP_.IsRefusal() = 0
 			_nValid_++
+			if _k_ > 0 _aLg_[_k_][3] = _aLg_[_k_][3] + 1 ok
 			_bRight_ = StzGoldenAgrees(_aFac_[:checker], _oP_.Value(), _aG_[_i_][2])
-			if _bRight_ = 1 _nOk_++ ok
+			if _bRight_ = 1
+				_nOk_++
+				if _k_ > 0 _aLg_[_k_][2] = _aLg_[_k_][2] + 1 ok
+			ok
 			# the truth is KNOWN here, so an answer that carried a probability goes in the calibration ledger
 			if _oP_.P() >= 0
 				StzRecordCalibration(pcFaculty, pcImplId, _oP_.Certainty(), _oP_.P(), _bRight_)
 			ok
 		ok
 	next
-	if _n_ = 0 return [ :score = 0, :n = 0, :conformance = 0 ] ok
-	return [ :score = _nOk_ / _n_, :n = _n_, :conformance = _nValid_ / _n_ ]
+	if _n_ = 0 return [ :score = 0, :n = 0, :conformance = 0, :bylang = [] ] ok
+	_aBy_ = []
+	for _j_ = 1 to len(_aLg_)
+		add(_aBy_, [ _aLg_[_j_][1], _aLg_[_j_][2] / _aLg_[_j_][4], _aLg_[_j_][4], _aLg_[_j_][3] / _aLg_[_j_][4] ])
+	next
+	return [ :score = _nOk_ / _n_, :n = _n_, :conformance = _nValid_ / _n_, :bylang = _aBy_ ]
 
 func StzRunGoldens(pcFaculty, paParams)
 	return StzRunGoldensFor(pcFaculty, [], paParams)
@@ -414,6 +452,11 @@ func StzRunGoldensFor(pcFaculty, pacImplIds, paParams)
 		_aS_ = StzScoreImplementation(pcFaculty, _a_[:id], paParams)
 		StzRecordMeasurement(pcFaculty, _a_[:id], _aFac_[:goldenversion], _aS_[:score], _aS_[:n], _aS_[:conformance], "")
 		add(_aRows_, StzMeasurementOf(pcFaculty, _a_[:id], _aFac_[:goldenversion]))
+		# and one row per language, filed under "<version>/<lang>" (the rows returned stay the whole-set ones)
+		_aBy_ = _aS_[:bylang]
+		for _j_ = 1 to len(_aBy_)
+			StzRecordMeasurement(pcFaculty, _a_[:id], _aFac_[:goldenversion] + "/" + _aBy_[_j_][1], _aBy_[_j_][2], _aBy_[_j_][3], _aBy_[_j_][4], "")
+		next
 	next
 	return _aRows_
 
@@ -644,6 +687,19 @@ class stzModelRegistry from stzObject
 	#               real model: the answer shape is read from the code
 	#   see         RunGoldensFor, Measurements, Resolve
 	#@ aka  RUN a faculty's golden set through EVERY implementation that is installed -- the floor first, because its score is the bar -- and record what was measured. Returns the rows recorded.
+	# The measurement of one implementation on the items of one language of the faculty's golden set, [ ] when
+	# the faculty is not measured per language or that language was not measured.
+	#
+	#   pcFaculty  the faculty's name
+	#   pcImpl     the implementation's id
+	#   pcLang     a language code or tag ("ru", "ru-RU")
+	#   returns    a measurement row (faculty, impl, golden, score, n, conformance, date, note), or [ ]
+	#   see        MeasurementOf, RunGoldens, stzFaculty.SetGoldenLanguageKey
+	def MeasurementOfIn(pcFaculty, pcImpl, pcLang)
+		_iF_ = _StzFacultyRow(pcFaculty)
+		if _iF_ = 0 return [] ok
+		return StzMeasurementOf(pcFaculty, pcImpl, $aStzFaculties[_iF_][:goldenversion] + "/" + lower(left("" + pcLang, 2)))
+
 	def RunGoldens(pcFaculty)
 		return StzRunGoldens(pcFaculty, [])
 

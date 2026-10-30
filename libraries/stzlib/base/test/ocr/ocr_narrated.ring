@@ -12,20 +12,23 @@
 
 load "../../stzBase.ring"
 load "../_narrated.ring"
-load "_data/goldens_v1.ring"
+load "_data/goldens_v2.ring"
 
 $cDir = "_data/"
 $aPacks = StzOcrPlatformLanguages()
 ? "platform OCR packs on this machine: " + @@($aPacks)
 
 Scenario("The :ocr faculty is declared with a platform floor and the contains checker")
-	o = StzOcrDeclare(StzOcrGoldensV1($cDir))
+	o = StzOcrDeclare(StzOcrGoldensV2($cDir))
 	Then("it has a floor", o.HasFloor(), 1)
 	Then("the floor is the platform engine", o.Floor()[:id], "platform")
 	Then("an image in", o.InputType(), "image")
 	Then("a text out", o.OutputType(), "text")
 	Then("a golden is a sentence the text must contain", o.GoldenChecker(), "contains")
-	Then("the golden set holds one item per key sentence of the two documents", len(o.Goldens()), 17)
+	Then("the golden set holds one item per key sentence of the three documents", len(o.Goldens()), 26)
+	Then("it is golden set v2", o.GoldenVersion(), "v2")
+	Then("measured per language: each golden names its language under :lang", o.GoldenLanguageKey(), "lang")
+	Then("a golden's language is its two-letter code", StzGoldenLanguageOf(:ocr, o.Goldens()[26][1], []), "ru")
 EndScenario()
 
 Scenario("A right-to-left line the platform returned in visual order is put back in logical order")
@@ -44,7 +47,7 @@ if StzOcrPlatformHas("fr-FR")
 		cT = o.Text()
 		Then("two pages were read", o.NumberOfPages(), 2)
 		Then("the text holds the title", StzFindFirst("Plaine Mobilité", cT) > 0, 1)
-		aG = StzOcrGoldensV1($cDir)
+		aG = StzOcrGoldensV2($cDir)
 		nG = len(aG)
 		nOk = 0
 		nAll = 0
@@ -65,7 +68,7 @@ if StzOcrPlatformHas("ar-SA")
 	Scenario("The floor reads an Arabic document in logical order")
 		o = StzOcrQ([ :pages = [ $cDir + "y11_p1_150dpi.png", $cDir + "y11_p2_150dpi.png" ], :lang = "ar-SA" ])
 		cT = o.Text()
-		aG = StzOcrGoldensV1($cDir)
+		aG = StzOcrGoldensV2($cDir)
 		nG = len(aG)
 		nOk = 0
 		nAll = 0
@@ -86,9 +89,19 @@ if StzOcrPlatformHas("fr-FR") and StzOcrPlatformHas("ar-SA")
 	Scenario("The registry measures the floor on the golden set and files the score")
 		aRows = StzModelRegistryQ().RunGoldens(:ocr)
 		aM = StzModelRegistryQ().MeasurementOf(:ocr, "platform")
-		? "   platform floor on ocr goldens v1: " + aM[:score] + " over " + aM[:n] + " items"
-		Then("the floor is measured", aM[:n], 17)
-		Then("it scores at least 0.75 (French at the ceiling, Arabic above half)", aM[:score] >= 0.75, 1)
+		oReg = StzModelRegistryQ()
+		aFr = oReg.MeasurementOfIn(:ocr, "platform", "fr")
+		aAr = oReg.MeasurementOfIn(:ocr, "platform", "ar")
+		aRu = oReg.MeasurementOfIn(:ocr, "platform", "ru")
+		? "   platform floor on ocr goldens v2: " + aM[:score] + " over " + aM[:n] + " items -- fr " + aFr[:score] +
+		  ", ar " + aAr[:score] + ", ru " + aRu[:score]
+		Then("the floor is measured on the whole set", aM[:n], 26)
+		Then("and per language: 9 French, 8 Arabic, 9 Russian items", @@([ aFr[:n], aAr[:n], aRu[:n] ]), @@([ 9, 8, 9 ]))
+		Then("French at the ceiling", aFr[:score], 1)
+		Then("Arabic above half", aAr[:score] >= 0.5, 1)
+		if NOT StzOcrPlatformHas("ru-RU")
+			Then("Russian refused: no ru-RU pack here, so no Russian answer conforms", aRu[:conformance], 0)
+		ok
 		StzSaveMeasurements("results/ocr.zmdl.txt")
 		Then("the measurement is filed", fexists("results/ocr.zmdl.txt"), 1)
 	EndScenario()

@@ -1,9 +1,10 @@
-# goldens_v1.ring -- the :ocr faculty golden set, version v1: one item per key sentence of a golden document, the
-# document given as its rendered pages (150 dpi, greyscale, in this folder) and the language pack to use.
-# Generated from the document goldens (an independent author never saw a reader) -- the expected.json of
-# golden_v36/z09 (French) and golden_v35/y11 (Arabic); do not edit by hand: re-generate from those files.
+# goldens_v2.ring -- the :ocr faculty golden set, version v2: one item per key sentence of a golden document, the
+# document given as its rendered pages (150 dpi, greyscale, in this folder) and the language pack to use. v2 = v1
+# (golden_v36/z09 French, golden_v35/y11 Arabic) + golden_v33/u06 Russian: the faculty is measured PER LANGUAGE
+# from v2 on (ruled by the author 2026-10-30, OCR-PERLANG-01), so each language needs items of its own.
+# Generated from the documents' expected.json, whose authors never saw a reader; do not edit by hand.
 
-func StzOcrGoldensV1(pcDir)
+func StzOcrGoldensV2(pcDir)
 	_a_ = []
 	add(_a_, [ [ :pages = [ pcDir + "z09_p1_150dpi.png", pcDir + "z09_p2_150dpi.png" ], :lang = "fr-FR" ], "La ligne 12 relie la gare routière à l'hôpital Saint-Lazare en vingt-quatre minutes." ])
 	add(_a_, [ [ :pages = [ pcDir + "z09_p1_150dpi.png", pcDir + "z09_p2_150dpi.png" ], :lang = "fr-FR" ], "Elle circule toute l'année du lundi au samedi, de 6h40 à 20h15." ])
@@ -22,4 +23,13 @@ func StzOcrGoldensV1(pcDir)
 	add(_a_, [ [ :pages = [ pcDir + "y11_p1_150dpi.png", pcDir + "y11_p2_150dpi.png" ], :lang = "ar-SA" ], "يحق للمؤمَّن له إلغاء الوثيقة في أي وقت، ويُردّ إليه جزء من القسط عن المدة المتبقية." ])
 	add(_a_, [ [ :pages = [ pcDir + "y11_p1_150dpi.png", pcDir + "y11_p2_150dpi.png" ], :lang = "ar-SA" ], "اتصل بمركز الخدمة على مدار الساعة." ])
 	add(_a_, [ [ :pages = [ pcDir + "y11_p1_150dpi.png", pcDir + "y11_p2_150dpi.png" ], :lang = "ar-SA" ], "صورة من الوثيقة وبطاقة الهوية." ])
+	add(_a_, [ [ :pages = [ pcDir + "u06_p1_150dpi.png", pcDir + "u06_p2_150dpi.png", pcDir + "u06_p3_150dpi.png" ], :lang = "ru-RU" ], "Шлюз телеметрии ТМ-200 предназначен для сбора данных с датчиков и передачи их на сервер по защищённому каналу." ])
+	add(_a_, [ [ :pages = [ pcDir + "u06_p1_150dpi.png", pcDir + "u06_p2_150dpi.png", pcDir + "u06_p3_150dpi.png" ], :lang = "ru-RU" ], "Настоящее руководство описывает подключение устройства и настройку его параметров." ])
+	add(_a_, [ [ :pages = [ pcDir + "u06_p1_150dpi.png", pcDir + "u06_p2_150dpi.png", pcDir + "u06_p3_150dpi.png" ], :lang = "ru-RU" ], "Для подключения устройства выполните следующие действия." ])
+	add(_a_, [ [ :pages = [ pcDir + "u06_p1_150dpi.png", pcDir + "u06_p2_150dpi.png", pcDir + "u06_p3_150dpi.png" ], :lang = "ru-RU" ], "Параметры хранятся в текстовом файле config.ini. Пример файла приведён ниже." ])
+	add(_a_, [ [ :pages = [ pcDir + "u06_p1_150dpi.png", pcDir + "u06_p2_150dpi.png", pcDir + "u06_p3_150dpi.png" ], :lang = "ru-RU" ], "Допустимые значения параметров приведены в таблице 1." ])
+	add(_a_, [ [ :pages = [ pcDir + "u06_p1_150dpi.png", pcDir + "u06_p2_150dpi.png", pcDir + "u06_p3_150dpi.png" ], :lang = "ru-RU" ], "Состояние устройства определяется по индикатору на передней панели." ])
+	add(_a_, [ [ :pages = [ pcDir + "u06_p1_150dpi.png", pcDir + "u06_p2_150dpi.png", pcDir + "u06_p3_150dpi.png" ], :lang = "ru-RU" ], "Изготовитель гарантирует соответствие шлюза техническим характеристикам в течение 24 месяцев со дня продажи." ])
+	add(_a_, [ [ :pages = [ pcDir + "u06_p1_150dpi.png", pcDir + "u06_p2_150dpi.png", pcDir + "u06_p3_150dpi.png" ], :lang = "ru-RU" ], "Гарантия не распространяется на устройства, имеющие механические повреждения или следы вскрытия корпуса." ])
+	add(_a_, [ [ :pages = [ pcDir + "u06_p1_150dpi.png", pcDir + "u06_p2_150dpi.png", pcDir + "u06_p3_150dpi.png" ], :lang = "ru-RU" ], "Служба технической поддержки работает по рабочим дням с 9:00 до 18:00." ])
 	return _a_

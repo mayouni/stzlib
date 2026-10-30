@@ -1,3 +1,9 @@
 # zmdl 1 -- measured quality per implementation (SOFTANZA_MODEL_FLOW.md 9.2)
-ocr|platform|v1|0.82|17|1|30/10/2026 22:10:54|
-ocr|ppocr|v1|0.53|17|1|30/10/2026 22:11:12|
+ocr|platform|v2|0.54|26|0.65|30/10/2026 22:43:50|
+ocr|platform|v2/fr|1|9|1|30/10/2026 22:43:50|
+ocr|platform|v2/ar|0.62|8|1|30/10/2026 22:43:50|
+ocr|platform|v2/ru|0|9|0|30/10/2026 22:43:50|
+ocr|ppocr|v2|0.65|26|1|30/10/2026 22:44:29|
+ocr|ppocr|v2/fr|1|9|1|30/10/2026 22:44:29|
+ocr|ppocr|v2/ar|0|8|1|30/10/2026 22:44:29|
+ocr|ppocr|v2/ru|0.89|9|1|30/10/2026 22:44:29|

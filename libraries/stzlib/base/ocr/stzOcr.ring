@@ -41,11 +41,14 @@ $aStzOcrModelLastStats = []
 func StzOcrDeclare(paGolden)
 	_o_ = StzFacultyQ(:ocr)
 	_o_.SetInputTypeQ(:image).SetOutputTypeQ(:text).SetParamsQ([ :lang = "" ]).
-	    SetFloorQ("platform", "_StzOcrFloor").SetGoldenCheckerQ("contains").SetGoldenVersionQ("v1")
+	    SetFloorQ("platform", "_StzOcrFloor").SetGoldenCheckerQ("contains").SetGoldenVersionQ("v2").
+	    SetGoldenLanguageKeyQ(:lang)
+	# measured PER LANGUAGE from golden set v2 on (the author's ruling of 2026-10-30, OCR-PERLANG-01): a call in
+	# Russian is judged on the Russian items, so the model may answer it while the floor answers Arabic
 	# the model: PP-OCR on the engine, installed when its graphs are in the models directory; it answers
 	# instead of the floor only once the registry measured it strictly better on the golden set
-	# (O3b measured the Latin recogniser alone as "ppocr-v6-small"; O3c adds the Arabic and Cyrillic recognisers and
-	# the implementation is "ppocr" from golden set v1's second measurement on)
+	# (O3b measured the Latin recogniser alone as "ppocr-v6-small" on golden set v1; with the Arabic and Cyrillic
+	# recognisers of O3c it is "ppocr")
 	if len(StzFind("ppocr", _o_.ImplementationIds())) = 0
 		_o_.AddImplementation([ :id = "ppocr", :kind = "graph", :fn = "_StzOcrModel", :needle = "ocr/ppocr_rec.gguf",
 				       :licence = "apache-2.0", :memory = 600,
@@ -472,6 +475,7 @@ class stzOcr from stzObject
 	@cLang = ""
 	@aLines = []
 	@bRead = 0
+	@cAnsweredBy = ""
 
 	# Builds the reader of an image, a list of page paths, or a record [ :pages, :lang ]; nothing is read yet.
 	def init(pImage)
@@ -530,9 +534,15 @@ class stzOcr from stzObject
 	def LastSummary()
 		return $cStzOcrLastSummary
 
+	# The implementation that answered: "platform" (the floor) or "ppocr" (the model), as the registry chose it for
+	# this language.
+	def AnsweredBy()
+		This._Read()
+		return @cAnsweredBy
+
 	def Content()
 		This._Read()
-		return [ :pages = @aPages, :lang = @cLang, :lines = @aLines ]
+		return [ :pages = @aPages, :lang = @cLang, :lines = @aLines, :answeredby = @cAnsweredBy ]
 
 	def Show()
 		? @@(This.Content())
@@ -546,8 +556,24 @@ class stzOcr from stzObject
 			stzraise(_oP_.Why())
 		ok
 		_cText_ = _oP_.Value()
-		# the lines come from the cache the floor filled; a model implementation gives one text, kept as one line
+		@cAnsweredBy = ""
+		_aPv_ = _oP_.Provenance()
+		if len(_aPv_) > 0 @cAnsweredBy = _aPv_[len(_aPv_)][:implementation] ok
 		@aLines = []
+		# the model answered: its lines are in its own cache, already in logical order
+		if @cAnsweredBy = "ppocr"
+			_nP_ = len(@aPages)
+			for _i_ = 1 to _nP_
+				_aL_ = StzOcrModelLinesXT(@aPages[_i_], @cLang)
+				_nL_ = len(_aL_)
+				for _k_ = 1 to _nL_
+					add(@aLines, _aL_[_k_][:text])
+				next
+			next
+			@bRead = 1
+			return
+		ok
+		# the floor answered: its lines are in the cache it filled, in visual order
 		_cDir_ = "ltr"
 		if StzOcrLanguageIsRtl(@cLang) _cDir_ = "rtl" ok
 		_nP_ = len(@aPages)
