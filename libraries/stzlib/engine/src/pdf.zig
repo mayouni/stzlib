@@ -954,7 +954,14 @@ fn parseToUnicode(f: *Font, a: Allocator, data: []const u8) !void {
                             while (c <= hi) : (c += 1) {
                                 try f.cmap.put(a, c, try utf16beToUtf8(a, cur));
                                 const nxt = try a.dupe(u8, cur);
-                                if (nxt.len > 0) nxt[nxt.len - 1] +%= 1;
+                                // (the destination counts up as a whole number: a range may run across a byte boundary,
+                                //  <0249> <027b> <3131> and MuPDF's whole-font maps do)
+                                var bi = nxt.len;
+                                while (bi > 0) {
+                                    bi -= 1;
+                                    nxt[bi] +%= 1;
+                                    if (nxt[bi] != 0 or nxt.len - bi >= 2) break;
+                                }
                                 cur = nxt;
                             }
                         },
@@ -1046,6 +1053,8 @@ fn loadFont(d: *Doc, fd: *Dict) !*Font {
             if (c >= 128) {
                 if (base_enc == .mac) cp = mac_hi[c - 128] else if (c < 160) cp = win_hi[c - 128];
             }
+            // (WinAnsiEncoding sends its unused codes to the bullet: ReportLab draws a list bullet as the byte 127)
+            if (base_enc != .mac and (c == 0x7F or c == 0x81 or c == 0x8D or c == 0x8F or c == 0x90 or c == 0x9D)) cp = 0x2022;
             if (cp == 0xFFFD) continue;
             f.enc[c] = try utf8Of(a, cp);
         }
@@ -1112,7 +1121,8 @@ fn loadFont(d: *Doc, fd: *Dict) !*Font {
         if (d.decode(tu.stream)) |data| {
             const tb = f.two_byte;
             parseToUnicode(f, a, data) catch {};
-            if (is0) f.two_byte = tb or f.two_byte;
+            // (a simple font's codes are one byte whatever its ToUnicode codespace says: matplotlib writes <0000> <ffff>)
+            f.two_byte = if (is0) tb or f.two_byte else tb;
         } else |_| {}
     }
     return f;
@@ -1196,6 +1206,7 @@ const Interp = struct {
     path: std.ArrayList([4]f64) = .empty, // pending rectangles and segments, user space
     pb: [4]f64 = .{ 1e18, 1e18, -1e18, -1e18 }, // the bounding box of the whole pending path, curves included
     curved: bool = false, // the pending path has a curve (a disc or a circle, not a ruling)
+    squares: std.ArrayList([4]f64) = .empty, // the pending rectangles of a few points, square: check boxes if stroked
     cur: [2]f64 = .{ 0, 0 },
     start: [2]f64 = .{ 0, 0 },
     depth: u32 = 0,
@@ -1316,6 +1327,19 @@ const Interp = struct {
 
     fn flushPath(it: *Interp, keep: bool, fill: bool) !void {
         // a small filled shape is a candidate list bullet (browsers draw list discs as paths, not glyphs)
+        // (a stroked square of a few points -- a check box drawn before an item -- is a bullet too, one by one: a form
+        //  draws all its boxes with one stroke)
+        if (keep and !fill) {
+            for (it.squares.items) |q| {
+                try it.dots.append(it.a, .{
+                    .x0 = @floatCast(q[0] - it.page_left),
+                    .x1 = @floatCast(q[2] - it.page_left),
+                    .y0 = @floatCast(it.page_top - q[3]),
+                    .y1 = @floatCast(it.page_top - q[1]),
+                });
+            }
+        }
+        it.squares.clearRetainingCapacity();
         if ((fill or it.curved) and it.pb[0] < 1e17) {
             const w = it.pb[2] - it.pb[0];
             const h = it.pb[3] - it.pb[1];
@@ -1518,6 +1542,12 @@ const Interp = struct {
                     // (a rectangle turned by the matrix -- a diamond bullet -- has its other corners elsewhere)
                     it.touch(apply(it.gs.ctm, x + nv(n[2]), y));
                     it.touch(apply(it.gs.ctm, x, y + nv(n[3])));
+                    {
+                        const sw = @abs(p1[0] - p0[0]);
+                        const sh = @abs(p1[1] - p0[1]);
+                        if (sw >= 4 and sh >= 4 and sw <= 10 and sh <= 10 and @abs(sw - sh) <= 1.5)
+                            try it.squares.append(it.a, .{ @min(p0[0], p1[0]), @min(p0[1], p1[1]), @max(p0[0], p1[0]), @max(p0[1], p1[1]) });
+                    }
                     try it.path.append(it.a, .{ p0[0], p0[1], p1[0], p1[1] });
                 }
             } else if (eq(op, "m")) {
@@ -2955,7 +2985,12 @@ fn makeFrag(a: Allocator, gl: []Glyph, ids_in: []u32, text: []const u8, page_no:
             } else k += 1;
         }
     }
-    const mono = nm * 2 > ids.len;
+    // (a fixed-width face is not code when it sets Japanese or Chinese: MS Gothic and SimSun are monospaced by design)
+    var cjk_line = false;
+    for (ids) |k| {
+        if (firstCp(glyphText(text, gl[k])) >= 0x3000) cjk_line = true;
+    }
+    const mono = nm * 2 > ids.len and !cjk_line;
     var space_gap: f32 = 0.2 * size;
     {
         var has_space = false;
@@ -3064,6 +3099,21 @@ fn makeFrag(a: Allocator, gl: []Glyph, ids_in: []u32, text: []const u8, page_no:
             }
             trimmed = joined.items;
         }
+    }
+    // a no-break space is a space here (MuPDF writes every space of an HTML text as one)
+    if (std.mem.indexOf(u8, trimmed, "\xC2\xA0") != null) {
+        var nbs: std.ArrayList(u8) = .empty;
+        var q: usize = 0;
+        while (q < trimmed.len) {
+            if (q + 1 < trimmed.len and trimmed[q] == 0xC2 and trimmed[q + 1] == 0xA0) {
+                try nbs.append(a, ' ');
+                q += 2;
+            } else {
+                try nbs.append(a, trimmed[q]);
+                q += 1;
+            }
+        }
+        trimmed = nbs.items;
     }
     if (rtl > 0) trimmed = try arabicLogical(a, trimmed);
     return .{
@@ -4271,10 +4321,16 @@ fn findAlignedTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.Ar
         const Cl = struct { x0: f32, n: usize, maxx1: f32, miny: f32, maxy: f32 };
         var cls: std.ArrayList(Cl) = .empty;
         var pw: f32 = 0;
-        for (frags) |f| pw = @max(pw, f.x1);
+        var ph: f32 = 0;
+        for (frags) |f| {
+            pw = @max(pw, f.x1);
+            ph = @max(ph, f.y1);
+        }
         for (frags) |f| {
             if (f.table >= 0 or f.text.len == 0) continue;
             if (f.x1 - f.x0 < 0.18 * pw or wordCount(f.text) < 5) continue;
+            // (not the running header or footer: it spans the gutter)
+            if (f.y0 < 0.08 * ph or f.y1 > 0.93 * ph) continue;
             var hit = false;
             for (cls.items) |*c| {
                 if (@abs(c.x0 - f.x0) <= 2) {
@@ -4356,7 +4412,7 @@ fn findAlignedTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.Ar
         if (si >= gutter_start and tables.items.len == n0 + 2) {
             const t1 = tables.items[n0];
             const t2 = tables.items[n0 + 1];
-            if (@abs(t1.y0 - t2.y0) < 2 and @abs(t1.y1 - t2.y1) < 2 and t1.rows.len == t2.rows.len) {
+            if ((@abs(t1.y0 - t2.y0) < 2 and @abs(t1.y1 - t2.y1) < 2 and t1.rows.len == t2.rows.len) or (@abs(t1.y1 - t2.y1) < 2.5 and @abs(t1.y0 - t2.y0) < 30)) {
                 var rel: std.ArrayList(u32) = .empty;
                 for (frags, 0..) |*f, fk| {
                     if (f.table == @as(i32, @intCast(n0)) or f.table == @as(i32, @intCast(n0 + 1))) {
@@ -4367,8 +4423,9 @@ fn findAlignedTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.Ar
                 tables.items[n0].rows = &.{};
                 tables.items[n0 + 1].rows = &.{};
                 const out_held2 = std.math.maxInt(i32) - 3;
+                // (the whole band is read again, the lines of a two-level header with the rest -- as one pass would have)
                 for (frags, 0..) |*f, fk| {
-                    if (f.table < 0 and std.mem.indexOfScalar(u32, rel.items, @intCast(fk)) == null) f.table = out_held2;
+                    if (f.table < 0 and std.mem.indexOfScalar(u32, rel.items, @intCast(fk)) == null and (inBand(seps.items, f.*) orelse 99999) != si) f.table = out_held2;
                 }
                 try findAlignedTablesIn(a, frags, rules, -1e9, 1e9, tables);
                 for (frags) |*f| {
@@ -6292,7 +6349,10 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
             const item = mk > 0 or f.bullet;
             var join = false;
             if (cur) |b| {
-                const same_style = @abs(f.size - b.size) <= 0.15 * b.size and f.bold == b.bold and f.mono == b.mono and f.italic == b.italic;
+                var same_style = @abs(f.size - b.size) <= 0.15 * b.size and f.bold == b.bold and f.mono == b.mono and f.italic == b.italic;
+                // (a short line set larger than the one under it is a heading over it, however little larger: 13 pt over 11.5)
+                if (same_style and b.lines == 1 and b.kind == .paragraph and b.size > 1.08 * f.size and wordCount(cur_text.items) <= 6 and
+                    cur_text.items.len > 0 and std.mem.indexOfScalar(u8, ".,;:", cur_text.items[cur_text.items.len - 1]) == null) same_style = false;
                 const maxgap: f32 = if (b.mono and f.mono) 3.5 * f.size else 0.9 * f.size;
                 const below = f.page == b.page and f.y0 >= last.y0 + 0.3 * f.size and f.y0 - last.y1 <= maxgap;
                 // (an indented line of code under a short one -- "{" -- does not overlap it and still continues it)
@@ -6440,7 +6500,8 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
         if (b.kind != .paragraph) continue;
         const short = b.text.len <= 160;
         const ends = b.text.len > 0 and (b.text[b.text.len - 1] == '.' or b.text[b.text.len - 1] == ':' or b.text[b.text.len - 1] == ',');
-        if (body > 0 and b.size >= 1.15 * body and short) {
+        const plain_head = b.lines == 1 and !ends and body > 0 and b.size >= 1.1 * body and wordCount(b.text) <= 6 and b.y1 > 0;
+        if (body > 0 and (b.size >= 1.15 * body or plain_head) and short) {
             b.kind = .heading;
             try hsizes.append(a, b.size);
         } else if (b.bold and short and !ends and (b.size >= 0.95 * body or (firstCp(b.text) >= 0x0600 and firstCp(b.text) <= 0x06FF and b.size >= 0.85 * body)) and b.lines == 1) {
@@ -6629,7 +6690,20 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
             for (merged.items[k..e]) |b| {
                 if (isRtlCp(firstCp(b.text[startsListMarker(b.text)..]))) nrtl += 1;
             }
-            const rtl = 2 * nrtl > e - k;
+            var rtl = 2 * nrtl > e - k;
+            // (but a right-to-left list set flush LEFT -- MuPDF does not align it -- has its edge on the left: the edge the
+            //  items agree on is the one that counts)
+            if (rtl) {
+                var xl: std.ArrayList(f32) = .empty;
+                var xr: std.ArrayList(f32) = .empty;
+                for (merged.items[k..e]) |b| {
+                    try xl.append(a, b.x0);
+                    try xr.append(a, -b.x1);
+                }
+                const sl = try clusterVals(a, xl.items, 4);
+                const sr = try clusterVals(a, xr.items, 4);
+                if (sl.len < sr.len) rtl = false;
+            }
             var xs: std.ArrayList(f32) = .empty;
             for (merged.items[k..e]) |b| try xs.append(a, if (rtl) -b.x1 else b.x0);
             const steps = try clusterVals(a, xs.items, 4);

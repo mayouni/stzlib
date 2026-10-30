@@ -725,6 +725,21 @@ Scenario("A table in each column of a two-column page is read in its own column"
 	Then("a kana letter and a full-width stop, with a phrase after it, is a list marker and no table", StzFindFirst("ア． 7月1日から相談窓口の受付時間を午前8時30分に変更すること。", "" + @@(StzPdfQ("_data/golden_v32/t04.pdf").ListItems())) > 0, 1)
 EndScenario()
 
+# ---- the thirty-third round: PDFs from producers other than Chrome (golden_v34: ReportLab, PyMuPDF, matplotlib, GDI)
+
+Scenario("Bullets, check boxes, ToUnicode ranges and Type 3 codes as other producers write them")
+	Then("the byte 127 of a WinAnsi font, which ReportLab uses for its bullet, is a bullet", StzFindFirst("• Bank transfer to sort code 00-00-00, account 00000000.", "" + @@(StzPdfQ("_data/golden_v34/x01.pdf").ListItems())) > 0, 1)
+	Then("a stroked square before a line, a form's check box, is a bullet and each line is an item of its own", StzFindFirst("Medium plot (8 m by 5 m)", "" + @@(StzPdfQ("_data/golden_v34/x12.pdf").ListItems())) > 0, 1)
+	Then("a ToUnicode range that runs over a byte boundary counts up as a whole", StzFindFirst("1. 운영 개요", "" + @@(StzPdfQ("_data/golden_v34/x17.pdf").Headings())) > 0, 1)
+	aT = StzPdfQ("_data/golden_v34/x20.pdf").Tables()
+	Then("a Type 3 font's codes are one byte whatever its ToUnicode codespace says", aT[1][2][4], "Parque da Serra")
+	Then("a fixed-width Japanese face is not code", len(StzPdfQ("_data/golden_v34/x11.pdf").CodeBlocks()), 0)
+	Then("a heading set only a little larger than the text under it, in a plain face, is a heading", StzFindFirst("Summary of findings", "" + @@(StzPdfQ("_data/golden_v34/x22.pdf").Headings())) > 0, 1)
+	aT = StzPdfQ("_data/golden_v34/x14.pdf").Tables()
+	Then("the running header does not hide a two-column paper's gutter: its table is read in its column", @@(aT[1][2]), @@([ "Finnish", "71.2", "88.9", "96.1" ]))
+	Then("a no-break space is a space, so the marker of a right-to-left item is seen", StzFindFirst("א. אישור פרוטוקול הישיבה הקודמת", "" + @@(StzPdfQ("_data/golden_v34/x16.pdf").ListItems())) > 0, 1)
+EndScenario()
+
 Scenario("A file that is not a readable PDF is refused with the reason")
 	bRaised = 0
 	cWhy = ""
