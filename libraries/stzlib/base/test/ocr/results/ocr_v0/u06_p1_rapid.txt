@@ -1,0 +1,38 @@
+-2 ·   
+  -: 
+1. 
+  -           
+ a       
+  .
+.   
+2.1 
+     :
+a)
+3 TM-200 — 1 I.;
+   12  — 1 .;
+)  — 1 T.;
+)    1,5  — 1 .
+2.2 
+     .
+1)  3  D-.
+a   d  .
+     .
+3      L.
+      .
+.  
+     ..    .
+[network]
+address = 192.168.10.20
+#  
+netmask = 255.255.255.0
+gateway = 192.168.10.1
+[mqtt]
+broker = mqtt.example.net
+port = 8883
+topic = site/tm200/data
+interval_s = 30
+#  , 
+     :
+sudo systemctl restart tm200
+© 00 «C », 2026
+. 1 3 3

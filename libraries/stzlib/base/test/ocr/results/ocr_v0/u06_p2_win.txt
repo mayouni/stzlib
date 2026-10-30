@@ -1,0 +1,85 @@
+TM-200 • PYKOBOACTBO 110 HacTPOÜKe
+AonycTHMb1e 3HaqeHH1 napaMeTpoB 111)HBeAeHb1 B Ta6JIH1_1e 1.
+1 — IlapaMerrpb1
+IlapaMerp
+address
+netmask
+gateway
+dns
+ntp_server
+port
+keepalive_s
+qos
+interval s
+retries
+timeout s
+buffer kb
+log_level
+log_keep_days
+AonycTHMb1e
+.3Haqe1-11-1f1
+MHH.
+1
+10
+o
+5
+o
+1
+64
+o
+1
+MaKC.
+65535
+600
+2
+3600
+10
+120
+4096
+4
+365
+Ilo YMOJ1qaHHkO
+192.168.10.20
+255.255.255.0
+192.168.10.1
+192.168.10.1
+pool.ntp.example
+8883
+60
+1
+30
+3
+15
+512
+2
+30
+@ 000 Flpuôop», 2026
+Ormcal--me
+IP-aApec 111J1103a B JIOKaJ1bHOÜ ceTH
+IlpeAnpHITH1
+MacKa 110AceTH, K KOTOPOÜ 110AW110UëH
+111)1103
+aApec OCHOBHOI'0 111JIK)3a BblXOAa BO
+BHe1_11H1010 ceTb
+aApec cepBepa HMëH, uc110J1b3yeMoro
+pa3pemeHHfl aApecoB
+HCTOUHHK TOMHoro BpervreHH
+OTMeTKH H3MepeHHü
+llopT 6poKepa MQTT, K KOTOPOMY
+110AKJ1rouaerrc51 111)1103
+mrrepBaJ1 ceaHCOBb1X c006111eHHÜ
+coeAHHeHH1, C
+ypoBeHb KauecTBa AOŒraBKH cooÔ1ueHHÜ
+Ha cepBep
+nepH0A orlpoca 110AW110UëHHb1X
+AaTUHKOB, C
+110BTOPHb1X 11011b1TOK IlepeAaMH
+côoe CB13H
+Bpervlfl O)KHAaHH10TBera cepBepa A0
+IIOBTOPHOÜ 11011b1TKH, C
+pa3Mep 6yd)epa xpaHeHH51 AaHHb1X
+06Pb1Be CB13H, KB
+110Ap06HOCV1'b 3a11Hceü B xypHaJ1e
+c06b1TMÜ ycrpoücrBa
+cpoK xpaHeHH51 xypHaJ1a c06b1TMÜ,
+Crp. 2 M3 3

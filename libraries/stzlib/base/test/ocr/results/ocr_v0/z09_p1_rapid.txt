@@ -1,0 +1,78 @@
+Plaine Mobilité
+Horaires 2026-2027
+口
+Ligne 12 : Gare routière - Hôpital Saint-Lazare
+La ligne 12 relie la gare routière à l'hôpital Saint-Lazare en vingt-quatre minutes. Elle circule toute l'année du
+lundi au samedi, de 6h40 à 20h15.
+Horaires en semaine (du lundi au vendredi)
+Direction Hôpital Saint-Lazare
+Direction Gare routière
+Arrêt
+6h40
+7h20
+8h00
+Arrêt
+6h55
+7h35
+8h15
+Gare routière
+6h40
+7h20
+8h00
+Hôpital Saint-Lazare
+6h55
+7h35
+8h15
+Place Carnot
+6h44
+7424
+8h04
+Clinique des Tilleuls
+7040
+7h40
+8h20
+Lycée Descartes
+6h47
+7h27
+8h07
+Pont-Neuf
+7404
+7h44
+8h24
+Marché couvert
+6h51
+7h31
+8h11
+Marché couvert
+7h08
+7h48
+8h28
+Pont-Neuf
+6h55
+7h35
+8h15
+Lycée Descartes
+7h12
+7h52
+8h32
+Clinique des Tilleuls
+6h59
+7439
+8h19
+Place Carnot
+7h15
+7h55
+8h35
+Hôpital Saint-Lazare
+704
+74
+8h24
+Gare routière
+7h19
+7h59
+8h39
+À savoir
+Les horaires du samedi sont affichés à chaque arrêt.
+Le bus s'arrête à la demande entre deux arrêts après 20h00.
+Les poussettes et les fauteuils roulants montent par la porte centrale.
+plainemobilite.example

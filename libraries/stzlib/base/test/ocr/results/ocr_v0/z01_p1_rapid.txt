@@ -1,0 +1,81 @@
+Northfield Power & Light
+14 Quay Street, Northfield NF1 4QY | Customer service 0800 555 0142 | nfpl.example
+Your electricity bill for August 2026
+Thank you for being a customer for another month. Your bill is shown below and payment is due by 23
+September 2026.
+Account number
+4471-0932-18
+Supply address
+7 Larch Court, Northfield NF2 9RT
+Meter number
+E10 2290 1735
+Billing period
+1 August 2026 to 31 August 2026
+Amount due
+£90.83
+Summary of charges
+The charges below cover 31 days and are calculated from the readings on page 2.
+Description
+Quantity
+Rate
+Amount
+Standing charges
+Daily standing charge
+31 days
+46.36p/day
+£14.37
+Electricity used
+Day rate (07:00 to 23:00)
+212.4 kWh
+29.84p/kWh
+£63.38
+Night rate (23:00 to 07:00)
+96.8 kWh
+14.20p/kWh
+£13.75
+Adjustments
+Goodwill credit for the June outage
+-£5.00
+Total before VAT
+£86.50
+VAT at 5%
+£4.33
+Total due
+£90.83
+How we worked out your usage
+Your meter is read remotely every night at midnight.
+1. 1. The day rate applies between 07:00 and 23:00.
+2. 2. The night rate applies for the remaining eight hours of each day.
+3. 3. Readings that could not be collected are estimated from your last 90 days of use.
+Daily meter readings
+The table lists the reading taken at midnight at the end of each day of the billing period.
+Date
+Meter reading (kWh)
+Used (kWh)
+Total so far (kWh)
+1 Aug 2026
+48219.7
+9.7
+9.7
+2 Aug 2026
+48228.6
+8.9
+18.6
+3 Aug 2026
+48239.6
+11.0
+29.6
+4 Aug 2026
+48248.2
+8.6
+38.2
+5 Aug 2026
+48258.7
+10.5
+48.7
+6 Aug 2026
+48268.5
+9.8
+58.5
+Northfield Power & Light Ltd. Registered in England and Wales, company no. 0123456.
+Page 1 of 2

@@ -1,0 +1,43 @@
+TM-200 • PYKOBOACTBO 110 HacTPOÜKe
+III.J1103 Te.JreMerrp1•1H TM-200: PYKOBOACTBO
+no HacTPOÜKe
+1. 1--1a3Hauerme
+IIIJIK)3 rreJ1eMeT1)HH TM-200 IlpeAHa3HaueH c60pa AaHHb1X C AaTUHKOB H IlepeAaHH uX Ha cepBep
+110 KaHaJIY. PYKOBOACTBO 011HCb1BaeT 110AKJ1koqeHHe ycT1)0iicTBa H
+HacTPOÜKY ero napaMeTpoB.
+2. HOATOTOBKa K pa60Te
+2.1 KOM11J1eKTHOCTb
+B KOM11J1eKT 110CTaBKH BXOAHT cJ1eAYK)111He H3AeJ1uq:
+a) TM-200 — 1 IIIT.;
+6) 6J10K 11HTaHH1 12 B — 1 IIIT.;
+B) aHTeHHa — 1 IIIT.;
+r) Ka6eJ1b Ethernet AJIHH0ü 1,5 M — 1 HIT.
+2.2 IIOAKJ1roqerme
+110AKJ1koueHH1 YCTPOÜCTBa Bb1110JIHWre AeÜCTBHH.
+1) 3aKpe11HTe 111J1k03 Ha DIN-peüKe.
+2) 110AKJ1koqwre aHTeHHY K pa3%ëMY Ha BepxHeii llaHeJIH:
+a) BKpyrvne pa3bëM A0 ynopa Bpymyro•,
+6) He Hcr10J1b3YÜTe HHCTPYMeHT 3aTYìKKH.
+3) 110AKJ1koqwre Ka6eJ1b Ethernet K llopTY LANI.
+4) 110Aaiirre 11HTaHHe A0)KAwrecb CBeqeHH1 HHAHKaTopa.
+3. OaiiJ1
+IlaparweTpb1 xparwrcq B rreKCTOBOM (VaüJ1e config.ini. Ilpurwep (l)aü.na 111)HBeAëH Huyce.
+168.10 1
+[network]
+address =
+netmask
+= 255.255.255.0
+gateway = 192.
+[mqtt]
+broker = mqtt.example.net
+= 8883
+port
+topic
+= site/tm2êê/data
+interval s
+# agpec u.J11œa
+# nepnog onpoca, c
+110CJ1e H3MeHeHHfl (VaiiJ1a nepe3anycrrwre cJIY)K6y KOMaHAOÜ:
+sudo systemctl restart tm2ea
+@ 000 Flpuôop», 2026
+Crp. 1 M3 3
