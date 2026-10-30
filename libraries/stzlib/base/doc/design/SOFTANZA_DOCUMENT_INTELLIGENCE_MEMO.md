@@ -728,7 +728,7 @@ Time for the 24 documents: native 0.08 s, Docling 171 s. **The native reader lea
 
 **Perceived (2026-10-29):** the author looked at the generated documents of golden_v14 to golden_v22 and judged them: "they are ok". Those nine sets are no longer unperceived.
 
-**Not measured**: Granite-Docling-258M (not downloaded), the GPU, scanned golden pages with an expected text, PDFs from producers other than Chrome (both golden sets are Chrome-made and tagged; the native reader does not read the tags).
+**Not measured**: Granite-Docling-258M (not downloaded), the GPU, scanned golden pages with an expected text, PDFs from producers other than Chrome (answered since: three non-Chrome sets, golden_v34 to v36 -- see section 8; the native reader does not read the tags), real files from Word, LaTeX and scanners (section 8.5).
 
 ---
 
@@ -738,3 +738,60 @@ Time for the 24 documents: native 0.08 s, Docling 171 s. **The native reader lea
 **Read in the tree:** the engine's lack of PDF/OCR/OOXML code, the token-id-only decoder entry, the C++ static-initialiser NOTICE, the one model slot.
 **From the research pass, not re-verified:** TableFormer's internal wiring (the `tablemodel04_rs` source was not read); the published pages/s figures; the official Granite-Docling GGUF file sizes; whether Granite uses extra scale multipliers (the config says `llama`); RapidOCR model sizes and which Paddle models exist for Arabic/French; ONNX operator coverage of the layout model.
 **Not tools-checkable here:** any claim of the form "faster than" on this machine. No time was taken on this machine for any document stage.
+
+
+---
+
+## 8. Closing memo -- the native PDF reader (2026-10-30)
+
+Written when the grind that ran from round 20 to round 34 stopped, so that whoever opens this file next knows what the reader is, what was measured, and what was never tested. The decision to stop is the author's, taken on the evidence in 8.3.
+
+### 8.1 What it is
+
+`engine/src/pdf.zig`, reached through `StzPdfQ` (`base/file/stzPdf.ring`): a PDF reader in Zig, in the engine, no model, no OCR, no network. It returns blocks in reading order -- headings with levels, paragraphs, list items with levels, tables as rows of cells (merged cells repeated), code, captions, page furniture (headers, footers, letterheads) -- for text-based PDFs. It runs a 24-document set in 0.06 to 0.11 s; Docling 2.141 takes 85 to 215 s for the same, on this machine, in the same session.
+
+### 8.2 What it reads, by mechanism (so a failure can be traced to a rule)
+
+- **The file:** simple fonts (WinAnsi, MacRoman, Differences -- WinAnsi's unused codes are the bullet), composite fonts with ToUnicode (ranges count up as whole numbers; a simple font's codes are one byte whatever the codespace says), Type 3 fonts (widths by FontMatrix, glyph names, a browser's synthetic bold told by its twin on the page), marked-content ActualText, no-break spaces as spaces.
+- **Scripts:** Latin, Cyrillic, Greek; Arabic, Hebrew and Persian right to left (presentation forms back to letters, marks attached to the glyph whose left edge they stand on, mirrored brackets, digits in logical order); Chinese, Japanese, Korean (no-space joins, full-width and circled markers, letter-spaced titles, fixed-width faces that are not code); Devanagari, Thai, Bengali, Georgian, Armenian and Ethiopic markers and letters.
+- **Layout:** XY-cut reading order with gutters and bridges, two-column pages (the gutter bounds the tables in each column), sidebars, letterheads found by what they hold (five digits in any script, an e-mail address), running headers and footers by repetition and size.
+- **Tables:** ruled grids (also with no outer rules), ladders of row rules with section rows and wrapped headers, zebra fills, unruled aligned columns (wrapped lines joined, key/value panels, panels ended at the next header), two-level headers, row-group labels repeated down their rows, tables continued across pages (one table, header once), side-by-side tables, a table beside a numbered list.
+- **Lists:** typed markers in the conventions of a dozen scripts, drawn bullets (discs, squares turned or not, dashes, check boxes stroked as rectangles or as lines), ASCII check boxes, items wrapped flush with, left of, or indented from their marker, right-to-left markers set apart at the right, nested levels.
+- **Headings:** by size, by bold, by plain weight only a little larger than the line under it, by a bold lead-in; a title also run as a header stays a title.
+
+### 8.3 How it was measured, and what the numbers are
+
+36 golden sets of 24 documents (864), each written by a separate agent that never saw a reader, a reader's output, an extractor or an earlier set; one scorer (`_doc_score.py`) for both readers; each reader ran ONCE on a fresh set, frozen first (the commit is named in the section of each round). Sets 1 to 33 are Chrome-made; sets 34 to 36 are from ReportLab (Platypus and canvas), PyMuPDF (write only), matplotlib (Type 3 and Type 42) and Microsoft Print to PDF (GDI). Every set becomes a development set the round after it is measured.
+
+| mean over the fresh sets | text | order | headings | tables | lists | furniture | code |
+|---|---|---|---|---|---|---|---|
+| native, Chrome v29-v33 | 0.97 | 1.00 | 0.97 | 0.86 | 0.87 | 0.84 | 0.82 |
+| Docling, Chrome v29-v33 | 0.77 | 0.99 | 0.80 | 0.71 | 0.44 | 0.80 | 0.15 |
+| native, other producers v34-v36 | 0.91 | 0.99 | 0.88 | 0.82 | 0.75 | 0.86 | 0.62 |
+| Docling, other producers v34-v36 | 0.77 | 0.99 | 0.81 | 0.70 | 0.34 | 0.82 | 0.39 |
+
+Heading precision (the share of heading blocks that are expected headings) is 0.81 to 0.94 on the fresh sets for the native reader and 0.66 to 0.83 for Docling. The native reader leads on six or seven of eight measures on every set since golden_v29, and ties on order. A set that a round was fixed on gains 0.05 to 0.20 on the measures fixed; the next fresh set shows no systematic gain: v35 and v36, from different authors, differ by under 0.10 on every measure and in no consistent direction. 24 documents give a noise of about +-0.05 per measure. **The reader is on a plateau, and what is measured from here on is the guard (285 assertions, Ring++) and the 36 sets as a regression gate, not progress.**
+
+### 8.4 Where it stops (known, measured)
+
+- **Text that is not in the file.** A shaping engine (MuPDF with HarfBuzz) that sets Devanagari or Thai leaves its reph, vowel-sign and conjunct glyphs without an entry in the ToUnicode map: y16, y17, z14 and z16 score 0.00 on text for BOTH readers. Only OCR or the source text can recover them.
+- **Right-to-left table order.** The page's visual order is read, then the cells are reversed to "rightmost column first"; a golden whose author laid the page out the other way (y11) cannot match, and no rule can tell which the author meant.
+- **Furniture in forms.** An organisation's name that also stands in a body sentence, or a form's label listed as furniture by one author and as a label by another, cannot be scored right; furniture sits between 0.80 and 0.91 and no rule will lift it much.
+- **The space after a full-width marker.** v29's author expected none, v31's expect one where the PDF draws none.
+- **Tables in unusual layouts:** a zebra table of three rows (t09), a menu of dishes with a smaller description line under each (t20), twin tables that touch (y14), a tender table in a producer's own grid (z06, 0.16): each needs a rule of its own, and every such rule tried late cost a document elsewhere (several were withdrawn in rounds 29 to 34: looser leading, five-word cells, empty-column drops, panel splits).
+- **Not read at all:** scanned pages (no OCR), the PDF's tags (the reader does not use structure trees), figures, equations, form fields, annotations, encrypted files.
+
+### 8.5 What was never tested
+
+- **Real files.** All 864 documents are synthetic, written to be hard and varied; none is a real organisation's file. Word, LibreOffice, LaTeX, InDesign, Acrobat and scanner output were never measured (none is installed here). The first honest next test is a dozen real PDFs from the author, run once, with no tuning; expect text and headings near 0.9 and tables below 0.8.
+- **Perception.** Golden_v23 to v36 are unperceived: nobody has looked at their pages. v9 to v22 were looked at by the author ("they look great", "they are ok"); that look covered what the generators drew, not what a reader returned.
+- **Large documents.** The longest golden document is three pages; no 200-page file was timed, and the reader's memory on one is unknown.
+- **Docling's own numbers** are for this machine, CPU, with OCR off, in this session, and Granite-Docling was not run.
+
+### 8.6 How to keep it right
+
+- The pre-commit gate is `base/test/document/pdf_reader_narrated.ring` under Ring++ (`rnxc`), 285 assertions at the freeze `f6391819c`. Every rule has a scenario that names the document it was found on.
+- A change to `pdf.zig` is accepted only if the A/B over all 36 sets (`base/test/document/_rig/ab.sh`, `abcmp.py`) loses nothing; a gain on one set bought with a loss on another is narrowed or withdrawn. The instruments are kept in `_rig/` with a README; the scorer is `_doc_score.py`.
+- A new rule needs its document, its scenario and a stated cost. Rules tuned on one set and found to break another were common here (the gutter lane, the leading of wrapped lines, the panel break): measure on every set, not on the one that raised it.
+- A PDF the reader gets wrong goes into a new golden set with its expected structure written by someone who has not seen the reader's answer; it is measured once, then it is a development set.
+- **When to reopen:** a real file that fails in a way no set contains; a producer family not yet measured (Word, LaTeX); or a consumer (the document flow) that needs a mechanism the reader lacks. Not for a point on a measure.
