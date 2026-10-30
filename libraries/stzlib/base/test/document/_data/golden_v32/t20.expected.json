@@ -1,0 +1,168 @@
+{
+ "id": "t20",
+ "difficulty": "hard",
+ "pages": 2,
+ "title": "The Harbour Gazette",
+ "headings": [
+  {
+   "level": 1,
+   "text": "The Harbour Gazette"
+  },
+  {
+   "level": 2,
+   "text": "Lifeboat Day Raises Record Sum"
+  },
+  {
+   "level": 3,
+   "text": "Thanks to our helpers"
+  },
+  {
+   "level": 2,
+   "text": "New Ferry Timetable from October"
+  },
+  {
+   "level": 2,
+   "text": "What’s On This Autumn"
+  },
+  {
+   "level": 3,
+   "text": "Join the committee"
+  },
+  {
+   "level": 2,
+   "text": "Letters to the Editor"
+  },
+  {
+   "level": 2,
+   "text": "Gardening Corner"
+  },
+  {
+   "level": 2,
+   "text": "Harbour Notes"
+  },
+  {
+   "level": 3,
+   "text": "Dredging update"
+  },
+  {
+   "level": 2,
+   "text": "Classifieds"
+  },
+  {
+   "level": 3,
+   "text": "Next issue"
+  },
+  {
+   "level": 2,
+   "text": "Recipe of the Season"
+  }
+ ],
+ "key_sentences": [
+  "More than 900 people lined the quay on a bright September Saturday for the annual Lifeboat Day.",
+  "Together they raised £6,420, the largest sum in the event’s forty-year history.",
+  "From 5 October the passenger ferry will run a winter timetable with fewer sailings on weekends but an extra early crossing on weekdays.",
+  "Season tickets remain valid and can be renewed at the harbour office.",
+  "The association needs a new treasurer from January.",
+  "The winter issue will be delivered in the first week of December."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Item",
+     "Price",
+     "Contact"
+    ],
+    [
+     "Rowing boat, 12 ft, with oars",
+     "£350",
+     "Mr Hale, 14 Quay St"
+    ],
+    [
+     "Upright piano, free to collect",
+     "Free",
+     "Mrs Odell, 7 Mill Lane"
+    ],
+    [
+     "Garden shed, 6 × 4 ft",
+     "£90",
+     "Mr Brandt, 3 Glebe Rd"
+    ],
+    [
+     "Dinghy trailer, galvanised",
+     "£120",
+     "Mr Hale, 14 Quay St"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "Weekdays: first sailing at 06.45, last at 21.15"
+  },
+  {
+   "level": 0,
+   "text": "Saturdays: first sailing at 08.30, last at 19.30"
+  },
+  {
+   "level": 0,
+   "text": "Sundays: first sailing at 10.00, last at 17.00"
+  },
+  {
+   "level": 0,
+   "text": "• 3 October: harvest supper in the church hall"
+  },
+  {
+   "level": 0,
+   "text": "• 10 October: guided walk to the lighthouse"
+  },
+  {
+   "level": 0,
+   "text": "• 17 October: quiz night at the sailing club"
+  },
+  {
+   "level": 0,
+   "text": "• 31 October: lantern parade along the quay"
+  },
+  {
+   "level": 0,
+   "text": "• 14 November: winter craft fair"
+  },
+  {
+   "level": 0,
+   "text": "1. Plant bulbs at a depth of three times their height."
+  },
+  {
+   "level": 0,
+   "text": "2. Choose a spot with good drainage and some sun."
+  },
+  {
+   "level": 0,
+   "text": "3. Water once after planting and then leave them alone."
+  },
+  {
+   "level": 0,
+   "text": "Poach 600 g of mixed white fish and smoked haddock in milk for ten minutes."
+  },
+  {
+   "level": 0,
+   "text": "Make a white sauce with the strained milk, then fold in the flaked fish and a handful of parsley."
+  },
+  {
+   "level": 0,
+   "text": "Cover with mashed potato and bake at 200 degrees for thirty minutes."
+  }
+ ],
+ "furniture": [
+  "Issue 42 · Autumn 2026Published by the Seabrook Residents’ Association",
+  "Page one",
+  "2 — The Harbour Gazette — Autumn 2026"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [],
+ "notes": "Two-page community newsletter in Georgia with Palatino Linotype headings. The masthead is the title (level 1). Page 1 has THREE columns side by side; the reading order is column by column (left, middle, right), top to bottom. Column 2 holds a paragraph and a CSS-drawn bullet list (timetable); column 3 holds a \"What's on\" list with TYPED \"• \" markers (kept in item text) and a pull quote set in italics. Article headings are level 2, sub-heads level 3. Page 2 has two columns side by side (left: letters, a TYPED-number tip list \"1.\" \"2.\" \"3.\" and harbour notes; right: classifieds table with a rule under the header only, then a recipe whose method is a CSS-drawn decimal list, no marker in text). The pull quote (italic, between two rules, column 2) is decorative and is not listed anywhere. The dateline under the masthead and the page footers are furniture; the page-1 footer is \"Page one\", the page-2 footer is \"2 — The Harbour Gazette — Autumn 2026\" (varied forms)."
+}

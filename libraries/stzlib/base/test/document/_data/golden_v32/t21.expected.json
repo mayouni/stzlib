@@ -1,0 +1,231 @@
+{
+ "id": "t21",
+ "difficulty": "medium",
+ "pages": 3,
+ "title": "Section 4: Leave and Absence",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Section 4: Leave and Absence"
+  },
+  {
+   "level": 2,
+   "text": "4.1 Annual leave"
+  },
+  {
+   "level": 3,
+   "text": "How to request leave"
+  },
+  {
+   "level": 2,
+   "text": "4.2 Sick leave"
+  },
+  {
+   "level": 3,
+   "text": "Terms used"
+  },
+  {
+   "level": 2,
+   "text": "4.3 Parental leave"
+  },
+  {
+   "level": 2,
+   "text": "4.4 Compassionate leave"
+  },
+  {
+   "level": 2,
+   "text": "4.5 Public holidays"
+  },
+  {
+   "level": 2,
+   "text": "4.6 Contact"
+  },
+  {
+   "level": 3,
+   "text": "Revision history"
+  }
+ ],
+ "key_sentences": [
+  "This section explains the types of leave available to employees of Crestwood Logistics Ltd and how to request them.",
+  "All leave is subject to the approval of the line manager unless stated otherwise.",
+  "Leave years run from 1 January to 31 December.",
+  "Employees who leave the company are paid for any untaken leave on their final payslip.",
+  "Employees who are unable to work because of illness must tell their line manager as early as possible on the first day of absence.",
+  "The company offers enhanced pay during parental leave.",
+  "Up to five days of paid compassionate leave are granted on the death of a close relative.",
+  "Questions about this section should be sent to the HR service desk, which is open on working days from 8.30 am to 5.00 pm."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Length of service",
+     "Days per year",
+     "Carry-over limit (days)"
+    ],
+    [
+     "Under 2 years",
+     "22",
+     "5"
+    ],
+    [
+     "2 to 5 years",
+     "25",
+     "5"
+    ],
+    [
+     "5 to 10 years",
+     "27",
+     "7"
+    ],
+    [
+     "Over 10 years",
+     "30",
+     "10"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Qualifying day",
+     "A day on which the employee would normally have worked."
+    ],
+    [
+     "Fit note",
+     "A statement from a doctor on whether the employee is fit for work."
+    ],
+    [
+     "Self-certification",
+     "A form in which the employee confirms the reason for a short absence."
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Type of leave",
+     "Paid weeks",
+     "Notice required"
+    ],
+    [
+     "Maternity",
+     "26",
+     "15 weeks"
+    ],
+    [
+     "Paternity",
+     "4",
+     "15 weeks"
+    ],
+    [
+     "Adoption",
+     "26",
+     "7 days"
+    ],
+    [
+     "Shared parental",
+     "up to 20",
+     "8 weeks"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Version",
+     "Date",
+     "Change"
+    ],
+    [
+     "4.0",
+     "January 2024",
+     "Section rewritten"
+    ],
+    [
+     "4.1",
+     "March 2025",
+     "Parental leave table updated"
+    ],
+    [
+     "4.2",
+     "April 2026",
+     "Compassionate leave extended to five days"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "Submit the request in the HR portal at least two weeks in advance."
+  },
+  {
+   "level": 0,
+   "text": "Wait for written approval from your line manager before booking travel."
+  },
+  {
+   "level": 0,
+   "text": "If your request is declined, you may ask for a review:"
+  },
+  {
+   "level": 1,
+   "text": "The review is carried out by the next level of management."
+  },
+  {
+   "level": 1,
+   "text": "You will receive a written answer within five working days."
+  },
+  {
+   "level": 0,
+   "text": "Record any approved change in the shared team calendar."
+  },
+  {
+   "level": 0,
+   "text": "(a) Absences of up to seven calendar days require a self-certification form."
+  },
+  {
+   "level": 0,
+   "text": "(b) Absences of more than seven calendar days require a fit note from a doctor. The fit note must:"
+  },
+  {
+   "level": 1,
+   "text": "(i) state the expected duration of the absence;"
+  },
+  {
+   "level": 1,
+   "text": "(ii) be sent to the HR department within three days of issue."
+  },
+  {
+   "level": 0,
+   "text": "(c) Repeated short absences may lead to a supportive review meeting."
+  },
+  {
+   "level": 0,
+   "text": "Offices are closed on all public holidays."
+  },
+  {
+   "level": 0,
+   "text": "Warehouse staff who work on a public holiday receive a day off in lieu within 30 days."
+  },
+  {
+   "level": 0,
+   "text": "Public holidays are not deducted from annual leave."
+  }
+ ],
+ "furniture": [
+  "Employee Handbook — Section 4: Leave and Absence",
+  "Page 4-1",
+  "Page 4-2",
+  "Page 4-3"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [],
+ "notes": "Three-page employee-handbook section in Palatino Linotype. Headings: level 1 section title, level 2 numbered clauses (\"4.1 Annual leave\"), level 3 sub-heads. The running header (listed once) appears on every page; page numbers have the form \"Page 4-1\", \"Page 4-2\", \"Page 4-3\" (listed once per page). Lists: the leave-request steps are a CSS-drawn lower-roman list (no marker in text) with a nested CSS-drawn lower-alpha list (level 1); the sick-leave rules are TYPED \"(a)\" \"(b)\" \"(c)\" at level 0 and TYPED \"(i)\" \"(ii)\" at level 1 (hanging indent, markers in item text); page 3 has a CSS-drawn decimal list. Tables: entitlement table is ruled between rows only; definitions table is borderless without a header row; parental-leave table is a full grid with centred cells; revision history is a small borderless table with a header row."
+}

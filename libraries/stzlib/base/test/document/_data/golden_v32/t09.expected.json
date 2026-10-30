@@ -1,0 +1,198 @@
+{
+ "id": "t09",
+ "difficulty": "hard",
+ "pages": 2,
+ "title": "공영주차장 이용 안내서",
+ "headings": [
+  {
+   "level": 1,
+   "text": "공영주차장 이용 안내서"
+  },
+  {
+   "level": 2,
+   "text": "1. 이용 시간 및 요금"
+  },
+  {
+   "level": 2,
+   "text": "2. 이용 방법"
+  },
+  {
+   "level": 2,
+   "text": "3. 유의 사항"
+  },
+  {
+   "level": 2,
+   "text": "4. 정기권 안내"
+  },
+  {
+   "level": 2,
+   "text": "5. 요금 감면 대상"
+  },
+  {
+   "level": 2,
+   "text": "6. 문의처"
+  }
+ ],
+ "key_sentences": [
+  "본 안내서는 새솔시 시설관리공단이 운영하는 공영주차장의 이용 방법과 요금 체계를 설명합니다.",
+  "이용자는 입차 전에 아래 내용을 반드시 확인하시기 바랍니다.",
+  "주차장은 연중무휴로 24시간 운영되며, 요금은 입차 후 처음 30분까지 기본요금이 적용되고 이후 10분마다 추가요금이 부과됩니다.",
+  "정산 후 15분 이내에 출차해야 합니다.",
+  "정기권은 공단 누리집 또는 현장 사무실에서 신청할 수 있습니다.",
+  "감면을 받으려면 정산 전에 증빙 서류를 관리실에 제시하여야 합니다.",
+  "이용해 주셔서 감사합니다."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "차종",
+     "평일",
+     "평일",
+     "주말·공휴일",
+     "주말·공휴일"
+    ],
+    [
+     "차종",
+     "기본요금(30분)",
+     "추가요금(10분)",
+     "기본요금(30분)",
+     "추가요금(10분)"
+    ],
+    [
+     "승용차",
+     "1,000원",
+     "500원",
+     "800원",
+     "400원"
+    ],
+    [
+     "소형 화물차",
+     "1,500원",
+     "700원",
+     "1,200원",
+     "600원"
+    ],
+    [
+     "대형 화물차",
+     "2,500원",
+     "1,200원",
+     "2,000원",
+     "1,000원"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "구분",
+     "이용 시간",
+     "월 요금",
+     "비고"
+    ],
+    [
+     "주간권",
+     "07:00부터 19:00까지 (평일)",
+     "90,000원",
+     "신청 즉시 발급"
+    ],
+    [
+     "야간권",
+     "19:00부터 다음 날 07:00까지",
+     "60,000원",
+     "심야 출차 가능"
+    ],
+    [
+     "종일권",
+     "24시간",
+     "140,000원",
+     "선착순 50대 한정"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "전화",
+     "1588-0000"
+    ],
+    [
+     "운영 시간",
+     "평일 오전 9시부터 오후 6시까지"
+    ],
+    [
+     "이메일",
+     "parking@saesol-facility.example"
+    ],
+    [
+     "분실물",
+     "관리실(지하 1층)"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "1. 차량 진입 시 차단기 앞에서 차량 번호가 자동으로 인식됩니다."
+  },
+  {
+   "level": 0,
+   "text": "2. 출차 전 무인 정산기에서 요금을 결제합니다."
+  },
+  {
+   "level": 1,
+   "text": "가. 신용카드와 교통카드를 사용할 수 있습니다."
+  },
+  {
+   "level": 1,
+   "text": "나. 현금은 관리실에서만 받습니다."
+  },
+  {
+   "level": 0,
+   "text": "3. 정산 후 15분 이내에 출차해야 합니다."
+  },
+  {
+   "level": 0,
+   "text": "○ 주차장 내에서는 시속 10킬로미터 이하로 서행하십시오."
+  },
+  {
+   "level": 0,
+   "text": "○ 귀중품은 차량 안에 두지 마십시오."
+  },
+  {
+   "level": 1,
+   "text": "- 분실 및 도난에 대해 공단은 책임을 지지 않습니다."
+  },
+  {
+   "level": 0,
+   "text": "○ 전기차 충전 구역에는 충전 중인 차량만 주차할 수 있습니다."
+  },
+  {
+   "level": 0,
+   "text": "국가유공자 및 장애인 복지카드 소지자: 50퍼센트 감면"
+  },
+  {
+   "level": 0,
+   "text": "다자녀 가정 차량: 30퍼센트 감면"
+  },
+  {
+   "level": 0,
+   "text": "전기차 및 수소차: 50퍼센트 감면"
+  }
+ ],
+ "furniture": [
+  "새솔시 시설관리공단",
+  "고객지원센터 1588-0000 · www.saesol-facility.example",
+  "1 / 2",
+  "2 / 2"
+ ],
+ "languages": [
+  "ko"
+ ],
+ "code": [],
+ "notes": "Two-page Korean public-parking guide. The fee table (page 1) has a TWO-LEVEL header: the first header row is [차종, 평일, 평일, 주말·공휴일, 주말·공휴일] (차종 spans both header rows, the two other groups span two columns each) and the second header row is [차종, 기본요금(30분), 추가요금(10분), 기본요금(30분), 추가요금(10분)]; merged cells repeat their text in every covered grid cell. Numbered section headings (\"1. 이용 시간 및 요금\") are level 2 and include the typed number. Lists: usage steps use TYPED decimal markers \"1.\" \"2.\" \"3.\" at level 0 and TYPED Korean letters \"가.\" \"나.\" at level 1 (hanging indent); the cautions use TYPED \"○\" at level 0 and a typed hyphen \"-\" at level 1. Page 2 has a CSS-drawn bullet list (no marker in text). The membership table has cells of two lines (joined with one space) and centred vertical alignment. Contact panel is a boxed key/value table with no header row. Page numbers are printed as \"1 / 2\" and \"2 / 2\"."
+}

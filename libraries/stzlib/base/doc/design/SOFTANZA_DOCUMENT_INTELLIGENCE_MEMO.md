@@ -645,7 +645,15 @@ Not fixed, and why: s06 and s05 expect a space after a full-width marker the PDF
 
 On the development sets, against round 30 frozen: lists v31 0.82 -> 0.93, v14 0.87 -> 0.89, v20 0.85 -> 0.87, v26 0.83 -> 0.85, v27 0.90 -> 0.92, v24 0.92 -> 0.93; tables v31 0.88 -> 0.95, v17 0.81 -> 0.86, v26 0.85 -> 0.87, v28 0.79 -> 0.81; furniture v31 0.89 -> 0.90, v24 0.80 -> 0.82, v20 0.80 -> 0.81. No set lost on any measure. Guard 266 assertions under Ring++.
 
-golden_v32: DLV32
+golden_v32: 24 realistic documents in 16 languages (English in nine; Arabic, Hebrew and Persian right to left; Japanese, Chinese, Korean, Hindi, Thai, Vietnamese and others), 22 of 2-3 pages, code in two, by a thirty-second independent agent who saw no reader, no output and no earlier set and ran no extractor or rasterizer (layout checked by DOM geometry only; t17 and t24 place a fixed header and footer in the page margins by negative offsets, unseen); no one has looked at the pages (unperceived); reader frozen at 15651416b; both readers ran once:
+
+| golden_v32, realistic | text | order | headings | tables | lists | furniture | code | heading precision |
+|---|---|---|---|---|---|---|---|---|
+| Softanza native (Ring++) | **0.98** | **1.00** | **0.98** | **0.83** | **0.91** | **0.80** | **0.88** | **0.87** |
+| Docling 2.141 | 0.83 | 0.99 | 0.89 | 0.71 | 0.45 | 0.78 | 0.00 | 0.83 |
+
+Time for the 24 documents: native 0.08 s, Docling 195 s. The native reader leads on all eight measures, the seventh set where it does; furniture is a lead of 0.02. Where Docling does better, document by document: tables on five (t15 0.00 against 1.00, t20 0.00 against 1.00, t13 0.29 against 0.78, t09 0.67 against 1.00, t18 0.81 against 1.00), lists on one (t04 0.58 against 1.00), furniture on four (t05, t08, t11, t13), text on one (t05), headings on one (t15). Causes not yet looked into: round 32.
+
 
 **Perceived (2026-10-24):** the author looked through every rendered page of golden_v9 to golden_v13 -- the sets whose own authors could not look at them -- and judged them: "they look great". Those five sets are no longer unperceived; the sets before them were generated the same way and are not covered by this look.
 

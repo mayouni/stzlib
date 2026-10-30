@@ -1,0 +1,186 @@
+{
+ "id": "t01",
+ "difficulty": "easy",
+ "pages": 1,
+ "title": "Invoice INV-2026-0417",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Invoice INV-2026-0417"
+  },
+  {
+   "level": 2,
+   "text": "How to pay"
+  }
+ ],
+ "key_sentences": [
+  "Thank you for your order, which was delivered and installed on 12 March 2026.",
+  "Payment is due within 30 days of the invoice date.",
+  "Late payments incur interest at 4% above the Bank of England base rate.",
+  "Goods remain the property of Brightwater Print & Signage Ltd until paid for in full.",
+  "Please quote the invoice number with every payment."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Customer",
+     "Oakfield Community Centre"
+    ],
+    [
+     "Contact",
+     "Ms Imelda Varga"
+    ],
+    [
+     "Address",
+     "3 Orchard Row, Oakfield OF1 8TT"
+    ],
+    [
+     "Order ref.",
+     "PO-5581"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Invoice date",
+     "14 March 2026"
+    ],
+    [
+     "Due date",
+     "13 April 2026"
+    ],
+    [
+     "Delivered",
+     "12 March 2026"
+    ],
+    [
+     "Currency",
+     "Pound sterling (GBP)"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "No.",
+     "Description",
+     "Qty",
+     "Unit price",
+     "Amount"
+    ],
+    [
+     "Printed goods",
+     "Printed goods",
+     "Printed goods",
+     "Printed goods",
+     "Printed goods"
+    ],
+    [
+     "1",
+     "Banner, 3 m × 1 m, 440 gsm PVC, eyelets every 50 cm",
+     "2",
+     "£48.00",
+     "£96.00"
+    ],
+    [
+     "2",
+     "A1 poster, satin paper (set of 10)",
+     "3",
+     "£62.50",
+     "£187.50"
+    ],
+    [
+     "Signage",
+     "Signage",
+     "Signage",
+     "Signage",
+     "Signage"
+    ],
+    [
+     "3",
+     "Window vinyl, cut lettering, 2 m run",
+     "1",
+     "£215.00",
+     "£215.00"
+    ],
+    [
+     "4",
+     "Directional signs, aluminium composite, 600 × 400 mm",
+     "8",
+     "£34.25",
+     "£274.00"
+    ],
+    [
+     "Services",
+     "Services",
+     "Services",
+     "Services",
+     "Services"
+    ],
+    [
+     "5",
+     "Installation, two fitters, half day",
+     "1",
+     "£320.00",
+     "£320.00"
+    ],
+    [
+     "Subtotal",
+     "Subtotal",
+     "Subtotal",
+     "Subtotal",
+     "£1,092.50"
+    ],
+    [
+     "VAT at 20%",
+     "VAT at 20%",
+     "VAT at 20%",
+     "VAT at 20%",
+     "£218.50"
+    ],
+    [
+     "Total due",
+     "Total due",
+     "Total due",
+     "Total due",
+     "£1,311.00"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "- Bank transfer to sort code 20-45-17, account number 40817263, quoting the invoice number."
+  },
+  {
+   "level": 0,
+   "text": "- Cheque payable to Brightwater Print & Signage Ltd, posted to the address above."
+  },
+  {
+   "level": 0,
+   "text": "- Card payment by telephone on 01632 960 118:"
+  },
+  {
+   "level": 1,
+   "text": "- Visa and Mastercard are accepted; there is no surcharge."
+  }
+ ],
+ "furniture": [
+  "Brightwater Print & Signage Ltd",
+  "Unit 7, Kiln Lane Industrial Estate, Marlow Bridge MB4 2QT",
+  "Tel 01632 960 118 · accounts@brightwater-print.example · VAT reg. GB 318 4402 77",
+  "Brightwater Print & Signage Ltd, registered in England and Wales, company no. 04418253",
+  "Page 1 of 1"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [],
+ "notes": "One-page invoice. Letterhead lines and the footer lines are furniture; the organisation name in the letterhead is not a heading. The two boxed key/value panels (customer, invoice data) sit side by side and are read box by box, the customer panel first; both are tables without header row. Line-item table: section rows (Printed goods, Signage, Services) and the totals rows are rows of the same table; their merged cells repeat in every covered grid cell. The payment list uses TYPED hyphen markers \"- \" (kept in the item text). Money amounts keep the pound sign."
+}

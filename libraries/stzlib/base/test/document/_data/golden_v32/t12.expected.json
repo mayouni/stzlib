@@ -1,0 +1,266 @@
+{
+ "id": "t12",
+ "difficulty": "medium",
+ "pages": 3,
+ "title": "Rapport d’activité 2025",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Rapport d’activité 2025"
+  },
+  {
+   "level": 2,
+   "text": "Le mot de la présidente"
+  },
+  {
+   "level": 2,
+   "text": "L’association en bref"
+  },
+  {
+   "level": 3,
+   "text": "Nos actions"
+  },
+  {
+   "level": 3,
+   "text": "Notre réseau"
+  },
+  {
+   "level": 2,
+   "text": "Bilan des actions"
+  },
+  {
+   "level": 2,
+   "text": "Fréquentation des ateliers"
+  },
+  {
+   "level": 2,
+   "text": "Bilan financier"
+  },
+  {
+   "level": 2,
+   "text": "Perspectives 2026"
+  }
+ ],
+ "key_sentences": [
+  "Chers adhérents, l’année 2025 a été marquée par l’ouverture de deux nouveaux jardins et par l’arrivée de quarante familles.",
+  "Nous remercions chaleureusement les bénévoles, dont l’engagement a rendu ces réalisations possibles.",
+  "Le conseil d’administration s’est réuni neuf fois au cours de l’année.",
+  "Les comptes rendus sont consultables sur demande auprès du secrétariat.",
+  "L’association compte aujourd’hui deux cent douze adhérents répartis sur trois jardins.",
+  "Le tableau ci-dessous présente la fréquentation des principaux ateliers proposés en 2025.",
+  "Le résultat de l’exercice s’établit à 4 435 €, qui seront affectés au fonds de réserve.",
+  "Les comptes détaillés sont tenus à la disposition des adhérents.",
+  "Nous soumettons ces comptes et ces orientations au vote de l’assemblée générale."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Atelier",
+     "Séances",
+     "Participants"
+    ],
+    [
+     "Initiation au potager",
+     "12",
+     "168"
+    ],
+    [
+     "Semis et boutures",
+     "8",
+     "96"
+    ],
+    [
+     "Compostage",
+     "6",
+     "112"
+    ],
+    [
+     "Jardinage avec les écoles",
+     "18",
+     "324"
+    ],
+    [
+     "Cuisine des récoltes",
+     "2",
+     "40"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Poste",
+     "Montant"
+    ],
+    [
+     "Produits",
+     "Produits"
+    ],
+    [
+     "Cotisations des adhérents",
+     "6 360 €"
+    ],
+    [
+     "Subventions municipales",
+     "14 500 €"
+    ],
+    [
+     "Vente de plants",
+     "3 275 €"
+    ],
+    [
+     "Dons",
+     "2 140 €"
+    ],
+    [
+     "Total des produits",
+     "26 275 €"
+    ],
+    [
+     "Charges",
+     "Charges"
+    ],
+    [
+     "Achat de matériel et de semences",
+     "9 480 €"
+    ],
+    [
+     "Assurances",
+     "1 150 €"
+    ],
+    [
+     "Animation des ateliers",
+     "8 900 €"
+    ],
+    [
+     "Frais de gestion",
+     "2 310 €"
+    ],
+    [
+     "Total des charges",
+     "21 840 €"
+    ],
+    [
+     "Résultat de l’exercice",
+     "4 435 €"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Mois",
+     "Action prévue",
+     "Responsable"
+    ],
+    [
+     "Avril",
+     "Installation de deux cuves de récupération d’eau",
+     "Commission jardins"
+    ],
+    [
+     "Juin",
+     "Journée portes ouvertes dans les trois jardins",
+     "Bureau"
+    ],
+    [
+     "Septembre",
+     "Création d’un verger partagé",
+     "Commission verger"
+    ],
+    [
+     "Novembre",
+     "Bourse aux graines et aux outils",
+     "Bénévoles"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "Mise à disposition de parcelles individuelles"
+  },
+  {
+   "level": 0,
+   "text": "Ateliers de jardinage pour les enfants"
+  },
+  {
+   "level": 0,
+   "text": "Compostage collectif et récupération d’eau de pluie"
+  },
+  {
+   "level": 0,
+   "text": "La mairie de Vauclair, pour la subvention de fonctionnement"
+  },
+  {
+   "level": 0,
+   "text": "L’école élémentaire des Tilleuls"
+  },
+  {
+   "level": 0,
+   "text": "La coopérative maraîchère du plateau"
+  },
+  {
+   "level": 0,
+   "text": "1. Jardins et parcelles"
+  },
+  {
+   "level": 1,
+   "text": "1.1 Ouverture du jardin de la Source en avril, avec vingt-quatre parcelles."
+  },
+  {
+   "level": 1,
+   "text": "1.2 Ouverture du jardin des Peupliers en septembre, avec dix-huit parcelles."
+  },
+  {
+   "level": 1,
+   "text": "1.3 Réattribution des parcelles libérées :"
+  },
+  {
+   "level": 2,
+   "text": "a) priorité aux familles inscrites depuis plus de deux ans ;"
+  },
+  {
+   "level": 2,
+   "text": "b) tirage au sort pour les autres demandes."
+  },
+  {
+   "level": 0,
+   "text": "2. Animation et formation"
+  },
+  {
+   "level": 1,
+   "text": "2.1 Quarante-six ateliers ont été organisés, dont dix-huit pour les scolaires."
+  },
+  {
+   "level": 1,
+   "text": "2.2 Trois week-ends de formation au compostage ont réuni cent douze participants."
+  },
+  {
+   "level": 0,
+   "text": "3. Vie associative"
+  },
+  {
+   "level": 1,
+   "text": "3.1 Une fête des récoltes a rassemblé près de trois cents visiteurs en octobre."
+  }
+ ],
+ "furniture": [
+  "Association Les Jardins Partagés de Vauclair",
+  "Association loi 1901 · 14 rue des Tilleuls, 38000 Vauclair · jardins@vauclair-partages.example",
+  "Page 1 sur 3",
+  "Rapport d’activité 2025 — Les Jardins Partagés de Vauclair",
+  "Page 2 sur 3",
+  "Page 3 sur 3"
+ ],
+ "languages": [
+  "fr"
+ ],
+ "code": [],
+ "notes": "Three-page French association annual report (Garamond body, Gill Sans MT headings). Page 1 has two boxes SIDE BY SIDE with headings \"Nos actions\" and \"Notre réseau\" (level 3), each holding a CSS-drawn bullet list; the reading order is box by box (left box first). Page 2 list: level 0 uses TYPED decimal markers \"1.\" \"2.\" \"3.\"; level 1 uses TYPED dotted numbers \"1.1\" \"1.2\" ...; level 2 uses TYPED \"a)\" \"b)\" (all inline, hanging indent; markers are part of the text). The workshop table is zebra-striped; the financial table has two section rows (Produits, Charges) and three total rows in the same table. Non-breaking spaces inside amounts count as spaces. Letterhead (page 1, two lines) and the running header (pages 2-3, listed once) are furniture; \"Page n sur 3\" once per page. Apostrophes are typographic."
+}

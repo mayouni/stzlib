@@ -1,0 +1,271 @@
+{
+ "id": "t19",
+ "difficulty": "hard",
+ "pages": 2,
+ "title": "LX-240 Industrial Air Compressor",
+ "headings": [
+  {
+   "level": 1,
+   "text": "LX-240 Industrial Air Compressor"
+  },
+  {
+   "level": 3,
+   "text": "Key features"
+  },
+  {
+   "level": 3,
+   "text": "Certifications"
+  },
+  {
+   "level": 2,
+   "text": "Technical specifications"
+  },
+  {
+   "level": 2,
+   "text": "Performance data"
+  },
+  {
+   "level": 2,
+   "text": "Dimensions"
+  },
+  {
+   "level": 2,
+   "text": "Ordering information"
+  },
+  {
+   "level": 2,
+   "text": "Accessories"
+  },
+  {
+   "level": 2,
+   "text": "Warranty"
+  }
+ ],
+ "key_sentences": [
+  "The LX-240 is a compact, belt-driven compressor for workshops and small production lines.",
+  "It delivers 240 litres of free air per minute at 8 bar and starts reliably at low temperatures.",
+  "Free air delivery falls as the working pressure rises, as shown below.",
+  "The compressor carries a warranty of 24 months from the date of purchase.",
+  "The warranty covers defects in material and workmanship but not wear parts such as belts and valves."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Parameter",
+     "Value",
+     "Unit"
+    ],
+    [
+     "Performance",
+     "Performance",
+     "Performance"
+    ],
+    [
+     "Maximum working pressure",
+     "10",
+     "bar"
+    ],
+    [
+     "Free air delivery at 8 bar",
+     "240",
+     "l/min"
+    ],
+    [
+     "Tank volume",
+     "50",
+     "l"
+    ],
+    [
+     "Duty cycle",
+     "70",
+     "%"
+    ],
+    [
+     "Electrical",
+     "Electrical",
+     "Electrical"
+    ],
+    [
+     "Rated voltage",
+     "230",
+     "V"
+    ],
+    [
+     "Motor power",
+     "1.8",
+     "kW"
+    ],
+    [
+     "Starting current",
+     "24",
+     "A"
+    ],
+    [
+     "Physical",
+     "Physical",
+     "Physical"
+    ],
+    [
+     "Noise level at 1 m",
+     "68",
+     "dB(A)"
+    ],
+    [
+     "Weight",
+     "46",
+     "kg"
+    ],
+    [
+     "Inlet connection",
+     "G 1/4",
+     "inch"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Pressure (bar)",
+     "Delivery (l/min)",
+     "Power (kW)"
+    ],
+    [
+     "4",
+     "286",
+     "1.4"
+    ],
+    [
+     "6",
+     "262",
+     "1.6"
+    ],
+    [
+     "8",
+     "240",
+     "1.8"
+    ],
+    [
+     "10",
+     "214",
+     "1.8"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Length",
+     "780 mm"
+    ],
+    [
+     "Width",
+     "340 mm"
+    ],
+    [
+     "Height",
+     "690 mm"
+    ],
+    [
+     "Wheel diameter",
+     "200 mm"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Order code",
+     "Description",
+     "Voltage",
+     "List price (EUR)"
+    ],
+    [
+     "LX240-230-S",
+     "LX-240 compressor, 230 V, standard plug",
+     "230 V",
+     "689.00"
+    ],
+    [
+     "LX240-230-E",
+     "LX-240 compressor, 230 V, with hour meter",
+     "230 V",
+     "742.00"
+    ],
+    [
+     "LX240-115-S",
+     "LX-240 compressor, 115 V, standard plug",
+     "115 V",
+     "689.00"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "Oil-lubricated twin-cylinder pump"
+  },
+  {
+   "level": 0,
+   "text": "Thermal overload protection"
+  },
+  {
+   "level": 0,
+   "text": "Low-noise operation at 68 dB(A)"
+  },
+  {
+   "level": 0,
+   "text": "50 l galvanised tank"
+  },
+  {
+   "level": 0,
+   "text": "• CE marking"
+  },
+  {
+   "level": 0,
+   "text": "• EN 1012-1"
+  },
+  {
+   "level": 0,
+   "text": "• RoHS compliant"
+  },
+  {
+   "level": 0,
+   "text": "• Air hose sets"
+  },
+  {
+   "level": 1,
+   "text": "– 10 m polyurethane hose with quick coupling"
+  },
+  {
+   "level": 1,
+   "text": "– 20 m reinforced hose on a wall reel"
+  },
+  {
+   "level": 0,
+   "text": "• Filtration"
+  },
+  {
+   "level": 1,
+   "text": "– Coalescing filter, 5 micron"
+  },
+  {
+   "level": 0,
+   "text": "• Anti-vibration feet, set of four"
+  }
+ ],
+ "furniture": [
+  "Datasheet DS-LX240 · Rev. C · Page 1/2",
+  "Datasheet DS-LX240 · Rev. C · Page 2/2"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [],
+ "notes": "Two-page product datasheet (Verdana body, Century Gothic headings). Page 1 places a narrow sidebar and the main column SIDE BY SIDE; the reading order is box by box: the sidebar first (heading \"Key features\", its CSS-drawn bullets, heading \"Certifications\", its TYPED \"•\" items), then the main column. Sidebar certification items use TYPED bullet markers \"• \" (kept in item text, level 0); key features use CSS-drawn bullets. The specification table has three section rows (Performance, Electrical, Physical) in the same table; the performance-data table is small and ruled; the dimensions panel is a boxed key/value table without header row. Page 2: ordering table is a full grid; accessories use TYPED \"•\" at level 0 and TYPED \"–\" at level 1. Footer lines \"Datasheet DS-LX240 · Rev. C · Page n/2\" are furniture, listed per page. The product banner is the title (level 1)."
+}

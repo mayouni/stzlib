@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Laboratuvar Sonuç Raporu</title>
+<style>
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+@page{size:A4;margin:0}
+.pg{width:210mm;height:296mm;padding:18mm 20mm;position:relative;overflow:hidden;break-after:page;page-break-after:always}
+.pg:last-child{break-after:auto;page-break-after:auto}
+.foot{position:absolute;left:20mm;right:20mm;bottom:10mm}
+.hl{display:flex}
+.hl .mk{flex:none}
+p{margin:0}
+
+body{font-family:Verdana,sans-serif;font-size:9.5pt;color:#222;line-height:1.55}
+.lh{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid #a3263a;padding-bottom:5px;margin-bottom:12px}
+.lh .n{font-family:Tahoma,sans-serif;font-size:17pt;font-weight:bold;color:#a3263a}
+.lh .s{font-size:8pt;color:#555;text-align:right}
+h1{font-family:Tahoma,sans-serif;font-size:17pt;margin:4px 0 8px 0}
+h2{font-family:Tahoma,sans-serif;font-size:12pt;margin:14px 0 4px 0;color:#a3263a}
+table.p{border:1.5px solid #a3263a;border-collapse:collapse;width:100%;margin-bottom:10px}
+table.p td{padding:3px 9px;font-size:9pt}
+table.p td:first-child{font-weight:bold;width:24%;background:#fbeaed}
+table.r{width:100%;border-collapse:collapse;margin:6px 0}
+table.r th{text-align:left;border-top:1.5px solid #333;border-bottom:1.5px solid #333;padding:4px 6px;font-size:9pt}
+table.r td{border-bottom:0.5px solid #aaa;padding:4px 6px;font-size:9pt}
+table.r tr.sec td{background:#f1f1f1;font-weight:bold;font-family:Tahoma,sans-serif}
+table.r td.hi{font-weight:bold;color:#a3263a}
+p.b{margin:0 0 6px 0}
+.ti{margin:0 0 4px 0}
+.ti.l1{margin-left:22px}
+.sg{margin-top:18px}
+.foot{text-align:center;font-size:8.5pt;color:#555}
+
+</style>
+</head>
+<body>
+<section class="pg">
+<div class="lh"><div><div class="n">Kıyıköy Tıp Merkezi</div></div><div class="s"><div>Merkez Laboratuvarı · Deniz Caddesi 45, Kıyıköy</div><div>Tel 0000 000 00 00 · lab@kiyikoy-tip.example</div></div></div>
+<h1>Laboratuvar Sonuç Raporu</h1>
+<table class="p">
+<tbody>
+<tr><td>Hasta no</td><td>20260412-0357</td></tr>
+<tr><td>Adı soyadı</td><td>Ayşe Karadeniz</td></tr>
+<tr><td>Doğum tarihi</td><td>14.03.1981</td></tr>
+<tr><td>Numune alma</td><td>12.04.2026 08:15</td></tr>
+<tr><td>Rapor tarihi</td><td>12.04.2026 11:40</td></tr>
+</tbody>
+</table>
+<table class="r">
+<thead>
+<tr><th>Test</th><th>Sonuç</th><th>Birim</th><th>Referans aralığı</th><th>Durum</th></tr>
+</thead>
+<tbody>
+<tr class="sec"><td colspan="5">Hemogram</td></tr>
+<tr><td>Hemoglobin</td><td>13,8</td><td>g/dL</td><td>12,0–16,0</td><td>Normal</td></tr>
+<tr><td>Lökosit</td><td>11,9</td><td>x10³/µL</td><td>4,0–10,0</td><td class="hi">Yüksek</td></tr>
+<tr><td>Trombosit</td><td>245</td><td>x10³/µL</td><td>150–400</td><td>Normal</td></tr>
+<tr class="sec"><td colspan="5">Biyokimya</td></tr>
+<tr><td>Glukoz (açlık)</td><td>112</td><td>mg/dL</td><td>70–100</td><td class="hi">Yüksek</td></tr>
+<tr><td>Üre</td><td>28</td><td>mg/dL</td><td>17–43</td><td>Normal</td></tr>
+<tr><td>Kreatinin</td><td>0,82</td><td>mg/dL</td><td>0,50–0,90</td><td>Normal</td></tr>
+<tr><td>ALT</td><td>41</td><td>U/L</td><td>0–35</td><td class="hi">Yüksek</td></tr>
+<tr><td>Total kolesterol</td><td>214</td><td>mg/dL</td><td>0–200</td><td class="hi">Yüksek</td></tr>
+</tbody>
+</table>
+<p class="b">Sonuçlar yalnızca incelenen numune için geçerlidir. Referans aralıkları yaş ve cinsiyete göre değişebilir.</p>
+<div class="foot"><span>Sayfa 1 / 2</span></div>
+</section>
+<section class="pg">
+<h2>Değerlendirme</h2>
+<p class="ti  l0">1) Lökosit değeri referans aralığının üzerindedir.</p>
+<p class="ti  l0">2) Açlık kan şekeri değeri yükselmiştir:</p>
+<p class="ti  l1">a) Sonucun tekrarı ve HbA1c ölçümü önerilir.</p>
+<p class="ti  l1">b) Test öncesinde en az sekiz saat açlık gereklidir.</p>
+<p class="ti  l0">3) ALT ve total kolesterol değerleri hafif yüksektir.</p>
+<h2>Numune bilgileri</h2>
+<table class="p">
+<tbody>
+<tr><td>Numune türü</td><td>Venöz kan (serum ve tam kan)</td></tr>
+<tr><td>Alım yeri</td><td>Merkez laboratuvarı, 2. kat</td></tr>
+<tr><td>Analiz cihazı</td><td>Otomatik biyokimya ve hematoloji analizörü</td></tr>
+<tr><td>Saklama koşulu</td><td>Oda sıcaklığı, en çok iki saat</td></tr>
+</tbody>
+</table>
+<h2>Onay</h2>
+<p class="b">Bu rapor elektronik ortamda imzalanmıştır. Rapor, doğrulama kodu ile kurumun internet sayfasından sorgulanabilir.</p>
+<p class="sg" style="font-weight:bold">Uzm. Dr. Selim Arslan, Klinik Biyokimya Uzmanı</p>
+<div class="foot"><span>Sayfa 2 / 2</span></div>
+</section>
+</body>
+</html>

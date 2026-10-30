@@ -1,0 +1,206 @@
+{
+ "id": "t02",
+ "difficulty": "medium",
+ "pages": 2,
+ "title": "Allgemeine Lieferbedingungen",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Allgemeine Lieferbedingungen"
+  },
+  {
+   "level": 2,
+   "text": "§ 1 Geltungsbereich"
+  },
+  {
+   "level": 2,
+   "text": "§ 2 Angebot und Vertragsschluss"
+  },
+  {
+   "level": 2,
+   "text": "§ 3 Preise und Zahlung"
+  },
+  {
+   "level": 2,
+   "text": "§ 4 Lieferung und Gefahrübergang"
+  },
+  {
+   "level": 2,
+   "text": "§ 5 Eigentumsvorbehalt"
+  },
+  {
+   "level": 2,
+   "text": "§ 6 Mängelhaftung"
+  },
+  {
+   "level": 2,
+   "text": "§ 7 Haftung"
+  },
+  {
+   "level": 2,
+   "text": "§ 8 Schlussbestimmungen"
+  }
+ ],
+ "key_sentences": [
+  "Abweichende Bedingungen des Kunden werden nur Vertragsbestandteil, wenn der Lieferer ihnen ausdrücklich schriftlich zustimmt.",
+  "Angebote des Lieferers sind freibleibend, soweit sie nicht ausdrücklich als verbindlich bezeichnet sind.",
+  "Alle Preise gelten ab Werk Nordhafen zuzüglich der gesetzlichen Umsatzsteuer.",
+  "Gerät der Kunde in Zahlungsverzug, berechnet der Lieferer Verzugszinsen in gesetzlicher Höhe.",
+  "Die gelieferte Ware bleibt bis zur vollständigen Bezahlung sämtlicher Forderungen Eigentum des Lieferers.",
+  "Offensichtliche Mängel sind dem Lieferer unverzüglich, spätestens innerhalb von acht Tagen nach Empfang der Ware, schriftlich anzuzeigen.",
+  "Es gilt das Recht der Bundesrepublik Deutschland unter Ausschluss des Kaufrechts der Vereinten Nationen.",
+  "Sollte eine Bestimmung dieser Bedingungen unwirksam sein, bleibt die Wirksamkeit der übrigen Bestimmungen unberührt."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Zahlung innerhalb von",
+     "Skonto auf den Rechnungsbetrag"
+    ],
+    [
+     "8 Tagen",
+     "3 %"
+    ],
+    [
+     "14 Tagen",
+     "2 %"
+    ],
+    [
+     "30 Tagen",
+     "netto, ohne Abzug"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Liefergegenstand",
+     "Frist"
+    ],
+    [
+     "Neue Werkzeuge und Vorrichtungen",
+     "12 Monate"
+    ],
+    [
+     "Gebrauchte Maschinen",
+     "6 Monate"
+    ],
+    [
+     "Ersatzteile",
+     "6 Monate"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "(1) Diese Lieferbedingungen gelten für alle Verträge zwischen der Nordlicht Werkzeugbau GmbH (nachfolgend „Lieferer“) und ihren Kunden, sofern diese Unternehmer sind."
+  },
+  {
+   "level": 0,
+   "text": "(2) Abweichende Bedingungen des Kunden werden nur Vertragsbestandteil, wenn der Lieferer ihnen ausdrücklich schriftlich zustimmt."
+  },
+  {
+   "level": 0,
+   "text": "(1) Angebote des Lieferers sind freibleibend, soweit sie nicht ausdrücklich als verbindlich bezeichnet sind."
+  },
+  {
+   "level": 0,
+   "text": "(2) Ein Vertrag kommt zustande, sobald der Lieferer die Bestellung schriftlich bestätigt. Als schriftlich gelten auch:"
+  },
+  {
+   "level": 1,
+   "text": "a) Bestätigungen per E-Mail,"
+  },
+  {
+   "level": 1,
+   "text": "b) Bestätigungen über das Kundenportal des Lieferers,"
+  },
+  {
+   "level": 1,
+   "text": "c) Lieferscheine, die der Bestellung eindeutig zugeordnet sind."
+  },
+  {
+   "level": 0,
+   "text": "(3) Zeichnungen, Muster und Kostenvoranschläge bleiben Eigentum des Lieferers und dürfen Dritten nicht zugänglich gemacht werden."
+  },
+  {
+   "level": 0,
+   "text": "(1) Alle Preise gelten ab Werk Nordhafen zuzüglich der gesetzlichen Umsatzsteuer."
+  },
+  {
+   "level": 0,
+   "text": "(2) Rechnungen sind innerhalb von 30 Tagen nach Rechnungsdatum ohne Abzug zu zahlen. Bei Zahlung innerhalb kürzerer Frist gewährt der Lieferer Skonto nach folgender Staffel:"
+  },
+  {
+   "level": 0,
+   "text": "(3) Gerät der Kunde in Zahlungsverzug, berechnet der Lieferer Verzugszinsen in gesetzlicher Höhe."
+  },
+  {
+   "level": 0,
+   "text": "(1) Liefertermine sind nur verbindlich, wenn sie schriftlich als verbindlich vereinbart wurden."
+  },
+  {
+   "level": 0,
+   "text": "(2) Die Gefahr geht auf den Kunden über, sobald die Ware das Werk des Lieferers verlässt."
+  },
+  {
+   "level": 0,
+   "text": "(1) Die gelieferte Ware bleibt bis zur vollständigen Bezahlung sämtlicher Forderungen Eigentum des Lieferers."
+  },
+  {
+   "level": 0,
+   "text": "(2) Der Kunde darf die Vorbehaltsware im ordentlichen Geschäftsgang weiterveräußern. Er tritt dem Lieferer schon jetzt die daraus entstehenden Forderungen ab."
+  },
+  {
+   "level": 0,
+   "text": "(1) Offensichtliche Mängel sind dem Lieferer unverzüglich, spätestens innerhalb von acht Tagen nach Empfang der Ware, schriftlich anzuzeigen."
+  },
+  {
+   "level": 0,
+   "text": "(2) Die Verjährungsfrist für Mängelansprüche richtet sich nach der Art des Liefergegenstands:"
+  },
+  {
+   "level": 0,
+   "text": "(1) Der Lieferer haftet unbeschränkt bei Vorsatz und grober Fahrlässigkeit sowie bei der Verletzung von Leben, Körper oder Gesundheit."
+  },
+  {
+   "level": 0,
+   "text": "(2) Bei leichter Fahrlässigkeit haftet der Lieferer nur für die Verletzung wesentlicher Vertragspflichten. In diesem Fall ist die Haftung begrenzt auf:"
+  },
+  {
+   "level": 1,
+   "text": "a) den vorhersehbaren, vertragstypischen Schaden,"
+  },
+  {
+   "level": 1,
+   "text": "b) höchstens den Auftragswert der betroffenen Lieferung."
+  },
+  {
+   "level": 0,
+   "text": "(1) Gerichtsstand ist Nordhafen, sofern der Kunde Kaufmann ist."
+  },
+  {
+   "level": 0,
+   "text": "(2) Es gilt das Recht der Bundesrepublik Deutschland unter Ausschluss des Kaufrechts der Vereinten Nationen."
+  },
+  {
+   "level": 0,
+   "text": "(3) Sollte eine Bestimmung dieser Bedingungen unwirksam sein, bleibt die Wirksamkeit der übrigen Bestimmungen unberührt."
+  }
+ ],
+ "furniture": [
+  "Nordlicht Werkzeugbau GmbH | Allgemeine Lieferbedingungen | Stand: März 2026",
+  "Seite 1 von 2",
+  "Seite 2 von 2"
+ ],
+ "languages": [
+  "de"
+ ],
+ "code": [],
+ "notes": "Two-page German terms of delivery set in justified Times New Roman. Paragraph numbers \"(1)\", \"(2)\" and the sub-letters \"a)\", \"b)\", \"c)\" are TYPED markers set apart by a hanging indent (marker in its own column); they are part of the item text, e.g. \"(1) Diese ...\". Section headings are level 2 and include the paragraph sign. The running header line (one line, separators typed as \"|\") appears on both pages and is listed once; \"Seite n von 2\" is listed once per page. Two small tables: Skonto scale (page 1) and warranty periods (page 2), both with a rule under the header only. German quotation marks are typographic."
+}

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Packing List and Shipping Declaration</title>
+<style>
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+@page{size:A4;margin:0}
+.pg{width:210mm;height:296mm;padding:18mm 20mm;position:relative;overflow:hidden;break-after:page;page-break-after:always}
+.pg:last-child{break-after:auto;page-break-after:auto}
+.foot{position:absolute;left:20mm;right:20mm;bottom:10mm}
+.hl{display:flex}
+.hl .mk{flex:none}
+p{margin:0}
+
+body{font-family:Roboto,sans-serif;font-size:9.5pt;color:#1b1b1b;line-height:1.4}
+.pg{padding:14mm 14mm}
+.foot{left:14mm;right:14mm;font-size:8pt;color:#666;border-top:1px solid #aaa;padding-top:3px}
+.lh{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:4px solid #e08a00;padding-bottom:5px;margin-bottom:10px}
+.lh .n{font-size:17pt;font-weight:bold;letter-spacing:.04em}
+.lh .s{font-size:8pt;color:#555;text-align:right}
+h1{font-size:18pt;margin:0 0 8px 0;font-weight:500}
+h2{font-size:11.5pt;margin:12px 0 4px 0;font-weight:bold;color:#9a5b00}
+table.fm{width:100%;border-collapse:collapse;margin-bottom:10px}
+table.fm td{border:1px solid #999;padding:4px 7px;vertical-align:top}
+table.fm td:nth-child(odd){background:#f6efe2;font-size:7.5pt;color:#6a4a10;width:16%;font-weight:bold;letter-spacing:.06em}
+table.pk{width:100%;border-collapse:collapse;font-family:'Roboto Condensed',sans-serif;font-size:9pt}
+table.pk th{background:#333;color:#fff;padding:5px 5px;text-align:left;border:1px solid #333;font-weight:normal;vertical-align:bottom}
+table.pk td{border:1px solid #999;padding:4px 5px;vertical-align:top}
+table.pk td.n{text-align:right;vertical-align:bottom}
+table.pk tr.tot td{font-weight:bold;background:#f6efe2;text-align:right}
+p.b{margin:0 0 6px 0}
+ol.cd{font-size:8pt;margin:3px 0;padding-left:20px;line-height:1.4}
+table.sg{width:100%;border-collapse:collapse;margin-top:10px}
+table.sg th{background:#f6efe2;border:1px solid #999;padding:4px 7px;text-align:left;font-size:8pt}
+table.sg td{border:1px solid #999;padding:22px 7px 4px 7px}
+
+</style>
+</head>
+<body>
+<section class="pg">
+<div class="lh"><div class="n">Kestrel Export Services Ltd</div><div class="s"><div>40 Dock Road, Porthaven PH2 7DL</div><div>Tel +44 1632 960 214 · exports@kestrel-export.example</div></div></div>
+<h1>Packing List and Shipping Declaration</h1>
+<table class="fm">
+<tbody>
+<tr><td>Shipper</td><td>Kestrel Export Services Ltd, 40 Dock Road, Porthaven</td><td>Consignee</td><td>Andes Mining Supplies S.A., Av. Industrial 1180, Callao</td></tr>
+<tr><td>Packing list no.</td><td>PL-7731</td><td>Date</td><td>02 June 2026</td></tr>
+<tr><td>Vessel / voyage</td><td>MV Northern Pearl / 026E</td><td>Port of loading</td><td>Porthaven</td></tr>
+<tr><td>Port of discharge</td><td>Callao</td><td>Terms</td><td>CIF Callao</td></tr>
+</tbody>
+</table>
+<p class="b">The goods listed below were packed on 1 June 2026 and are consigned in five packages for sea freight. Packages are marked with the consignee code <span style="white-space:nowrap">AMS-1180</span> and the package number.</p>
+<table class="pk">
+<thead>
+<tr><th>Pkg</th><th>Description of goods</th><th>HS code</th><th>Qty</th><th>Net kg</th><th>Gross kg</th><th>Dimensions (cm)</th><th>Value (USD)</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>Hydraulic hose assemblies,<br>DN25, 6 m</td><td>4009.42</td><td class="n">120</td><td class="n">640</td><td class="n">702</td><td>120 &times; 80 &times; 75</td><td class="n">18,400.00</td></tr>
+<tr><td>2</td><td>Safety helmets, white,<br>packed 20 per carton</td><td>6506.10</td><td class="n">400</td><td class="n">160</td><td class="n">188</td><td>60 &times; 40 &times; 40</td><td class="n">6,800.00</td></tr>
+<tr><td>3</td><td>Gaskets, nitrile rubber,<br>assorted sizes</td><td>4016.93</td><td class="n">2,000</td><td class="n">96</td><td class="n">110</td><td>60 &times; 40 &times; 30</td><td class="n">3,250.00</td></tr>
+<tr><td>4</td><td>Pressure gauges, 0&ndash;250 bar</td><td>9026.20</td><td class="n">75</td><td class="n">52</td><td class="n">61</td><td>50 &times; 40 &times; 30</td><td class="n">5,120.00</td></tr>
+<tr><td>5</td><td>Spare pump seals, kit</td><td>8484.10</td><td class="n">60</td><td class="n">38</td><td class="n">45</td><td>50 &times; 40 &times; 25</td><td class="n">2,940.00</td></tr>
+<tr class="tot"><td colspan="3">Total</td><td>2,655</td><td>986</td><td>1,106</td><td></td><td>36,510.00</td></tr>
+</tbody>
+</table>
+<h2>Marks and handling</h2>
+<p class="b">Handle with care. Keep dry. Packages 1 and 5 must not be stacked more than two high.</p>
+<div class="foot"><span>PL-7731 · Page 1 of 2</span></div>
+</section>
+<section class="pg">
+<h2>Declaration</h2>
+<p class="b">I declare that the particulars given above are true and correct, that the goods are of United Kingdom origin and that they are not subject to any export licence requirement.</p>
+<h2>Conditions of carriage</h2>
+<ol class="cd">
+<li>Goods are carried subject to the standard trading conditions of the forwarder, a copy of which is available on request.</li>
+<li>Claims for damage must be notified in writing within seven days of delivery.</li>
+<li>The shipper is responsible for the accuracy of the weights and dimensions stated.</li>
+<li>Dangerous goods may not be included in any package without prior written agreement.</li>
+</ol>
+<table class="sg">
+<thead>
+<tr><th>Signed</th><th>Name</th><th>Position</th><th>Date</th></tr>
+</thead>
+<tbody>
+<tr><td></td><td>Daniel Okafor</td><td>Export manager</td><td>02 June 2026</td></tr>
+</tbody>
+</table>
+<h2>Container and seal details</h2>
+<table class="pk">
+<thead>
+<tr><th>Container no.</th><th>Type</th><th>Seal no.</th><th>Packages</th><th>Gross weight (kg)</th></tr>
+</thead>
+<tbody>
+<tr><td>KRTU 482910-3</td><td>20 ft general purpose</td><td>SL 0047731</td><td>1, 2, 3</td><td>1,000</td></tr>
+<tr><td>KRTU 482955-1</td><td>20 ft general purpose</td><td>SL 0047732</td><td>4, 5</td><td>106</td></tr>
+</tbody>
+</table>
+<h2>Documents attached</h2>
+<p class="ti  l0">- Commercial invoice <span style="white-space:nowrap">CI-2026-0502</span>, three copies</p>
+<p class="ti  l0">- Certificate of origin issued by the chamber of commerce</p>
+<p class="ti  l0">- Inspection certificate for pressure gauges</p>
+<p class="ti  l0">- Insurance certificate, cover 110% of invoice value</p>
+<p class="b" style="margin-top:12px">Please return a countersigned copy of this declaration to the shipper before the vessel sails.</p>
+<div class="foot"><span>PL-7731 · Page 2 of 2</span></div>
+</section>
+</body>
+</html>

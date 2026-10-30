@@ -1,0 +1,20 @@
+heading	1	Kıyıköy Tıp Merkezi
+page_header	0	Merkez Laboratuvarı · Deniz Caddesi 45, Kıyıköy Tel 0000 000 00 00 · lab@kiyikoy-tip.example
+heading	1	Laboratuvar Sonuç Raporu
+table	0	Hasta no20260412-0357Adı soyadıAyşe KaradenizDoğum tarihi14.03.1981Numune alma12.04.2026 08:15Rapor tarihi12.04.2026 11:40TestSonuç BirimReferans aralığıDurum
+caption	0	Hemogram
+table	0	Hemoglobin13,8g/dL12,0–16,0NormalLökosit11,9x10³/µL4,0–10,0YüksekTrombosit245x10³/µL150–400NormalBiyokimyaBiyokimyaBiyokimyaBiyokimyaBiyokimyaGlukoz (açlık)112mg/dL70–100YüksekÜre28mg/dL17–43NormalKreatinin0,82mg/dL0,50–0,90NormalALT41U/L0–35YüksekTotal kolesterol214mg/dL0–200Yüksek
+paragraph	0	Sonuçlar yalnızca incelenen numune için geçerlidir. Referans aralıkları yaş ve cinsiyete göre değişebilir.
+page_footer	0	Sayfa 1 / 2
+heading	2	Değerlendirme
+list_item	0	1) Lökosit değeri referans aralığının üzerindedir.
+list_item	0	2) Açlık kan şekeri değeri yükselmiştir:
+list_item	1	a) Sonucun tekrarı ve HbA1c ölçümü önerilir.
+list_item	1	b) Test öncesinde en az sekiz saat açlık gereklidir.
+list_item	0	3) ALT ve total kolesterol değerleri hafif yüksektir.
+heading	2	Numune bilgileri
+table	0	Numune türüVenöz kan (serum ve tam kan)Alım yeriMerkez laboratuvarı, 2. katAnaliz cihazıOtomatik biyokimya ve hematoloji analizörüSaklama koşuluOda sıcaklığı, en çok iki saat
+heading	2	Onay
+paragraph	0	Bu rapor elektronik ortamda imzalanmıştır. Rapor, doğrulama kodu ile kurumun internet sayfasından sorgulanabilir.
+heading	3	Uzm. Dr. Selim Arslan, Klinik Biyokimya Uzmanı
+page_footer	0	Sayfa 2 / 2

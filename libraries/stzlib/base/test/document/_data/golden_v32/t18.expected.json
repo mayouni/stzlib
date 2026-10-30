@@ -1,0 +1,194 @@
+{
+ "id": "t18",
+ "difficulty": "medium",
+ "pages": 2,
+ "title": "Planning Committee: Agenda and Minutes",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Planning Committee: Agenda and Minutes"
+  },
+  {
+   "level": 3,
+   "text": "Members present"
+  },
+  {
+   "level": 3,
+   "text": "Apologies and absent"
+  },
+  {
+   "level": 2,
+   "text": "Agenda"
+  },
+  {
+   "level": 2,
+   "text": "Item 3: planning applications"
+  },
+  {
+   "level": 2,
+   "text": "Decisions"
+  },
+  {
+   "level": 2,
+   "text": "Actions arising"
+  }
+ ],
+ "key_sentences": [
+  "The meeting was held on Tuesday 9 June 2026 at 7.00 pm in the Village Hall, Elm Lane.",
+  "The chair, Councillor Abernathy, opened the meeting and welcomed the three members of the public present.",
+  "The committee considered the following applications and agreed the comments shown.",
+  "The chair thanked the members of the public for their contributions and closed the meeting at 8.25 pm.",
+  "These minutes are a draft until they are approved at the next meeting."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "No.",
+     "Time",
+     "Item",
+     "Lead"
+    ],
+    [
+     "1",
+     "7.00",
+     "Welcome and apologies",
+     "Chair"
+    ],
+    [
+     "2",
+     "7.05",
+     "Minutes of the meeting held on 12 May",
+     "Chair"
+    ],
+    [
+     "3",
+     "7.15",
+     "Planning applications",
+     "Cllr Reyes"
+    ],
+    [
+     "4",
+     "7.45",
+     "Footpath diversion consultation",
+     "Cllr Nandakumar"
+    ],
+    [
+     "5",
+     "8.10",
+     "Any other business",
+     "Chair"
+    ],
+    [
+     "6",
+     "8.20",
+     "Date of next meeting",
+     "Clerk"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Action",
+     "Owner",
+     "Due"
+    ],
+    [
+     "Send planning comments to the district council and copy them to the applicants",
+     "Clerk",
+     "19 June"
+    ],
+    [
+     "Draft the response to the footpath consultation and circulate it for comment",
+     "Cllr Nandakumar",
+     "30 June"
+    ],
+    [
+     "Ask the highways department about the parking survey on Church Street",
+     "Cllr Reyes",
+     "7 July"
+    ],
+    [
+     "Publish the minutes on the council website",
+     "Clerk",
+     "10 July"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "Cllr Ruth Abernathy (Chair)"
+  },
+  {
+   "level": 0,
+   "text": "Cllr Tomas Reyes"
+  },
+  {
+   "level": 0,
+   "text": "Cllr Priya Nandakumar"
+  },
+  {
+   "level": 0,
+   "text": "Cllr Colin Ashworth"
+  },
+  {
+   "level": 0,
+   "text": "- Cllr Helen Marsh (apologies, illness)"
+  },
+  {
+   "level": 0,
+   "text": "- Cllr Dominic Park (absent)"
+  },
+  {
+   "level": 0,
+   "text": "- Mr J. Whitlow, clerk to the council (in attendance)"
+  },
+  {
+   "level": 0,
+   "text": "(a) 26/0412, extension to the rear of 14 Mill Road: no objection."
+  },
+  {
+   "level": 0,
+   "text": "(b) 26/0455, change of use of the former dairy, Church Street: objection on parking grounds."
+  },
+  {
+   "level": 0,
+   "text": "(c) 26/0471, felling of two ash trees at Glebe Field: no objection, subject to replanting."
+  },
+  {
+   "level": 0,
+   "text": "The committee resolved to submit the comments above to the district council by 19 June."
+  },
+  {
+   "level": 0,
+   "text": "The committee supported the footpath diversion in principle, on two conditions:"
+  },
+  {
+   "level": 1,
+   "text": "the new route must be surfaced and waymarked;"
+  },
+  {
+   "level": 1,
+   "text": "the old route must remain open until the work is complete."
+  },
+  {
+   "level": 0,
+   "text": "The next meeting will be held on Tuesday 14 July 2026."
+  }
+ ],
+ "furniture": [
+  "Page 1 / 2",
+  "Elmbridge Parish Council · Planning Committee",
+  "Page 2 / 2"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [],
+ "notes": "Two-page committee agenda and minutes (Trebuchet MS). Page 1 places two boxes SIDE BY SIDE (\"Members present\" with a CSS-drawn bullet list on the left, \"Apologies and absent\" with TYPED hyphen markers \"- \" on the right); the reading order is box by box, left box first. The agenda table is borderless with a rule under the header only. Planning applications use TYPED \"(a)\" \"(b)\" \"(c)\" markers (inline, level 0). Page 2: decisions are a CSS-drawn lower-roman list (no marker in text) with a nested CSS-drawn list; the action table is a full grid whose cells have several lines (joined with one space) and are top-aligned, except the Due column which is vertically centred. Running header (page 2) and \"Page n / 2\" footers are furniture. Names are fictional."
+}

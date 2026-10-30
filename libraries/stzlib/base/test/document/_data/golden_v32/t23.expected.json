@@ -1,0 +1,234 @@
+{
+ "id": "t23",
+ "difficulty": "hard",
+ "pages": 2,
+ "title": "Packing List and Shipping Declaration",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Packing List and Shipping Declaration"
+  },
+  {
+   "level": 2,
+   "text": "Marks and handling"
+  },
+  {
+   "level": 2,
+   "text": "Declaration"
+  },
+  {
+   "level": 2,
+   "text": "Conditions of carriage"
+  },
+  {
+   "level": 2,
+   "text": "Container and seal details"
+  },
+  {
+   "level": 2,
+   "text": "Documents attached"
+  }
+ ],
+ "key_sentences": [
+  "The goods listed below were packed on 1 June 2026 and are consigned in five packages for sea freight.",
+  "Packages are marked with the consignee code AMS-1180 and the package number.",
+  "Packages 1 and 5 must not be stacked more than two high.",
+  "I declare that the particulars given above are true and correct, that the goods are of United Kingdom origin and that they are not subject to any export licence requirement.",
+  "Please return a countersigned copy of this declaration to the shipper before the vessel sails."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Shipper",
+     "Kestrel Export Services Ltd, 40 Dock Road, Porthaven",
+     "Consignee",
+     "Andes Mining Supplies S.A., Av. Industrial 1180, Callao"
+    ],
+    [
+     "Packing list no.",
+     "PL-7731",
+     "Date",
+     "02 June 2026"
+    ],
+    [
+     "Vessel / voyage",
+     "MV Northern Pearl / 026E",
+     "Port of loading",
+     "Porthaven"
+    ],
+    [
+     "Port of discharge",
+     "Callao",
+     "Terms",
+     "CIF Callao"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Pkg",
+     "Description of goods",
+     "HS code",
+     "Qty",
+     "Net kg",
+     "Gross kg",
+     "Dimensions (cm)",
+     "Value (USD)"
+    ],
+    [
+     "1",
+     "Hydraulic hose assemblies, DN25, 6 m",
+     "4009.42",
+     "120",
+     "640",
+     "702",
+     "120 × 80 × 75",
+     "18,400.00"
+    ],
+    [
+     "2",
+     "Safety helmets, white, packed 20 per carton",
+     "6506.10",
+     "400",
+     "160",
+     "188",
+     "60 × 40 × 40",
+     "6,800.00"
+    ],
+    [
+     "3",
+     "Gaskets, nitrile rubber, assorted sizes",
+     "4016.93",
+     "2,000",
+     "96",
+     "110",
+     "60 × 40 × 30",
+     "3,250.00"
+    ],
+    [
+     "4",
+     "Pressure gauges, 0–250 bar",
+     "9026.20",
+     "75",
+     "52",
+     "61",
+     "50 × 40 × 30",
+     "5,120.00"
+    ],
+    [
+     "5",
+     "Spare pump seals, kit",
+     "8484.10",
+     "60",
+     "38",
+     "45",
+     "50 × 40 × 25",
+     "2,940.00"
+    ],
+    [
+     "Total",
+     "Total",
+     "Total",
+     "2,655",
+     "986",
+     "1,106",
+     "",
+     "36,510.00"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Signed",
+     "Name",
+     "Position",
+     "Date"
+    ],
+    [
+     "",
+     "Daniel Okafor",
+     "Export manager",
+     "02 June 2026"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Container no.",
+     "Type",
+     "Seal no.",
+     "Packages",
+     "Gross weight (kg)"
+    ],
+    [
+     "KRTU 482910-3",
+     "20 ft general purpose",
+     "SL 0047731",
+     "1, 2, 3",
+     "1,000"
+    ],
+    [
+     "KRTU 482955-1",
+     "20 ft general purpose",
+     "SL 0047732",
+     "4, 5",
+     "106"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "Goods are carried subject to the standard trading conditions of the forwarder, a copy of which is available on request."
+  },
+  {
+   "level": 0,
+   "text": "Claims for damage must be notified in writing within seven days of delivery."
+  },
+  {
+   "level": 0,
+   "text": "The shipper is responsible for the accuracy of the weights and dimensions stated."
+  },
+  {
+   "level": 0,
+   "text": "Dangerous goods may not be included in any package without prior written agreement."
+  },
+  {
+   "level": 0,
+   "text": "- Commercial invoice CI-2026-0502, three copies"
+  },
+  {
+   "level": 0,
+   "text": "- Certificate of origin issued by the chamber of commerce"
+  },
+  {
+   "level": 0,
+   "text": "- Inspection certificate for pressure gauges"
+  },
+  {
+   "level": 0,
+   "text": "- Insurance certificate, cover 110% of invoice value"
+  }
+ ],
+ "furniture": [
+  "Kestrel Export Services Ltd",
+  "40 Dock Road, Porthaven PH2 7DL",
+  "Tel +44 1632 960 214 · exports@kestrel-export.example",
+  "PL-7731 · Page 1 of 2",
+  "PL-7731 · Page 2 of 2"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [],
+ "notes": "Two-page packing list and shipping declaration (Roboto, Roboto Condensed in tables). The form block under the title is ONE table with four columns (label, value, label, value) and no header row; labels are form labels, not headings. The packing table is wide (8 columns), has cells of two lines (joined with one space; description column is top-aligned, numeric columns are bottom-aligned) and a total row whose first cell spans three columns (its text repeats in the three grid cells) and which has an empty cell in the Dimensions column. Page 2: declaration paragraph, a CSS-drawn decimal list of conditions in small type, a signature table with a header row and one filled row (its first cell, Signed, is empty), a container table (5 columns) and a TYPED hyphen list of attached documents (\"- \" kept in item text). Footer \"PL-7731 · Page n of 2\" per page; the letterhead lines are furniture. Names are fictional."
+}

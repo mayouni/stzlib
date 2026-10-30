@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tidewatch Backup Agent: Operations Runbook</title>
+<style>
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+@page{size:A4;margin:0}
+.pg{width:210mm;height:296mm;padding:18mm 20mm;position:relative;overflow:hidden;break-after:page;page-break-after:always}
+.pg:last-child{break-after:auto;page-break-after:auto}
+.foot{position:absolute;left:20mm;right:20mm;bottom:10mm}
+.hl{display:flex}
+.hl .mk{flex:none}
+p{margin:0}
+
+body{font-family:'Segoe UI',sans-serif;font-size:10pt;color:#1f2328;line-height:1.5}
+.rh{font-size:8.5pt;color:#57606a;border-bottom:1px solid #d0d7de;padding-bottom:3px;margin-bottom:12px}
+h1{font-size:21pt;font-weight:600;margin:0 0 4px 0;border-bottom:1px solid #d0d7de;padding-bottom:6px}
+h2{font-size:14pt;font-weight:600;margin:16px 0 4px 0;border-bottom:1px solid #d0d7de;padding-bottom:2px}
+h3{font-size:11pt;font-weight:600;margin:10px 0 3px 0}
+p.b{margin:0 0 7px 0}
+pre.code{font-family:Consolas,monospace;font-size:9pt;background:#f6f8fa;border:1px solid #d0d7de;border-radius:4px;padding:7px 10px;margin:5px 0 8px 0;line-height:1.4}
+table.o{border-collapse:collapse;width:100%;margin:6px 0;font-size:9pt}
+table.o th{text-align:left;border-bottom:2px solid #1f2328;padding:3px 8px}
+table.o td{padding:3px 8px;vertical-align:top}
+table.e{border-collapse:collapse;width:100%;margin:6px 0;font-size:9pt}
+table.e th{text-align:left;padding:3px 8px;border-bottom:1px solid #1f2328;border-top:1px solid #1f2328}
+table.e td{padding:3px 8px;border-bottom:1px solid #d0d7de;vertical-align:top}
+ul.bl{margin:3px 0;padding-left:22px}
+ol.n{margin:3px 0;padding-left:24px}
+ol.n ol{list-style-type:lower-alpha;padding-left:22px}
+.ti{margin:0 0 2px 0}
+code{font-family:Consolas,monospace;font-size:9pt}
+.foot{text-align:center;font-size:8.5pt;color:#57606a}
+
+</style>
+</head>
+<body>
+<section class="pg">
+<div class="rh">Tidewatch Backup Agent — Operations Runbook</div><h1>Tidewatch Backup Agent: Operations Runbook</h1>
+<p class="b">This runbook describes how to install, configure and troubleshoot the Tidewatch backup agent on Linux servers. It is written for the <span style="white-space:nowrap">on-call</span> engineers of the platform team.</p>
+<h2>1. Installation</h2>
+<h3>Prerequisites</h3>
+<ul class="bl">
+<li>A 64-bit Linux host with systemd 245 or later</li>
+<li>At least 2 GB of free disk space for the local cache</li>
+<li>Outbound HTTPS access to the backup endpoint</li>
+</ul>
+<p class="b">Install the agent with the bootstrap script and check that the service has started.</p>
+<pre class="code">$ curl -fsSL https://example.org/tidewatch/install.sh | sh
+$ sudo systemctl enable --now tidewatch
+$ tidewatch status</pre>
+<h2>2. Configuration</h2>
+<p class="b">The agent reads its settings from /etc/tidewatch/agent.yaml. A minimal file looks like this.</p>
+<pre class="code">agent:
+  name: edge-backup-01
+  interval: 15m
+targets:
+  - path: /var/lib/app/data
+    exclude: ["*.tmp", "cache/"]
+retention:
+  daily: 7
+  weekly: 4
+  monthly: 12</pre>
+<table class="o">
+<thead>
+<tr><th>Key</th><th>Type</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td>agent.interval</td><td>duration</td><td>30m</td><td>Time between two backup runs</td></tr>
+<tr><td>targets[].path</td><td>string</td><td>none</td><td>Directory to protect; required</td></tr>
+<tr><td>targets[].exclude</td><td>list</td><td>[]</td><td>Glob patterns that are skipped</td></tr>
+<tr><td>retention.daily</td><td>integer</td><td>7</td><td>Number of daily snapshots kept</td></tr>
+</tbody>
+</table>
+<div class="foot"><span>Page 1 of 2</span></div>
+</section>
+<section class="pg">
+<div class="rh">Tidewatch Backup Agent — Operations Runbook</div>
+<h3>Retention policy</h3>
+<p class="b">Snapshots are pruned after every successful run. To change the policy, follow these steps.</p>
+<ol class="n">
+<li>Edit the retention block in the configuration file.</li>
+<li>Validate and reload the agent:
+<ol class="n">
+<li>Run tidewatch config check and read the output.</li>
+<li>Run sudo systemctl reload tidewatch.</li>
+</ol>
+</li>
+<li>Confirm the new schedule with tidewatch status.</li>
+</ol>
+<h2>3. Troubleshooting</h2>
+<p class="b">Every failed run writes one structured line to the journal. A typical entry is shown below.</p>
+<pre class="code">{"ts":"2026-05-02T02:15:09Z","level":"error","code":"E214",
+ "target":"/var/lib/app/data","msg":"upload timed out after 120s"}</pre>
+<table class="e">
+<thead>
+<tr><th>Code</th><th>Meaning</th><th>First action</th></tr>
+</thead>
+<tbody>
+<tr><td>E101</td><td>Configuration file could not be parsed</td><td>Run tidewatch config check</td></tr>
+<tr><td>E214</td><td>Upload timed out</td><td>Check network route and proxy settings</td></tr>
+<tr><td>E307</td><td>Target directory is not readable</td><td>Fix permissions for the tidewatch user</td></tr>
+<tr><td>E412</td><td>Cache volume is full</td><td>Free space or raise the cache limit</td></tr>
+</tbody>
+</table>
+<h3>Escalation</h3>
+<p class="b">If two consecutive runs fail with the same code, escalate in this order.</p>
+<p class="ti  l0">– Page the platform <span style="white-space:nowrap">on-call</span> engineer.</p>
+<p class="ti  l0">– Open an incident ticket and attach the last 200 journal lines.</p>
+<p class="ti  l0">– Inform the data owner if the gap exceeds 24 hours.</p>
+<h2>4. Support</h2>
+<p class="b">Questions about this runbook can be sent to the platform team mailbox. Please include the agent version printed by the status command.</p>
+<pre class="code">$ tidewatch version
+tidewatch 2.8.1 (build 4f9c2d1)</pre>
+<div class="foot"><span>Page 2 of 2</span></div>
+</section>
+</body>
+</html>

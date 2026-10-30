@@ -1,0 +1,310 @@
+{
+ "id": "t24",
+ "difficulty": "hard",
+ "pages": 2,
+ "title": "Hành trình 5 ngày khám phá Hạ Long và Ninh Bình",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Hành trình 5 ngày khám phá Hạ Long và Ninh Bình"
+  },
+  {
+   "level": 2,
+   "text": "Lịch trình chi tiết"
+  },
+  {
+   "level": 2,
+   "text": "Giá tour"
+  },
+  {
+   "level": 2,
+   "text": "Chuẩn bị trước chuyến đi"
+  },
+  {
+   "level": 2,
+   "text": "Điều khoản"
+  }
+ ],
+ "key_sentences": [
+  "Chương trình dành cho nhóm từ mười đến hai mươi khách, kết hợp du thuyền trên vịnh và nghỉ dưỡng giữa cảnh quan đồng quê.",
+  "Toàn bộ chặng đường được phục vụ bởi hướng dẫn viên nói tiếng Việt và tiếng Anh.",
+  "Giá tour đã bao gồm vé tham quan, bữa ăn theo chương trình và bảo hiểm du lịch.",
+  "Chương trình có thể thay đổi tùy theo điều kiện thời tiết.",
+  "Chúng tôi rất mong được đón tiếp quý khách trên hành trình này."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Giờ",
+     "Hoạt động",
+     "Địa điểm",
+     "Bữa ăn"
+    ],
+    [
+     "Ngày 1: Hà Nội – Hạ Long",
+     "Ngày 1: Hà Nội – Hạ Long",
+     "Ngày 1: Hà Nội – Hạ Long",
+     "Ngày 1: Hà Nội – Hạ Long"
+    ],
+    [
+     "07:30",
+     "Đón đoàn tại Nhà hát Lớn",
+     "Hà Nội",
+     "—"
+    ],
+    [
+     "08:00",
+     "Khởi hành đi Hạ Long",
+     "Quốc lộ 5",
+     "—"
+    ],
+    [
+     "12:00",
+     "Ăn trưa, nhận phòng khách sạn",
+     "Hạ Long",
+     "Trưa"
+    ],
+    [
+     "14:00",
+     "Lên du thuyền, tham quan vịnh",
+     "Vịnh Hạ Long",
+     "—"
+    ],
+    [
+     "18:30",
+     "Ăn tối trên du thuyền",
+     "Vịnh Hạ Long",
+     "Tối"
+    ],
+    [
+     "Ngày 2: Vịnh Hạ Long",
+     "Ngày 2: Vịnh Hạ Long",
+     "Ngày 2: Vịnh Hạ Long",
+     "Ngày 2: Vịnh Hạ Long"
+    ],
+    [
+     "06:00",
+     "Tập thái cực quyền trên boong tàu",
+     "Du thuyền",
+     "—"
+    ],
+    [
+     "07:30",
+     "Ăn sáng",
+     "Du thuyền",
+     "Sáng"
+    ],
+    [
+     "09:00",
+     "Chèo kayak tại làng chài",
+     "Hang Luồn",
+     "—"
+    ],
+    [
+     "11:00",
+     "Tham quan hang Sửng Sốt",
+     "Đảo Bồ Hòn",
+     "—"
+    ],
+    [
+     "12:00",
+     "Ăn trưa, trả phòng",
+     "Du thuyền",
+     "Trưa"
+    ],
+    [
+     "15:00",
+     "Trở về đất liền",
+     "Bến Tuần Châu",
+     "—"
+    ],
+    [
+     "Ngày 3: Hạ Long – Ninh Bình",
+     "Ngày 3: Hạ Long – Ninh Bình",
+     "Ngày 3: Hạ Long – Ninh Bình",
+     "Ngày 3: Hạ Long – Ninh Bình"
+    ],
+    [
+     "08:00",
+     "Ăn sáng, trả phòng khách sạn",
+     "Hạ Long",
+     "Sáng"
+    ],
+    [
+     "09:00",
+     "Khởi hành đi Ninh Bình",
+     "Cao tốc Hải Phòng",
+     "—"
+    ],
+    [
+     "12:30",
+     "Ăn trưa với đặc sản dê núi",
+     "Ninh Bình",
+     "Trưa"
+    ],
+    [
+     "14:30",
+     "Đạp xe qua các làng quê",
+     "Tam Cốc",
+     "—"
+    ],
+    [
+     "16:30",
+     "Đi thuyền dọc sông Ngô Đồng",
+     "Tam Cốc",
+     "—"
+    ],
+    [
+     "19:00",
+     "Ăn tối, nghỉ đêm tại nhà nghỉ vườn",
+     "Ninh Bình",
+     "Tối"
+    ],
+    [
+     "Ngày 4: Ninh Bình",
+     "Ngày 4: Ninh Bình",
+     "Ngày 4: Ninh Bình",
+     "Ngày 4: Ninh Bình"
+    ],
+    [
+     "07:00",
+     "Ăn sáng",
+     "Nhà nghỉ vườn",
+     "Sáng"
+    ],
+    [
+     "08:30",
+     "Tham quan cố đô Hoa Lư",
+     "Hoa Lư",
+     "—"
+    ],
+    [
+     "11:00",
+     "Leo núi ngắm toàn cảnh thung lũng",
+     "Hang Múa",
+     "—"
+    ],
+    [
+     "12:30",
+     "Ăn trưa",
+     "Ninh Bình",
+     "Trưa"
+    ],
+    [
+     "15:00",
+     "Thăm chùa Bái Đính",
+     "Bái Đính",
+     "—"
+    ],
+    [
+     "18:30",
+     "Ăn tối và xem biểu diễn ca trù",
+     "Ninh Bình",
+     "Tối"
+    ],
+    [
+     "Ngày 5: Ninh Bình – Hà Nội",
+     "Ngày 5: Ninh Bình – Hà Nội",
+     "Ngày 5: Ninh Bình – Hà Nội",
+     "Ngày 5: Ninh Bình – Hà Nội"
+    ],
+    [
+     "08:00",
+     "Ăn sáng, trả phòng",
+     "Nhà nghỉ vườn",
+     "Sáng"
+    ],
+    [
+     "09:30",
+     "Tự do mua sắm quà lưu niệm",
+     "Thị trấn Me",
+     "—"
+    ],
+    [
+     "11:30",
+     "Khởi hành về Hà Nội",
+     "Quốc lộ 1",
+     "—"
+    ],
+    [
+     "14:00",
+     "Kết thúc chương trình, trả khách",
+     "Hà Nội",
+     "—"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Số khách",
+     "Giá mỗi người (VND)"
+    ],
+    [
+     "10 đến 14 khách",
+     "8.900.000"
+    ],
+    [
+     "15 đến 20 khách",
+     "8.200.000"
+    ],
+    [
+     "Phụ thu phòng đơn",
+     "1.800.000"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "• Giấy tờ tùy thân"
+  },
+  {
+   "level": 1,
+   "text": "– Mang theo hộ chiếu hoặc căn cước công dân còn hạn."
+  },
+  {
+   "level": 0,
+   "text": "• Trang phục"
+  },
+  {
+   "level": 1,
+   "text": "– Mặc quần áo thoải mái và mang giày đế mềm."
+  },
+  {
+   "level": 1,
+   "text": "– Mang theo áo mưa nhẹ và mũ che nắng."
+  },
+  {
+   "level": 0,
+   "text": "• Thuốc men cá nhân"
+  },
+  {
+   "level": 0,
+   "text": "Khách hủy tour trước 15 ngày được hoàn lại toàn bộ tiền đặt cọc."
+  },
+  {
+   "level": 0,
+   "text": "Khách hủy tour trong vòng 7 ngày trước ngày khởi hành không được hoàn tiền."
+  },
+  {
+   "level": 0,
+   "text": "Chương trình có thể thay đổi tùy theo điều kiện thời tiết."
+  }
+ ],
+ "furniture": [
+  "Hành trình khám phá Hạ Long và Ninh Bình",
+  "Công ty Du lịch Sông Xanh · Hành trình 5 ngày",
+  "Công ty Du lịch Sông Xanh",
+  "Số 18 phố Hàng Nón, Hà Nội · Điện thoại 024 0000 0000"
+ ],
+ "languages": [
+  "vi"
+ ],
+ "code": [],
+ "notes": "Flowing Vietnamese tour itinerary (Tahoma body, Cambria headings); the browser decides the page breaks, and the long itinerary table breaks across pages as ONE table (header row repeated by the browser on each page; the repeat is NOT part of expected rows). Day rows (\"Ngày 1: Hà Nội – Hạ Long\" ...) are section rows whose merged cell repeats in all four grid cells. A dash \"—\" in a cell is printed as such. Price table is ruled between rows only. The preparation list uses TYPED \"• \" at level 0 and TYPED \"– \" at level 1 (inline); the terms are a CSS-drawn decimal list (no marker in text). Letterhead lines, running header and footer are furniture (no page numbers; flow layout). Vietnamese diacritics are precomposed (NFC). Money uses dots as thousands separators."
+}

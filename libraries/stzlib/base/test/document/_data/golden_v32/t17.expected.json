@@ -1,0 +1,452 @@
+{
+ "id": "t17",
+ "difficulty": "hard",
+ "pages": 3,
+ "title": "Consolidated Financial Statements for the Year Ended 31 December 2025",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Consolidated Financial Statements for the Year Ended 31 December 2025"
+  },
+  {
+   "level": 2,
+   "text": "Basis of preparation"
+  },
+  {
+   "level": 2,
+   "text": "Consolidated income statement"
+  },
+  {
+   "level": 2,
+   "text": "Consolidated statement of financial position"
+  },
+  {
+   "level": 2,
+   "text": "Revenue by segment and quarter"
+  },
+  {
+   "level": 2,
+   "text": "Key accounting policies"
+  }
+ ],
+ "key_sentences": [
+  "The directors present the consolidated financial statements of Hartwell Marine Holdings plc and its subsidiaries for the year ended 31 December 2025.",
+  "Group revenue grew by 6.9% to £482.6 million, and profit for the year rose by 16.7% to £56.6 million.",
+  "Ferry services remained the largest segment and contributed more than half of group revenue.",
+  "The third quarter was the strongest because of the summer passenger season.",
+  "These statements were approved by the board of directors on 12 March 2026."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Line item",
+     "Note",
+     "Year ended 31 December",
+     "Year ended 31 December",
+     "Change"
+    ],
+    [
+     "Line item",
+     "Note",
+     "2025 £m",
+     "2024 £m",
+     "Change"
+    ],
+    [
+     "Revenue",
+     "3",
+     "482.6",
+     "451.3",
+     "+6.9%"
+    ],
+    [
+     "Cost of sales",
+     "",
+     "(301.4)",
+     "(284.2)",
+     "+6.1%"
+    ],
+    [
+     "Gross profit",
+     "",
+     "181.2",
+     "167.1",
+     "+8.4%"
+    ],
+    [
+     "Distribution costs",
+     "",
+     "(38.5)",
+     "(36.9)",
+     "+4.3%"
+    ],
+    [
+     "Administrative expenses",
+     "",
+     "(64.8)",
+     "(61.2)",
+     "+5.9%"
+    ],
+    [
+     "Other operating income",
+     "4",
+     "4.3",
+     "3.7",
+     "+16.2%"
+    ],
+    [
+     "Operating profit",
+     "",
+     "82.2",
+     "72.7",
+     "+13.1%"
+    ],
+    [
+     "Finance income",
+     "5",
+     "1.9",
+     "1.4",
+     "+35.7%"
+    ],
+    [
+     "Finance costs",
+     "5",
+     "(9.6)",
+     "(10.3)",
+     "-6.8%"
+    ],
+    [
+     "Profit before tax",
+     "",
+     "74.5",
+     "63.8",
+     "+16.8%"
+    ],
+    [
+     "Income tax expense",
+     "6",
+     "(17.9)",
+     "(15.3)",
+     "+17.0%"
+    ],
+    [
+     "Profit for the year",
+     "",
+     "56.6",
+     "48.5",
+     "+16.7%"
+    ],
+    [
+     "Attributable to:",
+     "Attributable to:",
+     "Attributable to:",
+     "Attributable to:",
+     "Attributable to:"
+    ],
+    [
+     "Owners of the parent",
+     "",
+     "54.8",
+     "46.9",
+     "+16.8%"
+    ],
+    [
+     "Non-controlling interests",
+     "",
+     "1.8",
+     "1.6",
+     "+12.5%"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "As at 31 December",
+     "Note",
+     "2025 £m",
+     "2024 £m"
+    ],
+    [
+     "Non-current assets",
+     "Non-current assets",
+     "Non-current assets",
+     "Non-current assets"
+    ],
+    [
+     "Property, plant and equipment",
+     "8",
+     "412.8",
+     "398.5"
+    ],
+    [
+     "Intangible assets",
+     "9",
+     "36.2",
+     "38.9"
+    ],
+    [
+     "Right-of-use assets",
+     "10",
+     "24.1",
+     "26.0"
+    ],
+    [
+     "Total non-current assets",
+     "",
+     "473.1",
+     "463.4"
+    ],
+    [
+     "Current assets",
+     "Current assets",
+     "Current assets",
+     "Current assets"
+    ],
+    [
+     "Inventories",
+     "11",
+     "18.7",
+     "17.2"
+    ],
+    [
+     "Trade and other receivables",
+     "12",
+     "71.4",
+     "66.8"
+    ],
+    [
+     "Cash and cash equivalents",
+     "13",
+     "58.3",
+     "44.6"
+    ],
+    [
+     "Total current assets",
+     "",
+     "148.4",
+     "128.6"
+    ],
+    [
+     "Total assets",
+     "",
+     "621.5",
+     "592.0"
+    ],
+    [
+     "Equity",
+     "Equity",
+     "Equity",
+     "Equity"
+    ],
+    [
+     "Share capital",
+     "14",
+     "50.0",
+     "50.0"
+    ],
+    [
+     "Retained earnings",
+     "",
+     "262.4",
+     "231.1"
+    ],
+    [
+     "Non-controlling interests",
+     "",
+     "11.5",
+     "10.2"
+    ],
+    [
+     "Total equity",
+     "",
+     "323.9",
+     "291.3"
+    ],
+    [
+     "Non-current liabilities",
+     "Non-current liabilities",
+     "Non-current liabilities",
+     "Non-current liabilities"
+    ],
+    [
+     "Borrowings",
+     "15",
+     "148.7",
+     "162.3"
+    ],
+    [
+     "Lease liabilities",
+     "10",
+     "20.3",
+     "22.1"
+    ],
+    [
+     "Deferred tax",
+     "6",
+     "18.9",
+     "17.6"
+    ],
+    [
+     "Total non-current liabilities",
+     "",
+     "187.9",
+     "202.0"
+    ],
+    [
+     "Current liabilities",
+     "Current liabilities",
+     "Current liabilities",
+     "Current liabilities"
+    ],
+    [
+     "Trade and other payables",
+     "16",
+     "79.4",
+     "73.0"
+    ],
+    [
+     "Borrowings",
+     "15",
+     "24.5",
+     "18.7"
+    ],
+    [
+     "Current tax",
+     "",
+     "5.8",
+     "7.0"
+    ],
+    [
+     "Total current liabilities",
+     "",
+     "109.7",
+     "98.7"
+    ],
+    [
+     "Total liabilities",
+     "",
+     "297.6",
+     "300.7"
+    ],
+    [
+     "Total equity and liabilities",
+     "",
+     "621.5",
+     "592.0"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Segment (£m)",
+     "Q1",
+     "Q2",
+     "Q3",
+     "Q4",
+     "Full year",
+     "Share of revenue"
+    ],
+    [
+     "Ferry services",
+     "61.2",
+     "68.9",
+     "84.5",
+     "62.4",
+     "277.0",
+     "57.4%"
+    ],
+    [
+     "Freight",
+     "28.4",
+     "29.1",
+     "30.2",
+     "31.7",
+     "119.4",
+     "24.7%"
+    ],
+    [
+     "Port services",
+     "9.8",
+     "10.1",
+     "10.6",
+     "11.0",
+     "41.5",
+     "8.6%"
+    ],
+    [
+     "Charter",
+     "10.9",
+     "11.7",
+     "11.4",
+     "10.7",
+     "44.7",
+     "9.3%"
+    ],
+    [
+     "Total",
+     "110.3",
+     "119.8",
+     "136.7",
+     "115.8",
+     "482.6",
+     "100.0%"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Consolidation",
+     "The statements include all entities controlled by the company at the year end."
+    ],
+    [
+     "Revenue",
+     "Revenue is recognised when the voyage or service has been delivered to the customer."
+    ],
+    [
+     "Property, plant and equipment",
+     "Vessels are depreciated on a straight-line basis over 25 years."
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "The financial statements are prepared under the historical cost convention."
+  },
+  {
+   "level": 0,
+   "text": "Amounts are presented in pounds sterling and rounded to the nearest £0.1 million."
+  },
+  {
+   "level": 0,
+   "text": "Comparative figures for 2024 have been restated only where stated in the notes."
+  },
+  {
+   "level": 0,
+   "text": "(a) Dry-docking costs are capitalised and depreciated over the period to the next docking."
+  },
+  {
+   "level": 0,
+   "text": "(b) Short-term leases of less than twelve months are expensed as incurred."
+  }
+ ],
+ "furniture": [
+  "Consolidated financial statements",
+  "Hartwell Marine Holdings plc · Annual Report 2025",
+  "Hartwell Marine Holdings plc"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [],
+ "notes": "Flowing (not pre-paginated) financial statements in Calibri with Cambria headings; the page count is whatever the browser produced. Tables break across pages where the flow dictates; a table continued on the next page is ONE table and Chrome repeats the header row on each page (the repeat is NOT part of expected rows). Income statement: TWO-LEVEL header (first header row [Line item, Note, Year ended 31 December, Year ended 31 December, Change]; second header row [Line item, Note, 2025 £m, 2024 £m, Change]; merged cells repeat their text in every covered cell). Parentheses mark negatives, as printed. Blank Note cells are empty strings. Segment table is wide (8 columns) with a total row. The statement of financial position has section rows (Non-current assets, Current assets, Equity, Non-current liabilities, Current liabilities) and sub-total / total rows in the same table. The accounting-policy table is borderless with no header row. Lists: basis-of-preparation points are a CSS-drawn lower-roman list (no marker in text); the policy exceptions use TYPED \"(a)\" \"(b)\" markers (inline). Running header and footer are furniture, listed once; there are no page numbers. The masthead is furniture, not a heading."
+}

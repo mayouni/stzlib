@@ -1,0 +1,159 @@
+{
+ "id": "t15",
+ "difficulty": "hard",
+ "pages": 3,
+ "title": "Estimating Baseflow Recession Constants from Sparse Gauge Records",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Estimating Baseflow Recession Constants from Sparse Gauge Records"
+  },
+  {
+   "level": 2,
+   "text": "1. Introduction"
+  },
+  {
+   "level": 2,
+   "text": "2. Data and methods"
+  },
+  {
+   "level": 3,
+   "text": "2.1 Study catchments"
+  },
+  {
+   "level": 3,
+   "text": "2.2 Resampling correction"
+  },
+  {
+   "level": 3,
+   "text": "2.3 Evaluation"
+  },
+  {
+   "level": 2,
+   "text": "3. Results"
+  },
+  {
+   "level": 2,
+   "text": "4. Discussion"
+  },
+  {
+   "level": 2,
+   "text": "5. Conclusions"
+  },
+  {
+   "level": 2,
+   "text": "Data availability"
+  },
+  {
+   "level": 2,
+   "text": "Acknowledgements"
+  },
+  {
+   "level": 2,
+   "text": "References"
+  }
+ ],
+ "key_sentences": [
+  "We present a simple resampling procedure that recovers the recession constant from sparse records.",
+  "Tested on 41 catchments, the method reduced the median estimation error from 31% to 9% relative to a naive fit.",
+  "Reliable values of k are needed to forecast low flows and to size water supply storage.",
+  "In many regions, however, gauges are read manually and the record contains only a handful of values each month.",
+  "The correction fits the recession constant to many random subsets of the thinned record and then adjusts the median fit with a bias factor calibrated on the daily series.",
+  "As the sampling interval grows, the naive fit overestimates the recession constant, because slow late-recession flows are over-represented among the retained points.",
+  "The corrected estimate stays within 10% of the daily-data value for all intervals up to 15 days.",
+  "Sparse gauge records can support reliable recession analysis if the sampling bias is corrected."
+ ],
+ "tables": [
+  {
+   "caption": "Table 1. Characteristics of the study catchments.",
+   "rows": [
+    [
+     "Region",
+     "Catchments",
+     "Median area (km²)",
+     "Mean k (days)"
+    ],
+    [
+     "Humid temperate",
+     "17",
+     "212",
+     "38.4"
+    ],
+    [
+     "Semi-arid",
+     "14",
+     "486",
+     "61.2"
+    ],
+    [
+     "Alpine",
+     "10",
+     "95",
+     "24.7"
+    ]
+   ]
+  },
+  {
+   "caption": "Table 2. Median relative error of the recession constant.",
+   "rows": [
+    [
+     "Interval (days)",
+     "Naive (%)",
+     "Corrected (%)"
+    ],
+    [
+     "3",
+     "8",
+     "2"
+    ],
+    [
+     "7",
+     "19",
+     "5"
+    ],
+    [
+     "15",
+     "31",
+     "9"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "[1] Brutsaert, W., and Nieber, J. L. 1977. Regionalized drought flow hydrographs from a mature glaciated plateau. Water Resources Research 13(3), 637-643."
+  },
+  {
+   "level": 0,
+   "text": "[2] Tallaksen, L. M. 1995. A review of baseflow recession analysis. Journal of Hydrology 165(1-4), 349-370."
+  },
+  {
+   "level": 0,
+   "text": "[3] Kirchner, J. W. 2009. Catchments as simple dynamical systems. Water Resources Research 45(2), W02429."
+  },
+  {
+   "level": 0,
+   "text": "[4] Osei, K. 2021. Sampling interval and the estimation of low-flow indices. Journal of Water Resources Planning 147(6), 04021021."
+  },
+  {
+   "level": 0,
+   "text": "[5] Vogel, R. M., and Kroll, C. N. 1992. Regional geohydrologic-geomorphic relationships for the estimation of low-flow statistics. Water Resources Research 28(9), 2451-2458."
+  },
+  {
+   "level": 0,
+   "text": "[6] Marlowe, A. 2024. Thinning experiments for low-flow statistics. Hydrological Methods 8(1), 12-29."
+  }
+ ],
+ "furniture": [
+  "Journal of Applied Hydrology MethodsVol. 12, No. 3 · 2026",
+  "1",
+  "2",
+  "3"
+ ],
+ "languages": [
+  "en"
+ ],
+ "code": [],
+ "notes": "Three-page two-column scientific article in Times New Roman. Each page has two columns placed SIDE BY SIDE; the reading order is column by column (left column of the page, then right), page by page. The abstract box spans the full width on page 1. Front matter (authors, affiliation) is not listed anywhere. The sentence with a footnote marker (superscript 1, introduced in the Data section) is left out of key_sentences and the footnote text itself is not listed. Table 1 and Table 2 are booktabs-style (rules above and below the header and at the foot, none between rows); their captions sit above them and are given as caption. References are a list with TYPED markers \"[1]\" ... \"[6]\" (inline, level 0). Section headings \"1. Introduction\" etc. keep their typed numbers. The running header (journal line) is listed once; the bare page numbers \"1\", \"2\", \"3\" are listed once per page."
+}

@@ -1,0 +1,40 @@
+page_header	0	Tidewatch Backup Agent - Operations Runbook
+heading	1	Tidewatch Backup Agent: Operations Runbook
+paragraph	0	This runbook describes how to install, configure and troubleshoot the Tidewatch backup agent on Linux servers. It is written for the on-call engineers of the platform team.
+heading	1	1. Installation
+heading	1	Prerequisites
+list_item	0	A 64-bit Linux host with systemd 245 or later
+list_item	0	At least 2 GB of free disk space for the local cache
+list_item	0	Outbound HTTPS access to the backup endpoint
+paragraph	0	Install the agent with the bootstrap script and check that the service has started.
+list_item	0	$ curl -fsSL https://example.org/tidewatch/install.sh | sh
+list_item	0	$ sudo systemctl enable --now tidewatch
+code	0	$ tidewatch status
+heading	1	2. Configuration
+paragraph	0	The agent reads its settings from /etc/tidewatch/agent.yaml. A minimal file looks like this.
+code	0	"cache/"]
+code	0	agent: name: edge-backup-01 interval: 15m targets: - path: /var/lib/app/data exclude: ["* .tmp" , retention: daily: 7 weekly: 4 monthly: 12
+table	0	KeyTypeDefaultDescriptionagent.intervalduration30mTime between two backup runstargets[].pathstringnoneDirectory to protect; requiredtargets[].excludelist[]Glob patterns that are skippedretention.dailyinteger7Number of daily snapshots kept
+page_footer	0	Page 1 of 2
+page_header	0	Tidewatch Backup Agent - Operations Runbook
+heading	1	Retention policy
+paragraph	0	Snapshots are pruned after every successful run. To change the policy, follow these steps.
+list_item	0	Edit the retention block in the configuration file.
+list_item	0	Validate and reload the agent:
+list_item	0	Run tidewatch config check and read the output.
+list_item	0	Run sudo systemctl reload tidewatch.
+list_item	0	Confirm the new schedule with tidewatch status.
+heading	1	3. Troubleshooting
+paragraph	0	Every failed run writes one structured line to the journal. A typical entry is shown below.
+code	0	{"ts":"2026-05-02T02:15:09Z" , "level":"error" , "code":"E214" , "target":"/var/lib/app/data" , "msg":"upload timed out after 120s"}
+table	0	CodeMeaningFirst actionE101Configuration file could not be parsedRun tidewatch config checkE214Upload timed outCheck network route and proxy settingsE307Target directory is not readableFix permissions for the tidewatch userE412Cache volume is fullFree space or raise the cache limit
+heading	1	Escalation
+paragraph	0	If two consecutive runs fail with the same code, escalate in this order.
+list_item	0	Page the platform on-call engineer.
+list_item	0	Open an incident ticket and attach the last 200 journal lines.
+list_item	0	Inform the data owner if the gap exceeds 24 hours.
+heading	1	4. Support
+paragraph	0	Questions about this runbook can be sent to the platform team mailbox. Please include the agent version printed by the status command.
+code	0	$ tidewatch version
+code	0	tidewatch 2.8.1 (build 4f9c2d1)
+page_footer	0	Page 2 of 2

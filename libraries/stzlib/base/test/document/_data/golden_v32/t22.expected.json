@@ -1,0 +1,240 @@
+{
+ "id": "t22",
+ "difficulty": "medium",
+ "pages": 2,
+ "title": "Informe de inspección sanitaria de cocina",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Informe de inspección sanitaria de cocina"
+  },
+  {
+   "level": 2,
+   "text": "Resultados por área"
+  },
+  {
+   "level": 2,
+   "text": "Conclusiones"
+  },
+  {
+   "level": 2,
+   "text": "Medidas correctoras exigidas"
+  },
+  {
+   "level": 2,
+   "text": "Recomendaciones"
+  },
+  {
+   "level": 2,
+   "text": "Plazos"
+  }
+ ],
+ "key_sentences": [
+  "La inspección se realizó sin previo aviso durante el servicio de comida, con la presencia del responsable del establecimiento.",
+  "Se evaluaron once puntos de control agrupados en cuatro áreas.",
+  "De los once puntos evaluados, siete resultaron conformes y cuatro no conformes.",
+  "Ninguna de las deficiencias supone un riesgo inmediato para la salud de los clientes.",
+  "Una inspección de comprobación se realizará una vez vencido el último plazo."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Establecimiento",
+     "Restaurante La Higuera"
+    ],
+    [
+     "Dirección",
+     "Calle Mayor 22, Villaverde"
+    ],
+    [
+     "Titular",
+     "Hostelería Higuera S. L."
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Fecha de inspección",
+     "18 de marzo de 2026"
+    ],
+    [
+     "Inspectora",
+     "Marta Ruiz Calvo"
+    ],
+    [
+     "Expediente",
+     "SAN-2026-0318"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "N.º",
+     "Punto de control",
+     "Resultado",
+     "Observaciones"
+    ],
+    [
+     "Almacenamiento",
+     "Almacenamiento",
+     "Almacenamiento",
+     "Almacenamiento"
+    ],
+    [
+     "1",
+     "Temperatura de las cámaras frigoríficas (máximo 4 °C)",
+     "Conforme",
+     "Registro diario completo"
+    ],
+    [
+     "2",
+     "Separación de alimentos crudos y cocinados",
+     "No conforme",
+     "Pescado crudo almacenado sobre verduras cocinadas"
+    ],
+    [
+     "3",
+     "Etiquetado de productos abiertos",
+     "Conforme",
+     "—"
+    ],
+    [
+     "Preparación",
+     "Preparación",
+     "Preparación",
+     "Preparación"
+    ],
+    [
+     "4",
+     "Descongelación en refrigeración",
+     "Conforme",
+     "—"
+    ],
+    [
+     "5",
+     "Tablas de corte diferenciadas por color",
+     "No conforme",
+     "Se usa una sola tabla para carne y verdura"
+    ],
+    [
+     "6",
+     "Control de la temperatura de cocción",
+     "Conforme",
+     "Sonda calibrada en enero"
+    ],
+    [
+     "Higiene personal",
+     "Higiene personal",
+     "Higiene personal",
+     "Higiene personal"
+    ],
+    [
+     "7",
+     "Uniforme limpio y gorro",
+     "Conforme",
+     "—"
+    ],
+    [
+     "8",
+     "Lavamanos con jabón y papel",
+     "No conforme",
+     "Dispensador de jabón vacío en la zona de cocción"
+    ],
+    [
+     "Limpieza e instalaciones",
+     "Limpieza e instalaciones",
+     "Limpieza e instalaciones",
+     "Limpieza e instalaciones"
+    ],
+    [
+     "9",
+     "Plan de limpieza y desinfección",
+     "Conforme",
+     "Registro al día"
+    ],
+    [
+     "10",
+     "Control de plagas",
+     "Conforme",
+     "Contrato vigente con empresa autorizada"
+    ],
+    [
+     "11",
+     "Mantenimiento de la campana extractora",
+     "No conforme",
+     "Filtros con acumulación de grasa"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Medida",
+     "Plazo máximo"
+    ],
+    [
+     "Medida 1",
+     "15 días naturales"
+    ],
+    [
+     "Medida 2",
+     "30 días naturales"
+    ],
+    [
+     "Medida 3",
+     "Inmediato"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "1. Reorganizar el almacenamiento en las cámaras frigoríficas:"
+  },
+  {
+   "level": 1,
+   "text": "a) los alimentos crudos se colocarán siempre en las baldas inferiores;"
+  },
+  {
+   "level": 1,
+   "text": "b) los productos cocinados se guardarán en recipientes cerrados."
+  },
+  {
+   "level": 0,
+   "text": "2. Adquirir tablas de corte de colores distintos para carne, pescado y verdura."
+  },
+  {
+   "level": 0,
+   "text": "3. Reponer el jabón de manos y revisar los dispensadores cada turno."
+  },
+  {
+   "level": 0,
+   "text": "Formar de nuevo al personal en prácticas de higiene antes de la próxima inspección."
+  },
+  {
+   "level": 0,
+   "text": "Anotar en el registro diario la limpieza de los filtros de la campana."
+  },
+  {
+   "level": 0,
+   "text": "Conservar durante dos años los certificados de la empresa de control de plagas."
+  }
+ ],
+ "furniture": [
+  "Página 1 de 2",
+  "Página 2 de 2"
+ ],
+ "languages": [
+  "es"
+ ],
+ "code": [],
+ "notes": "Two-page Spanish sanitary inspection report (Candara). Page 1 starts with two boxed key/value panels SIDE BY SIDE (establishment panel on the left, inspection panel on the right); reading order is box by box, left panel first; both are tables without header row. The checklist table has four section rows (Almacenamiento, Preparación, Higiene personal, Limpieza e instalaciones) whose merged cells repeat in every covered cell; the result column is colour-coded text (\"Conforme\", \"No conforme\"); some cells hold two lines (joined with one space) and the first column is centred. A dash \"—\" in a cell is the character printed. Page 2: corrective measures use TYPED \"1.\" / \"2.\" at level 0 and TYPED \"a)\" \"b)\" at level 1 (inline); recommendations are a CSS-drawn lower-alpha list (no marker in text). The deadlines table has a rule under the header only. \"Página n de 2\" footers once per page."
+}

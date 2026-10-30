@@ -1,0 +1,195 @@
+{
+ "id": "t13",
+ "difficulty": "medium",
+ "pages": 2,
+ "title": "Laboratuvar Sonuç Raporu",
+ "headings": [
+  {
+   "level": 1,
+   "text": "Laboratuvar Sonuç Raporu"
+  },
+  {
+   "level": 2,
+   "text": "Değerlendirme"
+  },
+  {
+   "level": 2,
+   "text": "Numune bilgileri"
+  },
+  {
+   "level": 2,
+   "text": "Onay"
+  }
+ ],
+ "key_sentences": [
+  "Sonuçlar yalnızca incelenen numune için geçerlidir.",
+  "Referans aralıkları yaş ve cinsiyete göre değişebilir.",
+  "Lökosit değeri referans aralığının üzerindedir.",
+  "Bu rapor elektronik ortamda imzalanmıştır.",
+  "Rapor, doğrulama kodu ile kurumun internet sayfasından sorgulanabilir."
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Hasta no",
+     "20260412-0357"
+    ],
+    [
+     "Adı soyadı",
+     "Ayşe Karadeniz"
+    ],
+    [
+     "Doğum tarihi",
+     "14.03.1981"
+    ],
+    [
+     "Numune alma",
+     "12.04.2026 08:15"
+    ],
+    [
+     "Rapor tarihi",
+     "12.04.2026 11:40"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Test",
+     "Sonuç",
+     "Birim",
+     "Referans aralığı",
+     "Durum"
+    ],
+    [
+     "Hemogram",
+     "Hemogram",
+     "Hemogram",
+     "Hemogram",
+     "Hemogram"
+    ],
+    [
+     "Hemoglobin",
+     "13,8",
+     "g/dL",
+     "12,0–16,0",
+     "Normal"
+    ],
+    [
+     "Lökosit",
+     "11,9",
+     "x10³/µL",
+     "4,0–10,0",
+     "Yüksek"
+    ],
+    [
+     "Trombosit",
+     "245",
+     "x10³/µL",
+     "150–400",
+     "Normal"
+    ],
+    [
+     "Biyokimya",
+     "Biyokimya",
+     "Biyokimya",
+     "Biyokimya",
+     "Biyokimya"
+    ],
+    [
+     "Glukoz (açlık)",
+     "112",
+     "mg/dL",
+     "70–100",
+     "Yüksek"
+    ],
+    [
+     "Üre",
+     "28",
+     "mg/dL",
+     "17–43",
+     "Normal"
+    ],
+    [
+     "Kreatinin",
+     "0,82",
+     "mg/dL",
+     "0,50–0,90",
+     "Normal"
+    ],
+    [
+     "ALT",
+     "41",
+     "U/L",
+     "0–35",
+     "Yüksek"
+    ],
+    [
+     "Total kolesterol",
+     "214",
+     "mg/dL",
+     "0–200",
+     "Yüksek"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "Numune türü",
+     "Venöz kan (serum ve tam kan)"
+    ],
+    [
+     "Alım yeri",
+     "Merkez laboratuvarı, 2. kat"
+    ],
+    [
+     "Analiz cihazı",
+     "Otomatik biyokimya ve hematoloji analizörü"
+    ],
+    [
+     "Saklama koşulu",
+     "Oda sıcaklığı, en çok iki saat"
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "1) Lökosit değeri referans aralığının üzerindedir."
+  },
+  {
+   "level": 0,
+   "text": "2) Açlık kan şekeri değeri yükselmiştir:"
+  },
+  {
+   "level": 1,
+   "text": "a) Sonucun tekrarı ve HbA1c ölçümü önerilir."
+  },
+  {
+   "level": 1,
+   "text": "b) Test öncesinde en az sekiz saat açlık gereklidir."
+  },
+  {
+   "level": 0,
+   "text": "3) ALT ve total kolesterol değerleri hafif yüksektir."
+  }
+ ],
+ "furniture": [
+  "Kıyıköy Tıp Merkezi",
+  "Merkez Laboratuvarı · Deniz Caddesi 45, Kıyıköy",
+  "Tel 0000 000 00 00 · lab@kiyikoy-tip.example",
+  "Sayfa 1 / 2",
+  "Sayfa 2 / 2"
+ ],
+ "languages": [
+  "tr"
+ ],
+ "code": [],
+ "notes": "Two-page Turkish laboratory report (Verdana body, Tahoma headings). The patient panel is a boxed key/value table without header row. The results table has two section rows (Hemogram, Biyokimya) and horizontal rules between rows only (no vertical lines); abnormal statuses are bold. Decimal commas and the en dash in reference ranges are printed as in the cells. Evaluation list: level 0 uses TYPED \"1)\" \"2)\" \"3)\", level 1 uses TYPED \"a)\" \"b)\" (inline). Letterhead lines are furniture; \"Sayfa n / 2\" once per page. Turkish dotted/dotless I letters are precomposed."
+}

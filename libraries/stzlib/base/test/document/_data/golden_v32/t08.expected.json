@@ -1,0 +1,232 @@
+{
+ "id": "t08",
+ "difficulty": "hard",
+ "pages": 3,
+ "title": "关于开展2026年度全员培训工作的通知",
+ "headings": [
+  {
+   "level": 1,
+   "text": "关于开展2026年度全员培训工作的通知"
+  },
+  {
+   "level": 2,
+   "text": "一、培训对象"
+  },
+  {
+   "level": 2,
+   "text": "二、培训安排"
+  },
+  {
+   "level": 2,
+   "text": "三、培训要求"
+  },
+  {
+   "level": 2,
+   "text": "四、考核与奖励"
+  },
+  {
+   "level": 2,
+   "text": "五、联系方式"
+  },
+  {
+   "level": 2,
+   "text": "附件1：各部门参训人数分配表"
+  }
+ ],
+ "key_sentences": [
+  "为进一步提升员工的专业能力和职业素养，满足公司业务发展的需要，经公司研究决定，2026年下半年开展全员培训工作。",
+  "现将有关事项通知如下。",
+  "培训分为通用课程、专业课程和管理课程三个模块，具体安排见下表。",
+  "各部门应于7月10日前将参训名单报送人力资源部。",
+  "培训结束后，参训人员应提交不少于500字的学习总结。",
+  "培训考核采用出勤与测验相结合的方式，具体标准如下。",
+  "考核成绩将记入员工年度绩效档案，作为晋升和评优的参考依据。",
+  "如有疑问，请与人力资源部培训专员联系，电话为内线8123，邮箱为peixun@xinghe-tech.example。"
+ ],
+ "tables": [
+  {
+   "caption": null,
+   "rows": [
+    [
+     "课程名称",
+     "日期",
+     "地点",
+     "课时",
+     "主讲人"
+    ],
+    [
+     "企业文化与职业道德",
+     "7月8日",
+     "总部报告厅",
+     "3小时",
+     "人力资源部"
+    ],
+    [
+     "信息安全基础",
+     "7月15日",
+     "总部报告厅",
+     "3小时",
+     "信息安全部"
+    ],
+    [
+     "项目管理实务",
+     "7月22日",
+     "三号会议室",
+     "6小时",
+     "项目管理办公室"
+    ],
+    [
+     "数据分析入门",
+     "8月5日",
+     "线上直播",
+     "4小时",
+     "数据中心"
+    ],
+    [
+     "沟通与团队协作",
+     "8月12日",
+     "二号会议室",
+     "3小时",
+     "外聘讲师"
+    ],
+    [
+     "中层管理能力提升",
+     "8月26日",
+     "总部培训室",
+     "8小时",
+     "外聘讲师"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "出勤要求",
+     "出勤率不低于90%"
+    ],
+    [
+     "测验方式",
+     "课后闭卷测验，满分100分"
+    ],
+    [
+     "合格标准",
+     "测验成绩不低于60分"
+    ],
+    [
+     "奖励办法",
+     "年度培训成绩优秀者给予表彰"
+    ]
+   ]
+  },
+  {
+   "caption": null,
+   "rows": [
+    [
+     "部门",
+     "在职人数",
+     "参训人数",
+     "联系人"
+    ],
+    [
+     "总经办",
+     "12",
+     "12",
+     "陈静"
+    ],
+    [
+     "研发中心",
+     "86",
+     "86",
+     "刘洋"
+    ],
+    [
+     "市场部",
+     "34",
+     "34",
+     "吴迪"
+    ],
+    [
+     "销售部",
+     "58",
+     "58",
+     "郑浩"
+    ],
+    [
+     "客户服务部",
+     "41",
+     "41",
+     "孙悦"
+    ],
+    [
+     "财务部",
+     "19",
+     "19",
+     "周敏"
+    ],
+    [
+     "人力资源部",
+     "9",
+     "9",
+     "黄蓉"
+    ],
+    [
+     "合计",
+     "259",
+     "259",
+     ""
+    ]
+   ]
+  }
+ ],
+ "list_items": [
+  {
+   "level": 0,
+   "text": "（一） 公司总部及各分公司全体在职员工；"
+  },
+  {
+   "level": 0,
+   "text": "（二） 2026年入职满三个月的新员工；"
+  },
+  {
+   "level": 0,
+   "text": "（三） 因岗位调整需要补充培训的人员。"
+  },
+  {
+   "level": 0,
+   "text": "1. 各部门应于7月10日前将参训名单报送人力资源部。"
+  },
+  {
+   "level": 0,
+   "text": "2. 参训人员须准时到场，因故不能参加的，应提前一天向部门负责人请假。"
+  },
+  {
+   "level": 1,
+   "text": "（1） 请假须填写《培训请假单》；"
+  },
+  {
+   "level": 1,
+   "text": "（2） 无故缺席的，按公司考勤制度处理。"
+  },
+  {
+   "level": 0,
+   "text": "3. 培训结束后，参训人员应提交不少于500字的学习总结。"
+  },
+  {
+   "level": 0,
+   "text": "附件1： 各部门参训人数分配表"
+  }
+ ],
+ "furniture": [
+  "星河信息科技有限公司文件",
+  "星科发〔2026〕18号",
+  "第1页 共3页",
+  "第2页 共3页",
+  "第3页 共3页"
+ ],
+ "languages": [
+  "zh"
+ ],
+ "code": [],
+ "notes": "Three-page Chinese corporate notice (Microsoft YaHei body, SimSun letterhead). Text has no spaces between words: a wrapped line inside a sentence joins with NO space. The red letterhead (\"星河信息科技有限公司文件\", letter-spaced in print) and the document number line are furniture; the \"第n页 共3页\" footers are listed once per page. Numbered section headings (\"一、培训对象\" ...) are level 2 headings whose typed number is part of the heading text. Lists use TYPED markers set apart by a hanging indent: \"（一）\" at level 0 in section 1; \"1.\" / \"2.\" / \"3.\" at level 0 in section 3 with \"（1）\" \"（2）\" at level 1. The attachment mention on page 2 uses a typed \"附件1：\" marker at level 0 (part of the item text). Page 3 is the attachment: a full-grid table whose last row is a total row with an empty last cell. The course schedule is a zebra-striped table; the assessment table is a borderless key/value table without header row."
+}

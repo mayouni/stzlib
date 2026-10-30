@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Руководство по эксплуатации циркуляционного насоса ЦН-32/8</title>
+<style>
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+@page{size:A4;margin:0}
+.pg{width:210mm;height:296mm;padding:18mm 20mm;position:relative;overflow:hidden;break-after:page;page-break-after:always}
+.pg:last-child{break-after:auto;page-break-after:auto}
+.foot{position:absolute;left:20mm;right:20mm;bottom:10mm}
+.hl{display:flex}
+.hl .mk{flex:none}
+p{margin:0}
+
+body{font-family:Georgia,serif;font-size:10.5pt;color:#1b1b1b;line-height:1.5}
+.rh{font-family:Arial,sans-serif;font-size:8.5pt;color:#555;border-bottom:1px solid #999;padding-bottom:3px;margin-bottom:14px;display:flex;justify-content:space-between}
+h1{font-family:Arial,sans-serif;font-size:18pt;margin:0 0 10px 0;color:#14407a}
+h2{font-family:Arial,sans-serif;font-size:12pt;margin:14px 0 5px 0;color:#14407a;border-bottom:1px solid #14407a}
+p.b{margin:0 0 6px 0}
+table.kv{border:2px solid #14407a;border-collapse:collapse;width:75%;margin:6px 0}
+table.kv td{padding:3px 10px;font-size:10pt}
+table.kv td:first-child{font-weight:bold;width:55%}
+.ti{margin:0 0 3px 0}
+.ti.l1{margin-left:26px}
+pre.code{font-family:Consolas,monospace;font-size:9.5pt;background:#f1f3f6;border-left:4px solid #14407a;padding:8px 12px;margin:6px 0;line-height:1.35}
+table.f{border-collapse:collapse;width:100%;margin:6px 0}
+table.f th{background:#14407a;color:#fff;font-family:Arial,sans-serif;font-size:9.5pt;padding:5px 7px;text-align:left}
+table.f td{border:1px solid #888;padding:5px 7px;font-size:9.5pt;vertical-align:top}
+ul.bl{margin:4px 0 4px 0;padding-left:22px}
+.foot{font-family:Arial,sans-serif;font-size:8.5pt;text-align:right;color:#555}
+
+</style>
+</head>
+<body>
+<section class="pg">
+<div class="rh"><span>ЦН-32/8</span><span>Руководство по эксплуатации</span></div><h1>Руководство по эксплуатации циркуляционного насоса ЦН-32/8</h1>
+<p class="b">Настоящее руководство предназначено для персонала, выполняющего монтаж, пуск и техническое обслуживание насоса. Перед началом работы необходимо внимательно изучить все разделы документа.</p>
+<h2>1 Назначение</h2>
+<p class="b">Насос <span style="white-space:nowrap">ЦН-32</span>/8 предназначен для принудительной циркуляции воды в системах отопления и горячего водоснабжения. Температура перекачиваемой среды не должна превышать 110 °C.</p>
+<h2>2 Технические характеристики</h2>
+<table class="kv">
+<tbody>
+<tr><td>Номинальная подача</td><td>8 м³/ч</td></tr>
+<tr><td>Номинальный напор</td><td>8 м</td></tr>
+<tr><td>Мощность электродвигателя</td><td>0,45 кВт</td></tr>
+<tr><td>Напряжение питания</td><td>220 В, 50 Гц</td></tr>
+<tr><td>Степень защиты</td><td>IP44</td></tr>
+<tr><td>Масса</td><td>11,5 кг</td></tr>
+</tbody>
+</table>
+<h2>3 Подготовка к работе</h2>
+<p class="ti  l0">1) Убедитесь, что система заполнена теплоносителем и воздух удалён.</p>
+<p class="ti  l0">2) Проверьте направление стрелки на корпусе насоса:</p>
+<p class="ti  l1">а) стрелка должна совпадать с направлением потока;</p>
+<p class="ti  l1">б) при обратном монтаже насос необходимо повернуть на 180°.</p>
+<p class="ti  l0">3) Подключите питание только после установки клеммной крышки.</p>
+<h2>4 Настройка контроллера</h2>
+<p class="b">Параметры работы задаются в файле настроек контроллера. Значения по умолчанию указаны ниже.</p>
+<pre class="code"># Параметры контроллера насоса ЦН-32
+[pump]
+mode = auto
+min_pressure_bar = 1.2
+max_pressure_bar = 4.5
+restart_delay_s = 30   # пауза перед повторным пуском</pre>
+<div class="foot"><span>Лист 1 из 2</span></div>
+</section>
+<section class="pg">
+<div class="rh"><span>ЦН-32/8</span><span>Руководство по эксплуатации</span></div>
+<h2>5 Возможные неисправности</h2>
+<table class="f">
+<thead>
+<tr><th>Неисправность</th><th>Вероятная причина</th><th>Способ устранения</th></tr>
+</thead>
+<tbody>
+<tr><td>Насос не включается</td><td>Нет напряжения в сети.<br>Сработала тепловая защита двигателя.</td><td>Проверить предохранитель и подачу питания.<br>Дождаться остывания двигателя.</td></tr>
+<tr><td>Повышенный шум при работе</td><td>Воздух в корпусе насоса.<br>Износ подшипников.</td><td>Удалить воздух через воздухоотводчик.<br>Обратиться в сервисный центр.</td></tr>
+<tr><td>Недостаточный напор</td><td>Засорение фильтра на входе.<br>Неправильное направление вращения.</td><td>Очистить фильтр.<br>Проверить подключение фаз.</td></tr>
+<tr><td>Течь через торцевое уплотнение</td><td>Износ уплотнения.</td><td>Заменить уплотнение, соблюдая момент затяжки 12 Н·м.</td></tr>
+</tbody>
+</table>
+<h2>6 Гарантийные обязательства</h2>
+<p class="b">Гарантийный срок эксплуатации составляет 24 месяца со дня продажи. Гарантия действует при условии соблюдения правил монтажа и эксплуатации.</p>
+<p class="b">Гарантия не распространяется на:</p>
+<ul class="bl">
+<li>повреждения, полученные при транспортировке;</li>
+<li>работу насоса без перекачиваемой среды;</li>
+<li>самостоятельный ремонт без согласования с изготовителем.</li>
+</ul>
+<div class="foot"><span>Лист 2 из 2</span></div>
+</section>
+</body>
+</html>
