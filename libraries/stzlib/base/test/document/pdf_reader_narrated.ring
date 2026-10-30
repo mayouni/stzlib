@@ -711,6 +711,20 @@ Scenario("Markers set apart by a hanging indent keep their text, and a table bes
 	Then("a letterhead address with an e-mail under the name is letterhead", StzFindFirst("info@calamar-reformas.example", "" + @@(StzPdfQ("_data/golden_v31/s11.pdf").Furniture())) > 0, 1)
 EndScenario()
 
+# ---- the thirty-second round: tables in the columns of a two-column page, a panel above a header (golden_v32)
+
+Scenario("A table in each column of a two-column page is read in its own column")
+	aT = StzPdfQ("_data/golden_v32/t15.pdf").Tables()
+	Then("the table in the left column is its own", @@(aT[1][2]), @@([ "Humid temperate", "17", "212", "38.4" ]))
+	Then("and the one in the right column is another, with three columns", len(aT[2][1]), 3)
+	aT = StzPdfQ("_data/golden_v4/g16.pdf").Tables()
+	Then("but a table across both columns of such a page stays whole", len(aT[1][1]), 4)
+	aT = StzPdfQ("_data/golden_v32/t13.pdf").Tables()
+	Then("a key/value panel is cut from the header row of the table under it", len(aT[1]), 5)
+	Then("and that table opens with its own header", @@(aT[2][1]), @@([ "Test", "Sonuç", "Birim", "Referans aralığı", "Durum" ]))
+	Then("a kana letter and a full-width stop, with a phrase after it, is a list marker and no table", StzFindFirst("ア． 7月1日から相談窓口の受付時間を午前8時30分に変更すること。", "" + @@(StzPdfQ("_data/golden_v32/t04.pdf").ListItems())) > 0, 1)
+EndScenario()
+
 Scenario("A file that is not a readable PDF is refused with the reason")
 	bRaised = 0
 	cWhy = ""

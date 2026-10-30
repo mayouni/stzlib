@@ -655,6 +655,17 @@ golden_v32: 24 realistic documents in 16 languages (English in nine; Arabic, Heb
 Time for the 24 documents: native 0.08 s, Docling 195 s. The native reader leads on all eight measures, the seventh set where it does; furniture is a lead of 0.02. Where Docling does better, document by document: tables on five (t15 0.00 against 1.00, t20 0.00 against 1.00, t13 0.29 against 0.78, t09 0.67 against 1.00, t18 0.81 against 1.00), lists on one (t04 0.58 against 1.00), furniture on four (t05, t08, t11, t13), text on one (t05), headings on one (t15). Causes not yet looked into: round 32.
 
 
+**Thirty-second round: tables in the columns of a two-column page, a panel above a header; then golden_v33.** Fixed on golden_v32 (now a development set) and checked on all thirty-two sets:
+- a page set in two text columns (each column eight lines or more of five words or more, their lines overlapping over 45 per cent of their length, the gutter between them empty of any line down the stretch round them) reads the tables in each column on its own, over the rows from the nearest line crossing the gutter above to the nearest below: a journal's Table 1 in the left column and Table 2 in the right were read as one seven-column table. When the two halves come out with the same top, the same foot and as many rows, the gutter fell between two columns of ONE table (g16: a calendar across a two-column page) and the text is read again as one;
+- a key/value panel (three rows of two cells, then a row of four cells or more set 1.3 pitches further off) ends where that row begins -- it was the header of the table under it (t13). The pitch of the panel's rows must be at least 1.2 times its type: a wrapped header's lines (6.8 pt apart in t15) are not a panel;
+- a kana letter and a full-width stop ("ア．") is a list marker, and a script written without spaces counts a word as three characters when a list of markers is told from a two-column table.
+
+Tried and withdrawn: a looser leading (1.55) for a wrapped half of a cell wherever the rows around it stand two pitches apart, and five words for the cells of a table with a bold header (t20's classifieds): each took cells from g03, k19, k08, d11 and b20, and each was not worth them. A column no row writes in was dropped for a while: it changed y08's table for the worse and fixed nothing. Not reached: t20's classifieds table (two-line cells at 1.5 leading, five-word cells), t09's zebra table of three rows, t18, t05's and t08's furniture (the organisation's name is inside a body sentence).
+
+On the development sets, against round 31 frozen: tables v32 0.83 -> 0.90, v6 0.76 -> 0.80, v21 0.95 -> 0.95; lists v32 0.91 -> 0.92; text v23 0.98 -> 0.99; headings v13 0.93 -> 0.94. No set lost on any measure. Guard 272 assertions under Ring++.
+
+golden_v33: DLV33
+
 **Perceived (2026-10-24):** the author looked through every rendered page of golden_v9 to golden_v13 -- the sets whose own authors could not look at them -- and judged them: "they look great". Those five sets are no longer unperceived; the sets before them were generated the same way and are not covered by this look.
 
 **Perceived (2026-10-29):** the author looked at the generated documents of golden_v14 to golden_v22 and judged them: "they are ok". Those nine sets are no longer unperceived.

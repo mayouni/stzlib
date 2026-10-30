@@ -4264,6 +4264,58 @@ fn findAlignedTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.Ar
             if (lefts >= 4 and multi >= 3 and !crossing and yb - ya <= (y1 - y0) + 6 * g.size) try seps.append(a, .{ .x0 = x, .x1 = x, .y0 = ya, .y1 = yb });
         }
     }
+    const gutter_start = seps.items.len;
+    // a page set in two text columns: the gutter between them bounds the tables in each (a journal's Table 1 in the left
+    // column and Table 2 in the right), over the rows from the nearest line that crosses it above to the nearest below
+    {
+        const Cl = struct { x0: f32, n: usize, maxx1: f32, miny: f32, maxy: f32 };
+        var cls: std.ArrayList(Cl) = .empty;
+        var pw: f32 = 0;
+        for (frags) |f| pw = @max(pw, f.x1);
+        for (frags) |f| {
+            if (f.table >= 0 or f.text.len == 0) continue;
+            if (f.x1 - f.x0 < 0.18 * pw or wordCount(f.text) < 5) continue;
+            var hit = false;
+            for (cls.items) |*c| {
+                if (@abs(c.x0 - f.x0) <= 2) {
+                    c.n += 1;
+                    c.maxx1 = @max(c.maxx1, f.x1);
+                    c.miny = @min(c.miny, f.y0);
+                    c.maxy = @max(c.maxy, f.y1);
+                    hit = true;
+                }
+            }
+            if (!hit) try cls.append(a, .{ .x0 = f.x0, .n = 1, .maxx1 = f.x1, .miny = f.y0, .maxy = f.y1 });
+        }
+        var ai: ?usize = null;
+        for (cls.items, 0..) |c, k| {
+            if (c.n >= 8 and (ai == null or c.x0 < cls.items[ai.?].x0)) ai = k;
+        }
+        if (ai) |ak| {
+            const A = cls.items[ak];
+            for (cls.items) |B| {
+                if (B.n < 8 or B.x0 < A.maxx1 + 6 or B.x0 - A.x0 < 0.25 * pw) continue;
+                const gx = (A.maxx1 + B.x0) / 2;
+                const top = @min(A.miny, B.miny);
+                const bot = @max(A.maxy, B.maxy);
+                // (the two columns run side by side down the page: their lines overlap over most of their length --
+                //  a short column of news beside a long one with a table under it is not a two-column page)
+                if ((@min(A.maxy, B.maxy) - @max(A.miny, B.miny)) < 0.45 * (bot - top)) continue;
+                var ya: f32 = 0;
+                var yb: f32 = 1e9;
+                var inside = false;
+                for (frags) |f| {
+                    // (the gutter band itself is empty: a cell standing in it belongs to a table across both columns)
+                    if (f.table >= 0 or f.text.len == 0 or !(f.x1 > A.maxx1 + 1 and f.x0 < B.x0 - 1)) continue;
+                    if (f.y1 <= top + 0.5) ya = @max(ya, f.y1) else if (f.y0 >= bot - 0.5) yb = @min(yb, f.y0) else inside = true;
+                }
+                if (!inside) {
+                    try seps.append(a, .{ .x0 = gx, .x1 = gx, .y0 = ya, .y1 = yb });
+                    break;
+                }
+            }
+        }
+    }
     if (seps.items.len == 0) return findAlignedTablesIn(a, frags, rules, -1e9, 1e9, tables);
     const held = std.math.maxInt(i32) - 1;
     const inBand = struct {
@@ -4281,6 +4333,7 @@ fn findAlignedTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.Ar
     try findAlignedTablesIn(a, frags, rules, -1e9, 1e9, tables);
     for (seps.items, 0..) |r, si| {
         const x = (r.x0 + r.x1) / 2;
+        const n0 = tables.items.len;
         for ([_]bool{ true, false }) |left_side| {
             // (only that side's text beside the rule: everything else free is held out of this reading)
             const out_held = std.math.maxInt(i32) - 2;
@@ -4296,6 +4349,31 @@ fn findAlignedTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.Ar
             for (frags) |*f| {
                 if (f.table < 0 and inBand(seps.items, f.*) != null) f.table = held;
                 if (f.table < 0 or f.table == out_held) f.table = -1;
+            }
+        }
+        // a gutter that cut ONE table in two: the halves are the same rows (same top, same foot, as many rows), so the
+        // gutter fell between two of its columns -- the text of both is read again as one
+        if (si >= gutter_start and tables.items.len == n0 + 2) {
+            const t1 = tables.items[n0];
+            const t2 = tables.items[n0 + 1];
+            if (@abs(t1.y0 - t2.y0) < 2 and @abs(t1.y1 - t2.y1) < 2 and t1.rows.len == t2.rows.len) {
+                var rel: std.ArrayList(u32) = .empty;
+                for (frags, 0..) |*f, fk| {
+                    if (f.table == @as(i32, @intCast(n0)) or f.table == @as(i32, @intCast(n0 + 1))) {
+                        f.table = -1;
+                        try rel.append(a, @intCast(fk));
+                    }
+                }
+                tables.items[n0].rows = &.{};
+                tables.items[n0 + 1].rows = &.{};
+                const out_held2 = std.math.maxInt(i32) - 3;
+                for (frags, 0..) |*f, fk| {
+                    if (f.table < 0 and std.mem.indexOfScalar(u32, rel.items, @intCast(fk)) == null) f.table = out_held2;
+                }
+                try findAlignedTablesIn(a, frags, rules, -1e9, 1e9, tables);
+                for (frags) |*f| {
+                    if (f.table == out_held2) f.table = -1;
+                }
             }
         }
     }
@@ -4447,6 +4525,9 @@ fn findAlignedTablesIn(a: Allocator, frags: []Frag, rules: []Rule, lane0: f32, l
             const cf = frags[rows.items[e][0]];
             if (cf.base - pf.base > 3.2 * pf.size) break;
             if (@abs(cf.size - pf.size) > 0.05 * pf.size) break;
+            // a key/value panel of two cells a row, then a row of four or more set further off: the next table's header
+            if (e >= r + 3 and rows.items[e].len >= 4 and rows.items[e - 1].len == 2 and rows.items[e - 2].len == 2 and rows.items[e - 3].len == 2 and
+                pf.base - frags[rows.items[e - 2][0]].base >= 1.2 * pf.size and cf.base - pf.base > 1.3 * (pf.base - frags[rows.items[e - 2][0]].base)) break;
             if (rows.items[e].len >= 2) continue;
             // (a wrapped one-cell line in general was tried as part of the run: it pulled prose into tables -- off;
             //  but the second line of a top-aligned cell is in: one line under its row, at the left edge of one of
@@ -4496,11 +4577,12 @@ fn findAlignedTablesIn(a: Allocator, frags: []Frag, rules: []Rule, lane0: f32, l
         // the cells must be short
         var nf: usize = 0;
         var short: usize = 0;
+        const short_words: usize = 3;
         for (run) |row| {
             if (row.len < 2) continue;
             for (row) |k| {
                 nf += 1;
-                if (wordCount(frags[k].text) <= 3) short += 1; // (five words was tried: it let short prose in)
+                if (wordCount(frags[k].text) <= short_words) short += 1; // (five words was tried: it let short prose in)
             }
         }
         // a key/value table: every row exactly a short label (four words or fewer) and its value (fifteen or
@@ -4554,7 +4636,11 @@ fn findAlignedTablesIn(a: Allocator, frags: []Frag, rules: []Rule, lane0: f32, l
             for (run) |row| {
                 if (row.len < 2) continue;
                 if (row.len != 2) two_col = false;
-                words2 += proseWords(frags[row[row.len - 1]].text);
+                // (a script written without spaces: a word is about three characters)
+                const lt = frags[row[row.len - 1]].text;
+                var pwn = proseWords(lt);
+                if (isNoSpaceCp(firstCp(lt))) pwn = @max(pwn, (std.unicode.utf8CountCodepoints(lt) catch 0) / 3);
+                words2 += pwn;
             }
             for (run) |row| {
                 if (row.len < 2 or !two_col) continue;
@@ -5763,7 +5849,7 @@ fn otherListMarker(t: []const u8) ?usize {
         if (nd > 0 and (cp == 0xFF0E or cp == 0x3001 or cp == 0xFF09)) ok = true;
         if (nd == 0 and (cjk_num or kana)) {
             const nx = it.nextCodepoint() orelse return null;
-            if (nx == 0x3001) ok = true;
+            if (nx == 0x3001 or nx == 0xFF0E) ok = true;
         }
         if (ok) {
             var e = it.i;
