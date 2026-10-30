@@ -25,6 +25,9 @@ $aStzOcrCache = []
 # what the platform engine said of its last call (its summary line), for Content() and Show()
 $cStzOcrLastSummary = ""
 
+# what the model's last page cost, as the engine reported it: [ boxes, ms detect, ms classify, ms recognise, ms total ]
+$aStzOcrModelLastStats = []
+
 # Declares the :ocr faculty: an image in (a path, a list of page paths, or a record [ :pages, :lang ]), a text out.
 #
 # Its floor is the platform's OCR engine with right-to-left lines reordered; when paGolden is given and the
@@ -38,6 +41,13 @@ func StzOcrDeclare(paGolden)
 	_o_ = StzFacultyQ(:ocr)
 	_o_.SetInputTypeQ(:image).SetOutputTypeQ(:text).SetParamsQ([ :lang = "" ]).
 	    SetFloorQ("platform", "_StzOcrFloor").SetGoldenCheckerQ("contains").SetGoldenVersionQ("v1")
+	# the model: PP-OCRv6 small on the engine, installed when its graphs are in the models directory; it answers
+	# instead of the floor only once the registry measured it strictly better on the golden set
+	if len(StzFind("ppocr-v6-small", _o_.ImplementationIds())) = 0
+		_o_.AddImplementation([ :id = "ppocr-v6-small", :kind = "graph", :fn = "_StzOcrModel", :needle = "ocr/ppocr_rec.gguf",
+				       :licence = "apache-2.0", :memory = 600,
+				       :languages = [ "fr", "en", "de", "es", "it", "pt", "nl", "zh" ] ])
+	ok
 	if isList(paGolden) and len(_o_.Goldens()) = 0
 		_nG_ = len(paGolden)
 		for _i_ = 1 to _nG_
@@ -102,6 +112,75 @@ func _StzOcrFloor(pImage, paParams)
 		next
 	next
 	return _cText_
+
+#-------------------------------------------#
+#  THE MODEL: PP-OCRv6 small on the engine  #
+#-------------------------------------------#
+
+# where the three converted graphs live (engine/tools/onnx_to_gguf.py writes them; the files are not in git)
+func StzOcrModelDir()
+	return StzModelsDir() + "/ocr"
+
+# The model implementation of :ocr: the PP-OCRv6 small detector, angle classifier and recogniser, run by the
+# engine on its own ggml (engine/src/ocr_pipeline.zig). Each page's lines are read in reading order and joined
+# by spaces, pages in order. Its dictionary is Latin, Greek, kana and CJK: a right-to-left or Cyrillic language
+# is refused, naming the recogniser that is missing, rather than read into letters it does not have.
+func _StzOcrModel(pImage, paParams)
+	_aPages_ = _StzOcrPagesOf(pImage)
+	_cLang_ = lower(_StzOcrLangOf(pImage, paParams))
+	if StzOcrLanguageIsRtl(_cLang_) or left(_cLang_, 2) = "ru" or left(_cLang_, 2) = "uk" or left(_cLang_, 2) = "bg"
+		stzraise("the :ocr model (PP-OCRv6 small) has no letters for '" + _cLang_ + "': its dictionary is Latin, Greek, kana and CJK; the recogniser for that script is not installed")
+	ok
+	_cText_ = ""
+	_nP_ = len(_aPages_)
+	for _i_ = 1 to _nP_
+		_aL_ = StzOcrModelLines(_aPages_[_i_])
+		_nL_ = len(_aL_)
+		for _j_ = 1 to _nL_
+			if _cText_ != "" _cText_ += " " ok
+			_cText_ += _aL_[_j_][:text]
+		next
+	next
+	return _cText_
+
+# The lines the model reads on one image, in reading order, each [ :text, :score, :box = [x0, y0, x1, y1] ] in
+# the file's pixels, cached per path (a golden set asks the same page once per sentence).
+#
+#   pcPath     the image file (PNG, JPEG, BMP)
+#   returns    a list of line records
+#   warning    raises, naming the cause, when the graphs are not installed or the image cannot be decoded
+func StzOcrModelLines(pcPath)
+	if NOT fexists(pcPath)
+		stzraise("StzOcr: the image '" + pcPath + "' does not exist")
+	ok
+	_cKey_ = "model|" + _StzOcrCacheKey(pcPath, "")
+	_nC_ = len($aStzOcrCache)
+	for _i_ = 1 to _nC_
+		if $aStzOcrCache[_i_][1] = _cKey_ return $aStzOcrCache[_i_][2] ok
+	next
+	if NOT fexists(StzOcrModelDir() + "/ppocr_rec.gguf")
+		stzraise("the :ocr model is not installed: no " + StzOcrModelDir() + "/ppocr_rec.gguf (convert it with engine/tools/onnx_to_gguf.py)")
+	ok
+	_aRows_ = StzEngineNeuralOcrRead(StzOcrModelDir(), pcPath, 4)
+	if len(_aRows_) = 0
+		_cErr_ = StzEngineNeuralOcrGraphError()
+		if _cErr_ != "" stzraise("the :ocr model could not read '" + pcPath + "': " + _cErr_) ok
+	ok
+	_aLines_ = []
+	_nR_ = len(_aRows_)
+	for _i_ = 1 to _nR_
+		add(_aLines_, [ :text = _aRows_[_i_][1], :score = _aRows_[_i_][2],
+				:box = [ _aRows_[_i_][3], _aRows_[_i_][4], _aRows_[_i_][5], _aRows_[_i_][6] ] ])
+	next
+	$aStzOcrModelLastStats = StzEngineNeuralOcrStats()
+	add($aStzOcrCache, [ _cKey_, _aLines_ ])
+	return _aLines_
+
+# what the model's last read cost: [ :boxes, :detect, :classify, :recognise, :total ] (ms), [ ] before any read
+func StzOcrModelLastStats()
+	if len($aStzOcrModelLastStats) < 5 return [] ok
+	_a_ = $aStzOcrModelLastStats
+	return [ :boxes = _a_[1], :detect = _a_[2], :classify = _a_[3], :recognise = _a_[4], :total = _a_[5] ]
 
 func _StzOcrPagesOf(pImage)
 	if isString(pImage) return [ pImage ] ok

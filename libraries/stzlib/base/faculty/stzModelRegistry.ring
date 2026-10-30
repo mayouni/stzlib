@@ -114,6 +114,8 @@ func StzImplementationIsInstalled(paImpl)
 	if paImpl[:kind] = "floor" return 1 ok
 	if paImpl[:kind] = "service" return 1 ok       # reachability is the service's own concern; it is never implicit
 	if paImpl[:needle] = "" return 1 ok            # nothing to install: the implementation carries its own code or weights
+	# a graph names its weights file by its path under the models directory (the engine loads it, not the slot)
+	if paImpl[:kind] = "graph" return fexists(StzModelsDir() + "/" + paImpl[:needle]) ok
 	return StzModelFileFor(paImpl[:needle]) != ""
 
 # The engine has ONE model slot: making a model resident is a load-swap, and its cost is MEASURED and kept
@@ -216,7 +218,11 @@ func StzResolveFaculty(pReq, paPins)
 			loop
 		ok
 		if StzImplementationIsInstalled(_a_) = 0
-			add(_aRej_, [ _a_[:id], "not installed (no GGUF whose name contains '" + _a_[:needle] + "')" ])
+			if _a_[:kind] = "graph"
+				add(_aRej_, [ _a_[:id], "not installed (no file " + _a_[:needle] + " in the models directory)" ])
+			else
+				add(_aRej_, [ _a_[:id], "not installed (no GGUF whose name contains '" + _a_[:needle] + "')" ])
+			ok
 			loop
 		ok
 		if _aReq_[:licence] = "permissive" and len(StzFind(lower(_a_[:licence]), [ "apache-2.0", "mit", "bsd-3-clause", "bsd-2-clause", "isc", "n/a", "cc0-1.0" ])) = 0

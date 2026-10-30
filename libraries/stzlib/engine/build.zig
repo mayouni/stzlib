@@ -121,7 +121,7 @@ const base_domains = [_]Domain{
     // Modern/neural tier: vendored ggml (CPU-only) for runtime GGUF inference.
     // needs_wgpu: the forward pass routes big matmuls through the wgpu plane
     // (neural_gpu.zig imports gpu.zig -- headers only, runtime LoadLibrary).
-    .{ .name = "stz_neural", .entry = "src/stz_neural_entry.zig", .needs_ring = true, .needs_ggml = true, .needs_wgpu = true },
+    .{ .name = "stz_neural", .entry = "src/stz_neural_entry.zig", .needs_ring = true, .needs_ggml = true, .needs_wgpu = true, .needs_stb = true }, // stb: the OCR pipeline decodes its page images (O3b)
     // GPU plane lifecycle (G1). Headers only: wgpu_native.dll is loaded at
     // RUNTIME (LoadLibrary in gpu.zig), never linked, so this DLL loads on
     // GPU-less machines and degrades to counted fallback.

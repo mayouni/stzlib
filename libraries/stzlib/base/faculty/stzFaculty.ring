@@ -333,8 +333,9 @@ func _StzImplRecord(paSpec)
 		_a_[paSpec[_i_][1]] = paSpec[_i_][2]
 	next
 	_a_[:kind] = lower(_a_[:kind])
-	if len(StzFind(_a_[:kind], [ "floor", "model", "dlm", "service" ])) = 0
-		stzraise("An implementation's :kind is floor, model, dlm or service -- not '" + _a_[:kind] + "'.")
+	# graph: a network the engine runs itself from its own weights file (the OCR graphs), never the generative slot
+	if len(StzFind(_a_[:kind], [ "floor", "model", "dlm", "graph", "service" ])) = 0
+		stzraise("An implementation's :kind is floor, model, dlm, graph or service -- not '" + _a_[:kind] + "'.")
 	ok
 	return _a_
 
@@ -599,7 +600,7 @@ class stzFaculty from stzObject
 	#              model: the answer shape is read from the code (the :needle that names a model
 	#              file, and its loading, were never run)
 	#   see        SetFloor, Implementations, RunWith
-	#@ aka  A model-backed (or service) implementation. paSpec: [ :id, :kind (model|dlm|service), :fn, :version, :needle (a fragment of the GGUF file name: it is "installed" when such a file is in the models directory), :licence, :memory (MB), :languages, :deterministic ]
+	#@ aka  A model-backed (or service) implementation. paSpec: [ :id, :kind (model|dlm|graph|service), :fn, :version, :needle (a fragment of the GGUF file name: it is "installed" when such a file is in the models directory; for a graph, the weights file's path under the models directory), :licence, :memory (MB), :languages, :deterministic ]
 	def AddImplementation(paSpec)
 		_aR_ = _StzImplRecord(paSpec)
 		if _aR_[:kind] = "floor"

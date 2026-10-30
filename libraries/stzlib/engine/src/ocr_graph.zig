@@ -17,7 +17,7 @@
 //! by base/test/ocr/ocr_model_parity_narrated.ring), before any OCR text is read through it.
 
 const std = @import("std");
-const c = @cImport({
+pub const c = @cImport({
     @cInclude("ggml.h");
     @cInclude("ggml-cpu.h");
     @cInclude("ggml-alloc.h");
@@ -32,6 +32,185 @@ const MAX_NODES: usize = 16384;
 // STZ_OCR_TRACE=1 in the environment prints each op as the graph is built and each phase of the run (stderr)
 fn tracing() bool {
     return std.process.hasNonEmptyEnvVarConstant("STZ_OCR_TRACE");
+}
+
+// STZ_OCR_PROFILE=1 computes the graph ONE NODE AT A TIME and prints, per ggml op, its count and its time
+// (stderr), then the slowest nodes with their shapes. The sum is a little above a normal run (each node
+// starts and joins the thread pool), so read the SHARES, not the total.
+fn profiling() bool {
+    return std.process.hasNonEmptyEnvVarConstant("STZ_OCR_PROFILE");
+}
+
+// ggml's struct ggml_cgraph (ggml-impl.h), which ggml.h keeps opaque: a one-node view of the graph is built
+// the way ggml_graph_view builds it
+const HashSet = extern struct { size: usize, used: ?*anyopaque, keys: ?*anyopaque };
+const CGraph = extern struct {
+    size: c_int,
+    n_nodes: c_int,
+    n_leafs: c_int,
+    nodes: [*]*c.ggml_tensor,
+    grads: ?*anyopaque,
+    grad_accs: ?*anyopaque,
+    leafs: ?*anyopaque,
+    use_counts: ?*i32,
+    visited_hash_set: HashSet,
+    order: c_int,
+    uid: u64,
+};
+
+// how many of a float tensor's values are subnormal (a value so small the CPU computes with it in microcode)
+fn subnormals(t: *c.ggml_tensor) usize {
+    if (t.type != c.GGML_TYPE_F32 or t.data == null or !c.ggml_is_contiguous(t)) return 0;
+    const n: usize = @intCast(c.ggml_nelements(t));
+    const d: [*]const u32 = @ptrCast(@alignCast(t.data));
+    var k: usize = 0;
+    for (0..n) |i| {
+        // subnormal, or so small (below 2^-100) that a product with a weight lands in the subnormal range
+        const e = (d[i] >> 23) & 0xff;
+        if (e < 27 and (d[i] & 0x7fffffff) != 0) k += 1;
+    }
+    return k;
+}
+
+// the process's page-fault count (Windows; 0 elsewhere), so a node's cold-memory cost can be named
+const PMC = extern struct {
+    cb: u32,
+    PageFaultCount: u32,
+    PeakWorkingSetSize: usize,
+    WorkingSetSize: usize,
+    QuotaPeakPagedPoolUsage: usize,
+    QuotaPagedPoolUsage: usize,
+    QuotaPeakNonPagedPoolUsage: usize,
+    QuotaNonPagedPoolUsage: usize,
+    PagefileUsage: usize,
+    PeakPagefileUsage: usize,
+};
+extern "kernel32" fn K32GetProcessMemoryInfo(h: ?*anyopaque, pmc: *PMC, cb: u32) callconv(.winapi) c_int;
+extern "kernel32" fn GetCurrentProcess() callconv(.winapi) ?*anyopaque;
+extern "kernel32" fn GetProcessWorkingSetSizeEx(h: ?*anyopaque, mn: *usize, mx: *usize, flags: *u32) callconv(.winapi) c_int;
+extern "kernel32" fn IsProcessInJob(h: ?*anyopaque, job: ?*anyopaque, result: *c_int) callconv(.winapi) c_int;
+fn printMemory(tag: []const u8) void {
+    if (@import("builtin").os.tag != .windows) return;
+    var m: PMC = undefined;
+    m.cb = @sizeOf(PMC);
+    _ = K32GetProcessMemoryInfo(GetCurrentProcess(), &m, @sizeOf(PMC));
+    var mn: usize = 0;
+    var mx: usize = 0;
+    var fl: u32 = 0;
+    _ = GetProcessWorkingSetSizeEx(GetCurrentProcess(), &mn, &mx, &fl);
+    var injob: c_int = 0;
+    _ = IsProcessInJob(GetCurrentProcess(), null, &injob);
+    std.debug.print("[ocr memory] {s}: working set {d} MB (peak {d} MB), private {d} MB, faults {d}; ws limits {d}..{d} MB flags {d}; in a job {d}" ++ "\n", .{ tag, m.WorkingSetSize >> 20, m.PeakWorkingSetSize >> 20, m.PagefileUsage >> 20, m.PageFaultCount, mn >> 20, mx >> 20, fl, injob });
+}
+
+fn pageFaults() u64 {
+    if (@import("builtin").os.tag != .windows) return 0;
+    var m: PMC = undefined;
+    m.cb = @sizeOf(PMC);
+    if (K32GetProcessMemoryInfo(GetCurrentProcess(), &m, @sizeOf(PMC)) == 0) return 0;
+    return m.PageFaultCount;
+}
+
+fn profileCompute(graph: *c.ggml_cgraph, plan: *c.ggml_cplan) c.ggml_status {
+    const g: *CGraph = @ptrCast(@alignCast(graph));
+    const n: usize = @intCast(g.n_nodes);
+    const Acc = struct { name: []const u8, n: usize, ns: u64 };
+    var accs: [96]Acc = undefined;
+    var n_acc: usize = 0;
+    const Slow = struct { i: usize, ns: u64 };
+    var slow: [12]Slow = [_]Slow{.{ .i = 0, .ns = 0 }} ** 12;
+    var total: u64 = 0;
+    for (0..n) |i| {
+        var v = g.*;
+        v.size = 0;
+        v.n_nodes = 1;
+        v.n_leafs = 0;
+        v.nodes = g.nodes + i;
+        v.grads = null;
+        v.grad_accs = null;
+        v.leafs = null;
+        v.uid = 0;
+        const f0 = pageFaults();
+        const t0 = std.time.nanoTimestamp();
+        const st = c.ggml_graph_compute(@ptrCast(&v), plan);
+        const dt: u64 = @intCast(std.time.nanoTimestamp() - t0);
+        const df = pageFaults() - f0;
+        if (dt > 100_000_000 or df > 1000) std.debug.print("[ocr profile] node {d} {s}: {d:.1} ms, {d} page faults" ++ "\n", .{ i, std.mem.span(c.ggml_op_desc(g.nodes[i])), @as(f64, @floatFromInt(dt)) / 1e6, df });
+        if (st != c.GGML_STATUS_SUCCESS) return st;
+        total += dt;
+        const node = g.nodes[i];
+        const name = std.mem.span(c.ggml_op_desc(node));
+        if (node.op == c.GGML_OP_MUL_MAT and std.process.hasNonEmptyEnvVarConstant("STZ_OCR_PROFILE_MM")) {
+            const x: *c.ggml_tensor = node.src[0];
+            const y: *c.ggml_tensor = node.src[1];
+            const flop = 2.0 * @as(f64, @floatFromInt(x.ne[0])) * @as(f64, @floatFromInt(x.ne[1])) * @as(f64, @floatFromInt(y.ne[1] * y.ne[2] * y.ne[3]));
+            std.debug.print("[ocr mm] node {d} K={d} M={d} N={d} {d:.2} ms {d:.2} GFLOP/s cont0={} cont1={}\n", .{ i, x.ne[0], x.ne[1], y.ne[1] * y.ne[2] * y.ne[3], @as(f64, @floatFromInt(dt)) / 1e6, flop / @as(f64, @floatFromInt(dt)), c.ggml_is_contiguous(x), c.ggml_is_contiguous(y) });
+        }
+        var k: usize = 0;
+        while (k < n_acc and !std.mem.eql(u8, accs[k].name, name)) : (k += 1) {}
+        if (k == n_acc and n_acc < accs.len) {
+            accs[k] = .{ .name = name, .n = 0, .ns = 0 };
+            n_acc += 1;
+        }
+        if (k < n_acc) {
+            accs[k].n += 1;
+            accs[k].ns += dt;
+        }
+        var m: usize = 0;
+        for (slow, 0..) |s, j| {
+            if (s.ns < slow[m].ns) m = j;
+        }
+        if (dt > slow[m].ns) slow[m] = .{ .i = i, .ns = dt };
+    }
+    std.sort.insertion(Acc, accs[0..n_acc], {}, struct {
+        fn gt(_: void, a: Acc, b: Acc) bool {
+            return a.ns > b.ns;
+        }
+    }.gt);
+    std.debug.print("[ocr profile] {d} nodes, {d:.1} ms\n", .{ n, @as(f64, @floatFromInt(total)) / 1e6 });
+    for (accs[0..n_acc]) |a| {
+        std.debug.print("[ocr profile] {s:<18} x{d:<4} {d:>9.1} ms  {d:>5.1}%\n", .{ a.name, a.n, @as(f64, @floatFromInt(a.ns)) / 1e6, @as(f64, @floatFromInt(a.ns)) * 100.0 / @as(f64, @floatFromInt(total)) });
+    }
+    // the slowest node again: warm (same plan), then on one thread -- separates a cold-memory cost from the kernel's
+    {
+        var m: usize = 0;
+        for (slow, 0..) |sl, j| {
+            if (sl.ns > slow[m].ns) m = j;
+        }
+        var v = g.*;
+        v.size = 0;
+        v.n_nodes = 1;
+        v.n_leafs = 0;
+        v.nodes = g.nodes + slow[m].i;
+        v.grads = null;
+        v.grad_accs = null;
+        v.leafs = null;
+        v.uid = 0;
+        const t0 = std.time.nanoTimestamp();
+        _ = c.ggml_graph_compute(@ptrCast(&v), plan);
+        const t1 = std.time.nanoTimestamp();
+        var p1 = plan.*;
+        p1.n_threads = 1;
+        _ = c.ggml_graph_compute(@ptrCast(&v), &p1);
+        const t2 = std.time.nanoTimestamp();
+        std.debug.print("[ocr profile] node {d} again: {d:.1} ms on {d} threads, {d:.1} ms on 1\n", .{ slow[m].i, @as(f64, @floatFromInt(t1 - t0)) / 1e6, plan.n_threads, @as(f64, @floatFromInt(t2 - t1)) / 1e6 });
+    }
+    std.sort.insertion(Slow, &slow, {}, struct {
+        fn gt(_: void, a: Slow, b: Slow) bool {
+            return a.ns > b.ns;
+        }
+    }.gt);
+    for (slow) |s| {
+        if (s.ns == 0) continue;
+        const t = g.nodes[s.i];
+        const s0: ?*c.ggml_tensor = t.src[0];
+        const s1: ?*c.ggml_tensor = t.src[1];
+        std.debug.print("[ocr profile]   node {d} {s} {d:.1} ms  out [{d},{d},{d},{d}]", .{ s.i, std.mem.span(c.ggml_op_desc(t)), @as(f64, @floatFromInt(s.ns)) / 1e6, t.ne[0], t.ne[1], t.ne[2], t.ne[3] });
+        if (s0) |x| std.debug.print("  src0 [{d},{d},{d},{d}] {s} tiny {d}", .{ x.ne[0], x.ne[1], x.ne[2], x.ne[3], c.ggml_type_name(x.type), subnormals(x) });
+        if (s1) |x| std.debug.print("  src1 [{d},{d},{d},{d}] {s}", .{ x.ne[0], x.ne[1], x.ne[2], x.ne[3], c.ggml_type_name(x.type) });
+        std.debug.print("\n", .{});
+    }
+    return c.GGML_STATUS_SUCCESS;
 }
 
 pub const Model = struct {
@@ -54,7 +233,11 @@ pub const Model = struct {
 var last_error: [256]u8 = undefined;
 var last_error_len: usize = 0;
 
-fn setError(comptime fmt: []const u8, args: anytype) void {
+pub fn clearError() void {
+    last_error_len = 0;
+}
+
+pub fn setError(comptime fmt: []const u8, args: anytype) void {
     const s = std.fmt.bufPrint(&last_error, fmt, args) catch &last_error;
     last_error_len = s.len;
 }
@@ -237,6 +420,18 @@ fn reshapeDims(b: *Builder, l: *const Line, x: *c.ggml_tensor, out: *[4]i64) !us
     return n;
 }
 
+const IM2COL_DIRECT: i64 = 64 << 20;
+
+fn useDirect(im2col_bytes: i64) bool {
+    var buf: [16]u8 = undefined;
+    var fba = std.heap.FixedBufferAllocator.init(&buf);
+    if (std.process.getEnvVarOwned(fba.allocator(), "STZ_OCR_CONV")) |v| {
+        if (std.mem.eql(u8, v, "direct")) return true;
+        if (std.mem.eql(u8, v, "im2col")) return false;
+    } else |_| {}
+    return im2col_bytes > IM2COL_DIRECT;
+}
+
 fn build(b: *Builder, s: []const u8) !void {
     const ctx = b.ctx;
     const l = try parse(s);
@@ -251,7 +446,19 @@ fn build(b: *Builder, s: []const u8) !void {
         const p1: c_int = @intCast(try l.int("p", 1));
         const dw = try l.int("dw", 0);
         // (the im2col depthwise path wants an F16 kernel; the direct one reads F32 and a contiguous WHCN input)
-        r = if (dw == 1) c.ggml_conv_2d_dw_direct(ctx, w, contig(ctx, x), s0, s1, p0, p1, 1, 1) else c.ggml_conv_2d(ctx, w, x, s0, s1, p0, p1, 1, 1);
+        // A full convolution is im2col then one matrix product, and the im2col is MATERIALISED: OW x OH x K
+        // floats. On a page that is hundreds of megabytes for one layer (the detector's head: 474 MB), and on
+        // this machine reading it back cost 380,000 page faults and 4 s where a warm read is 48 ms. The direct
+        // form runs the same im2col in tiles inside a 16 MB work buffer; it is used above IM2COL_DIRECT bytes.
+        // STZ_OCR_CONV=im2col or =direct forces one form everywhere (for measuring).
+        if (dw == 1) {
+            r = c.ggml_conv_2d_dw_direct(ctx, w, contig(ctx, x), s0, s1, p0, p1, 1, 1);
+        } else {
+            const ow = @divTrunc(x.ne[0] + 2 * p0 - w.ne[0], s0) + 1;
+            const oh = @divTrunc(x.ne[1] + 2 * p1 - w.ne[1], s1) + 1;
+            const bytes = ow * oh * w.ne[0] * w.ne[1] * w.ne[2] * 4;
+            r = if (useDirect(bytes)) c.ggml_conv_2d_direct(ctx, w, x, s0, s1, p0, p1, 1, 1) else c.ggml_conv_2d(ctx, w, x, s0, s1, p0, p1, 1, 1);
+        }
     } else if (is(op, "convt")) {
         const w = try b.get(l.inputs[1]);
         r = c.ggml_conv_transpose_2d_p0(ctx, w, x, @intCast(try l.int("s", 0)));
@@ -396,6 +603,10 @@ pub fn run(m: *Model, input: []const f32, dims: [4]i64, n_threads: c_int) !Outpu
         return error.OutOfMemory;
     }
     if (tr) std.debug.print("[ocr] allocated\n", .{});
+    if (profiling()) {
+        std.debug.print("[ocr memory] graph buffer {d} MB" ++ "\n", .{c.ggml_gallocr_get_buffer_size(galloc, 0) >> 20});
+        printMemory("before compute");
+    }
     // (the plan + compute pair, as the rest of the tier computes: the backend object's C++ registry is not
     // something this DLL's static constructors set up)
     var plan = c.ggml_graph_plan(graph, n_threads, null);
@@ -406,7 +617,7 @@ pub fn run(m: *Model, input: []const f32, dims: [4]i64, n_threads: c_int) !Outpu
         plan.work_data = wbuf.?.ptr;
     }
     if (tr) std.debug.print("[ocr] computing on {d} threads, work {d} bytes\n", .{ n_threads, plan.work_size });
-    const st = c.ggml_graph_compute(graph, &plan);
+    const st = if (profiling()) profileCompute(graph, &plan) else c.ggml_graph_compute(graph, &plan);
     if (tr) std.debug.print("[ocr] computed, status {d}\n", .{st});
     if (st != c.GGML_STATUS_SUCCESS) {
         setError("the graph did not compute (status {d})", .{st});

@@ -62,6 +62,7 @@ class Converter:
     def __init__(self, path):
         m = onnx.load(path)
         g = m.graph
+        self.meta = {p.key: p.value for p in m.metadata_props}
         self.C = {t.name: numpy_helper.to_array(t) for t in g.initializer}
         self.alias = {}
         self.nodes = []
@@ -82,6 +83,7 @@ class Converter:
         self.shape = {}  # onnx name -> shape-domain list (ints or ('dim', onnxname, j))
         self.prog = []
         self.consts = []  # (pname, array)
+        self.flushed = 0  # subnormal weights set to zero (add_const)
         self.nt = 0
         self.skip = set()
         self.users = {}
@@ -121,7 +123,13 @@ class Converter:
         raise Refused("tensor %s is not produced by anything the converter handled" % n)
 
     def add_const(self, onnx_name, arr):
-        arr = np.ascontiguousarray(arr, dtype=np.float32)
+        arr = np.array(arr, dtype=np.float32)  # a copy: the flush below must not write into the ONNX initialiser
+        # SUBNORMAL WEIGHTS ARE FLUSHED TO ZERO. A float32 below 1.2e-38 is multiplied in microcode on x86, a
+        # hundred times slower than a normal one: two 1x1 convolutions of PP-OCRv6's detector hold 24% and 63%
+        # subnormal weights, and they alone cost seconds per page. Their contribution is below 1e-38 per term.
+        sub = (arr != 0) & (np.abs(arr) < np.finfo(np.float32).tiny)
+        self.flushed += int(sub.sum())
+        arr[sub] = 0.0
         p = "c%d" % len(self.consts)
         self.consts.append((p, arr))
         if onnx_name is not None:
@@ -566,6 +574,10 @@ class Converter:
             kv_u32("stz.ocr.output_rank", out_rank),
             kv_strarr("stz.ocr.program", self.prog),
         ]
+        if kind == "rec" and "character" in self.meta:
+            # the CTC classes in output order: the blank at 0, the dictionary, the space last (RapidOCR's CTCLabelDecode)
+            chars = ["blank"] + self.meta["character"].splitlines() + [" "]
+            kvs.append(kv_strarr("stz.ocr.character", chars))
         infos = b""
         data = b""
         for pn, arr in self.consts:
@@ -606,6 +618,7 @@ def main():
         ops[op] = ops.get(op, 0) + 1
     print("%s -> %s: %d ops, %d constants, %d params, %d bytes, output %s rank %d" % (src, dst, len(cv.prog), len(cv.consts), params, n, out_name, out_rank))
     print("  ops:", ", ".join("%s %d" % kv for kv in sorted(ops.items())))
+    print("  subnormal weights flushed to zero: %d" % cv.flushed)
 
 
 if __name__ == "__main__":
