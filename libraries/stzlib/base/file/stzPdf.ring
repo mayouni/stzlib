@@ -301,6 +301,33 @@ class stzPdf from stzObject
 		if _nBest_ = 0 return "" ok
 		return This.SaveImage(_nBest_, sysget("TEMP") + "\stz_pdf_p" + pnPage + "_" + random(999999))
 
+	# How many of an image's pixels make one PRINTED point (1/72 inch): the scale the page marks are found at (a rule
+	# is 28 pt long, a bullet 2.5 to 9 pt). A PDF that sizes its page in real points says it directly (its width
+	# between 400 and 900 points: a sheet of paper). A phone's scan app often sizes the page to the image instead
+	# (one point per pixel: 1660 points wide), and then the paper is read from the image's proportions -- A4 at 1.41,
+	# US Letter at 1.29 -- and the image is taken to span its width. Anything else keeps the PDF's own scale.
+	#
+	#   pnImage    the image's number in PageImages()
+	#   returns    pixels per printed point (150 dpi: 2.083)
+	def ImagePixelsPerPoint(pnImage)
+		_a_ = @aImages[pnImage]
+		_nW_ = _a_[4] - _a_[2]
+		_nPx_ = _a_[6]
+		_nPy_ = _a_[7]
+		if _nW_ <= 0 or _nPx_ <= 0 return 150 / 72 ok
+		if _nW_ >= 400 and _nW_ <= 900 return _nPx_ / _nW_ ok
+		_nR_ = _nPy_ / _nPx_
+		if _nR_ < 1 _nR_ = 1 / _nR_ ok
+		_nShort_ = _nPx_
+		if _nPy_ < _nPx_ _nShort_ = _nPy_ ok
+		_dA_ = _nR_ - 1.414
+		if _dA_ < 0 _dA_ = -_dA_ ok
+		_dL_ = _nR_ - 1.294
+		if _dL_ < 0 _dL_ = -_dL_ ok
+		if _dA_ <= 0.04 return _nShort_ / 595.3 ok
+		if _dL_ <= 0.04 return _nShort_ / 612 ok
+		return _nPx_ / _nW_
+
 	# The number in PageImages() of a page's largest image the engine hands out, 0 when it has none.
 	def PageImageNumber(pnPage)
 		_nBest_ = 0
@@ -365,12 +392,19 @@ class stzPdf from stzObject
 			_nImg_ = This.PageImageNumber(_i_)
 			if _nImg_ = 0 loop ok
 			_cImg_ = This.PageImageFile(_i_)
+			# a scan turned by a quarter of a degree or more is read from a level copy: its lines' boxes stay as tall
+			# as their letters and its ruled lines stay lines (the copy turns about the centre, so the boxes still
+			# land where their text is on the page, within a few points at the corners)
+			_nSkew_ = StzEngineNeuralOcrDeskew(_cImg_, _cImg_ + "_level.bmp", 0.25)
+			if _nSkew_ > -90 and _nSkew_ != 0
+				_cImg_ = _cImg_ + "_level.bmp"
+			else
+				_nSkew_ = 0
+			ok
 			_aL_ = StzOcrLinesWithBoxes(_cImg_, pcLang)
-			@aOcrBy + [ _i_, $cStzOcrLinesBy, ring_len(_aL_) ]
+			@aOcrBy + [ _i_, $cStzOcrLinesBy, ring_len(_aL_), _nSkew_ ]
 			# what the page shows besides its letters (rules, bullets, shadings) and each line's stroke width
-			_nW_ = @aImages[_nImg_][4] - @aImages[_nImg_][2]
-			_nPpt_ = 150 / 72
-			if _nW_ > 0 _nPpt_ = @aImages[_nImg_][6] / _nW_ ok
+			_nPpt_ = This.ImagePixelsPerPoint(_nImg_)
 			_cBoxes_ = ""
 			_nL_ = ring_len(_aL_)
 			for _k_ = 1 to _nL_
@@ -423,8 +457,8 @@ class stzPdf from stzObject
 	def IsReadByOcr()
 		return ring_len(@aOcrBy) > 0
 
-	# Which implementation read each scanned page in the last ReadOcr: [ nPage, cImplementation, nLines ] per page
-	# ("platform" or "ppocr").
+	# Which implementation read each scanned page in the last ReadOcr: [ nPage, cImplementation, nLines, nSkew ] per
+	# page ("platform" or "ppocr"; nSkew the degrees the page was turned level by, 0 when it was level).
 	def OcrPages()
 		return @aOcrBy
 

@@ -655,6 +655,19 @@ fn ring_OcrMarks(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// StzEngineNeuralOcrDeskew(cImage, cOut, nMinDegrees) -> the page's skew in degrees (O4): when it is at least
+// nMinDegrees the image is written turned level to cOut (BMP); 0 when the page is level (nothing written);
+// a number below -90 on failure (StzEngineNeuralOcrGraphError says why)
+fn ring_OcrDeskew(p: *anyopaque) callconv(.c) void {
+    const min_deg: f32 = @floatCast(R.ring_vm_api_getnumber(p, 3));
+    const deg = ocrp.deskew(ocrArg(p, 1), ocrArg(p, 2), min_deg) catch |e| {
+        if (ocrg.lastError().len == 0) ocrg.setError("{s}", .{@errorName(e)});
+        rn(p, -999);
+        return;
+    };
+    rn(p, deg);
+}
+
 fn ring_OcrGraphError(p: *anyopaque) callconv(.c) void {
     const e = ocrg.lastError();
     R.ring_vm_api_retstring2(p, e.ptr, @intCast(e.len));
@@ -668,6 +681,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralocrreadwith", .func = &ring_OcrReadWith },
     .{ .name = "stzengineneuralocrstats", .func = &ring_OcrStats },
     .{ .name = "stzengineneuralocrmarks", .func = &ring_OcrMarks },
+    .{ .name = "stzengineneuralocrdeskew", .func = &ring_OcrDeskew },
     .{ .name = "stzenginegbnfbegin", .func = &ring_GbnfBegin },
     .{ .name = "stzenginegbnffield", .func = &ring_GbnfField },
     .{ .name = "stzenginegbnfcompile", .func = &ring_GbnfCompile },

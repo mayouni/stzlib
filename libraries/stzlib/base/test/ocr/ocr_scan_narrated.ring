@@ -85,6 +85,45 @@ else
 	? "SKIP: A Russian scan reads as a document -- the Cyrillic recogniser is not installed"
 ok
 
+# PHONE SCANS (real-scan robustness): the same pages made to look photographed by _rig/_degrade_scans.py "phone"
+# -- toned, noisy paper; turned half a degree; a shadowed border; camera blur; JPEG at 65; the page sized in pixels
+# as a scan app writes it (one point per pixel, so the printed scale is read from the paper's proportions).
+# Measured 2026-10-31 over 21 degraded twins (7 effects x 3 pages): blocks of the right kind 282 -> 292 with the
+# deskew, the paper-relative thresholds and rules that need paper on both sides. Blur is not yet answered.
+
+if StzOcrPlatformHas("fr-FR")
+	Scenario("A French phone scan is turned level and still reads as a document")
+		o = StzPdfQ($cDir + "phone_z09_p1.pdf")
+		Then("its page is sized in pixels (a scan app's), and the printed scale comes from the paper: A4 at 1241 px is 2.08 px a point", o.ImagePixelsPerPoint(1) > 2.07 and o.ImagePixelsPerPoint(1) < 2.10, 1)
+		o.ReadOcr("fr-FR")
+		nSkew = o.OcrPages()[1][4]
+		? "   turned level by " + nSkew + " degrees; marks " + @@(o.OcrMarks())
+		Then("the half-degree turn is measured", nSkew > -0.6 and nSkew < -0.4, 1)
+		Then("the title is a heading", blockKind(o, "Plaine Mobilité"), "heading")
+		Then("the two timetables are still two tables", countKind(o, "table"), 2)
+		Then("the three notes are still list items", kindWith(o, "list_item", "Les horaires du samedi") + kindWith(o, "list_item", "Le bus s'arrête") + kindWith(o, "list_item", "Les poussettes"), 3)
+		Then("the footer is still the footer", countKind(o, "page_footer") >= 1, 1)
+	EndScenario()
+else
+	? "SKIP: A French phone scan is turned level -- no fr-FR pack on this machine"
+ok
+
+if fexists(StzOcrModelDir() + "/ppocr_rec_cyrillic.gguf")
+	Scenario("A Russian phone scan is turned level and still reads as a document")
+		o = StzPdfQ($cDir + "phone_u06_p1.pdf")
+		o.ReadOcr("ru-RU")
+		nSkew = o.OcrPages()[1][4]
+		? "   turned level by " + nSkew + " degrees"
+		Then("the half-degree turn is measured, the shadowed border kept out of the vote", nSkew > -0.6 and nSkew < -0.4, 1)
+		Then("a section title is a heading", blockKind(o, "2. Подготовка к работе"), "heading")
+		Then("another one too", blockKind(o, "3. Файл конфигурации"), "heading")
+		Then("its lists come back as list items", countKind(o, "list_item") >= 6, 1)
+		Then("the page number is the footer", blockKind(o, "Стр. 1 из 3"), "page_footer")
+	EndScenario()
+else
+	? "SKIP: A Russian phone scan is turned level -- the Cyrillic recogniser is not installed"
+ok
+
 Summary()
 
 # the kind of the first block whose text is pcText, "" when none
@@ -95,6 +134,15 @@ func blockKind(oP, pcText)
 		if aB[i][:text] = pcText return aB[i][:kind] ok
 	next
 	return ""
+
+# 1 when a block of the kind holds the text
+func kindWith(oP, pcKind, pcText)
+	aB = oP.Blocks()
+	nB = len(aB)
+	for i = 1 to nB
+		if aB[i][:kind] = pcKind and StzFindFirst(pcText, aB[i][:text]) > 0 return 1 ok
+	next
+	return 0
 
 func countKind(oP, pcKind)
 	aB = oP.Blocks()

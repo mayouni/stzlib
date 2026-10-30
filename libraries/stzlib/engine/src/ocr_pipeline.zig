@@ -837,11 +837,35 @@ fn rulesAlong(a: std.mem.Allocator, gray: []const u8, w: usize, h: usize, horizo
             // a stroke inside a line of text is a letter's, and one inside a shading is the edge of its letters
             if (inBox(boxes, (m.x0 + m.x1) / 2, (m.y0 + m.y1) / 2, 0)) continue;
             if (inRects(fills, (m.x0 + m.x1) / 2, (m.y0 + m.y1) / 2)) continue;
+            // a rule is a dark line with PAPER on both sides: 3 px beyond it, on each side, at least 80% of its
+            // length is light. The edge of a dark area (a photographed page's shadow, a stamp, a picture) has a
+            // dark side and is no rule: on a real phone scan, 113 such "rules" had a median contrast with their
+            // sides of 4 grey levels (vertical) and -16 (horizontal)
+            if (!flankedByPaper(gray, w, h, horizontal, o, line)) continue;
             try out.append(a, m);
         }
         open.clearRetainingCapacity();
         try open.appendSlice(a, next.items);
     }
+}
+
+fn flankedByPaper(gray: []const u8, w: usize, h: usize, horizontal: bool, o: Seg, line: u8) bool {
+    const n_lines = if (horizontal) h else w;
+    if (o.first < 3 or o.last + 3 >= n_lines) return false; // at the image's edge: nothing to see on one side
+    const before = o.first - 3;
+    const after = o.last + 3;
+    const len = o.e - o.s;
+    const step = @max(1, len / 40);
+    var n: usize = 0;
+    var ok: usize = 0;
+    var k = o.s;
+    while (k < o.e) : (k += step) {
+        const pb = if (horizontal) gray[before * w + k] else gray[k * w + before];
+        const pa = if (horizontal) gray[after * w + k] else gray[k * w + after];
+        n += 1;
+        if (pb >= line and pa >= line) ok += 1;
+    }
+    return n > 0 and ok * 10 >= n * 8;
 }
 
 fn absDiff(x: usize, y: usize) usize {
@@ -983,4 +1007,184 @@ pub fn marksOf(image_path: []const u8, ppt: f32, boxes: []const [4]f32) !Marks {
     }
     res.strokes = strokes;
     return res;
+}
+
+// --------------------------------------------------------------------------------------------- deskew (O4)
+
+// A phone's scan is turned a little: half a degree turns a table's ruled line into a staircase of short runs and
+// a line of text into a box taller than its letters. The skew is the angle at which the page's ink falls into the
+// sharpest rows: for each candidate angle, the ink pixels are projected onto the axis across the lines, and the sum
+// of the squared row counts is largest when the lines are level (the projection-profile method).
+
+// The ink points that vote on the skew: text strokes, sparse in their neighbourhood. A solid dark area -- the
+// shadow or table around a photographed page, which is level with the CAMERA'S frame and not with the page -- is
+// dense and would pull the answer to 0 (measured: a page turned 0.5 degrees with a dark band along its bottom read
+// as level), so a point votes only when at most 60% of the 5x5 sampled points around it are ink.
+fn inkPoints(a: std.mem.Allocator, gray: []const u8, w: usize, h: usize, ink: u8, step: usize) ![][2]f32 {
+    const sw = (w + step - 1) / step;
+    const sh = (h + step - 1) / step;
+    const m = try a.alloc(u8, sw * sh);
+    for (0..sh) |j| {
+        for (0..sw) |i| m[j * sw + i] = @intFromBool(gray[(j * step) * w + i * step] < ink);
+    }
+    // nor does a point near the image's border, where a photographed page has its shadow: the fringe where a
+    // shadow's gradient crosses the ink level is a thin, perfectly level line of points (measured: golden_v33/u06
+    // turned 0.5 degrees with a shadowed bottom read as level until the border stopped voting)
+    const mx = sw / 20;
+    const my = sh / 20;
+    var pts: std.ArrayList([2]f32) = .empty;
+    for (0..sh) |j| {
+        if (j < my or j + my >= sh) continue;
+        for (0..sw) |i| {
+            if (i < mx or i + mx >= sw) continue;
+            if (m[j * sw + i] == 0) continue;
+            var n: u32 = 0;
+            var jj = if (j >= 2) j - 2 else 0;
+            while (jj <= @min(j + 2, sh - 1)) : (jj += 1) {
+                var ii = if (i >= 2) i - 2 else 0;
+                while (ii <= @min(i + 2, sw - 1)) : (ii += 1) n += m[jj * sw + ii];
+            }
+            if (n > 15) continue;
+            try pts.append(a, .{ @floatFromInt(i * step), @floatFromInt(j * step) });
+        }
+    }
+    return pts.toOwnedSlice(a);
+}
+
+fn profileScore(a: std.mem.Allocator, pts: [][2]f32, h: usize, deg: f32) !f64 {
+    const t = @tan(deg * std.math.pi / 180.0);
+    const n_bins = h + 4096;
+    const bins = try a.alloc(u32, n_bins);
+    defer a.free(bins);
+    @memset(bins, 0);
+    for (pts) |p| {
+        // (a bin as wide as the sampling step: with points on every second row, 1-px bins would leave every odd bin
+        // empty at exactly 0 degrees and double its score)
+        const yy = (p[1] - p[0] * t + 2048) / 2;
+        if (yy < 0) continue;
+        const b: usize = @intFromFloat(yy);
+        if (b < n_bins) bins[b] += 1;
+    }
+    var sc: f64 = 0;
+    for (bins) |v| sc += @as(f64, @floatFromInt(v)) * @as(f64, @floatFromInt(v));
+    return sc;
+}
+
+/// The page's skew in degrees (positive: the lines rise to the right in image coordinates' terms of y down,
+/// i.e. a line's y falls as x grows), searched within +-3 degrees to 0.02 degree.
+pub fn skewOf(gray: []const u8, w: usize, h: usize, ink: u8) !f32 {
+    var arena = std.heap.ArenaAllocator.init(gpa);
+    defer arena.deinit();
+    const a = arena.allocator();
+    const pts = try inkPoints(a, gray, w, h, ink, 2);
+    if (pts.len < 200) return 0;
+    var best: f32 = 0;
+    var best_sc: f64 = -1;
+    var d: f32 = -3.0;
+    while (d <= 3.0001) : (d += 0.1) {
+        const sc = try profileScore(a, pts, h, d);
+        if (sc > best_sc) {
+            best_sc = sc;
+            best = d;
+        }
+    }
+    const centre = best;
+    d = centre - 0.1;
+    while (d <= centre + 0.1001) : (d += 0.02) {
+        const sc = try profileScore(a, pts, h, d);
+        if (sc > best_sc) {
+            best_sc = sc;
+            best = d;
+        }
+    }
+    return best;
+}
+
+fn writeBmp(path: []const u8, im: *const Image) !void {
+    const row = (im.w * 3 + 3) & ~@as(usize, 3);
+    const size = 54 + row * im.h;
+    const buf = try gpa.alloc(u8, size);
+    defer gpa.free(buf);
+    @memset(buf, 0);
+    buf[0] = 'B';
+    buf[1] = 'M';
+    std.mem.writeInt(u32, buf[2..6], @intCast(size), .little);
+    std.mem.writeInt(u32, buf[10..14], 54, .little);
+    std.mem.writeInt(u32, buf[14..18], 40, .little);
+    std.mem.writeInt(i32, buf[18..22], @intCast(im.w), .little);
+    std.mem.writeInt(i32, buf[22..26], @intCast(im.h), .little);
+    std.mem.writeInt(u16, buf[26..28], 1, .little);
+    std.mem.writeInt(u16, buf[28..30], 24, .little);
+    std.mem.writeInt(u32, buf[34..38], @intCast(row * im.h), .little);
+    for (0..im.h) |y| {
+        const dst = buf[54 + (im.h - 1 - y) * row ..];
+        for (0..im.w) |x| {
+            const s = im.at(x, y);
+            dst[x * 3] = s[2];
+            dst[x * 3 + 1] = s[1];
+            dst[x * 3 + 2] = s[0];
+        }
+    }
+    const f = try std.fs.cwd().createFile(path, .{});
+    defer f.close();
+    try f.writeAll(buf);
+}
+
+/// Straightens a scanned page: measures its skew and, when it is at least `min_deg`, writes the image turned level
+/// to `out_path` (BMP; the corners are filled with the paper's grey). Returns the skew in degrees (0 when level).
+pub fn deskew(image_path: []const u8, out_path: []const u8, min_deg: f32) !f32 {
+    var im = try loadImage(image_path);
+    defer im.free();
+    const w = im.w;
+    const h = im.h;
+    const gray = try gpa.alloc(u8, w * h);
+    defer gpa.free(gray);
+    for (0..w * h) |i| {
+        const p = im.px.ptr + i * 3;
+        gray[i] = @intFromFloat(@round(0.299 * @as(f32, @floatFromInt(p[0])) + 0.587 * @as(f32, @floatFromInt(p[1])) + 0.114 * @as(f32, @floatFromInt(p[2]))));
+    }
+    const lv = levelsOf(gray);
+    const deg = try skewOf(gray, w, h, lv.ink);
+    if (@abs(deg) < min_deg) return 0;
+    // turn by -deg about the centre: each output pixel samples the input bilinearly
+    const paper: u8 = lv.tint +| 6;
+    var out = try newImage(w, h);
+    defer out.free();
+    const t = -deg * std.math.pi / 180.0;
+    const cs = @cos(t);
+    const sn = @sin(t);
+    const cx = @as(f32, @floatFromInt(w)) / 2;
+    const cy = @as(f32, @floatFromInt(h)) / 2;
+    for (0..h) |y| {
+        for (0..w) |x| {
+            const dx = @as(f32, @floatFromInt(x)) - cx;
+            const dy = @as(f32, @floatFromInt(y)) - cy;
+            // the source of an output pixel: the output rotated back by +deg
+            const sx = cs * dx + sn * dy + cx;
+            const sy = -sn * dx + cs * dy + cy;
+            const o = out.px.ptr + (y * w + x) * 3;
+            if (sx < 0 or sy < 0 or sx > @as(f32, @floatFromInt(w - 1)) or sy > @as(f32, @floatFromInt(h - 1))) {
+                o[0] = paper;
+                o[1] = paper;
+                o[2] = paper;
+                continue;
+            }
+            const x0: usize = @intFromFloat(@floor(sx));
+            const y0: usize = @intFromFloat(@floor(sy));
+            const x1 = @min(x0 + 1, w - 1);
+            const y1 = @min(y0 + 1, h - 1);
+            const fx = sx - @as(f32, @floatFromInt(x0));
+            const fy = sy - @as(f32, @floatFromInt(y0));
+            for (0..3) |k| {
+                const v00: f32 = @floatFromInt(im.at(x0, y0)[k]);
+                const v10: f32 = @floatFromInt(im.at(x1, y0)[k]);
+                const v01: f32 = @floatFromInt(im.at(x0, y1)[k]);
+                const v11: f32 = @floatFromInt(im.at(x1, y1)[k]);
+                const v = (v00 * (1 - fx) + v10 * fx) * (1 - fy) + (v01 * (1 - fx) + v11 * fx) * fy;
+                o[k] = @intFromFloat(@min(255.0, @max(0.0, @round(v))));
+            }
+        }
+    }
+    try writeBmp(out_path, &out);
+    return deg;
 }
