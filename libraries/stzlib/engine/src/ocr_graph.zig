@@ -383,13 +383,16 @@ fn contig(ctx: *c.ggml_context, t: *c.ggml_tensor) *c.ggml_tensor {
 }
 
 // the dims of a reshape spec, ONNX order, resolved against the tensors already built
+// The ONNX shape a reshape asks for, in ggml order. ggml has four dimensions; an ONNX rank-5 tensor is accepted
+// when its OUTERMOST axis is 1 (PP-OCRv5 mobile wraps an identity scale in Unsqueeze(0) ... Squeeze(0)): that axis
+// is kept in the rank bookkeeping and dropped from the memory, where it changes nothing.
 fn reshapeDims(b: *Builder, l: *const Line, x: *c.ggml_tensor, out: *[4]i64) !usize {
     const spec = l.val("d") orelse return error.MissingAttr;
-    var dims: [4]i64 = .{ 1, 1, 1, 1 };
+    var dims: [5]i64 = .{ 1, 1, 1, 1, 1 };
     var n: usize = 0;
     var it = std.mem.splitScalar(u8, spec, ',');
     while (it.next()) |item| : (n += 1) {
-        if (n >= 4) return error.BadReshape;
+        if (n >= 5) return error.BadReshape;
         if (item.len > 0 and item[0] == '@') {
             const colon = std.mem.indexOfScalar(u8, item, ':') orelse return error.BadReshape;
             const tname = item[1..colon];
@@ -397,7 +400,8 @@ fn reshapeDims(b: *Builder, l: *const Line, x: *c.ggml_tensor, out: *[4]i64) !us
             const t = try b.get(tname);
             const r: usize = b.rankOf(tname);
             if (j >= r) return error.BadReshape;
-            dims[n] = t.ne[r - 1 - j];
+            // the hidden outer axis of a rank-5 tensor is 1
+            dims[n] = if (r - 1 - j >= 4) 1 else t.ne[r - 1 - j];
         } else {
             dims[n] = try std.fmt.parseInt(i64, item, 10);
         }
@@ -413,10 +417,18 @@ fn reshapeDims(b: *Builder, l: *const Line, x: *c.ggml_tensor, out: *[4]i64) !us
         } else total *= dims[i];
     }
     if (infer) |k| dims[k] = @divExact(c.ggml_nelements(x), total);
+    var first: usize = 0;
+    if (n == 5) {
+        if (dims[0] != 1) {
+            setError("a rank-5 reshape whose outer axis is {d}, not 1: ggml has four dimensions", .{dims[0]});
+            return error.BadReshape;
+        }
+        first = 1;
+    }
     i = 0;
     while (i < 4) : (i += 1) out[i] = 1;
     i = 0;
-    while (i < n) : (i += 1) out[i] = dims[n - 1 - i];
+    while (i < n - first) : (i += 1) out[i] = dims[n - 1 - i];
     return n;
 }
 
@@ -494,6 +506,9 @@ fn build(b: *Builder, s: []const u8) !void {
         r = c.ggml_relu(ctx, x);
     } else if (is(op, "sigmoid")) {
         r = c.ggml_sigmoid(ctx, x);
+    } else if (is(op, "hswish")) {
+        // ONNX HardSwish = x * max(0, min(1, x/6 + 1/2)); ggml_hardswish is the same function (the PP-OCRv5 mobile backbone)
+        r = c.ggml_hardswish(ctx, contig(ctx, x));
     } else if (is(op, "gelu")) {
         r = c.ggml_gelu_erf(ctx, x);
     } else if (is(op, "sqr")) {

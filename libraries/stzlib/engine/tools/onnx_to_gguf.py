@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """onnx_to_gguf.py -- an ONNX graph as a GGUF file the engine's ocr_graph.zig runs on ggml.
 
-    python onnx_to_gguf.py <model.onnx> <out.gguf> [--kind det|rec|cls]
+    python onnx_to_gguf.py <model.onnx> <out.gguf> [--kind det|rec|cls] [--direction=rtl] [--classifier=off]
 
 The GGUF carries the weights as F32 tensors (c0, c1, ...; ne = the ONNX shape reversed, which is the same
 memory) and a PROGRAM: one string per op, in order, over a small op set that maps one-to-one onto ggml:
@@ -229,11 +229,11 @@ class Converter:
             return ins[0].reshape(shp)
         if t == "Unsqueeze":
             v = ins[0]
-            for ax in sorted(a["axes"]):
+            for ax in sorted(self.axes_of(node, a)):
                 v = np.expand_dims(v, ax)
             return v
         if t == "Squeeze":
-            return np.squeeze(ins[0], axis=tuple(a["axes"])) if "axes" in a else np.squeeze(ins[0])
+            return np.squeeze(ins[0], axis=tuple(self.axes_of(node, a))) if self.axes_of(node, a) else np.squeeze(ins[0])
         if t == "Cast":
             return ins[0]
         if t == "Concat":
@@ -399,6 +399,10 @@ class Converter:
     def op_Relu(self, i, node):
         self.emit(node.output[0], "relu", [self.p(node.input[0])], self.rank_of(node.input[0]))
 
+    def op_HardSwish(self, i, node):
+        # x * max(0, min(1, x/6 + 0.5)) -- ggml_hardswish computes exactly this
+        self.emit(node.output[0], "hswish", [self.p(node.input[0])], self.rank_of(node.input[0]))
+
     def op_Sigmoid(self, i, node):
         self.emit(node.output[0], "sigmoid", [self.p(node.input[0])], self.rank_of(node.input[0]))
 
@@ -543,11 +547,19 @@ class Converter:
             self.skip.update([ui, u3[0]])
             self.emit(sq.output[0], "heads", [self.p(node.input[0])], 4, h=h, d=d, i=k)
 
+    def axes_of(self, node, a):
+        # opset < 13 writes Squeeze/Unsqueeze axes as an attribute; opset 13+ as a constant second input
+        if "axes" in a:
+            return list(a["axes"])
+        if len(node.input) > 1 and node.input[1]:
+            return [int(v) for v in np.array(self.const(node.input[1])).flatten()]
+        return []
+
     def op_Squeeze(self, i, node):
         a = self.attrs(node)
         x = node.input[0]
         rank = self.rank_of(x)
-        axes = [ax % rank for ax in a["axes"]]
+        axes = [ax % rank for ax in self.axes_of(node, a)]
         spec = ["@%s:%d" % (self.p(x), j) for j in range(rank) if j not in axes]
         self.emit(node.output[0], "reshape", [self.p(x)], len(spec), d=spec)
 
@@ -556,7 +568,7 @@ class Converter:
         x = node.input[0]
         rank = self.rank_of(x)
         spec = ["@%s:%d" % (self.p(x), j) for j in range(rank)]
-        for ax in sorted(a["axes"]):
+        for ax in sorted(self.axes_of(node, a)):
             spec.insert(ax, "1")
         self.emit(node.output[0], "reshape", [self.p(x)], len(spec), d=spec)
 
@@ -574,6 +586,10 @@ class Converter:
             kv_u32("stz.ocr.output_rank", out_rank),
             kv_strarr("stz.ocr.program", self.prog),
         ]
+        if getattr(self, "direction", ""):
+            kvs.append(kv_str("stz.ocr.direction", self.direction))
+        if getattr(self, "classifier", ""):
+            kvs.append(kv_str("stz.ocr.classifier", self.classifier))
         if kind == "rec" and "character" in self.meta:
             # the CTC classes in output order: the blank at 0, the dictionary, the space last (RapidOCR's CTCLabelDecode)
             chars = ["blank"] + self.meta["character"].splitlines() + [" "]
@@ -604,12 +620,24 @@ class Converter:
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     kind = "det"
+    direction = ""
+    classifier = ""
     for a in sys.argv[1:]:
         if a.startswith("--kind="):
             kind = a[7:]
+        if a.startswith("--direction="):
+            # rtl: the recogniser reads a right-to-left script; it emits each line in VISUAL order (pixels left to
+            # right), and the engine puts it back in logical order and orders a row's boxes from the right
+            direction = a[12:]
+        if a.startswith("--classifier="):
+            # off: PP-OCR's angle classifier was trained on Chinese and Latin lines and does not apply to this
+            # recogniser's script (it calls upright Arabic "180" with near certainty and the line is turned over)
+            classifier = a[13:]
     src, dst = args[0], args[1]
     cv = Converter(src)
     out_name, out_rank = cv.convert()
+    cv.direction = direction
+    cv.classifier = classifier
     n = cv.write(dst, kind, out_name, out_rank, src)
     params = sum(int(a.size) for _, a in cv.consts)
     ops = {}

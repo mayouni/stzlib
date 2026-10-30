@@ -7,6 +7,9 @@
 # absolute difference under 1e-3 on the detector's probability map and the classifier's two probabilities,
 # cosine above 0.9999 everywhere, and the recogniser's argmax per CTC step identical.
 #
+# O3c adds the per-script recognisers (PP-OCRv5 mobile Arabic and Cyrillic, fetched from the URLs and SHA-256 in
+# rapidocr/default_models.yaml): ppocr_rec_arabic.gguf and ppocr_rec_cyrillic.gguf, held to the recogniser's band.
+#
 # The models are NOT in the repository (*.gguf is ignored): they live in libraries/stzlib/models/ocr/, written by
 # the converter from the Docling venv's rapidocr files. A model that is absent SKIPS its scene by name.
 #
@@ -19,7 +22,7 @@ $cModels = StzModelsDir() + "/ocr/"
 $cParity = "_data/parity/"
 $nThreads = 4
 
-aKinds = [ "cls", "det", "rec" ]
+aKinds = [ "cls", "det", "rec", "rec_arabic", "rec_cyrillic" ]
 nK = len(aKinds)
 for i = 1 to nK
 	cKind = aKinds[i]
@@ -30,7 +33,7 @@ for i = 1 to nK
 	ok
 	Scenario("The " + cKind + " graph loads from its GGUF and is the converter's program")
 		aI = StzEngineNeuralOcrGraphInfo(cModel)
-		Then("the file is an OCR graph of that kind", aI[1], cKind)
+		Then("the file is an OCR graph of that kind", aI[1], left(cKind, 3))
 		Then("with ops", aI[2] > 100, 1)
 		Then("and parameters", aI[4] > 100000, 1)
 	EndScenario()
@@ -41,7 +44,7 @@ for i = 1 to nK
 		if len(aR) = 6
 			Then("the output has the expected number of values", aR[1] > 1, 1)
 			Then("cosine with onnxruntime above 0.9999", aR[4] > 0.9999, 1)
-			if cKind = "rec"
+			if left(cKind, 3) = "rec"
 				Then("the argmax of every CTC step agrees", aR[6], 1)
 				Then("max abs difference under 1e-2 on the probabilities", aR[2] < 0.01, 1)
 			else

@@ -568,12 +568,22 @@ fn ring_OcrGraphParity(p: *anyopaque) callconv(.c) void {
 // StzEngineNeuralOcrRead(cModelsDir, cImage, nThreads)
 //   -> [ [ cText, nScore, nX0, nY0, nX1, nY1, bFlipped ], ... ] in reading order, the box in the file's pixels;
 //      [] on failure (StzEngineNeuralOcrGraphError says why). The three graphs stay loaded for the process.
-var ocr_stats: [5]f64 = .{ 0, 0, 0, 0, 0 };
+var ocr_stats: [6]f64 = .{ 0, 0, 0, 0, 0, 0 };
 
 fn ring_OcrRead(p: *anyopaque) callconv(.c) void {
+    ocrRead(p, "", 2, 3);
+}
+
+// StzEngineNeuralOcrReadWith(cModelsDir, cRecogniserFile, cImage, nThreads) -- the same rows, read with the named
+// recogniser (ppocr_rec_arabic.gguf, ppocr_rec_cyrillic.gguf, ...) in the models folder
+fn ring_OcrReadWith(p: *anyopaque) callconv(.c) void {
+    ocrRead(p, ocrArg(p, 2), 3, 4);
+}
+
+fn ocrRead(p: *anyopaque, rec_file: []const u8, n_image: c_int, n_threads: c_int) void {
     const out = R.ring_vm_api_newlist(p) orelse return;
-    const threads: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 3));
-    var r = ocrp.read(ocrArg(p, 1), ocrArg(p, 2), if (threads < 1) 4 else threads) catch |e| {
+    const threads: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, n_threads));
+    var r = ocrp.read(ocrArg(p, 1), rec_file, ocrArg(p, n_image), if (threads < 1) 4 else threads) catch |e| {
         if (ocrg.lastError().len == 0) ocrg.setError("{s}", .{@errorName(e)});
         R.ring_vm_api_retlist(p, out);
         return;
@@ -589,11 +599,11 @@ fn ring_OcrRead(p: *anyopaque) callconv(.c) void {
         R.ring_list_adddouble(row, l.y1);
         R.ring_list_adddouble(row, if (l.flipped) 1 else 0);
     }
-    ocr_stats = .{ @floatFromInt(r.boxes), r.ms_det, r.ms_cls, r.ms_rec, r.ms_total };
+    ocr_stats = .{ @floatFromInt(r.boxes), r.ms_det, r.ms_cls, r.ms_rec, r.ms_total, @floatFromInt(r.votes_180) };
     R.ring_vm_api_retlist(p, out);
 }
 
-// StzEngineNeuralOcrStats() -> [ nBoxes, nMsDetect, nMsClassify, nMsRecognise, nMsTotal ] of the last read
+// StzEngineNeuralOcrStats() -> [ nBoxes, nMsDetect, nMsClassify, nMsRecognise, nMsTotal, nVotes180 ] of the last read
 fn ring_OcrStats(p: *anyopaque) callconv(.c) void {
     const out = R.ring_vm_api_newlist(p) orelse return;
     for (ocr_stats) |v| R.ring_list_adddouble(out, v);
@@ -610,6 +620,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralocrgraphparity", .func = &ring_OcrGraphParity },
     .{ .name = "stzengineneuralocrgrapherror", .func = &ring_OcrGraphError },
     .{ .name = "stzengineneuralocrread", .func = &ring_OcrRead },
+    .{ .name = "stzengineneuralocrreadwith", .func = &ring_OcrReadWith },
     .{ .name = "stzengineneuralocrstats", .func = &ring_OcrStats },
     .{ .name = "stzenginegbnfbegin", .func = &ring_GbnfBegin },
     .{ .name = "stzenginegbnffield", .func = &ring_GbnfField },

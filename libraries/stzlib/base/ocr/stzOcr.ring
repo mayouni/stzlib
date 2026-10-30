@@ -25,7 +25,8 @@ $aStzOcrCache = []
 # what the platform engine said of its last call (its summary line), for Content() and Show()
 $cStzOcrLastSummary = ""
 
-# what the model's last page cost, as the engine reported it: [ boxes, ms detect, ms classify, ms recognise, ms total ]
+# what the model's last page cost, as the engine reported it: [ boxes, ms detect, ms classify, ms recognise, ms total,
+# lines voted upside down ]
 $aStzOcrModelLastStats = []
 
 # Declares the :ocr faculty: an image in (a path, a list of page paths, or a record [ :pages, :lang ]), a text out.
@@ -41,12 +42,14 @@ func StzOcrDeclare(paGolden)
 	_o_ = StzFacultyQ(:ocr)
 	_o_.SetInputTypeQ(:image).SetOutputTypeQ(:text).SetParamsQ([ :lang = "" ]).
 	    SetFloorQ("platform", "_StzOcrFloor").SetGoldenCheckerQ("contains").SetGoldenVersionQ("v1")
-	# the model: PP-OCRv6 small on the engine, installed when its graphs are in the models directory; it answers
+	# the model: PP-OCR on the engine, installed when its graphs are in the models directory; it answers
 	# instead of the floor only once the registry measured it strictly better on the golden set
-	if len(StzFind("ppocr-v6-small", _o_.ImplementationIds())) = 0
-		_o_.AddImplementation([ :id = "ppocr-v6-small", :kind = "graph", :fn = "_StzOcrModel", :needle = "ocr/ppocr_rec.gguf",
+	# (O3b measured the Latin recogniser alone as "ppocr-v6-small"; O3c adds the Arabic and Cyrillic recognisers and
+	# the implementation is "ppocr" from golden set v1's second measurement on)
+	if len(StzFind("ppocr", _o_.ImplementationIds())) = 0
+		_o_.AddImplementation([ :id = "ppocr", :kind = "graph", :fn = "_StzOcrModel", :needle = "ocr/ppocr_rec.gguf",
 				       :licence = "apache-2.0", :memory = 600,
-				       :languages = [ "fr", "en", "de", "es", "it", "pt", "nl", "zh" ] ])
+				       :languages = [ "fr", "en", "de", "es", "it", "pt", "nl", "zh", "ar", "ru", "uk", "bg" ] ])
 	ok
 	if isList(paGolden) and len(_o_.Goldens()) = 0
 		_nG_ = len(paGolden)
@@ -121,20 +124,33 @@ func _StzOcrFloor(pImage, paParams)
 func StzOcrModelDir()
 	return StzModelsDir() + "/ocr"
 
-# The model implementation of :ocr: the PP-OCRv6 small detector, angle classifier and recogniser, run by the
-# engine on its own ggml (engine/src/ocr_pipeline.zig). Each page's lines are read in reading order and joined
-# by spaces, pages in order. Its dictionary is Latin, Greek, kana and CJK: a right-to-left or Cyrillic language
-# is refused, naming the recogniser that is missing, rather than read into letters it does not have.
+# The recogniser the model reads a language with, a file name in StzOcrModelDir(): PP-OCRv5 mobile for Arabic and
+# for the Cyrillic languages (each fetched from rapidocr's model list and converted), PP-OCRv6 small for the rest
+# (its dictionary is Latin, Greek, kana and CJK).
+#
+#   pcLang     a language tag ("ar-SA", "ru-RU", "fr-FR", "" for the default)
+#   returns    the recogniser's file name
+func StzOcrModelRecogniserFor(pcLang)
+	_c_ = left(lower("" + pcLang), 2)
+	if _c_ = "ar" return "ppocr_rec_arabic.gguf" ok
+	if len(StzFind(_c_, [ "ru", "uk", "bg", "be", "sr", "mk", "kk", "ky", "mn", "tg" ])) > 0 return "ppocr_rec_cyrillic.gguf" ok
+	return "ppocr_rec.gguf"
+
+# The model implementation of :ocr: PP-OCR's detector and angle classifier with the recogniser of the page's
+# language (StzOcrModelRecogniserFor), run by the engine on its own ggml (engine/src/ocr_pipeline.zig). Each page's
+# lines are read in reading order -- a right-to-left recogniser's lines put back in logical order by the engine --
+# and joined by spaces, pages in order. A language whose script has no recogniser here is refused, naming it.
 func _StzOcrModel(pImage, paParams)
 	_aPages_ = _StzOcrPagesOf(pImage)
 	_cLang_ = lower(_StzOcrLangOf(pImage, paParams))
-	if StzOcrLanguageIsRtl(_cLang_) or left(_cLang_, 2) = "ru" or left(_cLang_, 2) = "uk" or left(_cLang_, 2) = "bg"
-		stzraise("the :ocr model (PP-OCRv6 small) has no letters for '" + _cLang_ + "': its dictionary is Latin, Greek, kana and CJK; the recogniser for that script is not installed")
+	_cRec_ = StzOcrModelRecogniserFor(_cLang_)
+	if _cRec_ = "ppocr_rec.gguf" and StzOcrLanguageIsRtl(_cLang_)
+		stzraise("the :ocr model has no recogniser for '" + _cLang_ + "': PP-OCR's are Latin/Greek/kana/CJK, Arabic and Cyrillic")
 	ok
 	_cText_ = ""
 	_nP_ = len(_aPages_)
 	for _i_ = 1 to _nP_
-		_aL_ = StzOcrModelLines(_aPages_[_i_])
+		_aL_ = StzOcrModelLinesXT(_aPages_[_i_], _cLang_)
 		_nL_ = len(_aL_)
 		for _j_ = 1 to _nL_
 			if _cText_ != "" _cText_ += " " ok
@@ -143,25 +159,34 @@ func _StzOcrModel(pImage, paParams)
 	next
 	return _cText_
 
-# The lines the model reads on one image, in reading order, each [ :text, :score, :box = [x0, y0, x1, y1] ] in
-# the file's pixels, cached per path (a golden set asks the same page once per sentence).
+# The lines the model reads on one image with the default recogniser (Latin, Greek, kana, CJK).
+func StzOcrModelLines(pcPath)
+	return StzOcrModelLinesXT(pcPath, "")
+
+# The lines the model reads on one image in a language, in reading order, each [ :text, :score, :box = [x0, y0,
+# x1, y1] ] in the file's pixels (a right-to-left language: logical order, a row's boxes from the right), cached per
+# path and recogniser (a golden set asks the same page once per sentence).
 #
 #   pcPath     the image file (PNG, JPEG, BMP)
+#   pcLang     a language tag; it picks the recogniser (StzOcrModelRecogniserFor)
 #   returns    a list of line records
-#   warning    raises, naming the cause, when the graphs are not installed or the image cannot be decoded
-func StzOcrModelLines(pcPath)
+#   warning    raises, naming the file, when the graphs or the language's recogniser are not installed, or the
+#              image cannot be decoded
+func StzOcrModelLinesXT(pcPath, pcLang)
 	if NOT fexists(pcPath)
 		stzraise("StzOcr: the image '" + pcPath + "' does not exist")
 	ok
-	_cKey_ = "model|" + _StzOcrCacheKey(pcPath, "")
+	_cRec_ = StzOcrModelRecogniserFor(pcLang)
+	_cKey_ = "model|" + _cRec_ + "|" + _StzOcrCacheKey(pcPath, "")
 	_nC_ = len($aStzOcrCache)
 	for _i_ = 1 to _nC_
 		if $aStzOcrCache[_i_][1] = _cKey_ return $aStzOcrCache[_i_][2] ok
 	next
-	if NOT fexists(StzOcrModelDir() + "/ppocr_rec.gguf")
-		stzraise("the :ocr model is not installed: no " + StzOcrModelDir() + "/ppocr_rec.gguf (convert it with engine/tools/onnx_to_gguf.py)")
+	if NOT fexists(StzOcrModelDir() + "/" + _cRec_)
+		stzraise("the :ocr model has no recogniser for '" + pcLang + "' installed: no " + StzOcrModelDir() + "/" + _cRec_ +
+			 " (convert it with engine/tools/onnx_to_gguf.py)")
 	ok
-	_aRows_ = StzEngineNeuralOcrRead(StzOcrModelDir(), pcPath, 4)
+	_aRows_ = StzEngineNeuralOcrReadWith(StzOcrModelDir(), _cRec_, pcPath, 4)
 	if len(_aRows_) = 0
 		_cErr_ = StzEngineNeuralOcrGraphError()
 		if _cErr_ != "" stzraise("the :ocr model could not read '" + pcPath + "': " + _cErr_) ok
@@ -176,11 +201,13 @@ func StzOcrModelLines(pcPath)
 	add($aStzOcrCache, [ _cKey_, _aLines_ ])
 	return _aLines_
 
-# what the model's last read cost: [ :boxes, :detect, :classify, :recognise, :total ] (ms), [ ] before any read
+# what the model's last page cost: [ :boxes, :detect, :classify, :recognise, :total ] (ms), and :votes180 -- the
+# lines the angle classifier called upside down (the page turns over only when they are most of its lines);
+# [ ] before any read
 func StzOcrModelLastStats()
-	if len($aStzOcrModelLastStats) < 5 return [] ok
+	if len($aStzOcrModelLastStats) < 6 return [] ok
 	_a_ = $aStzOcrModelLastStats
-	return [ :boxes = _a_[1], :detect = _a_[2], :classify = _a_[3], :recognise = _a_[4], :total = _a_[5] ]
+	return [ :boxes = _a_[1], :detect = _a_[2], :classify = _a_[3], :recognise = _a_[4], :total = _a_[5], :votes180 = _a_[6] ]
 
 func _StzOcrPagesOf(pImage)
 	if isString(pImage) return [ pImage ] ok

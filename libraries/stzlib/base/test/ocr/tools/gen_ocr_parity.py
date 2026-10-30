@@ -2,7 +2,7 @@
 """gen_ocr_parity.py -- the parity fixtures of ocr_model_parity_narrated.ring: a fixed input per PP-OCR
 model and onnxruntime's output on it, as STZT tensor files the engine's ocr_graph.zig reads.
 
-    <docling venv>/python -I -X utf8 gen_ocr_parity.py          (run from base/test/ocr/tools)
+    <docling venv>/python -I -X utf8 gen_ocr_parity.py [<folder of the fetched PP-OCRv5 recognisers>]   (from base/test/ocr/tools)
 
 The inputs come from the page-1 render of golden_v36/z09 (../_data/z09_p1_150dpi.png): the detector sees a
 region resized to 256x192, the recogniser a drawn text line ("Plaine 2026", Arial) at 48x128, the classifier the same line
@@ -81,6 +81,21 @@ def main():
     write(os.path.join(OUT, "cls_in.bin"), cls_in)
     write(os.path.join(OUT, "cls_exp.bin"), cls_out)
     print("cls", cls_in.shape, "->", cls_out.shape, cls_out.tolist())
+    # the per-script recognisers (O3c), when the folder they were fetched into is given as the first argument:
+    # PP-OCRv5 mobile Arabic and Cyrillic, from the URLs and SHA-256 of rapidocr/default_models.yaml. The Arabic
+    # line is drawn without shaping (PIL without raqm draws isolated letters) -- parity compares two engines on
+    # one input, so the input need not be well-formed text. Height 48, width 192 (24 CTC steps).
+    if len(sys.argv) > 1:
+        extra = sys.argv[1]
+        for script, text in (("arabic", "الوثيقة 2026"), ("cyrillic", "Москва 2026")):
+            line = Image.new("RGB", (640, 96), "white")
+            ImageDraw.Draw(line).text((16, 12), text, fill="black", font=ImageFont.truetype("C:/Windows/Fonts/arial.ttf", 60))
+            x = tensor(line.crop((0, 0, 420, 96)), 192, 48, False)
+            s = ort.InferenceSession(os.path.join(extra, "%s_PP-OCRv5_rec_mobile.onnx" % script), providers=["CPUExecutionProvider"])
+            y = s.run(None, {s.get_inputs()[0].name: x})[0]
+            write(os.path.join(OUT, "rec_%s_in.bin" % script), x)
+            write(os.path.join(OUT, "rec_%s_exp.bin" % script), y)
+            print("rec_%s" % script, x.shape, "->", y.shape, "argmax", y[0].argmax(-1).tolist())
     for f in sorted(os.listdir(OUT)):
         print("  ", f, os.path.getsize(os.path.join(OUT, f)), "bytes")
 

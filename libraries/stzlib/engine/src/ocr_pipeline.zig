@@ -17,12 +17,15 @@
 //!   4. the boxes are sorted into reading order: by top, lines broken where the tops differ by 10 px
 //!      or more, then left to right
 //!   5. each box is cropped (a crop taller than 1.5 times its width is turned a quarter); the
-//!      CLASSIFIER sees it at height 48 within 192 and a crop it calls "180" above 0.9 is turned over
+//!      CLASSIFIER sees it at height 48 within 192 and VOTES: the page is turned over when most of its
+//!      lines are called "180" above 0.9 (RapidOCR turns each line on its own vote -- see read());
+//!      a recogniser whose script the classifier was not trained on skips it (stz.ocr.classifier=off)
 //!   6. the RECOGNISER sees it at height 48, width at least 320, and its CTC output is decoded against
 //!      the dictionary the converter carried in the GGUF (blank at 0, space last); a line whose mean
 //!      confidence is under 0.5 is dropped
 //!
 //! What this code does NOT do that RapidOCR does, stated so a measurement can be read against it:
+//!   - the angle classifier turns the PAGE on a majority vote, not each line on its own (measured, read())
 //!   - boxes are AXIS-ALIGNED: a region's box is its bounding rectangle, where RapidOCR takes the
 //!     minimum-area rotated rectangle of its contour. On an upright page the two agree; skewed text
 //!     is boxed loosely and read from an unrotated crop
@@ -233,16 +236,20 @@ fn tensorOf(im: *const Image, w_total: usize) ![]f32 {
 
 // --------------------------------------------------------------------------------------------- the models
 
+// a recogniser and its dictionary (the CTC classes in output order, carried in its GGUF by the converter)
+const Rec = struct { name: []const u8, model: *graph.Model, chars: [][]const u8, rtl: bool, use_cls: bool };
+
 const Models = struct {
     dir: []u8,
     det: *graph.Model,
     cls: *graph.Model,
-    rec: *graph.Model,
-    chars: [][]const u8,
+    recs: [8]Rec,
+    n_recs: usize,
     arena: std.heap.ArenaAllocator,
 };
 
-// the three graphs stay loaded for the process (a golden set reads many pages); a new folder replaces them
+// the graphs stay loaded for the process (a golden set reads many pages); the detector and the classifier are
+// shared, a recogniser is loaded the first time a page asks for it (one per script); a new folder replaces them
 var cached: ?Models = null;
 
 fn models(dir: []const u8) !*Models {
@@ -250,7 +257,7 @@ fn models(dir: []const u8) !*Models {
         if (std.mem.eql(u8, m.dir, dir)) return m;
         m.det.free();
         m.cls.free();
-        m.rec.free();
+        for (m.recs[0..m.n_recs]) |r| r.model.free();
         m.arena.deinit();
         gpa.free(m.dir);
         cached = null;
@@ -261,19 +268,39 @@ fn models(dir: []const u8) !*Models {
     const det = try graph.load(try std.fs.path.join(a, &.{ dir, "ppocr_det.gguf" }));
     errdefer det.free();
     const cls = try graph.load(try std.fs.path.join(a, &.{ dir, "ppocr_cls.gguf" }));
-    errdefer cls.free();
-    const rec = try graph.load(try std.fs.path.join(a, &.{ dir, "ppocr_rec.gguf" }));
+    cached = .{ .dir = try gpa.dupe(u8, dir), .det = det, .cls = cls, .recs = undefined, .n_recs = 0, .arena = arena };
+    return &cached.?;
+}
+
+/// The recogniser named `file` in the models folder ("" = ppocr_rec.gguf, the Latin/CJK one), loaded once.
+fn recognizer(m: *Models, file: []const u8) !*Rec {
+    const name = if (file.len == 0) "ppocr_rec.gguf" else file;
+    for (m.recs[0..m.n_recs]) |*r| {
+        if (std.mem.eql(u8, r.name, name)) return r;
+    }
+    if (m.n_recs == m.recs.len) {
+        graph.setError("more than {d} recognisers asked for in one process", .{m.recs.len});
+        return error.TooManyRecognisers;
+    }
+    const a = m.arena.allocator();
+    const rec = try graph.load(try std.fs.path.join(a, &.{ m.dir, name }));
     errdefer rec.free();
     const kid = c.gguf_find_key(rec.gguf, "stz.ocr.character");
     if (kid < 0) {
-        graph.setError("the recogniser carries no dictionary (stz.ocr.character): re-convert it with tools/onnx_to_gguf.py", .{});
+        graph.setError("the recogniser {s} carries no dictionary (stz.ocr.character): re-convert it with tools/onnx_to_gguf.py", .{name});
         return error.NoDictionary;
     }
     const n: usize = @intCast(c.gguf_get_arr_n(rec.gguf, kid));
     const chars = try a.alloc([]const u8, n);
     for (0..n) |i| chars[i] = try a.dupe(u8, std.mem.span(c.gguf_get_arr_str(rec.gguf, kid, i)));
-    cached = .{ .dir = try gpa.dupe(u8, dir), .det = det, .cls = cls, .rec = rec, .chars = chars, .arena = arena };
-    return &cached.?;
+    const did = c.gguf_find_key(rec.gguf, "stz.ocr.direction");
+    const rtl = did >= 0 and std.mem.eql(u8, std.mem.span(c.gguf_get_val_str(rec.gguf, did)), "rtl");
+    // a recogniser may say the angle classifier does not apply to its script (stz.ocr.classifier = "off")
+    const kcl = c.gguf_find_key(rec.gguf, "stz.ocr.classifier");
+    const use_cls = !(kcl >= 0 and std.mem.eql(u8, std.mem.span(c.gguf_get_val_str(rec.gguf, kcl)), "off"));
+    m.recs[m.n_recs] = .{ .name = try a.dupe(u8, name), .model = rec, .chars = chars, .rtl = rtl, .use_cls = use_cls };
+    m.n_recs += 1;
+    return &m.recs[m.n_recs - 1];
 }
 
 // --------------------------------------------------------------------------------------------- detection
@@ -282,7 +309,7 @@ const Box = struct { x0: f64, y0: f64, x1: f64, y1: f64, score: f64 };
 const Keyed = struct { line: usize, b: Box };
 
 /// The detector's probability map turned into boxes in the coordinates of an image dw x dh.
-fn boxesOf(alloc: std.mem.Allocator, pred: []const f32, mw: usize, mh: usize, dw: usize, dh: usize) ![]Box {
+fn boxesOf(alloc: std.mem.Allocator, pred: []const f32, mw: usize, mh: usize, dw: usize, dh: usize, rtl: bool) ![]Box {
     const n = mw * mh;
     const bit = try alloc.alloc(u8, n);
     for (0..n) |i| bit[i] = @intFromBool(pred[i] > DET_THRESH);
@@ -384,14 +411,99 @@ fn boxesOf(alloc: std.mem.Allocator, pred: []const f32, mw: usize, mh: usize, dw
         if (i > 0 and b.y0 - boxes[i - 1].y0 >= LINE_DY) line += 1;
         keyed[i] = .{ .line = line, .b = b };
     }
-    std.sort.insertion(Keyed, keyed, {}, struct {
-        fn lt(_: void, a: Keyed, b: Keyed) bool {
-            if (a.line != b.line) return a.line < b.line;
-            return a.b.x0 < b.b.x0;
-        }
-    }.lt);
+    // within a line, left to right -- or right to left when the script is (the right edge leads)
+    if (rtl) {
+        std.sort.insertion(Keyed, keyed, {}, struct {
+            fn lt(_: void, a: Keyed, b: Keyed) bool {
+                if (a.line != b.line) return a.line < b.line;
+                return a.b.x1 > b.b.x1;
+            }
+        }.lt);
+    } else {
+        std.sort.insertion(Keyed, keyed, {}, struct {
+            fn lt(_: void, a: Keyed, b: Keyed) bool {
+                if (a.line != b.line) return a.line < b.line;
+                return a.b.x0 < b.b.x0;
+            }
+        }.lt);
+    }
     for (keyed, 0..) |k, i| boxes[i] = k.b;
     return boxes;
+}
+
+// --------------------------------------------------------------------------------------------- direction
+
+const Dir = enum { l, r, n };
+
+// the class of a codepoint for putting a visual right-to-left line back in logical order: L for what is laid out
+// left to right inside it (Latin letters, European and Arabic-Indic digits), R for the right-to-left letters
+// (Hebrew, Arabic, Syriac, Thaana, N'Ko and their presentation forms), N for the rest (spaces, punctuation)
+fn dirOf(cp: u21) Dir {
+    if ((cp >= '0' and cp <= '9') or (cp >= 'A' and cp <= 'Z') or (cp >= 'a' and cp <= 'z')) return .l;
+    if (cp >= 0x0660 and cp <= 0x0669) return .l; // Arabic-Indic digits are laid out left to right
+    if (cp >= 0x06F0 and cp <= 0x06F9) return .l;
+    if (cp >= 0x00C0 and cp <= 0x024F and cp != 0x00D7 and cp != 0x00F7) return .l;
+    if (cp >= 0x0590 and cp <= 0x08FF) return .r;
+    if (cp >= 0xFB1D and cp <= 0xFDFF) return .r;
+    if (cp >= 0xFE70 and cp <= 0xFEFF) return .r;
+    if (cp >= 0x0370 and cp <= 0x058F) return .l; // Greek, Cyrillic, Armenian
+    return .n;
+}
+
+/// A line the recogniser read in VISUAL order (its pixels left to right) put back in LOGICAL order, the paragraph
+/// being right to left: the runs are taken in reverse, a right-to-left run is reversed codepoint by codepoint and a
+/// left-to-right run (a number, a Latin word) is kept as it is. A neutral (a space, a comma) between two
+/// left-to-right characters belongs to their run ("20,000", "HP 2026"); any other neutral is right to left.
+/// This is the inverse of the bidi algorithm's reordering for the two cases a recogniser's line holds; it is not
+/// the whole of UAX #9 (no embedding, no mirroring).
+fn logicalOrder(a: std.mem.Allocator, text: *std.ArrayList(u8)) !void {
+    var cps: std.ArrayList(u21) = .empty;
+    var view = std.unicode.Utf8View.init(text.items) catch return; // not UTF-8: left as it is
+    var it = view.iterator();
+    while (it.nextCodepoint()) |cp| try cps.append(a, cp);
+    const n = cps.items.len;
+    if (n == 0) return;
+    const dirs = try a.alloc(Dir, n);
+    for (cps.items, 0..) |cp, i| dirs[i] = dirOf(cp);
+    // resolve the neutrals: L only when the strong characters on both sides are L
+    var i: usize = 0;
+    while (i < n) {
+        if (dirs[i] != .n) {
+            i += 1;
+            continue;
+        }
+        var j = i;
+        while (j < n and dirs[j] == .n) j += 1;
+        const before: Dir = if (i > 0) dirs[i - 1] else .r;
+        const after: Dir = if (j < n) dirs[j] else .r;
+        const d: Dir = if (before == .l and after == .l) .l else .r;
+        for (i..j) |k| dirs[k] = d;
+        i = j;
+    }
+    // the runs, last first
+    var out: std.ArrayList(u8) = .empty;
+    var buf: [4]u8 = undefined;
+    var end = n;
+    while (end > 0) {
+        var start = end - 1;
+        while (start > 0 and dirs[start - 1] == dirs[end - 1]) start -= 1;
+        if (dirs[end - 1] == .l) {
+            for (start..end) |k| {
+                const len = try std.unicode.utf8Encode(cps.items[k], &buf);
+                try out.appendSlice(a, buf[0..len]);
+            }
+        } else {
+            var k = end;
+            while (k > start) {
+                k -= 1;
+                const len = try std.unicode.utf8Encode(cps.items[k], &buf);
+                try out.appendSlice(a, buf[0..len]);
+            }
+        }
+        end = start;
+    }
+    text.clearRetainingCapacity();
+    try text.appendSlice(a, out.items);
 }
 
 // --------------------------------------------------------------------------------------------- reading
@@ -402,6 +514,7 @@ pub const Result = struct {
     arena: std.heap.ArenaAllocator,
     lines: []Line,
     boxes: usize, // regions the detector kept (lines dropped for low confidence included)
+    votes_180: usize, // lines the angle classifier called upside down (the page turns over only on a majority)
     ms_det: f64,
     ms_cls: f64,
     ms_rec: f64,
@@ -416,12 +529,14 @@ fn ms(t0: i128) f64 {
     return @as(f64, @floatFromInt(std.time.nanoTimestamp() - t0)) / 1e6;
 }
 
-/// Reads the text lines of one image file with the graphs in models_dir (ppocr_det/cls/rec.gguf).
-pub fn read(models_dir: []const u8, image_path: []const u8, n_threads: c_int) !Result {
+/// Reads the text lines of one image file with the graphs in models_dir: ppocr_det.gguf, ppocr_cls.gguf and the
+/// recogniser `rec_file` ("" = ppocr_rec.gguf).
+pub fn read(models_dir: []const u8, rec_file: []const u8, image_path: []const u8, n_threads: c_int) !Result {
     const t_all = std.time.nanoTimestamp();
     graph.clearError();
     const m = try models(models_dir);
-    var res = Result{ .arena = std.heap.ArenaAllocator.init(gpa), .lines = &.{}, .boxes = 0, .ms_det = 0, .ms_cls = 0, .ms_rec = 0, .ms_total = 0 };
+    const rc = try recognizer(m, rec_file);
+    var res = Result{ .arena = std.heap.ArenaAllocator.init(gpa), .lines = &.{}, .boxes = 0, .votes_180 = 0, .ms_det = 0, .ms_cls = 0, .ms_rec = 0, .ms_total = 0 };
     errdefer res.arena.deinit();
     const a = res.arena.allocator();
 
@@ -496,15 +611,52 @@ pub fn read(models_dir: []const u8, image_path: []const u8, n_threads: c_int) !R
         // the map is [1, 1, H, W]: ggml ne = [W, H, 1, 1]
         const mw: usize = @intCast(o.ne[0]);
         const mh: usize = @intCast(o.ne[1]);
-        boxes = try boxesOf(a, o.data, mw, mh, page.w, page.h);
+        boxes = try boxesOf(a, o.data, mw, mh, page.w, page.h, rc.rtl);
     }
     res.ms_det = ms(t_det);
     res.boxes = boxes.len;
 
     var lines: std.ArrayList(Line) = .empty;
     var text: std.ArrayList(u8) = .empty;
+    // 5. the classifier VOTES, and the page is turned over only when most of its lines vote "180". RapidOCR turns
+    // each line over on its own vote; measured on five upright golden pages (z09 fr, u06 ru), that turned 13 lines
+    // over and none rightly -- a long line squeezed into 192 px is near chance for this classifier -- and a turned
+    // line is read as noise. A whole page scanned upside down still turns over; a single upside-down line on an
+    // upright page does not (no golden has one).
+    var page_flip = false;
+    if (rc.use_cls and boxes.len > 0) {
+        const t_cls = std.time.nanoTimestamp();
+        var votes: usize = 0;
+        var voters: usize = 0;
+        for (boxes) |b| {
+            const cw: usize = @intFromFloat(@trunc(b.x1 - b.x0));
+            const ch: usize = @intFromFloat(@trunc(b.y1 - b.y0));
+            if (cw == 0 or ch == 0) continue;
+            var im = try crop(&page, @intFromFloat(b.x0), @intFromFloat(b.y0), cw, ch);
+            defer im.free();
+            if (@as(f64, @floatFromInt(im.h)) / @as(f64, @floatFromInt(im.w)) >= 1.5) {
+                const r = try rot90(&im);
+                im.free();
+                im = r;
+            }
+            const ratio = @as(f64, @floatFromInt(im.w)) / @as(f64, @floatFromInt(im.h));
+            const rw: usize = @min(CLS_W, @as(usize, @intFromFloat(@ceil(@as(f64, CLS_H) * ratio))));
+            var ci = try resize(&im, @max(rw, 1), CLS_H);
+            defer ci.free();
+            const t = try tensorOf(&ci, CLS_W);
+            defer gpa.free(t);
+            const o = try graph.run(m.cls, t, .{ 1, 3, CLS_H, CLS_W }, n_threads);
+            defer gpa.free(o.data);
+            voters += 1;
+            if (o.data.len >= 2 and o.data[1] > o.data[0] and o.data[1] > CLS_THRESH) votes += 1;
+        }
+        page_flip = votes * 2 > voters;
+        res.votes_180 = votes;
+        res.ms_cls = ms(t_cls);
+    }
+
     for (boxes) |b| {
-        // 5. the crop, the quarter turn of a tall one, the classifier's flip
+        // 6. the crop, the quarter turn of a tall one, the page's turn if it voted for one
         const cw: usize = @intFromFloat(@trunc(b.x1 - b.x0));
         const ch: usize = @intFromFloat(@trunc(b.y1 - b.y0));
         if (cw == 0 or ch == 0) continue;
@@ -517,22 +669,11 @@ pub fn read(models_dir: []const u8, image_path: []const u8, n_threads: c_int) !R
         }
         const ratio = @as(f64, @floatFromInt(im.w)) / @as(f64, @floatFromInt(im.h));
         var flipped = false;
-        {
-            const t_cls = std.time.nanoTimestamp();
-            const rw: usize = @min(CLS_W, @as(usize, @intFromFloat(@ceil(@as(f64, CLS_H) * ratio))));
-            var ci = try resize(&im, @max(rw, 1), CLS_H);
-            defer ci.free();
-            const t = try tensorOf(&ci, CLS_W);
-            defer gpa.free(t);
-            const o = try graph.run(m.cls, t, .{ 1, 3, CLS_H, CLS_W }, n_threads);
-            defer gpa.free(o.data);
-            if (o.data.len >= 2 and o.data[1] > o.data[0] and o.data[1] > CLS_THRESH) {
-                rot180(&im);
-                flipped = true;
-            }
-            res.ms_cls += ms(t_cls);
+        if (page_flip) {
+            rot180(&im);
+            flipped = true;
         }
-        // 6. the recogniser and the CTC decode
+        // 7. the recogniser and the CTC decode
         const t_rec = std.time.nanoTimestamp();
         const max_ratio = @max(@as(f64, REC_W) / @as(f64, REC_H), ratio);
         const tw: usize = @intFromFloat(@trunc(@as(f64, REC_H) * max_ratio));
@@ -541,7 +682,7 @@ pub fn read(models_dir: []const u8, image_path: []const u8, n_threads: c_int) !R
         defer ri.free();
         const t = try tensorOf(&ri, tw);
         defer gpa.free(t);
-        const o = try graph.run(m.rec, t, .{ 1, 3, REC_H, @intCast(tw) }, n_threads);
+        const o = try graph.run(rc.model, t, .{ 1, 3, REC_H, @intCast(tw) }, n_threads);
         defer gpa.free(o.data);
         // [1, T, C]: ggml ne = [C, T, 1]
         const nc: usize = @intCast(o.ne[0]);
@@ -557,7 +698,7 @@ pub fn read(models_dir: []const u8, image_path: []const u8, n_threads: c_int) !R
                 if (v > row[best]) best = k;
             }
             if (best != 0 and best != prev) {
-                if (best < m.chars.len) try text.appendSlice(a, m.chars[best]);
+                if (best < rc.chars.len) try text.appendSlice(a, rc.chars[best]);
                 conf_sum += row[best];
                 conf_n += 1;
             }
@@ -565,6 +706,10 @@ pub fn read(models_dir: []const u8, image_path: []const u8, n_threads: c_int) !R
         }
         res.ms_rec += ms(t_rec);
         const score = if (conf_n == 0) 0 else conf_sum / @as(f64, @floatFromInt(conf_n));
+        if (rc.rtl) try logicalOrder(a, &text);
+        // STZ_OCR_LINES=1 prints every box the detector kept, the dropped lines too (stderr): box, confidence, text
+        if (std.process.hasNonEmptyEnvVarConstant("STZ_OCR_LINES"))
+            std.debug.print("[ocr line] {d:.0},{d:.0},{d:.0},{d:.0} {d:.2}{s} {s}\n", .{ b.x0, b.y0, b.x1, b.y1, score, if (score < TEXT_SCORE) " DROPPED" else "", text.items });
         if (score < TEXT_SCORE) continue;
         // back to the coordinates of the file: the letterbox removed, the resize undone
         const pt: f64 = @floatFromInt(pad_top);
