@@ -1515,6 +1515,9 @@ const Interp = struct {
                     const p1 = apply(it.gs.ctm, x + nv(n[2]), y + nv(n[3]));
                     it.touch(p0);
                     it.touch(p1);
+                    // (a rectangle turned by the matrix -- a diamond bullet -- has its other corners elsewhere)
+                    it.touch(apply(it.gs.ctm, x + nv(n[2]), y));
+                    it.touch(apply(it.gs.ctm, x, y + nv(n[3])));
                     try it.path.append(it.a, .{ p0[0], p0[1], p1[0], p1[1] });
                 }
             } else if (eq(op, "m")) {
@@ -2763,6 +2766,29 @@ fn fragments(a: Allocator, pg: Page, page_no: u32, text: []const u8, out: *std.A
                 }
                 if (row_spaces and gap > lim * @max(prev.size, g.size) and !isBlankGlyph(glyphText(text, prev)) and !isBlankGlyph(glyphText(text, g))) cut = true;
                 if (marker_tail) cut = false;
+                // a marker in the full-width conventions ("（一）", "1．", "①") set apart from its text by a hanging indent: the
+                // text it heads is the rest of the line
+                if (cut and gap <= 4.0 * @max(prev.size, g.size) and k - st <= 4) {
+                    var mb: [32]u8 = undefined;
+                    var ml: usize = 0;
+                    var wide = false;
+                    var okm = true;
+                    for (row.items[st..k]) |mk| {
+                        const t0 = glyphText(text, gl[mk]);
+                        if (t0.len == 0 or ml + t0.len + 2 > mb.len) {
+                            okm = false;
+                            break;
+                        }
+                        @memcpy(mb[ml .. ml + t0.len], t0);
+                        ml += t0.len;
+                        if (firstCp(t0) >= 0x2460 or firstCp(t0) == 0xB0 or firstCp(t0) == 0xBA) wide = true;
+                    }
+                    if (okm and wide and ml > 0) {
+                        mb[ml] = ' ';
+                        mb[ml + 1] = 'x';
+                        if (startsListMarker(mb[0 .. ml + 2]) == ml + 1) cut = false;
+                    }
+                }
             }
             if (!cut) continue;
             try out.append(a, try makeFrag(a, gl, row.items[st..k], text, page_no));
@@ -3965,6 +3991,34 @@ fn mergeFillRows(a: Allocator, fills: []Rule) ![]Rule {
     return out.items;
 }
 
+// A header whose cells wrap: the table's first two rows are the two lines of the same header row -- the first holds
+// the upper line of only some cells (the others, set on one line, sit low), the second has every cell and continues
+// each of those with a bracket ("SGK işçi payı" over "(%14)"). They are one row.
+fn mergeWrappedHeader(a: Allocator, tables: []TableOut) void {
+    for (tables) |*t| {
+        if (t.rows.len < 3) continue;
+        const r0 = t.rows[0];
+        const r1 = t.rows[1];
+        if (r0.len != r1.len or r0.len < 3) continue;
+        var up: usize = 0;
+        var ok = true;
+        for (r0, r1) |c0, c1| {
+            if (c1.len == 0) ok = false;
+            if (c0.len == 0) continue;
+            up += 1;
+            if (!(c1.len > 0 and c1[0] == '(')) ok = false;
+        }
+        if (!ok or up == 0 or up * 2 > r0.len) continue;
+        for (r0, 0..) |c0, ci| {
+            if (c0.len > 0) {
+                const joined = std.mem.concat(a, u8, &.{ c0, " ", r1[ci] }) catch continue;
+                r1[ci] = joined;
+            }
+        }
+        t.rows = t.rows[1..];
+    }
+}
+
 // A first column of row-group labels: each label is set centred beside the rows it spans, so it stands on the middle
 // row of its group (odd groups of three or more); the group is the rows around it, and the label repeats in each. The
 // groups tile the body from its first row, so each one's size follows from where its label stands. A last row that
@@ -4116,6 +4170,99 @@ fn findAlignedTables(a: Allocator, frags: []Frag, rules: []Rule, tables: *std.Ar
             if (f.x0 >= x and f.x0 - x < 3 * f.size) right = true;
         }
         if (left and right) try seps.append(a, r);
+    }
+    // a numbered list of phrases set beside a table with no rule between them (a recipe's steps beside its ingredients):
+    // the list's left edge is the boundary, over the rows the list and the table share
+    {
+        var used_y: std.ArrayList(f32) = .empty;
+        for (frags) |g| {
+            if (g.table >= 0 or g.text.len == 0 or startsListMarker(g.text) == 0 or proseWords(g.text) < 5) continue;
+            // (the run of lines at this edge, one under another: its start, its end, and the steps in it)
+            var start_y = g.y0;
+            var moved = true;
+            while (moved) {
+                moved = false;
+                for (frags) |h| {
+                    if (h.table >= 0 or h.text.len == 0 or h.x0 < g.x0 - 2 or h.x0 > g.x0 + 3.5 * g.size) continue;
+                    if (h.y0 < start_y - 0.1 and start_y - h.y1 <= 1.5 * g.size) {
+                        start_y = h.y0;
+                        moved = true;
+                    }
+                }
+            }
+            var seen = false;
+            for (used_y.items) |uy| {
+                if (@abs(uy - start_y) < 1) seen = true;
+            }
+            if (seen) continue;
+            var n: usize = 0;
+            const y0: f32 = start_y;
+            var y1: f32 = start_y + 0.5 * g.size; // (inside the first line, whose end the loop then finds)
+            moved = true;
+            while (moved) {
+                moved = false;
+                for (frags) |h| {
+                    if (h.table >= 0 or h.text.len == 0 or h.x0 < g.x0 - 2 or h.x0 > g.x0 + 3.5 * g.size) continue;
+                    if (h.y0 > y1 + 0.1 and h.y0 - y1 <= 1.5 * g.size) {
+                        y1 = h.y1;
+                        moved = true;
+                    }
+                }
+            }
+            y1 = @max(y1, g.y1);
+            for (frags) |h| {
+                if (h.table >= 0 or h.text.len == 0 or startsListMarker(h.text) == 0 or proseWords(h.text) < 5 or @abs(h.x0 - g.x0) > 2) continue;
+                if (h.y0 >= y0 - 1 and h.y1 <= y1 + 1) n += 1;
+            }
+            if (n < 3) continue;
+            try used_y.append(a, start_y);
+            const x = g.x0 - 0.8 * g.size;
+            // the text of the table beside it: left of the boundary, within the list's rows, and the rows that go on
+            var lefts: usize = 0;
+            var grew = true;
+            var ya = y0;
+            var yb = y1 + 2.5 * g.size;
+            while (grew) {
+                grew = false;
+                for (frags) |h| {
+                    if (h.table >= 0 or h.text.len == 0 or (h.x0 + h.x1) / 2 >= x or x - h.x1 > 8 * h.size) continue;
+                    if (h.y1 > ya - 0.3 * h.size and h.y0 < yb + 0.3 * h.size) {
+                        if (h.y0 < ya - 0.1) {
+                            ya = h.y0;
+                            grew = true;
+                        }
+                        if (h.y1 > yb) {
+                            yb = h.y1 + 1.6 * h.size;
+                            grew = true;
+                        }
+                    }
+                }
+            }
+            // (the table beside the list: three rows or more of two cells or more -- a column of plain text is not one)
+            var multi: usize = 0;
+            for (frags, 0..) |h, hk| {
+                if (h.table >= 0 or h.text.len == 0 or (h.x0 + h.x1) / 2 >= x or h.y0 < ya - 1 or h.y1 > yb) continue;
+                lefts += 1;
+                // (counted once per row: at its leftmost cell)
+                var first = true;
+                var other = false;
+                for (frags, 0..) |o, ok_| {
+                    if (ok_ == hk or o.table >= 0 or o.text.len == 0 or (o.x0 + o.x1) / 2 >= x or @abs(o.base - h.base) > 0.3 * h.size) continue;
+                    other = true;
+                    if (o.x0 < h.x0) first = false;
+                }
+                if (first and other) multi += 1;
+            }
+            // (a clean boundary: no line of the region crosses it)
+            // (and the right side holds nothing but the list: every line there starts at the list's own edge)
+            var crossing = false;
+            for (frags) |h| {
+                if (h.table >= 0 or h.text.len == 0 or h.y0 < ya - 1 or h.y1 > yb) continue;
+                if (h.x0 < x and h.x1 > x) crossing = true;
+                if (h.x0 >= x and (h.x0 < g.x0 - 2 or h.x0 > g.x0 + 3.5 * g.size)) crossing = true;
+            }
+            if (lefts >= 4 and multi >= 3 and !crossing and yb - ya <= (y1 - y0) + 6 * g.size) try seps.append(a, .{ .x0 = x, .x1 = x, .y0 = ya, .y1 = yb });
+        }
     }
     if (seps.items.len == 0) return findAlignedTablesIn(a, frags, rules, -1e9, 1e9, tables);
     const held = std.math.maxInt(i32) - 1;
@@ -4779,7 +4926,8 @@ fn growTables(a: Allocator, frags: []Frag, tables: *std.ArrayList(TableOut)) !vo
                 any = true;
                 if (!f.bold) top_bold = false;
             }
-            if (any and top_bold) hguard = 6;
+            // (a first row that is a section row -- one label in every cell -- is no header: the header lies above it)
+            if (any and top_bold and !(t.rows.len > 0 and isSectionRow(t.rows[0]))) hguard = 6;
         }
         while (hguard < 6) : (hguard += 1) {
             var band = try bandAbove(a, frags, t.*, edge);
@@ -5580,6 +5728,8 @@ fn otherListMarker(t: []const u8) ?usize {
             if (e < t.len and t[e] == ' ') return e + 1;
         }
         if (groups == 1 and i + 1 < t.len and t[i] == '-' and t[i + 1] == ' ') return i + 2;
+        // "1°" / "2º": a number and the ordinal sign, then a space
+        if (groups == 1 and i + 2 < t.len and (std.mem.startsWith(u8, t[i..], "\u{00B0} ") or std.mem.startsWith(u8, t[i..], "\u{00BA} "))) return i + 3;
         if (groups == 1 and i + 3 < t.len and t[i] == '.' and (std.mem.startsWith(u8, t[i + 1 ..], "\u{00AA} ") or std.mem.startsWith(u8, t[i + 1 ..], "\u{00BA} "))) return i + 4;
     }
     // the Persian "alef" marker, three letters: "الف)"
@@ -5603,7 +5753,7 @@ fn otherListMarker(t: []const u8) ?usize {
     {
         var nd: usize = 0;
         var cp = c0;
-        while (cp >= 0xFF10 and cp <= 0xFF19 and nd < 2) {
+        while (((cp >= 0xFF10 and cp <= 0xFF19) or (cp >= '0' and cp <= '9')) and nd < 2) {
             nd += 1;
             cp = it.nextCodepoint() orelse return null;
         }
@@ -5664,7 +5814,7 @@ fn otherListMarker(t: []const u8) ?usize {
     }
     // a single non-Latin letter then "." or ")"
     // (Thai consonants, Hangul syllables and kana count too: "ก.", "가.", "ア)")
-    const own_letter = (c0 >= 0x0E01 and c0 <= 0x0E2E) or (c0 >= 0xAC00 and c0 <= 0xD7A3) or (c0 >= 0x3041 and c0 <= 0x30FA) or (c0 >= 0x1200 and c0 <= 0x135A) or (c0 >= 0x10D0 and c0 <= 0x10FA);
+    const own_letter = (c0 >= 0x0904 and c0 <= 0x0939) or (c0 >= 0x0E01 and c0 <= 0x0E2E) or (c0 >= 0xAC00 and c0 <= 0xD7A3) or (c0 >= 0x3041 and c0 <= 0x30FA) or (c0 >= 0x1200 and c0 <= 0x135A) or (c0 >= 0x10D0 and c0 <= 0x10FA);
     if (c0 >= 0x0370 and (isLtrCp(c0) or isRtlCp(c0) or own_letter) and !isMarkCp(c0)) {
         const p = it.nextCodepoint() orelse return null;
         // (or a dash, the Arabic convention: "أ-", "ب-")
@@ -5996,6 +6146,7 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
         }
         try stackTables(a, frags.items, &tables);
         fillLabelColumns(tables.items);
+        mergeWrappedHeader(a, tables.items);
         try groupHeaders(a, frags.items, &tables);
         // units: the fragments outside tables, plus one unit per table
         var units: std.ArrayList(Frag) = .empty;
@@ -6065,7 +6216,7 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
                         join = if (list_rtl) f.x1 <= list_x + 0.5 * f.size else f.x0 >= list_x - 0.5 * f.size;
                         // (a line wrapped flush with the marker -- an item set "inside" -- when the item has not ended
                         //  and the line goes on in lower case)
-                        if (!join and !list_rtl and f.x0 >= b.x0 - 0.5 * f.size and startsLower(f.text) and cur_text.items.len > 0 and
+                        if (!join and !list_rtl and f.x0 >= b.x0 - 1.5 * f.size and f.x0 <= b.x0 + 1.0 * f.size and startsLower(f.text) and cur_text.items.len > 0 and
                             std.mem.indexOfScalar(u8, ".;:!?", cur_text.items[cur_text.items.len - 1]) == null) join = true;
                     } else join = true;
                 }
@@ -6343,7 +6494,8 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
                 const logo = b.kind == .heading and (!hasLower(b.text) or (b.y1 < tblk.y0 and b.size < 0.9 * tblk.size and wordCount(b.text) <= 6 and b.lines <= 2));
                 // (address lines read together as one block: up to eight words a line, and no sentence's full stop)
                 const ends_stop = b.text.len > 0 and b.text[b.text.len - 1] == '.';
-                const short_line = b.kind == .paragraph and ((b.lines <= 3 and wordCount(b.text) <= 12) or (b.lines <= 4 and wordCount(b.text) <= 8 * b.lines and !ends_stop));
+                const short_line = b.kind == .paragraph and ((b.lines <= 3 and wordCount(b.text) <= 12) or (b.lines <= 4 and wordCount(b.text) <= 8 * b.lines and !ends_stop) or
+                    (b.lines == 1 and !ends_stop and b.size < tblk.size and (std.mem.indexOfScalar(u8, b.text, '@') != null or std.mem.indexOf(u8, b.text, "www.") != null)));
                 if (logo or short_line) b.kind = .page_header;
             }
         }

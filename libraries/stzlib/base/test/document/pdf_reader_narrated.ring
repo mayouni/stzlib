@@ -693,6 +693,24 @@ Scenario("Markers set apart at the right, items wrapped flush with their marker,
 	Then("a title letter-spaced with uneven gaps is one word", StzFindFirst("御見積書", "" + @@(StzPdfQ("_data/golden_v30/r07.pdf").Headings())) > 0, 1)
 EndScenario()
 
+# ---- the thirty-first round: full-width markers kept with their text, a table beside a list, diamond bullets (golden_v31)
+
+Scenario("Markers set apart by a hanging indent keep their text, and a table beside a numbered list is read alone")
+	Then("a full-width stop after an ASCII digit, set apart from its text, heads the item", StzFindFirst("1． 完成三栋楼的楼道照明改造。", "" + @@(StzPdfQ("_data/golden_v31/s05.pdf").ListItems())) > 0, 1)
+	Then("an ordinal sign after a number is a marker, and its text stays with it", StzFindFirst("1° Atelier 1 : sécheresse et agriculture", "" + @@(StzPdfQ("_data/golden_v31/s10.pdf").ListItems())) > 0, 1)
+	Then("a Devanagari letter and a stop is a marker", StzFindFirst("ख. उच्च कक्षाओं के लिए", "" + @@(StzPdfQ("_data/golden_v31/s08.pdf").ListItems())) > 0, 1)
+	Then("a line wrapped to the left of its marker (the text hangs outside) joins the item", StzFindFirst("(i) walk the mean high-water line from the north marker to the south marker;", "" + @@(StzPdfQ("_data/golden_v31/s17.pdf").ListItems())) > 0, 1)
+	Then("bullets drawn as turned squares are bullets", StzFindFirst("A change scanner that is about three times faster on large folders.", "" + @@(StzPdfQ("_data/golden_v31/s18.pdf").ListItems())) > 0, 1)
+	aT = StzPdfQ("_data/golden_v31/s23.pdf").Tables()
+	Then("the ingredients beside a numbered recipe are a table of their own", @@(aT[1][2]), @@([ "Carne macinata di manzo", "500 g" ]))
+	Then("and hold all their rows, the ones past the last step too", len(aT[1]) >= 8, 1)
+	aT = StzPdfQ("_data/golden_v31/s12.pdf").Tables()
+	Then("a header whose cells wrap onto a bracketed second line is one row", aT[2][1][3], "SGK işçi payı (%14)")
+	aT = StzPdfQ("_data/golden_v31/s24.pdf").Tables()
+	Then("a grid opening with a section row takes the header above it", @@(aT[2][1]), @@([ "Item", "Condition", "Notes" ]))
+	Then("a letterhead address with an e-mail under the name is letterhead", StzFindFirst("info@calamar-reformas.example", "" + @@(StzPdfQ("_data/golden_v31/s11.pdf").Furniture())) > 0, 1)
+EndScenario()
+
 Scenario("A file that is not a readable PDF is refused with the reason")
 	bRaised = 0
 	cWhy = ""

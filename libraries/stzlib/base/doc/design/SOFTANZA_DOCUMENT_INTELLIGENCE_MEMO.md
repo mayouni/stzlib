@@ -632,6 +632,21 @@ golden_v31: 24 realistic documents in 17 languages (English in eight; Arabic, He
 Time for the 24 documents: native 0.07 s, Docling 114 s. The native reader leads on six measures and on heading precision, and ties on order. Where Docling does better, document by document: tables on four (s12 0.48 against 0.99, s23 0.28 against 0.98, s24 0.47 against 0.68, s04 0.81 against 0.93), lists on one (s05, Chinese, 0.00 against 0.73), furniture on one (s08). Causes not yet looked into: round 31.
 
 
+**Thirty-first round: markers kept with their text, a table beside a numbered list, diamond bullets, wrapped headers; then golden_v32.** Fixed on golden_v31 (now a development set) and checked on all thirty-one sets:
+- a marker in the full-width conventions ("（一）", "1．", "①") or an ordinal ("1°") set apart from its text by a hanging indent stays on the line with the text it heads (it was cut at the gap and read as a paragraph of its own); an ASCII digit before a full-width stop is a marker; Devanagari letters are list markers;
+- a list line wrapped to the LEFT of its marker (the text hangs outside it) joins the item while the item goes on in lower case;
+- a rectangle turned by the page matrix (a diamond bullet, a square turned 45 degrees) lost two of its corners in the bounding box, so its width read zero and it was never a bullet: all four corners count now;
+- a numbered list of phrases beside a table with no rule between them (a recipe's steps beside its ingredients): the list's left edge is the boundary, over the rows they share, when the right side holds nothing but the list, no line crosses the boundary and the left side has three rows of two cells or more. Three broader forms cost k13, h14 and r22 (a table whose right-hand columns stood where a list stood, a two-column page, a list whose continuation lines remained);
+- a ruled grid that opens with a section row ("Kitchen" in every cell) takes the header above it (it counted as a header of its own);
+- a header whose cells wrap onto a second line that opens with a bracket ("SGK işçi payı" over "(%14)") is one row (lower-case continuations took group labels for wrapped cells: a03);
+- a one-line address with an e-mail or a web address under the letterhead's name is letterhead.
+
+Not fixed, and why: s06 and s05 expect a space after a full-width marker the PDF does not draw (the authors disagree: v29 expected none); s21's totals row sets its right-aligned figures one column left of their header, so the two halves of its table do not join across the page; s09 sets "aa)" and "bb)" inline in a running sentence; s05's "1、" items are inline in a paragraph.
+
+On the development sets, against round 30 frozen: lists v31 0.82 -> 0.93, v14 0.87 -> 0.89, v20 0.85 -> 0.87, v26 0.83 -> 0.85, v27 0.90 -> 0.92, v24 0.92 -> 0.93; tables v31 0.88 -> 0.95, v17 0.81 -> 0.86, v26 0.85 -> 0.87, v28 0.79 -> 0.81; furniture v31 0.89 -> 0.90, v24 0.80 -> 0.82, v20 0.80 -> 0.81. No set lost on any measure. Guard 266 assertions under Ring++.
+
+golden_v32: DLV32
+
 **Perceived (2026-10-24):** the author looked through every rendered page of golden_v9 to golden_v13 -- the sets whose own authors could not look at them -- and judged them: "they look great". Those five sets are no longer unperceived; the sets before them were generated the same way and are not covered by this look.
 
 **Perceived (2026-10-29):** the author looked at the generated documents of golden_v14 to golden_v22 and judged them: "they are ok". Those nine sets are no longer unperceived.
