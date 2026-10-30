@@ -43,6 +43,7 @@ class stzPdf from stzObject
 	@aInfo = []
 	@aBlocks = []
 	@cText = ""
+	@aImages = []
 
 	# Reads the PDF at pcPath through the engine and keeps its blocks, its text and its facts.
 	#
@@ -59,6 +60,7 @@ class stzPdf from stzObject
 		@aInfo = StzEnginePdfInfo()
 		@aBlocks = StzEnginePdfBlocks()
 		@cText = StzEnginePdfText()
+		@aImages = StzEnginePdfImages()
 		StzEnginePdfClose()
 
 	  #------------------#
@@ -229,3 +231,102 @@ class stzPdf from stzObject
 			if @aBlocks[_i_][2] = pcKind _aRes_ + [ @aBlocks[_i_][3], @aBlocks[_i_][11] ] ok
 		next
 		return _aRes_
+
+	  #------------------#
+	 #  PAGE IMAGES     #
+	#------------------#
+
+	# Returns the images drawn on the pages, in page order, each as a record: the page, the box it lands in
+	# (page points, y down), its width and height in pixels, its bits per component, its components (1 gray,
+	# 3 RGB, 4 CMYK), its stream filter, and its kind -- "samples" when the engine decoded it, "jpeg" when the
+	# stream is a JPEG the engine hands out as it is, "unsupported" when it is neither (JPX, CCITT, JBIG2).
+	#
+	#   returns    a list of records [ :page, :box, :width, :height, :bits, :components, :filter, :kind ]
+	def PageImages()
+		_aRes_ = []
+		_n_ = ring_len(@aImages)
+		for _i_ = 1 to _n_
+			_a_ = @aImages[_i_]
+			_aRes_ + [ :page = _a_[1], :box = [ _a_[2], _a_[3], _a_[4], _a_[5] ], :width = _a_[6], :height = _a_[7],
+				   :bits = _a_[8], :components = _a_[9], :filter = _a_[10], :kind = _a_[11] ]
+		next
+		return _aRes_
+
+	def NumberOfImages()
+		return ring_len(@aImages)
+
+	def HasImages()
+		return ring_len(@aImages) > 0
+
+	# TRUE when the document is a scan: pages with images and no text layer.
+	def IsScanned()
+		return NOT This.HasText() and This.HasImages()
+
+	# Writes image number pnImage to a file and returns its path: pcPathBase with ".jpg" for a JPEG stream, ".bmp"
+	# for decoded samples; raises when the image is of a kind the engine does not hand out.
+	#
+	#   pnImage     the image's number in PageImages(), from 1
+	#   pcPathBase  the path to write, without extension (the right one is added)
+	#   returns     the path written
+	def SaveImage(pnImage, pcPathBase)
+		if pnImage < 1 or pnImage > ring_len(@aImages)
+			stzraise("stzPdf: no image number " + pnImage + " (the document has " + ring_len(@aImages) + ")")
+		ok
+		_cKind_ = @aImages[pnImage][11]
+		if _cKind_ = "unsupported"
+			stzraise("stzPdf: image " + pnImage + " is " + @aImages[pnImage][10] + "-encoded, which the engine does not hand out")
+		ok
+		_cPath_ = pcPathBase + ".bmp"
+		if _cKind_ = "jpeg" _cPath_ = pcPathBase + ".jpg" ok
+		_n_ = StzEnginePdfOpen(@cPath)
+		if _n_ < 0
+			_cWhy_ = StzEnginePdfError()
+			StzEnginePdfClose()
+			stzraise("Can't re-read the PDF '" + @cPath + "': " + _cWhy_ + ".")
+		ok
+		_bOk_ = StzEnginePdfImageSave(pnImage, _cPath_)
+		_cWhy_ = StzEnginePdfError()
+		StzEnginePdfClose()
+		if NOT _bOk_
+			stzraise("stzPdf: image " + pnImage + " could not be written: " + _cWhy_)
+		ok
+		return _cPath_
+
+	# Writes the largest image of a page to a temporary file and returns its path ("" when the page has none).
+	def PageImageFile(pnPage)
+		_nBest_ = 0
+		_nArea_ = 0
+		_n_ = ring_len(@aImages)
+		for _i_ = 1 to _n_
+			if @aImages[_i_][1] = pnPage and @aImages[_i_][11] != "unsupported"
+				_nA_ = @aImages[_i_][6] * @aImages[_i_][7]
+				if _nA_ > _nArea_
+					_nArea_ = _nA_
+					_nBest_ = _i_
+				ok
+			ok
+		next
+		if _nBest_ = 0 return "" ok
+		return This.SaveImage(_nBest_, sysget("TEMP") + "\stz_pdf_p" + pnPage + "_" + random(999999))
+
+	# The :ocr reader over the pages' images: the registry picks its implementation (the platform floor until a
+	# model is measured better); its Text() is the pages' text in reading order of the lines.
+	#
+	#   pcLang     the language pack to read with, or "" for the user's own languages
+	#   returns    a stzOcr
+	def Ocr(pcLang)
+		_aPages_ = []
+		_nP_ = This.NumberOfPages()
+		for _i_ = 1 to _nP_
+			_c_ = This.PageImageFile(_i_)
+			if _c_ != "" _aPages_ + _c_ ok
+		next
+		if ring_len(_aPages_) = 0
+			stzraise("stzPdf: no page image to read -- the document has no image the engine hands out")
+		ok
+		return StzOcrQ([ :pages = _aPages_, :lang = pcLang ])
+
+	# The text layer when there is one, the OCR text of the page images otherwise.
+	def TextOrOcr(pcLang)
+		if This.HasText() return @cText ok
+		return This.Ocr(pcLang).Text()

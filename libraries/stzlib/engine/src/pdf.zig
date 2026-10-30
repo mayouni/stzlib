@@ -1164,6 +1164,8 @@ pub const Glyph = struct {
 };
 
 const Rule = struct { x0: f32, y0: f32, x1: f32, y1: f32 }; // a thin rectangle or a stroked line: a table ruling
+// an image XObject drawn on a page: where it lands (page coordinates, y down) and the stream it comes from
+const ImageRef = struct { x0: f32, y0: f32, x1: f32, y1: f32, st: *Stream, w: u32, h: u32, bpc: u32 };
 
 const GState = struct {
     ctm: M = ident,
@@ -1195,6 +1197,7 @@ const Interp = struct {
     rules: *std.ArrayList(Rule),
     dots: *std.ArrayList(Rule),
     fills: *std.ArrayList(Rule),
+    images: *std.ArrayList(ImageRef),
     text: *std.ArrayList(u8),
     fonts: *std.AutoHashMapUnmanaged(usize, *Font),
     page_top: f64,
@@ -1621,6 +1624,31 @@ const Interp = struct {
         if (xo != .stream) return;
         const st = xo.stream;
         const sub = it.d.get(st.dict, "Subtype");
+        if (sub == .name and eq(sub.name, "Image")) {
+            // (the unit square under the current matrix is where the image lands)
+            const c0 = apply(it.gs.ctm, 0, 0);
+            const c1 = apply(it.gs.ctm, 1, 0);
+            const c2 = apply(it.gs.ctm, 0, 1);
+            const c3 = apply(it.gs.ctm, 1, 1);
+            const xmin = @min(@min(c0[0], c1[0]), @min(c2[0], c3[0]));
+            const xmax = @max(@max(c0[0], c1[0]), @max(c2[0], c3[0]));
+            const ymin = @min(@min(c0[1], c1[1]), @min(c2[1], c3[1]));
+            const ymax = @max(@max(c0[1], c1[1]), @max(c2[1], c3[1]));
+            const wv = numOf(it.d.get(st.dict, "Width")) orelse 0;
+            const hv = numOf(it.d.get(st.dict, "Height")) orelse 0;
+            const bv = numOf(it.d.get(st.dict, "BitsPerComponent")) orelse 8;
+            if (wv >= 1 and hv >= 1) try it.images.append(it.a, .{
+                .x0 = @floatCast(xmin - it.page_left),
+                .y0 = @floatCast(it.page_top - ymax),
+                .x1 = @floatCast(xmax - it.page_left),
+                .y1 = @floatCast(it.page_top - ymin),
+                .st = st,
+                .w = @intFromFloat(wv),
+                .h = @intFromFloat(hv),
+                .bpc = @intFromFloat(bv),
+            });
+            return;
+        }
         if (sub != .name or !eq(sub.name, "Form")) return;
         const data = it.d.decode(st) catch return;
         const saved = it.gs;
@@ -2694,7 +2722,7 @@ fn persianDigits(a: Allocator, t: []const u8) ![]const u8 {
     return if (changed) out.items else t;
 }
 
-const Page = struct { glyphs: []Glyph, rules: []Rule, dots: []Rule, fills: []Rule = &.{}, width: f32, height: f32 };
+const Page = struct { glyphs: []Glyph, rules: []Rule, dots: []Rule, fills: []Rule = &.{}, images: []ImageRef = &.{}, width: f32, height: f32 };
 
 fn trimSpace(t: []const u8) []const u8 {
     var s0: usize = 0;
@@ -6146,11 +6174,243 @@ pub const Result = struct {
     page_heights: []f32 = &.{}, // each page's height in points, from its crop box (or media box)
     blocks: []Block = &.{},
     text: []const u8 = "",
+    images: []ImageOut = &.{}, // the page images, in page order (a scan is one image and no text)
 
     pub fn deinit(r: *Result) void {
         r.arena.deinit();
     }
 };
+
+/// A page image as the reader hands it out: 8-bit samples with `ncomp` channels (1 gray, 3 RGB, 4 CMYK) when it could
+/// decode them, the raw JPEG bytes when the stream is DCT-encoded, or nothing when the encoding is not read (JPX,
+/// CCITT, JBIG2, a colour space it does not know, an image too large).
+pub const ImageKind = enum { samples, jpeg, unsupported };
+pub const ImageOut = struct {
+    page: u32,
+    x0: f32,
+    y0: f32,
+    x1: f32,
+    y1: f32,
+    w: u32,
+    h: u32,
+    bpc: u32,
+    ncomp: u32,
+    filter: []const u8,
+    kind: ImageKind,
+    data: []const u8,
+};
+
+/// The image as a 24-bit BMP file (BGR, rows padded to four bytes, bottom-up), for a decoder that reads files.
+pub fn imageBmp(a: Allocator, img: ImageOut) ![]u8 {
+    if (img.kind != .samples) return error.NotSamples;
+    const w: usize = img.w;
+    const h: usize = img.h;
+    const rowlen = (w * 3 + 3) & ~@as(usize, 3);
+    const size = 54 + rowlen * h;
+    const out = try a.alloc(u8, size);
+    @memset(out, 0);
+    out[0] = 'B';
+    out[1] = 'M';
+    std.mem.writeInt(u32, out[2..6], @intCast(size), .little);
+    std.mem.writeInt(u32, out[10..14], 54, .little);
+    std.mem.writeInt(u32, out[14..18], 40, .little);
+    std.mem.writeInt(i32, out[18..22], @intCast(w), .little);
+    std.mem.writeInt(i32, out[22..26], @intCast(h), .little);
+    std.mem.writeInt(u16, out[26..28], 1, .little);
+    std.mem.writeInt(u16, out[28..30], 24, .little);
+    std.mem.writeInt(u32, out[34..38], @intCast(rowlen * h), .little);
+    std.mem.writeInt(u32, out[38..42], 2835, .little);
+    std.mem.writeInt(u32, out[42..46], 2835, .little);
+    const nc: usize = img.ncomp;
+    var y: usize = 0;
+    while (y < h) : (y += 1) {
+        const dst = out[54 + (h - 1 - y) * rowlen ..];
+        const src = img.data[y * w * nc ..];
+        var x: usize = 0;
+        while (x < w) : (x += 1) {
+            var r: u8 = 0;
+            var g: u8 = 0;
+            var b: u8 = 0;
+            switch (nc) {
+                1 => {
+                    r = src[x];
+                    g = r;
+                    b = r;
+                },
+                3 => {
+                    r = src[x * 3];
+                    g = src[x * 3 + 1];
+                    b = src[x * 3 + 2];
+                },
+                4 => {
+                    const c: u32 = src[x * 4];
+                    const m: u32 = src[x * 4 + 1];
+                    const yy: u32 = src[x * 4 + 2];
+                    const k: u32 = src[x * 4 + 3];
+                    r = @intCast((255 - c) * (255 - k) / 255);
+                    g = @intCast((255 - m) * (255 - k) / 255);
+                    b = @intCast((255 - yy) * (255 - k) / 255);
+                },
+                else => {},
+            }
+            dst[x * 3] = b;
+            dst[x * 3 + 1] = g;
+            dst[x * 3 + 2] = r;
+        }
+    }
+    return out;
+}
+
+// the number of components of a colour space, and the palette of an indexed one (base components, hival, lookup)
+const ColorInfo = struct { n: u32 = 0, index_base: u32 = 0, index_hival: u32 = 0, index_lookup: []const u8 = &.{} };
+
+fn colorInfo(d: *Doc, cs: Obj, depth: u32) ColorInfo {
+    if (depth > 4) return .{};
+    const csr = d.resolve(cs);
+    switch (csr) {
+        .name => |nm| {
+            if (eq(nm, "DeviceGray") or eq(nm, "G") or eq(nm, "CalGray")) return .{ .n = 1 };
+            if (eq(nm, "DeviceRGB") or eq(nm, "RGB") or eq(nm, "CalRGB")) return .{ .n = 3 };
+            if (eq(nm, "DeviceCMYK") or eq(nm, "CMYK")) return .{ .n = 4 };
+            return .{};
+        },
+        .arr => |arr| {
+            if (arr.len == 0) return .{};
+            const fam = d.resolve(arr[0]);
+            if (fam != .name) return .{};
+            if (eq(fam.name, "ICCBased")) {
+                if (arr.len < 2) return .{ .n = 3 };
+                const stv = d.resolve(arr[1]);
+                if (stv == .stream) {
+                    if (numOf(d.get(stv.stream.dict, "N"))) |ncomp| return .{ .n = @intFromFloat(ncomp) };
+                }
+                return .{ .n = 3 };
+            }
+            if (eq(fam.name, "CalRGB") or eq(fam.name, "Lab")) return .{ .n = 3 };
+            if (eq(fam.name, "CalGray")) return .{ .n = 1 };
+            if (eq(fam.name, "DeviceGray") or eq(fam.name, "DeviceRGB") or eq(fam.name, "DeviceCMYK")) return colorInfo(d, arr[0], depth + 1);
+            if (eq(fam.name, "Indexed") or eq(fam.name, "I")) {
+                if (arr.len < 4) return .{};
+                const base = colorInfo(d, arr[1], depth + 1);
+                if (base.n == 0 or base.index_base != 0) return .{};
+                const hival = numOf(d.resolve(arr[2])) orelse return .{};
+                const lk = d.resolve(arr[3]);
+                var lookup: []const u8 = &.{};
+                if (lk == .str) lookup = lk.str else if (lk == .stream) lookup = d.decode(lk.stream) catch return .{} else return .{};
+                return .{ .n = base.n, .index_base = base.n, .index_hival = @intFromFloat(hival), .index_lookup = lookup };
+            }
+            return .{};
+        },
+        else => return .{},
+    }
+}
+
+// the image's samples as 8-bit channels, from its stream: one byte per component per pixel
+fn imageSamples(d: *Doc, a: Allocator, img: ImageRef, ci: ColorInfo, invert: bool) ![]const u8 {
+    const raw = try d.decode(img.st);
+    const w: usize = img.w;
+    const h: usize = img.h;
+    const bpc: usize = img.bpc;
+    const nin: usize = if (ci.index_base != 0) 1 else ci.n;
+    const nout: usize = ci.n;
+    const rowbits = w * nin * bpc;
+    const rowbytes = (rowbits + 7) / 8;
+    if (raw.len < rowbytes * h) return error.ShortImage;
+    const out = try a.alloc(u8, w * h * nout);
+    const maxv: u32 = (@as(u32, 1) << @intCast(bpc)) - 1;
+    var y: usize = 0;
+    while (y < h) : (y += 1) {
+        const row = raw[y * rowbytes ..];
+        var x: usize = 0;
+        while (x < w * nin) : (x += 1) {
+            var v: u32 = 0;
+            switch (bpc) {
+                8 => v = row[x],
+                16 => v = row[x * 2],
+                1, 2, 4 => {
+                    const bit = x * bpc;
+                    const byte = row[bit / 8];
+                    const shift: u3 = @intCast(8 - bpc - (bit % 8));
+                    v = (byte >> shift) & @as(u8, @intCast(maxv));
+                    v = v * 255 / maxv;
+                },
+                else => return error.UnsupportedDepth,
+            }
+            if (bpc == 1 and ci.index_base == 0 and invert) v = 255 - v;
+            if (ci.index_base != 0) {
+                // (the sample is an index into the palette; bpc 1-8 indices come scaled above, so undo that)
+                var iv: u32 = v;
+                if (bpc < 8) iv = (v * maxv + 127) / 255;
+                const nb: usize = ci.index_base;
+                const pi = (y * w + x) * nout;
+                var c: usize = 0;
+                while (c < nb) : (c += 1) {
+                    const li = @as(usize, iv) * nb + c;
+                    out[pi + c] = if (li < ci.index_lookup.len) ci.index_lookup[li] else 0;
+                }
+            } else {
+                out[y * w * nout + x] = @intCast(v);
+            }
+        }
+    }
+    return out;
+}
+
+// every image drawn on the pages, materialised while the file's bytes are still alive
+fn collectImages(d: *Doc, a: Allocator, page_list: []const Page) ![]ImageOut {
+    var out: std.ArrayList(ImageOut) = .empty;
+    for (page_list, 0..) |pg, pi| {
+        for (pg.images) |img| {
+            var filt: []const u8 = "";
+            var dct = false;
+            var nfilt: usize = 0;
+            const f = d.get(img.st.dict, "Filter");
+            switch (f) {
+                .name => |nm| {
+                    filt = nm;
+                    nfilt = 1;
+                    dct = eq(nm, "DCTDecode") or eq(nm, "DCT");
+                },
+                .arr => |arr| {
+                    nfilt = arr.len;
+                    if (arr.len > 0) {
+                        const last = d.resolve(arr[arr.len - 1]);
+                        if (last == .name) {
+                            filt = last.name;
+                            dct = eq(last.name, "DCTDecode") or eq(last.name, "DCT");
+                        }
+                    }
+                },
+                else => {},
+            }
+            var o = ImageOut{ .page = @intCast(pi + 1), .x0 = img.x0, .y0 = img.y0, .x1 = img.x1, .y1 = img.y1, .w = img.w, .h = img.h, .bpc = img.bpc, .ncomp = 0, .filter = try a.dupe(u8, filt), .kind = .unsupported, .data = &.{} };
+            const too_big = @as(u64, img.w) * @as(u64, img.h) > 80_000_000;
+            if (dct and nfilt == 1 and !too_big) {
+                o.kind = .jpeg;
+                o.data = try a.dupe(u8, img.st.raw);
+                o.ncomp = 3;
+            } else if (!dct and !too_big) {
+                const mask = d.get(img.st.dict, "ImageMask");
+                var ci = colorInfo(d, d.get(img.st.dict, "ColorSpace"), 0);
+                if (mask == .boolean and mask.boolean) ci = .{ .n = 1 };
+                var invert = false;
+                const dec = d.get(img.st.dict, "Decode");
+                if (dec == .arr and dec.arr.len >= 2) {
+                    if (numOf(d.resolve(dec.arr[0]))) |d0| invert = d0 > 0.5;
+                }
+                if (ci.n > 0 and ci.n <= 4) {
+                    if (imageSamples(d, a, img, ci, invert)) |samples| {
+                        o.kind = .samples;
+                        o.ncomp = ci.n;
+                        o.data = samples;
+                    } else |_| {}
+                }
+            }
+            try out.append(a, o);
+        }
+    }
+    return out.items;
+}
 
 pub const ReadError = error{ NotPdf, Encrypted, NoPages, OutOfMemory };
 
@@ -6202,7 +6462,8 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
         var rules: std.ArrayList(Rule) = .empty;
         var dots: std.ArrayList(Rule) = .empty;
         var fills: std.ArrayList(Rule) = .empty;
-        var it = Interp{ .d = &d, .a = a, .glyphs = &glyphs, .rules = &rules, .dots = &dots, .fills = &fills, .text = &text_bytes, .fonts = &fonts, .page_top = pg.box[3], .page_left = pg.box[0] };
+        var images: std.ArrayList(ImageRef) = .empty;
+        var it = Interp{ .d = &d, .a = a, .glyphs = &glyphs, .rules = &rules, .dots = &dots, .fills = &fills, .images = &images, .text = &text_bytes, .fonts = &fonts, .page_top = pg.box[3], .page_left = pg.box[0] };
         const contents = d.resolve(pg.dict.get("Contents") orelse .nul);
         var data: std.ArrayList(u8) = .empty;
         switch (contents) {
@@ -6220,8 +6481,9 @@ pub fn read(gpa: Allocator, bytes: []const u8) !Result {
         }
         it.run(data.items, pg.res) catch {};
         res.glyphs += glyphs.items.len;
-        try page_list.append(a, .{ .glyphs = glyphs.items, .rules = rules.items, .dots = dots.items, .fills = fills.items, .width = @floatCast(pg.box[2] - pg.box[0]), .height = @floatCast(pg.box[3] - pg.box[1]) });
+        try page_list.append(a, .{ .glyphs = glyphs.items, .rules = rules.items, .dots = dots.items, .fills = fills.items, .images = images.items, .width = @floatCast(pg.box[2] - pg.box[0]), .height = @floatCast(pg.box[3] - pg.box[1]) });
     }
+    res.images = collectImages(&d, a, page_list.items) catch &.{};
     const tb = text_bytes.items;
     {
         var hs = try a.alloc(f32, page_list.items.len);

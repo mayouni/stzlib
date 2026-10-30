@@ -224,6 +224,83 @@ fn ring_PdfText(p: *anyopaque) callconv(.c) void {
     } else rs2(p, &g_pdf_err, 0);
 }
 
+// StzEnginePdfImages() -> one [ nPage, nX0, nY0, nX1, nY1, nWidth, nHeight, nBits, nComponents, cFilter, cKind ]
+// per image drawn on a page, in page order; cKind is "samples", "jpeg" or "unsupported"
+fn ring_PdfImages(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    if (g_pdf) |r| {
+        for (r.images) |im| {
+            const l = R.ring_list_newlist(out) orelse continue;
+            R.ring_list_adddouble(l, @floatFromInt(im.page));
+            R.ring_list_adddouble(l, im.x0);
+            R.ring_list_adddouble(l, im.y0);
+            R.ring_list_adddouble(l, im.x1);
+            R.ring_list_adddouble(l, im.y1);
+            R.ring_list_adddouble(l, @floatFromInt(im.w));
+            R.ring_list_adddouble(l, @floatFromInt(im.h));
+            R.ring_list_adddouble(l, @floatFromInt(im.bpc));
+            R.ring_list_adddouble(l, @floatFromInt(im.ncomp));
+            R.ring_list_addstring2(l, im.filter.ptr, @intCast(im.filter.len));
+            const kn: []const u8 = switch (im.kind) {
+                .samples => "samples",
+                .jpeg => "jpeg",
+                .unsupported => "unsupported",
+            };
+            R.ring_list_addstring2(l, kn.ptr, @intCast(kn.len));
+        }
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
+// StzEnginePdfImageSave(nImage, cPath) -> 1 when written: a 24-bit BMP of the decoded samples, or the JPEG
+// stream's bytes as they are; 0 otherwise (StzEnginePdfError says why)
+fn ring_PdfImageSave(p: *anyopaque) callconv(.c) void {
+    const r = g_pdf orelse {
+        pdfSetError("no PDF is open");
+        rn(p, 0);
+        return;
+    };
+    const n: usize = @intFromFloat(g(p, 1));
+    if (n < 1 or n > r.images.len) {
+        pdfSetError("no image with that number");
+        rn(p, 0);
+        return;
+    }
+    const im = r.images[n - 1];
+    const path = gs(p, 2)[0..@intCast(gss(p, 2))];
+    var bytes: []const u8 = im.data;
+    var owned: ?[]u8 = null;
+    defer if (owned) |o| std.heap.page_allocator.free(o);
+    switch (im.kind) {
+        .jpeg => {},
+        .samples => {
+            owned = pdf.imageBmp(std.heap.page_allocator, im) catch {
+                pdfSetError("the image could not be laid out as a BMP");
+                rn(p, 0);
+                return;
+            };
+            bytes = owned.?;
+        },
+        .unsupported => {
+            pdfSetError("the image's encoding is not one the engine hands out");
+            rn(p, 0);
+            return;
+        },
+    }
+    const file = std.fs.cwd().createFile(path, .{}) catch {
+        pdfSetError("the file could not be created");
+        rn(p, 0);
+        return;
+    };
+    defer file.close();
+    file.writeAll(bytes) catch {
+        pdfSetError("the file could not be written");
+        rn(p, 0);
+        return;
+    };
+    rn(p, 1);
+}
+
 fn ring_PdfClose(p: *anyopaque) callconv(.c) void {
     pdfClose();
     rn(p, 1);
@@ -235,6 +312,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginepdfinfo", .func = &ring_PdfInfo },
     .{ .name = "stzenginepdfblocks", .func = &ring_PdfBlocks },
     .{ .name = "stzenginepdftext", .func = &ring_PdfText },
+    .{ .name = "stzenginepdfimages", .func = &ring_PdfImages },
+    .{ .name = "stzenginepdfimagesave", .func = &ring_PdfImageSave },
     .{ .name = "stzenginepdfclose", .func = &ring_PdfClose },
     .{ .name = "stzenginefilesetreadonly", .func = &ring_FileSetReadOnly },
     .{ .name = "stzenginefilewriteprivate", .func = &ring_FileWritePrivate },

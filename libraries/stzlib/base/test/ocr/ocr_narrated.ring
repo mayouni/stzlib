@@ -4,7 +4,9 @@
 # order; it refuses, naming what is missing, where the platform cannot serve. These scenes pin the declaration,
 # the reorder (which needs no engine), and -- where this machine has the packs -- the floor's reading of two golden
 # documents whose expectations were written by authors who never saw a reader (golden_v36/z09 in French,
-# golden_v35/y11 in Arabic), rendered at 150 dpi in _data/. A scene the machine cannot run is SKIPPED BY NAME.
+# golden_v35/y11 in Arabic), rendered at 150 dpi in _data/. Two scenes read a SCANNED PDF -- the synthetic scans
+# _data/scan_flate_gray.pdf and _data/scan_dct_rgb.pdf (z09 page 1 as one image, no text layer; _rig/_make_scan_pdfs.py)
+# -- through stzPdf.PageImages / SaveImage / TextOrOcr. A scene the machine cannot run is SKIPPED BY NAME.
 #
 #   cd libraries/stzlib/base/test/ocr ; rnxc ocr_narrated.ring
 
@@ -92,6 +94,41 @@ if StzOcrPlatformHas("fr-FR") and StzOcrPlatformHas("ar-SA")
 	EndScenario()
 else
 	? "SKIP: The registry measures the floor on the golden set -- both packs are needed on this machine"
+ok
+
+Scenario("A scanned PDF hands out its page image: Flate samples as a BMP, a JPEG stream as it is")
+	o = StzPdfQ($cDir + "scan_flate_gray.pdf")
+	Then("the scan has no text layer", o.HasText(), 0)
+	Then("and one image", o.NumberOfImages(), 1)
+	Then("so it is a scan", o.IsScanned(), 1)
+	aI = o.PageImages()
+	Then("the image is on page 1", aI[1][:page], 1)
+	Then("its size is the page's", @@([ aI[1][:width], aI[1][:height] ]), @@([ 1241, 1754 ]))
+	Then("eight bits, one component, Flate", @@([ aI[1][:bits], aI[1][:components], aI[1][:filter] ]), @@([ 8, 1, "FlateDecode" ]))
+	Then("decoded to samples", aI[1][:kind], "samples")
+	cF = o.SaveImage(1, sysget("TEMP") + "\stz_ocr_test_flate")
+	Then("saved as a BMP", right(cF, 4), ".bmp")
+	Then("that starts as one", left(read(cF), 2), "BM")
+	o2 = StzPdfQ($cDir + "scan_dct_rgb.pdf")
+	aI2 = o2.PageImages()
+	Then("a JPEG stream is handed out as JPEG", @@([ aI2[1][:filter], aI2[1][:kind], aI2[1][:components] ]), @@([ "DCTDecode", "jpeg", 3 ]))
+	cJ = o2.SaveImage(1, sysget("TEMP") + "\stz_ocr_test_dct")
+	Then("saved as a .jpg", right(cJ, 4), ".jpg")
+	Then("that starts as one", ascii(left(read(cJ), 1)), 255)
+EndScenario()
+
+if StzOcrPlatformHas("fr-FR")
+	Scenario("A scan goes end to end: PDF, page image, the :ocr floor, text")
+		o = StzPdfQ($cDir + "scan_flate_gray.pdf")
+		cT = o.TextOrOcr("fr-FR")
+		Then("the Flate scan reads its title", StzFindFirst("Plaine Mobilité", cT) > 0, 1)
+		Then("and a sentence of page 1", StzFindFirst("La ligne 12 relie la gare routière", cT) > 0, 1)
+		cT2 = StzPdfQ($cDir + "scan_dct_rgb.pdf").TextOrOcr("fr-FR")
+		Then("the JPEG scan reads the same title", StzFindFirst("Plaine Mobilité", cT2) > 0, 1)
+		Then("a born-digital PDF keeps its text layer", StzFindFirst("Plaine", StzPdfQ("../document/_data/golden_v36/z09.pdf").TextOrOcr("fr-FR")) > 0, 1)
+	EndScenario()
+else
+	? "SKIP: A scan goes end to end -- no fr-FR pack on this machine"
 ok
 
 Scenario("A language the platform has no pack for is a refusal that names it")
