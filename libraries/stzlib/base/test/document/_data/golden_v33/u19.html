@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en" dir="ltr"><head><meta charset="utf-8"><title>Meridian Sync 4.2 — Release Notes</title><style>:root{--top:22mm;--bot:22mm;--side:20mm;--hdtop:9mm;--ftbot:9mm}
+@page{size:A4;margin:0}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-size:11pt;line-height:1.4;color:#111;background:#fff}
+.page{position:relative;width:210mm;height:296mm;overflow:hidden;page-break-after:always;break-after:page}
+.page:last-child{page-break-after:auto;break-after:auto}
+.bd{position:absolute;top:var(--top,22mm);bottom:var(--bot,22mm);left:var(--side,20mm);right:var(--side,20mm);overflow:hidden}
+.hd{position:absolute;top:var(--hdtop,9mm);left:var(--side,20mm);right:var(--side,20mm)}
+.ft{position:absolute;bottom:var(--ftbot,9mm);left:var(--side,20mm);right:var(--side,20mm)}
+h1,h2,h3,h4,h5{margin:0 0 6px}
+p{margin:0 0 8px}
+table{border-collapse:collapse}
+td,th{padding:4px 6px;vertical-align:top;text-align:start}
+pre{margin:0}
+.L{margin:3px 0;padding-inline-start:24px}
+.L.bullet,.L.dash,.L.none{list-style:none}
+.L.bullet>li{position:relative}
+.L.bullet>li::before{content:"";position:absolute;inset-inline-start:-15px;top:.55em;width:.34em;height:.34em;border-radius:50%;background:currentColor}
+.L.dash>li{position:relative}
+.L.dash>li::before{content:"\2013";position:absolute;inset-inline-start:-16px}
+.li{display:flex;margin-block:2px}
+.li .mk{flex:0 0 auto}
+.il{margin-block:2px}
+.cap{margin:0 0 4px;font-weight:bold}
+
+body{font-family:"Segoe UI";font-size:10pt}
+
+.hd{font-size:8.5pt;color:#666;border-bottom:1px solid #ccd;padding-bottom:3px;display:flex;justify-content:space-between}
+.ft{font-size:8.5pt;color:#666;text-align:center}
+h1{font-size:22pt;margin:0 0 8px;color:#0b3d91;font-weight:600}
+h2{font-size:13pt;margin:14px 0 5px;color:#0b3d91;font-weight:600;border-bottom:1px solid #ccd;padding-bottom:2px}
+h3{font-size:10.5pt;margin:8px 0 3px}
+.vp{border:1px solid #0b3d91;margin:6px 0 8px}
+.vp td{padding:3px 12px;border-bottom:1px solid #d5dcec}
+.vp td:first-child{background:#e8edf8;font-weight:600;width:28%}
+pre{font-family:"Consolas";font-size:9pt;background:#101828;color:#e6edf7;padding:8px 12px;margin:5px 0 8px;border-radius:4px;line-height:1.4}
+.bc{width:100%;margin:5px 0 8px;font-size:9.5pt}
+.bc th{border-bottom:2px solid #0b3d91;text-align:left;padding:4px 6px}
+.bc td{border-bottom:1px solid #dde;padding:4px 6px}
+code{font-family:"Consolas"}
+
+</style></head><body>
+<section class="page"><div class="hd" style="position:absolute;top:var(--hdtop,9mm);left:var(--side,20mm);right:var(--side,20mm)"><span>Meridian Software · Documentation</span><span>Meridian Sync 4.2</span></div><div class="bd " style=""><h1 class="" style="">Meridian Sync 4.2 — Release Notes</h1>
+<table class="vp" style="">
+<tbody>
+<tr><td>Version</td><td>4.2.0</td></tr>
+<tr><td>Release date</td><td>23 April 2026</td></tr>
+<tr><td>Supported until</td><td>30 April 2028</td></tr>
+<tr><td>Compatible with</td><td>Meridian Server 3.8 and later</td></tr>
+</tbody>
+</table>
+<p class="" style="">Meridian Sync 4.2 is a feature release that makes synchronisation faster and easier to monitor. Please read the upgrade instructions before installing the package on a production host.</p>
+<h2 class="" style="">Highlights</h2>
+<div class="li " style="margin-inline-start:0px;margin-block:2px;"><span class="mk" style="width:16px;">•</span><span class="tx">Faster transfers</span></div>
+<div class="li " style="margin-inline-start:18px;margin-block:2px;"><span class="mk" style="width:16px;">–</span><span class="tx">Delta compression reduces upload size by up to 60 percent.</span></div>
+<div class="li " style="margin-inline-start:18px;margin-block:2px;"><span class="mk" style="width:16px;">–</span><span class="tx">Parallel chunking is now enabled by default.</span></div>
+<div class="li " style="margin-inline-start:0px;margin-block:2px;"><span class="mk" style="width:16px;">•</span><span class="tx">Better monitoring</span></div>
+<div class="li " style="margin-inline-start:18px;margin-block:2px;"><span class="mk" style="width:16px;">–</span><span class="tx">New metrics endpoint compatible with common dashboards.</span></div>
+<div class="li " style="margin-inline-start:18px;margin-block:2px;"><span class="mk" style="width:16px;">–</span><span class="tx">Sync history is kept for 90 days.</span></div>
+<div class="li " style="margin-inline-start:0px;margin-block:2px;"><span class="mk" style="width:16px;">•</span><span class="tx">Improved conflict resolution for files edited on two devices.</span></div>
+<h2 class="" style="">Upgrade instructions</h2>
+<p class="" style="">Stop the service, install the new package and run the migration. A dry run shows what will change without touching any data.</p>
+<pre class="" style="">$ meridian stop
+$ sudo apt install ./meridian-sync_4.2.0_amd64.deb
+$ meridian migrate --dry-run
+$ meridian migrate
+$ meridian start</pre>
+<h2 class="" style="">Configuration changes</h2>
+<p class="" style="">The new compression and retry settings live in the sync section of the configuration file:</p>
+<pre class="" style="">{
+  "sync": {
+    "interval": "30s",
+    "retries": 5,
+    "compression": "zstd",
+    "chunk_mb": 8
+  }
+}</pre></div><div class="ft" style="position:absolute;bottom:var(--ftbot,9mm);left:var(--side,20mm);right:var(--side,20mm)">Meridian Sync 4.2 · Release Notes · 1 / 2</div></section>
+<section class="page"><div class="hd" style="position:absolute;top:var(--hdtop,9mm);left:var(--side,20mm);right:var(--side,20mm)"><span>Meridian Software · Documentation</span><span>Meridian Sync 4.2</span></div><div class="bd " style=""><h2 class="" style="">Breaking changes</h2>
+<table class="bc" style="">
+<colgroup><col style="width:24%"><col style="width:26%"><col style="width:50%"></colgroup>
+<thead>
+<tr><th>Old setting</th><th>New setting</th><th>Notes</th></tr>
+</thead><tbody>
+<tr><td>sync.period</td><td>sync.interval</td><td>Now accepts units such as 30s or 5m.</td></tr>
+<tr><td>sync.gzip</td><td>sync.compression</td><td>Value zstd replaces true.</td></tr>
+<tr><td>log.file</td><td>log.path</td><td>Relative paths are resolved from the data directory.</td></tr>
+<tr><td>api.token</td><td>auth.token</td><td>Tokens created before 4.0 must be renewed.</td></tr>
+</tbody>
+</table>
+<h2 class="" style="">Known issues</h2>
+<div class="li " style="margin-inline-start:0px;margin-block:2px;"><span class="mk" style="width:22px;">1.</span><span class="tx">Large folders with more than 200,000 files may take several minutes to show their first sync result.</span></div>
+<div class="li " style="margin-inline-start:0px;margin-block:2px;"><span class="mk" style="width:22px;">2.</span><span class="tx">The metrics endpoint is not available when the service runs in read-only mode.</span></div>
+<div class="li " style="margin-inline-start:0px;margin-block:2px;"><span class="mk" style="width:22px;">3.</span><span class="tx">Renaming a folder on two devices at the same time creates a conflict copy.</span></div>
+<h2 class="" style="">Deprecations</h2>
+<p class="" style="">The following features will be removed in version 5.0:</p>
+<ul class="L bullet " style=";">
+<li>the legacy XML configuration format;
+</li>
+<li>the <code>--force-full</code> command-line flag;
+</li>
+<li>support for Meridian Server 3.5 and earlier.
+</li>
+</ul>
+<h2 class="" style="">Getting help</h2>
+<p class="" style="">If you run into a problem, collect the diagnostics bundle and attach it to your support request. The bundle contains logs and configuration without any file contents.</p>
+<pre class="" style="">$ meridian diagnostics --output /tmp/meridian-diag.zip</pre></div><div class="ft" style="position:absolute;bottom:var(--ftbot,9mm);left:var(--side,20mm);right:var(--side,20mm)">Meridian Sync 4.2 · Release Notes · 2 / 2</div></section>
+</body></html>

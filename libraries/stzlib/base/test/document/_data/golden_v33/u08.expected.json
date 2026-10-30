@@ -1,0 +1,143 @@
+{
+  "id": "u08",
+  "difficulty": "Korean course syllabus, 1 page; boxed key/value panel; typed 1) and 가. markers; zebra weekly table; page number \"- 1 -\"; Hangul wrapping at spaces",
+  "pages": 1,
+  "title": "2026학년도 1학기 강의계획서",
+  "headings": [
+    {
+      "level": 1,
+      "text": "2026학년도 1학기 강의계획서"
+    },
+    {
+      "level": 2,
+      "text": "1. 수업 개요"
+    },
+    {
+      "level": 2,
+      "text": "2. 평가 방법"
+    },
+    {
+      "level": 2,
+      "text": "3. 주차별 계획"
+    }
+  ],
+  "key_sentences": [
+    "이 과목은 배열, 연결 리스트, 트리, 그래프와 같은 기본 자료구조를 배우고 정렬과 탐색 알고리즘의 효율을 분석한다.",
+    "수강생은 이론 수업과 실습을 통해 문제에 알맞은 자료구조를 선택하는 능력을 기른다.",
+    "수업은 매주 월요일과 수요일 오전 10시에 공학관 301호에서 진행된다.",
+    "교재는 첫 수업 시간에 안내한다."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "과목명",
+          "데이터 구조와 알고리즘",
+          "학점",
+          "3학점"
+        ],
+        [
+          "연구실",
+          "공학관 412호",
+          "면담 시간",
+          "화요일 15:00–17:00"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "주차",
+          "주제",
+          "과제"
+        ],
+        [
+          "1",
+          "알고리즘의 정의와 시간 복잡도",
+          "없음"
+        ],
+        [
+          "2",
+          "배열과 연결 리스트",
+          "실습 1"
+        ],
+        [
+          "3",
+          "스택과 큐",
+          "실습 2"
+        ],
+        [
+          "4",
+          "이진 트리와 순회",
+          "과제 1"
+        ],
+        [
+          "5",
+          "해시 테이블",
+          "실습 3"
+        ],
+        [
+          "6",
+          "정렬 알고리즘 I",
+          "과제 2"
+        ],
+        [
+          "7",
+          "정렬 알고리즘 II",
+          "없음"
+        ],
+        [
+          "8",
+          "중간고사",
+          "없음"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1) 성적은 다음 기준으로 평가한다."
+    },
+    {
+      "level": 1,
+      "text": "가. 중간고사 30퍼센트"
+    },
+    {
+      "level": 1,
+      "text": "나. 기말고사 40퍼센트"
+    },
+    {
+      "level": 1,
+      "text": "다. 과제와 실습 20퍼센트"
+    },
+    {
+      "level": 1,
+      "text": "라. 출석 10퍼센트"
+    },
+    {
+      "level": 0,
+      "text": "2) 다음 경우에는 성적이 부여되지 않는다."
+    },
+    {
+      "level": 1,
+      "text": "가. 출석이 전체 수업의 3분의 2에 미치지 못한 경우"
+    },
+    {
+      "level": 1,
+      "text": "나. 시험 중 부정행위가 확인된 경우"
+    }
+  ],
+  "furniture": [
+    "한빛대학교",
+    "컴퓨터공학과",
+    "- 1 -"
+  ],
+  "languages": [
+    "ko"
+  ],
+  "code": [],
+  "notes": "Korean uses spaces between words, so a wrapped sentence joins with one space. The information panel (과목명 / 학점 / 연구실 / 면담 시간) is a boxed key/value table without header row. Lists use typed markers: \"1)\" markers are level 0 and \"가.\" markers are level 1 (Korean syllable markers), joined to the text with one space. The weekly table has zebra bands. The letterhead (university and department) and the footer page number \"- 1 -\" are furniture."
+}

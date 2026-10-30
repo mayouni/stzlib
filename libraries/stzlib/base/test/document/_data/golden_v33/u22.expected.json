@@ -1,0 +1,313 @@
+{
+  "id": "u22",
+  "difficulty": "product datasheet, 2 pages; coloured band header; three feature boxes side by side (box by box); zebra key/value spec table beside a boxed bullet list; small tables of several styles (zebra, row rules, full grid); CSS-numbered steps; ordering table; running footer",
+  "pages": 2,
+  "title": "Aerolux 300 Air Purifier",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Aerolux 300 Air Purifier"
+    },
+    {
+      "level": 3,
+      "text": "True HEPA filtration"
+    },
+    {
+      "level": 3,
+      "text": "Whisper-quiet operation"
+    },
+    {
+      "level": 3,
+      "text": "Smart air sensor"
+    },
+    {
+      "level": 2,
+      "text": "Technical specifications"
+    },
+    {
+      "level": 2,
+      "text": "In the box"
+    },
+    {
+      "level": 2,
+      "text": "Certifications"
+    },
+    {
+      "level": 2,
+      "text": "Installation"
+    },
+    {
+      "level": 2,
+      "text": "Dimensions and weight"
+    },
+    {
+      "level": 2,
+      "text": "Maintenance"
+    },
+    {
+      "level": 2,
+      "text": "Ordering information"
+    },
+    {
+      "level": 2,
+      "text": "Warranty"
+    }
+  ],
+  "key_sentences": [
+    "The Aerolux 300 cleans the air of rooms up to 45 square metres with a quiet, energy-efficient fan.",
+    "It is designed for bedrooms, offices and classrooms where clean air matters every day.",
+    "The H13 filter captures 99.97 percent of particles down to 0.3 micrometres.",
+    "In night mode the purifier runs at only 24 decibels.",
+    "The sensor adjusts the fan speed automatically to the measured air quality.",
+    "The Aerolux 300 is covered by a limited warranty of three years from the date of purchase.",
+    "The warranty does not cover filters, which are consumable parts."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Model",
+          "AER-300"
+        ],
+        [
+          "Recommended room size",
+          "up to 45 m²"
+        ],
+        [
+          "Filter",
+          "pre-filter, H13 HEPA, activated carbon"
+        ],
+        [
+          "Rated voltage",
+          "220–240 V, 50 Hz"
+        ],
+        [
+          "Control",
+          "touch panel and mobile app"
+        ],
+        [
+          "Wireless",
+          "Wi-Fi 2.4 GHz"
+        ],
+        [
+          "Operating temperature",
+          "5 to 40 °C"
+        ]
+      ]
+    },
+    {
+      "caption": "Performance by fan speed",
+      "rows": [
+        [
+          "Fan speed",
+          "Airflow (m³/h)",
+          "Noise (dB(A))",
+          "Power (W)"
+        ],
+        [
+          "Night",
+          "60",
+          "24",
+          "5"
+        ],
+        [
+          "Low",
+          "150",
+          "32",
+          "12"
+        ],
+        [
+          "Medium",
+          "240",
+          "41",
+          "24"
+        ],
+        [
+          "High",
+          "320",
+          "49",
+          "38"
+        ],
+        [
+          "Turbo",
+          "400",
+          "55",
+          "52"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Standard",
+          "Scope",
+          "Status"
+        ],
+        [
+          "CE",
+          "Safety",
+          "Passed"
+        ],
+        [
+          "RoHS",
+          "Materials",
+          "Passed"
+        ],
+        [
+          "ISO 16890",
+          "Filtration",
+          "Tested"
+        ],
+        [
+          "Energy label",
+          "Class A",
+          "Granted"
+        ]
+      ]
+    },
+    {
+      "caption": "Dimensions of the product and its packaging",
+      "rows": [
+        [
+          "Part",
+          "Width (mm)",
+          "Depth (mm)",
+          "Height (mm)",
+          "Weight (kg)"
+        ],
+        [
+          "Purifier",
+          "320",
+          "320",
+          "560",
+          "6.4"
+        ],
+        [
+          "Packed unit",
+          "380",
+          "380",
+          "640",
+          "8.1"
+        ],
+        [
+          "Pallet of 12",
+          "800",
+          "1200",
+          "1450",
+          "104"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Task",
+          "Interval",
+          "Part number"
+        ],
+        [
+          "Clean the pre-filter",
+          "every 2 weeks",
+          "—"
+        ],
+        [
+          "Replace the HEPA filter",
+          "every 12 months",
+          "AER-F13"
+        ],
+        [
+          "Replace the carbon filter",
+          "every 6 months",
+          "AER-FC6"
+        ],
+        [
+          "Wipe the air-quality sensor",
+          "every 3 months",
+          "—"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Part number",
+          "Description",
+          "Pack size"
+        ],
+        [
+          "AER-300-W",
+          "Aerolux 300 Air Purifier, white",
+          "1"
+        ],
+        [
+          "AER-300-G",
+          "Aerolux 300 Air Purifier, graphite",
+          "1"
+        ],
+        [
+          "AER-F13",
+          "Replacement H13 HEPA filter",
+          "2"
+        ],
+        [
+          "AER-FC6",
+          "Replacement activated carbon filter",
+          "2"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Aerolux 300 purifier"
+    },
+    {
+      "level": 0,
+      "text": "H13 HEPA filter, installed"
+    },
+    {
+      "level": 0,
+      "text": "Remote control with battery"
+    },
+    {
+      "level": 0,
+      "text": "Power cable, 1.8 m"
+    },
+    {
+      "level": 0,
+      "text": "Quick start guide"
+    },
+    {
+      "level": 0,
+      "text": "Place the purifier on a flat surface, at least 30 centimetres from walls and furniture."
+    },
+    {
+      "level": 0,
+      "text": "Remove all packaging and the plastic bag from the filter."
+    },
+    {
+      "level": 0,
+      "text": "Connect the power cable and press the power button."
+    },
+    {
+      "level": 0,
+      "text": "Pair the device with the mobile app by scanning the code on the back panel."
+    }
+  ],
+  "furniture": [
+    "Aerolux Climate Systems",
+    "Datasheet AER-300 · Rev. C",
+    "Aerolux Climate Systems · AER-300-DS-EN · Rev. C · Page 1 of 2",
+    "Aerolux Climate Systems · AER-300-DS-EN · Rev. C · Page 2 of 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Three feature boxes sit side by side near the top of page 1: read box by box, left to right; each box has a level-3 heading and one sentence. Below them two columns are placed side by side: the left column holds the specifications table (zebra bands, key/value pairs, no header row) and the performance table, the right column holds the boxed list \"In the box\" (bullets drawn by CSS) and the small certifications table (full grid). Page 2 has the installation steps (numbered by CSS, no marker text), a dimensions table, maintenance table with rules between rows, and an ordering table with the header filled dark. The band text at the top of each page (company name and datasheet reference) and the footer line (with its page number) are furniture; the product name in the band is not repeated."
+}

@@ -1,0 +1,133 @@
+{
+  "id": "u24",
+  "difficulty": "Arabic tax invoice, 1 page; right-to-left; two boxes side by side (customer, invoice data: read box by box, right box first); items table with Arabic-Indic digits, merged total rows; typed Arabic-Indic numbered notes; CSS bullets",
+  "pages": 1,
+  "title": "فاتورة ضريبية",
+  "headings": [
+    {
+      "level": 1,
+      "text": "فاتورة ضريبية"
+    },
+    {
+      "level": 2,
+      "text": "ملاحظات"
+    },
+    {
+      "level": 2,
+      "text": "طرق الدفع"
+    }
+  ],
+  "key_sentences": [
+    "تصدر هذه الفاتورة وفقاً لأحكام نظام ضريبة القيمة المضافة.",
+    "وتشمل الأصناف الموضحة أدناه جميع المشتريات لشهر مارس.",
+    "نشكركم على ثقتكم بنا ونتطلع إلى خدمتكم دائماً.",
+    "لأي استفسار يرجى التواصل مع قسم الحسابات."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "م",
+          "الصنف",
+          "الكمية",
+          "سعر الوحدة (ريال)",
+          "الإجمالي (ريال)"
+        ],
+        [
+          "١",
+          "ورق طباعة A4 (٨٠ جم) — صندوق",
+          "١٠",
+          "٤٥٫٠٠",
+          "٤٥٠٫٠٠"
+        ],
+        [
+          "٢",
+          "أقلام حبر جاف — علبة",
+          "٢٤",
+          "١٨٫٥٠",
+          "٤٤٤٫٠٠"
+        ],
+        [
+          "٣",
+          "دفاتر ملاحظات — حزمة",
+          "٣٠",
+          "١٢٫٢٥",
+          "٣٦٧٫٥٠"
+        ],
+        [
+          "٤",
+          "حافظات ملفات — قطعة",
+          "٥٠",
+          "٦٫٧٥",
+          "٣٣٧٫٥٠"
+        ],
+        [
+          "٥",
+          "طابعة ليزر — جهاز",
+          "١",
+          "١٬٢٥٠٫٠٠",
+          "١٬٢٥٠٫٠٠"
+        ],
+        [
+          "المجموع قبل الضريبة",
+          "المجموع قبل الضريبة",
+          "المجموع قبل الضريبة",
+          "المجموع قبل الضريبة",
+          "٢٬٨٤٩٫٠٠"
+        ],
+        [
+          "ضريبة القيمة المضافة (١٥٪)",
+          "ضريبة القيمة المضافة (١٥٪)",
+          "ضريبة القيمة المضافة (١٥٪)",
+          "ضريبة القيمة المضافة (١٥٪)",
+          "٤٢٧٫٣٥"
+        ],
+        [
+          "الإجمالي المستحق",
+          "الإجمالي المستحق",
+          "الإجمالي المستحق",
+          "الإجمالي المستحق",
+          "٣٬٢٧٦٫٣٥"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "١- يُستحق السداد خلال ثلاثين يوماً من تاريخ الفاتورة."
+    },
+    {
+      "level": 0,
+      "text": "٢- تُقبل المرتجعات خلال أسبوعين بشرط سلامة العبوة الأصلية."
+    },
+    {
+      "level": 0,
+      "text": "٣- يرجى ذكر رقم الفاتورة عند إجراء أي تحويل."
+    },
+    {
+      "level": 0,
+      "text": "التحويل البنكي إلى حساب المؤسسة"
+    },
+    {
+      "level": 0,
+      "text": "الدفع بالبطاقة عند الاستلام"
+    },
+    {
+      "level": 0,
+      "text": "شيك مصدق باسم المؤسسة"
+    }
+  ],
+  "furniture": [
+    "مؤسسة الواحة للتجهيزات المكتبية",
+    "شارع الأمير سلطان، حي الروضة، جدة",
+    "مؤسسة الواحة للتجهيزات المكتبية · الرقم الضريبي ٣٠٠١١٢٢٣٣٤٠٠٠٠٣",
+    "صفحة ١ من ١"
+  ],
+  "languages": [
+    "ar"
+  ],
+  "code": [],
+  "notes": "Right-to-left invoice; table cells are listed in logical order, rightmost column (م) first. Numbers use Arabic-Indic digits with the Arabic decimal separator ٫ and thousands separator ٬. The two boxes at the top (بيانات العميل on the right, بيانات الفاتورة on the left) are plain text lines and are not scored; the letterhead (company name and address line) and the footer lines are furniture. In the items table the total rows span the first four columns and repeat their label in each covered cell. The notes use typed Arabic-Indic numbers with a hyphen (\"١-\") and a hanging indent; the payment-method bullets are drawn by CSS. The thank-you paragraph is body text."
+}

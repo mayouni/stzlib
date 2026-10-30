@@ -1,0 +1,178 @@
+{
+  "id": "u12",
+  "difficulty": "Persian call for papers, 2 pages; right-to-left; ZWNJ inside words; typed Persian-digit list ۱- with hanging indent; CSS persian-numbered list; two boxes side by side; row-rules table; fee table with merged header; Persian page numbers",
+  "pages": 2,
+  "title": "فراخوان ارسال مقاله: دهمین همایش ملی پژوهش‌های شهری",
+  "headings": [
+    {
+      "level": 1,
+      "text": "فراخوان ارسال مقاله: دهمین همایش ملی پژوهش‌های شهری"
+    },
+    {
+      "level": 2,
+      "text": "تاریخ‌های مهم"
+    },
+    {
+      "level": 2,
+      "text": "مراحل ارسال مقاله"
+    },
+    {
+      "level": 2,
+      "text": "راهنمای نگارش"
+    },
+    {
+      "level": 2,
+      "text": "هزینه ثبت‌نام"
+    },
+    {
+      "level": 2,
+      "text": "اطلاعات تماس"
+    }
+  ],
+  "key_sentences": [
+    "انجمن علمی پژوهش‌های شهری با همکاری دانشگاه آبشار دهمین همایش ملی خود را در اردیبهشت ۱۴۰۵ برگزار می‌کند.",
+    "از پژوهشگران و دانشجویان دعوت می‌شود مقالات خود را تا پایان بهمن‌ماه ارسال کنند.",
+    "مقالات برگزیده پس از داوری نهایی در ویژه‌نامه فصلنامه انجمن منتشر خواهند شد.",
+    "نویسندگان باید پیش از ارسال از اصالت اثر خود اطمینان حاصل کنند.",
+    "در صورت پرسش می‌توانید با دبیرخانه همایش تماس بگیرید."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "رویداد",
+          "تاریخ"
+        ],
+        [
+          "آخرین مهلت ارسال چکیده",
+          "۱۵ بهمن ۱۴۰۴"
+        ],
+        [
+          "اعلام نتایج داوری چکیده",
+          "۱۵ اسفند ۱۴۰۴"
+        ],
+        [
+          "مهلت ارسال متن کامل",
+          "۳۰ فروردین ۱۴۰۵"
+        ],
+        [
+          "زمان برگزاری همایش",
+          "۲۵ و ۲۶ اردیبهشت ۱۴۰۵"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "نوع شرکت‌کننده",
+          "هزینه ثبت‌نام (هزار تومان)",
+          "هزینه ثبت‌نام (هزار تومان)"
+        ],
+        [
+          "نوع شرکت‌کننده",
+          "تا پایان فروردین",
+          "پس از فروردین"
+        ],
+        [
+          "دانشجو",
+          "۸۰۰",
+          "۱۰۰۰"
+        ],
+        [
+          "عضو انجمن",
+          "۱۲۰۰",
+          "۱۵۰۰"
+        ],
+        [
+          "سایر شرکت‌کنندگان",
+          "۱۸۰۰",
+          "۲۲۰۰"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "حمل‌ونقل پایدار"
+    },
+    {
+      "level": 0,
+      "text": "مسکن و بافت فرسوده"
+    },
+    {
+      "level": 0,
+      "text": "فضاهای عمومی شهری"
+    },
+    {
+      "level": 0,
+      "text": "شهر هوشمند و داده"
+    },
+    {
+      "level": 0,
+      "text": "پژوهشگران و استادان دانشگاه"
+    },
+    {
+      "level": 0,
+      "text": "دانشجویان تحصیلات تکمیلی"
+    },
+    {
+      "level": 0,
+      "text": "مدیران و کارشناسان شهری"
+    },
+    {
+      "level": 0,
+      "text": "۱- ثبت‌نام در سامانه همایش و ایجاد حساب کاربری."
+    },
+    {
+      "level": 0,
+      "text": "۲- بارگذاری چکیده مقاله در قالب پیوست."
+    },
+    {
+      "level": 0,
+      "text": "۳- دریافت نتیجه داوری از طریق رایانامه."
+    },
+    {
+      "level": 0,
+      "text": "۴- ارسال متن کامل مقاله پس از پذیرش چکیده."
+    },
+    {
+      "level": 0,
+      "text": "چکیده فارسی حداکثر ۲۵۰ کلمه باشد."
+    },
+    {
+      "level": 0,
+      "text": "متن کامل مقاله بیش از ۱۰ صفحه نباشد."
+    },
+    {
+      "level": 0,
+      "text": "منابع به شیوه استاندارد انجمن در پایان مقاله بیاید."
+    },
+    {
+      "level": 0,
+      "text": "تصاویر و جدول‌ها شماره و عنوان داشته باشند."
+    },
+    {
+      "level": 0,
+      "text": "تلفن: ۲۱۵۵۵۰۱۲۳۴"
+    },
+    {
+      "level": 0,
+      "text": "رایانامه: conf@urban-research.example"
+    }
+  ],
+  "furniture": [
+    "انجمن علمی پژوهش‌های شهری",
+    "دبیرخانه همایش",
+    "دبیرخانه همایش · تلفن ۲۱۵۵۵۰۱۲۳۴",
+    "صفحه ۱ از ۲",
+    "صفحه ۲ از ۲"
+  ],
+  "languages": [
+    "fa"
+  ],
+  "code": [],
+  "notes": "Right-to-left document; table cells are listed in logical order, rightmost column first. Words contain ZERO WIDTH NON-JOINER (U+200C) as in normal Persian typing (e.g. پژوهش‌های); the expected text keeps U+200C. Digits are Persian (extended Arabic-Indic). Two boxes (\"محورهای همایش\" and \"مخاطبان همایش\") sit side by side: read box by box, the right-hand box first. The typed list ۱- ۲- ۳- uses Persian digits with a hyphen and a hanging indent and is listed with markers; the guideline list on page 2 is numbered by CSS (list-style persian) so its items have no marker; bullets are drawn by CSS. The fee table has a two-row header where \"هزینه ثبت‌نام\" spans two columns. Letterhead lines and footer lines are furniture."
+}

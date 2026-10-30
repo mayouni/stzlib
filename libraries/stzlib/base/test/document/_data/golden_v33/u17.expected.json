@@ -1,0 +1,98 @@
+{
+  "id": "u17",
+  "difficulty": "Bengali health bulletin, 1 page; Bengali script with conjuncts; typed Bengali-digit list ১. ২. with hanging indent; CSS bengali-numbered list; row-rules table; Bengali page number",
+  "pages": 1,
+  "title": "শিশু টিকাদান কর্মসূচি ২০২৬",
+  "headings": [
+    {
+      "level": 1,
+      "text": "শিশু টিকাদান কর্মসূচি ২০২৬"
+    },
+    {
+      "level": 2,
+      "text": "টিকার সূচি"
+    },
+    {
+      "level": 2,
+      "text": "কেন্দ্রে আসার সময় যা আনবেন"
+    },
+    {
+      "level": 2,
+      "text": "টিকার পর করণীয়"
+    }
+  ],
+  "key_sentences": [
+    "সুন্দরপুর উপজেলা স্বাস্থ্য কমপ্লেক্সে আগামী মাস থেকে পাঁচ বছরের কম বয়সী সব শিশুর জন্য বিনামূল্যে টিকা দেওয়া হবে।",
+    "অভিভাবকদের নির্ধারিত দিনে শিশুকে নিয়ে কেন্দ্রে আসার অনুরোধ করা হচ্ছে।",
+    "টিকাদান কেন্দ্র প্রতি রবিবার ও বুধবার সকাল নয়টা থেকে দুপুর একটা পর্যন্ত খোলা থাকবে।",
+    "সরকারি ছুটির দিনে টিকাদান বন্ধ থাকবে।"
+  ],
+  "tables": [
+    {
+      "caption": "সারণি ১: শিশুদের টিকার সময়সূচি",
+      "rows": [
+        [
+          "টিকার নাম",
+          "বয়স",
+          "মাত্রা"
+        ],
+        [
+          "বিসিজি",
+          "জন্মের পর",
+          "১টি"
+        ],
+        [
+          "পোলিও",
+          "৬, ১০ ও ১৪ সপ্তাহ",
+          "৩টি"
+        ],
+        [
+          "পেন্টাভ্যালেন্ট",
+          "৬, ১০ ও ১৪ সপ্তাহ",
+          "৩টি"
+        ],
+        [
+          "হাম-রুবেলা",
+          "৯ মাস",
+          "১টি"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "১. শিশুর জন্মনিবন্ধন সনদের অনুলিপি।"
+    },
+    {
+      "level": 0,
+      "text": "২. পূর্বের টিকার কার্ড, যদি থাকে।"
+    },
+    {
+      "level": 0,
+      "text": "৩. শিশুর জন্য পানীয় জল ও প্রয়োজনীয় কাপড়।"
+    },
+    {
+      "level": 0,
+      "text": "টিকা দেওয়ার পর কেন্দ্রে অন্তত আধা ঘণ্টা অপেক্ষা করুন।"
+    },
+    {
+      "level": 0,
+      "text": "জ্বর হলে শিশুকে পর্যাপ্ত তরল খাবার দিন।"
+    },
+    {
+      "level": 0,
+      "text": "অস্বাভাবিক লক্ষণ দেখা দিলে দ্রুত স্বাস্থ্য কমপ্লেক্সে যোগাযোগ করুন।"
+    }
+  ],
+  "furniture": [
+    "সুন্দরপুর উপজেলা স্বাস্থ্য কমপ্লেক্স",
+    "যোগাযোগ: ফোন ১৭১১-৫৫৫০১২",
+    "পৃষ্ঠা ১ / ১"
+  ],
+  "languages": [
+    "bn"
+  ],
+  "code": [],
+  "notes": "Bengali script with conjuncts and vowel signs; digits are Bengali digits. The first list uses typed markers (Bengali digit plus full stop: ১. ২. ৩.) with a hanging indent and is listed with markers; the \"টিকার পর করণীয়\" list is numbered by CSS (list-style bengali), so its items have no marker. The vaccination table has rules between rows. The letterhead lines (health complex name and the line under it) and the footer line are furniture."
+}

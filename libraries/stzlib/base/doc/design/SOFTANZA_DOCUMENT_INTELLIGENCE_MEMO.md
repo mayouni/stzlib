@@ -664,7 +664,15 @@ Tried and withdrawn: a looser leading (1.55) for a wrapped half of a cell wherev
 
 On the development sets, against round 31 frozen: tables v32 0.83 -> 0.90, v6 0.76 -> 0.80, v21 0.95 -> 0.95; lists v32 0.91 -> 0.92; text v23 0.98 -> 0.99; headings v13 0.93 -> 0.94. No set lost on any measure. Guard 272 assertions under Ring++.
 
-golden_v33: DLV33
+golden_v33: 24 realistic documents in 18 languages (English in six; Arabic, Hebrew and Persian right to left, and an Arabic invoice; Japanese, Chinese, Korean, Hindi, Bengali, Thai, Georgian and others), 14 of 2-3 pages, code in two, by a thirty-third independent agent who saw no reader, no output and no earlier set and ran no extractor or rasterizer (layout checked by DOM geometry and screenshots of its own HTML; pages are explicit A4 boxes with the furniture in the body, tables continued across pages split by hand). One disclosure: the author printed the first 300 bytes of an earlier set's generator file by mistake (an invoice header) and used nothing from it. No one has looked at the pages (unperceived); reader frozen at 88bf78bcf; both readers ran once:
+
+| golden_v33, realistic | text | order | headings | tables | lists | furniture | code | heading precision |
+|---|---|---|---|---|---|---|---|---|
+| Softanza native (Ring++) | **0.98** | 1.00 | **0.99** | **0.87** | **0.90** | **0.81** | **1.00** | **0.84** |
+| Docling 2.141 | 0.74 | 1.00 | 0.81 | 0.67 | 0.45 | 0.79 | 0.25 | 0.68 |
+
+Time for the 24 documents: native 0.09 s, Docling 164 s. The native reader leads on seven measures and ties on order. Where Docling does better, document by document: tables on four (u15 0.27 against 0.73, u13 0.50 against 0.80, u20 0.60 against 0.70, u14 0.40 against 0.47), furniture on six (u03, u05, u10, u11, u12, u16), headings on two (u14, u21). Causes not yet looked into: round 33.
+
 
 **Perceived (2026-10-24):** the author looked through every rendered page of golden_v9 to golden_v13 -- the sets whose own authors could not look at them -- and judged them: "they look great". Those five sets are no longer unperceived; the sets before them were generated the same way and are not covered by this look.
 

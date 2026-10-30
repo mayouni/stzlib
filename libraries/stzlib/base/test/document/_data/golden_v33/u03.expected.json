@@ -1,0 +1,107 @@
+{
+  "id": "u03",
+  "difficulty": "Arabic right-to-left circular; letterhead; typed Arabic-letter list with hanging indent; CSS arabic-indic numbered list; RTL table in logical order with caption; Arabic-Indic digits",
+  "pages": 1,
+  "title": "تعميم بشأن جدول الامتحانات النهائية للفصل الدراسي الأول",
+  "headings": [
+    {
+      "level": 1,
+      "text": "تعميم بشأن جدول الامتحانات النهائية للفصل الدراسي الأول"
+    }
+  ],
+  "key_sentences": [
+    "يسر عمادة شؤون الطلبة أن تعلن عن جدول الامتحانات النهائية للفصل الدراسي الأول للعام الجامعي ٢٠٢٥/٢٠٢٦.",
+    "يرجى من جميع الطلبة الاطلاع على الجدول أدناه والالتزام بالمواعيد المحددة.",
+    "نتمنى لجميع الطلبة التوفيق والنجاح في امتحاناتهم.",
+    "وتفضلوا بقبول فائق الاحترام والتقدير."
+  ],
+  "tables": [
+    {
+      "caption": "جدول ١: مواعيد الامتحانات النهائية",
+      "rows": [
+        [
+          "المادة",
+          "اليوم",
+          "التاريخ",
+          "الساعة",
+          "القاعة"
+        ],
+        [
+          "مدخل إلى علم الحاسوب",
+          "الأحد",
+          "٢٥ يناير",
+          "٩:٠٠ صباحاً",
+          "ب ١٢"
+        ],
+        [
+          "الرياضيات العامة",
+          "الثلاثاء",
+          "٢٧ يناير",
+          "١١:٠٠ صباحاً",
+          "أ ٠٤"
+        ],
+        [
+          "اللغة الإنجليزية",
+          "الخميس",
+          "٢٩ يناير",
+          "٩:٠٠ صباحاً",
+          "ب ٠٧"
+        ],
+        [
+          "مبادئ الاقتصاد",
+          "السبت",
+          "٣١ يناير",
+          "١:٠٠ مساءً",
+          "ج ٠٢"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "أ- على الطلبة الحضور قبل موعد الامتحان بثلاثين دقيقة على الأقل."
+    },
+    {
+      "level": 0,
+      "text": "ب- يُمنع إدخال الهواتف المحمولة وأي أجهزة إلكترونية إلى القاعة."
+    },
+    {
+      "level": 0,
+      "text": "ج- يجب إبراز البطاقة الجامعية عند الدخول."
+    },
+    {
+      "level": 0,
+      "text": "لن يُسمح بالدخول بعد مرور نصف ساعة على بدء الامتحان."
+    },
+    {
+      "level": 0,
+      "text": "تُعلن النتائج عبر البوابة الإلكترونية للجامعة خلال أسبوعين."
+    },
+    {
+      "level": 0,
+      "text": "للاستفسار يمكن مراجعة مكتب العمادة في المبنى الرئيسي."
+    },
+    {
+      "level": 0,
+      "text": "البريد الإلكتروني الرسمي للعمادة"
+    },
+    {
+      "level": 0,
+      "text": "الهاتف الداخلي ١١٠ خلال أوقات الدوام"
+    }
+  ],
+  "furniture": [
+    "جامعة النخيل الأهلية",
+    "عمادة شؤون الطلبة",
+    "الرقم: ٢٠٢٦/١٤٧",
+    "التاريخ: ١٥ يناير ٢٠٢٦",
+    "جامعة النخيل الأهلية — ص.ب ٤٥٢٠ — هاتف ٠٦٥٥٥٠١٢٣",
+    "صفحة ١ من ١"
+  ],
+  "languages": [
+    "ar"
+  ],
+  "code": [],
+  "notes": "Right-to-left document. Table cells are listed in logical order, rightmost column first (المادة first). The letterhead (university name, deanship, reference line and date line) and the two footer lines are furniture. The list أ- ب- ج- uses typed Arabic-letter markers with a hanging indent and is listed with markers. The notes list below it is numbered by CSS (arabic-indic decimal), so its items are listed without markers; the bullets in the last list are drawn by CSS shapes. The table caption is \"جدول ١: مواعيد الامتحانات النهائية\". Digits are Arabic-Indic. The salutation line and the signature title are not scored."
+}

@@ -1,0 +1,157 @@
+{
+  "id": "u04",
+  "difficulty": "Japanese meeting minutes, 2 pages; full-width typed markers （１） ① ・ without spaces; lines wrap inside sentences (no spaces); key/value panel; table continued across pages with repeated header; page numbers \"- 1 -\"",
+  "pages": 2,
+  "title": "第３回 システム更改プロジェクト定例会議 議事録",
+  "headings": [
+    {
+      "level": 1,
+      "text": "第３回 システム更改プロジェクト定例会議 議事録"
+    },
+    {
+      "level": 2,
+      "text": "１．会議の目的"
+    },
+    {
+      "level": 2,
+      "text": "２．報告事項"
+    },
+    {
+      "level": 2,
+      "text": "３．課題一覧"
+    },
+    {
+      "level": 2,
+      "text": "４．決定事項"
+    },
+    {
+      "level": 2,
+      "text": "５．次回会議"
+    }
+  ],
+  "key_sentences": [
+    "本会議は、基幹システムの更改に向けた進捗を共有し、移行計画の課題を確認することを目的として開催された。",
+    "以上の報告について、出席者から特段の異議は出なかった。",
+    "現時点で管理している課題は次のとおりである。",
+    "次回の会議は３月24日（火）の午後２時から、同じ会議室で開催する。",
+    "議題は、課題一覧の進捗確認と移行リハーサルの準備状況である。"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "日時",
+          "2026年3月10日（火）14:00〜15:30"
+        ],
+        [
+          "場所",
+          "本館３階 会議室Ｂ"
+        ],
+        [
+          "出席者",
+          "プロジェクトリーダー、開発担当２名、運用担当１名、品質管理担当１名"
+        ],
+        [
+          "記録",
+          "運用担当"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "番号",
+          "課題",
+          "担当",
+          "期限",
+          "状況"
+        ],
+        [
+          "１",
+          "帳票レイアウトの確定",
+          "開発",
+          "3月17日",
+          "対応中"
+        ],
+        [
+          "２",
+          "旧システムのデータ棚卸し",
+          "運用",
+          "3月20日",
+          "対応中"
+        ],
+        [
+          "３",
+          "移行リハーサル手順書の作成",
+          "運用",
+          "3月31日",
+          "未着手"
+        ],
+        [
+          "４",
+          "本番切替時の連絡体制の整理",
+          "品質管理",
+          "4月 7日",
+          "未着手"
+        ],
+        [
+          "５",
+          "性能試験の測定項目の合意",
+          "開発",
+          "4月10日",
+          "完了"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "（１）開発状況"
+    },
+    {
+      "level": 1,
+      "text": "①画面設計書は予定どおり３月末に完成する見込みである。"
+    },
+    {
+      "level": 1,
+      "text": "②帳票出力の機能は、仕様の変更により工数が増加している。"
+    },
+    {
+      "level": 0,
+      "text": "（２）移行テスト"
+    },
+    {
+      "level": 1,
+      "text": "①第一回の移行リハーサルを４月12日に実施する。"
+    },
+    {
+      "level": 1,
+      "text": "②データ変換の誤り率は、前回の0.8％から0.2％まで低下した。"
+    },
+    {
+      "level": 0,
+      "text": "・本番切替は、５月３日の夜間に行う。"
+    },
+    {
+      "level": 0,
+      "text": "・移行リハーサルは２回実施し、結果を次回会議で報告する。"
+    },
+    {
+      "level": 0,
+      "text": "・帳票の仕様変更は、３月17日までに確定する。"
+    }
+  ],
+  "furniture": [
+    "社外秘・月見台データ研究所 情報システム部",
+    "- 1 -",
+    "- 2 -"
+  ],
+  "languages": [
+    "ja"
+  ],
+  "code": [],
+  "notes": "Japanese has no spaces between words: where a sentence wraps across lines it is given joined with no space; typed markers are joined to their text with no space (e.g. （１）開発状況). Headings carry their typed full-width number (\"１．会議の目的\"). Levels: （１） is level 0 and ① level 1 in the report list; the decisions list uses the typed marker ・ at level 0. The task table starts on page 1 and continues on page 2 with its header row repeated visually; it is ONE table with the header once. The running header and the page-number lines (\"- 1 -\", \"- 2 -\") are furniture. The information panel (日時 / 場所 / 出席者 / 記録) is a key/value table with no header row."
+}

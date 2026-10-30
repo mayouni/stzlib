@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en" dir="ltr"><head><meta charset="utf-8"><title>INVOICE</title><style>:root{--top:14mm;--bot:20mm;--side:20mm;--hdtop:9mm;--ftbot:9mm}
+@page{size:A4;margin:0}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-size:11pt;line-height:1.4;color:#111;background:#fff}
+.page{position:relative;width:210mm;height:296mm;overflow:hidden;page-break-after:always;break-after:page}
+.page:last-child{page-break-after:auto;break-after:auto}
+.bd{position:absolute;top:var(--top,22mm);bottom:var(--bot,22mm);left:var(--side,20mm);right:var(--side,20mm);overflow:hidden}
+.hd{position:absolute;top:var(--hdtop,9mm);left:var(--side,20mm);right:var(--side,20mm)}
+.ft{position:absolute;bottom:var(--ftbot,9mm);left:var(--side,20mm);right:var(--side,20mm)}
+h1,h2,h3,h4,h5{margin:0 0 6px}
+p{margin:0 0 8px}
+table{border-collapse:collapse}
+td,th{padding:4px 6px;vertical-align:top;text-align:start}
+pre{margin:0}
+.L{margin:3px 0;padding-inline-start:24px}
+.L.bullet,.L.dash,.L.none{list-style:none}
+.L.bullet>li{position:relative}
+.L.bullet>li::before{content:"";position:absolute;inset-inline-start:-15px;top:.55em;width:.34em;height:.34em;border-radius:50%;background:currentColor}
+.L.dash>li{position:relative}
+.L.dash>li::before{content:"\2013";position:absolute;inset-inline-start:-16px}
+.li{display:flex;margin-block:2px}
+.li .mk{flex:0 0 auto}
+.il{margin-block:2px}
+.cap{margin:0 0 4px;font-weight:bold}
+
+body{font-family:"Calibri";font-size:10.5pt}
+
+.lh{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid #1f5f8b;padding-bottom:8px;margin-bottom:12px}
+.lh .org{font-size:22pt;font-weight:bold;color:#1f5f8b;letter-spacing:.3px}
+.lh .adr{text-align:right;font-size:9pt;line-height:1.35;color:#444}
+.top{display:flex;gap:14px;margin:6px 0 14px}
+.panel{flex:1;border:1px solid #9bb4c4;padding:8px 10px;background:#f3f7fa;font-size:10pt}
+.panel .lab{font-size:8.5pt;letter-spacing:2px;color:#1f5f8b;font-weight:bold;margin-bottom:3px}
+.kv td{padding:2px 8px;border:1px solid #9bb4c4;font-size:10pt}
+.kv td:first-child{background:#e3edf3;font-weight:bold}
+.items{width:100%;font-size:10pt}
+.items th{background:#1f5f8b;color:#fff;text-align:left;padding:5px 7px}
+.items td{border-bottom:1px solid #c9d3da;padding:3px 7px}
+.items td.n,.items th.n{text-align:right}
+.items td.sec{background:#e8eff4;font-weight:bold;color:#1f5f8b;padding:4px 7px}
+.items td.tot{text-align:right;font-weight:bold}
+.sm{font-size:8.5pt;color:#667}
+h1{font-size:26pt;color:#1f5f8b;margin:0;letter-spacing:4px;font-weight:300}
+.cols{display:flex;gap:30px;margin-top:12px}
+.cols>div{flex:1}
+.ft{font-size:8.5pt;color:#555;text-align:center;border-top:1px solid #9bb4c4;padding-top:5px}
+
+</style></head><body>
+<section class="page"><div class="bd " style=""><div class="lh"><div class="org">Quillfeather Print &amp; Stationery</div><div class="adr">14 Tanner's Row, Wexcombe WX3 8LP<br>Tel 01632 960417 · accounts@quillfeather.example</div></div>
+<h1 class="" style="">INVOICE</h1>
+<div class="top"><div class="panel"><div class="lab">BILL TO</div>Marlowe &amp; Daughters Surveyors<br>Accounts Payable<br>8 Mill Lane<br>Hartsford HF2 5TQ</div><div class="panel"><div class="lab">SHIP TO</div>Marlowe &amp; Daughters Surveyors<br>Goods Inward, Unit 3<br>Kiln Road Trading Estate<br>Hartsford HF4 1BN</div><div>
+<table class="kv" style="">
+<tbody>
+<tr><td>Invoice no.</td><td>QF-2026-0187</td></tr>
+<tr><td>Invoice date</td><td>12 March 2026</td></tr>
+<tr><td>Order ref.</td><td>PO 5521-B</td></tr>
+<tr><td>Due date</td><td>11 April 2026</td></tr>
+</tbody>
+</table>
+</div></div>
+<table class="items" style="">
+<colgroup><col style="width:11%"><col style="width:47%"><col style="width:8%"><col style="width:17%"><col style="width:17%"></colgroup>
+<thead>
+<tr><th>Code</th><th>Description</th><th class="n">Qty</th><th class="n">Unit price</th><th class="n">Amount</th></tr>
+</thead><tbody>
+<tr><td colspan="5" class="sec">Paper &amp; Printing</td></tr>
+<tr><td>P-1001</td><td>A4 copy paper, 80 gsm<br><span class="sm">Box of 5 reams</span></td><td class="n">12</td><td class="n">24.50</td><td class="n">294.00</td></tr>
+<tr><td>P-1017</td><td>Business cards, matte<br><span class="sm">Pack of 500</span></td><td class="n">6</td><td class="n">31.20</td><td class="n">187.20</td></tr>
+<tr><td>P-1042</td><td>Letterhead paper, 100 gsm<br><span class="sm">250 sheets</span></td><td class="n">4</td><td class="n">48.75</td><td class="n">195.00</td></tr>
+<tr><td colspan="5" class="sec">Ink &amp; Toner</td></tr>
+<tr><td>T-2210</td><td>Toner cartridge, black<br><span class="sm">High yield, 6,000 pages</span></td><td class="n">3</td><td class="n">89.90</td><td class="n">269.70</td></tr>
+<tr><td>T-2214</td><td>Toner cartridge, colour set<br><span class="sm">Cyan, magenta and yellow</span></td><td class="n">2</td><td class="n">214.00</td><td class="n">428.00</td></tr>
+<tr><td colspan="5" class="sec">Delivery</td></tr>
+<tr><td>D-0001</td><td>Courier, next working day<br><span class="sm">Signed for</span></td><td class="n">1</td><td class="n">14.95</td><td class="n">14.95</td></tr>
+<tr><td colspan="4" class="tot">Subtotal</td><td class="n">1,388.85</td></tr>
+<tr><td colspan="4" class="tot">Trade discount (5% on goods)</td><td class="n">-68.70</td></tr>
+<tr><td colspan="4" class="tot">VAT at 20%</td><td class="n">264.03</td></tr>
+<tr><td colspan="4" class="tot">Total due</td><td class="n">1,584.18</td></tr>
+</tbody>
+</table>
+<p class="" style="margin-top:12px">Thank you for your order. Please settle this invoice within 30 days of the invoice date to avoid late-payment charges.</p>
+<p class="" style="">Prices include delivery within mainland England. Returns are accepted within 14 days if the goods are unused and in their original packaging.</p>
+<div class="cols"><div><b>Ways to pay</b>
+<ul class="L bullet " style=";">
+<li>Bank transfer to account 31887264, sort code <span style="white-space:nowrap">40-22-18</span>
+</li>
+<li>Cheque payable to Quillfeather Print &amp; Stationery Ltd
+</li>
+<li>Debit or credit card by telephone on 01632 960417
+</li>
+</ul>
+</div><div><b>Notes</b>
+<div class="li " style="margin-inline-start:0px;margin-block:1px;"><span class="mk" style="width:18px;">1)</span><span class="tx">Goods remain our property until paid for in full.</span></div>
+<div class="li " style="margin-inline-start:0px;margin-block:1px;"><span class="mk" style="width:18px;">2)</span><span class="tx">Please quote the invoice number with every payment.</span></div>
+<div class="li " style="margin-inline-start:0px;margin-block:1px;"><span class="mk" style="width:18px;">3)</span><span class="tx">Queries must reach us within 7 days of delivery.</span></div>
+</div></div></div><div class="ft"><div>Quillfeather Print &amp; Stationery Ltd · Registered in England No. 04418263 · VAT No. GB 233 4410 82</div><div>Page 1 of 1</div></div></section>
+</body></html>

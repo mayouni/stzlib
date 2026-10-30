@@ -1,0 +1,206 @@
+{
+  "id": "u18",
+  "difficulty": "scientific paper, 3 pages; full-width title block; two-column body (column by column); abstract box; headings of three levels; typed (i) list; footnote; equation lines; two tables (one in a column, one spanning both columns with a two-level header); figure with caption; reference list with hanging indent",
+  "pages": 3,
+  "title": "Calibration Drift in Low-Cost Particulate Matter Sensors Deployed Across an Urban Monitoring Network",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Calibration Drift in Low-Cost Particulate Matter Sensors Deployed Across an Urban Monitoring Network"
+    },
+    {
+      "level": 2,
+      "text": "Abstract"
+    },
+    {
+      "level": 2,
+      "text": "1 Introduction"
+    },
+    {
+      "level": 2,
+      "text": "2 Methods"
+    },
+    {
+      "level": 3,
+      "text": "2.1 Sensor network"
+    },
+    {
+      "level": 3,
+      "text": "2.2 Reference instruments"
+    },
+    {
+      "level": 3,
+      "text": "2.3 Drift model"
+    },
+    {
+      "level": 3,
+      "text": "2.4 Data processing"
+    },
+    {
+      "level": 2,
+      "text": "3 Results"
+    },
+    {
+      "level": 3,
+      "text": "3.1 Drift by site type"
+    },
+    {
+      "level": 3,
+      "text": "3.2 Effect of recalibration"
+    },
+    {
+      "level": 2,
+      "text": "4 Discussion"
+    },
+    {
+      "level": 2,
+      "text": "5 Conclusion"
+    },
+    {
+      "level": 2,
+      "text": "Data availability"
+    },
+    {
+      "level": 2,
+      "text": "Acknowledgements"
+    },
+    {
+      "level": 2,
+      "text": "References"
+    }
+  ],
+  "key_sentences": [
+    "Low-cost optical sensors have made dense air-quality monitoring affordable, but their readings drift as the instruments age.",
+    "We recommend scheduled recalibration instead of fixed replacement cycles.",
+    "Cities increasingly rely on networks of inexpensive particulate matter sensors to map exposure at the scale of a single street.",
+    "This paper addresses that gap with an eighteen-month field comparison.",
+    "The network consisted of 84 sensors of two models installed at 28 sites between March 2024 and August 2025.",
+    "We fitted the coefficients by ordinary least squares and report b as the drift rate.",
+    "Rates were highest at roadside sites, where dust loading is greatest, and lowest at park sites.",
+    "Averaged over all units, recalibration against the nearest reference removed 78 percent of the accumulated error after twelve months.",
+    "A fixed replacement cycle discards units whose readings can still be corrected, whereas scheduled recalibration keeps them in service at a fraction of the cost.",
+    "Scheduled recalibration against a nearby reference is a cheaper and more reliable way to keep low-cost networks usable than replacing units on a fixed cycle."
+  ],
+  "tables": [
+    {
+      "caption": "Table 1. Sensor models used in the network.",
+      "rows": [
+        [
+          "Model",
+          "Principle",
+          "Range (µg/m³)",
+          "Units"
+        ],
+        [
+          "PX-20",
+          "laser scattering",
+          "0–500",
+          "48"
+        ],
+        [
+          "PX-35",
+          "laser scattering, fan-forced",
+          "0–1000",
+          "36"
+        ]
+      ]
+    },
+    {
+      "caption": "Table 2. Median drift rate by site type and season.",
+      "rows": [
+        [
+          "Site type",
+          "Drift rate (µg/m³ per month)",
+          "Drift rate (µg/m³ per month)",
+          "Drift rate (µg/m³ per month)",
+          "Units"
+        ],
+        [
+          "Site type",
+          "Dry season",
+          "Wet season",
+          "Overall",
+          "Units"
+        ],
+        [
+          "Roadside",
+          "1.4",
+          "2.6",
+          "2.0",
+          "24"
+        ],
+        [
+          "Residential",
+          "0.9",
+          "2.1",
+          "1.5",
+          "33"
+        ],
+        [
+          "Industrial",
+          "1.1",
+          "2.3",
+          "1.7",
+          "15"
+        ],
+        [
+          "Park",
+          "0.6",
+          "1.5",
+          "1.0",
+          "12"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "(i) a public data set of 84 co-located sensors;"
+    },
+    {
+      "level": 0,
+      "text": "(ii) a drift model with an explicit humidity term;"
+    },
+    {
+      "level": 0,
+      "text": "(iii) a recalibration policy evaluated on held-out sites."
+    },
+    {
+      "level": 0,
+      "text": "[1] Okafor, N. and Lindqvist, E. (2021). Field evaluation of optical particle counters. Journal of Environmental Instrumentation, 8(2), 101–118."
+    },
+    {
+      "level": 0,
+      "text": "[2] Haverford, J. (2019). Humidity effects on light-scattering particle sensors. Atmospheric Measurement Notes, 14, 233–245."
+    },
+    {
+      "level": 0,
+      "text": "[3] Mbeki-Larsen, S. et al. (2022). Citizen networks and the quality of crowd-sourced air data. Urban Science Letters, 5(1), 12–27."
+    },
+    {
+      "level": 0,
+      "text": "[4] Tanaka, R. and Brandt, F. (2020). Long-term stability of low-cost sensors in coastal cities. Sensors and Society, 3, 55–71."
+    },
+    {
+      "level": 0,
+      "text": "[5] Ivanova, D. (2023). Recalibration strategies for sensor networks. Proceedings of the Conference on Environmental Informatics, 90–97."
+    },
+    {
+      "level": 0,
+      "text": "[6] Petrov, A. and Quispe, L. (2018). A statistical treatment of drift in photodiode detectors. Measurement Science Review, 18(4), 140–149."
+    }
+  ],
+  "furniture": [
+    "Calibration Drift in Low-Cost Particulate Matter Sensors",
+    "Journal of Urban Sensing, vol. 12 (2026)",
+    "Journal of Urban Sensing · Vol. 12 · 2026 · 1",
+    "Journal of Urban Sensing · Vol. 12 · 2026 · 2",
+    "Journal of Urban Sensing · Vol. 12 · 2026 · 3"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Body text is set in TWO newspaper columns: read the left column then the right column of each block. Blocks are separated by full-width material (title block, abstract, Table 2). The abstract is a bordered box under the heading \"Abstract\" (level 2). Authors/affiliation lines and the keywords line are not scored. The sentence carrying the footnote marker 2 (in 2.2) is left out of key_sentences; the footnote text at the bottom of page 1 is neither body nor furniture. Equation lines such as \"d(t) = a + b t + c h(t) + e(t) (1)\" are not scored. Typed markers: \"(i)\" \"(ii)\" \"(iii)\" (level 0) and the references \"[1]\" ... \"[6]\" with a hanging indent are typed and listed with the marker. Table 1 sits inside the left column; Table 2 spans both columns and has a two-level header (Site type; Drift rate with sub-columns Dry season, Wet season, Overall; Units); merged header cells repeat their text. Figure 1 is a drawing (no text in it) with its caption below. The running header and the footer with the page number are furniture."
+}

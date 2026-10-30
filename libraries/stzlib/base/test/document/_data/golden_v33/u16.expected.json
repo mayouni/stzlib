@@ -1,0 +1,109 @@
+{
+  "id": "u16",
+  "difficulty": "Georgian library rules, 1 page; Mkhedruli script; typed Georgian-letter list ა) ბ) with hanging indent; CSS georgian-numbered list; row-rules table; CSS bullets; Georgian page number",
+  "pages": 1,
+  "title": "ბიბლიოთეკის სარგებლობის წესები",
+  "headings": [
+    {
+      "level": 1,
+      "text": "ბიბლიოთეკის სარგებლობის წესები"
+    },
+    {
+      "level": 2,
+      "text": "გაცემის პირობები"
+    },
+    {
+      "level": 2,
+      "text": "სამუშაო საათები"
+    },
+    {
+      "level": 2,
+      "text": "მკითხველთა დარბაზში"
+    },
+    {
+      "level": 2,
+      "text": "დამატებითი სერვისები"
+    }
+  ],
+  "key_sentences": [
+    "ბიბლიოთეკით სარგებლობა უფასოა ყველა მოქალაქისთვის.",
+    "მკითხველის ბარათის მისაღებად საჭიროა პირადობის დამადასტურებელი დოკუმენტი.",
+    "დაგვიანებული წიგნისთვის ჯარიმა არ ირიცხება, თუმცა მკითხველი ახალ წიგნს ვერ აიღებს, სანამ ძველს არ დააბრუნებს.",
+    "ბიბლიოთეკა ყოველწლიურად აცხადებს ამნისტიას დამგვიანებლებისთვის."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "დღე",
+          "სამუშაო საათები"
+        ],
+        [
+          "ორშაბათი–პარასკევი",
+          "10:00–19:00"
+        ],
+        [
+          "შაბათი",
+          "10:00–16:00"
+        ],
+        [
+          "კვირა",
+          "დახურულია"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "ა) წიგნი გაიცემა ოცდაერთი დღით."
+    },
+    {
+      "level": 0,
+      "text": "ბ) ვადის გაგრძელება შესაძლებელია ერთხელ, ტელეფონით ან ბიბლიოთეკაში მისვლით."
+    },
+    {
+      "level": 0,
+      "text": "გ) ერთ მკითხველზე ერთდროულად გაიცემა არაუმეტეს ხუთი წიგნისა."
+    },
+    {
+      "level": 0,
+      "text": "დ) დაზიანებული წიგნის ღირებულება მკითხველმა უნდა აანაზღაუროს."
+    },
+    {
+      "level": 0,
+      "text": "დარბაზში საუბარი დასაშვებია მხოლოდ ჩუმად."
+    },
+    {
+      "level": 0,
+      "text": "საკუთარი ნივთები უნდა დარჩეს გარდერობში."
+    },
+    {
+      "level": 0,
+      "text": "ფოტოგადაღება ნებადართულია ბიბლიოთეკარის თანხმობით."
+    },
+    {
+      "level": 0,
+      "text": "უფასო უსადენო ინტერნეტი"
+    },
+    {
+      "level": 0,
+      "text": "საბავშვო კუთხე და საკითხავი ოთახი"
+    },
+    {
+      "level": 0,
+      "text": "ელექტრონული წიგნების კატალოგი"
+    }
+  ],
+  "furniture": [
+    "ქალაქ მთიანის საჯარო ბიბლიოთეკა",
+    "რუსთაველის ქუჩა 12, მთიანი",
+    "გვერდი 1 / 1"
+  ],
+  "languages": [
+    "ka"
+  ],
+  "code": [],
+  "notes": "Georgian (Mkhedruli) text. The first list uses typed Georgian-letter markers with a closing parenthesis (ა) ბ) გ) დ)) and a hanging indent and is listed with markers; the \"მკითხველთა დარბაზში\" list is numbered by CSS (list-style georgian) so its items are listed without markers; the bullets at the end are drawn by CSS. The opening-hours table has rules between rows. The letterhead lines (library name and address) and the footer line \"გვერდი 1 / 1\" are furniture."
+}

@@ -1,0 +1,243 @@
+{
+  "id": "u23",
+  "difficulty": "Italian conference programme, 2 pages; borderless timetable with rules, section rows, merged break rows and two-line centred cells; table in a sidebar beside text; typed a) inline list and I. list; CSS bullets; page numbers \"Pagina 1 di 2\"",
+  "pages": 2,
+  "title": "Programma del convegno",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Programma del convegno"
+    },
+    {
+      "level": 2,
+      "text": "Informazioni generali"
+    },
+    {
+      "level": 2,
+      "text": "Giovedì 14 maggio"
+    },
+    {
+      "level": 2,
+      "text": "Venerdì 15 maggio"
+    },
+    {
+      "level": 2,
+      "text": "Tavola rotonda finale"
+    },
+    {
+      "level": 2,
+      "text": "Informazioni pratiche"
+    }
+  ],
+  "key_sentences": [
+    "Il convegno riunisce esperti, ricercatori e responsabili della sicurezza informatica per due giornate di confronto.",
+    "Gli interventi sono in italiano, con traduzione simultanea per le sessioni plenarie.",
+    "La partecipazione è gratuita per gli studenti e per il personale delle pubbliche amministrazioni.",
+    "Alla tavola rotonda del venerdì pomeriggio discuteranno tre temi, uno dopo l'altro:",
+    "Per iscriversi è sufficiente compilare il modulo sul sito del convegno entro il 30 aprile.",
+    "La segreteria risponde dal lunedì al venerdì, dalle 9 alle 17."
+  ],
+  "tables": [
+    {
+      "caption": "Quote di iscrizione",
+      "rows": [
+        [
+          "Categoria",
+          "Quota (€)"
+        ],
+        [
+          "Ordinaria",
+          "180"
+        ],
+        [
+          "Soci",
+          "120"
+        ],
+        [
+          "Ricercatori",
+          "90"
+        ],
+        [
+          "Studenti",
+          "gratuita"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Orario",
+          "Sessione",
+          "Sala"
+        ],
+        [
+          "Mattina",
+          "Mattina",
+          "Mattina"
+        ],
+        [
+          "09:00",
+          "Registrazione dei partecipanti",
+          "Atrio"
+        ],
+        [
+          "09:30",
+          "Apertura dei lavori Saluti del presidente del comitato scientifico",
+          "Sala Grande"
+        ],
+        [
+          "10:00",
+          "La protezione dei dati nelle piccole imprese Relazione di apertura di una esperta di diritto digitale",
+          "Sala Grande"
+        ],
+        [
+          "11:00",
+          "Pausa caffè",
+          "Pausa caffè"
+        ],
+        [
+          "11:30",
+          "Sessione A: crittografia e identità digitale Quattro interventi brevi seguiti da una discussione",
+          "Sala Blu"
+        ],
+        [
+          "Pomeriggio",
+          "Pomeriggio",
+          "Pomeriggio"
+        ],
+        [
+          "13:00",
+          "Pranzo",
+          "Pranzo"
+        ],
+        [
+          "14:30",
+          "Sessione B: risposta agli incidenti Tavola rotonda con i responsabili sicurezza di tre aziende",
+          "Sala Grande"
+        ],
+        [
+          "16:30",
+          "Laboratorio pratico: simulazione di un attacco Iscrizione obbligatoria, posti limitati",
+          "Sala Verde"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Orario",
+          "Sessione",
+          "Sala"
+        ],
+        [
+          "Mattina",
+          "Mattina",
+          "Mattina"
+        ],
+        [
+          "09:30",
+          "Sessione C: sicurezza del cloud Tre casi di studio dal settore bancario",
+          "Sala Grande"
+        ],
+        [
+          "11:00",
+          "Pausa caffè",
+          "Pausa caffè"
+        ],
+        [
+          "11:30",
+          "Sessione D: intelligenza artificiale e privacy Dibattito con il pubblico",
+          "Sala Blu"
+        ],
+        [
+          "Pomeriggio",
+          "Pomeriggio",
+          "Pomeriggio"
+        ],
+        [
+          "13:00",
+          "Pranzo",
+          "Pranzo"
+        ],
+        [
+          "14:30",
+          "Tavola rotonda finale Le priorità per i prossimi cinque anni",
+          "Sala Grande"
+        ],
+        [
+          "16:00",
+          "Chiusura dei lavori Consegna degli attestati di partecipazione",
+          "Sala Grande"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Segreteria",
+          "info@convegno-dati.example"
+        ],
+        [
+          "Telefono",
+          "010 555 0147"
+        ],
+        [
+          "Indirizzo",
+          "Palazzo dei Congressi, piazza della Fontana 3, Genova"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "a) l'accesso a tutte le sessioni;"
+    },
+    {
+      "level": 0,
+      "text": "b) le pause caffè e i due pranzi;"
+    },
+    {
+      "level": 0,
+      "text": "c) gli atti del convegno in formato digitale."
+    },
+    {
+      "level": 0,
+      "text": "I. la formazione del personale sulla sicurezza;"
+    },
+    {
+      "level": 0,
+      "text": "II. la collaborazione tra imprese e pubblica amministrazione;"
+    },
+    {
+      "level": 0,
+      "text": "III. le regole europee sulla protezione dei dati."
+    },
+    {
+      "level": 0,
+      "text": "Il Palazzo dei Congressi si trova a cinque minuti a piedi dalla stazione ferroviaria."
+    },
+    {
+      "level": 0,
+      "text": "Le sale sono accessibili alle persone con disabilità motoria."
+    },
+    {
+      "level": 0,
+      "text": "Una guida alla città è disponibile presso il banco della registrazione."
+    }
+  ],
+  "furniture": [
+    "Convegno Nazionale sulla Sicurezza dei Dati",
+    "Genova, 14–15 maggio 2026",
+    "Programma del convegno · Pagina 1 di 2",
+    "Programma del convegno · Pagina 2 di 2"
+  ],
+  "languages": [
+    "it"
+  ],
+  "code": [],
+  "notes": "Each timetable (Giovedì 14 maggio on page 1, Venerdì 15 maggio on page 2) is its own table with header Orario / Sessione / Sala. Section rows (Mattina, Pomeriggio) span all three columns and repeat their text; the break rows (Pausa caffè, Pranzo) merge the Sessione and Sala columns and repeat their text. A session cell has two lines (title and a smaller description line) which are given joined by one space; the time and room cells are centred vertically and horizontally. On page 1 the general-information text with its typed a) b) c) list (markers set inline, wrapped lines return to the margin) sits on the left and the registration-fee table on the right, side by side: read the left block first, then the table. The \"Tavola rotonda\" list on page 2 uses typed upper-case roman numerals (I. II. III.) with hanging indents; the practical-information bullets are drawn by CSS. The running header and the page-number footer lines are furniture."
+}

@@ -1,0 +1,206 @@
+{
+  "id": "u02",
+  "difficulty": "German house rules, 2 pages; numbered paragraphs (1) with hanging indent; a) b) lists nested; soft hyphens in justified text; boxed key/value panel; full grid table; CSS bullets; running header/footer with German page numbers",
+  "pages": 2,
+  "title": "Hausordnung",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Hausordnung"
+    },
+    {
+      "level": 2,
+      "text": "§ 1 Allgemeines"
+    },
+    {
+      "level": 2,
+      "text": "§ 2 Ruhezeiten"
+    },
+    {
+      "level": 2,
+      "text": "§ 3 Müllentsorgung"
+    },
+    {
+      "level": 2,
+      "text": "§ 4 Treppenhaus und Gemeinschaftsflächen"
+    },
+    {
+      "level": 2,
+      "text": "§ 5 Haustiere"
+    },
+    {
+      "level": 2,
+      "text": "§ 6 Waschküche"
+    },
+    {
+      "level": 2,
+      "text": "§ 7 Schlussbestimmungen"
+    }
+  ],
+  "key_sentences": [
+    "Diese Hausordnung ergänzt den Mietvertrag und ist für alle Bewohnerinnen und Bewohner des Hauses verbindlich.",
+    "Sie dient dem friedlichen Zusammenleben und dem Schutz des gemeinsamen Eigentums.",
+    "Lärm, der andere Hausbewohner stören kann, ist grundsätzlich zu vermeiden.",
+    "Der Abfall ist getrennt zu sammeln und nur in die dafür vorgesehenen Behälter zu werfen.",
+    "Treppenhaus, Keller und Fahrradraum sind Fluchtwege und müssen jederzeit frei bleiben.",
+    "Die Haltung von Hunden und Katzen bedarf der schriftlichen Zustimmung der Hausverwaltung.",
+    "Tiere sind in den Gemeinschaftsflächen an der Leine zu führen, und Verunreinigungen sind sofort zu beseitigen.",
+    "Die Waschküche steht allen Parteien nach folgendem Plan zur Verfügung.",
+    "Verstöße gegen diese Hausordnung können nach vorheriger Abmahnung zur Kündigung des Mietverhältnisses führen."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Mittagsruhe",
+          "Montag bis Samstag, 13:00 bis 15:00 Uhr"
+        ],
+        [
+          "Nachtruhe",
+          "täglich, 22:00 bis 6:00 Uhr"
+        ],
+        [
+          "Sonn- und Feiertage",
+          "ganztägig"
+        ]
+      ]
+    },
+    {
+      "caption": "Tabelle 1: Abfuhrplan",
+      "rows": [
+        [
+          "Behälter",
+          "Inhalt",
+          "Abholung"
+        ],
+        [
+          "Blaue Tonne",
+          "Papier und Pappe",
+          "alle zwei Wochen, dienstags"
+        ],
+        [
+          "Gelbe Tonne",
+          "Verpackungen aus Kunststoff und Metall",
+          "alle zwei Wochen, donnerstags"
+        ],
+        [
+          "Braune Tonne",
+          "Bioabfall",
+          "wöchentlich, montags"
+        ],
+        [
+          "Graue Tonne",
+          "Restmüll",
+          "wöchentlich, freitags"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Wochentag",
+          "Parteien",
+          "Zeit"
+        ],
+        [
+          "Montag",
+          "Erdgeschoss und 1. Obergeschoss",
+          "8:00 bis 18:00 Uhr"
+        ],
+        [
+          "Mittwoch",
+          "2. und 3. Obergeschoss",
+          "8:00 bis 18:00 Uhr"
+        ],
+        [
+          "Samstag",
+          "alle Parteien nach Absprache",
+          "9:00 bis 13:00 Uhr"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "(1) Jede Mieterin und jeder Mieter hat auf die Mitbewohner Rücksicht zu nehmen."
+    },
+    {
+      "level": 0,
+      "text": "(2) Besucher und Handwerker sind von der gastgebenden Partei auf die Hausordnung hinzuweisen."
+    },
+    {
+      "level": 0,
+      "text": "(3) Schäden an Gemeinschaftseinrichtungen sind der Hausverwaltung unverzüglich zu melden."
+    },
+    {
+      "level": 0,
+      "text": "(1) Von den Ruhezeiten darf nur in folgenden Fällen abgewichen werden:"
+    },
+    {
+      "level": 1,
+      "text": "a) dringende Reparaturen, die nicht verschoben werden können;"
+    },
+    {
+      "level": 1,
+      "text": "b) angemeldete Feiern, über die alle Parteien zwei Tage vorher informiert wurden."
+    },
+    {
+      "level": 0,
+      "text": "Sperrmüll wird nur nach vorheriger Anmeldung bei der Stadtreinigung abgeholt."
+    },
+    {
+      "level": 0,
+      "text": "Glas gehört in die Container an der Ecke Lindenweg / Birkenallee."
+    },
+    {
+      "level": 0,
+      "text": "Sondermüll darf nicht in den Hausmüllbehältern entsorgt werden."
+    },
+    {
+      "level": 0,
+      "text": "(1) Im Treppenhaus ist es nicht gestattet,"
+    },
+    {
+      "level": 1,
+      "text": "a) Schuhe, Kinderwagen oder Möbel abzustellen;"
+    },
+    {
+      "level": 1,
+      "text": "b) Fahrräder oder Roller zu lagern;"
+    },
+    {
+      "level": 1,
+      "text": "c) zu rauchen."
+    },
+    {
+      "level": 0,
+      "text": "(2) Die Haustür ist zwischen 22:00 und 6:00 Uhr verschlossen zu halten."
+    },
+    {
+      "level": 0,
+      "text": "(3) Der Fahrradraum darf nur mit dem ausgehändigten Schlüssel betreten werden."
+    },
+    {
+      "level": 0,
+      "text": "Die Maschinen sind nach Gebrauch zu reinigen."
+    },
+    {
+      "level": 0,
+      "text": "Wäsche darf nicht über Nacht in der Waschküche hängen bleiben."
+    }
+  ],
+  "furniture": [
+    "Hausordnung Lindenweg 14",
+    "Hausverwaltung Lindenweg GbR · Lindenweg 14 · 20144 Hamburg",
+    "Seite 1 von 2",
+    "Seite 2 von 2"
+  ],
+  "languages": [
+    "de"
+  ],
+  "code": [],
+  "notes": "Running header (Hausordnung Lindenweg 14) is listed once; the footer address line is listed once and the page-number line once per page. Paragraph text contains soft hyphens (U+00AD) that may or may not show as a hyphen at a line end: expected text is the whole word. Numbered paragraphs \"(1)\" and the sub-items \"a)\" are typed markers with a hanging indent and are listed as list items with their marker; list levels are 0 for (1) and 1 for a). The Ruhezeiten box is a key/value table without header row. Bullets in sections 3 and 6 are drawn by CSS (filled circle, no text). The closing place/date and signature lines are not scored."
+}

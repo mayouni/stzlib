@@ -1,0 +1,117 @@
+{
+  "id": "u05",
+  "difficulty": "Hebrew right-to-left parent notice; letterhead; typed Hebrew-letter list with hanging indent; CSS hebrew-numbered list; CSS bullets; RTL schedule table in logical order; mixed digits",
+  "pages": 1,
+  "title": "הודעה להורים: טיול שנתי לשכבת כיתות ו",
+  "headings": [
+    {
+      "level": 1,
+      "text": "הודעה להורים: טיול שנתי לשכבת כיתות ו"
+    },
+    {
+      "level": 2,
+      "text": "לוח זמנים"
+    },
+    {
+      "level": 2,
+      "text": "הוראות בטיחות"
+    }
+  ],
+  "key_sentences": [
+    "בשבוע הבא תצא שכבת כיתות ו לטיול שנתי בשמורת נחל הדס.",
+    "הטיול נועד לחזק את הקשר בין התלמידים ולהעמיק את הלימוד על הטבע של האזור.",
+    "אנא קראו בעיון את ההוראות והחזירו את טופס האישור עד יום חמישי.",
+    "תודה על שיתוף הפעולה, ונשמח לראותכם בערב ההורים הקרוב."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "שעה",
+          "פעילות",
+          "אחראי"
+        ],
+        [
+          "07:30",
+          "התכנסות בחצר בית הספר",
+          "מחנכות הכיתות"
+        ],
+        [
+          "08:00",
+          "יציאה באוטובוסים",
+          "רכזת הטיול"
+        ],
+        [
+          "09:30",
+          "הליכה בשביל המעיין",
+          "מדריך השמורה"
+        ],
+        [
+          "12:00",
+          "ארוחת צהריים ומנוחה",
+          "כל הכיתות"
+        ],
+        [
+          "14:30",
+          "חזרה לבית הספר",
+          "רכזת הטיול"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "בקבוק מים גדול"
+    },
+    {
+      "level": 0,
+      "text": "כובע ומשחת הגנה מהשמש"
+    },
+    {
+      "level": 0,
+      "text": "נעליים סגורות"
+    },
+    {
+      "level": 0,
+      "text": "כריכים ופירות"
+    },
+    {
+      "level": 0,
+      "text": "חתימת הורה על טופס האישור"
+    },
+    {
+      "level": 0,
+      "text": "תשלום של 45 שקלים למזכירות"
+    },
+    {
+      "level": 0,
+      "text": "מילוי הצהרת בריאות"
+    },
+    {
+      "level": 0,
+      "text": "א. התלמידים יישארו בקבוצה ובקרבת המדריך בכל שלב של הטיול."
+    },
+    {
+      "level": 0,
+      "text": "ב. אין לסטות מהשביל המסומן ואין לטפס על סלעים."
+    },
+    {
+      "level": 0,
+      "text": "ג. במקרה של חירום יש לפנות מיד לרכזת הטיול."
+    }
+  ],
+  "furniture": [
+    "בית הספר היסודי נחל הדס",
+    "רחוב הגפן 12, קריית השקד",
+    "תאריך: 4 במרץ 2026",
+    "טלפון המזכירות: 04-5551234",
+    "עמוד 1 מתוך 1"
+  ],
+  "languages": [
+    "he"
+  ],
+  "code": [],
+  "notes": "Right-to-left document; table cells are listed in logical order, rightmost column (שעה) first. The letterhead lines (school name, address) and the footer lines are furniture; the date line under the letterhead is furniture too. The list א. ב. ג. uses typed Hebrew-letter markers with a hanging indent and is listed with markers. The \"תנאי השתתפות\" list is numbered by CSS in Hebrew letters (list-style hebrew), so it is listed without markers, as are the CSS-drawn bullets under \"מה להביא\". Times such as 07:30 are left-to-right inside right-to-left text."
+}

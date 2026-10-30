@@ -1,0 +1,117 @@
+{
+  "id": "u11",
+  "difficulty": "Thai tour programme and price sheet, 1 page; no spaces between words; typed Thai-digit numbers ๑. and Thai-letter ก. markers; price table with rules between rows only; CSS bullets",
+  "pages": 1,
+  "title": "โปรแกรมทัวร์เชียงใหม่ 3 วัน 2 คืน",
+  "headings": [
+    {
+      "level": 1,
+      "text": "โปรแกรมทัวร์เชียงใหม่ 3 วัน 2 คืน"
+    },
+    {
+      "level": 2,
+      "text": "กำหนดการเดินทาง"
+    },
+    {
+      "level": 2,
+      "text": "อัตราค่าบริการต่อท่าน"
+    },
+    {
+      "level": 2,
+      "text": "ราคานี้รวม"
+    }
+  ],
+  "key_sentences": [
+    "โปรแกรมทัวร์นี้เหมาะสำหรับครอบครัวและกลุ่มเพื่อนที่ต้องการพักผ่อนท่ามกลางธรรมชาติ",
+    "ราคานี้รวมที่พักอาหารและค่ายานพาหนะตลอดการเดินทาง",
+    "ผู้สนใจสามารถสำรองที่นั่งล่วงหน้าได้โดยชำระมัดจำสามสิบเปอร์เซ็นต์",
+    "บริษัทขอสงวนสิทธิ์ในการเปลี่ยนแปลงโปรแกรมตามสภาพอากาศ"
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "ประเภทห้องพัก",
+          "ผู้ใหญ่ (บาท)",
+          "เด็ก (บาท)",
+          "เด็กเล็ก (บาท)"
+        ],
+        [
+          "พักเดี่ยว",
+          "8,900",
+          "-",
+          "-"
+        ],
+        [
+          "พักคู่",
+          "6,900",
+          "5,900",
+          "1,500"
+        ],
+        [
+          "พักสามท่าน",
+          "6,500",
+          "5,500",
+          "1,500"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "๑. วันแรก ออกเดินทางจากสนามบินและเข้าที่พัก"
+    },
+    {
+      "level": 1,
+      "text": "ก. รับสัมภาระที่สนามบินเวลาเก้าโมงเช้า"
+    },
+    {
+      "level": 1,
+      "text": "ข. รับประทานอาหารกลางวันที่ร้านอาหารพื้นเมือง"
+    },
+    {
+      "level": 0,
+      "text": "๒. วันที่สอง เที่ยวชมดอยและตลาดชุมชน"
+    },
+    {
+      "level": 1,
+      "text": "ก. ขึ้นดอยชมทะเลหมอกตั้งแต่เช้าตรู่"
+    },
+    {
+      "level": 1,
+      "text": "ข. เยี่ยมชมหมู่บ้านหัตถกรรมและตลาดกลางคืน"
+    },
+    {
+      "level": 0,
+      "text": "๓. วันที่สาม ซื้อของฝากและเดินทางกลับ"
+    },
+    {
+      "level": 0,
+      "text": "ที่พักโรงแรมสามดาวสองคืน"
+    },
+    {
+      "level": 0,
+      "text": "อาหารทุกมื้อตามที่ระบุในโปรแกรม"
+    },
+    {
+      "level": 0,
+      "text": "รถรับส่งปรับอากาศและค่าธรรมเนียมเข้าชมสถานที่"
+    },
+    {
+      "level": 0,
+      "text": "ประกันอุบัติเหตุระหว่างการเดินทาง"
+    }
+  ],
+  "furniture": [
+    "บริษัท ใบเตยทัวร์ จำกัด",
+    "โทร 053-555-0127 · info@baitoey-tours.example",
+    "หน้า 1 จาก 1"
+  ],
+  "languages": [
+    "th"
+  ],
+  "code": [],
+  "notes": "Thai is written without spaces between words and sentences here contain no internal spaces, so a line wrapped inside a sentence is given joined with no space. Typed markers: Thai digits with a full stop (๑. ๒. ๓.) at level 0 and Thai consonants with a full stop (ก. ข.) at level 1, joined to the text with a single space in the expected text (the page draws a hanging indent). The price table has rules between rows only. The letterhead (company name and contact line) and the footer line \"หน้า 1 จาก 1\" are furniture; bullets under \"ราคานี้รวม\" are drawn by CSS."
+}

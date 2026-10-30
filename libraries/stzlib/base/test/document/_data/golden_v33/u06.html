@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ru" dir="ltr"><head><meta charset="utf-8"><title>Шлюз телеметрии ТМ-200: руководство по настройке</title><style>:root{--top:24mm;--bot:24mm;--side:20mm;--hdtop:9mm;--ftbot:9mm}
+@page{size:A4;margin:0}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-size:11pt;line-height:1.4;color:#111;background:#fff}
+.page{position:relative;width:210mm;height:296mm;overflow:hidden;page-break-after:always;break-after:page}
+.page:last-child{page-break-after:auto;break-after:auto}
+.bd{position:absolute;top:var(--top,22mm);bottom:var(--bot,22mm);left:var(--side,20mm);right:var(--side,20mm);overflow:hidden}
+.hd{position:absolute;top:var(--hdtop,9mm);left:var(--side,20mm);right:var(--side,20mm)}
+.ft{position:absolute;bottom:var(--ftbot,9mm);left:var(--side,20mm);right:var(--side,20mm)}
+h1,h2,h3,h4,h5{margin:0 0 6px}
+p{margin:0 0 8px}
+table{border-collapse:collapse}
+td,th{padding:4px 6px;vertical-align:top;text-align:start}
+pre{margin:0}
+.L{margin:3px 0;padding-inline-start:24px}
+.L.bullet,.L.dash,.L.none{list-style:none}
+.L.bullet>li{position:relative}
+.L.bullet>li::before{content:"";position:absolute;inset-inline-start:-15px;top:.55em;width:.34em;height:.34em;border-radius:50%;background:currentColor}
+.L.dash>li{position:relative}
+.L.dash>li::before{content:"\2013";position:absolute;inset-inline-start:-16px}
+.li{display:flex;margin-block:2px}
+.li .mk{flex:0 0 auto}
+.il{margin-block:2px}
+.cap{margin:0 0 4px;font-weight:bold}
+
+body{font-family:"Georgia";font-size:10.5pt}
+
+h1{font-size:21pt;margin:0 0 10px;color:#7a2a1d}
+h2{font-size:14pt;margin:14px 0 5px;color:#7a2a1d;border-bottom:1px solid #d4a89f}
+h3{font-size:11.5pt;margin:10px 0 4px;color:#444}
+.hd{font-size:9pt;color:#666;border-bottom:1px solid #bbb;padding-bottom:3px}
+.ft{font-size:8.5pt;color:#666;display:flex;justify-content:space-between;border-top:1px solid #bbb;padding-top:3px}
+pre{font-family:"Consolas";font-size:9.5pt;background:#f4f1ee;border:1px solid #d9d2cc;border-left:4px solid #7a2a1d;padding:7px 10px;margin:6px 0 8px;line-height:1.35}
+.t2{width:100%;margin:6px 0 8px;font-size:9.5pt}
+.t2 th{background:#7a2a1d;color:#fff;border:1px solid #fff;padding:4px 6px;text-align:center}
+.t2 td{border:1px solid #c9bdb7;padding:6px 6px}
+.t2 tr:nth-child(odd) td{background:#faf5f2}
+.t3{width:100%;margin:6px 0 8px;font-size:10pt}
+.t3 th{border-bottom:2px solid #7a2a1d;padding:4px 6px;text-align:left}
+.t3 td{border-bottom:1px solid #ddd;padding:4px 6px}
+
+</style></head><body>
+<section class="page"><div class="hd" style="position:absolute;top:var(--hdtop,9mm);left:var(--side,20mm);right:var(--side,20mm)">ТМ-200 · Руководство по настройке</div><div class="bd " style=""><h1 class="" style="">Шлюз телеметрии ТМ-200: руководство по настройке</h1>
+<h2 class="" style="">1. Назначение</h2>
+<p class="" style="">Шлюз телеметрии ТМ-200 предназначен для сбора данных с датчиков и передачи их на сервер по защищённому каналу. Настоящее руководство описывает подключение устройства и настройку его параметров.</p>
+<h2 class="" style="">2. Подготовка к работе</h2>
+<h3 class="" style="">2.1 Комплектность</h3>
+<p class="" style="">В комплект поставки входят следующие изделия:</p>
+<div class="li " style="margin-inline-start:0px;margin-block:2px;"><span class="mk" style="width:24px;">а)</span><span class="tx">шлюз ТМ-200 — 1 шт.;</span></div>
+<div class="li " style="margin-inline-start:0px;margin-block:2px;"><span class="mk" style="width:24px;">б)</span><span class="tx">блок питания 12 В — 1 шт.;</span></div>
+<div class="li " style="margin-inline-start:0px;margin-block:2px;"><span class="mk" style="width:24px;">в)</span><span class="tx">антенна — 1 шт.;</span></div>
+<div class="li " style="margin-inline-start:0px;margin-block:2px;"><span class="mk" style="width:24px;">г)</span><span class="tx">кабель Ethernet длиной 1,5 м — 1 шт.</span></div>
+<h3 class="" style="">2.2 Подключение</h3>
+<p class="" style="">Для подключения устройства выполните следующие действия.</p>
+<div class="li " style="margin-inline-start:0px;margin-block:2px;"><span class="mk" style="width:24px;">1)</span><span class="tx">Закрепите шлюз на DIN-рейке.</span></div>
+<div class="li " style="margin-inline-start:0px;margin-block:2px;"><span class="mk" style="width:24px;">2)</span><span class="tx">Подключите антенну к разъёму на верхней панели:</span></div>
+<div class="li " style="margin-inline-start:26px;margin-block:2px;"><span class="mk" style="width:24px;">а)</span><span class="tx">вкрутите разъём до упора вручную;</span></div>
+<div class="li " style="margin-inline-start:26px;margin-block:2px;"><span class="mk" style="width:24px;">б)</span><span class="tx">не используйте инструмент для затяжки.</span></div>
+<div class="li " style="margin-inline-start:0px;margin-block:2px;"><span class="mk" style="width:24px;">3)</span><span class="tx">Подключите кабель Ethernet к порту LAN1.</span></div>
+<div class="li " style="margin-inline-start:0px;margin-block:2px;"><span class="mk" style="width:24px;">4)</span><span class="tx">Подайте питание и дождитесь свечения индикатора.</span></div>
+<h2 class="" style="">3. Файл конфигурации</h2>
+<p class="" style="">Параметры хранятся в текстовом файле config.ini. Пример файла приведён ниже.</p>
+<pre class="" style="">[network]
+address = 192.168.10.20     # адрес шлюза
+netmask = 255.255.255.0
+gateway = 192.168.10.1
+
+[mqtt]
+broker = mqtt.example.net
+port = 8883
+topic = site/tm200/data
+interval_s = 30             # период опроса, с</pre>
+<p class="" style="">После изменения файла перезапустите службу командой:</p>
+<pre class="" style="">sudo systemctl restart tm200</pre></div><div class="ft" style="position:absolute;bottom:var(--ftbot,9mm);left:var(--side,20mm);right:var(--side,20mm)"><span>© ООО «Северный Прибор», 2026</span><span>Стр. 1 из 3</span></div></section>
+<section class="page"><div class="hd" style="position:absolute;top:var(--hdtop,9mm);left:var(--side,20mm);right:var(--side,20mm)">ТМ-200 · Руководство по настройке</div><div class="bd " style=""><p class="" style="">Допустимые значения параметров приведены в таблице 1.</p>
+<div class="cap" style="">Таблица 1 — Параметры конфигурации</div>
+<table class="t2" style="">
+<colgroup><col style="width:18%"><col style="width:12%"><col style="width:12%"><col style="width:20%"><col style="width:38%"></colgroup>
+<thead>
+<tr><th rowspan="2">Параметр</th><th colspan="2">Допустимые значения</th><th rowspan="2">По умолчанию</th><th rowspan="2">Описание</th></tr>
+<tr><th>мин.</th><th>макс.</th></tr>
+</thead><tbody>
+<tr><td>address</td><td>—</td><td>—</td><td>192.168.10.20</td><td>IP-адрес шлюза в локальной сети предприятия</td></tr>
+<tr><td>netmask</td><td>—</td><td>—</td><td>255.255.255.0</td><td>маска подсети, к которой подключён шлюз</td></tr>
+<tr><td>gateway</td><td>—</td><td>—</td><td>192.168.10.1</td><td>адрес основного шлюза для выхода во внешнюю сеть</td></tr>
+<tr><td>dns</td><td>—</td><td>—</td><td>192.168.10.1</td><td>адрес сервера имён, используемого для разрешения адресов</td></tr>
+<tr><td>ntp_server</td><td>—</td><td>—</td><td>pool.ntp.example</td><td>источник точного времени для отметки измерений</td></tr>
+<tr><td>port</td><td>1</td><td>65535</td><td>8883</td><td>порт брокера MQTT, к которому подключается шлюз</td></tr>
+<tr><td>keepalive_s</td><td>10</td><td>600</td><td>60</td><td>интервал сеансовых сообщений для проверки соединения, с</td></tr>
+<tr><td>qos</td><td>0</td><td>2</td><td>1</td><td>уровень качества доставки сообщений на сервер</td></tr>
+<tr><td>interval_s</td><td>5</td><td>3600</td><td>30</td><td>период опроса подключённых датчиков, с</td></tr>
+<tr><td>retries</td><td>0</td><td>10</td><td>3</td><td>число повторных попыток передачи при сбое связи</td></tr>
+<tr><td>timeout_s</td><td>1</td><td>120</td><td>15</td><td>время ожидания ответа сервера до повторной попытки, с</td></tr>
+<tr><td>buffer_kb</td><td>64</td><td>4096</td><td>512</td><td>размер буфера для хранения данных при обрыве связи, КБ</td></tr>
+<tr><td>log_level</td><td>0</td><td>4</td><td>2</td><td>подробность записей в журнале событий устройства</td></tr>
+<tr><td>log_keep_days</td><td>1</td><td>365</td><td>30</td><td>срок хранения журнала событий, сутки</td></tr>
+</tbody>
+</table></div><div class="ft" style="position:absolute;bottom:var(--ftbot,9mm);left:var(--side,20mm);right:var(--side,20mm)"><span>© ООО «Северный Прибор», 2026</span><span>Стр. 2 из 3</span></div></section>
+<section class="page"><div class="hd" style="position:absolute;top:var(--hdtop,9mm);left:var(--side,20mm);right:var(--side,20mm)">ТМ-200 · Руководство по настройке</div><div class="bd " style=""><table class="t2" style="">
+<colgroup><col style="width:18%"><col style="width:12%"><col style="width:12%"><col style="width:20%"><col style="width:38%"></colgroup>
+<thead>
+<tr><th rowspan="2">Параметр</th><th colspan="2">Допустимые значения</th><th rowspan="2">По умолчанию</th><th rowspan="2">Описание</th></tr>
+<tr><th>мин.</th><th>макс.</th></tr>
+</thead><tbody>
+<tr><td>adc_bits</td><td>10</td><td>16</td><td>12</td><td>разрядность аналоговых входов при измерении</td></tr>
+<tr><td>sample_hz</td><td>1</td><td>1000</td><td>50</td><td>частота выборки входного сигнала датчиков, Гц</td></tr>
+<tr><td>wdt_s</td><td>5</td><td>300</td><td>60</td><td>период сторожевого таймера перезапуска, с</td></tr>
+</tbody>
+</table>
+<h2 class="" style="">4. Диагностика</h2>
+<p class="" style="">Состояние устройства определяется по индикатору на передней панели. Значения индикатора указаны в таблице 2.</p>
+<div class="cap" style="">Таблица 2 — Индикация</div>
+<table class="t3" style="">
+<colgroup><col style="width:30%"><col style="width:30%"><col style="width:40%"></colgroup>
+<thead>
+<tr><th>Индикатор</th><th>Состояние</th><th>Действие</th></tr>
+</thead><tbody>
+<tr><td>Зелёный, горит постоянно</td><td>Нормальная работа</td><td>Действий не требуется</td></tr>
+<tr><td>Зелёный, мигает</td><td>Нет связи с сервером</td><td>Проверьте кабель и адрес брокера</td></tr>
+<tr><td>Красный, горит постоянно</td><td>Внутренняя ошибка</td><td>Перезапустите устройство</td></tr>
+<tr><td>Не горит</td><td>Нет питания</td><td>Проверьте блок питания</td></tr>
+</tbody>
+</table>
+<p class="" style=""><b>Перед обращением в сервисный центр проверьте:</b></p>
+<ul class="L bullet " style=";">
+<li>правильность адреса и маски подсети;
+</li>
+<li>доступность брокера с другого компьютера сети;
+</li>
+<li>уровень сигнала антенны в журнале устройства.
+</li>
+</ul>
+<h2 class="" style="">5. Гарантийные обязательства</h2>
+<p class="" style="">Изготовитель гарантирует соответствие шлюза техническим характеристикам в течение 24 месяцев со дня продажи. Гарантия не распространяется на устройства, имеющие механические повреждения или следы вскрытия корпуса.</p>
+<h2 class="" style="">6. Контакты</h2>
+<p class="" style="">Служба технической поддержки работает по рабочим дням с 9:00 до 18:00. Заявки принимаются по адресу support@severny-pribor.example.</p></div><div class="ft" style="position:absolute;bottom:var(--ftbot,9mm);left:var(--side,20mm);right:var(--side,20mm)"><span>© ООО «Северный Прибор», 2026</span><span>Стр. 3 из 3</span></div></section>
+</body></html>

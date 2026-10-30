@@ -1,0 +1,37 @@
+page_header	0	Meridian Software · Documentation
+page_header	0	Meridian Sync 4.2
+heading	1	Meridian Sync 4.2 - Release Notes
+table	0	Version4.2.0Release date23 April 2026Supported until30 April 2028Compatible withMeridian Server 3.8 and later
+paragraph	0	Meridian Sync 4.2 is a feature release that makes synchronisation faster and easier to monitor. Please read the upgrade instructions before installing the package on a production host.
+heading	1	Highlights
+list_item	0	Faster transfers
+list_item	0	Delta compression reduces upload size by up to 60 percent.
+list_item	0	Parallel chunking is now enabled by default.
+list_item	0	Better monitoring
+list_item	0	New metrics endpoint compatible with common dashboards.
+list_item	0	Sync history is kept for 90 days.
+list_item	0	Improved conflict resolution for files edited on two devices.
+heading	1	Upgrade instructions
+paragraph	0	Stop the service, install the new package and run the migration. A dry run shows what will change without touching any data.
+code	0	$ meridian stop $ sudo apt install ./meridian-sync _ 4.2.0 _ amd64.deb $ meridian migrate --dry-run $ meridian migrate $ meridian start
+heading	1	Configuration changes
+paragraph	0	The new compression and retry settings live in the sync section of the configuration file:
+code	0	{ "sync": { "interval": "30s" , "retries": 5, "compression": "zstd" , "chunk _ mb": 8 } }
+page_footer	0	Meridian Sync 4.2 · Release Notes · 1 / 2
+page_header	0	Meridian Software · Documentation
+page_header	0	Meridian Sync 4.2
+heading	1	Breaking changes
+table	0	Old settingNew settingNotessync.periodsync.intervalNow accepts units such as 30s or 5m.sync.gzipsync.compressionValue zstd replaces true.log.filelog.pathRelative paths are resolved from the data directory.api.tokenauth.tokenTokens created before 4.0 must be renewed.
+heading	1	Known issues
+list_item	0	Large folders with more than 200,000 files may take several minutes to show their first sync result.
+list_item	0	The metrics endpoint is not available when the service runs in read-only mode.
+list_item	0	Renaming a folder on two devices at the same time creates a conflict copy.
+heading	1	Deprecations
+paragraph	0	The following features will be removed in version 5.0:
+list_item	0	the legacy XML configuration format;
+list_item	0	the --force-full command-line flag;
+list_item	0	support for Meridian Server 3.5 and earlier.
+heading	1	Getting help
+paragraph	0	If you run into a problem, collect the diagnostics bundle and attach it to your support request. The bundle contains logs and configuration without any file contents.
+paragraph	0	$ meridian diagnostics --output /tmp/meridian-diag.zip
+page_footer	0	Meridian Sync 4.2 · Release Notes · 2 / 2

@@ -1,0 +1,142 @@
+{
+  "id": "u15",
+  "difficulty": "Turkish class timetable, 1 page; wide 6-column grid with rowspans (double lessons) and a merged lunch row; centred coloured cells; boxed key/value table; typed 1) notes; Turkish capital İ and ı",
+  "pages": 1,
+  "title": "Haftalık Ders Programı – 10-B Sınıfı",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Haftalık Ders Programı – 10-B Sınıfı"
+    },
+    {
+      "level": 2,
+      "text": "Notlar"
+    }
+  ],
+  "key_sentences": [
+    "Programda yapılacak her değişiklik okul ilan panosunda duyurulur.",
+    "Öğrenciler ders saatinden beş dakika önce sınıflarında hazır bulunmalıdır.",
+    "Beden eğitimi derslerinde spor kıyafeti giymek gerekir.",
+    "Sağlık raporu olan öğrenciler durumu müdür yardımcısına bildirir."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Sınıf",
+          "10-B",
+          "Derslik",
+          "B-204"
+        ],
+        [
+          "Dönem",
+          "2. dönem (Bahar)",
+          "Ders saati",
+          "40 dakika"
+        ]
+      ]
+    },
+    {
+      "caption": "Çizelge 1: Haftalık ders çizelgesi",
+      "rows": [
+        [
+          "Saat",
+          "Pazartesi",
+          "Salı",
+          "Çarşamba",
+          "Perşembe",
+          "Cuma"
+        ],
+        [
+          "1. ders 08:30–09:10",
+          "Matematik",
+          "Fizik",
+          "Tarih",
+          "İngilizce",
+          "Biyoloji"
+        ],
+        [
+          "2. ders 09:20–10:00",
+          "Matematik",
+          "Fizik",
+          "Coğrafya",
+          "İngilizce",
+          "Kimya"
+        ],
+        [
+          "3. ders 10:10–10:50",
+          "Türk Dili ve Edebiyatı",
+          "Matematik",
+          "Fizik",
+          "Kimya",
+          "Matematik"
+        ],
+        [
+          "4. ders 11:00–11:40",
+          "Fizik",
+          "Matematik",
+          "Din Kültürü",
+          "Kimya",
+          "Türk Dili ve Edebiyatı"
+        ],
+        [
+          "11:40–12:30",
+          "Öğle arası",
+          "Öğle arası",
+          "Öğle arası",
+          "Öğle arası",
+          "Öğle arası"
+        ],
+        [
+          "5. ders 12:30–13:10",
+          "Beden Eğitimi",
+          "İngilizce",
+          "Müzik",
+          "Tarih",
+          "Rehberlik"
+        ],
+        [
+          "6. ders 13:20–14:00",
+          "Beden Eğitimi",
+          "İngilizce",
+          "Müzik",
+          "Bilgisayar",
+          "Coğrafya"
+        ],
+        [
+          "7. ders 14:10–14:50",
+          "Kulüp Etkinliği",
+          "Biyoloji",
+          "Kulüp Etkinliği",
+          "Bilgisayar",
+          "Beden Eğitimi"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1) Ders programı her dönem başında güncellenir."
+    },
+    {
+      "level": 0,
+      "text": "2) Laboratuvar dersleri için önlük getirilmesi zorunludur."
+    },
+    {
+      "level": 0,
+      "text": "3) Kulüp etkinliklerine katılım gönüllülük esasına dayanır."
+    }
+  ],
+  "furniture": [
+    "Gökbayrak Anadolu Lisesi",
+    "2025–2026 eğitim öğretim yılı",
+    "Sayfa 1 / 1"
+  ],
+  "languages": [
+    "tr"
+  ],
+  "code": [],
+  "notes": "The timetable is one table: header row Saat / Pazartesi / Salı / Çarşamba / Perşembe / Cuma. Double lessons use rowspan, so the lesson name repeats in the grid cell of the second covered row. The lunch row spans the five day columns and repeats \"Öğle arası\" in each. The word \"Öğle arası\" is letter-spaced in the page; the expected text is the plain words. Cells with two lines (lesson number and time) are given joined by one space. The key/value box (Sınıf, Derslik, Dönem) has no header row. Notes use the typed marker \"1)\" set inline (marker, space, text; wrapped lines return to the left margin) and are listed with the marker. Letterhead (school name and the line under it) and the footer line \"Sayfa 1 / 1\" are furniture."
+}

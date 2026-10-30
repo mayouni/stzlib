@@ -1,0 +1,143 @@
+{
+  "id": "u07",
+  "difficulty": "Chinese (Simplified) corporate notice, 2 pages; red letterhead and document number; typed 一、（一）1. markers; zebra table; page numbers \"第 1 页 共 2 页\"; no-space wrapping",
+  "pages": 2,
+  "title": "关于开展2026年度信息安全培训的通知",
+  "headings": [
+    {
+      "level": 1,
+      "text": "关于开展2026年度信息安全培训的通知"
+    },
+    {
+      "level": 2,
+      "text": "一、培训对象"
+    },
+    {
+      "level": 2,
+      "text": "二、培训安排"
+    },
+    {
+      "level": 2,
+      "text": "三、培训内容"
+    },
+    {
+      "level": 2,
+      "text": "四、有关要求"
+    },
+    {
+      "level": 2,
+      "text": "五、联系方式"
+    }
+  ],
+  "key_sentences": [
+    "为进一步增强全体员工的信息安全意识，防范数据泄露和网络攻击，公司决定在2026年第二季度开展年度信息安全培训。",
+    "现将有关事项通知如下。",
+    "公司全体在职员工，包括试用期员工和劳务派遣人员。",
+    "新入职员工须在入职一个月内补训。",
+    "培训分四个场次进行，各部门按下表安排参加。",
+    "培训相关事宜请联系人力资源部，电话为021-5550-0198，邮箱为hr@yunshan-tech.example。"
+  ],
+  "tables": [
+    {
+      "caption": "表1 培训场次安排",
+      "rows": [
+        [
+          "场次",
+          "日期",
+          "时间",
+          "地点",
+          "参加部门"
+        ],
+        [
+          "第一场",
+          "4月8日",
+          "9:30—11:30",
+          "总部三楼报告厅",
+          "研发部、测试部"
+        ],
+        [
+          "第二场",
+          "4月10日",
+          "14:00—16:00",
+          "总部三楼报告厅",
+          "市场部、销售部"
+        ],
+        [
+          "第三场",
+          "4月15日",
+          "9:30—11:30",
+          "二号楼会议室",
+          "财务部、人事部"
+        ],
+        [
+          "第四场",
+          "4月17日",
+          "14:00—16:00",
+          "线上会议",
+          "各分公司"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "（一）密码与账号安全"
+    },
+    {
+      "level": 1,
+      "text": "1.密码长度不得少于12位，并定期更换。"
+    },
+    {
+      "level": 1,
+      "text": "2.不得在不同系统中重复使用同一密码。"
+    },
+    {
+      "level": 0,
+      "text": "（二）电子邮件与钓鱼防范"
+    },
+    {
+      "level": 1,
+      "text": "1.识别可疑链接和附件。"
+    },
+    {
+      "level": 1,
+      "text": "2.发现可疑邮件应立即向信息中心报告。"
+    },
+    {
+      "level": 0,
+      "text": "（三）移动设备与数据保护"
+    },
+    {
+      "level": 1,
+      "text": "1.个人设备接入公司网络前须登记备案。"
+    },
+    {
+      "level": 1,
+      "text": "2.涉密文件不得通过个人网盘传输。"
+    },
+    {
+      "level": 0,
+      "text": "1、各部门负责人要组织本部门员工按时参加培训，不得无故缺席。"
+    },
+    {
+      "level": 0,
+      "text": "2、培训结束后一周内，公司将组织线上测试，成绩合格者方可获得培训证书。"
+    },
+    {
+      "level": 0,
+      "text": "3、确因工作原因无法参加的，须提前三个工作日向人力资源部书面说明。"
+    }
+  ],
+  "furniture": [
+    "云杉科技有限公司文件",
+    "云科发〔2026〕12号",
+    "第 1 页 共 2 页",
+    "第 2 页 共 2 页"
+  ],
+  "languages": [
+    "zh"
+  ],
+  "code": [],
+  "notes": "Chinese has no spaces between words: a wrapped sentence is given joined with no space. Section headings carry their typed Chinese numerals (\"一、培训对象\"). List markers are typed and joined to the text with no space: （一） is level 0 and 1. is level 1, ① is level 2 (not used). The letterhead (company name line, document number line) and the footer page line are furniture; the closing signature (department and date) is not scored. The training table has zebra bands and no vertical rules."
+}

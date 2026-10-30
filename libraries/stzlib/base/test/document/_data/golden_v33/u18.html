@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en" dir="ltr"><head><meta charset="utf-8"><title>Calibration Drift in Low-Cost Particulate Matter Sensors Deployed Across an Urban Monitoring Network</title><style>:root{--top:20mm;--bot:20mm;--side:20mm;--hdtop:9mm;--ftbot:9mm}
+@page{size:A4;margin:0}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-size:11pt;line-height:1.4;color:#111;background:#fff}
+.page{position:relative;width:210mm;height:296mm;overflow:hidden;page-break-after:always;break-after:page}
+.page:last-child{page-break-after:auto;break-after:auto}
+.bd{position:absolute;top:var(--top,22mm);bottom:var(--bot,22mm);left:var(--side,20mm);right:var(--side,20mm);overflow:hidden}
+.hd{position:absolute;top:var(--hdtop,9mm);left:var(--side,20mm);right:var(--side,20mm)}
+.ft{position:absolute;bottom:var(--ftbot,9mm);left:var(--side,20mm);right:var(--side,20mm)}
+h1,h2,h3,h4,h5{margin:0 0 6px}
+p{margin:0 0 8px}
+table{border-collapse:collapse}
+td,th{padding:4px 6px;vertical-align:top;text-align:start}
+pre{margin:0}
+.L{margin:3px 0;padding-inline-start:24px}
+.L.bullet,.L.dash,.L.none{list-style:none}
+.L.bullet>li{position:relative}
+.L.bullet>li::before{content:"";position:absolute;inset-inline-start:-15px;top:.55em;width:.34em;height:.34em;border-radius:50%;background:currentColor}
+.L.dash>li{position:relative}
+.L.dash>li::before{content:"\2013";position:absolute;inset-inline-start:-16px}
+.li{display:flex;margin-block:2px}
+.li .mk{flex:0 0 auto}
+.il{margin-block:2px}
+.cap{margin:0 0 4px;font-weight:bold}
+
+body{font-family:"Times New Roman";font-size:10.5pt}
+
+body{line-height:1.36}
+.hd{font-size:8.5pt;color:#444;font-style:italic;border-bottom:1px solid #999;padding-bottom:2px;display:flex;justify-content:space-between}
+.ft{font-size:8.5pt;color:#444;text-align:center}
+h1{font-size:17pt;text-align:center;margin:0 0 5px;line-height:1.15}
+.au{text-align:center;font-size:10.5pt;margin-bottom:1px}
+.af{text-align:center;font-size:8.5pt;color:#444;margin-bottom:8px}
+.ab{border:1px solid #333;padding:6px 10px;margin:6px 0 4px;background:#f6f6f2}
+.ab h2{font-size:10.5pt;margin:0 0 2px}
+.kw{font-size:9pt;margin-bottom:6px}
+.cc{column-count:2;column-gap:20px;text-align:justify}
+.cc p{margin:0 0 5px}
+h2{font-size:11.5pt;margin:8px 0 3px;break-after:avoid}
+h3{font-size:10pt;font-style:italic;margin:6px 0 2px;break-after:avoid}
+.eq{text-align:center;margin:4px 0;font-style:italic;display:flex;justify-content:space-between;padding:0 8px}
+.t1{width:100%;font-size:8.5pt;margin:3px 0 6px;border-top:1.5px solid #000;border-bottom:1.5px solid #000}
+.t1 th{border-bottom:1px solid #000;padding:2px 4px;text-align:left}
+.t1 td{padding:2px 4px}
+.t2{width:100%;font-size:9pt;margin:3px 0 8px;border-top:1.5px solid #000;border-bottom:1.5px solid #000}
+.t2 th{border-bottom:1px solid #666;padding:2px 6px;text-align:center}
+.t2 td{padding:2px 6px;text-align:center}
+.t2 td:first-child{text-align:left}
+.cap{font-size:9pt;font-weight:normal;margin:6px 0 2px}
+.fig{border:1px solid #bbb;margin:4px 0 2px}
+.fn{position:absolute;left:0;right:0;bottom:0;font-size:8pt;border-top:1px solid #333;padding-top:2px;width:46%}
+.ref{font-size:9pt}
+
+</style></head><body>
+<section class="page"><div class="hd" style="position:absolute;top:var(--hdtop,9mm);left:var(--side,20mm);right:var(--side,20mm)"><span>Calibration Drift in Low-Cost Particulate Matter Sensors</span><span>Journal of Urban Sensing, vol. 12 (2026)</span></div><div class="bd " style=""><h1 class="" style="">Calibration Drift in Low-Cost Particulate Matter Sensors Deployed Across an Urban Monitoring Network</h1>
+<div class="au">I. Vandersloot<sup>1</sup>, T. Achterberg<sup>1</sup> and P. Nandakumar<sup>2</sup></div><div class="af"><sup>1</sup>Institute for Urban Sensing, Northvale University · <sup>2</sup>Department of Atmospheric Science, Eastmere Technical College</div>
+<div class="ab">
+<h2 class="" style="">Abstract</h2>
+<p class="" style="margin:0">Low-cost optical sensors have made dense air-quality monitoring affordable, but their readings drift as the instruments age. We followed 84 sensors for eighteen months beside three reference monitors and modelled the drift as a slow linear trend plus a humidity-dependent term. Median drift reached 2.1 µg/m³ per month in the wet season, and a monthly recalibration against a single nearby reference removed 78 percent of the accumulated error. We recommend scheduled recalibration instead of fixed replacement cycles.</p>
+</div><div class="kw"><b>Keywords:</b> air quality, particulate matter, sensor drift, calibration</div><div class="cc">
+<h2 class="" style="">1 Introduction</h2>
+<p class="" style="">Cities increasingly rely on networks of inexpensive particulate matter sensors to map exposure at the scale of a single street. A unit costs less than one hundredth of a reference monitor, which allows a network to cover entire districts. The price comes with a limitation: the optical chamber of each unit gradually collects dust, and the response of the photodiode changes with temperature and humidity.</p>
+<p class="" style="">Earlier studies reported drift over periods of a few weeks. Little is known about the behaviour over a full year, which is the horizon on which municipal networks are planned and budgeted. This paper addresses that gap with an eighteen-month field comparison.</p>
+<p class="" style="">The remainder of the paper is organised as follows. Section 2 describes the network and the model, Section 3 reports the results, and Section 4 discusses their implications for network operators.</p>
+<p class="" style="margin-bottom:1px">Our contributions are the following:</p>
+<div class="li " style="margin-inline-start:0px;margin-block:2px;"><span class="mk" style="width:24px;">(i)</span><span class="tx">a public data set of 84 co-located sensors;</span></div>
+<div class="li " style="margin-inline-start:0px;margin-block:2px;"><span class="mk" style="width:24px;">(ii)</span><span class="tx">a drift model with an explicit humidity term;</span></div>
+<div class="li " style="margin-inline-start:0px;margin-block:2px;"><span class="mk" style="width:24px;">(iii)</span><span class="tx">a recalibration policy evaluated on held-out sites.</span></div>
+<h2 class="" style="">2 Methods</h2>
+<h3 class="" style="">2.1 Sensor network</h3>
+<p class="" style="">The network consisted of 84 sensors of two models installed at 28 sites between March 2024 and August 2025. Each site hosted three units mounted two metres apart at a height of 3.5 m. Table 1 lists the models. Units were powered from the mains supply and transmitted one-minute readings over a cellular link.</p>
+<div class="cap" style="">Table 1. Sensor models used in the network.</div>
+<table class="t1" style="">
+<thead>
+<tr><th>Model</th><th>Principle</th><th>Range (µg/m³)</th><th>Units</th></tr>
+</thead><tbody>
+<tr><td>PX-20</td><td>laser scattering</td><td>0–500</td><td>48</td></tr>
+<tr><td>PX-35</td><td>laser scattering, fan-forced</td><td>0–1000</td><td>36</td></tr>
+</tbody>
+</table>
+<h3 class="" style="">2.2 Reference instruments</h3>
+<p class="" style="">Three sites were equipped with reference-grade monitors operated by the regional agency.<sup>2</sup> Hourly means from these monitors served as the ground truth for all comparisons.</p>
+<h3 class="" style="">2.3 Drift model</h3>
+<p class="" style="margin-bottom:1px">For each unit the deviation d(t) from the nearest reference was modelled as</p>
+<div class="eq"><span>d(t) = a + b·t + c·h(t) + ε(t)</span><span>(1)</span></div>
+<p class="" style="">where t is the time since installation, h(t) the relative humidity and ε(t) a noise term with variance σ². We fitted the coefficients by ordinary least squares and report b as the drift rate.</p>
+<h3 class="" style="">2.4 Data processing</h3>
+<p class="" style="">Readings were aggregated to hourly means before analysis. Hours with fewer than forty-five valid readings were discarded, which removed 3.2 percent of the data. Outliers beyond five median absolute deviations were flagged and excluded from the fits.</p>
+</div><div class="fn"><sup>2</sup> Data were provided under licence by the Eastmere Air Quality Agency.</div></div><div class="ft" style="position:absolute;bottom:var(--ftbot,9mm);left:var(--side,20mm);right:var(--side,20mm)">Journal of Urban Sensing · Vol. 12 · 2026 · 1</div></section>
+<section class="page"><div class="hd" style="position:absolute;top:var(--hdtop,9mm);left:var(--side,20mm);right:var(--side,20mm)"><span>Calibration Drift in Low-Cost Particulate Matter Sensors</span><span>Journal of Urban Sensing, vol. 12 (2026)</span></div><div class="bd " style=""><div class="cc">
+<h2 class="" style="">3 Results</h2>
+<p class="" style="">Table 2 summarises the drift rates by site type. Rates were highest at roadside sites, where dust loading is greatest, and lowest at park sites. In every site type the drift in the wet season exceeded the drift in the dry season.</p>
+<h3 class="" style="">3.1 Drift by site type</h3>
+<p class="" style="">The sign of the drift was positive for 79 of the 84 units, meaning that most sensors over-read as they aged. The humidity coefficient c was significant for all units at the 1 percent level.</p>
+<h3 class="" style="">3.2 Effect of recalibration</h3>
+<p class="" style="">Figure 1 shows the accumulated error of a representative unit with and without monthly recalibration. Without recalibration the error grows almost linearly; with recalibration it stays within a narrow band around zero.</p>
+</div>
+<div class="cap" style="">Table 2. Median drift rate by site type and season.</div>
+<table class="t2" style="">
+<colgroup><col style="width:28%"><col style="width:20%"><col style="width:20%"><col style="width:18%"><col style="width:14%"></colgroup>
+<thead>
+<tr><th rowspan="2">Site type</th><th colspan="3">Drift rate (µg/m³ per month)</th><th rowspan="2">Units</th></tr>
+<tr><th>Dry season</th><th>Wet season</th><th>Overall</th></tr>
+</thead><tbody>
+<tr><td>Roadside</td><td>1.4</td><td>2.6</td><td>2.0</td><td>24</td></tr>
+<tr><td>Residential</td><td>0.9</td><td>2.1</td><td>1.5</td><td>33</td></tr>
+<tr><td>Industrial</td><td>1.1</td><td>2.3</td><td>1.7</td><td>15</td></tr>
+<tr><td>Park</td><td>0.6</td><td>1.5</td><td>1.0</td><td>12</td></tr>
+</tbody>
+</table>
+<div class="cc">
+<svg class="fig" width="100%" height="120" viewBox="0 0 300 120" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="120" fill="#fbfbf8"/><line x1="20" y1="100" x2="290" y2="100" stroke="#333"/><line x1="20" y1="10" x2="20" y2="100" stroke="#333"/><polyline fill="none" stroke="#c0392b" stroke-width="2" points="20,92 60,84 100,74 140,62 180,50 220,40 260,28 290,20"/><polyline fill="none" stroke="#2874a6" stroke-width="2" points="20,92 60,90 100,94 140,91 180,93 220,90 260,92 290,91"/></svg>
+<p class="cap" style=""><b>Figure 1.</b> Accumulated error of a representative unit with (blue) and without (red) monthly recalibration.</p>
+<p class="" style="">Averaged over all units, recalibration against the nearest reference removed 78 percent of the accumulated error after twelve months. The remaining error was dominated by short-term noise rather than by drift.</p>
+<h2 class="" style="">4 Discussion</h2>
+<p class="" style="">The humidity term explained most of the difference between the dry and the wet season. Units that were fan-forced drifted more slowly, which suggests that airflow reduces the deposition of dust on the optical surfaces.</p>
+<p class="" style="">Two limitations should be noted. All sites were located in a temperate climate, and the two sensor models share the same optical principle, so the results may not transfer to other technologies or to very dry regions.</p>
+<p class="" style="">Our results have a direct consequence for network operators. A fixed replacement cycle discards units whose readings can still be corrected, whereas scheduled recalibration keeps them in service at a fraction of the cost.</p>
+</div></div><div class="ft" style="position:absolute;bottom:var(--ftbot,9mm);left:var(--side,20mm);right:var(--side,20mm)">Journal of Urban Sensing · Vol. 12 · 2026 · 2</div></section>
+<section class="page"><div class="hd" style="position:absolute;top:var(--hdtop,9mm);left:var(--side,20mm);right:var(--side,20mm)"><span>Calibration Drift in Low-Cost Particulate Matter Sensors</span><span>Journal of Urban Sensing, vol. 12 (2026)</span></div><div class="bd " style=""><div class="cc">
+<h2 class="" style="">5 Conclusion</h2>
+<p class="" style="">We measured calibration drift in 84 low-cost sensors over eighteen months and found a consistent, humidity-dependent upward trend. Scheduled recalibration against a nearby reference is a cheaper and more reliable way to keep low-cost networks usable than replacing units on a fixed cycle.</p>
+<p class="" style="">Future work will examine whether a recalibration interval can be chosen automatically from the observed humidity history of each site.</p>
+<h2 class="" style="">Data availability</h2>
+<p class="" style="">The hourly data of all 84 units and the three reference monitors are available from the project repository under an open licence, together with the scripts used to fit the drift model.</p>
+<h2 class="" style="">Acknowledgements</h2>
+<p class="" style="">The authors thank the volunteers who hosted sensors on their buildings and the technicians of the regional agency for access to the reference monitors.</p>
+<h2 class="" style="">References</h2>
+<div class="li ref" style="margin-inline-start:0px;margin-block:2px;"><span class="mk" style="width:26px;">[1]</span><span class="tx">Okafor, N. and Lindqvist, E. (2021). Field evaluation of optical particle counters. Journal of Environmental Instrumentation, 8(2), 101–118.</span></div>
+<div class="li ref" style="margin-inline-start:0px;margin-block:2px;"><span class="mk" style="width:26px;">[2]</span><span class="tx">Haverford, J. (2019). Humidity effects on light-scattering particle sensors. Atmospheric Measurement Notes, 14, 233–245.</span></div>
+<div class="li ref" style="margin-inline-start:0px;margin-block:2px;"><span class="mk" style="width:26px;">[3]</span><span class="tx">Mbeki-Larsen, S. et al. (2022). Citizen networks and the quality of crowd-sourced air data. Urban Science Letters, 5(1), 12–27.</span></div>
+<div class="li ref" style="margin-inline-start:0px;margin-block:2px;"><span class="mk" style="width:26px;">[4]</span><span class="tx">Tanaka, R. and Brandt, F. (2020). Long-term stability of low-cost sensors in coastal cities. Sensors and Society, 3, 55–71.</span></div>
+<div class="li ref" style="margin-inline-start:0px;margin-block:2px;"><span class="mk" style="width:26px;">[5]</span><span class="tx">Ivanova, D. (2023). Recalibration strategies for sensor networks. Proceedings of the Conference on Environmental Informatics, 90–97.</span></div>
+<div class="li ref" style="margin-inline-start:0px;margin-block:2px;"><span class="mk" style="width:26px;">[6]</span><span class="tx">Petrov, A. and Quispe, L. (2018). A statistical treatment of drift in photodiode detectors. Measurement Science Review, 18(4), 140–149.</span></div>
+</div></div><div class="ft" style="position:absolute;bottom:var(--ftbot,9mm);left:var(--side,20mm);right:var(--side,20mm)">Journal of Urban Sensing · Vol. 12 · 2026 · 3</div></section>
+</body></html>

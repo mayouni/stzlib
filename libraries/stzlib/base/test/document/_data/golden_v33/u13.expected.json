@@ -1,0 +1,188 @@
+{
+  "id": "u13",
+  "difficulty": "French municipal bulletin, 2 pages, newspaper layout in two text columns (column by column reading); typed 1° and a) markers nested; borderless table; CSS bullets; running header and footer with page numbers",
+  "pages": 2,
+  "title": "Bulletin municipal",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Bulletin municipal"
+    },
+    {
+      "level": 2,
+      "text": "Le mot du maire"
+    },
+    {
+      "level": 2,
+      "text": "Travaux de voirie"
+    },
+    {
+      "level": 2,
+      "text": "Déchetterie : horaires"
+    },
+    {
+      "level": 2,
+      "text": "Vie associative"
+    },
+    {
+      "level": 2,
+      "text": "Écoles et périscolaire"
+    },
+    {
+      "level": 2,
+      "text": "Sécurité routière"
+    },
+    {
+      "level": 2,
+      "text": "Agenda du trimestre"
+    },
+    {
+      "level": 2,
+      "text": "Environnement"
+    },
+    {
+      "level": 2,
+      "text": "Conseil municipal"
+    },
+    {
+      "level": 2,
+      "text": "Petite enfance"
+    },
+    {
+      "level": 2,
+      "text": "Nos aînés"
+    },
+    {
+      "level": 2,
+      "text": "Numéros utiles"
+    }
+  ],
+  "key_sentences": [
+    "Cette année, la commune consacre l'essentiel de son budget d'investissement à la rénovation des écoles et des routes.",
+    "Je remercie chacune et chacun d'entre vous pour sa patience et sa compréhension pendant la durée des travaux.",
+    "Les riverains seront prévenus par courrier une semaine avant le début de chaque chantier.",
+    "Le forum des associations aura lieu le samedi 12 septembre à la salle des fêtes.",
+    "Les associations qui souhaitent y tenir un stand sont invitées à s'inscrire en mairie avant le 30 juin.",
+    "La rénovation de l'école élémentaire débutera pendant les vacances d'été.",
+    "Le compostage collectif est ouvert à tous les habitants depuis le début du mois de mars.",
+    "Le conseil municipal se réunit chaque premier jeudi du mois à vingt heures."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Jour",
+          "Matin",
+          "Après-midi"
+        ],
+        [
+          "lundi",
+          "fermé",
+          "14 h – 18 h"
+        ],
+        [
+          "mercredi",
+          "9 h – 12 h",
+          "14 h – 18 h"
+        ],
+        [
+          "vendredi",
+          "9 h – 12 h",
+          "14 h – 18 h"
+        ],
+        [
+          "samedi",
+          "9 h – 18 h",
+          "sans interruption"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Date",
+          "Manifestation",
+          "Lieu"
+        ],
+        [
+          "11 avril",
+          "Chasse aux œufs",
+          "Parc du château"
+        ],
+        [
+          "25 avril",
+          "Concert de l'harmonie",
+          "Salle des fêtes"
+        ],
+        [
+          "9 mai",
+          "Brocante annuelle",
+          "Place de l'Église"
+        ],
+        [
+          "21 juin",
+          "Fête de la musique",
+          "Centre-bourg"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1° Rue des Tilleuls, du 6 au 24 avril : réfection de la chaussée."
+    },
+    {
+      "level": 1,
+      "text": "a) circulation alternée aux heures de pointe ;"
+    },
+    {
+      "level": 1,
+      "text": "b) stationnement interdit côté pair."
+    },
+    {
+      "level": 0,
+      "text": "2° Chemin du Moulin, du 4 au 15 mai : pose de l'éclairage public."
+    },
+    {
+      "level": 0,
+      "text": "3° Place de l'Église, du 8 au 26 juin : création d'un parvis piéton."
+    },
+    {
+      "level": 0,
+      "text": "trier les biodéchets à la maison ;"
+    },
+    {
+      "level": 0,
+      "text": "privilégier les produits sans emballage ;"
+    },
+    {
+      "level": 0,
+      "text": "apporter les objets en bon état à la ressourcerie."
+    },
+    {
+      "level": 0,
+      "text": "mairie : 05 55 01 02 03 ;"
+    },
+    {
+      "level": 0,
+      "text": "médiathèque : 05 55 01 02 04 ;"
+    },
+    {
+      "level": 0,
+      "text": "service des eaux : 05 55 01 02 05."
+    }
+  ],
+  "furniture": [
+    "Mairie de Val-des-Aulnes · 2 place de la Mairie · 40250 Val-des-Aulnes",
+    "Bulletin municipal de Val-des-Aulnes — n° 87 — page 1",
+    "Bulletin municipal de Val-des-Aulnes — n° 87 — page 2"
+  ],
+  "languages": [
+    "fr"
+  ],
+  "code": [],
+  "notes": "Body text is set in TWO newspaper columns on each page: read the whole left column, then the right column. The title block above the columns spans the full width. Typed markers: \"1°\" \"2°\" \"3°\" are level 0 and \"a)\" \"b)\" level 1, with hanging indents. The two tables sit inside a column: the opening-hours table (page 1) has no lines at all (bold coloured header only); the agenda table (page 2) is ruled between rows. Bullets are drawn by CSS (filled circles). The running header (mairie address line) and the footer line (bulletin name with its page number) are furniture; the page number is part of that footer line."
+}

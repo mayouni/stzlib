@@ -1,0 +1,257 @@
+{
+  "id": "u21",
+  "difficulty": "legal terms of service, 3 pages; three-level typed legal numbering 1.1 / (a) / (i) with hanging indents and numbering that continues around a table; justified text; headings with typed numbers; partly ruled fee table; running header and \"Page N of 3\" footer",
+  "pages": 3,
+  "title": "Terms of Service",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Terms of Service"
+    },
+    {
+      "level": 2,
+      "text": "1. Definitions"
+    },
+    {
+      "level": 2,
+      "text": "2. Your account"
+    },
+    {
+      "level": 2,
+      "text": "3. Fees and payment"
+    },
+    {
+      "level": 2,
+      "text": "4. Acceptable use"
+    },
+    {
+      "level": 2,
+      "text": "5. Intellectual property"
+    },
+    {
+      "level": 2,
+      "text": "6. Liability"
+    },
+    {
+      "level": 2,
+      "text": "7. Termination"
+    },
+    {
+      "level": 2,
+      "text": "8. General"
+    },
+    {
+      "level": 2,
+      "text": "9. Contact"
+    }
+  ],
+  "key_sentences": [
+    "These Terms govern your use of the Nimbus Ledger accounting service. By creating an account you agree to be bound by them.",
+    "Please read these Terms carefully before using the Service, because they limit our liability and set out your obligations.",
+    "Fees are exclusive of VAT, which is added at the applicable rate.",
+    "Questions about these Terms may be sent to legal@nimbusledger.example.",
+    "We aim to reply to every message within five working days."
+  ],
+  "tables": [
+    {
+      "caption": "Fee schedule",
+      "rows": [
+        [
+          "Plan",
+          "Monthly fee (£)",
+          "Users included",
+          "Storage"
+        ],
+        [
+          "Starter",
+          "19",
+          "3",
+          "20 GB"
+        ],
+        [
+          "Team",
+          "79",
+          "15",
+          "200 GB"
+        ],
+        [
+          "Business",
+          "249",
+          "60",
+          "1 TB"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1.1 In these Terms, unless the context requires otherwise:"
+    },
+    {
+      "level": 1,
+      "text": "(a) “Account” means the registered profile through which you use the Service;"
+    },
+    {
+      "level": 1,
+      "text": "(b) “Content” means all data, documents and records that you upload to the Service;"
+    },
+    {
+      "level": 1,
+      "text": "(c) “Fees” means the charges set out in clause 3."
+    },
+    {
+      "level": 0,
+      "text": "1.2 Headings are for convenience only and do not affect interpretation."
+    },
+    {
+      "level": 0,
+      "text": "2.1 You must provide accurate information when you register and keep it up to date."
+    },
+    {
+      "level": 0,
+      "text": "2.2 You are responsible for all activity under your Account and must:"
+    },
+    {
+      "level": 1,
+      "text": "(a) keep your password confidential; and"
+    },
+    {
+      "level": 1,
+      "text": "(b) notify us without delay of any unauthorised use."
+    },
+    {
+      "level": 0,
+      "text": "2.3 We may suspend an Account if we reasonably believe that it has been compromised."
+    },
+    {
+      "level": 0,
+      "text": "3.1 The Fees for each plan are set out in the following table."
+    },
+    {
+      "level": 0,
+      "text": "3.2 Fees are invoiced monthly in advance and are payable within 14 days of the invoice date."
+    },
+    {
+      "level": 0,
+      "text": "3.3 If a payment is overdue we may:"
+    },
+    {
+      "level": 1,
+      "text": "(a) charge interest at 4 percent above the base rate of the Bank of England; and"
+    },
+    {
+      "level": 1,
+      "text": "(b) suspend the Service after giving seven days of written notice."
+    },
+    {
+      "level": 0,
+      "text": "4.1 You must not use the Service to:"
+    },
+    {
+      "level": 1,
+      "text": "(a) upload unlawful, infringing or malicious material;"
+    },
+    {
+      "level": 1,
+      "text": "(b) attempt to gain unauthorised access to the Service or its systems; or"
+    },
+    {
+      "level": 1,
+      "text": "(c) interfere with the use of the Service by other customers, including by:"
+    },
+    {
+      "level": 2,
+      "text": "(i) sending automated requests at a rate that degrades performance;"
+    },
+    {
+      "level": 2,
+      "text": "(ii) distributing malware; or"
+    },
+    {
+      "level": 2,
+      "text": "(iii) circumventing usage limits."
+    },
+    {
+      "level": 0,
+      "text": "4.2 We may remove Content that breaches this clause without prior notice."
+    },
+    {
+      "level": 0,
+      "text": "5.1 You retain all rights in your Content. You grant us a limited licence to host and process it solely to provide the Service."
+    },
+    {
+      "level": 0,
+      "text": "5.2 We and our licensors own all rights in the Service, including its software and documentation."
+    },
+    {
+      "level": 0,
+      "text": "6.1 Nothing in these Terms limits liability that cannot be limited by law."
+    },
+    {
+      "level": 0,
+      "text": "6.2 Subject to clause 6.1, our total liability in any twelve-month period is limited to the Fees you paid in that period."
+    },
+    {
+      "level": 0,
+      "text": "6.3 We are not liable for indirect loss, including:"
+    },
+    {
+      "level": 1,
+      "text": "(a) loss of profit or anticipated savings; and"
+    },
+    {
+      "level": 1,
+      "text": "(b) loss of data caused by your own actions or by third-party software."
+    },
+    {
+      "level": 0,
+      "text": "7.1 You may cancel at any time from your Account settings; cancellation takes effect at the end of the billing month."
+    },
+    {
+      "level": 0,
+      "text": "7.2 We may terminate immediately if you materially breach these Terms and fail to remedy the breach within 14 days of notice."
+    },
+    {
+      "level": 0,
+      "text": "7.3 On termination we will make your Content available for export for 30 days and will then delete it."
+    },
+    {
+      "level": 0,
+      "text": "8.1 These Terms are governed by the law of England and Wales."
+    },
+    {
+      "level": 0,
+      "text": "8.2 We may update these Terms by giving thirty days of notice by email, and continued use of the Service after that period constitutes acceptance."
+    },
+    {
+      "level": 0,
+      "text": "8.3 Neither party is liable for delay caused by events beyond its reasonable control, including:"
+    },
+    {
+      "level": 1,
+      "text": "(a) failures of public networks;"
+    },
+    {
+      "level": 1,
+      "text": "(b) industrial action; and"
+    },
+    {
+      "level": 1,
+      "text": "(c) natural disasters."
+    }
+  ],
+  "furniture": [
+    "Nimbus Ledger Ltd",
+    "Terms of Service",
+    "Version 3.1 · effective 1 February 2026",
+    "Page 1 of 3",
+    "Page 2 of 3",
+    "Page 3 of 3"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "All clauses are typed markers with a hanging indent and are listed with the marker joined by one space: level 0 is \"1.1\" style, level 1 is \"(a)\" style and level 2 is \"(i)\" style. Within clause 3 the list is interrupted by the fee table and numbering continues (3.1 before the table, 3.2 after it). Defined terms in quotation marks are part of the text. The fee table is partly ruled (rules above and below the header and at the bottom, no vertical lines). Section headings include their typed number (\"1. Definitions\"). The running header, the footer line with the version, and the page-number lines (\"Page N of 3\") are furniture."
+}

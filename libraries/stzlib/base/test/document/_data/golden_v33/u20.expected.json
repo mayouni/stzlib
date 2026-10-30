@@ -1,0 +1,451 @@
+{
+  "id": "u20",
+  "difficulty": "annual report extract, 3 pages; letterhead; income statement with two-level header, section rows, subtotal and total rows; statement of financial position continued across pages 2-3; accounting numbers in parentheses; typed (i) notes; CSS bullets; page numbers \"– 2 –\"",
+  "pages": 3,
+  "title": "Annual Report 2025",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Annual Report 2025"
+    },
+    {
+      "level": 2,
+      "text": "Management discussion"
+    },
+    {
+      "level": 2,
+      "text": "Key figures"
+    },
+    {
+      "level": 2,
+      "text": "Highlights of the year"
+    },
+    {
+      "level": 2,
+      "text": "Consolidated income statement"
+    },
+    {
+      "level": 2,
+      "text": "Consolidated statement of financial position"
+    },
+    {
+      "level": 2,
+      "text": "Notes to the financial statements"
+    }
+  ],
+  "key_sentences": [
+    "Revenue grew by 7.4 percent to 48.2 million euros, driven by higher electricity sales and the first full year of our grid-services contract.",
+    "Operating profit rose to 14.0 million euros as the new wind park reached its planned output.",
+    "We completed the second phase of the district heating network and began construction of a 12 megawatt solar installation on former quarry land.",
+    "Net debt fell for the third consecutive year.",
+    "The board therefore proposes a dividend of 1.80 euros per share, an increase of ten cents compared with last year.",
+    "The consolidated financial statements have been prepared in accordance with the accounting policies described below.",
+    "All amounts are stated in thousands of euros unless otherwise indicated.",
+    "The board of directors approved these financial statements on 12 March 2026 and authorised their issue."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Measure",
+          "2025",
+          "2024"
+        ],
+        [
+          "Revenue (€ thousand)",
+          "48,215",
+          "44,870"
+        ],
+        [
+          "Operating profit (€ thousand)",
+          "14,010",
+          "12,675"
+        ],
+        [
+          "Profit for the year (€ thousand)",
+          "12,380",
+          "10,520"
+        ],
+        [
+          "Employees (year end)",
+          "212",
+          "205"
+        ]
+      ]
+    },
+    {
+      "caption": "Consolidated income statement for the year ended 31 December 2025",
+      "rows": [
+        [
+          "",
+          "Note",
+          "Year ended 31 December",
+          "Year ended 31 December",
+          "Change",
+          "Change"
+        ],
+        [
+          "",
+          "Note",
+          "2025",
+          "2024",
+          "€ thousand",
+          "%"
+        ],
+        [
+          "Revenue",
+          "Revenue",
+          "Revenue",
+          "Revenue",
+          "Revenue",
+          "Revenue"
+        ],
+        [
+          "Electricity sales",
+          "3",
+          "31,480",
+          "29,115",
+          "2,365",
+          "8.1"
+        ],
+        [
+          "Heat sales",
+          "3",
+          "9,870",
+          "9,240",
+          "630",
+          "6.8"
+        ],
+        [
+          "Grid services",
+          "3",
+          "6,865",
+          "6,515",
+          "350",
+          "5.4"
+        ],
+        [
+          "Total revenue",
+          "",
+          "48,215",
+          "44,870",
+          "3,345",
+          "7.5"
+        ],
+        [
+          "Operating costs",
+          "Operating costs",
+          "Operating costs",
+          "Operating costs",
+          "Operating costs",
+          "Operating costs"
+        ],
+        [
+          "Energy purchases",
+          "4",
+          "(21,340)",
+          "(20,105)",
+          "(1,235)",
+          "(6.1)"
+        ],
+        [
+          "Personnel expenses",
+          "5",
+          "(7,410)",
+          "(7,020)",
+          "(390)",
+          "(5.6)"
+        ],
+        [
+          "Depreciation and amortisation",
+          "6",
+          "(4,980)",
+          "(4,760)",
+          "(220)",
+          "(4.6)"
+        ],
+        [
+          "Other operating expenses",
+          "",
+          "(3,125)",
+          "(2,980)",
+          "(145)",
+          "(4.9)"
+        ],
+        [
+          "Total operating costs",
+          "",
+          "(36,855)",
+          "(34,865)",
+          "(1,990)",
+          "(5.7)"
+        ],
+        [
+          "Operating profit",
+          "",
+          "11,360",
+          "10,005",
+          "1,355",
+          "13.5"
+        ],
+        [
+          "Finance",
+          "Finance",
+          "Finance",
+          "Finance",
+          "Finance",
+          "Finance"
+        ],
+        [
+          "Finance income",
+          "",
+          "210",
+          "180",
+          "30",
+          "16.7"
+        ],
+        [
+          "Finance costs",
+          "7",
+          "(1,180)",
+          "(1,260)",
+          "80",
+          "6.3"
+        ],
+        [
+          "Net finance costs",
+          "",
+          "(970)",
+          "(1,080)",
+          "110",
+          "10.2"
+        ],
+        [
+          "Profit before tax",
+          "",
+          "10,390",
+          "8,925",
+          "1,465",
+          "16.4"
+        ],
+        [
+          "Income tax",
+          "8",
+          "(1,060)",
+          "(790)",
+          "(270)",
+          "(34.2)"
+        ],
+        [
+          "Profit for the year",
+          "",
+          "9,330",
+          "8,135",
+          "1,195",
+          "14.7"
+        ]
+      ]
+    },
+    {
+      "caption": "Consolidated statement of financial position at 31 December 2025",
+      "rows": [
+        [
+          "",
+          "Note",
+          "31 Dec 2025",
+          "31 Dec 2024"
+        ],
+        [
+          "Non-current assets",
+          "Non-current assets",
+          "Non-current assets",
+          "Non-current assets"
+        ],
+        [
+          "Property, plant and equipment",
+          "9",
+          "61,240",
+          "58,905"
+        ],
+        [
+          "Intangible assets",
+          "10",
+          "2,310",
+          "2,150"
+        ],
+        [
+          "Investments",
+          "",
+          "1,480",
+          "1,455"
+        ],
+        [
+          "Total non-current assets",
+          "",
+          "65,030",
+          "62,510"
+        ],
+        [
+          "Current assets",
+          "Current assets",
+          "Current assets",
+          "Current assets"
+        ],
+        [
+          "Inventories",
+          "",
+          "1,920",
+          "1,760"
+        ],
+        [
+          "Trade receivables",
+          "11",
+          "5,870",
+          "5,430"
+        ],
+        [
+          "Cash and cash equivalents",
+          "",
+          "4,415",
+          "3,380"
+        ],
+        [
+          "Total current assets",
+          "",
+          "12,205",
+          "10,570"
+        ],
+        [
+          "Total assets",
+          "",
+          "77,235",
+          "73,080"
+        ],
+        [
+          "Equity",
+          "Equity",
+          "Equity",
+          "Equity"
+        ],
+        [
+          "Share capital",
+          "",
+          "12,000",
+          "12,000"
+        ],
+        [
+          "Retained earnings",
+          "",
+          "17,865",
+          "13,270"
+        ],
+        [
+          "Total equity",
+          "",
+          "29,865",
+          "25,270"
+        ],
+        [
+          "Non-current liabilities",
+          "Non-current liabilities",
+          "Non-current liabilities",
+          "Non-current liabilities"
+        ],
+        [
+          "Loans and borrowings",
+          "12",
+          "34,500",
+          "36,200"
+        ],
+        [
+          "Provisions",
+          "13",
+          "3,100",
+          "2,950"
+        ],
+        [
+          "Total non-current liabilities",
+          "",
+          "37,600",
+          "39,150"
+        ],
+        [
+          "Current liabilities",
+          "Current liabilities",
+          "Current liabilities",
+          "Current liabilities"
+        ],
+        [
+          "Trade payables",
+          "",
+          "6,190",
+          "5,540"
+        ],
+        [
+          "Current portion of loans",
+          "12",
+          "1,700",
+          "1,700"
+        ],
+        [
+          "Other payables",
+          "",
+          "1,880",
+          "1,420"
+        ],
+        [
+          "Total current liabilities",
+          "",
+          "9,770",
+          "8,660"
+        ],
+        [
+          "Total equity and liabilities",
+          "",
+          "77,235",
+          "73,080"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "Wind park Alderhöhe reached 98 percent availability."
+    },
+    {
+      "level": 0,
+      "text": "Customer satisfaction rose to 91 points in the regional survey."
+    },
+    {
+      "level": 0,
+      "text": "No lost-time accidents were recorded for the second year in a row."
+    },
+    {
+      "level": 0,
+      "text": "(i) Revenue is recognised when electricity or heat is delivered to the customer and is measured at the amount invoiced, net of value added tax."
+    },
+    {
+      "level": 0,
+      "text": "(ii) Property, plant and equipment is carried at cost less accumulated depreciation; wind and solar installations are depreciated over 25 years."
+    },
+    {
+      "level": 0,
+      "text": "(iii) Provisions are recognised for the dismantling of generation assets and are discounted at a rate of 2.5 percent."
+    }
+  ],
+  "furniture": [
+    "Alderbrook Energy Cooperative",
+    "Powering the Alder Valley since 1961",
+    "– 1 –",
+    "Alderbrook Energy Cooperative · Annual Report 2025",
+    "– 2 –",
+    "– 3 –"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [],
+  "notes": "Two tables: (1) the consolidated income statement with a two-level header (empty corner and Note; \"Year ended 31 December\" spanning 2025 and 2024; \"Change\" spanning the amount and the percentage); section rows (Revenue, Operating costs, Finance) span all columns and repeat their text; subtotal and total rows are rows of the same table; negative amounts are written in parentheses. (2) The statement of financial position starts at the bottom of page 2 and continues on page 3 with its header row repeated visually: it is ONE table with the header row once; its section rows (Non-current assets, Current assets, Equity, Non-current liabilities, Current liabilities) span all columns. Key figures on page 1 are a small table. The letterhead (organisation name and the line below it), the running header on pages 2-3, and the footer lines (name line and the page-number line \"– 1 –\", \"– 2 –\", \"– 3 –\") are furniture. Typed markers: \"(i)\" \"(ii)\" \"(iii)\" (level 0) in the notes; the highlight bullets on page 1 are drawn by CSS."
+}

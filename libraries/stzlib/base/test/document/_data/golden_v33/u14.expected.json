@@ -1,0 +1,217 @@
+{
+  "id": "u14",
+  "difficulty": "Spanish minutes of a residents meeting with a budget table, 2 pages; borderless table with header underline and section rows; total rows merged; table continued across pages; typed 1. and a) lists; page numbers \"Página 1 de 2\"",
+  "pages": 2,
+  "title": "Acta de la junta extraordinaria",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Acta de la junta extraordinaria"
+    },
+    {
+      "level": 2,
+      "text": "Orden del día"
+    },
+    {
+      "level": 2,
+      "text": "Acuerdos"
+    },
+    {
+      "level": 2,
+      "text": "Resultado de la votación"
+    },
+    {
+      "level": 2,
+      "text": "Ruegos y preguntas"
+    }
+  ],
+  "key_sentences": [
+    "En Marbella, a las 18:30 horas del día 14 de marzo de 2026, se reúnen en el salón de actos del edificio los propietarios que figuran en la lista de asistentes.",
+    "La junta aprueba por unanimidad el acta de la reunión anterior.",
+    "A continuación, la administradora presenta el presupuesto de las obras, que se reproduce a continuación.",
+    "La junta debate el presupuesto y decide contratar las obras a la empresa que presentó la oferta más económica.",
+    "Los propietarios abonarán su cuota en tres plazos iguales a lo largo del año.",
+    "Una propietaria solicita que se revise la iluminación del garaje."
+  ],
+  "tables": [
+    {
+      "caption": "Presupuesto de las obras",
+      "rows": [
+        [
+          "Concepto",
+          "Ud.",
+          "Cantidad",
+          "Precio unitario (€)",
+          "Importe (€)"
+        ],
+        [
+          "Fachada",
+          "Fachada",
+          "Fachada",
+          "Fachada",
+          "Fachada"
+        ],
+        [
+          "Andamio homologado",
+          "m²",
+          "640",
+          "14,50",
+          "9.280,00"
+        ],
+        [
+          "Picado y reparación de revoco",
+          "m²",
+          "410",
+          "31,80",
+          "13.038,00"
+        ],
+        [
+          "Pintura pétrea",
+          "m²",
+          "640",
+          "12,40",
+          "7.936,00"
+        ],
+        [
+          "Sellado de juntas y balcones",
+          "ml",
+          "220",
+          "9,60",
+          "2.112,00"
+        ],
+        [
+          "Cubierta",
+          "Cubierta",
+          "Cubierta",
+          "Cubierta",
+          "Cubierta"
+        ],
+        [
+          "Retirada de la tela asfáltica antigua",
+          "m²",
+          "285",
+          "8,90",
+          "2.536,50"
+        ],
+        [
+          "Nueva impermeabilización con lámina",
+          "m²",
+          "285",
+          "36,00",
+          "10.260,00"
+        ],
+        [
+          "Sumideros y canalones",
+          "ud",
+          "6",
+          "145,00",
+          "870,00"
+        ],
+        [
+          "Ascensor",
+          "Ascensor",
+          "Ascensor",
+          "Ascensor",
+          "Ascensor"
+        ],
+        [
+          "Desmontaje del equipo actual",
+          "ud",
+          "1",
+          "1.450,00",
+          "1.450,00"
+        ],
+        [
+          "Equipo nuevo de seis personas",
+          "ud",
+          "1",
+          "17.800,00",
+          "17.800,00"
+        ],
+        [
+          "Instalación y puesta en marcha",
+          "ud",
+          "1",
+          "3.250,00",
+          "3.250,00"
+        ],
+        [
+          "Base imponible",
+          "Base imponible",
+          "Base imponible",
+          "Base imponible",
+          "68.532,50"
+        ],
+        [
+          "IVA (10 %)",
+          "IVA (10 %)",
+          "IVA (10 %)",
+          "IVA (10 %)",
+          "6.853,25"
+        ],
+        [
+          "Total del presupuesto",
+          "Total del presupuesto",
+          "Total del presupuesto",
+          "Total del presupuesto",
+          "75.385,75"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "A favor",
+          "22 propietarios (68,4 % de las cuotas)"
+        ],
+        [
+          "En contra",
+          "3 propietarios (9,1 % de las cuotas)"
+        ],
+        [
+          "Abstenciones",
+          "2 propietarios (4,3 % de las cuotas)"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "1. Lectura y aprobación del acta anterior."
+    },
+    {
+      "level": 0,
+      "text": "2. Obras de conservación del edificio:"
+    },
+    {
+      "level": 1,
+      "text": "a) rehabilitación de la fachada;"
+    },
+    {
+      "level": 1,
+      "text": "b) impermeabilización de la cubierta;"
+    },
+    {
+      "level": 1,
+      "text": "c) sustitución del ascensor."
+    },
+    {
+      "level": 0,
+      "text": "3. Ruegos y preguntas."
+    }
+  ],
+  "furniture": [
+    "Comunidad de Propietarios Edificio Miramar",
+    "Acta de la junta extraordinaria",
+    "Calle del Faro, 18 · 29601 Marbella",
+    "Página 1 de 2",
+    "Página 2 de 2"
+  ],
+  "languages": [
+    "es"
+  ],
+  "code": [],
+  "notes": "The budget table (Presupuesto de las obras) starts on page 1 and continues on page 2 with its header row repeated visually; it is ONE table with the header once. Section rows (Fachada, Cubierta, Ascensor) span all five columns and repeat their text in every cell; total rows span the first four columns and repeat their label. Amounts use Spanish number format (dot for thousands, comma for decimals). The agenda list uses the typed marker \"1.\" with a hanging indent and the sub-items \"a)\" at level 1. Running header, footer address line and page-number lines are furniture. The small votes table is a boxed key/value table (no header row)."
+}

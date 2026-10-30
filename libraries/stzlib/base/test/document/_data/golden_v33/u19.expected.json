@@ -1,0 +1,170 @@
+{
+  "id": "u19",
+  "difficulty": "software release notes, 2 pages; typed bullet and dash markers with hanging indent; three code blocks (two shell, one JSON) in Consolas; key/value version panel; partly ruled table; numbered known issues; CSS bullets; page numbers \"1 / 2\"",
+  "pages": 2,
+  "title": "Meridian Sync 4.2 — Release Notes",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Meridian Sync 4.2 — Release Notes"
+    },
+    {
+      "level": 2,
+      "text": "Highlights"
+    },
+    {
+      "level": 2,
+      "text": "Upgrade instructions"
+    },
+    {
+      "level": 2,
+      "text": "Configuration changes"
+    },
+    {
+      "level": 2,
+      "text": "Breaking changes"
+    },
+    {
+      "level": 2,
+      "text": "Known issues"
+    },
+    {
+      "level": 2,
+      "text": "Deprecations"
+    },
+    {
+      "level": 2,
+      "text": "Getting help"
+    }
+  ],
+  "key_sentences": [
+    "Meridian Sync 4.2 is a feature release that makes synchronisation faster and easier to monitor.",
+    "Please read the upgrade instructions before installing the package on a production host.",
+    "Stop the service, install the new package and run the migration.",
+    "A dry run shows what will change without touching any data.",
+    "If you run into a problem, collect the diagnostics bundle and attach it to your support request.",
+    "The bundle contains logs and configuration without any file contents."
+  ],
+  "tables": [
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Version",
+          "4.2.0"
+        ],
+        [
+          "Release date",
+          "23 April 2026"
+        ],
+        [
+          "Supported until",
+          "30 April 2028"
+        ],
+        [
+          "Compatible with",
+          "Meridian Server 3.8 and later"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "Old setting",
+          "New setting",
+          "Notes"
+        ],
+        [
+          "sync.period",
+          "sync.interval",
+          "Now accepts units such as 30s or 5m."
+        ],
+        [
+          "sync.gzip",
+          "sync.compression",
+          "Value zstd replaces true."
+        ],
+        [
+          "log.file",
+          "log.path",
+          "Relative paths are resolved from the data directory."
+        ],
+        [
+          "api.token",
+          "auth.token",
+          "Tokens created before 4.0 must be renewed."
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "• Faster transfers"
+    },
+    {
+      "level": 1,
+      "text": "– Delta compression reduces upload size by up to 60 percent."
+    },
+    {
+      "level": 1,
+      "text": "– Parallel chunking is now enabled by default."
+    },
+    {
+      "level": 0,
+      "text": "• Better monitoring"
+    },
+    {
+      "level": 1,
+      "text": "– New metrics endpoint compatible with common dashboards."
+    },
+    {
+      "level": 1,
+      "text": "– Sync history is kept for 90 days."
+    },
+    {
+      "level": 0,
+      "text": "• Improved conflict resolution for files edited on two devices."
+    },
+    {
+      "level": 0,
+      "text": "1. Large folders with more than 200,000 files may take several minutes to show their first sync result."
+    },
+    {
+      "level": 0,
+      "text": "2. The metrics endpoint is not available when the service runs in read-only mode."
+    },
+    {
+      "level": 0,
+      "text": "3. Renaming a folder on two devices at the same time creates a conflict copy."
+    },
+    {
+      "level": 0,
+      "text": "the legacy XML configuration format;"
+    },
+    {
+      "level": 0,
+      "text": "the --force-full command-line flag;"
+    },
+    {
+      "level": 0,
+      "text": "support for Meridian Server 3.5 and earlier."
+    }
+  ],
+  "furniture": [
+    "Meridian Software · Documentation",
+    "Meridian Sync 4.2",
+    "Meridian Sync 4.2 · Release Notes · 1 / 2",
+    "Meridian Sync 4.2 · Release Notes · 2 / 2"
+  ],
+  "languages": [
+    "en"
+  ],
+  "code": [
+    "$ meridian stop\n$ sudo apt install ./meridian-sync_4.2.0_amd64.deb\n$ meridian migrate --dry-run\n$ meridian migrate\n$ meridian start",
+    "{\n  \"sync\": {\n    \"interval\": \"30s\",\n    \"retries\": 5,\n    \"compression\": \"zstd\",\n    \"chunk_mb\": 8\n  }\n}",
+    "$ meridian diagnostics --output /tmp/meridian-diag.zip"
+  ],
+  "notes": "Typed list markers: the highlights use the typed bullet \"•\" at level 0 and the typed en dash \"–\" at level 1, both set apart by a hanging indent; they are listed with the marker joined by one space. Known issues use the typed marker \"1.\" at level 0. The deprecations list is drawn by CSS bullets (no marker text). Code blocks (three: install shell, JSON configuration, diagnostics shell): each shell command starts with \"$ \" which is part of the code; lines of the JSON block are indented with spaces that must be preserved. The version panel is a key/value table without header row. The breaking-changes table has a rule under the header and thin rules between rows, no vertical lines. The running header and the footer line are furniture; the footer page number \"1 / 2\" is part of the footer line."
+}

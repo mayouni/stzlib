@@ -1,0 +1,166 @@
+{
+  "id": "u10",
+  "difficulty": "Hindi school circular, 2 pages; Devanagari typed numerals १. and (क) markers with hanging indent; CSS devanagari list; full-grid table; page numbers in Devanagari digits",
+  "pages": 2,
+  "title": "परिपत्र: वार्षिक खेल दिवस का आयोजन",
+  "headings": [
+    {
+      "level": 1,
+      "text": "परिपत्र: वार्षिक खेल दिवस का आयोजन"
+    },
+    {
+      "level": 2,
+      "text": "विद्यार्थियों के लिए निर्देश"
+    },
+    {
+      "level": 2,
+      "text": "कार्यक्रम सूची"
+    },
+    {
+      "level": 2,
+      "text": "अभिभावकों से अनुरोध"
+    },
+    {
+      "level": 2,
+      "text": "सदन और उनके रंग"
+    },
+    {
+      "level": 2,
+      "text": "संपर्क"
+    }
+  ],
+  "key_sentences": [
+    "सभी अभिभावकों को सूचित किया जाता है कि विद्यालय का वार्षिक खेल दिवस शनिवार, १८ अप्रैल २०२६ को विद्यालय के खेल मैदान में आयोजित किया जाएगा।",
+    "कार्यक्रम प्रातः आठ बजे ध्वजारोहण के साथ आरंभ होगा।",
+    "खेल दिवस के बाद सभी विजेताओं को प्रमाणपत्र और पदक प्रदान किए जाएँगे।",
+    "पुरस्कार वितरण समारोह दोपहर बारह बजे होगा।"
+  ],
+  "tables": [
+    {
+      "caption": "तालिका १: प्रतियोगिताओं का समय",
+      "rows": [
+        [
+          "क्र.सं.",
+          "प्रतियोगिता",
+          "वर्ग",
+          "समय"
+        ],
+        [
+          "१",
+          "५० मीटर दौड़",
+          "कक्षा १ से ३",
+          "८:३० बजे"
+        ],
+        [
+          "२",
+          "रस्साकशी",
+          "कक्षा ४ से ६",
+          "९:१५ बजे"
+        ],
+        [
+          "३",
+          "लंबी कूद",
+          "कक्षा ७ से ९",
+          "१०:०० बजे"
+        ],
+        [
+          "४",
+          "४०० मीटर दौड़",
+          "कक्षा १० से १२",
+          "१०:४५ बजे"
+        ],
+        [
+          "५",
+          "रिले दौड़",
+          "सभी सदन",
+          "११:३० बजे"
+        ]
+      ]
+    },
+    {
+      "caption": null,
+      "rows": [
+        [
+          "सदन",
+          "रंग",
+          "कक्षा-शिक्षक प्रभारी"
+        ],
+        [
+          "अग्नि",
+          "लाल",
+          "विज्ञान विभाग"
+        ],
+        [
+          "जल",
+          "नीला",
+          "गणित विभाग"
+        ],
+        [
+          "पृथ्वी",
+          "हरा",
+          "भाषा विभाग"
+        ],
+        [
+          "वायु",
+          "पीला",
+          "कला विभाग"
+        ]
+      ]
+    }
+  ],
+  "list_items": [
+    {
+      "level": 0,
+      "text": "१. सभी विद्यार्थी निर्धारित खेल पोशाक पहनकर आएँगे।"
+    },
+    {
+      "level": 0,
+      "text": "२. विद्यार्थी सुबह सात बजे तक मैदान में पहुँचें।"
+    },
+    {
+      "level": 1,
+      "text": "(क) कक्षा एक से पाँच के विद्यार्थी मुख्य द्वार से प्रवेश करेंगे।"
+    },
+    {
+      "level": 1,
+      "text": "(ख) कक्षा छह से बारह के विद्यार्थी पीछे के द्वार से प्रवेश करेंगे।"
+    },
+    {
+      "level": 0,
+      "text": "३. पीने का पानी अपने साथ लाएँ।"
+    },
+    {
+      "level": 0,
+      "text": "बच्चों को समय पर विद्यालय पहुँचाएँ।"
+    },
+    {
+      "level": 0,
+      "text": "दर्शक दीर्घा में ही बैठें और खेल मैदान में प्रवेश न करें।"
+    },
+    {
+      "level": 0,
+      "text": "कार्यक्रम के दौरान प्लास्टिक की बोतलें और थैलियाँ न फेंकें।"
+    },
+    {
+      "level": 0,
+      "text": "कार्यालय: ०७३१-५५५०१४२"
+    },
+    {
+      "level": 0,
+      "text": "ईमेल: office@neelkamal-vidyalaya.example"
+    }
+  ],
+  "furniture": [
+    "नीलकमल विद्यालय",
+    "सूरजपुर रोड, नया नगर – ४५२०१०",
+    "पत्र संख्या: नी.वि./२०२६/३८",
+    "दिनांक: २ अप्रैल २०२६",
+    "पृष्ठ १ / २",
+    "पृष्ठ २ / २"
+  ],
+  "languages": [
+    "hi"
+  ],
+  "code": [],
+  "notes": "Devanagari text with conjuncts and combining signs. The typed list markers are Devanagari digits with a full stop (१. २. ३.) at level 0 and Devanagari letters in parentheses ((क) (ख)) at level 1, with a hanging indent; the second list on page 2 is numbered by CSS (list-style devanagari) so it is listed without markers; page-2 bullets are drawn by CSS. The letterhead (school name, address line), the reference and date line and the footer lines (\"पृष्ठ १ / २\", \"पृष्ठ २ / २\") are furniture. The programme table is a full grid."
+}
