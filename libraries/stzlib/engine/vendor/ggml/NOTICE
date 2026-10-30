@@ -45,3 +45,14 @@ links the same file and provides a return-0 stub (neural_matmul.zig), keeping it
 matmuls on the CPU kernels. The callee's verdict is shape-deterministic so ggml's
 worker threads agree; thread 0 computes, the others are held by the per-node
 barrier in ggml-cpu.c. The pre-existing short-circuit patch below it is unchanged.
+
+SOFTANZA PATCH (src/ggml-cpu/ggml-cpu.c, 2026-10-30): llamafile's tinyBLAS
+(src/ggml-cpu/llamafile/sgemm.cpp, vendored, previously not compiled) is now
+compiled with GGML_USE_LLAMAFILE into stz_neural.dll ONLY (engine/build.zig
+addGgml; stz_matrix.dll keeps ggml's own kernels), and both call sites in
+ggml_compute_forward_mul_mat take it for F32 WEIGHTS ONLY (src0->type == F32),
+so quantised and F16 language-model weights keep ggml's kernels and their
+numbers do not move. Measured on the seven OCR golden pages: the PP-OCR
+recogniser 20.2-20.8 s -> 16.0-17.4 s, every line's text and confidence
+identical; BERT parity vs numpy still passes, its max difference 1.6e-7 -> 4.2e-6
+(a different summation order). sgemm.cpp holds no state needing a constructor.

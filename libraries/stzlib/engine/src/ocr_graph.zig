@@ -611,6 +611,7 @@ pub fn run(m: *Model, input: []const f32, dims: [4]i64, n_threads: c_int) !Outpu
     c.ggml_build_forward_expand(graph, out);
 
     if (tr) std.debug.print("[ocr] graph: {d} nodes\n", .{c.ggml_graph_n_nodes(graph)});
+    const t_built = std.time.nanoTimestamp();
     const galloc = c.ggml_gallocr_new(c.ggml_backend_cpu_buffer_type()) orelse return error.OutOfMemory;
     defer c.ggml_gallocr_free(galloc);
     if (!c.ggml_gallocr_alloc_graph(galloc, graph)) {
@@ -632,7 +633,13 @@ pub fn run(m: *Model, input: []const f32, dims: [4]i64, n_threads: c_int) !Outpu
         plan.work_data = wbuf.?.ptr;
     }
     if (tr) std.debug.print("[ocr] computing on {d} threads, work {d} bytes\n", .{ n_threads, plan.work_size });
+    const t_alloc = std.time.nanoTimestamp();
     const st = if (profiling()) profileCompute(graph, &plan) else c.ggml_graph_compute(graph, &plan);
+    // STZ_OCR_TIMES=1 prints each run's phases (stderr): the graph built, its buffers allocated, computed
+    if (std.process.hasNonEmptyEnvVarConstant("STZ_OCR_TIMES")) {
+        const t_done = std.time.nanoTimestamp();
+        std.debug.print("[ocr times] {s} in [{d},{d},{d},{d}] build {d:.2} ms, alloc {d:.2} ms, compute {d:.2} ms\n", .{ m.kind, dims[0], dims[1], dims[2], dims[3], @as(f64, @floatFromInt(t_built - t0)) / 1e6, @as(f64, @floatFromInt(t_alloc - t_built)) / 1e6, @as(f64, @floatFromInt(t_done - t_alloc)) / 1e6 });
+    }
     if (tr) std.debug.print("[ocr] computed, status {d}\n", .{st});
     if (st != c.GGML_STATUS_SUCCESS) {
         setError("the graph did not compute (status {d})", .{st});

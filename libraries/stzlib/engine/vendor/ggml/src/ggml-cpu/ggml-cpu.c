@@ -1290,7 +1290,9 @@ void ggml_compute_forward_mul_mat(
 
     const bool src1_cont = ggml_is_contiguous(src1);
 
-    if (src1_cont) {
+    // SOFTANZA PATCH: llamafile's tinyBLAS only for F32 weights (the OCR graphs); quantised and F16 weights keep
+    // ggml's own kernels, so the language models' numbers do not move (see vendor/ggml/NOTICE)
+    if (src1_cont && src0->type == GGML_TYPE_F32) {
         for (int64_t i13 = 0; i13 < ne13; i13++)
             for (int64_t i12 = 0; i12 < ne12; i12++)
                 if (!llamafile_sgemm(params,
@@ -1355,7 +1357,7 @@ UseGgmlGemm1:;
     ggml_barrier(params->threadpool);
 
 #if GGML_USE_LLAMAFILE
-    if (src1->type != vec_dot_type) {
+    if (src1->type != vec_dot_type && src0->type == GGML_TYPE_F32) { // SOFTANZA PATCH: F32 weights only (never true here)
         const void* wdata = (src1->type == vec_dot_type) ? src1->data : params->wdata;
         const size_t row_size = ggml_row_size(vec_dot_type, ne10);
 

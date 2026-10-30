@@ -242,16 +242,25 @@ fn addGgml(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) 
         // works in production (llama.cpp) -- don't run it under our UBSan.
         "-fno-sanitize=undefined",
     };
+    // llamafile's tinyBLAS for F32 x F32 products, in stz_neural ONLY (ggml-cpu.c is patched to use it for F32
+    // weights only, so quantised language models keep ggml's kernels). Measured 2026-10-30 on the seven OCR golden
+    // pages: the recogniser 20.2-20.8 s -> 16.0-17.4 s, every line's text and confidence identical. stz_matrix keeps
+    // ggml's own kernels: its products are left exactly as they were.
+    const tiny = std.mem.eql(u8, lib.name, "stz_neural");
+    const cflags_tiny = cflags.* ++ [_][]const u8{"-DGGML_USE_LLAMAFILE"};
     lib.addCSourceFiles(.{
         .files = &.{
             g ++ "/src/ggml.c",
             g ++ "/src/ggml-alloc.c",
             g ++ "/src/ggml-quants.c",
-            g ++ "/src/ggml-cpu/ggml-cpu.c",
             g ++ "/src/ggml-cpu/quants.c",
             g ++ "/src/ggml-cpu/arch/x86/quants.c",
         },
         .flags = cflags,
+    });
+    lib.addCSourceFiles(.{
+        .files = &.{g ++ "/src/ggml-cpu/ggml-cpu.c"},
+        .flags = if (tiny) &cflags_tiny else cflags,
     });
 
     const cxxflags = &[_][]const u8{
@@ -284,6 +293,7 @@ fn addGgml(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) 
         },
         .flags = cxxflags,
     });
+    if (tiny) lib.addCSourceFiles(.{ .files = &.{g ++ "/src/ggml-cpu/llamafile/sgemm.cpp"}, .flags = cxxflags });
     lib.linkLibCpp();
 }
 
