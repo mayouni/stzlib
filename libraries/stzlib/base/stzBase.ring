@@ -739,6 +739,7 @@ load "service/stzPispiQr.ring"    # the twin of the hub served over HTTP, with O
     load "file/stzPdf.ring"      # Engine-backed PDF text-layer reader (Zig)
     load "file/stzPdfLetterhead.ring"  # the letterhead decision, a measured faculty above the reader
     load "ocr/stzOcr.ring"             # OCR as a faculty: the platform floor, a model only when measured better
+    load "ocr/stzOcrInspect.ring"      # see what OCR read and where: the image and its reading, linked both ways
 
     load "file/stzFolderWatcher.ring"  # Engine-backed folder watcher (Zig)
 

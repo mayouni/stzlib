@@ -69,6 +69,38 @@ else
 	? "SKIP: A French scan reads as a document -- no fr-FR pack on this machine"
 ok
 
+# The inspection page (stzOcrInspect.ring): the image the OCR read beside what it read, linked both ways in the
+# browser. The guard holds what the page carries -- the image copied beside it, every block with its box in the
+# image's pixels, every OCR line, a note where one was given -- and the refusal before any page was read.
+if StzOcrPlatformHas("fr-FR")
+	Scenario("A scan read through OCR writes an inspection page: the image and its reading, every block placed")
+		o = StzPdfQ($cDir + "scan_flate_gray.pdf")
+		o.ReadOcr("fr-FR")
+		cHtml = sysget("TEMP") + "/stz_ocr_inspect_" + random(999999) + ".html"
+		aNotes = [ [ :block = 1, :mark = "x", :note = "a note the guard wrote", :page = 1 ], [ :block = 0, :mark = "-", :note = "a block the guard expected", :page = 1 ] ]
+		Then("the page is written", o.OcrInspectionXT(cHtml, aNotes) = cHtml and fexists(cHtml), 1)
+		cImg = left(cHtml, len(cHtml) - 5) + "_files/page1.bmp"
+		if NOT fexists(cImg) cImg = left(cHtml, len(cHtml) - 5) + "_files/page1.jpg" ok
+		Then("the image the OCR read is beside it", fexists(cImg), 1)
+		cH = read(cHtml)
+		Then("every block is placed: as many boxes as blocks and OCR lines, and one note without a box",
+		     len(StzFindCS("box:[", cH, 1)) = o.NumberOfBlocks() + o.OcrPages()[1][3] and len(StzFindCS("box:null", cH, 1)) = 1, 1)
+		Then("a block's text is on it", len(StzFindCS("Plaine Mobilité", cH, 1)) > 0, 1)
+		Then("and the notes", len(StzFindCS("a note the guard wrote", cH, 1)) + len(StzFindCS("a block the guard expected", cH, 1)), 2)
+		cErr = ""
+		try
+			StzPdfQ("../document/_data/golden_v36/z09.pdf").OcrInspection(cHtml)
+		catch
+			cErr = cCatchError
+		done
+		Then("a document no page of which was read through OCR is refused, saying why", len(StzFindCS("ReadOcr", cErr, 1)) > 0, 1)
+		remove(cHtml)
+		remove(cImg)
+	EndScenario()
+else
+	? "SKIP: The inspection page -- no fr-FR pack on this machine"
+ok
+
 if StzOcrPlatformHas("ar-SA")
 	Scenario("An Arabic scan reads as a document, in logical order")
 		o = StzPdfQ($cDir + "scan_y11_p1.pdf")

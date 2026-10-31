@@ -47,6 +47,8 @@ class stzPdf from stzObject
 	@aOcrBy = []
 	@aOcrMarks = []
 	@cOcrLang = ""
+	@aOcrImages = []	# per page read through OCR: [ nPage, cImageItWasReadFrom, nPixelsPerPoint ]
+	@aOcrLines = []	# per page read through OCR: [ nPage, its lines [ :text, :box ] ]
 
 	# Reads the PDF at pcPath through the engine and keeps its blocks, its text and its facts.
 	#
@@ -399,6 +401,8 @@ class stzPdf from stzObject
 		StzEnginePdfOcrClear()
 		@aOcrBy = []
 		@aOcrMarks = []
+		@aOcrImages = []
+		@aOcrLines = []
 		_nP_ = This.NumberOfPages()
 		for _i_ = 1 to _nP_
 			if ring_find(_aHas_, _i_) > 0 loop ok
@@ -430,6 +434,8 @@ class stzPdf from stzObject
 				_nBands_ = $nStzOcrDarkBandsRead
 			ok
 			@aOcrBy + [ _i_, _cBy_, ring_len(_aL_), _nSkew_, _bSharp_, _nBands_ ]
+			@aOcrImages + [ _i_, _cImg_, _nPpt_ ]
+			@aOcrLines + [ _i_, _aL_ ]
 			# what the page shows besides its letters (rules, bullets, shadings) and each line's stroke width
 			_cBoxes_ = ""
 			_nL_ = ring_len(_aL_)
@@ -500,6 +506,98 @@ class stzPdf from stzObject
 	#              nDarkBands is how many dark bands holding light text the model read again (StzOcrWithDarkBands)
 	def OcrPages()
 		return @aOcrBy
+
+	# Writes an inspection page of the last re-read: each page read through OCR as the image the OCR read, beside its
+	# blocks (or, on a toggle, its OCR lines), linked both ways -- moving over the image draws the box of what was read
+	# there and marks it in the list, moving over a block or line draws its box on the image (StzOcrInspectionHtml).
+	#
+	#   pcHtml     the HTML file to write; its images go in a folder beside it, named after it with "_files"
+	#   returns    the HTML file's path
+	#   warning    raises when no page was read through OCR (call ReadOcr first)
+	def OcrInspection(pcHtml)
+		return This.OcrInspectionXT(pcHtml, [])
+
+	# Writes an inspection page of the last re-read, with notes on its blocks.
+	#
+	#   pcHtml     the HTML file to write
+	#   paNotes    a list of [ :block = n, :mark = "=" | "x" | "-" | "+" | any, :note = a sentence, :page = p ]: n counts the
+	#              blocks of Blocks() from 1; a note with :block = 0 has no block and is listed at the end of its :page
+	#              ("-": a block a test expected and the read does not have)
+	#   returns    the HTML file's path
+	def OcrInspectionXT(pcHtml, paNotes)
+		if ring_len(@aOcrImages) = 0
+			stzraise("stzPdf: no page was read through OCR -- call ReadOcr(cLang) before OcrInspection()")
+		ok
+		_cBase_ = pcHtml
+		if lower(right(_cBase_, 5)) = ".html" _cBase_ = left(_cBase_, len(_cBase_) - 5) ok
+		_cDir_ = _cBase_ + "_files"
+		StzMakeDir(_cDir_)
+		_cRel_ = _cDir_
+		_nS_ = 0
+		_nC_ = len(_cDir_)
+		for _k_ = 1 to _nC_
+			if _cDir_[_k_] = "/" or _cDir_[_k_] = "\" _nS_ = _k_ ok
+		next
+		if _nS_ > 0 _cRel_ = right(_cDir_, _nC_ - _nS_) ok
+		_aBlocks_ = This.Blocks()
+		_aPages_ = []
+		_nP_ = ring_len(@aOcrImages)
+		for _i_ = 1 to _nP_
+			_nPage_ = @aOcrImages[_i_][1]
+			_cImg_ = @aOcrImages[_i_][2]
+			_nPpt_ = @aOcrImages[_i_][3]
+			_cExt_ = ".bmp"
+			if lower(right(_cImg_, 4)) = ".jpg" _cExt_ = ".jpg" ok
+			StzFileCopy(_cImg_, _cDir_ + "/page" + _nPage_ + _cExt_)
+			# the blocks of the page, their boxes from page points to the image's pixels
+			_aB_ = []
+			_nB_ = ring_len(_aBlocks_)
+			for _k_ = 1 to _nB_
+				if _aBlocks_[_k_][:page] != _nPage_ loop ok
+				_b_ = _aBlocks_[_k_][:box]
+				_aN_ = This._OcrNoteOf(paNotes, _k_)
+				_aB_ + [ :kind = _aBlocks_[_k_][:kind], :text = _aBlocks_[_k_][:text],
+					 :box = [ _b_[1] * _nPpt_, _b_[2] * _nPpt_, _b_[3] * _nPpt_, _b_[4] * _nPpt_ ], :mark = _aN_[1], :note = _aN_[2] ]
+			next
+			_nN_ = ring_len(paNotes)
+			for _k_ = 1 to _nN_
+				if paNotes[_k_][:block] = 0 and paNotes[_k_][:page] = _nPage_
+					_aB_ + [ :kind = "", :text = paNotes[_k_][:note], :box = [], :mark = paNotes[_k_][:mark], :note = "" ]
+				ok
+			next
+			_aL_ = []
+			_nL2_ = ring_len(@aOcrLines)
+			for _k_ = 1 to _nL2_
+				if @aOcrLines[_k_][1] = _nPage_ _aL_ = @aOcrLines[_k_][2] ok
+			next
+			_aLines_ = []
+			_nL_ = ring_len(_aL_)
+			for _k_ = 1 to _nL_
+				_aLines_ + [ :text = _aL_[_k_][:text], :box = _aL_[_k_][:box] ]
+			next
+			_cSum_ = ""
+			_nO_ = ring_len(@aOcrBy)
+			for _k_ = 1 to _nO_
+				if @aOcrBy[_k_][1] = _nPage_ _cSum_ = "read by " + @aOcrBy[_k_][2] + ", " + @aOcrBy[_k_][3] + " lines" ok
+			next
+			_aPages_ + [ :page = _nPage_, :image = _cRel_ + "/page" + _nPage_ + _cExt_, :summary = _cSum_, :blocks = _aB_, :lines = _aLines_ ]
+		next
+		_cName_ = @cPath
+		_nC_ = len(_cName_)
+		_nS_ = 0
+		for _k_ = 1 to _nC_
+			if _cName_[_k_] = "/" or _cName_[_k_] = "\" _nS_ = _k_ ok
+		next
+		if _nS_ > 0 _cName_ = right(_cName_, _nC_ - _nS_) ok
+		write(pcHtml, StzOcrInspectionHtml("OCR inspection: " + _cName_ + " (" + @cOcrLang + ")", _aPages_))
+		return pcHtml
+
+	def _OcrNoteOf(paNotes, pnBlock)
+		_n_ = ring_len(paNotes)
+		for _i_ = 1 to _n_
+			if paNotes[_i_][:block] = pnBlock return [ "" + paNotes[_i_][:mark], "" + paNotes[_i_][:note] ] ok
+		next
+		return [ "", "" ]
 
 	# Returns how many marks (rules, bullets, shadings) the last re-read found in each scanned page's pixels.
 	#
