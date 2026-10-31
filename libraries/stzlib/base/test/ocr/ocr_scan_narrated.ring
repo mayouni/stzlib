@@ -9,9 +9,10 @@
 # The proof is a TWIN: each scan here is a page of a born-digital golden rendered at 150 dpi and wrapped as an
 # image-only PDF (_rig/_make_scan_pdfs.py), so its blocks can be held against the blocks the reader finds in the
 # born-digital page. Measured 2026-10-30 (page 1 of each): French golden_v36/z09 14 of 14 born-digital blocks found,
-# 13 of the same kind; Arabic golden_v35/y11 16 of 16, 13; Russian golden_v33/u06 18 of 26, 16. What a scan does not
-# give back yet: a list whose markers the recogniser drops (u06), a code block (no OCR says a face is monospace),
-# bold on Arabic headings, and the header cells of a table set on a dark band (z09).
+# 13 of the same kind; Arabic golden_v35/y11 16 of 16, 13; Russian golden_v33/u06 18 of 26, 16. Measured 2026-10-31,
+# after the O4 gaps and the header band: French 14 of 14, 14; Arabic 16 of 16, 15; Russian 26 of 26, 23. What a scan
+# does not give back yet: two list markers the recogniser drops (u06's old-style "1)" and "3)"), a code block of one
+# line, and on a phone photo a bold sub-heading of the body's size (its long lines read larger than they are).
 #
 # French and Arabic are read by the platform floor and need its fr-FR / ar-SA packs; Russian by the PP-OCR model and
 # needs its graphs. A scene the machine cannot run is SKIPPED BY NAME.
@@ -47,6 +48,9 @@ if StzOcrPlatformHas("fr-FR")
 		Then("a bold sub-title is a heading (its strokes are wider)", blockKind(o, "Direction Gare routière"), "heading")
 		Then("and the other one (strokes measured to a fraction of a pixel)", blockKind(o, "Direction Hôpital Saint-Lazare"), "heading")
 		Then("the two timetables are two tables (the scan's ruled lines keep them apart)", countKind(o, "table"), 2)
+		Then("each opens on its header row, white on a dark band (the band is the ladder's first row)", tableOpensWith(o, "Arrêt 6h40") + tableOpensWith(o, "Arrêt 6h55"), 2)
+		Then("no header cell is left outside its table", paraWith(o, "Arrêt"), 0)
+		Then("and the last row, under the thicker bottom rule, is in its table", tableWith(o, "8h24"), 1)
 		Then("the three notes are list items (their bullets are dots in the pixels)", countKind(o, "list_item"), 3)
 		Then("a list item reads whole", blockKind(o, "Les horaires du samedi sont affichés à chaque arrêt."), "list_item")
 		Then("the address under the page is its footer", blockKind(o, "plainemobilite.example"), "page_footer")
@@ -109,6 +113,8 @@ if StzOcrPlatformHas("fr-FR")
 		Then("the half-degree turn is measured", nSkew > -0.6 and nSkew < -0.4, 1)
 		Then("the title is a heading", blockKind(o, "Plaine Mobilité"), "heading")
 		Then("the two timetables are still two tables", countKind(o, "table"), 2)
+		Then("each still opens on its header row: the photographed band bleeds past the rules, by a fifth of its height at most", tableOpensWith(o, "Arrêt 6h40") + tableOpensWith(o, "Arrêt 6h55"), 2)
+		Then("the page is read in PRINTED points: the 20-pt title is not 41 units of a pixel-sized page", sizeOf(o, "Plaine Mobilité") > 18 and sizeOf(o, "Plaine Mobilité") < 22, 1)
 		Then("the three notes are still list items", kindWith(o, "list_item", "Les horaires du samedi") + kindWith(o, "list_item", "Le bus s'arrête") + kindWith(o, "list_item", "Les poussettes"), 3)
 		Then("the footer is still the footer", countKind(o, "page_footer") >= 1, 1)
 	EndScenario()
@@ -188,6 +194,22 @@ func tableWith(oP, pcText)
 	nB = len(aB)
 	for i = 1 to nB
 		if aB[i][:kind] = "table" and StzFindFirst(pcText, aB[i][:text]) > 0 return 1 ok
+	next
+	return 0
+
+func tableOpensWith(oP, pcText)
+	aB = oP.Blocks()
+	nB = len(aB)
+	for i = 1 to nB
+		if aB[i][:kind] = "table" and StzFindFirst(pcText, StzReplace(StzReplace(aB[i][:text], char(9), " "), char(10), " ")) = 1 return 1 ok
+	next
+	return 0
+
+func sizeOf(oP, pcText)
+	aB = oP.Blocks()
+	nB = len(aB)
+	for i = 1 to nB
+		if StzFindFirst(pcText, aB[i][:text]) > 0 return aB[i][:size] ok
 	next
 	return 0
 

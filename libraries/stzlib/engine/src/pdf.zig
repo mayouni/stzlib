@@ -1745,6 +1745,42 @@ fn ocrImage(pg: Page) ?ImageRef {
     return best;
 }
 
+/// A scanned page in PRINTED points. Every rule of the reader is written in points of the printed sheet, but a scan
+/// app sizes its page to its image (one point a pixel), so a 9-pt cell reads as 19 units and a 1.4-pt rule as 3 --
+/// past the reader's own sizes for a heading and a rule. A page 400-900 wide is a sheet already; otherwise the
+/// paper is told by its proportions, A4 (1.414) or Letter (1.294), the rule `stzPdf.ImagePixelsPerPoint` uses.
+fn ocrPrinted(a: Allocator, pg: Page) !Page {
+    const w = pg.width;
+    const h = pg.height;
+    if (w <= 0 or h <= 0 or (w >= 400 and w <= 900)) return pg;
+    const r = @max(w, h) / @min(w, h);
+    const k: f32 = if (@abs(r - 1.414) <= 0.04) 595.3 / @min(w, h) else if (@abs(r - 1.294) <= 0.04) 612 / @min(w, h) else return pg;
+    const scaled = struct {
+        fn of(al: Allocator, rs: []const Rule, f: f32) ![]Rule {
+            const o = try al.alloc(Rule, rs.len);
+            for (rs, o) |q, *d| d.* = .{ .x0 = q.x0 * f, .y0 = q.y0 * f, .x1 = q.x1 * f, .y1 = q.y1 * f };
+            return o;
+        }
+    }.of;
+    var out = pg;
+    out.width = w * k;
+    out.height = h * k;
+    out.rules = try scaled(a, pg.rules, k);
+    out.dots = try scaled(a, pg.dots, k);
+    out.fills = try scaled(a, pg.fills, k);
+    out.panels = try scaled(a, pg.panels, k);
+    const ims = try a.alloc(ImageRef, pg.images.len);
+    for (pg.images, ims) |q, *d| {
+        d.* = q;
+        d.x0 = q.x0 * k;
+        d.y0 = q.y0 * k;
+        d.x1 = q.x1 * k;
+        d.y1 = q.y1 * k;
+    }
+    out.images = ims;
+    return out;
+}
+
 /// A scanned page with the rules, dots and fills recovered from its pixels added, in page space.
 fn withOcrMarks(a: Allocator, pg: Page, page_no: u32, marks: []const OcrMark) !Page {
     const im = ocrImage(pg) orelse return pg;
@@ -1761,7 +1797,12 @@ fn withOcrMarks(a: Allocator, pg: Page, page_no: u32, marks: []const OcrMark) !P
         if (m.page != page_no) continue;
         const r = Rule{ .x0 = im.x0 + m.x0 * sx, .x1 = im.x0 + m.x1 * sx, .y0 = im.y0 + m.y0 * sy, .y1 = im.y0 + m.y1 * sy };
         switch (m.kind) {
-            'r' => try rules.append(a, r),
+            // (a rule is a line: its centre line, since a page sized in pixels makes a 1.4-pt rule 3 units thick and
+            //  the readers' rules are at most 2.5)
+            'r' => try rules.append(a, if (r.x1 - r.x0 >= r.y1 - r.y0)
+                .{ .x0 = r.x0, .x1 = r.x1, .y0 = (r.y0 + r.y1) / 2, .y1 = (r.y0 + r.y1) / 2 }
+            else
+                .{ .x0 = (r.x0 + r.x1) / 2, .x1 = (r.x0 + r.x1) / 2, .y0 = r.y0, .y1 = r.y1 }),
             'd' => try dots.append(a, r),
             'p' => try panels.append(a, r),
             else => try fills.append(a, r),
@@ -6828,6 +6869,12 @@ pub fn readOcr(gpa: Allocator, bytes: []const u8, ocr: []const OcrLine, marks: [
     }
     res.images = collectImages(&d, a, page_list.items) catch &.{};
     const tb = text_bytes.items;
+    // (a scanned page read through OCR is read in printed points: its blocks' places and sizes too)
+    if (ocr.len > 0) {
+        for (page_list.items) |*pg| {
+            if (pg.glyphs.len == 0) pg.* = try ocrPrinted(a, pg.*);
+        }
+    }
     {
         var hs = try a.alloc(f32, page_list.items.len);
         for (page_list.items, 0..) |pg, k| hs[k] = pg.height;
@@ -6945,6 +6992,23 @@ pub fn readOcr(gpa: Allocator, bytes: []const u8, ocr: []const OcrLine, marks: [
                 if (!run) continue;
                 try lad.append(a, .{ .x0 = f.x0, .x1 = f.x1, .y0 = f.y0, .y1 = f.y0 });
                 try lad.append(a, .{ .x0 = f.x0, .x1 = f.x1, .y0 = f.y1, .y1 = f.y1 });
+            }
+            // (a lone shaded row of cells over a ladder of its own width is the ladder's header row: a scan finds no
+            //  rule along the band's edge -- ink on one side only -- so the header was left above the first rule)
+            for (bands, 0..) |f, bi| {
+                if (!rowlike[bi]) continue;
+                // (the band's edge and the rules' ends agree within a fifth of the band's height -- a photographed
+                //  band bleeds a few pixels -- and the band's edges are drawn along the rule it meets)
+                const fh = f.y1 - f.y0;
+                const tol = @max(3, 0.2 * fh);
+                var meet: ?Rule = null;
+                for (pg.rules) |r| {
+                    if (r.y1 - r.y0 > 2.5 or @abs(r.x0 - f.x0) > tol or @abs(r.x1 - f.x1) > tol) continue;
+                    if (r.y0 >= f.y1 - 1 and r.y0 - f.y1 <= 1.5 * fh) meet = r;
+                }
+                const m = meet orelse continue;
+                try lad.append(a, .{ .x0 = m.x0, .x1 = m.x1, .y0 = f.y0, .y1 = f.y0 });
+                try lad.append(a, .{ .x0 = m.x0, .x1 = m.x1, .y0 = f.y1, .y1 = f.y1 });
             }
             // (the text a dissolved table leaves outside the ladder is read again for tables of its own)
             const rel = try findLadderTables(a, frags.items, lad.items, &tables);
