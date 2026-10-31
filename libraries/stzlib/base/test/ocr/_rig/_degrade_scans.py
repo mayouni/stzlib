@@ -7,6 +7,7 @@
 #   blur     the camera's softness (Gaussian, radius 0.7 px)
 #   jpeg     JPEG at quality 65
 #   phone    all of the above together
+#   clean    none of them: the page as a scan app writes it, JPEG at quality 92
 # The twin is the born-digital golden page itself: its blocks are what the reader should find in the scan.
 #
 #   python -I -X utf8 _degrade_scans.py <page.png> <effect> <out.pdf>     (run with Pillow + numpy)

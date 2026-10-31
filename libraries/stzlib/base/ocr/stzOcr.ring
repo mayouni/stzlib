@@ -247,7 +247,10 @@ func _StzOcrLangOf(pImage, paParams)
 	if _c_ = "" and isList(pImage) and len(pImage) > 0 and isList(pImage[1]) and HasKey(pImage, :lang) _c_ = "" + pImage[:lang] ok
 	return _c_
 
-# The lines the platform engine reads on one image, as it returns them (visual order), cached per path and language.
+# The lines the platform engine reads on one image, in visual order, cached per path and language. A right-to-left
+# pack returns the words of a line in visual order but the pieces of a word holding Latin letters in right-to-left
+# order (HP-2026-48213 comes back 2026-48213-HP); such a word is put back as it stands on the page. In any
+# language a letter O or l standing between two digits is the digit it was taken for (2O26 is 2026).
 #
 #   pcPath     the image file (PNG, JPEG, BMP)
 #   pcLang     a language tag the platform has a pack for, or "" for the user's languages
@@ -290,6 +293,7 @@ func StzOcrPlatformLines(pcPath, pcLang)
 		_aBoxRaw_ = split(read(_cBoxOut_), char(10))
 		remove(_cBoxOut_)
 	ok
+	_bRtl_ = StzOcrLanguageIsRtl(pcLang)
 	_aLines_ = []
 	_aBoxes_ = []
 	_aRaw_ = split(_cText_, char(10))
@@ -297,6 +301,8 @@ func StzOcrPlatformLines(pcPath, pcLang)
 	for _i_ = 1 to _nR_
 		_cL_ = trim(StzReplace(_aRaw_[_i_], char(13), ""))
 		if _cL_ != ""
+			_cL_ = _StzOcrDigitsBetween(_cL_)
+			if _bRtl_ _cL_ = _StzOcrPlatformVisualLine(_cL_) ok
 			add(_aLines_, _cL_)
 			_aB_ = []
 			if _i_ <= len(_aBoxRaw_)
@@ -386,19 +392,22 @@ func StzOcrLanguageIsRtl(pcLang)
 	if _nP_ > 0 _c_ = left(_c_, _nP_ - 1) ok
 	return len(StzFind(_c_, [ "ar", "he", "fa", "ur", "ps", "yi", "ckb", "sd", "ug", "dv" ])) > 0
 
-# the bridge to the platform engine: a PowerShell script written once to the temp folder from the text below
+# the bridge to the platform engine: a PowerShell script written once to the temp folder from the text below. It
+# reads the page as it stands, then -- when a quarter of its words stand under 40 pixels -- again, enlarged so
+# they reach it (at most 4x): below that height the platform takes 0 for O, 1 for l and drops whole digits. A
+# line that sets a run of small words beside large ones (a hotline beside a title) is read at the large words'
+# size, so the small run is read again on its own. Boxes come back in the image's own pixels.
 func _StzOcrBridgePath()
-	_cP_ = sysget("TEMP") + "\stz_ocr_bridge_v3.ps1"
+	_cP_ = sysget("TEMP") + "\stz_ocr_bridge_v4.ps1"
 	if NOT fexists(_cP_)
 		write(_cP_, _StzOcrBridgeScript())
 	ok
 	return _cP_
 
 func _StzOcrBridgeScript()
-	_q_ = char(34)
 	_n_ = char(10)
-	return "# stz_ocr_bridge_v3.ps1 -- Softanza's :ocr floor on Windows: Windows.Media.Ocr, one image per call" + _n_ +
-	"param([string]$Path = '', [string]$Lang = '', [string]$Out = '', [switch]$List)" + _n_ +
+	return "# stz_ocr_bridge_v4.ps1 -- Softanza's :ocr floor on Windows: Windows.Media.Ocr, one image per call" + _n_ +
+	"param([string]$Path = '', [string]$Lang = '', [string]$Out = '', [switch]$List, [double]$Target = 40)" + _n_ +
 	"$null = [Windows.Media.Ocr.OcrEngine, Windows.Foundation, ContentType=WindowsRuntime]" + _n_ +
 	"$null = [Windows.Graphics.Imaging.BitmapDecoder, Windows.Graphics.Imaging, ContentType=WindowsRuntime]" + _n_ +
 	"$null = [Windows.Storage.StorageFile, Windows.Storage, ContentType=WindowsRuntime]" + _n_ +
@@ -410,21 +419,66 @@ func _StzOcrBridgeScript()
 	"$file = Await ([Windows.Storage.StorageFile]::GetFileFromPathAsync($Path)) ([Windows.Storage.StorageFile])" + _n_ +
 	"$stream = Await ($file.OpenAsync([Windows.Storage.FileAccessMode]::Read)) ([Windows.Storage.Streams.IRandomAccessStream])" + _n_ +
 	"$decoder = Await ([Windows.Graphics.Imaging.BitmapDecoder]::CreateAsync($stream)) ([Windows.Graphics.Imaging.BitmapDecoder])" + _n_ +
-	"$bitmap = Await ($decoder.GetSoftwareBitmapAsync()) ([Windows.Graphics.Imaging.SoftwareBitmap])" + _n_ +
-	"if ($null -eq $bitmap) { 'NO IMAGE at ' + $Path; exit 3 }" + _n_ +
+	"$imgW = [double]$decoder.PixelWidth; $imgH = [double]$decoder.PixelHeight" + _n_ +
+	"if ($imgW -lt 1) { 'NO IMAGE at ' + $Path; exit 3 }" + _n_ +
 	"if ($Lang -eq '') { $engine = [Windows.Media.Ocr.OcrEngine]::TryCreateFromUserProfileLanguages() } else { $language = New-Object Windows.Globalization.Language -ArgumentList $Lang; $engine = [Windows.Media.Ocr.OcrEngine]::TryCreateFromLanguage($language) }" + _n_ +
 	"if ($null -eq $engine) { 'NO ENGINE for ' + $Lang; exit 2 }" + _n_ +
+	"$maxDim = [double][Windows.Media.Ocr.OcrEngine]::MaxImageDimension" + _n_ +
+	"# the image at scale k, cropped to (cx, cy, cw, ch) in scaled pixels when cw > 0" + _n_ +
+	"function Bitmap($k, $cx, $cy, $cw, $ch) {" + _n_ +
+	"  $tr = New-Object Windows.Graphics.Imaging.BitmapTransform" + _n_ +
+	"  $tr.ScaledWidth = [uint32][math]::Round($imgW * $k); $tr.ScaledHeight = [uint32][math]::Round($imgH * $k)" + _n_ +
+	"  $tr.InterpolationMode = [Windows.Graphics.Imaging.BitmapInterpolationMode]::Cubic" + _n_ +
+	"  if ($cw -gt 0) { $b = New-Object Windows.Graphics.Imaging.BitmapBounds; $b.X = [uint32]$cx; $b.Y = [uint32]$cy; $b.Width = [uint32]$cw; $b.Height = [uint32]$ch; $tr.Bounds = $b }" + _n_ +
+	"  Await ($decoder.GetSoftwareBitmapAsync([Windows.Graphics.Imaging.BitmapPixelFormat]::Bgra8, [Windows.Graphics.Imaging.BitmapAlphaMode]::Premultiplied, $tr," + _n_ +
+	"    [Windows.Graphics.Imaging.ExifOrientationMode]::IgnoreExifOrientation, [Windows.Graphics.Imaging.ColorManagementMode]::DoNotColorManage)) ([Windows.Graphics.Imaging.SoftwareBitmap])" + _n_ +
+	"}" + _n_ +
 	"$sw = [Diagnostics.Stopwatch]::StartNew()" + _n_ +
-	"$result = Await ($engine.RecognizeAsync($bitmap)) ([Windows.Media.Ocr.OcrResult])" + _n_ +
+	"# pass 1 as the image stands; small text is read again enlarged so its words stand Target pixels high (the" + _n_ +
+	"# platform misreads 0/O, 1/l and whole digits below that), never past 4x nor the engine's largest image" + _n_ +
+	"$k = 1.0" + _n_ +
+	"$result = Await ($engine.RecognizeAsync((Bitmap 1.0 0 0 0 0))) ([Windows.Media.Ocr.OcrResult])" + _n_ +
+	"$hs = @(); foreach ($l in $result.Lines) { foreach ($w in @($l.Words)) { $hs += $w.BoundingRect.Height } }" + _n_ +
+	"if ($hs.Count -gt 0) {" + _n_ +
+	"  $hs = @($hs | Sort-Object); $q = $hs[[int][math]::Floor(($hs.Count - 1) * 0.25)]" + _n_ +
+	"  $k = [math]::Min([math]::Min(4.0, $Target / [math]::Max(1.0, $q)), $maxDim / [math]::Max($imgW, $imgH))" + _n_ +
+	"  if ($k -lt 1.2) { $k = 1.0 } else { $result = Await ($engine.RecognizeAsync((Bitmap $k 0 0 0 0))) ([Windows.Media.Ocr.OcrResult]) }" + _n_ +
+	"}" + _n_ +
+	"$lines = @(); $boxes = @(); $words = 0; $split = 0" + _n_ +
+	"foreach ($l in $result.Lines) {" + _n_ +
+	"  $ws = @($l.Words); $words += $ws.Count" + _n_ +
+	"  $texts = @($ws | ForEach-Object { $_.Text })" + _n_ +
+	"  # a line that sets small words beside large ones (a hotline beside a title) is read at the large words'" + _n_ +
+	"  # size and its small words come out wrong: read the small run again on its own" + _n_ +
+	"  if ($ws.Count -ge 2) {" + _n_ +
+	"    $hh = @($ws | ForEach-Object { $_.BoundingRect.Height } | Sort-Object); $cut = -1; $best = 1.7" + _n_ +
+	"    for ($i = 0; $i -lt $hh.Count - 1; $i++) { $r = $hh[$i + 1] / [math]::Max(1.0, $hh[$i]); if ($r -ge $best) { $best = $r; $cut = $hh[$i] } }" + _n_ +
+	"    if ($cut -gt 0) {" + _n_ +
+	"      $small = @(); for ($i = 0; $i -lt $ws.Count; $i++) { if ($ws[$i].BoundingRect.Height -le $cut) { $small += $i } }" + _n_ +
+	"      if ($small.Count -ge 2 -and $small.Count -lt $ws.Count -and ($small[-1] - $small[0] + 1) -eq $small.Count) {" + _n_ +
+	"        $x0 = 1e9; $y0 = 1e9; $x1 = 0; $y1 = 0" + _n_ +
+	"        foreach ($i in $small) { $r = $ws[$i].BoundingRect; $x0 = [math]::Min($x0, $r.X); $y0 = [math]::Min($y0, $r.Y); $x1 = [math]::Max($x1, $r.X + $r.Width); $y1 = [math]::Max($y1, $r.Y + $r.Height) }" + _n_ +
+	"        $h0 = ($y1 - $y0) / $k; $ks = [math]::Min([math]::Max($k, [math]::Min(4.0, $Target / [math]::Max(1.0, $h0))), $maxDim / [math]::Max($imgW, $imgH))" + _n_ +
+	"        $p = 0.6 * $h0" + _n_ +
+	"        $cx = [math]::Max(0, ($x0 / $k - $p) * $ks); $cy = [math]::Max(0, ($y0 / $k - $p) * $ks)" + _n_ +
+	"        $cw = [math]::Min($imgW * $ks - 1, ($x1 / $k + $p) * $ks) - $cx; $ch = [math]::Min($imgH * $ks - 1, ($y1 / $k + $p) * $ks) - $cy" + _n_ +
+	"        $again = Await ($engine.RecognizeAsync((Bitmap $ks $cx $cy $cw $ch))) ([Windows.Media.Ocr.OcrResult])" + _n_ +
+	"        if (@($again.Lines).Count -eq 1) {" + _n_ +
+	"          $t2 = @(); for ($i = 0; $i -lt $ws.Count; $i++) { if ($i -eq $small[0]) { $t2 += $again.Lines[0].Text } elseif ($small -notcontains $i) { $t2 += $texts[$i] } }" + _n_ +
+	"          $texts = $t2; $split++" + _n_ +
+	"        }" + _n_ +
+	"      }" + _n_ +
+	"    }" + _n_ +
+	"  }" + _n_ +
+	"  $lines += ($texts -join ' ')" + _n_ +
+	"  $x0 = 1e9; $y0 = 1e9; $x1 = 0; $y1 = 0" + _n_ +
+	"  foreach ($w in $ws) { $r = $w.BoundingRect; if ($r.X -lt $x0) { $x0 = $r.X }; if ($r.Y -lt $y0) { $y0 = $r.Y }; if ($r.X + $r.Width -gt $x1) { $x1 = $r.X + $r.Width }; if ($r.Y + $r.Height -gt $y1) { $y1 = $r.Y + $r.Height } }" + _n_ +
+	"  $boxes += ('{0} {1} {2} {3}' -f [int]($x0 / $k), [int]($y0 / $k), [int]($x1 / $k), [int]($y1 / $k))" + _n_ +
+	"}" + _n_ +
 	"$ms = $sw.ElapsedMilliseconds" + _n_ +
-	"$lines = @(); $boxes = @(); $words = 0" + _n_ +
-	"foreach ($l in $result.Lines) { $lines += $l.Text; $ws = @($l.Words); $words += $ws.Count; $x0 = 1e9; $y0 = 1e9; $x1 = 0; $y1 = 0; " +
-	"foreach ($w in $ws) { $r = $w.BoundingRect; if ($r.X -lt $x0) { $x0 = $r.X }; if ($r.Y -lt $y0) { $y0 = $r.Y }; " +
-	"if ($r.X + $r.Width -gt $x1) { $x1 = $r.X + $r.Width }; if ($r.Y + $r.Height -gt $y1) { $y1 = $r.Y + $r.Height } }; " +
-	"$boxes += ('{0} {1} {2} {3}' -f [int]$x0, [int]$y0, [int]$x1, [int]$y1) }" + _n_ +
 	"$text = ($lines -join [string][char]10)" + _n_ +
-	"('lang {0}  image {1}x{2}  lines {3}  words {4}  angle {5}  ms {6}' -f $Lang, $bitmap.PixelWidth, $bitmap.PixelHeight, @($result.Lines).Count, $words, $result.TextAngle, $ms)" + _n_ +
-	"if ($Out -ne '') { [IO.File]::WriteAllText($Out, $text, (New-Object Text.UTF8Encoding $false)); " +
+	"[string]::Format([Globalization.CultureInfo]::InvariantCulture, 'lang {0}  image {1}x{2}  lines {3}  words {4}  angle {5}  ms {6}  scale {7:0.00}  reread {8}', $Lang, $imgW, $imgH, $lines.Count, $words, $result.TextAngle, $ms, $k, $split)" + _n_ +
+	"if ($Out -ne '') { [IO.File]::WriteAllText($Out, $text, (New-Object Text.UTF8Encoding $false));" + _n_ +
 	"[IO.File]::WriteAllText($Out + '.box', ($boxes -join [string][char]10), (New-Object Text.UTF8Encoding $false)) }" + _n_
 
 #-------------------------------------#
@@ -487,7 +541,10 @@ func StzOcrLogicalLine(pcLine)
 	return StzOcrLogicalLineXT(pcLine, "ltr")
 
 # reverses in place each maximal run of tokens of kind pcKind (digits count with Latin; a neutral token between
-# two of the run belongs to it)
+# two of the run belongs to it). In a right-to-left paragraph a number joins a Latin run only when it follows a
+# Latin word (the bidi rule W7): numbers alone keep the paragraph's order -- the page prints a hotline written
+# 800 1234 as 1234 800 -- and so do the numbers a run ends with in the reversed line, which stood left of its
+# first Latin word.
 func _StzOcrReverseRuns(paV, paK, pcKind)
 	_n_ = len(paV)
 	_i_ = 1
@@ -503,6 +560,17 @@ func _StzOcrReverseRuns(paV, paK, pcKind)
 					exit
 				ok
 			end
+			if pcKind = "L"
+				_m_ = 0
+				for _k_ = _i_ to _j_
+					if paK[_k_] = "L" _m_ = _k_ ok
+				next
+				if _m_ = 0 _m_ = _i_ ok
+				_jRun_ = _j_
+				_j_ = _m_
+			else
+				_jRun_ = _j_
+			ok
 			_aRun_ = []
 			for _k_ = _j_ to _i_ step -1
 				add(_aRun_, paV[_k_])
@@ -510,7 +578,7 @@ func _StzOcrReverseRuns(paV, paK, pcKind)
 			for _k_ = _i_ to _j_
 				paV[_k_] = _aRun_[_k_ - _i_ + 1]
 			next
-			_i_ = _j_ + 1
+			_i_ = _jRun_ + 1
 		else
 			_i_++
 		ok
@@ -528,6 +596,99 @@ func StzOcrLogicalText(pcText)
 	for _i_ = 1 to _nL_
 		if _i_ > 1 _c_ += char(10) ok
 		_c_ += StzOcrLogicalLine(_aL_[_i_])
+	next
+	return _c_
+
+# A line with each run of the letters O, o, l, I, | standing between two digits read as the digits they were taken
+# for (0 for O and o, 1 for the others): 2O26 is 2026 and 482l3 is 48213. A letter with a digit on one side only is
+# left alone (12h, 1er, A4).
+func _StzOcrDigitsBetween(pcLine)
+	_aC_ = StzChars(pcLine)
+	_nC_ = len(_aC_)
+	_bAny_ = 0
+	for _i_ = 2 to _nC_ - 1
+		if len(StzFind(_aC_[_i_], [ "O", "o", "l", "I", "|" ])) > 0 _bAny_ = 1 exit ok
+	next
+	if NOT _bAny_ return pcLine ok
+	_i_ = 2
+	while _i_ <= _nC_ - 1
+		_j_ = _i_
+		while _j_ <= _nC_ - 1 and len(StzFind(_aC_[_j_], [ "O", "o", "l", "I", "|" ])) > 0
+			_j_++
+		end
+		if _j_ > _i_ and _StzOcrIsDigit(_aC_[_i_ - 1]) and _j_ <= _nC_ and _StzOcrIsDigit(_aC_[_j_])
+			for _k_ = _i_ to _j_ - 1
+				if _aC_[_k_] = "O" or _aC_[_k_] = "o" _aC_[_k_] = "0" else _aC_[_k_] = "1" ok
+			next
+		ok
+		_i_ = _j_ + 1
+	end
+	_c_ = ""
+	for _i_ = 1 to _nC_
+		_c_ += _aC_[_i_]
+	next
+	return _c_
+
+func _StzOcrIsDigit(pcChar)
+	return len(StzFind(pcChar, [ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" ])) > 0
+
+# A line a right-to-left pack returned, each word holding Latin letters (and no right-to-left one) put back in the
+# order it stands on the page: the pack gives such a word's pieces -- letters, numbers, signs -- in right-to-left
+# order, so they are turned round and the brackets among them mirrored back.
+func _StzOcrPlatformVisualLine(pcLine)
+	_aT_ = split(pcLine, " ")
+	_nT_ = len(_aT_)
+	_c_ = ""
+	for _i_ = 1 to _nT_
+		if _i_ > 1 _c_ += " " ok
+		if _StzOcrTokenKind(_aT_[_i_]) = "L"
+			_c_ += _StzOcrTurnPieces(_aT_[_i_])
+		else
+			_c_ += _aT_[_i_]
+		ok
+	next
+	return _c_
+
+# the pieces of a word in the opposite order: a run of letters, a number (digits with one , . : / - between two
+# digits), each other sign alone; a bracket turned round is mirrored
+func _StzOcrTurnPieces(pcWord)
+	_aC_ = StzChars(pcWord)
+	_aK_ = []
+	_nC_ = len(_aC_)
+	for _i_ = 1 to _nC_
+		add(_aK_, _StzOcrTokenKind(_aC_[_i_]))
+	next
+	_aP_ = []
+	_i_ = 1
+	while _i_ <= _nC_
+		_cP_ = _aC_[_i_]
+		_j_ = _i_
+		if _aK_[_i_] = "L" or _aK_[_i_] = "D"
+			while _j_ + 1 <= _nC_
+				if _aK_[_j_ + 1] = _aK_[_i_]
+					_j_++
+					_cP_ += _aC_[_j_]
+				but _aK_[_i_] = "D" and _j_ + 2 <= _nC_ and _aK_[_j_ + 2] = "D" and len(StzFind(_aC_[_j_ + 1], [ ",", ".", ":", "/", "-" ])) > 0
+					_cP_ += _aC_[_j_ + 1] + _aC_[_j_ + 2]
+					_j_ += 2
+				else
+					exit
+				ok
+			end
+		else
+			_aBr_ = [ "(", ")", "[", "]", "{", "}", "<", ">" ]
+			_aM_ = StzFind(_cP_, _aBr_)
+			if len(_aM_) > 0
+				if _aM_[1] % 2 = 1 _cP_ = _aBr_[_aM_[1] + 1] else _cP_ = _aBr_[_aM_[1] - 1] ok
+			ok
+		ok
+		add(_aP_, _cP_)
+		_i_ = _j_ + 1
+	end
+	if len(_aP_) < 2 return pcWord ok
+	_c_ = ""
+	for _i_ = len(_aP_) to 1 step -1
+		_c_ += _aP_[_i_]
 	next
 	return _c_
 

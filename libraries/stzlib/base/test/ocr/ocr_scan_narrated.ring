@@ -14,6 +14,10 @@
 # does not give back yet: two list markers the recogniser drops (u06's old-style "1)" and "3)"), a code block of one
 # line, and on a phone photo a bold sub-heading of the body's size (its long lines read larger than they are).
 #
+# Small text: the platform misreads text under about 40 pixels high and a run of small words beside large ones,
+# so the floor reads such pages enlarged and such runs on their own (bridge v4, 2026-10-31): on the 14 French and
+# Arabic degraded twins words read right 94.1% -> 97.0%, numbers 85.4% -> 91.9%.
+#
 # French and Arabic are read by the platform floor and need its fr-FR / ar-SA packs; Russian by the PP-OCR model and
 # needs its graphs. A scene the machine cannot run is SKIPPED BY NAME.
 #
@@ -68,12 +72,36 @@ if StzOcrPlatformHas("ar-SA")
 		Then("the title is a heading", blockKind(o, "ملخص وثيقة تأمين المنزل"), "heading")
 		Then("a bold section title is a heading, not a caption of the table under it (Arabic bold: strokes to a fraction of a pixel)", blockKind(o, "التغطيات الأساسية"), "heading")
 		Then("the coverage table is a table", tableWith(o, "الحريق والانفجار"), 1)
-		Then("the policy details are a table too (its borders are rules in the pixels)", tableWith(o, "HP-2026-48213") + tableWith(o, "2O26-48213-HP"), 1)
+		Then("the policy details are a table too (its borders are rules in the pixels)", tableWith(o, "HP-2026-48213"), 1)
+		# the platform gave these as 2O26-48213-HP and a garbled hotline before it read small text enlarged and
+		# put a word holding Latin letters back in the order it stands on the page
+		Then("the footer's policy number reads as printed", kindWith(o, "page_footer", "وثيقة رقم HP-2026-48213"), 1)
+		Then("the small hotline beside the large title is read on its own: two numbers in the paragraph's order", kindWith(o, "page_header", "الخط الساخن 800 1234"), 1)
 		Then("the numbered exclusions are list items", countKind(o, "list_item") >= 2, 1)
 		Then("the company's name in the top band is the page header", blockKind(o, "المكتب الرئيسي: شارع الاستقلال 25، المدينة الجديدة") = "page_header" or countKind(o, "page_header") >= 1, 1)
 	EndScenario()
 else
 	? "SKIP: An Arabic scan reads as a document -- no ar-SA pack on this machine"
+ok
+
+# The pages the author was shown on the look page: a scan app's copy of each golden page -- JPEG at quality 92, the
+# page sized in pixels (_rig/_degrade_scans.py <page> clean <pdf>). Read as it stands, the platform gave 44 for 6h44,
+# 000,()2 for 20,000, 2O26-482l3-Hp for HP-2026-48213 and garbled the hotline: it misreads text under about 40 pixels
+# high, so a page whose small words stand lower is read again enlarged.
+if StzOcrPlatformHas("fr-FR") and StzOcrPlatformHas("ar-SA")
+	Scenario("A scan app's page: small text is read enlarged, and reads as printed")
+		o = StzPdfQ($cDir + "app_z09_p1.pdf")
+		o.ReadOcr("fr-FR")
+		Then("a 9-pt time in a timetable reads whole", tableWith(o, "6h44"), 1)
+		o = StzPdfQ($cDir + "app_y11_p1.pdf")
+		o.ReadOcr("ar-SA")
+		Then("an amount reads whole", paraWith(o, "حتى مبلغ 20,000 ريال"), 1)
+		Then("the footer's policy number reads as printed, its 0 and 1 not O and l", kindWith(o, "page_footer", "وثيقة رقم HP-2026-48213"), 1)
+		Then("the hotline beside the title reads", kindWith(o, "page_header", "الخط الساخن 800 1234"), 1)
+		Then("a 1 alone is not an l", tableWith(o, "في 1 يناير 2027"), 1)
+	EndScenario()
+else
+	? "SKIP: A scan app's page is read enlarged -- the fr-FR and ar-SA packs are both needed"
 ok
 
 if fexists(StzOcrModelDir() + "/ppocr_rec_cyrillic.gguf")
