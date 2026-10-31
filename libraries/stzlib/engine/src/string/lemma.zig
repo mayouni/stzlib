@@ -250,6 +250,89 @@ pub fn str_lemmatize_text(handle: StzStringHandle, lang: [*c]const u8, lang_len:
     return result;
 }
 
+// --- the alef family in Arabic OCR -------------------------------------------------------------------------------
+//
+// A recogniser confuses the four alefs -- bare (ا), hamza above (أ), hamza below (إ), madda (آ) -- because they differ
+// only by a mark a few pixels wide: Windows' Arabic pack read golden_v35/y11's "التآكل" (corrosion) as "التأكل" at
+// every scale, and as "التاكل" at its own. The word list knows the right spelling, so a word it does NOT know is tried
+// with each of its alefs swapped for each other one, and taken in the one spelling the list knows, when there is
+// exactly one. A known word is never touched, nor one whose swaps the list knows in two spellings or in none.
+
+const ALEFS = [_]u21{ 0x0627, 0x0623, 0x0625, 0x0622 };
+const AR_LANG: usize = 2;
+
+fn knownArabic(key: []const u8) bool {
+    return g_maps[AR_LANG].f2l.contains(key) or g_maps[AR_LANG].lemmas.contains(key);
+}
+
+fn appendAlefRepaired(out: *std.ArrayList(u8), word: []const u8) !void {
+    var lbuf: [160]u8 = undefined;
+    const key = lowerUnicode(word, &lbuf);
+    if (key.len == 0 or knownArabic(key)) return out.appendSlice(gpa, word);
+    var found: ?[]u8 = null;
+    defer if (found) |f| gpa.free(f);
+    var n_found: usize = 0;
+    var i: usize = 0;
+    while (i < word.len) {
+        const cl = std.unicode.utf8ByteSequenceLength(word[i]) catch 1;
+        if (i + cl > word.len) break;
+        const cp = std.unicode.utf8Decode(word[i .. i + cl]) catch 0;
+        if (std.mem.indexOfScalar(u21, &ALEFS, cp) != null) {
+            for (ALEFS) |alt| {
+                if (alt == cp) continue;
+                var tmp: [4]u8 = undefined;
+                const n = std.unicode.utf8Encode(alt, &tmp) catch continue;
+                const cand = try std.mem.concat(gpa, u8, &.{ word[0..i], tmp[0..n], word[i + cl ..] });
+                var cbuf: [160]u8 = undefined;
+                if (knownArabic(lowerUnicode(cand, &cbuf))) {
+                    if (found == null or !std.mem.eql(u8, found.?, cand)) {
+                        n_found += 1;
+                        if (found) |f| gpa.free(f);
+                        found = cand;
+                        continue;
+                    }
+                }
+                gpa.free(cand);
+            }
+        }
+        i += cl;
+    }
+    try out.appendSlice(gpa, if (n_found == 1) found.? else word);
+}
+
+/// frees a text arabicAlefRepaired returned
+pub fn freeRepaired(t: []u8) void {
+    gpa.free(t);
+}
+
+/// `text` with each Arabic word the list does not know spelt with the one alef the list knows it by (see above);
+/// the caller frees the result (freeRepaired)
+pub fn arabicAlefRepaired(text: []const u8) ![]u8 {
+    buildLang(AR_LANG);
+    var out: std.ArrayList(u8) = .empty;
+    var wit = wb.WordIter.init(text);
+    var last: usize = 0;
+    while (wit.next()) |span| {
+        try out.appendSlice(gpa, text[last..span.start]);
+        try appendAlefRepaired(&out, text[span.start..span.end]);
+        last = span.end;
+    }
+    try out.appendSlice(gpa, text[last..]);
+    return out.toOwnedSlice(gpa);
+}
+
+test "arabic alef repair: an unknown spelling takes the one alef the list knows" {
+    const r = try arabicAlefRepaired("٣. التأكل وسوء الصيانة");
+    defer gpa.free(r);
+    try testing.expectEqualStrings("٣. التآكل وسوء الصيانة", r);
+    const r2 = try arabicAlefRepaired("التاكل");
+    defer gpa.free(r2);
+    try testing.expectEqualStrings("التآكل", r2);
+    const r3 = try arabicAlefRepaired("الأمان");
+    defer gpa.free(r3);
+    try testing.expectEqualStrings("الأمان", r3);
+}
+
 const testing = std.testing;
 const str_from = core.str_from;
 const str_free = core.str_free;

@@ -45,6 +45,10 @@ Scenario("A right-to-left line the platform returned in visual order is put back
 	Then("a word the Arabic pack turned is put back as it stands", _StzOcrPlatformVisualLine("وثيقة 2026-48213-HP رقم"), "وثيقة HP-2026-48213 رقم")
 	Then("its brackets are mirrored back", _StzOcrPlatformVisualLine("12(HP)"), "(HP)12")
 	Then("a number with an Arabic comma is left as the pack gave it", _StzOcrPlatformVisualLine("25، شارع"), "25، شارع")
+	# the Arabic pack confuses the four alefs (ا أ إ آ): a word the engine's word list does not know takes the one it knows
+	Then("an unknown word takes the alef the list knows it by", StzEngineStringArabicAlefRepaired("٣. التأكل وسوء"), "٣. التآكل وسوء")
+	Then("a bare alef too", StzEngineStringArabicAlefRepaired("تبدا في"), "تبدأ في")
+	Then("a known word is never touched", StzEngineStringArabicAlefRepaired("شركة الأمان الوطنية"), "شركة الأمان الوطنية")
 	# the platform takes 0 for O and 1 for l inside small numbers (y11's footer on a phone photo: 2O26-482l3)
 	Then("an O or an l between two digits is the digit", _StzOcrDigitsBetween("2O26-482l3-HP"), "2026-48213-HP")
 	Then("a letter with a digit on one side only is left alone", _StzOcrDigitsBetween("le 1er Ol 12h Lo1"), "le 1er Ol 12h Lo1")

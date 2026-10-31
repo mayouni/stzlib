@@ -3138,6 +3138,19 @@ fn ring_StringLemmatized(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.str_lemmatize_text(h, lang, lang_len)), STZ_HANDLE);
 }
 
+// StzEngineStringArabicAlefRepaired(cText) -> cText with each Arabic word the lemma list does not know spelt with the
+// one alef (ا أ إ آ) the list knows it by -- the confusion an Arabic recogniser makes (lemma.zig)
+fn ring_StringArabicAlefRepaired(p: *anyopaque) callconv(.c) void {
+    const s = ring_vm_api_getstring(p, 1);
+    const n: usize = @intCast(ring_vm_api_getstringsize(p, 1));
+    const r = string.arabicAlefRepaired(s[0..n]) catch {
+        ring_vm_api_retstring2(p, s, @intCast(n));
+        return;
+    };
+    defer string.freeRepaired(r);
+    ring_vm_api_retstring2(p, r.ptr, @intCast(r.len));
+}
+
 fn ring_StringLemmatizeWordsList(p: *anyopaque) callconv(.c) void {
     const out = R.ring_vm_api_newlist(p) orelse return;
     const h = getHandle(p, 1);
@@ -4240,6 +4253,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringsentimentexplainedlist", .func = &ring_StringSentimentExplainedList },
     .{ .name = "stzenginestringlemmatized", .func = &ring_StringLemmatized },
     .{ .name = "stzenginestringlemmatizewordslist", .func = &ring_StringLemmatizeWordsList },
+    .{ .name = "stzenginestringarabicalefrepaired", .func = &ring_StringArabicAlefRepaired },
     .{ .name = "stzenginestringstemmed", .func = &ring_StringStemmed },
     .{ .name = "stzenginestringstemwords", .func = &ring_StringStemWords },
     .{ .name = "stzenginestringscanint", .func = &ring_StringScanInt },

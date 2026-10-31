@@ -256,7 +256,9 @@ func _StzOcrLangOf(pImage, paParams)
 # The lines the platform engine reads on one image, in visual order, cached per path and language. A right-to-left
 # pack returns the words of a line in visual order but the pieces of a word holding Latin letters in right-to-left
 # order (HP-2026-48213 comes back 2026-48213-HP); such a word is put back as it stands on the page. In any
-# language a letter O or l standing between two digits is the digit it was taken for (2O26 is 2026).
+# language a letter O or l standing between two digits is the digit it was taken for (2O26 is 2026). An Arabic
+# word the engine's word list does not know is spelt with the one alef (ا أ إ آ) the list knows it by: the pack
+# reads "التآكل" as "التأكل" at every scale (StzEngineStringArabicAlefRepaired).
 #
 #   pcPath     the image file (PNG, JPEG, BMP)
 #   pcLang     a language tag the platform has a pack for, or "" for the user's languages
@@ -300,6 +302,7 @@ func StzOcrPlatformLines(pcPath, pcLang)
 		remove(_cBoxOut_)
 	ok
 	_bRtl_ = StzOcrLanguageIsRtl(pcLang)
+	_bAr_ = left(lower("" + pcLang), 2) = "ar"
 	_aLines_ = []
 	_aBoxes_ = []
 	_aMids_ = []
@@ -310,6 +313,7 @@ func StzOcrPlatformLines(pcPath, pcLang)
 		if _cL_ != ""
 			_cL_ = _StzOcrDigitsBetween(_cL_)
 			if _bRtl_ _cL_ = _StzOcrPlatformVisualLine(_cL_) ok
+			if _bAr_ _cL_ = StzEngineStringArabicAlefRepaired(_cL_) ok
 			add(_aLines_, _cL_)
 			_aB_ = []
 			_aMd_ = []

@@ -88,6 +88,8 @@ if StzOcrPlatformHas("ar-SA")
 		Then("a long Arabic line reads near its 11.5 points", sizeOf(o, "تغطى المقتنيات الثمينة") > 10.5 and sizeOf(o, "تغطى المقتنيات الثمينة") < 13, 1)
 		Then("a one-word bold heading with no tail is a heading", blockKind(o, "الاستثناءات"), "heading")
 		Then("the 12.5-pt note title stands apart from the 11.5-pt paragraph under it", blockKind(o, "ملاحظة حول المقتنيات") != "", 1)
+		# the platform reads "التآكل" (corrosion) as "التأكل" at every scale: the madda is a few pixels -- the author saw it
+		Then("an alef with madda reads as printed (the word list knows the word by it)", kindWith(o, "list_item", "التآكل وسوء الصيانة"), 1)
 		Then("the company's name in the top band is the page header", blockKind(o, "المكتب الرئيسي: شارع الاستقلال 25، المدينة الجديدة") = "page_header" or countKind(o, "page_header") >= 1, 1)
 	EndScenario()
 else
