@@ -1838,6 +1838,7 @@ fn ocrFragments(a: Allocator, pg: Page, page_no: u32, ocr: []const OcrLine, out:
         med = ratios.items[ratios.items.len / 2];
     }
     const first = out.items.len;
+    var tights: std.ArrayList(bool) = .empty;
     for (ocr) |l| {
         if (l.page != page_no) continue;
         const t = trimSpace(l.text);
@@ -1861,10 +1862,14 @@ fn ocrFragments(a: Allocator, pg: Page, page_no: u32, ocr: []const OcrLine, out:
             .mono = false,
             .text = try a.dupe(u8, t),
         });
+        try tights.append(a, l.tight);
     }
     // a detector's box can swallow the bullet that opens its line: the line then starts after the dot, so the
-    // reader's own bullet rule (a dot just left of a line, on its middle) sees it
-    for (out.items[first..]) |*f| {
+    // reader's own bullet rule (a dot just left of a line, on its middle) sees it. A word-tight box starts at its
+    // first letter, so never: on a blurred page that letter is itself a dot-like blob, and the rule made headings
+    // into list items ("Ligne 12 ...", "Direction ..." on golden_v36/z09 blurred)
+    for (out.items[first..], 0..) |*f, fi| {
+        if (tights.items[fi]) continue;
         for (pg.dots) |dt| {
             const cy = (dt.y0 + dt.y1) / 2;
             if (cy < f.y0 or cy > f.y1) continue;

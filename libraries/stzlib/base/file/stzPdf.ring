@@ -392,17 +392,23 @@ class stzPdf from stzObject
 			_nImg_ = This.PageImageNumber(_i_)
 			if _nImg_ = 0 loop ok
 			_cImg_ = This.PageImageFile(_i_)
-			# a scan turned by a quarter of a degree or more is read from a level copy: its lines' boxes stay as tall
-			# as their letters and its ruled lines stay lines (the copy turns about the centre, so the boxes still
-			# land where their text is on the page, within a few points at the corners)
-			_nSkew_ = StzEngineNeuralOcrDeskew(_cImg_, _cImg_ + "_level.bmp", 0.25)
-			if _nSkew_ > -90 and _nSkew_ != 0
-				_cImg_ = _cImg_ + "_level.bmp"
-			else
-				_nSkew_ = 0
+			# a scan turned by a quarter of a degree or more is read from a level copy (its lines' boxes stay as tall
+			# as their letters and its ruled lines stay lines; the copy turns about the centre, so the boxes still
+			# land where their text is, within a few points at the corners), and a soft one from a sharpened copy when
+			# the platform will read it (blur costs the platform's OCR; the PP-OCR model reads a blurred page better
+			# as it is)
+			_bMay_ = 0
+			if StzOcrImplementationFor(pcLang) = "platform" _bMay_ = 1 ok
+			_aPrep_ = StzEngineNeuralOcrPrepare(_cImg_, _cImg_ + "_prepared.bmp", 0.25, _bMay_)
+			_nSkew_ = 0
+			_bSharp_ = 0
+			if ring_len(_aPrep_) = 4
+				_nSkew_ = _aPrep_[1]
+				_bSharp_ = _aPrep_[3]
+				if _aPrep_[4] = 1 _cImg_ = _cImg_ + "_prepared.bmp" ok
 			ok
 			_aL_ = StzOcrLinesWithBoxes(_cImg_, pcLang)
-			@aOcrBy + [ _i_, $cStzOcrLinesBy, ring_len(_aL_), _nSkew_ ]
+			@aOcrBy + [ _i_, $cStzOcrLinesBy, ring_len(_aL_), _nSkew_, _bSharp_ ]
 			# what the page shows besides its letters (rules, bullets, shadings) and each line's stroke width
 			_nPpt_ = This.ImagePixelsPerPoint(_nImg_)
 			_cBoxes_ = ""
@@ -457,8 +463,9 @@ class stzPdf from stzObject
 	def IsReadByOcr()
 		return ring_len(@aOcrBy) > 0
 
-	# Which implementation read each scanned page in the last ReadOcr: [ nPage, cImplementation, nLines, nSkew ] per
-	# page ("platform" or "ppocr"; nSkew the degrees the page was turned level by, 0 when it was level).
+	# Which implementation read each scanned page in the last ReadOcr: [ nPage, cImplementation, nLines, nSkew,
+	# bSharpened ] per page ("platform" or "ppocr"; nSkew the degrees the page was turned level by, 0 when it was
+	# level; bSharpened 1 when the page was soft and read from a sharpened copy).
 	def OcrPages()
 		return @aOcrBy
 

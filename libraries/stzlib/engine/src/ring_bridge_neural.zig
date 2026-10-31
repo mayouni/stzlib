@@ -668,6 +668,25 @@ fn ring_OcrDeskew(p: *anyopaque) callconv(.c) void {
     rn(p, deg);
 }
 
+// StzEngineNeuralOcrPrepare(cImage, cOut, nMinDegrees, bMaySharpen) -> [ nSkew, nSharpness, bSharpened, bWritten ]
+// (O4): the page turned level when its skew is at least nMinDegrees, and sharpened when it is soft and bMaySharpen
+// (the platform's OCR will read it); when either applies the
+// result is written to cOut (BMP) and bWritten is 1; [] on failure (StzEngineNeuralOcrGraphError says why)
+fn ring_OcrPrepare(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const min_deg: f32 = @floatCast(R.ring_vm_api_getnumber(p, 3));
+    const r = ocrp.prepare(ocrArg(p, 1), ocrArg(p, 2), min_deg, R.ring_vm_api_getnumber(p, 4) != 0) catch |e| {
+        if (ocrg.lastError().len == 0) ocrg.setError("{s}", .{@errorName(e)});
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    R.ring_list_adddouble(out, r.skew);
+    R.ring_list_adddouble(out, r.sharpness);
+    R.ring_list_adddouble(out, if (r.sharpened) 1 else 0);
+    R.ring_list_adddouble(out, if (r.written) 1 else 0);
+    R.ring_vm_api_retlist(p, out);
+}
+
 fn ring_OcrGraphError(p: *anyopaque) callconv(.c) void {
     const e = ocrg.lastError();
     R.ring_vm_api_retstring2(p, e.ptr, @intCast(e.len));
@@ -682,6 +701,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralocrstats", .func = &ring_OcrStats },
     .{ .name = "stzengineneuralocrmarks", .func = &ring_OcrMarks },
     .{ .name = "stzengineneuralocrdeskew", .func = &ring_OcrDeskew },
+    .{ .name = "stzengineneuralocrprepare", .func = &ring_OcrPrepare },
     .{ .name = "stzenginegbnfbegin", .func = &ring_GbnfBegin },
     .{ .name = "stzenginegbnffield", .func = &ring_GbnfField },
     .{ .name = "stzenginegbnfcompile", .func = &ring_GbnfCompile },

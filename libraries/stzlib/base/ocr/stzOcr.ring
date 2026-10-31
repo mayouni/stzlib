@@ -322,6 +322,18 @@ func StzOcrPlatformBoxes(pcPath, pcLang)
 	next
 	return []
 
+# The implementation the registry will choose to read a language with: "platform" or "ppocr" (per language when the
+# language has measured goldens, on the whole golden set otherwise). Nothing is read.
+#
+#   pcLang     a language tag, or "" for the user's own languages
+#   returns    the implementation's id
+func StzOcrImplementationFor(pcLang)
+	StzOcrDeclare([])
+	_oR_ = StzRequirementQ("ocr")
+	_c_ = lower(left("" + pcLang, 2))
+	if _c_ != "" _oR_.RequireLanguages([ _c_ ]) ok
+	return StzModelRegistryQ().ResolveQ(_oR_).Chosen()
+
 # The lines of one image WITH THEIR BOXES, read by the implementation the :ocr faculty chooses for the language
 # (the registry, per language), in logical order: [ :text, :box = [x0, y0, x1, y1] in the image's pixels, :tight ]
 # -- :tight is 1 for word-tight boxes (the platform) and 0 for a detector's boxes (PP-OCR, grown by its unclip).

@@ -947,7 +947,8 @@ pub fn marksOf(image_path: []const u8, ppt: f32, boxes: []const [4]f32) !Marks {
     const thick: usize = @max(2, @as(usize, @intFromFloat(@ceil(2.5 * ppt))));
     try rulesAlong(a, gray, w, h, true, @intFromFloat(28 * ppt), thick, &out, boxes, lv.line, fills);
     try rulesAlong(a, gray, w, h, false, @intFromFloat(19 * ppt), thick, &out, boxes, lv.line, fills);
-    // dots: a filled shape 2.5 to 9 pt on each side, near square, nothing inked just left of it (a bullet opens a line)
+    // dots: a filled shape 2.5 to 9 pt on each side, near square, at least 60% filled, nothing inked just left of it
+    // (a bullet opens a line)
     const ink = try components(a, gray, w, h, lv.ink);
     for (ink) |cc| {
         const cw = cc.x1 - cc.x0 + 1;
@@ -956,7 +957,8 @@ pub fn marksOf(image_path: []const u8, ppt: f32, boxes: []const [4]f32) !Marks {
         const fh: f32 = @floatFromInt(chh);
         if (fw < 2.5 * ppt or fh < 2.5 * ppt or fw > 9 * ppt or fh > 9 * ppt) continue;
         if (fw > 1.6 * fh or fh > 1.6 * fw) continue;
-        if (@as(f32, @floatFromInt(cc.n)) < 0.7 * fw * fh) continue;
+        // (a disc fills 0.785 of its box; a bullet on a noisy, levelled, sharpened page measured 0.65)
+        if (@as(f32, @floatFromInt(cc.n)) < 0.6 * fw * fh) continue;
         var clear = true;
         const lx0 = if (cc.x0 > 2 * cw) cc.x0 - 2 * cw else 0;
         var yy = cc.y0;
@@ -1187,4 +1189,146 @@ pub fn deskew(image_path: []const u8, out_path: []const u8, min_deg: f32) !f32 {
     }
     try writeBmp(out_path, &out);
     return deg;
+}
+
+// --------------------------------------------------------------------------------------------- blur (O4)
+
+// A camera's scan is soft: blurred, the platform's OCR merges and misreads short lines, and a line's first letter
+// fills into a blob the page marks take for a bullet. SHARPNESS is the mean of the steepest 0.1% of horizontal steps
+// in grey, over the page's contrast (paper minus its darkest 1%). Measured on the twins: sharp pages 0.79-1.02,
+// blurred ones (Gaussian 0.7 px) 0.61-0.73 -- and the author's phone scan 0.41.
+pub const SHARP_LIMIT: f32 = 0.76;
+// ... and sharpening is used only from SHARP_FLOOR up: the twins it helped were 0.61-0.73 (French 10 -> 13 blocks of
+// the right kind blurred, Arabic 12 -> 13), and the one real scan below that band, the author's at 0.41 (a 200-dpi
+// phone photo of 12-pt text, soft per pixel but legible), lost digits and letters in its footer at every radius
+// tried (1.2, 1.6, 2.2) while its body read the same. ONE real sample sets this floor: the next real scans move it.
+pub const SHARP_FLOOR: f32 = 0.5;
+
+pub fn sharpnessOf(gray: []const u8, w: usize, h: usize) f32 {
+    var hist = [_]usize{0} ** 256;
+    for (gray) |v| hist[v] += 1;
+    var paper: usize = 255;
+    var best: usize = 0;
+    for (128..256) |v| {
+        if (hist[v] > best) {
+            best = hist[v];
+            paper = v;
+        }
+    }
+    var acc: usize = 0;
+    var ink: usize = 0;
+    while (ink < 255 and acc + hist[ink] < gray.len / 100) : (ink += 1) acc += hist[ink];
+    if (paper <= ink + 10) return 1;
+    // (the image's border is left out, as for the skew: a photographed page's shadow meets the frame there)
+    var steps = [_]usize{0} ** 256;
+    var n: usize = 0;
+    const mx = w / 20;
+    const my = h / 20;
+    for (my..h - my) |y| {
+        const row = gray[y * w ..][0..w];
+        for (mx + 1..w - mx) |x| {
+            const d = if (row[x] > row[x - 1]) row[x] - row[x - 1] else row[x - 1] - row[x];
+            steps[d] += 1;
+            n += 1;
+        }
+    }
+    const want = @max(1, n / 1000);
+    var got: usize = 0;
+    var sum: f64 = 0;
+    var v: usize = 255;
+    while (got < want) : (v -= 1) {
+        const take = @min(steps[v], want - got);
+        got += take;
+        sum += @as(f64, @floatFromInt(take * v));
+        if (v == 0) break;
+    }
+    return @floatCast(sum / @as(f64, @floatFromInt(got)) / @as(f64, @floatFromInt(paper - ink)));
+}
+
+/// An unsharp mask (Gaussian sigma `radius`, `amount` of the difference added back, differences under `threshold`
+/// grey levels left alone), in place on every channel -- PIL's UnsharpMask(1.2, 160, 2), which brought the blurred
+/// twins back to their sharp scores (French 8 -> 13 blocks of the right kind, Arabic 12 -> 13).
+fn unsharp(im: *Image, radius: f32, amount: f32, threshold: f32) !void {
+    const r: usize = @intFromFloat(@ceil(3 * radius));
+    const k = try gpa.alloc(f32, 2 * r + 1);
+    defer gpa.free(k);
+    var ks: f32 = 0;
+    for (0..2 * r + 1) |i| {
+        const x = @as(f32, @floatFromInt(i)) - @as(f32, @floatFromInt(r));
+        k[i] = @exp(-x * x / (2 * radius * radius));
+        ks += k[i];
+    }
+    for (k) |*v| v.* /= ks;
+    const w = im.w;
+    const h = im.h;
+    const tmp = try gpa.alloc(f32, w * h);
+    defer gpa.free(tmp);
+    const blur = try gpa.alloc(f32, w * h);
+    defer gpa.free(blur);
+    for (0..3) |ch| {
+        for (0..h) |y| {
+            for (0..w) |x| {
+                var s: f32 = 0;
+                for (0..2 * r + 1) |i| {
+                    const xx = std.math.clamp(@as(i64, @intCast(x)) + @as(i64, @intCast(i)) - @as(i64, @intCast(r)), 0, @as(i64, @intCast(w - 1)));
+                    s += k[i] * @as(f32, @floatFromInt(im.at(@intCast(xx), y)[ch]));
+                }
+                tmp[y * w + x] = s;
+            }
+        }
+        for (0..h) |y| {
+            for (0..w) |x| {
+                var s: f32 = 0;
+                for (0..2 * r + 1) |i| {
+                    const yy = std.math.clamp(@as(i64, @intCast(y)) + @as(i64, @intCast(i)) - @as(i64, @intCast(r)), 0, @as(i64, @intCast(h - 1)));
+                    s += k[i] * tmp[@as(usize, @intCast(yy)) * w + x];
+                }
+                blur[y * w + x] = s;
+            }
+        }
+        for (0..h) |y| {
+            for (0..w) |x| {
+                const p = im.px.ptr + (y * w + x) * 3 + ch;
+                const o: f32 = @floatFromInt(p[0]);
+                const d = o - blur[y * w + x];
+                if (@abs(d) < threshold) continue;
+                p[0] = @intFromFloat(std.math.clamp(@round(o + amount * d), 0, 255));
+            }
+        }
+    }
+}
+
+pub const Prepared = struct { skew: f32, sharpness: f32, sharpened: bool, written: bool };
+
+/// Prepares a scanned page for OCR: turned level when its skew is at least `min_deg`, sharpened when its
+/// sharpness is under SHARP_LIMIT and `may_sharpen` (the caller's OCR is one blur hurts: the platform's -- the PP-OCR
+/// model read the blurred Russian twin better UNsharpened, 18 blocks of the right kind against 16); the result is
+/// written to `out_path` (BMP) when either applies.
+pub fn prepare(image_path: []const u8, out_path: []const u8, min_deg: f32, may_sharpen: bool) !Prepared {
+    var res = Prepared{ .skew = 0, .sharpness = 1, .sharpened = false, .written = false };
+    // the sharpness of the page as it was scanned (a level copy's corners would add edges of their own)
+    {
+        var im0 = try loadImage(image_path);
+        defer im0.free();
+        const g0 = try gpa.alloc(u8, im0.w * im0.h);
+        defer gpa.free(g0);
+        for (0..im0.w * im0.h) |i| {
+            const p = im0.px.ptr + i * 3;
+            g0[i] = @intFromFloat(@round(0.299 * @as(f32, @floatFromInt(p[0])) + 0.587 * @as(f32, @floatFromInt(p[1])) + 0.114 * @as(f32, @floatFromInt(p[2]))));
+        }
+        res.sharpness = sharpnessOf(g0, im0.w, im0.h);
+    }
+    // the level copy (deskew writes it only when the page is turned)
+    const deg = try deskew(image_path, out_path, min_deg);
+    res.skew = deg;
+    const src = if (deg != 0) out_path else image_path;
+    var im = try loadImage(src);
+    defer im.free();
+    if (may_sharpen and res.sharpness < SHARP_LIMIT and res.sharpness >= SHARP_FLOOR) {
+        try unsharp(&im, 1.2, 1.6, 2);
+        try writeBmp(out_path, &im);
+        res.sharpened = true;
+    }
+    res.written = deg != 0 or res.sharpened;
+    return res;
 }

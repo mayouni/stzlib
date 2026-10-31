@@ -89,7 +89,9 @@ ok
 # -- toned, noisy paper; turned half a degree; a shadowed border; camera blur; JPEG at 65; the page sized in pixels
 # as a scan app writes it (one point per pixel, so the printed scale is read from the paper's proportions).
 # Measured 2026-10-31 over 21 degraded twins (7 effects x 3 pages): blocks of the right kind 282 -> 292 with the
-# deskew, the paper-relative thresholds and rules that need paper on both sides. Blur is not yet answered.
+# deskew, the paper-relative thresholds and rules that need paper on both sides; 292 -> 304 with BLUR answered
+# (a soft page the platform will read is sharpened -- the PP-OCR model reads a soft page better as it is -- and a
+# word-tight box never swallows a bullet).
 
 if StzOcrPlatformHas("fr-FR")
 	Scenario("A French phone scan is turned level and still reads as a document")
@@ -106,6 +108,27 @@ if StzOcrPlatformHas("fr-FR")
 	EndScenario()
 else
 	? "SKIP: A French phone scan is turned level -- no fr-FR pack on this machine"
+ok
+
+if StzOcrPlatformHas("fr-FR")
+	Scenario("A blurred French scan is sharpened before the platform reads it, and reads as the sharp one")
+		o = StzPdfQ($cDir + "blur_z09_p1.pdf")
+		o.ReadOcr("fr-FR")
+		? "   " + @@(o.OcrPages())
+		Then("the page was soft and read from a sharpened copy", o.OcrPages()[1][5], 1)
+		Then("the title is a heading", blockKind(o, "Plaine Mobilité"), "heading")
+		Then("the line's name is a heading again (blurred, unsharpened, it read as a list item)", blockKind(o, "Ligne 12 : Gare routière - Hôpital Saint-Lazare"), "heading")
+		Then("the two timetables are two tables", countKind(o, "table"), 2)
+		Then("the three notes are list items", countKind(o, "list_item"), 3)
+		Then("the footer is the footer", blockKind(o, "plainemobilite.example"), "page_footer")
+	EndScenario()
+	Scenario("A sharp scan is not sharpened")
+		o = StzPdfQ($cDir + "scan_flate_gray.pdf")
+		o.ReadOcr("fr-FR")
+		Then("read as it is", o.OcrPages()[1][5], 0)
+	EndScenario()
+else
+	? "SKIP: A blurred French scan is sharpened -- no fr-FR pack on this machine"
 ok
 
 if fexists(StzOcrModelDir() + "/ppocr_rec_cyrillic.gguf")
