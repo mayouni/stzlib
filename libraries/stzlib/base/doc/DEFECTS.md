@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 47 methods in 37 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 45 methods in 36 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| network/stzWebSocket.ring | stzWebSocket | 2 |
 | neural/stzLLMFunction.ring | stzLLMFunction | 2 |
 | number/stzHexNumber.ring | stzHexNumber | 2 |
 | number/stzMatrix.ring | stzMatrix | 2 |
@@ -98,11 +97,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzUrl -- network/stzUrl.ring (1)
 
 - `FromLocalFile` (line 702): Raises error R19 today instead of returning a file URL for the given path. -- Raises error R19 today whatever the path, on a drive path with backslashes and on /tmp/y.txt: it calls ReplaceSubstring with two arguments where that method takes a start, an end and a replacement
-
-## stzWebSocket -- network/stzWebSocket.ring (2)
-
-- `Connect` (line 40): Raises error R3 today instead of opening a WebSocket connection. -- raises error R3 because it calls curl_easy_init, a libcurl function that the library no longer loads; the class still wraps libcurl while the rest of the network layer moved to the engine, and even with libcurl the later calls would not see the handle, which Connect keeps in a local variable
-- `Close` (line 143): Does nothing today, because no connection can be open.
 
 ## stzLLMFunction -- neural/stzLLMFunction.ring (2)
 

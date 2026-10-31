@@ -1,5 +1,5 @@
 {
- "count": 47,
+ "count": 45,
  "defects": [
   {
    "class": "stzEngineTimeline",
@@ -104,22 +104,6 @@
    "line": 702,
    "symptom": "Raises error R19 today instead of returning a file URL for the given path.",
    "cause": "Raises error R19 today whatever the path, on a drive path with backslashes and on /tmp/y.txt: it calls ReplaceSubstring with two arguments where that method takes a start, an end and a replacement"
-  },
-  {
-   "class": "stzWebSocket",
-   "file": "network/stzWebSocket.ring",
-   "method": "Connect",
-   "line": 40,
-   "symptom": "Raises error R3 today instead of opening a WebSocket connection.",
-   "cause": "raises error R3 because it calls curl_easy_init, a libcurl function that the library no longer loads; the class still wraps libcurl while the rest of the network layer moved to the engine, and even with libcurl the later calls would not see the handle, which Connect keeps in a local variable"
-  },
-  {
-   "class": "stzWebSocket",
-   "file": "network/stzWebSocket.ring",
-   "method": "Close",
-   "line": 143,
-   "symptom": "Does nothing today, because no connection can be open.",
-   "cause": ""
   },
   {
    "class": "stzLLMFunction",
