@@ -31,6 +31,9 @@ $aStzOcrBoxCache = []
 # the implementation that answered the last StzOcrLinesWithBoxes: "platform" or "ppocr"
 $cStzOcrLinesBy = ""
 
+# the dark bands the last StzOcrWithDarkBands read again with the model
+$nStzOcrDarkBandsRead = 0
+
 # what the model's last page cost, as the engine reported it: [ boxes, ms detect, ms classify, ms recognise, ms total,
 # lines voted upside down ]
 $aStzOcrModelLastStats = []
@@ -373,6 +376,108 @@ func StzOcrLinesWithBoxes(pcImage, pcLang)
 		add(_aOut_, [ :text = StzOcrLogicalLineXT(_aL_[_i_], _cDir_), :box = _aBx_, :tight = 1 ])
 	next
 	return _aOut_
+
+# The lines of a page the platform read, with the light text on its dark bands read again by the model. The platform
+# reads white on navy worst of all (a phone scan's footer lost half of every line at every scale, inverted or not)
+# and the PP-OCR model reads it nearly whole, so the engine finds each dark band that holds light text and writes it
+# prepared (StzEngineNeuralOcrDarkBands), the model reads it, and a platform line inside the band is replaced where a
+# model line covers half of it or more and reads it otherwise; where the two agree the platform's line is kept (its
+# box is word-tight, so its size is the truer). A platform line no model line covers is kept: the model's detector can miss
+# a faint line the platform half-read (an orange title on navy), and a half-read line beats none. Nothing changes
+# when the model or its recogniser for the language is not installed. $nStzOcrDarkBandsRead says how many bands
+# were read again.
+#
+#   pcImage    the page image the lines were read from
+#   pnPpt      its pixels per printed point
+#   paLines    the platform's lines: [ :text, :box = [x0, y0, x1, y1], :tight ]
+#   pcLang     the language tag
+#   returns    the lines, the model's in place of those it covers; a line on a band carries :band = 1
+func StzOcrWithDarkBands(pcImage, pnPpt, paLines, pcLang)
+	$nStzOcrDarkBandsRead = 0
+	_cDir_ = StzOcrModelDir() + "/"
+	if NOT (fexists(_cDir_ + StzOcrModelRecogniserFor(pcLang)) and fexists(_cDir_ + "ppocr_det.gguf") and fexists(_cDir_ + "ppocr_cls.gguf"))
+		return paLines
+	ok
+	_aB_ = StzEngineNeuralOcrDarkBands(pcImage, pnPpt, pcImage + "_band")
+	_nB_ = len(_aB_)
+	if _nB_ = 0 return paLines ok
+	_aOut_ = paLines
+	for _i_ = 1 to _nB_
+		_aBd_ = _aB_[_i_]
+		_aM_ = StzOcrModelLinesXT(_aBd_[5], pcLang)
+		remove(_aBd_[5])
+		_nM_ = len(_aM_)
+		if _nM_ = 0 loop ok
+		# the model's boxes, in the page's pixels (the band was written enlarged twice)
+		_aMB_ = []
+		for _k_ = 1 to _nM_
+			_b_ = _aM_[_k_][:box]
+			add(_aMB_, [ _aBd_[1] + _b_[1] / 2, _aBd_[2] + _b_[2] / 2, _aBd_[1] + _b_[3] / 2, _aBd_[2] + _b_[4] / 2 ])
+		next
+		_aKeep_ = []
+		_aDrop_ = []
+		_nL_ = len(_aOut_)
+		for _k_ = 1 to _nL_
+			_n_ = _StzOcrCoveredBy(_aOut_[_k_][:box], _aMB_)
+			if _n_ = 0
+				add(_aKeep_, _aOut_[_k_])
+			but _StzOcrSameText(_aOut_[_k_][:text], _aM_[_n_][:text])
+				add(_aKeep_, _aOut_[_k_])
+				add(_aDrop_, _n_)
+			ok
+		next
+		for _k_ = 1 to _nM_
+			if ring_find(_aDrop_, _k_) = 0 add(_aKeep_, [ :text = _aM_[_k_][:text], :box = _aMB_[_k_], :tight = 0 ]) ok
+		next
+		# every line on the band is marked: its strokes are the band's dark around light letters, so the bold cue
+		# (dark ink on paper) cannot be measured there
+		_nK_ = len(_aKeep_)
+		for _k_ = 1 to _nK_
+			_b_ = _aKeep_[_k_][:box]
+			if len(_b_) = 4
+				_nCx_ = (_b_[1] + _b_[3]) / 2
+				_nCy_ = (_b_[2] + _b_[4]) / 2
+				if _nCx_ >= _aBd_[1] and _nCx_ <= _aBd_[3] and _nCy_ >= _aBd_[2] and _nCy_ <= _aBd_[4]
+					_aKeep_[_k_] = [ :text = _aKeep_[_k_][:text], :box = _b_, :tight = _aKeep_[_k_][:tight], :band = 1 ]
+				ok
+			ok
+		next
+		_aOut_ = _aKeep_
+		$nStzOcrDarkBandsRead++
+	next
+	return _aOut_
+
+# the position of the first of the boxes half of the box or more lies under, 0 when none
+func _StzOcrCoveredBy(paBox, paBoxes)
+	if len(paBox) != 4 return 0 ok
+	_nA_ = (paBox[3] - paBox[1]) * (paBox[4] - paBox[2])
+	if _nA_ <= 0 return 0 ok
+	_nN_ = len(paBoxes)
+	for _i_ = 1 to _nN_
+		_b_ = paBoxes[_i_]
+		_nX0_ = paBox[1]
+		if _b_[1] > _nX0_ _nX0_ = _b_[1] ok
+		_nX1_ = paBox[3]
+		if _b_[3] < _nX1_ _nX1_ = _b_[3] ok
+		_nY0_ = paBox[2]
+		if _b_[2] > _nY0_ _nY0_ = _b_[2] ok
+		_nY1_ = paBox[4]
+		if _b_[4] < _nY1_ _nY1_ = _b_[4] ok
+		_nW_ = _nX1_ - _nX0_
+		_nH_ = _nY1_ - _nY0_
+		if _nW_ > 0 and _nH_ > 0 and _nW_ * _nH_ >= 0.5 * _nA_ return _i_ ok
+	next
+	return 0
+
+# 1 when two readings of a line agree: case aside, at most a tenth of the longer one differs (spaces count: the
+# platform runs a band's digits together, "2044 1763" for "20 44 17 63")
+func _StzOcrSameText(pcA, pcB)
+	_cA_ = StzLower(pcA)
+	_cB_ = StzLower(pcB)
+	_nN_ = StzLen(_cA_)
+	if StzLen(_cB_) > _nN_ _nN_ = StzLen(_cB_) ok
+	if _nN_ = 0 return 1 ok
+	return StzEngineStringLevenshteinDistance(StzEngineString(_cA_), StzEngineString(_cB_)) <= 0.1 * _nN_
 
 # the platform wants an absolute path with backslashes
 func _StzOcrAbsolutePath(pcPath)

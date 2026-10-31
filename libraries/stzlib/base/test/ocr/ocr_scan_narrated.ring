@@ -14,6 +14,9 @@
 # does not give back yet: two list markers the recogniser drops (u06's old-style "1)" and "3)"), a code block of one
 # line, and an Arabic line's size grows with its length (its box spans the tallest mark and the deepest tail).
 #
+# Light text on a dark band is read again by the PP-OCR model (StzOcrWithDarkBands, 2026-10-31): the platform
+# reads white on navy worst of all.
+#
 # Small text: the platform misreads text under about 40 pixels high and a run of small words beside large ones,
 # so the floor reads such pages enlarged and such runs on their own (bridge v4, 2026-10-31): on the 14 French and
 # Arabic degraded twins words read right 94.1% -> 97.0%, numbers 85.4% -> 91.9%.
@@ -103,6 +106,26 @@ if StzOcrPlatformHas("fr-FR") and StzOcrPlatformHas("ar-SA")
 	EndScenario()
 else
 	? "SKIP: A scan app's page is read enlarged -- the fr-FR and ar-SA packs are both needed"
+ok
+
+# Light text on a dark band -- a letterhead's footer, photographed (_data/band_footer.pdf, from _rig/_make_band_page.py,
+# every word invented there): the platform garbles it ("Regestre : FFVPAR/03Q021tC17", "UIGER", "E4nad"), so the engine
+# finds the band and the PP-OCR model reads it again, its brightest channel stretched, inverted and enlarged.
+$bModel = fexists(StzOcrModelDir() + "/ppocr_det.gguf") and fexists(StzOcrModelDir() + "/ppocr_cls.gguf") and fexists(StzOcrModelDir() + "/ppocr_rec.gguf")
+if StzOcrPlatformHas("fr-FR") and $bModel
+	Scenario("Light text on a dark band is read again by the model")
+		o = StzPdfQ($cDir + "band_footer.pdf")
+		o.ReadOcr("fr-FR")
+		Then("the page was read by the platform, its one dark band again by the model", o.OcrPages()[1][2] + " " + o.OcrPages()[1][6], "platform 1")
+		Then("a register number reads whole", kindWith(o, "page_footer", "FR/PAR/03/2021/C17/00482"), 1)
+		Then("a town reads as printed", kindWith(o, "page_footer", "AGADEZ NIGER"), 1)
+		Then("an address of mail too", kindWith(o, "page_footer", "accueil@archives.example"), 1)
+		Then("a telephone number keeps its spaces (where the two readings differ, the model's is taken)", kindWith(o, "page_footer", "+227 20 44 17 63"), 1)
+		Then("the band's lines stay the page's footer (their strokes are not measured: no false bold)", countKind(o, "heading"), 0)
+		Then("the body, on paper, is the platform's", paraWith(o, "Le service des archives reçoit le public"), 1)
+	EndScenario()
+else
+	? "SKIP: Light text on a dark band -- the fr-FR pack and the PP-OCR graphs are both needed"
 ok
 
 if fexists(StzOcrModelDir() + "/ppocr_rec_cyrillic.gguf")

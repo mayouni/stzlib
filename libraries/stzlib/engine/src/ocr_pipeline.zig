@@ -1078,6 +1078,181 @@ pub fn marksOf(image_path: []const u8, ppt: f32, boxes: []const [4]f32) !Marks {
     return res;
 }
 
+// --------------------------------------------------------------------------------------------- dark bands (O4)
+
+// Light text on a dark band -- a letterhead's footer, a table's header row -- is where the platform's OCR is weakest:
+// on a phone scan's navy footer it dropped half of every line at any scale, inverted or not, while the PP-OCR model
+// read the band whole. So the bands are found here and written out for the model, each as the page's BRIGHTEST
+// channel (orange on navy has almost no contrast in grey and full contrast in red), stretched from the band's own
+// background to its lightest text, inverted to dark on light, and enlarged twice (the model missed the orange title
+// at the band's own size).
+
+pub const Band = struct { x0: usize, y0: usize, x1: usize, y1: usize };
+
+// the share of the pixels of a rectangle darker than dark_at
+fn darkShare(gray: []const u8, w: usize, x0: usize, x1: usize, y0: usize, y1: usize, dark_at: u32) f32 {
+    var n: usize = 0;
+    for (y0..y1) |y| {
+        for (x0..x1) |x| n += @intFromBool(gray[y * w + x] < dark_at);
+    }
+    return @as(f32, @floatFromInt(n)) / @as(f32, @floatFromInt(@max(1, (x1 - x0) * (y1 - y0))));
+}
+
+pub const Bands = struct {
+    arena: std.heap.ArenaAllocator,
+    bands: []Band,
+    paths: [][]const u8,
+    pub fn free(self: *Bands) void {
+        self.arena.deinit();
+    }
+};
+
+/// The dark bands of a page that hold light text, each written prepared for the model to <out_prefix>_<n>.bmp: a
+/// region at least 40 pt wide and 6 pt tall, three fifths of its 2-pt cells darker than half the paper, with light
+/// text on it (a band with nothing written on it -- a photographed page's shadow -- is left).
+pub fn darkBands(image_path: []const u8, ppt: f32, out_prefix: []const u8) !Bands {
+    var res = Bands{ .arena = std.heap.ArenaAllocator.init(gpa), .bands = &.{}, .paths = &.{} };
+    errdefer res.arena.deinit();
+    const a = res.arena.allocator();
+    var im = try loadImage(image_path);
+    defer im.free();
+    const w = im.w;
+    const h = im.h;
+    const gray = try a.alloc(u8, w * h);
+    for (0..w * h) |i| {
+        const p = im.px.ptr + i * 3;
+        gray[i] = @intFromFloat(@round(0.299 * @as(f32, @floatFromInt(p[0])) + 0.587 * @as(f32, @floatFromInt(p[1])) + 0.114 * @as(f32, @floatFromInt(p[2]))));
+    }
+    const lv = levelsOf(gray);
+    const paper: u32 = @as(u32, lv.tint) + 6;
+    const dark_at: u32 = paper / 2;
+    const cs: usize = @max(2, @as(usize, @intFromFloat(@round(2 * ppt))));
+    const gw = (w + cs - 1) / cs;
+    const gh = (h + cs - 1) / cs;
+    const cell = try a.alloc(u8, gw * gh);
+    for (0..gh) |gy| {
+        for (0..gw) |gx| {
+            var sum: u32 = 0;
+            var n: u32 = 0;
+            var y = gy * cs;
+            while (y < @min(h, (gy + 1) * cs)) : (y += 1) {
+                var x = gx * cs;
+                while (x < @min(w, (gx + 1) * cs)) : (x += 1) {
+                    sum += gray[y * w + x];
+                    n += 1;
+                }
+            }
+            cell[gy * gw + gx] = @intFromBool(n > 0 and sum < dark_at * n);
+        }
+    }
+    // the dark cells' 4-connected regions
+    const seen = try a.alloc(bool, gw * gh);
+    @memset(seen, false);
+    var stack: std.ArrayList(usize) = .empty;
+    var bands: std.ArrayList(Band) = .empty;
+    var paths: std.ArrayList([]const u8) = .empty;
+    for (0..gw * gh) |start| {
+        if (cell[start] == 0 or seen[start]) continue;
+        var cx0: usize = gw;
+        var cy0: usize = gh;
+        var cx1: usize = 0;
+        var cy1: usize = 0;
+        var n: usize = 0;
+        stack.clearRetainingCapacity();
+        try stack.append(a, start);
+        seen[start] = true;
+        while (stack.pop()) |i| {
+            const x = i % gw;
+            const y = i / gw;
+            n += 1;
+            cx0 = @min(cx0, x);
+            cx1 = @max(cx1, x);
+            cy0 = @min(cy0, y);
+            cy1 = @max(cy1, y);
+            const nb = [4]?usize{ if (x > 0) i - 1 else null, if (x + 1 < gw) i + 1 else null, if (y > 0) i - gw else null, if (y + 1 < gh) i + gw else null };
+            for (nb) |o| {
+                const j = o orelse continue;
+                if (cell[j] == 1 and !seen[j]) {
+                    seen[j] = true;
+                    try stack.append(a, j);
+                }
+            }
+        }
+        const bw_c = cx1 - cx0 + 1;
+        const bh_c = cy1 - cy0 + 1;
+        if (@as(f32, @floatFromInt(bw_c * cs)) < 40 * ppt or @as(f32, @floatFromInt(bh_c * cs)) < 6 * ppt) continue;
+        if (n * 5 < bw_c * bh_c * 3) continue;
+        var x0 = cx0 * cs;
+        var y0 = cy0 * cs;
+        var x1 = @min(w, (cx1 + 1) * cs);
+        var y1 = @min(h, (cy1 + 1) * cs);
+        // trimmed to the rows and columns that are mostly dark: the paper a cell's edge took in turns into a black
+        // bar once the band is inverted, and the model read the line under such a bar as nothing
+        while (y1 > y0 + 1 and darkShare(gray, w, x0, x1, y0, y0 + 1, dark_at) < 0.5) y0 += 1;
+        while (y1 > y0 + 1 and darkShare(gray, w, x0, x1, y1 - 1, y1, dark_at) < 0.5) y1 -= 1;
+        while (x1 > x0 + 1 and darkShare(gray, w, x0, x0 + 1, y0, y1, dark_at) < 0.5) x0 += 1;
+        while (x1 > x0 + 1 and darkShare(gray, w, x1 - 1, x1, y0, y1, dark_at) < 0.5) x1 -= 1;
+        if (@as(f32, @floatFromInt(x1 - x0)) < 40 * ppt or @as(f32, @floatFromInt(y1 - y0)) < 6 * ppt) continue;
+        // the brightest channel, stretched from the band's median (its background) to its 99.5th percentile (its
+        // lightest text), inverted
+        const bw = x1 - x0;
+        const bh = y1 - y0;
+        const mx = try a.alloc(u8, bw * bh);
+        var hist = [_]usize{0} ** 256;
+        for (0..bh) |y| {
+            for (0..bw) |x| {
+                const p = Image.at(&im, x0 + x, y0 + y);
+                const v = @max(p[0], @max(p[1], p[2]));
+                mx[y * bw + x] = v;
+                hist[v] += 1;
+            }
+        }
+        var lo: usize = 0;
+        var hi: usize = 255;
+        var acc: usize = 0;
+        for (0..256) |v| {
+            acc += hist[v];
+            if (acc * 2 >= bw * bh) {
+                lo = v;
+                break;
+            }
+        }
+        acc = 0;
+        for (0..256) |v| {
+            acc += hist[v];
+            if (acc * 1000 >= bw * bh * 995) {
+                hi = v;
+                break;
+            }
+        }
+        // text is there when the band spans at least 60 levels and a hundredth of it stands above the middle of
+        // that span (a photo's white text on navy is light GREY, 150-185, so the paper is no measure of it)
+        if (hi < lo + 60) continue;
+        var light: usize = 0;
+        for (mx) |v| light += @intFromBool(v > (lo + hi) / 2);
+        if (light * 100 < bw * bh) continue;
+        var flat = try newImage(bw, bh);
+        defer flat.free();
+        const span: f32 = @floatFromInt(hi - lo);
+        for (0..bw * bh) |i| {
+            const t = std.math.clamp((@as(f32, @floatFromInt(mx[i])) - @as(f32, @floatFromInt(lo))) / span, 0, 1);
+            const g: u8 = @intFromFloat(@round(255 * (1 - t)));
+            flat.px[i * 3] = g;
+            flat.px[i * 3 + 1] = g;
+            flat.px[i * 3 + 2] = g;
+        }
+        var big = try resize(&flat, bw * 2, bh * 2);
+        defer big.free();
+        const path = try std.fmt.allocPrint(a, "{s}_{d}.bmp", .{ out_prefix, bands.items.len + 1 });
+        try writeBmp(path, &big);
+        try bands.append(a, .{ .x0 = x0, .y0 = y0, .x1 = x1, .y1 = y1 });
+        try paths.append(a, path);
+    }
+    res.bands = try bands.toOwnedSlice(a);
+    res.paths = try paths.toOwnedSlice(a);
+    return res;
+}
+
 // --------------------------------------------------------------------------------------------- deskew (O4)
 
 // A phone's scan is turned a little: half a degree turns a table's ruled line into a staircase of short runs and

@@ -421,9 +421,16 @@ class stzPdf from stzObject
 				if _aPrep_[4] = 1 _cImg_ = _cImg_ + "_prepared.bmp" ok
 			ok
 			_aL_ = StzOcrLinesWithBoxes(_cImg_, pcLang)
-			@aOcrBy + [ _i_, $cStzOcrLinesBy, ring_len(_aL_), _nSkew_, _bSharp_ ]
-			# what the page shows besides its letters (rules, bullets, shadings) and each line's stroke width
+			_cBy_ = $cStzOcrLinesBy
 			_nPpt_ = This.ImagePixelsPerPoint(_nImg_)
+			# light text on a dark band is read again by the model when the platform read the page
+			_nBands_ = 0
+			if _cBy_ = "platform"
+				_aL_ = StzOcrWithDarkBands(_cImg_, _nPpt_, _aL_, pcLang)
+				_nBands_ = $nStzOcrDarkBandsRead
+			ok
+			@aOcrBy + [ _i_, _cBy_, ring_len(_aL_), _nSkew_, _bSharp_, _nBands_ ]
+			# what the page shows besides its letters (rules, bullets, shadings) and each line's stroke width
 			_cBoxes_ = ""
 			_nL_ = ring_len(_aL_)
 			for _k_ = 1 to _nL_
@@ -451,6 +458,8 @@ class stzPdf from stzObject
 				if ring_len(_aBx_) = 4
 					_nSt_ = 0
 					if _k_ <= ring_len(_aStrokes_) _nSt_ = _aStrokes_[_k_] ok
+					# (a line on a dark band: light letters, no ink to measure)
+					if HasKey(_aL_[_k_], :band) _nSt_ = 0 ok
 					StzEnginePdfOcrAdd(_i_, _aBx_[1], _aBx_[2], _aBx_[3], _aBx_[4], _aL_[_k_][:text], _aL_[_k_][:tight], _nSt_)
 				ok
 			next
@@ -478,9 +487,10 @@ class stzPdf from stzObject
 
 	# Returns which implementation read each scanned page in the last re-read.
 	#
-	#   returns    a list of [ nPage, cImplementation, nLines, nSkew, bSharpened ] per page
+	#   returns    a list of [ nPage, cImplementation, nLines, nSkew, bSharpened, nDarkBands ] per page
 	#   note       the implementation is "platform" or "ppocr"; nSkew is the degrees the page was turned level by,
-	#              0 when it was level; bSharpened is 1 when the page was soft and read from a sharpened copy
+	#              0 when it was level; bSharpened is 1 when the page was soft and read from a sharpened copy;
+	#              nDarkBands is how many dark bands holding light text the model read again (StzOcrWithDarkBands)
 	def OcrPages()
 		return @aOcrBy
 

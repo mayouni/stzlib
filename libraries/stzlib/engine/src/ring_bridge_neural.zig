@@ -688,6 +688,30 @@ fn ring_OcrPrepare(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// StzEngineNeuralOcrDarkBands(cImage, nPixelsPerPoint, cOutPrefix) -> [ [ nX0, nY0, nX1, nY1, cFile ], ... ] (O4):
+// the dark bands of a scanned page that hold light text, in the image's pixels, each written to cFile
+// (<cOutPrefix>_<n>.bmp) as dark text on light, enlarged twice, for the PP-OCR model to read; [] when there is none
+// or on failure (StzEngineNeuralOcrGraphError says why)
+fn ring_OcrDarkBands(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const ppt: f32 = @floatCast(R.ring_vm_api_getnumber(p, 2));
+    var r = ocrp.darkBands(ocrArg(p, 1), if (ppt > 0) ppt else 150.0 / 72.0, ocrArg(p, 3)) catch |e| {
+        if (ocrg.lastError().len == 0) ocrg.setError("{s}", .{@errorName(e)});
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    defer r.free();
+    for (r.bands, r.paths) |b, path| {
+        const row = R.ring_list_newlist(out) orelse break;
+        R.ring_list_adddouble(row, @floatFromInt(b.x0));
+        R.ring_list_adddouble(row, @floatFromInt(b.y0));
+        R.ring_list_adddouble(row, @floatFromInt(b.x1));
+        R.ring_list_adddouble(row, @floatFromInt(b.y1));
+        R.ring_list_addstring2(row, path.ptr, @intCast(path.len));
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
 fn ring_OcrGraphError(p: *anyopaque) callconv(.c) void {
     const e = ocrg.lastError();
     R.ring_vm_api_retstring2(p, e.ptr, @intCast(e.len));
@@ -703,6 +727,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralocrmarks", .func = &ring_OcrMarks },
     .{ .name = "stzengineneuralocrdeskew", .func = &ring_OcrDeskew },
     .{ .name = "stzengineneuralocrprepare", .func = &ring_OcrPrepare },
+    .{ .name = "stzengineneuralocrdarkbands", .func = &ring_OcrDarkBands },
     .{ .name = "stzenginegbnfbegin", .func = &ring_GbnfBegin },
     .{ .name = "stzenginegbnffield", .func = &ring_GbnfField },
     .{ .name = "stzenginegbnfcompile", .func = &ring_GbnfCompile },
