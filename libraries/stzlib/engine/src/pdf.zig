@@ -2087,7 +2087,7 @@ fn ocrFragments(a: Allocator, pg: Page, page_no: u32, ocr: []const OcrLine, out:
     // STZ_PDF_OCR_TRACE=1 prints each OCR fragment: size, stroke ratio against the page's median, bold, mono, text
     if (std.process.hasNonEmptyEnvVarConstant("STZ_PDF_OCR_TRACE")) {
         for (out.items[first..]) |f| {
-            std.debug.print("[ocr frag] size {d:.1} bold {} mono {} | {s}\n", .{ f.size, f.bold, f.mono, f.text });
+            std.debug.print("[ocr frag] size {d:.1} bold {} mono {} width {d:.0} | {s}\n", .{ f.size, f.bold, f.mono, f.x1 - f.x0, f.text });
         }
         std.debug.print("[ocr frag] page median stroke {d:.3}\n", .{med});
     }
@@ -6899,13 +6899,16 @@ pub fn readOcr(gpa: Allocator, bytes: []const u8, ocr: []const OcrLine, marks: [
     var blocks: std.ArrayList(Block) = .empty;
     var all_frags: std.ArrayList(Frag) = .empty;
     var frag_page_start: std.ArrayList(usize) = .empty;
+    var ocr_read: std.ArrayList(bool) = .empty; // per page: its text was read through OCR
     for (page_list.items, 0..) |pg_read, pi| {
         // a scanned page (no glyph) read through OCR also takes the rules, dots and fills found in its pixels
         const pg = if (pg_read.glyphs.len == 0 and marks.len > 0) try withOcrMarks(a, pg_read, @intCast(pi + 1), marks) else pg_read;
         try frag_page_start.append(a, all_frags.items.len);
         var frags: std.ArrayList(Frag) = .empty;
         try fragments(a, pg, @intCast(pi + 1), tb, &frags);
-        if (frags.items.len == 0 and ocr.len > 0) try ocrFragments(a, pg, @intCast(pi + 1), ocr, &frags);
+        const by_ocr = frags.items.len == 0 and ocr.len > 0;
+        if (by_ocr) try ocrFragments(a, pg, @intCast(pi + 1), ocr, &frags);
+        try ocr_read.append(a, by_ocr and frags.items.len > 0);
         for (frags.items) |*f| {
             const rtl = isRtlCp(firstCp(f.text));
             for (pg.dots) |dt| {
@@ -7252,10 +7255,13 @@ pub fn readOcr(gpa: Allocator, bytes: []const u8, ocr: []const OcrLine, marks: [
         const short = b.text.len <= 160;
         const ends = b.text.len > 0 and (b.text[b.text.len - 1] == '.' or b.text[b.text.len - 1] == ':' or b.text[b.text.len - 1] == ',');
         const plain_head = b.lines == 1 and !ends and body > 0 and b.size >= 1.1 * body and wordCount(b.text) <= 6 and b.y1 > 0;
+        // a size read from a scan's box holds about 3% either way, so a ratio of two of them about 5%: a bold line of
+        // the body's size (a 10-pt sub-heading over 10.5-pt text, 0.952) reads anywhere from 0.90 to 1.0 of it
+        const bold_floor: f32 = if (b.page >= 1 and b.page <= ocr_read.items.len and ocr_read.items[b.page - 1]) 0.90 else 0.95;
         if (body > 0 and (b.size >= 1.15 * body or plain_head) and short) {
             b.kind = .heading;
             try hsizes.append(a, b.size);
-        } else if (b.bold and short and !ends and (b.size >= 0.95 * body or (firstCp(b.text) >= 0x0600 and firstCp(b.text) <= 0x06FF and b.size >= 0.85 * body)) and b.lines == 1) {
+        } else if (b.bold and short and !ends and (b.size >= bold_floor * body or (firstCp(b.text) >= 0x0600 and firstCp(b.text) <= 0x06FF and b.size >= 0.85 * body)) and b.lines == 1) {
             // (an Arabic heading's face may look larger at a smaller size than the body's: 14 pt bold over 16 pt)
             b.kind = .heading;
             try hsizes.append(a, b.size);

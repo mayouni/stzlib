@@ -12,7 +12,7 @@
 # 13 of the same kind; Arabic golden_v35/y11 16 of 16, 13; Russian golden_v33/u06 18 of 26, 16. Measured 2026-10-31,
 # after the O4 gaps and the header band: French 14 of 14, 14; Arabic 16 of 16, 15; Russian 26 of 26, 23. What a scan
 # does not give back yet: two list markers the recogniser drops (u06's old-style "1)" and "3)"), a code block of one
-# line, and on a phone photo a bold sub-heading of the body's size (its long lines read larger than they are).
+# line, and an Arabic line's size grows with its length (its box spans the tallest mark and the deepest tail).
 #
 # Small text: the platform misreads text under about 40 pixels high and a run of small words beside large ones,
 # so the floor reads such pages enlarged and such runs on their own (bridge v4, 2026-10-31): on the 14 French and
@@ -144,6 +144,10 @@ if StzOcrPlatformHas("fr-FR")
 		Then("the two timetables are still two tables", countKind(o, "table"), 2)
 		Then("each still opens on its header row: the photographed band bleeds past the rules, by a fifth of its height at most", tableOpensWith(o, "Arrêt 6h40") + tableOpensWith(o, "Arrêt 6h55"), 2)
 		Then("the page is read in PRINTED points: the 20-pt title is not 41 units of a pixel-sized page", sizeOf(o, "Plaine Mobilité") > 18 and sizeOf(o, "Plaine Mobilité") < 22, 1)
+		# a size read from a photo's boxes holds about 3% either way; the two bold 10-pt sub-headings over 10.5-pt text
+		# (0.952 of it) fell under the 0.95 bar and read as paragraphs -- a page read through OCR is given 0.90
+		Then("a bold sub-heading of the body's size is a heading", blockKind(o, "Direction Gare routière"), "heading")
+		Then("and the other one", blockKind(o, "Direction Hôpital Saint-Lazare"), "heading")
 		Then("the three notes are still list items", kindWith(o, "list_item", "Les horaires du samedi") + kindWith(o, "list_item", "Le bus s'arrête") + kindWith(o, "list_item", "Les poussettes"), 3)
 		Then("the footer is still the footer", countKind(o, "page_footer") >= 1, 1)
 	EndScenario()
