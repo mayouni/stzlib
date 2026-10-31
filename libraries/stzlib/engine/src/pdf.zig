@@ -1950,6 +1950,20 @@ fn ocrFragments(a: Allocator, pg: Page, page_no: u32, ocr: []const OcrLine, out:
         const by0 = best.y0 + l.y0 * sy;
         const by1 = best.y0 + l.y1 * sy;
         const n = std.unicode.utf8CountCodepoints(t) catch t.len;
+        // a lone letter standing on a dot the pixels show is that bullet, read as a letter ("e", "o" -- an enlarged
+        // read makes a bullet big enough to be one): the dot already gives the reader its marker
+        if (n == 1) {
+            var on_dot = false;
+            for (pg.dots) |dt| {
+                const cx = (dt.x0 + dt.x1) / 2;
+                const cy = (dt.y0 + dt.y1) / 2;
+                if (cx >= x0 - 1 and cx <= x1 + 1 and cy >= by0 - 1 and cy <= by1 + 1) {
+                    on_dot = true;
+                    break;
+                }
+            }
+            if (on_dot) continue;
+        }
         const size = if (l.tight) (if (hasDescender(t)) OCR_SIZE_PER_TIGHT_DESC else OCR_SIZE_PER_TIGHT_NODESC) * (by1 - by0) else ocrSize(x1 - x0, by1 - by0, n);
         const base = (by0 + by1) / 2 + 0.275 * size;
         try out.append(a, .{
