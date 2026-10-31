@@ -1726,10 +1726,12 @@ const Frag = struct {
 pub const OcrLine = struct { page: u32, x0: f32, y0: f32, x1: f32, y1: f32, text: []const u8, tight: bool = false, stroke: f32 = 0 };
 
 /// A mark recovered from a scanned page's pixels (O4), in the same image pixels as the OCR lines: a rule ('r'), a
-/// dot ('d') or a fill ('f') -- what a born-digital page draws as vector paths and the reader takes from them.
+/// dot ('d'), a fill ('f') or a panel ('p', a shading taller than a table row) -- what a born-digital page draws as vector paths and the reader takes from them.
 pub const OcrMark = struct { page: u32, kind: u8, x0: f32, y0: f32, x1: f32, y1: f32 };
 
-// a line is bold when its strokes, relative to its size, are this much wider than the page's median line's
+// a line is bold when its strokes are this much wider than the page's median line's (the stroke width measured to
+// a fraction of a pixel; measured on z09 and y11: bold lines 1.39-5.3 x the median, regular ones under 1.14 at their
+// 80th percentile)
 const OCR_BOLD_RATIO: f32 = 1.3;
 
 /// The image an OCR page was read from: its largest one, as stzPdf.PageImageFile saves it.
@@ -1751,6 +1753,7 @@ fn withOcrMarks(a: Allocator, pg: Page, page_no: u32, marks: []const OcrMark) !P
     var rules: std.ArrayList(Rule) = .empty;
     var dots: std.ArrayList(Rule) = .empty;
     var fills: std.ArrayList(Rule) = .empty;
+    var panels: std.ArrayList(Rule) = .empty;
     try rules.appendSlice(a, pg.rules);
     try dots.appendSlice(a, pg.dots);
     try fills.appendSlice(a, pg.fills);
@@ -1760,6 +1763,7 @@ fn withOcrMarks(a: Allocator, pg: Page, page_no: u32, marks: []const OcrMark) !P
         switch (m.kind) {
             'r' => try rules.append(a, r),
             'd' => try dots.append(a, r),
+            'p' => try panels.append(a, r),
             else => try fills.append(a, r),
         }
     }
@@ -1767,6 +1771,7 @@ fn withOcrMarks(a: Allocator, pg: Page, page_no: u32, marks: []const OcrMark) !P
     out.rules = rules.items;
     out.dots = dots.items;
     out.fills = fills.items;
+    out.panels = panels.items;
     return out;
 }
 
@@ -1818,6 +1823,62 @@ fn ocrSize(w: f32, h: f32, nchars: usize) f32 {
     return @min(by_h, by_w);
 }
 
+/// A list marker an OCR engine glued to its word ("2)Подключите", "a)шлюз", "1.Назначение") given back its space,
+/// so the reader's marker rules (a marker, then a space) see it: one or two digits, or one lower-case letter, then
+/// ")" -- or digits then "." -- directly followed by a letter.
+fn ocrMarkerSpace(a: Allocator, t: []const u8) ![]const u8 {
+    var view = std.unicode.Utf8View.init(t) catch return t;
+    var it = view.iterator();
+    var nd: usize = 0;
+    var nl: usize = 0;
+    var cut: usize = 0;
+    while (it.nextCodepointSlice()) |sl| {
+        const cp = std.unicode.utf8Decode(sl) catch return t;
+        if (cp >= '0' and cp <= '9' and nl == 0) {
+            nd += 1;
+            if (nd > 2) return t;
+            continue;
+        }
+        if (nd == 0 and nl == 0 and isLowerLetter(cp)) {
+            nl = 1;
+            continue;
+        }
+        if ((cp == ')' and (nd > 0 or nl > 0)) or (cp == '.' and nd > 0 and nl == 0)) {
+            cut = it.i;
+            break;
+        }
+        return t;
+    }
+    if (cut == 0 or cut >= t.len) return t;
+    const nxt_len = std.unicode.utf8ByteSequenceLength(t[cut]) catch return t;
+    if (cut + nxt_len > t.len) return t;
+    const nxt = std.unicode.utf8Decode(t[cut .. cut + nxt_len]) catch return t;
+    if (!(isLowerLetter(nxt) or isUpperLetter(nxt))) return t;
+    return std.mem.concat(a, u8, &.{ t[0..cut], " ", t[cut..] });
+}
+
+fn isLowerLetter(cp: u21) bool {
+    return (cp >= 'a' and cp <= 'z') or (cp >= 0x0430 and cp <= 0x045F) or (cp >= 0x03B1 and cp <= 0x03C9);
+}
+fn isUpperLetter(cp: u21) bool {
+    return (cp >= 'A' and cp <= 'Z') or (cp >= 0x0400 and cp <= 0x042F) or (cp >= 0x0391 and cp <= 0x03A9) or (cp >= 0xC0 and cp <= 0xDE);
+}
+
+// A character's advance in a proportional face, in em (Helvetica's metrics; other letters 0.55): the yardstick a
+// line's width is held against to tell a proportional face from a monospaced one.
+fn propAdvance(cp: u21) f32 {
+    return switch (cp) {
+        ' ', '.', ',', ':', ';', '!', '\'', '|', 'i', 'j', 'l', 'I', '[', ']', '(', ')', '/', 'f', 't' => 0.28,
+        'r', '-' => 0.33,
+        'm', 'M', 'W' => 0.83,
+        'w' => 0.72,
+        '=', '+', '<', '>', '~' => 0.58,
+        '0'...'9', '#', '$', '_', '?' => 0.56,
+        'A'...'H', 'J'...'L', 'N'...'V', 'X'...'Z' => 0.67,
+        else => 0.55,
+    };
+}
+
 /// The OCR lines of one page as reader fragments, placed in page space through the page's largest image. A
 /// fragment keeps the born-digital geometry: its baseline is 0.8 of its size below its top and 0.25 above its
 /// bottom, centred on the OCR box.
@@ -1825,12 +1886,11 @@ fn ocrFragments(a: Allocator, pg: Page, page_no: u32, ocr: []const OcrLine, out:
     const best = ocrImage(pg) orelse return;
     const sx = (best.x1 - best.x0) / @as(f32, @floatFromInt(best.w));
     const sy = (best.y1 - best.y0) / @as(f32, @floatFromInt(best.h));
-    // the page's median stroke relative to size: the bar a bold line clears
+    // the page's median stroke: the bar a bold line clears
     var ratios: std.ArrayList(f32) = .empty;
     for (ocr) |l| {
         if (l.page != page_no or l.stroke <= 0) continue;
-        const h = (l.y1 - l.y0) * sy;
-        if (h > 0) try ratios.append(a, l.stroke * sy / h);
+        try ratios.append(a, l.stroke);
     }
     var med: f32 = 0;
     if (ratios.items.len > 0) {
@@ -1839,9 +1899,10 @@ fn ocrFragments(a: Allocator, pg: Page, page_no: u32, ocr: []const OcrLine, out:
     }
     const first = out.items.len;
     var tights: std.ArrayList(bool) = .empty;
+    var widths: std.ArrayList([3]f32) = .empty; // per fragment: core width, characters, proportional ems
     for (ocr) |l| {
         if (l.page != page_no) continue;
-        const t = trimSpace(l.text);
+        const t = try ocrMarkerSpace(a, trimSpace(l.text));
         if (t.len == 0) continue;
         const x0 = best.x0 + l.x0 * sx;
         const x1 = best.x0 + l.x1 * sx;
@@ -1858,11 +1919,122 @@ fn ocrFragments(a: Allocator, pg: Page, page_no: u32, ocr: []const OcrLine, out:
             .y0 = base - 0.8 * size,
             .y1 = base + 0.25 * size,
             .size = size,
-            .bold = med > 0 and l.stroke > 0 and (l.stroke * sy / ((l.y1 - l.y0) * sy)) > OCR_BOLD_RATIO * med,
+            .bold = med > 0 and l.stroke > OCR_BOLD_RATIO * med,
             .mono = false,
             .text = try a.dupe(u8, t),
         });
         try tights.append(a, l.tight);
+        // the width of the line's letters: a detector's box with its growth taken off
+        var cw = x1 - x0;
+        if (!l.tight) {
+            const hh = by1 - by0;
+            var lo: f32 = 0.01;
+            var hi: f32 = hh;
+            for (0..60) |_| {
+                const h0 = (lo + hi) / 2;
+                const d = (hh - h0) / 2;
+                const w0 = cw - 2 * d;
+                if (OCR_UNCLIP * w0 * h0 / (2 * (w0 + h0)) - d > 0) hi = h0 else lo = h0;
+            }
+            cw -= hh - lo;
+        }
+        var ems: f32 = 0;
+        var view = std.unicode.Utf8View.init(t) catch unreachable;
+        var it = view.iterator();
+        while (it.nextCodepoint()) |cp| ems += propAdvance(cp);
+        try widths.append(a, .{ cw, @floatFromInt(n), ems });
+    }
+    // MONOSPACE: OCR does not say a face is monospaced, but a block of lines shows it -- in a monospaced face a line's
+    // width follows its number of characters, in a proportional one the sum of their advances. The lines that sit in
+    // one shading (a code block's) are held against both: monospaced when width per character varies less across
+    // them than width per proportional em -- clearly less, under 0.6 of it (the size cancels between lines of one
+    // block). A block is three lines or more on two baselines or more; a lone line is never called monospaced (its
+    // size is too loose an estimate to tell 0.6 em a character from its advances).
+    const shadings = try std.mem.concat(a, Rule, &.{ pg.fills, pg.panels });
+    for (shadings) |fl| {
+        var ids: std.ArrayList(usize) = .empty;
+        for (out.items[first..], 0..) |f, fi| {
+            const cx = (f.x0 + f.x1) / 2;
+            const cy = (f.y0 + f.y1) / 2;
+            if (cx >= fl.x0 and cx <= fl.x1 and cy >= fl.y0 and cy <= fl.y1 and widths.items[fi][1] >= 4) try ids.append(a, fi);
+        }
+        if (ids.items.len < 3) continue;
+        // a block of code has lines on more than one baseline: a title band, a table's header row or its cells sit
+        // on one (measured: golden_v36/z09's title band read as code until this)
+        var lines_n: usize = 1;
+        {
+            const b0 = out.items[first + ids.items[0]].base;
+            for (ids.items[1..]) |fi| {
+                if (@abs(out.items[first + fi].base - b0) > 0.5 * out.items[first + fi].size) {
+                    lines_n = 2;
+                    break;
+                }
+            }
+        }
+        if (lines_n < 2) continue;
+        var mono = false;
+        {
+            var m1: f32 = 0;
+            var m2: f32 = 0;
+            for (ids.items) |fi| {
+                m1 += widths.items[fi][0] / widths.items[fi][1];
+                m2 += widths.items[fi][0] / widths.items[fi][2];
+            }
+            const k: f32 = @floatFromInt(ids.items.len);
+            m1 /= k;
+            m2 /= k;
+            var v1: f32 = 0;
+            var v2: f32 = 0;
+            for (ids.items) |fi| {
+                const d1 = widths.items[fi][0] / widths.items[fi][1] / m1 - 1;
+                const d2 = widths.items[fi][0] / widths.items[fi][2] / m2 - 1;
+                v1 += d1 * d1;
+                v2 += d2 * d2;
+            }
+            mono = v1 < 0.6 * v2;
+        }
+        if (mono) {
+            for (ids.items) |fi| out.items[first + fi].mono = true;
+        }
+    }
+    // a monospaced line read in pieces (a statement and its comment, set apart by spaces) is one line of code: the
+    // pieces on one baseline are joined, the gap given back as the spaces one character wide each that make it
+    {
+        var i: usize = first;
+        while (i < out.items.len) : (i += 1) {
+            const l = &out.items[i];
+            if (!l.mono or l.text.len == 0) continue;
+            var j: usize = first;
+            while (j < out.items.len) : (j += 1) {
+                if (j == i) continue;
+                const r = &out.items[j];
+                if (!r.mono or r.text.len == 0 or r.x0 <= l.x1) continue;
+                if (@abs(r.base - l.base) > 0.3 * l.size) continue;
+                const nl = std.unicode.utf8CountCodepoints(l.text) catch l.text.len;
+                const cw = (l.x1 - l.x0) / @as(f32, @floatFromInt(@max(nl, 1)));
+                const gap: usize = @intFromFloat(@max(1, @round((r.x0 - l.x1) / @max(cw, 0.1))));
+                const sp = try a.alloc(u8, @min(gap, 60));
+                @memset(sp, ' ');
+                l.text = try std.mem.concat(a, u8, &.{ l.text, sp, r.text });
+                l.x1 = r.x1;
+                r.text = "";
+            }
+        }
+        var k: usize = first;
+        while (k < out.items.len) {
+            if (out.items[k].text.len == 0) {
+                _ = out.orderedRemove(k);
+                _ = tights.orderedRemove(k - first);
+                _ = widths.orderedRemove(k - first);
+            } else k += 1;
+        }
+    }
+    // STZ_PDF_OCR_TRACE=1 prints each OCR fragment: size, stroke ratio against the page's median, bold, mono, text
+    if (std.process.hasNonEmptyEnvVarConstant("STZ_PDF_OCR_TRACE")) {
+        for (out.items[first..]) |f| {
+            std.debug.print("[ocr frag] size {d:.1} bold {} mono {} | {s}\n", .{ f.size, f.bold, f.mono, f.text });
+        }
+        std.debug.print("[ocr frag] page median stroke {d:.3}\n", .{med});
     }
     // a detector's box can swallow the bullet that opens its line: the line then starts after the dot, so the
     // reader's own bullet rule (a dot just left of a line, on its middle) sees it. A word-tight box starts at its
@@ -2886,7 +3058,8 @@ fn persianDigits(a: Allocator, t: []const u8) ![]const u8 {
     return if (changed) out.items else t;
 }
 
-const Page = struct { glyphs: []Glyph, rules: []Rule, dots: []Rule, fills: []Rule = &.{}, images: []ImageRef = &.{}, width: f32, height: f32 };
+// panels: tall shaded boxes recovered from a scanned page's pixels (O4), read only by the OCR monospace test
+const Page = struct { glyphs: []Glyph, rules: []Rule, dots: []Rule, fills: []Rule = &.{}, images: []ImageRef = &.{}, width: f32, height: f32, panels: []Rule = &.{} };
 
 fn trimSpace(t: []const u8) []const u8 {
     var s0: usize = 0;

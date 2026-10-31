@@ -169,6 +169,15 @@ fn resize(src: *const Image, dw: usize, dh: usize) !Image {
     return dst;
 }
 
+// A margin added left and right of each line before it is recognised, as a fraction of the line's height:
+// STZ_OCR_CROP_PAD=<fraction>, for measuring (a narrow first glyph at a crop's very edge can be lost by CTC).
+fn cropPad() f64 {
+    var buf: [16]u8 = undefined;
+    var fba = std.heap.FixedBufferAllocator.init(&buf);
+    const v = std.process.getEnvVarOwned(fba.allocator(), "STZ_OCR_CROP_PAD") catch return 0;
+    return std.fmt.parseFloat(f64, v) catch 0;
+}
+
 fn round32(v: f64) usize {
     const r = @round(v / 32.0) * 32.0;
     return if (r < 32) 32 else @intFromFloat(r);
@@ -660,7 +669,8 @@ pub fn read(models_dir: []const u8, rec_file: []const u8, image_path: []const u8
         const cw: usize = @intFromFloat(@trunc(b.x1 - b.x0));
         const ch: usize = @intFromFloat(@trunc(b.y1 - b.y0));
         if (cw == 0 or ch == 0) continue;
-        var im = try crop(&page, @intFromFloat(b.x0), @intFromFloat(b.y0), cw, ch);
+        const padx: usize = @intFromFloat(@round(cropPad() * @as(f64, @floatFromInt(ch))));
+        var im = try crop(&page, @as(i64, @intFromFloat(b.x0)) - @as(i64, @intCast(padx)), @intFromFloat(b.y0), cw + 2 * padx, ch);
         defer im.free();
         if (@as(f64, @floatFromInt(im.h)) / @as(f64, @floatFromInt(im.w)) >= 1.5) {
             const r = try rot90(&im);
@@ -937,9 +947,11 @@ pub fn marksOf(image_path: []const u8, ppt: f32, boxes: []const [4]f32) !Marks {
     for (tint) |cc| {
         const fw: f32 = @floatFromInt(cc.x1 - cc.x0 + 1);
         const fh: f32 = @floatFromInt(cc.y1 - cc.y0 + 1);
-        if (fw < 20 * ppt or fh < 5 * ppt or fh > 80 * ppt) continue;
+        if (fw < 20 * ppt or fh < 5 * ppt or fh > 600 * ppt) continue;
         if (@as(f32, @floatFromInt(cc.n)) < 0.8 * fw * fh) continue;
-        try out.append(a, .{ .kind = 'f', .x0 = @floatFromInt(cc.x0), .y0 = @floatFromInt(cc.y0), .x1 = @floatFromInt(cc.x1 + 1), .y1 = @floatFromInt(cc.y1 + 1) });
+        // a shading taller than 80 pt is a PANEL (a code block's box, a sidebar), not a table row's band: the
+        // reader's row rules never see it, the monospace test does
+        try out.append(a, .{ .kind = if (fh > 80 * ppt) 'p' else 'f', .x0 = @floatFromInt(cc.x0), .y0 = @floatFromInt(cc.y0), .x1 = @floatFromInt(cc.x1 + 1), .y1 = @floatFromInt(cc.y1 + 1) });
     }
     const fills = try a.dupe(Mark, out.items);
     // rules: a horizontal one at least 28 pt long, a vertical one at least 19 pt (longer than any letter's stroke at
@@ -976,36 +988,91 @@ pub fn marksOf(image_path: []const u8, ppt: f32, boxes: []const [4]f32) !Marks {
         try out.append(a, .{ .kind = 'd', .x0 = @floatFromInt(cc.x0), .y0 = @floatFromInt(cc.y0), .x1 = @floatFromInt(cc.x1 + 1), .y1 = @floatFromInt(cc.y1 + 1) });
     }
     res.marks = try out.toOwnedSlice(a);
-    // strokes: in each line's box, the median length of the horizontal runs of ink (a bold face's strokes are wider)
+    // strokes: in each line's box, the width of its strokes to a fraction of a pixel -- the darkness of its ink (grey
+    // edges counted in part) over the length of its strokes' middle line (the ridge of a chamfer distance transform).
+    // A bold face's strokes are wider at the same size; whole-pixel measures (the median run of ink, the ridge
+    // distance alone) could not see Arabic bold at 150 dpi, where bold and regular strokes are both about 2 px
     const strokes = try a.alloc(f32, boxes.len);
-    var runs: std.ArrayList(u16) = .empty;
+    const paper_f: f32 = @floatFromInt(@as(u16, lv.tint) + 6);
     for (boxes, 0..) |b, bi| {
-        runs.clearRetainingCapacity();
         const bx0: usize = @intFromFloat(std.math.clamp(b[0], 0, @as(f32, @floatFromInt(w - 1))));
         const bx1: usize = @intFromFloat(std.math.clamp(b[2], 0, @as(f32, @floatFromInt(w))));
         const by0: usize = @intFromFloat(std.math.clamp(b[1], 0, @as(f32, @floatFromInt(h - 1))));
         const by1: usize = @intFromFloat(std.math.clamp(b[3], 0, @as(f32, @floatFromInt(h))));
-        const cap: usize = @max(1, (by1 -| by0) / 2);
-        var yy = by0;
-        while (yy < by1) : (yy += 1) {
-            var xx = bx0;
-            while (xx < bx1) {
-                if (gray[yy * w + xx] >= lv.stroke) {
-                    xx += 1;
-                    continue;
-                }
-                const s = xx;
-                while (xx < bx1 and gray[yy * w + xx] < lv.stroke) xx += 1;
-                const len = xx - s;
-                if (len <= cap) try runs.append(a, @intCast(len));
-            }
-        }
-        if (runs.items.len == 0) {
+        if (bx1 <= bx0 + 2 or by1 <= by0 + 2) {
             strokes[bi] = 0;
             continue;
         }
-        std.sort.pdq(u16, runs.items, {}, std.sort.asc(u16));
-        strokes[bi] = @floatFromInt(runs.items[runs.items.len / 2]);
+        const bw = bx1 - bx0;
+        const bh = by1 - by0;
+        const d = try a.alloc(u16, bw * bh);
+        defer a.free(d);
+        var dark: f32 = 0;
+        for (0..bh) |y| {
+            for (0..bw) |x| {
+                const g = gray[(by0 + y) * w + bx0 + x];
+                d[y * bw + x] = if (g < lv.stroke) 60000 else 0;
+                const v: f32 = (paper_f - @as(f32, @floatFromInt(g))) / paper_f;
+                if (v > 0) dark += v;
+            }
+        }
+        // chamfer 3-4 distance to the nearest paper pixel: a pass down and right, a pass up and left
+        for (0..bh) |y| {
+            for (0..bw) |x| {
+                const i = y * bw + x;
+                if (d[i] == 0) continue;
+                var m: u16 = d[i];
+                if (x > 0) m = @min(m, d[i - 1] +| 3);
+                if (y > 0) {
+                    m = @min(m, d[i - bw] +| 3);
+                    if (x > 0) m = @min(m, d[i - bw - 1] +| 4);
+                    if (x + 1 < bw) m = @min(m, d[i - bw + 1] +| 4);
+                }
+                d[i] = m;
+            }
+        }
+        var yy: usize = bh;
+        while (yy > 0) {
+            yy -= 1;
+            var xx: usize = bw;
+            while (xx > 0) {
+                xx -= 1;
+                const i = yy * bw + xx;
+                if (d[i] == 0) continue;
+                var m: u16 = d[i];
+                if (xx + 1 < bw) m = @min(m, d[i + 1] +| 3);
+                if (yy + 1 < bh) {
+                    m = @min(m, d[i + bw] +| 3);
+                    if (xx + 1 < bw) m = @min(m, d[i + bw + 1] +| 4);
+                    if (xx > 0) m = @min(m, d[i + bw - 1] +| 4);
+                }
+                d[i] = m;
+            }
+        }
+        // the ridge: ink pixels no nearer the paper than any neighbour
+        var ridge: usize = 0;
+        for (0..bh) |y| {
+            for (0..bw) |x| {
+                const v = d[y * bw + x];
+                if (v == 0) continue;
+                var top = true;
+                var dy: i32 = -1;
+                while (dy <= 1 and top) : (dy += 1) {
+                    var dx: i32 = -1;
+                    while (dx <= 1) : (dx += 1) {
+                        const ny = @as(i64, @intCast(y)) + dy;
+                        const nx = @as(i64, @intCast(x)) + dx;
+                        if (ny < 0 or nx < 0 or ny >= @as(i64, @intCast(bh)) or nx >= @as(i64, @intCast(bw))) continue;
+                        if (d[@as(usize, @intCast(ny)) * bw + @as(usize, @intCast(nx))] > v) {
+                            top = false;
+                            break;
+                        }
+                    }
+                }
+                if (top) ridge += 1;
+            }
+        }
+        strokes[bi] = if (ridge == 0) 0 else dark / @as(f32, @floatFromInt(ridge));
     }
     res.strokes = strokes;
     return res;

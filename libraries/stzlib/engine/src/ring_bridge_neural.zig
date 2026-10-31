@@ -611,7 +611,7 @@ fn ring_OcrStats(p: *anyopaque) callconv(.c) void {
 }
 
 // StzEngineNeuralOcrMarks(cImage, nPixelsPerPoint, cBoxes) -> [ aMarks, aStrokes ] (O4): what a scanned page shows
-// besides its letters -- each mark [ cKind ("rule", "dot", "fill"), nX0, nY0, nX1, nY1 ] in the image's pixels --
+// besides its letters -- each mark [ cKind ("rule", "dot", "fill", "panel"), nX0, nY0, nX1, nY1 ] in the image's pixels --
 // and, for each box of cBoxes ("x0 y0 x1 y1;..." -- the OCR lines), the median width of its ink strokes in pixels;
 // [] on failure (StzEngineNeuralOcrGraphError says why)
 fn ring_OcrMarks(p: *anyopaque) callconv(.c) void {
@@ -642,6 +642,7 @@ fn ring_OcrMarks(p: *anyopaque) callconv(.c) void {
         const kn: []const u8 = switch (m.kind) {
             'r' => "rule",
             'd' => "dot",
+            'p' => "panel",
             else => "fill",
         };
         R.ring_list_addstring2(row, kn.ptr, @intCast(kn.len));
