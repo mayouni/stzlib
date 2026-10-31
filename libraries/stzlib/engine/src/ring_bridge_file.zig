@@ -183,9 +183,10 @@ fn ring_PdfOcrClear(p: *anyopaque) callconv(.c) void {
     rn(p, 1);
 }
 
-// StzEnginePdfOcrAdd(nPage, nX0, nY0, nX1, nY1, cText, bTight, nStroke) -- one OCR line: its box in the pixels of
+// StzEnginePdfOcrAdd(nPage, nX0, nY0, nX1, nY1, cText, bTight, nStroke [, nMidTop, nMidBottom]) -- one OCR line: its box in the pixels of
 // the page's largest image (y down), its text in logical order, bTight 1 for a word-tight box (the platform), 0 for
-// a text detector's grown box (PP-OCR), nStroke the median width of its ink strokes in pixels (0 unknown);
+// a text detector's grown box (PP-OCR), nStroke the median width of its ink strokes in pixels (0 unknown), and
+// nMidTop/nMidBottom the median of its words' tops and bottoms (an Arabic line's size is read from them);
 // -> the number of lines held
 fn ring_PdfOcrAdd(p: *anyopaque) callconv(.c) void {
     const a = g_ocr_arena.allocator();
@@ -202,6 +203,8 @@ fn ring_PdfOcrAdd(p: *anyopaque) callconv(.c) void {
         .text = text,
         .tight = g(p, 7) != 0,
         .stroke = @floatCast(g(p, 8)),
+        .mid0 = if (R.ring_vm_api_paracount(p) >= 10) @floatCast(g(p, 9)) else 0,
+        .mid1 = if (R.ring_vm_api_paracount(p) >= 10) @floatCast(g(p, 10)) else 0,
     }) catch {
         rn(p, -1);
         return;

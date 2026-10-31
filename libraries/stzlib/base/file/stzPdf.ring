@@ -460,7 +460,14 @@ class stzPdf from stzObject
 					if _k_ <= ring_len(_aStrokes_) _nSt_ = _aStrokes_[_k_] ok
 					# (a line on a dark band: light letters, no ink to measure)
 					if HasKey(_aL_[_k_], :band) _nSt_ = 0 ok
-					StzEnginePdfOcrAdd(_i_, _aBx_[1], _aBx_[2], _aBx_[3], _aBx_[4], _aL_[_k_][:text], _aL_[_k_][:tight], _nSt_)
+					# (the middle of a platform line's words: an Arabic line's size is read from it)
+					_nMt_ = 0
+					_nMb_ = 0
+					if HasKey(_aL_[_k_], :mid) and ring_len(_aL_[_k_][:mid]) = 2
+						_nMt_ = _aL_[_k_][:mid][1]
+						_nMb_ = _aL_[_k_][:mid][2]
+					ok
+					StzEnginePdfOcrAdd(_i_, _aBx_[1], _aBx_[2], _aBx_[3], _aBx_[4], _aL_[_k_][:text], _aL_[_k_][:tight], _nSt_, _nMt_, _nMb_)
 				ok
 			next
 		next

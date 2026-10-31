@@ -1723,7 +1723,8 @@ const Frag = struct {
 /// which it grew by its unclip (PP-OCR): the size is estimated differently for each.
 /// `stroke` is the median width of the line's ink strokes in pixels (0 unknown): a line whose strokes are clearly
 /// wider than the page's is set in bold.
-pub const OcrLine = struct { page: u32, x0: f32, y0: f32, x1: f32, y1: f32, text: []const u8, tight: bool = false, stroke: f32 = 0 };
+/// mid0/mid1: the median of its words' tops and of their bottoms, in the same pixels (0 and 0 when not given)
+pub const OcrLine = struct { page: u32, x0: f32, y0: f32, x1: f32, y1: f32, text: []const u8, tight: bool = false, stroke: f32 = 0, mid0: f32 = 0, mid1: f32 = 0 };
 
 /// A mark recovered from a scanned page's pixels (O4), in the same image pixels as the OCR lines: a rule ('r'), a
 /// dot ('d'), a fill ('f') or a panel ('p', a shading taller than a table row) -- what a born-digital page draws as vector paths and the reader takes from them.
@@ -1831,9 +1832,29 @@ const OCR_UNCLIP: f32 = 1.6;
 // twin (24 lines): size = 1.04 x height with a descender, 1.28 x height without (ratios 1.02-1.04 and 1.23-1.34).
 const OCR_SIZE_PER_TIGHT_DESC: f32 = 1.04;
 const OCR_SIZE_PER_TIGHT_NODESC: f32 = 1.28;
+// An ARABIC line's word-tight box grows with its length: it runs from the highest mark above any word to the deepest
+// tail below any other, and the more words, the surer both extremes (golden_v35/y11: 11.5-pt text read 13.4-14.0 on a
+// 17-20 word line, 10.9 on a 7-word one), while "any Arabic letter descends" sizes a word with no tail 20% small. The
+// span from the median of its words' tops to the median of their bottoms does not grow with length: 1.17 x that span
+// read the same page's 11.5-pt lines 11.0-12.2 at every length (spread 0.060 of the size against the box's 0.088).
+const OCR_SIZE_PER_MEDIAN_ARABIC: f32 = 1.17;
 
 // a letter that goes below the baseline: Latin g j p q y, the cedilla, the comma and semicolon, brackets; Cyrillic
 // р у ф д ц щ; most Arabic letters (an Arabic line always has one)
+// a line most of whose letters are Arabic
+fn isArabicText(t: []const u8) bool {
+    var view = std.unicode.Utf8View.init(t) catch return false;
+    var it = view.iterator();
+    var ar: usize = 0;
+    var other: usize = 0;
+    while (it.nextCodepoint()) |cp| {
+        if ((cp >= 0x0620 and cp <= 0x064A) or (cp >= 0x066E and cp <= 0x06D3) or (cp >= 0xFB50 and cp <= 0xFEFC)) {
+            ar += 1;
+        } else if ((cp >= 'A' and cp <= 'Z') or (cp >= 'a' and cp <= 'z') or (cp >= '0' and cp <= '9') or (cp >= 0x00C0 and cp <= 0x04FF)) other += 1;
+    }
+    return ar > other;
+}
+
 fn hasDescender(t: []const u8) bool {
     var view = std.unicode.Utf8View.init(t) catch return true;
     var it = view.iterator();
@@ -1964,7 +1985,9 @@ fn ocrFragments(a: Allocator, pg: Page, page_no: u32, ocr: []const OcrLine, out:
             }
             if (on_dot) continue;
         }
-        const size = if (l.tight) (if (hasDescender(t)) OCR_SIZE_PER_TIGHT_DESC else OCR_SIZE_PER_TIGHT_NODESC) * (by1 - by0) else ocrSize(x1 - x0, by1 - by0, n);
+        const size = if (l.tight and l.mid1 > l.mid0 and isArabicText(t))
+            OCR_SIZE_PER_MEDIAN_ARABIC * (l.mid1 - l.mid0) * sy
+        else if (l.tight) (if (hasDescender(t)) OCR_SIZE_PER_TIGHT_DESC else OCR_SIZE_PER_TIGHT_NODESC) * (by1 - by0) else ocrSize(x1 - x0, by1 - by0, n);
         const base = (by0 + by1) / 2 + 0.275 * size;
         try out.append(a, .{
             .page = page_no,
@@ -7104,8 +7127,10 @@ pub fn readOcr(gpa: Allocator, bytes: []const u8, ocr: []const OcrLine, marks: [
             var join = false;
             if (cur) |b| {
                 var same_style = @abs(f.size - b.size) <= 0.15 * b.size and f.bold == b.bold and f.mono == b.mono and f.italic == b.italic;
-                // (a short line set larger than the one under it is a heading over it, however little larger: 13 pt over 11.5)
-                if (same_style and b.lines == 1 and b.kind == .paragraph and b.size > 1.08 * f.size and wordCount(cur_text.items) <= 6 and
+                // (a short line set larger than the one under it is a heading over it, however little larger: 13 pt over 11.5;
+                //  on a page read through OCR, whose sizes hold some 5% either way, 12.5 over 11.5 measured 1.056)
+                const over: f32 = if (b.page >= 1 and b.page <= ocr_read.items.len and ocr_read.items[b.page - 1]) 1.04 else 1.08;
+                if (same_style and b.lines == 1 and b.kind == .paragraph and b.size > over * f.size and wordCount(cur_text.items) <= 6 and
                     cur_text.items.len > 0 and std.mem.indexOfScalar(u8, ".,;:", cur_text.items[cur_text.items.len - 1]) == null) same_style = false;
                 const maxgap: f32 = if (b.mono and f.mono) 3.5 * f.size else 0.9 * f.size;
                 const below = f.page == b.page and f.y0 >= last.y0 + 0.3 * f.size and f.y0 - last.y1 <= maxgap;

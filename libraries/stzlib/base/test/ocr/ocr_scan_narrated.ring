@@ -12,7 +12,8 @@
 # 13 of the same kind; Arabic golden_v35/y11 16 of 16, 13; Russian golden_v33/u06 18 of 26, 16. Measured 2026-10-31,
 # after the O4 gaps and the header band: French 14 of 14, 14; Arabic 16 of 16, 15; Russian 26 of 26, 23. What a scan
 # does not give back yet: two list markers the recogniser drops (u06's old-style "1)" and "3)"), a code block of one
-# line, and an Arabic line's size grows with its length (its box spans the tallest mark and the deepest tail).
+# line, and a short 12.5-pt Arabic title over 11.5-pt text read as a heading (1.087 of the body, the bar 1.1).
+# An Arabic line's size is read from its words' median top and bottom (2026-10-31): its box grew with its length.
 #
 # Light text on a dark band is read again by the PP-OCR model (StzOcrWithDarkBands, 2026-10-31): the platform
 # reads white on navy worst of all.
@@ -81,6 +82,11 @@ if StzOcrPlatformHas("ar-SA")
 		Then("the footer's policy number reads as printed", kindWith(o, "page_footer", "وثيقة رقم HP-2026-48213"), 1)
 		Then("the small hotline beside the large title is read on its own: two numbers in the paragraph's order", kindWith(o, "page_header", "الخط الساخن 800 1234"), 1)
 		Then("the numbered exclusions are list items", countKind(o, "list_item") >= 2, 1)
+		# an Arabic line's box runs from the highest mark of any word to the deepest tail of any other, so it grew with
+		# the line: this 17-word line of 11.5-pt text read 14.0 -- its size now comes from its words' median top and bottom
+		Then("a long Arabic line reads near its 11.5 points", sizeOf(o, "تغطى المقتنيات الثمينة") > 10.5 and sizeOf(o, "تغطى المقتنيات الثمينة") < 13, 1)
+		Then("a one-word bold heading with no tail is a heading", blockKind(o, "الاستثناءات"), "heading")
+		Then("the 12.5-pt note title stands apart from the 11.5-pt paragraph under it", blockKind(o, "ملاحظة حول المقتنيات") != "", 1)
 		Then("the company's name in the top band is the page header", blockKind(o, "المكتب الرئيسي: شارع الاستقلال 25، المدينة الجديدة") = "page_header" or countKind(o, "page_header") >= 1, 1)
 	EndScenario()
 else

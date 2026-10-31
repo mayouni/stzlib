@@ -28,6 +28,9 @@ $cStzOcrLastSummary = ""
 # the box of each line the platform read, by image path and language, parallel to $aStzOcrCache's lines
 $aStzOcrBoxCache = []
 
+# the median of the words' tops and bottoms of each line the platform read, parallel to $aStzOcrBoxCache
+$aStzOcrMidCache = []
+
 # the implementation that answered the last StzOcrLinesWithBoxes: "platform" or "ppocr"
 $cStzOcrLinesBy = ""
 
@@ -299,6 +302,7 @@ func StzOcrPlatformLines(pcPath, pcLang)
 	_bRtl_ = StzOcrLanguageIsRtl(pcLang)
 	_aLines_ = []
 	_aBoxes_ = []
+	_aMids_ = []
 	_aRaw_ = split(_cText_, char(10))
 	_nR_ = len(_aRaw_)
 	for _i_ = 1 to _nR_
@@ -308,15 +312,19 @@ func StzOcrPlatformLines(pcPath, pcLang)
 			if _bRtl_ _cL_ = _StzOcrPlatformVisualLine(_cL_) ok
 			add(_aLines_, _cL_)
 			_aB_ = []
+			_aMd_ = []
 			if _i_ <= len(_aBoxRaw_)
 				_aF_ = split(trim(StzReplace(_aBoxRaw_[_i_], char(13), "")), " ")
-				if len(_aF_) = 4 _aB_ = [ 0 + _aF_[1], 0 + _aF_[2], 0 + _aF_[3], 0 + _aF_[4] ] ok
+				if len(_aF_) >= 4 _aB_ = [ 0 + _aF_[1], 0 + _aF_[2], 0 + _aF_[3], 0 + _aF_[4] ] ok
+				if len(_aF_) = 6 _aMd_ = [ 0 + _aF_[5], 0 + _aF_[6] ] ok
 			ok
 			add(_aBoxes_, _aB_)
+			add(_aMids_, _aMd_)
 		ok
 	next
 	add($aStzOcrCache, [ _cKey_, _aLines_ ])
 	add($aStzOcrBoxCache, [ _cKey_, _aBoxes_ ])
+	add($aStzOcrMidCache, [ _cKey_, _aMids_ ])
 	return _aLines_
 
 # The box of each line the platform read on one image, parallel to StzOcrPlatformLines: [ x0, y0, x1, y1 ] in the
@@ -328,6 +336,19 @@ func StzOcrPlatformBoxes(pcPath, pcLang)
 	_nC_ = len($aStzOcrBoxCache)
 	for _i_ = 1 to _nC_
 		if $aStzOcrBoxCache[_i_][1] = _cKey_ return $aStzOcrBoxCache[_i_][2] ok
+	next
+	return []
+
+# The middle of each line the platform read on one image, parallel to StzOcrPlatformLines: [ nTop, nBottom ], the
+# median of its words' tops and the median of their bottoms in the image's pixels ([ ] when not known). An Arabic
+# line's box grows with its length -- it reaches the highest mark and the deepest tail of any word -- and this span
+# does not.
+func StzOcrPlatformMids(pcPath, pcLang)
+	StzOcrPlatformLines(pcPath, pcLang)
+	_cKey_ = _StzOcrCacheKey(_StzOcrAbsolutePath(pcPath), pcLang)
+	_nC_ = len($aStzOcrMidCache)
+	for _i_ = 1 to _nC_
+		if $aStzOcrMidCache[_i_][1] = _cKey_ return $aStzOcrMidCache[_i_][2] ok
 	next
 	return []
 
@@ -345,8 +366,9 @@ func StzOcrImplementationFor(pcLang)
 
 # The lines of one image WITH THEIR BOXES, read by the implementation the :ocr faculty chooses for the language
 # (the registry, per language), in logical order: [ :text, :box = [x0, y0, x1, y1] in the image's pixels, :tight ]
-# -- :tight is 1 for word-tight boxes (the platform) and 0 for a detector's boxes (PP-OCR, grown by its unclip).
-# The implementation that answered is in $cStzOcrLinesBy.
+# -- :tight is 1 for word-tight boxes (the platform) and 0 for a detector's boxes (PP-OCR, grown by its unclip); a
+# platform line also has :mid = [ nTop, nBottom ] (StzOcrPlatformMids). The implementation that answered is in
+# $cStzOcrLinesBy.
 #
 #   pcImage    the image file
 #   pcLang     a language tag, or "" for the user's own languages
@@ -367,13 +389,16 @@ func StzOcrLinesWithBoxes(pcImage, pcLang)
 	ok
 	_aL_ = StzOcrPlatformLines(pcImage, pcLang)
 	_aB_ = StzOcrPlatformBoxes(pcImage, pcLang)
+	_aMd_ = StzOcrPlatformMids(pcImage, pcLang)
 	_cDir_ = "ltr"
 	if StzOcrLanguageIsRtl(pcLang) _cDir_ = "rtl" ok
 	_nL_ = len(_aL_)
 	for _i_ = 1 to _nL_
 		_aBx_ = []
 		if _i_ <= len(_aB_) _aBx_ = _aB_[_i_] ok
-		add(_aOut_, [ :text = StzOcrLogicalLineXT(_aL_[_i_], _cDir_), :box = _aBx_, :tight = 1 ])
+		_aM_ = []
+		if _i_ <= len(_aMd_) _aM_ = _aMd_[_i_] ok
+		add(_aOut_, [ :text = StzOcrLogicalLineXT(_aL_[_i_], _cDir_), :box = _aBx_, :tight = 1, :mid = _aM_ ])
 	next
 	return _aOut_
 
@@ -438,7 +463,9 @@ func StzOcrWithDarkBands(pcImage, pnPpt, paLines, pcLang)
 				_nCx_ = (_b_[1] + _b_[3]) / 2
 				_nCy_ = (_b_[2] + _b_[4]) / 2
 				if _nCx_ >= _aBd_[1] and _nCx_ <= _aBd_[3] and _nCy_ >= _aBd_[2] and _nCy_ <= _aBd_[4]
-					_aKeep_[_k_] = [ :text = _aKeep_[_k_][:text], :box = _b_, :tight = _aKeep_[_k_][:tight], :band = 1 ]
+					_aMk_ = []
+					if HasKey(_aKeep_[_k_], :mid) _aMk_ = _aKeep_[_k_][:mid] ok
+					_aKeep_[_k_] = [ :text = _aKeep_[_k_][:text], :box = _b_, :tight = _aKeep_[_k_][:tight], :mid = _aMk_, :band = 1 ]
 				ok
 			ok
 		next
@@ -501,9 +528,10 @@ func StzOcrLanguageIsRtl(pcLang)
 # reads the page as it stands, then -- when a quarter of its words stand under 40 pixels -- again, enlarged so
 # they reach it (at most 4x): below that height the platform takes 0 for O, 1 for l and drops whole digits. A
 # line that sets a run of small words beside large ones (a hotline beside a title) is read at the large words'
-# size, so the small run is read again on its own. Boxes come back in the image's own pixels.
+# size, so the small run is read again on its own. Boxes come back in the image's own pixels, each followed by the
+# median of its words' tops and of their bottoms (an Arabic line's size is read from those: StzOcrPlatformMids).
 func _StzOcrBridgePath()
-	_cP_ = sysget("TEMP") + "\stz_ocr_bridge_v4.ps1"
+	_cP_ = sysget("TEMP") + "\stz_ocr_bridge_v5.ps1"
 	if NOT fexists(_cP_)
 		write(_cP_, _StzOcrBridgeScript())
 	ok
@@ -511,7 +539,7 @@ func _StzOcrBridgePath()
 
 func _StzOcrBridgeScript()
 	_n_ = char(10)
-	return "# stz_ocr_bridge_v4.ps1 -- Softanza's :ocr floor on Windows: Windows.Media.Ocr, one image per call" + _n_ +
+	return "# stz_ocr_bridge_v5.ps1 -- Softanza's :ocr floor on Windows: Windows.Media.Ocr, one image per call" + _n_ +
 	"param([string]$Path = '', [string]$Lang = '', [string]$Out = '', [switch]$List, [double]$Target = 40)" + _n_ +
 	"$null = [Windows.Media.Ocr.OcrEngine, Windows.Foundation, ContentType=WindowsRuntime]" + _n_ +
 	"$null = [Windows.Graphics.Imaging.BitmapDecoder, Windows.Graphics.Imaging, ContentType=WindowsRuntime]" + _n_ +
@@ -578,7 +606,9 @@ func _StzOcrBridgeScript()
 	"  $lines += ($texts -join ' ')" + _n_ +
 	"  $x0 = 1e9; $y0 = 1e9; $x1 = 0; $y1 = 0" + _n_ +
 	"  foreach ($w in $ws) { $r = $w.BoundingRect; if ($r.X -lt $x0) { $x0 = $r.X }; if ($r.Y -lt $y0) { $y0 = $r.Y }; if ($r.X + $r.Width -gt $x1) { $x1 = $r.X + $r.Width }; if ($r.Y + $r.Height -gt $y1) { $y1 = $r.Y + $r.Height } }" + _n_ +
-	"  $boxes += ('{0} {1} {2} {3}' -f [int]($x0 / $k), [int]($y0 / $k), [int]($x1 / $k), [int]($y1 / $k))" + _n_ +
+	"  $tops = @($ws | ForEach-Object { $_.BoundingRect.Y } | Sort-Object); $bots = @($ws | ForEach-Object { $_.BoundingRect.Y + $_.BoundingRect.Height } | Sort-Object)" + _n_ +
+	"  $mt = 0; $mb = 0; if ($tops.Count -gt 0) { $lo = [int][math]::Floor(($tops.Count - 1) / 2); $hi = [int][math]::Ceiling(($tops.Count - 1) / 2); $mt = ($tops[$lo] + $tops[$hi]) / 2; $mb = ($bots[$lo] + $bots[$hi]) / 2 }" + _n_ +
+	"  $boxes += [string]::Format([Globalization.CultureInfo]::InvariantCulture, '{0} {1} {2} {3} {4:0.0} {5:0.0}', [int]($x0 / $k), [int]($y0 / $k), [int]($x1 / $k), [int]($y1 / $k), ($mt / $k), ($mb / $k))" + _n_ +
 	"}" + _n_ +
 	"$ms = $sw.ElapsedMilliseconds" + _n_ +
 	"$text = ($lines -join [string][char]10)" + _n_ +
