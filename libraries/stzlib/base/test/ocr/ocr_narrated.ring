@@ -159,6 +159,38 @@ else
 	? "SKIP: A scan goes end to end -- no fr-FR pack on this machine"
 ok
 
+# O5: the platform is called in process (StzEngineNeuralOcrPlatformRead). The script it replaces started a PowerShell
+# process per page and loaded WinRT's types in it: 480 ms a page, measured 2026-10-31 (1,000 ms a French page against
+# 520 of recognition). The script stays as the fallback, and STZ_OCR_BRIDGE=script still chooses it.
+if StzOcrPlatformHas("fr-FR")
+	Scenario("The platform is called in process, and the script still reads the same page")
+		cImg = $cDir + "z09_p1_150dpi.png"
+		$aStzOcrCache = []
+		t0 = clock()
+		aIn = StzOcrPlatformLines(cImg, "fr-FR")
+		nIn = (clock() - t0) * 1000 / clockspersecond()
+		cSumIn = $cStzOcrLastSummary
+		$aStzOcrCache = []
+		sysset("STZ_OCR_BRIDGE", "script")
+		t0 = clock()
+		aOut = StzOcrPlatformLines(cImg, "fr-FR")
+		nOut = (clock() - t0) * 1000 / clockspersecond()
+		sysunset("STZ_OCR_BRIDGE")
+		$aStzOcrCache = []
+		? "   in process " + nIn + " ms, by the script " + nOut + " ms"
+		Then("the page was read in process", StzFindFirst("in process", cSumIn) > 0, 1)
+		Then("the script, asked for, reads it too", len(aOut) > 0 and StzFindFirst("in process", $cStzOcrLastSummary) = 0, 1)
+		nSame = 0
+		nIL = len(aIn)
+		for i = 1 to nIL
+			if len(StzFind(aIn[i], aOut)) > 0 nSame++ ok
+		next
+		Then("the two read the same lines, all but a few (each enlarges the page its own way)", nSame >= 0.9 * len(aOut), 1)
+	EndScenario()
+else
+	? "SKIP: The platform called in process -- no fr-FR pack on this machine"
+ok
+
 Scenario("A language the platform has no pack for is a refusal that names it")
 	oP = StzFacultyQ(:ocr).RunQ([ :pages = [ $cDir + "z09_p1_150dpi.png" ], :lang = "xx-XX" ], [ :lang = "xx-XX" ])
 	Then("the answer is a refusal", oP.IsRefusal(), 1)

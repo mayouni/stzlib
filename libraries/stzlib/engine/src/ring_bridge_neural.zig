@@ -12,6 +12,7 @@ const gmach = @import("gbnf_machine.zig");
 const R = @import("ring_api.zig");
 const ocrg = @import("ocr_graph.zig"); // O3: PP-OCR graphs on ggml
 const ocrp = @import("ocr_pipeline.zig"); // O3b: an image file in, its text lines out
+const ocrw = @import("ocr_winrt.zig"); // O5: the platform engine called in process
 
 const rn = R.ring_vm_api_retnumber;
 const gs = R.ring_vm_api_getstring;
@@ -712,6 +713,31 @@ fn ring_OcrDarkBands(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// StzEngineNeuralOcrPlatformRead(cImage, cLang, nTarget) -> [ cSummary, [ [ cText, nX0, nY0, nX1, nY1, nMidTop,
+// nMidBottom ], ... ] ] (O5): the :ocr floor's platform engine (Windows.Media.Ocr) called in process -- the lines in
+// visual order with their boxes in the image's pixels and the median of their words' tops and bottoms, small text
+// read again enlarged to nTarget pixels; the summary says "NO ENGINE for <lang>" when the machine has no pack for
+// it; [] when WinRT cannot be reached (the caller falls back to the script)
+fn ring_OcrPlatformRead(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const target: f32 = @floatCast(R.ring_vm_api_getnumber(p, 3));
+    var r = ocrw.read(ocrArg(p, 1), ocrArg(p, 2), if (target > 0) target else 40) catch |e| {
+        ocrg.setError("{s}", .{@errorName(e)});
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    defer r.free();
+    R.ring_list_addstring2(out, r.summary.ptr, @intCast(r.summary.len));
+    const ll = R.ring_list_newlist(out) orelse return;
+    for (r.lines) |l| {
+        const row = R.ring_list_newlist(ll) orelse break;
+        R.ring_list_addstring2(row, l.text.ptr, @intCast(l.text.len));
+        for (l.box) |v| R.ring_list_adddouble(row, v);
+        for (l.mid) |v| R.ring_list_adddouble(row, v);
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
 fn ring_OcrGraphError(p: *anyopaque) callconv(.c) void {
     const e = ocrg.lastError();
     R.ring_vm_api_retstring2(p, e.ptr, @intCast(e.len));
@@ -728,6 +754,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralocrdeskew", .func = &ring_OcrDeskew },
     .{ .name = "stzengineneuralocrprepare", .func = &ring_OcrPrepare },
     .{ .name = "stzengineneuralocrdarkbands", .func = &ring_OcrDarkBands },
+    .{ .name = "stzengineneuralocrplatformread", .func = &ring_OcrPlatformRead },
     .{ .name = "stzenginegbnfbegin", .func = &ring_GbnfBegin },
     .{ .name = "stzenginegbnffield", .func = &ring_GbnfField },
     .{ .name = "stzenginegbnfcompile", .func = &ring_GbnfCompile },

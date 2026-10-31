@@ -82,7 +82,7 @@ pub const Image = struct {
     }
 };
 
-fn newImage(w: usize, h: usize) !Image {
+pub fn newImage(w: usize, h: usize) !Image {
     const px = try gpa.alloc(u8, w * h * 3);
     @memset(px, 0);
     return .{ .w = w, .h = h, .px = px };
@@ -112,7 +112,7 @@ pub fn loadImage(path: []const u8) !Image {
 }
 
 /// Bilinear resize with half-pixel centres (OpenCV's INTER_LINEAR geometry), rounded to 8 bits.
-fn resize(src: *const Image, dw: usize, dh: usize) !Image {
+pub fn resize(src: *const Image, dw: usize, dh: usize) !Image {
     const dst = try newImage(dw, dh);
     const sx = @as(f64, @floatFromInt(src.w)) / @as(f64, @floatFromInt(dw));
     const sy = @as(f64, @floatFromInt(src.h)) / @as(f64, @floatFromInt(dh));

@@ -277,11 +277,34 @@ func StzOcrPlatformLines(pcPath, pcLang)
 	for _i_ = 1 to _nC_
 		if $aStzOcrCache[_i_][1] = _cKey_ return $aStzOcrCache[_i_][2] ok
 	next
-	_cOut_ = sysget("TEMP") + "\stz_ocr_out_" + random(999999) + ".txt"
-	_cBoxOut_ = _cOut_ + ".box"
-	_cCmd_ = "powershell -NoProfile -ExecutionPolicy Bypass -File " + _StzOcrBridgePath() +
-		 " -Path " + char(34) + pcPath + char(34) + " -Lang " + char(34) + pcLang + char(34) + " -Out " + char(34) + _cOut_ + char(34)
-	_cSum_ = trim(StzSystem(_cCmd_))
+	# the engine calls the platform in process (StzEngineNeuralOcrPlatformRead: 0.5 s a page less than the script, its
+	# process and its WinRT loading); the script is the fallback where the engine cannot reach WinRT, and is used
+	# when STZ_OCR_BRIDGE is "script"
+	_aRawL_ = []
+	_aRawB_ = []
+	_aRawM_ = []
+	_bDone_ = 0
+	if lower(sysget("STZ_OCR_BRIDGE")) != "script"
+		_aR_ = StzEngineNeuralOcrPlatformRead(pcPath, pcLang, 40)
+		if len(_aR_) = 2
+			_bDone_ = 1
+			_cSum_ = _aR_[1]
+			_nR_ = len(_aR_[2])
+			for _i_ = 1 to _nR_
+				_r_ = _aR_[2][_i_]
+				add(_aRawL_, _r_[1])
+				add(_aRawB_, [ _r_[2], _r_[3], _r_[4], _r_[5] ])
+				add(_aRawM_, [ _r_[6], _r_[7] ])
+			next
+		ok
+	ok
+	if NOT _bDone_
+		_cOut_ = sysget("TEMP") + "\stz_ocr_out_" + random(999999) + ".txt"
+		_cBoxOut_ = _cOut_ + ".box"
+		_cCmd_ = "powershell -NoProfile -ExecutionPolicy Bypass -File " + _StzOcrBridgePath() +
+			 " -Path " + char(34) + pcPath + char(34) + " -Lang " + char(34) + pcLang + char(34) + " -Out " + char(34) + _cOut_ + char(34)
+		_cSum_ = trim(StzSystem(_cCmd_))
+	ok
 	$cStzOcrLastSummary = _cSum_
 	if StzFindFirst("NO ENGINE", _cSum_) > 0
 		_cFor_ = pcLang
@@ -291,30 +314,19 @@ func StzOcrPlatformLines(pcPath, pcLang)
 	if StzFindFirst("NO IMAGE", _cSum_) > 0 or StzFindFirst("image x ", _cSum_) > 0
 		stzraise("the :ocr floor could not open the image '" + pcPath + "' (" + _cSum_ + ")")
 	ok
-	if NOT fexists(_cOut_)
-		stzraise("the :ocr floor returned nothing for '" + pcPath + "': " + _cSum_)
-	ok
-	_cText_ = read(_cOut_)
-	remove(_cOut_)
-	_aBoxRaw_ = []
-	if fexists(_cBoxOut_)
-		_aBoxRaw_ = split(read(_cBoxOut_), char(10))
-		remove(_cBoxOut_)
-	ok
-	_bRtl_ = StzOcrLanguageIsRtl(pcLang)
-	_bAr_ = left(lower("" + pcLang), 2) = "ar"
-	_aLines_ = []
-	_aBoxes_ = []
-	_aMids_ = []
-	_aRaw_ = split(_cText_, char(10))
-	_nR_ = len(_aRaw_)
-	for _i_ = 1 to _nR_
-		_cL_ = trim(StzReplace(_aRaw_[_i_], char(13), ""))
-		if _cL_ != ""
-			_cL_ = _StzOcrDigitsBetween(_cL_)
-			if _bRtl_ _cL_ = _StzOcrPlatformVisualLine(_cL_) ok
-			if _bAr_ _cL_ = StzEngineStringArabicAlefRepaired(_cL_) ok
-			add(_aLines_, _cL_)
+	if NOT _bDone_
+		if NOT fexists(_cOut_)
+			stzraise("the :ocr floor returned nothing for '" + pcPath + "': " + _cSum_)
+		ok
+		_aRawL_ = split(read(_cOut_), char(10))
+		remove(_cOut_)
+		_aBoxRaw_ = []
+		if fexists(_cBoxOut_)
+			_aBoxRaw_ = split(read(_cBoxOut_), char(10))
+			remove(_cBoxOut_)
+		ok
+		_nR_ = len(_aRawL_)
+		for _i_ = 1 to _nR_
 			_aB_ = []
 			_aMd_ = []
 			if _i_ <= len(_aBoxRaw_)
@@ -322,8 +334,25 @@ func StzOcrPlatformLines(pcPath, pcLang)
 				if len(_aF_) >= 4 _aB_ = [ 0 + _aF_[1], 0 + _aF_[2], 0 + _aF_[3], 0 + _aF_[4] ] ok
 				if len(_aF_) = 6 _aMd_ = [ 0 + _aF_[5], 0 + _aF_[6] ] ok
 			ok
-			add(_aBoxes_, _aB_)
-			add(_aMids_, _aMd_)
+			add(_aRawB_, _aB_)
+			add(_aRawM_, _aMd_)
+		next
+	ok
+	_bRtl_ = StzOcrLanguageIsRtl(pcLang)
+	_bAr_ = left(lower("" + pcLang), 2) = "ar"
+	_aLines_ = []
+	_aBoxes_ = []
+	_aMids_ = []
+	_nR_ = len(_aRawL_)
+	for _i_ = 1 to _nR_
+		_cL_ = trim(StzReplace(_aRawL_[_i_], char(13), ""))
+		if _cL_ != ""
+			_cL_ = _StzOcrDigitsBetween(_cL_)
+			if _bRtl_ _cL_ = _StzOcrPlatformVisualLine(_cL_) ok
+			if _bAr_ _cL_ = StzEngineStringArabicAlefRepaired(_cL_) ok
+			add(_aLines_, _cL_)
+			if _i_ <= len(_aRawB_) add(_aBoxes_, _aRawB_[_i_]) else add(_aBoxes_, []) ok
+			if _i_ <= len(_aRawM_) add(_aMids_, _aRawM_[_i_]) else add(_aMids_, []) ok
 		ok
 	next
 	add($aStzOcrCache, [ _cKey_, _aLines_ ])
