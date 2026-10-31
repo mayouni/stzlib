@@ -1,5 +1,6 @@
 const ws = @import("ws.zig");
 const echo = @import("ws_echo.zig");
+const srv = @import("ws_server.zig");
 const R = @import("ring_api.zig");
 
 const gs = R.ring_vm_api_getstring;
@@ -159,6 +160,90 @@ fn ring_WsFramesSent(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(ws.ws_frames_sent(getClient(p, 1))));
 }
 
+// ── what a server learned from the request, and the role ──
+
+fn ring_WsRequestTarget(p: *anyopaque) callconv(.c) void {
+    const c = getClient(p, 1);
+    retBytes(p, ws.ws_request_target_ptr(c)[0..ws.ws_request_target_len(c)]);
+}
+fn ring_WsRequestHeader(p: *anyopaque) callconv(.c) void {
+    const c = getClient(p, 1);
+    const name = str(p, 2);
+    const n = ws.ws_request_header(c, name.ptr, name.len);
+    retBytes(p, ws.ws_scratch_ptr(c)[0..n]);
+}
+fn ring_WsIsServerSide(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(ws.ws_is_server_side(getClient(p, 1))));
+}
+
+// ── server ──
+
+fn getServer(p: *anyopaque, n: c_int) ?*srv.Server {
+    const raw = R.getHandleOrRaise(p, n, "WebSocket server") orelse return null;
+    return @ptrCast(@alignCast(raw));
+}
+
+fn ring_WsServerListen(p: *anyopaque) callconv(.c) void {
+    const host = str(p, 1);
+    const port = clampU16(gn(p, 2));
+    const cert = if (R.ring_vm_api_paracount(p) >= 3) str(p, 3) else "";
+    const key = if (R.ring_vm_api_paracount(p) >= 4) str(p, 4) else "";
+    if (srv.ws_server_listen(host.ptr, host.len, port, cert.ptr, cert.len, key.ptr, key.len)) |s| {
+        R.retHandleOnce(p, @ptrCast(s));
+    } else rn(p, 0);
+}
+fn ring_WsServerClose(p: *anyopaque) callconv(.c) void {
+    const s = getServer(p, 1);
+    R.releaseParam(p, 1);
+    srv.ws_server_close(s);
+}
+fn ring_WsServerAccept(p: *anyopaque) callconv(.c) void {
+    if (srv.ws_server_accept(getServer(p, 1), clampI32(gn(p, 2)))) |c| {
+        R.retHandleOnce(p, @ptrCast(c));
+    } else rn(p, 0);
+}
+fn ring_WsServerBeginAccept(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(srv.ws_server_begin_accept(getServer(p, 1), clampI32(gn(p, 2)))));
+}
+fn ring_WsServerEndAccept(p: *anyopaque) callconv(.c) void {
+    if (srv.ws_server_end_accept(getServer(p, 1))) |c| {
+        R.retHandleOnce(p, @ptrCast(c));
+    } else rn(p, 0);
+}
+fn ring_WsServerPort(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(srv.ws_server_port(getServer(p, 1))));
+}
+fn ring_WsServerSetMaxMessage(p: *anyopaque) callconv(.c) void {
+    srv.ws_server_set_max_message(getServer(p, 1), clampU64(gn(p, 2)));
+}
+fn ring_WsServerSetHandshakeTimeout(p: *anyopaque) callconv(.c) void {
+    srv.ws_server_set_handshake_timeout(getServer(p, 1), clampU32(gn(p, 2)));
+}
+fn ring_WsServerSetCloseWait(p: *anyopaque) callconv(.c) void {
+    srv.ws_server_set_close_wait(getServer(p, 1), clampU32(gn(p, 2)));
+}
+fn ring_WsServerSetSubprotocols(p: *anyopaque) callconv(.c) void {
+    const v = str(p, 2);
+    srv.ws_server_set_subprotocols(getServer(p, 1), v.ptr, v.len);
+}
+fn ring_WsServerSetOrigins(p: *anyopaque) callconv(.c) void {
+    const v = str(p, 2);
+    srv.ws_server_set_origins(getServer(p, 1), v.ptr, v.len);
+}
+fn ring_WsServerTimedOut(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(srv.ws_server_timed_out(getServer(p, 1))));
+}
+fn ring_WsServerAccepted(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(srv.ws_server_accepted(getServer(p, 1))));
+}
+fn ring_WsServerRefused(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(srv.ws_server_refused(getServer(p, 1))));
+}
+fn ring_WsServerLastError(p: *anyopaque) callconv(.c) void {
+    const s = getServer(p, 1);
+    retBytes(p, srv.ws_server_last_error_ptr(s)[0..srv.ws_server_last_error_len(s)]);
+}
+
 // ── bytes helpers (binary payloads across the boundary) ──
 
 fn ring_WsBytesEqual(p: *anyopaque) callconv(.c) void {
@@ -276,6 +361,24 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginewspingsreceived", .func = ring_WsPingsReceived },
     .{ .name = "stzenginewspongssent", .func = ring_WsPongsSent },
     .{ .name = "stzenginewsframessent", .func = ring_WsFramesSent },
+    .{ .name = "stzenginewsrequesttarget", .func = ring_WsRequestTarget },
+    .{ .name = "stzenginewsrequestheader", .func = ring_WsRequestHeader },
+    .{ .name = "stzenginewsisserverside", .func = ring_WsIsServerSide },
+    .{ .name = "stzenginewsserverlisten", .func = ring_WsServerListen },
+    .{ .name = "stzenginewsserverclose", .func = ring_WsServerClose },
+    .{ .name = "stzenginewsserveraccept", .func = ring_WsServerAccept },
+    .{ .name = "stzenginewsserverbeginaccept", .func = ring_WsServerBeginAccept },
+    .{ .name = "stzenginewsserverendaccept", .func = ring_WsServerEndAccept },
+    .{ .name = "stzenginewsserverport", .func = ring_WsServerPort },
+    .{ .name = "stzenginewsserversetmaxmessage", .func = ring_WsServerSetMaxMessage },
+    .{ .name = "stzenginewsserversethandshaketimeout", .func = ring_WsServerSetHandshakeTimeout },
+    .{ .name = "stzenginewsserversetclosewait", .func = ring_WsServerSetCloseWait },
+    .{ .name = "stzenginewsserversetsubprotocols", .func = ring_WsServerSetSubprotocols },
+    .{ .name = "stzenginewsserversetorigins", .func = ring_WsServerSetOrigins },
+    .{ .name = "stzenginewsservertimedout", .func = ring_WsServerTimedOut },
+    .{ .name = "stzenginewsserveraccepted", .func = ring_WsServerAccepted },
+    .{ .name = "stzenginewsserverrefused", .func = ring_WsServerRefused },
+    .{ .name = "stzenginewsserverlasterror", .func = ring_WsServerLastError },
     .{ .name = "stzenginewsbytesequal", .func = ring_WsBytesEqual },
     .{ .name = "stzenginewspattern", .func = ring_WsPattern },
     .{ .name = "stzenginewsbytesfromlist", .func = ring_WsBytesFromList },

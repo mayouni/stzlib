@@ -368,6 +368,13 @@ const State = enum { idle, open, closing, closed };
 pub const Client = struct {
     tr: ?Transport = null,
     state: State = .idle,
+    /// TRUE for a connection a server accepted: frames it sends are not masked,
+    /// frames it receives MUST be, and the handshake it ran was the server's
+    server_side: bool = false,
+    /// what a server learned from the opening request: its target and its header block
+    req_target: std.ArrayList(u8) = .{},
+    req_head: std.ArrayList(u8) = .{},
+    scratch: std.ArrayList(u8) = .{},
     /// undecoded bytes from the peer; rpos is how far they were consumed
     rbuf: std.ArrayList(u8) = .{},
     rpos: usize = 0,
@@ -429,9 +436,12 @@ pub const Client = struct {
         self.ca_file.deinit(gpa);
         self.negotiated.deinit(gpa);
         self.close_reason.deinit(gpa);
+        self.req_target.deinit(gpa);
+        self.req_head.deinit(gpa);
+        self.scratch.deinit(gpa);
     }
 
-    fn setText(list: *std.ArrayList(u8), v: []const u8) void {
+    pub fn setText(list: *std.ArrayList(u8), v: []const u8) void {
         list.clearRetainingCapacity();
         list.appendSlice(gpa, v) catch {};
     }
@@ -541,34 +551,7 @@ pub const Client = struct {
         };
 
         // read the response head, bounded in size and time
-        const deadline = std.time.milliTimestamp() + @as(i64, self.connect_timeout_ms);
-        var head_end: usize = 0;
-        while (true) {
-            if (std.mem.indexOf(u8, self.rbuf.items, "\r\n\r\n")) |he| {
-                head_end = he + 4;
-                break;
-            }
-            if (self.rbuf.items.len >= MAX_HANDSHAKE) {
-                self.setErr("handshake: response head over {d} bytes", .{MAX_HANDSHAKE});
-                return false;
-            }
-            const left = deadline - std.time.milliTimestamp();
-            if (left <= 0) {
-                self.setErr("handshake: timed out after {d} ms", .{self.connect_timeout_ms});
-                return false;
-            }
-            self.rbuf.ensureUnusedCapacity(gpa, 4096) catch return false;
-            const spare = self.rbuf.unusedCapacitySlice();
-            const n = tr.readSome(spare, @intCast(left)) catch |e| {
-                switch (e) {
-                    error.Timeout => self.setErr("handshake: timed out after {d} ms", .{self.connect_timeout_ms}),
-                    error.Closed => self.setErr("handshake: the server closed before answering", .{}),
-                    error.Failed => self.setErr("handshake: read failed", .{}),
-                }
-                return false;
-            };
-            self.rbuf.items.len += n;
-        }
+        const head_end = self.readHead(tr) orelse return false;
         const head = self.rbuf.items[0..head_end];
         // status line
         const eol = std.mem.indexOf(u8, head, "\r\n") orelse 0;
@@ -627,6 +610,113 @@ pub const Client = struct {
         return true;
     }
 
+    /// Read until the blank line that ends an HTTP head, within the handshake
+    /// timeout and MAX_HANDSHAKE bytes. Returns the head's length, or null with
+    /// the cause set. Bytes after the head stay in rbuf.
+    fn readHead(self: *Client, tr: *Transport) ?usize {
+        const deadline = std.time.milliTimestamp() + @as(i64, self.connect_timeout_ms);
+        while (true) {
+            if (std.mem.indexOf(u8, self.rbuf.items, "\r\n\r\n")) |he| return he + 4;
+            if (self.rbuf.items.len >= MAX_HANDSHAKE) {
+                self.setErr("handshake: head over {d} bytes", .{MAX_HANDSHAKE});
+                return null;
+            }
+            const left = deadline - std.time.milliTimestamp();
+            if (left <= 0) {
+                self.setErr("handshake: timed out after {d} ms", .{self.connect_timeout_ms});
+                return null;
+            }
+            self.rbuf.ensureUnusedCapacity(gpa, 4096) catch return null;
+            const n = tr.readSome(self.rbuf.unusedCapacitySlice(), @intCast(left)) catch |e| {
+                switch (e) {
+                    error.Timeout => self.setErr("handshake: timed out after {d} ms", .{self.connect_timeout_ms}),
+                    error.Closed => self.setErr("handshake: the peer closed before finishing", .{}),
+                    error.Failed => self.setErr("handshake: read failed", .{}),
+                }
+                return null;
+            };
+            self.rbuf.items.len += n;
+        }
+    }
+
+    fn refuse(self: *Client, tr: *Transport, comptime status: []const u8, extra: []const u8, comptime what: []const u8) bool {
+        var buf: [256]u8 = undefined;
+        const resp = std.fmt.bufPrint(&buf, "HTTP/1.1 " ++ status ++ "\r\nContent-Length: 0\r\nConnection: close\r\n{s}\r\n", .{extra}) catch return false;
+        tr.writeAll(resp) catch {};
+        self.setErr(what, .{});
+        return false;
+    }
+
+    /// SERVER SIDE: read the client's opening handshake from the transport and
+    /// answer it. `supported` is the comma-separated subprotocols this server
+    /// speaks; `origins` is the comma-separated Origin values it allows (empty
+    /// = any; a request with no Origin header is a non-browser client and is
+    /// allowed either way). A bad request is answered with 400, 403 or 426 and
+    /// refused by name. On success the client is open, server_side is set, and
+    /// the request's target and headers are kept for the caller to read.
+    pub fn acceptHandshake(self: *Client, supported: []const u8, origins: []const u8) bool {
+        self.clearErr();
+        self.server_side = true;
+        const tr: *Transport = if (self.tr) |*t| t else return false;
+        const head_end = self.readHead(tr) orelse return false;
+        const head = self.rbuf.items[0..head_end];
+        const eol = std.mem.indexOf(u8, head, "\r\n") orelse 0;
+        const line = head[0..eol];
+        if (!std.mem.startsWith(u8, line, "GET ") or !std.mem.endsWith(u8, line, " HTTP/1.1") or line.len < 14)
+            return self.refuse(tr, "400 Bad Request", "", "handshake: not a GET ... HTTP/1.1 request");
+        const target = line[4 .. line.len - 9];
+        const upgrade = headerValue(head, "Upgrade") orelse "";
+        if (!eqlNoCase(upgrade, "websocket")) return self.refuse(tr, "400 Bad Request", "", "handshake: no Upgrade: websocket");
+        const conn = headerValue(head, "Connection") orelse "";
+        if (!hasToken(conn, "upgrade")) return self.refuse(tr, "400 Bad Request", "", "handshake: Connection lacks upgrade");
+        const version = headerValue(head, "Sec-WebSocket-Version") orelse "";
+        if (!std.mem.eql(u8, version, "13"))
+            return self.refuse(tr, "426 Upgrade Required", "Sec-WebSocket-Version: 13\r\n", "handshake: version is not 13");
+        const key = headerValue(head, "Sec-WebSocket-Key") orelse "";
+        var raw: [16]u8 = undefined;
+        var decoded_ok = key.len == 24;
+        if (decoded_ok) std.base64.standard.Decoder.decode(&raw, key) catch {
+            decoded_ok = false;
+        };
+        if (!decoded_ok) return self.refuse(tr, "400 Bad Request", "", "handshake: Sec-WebSocket-Key is not 16 bytes in base64");
+        if (origins.len > 0) {
+            if (headerValue(head, "Origin")) |o| {
+                if (!hasToken(origins, o)) return self.refuse(tr, "403 Forbidden", "", "handshake: Origin not allowed");
+            }
+        }
+        // the first offered subprotocol this server speaks
+        var chosen: []const u8 = "";
+        if (headerValue(head, "Sec-WebSocket-Protocol")) |offered| {
+            var it = std.mem.splitScalar(u8, offered, ',');
+            while (it.next()) |t| {
+                const name = std.mem.trim(u8, t, " \t");
+                if (name.len > 0 and hasToken(supported, name)) {
+                    chosen = name;
+                    break;
+                }
+            }
+        }
+        var accept_buf: [28]u8 = undefined;
+        const accept = acceptKey(key, &accept_buf);
+        var resp: std.ArrayList(u8) = .{};
+        defer resp.deinit(gpa);
+        const w = resp.writer(gpa);
+        w.print("HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: {s}\r\n", .{accept}) catch return false;
+        if (chosen.len > 0) w.print("Sec-WebSocket-Protocol: {s}\r\n", .{chosen}) catch return false;
+        w.writeAll("\r\n") catch return false;
+        tr.writeAll(resp.items) catch {
+            self.setErr("handshake: send failed", .{});
+            return false;
+        };
+        setText(&self.req_target, target);
+        setText(&self.req_head, head);
+        setText(&self.negotiated, chosen);
+        self.rpos = head_end;
+        self.compact();
+        self.state = .open;
+        return true;
+    }
+
     fn compact(self: *Client) void {
         if (self.rpos == 0) return;
         const remaining = self.rbuf.items.len - self.rpos;
@@ -639,10 +729,11 @@ pub const Client = struct {
 
     fn sendFrame(self: *Client, fin: bool, opcode: u8, payload: []const u8) bool {
         const tr: *Transport = if (self.tr) |*t| t else return false;
-        var mask: [4]u8 = undefined;
-        std.crypto.random.bytes(&mask);
+        var mask: [4]u8 = .{ 0, 0, 0, 0 };
+        const masked = !self.server_side;
+        if (masked) std.crypto.random.bytes(&mask);
         var hdr: [14]u8 = undefined;
-        const hl = writeHeader(&hdr, fin, opcode, true, payload.len, mask);
+        const hl = writeHeader(&hdr, fin, opcode, masked, payload.len, mask);
         tr.writeAll(hdr[0..hl]) catch {
             self.setErr("send failed", .{});
             return false;
@@ -653,7 +744,7 @@ pub const Client = struct {
         while (off < payload.len) {
             const n = @min(CHUNK, payload.len - off);
             @memcpy(chunk[0..n], payload[off .. off + n]);
-            applyMask(chunk[0..n], mask, off);
+            if (masked) applyMask(chunk[0..n], mask, off);
             tr.writeAll(chunk[0..n]) catch {
                 self.setErr("send failed", .{});
                 return false;
@@ -751,7 +842,7 @@ pub const Client = struct {
         const deadline = std.time.milliTimestamp() + @as(i64, ms);
         while (true) {
             const avail = self.rbuf.items[self.rpos..];
-            const hdr = parseHeader(avail, false, self.max_message) catch |e| switch (e) {
+            const hdr = parseHeader(avail, self.server_side, self.max_message) catch |e| switch (e) {
                 error.Incomplete => {
                     const left = deadline - std.time.milliTimestamp();
                     if (left <= 0) return;
@@ -786,7 +877,9 @@ pub const Client = struct {
         self.tr = null;
         self.state = .closed;
         self.fragmented = false;
-        self.msg.clearRetainingCapacity();
+        self.msg.clearAndFree(gpa);
+        self.rbuf.clearAndFree(gpa);
+        self.rpos = 0;
     }
 
     /// Wait for the next message. Returns 0 when nothing arrived within
@@ -801,7 +894,7 @@ pub const Client = struct {
         const start = std.time.milliTimestamp();
         while (true) {
             const avail = self.rbuf.items[self.rpos..];
-            const hdr = parseHeader(avail, false, self.max_message) catch |e| switch (e) {
+            const hdr = parseHeader(avail, self.server_side, self.max_message) catch |e| switch (e) {
                 error.Incomplete => {
                     // read more, within the time left
                     var wait: i32 = timeout_ms;
@@ -836,7 +929,7 @@ pub const Client = struct {
                 error.BadLength => return self.fail(1002, "protocol: bad length encoding", .{}),
                 error.TooLarge => return self.fail(1009, "protocol: frame over max {d} bytes (1009)", .{self.max_message}),
                 error.MaskedFromServer => return self.fail(1002, "protocol: masked server frame", .{}),
-                error.UnmaskedFromClient => unreachable,
+                error.UnmaskedFromClient => return self.fail(1002, "protocol: unmasked client frame", .{}),
             };
             // the whole payload must be in the buffer (its length is already
             // checked against the maximum, so growing to it is safe)
@@ -864,6 +957,7 @@ pub const Client = struct {
             }
             const payload = avail[hdr.header_len..need];
             self.rpos += need;
+            if (hdr.masked) applyMask(payload, hdr.mask, 0); // a server unmasks what a client sent, in place
             switch (hdr.opcode) {
                 OP_PING => {
                     self.pings_received += 1;
@@ -1116,6 +1210,35 @@ pub fn ws_subprotocol_ptr(c: ?*Client) callconv(.c) [*]const u8 {
     return cl.negotiated.items.ptr;
 }
 
+pub fn ws_request_target_len(c: ?*Client) callconv(.c) usize {
+    const cl = c orelse return 0;
+    return cl.req_target.items.len;
+}
+
+pub fn ws_request_target_ptr(c: ?*Client) callconv(.c) [*]const u8 {
+    const cl = c orelse return "";
+    return cl.req_target.items.ptr;
+}
+
+/// Copy the value of a request header into the client's scratch buffer;
+/// returns its length (0 = absent). Read it with ws_scratch_ptr.
+pub fn ws_request_header(c: ?*Client, name: [*]const u8, len: usize) callconv(.c) usize {
+    const cl = c orelse return 0;
+    const v = headerValue(cl.req_head.items, name[0..len]) orelse return 0;
+    Client.setText(&cl.scratch, v);
+    return v.len;
+}
+
+pub fn ws_scratch_ptr(c: ?*Client) callconv(.c) [*]const u8 {
+    const cl = c orelse return "";
+    return cl.scratch.items.ptr;
+}
+
+pub fn ws_is_server_side(c: ?*Client) callconv(.c) i32 {
+    const cl = c orelse return 0;
+    return if (cl.server_side) 1 else 0;
+}
+
 pub fn ws_last_error_len(c: ?*Client) callconv(.c) usize {
     const cl = c orelse return 0;
     return cl.err_len;
@@ -1170,9 +1293,16 @@ pub fn ws_pattern(out: [*]u8, len: usize, seed: u32) callconv(.c) void {
 
 pub const Echo = @import("ws_echo.zig");
 
+/// The public server: a listener that hands out server-side clients (ws_server.zig).
+pub const Server = @import("ws_server.zig");
+
 // ── Tests: the RFC 6455 vectors ──────────────────────────────
 
 const testing = std.testing;
+
+test {
+    _ = Server; // the public server's own tests run with this file's
+}
 
 test "ws: accept key for the RFC sample nonce" {
     var out: [28]u8 = undefined;

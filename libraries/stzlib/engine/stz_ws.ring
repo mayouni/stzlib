@@ -15,6 +15,13 @@
 #   StzEngineWsIsOpen / CloseCode / CloseReason / CloseByPeer / Subprotocol / LastError(h)
 #   StzEngineWsSetMaxMessage / SetConnectTimeout / SetCloseWait / SetSubprotocols / SetHeaders / SetCaFile / SetInsecure(h, x)
 #   StzEngineWsFree(h)
+#   StzEngineWsServerListen(cHost, nPort[, cCertPemFile, cKeyPemFile]) -> server handle (0 = could not bind)
+#   StzEngineWsServerAccept(hServer, nTimeoutMs)        -> an open server-side client handle, or 0
+#                                                         (timed out: ServerTimedOut = 1; refused: ServerLastError)
+#   StzEngineWsServerBeginAccept(hServer, nTimeoutMs)   -> 1 started: wait for a client on a background thread
+#   StzEngineWsServerEndAccept(hServer)                 -> the client handle it got, or 0 (joins the thread)
+#   StzEngineWsServerClose / Port / SetMaxMessage / SetHandshakeTimeout / SetCloseWait / SetSubprotocols / SetOrigins
+#   StzEngineWsRequestTarget(h) / RequestHeader(h, cName) -- what a server learned from the opening request
 #   StzEngineWsEchoStart(nPort, bTls, cCertPem, cKeyPem) -> port   (test support)
 #   StzEngineWsEchoStop()
 

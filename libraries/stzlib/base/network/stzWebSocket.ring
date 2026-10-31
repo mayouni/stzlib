@@ -93,6 +93,11 @@ class stzWebSocket from stzNetwork
 	@extra_headers = ""
 	@ca_file = ""
 	@insecure = 0
+	@close_wait_ms = 2000
+	@subprotocol_agreed = ""   # kept when the engine handle is freed at the end of a session
+	@pings_seen = 0
+	@pongs_made = 0
+	@handshake_done = 0
 
 	# Builds a client that is not open, with the default limits and no callbacks.
 	#
@@ -131,17 +136,24 @@ class stzWebSocket from stzNetwork
 		StzEngineWsSetHeaders(@hWs, @extra_headers)
 		StzEngineWsSetCaFile(@hWs, @ca_file)
 		StzEngineWsSetInsecure(@hWs, @insecure)
+		StzEngineWsSetCloseWait(@hWs, @close_wait_ms)
 		@close_code = 0
 		@close_reason = ""
 		@closed_by_peer = 0
 		@has_message = 0
+		@subprotocol_agreed = ""
+		@pings_seen = 0
+		@pongs_made = 0
+		@handshake_done = 0
 		if StzEngineWsConnect(@hWs, cUrl) = 1
 			@is_connected = 1
 			ClearErrors()
 			This._Run(@on_open_callback)
 		else
 			@is_connected = 0
-			This._Fail(StzEngineWsLastError(@hWs), -1)
+			_cWhy_ = StzEngineWsLastError(@hWs)
+			This._Release()
+			This._Fail(_cWhy_, -1)
 		ok
 		return This
 
@@ -301,12 +313,15 @@ class stzWebSocket from stzNetwork
 			@message_type = "CLOSE"
 			This._ReadCloseState()
 			@is_connected = 0
+			This._Release()
 			ClearErrors()
 			This._Run(@on_close_callback)
 		else
 			This._ReadCloseState()
 			@is_connected = 0
-			This._Fail(StzEngineWsLastError(@hWs), @close_code)
+			_cWhy_ = StzEngineWsLastError(@hWs)
+			This._Release()
+			This._Fail(_cWhy_, @close_code)
 			This._Run(@on_close_callback)
 		ok
 		return This
@@ -340,6 +355,7 @@ class stzWebSocket from stzNetwork
 			StzEngineWsClose(@hWs, nCode, cReason)
 			This._ReadCloseState()
 			@is_connected = 0
+			This._Release()
 			This._Run(@on_close_callback)
 		ok
 		return This
@@ -443,13 +459,20 @@ class stzWebSocket from stzNetwork
 	def ClosedByPeer()
 		return @closed_by_peer
 
+	# TRUE if the peer answered a close frame, so both sides took part in ending the session.
+	#
+	#   returns    TRUE or FALSE; FALSE while the session is open or when the connection simply dropped
+	#   see        CloseCode, ClosedByPeer, CloseWith
+	def CloseHandshakeDone()
+		return @handshake_done
+
 	# Returns the subprotocol the server picked from the ones offered, or empty when none was agreed.
 	#
 	#   returns    a text
 	#   see        SetSubprotocols
 	def Subprotocol()
 		if @hWs = ""
-			return ""
+			return @subprotocol_agreed
 		ok
 		return StzEngineWsSubprotocol(@hWs)
 
@@ -479,6 +502,37 @@ class stzWebSocket from stzNetwork
 	#   see        SetMaxMessageSize
 	def MaxMessageSize()
 		return @max_message_size
+
+	# Sets how long a close waits, in milliseconds, for the other side's close frame before dropping the socket.
+	#
+	#   nMs        the wait in milliseconds; the default is 2000
+	#   returns    the client itself, so calls chain
+	#   note       it applies at once to an open session and to the next Connect; a program that is
+	#              both ends of a session in one thread sets it short, since the other end cannot
+	#              answer while this one waits
+	#   see        CloseWith, CloseTimeout
+	#   example    o1.SetCloseTimeout(100)
+	#              ? o1.CloseTimeout()
+	#              #--> 100
+	def SetCloseTimeout(nMs)
+		if NOT isNumber(nMs)
+			StzRaise("Incorrect param type! nMs must be a number.")
+		ok
+		@close_wait_ms = nMs
+		if @hWs != ""
+			StzEngineWsSetCloseWait(@hWs, nMs)
+		ok
+		return This
+
+		def SetCloseTimeoutQ(nMs)
+			return This.SetCloseTimeout(nMs)
+
+	# Returns how long a close waits for the other side's close frame, in milliseconds.
+	#
+	#   returns    a number
+	#   see        SetCloseTimeout
+	def CloseTimeout()
+		return @close_wait_ms
 
 	# Sets how long Connect waits, in milliseconds, for the socket, the TLS handshake and the server's answer.
 	#
@@ -616,7 +670,7 @@ class stzWebSocket from stzNetwork
 	#   see        PongsSent, SendPing
 	def PingsReceived()
 		if @hWs = ""
-			return 0
+			return @pings_seen
 		ok
 		return StzEngineWsPingsReceived(@hWs)
 
@@ -626,7 +680,7 @@ class stzWebSocket from stzNetwork
 	#   see        PingsReceived
 	def PongsSent()
 		if @hWs = ""
-			return 0
+			return @pongs_made
 		ok
 		return StzEngineWsPongsSent(@hWs)
 
@@ -655,6 +709,30 @@ class stzWebSocket from stzNetwork
 		@close_code = StzEngineWsCloseCode(@hWs)
 		@close_reason = StzEngineWsCloseReason(@hWs)
 		@closed_by_peer = StzEngineWsCloseByPeer(@hWs)
+		@handshake_done = StzEngineWsCloseHandshakeDone(@hWs)
+
+	# Gives the engine handle back once a session has ended, keeping what the caller can still ask.
+	def _Release()
+		if @hWs != ""
+			@subprotocol_agreed = StzEngineWsSubprotocol(@hWs)
+			@pings_seen = StzEngineWsPingsReceived(@hWs)
+			@pongs_made = StzEngineWsPongsSent(@hWs)
+			StzEngineWsFree(@hWs)
+			@hWs = ""
+		ok
+
+	# Takes over an open server-side connection handed out by the engine; the server class calls it.
+	def _Adopt(hClient)
+		@hWs = hClient
+		@is_connected = 1
+		@last_message = ""
+		@message_type = ""
+		@has_message = 0
+		@close_code = 0
+		@close_reason = ""
+		@closed_by_peer = 0
+		@handshake_done = 0
+		ClearErrors()
 
 	def _Fail(cMessage, nCode)
 		@last_error = cMessage

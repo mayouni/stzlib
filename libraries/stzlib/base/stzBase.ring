@@ -813,6 +813,7 @@ load "service/stzPispiQr.ring"    # the twin of the hub served over HTTP, with O
     load "network/stzNetwork.ring"
     load "network/stzHttpClient.ring"
     load "network/stzWebSocket.ring"
+    load "network/stzWebSocketServer.ring"
     load "network/stzTcpClient.ring"
     load "network/stzTcpServer.ring"
     load "network/stzNetworkUtils.ring"
