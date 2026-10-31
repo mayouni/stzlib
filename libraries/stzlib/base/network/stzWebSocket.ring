@@ -1,15 +1,19 @@
 # =============================================================================
-# WEBSOCKET CLIENT - cURL WebSocket support
+# WEBSOCKET CLIENT -- placeholder until the engine has a WebSocket transport
 # =============================================================================
 
-# Declares a WebSocket client built on libcurl, which cannot open a connection today because libcurl is no longer loaded.
+# Holds a WebSocket client that checks an address and reports that this build cannot open a connection.
 #
-# The rest of the network layer moved to the in-tree engine, but this class still calls curl
-# functions (curl_easy_init, curl_ws_send, curl_ws_recv) that the library does not define. Connect
-# therefore raises error R3, no connection is ever open, and every other call answers as an
-# unconnected client: the send and receive calls set LastError to Not connected. The callback
-# setters store names that are never called. Use stzTcpClient for a raw socket until the class is
-# rewired to the engine.
+# The engine has plain TCP (stzTcpClient) and an HTTPS client, but no WebSocket transport and no TLS
+# socket. The class is a placeholder for the engine WebSocket client that is owed to the engine
+# owner: RFC 6455 framing over the engine TCP socket, with TLS for wss. Until that lands, a caller can
+# rely on this and nothing more. Connect never opens a connection and never raises on a text: it
+# checks the ws or wss address, sets LastError to a named message, leaves IsOpen false and runs the
+# error callback if one is set. Send, SendText, SendBinary and Receive on a client that is not open
+# set LastError to Not connected and send or read nothing. Close does nothing, and the close callback
+# runs only for a connection that was open, which cannot happen today. Every method that does not
+# answer a value returns the client itself, so calls chain. No call reaches the network, and the
+# class no longer calls libcurl. Use stzTcpClient for a raw socket.
 #
 #   receiver   o1 = new stzWebSocket()
 #   example    ? o1.IsOpen()
@@ -26,190 +30,183 @@ class stzWebSocket from stzNetwork
     @on_open_callback = ""
     @on_close_callback = ""
     @on_error_callback = ""
-    
-    # Raises error R3 today instead of opening a WebSocket connection.
+
+    # Checks a ws or wss address, records that this build has no WebSocket transport and runs the error callback.
     #
-    #   cUrl       the ws or wss address meant to be opened
-    #   returns    nothing; it raises
-    #   note       nothing in the class can be used to talk to a server today
-    #   warning    raises error R3 because it calls curl_easy_init, a libcurl function that the
-    #              library no longer loads; the class still wraps libcurl while the rest of the
-    #              network layer moved to the engine, and even with libcurl the later calls would
-    #              not see the handle, which Connect keeps in a local variable
-    #   see        IsOpen
+    #   cUrl       the ws or wss address meant to be opened, such as ws://localhost:8080/chat
+    #   returns    the client itself, so calls chain
+    #   note       it never opens a connection, so IsOpen stays false; the error code is -1
+    #   warning    a text that is not a ws or wss address sets LastError to Bad WebSocket scheme
+    #              followed by the scheme found, or none, and a ws or wss address with no host sets
+    #              Bad WebSocket address; a good address sets LastError to No WebSocket transport in
+    #              this build; none of them raises, but a cUrl that is not a text raises
+    #   see        IsOpen, OnError, stzTcpClient
+    #   example    o1.Connect("ws://localhost:8080/chat")
+    #              ? o1.IsOpen()
+    #              #--> 0
+    #              ? o1.LastError()
+    #              #--> No WebSocket transport in this build: the engine has none yet, use stzTcpClient for a raw socket
     def Connect(cUrl)
-        _curl_handle_ = curl_easy_init()
-        curl_easy_setopt_2(_curl_handle_, CURLOPT_URL, cUrl)
-        curl_easy_setopt_1(_curl_handle_, CURLOPT_CONNECT_ONLY, 2)
-        
-        _result_ = curl_easy_perform(_curl_handle_)
-        if _result_ = CURLE_OK
-            @is_connected = 1
-            ClearErrors()
-            if @on_open_callback != ""
-                call @on_open_callback()
+        if NOT isString(cUrl)
+            StzRaise("Incorrect param type! cUrl must be a string (a url is text).")
+        ok
+
+        _nSep_ = StzFindFirst("://", cUrl)
+        _cScheme_ = ""
+        if _nSep_ > 0
+            _cScheme_ = StzLower(StzLeft(cUrl, _nSep_ - 1))
+        ok
+
+        if _cScheme_ != "ws" and _cScheme_ != "wss"
+            _cShown_ = _cScheme_
+            if _cShown_ = ""
+                _cShown_ = "none"
             ok
+            @last_error = "Bad WebSocket scheme: " + _cShown_ + " (use ws:// or wss://)"
         else
-            @last_error = "WebSocket connection failed"
-            @error_code = _result_
+            _cHost1_ = StzMidToEnd(cUrl, _nSep_ + 3)
+            _cFirst_ = ""
+            if _cHost1_ != ""
+                _cFirst_ = StzLeft(_cHost1_, 1)
+            ok
+            if _cFirst_ = "" or _cFirst_ = "/" or _cFirst_ = "?" or _cFirst_ = "#"
+                @last_error = "Bad WebSocket address: no host after " + _cScheme_ + "://"
+            else
+                @last_error = "No WebSocket transport in this build: the engine has none yet, use stzTcpClient for a raw socket"
+            ok
+        ok
+        @error_code = -1
+
+        if isString(@on_error_callback) and @on_error_callback != ""
+            call @on_error_callback()
         ok
         return This
-    
+
+    # Sends text on the open connection; it forwards to SendText.
+    #
+    #   cMessage   the text to send
+    #   returns    the client itself, so calls chain
+    #   warning    without a connection it sets LastError to Not connected and sends nothing
+    #   see        SendText, SendBinary
     def Send(cMessage)
         return This.SendText(cMessage)
-    
-    # Sets LastError to Not connected, because no connection can be opened today.
+
+    # Sends a text frame on the open connection, or sets LastError to Not connected when there is none.
     #
-    #   cText      the text meant to be sent
-    #   returns    the object itself, so calls chain
-    #   note       it would raise error R3 if a connection could be marked open
-    #   warning    the send itself calls curl_ws_send, which is not loaded either
-    #   see        Connect, SendBinary
+    #   cText      the text to send
+    #   returns    the client itself, so calls chain
+    #   note       no connection can be open in this build, so the call always sets LastError
+    #   see        Send, SendBinary, Connect
     def SendText(cText)
         if not @is_connected
             @last_error = "Not connected"
             return This
         ok
-        
-        _result_ = curl_ws_send(_curl_handle_, cText, 0, CURLWS_TEXT)
-        if _result_[1] != CURLE_OK
-            @last_error = "Failed to send message"
-            @error_code = _result_[1]
-        ok
+        @last_error = "No WebSocket transport in this build"
+        @error_code = -1
         return This
-    
-    # Sets LastError to Not connected, because no connection can be opened today.
+
+    # Sends a binary frame on the open connection, or sets LastError to Not connected when there is none.
     #
-    #   aData      a list of byte values meant to be sent
-    #   returns    the object itself, so calls chain
-    #   note       it would raise error R3 if a connection could be marked open
-    #   warning    the send itself calls curl_ws_send, which is not loaded either
-    #   see        Connect, SendText
+    #   aData      a list of byte values to send
+    #   returns    the client itself, so calls chain
+    #   note       no connection can be open in this build, so the call always sets LastError
+    #   see        SendText, Connect
     def SendBinary(aData)
         if not @is_connected
             @last_error = "Not connected"
             return This
         ok
-        
-        # Convert array to binary string
-        _binary_string_ = ""
-        _nData1Len_ = len(aData)
-        for _iLoopData1_ = 1 to _nData1Len_
-        	_byte_ = aData[_iLoopData1_]
-            _binary_string_ += StzChar(_byte_)
-        next
-        
-        _result_ = curl_ws_send(_curl_handle_, _binary_string_, 0, CURLWS_BINARY)
-        if _result_[1] != CURLE_OK
-            @last_error = "Failed to send binary data"
-            @error_code = _result_[1]
-        ok
+        @last_error = "No WebSocket transport in this build"
+        @error_code = -1
         return This
-    
-    # Sets LastError to Not connected, because no connection can be opened today.
+
+    # Reads the next message from the open connection, or sets LastError to Not connected when there is none.
     #
-    #   returns    the object itself, so calls chain
-    #   note       it would raise error R3 if a connection could be marked open
-    #   warning    the receive itself calls curl_ws_recv, which is not loaded either
-    #   see        Connect, LastMessage
+    #   returns    the client itself, so calls chain
+    #   note       no connection can be open in this build, so LastMessage stays empty
+    #   see        LastMessage, MessageType, Connect
     def Receive()
         if not @is_connected
             @last_error = "Not connected"
             return This
         ok
-        
-        _result_ = curl_ws_recv(_curl_handle_, 1024)
-        if _result_[1] = CURLE_OK
-            @last_message = _result_[2]
-            # Determine message type based on WebSocket frame
-            @message_type = "TEXT"  # Simplified - would need proper frame parsing
-            ClearErrors()
-            
-            if @on_message_callback != ""
-                call @on_message_callback()
-            ok
-        else
-            if _result_[1] != CURLE_AGAIN
-                @last_error = "Failed to receive message"
-                @error_code = _result_[1]
-            ok
-        ok
+        @last_error = "No WebSocket transport in this build"
+        @error_code = -1
         return This
-    
-    # Does nothing today, because no connection can be open.
+
+    # Ends an open session and runs the function stored by OnClose; with nothing open it does nothing.
     #
-    #   returns    the object itself, so calls chain
-    #   see        Connect, IsOpen
+    #   returns    the client itself, so calls chain
+    #   note       safe to call any number of times, and before Connect; the stored function runs
+    #              once, only for a session that was open, which cannot happen in this build
+    #   see        Connect, IsOpen, OnClose
     def Close()
-        if @is_connected and _curl_handle_ != ""
-            # Send close frame
-            curl_ws_send(_curl_handle_, "", 0, CURLWS_CLOSE)
-            curl_easy_cleanup(_curl_handle_)
+        if @is_connected
             @is_connected = 0
-            
-            if @on_close_callback != ""
+            if isString(@on_close_callback) and @on_close_callback != ""
                 call @on_close_callback()
             ok
         ok
         return This
-    
-    # TRUE if the connection is open; always FALSE today.
+
+    # TRUE if the connection is open; always FALSE in this build.
     #
     #   returns    TRUE or FALSE
-    #   see        Connect
+    #   see        Connect, Close
     def IsOpen()
         return @is_connected
-    
-    # Stores the name of a function meant to run when a message arrives.
+
+    # Stores the name of a function to run when a message arrives.
     #
-    #   cCallback   the name of a function
-    #   returns     the object itself, so calls chain
-    #   note        never called today
-    #   see         OnOpen
+    #   cCallback   the name of a function that takes no parameter
+    #   returns     the client itself, so calls chain
+    #   note        it never runs in this build, because no message can arrive
+    #   see         OnOpen, Receive
     def OnMessage(cCallback)
         @on_message_callback = cCallback
         return This
-    
-    # Stores the name of a function meant to run when the connection opens.
+
+    # Stores the name of a function to run when the connection opens.
     #
-    #   cCallback   the name of a function
-    #   returns     the object itself, so calls chain
-    #   note        never called today
-    #   see         OnMessage
+    #   cCallback   the name of a function that takes no parameter
+    #   returns     the client itself, so calls chain
+    #   note        it never runs in this build, because no connection can open
+    #   see         OnMessage, Connect
     def OnOpen(cCallback)
         @on_open_callback = cCallback
         return This
-    
-    # Stores the name of a function meant to run when the connection closes.
+
+    # Stores the name of a function to run when an open connection ends.
     #
-    #   cCallback   the name of a function
-    #   returns     the object itself, so calls chain
-    #   note        never called today
-    #   see         OnOpen
+    #   cCallback   the name of a function that takes no parameter
+    #   returns     the client itself, so calls chain
+    #   note        it never runs in this build, because no connection can open
+    #   see         OnOpen, Close
     def OnClose(cCallback)
         @on_close_callback = cCallback
         return This
-    
-    # Stores the name of a function meant to run on a failure.
+
+    # Stores the name of a function to run when Connect fails.
     #
-    #   cCallback   the name of a function
-    #   returns     the object itself, so calls chain
-    #   note        never called today
-    #   see         OnOpen
+    #   cCallback   the name of a function that takes no parameter
+    #   returns     the client itself, so calls chain
+    #   note        Connect runs it after setting LastError, on every failure, which is every call here
+    #   see         OnOpen, Connect, LastError
     def OnError(cCallback)
         @on_error_callback = cCallback
         return This
-    
+
     # Returns the text of the last received message.
     #
-    #   returns    a text; empty today
-    #   see        Receive
+    #   returns    a text; empty in this build, because nothing can be received
+    #   see        Receive, MessageType
     def LastMessage()
         return @last_message
-    
+
     # Returns the type of the last received message.
     #
-    #   returns    a text; empty before a receive, and TEXT after one
-    #   see        LastMessage
+    #   returns    a text; empty in this build, because nothing can be received
+    #   see        LastMessage, Receive
     def MessageType()
         return @message_type
