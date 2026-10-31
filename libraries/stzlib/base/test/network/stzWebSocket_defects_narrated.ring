@@ -136,7 +136,8 @@ EndScenario()
 # ---------------------------------------------------------------------------------------------------------------
 Scenario("2. Connect on a good ws address: a listener opens it, a closed port refuses it by name, nothing raises")
 try
-	$aGood = [ "ws://127.0.0.1:1/chat", "WS://127.0.0.1:1", "ws://127.0.0.1:1/a/b?x=1#f" ]
+	# one refused connect: Windows retries the SYN after the RST, so each one costs about 2 s
+	$aGood = [ "WS://127.0.0.1:1/a/b?x=1#f" ]
 	$nWsN = len($aGood)
 	for $nWsI = 1 to $nWsN
 		WsNew()
@@ -298,7 +299,7 @@ try
 
 	When("Connect is called three times")
 	WsReset()
-	$oW.Connect($cWsClosed).Connect($cWsClosed).Connect("nope")
+	$oW.Connect("http://h").Connect("ws://").Connect("nope")
 	Then("OnError ran three times, once per call", $nWsErr, 3)
 
 	When("Send, SendText, SendBinary, Receive and Close are called on the same client")
@@ -321,7 +322,7 @@ try
 	When("no OnError was set")
 	WsNew()
 	WsReset()
-	$oW.Connect($cWsClosed)
+	$oW.Connect("wss://")
 	$oW.Connect("http://h")
 	Then("NEGATIVE: no callback runs, and nothing raised", $nWsErr + $nWsOpen + $nWsClose + $nWsMsg, 0)
 	Then("...yet LastError was set", $oW.HasError(), 1)
@@ -330,20 +331,20 @@ try
 	WsNew()
 	$oW.OnError("")
 	WsReset()
-	$cWsRaised = WsTryConnect($cWsClosed)
+	$cWsRaised = WsTryConnect("http://h")
 	Then("the empty text is not called: nothing raised", WsEq($cWsRaised, ""), 1)
 	Then("...and no callback ran", $nWsErr, 0)
 
 	When("OnError was given something that is not a text (a number)")
 	WsNew()
 	$oW.OnError(5)
-	$cWsRaised = WsTryConnect($cWsClosed)
+	$cWsRaised = WsTryConnect("http://h")
 	Then("it is not called: nothing raised", WsEq($cWsRaised, ""), 1)
-	Then("...and LastError was still set", WsEq($oW.LastError(), $cWsRefused), 1)
+	Then("...and LastError was still set", WsEq($oW.LastError(), "Bad WebSocket scheme: http (use ws:// or wss://)"), 1)
 	WsNew()
 	$oW.OnError([ "WsCbErr" ])
 	WsReset()
-	$cWsRaised = WsTryConnect($cWsClosed)
+	$cWsRaised = WsTryConnect("http://h")
 	Then("a list is not called either: nothing raised", WsEq($cWsRaised, ""), 1)
 	Then("NEGATIVE: and the named function did not run", $nWsErr, 0)
 
@@ -351,7 +352,7 @@ try
 	WsNew()
 	$oW.OnError("WsCbErr").OnError("WsCbErrTwo")
 	WsReset()
-	$oW.Connect($cWsClosed)
+	$oW.Connect("http://h")
 	Then("only the latest runs", $nWsErr, 0)
 	Then("...the second one ran", $nWsErrTwo, 1)
 catch
