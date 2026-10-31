@@ -261,7 +261,7 @@ if WsScene("5. ping and pong: the client's ping is answered, the server's ping i
 	Then("the text pinged arrives after the ping", WsEq($oW.LastMessage(), "pinged"), 1)
 	Then("the client counted one ping", $oW.PingsReceived(), 1)
 	Then("...and sent one pong on its own", $oW.PongsSent(), 1)
-	Then("...which the server received (its counter)", StzEngineWsEchoPongs(), 1)
+	Then("...which the server received (its counter, read once its thread has it)", WsWaitPongs(1), 1)
 	$oW.SendPing(copy("p", 125))
 	$oW.Receive()
 	Then("a 125-byte ping is the longest allowed and is answered", len($oW.LastMessage()), 125)
@@ -636,6 +636,14 @@ func WsRefused(cCommand, cName, nCode)
 	ok
 	? "      (got error [" + $oW.LastError() + "] code " + $oW.CloseCode() + " open=" + $oW.IsOpen() + " onerror=" + $nWsErr + " onclose=" + $nWsClose + ")"
 	return 0
+
+# the server counts a pong on its own thread, a few microseconds after the client read what followed
+# the ping: wait for the count, at most a second, so the assertion is on the mechanism and not on a race
+func WsWaitPongs(nWanted)
+	t0 = clock()
+	while StzEngineWsEchoPongs() < nWanted and (clock() - t0) / clockspersecond() < 1
+	end
+	return StzEngineWsEchoPongs()
 
 func WsRawRefused(h, cCommand, cName)
 	StzEngineWsSend(h, 1, cCommand)
