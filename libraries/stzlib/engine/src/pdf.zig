@@ -2109,8 +2109,11 @@ fn ocrFragments(a: Allocator, pg: Page, page_no: u32, ocr: []const OcrLine, out:
     }
     // STZ_PDF_OCR_TRACE=1 prints each OCR fragment: size, stroke ratio against the page's median, bold, mono, text
     if (std.process.hasNonEmptyEnvVarConstant("STZ_PDF_OCR_TRACE")) {
-        for (out.items[first..]) |f| {
-            std.debug.print("[ocr frag] size {d:.1} bold {} mono {} width {d:.0} | {s}\n", .{ f.size, f.bold, f.mono, f.x1 - f.x0, f.text });
+        for (out.items[first..], 0..) |f, fi| {
+            // adv: the line's letters' width over its size times the sum of its characters' proportional advances
+            // (about 1 in a proportional face, about 1.3 in a monospaced one)
+            const adv = if (fi < widths.items.len and widths.items[fi][2] > 0) widths.items[fi][0] / (f.size * widths.items[fi][2]) else 0;
+            std.debug.print("[ocr frag] size {d:.1} bold {} mono {} width {d:.0} adv {d:.2} | {s}\n", .{ f.size, f.bold, f.mono, f.x1 - f.x0, adv, f.text });
         }
         std.debug.print("[ocr frag] page median stroke {d:.3}\n", .{med});
     }
@@ -2126,6 +2129,109 @@ fn ocrFragments(a: Allocator, pg: Page, page_no: u32, ocr: []const OcrLine, out:
             if (dt.x0 >= f.x0 - 1 and dt.x1 <= f.x0 + 2.5 * f.size) {
                 f.x0 = dt.x1 + 0.3 * f.size;
                 break;
+            }
+        }
+    }
+    try ocrListNumbers(a, out.items[first..]);
+}
+
+// "2.1 " or "3.4.2 " opening a line: a section's number of two levels or more
+fn sectionNumber(t: []const u8) bool {
+    var i: usize = 0;
+    var levels: usize = 0;
+    while (true) {
+        const d0 = i;
+        while (i < t.len and t[i] >= '0' and t[i] <= '9' and i - d0 < 3) : (i += 1) {}
+        if (i == d0) return false;
+        levels += 1;
+        if (i < t.len and t[i] == '.' and i + 1 < t.len and t[i + 1] >= '0' and t[i + 1] <= '9') {
+            i += 1;
+            continue;
+        }
+        break;
+    }
+    if (i < t.len and t[i] == '.') i += 1;
+    return levels >= 2 and i < t.len and t[i] == ' ';
+}
+
+// "2)" or "12." opening a line, then a space: its number and its sign
+fn numberMarker(t: []const u8) ?struct { n: u32, sign: u8, len: usize } {
+    var i: usize = 0;
+    while (i < t.len and i < 3 and t[i] >= '0' and t[i] <= '9') : (i += 1) {}
+    if (i == 0 or i + 1 >= t.len or (t[i] != ')' and t[i] != '.') or t[i + 1] != ' ') return null;
+    return .{ .n = std.fmt.parseInt(u32, t[0..i], 10) catch return null, .sign = t[i], .len = i + 1 };
+}
+
+// A numbered list whose markers the recogniser read in part: golden_v33/u06's "1) Закрепите ..." came back without
+// its "1)" and "3) Подключите ..." as "3 Подключите ..." while "2) Подключите ..." read whole. The numbering says what
+// is missing: under item n, within six lines (an item wraps), the first line at the item's left edge that opens with
+// the number n + 1 and no sign is item n + 1, given item n's sign; between item n and item n + 2, the one line at
+// their edge with no marker is item n + 1 (the JPEG twin lost the "3" whole); and right above item 2, a line at its
+// edge, of its size, regular like it and with no marker of its own, is item 1. The marker is given back to the text,
+// and the reader's list rules do the rest.
+fn ocrListNumbers(a: Allocator, frags: []Frag) !void {
+    var changed = true;
+    var rounds: usize = 0;
+    while (changed and rounds < 50) : (rounds += 1) {
+        changed = false;
+        for (frags) |f| {
+            const mk = numberMarker(f.text) orelse continue;
+            if (f.bold) continue;
+            // the next line down at the item's edge that opens with a digit
+            var below: ?usize = null;
+            var above: ?usize = null;
+            for (frags, 0..) |g, gi| {
+                if (@abs(g.x0 - f.x0) > 0.5 * f.size or g.page != f.page) continue;
+                if (g.base > f.base + 0.5 * f.size and g.base - f.base <= 6 * f.size and g.text.len > 0 and g.text[0] >= '0' and g.text[0] <= '9') {
+                    if (below == null or g.base < frags[below.?].base) below = gi;
+                }
+                if (g.base < f.base - 0.5 * f.size and f.base - g.base <= 1.8 * f.size) {
+                    if (above == null or g.base > frags[above.?].base) above = gi;
+                }
+            }
+            if (below) |bi| {
+                const g = &frags[bi];
+                var d: usize = 0;
+                while (d < g.text.len and d < 3 and g.text[d] >= '0' and g.text[d] <= '9') : (d += 1) {}
+                if (d > 0 and d < g.text.len and g.text[d] == ' ' and numberMarker(g.text) == null and
+                    (std.fmt.parseInt(u32, g.text[0..d], 10) catch 0) == mk.n + 1)
+                {
+                    g.text = try std.mem.concat(a, u8, &.{ g.text[0..d], &.{mk.sign}, g.text[d..] });
+                    changed = true;
+                }
+            }
+            // item n + 2 further down, with one unmarked line at the edge between
+            for (frags) |h| {
+                const hm = numberMarker(h.text) orelse continue;
+                if (hm.n != mk.n + 2 or hm.sign != mk.sign or h.page != f.page or @abs(h.x0 - f.x0) > 0.5 * f.size) continue;
+                if (h.base <= f.base or h.base - f.base > 8 * f.size) continue;
+                var only: ?usize = null;
+                var n_between: usize = 0;
+                for (frags, 0..) |g, gi| {
+                    if (g.page != f.page or @abs(g.x0 - f.x0) > 0.5 * f.size) continue;
+                    if (g.base > f.base + 0.5 * f.size and g.base < h.base - 0.5 * f.size) {
+                        n_between += 1;
+                        only = gi;
+                    }
+                }
+                if (n_between == 1) {
+                    const g = &frags[only.?];
+                    if (!g.bold and @abs(g.size - f.size) <= 0.1 * f.size and startsListMarker(g.text) == 0 and numberMarker(g.text) == null) {
+                        const num = try std.fmt.allocPrint(a, "{d}", .{mk.n + 1});
+                        g.text = try std.mem.concat(a, u8, &.{ num, &.{mk.sign}, " ", g.text });
+                        changed = true;
+                    }
+                }
+                break;
+            }
+            if (mk.n == 2) {
+                if (above) |ai| {
+                    const g = &frags[ai];
+                    if (!g.bold and @abs(g.size - f.size) <= 0.1 * f.size and startsListMarker(g.text) == 0 and numberMarker(g.text) == null) {
+                        g.text = try std.mem.concat(a, u8, &.{ "1", &.{mk.sign}, " ", g.text });
+                        changed = true;
+                    }
+                }
             }
         }
     }
@@ -7129,8 +7235,15 @@ pub fn readOcr(gpa: Allocator, bytes: []const u8, ocr: []const OcrLine, marks: [
                 var same_style = @abs(f.size - b.size) <= 0.15 * b.size and f.bold == b.bold and f.mono == b.mono and f.italic == b.italic;
                 // (a short line set larger than the one under it is a heading over it, however little larger: 13 pt over 11.5;
                 //  on a page read through OCR, whose sizes hold some 5% either way, 12.5 over 11.5 measured 1.056)
-                const over: f32 = if (b.page >= 1 and b.page <= ocr_read.items.len and ocr_read.items[b.page - 1]) 1.04 else 1.08;
-                if (same_style and b.lines == 1 and b.kind == .paragraph and b.size > over * f.size and wordCount(cur_text.items) <= 6 and
+                const ocr_pg = b.page >= 1 and b.page <= ocr_read.items.len and ocr_read.items[b.page - 1];
+                // (on a page read through OCR a line that goes on in lower case continues the one above it, however much
+                //  smaller it reads: a detector's box loses the capitals' height, and golden_v33/u06's 20-pt title's
+                //  second line, "по настройке", read 15)
+                const goes_on = ocr_pg and startsLower(f.text) and f.bold == b.bold and @abs(f.size - b.size) <= 0.35 * b.size and
+                    cur_text.items.len > 0 and std.mem.indexOfScalar(u8, ".;!?", cur_text.items[cur_text.items.len - 1]) == null;
+                if (goes_on) same_style = true;
+                const over: f32 = if (ocr_pg) 1.04 else 1.08;
+                if (!goes_on and same_style and b.lines == 1 and b.kind == .paragraph and b.size > over * f.size and wordCount(cur_text.items) <= 6 and
                     cur_text.items.len > 0 and std.mem.indexOfScalar(u8, ".,;:", cur_text.items[cur_text.items.len - 1]) == null) same_style = false;
                 const maxgap: f32 = if (b.mono and f.mono) 3.5 * f.size else 0.9 * f.size;
                 const below = f.page == b.page and f.y0 >= last.y0 + 0.3 * f.size and f.y0 - last.y1 <= maxgap;
@@ -7258,7 +7371,12 @@ pub fn readOcr(gpa: Allocator, bytes: []const u8, ocr: []const OcrLine, marks: [
         if (b.kind == .list_item and startsListMarker(b.text) > 0 and body > 0 and b.lines == 1 and b.text.len <= 120 and
             (b.size >= 1.08 * body or (b.bold and b.text[b.text.len - 1] != '.') or
             // (an italic numbered line, like an italic paragraph line, is a heading: "2.1 Decision ...")
-            (b.italic and b.text.len <= 80 and b.text[b.text.len - 1] != '.' and b.size >= 0.95 * body)))
+            (b.italic and b.text.len <= 80 and b.text[b.text.len - 1] != '.' and b.size >= 0.95 * body) or
+            // (on a page read through OCR, where bold is not always seen -- golden_v33/u06's photo lost it on "2.1
+            //  Комплектность" -- a short line under a number of two levels or more, ending in no sign, is a section's
+            //  title: a list numbers its items "2)" or "2.", a document its sections "2.1")
+            (b.page >= 1 and b.page <= ocr_read.items.len and ocr_read.items[b.page - 1] and sectionNumber(b.text) and
+                wordCount(b.text) <= 6 and std.mem.indexOfScalar(u8, ".,;:", b.text[b.text.len - 1]) == null)))
         {
             b.kind = .heading;
             try hsizes.append(a, b.size);

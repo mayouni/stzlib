@@ -10,9 +10,10 @@
 # image-only PDF (_rig/_make_scan_pdfs.py), so its blocks can be held against the blocks the reader finds in the
 # born-digital page. Measured 2026-10-30 (page 1 of each): French golden_v36/z09 14 of 14 born-digital blocks found,
 # 13 of the same kind; Arabic golden_v35/y11 16 of 16, 13; Russian golden_v33/u06 18 of 26, 16. Measured 2026-10-31,
-# after the O4 gaps and the header band: French 14 of 14, 14; Arabic 16 of 16, 15; Russian 26 of 26, 23. What a scan
-# does not give back yet: two list markers the recogniser drops (u06's old-style "1)" and "3)"), a code block of one
-# line, and a short 12.5-pt Arabic title over 11.5-pt text read as a heading (1.087 of the body, the bar 1.1).
+# after the O4 gaps and the header band: French 14 of 14, 14; Arabic 16 of 16, 15; Russian 26 of 26, 23; and after
+# the remaining gaps: Russian 26 of 26, 25. What a scan does not give back yet: a code block of one line (its face
+# cannot be told from its widths: code 1.11, prose up to 1.18), and a short 12.5-pt Arabic title over 11.5-pt text
+# read as a heading (1.087 of the body, the bar 1.1).
 # An Arabic line's size is read from its words' median top and bottom (2026-10-31): its box grew with its length.
 #
 # Light text on a dark band is read again by the PP-OCR model (StzOcrWithDarkBands, 2026-10-31): the platform
@@ -146,6 +147,11 @@ if fexists(StzOcrModelDir() + "/ppocr_rec_cyrillic.gguf")
 		Then("the running title is the header", blockKind(o, "ТМ-200 · Руководство по настройке"), "page_header")
 		Then("a list item whose marker OCR glued to its word is a list item (the space given back)", kindWith(o, "list_item", "блок питания"), 1)
 		Then("the lettered and numbered items too: six of the eight", countKind(o, "list_item") >= 6, 1)
+		# the recogniser drops "1)" whole and reads "3)" as "3" while "2)" reads whole: the numbering gives them back
+		Then("item 1, its marker lost, is item 1 again (the line right above item 2)", kindWith(o, "list_item", "1) Закрепите шлюз"), 1)
+		Then("item 3, read as a bare 3, is item 3 again", kindWith(o, "list_item", "3) Подключите кабель"), 1)
+		# a detector's box loses the capitals' height: the title's second line, all lower case, read 15 points under 20
+		Then("the two-line title is one heading (a line going on in lower case continues the one above)", blockKind(o, "Шлюз телеметрии ТМ-200: руководство по настройке"), "heading")
 		Then("the shaded configuration block is code (monospace from its lines' widths)", kindWith(o, "code", "[network]"), 1)
 		Then("one block, its comments joined to their lines", kindWith(o, "code", "# адрес шлюза") * kindWith(o, "code", "[mqtt]"), 1)
 	EndScenario()
@@ -214,6 +220,7 @@ if fexists(StzOcrModelDir() + "/ppocr_rec_cyrillic.gguf")
 		Then("the half-degree turn is measured, the shadowed border kept out of the vote", nSkew > -0.6 and nSkew < -0.4, 1)
 		Then("a section title is a heading", blockKind(o, "2. Подготовка к работе"), "heading")
 		Then("another one too", blockKind(o, "3. Файл конфигурации"), "heading")
+		Then("a section numbered on two levels is a heading though its bold was not seen", blockKind(o, "2.1 Комплектность"), "heading")
 		Then("its lists come back as list items", countKind(o, "list_item") >= 6, 1)
 		Then("the page number is the footer", blockKind(o, "Стр. 1 из 3"), "page_footer")
 	EndScenario()
