@@ -71,6 +71,8 @@ const base_domains = [_]Domain{
     .{ .name = "stz_html", .entry = "src/stz_html_entry.zig", .needs_ring = true },
     .{ .name = "stz_http", .entry = "src/stz_http_entry.zig", .needs_ring = true, .needs_libcurl = true },
     .{ .name = "stz_tcp", .entry = "src/stz_tcp_entry.zig", .needs_ring = true },
+    // WebSocket client (RFC 6455) over the engine socket; wss over mbedTLS, the engine's own TLS path
+    .{ .name = "stz_ws", .entry = "src/stz_ws_entry.zig", .needs_ring = true, .needs_mbedtls = true },
     .{ .name = "stz_fswatch", .entry = "src/stz_fswatch_entry.zig", .needs_ring = true },
     .{ .name = "stz_time", .entry = "src/stz_time_entry.zig", .needs_ring = true },
     .{ .name = "stz_pool", .entry = "src/stz_pool_entry.zig", .needs_ring = true },
@@ -1011,6 +1013,20 @@ pub fn build(b: *std.Build) void {
         const fh_step = b.step("fuzz-http", "Fuzz the HTTP framing parser (memory safety)");
         fh_step.dependOn(&fh_run.step);
         fuzz_all.dependOn(&fh_run.step);
+
+        // WebSocket frame parser -- a frame length is attacker-controlled (ws.zig).
+        const fw_mod = b.createModule(.{
+            .root_source_file = b.path("src/fuzz_ws.zig"),
+            .target = target,
+            .optimize = .ReleaseSafe,
+            .link_libc = true,
+        });
+        const fw = b.addExecutable(.{ .name = "fuzz_ws", .root_module = fw_mod });
+        addMbedtls(fw_mod, fw, b, target.result.os.tag, false); // ws.zig imports ws_tls.zig outside a test build
+        const fw_run = b.addRunArtifact(fw);
+        const fw_step = b.step("fuzz-ws", "Fuzz the WebSocket frame parser, round-trip properties, mutants (memory safety)");
+        fw_step.dependOn(&fw_run.step);
+        fuzz_all.dependOn(&fw_run.step);
 
         // TLS input parsing -- feed malformed certs + ciphertext to mbedTLS.
         const ft_mod = b.createModule(.{
