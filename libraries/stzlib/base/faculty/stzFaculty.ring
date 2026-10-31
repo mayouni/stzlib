@@ -688,15 +688,16 @@ class stzFaculty from stzObject
 			This.SetGoldenVersion(pcVersion)
 			return This
 
-	# Makes the faculty MEASURED PER LANGUAGE: each golden's language is read from this key of its input (or of
-	# the call's parameters), RunGoldens also files one measurement per language (golden version "v2/ru"), and a
-	# call that names one language is resolved on that language's measurements -- the floor's bar and every
-	# model's score taken from the same language. A model may then answer one language and the floor another.
+	# Makes the faculty measured per language: each golden's language is read from one key of its input.
 	#
 	#   pcKey      the input field that holds the language, such as :lang; "" turns it off
 	#   returns    nothing; use SetGoldenLanguageKeyQ to chain
-	#   note       ruled by the author 2026-10-30 (OCR-PERLANG-01) after :ocr showed the floor winning Arabic,
-	#              the model winning Russian and French a tie: one mixed golden set can only ever pick one
+	#   note       the key is read from the golden's input or from the call's parameters. RunGoldens then files one
+	#              measurement per language (golden version "v2/ru"), and a call that names one language is resolved
+	#              on that language's measurements, the floor's bar and every model's score taken from the same
+	#              language, so a model may answer one language and the floor another. Ruled by the author
+	#              2026-10-30 (OCR-PERLANG-01) after :ocr showed the floor winning Arabic, the model winning Russian
+	#              and French a tie: one mixed golden set can only ever pick one
 	#   warning    a language with no golden items has no bar of its own; a call in it is judged on the whole set,
 	#              and the plan says so
 	#   see        GoldenLanguageKey, StzGoldenLanguageOf, SetGoldenVersion
@@ -707,7 +708,9 @@ class stzFaculty from stzObject
 			This.SetGoldenLanguageKey(pcKey)
 			return This
 
-	# The input field that holds a golden's language, "" when the faculty is measured on its whole set only.
+	# Returns the input field that holds a golden's language, empty when the faculty is measured on its whole set.
+	#
+	#   returns    a text such as "lang", or ""
 	def GoldenLanguageKey()
 		_a_ = $aStzFaculties[_StzFacultyRow(@cName)]
 		if NOT HasKey(_a_, :langkey) return "" ok

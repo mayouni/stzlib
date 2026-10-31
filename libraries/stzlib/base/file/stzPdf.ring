@@ -239,12 +239,12 @@ class stzPdf from stzObject
 	 #  PAGE IMAGES     #
 	#------------------#
 
-	# Returns the images drawn on the pages, in page order, each as a record: the page, the box it lands in
-	# (page points, y down), its width and height in pixels, its bits per component, its components (1 gray,
-	# 3 RGB, 4 CMYK), its stream filter, and its kind -- "samples" when the engine decoded it, "jpeg" when the
-	# stream is a JPEG the engine hands out as it is, "unsupported" when it is neither (JPX, CCITT, JBIG2).
+	# Returns the images drawn on the pages, in page order, each as a record.
 	#
 	#   returns    a list of records [ :page, :box, :width, :height, :bits, :components, :filter, :kind ]
+	#   note       the box is in page points, y down; width and height are in pixels; components is 1 gray, 3 RGB
+	#              or 4 CMYK; kind is "samples" when the engine decoded the image, "jpeg" when the stream is a
+	#              JPEG the engine hands out as it is, "unsupported" when it is neither (JPX, CCITT, JBIG2)
 	def PageImages()
 		_aRes_ = []
 		_n_ = ring_len(@aImages)
@@ -255,22 +255,24 @@ class stzPdf from stzObject
 		next
 		return _aRes_
 
+	# Returns how many images the document draws, over all pages.
 	def NumberOfImages()
 		return ring_len(@aImages)
 
+	# TRUE if the document draws at least one image on any page.
 	def HasImages()
 		return ring_len(@aImages) > 0
 
-	# TRUE when the document is a scan: pages with images and no text layer.
+	# TRUE if the document is a scan: pages with images and no text layer.
 	def IsScanned()
 		return NOT This.HasText() and This.HasImages()
 
-	# Writes image number pnImage to a file and returns its path: pcPathBase with ".jpg" for a JPEG stream, ".bmp"
-	# for decoded samples; raises when the image is of a kind the engine does not hand out.
+	# Writes one image of the document to a file and returns the path it wrote.
 	#
 	#   pnImage     the image's number in PageImages(), from 1
 	#   pcPathBase  the path to write, without extension (the right one is added)
-	#   returns     the path written
+	#   returns     the path written: pcPathBase with ".jpg" for a JPEG stream, ".bmp" for decoded samples
+	#   warning     raises when the image is of a kind the engine does not hand out, or cannot be written
 	def SaveImage(pnImage, pcPathBase)
 		if pnImage < 1 or pnImage > ring_len(@aImages)
 			stzraise("stzPdf: no image number " + pnImage + " (the document has " + ring_len(@aImages) + ")")
@@ -301,14 +303,16 @@ class stzPdf from stzObject
 		if _nBest_ = 0 return "" ok
 		return This.SaveImage(_nBest_, sysget("TEMP") + "\stz_pdf_p" + pnPage + "_" + random(999999))
 
-	# How many of an image's pixels make one PRINTED point (1/72 inch): the scale the page marks are found at (a rule
-	# is 28 pt long, a bullet 2.5 to 9 pt). A PDF that sizes its page in real points says it directly (its width
-	# between 400 and 900 points: a sheet of paper). A phone's scan app often sizes the page to the image instead
-	# (one point per pixel: 1660 points wide), and then the paper is read from the image's proportions -- A4 at 1.41,
-	# US Letter at 1.29 -- and the image is taken to span its width. Anything else keeps the PDF's own scale.
+	# Returns how many of an image's pixels make one printed point (1/72 inch).
 	#
 	#   pnImage    the image's number in PageImages()
 	#   returns    pixels per printed point (150 dpi: 2.083)
+	#   note       this is the scale the page marks are found at (a rule is 28 pt long, a bullet 2.5 to 9 pt). A PDF
+	#              that sizes its page in real points says it directly (its width between 400 and 900 points: a
+	#              sheet of paper). A phone's scan app often sizes the page to the image instead (one point per
+	#              pixel: 1660 points wide), and then the paper is read from the image's proportions -- A4 at
+	#              1.41, US Letter at 1.29 -- and the image is taken to span its width. Anything else keeps the
+	#              PDF's own scale
 	def ImagePixelsPerPoint(pnImage)
 		_a_ = @aImages[pnImage]
 		_nW_ = _a_[4] - _a_[2]
@@ -328,7 +332,10 @@ class stzPdf from stzObject
 		if _dL_ <= 0.04 return _nShort_ / 612 ok
 		return _nPx_ / _nW_
 
-	# The number in PageImages() of a page's largest image the engine hands out, 0 when it has none.
+	# Returns the number of a page's largest image the engine hands out, 0 when it has none.
+	#
+	#   pnPage     the page, from 1
+	#   returns    a number in PageImages(), or 0
 	def PageImageNumber(pnPage)
 		_nBest_ = 0
 		_nArea_ = 0
@@ -344,11 +351,13 @@ class stzPdf from stzObject
 		next
 		return _nBest_
 
-	# The :ocr reader over the pages' images: the registry picks its implementation (the platform floor until a
-	# model is measured better); its Text() is the pages' text in reading order of the lines.
+	# Returns the recognition reader over the pages' images; the registry picks its implementation.
 	#
 	#   pcLang     the language pack to read with, or "" for the user's own languages
 	#   returns    a stzOcr
+	#   note       the implementation is the platform floor until a model is measured better; the reader's Text()
+	#              is the pages' text in reading order of the lines
+	#   warning    raises when the document has no image the engine hands out
 	def Ocr(pcLang)
 		_aPages_ = []
 		_nP_ = This.NumberOfPages()
@@ -361,20 +370,24 @@ class stzPdf from stzObject
 		ok
 		return StzOcrQ([ :pages = _aPages_, :lang = pcLang ])
 
-	# The text layer when there is one, the OCR text of the page images otherwise.
+	# Returns the text layer when there is one, else the recognised text of the page images.
+	#
+	#   pcLang     the language pack for the recognition, used only when there is no text layer
+	#   returns    a text
 	def TextOrOcr(pcLang)
 		if This.HasText() return @cText ok
 		return This.Ocr(pcLang).Text()
 
-	# Reads the document again with its scanned pages read through OCR (OCR slice O4): each page with no text
-	# layer is read by the :ocr faculty (the registry picks the implementation per language), and its lines, each
-	# with its box, enter the reader's layout as fragments. Blocks(), Text() and Info() are then those of the
-	# scan, built by the reader's own rules: headings, lists, tables, page furniture and reading order.
+	# Reads the document again with its scanned pages recognised from their images.
 	#
 	#   pcLang     the language of the pages ("fr-FR", "ar-SA", "ru-RU"), or "" for the user's own languages
 	#   returns    nothing; ReadOcrQ chains
-	#   note       a page that has a text layer keeps it and is not read by OCR; a font size is ESTIMATED from
-	#              each line's box, and no OCR line is bold (the faculty does not say)
+	#   note       OCR slice O4: each page with no text layer is read by the :ocr faculty (the registry picks the
+	#              implementation per language), and its lines, each with its box, enter the reader's layout as
+	#              fragments; Blocks(), Text() and Info() are then those of the scan, built by the reader's own
+	#              rules: headings, lists, tables, page furniture and reading order. A page that has a text layer
+	#              keeps it and is not read this way; a font size is ESTIMATED from each line's box, and no
+	#              recognised line is bold (the faculty does not say)
 	#   warning    raises when the faculty cannot read the language, or the PDF cannot be read again
 	def ReadOcr(pcLang)
 		# the pages that already have text keep it
@@ -459,16 +472,20 @@ class stzPdf from stzObject
 			This.ReadOcr(pcLang)
 			return This
 
-	# TRUE once ReadOcr laid out at least one page from OCR lines.
+	# TRUE if the last re-read laid out at least one page from recognised lines.
 	def IsReadByOcr()
 		return ring_len(@aOcrBy) > 0
 
-	# Which implementation read each scanned page in the last ReadOcr: [ nPage, cImplementation, nLines, nSkew,
-	# bSharpened ] per page ("platform" or "ppocr"; nSkew the degrees the page was turned level by, 0 when it was
-	# level; bSharpened 1 when the page was soft and read from a sharpened copy).
+	# Returns which implementation read each scanned page in the last re-read.
+	#
+	#   returns    a list of [ nPage, cImplementation, nLines, nSkew, bSharpened ] per page
+	#   note       the implementation is "platform" or "ppocr"; nSkew is the degrees the page was turned level by,
+	#              0 when it was level; bSharpened is 1 when the page was soft and read from a sharpened copy
 	def OcrPages()
 		return @aOcrBy
 
-	# How many marks (rules, bullets, shadings) the last ReadOcr found in each scanned page's pixels: [ nPage, nMarks ].
+	# Returns how many marks (rules, bullets, shadings) the last re-read found in each scanned page's pixels.
+	#
+	#   returns    a list of [ nPage, nMarks ] per scanned page
 	def OcrMarks()
 		return @aOcrMarks

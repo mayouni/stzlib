@@ -700,6 +700,11 @@ class stzModelRegistry from stzObject
 		if _iF_ = 0 return [] ok
 		return StzMeasurementOf(pcFaculty, pcImpl, $aStzFaculties[_iF_][:goldenversion] + "/" + lower(left("" + pcLang, 2)))
 
+	# Measures a faculty on its golden set and records the scores.
+	#
+	#   pcFaculty  the name of the faculty to measure
+	#   returns    the rows recorded
+	#   see        RunGoldensFor, Measurements
 	def RunGoldens(pcFaculty)
 		return StzRunGoldens(pcFaculty, [])
 

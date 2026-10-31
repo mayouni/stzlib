@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 49 methods in 38 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 47 methods in 37 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| math/stzMathFigure.ring | stzMathFigure | 2 |
 | network/stzWebSocket.ring | stzWebSocket | 2 |
 | neural/stzLLMFunction.ring | stzLLMFunction | 2 |
 | number/stzHexNumber.ring | stzHexNumber | 2 |
@@ -87,11 +86,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzYielder -- list/stzYielder.ring (1)
 
 - `MapIndexed` (line 107): Returns the text <list> for every item today, instead of applying an operation together with each item position. -- defect: the result holds the text "<list>" in place of the values, for every operation tried (:Square, :Abs, :Negate, :Increment) and every input; the engine call returns its items in a form the Ring side shows only as that text
-
-## stzMathFigure -- math/stzMathFigure.ring (2)
-
-- `Pin` (line 384): Raises an error today instead of holding a shape where it is during later solves: no shape of any figure kind has a free position to hold. -- the diagram refuses it because the rules fix every shape (checked on 35 sample figures of all ten kinds); an unknown path raises too
-- `DragTo` (line 407): Raises an error today instead of moving a shape to a position and re-solving around it: no shape has a free centre to move. -- refused for every shape of 9 figures tried across the kinds; use MoveNoteTo to move a note
 
 ## stzTukeyLine -- math/stzTukey.ring (1)
 

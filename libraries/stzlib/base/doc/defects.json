@@ -1,5 +1,5 @@
 {
- "count": 49,
+ "count": 47,
  "defects": [
   {
    "class": "stzEngineTimeline",
@@ -80,22 +80,6 @@
    "line": 107,
    "symptom": "Returns the text <list> for every item today, instead of applying an operation together with each item position.",
    "cause": "defect: the result holds the text \"<list>\" in place of the values, for every operation tried (:Square, :Abs, :Negate, :Increment) and every input; the engine call returns its items in a form the Ring side shows only as that text"
-  },
-  {
-   "class": "stzMathFigure",
-   "file": "math/stzMathFigure.ring",
-   "method": "Pin",
-   "line": 384,
-   "symptom": "Raises an error today instead of holding a shape where it is during later solves: no shape of any figure kind has a free position to hold.",
-   "cause": "the diagram refuses it because the rules fix every shape (checked on 35 sample figures of all ten kinds); an unknown path raises too"
-  },
-  {
-   "class": "stzMathFigure",
-   "file": "math/stzMathFigure.ring",
-   "method": "DragTo",
-   "line": 407,
-   "symptom": "Raises an error today instead of moving a shape to a position and re-solving around it: no shape has a free centre to move.",
-   "cause": "refused for every shape of 9 figures tried across the kinds; use MoveNoteTo to move a note"
   },
   {
    "class": "stzTukeyLine",

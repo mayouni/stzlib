@@ -581,12 +581,15 @@ class stzOcr from stzObject
 		@aPages = _StzOcrPagesOf(pImage)
 		@cLang = _StzOcrLangOf(pImage, [])
 
+	# Returns the page images the reader was built over, in order.
 	def Pages()
 		return @aPages
 
+	# Returns how many page images the reader holds.
 	def NumberOfPages()
 		return len(@aPages)
 
+	# Returns the pack code the reader reads with, empty when the user's own packs apply.
 	def Language()
 		return @cLang
 
@@ -599,15 +602,20 @@ class stzOcr from stzObject
 			This.SetLanguage(pcLang)
 			return This
 
-	# The lines of every page, in logical order, pages in order.
+	# Returns what was read on every page, in logical order and page order.
+	#
+	#   returns    a list of texts, one per line; the pages are read on the first call
 	def Lines()
 		This._Read()
 		return @aLines
 
+	# Returns how many rows the read produced, reading the pages first if they were not read.
 	def NumberOfLines()
 		return len(This.Lines())
 
-	# The text: the lines joined by spaces (what the faculty's court judged).
+	# Returns every line read, joined by single spaces.
+	#
+	#   returns    one text; this is what the faculty's court judged
 	def Text()
 		This._Read()
 		_c_ = ""
@@ -618,7 +626,7 @@ class stzOcr from stzObject
 		next
 		return _c_
 
-	# The text with one line per row.
+	# Returns every line read, one per row, joined by a newline.
 	def TextLines()
 		This._Read()
 		_c_ = ""
@@ -629,20 +637,25 @@ class stzOcr from stzObject
 		next
 		return _c_
 
-	# The summary the platform engine printed for the last page read (lines, words, ms), "" before any read.
+	# Returns the summary the platform engine printed for the last page read, empty before any read.
+	#
+	#   returns    a text with the lines, the words and the milliseconds
 	def LastSummary()
 		return $cStzOcrLastSummary
 
-	# The implementation that answered: "platform" (the floor) or "ppocr" (the model), as the registry chose it for
-	# this language.
+	# Returns which implementation read the pages: "platform" (the floor) or "ppocr" (the model).
+	#
+	#   returns    the id of the implementation the registry chose for this pack
 	def AnsweredBy()
 		This._Read()
 		return @cAnsweredBy
 
+	# Returns the reader's record: its pages, its pack, the lines read and the implementation that read them.
 	def Content()
 		This._Read()
 		return [ :pages = @aPages, :lang = @cLang, :lines = @aLines, :answeredby = @cAnsweredBy ]
 
+	# Prints the reader's record to the console, for a quick look.
 	def Show()
 		? @@(This.Content())
 

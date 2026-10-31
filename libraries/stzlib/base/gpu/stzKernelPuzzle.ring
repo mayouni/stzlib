@@ -486,8 +486,7 @@ class stzKernelPuzzle from stzObject
 		ok
 		return This._GradeOnCpu(StzKernelMakerFromSpec(@cReference), _r_, This.Bindings(), This.Elements())
 
-	# A maker ready to grade, or the verdict that ends the grading before any run
-	# Runs the learner's kernel on the CPU with the sanitizer watching, at the puzzle's visible shape, and returns what it found.
+	# Runs the learner's kernel on the CPU with a checker watching, at the puzzle's visible shape, and returns what it found.
 	#
 	#   pLearner   a stzKernelMaker, or the description as text
 	#   returns    a list of texts, one per defect kind, each naming the line, the threads and the slot;
@@ -517,6 +516,7 @@ class stzKernelPuzzle from stzObject
 		ok
 		return ""
 
+	# A maker ready to grade, or the verdict that ends the grading before any run
 	def _Prepare(pLearner)
 		if isString(pLearner)
 			_cText_ = StzReplace(pLearner, char(13), "")
