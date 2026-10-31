@@ -599,3 +599,8 @@ Next by size: 11 classes at 2 (stzMathFigure first), then 28 at 1, then the stzG
 Pin and DragTo refused every shape of every figure kind (426 of 426), because a math figure's rules place every shape and a drag would falsify the mathematics. The class now says so: Pin(shape) is a no-op, DragTo(shape) is a named refusal, an unknown path lists the valid ones, and a NOTE can be pinned, released and dragged (MoveNoteTo now works on all four kinds with free offsets, not only the function figure). IsPinned(path) is new. Guard 424 assertions with a tripwire for a future free shape. Open: the sin(x)/x zeros figure is not solved (5 soft findings under 2.3 px). The gate broke from new OCR/PDF/faculty/puzzle methods (28 errors): repaired with comment-only edits; a blank line does not detach a comment run, move the line.
 Next by size: 10 classes at 2 (stzWebSocket first), then 28 at 1, then the stzGraphQuery follow-up.
 
+## 2026-10-31: the stzWebSocket fix batch is ON MAIN; register 47 -> 45
+
+Connect raised R3 (libcurl is no longer loaded) and Close raised R24 when marked open. The class is now honest: Connect sets a named LastError and fires OnError, never raises on a text, IsOpen stays 0; Close is idempotent. No transport was built: the WebSocket client (RFC 6455 over engine TCP, TLS for wss) is owed to the engine owner. Guard 231 assertions, 10 mutants. Open: the wave data files still carry the old text.
+Next by size: 9 classes at 2 (stzLLMFunction first), then 28 at 1, then the stzGraphQuery follow-up.
+
