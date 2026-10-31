@@ -136,6 +136,53 @@ pub fn main() void {
     }
     std.debug.print("masking: 100000 round trips, involution holds.\n", .{});
 
+    // 1b) permessage-deflate: hostile compressed data and hostile extension offers
+    {
+        const alloc = std.heap.c_allocator;
+        var inf = ws.Deflate.Inflater{};
+        defer inf.deinit();
+        var out: std.ArrayList(u8) = .{};
+        defer out.deinit(alloc);
+        var k: usize = 0;
+        while (k < 30_000) : (k += 1) {
+            const n = rand.uintLessThan(usize, 400);
+            rand.bytes(buf[0..n]);
+            _ = inf.run(buf[0..n], &out, 4096);
+            // the limit is checked between 64 KiB chunks: nothing past it but one chunk
+            if (out.items.len > 4096 + 64 * 1024) {
+                std.debug.print("FAIL: inflation ran past its limit (iter {d})\n", .{k});
+                std.process.exit(1);
+            }
+            if (!inf.ready) _ = inf.init();
+            // an extension offer made of random printable bytes never crashes the parser
+            for (buf[0..n]) |*b| b.* = 32 + (b.* % 95);
+            _ = ws.Deflate.parseOffer(buf[0..n]);
+        }
+        // every message that goes through the deflater comes out of the inflater unchanged, with and
+        // without a window carried between messages
+        var d = ws.Deflate.Deflater{};
+        defer d.deinit();
+        if (!d.init(15)) @panic("deflater did not start");
+        var cm: std.ArrayList(u8) = .{};
+        defer cm.deinit(alloc);
+        var inf2 = ws.Deflate.Inflater{};
+        defer inf2.deinit();
+        var data: [2048]u8 = undefined;
+        var r: usize = 0;
+        while (r < 3000) : (r += 1) {
+            const n = rand.uintLessThan(usize, data.len);
+            for (data[0..n]) |*b| b.* = if (rand.uintLessThan(u8, 3) == 0) rand.int(u8) else "abcab"[rand.uintLessThan(usize, 5)];
+            if (rand.boolean()) d.reset();
+            if (!d.compress(data[0..n], &cm)) @panic("compress failed");
+            // a sender that reset forgets its window and a receiver that kept one still decodes it
+            if (inf2.run(cm.items, &out, 1 << 20) != .ok or !std.mem.eql(u8, out.items, data[0..n])) {
+                std.debug.print("FAIL: deflate -> inflate was not the identity (iter {d}, {d} bytes)\n", .{ r, n });
+                std.process.exit(1);
+            }
+        }
+        std.debug.print("deflate: 30000 hostile streams bounded, 3000 messages round-tripped.\n", .{});
+    }
+
     // 2) properties over the real parser
     var pi: usize = 0;
     while (pi < 300_000) : (pi += 1) {

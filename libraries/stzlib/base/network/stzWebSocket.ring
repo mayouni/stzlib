@@ -94,6 +94,10 @@ class stzWebSocket from stzNetwork
 	@ca_file = ""
 	@insecure = 0
 	@close_wait_ms = 2000
+	@compression_mode = 0      # 0 off, 1 permessage-deflate, 2 the same with no context takeover
+	@compressed = 0
+	@wire_in = 0
+	@wire_out = 0
 	@subprotocol_agreed = ""   # kept when the engine handle is freed at the end of a session
 	@pings_seen = 0
 	@pongs_made = 0
@@ -137,6 +141,10 @@ class stzWebSocket from stzNetwork
 		StzEngineWsSetCaFile(@hWs, @ca_file)
 		StzEngineWsSetInsecure(@hWs, @insecure)
 		StzEngineWsSetCloseWait(@hWs, @close_wait_ms)
+		StzEngineWsSetCompression(@hWs, @compression_mode)
+		@compressed = 0
+		@wire_in = 0
+		@wire_out = 0
 		@close_code = 0
 		@close_reason = ""
 		@closed_by_peer = 0
@@ -147,6 +155,7 @@ class stzWebSocket from stzNetwork
 		@handshake_done = 0
 		if StzEngineWsConnect(@hWs, cUrl) = 1
 			@is_connected = 1
+			@compressed = StzEngineWsCompressionActive(@hWs)
 			ClearErrors()
 			This._Run(@on_open_callback)
 		else
@@ -459,6 +468,87 @@ class stzWebSocket from stzNetwork
 	def ClosedByPeer()
 		return @closed_by_peer
 
+	# Offers permessage-deflate (RFC 7692) at the next Connect, so large messages cross the wire compressed.
+	#
+	#   returns    the client itself, so calls chain
+	#   note       the server decides: IsCompressed says whether it agreed; messages under 64 bytes
+	#              are never compressed; the window carries from one message to the next, which is
+	#              what makes many similar messages cheap
+	#   warning    it is off by default; a received message is inflated under SetMaxMessageSize, so a
+	#              small frame that would expand beyond it closes the session with 1009
+	#   see        EnableLeanCompression, DisableCompression, IsCompressed
+	#   example    o1.EnableCompression()
+	#              ? o1.IsCompressionEnabled()
+	#              #--> 1
+	def EnableCompression()
+		@compression_mode = 1
+		return This
+
+		def EnableCompressionQ()
+			return This.EnableCompression()
+
+	# Offers permessage-deflate with no context takeover, trading ratio for memory, at the next Connect.
+	#
+	#   returns    the client itself, so calls chain
+	#   note       each message is compressed on its own, so the engine keeps no window between
+	#              messages; both sides are asked to do the same
+	#   see        EnableCompression, IsCompressed
+	#   example    o1.EnableLeanCompression()
+	#              ? o1.IsCompressionEnabled()
+	#              #--> 1
+	def EnableLeanCompression()
+		@compression_mode = 2
+		return This
+
+		def EnableLeanCompressionQ()
+			return This.EnableLeanCompression()
+
+	# Stops offering permessage-deflate at the next Connect.
+	#
+	#   returns    the client itself, so calls chain
+	#   see        EnableCompression
+	def DisableCompression()
+		@compression_mode = 0
+		return This
+
+		def DisableCompressionQ()
+			return This.DisableCompression()
+
+	# TRUE if the client will offer permessage-deflate at the next Connect.
+	#
+	#   returns    TRUE or FALSE
+	#   see        EnableCompression, IsCompressed
+	def IsCompressionEnabled()
+		return @compression_mode > 0
+
+	# TRUE if the session in progress, or the last one, agreed to permessage-deflate.
+	#
+	#   returns    TRUE or FALSE
+	#   see        EnableCompression
+	def IsCompressed()
+		return @compressed
+
+	# Returns how many payload bytes the last message sent took on the wire, compressed when it was.
+	#
+	#   returns    a number; 0 before any send
+	#   note       compare it with the length of what was sent to see what compression bought
+	#   see        LastReceivedWireSize, IsCompressed
+	def LastSentWireSize()
+		if @hWs = ""
+			return @wire_out
+		ok
+		return StzEngineWsLastWireOut(@hWs)
+
+	# Returns how many payload bytes the last message received took on the wire, compressed when it was.
+	#
+	#   returns    a number; 0 before any receive
+	#   see        LastSentWireSize, IsCompressed
+	def LastReceivedWireSize()
+		if @hWs = ""
+			return @wire_in
+		ok
+		return StzEngineWsLastWireIn(@hWs)
+
 	# TRUE if the peer answered a close frame, so both sides took part in ending the session.
 	#
 	#   returns    TRUE or FALSE; FALSE while the session is open or when the connection simply dropped
@@ -715,6 +805,8 @@ class stzWebSocket from stzNetwork
 	def _Release()
 		if @hWs != ""
 			@subprotocol_agreed = StzEngineWsSubprotocol(@hWs)
+			@wire_in = StzEngineWsLastWireIn(@hWs)
+			@wire_out = StzEngineWsLastWireOut(@hWs)
 			@pings_seen = StzEngineWsPingsReceived(@hWs)
 			@pongs_made = StzEngineWsPongsSent(@hWs)
 			StzEngineWsFree(@hWs)
@@ -732,6 +824,7 @@ class stzWebSocket from stzNetwork
 		@close_reason = ""
 		@closed_by_peer = 0
 		@handshake_done = 0
+		@compressed = StzEngineWsCompressionActive(hClient)
 		ClearErrors()
 
 	def _Fail(cMessage, nCode)

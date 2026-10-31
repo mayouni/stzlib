@@ -14,6 +14,9 @@
 #   StzEngineWsClose(h, nCode, cReason)                 -> 1 when the peer answered
 #   StzEngineWsIsOpen / CloseCode / CloseReason / CloseByPeer / Subprotocol / LastError(h)
 #   StzEngineWsSetMaxMessage / SetConnectTimeout / SetCloseWait / SetSubprotocols / SetHeaders / SetCaFile / SetInsecure(h, x)
+#   StzEngineWsSetCompression(h, nMode)                 -- 0 off, 1 permessage-deflate, 2 also no_context_takeover
+#   StzEngineWsCompressionActive(h) / LastWireIn(h) / LastWireOut(h)   -- negotiated?; payload bytes of the last message on the wire
+#   StzEngineWsServerSetCompression(hServer, bOn)
 #   StzEngineWsFree(h)
 #   StzEngineWsServerListen(cHost, nPort[, cCertPemFile, cKeyPemFile]) -> server handle (0 = could not bind)
 #   StzEngineWsServerAccept(hServer, nTimeoutMs)        -> an open server-side client handle, or 0

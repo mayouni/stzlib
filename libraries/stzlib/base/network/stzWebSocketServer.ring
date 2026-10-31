@@ -44,6 +44,7 @@ class stzWebSocketServer from stzNetwork
 	@origins = ""
 	@handshake_ms = 5000
 	@close_wait_ms = 2000
+	@compression = 0
 
 	# Builds a server that is not listening and has no callback.
 	#
@@ -286,6 +287,42 @@ class stzWebSocketServer from stzNetwork
 		ok
 		return This
 
+	# Agrees to permessage-deflate (RFC 7692) with the clients that offer it, for the connections that follow.
+	#
+	#   returns    the server itself, so calls chain
+	#   note       it applies at once to a listening server; a client that offers parameters the
+	#              engine cannot honor, such as an 8-bit window, is let in without compression
+	#   warning    it is off by default; a received message is inflated under SetMaxMessageSize, so a
+	#              small frame that would expand beyond it closes that connection with 1009
+	#   see        DisableCompression, SetMaxMessageSize
+	#   example    o1.EnableCompression()
+	#              ? o1.IsCompressionEnabled()
+	#              #--> 1
+	def EnableCompression()
+		@compression = 1
+		if @is_listening
+			StzEngineWsServerSetCompression(@hServer, 1)
+		ok
+		return This
+
+	# Stops agreeing to permessage-deflate for the connections that follow.
+	#
+	#   returns    the server itself, so calls chain
+	#   see        EnableCompression
+	def DisableCompression()
+		@compression = 0
+		if @is_listening
+			StzEngineWsServerSetCompression(@hServer, 0)
+		ok
+		return This
+
+	# TRUE if the server agrees to permessage-deflate when a client offers it.
+	#
+	#   returns    TRUE or FALSE
+	#   see        EnableCompression
+	def IsCompressionEnabled()
+		return @compression
+
 	# Sets how long a client may take to send its opening request, in milliseconds.
 	#
 	#   nMs        the wait in milliseconds; the default is 5000
@@ -335,6 +372,7 @@ class stzWebSocketServer from stzNetwork
 		StzEngineWsServerSetSubprotocols(@hServer, @subprotocols)
 		StzEngineWsServerSetOrigins(@hServer, @origins)
 		StzEngineWsServerSetHandshakeTimeout(@hServer, @handshake_ms)
+		StzEngineWsServerSetCompression(@hServer, @compression)
 		@accepted = 0
 		@refused = 0
 		ClearErrors()

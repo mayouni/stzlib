@@ -86,6 +86,22 @@ fn ring_WsSetInsecure(p: *anyopaque) callconv(.c) void {
     ws.ws_set_insecure(getClient(p, 1), clampI32(gn(p, 2)));
 }
 
+fn ring_WsSetCompression(p: *anyopaque) callconv(.c) void {
+    ws.ws_set_compression(getClient(p, 1), clampI32(gn(p, 2)));
+}
+fn ring_WsCompressionActive(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(ws.ws_compression_active(getClient(p, 1))));
+}
+fn ring_WsLastWireIn(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(ws.ws_last_wire_in(getClient(p, 1))));
+}
+fn ring_WsLastWireOut(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(ws.ws_last_wire_out(getClient(p, 1))));
+}
+fn ring_WsServerSetCompression(p: *anyopaque) callconv(.c) void {
+    srv.ws_server_set_compression(getServer(p, 1), clampI32(gn(p, 2)));
+}
+
 fn ring_WsConnect(p: *anyopaque) callconv(.c) void {
     const u = str(p, 2);
     rn(p, @floatFromInt(ws.ws_connect(getClient(p, 1), u.ptr, u.len)));
@@ -343,6 +359,11 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginewssetheaders", .func = ring_WsSetHeaders },
     .{ .name = "stzenginewssetcafile", .func = ring_WsSetCaFile },
     .{ .name = "stzenginewssetinsecure", .func = ring_WsSetInsecure },
+    .{ .name = "stzenginewssetcompression", .func = ring_WsSetCompression },
+    .{ .name = "stzenginewscompressionactive", .func = ring_WsCompressionActive },
+    .{ .name = "stzenginewslastwirein", .func = ring_WsLastWireIn },
+    .{ .name = "stzenginewslastwireout", .func = ring_WsLastWireOut },
+    .{ .name = "stzenginewsserversetcompression", .func = ring_WsServerSetCompression },
     .{ .name = "stzenginewsconnect", .func = ring_WsConnect },
     .{ .name = "stzenginewssend", .func = ring_WsSend },
     .{ .name = "stzenginewssendfragmented", .func = ring_WsSendFragmented },

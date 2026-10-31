@@ -35,6 +35,9 @@
 //   0 correct   1 status 403   2 wrong Sec-WebSocket-Accept   3 no Upgrade header
 //   4 no Connection header   5 no Sec-WebSocket-Accept   6 a subprotocol the client
 //   did not offer   7 claims an extension   8 Upgrade: h2c
+//   9 answers permessage-deflate with client_max_window_bits (never offered)
+//   10 answers permessage-deflate with a parameter nobody defined   11 answers another extension
+//   12 answers permessage-deflate with server_max_window_bits=7 (outside 8..15)
 
 const std = @import("std");
 const ws = @import("ws.zig");
@@ -336,6 +339,10 @@ fn handshake(conn: *Conn) bool {
         }
     }
     if (mode == 7) w.writeAll("Sec-WebSocket-Extensions: permessage-deflate\r\n") catch return false;
+    if (mode == 9) w.writeAll("Sec-WebSocket-Extensions: permessage-deflate; client_max_window_bits=10\r\n") catch return false;
+    if (mode == 10) w.writeAll("Sec-WebSocket-Extensions: permessage-deflate; bogus\r\n") catch return false;
+    if (mode == 11) w.writeAll("Sec-WebSocket-Extensions: x-other\r\n") catch return false;
+    if (mode == 12) w.writeAll("Sec-WebSocket-Extensions: permessage-deflate; server_max_window_bits=7\r\n") catch return false;
     w.writeAll("\r\n") catch return false;
     conn.tr.writeAll(resp.items) catch return false;
     conn.rpos = head_end;

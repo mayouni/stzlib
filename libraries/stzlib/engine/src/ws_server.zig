@@ -30,6 +30,7 @@ pub const Server = struct {
     close_wait_ms: u32 = 2000,
     subprotocols: std.ArrayList(u8) = .{},
     origins: std.ArrayList(u8) = .{},
+    compression: bool = false,
     timed_out: bool = false,
     /// a BeginAccept in flight: the thread waiting for a client, and what it will hand over
     async_thread: ?std.Thread = null,
@@ -116,6 +117,11 @@ pub fn ws_server_set_subprotocols(s: ?*Server, p: [*]const u8, len: usize) callc
     ws.Client.setText(&sv.subprotocols, p[0..len]);
 }
 
+pub fn ws_server_set_compression(s: ?*Server, on: i32) callconv(.c) void {
+    const sv = s orelse return;
+    sv.compression = on != 0;
+}
+
 pub fn ws_server_set_origins(s: ?*Server, p: [*]const u8, len: usize) callconv(.c) void {
     const sv = s orelse return;
     ws.Client.setText(&sv.origins, p[0..len]);
@@ -176,6 +182,7 @@ pub fn ws_server_accept(s: ?*Server, timeout_ms: i32) callconv(.c) ?*ws.Client {
     c.max_message = sv.max_message;
     c.connect_timeout_ms = sv.handshake_ms;
     c.close_wait_ms = sv.close_wait_ms;
+    c.compression = sv.compression;
     c.tr = .{ .sock = conn.stream.handle };
     if (sv.use_tls) {
         if (comptime ws.tls_enabled) {
@@ -319,4 +326,148 @@ test "ws server: refusals are answered on the wire and named" {
     // nobody came: a timeout, not an error
     try testing.expect(ws_server_accept(sv, 50) == null);
     try testing.expect(sv.timed_out and sv.err_len == 0);
+}
+
+const RecvResult = struct { kind: i32 = -99, code: i32 = 0, err: [96]u8 = undefined, err_len: usize = 0, served: bool = false };
+
+fn serveOnceRecord(sv: *Server, out: *RecvResult) void {
+    const c = ws_server_accept(sv, 5000) orelse return;
+    defer {
+        c.deinit();
+        gpa.destroy(c);
+    }
+    out.served = true;
+    out.kind = c.recv(3000);
+    out.code = c.close_code;
+    const e = c.lastError();
+    out.err_len = @min(e.len, out.err.len);
+    @memcpy(out.err[0..out.err_len], e[0..out.err_len]);
+}
+
+fn pattern(buf: []u8) void {
+    for (buf, 0..) |*b, i| b.* = "abcdefgh"[i % 8];
+}
+
+test "ws server: permessage-deflate is negotiated, shrinks big messages on the wire, and echoes them whole" {
+    const sv = ws_server_listen("127.0.0.1", 9, 0, "", 0, "", 0) orelse return error.SkipZigTest;
+    defer ws_server_close(sv);
+    ws_server_set_compression(sv, 1);
+    var served = false;
+    const t = try std.Thread.spawn(.{}, serveOne, .{ sv, &served });
+    var url_buf: [64]u8 = undefined;
+    const url = try std.fmt.bufPrint(&url_buf, "ws://127.0.0.1:{d}/z", .{sv.port});
+    var c = ws.Client{};
+    defer c.deinit();
+    c.compression = true;
+    try testing.expect(c.connect(url));
+    try testing.expect(c.deflate_active);
+
+    const big = try gpa.alloc(u8, 200_000);
+    defer gpa.free(big);
+    pattern(big);
+    try testing.expect(c.send(ws.OP_BINARY, big));
+    try testing.expect(c.last_wire_out < 2000); // 200,000 bytes crossed the wire as fewer than 2,000
+    try testing.expectEqual(@as(i32, 2), c.recv(5000));
+    try testing.expectEqualSlices(u8, big, c.last.items);
+    try testing.expect(c.last_wire_in < 2000); // and the server's echo came back compressed too
+
+    // a message under the threshold goes out as it is
+    try testing.expect(c.send(ws.OP_TEXT, "tiny"));
+    try testing.expectEqual(@as(usize, 4), c.last_wire_out);
+    try testing.expectEqual(@as(i32, 1), c.recv(3000));
+    try testing.expectEqualStrings("tiny", c.last.items);
+
+    // many similar messages: the window carries, so later ones cost less than the first (letters the
+    // big message did not use, or the window would already hold them)
+    var text: [300]u8 = undefined;
+    for (&text, 0..) |*b, i| b.* = "ZYXWVUTS"[i % 8];
+    try testing.expect(c.send(ws.OP_TEXT, &text));
+    const first = c.last_wire_out;
+    try testing.expectEqual(@as(i32, 1), c.recv(3000));
+    try testing.expect(c.send(ws.OP_TEXT, &text));
+    try testing.expect(c.last_wire_out < first);
+    try testing.expectEqual(@as(i32, 1), c.recv(3000));
+    try testing.expectEqualSlices(u8, &text, c.last.items);
+
+    // fragmented AND compressed: the compressed bytes are what is split, RSV1 on the first frame
+    try testing.expect(c.sendFragmented(ws.OP_BINARY, big, 3));
+    try testing.expectEqual(@as(i32, 2), c.recv(5000));
+    try testing.expectEqualSlices(u8, big, c.last.items);
+    try testing.expect(c.close(1000, "bye"));
+    t.join();
+    try testing.expect(served);
+}
+
+test "ws server: no_context_takeover makes each message stand alone" {
+    const sv = ws_server_listen("127.0.0.1", 9, 0, "", 0, "", 0) orelse return error.SkipZigTest;
+    defer ws_server_close(sv);
+    ws_server_set_compression(sv, 1);
+    var served = false;
+    const t = try std.Thread.spawn(.{}, serveOne, .{ sv, &served });
+    var url_buf: [64]u8 = undefined;
+    const url = try std.fmt.bufPrint(&url_buf, "ws://127.0.0.1:{d}/z", .{sv.port});
+    var c = ws.Client{};
+    defer c.deinit();
+    c.compression = true;
+    c.compression_nct = true;
+    try testing.expect(c.connect(url));
+    try testing.expect(c.deflate_active and c.send_reset);
+    var text: [300]u8 = undefined;
+    pattern(&text);
+    try testing.expect(c.send(ws.OP_TEXT, &text));
+    const first = c.last_wire_out;
+    try testing.expectEqual(@as(i32, 1), c.recv(3000));
+    try testing.expect(c.send(ws.OP_TEXT, &text));
+    try testing.expectEqual(first, c.last_wire_out); // no window carried over: the same cost again
+    try testing.expectEqual(@as(i32, 1), c.recv(3000));
+    try testing.expectEqualSlices(u8, &text, c.last.items);
+    try testing.expect(c.close(1000, ""));
+    t.join();
+}
+
+test "ws server: a bomb is refused with 1009 after decompression, naming the cause" {
+    const sv = ws_server_listen("127.0.0.1", 9, 0, "", 0, "", 0) orelse return error.SkipZigTest;
+    defer ws_server_close(sv);
+    ws_server_set_compression(sv, 1);
+    ws_server_set_max_message(sv, 10_000);
+    var rec = RecvResult{};
+    const t = try std.Thread.spawn(.{}, serveOnceRecord, .{ sv, &rec });
+    var url_buf: [64]u8 = undefined;
+    const url = try std.fmt.bufPrint(&url_buf, "ws://127.0.0.1:{d}/z", .{sv.port});
+    var c = ws.Client{};
+    defer c.deinit();
+    c.compression = true;
+    try testing.expect(c.connect(url));
+    const zeros = try gpa.alloc(u8, 4 * 1024 * 1024);
+    defer gpa.free(zeros);
+    @memset(zeros, 0);
+    try testing.expect(c.send(ws.OP_BINARY, zeros));
+    try testing.expect(c.last_wire_out < 10_000); // it passes the frame limit: it is small on the wire
+    t.join();
+    try testing.expectEqual(@as(i32, -1), rec.kind);
+    try testing.expectEqual(@as(i32, 1009), rec.code);
+    try testing.expect(std.mem.indexOf(u8, rec.err[0..rec.err_len], "after decompression") != null);
+    try testing.expectEqual(@as(i32, 4), c.recv(3000)); // and the client is told, with the same code
+    try testing.expectEqual(@as(i32, 1009), c.close_code);
+}
+
+test "ws server: an offer it cannot honor is declined and the session goes on uncompressed" {
+    const sv = ws_server_listen("127.0.0.1", 9, 0, "", 0, "", 0) orelse return error.SkipZigTest;
+    defer ws_server_close(sv);
+    ws_server_set_compression(sv, 1);
+    var served = false;
+    const t = try std.Thread.spawn(.{}, serveOne, .{ sv, &served });
+    var url_buf: [64]u8 = undefined;
+    const url = try std.fmt.bufPrint(&url_buf, "ws://127.0.0.1:{d}/z", .{sv.port});
+    var c = ws.Client{};
+    defer c.deinit();
+    // an 8-bit window (zlib's raw deflater cannot make one) and an unknown extension: neither is taken
+    ws.Client.setText(&c.headers, "Sec-WebSocket-Extensions: permessage-deflate; server_max_window_bits=8, x-unknown");
+    try testing.expect(c.connect(url));
+    try testing.expect(!c.deflate_active);
+    try testing.expect(c.send(ws.OP_TEXT, "still works"));
+    try testing.expectEqual(@as(i32, 1), c.recv(3000));
+    try testing.expectEqualStrings("still works", c.last.items);
+    try testing.expect(c.close(1000, ""));
+    t.join();
 }

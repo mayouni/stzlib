@@ -33,6 +33,7 @@ const std = @import("std");
 const builtin = @import("builtin");
 const posix = std.posix;
 const dns = @import("dns.zig");
+const deflate = @import("ws_deflate.zig");
 
 const gpa = std.heap.c_allocator;
 
@@ -65,6 +66,8 @@ pub const Header = struct {
     mask: [4]u8,
     /// bytes the header occupies; the payload starts here
     header_len: usize,
+    /// RSV1: the message this frame starts is compressed (permessage-deflate)
+    rsv1: bool = false,
 };
 
 pub const ParseError = error{
@@ -89,10 +92,19 @@ pub const ParseError = error{
 /// the declared length BEFORE any caller allocates for it. Never reads past
 /// `buf`; Incomplete says how the caller should proceed (read more).
 pub fn parseHeader(buf: []const u8, expect_masked: bool, max_payload: u64) ParseError!Header {
+    return parseHeaderEx(buf, expect_masked, max_payload, false);
+}
+
+/// parseHeader that lets RSV1 through when `allow_rsv1` (a compression extension
+/// was negotiated) -- on a text or binary frame only. RSV2 and RSV3 are never
+/// allowed, and RSV1 on a control or continuation frame never is.
+pub fn parseHeaderEx(buf: []const u8, expect_masked: bool, max_payload: u64, allow_rsv1: bool) ParseError!Header {
     if (buf.len < 2) return error.Incomplete;
     const b0 = buf[0];
     const b1 = buf[1];
-    if ((b0 & 0x70) != 0) return error.ReservedBits;
+    const rsv1 = (b0 & 0x40) != 0;
+    if ((b0 & 0x30) != 0) return error.ReservedBits;
+    if (rsv1 and !allow_rsv1) return error.ReservedBits;
     const opcode: u8 = b0 & 0x0F;
     const fin = (b0 & 0x80) != 0;
     const control = opcode >= 0x8;
@@ -100,6 +112,7 @@ pub fn parseHeader(buf: []const u8, expect_masked: bool, max_payload: u64) Parse
         OP_CONT, OP_TEXT, OP_BINARY, OP_CLOSE, OP_PING, OP_PONG => {},
         else => return error.BadOpcode,
     }
+    if (rsv1 and (control or opcode == OP_CONT)) return error.ReservedBits;
     const masked = (b1 & 0x80) != 0;
     if (masked and !expect_masked) return error.MaskedFromServer;
     if (!masked and expect_masked) return error.UnmaskedFromClient;
@@ -128,12 +141,17 @@ pub fn parseHeader(buf: []const u8, expect_masked: bool, max_payload: u64) Parse
         @memcpy(&mask, buf[pos .. pos + 4]);
         pos += 4;
     }
-    return .{ .fin = fin, .opcode = opcode, .masked = masked, .len = len, .mask = mask, .header_len = pos };
+    return .{ .fin = fin, .opcode = opcode, .masked = masked, .len = len, .mask = mask, .header_len = pos, .rsv1 = rsv1 };
 }
 
 /// Write a frame header into `out`; returns its length (2 to 14 bytes).
 pub fn writeHeader(out: *[14]u8, fin: bool, opcode: u8, masked: bool, len: u64, mask: [4]u8) usize {
-    out[0] = (if (fin) @as(u8, 0x80) else 0) | (opcode & 0x0F);
+    return writeHeaderRsv(out, fin, false, opcode, masked, len, mask);
+}
+
+/// writeHeader with the RSV1 bit: set on the first frame of a compressed message.
+pub fn writeHeaderRsv(out: *[14]u8, fin: bool, rsv1: bool, opcode: u8, masked: bool, len: u64, mask: [4]u8) usize {
+    out[0] = (if (fin) @as(u8, 0x80) else 0) | (if (rsv1) @as(u8, 0x40) else 0) | (opcode & 0x0F);
     var pos: usize = 2;
     if (len <= 125) {
         out[1] = @intCast(len);
@@ -395,6 +413,24 @@ pub const Client = struct {
     ca_file: std.ArrayList(u8) = .{},
     negotiated: std.ArrayList(u8) = .{},
 
+    /// permessage-deflate: willing (client: offered in the handshake; server: accepted when offered)
+    compression: bool = false,
+    /// client offer only: also offer both no_context_takeover parameters, to keep the windows small
+    compression_nct: bool = false,
+    /// the extension was negotiated: RSV1 is legal and large messages go compressed
+    deflate_active: bool = false,
+    /// reset the deflater after every message (the peer asked for no context takeover)
+    send_reset: bool = false,
+    /// window bits our deflater uses (a server may be limited by server_max_window_bits)
+    deflate_bits: u8 = 15,
+    deflater: deflate.Deflater = .{},
+    inflater: deflate.Inflater = .{},
+    cbuf: std.ArrayList(u8) = .{},
+    msg_compressed: bool = false,
+    /// payload bytes of the last data message as they crossed the wire (compressed when it was)
+    last_wire_in: usize = 0,
+    last_wire_out: usize = 0,
+
     close_code: i32 = 0,
     close_reason: std.ArrayList(u8) = .{},
     close_by_peer: bool = false,
@@ -439,6 +475,9 @@ pub const Client = struct {
         self.req_target.deinit(gpa);
         self.req_head.deinit(gpa);
         self.scratch.deinit(gpa);
+        self.deflater.deinit();
+        self.inflater.deinit();
+        self.cbuf.deinit(gpa);
     }
 
     pub fn setText(list: *std.ArrayList(u8), v: []const u8) void {
@@ -509,6 +548,10 @@ pub const Client = struct {
         self.pings_received = 0;
         self.pongs_sent = 0;
         self.frames_sent = 0;
+        self.deflate_active = false;
+        self.send_reset = false;
+        self.last_wire_in = 0;
+        self.last_wire_out = 0;
 
         if (!self.handshake(u)) {
             self.tr.?.close();
@@ -537,6 +580,11 @@ pub const Client = struct {
         if (u.port != default_port) w.print(":{d}", .{u.port}) catch return false;
         w.print("\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: {s}\r\nSec-WebSocket-Version: 13\r\n", .{key}) catch return false;
         if (self.subprotocols.items.len > 0) w.print("Sec-WebSocket-Protocol: {s}\r\n", .{self.subprotocols.items}) catch return false;
+        if (self.compression) {
+            // client_max_window_bits is NOT offered: without it the server may not limit our window, so ours is 15
+            const nct = if (self.compression_nct) "; client_no_context_takeover; server_no_context_takeover" else "";
+            w.print("Sec-WebSocket-Extensions: permessage-deflate{s}\r\n", .{nct}) catch return false;
+        }
         // extra headers: "Name: Value" lines, newline-separated
         var hit = std.mem.splitScalar(u8, self.headers.items, '\n');
         while (hit.next()) |raw| {
@@ -591,8 +639,26 @@ pub const Client = struct {
         }
         if (headerValue(head, "Sec-WebSocket-Extensions")) |ext| {
             if (ext.len > 0) {
-                self.setErr("handshake: extension not negotiated: {s}", .{ext});
-                return false;
+                if (!self.compression) {
+                    self.setErr("handshake: extension not negotiated: {s}", .{ext});
+                    return false;
+                }
+                // one extension, permessage-deflate, with parameters this client offered or may be told
+                const p = deflate.parseOffer(ext) orelse {
+                    self.setErr("handshake: extension refused: {s}", .{ext});
+                    return false;
+                };
+                if (p.client_bits_present) {
+                    self.setErr("handshake: server answered client_max_window_bits, which was not offered", .{});
+                    return false;
+                }
+                if (p.server_bits != 0 and p.server_bits < 8) {
+                    self.setErr("handshake: server_max_window_bits out of range", .{});
+                    return false;
+                }
+                self.deflate_active = true;
+                self.send_reset = p.client_nct or self.compression_nct;
+                self.deflate_bits = 15;
             }
         }
         if (headerValue(head, "Sec-WebSocket-Protocol")) |proto| {
@@ -696,6 +762,19 @@ pub const Client = struct {
                 }
             }
         }
+        // permessage-deflate: the first offer this server can honor, or none (the session goes on uncompressed)
+        var ext_params: ?deflate.Params = null;
+        if (self.compression) {
+            if (headerValue(head, "Sec-WebSocket-Extensions")) |offers| {
+                var oit = std.mem.splitScalar(u8, offers, ',');
+                while (oit.next()) |offer| {
+                    const p = deflate.parseOffer(std.mem.trim(u8, offer, " \t")) orelse continue;
+                    if (p.server_bits != 0 and p.server_bits < 9) continue; // zlib's raw deflater cannot use an 8-bit window
+                    ext_params = p;
+                    break;
+                }
+            }
+        }
         var accept_buf: [28]u8 = undefined;
         const accept = acceptKey(key, &accept_buf);
         var resp: std.ArrayList(u8) = .{};
@@ -703,6 +782,13 @@ pub const Client = struct {
         const w = resp.writer(gpa);
         w.print("HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: {s}\r\n", .{accept}) catch return false;
         if (chosen.len > 0) w.print("Sec-WebSocket-Protocol: {s}\r\n", .{chosen}) catch return false;
+        if (ext_params) |p| {
+            w.writeAll("Sec-WebSocket-Extensions: permessage-deflate") catch return false;
+            if (p.server_nct) w.writeAll("; server_no_context_takeover") catch return false;
+            if (p.client_nct) w.writeAll("; client_no_context_takeover") catch return false;
+            if (p.server_bits != 0) w.print("; server_max_window_bits={d}", .{p.server_bits}) catch return false;
+            w.writeAll("\r\n") catch return false;
+        }
         w.writeAll("\r\n") catch return false;
         tr.writeAll(resp.items) catch {
             self.setErr("handshake: send failed", .{});
@@ -711,6 +797,11 @@ pub const Client = struct {
         setText(&self.req_target, target);
         setText(&self.req_head, head);
         setText(&self.negotiated, chosen);
+        self.deflate_active = ext_params != null;
+        if (ext_params) |p| {
+            self.send_reset = p.server_nct;
+            self.deflate_bits = if (p.server_bits != 0) p.server_bits else 15;
+        }
         self.rpos = head_end;
         self.compact();
         self.state = .open;
@@ -728,12 +819,16 @@ pub const Client = struct {
     // ── sending ──
 
     fn sendFrame(self: *Client, fin: bool, opcode: u8, payload: []const u8) bool {
+        return self.sendFrameEx(fin, false, opcode, payload);
+    }
+
+    fn sendFrameEx(self: *Client, fin: bool, rsv1: bool, opcode: u8, payload: []const u8) bool {
         const tr: *Transport = if (self.tr) |*t| t else return false;
         var mask: [4]u8 = .{ 0, 0, 0, 0 };
         const masked = !self.server_side;
         if (masked) std.crypto.random.bytes(&mask);
         var hdr: [14]u8 = undefined;
-        const hl = writeHeader(&hdr, fin, opcode, masked, payload.len, mask);
+        const hl = writeHeaderRsv(&hdr, fin, rsv1, opcode, masked, payload.len, mask);
         tr.writeAll(hdr[0..hl]) catch {
             self.setErr("send failed", .{});
             return false;
@@ -770,7 +865,47 @@ pub const Client = struct {
             self.setErr("send: text is not valid UTF-8 (send it as binary)", .{});
             return false;
         }
-        return self.sendFrame(true, opcode, payload);
+        return self.sendData(opcode, payload, 1);
+    }
+
+    /// Messages under this many bytes go out uncompressed even when the extension is on:
+    /// deflate cannot shrink them and each one costs a flush.
+    const COMPRESS_MIN: usize = 64;
+
+    /// Send one data message, compressed when permessage-deflate is on and it is worth it,
+    /// in `parts` frames (1 = a single frame). RSV1 rides on the first frame only.
+    ///
+    /// A message compressed with context takeover MUST go out compressed: the peer's window
+    /// has to see exactly what ours saw, so the choice is made before compressing, by size.
+    fn sendData(self: *Client, opcode: u8, payload: []const u8, parts: usize) bool {
+        var body = payload;
+        var rsv1 = false;
+        if (self.deflate_active and payload.len >= COMPRESS_MIN) {
+            if (!self.deflater.ready and !self.deflater.init(@intCast(self.deflate_bits))) {
+                self.setErr("send: compression could not start", .{});
+                return false;
+            }
+            if (self.send_reset) self.deflater.reset();
+            if (!self.deflater.compress(payload, &self.cbuf)) {
+                self.setErr("send: compression failed", .{});
+                return false;
+            }
+            body = self.cbuf.items;
+            rsv1 = true;
+        }
+        self.last_wire_out = body.len;
+        if (parts <= 1 or body.len < parts) return self.sendFrameEx(true, rsv1, opcode, body);
+        const each = body.len / parts;
+        var i: usize = 0;
+        var off: usize = 0;
+        while (i < parts) : (i += 1) {
+            const last = i == parts - 1;
+            const end = if (last) body.len else off + each;
+            const op: u8 = if (i == 0) opcode else OP_CONT;
+            if (!self.sendFrameEx(last, rsv1 and i == 0, op, body[off..end])) return false;
+            off = end;
+        }
+        return true;
     }
 
     /// Send a message as `parts` fragments (test support: the receiver must
@@ -781,18 +916,7 @@ pub const Client = struct {
             self.setErr("not open", .{});
             return false;
         }
-        if (parts <= 1 or payload.len < parts) return self.sendFrame(true, opcode, payload);
-        const each = payload.len / parts;
-        var i: usize = 0;
-        var off: usize = 0;
-        while (i < parts) : (i += 1) {
-            const last = i == parts - 1;
-            const end = if (last) payload.len else off + each;
-            const op: u8 = if (i == 0) opcode else OP_CONT;
-            if (!self.sendFrame(last, op, payload[off..end])) return false;
-            off = end;
-        }
-        return true;
+        return self.sendData(opcode, payload, parts);
     }
 
     pub fn ping(self: *Client, payload: []const u8) bool {
@@ -835,6 +959,21 @@ pub const Client = struct {
         return -1;
     }
 
+    /// Inflate a compressed message into `last` under the size limit and deliver it.
+    fn deliverCompressed(self: *Client, input: []const u8, opcode: u8) i32 {
+        self.last_wire_in = input.len;
+        switch (self.inflater.run(input, &self.last, self.max_message)) {
+            .ok => {},
+            .too_large => return self.fail(1009, "protocol: message over max {d} bytes after decompression (1009)", .{self.max_message}),
+            .bad => return self.fail(1007, "protocol: bad compressed data (1007)", .{}),
+            .oom => return self.fail(1011, "out of memory", .{}),
+        }
+        if (opcode == OP_TEXT and !std.unicode.utf8ValidateSlice(self.last.items))
+            return self.fail(1007, "protocol: invalid UTF-8 in text (1007)", .{});
+        self.last_kind = @intCast(opcode);
+        return self.last_kind;
+    }
+
     /// After our close frame: wait at most `ms` for the peer's close, skipping
     /// anything else; never a failure, the socket is being torn down anyway.
     fn drainForClose(self: *Client, ms: u32) void {
@@ -842,7 +981,7 @@ pub const Client = struct {
         const deadline = std.time.milliTimestamp() + @as(i64, ms);
         while (true) {
             const avail = self.rbuf.items[self.rpos..];
-            const hdr = parseHeader(avail, self.server_side, self.max_message) catch |e| switch (e) {
+            const hdr = parseHeaderEx(avail, self.server_side, self.max_message, self.deflate_active) catch |e| switch (e) {
                 error.Incomplete => {
                     const left = deadline - std.time.milliTimestamp();
                     if (left <= 0) return;
@@ -894,7 +1033,7 @@ pub const Client = struct {
         const start = std.time.milliTimestamp();
         while (true) {
             const avail = self.rbuf.items[self.rpos..];
-            const hdr = parseHeader(avail, self.server_side, self.max_message) catch |e| switch (e) {
+            const hdr = parseHeaderEx(avail, self.server_side, self.max_message, self.deflate_active) catch |e| switch (e) {
                 error.Incomplete => {
                     // read more, within the time left
                     var wait: i32 = timeout_ms;
@@ -998,13 +1137,16 @@ pub const Client = struct {
                 OP_TEXT, OP_BINARY => {
                     if (self.fragmented) return self.fail(1002, "protocol: new message while fragmented", .{});
                     if (hdr.fin) {
+                        if (hdr.rsv1) return self.deliverCompressed(payload, hdr.opcode);
                         if (hdr.opcode == OP_TEXT and !std.unicode.utf8ValidateSlice(payload))
                             return self.fail(1007, "protocol: invalid UTF-8 in text (1007)", .{});
                         setText(&self.last, payload);
+                        self.last_wire_in = payload.len;
                         self.last_kind = @intCast(hdr.opcode);
                         return self.last_kind;
                     }
                     self.fragmented = true;
+                    self.msg_compressed = hdr.rsv1;
                     self.msg_opcode = hdr.opcode;
                     self.msg.clearRetainingCapacity();
                     self.msg.appendSlice(gpa, payload) catch return self.fail(1011, "out of memory", .{});
@@ -1017,6 +1159,12 @@ pub const Client = struct {
                     self.msg.appendSlice(gpa, payload) catch return self.fail(1011, "out of memory", .{});
                     if (!hdr.fin) continue;
                     self.fragmented = false;
+                    if (self.msg_compressed) {
+                        const k = self.deliverCompressed(self.msg.items, self.msg_opcode);
+                        self.msg.clearRetainingCapacity();
+                        return k;
+                    }
+                    self.last_wire_in = self.msg.items.len;
                     if (self.msg_opcode == OP_TEXT and !std.unicode.utf8ValidateSlice(self.msg.items))
                         return self.fail(1007, "protocol: invalid UTF-8 in text (1007)", .{});
                     // hand the assembled message over without a copy
@@ -1210,6 +1358,28 @@ pub fn ws_subprotocol_ptr(c: ?*Client) callconv(.c) [*]const u8 {
     return cl.negotiated.items.ptr;
 }
 
+/// 0 = off, 1 = offer/accept permessage-deflate, 2 = also offer both no_context_takeover parameters.
+pub fn ws_set_compression(c: ?*Client, mode: i32) callconv(.c) void {
+    const cl = c orelse return;
+    cl.compression = mode >= 1;
+    cl.compression_nct = mode >= 2;
+}
+
+pub fn ws_compression_active(c: ?*Client) callconv(.c) i32 {
+    const cl = c orelse return 0;
+    return if (cl.deflate_active) 1 else 0;
+}
+
+pub fn ws_last_wire_in(c: ?*Client) callconv(.c) usize {
+    const cl = c orelse return 0;
+    return cl.last_wire_in;
+}
+
+pub fn ws_last_wire_out(c: ?*Client) callconv(.c) usize {
+    const cl = c orelse return 0;
+    return cl.last_wire_out;
+}
+
 pub fn ws_request_target_len(c: ?*Client) callconv(.c) usize {
     const cl = c orelse return 0;
     return cl.req_target.items.len;
@@ -1293,6 +1463,9 @@ pub fn ws_pattern(out: [*]u8, len: usize, seed: u32) callconv(.c) void {
 
 pub const Echo = @import("ws_echo.zig");
 
+/// permessage-deflate (RFC 7692): compression and the extension's parameters.
+pub const Deflate = deflate;
+
 /// The public server: a listener that hands out server-side clients (ws_server.zig).
 pub const Server = @import("ws_server.zig");
 
@@ -1302,6 +1475,7 @@ const testing = std.testing;
 
 test {
     _ = Server; // the public server's own tests run with this file's
+    _ = deflate; // and so do the compression module's
 }
 
 test "ws: accept key for the RFC sample nonce" {

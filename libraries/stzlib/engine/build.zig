@@ -72,7 +72,7 @@ const base_domains = [_]Domain{
     .{ .name = "stz_http", .entry = "src/stz_http_entry.zig", .needs_ring = true, .needs_libcurl = true },
     .{ .name = "stz_tcp", .entry = "src/stz_tcp_entry.zig", .needs_ring = true },
     // WebSocket client (RFC 6455) over the engine socket; wss over mbedTLS, the engine's own TLS path
-    .{ .name = "stz_ws", .entry = "src/stz_ws_entry.zig", .needs_ring = true, .needs_mbedtls = true },
+    .{ .name = "stz_ws", .entry = "src/stz_ws_entry.zig", .needs_ring = true, .needs_mbedtls = true, .needs_zlib = true },
     .{ .name = "stz_fswatch", .entry = "src/stz_fswatch_entry.zig", .needs_ring = true },
     .{ .name = "stz_time", .entry = "src/stz_time_entry.zig", .needs_ring = true },
     .{ .name = "stz_pool", .entry = "src/stz_pool_entry.zig", .needs_ring = true },
@@ -1023,6 +1023,7 @@ pub fn build(b: *std.Build) void {
         });
         const fw = b.addExecutable(.{ .name = "fuzz_ws", .root_module = fw_mod });
         addMbedtls(fw_mod, fw, b, target.result.os.tag, false); // ws.zig imports ws_tls.zig outside a test build
+        addZlib(fw_mod, fw, b); // ... and ws_deflate.zig, which is zlib
         const fw_run = b.addRunArtifact(fw);
         const fw_step = b.step("fuzz-ws", "Fuzz the WebSocket frame parser, round-trip properties, mutants (memory safety)");
         fw_step.dependOn(&fw_run.step);
