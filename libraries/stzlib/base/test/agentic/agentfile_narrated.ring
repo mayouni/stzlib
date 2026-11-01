@@ -29,8 +29,8 @@ load "agents/watcher.ring"
 # code, not the agent file, decides which ring: functions an agent may call (R2)
 StzAllowAgentFunction("StockIsCritical", "trusted")
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 pr()
 
@@ -507,7 +507,7 @@ chk("the version is a gate: the build writes v2 and still reads v1",
 
 ? ""
 ? "=========================================="
-? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
+? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
 pf()
@@ -518,10 +518,10 @@ pf()
 
 func chk(cWhat, bCond)
 	if bCond = 1
-		nPass++
+		$nPass++
 		? "  [OK] " + cWhat
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cWhat
 	ok
 
