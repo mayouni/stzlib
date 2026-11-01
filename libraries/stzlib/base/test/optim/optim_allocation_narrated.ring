@@ -196,7 +196,7 @@ oK.KnowRelation("shop", "hours", "10")
 
 oA = new stzAllocation("production")
 oA.Choose("product").Maximize("margin").AtMost("wanted").Spending("hours", "shop", "hours")
-oA.WriteAs("make")
+oA.WriteAs("make").CountedIn("units")
 oA.SolveOn(oK)
 
 chk("the verdict is allocated", oA.Verdict() = "allocated")
@@ -204,7 +204,32 @@ chk("...3 chairs and 4 stools, margin 190",
 	Same(oA.Placements(), [ [ "chair", 3 ], [ "stool", 4 ] ]) and oA.Objective() = 190)
 chk("...the budget is named in the model", oA.Model().ConstraintAt(1)[1] = "budget:shop.hours")
 oA.WriteTo(oK)
-chk("...written as quantities", Same(oK.Query([ "chair", "make", "?n" ]), [ "3" ]))
+chk("...written as quantities WITH their unit", Same(oK.Query([ "chair", "make", "?n" ]), [ "3-units" ]))
+
+# WHY THE UNIT, pinned: stzGraph stores one edge per node pair and a
+# number is a node, so a subject cannot hold two properties of the same
+# value. A bare "2" here would collide with the bench's own wanted 2.
+oT = new stzKnowledgeGraph("trap")
+oT.KnowRelation("x", "a", "5")
+bRaised = 0
+try
+	oT.KnowRelation("x", "b", "5")
+catch
+	bRaised = 1
+done
+chk("THE TRAP, pinned: a second property with the same value is refused", bRaised = 1)
+
+oK.Know("bench", "garden-item").KnowRelation("bench", "margin", "10").
+	KnowRelation("bench", "hours", "1").KnowRelation("bench", "wanted", "2")
+oK.KnowRelation("yard", "hours", "5")
+oB = new stzAllocation("benches")
+oB.Choose("garden-item").Maximize("margin").AtMost("wanted").Spending("hours", "yard", "hours")
+oB.WriteAs("built")
+oB.SolveOn(oK)
+oB.WriteTo(oK)
+chk("...so a quantity equal to another property still writes: 2 benches beside wanted 2",
+	Same(oK.Query([ "bench", "built", "?n" ]), [ "2-built" ]) and
+	Same(oK.Query([ "bench", "wanted", "?n" ]), [ "2" ]))
 
 sec("scene 7")
 

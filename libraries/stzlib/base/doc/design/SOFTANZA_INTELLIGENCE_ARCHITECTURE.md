@@ -495,7 +495,7 @@ A rung is marked DELIVERED only where a guard proving it was RUN on this date.
 | **R3b** conversation | **DELIVERED** | `test/conversation/wisecoding_narrated.ring` **13/13** and `wisecoding_rich_narrated.ring` **52/52**, both green. `ConcludeIn()` WRITES the .zknw at the end of an elicitation -- wise coding ends in an artifact, exactly as 0.3 demanded | The five answer registers are not equally strong: option, data-structure and natural are wired; EXAMPLES-with-induction rides `StzOwnAgent("induction")`, which is declared RESERVED (see the R5 row) |
 | **R4** learning + optim | **PARTIAL** | Steps 0-4, 6 and 7 DELIVERED: `test/learning/` mlfloor 36/36, dlm 16/16, multilingual stress 37/37, knn-approximate green; `stzDLM` + .zdlm is foundry rung 1; `stzLLMFunction` + `stzOutputSchema` are step 6, and are now specified as **C9 v1.0.0** in `base/neural/SOFTANZA_STRUCTURED_OUTPUT.md` (written 2026-08-22) | **STEP 5 IS NOT STARTED. There is no `base/optim/`, no `stzOptimModel`, no `.zopt` format, no `SolveWith(:auto)` and no HiGHS tier.** The solver FLOOR exists (`engine/src/simplex.zig`, `stats/stzLinearSolver`, `stzMultiObjectiveSolver`, `stzStochasticSolver`); what is missing is the MODELLING DSL over it. This is load-bearing rather than cosmetic: R5's OPTIMIZATION leg names `stzOptimModel` as the planner's sub-solver, and the capstone's "optimize a menu straight from the knowledgebase" runs through it. ***[SUPERSEDED 2026-08-22: STEP 5 IS DELIVERED — `base/optim/` with three surfaces onto one AST, `engine/src/optim.zig` as the floor, `SolveWith(:auto)`/`Why()`, and `optim_modelling_narrated.ring` 59/59. The HiGHS tier is deliberately still absent and is REFUSED rather than downgraded. Details and the corrected expression mechanism are in the §6 R4 step 5 and §5.5 amendments. R5's OPTIMIZATION leg is now unblocked.]*** **Step 8** (the neural foundry rung -- corpus synthesis, tokenizer training, GGUF export) is also not started, and was always the ambition tier |
 | **R4b** governance | **DELIVERED -- all five contracts, not one** | `base/governance/stzGovernance.ring`, 744 lines, born 7dd4b7275. ActionRiskTier = `DeclareRisk` / `RiskOf`; AuthorityType = `SetAuthority` / `AuthorityOf`; CommitmentState = `OpenCommitment` / `AdvanceCommitment`; DecommissionContract = `DeclareDecommission` / `FulfillObligation` / `MayRetire`; DecisionLineage = `RecordDecision` / `LineageOf` / `DecisionsSince`. Plus the 5.8 execution trust postures (`DeclarePosture` / `MayExecute`) and the .zgov format. `test/governance/` -- narrated 19/19, lineage 37/37 | **Reversibility is not among them.** See 3.2 -- it is now owed as a sixth contract *[2026-08-22 second session: PAID -- contract 6 + MayRegister delivered, safeworld_narrated 76/76]* |
-| **R5** agentic | **PARTIAL -- and the partition is not where 2026-07-13 expected it** | Green: `test/agentic/`, eight suites, **261 assertions, 0 fail** (agentfile 88, agentloop_engine 54, agenthost 32, roster 31, agentrule 21, piagent 14, agentgraph 11, ownagentstack 10). PLANNING = `stzGraphPlanner` + `stzGraphGoal`, both built; REACTION, MEMORY, SKILLS and the governance gate all run; the capability lattice and taint colours are real (`stzAgentGraph`); ACCOUNTABILITY is the per-cycle trace | Named with reasons in **3.2**. In one line: OPTIMIZATION has no sub-solver (R4 step 5), the NATIVE ROSTER is one wired of five, `stzHybridAgent` was never built as a class, and **the safe world and the agents have never been introduced to each other** *[2026-08-22 second session: INTRODUCED -- stzAgentWorkbench + pia:2 postures + roster as first consumer; OPTIM, the four native agents and stzHybridAgent remain]* |
+| **R5** agentic | **PARTIAL -- and the partition is not where 2026-07-13 expected it** | Green: `test/agentic/`, eight suites, **261 assertions, 0 fail** (agentfile 88, agentloop_engine 54, agenthost 32, roster 31, agentrule 21, piagent 14, agentgraph 11, ownagentstack 10). PLANNING = `stzGraphPlanner` + `stzGraphGoal`, both built; REACTION, MEMORY, SKILLS and the governance gate all run; the capability lattice and taint colours are real (`stzAgentGraph`); ACCOUNTABILITY is the per-cycle trace | Named with reasons in **3.2**. In one line: OPTIMIZATION has no sub-solver (R4 step 5), the NATIVE ROSTER is one wired of five, `stzHybridAgent` was never built as a class, and **the safe world and the agents have never been introduced to each other** *[2026-08-22 second session: INTRODUCED -- stzAgentWorkbench + pia:2 postures + roster as first consumer; OPTIM, the four native agents and stzHybridAgent remain]* *[2026-11-01: OPTIM DELIVERED -- stzAllocation + stzAllocationSkill; the four native agents, stzHybridAgent and the Layer-4 negotiation verbs remain]* |
 | **R6** refine | **DELIVERED** | `test/refine/` -- refinablecode 17/17, refine_deepening 24/24, gate_deepening green. `stzRefinableCode` over .zrfn; the four-stage gate; `stzPyCodeGraph` and `stzJsCodeGraph` are the polyglot contracts | The optional research tier (patch-commutation predicates, the ROM-style stable surface) was never started, and was marked optional on the day |
 | **R7** delivery plane | **DELIVERED** (unchanged; marked on the day) | `test/capstone/restaurant_capstone_narrated.ring` green. All four topologies; `HostAgents()` interleaves the serve loop | INBOUND server-side TLS, as already recorded |
 | **R8** scale | **DELIVERED** (unchanged; marked 2026-07-15) | §7 and its six rungs | -- |
@@ -725,6 +725,14 @@ far "the library is the first consumer of its own agents" has actually got.
 
 1. `stzOptimModel` as the planner's sub-solver -- **blocked on R4 step 5**, which is not
    started (3.1.2).
+   *[DELIVERED 2026-11-01: `optim/stzAllocation.ring` is the seam -- an allocation read
+   FROM knowledge facts (assign demands to resources under a capacity, or choose
+   quantities under budgets), solved by stzOptimModel, answered as allocated /
+   infeasible / incomplete with the model's Why() quoted. `stzGraphPlanner` hands a
+   step whose edge carries `:allocate = <name>` to it at Execute (`Allocations()`);
+   `agentic/stzAllocationSkill.ring` is the governed skill that writes the answer, and
+   the capstone's maitre-d now seats by it. Guards under rnxc:
+   optim_allocation_narrated 45, allocation_skill_narrated 25, capstone 42.]*
 2. The four reserved native agents.
 3. `stzHybridAgent` as a class, not only as a graph colour.
 4. **The binding of the safe world** -- the largest of the four, and the one that makes the
@@ -1917,6 +1925,18 @@ faculties -> Softanzuter mind -> embodied agent):
   triggers re-fire) = production-rule skills;
 - OPTIMIZATION = stzOptimModel (R4 step 5) called by the planner as a
   sub-solver for resource-allocation skills;
+  *[BUILT 2026-11-01 as stzAllocation + stzAllocationSkill, and measured first. Four
+  facts about the tree this sentence did not know: (1) stzPIAgent NEVER calls
+  stzGraphPlanner -- the agent's planning is its skill cycle -- so "called by the
+  planner" is true of the planner's own :allocate steps and the allocation reaches
+  AGENTS through a skill, not through the planner; (2) stzGraphPlanner refuses a
+  stzKnowledgeGraph (IsStzGraph tests the exact class), so plan graph and knowledge
+  stay two objects; (3) stzOptimModel.IsFeasibleAnswer() is 1 on an INFEASIBLE model
+  and Violations() is empty -- they re-check a point and there is none -- so a
+  verdict must read the solver status; (4) stzGraph keeps one edge per node pair and
+  a number is a node, so a subject cannot hold two properties of equal value
+  (`size 4` and `guests 4`); allocated quantities are written with their unit,
+  `30-portions`, for that reason.]*
 - RUNTIME = the reactive foundation: the perceive-decide-act loop runs on
   stzReactor (REAL libuv async, cancellation tokens, pool retry) -- NOT
   the cooperative poller; perception = async reactor fetches; neural token
@@ -2084,6 +2104,10 @@ with ZERO app-specific code:
   the knowledgebase (stzOptimModel); classify/score with the ML floor;
   and the foundry ships the RESTAURANT'S OWN DLM -- its users get the
   domain's language model for free;
+  *[menu scene DELIVERED 2026-11-01: `R4 DECIDES` in
+  restaurant_capstone_narrated.ring -- the owner states margins, minutes and demand as
+  facts in the R4 brain, one stzAllocation declaration chooses tonight's portions
+  (39/7/30, margin 417 against the greedy 414), and the plan is written back.]*
 - R5 proves it ACTS: an agent takes a goal ("prepare Saturday's
   service"), plans over the graph, allocates via the optimizer, reacts
   to changes as they stream in;

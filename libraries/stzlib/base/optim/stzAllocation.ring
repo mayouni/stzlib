@@ -106,6 +106,7 @@ class stzAllocation from stzObject
 	@aBudgets = []        # [ [ cUseProp, cHolder, cHolderProp ], ... ]
 	@cWriteAs = ""
 	@cUnplaced = "none"
+	@cUnit = ""
 
 	@oModel = ""
 	@bSolved = 0
@@ -743,34 +744,69 @@ class stzAllocation from stzObject
 
 	#@ aka  -- 4. THE EFFECT -------------------------------------------------------
 
-	# Records the allocation as facts: each placed demand under WriteAs, each unplaced one with the unplaced word.
+	# Returns the triples WriteTo records: each placement, then each unplaced demand with the unplaced word.
+	#
+	#   returns    a list of [ subject, predicate, object ]; [ ] unless the verdict is allocated
+	#   note       a chosen quantity is written WITH ITS UNIT, "30-portions", and not as a bare
+	#              "30": stzGraph stores one edge per node pair and a number is a node, so a bare
+	#              30 collides with any other property of the same subject that is also 30
+	#              (measured: a dish whose demand is 30 could not record 30 portions); the
+	#              hyphen is because a node id holds no space
+	#   see        WriteTo, CountedIn
+	def WrittenFacts()
+		_aF_ = []
+		if This.IsAllocated() = 0 or @cWriteAs = ""
+			return _aF_
+		ok
+		_n_ = len(@aPlaced)
+		for _i_ = 1 to _n_
+			_aF_ + [ @aPlaced[_i_][1], @cWriteAs, This._ValueText(@aPlaced[_i_][2]) ]
+		next
+		_n_ = len(@acUnplaced)
+		for _i_ = 1 to _n_
+			_aF_ + [ @acUnplaced[_i_], @cWriteAs, @cUnplaced ]
+		next
+		return _aF_
+
+	# Names the unit a chosen quantity is written with; the WriteAs predicate by default.
+	#
+	#   pcUnit     a unit such as portions or units
+	#   returns    the allocation itself, so calls chain
+	def CountedIn(pcUnit)
+		@cUnit = StzLower("" + pcUnit)
+		return This
+
+	def _ValueText(pValue)
+		if @cShape != "choose"
+			return "" + pValue
+		ok
+		_cU_ = @cUnit
+		if _cU_ = ""
+			_cU_ = @cWriteAs
+		ok
+		return "" + pValue + "-" + _cU_
+
+	# Records the allocation as facts, the triples WrittenFacts lists, replacing each demand's earlier ones.
 	#
 	#   poKnowledge   the stzKnowledgeGraph or stzAgentMemory to write into
 	#   returns       how many facts were written
-	#   note          a demand's earlier WriteAs facts are replaced; kept demands are untouched;
-	#                 nothing is written unless the verdict is allocated
-	#   warning       raises an error when WriteAs was never declared
-	#   see           SolveOn, stzAllocationSkill
+	#   note          kept demands are untouched; nothing is written unless the verdict is
+	#                 allocated
+	#   warning       raises an error when WriteAs was never declared; the graph raises when a
+	#                 demand is already linked to the same object by another predicate (one edge
+	#                 per node pair)
+	#   see           SolveOn, WrittenFacts, stzAllocationSkill
 	def WriteTo(poKnowledge)
 		if @cWriteAs = ""
 			stzraise("stzAllocation.WriteTo: declare WriteAs(predicate) -- " +
 				"the name the placements are recorded under.")
 		ok
-		if This.IsAllocated() = 0
-			return 0
-		ok
-		_nW_ = 0
-		_n_ = len(@aPlaced)
+		_aF_ = This.WrittenFacts()
+		_n_ = len(_aF_)
 		for _i_ = 1 to _n_
-			This._Record(poKnowledge, @aPlaced[_i_][1], "" + @aPlaced[_i_][2])
-			_nW_++
+			This._Record(poKnowledge, _aF_[_i_][1], _aF_[_i_][3])
 		next
-		_n_ = len(@acUnplaced)
-		for _i_ = 1 to _n_
-			This._Record(poKnowledge, @acUnplaced[_i_], @cUnplaced)
-			_nW_++
-		next
-		return _nW_
+		return _n_
 
 	def _Record(poK, pcDemand, pcValue)
 		_bMem_ = _StzIsAgentMemory(poK)

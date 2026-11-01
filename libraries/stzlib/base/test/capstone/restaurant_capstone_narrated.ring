@@ -9,6 +9,8 @@ load "../_narrated.ring"
 #   R4  FORGES     -- from its OWN scoped knowledgebase the restaurant forges
 #                     a Domain Language Model, trains its neural rung
 #                     teacher-free, and ships it as a real .gguf (the Foundry)
+#   R4  DECIDES    -- from the SAME brain, tonight's menu is optimized: one
+#                     declaration over stated facts (stzAllocation)
 #   WORLD (app)    -- the restaurant as a living world: things, a reaction,
 #                     a goal (stzApp / stzGraphGoal)
 #   R5  ACTS       -- an agent takes a goal and acts, governed, ON THE
@@ -77,6 +79,48 @@ Scenario("R4 FORGES: from its own knowledge, the restaurant forges + trains a DL
 	Then("the artifact is a real gguf ggml reads back",
 		StzEngineNeuralGgufInspect(cModel) = 2, TRUE)
 	remove(cModel)
+EndScenario()
+
+# ---- R4: the restaurant DECIDES tonight's menu ---------------------------
+
+Scenario("R4 DECIDES: tonight's menu, optimized straight from the knowledgebase")
+	Given("the owner states the menu's economics as FACTS in the same brain")
+	# no menu code: margins, minutes and demand are triples, and a zero
+	# is stated -- a missing fact would be a gap, never a silent 0
+	oBrain.Know("lasagna", "dish")
+	oBrain.Know("margherita", "menu-item").Know("lasagna", "menu-item").Know("tiramisu", "menu-item")
+	oBrain.KnowRelation("margherita", "margin", "6").KnowRelation("margherita", "oven-minutes", "4").
+	       KnowRelation("margherita", "prep-minutes", "2").KnowRelation("margherita", "demand", "40")
+	oBrain.KnowRelation("lasagna", "margin", "9").KnowRelation("lasagna", "oven-minutes", "12").
+	       KnowRelation("lasagna", "prep-minutes", "5").KnowRelation("lasagna", "demand", "15")
+	oBrain.KnowRelation("tiramisu", "margin", "4").KnowRelation("tiramisu", "oven-minutes", "0").
+	       KnowRelation("tiramisu", "prep-minutes", "3").KnowRelation("tiramisu", "demand", "30")
+	oBrain.KnowRelation("kitchen", "oven-minutes", "240").KnowRelation("kitchen", "prep-minutes", "300")
+
+	When("ONE declaration allocates the kitchen's time (stzAllocation -> stzOptimModel)")
+	oMenu = new stzAllocation("tonight")
+	oMenu.Choose("menu-item").Maximize("margin").AtMost("demand").
+	      Spending("oven-minutes", "kitchen", "oven-minutes").
+	      Spending("prep-minutes", "kitchen", "prep-minutes").WriteAs("portions")
+	oMenu.SolveOn(oBrain)
+	Then("the menu is allocated", oMenu.Verdict(), "allocated")
+	Then("39 margherita, 7 lasagna, 30 tiramisu",
+		@@(oMenu.Placements()), @@([ [ "margherita", 39 ], [ "lasagna", 7 ], [ "tiramisu", 30 ] ]))
+	# filling the oven with the best margin per oven-minute first gives
+	# 40 margherita + 6 lasagna = 414: the integer optimum is not greedy
+	Then("margin 417 -- above the greedy plan's 414", oMenu.Objective(), 417)
+	Then("and it says which engine decided",
+		StzFindFirst("engine floor (Zig simplex + branch-and-bound)", oMenu.Why()) > 0, TRUE)
+
+	When("the decision is written back")
+	oMenu.WriteTo(oBrain)
+	Then("tonight's plan is now knowledge in the same brain",
+		@@(oBrain.Query([ "lasagna", "portions", "?n" ])), @@([ "7-portions" ]))
+	# a quantity is written with its unit: the graph keeps one edge per
+	# node pair, and a bare 30 would collide with tiramisu's demand of 30
+	Then("30 tiramisu portions sit beside its demand of 30",
+		@@(oBrain.Query([ "tiramisu", "portions", "?n" ])) + @@(oBrain.Query([ "tiramisu", "demand", "?n" ])),
+		@@([ "30-portions" ]) + @@([ "30" ]))
 EndScenario()
 
 # ---- THE WORLD: the restaurant as a living app ---------------------------

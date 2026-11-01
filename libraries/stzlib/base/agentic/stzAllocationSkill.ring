@@ -162,11 +162,10 @@ class stzAllocationSkill from stzAgentSkill
 
 		# VERIFY by reading the answer back, never by trusting the write
 		_bV_ = 1
-		_aP_ = _oA_.Placements()
-		_cP_ = _oA_.Predicate()
-		_n_ = len(_aP_)
+		_aF_ = _oA_.WrittenFacts()
+		_n_ = len(_aF_)
 		for _i_ = 1 to _n_
-			if poMemory.Fact(_aP_[_i_][1], _cP_, "" + _aP_[_i_][2]) = 0
+			if poMemory.Fact(_aF_[_i_][1], _aF_[_i_][2], _aF_[_i_][3]) = 0
 				_bV_ = 0
 				exit
 			ok
@@ -192,20 +191,15 @@ class stzAllocationSkill from stzAgentSkill
 
 	def _PlanText(poA)
 		_c_ = "# " + poA.Name_() + char(10)
-		_aP_ = poA.Placements()
-		_n_ = len(_aP_)
+		_aF_ = poA.WrittenFacts()
+		_n_ = len(_aF_)
 		for _i_ = 1 to _n_
-			_c_ += _aP_[_i_][1] + " " + poA.Predicate() + " " + _aP_[_i_][2] + char(10)
+			_c_ += _aF_[_i_][1] + " " + _aF_[_i_][2] + " " + _aF_[_i_][3] + char(10)
 		next
 		_aK_ = poA.Kept()
 		_n_ = len(_aK_)
 		for _i_ = 1 to _n_
 			_c_ += _aK_[_i_][1] + " " + poA.Predicate() + " " + _aK_[_i_][2] + char(10)
-		next
-		_acU_ = poA.Unplaced()
-		_n_ = len(_acU_)
-		for _i_ = 1 to _n_
-			_c_ += _acU_[_i_] + " unplaced" + char(10)
 		next
 		return _c_
 
