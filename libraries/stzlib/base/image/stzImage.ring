@@ -52,6 +52,127 @@ func StzImageFromBytes(pcBytes)
 func StzImagesAlive()
 	return StzEngineImageLive()
 
+#---------------------------------------------------------------------#
+#  GEOMETRY HELPERS (IM2) -- points are [ x, y ], 1-based like every  #
+#  Ring face; matrices are nine numbers in the engine's 0-based pixel  #
+#  coordinates, ready for ApplyWarp                                     #
+#---------------------------------------------------------------------#
+
+# The 3x3 homography taking four points onto four others (OpenCV's getPerspectiveTransform).
+func StzPerspectiveMatrix(paFrom, paTo)
+	_a_ = StzEngineImagePerspectiveFrom(_StzPointsText(paFrom, -1), _StzPointsText(paTo, -1))
+	if len(_a_) != 9
+		stzraise("StzPerspectiveMatrix: four points onto four points, no three in a line.")
+	ok
+	return _a_
+
+# The affine matrix taking three points onto three others (OpenCV's getAffineTransform).
+func StzAffineMatrix(paFrom, paTo)
+	_a_ = StzEngineImageAffineFrom(_StzPointsText(paFrom, -1), _StzPointsText(paTo, -1))
+	if len(_a_) != 9
+		stzraise("StzAffineMatrix: three points onto three points, not in a line.")
+	ok
+	return _a_
+
+# The matrix turning an image CLOCKWISE by pnDegrees about the point (pnX, pnY), 1-based.
+func StzRotationMatrix(pnX, pnY, pnDegrees, pnScale)
+	return StzEngineImageRotationMatrix(pnX - 1, pnY - 1, -pnDegrees, pnScale)
+
+# The polygon simplified so no dropped point lies farther than pnEpsilon from it (Douglas-Peucker, closed).
+func StzApproxPolygon(paPoints, pnEpsilon)
+	return StzEngineImageApproxPoly(_StzPointsText(paPoints, 0), pnEpsilon)
+
+# The convex hull of the points, collinear points dropped.
+func StzConvexHull(paPoints)
+	return StzEngineImageConvexHull(_StzPointsText(paPoints, 0))
+
+# The smallest rectangle, at any angle, holding every point: [ :corners = 4 points, :area ].
+func StzMinAreaRect(paPoints)
+	_a_ = StzEngineImageMinAreaRect(_StzPointsText(paPoints, 0))
+	return [ :corners = [ _a_[1], _a_[2], _a_[3], _a_[4] ], :area = _a_[5][1] ]
+
+# The area of a closed polygon (the shoelace formula), whatever its winding.
+func StzPolygonArea(paPoints)
+	_n_ = len(paPoints)
+	_s_ = 0
+	for _i_ = 1 to _n_
+		_j_ = _i_ + 1
+		if _j_ > _n_
+			_j_ = 1
+		ok
+		_s_ += paPoints[_i_][1] * paPoints[_j_][2] - paPoints[_j_][1] * paPoints[_i_][2]
+	next
+	return fabs(_s_) / 2
+
+# The perimeter of a closed polygon.
+func StzPolygonPerimeter(paPoints)
+	_n_ = len(paPoints)
+	_s_ = 0
+	for _i_ = 1 to _n_
+		_j_ = _i_ + 1
+		if _j_ > _n_
+			_j_ = 1
+		ok
+		_s_ += StzPointDistance(paPoints[_i_], paPoints[_j_])
+	next
+	return _s_
+
+func StzPointDistance(paA, paB)
+	return sqrt((paA[1] - paB[1]) * (paA[1] - paB[1]) + (paA[2] - paB[2]) * (paA[2] - paB[2]))
+
+# Four corners in the order top-left, top-right, bottom-right, bottom-left (by x + y and x - y).
+func StzOrderedCorners(paFour)
+	_aS_ = []
+	_aD_ = []
+	for _i_ = 1 to 4
+		_aS_ + (paFour[_i_][1] + paFour[_i_][2])
+		_aD_ + (paFour[_i_][1] - paFour[_i_][2])
+	next
+	_tl_ = _StzArgOf(_aS_, 0)
+	_br_ = _StzArgOf(_aS_, 1)
+	_tr_ = _StzArgOf(_aD_, 1)
+	_bl_ = _StzArgOf(_aD_, 0)
+	return [ paFour[_tl_], paFour[_tr_], paFour[_br_], paFour[_bl_] ]
+
+func _StzArgOf(paNumbers, bMax)
+	_n_ = len(paNumbers)
+	_k_ = 1
+	for _i_ = 2 to _n_
+		if (bMax = 1 and paNumbers[_i_] > paNumbers[_k_]) or (bMax = 0 and paNumbers[_i_] < paNumbers[_k_])
+			_k_ = _i_
+		ok
+	next
+	return _k_
+
+func _StzPointsText(paPoints, pnShift)
+	_c_ = ""
+	_n_ = len(paPoints)
+	for _i_ = 1 to _n_
+		if _i_ > 1
+			_c_ += ";"
+		ok
+		_c_ += "" + (paPoints[_i_][1] + pnShift) + " " + (paPoints[_i_][2] + pnShift)
+	next
+	return _c_
+
+func _StzMatrix9(paMatrix)
+	_a_ = []
+	_n_ = len(paMatrix)
+	for _i_ = 1 to _n_
+		if isList(paMatrix[_i_])
+			_m_ = len(paMatrix[_i_])
+			for _j_ = 1 to _m_
+				_a_ + paMatrix[_i_][_j_]
+			next
+		else
+			_a_ + paMatrix[_i_]
+		ok
+	next
+	if len(_a_) != 9
+		stzraise("stzImage: a warp matrix has nine numbers (three rows of three).")
+	ok
+	return _a_
+
 func _StzImageMust(pnId)
 	if pnId = 0
 		stzraise("stzImage: " + StzEngineImageLastError())
@@ -249,25 +370,38 @@ class stzImage from stzObject
 		stzraise("stzImage.Flip: the ways are :horizontal and :vertical, not '" + pcWay + "'.")
 
 	def ApplyRotation(pnDegrees)
-		This._Take(StzEngineImageRotate(@nId, This._Quarters(pnDegrees)))
+		This._Take(This._Rotate(pnDegrees, 0))
 
 		def ApplyRotationQ(pnDegrees)
 			This.ApplyRotation(pnDegrees)
 			return This
 
-	# Returns a copy turned clockwise by a multiple of 90 degrees.
-	#
-	#   warning    an angle that is not a multiple of 90 raises an error; free angles arrive with
-	#              IM2's warps
+	# Returns the image turned clockwise as a new image (data): a multiple of 90 degrees exactly,
+	# any other angle about the centre on the same canvas, the corners black (RotatedXT fills them).
 	def Rotated(pnDegrees)
-		return This._New(StzEngineImageRotate(@nId, This._Quarters(pnDegrees)))
+		return This._New(This._Rotate(pnDegrees, 0))
 
-	def _Quarters(pnDegrees)
-		if NOT isNumber(pnDegrees) or pnDegrees % 90 != 0
-			stzraise("stzImage.Rotate: a quarter-turn rotation takes a multiple of 90 " +
-				"degrees; free angles arrive with the warps (IM2).")
+	# Changes the image turned clockwise by any angle, the uncovered corners filled with pnFill.
+	def ApplyRotationXT(pnDegrees, pnFill)
+		This._Take(This._Rotate(pnDegrees, pnFill))
+
+	# Returns the image turned clockwise by any angle as a new image (data), corners filled with pnFill.
+	def RotatedXT(pnDegrees, pnFill)
+		return This._New(This._Rotate(pnDegrees, pnFill))
+
+	# a multiple of 90 is an exact quarter turn (the canvas swaps when odd); any other angle
+	# turns about the centre on the same canvas (OpenCV's getRotationMatrix2D + warpAffine)
+	def _Rotate(pnDegrees, pnFill)
+		if NOT isNumber(pnDegrees)
+			stzraise("stzImage.Rotate: an angle in degrees, clockwise.")
 		ok
-		return pnDegrees / 90
+		if pnDegrees % 90 = 0
+			return StzEngineImageRotate(@nId, pnDegrees / 90)
+		ok
+		_nW_ = This.Width()
+		_nH_ = This.Height()
+		_aM_ = StzRotationMatrix((_nW_ + 1) / 2, (_nH_ + 1) / 2, pnDegrees, 1)
+		return This._Warp(_aM_, _nW_, _nH_, pnFill)
 
 	def ApplyResize(pnWidth, pnHeight)
 		This._Take(StzEngineImageResize(@nId, pnWidth, pnHeight, 1))
@@ -566,6 +700,161 @@ class stzImage from stzObject
 			stzraise("stzImage.DifferenceWith: the two images differ in size or channels.")
 		ok
 		return [ :pixels = _a_[1], :max = _a_[2], :mean = _a_[3], :mse = _a_[4] ]
+
+	#@ aka  -- 9. GEOMETRY (IM2) ------------------------------------------------------
+
+	# Changes the image to its warp by a 3x3 matrix, onto a canvas of the size.
+	#
+	#   paMatrix   nine numbers (or three rows of three) in the engine's 0-based pixel coordinates,
+	#              as StzPerspectiveMatrix, StzAffineMatrix and StzRotationMatrix return them
+	#   note       OpenCV's warpAffine / warpPerspective, pixel for pixel: bilinear, what falls
+	#              outside the source is black (ApplyWarpXT chooses the fill)
+	def ApplyWarp(paMatrix, pnWidth, pnHeight)
+		This._Take(This._Warp(paMatrix, pnWidth, pnHeight, 0))
+
+		def ApplyWarpQ(paMatrix, pnWidth, pnHeight)
+			This.ApplyWarp(paMatrix, pnWidth, pnHeight)
+			return This
+
+	def ApplyWarpXT(paMatrix, pnWidth, pnHeight, pnFill)
+		This._Take(This._Warp(paMatrix, pnWidth, pnHeight, pnFill))
+
+	# Returns the warp by a 3x3 matrix as a new image (data); the image is not changed.
+	def Warped(paMatrix, pnWidth, pnHeight)
+		return This._New(This._Warp(paMatrix, pnWidth, pnHeight, 0))
+
+	def WarpedXT(paMatrix, pnWidth, pnHeight, pnFill)
+		return This._New(This._Warp(paMatrix, pnWidth, pnHeight, pnFill))
+
+	def _Warp(paMatrix, pnWidth, pnHeight, pnFill)
+		_m_ = _StzMatrix9(paMatrix)
+		_nP_ = 0
+		if _m_[7] != 0 or _m_[8] != 0 or _m_[9] != 1
+			_nP_ = 1
+		ok
+		return StzEngineImageWarp(@nId, _nP_, pnWidth, pnHeight, pnFill,
+			_m_[1], _m_[2], _m_[3], _m_[4], _m_[5], _m_[6], _m_[7], _m_[8], _m_[9])
+
+	# Returns what is not the background, as a one-channel image (data): 0 for the pixels connected
+	# to the border whose gray is within the tolerance of the border's median gray, 255 elsewhere.
+	#
+	#   note       the tolerance is MEASURED from the border itself: 3 robust sigmas of its gray, at
+	#              least 4 -- ForegroundMaskXT(n) sets it by hand; ForegroundTolerance() says what the
+	#              last mask used. A dark object or band not matching the border stays foreground
+	def ForegroundMask()
+		return This._New(StzEngineImageForeground(@nId, 0))
+
+	def ForegroundMaskXT(pnTolerance)
+		return This._New(StzEngineImageForeground(@nId, pnTolerance))
+
+	# Returns the tolerance the last foreground mask used.
+	def ForegroundTolerance()
+		return StzEngineImageForegroundTolerance()
+
+	# Returns the outer outline of every bright region, as lists of [ x, y ] points, 1-based.
+	#
+	#   note       OpenCV's findContours (RETR_EXTERNAL, CHAIN_APPROX_SIMPLE): only the corners of each
+	#              outline are kept; a region inside another's hole is not an outer outline
+	def Contours()
+		return This.ContoursXT(:simple)
+
+	# Contours with every border point (:all) or only the corners (:simple).
+	def ContoursXT(pcHow)
+		_nS_ = 1
+		if StzLower("" + pcHow) = "all"
+			_nS_ = 0
+		ok
+		_a_ = StzEngineImageContours(@nId, _nS_)
+		_n_ = len(_a_)
+		for _i_ = 1 to _n_
+			_m_ = len(_a_[_i_])
+			for _j_ = 1 to _m_
+				_a_[_i_][_j_][1] += 1
+				_a_[_i_][_j_][2] += 1
+			next
+		next
+		return _a_
+
+	# Returns the four corners of the page in a photograph -- top-left, top-right, bottom-right,
+	# bottom-left, 1-based -- or [ ] when no four-sided bright region stands out.
+	#
+	#   note       the page is the largest region that is not the background -- the background
+	#              being what touches the border and has the border's colour, within a tolerance
+	#              measured from the border (ForegroundMask) --
+	#              its outline simplified to 2% of its perimeter; it must come down to four corners
+	def PageCorners()
+		_oB_ = This.ForegroundMask()
+		_aC_ = _oB_.Contours()
+		_oB_.Release()
+		_n_ = len(_aC_)
+		if _n_ = 0
+			return []
+		ok
+		_nBest_ = 1
+		_nArea_ = 0
+		for _i_ = 1 to _n_
+			_a_ = StzPolygonArea(_aC_[_i_])
+			if _a_ > _nArea_
+				_nArea_ = _a_
+				_nBest_ = _i_
+			ok
+		next
+		_aQ_ = StzApproxPolygon(_aC_[_nBest_], 0.02 * StzPolygonPerimeter(_aC_[_nBest_]))
+		if len(_aQ_) != 4
+			return []
+		ok
+		return StzOrderedCorners(_aQ_)
+
+	# Changes the image to its page, flattened: the four corners found by PageCorners pulled to a
+	# rectangle as wide and as tall as the page's longer edges IN THE PHOTOGRAPH.
+	#
+	#   note       a single photograph does not give a page's true proportions: perspective shortens
+	#              the far edge, and undoing that needs the camera's focal length. When the page's
+	#              size is known (A4, a receipt), say it with ApplyPageFlatteningXT
+	#   warning    raises an error when no page is found; ask PageCorners first to decide
+	def ApplyPageFlattening()
+		This._Take(This._Flatten(0, 0))
+
+		def ApplyPageFlatteningQ()
+			This.ApplyPageFlattening()
+			return This
+
+	# Changes the image to its page flattened onto a rectangle of a known size.
+	def ApplyPageFlatteningXT(pnWidth, pnHeight)
+		This._Take(This._Flatten(pnWidth, pnHeight))
+
+	# Returns the page flattened as a new image (data); the photograph is not changed.
+	def FlattenedPage()
+		return This._New(This._Flatten(0, 0))
+
+	# Returns the page flattened onto a rectangle of a known size, as a new image (data).
+	def FlattenedPageXT(pnWidth, pnHeight)
+		return This._New(This._Flatten(pnWidth, pnHeight))
+
+	def _Flatten(pnWidth, pnHeight)
+		_aC_ = This.PageCorners()
+		if len(_aC_) != 4
+			stzraise("stzImage.FlattenedPage: no page found -- no bright four-sided region " +
+				"stands out from its background.")
+		ok
+		_nW_ = StzPointDistance(_aC_[1], _aC_[2])
+		_n2_ = StzPointDistance(_aC_[4], _aC_[3])
+		if _n2_ > _nW_
+			_nW_ = _n2_
+		ok
+		_nH_ = StzPointDistance(_aC_[1], _aC_[4])
+		_n2_ = StzPointDistance(_aC_[2], _aC_[3])
+		if _n2_ > _nH_
+			_nH_ = _n2_
+		ok
+		_nW_ = floor(_nW_ + 0.5)
+		_nH_ = floor(_nH_ + 0.5)
+		if pnWidth > 0 and pnHeight > 0
+			_nW_ = pnWidth
+			_nH_ = pnHeight
+		ok
+		_aM_ = StzPerspectiveMatrix(_aC_, [ [ 1, 1 ], [ _nW_, 1 ], [ _nW_, _nH_ ], [ 1, _nH_ ] ])
+		return This._Warp(_aM_, _nW_, _nH_, 255)
 
 	#@ aka  -- internals --------------------------------------------------------------
 

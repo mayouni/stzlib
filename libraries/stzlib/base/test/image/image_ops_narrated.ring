@@ -190,7 +190,7 @@ func GridMaxDiff(oGrid, cName)
 	nR = len(aRef)
 	if nR != oGrid.Rows() or len(aRef[1]) != oGrid.Columns()
 		? "      " + cName + ": shape " + oGrid.Rows() + "x" + oGrid.Columns() + " vs " + nR + "x" + len(aRef[1])
-		return 1e9
+		return 1000000000
 	ok
 	nMax = 0
 	for r = 1 to nR

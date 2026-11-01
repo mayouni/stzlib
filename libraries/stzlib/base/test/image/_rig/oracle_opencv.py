@@ -114,6 +114,44 @@ def main():
 
     csv("fft2_shifted", np.abs(np.fft.fftshift(np.fft.fft2(s.astype(np.float64)))), "%.4f")
 
+    # ---- IM2: geometry -------------------------------------------------------
+    H0, W0 = s.shape
+    M = cv2.getRotationMatrix2D(((W0 - 1) / 2, (H0 - 1) / 2), 17, 1.0)
+    csv("m_rot17", np.vstack([M, [0, 0, 1]]), "%.12f")
+    png("warp_rot17", cv2.warpAffine(s, M, (W0, H0), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT, borderValue=0))
+    A = cv2.getAffineTransform(np.float32([[0, 0], [95, 0], [0, 71]]), np.float32([[10, 5], [80, 12], [4, 60]]))
+    csv("m_affine", np.vstack([A, [0, 0, 1]]), "%.12f")
+    png("warp_affine", cv2.warpAffine(s, A, (90, 70), flags=cv2.INTER_LINEAR, borderValue=0))
+    P = cv2.getPerspectiveTransform(np.float32([[0, 0], [95, 0], [95, 71], [0, 71]]),
+                                    np.float32([[8, 4], [88, 10], [92, 66], [2, 70]]))
+    csv("m_persp", P, "%.12f")
+    png("warp_persp", cv2.warpPerspective(s, P, (W0, H0), flags=cv2.INTER_LINEAR, borderValue=0))
+
+    binm = (s > 128).astype(np.uint8)
+    for mode, name in ((cv2.CHAIN_APPROX_SIMPLE, "simple"), (cv2.CHAIN_APPROX_NONE, "none")):
+        cs = cv2.findContours(binm, cv2.RETR_EXTERNAL, mode)[0]
+        rows = [[k, int(q[0][0]), int(q[0][1])] for k, c in enumerate(cs) for q in c]
+        csv("contours_" + name, np.array(rows), "%.0f")
+    cs = cv2.findContours(binm, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[0]
+    big = [c for c in cs if cv2.boundingRect(c)[:2] == (6, 6)][0]  # the filled rectangle at (6, 6)
+    ap = cv2.approxPolyDP(big, 0.02 * cv2.arcLength(big, True), True)
+    csv("approx_rect", ap.reshape(-1, 2), "%.0f")
+    ring = [c for c in cs if cv2.boundingRect(c)[:2] == (44, 6)][0]  # the ring (its outer edge)
+    csv("hull_ring", cv2.convexHull(ring).reshape(-1, 2), "%.0f")
+    line = max(cs, key=lambda c: cv2.boundingRect(c)[1] * (cv2.boundingRect(c)[2] > 30))  # the diagonal line
+    csv("line_points", line.reshape(-1, 2), "%.0f")
+    r = cv2.minAreaRect(line)
+    csv("minrect_line", np.vstack([cv2.boxPoints(r), [[r[1][0] * r[1][1], 0]]]), "%.6f")
+
+    # A PHOTOGRAPHED PAGE: the page, smaller, laid on a dark table in perspective
+    small = cv2.resize(page, (800, 1131), interpolation=cv2.INTER_AREA)
+    png("page_small", small)
+    corners = np.float32([[140, 120], [1000, 190], [940, 1300], [80, 1220]])
+    T = cv2.getPerspectiveTransform(np.float32([[0, 0], [799, 0], [799, 1130], [0, 1130]]), corners)
+    photo = cv2.warpPerspective(small, T, (1100, 1400), flags=cv2.INTER_LINEAR, borderValue=40)
+    png("in_photo", photo)
+    csv("photo_corners", corners, "%.1f")
+
     ok, jpg = cv2.imencode(".jpg", cv2.cvtColor(s, cv2.COLOR_GRAY2BGR), [cv2.IMWRITE_JPEG_QUALITY, 90])
     with open(os.path.join(OUT, "VERSION.txt"), "w") as fv:
         fv.write(f"OpenCV {cv2.__version__}, NumPy {np.__version__} -- written by _rig/oracle_opencv.py\n")

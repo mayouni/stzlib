@@ -128,13 +128,9 @@ catch
 	bRaised = 1
 done
 chk("a crop that leaves the image is refused", bRaised = 1)
-bRaised = 0
-try
-	oS.Rotated(45)
-catch
-	bRaised = 1
-done
-chk("a free angle is refused until the warps (IM2)", bRaised = 1)
+oFree = oS.Rotated(45)
+chk("a free angle (IM2) turns on the same canvas", Same(oFree.Size(), oS.Size()))
+oFree.Release()
 
 sec("scene 3")
 

@@ -664,3 +664,100 @@ pub fn compare(a: i64, b: i64, out: *[4]f64) bool {
     out.* = .{ @floatFromInt(npx), @floatFromInt(mx), sum / m, sq / m };
     return true;
 }
+
+/// The tolerance the last foreground() used (the measured one when asked for 0).
+pub var last_tolerance: i32 = 0;
+
+/// What is NOT the background: a one-channel image, 255 everywhere except the
+/// pixels 4-connected to the image border whose gray is within `tol` of the
+/// border's median gray. "The table is what touches the edge and has the
+/// edge's colour" -- so a page whose black header band runs to its own edge
+/// keeps the band (an Otsu threshold merges a black band with a dark table).
+pub fn foreground(id: i64, tol: u32) i64 {
+    const im = img.get(id) orelse return img.fail("image: no such image", .{});
+    const W: usize = im.w;
+    const H: usize = im.h;
+    const g = grayPlane(im) orelse return img.fail("image: out of memory", .{});
+    defer alloc.free(g);
+    var hist = [_]usize{0} ** 256;
+    var nb: usize = 0;
+    for (0..W) |x| {
+        hist[g[x]] += 1;
+        hist[g[(H - 1) * W + x]] += 1;
+        nb += 2;
+    }
+    for (1..H -| 1) |y| {
+        hist[g[y * W]] += 1;
+        hist[g[y * W + W - 1]] += 1;
+        nb += 2;
+    }
+    var acc: usize = 0;
+    var bg: i32 = 0;
+    for (hist, 0..) |c, v| {
+        acc += c;
+        if (acc * 2 >= nb) {
+            bg = @intCast(v);
+            break;
+        }
+    }
+    // tol 0: let the background say how much it varies -- 3 robust sigmas of
+    // the border's gray (IQR / 1.349), at least 4. A flat table then admits 4
+    // levels and a textured one widens the band itself; a FIXED 24 merged a
+    // page's 56-gray header band into a 40-gray table (measured, IM2 guard).
+    var T: i32 = @intCast(tol);
+    if (tol == 0) {
+        var q25: i32 = 0;
+        var q75: i32 = 0;
+        var a2: usize = 0;
+        var got25 = false;
+        for (hist, 0..) |c, v| {
+            a2 += c;
+            if (!got25 and a2 * 4 >= nb) {
+                q25 = @intCast(v);
+                got25 = true;
+            }
+            if (a2 * 4 >= nb * 3) {
+                q75 = @intCast(v);
+                break;
+            }
+        }
+        const sigma = @as(f64, @floatFromInt(q75 - q25)) / 1.349;
+        T = @max(4, @as(i32, @intFromFloat(@ceil(3 * sigma))));
+    }
+    last_tolerance = T;
+    const out = alloc.alloc(u8, W * H) catch return img.fail("image: out of memory", .{});
+    @memset(out, 255);
+    var stack: std.ArrayList(usize) = .{};
+    defer stack.deinit(alloc);
+    const near = struct {
+        fn f(v: u8, b: i32, t: i32) bool {
+            const d = @as(i32, v) - b;
+            return d <= t and d >= -t;
+        }
+    };
+    for (0..W * H) |i| {
+        const x = i % W;
+        const y = i / W;
+        if (x != 0 and y != 0 and x != W - 1 and y != H - 1) continue;
+        if (out[i] == 255 and near.f(g[i], bg, T)) {
+            out[i] = 0;
+            stack.append(alloc, i) catch return img.fail("image: out of memory", .{});
+        }
+    }
+    while (stack.pop()) |p| {
+        const px = p % W;
+        const py = p / W;
+        const nbr = [4][2]i64{ .{ -1, 0 }, .{ 1, 0 }, .{ 0, -1 }, .{ 0, 1 } };
+        for (nbr) |d| {
+            const nx = @as(i64, @intCast(px)) + d[0];
+            const ny = @as(i64, @intCast(py)) + d[1];
+            if (nx < 0 or ny < 0 or nx >= @as(i64, @intCast(W)) or ny >= @as(i64, @intCast(H))) continue;
+            const q = @as(usize, @intCast(ny)) * W + @as(usize, @intCast(nx));
+            if (out[q] == 255 and near.f(g[q], bg, T)) {
+                out[q] = 0;
+                stack.append(alloc, q) catch return img.fail("image: out of memory", .{});
+            }
+        }
+    }
+    return img.adopt(im.w, im.h, 1, out);
+}

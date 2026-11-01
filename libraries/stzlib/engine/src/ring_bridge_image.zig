@@ -8,6 +8,7 @@
 const std = @import("std");
 const img = @import("image.zig");
 const ops = @import("image_ops.zig");
+const geom = @import("image_geom.zig");
 const R = @import("ring_api.zig");
 
 const gn = R.ring_vm_api_getnumber;
@@ -310,6 +311,14 @@ fn ring_GridArgMax(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, list);
 }
 
+fn ring_Foreground(p: *anyopaque) callconv(.c) void {
+    retF(p, ops.foreground(id(p, 1), u(p, 2)));
+}
+
+fn ring_ForegroundTolerance(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(ops.last_tolerance));
+}
+
 // (a, b) -> [ differing pixels, max abs, mean abs, mse ], [] when not comparable
 fn ring_Compare(p: *anyopaque) callconv(.c) void {
     var o: [4]f64 = undefined;
@@ -318,6 +327,135 @@ fn ring_Compare(p: *anyopaque) callconv(.c) void {
         for (o) |v| R.ring_list_adddouble(list, v);
     }
     R.ring_vm_api_retlist(p, list);
+}
+
+// ---------------------------------------------------------------- IM2: geometry
+//
+// Matrices are 3x3 in OpenCV's 0-based pixel coordinates (an affine one has
+// last row 0 0 1). Points cross as text "x y;x y;..." in either direction of
+// the Ring face's choosing; the engine itself is 0-based.
+
+fn pointsOf(arg: []const u8) std.ArrayList([2]f64) {
+    var out: std.ArrayList([2]f64) = .empty;
+    var it = std.mem.splitScalar(u8, arg, ';');
+    while (it.next()) |item| {
+        var f = std.mem.tokenizeAny(u8, item, " ,");
+        var p: [2]f64 = .{ 0, 0 };
+        var n: usize = 0;
+        while (f.next()) |num| : (n += 1) {
+            if (n >= 2) break;
+            p[n] = std.fmt.parseFloat(f64, num) catch 0;
+        }
+        if (n >= 2) out.append(alloc, p) catch {};
+    }
+    return out;
+}
+
+fn retMatrix(p: *anyopaque, m: [9]f64, ok: bool) void {
+    const list = R.ring_vm_api_newlist(p) orelse return rn(p, 0);
+    if (ok) {
+        for (m) |v| R.ring_list_adddouble(list, v);
+    }
+    R.ring_vm_api_retlist(p, list);
+}
+
+fn retPoints(p: *anyopaque, pts: []const [2]f64) void {
+    const list = R.ring_vm_api_newlist(p) orelse return rn(p, 0);
+    for (pts) |q| {
+        const sub = R.ring_list_newlist(list) orelse continue;
+        R.ring_list_adddouble(sub, q[0]);
+        R.ring_list_adddouble(sub, q[1]);
+    }
+    R.ring_vm_api_retlist(p, list);
+}
+
+// (image, perspective, dw, dh, fill, m0..m8) -> image
+fn ring_Warp(p: *anyopaque) callconv(.c) void {
+    var m: [9]f64 = undefined;
+    for (0..9) |k| m[k] = gn(p, @intCast(6 + k));
+    retF(p, geom.warp(id(p, 1), m, gn(p, 2) != 0, u(p, 3), u(p, 4), @intCast(@min(u(p, 5), 255))));
+}
+
+// (cSrcPoints, cDstPoints) -> [ m0..m8 ] (4 pairs) ; [] when degenerate
+fn ring_PerspectiveFrom(p: *anyopaque) callconv(.c) void {
+    var a = pointsOf(getStr(p, 1));
+    defer a.deinit(alloc);
+    var b = pointsOf(getStr(p, 2));
+    defer b.deinit(alloc);
+    var m: [9]f64 = undefined;
+    if (a.items.len != 4 or b.items.len != 4) return retMatrix(p, m, false);
+    const ok = geom.perspectiveFrom(a.items[0..4].*, b.items[0..4].*, &m);
+    retMatrix(p, m, ok);
+}
+
+// (cSrcPoints, cDstPoints) -> [ m0..m8 ] (3 pairs)
+fn ring_AffineFrom(p: *anyopaque) callconv(.c) void {
+    var a = pointsOf(getStr(p, 1));
+    defer a.deinit(alloc);
+    var b = pointsOf(getStr(p, 2));
+    defer b.deinit(alloc);
+    var m: [9]f64 = undefined;
+    if (a.items.len != 3 or b.items.len != 3) return retMatrix(p, m, false);
+    const ok = geom.affineFrom(a.items[0..3].*, b.items[0..3].*, &m);
+    retMatrix(p, m, ok);
+}
+
+// (cx, cy, degrees counter-clockwise, scale) -> [ m0..m8 ]
+fn ring_RotationMatrix(p: *anyopaque) callconv(.c) void {
+    var m: [9]f64 = undefined;
+    geom.rotationMatrix(gn(p, 1), gn(p, 2), gn(p, 3), gn(p, 4), &m);
+    retMatrix(p, m, true);
+}
+
+// (image, simple) -> [ [ [x, y], ... ], ... ] 0-based, one list per outer contour
+fn ring_Contours(p: *anyopaque) callconv(.c) void {
+    var pts: std.ArrayList(geom.Pt) = .empty;
+    defer pts.deinit(alloc);
+    var lens: std.ArrayList(usize) = .empty;
+    defer lens.deinit(alloc);
+    const list = R.ring_vm_api_newlist(p) orelse return rn(p, 0);
+    if (geom.contours(id(p, 1), gn(p, 2) != 0, &pts, &lens)) {
+        var at: usize = 0;
+        for (lens.items) |n| {
+            const c = R.ring_list_newlist(list) orelse break;
+            for (pts.items[at .. at + n]) |q| {
+                const pt = R.ring_list_newlist(c) orelse break;
+                R.ring_list_adddouble(pt, @floatFromInt(q.x));
+                R.ring_list_adddouble(pt, @floatFromInt(q.y));
+            }
+            at += n;
+        }
+    }
+    R.ring_vm_api_retlist(p, list);
+}
+
+// (cPoints, epsilon) -> [ [x, y], ... ]
+fn ring_ApproxPoly(p: *anyopaque) callconv(.c) void {
+    var a = pointsOf(getStr(p, 1));
+    defer a.deinit(alloc);
+    var out: std.ArrayList([2]f64) = .empty;
+    defer out.deinit(alloc);
+    geom.approxPoly(a.items, gn(p, 2), &out) catch {};
+    retPoints(p, out.items);
+}
+
+fn ring_ConvexHull(p: *anyopaque) callconv(.c) void {
+    var a = pointsOf(getStr(p, 1));
+    defer a.deinit(alloc);
+    var out: std.ArrayList([2]f64) = .empty;
+    defer out.deinit(alloc);
+    geom.convexHull(a.items, &out) catch {};
+    retPoints(p, out.items);
+}
+
+// (cPoints) -> [ [x, y] x 4 corners, [area, 0] ]
+fn ring_MinAreaRect(p: *anyopaque) callconv(.c) void {
+    var a = pointsOf(getStr(p, 1));
+    defer a.deinit(alloc);
+    var box: [4][2]f64 = undefined;
+    const area = geom.minAreaRect(a.items, &box) catch 0;
+    var all: [5][2]f64 = .{ box[0], box[1], box[2], box[3], .{ area, 0 } };
+    retPoints(p, all[0..]);
 }
 
 pub const regs = [_]R.Reg{
@@ -373,6 +511,16 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineimagefft2", .func = &ring_Fft2 },
     .{ .name = "stzengineimagegridargmax", .func = &ring_GridArgMax },
     .{ .name = "stzengineimagecompare", .func = &ring_Compare },
+    .{ .name = "stzengineimageforeground", .func = &ring_Foreground },
+    .{ .name = "stzengineimageforegroundtolerance", .func = &ring_ForegroundTolerance },
+    .{ .name = "stzengineimagewarp", .func = &ring_Warp },
+    .{ .name = "stzengineimageperspectivefrom", .func = &ring_PerspectiveFrom },
+    .{ .name = "stzengineimageaffinefrom", .func = &ring_AffineFrom },
+    .{ .name = "stzengineimagerotationmatrix", .func = &ring_RotationMatrix },
+    .{ .name = "stzengineimagecontours", .func = &ring_Contours },
+    .{ .name = "stzengineimageapproxpoly", .func = &ring_ApproxPoly },
+    .{ .name = "stzengineimageconvexhull", .func = &ring_ConvexHull },
+    .{ .name = "stzengineimageminarearect", .func = &ring_MinAreaRect },
 };
 
 pub fn registerAll(pState: *anyopaque) void {
