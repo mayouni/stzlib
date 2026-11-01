@@ -146,6 +146,10 @@ it is worse than no face, because a caller would trust it.
 **V2 — `IMAGE → DATA`, and `stzImageGrid`.**
 Threshold, histogram, morphology (open/close/median), edges, connected
 components, 2D FFT. Engine-side, in the portable DLL.
+*[2026-11-01: BEING BUILT by stzlib-intelligence at the author's direction, as IM0-IM2 of
+`base/doc/design/SOFTANZA_IMAGE_INTELLIGENCE.md` -- this plan's grid rule and the name
+`stzImageGrid` are kept; the portable DLL is `stz_image`. IM0 (image type, codecs, resize,
+blur, Otsu, histogram, stzImage + stzImageGrid) shipped the same day.]*
 *Inherit the measured finding:* `fft.zig`'s twiddle table was **3.1× at
 N=131k and no win at N=4M** (16 MB, cache cliff). An image FFT lands in
 that range — **measure before tabulating**.

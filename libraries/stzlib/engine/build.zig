@@ -73,6 +73,8 @@ const base_domains = [_]Domain{
     .{ .name = "stz_tcp", .entry = "src/stz_tcp_entry.zig", .needs_ring = true },
     // WebSocket client (RFC 6455) over the engine socket; wss over mbedTLS, the engine's own TLS path
     .{ .name = "stz_ws", .entry = "src/stz_ws_entry.zig", .needs_ring = true, .needs_mbedtls = true, .needs_zlib = true },
+    // the image plane (IM0): one image type, codecs, classical ops -- portable, no GPU (SOFTANZA_IMAGE_INTELLIGENCE.md)
+    .{ .name = "stz_image", .entry = "src/stz_image_entry.zig", .needs_ring = true, .needs_zlib = true, .needs_stb = true },
     .{ .name = "stz_fswatch", .entry = "src/stz_fswatch_entry.zig", .needs_ring = true },
     .{ .name = "stz_time", .entry = "src/stz_time_entry.zig", .needs_ring = true },
     .{ .name = "stz_pool", .entry = "src/stz_pool_entry.zig", .needs_ring = true },

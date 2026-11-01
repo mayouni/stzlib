@@ -738,6 +738,10 @@ load "service/stzPispiQr.ring"    # the twin of the hub served over HTTP, with O
     load "file/stzHtml.ring"     # Engine-backed HTML parser (Zig)
     load "file/stzPdf.ring"      # Engine-backed PDF text-layer reader (Zig)
     load "file/stzPdfLetterhead.ring"  # the letterhead decision, a measured faculty above the reader
+    # image/ -- the IMAGE PLANE (SOFTANZA_IMAGE_INTELLIGENCE.md, IM0): stzImage holds pixels
+    # behind one engine handle (stz_image.dll); stzImageGrid holds what an analysis returns
+    load "image/stzImage.ring"
+    load "image/stzImageGrid.ring"
     load "ocr/stzOcr.ring"             # OCR as a faculty: the platform floor, a model only when measured better
     load "ocr/stzOcrInspect.ring"      # see what OCR read and where: the image and its reading, linked both ways
 
