@@ -858,7 +858,7 @@ class stzImage from stzObject
 
 	#@ aka  -- 10. WHAT IS IN THE PICTURE (IM3: models, through the governed door) -------
 
-	# Returns the five most likely ImageNet labels, best first: [ :label, :score ] each.
+	# Returns the five most likely ImageNet labels, best first: [ :label, :score, :index ] each.
 	#
 	#   note       MobileNetV3-Large (models/vision); every call is recorded in the security ledger
 	def Classify()
@@ -874,7 +874,7 @@ class stzImage from stzObject
 		_aOut_ = []
 		_n_ = len(_a_)
 		for _i_ = 1 to _n_
-			_aOut_ + [ :label = _a_[_i_][1], :score = _a_[_i_][2] ]
+			_aOut_ + [ :label = _a_[_i_][1], :score = _a_[_i_][2], :index = _a_[_i_][3] ]
 		next
 		_StzVisionDoor("classify", $cStzVisionClassifier, "best '" + _aOut_[1][:label] + "' " + _aOut_[1][:score])
 		return _aOut_

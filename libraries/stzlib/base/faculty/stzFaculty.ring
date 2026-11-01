@@ -337,12 +337,123 @@ func StzGoldenAgrees(pcChecker, pGot, pExpected)
 		if len(_aE_) != 2 return 0 ok
 		if len(StzFind(lower(_aE_[1]), lower("" + pGot))) = 0 return 0 ok
 		return len(split(trim("" + pGot), " ")) <= (0 + _aE_[2])
+	but pcChecker = "faces-anchors"
+		return StzFacesAgree(pGot, pExpected)
+	but pcChecker = "boxes-f1"
+		return StzBoxesAgree(pGot, pExpected)
 	but pcChecker = "first"
 		# a ranking whose best item is the expected one
 		if NOT isList(pGot) or len(pGot) = 0 return 0 ok
 		return lower(trim("" + pGot[1][1])) = lower(trim("" + pExpected))
 	ok
 	return 0
+
+# IM4 (SOFTANZA_IMAGE_INTELLIGENCE.md): the two vision checkers, over COCO-made expectations.
+#
+# faces-anchors: pExpected is rows [ nose x, nose y, eye distance, required 1|0 ], pGot rows with :box. It agrees
+# when at least 80% of the REQUIRED noses fall inside a found face (the box widened by 10%) and at most one found
+# face holds no annotated nose at all (a face where COCO marked a person's nose, required or not, is no false alarm).
+func StzFacesAgree(pGot, pExpected)
+	_a_ = StzFacesScore(pGot, pExpected)
+	return _a_[:recall] >= 0.8 and _a_[:false] <= 1
+
+# [ :recall, :false, :required ] of a faces answer against its anchors
+func StzFacesScore(pGot, pExpected)
+	if NOT isList(pGot) or NOT isList(pExpected) return [ :recall = 0, :false = 0, :required = 0 ] ok
+	_nReq_ = 0
+	_nHit_ = 0
+	_nE_ = len(pExpected)
+	_nG_ = len(pGot)
+	for _i_ = 1 to _nE_
+		if pExpected[_i_][4] != 1 loop ok
+		_nReq_++
+		for _j_ = 1 to _nG_
+			if _StzInWidened(pExpected[_i_][1], pExpected[_i_][2], pGot[_j_][:box], 0.1)
+				_nHit_++
+				exit
+			ok
+		next
+	next
+	_nFalse_ = 0
+	for _j_ = 1 to _nG_
+		_bAny_ = 0
+		for _i_ = 1 to _nE_
+			if _StzInWidened(pExpected[_i_][1], pExpected[_i_][2], pGot[_j_][:box], 0.1)
+				_bAny_ = 1
+				exit
+			ok
+		next
+		if _bAny_ = 0 _nFalse_++ ok
+	next
+	_nR_ = 1
+	if _nReq_ > 0 _nR_ = _nHit_ / _nReq_ ok
+	return [ :recall = _nR_, :false = _nFalse_, :required = _nReq_ ]
+
+func _StzInWidened(pnX, pnY, paBox, pnMargin)
+	_mx_ = paBox[3] * pnMargin
+	_my_ = paBox[4] * pnMargin
+	return pnX >= paBox[1] - _mx_ and pnX <= paBox[1] + paBox[3] + _mx_ and
+	       pnY >= paBox[2] - _my_ and pnY <= paBox[2] + paBox[4] + _my_
+
+# boxes-f1: pExpected is rows [ label, x, y, w, h, counted 1|0 ], pGot rows with :label, :box. Each found box is
+# matched greedily (best IoU >= 0.5, same label); a COUNTED object matched is a hit, unmatched a miss; a found box of
+# area >= 32x32 that matches no object at all (counted or not) is a false alarm. It agrees when F1 >= 0.5.
+func StzBoxesAgree(pGot, pExpected)
+	return StzBoxesScore(pGot, pExpected)[:f1] >= 0.5
+
+# [ :f1, :hits, :misses, :false ] of a boxes answer against its objects
+func StzBoxesScore(pGot, pExpected)
+	if NOT isList(pGot) or NOT isList(pExpected) return [ :f1 = 0, :hits = 0, :misses = 0, :false = 0 ] ok
+	_nE_ = len(pExpected)
+	_nG_ = len(pGot)
+	_aUsed_ = []
+	for _i_ = 1 to _nE_ _aUsed_ + 0 next
+	_nHit_ = 0
+	_nFalse_ = 0
+	for _j_ = 1 to _nG_
+		_b_ = pGot[_j_][:box]
+		_nBest_ = 0
+		_vBest_ = 0.5
+		for _i_ = 1 to _nE_
+			if _aUsed_[_i_] = 1 loop ok
+			if lower(pExpected[_i_][1]) != lower(pGot[_j_][:label]) loop ok
+			_v_ = _StzIou(_b_, [ pExpected[_i_][2], pExpected[_i_][3], pExpected[_i_][4], pExpected[_i_][5] ])
+			if _v_ >= _vBest_
+				_vBest_ = _v_
+				_nBest_ = _i_
+			ok
+		next
+		if _nBest_ > 0
+			_aUsed_[_nBest_] = 1
+			if pExpected[_nBest_][6] = 1 _nHit_++ ok
+		but _b_[3] * _b_[4] >= 1024
+			_nFalse_++
+		ok
+	next
+	_nCounted_ = 0
+	for _i_ = 1 to _nE_
+		if pExpected[_i_][6] = 1 _nCounted_++ ok
+	next
+	_nMiss_ = _nCounted_ - _nHit_
+	_nD_ = 2 * _nHit_ + _nFalse_ + _nMiss_
+	_nF1_ = 1
+	if _nD_ > 0 _nF1_ = 2 * _nHit_ / _nD_ ok
+	return [ :f1 = _nF1_, :hits = _nHit_, :misses = _nMiss_, :false = _nFalse_ ]
+
+func _StzIou(a, b)
+	_x1_ = a[1]
+	if b[1] > _x1_ _x1_ = b[1] ok
+	_y1_ = a[2]
+	if b[2] > _y1_ _y1_ = b[2] ok
+	_x2_ = a[1] + a[3]
+	if b[1] + b[3] < _x2_ _x2_ = b[1] + b[3] ok
+	_y2_ = a[2] + a[4]
+	if b[2] + b[4] < _y2_ _y2_ = b[2] + b[4] ok
+	_w_ = _x2_ - _x1_
+	_h_ = _y2_ - _y1_
+	if _w_ <= 0 or _h_ <= 0 return 0 ok
+	_in_ = _w_ * _h_
+	return _in_ / (a[3] * a[4] + b[3] * b[4] - _in_)
 
 # normalise an implementation spec into a full row with the defaults a floor-or-model needs
 func _StzImplRecord(paSpec)
