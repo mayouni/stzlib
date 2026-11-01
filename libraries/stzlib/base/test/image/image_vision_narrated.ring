@@ -26,7 +26,7 @@ $nSec = clock()
 $cSrc = "D:/GitHub/_wti_models_src/"
 $cPh = $cSrc + "photos/"
 
-cOut = StzReplace(WorkingDirectory(), "\", "/") + "/_image-out"
+cOut = StzReplace(WorkingDirectory(), "\", "/") + "/_vision-out"
 if NOT StzDirExists(cOut)
 	StzDirCreatePath(cOut)
 ok
