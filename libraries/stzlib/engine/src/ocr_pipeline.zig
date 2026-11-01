@@ -1288,6 +1288,59 @@ fn coloured(p: [*]const u8) bool {
     return mx - mn > 60 and mn < 190;
 }
 
+const Blob = struct { x0: usize, y0: usize, x1: usize, y1: usize, n: usize };
+
+// The page's coloured ink as cells of about 1.4 pt, joined across gaps of two cells into blobs; `label` gives each
+// cell its blob's index plus one (0: no coloured ink).
+const ColourMap = struct { cs: usize, gw: usize, gh: usize, label: []u32, blobs: []Blob };
+
+fn colourMap(a: std.mem.Allocator, im: *const Image, ppt: f32) !ColourMap {
+    const cs: usize = @max(2, @as(usize, @intFromFloat(@round(1.4 * ppt))));
+    const gw = (im.w + cs - 1) / cs;
+    const gh = (im.h + cs - 1) / cs;
+    const cell = try a.alloc(bool, gw * gh);
+    @memset(cell, false);
+    for (0..im.h) |y| {
+        for (0..im.w) |x| {
+            if (coloured(im.at(x, y))) cell[(y / cs) * gw + x / cs] = true;
+        }
+    }
+    const label = try a.alloc(u32, gw * gh);
+    @memset(label, 0);
+    var blobs: std.ArrayList(Blob) = .empty;
+    var stack: std.ArrayList(usize) = .empty;
+    for (0..gw * gh) |start| {
+        if (!cell[start] or label[start] != 0) continue;
+        const id: u32 = @intCast(blobs.items.len + 1);
+        var cm = Blob{ .x0 = gw, .y0 = gh, .x1 = 0, .y1 = 0, .n = 0 };
+        stack.clearRetainingCapacity();
+        try stack.append(a, start);
+        label[start] = id;
+        while (stack.pop()) |i| {
+            const x = i % gw;
+            const y = i / gw;
+            cm.n += 1;
+            cm.x0 = @min(cm.x0, x);
+            cm.x1 = @max(cm.x1, x);
+            cm.y0 = @min(cm.y0, y);
+            cm.y1 = @max(cm.y1, y);
+            var yy = y -| 2;
+            while (yy <= @min(y + 2, gh - 1)) : (yy += 1) {
+                var xx = x -| 2;
+                while (xx <= @min(x + 2, gw - 1)) : (xx += 1) {
+                    const j = yy * gw + xx;
+                    if (cell[j] and label[j] == 0) {
+                        label[j] = id;
+                        try stack.append(a, j);
+                    }
+                }
+            }
+        }
+        try blobs.append(a, cm);
+    }
+    return .{ .cs = cs, .gw = gw, .gh = gh, .label = label, .blobs = blobs.items };
+}
+
 /// Which boxes of `boxes` (the OCR lines, image pixels) are a stamp's or shaped like a logo.
 ///   ppt   the image's pixels per point
 pub fn figuresOf(image_path: []const u8, ppt: f32, boxes: []const [4]f32) !Figures {
@@ -1312,55 +1365,9 @@ pub fn figuresOf(image_path: []const u8, ppt: f32, boxes: []const [4]f32) !Figur
     defer im.free();
     const w = im.w;
     const h = im.h;
-    // the coloured cells (about 1.4 pt), joined across gaps of two cells
-    const cs: usize = @max(2, @as(usize, @intFromFloat(@round(1.4 * ppt))));
-    const gw = (w + cs - 1) / cs;
-    const gh = (h + cs - 1) / cs;
-    const cell = try a.alloc(bool, gw * gh);
-    @memset(cell, false);
-    var any = false;
-    for (0..h) |y| {
-        for (0..w) |x| {
-            if (coloured(Image.at(&im, x, y))) {
-                cell[(y / cs) * gw + x / cs] = true;
-                any = true;
-            }
-        }
-    }
-    if (!any) return res;
-    const Blob = struct { x0: usize, y0: usize, x1: usize, y1: usize, n: usize };
-    var comps: std.ArrayList(Blob) = .empty;
-    const seen = try a.alloc(bool, gw * gh);
-    @memset(seen, false);
-    var stack: std.ArrayList(usize) = .empty;
-    for (0..gw * gh) |start| {
-        if (!cell[start] or seen[start]) continue;
-        var cm = Blob{ .x0 = gw, .y0 = gh, .x1 = 0, .y1 = 0, .n = 0 };
-        stack.clearRetainingCapacity();
-        try stack.append(a, start);
-        seen[start] = true;
-        while (stack.pop()) |i| {
-            const x = i % gw;
-            const y = i / gw;
-            cm.n += 1;
-            cm.x0 = @min(cm.x0, x);
-            cm.x1 = @max(cm.x1, x);
-            cm.y0 = @min(cm.y0, y);
-            cm.y1 = @max(cm.y1, y);
-            var yy = y -| 2;
-            while (yy <= @min(y + 2, gh - 1)) : (yy += 1) {
-                var xx = x -| 2;
-                while (xx <= @min(x + 2, gw - 1)) : (xx += 1) {
-                    const j = yy * gw + xx;
-                    if (cell[j] and !seen[j]) {
-                        seen[j] = true;
-                        try stack.append(a, j);
-                    }
-                }
-            }
-        }
-        try comps.append(a, cm);
-    }
+    const cmap = try colourMap(a, &im, ppt);
+    if (cmap.blobs.len == 0) return res;
+    const cs = cmap.cs;
     for (boxes, 0..) |b, bi| {
         const bx0: usize = @intFromFloat(std.math.clamp(b[0], 0, @as(f32, @floatFromInt(w))));
         const bx1: usize = @intFromFloat(std.math.clamp(b[2], 0, @as(f32, @floatFromInt(w))));
@@ -1383,7 +1390,7 @@ pub fn figuresOf(image_path: []const u8, ppt: f32, boxes: []const [4]f32) !Figur
         const lh = b[3] - b[1];
         const mx = (b[0] + b[2]) / 2;
         const my = (b[1] + b[3]) / 2;
-        for (comps.items) |cm| {
+        for (cmap.blobs) |cm| {
             const px0: f32 = @floatFromInt(cm.x0 * cs);
             const py0: f32 = @floatFromInt(cm.y0 * cs);
             const px1: f32 = @floatFromInt(@min(w, (cm.x1 + 1) * cs));
@@ -1406,6 +1413,162 @@ pub fn figuresOf(image_path: []const u8, ppt: f32, boxes: []const [4]f32) !Figur
         }
     }
     return res;
+}
+
+// A signature drawn across a printed line costs the line a letter: on a scanned letter the pen's stroke ran up into
+// the bottom of an "e" and the platform read the word in two pieces around a letter it no longer saw. The pen's ink
+// is told from the print by its colour and by where it lies:
+//   - a DRAWN shape is a coloured blob mostly outside the lines (a coloured word lies inside its own line), at least
+//     a line long, and sparse or thin (a pen stroke, a stamp's ring -- a coloured band behind a footer is filled)
+//   - a line is TOUCHED when a drawn shape reaches into its box, or a third of a line above or below it, and its own
+//     ink is mostly not coloured (a coloured line near a stamp is the stamp's, or printed in colour)
+// The copy wipes the drawn shapes' ink, its faint edges included, and leaves the print: where the pen crosses a
+// letter the ink is dark and neutral, and stays. The caller reads the touched lines again from it.
+// Measured on that letter: the stroke 25 cells and 2 wide, wiped with chroma above 25 where the touched cell test
+// found nothing above 60 inside the line; one line touched. The fixtures' banded footer: its two stray coloured
+// specks are shorter than a line, nothing touched.
+
+pub const Wiped = struct {
+    arena: std.heap.ArenaAllocator,
+    /// per box: whether a drawn shape touches it (the copy is written only when one does)
+    touched: []bool,
+    pub fn free(self: *Wiped) void {
+        self.arena.deinit();
+    }
+};
+
+/// Writes to `out_path` a copy of the image without its drawn coloured shapes, when one touches a line of `boxes`.
+///   ppt   the image's pixels per point
+pub fn wipeDrawn(image_path: []const u8, out_path: []const u8, ppt: f32, boxes: []const [4]f32) !Wiped {
+    var res = Wiped{ .arena = std.heap.ArenaAllocator.init(gpa), .touched = &.{} };
+    errdefer res.arena.deinit();
+    const a = res.arena.allocator();
+    const touched = try a.alloc(bool, boxes.len);
+    @memset(touched, false);
+    res.touched = touched;
+    const hs = try a.alloc(f32, boxes.len);
+    var nh: usize = 0;
+    for (boxes) |b| {
+        if (b[3] > b[1]) {
+            hs[nh] = b[3] - b[1];
+            nh += 1;
+        }
+    }
+    if (nh == 0) return res;
+    std.mem.sort(f32, hs[0..nh], {}, std.sort.asc(f32));
+    const med = hs[nh / 2];
+    var im = try loadImage(image_path);
+    defer im.free();
+    const cmap = try colourMap(a, &im, ppt);
+    if (cmap.blobs.len == 0) return res;
+    const cs = cmap.cs;
+    const gw = cmap.gw;
+    const gh = cmap.gh;
+    const fw: f32 = @floatFromInt(im.w);
+    const fh: f32 = @floatFromInt(im.h);
+    // the cells inside a line, and each blob's share of them
+    const inl = try a.alloc(bool, gw * gh);
+    @memset(inl, false);
+    for (boxes) |b| {
+        if (b[3] <= b[1] or b[2] <= b[0]) continue;
+        const cx0: usize = @as(usize, @intFromFloat(std.math.clamp(b[0], 0, fw - 1))) / cs;
+        const cx1: usize = @as(usize, @intFromFloat(std.math.clamp(b[2], 0, fw - 1))) / cs;
+        const cy0: usize = @as(usize, @intFromFloat(std.math.clamp(b[1], 0, fh - 1))) / cs;
+        const cy1: usize = @as(usize, @intFromFloat(std.math.clamp(b[3], 0, fh - 1))) / cs;
+        for (cy0..cy1 + 1) |y| @memset(inl[y * gw + cx0 .. y * gw + cx1 + 1], true);
+    }
+    const nin = try a.alloc(usize, cmap.blobs.len);
+    @memset(nin, 0);
+    for (cmap.label, 0..) |l, i| {
+        if (l != 0 and inl[i]) nin[l - 1] += 1;
+    }
+    const drawn = try a.alloc(bool, cmap.blobs.len);
+    var any_drawn = false;
+    for (cmap.blobs, 0..) |bl, i| {
+        const bw = bl.x1 - bl.x0 + 1;
+        const bh = bl.y1 - bl.y0 + 1;
+        const fill = @as(f32, @floatFromInt(bl.n)) / @as(f32, @floatFromInt(bw * bh));
+        drawn[i] = nin[i] * 2 < bl.n and (fill <= 0.5 or @min(bw, bh) <= 3) and
+            @as(f32, @floatFromInt(@max(bw, bh) * cs)) >= med;
+        any_drawn = any_drawn or drawn[i];
+    }
+    if (!any_drawn) return res;
+    var any = false;
+    for (boxes, 0..) |b, bi| {
+        if (b[3] <= b[1] or b[2] <= b[0]) continue;
+        const lh = b[3] - b[1];
+        const bx0: usize = @intFromFloat(std.math.clamp(b[0], 0, fw - 1));
+        const bx1: usize = @intFromFloat(std.math.clamp(b[2], 0, fw - 1));
+        const by0: usize = @intFromFloat(std.math.clamp(b[1], 0, fh - 1));
+        const by1: usize = @intFromFloat(std.math.clamp(b[3], 0, fh - 1));
+        // the line's own ink, mostly coloured: not touched
+        var n_ink: usize = 0;
+        var n_col: usize = 0;
+        for (by0..by1) |y| {
+            for (bx0..bx1) |x| {
+                const p = im.at(x, y);
+                if (@min(p[0], @min(p[1], p[2])) >= 150) continue;
+                n_ink += 1;
+                n_col += @intFromBool(coloured(p));
+            }
+        }
+        if (n_ink > 0 and @as(f32, @floatFromInt(n_col)) >= 0.6 * @as(f32, @floatFromInt(n_ink))) continue;
+        const cy0: usize = @as(usize, @intFromFloat(std.math.clamp(b[1] - 0.3 * lh, 0, fh - 1))) / cs;
+        const cy1: usize = @as(usize, @intFromFloat(std.math.clamp(b[3] + 0.3 * lh, 0, fh - 1))) / cs;
+        search: for (cy0..cy1 + 1) |y| {
+            for (bx0 / cs..bx1 / cs + 1) |x| {
+                const l = cmap.label[y * gw + x];
+                if (l != 0 and drawn[l - 1]) {
+                    touched[bi] = true;
+                    any = true;
+                    break :search;
+                }
+            }
+        }
+    }
+    if (!any) return res;
+    // the drawn shapes' cells and the two around them, where any tinted pixel is the pen's
+    const near = try a.alloc(bool, gw * gh);
+    @memset(near, false);
+    for (cmap.label, 0..) |l, i| {
+        if (l == 0 or !drawn[l - 1]) continue;
+        const x = i % gw;
+        const y = i / gw;
+        for ((y -| 2)..@min(y + 3, gh)) |yy| @memset(near[yy * gw + (x -| 2) .. yy * gw + @min(x + 3, gw)], true);
+    }
+    for (0..im.h) |y| {
+        for (0..im.w) |x| {
+            if (!near[(y / cs) * gw + x / cs]) continue;
+            const p = im.px[(y * im.w + x) * 3 ..][0..3];
+            const mx = @max(p[0], @max(p[1], p[2]));
+            const mn = @min(p[0], @min(p[1], p[2]));
+            if (mx - mn > 25 and mn < 220) @memset(p, 255);
+        }
+    }
+    try writeBmp(out_path, &im);
+    return res;
+}
+
+// A stamp's own words read better alone: on the page the platform read a stamp's title -- two straight words in its
+// middle -- with a letter wrong, and its curved border as nonsense; the stamp cut out and enlarged twice read the
+// title as printed and its border not at all. So the caller reads each stamp again from such a copy.
+
+/// Writes to `out_path` the rectangle x0,y0 - x1,y1 of the image (pixels), enlarged `scale` times.
+pub fn writeRegion(image_path: []const u8, out_path: []const u8, x0: f32, y0: f32, x1: f32, y1: f32, scale: f32) !void {
+    var im = try loadImage(image_path);
+    defer im.free();
+    const fw: f32 = @floatFromInt(im.w);
+    const fh: f32 = @floatFromInt(im.h);
+    const cx0 = std.math.clamp(@floor(x0), 0, fw - 1);
+    const cy0 = std.math.clamp(@floor(y0), 0, fh - 1);
+    const cx1 = std.math.clamp(@ceil(x1), cx0 + 1, fw);
+    const cy1 = std.math.clamp(@ceil(y1), cy0 + 1, fh);
+    var cut = try crop(&im, @intFromFloat(cx0), @intFromFloat(cy0), @intFromFloat(cx1 - cx0), @intFromFloat(cy1 - cy0));
+    defer cut.free();
+    const s = std.math.clamp(scale, 1, 8);
+    var r = try resize(&cut, @intFromFloat(@round((cx1 - cx0) * s)), @intFromFloat(@round((cy1 - cy0) * s)));
+    defer r.free();
+    try writeBmp(out_path, &r);
 }
 
 // --------------------------------------------------------------------------------------------- deskew (O4)

@@ -50,6 +50,7 @@ class stzPdf from stzObject
 	@aOcrImages = []	# per page read through OCR: [ nPage, cImageItWasReadFrom, nPixelsPerPoint ]
 	@aOcrLines = []	# per page read through OCR: [ nPage, its lines [ :text, :box ] ]
 	@aOcrFigures = []	# the stamps and logos the OCR read as lines: [ :page, :kind, :box (points), :text ]
+	@aOcrReadAgain = []	# the lines a drawn stroke touched, read again without it: [ :page, :box (points), :first, :text ]
 
 	# Reads the PDF at pcPath through the engine and keeps its blocks, its text and its facts.
 	#
@@ -406,6 +407,7 @@ class stzPdf from stzObject
 		@aOcrImages = []
 		@aOcrLines = []
 		@aOcrFigures = []
+		@aOcrReadAgain = []
 		_nP_ = This.NumberOfPages()
 		for _i_ = 1 to _nP_
 			if ring_find(_aHas_, _i_) > 0 loop ok
@@ -492,6 +494,37 @@ class stzPdf from stzObject
 					ok
 				next
 			ok
+			# a stamp's own words read better alone: each stamp is read again from its region enlarged twice, and keeps
+			# the lines of that reading that read as words -- its title; its curved border comes back as nonsense or not
+			# at all (the page's reading stands when nothing of it reads as words)
+			_nF_ = ring_len(@aOcrFigures)
+			for _j_ = 1 to _nF_
+				if @aOcrFigures[_j_][:page] != _i_ or @aOcrFigures[_j_][:kind] != "stamp" loop ok
+				_b_ = @aOcrFigures[_j_][:box]
+				_cReg_ = _cImg_ + "_stamp" + _j_ + ".bmp"
+				if StzEngineNeuralOcrRegion(_cImg_, _cReg_, _b_[1] * _nPpt_, _b_[2] * _nPpt_, _b_[3] * _nPpt_, _b_[4] * _nPpt_, 2) = 1
+					_cT_ = _StzOcrWordsOf(StzOcrLinesWithBoxes(_cReg_, pcLang), pcLang)
+					if _cT_ != "" @aOcrFigures[_j_][:text] = _cT_ ok
+				ok
+			next
+			# a signature or a stamp drawn across a printed line costs it a letter: the line is read again from a copy
+			# without the drawn ink, and keeps the second reading when fewer of its words fail to read as words
+			_aT_ = StzEngineNeuralOcrWipeDrawn(_cImg_, _cImg_ + "_wiped.bmp", _nPpt_, _cBoxes_)
+			if ring_len(_aT_) = _nL_ and ring_find(_aT_, 1) > 0
+				_aW_ = StzOcrLinesWithBoxes(_cImg_ + "_wiped.bmp", pcLang)
+				for _k_ = 1 to _nL_
+					if _aT_[_k_] = 0 or _aIsFig_[_k_] = 1 or HasKey(_aL_[_k_], :band) loop ok
+					_cNew_ = _StzOcrTextAt(_aW_, _aL_[_k_][:box])
+					if _cNew_ = "" or _cNew_ = _aL_[_k_][:text] loop ok
+					if _StzOcrWordsNotRead(_cNew_, pcLang) < _StzOcrWordsNotRead(_aL_[_k_][:text], pcLang)
+						_aBx_ = _aL_[_k_][:box]
+						@aOcrReadAgain + [ :page = _i_, :box = [ _aBx_[1] / _nPpt_, _aBx_[2] / _nPpt_, _aBx_[3] / _nPpt_, _aBx_[4] / _nPpt_ ],
+								   :first = _aL_[_k_][:text], :text = _cNew_ ]
+						_aL_[_k_][:text] = _cNew_
+					ok
+				next
+				@aOcrLines[ring_len(@aOcrLines)][2] = _aL_
+			ok
 			for _k_ = 1 to _nL_
 				_aBx_ = _aL_[_k_][:box]
 				if ring_len(_aBx_) = 4 and _aIsFig_[_k_] = 0
@@ -545,10 +578,21 @@ class stzPdf from stzObject
 	#
 	#   returns    a list of [ :page = n, :kind = "stamp" | "logo", :box = [ x0, y0, x1, y1 ] in page points, :text = what
 	#              the OCR read from it ]
-	#   note       a stamp is a ring of coloured ink (its lines make one figure, its box is the ring's); a logo is a tall
+	#   note       a stamp is a ring of coloured ink (its lines make one figure, its box is the ring's, its text what of it
+	#              reads as words when it is read again on its own, enlarged); a logo is a tall
 	#              line pairing a coloured emblem with letters that do not read as words (StzEngineNeuralOcrFigures)
 	def OcrFigures()
 		return @aOcrFigures
+
+	# Returns the lines of the last re-read's scanned pages that a drawn stroke touched -- a signature or a stamp
+	# crossing a printed line -- and that read better from a copy without the drawn ink.
+	#
+	#   returns    a list of [ :page = n, :box = [ x0, y0, x1, y1 ] in page points, :first = the first reading, :text = the
+	#              reading kept ]
+	#   note       the copy wipes coloured ink drawn mostly outside the lines (StzEngineNeuralOcrWipeDrawn); a touched line
+	#              keeps the second reading only when fewer of its words fail to read as words (_StzOcrWordsNotRead)
+	def OcrReadAgain()
+		return @aOcrReadAgain
 
 	# Writes an inspection page of the last re-read: each page read through OCR as the image the OCR read, beside its
 	# blocks (or, on a toggle, its OCR lines), linked both ways -- moving over the image draws the box of what was read
@@ -609,6 +653,15 @@ class stzPdf from stzObject
 				_b_ = @aOcrFigures[_k_][:box]
 				_aB_ + [ :kind = @aOcrFigures[_k_][:kind], :text = @aOcrFigures[_k_][:text],
 					 :box = [ _b_[1] * _nPpt_, _b_[2] * _nPpt_, _b_[3] * _nPpt_, _b_[4] * _nPpt_ ], :mark = "", :note = "drawn, not text: kept out of the blocks" ]
+			next
+			# the lines a drawn stroke touched, read again without it
+			_nF_ = ring_len(@aOcrReadAgain)
+			for _k_ = 1 to _nF_
+				if @aOcrReadAgain[_k_][:page] != _nPage_ loop ok
+				_b_ = @aOcrReadAgain[_k_][:box]
+				_aB_ + [ :kind = "read again", :text = @aOcrReadAgain[_k_][:text],
+					 :box = [ _b_[1] * _nPpt_, _b_[2] * _nPpt_, _b_[3] * _nPpt_, _b_[4] * _nPpt_ ], :mark = "",
+					 :note = "a drawn stroke touched it; first read: " + @aOcrReadAgain[_k_][:first] ]
 			next
 			_nN_ = ring_len(paNotes)
 			for _k_ = 1 to _nN_

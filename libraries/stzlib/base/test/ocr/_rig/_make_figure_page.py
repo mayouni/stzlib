@@ -1,7 +1,8 @@
 # _make_figure_page.py -- a letter whose COLOURED ink is both drawn and written: a letterhead logo (a red emblem beside
 # dark letters), a blue round stamp signed across, and against them the coloured ink that IS text -- a blue title, a
 # title in two colours, a blue heading -- and a bar chart's coloured bars under black labels. Scanned clean (JPEG, as
-# a scanner writes it), wrapped as an image-only PDF sized in pixels. Every word on it is invented here.
+# a scanner writes it), wrapped as an image-only PDF sized in pixels. A stroke of the signature rises into the
+# signatory's line. Every word on it is invented here.
 #
 #   python -I -X utf8 _make_figure_page.py <out.pdf> [<look.png>]     (Pillow; Windows' Arial)
 import io, math, sys
@@ -56,6 +57,10 @@ for i, t in enumerate(["SERVICE", "TECHNIQUE"]):
     d.text((cx - tw / 2, cy - 40 + 42 * i), t, font=fs, fill=BLUE)
 pts = [(cx - 190 + 8 * k, cy - 20 + 40 * math.sin(k / 3.0) - 2 * k) for k in range(48)]
 d.line(pts, fill=(20, 40, 120), width=4)
+# and a stroke of it rising into the signatory's line, through the bottom of the "e" of "Chef" (on a real letter
+# such a stroke cost the platform a letter)
+ex = 760 + d.textlength("Le Ch", font=fb) + d.textlength("e", font=fb) / 2
+d.line([(cx - 150, cy - 60), (ex - 6, 1160), (ex, 1146), (ex + 6, 1160), (ex + 30, 1230)], fill=(20, 40, 120), width=3)
 buf = io.BytesIO()
 im.save(buf, "JPEG", quality=88)
 data = buf.getvalue()

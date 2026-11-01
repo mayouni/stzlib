@@ -713,6 +713,23 @@ fn ring_OcrDarkBands(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// "x0 y0 x1 y1;..." -> the boxes, one per item (a short item reads as zeros)
+fn ocrBoxes(arg: []const u8) std.ArrayList([4]f32) {
+    var boxes: std.ArrayList([4]f32) = .empty;
+    var it = std.mem.splitScalar(u8, arg, ';');
+    while (it.next()) |item| {
+        var f = std.mem.tokenizeScalar(u8, item, ' ');
+        var b: [4]f32 = .{ 0, 0, 0, 0 };
+        var n: usize = 0;
+        while (f.next()) |num| : (n += 1) {
+            if (n >= 4) break;
+            b[n] = std.fmt.parseFloat(f32, num) catch 0;
+        }
+        boxes.append(std.heap.c_allocator, b) catch {};
+    }
+    return boxes;
+}
+
 // StzEngineNeuralOcrFigures(cImage, nPixelsPerPoint, cBoxes) -> [ [ cKind, nX0, nY0, nX1, nY1 ], ... ] (O4): for each
 // box of cBoxes ("x0 y0 x1 y1;..." -- the OCR lines), "stamp" when it is a coloured stamp's (the box is the stamp's),
 // "logo" when it is shaped like a logo -- a coloured emblem beside letters (the box takes the emblem in), "" when it is
@@ -720,19 +737,8 @@ fn ring_OcrDarkBands(p: *anyopaque) callconv(.c) void {
 fn ring_OcrFigures(p: *anyopaque) callconv(.c) void {
     const out = R.ring_vm_api_newlist(p) orelse return;
     const ppt: f32 = @floatCast(R.ring_vm_api_getnumber(p, 2));
-    var boxes: std.ArrayList([4]f32) = .empty;
+    var boxes = ocrBoxes(ocrArg(p, 3));
     defer boxes.deinit(std.heap.c_allocator);
-    var it = std.mem.splitScalar(u8, ocrArg(p, 3), ';');
-    while (it.next()) |item| {
-        var f = std.mem.tokenizeScalar(u8, item, ' ');
-        var b: [4]f32 = .{ 0, 0, 0, 0 };
-        var k: usize = 0;
-        while (f.next()) |num| : (k += 1) {
-            if (k >= 4) break;
-            b[k] = std.fmt.parseFloat(f32, num) catch 0;
-        }
-        boxes.append(std.heap.c_allocator, b) catch {};
-    }
     var r = ocrp.figuresOf(ocrArg(p, 1), if (ppt > 0) ppt else 150.0 / 72.0, boxes.items) catch |e| {
         if (ocrg.lastError().len == 0) ocrg.setError("{s}", .{@errorName(e)});
         R.ring_vm_api_retlist(p, out);
@@ -753,6 +759,40 @@ fn ring_OcrFigures(p: *anyopaque) callconv(.c) void {
         R.ring_list_adddouble(row, f.y1);
     }
     R.ring_vm_api_retlist(p, out);
+}
+
+// StzEngineNeuralOcrWipeDrawn(cImage, cOut, nPpt, cBoxes "x0 y0 x1 y1;...") -> [ 1|0, ... ] one per box (O4): whether a
+// drawn coloured shape -- a signature's stroke, a stamp's ring -- touches the line; when one does, cOut is written: a
+// copy of the image without the drawn shapes' ink, for the touched lines to be read again
+fn ring_OcrWipeDrawn(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const ppt: f32 = @floatCast(R.ring_vm_api_getnumber(p, 3));
+    var boxes = ocrBoxes(ocrArg(p, 4));
+    defer boxes.deinit(std.heap.c_allocator);
+    var r = ocrp.wipeDrawn(ocrArg(p, 1), ocrArg(p, 2), if (ppt > 0) ppt else 150.0 / 72.0, boxes.items) catch |e| {
+        if (ocrg.lastError().len == 0) ocrg.setError("{s}", .{@errorName(e)});
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    defer r.free();
+    for (r.touched) |t| R.ring_list_adddouble(out, if (t) 1 else 0);
+    R.ring_vm_api_retlist(p, out);
+}
+
+// StzEngineNeuralOcrRegion(cImage, cOut, nX0, nY0, nX1, nY1, nScale) -> 1, or 0 on failure (O4): writes to cOut the
+// rectangle of the image (pixels) enlarged nScale times -- a stamp read again on its own
+fn ring_OcrRegion(p: *anyopaque) callconv(.c) void {
+    const v = [5]f32{
+        @floatCast(R.ring_vm_api_getnumber(p, 3)), @floatCast(R.ring_vm_api_getnumber(p, 4)),
+        @floatCast(R.ring_vm_api_getnumber(p, 5)), @floatCast(R.ring_vm_api_getnumber(p, 6)),
+        @floatCast(R.ring_vm_api_getnumber(p, 7)),
+    };
+    ocrp.writeRegion(ocrArg(p, 1), ocrArg(p, 2), v[0], v[1], v[2], v[3], v[4]) catch |e| {
+        if (ocrg.lastError().len == 0) ocrg.setError("{s}", .{@errorName(e)});
+        R.ring_vm_api_retnumber(p, 0);
+        return;
+    };
+    R.ring_vm_api_retnumber(p, 1);
 }
 
 // StzEngineNeuralOcrPlatformRead(cImage, cLang, nTarget) -> [ cSummary, [ [ cText, nX0, nY0, nX1, nY1, nMidTop,
@@ -797,6 +837,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralocrprepare", .func = &ring_OcrPrepare },
     .{ .name = "stzengineneuralocrdarkbands", .func = &ring_OcrDarkBands },
     .{ .name = "stzengineneuralocrfigures", .func = &ring_OcrFigures },
+    .{ .name = "stzengineneuralocrwipedrawn", .func = &ring_OcrWipeDrawn },
+    .{ .name = "stzengineneuralocrregion", .func = &ring_OcrRegion },
     .{ .name = "stzengineneuralocrplatformread", .func = &ring_OcrPlatformRead },
     .{ .name = "stzenginegbnfbegin", .func = &ring_GbnfBegin },
     .{ .name = "stzenginegbnffield", .func = &ring_GbnfField },

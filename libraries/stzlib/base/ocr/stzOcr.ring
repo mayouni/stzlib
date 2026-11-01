@@ -772,6 +772,13 @@ func StzOcrLogicalText(pcText)
 # (StzEngineNeuralOcrFigures) is kept as text when it reads as words, a title in two colours, and taken for the logo
 # when it does not: a coloured emblem read beside a wordmark comes back as letters and digits mixed.
 func _StzOcrIsMadeOfWords(pcText, pcLang)
+	return _StzOcrWordsNotRead(pcText, pcLang) = 0
+
+# How many words of a line read from a scan do not read as words: those mixing letters and digits, and -- when the
+# language has a lemma list -- those of two letters or more the list does not know. A line read twice keeps the
+# reading with fewer of them.
+func _StzOcrWordsNotRead(pcText, pcLang)
+	_nNot_ = 0
 	_cL_ = ""
 	_c2_ = lower(left("" + pcLang, 2))
 	if _c2_ = "fr"
@@ -810,12 +817,57 @@ func _StzOcrIsMadeOfWords(pcText, pcLang)
 				_nLet_++
 			ok
 		next
-		if _nLet_ > 0 and _nDig_ > 0 return 0 ok
-		if _cL_ != "" and _nLet_ >= 2 and _nDig_ = 0
-			if StzEngineStringIsKnownWord(_cW_, _cL_) = 0 return 0 ok
+		if _nLet_ > 0 and _nDig_ > 0
+			_nNot_++
+		but _cL_ != "" and _nLet_ >= 2 and _nDig_ = 0
+			if StzEngineStringIsKnownWord(_cW_, _cL_) = 0 _nNot_++ ok
 		ok
 	next
-	return 1
+	return _nNot_
+
+# The lines of paLines (StzOcrLinesWithBoxes) that read as words, joined by a space; "" when none does. A stamp read
+# on its own keeps its title and drops its curved border, which comes back as nonsense when it comes back at all.
+func _StzOcrWordsOf(paLines, pcLang)
+	_c_ = ""
+	_nL_ = len(paLines)
+	for _i_ = 1 to _nL_
+		_t_ = "" + paLines[_i_][:text]
+		if StzLen(_t_) < 2 or _StzOcrWordsNotRead(_t_, pcLang) > 0 loop ok
+		if _c_ != "" _c_ += " " ok
+		_c_ += _t_
+	next
+	return _c_
+
+# The text of the line of paLines (StzOcrLinesWithBoxes) that covers paBox best: at least half of the two boxes'
+# union in common; "" when none does. A page read twice gives each line of the first reading its second.
+func _StzOcrTextAt(paLines, paBox)
+	if len(paBox) != 4 return "" ok
+	_cBest_ = ""
+	_nBest_ = 0.5
+	_nA_ = (paBox[3] - paBox[1]) * (paBox[4] - paBox[2])
+	_nL_ = len(paLines)
+	for _i_ = 1 to _nL_
+		_b_ = paLines[_i_][:box]
+		if len(_b_) != 4 loop ok
+		_x0_ = _b_[1]
+		if paBox[1] > _x0_ _x0_ = paBox[1] ok
+		_x1_ = _b_[3]
+		if paBox[3] < _x1_ _x1_ = paBox[3] ok
+		_y0_ = _b_[2]
+		if paBox[2] > _y0_ _y0_ = paBox[2] ok
+		_y1_ = _b_[4]
+		if paBox[4] < _y1_ _y1_ = paBox[4] ok
+		_nW_ = _x1_ - _x0_
+		_nH_ = _y1_ - _y0_
+		if _nW_ <= 0 or _nH_ <= 0 loop ok
+		_nI_ = _nW_ * _nH_
+		_nU_ = _nA_ + (_b_[3] - _b_[1]) * (_b_[4] - _b_[2]) - _nI_
+		if _nU_ > 0 and _nI_ / _nU_ >= _nBest_
+			_nBest_ = _nI_ / _nU_
+			_cBest_ = paLines[_i_][:text]
+		ok
+	next
+	return _cBest_
 
 # A line with each run of the letters O, o, l, I, | standing between two digits read as the digits they were taken
 # for (0 for O and o, 1 for the others): 2O26 is 2026 and 482l3 is 48213. A letter with a digit on one side only is

@@ -107,6 +107,10 @@ ok
 # OcrFigures(). The page is invented (_rig/_make_figure_page.py): a logo, a blue title, a title in two colours, a blue
 # heading, a bar chart, a blue round stamp signed across. The platform does not read the invented logo at all, so the
 # logo is held at the engine, on its box.
+# And a signature drawn across a printed line costs it a letter: on that letter the pen's stroke ran up into an "e" and
+# the platform read the word in two pieces. The invented page's signature rises into the "e" of its signatory's line
+# the same way, and the platform reads "Le Ch f de Service"; the line is read again from a copy without the drawn ink
+# (StzEngineNeuralOcrWipeDrawn), listed by OcrReadAgain().
 if StzOcrPlatformHas("fr-FR")
 	Scenario("A coloured stamp and a logo are drawn, not written: kept out of the text, coloured words kept in it")
 		o = StzPdfQ($cDir + "figure_page.pdf")
@@ -115,6 +119,9 @@ if StzOcrPlatformHas("fr-FR")
 		Then("the stamp is one figure, its two lines together",
 		     len(aF) = 1 and aF[1][:kind] = "stamp" and len(StzFindCS("TECHNIQUE", aF[1][:text], 1)) > 0, 1)
 		Then("and no block carries its words", kindOf(o, "TECHNIQUE"), "")
+		# read again on its own, enlarged, the stamp keeps what of it reads as words: the word the signature runs
+		# through comes back as nonsense ("SE ICE") and is dropped
+		Then("the stamp's text is what of it reads as words", aF[1][:text], "TECHNIQUE")
 		Then("the coloured words are text: the blue title, the title in two colours, the blue heading, the chart's labels",
 		     kindOf(o, "RAPPORT DE VISITE") != "" and kindOf(o, "Bilan 2025") = "heading" and
 		     kindOf(o, "Objet de la visite") = "heading" and kindOf(o, "Mercredi") = "paragraph", 1)
@@ -137,6 +144,26 @@ if StzOcrPlatformHas("fr-FR")
 		     cGot, "logo=logo; Bilan 2025=logo; SE ICE=stamp; TECHNIQUE=stamp; ")
 		Then("a reading made of words stays text, one that is not is the logo's",
 		     "" + _StzOcrIsMadeOfWords("Bilan 2025", "fr-FR") + _StzOcrIsMadeOfWords("4kTR", "fr-FR") + _StzOcrIsMadeOfWords("VTR", "fr-FR"), "100")
+		aR = o.OcrReadAgain()
+		Then("the signatory's line, touched by the signature's stroke, is read again without it and reads as printed",
+		     len(aR) = 1 and aR[1][:text] = "Le Chef de Service" and aR[1][:first] != aR[1][:text], 1)
+		Then("and its block carries the second reading", kindOf(o, "Le Chef de Service"), "paragraph")
+		# only that line is touched: the stamp's lines are coloured (the stamp's), the coloured title, heading and chart
+		# labels are drawn inside their own lines
+		cBoxes = ""
+		aText = []
+		for l in o.@aOcrLines[1][2]
+			b = l[:box]
+			if cBoxes != "" cBoxes += ";" ok
+			cBoxes += "" + b[1] + " " + b[2] + " " + b[3] + " " + b[4]
+			aText + l[:text]
+		next
+		aT = StzEngineNeuralOcrWipeDrawn(cImg, cImg + "_wiped.bmp", nPpt, cBoxes)
+		cGot = ""
+		for i = 1 to len(aT)
+			if aT[i] = 1 cGot += aText[i] + "; " ok
+		next
+		Then("a drawn stroke touches the signatory's line and no other", cGot, "Le Chef de Service; ")
 	EndScenario()
 else
 	? "SKIP: Stamps and logos -- no fr-FR pack on this machine"
