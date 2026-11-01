@@ -18,6 +18,7 @@
 
 const std = @import("std");
 const png = @import("png_encode.zig");
+const core = @import("image_core.zig");
 const stbi = @cImport({
     @cDefine("STBI_NO_STDIO", "1");
     @cInclude("stb_image.h");
@@ -263,43 +264,8 @@ pub fn saveJpeg(id: i64, path: []const u8, quality: i64) i64 {
 /// 24-bit BMP (alpha dropped): the format every viewer opens.
 pub fn saveBmp(id: i64, path: []const u8) i64 {
     const im = images.get(id) orelse return fail("image: no such image", .{});
-    const row: usize = (@as(usize, im.w) * 3 + 3) & ~@as(usize, 3);
-    const size: usize = 54 + row * im.h;
-    const out = alloc.alloc(u8, size) catch return fail("image: out of memory", .{});
+    const out = core.bmp24(alloc, .{ .w = im.w, .h = im.h, .c = im.c, .px = im.px }) catch return fail("image: out of memory", .{});
     defer alloc.free(out);
-    @memset(out, 0);
-    out[0] = 'B';
-    out[1] = 'M';
-    std.mem.writeInt(u32, out[2..6], @intCast(size), .little);
-    std.mem.writeInt(u32, out[10..14], 54, .little);
-    std.mem.writeInt(u32, out[14..18], 40, .little);
-    std.mem.writeInt(i32, out[18..22], @intCast(im.w), .little);
-    std.mem.writeInt(i32, out[22..26], @intCast(im.h), .little);
-    std.mem.writeInt(u16, out[26..28], 1, .little);
-    std.mem.writeInt(u16, out[28..30], 24, .little);
-    std.mem.writeInt(u32, out[34..38], @intCast(row * im.h), .little);
-    var y: usize = 0;
-    while (y < im.h) : (y += 1) {
-        const dst = out[54 + (im.h - 1 - y) * row ..];
-        var x: usize = 0;
-        while (x < im.w) : (x += 1) {
-            var r: u8 = undefined;
-            var g: u8 = undefined;
-            var b: u8 = undefined;
-            if (im.c == 1) {
-                r = im.at(x, y, 0);
-                g = r;
-                b = r;
-            } else {
-                r = im.at(x, y, 0);
-                g = im.at(x, y, 1);
-                b = im.at(x, y, 2);
-            }
-            dst[x * 3] = b;
-            dst[x * 3 + 1] = g;
-            dst[x * 3 + 2] = r;
-        }
-    }
     std.fs.cwd().writeFile(.{ .sub_path = path, .data = out }) catch
         return fail("image: cannot write '{s}'", .{path});
     return 1;
@@ -308,12 +274,10 @@ pub fn saveBmp(id: i64, path: []const u8) i64 {
 // ------------------------------------------------------------------ channels
 
 fn gray601(r: u8, g: u8, b: u8) u8 {
-    // OpenCV's COLOR_RGB2GRAY weights, rounded: 0.299 R + 0.587 G + 0.114 B
-    const v: u32 = @as(u32, r) * 299 + @as(u32, g) * 587 + @as(u32, b) * 114;
-    return @intCast((v + 500) / 1000);
+    return core.gray(r, g, b); // OpenCV 5's RGB2GRAY, bit for bit (image_core)
 }
 
-/// A copy with `c` channels: 1 (gray, BT.601), 3 (RGB) or 4 (RGBA, alpha 255
+/// A copy with `c` channels: 1 (gray, OpenCV 5's BT.601), 3 (RGB) or 4 (RGBA, alpha 255
 /// when the source has none).
 pub fn convert(id: i64, c: u8) i64 {
     const im = images.get(id) orelse return fail("image: no such image", .{});
@@ -405,30 +369,7 @@ pub fn rotate(id: i64, quarters: i64) i64 {
     const nw: u32 = if (q % 2 == 1) im.h else im.w;
     const nh: u32 = if (q % 2 == 1) im.w else im.h;
     const out = newBlank(nw, nh, im.c) orelse return fail("image: out of memory", .{});
-    var y: usize = 0;
-    while (y < nh) : (y += 1) {
-        var x: usize = 0;
-        while (x < nw) : (x += 1) {
-            var sx: usize = x;
-            var sy: usize = y;
-            switch (q) {
-                0 => {},
-                1 => { // clockwise: dst(x,y) = src(y, H-1-x)
-                    sx = y;
-                    sy = im.h - 1 - x;
-                },
-                2 => {
-                    sx = im.w - 1 - x;
-                    sy = im.h - 1 - y;
-                },
-                3 => {
-                    sx = im.w - 1 - y;
-                    sy = x;
-                },
-            }
-            @memcpy(out[(y * nw + x) * im.c ..][0..im.c], im.px[(sy * im.w + sx) * im.c ..][0..im.c]);
-        }
-    }
+    core.quarterTurn(.{ .w = im.w, .h = im.h, .c = im.c, .px = im.px }, q, .{ .w = nw, .h = nh, .c = im.c, .px = out });
     return adopt(nw, nh, im.c, out);
 }
 
@@ -453,6 +394,14 @@ pub fn resize(id: i64, w: u32, h: u32, mode: Resample) i64 {
     const sx: f64 = @as(f64, @floatFromInt(im.w)) / @as(f64, @floatFromInt(w));
     const sy: f64 = @as(f64, @floatFromInt(im.h)) / @as(f64, @floatFromInt(h));
     const m = if (mode == .area and (w > im.w or h > im.h)) Resample.bilinear else mode;
+    if (m == .bilinear) {
+        // image_core's arithmetic: the one the OCR pipeline was measured on
+        core.resizeBilinear(.{ .w = im.w, .h = im.h, .c = im.c, .px = im.px }, .{ .w = w, .h = h, .c = im.c, .px = out }, alloc) catch {
+            alloc.free(out);
+            return fail("image: out of memory", .{});
+        };
+        return adopt(w, h, im.c, out);
+    }
     var y: usize = 0;
     while (y < h) : (y += 1) {
         var x: usize = 0;
@@ -464,26 +413,7 @@ pub fn resize(id: i64, w: u32, h: u32, mode: Resample) i64 {
                     const py: usize = @min(im.h - 1, @as(usize, @intFromFloat(@floor(@as(f64, @floatFromInt(y)) * sy))));
                     @memcpy(d[0..im.c], im.px[(py * im.w + px) * im.c ..][0..im.c]);
                 },
-                .bilinear => {
-                    const fx = clampF((@as(f64, @floatFromInt(x)) + 0.5) * sx - 0.5, 0, @floatFromInt(im.w - 1));
-                    const fy = clampF((@as(f64, @floatFromInt(y)) + 0.5) * sy - 0.5, 0, @floatFromInt(im.h - 1));
-                    const x0: usize = @intFromFloat(@floor(fx));
-                    const y0: usize = @intFromFloat(@floor(fy));
-                    const x1 = @min(x0 + 1, im.w - 1);
-                    const y1 = @min(y0 + 1, im.h - 1);
-                    const ax = fx - @as(f64, @floatFromInt(x0));
-                    const ay = fy - @as(f64, @floatFromInt(y0));
-                    var k: usize = 0;
-                    while (k < im.c) : (k += 1) {
-                        const v00: f64 = @floatFromInt(im.at(x0, y0, k));
-                        const v10: f64 = @floatFromInt(im.at(x1, y0, k));
-                        const v01: f64 = @floatFromInt(im.at(x0, y1, k));
-                        const v11: f64 = @floatFromInt(im.at(x1, y1, k));
-                        const top = v00 + (v10 - v00) * ax;
-                        const bot = v01 + (v11 - v01) * ax;
-                        d[k] = round8(top + (bot - top) * ay);
-                    }
-                },
+                .bilinear => unreachable, // handled above by image_core
                 .area => {
                     const x0 = @as(f64, @floatFromInt(x)) * sx;
                     const x1 = x0 + sx;
@@ -681,6 +611,22 @@ pub fn fromGrid(gid: i64) i64 {
     const g = grids.get(gid) orelse return fail("image: no such grid", .{});
     const out = newBlank(@intCast(g.cols), @intCast(g.rows), 1) orelse return fail("image: out of memory", .{});
     for (g.data, 0..) |v, i| out[i] = round8(v);
+    return adopt(@intCast(g.cols), @intCast(g.rows), 1, out);
+}
+
+/// A one-channel image from a grid, its values mapped LINEARLY from
+/// min..max onto 0..255 -- how a spectrum, a derivative or a depth map is made
+/// visible. A flat grid becomes mid-gray (128).
+pub fn fromGridScaled(gid: i64) i64 {
+    const g = grids.get(gid) orelse return fail("image: no such grid", .{});
+    var lo: f64 = std.math.inf(f64);
+    var hi: f64 = -std.math.inf(f64);
+    for (g.data) |v| {
+        lo = @min(lo, v);
+        hi = @max(hi, v);
+    }
+    const out = newBlank(@intCast(g.cols), @intCast(g.rows), 1) orelse return fail("image: out of memory", .{});
+    for (g.data, 0..) |v, i| out[i] = if (hi > lo) round8((v - lo) * 255.0 / (hi - lo)) else 128;
     return adopt(@intCast(g.cols), @intCast(g.rows), 1, out);
 }
 

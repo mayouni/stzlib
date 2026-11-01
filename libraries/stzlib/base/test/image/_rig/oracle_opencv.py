@@ -105,6 +105,13 @@ def main():
     n4 = cv2.connectedComponents((s > 128).astype(np.uint8), connectivity=4)[0]
     csv("components4_count", np.array([[n4 - 1]]), "%.0f")
 
+    # COLOUR -> GRAY: a seeded RGB image and OpenCV's RGB2GRAY of it (IM1b: the engine's
+    # one gray must equal OpenCV 5's bit for bit, including the x.501 cases it rounds down)
+    rng2 = np.random.default_rng(1101)
+    rgb = rng2.integers(0, 256, (48, 64, 3), dtype=np.uint8)
+    png("in_colour", cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR))
+    png("gray_colour", cv2.cvtColor(rgb, cv2.COLOR_RGB2GRAY))
+
     csv("fft2_shifted", np.abs(np.fft.fftshift(np.fft.fft2(s.astype(np.float64)))), "%.4f")
 
     ok, jpg = cv2.imencode(".jpg", cv2.cvtColor(s, cv2.COLOR_GRAY2BGR), [cv2.IMWRITE_JPEG_QUALITY, 90])

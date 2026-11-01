@@ -10,6 +10,7 @@
 const std = @import("std");
 const img = @import("image.zig");
 const fft = @import("fft.zig");
+const core = @import("image_core.zig");
 
 const alloc = std.heap.c_allocator;
 const Image = img.Image;
@@ -541,59 +542,21 @@ pub fn components(id: i64, conn8: bool, stats_out: *i64) i64 {
     const W: usize = im.w;
     const H: usize = im.h;
     const n = W * H;
+    const g = grayPlane(im) orelse return img.fail("image: out of memory", .{});
+    defer alloc.free(g);
     const lab = alloc.alloc(u32, n) catch return img.fail("image: out of memory", .{});
     defer alloc.free(lab);
-    @memset(lab, 0);
-    var stack: std.ArrayList(usize) = .{};
-    defer stack.deinit(alloc);
-    const Stat = struct { x0: usize, y0: usize, x1: usize, y1: usize, area: usize, sx: f64, sy: f64 };
-    var stats: std.ArrayList(Stat) = .{};
-    defer stats.deinit(alloc);
-    var next: u32 = 0;
-    var i: usize = 0;
-    while (i < n) : (i += 1) {
-        if (lab[i] != 0 or img.grayOf(im, i) == 0) continue;
-        next += 1;
-        var st = Stat{ .x0 = i % W, .y0 = i / W, .x1 = i % W, .y1 = i / W, .area = 0, .sx = 0, .sy = 0 };
-        lab[i] = next;
-        stack.append(alloc, i) catch return img.fail("image: out of memory", .{});
-        while (stack.pop()) |p| {
-            const px = p % W;
-            const py = p / W;
-            st.area += 1;
-            st.sx += @floatFromInt(px);
-            st.sy += @floatFromInt(py);
-            st.x0 = @min(st.x0, px);
-            st.x1 = @max(st.x1, px);
-            st.y0 = @min(st.y0, py);
-            st.y1 = @max(st.y1, py);
-            var dy: i64 = -1;
-            while (dy <= 1) : (dy += 1) {
-                var dx: i64 = -1;
-                while (dx <= 1) : (dx += 1) {
-                    if (dx == 0 and dy == 0) continue;
-                    if (!conn8 and dx != 0 and dy != 0) continue;
-                    const nx = @as(i64, @intCast(px)) + dx;
-                    const ny = @as(i64, @intCast(py)) + dy;
-                    if (nx < 0 or ny < 0 or nx >= @as(i64, @intCast(W)) or ny >= @as(i64, @intCast(H))) continue;
-                    const q = @as(usize, @intCast(ny)) * W + @as(usize, @intCast(nx));
-                    if (lab[q] != 0 or img.grayOf(im, q) == 0) continue;
-                    lab[q] = next;
-                    stack.append(alloc, q) catch return img.fail("image: out of memory", .{});
-                }
-            }
-        }
-        stats.append(alloc, st) catch return img.fail("image: out of memory", .{});
-    }
+    const comps = core.components(alloc, g, W, H, .nonzero, conn8, lab) catch return img.fail("image: out of memory", .{});
+    defer alloc.free(comps);
     const lg = alloc.alloc(f64, n) catch return img.fail("image: out of memory", .{});
     for (lg, lab) |*o, l| o.* = @floatFromInt(l);
-    const sg = alloc.alloc(f64, @max(1, stats.items.len) * 7) catch {
+    const sg = alloc.alloc(f64, @max(1, comps.len) * 7) catch {
         alloc.free(lg);
         return img.fail("image: out of memory", .{});
     };
     @memset(sg, 0);
-    for (stats.items, 0..) |s, k| {
-        const a: f64 = @floatFromInt(s.area);
+    for (comps, 0..) |s, k| {
+        const a: f64 = @floatFromInt(s.n);
         sg[k * 7 + 0] = @floatFromInt(s.x0 + 1);
         sg[k * 7 + 1] = @floatFromInt(s.y0 + 1);
         sg[k * 7 + 2] = @floatFromInt(s.x1 - s.x0 + 1);
@@ -602,7 +565,7 @@ pub fn components(id: i64, conn8: bool, stats_out: *i64) i64 {
         sg[k * 7 + 5] = s.sx / a + 1;
         sg[k * 7 + 6] = s.sy / a + 1;
     }
-    stats_out.* = img.adoptGrid(stats.items.len, 7, sg);
+    stats_out.* = img.adoptGrid(comps.len, 7, sg);
     return img.adoptGrid(H, W, lg);
 }
 

@@ -104,3 +104,10 @@ class stzImageGrid from stzObject
 	# Returns a one-channel image of the grid, each value rounded and clamped to 0..255.
 	def ToImage()
 		return new stzImage(_StzImageMust(StzEngineImageFromGrid(@nId)))
+
+	# Returns a one-channel image of the grid with its values mapped from Min()..Max() onto 0..255.
+	#
+	#   note       how a spectrum, a derivative or a depth map is made visible; a flat grid gives
+	#              mid-gray
+	def ToImageScaled()
+		return new stzImage(_StzImageMust(StzEngineImageFromGridScaled(@nId)))

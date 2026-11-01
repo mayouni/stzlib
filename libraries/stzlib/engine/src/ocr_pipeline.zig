@@ -38,6 +38,9 @@
 
 const std = @import("std");
 const graph = @import("ocr_graph.zig");
+// IM1b: gray, resize, crop, turns, components and BMP are the engine's ONE
+// implementation, shared with the image plane (stz_image).
+const core = @import("image_core.zig");
 const c = graph.c;
 const stbi = @cImport({
     @cInclude("stb_image.h");
@@ -80,6 +83,14 @@ pub const Image = struct {
     fn at(im: *const Image, x: usize, y: usize) [*]const u8 {
         return im.px.ptr + (y * im.w + x) * 3;
     }
+
+    pub fn raw(im: *const Image) core.RawConst {
+        return .{ .w = im.w, .h = im.h, .c = 3, .px = im.px };
+    }
+
+    fn rawMut(im: *Image) core.Raw {
+        return .{ .w = im.w, .h = im.h, .c = 3, .px = im.px };
+    }
 };
 
 pub fn newImage(w: usize, h: usize) !Image {
@@ -111,61 +122,12 @@ pub fn loadImage(path: []const u8) !Image {
     return .{ .w = @intCast(w), .h = @intCast(h), .px = px };
 }
 
-/// Bilinear resize with half-pixel centres (OpenCV's INTER_LINEAR geometry), rounded to 8 bits.
+/// Bilinear resize with half-pixel centres (OpenCV's INTER_LINEAR geometry), rounded to 8 bits --
+/// image_core's, which keeps this pipeline's arithmetic exactly.
 pub fn resize(src: *const Image, dw: usize, dh: usize) !Image {
-    const dst = try newImage(dw, dh);
-    const sx = @as(f64, @floatFromInt(src.w)) / @as(f64, @floatFromInt(dw));
-    const sy = @as(f64, @floatFromInt(src.h)) / @as(f64, @floatFromInt(dh));
-    const xs = try gpa.alloc(usize, dw * 2);
-    defer gpa.free(xs);
-    const xa = try gpa.alloc(f64, dw);
-    defer gpa.free(xa);
-    for (0..dw) |x| {
-        const f = (@as(f64, @floatFromInt(x)) + 0.5) * sx - 0.5;
-        var x0f = @floor(f);
-        var a = f - x0f;
-        if (x0f < 0) {
-            x0f = 0;
-            a = 0;
-        }
-        var x0: usize = @intFromFloat(x0f);
-        if (x0 >= src.w - 1) {
-            x0 = src.w - 1;
-            a = 0;
-        }
-        xs[x * 2] = x0;
-        xs[x * 2 + 1] = @min(x0 + 1, src.w - 1);
-        xa[x] = a;
-    }
-    for (0..dh) |y| {
-        const f = (@as(f64, @floatFromInt(y)) + 0.5) * sy - 0.5;
-        var y0f = @floor(f);
-        var b = f - y0f;
-        if (y0f < 0) {
-            y0f = 0;
-            b = 0;
-        }
-        var y0: usize = @intFromFloat(y0f);
-        if (y0 >= src.h - 1) {
-            y0 = src.h - 1;
-            b = 0;
-        }
-        const y1 = @min(y0 + 1, src.h - 1);
-        for (0..dw) |x| {
-            const a = xa[x];
-            const p00 = src.at(xs[x * 2], y0);
-            const p10 = src.at(xs[x * 2 + 1], y0);
-            const p01 = src.at(xs[x * 2], y1);
-            const p11 = src.at(xs[x * 2 + 1], y1);
-            const o = dst.px.ptr + (y * dw + x) * 3;
-            for (0..3) |k| {
-                const top = @as(f64, @floatFromInt(p00[k])) * (1 - a) + @as(f64, @floatFromInt(p10[k])) * a;
-                const bot = @as(f64, @floatFromInt(p01[k])) * (1 - a) + @as(f64, @floatFromInt(p11[k])) * a;
-                const v = top * (1 - b) + bot * b;
-                o[k] = @intFromFloat(@min(255.0, @max(0.0, @round(v))));
-            }
-        }
-    }
+    var dst = try newImage(dw, dh);
+    errdefer dst.free();
+    try core.resizeBilinear(src.raw(), dst.rawMut(), gpa);
     return dst;
 }
 
@@ -185,36 +147,19 @@ fn round32(v: f64) usize {
 
 /// A rectangle of the image, rows and columns clamped at the border (OpenCV's BORDER_REPLICATE).
 fn crop(src: *const Image, x0: i64, y0: i64, w: usize, h: usize) !Image {
-    const dst = try newImage(w, h);
-    for (0..h) |y| {
-        const sy: usize = @intCast(std.math.clamp(y0 + @as(i64, @intCast(y)), 0, @as(i64, @intCast(src.h - 1))));
-        for (0..w) |x| {
-            const sx: usize = @intCast(std.math.clamp(x0 + @as(i64, @intCast(x)), 0, @as(i64, @intCast(src.w - 1))));
-            const s = src.at(sx, sy);
-            const o = dst.px.ptr + (y * w + x) * 3;
-            o[0] = s[0];
-            o[1] = s[1];
-            o[2] = s[2];
-        }
-    }
+    var dst = try newImage(w, h);
+    core.cropReplicate(src.raw(), x0, y0, dst.rawMut());
     return dst;
 }
 
-/// A quarter turn counter-clockwise (numpy's rot90): the new row i is the old column w-1-i.
+/// A quarter turn counter-clockwise (numpy's rot90): three clockwise turns in image_core.
 fn rot90(src: *const Image) !Image {
-    const dst = try newImage(src.h, src.w);
-    for (0..dst.h) |i| {
-        for (0..dst.w) |j| {
-            const s = src.at(src.w - 1 - i, j);
-            const o = dst.px.ptr + (i * dst.w + j) * 3;
-            o[0] = s[0];
-            o[1] = s[1];
-            o[2] = s[2];
-        }
-    }
+    var dst = try newImage(src.h, src.w);
+    core.quarterTurn(src.raw(), 3, dst.rawMut());
     return dst;
 }
 
+// Half a turn in place: a swap needs no allocation, so it stays here.
 fn rot180(im: *Image) void {
     const n = im.w * im.h;
     var i: usize = 0;
@@ -767,8 +712,7 @@ pub const Marks = struct {
 const Levels = struct { tint: u8, line: u8, ink: u8, stroke: u8 };
 
 fn levelsOf(gray: []const u8) Levels {
-    var hist = [_]usize{0} ** 256;
-    for (gray) |v| hist[v] += 1;
+    const hist = core.histogram(gray);
     var paper: usize = 255;
     var best: usize = 0;
     for (128..256) |v| {
@@ -882,47 +826,11 @@ fn absDiff(x: usize, y: usize) usize {
     return if (x > y) x - y else y - x;
 }
 
-const Comp = struct { x0: usize, y0: usize, x1: usize, y1: usize, n: usize };
+const Comp = core.Comp;
 
-/// The 8-connected components of the pixels below `below`.
+/// The 8-connected components of the pixels below `below` (image_core's).
 fn components(a: std.mem.Allocator, gray: []const u8, w: usize, h: usize, below: u8) ![]Comp {
-    const seen = try a.alloc(u8, w * h);
-    @memset(seen, 0);
-    var stack: std.ArrayList(u32) = .empty;
-    var out: std.ArrayList(Comp) = .empty;
-    for (0..w * h) |start| {
-        if (gray[start] >= below or seen[start] != 0) continue;
-        var cm = Comp{ .x0 = start % w, .y0 = start / w, .x1 = start % w, .y1 = start / w, .n = 0 };
-        seen[start] = 1;
-        try stack.append(a, @intCast(start));
-        while (stack.pop()) |p32| {
-            const p: usize = p32;
-            const px = p % w;
-            const py = p / w;
-            cm.n += 1;
-            cm.x0 = @min(cm.x0, px);
-            cm.x1 = @max(cm.x1, px);
-            cm.y0 = @min(cm.y0, py);
-            cm.y1 = @max(cm.y1, py);
-            const ylo = if (py > 0) py - 1 else py;
-            const yhi = @min(py + 1, h - 1);
-            const xlo = if (px > 0) px - 1 else px;
-            const xhi = @min(px + 1, w - 1);
-            var yy = ylo;
-            while (yy <= yhi) : (yy += 1) {
-                var xx = xlo;
-                while (xx <= xhi) : (xx += 1) {
-                    const q = yy * w + xx;
-                    if (gray[q] < below and seen[q] == 0) {
-                        seen[q] = 1;
-                        try stack.append(a, @intCast(q));
-                    }
-                }
-            }
-        }
-        try out.append(a, cm);
-    }
-    return out.toOwnedSlice(a);
+    return core.components(a, gray, w, h, .{ .below = below }, true, null);
 }
 
 /// The page marks of an image file, and the stroke width of each box in `boxes` (the OCR lines, image pixels).
@@ -936,10 +844,7 @@ pub fn marksOf(image_path: []const u8, ppt: f32, boxes: []const [4]f32) !Marks {
     const w = im.w;
     const h = im.h;
     const gray = try a.alloc(u8, w * h);
-    for (0..w * h) |i| {
-        const p = im.px.ptr + i * 3;
-        gray[i] = @intFromFloat(@round(0.299 * @as(f32, @floatFromInt(p[0])) + 0.587 * @as(f32, @floatFromInt(p[1])) + 0.114 * @as(f32, @floatFromInt(p[2]))));
-    }
+    core.toGray(im.raw(), gray);
     var out: std.ArrayList(Mark) = .empty;
     const lv = levelsOf(gray);
     // fills: a shaded rectangle at least 20 pt wide and 5 to 80 pt tall, at least 80% of it shaded
@@ -1119,10 +1024,7 @@ pub fn darkBands(image_path: []const u8, ppt: f32, out_prefix: []const u8) !Band
     const w = im.w;
     const h = im.h;
     const gray = try a.alloc(u8, w * h);
-    for (0..w * h) |i| {
-        const p = im.px.ptr + i * 3;
-        gray[i] = @intFromFloat(@round(0.299 * @as(f32, @floatFromInt(p[0])) + 0.587 * @as(f32, @floatFromInt(p[1])) + 0.114 * @as(f32, @floatFromInt(p[2]))));
-    }
+    core.toGray(im.raw(), gray);
     const lv = levelsOf(gray);
     const paper: u32 = @as(u32, lv.tint) + 6;
     const dark_at: u32 = paper / 2;
@@ -1665,30 +1567,8 @@ pub fn skewOf(gray: []const u8, w: usize, h: usize, ink: u8) !f32 {
 }
 
 fn writeBmp(path: []const u8, im: *const Image) !void {
-    const row = (im.w * 3 + 3) & ~@as(usize, 3);
-    const size = 54 + row * im.h;
-    const buf = try gpa.alloc(u8, size);
+    const buf = try core.bmp24(gpa, im.raw());
     defer gpa.free(buf);
-    @memset(buf, 0);
-    buf[0] = 'B';
-    buf[1] = 'M';
-    std.mem.writeInt(u32, buf[2..6], @intCast(size), .little);
-    std.mem.writeInt(u32, buf[10..14], 54, .little);
-    std.mem.writeInt(u32, buf[14..18], 40, .little);
-    std.mem.writeInt(i32, buf[18..22], @intCast(im.w), .little);
-    std.mem.writeInt(i32, buf[22..26], @intCast(im.h), .little);
-    std.mem.writeInt(u16, buf[26..28], 1, .little);
-    std.mem.writeInt(u16, buf[28..30], 24, .little);
-    std.mem.writeInt(u32, buf[34..38], @intCast(row * im.h), .little);
-    for (0..im.h) |y| {
-        const dst = buf[54 + (im.h - 1 - y) * row ..];
-        for (0..im.w) |x| {
-            const s = im.at(x, y);
-            dst[x * 3] = s[2];
-            dst[x * 3 + 1] = s[1];
-            dst[x * 3 + 2] = s[0];
-        }
-    }
     const f = try std.fs.cwd().createFile(path, .{});
     defer f.close();
     try f.writeAll(buf);
@@ -1703,10 +1583,7 @@ pub fn deskew(image_path: []const u8, out_path: []const u8, min_deg: f32) !f32 {
     const h = im.h;
     const gray = try gpa.alloc(u8, w * h);
     defer gpa.free(gray);
-    for (0..w * h) |i| {
-        const p = im.px.ptr + i * 3;
-        gray[i] = @intFromFloat(@round(0.299 * @as(f32, @floatFromInt(p[0])) + 0.587 * @as(f32, @floatFromInt(p[1])) + 0.114 * @as(f32, @floatFromInt(p[2]))));
-    }
+    core.toGray(im.raw(), gray);
     const lv = levelsOf(gray);
     const deg = try skewOf(gray, w, h, lv.ink);
     if (@abs(deg) < min_deg) return 0;
@@ -1874,10 +1751,7 @@ pub fn prepare(image_path: []const u8, out_path: []const u8, min_deg: f32, may_s
         defer im0.free();
         const g0 = try gpa.alloc(u8, im0.w * im0.h);
         defer gpa.free(g0);
-        for (0..im0.w * im0.h) |i| {
-            const p = im0.px.ptr + i * 3;
-            g0[i] = @intFromFloat(@round(0.299 * @as(f32, @floatFromInt(p[0])) + 0.587 * @as(f32, @floatFromInt(p[1])) + 0.114 * @as(f32, @floatFromInt(p[2]))));
-        }
+        core.toGray(im0.raw(), g0);
         res.sharpness = sharpnessOf(g0, im0.w, im0.h);
     }
     // the level copy (deskew writes it only when the page is turned)

@@ -181,6 +181,10 @@ fn ring_FromGrid(p: *anyopaque) callconv(.c) void {
     retF(p, img.fromGrid(id(p, 1)));
 }
 
+fn ring_FromGridScaled(p: *anyopaque) callconv(.c) void {
+    retF(p, img.fromGridScaled(id(p, 1)));
+}
+
 fn ring_GridRows(p: *anyopaque) callconv(.c) void {
     const g = img.getGrid(id(p, 1)) orelse return rn(p, 0);
     rn(p, @floatFromInt(g.rows));
@@ -345,6 +349,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineimagehistogram", .func = &ring_Histogram },
     .{ .name = "stzengineimagetogrid", .func = &ring_ToGrid },
     .{ .name = "stzengineimagefromgrid", .func = &ring_FromGrid },
+    .{ .name = "stzengineimagefromgridscaled", .func = &ring_FromGridScaled },
     .{ .name = "stzengineimagegridrows", .func = &ring_GridRows },
     .{ .name = "stzengineimagegridcols", .func = &ring_GridCols },
     .{ .name = "stzengineimagegridat", .func = &ring_GridAt },
