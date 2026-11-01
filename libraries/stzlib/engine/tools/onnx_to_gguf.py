@@ -59,10 +59,8 @@ def kv_u32(k, v):
 
 
 def kv_strarr(k, vals):
-    out = _s(k) + struct.pack("<I", ARRAY) + struct.pack("<IQ", STRING, len(vals))
-    for v in vals:
-        out += _s(v)
-    return out
+    # one join, not a += per string: the tokenizer's 580,604 merges made the += form quadratic (hours)
+    return _s(k) + struct.pack("<I", ARRAY) + struct.pack("<IQ", STRING, len(vals)) + b"".join(_s(v) for v in vals)
 
 
 class Refused(Exception):
@@ -186,17 +184,26 @@ class Converter:
     def in_shape_domain(self, node):
         if node.op_type == "Shape":
             return True
-        if node.op_type == "Reshape":
+        if node.op_type in ("Reshape", "Tile"):
             return self.r(node.input[0]) in self.shape
         return any(self.r(x) in self.shape for x in node.input)
 
     def do_shape_node(self, node):
         t = node.op_type
+        if t == "Shape" and getattr(self, "static_input", None) and self.r(node.input[0]) == self.input:
+            self.shape[node.output[0]] = list(self.static_input)
+            return
         if t == "Shape":
             src = self.r(node.input[0])
             if src not in self.rank:
                 raise Refused("Shape of %s whose rank is unknown" % src)
             self.shape[node.output[0]] = [("dim", src, j) for j in range(self.rank[src])]
+            return
+        if t == "Gather":
+            v = self.shape_of(node.input[0])
+            idx = np.asarray(self.const(node.input[1])).flatten()
+            picked = [v[int(k)] for k in idx]
+            self.shape[node.output[0]] = picked if np.asarray(self.const(node.input[1])).ndim > 0 else picked[:1]
             return
         if t == "Slice":
             v = self.shape_of(node.input[0])
@@ -252,6 +259,18 @@ class Converter:
             return np.concatenate(ins, axis=a.get("axis", 0))
         if t == "Transpose":
             return np.transpose(ins[0], a["perm"])
+        if t == "Gather":
+            return np.take(ins[0], ins[1].astype(np.int64), axis=a.get("axis", 0))
+        if t == "Slice":
+            v = ins[0]
+            st = [int(x) for x in ins[1].flatten()]
+            en = [int(x) for x in ins[2].flatten()]
+            ax = [int(x) for x in ins[3].flatten()] if len(ins) > 3 else list(range(len(st)))
+            sp = [int(x) for x in ins[4].flatten()] if len(ins) > 4 else [1] * len(st)
+            sl = [slice(None)] * v.ndim
+            for k in range(len(st)):
+                sl[ax[k] % v.ndim] = slice(st[k], en[k], sp[k])
+            return v[tuple(sl)]
         if t == "Mul":
             return ins[0] * ins[1]
         if t == "Add":
@@ -266,6 +285,14 @@ class Converter:
             if all(self.is_const(x) for x in node.input) and node.op_type != "Shape":
                 self.C[node.output[0]] = self.fold(node)
                 continue
+            # with a static input shape (--seq), a node fed only by constants and FULLY KNOWN shape values folds too
+            # (SigLIP2's position ids: a slice of a constant ended by the input's length)
+            if node.op_type != "Shape" and all(self.is_const(x) or self._static(x) for x in node.input if x):
+                for x in node.input:
+                    if x and not self.is_const(x):
+                        self.C[self.r(x)] = np.array(self.shape[self.r(x)], dtype=np.int64)
+                self.C[node.output[0]] = self.fold(node)
+                continue
             if self.in_shape_domain(node):
                 self.do_shape_node(node)
                 continue
@@ -277,6 +304,10 @@ class Converter:
         if out not in self.pname:
             raise Refused("the graph output %s was never produced" % out)
         return self.pname[out], self.rank[out]
+
+    def _static(self, n):
+        v = self.shape.get(self.r(n))
+        return v is not None and all(isinstance(q, (int, np.integer)) for q in v)
 
     # -- ops -----------------------------------------------------------------------------------------------------
     def rank_of(self, n):
@@ -422,6 +453,9 @@ class Converter:
         # x * max(0, min(1, x/6 + 0.5)) -- ggml_hardswish computes exactly this
         self.emit(node.output[0], "hswish", [self.p(node.input[0])], self.rank_of(node.input[0]))
 
+    def op_Tanh(self, i, node):
+        self.emit(node.output[0], "tanh", [self.p(node.input[0])], self.rank_of(node.input[0]))
+
     def op_Sigmoid(self, i, node):
         self.emit(node.output[0], "sigmoid", [self.p(node.input[0])], self.rank_of(node.input[0]))
 
@@ -532,7 +566,15 @@ class Converter:
         rank = self.rank_of(node.input[0])
         if rank > 4:
             raise Refused("Transpose %s of a rank-%d tensor" % (node.name, rank))
-        self.emit(node.output[0], "permute", [self.p(node.input[0])], rank, p=a["perm"])
+        # a transpose of a tensor already written as a constant (SigLIP2's position embeddings, reshaped to their
+        # 16 x 16 grid and back) is a constant too: the runtime cannot know a constant's ONNX rank
+        src = self.p(node.input[0])
+        if src.startswith("c"):
+            for name, arr in self.consts:
+                if name == src:
+                    self.add_const(node.output[0], np.transpose(arr, a["perm"]))
+                    return
+        self.emit(node.output[0], "permute", [src], rank, p=a["perm"])
 
     def op_Reshape(self, i, node):
         x = node.input[0]
@@ -594,6 +636,9 @@ class Converter:
         a = self.attrs(node)
         x = node.input[0]
         rank = self.rank_of(x)
+        if rank + len(self.axes_of(node, a)) > 4:
+            self._kv_split(i, node)
+            return
         spec = ["@%s:%d" % (self.p(x), j) for j in range(rank)]
         for ax in sorted(self.axes_of(node, a)):
             spec.insert(ax, "1")
@@ -612,6 +657,64 @@ class Converter:
         if len(axes) != 1 or steps[0] != 2 or starts[0] not in (0, 1) or ends[0] < 2 ** 30 or rank != 4 or axes[0] % 4 not in (2, 3):
             raise Refused("Slice %s is not a step-2 slice of rows or columns" % node.name)
         self.emit(node.output[0], "step2", [self.p(node.input[0])], 4, a=rank - 1 - axes[0] % 4, o=starts[0])
+
+    def op_Cast(self, i, node):
+        # the runner computes in float32 throughout: a cast of an activation (an fp16 export's outputs) is the identity
+        self.pname[self.r(node.output[0])] = self.p(node.input[0])
+        self.rank[self.r(node.output[0])] = self.rank_of(node.input[0])
+
+    def op_Tile(self, i, node):
+        # repeats of 1, or of the batch size (taken as 1: the runner computes one item), are the identity
+        reps = self.shape_of(node.input[1])
+        if reps is None or any(not (isinstance(v, tuple) or int(v) == 1) for v in reps):
+            raise Refused("Tile %s repeats %r" % (node.name, reps))
+        self.pname[self.r(node.output[0])] = self.p(node.input[0])
+        self.rank[self.r(node.output[0])] = self.rank_of(node.input[0])
+
+    def op_Gather(self, i, node):
+        # a table indexed by the graph's token ids: an embedding lookup (SigLIP2's text tower)
+        if self.is_const(node.input[0]) and self.r(node.input[1]) == self.input:
+            tab = self.add_const(None, self.const(node.input[0]))
+            self.emit(node.output[0], "embed", [tab, self.p(node.input[1])], 3)
+            return
+        # one index along one axis of an activation: a slice of length 1 and the axis dropped
+        a = self.attrs(node)
+        x = node.input[0]
+        rank = self.rank_of(x)
+        idx = np.asarray(self.const(node.input[1]))
+        if idx.ndim != 0:
+            raise Refused("Gather %s with an index list on an activation" % node.name)
+        axis = a.get("axis", 0) % rank
+        t = self.emit(node.output[0] + "/sl", "slice", [self.p(x)], rank, d=rank - 1 - axis, o=int(idx), n=1)
+        spec = ["@%s:%d" % (t, j) for j in range(rank) if j != axis]
+        self.emit(node.output[0], "reshape", [t], rank - 1, d=spec)
+
+    def _kv_split(self, i, node):
+        """nn.MultiheadAttention's packed key/value projection, as torch exports it: Reshape [.., 2, d] ->
+        Unsqueeze -> Transpose -> Squeeze -> Gather(0) and Gather(1). Through rank 5, which ggml does not have;
+        what it MEANS is k = the first d columns of the projection, v = the next d. Emitted as two slices."""
+        rs = self.producer.get(self.r(node.input[0]))
+        rnode = self.nodes[rs] if rs is not None else None
+        items = self.shape_of(rnode.input[1]) if rnode is not None and rnode.op_type == "Reshape" else None
+        if not items or len(items) < 2 or items[-2] != 2:
+            raise Refused("Unsqueeze %s to rank > 4 outside the packed key/value split" % node.name)
+        d = int(items[-1])
+        src = rnode.input[0]
+        u1 = self.users.get(self.r(node.output[0]), [])
+        if len(u1) != 1 or self.nodes[u1[0]].op_type != "Transpose":
+            raise Refused("packed k/v at %s: no Transpose" % node.name)
+        u2 = self.users.get(self.r(self.nodes[u1[0]].output[0]), [])
+        if len(u2) != 1 or self.nodes[u2[0]].op_type != "Squeeze":
+            raise Refused("packed k/v at %s: no Squeeze" % node.name)
+        self.skip.update([u1[0], u2[0]])
+        rk = self.rank_of(src)
+        for gi in self.users.get(self.r(self.nodes[u2[0]].output[0]), []):
+            g = self.nodes[gi]
+            if g.op_type != "Gather":
+                raise Refused("packed k/v at %s used by %s" % (node.name, g.op_type))
+            k = int(np.asarray(self.const(g.input[1])))
+            self.skip.add(gi)
+            self.emit(g.output[0], "slice", [self.p(src)], rk, d=0, o=k * d, n=d)
 
     def op_Flatten(self, i, node):
         a = self.attrs(node)
@@ -666,6 +769,19 @@ class Converter:
             kv_u32("stz.ocr.output_rank", out_rank),
             kv_strarr("stz.ocr.program", self.prog),
         ]
+        if getattr(self, "static_input", None):
+            kvs.append(kv_str("stz.graph.input_kind", "ids"))
+            kvs.append(kv_u32("stz.graph.seq", self.static_input[1]))
+        if getattr(self, "tokenizer", None):
+            # a BPE tokenizer (HF tokenizer.json: SigLIP2's Gemma vocabulary): the vocabulary by id, and the merges
+            # as two parallel arrays in rank order (a token may hold any character, so no separator is safe)
+            tk = self.tokenizer
+            kvs.append(kv_strarr("stz.tok.vocab", tk["vocab"]))
+            kvs.append(kv_strarr("stz.tok.merge_a", [m[0] for m in tk["merges"]]))
+            kvs.append(kv_strarr("stz.tok.merge_b", [m[1] for m in tk["merges"]]))
+            kvs.append(kv_str("stz.tok.space", tk["space"]))
+            kvs.append(kv_u32("stz.tok.eos", tk["eos"]))
+            kvs.append(kv_u32("stz.tok.pad", tk["pad"]))
         if getattr(self, "labels", None):
             kvs.append(kv_strarr("stz.graph.labels", self.labels))
         if getattr(self, "input_wh", None):
@@ -751,8 +867,43 @@ def main():
             labels_arg = a[9:]
         if a.startswith("--input="):
             input_arg = int(a[8:])
+    out_arg = ""
+    for a in sys.argv[1:]:
+        if a.startswith("--output="):
+            out_arg = a[9:]
+    seq = 0
+    for a in sys.argv[1:]:
+        if a.startswith("--seq="):
+            seq = int(a[6:])
+    tok_arg = ""
+    for a in sys.argv[1:]:
+        if a.startswith("--tokenizer="):
+            tok_arg = a[12:]
     src, dst = args[0], args[1]
     cv = Converter(src)
+    if seq:
+        # a token-id input of a FIXED length (SigLIP2 pads every text to 64): rank 2, its shape known
+        cv.static_input = [1, seq]
+        cv.rank[cv.input] = 2
+    if tok_arg:
+        import json
+        tj = json.load(open(tok_arg, encoding="utf-8"))
+        mdl = tj["model"]
+        if mdl.get("type") != "BPE" or not mdl.get("byte_fallback") or mdl.get("ignore_merges"):
+            raise Refused("tokenizer %s is not a byte-fallback BPE without ignore_merges" % tok_arg)
+        vocab = [""] * len(mdl["vocab"])
+        for t, k in mdl["vocab"].items():
+            vocab[k] = t
+        merges = [m if isinstance(m, list) else m.split(" ", 1) for m in mdl["merges"]]
+        norm = tj.get("normalizer") or {}
+        space = norm.get("content", "") if norm.get("type") == "Replace" and norm.get("pattern", {}).get("String") == " " else ""
+        ids = {a["content"]: a["id"] for a in tj.get("added_tokens", [])}
+        cv.tokenizer = {"vocab": vocab, "merges": merges, "space": space, "eos": ids.get("<eos>", 1), "pad": ids.get("<pad>", 0)}
+    if out_arg:
+        # a graph with several outputs (SigLIP2's towers: last_hidden_state, pooler_output): name the one wanted
+        if out_arg not in cv.outputs:
+            raise Refused("no graph output named %s (it has %r)" % (out_arg, cv.outputs))
+        cv.output = out_arg
     out_name, out_rank = cv.convert()
     if kind == "yunet":
         out_name, out_rank = cv.fuse_yunet()

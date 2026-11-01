@@ -520,6 +520,23 @@ fn build(b: *Builder, s: []const u8) !void {
             const v = c.ggml_view_4d(ctx, t, W, 1, @divExact(H, 2), CN, @as(usize, @intCast(W)) * es, 2 * @as(usize, @intCast(W)) * es, @as(usize, @intCast(W * H)) * es, o * @as(usize, @intCast(W)) * es);
             r = c.ggml_reshape_4d(ctx, c.ggml_cont(ctx, v), W, @divExact(H, 2), xc.ne[2], xc.ne[3]);
         }
+    } else if (is(op, "slice")) {
+        // n elements from offset o along ggml dim d, the other dims whole (IM5: SigLIP2's packed k/v, a token)
+        const d: usize = @intCast(try l.int("d", 0));
+        var o: i64 = try l.int("o", 0);
+        const n = try l.int("n", 0);
+        const xc = contig(ctx, x);
+        if (o < 0) o += xc.ne[d]; // -1: the last one (SigLIP2's text pools its last token)
+        var ne: [4]i64 = .{ xc.ne[0], xc.ne[1], xc.ne[2], xc.ne[3] };
+        ne[d] = n;
+        const v = c.ggml_view_4d(ctx, xc, ne[0], ne[1], ne[2], ne[3], xc.nb[1], xc.nb[2], xc.nb[3], @as(usize, @intCast(o)) * xc.nb[d]);
+        r = c.ggml_cont(ctx, v);
+    } else if (is(op, "embed")) {
+        // rows of a table (x = the table) for the token ids (input 1, I32): ONNX [1, N, D]
+        const ids = try b.get(l.inputs[1]);
+        const flat = c.ggml_reshape_1d(ctx, ids, c.ggml_nelements(ids));
+        const rows = c.ggml_get_rows(ctx, x, flat);
+        r = c.ggml_reshape_3d(ctx, rows, rows.*.ne[0], rows.*.ne[1], 1);
     } else if (is(op, "gap")) {
         r = c.ggml_pool_2d(ctx, x, c.GGML_OP_POOL_AVG, @intCast(x.ne[0]), @intCast(x.ne[1]), @intCast(x.ne[0]), @intCast(x.ne[1]), 0, 0);
     } else if (is(op, "up")) {
@@ -544,6 +561,8 @@ fn build(b: *Builder, s: []const u8) !void {
         r = c.ggml_clamp(ctx, x, try l.flt("lo"), try l.flt("hi"));
     } else if (is(op, "relu")) {
         r = c.ggml_relu(ctx, x);
+    } else if (is(op, "tanh")) {
+        r = c.ggml_tanh(ctx, x);
     } else if (is(op, "sigmoid")) {
         r = c.ggml_sigmoid(ctx, x);
     } else if (is(op, "hswish")) {
@@ -609,29 +628,49 @@ pub const Output = struct {
     ms: f64,
 };
 
+/// Runs a token-id model (stz.graph.input_kind = ids, IM5) on one sequence of ids.
+pub fn runIds(m: *Model, ids: []const i32, n_threads: c_int) !Output {
+    return runAny(m, null, ids, .{ 1, @intCast(ids.len), 1, 1 }, n_threads);
+}
+
 /// Runs the model on one input tensor given in ONNX order [N, C, H, W] (data NCHW, row-major).
 pub fn run(m: *Model, input: []const f32, dims: [4]i64, n_threads: c_int) !Output {
+    return runAny(m, input, null, dims, n_threads);
+}
+
+fn runAny(m: *Model, input_f: ?[]const f32, input_ids: ?[]const i32, dims: [4]i64, n_threads: c_int) !Output {
     const t0 = std.time.nanoTimestamp();
     const ne_in: [4]i64 = .{ dims[3], dims[2], dims[1], dims[0] };
     var total: i64 = 1;
     for (ne_in) |v| total *= v;
-    if (@as(usize, @intCast(total)) != input.len) return error.InputSizeMismatch;
+    const in_len: usize = if (input_f) |f| f.len else input_ids.?.len;
+    if (@as(usize, @intCast(total)) != in_len) return error.InputSizeMismatch;
 
     const meta_size = c.ggml_tensor_overhead() * MAX_NODES + c.ggml_graph_overhead_custom(MAX_NODES, false) + (1 << 20);
     const mctx = c.ggml_init(.{ .mem_size = meta_size, .mem_buffer = null, .no_alloc = true }) orelse return error.OutOfMemory;
     defer c.ggml_free(mctx);
-    const dctx = c.ggml_init(.{ .mem_size = input.len * 4 + c.ggml_tensor_overhead() * 4 + 4096, .mem_buffer = null, .no_alloc = false }) orelse return error.OutOfMemory;
+    const dctx = c.ggml_init(.{ .mem_size = in_len * 4 + c.ggml_tensor_overhead() * 4 + 4096, .mem_buffer = null, .no_alloc = false }) orelse return error.OutOfMemory;
     defer c.ggml_free(dctx);
 
-    const xin: *c.ggml_tensor = c.ggml_new_tensor_4d(dctx, c.GGML_TYPE_F32, ne_in[0], ne_in[1], ne_in[2], ne_in[3]) orelse return error.OutOfMemory;
-    const xdata: [*]f32 = @ptrCast(@alignCast(xin.data));
-    @memcpy(xdata[0..input.len], input);
+    var xin: *c.ggml_tensor = undefined;
+    var in_rank: u8 = 4;
+    if (input_f) |input| {
+        xin = c.ggml_new_tensor_4d(dctx, c.GGML_TYPE_F32, ne_in[0], ne_in[1], ne_in[2], ne_in[3]) orelse return error.OutOfMemory;
+        const xdata: [*]f32 = @ptrCast(@alignCast(xin.data));
+        @memcpy(xdata[0..input.len], input);
+    } else {
+        const ids = input_ids.?;
+        xin = c.ggml_new_tensor_2d(dctx, c.GGML_TYPE_I32, @intCast(ids.len), 1) orelse return error.OutOfMemory;
+        const xdata: [*]i32 = @ptrCast(@alignCast(xin.data));
+        @memcpy(xdata[0..ids.len], ids);
+        in_rank = 2;
+    }
 
     var b = Builder{ .m = m, .ctx = mctx, .tensors = std.StringHashMap(*c.ggml_tensor).init(gpa), .ranks = std.StringHashMap(u8).init(gpa) };
     defer b.tensors.deinit();
     defer b.ranks.deinit();
     try b.tensors.put("x", xin);
-    try b.ranks.put("x", 4);
+    try b.ranks.put("x", in_rank);
     const tr = tracing();
     for (m.lines, 0..) |line, li| {
         if (tr) std.debug.print("[ocr] {d}: {s}\n", .{ li, line });

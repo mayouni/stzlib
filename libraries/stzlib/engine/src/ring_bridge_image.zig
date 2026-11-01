@@ -259,6 +259,22 @@ fn ring_ToJpeg(p: *anyopaque) callconv(.c) void {
     retBytes(p, b);
 }
 
+// IM5: (image, quality 1..100, or 0 for PNG) -> "data:image/jpeg;base64,..." -- the picture ready for an HTML
+// page, encoded here so its bytes never cross Ring as text (a JPEG holds NULs, and Ring-side base64 helpers
+// were capped at 8 KB). "" on failure.
+fn ring_ToDataUri(p: *anyopaque) callconv(.c) void {
+    const q = id(p, 2);
+    const raw = (if (q > 0) img.encodeJpeg(id(p, 1), q) else img.encodePng(id(p, 1))) orelse return retBytes(p, "");
+    defer alloc.free(raw);
+    const head: []const u8 = if (q > 0) "data:image/jpeg;base64," else "data:image/png;base64,";
+    const enc = std.base64.standard.Encoder;
+    const out = alloc.alloc(u8, head.len + enc.calcSize(raw.len)) catch return retBytes(p, "");
+    defer alloc.free(out);
+    @memcpy(out[0..head.len], head);
+    _ = enc.encode(out[head.len..], raw);
+    retBytes(p, out);
+}
+
 // (image, op 0..6, shape 0 rect 1 cross 2 ellipse, k)
 fn ring_Morph(p: *anyopaque) callconv(.c) void {
     const op = u(p, 2);
@@ -514,6 +530,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineimagegridlive", .func = &ring_GridLive },
     .{ .name = "stzengineimagesavejpeg", .func = &ring_SaveJpeg },
     .{ .name = "stzengineimagetojpeg", .func = &ring_ToJpeg },
+    .{ .name = "stzengineimagetodatauri", .func = &ring_ToDataUri },
     .{ .name = "stzengineimagemorph", .func = &ring_Morph },
     .{ .name = "stzengineimagemedian", .func = &ring_Median },
     .{ .name = "stzengineimageequalize", .func = &ring_Equalize },

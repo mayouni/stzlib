@@ -14,6 +14,7 @@
 const std = @import("std");
 const graph = @import("ocr_graph.zig");
 const core = @import("image_core.zig");
+const bpe = @import("bpe.zig");
 
 const gpa = std.heap.c_allocator;
 
@@ -285,4 +286,163 @@ pub fn objects(model_path: []const u8, px: []const u8, w: usize, h: usize, c: us
         }
     }
     return .{ .dets = try nms(cands.items, nms_thr, true), .labels = m.labels, .ms = ms };
+}
+
+// ------------------------------------------------------------------ embeddings (IM5)
+// SigLIP2 base patch16-224 (Google, Apache-2.0): an image and a text land in ONE 768-dimensional space, so a
+// cosine between them says how well the words describe the picture -- zero-shot labels in the caller's own
+// words, and image search by text. Both vectors come back L2-normalized: their dot product IS the cosine.
+
+/// PIL's antialiased resize (Image.resize, BILINEAR) in its own fixed-point arithmetic, which HF's
+/// SiglipImageProcessor calls: a triangle filter widened by the scale when shrinking, horizontal pass then
+/// vertical, an 8-bit image between the passes (PIL's ImagingResample, PRECISION_BITS = 22).
+fn pilCoeffs(in_size: usize, out_size: usize, bounds: []usize, kk: *std.ArrayList(i32), ksize: *usize) !void {
+    const scale = @as(f64, @floatFromInt(in_size)) / @as(f64, @floatFromInt(out_size));
+    const fscale = @max(scale, 1.0);
+    const support = 1.0 * fscale;
+    ksize.* = @as(usize, @intFromFloat(@ceil(support))) * 2 + 1;
+    try kk.resize(gpa, out_size * ksize.*);
+    @memset(kk.items, 0);
+    const w = try gpa.alloc(f64, ksize.*);
+    defer gpa.free(w);
+    for (0..out_size) |xx| {
+        const center = (@as(f64, @floatFromInt(xx)) + 0.5) * scale;
+        const ss = 1.0 / fscale;
+        var xmin: i64 = @intFromFloat(center - support + 0.5);
+        if (xmin < 0) xmin = 0;
+        var xmax: i64 = @intFromFloat(center + support + 0.5);
+        if (xmax > @as(i64, @intCast(in_size))) xmax = @intCast(in_size);
+        xmax -= xmin;
+        var total: f64 = 0;
+        for (0..@intCast(xmax)) |x| {
+            const d = (@as(f64, @floatFromInt(@as(i64, @intCast(x)) + xmin)) - center + 0.5) * ss;
+            const f = if (@abs(d) < 1.0) 1.0 - @abs(d) else 0.0;
+            w[x] = f;
+            total += f;
+        }
+        for (0..@intCast(xmax)) |x| {
+            const k = if (total != 0) w[x] / total else 0;
+            kk.items[xx * ksize.* + x] = @intFromFloat(if (k < 0) k * (1 << 22) - 0.5 else k * (1 << 22) + 0.5);
+        }
+        bounds[xx * 2] = @intCast(xmin);
+        bounds[xx * 2 + 1] = @intCast(xmax);
+    }
+}
+
+fn clip8(v: i64) u8 {
+    const s = v >> 22;
+    return if (s < 0) 0 else if (s > 255) 255 else @intCast(s);
+}
+
+fn resizePil(rgb: []const u8, w: usize, h: usize, ow: usize, oh: usize, out: []u8) !void {
+    var kx: std.ArrayList(i32) = .empty;
+    defer kx.deinit(gpa);
+    var ky: std.ArrayList(i32) = .empty;
+    defer ky.deinit(gpa);
+    const bx = try gpa.alloc(usize, ow * 2);
+    defer gpa.free(bx);
+    const by = try gpa.alloc(usize, oh * 2);
+    defer gpa.free(by);
+    var nx: usize = 0;
+    var ny: usize = 0;
+    try pilCoeffs(w, ow, bx, &kx, &nx);
+    try pilCoeffs(h, oh, by, &ky, &ny);
+    const mid = try gpa.alloc(u8, ow * h * 3);
+    defer gpa.free(mid);
+    for (0..h) |y| {
+        for (0..ow) |xx| {
+            const x0 = bx[xx * 2];
+            const n = bx[xx * 2 + 1];
+            const k = kx.items[xx * nx ..];
+            for (0..3) |ch| {
+                var ss: i64 = 1 << 21;
+                for (0..n) |x| ss += @as(i64, rgb[(y * w + x0 + x) * 3 + ch]) * k[x];
+                mid[(y * ow + xx) * 3 + ch] = clip8(ss);
+            }
+        }
+    }
+    for (0..oh) |yy| {
+        const y0 = by[yy * 2];
+        const n = by[yy * 2 + 1];
+        const k = ky.items[yy * ny ..];
+        for (0..ow) |xx| {
+            for (0..3) |ch| {
+                var ss: i64 = 1 << 21;
+                for (0..n) |y| ss += @as(i64, mid[((y0 + y) * ow + xx) * 3 + ch]) * k[y];
+                out[(yy * ow + xx) * 3 + ch] = clip8(ss);
+            }
+        }
+    }
+}
+
+pub const Embedded = struct {
+    v: []f32, // owned, L2-normalized
+    ms: f64,
+};
+
+fn normalized(o: graph.Output) Embedded {
+    var s: f64 = 0;
+    for (o.data) |x| s += @as(f64, x) * x;
+    const n: f32 = @floatCast(@sqrt(s));
+    if (n > 0) {
+        for (o.data) |*x| x.* /= n;
+    }
+    return .{ .v = o.data, .ms = o.ms };
+}
+
+/// The model's input tensor for a picture: resized to the side (PIL bilinear), RGB, (x/255 - 0.5) / 0.5, NCHW.
+pub fn siglipPixels(px: []const u8, w: usize, h: usize, c: usize, side: usize) ![]f32 {
+    const rgb = try toRgb(px, w, h, c);
+    defer gpa.free(rgb);
+    const rs = try gpa.alloc(u8, side * side * 3);
+    defer gpa.free(rs);
+    try resizePil(rgb, w, h, side, side, rs);
+    const plane = side * side;
+    const t = try gpa.alloc(f32, plane * 3);
+    for (0..plane) |i| {
+        for (0..3) |ch| t[ch * plane + i] = (@as(f32, @floatFromInt(rs[i * 3 + ch])) / 255.0 - 0.5) / 0.5;
+    }
+    return t;
+}
+
+pub fn embedImage(model_path: []const u8, px: []const u8, w: usize, h: usize, c: usize, n_threads: c_int) !Embedded {
+    const m = try modelFor(model_path);
+    const side: usize = if (m.input_w > 0) m.input_w else 224;
+    const t = try siglipPixels(px, w, h, c, side);
+    defer gpa.free(t);
+    return normalized(try graph.run(m, t, .{ 1, 3, @intCast(side), @intCast(side) }, n_threads));
+}
+
+var tok_paths: std.ArrayList([]u8) = .empty;
+var tok_list: std.ArrayList(*bpe.Bpe) = .empty;
+
+fn tokenizerFor(path: []const u8, m: *graph.Model) !*bpe.Bpe {
+    for (tok_paths.items, 0..) |p, i| {
+        if (std.mem.eql(u8, p, path)) return tok_list.items[i];
+    }
+    const t = (try bpe.fromGguf(m.gguf, gpa)) orelse {
+        graph.setError("the model carries no tokenizer: {s}", .{path});
+        return error.NoTokenizer;
+    };
+    try tok_paths.append(gpa, try gpa.dupe(u8, path));
+    try tok_list.append(gpa, t);
+    return t;
+}
+
+fn seqOf(m: *graph.Model) usize {
+    const id = graph.c.gguf_find_key(m.gguf, "stz.graph.seq");
+    return if (id >= 0) graph.c.gguf_get_val_u32(m.gguf, id) else 64;
+}
+
+/// The token ids a text model reads for a text (padded to its fixed length). Caller frees.
+pub fn tokens(model_path: []const u8, text: []const u8) ![]i32 {
+    const m = try modelFor(model_path);
+    return bpe.encode(try tokenizerFor(model_path, m), text, seqOf(m), gpa);
+}
+
+pub fn embedText(model_path: []const u8, text: []const u8, n_threads: c_int) !Embedded {
+    const m = try modelFor(model_path);
+    const ids = try bpe.encode(try tokenizerFor(model_path, m), text, seqOf(m), gpa);
+    defer gpa.free(ids);
+    return normalized(try graph.runIds(m, ids, n_threads));
 }

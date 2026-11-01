@@ -302,6 +302,15 @@ class stzImage from stzObject
 	def ToPNG()
 		return StzEngineImageToPng(@nId)
 
+	# Returns the image as a data URI an HTML page shows inline: "data:image/jpeg;base64,...".
+	#
+	#   note       encoded in the engine, so the bytes never cross Ring as text; ToPngDataURI is lossless
+	def ToJpegDataURI(pnQuality)
+		return StzEngineImageToDataUri(@nId, pnQuality)
+
+	def ToPngDataURI()
+		return StzEngineImageToDataUri(@nId, 0)
+
 	#@ aka  -- 3. CHANNELS ----------------------------------------------------------
 
 	def ApplyGrayScale()
@@ -933,6 +942,37 @@ class stzImage from stzObject
 		next
 		_StzVisionDoor("objects", $cStzVisionObjectModel, "" + len(_aOut_) + " object(s)")
 		return _aOut_
+
+	#@ aka  -- 10b. PICTURES AND WORDS IN ONE SPACE (IM5: SigLIP2, see stzImageSearch.ring) --
+
+	# Returns the picture's 768 numbers in the space it shares with texts, L2-normalized.
+	#
+	#   note       SigLIP2's image tower; the picture is resized to 224 x 224 as PIL resizes it
+	def Embedding()
+		_cP_ = _StzVisionModelOrRaise($cStzVisionImageEmbedder, "Embedding")
+		_a_ = StzEngineNeuralVisionEmbedImage(_cP_, This.Pixels(), This.Width(), This.Height(),
+			This.Channels(), 4)
+		if len(_a_) = 0
+			_StzVisionFailed("Embedding", $cStzVisionImageEmbedder)
+		ok
+		_StzVisionDoor("embed-image", $cStzVisionImageEmbedder, "" + len(_a_) + " numbers")
+		return _a_
+
+	# Returns the caller's labels ranked for this picture: [ :label, :score ] each, best first.
+	#
+	#   paLabels   any words: [ "a dog", "a cat" ], [ "sunny", "rainy" ], [ "un chien", "un chat" ]
+	#   note       zero-shot -- no class list is fixed in advance; each label is put into
+	#              "This is a photo of {}." and the score is a cosine, not a probability
+	def ClassifyAs(paLabels)
+		return _StzVisionRankLabels(This.Embedding(), paLabels, $cStzVisionLabelPrompt)
+
+	# ClassifyAs with the caller's own prompt, where {} stands for the label ("{}" alone: the label as is).
+	def ClassifyAsXT(paLabels, pcPrompt)
+		return _StzVisionRankLabels(This.Embedding(), paLabels, pcPrompt)
+
+	# Returns how well a text describes the picture: the cosine of their embeddings.
+	def SimilarityTo(pcText)
+		return StzVisionCosine(This.Embedding(), StzVisionTextEmbedding(pcText))
 
 	#@ aka  -- 11. DRAWING ON THE PICTURE (IM3) -----------------------------------------
 

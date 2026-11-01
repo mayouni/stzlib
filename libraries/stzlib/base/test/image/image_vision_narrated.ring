@@ -228,7 +228,7 @@ func WriteReport(cPath, oCrew, aF, oSt, aT, oDog, aD, aC, oCat, aK)
 	write(cPath, c)
 
 func Img(oImg)
-	return "<p><img src='data:image/jpeg;base64," + StzEngineBytesToBase64(oImg.ToJPEG(85)) + "'></p>"
+	return "<p><img src='" + oImg.ToJpegDataURI(85) + "'></p>"
 
 func Table(aFound, bLabels)
 	c = "<table><tr><th>#</th>"

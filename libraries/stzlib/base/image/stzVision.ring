@@ -151,6 +151,10 @@ func StzVisionDeclare(paGoldens)
 		_oL_.AddImplementation([ :id = "mobilenetv3", :kind = "graph", :fn = "_StzVisionLabelMobilenet",
 			:needle = "vision/" + $cStzVisionClassifier, :licence = "apache-2.0", :memory = 80 ])
 	ok
+	if len(StzFind("siglip2", _oL_.ImplementationIds())) = 0
+		_oL_.AddImplementation([ :id = "siglip2", :kind = "graph", :fn = "_StzVisionLabelSiglip",
+			:needle = "vision/" + $cStzVisionTextEmbedder, :licence = "apache-2.0", :memory = 1600 ])
+	ok
 	if len(StzMeasurementOf("faces", "platform", "coco-v1")) = 0 and fexists(StzVisionMeasurementsFile())
 		StzLoadMeasurements(StzVisionMeasurementsFile())
 	ok
@@ -280,6 +284,23 @@ func _StzVisionLabelMobilenet(pImage, paParams)
 		ok
 	next
 	return ""
+
+# IM5: zero-shot over the vocabulary itself -- each category name put into SigLIP's own prompt, the
+# best cosine wins. No mapping table: the categories ARE the labels.
+func _StzVisionLabelSiglip(pImage, paParams)
+	_o_ = StzImageQ("" + pImage)
+	_a_ = _o_.ClassifyAs(StzVisionCocoVocabulary())
+	_o_.Release()
+	return _a_[1][:label]
+
+# The 41 COCO categories the :image-label faculty answers in (the vocabulary _rig/coco_golden.py
+# selects labels_v1 by): the ones an ImageNet classifier can map to, so both models answer in one set.
+func StzVisionCocoVocabulary()
+	return [ "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck", "boat", "traffic light",
+		"parking meter", "bench", "bird", "cat", "dog", "horse", "sheep", "cow", "elephant", "bear", "zebra",
+		"umbrella", "banana", "orange", "broccoli", "hot dog", "pizza", "chair", "couch", "bed", "dining table",
+		"toilet", "tv", "laptop", "mouse", "keyboard", "cell phone", "microwave", "refrigerator", "clock", "vase",
+		"teddy bear" ]
 
 # The COCO category an ImageNet-1k class belongs to, or "" (the mapping the :image-label model uses).
 func StzVisionCocoOf(pnIndex)

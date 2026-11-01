@@ -9,7 +9,7 @@
 #   Scene 1  the golden sets: 30 faces images, 40 objects, 40 labels
 #   Scene 2  :faces -- the platform's detector against YuNet
 #   Scene 3  :objects -- "nothing found" against YOLOX-nano and -tiny
-#   Scene 4  :image-label -- a fixed "chair" against MobileNetV3
+#   Scene 4  :image-label -- a fixed "chair" against MobileNetV3 and SigLIP2 zero-shot (IM5)
 #   Scene 5  the registry rules on the numbers, and only on them
 #   Scene 6  the measurements are filed and outlive the process
 #   Scene 7  what a person looks at (_faculty-out/im4_faculties.html)
@@ -91,9 +91,13 @@ sec("scene 3")
 aRL = StzRunGoldens("image-label", [])
 nLP = ScoreOf("image-label", "prior")
 nLM = ScoreOf("image-label", "mobilenetv3")
+nLS = ScoreOf("image-label", "siglip2")
 nChair = CountExpected(aGL, "chair")
-? "    fixed-'chair' floor " + nLP + "   mobilenetv3 " + nLM + "   (share of images whose largest object it names)"
+? "    fixed-'chair' floor " + nLP + "   mobilenetv3 " + nLM + "   siglip2 " + nLS + "   (share of images whose largest object it names)"
 chk("the fixed floor scores exactly the share of 'chair' in the golden set (" + nChair + " of 40)", nLP = nChair / 40)
+# IM5: SigLIP2 answers with the category names themselves (no ImageNet mapping), each in SigLIP's own prompt
+chk("SigLIP2 zero-shot, given only the 41 category NAMES, was measured on the same 40 images (" + nLS + ")",
+	nLS > 0)
 
 sec("scene 4")
 
@@ -137,7 +141,7 @@ aAfter = [ StzModelRegistryQ().ResolveQ("faces").Chosen(), StzModelRegistryQ().R
 	StzModelRegistryQ().ResolveQ("image-label").Chosen() ]
 chk("...and filed and read back, the same choices return " + @@(aAfter), @@(aAfter) = @@(aBefore))
 nCalls = StzVisionCallsRecorded() - nCalls0
-chk("every model run went through the door: " + nCalls + " ledger records", nCalls >= 30 + 80 + 40)
+chk("every model run went through the door: " + nCalls + " ledger records", nCalls >= 30 + 80 + 40 + 40)
 
 sec("scene 6")
 
@@ -260,6 +264,7 @@ func WriteReport(cPath, aGF, aGO, aGL)
 	next
 	c += "</div><h2>:image-label -- " + StzModelRegistryQ().ResolveQ("image-label").Chosen() + " answers</h2>" +
 		Bar("fixed 'chair' (floor)", ScoreOf("image-label", "prior"), "#999") + Bar("MobileNetV3", ScoreOf("image-label", "mobilenetv3"), "#2c6fd6") +
+		Bar("SigLIP2 zero-shot", ScoreOf("image-label", "siglip2"), "#2c6fd6") +
 		"<p class='note'>Per image: the label of its largest object, as COCO marks it.</p><div class='grid'>"
 	for i = 1 to 12
 		c += "<div class='cell'>" + LabelPicture(aGL[i]) + "</div>"
@@ -272,7 +277,7 @@ func Thumb(oImg)
 	if oImg.Width() > 420
 		oImg.ApplyResize(420, floor(oImg.Height() * 420 / oImg.Width()))
 	ok
-	return "<img src='data:image/jpeg;base64," + StzEngineBytesToBase64(oImg.ToJPEG(82)) + "'>"
+	return "<img src='" + oImg.ToJpegDataURI(82) + "'>"
 
 func FacesPicture(aItem)
 	o = StzImageQ(aItem[1])
@@ -318,7 +323,13 @@ func LabelPicture(aItem)
 	if cGot = aItem[2]
 		cCls = "ok"
 	ok
-	return Thumb(o) + "<br>COCO: <b>" + aItem[2] + "</b><br>MobileNetV3: <span class='" + cCls + "'>" + cGot + "</span>"
+	cGot2 = _StzVisionLabelSiglip(aItem[1], [])
+	cCls2 = "no"
+	if cGot2 = aItem[2]
+		cCls2 = "ok"
+	ok
+	return Thumb(o) + "<br>COCO: <b>" + aItem[2] + "</b><br>MobileNetV3: <span class='" + cCls + "'>" + cGot + "</span>" +
+		"<br>SigLIP2: <span class='" + cCls2 + "'>" + cGot2 + "</span>"
 
 func chk(cWhat, bCond)
 	if bCond = 1

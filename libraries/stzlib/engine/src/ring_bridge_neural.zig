@@ -903,6 +903,47 @@ fn visionDetect(p: *anyopaque, objs: bool) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// IM5: (cModel, cPixels, nW, nH, nC, nThreads) -> the picture's embedding, L2-normalized (SigLIP2: 768 numbers)
+fn ring_VisionEmbedImage(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const g = R.ring_vm_api_getnumber;
+    const th: c_int = @intFromFloat(g(p, 6));
+    if (vis.embedImage(ocrArg(p, 1), ocrArg(p, 2), @intFromFloat(g(p, 3)), @intFromFloat(g(p, 4)), @intFromFloat(g(p, 5)), if (th < 1) 4 else th)) |r| {
+        defer std.heap.c_allocator.free(r.v);
+        vision_ms = r.ms;
+        for (r.v) |x| R.ring_list_adddouble(out, x);
+    } else |e| {
+        if (ocrg.lastError().len == 0) ocrg.setError("vision: {s}", .{@errorName(e)});
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
+// IM5: (cModel, cText, nThreads) -> the text's embedding, L2-normalized, in the same space as the pictures'
+fn ring_VisionEmbedText(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const th: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 3));
+    if (vis.embedText(ocrArg(p, 1), ocrArg(p, 2), if (th < 1) 4 else th)) |r| {
+        defer std.heap.c_allocator.free(r.v);
+        vision_ms = r.ms;
+        for (r.v) |x| R.ring_list_adddouble(out, x);
+    } else |e| {
+        if (ocrg.lastError().len == 0) ocrg.setError("vision: {s}", .{@errorName(e)});
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
+// IM5: (cModel, cText) -> the token ids the text model reads (padded to its fixed length)
+fn ring_VisionTokens(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    if (vis.tokens(ocrArg(p, 1), ocrArg(p, 2))) |ids| {
+        defer std.heap.c_allocator.free(ids);
+        for (ids) |x| R.ring_list_adddouble(out, @floatFromInt(x));
+    } else |e| {
+        if (ocrg.lastError().len == 0) ocrg.setError("vision: {s}", .{@errorName(e)});
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
 // the compute time of the last vision call, ms
 fn ring_VisionMs(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retnumber(p, vision_ms);
@@ -916,6 +957,9 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralvisionfaces", .func = &ring_VisionFaces },
     .{ .name = "stzengineneuralvisionobjects", .func = &ring_VisionObjects },
     .{ .name = "stzengineneuralvisionms", .func = &ring_VisionMs },
+    .{ .name = "stzengineneuralvisionembedimage", .func = &ring_VisionEmbedImage },
+    .{ .name = "stzengineneuralvisionembedtext", .func = &ring_VisionEmbedText },
+    .{ .name = "stzengineneuralvisiontokens", .func = &ring_VisionTokens },
     .{ .name = "stzengineneuralocrread", .func = &ring_OcrRead },
     .{ .name = "stzengineneuralocrreadwith", .func = &ring_OcrReadWith },
     .{ .name = "stzengineneuralocrstats", .func = &ring_OcrStats },

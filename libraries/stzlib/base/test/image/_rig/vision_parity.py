@@ -11,6 +11,10 @@ Inputs (the photos are in <src>/photos, licences in their MANIFEST.tsv):
     mobilenetv3   dog.jpg, shorter side 256 (bilinear), centre crop 224, RGB, ImageNet mean/std, NCHW
     yunet         crew.jpg letterboxed into 640 x 640 (pad 0), BGR, raw 0..255
     yolox         street.jpg letterboxed into 416 x 416 (pad 114), BGR, raw 0..255
+    siglip2       (IM5) dog.jpg resized to 224 x 224 by PIL (bilinear, as HF's SiglipImageProcessor), RGB,
+                  (x/255 - 0.5)/0.5 -> pooler_output; plus siglip2_text.tsv: for each fixed text, the ids HF's
+                  tokenizers library gives and the text tower's pooler_output on them; and siglip2_photos.tsv:
+                  each photo's image embedding through the same PIL path (end-to-end: decode, resize, tower)
 YuNet's expected tensor is its 12 outputs fused exactly as onnx_to_gguf.py --kind=yunet fuses them.
 
 STZT file: "STZT", u32 rank, 4 x i64 dims (ONNX order, 1 where unused), f32 data row-major.
@@ -85,6 +89,43 @@ def main():
         write(os.path.join(out, name + "_in.stzt"), x)
         write(os.path.join(out, name + "_out.stzt"), y)
         print(name + ": output", y.shape)
+
+    # SigLIP2 (IM5)
+    from PIL import Image
+    from tokenizers import Tokenizer
+    sd = os.path.join(src, "siglip2_base")
+
+    def pil224(path):
+        im = Image.open(path).convert("RGB").resize((224, 224), resample=Image.BILINEAR)
+        a = np.asarray(im, dtype=np.float32) / 255.0
+        return ((a - 0.5) / 0.5).transpose(2, 0, 1)[None].astype(np.float32)
+
+    vs = ort.InferenceSession(os.path.join(sd, "vision_model.onnx"), providers=["CPUExecutionProvider"])
+    vout = [o.name for o in vs.get_outputs()].index("pooler_output")
+    x = pil224(os.path.join(photos, "dog.jpg"))
+    y = vs.run(None, {vs.get_inputs()[0].name: x})[vout]
+    write(os.path.join(out, "siglip2_vision_in.stzt"), x)
+    write(os.path.join(out, "siglip2_vision_out.stzt"), y)
+    print("siglip2 vision: pooler", y.shape)
+    with open(os.path.join(out, "siglip2_photos.tsv"), "w", encoding="utf-8", newline="\n") as f:
+        for name in ("dog.jpg", "cat.jpg", "crew.jpg", "street.jpg"):
+            y = vs.run(None, {vs.get_inputs()[0].name: pil224(os.path.join(photos, name))})[vout][0]
+            f.write(name + "\t" + " ".join("%.7g" % v for v in y) + "\n")
+
+    tok = Tokenizer.from_file(os.path.join(sd, "tokenizer.json"))
+    tok.enable_padding(length=64, pad_id=0, pad_token="<pad>")
+    tok.enable_truncation(max_length=64)
+    ts = ort.InferenceSession(os.path.join(sd, "text_model_fp16.onnx"), providers=["CPUExecutionProvider"])
+    tout = [o.name for o in ts.get_outputs()].index("pooler_output")
+    texts = ["This is a photo of a dog.", "a photo of a cat", "Times Square at night", "Pizza!  2 slices",
+             "caf\u00e9 \u2615", "This is a photo of a crowd of people on a street.", "un chien qui court dans l'herbe",
+             "\u0642\u0637\u0629 \u0646\u0627\u0626\u0645\u0629", "  leading and trailing  ", ""]
+    with open(os.path.join(out, "siglip2_text.tsv"), "w", encoding="utf-8", newline="\n") as f:
+        for t in texts:
+            ids = tok.encode(t).ids
+            y = ts.run(None, {ts.get_inputs()[0].name: np.array([ids], dtype=np.int64)})[tout][0]
+            f.write(t + "\t" + " ".join(str(i) for i in ids) + "\t" + " ".join("%.7g" % v for v in y.astype(np.float32)) + "\n")
+    print("siglip2 text: %d texts" % len(texts))
 
 
 if __name__ == "__main__":
