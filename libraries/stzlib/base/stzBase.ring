@@ -742,6 +742,7 @@ load "service/stzPispiQr.ring"    # the twin of the hub served over HTTP, with O
     # behind one engine handle (stz_image.dll); stzImageGrid holds what an analysis returns
     load "image/stzImage.ring"
     load "image/stzImageGrid.ring"
+    load "image/stzVision.ring"     # IM3: classify, faces, objects -- one governed door, every call in the ledger
     load "ocr/stzOcr.ring"             # OCR as a faculty: the platform floor, a model only when measured better
     load "ocr/stzOcrInspect.ring"      # see what OCR read and where: the image and its reading, linked both ways
 

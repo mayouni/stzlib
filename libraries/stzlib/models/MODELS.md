@@ -55,3 +55,16 @@ For the image plane (`base/doc/design/SOFTANZA_IMAGE_INTELLIGENCE.md`, section 2
 | `granite_docling_258m/mmproj-granite-docling-258M-Q8_0.gguf` | 103,769,792 | `3d440e65a91e640dc0a53897ad7897700c39324802aaff2072232b6f21d0cadb` | Apache-2.0 | `huggingface.co/ggml-org/granite-docling-258M-GGUF/resolve/main/mmproj-granite-docling-258M-Q8_0.gguf` |
 
 The configuration files fetched beside them (labels, preprocessing, the SigLIP2 tokenizer) are listed with their digests in `MANIFEST.tsv`.
+
+## The vision models, converted (IM3, 2026-11-01) -- `models/vision/`
+
+Converted from the sources above and checked against onnxruntime (cosine 1.00, max difference below 0.001 on a real photograph each: `base/test/image/image_vision_narrated.ring`, scene 1). The image plane reads them from `models/vision/`; every call goes through one governed door that records it in the security ledger.
+
+| file | what | size (bytes) | sha256 | made |
+|---|---|---|---|---|
+| `vision/mobilenetv3_large.gguf` | classify -- MobileNetV3-Large (timm ra_in1k), 1000 ImageNet labels inside | 21,929,440 | `8212129167ce1196121602d9c9756d81c2182ec722453ea4463a2f4283c9b48f` | from `mobilenetv3/model.onnx` by `engine/tools/onnx_to_gguf.py` |
+| `vision/yolox_nano.gguf` | objects -- YOLOX-nano, 80 COCO labels inside | 3,649,856 | `71e40dcc100b074b2329710c912f0ba03bc96b503a2b8174d27caf762480894c` | from `yolox/yolox_nano.onnx` by `engine/tools/onnx_to_gguf.py` |
+| `vision/yolox_tiny.gguf` | objects -- YOLOX-tiny (the default), 80 COCO labels inside | 20,212,928 | `2b9870a6efb8a427d10bce2c563fe261fbf8e6f21f5731207c435a048d000e4b` | from `yolox/yolox_tiny.onnx` by `engine/tools/onnx_to_gguf.py` |
+| `vision/yunet_2023mar.gguf` | faces -- YuNet 2023mar, 12 heads fused to [1, 8400, 16] | 225,856 | `f98be07de91e64b35beca64776838c3c2d940a89600dcbfd4968cc1e46cc62e7` | from `yunet/face_detection_yunet_2023mar.onnx` by `engine/tools/onnx_to_gguf.py` |
+
+Test photographs (Wikimedia Commons, downloaded with the author's yes, 2026-11-01) are held beside the sources in `D:\GitHub\_wti_models_src\photos\` with their sha256 and licences in `MANIFEST.tsv`: the NASA Expedition 64 crew portrait (public domain), Times Square (CC BY 2.0), Golden Retriever Carlos (CC BY 2.0), Cat03 (GFDL 1.2). None is in the tree.

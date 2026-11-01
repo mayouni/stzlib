@@ -18,6 +18,17 @@ head split reshape/transpose/slice/squeeze; a BatchNormalization becomes a per-c
 computed by Shape/Slice/Concat/Cast is traced symbolically into a reshape spec. Anything outside the set stops
 the conversion with the node named -- the converter never guesses.
 
+VISION (IM3 of SOFTANZA_IMAGE_INTELLIGENCE.md): the same file shape carries the image plane's models.
+
+    --kind=classify --labels=<config.json with id2label> --input=224     MobileNetV3 (timm)
+    --kind=yunet                                                          YuNet: its 12 heads fused into ONE
+                                                                          output [1, 8400, 16] (see fuse_yunet)
+    --kind=yolox --labels=coco                                            YOLOX: one output [1, N, 85]
+
+and adds Flatten, Gemm, symmetric MaxPool padding, and step2(x;a;o) -- every second row or column from
+offset o -- for the four Slices of YOLOX's Focus layer. Labels go in stz.graph.labels, the input size in
+stz.graph.input_w / input_h.
+
 Run it in an environment with onnx and numpy (the Docling venv has both). Written for the PP-OCR family:
 PP-OCRv6 det/rec small and the ch_ppocr_mobile_v2.0 angle classifier, whose exports (Paddle2ONNX, opset 11)
 are the graphs it was checked against.
@@ -78,6 +89,7 @@ class Converter:
             raise Refused("expected one graph input, found %r" % ins)
         self.input = ins[0]
         self.output = g.output[0].name
+        self.outputs = [o.name for o in g.output]
         self.rank = {self.input: 4}
         self.pname = {self.input: "x"}  # onnx name -> program name
         self.shape = {}  # onnx name -> shape-domain list (ints or ('dim', onnxname, j))
@@ -279,8 +291,11 @@ class Converter:
         a = self.attrs(node)
         x = node.input[0]
         w = self.const(node.input[1])
-        if len(node.input) > 2:
-            raise Refused("Conv %s carries a bias; the family writes it as an Add" % node.name)
+        bias = None
+        if len(node.input) > 2 and node.input[2]:
+            # the vision exports (timm, YuNet, YOLOX) fold the bias into the Conv; the runner adds it as a
+            # per-channel constant shaped [1, C, 1, 1] (PP-OCR's exports write the same Add themselves)
+            bias = np.asarray(self.const(node.input[2]), dtype=np.float32).reshape(1, -1, 1, 1)
         if a.get("dilations", [1, 1]) != [1, 1]:
             raise Refused("Conv %s has a dilation" % node.name)
         kh, kw = a["kernel_shape"]
@@ -306,7 +321,11 @@ class Converter:
                 raise Refused("Conv %s has asymmetric pads %r" % (node.name, a["pads"]))
             ph, pw = t, l
         wp = self.add_const(None, w)
-        self.emit(node.output[0], "conv", [xp, wp], 4, s=[sw, sh], p=[pw, ph], dw=dw)
+        if bias is None:
+            self.emit(node.output[0], "conv", [xp, wp], 4, s=[sw, sh], p=[pw, ph], dw=dw)
+            return
+        t = self.emit(node.output[0] + "/conv", "conv", [xp, wp], 4, s=[sw, sh], p=[pw, ph], dw=dw)
+        self.emit(node.output[0], "add", [t, self.add_const(None, bias)], 4)
 
     def op_ConvTranspose(self, i, node):
         a = self.attrs(node)
@@ -454,7 +473,15 @@ class Converter:
                     raise Refused("MaxPool %s zero-pads an input that is not a Relu output" % node.name)
             xp = self.emit(node.output[0] + "/pad", "pad", [xp], 4, r=1, b=1)
         elif a.get("pads", [0, 0, 0, 0]) != [0, 0, 0, 0]:
-            raise Refused("%s %s has pads" % (node.op_type, node.name))
+            pads = a["pads"]
+            # symmetric padding only (YOLOX's spatial pyramid: k 5/9/13, stride 1, pad k//2); a max pool
+            # reads padding as -inf, so the runner's pool skips it, as ONNX does
+            if op != "max" or pads[0] != pads[2] or pads[1] != pads[3]:
+                raise Refused("%s %s has asymmetric pads %r" % (node.op_type, node.name, pads))
+            if a.get("ceil_mode", 0):
+                raise Refused("%s %s has ceil_mode" % (node.op_type, node.name))
+            self.emit(node.output[0], "pool", [xp], 4, k=[kw, kh], s=[sw, sh], p=[pads[1], pads[0]], kind=op)
+            return
         if a.get("ceil_mode", 0):
             raise Refused("%s %s has ceil_mode" % (node.op_type, node.name))
         self.emit(node.output[0], "pool", [xp], 4, k=[kw, kh], s=[sw, sh], kind=op)
@@ -573,7 +600,60 @@ class Converter:
         self.emit(node.output[0], "reshape", [self.p(x)], len(spec), d=spec)
 
     def op_Slice(self, i, node):
-        raise Refused("Slice %s on an activation outside the head split" % node.name)
+        # every second row or column from offset 0 or 1 (YOLOX's Focus: x[..., ::2, ::2] and its three
+        # siblings, each written as two Slices); anything else is refused
+        if len(node.input) < 5 or not all(self.is_const(x) for x in node.input[1:5]):
+            raise Refused("Slice %s on an activation without constant starts/ends/axes/steps" % node.name)
+        starts = [int(v) for v in self.const(node.input[1]).flatten()]
+        ends = [int(v) for v in self.const(node.input[2]).flatten()]
+        axes = [int(v) for v in self.const(node.input[3]).flatten()]
+        steps = [int(v) for v in self.const(node.input[4]).flatten()]
+        rank = self.rank_of(node.input[0])
+        if len(axes) != 1 or steps[0] != 2 or starts[0] not in (0, 1) or ends[0] < 2 ** 30 or rank != 4 or axes[0] % 4 not in (2, 3):
+            raise Refused("Slice %s is not a step-2 slice of rows or columns" % node.name)
+        self.emit(node.output[0], "step2", [self.p(node.input[0])], 4, a=rank - 1 - axes[0] % 4, o=starts[0])
+
+    def op_Flatten(self, i, node):
+        a = self.attrs(node)
+        x = node.input[0]
+        rank = self.rank_of(x)
+        axis = a.get("axis", 1) % rank
+        lead = ["@%s:%d" % (self.p(x), j) for j in range(axis)]
+        self.emit(node.output[0], "reshape", [self.p(x)], axis + 1, d=lead + ["-1"])
+
+    def op_Gemm(self, i, node):
+        a = self.attrs(node)
+        if a.get("alpha", 1.0) != 1.0 or a.get("beta", 1.0) != 1.0 or a.get("transA", 0) != 0:
+            raise Refused("Gemm %s with alpha/beta/transA" % node.name)
+        if not self.is_const(node.input[1]):
+            raise Refused("Gemm %s with a computed weight" % node.name)
+        w = self.const(node.input[1])
+        # ggml's mul_mat wants the weight as [out, in] rows -- ONNX B is that already when transB=1
+        wt = w if a.get("transB", 0) == 1 else np.ascontiguousarray(w.T)
+        wp = self.add_const(None, wt)
+        t = self.emit(node.output[0] + "/mm", "linear", [self.p(node.input[0]), wp], 2)
+        if len(node.input) > 2 and node.input[2]:
+            self.emit(node.output[0], "add", [t, self.p(node.input[2])], 2)
+        else:
+            self.pname[self.r(node.output[0])] = t
+            self.rank[self.r(node.output[0])] = 2
+
+    def fuse_yunet(self):
+        """YuNet writes 12 heads; the runner hands back one tensor. Per stride s in 8, 16, 32 the four heads
+        cls_s [1,N,1], obj_s [1,N,1], bbox_s [1,N,4], kps_s [1,N,10] are concatenated on the last axis into
+        [1,N,16], and the three strides on the anchor axis into [1, 8400, 16]: per anchor, cls, obj, 4 box,
+        10 landmark values. The parity oracle builds the same tensor from onnxruntime's 12 outputs."""
+        rows = []
+        for st in (8, 16, 32):
+            parts = []
+            for head in ("cls", "obj", "bbox", "kps"):
+                nm = "%s_%d" % (head, st)
+                if nm not in self.outputs:
+                    raise Refused("YuNet output %s missing" % nm)
+                parts.append(self.p(nm))
+            rows.append(self.emit("yunet/s%d" % st, "concat", parts, 3, d=0))
+        out = self.emit("yunet/all", "concat", rows, 3, d=1)
+        return out, 3
 
     # -- the file ----------------------------------------------------------------------------------------------
     def write(self, path, kind, out_name, out_rank, src_name):
@@ -586,6 +666,11 @@ class Converter:
             kv_u32("stz.ocr.output_rank", out_rank),
             kv_strarr("stz.ocr.program", self.prog),
         ]
+        if getattr(self, "labels", None):
+            kvs.append(kv_strarr("stz.graph.labels", self.labels))
+        if getattr(self, "input_wh", None):
+            kvs.append(kv_u32("stz.graph.input_w", self.input_wh[0]))
+            kvs.append(kv_u32("stz.graph.input_h", self.input_wh[1]))
         if getattr(self, "direction", ""):
             kvs.append(kv_str("stz.ocr.direction", self.direction))
         if getattr(self, "classifier", ""):
@@ -617,6 +702,32 @@ class Converter:
         return len(body) + len(data)
 
 
+COCO80 = ("person bicycle car motorcycle airplane bus train truck boat traffic_light fire_hydrant stop_sign "
+          "parking_meter bench bird cat dog horse sheep cow elephant bear zebra giraffe backpack umbrella handbag "
+          "tie suitcase frisbee skis snowboard sports_ball kite baseball_bat baseball_glove skateboard surfboard "
+          "tennis_racket bottle wine_glass cup fork knife spoon bowl banana apple sandwich orange broccoli carrot "
+          "hot_dog pizza donut cake chair couch potted_plant bed dining_table toilet tv laptop mouse remote keyboard "
+          "cell_phone microwave oven toaster sink refrigerator book clock vase scissors teddy_bear hair_drier "
+          "toothbrush").split()
+
+
+def load_labels(arg):
+    """'coco' -> the 80 COCO classes (YOLOX's order); a config.json -> its id2label in id order; '' -> none."""
+    if not arg:
+        return None
+    if arg == "coco":
+        return [w.replace("_", " ") for w in COCO80]
+    import json
+    with open(arg, encoding="utf-8") as f:
+        cfg = json.load(f)
+    if "id2label" in cfg:
+        d = cfg["id2label"]
+        return [d[str(i)] for i in range(len(d))]
+    if "label_names" in cfg:
+        return list(cfg["label_names"])
+    raise Refused("no id2label in %s" % arg)
+
+
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     kind = "det"
@@ -633,9 +744,25 @@ def main():
             # off: PP-OCR's angle classifier was trained on Chinese and Latin lines and does not apply to this
             # recogniser's script (it calls upright Arabic "180" with near certainty and the line is turned over)
             classifier = a[13:]
+    labels_arg = ""
+    input_arg = 0
+    for a in sys.argv[1:]:
+        if a.startswith("--labels="):
+            labels_arg = a[9:]
+        if a.startswith("--input="):
+            input_arg = int(a[8:])
     src, dst = args[0], args[1]
     cv = Converter(src)
     out_name, out_rank = cv.convert()
+    if kind == "yunet":
+        out_name, out_rank = cv.fuse_yunet()
+    cv.labels = load_labels(labels_arg)
+    m = onnx.load(src)
+    dims = [d.dim_value for d in m.graph.input[0].type.tensor_type.shape.dim]
+    if len(dims) == 4 and dims[2] > 0 and dims[3] > 0:
+        cv.input_wh = (dims[3], dims[2])
+    elif input_arg:
+        cv.input_wh = (input_arg, input_arg)
     cv.direction = direction
     cv.classifier = classifier
     n = cv.write(dst, kind, out_name, out_rank, src)

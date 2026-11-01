@@ -61,6 +61,20 @@ fn ring_Take(p: *anyopaque) callconv(.c) void {
     retF(p, img.take(id(p, 1), id(p, 2)));
 }
 
+fn rgbArg(p: *anyopaque, n: c_int) [3]u8 {
+    return .{ @intCast(@min(u(p, n), 255)), @intCast(@min(u(p, n + 1), 255)), @intCast(@min(u(p, n + 2), 255)) };
+}
+
+// (image, x, y, w, h, r, g, b, thickness) -- 0-based, in place
+fn ring_Box(p: *anyopaque) callconv(.c) void {
+    retF(p, img.box(id(p, 1), @intFromFloat(gn(p, 2)), @intFromFloat(gn(p, 3)), @intFromFloat(gn(p, 4)), @intFromFloat(gn(p, 5)), rgbArg(p, 6), @intFromFloat(gn(p, 9))));
+}
+
+// (image, x, y, radius, r, g, b) -- 0-based, in place
+fn ring_Dot(p: *anyopaque) callconv(.c) void {
+    retF(p, img.dot(id(p, 1), gn(p, 2), gn(p, 3), gn(p, 4), rgbArg(p, 5)));
+}
+
 fn ring_Live(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(img.liveImages()));
 }
@@ -465,6 +479,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineimagefree", .func = &ring_Free },
     .{ .name = "stzengineimagetake", .func = &ring_Take },
     .{ .name = "stzengineimagelive", .func = &ring_Live },
+    .{ .name = "stzengineimagebox", .func = &ring_Box },
+    .{ .name = "stzengineimagedot", .func = &ring_Dot },
     .{ .name = "stzengineimagedecode", .func = &ring_Decode },
     .{ .name = "stzengineimageload", .func = &ring_Load },
     .{ .name = "stzengineimagetopng", .func = &ring_ToPng },

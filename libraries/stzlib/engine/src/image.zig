@@ -271,6 +271,62 @@ pub fn saveBmp(id: i64, path: []const u8) i64 {
     return 1;
 }
 
+// ------------------------------------------------------------------ drawing (IM3)
+
+fn paint(im: *Image, x: i64, y: i64, rgb: [3]u8) void {
+    if (x < 0 or y < 0 or x >= im.w or y >= im.h) return;
+    const o = im.px[(@as(usize, @intCast(y)) * im.w + @as(usize, @intCast(x))) * im.c ..];
+    if (im.c == 1) {
+        o[0] = gray601(rgb[0], rgb[1], rgb[2]);
+        return;
+    }
+    o[0] = rgb[0];
+    o[1] = rgb[1];
+    o[2] = rgb[2];
+    if (im.c == 4) o[3] = 255;
+}
+
+/// Draws a rectangle's outline IN PLACE (the handle keeps its pixels): (x, y) its top-left, `t` pixels
+/// thick, inward. Parts outside the image are clipped.
+pub fn box(id: i64, x: i64, y: i64, w: i64, h: i64, rgb: [3]u8, t: i64) i64 {
+    const im = images.get(id) orelse return fail("image: no such image", .{});
+    if (w <= 0 or h <= 0) return 1;
+    const th = @max(1, @min(t, @divTrunc(@min(w, h) + 1, 2)));
+    var k: i64 = 0;
+    while (k < th) : (k += 1) {
+        var xx = x;
+        while (xx < x + w) : (xx += 1) {
+            paint(im, xx, y + k, rgb);
+            paint(im, xx, y + h - 1 - k, rgb);
+        }
+        var yy = y;
+        while (yy < y + h) : (yy += 1) {
+            paint(im, x + k, yy, rgb);
+            paint(im, x + w - 1 - k, yy, rgb);
+        }
+    }
+    return 1;
+}
+
+/// Draws a filled disc IN PLACE, centre (x, y), radius r.
+pub fn dot(id: i64, x: f64, y: f64, r: f64, rgb: [3]u8) i64 {
+    const im = images.get(id) orelse return fail("image: no such image", .{});
+    const x0: i64 = @intFromFloat(@floor(x - r));
+    const x1: i64 = @intFromFloat(@ceil(x + r));
+    const y0: i64 = @intFromFloat(@floor(y - r));
+    const y1: i64 = @intFromFloat(@ceil(y + r));
+    var yy = y0;
+    while (yy <= y1) : (yy += 1) {
+        var xx = x0;
+        while (xx <= x1) : (xx += 1) {
+            const dx = @as(f64, @floatFromInt(xx)) - x;
+            const dy = @as(f64, @floatFromInt(yy)) - y;
+            if (dx * dx + dy * dy <= r * r) paint(im, xx, yy, rgb);
+        }
+    }
+    return 1;
+}
+
 // ------------------------------------------------------------------ channels
 
 fn gray601(r: u8, g: u8, b: u8) u8 {

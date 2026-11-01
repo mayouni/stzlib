@@ -12,6 +12,7 @@ const gmach = @import("gbnf_machine.zig");
 const R = @import("ring_api.zig");
 const ocrg = @import("ocr_graph.zig"); // O3: PP-OCR graphs on ggml
 const ocrp = @import("ocr_pipeline.zig"); // O3b: an image file in, its text lines out
+const vis = @import("vision.zig"); // IM3: the image plane's models (classify, faces, objects)
 const ocrw = @import("ocr_winrt.zig"); // O5: the platform engine called in process
 
 const rn = R.ring_vm_api_retnumber;
@@ -828,10 +829,93 @@ fn ring_OcrGraphError(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retstring2(p, e.ptr, @intCast(e.len));
 }
 
+// ------------------------------------------------------------------ IM3: vision
+// The pixels cross as the raw bytes of a stzImage (Pixels()), with width, height and channels; the
+// boxes come back in those pixels, 0-based (the Ring face adds 1). [] on failure: StzEngineNeuralOcrGraphError.
+
+var vision_ms: f64 = 0;
+
+// (cModel, cPixels, nW, nH, nC, nK, nThreads) -> [ [ cLabel, nScore, nIndex ], ... ] best first
+fn ring_VisionClassify(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const th: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 7));
+    if (vis.classify(ocrArg(p, 1), ocrArg(p, 2), @intFromFloat(R.ring_vm_api_getnumber(p, 3)), @intFromFloat(R.ring_vm_api_getnumber(p, 4)), @intFromFloat(R.ring_vm_api_getnumber(p, 5)), @intFromFloat(R.ring_vm_api_getnumber(p, 6)), if (th < 1) 4 else th)) |r| {
+        defer std.heap.c_allocator.free(r.best);
+        vision_ms = r.ms;
+        for (r.best) |cl| {
+            const row = R.ring_list_newlist(out) orelse break;
+            const lab: []const u8 = if (cl.index < r.labels.len) r.labels[cl.index] else "?";
+            R.ring_list_addstring2(row, lab.ptr, @intCast(lab.len));
+            R.ring_list_adddouble(row, cl.score);
+            R.ring_list_adddouble(row, @floatFromInt(cl.index));
+        }
+    } else |e| {
+        if (ocrg.lastError().len == 0) ocrg.setError("vision: {s}", .{@errorName(e)});
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
+// (cModel, cPixels, nW, nH, nC, nScore, nNms, nThreads) -> [ [ x, y, w, h, score, l1x, l1y, ... l5y ], ... ]
+fn ring_VisionFaces(p: *anyopaque) callconv(.c) void {
+    visionDetect(p, false);
+}
+
+// (cModel, cPixels, nW, nH, nC, nScore, nNms, nThreads, nTiles 0|2) -> [ [ cLabel, score, x, y, w, h, nClass ], ... ]
+fn ring_VisionObjects(p: *anyopaque) callconv(.c) void {
+    visionDetect(p, true);
+}
+
+fn visionDetect(p: *anyopaque, objs: bool) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const g = R.ring_vm_api_getnumber;
+    const th: c_int = @intFromFloat(g(p, 8));
+    const w: usize = @intFromFloat(g(p, 3));
+    const h: usize = @intFromFloat(g(p, 4));
+    const c: usize = @intFromFloat(g(p, 5));
+    const res = if (objs)
+        vis.objects(ocrArg(p, 1), ocrArg(p, 2), w, h, c, @floatCast(g(p, 6)), @floatCast(g(p, 7)), @intFromFloat(g(p, 9)), if (th < 1) 4 else th)
+    else
+        vis.faces(ocrArg(p, 1), ocrArg(p, 2), w, h, c, @floatCast(g(p, 6)), @floatCast(g(p, 7)), if (th < 1) 4 else th);
+    if (res) |r| {
+        defer std.heap.c_allocator.free(r.dets);
+        vision_ms = r.ms;
+        for (r.dets) |d| {
+            const row = R.ring_list_newlist(out) orelse break;
+            if (objs) {
+                const lab: []const u8 = if (d.class < r.labels.len) r.labels[d.class] else "?";
+                R.ring_list_addstring2(row, lab.ptr, @intCast(lab.len));
+                R.ring_list_adddouble(row, d.score);
+            }
+            R.ring_list_adddouble(row, d.x);
+            R.ring_list_adddouble(row, d.y);
+            R.ring_list_adddouble(row, d.w);
+            R.ring_list_adddouble(row, d.h);
+            if (objs) {
+                R.ring_list_adddouble(row, @floatFromInt(d.class));
+            } else {
+                R.ring_list_adddouble(row, d.score);
+                for (d.lm) |v| R.ring_list_adddouble(row, v);
+            }
+        }
+    } else |e| {
+        if (ocrg.lastError().len == 0) ocrg.setError("vision: {s}", .{@errorName(e)});
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
+// the compute time of the last vision call, ms
+fn ring_VisionMs(p: *anyopaque) callconv(.c) void {
+    R.ring_vm_api_retnumber(p, vision_ms);
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralocrgraphinfo", .func = &ring_OcrGraphInfo },
     .{ .name = "stzengineneuralocrgraphparity", .func = &ring_OcrGraphParity },
     .{ .name = "stzengineneuralocrgrapherror", .func = &ring_OcrGraphError },
+    .{ .name = "stzengineneuralvisionclassify", .func = &ring_VisionClassify },
+    .{ .name = "stzengineneuralvisionfaces", .func = &ring_VisionFaces },
+    .{ .name = "stzengineneuralvisionobjects", .func = &ring_VisionObjects },
+    .{ .name = "stzengineneuralvisionms", .func = &ring_VisionMs },
     .{ .name = "stzengineneuralocrread", .func = &ring_OcrRead },
     .{ .name = "stzengineneuralocrreadwith", .func = &ring_OcrReadWith },
     .{ .name = "stzengineneuralocrstats", .func = &ring_OcrStats },

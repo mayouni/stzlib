@@ -480,6 +480,12 @@ lapses on a date:* `webhook.unsigned` (T1190), `webhook.signature.forged` (T1550
 The signer writes the first three and the port the fourth; `stzSecretExpiryWatch` writes the last
 two, once per change of state, and `StzPaymentsDetectionSet()` raises them.
 
+*Added 2026-11-01 by the intelligence plane (IM3 of SOFTANZA_IMAGE_INTELLIGENCE.md), additively,
+because COMPASS-KERN-05 asks that every model call leave a chained record before its answer returns:*
+`model.call` (info). The image plane's one model door (`base/image/stzVision.ring`) writes it on
+every classify / faces / objects call -- the faculty, the model file, what was found, the time --
+and opens the process ledger first when none is open, so no face can switch the record off.
+
 ### 6.2 `stzSecurityLedger` — evidence, not a log (I1)
 
 Engine-backed bounded ring (the `perf_trace_*` shape), each entry

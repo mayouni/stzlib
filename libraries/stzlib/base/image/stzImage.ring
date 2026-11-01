@@ -856,6 +856,128 @@ class stzImage from stzObject
 		_aM_ = StzPerspectiveMatrix(_aC_, [ [ 1, 1 ], [ _nW_, 1 ], [ _nW_, _nH_ ], [ 1, _nH_ ] ])
 		return This._Warp(_aM_, _nW_, _nH_, 255)
 
+	#@ aka  -- 10. WHAT IS IN THE PICTURE (IM3: models, through the governed door) -------
+
+	# Returns the five most likely ImageNet labels, best first: [ :label, :score ] each.
+	#
+	#   note       MobileNetV3-Large (models/vision); every call is recorded in the security ledger
+	def Classify()
+		return This.ClassifyXT(5)
+
+	def ClassifyXT(pnHowMany)
+		_cP_ = _StzVisionModelOrRaise($cStzVisionClassifier, "Classify")
+		_a_ = StzEngineNeuralVisionClassify(_cP_, This.Pixels(), This.Width(), This.Height(),
+			This.Channels(), pnHowMany, 4)
+		if len(_a_) = 0
+			_StzVisionFailed("Classify", $cStzVisionClassifier)
+		ok
+		_aOut_ = []
+		_n_ = len(_a_)
+		for _i_ = 1 to _n_
+			_aOut_ + [ :label = _a_[_i_][1], :score = _a_[_i_][2] ]
+		next
+		_StzVisionDoor("classify", $cStzVisionClassifier, "best '" + _aOut_[1][:label] + "' " + _aOut_[1][:score])
+		return _aOut_
+
+	# Returns the faces found: [ :box = [ x, y, w, h ], :score, :landmarks ] each, 1-based pixels.
+	#
+	#   note       YuNet; the five landmarks are the two eyes, the nose tip and the two mouth corners.
+	#              It FINDS faces; it never says whose they are (identification is not in the kit)
+	def Faces()
+		return This.FacesXT(0.9)
+
+	def FacesXT(pnMinScore)
+		_cP_ = _StzVisionModelOrRaise($cStzVisionFaceModel, "Faces")
+		_a_ = StzEngineNeuralVisionFaces(_cP_, This.Pixels(), This.Width(), This.Height(),
+			This.Channels(), pnMinScore, 0.3, 4)
+		_cErr_ = StzEngineNeuralOcrGraphError()
+		_aOut_ = []
+		_n_ = len(_a_)
+		for _i_ = 1 to _n_
+			_r_ = _a_[_i_]
+			_aL_ = []
+			for _k_ = 0 to 4
+				_aL_ + [ _r_[6 + 2 * _k_] + 1, _r_[7 + 2 * _k_] + 1 ]
+			next
+			_aOut_ + [ :box = [ _r_[1] + 1, _r_[2] + 1, _r_[3], _r_[4] ], :score = _r_[5], :landmarks = _aL_ ]
+		next
+		_StzVisionDoor("faces", $cStzVisionFaceModel, "" + len(_aOut_) + " face(s)")
+		return _aOut_
+
+	# Returns the objects found: [ :label, :score, :box = [ x, y, w, h ] ] each, 1-based pixels.
+	#
+	#   note       YOLOX-tiny over the 80 COCO classes (person, car, bus, dog, cup...); a score of
+	#              0.3 or more by default
+	def Objects()
+		return This.ObjectsXT(0.3)
+
+	def ObjectsXT(pnMinScore)
+		return This._Objects(pnMinScore, 0)
+
+	# Returns the objects found in the whole image AND in four overlapping tiles, merged: small
+	# people in a wide street come back (2 found whole on Times Square, 9 with the tiles), at five
+	# runs' cost.
+	def ObjectsTiled()
+		return This._Objects(0.3, 2)
+
+	def _Objects(pnMinScore, pnTiles)
+		_cP_ = _StzVisionModelOrRaise($cStzVisionObjectModel, "Objects")
+		_a_ = StzEngineNeuralVisionObjects(_cP_, This.Pixels(), This.Width(), This.Height(),
+			This.Channels(), pnMinScore, 0.45, 4, pnTiles)
+		_aOut_ = []
+		_n_ = len(_a_)
+		for _i_ = 1 to _n_
+			_r_ = _a_[_i_]
+			_aOut_ + [ :label = _r_[1], :score = _r_[2], :box = [ _r_[3] + 1, _r_[4] + 1, _r_[5], _r_[6] ] ]
+		next
+		_StzVisionDoor("objects", $cStzVisionObjectModel, "" + len(_aOut_) + " object(s)")
+		return _aOut_
+
+	#@ aka  -- 11. DRAWING ON THE PICTURE (IM3) -----------------------------------------
+
+	# Changes the image by drawing a rectangle's outline: [ x, y, w, h ] 1-based, a colour, a thickness.
+	#
+	#   pColor     [ r, g, b ], "#rrggbb" or a name (red, green, blue, yellow, orange, ...)
+	def ApplyBox(paBox, pColor, pnThickness)
+		_c_ = StzVisionColor(pColor)
+		_StzImageMust(StzEngineImageBox(@nId, floor(paBox[1] - 1 + 0.5), floor(paBox[2] - 1 + 0.5),
+			floor(paBox[3] + 0.5), floor(paBox[4] + 0.5), _c_[1], _c_[2], _c_[3], pnThickness))
+
+		def ApplyBoxQ(paBox, pColor, pnThickness)
+			This.ApplyBox(paBox, pColor, pnThickness)
+			return This
+
+	# Changes the image by drawing a filled dot at [ x, y ] (1-based) of a radius.
+	def ApplyDot(paPoint, pnRadius, pColor)
+		_c_ = StzVisionColor(pColor)
+		_StzImageMust(StzEngineImageDot(@nId, paPoint[1] - 1, paPoint[2] - 1, pnRadius, _c_[1], _c_[2], _c_[3]))
+
+		def ApplyDotQ(paPoint, pnRadius, pColor)
+			This.ApplyDot(paPoint, pnRadius, pColor)
+			return This
+
+	# Changes the image by drawing every box of a list of findings (Faces, Objects), with landmarks as dots.
+	def ApplyFindings(paFound, pColor)
+		_n_ = len(paFound)
+		_nT_ = 2
+		if This.Width() > 900
+			_nT_ = 3
+		ok
+		for _i_ = 1 to _n_
+			This.ApplyBox(paFound[_i_][:box], pColor, _nT_)
+			if HasKey(paFound[_i_], :landmarks)
+				_aL_ = paFound[_i_][:landmarks]
+				_m_ = len(_aL_)
+				for _k_ = 1 to _m_
+					This.ApplyDot(_aL_[_k_], _nT_ + 1, :cyan)
+				next
+			ok
+		next
+
+		def ApplyFindingsQ(paFound, pColor)
+			This.ApplyFindings(paFound, pColor)
+			return This
+
 	#@ aka  -- internals --------------------------------------------------------------
 
 	def _Take(pnNew)

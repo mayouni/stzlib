@@ -221,6 +221,10 @@ pub const Model = struct {
     output: []const u8,
     output_rank: u32,
     lines: [][]const u8,
+    // IM3: the vision models carry their labels and their fixed input size (0 when absent)
+    labels: [][]const u8 = &.{},
+    input_w: u32 = 0,
+    input_h: u32 = 0,
 
     pub fn free(m: *Model) void {
         c.ggml_free(m.wctx);
@@ -287,6 +291,20 @@ pub fn load(path: []const u8) !*Model {
         const p = c.gguf_get_arr_str(g, pid, i);
         m.lines[i] = try a.dupe(u8, std.mem.span(p));
     }
+    m.labels = &.{};
+    m.input_w = 0;
+    m.input_h = 0;
+    const lid = c.gguf_find_key(g, "stz.graph.labels");
+    if (lid >= 0) {
+        const nl2: usize = @intCast(c.gguf_get_arr_n(g, lid));
+        m.labels = try a.alloc([]const u8, nl2);
+        var j: usize = 0;
+        while (j < nl2) : (j += 1) m.labels[j] = try a.dupe(u8, std.mem.span(c.gguf_get_arr_str(g, lid, j)));
+    }
+    const wid = c.gguf_find_key(g, "stz.graph.input_w");
+    if (wid >= 0) m.input_w = c.gguf_get_val_u32(g, wid);
+    const hid = c.gguf_find_key(g, "stz.graph.input_h");
+    if (hid >= 0) m.input_h = c.gguf_get_val_u32(g, hid);
     return m;
 }
 
@@ -479,7 +497,29 @@ fn build(b: *Builder, s: []const u8) !void {
     } else if (is(op, "pool")) {
         const kind = l.val("kind") orelse return error.MissingAttr;
         const pop: c.ggml_op_pool = if (is(kind, "max")) c.GGML_OP_POOL_MAX else c.GGML_OP_POOL_AVG;
-        r = c.ggml_pool_2d(ctx, x, pop, @intCast(try l.int("k", 0)), @intCast(try l.int("k", 1)), @intCast(try l.int("s", 0)), @intCast(try l.int("s", 1)), 0, 0);
+        // optional symmetric padding (IM3: YOLOX's spatial pyramid); ggml's max pool skips padded cells
+        const pp0: f32 = if (l.val("p") != null) @floatFromInt(try l.int("p", 0)) else 0;
+        const pp1: f32 = if (l.val("p") != null) @floatFromInt(try l.int("p", 1)) else 0;
+        r = c.ggml_pool_2d(ctx, x, pop, @intCast(try l.int("k", 0)), @intCast(try l.int("k", 1)), @intCast(try l.int("s", 0)), @intCast(try l.int("s", 1)), pp0, pp1);
+    } else if (is(op, "step2")) {
+        // every second element along ggml dim a (0 = columns, 1 = rows) from offset o (IM3: YOLOX's Focus).
+        // Expressed as a reshape that splits the dim into (n/2, 2) and a view that keeps one of the two.
+        const a = try l.int("a", 0);
+        const o: usize = @intCast(try l.int("o", 0));
+        const xc = contig(ctx, x);
+        const es: usize = @intCast(c.ggml_element_size(xc));
+        const W = xc.ne[0];
+        const H = xc.ne[1];
+        const CN = xc.ne[2] * xc.ne[3];
+        if (a == 0) {
+            const t: *c.ggml_tensor = c.ggml_reshape_4d(ctx, xc, 2, @divExact(W, 2), H, CN) orelse return error.OutOfMemory;
+            const v = c.ggml_view_4d(ctx, t, 1, @divExact(W, 2), H, CN, 2 * es, @as(usize, @intCast(W)) * es, @as(usize, @intCast(W * H)) * es, o * es);
+            r = c.ggml_reshape_4d(ctx, c.ggml_cont(ctx, v), @divExact(W, 2), H, xc.ne[2], xc.ne[3]);
+        } else {
+            const t: *c.ggml_tensor = c.ggml_reshape_4d(ctx, xc, W, 2, @divExact(H, 2), CN) orelse return error.OutOfMemory;
+            const v = c.ggml_view_4d(ctx, t, W, 1, @divExact(H, 2), CN, @as(usize, @intCast(W)) * es, 2 * @as(usize, @intCast(W)) * es, @as(usize, @intCast(W * H)) * es, o * @as(usize, @intCast(W)) * es);
+            r = c.ggml_reshape_4d(ctx, c.ggml_cont(ctx, v), W, @divExact(H, 2), xc.ne[2], xc.ne[3]);
+        }
     } else if (is(op, "gap")) {
         r = c.ggml_pool_2d(ctx, x, c.GGML_OP_POOL_AVG, @intCast(x.ne[0]), @intCast(x.ne[1]), @intCast(x.ne[0]), @intCast(x.ne[1]), 0, 0);
     } else if (is(op, "up")) {
