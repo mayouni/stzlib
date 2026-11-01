@@ -706,13 +706,22 @@ class stzPdf from stzObject
 				_aB_ + [ :kind = _aBlocks_[_k_][:kind], :text = _aBlocks_[_k_][:text],
 					 :box = [ _b_[1] * _nPpt_, _b_[2] * _nPpt_, _b_[3] * _nPpt_, _b_[4] * _nPpt_ ], :mark = _aN_[1], :note = _aN_[2] ]
 			next
-			# the stamps and logos, kept out of the text
+			# the stamps and logos, kept out of the text -- but a stamp's title, read on its own, is in it
 			_nF_ = ring_len(@aOcrFigures)
 			for _k_ = 1 to _nF_
 				if @aOcrFigures[_k_][:page] != _nPage_ loop ok
 				_b_ = @aOcrFigures[_k_][:box]
+				_cNote_ = "drawn, not text: kept out of the blocks"
+				if @aOcrFigures[_k_][:kind] = "stamp"
+					for _q_ = 1 to _nB_
+						if _aBlocks_[_q_][:page] = _nPage_ and _aBlocks_[_q_][:text] = @aOcrFigures[_k_][:text]
+							_cNote_ = "drawn: its title, read on its own, is in the blocks; the rest kept out"
+							exit
+						ok
+					next
+				ok
 				_aB_ + [ :kind = @aOcrFigures[_k_][:kind], :text = @aOcrFigures[_k_][:text],
-					 :box = [ _b_[1] * _nPpt_, _b_[2] * _nPpt_, _b_[3] * _nPpt_, _b_[4] * _nPpt_ ], :mark = "", :note = "drawn, not text: kept out of the blocks" ]
+					 :box = [ _b_[1] * _nPpt_, _b_[2] * _nPpt_, _b_[3] * _nPpt_, _b_[4] * _nPpt_ ], :mark = "", :note = _cNote_ ]
 			next
 			# the lines a drawn stroke touched, read again without it
 			_nF_ = ring_len(@aOcrReadAgain)
