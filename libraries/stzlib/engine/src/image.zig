@@ -22,6 +22,10 @@ const stbi = @cImport({
     @cDefine("STBI_NO_STDIO", "1");
     @cInclude("stb_image.h");
 });
+const stbw = @cImport({
+    @cDefine("STBI_WRITE_NO_STDIO", "1");
+    @cInclude("stb_image_write.h");
+});
 
 const alloc = std.heap.c_allocator;
 
@@ -94,7 +98,7 @@ var grids: Table(Grid) = .{};
 var err_buf: [256]u8 = undefined;
 var err_len: usize = 0;
 
-fn fail(comptime fmt: []const u8, args: anytype) i64 {
+pub fn fail(comptime fmt: []const u8, args: anytype) i64 {
     const s = std.fmt.bufPrint(&err_buf, fmt, args) catch "image: error text too long";
     err_len = s.len;
     return 0;
@@ -104,7 +108,7 @@ pub fn lastError() []const u8 {
     return err_buf[0..err_len];
 }
 
-fn adopt(w: u32, h: u32, c: u8, px: []u8) i64 {
+pub fn adopt(w: u32, h: u32, c: u8, px: []u8) i64 {
     const id = images.put(.{ .w = w, .h = h, .c = c, .px = px });
     if (id == 0) {
         alloc.free(px);
@@ -222,6 +226,34 @@ pub fn encodePng(id: i64) ?[]u8 {
 
 pub fn savePng(id: i64, path: []const u8) i64 {
     const bytes = encodePng(id) orelse return fail("image: no such image, or it could not be encoded", .{});
+    defer alloc.free(bytes);
+    std.fs.cwd().writeFile(.{ .sub_path = path, .data = bytes }) catch
+        return fail("image: cannot write '{s}'", .{path});
+    return 1;
+}
+
+fn jpgSink(ctx: ?*anyopaque, data: ?*anyopaque, size: c_int) callconv(.c) void {
+    const list: *std.ArrayList(u8) = @ptrCast(@alignCast(ctx.?));
+    const p: [*]const u8 = @ptrCast(data.?);
+    list.appendSlice(alloc, p[0..@intCast(size)]) catch {};
+}
+
+/// JPEG bytes through stb_image_write (baseline, 4:2:0 for colour), quality
+/// 1..100; alpha is dropped (JPEG has none). Caller frees with alloc.
+pub fn encodeJpeg(id: i64, quality: i64) ?[]u8 {
+    const im = images.get(id) orelse return null;
+    var list: std.ArrayList(u8) = .{};
+    const q: c_int = @intCast(@max(1, @min(100, quality)));
+    const ok = stbw.stbi_write_jpg_to_func(jpgSink, &list, @intCast(im.w), @intCast(im.h), im.c, im.px.ptr, q);
+    if (ok == 0 or list.items.len == 0) {
+        list.deinit(alloc);
+        return null;
+    }
+    return list.toOwnedSlice(alloc) catch null;
+}
+
+pub fn saveJpeg(id: i64, path: []const u8, quality: i64) i64 {
+    const bytes = encodeJpeg(id, quality) orelse return fail("image: no such image, or it could not be encoded", .{});
     defer alloc.free(bytes);
     std.fs.cwd().writeFile(.{ .sub_path = path, .data = bytes }) catch
         return fail("image: cannot write '{s}'", .{path});
@@ -406,7 +438,7 @@ fn clampF(v: f64, lo: f64, hi: f64) f64 {
     return @max(lo, @min(hi, v));
 }
 
-fn round8(v: f64) u8 {
+pub fn round8(v: f64) u8 {
     return @intFromFloat(clampF(@floor(v + 0.5), 0, 255));
 }
 
@@ -481,7 +513,7 @@ pub fn resize(id: i64, w: u32, h: u32, mode: Resample) i64 {
 // ------------------------------------------------------------------ filters
 
 /// BORDER_REFLECT_101: ... 2 1 | 0 1 2 ... n-1 | n-2 ...
-fn reflect101(i: i64, n: i64) usize {
+pub fn reflect101(i: i64, n: i64) usize {
     if (n == 1) return 0;
     var v = i;
     while (v < 0 or v >= n) {
@@ -554,7 +586,7 @@ pub fn blur(id: i64, sigma: f64) i64 {
 
 // ------------------------------------------------------------------ threshold
 
-fn grayOf(im: *const Image, i: usize) u8 {
+pub fn grayOf(im: *const Image, i: usize) u8 {
     const s = im.px[i * im.c ..];
     return if (im.c == 1) s[0] else gray601(s[0], s[1], s[2]);
 }
@@ -612,7 +644,7 @@ pub fn threshold(id: i64, t: i64) i64 {
 
 // ------------------------------------------------------------------ grids
 
-fn adoptGrid(rows: usize, cols: usize, data: []f64) i64 {
+pub fn adoptGrid(rows: usize, cols: usize, data: []f64) i64 {
     const id = grids.put(.{ .rows = rows, .cols = cols, .data = data });
     if (id == 0) {
         alloc.free(data);

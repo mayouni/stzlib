@@ -1,0 +1,1 @@
+OpenCV 5.0.0, NumPy 2.5.4 -- written by _rig/oracle_opencv.py

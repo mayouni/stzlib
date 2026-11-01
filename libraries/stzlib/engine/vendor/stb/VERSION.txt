@@ -10,8 +10,16 @@ Vendored files (GR1 of SOFTANZA_GRAPHICS_PLAN.md):
                             ecd30b05e0dd4fea3a13c26810dd9e1992dc379049482c393d5a19e6b5090aab
   stb_image.h     v2.30  -- texture decode (PNG/JPG -> RGBA8). SHA-256:
                             594c2fe35d49488b4382dbfaec8f98366defca819d916ac95becf3e75f4200b3
+  stb_image_write.h v1.16 -- JPEG writing for the image plane (IM1 of
+                            SOFTANZA_IMAGE_INTELLIGENCE.md), added 2026-11-01
+                            from the SAME commit. SHA-256:
+                            cbd5f0ad7a9cf4468affb36354a1d2338034f2c12473cf1a8e32053cb6914a05
 
-stz_stb_impl.c compiles both implementations into stz_gpu.dll (ONE
+stz_stb_impl.c compiles stb_truetype + stb_image, and stz_stb_write_impl.c
+stb_image_write (without the UB sanitizer: its JPEG encoder shifts negative
+ints), into every needs_stb DLL
+(stz_gpu, stz_gui, stz_neural, stz_image); stb_image_write with
+STBI_WRITE_NO_STDIO (to memory only). It was written for stz_gpu.dll (ONE
 translation unit owns the STB_*_IMPLEMENTATION defines; every other file
 includes the headers declaration-only).
 
@@ -20,10 +28,10 @@ I/O stays in the engine's own hands) and without HDR/PIC/PNM (formats the
 texture path doesn't claim; PNG/JPG/BMP/GIF/TGA/PSD remain).
 
 --- SBOM record (read by engine/tools/sbom.py; keep the keys) ---
-Component:        stb (stb_truetype, stb_image)
+Component:        stb (stb_truetype, stb_image, stb_image_write)
 Version:          commit 2c980bb5
 Source:           https://github.com/nothings/stb
 Licence:          MIT OR Unlicense
 Purl:             pkg:github/nothings/stb@2c980bb59875b0d32144a71867fbdebb2f77cd20
 Archive-SHA-256:  not recorded -- vendored from commit 2c980bb59875b0d32144a71867fbdebb2f77cd20 (see above)
-Tree-Digest:      2aea7e2ad5a41bc2fa4c91c9c39263bb5ce640dd18f1c4734d06f48c84f4e856
+Tree-Digest:      9c369a8b0d71a8cc9e936daeb571ae0dcf314d6752a29fc956aeb5f8ce393f53

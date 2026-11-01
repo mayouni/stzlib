@@ -604,6 +604,8 @@ fn addZlib(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) 
 fn addStb(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
     mod.addIncludePath(b.path("vendor/stb"));
     lib.addCSourceFiles(.{ .files = &.{"vendor/stb/stz_stb_impl.c"}, .flags = &.{} });
+    // stb_image_write (IM1): its JPEG encoder shifts negative ints, so no UB sanitizer here
+    lib.addCSourceFiles(.{ .files = &.{"vendor/stb/stz_stb_write_impl.c"}, .flags = &.{"-fno-sanitize=undefined"} });
 }
 
 // The GR2 text pipeline's two vendored stages: SheenBidi (UAX#9 reorder,

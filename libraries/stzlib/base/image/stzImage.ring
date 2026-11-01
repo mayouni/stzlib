@@ -145,18 +145,32 @@ class stzImage from stzObject
 	# Writes the image to a file whose extension chooses the format: .png or .bmp.
 	#
 	#   returns    the image itself, so calls chain
-	#   warning    another extension raises an error; JPEG writing arrives with IM1
+	#   note       .jpg and .jpeg are written at quality 90; SaveAsJpeg chooses the quality
+	#   warning    another extension raises an error
 	def SaveAs(pcPath)
 		_c_ = StzLower("" + pcPath)
 		if StzRight(_c_, 4) = ".png"
 			_StzImageMust(StzEngineImageSavePng(@nId, pcPath))
 		but StzRight(_c_, 4) = ".bmp"
 			_StzImageMust(StzEngineImageSaveBmp(@nId, pcPath))
+		but StzRight(_c_, 4) = ".jpg" or StzRight(_c_, 5) = ".jpeg"
+			_StzImageMust(StzEngineImageSaveJpeg(@nId, pcPath, 90))
 		else
-			stzraise("stzImage.SaveAs: the formats written are .png and .bmp " +
-				"(JPEG arrives with IM1) -- not '" + pcPath + "'.")
+			stzraise("stzImage.SaveAs: the formats written are .png, .bmp and " +
+				".jpg -- not '" + pcPath + "'.")
 		ok
 		return This
+
+	# Writes the image as JPEG at a quality of 1 to 100; alpha is dropped.
+	#
+	#   returns    the image itself, so calls chain
+	def SaveAsJpeg(pcPath, pnQuality)
+		_StzImageMust(StzEngineImageSaveJpeg(@nId, pcPath, pnQuality))
+		return This
+
+	# Returns the bytes of the image encoded as JPEG at a quality of 1 to 100.
+	def ToJPEG(pnQuality)
+		return StzEngineImageToJpeg(@nId, pnQuality)
 
 	# Returns the bytes of the image encoded as PNG.
 	def ToPNG()
@@ -337,6 +351,195 @@ class stzImage from stzObject
 	def ToGridOf(pnChannel)
 		return new stzImageGrid(_StzImageMust(StzEngineImageToGrid(@nId, pnChannel)),
 			"y", "x")
+
+	#@ aka  -- 7. MORPHOLOGY AND SMOOTHING (IM1) --------------------------------------
+
+	# Returns a copy after a morphological operation, as OpenCV's morphologyEx.
+	#
+	#   pcOp       :erode, :dilate, :open, :close, :gradient, :tophat or :blackhat
+	#   pnSize     the kernel's side, odd, 1..255
+	#   pcShape    :rect, :cross or :ellipse
+	#   note       pixels outside the image are ignored, as OpenCV's default border does
+	def Morphed(pcOp, pnSize, pcShape)
+		return This._New(This._Morph(pcOp, pnSize, pcShape))
+
+	def Morph(pcOp, pnSize, pcShape)
+		This._Take(This._Morph(pcOp, pnSize, pcShape))
+
+		def MorphQ(pcOp, pnSize, pcShape)
+			This.Morph(pcOp, pnSize, pcShape)
+			return This
+
+	def _Morph(pcOp, pnSize, pcShape)
+		_acOps_ = [ "erode", "dilate", "open", "close", "gradient", "tophat", "blackhat" ]
+		_acShapes_ = [ "rect", "cross", "ellipse" ]
+		_nOp_ = ring_find(_acOps_, StzLower("" + pcOp))
+		_nSh_ = ring_find(_acShapes_, StzLower("" + pcShape))
+		if _nOp_ = 0 or _nSh_ = 0
+			stzraise("stzImage.Morph: the operations are :erode, :dilate, :open, :close, " +
+				":gradient, :tophat, :blackhat; the shapes :rect, :cross, :ellipse.")
+		ok
+		return StzEngineImageMorph(@nId, _nOp_ - 1, _nSh_ - 1, pnSize)
+
+	# Returns a copy eroded with a square kernel of the size: dark areas grow.
+	def Eroded(pnSize)
+		return This.Morphed(:erode, pnSize, :rect)
+
+	# Returns a copy dilated with a square kernel of the size: bright areas grow.
+	def Dilated(pnSize)
+		return This.Morphed(:dilate, pnSize, :rect)
+
+	# Returns a copy opened (erode then dilate): bright specks smaller than the kernel vanish.
+	def Opened(pnSize)
+		return This.Morphed(:open, pnSize, :rect)
+
+	# Returns a copy closed (dilate then erode): dark gaps smaller than the kernel fill.
+	def Closed(pnSize)
+		return This.Morphed(:close, pnSize, :rect)
+
+	def MedianFilter(pnSize)
+		This._Take(StzEngineImageMedian(@nId, pnSize))
+
+		def MedianFilterQ(pnSize)
+			This.MedianFilter(pnSize)
+			return This
+
+	# Returns a copy where each pixel is the median of its window: removes salt-and-pepper noise, keeps edges.
+	def MedianFiltered(pnSize)
+		return This._New(StzEngineImageMedian(@nId, pnSize))
+
+	def Equalize()
+		This._Take(StzEngineImageEqualize(@nId))
+
+		def EqualizeQ()
+			This.Equalize()
+			return This
+
+	# Returns a gray copy whose levels are spread over 0..255 by histogram equalisation.
+	def Equalized()
+		return This._New(StzEngineImageEqualize(@nId))
+
+	#@ aka  -- 8. EDGES, THRESHOLDS, MATCHING (IM1) -----------------------------------
+
+	# Returns the gray's horizontal Sobel derivative as a grid (signed numbers).
+	def SobelX()
+		return new stzImageGrid(_StzImageMust(StzEngineImageSobel(@nId, 1, 0, 0)), "y", "x")
+
+	# Returns the gray's vertical Sobel derivative as a grid.
+	def SobelY()
+		return new stzImageGrid(_StzImageMust(StzEngineImageSobel(@nId, 0, 1, 0)), "y", "x")
+
+	# Returns a derivative grid: pcAxis :x or :y, pcKernel :sobel or :scharr.
+	def DerivativeXT(pcAxis, pcKernel)
+		_nX_ = 0
+		_nY_ = 1
+		if StzLower("" + pcAxis) = "x"
+			_nX_ = 1
+			_nY_ = 0
+		ok
+		_nS_ = 0
+		if StzLower("" + pcKernel) = "scharr"
+			_nS_ = 1
+		ok
+		return new stzImageGrid(_StzImageMust(StzEngineImageSobel(@nId, _nX_, _nY_, _nS_)), "y", "x")
+
+	# Returns the edges found by Canny as a one-channel image (255 on an edge).
+	#
+	#   pnLow      below it a gradient is never an edge
+	#   pnHigh     above it a gradient always is; between, only when joined to a strong one
+	def Edges(pnLow, pnHigh)
+		return This._New(StzEngineImageCanny(@nId, pnLow, pnHigh, 0))
+
+	# Edges with the exact gradient length (sqrt) instead of OpenCV's default |dx| + |dy|.
+	def EdgesL2(pnLow, pnHigh)
+		return This._New(StzEngineImageCanny(@nId, pnLow, pnHigh, 1))
+
+	# Returns a copy thresholded against the mean of each pixel's block (uneven light).
+	#
+	#   pnBlock    the window's side, odd, >= 3
+	#   pnC        how far below the local mean a pixel may be and still count as bright
+	def AdaptiveThresholded(pnBlock, pnC)
+		return This._New(StzEngineImageAdaptiveMean(@nId, pnBlock, pnC))
+
+	# Returns a copy thresholded by Sauvola's rule, the document binarizer: k 0.2, R 128.
+	def SauvolaThresholded(pnWindow)
+		return This._New(StzEngineImageSauvola(@nId, pnWindow, 0.2, 128))
+
+	def SauvolaThresholdedXT(pnWindow, pnK, pnR)
+		return This._New(StzEngineImageSauvola(@nId, pnWindow, pnK, pnR))
+
+	# Returns the gray's integral image: a grid of Height()+1 rows by Width()+1 columns of running sums.
+	def IntegralGrid()
+		return new stzImageGrid(_StzImageMust(StzEngineImageIntegral(@nId)), "y", "x")
+
+	# Returns the normalised correlation of a template at every position, a grid in -1..1.
+	def MatchTemplate(oTemplate)
+		return new stzImageGrid(_StzImageMust(StzEngineImageMatchTemplate(@nId, oTemplate.Handle())),
+			"top", "left")
+
+	# Returns where a template matches best: [ left, top, score ], 1-based.
+	def FindTemplate(oTemplate)
+		_oG_ = This.MatchTemplate(oTemplate)
+		_a_ = _oG_.Peak()
+		_oG_.Release()
+		return [ _a_[2], _a_[1], _a_[3] ]
+
+	# Returns the connected regions of non-black pixels, each as a hash list.
+	#
+	#   returns    [ :left, :top, :width, :height, :area, :cx, :cy ] per region, in raster order of
+	#              each region's first pixel, coordinates 1-based, 8-connected
+	def Components()
+		return This.ComponentsXT(8)
+
+	def ComponentsXT(pnConnectivity)
+		_n8_ = 0
+		if pnConnectivity = 8
+			_n8_ = 1
+		ok
+		_a_ = StzEngineImageComponents(@nId, _n8_)
+		if len(_a_) != 2 or _a_[1] = 0
+			stzraise("stzImage.Components: " + StzEngineImageLastError())
+		ok
+		StzEngineImageGridFree(_a_[1])
+		_aOut_ = []
+		_n_ = StzEngineImageGridRows(_a_[2])
+		for _i_ = 1 to _n_
+			_aOut_ + [ :left = StzEngineImageGridAt(_a_[2], _i_, 1),
+				:top = StzEngineImageGridAt(_a_[2], _i_, 2),
+				:width = StzEngineImageGridAt(_a_[2], _i_, 3),
+				:height = StzEngineImageGridAt(_a_[2], _i_, 4),
+				:area = StzEngineImageGridAt(_a_[2], _i_, 5),
+				:cx = StzEngineImageGridAt(_a_[2], _i_, 6),
+				:cy = StzEngineImageGridAt(_a_[2], _i_, 7) ]
+		next
+		StzEngineImageGridFree(_a_[2])
+		return _aOut_
+
+	# Returns the label of every pixel (0 for black, 1.. per region) as a grid.
+	def ComponentLabels()
+		_a_ = StzEngineImageComponents(@nId, 1)
+		StzEngineImageGridFree(_a_[2])
+		return new stzImageGrid(_StzImageMust(_a_[1]), "y", "x")
+
+	# Returns the gray's 2D Fourier magnitude, zero frequency at the centre, log(1 + |F|).
+	def Spectrum()
+		return This.SpectrumXT(1, 1)
+
+	def SpectrumXT(bShift, bLog)
+		return new stzImageGrid(_StzImageMust(StzEngineImageFft2(@nId, bShift, bLog)),
+			"frequency y", "frequency x")
+
+	# Returns how the image differs from another of the same size and channels.
+	#
+	#   returns    [ :pixels, :max, :mean, :mse ] -- pixels that differ, the largest and the mean
+	#              channel difference, the mean squared difference
+	#   warning    images of different shapes raise an error
+	def DifferenceWith(oOther)
+		_a_ = StzEngineImageCompare(@nId, oOther.Handle())
+		if len(_a_) != 4
+			stzraise("stzImage.DifferenceWith: the two images differ in size or channels.")
+		ok
+		return [ :pixels = _a_[1], :max = _a_[2], :mean = _a_[3], :mse = _a_[4] ]
 
 	#@ aka  -- internals --------------------------------------------------------------
 

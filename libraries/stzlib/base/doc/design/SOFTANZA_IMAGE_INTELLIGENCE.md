@@ -96,7 +96,7 @@ a declared risk and a grant, never a default.
 
 Selection rules: **Apache-2.0 / MIT / BSD only**; small enough for a laptop CPU; every model is a
 FACULTY implementation that earns its place by **strictly beating a measured floor on an independent
-golden set** (the model-flow law); none is downloaded before the author's yes (name, source, size).
+golden set** (the model-flow law); the author said yes on 2026-11-01 and the kit is DOWNLOADED (19 files, sha256 in `models/MODELS.md`), held outside the tree until IM3 converts it.
 
 | faculty | model | licence | size (approx.) | floor it must beat |
 |---|---|---|---|---|
@@ -147,8 +147,9 @@ oDepth = oImg.Depth()                             # a stzImageGrid: one number p
 
 | rung | content | done means |
 |---|---|---|
-| **IM0** | `stz_image` DLL: one image type (1/3/4 channels, u8), decode/encode (PNG, BMP), handles; resize (nearest, bilinear, area), crop, flip, rotate 90/180/270, channel conversion, invert, Gaussian blur, threshold (fixed, Otsu), histogram → grid; `stzImage` + `stzImageGrid` faces | narrated guard on hand-checkable synthetic images with negative siblings, under rnxc; PNG artefacts beside the guard |
-| IM1 | analysis: Sauvola, morphology (erode/dilate/open/close, median), connected components + stats, Sobel/Scharr, Canny, integral images, template matching, 2D FFT (twiddle table MEASURED first); JPEG encode (stb_image_write); the OCR pipeline moved onto the shared core | every op checked against the OpenCV oracle to a stated tolerance |
+| **IM0** ✓ | shipped 2026-11-01 (e10c34f24) | image_core_narrated 46/46 under rnxc |
+| **IM1** ✓ | analysis (engine/src/image_ops.zig): morphology (7 operations x rect/cross/ellipse), median, histogram equalisation, Sobel/Scharr, Canny (L1 and L2), adaptive mean and Sauvola thresholds, integral images, template matching (TM_CCOEFF_NORMED), connected components with statistics, 2D FFT (fft.zig, exact for every size), image comparison; JPEG out (stb_image_write v1.16, own translation unit without the UB sanitizer) | image_ops_narrated 28/28 under rnxc against `_oracle/` (OpenCV 5.0.0): every image result PIXEL-EXACT, Sobel/Scharr/integral value-exact, correlation within 1e-4, FFT within 1e-6 of the peak, JPEG q90 36.4 dB |
+| IM1b | the OCR pipeline moved onto the shared core (its private gray, resize, histogram, components and unsharp replaced by image.zig's), gated by the OCR guards unchanged | ocr guards keep their counts |
 | IM2 | geometry: affine and perspective warp, homography from 4 points (document flattening), contours + polygon approximation, rotated minimum-area rectangle (the box OCR said it lacks) | a photographed page flattened and read by OCR |
 | IM3 | the vision graph runtime (generalised `ocr_graph`), model slots, parity harness; first models: MobileNetV3, YuNet, YOLOX | parity with onnxruntime; the governed model door with its seclog record |
 | IM4 | faculties + goldens: a golden of Softanza-rendered scenes (exact by construction) and an INDEPENDENT photo set written by a separate author | each model's measurement vs its floor in the calibration ledger |

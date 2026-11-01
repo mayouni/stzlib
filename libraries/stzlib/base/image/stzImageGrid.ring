@@ -97,6 +97,10 @@ class stzImageGrid from stzObject
 		next
 		return _nBest_
 
+	# Returns [ row, column, value ] of the largest value, 1-based; the first on a tie.
+	def Peak()
+		return StzEngineImageGridArgMax(@nId)
+
 	# Returns a one-channel image of the grid, each value rounded and clamped to 0..255.
 	def ToImage()
 		return new stzImage(_StzImageMust(StzEngineImageFromGrid(@nId)))

@@ -64,7 +64,7 @@ chk("bytes that are no image are refused, saying why",
 	bRaised = 1 and StzFindFirst("stb_image", cWhy) > 0)
 bRaised = 0
 try
-	oA.SaveAs(cOut + "/x.jpg")
+	oA.SaveAs(cOut + "/x.tiff")
 catch
 	bRaised = 1
 done

@@ -32,3 +32,26 @@
 ## Document tools (not model files)
 
 - **Docling 2.141.0** is installed in an isolated virtual environment outside the tree (`D:\GitHub\_wt_dl\docling-venv`), for the baselines of `SOFTANZA_DOCUMENT_INTELLIGENCE_MEMO.md`. It is a measuring tool, not a dependency of the library. Its models are kept in `D:\GitHub\_wt_dl\docling-models` (layout-heron, TableFormer accurate, RapidOCR ONNX), digests checked, and passed with `--artifacts`; the baseline is in section 6 of the memo.
+
+## The vision kit (downloaded 2026-11-01, author's yes) -- sources, held OUTSIDE the tree
+
+For the image plane (`base/doc/design/SOFTANZA_IMAGE_INTELLIGENCE.md`, section 2). ONNX files are a CONVERSION SOURCE: IM3 converts them to GGUF+PROGRAM with `engine/tools/onnx_to_gguf.py` and only then does a file land in `models/` and in `SHA256SUMS`. Until then they live in `D:\GitHub\_wti_models_src\<folder>\`, with `MANIFEST.tsv` beside them. Not one has beaten a floor yet; none is used by any code.
+
+| folder / file | size (bytes) | sha256 | licence | source |
+|---|---|---|---|---|
+| `mobilenetv3/model.onnx` | 21,949,218 | `a88a7545cb3fbafffeb6f09140d56c88f73cebf6a892cd80cf8c5ce4f2a0293d` | Apache-2.0 (timm) | `huggingface.co/onnx-community/mobilenetv3_large_100.ra_in1k/resolve/main/onnx/model.onnx` |
+| `yunet/face_detection_yunet_2023mar.onnx` | 232,589 | `8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4` | MIT (OpenCV model zoo) | `huggingface.co/opencv/face_detection_yunet/resolve/main/face_detection_yunet_2023mar.onnx` |
+| `yolox/yolox_nano.onnx` | 3,659,407 | `c789161ed43c8269fcd4e67c67eeeb4e80c622da2eb296a20bc6007bd18a0b7d` | Apache-2.0 | `github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_nano.onnx` |
+| `yolox/yolox_tiny.onnx` | 20,219,662 | `427cc366d34e27ff7a03e2899b5e3671425c262ea2291f88bb942bc1cc70b0f7` | Apache-2.0 | `github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_tiny.onnx` |
+| `u2netp/u2netp.onnx` | 4,574,861 | `309c8469258dda742793dce0ebea8e6dd393174f89934733ecc8b14c76f4ddd8` | Apache-2.0 (U-2-Net; file from rembg, MIT) | `github.com/danielgatis/rembg/releases/download/v0.0.0/u2netp.onnx` |
+| `mobilesam/mobile_sam_image_encoder.onnx` | 28,157,093 | `580f5fb648ea1062c0aabc26217aed56921985f03f0cbbd852bba81d760cc749` | Apache-2.0 upstream; MIT on the ONNX repository | `huggingface.co/Acly/MobileSAM/resolve/main/mobile_sam_image_encoder.onnx` |
+| `mobilesam/sam_mask_decoder_single.onnx` | 16,501,323 | `93915fc7c993ab9d59ab8c9ccd3bce37f7509c81ab4150a74abd4d2abbd8570d` | Apache-2.0 upstream; MIT on the ONNX repository | `huggingface.co/Acly/MobileSAM/resolve/main/sam_mask_decoder_single.onnx` |
+| `depth_anything_v2_small/model.onnx` | 99,060,839 | `afb6a5c28f3b6bf1618c6e43f02073ef9dfdc70e937502d51603e57b0a1df10c` | Apache-2.0 (Small only) | `huggingface.co/onnx-community/depth-anything-v2-small/resolve/main/onnx/model.onnx` |
+| `siglip2_base/vision_model.onnx` | 371,807,752 | `c0573e3f4140c3a7c4e9cc5912bd6b26a033b46a6a8e8af26cbea262b163bcad` | Apache-2.0 (google/siglip2) | `huggingface.co/onnx-community/siglip2-base-patch16-224-ONNX/resolve/main/onnx/vision_model.onnx` |
+| `siglip2_base/text_model_fp16.onnx` | 564,862,230 | `711da56ada0a4aa11c7dd3320df741081a3cae4f0ae1b5e5c6d5b294738d0eb0` | Apache-2.0 (google/siglip2) | `huggingface.co/onnx-community/siglip2-base-patch16-224-ONNX/resolve/main/onnx/text_model_fp16.onnx` |
+| `smolvlm_256m/SmolVLM-256M-Instruct-Q8_0.gguf` | 175,054,528 | `2a31195d3769c0b0fd0a4906201666108834848db768af11de1d2cef7cd35e65` | Apache-2.0 | `huggingface.co/ggml-org/SmolVLM-256M-Instruct-GGUF/resolve/main/SmolVLM-256M-Instruct-Q8_0.gguf` |
+| `smolvlm_256m/mmproj-SmolVLM-256M-Instruct-Q8_0.gguf` | 103,769,856 | `7e943f7c53f0382a6fc41b6ee0c2def63ba4fded9ab8ed039cc9e2ab905e0edd` | Apache-2.0 | `huggingface.co/ggml-org/SmolVLM-256M-Instruct-GGUF/resolve/main/mmproj-SmolVLM-256M-Instruct-Q8_0.gguf` |
+| `granite_docling_258m/granite-docling-258M-Q8_0.gguf` | 177,918,144 | `b687245c212b59da938e411e2d4485596cbaeed1ae52706582ac38ed6a970f76` | Apache-2.0 | `huggingface.co/ggml-org/granite-docling-258M-GGUF/resolve/main/granite-docling-258M-Q8_0.gguf` |
+| `granite_docling_258m/mmproj-granite-docling-258M-Q8_0.gguf` | 103,769,792 | `3d440e65a91e640dc0a53897ad7897700c39324802aaff2072232b6f21d0cadb` | Apache-2.0 | `huggingface.co/ggml-org/granite-docling-258M-GGUF/resolve/main/mmproj-granite-docling-258M-Q8_0.gguf` |
+
+The configuration files fetched beside them (labels, preprocessing, the SigLIP2 tokenizer) are listed with their digests in `MANIFEST.tsv`.

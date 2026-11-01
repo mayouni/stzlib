@@ -7,6 +7,7 @@
 
 const std = @import("std");
 const img = @import("image.zig");
+const ops = @import("image_ops.zig");
 const R = @import("ring_api.zig");
 
 const gn = R.ring_vm_api_getnumber;
@@ -227,6 +228,94 @@ fn ring_GridLive(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(img.liveGrids()));
 }
 
+// ---------------------------------------------------------------- IM1
+
+fn ring_SaveJpeg(p: *anyopaque) callconv(.c) void {
+    retF(p, img.saveJpeg(id(p, 1), getStr(p, 2), id(p, 3)));
+}
+
+fn ring_ToJpeg(p: *anyopaque) callconv(.c) void {
+    const b = img.encodeJpeg(id(p, 1), id(p, 2)) orelse return retBytes(p, "");
+    defer alloc.free(b);
+    retBytes(p, b);
+}
+
+// (image, op 0..6, shape 0 rect 1 cross 2 ellipse, k)
+fn ring_Morph(p: *anyopaque) callconv(.c) void {
+    const op = u(p, 2);
+    const sh = u(p, 3);
+    if (op > 6 or sh > 2) return retF(p, img.fail("image: morphology op 0..6 and shape 0..2", .{}));
+    retF(p, ops.morph(id(p, 1), @enumFromInt(op), @enumFromInt(sh), u(p, 4)));
+}
+
+fn ring_Median(p: *anyopaque) callconv(.c) void {
+    retF(p, ops.median(id(p, 1), u(p, 2)));
+}
+
+fn ring_Equalize(p: *anyopaque) callconv(.c) void {
+    retF(p, ops.equalize(id(p, 1)));
+}
+
+// (image, dx, dy, scharr) -> grid
+fn ring_Sobel(p: *anyopaque) callconv(.c) void {
+    retF(p, ops.sobel(id(p, 1), u(p, 2), u(p, 3), gn(p, 4) != 0));
+}
+
+fn ring_Canny(p: *anyopaque) callconv(.c) void {
+    retF(p, ops.canny(id(p, 1), gn(p, 2), gn(p, 3), gn(p, 4) != 0));
+}
+
+fn ring_Integral(p: *anyopaque) callconv(.c) void {
+    retF(p, ops.integral(id(p, 1)));
+}
+
+fn ring_AdaptiveMean(p: *anyopaque) callconv(.c) void {
+    retF(p, ops.adaptiveMean(id(p, 1), u(p, 2), gn(p, 3)));
+}
+
+fn ring_Sauvola(p: *anyopaque) callconv(.c) void {
+    retF(p, ops.sauvola(id(p, 1), u(p, 2), gn(p, 3), gn(p, 4)));
+}
+
+fn ring_MatchTemplate(p: *anyopaque) callconv(.c) void {
+    retF(p, ops.matchTemplate(id(p, 1), id(p, 2)));
+}
+
+// (image, conn8) -> [ labelsGrid, statsGrid ]
+fn ring_Components(p: *anyopaque) callconv(.c) void {
+    var st: i64 = 0;
+    const lg = ops.components(id(p, 1), gn(p, 2) != 0, &st);
+    const list = R.ring_vm_api_newlist(p) orelse return rn(p, 0);
+    R.ring_list_adddouble(list, @floatFromInt(lg));
+    R.ring_list_adddouble(list, @floatFromInt(st));
+    R.ring_vm_api_retlist(p, list);
+}
+
+// (image, shift, log) -> grid
+fn ring_Fft2(p: *anyopaque) callconv(.c) void {
+    retF(p, ops.fft2(id(p, 1), gn(p, 2) != 0, gn(p, 3) != 0));
+}
+
+// grid -> [ row, column, value ]
+fn ring_GridArgMax(p: *anyopaque) callconv(.c) void {
+    var o: [3]f64 = undefined;
+    const list = R.ring_vm_api_newlist(p) orelse return rn(p, 0);
+    if (ops.gridArgMax(id(p, 1), &o)) {
+        for (o) |v| R.ring_list_adddouble(list, v);
+    }
+    R.ring_vm_api_retlist(p, list);
+}
+
+// (a, b) -> [ differing pixels, max abs, mean abs, mse ], [] when not comparable
+fn ring_Compare(p: *anyopaque) callconv(.c) void {
+    var o: [4]f64 = undefined;
+    const list = R.ring_vm_api_newlist(p) orelse return rn(p, 0);
+    if (ops.compare(id(p, 1), id(p, 2), &o)) {
+        for (o) |v| R.ring_list_adddouble(list, v);
+    }
+    R.ring_vm_api_retlist(p, list);
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzengineimagelasterror", .func = &ring_LastError },
     .{ .name = "stzengineimagenew", .func = &ring_New },
@@ -264,6 +353,21 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineimagegridsum", .func = &ring_GridSum },
     .{ .name = "stzengineimagegridfree", .func = &ring_GridFree },
     .{ .name = "stzengineimagegridlive", .func = &ring_GridLive },
+    .{ .name = "stzengineimagesavejpeg", .func = &ring_SaveJpeg },
+    .{ .name = "stzengineimagetojpeg", .func = &ring_ToJpeg },
+    .{ .name = "stzengineimagemorph", .func = &ring_Morph },
+    .{ .name = "stzengineimagemedian", .func = &ring_Median },
+    .{ .name = "stzengineimageequalize", .func = &ring_Equalize },
+    .{ .name = "stzengineimagesobel", .func = &ring_Sobel },
+    .{ .name = "stzengineimagecanny", .func = &ring_Canny },
+    .{ .name = "stzengineimageintegral", .func = &ring_Integral },
+    .{ .name = "stzengineimageadaptivemean", .func = &ring_AdaptiveMean },
+    .{ .name = "stzengineimagesauvola", .func = &ring_Sauvola },
+    .{ .name = "stzengineimagematchtemplate", .func = &ring_MatchTemplate },
+    .{ .name = "stzengineimagecomponents", .func = &ring_Components },
+    .{ .name = "stzengineimagefft2", .func = &ring_Fft2 },
+    .{ .name = "stzengineimagegridargmax", .func = &ring_GridArgMax },
+    .{ .name = "stzengineimagecompare", .func = &ring_Compare },
 };
 
 pub fn registerAll(pState: *anyopaque) void {
