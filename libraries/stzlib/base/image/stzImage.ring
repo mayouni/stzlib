@@ -881,10 +881,11 @@ class stzImage from stzObject
 
 	# Returns the faces found: [ :box = [ x, y, w, h ], :score, :landmarks ] each, 1-based pixels.
 	#
-	#   note       YuNet; the five landmarks are the two eyes, the nose tip and the two mouth corners.
+	#   note       YuNet at a score of 0.5 or more (chosen on a dev set apart from the golden one, see
+	#              stzVision.ring); the five landmarks are the two eyes, the nose tip and the two mouth corners.
 	#              It FINDS faces; it never says whose they are (identification is not in the kit)
 	def Faces()
-		return This.FacesXT(0.9)
+		return This.FacesXT($nStzVisionFaceThreshold)
 
 	def FacesXT(pnMinScore)
 		_cP_ = _StzVisionModelOrRaise($cStzVisionFaceModel, "Faces")

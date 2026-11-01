@@ -21,6 +21,7 @@
 
 load "../../stzBase.ring"
 load "_golden/coco_v1.ring"
+load "_golden/coco_dev_faces.ring"
 
 $nPass = 0
 $nFail = 0
@@ -63,6 +64,9 @@ nFP = ScoreOf("faces", "platform")
 nFY = ScoreOf("faces", "yunet")
 ? "    platform floor " + nFP + "   yunet " + nFY + "   (share of images: 80% of COCO's visible faces found, at most one false face)"
 chk("the floor and the model are both measured on the 30 images", len(aRF) = 2)
+# YuNet's threshold (0.5, not OpenCV's 0.9) was chosen on a DEV set; the golden must never have seen it
+chk("YuNet's threshold " + $nStzVisionFaceThreshold + " was chosen on a dev set that shares no image with the golden",
+	NoOverlap(StzVisionDevFacesV1(), StzVisionGoldenFacesV1()))
 
 sec("scene 2")
 
@@ -152,6 +156,18 @@ sec("scene 7")
 ? "=========================================="
 
 pf()
+
+func NoOverlap(aA, aB)
+	n = len(aA)
+	m = len(aB)
+	for i = 1 to n
+		for j = 1 to m
+			if aA[i][1] = aB[j][1]
+				return 0
+			ok
+		next
+	next
+	return 1
 
 func WithPaths(aItems)
 	aOut = []

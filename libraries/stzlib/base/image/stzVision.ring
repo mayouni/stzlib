@@ -26,6 +26,11 @@ $cStzVisionClassifier = "mobilenetv3_large.gguf"
 $cStzVisionFaceModel = "yunet_2023mar.gguf"
 $cStzVisionObjectModel = "yolox_tiny.gguf"
 
+# YuNet's score threshold. OpenCV's default is 0.9; 0.5 was CHOSEN ON A DEV SET kept apart from the
+# golden one (_golden/coco_dev_faces.ring, 30 COCO images after faces_v1): 27 of 30 images agree at
+# 0.5, 20 of 30 at 0.9, against the platform's 25. 0.5 was the lowest value swept (2026-11-02).
+$nStzVisionFaceThreshold = 0.5
+
 # The folder the vision models are read from: <models>/vision.
 func StzVisionModelsDir()
 	return StzModelsDir() + "/vision"
@@ -236,7 +241,7 @@ func _StzVisionLabelPrior(pImage, paParams)
 
 func _StzVisionFacesYunet(pImage, paParams)
 	_o_ = StzImageQ("" + pImage)
-	_a_ = _o_.Faces()
+	_a_ = _o_.FacesXT($nStzVisionFaceThreshold)
 	_o_.Release()
 	return _a_
 
