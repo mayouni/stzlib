@@ -13,7 +13,7 @@
 #   Scene 5  blur: a constant stays constant; an impulse becomes the kernel
 #   Scene 6  thresholds: Otsu, and "above" means above
 #   Scene 7  grids: an analysis is numbers, and pixels come back exactly
-#   Scene 8  one handle: a copy sees a change; nothing leaks
+#   Scene 8  one handle: a copy sees a change made by an Apply form
 #   Scene 9  the artefacts a person looks at (written to _image-out/)
 #
 # PER PX: one process, per-section wall time. THE HELPERS LIVE AFTER pf().
@@ -106,8 +106,13 @@ oRot = oS.Rotated(90)
 chk("a quarter turn swaps the size", Same(oRot.Size(), [ 2, 3 ]))
 chk("...4 goes to the top-left, 1 beside it, 6 at the bottom-left",
 	Same(oRot.Pixel(1, 1), [ 4 ]) and Same(oRot.Pixel(2, 1), [ 1 ]) and Same(oRot.Pixel(1, 3), [ 6 ]))
-chk("four quarter turns are the identity", oS.Rotated(90).Rotated(90).Rotated(90).Rotated(90).Pixels() = oS.Pixels())
-chk("half a turn twice is the identity", oS.Rotated(180).Rotated(-180).Pixels() = oS.Pixels())
+# Rotated() returns DATA (a new image); the turns that follow CHANGE that image
+oTurn = oS.Rotated(90)
+oTurn { ApplyRotation(90) ApplyRotation(90) ApplyRotation(90) }
+chk("four quarter turns are the identity", oTurn.Pixels() = oS.Pixels())
+oTurn.ApplyRotationQ(180).ApplyRotation(-180)
+chk("half a turn and back is the identity", oTurn.Pixels() = oS.Pixels())
+oTurn.Release()
 chk("a horizontal flip reverses each row",
 	oS.Flipped(:horizontal).Pixels() = char(3) + char(2) + char(1) + char(6) + char(5) + char(4))
 chk("a vertical flip swaps the rows",
@@ -216,6 +221,9 @@ oGr = oRamp.ToGrid()
 chk("an image's grid is Height rows of Width columns", oGr.Rows() = 4 and oGr.Columns() = 4)
 chk("...row 2, column 3 is the pixel (3, 2): 10 x (4 + 2) = 60", oGr.At(2, 3) = 60)
 chk("...and the grid turns back into the same pixels", oGr.ToImage().Pixels() = oRamp.Pixels())
+oSc = Gradient().SobelX().ToImageScaled()
+chk("a signed grid made visible spans 0..255 (ToImageScaled)",
+	oSc.Histogram().At(1, 1) > 0 and oSc.Histogram().At(1, 256) > 0)
 oH.Release() oGr.Release()
 
 sec("scene 7")
@@ -229,9 +237,9 @@ sec("scene 7")
 
 o1 = StzImageFromPixels(1, 1, 1, char(10))
 o2 = o1
-o1.Invert()
+o1.ApplyInversion()
 chk("a copy sees a change made through the original", Same(o2.Pixel(1, 1), [ 245 ]))
-o1.BlurQ(1).ThresholdQ(100)
+o1.ApplyBlurQ(1).ApplyThresholdQ(100)
 chk("...and the Q forms chain on the same pixels", Same(o2.Pixel(1, 1), [ 255 ]))
 o1.Release()
 chk("released once, every copy is empty", o2.IsEmpty() = 1)
@@ -273,10 +281,10 @@ for i = 1 to nK
 	aKept[i].Release()
 next
 chk("releasing " + nK + " images frees exactly " + nK + " handles", StzImagesAlive() = nBefore - nK)
-# A MEASURED LIMIT, not a pass: Ring has no destructor, so the middle of a
-# chain of copy forms (oS.Rotated(90).Rotated(90)...) is never released.
-# The mutating and Q forms make none; that is why they exist.
-? "    temporaries left by copy-form chains in this guard: " + (StzImagesAlive() - nAlive0)
+# ...ed() returns DATA: a new image the caller owns. This guard reads some
+# inline (oG.Coloured().Pixel(1, 1)) and leaves them to the end of the run.
+# A pipeline never does: the Apply forms change one image and make none.
+? "    data images read inline and not released by this guard: " + (StzImagesAlive() - nAlive0)
 
 ? ""
 ? "=========================================="

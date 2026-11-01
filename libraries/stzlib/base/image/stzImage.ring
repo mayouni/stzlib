@@ -9,10 +9,15 @@
 	(the engine moves the result into it), so every copy sees the change.
 	That is the engine-wrapper copy law, applied.
 
-	THE THREE FORMS, as everywhere in Softanza:
-		oImg.Blur(2)          changes the image
-		oImg.Blurred(2)       returns a new stzImage, the original untouched
-		oImg.BlurQ(2)         changes it and returns it, to chain
+	THE FORMS, as everywhere in Softanza:
+		oImg.ApplyBlur(2)     CHANGES the image
+		oImg.ApplyBlurQ(2)    changes it and returns it, to chain
+		oImg.Blurred(2)       returns DATA -- a new stzImage -- and never alters oImg
+
+	A pipeline is written with the Apply forms, never as a chain of ...ed()
+	calls (each of those would be a new image, left unreleased):
+		oImg { ApplyGrayScale() ApplyThreshold(:otsu) SaveAs("ink.png") }
+		oImg.ApplyGrayScaleQ().ApplyThresholdQ(:otsu).SaveAs("ink.png")
 
 	WHAT AN ANALYSIS RETURNS IS A GRID (stzImageGrid), never a picture:
 	a histogram is 1 x 256 counts; ToGrid() is the pixels as numbers, and
@@ -56,17 +61,17 @@ func _StzImageMust(pnId)
 # Holds an image -- pixels in the engine, 1, 3 or 4 channels of 0..255 -- and its classical operations.
 #
 # Build one from a file path, from a file's bytes (StzImageFromBytes), from raw pixels
-# (StzImageFromPixels) or blank (StzImageNew). Each operation has three forms: Grayscale changes the
-# image, Grayscaled returns a new one, GrayscaleQ changes it and returns it. Every copy of the object
-# reaches the same pixels, and a change made through one is seen by all. An analysis returns a
-# stzImageGrid of numbers, never a picture. Release frees the pixels.
+# (StzImageFromPixels) or blank (StzImageNew). ApplyGrayScale changes the image, ApplyGrayScaleQ
+# changes it and returns it to chain, and Grayscaled returns data (a new image) without altering it.
+# Every copy of the object reaches the same pixels, and a change made through one is seen by all. An
+# analysis returns a stzImageGrid of numbers, never a picture. Release frees the pixels.
 #
 #   receiver   o1 = StzImageFromPixels(2, 1, 3, char(255) + char(0) + char(0) + char(0) + char(0) + char(255))
 #   example    ? @@( o1.Size() )
 #              #--> [ 2, 1 ]
 #              ? @@( o1.Pixel(1, 1) )
 #              #--> [ 255, 0, 0 ]
-#              o1.Grayscale()
+#              o1.ApplyGrayScale()
 #              ? @@( o1.Pixel(1, 1) )
 #              #--> [ 76 ]
 #              o1.Release()
@@ -178,11 +183,11 @@ class stzImage from stzObject
 
 	#@ aka  -- 3. CHANNELS ----------------------------------------------------------
 
-	def Grayscale()
+	def ApplyGrayScale()
 		This._Take(StzEngineImageConvert(@nId, 1))
 
-		def GrayscaleQ()
-			This.Grayscale()
+		def ApplyGrayScaleQ()
+			This.ApplyGrayScale()
 			return This
 
 	# Returns a gray copy (BT.601).
@@ -197,11 +202,11 @@ class stzImage from stzObject
 	def WithAlpha()
 		return This._New(StzEngineImageConvert(@nId, 4))
 
-	def Invert()
+	def ApplyInversion()
 		This._Take(StzEngineImageInvert(@nId))
 
-		def InvertQ()
-			This.Invert()
+		def ApplyInversionQ()
+			This.ApplyInversion()
 			return This
 
 	# Returns a copy with the colour channels inverted; alpha is kept.
@@ -210,11 +215,11 @@ class stzImage from stzObject
 
 	#@ aka  -- 4. GEOMETRY ----------------------------------------------------------
 
-	def Crop(pnX, pnY, pnWidth, pnHeight)
+	def ApplyCrop(pnX, pnY, pnWidth, pnHeight)
 		This._Take(StzEngineImageCrop(@nId, pnX, pnY, pnWidth, pnHeight))
 
-		def CropQ(pnX, pnY, pnWidth, pnHeight)
-			This.Crop(pnX, pnY, pnWidth, pnHeight)
+		def ApplyCropQ(pnX, pnY, pnWidth, pnHeight)
+			This.ApplyCrop(pnX, pnY, pnWidth, pnHeight)
 			return This
 
 	# Returns the rectangle whose top-left pixel is (pnX, pnY), 1-based.
@@ -223,11 +228,11 @@ class stzImage from stzObject
 	def Cropped(pnX, pnY, pnWidth, pnHeight)
 		return This._New(StzEngineImageCrop(@nId, pnX, pnY, pnWidth, pnHeight))
 
-	def Flip(pcWay)
+	def ApplyFlip(pcWay)
 		This._Take(StzEngineImageFlip(@nId, This._Horizontal(pcWay)))
 
-		def FlipQ(pcWay)
-			This.Flip(pcWay)
+		def ApplyFlipQ(pcWay)
+			This.ApplyFlip(pcWay)
 			return This
 
 	# Returns a mirrored copy: :horizontal swaps left and right, :vertical top and bottom.
@@ -243,11 +248,11 @@ class stzImage from stzObject
 		ok
 		stzraise("stzImage.Flip: the ways are :horizontal and :vertical, not '" + pcWay + "'.")
 
-	def Rotate(pnDegrees)
+	def ApplyRotation(pnDegrees)
 		This._Take(StzEngineImageRotate(@nId, This._Quarters(pnDegrees)))
 
-		def RotateQ(pnDegrees)
-			This.Rotate(pnDegrees)
+		def ApplyRotationQ(pnDegrees)
+			This.ApplyRotation(pnDegrees)
 			return This
 
 	# Returns a copy turned clockwise by a multiple of 90 degrees.
@@ -264,11 +269,11 @@ class stzImage from stzObject
 		ok
 		return pnDegrees / 90
 
-	def Resize(pnWidth, pnHeight)
+	def ApplyResize(pnWidth, pnHeight)
 		This._Take(StzEngineImageResize(@nId, pnWidth, pnHeight, 1))
 
-		def ResizeQ(pnWidth, pnHeight)
-			This.Resize(pnWidth, pnHeight)
+		def ApplyResizeQ(pnWidth, pnHeight)
+			This.ApplyResize(pnWidth, pnHeight)
 			return This
 
 	# Returns a copy resampled bilinearly to the size.
@@ -293,11 +298,11 @@ class stzImage from stzObject
 
 	#@ aka  -- 5. FILTERS AND THRESHOLDS --------------------------------------------
 
-	def Blur(pnSigma)
+	def ApplyBlur(pnSigma)
 		This._Take(StzEngineImageBlur(@nId, pnSigma))
 
-		def BlurQ(pnSigma)
-			This.Blur(pnSigma)
+		def ApplyBlurQ(pnSigma)
+			This.ApplyBlur(pnSigma)
 			return This
 
 	# Returns a Gaussian-blurred copy (OpenCV's 8-bit kernel, borders reflected).
@@ -310,11 +315,11 @@ class stzImage from stzObject
 	def OtsuThreshold()
 		return StzEngineImageOtsu(@nId)
 
-	def Threshold(pThreshold)
+	def ApplyThreshold(pThreshold)
 		This._Take(StzEngineImageThreshold(@nId, This._Level(pThreshold)))
 
-		def ThresholdQ(pThreshold)
-			This.Threshold(pThreshold)
+		def ApplyThresholdQ(pThreshold)
+			This.ApplyThreshold(pThreshold)
 			return This
 
 	# Returns a one-channel copy: 255 where the gray level is ABOVE the threshold, 0 elsewhere.
@@ -363,11 +368,11 @@ class stzImage from stzObject
 	def Morphed(pcOp, pnSize, pcShape)
 		return This._New(This._Morph(pcOp, pnSize, pcShape))
 
-	def Morph(pcOp, pnSize, pcShape)
+	def ApplyMorphology(pcOp, pnSize, pcShape)
 		This._Take(This._Morph(pcOp, pnSize, pcShape))
 
-		def MorphQ(pcOp, pnSize, pcShape)
-			This.Morph(pcOp, pnSize, pcShape)
+		def ApplyMorphologyQ(pcOp, pnSize, pcShape)
+			This.ApplyMorphology(pcOp, pnSize, pcShape)
 			return This
 
 	def _Morph(pcOp, pnSize, pcShape)
@@ -397,22 +402,22 @@ class stzImage from stzObject
 	def Closed(pnSize)
 		return This.Morphed(:close, pnSize, :rect)
 
-	def MedianFilter(pnSize)
+	def ApplyMedianFilter(pnSize)
 		This._Take(StzEngineImageMedian(@nId, pnSize))
 
-		def MedianFilterQ(pnSize)
-			This.MedianFilter(pnSize)
+		def ApplyMedianFilterQ(pnSize)
+			This.ApplyMedianFilter(pnSize)
 			return This
 
 	# Returns a copy where each pixel is the median of its window: removes salt-and-pepper noise, keeps edges.
 	def MedianFiltered(pnSize)
 		return This._New(StzEngineImageMedian(@nId, pnSize))
 
-	def Equalize()
+	def ApplyEqualization()
 		This._Take(StzEngineImageEqualize(@nId))
 
-		def EqualizeQ()
-			This.Equalize()
+		def ApplyEqualizationQ()
+			This.ApplyEqualization()
 			return This
 
 	# Returns a gray copy whose levels are spread over 0..255 by histogram equalisation.
@@ -467,6 +472,27 @@ class stzImage from stzObject
 
 	def SauvolaThresholdedXT(pnWindow, pnK, pnR)
 		return This._New(StzEngineImageSauvola(@nId, pnWindow, pnK, pnR))
+
+	def ApplyEdgeDetection(pnLow, pnHigh)
+		This._Take(StzEngineImageCanny(@nId, pnLow, pnHigh, 0))
+
+		def ApplyEdgeDetectionQ(pnLow, pnHigh)
+			This.ApplyEdgeDetection(pnLow, pnHigh)
+			return This
+
+	def ApplyAdaptiveThreshold(pnBlock, pnC)
+		This._Take(StzEngineImageAdaptiveMean(@nId, pnBlock, pnC))
+
+		def ApplyAdaptiveThresholdQ(pnBlock, pnC)
+			This.ApplyAdaptiveThreshold(pnBlock, pnC)
+			return This
+
+	def ApplySauvolaThreshold(pnWindow)
+		This._Take(StzEngineImageSauvola(@nId, pnWindow, 0.2, 128))
+
+		def ApplySauvolaThresholdQ(pnWindow)
+			This.ApplySauvolaThreshold(pnWindow)
+			return This
 
 	# Returns the gray's integral image: a grid of Height()+1 rows by Width()+1 columns of running sums.
 	def IntegralGrid()

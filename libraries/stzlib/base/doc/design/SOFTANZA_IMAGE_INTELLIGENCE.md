@@ -125,18 +125,23 @@ Real-ESRGAN (16M for upscaling — Lanczos is the floor first).
 ```ring
 oImg = StzImageQ("market.jpg")                    # decode once, an engine handle
 ? oImg.Size()                                     #--> [ 1600, 1200 ]
-oImg.Grayscaled().Thresholded(:otsu).SaveAs("ink.png")
-oComp = oImg.Components()                         # a stzImageGrid of labels + a stats table
+oImg { ApplyGrayScale() ApplyThreshold(:otsu) SaveAs("ink.png") }   # CHANGES oImg
+? oImg.Components()                               # data: one row per region (box, area, centroid)
 
 ? oImg.Detect(:objects)                           # [ [ "person", 0.91, [x, y, w, h] ], ... ]
 ? oImg.ClassifyAs([ "a receipt", "a photo of food", "a diagram" ])   # zero-shot
 ? oImg.Describe()                                 # SmolVLM, with the engine named in Why()
-oImg.CutOut().SaveAs("product.png")
+oProduct = oImg.CutOut()                          # data: a new image, oImg untouched
+oProduct.SaveAs("product.png")
 oDepth = oImg.Depth()                             # a stzImageGrid: one number per pixel
 ```
 
-- `stzImage` holds pixels (an engine handle, gen-keyed, freed once); verbs follow the house forms:
-  `Blur()` changes the image, `Blurred()` returns a new one, `BlurQ()` chains.
+- `stzImage` holds pixels (an engine handle, gen-keyed, freed once), and its names follow the house
+  forms: `ApplyBlur()` CHANGES the image, `ApplyBlurQ()` changes it and returns it to chain, and
+  `Blurred()` returns DATA -- a new image -- without altering the object. A pipeline is written
+  with the Apply forms (`oImg { ApplyGrayScale() ApplyThreshold(:otsu) }`, or
+  `oImg.ApplyGrayScaleQ().ApplyThresholdQ(:otsu)`), never as a chain of `...ed()` calls, each of
+  which would be a new image left unreleased (corrected by the author, 2026-11-01).
 - `stzImageGrid` holds what an analysis returns (rows × columns of numbers with what a row and a
   column MEAN), and is lossless back to an image when the grid IS the pixels (vision plan §3).
 - Every neural answer carries `Why()`: which model, which floor it beat, on which golden.

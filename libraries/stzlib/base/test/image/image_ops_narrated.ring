@@ -28,9 +28,9 @@ $cOracle = "_oracle/"
 
 pr()
 
-oS = StzImageQ($cOracle + "in_shapes.png").Grayscaled()
-oPg = StzImageQ($cOracle + "in_page.png").Grayscaled()
-oTm = StzImageQ($cOracle + "in_template.png").Grayscaled()
+oS = StzImageQ($cOracle + "in_shapes.png").ApplyGrayScaleQ()
+oPg = StzImageQ($cOracle + "in_page.png").ApplyGrayScaleQ()
+oTm = StzImageQ($cOracle + "in_template.png").ApplyGrayScaleQ()
 ? "    inputs: shapes " + oS.Width() + " x " + oS.Height() + ", page " + oPg.Width() + " x " + oPg.Height()
 
 #=====================================================================#
@@ -42,7 +42,7 @@ cMiss = ""
 for cOp in [ "erode", "dilate", "open", "close", "gradient", "tophat", "blackhat" ]
 	for cSh in [ "rect", "cross", "ellipse" ]
 		oMine = oS.Morphed(cOp, 5, cSh)
-		oRef = StzImageQ($cOracle + "morph_" + cOp + "_" + cSh + ".png").Grayscaled()
+		oRef = StzImageQ($cOracle + "morph_" + cOp + "_" + cSh + ".png").ApplyGrayScaleQ()
 		aD = oMine.DifferenceWith(oRef)
 		if aD[:pixels] = 0
 			nExact++
@@ -69,6 +69,11 @@ chk("median 5 equals OpenCV's", SameAs(oS.MedianFiltered(5), "median5", 0))
 chk("...and median 3 is not median 5 (negative sibling)",
 	oS.MedianFiltered(3).DifferenceWith(oS.MedianFiltered(5))[:pixels] > 100)
 chk("histogram equalisation equals OpenCV's", SameAs(oS.Equalized(), "equalize", 0))
+# IM1b: the engine's ONE gray is OpenCV 5's RGB2GRAY bit for bit -- derived over all
+# 16,777,216 colours; the textbook 14-bit formula misses 43,864 of them
+oCol = StzImageQ($cOracle + "in_colour.png")
+chk("colour to gray equals OpenCV 5's on 3,072 random colours", oCol.Channels() = 3 and
+	SameAs(oCol.Grayscaled(), "gray_colour", 0))
 
 sec("scene 2")
 
@@ -94,7 +99,7 @@ chk("Canny 50/150 on the shapes equals OpenCV's", SameAs(oS.Edges(50, 150), "can
 chk("Canny with the L2 gradient equals OpenCV's", SameAs(oS.EdgesL2(50, 150), "canny_shapes_l2", 0))
 chk("Canny 60/180 on a real page equals OpenCV's", SameAs(oPg.Edges(60, 180), "canny_page", 0))
 chk("...and other thresholds give other edges (negative sibling)",
-	oS.Edges(10, 30).DifferenceWith(StzImageQ($cOracle + "canny_shapes.png").Grayscaled())[:pixels] > 50)
+	oS.Edges(10, 30).DifferenceWith(StzImageQ($cOracle + "canny_shapes.png").ApplyGrayScaleQ())[:pixels] > 50)
 
 sec("scene 4")
 
@@ -152,7 +157,7 @@ sec("scene 7")
 #=====================================================================#
 
 oS.SaveAs("_oracle_out.jpg")
-oBack = StzImageQ("_oracle_out.jpg").Grayscaled()
+oBack = StzImageQ("_oracle_out.jpg").ApplyGrayScaleQ()
 aJ = oBack.DifferenceWith(oS)
 nPsnr = 10 * log10(255 * 255 / aJ[:mse])
 chk("the JPEG decodes back at the same size", Same(oBack.Size(), oS.Size()))
@@ -172,7 +177,7 @@ pf()
 
 # an image result against an oracle PNG: at most nAllowed pixels may differ
 func SameAs(oMine, cName, nAllowed)
-	oRef = StzImageQ($cOracle + cName + ".png").Grayscaled()
+	oRef = StzImageQ($cOracle + cName + ".png").ApplyGrayScaleQ()
 	aD = oMine.DifferenceWith(oRef)
 	if aD[:pixels] > nAllowed
 		? "      " + cName + ": " + aD[:pixels] + " pixels differ (max " + aD[:max] + ")"
