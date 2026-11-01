@@ -1269,7 +1269,9 @@ pub fn darkBands(image_path: []const u8, ppt: f32, out_prefix: []const u8) !Band
 // 3.9 lines tall and 17% coloured, its emblem 95% of its height. Every other line of it, and every line of the
 // fixtures' greyscale and banded pages, 0% coloured or kept.
 
-pub const Figure = struct { kind: u8, x0: f32, y0: f32, x1: f32, y1: f32 };
+/// ex0, ex1: a logo's emblem, left and right (0 otherwise) -- its letters are read again without it: on that letter the
+/// emblem read as a digit beside them, and the letters alone read as printed
+pub const Figure = struct { kind: u8, x0: f32, y0: f32, x1: f32, y1: f32, ex0: f32 = 0, ex1: f32 = 0 };
 
 pub const Figures = struct {
     arena: std.heap.ArenaAllocator,
@@ -1407,7 +1409,7 @@ pub fn figuresOf(image_path: []const u8, ppt: f32, boxes: []const [4]f32) !Figur
             if (lh >= 2.5 * med and share >= 0.05 and share <= 0.6 and ch >= 0.8 * lh and
                 px0 < b[2] and px1 > b[0] and py0 < b[3] and py1 > b[1])
             {
-                of[bi] = .{ .kind = 'l', .x0 = @min(b[0], px0), .y0 = @min(b[1], py0), .x1 = @max(b[2], px1), .y1 = @max(b[3], py1) };
+                of[bi] = .{ .kind = 'l', .x0 = @min(b[0], px0), .y0 = @min(b[1], py0), .x1 = @max(b[2], px1), .y1 = @max(b[3], py1), .ex0 = px0, .ex1 = px1 };
                 break;
             }
         }

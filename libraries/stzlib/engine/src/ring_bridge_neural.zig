@@ -730,7 +730,8 @@ fn ocrBoxes(arg: []const u8) std.ArrayList([4]f32) {
     return boxes;
 }
 
-// StzEngineNeuralOcrFigures(cImage, nPixelsPerPoint, cBoxes) -> [ [ cKind, nX0, nY0, nX1, nY1 ], ... ] (O4): for each
+// StzEngineNeuralOcrFigures(cImage, nPixelsPerPoint, cBoxes) -> [ [ cKind, nX0, nY0, nX1, nY1, nEx0, nEx1 ], ... ]
+// (O4; nEx0..nEx1 a logo's emblem, left to right, 0 otherwise): for each
 // box of cBoxes ("x0 y0 x1 y1;..." -- the OCR lines), "stamp" when it is a coloured stamp's (the box is the stamp's),
 // "logo" when it is shaped like a logo -- a coloured emblem beside letters (the box takes the emblem in), "" when it is
 // text; [] on failure (StzEngineNeuralOcrGraphError says why)
@@ -757,6 +758,8 @@ fn ring_OcrFigures(p: *anyopaque) callconv(.c) void {
         R.ring_list_adddouble(row, f.y0);
         R.ring_list_adddouble(row, f.x1);
         R.ring_list_adddouble(row, f.y1);
+        R.ring_list_adddouble(row, f.ex0);
+        R.ring_list_adddouble(row, f.ex1);
     }
     R.ring_vm_api_retlist(p, out);
 }

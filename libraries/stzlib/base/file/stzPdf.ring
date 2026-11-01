@@ -490,21 +490,46 @@ class stzPdf from stzObject
 					if _nAt_ > 0
 						@aOcrFigures[_nAt_][:text] = @aOcrFigures[_nAt_][:text] + " " + _aL_[_k_][:text]
 					else
-						@aOcrFigures + [ :page = _i_, :kind = _cK_, :box = _aFb_, :text = _aL_[_k_][:text] ]
+						@aOcrFigures + [ :page = _i_, :kind = _cK_, :box = _aFb_, :text = This._OcrLogoText(_cImg_, _aL_[_k_], _aFig_[_k_], _k_, pcLang) ]
 					ok
 				next
 			ok
 			# a stamp's own words read better alone: each stamp is read again from its region enlarged twice, and keeps
 			# the lines of that reading that read as words -- its title; its curved border comes back as nonsense or not
-			# at all (the page's reading stands when nothing of it reads as words)
+			# at all (the page's reading stands when nothing of it reads as words). The title is the signatory's: it goes
+			# back into the text as ONE line, where its first line stands and as tall -- its lines are set in a stamp's
+			# letters, sized apart by their descenders, and given as two they split into a heading and a paragraph
+			_aStampL_ = []
 			_nF_ = ring_len(@aOcrFigures)
 			for _j_ = 1 to _nF_
 				if @aOcrFigures[_j_][:page] != _i_ or @aOcrFigures[_j_][:kind] != "stamp" loop ok
 				_b_ = @aOcrFigures[_j_][:box]
 				_cReg_ = _cImg_ + "_stamp" + _j_ + ".bmp"
 				if StzEngineNeuralOcrRegion(_cImg_, _cReg_, _b_[1] * _nPpt_, _b_[2] * _nPpt_, _b_[3] * _nPpt_, _b_[4] * _nPpt_, 2) = 1
-					_cT_ = _StzOcrWordsOf(StzOcrLinesWithBoxes(_cReg_, pcLang), pcLang)
-					if _cT_ != "" @aOcrFigures[_j_][:text] = _cT_ ok
+					_aRL_ = StzOcrLinesWithBoxes(_cReg_, pcLang)
+					_cT_ = _StzOcrWordsOf(_aRL_, pcLang)
+					if _cT_ != ""
+						@aOcrFigures[_j_][:text] = _cT_
+						# the region's pixels back to the page's: the region starts at the stamp's corner, twice as large
+						_nOx_ = floor(_b_[1] * _nPpt_)
+						_nOy_ = floor(_b_[2] * _nPpt_)
+						_aU_ = []
+						_nRL_ = ring_len(_aRL_)
+						for _r_ = 1 to _nRL_
+							_t_ = "" + _aRL_[_r_][:text]
+							if StzLen(_t_) < 2 or _StzOcrWordsNotRead(_t_, pcLang) > 0 or ring_len(_aRL_[_r_][:box]) != 4 loop ok
+							_rb_ = _aRL_[_r_][:box]
+							if ring_len(_aU_) = 0
+								_aU_ = [ _rb_[1], _rb_[2], _rb_[3], _rb_[4], _aRL_[_r_][:tight] ]
+							else
+								if _rb_[1] < _aU_[1] _aU_[1] = _rb_[1] ok
+								if _rb_[3] > _aU_[3] _aU_[3] = _rb_[3] ok
+							ok
+						next
+						if ring_len(_aU_) = 5
+							_aStampL_ + [ _nOx_ + _aU_[1] / 2, _nOy_ + _aU_[2] / 2, _nOx_ + _aU_[3] / 2, _nOy_ + _aU_[4] / 2, _cT_, _aU_[5] ]
+						ok
+					ok
 				ok
 			next
 			# a signature or a stamp drawn across a printed line costs it a letter: the line is read again from a copy
@@ -541,6 +566,12 @@ class stzPdf from stzObject
 					ok
 					StzEnginePdfOcrAdd(_i_, _aBx_[1], _aBx_[2], _aBx_[3], _aBx_[4], _aL_[_k_][:text], _aL_[_k_][:tight], _nSt_, _nMt_, _nMb_)
 				ok
+			next
+			# the stamp's title, read on its own (no stroke measured: the stamp's ink is not the page's print)
+			_nSL_ = ring_len(_aStampL_)
+			for _k_ = 1 to _nSL_
+				_s_ = _aStampL_[_k_]
+				StzEnginePdfOcrAdd(_i_, _s_[1], _s_[2], _s_[3], _s_[4], _s_[5], _s_[6], 0)
 			next
 		next
 		_n_ = StzEnginePdfOpenOcr(@cPath)
@@ -579,10 +610,39 @@ class stzPdf from stzObject
 	#   returns    a list of [ :page = n, :kind = "stamp" | "logo", :box = [ x0, y0, x1, y1 ] in page points, :text = what
 	#              the OCR read from it ]
 	#   note       a stamp is a ring of coloured ink (its lines make one figure, its box is the ring's, its text what of it
-	#              reads as words when it is read again on its own, enlarged); a logo is a tall
-	#              line pairing a coloured emblem with letters that do not read as words (StzEngineNeuralOcrFigures)
+	#              reads as words when it is read again on its own, enlarged -- that text, the signatory's title, is in
+	#              Blocks() too, where it stands on the page); a logo is a tall line pairing a coloured emblem with letters
+	#              that do not read as words (StzEngineNeuralOcrFigures), its text its letters read again without the
+	#              emblem
 	def OcrFigures()
 		return @aOcrFigures
+
+	# A logo's letters, read again without its emblem: on a scanned letter the emblem read as a digit tight against
+	# the letters, and the letters cut out alone read as printed at every scale tried. The cut runs from the emblem's
+	# far edge to the line's (whichever side the emblem stands), enlarged twice; it keeps the lines of that reading
+	# that mix no letters and digits -- a wordmark is a name, so no word list judges it. The first reading stands when
+	# the logo has no emblem's extent or nothing of the second reading is kept.
+	def _OcrLogoText(pcImg, paLine, paFig, pnK, pcLang)
+		_cFirst_ = "" + paLine[:text]
+		_b_ = paLine[:box]
+		if ring_len(paFig) < 7 or ring_len(_b_) != 4 return _cFirst_ ok
+		_ex0_ = paFig[6]
+		_ex1_ = paFig[7]
+		if _ex1_ <= _ex0_ return _cFirst_ ok
+		_h_ = _b_[4] - _b_[2]
+		if (_ex0_ + _ex1_) / 2 < (_b_[1] + _b_[3]) / 2
+			_x0_ = _ex1_ + _h_ * 0.05
+			_x1_ = _b_[3] + _h_ * 0.25
+		else
+			_x0_ = _b_[1] - _h_ * 0.25
+			_x1_ = _ex0_ - _h_ * 0.05
+		ok
+		if _x1_ - _x0_ < _h_ * 0.5 return _cFirst_ ok
+		_cReg_ = pcImg + "_logo" + pnK + ".bmp"
+		if StzEngineNeuralOcrRegion(pcImg, _cReg_, _x0_, _b_[2] - _h_ * 0.15, _x1_, _b_[4] + _h_ * 0.15, 2) != 1 return _cFirst_ ok
+		_cT_ = _StzOcrWordsOf(StzOcrLinesWithBoxes(_cReg_, pcLang), "")
+		if _cT_ = "" return _cFirst_ ok
+		return _cT_
 
 	# Returns the lines of the last re-read's scanned pages that a drawn stroke touched -- a signature or a stamp
 	# crossing a printed line -- and that read better from a copy without the drawn ink.

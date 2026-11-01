@@ -118,10 +118,11 @@ if StzOcrPlatformHas("fr-FR")
 		aF = o.OcrFigures()
 		Then("the stamp is one figure, its two lines together",
 		     len(aF) = 1 and aF[1][:kind] = "stamp" and len(StzFindCS("TECHNIQUE", aF[1][:text], 1)) > 0, 1)
-		Then("and no block carries its words", kindOf(o, "TECHNIQUE"), "")
 		# read again on its own, enlarged, the stamp keeps what of it reads as words: the word the signature runs
 		# through comes back as nonsense ("SE ICE") and is dropped
 		Then("the stamp's text is what of it reads as words", aF[1][:text], "TECHNIQUE")
+		# that text is the signatory's title: it is in the blocks too, and the nonsense of the first reading is in none
+		Then("the stamp's title is a block, its nonsense in none", kindOf(o, "TECHNIQUE") != "" and kindOf(o, "SE ICE") = "", 1)
 		Then("the coloured words are text: the blue title, the title in two colours, the blue heading, the chart's labels",
 		     kindOf(o, "RAPPORT DE VISITE") != "" and kindOf(o, "Bilan 2025") = "heading" and
 		     kindOf(o, "Objet de la visite") = "heading" and kindOf(o, "Mercredi") = "paragraph", 1)
@@ -142,6 +143,9 @@ if StzOcrPlatformHas("fr-FR")
 		next
 		Then("shaped like a logo: the logo's line (an emblem tight against letters) and the title in two colours; the stamp's lines are the stamp's",
 		     cGot, "logo=logo; Bilan 2025=logo; SE ICE=stamp; TECHNIQUE=stamp; ")
+		# the logo's letters are read again without its emblem (on a letter the emblem read as a digit beside them): the
+		# engine gives the emblem's extent, drawn at 90..130 left of the letters at 140
+		Then("the logo's emblem is where it is drawn, left of its letters", aK[1][6] >= 85 and aK[1][6] <= 95 and aK[1][7] >= 125 and aK[1][7] <= 140, 1)
 		Then("a reading made of words stays text, one that is not is the logo's",
 		     "" + _StzOcrIsMadeOfWords("Bilan 2025", "fr-FR") + _StzOcrIsMadeOfWords("4kTR", "fr-FR") + _StzOcrIsMadeOfWords("VTR", "fr-FR"), "100")
 		aR = o.OcrReadAgain()
