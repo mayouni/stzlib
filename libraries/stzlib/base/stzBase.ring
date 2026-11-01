@@ -1034,6 +1034,10 @@ load "service/stzPispiQr.ring"    # the twin of the hub served over HTTP, with O
     load "optim/stzOptimModel.ring"
     load "optim/stzOptimFile.ring"
     load "optim/stzOptimSentence.ring"
+    # the sub-solver seam (R5 OPTIMIZATION): an allocation read from the
+    # knowledge and solved by stzOptimModel; stzGraphPlanner hands its
+    # :allocate steps to it, stzAllocationSkill writes it under governance
+    load "optim/stzAllocation.ring"
     # the multi-objective solver MOVED HERE from stats/ with R4 step 5:
     # NSGA-II is a decision procedure, and it belongs beside the model it
     # will eventually take (section 5.5's own cleanup list).

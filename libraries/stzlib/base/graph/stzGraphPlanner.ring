@@ -31,6 +31,10 @@ class stzGraphPlanner from stzObject
 
 	@aHistory  # Historical plan executions
 
+	@aAllocations = []  # stzAllocation sub-solvers a plan step can hand off to
+	@oKnowledge = ""    # the knowledge they read (a copy, taken by UseKnowledge)
+	@aHandOffs = []     # [ cPlan, aRows ]: what each plan's allocation steps answered
+
 	# Builds a planner over a graph, taking a copy of it at that moment, with no plan yet and the six named profiles ready.
 	#
 	#   poGraph    The stzGraph to plan over
@@ -947,6 +951,9 @@ class stzGraphPlanner from stzObject
 		
 		# Store in history
 		This._AddToHistory(pcPlanName, _aResult_, _aOptimize_)
+
+		# a step that IS an allocation hands off to its sub-solver
+		This._HandOff(pcPlanName, _aResult_)
 		
 		# Searches the graph for the cheapest route of a named plan, stores the result and adds the run to the history.
 		#
@@ -2144,6 +2151,137 @@ class stzGraphPlanner from stzObject
 			stzraise("Plan has not been executed!")
 		ok
 		return _aResult_
+
+	#-----------------------------------------------#
+	#  ALLOCATION STEPS -- the sub-solver hand-off  #
+	#-----------------------------------------------#
+	# SOFTANZA_INTELLIGENCE_ARCHITECTURE.md section 6, R5: the planner calls
+	# stzOptimModel "as a sub-solver for resource-allocation skills". The
+	# planner searches ROUTES and the optimizer allocates QUANTITIES, so
+	# the planner does not optimize anything new: a plan-graph edge that
+	# carries :allocate = <name> declares that step an allocation, and when
+	# a route passes through it Execute hands the step to the stzAllocation
+	# of that name. Every other step is a choice of route and hands nothing
+	# off. The hand-off SOLVES and never WRITES: writing an allocation is
+	# an effect, and effects belong to a governed skill.
+
+	# Gives the planner the knowledge its allocation steps read.
+	#
+	#   poKnowledge   a stzKnowledgeGraph or a stzAgentMemory
+	#   returns       nothing; the planner changes
+	#   warning       the planner keeps a copy taken now, as it does of its graph: a fact added
+	#                 afterwards is not seen until UseKnowledge is called again
+	#   see           AddAllocation, Allocations
+	def UseKnowledge(poKnowledge)
+		@oKnowledge = poKnowledge
+
+	# Registers an allocation that a step marked :allocate = <its name> hands off to.
+	#
+	#   poAllocation   a stzAllocation
+	#   returns        nothing; the planner changes
+	#   note           registering a second allocation under the same name replaces the first
+	#   see            UseKnowledge, Allocations
+	def AddAllocation(poAllocation)
+		if NOT IsStzAllocation(poAllocation)
+			stzraise("AddAllocation: a sub-solver is a stzAllocation.")
+		ok
+		_n_ = len(@aAllocations)
+		for _i_ = 1 to _n_
+			if @aAllocations[_i_].Name_() = poAllocation.Name_()
+				@aAllocations[_i_] = poAllocation
+				return
+			ok
+		next
+		@aAllocations + poAllocation
+
+	# Returns what the current plan's allocation steps answered when it was executed.
+	#
+	#   returns    a list of hash lists [ :step, :allocation, :verdict, :placements, :unplaced,
+	#              :why ], one per allocation step on the route, in route order; [ ] when the
+	#              route has none
+	#   note       the why quotes the solver's own, which names the engine that ran
+	#   see        AllocationsHold, AddAllocation
+	def Allocations()
+		return This.AllocationsXT(This.CurrentPlan())
+
+	def AllocationsXT(pcPlanName)
+		_n_ = len(@aHandOffs)
+		for _i_ = 1 to _n_
+			if @aHandOffs[_i_][1] = pcPlanName
+				return @aHandOffs[_i_][2]
+			ok
+		next
+		return []
+
+	# TRUE if every allocation step on the current plan's route was allocated.
+	#
+	#   returns    1 or 0; 1 when the route has no allocation step
+	#   note       the route is the planner's answer either way: an infeasible allocation does
+	#              not unmake the route, it says the route cannot be staffed as it stands
+	#   see        Allocations
+	def AllocationsHold()
+		_aRows_ = This.Allocations()
+		_n_ = len(_aRows_)
+		for _i_ = 1 to _n_
+			if _aRows_[_i_][:verdict] != "allocated"
+				return 0
+			ok
+		next
+		return 1
+
+	def _HandOff(pcPlanName, paResult)
+		_aRows_ = []
+		_aActions_ = []
+		if isList(paResult) and len(paResult) > 0
+			_aActions_ = paResult[1]
+		ok
+		_nA_ = len(_aActions_)
+		for _i_ = 1 to _nA_
+			_cFrom_ = _aActions_[_i_][:from]
+			_cTo_ = _aActions_[_i_][:to]
+			_aP_ = @oGraph.EdgePropertiesXT(_cFrom_, _cTo_)
+			if NOT HasKey(_aP_, "allocate")
+				loop
+			ok
+			_cName_ = StzLower("" + _aP_["allocate"])
+			_aRow_ = [ :step = _cFrom_ + " -> " + _cTo_, :allocation = _cName_,
+				:verdict = "", :placements = [], :unplaced = [], :why = "" ]
+			_nK_ = 0
+			_nN_ = len(@aAllocations)
+			for _k_ = 1 to _nN_
+				if @aAllocations[_k_].Name_() = _cName_
+					_nK_ = _k_
+					exit
+				ok
+			next
+			if _nK_ = 0
+				_aRow_[:verdict] = "unregistered"
+				_aRow_[:why] = "the step " + _aRow_[:step] + " is an allocation " +
+					"step, and no allocation named '" + _cName_ + "' is " +
+					"registered -- AddAllocation() first."
+			but NOT isObject(@oKnowledge)
+				_aRow_[:verdict] = "incomplete"
+				_aRow_[:why] = "the step " + _aRow_[:step] + " is an allocation " +
+					"step, and the planner holds no knowledge to read it from " +
+					"-- UseKnowledge() first."
+			else
+				_oA_ = @aAllocations[_nK_]
+				_oA_.SolveOn(@oKnowledge)
+				_aRow_[:verdict] = _oA_.Verdict()
+				_aRow_[:placements] = _oA_.Placements()
+				_aRow_[:unplaced] = _oA_.Unplaced()
+				_aRow_[:why] = _oA_.Why()
+			ok
+			_aRows_ + _aRow_
+		next
+		_n_ = len(@aHandOffs)
+		for _i_ = 1 to _n_
+			if @aHandOffs[_i_][1] = pcPlanName
+				@aHandOffs[_i_][2] = _aRows_
+				return
+			ok
+		next
+		@aHandOffs + [ pcPlanName, _aRows_ ]
 	
 	#-----------------------#
 	#  A* ALGORITHM         #

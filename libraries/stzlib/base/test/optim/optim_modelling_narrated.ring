@@ -25,10 +25,10 @@
 
 load "../../stzBase.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 nT0 = clock()
-nSec = clock()
+$nSec = clock()
 
 cFx = StzReplace(WorkingDirectory(), "\", "/") + "/_optim-fixture"
 if StzDirExists(cFx)
@@ -374,7 +374,7 @@ sec("scene 7")
 
 ? ""
 ? "=========================================="
-? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
+? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "WALL:  " + ((clock() - nT0) / clockspersecond()) + "s"
 ? "=========================================="
 
@@ -384,10 +384,10 @@ pf()
 
 func chk(cWhat, bCond)
 	if bCond = 1
-		nPass++
+		$nPass++
 		? "  [OK] " + cWhat
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cWhat
 	ok
 
@@ -407,6 +407,6 @@ func OldSolve(cBackend)
 # PX rule 2: a long suite prints per-section wall time, so every gate
 # run is also the profile that says which section earns a diet.
 func sec(cName)
-	? "    ~ " + cName + ": " + ((clock() - nSec) / clockspersecond()) + "s"
+	? "    ~ " + cName + ": " + ((clock() - $nSec) / clockspersecond()) + "s"
 	? ""
-	nSec = clock()
+	$nSec = clock()
