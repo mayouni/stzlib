@@ -713,6 +713,48 @@ fn ring_OcrDarkBands(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// StzEngineNeuralOcrFigures(cImage, nPixelsPerPoint, cBoxes) -> [ [ cKind, nX0, nY0, nX1, nY1 ], ... ] (O4): for each
+// box of cBoxes ("x0 y0 x1 y1;..." -- the OCR lines), "stamp" when it is a coloured stamp's (the box is the stamp's),
+// "logo" when it is shaped like a logo -- a coloured emblem beside letters (the box takes the emblem in), "" when it is
+// text; [] on failure (StzEngineNeuralOcrGraphError says why)
+fn ring_OcrFigures(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const ppt: f32 = @floatCast(R.ring_vm_api_getnumber(p, 2));
+    var boxes: std.ArrayList([4]f32) = .empty;
+    defer boxes.deinit(std.heap.c_allocator);
+    var it = std.mem.splitScalar(u8, ocrArg(p, 3), ';');
+    while (it.next()) |item| {
+        var f = std.mem.tokenizeScalar(u8, item, ' ');
+        var b: [4]f32 = .{ 0, 0, 0, 0 };
+        var k: usize = 0;
+        while (f.next()) |num| : (k += 1) {
+            if (k >= 4) break;
+            b[k] = std.fmt.parseFloat(f32, num) catch 0;
+        }
+        boxes.append(std.heap.c_allocator, b) catch {};
+    }
+    var r = ocrp.figuresOf(ocrArg(p, 1), if (ppt > 0) ppt else 150.0 / 72.0, boxes.items) catch |e| {
+        if (ocrg.lastError().len == 0) ocrg.setError("{s}", .{@errorName(e)});
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    defer r.free();
+    for (r.of) |f| {
+        const row = R.ring_list_newlist(out) orelse break;
+        const kn: []const u8 = switch (f.kind) {
+            's' => "stamp",
+            'l' => "logo",
+            else => "",
+        };
+        R.ring_list_addstring2(row, kn.ptr, @intCast(kn.len));
+        R.ring_list_adddouble(row, f.x0);
+        R.ring_list_adddouble(row, f.y0);
+        R.ring_list_adddouble(row, f.x1);
+        R.ring_list_adddouble(row, f.y1);
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
 // StzEngineNeuralOcrPlatformRead(cImage, cLang, nTarget) -> [ cSummary, [ [ cText, nX0, nY0, nX1, nY1, nMidTop,
 // nMidBottom ], ... ] ] (O5): the :ocr floor's platform engine (Windows.Media.Ocr) called in process -- the lines in
 // visual order with their boxes in the image's pixels and the median of their words' tops and bottoms, small text
@@ -754,6 +796,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralocrdeskew", .func = &ring_OcrDeskew },
     .{ .name = "stzengineneuralocrprepare", .func = &ring_OcrPrepare },
     .{ .name = "stzengineneuralocrdarkbands", .func = &ring_OcrDarkBands },
+    .{ .name = "stzengineneuralocrfigures", .func = &ring_OcrFigures },
     .{ .name = "stzengineneuralocrplatformread", .func = &ring_OcrPlatformRead },
     .{ .name = "stzenginegbnfbegin", .func = &ring_GbnfBegin },
     .{ .name = "stzenginegbnffield", .func = &ring_GbnfField },

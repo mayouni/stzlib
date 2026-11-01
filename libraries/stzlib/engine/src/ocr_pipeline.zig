@@ -1253,6 +1253,161 @@ pub fn darkBands(image_path: []const u8, ppt: f32, out_prefix: []const u8) !Band
     return res;
 }
 
+// --------------------------------------------------------------------------------------------- stamps and logos (O4)
+
+// A stamp and a logo are drawn, not written, and the OCR reads them anyway: on a scanned letter the round blue
+// stamp came back as a two-word heading and its curved lettering as a paragraph of nonsense, and the letterhead's
+// logo -- a red emblem beside dark letters -- as a heading of four mixed characters. Both are told by their
+// COLOURED ink, in a shape printed text does not take:
+//   - a STAMP is a ring: a coloured region at least four lines tall and wide, about as tall as wide, at most half of it
+//     inked (a coloured band or a photograph is filled); a line whose ink is mostly coloured and whose middle is inside
+//     that region is the stamp's
+//   - a LOGO is an emblem beside letters: a line at least two and a half lines tall, 5 to 60% of its ink coloured, with
+//     a coloured shape nearly as tall as the line. A title in two colours has that shape too, so this says only that
+//     the line is SHAPED like a logo; the caller keeps it as text when it reads as words
+// Measured on that letter: the ring 312 px square and a third inked, its three lines 86 to 97% coloured; the logo line
+// 3.9 lines tall and 17% coloured, its emblem 95% of its height. Every other line of it, and every line of the
+// fixtures' greyscale and banded pages, 0% coloured or kept.
+
+pub const Figure = struct { kind: u8, x0: f32, y0: f32, x1: f32, y1: f32 };
+
+pub const Figures = struct {
+    arena: std.heap.ArenaAllocator,
+    /// per box: kind 0 (text), 's' (a stamp's: the ring's box) or 'l' (shaped like a logo: the line's box with its
+    /// emblem's)
+    of: []Figure,
+    pub fn free(self: *Figures) void {
+        self.arena.deinit();
+    }
+};
+
+// saturated, and dark enough in one channel to be ink rather than a pale tint
+fn coloured(p: [*]const u8) bool {
+    const mx = @max(p[0], @max(p[1], p[2]));
+    const mn = @min(p[0], @min(p[1], p[2]));
+    return mx - mn > 60 and mn < 190;
+}
+
+/// Which boxes of `boxes` (the OCR lines, image pixels) are a stamp's or shaped like a logo.
+///   ppt   the image's pixels per point
+pub fn figuresOf(image_path: []const u8, ppt: f32, boxes: []const [4]f32) !Figures {
+    var res = Figures{ .arena = std.heap.ArenaAllocator.init(gpa), .of = &.{} };
+    errdefer res.arena.deinit();
+    const a = res.arena.allocator();
+    const of = try a.alloc(Figure, boxes.len);
+    for (of) |*f| f.* = .{ .kind = 0, .x0 = 0, .y0 = 0, .x1 = 0, .y1 = 0 };
+    res.of = of;
+    const hs = try a.alloc(f32, boxes.len);
+    var nh: usize = 0;
+    for (boxes) |b| {
+        if (b[3] > b[1]) {
+            hs[nh] = b[3] - b[1];
+            nh += 1;
+        }
+    }
+    if (nh == 0) return res;
+    std.mem.sort(f32, hs[0..nh], {}, std.sort.asc(f32));
+    const med = hs[nh / 2];
+    var im = try loadImage(image_path);
+    defer im.free();
+    const w = im.w;
+    const h = im.h;
+    // the coloured cells (about 1.4 pt), joined across gaps of two cells
+    const cs: usize = @max(2, @as(usize, @intFromFloat(@round(1.4 * ppt))));
+    const gw = (w + cs - 1) / cs;
+    const gh = (h + cs - 1) / cs;
+    const cell = try a.alloc(bool, gw * gh);
+    @memset(cell, false);
+    var any = false;
+    for (0..h) |y| {
+        for (0..w) |x| {
+            if (coloured(Image.at(&im, x, y))) {
+                cell[(y / cs) * gw + x / cs] = true;
+                any = true;
+            }
+        }
+    }
+    if (!any) return res;
+    const Blob = struct { x0: usize, y0: usize, x1: usize, y1: usize, n: usize };
+    var comps: std.ArrayList(Blob) = .empty;
+    const seen = try a.alloc(bool, gw * gh);
+    @memset(seen, false);
+    var stack: std.ArrayList(usize) = .empty;
+    for (0..gw * gh) |start| {
+        if (!cell[start] or seen[start]) continue;
+        var cm = Blob{ .x0 = gw, .y0 = gh, .x1 = 0, .y1 = 0, .n = 0 };
+        stack.clearRetainingCapacity();
+        try stack.append(a, start);
+        seen[start] = true;
+        while (stack.pop()) |i| {
+            const x = i % gw;
+            const y = i / gw;
+            cm.n += 1;
+            cm.x0 = @min(cm.x0, x);
+            cm.x1 = @max(cm.x1, x);
+            cm.y0 = @min(cm.y0, y);
+            cm.y1 = @max(cm.y1, y);
+            var yy = y -| 2;
+            while (yy <= @min(y + 2, gh - 1)) : (yy += 1) {
+                var xx = x -| 2;
+                while (xx <= @min(x + 2, gw - 1)) : (xx += 1) {
+                    const j = yy * gw + xx;
+                    if (cell[j] and !seen[j]) {
+                        seen[j] = true;
+                        try stack.append(a, j);
+                    }
+                }
+            }
+        }
+        try comps.append(a, cm);
+    }
+    for (boxes, 0..) |b, bi| {
+        const bx0: usize = @intFromFloat(std.math.clamp(b[0], 0, @as(f32, @floatFromInt(w))));
+        const bx1: usize = @intFromFloat(std.math.clamp(b[2], 0, @as(f32, @floatFromInt(w))));
+        const by0: usize = @intFromFloat(std.math.clamp(b[1], 0, @as(f32, @floatFromInt(h))));
+        const by1: usize = @intFromFloat(std.math.clamp(b[3], 0, @as(f32, @floatFromInt(h))));
+        if (bx1 <= bx0 or by1 <= by0) continue;
+        // the share of the line's ink that is coloured
+        var n_ink: usize = 0;
+        var n_col: usize = 0;
+        for (by0..by1) |y| {
+            for (bx0..bx1) |x| {
+                const p = Image.at(&im, x, y);
+                if (@min(p[0], @min(p[1], p[2])) >= 150) continue;
+                n_ink += 1;
+                n_col += @intFromBool(coloured(p));
+            }
+        }
+        if (n_ink == 0 or n_col == 0) continue;
+        const share = @as(f32, @floatFromInt(n_col)) / @as(f32, @floatFromInt(n_ink));
+        const lh = b[3] - b[1];
+        const mx = (b[0] + b[2]) / 2;
+        const my = (b[1] + b[3]) / 2;
+        for (comps.items) |cm| {
+            const px0: f32 = @floatFromInt(cm.x0 * cs);
+            const py0: f32 = @floatFromInt(cm.y0 * cs);
+            const px1: f32 = @floatFromInt(@min(w, (cm.x1 + 1) * cs));
+            const py1: f32 = @floatFromInt(@min(h, (cm.y1 + 1) * cs));
+            const cw = px1 - px0;
+            const ch = py1 - py0;
+            const fill = @as(f32, @floatFromInt(cm.n)) / @as(f32, @floatFromInt((cm.x1 - cm.x0 + 1) * (cm.y1 - cm.y0 + 1)));
+            if (share >= 0.6 and cw >= 4 * med and ch >= 4 * med and cw <= 2 * ch and ch <= 2 * cw and fill <= 0.5 and
+                mx >= px0 and mx <= px1 and my >= py0 and my <= py1)
+            {
+                of[bi] = .{ .kind = 's', .x0 = px0, .y0 = py0, .x1 = px1, .y1 = py1 };
+                break;
+            }
+            if (lh >= 2.5 * med and share >= 0.05 and share <= 0.6 and ch >= 0.8 * lh and
+                px0 < b[2] and px1 > b[0] and py0 < b[3] and py1 > b[1])
+            {
+                of[bi] = .{ .kind = 'l', .x0 = @min(b[0], px0), .y0 = @min(b[1], py0), .x1 = @max(b[2], px1), .y1 = @max(b[3], py1) };
+                break;
+            }
+        }
+    }
+    return res;
+}
+
 // --------------------------------------------------------------------------------------------- deskew (O4)
 
 // A phone's scan is turned a little: half a degree turns a table's ruled line into a staircase of short runs and

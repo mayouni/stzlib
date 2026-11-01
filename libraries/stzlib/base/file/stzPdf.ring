@@ -49,6 +49,7 @@ class stzPdf from stzObject
 	@cOcrLang = ""
 	@aOcrImages = []	# per page read through OCR: [ nPage, cImageItWasReadFrom, nPixelsPerPoint ]
 	@aOcrLines = []	# per page read through OCR: [ nPage, its lines [ :text, :box ] ]
+	@aOcrFigures = []	# the stamps and logos the OCR read as lines: [ :page, :kind, :box (points), :text ]
 
 	# Reads the PDF at pcPath through the engine and keeps its blocks, its text and its facts.
 	#
@@ -389,7 +390,8 @@ class stzPdf from stzObject
 	#              fragments; Blocks(), Text() and Info() are then those of the scan, built by the reader's own
 	#              rules: headings, lists, tables, page furniture and reading order. A page that has a text layer
 	#              keeps it and is not read this way; a font size is ESTIMATED from each line's box, and no
-	#              recognised line is bold (the faculty does not say)
+	#              recognised line is bold (the faculty does not say); a coloured stamp's lines and a logo's are drawn,
+	#              not written, and are kept out of the text (OcrFigures)
 	#   warning    raises when the faculty cannot read the language, or the PDF cannot be read again
 	def ReadOcr(pcLang)
 		# the pages that already have text keep it
@@ -403,6 +405,7 @@ class stzPdf from stzObject
 		@aOcrMarks = []
 		@aOcrImages = []
 		@aOcrLines = []
+		@aOcrFigures = []
 		_nP_ = This.NumberOfPages()
 		for _i_ = 1 to _nP_
 			if ring_find(_aHas_, _i_) > 0 loop ok
@@ -459,9 +462,39 @@ class stzPdf from stzObject
 				_aStrokes_ = _aMk_[2]
 				@aOcrMarks + [ _i_, _nM_ ]
 			ok
+			# a coloured stamp and a logo are drawn, not written: their lines leave the text and are kept as figures
+			# (a line shaped like a logo stays text when it reads as words -- a title in two colours)
+			_aFig_ = StzEngineNeuralOcrFigures(_cImg_, _nPpt_, _cBoxes_)
+			_aIsFig_ = []
+			for _k_ = 1 to _nL_
+				_aIsFig_ + 0
+			next
+			if ring_len(_aFig_) = _nL_
+				for _k_ = 1 to _nL_
+					_cK_ = _aFig_[_k_][1]
+					if _cK_ = "" or HasKey(_aL_[_k_], :band) loop ok
+					if _cK_ = "logo" and _StzOcrIsMadeOfWords(_aL_[_k_][:text], pcLang) loop ok
+					_aIsFig_[_k_] = 1
+					_aFb_ = [ _aFig_[_k_][2] / _nPpt_, _aFig_[_k_][3] / _nPpt_, _aFig_[_k_][4] / _nPpt_, _aFig_[_k_][5] / _nPpt_ ]
+					# the lines of one stamp make one figure
+					_nAt_ = 0
+					_nF_ = ring_len(@aOcrFigures)
+					for _j_ = 1 to _nF_
+						if @aOcrFigures[_j_][:page] = _i_ and @aOcrFigures[_j_][:kind] = _cK_ and @aOcrFigures[_j_][:box][1] = _aFb_[1] and
+						   @aOcrFigures[_j_][:box][2] = _aFb_[2]
+							_nAt_ = _j_
+						ok
+					next
+					if _nAt_ > 0
+						@aOcrFigures[_nAt_][:text] = @aOcrFigures[_nAt_][:text] + " " + _aL_[_k_][:text]
+					else
+						@aOcrFigures + [ :page = _i_, :kind = _cK_, :box = _aFb_, :text = _aL_[_k_][:text] ]
+					ok
+				next
+			ok
 			for _k_ = 1 to _nL_
 				_aBx_ = _aL_[_k_][:box]
-				if ring_len(_aBx_) = 4
+				if ring_len(_aBx_) = 4 and _aIsFig_[_k_] = 0
 					_nSt_ = 0
 					if _k_ <= ring_len(_aStrokes_) _nSt_ = _aStrokes_[_k_] ok
 					# (a line on a dark band: light letters, no ink to measure)
@@ -506,6 +539,16 @@ class stzPdf from stzObject
 	#              nDarkBands is how many dark bands holding light text the model read again (StzOcrWithDarkBands)
 	def OcrPages()
 		return @aOcrBy
+
+	# Returns the stamps and logos the last re-read found on its scanned pages: drawn, not written, so their lines were
+	# kept out of Blocks() and Text().
+	#
+	#   returns    a list of [ :page = n, :kind = "stamp" | "logo", :box = [ x0, y0, x1, y1 ] in page points, :text = what
+	#              the OCR read from it ]
+	#   note       a stamp is a ring of coloured ink (its lines make one figure, its box is the ring's); a logo is a tall
+	#              line pairing a coloured emblem with letters that do not read as words (StzEngineNeuralOcrFigures)
+	def OcrFigures()
+		return @aOcrFigures
 
 	# Writes an inspection page of the last re-read: each page read through OCR as the image the OCR read, beside its
 	# blocks (or, on a toggle, its OCR lines), linked both ways -- moving over the image draws the box of what was read
@@ -558,6 +601,14 @@ class stzPdf from stzObject
 				_aN_ = This._OcrNoteOf(paNotes, _k_)
 				_aB_ + [ :kind = _aBlocks_[_k_][:kind], :text = _aBlocks_[_k_][:text],
 					 :box = [ _b_[1] * _nPpt_, _b_[2] * _nPpt_, _b_[3] * _nPpt_, _b_[4] * _nPpt_ ], :mark = _aN_[1], :note = _aN_[2] ]
+			next
+			# the stamps and logos, kept out of the text
+			_nF_ = ring_len(@aOcrFigures)
+			for _k_ = 1 to _nF_
+				if @aOcrFigures[_k_][:page] != _nPage_ loop ok
+				_b_ = @aOcrFigures[_k_][:box]
+				_aB_ + [ :kind = @aOcrFigures[_k_][:kind], :text = @aOcrFigures[_k_][:text],
+					 :box = [ _b_[1] * _nPpt_, _b_[2] * _nPpt_, _b_[3] * _nPpt_, _b_[4] * _nPpt_ ], :mark = "", :note = "drawn, not text: kept out of the blocks" ]
 			next
 			_nN_ = ring_len(paNotes)
 			for _k_ = 1 to _nN_

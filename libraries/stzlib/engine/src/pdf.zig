@@ -7231,6 +7231,7 @@ pub fn readOcr(gpa: Allocator, bytes: []const u8, ocr: []const OcrLine, marks: [
             const mk = startsListMarker(f.text);
             const item = mk > 0 or f.bullet;
             var join = false;
+            var mixed_bold = false;
             if (cur) |b| {
                 var same_style = @abs(f.size - b.size) <= 0.15 * b.size and f.bold == b.bold and f.mono == b.mono and f.italic == b.italic;
                 // (a short line set larger than the one under it is a heading over it, however little larger: 13 pt over 11.5;
@@ -7242,6 +7243,16 @@ pub fn readOcr(gpa: Allocator, bytes: []const u8, ocr: []const OcrLine, marks: [
                 const goes_on = ocr_pg and startsLower(f.text) and f.bold == b.bold and @abs(f.size - b.size) <= 0.35 * b.size and
                     cur_text.items.len > 0 and std.mem.indexOfScalar(u8, ".;!?", cur_text.items[cur_text.items.len - 1]) == null;
                 if (goes_on) same_style = true;
+                // (on a page read through OCR a paragraph's line with a few words set bold reads bold or not as its share
+                //  of them goes: two full lines of one size, about as wide as each other and each longer than a heading,
+                //  are one paragraph whatever their strokes say -- a scanned letter's first line, two names in it set bold,
+                //  read 1.5 times the page's median stroke)
+                const fw = f.x1 - f.x0;
+                const lw = last.x1 - last.x0;
+                mixed_bold = ocr_pg and f.bold != b.bold and f.mono == b.mono and f.italic == b.italic and
+                    @abs(f.size - b.size) <= 0.15 * b.size and wordCount(f.text) > 6 and wordCount(last.text) > 6 and
+                    @min(fw, lw) >= 0.85 * @max(fw, lw);
+                if (mixed_bold) same_style = true;
                 const over: f32 = if (ocr_pg) 1.04 else 1.08;
                 if (!goes_on and same_style and b.lines == 1 and b.kind == .paragraph and b.size > over * f.size and wordCount(cur_text.items) <= 6 and
                     cur_text.items.len > 0 and std.mem.indexOfScalar(u8, ".,;:", cur_text.items[cur_text.items.len - 1]) == null) same_style = false;
@@ -7261,6 +7272,8 @@ pub fn readOcr(gpa: Allocator, bytes: []const u8, ocr: []const OcrLine, marks: [
             }
             if (join) {
                 var b = &cur.?;
+                // (a paragraph with some words bold is not a bold paragraph)
+                if (mixed_bold) b.bold = false;
                 if (b.mono) {
                     try cur_text.append(a, '\n');
                     // a blank line of code leaves a gap of whole lines

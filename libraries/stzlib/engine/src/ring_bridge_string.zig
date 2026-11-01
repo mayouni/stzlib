@@ -3151,6 +3151,20 @@ fn ring_StringArabicAlefRepaired(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retstring2(p, r.ptr, @intCast(r.len));
 }
 
+// StzEngineStringIsKnownWord(cWord, cLanguage) -> 1 when the lemma list of cLanguage ("english", "french", "arabic")
+// has cWord as a form or a lemma, 0 when it does not, -1 when the language has no list (lemma.zig)
+fn ring_StringIsKnownWord(p: *anyopaque) callconv(.c) void {
+    const w = ring_vm_api_getstring(p, 1);
+    const wn: usize = @intCast(ring_vm_api_getstringsize(p, 1));
+    const l = ring_vm_api_getstring(p, 2);
+    const ln: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const k = string.isKnownWord(w[0..wn], l[0..ln]) orelse {
+        ring_vm_api_retnumber(p, -1);
+        return;
+    };
+    ring_vm_api_retnumber(p, if (k) 1 else 0);
+}
+
 fn ring_StringLemmatizeWordsList(p: *anyopaque) callconv(.c) void {
     const out = R.ring_vm_api_newlist(p) orelse return;
     const h = getHandle(p, 1);
@@ -4254,6 +4268,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringlemmatized", .func = &ring_StringLemmatized },
     .{ .name = "stzenginestringlemmatizewordslist", .func = &ring_StringLemmatizeWordsList },
     .{ .name = "stzenginestringarabicalefrepaired", .func = &ring_StringArabicAlefRepaired },
+    .{ .name = "stzenginestringisknownword", .func = &ring_StringIsKnownWord },
     .{ .name = "stzenginestringstemmed", .func = &ring_StringStemmed },
     .{ .name = "stzenginestringstemwords", .func = &ring_StringStemWords },
     .{ .name = "stzenginestringscanint", .func = &ring_StringScanInt },

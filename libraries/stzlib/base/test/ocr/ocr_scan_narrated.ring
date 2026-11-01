@@ -101,6 +101,47 @@ else
 	? "SKIP: The inspection page -- no fr-FR pack on this machine"
 ok
 
+# Stamps and logos (2026-11-01): drawn, not written. The OCR reads a coloured round stamp's words and a letterhead
+# logo's emblem as lines, and the reader made headings of them -- on a scanned letter, a stamp's two words and a
+# logo's four mixed characters. They are told by their coloured ink (StzEngineNeuralOcrFigures) and kept out of the text, listed by
+# OcrFigures(). The page is invented (_rig/_make_figure_page.py): a logo, a blue title, a title in two colours, a blue
+# heading, a bar chart, a blue round stamp signed across. The platform does not read the invented logo at all, so the
+# logo is held at the engine, on its box.
+if StzOcrPlatformHas("fr-FR")
+	Scenario("A coloured stamp and a logo are drawn, not written: kept out of the text, coloured words kept in it")
+		o = StzPdfQ($cDir + "figure_page.pdf")
+		o.ReadOcr("fr-FR")
+		aF = o.OcrFigures()
+		Then("the stamp is one figure, its two lines together",
+		     len(aF) = 1 and aF[1][:kind] = "stamp" and len(StzFindCS("TECHNIQUE", aF[1][:text], 1)) > 0, 1)
+		Then("and no block carries its words", kindOf(o, "TECHNIQUE"), "")
+		Then("the coloured words are text: the blue title, the title in two colours, the blue heading, the chart's labels",
+		     kindOf(o, "RAPPORT DE VISITE") != "" and kindOf(o, "Bilan 2025") = "heading" and
+		     kindOf(o, "Objet de la visite") = "heading" and kindOf(o, "Mercredi") = "paragraph", 1)
+		cImg = o.@aOcrImages[1][2]
+		nPpt = o.@aOcrImages[1][3]
+		# the page's own lines, and the logo's line the platform does not read, where it is drawn
+		cBoxes = "90 72 330 160"
+		aKind = [ "logo" ]
+		for l in o.@aOcrLines[1][2]
+			b = l[:box]
+			cBoxes += ";" + b[1] + " " + b[2] + " " + b[3] + " " + b[4]
+			aKind + l[:text]
+		next
+		aK = StzEngineNeuralOcrFigures(cImg, nPpt, cBoxes)
+		cGot = ""
+		for i = 1 to len(aK)
+			if aK[i][1] != "" cGot += aKind[i] + "=" + aK[i][1] + "; " ok
+		next
+		Then("shaped like a logo: the logo's line (an emblem tight against letters) and the title in two colours; the stamp's lines are the stamp's",
+		     cGot, "logo=logo; Bilan 2025=logo; SE ICE=stamp; TECHNIQUE=stamp; ")
+		Then("a reading made of words stays text, one that is not is the logo's",
+		     "" + _StzOcrIsMadeOfWords("Bilan 2025", "fr-FR") + _StzOcrIsMadeOfWords("4kTR", "fr-FR") + _StzOcrIsMadeOfWords("VTR", "fr-FR"), "100")
+	EndScenario()
+else
+	? "SKIP: Stamps and logos -- no fr-FR pack on this machine"
+ok
+
 if StzOcrPlatformHas("ar-SA")
 	Scenario("An Arabic scan reads as a document, in logical order")
 		o = StzPdfQ($cDir + "scan_y11_p1.pdf")
@@ -323,3 +364,12 @@ func paraWith(oP, pcText)
 		if aB[i][:kind] = "paragraph" and StzFindFirst(pcText, aB[i][:text]) > 0 return 1 ok
 	next
 	return 0
+
+# the kind of the first block holding pcText, "" when none does
+func kindOf(oP, pcText)
+	aB = oP.Blocks()
+	nB = len(aB)
+	for i = 1 to nB
+		if StzFindFirst(pcText, aB[i][:text]) > 0 return aB[i][:kind] ok
+	next
+	return ""

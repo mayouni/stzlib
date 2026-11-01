@@ -767,6 +767,56 @@ func StzOcrLogicalText(pcText)
 	next
 	return _c_
 
+# TRUE when a line read from a scan is made of words: none mixes letters and digits, and -- when its language has a
+# lemma list (French, English, Arabic) -- the list knows every word of two letters or more. A line SHAPED like a logo
+# (StzEngineNeuralOcrFigures) is kept as text when it reads as words, a title in two colours, and taken for the logo
+# when it does not: a coloured emblem read beside a wordmark comes back as letters and digits mixed.
+func _StzOcrIsMadeOfWords(pcText, pcLang)
+	_cL_ = ""
+	_c2_ = lower(left("" + pcLang, 2))
+	if _c2_ = "fr"
+		_cL_ = "french"
+	but _c2_ = "en"
+		_cL_ = "english"
+	but _c2_ = "ar"
+		_cL_ = "arabic"
+	ok
+	_cT_ = StzReplace(StzReplace("" + pcText, "'", " "), "’", " ")
+	_aW_ = StzSplit(_cT_, " ")
+	_nW_ = len(_aW_)
+	for _i_ = 1 to _nW_
+		_aC_ = StzChars(_aW_[_i_])
+		_nC_ = len(_aC_)
+		# the word without the punctuation around it
+		_aP_ = [ ".", ",", ";", ":", "!", "?", "(", ")", "[", "]", "«", "»", '"', "-" ]
+		_n1_ = 1
+		while _n1_ <= _nC_ and ring_find(_aP_, _aC_[_n1_]) > 0
+			_n1_++
+		end
+		_n2_ = _nC_
+		while _n2_ >= _n1_ and ring_find(_aP_, _aC_[_n2_]) > 0
+			_n2_--
+		end
+		if _n2_ < _n1_ loop ok
+		_nLet_ = 0
+		_nDig_ = 0
+		_cW_ = ""
+		for _k_ = _n1_ to _n2_
+			_c_ = _aC_[_k_]
+			_cW_ += _c_
+			if isdigit(_c_)
+				_nDig_++
+			but len(_c_) > 1 or isalpha(_c_)
+				_nLet_++
+			ok
+		next
+		if _nLet_ > 0 and _nDig_ > 0 return 0 ok
+		if _cL_ != "" and _nLet_ >= 2 and _nDig_ = 0
+			if StzEngineStringIsKnownWord(_cW_, _cL_) = 0 return 0 ok
+		ok
+	next
+	return 1
+
 # A line with each run of the letters O, o, l, I, | standing between two digits read as the digits they were taken
 # for (0 for O and o, 1 for the others): 2O26 is 2026 and 482l3 is 48213. A letter with a digit on one side only is
 # left alone (12h, 1er, A4).

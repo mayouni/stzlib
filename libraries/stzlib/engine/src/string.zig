@@ -135,6 +135,7 @@ pub const str_lemmatize_words = lemma.str_lemmatize_words;
 pub const str_lemmatize_text = lemma.str_lemmatize_text;
 pub const arabicAlefRepaired = lemma.arabicAlefRepaired;
 pub const freeRepaired = lemma.freeRepaired;
+pub const isKnownWord = lemma.isKnownWord;
 
 pub const str_levenshtein = fuzzy.str_levenshtein;
 pub const str_hamming_distance = fuzzy.str_hamming_distance;

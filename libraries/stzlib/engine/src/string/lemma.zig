@@ -250,6 +250,21 @@ pub fn str_lemmatize_text(handle: StzStringHandle, lang: [*c]const u8, lang_len:
     return result;
 }
 
+/// Whether `word` is a form or a lemma of the dictionary of `lang` ("english", "french", "arabic"), lowercased as for
+/// lemmatizing; null when the language has no dictionary here (the OCR asks it whether a line read from a logo is
+/// made of words).
+pub fn isKnownWord(word: []const u8, lang: []const u8) ?bool {
+    var li: ?usize = null;
+    for (langs, 0..) |L, i| {
+        if (mem.eql(u8, lang, L.name)) li = i;
+    }
+    const i = li orelse return null;
+    buildLang(i);
+    var lbuf: [160]u8 = undefined;
+    const key = lowerUnicode(word, &lbuf);
+    return g_maps[i].f2l.contains(key) or g_maps[i].lemmas.contains(key);
+}
+
 // --- the alef family in Arabic OCR -------------------------------------------------------------------------------
 //
 // A recogniser confuses the four alefs -- bare (ا), hamza above (أ), hamza below (إ), madda (آ) -- because they differ
