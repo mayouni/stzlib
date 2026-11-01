@@ -132,6 +132,18 @@ class stzAllocation from stzObject
 	def Name_()
 		return @cName
 
+	# Returns the type of the demands the allocation places or chooses.
+	#
+	#   returns    a text, in lower case; empty before Assign or Choose
+	def DemandType()
+		return @cDemandType
+
+	# Returns the predicate placements are written under.
+	#
+	#   returns    a text, in lower case; empty before WriteAs
+	def Predicate()
+		return @cWriteAs
+
 	#@ aka  -- 1. THE SHAPE --------------------------------------------------------
 
 	# Declares the assign shape: each demand of this type is placed on one resource.

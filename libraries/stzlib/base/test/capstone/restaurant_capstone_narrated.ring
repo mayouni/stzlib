@@ -12,7 +12,8 @@ load "../_narrated.ring"
 #   WORLD (app)    -- the restaurant as a living world: things, a reaction,
 #                     a goal (stzApp / stzGraphGoal)
 #   R5  ACTS       -- an agent takes a goal and acts, governed, ON THE
-#                     REACTOR loop (stzPIAgent on stzAgentHost)
+#                     REACTOR loop (stzPIAgent on stzAgentHost), and
+#                     ALLOCATES through the optimizer (stzAllocationSkill)
 #   R6  GOVERNS    -- change itself is governed + reversible: a typed
 #                     refinement through the 4-stage gate (stzRefinableCode)
 #   R7  SHIPS      -- the SAME world serves WEB + MBaaS + IoT on one reactor
@@ -98,36 +99,38 @@ EndScenario()
 
 # ---- R5: an AGENT acts on the reactor, governed --------------------------
 
-Scenario("R5 ACTS: a governed agent serves the tables on the reactor loop")
-	Given("a maitre-d agent whose skill serves an unserved table")
+Scenario("R5 ACTS: a governed agent ALLOCATES the tables on the reactor loop")
+	Given("a maitre-d whose seat skill OPTIMIZES (stzAllocation -> stzOptimModel)")
+	# the if/but chain that stood here seated the first waiting table it
+	# matched; the allocation skill reads tables and parties from memory
+	# and maximizes the covers seated, one party per table
 	oMaitre = new stzPIAgent("maitre-d")
-	oMaitre.MemoryQ().Learn("t1", "state", "waiting")
-	oMaitre.MemoryQ().Learn("t2", "state", "waiting")
+	oMaitre.MemoryQ().Learn("t1", "is-a", "table").Learn("t1", "seats", "4")
+	oMaitre.MemoryQ().Learn("t2", "is-a", "table").Learn("t2", "seats", "6")
+	oMaitre.MemoryQ().Learn("lee", "is-a", "party").Learn("lee", "size", "2")
+	oMaitre.MemoryQ().Learn("ayouni", "is-a", "party").Learn("ayouni", "size", "4")
+	oMaitre.MemoryQ().Learn("smiths", "is-a", "party").Learn("smiths", "size", "6")
 	oMaitre.GovernanceQ().DeclareRisk("seat-table", 1)
 	oMaitre.GovernanceQ().GrantPermission("maitre-d", "seat-table")
 	oMaitre.GovernanceQ().SetAuthority("maitre-d", :Delegated)
-	oSk = new stzAgentSkill("seat")
-	oSk.SetWhen(func oMem { return oMem.Fact("t1", "state", "waiting") or oMem.Fact("t2", "state", "waiting") })
-	oSk.SetDoes(func oMem {
-		if oMem.Fact("t1", "state", "waiting")
-			oMem.Forget("t1", "state", "waiting")  oMem.Learn("t1", "state", "served")
-		but oMem.Fact("t2", "state", "waiting")
-			oMem.Forget("t2", "state", "waiting")  oMem.Learn("t2", "state", "served")
-		ok
-		return 1
-	})
-	oSk.SetVerifiedBy(func oMem { return 1 })
-	oMaitre.AddGovernedSkill(oSk, "seat-table")
+	oSeating = new stzAllocation("seating")
+	oSeating.Assign("party").To("table").SizedBy("size").Within("seats").OnePerResource()
+	oSeating.WriteAs("seated-at").UnplacedAs("waiting")
+	oMaitre.AddGovernedSkill(new stzAllocationSkill("seat", oSeating), "seat-table")
 
 	oHost = new stzAgentHost()
 	oHost.Supervise(oMaitre, 15)
 	When("the host runs the perceive-act loop on the reactor")
 	oHost.RunFor(200)
 	oLive = oHost.AgentQ("maitre-d")
-	Then("the agent acted (both tables served)",
-		oLive.MemoryQ().Fact("t1", "state", "served") = 1 and
-		oLive.MemoryQ().Fact("t2", "state", "served") = 1, TRUE)
+	Then("the agent allocated by optimization: 10 covers, both tables",
+		oLive.MemoryQ().Fact("smiths", "seated-at", "t2") = 1 and
+		oLive.MemoryQ().Fact("ayouni", "seated-at", "t1") = 1, TRUE)
+	Then("and the party that fits nowhere is told to wait, not squeezed in",
+		oLive.MemoryQ().Fact("lee", "seated-at", "waiting"), 1)
 	Then("its decisions left a governed lineage", len(oLive.DecisionLog()) >= 1, TRUE)
+	Then("and the lineage names the engine that decided",
+		StzFindFirst("engine floor", oLive.DecisionLog()[1][:why]) > 0, TRUE)
 
 	# reflect the agent's work back into the world; the goal is now met
 	$oResto.Relate("t1", :served, "svc1")

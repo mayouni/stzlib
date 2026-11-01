@@ -938,6 +938,9 @@ load "service/stzPispiQr.ring"    # the twin of the hub served over HTTP, with O
     # memory (knowledge graph), governance gate (R4b), the
     # perceive-decide-act cycle to fixpoint.
     load "agentic/stzAgentSkill.ring"
+    # a resource-allocation skill (R5 OPTIMIZATION): its does: solves a
+    # stzAllocation (optim/, resolved at run time) and writes the answer
+    load "agentic/stzAllocationSkill.ring"
     load "agentic/stzAgentMemory.ring"
     # the safe-world binding (ruling 3.2): the workbench registry an
     # agent rehearses into -- needs system/stzVirtualFileSystem, loaded
