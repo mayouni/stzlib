@@ -639,6 +639,7 @@ class stzText from stzStringText
 		def NeuralEntities()
 			if StzEngineNeuralModelHasNer() != 1 return [] ok
 			_nNueN_ = StzEngineNeuralNer(This.Content())
+			_StzNeuralDoor("ner", "" + _nNueN_ + " entities")
 			_aNueOut_ = []
 			for _iNue_ = 0 to _nNueN_ - 1
 				_aNueOut_ + [ StzEngineNeuralNerText(_iNue_), StzEngineNeuralNerType(_iNue_) ]

@@ -46,6 +46,7 @@
 func StzNeuralEmbeddingOf(pcText)
 	StzNeuralVariantsSync()
 	_nDim_ = StzEngineNeuralEmbed(pcText)
+	_StzNeuralDoor("embed", "" + _nDim_ + " numbers for " + len(pcText) + " bytes")
 	if _nDim_ = 0 return [] ok
 	_aVec_ = []
 	for _i_ = 0 to _nDim_ - 1

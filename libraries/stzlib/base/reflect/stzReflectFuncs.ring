@@ -1874,6 +1874,7 @@ func _StzRankMethodTextsHeaded(pcQuestion, paTexts, paVectors, n, paBonus, paHea
 			_idx_ = _aCand_[_i_]
 			_aSc_ + [ _idx_, StzEngineNeuralRerank(pcQuestion, _StzCuratedZone(paTexts[_idx_])) ]
 		next
+		_StzNeuralDoor("rerank", "" + _nc_ + " candidate(s) scored for a question of " + len(pcQuestion) + " bytes")
 		# NOTE: on a 30-intent challenge this small cross-encoder underperformed the
 		# lexical path (terse method blobs are off-domain for a query-document reranker);
 		# kept for recipe/document reranking, but it is NOT the method-retrieval winner.

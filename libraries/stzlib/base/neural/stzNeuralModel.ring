@@ -22,6 +22,16 @@ $aStzLastGrammarRun = [ :judged = 0, :masked = 0, :steps = 0, :stalled = 0, :com
 # GK2b: the matmul verdicts are pushed into the neural DLL once -- see StzNeuralVariantsSync()
 $bStzNeuralVariantsSynced_ = 0
 
+# THE DOOR (COMPASS-KERN-05): every language-model call -- generate, chat, streaming, option
+# probabilities, embed, rerank -- writes a chained model.call record to the security ledger before
+# its answer returns. When no ledger is open the door OPENS the process ledger first, so no face
+# can switch the record off. The image plane's door (base/image/stzVision.ring) is the same rule.
+func _StzNeuralDoor(pcFaculty, pcWhat)
+	if NOT StzSecurityLedgerIsOpen()
+		StzOpenSecurityLedger(4096)
+	ok
+	StzNoteFact("model.call", "stzNeuralModel", "" + StzEngineNeuralModelArch(), pcFaculty + ": " + pcWhat)
+
 # StzNeuralModelQ(cPath) -- construct a model object and load the GGUF at
 # cPath. ONE creation function, named for its class + Q (the house rule).
 func StzNeuralModelQ(pcPath)
@@ -93,6 +103,7 @@ func StzGenerate(pcPrompt, pnMaxNewTokens)
 		pnMaxNewTokens = 64
 	ok
 	_cOut_ = StzEngineNeuralGenerate(pcPrompt, pnMaxNewTokens)
+	_StzNeuralDoor("generate", "" + len(_cOut_) + " bytes for a prompt of " + len(pcPrompt))
 	_StzRefuseOverlongPrompt("StzGenerate", _cOut_)
 	return _cOut_
 
@@ -175,6 +186,7 @@ func StzOptionProbabilities(pcPrompt, pacOptions)
 		ok
 		add(_aIds_, _nId_)
 	next
+	_StzNeuralDoor("options", "" + len(pacOptions) + " option(s) over a prompt of " + len(pcPrompt) + " bytes")
 	if StzEngineNeuralPrefillLogits(pcPrompt) = 0
 		return []
 	ok
@@ -296,6 +308,7 @@ func StzGenerateXT(pcPrompt, paOptions)
 	ok
 
 	_cOut_ = StzEngineNeuralGenerateXT(pcPrompt, _nMax_, _nTemp_, _nTopP_, _nTopK_, _nSeed_)
+	_StzNeuralDoor("generate", "" + len(_cOut_) + " bytes for a prompt of " + len(pcPrompt))
 
 	if _bTerm_
 		StzEngineNeuralClearTermination()
@@ -437,6 +450,7 @@ func StzStartGeneration(pcPrompt, paOptions)
 			ok
 		next
 	ok
+	_StzNeuralDoor("generate-stream", "started on a prompt of " + len(pcPrompt) + " bytes")
 	return StzEngineNeuralGenStart(pcPrompt, _nMax_, _nTemp_, _nTopP_, _nTopK_, _nSeed_)
 
 # The next decoded token text of the open session ("" when finished).
@@ -550,6 +564,7 @@ func StzRerank(pcQuery, paDocs)
 		if isString(paDocs[i])
 			if _bXEnc_
 				_nS_ = StzEngineNeuralRerank(pcQuery, paDocs[i])
+				_StzNeuralDoor("rerank", "document " + i + " of " + _nD_ + " scored " + _nS_)
 			else
 				_nS_ = StzSemanticSimilarity(pcQuery, paDocs[i])
 			ok
@@ -599,6 +614,7 @@ func StzSemanticSimilarity(pcA, pcB)
 func _StzEmbedInto(pcText)
 	StzNeuralVariantsSync()
 	_nDim_ = StzEngineNeuralEmbed(pcText)
+	_StzNeuralDoor("embed", "" + _nDim_ + " numbers for " + len(pcText) + " bytes")
 	_aVec_ = []
 	for i = 0 to _nDim_ - 1
 		_aVec_ + StzEngineNeuralEmbedAt(i)
@@ -883,6 +899,7 @@ class stzNeuralModel from stzNeural
 			if NOT isString(pcText) return [] ok
 			StzNeuralVariantsSync()
 			_nDim_ = StzEngineNeuralEmbed(pcText)
+			_StzNeuralDoor("embed", "" + _nDim_ + " numbers for " + len(pcText) + " bytes")
 			if _nDim_ = 0 return [] ok
 			_aVec_ = []
 			for i = 0 to _nDim_ - 1
@@ -1075,6 +1092,7 @@ class stzNeuralChat from stzObject
 			_cReply_ = StzEngineNeuralGenerateCont(_cCont_, @nMaxTokens,
 				@nTemperature, @nTopP, @nTopK, @nSeed)
 		ok
+		_StzNeuralDoor("chat", "turn " + (len(@aTurns) + 1) / 2 + ": " + len(_cReply_) + " bytes")
 		@aTurns + [ "assistant", _cReply_ ]
 		return _cReply_
 
