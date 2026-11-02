@@ -27,6 +27,8 @@ $cStzVisionFaceModel = "yunet_2023mar.gguf"
 $cStzVisionObjectModel = "yolox_tiny.gguf"
 $cStzVisionSaliencyModel = "u2netp.gguf"     # IM6: the salient object (SalientMask, BackgroundRemoved)
 $cStzVisionDepthModel = "depth_anything_v2_small.gguf"   # IM6: relative depth (DepthMap)
+$cStzVisionSamEncoder = "mobile_sam_encoder.gguf"   # IM6: the object at a point (MaskAt, MaskInBox, CutOutAt)
+$cStzVisionSamDecoder = "mobile_sam_decoder.gguf"
 
 # YuNet's score threshold. OpenCV's default is 0.9; 0.5 was CHOSEN ON A DEV SET kept apart from the
 # golden one (_golden/coco_dev_faces.ring, 30 COCO images after faces_v1): 27 of 30 images agree at
@@ -77,6 +79,20 @@ func _StzVisionDoor(pcFaculty, pcFile, pcWhat)
 	StzNoteFact("model.call", "stzImage", pcFile, pcFaculty + ": " + pcWhat + " in " +
 		StzEngineNeuralVisionMs() + " ms")
 
+# IM6: the id of a picture's MobileSAM embedding in the engine. The engine keys it by the pixels, so a picture
+# already encoded is not encoded again, and only an encoding that ran goes through the door.
+func _StzVisionSamEmbedding(poImg, pcFaculty)
+	_cE_ = _StzVisionModelOrRaise($cStzVisionSamEncoder, pcFaculty)
+	_n_ = StzEngineNeuralVisionSamEmbed(_cE_, poImg.Pixels(), poImg.Width(), poImg.Height(), poImg.Channels(), 4)
+	if _n_ = 0
+		_StzVisionFailed(pcFaculty, $cStzVisionSamEncoder)
+	ok
+	if StzEngineNeuralVisionSamLast()[3] = 0
+		_StzVisionDoor("object-at", $cStzVisionSamEncoder, "the embedding of a " + poImg.Width() + " x " +
+			poImg.Height() + " picture")
+	ok
+	return _n_
+
 func _StzVisionFailed(pcFaculty, pcFile)
 	_StzVisionDoor(pcFaculty, pcFile, "FAILED -- " + StzEngineNeuralOcrGraphError())
 	stzraise("stzImage." + pcFaculty + ": " + StzEngineNeuralOcrGraphError())
@@ -119,6 +135,17 @@ func StzVisionColor(pColor)
 	                                floor is not tuned on what judges it;
 	                                model: MobileNetV3, its ImageNet labels
 	                                mapped to COCO categories (StzVisionCocoOf)
+	:foreground   image -> record   (IM6) floor: the classical foreground
+	                                (what is not the border colour); model:
+	                                U2-Net-p
+	:object-at    record -> record  (IM6) [ image, x, y ] -> the mask of the
+	                                object under the point; floor: the region
+	                                of the classical foreground holding the
+	                                point; model: MobileSAM
+	:depth        image -> record   (IM6) relative depth; floor: the lower
+	                                in the picture, the nearer; model:
+	                                Depth-Anything-V2-Small; judged on
+	                                DIODE's laser scans (diode-v1)
 
 	The golden sets come from COCO's own annotations (CC BY 4.0), never
 	from this code: base/test/image/_golden/coco_v1.ring, written by
@@ -163,6 +190,22 @@ func StzVisionDeclare(paGoldens)
 	if len(StzFind("u2netp", _oG_.ImplementationIds())) = 0
 		_oG_.AddImplementation([ :id = "u2netp", :kind = "graph", :fn = "_StzVisionForegroundU2netp",
 			:needle = "vision/" + $cStzVisionSaliencyModel, :licence = "apache-2.0", :memory = 40 ])
+	ok
+	# IM6: the object under a point -- the input is [ image path, x, y ], the point 1-based
+	_oA_ = StzFacultyQ("object-at")
+	_oA_.SetInputTypeQ(:record).SetOutputTypeQ(:record).SetFloorQ("classical", "_StzVisionObjectAtClassic").
+	     SetGoldenCheckerQ("mask-iou").SetGoldenVersionQ("coco-v1")
+	if len(StzFind("mobilesam", _oA_.ImplementationIds())) = 0
+		_oA_.AddImplementation([ :id = "mobilesam", :kind = "graph", :fn = "_StzVisionObjectAtSam",
+			:needle = "vision/" + $cStzVisionSamEncoder, :licence = "apache-2.0", :memory = 120 ])
+	ok
+	# IM6: relative depth, judged on DIODE's laser scans (the expected value is a scan's base path)
+	_oD_ = StzFacultyQ(:depth)
+	_oD_.SetInputTypeQ(:image).SetOutputTypeQ(:record).SetFloorQ("lower-is-nearer", "_StzVisionDepthPrior").
+	     SetGoldenCheckerQ("depth-absrel").SetGoldenVersionQ("diode-v1")
+	if len(StzFind("depth-anything-v2-small", _oD_.ImplementationIds())) = 0
+		_oD_.AddImplementation([ :id = "depth-anything-v2-small", :kind = "graph", :fn = "_StzVisionDepthDa2",
+			:needle = "vision/" + $cStzVisionDepthModel, :licence = "apache-2.0", :memory = 400 ])
 	ok
 	if len(StzMeasurementOf("faces", "platform", "coco-v1")) = 0 and fexists(StzVisionMeasurementsFile())
 		StzLoadMeasurements(StzVisionMeasurementsFile())
@@ -254,6 +297,26 @@ func _StzVisionForegroundClassic(pImage, paParams)
 	_o_.Release()
 	return _a_
 
+# IM6: the classical answer for a point -- the region of the classical foreground (ForegroundMask) that holds
+# the point, connected through its own pixels; nothing when the point falls on what it calls background
+func _StzVisionObjectAtClassic(pInput, paParams)
+	_o_ = StzImageQ("" + pInput[1])
+	_oM_ = _o_.ForegroundMask()
+	_oC_ = _oM_._New(StzEngineImageComponentAt(_oM_.Handle(), pInput[2], pInput[3], 128))
+	_a_ = [ :width = _oC_.Width(), :height = _oC_.Height(), :mask = _oC_.Pixels() ]
+	_oC_.Release()
+	_oM_.Release()
+	_o_.Release()
+	return _a_
+
+# IM6: the classical depth cue -- the lower in the picture, the nearer (the ground recedes toward the horizon);
+# the checker reads the row number as inverse depth
+func _StzVisionDepthPrior(pImage, paParams)
+	_o_ = StzImageQ("" + pImage)
+	_a_ = [ :width = _o_.Width(), :height = _o_.Height(), :prior = "rows" ]
+	_o_.Release()
+	return _a_
+
 # a FIXED answer: "chair", the vocabulary category in the most COCO val2017 images outside the
 # golden set (575 of them; printed by _rig/coco_golden.py) -- never tuned on the items that judge it
 func _StzVisionLabelPrior(pImage, paParams)
@@ -272,6 +335,27 @@ func _StzVisionForegroundU2netp(pImage, paParams)
 	_oM_ = _o_.SalientMask()
 	_a_ = [ :width = _oM_.Width(), :height = _oM_.Height(), :mask = _oM_.Pixels() ]
 	_oM_.Release()
+	_o_.Release()
+	return _a_
+
+func _StzVisionObjectAtSam(pInput, paParams)
+	_o_ = StzImageQ("" + pInput[1])
+	_oM_ = _o_.MaskAt([ pInput[2], pInput[3] ])
+	_a_ = [ :width = _oM_.Width(), :height = _oM_.Height(), :mask = _oM_.Pixels() ]
+	_oM_.Release()
+	_o_.Release()
+	return _a_
+
+func _StzVisionDepthDa2(pImage, paParams)
+	_o_ = StzImageQ("" + pImage)
+	_cP_ = _StzVisionModelOrRaise($cStzVisionDepthModel, "depth")
+	_c_ = StzEngineNeuralVisionDepth(_cP_, _o_.Pixels(), _o_.Width(), _o_.Height(), _o_.Channels(), 4)
+	if len(_c_) = 0
+		_o_.Release()
+		_StzVisionFailed("depth", $cStzVisionDepthModel)
+	ok
+	_StzVisionDoor("depth", $cStzVisionDepthModel, "a " + _o_.Width() + " x " + _o_.Height() + " map")
+	_a_ = [ :width = _o_.Width(), :height = _o_.Height(), :depth = _c_ ]
 	_o_.Release()
 	return _a_
 

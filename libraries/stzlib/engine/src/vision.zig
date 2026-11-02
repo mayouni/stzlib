@@ -613,3 +613,157 @@ pub fn depth(model_path: []const u8, px: []const u8, w: usize, h: usize, c: usiz
     try resizeCubicF(o.data[0..plane], side, side, w, h, out);
     return .{ .v = out, .ms = o.ms };
 }
+
+// ------------------------------------------------------------------ promptable masks (IM6: MobileSAM)
+// MobileSAM (Apache-2.0): a TinyViT encoder makes the picture's embedding ONCE (256 x 64 x 64), and a small decoder
+// turns each prompt -- a point on the object, or a box around it -- into a mask. Computed as SAM's predictor
+// computes it: the longest side resized to 1024 by PIL BILINEAR (torchvision's resize of a PIL image), the rest of
+// the 1024 x 1024 square filled with the pixel mean (the exported encoder normalises, then pads with zeros, which
+// is the same picture); the prompt's points in that resized frame, a lone point followed by SAM's padding point
+// (0, 0, label -1). The decoder's four masks come back with their predicted IoUs and one is chosen as the export
+// chooses it -- argmax of iou + (points - 2.5) x [1000, 0, 0, 0] -- then resized as SAM's postprocess_masks does:
+// bilinear to 1024, cropped to the resized picture, bilinear to the picture, logits above 0.
+
+pub const SamEmbedding = struct { id: u32, v: []f32, w: usize, h: usize, rw: usize, rh: usize, key: u64 };
+
+var sam_list: std.ArrayList(SamEmbedding) = .empty;
+var sam_next: u32 = 1;
+const SAM_KEEP = 8; // embeddings kept at once (4 MB each); the oldest goes first
+
+const SAM_MEAN = [3]f32{ 123.675, 116.28, 103.53 };
+
+pub fn samEmbed(model_path: []const u8, px: []const u8, w: usize, h: usize, c: usize, n_threads: c_int) !struct { id: u32, ms: f64, cached: bool } {
+    // the same pixels (and the same encoder) come back as the same embedding: a picture is encoded once,
+    // however many prompts follow
+    var hs = std.hash.Wyhash.init(0);
+    hs.update(model_path);
+    hs.update(std.mem.asBytes(&[3]usize{ w, h, c }));
+    hs.update(px);
+    const key = hs.final();
+    for (sam_list.items, 0..) |e, k| {
+        if (e.key == key) {
+            const keep = sam_list.orderedRemove(k);
+            try sam_list.append(gpa, keep);
+            return .{ .id = keep.id, .ms = 0, .cached = true };
+        }
+    }
+    const m = try modelFor(model_path);
+    const side: usize = 1024;
+    const scale = @as(f64, @floatFromInt(side)) / @as(f64, @floatFromInt(@max(w, h)));
+    const rw: usize = @intFromFloat(@as(f64, @floatFromInt(w)) * scale + 0.5);
+    const rh: usize = @intFromFloat(@as(f64, @floatFromInt(h)) * scale + 0.5);
+    const rgb = try toRgb(px, w, h, c);
+    defer gpa.free(rgb);
+    const rs = try gpa.alloc(u8, rw * rh * 3);
+    defer gpa.free(rs);
+    try resizePilXT(.bilinear, 3, rgb, w, h, rw, rh, rs);
+    const t = try gpa.alloc(f32, side * side * 3);
+    defer gpa.free(t);
+    for (0..side) |y| {
+        for (0..side) |x| {
+            const o = (y * side + x) * 3;
+            for (0..3) |ch| t[o + ch] = if (x < rw and y < rh) @floatFromInt(rs[(y * rw + x) * 3 + ch]) else SAM_MEAN[ch];
+        }
+    }
+    const out = try graph.runInputs(m, &.{t}, n_threads);
+    errdefer gpa.free(out.data);
+    if (sam_list.items.len >= SAM_KEEP) {
+        gpa.free(sam_list.items[0].v);
+        _ = sam_list.orderedRemove(0);
+    }
+    const id = sam_next;
+    sam_next += 1;
+    try sam_list.append(gpa, .{ .id = id, .v = out.data, .w = w, .h = h, .rw = rw, .rh = rh, .key = key });
+    return .{ .id = id, .ms = out.ms, .cached = false };
+}
+
+pub fn samFree(id: u32) void {
+    for (sam_list.items, 0..) |e, k| {
+        if (e.id == id) {
+            gpa.free(e.v);
+            _ = sam_list.orderedRemove(k);
+            return;
+        }
+    }
+}
+
+fn samFind(id: u32) ?SamEmbedding {
+    for (sam_list.items) |e| if (e.id == id) return e;
+    return null;
+}
+
+/// A float map resized as PyTorch's bilinear without aligned corners (half-pixel centres, borders clamped).
+fn resizeLinearF(src: []const f32, w: usize, h: usize, sw: usize, ow: usize, oh: usize, out: []f32) !void {
+    // (src rows are sw apart: a crop of a wider map is read in place)
+    const fx = try gpa.alloc(f32, ow);
+    defer gpa.free(fx);
+    const ix = try gpa.alloc(usize, ow);
+    defer gpa.free(ix);
+    const sx = @as(f64, @floatFromInt(w)) / @as(f64, @floatFromInt(ow));
+    const sy = @as(f64, @floatFromInt(h)) / @as(f64, @floatFromInt(oh));
+    for (0..ow) |x| {
+        const cx = @max(0.0, (@as(f64, @floatFromInt(x)) + 0.5) * sx - 0.5);
+        const x0: usize = @min(@as(usize, @intFromFloat(@floor(cx))), w - 1);
+        ix[x] = x0;
+        fx[x] = @floatCast(cx - @as(f64, @floatFromInt(x0)));
+    }
+    for (0..oh) |y| {
+        const cy = @max(0.0, (@as(f64, @floatFromInt(y)) + 0.5) * sy - 0.5);
+        const y0: usize = @min(@as(usize, @intFromFloat(@floor(cy))), h - 1);
+        const y1 = @min(y0 + 1, h - 1);
+        const ly: f32 = @floatCast(cy - @as(f64, @floatFromInt(y0)));
+        for (0..ow) |x| {
+            const x0 = ix[x];
+            const x1 = @min(x0 + 1, w - 1);
+            const lx = fx[x];
+            const top = src[y0 * sw + x0] * (1 - lx) + src[y0 * sw + x1] * lx;
+            const bot = src[y1 * sw + x0] * (1 - lx) + src[y1 * sw + x1] * lx;
+            out[y * ow + x] = top * (1 - ly) + bot * ly;
+        }
+    }
+}
+
+pub const SamMask = struct { px: []u8, iou: f32, which: usize, ms: f64 };
+
+/// The mask for a prompt of exactly two points in the PICTURE's pixels: a point and SAM's padding point
+/// (labels 1 or 0, then -1), or a box's two corners (labels 2, 3).
+pub fn samMask(model_path: []const u8, id: u32, pts: [4]f32, labels: [2]f32, n_threads: c_int) !SamMask {
+    const m = try modelFor(model_path);
+    const e = samFind(id) orelse {
+        graph.setError("no picture embedding {d} (an embedding is kept until {d} newer ones exist)", .{ id, SAM_KEEP });
+        return error.NoEmbedding;
+    };
+    const kx = @as(f32, @floatFromInt(e.rw)) / @as(f32, @floatFromInt(e.w));
+    const ky = @as(f32, @floatFromInt(e.rh)) / @as(f32, @floatFromInt(e.h));
+    var coords = [4]f32{ pts[0] * kx, pts[1] * ky, pts[2] * kx, pts[3] * ky };
+    if (labels[1] == -1) {
+        coords[2] = 0;
+        coords[3] = 0;
+    }
+    const o = try graph.runInputs(m, &.{ e.v, &coords, &labels }, n_threads);
+    defer gpa.free(o.data);
+    const lp: usize = 256 * 256;
+    if (o.data.len != 4 * lp + 4) {
+        graph.setError("the decoder gave {d} values, not 4 masks and 4 scores", .{o.data.len});
+        return error.BadDecoder;
+    }
+    const ious = o.data[4 * lp ..];
+    var best: usize = 0;
+    var bs: f32 = -std.math.inf(f32);
+    for (0..4) |k| {
+        const s = ious[k] + (if (k == 0) @as(f32, (2.0 - 2.5) * 1000.0) else 0.0);
+        if (s > bs) {
+            bs = s;
+            best = k;
+        }
+    }
+    const big = try gpa.alloc(f32, 1024 * 1024);
+    defer gpa.free(big);
+    try resizeLinearF(o.data[best * lp .. (best + 1) * lp], 256, 256, 256, 1024, 1024, big);
+    const fin = try gpa.alloc(f32, e.w * e.h);
+    defer gpa.free(fin);
+    try resizeLinearF(big, e.rw, e.rh, 1024, e.w, e.h, fin);
+    const out = try gpa.alloc(u8, e.w * e.h);
+    for (fin, 0..) |v, i| out[i] = if (v > 0) 255 else 0;
+    return .{ .px = out, .iou = ious[best], .which = best, .ms = o.ms };
+}

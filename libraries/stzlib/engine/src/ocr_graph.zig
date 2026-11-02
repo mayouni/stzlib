@@ -213,6 +213,36 @@ fn profileCompute(graph: *c.ggml_cgraph, plan: *c.ggml_cplan) c.ggml_status {
     return c.GGML_STATUS_SUCCESS;
 }
 
+// STZ_OCR_SUMS=1: the graph computed one node at a time, and each node's op and the sum of its values printed
+// (stderr) the moment it is computed -- before a later node reuses its memory. Two runs that disagree are
+// compared line by line; the first line that differs names the op.
+fn sumsCompute(graph: *c.ggml_cgraph, plan: *c.ggml_cplan) c.ggml_status {
+    const g: *CGraph = @ptrCast(@alignCast(graph));
+    const n: usize = @intCast(g.n_nodes);
+    var i: usize = 0;
+    while (i < n) : (i += 1) {
+        var v = g.*;
+        v.size = 0;
+        v.n_nodes = 1;
+        v.n_leafs = 0;
+        v.nodes = g.nodes + i;
+        v.grads = null;
+        v.grad_accs = null;
+        v.leafs = null;
+        v.uid = 0;
+        const nd = g.nodes[i];
+        const st = c.ggml_graph_compute(@ptrCast(&v), plan);
+        if (st != c.GGML_STATUS_SUCCESS) return st;
+        if (nd.*.type != c.GGML_TYPE_F32 or !c.ggml_is_contiguous(nd)) continue;
+        const d: [*]const f32 = @ptrCast(@alignCast(nd.*.data));
+        var s: f64 = 0;
+        const nn: usize = @intCast(c.ggml_nelements(nd));
+        for (d[0..nn], 0..) |q, qi| s += q * @as(f64, @floatFromInt(qi % 97 + 1)); // (weighted by position: a permutation changes it)
+        std.debug.print("[ocr sum] {d} {s} [{d},{d},{d},{d}] {d:.6}\n", .{ i, std.mem.span(c.ggml_op_desc(nd)), nd.*.ne[0], nd.*.ne[1], nd.*.ne[2], nd.*.ne[3], s });
+    }
+    return c.GGML_STATUS_SUCCESS;
+}
+
 pub const Model = struct {
     arena: std.heap.ArenaAllocator,
     gguf: *c.gguf_context,
@@ -225,6 +255,10 @@ pub const Model = struct {
     labels: [][]const u8 = &.{},
     input_w: u32 = 0,
     input_h: u32 = 0,
+    // IM6: the inputs of a graph with fixed input dims, in program order (x, x1, x2, ...), and the parts of a
+    // packed output (MobileSAM)
+    inputs: []InSpec = &.{},
+    parts: []OutPart = &.{},
 
     pub fn free(m: *Model) void {
         c.ggml_free(m.wctx);
@@ -233,6 +267,9 @@ pub const Model = struct {
         gpa.destroy(m);
     }
 };
+
+pub const InSpec = struct { pname: []const u8, rank: u8, dims: [4]i64, n: usize };
+pub const OutPart = struct { name: []const u8, n: usize };
 
 var last_error: [256]u8 = undefined;
 var last_error_len: usize = 0;
@@ -305,6 +342,46 @@ pub fn load(path: []const u8) !*Model {
     if (wid >= 0) m.input_w = c.gguf_get_val_u32(g, wid);
     const hid = c.gguf_find_key(g, "stz.graph.input_h");
     if (hid >= 0) m.input_h = c.gguf_get_val_u32(g, hid);
+    m.inputs = &.{};
+    m.parts = &.{};
+    const iid = c.gguf_find_key(g, "stz.graph.inputs");
+    if (iid >= 0) {
+        // "program name:rank:onnx name:d,d,..."
+        const ni: usize = @intCast(c.gguf_get_arr_n(g, iid));
+        m.inputs = try a.alloc(InSpec, ni);
+        for (m.inputs, 0..) |*s, k| {
+            const line = try a.dupe(u8, std.mem.span(c.gguf_get_arr_str(g, iid, k)));
+            var it = std.mem.splitScalar(u8, line, ':');
+            s.pname = it.next() orelse return error.BadInputs;
+            s.rank = try std.fmt.parseInt(u8, it.next() orelse return error.BadInputs, 10);
+            _ = it.next();
+            var dit = std.mem.splitScalar(u8, it.next() orelse return error.BadInputs, ',');
+            var d: [5]i64 = .{ 1, 1, 1, 1, 1 };
+            var nd: usize = 0;
+            while (dit.next()) |v| : (nd += 1) {
+                if (nd >= 5) return error.BadInputs;
+                d[nd] = try std.fmt.parseInt(i64, v, 10);
+            }
+            s.n = 1;
+            for (d[0..nd]) |v| s.n *= @intCast(v);
+            // ggml order; a rank-5 input keeps its outer 1 in the rank only
+            s.dims = .{ 1, 1, 1, 1 };
+            const first: usize = if (nd == 5) 1 else 0;
+            var j: usize = 0;
+            while (j < nd - first) : (j += 1) s.dims[j] = d[nd - 1 - j];
+        }
+    }
+    const oid = c.gguf_find_key(g, "stz.graph.outputs");
+    if (oid >= 0) {
+        const no: usize = @intCast(c.gguf_get_arr_n(g, oid));
+        m.parts = try a.alloc(OutPart, no);
+        for (m.parts, 0..) |*p, k| {
+            const line = try a.dupe(u8, std.mem.span(c.gguf_get_arr_str(g, oid, k)));
+            const colon = std.mem.lastIndexOfScalar(u8, line, ':') orelse return error.BadOutputs;
+            p.name = line[0..colon];
+            p.n = try std.fmt.parseInt(usize, line[colon + 1 ..], 10);
+        }
+    }
     return m;
 }
 
@@ -496,7 +573,36 @@ fn build(b: *Builder, s: []const u8) !void {
         const w = try b.get(l.inputs[1]);
         r = c.ggml_conv_transpose_2d_p0(ctx, w, x, @intCast(try l.int("s", 0)));
     } else if (is(op, "pad")) {
-        r = c.ggml_pad(ctx, x, @intCast(try l.int("r", 0)), @intCast(try l.int("b", 0)), 0, 0);
+        if (l.val("q") != null) {
+            // zeros before and after each ggml dim, q = [before0, after0, before1, after1, ...] (IM6: TinyViT's windows)
+            var q: [8]c_int = undefined;
+            for (&q, 0..) |*v, k| v.* = @intCast(try l.int("q", k));
+            r = c.ggml_pad_ext(ctx, contig(ctx, x), q[0], q[1], q[2], q[3], q[4], q[5], q[6], q[7]);
+        } else {
+            r = c.ggml_pad(ctx, x, @intCast(try l.int("r", 0)), @intCast(try l.int("b", 0)), 0, 0);
+        }
+    } else if (is(op, "win")) {
+        // TinyViT's window partition or its reverse: the ONNX [1, A, B, C, D, E] with B and C swapped, written as
+        // ggml [D*E, C, B, A] with dims 1 and 2 swapped (the converter's _window_swap)
+        var q: [4]i64 = undefined;
+        for (&q, 0..) |*v, k| v.* = try l.int("q", k);
+        const t = c.ggml_reshape_4d(ctx, contig(ctx, x), q[0], q[1], q[2], q[3]);
+        r = c.ggml_cont(ctx, c.ggml_permute(ctx, t, 0, 2, 1, 3));
+    } else if (is(op, "ln")) {
+        // LayerNorm over ggml dim 0 (the ONNX last axis), then the scale and the optional bias
+        r = c.ggml_norm(ctx, contig(ctx, x), try l.flt("e"));
+        r = c.ggml_mul(ctx, r, try b.get(l.inputs[1]));
+        if (l.n_in > 2) r = c.ggml_add(ctx, r, try b.get(l.inputs[2]));
+    } else if (is(op, "repeat")) {
+        var q: [4]i64 = undefined;
+        for (&q, 0..) |*v, k| v.* = try l.int("q", k);
+        r = c.ggml_repeat_4d(ctx, x, q[0], q[1], q[2], q[3]);
+    } else if (is(op, "sin")) {
+        r = c.ggml_sin(ctx, contig(ctx, x));
+    } else if (is(op, "cos")) {
+        r = c.ggml_cos(ctx, contig(ctx, x));
+    } else if (is(op, "abs")) {
+        r = c.ggml_abs(ctx, x);
     } else if (is(op, "pool")) {
         const kind = l.val("kind") orelse return error.MissingAttr;
         const pop: c.ggml_op_pool = if (is(kind, "max")) c.GGML_OP_POOL_MAX else c.GGML_OP_POOL_AVG;
@@ -671,39 +777,66 @@ pub fn run(m: *Model, input: []const f32, dims: [4]i64, n_threads: c_int) !Outpu
     return runAny(m, input, null, dims, n_threads);
 }
 
+/// Runs a graph whose inputs have fixed dims (stz.graph.inputs, IM6: MobileSAM), one float array per input in
+/// the order the GGUF lists them, each row-major in its ONNX shape.
+pub fn runInputs(m: *Model, data: []const []const f32, n_threads: c_int) !Output {
+    if (m.inputs.len == 0 or data.len != m.inputs.len) {
+        setError("the graph takes {d} inputs, {d} were given", .{ m.inputs.len, data.len });
+        return error.InputSizeMismatch;
+    }
+    var feeds: [8]Feed = undefined;
+    for (m.inputs, data, 0..) |s, d, k| {
+        if (d.len != s.n) {
+            setError("input {s} wants {d} values, {d} were given", .{ s.pname, s.n, d.len });
+            return error.InputSizeMismatch;
+        }
+        feeds[k] = .{ .name = s.pname, .f = d, .ne = s.dims, .rank = s.rank };
+    }
+    return runFeeds(m, feeds[0..m.inputs.len], m.inputs[0].dims, n_threads);
+}
+
+const Feed = struct { name: []const u8, f: ?[]const f32 = null, ids: ?[]const i32 = null, ne: [4]i64, rank: u8 };
+
 fn runAny(m: *Model, input_f: ?[]const f32, input_ids: ?[]const i32, dims: [4]i64, n_threads: c_int) !Output {
-    const t0 = std.time.nanoTimestamp();
     const ne_in: [4]i64 = .{ dims[3], dims[2], dims[1], dims[0] };
     var total: i64 = 1;
     for (ne_in) |v| total *= v;
     const in_len: usize = if (input_f) |f| f.len else input_ids.?.len;
     if (@as(usize, @intCast(total)) != in_len) return error.InputSizeMismatch;
+    // (a single input given its dims; a token-id sequence is rank 2)
+    const feed = if (input_f) |f| Feed{ .name = "x", .f = f, .ne = ne_in, .rank = 4 } else Feed{ .name = "x", .ids = input_ids, .ne = .{ @intCast(input_ids.?.len), 1, 1, 1 }, .rank = 2 };
+    return runFeeds(m, &.{feed}, dims, n_threads);
+}
+
+fn runFeeds(m: *Model, feeds: []const Feed, dims: [4]i64, n_threads: c_int) !Output {
+    const t0 = std.time.nanoTimestamp();
+    var in_bytes: usize = 0;
+    for (feeds) |f| in_bytes += 4 * (if (f.f) |d| d.len else f.ids.?.len);
 
     const meta_size = c.ggml_tensor_overhead() * MAX_NODES + c.ggml_graph_overhead_custom(MAX_NODES, false) + (1 << 20);
     const mctx = c.ggml_init(.{ .mem_size = meta_size, .mem_buffer = null, .no_alloc = true }) orelse return error.OutOfMemory;
     defer c.ggml_free(mctx);
-    const dctx = c.ggml_init(.{ .mem_size = in_len * 4 + c.ggml_tensor_overhead() * 4 + 4096, .mem_buffer = null, .no_alloc = false }) orelse return error.OutOfMemory;
+    const dctx = c.ggml_init(.{ .mem_size = in_bytes + (c.ggml_tensor_overhead() + 64) * (feeds.len + 4) + 4096, .mem_buffer = null, .no_alloc = false }) orelse return error.OutOfMemory;
     defer c.ggml_free(dctx);
-
-    var xin: *c.ggml_tensor = undefined;
-    var in_rank: u8 = 4;
-    if (input_f) |input| {
-        xin = c.ggml_new_tensor_4d(dctx, c.GGML_TYPE_F32, ne_in[0], ne_in[1], ne_in[2], ne_in[3]) orelse return error.OutOfMemory;
-        const xdata: [*]f32 = @ptrCast(@alignCast(xin.data));
-        @memcpy(xdata[0..input.len], input);
-    } else {
-        const ids = input_ids.?;
-        xin = c.ggml_new_tensor_2d(dctx, c.GGML_TYPE_I32, @intCast(ids.len), 1) orelse return error.OutOfMemory;
-        const xdata: [*]i32 = @ptrCast(@alignCast(xin.data));
-        @memcpy(xdata[0..ids.len], ids);
-        in_rank = 2;
-    }
 
     var b = Builder{ .m = m, .ctx = mctx, .tensors = std.StringHashMap(*c.ggml_tensor).init(gpa), .ranks = std.StringHashMap(u8).init(gpa) };
     defer b.tensors.deinit();
     defer b.ranks.deinit();
-    try b.tensors.put("x", xin);
-    try b.ranks.put("x", in_rank);
+    for (feeds) |f| {
+        var xin: *c.ggml_tensor = undefined;
+        if (f.f) |input| {
+            xin = c.ggml_new_tensor_4d(dctx, c.GGML_TYPE_F32, f.ne[0], f.ne[1], f.ne[2], f.ne[3]) orelse return error.OutOfMemory;
+            const xdata: [*]f32 = @ptrCast(@alignCast(xin.data));
+            @memcpy(xdata[0..input.len], input);
+        } else {
+            const ids = f.ids.?;
+            xin = c.ggml_new_tensor_2d(dctx, c.GGML_TYPE_I32, @intCast(ids.len), 1) orelse return error.OutOfMemory;
+            const xdata: [*]i32 = @ptrCast(@alignCast(xin.data));
+            @memcpy(xdata[0..ids.len], ids);
+        }
+        try b.tensors.put(f.name, xin);
+        try b.ranks.put(f.name, f.rank);
+    }
     const tr = tracing();
     for (m.lines, 0..) |line, li| {
         if (tr) std.debug.print("[ocr] {d}: {s}\n", .{ li, line });
@@ -731,6 +864,18 @@ fn runAny(m: *Model, input_f: ?[]const f32, input_ids: ?[]const i32, dims: [4]i6
         return error.OutOfMemory;
     }
     if (tr) std.debug.print("[ocr] allocated\n", .{});
+    // STZ_OCR_POISON=1 fills the graph's buffer with NaN bytes before computing: an op that reads memory it
+    // never wrote then answers NaN every time, instead of answering whatever the previous run left there
+    if (std.process.hasNonEmptyEnvVarConstant("STZ_OCR_POISON")) {
+        var k: c_int = 0;
+        while (k < c.ggml_graph_n_nodes(graph)) : (k += 1) {
+            const nd = c.ggml_graph_node(graph, k);
+            if (nd.*.buffer != null) {
+                c.ggml_backend_buffer_clear(nd.*.buffer, 0xFF);
+                break;
+            }
+        }
+    }
     if (profiling()) {
         std.debug.print("[ocr memory] graph buffer {d} MB" ++ "\n", .{c.ggml_gallocr_get_buffer_size(galloc, 0) >> 20});
         printMemory("before compute");
@@ -742,11 +887,12 @@ fn runAny(m: *Model, input_f: ?[]const f32, input_ids: ?[]const i32, dims: [4]i6
     defer if (wbuf) |w| gpa.free(w);
     if (plan.work_size > 0) {
         wbuf = try gpa.alloc(u8, plan.work_size);
+        if (std.process.hasNonEmptyEnvVarConstant("STZ_OCR_POISON")) @memset(wbuf.?, 0xFF);
         plan.work_data = wbuf.?.ptr;
     }
     if (tr) std.debug.print("[ocr] computing on {d} threads, work {d} bytes\n", .{ n_threads, plan.work_size });
     const t_alloc = std.time.nanoTimestamp();
-    const st = if (profiling()) profileCompute(graph, &plan) else c.ggml_graph_compute(graph, &plan);
+    const st = if (profiling()) profileCompute(graph, &plan) else if (std.process.hasNonEmptyEnvVarConstant("STZ_OCR_SUMS")) sumsCompute(graph, &plan) else c.ggml_graph_compute(graph, &plan);
     // STZ_OCR_TIMES=1 prints each run's phases (stderr): the graph built, its buffers allocated, computed
     if (std.process.hasNonEmptyEnvVarConstant("STZ_OCR_TIMES")) {
         const t_done = std.time.nanoTimestamp();
@@ -812,11 +958,22 @@ pub fn parity(model_path: []const u8, in_path: []const u8, exp_path: []const u8,
     last_error_len = 0;
     const m = try load(model_path);
     defer m.free();
-    const tin = try readTensor(in_path);
-    defer gpa.free(tin.data);
     const texp = try readTensor(exp_path);
     defer gpa.free(texp.data);
-    const o = try run(m, tin.data, tin.dims, n_threads);
+    // (a graph with fixed input dims (IM6: MobileSAM) runs as it declares them; several inputs are several files,
+    // their paths joined by ';' in the graph's input order)
+    var tins: [8]Tensor = undefined;
+    var datas: [8][]const f32 = undefined;
+    var nin: usize = 0;
+    defer for (tins[0..nin]) |t| gpa.free(t.data);
+    var it = std.mem.splitScalar(u8, in_path, ';');
+    while (it.next()) |pth| {
+        if (nin >= tins.len) return error.InputSizeMismatch;
+        tins[nin] = try readTensor(pth);
+        datas[nin] = tins[nin].data;
+        nin += 1;
+    }
+    const o = if (m.inputs.len > 0) try runInputs(m, datas[0..nin], n_threads) else try run(m, tins[0].data, tins[0].dims, n_threads);
     defer gpa.free(o.data);
     if (out_path.len > 0) try writeTensor(out_path, o);
     if (o.data.len != texp.data.len) {

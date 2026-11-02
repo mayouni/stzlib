@@ -962,6 +962,57 @@ fn ring_VisionDepth(p: *anyopaque) callconv(.c) void {
     }
 }
 
+// IM6 (MobileSAM): (cEncoder, cPixels, nW, nH, nC, nThreads) -> the id of the picture's embedding, kept in the
+// engine for the prompts that follow (0 on failure)
+fn ring_VisionSamEmbed(p: *anyopaque) callconv(.c) void {
+    const g = R.ring_vm_api_getnumber;
+    const th: c_int = @intFromFloat(g(p, 6));
+    if (vis.samEmbed(ocrArg(p, 1), ocrArg(p, 2), @intFromFloat(g(p, 3)), @intFromFloat(g(p, 4)), @intFromFloat(g(p, 5)), if (th < 1) 4 else th)) |r| {
+        vision_ms = r.ms;
+        sam_last[2] = if (r.cached) 1 else 0;
+        R.ring_vm_api_retnumber(p, @floatFromInt(r.id));
+    } else |e| {
+        if (ocrg.lastError().len == 0) ocrg.setError("vision: {s}", .{@errorName(e)});
+        R.ring_vm_api_retnumber(p, 0);
+    }
+}
+
+var sam_last: [3]f64 = .{ 0, 0, 0 };
+
+// IM6: (cDecoder, nId, x0, y0, x1, y1, nLabel0, nLabel1, nThreads) -> the mask, W x H bytes 0 or 255 ("" on
+// failure). A point is (x0, y0) with label 1 (on the object) or 0 (off it) and label1 = -1; a box is its two
+// corners with labels 2 and 3. StzEngineNeuralVisionSamLast() gives [predicted IoU, which of the four masks,
+// 1 when the last embed found its picture already encoded].
+fn ring_VisionSamMask(p: *anyopaque) callconv(.c) void {
+    const g = R.ring_vm_api_getnumber;
+    const th: c_int = @intFromFloat(g(p, 9));
+    const pts = [4]f32{ @floatCast(g(p, 3)), @floatCast(g(p, 4)), @floatCast(g(p, 5)), @floatCast(g(p, 6)) };
+    const labels = [2]f32{ @floatCast(g(p, 7)), @floatCast(g(p, 8)) };
+    if (vis.samMask(ocrArg(p, 1), @intFromFloat(g(p, 2)), pts, labels, if (th < 1) 4 else th)) |r| {
+        defer std.heap.c_allocator.free(r.px);
+        vision_ms = r.ms;
+        sam_last[0] = r.iou;
+        sam_last[1] = @floatFromInt(r.which);
+        R.ring_vm_api_retstring2(p, r.px.ptr, @intCast(r.px.len));
+    } else |e| {
+        if (ocrg.lastError().len == 0) ocrg.setError("vision: {s}", .{@errorName(e)});
+        R.ring_vm_api_retstring2(p, "", 0);
+    }
+}
+
+fn ring_VisionSamLast(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    R.ring_list_adddouble(out, sam_last[0]);
+    R.ring_list_adddouble(out, sam_last[1]);
+    R.ring_list_adddouble(out, sam_last[2]);
+    R.ring_vm_api_retlist(p, out);
+}
+
+fn ring_VisionSamFree(p: *anyopaque) callconv(.c) void {
+    vis.samFree(@intFromFloat(R.ring_vm_api_getnumber(p, 1)));
+    R.ring_vm_api_retnumber(p, 1);
+}
+
 // IM5: (cModel, cText) -> the token ids the text model reads (padded to its fixed length)
 fn ring_VisionTokens(p: *anyopaque) callconv(.c) void {
     const out = R.ring_vm_api_newlist(p) orelse return;
@@ -992,6 +1043,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralvisiontokens", .func = &ring_VisionTokens },
     .{ .name = "stzengineneuralvisionsaliency", .func = &ring_VisionSaliency },
     .{ .name = "stzengineneuralvisiondepth", .func = &ring_VisionDepth },
+    .{ .name = "stzengineneuralvisionsamembed", .func = &ring_VisionSamEmbed },
+    .{ .name = "stzengineneuralvisionsammask", .func = &ring_VisionSamMask },
+    .{ .name = "stzengineneuralvisionsamlast", .func = &ring_VisionSamLast },
+    .{ .name = "stzengineneuralvisionsamfree", .func = &ring_VisionSamFree },
     .{ .name = "stzengineneuralocrread", .func = &ring_OcrRead },
     .{ .name = "stzengineneuralocrreadwith", .func = &ring_OcrReadWith },
     .{ .name = "stzengineneuralocrstats", .func = &ring_OcrStats },

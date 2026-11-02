@@ -1025,6 +1025,63 @@ class stzImage from stzObject
 		ok
 		return new stzImageGrid(_nG_, "y", "x")
 
+	#@ aka  -- 10d. THE OBJECT AT A POINT (IM6: MobileSAM, see stzVision.ring) ---------
+
+	# Returns the mask (data) of the object under a point [ x, y ], 1-based: 255 on the object, 0 elsewhere.
+	#
+	#   note       MobileSAM: the picture is encoded once (about 1.5 s) and kept in the engine, so every
+	#              further point or box on the same pixels costs one decode (about 0.07 s)
+	def MaskAt(paPoint)
+		return This.MaskAtXT(paPoint)[:mask]
+
+	# Returns [ :mask = the mask (a stzImage), :score = the model's own estimate of the mask's IoU ].
+	def MaskAtXT(paPoint)
+		This._MustHold(paPoint[1], paPoint[2], "MaskAt")
+		return This._SamMask("MaskAt", paPoint[1] - 1, paPoint[2] - 1, 0, 0, 1, -1)
+
+	# Returns the mask (data) of the object inside a box [ x, y, w, h ], 1-based.
+	def MaskInBox(paBox)
+		return This.MaskInBoxXT(paBox)[:mask]
+
+	# Returns [ :mask, :score ] for a box, as MaskAtXT does for a point.
+	def MaskInBoxXT(paBox)
+		This._MustHold(paBox[1], paBox[2], "MaskInBox")
+		return This._SamMask("MaskInBox", paBox[1] - 1, paBox[2] - 1, paBox[1] - 1 + paBox[3], paBox[2] - 1 + paBox[4], 2, 3)
+
+	# Returns an RGBA copy keeping only the object under a point [ x, y ]; the image is not changed.
+	def CutOutAt(paPoint)
+		_oM_ = This.MaskAt(paPoint)
+		_oR_ = This._New(StzEngineImageWithMask(@nId, _oM_.Handle()))
+		_oM_.Release()
+		return _oR_
+
+	# Changes the image into an RGBA cut-out of the object under a point [ x, y ].
+	def ApplyCutOutAt(paPoint)
+		_oM_ = This.MaskAt(paPoint)
+		This._Take(StzEngineImageWithMask(@nId, _oM_.Handle()))
+		_oM_.Release()
+
+		def ApplyCutOutAtQ(paPoint)
+			This.ApplyCutOutAt(paPoint)
+			return This
+
+	def _MustHold(pnX, pnY, pcFaculty)
+		if NOT (isNumber(pnX) and isNumber(pnY) and pnX >= 1 and pnY >= 1 and pnX <= This.Width() and pnY <= This.Height())
+			stzraise("stzImage." + pcFaculty + ": the point must be [ x, y ] inside the " + This.Width() + " x " +
+				This.Height() + " picture, 1-based.")
+		ok
+
+	def _SamMask(pcFaculty, pnX0, pnY0, pnX1, pnY1, pnL0, pnL1)
+		_nId_ = _StzVisionSamEmbedding(This, pcFaculty)
+		_cD_ = _StzVisionModelOrRaise($cStzVisionSamDecoder, pcFaculty)
+		_c_ = StzEngineNeuralVisionSamMask(_cD_, _nId_, pnX0, pnY0, pnX1, pnY1, pnL0, pnL1, 4)
+		if len(_c_) = 0
+			_StzVisionFailed(pcFaculty, $cStzVisionSamDecoder)
+		ok
+		_a_ = StzEngineNeuralVisionSamLast()
+		_StzVisionDoor("object-at", $cStzVisionSamDecoder, "a " + This.Width() + " x " + This.Height() + " mask")
+		return [ :mask = StzImageFromPixels(This.Width(), This.Height(), 1, _c_), :score = _a_[1] ]
+
 	# Changes the image into an RGBA copy whose alpha is a mask's gray (a stzImage of the same size).
 	def ApplyMask(poMask)
 		This._Take(StzEngineImageWithMask(@nId, poMask.Handle()))

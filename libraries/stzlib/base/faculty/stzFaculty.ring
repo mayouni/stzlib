@@ -343,12 +343,62 @@ func StzGoldenAgrees(pcChecker, pGot, pExpected)
 		return StzBoxesAgree(pGot, pExpected)
 	but pcChecker = "mask-iou"
 		return StzMaskAgree(pGot, pExpected)
+	but pcChecker = "depth-absrel"
+		return StzDepthAgree(pGot, pExpected)
 	but pcChecker = "first"
 		# a ranking whose best item is the expected one
 		if NOT isList(pGot) or len(pGot) = 0 return 0 ok
 		return lower(trim("" + pGot[1][1])) = lower(trim("" + pExpected))
 	ok
 	return 0
+
+# IM6 -- depth-absrel: pExpected is the base path of a measured depth -- <base>_depth.npy (float32 metres, rows x
+# columns) and <base>_mask.png (the scanner's valid pixels at 255), as _rig/diode_depth.py writes DIODE's; pGot
+# is [ :width, :height, :depth = float32 bytes ] of RELATIVE inverse depth, or [ :width, :height, :prior = "rows" ]
+# for the classical floor. Fitted by a scale and a shift (the MiDaS protocol, StzEngineImageDepthScore); it
+# agrees when the fitted AbsRel is at most 0.20 (fixed before any model ran).
+func StzDepthAgree(pGot, pExpected)
+	_a_ = StzDepthScore(pGot, pExpected)
+	if len(_a_) = 0 return 0 ok
+	return _a_[1] <= 0.2
+
+# [ AbsRel, delta1, valid pixels ] of a depth answer against its measured depth; [] when it cannot be compared
+func StzDepthScore(pGot, pExpected)
+	if NOT isList(pGot) or NOT HasKey(pGot, :width) return [] ok
+	_nT_ = StzNpyF32Grid("" + pExpected + "_depth.npy")
+	if _nT_ = 0 return [] ok
+	_oM_ = StzImageQ("" + pExpected + "_mask.png")
+	_nP_ = 0
+	if HasKey(pGot, :depth)
+		_nP_ = StzEngineImageGridFromF32(pGot[:height], pGot[:width], pGot[:depth])
+	ok
+	_a_ = []
+	if _nP_ != 0 or HasKey(pGot, :prior)
+		_a_ = StzEngineImageDepthScore(_nP_, _nT_, _oM_.Handle())
+	ok
+	if _nP_ != 0 StzEngineImageGridFree(_nP_) ok
+	StzEngineImageGridFree(_nT_)
+	_oM_.Release()
+	return _a_
+
+# A two-dimensional float32 .npy file (numpy's format 1.0, little-endian, C order) as an engine grid; 0 otherwise.
+func StzNpyF32Grid(pcPath)
+	if NOT fexists(pcPath) return 0 ok
+	_c_ = read(pcPath)
+	if len(_c_) < 16 or left(_c_, 6) != char(147) + "NUMPY" return 0 ok
+	_nH_ = ascii(_c_[9]) + 256 * ascii(_c_[10])
+	_cHd_ = substr(_c_, 11, _nH_)
+	# (StzFind gives the list of positions)
+	if len(StzFind("'<f4'", _cHd_)) = 0 or len(StzFind("'fortran_order': False", _cHd_)) = 0 return 0 ok
+	_a1_ = StzFind("'shape': (", _cHd_)
+	if len(_a1_) = 0 return 0 ok
+	_cS_ = substr(_cHd_, _a1_[1] + 10, len(_cHd_) - _a1_[1] - 9)
+	_aE_ = StzFind(")", _cS_)
+	if len(_aE_) = 0 return 0 ok
+	_cS_ = left(_cS_, _aE_[1] - 1)
+	_aS_ = split(StzReplace(_cS_, " ", ""), ",")
+	if len(_aS_) < 2 return 0 ok
+	return StzEngineImageGridFromF32(0 + _aS_[1], 0 + _aS_[2], right(_c_, len(_c_) - 10 - _nH_))
 
 # IM6 -- mask-iou: pExpected is the path of a one-channel mask image (COCO's polygon, filled); pGot is
 # [ :width, :height, :mask = one byte per pixel ]. It agrees when the pixels at 128 or more overlap the

@@ -404,6 +404,45 @@ pub fn withMask(id: i64, mask_id: i64) i64 {
     return adopt(im.w, im.h, 4, out);
 }
 
+/// The connected part (8-connected) of a mask's pixels at `level` or above that holds the pixel (x, y),
+/// 0-based, as a one-channel mask of 0 and 255 -- empty when the pixel itself is below the level (IM6: the
+/// classical floor of an object picked by a point, the foreground region the point falls in).
+pub fn componentAt(id: i64, x: u32, y: u32, level: u8) i64 {
+    const im = images.get(id) orelse return fail("image: no such image", .{});
+    if (x >= im.w or y >= im.h) return fail("image: the point {d},{d} is outside the {d}x{d} image", .{ x, y, im.w, im.h });
+    const n = @as(usize, im.w) * im.h;
+    const out = alloc.alloc(u8, n) catch return fail("image: out of memory", .{});
+    @memset(out, 0);
+    const W: usize = im.w;
+    const H: usize = im.h;
+    const start = @as(usize, y) * W + x;
+    if (grayOf(im, start) >= level) {
+        var stack: std.ArrayList(usize) = .empty;
+        defer stack.deinit(alloc);
+        out[start] = 255;
+        stack.append(alloc, start) catch return fail("image: out of memory", .{});
+        while (stack.pop()) |i| {
+            const cx = i % W;
+            const cy = i / W;
+            var dy: i64 = -1;
+            while (dy <= 1) : (dy += 1) {
+                var dx: i64 = -1;
+                while (dx <= 1) : (dx += 1) {
+                    const nx = @as(i64, @intCast(cx)) + dx;
+                    const ny = @as(i64, @intCast(cy)) + dy;
+                    if (nx < 0 or ny < 0 or nx >= W or ny >= H) continue;
+                    const j = @as(usize, @intCast(ny)) * W + @as(usize, @intCast(nx));
+                    if (out[j] == 0 and grayOf(im, j) >= level) {
+                        out[j] = 255;
+                        stack.append(alloc, j) catch return fail("image: out of memory", .{});
+                    }
+                }
+            }
+        }
+    }
+    return adopt(im.w, im.h, 1, out);
+}
+
 // ------------------------------------------------------------------ geometry
 
 /// A copy of the rectangle (x, y, w, h); refused when it leaves the image.

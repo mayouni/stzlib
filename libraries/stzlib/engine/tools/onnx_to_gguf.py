@@ -67,9 +67,13 @@ class Refused(Exception):
     pass
 
 
+class _Multi(list):
+    """the values of a folded node with several outputs, in output order"""
+
+
 class Converter:
     def __init__(self, path):
-        m = onnx.load(path)
+        m = path if isinstance(path, onnx.ModelProto) else onnx.load(path)
         self.model = m
         self.vshape = {}  # --static: onnx name -> its full shape, every dim a number (onnx shape inference)
         g = m.graph
@@ -85,13 +89,22 @@ class Converter:
             else:
                 self.nodes.append(n)
         ins = [i.name for i in g.input if i.name not in self.C]
-        if len(ins) != 1:
-            raise Refused("expected one graph input, found %r" % ins)
+        if not ins:
+            raise Refused("the graph has no input")
+        # several inputs (IM6: SAM's decoder reads the image embedding, the points and their labels): the first is
+        # x in the program, the next x1, x2, ... -- each with the rank its graph input declares
         self.input = ins[0]
+        self.inputs = ins
         self.output = g.output[0].name
         self.outputs = [o.name for o in g.output]
         self.rank = {self.input: 4}
         self.pname = {self.input: "x"}  # onnx name -> program name
+        if len(ins) > 1:
+            dims = {i.name: len(i.type.tensor_type.shape.dim) for i in g.input}
+            for k, nm in enumerate(ins):
+                self.rank[nm] = dims[nm]
+                self.pname[nm] = "x" if k == 0 else "x%d" % k
+        self.int_inputs = set()  # --int-inputs: graph inputs that hold integers (SAM's point labels)
         self.shape = {}  # onnx name -> shape-domain list (ints or ('dim', onnxname, j))
         self.prog = []
         self.consts = []  # (pname, array)
@@ -127,6 +140,41 @@ class Converter:
                 self.vshape[vi.name] = [int(x.dim_value) for x in d]
         self.static_input = list(dims)
         self.rank[self.input] = len(dims)
+
+    def use_static_inputs(self, dims_by_name):
+        """--static-inputs (IM6: MobileSAM): every input's dims fixed, and every tensor's shape learned by RUNNING
+        the graph once in onnxruntime on zeros. ONNX shape inference stops at the first Pad whose amounts are
+        computed (TinyViT pads each stage to its window size), and a shape the converter does not know is a
+        reshape it cannot write; a run knows them all. Run in batches of node outputs, so the run never holds
+        every intermediate of a 1024 x 1024 picture at once."""
+        import onnxruntime as ort
+        m = onnx.ModelProto()
+        m.CopyFrom(self.model)
+        feeds = {}
+        for i in m.graph.input:
+            if i.name in dims_by_name:
+                dd = i.type.tensor_type.shape.dim
+                for k, v in enumerate(dims_by_name[i.name]):
+                    dd[k].ClearField("dim_param")
+                    dd[k].dim_value = int(v)
+                np_t = onnx.helper.tensor_dtype_to_np_dtype(i.type.tensor_type.elem_type)
+                feeds[i.name] = np.zeros(dims_by_name[i.name], dtype=np_t)
+                self.rank[i.name] = len(dims_by_name[i.name])
+        names = [o for n in m.graph.node if n.op_type != "Constant" for o in n.output if o]
+        so = ort.SessionOptions()
+        so.graph_optimization_level = ort.GraphOptimizationLevel.ORT_DISABLE_ALL
+        for k in range(0, len(names), 150):
+            mm = onnx.ModelProto()
+            mm.CopyFrom(m)
+            del mm.graph.output[:]
+            for nm in names[k:k + 150]:
+                mm.graph.output.append(onnx.ValueInfoProto(name=nm))
+            sess = ort.InferenceSession(mm.SerializeToString(), so, providers=["CPUExecutionProvider"])
+            for nm, v in zip(names[k:k + 150], sess.run(None, feeds)):
+                self.vshape[nm] = [int(q) for q in np.shape(v)]
+        for nm, d in dims_by_name.items():
+            self.vshape[nm] = [int(q) for q in d]
+        self.static_dims = dict(dims_by_name)
 
     # -- names -----------------------------------------------------------------------------------------------
     def r(self, n):
@@ -207,7 +255,7 @@ class Converter:
     def in_shape_domain(self, node):
         if node.op_type == "Shape":
             return True
-        if node.op_type in ("Reshape", "Tile", "Resize"):
+        if node.op_type in ("Reshape", "Tile", "Resize", "Expand", "ConstantOfShape"):
             # these read a shape as a PARAMETER (Resize's sizes): they are in the shape domain only when their data is
             return self.r(node.input[0]) in self.shape
         return any(self.r(x) in self.shape for x in node.input)
@@ -339,7 +387,24 @@ class Converter:
             return np.array(ins[0].shape, dtype=np.int64)
         if t == "Resize":
             return self._fold_resize(node, a, ins)
-        raise Refused("cannot fold constant op %s (%s)" % (t, node.name))
+        return self._ort_fold(node, ins)
+
+    def _ort_fold(self, node, ins):
+        """A node of constants whose op the folds above do not compute (IM6: SAM's mask branch, a Conv/LayerNorm/
+        GELU chain over the all-zero mask a point prompt sends): onnxruntime computes it, as a one-node graph
+        with its inputs as initializers. Several outputs (a Split) come back as a list."""
+        import onnxruntime as ort
+        g = onnx.helper.make_graph(
+            [node], "fold",
+            [], [onnx.ValueInfoProto(name=o) for o in node.output if o],
+            [numpy_helper.from_array(np.asarray(v), name=nm) for nm, v in zip(node.input, ins) if nm])
+        m = onnx.helper.make_model(g, opset_imports=list(self.model.opset_import))
+        m.ir_version = self.model.ir_version
+        try:
+            outs = ort.InferenceSession(m.SerializeToString(), providers=["CPUExecutionProvider"]).run(None, {})
+        except Exception as e:
+            raise Refused("cannot fold constant op %s (%s): %s" % (node.op_type, node.name, str(e).splitlines()[0]))
+        return outs[0] if len(outs) == 1 else _Multi(outs)
 
     def _fold_resize(self, node, a, ins):
         # a Resize of a CONSTANT (DINOv2's position embeddings interpolated to the patch grid): computed here, as
@@ -383,8 +448,8 @@ class Converter:
         for i, node in enumerate(self.nodes):
             if i in self.skip:
                 continue
-            if all(self.is_const(x) for x in node.input) and node.op_type != "Shape":
-                self.C[node.output[0]] = self.fold(node)
+            if all(self.is_const(x) for x in node.input if x) and node.op_type != "Shape":
+                self._set_folded(node, self.fold(node))
                 continue
             # with a static input shape (--seq), a node fed only by constants and FULLY KNOWN shape values folds too
             # (SigLIP2's position ids: a slice of a constant ended by the input's length)
@@ -392,7 +457,7 @@ class Converter:
                 for x in node.input:
                     if x and not self.is_const(x):
                         self.C[self.r(x)] = np.array(self.shape[self.r(x)], dtype=np.int64)
-                self.C[node.output[0]] = self.fold(node)
+                self._set_folded(node, self.fold(node))
                 continue
             if self.in_shape_domain(node):
                 self.do_shape_node(node)
@@ -405,6 +470,14 @@ class Converter:
         if out not in self.pname:
             raise Refused("the graph output %s was never produced" % out)
         return self.pname[out], self.rank[out]
+
+    def _set_folded(self, node, v):
+        if isinstance(v, _Multi):
+            for o, x in zip(node.output, v):
+                if o:
+                    self.C[o] = x
+        else:
+            self.C[node.output[0]] = v
 
     def _static(self, n):
         v = self.shape.get(self.r(n))
@@ -588,18 +661,6 @@ class Converter:
         t = self.emit(node.output[0] + "/lin", "sb", [self.p(node.input[0])], rank, s=a.get("alpha", 0.2), b=a.get("beta", 0.5))
         self.emit(node.output[0], "clamp", [t], rank, lo=0.0, hi=1.0)
 
-    def op_ReduceMean(self, i, node):
-        a = self.attrs(node)
-        rank = self.rank_of(node.input[0])
-        axes = [ax % rank for ax in a["axes"]]
-        if axes == [2, 3] and rank == 4 and a.get("keepdims", 1) == 1:
-            self.emit(node.output[0], "gap", [self.p(node.input[0])], 4)
-            return
-        if axes == [rank - 1] and a.get("keepdims", 1) == 1:
-            self.emit(node.output[0], "mean", [self.p(node.input[0])], rank)
-            return
-        raise Refused("ReduceMean %s over axes %r" % (node.name, a["axes"]))
-
     def op_GlobalAveragePool(self, i, node):
         self.emit(node.output[0], "gap", [self.p(node.input[0])], 4)
 
@@ -750,6 +811,13 @@ class Converter:
         if len(items) == 5 and all(isinstance(v, (int, np.integer)) for v in items) and                 (items[:3] == [0, -1, 3] or (items[0] == 1 and items[2] == 3)):
             self._heads(i, node, int(items[3]), int(items[4]))
             return
+        if len(items) == 6 and all(isinstance(v, (int, np.integer)) for v in items) and int(items[0]) == 1:
+            self._window_swap(node, items)
+            return
+        if len(items) == 5 and all(isinstance(v, (int, np.integer)) for v in items) and int(items[0]) == 1:
+            # rank 5 with an outer 1 (SAM's image embedding per prompt): the runner keeps the 1 in the rank only
+            self.emit(node.output[0], "reshape", [self.p(x)], 5, d=[str(int(v)) for v in items])
+            return
         if len(items) > 4:
             raise Refused("Reshape %s to rank %d" % (node.name, len(items)))
         spec = []
@@ -808,10 +876,16 @@ class Converter:
         x = node.input[0]
         rank = self.rank_of(x)
         if rank + len(self.axes_of(node, a)) > 4:
+            if rank == 4 and self.axes_of(node, a) in ([0], [1]) and self.vshape.get(self.r(x), [0])[0] == 1:
+                # [1, C, H, W] -> [1, 1, C, H, W] (SAM's image embedding per prompt): an outer 1, kept in the rank
+                self.emit(node.output[0], "reshape", [self.p(x)], 5, d=["1"] + ["@%s:%d" % (self.p(x), j) for j in range(4)])
+                return
             self._kv_split(i, node)
             return
         spec = ["@%s:%d" % (self.p(x), j) for j in range(rank)]
-        for ax in sorted(self.axes_of(node, a)):
+        # (a negative axis counts from the end of the OUTPUT: SAM unsqueezes its labels at -1)
+        nout = rank + len(self.axes_of(node, a))
+        for ax in sorted(v % nout for v in self.axes_of(node, a)):
             spec.insert(ax, "1")
         self.emit(node.output[0], "reshape", [self.p(x)], len(spec), d=spec)
 
@@ -923,6 +997,147 @@ class Converter:
             self.pname[self.r(node.output[0])] = t
             self.rank[self.r(node.output[0])] = 2
 
+    # -- IM6: MobileSAM (TinyViT encoder, SAM's prompt encoder and mask decoder) ------------------------------------
+    def _alias(self, node, src):
+        self.pname[self.r(node.output[0])] = self.p(src)
+        self.rank[self.r(node.output[0])] = self.rank_of(src)
+
+    def op_Pad(self, i, node):
+        # constant zero padding by known amounts: TinyViT pads each stage to a multiple of its window (zeros at the
+        # bottom and right). A pad of nothing (SAM's own pad to 1024 of an input already 1024) is the identity.
+        a = self.attrs(node)
+        if a.get("mode", "constant") != "constant":
+            raise Refused("Pad %s mode %s" % (node.name, a.get("mode")))
+        if len(node.input) > 2 and node.input[2] and float(np.asarray(self.const(node.input[2])).flatten()[0]) != 0.0:
+            raise Refused("Pad %s with a value other than zero" % node.name)
+        rank = self.rank_of(node.input[0])
+        pads = [int(v) for v in np.asarray(self.const(node.input[1])).flatten()]
+        if len(pads) != 2 * rank or rank > 4 or min(pads) < 0:
+            raise Refused("Pad %s pads %r" % (node.name, pads))
+        if not any(pads):
+            self._alias(node, node.input[0])
+            return
+        q = []
+        for d in range(4):  # ggml dim d is ONNX axis rank-1-d: (begin, end)
+            ax = rank - 1 - d
+            q += [pads[ax], pads[rank + ax]] if ax >= 0 else [0, 0]
+        self.emit(node.output[0], "pad", [self.p(node.input[0])], rank, q=q)
+
+    def op_LayerNormalization(self, i, node):
+        a = self.attrs(node)
+        rank = self.rank_of(node.input[0])
+        if a.get("axis", -1) % rank != rank - 1:
+            raise Refused("LayerNormalization %s over an axis that is not the last" % node.name)
+        ins = [self.p(node.input[0]), self.p(node.input[1])]
+        if len(node.input) > 2 and node.input[2]:
+            ins.append(self.p(node.input[2]))
+        self.emit(node.output[0], "ln", ins, rank, e=a.get("epsilon", 1e-5))
+
+    def op_ReduceMean(self, i, node):
+        a = self.attrs(node)
+        rank = self.rank_of(node.input[0])
+        axes = [ax % rank for ax in (a["axes"] if "axes" in a else self.axes_of(node, a))]
+        if axes == [2, 3] and rank == 4 and a.get("keepdims", 1) == 1:
+            self.emit(node.output[0], "gap", [self.p(node.input[0])], 4)
+            return
+        if axes == [rank - 1] and a.get("keepdims", 1) == 1:
+            self.emit(node.output[0], "mean", [self.p(node.input[0])], rank)
+            return
+        if axes == [1] and rank == 4 and a.get("keepdims", 1) == 1:
+            # over the channels of NCHW (SAM's LayerNorm2d): channels to the last axis, the mean, and back
+            t = self.emit(node.output[0] + "/c", "permute", [self.p(node.input[0])], 4, p=[0, 2, 3, 1])
+            t = self.emit(node.output[0] + "/m", "mean", [t], 4)
+            self.emit(node.output[0], "permute", [t], 4, p=[0, 3, 1, 2])
+            return
+        raise Refused("ReduceMean %s over axes %r" % (node.name, axes))
+
+    def op_Split(self, i, node):
+        a = self.attrs(node)
+        rank = self.rank_of(node.input[0])
+        axis = a.get("axis", 0) % rank
+        full = self.vshape.get(self.r(node.input[0]))
+        if len(node.input) > 1 and node.input[1]:
+            sizes = [int(v) for v in np.asarray(self.const(node.input[1])).flatten()]
+        elif "split" in a:
+            sizes = list(a["split"])
+        elif full is not None:
+            sizes = [full[axis] // len(node.output)] * len(node.output)
+        else:
+            raise Refused("Split %s with unknown sizes" % node.name)
+        if len(sizes) == 1:
+            self._alias(node, node.input[0])
+            return
+        o = 0
+        for out, n in zip(node.output, sizes):
+            self.emit(out, "slice", [self.p(node.input[0])], rank, d=rank - 1 - axis, o=o, n=n)
+            o += n
+
+    def op_Sin(self, i, node):
+        self.emit(node.output[0], "sin", [self.p(node.input[0])], self.rank_of(node.input[0]))
+
+    def op_Cos(self, i, node):
+        self.emit(node.output[0], "cos", [self.p(node.input[0])], self.rank_of(node.input[0]))
+
+    def _integral(self, n, depth=0):
+        # traced back to a graph input declared integral (--int-inputs) through ops that keep integers
+        n = self.r(n)
+        if n in self.int_inputs:
+            return True
+        src = self.producer.get(n)
+        if src is None or depth > 16:
+            return False
+        nd = self.nodes[src]
+        return nd.op_type in ("Unsqueeze", "Squeeze", "Expand", "Reshape", "Cast") and self._integral(nd.input[0], depth + 1)
+
+    def op_Equal(self, i, node):
+        # x == k for an integer-valued x (SAM's point labels: -1 padding, 0 negative, 1 positive, 2 and 3 box
+        # corners) and an integer constant k is exactly 1 - min(1, |x - k|): a float graph needs no boolean type
+        x, k = node.input
+        if self.is_const(x):
+            x, k = k, x
+        kv = np.asarray(self.const(k)).flatten()
+        if kv.size != 1 or float(kv[0]) != int(kv[0]) or not self._integral(x):
+            raise Refused("Equal %s on an activation not declared integral (--int-inputs)" % node.name)
+        rank = self.rank_of(x)
+        t = self.emit(node.output[0] + "/d", "sb", [self.p(x)], rank, s=1.0, b=-float(kv[0]))
+        t = self.emit(node.output[0] + "/a", "abs", [t], rank)
+        t = self.emit(node.output[0] + "/c", "clamp", [t], rank, lo=0.0, hi=1.0)
+        self.emit(node.output[0], "sb", [t], rank, s=-1.0, b=1.0)
+
+    def op_Not(self, i, node):
+        self.emit(node.output[0], "sb", [self.p(node.input[0])], self.rank_of(node.input[0]), s=-1.0, b=1.0)
+
+    def op_Expand(self, i, node):
+        # broadcast to a known shape (SAM: the labels to the embedding width, the image embedding per prompt)
+        src = self.vshape.get(self.r(node.input[0]))
+        dst = self.vshape.get(self.r(node.output[0]))
+        if dst is None:
+            raise Refused("Expand %s to an unknown shape" % node.name)
+        if src == dst:
+            self._alias(node, node.input[0])
+            return
+        rank = len(dst)
+        if rank > 4:
+            if dst[0] != 1:
+                raise Refused("Expand %s to %r" % (node.name, dst))
+            dst = dst[1:]
+        q = list(reversed(dst)) + [1] * (4 - len(dst))
+        self.emit(node.output[0], "repeat", [self.p(node.input[0])], rank, q=q)
+
+    def _window_swap(self, node, items):
+        """TinyViT's window partition and its reverse, as torch writes them: Reshape to [1, A, B, C, D, E] ->
+        Transpose [0, 1, 3, 2, 4, 5] -> Reshape. Six axes, where ggml has four; what it MEANS is a swap of B and C
+        with D and E carried along, so D*E is one axis: [1, A, B, C, D*E] permuted to [1, A, C, B, D*E], four
+        axes once the outer 1 is dropped. Emitted as one op on the reshape's input; the third Reshape is written
+        as usual, from the numbers."""
+        u = self.users.get(self.r(node.output[0]), [])
+        if len(u) != 1 or self.nodes[u[0]].op_type != "Transpose" or self.attrs(self.nodes[u[0]])["perm"] != [0, 1, 3, 2, 4, 5]:
+            raise Refused("Reshape %s to rank 6 that is not a window partition" % node.name)
+        tr = self.nodes[u[0]]
+        self.skip.add(u[0])
+        _, A, B, C, D, E = [int(v) for v in items]
+        self.emit(tr.output[0], "win", [self.p(node.input[0])], 4, q=[D * E, C, B, A])
+
     def fuse_yunet(self):
         """YuNet writes 12 heads; the runner hands back one tensor. Per stride s in 8, 16, 32 the four heads
         cls_s [1,N,1], obj_s [1,N,1], bbox_s [1,N,4], kps_s [1,N,10] are concatenated on the last axis into
@@ -940,6 +1155,19 @@ class Converter:
         out = self.emit("yunet/all", "concat", rows, 3, d=1)
         return out, 3
 
+    def pack_outputs(self, names):
+        """Several outputs as ONE tensor the runner returns: each flattened, end to end. Their names and sizes go in
+        stz.graph.outputs, so the reader can cut them apart."""
+        parts, self.packed = [], []
+        for nm in names:
+            p = self.p(nm)
+            shp = self.vshape.get(self.r(nm))
+            if shp is None:
+                raise Refused("output %s has an unknown shape" % nm)
+            parts.append(self.emit(nm + "/flat", "reshape", [p], 1, d=["-1"]))
+            self.packed.append("%s:%d" % (nm, int(np.prod(shp))))
+        return (parts[0] if len(parts) == 1 else self.emit("packed", "concat", parts, 1, d=0)), 1
+
     # -- the file ----------------------------------------------------------------------------------------------
     def write(self, path, kind, out_name, out_rank, src_name):
         kvs = [
@@ -951,6 +1179,12 @@ class Converter:
             kv_u32("stz.ocr.output_rank", out_rank),
             kv_strarr("stz.ocr.program", self.prog),
         ]
+        if getattr(self, "static_dims", None):
+            # the inputs in program order, each "program name:rank:onnx name:d,d,..." (IM6)
+            kvs.append(kv_strarr("stz.graph.inputs", ["%s:%d:%s:%s" % (self.pname[nm], len(self.static_dims[nm]), nm,
+                                 ",".join(str(v) for v in self.static_dims[nm])) for nm in self.inputs]))
+        if getattr(self, "packed", None):
+            kvs.append(kv_strarr("stz.graph.outputs", self.packed))
         if getattr(self, "static_input", None):
             kvs.append(kv_str("stz.graph.input_kind", "ids"))
             kvs.append(kv_u32("stz.graph.seq", self.static_input[1]))
@@ -1009,6 +1243,54 @@ COCO80 = ("person bicycle car motorcycle airplane bus train truck boat traffic_l
           "toothbrush").split()
 
 
+def prune_to(model, outputs):
+    """The part of the graph the named tensors need, those tensors its outputs, in the original node order."""
+    g = model.graph
+    prod = {}
+    for k, n in enumerate(g.node):
+        for o in n.output:
+            prod[o] = k
+    need, keep = list(outputs), set()
+    while need:
+        t = need.pop()
+        k = prod.get(t)
+        if k is None or k in keep:
+            continue
+        keep.add(k)
+        need += [x for x in g.node[k].input if x]
+        for a in g.node[k].attribute:
+            if a.type == onnx.AttributeProto.GRAPH:
+                raise Refused("node %s carries a subgraph" % g.node[k].name)
+    used = {x for k in keep for x in g.node[k].input}
+    m = onnx.ModelProto()
+    m.CopyFrom(model)
+    del m.graph.node[:]
+    m.graph.node.extend([g.node[k] for k in sorted(keep)])
+    del m.graph.input[:]
+    m.graph.input.extend([i for i in g.input if i.name in used])
+    del m.graph.initializer[:]
+    m.graph.initializer.extend([t for t in g.initializer if t.name in used])
+    del m.graph.output[:]
+    for o in outputs:
+        if o not in prod:
+            raise Refused("no tensor named %s" % o)
+        m.graph.output.append(onnx.ValueInfoProto(name=o))
+    return m
+
+
+def zero_inputs(model, names):
+    for nm in names:
+        vi = [i for i in model.graph.input if i.name == nm]
+        if not vi:
+            continue  # (pruned away: the outputs kept do not read it)
+        d = [x.dim_value for x in vi[0].type.tensor_type.shape.dim]
+        if any(v <= 0 for v in d):
+            raise Refused("input %s has a symbolic dim; it cannot be a constant" % nm)
+        dt = onnx.helper.tensor_dtype_to_np_dtype(vi[0].type.tensor_type.elem_type)
+        model.graph.initializer.append(numpy_helper.from_array(np.zeros(d, dtype=dt), name=nm))
+        model.graph.input.remove(vi[0])
+
+
 def load_labels(arg):
     """'coco' -> the 80 COCO classes (YOLOX's order); a config.json -> its id2label in id order; '' -> none."""
     if not arg:
@@ -1063,7 +1345,34 @@ def main():
         if a.startswith("--tokenizer="):
             tok_arg = a[12:]
     src, dst = args[0], args[1]
-    cv = Converter(src)
+    # IM6 (MobileSAM): --outputs=a,b keeps only what those tensors need (SAM's decoder is cut before it picks a
+    # mask and resizes it to the picture, which the engine does) and hands them back flattened end to end;
+    # --zero-inputs=a,b makes inputs constant zeros (no previous mask); --static-inputs=name:d,d;name:d fixes every
+    # input's dims; --int-inputs=a declares an input integral (point labels)
+    outs_arg = zeros_arg = sins_arg = ints_arg = ""
+    for a in sys.argv[1:]:
+        if a.startswith("--outputs="):
+            outs_arg = a[10:]
+        if a.startswith("--zero-inputs="):
+            zeros_arg = a[14:]
+        if a.startswith("--static-inputs="):
+            sins_arg = a[16:]
+        if a.startswith("--int-inputs="):
+            ints_arg = a[13:]
+    model = onnx.load(src)
+    if outs_arg:
+        model = prune_to(model, outs_arg.split(","))
+    if zeros_arg:
+        zero_inputs(model, zeros_arg.split(","))
+    cv = Converter(model)
+    if sins_arg:
+        dims = {}
+        for part in sins_arg.split(";"):
+            nm, d = part.split(":")
+            dims[nm] = [int(v) for v in d.split(",")]
+        cv.use_static_inputs(dims)
+    if ints_arg:
+        cv.int_inputs = set(ints_arg.split(","))
     if static_arg:
         if not input_arg:
             raise Refused("--static needs --input=<side>")
@@ -1094,8 +1403,10 @@ def main():
     out_name, out_rank = cv.convert()
     if kind == "yunet":
         out_name, out_rank = cv.fuse_yunet()
+    if outs_arg:
+        out_name, out_rank = cv.pack_outputs(outs_arg.split(","))
     cv.labels = load_labels(labels_arg)
-    m = onnx.load(src)
+    m = model
     dims = [d.dim_value for d in m.graph.input[0].type.tensor_type.shape.dim]
     if len(dims) == 4 and dims[2] > 0 and dims[3] > 0:
         cv.input_wh = (dims[3], dims[2])

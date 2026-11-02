@@ -21,6 +21,12 @@ Inputs (the photos are in <src>/photos, licences in their MANIFEST.tsv):
     depth_anything_v2_small  (IM6) dog.jpg resized to 518 x 518 by PIL BICUBIC, /255, ImageNet mean/std ->
                   predicted_depth; plus da2_<photo>.png: the depth at the photo's size (PyTorch bicubic, as HF's
                   post-processing) min-max scaled to 0..255 and rounded
+    mobilesam     (IM6) dog.jpg as SAM's predictor prepares it: the longest side to 1024 by PIL BILINEAR -> the
+                  encoder's embedding (onnxruntime on the resized picture, which the export pads itself); the
+                  engine's input is the same picture padded to 1024 x 1024 with the pixel mean, saved as
+                  sam_enc_in.stzt. Plus sam_prompts.tsv and sam_<photo>_<prompt>.png: for each photo a centre point
+                  and a box (20% to 80% of each side), the full exported decoder's mask (logits > 0) and its IoU
+                  ("python -I vision_parity.py <src> sam" writes only this section)
 YuNet's expected tensor is its 12 outputs fused exactly as onnx_to_gguf.py --kind=yunet fuses them.
 
 STZT file: "STZT", u32 rank, 4 x i64 dims (ONNX order, 1 where unused), f32 data row-major.
@@ -51,11 +57,58 @@ def letterbox(img, size, pad):
     return out
 
 
+def sam(src, out, photos):
+    from PIL import Image
+    md = os.path.join(src, "mobilesam")
+    es = ort.InferenceSession(os.path.join(md, "mobile_sam_image_encoder.onnx"), providers=["CPUExecutionProvider"])
+    ds = ort.InferenceSession(os.path.join(md, "sam_mask_decoder_single.onnx"), providers=["CPUExecutionProvider"])
+    mean = np.array([123.675, 116.28, 103.53], np.float32)
+
+    def resized(im):
+        w, h = im.size
+        sc = 1024.0 / max(w, h)
+        rw, rh = int(w * sc + 0.5), int(h * sc + 0.5)
+        return np.asarray(im.convert("RGB").resize((rw, rh), Image.BILINEAR), dtype=np.float32), rw / w, rh / h
+
+    a, _, _ = resized(Image.open(os.path.join(photos, "dog.jpg")))
+    emb = es.run(None, {"input_image": a})[0]
+    pad = np.tile(mean, (1024, 1024, 1))
+    pad[:a.shape[0], :a.shape[1]] = a
+    write(os.path.join(out, "sam_enc_in.stzt"), pad)
+    write(os.path.join(out, "sam_enc_out.stzt"), emb)
+    rows = []
+    for name in ("dog.jpg", "cat.jpg", "street.jpg"):
+        im = Image.open(os.path.join(photos, name))
+        w, h = im.size
+        a, kx, ky = resized(im)
+        emb = es.run(None, {"input_image": a})[0]
+        for kind, pts, lab in (("point", [w / 2, h / 2, 0, 0], [1, -1]),
+                               ("box", [w * 0.2, h * 0.2, w * 0.8, h * 0.8], [2, 3])):
+            c = np.array([[[pts[0] * kx, pts[1] * ky], [pts[2] * kx, pts[3] * ky]]], np.float32)
+            if lab[1] == -1:
+                c[0, 1] = 0
+            masks, iou, _ = ds.run(None, {"image_embeddings": emb, "point_coords": c,
+                                          "point_labels": np.array([lab], np.float32),
+                                          "mask_input": np.zeros((1, 1, 256, 256), np.float32),
+                                          "has_mask_input": np.zeros(1, np.float32),
+                                          "orig_im_size": np.array([h, w], np.float32)})
+            Image.fromarray(((masks[0, 0] > 0) * 255).astype(np.uint8), mode="L").save(
+                os.path.join(out, "sam_%s_%s.png" % (name[:-4], kind)))
+            rows.append("\t".join([name, kind, " ".join("%.4f" % v for v in pts), " ".join(str(v) for v in lab),
+                                   "%.6f" % float(iou.flatten()[0])]))
+    with open(os.path.join(out, "sam_prompts.tsv"), "w", encoding="utf-8", newline="\n") as f:
+        f.write("\n".join(rows) + "\n")
+    print("mobilesam: embedding", emb.shape, "prompts", len(rows))
+
+
 def main():
     src = sys.argv[1]
     out = os.path.join(src, "parity")
     os.makedirs(out, exist_ok=True)
     photos = os.path.join(src, "photos")
+    if len(sys.argv) > 2 and sys.argv[2] == "sam":
+        sam(src, out, photos)
+        return
 
     # MobileNetV3
     bgr = cv2.imread(os.path.join(photos, "dog.jpg"))
@@ -189,6 +242,7 @@ def main():
         d = np.round((d - d.min()) / (d.max() - d.min()) * 255.0).astype(np.uint8)
         Image.fromarray(d, mode="L").save(os.path.join(out, "da2_" + name.replace(".jpg", ".png")))
     print("depth anything v2 small: output", y.shape)
+    sam(src, out, photos)
 
 
 if __name__ == "__main__":

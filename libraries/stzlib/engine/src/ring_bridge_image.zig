@@ -199,9 +199,70 @@ fn ring_GridMeanByMask(p: *anyopaque) callconv(.c) void {
     R.ring_list_adddouble(out, if (no > 0) so / no else 0);
 }
 
+// IM6: (nPredGrid, nTruthGrid, nMask) -> [ AbsRel, delta1, valid pixels ] of a RELATIVE depth prediction
+// against a measured depth (DIODE's laser scan, metres), over the mask's pixels >= 128 whose depth is > 0.
+// The prediction is inverse depth in no unit, so it is first fitted to the truth's inverse depth by least
+// squares (a scale and a shift, the MiDaS protocol); the fitted depth is held at or below the scan's
+// farthest depth. nPredGrid 0 scores the classical floor instead: the row number as inverse depth, the
+// lower in the picture the nearer. [] on a size mismatch or no valid pixel.
+fn ring_DepthScore(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    defer R.ring_vm_api_retlist(p, out);
+    const pg = if (id(p, 1) != 0) (img.getGrid(id(p, 1)) orelse return) else null;
+    const tg = img.getGrid(id(p, 2)) orelse return;
+    const mk = img.get(id(p, 3)) orelse return;
+    if (tg.rows != mk.h or tg.cols != mk.w) return;
+    if (pg) |g| if (g.rows != tg.rows or g.cols != tg.cols) return;
+    var n: f64 = 0;
+    var sx: f64 = 0;
+    var sy: f64 = 0;
+    var sxx: f64 = 0;
+    var sxy: f64 = 0;
+    var dmax: f64 = 0;
+    for (tg.data, 0..) |d, i| {
+        if (d <= 0 or img.grayOf(mk, i) < 128) continue;
+        const x = if (pg) |g| g.data[i] else @as(f64, @floatFromInt(i / tg.cols));
+        const y = 1.0 / d;
+        n += 1;
+        sx += x;
+        sy += y;
+        sxx += x * x;
+        sxy += x * y;
+        dmax = @max(dmax, d);
+    }
+    if (n == 0) return;
+    const vx = sxx - sx * sx / n;
+    const sc = if (vx > 0) (sxy - sx * sy / n) / vx else 0;
+    const sh = (sy - sc * sx) / n;
+    var rel: f64 = 0;
+    var good: f64 = 0;
+    for (tg.data, 0..) |d, i| {
+        if (d <= 0 or img.grayOf(mk, i) < 128) continue;
+        const x = if (pg) |g| g.data[i] else @as(f64, @floatFromInt(i / tg.cols));
+        const inv = sc * x + sh;
+        const e = if (inv > 1.0 / dmax) 1.0 / inv else dmax;
+        rel += @abs(e - d) / d;
+        if (@max(e / d, d / e) < 1.25) good += 1;
+    }
+    R.ring_list_adddouble(out, rel / n);
+    R.ring_list_adddouble(out, good / n);
+    R.ring_list_adddouble(out, n);
+}
+
 // IM6: (image, mask) -> an RGBA copy whose alpha is the mask's gray
 fn ring_WithMask(p: *anyopaque) callconv(.c) void {
     retF(p, img.withMask(id(p, 1), id(p, 2)));
+}
+
+// IM6: (nMask, nX, nY, nLevel) -> the connected part of the mask holding the 1-based pixel (x, y)
+fn ring_ComponentAt(p: *anyopaque) callconv(.c) void {
+    const x = u(p, 2);
+    const y = u(p, 3);
+    if (x < 1 or y < 1) {
+        retF(p, 0);
+        return;
+    }
+    retF(p, img.componentAt(id(p, 1), x - 1, y - 1, @intCast(@min(255, u(p, 4)))));
 }
 
 fn ring_Crop(p: *anyopaque) callconv(.c) void {
@@ -606,6 +667,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineimagesauvola", .func = &ring_Sauvola },
     .{ .name = "stzengineimagematchtemplate", .func = &ring_MatchTemplate },
     .{ .name = "stzengineimagecomponents", .func = &ring_Components },
+    .{ .name = "stzengineimagecomponentat", .func = &ring_ComponentAt },
+    .{ .name = "stzengineimagedepthscore", .func = &ring_DepthScore },
     .{ .name = "stzengineimagefft2", .func = &ring_Fft2 },
     .{ .name = "stzengineimagegridargmax", .func = &ring_GridArgMax },
     .{ .name = "stzengineimagecompare", .func = &ring_Compare },

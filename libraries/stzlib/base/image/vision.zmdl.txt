@@ -9,3 +9,7 @@ image-label|mobilenetv3|coco-v1|0.62|40|1|02/11/2026 00:41:55|
 image-label|siglip2|coco-v1|0.82|40|1|02/11/2026 00:42:05|
 foreground|classical|coco-v1|0.100|30|1|02/11/2026 01:41:17|
 foreground|u2netp|coco-v1|0.700|30|1|02/11/2026 01:41:39|
+object-at|classical|coco-v1|0.133|30|1|02/11/2026 15:00:59|
+object-at|mobilesam|coco-v1|0.633|30|1|02/11/2026 17:48:30|
+depth|lower-is-nearer|diode-v1|0.308|78|1|02/11/2026 17:48:37|
+depth|depth-anything-v2-small|diode-v1|0.615|78|1|02/11/2026 17:50:01|

@@ -158,6 +158,14 @@ fn shapeEligible(op: *c.ggml_tensor) bool {
     const w = op.src[0];
     const x = op.src[1];
     if (w == null or x == null) return false;
+    // The first operand must BE a weight: a leaf this graph does not compute. ggml_conv_2d multiplies the
+    // im2col of the ACTIVATION by the kernel, so its first operand is computed afresh every run -- and the
+    // graph buffer puts it at the same address run after run, where residentWeight's address-keyed cache
+    // handed back the PREVIOUS picture's columns (IM6, 2026-11-02: MobileSAM's neck convolution gave a
+    // different embedding for the same pixels depending on what ran before it in the process).
+    var base = w;
+    while (base.*.view_src != null) base = base.*.view_src;
+    if (base.*.op != c.GGML_OP_NONE) return false;
     // 2D weight x 2D activation -> 2D f32 result, all contiguous
     if (w.*.ne[2] != 1 or w.*.ne[3] != 1 or x.*.ne[2] != 1 or x.*.ne[3] != 1) return false;
     if (op.type != c.GGML_TYPE_F32 or x.*.type != c.GGML_TYPE_F32) return false;
