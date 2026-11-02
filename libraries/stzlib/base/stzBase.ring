@@ -931,6 +931,7 @@ load "service/stzPispiQr.ring"    # the twin of the hub served over HTTP, with O
     # (R4b): risk tiers, permission-vs-authority, commitment states,
     # decommission contracts, decision lineage, trust postures.
     load "governance/stzGovernance.ring"
+    load "governance/stzFieldTags.ring"
 
     # platform/ -- THE OPERATIONAL ENVELOPE (5.10, R7): stzPlatform =
     # generation (Reach -> shells), the governance-gated capability

@@ -19,10 +19,9 @@
 
 load "../../stzBase.ring"
 
-nPass = 0
-nFail = 0
-
-pr()
+# Rule A: a top-level name a function writes is spelt $name on both sides (the migrated library's rule)
+$nPass = 0
+$nFail = 0
 
 ? "-- Scene 1: the tags are closed, and so are the paths --"
 oT = new stzFieldTags("clinic")
@@ -72,7 +71,9 @@ oT.GovernPath(:model, [:on_premise])
 chk("on premise, the personal field reaches the model", oT.MayReach(:model, ["full_name"]) = 1)
 chk("...and Why() says which safeguard governs it",
 	substr(oT.Why(), "allowed: 'full_name' is personal and the model path is governed (on_premise)") = 1)
-chk("the path's safeguards are readable", oT.SafeguardsOf(:model) = ["on_premise"])
+# Ring's = on two lists is not a guard's equality: length and element are
+aSg = oT.SafeguardsOf(:model)
+chk("the path's safeguards are readable", len(aSg) = 1 and aSg[1] = "on_premise")
 bRaised = 0
 try
 	oT.GovernPath(:model, [:consent])
@@ -137,16 +138,17 @@ chk("...as a refusal", len(oLed.Refusals()) = 1)
 
 ? ""
 ? "=========================================="
-? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
+? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
-pf()
+# a guard exits with its fail count (stzlib CLAUDE.md, RING-RETIRED-01)
+shutdown($nFail)
 
 func chk cLabel, bCond
 	if bCond
-		nPass++
+		$nPass++
 		? "  [OK] " + cLabel
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cLabel
 	ok
