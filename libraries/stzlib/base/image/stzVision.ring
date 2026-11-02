@@ -25,6 +25,8 @@
 $cStzVisionClassifier = "mobilenetv3_large.gguf"
 $cStzVisionFaceModel = "yunet_2023mar.gguf"
 $cStzVisionObjectModel = "yolox_tiny.gguf"
+$cStzVisionSaliencyModel = "u2netp.gguf"     # IM6: the salient object (SalientMask, BackgroundRemoved)
+$cStzVisionDepthModel = "depth_anything_v2_small.gguf"   # IM6: relative depth (DepthMap)
 
 # YuNet's score threshold. OpenCV's default is 0.9; 0.5 was CHOSEN ON A DEV SET kept apart from the
 # golden one (_golden/coco_dev_faces.ring, 30 COCO images after faces_v1): 27 of 30 images agree at
@@ -155,6 +157,13 @@ func StzVisionDeclare(paGoldens)
 		_oL_.AddImplementation([ :id = "siglip2", :kind = "graph", :fn = "_StzVisionLabelSiglip",
 			:needle = "vision/" + $cStzVisionTextEmbedder, :licence = "apache-2.0", :memory = 1600 ])
 	ok
+	_oG_ = StzFacultyQ(:foreground)
+	_oG_.SetInputTypeQ(:image).SetOutputTypeQ(:record).SetFloorQ("classical", "_StzVisionForegroundClassic").
+	     SetGoldenCheckerQ("mask-iou").SetGoldenVersionQ("coco-v1")
+	if len(StzFind("u2netp", _oG_.ImplementationIds())) = 0
+		_oG_.AddImplementation([ :id = "u2netp", :kind = "graph", :fn = "_StzVisionForegroundU2netp",
+			:needle = "vision/" + $cStzVisionSaliencyModel, :licence = "apache-2.0", :memory = 40 ])
+	ok
 	if len(StzMeasurementOf("faces", "platform", "coco-v1")) = 0 and fexists(StzVisionMeasurementsFile())
 		StzLoadMeasurements(StzVisionMeasurementsFile())
 	ok
@@ -236,6 +245,15 @@ func _StzVisionFaceBridgeScript()
 func _StzVisionObjectsNone(pImage, paParams)
 	return []
 
+# IM6: the classical answer -- what is not the border-coloured background (stzImage.ForegroundMask, IM2)
+func _StzVisionForegroundClassic(pImage, paParams)
+	_o_ = StzImageQ("" + pImage)
+	_oM_ = _o_.ForegroundMask()
+	_a_ = [ :width = _oM_.Width(), :height = _oM_.Height(), :mask = _oM_.Pixels() ]
+	_oM_.Release()
+	_o_.Release()
+	return _a_
+
 # a FIXED answer: "chair", the vocabulary category in the most COCO val2017 images outside the
 # golden set (575 of them; printed by _rig/coco_golden.py) -- never tuned on the items that judge it
 func _StzVisionLabelPrior(pImage, paParams)
@@ -246,6 +264,14 @@ func _StzVisionLabelPrior(pImage, paParams)
 func _StzVisionFacesYunet(pImage, paParams)
 	_o_ = StzImageQ("" + pImage)
 	_a_ = _o_.FacesXT($nStzVisionFaceThreshold)
+	_o_.Release()
+	return _a_
+
+func _StzVisionForegroundU2netp(pImage, paParams)
+	_o_ = StzImageQ("" + pImage)
+	_oM_ = _o_.SalientMask()
+	_a_ = [ :width = _oM_.Width(), :height = _oM_.Height(), :mask = _oM_.Pixels() ]
+	_oM_.Release()
 	_o_.Release()
 	return _a_
 

@@ -70,6 +70,8 @@ class Refused(Exception):
 class Converter:
     def __init__(self, path):
         m = onnx.load(path)
+        self.model = m
+        self.vshape = {}  # --static: onnx name -> its full shape, every dim a number (onnx shape inference)
         g = m.graph
         self.meta = {p.key: p.value for p in m.metadata_props}
         self.C = {t.name: numpy_helper.to_array(t) for t in g.initializer}
@@ -104,6 +106,27 @@ class Converter:
         for i, n in enumerate(self.nodes):
             for o in n.output:
                 self.producer[o] = i
+
+    def use_static_input(self, dims):
+        """--static (IM6): the input's dims are fixed, so ONNX shape inference (with data propagation) knows every
+        tensor's shape, and a Shape of any fully known tensor folds to numbers -- DINOv2's patch-grid arithmetic
+        (Depth-Anything) becomes constants instead of a shape program the runner cannot run."""
+        from onnx import shape_inference
+        m = onnx.ModelProto()
+        m.CopyFrom(self.model)
+        for i in m.graph.input:
+            if i.name == self.input:
+                dd = i.type.tensor_type.shape.dim
+                for k, v in enumerate(dims):
+                    dd[k].ClearField("dim_param")
+                    dd[k].dim_value = int(v)
+        m = shape_inference.infer_shapes(m, data_prop=True)
+        for vi in list(m.graph.value_info) + list(m.graph.output):
+            d = vi.type.tensor_type.shape.dim
+            if len(d) and all(x.HasField("dim_value") for x in d):
+                self.vshape[vi.name] = [int(x.dim_value) for x in d]
+        self.static_input = list(dims)
+        self.rank[self.input] = len(dims)
 
     # -- names -----------------------------------------------------------------------------------------------
     def r(self, n):
@@ -184,7 +207,8 @@ class Converter:
     def in_shape_domain(self, node):
         if node.op_type == "Shape":
             return True
-        if node.op_type in ("Reshape", "Tile"):
+        if node.op_type in ("Reshape", "Tile", "Resize"):
+            # these read a shape as a PARAMETER (Resize's sizes): they are in the shape domain only when their data is
             return self.r(node.input[0]) in self.shape
         return any(self.r(x) in self.shape for x in node.input)
 
@@ -192,6 +216,11 @@ class Converter:
         t = node.op_type
         if t == "Shape" and getattr(self, "static_input", None) and self.r(node.input[0]) == self.input:
             self.shape[node.output[0]] = list(self.static_input)
+            return
+        if t == "Shape" and self.r(node.input[0]) in self.vshape:
+            v = self.vshape[self.r(node.input[0])]
+            a = self.attrs(node)
+            self.shape[node.output[0]] = v[a.get("start", 0):a["end"]] if "end" in a else v[a.get("start", 0):]
             return
         if t == "Shape":
             src = self.r(node.input[0])
@@ -241,7 +270,7 @@ class Converter:
     def fold(self, node):
         t = node.op_type
         a = self.attrs(node)
-        ins = [self.const(x) for x in node.input]
+        ins = [self.const(x) if x else None for x in node.input]  # "" = an optional input left out
         if t == "Reshape":
             shp = [int(v) for v in ins[1].flatten()]
             shp = [ins[0].shape[i] if v == 0 else v for i, v in enumerate(shp)]
@@ -254,7 +283,8 @@ class Converter:
         if t == "Squeeze":
             return np.squeeze(ins[0], axis=tuple(self.axes_of(node, a))) if self.axes_of(node, a) else np.squeeze(ins[0])
         if t == "Cast":
-            return ins[0]
+            # the target type matters once shapes are numbers (--static): an int64 Div truncates, a float one does not
+            return ins[0].astype(onnx.helper.tensor_dtype_to_np_dtype(a["to"])) if "to" in a else ins[0]
         if t == "Concat":
             return np.concatenate(ins, axis=a.get("axis", 0))
         if t == "Transpose":
@@ -275,7 +305,78 @@ class Converter:
             return ins[0] * ins[1]
         if t == "Add":
             return ins[0] + ins[1]
+        # IM6 (--static): the shape arithmetic of a ViT, now that every shape is a number
+        if t == "Sub":
+            return ins[0] - ins[1]
+        if t == "Div":
+            if np.issubdtype(ins[0].dtype, np.integer) and np.issubdtype(ins[1].dtype, np.integer):
+                return np.trunc(ins[0] / ins[1]).astype(ins[0].dtype)  # ONNX integer division truncates
+            return ins[0] / ins[1]
+        if t == "Neg":
+            return -ins[0]
+        if t in ("Floor", "Ceil", "Sqrt", "Abs"):
+            return {"Floor": np.floor, "Ceil": np.ceil, "Sqrt": np.sqrt, "Abs": np.abs}[t](ins[0])
+        if t == "Pow":
+            return np.power(ins[0], ins[1])
+        if t in ("Equal", "Less", "Greater", "LessOrEqual", "GreaterOrEqual"):
+            return {"Equal": np.equal, "Less": np.less, "Greater": np.greater, "LessOrEqual": np.less_equal,
+                    "GreaterOrEqual": np.greater_equal}[t](ins[0], ins[1])
+        if t == "Not":
+            return np.logical_not(ins[0])
+        if t == "Where":
+            return np.where(ins[0], ins[1], ins[2])
+        if t in ("Min", "Max"):
+            return (np.minimum if t == "Min" else np.maximum).reduce(ins)
+        if t == "Range":
+            return np.arange(ins[0].item(), ins[1].item(), ins[2].item()).astype(ins[0].dtype)
+        if t == "Expand":
+            return ins[0] * np.ones([int(v) for v in ins[1].flatten()], dtype=ins[0].dtype)
+        if t == "ConstantOfShape":
+            va = [x for x in node.attribute if x.name == "value"]
+            val = numpy_helper.to_array(va[0].t) if va else np.array([0.0], np.float32)
+            return np.full([int(v) for v in ins[0].flatten()], val.flatten()[0], dtype=val.dtype)
+        if t == "Shape":
+            return np.array(ins[0].shape, dtype=np.int64)
+        if t == "Resize":
+            return self._fold_resize(node, a, ins)
         raise Refused("cannot fold constant op %s (%s)" % (t, node.name))
+
+    def _fold_resize(self, node, a, ins):
+        # a Resize of a CONSTANT (DINOv2's position embeddings interpolated to the patch grid): computed here, as
+        # ONNX defines it for half-pixel coordinates -- cubic (a = cubic_coeff_a, borders clamped, as PyTorch's
+        # bicubic) or linear
+        x = ins[0].astype(np.float64)
+        if len(ins) > 3 and ins[3] is not None and ins[3].size:
+            size = [int(v) for v in ins[3].flatten()]
+        else:
+            size = [int(np.floor(n * f)) for n, f in zip(x.shape, ins[2].flatten())]
+        mode = a.get("mode", "nearest")
+        if a.get("coordinate_transformation_mode", "half_pixel") not in ("half_pixel", "pytorch_half_pixel") or                 mode not in ("cubic", "linear") or a.get("exclude_outside", 0):
+            raise Refused("cannot fold Resize %s (%s, %s)" % (node.name, mode, a.get("coordinate_transformation_mode")))
+        ca = a.get("cubic_coeff_a", -0.75)
+
+        def kern(t):
+            t = abs(t)
+            if mode == "linear":
+                return max(0.0, 1.0 - t)
+            if t <= 1:
+                return (ca + 2) * t ** 3 - (ca + 3) * t ** 2 + 1
+            if t < 2:
+                return ca * t ** 3 - 5 * ca * t ** 2 + 8 * ca * t - 4 * ca
+            return 0.0
+
+        for ax, m in enumerate(size):
+            n = x.shape[ax]
+            if m == n:
+                continue
+            w = np.zeros((m, n))
+            for i in range(m):
+                c = (i + 0.5) * n / m - 0.5
+                f = int(np.floor(c))
+                for k in range(f - 1, f + 3):
+                    w[i, min(max(k, 0), n - 1)] += kern(c - k)
+            x = np.moveaxis(np.tensordot(w, np.moveaxis(x, ax, 0), axes=1), 0, ax)
+        return x.astype(ins[0].dtype)
 
     # -- the walk ---------------------------------------------------------------------------------------------------
     def convert(self):
@@ -327,8 +428,7 @@ class Converter:
             # the vision exports (timm, YuNet, YOLOX) fold the bias into the Conv; the runner adds it as a
             # per-channel constant shaped [1, C, 1, 1] (PP-OCR's exports write the same Add themselves)
             bias = np.asarray(self.const(node.input[2]), dtype=np.float32).reshape(1, -1, 1, 1)
-        if a.get("dilations", [1, 1]) != [1, 1]:
-            raise Refused("Conv %s has a dilation" % node.name)
+        dil = a.get("dilations", [1, 1])
         kh, kw = a["kernel_shape"]
         sh, sw = a.get("strides", [1, 1])
         group = a.get("group", 1)
@@ -340,6 +440,10 @@ class Converter:
             dw = 1
         else:
             raise Refused("Conv %s has groups the engine cannot express (%d groups, %d->%d)" % (node.name, group, cin, cout))
+        if dil != [1, 1] and dw:
+            raise Refused("Conv %s is depthwise AND dilated" % node.name)
+        # a dilation (IM6: U2-Net's RSU-4F blocks dilate by 2, 4 and 8) travels as d=[w, h]; absent means 1
+        dkw = {"d": [dil[1], dil[0]]} if dil != [1, 1] else {}
         xp = self.p(x)
         if a.get("auto_pad", "NOTSET") == "SAME_UPPER":
             if (kh, kw, sh, sw) != (2, 2, 1, 1):
@@ -353,22 +457,28 @@ class Converter:
             ph, pw = t, l
         wp = self.add_const(None, w)
         if bias is None:
-            self.emit(node.output[0], "conv", [xp, wp], 4, s=[sw, sh], p=[pw, ph], dw=dw)
+            self.emit(node.output[0], "conv", [xp, wp], 4, s=[sw, sh], p=[pw, ph], dw=dw, **dkw)
             return
-        t = self.emit(node.output[0] + "/conv", "conv", [xp, wp], 4, s=[sw, sh], p=[pw, ph], dw=dw)
+        t = self.emit(node.output[0] + "/conv", "conv", [xp, wp], 4, s=[sw, sh], p=[pw, ph], dw=dw, **dkw)
         self.emit(node.output[0], "add", [t, self.add_const(None, bias)], 4)
 
     def op_ConvTranspose(self, i, node):
         a = self.attrs(node)
         w = self.const(node.input[1])
-        if len(node.input) > 2:
-            raise Refused("ConvTranspose %s carries a bias" % node.name)
+        bias = None
+        if len(node.input) > 2 and node.input[2]:
+            # DPT's resize layers (Depth-Anything): a per-channel bias, added as Conv's is
+            bias = np.asarray(self.const(node.input[2]), dtype=np.float32).reshape(1, -1, 1, 1)
         kh, kw = a["kernel_shape"]
         sh, sw = a.get("strides", [1, 1])
         if a.get("pads", [0, 0, 0, 0]) != [0, 0, 0, 0] or a.get("group", 1) != 1 or kh != sh or kw != sw or kh != kw:
             raise Refused("ConvTranspose %s is not the kernel==stride, no-pad shape" % node.name)
         wp = self.add_const(None, w)
-        self.emit(node.output[0], "convt", [self.p(node.input[0]), wp], 4, s=sh)
+        if bias is None:
+            self.emit(node.output[0], "convt", [self.p(node.input[0]), wp], 4, s=sh)
+            return
+        t = self.emit(node.output[0] + "/convt", "convt", [self.p(node.input[0]), wp], 4, s=sh)
+        self.emit(node.output[0], "add", [t, self.add_const(None, bias)], 4)
 
     def op_BatchNormalization(self, i, node):
         a = self.attrs(node)
@@ -517,8 +627,28 @@ class Converter:
             self.emit(node.output[0], "pool", [xp], 4, k=[kw, kh], s=[sw, sh], p=[pads[1], pads[0]], kind=op)
             return
         if a.get("ceil_mode", 0):
-            raise Refused("%s %s has ceil_mode" % (node.op_type, node.name))
+            # ceil mode (IM6: U2-Net halves odd sizes upward): the runner pads the right and bottom so the last
+            # window fits. It pads with ZEROS, which a max reads as -inf only when nothing is negative: a Relu output
+            if op != "max" or not self._nonneg(node.input[0]):
+                raise Refused("%s %s has ceil_mode on an input that may be negative" % (node.op_type, node.name))
+            self.emit(node.output[0], "pool", [xp], 4, k=[kw, kh], s=[sw, sh], kind=op, ceil=1)
+            return
         self.emit(node.output[0], "pool", [xp], 4, k=[kw, kh], s=[sw, sh], kind=op)
+
+    def _nonneg(self, n, depth=0):
+        # provably >= 0: a Relu or Sigmoid output, or a sum, concatenation, max pool or bilinear resize of such
+        # (U2-Net adds a block's input back to its Relu output before pooling)
+        src = self.producer.get(self.r(n))
+        if src is None or depth > 64:
+            return False
+        nd = self.nodes[src]
+        if nd.op_type in ("Relu", "Sigmoid"):
+            return True
+        if nd.op_type in ("Add", "Concat"):
+            return all(self._nonneg(x, depth + 1) for x in nd.input if x)
+        if nd.op_type in ("MaxPool", "Resize"):
+            return self._nonneg(nd.input[0], depth + 1)
+        return False
 
     def op_MaxPool(self, i, node):
         self._pool(node, "max")
@@ -528,6 +658,39 @@ class Converter:
 
     def op_Resize(self, i, node):
         a = self.attrs(node)
+        # bilinear to ANOTHER tensor's size (IM6: U2-Net's upsample_like(src, tar) -- sizes = Shape(src)[:2] ++
+        # Shape(tar)[2:]); half-pixel centres, as ggml's bilinear without align-corners computes them
+        if a.get("mode") == "linear" and a.get("coordinate_transformation_mode") in ("pytorch_half_pixel", "half_pixel")                 and len(node.input) > 3 and node.input[3]:
+            v = self.shape_of(node.input[3])
+            if len(v) == 4 and isinstance(v[2], tuple) and isinstance(v[3], tuple) and v[2][0] == "dim" and                     v[2][1] == v[3][1] and (v[2][2], v[3][2]) == (2, 3):
+                self.emit(node.output[0], "resize", [self.p(node.input[0]), self.p(v[2][1])], 4, m=1)
+                return
+            if v is not None and len(v) == 4 and all(isinstance(q, (int, np.integer)) for q in v):
+                self.emit(node.output[0], "resize", [self.p(node.input[0])], 4, m=1, w=int(v[3]), h=int(v[2]))
+                return
+            raise Refused("Resize %s: linear to sizes %r" % (node.name, v))
+        # bilinear with corners aligned (DPT's refine stages, Depth-Anything): to sizes now numbers (--static), or
+        # by constant scales over a known input shape; ggml's GGML_SCALE_FLAG_ALIGN_CORNERS is PyTorch's
+        if a.get("mode") == "linear" and a.get("coordinate_transformation_mode") == "align_corners":
+            full = self.vshape.get(self.r(node.input[0]))
+            v = self.shape_of(node.input[3]) if len(node.input) > 3 and node.input[3] else None
+            if v is None and len(node.input) > 2 and node.input[2] and self.is_const(node.input[2]) and full is not None:
+                sc = [float(q) for q in self.const(node.input[2]).flatten()]
+                v = [int(np.floor(n * f)) for n, f in zip(full, sc)]
+            if v is not None and len(v) == 4 and all(isinstance(q, (int, np.integer)) for q in v[2:]):
+                # (the batch and channel entries may stay symbolic: only the height and width are read)
+                self.emit(node.output[0], "resize", [self.p(node.input[0])], 4, m=1 | 256, w=int(v[3]), h=int(v[2]))
+                return
+            if v is not None and len(v) == 4 and isinstance(v[2], tuple) and isinstance(v[3], tuple) and                     v[2][0] == "dim" and v[2][1] == v[3][1] and (v[2][2], v[3][2]) == (2, 3):
+                self.emit(node.output[0], "resize", [self.p(node.input[0]), self.p(v[2][1])], 4, m=1 | 256)
+                return
+            if v is None and len(node.input) > 2 and node.input[2] and self.is_const(node.input[2]):
+                sc = [float(q) for q in self.const(node.input[2]).flatten()]
+                if len(sc) == 4 and sc[:2] == [1.0, 1.0] and all(q == int(q) for q in sc[2:]):
+                    # an integer scale over a size the converter does not know: the runner multiplies
+                    self.emit(node.output[0], "resize", [self.p(node.input[0])], 4, m=1 | 256, fw=int(sc[3]), fh=int(sc[2]))
+                    return
+            raise Refused("Resize %s: align_corners to %r" % (node.name, v))
         if a.get("mode") != "nearest" or a.get("coordinate_transformation_mode") != "asymmetric" or a.get("nearest_mode", "floor") != "floor":
             raise Refused("Resize %s is not nearest/asymmetric/floor" % node.name)
         scales = [float(v) for v in self.const(node.input[2]).flatten()]
@@ -583,8 +746,9 @@ class Converter:
         if items is None:
             raise Refused("Reshape %s with a shape that is neither constant nor traced" % node.name)
         # the attention head split: reshape [0,-1,3,h,d] -> transpose [2,0,3,1,4] -> slice k -> squeeze 0
-        if len(items) == 5 and all(isinstance(v, int) for v in items) and items[:3] == [0, -1, 3]:
-            self._heads(i, node, items[3], items[4])
+        # (--static writes the same split with its numbers: [1, N, 3, h, d])
+        if len(items) == 5 and all(isinstance(v, (int, np.integer)) for v in items) and                 (items[:3] == [0, -1, 3] or (items[0] == 1 and items[2] == 3)):
+            self._heads(i, node, int(items[3]), int(items[4]))
             return
         if len(items) > 4:
             raise Refused("Reshape %s to rank %d" % (node.name, len(items)))
@@ -599,6 +763,7 @@ class Converter:
         self.emit(node.output[0], "reshape", [self.p(x)], len(items), d=spec)
 
     def _heads(self, i, node, h, d):
+        items_h, items_d = h, d
         u1 = self.users.get(self.r(node.output[0]), [])
         if len(u1) != 1 or self.nodes[u1[0]].op_type != "Transpose" or self.attrs(self.nodes[u1[0]])["perm"] != [2, 0, 3, 1, 4]:
             raise Refused("Reshape %s to 5-d is not the head split" % node.name)
@@ -606,6 +771,12 @@ class Converter:
         self.skip.add(u1[0])
         for ui in self.users.get(self.r(tr.output[0]), []):
             sl = self.nodes[ui]
+            if sl.op_type == "Gather" and self.attrs(sl).get("axis", 0) == 0 and np.asarray(self.const(sl.input[1])).ndim == 0:
+                # DINOv2 (Depth-Anything): q, k, v = qkv[0], qkv[1], qkv[2]
+                self.skip.add(ui)
+                self.emit(sl.output[0], "heads", [self.p(node.input[0])], 4, h=int(items_h), d=int(items_d),
+                          i=int(self.const(sl.input[1])))
+                continue
             if sl.op_type != "Slice":
                 raise Refused("head split at %s used by %s" % (node.name, sl.op_type))
             k = int(self.const(sl.input[1]).flatten()[0])
@@ -654,6 +825,17 @@ class Converter:
         axes = [int(v) for v in self.const(node.input[3]).flatten()]
         steps = [int(v) for v in self.const(node.input[4]).flatten()]
         rank = self.rank_of(node.input[0])
+        # a unit-step slice of one axis whose length is known (--static): DINOv2 drops its CLS token, x[:, 1:]
+        full = self.vshape.get(self.r(node.input[0]))
+        if len(axes) == 1 and steps[0] == 1 and full is not None:
+            ax = axes[0] % rank
+            n = full[ax]
+            st = max(0, min(n, starts[0] + n if starts[0] < 0 else starts[0]))
+            en = max(0, min(n, ends[0] + n if ends[0] < 0 else ends[0]))
+            if en <= st:
+                raise Refused("Slice %s is empty" % node.name)
+            self.emit(node.output[0], "slice", [self.p(node.input[0])], rank, d=rank - 1 - ax, o=st, n=en - st)
+            return
         if len(axes) != 1 or steps[0] != 2 or starts[0] not in (0, 1) or ends[0] < 2 ** 30 or rank != 4 or axes[0] % 4 not in (2, 3):
             raise Refused("Slice %s is not a step-2 slice of rows or columns" % node.name)
         self.emit(node.output[0], "step2", [self.p(node.input[0])], 4, a=rank - 1 - axes[0] % 4, o=starts[0])
@@ -875,12 +1057,17 @@ def main():
     for a in sys.argv[1:]:
         if a.startswith("--seq="):
             seq = int(a[6:])
+    static_arg = "--static" in sys.argv[1:]
     tok_arg = ""
     for a in sys.argv[1:]:
         if a.startswith("--tokenizer="):
             tok_arg = a[12:]
     src, dst = args[0], args[1]
     cv = Converter(src)
+    if static_arg:
+        if not input_arg:
+            raise Refused("--static needs --input=<side>")
+        cv.use_static_input([1, 3, input_arg, input_arg])
     if seq:
         # a token-id input of a FIXED length (SigLIP2 pads every text to 64): rank 2, its shape known
         cv.static_input = [1, seq]

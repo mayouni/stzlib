@@ -475,6 +475,9 @@ fn build(b: *Builder, s: []const u8) !void {
         const p0: c_int = @intCast(try l.int("p", 0));
         const p1: c_int = @intCast(try l.int("p", 1));
         const dw = try l.int("dw", 0);
+        // a dilation (IM6: U2-Net), d=[w, h]; absent means 1
+        const d0: c_int = if (l.val("d") != null) @intCast(try l.int("d", 0)) else 1;
+        const d1: c_int = if (l.val("d") != null) @intCast(try l.int("d", 1)) else 1;
         // (the im2col depthwise path wants an F16 kernel; the direct one reads F32 and a contiguous WHCN input)
         // A full convolution is im2col then one matrix product, and the im2col is MATERIALISED: OW x OH x K
         // floats. On a page that is hundreds of megabytes for one layer (the detector's head: 474 MB), and on
@@ -484,10 +487,10 @@ fn build(b: *Builder, s: []const u8) !void {
         if (dw == 1) {
             r = c.ggml_conv_2d_dw_direct(ctx, w, contig(ctx, x), s0, s1, p0, p1, 1, 1);
         } else {
-            const ow = @divTrunc(x.ne[0] + 2 * p0 - w.ne[0], s0) + 1;
-            const oh = @divTrunc(x.ne[1] + 2 * p1 - w.ne[1], s1) + 1;
+            const ow = @divTrunc(x.ne[0] + 2 * p0 - d0 * (w.ne[0] - 1) - 1, s0) + 1;
+            const oh = @divTrunc(x.ne[1] + 2 * p1 - d1 * (w.ne[1] - 1) - 1, s1) + 1;
             const bytes = ow * oh * w.ne[0] * w.ne[1] * w.ne[2] * 4;
-            r = if (useDirect(bytes)) c.ggml_conv_2d_direct(ctx, w, x, s0, s1, p0, p1, 1, 1) else c.ggml_conv_2d(ctx, w, x, s0, s1, p0, p1, 1, 1);
+            r = if (useDirect(bytes)) c.ggml_conv_2d_direct(ctx, w, x, s0, s1, p0, p1, d0, d1) else c.ggml_conv_2d(ctx, w, x, s0, s1, p0, p1, d0, d1);
         }
     } else if (is(op, "convt")) {
         const w = try b.get(l.inputs[1]);
@@ -500,7 +503,37 @@ fn build(b: *Builder, s: []const u8) !void {
         // optional symmetric padding (IM3: YOLOX's spatial pyramid); ggml's max pool skips padded cells
         const pp0: f32 = if (l.val("p") != null) @floatFromInt(try l.int("p", 0)) else 0;
         const pp1: f32 = if (l.val("p") != null) @floatFromInt(try l.int("p", 1)) else 0;
-        r = c.ggml_pool_2d(ctx, x, pop, @intCast(try l.int("k", 0)), @intCast(try l.int("k", 1)), @intCast(try l.int("s", 0)), @intCast(try l.int("s", 1)), pp0, pp1);
+        var xin = x;
+        if (l.val("ceil") != null) {
+            // ceil mode (IM6): zero-pad right and bottom so the last window fits -- the converter allows it only
+            // on a Relu output, where a zero is never above the window's true maximum
+            const k0 = try l.int("k", 0);
+            const k1 = try l.int("k", 1);
+            const st0 = try l.int("s", 0);
+            const st1 = try l.int("s", 1);
+            const r0: c_int = @intCast(@mod(st0 - @mod(x.ne[0] - k0, st0), st0));
+            const r1: c_int = @intCast(@mod(st1 - @mod(x.ne[1] - k1, st1), st1));
+            if (r0 > 0 or r1 > 0) xin = c.ggml_pad(ctx, contig(ctx, x), r0, r1, 0, 0);
+        }
+        r = c.ggml_pool_2d(ctx, xin, pop, @intCast(try l.int("k", 0)), @intCast(try l.int("k", 1)), @intCast(try l.int("s", 0)), @intCast(try l.int("s", 1)), pp0, pp1);
+    } else if (is(op, "resize")) {
+        // to the width and height of another tensor (input 1: U2-Net's upsample_like) or to w, h (DPT's refine
+        // stages); m is ggml's scale mode with its flags (1 bilinear, | 256 corners aligned)
+        const mode: u32 = @intCast(try l.int("m", 0));
+        var tw: i64 = 0;
+        var th: i64 = 0;
+        if (l.n_in > 1) {
+            const ref = try b.get(l.inputs[1]);
+            tw = ref.ne[0];
+            th = ref.ne[1];
+        } else if (l.val("fw") != null) {
+            tw = x.ne[0] * try l.int("fw", 0);
+            th = x.ne[1] * try l.int("fh", 0);
+        } else {
+            tw = try l.int("w", 0);
+            th = try l.int("h", 0);
+        }
+        r = c.ggml_interpolate(ctx, contig(ctx, x), tw, th, x.ne[2], x.ne[3], mode);
     } else if (is(op, "step2")) {
         // every second element along ggml dim a (0 = columns, 1 = rows) from offset o (IM3: YOLOX's Focus).
         // Expressed as a reshape that splits the dim into (n/2, 2) and a view that keeps one of the two.

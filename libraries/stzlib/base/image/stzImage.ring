@@ -974,6 +974,65 @@ class stzImage from stzObject
 	def SimilarityTo(pcText)
 		return StzVisionCosine(This.Embedding(), StzVisionTextEmbedding(pcText))
 
+	#@ aka  -- 10c. WHAT STANDS OUT (IM6: U2-Net-p, see stzVision.ring) ----------------
+
+	# Returns the picture's salient object as a one-channel mask (data): near 255 on the object, near 0 on
+	# the background, soft at the edges.
+	#
+	#   note       U2-Net-p computed as rembg computes it; ForegroundMask() is the classical answer
+	#              (what is not the border-coloured background), this one is learned
+	def SalientMask()
+		_cP_ = _StzVisionModelOrRaise($cStzVisionSaliencyModel, "SalientMask")
+		_c_ = StzEngineNeuralVisionSaliency(_cP_, This.Pixels(), This.Width(), This.Height(), This.Channels(), 4)
+		if len(_c_) = 0
+			_StzVisionFailed("SalientMask", $cStzVisionSaliencyModel)
+		ok
+		_StzVisionDoor("saliency", $cStzVisionSaliencyModel, "a " + This.Width() + " x " + This.Height() + " mask")
+		return StzImageFromPixels(This.Width(), This.Height(), 1, _c_)
+
+	# Changes the image into an RGBA cut-out: the salient object kept, the background made transparent.
+	def ApplyBackgroundRemoval()
+		_oM_ = This.SalientMask()
+		This._Take(StzEngineImageWithMask(@nId, _oM_.Handle()))
+		_oM_.Release()
+
+		def ApplyBackgroundRemovalQ()
+			This.ApplyBackgroundRemoval()
+			return This
+
+	# Returns an RGBA copy with the background made transparent; the image is not changed.
+	def BackgroundRemoved()
+		_oM_ = This.SalientMask()
+		_oR_ = This._New(StzEngineImageWithMask(@nId, _oM_.Handle()))
+		_oM_.Release()
+		return _oR_
+
+	# Returns how near each pixel is, as a grid of numbers (data): RELATIVE inverse depth, larger is
+	# nearer, in no unit; Height() rows of Width() columns.
+	#
+	#   note       Depth-Anything-V2-Small (models/vision); ToImageScaled() on the grid shows it, near
+	#              white and far black. A relative map ranks distances, it does not measure them
+	def DepthMap()
+		_cP_ = _StzVisionModelOrRaise($cStzVisionDepthModel, "DepthMap")
+		_c_ = StzEngineNeuralVisionDepth(_cP_, This.Pixels(), This.Width(), This.Height(), This.Channels(), 4)
+		if len(_c_) = 0
+			_StzVisionFailed("DepthMap", $cStzVisionDepthModel)
+		ok
+		_StzVisionDoor("depth", $cStzVisionDepthModel, "a " + This.Width() + " x " + This.Height() + " map")
+		_nG_ = StzEngineImageGridFromF32(This.Height(), This.Width(), _c_)
+		if _nG_ = 0
+			stzraise("stzImage.DepthMap: the depth map could not be held as a grid")
+		ok
+		return new stzImageGrid(_nG_, "y", "x")
+
+	# Changes the image into an RGBA copy whose alpha is a mask's gray (a stzImage of the same size).
+	def ApplyMask(poMask)
+		This._Take(StzEngineImageWithMask(@nId, poMask.Handle()))
+
+		def ApplyMaskQ(poMask)
+			This.ApplyMask(poMask)
+			return This
+
 	#@ aka  -- 11. DRAWING ON THE PICTURE (IM3) -----------------------------------------
 
 	# Changes the image by drawing a rectangle's outline: [ x, y, w, h ] 1-based, a colour, a thickness.

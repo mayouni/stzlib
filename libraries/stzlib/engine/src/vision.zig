@@ -296,10 +296,41 @@ pub fn objects(model_path: []const u8, px: []const u8, w: usize, h: usize, c: us
 /// PIL's antialiased resize (Image.resize, BILINEAR) in its own fixed-point arithmetic, which HF's
 /// SiglipImageProcessor calls: a triangle filter widened by the scale when shrinking, horizontal pass then
 /// vertical, an 8-bit image between the passes (PIL's ImagingResample, PRECISION_BITS = 22).
-fn pilCoeffs(in_size: usize, out_size: usize, bounds: []usize, kk: *std.ArrayList(i32), ksize: *usize) !void {
+pub const PilFilter = enum { bilinear, bicubic, lanczos };
+
+fn pilSupport(f: PilFilter) f64 {
+    return switch (f) {
+        .bilinear => 1.0,
+        .bicubic => 2.0,
+        .lanczos => 3.0,
+    };
+}
+
+fn sinc(x: f64) f64 {
+    if (x == 0) return 1.0;
+    const px = x * std.math.pi;
+    return @sin(px) / px;
+}
+
+fn pilWeight(f: PilFilter, x: f64) f64 {
+    return switch (f) {
+        .bilinear => if (@abs(x) < 1.0) 1.0 - @abs(x) else 0.0,
+        .lanczos => if (x > -3.0 and x < 3.0) sinc(x) * sinc(x / 3.0) else 0.0,
+        .bicubic => blk: {
+            // PIL's bicubic_filter, a = -0.5
+            const a = -0.5;
+            const t = @abs(x);
+            if (t < 1.0) break :blk ((a + 2.0) * t - (a + 3.0)) * t * t + 1.0;
+            if (t < 2.0) break :blk (((t - 5.0) * t + 8.0) * t - 4.0) * a;
+            break :blk 0.0;
+        },
+    };
+}
+
+fn pilCoeffs(f: PilFilter, in_size: usize, out_size: usize, bounds: []usize, kk: *std.ArrayList(i32), ksize: *usize) !void {
     const scale = @as(f64, @floatFromInt(in_size)) / @as(f64, @floatFromInt(out_size));
     const fscale = @max(scale, 1.0);
-    const support = 1.0 * fscale;
+    const support = pilSupport(f) * fscale;
     ksize.* = @as(usize, @intFromFloat(@ceil(support))) * 2 + 1;
     try kk.resize(gpa, out_size * ksize.*);
     @memset(kk.items, 0);
@@ -316,9 +347,9 @@ fn pilCoeffs(in_size: usize, out_size: usize, bounds: []usize, kk: *std.ArrayLis
         var total: f64 = 0;
         for (0..@intCast(xmax)) |x| {
             const d = (@as(f64, @floatFromInt(@as(i64, @intCast(x)) + xmin)) - center + 0.5) * ss;
-            const f = if (@abs(d) < 1.0) 1.0 - @abs(d) else 0.0;
-            w[x] = f;
-            total += f;
+            const wt = pilWeight(f, d);
+            w[x] = wt;
+            total += wt;
         }
         for (0..@intCast(xmax)) |x| {
             const k = if (total != 0) w[x] / total else 0;
@@ -335,6 +366,11 @@ fn clip8(v: i64) u8 {
 }
 
 fn resizePil(rgb: []const u8, w: usize, h: usize, ow: usize, oh: usize, out: []u8) !void {
+    return resizePilXT(.bilinear, 3, rgb, w, h, ow, oh, out);
+}
+
+/// PIL's Image.resize for a filter and nc interleaved channels (1..4), in its fixed-point arithmetic.
+pub fn resizePilXT(f: PilFilter, nc: usize, rgb: []const u8, w: usize, h: usize, ow: usize, oh: usize, out: []u8) !void {
     var kx: std.ArrayList(i32) = .empty;
     defer kx.deinit(gpa);
     var ky: std.ArrayList(i32) = .empty;
@@ -345,19 +381,19 @@ fn resizePil(rgb: []const u8, w: usize, h: usize, ow: usize, oh: usize, out: []u
     defer gpa.free(by);
     var nx: usize = 0;
     var ny: usize = 0;
-    try pilCoeffs(w, ow, bx, &kx, &nx);
-    try pilCoeffs(h, oh, by, &ky, &ny);
-    const mid = try gpa.alloc(u8, ow * h * 3);
+    try pilCoeffs(f, w, ow, bx, &kx, &nx);
+    try pilCoeffs(f, h, oh, by, &ky, &ny);
+    const mid = try gpa.alloc(u8, ow * h * nc);
     defer gpa.free(mid);
     for (0..h) |y| {
         for (0..ow) |xx| {
             const x0 = bx[xx * 2];
             const n = bx[xx * 2 + 1];
             const k = kx.items[xx * nx ..];
-            for (0..3) |ch| {
+            for (0..nc) |ch| {
                 var ss: i64 = 1 << 21;
-                for (0..n) |x| ss += @as(i64, rgb[(y * w + x0 + x) * 3 + ch]) * k[x];
-                mid[(y * ow + xx) * 3 + ch] = clip8(ss);
+                for (0..n) |x| ss += @as(i64, rgb[(y * w + x0 + x) * nc + ch]) * k[x];
+                mid[(y * ow + xx) * nc + ch] = clip8(ss);
             }
         }
     }
@@ -366,10 +402,10 @@ fn resizePil(rgb: []const u8, w: usize, h: usize, ow: usize, oh: usize, out: []u
         const n = by[yy * 2 + 1];
         const k = ky.items[yy * ny ..];
         for (0..ow) |xx| {
-            for (0..3) |ch| {
+            for (0..nc) |ch| {
                 var ss: i64 = 1 << 21;
-                for (0..n) |y| ss += @as(i64, mid[((y0 + y) * ow + xx) * 3 + ch]) * k[y];
-                out[(yy * ow + xx) * 3 + ch] = clip8(ss);
+                for (0..n) |y| ss += @as(i64, mid[((y0 + y) * ow + xx) * nc + ch]) * k[y];
+                out[(yy * ow + xx) * nc + ch] = clip8(ss);
             }
         }
     }
@@ -445,4 +481,135 @@ pub fn embedText(model_path: []const u8, text: []const u8, n_threads: c_int) !Em
     const ids = try bpe.encode(try tokenizerFor(model_path, m), text, seqOf(m), gpa);
     defer gpa.free(ids);
     return normalized(try graph.runIds(m, ids, n_threads));
+}
+
+// ------------------------------------------------------------------ saliency (IM6)
+// U2-Net-p (Qin et al. 2020, Apache-2.0; the file rembg ships): the salient object of a picture as a mask,
+// computed as rembg computes it -- PIL LANCZOS to 320 x 320, x / max(x), ImageNet mean/std; the fused
+// output (a sigmoid) min-max normalised to 0..255 and resized back to the picture with LANCZOS.
+
+pub const Mask = struct {
+    px: []u8, // owned, w * h, 0..255
+    ms: f64,
+};
+
+pub fn saliency(model_path: []const u8, px: []const u8, w: usize, h: usize, c: usize, n_threads: c_int) !Mask {
+    const m = try modelFor(model_path);
+    const side: usize = if (m.input_w > 0) m.input_w else 320;
+    const rgb = try toRgb(px, w, h, c);
+    defer gpa.free(rgb);
+    const rs = try gpa.alloc(u8, side * side * 3);
+    defer gpa.free(rs);
+    try resizePilXT(.lanczos, 3, rgb, w, h, side, side, rs);
+    var mx: u8 = 1;
+    for (rs) |v| mx = @max(mx, v);
+    const plane = side * side;
+    const t = try gpa.alloc(f32, plane * 3);
+    defer gpa.free(t);
+    const mean = [3]f32{ 0.485, 0.456, 0.406 };
+    const stdv = [3]f32{ 0.229, 0.224, 0.225 };
+    const fmx: f32 = @floatFromInt(mx);
+    for (0..plane) |i| {
+        for (0..3) |ch| t[ch * plane + i] = (@as(f32, @floatFromInt(rs[i * 3 + ch])) / fmx - mean[ch]) / stdv[ch];
+    }
+    const o = try graph.run(m, t, .{ 1, 3, @intCast(side), @intCast(side) }, n_threads);
+    defer gpa.free(o.data);
+    var lo: f32 = std.math.inf(f32);
+    var hi: f32 = -std.math.inf(f32);
+    for (o.data[0..plane]) |v| {
+        lo = @min(lo, v);
+        hi = @max(hi, v);
+    }
+    const small = try gpa.alloc(u8, plane);
+    defer gpa.free(small);
+    const span = if (hi > lo) hi - lo else 1;
+    // PIL's "F" -> "L" conversion truncates toward zero after clipping (rembg: Image.fromarray(pred * 255).convert("L"))
+    for (o.data[0..plane], 0..) |v, i| small[i] = @intFromFloat(@min(255.0, @max(0.0, (v - lo) / span * 255.0)));
+    const out = try gpa.alloc(u8, w * h);
+    errdefer gpa.free(out);
+    try resizePilXT(.lanczos, 1, small, side, side, w, h, out);
+    return .{ .px = out, .ms = o.ms };
+}
+
+// ------------------------------------------------------------------ depth (IM6)
+// Depth-Anything-V2-Small (Apache-2.0): RELATIVE inverse depth -- larger is nearer, in no unit. The picture is
+// resized to the model's fixed side (518) by PIL BICUBIC, as HF's DPT processor resizes, /255, ImageNet mean/std;
+// the map comes back at the picture's own size through a float bicubic (PyTorch's: a = -0.75, half-pixel,
+// borders clamped), as HF's post-processing interpolates it.
+
+pub const Depth = struct {
+    v: []f32, // owned, w * h, row-major
+    ms: f64,
+};
+
+fn cubicW(t0: f64) f64 {
+    const a = -0.75;
+    const t = @abs(t0);
+    if (t <= 1.0) return ((a + 2.0) * t - (a + 3.0)) * t * t + 1.0;
+    if (t < 2.0) return ((a * t - 5.0 * a) * t + 8.0 * a) * t - 4.0 * a;
+    return 0.0;
+}
+
+/// A float map resized by PyTorch's bicubic (align_corners false), one axis then the other.
+fn resizeCubicF(src: []const f32, w: usize, h: usize, ow: usize, oh: usize, out: []f32) !void {
+    const mid = try gpa.alloc(f32, ow * h);
+    defer gpa.free(mid);
+    const sx = @as(f64, @floatFromInt(w)) / @as(f64, @floatFromInt(ow));
+    const sy = @as(f64, @floatFromInt(h)) / @as(f64, @floatFromInt(oh));
+    for (0..ow) |x| {
+        const cx = (@as(f64, @floatFromInt(x)) + 0.5) * sx - 0.5;
+        const fx: i64 = @intFromFloat(@floor(cx));
+        var wts: [4]f64 = undefined;
+        var idx: [4]usize = undefined;
+        for (0..4) |k| {
+            const kk = fx - 1 + @as(i64, @intCast(k));
+            wts[k] = cubicW(cx - @as(f64, @floatFromInt(kk)));
+            idx[k] = @intCast(std.math.clamp(kk, 0, @as(i64, @intCast(w)) - 1));
+        }
+        for (0..h) |y| {
+            var acc: f64 = 0;
+            for (0..4) |k| acc += wts[k] * src[y * w + idx[k]];
+            mid[y * ow + x] = @floatCast(acc);
+        }
+    }
+    for (0..oh) |y| {
+        const cy = (@as(f64, @floatFromInt(y)) + 0.5) * sy - 0.5;
+        const fy: i64 = @intFromFloat(@floor(cy));
+        var wts: [4]f64 = undefined;
+        var idx: [4]usize = undefined;
+        for (0..4) |k| {
+            const kk = fy - 1 + @as(i64, @intCast(k));
+            wts[k] = cubicW(cy - @as(f64, @floatFromInt(kk)));
+            idx[k] = @intCast(std.math.clamp(kk, 0, @as(i64, @intCast(h)) - 1));
+        }
+        for (0..ow) |x| {
+            var acc: f64 = 0;
+            for (0..4) |k| acc += wts[k] * mid[idx[k] * ow + x];
+            out[y * ow + x] = @floatCast(acc);
+        }
+    }
+}
+
+pub fn depth(model_path: []const u8, px: []const u8, w: usize, h: usize, c: usize, n_threads: c_int) !Depth {
+    const m = try modelFor(model_path);
+    const side: usize = if (m.input_w > 0) m.input_w else 518;
+    const rgb = try toRgb(px, w, h, c);
+    defer gpa.free(rgb);
+    const rs = try gpa.alloc(u8, side * side * 3);
+    defer gpa.free(rs);
+    try resizePilXT(.bicubic, 3, rgb, w, h, side, side, rs);
+    const plane = side * side;
+    const t = try gpa.alloc(f32, plane * 3);
+    defer gpa.free(t);
+    const mean = [3]f32{ 0.485, 0.456, 0.406 };
+    const stdv = [3]f32{ 0.229, 0.224, 0.225 };
+    for (0..plane) |i| {
+        for (0..3) |ch| t[ch * plane + i] = (@as(f32, @floatFromInt(rs[i * 3 + ch])) / 255.0 - mean[ch]) / stdv[ch];
+    }
+    const o = try graph.run(m, t, .{ 1, 3, @intCast(side), @intCast(side) }, n_threads);
+    defer gpa.free(o.data);
+    const out = try gpa.alloc(f32, w * h);
+    errdefer gpa.free(out);
+    try resizeCubicF(o.data[0..plane], side, side, w, h, out);
+    return .{ .v = out, .ms = o.ms };
 }

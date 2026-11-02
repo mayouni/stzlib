@@ -932,6 +932,36 @@ fn ring_VisionEmbedText(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// IM6: (cModel, cPixels, nW, nH, nC, nThreads) -> the salient-object mask, W x H bytes 0..255 ("" on failure)
+fn ring_VisionSaliency(p: *anyopaque) callconv(.c) void {
+    const g = R.ring_vm_api_getnumber;
+    const th: c_int = @intFromFloat(g(p, 6));
+    if (vis.saliency(ocrArg(p, 1), ocrArg(p, 2), @intFromFloat(g(p, 3)), @intFromFloat(g(p, 4)), @intFromFloat(g(p, 5)), if (th < 1) 4 else th)) |r| {
+        defer std.heap.c_allocator.free(r.px);
+        vision_ms = r.ms;
+        R.ring_vm_api_retstring2(p, r.px.ptr, @intCast(r.px.len));
+    } else |e| {
+        if (ocrg.lastError().len == 0) ocrg.setError("vision: {s}", .{@errorName(e)});
+        R.ring_vm_api_retstring2(p, "", 0);
+    }
+}
+
+// IM6: (cModel, cPixels, nW, nH, nC, nThreads) -> relative inverse depth, W x H float32 little-endian bytes
+// ("" on failure); stz_image turns them into a grid (StzEngineImageGridFromF32)
+fn ring_VisionDepth(p: *anyopaque) callconv(.c) void {
+    const g = R.ring_vm_api_getnumber;
+    const th: c_int = @intFromFloat(g(p, 6));
+    if (vis.depth(ocrArg(p, 1), ocrArg(p, 2), @intFromFloat(g(p, 3)), @intFromFloat(g(p, 4)), @intFromFloat(g(p, 5)), if (th < 1) 4 else th)) |r| {
+        defer std.heap.c_allocator.free(r.v);
+        vision_ms = r.ms;
+        const bytes = std.mem.sliceAsBytes(r.v);
+        R.ring_vm_api_retstring2(p, bytes.ptr, @intCast(bytes.len));
+    } else |e| {
+        if (ocrg.lastError().len == 0) ocrg.setError("vision: {s}", .{@errorName(e)});
+        R.ring_vm_api_retstring2(p, "", 0);
+    }
+}
+
 // IM5: (cModel, cText) -> the token ids the text model reads (padded to its fixed length)
 fn ring_VisionTokens(p: *anyopaque) callconv(.c) void {
     const out = R.ring_vm_api_newlist(p) orelse return;
@@ -960,6 +990,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralvisionembedimage", .func = &ring_VisionEmbedImage },
     .{ .name = "stzengineneuralvisionembedtext", .func = &ring_VisionEmbedText },
     .{ .name = "stzengineneuralvisiontokens", .func = &ring_VisionTokens },
+    .{ .name = "stzengineneuralvisionsaliency", .func = &ring_VisionSaliency },
+    .{ .name = "stzengineneuralvisiondepth", .func = &ring_VisionDepth },
     .{ .name = "stzengineneuralocrread", .func = &ring_OcrRead },
     .{ .name = "stzengineneuralocrreadwith", .func = &ring_OcrReadWith },
     .{ .name = "stzengineneuralocrstats", .func = &ring_OcrStats },

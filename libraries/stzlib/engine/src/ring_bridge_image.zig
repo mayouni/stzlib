@@ -143,6 +143,67 @@ fn ring_Invert(p: *anyopaque) callconv(.c) void {
     retF(p, img.invert(id(p, 1)));
 }
 
+// IM6: (cMaskA, cMaskB, nLevel) -> the IoU of two one-byte-per-pixel masks of the same size, each pixel IN
+// when its byte is >= nLevel; 1 when both are empty, -1 when the sizes differ
+fn ring_MaskIou(p: *anyopaque) callconv(.c) void {
+    const a = getStr(p, 1);
+    const b2 = getStr(p, 2);
+    const lv: u8 = @intCast(@min(255, @max(0, id(p, 3))));
+    if (a.len != b2.len) return rn(p, -1);
+    var inter: u64 = 0;
+    var uni: u64 = 0;
+    for (a, b2) |x, y| {
+        const ia = x >= lv;
+        const ib = y >= lv;
+        if (ia and ib) inter += 1;
+        if (ia or ib) uni += 1;
+    }
+    rn(p, if (uni == 0) 1.0 else @as(f64, @floatFromInt(inter)) / @as(f64, @floatFromInt(uni)));
+}
+
+// IM6: (nRows, nCols, cF32) -> a grid of float32 little-endian values (a depth map from stz_neural); 0 on a
+// size mismatch
+fn ring_GridFromF32(p: *anyopaque) callconv(.c) void {
+    const rows: usize = @intCast(@max(0, id(p, 1)));
+    const cols: usize = @intCast(@max(0, id(p, 2)));
+    const bytes = getStr(p, 3);
+    if (rows * cols * 4 != bytes.len or rows * cols == 0) return rn(p, 0);
+    const data = alloc.alloc(f64, rows * cols) catch return rn(p, 0);
+    for (0..rows * cols) |i| data[i] = @floatCast(std.mem.bytesToValue(f32, bytes[i * 4 ..][0..4]));
+    rn(p, @floatFromInt(img.adoptGrid(rows, cols, data)));
+}
+
+// IM6: (grid, mask image, nLevel) -> [ mean inside, mean outside ] of a grid over a mask of its size (pixels
+// whose gray is >= nLevel are inside); [] on a size mismatch
+fn ring_GridMeanByMask(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    defer R.ring_vm_api_retlist(p, out);
+    const g = img.getGrid(id(p, 1)) orelse return;
+    const mk = img.get(id(p, 2)) orelse return;
+    if (g.rows != mk.h or g.cols != mk.w) return;
+    const lv: u8 = @intCast(@min(255, @max(0, id(p, 3))));
+    var si: f64 = 0;
+    var so: f64 = 0;
+    var ni: f64 = 0;
+    var no: f64 = 0;
+    for (g.data, 0..) |v, i| {
+        if (img.grayOf(mk, i) >= lv) {
+            si += v;
+            ni += 1;
+        } else {
+            so += v;
+            no += 1;
+        }
+    }
+    R.ring_list_adddouble(out, if (ni > 0) si / ni else 0);
+    R.ring_list_adddouble(out, if (no > 0) so / no else 0);
+}
+
+// IM6: (image, mask) -> an RGBA copy whose alpha is the mask's gray
+fn ring_WithMask(p: *anyopaque) callconv(.c) void {
+    retF(p, img.withMask(id(p, 1), id(p, 2)));
+}
+
 fn ring_Crop(p: *anyopaque) callconv(.c) void {
     const x = u(p, 2);
     const y = u(p, 3);
@@ -531,6 +592,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineimagesavejpeg", .func = &ring_SaveJpeg },
     .{ .name = "stzengineimagetojpeg", .func = &ring_ToJpeg },
     .{ .name = "stzengineimagetodatauri", .func = &ring_ToDataUri },
+    .{ .name = "stzengineimagewithmask", .func = &ring_WithMask },
+    .{ .name = "stzengineimagemaskiou", .func = &ring_MaskIou },
+    .{ .name = "stzengineimagegridfromf32", .func = &ring_GridFromF32 },
+    .{ .name = "stzengineimagegridmeanbymask", .func = &ring_GridMeanByMask },
     .{ .name = "stzengineimagemorph", .func = &ring_Morph },
     .{ .name = "stzengineimagemedian", .func = &ring_Median },
     .{ .name = "stzengineimageequalize", .func = &ring_Equalize },

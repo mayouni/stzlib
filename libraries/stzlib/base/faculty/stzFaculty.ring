@@ -341,12 +341,32 @@ func StzGoldenAgrees(pcChecker, pGot, pExpected)
 		return StzFacesAgree(pGot, pExpected)
 	but pcChecker = "boxes-f1"
 		return StzBoxesAgree(pGot, pExpected)
+	but pcChecker = "mask-iou"
+		return StzMaskAgree(pGot, pExpected)
 	but pcChecker = "first"
 		# a ranking whose best item is the expected one
 		if NOT isList(pGot) or len(pGot) = 0 return 0 ok
 		return lower(trim("" + pGot[1][1])) = lower(trim("" + pExpected))
 	ok
 	return 0
+
+# IM6 -- mask-iou: pExpected is the path of a one-channel mask image (COCO's polygon, filled); pGot is
+# [ :width, :height, :mask = one byte per pixel ]. It agrees when the pixels at 128 or more overlap the
+# expected mask's at IoU >= 0.5 (the threshold and the level were fixed before any model ran).
+func StzMaskAgree(pGot, pExpected)
+	return StzMaskIou(pGot, pExpected) >= 0.5
+
+# The IoU of a mask answer against an expected mask file; 0 when the answer is not a mask of its size.
+func StzMaskIou(pGot, pExpected)
+	if NOT isList(pGot) or NOT HasKey(pGot, :mask) return 0 ok
+	_o_ = StzImageQ("" + pExpected)
+	_c_ = _o_.Pixels()
+	_bSame_ = (_o_.Width() = pGot[:width] and _o_.Height() = pGot[:height] and _o_.Channels() = 1)
+	_o_.Release()
+	if NOT _bSame_ return 0 ok
+	_n_ = StzEngineImageMaskIou(pGot[:mask], _c_, 128)
+	if _n_ < 0 return 0 ok
+	return _n_
 
 # IM4 (SOFTANZA_IMAGE_INTELLIGENCE.md): the two vision checkers, over COCO-made expectations.
 #

@@ -7,3 +7,5 @@ objects|yolox-tiny|coco-v1|0.88|40|1|02/11/2026 00:41:54|
 image-label|prior|coco-v1|0|40|1|02/11/2026 00:41:54|
 image-label|mobilenetv3|coco-v1|0.62|40|1|02/11/2026 00:41:55|
 image-label|siglip2|coco-v1|0.82|40|1|02/11/2026 00:42:05|
+foreground|classical|coco-v1|0.100|30|1|02/11/2026 01:41:17|
+foreground|u2netp|coco-v1|0.700|30|1|02/11/2026 01:41:39|

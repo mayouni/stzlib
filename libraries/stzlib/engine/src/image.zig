@@ -385,6 +385,25 @@ pub fn invert(id: i64) i64 {
     return adopt(im.w, im.h, im.c, out);
 }
 
+/// An RGBA copy whose alpha is a mask's gray (IM6: a cut-out); the mask must have the image's size.
+pub fn withMask(id: i64, mask_id: i64) i64 {
+    const im = images.get(id) orelse return fail("image: no such image", .{});
+    const mk = images.get(mask_id) orelse return fail("image: no such mask", .{});
+    if (mk.w != im.w or mk.h != im.h)
+        return fail("image: the mask is {d}x{d}, the image {d}x{d}", .{ mk.w, mk.h, im.w, im.h });
+    const n = @as(usize, im.w) * im.h;
+    const out = alloc.alloc(u8, n * 4) catch return fail("image: out of memory", .{});
+    var i: usize = 0;
+    while (i < n) : (i += 1) {
+        const s0 = im.px[i * im.c ..];
+        out[i * 4] = s0[0];
+        out[i * 4 + 1] = if (im.c >= 3) s0[1] else s0[0];
+        out[i * 4 + 2] = if (im.c >= 3) s0[2] else s0[0];
+        out[i * 4 + 3] = grayOf(mk, i);
+    }
+    return adopt(im.w, im.h, 4, out);
+}
+
 // ------------------------------------------------------------------ geometry
 
 /// A copy of the rectangle (x, y, w, h); refused when it leaves the image.

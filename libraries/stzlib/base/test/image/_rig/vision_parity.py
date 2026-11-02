@@ -15,6 +15,12 @@ Inputs (the photos are in <src>/photos, licences in their MANIFEST.tsv):
                   (x/255 - 0.5)/0.5 -> pooler_output; plus siglip2_text.tsv: for each fixed text, the ids HF's
                   tokenizers library gives and the text tower's pooler_output on them; and siglip2_photos.tsv:
                   each photo's image embedding through the same PIL path (end-to-end: decode, resize, tower)
+    u2netp        (IM6) dog.jpg as rembg prepares it: PIL LANCZOS to 320 x 320, x / max(x), ImageNet mean/std
+                  -> the fused sigmoid output; plus u2netp_<photo>.png: rembg's end-to-end mask of each photo
+                  (min-max normalised, * 255 truncated to bytes, PIL LANCZOS back to the photo's size)
+    depth_anything_v2_small  (IM6) dog.jpg resized to 518 x 518 by PIL BICUBIC, /255, ImageNet mean/std ->
+                  predicted_depth; plus da2_<photo>.png: the depth at the photo's size (PyTorch bicubic, as HF's
+                  post-processing) min-max scaled to 0..255 and rounded
 YuNet's expected tensor is its 12 outputs fused exactly as onnx_to_gguf.py --kind=yunet fuses them.
 
 STZT file: "STZT", u32 rank, 4 x i64 dims (ONNX order, 1 where unused), f32 data row-major.
@@ -126,6 +132,63 @@ def main():
             y = ts.run(None, {ts.get_inputs()[0].name: np.array([ids], dtype=np.int64)})[tout][0]
             f.write(t + "\t" + " ".join(str(i) for i in ids) + "\t" + " ".join("%.7g" % v for v in y.astype(np.float32)) + "\n")
     print("siglip2 text: %d texts" % len(texts))
+
+    # U2-Net-p (IM6), as rembg's u2net session computes it
+    us = ort.InferenceSession(os.path.join(src, "u2netp", "u2netp.onnx"), providers=["CPUExecutionProvider"])
+
+    def rembg_in(im):
+        a = np.asarray(im.convert("RGB").resize((320, 320), Image.Resampling.LANCZOS), dtype=np.float64)
+        a = a / np.max(a)
+        a = (a - np.array([0.485, 0.456, 0.406])) / np.array([0.229, 0.224, 0.225])
+        return a.transpose(2, 0, 1)[None].astype(np.float32)
+
+    im = Image.open(os.path.join(photos, "dog.jpg"))
+    x = rembg_in(im)
+    y = us.run(None, {us.get_inputs()[0].name: x})[0]
+    write(os.path.join(out, "u2netp_in.stzt"), x)
+    write(os.path.join(out, "u2netp_out.stzt"), y)
+    for name in ("dog.jpg", "cat.jpg", "crew.jpg", "street.jpg"):
+        im = Image.open(os.path.join(photos, name))
+        pred = us.run(None, {us.get_inputs()[0].name: rembg_in(im)})[0][:, 0, :, :]
+        pred = (pred - pred.min()) / (pred.max() - pred.min())
+        mask = Image.fromarray((np.squeeze(pred) * 255).astype("uint8"), mode="L").resize(im.size, Image.Resampling.LANCZOS)
+        mask.save(os.path.join(out, "u2netp_" + name.replace(".jpg", ".png")))
+    print("u2netp: fused output", y.shape)
+
+    # Depth-Anything-V2-Small (IM6)
+    ds = ort.InferenceSession(os.path.join(src, "depth_anything_v2_small", "model.onnx"), providers=["CPUExecutionProvider"])
+
+    def da_in(im):
+        a = np.asarray(im.convert("RGB").resize((518, 518), Image.Resampling.BICUBIC), dtype=np.float32) / 255.0
+        a = (a - np.array([0.485, 0.456, 0.406], np.float32)) / np.array([0.229, 0.224, 0.225], np.float32)
+        return a.transpose(2, 0, 1)[None].astype(np.float32)
+
+    def cubic_resize(x, oh, ow):
+        def axis(v, m, ax):
+            n = v.shape[ax]
+            w = np.zeros((m, n))
+            for i in range(m):
+                c = (i + 0.5) * n / m - 0.5
+                f = int(np.floor(c))
+                for k in range(f - 1, f + 3):
+                    t = abs(c - k)
+                    wt = (1.25 * t - 2.25) * t * t + 1 if t <= 1 else ((-0.75 * t + 3.75) * t - 6) * t + 3 if t < 2 else 0
+                    w[i, min(max(k, 0), n - 1)] += wt
+            return np.moveaxis(np.tensordot(w, np.moveaxis(v, ax, 0), axes=1), 0, ax)
+        return axis(axis(x.astype(np.float64), ow, 1), oh, 0)
+
+    im = Image.open(os.path.join(photos, "dog.jpg"))
+    x = da_in(im)
+    y = ds.run(None, {ds.get_inputs()[0].name: x})[0]
+    write(os.path.join(out, "da2_in.stzt"), x)
+    write(os.path.join(out, "da2_out.stzt"), y)
+    for name in ("dog.jpg", "street.jpg"):
+        im = Image.open(os.path.join(photos, name))
+        d = ds.run(None, {ds.get_inputs()[0].name: da_in(im)})[0][0]
+        d = cubic_resize(d, im.size[1], im.size[0])
+        d = np.round((d - d.min()) / (d.max() - d.min()) * 255.0).astype(np.uint8)
+        Image.fromarray(d, mode="L").save(os.path.join(out, "da2_" + name.replace(".jpg", ".png")))
+    print("depth anything v2 small: output", y.shape)
 
 
 if __name__ == "__main__":
