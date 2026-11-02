@@ -133,8 +133,7 @@ class stzBytes from stzObject
 	#   returns    a text; the whole buffer when n is larger than it
 	#   note       the cut is by bytes, so 2 bytes of a Hebrew text are one letter and an odd count
 	#              splits a letter
-	#   warning    a negative n stops the Ring process with a Zig panic in stz_bytes.dll instead of
-	#              returning an error
+	#   note       a negative n gives an empty text
 	#   see        Right, Mid
 	def Left(n)
 		return StzEngineBytesLeft(@pEngine, n)
@@ -144,8 +143,7 @@ class stzBytes from stzObject
 	#   n          how many bytes to take from the end
 	#   returns    a text; the whole buffer when n is larger than it
 	#   note       Right(0) gives an empty text
-	#   warning    a negative n stops the Ring process with a Zig panic in stz_bytes.dll instead of
-	#              returning an error
+	#   note       a negative n gives an empty text
 	#   see        Left, Mid
 	def Right(n)
 		return StzEngineBytesRight(@pEngine, n)
@@ -157,8 +155,7 @@ class stzBytes from stzObject
 	#   returns    a text; empty when nStart is 0 or past the end, and shorter when the run reaches
 	#              the end
 	#   note       Section is the same call; Mid(2, 3) of Hello is ell
-	#   warning    a negative nLen stops the Ring process with a Zig panic in stz_bytes.dll; a
-	#              negative nStart returns an empty text
+	#   note       a negative nStart or nLen gives an empty text
 	#   see        Left, Right
 	def Mid(nStart, nLen)
 		return StzEngineBytesMid(@pEngine, nStart, nLen)

@@ -95,6 +95,7 @@ pub fn stz_bytes_remove(h: ?*Bytes, pos: c_int, count: c_int) callconv(.c) void 
 
 pub fn stz_bytes_left(h: ?*Bytes, n: c_int, buf: [*c]u8, buf_len: usize) callconv(.c) usize {
     const b = h orelse return 0;
+    if (n < 0) return 0; // a negative count is an empty text, never a panic
     const count = @min(@as(usize, @intCast(n)), b.data.items.len);
     if (count > buf_len) return 0;
     @memcpy(buf[0..count], b.data.items[0..count]);
@@ -103,6 +104,7 @@ pub fn stz_bytes_left(h: ?*Bytes, n: c_int, buf: [*c]u8, buf_len: usize) callcon
 
 pub fn stz_bytes_right(h: ?*Bytes, n: c_int, buf: [*c]u8, buf_len: usize) callconv(.c) usize {
     const b = h orelse return 0;
+    if (n < 0) return 0;
     const count = @min(@as(usize, @intCast(n)), b.data.items.len);
     if (count > buf_len) return 0;
     const start = b.data.items.len - count;
@@ -112,7 +114,7 @@ pub fn stz_bytes_right(h: ?*Bytes, n: c_int, buf: [*c]u8, buf_len: usize) callco
 
 pub fn stz_bytes_mid(h: ?*Bytes, pos: c_int, count: c_int, buf: [*c]u8, buf_len: usize) callconv(.c) usize {
     const b = h orelse return 0;
-    if (pos < 1) return 0;
+    if (pos < 1 or count < 0) return 0;
     const p: usize = @intCast(pos - 1);
     const c: usize = @intCast(count);
     if (p >= b.data.items.len) return 0;
