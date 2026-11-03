@@ -1,0 +1,17 @@
+knowledge "kp-18"
+
+facts
+    kp-18 | is-a | exercise
+    kp-18 | in-course | kernel-puzzles
+    kp-18 | in-chapter | the-loop
+    kp-18 | puzzle-number | 18
+    kp-18 | teaches | each-thread-runs-its-own-loop
+    kp-18 | starts | red
+
+    kp-18 | elements | 4000
+    kp-18 | input-a | ramp
+
+    kp-18 | has-mistake | 02-strictly-greater
+    kp-18 | has-mistake | 03-starting-at-one
+    kp-18 | has-mistake | 04-too-few-passes
+    kp-18 | has-mistake | 05-a-stop-that-is-a-number

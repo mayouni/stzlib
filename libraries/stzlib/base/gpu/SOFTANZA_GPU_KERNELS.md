@@ -91,7 +91,8 @@ default guard keeps every thread inside the output.
   outside the vector;
 - **a bounded sum**: `sum(k, from, to, expression)` adds the expression
   for `k` from `from` up to, but not including, `to`; a sum cannot sit
-  inside another sum;
+  inside another sum (the general loop, with a state and an early stop, is
+  `iterate`, 3.1f);
 - **arithmetic**: `+ - * / %`, parentheses, numbers; every number is an
   f32 in the kernel (`3 / 4` is 0.75, written `3f / 4f`);
 - **functions**: `abs min max sqrt exp log sin cos tan tanh floor ceil
@@ -238,6 +239,46 @@ An int `/` is written `stz_div(a, b)`, as `%` is `stz_rem(a, b)`. Between two
 literals WGSL folds `1i / 0i` when the kernel is made and refuses it, where
 the language's answer is the dividend.
 
+### 3.1f The general bounded loop (GL0)
+
+```
+in a
+out c
+body { @c = iterate(k, 0, 40, s, 0.5, s * 2, s >= @a) }
+```
+
+`iterate(k, from, to, s, init, step)` runs a **state** `s`. It starts at
+`init`; on every pass `k` counts up from `from` and `s` becomes `step`; the
+value is the state when the loop ends. With a seventh argument, `stop`, a
+condition read **after** each pass, the loop ends early with that pass's
+state. `sum(k, a, b, e)` is the special case `iterate(k, a, b, s, 0, s + e)`.
+
+- **The state is a float, an int or a vector** (`vec2` to `vec4`), the type
+  of `init`. An `init` that meets no type is a float, as every untyped number
+  is; write `int(0)` to start an int state. The step's value must have the
+  state's type (an untyped number adopts it), and the variable `k` takes it
+  when they meet, as `@i` does: in an int loop `k / 2` truncates.
+- **The bounds** are ints; an untyped one is, and a float one is cut toward
+  zero as `i32()` does. The trip count is `to - from`, wrapping as an i32,
+  clamped to 0 .. 4096: **a loop runs at most 4096 times**, so every kernel
+  ends. A literal span past the cap is refused by name; a data-dependent one
+  is clamped, and a negative or empty one runs no pass and leaves `init`.
+- **`k` and `s` are bound in `step` and `stop` only**: after the loop they
+  are unknown names. Neither may be a declared name, `@i` and its kind, or
+  the other; and **a loop inside a loop is not admitted** (one level, as
+  `sum` always was).
+- **A check-before form starts differently from a stop**: a stop is read
+  after a pass, so the first state is never checked; a loop that looks first
+  starts at its own first value (puzzle 18's second answer starts at 1 where
+  the stop form starts at a half).
+
+On the device it is a `var`, a `for` that runs the clamped trip count, and
+an `if (stop) { break; }`, all in the prelude before the expression; in a
+group kernel it may sit in a stage, before the barrier (the device's compiler
+accepts a data-dependent `break` there, verified). The interpreter keeps the
+counter, the passes left and up to four state words in a frame. Every
+thread runs its own copy: a group is held up by its slowest thread.
+
 ### 3.2 The group's own memory
 
 A GPU runs threads in **groups** of 256 that share a small fast memory.
@@ -311,6 +352,12 @@ because they share one parser.
 | a float added to a counter, `@h[k] += 0.5` | an atomic output holds ints |
 | a counter assigned or stored, `@h = 1`, `@h[k] = 1` | it is written `@h[k] += value`, `max=` or `min=` |
 | an index into a plain output, `@c[@i] += 1` | declare it `out c atomic SIZE` |
+| `iterate` with other than 6 or 7 arguments | `iterate(k, from, to, s, init, step[, stop])` |
+| a variable or state that is a declared name, or both the same | two fresh names |
+| a literal span past 4096, `iterate(k, 0, 5000, ...)` | a loop runs at most 4096 times |
+| a loop inside a loop, or a `sum` inside `iterate` | one level only |
+| a step whose type is not the state's | convert it: the state is a float, an int or a vecN |
+| a stop that is a number, or a vector bound | the stop is a condition; a bound is a number |
 | a comparison used as a number, `(@a > 0) * 2` | on the device a comparison is a truth value; write `when(@a > 0, 2, 0)` |
 | a number used as a condition, `when(@a, 1, 0)` or `guard { @a }` | a condition compares: `@a != 0` |
 | a chain, `0 < @a < 2` | write `0 < @a and @a < 2` |
@@ -440,8 +487,9 @@ reported 174% of the copy roof, which is a clock artefact, not speed.
 
 ## 7. The puzzles
 
-Seventeen puzzles in ten chapters teach the GPU from the map to the tiled
-product, then the branch, the whole number, the vector and the counter:
+Eighteen puzzles in eleven chapters teach the GPU from the map to the tiled
+product, then the branch, the whole number, the vector, the counter and the
+loop:
 
 | chapter | puzzles |
 |---|---|
@@ -455,6 +503,7 @@ product, then the branch, the whole number, the vector and the counter:
 | whole numbers | 14 roll the dice (GL0: an int keeps the digits a float loses) |
 | the vector | 15 light on a surface (GL0: `vec3`, `dot`, `normalize`) · 16 turn the points (a buffer of `vec2`s in and out) |
 | the counter | 17 count the votes (GL0: an atomic output, many threads, one counter) |
+| the loop | 18 round up to a power of two (GL0: `iterate`, a state and a stop) |
 
 An exercise is a folder in the Learning System's shape: `exercise.zknw`,
 `task.<lang>.md` in English, French, Arabic and Hausa, `promise.ring`, a
@@ -483,7 +532,7 @@ desktop produce identical results on every case it holds.
 
 The author worked puzzles 1 to 8. After the page gained a "Your move"
 block and buttons that load a known mistake, the author said those told
-them what to do. Puzzles 9 to 17 are built and checked by instruments;
+them what to do. Puzzles 9 to 18 are built and checked by instruments;
 **no person has worked one yet**.
 
 ## 8. Choices measured into the library
@@ -556,6 +605,7 @@ Run with Ring++ from `base/test/gpu/`: `rnxc <guard>.ring`.
 | `gpu_int_narrated.ring` | GL0's ints: declarations, typing, refusals in both readers' words, the device at every edge, the fuzz's int kind, puzzle 14 |
 | `gpu_vec_narrated.ring` | GL0's vectors: construction, swizzles, spreading, the vector functions, refusals, the device, the fuzz's vector kind, puzzle 15 |
 | `gpu_buffers_narrated.ring` | GL0's buffers of vectors: declarations, both readers, every host path that makes a buffer, the fuzz's typed-buffer kind, puzzle 16 |
+| `gpu_loop_narrated.ring` | GL0's loop: a state, a stop, sum as a special case, the cap, refusals in both readers' words, the device (including a stage before a barrier), the fuzz's loop kind and its step-flip control, puzzle 18 |
 | `gpu_host_narrated.ring` | the host contract: the engine's numbers pinned, no host file spells one, and a host written from the document alone reaches the face's verdicts on 17 puzzle cases |
 | `gpu_atomic_narrated.ring` | GL0's atomics: add, max, min, identities, dropped indices, the device on every path, the fuzz's atomic kind and its rotated-operation control, puzzle 17 |
 | `edge_proof/edge_proof.html` | the browser and the desktop agree, case by case |

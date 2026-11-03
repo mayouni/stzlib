@@ -51,17 +51,18 @@ pub const K_INT: u8 = 6; // GL0: ints -- declared, wrapping, divided by zero, co
 pub const K_VEC: u8 = 7; // GL0: vectors -- built, swizzled, spread, combined, reduced
 pub const K_VIO: u8 = 8; // GL0: typed buffers -- vector inputs and outputs, N floats per element
 pub const K_ATOM: u8 = 9; // GL0: atomics -- many threads adding, maxing or mining into SIZE counters
-pub const KINDS: usize = 10;
+pub const K_LOOP: u8 = 10; // GL0: loops -- iterate over exact state machines, with and without a stop
+pub const KINDS: usize = 11;
 /// The mask bit of kind k. Bits 6 to 8 are the controls, so the int kind
 /// takes bit 9: a mask written before GL0 (63) asks for the six it always meant.
 pub fn kindBit(k: usize) u32 {
     return if (k < 6) @as(u32, 1) << @intCast(k) else @as(u32, 1) << @intCast(k + 3);
 }
 fn genSlot(k: usize) usize {
-    return if (k < 6) R_GEN_KIND + k else if (k == K_INT) R_GEN_INT else if (k == K_VEC) R_GEN_VEC else if (k == K_VIO) R_GEN_VIO else R_GEN_ATOM;
+    return if (k < 6) R_GEN_KIND + k else if (k == K_INT) R_GEN_INT else if (k == K_VEC) R_GEN_VEC else if (k == K_VIO) R_GEN_VIO else if (k == K_ATOM) R_GEN_ATOM else R_GEN_LOOP;
 }
 fn badSlot(k: usize) usize {
-    return if (k < 6) R_BAD_KIND + k else if (k == K_INT) R_BAD_INT else if (k == K_VEC) R_BAD_VEC else if (k == K_VIO) R_BAD_VIO else R_BAD_ATOM;
+    return if (k < 6) R_BAD_KIND + k else if (k == K_INT) R_BAD_INT else if (k == K_VEC) R_BAD_VEC else if (k == K_VIO) R_BAD_VIO else if (k == K_ATOM) R_BAD_ATOM else R_BAD_LOOP;
 }
 /// mask bit 6: MUTATE -- the run's own control. Each kernel's WGSL gets its
 /// first ' + ' in the stored expression turned into ' - ' (a kernel with none
@@ -122,7 +123,9 @@ pub const R_GEN_VIO = 44; // GL0: typed-buffer cases generated
 pub const R_BAD_VIO = 45; // ... and defective
 pub const R_GEN_ATOM = 46; // GL0: atomic cases generated
 pub const R_BAD_ATOM = 47; // ... and defective
-pub const R_SLOTS = 48;
+pub const R_GEN_LOOP = 48; // GL0: loop cases generated
+pub const R_BAD_LOOP = 49; // ... and defective
+pub const R_SLOTS = 50;
 
 var result: [R_SLOTS]f64 = @splat(0);
 var first_buf: [SPEC_CAP + 256]u8 = undefined;
@@ -1048,6 +1051,52 @@ pub fn generate(seed: u64, index: u64, kind: u8, c: *Case) void {
                 w.s("body { @res = @acc }\n");
             }
         },
+        K_LOOP => {
+            // GL0 (loops): '@res = iterate(k, from, to, s, init, step[, stop])' over state
+            // machines whose every operation rounds the same on any device (adds, halving,
+            // min, max, abs, a comparison; ints wrap and divide as WGSL says)
+            w.s("in a\nin b int\n");
+            c.n_ins = 2;
+            c.in_int[1] = true;
+            c.n_sc = 0;
+            c.n = g.pickN();
+            c.in_len[0] = c.n;
+            c.in_len[1] = c.n;
+            const FROMS = [_][]const u8{ "0", "0", "1", "-2", "(@b % 3)" };
+            const TOS = [_][]const u8{ "6", "12", "20", "0", "(@b % 25)", "(abs(@b) % 9 + 4)", "int(abs(@a) * 4)" };
+            const stop = g.chance(55);
+            const from = FROMS[g.pick(FROMS.len)];
+            const to = TOS[g.pick(TOS.len)];
+            switch (g.pick(3)) {
+                0 => {
+                    const INIT = [_][]const u8{ "0", "@a", "1", "@a * 0.5" };
+                    const STEP = [_][]const u8{ "s + k * 0.5", "s + @a", "s * 0.5 + @a", "max(s, k - @a)", "s - 0.25", "when(s > 4, s - 4, s + @a)", "abs(s - @a)", "min(s + 1, 16)" };
+                    const STOP = [_][]const u8{ "s > 12", "s < -3", "k >= 7", "s == 2" };
+                    w.s("out res\n");
+                    w.f("body {{ @res = iterate(k, {s}, {s}, s, {s}, {s}", .{ from, to, INIT[g.pick(INIT.len)], STEP[g.pick(STEP.len)] });
+                    if (stop) w.f(", {s}", .{STOP[g.pick(STOP.len)]});
+                    w.s(") }\n");
+                },
+                1 => {
+                    const INIT = [_][]const u8{ "int(0)", "int(@b)", "int(1)" };
+                    const STEP = [_][]const u8{ "s * 31 + k", "s + k * k", "s * 1103515245 + 12345", "s - @b", "s / 2 + k", "(s + @b) % 1000", "max(s, k * 3 - @b)", "s * 3 + 1" };
+                    const STOP = [_][]const u8{ "s > 100000", "s < -100000", "k >= 9", "s % 7 == 0" };
+                    w.s("out res int\n");
+                    w.f("body {{ @res = iterate(k, {s}, {s}, s, {s}, {s}", .{ from, to, INIT[g.pick(INIT.len)], STEP[g.pick(STEP.len)] });
+                    if (stop) w.f(", {s}", .{STOP[g.pick(STOP.len)]});
+                    w.s(") }\n");
+                },
+                else => {
+                    const INIT = [_][]const u8{ "vec2(0, 1)", "vec2(@a, 1)", "vec2(@a, @a * 0.5)" };
+                    const STEP = [_][]const u8{ "vec2(s.y, s.x + s.y)", "s * 0.5 + vec2(@a, k)", "vec2(s.x + 1, max(s.y, s.x))", "s + vec2(1, 2)", "vec2(abs(s.x - @a), s.y * 0.5)" };
+                    const STOP = [_][]const u8{ "s.x > 50", "s.y > 1000", "k >= 5" };
+                    w.s("out res\n");
+                    w.f("body {{ @res = iterate(k, {s}, {s}, s, {s}, {s}", .{ from, to, INIT[g.pick(INIT.len)], STEP[g.pick(STEP.len)] });
+                    if (stop) w.f(", {s}", .{STOP[g.pick(STOP.len)]});
+                    w.f("){s} }}\n", .{if (g.chance(50)) ".x" else ".y"});
+                },
+            }
+        },
         K_ATOM => {
             // GL0 (atomics): '@res[index] op value' -- an index outside the
             // counters is dropped, and add, max and min agree in any order
@@ -1379,6 +1428,20 @@ fn storeAt(w: []const u8) ?usize {
 }
 
 fn mutateWgsl(w: []u8) bool {
+    // GL0 (loops): a loop's one wrong operator is in its STEP -- the first '+' made '-',
+    // else the first '-' made '+' -- since the store only reads the state
+    if (std.mem.indexOf(u8, w, "        it0 = ")) |at| {
+        const end = std.mem.indexOfScalarPos(u8, w, at, ';') orelse return false;
+        if (std.mem.indexOf(u8, w[at..end], " + ")) |q| {
+            w[at + q + 1] = '-';
+            return true;
+        }
+        if (std.mem.indexOf(u8, w[at..end], " - ")) |q| {
+            w[at + q + 1] = '+';
+            return true;
+        }
+        return false;
+    }
     // GL0 (atomics): an atomic store's one wrong operator is its operation --
     // add, max and min rotated, in place (the three names are one length)
     if (std.mem.indexOf(u8, w, "atomic")) |_| {

@@ -1473,6 +1473,76 @@ fn splitTop(s: []const u8, open: usize, close: usize, parts: [][]const u8) usize
     return np;
 }
 
+// ---------------------------------------------------------------- GL0 (loops)
+// iterate(k, from, to, s, init, step) and iterate(k, from, to, s, init, step, stop):
+// k counts from `from` up to, not including, `to`; s is a STATE that starts at
+// `init` and becomes `step` on every pass; the value is the state when the
+// loop ends. A float, an int or a vector. `stop`, a condition read after each
+// pass, ends the loop early with the state of that pass. sum(k, a, b, e) is
+// iterate(k, a, b, s, 0, s + e). The state is a float when `init` meets no
+// type, as every untyped number is; write int(0) for an int. A loop runs at
+// most LOOP_CAP times (the trip count is to - from, wrapping as an i32,
+// clamped to 0 .. LOOP_CAP), so every kernel ends; a literal span past it is
+// refused by name, a data-dependent one is clamped. One level: a loop inside a
+// loop is not admitted.
+pub const LOOP_CAP: usize = 4096;
+const LOOP_CAP_I: i32 = 4096;
+const MSG_ITER = "iterate takes 6 or 7 arguments: iterate(k, from, to, s, init, step) and, to stop early, a condition";
+const MSG_LOOPNEST = "a loop inside a loop is not admitted: one level";
+const MSG_LOOPCOUNT = "a loop is not admitted in the tiles count";
+const MSG_ITERSTEP = "the loop's state is a {s}, and its step gives a {s}: convert one";
+const MSG_LOOPCAP = "a loop runs at most {d} times; from {d} to {d} asks for {d}";
+const MSG_ITERNAME = "iterate's {s} must be a name, got '{s}'";
+const MSG_ITERTAKEN = "iterate's {s} '{s}' is already a name here";
+const MSG_ITERSAME = "iterate's variable and its state need two names, and '{s}' is both";
+
+fn tyName(t: Ty) []const u8 {
+    return switch (t) {
+        .f => "float",
+        .i => "int",
+        .b => "truth value",
+        .u => "number",
+        .v2 => "vec2",
+        .v3 => "vec3",
+        .v4 => "vec4",
+    };
+}
+
+/// What both readers check on iterate's text before either reads it: the
+/// number of arguments, the two names, a literal span past the cap, and the
+/// stop's shape. `parts` are the top-level arguments, trimmed.
+fn iterCheck(d: *const Decl, parts: []const []const u8, np: usize) i32 {
+    if (np != 6 and np != 7) return fail(MSG_ITER, .{});
+    var names: [2]Name = undefined;
+    const at = [_]usize{ 0, 3 };
+    const what = [_][]const u8{ "variable", "state" };
+    for (at, 0..) |ix, w| {
+        const t = parts[ix];
+        if (!lowerInto(&names[w], t) or !validIdent(names[w].slice()))
+            return fail(MSG_ITERNAME, .{ what[w], t[0..@min(t.len, 8)] });
+        const nm = names[w].slice();
+        if (reservedName(nm) != null or nameIn(d.ins[0..], d.n_ins, nm) != null or
+            nameIn(d.scalars[0..], d.n_scalars, nm) != null or d.sharedIndex(nm) != null or
+            std.mem.eql(u8, nm, d.out_name.slice()))
+            return fail(MSG_ITERTAKEN, .{ what[w], nm });
+    }
+    if (std.mem.eql(u8, names[0].slice(), names[1].slice())) return fail(MSG_ITERSAME, .{names[0].slice()});
+    if (parseSize(parts[1])) |a| {
+        if (parseSize(parts[2])) |b| {
+            if (b > a and b - a > LOOP_CAP) return fail(MSG_LOOPCAP, .{ LOOP_CAP, a, b, b - a });
+        }
+    }
+    if (np == 7 and !condShape(parts[6])) return fail(MSG_COND, .{});
+    return 0;
+}
+
+/// The step's value must be the state's type; an untyped number adopts it.
+fn iterStepCheck(state: Ty, step: Ty) i32 {
+    if (step == state) return 0;
+    if (step == .u and (state == .f or state == .i)) return 0;
+    return fail(MSG_ITERSTEP, .{ tyName(state), tyName(step) });
+}
+
 pub fn condShape(src: []const u8) bool {
     return isCond(std.mem.trim(u8, src, " \t"), 0);
 }
@@ -1581,6 +1651,11 @@ const Rewriter = struct {
     prelude: *Cursor,
     nsum: usize = 0,
     loopvar: ?Name = null,
+    // GL0 (loops): iterate's variable and state while its step and stop are read
+    itk: ?Name = null,
+    its: ?Name = null,
+    it_n: usize = 0,
+    its_ty: Ty = .f,
     compare: bool = false,
     used_rd: [MAX_VECS]bool = @splat(false),
     used_in: [MAX_VECS]bool = @splat(false), // KP1: an input the body never reads must still be BOUND
@@ -2036,6 +2111,22 @@ const Rewriter = struct {
                 if (int) self.out.put(")");
                 return tyR(if (int) .i else .f);
             }
+            if (self.itk) |kv| {
+                if (std.mem.eql(u8, word, kv.slice())) {
+                    self.out.put(PH_TY3 ++ "(k_");
+                    self.out.put(word);
+                    self.out.put(")");
+                    return tyR(.u);
+                }
+            }
+            if (self.its) |sv| {
+                if (std.mem.eql(u8, word, sv.slice())) {
+                    var nb: [12]u8 = undefined;
+                    self.out.put(std.fmt.bufPrint(&nb, "it{d}", .{self.it_n}) catch return -1);
+                    return tyR(self.its_ty);
+                }
+            }
+            if (std.mem.eql(u8, word, "iterate")) return self.iterW();
             if (std.mem.eql(u8, word, "when")) return self.whenW();
             if (std.mem.eql(u8, word, "sum")) return self.sumW();
             return self.callW(word);
@@ -2101,6 +2192,7 @@ const Rewriter = struct {
     fn sumW(self: *Rewriter) i32 {
         if (self.where == .count) return fail(MSG_SUMCOUNT, .{});
         if (self.loopvar != null) return fail("a sum inside a sum is not admitted (one level; shared memory is KP3's)", .{});
+        if (self.itk != null) return fail(MSG_LOOPNEST, .{});
         if (self.top_sums >= MAX_SUMS) return fail("too many sums (max {d})", .{MAX_SUMS});
         if (self.peekDrop() != '(') return fail("sum needs '(var, from, to, expression)'", .{});
         {
@@ -2189,6 +2281,148 @@ const Rewriter = struct {
         self.prelude.put("); }\n");
         outer.put(acc);
         return tyR(bt);
+    }
+
+    fn skipNameW(self: *Rewriter) bool {
+        _ = self.peekDrop();
+        var k = self.i;
+        while (k < self.s.len and (std.ascii.isAlphanumeric(self.s[k]) or self.s[k] == '_')) : (k += 1) {}
+        self.i = k;
+        return self.peekDrop() == ',';
+    }
+
+    // GL0 (loops): iterate(k, from, to, s, init, step[, stop]) -- a prelude
+    // declares the state, then runs the pass at most LOOP_CAP times.
+    fn iterW(self: *Rewriter) i32 {
+        if (self.where == .count) return fail(MSG_LOOPCOUNT, .{});
+        if (self.loopvar != null or self.itk != null) return fail(MSG_LOOPNEST, .{});
+        if (self.top_sums >= MAX_SUMS) return fail("too many loops (max {d})", .{MAX_SUMS});
+        if (self.peekDrop() != '(') return fail(MSG_ITER, .{});
+        var kn: Name = .{};
+        var sn: Name = .{};
+        {
+            const close = matching(self.s, self.i) orelse return fail("iterate is missing ')'", .{});
+            var parts: [8][]const u8 = undefined;
+            const np = splitTop(self.s, self.i, close, &parts);
+            if (iterCheck(self.d, &parts, np) < 0) return -1;
+            _ = lowerInto(&kn, parts[0]);
+            _ = lowerInto(&sn, parts[3]);
+        }
+        self.i += 1;
+        if (!self.skipNameW()) return fail(MSG_ITER, .{});
+        self.i += 1;
+        var from_buf: [512]u8 = undefined;
+        var to_buf: [512]u8 = undefined;
+        var init_buf: [1024]u8 = undefined;
+        var step_buf: [2048]u8 = undefined;
+        var stop_buf: [1024]u8 = undefined;
+        var from = Cursor{ .buf = &from_buf };
+        var to = Cursor{ .buf = &to_buf };
+        var initc = Cursor{ .buf = &init_buf };
+        var stepc = Cursor{ .buf = &step_buf };
+        var stopc = Cursor{ .buf = &stop_buf };
+        const outer = self.out;
+        const saved = self.compare;
+        defer {
+            self.out = outer;
+            self.compare = saved;
+            self.itk = null;
+            self.its = null;
+        }
+        self.compare = false;
+        // the bounds: an untyped one is an int, as WGSL's own loop counts
+        self.out = &from;
+        const tfrom = self.exprW();
+        if (tfrom < 0 or self.noCmpW() < 0) return -1;
+        if (isVec(tyOf(tfrom))) return fail(MSG_VECNUM, .{});
+        if (tyOf(tfrom) == .u and settleText(&from, 0, .i) < 0) return -1;
+        if (self.peekDrop() != ',') return fail(MSG_ITER, .{});
+        self.i += 1;
+        self.out = &to;
+        const tto = self.exprW();
+        if (tto < 0 or self.noCmpW() < 0) return -1;
+        if (isVec(tyOf(tto))) return fail(MSG_VECNUM, .{});
+        if (tyOf(tto) == .u and settleText(&to, 0, .i) < 0) return -1;
+        if (self.peekDrop() != ',') return fail(MSG_ITER, .{});
+        self.i += 1;
+        if (!self.skipNameW()) return fail(MSG_ITER, .{});
+        self.i += 1;
+        self.out = &initc;
+        const tinit = self.exprW();
+        if (tinit < 0 or self.noCmpW() < 0) return -1;
+        var sty: Ty = tyOf(tinit);
+        if (sty == .u) {
+            sty = .f; // an init that meets no type is a float
+            if (settleText(&initc, 0, .f) < 0) return -1;
+        }
+        if (self.peekDrop() != ',') return fail(MSG_ITER, .{});
+        self.i += 1;
+        self.top_sums += 1;
+        const n_id = self.nsum;
+        self.nsum += 1;
+        self.itk = kn;
+        self.its = sn;
+        self.it_n = n_id;
+        self.its_ty = sty;
+        self.out = &stepc;
+        const tstep = self.exprW();
+        if (tstep < 0 or self.noCmpW() < 0) return -1;
+        if (iterStepCheck(sty, tyOf(tstep)) < 0) return -1;
+        if (tyOf(tstep) == .u and settleText(&stepc, 0, if (sty == .i) .i else .f) < 0) return -1;
+        var has_stop = false;
+        if (self.peekDrop() == ',') {
+            self.i += 1;
+            has_stop = true;
+            self.out = &stopc;
+            self.compare = true;
+            const r = self.orW();
+            self.compare = false;
+            if (r < 0) return -1;
+        }
+        self.itk = null;
+        self.its = null;
+        if (self.peekDrop() != ')') return fail("iterate is missing ')'", .{});
+        self.i += 1;
+        if (from.overflow or to.overflow or initc.overflow or stepc.overflow or stopc.overflow) return fail("iterate is too long", .{});
+        var nb: [12]u8 = undefined;
+        const st = std.fmt.bufPrint(&nb, "it{d}", .{n_id}) catch return -1;
+        var cb: [16]u8 = undefined;
+        const cap = std.fmt.bufPrint(&cb, "{d}i", .{LOOP_CAP}) catch return -1;
+        const ty_txt: []const u8 = switch (sty) {
+            .i => "i32",
+            .v2 => "vec2<f32>",
+            .v3 => "vec3<f32>",
+            .v4 => "vec4<f32>",
+            else => "f32",
+        };
+        const P = self.prelude;
+        P.put("    var ");
+        P.put(st);
+        P.put(" : ");
+        P.put(ty_txt);
+        P.put(" = ");
+        P.put(std.mem.trim(u8, initc.items(), " \t"));
+        P.put(";\n    {\n      let f_ = i32(");
+        P.put(std.mem.trim(u8, from.items(), " \t"));
+        P.put(");\n      let c_ = clamp(i32(");
+        P.put(std.mem.trim(u8, to.items(), " \t"));
+        P.put(") - f_, 0i, ");
+        P.put(cap);
+        P.put(");\n      for (var j_ : i32 = 0i; j_ < c_; j_ = j_ + 1i) {\n        let k_");
+        P.put(kn.slice());
+        P.put(" = f_ + j_;\n        ");
+        P.put(st);
+        P.put(" = ");
+        P.put(std.mem.trim(u8, stepc.items(), " \t"));
+        P.put(";\n");
+        if (has_stop) {
+            P.put("        if (");
+            P.put(std.mem.trim(u8, stopc.items(), " \t"));
+            P.put(") { break; }\n");
+        }
+        P.put("      }\n    }\n");
+        outer.put(st);
+        return tyR(sty);
     }
 
     /// A function, or GL0's two conversions. abs min max clamp sign take
@@ -2398,6 +2632,12 @@ const Op = enum(u8) {
     splat, swz, vmap, v_dot, v_len, v_dist, v_norm, v_cross, v_refl,
     // GL0 (typed buffers): a vecN input's own element, and a bounded read of one
     k_inv, rdv,
+    // GL0 (loops): iterate. it_begin pops from, to and the state's init and
+    // starts the frame (or, with no pass to run, pushes the init and jumps
+    // past it_end); it_upd stores the step's value as the state; it_end pops
+    // the stop (when there is one) and either ends the loop with the state or
+    // goes round; it_k and it_s read the variable and the state
+    it_begin, it_upd, it_end, it_k, it_s,
 };
 
 const Fn = struct { name: []const u8, op: Op, arity: u8 };
@@ -2676,6 +2916,11 @@ const Parser = struct {
     depth: usize = 0,
     compare: bool = false,
     loopvar: ?Name = null,
+    // GL0 (loops): iterate's variable and state while its step and stop are read
+    itk: ?Name = null,
+    its: ?Name = null,
+    it_slot: usize = 0,
+    its_ty: Ty = .f,
     // KP3
     where: Where = .body,
     in_loop: bool = false,
@@ -2714,7 +2959,7 @@ const Parser = struct {
                     if (v > std.math.maxInt(i32)) return fail(MSG_BIGINT, .{txt});
                     self.p.consts[c] = ib(@intCast(v));
                 },
-                .k_index, .k_n, .k_local, .k_group, .k_lx, .k_ly, .k_row, .k_col, .k_var, .k_tile => self.p.args[at] |= INT_VAL,
+                .k_index, .k_n, .k_local, .k_group, .k_lx, .k_ly, .k_row, .k_col, .k_var, .k_tile, .it_k => self.p.args[at] |= INT_VAL,
                 else => self.p.ops[at] = intForm(op),
             }
         }
@@ -3078,6 +3323,19 @@ const Parser = struct {
                 if (self.emit(.k_scalar, @as(u16, @intCast(si)) | (if (int) INT_VAL else 0)) < 0) return -1;
                 return tyR(if (int) .i else .f);
             }
+            if (self.itk) |kv| {
+                if (std.mem.eql(u8, nm.slice(), kv.slice())) {
+                    if (self.emit(.it_k, @intCast(self.it_slot)) < 0 or self.polyOp() < 0) return -1;
+                    return tyR(.u);
+                }
+            }
+            if (self.its) |sv| {
+                if (std.mem.eql(u8, nm.slice(), sv.slice())) {
+                    if (self.emit(.it_s, @as(u16, @intCast(self.it_slot)) | (@as(u16, vecWidth(self.its_ty)) << 4)) < 0) return -1;
+                    return tyR(self.its_ty);
+                }
+            }
+            if (std.mem.eql(u8, nm.slice(), "iterate")) return self.iter();
             if (std.mem.eql(u8, nm.slice(), "when")) return self.when();
             if (std.mem.eql(u8, nm.slice(), "sum")) return self.sum();
             return self.call(nm.slice());
@@ -3123,6 +3381,7 @@ const Parser = struct {
     fn sum(self: *Parser) i32 {
         if (self.where == .count) return fail(MSG_SUMCOUNT, .{});
         if (self.loopvar != null) return fail("a sum inside a sum is not admitted (one level; shared memory is KP3's)", .{});
+        if (self.itk != null) return fail(MSG_LOOPNEST, .{});
         if (self.p.nsum >= MAX_SUMS) return fail("too many sums (max {d})", .{MAX_SUMS});
         if (self.peek() != '(') return fail("sum needs '(var, from, to, expression)'", .{});
         {
@@ -3180,6 +3439,99 @@ const Parser = struct {
         self.p.flops += 1;
         if (self.emit(.sum_end, @as(u16, @intCast(slot)) | (if (bt == .i) INT_VAL else 0)) < 0) return -1;
         return tyR(bt);
+    }
+
+    fn skipName(self: *Parser) bool {
+        self.skip();
+        var k = self.i;
+        while (k < self.s.len and (std.ascii.isAlphanumeric(self.s[k]) or self.s[k] == '_')) : (k += 1) {}
+        self.i = k;
+        return self.peek() == ',';
+    }
+
+    // GL0 (loops): iterate(k, from, to, s, init, step[, stop]), as the rewriter reads it
+    fn iter(self: *Parser) i32 {
+        if (self.where == .count) return fail(MSG_LOOPCOUNT, .{});
+        if (self.loopvar != null or self.itk != null) return fail(MSG_LOOPNEST, .{});
+        if (self.p.nsum >= MAX_SUMS) return fail("too many loops (max {d})", .{MAX_SUMS});
+        if (self.peek() != '(') return fail(MSG_ITER, .{});
+        var kn: Name = .{};
+        var sn: Name = .{};
+        {
+            const close = Rewriter.matching(self.s, self.i) orelse return fail("iterate is missing ')'", .{});
+            var parts: [8][]const u8 = undefined;
+            const np = splitTop(self.s, self.i, close, &parts);
+            if (iterCheck(self.d, &parts, np) < 0) return -1;
+            _ = lowerInto(&kn, parts[0]);
+            _ = lowerInto(&sn, parts[3]);
+        }
+        self.i += 1;
+        if (!self.skipName()) return fail(MSG_ITER, .{});
+        self.i += 1;
+        const saved = self.compare;
+        defer {
+            self.compare = saved;
+            self.itk = null;
+            self.its = null;
+        }
+        self.compare = false;
+        // the bounds: an untyped one is an int; a float one is cut toward zero, as i32() does
+        var bound: usize = 0;
+        while (bound < 2) : (bound += 1) {
+            const m = self.mark();
+            const tb = self.expr();
+            if (tb < 0 or self.noCmp() < 0) return -1;
+            if (isVec(tyOf(tb))) return fail(MSG_VECNUM, .{});
+            if (tyOf(tb) == .u and self.settle(m, .i) < 0) return -1;
+            if (tyOf(tb) == .f and self.emit(.cv_fi, 0) < 0) return -1;
+            if (self.peek() != ',') return fail(MSG_ITER, .{});
+            self.i += 1;
+        }
+        if (!self.skipName()) return fail(MSG_ITER, .{});
+        self.i += 1;
+        const mi = self.mark();
+        const tinit = self.expr();
+        if (tinit < 0 or self.noCmp() < 0) return -1;
+        var sty: Ty = tyOf(tinit);
+        if (sty == .u) {
+            sty = .f;
+            if (self.settle(mi, .f) < 0) return -1;
+        }
+        if (self.peek() != ',') return fail(MSG_ITER, .{});
+        self.i += 1;
+        const slot = self.p.nsum;
+        self.p.nsum += 1;
+        const nw: u16 = vecWidth(sty);
+        const begin = self.p.n;
+        if (self.emit(.it_begin, @as(u16, @intCast(slot)) | (nw << 4)) < 0) return -1;
+        self.itk = kn;
+        self.its = sn;
+        self.it_slot = slot;
+        self.its_ty = sty;
+        const ms = self.mark();
+        const tstep = self.expr();
+        if (tstep < 0 or self.noCmp() < 0) return -1;
+        if (iterStepCheck(sty, tyOf(tstep)) < 0) return -1;
+        if (tyOf(tstep) == .u and self.settle(ms, if (sty == .i) .i else .f) < 0) return -1;
+        if (self.emit(.it_upd, @as(u16, @intCast(slot)) | (nw << 4)) < 0) return -1;
+        var has_stop = false;
+        if (self.peek() == ',') {
+            self.i += 1;
+            has_stop = true;
+            self.compare = true;
+            const r = self.orexpr();
+            self.compare = false;
+            if (r < 0) return -1;
+        }
+        self.itk = null;
+        self.its = null;
+        if (self.peek() != ')') return fail("iterate is missing ')'", .{});
+        self.i += 1;
+        self.p.flops += 1;
+        self.p.jump[begin] = @intCast(self.p.n);
+        self.p.jump[self.p.n] = @intCast(begin);
+        if (self.emit(.it_end, @as(u16, @intCast(slot)) | (nw << 4) | (if (has_stop) @as(u16, 1) << 8 else 0)) < 0) return -1;
+        return tyR(sty);
     }
 
     fn call(self: *Parser, fname: []const u8) i32 {
@@ -3396,7 +3748,15 @@ fn toIndex(x: f32) ?usize {
     return @intCast(k);
 }
 
-const Frame = struct { v: f32 = 0, to: f32 = 0, acc: u32 = 0 };
+const Frame = struct {
+    v: f32 = 0,
+    to: f32 = 0,
+    acc: u32 = 0,
+    // GL0 (loops): an iterate loop's counter, its passes left and its state
+    ki: i32 = 0,
+    left: i32 = 0,
+    st: [4]u32 = .{ 0, 0, 0, 0 },
+};
 
 // GL0 (types): a stack slot holds 32 bits, read as the op's own type. An
 // f32 slot keeps its bits; a bool is 1.0 or 0.0, as the comparisons always
@@ -3586,6 +3946,68 @@ fn runProgram(p: *const Program, th: *const Thread, ins: [*]const [*]const f32, 
                     st[sp] = frames[slot].acc;
                     sp += 1;
                 }
+            },
+            .it_begin => {
+                const slot: usize = arg & 0xF;
+                const nw: usize = (arg >> 4) & 7;
+                if (sp < nw + 2) return null;
+                sp -= nw;
+                for (0..nw) |q| frames[slot].st[q] = st[sp + q];
+                const to_i = iv(st[sp - 1]);
+                const from_i = iv(st[sp - 2]);
+                sp -= 2;
+                var trips: i32 = to_i -% from_i; // wrapping, as WGSL's i32 subtraction
+                if (trips < 0) trips = 0;
+                if (trips > LOOP_CAP_I) trips = LOOP_CAP_I;
+                frames[slot].ki = from_i;
+                frames[slot].left = trips;
+                if (trips == 0) {
+                    if (sp + nw > STACK) return null;
+                    for (0..nw) |q| st[sp + q] = frames[slot].st[q];
+                    sp += nw;
+                    next = @as(usize, p.jump[k]) + 1;
+                }
+            },
+            .it_upd => {
+                const slot: usize = arg & 0xF;
+                const nw: usize = (arg >> 4) & 7;
+                if (sp < nw) return null;
+                sp -= nw;
+                for (0..nw) |q| frames[slot].st[q] = st[sp + q];
+                ops += 1;
+            },
+            .it_end => {
+                const slot: usize = arg & 0xF;
+                const nw: usize = (arg >> 4) & 7;
+                var stop_now = false;
+                if ((arg >> 8) & 1 != 0) {
+                    if (sp < 1) return null;
+                    sp -= 1;
+                    stop_now = fv(st[sp]) != 0;
+                }
+                frames[slot].left -= 1;
+                ops += 1;
+                if (stop_now or frames[slot].left <= 0) {
+                    if (sp + nw > STACK) return null;
+                    for (0..nw) |q| st[sp + q] = frames[slot].st[q];
+                    sp += nw;
+                } else {
+                    frames[slot].ki +%= 1;
+                    next = @as(usize, p.jump[k]) + 1;
+                }
+            },
+            .it_k => {
+                if (sp >= STACK) return null;
+                const kv = frames[arg & 0xF].ki;
+                st[sp] = if (int) ib(kv) else fb(@floatFromInt(kv));
+                sp += 1;
+            },
+            .it_s => {
+                const slot: usize = arg & 0xF;
+                const nw: usize = (arg >> 4) & 7;
+                if (sp + nw > STACK) return null;
+                for (0..nw) |q| st[sp + q] = frames[slot].st[q];
+                sp += nw;
             },
             .w_if => {
                 if (sp < 1) return null;
@@ -5279,6 +5701,103 @@ test "GL0 atomics: the refusals, in one reader's words and the other's" {
         var e1: [256]u8 = undefined;
         @memcpy(e1[0..@intCast(el1)], e[0..@intCast(el1)]);
         if (stz_gpu_spec_compile(c.spec.ptr, @floatFromInt(c.spec.len)) != -1) return error.Admitted;
+        const el2 = stz_gpu_wgsl_error(&e, e.len);
+        if (!std.mem.eql(u8, e1[0..@intCast(el1)], e[0..@intCast(el2)]) or std.mem.indexOf(u8, e[0..@intCast(el2)], c.words) == null) {
+            std.debug.print("\n{s}\n  transpiler:  {s}\n  interpreter: {s}\n", .{ c.spec, e1[0..@intCast(el1)], e[0..@intCast(el2)] });
+            return error.WrongWords;
+        }
+    }
+}
+
+test "GL0 loops: iterate carries a state, stops early, and means sum when it is a sum" {
+    var mask: [8]u8 = undefined;
+    var o3: [3]f32 = undefined;
+    // Collatz: a vec2 state (the value, the passes), a stop when the value reaches 1
+    const col = "in a\nout c\nbody { @c = iterate(k, 0, 200, s, vec2(@a, 0), vec2(when(s.x % 2 == 0, s.x / 2, 3 * s.x + 1), s.y + 1), s.x == 1).y }";
+    try wgslHas(col, "var it0 : vec2<f32> = vec2<f32>(v_a[i], 0f);");
+    try wgslHas(col, "let c_ = clamp(i32(200i) - f_, 0i, 4096i);");
+    try wgslHas(col, "for (var j_ : i32 = 0i; j_ < c_; j_ = j_ + 1i) {");
+    try wgslHas(col, "if (it0.x == 1f) { break; }");
+    try evalMasked(col, &.{&.{ 6, 1, 27 }}, 3, &o3, &mask);
+    try std.testing.expectEqualSlices(f32, &.{ 8, 3, 111 }, &o3);
+    // sum is the special case
+    const eq1 = "in a\nout c\nbody { @c = iterate(k, 0, 5, s, 0, s + k * 2) + @a * 0 }";
+    const eq2 = "in a\nout c\nbody { @c = sum(k, 0, 5, k * 2) + @a * 0 }";
+    var e1: [3]f32 = undefined;
+    var e2: [3]f32 = undefined;
+    try evalMasked(eq1, &.{&.{ 1, 2, 3 }}, 3, &e1, &mask);
+    try evalMasked(eq2, &.{&.{ 1, 2, 3 }}, 3, &e2, &mask);
+    try std.testing.expectEqualSlices(f32, &e2, &e1);
+    try std.testing.expectEqual(@as(f32, 20), e1[0]);
+    // an empty or a backwards range leaves the init
+    const emp = "in a\nout c\nbody { @c = iterate(k, 5, 5, s, 7, s + 1) + iterate(k, 5, 2, t, 100, t + 1) + @a * 0 }";
+    try evalMasked(emp, &.{&.{ 1, 2, 3 }}, 3, &o3, &mask);
+    try std.testing.expectEqual(@as(f32, 107), o3[0]);
+    // an int state, written int(1): a factorial, whole
+    const fac = "in a\nout c int\nbody { @c = iterate(k, 1, 6, s, int(1), s * k) + int(@a) * 0 }";
+    try wgslHas(fac, "var it0 : i32 = i32(1i);");
+    try evalMasked(fac, &.{&.{ 0, 0, 0 }}, 3, &o3, &mask);
+    try std.testing.expectEqual(@as(f32, 120), o3[0]);
+    // the variable takes the state's type when they meet: int arithmetic truncates, float does not
+    const kf = "in a\nout c\nbody { @c = iterate(k, 0, 4, s, 0, s + k / 2) + @a * 0 }";
+    const ki = "in a\nout c\nbody { @c = float(iterate(k, 0, 4, s, int(0), s + k / 2)) + @a * 0 }";
+    try evalMasked(kf, &.{&.{ 0, 0, 0 }}, 3, &o3, &mask);
+    try std.testing.expectEqual(@as(f32, 3), o3[0]);
+    try evalMasked(ki, &.{&.{ 0, 0, 0 }}, 3, &o3, &mask);
+    try std.testing.expectEqual(@as(f32, 2), o3[0]);
+    // a data-dependent bound is clamped to the cap; a negative one runs nothing
+    const cap = "in a int\nout c\nbody { @c = iterate(k, 0, @a, s, 0, s + 1) }";
+    try evalMasked(cap, &.{&.{ 5, 5000, -3 }}, 3, &o3, &mask);
+    try std.testing.expectEqualSlices(f32, &.{ 5, 4096, 0 }, &o3);
+    // a vector state keeps all its components, and its swizzle reads after
+    const vs = "in a\nout c\nbody { @c = iterate(k, 0, 3, s, vec2(1, 0), s * 2 + vec2(0, k)).y + @a * 0 }";
+    try evalMasked(vs, &.{&.{ 0, 0, 0 }}, 3, &o3, &mask);
+    try std.testing.expectEqual(@as(f32, 4), o3[0]);
+    // a loop in a guard gets its own prelude, before the guard's if
+    const gd = "in a\nout c\nguard { iterate(k, 0, 3, s, 0, s + @a) > 5 }\nbody { @c = @a }";
+    var gb: [8192]u8 = undefined;
+    const gn = stz_gpu_wgsl_elementwise(gd.ptr, @floatFromInt(gd.len), &gb, gb.len);
+    try std.testing.expect(gn > 0);
+    try std.testing.expect(std.mem.indexOf(u8, gb[0..@intCast(gn)], "var it0").? < std.mem.indexOf(u8, gb[0..@intCast(gn)], "if (it0").?);
+    try evalMasked(gd, &.{&.{ 1, 2, 3 }}, 3, &o3, &mask);
+    // the state is 3a (3, 6, 9): only a = 1 fails '> 5' and is left unwritten
+    try std.testing.expect(o3[0] != o3[0]);
+    try std.testing.expectEqual(@as(f32, 2), o3[1]);
+    try std.testing.expectEqual(@as(f32, 3), o3[2]);
+}
+
+test "GL0 loops: the refusals, in one reader's words and the other's" {
+    var buf: [8192]u8 = undefined;
+    const Case = struct { spec: []const u8, words: []const u8 };
+    const refused = [_]Case{
+        .{ .spec = "in a\nout c\nbody { @c = iterate(k, 0, 5, s, 0) }", .words = "iterate takes 6 or 7 arguments" },
+        .{ .spec = "in a\nout c\nbody { @c = iterate(k, 0, 5, k, 0, k) }", .words = "need two names, and 'k' is both" },
+        .{ .spec = "in a\nout c\nbody { @c = iterate(a, 0, 5, s, 0, s) }", .words = "iterate's variable 'a' is already a name here" },
+        .{ .spec = "in a\nout c\nbody { @c = iterate(k, 0, 5, i, 0, i) }", .words = "iterate's state 'i' is already a name here" },
+        .{ .spec = "in a\nout c\nbody { @c = iterate(k, 0, 5000, s, 0, s + 1) }", .words = "a loop runs at most 4096 times; from 0 to 5000 asks for 5000" },
+        .{ .spec = "in a\nout c\nbody { @c = iterate(k, 0, 3, s, 0, s + sum(j, 0, 2, j)) }", .words = "a loop inside a loop is not admitted" },
+        .{ .spec = "in a\nout c\nbody { @c = sum(j, 0, 3, iterate(k, 0, 2, s, 0, s + 1)) }", .words = "a loop inside a loop is not admitted" },
+        .{ .spec = "in a\nout c\nbody { @c = iterate(k, 0, 3, s, 0, vec2(1, 2)) }", .words = "the loop's state is a float, and its step gives a vec2" },
+        .{ .spec = "in a\nout c\nbody { @c = iterate(k, 0, 3, s, int(0), float(s)) }", .words = "the loop's state is a int, and its step gives a float" },
+        .{ .spec = "in a\nout c\nbody { @c = iterate(k, 0, 3, s, 0, s + 1, s) }", .words = "a bare value is not a condition" },
+        .{ .spec = "in a\nout c\nbody { @c = iterate(k, vec2(0, 1), 3, s, 0, s + 1) }", .words = "a vector stands where a number is needed" },
+        .{ .spec = "in a\nout c\nbody { @c = iterate(k, 0, 3, s, 0, s > 1) }", .words = "is a comparison" },
+        .{ .spec = "in a\nout c\nbody { @c = iterate(k, 0, 3, s, 0, s + 1) + k }", .words = "unknown name 'k'" },
+        .{ .spec = "in a\nout c\nbody { @c = iterate(k, 0, 3, s, 0, s + 1) + s }", .words = "unknown name 's'" },
+    };
+    for (refused) |c| {
+        var e: [256]u8 = undefined;
+        if (stz_gpu_wgsl_elementwise(c.spec.ptr, @floatFromInt(c.spec.len), &buf, buf.len) != -1) {
+            std.debug.print("\nthe transpiler admitted: {s}\n", .{c.spec});
+            return error.Admitted;
+        }
+        const el1 = stz_gpu_wgsl_error(&e, e.len);
+        var e1: [256]u8 = undefined;
+        @memcpy(e1[0..@intCast(el1)], e[0..@intCast(el1)]);
+        if (stz_gpu_spec_compile(c.spec.ptr, @floatFromInt(c.spec.len)) != -1) {
+            std.debug.print("\nthe interpreter admitted: {s}\n", .{c.spec});
+            return error.Admitted;
+        }
         const el2 = stz_gpu_wgsl_error(&e, e.len);
         if (!std.mem.eql(u8, e1[0..@intCast(el1)], e[0..@intCast(el2)]) or std.mem.indexOf(u8, e[0..@intCast(el2)], c.words) == null) {
             std.debug.print("\n{s}\n  transpiler:  {s}\n  interpreter: {s}\n", .{ c.spec, e1[0..@intCast(el1)], e[0..@intCast(el2)] });

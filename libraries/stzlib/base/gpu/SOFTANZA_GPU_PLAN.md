@@ -4104,6 +4104,67 @@ the kernel, and cannot tell a body's NaN from an unwritten element (the
 checker keeps a mask). A Haro host will say whether it wants the mask
 exported, and the sanitizer step wrapped; until it asks, they are not.
 
+## GL0 STATUS — sixth admission landed 2026-11-03: the general bounded loop, `iterate`
+
+**What it is.** `iterate(k, from, to, s, init, step[, stop])`: a state that
+starts at `init`, becomes `step` on every pass, and is the value when the
+loop ends or the stop (read after a pass) holds. A float, an int or a
+vector state. `sum` is the special case. **At most 4096 passes**, so every
+kernel ends: the trip count is `to - from` wrapping as an i32, clamped to
+0 .. 4096; a literal span past it is refused by name. One level, no loop in
+a loop. The vocabulary the plan named for GL0 is now complete but for 3-D
+grids (a branch at the statement level was never needed: `when` is the
+branch of a value, and a loop with a stop is the branch of a repetition).
+
+**Decisions taken** (each reversible): the name `iterate` (not `loop`, a Ring
+keyword, nor `fold`, which has no early exit); the state's type is `init`'s,
+and an `init` that meets no type is a float (write `int(0)`), the one rule
+every untyped number already follows; an untyped bound is an int, as WGSL's
+own loop counts, where `sum`'s stay floats (kept, so no existing kernel
+moved); the cap is 4096, a measured-later number the document names; a
+stop is read after a pass, which is what an escape-time loop wants.
+
+**How.** Shared code (`iterCheck`, `iterStepCheck`) runs the checks on the
+text before either reader reads it: the argument count, the two names, a
+literal span past the cap, the stop's shape. Then the rewriter writes a
+prelude (`var it0`, a clamped trip count, a `for`, an `if (stop) { break; }`)
+and the interpreter runs five ops over a frame (the counter, the passes
+left, up to four state words) that the `sum` frames share the pool of.
+**The 18,000-kernel WGSL corpus is identical** after the change.
+
+**Measured on the RTX 3050 under `rnxc`, seed 20261028:** the fuzz's loop
+kind (kind 10, mask bit 13: float, int and vec2 states, literal,
+data-dependent, empty and negative bounds, with and without a stop,
+wrapping int recurrences) **300 of 300 agree bit for bit**, on the first
+run. Its control flips the step's first operator and catches 254 of 300; of
+the 46 escapes, twelve were read: seven are loops that run no pass (`to` is
+0 or `from > to`), four read a component the flip never reaches, one is a
+fibonacci whose alternating signs give the same answer at six passes. A
+loop with a data-dependent `break` just before a workgroup barrier (a stage
+that stops early, then a reduce) compiles and verifies on the device, which
+was the one place the device's compiler could have refused it.
+
+**The puzzle**: kp-18, *round up to a power of two*, in a new chapter, *the
+loop*. Three right answers (a stop; thirteen passes with no stop; an int
+state) and four named mistakes. The verdicts of the wrong ones were worked
+out from the data before the first run (`s > a` is wrong at element 2, a
+start at 1 at element 1, eight passes at element 130) and held. **The
+checker found my own second right answer wrong**: written check-before, it
+must start at 1, not at the half the stop form starts at, and a = 0 gave
+0.5. Fixed, and the task and the document now say why the two differ. The
+browser on the Intel iGPU gave the desktop's verdicts and loaded a mistake
+button. **No person has worked it.**
+
+**Gates, under `rnxc` on the RTX 3050:** loop 42, host 33, atomic 36, buffers
+33, vec 36, int 37, when 34, grammar 43, fuzz 23, sanitizer 25, shared 60,
+puzzles 95 (eleven chapters), spec reference 34, verify 39, ops 37, foundry
+27, f16 23, lifecycle 62, seams 17, batch 13, declarative 20; Zig 36 (fuzz,
+which runs the grammar's 34). Wall times ran about 1.7 times the previous
+gate run's on guards the loop does not touch: the machine was busier, and
+they are not a measurement.
+
+**What is left of GL0**: 3-D grids.
+
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 
 **Where the plane stands.** The charge GK3 to KP3 is through. A kernel can

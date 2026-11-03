@@ -22,6 +22,7 @@
 # cross reflect; TakesVectorOf(:p, :vec3) and ReturnsVectorOf(:q, :vec2)
 # declare buffers of them, N numbers per element. Atomics (GL0):
 # ReturnsAtomic(:h, 13) and a body '@h[index] += value' (or max=, min=).
+# Loops (GL0): iterate(k, from, to, s, init, step[, stop]) -- a state, at most 4096 passes.
 # The whole language, with the group lines (Shared, Stage, Reduce, Tiles,
 # Accumulate, Width), is in SOFTANZA_GPU_KERNELS.md beside this file.
 # Anything else REFUSES at ToWGSL() time with a message naming the offender.
