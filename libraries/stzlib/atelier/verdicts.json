@@ -1,0 +1,6744 @@
+{
+"meta": {
+"taken": "2026-11-03 19:23",
+"checks_from": "90f2c01b0",
+"ring": "ring.exe 515072 bytes, built 2026-09-12 01:29",
+"ring_tree": "0950e246a 2026-10-29",
+"rnxc": "ringpp a8ad844 2026-11-02, installed",
+"library": "90f2c01b0 2026-11-03"
+},
+"verdicts": {
+"1": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"2": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"3": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"4": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"5": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"6": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"7": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"8": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"9": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"10": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"11": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"12": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"13": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"14": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"15": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "1\n0",
+"whole_said": "1\n0"
+},
+"16": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "1\n0",
+"whole_said": "1\n0"
+},
+"17": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"18": {
+"ring": "err",
+"whole": "fail",
+"ring_said": "Error (R3) : Calling Function without definition: stzenginereactorcreate",
+"whole_said": "\"badtimeout\"\n\"ok\""
+},
+"19": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "\"timeout\"\n\"ok\"",
+"whole_said": "\"timeout\"\n\"ok\""
+},
+"20": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"21": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "\"down\"\n\"ok\"",
+"whole_said": "\"down\"\n\"ok\""
+},
+"22": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "\"unknown\"\n\"ok\"",
+"whole_said": "\"unknown\"\n\"ok\""
+},
+"23": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "1\n0",
+"whole_said": "1\n0"
+},
+"24": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "8\n\"\"",
+"whole_said": "8\n\"\""
+},
+"25": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "1\n0",
+"whole_said": "1\n0"
+},
+"26": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "\"\"\n\"\r\"",
+"whole_said": "\"\"\n\"\r\""
+},
+"27": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "1\n0",
+"whole_said": "1\n0"
+},
+"28": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "1\n0",
+"whole_said": "1\n0"
+},
+"29": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "0\n1",
+"whole_said": "0\n1"
+},
+"30": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"31": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"32": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"33": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"34": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"35": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"36": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"37": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"38": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"39": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"40": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"41": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"42": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"43": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"44": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"45": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"46": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"47": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"48": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"49": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"50": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"51": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"52": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"53": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"54": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"55": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"56": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"57": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"58": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"59": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"60": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"61": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"62": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"63": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"64": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"65": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "\",\"\n\";\"",
+"whole_said": "\",\"\n\";\""
+},
+"66": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"67": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"68": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"69": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"70": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"71": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"72": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"73": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"74": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"75": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"76": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Error (R13) : Object is required",
+"whole_said": "Bad parameter type!"
+},
+"77": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Error (R13) : Object is required",
+"whole_said": "Bad parameter type!"
+},
+"78": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"79": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"80": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"81": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"82": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"83": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"84": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"85": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"86": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"87": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "1\n0",
+"whole_said": "1\n0"
+},
+"88": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "1\n0",
+"whole_said": "1\n0"
+},
+"89": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"90": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "2\n0",
+"whole_said": "2\n0"
+},
+"91": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"92": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"93": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"94": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"95": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"96": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"97": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"98": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"99": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"100": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"101": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"102": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"103": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"104": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"105": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"106": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "0.50\n\"\"",
+"whole_said": "0.50\n\"\""
+},
+"107": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "1\n\"\"",
+"whole_said": "1\n\"\""
+},
+"108": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "0.25\n\"\"",
+"whole_said": "0.25\n\"\""
+},
+"109": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "0.50\n\"\"",
+"whole_said": "0.50\n\"\""
+},
+"110": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"111": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "\"last-digit\"\n\"\"",
+"whole_said": "\"last-digit\"\n\"\""
+},
+"112": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "1\n0",
+"whole_said": "1\n0"
+},
+"113": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "\"better\"\n\"\"",
+"whole_said": "\"better\"\n\"\""
+},
+"114": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "1\n0",
+"whole_said": "1\n0"
+},
+"115": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Error (R2) : Array Access (Index out of range)",
+"whole_said": "Error (R2) : Array Access (Index out of range)"
+},
+"116": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"117": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "1\n\"\"",
+"whole_said": "1\n\"\""
+},
+"118": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "1\n0",
+"whole_said": "1\n0"
+},
+"119": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Error (R2) : Array Access (Index out of range)",
+"whole_said": "Error (R2) : Array Access (Index out of range)"
+},
+"120": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"121": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"122": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"123": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"124": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"125": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzenginexmlvalid",
+"whole_said": ""
+},
+"126": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzenginexmlvalid",
+"whole_said": ""
+},
+"127": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"128": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"129": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"130": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"131": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"132": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"133": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"134": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"135": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"136": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"137": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"138": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"139": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"140": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"141": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"142": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"143": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"144": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"145": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"146": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"147": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"148": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"149": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"150": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"151": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"152": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"153": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"154": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"155": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"156": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"157": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"158": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"159": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"160": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"161": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "0\n1",
+"whole_said": "0\n1"
+},
+"162": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "1\n0",
+"whole_said": "1\n0"
+},
+"163": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"164": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"165": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Inexistant rule!",
+"whole_said": "Inexistant rule!"
+},
+"166": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"167": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"168": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"169": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"170": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"171": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"172": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"173": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"174": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"175": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"176": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"177": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"178": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"179": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"180": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzenginejsonencodestring",
+"whole_said": ""
+},
+"181": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"182": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"183": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"184": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"185": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"186": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"187": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"188": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"189": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"190": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"191": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"192": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"193": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"194": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"195": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"196": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"197": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"198": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"199": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"200": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"201": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"202": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"203": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"204": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"205": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"206": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"207": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"208": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"209": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"210": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"211": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"212": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"213": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"214": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"215": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"216": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"217": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"218": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"219": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"220": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"221": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"222": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"223": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"224": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"225": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"226": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"227": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"228": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"229": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"230": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"231": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"232": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"233": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"234": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"235": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"236": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"237": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"238": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"239": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"240": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"241": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"242": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"243": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"244": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"245": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"246": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"247": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"248": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"249": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"250": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"251": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"252": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"253": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"254": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"255": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"256": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"257": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"258": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"259": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"260": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"261": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"262": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"263": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"264": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"265": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"266": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"267": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"268": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"269": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"270": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"271": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"272": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"273": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"274": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"275": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"276": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"277": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"278": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"279": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"280": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"281": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"282": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"283": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"284": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"285": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"286": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Error (R3) : Calling Function without definition: nativenthdayofweek",
+"whole_said": "Error (R3) : Calling Function without definition: nativenthdayofweek"
+},
+"287": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Error (R3) : Calling Function without definition: nativenthdayofweekabbreviation",
+"whole_said": "Error (R3) : Calling Function without definition: nativenthdayofweekabbreviation"
+},
+"288": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"289": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"290": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"291": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"292": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"293": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"294": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "14\n16",
+"whole_said": "14\n16"
+},
+"295": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"296": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"297": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"298": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"299": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"300": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"301": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"302": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"303": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"304": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"305": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"306": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"307": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"308": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Undefined named variable!",
+"whole_said": "Undefined named variable!"
+},
+"309": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Undefined named variable!",
+"whole_said": "Undefined named variable!"
+},
+"310": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Undefined named variable!",
+"whole_said": "Undefined named variable!"
+},
+"311": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Undefined named variable!",
+"whole_said": "Undefined named variable!"
+},
+"312": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error, Couldn't open the directory",
+"whole_said": ""
+},
+"313": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"314": {
+"ring": "err",
+"whole": "fail",
+"ring_said": "Error, Couldn't open the directory",
+"whole_said": "'[ \"organization\" ]'\n\"[ ]\""
+},
+"315": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error, Couldn't open the directory",
+"whole_said": ""
+},
+"316": {
+"ring": "err",
+"whole": "fail",
+"ring_said": "Error, Couldn't open the directory",
+"whole_said": "'[ \"fruit\" ]'\n\"[ ]\""
+},
+"317": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"318": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "\"capital-of\"\n\"\"",
+"whole_said": "\"capital-of\"\n\"\""
+},
+"319": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"320": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"321": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"322": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"323": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"324": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"325": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"326": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "\"probably\"\n\"certainly\"",
+"whole_said": "\"probably\"\n\"certainly\""
+},
+"327": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "\"certainly yes: positive in tone\"\n\"no: nothing relates 'paris' to 'france'\"",
+"whole_said": "\"certainly yes: positive in tone\"\n\"no: nothing relates 'paris' to 'france'\""
+},
+"328": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "\"apparently\"\n\"certainly\"",
+"whole_said": "\"apparently\"\n\"certainly\""
+},
+"329": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "\"apparently not: positive in tone\"\n\"no: nothing relates 'paris' to 'france'\"",
+"whole_said": "\"apparently not: positive in tone\"\n\"no: nothing relates 'paris' to 'france'\""
+},
+"330": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "1\n0",
+"whole_said": "1\n0"
+},
+"331": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "\"no: -4 is not positive (constraint 2 of 'score')\"\n\"no: nothing is known about being a 'score' (no constraints were declared)\"",
+"whole_said": "\"no: -4 is not positive (constraint 2 of 'score')\"\n\"no: nothing is known about being a 'score' (no constraints were declared)\""
+},
+"332": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"333": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "\"no: 7 is not even (constraint 3 of 'score')\"\n\"no: nothing is known about being a 'score' (no constraints were declared)\"",
+"whole_said": "\"no: 7 is not even (constraint 3 of 'score')\"\n\"no: nothing is known about being a 'score' (no constraints were declared)\""
+},
+"334": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "1\n0",
+"whole_said": "1\n0"
+},
+"335": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "\"no: nothing constrains a 'score' to be uppercase\"\n\"no: nothing is known about being a 'score' (no constraints were declared)\"",
+"whole_said": "\"no: nothing constrains a 'score' to be uppercase\"\n\"no: nothing is known about being a 'score' (no constraints were declared)\""
+},
+"336": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "\"[ 1, 1 ]\"\n\"[ 0, 0, 0 ]\"",
+"whole_said": "\"[ 1, 1 ]\"\n\"[ 0, 0, 0 ]\""
+},
+"337": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "1\n0",
+"whole_said": "1\n0"
+},
+"338": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"339": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"340": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"341": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"342": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "1\n0",
+"whole_said": "1\n0"
+},
+"343": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"344": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"345": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"346": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"347": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"348": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"349": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"350": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"351": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"352": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"353": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"354": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"355": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "'no: firstchar is \"h\", expected \"x\"'\n\"no: expected atmost 2, found 3\"",
+"whole_said": "'no: firstchar is \"h\", expected \"x\"'\n\"no: expected atmost 2, found 3\""
+},
+"356": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "'yes: state 2 (\"RING\") was uppercase'\n\"no: expected atmost 2, found 3\"",
+"whole_said": "'yes: state 2 (\"RING\") was uppercase'\n\"no: expected atmost 2, found 3\""
+},
+"357": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "\"no: no history was kept (open the chain with QH)\"\n\"no: expected atmost 2, found 3\"",
+"whole_said": "\"no: no history was kept (open the chain with QH)\"\n\"no: expected atmost 2, found 3\""
+},
+"358": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "1\n0",
+"whole_said": "1\n0"
+},
+"359": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "\"no: the premise before was already false\"\n\"no: expected atmost 2, found 3\"",
+"whole_said": "\"no: the premise before was already false\"\n\"no: expected atmost 2, found 3\""
+},
+"360": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"361": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "\"no: 8 is not less than 4\"\n\"answered: 1\"",
+"whole_said": "\"no: 8 is not less than 4\"\n\"answered: 1\""
+},
+"362": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"363": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"364": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"365": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"366": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"367": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"368": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"369": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"370": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"371": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"372": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"373": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"374": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"375": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"376": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"377": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"378": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"379": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"380": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"381": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"382": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"383": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"384": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"385": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"386": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"387": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"388": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"389": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"390": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"391": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"392": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"393": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"394": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"395": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"396": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"397": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"398": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"399": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"400": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"401": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"402": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"403": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Error (R11) : Error in class name, class not found: ctdummy",
+"whole_said": "Error (R11) : Error in class name, class not found: ctdummy"
+},
+"404": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"405": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"406": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "'no: \"ring\" is not (is uppercase)'\n\"answered: 1\"",
+"whole_said": "'no: \"ring\" is not (is uppercase)'\n\"answered: 1\""
+},
+"407": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"408": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"409": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"410": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"411": {
+"ring": "err",
+"whole": "fail",
+"ring_said": "Error (R3) : Calling Function without definition: stzengineoutliershouldeject",
+"whole_said": "1\n0"
+},
+"412": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzengineoutliershouldeject",
+"whole_said": ""
+},
+"413": {
+"ring": "err",
+"whole": "fail",
+"ring_said": "Error (R3) : Calling Function without definition: stzengineoutliershouldeject",
+"whole_said": "1\n0"
+},
+"414": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzengineoutliershouldeject",
+"whole_said": ""
+},
+"415": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Error (R3) : Calling Function without definition: stzenginewsechoconnections",
+"whole_said": "Error (R3) : Calling Function without definition: stzenginewsechoconnections"
+},
+"416": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Error (R3) : Calling Function without definition: stzenginewsechopings",
+"whole_said": "Error (R3) : Calling Function without definition: stzenginewsechopings"
+},
+"417": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Error (R3) : Calling Function without definition: stzenginewsechopings",
+"whole_said": "Error (R3) : Calling Function without definition: stzenginewsechopings"
+},
+"418": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Error (R3) : Calling Function without definition: _mpload",
+"whole_said": "Error (R3) : Calling Function without definition: _mpload"
+},
+"419": {
+"ring": "err",
+"whole": "fail",
+"ring_said": "Error (R3) : Calling Function without definition: stzengineneuralmodelloaded",
+"whole_said": "1\n0"
+},
+"420": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzengineneuralmodelloaded",
+"whole_said": ""
+},
+"421": {
+"ring": "err",
+"whole": "fail",
+"ring_said": "Error (R3) : Calling Function without definition: stzengineneuralmodelloaded",
+"whole_said": "1\n0"
+},
+"422": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzengineneuralmodelloaded",
+"whole_said": ""
+},
+"423": {
+"ring": "err",
+"whole": "fail",
+"ring_said": "Error (R3) : Calling Function without definition: stzengineneuralmodelloaded",
+"whole_said": "1\n0"
+},
+"424": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Error (R3) : Calling Function without definition: _mpload",
+"whole_said": "Error (R3) : Calling Function without definition: _mpload"
+},
+"425": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzengineneuralmodelloaded",
+"whole_said": ""
+},
+"426": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Error (R3) : Calling Function without definition: _mpload",
+"whole_said": "Error (R3) : Calling Function without definition: _mpload"
+},
+"427": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Error (R3) : Calling Function without definition: _mpload",
+"whole_said": "Error (R3) : Calling Function without definition: _mpload"
+},
+"428": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzengineneuralstoppedonrepeat",
+"whole_said": ""
+},
+"429": {
+"ring": "err",
+"whole": "fail",
+"ring_said": "Error (R3) : Calling Function without definition: stzengineneuralstoppedonrepeat",
+"whole_said": "1\n0"
+},
+"430": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "1\n0",
+"whole_said": "1\n0"
+},
+"431": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Error (R3) : Calling Function without definition: _mpload",
+"whole_said": "Error (R3) : Calling Function without definition: _mpload"
+},
+"432": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzengineneuralgentruncated",
+"whole_said": ""
+},
+"433": {
+"ring": "err",
+"whole": "fail",
+"ring_said": "Error (R3) : Calling Function without definition: stzengineneuralgensetcontextlimit",
+"whole_said": "600\n0"
+},
+"434": {
+"ring": "err",
+"whole": "fail",
+"ring_said": "Error (R3) : Calling Function without definition: stzengineneuralgenlasterror",
+"whole_said": "2\n0"
+},
+"435": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzengineneuralgenlasterror",
+"whole_said": ""
+},
+"436": {
+"ring": "err",
+"whole": "fail",
+"ring_said": "Error (R3) : Calling Function without definition: stzengineneuralgentruncated",
+"whole_said": "1\n0"
+},
+"437": {
+"ring": "err",
+"whole": "fail",
+"ring_said": "Error (R3) : Calling Function without definition: stzengineneuralgensetcontextlimit",
+"whole_said": "1\n0"
+},
+"438": {
+"ring": "err",
+"whole": "fail",
+"ring_said": "Error (R3) : Calling Function without definition: stzengineneuralmodelloaded",
+"whole_said": "1\n0"
+},
+"439": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Error (R3) : Calling Function without definition: _mpfiller",
+"whole_said": "Error (R3) : Calling Function without definition: _mpfiller"
+},
+"440": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzengineneuralmodelloaded",
+"whole_said": ""
+},
+"441": {
+"ring": "err",
+"whole": "fail",
+"ring_said": "Error (R3) : Calling Function without definition: stzengineneuralmodelloaded",
+"whole_said": "1\n0"
+},
+"442": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"443": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"444": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"445": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"446": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"447": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"448": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"449": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"450": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"451": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"452": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"453": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"454": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"455": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"456": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"457": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"458": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"459": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"460": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"461": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"462": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"463": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"464": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"465": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"466": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"467": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"468": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"469": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"470": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"471": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"472": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"473": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"474": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"475": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"476": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"477": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"478": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"479": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"480": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"481": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"482": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"483": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"484": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"485": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"486": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"487": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"488": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"489": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"490": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"491": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"492": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"493": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"494": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"495": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"496": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"497": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"498": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"499": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"500": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"501": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"502": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"503": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"504": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"505": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"506": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"507": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"508": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"509": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"510": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"511": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"512": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"513": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"514": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"515": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"516": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"517": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"518": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"519": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"520": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"521": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"522": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"523": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"524": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"525": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"526": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"527": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"528": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"529": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"530": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"531": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"532": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"533": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"534": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"535": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"536": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"537": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"538": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"539": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"540": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"541": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"542": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"543": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"544": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"545": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"546": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"547": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"548": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"549": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"550": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"551": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzenginematrixnewfromlist",
+"whole_said": ""
+},
+"552": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzenginematrixnewfromlist",
+"whole_said": ""
+},
+"553": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"554": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"555": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"556": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"557": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"558": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"559": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"560": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"561": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"562": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"563": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"564": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"565": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"566": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"567": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"568": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"569": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"570": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"571": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"572": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"573": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"574": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"575": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"576": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"577": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"578": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"579": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"580": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"581": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"582": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "\"1\"\n\"0\"",
+"whole_said": "\"1\"\n\"0\""
+},
+"583": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"584": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "\"3\"\n\"2\"",
+"whole_said": "\"3\"\n\"2\""
+},
+"585": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"586": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"587": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"588": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"589": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"590": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"591": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"592": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"593": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"594": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"595": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"596": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"597": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"598": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"599": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"600": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"601": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"602": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"603": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"604": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"605": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"606": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"607": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"608": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"609": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"610": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"611": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"612": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"613": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"614": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"615": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"616": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"617": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "1\n0",
+"whole_said": "1\n0"
+},
+"618": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"619": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "1\n0",
+"whole_said": "1\n0"
+},
+"620": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"621": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "\"stznumber\"\n\"stzfalseobject\"",
+"whole_said": "\"stznumber\"\n\"stzfalseobject\""
+},
+"622": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"623": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "\"stznumber\"\n\"stzfalseobject\"",
+"whole_said": "\"stznumber\"\n\"stzfalseobject\""
+},
+"624": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"625": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"626": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"627": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"628": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"629": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"630": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"631": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"632": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"633": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"634": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"635": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"636": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzocrplatformhas",
+"whole_said": ""
+},
+"637": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzocrlogicalline",
+"whole_said": ""
+},
+"638": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzocrlogicalline",
+"whole_said": ""
+},
+"639": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzocrlogicalline",
+"whole_said": ""
+},
+"640": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzocrlogicalline",
+"whole_said": ""
+},
+"641": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzocrlogicallinext",
+"whole_said": ""
+},
+"642": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzocrlogicallinext",
+"whole_said": ""
+},
+"643": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzocrlogicallinext",
+"whole_said": ""
+},
+"644": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: _stzocrplatformvisualline",
+"whole_said": ""
+},
+"645": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: _stzocrplatformvisualline",
+"whole_said": ""
+},
+"646": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: _stzocrplatformvisualline",
+"whole_said": ""
+},
+"647": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Error (R3) : Calling Function without definition: stzenginestringarabicalefrepaired",
+"whole_said": "Error (R3) : Calling Function without definition: stzenginestringarabicalefrepaired"
+},
+"648": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Error (R3) : Calling Function without definition: stzenginestringarabicalefrepaired",
+"whole_said": "Error (R3) : Calling Function without definition: stzenginestringarabicalefrepaired"
+},
+"649": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Error (R3) : Calling Function without definition: stzenginestringarabicalefrepaired",
+"whole_said": "Error (R3) : Calling Function without definition: stzenginestringarabicalefrepaired"
+},
+"650": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: _stzocrdigitsbetween",
+"whole_said": ""
+},
+"651": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: _stzocrdigitsbetween",
+"whole_said": ""
+},
+"652": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: _stzocrdigitsbetween",
+"whole_said": ""
+},
+"653": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzocrlogicalline",
+"whole_said": ""
+},
+"654": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"655": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"656": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"657": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"658": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"659": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"660": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"661": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"662": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"663": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"664": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "\"1er\"\n\"1st\"",
+"whole_said": "\"1er\"\n\"1st\""
+},
+"665": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "\"2e\"\n\"2nd\"",
+"whole_said": "\"2e\"\n\"2nd\""
+},
+"666": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"667": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"668": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"669": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"670": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"671": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"672": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"673": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"674": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"675": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"676": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"677": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"678": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"679": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"680": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"681": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"682": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"683": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"684": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"685": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"686": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"687": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"688": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"689": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"690": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"691": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"692": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"693": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"694": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"695": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"696": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"697": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"698": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"699": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"700": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"701": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"702": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"703": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"704": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"705": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"706": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"707": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"708": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"709": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"710": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"711": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"712": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"713": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"714": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"715": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzenginehtmlneutralizebidi",
+"whole_said": ""
+},
+"716": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzenginehtmlneutralizebidi",
+"whole_said": ""
+},
+"717": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzenginecryptorandomhex",
+"whole_said": ""
+},
+"718": {
+"ring": "err",
+"whole": "fail",
+"ring_said": "Error (R3) : Calling Function without definition: stzengineneuralmodelloadstatus",
+"whole_said": "-2\n0"
+},
+"719": {
+"ring": "err",
+"whole": "fail",
+"ring_said": "Error (R3) : Calling Function without definition: stzengineneuralmodelloadstatus",
+"whole_said": "-3\n0"
+},
+"720": {
+"ring": "err",
+"whole": "fail",
+"ring_said": "Error (R3) : Calling Function without definition: stzengineneuralmodelloadstatus",
+"whole_said": "-1\n0"
+},
+"721": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzengineneuralmodelloadstatus",
+"whole_said": ""
+},
+"722": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"723": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"724": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"725": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"726": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Error (R13) : Object is required",
+"whole_said": "Bad parameter type!"
+},
+"727": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"728": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"729": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"730": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"731": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"732": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"733": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"734": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"735": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"736": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"737": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"738": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"739": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"740": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"741": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"742": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"743": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"744": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "4\n2",
+"whole_said": "4\n2"
+},
+"745": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"746": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"747": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"748": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"749": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"750": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"751": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"752": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"753": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"754": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"755": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"756": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"757": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"758": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"759": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"760": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"761": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"762": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"763": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"764": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"765": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"766": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"767": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"768": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"769": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"770": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"771": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"772": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"773": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"774": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"775": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"776": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"777": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"778": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"779": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"780": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"781": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"782": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"783": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"784": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"785": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"786": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"787": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"788": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"789": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"790": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"791": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"792": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"793": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"794": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"795": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"796": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"797": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"798": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"799": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"800": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"801": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzengineunidatacharname",
+"whole_said": ""
+},
+"802": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"803": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"804": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"805": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"806": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"807": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"808": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"809": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"810": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"811": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"812": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"813": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"814": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"815": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"816": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"817": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"818": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"819": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"820": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"821": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"822": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"823": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"824": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"825": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"826": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"827": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"828": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"829": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"830": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"831": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"832": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"833": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"834": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"835": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"836": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"837": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"838": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"839": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"840": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"841": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"842": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"843": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"844": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"845": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"846": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"847": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"848": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"849": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"850": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"851": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"852": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"853": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"854": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"855": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"856": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"857": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"858": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"859": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"860": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"861": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"862": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"863": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"864": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"865": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"866": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"867": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"868": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"869": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"870": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"871": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"872": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"873": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"874": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"875": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"876": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"877": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"878": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"879": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"880": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"881": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"882": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"883": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"884": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"885": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"886": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"887": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"888": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"889": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"890": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"891": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"892": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"893": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"894": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"895": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"896": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"897": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"898": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "1\n0",
+"whole_said": "1\n0"
+},
+"899": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"900": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"901": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"902": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"903": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"904": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"905": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"906": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"907": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"908": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"909": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"910": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"911": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"912": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"913": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"914": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"915": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"916": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"917": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"918": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"919": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"920": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"921": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"922": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"923": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"924": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"925": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"926": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"927": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"928": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"929": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"930": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"931": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"932": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"933": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"934": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"935": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"936": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"937": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"938": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"939": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"940": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"941": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"942": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"943": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"944": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"945": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"946": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"947": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"948": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"949": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"950": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"951": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"952": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"953": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"954": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"955": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"956": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"957": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"958": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"959": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"960": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"961": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"962": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"963": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"964": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"965": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"966": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"967": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"968": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"969": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"970": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzengineunidatacontainsname",
+"whole_said": ""
+},
+"971": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzengineunidatacontainsname",
+"whole_said": ""
+},
+"972": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzengineunidatacontainsname",
+"whole_said": ""
+},
+"973": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"974": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"975": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"976": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"977": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"978": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"979": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"980": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"981": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"982": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"983": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"984": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"985": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"986": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"987": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"988": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"989": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"990": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"991": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"992": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"993": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"994": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"995": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"996": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"997": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"998": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"999": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1000": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1001": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1002": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1003": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1004": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1005": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1006": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1007": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1008": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1009": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1010": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1011": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1012": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1013": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1014": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1015": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1016": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1017": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1018": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1019": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1020": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1021": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1022": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1023": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1024": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1025": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1026": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1027": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1028": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1029": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1030": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1031": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1032": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1033": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1034": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1035": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1036": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1037": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1038": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1039": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1040": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1041": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1042": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1043": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1044": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1045": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1046": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1047": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1048": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1049": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1050": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1051": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1052": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1053": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1054": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1055": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1056": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1057": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1058": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1059": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1060": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1061": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1062": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1063": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzenginecertificatekey",
+"whole_said": ""
+},
+"1064": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1065": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "\"Plafond de paiement depasse\"\n\"\"",
+"whole_said": "\"Plafond de paiement depasse\"\n\"\""
+},
+"1066": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "404\n0",
+"whole_said": "404\n0"
+},
+"1067": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "429\n0",
+"whole_said": "429\n0"
+},
+"1068": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1069": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1070": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1071": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1072": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1073": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1074": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzenginecryptohexencode",
+"whole_said": ""
+},
+"1075": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1076": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzenginecryptohexdecode",
+"whole_said": ""
+},
+"1077": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1078": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1079": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1080": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1081": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1082": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1083": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1084": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1085": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1086": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1087": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1088": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "\"Impossible d'annuler un paiement deja confirme\"\n\"\"",
+"whole_said": "\"Impossible d'annuler un paiement deja confirme\"\n\"\""
+},
+"1089": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "\"Impossible de confirmer un paiement deja annule\"\n\"\"",
+"whole_said": "\"Impossible de confirmer un paiement deja annule\"\n\"\""
+},
+"1090": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "\"Le delai de confirmation de 24 heures a ete depasse\"\n\"\"",
+"whole_said": "\"Le delai de confirmation de 24 heures a ete depasse\"\n\"\""
+},
+"1091": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "\"Impossible de rejeter une demande de paiement deja acceptee\"\n\"\"",
+"whole_said": "\"Impossible de rejeter une demande de paiement deja acceptee\"\n\"\""
+},
+"1092": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "\"Delai de retour de fonds depasse\"\n\"\"",
+"whole_said": "\"Delai de retour de fonds depasse\"\n\"\""
+},
+"1093": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "\"Transaction non irrevocable\"\n\"\"",
+"whole_said": "\"Transaction non irrevocable\"\n\"\""
+},
+"1094": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "403\n0",
+"whole_said": "403\n0"
+},
+"1095": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1096": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1097": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1098": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1099": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1100": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1101": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1102": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1103": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1104": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1105": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1106": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1107": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1108": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1109": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1110": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1111": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1112": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1113": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1114": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1115": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1116": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1117": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1118": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1119": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1120": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1121": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"1122": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+}
+}
+}

@@ -70,3 +70,8 @@ WHATS-NEXT.md
 
 # KP1: the browser runner loads the wasm built by `zig build wasm`; generated, never tracked
 libraries/stzlib/base/education/program/courses/kernel-puzzles/runner/stz.wasm
+
+# the Atelier (libraries/stzlib/atelier): a maintainer tool's work folder, and what the recorder and the guard plant
+libraries/stzlib/atelier/_work/
+libraries/stzlib/atelier/_record_settings.ring
+**/test/atelier/_planted*

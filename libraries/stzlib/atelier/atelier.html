@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Softanza Atelier</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface-0: #f4f3f0;
+  --surface-1: #fcfcfb;
+  --border: #e2e0da;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #77756f;
+  --good: #0ca30c;
+  --warning: #fab219;
+  --critical: #d03b3b;
+  --code-bg: #f0efec;
+  --accent: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --surface-0: #121211;
+    --surface-1: #1a1a19;
+    --border: #33332f;
+    --text-primary: #f0efec;
+    --text-secondary: #c3c2b7;
+    --text-muted: #9a998f;
+    --code-bg: #24241f;
+    --accent: #3987e5;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-0: #121211;
+  --surface-1: #1a1a19;
+  --border: #33332f;
+  --text-primary: #f0efec;
+  --text-secondary: #c3c2b7;
+  --text-muted: #9a998f;
+  --code-bg: #24241f;
+  --accent: #3987e5;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--surface-0); color: var(--text-primary);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 1120px; margin: 0 auto; padding: 24px 16px 64px; }
+header h1 { font-size: 28px; margin: 0; letter-spacing: -0.01em; }
+header p { margin: 4px 0 0; color: var(--text-secondary); }
+.status { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 16px 0 8px; color: var(--text-secondary); font-size: 14px; }
+.status b { color: var(--text-primary); font-weight: 600; }
+.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; background: var(--text-muted); }
+.dot.ok { background: var(--good); } .dot.busy { background: var(--warning); } .dot.bad { background: var(--critical); }
+nav { display: flex; gap: 4px; margin: 20px 0 12px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+nav button { background: none; border: 0; border-bottom: 2px solid transparent; padding: 8px 12px; font: inherit;
+  color: var(--text-secondary); cursor: pointer; }
+nav button[aria-selected="true"] { color: var(--text-primary); border-bottom-color: var(--accent); font-weight: 600; }
+section { display: none; } section.on { display: block; }
+.card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin: 12px 0; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+button.act { font: inherit; padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--surface-1); color: var(--text-primary); cursor: pointer; }
+button.act.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.act:disabled { opacity: .5; cursor: default; }
+select, textarea { font: inherit; color: var(--text-primary); background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px; }
+select { padding: 6px 8px; }
+textarea { width: 100%; min-height: 180px; padding: 10px; font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 14px; }
+pre, code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px; }
+pre { background: var(--code-bg); padding: 10px; border-radius: 8px; overflow-x: auto; margin: 6px 0; white-space: pre-wrap; word-break: break-word; }
+.muted { color: var(--text-muted); } .small { font-size: 13px; }
+.totals { display: flex; flex-wrap: wrap; gap: 24px; margin: 8px 0; }
+.total .n { font-size: 26px; font-weight: 650; } .total .l { color: var(--text-secondary); font-size: 13px; }
+.bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin: 10px 0; }
+.bar > div { height: 100%; background: var(--accent); width: 0; transition: width .15s; }
+.st { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; font-size: 13px; white-space: nowrap; }
+.st.pass { color: var(--good); } .st.fail { color: var(--critical); } .st.err { color: var(--text-secondary); }
+.st svg { width: 14px; height: 14px; }
+details.dom { border-top: 1px solid var(--border); padding: 6px 0; }
+details.dom summary { cursor: pointer; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.chk { display: grid; grid-template-columns: 74px 1fr auto; gap: 8px; padding: 6px 0; border-top: 1px dashed var(--border); font-size: 14px; }
+.chk .meta { color: var(--text-muted); font-size: 12px; }
+.chk.changed { background: color-mix(in srgb, var(--warning) 12%, transparent); }
+@media (max-width: 600px) { .chk { grid-template-columns: 64px 1fr; } .chk .t { grid-column: 2; } }
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>Softanza Atelier</h1>
+  <p>Softanza's library inside one live program on Ring++: its own assertions run against it, and code you write runs in it.</p>
+  <div class="status" id="status">
+    <span><span class="dot busy" id="stzdot"></span>the library: <b id="stzstate">asking...</b></span>
+    <span>requests served <b id="served">-</b></span>
+    <span>functions in the program <b id="funcs">-</b></span>
+    <span>runs released <b id="runs">-</b></span>
+  </div>
+  <p class="small muted" id="judged">What judges a check: asking the server...</p>
+</header>
+
+<nav role="tablist">
+  <button role="tab" aria-selected="true" data-tab="checks">Checks</button>
+  <button role="tab" aria-selected="false" data-tab="play">Playground</button>
+</nav>
+
+<section id="checks" class="on">
+  <div class="card">
+    <div class="row">
+      <select id="domain"></select>
+      <button class="act primary" id="runchecks">Run</button>
+      <button class="act" id="runfailed" disabled>Run the failures again</button>
+      <select id="show"><option value="all">show all</option><option value="bad">failures and errors</option><option value="differs">different from Ring</option><option value="changed">changed since the last run</option></select>
+    </div>
+    <div class="bar"><div id="prog"></div></div>
+    <div class="totals" id="totals"></div>
+    <p class="small muted" id="chkinfo"></p>
+  </div>
+  <div class="card" id="chklist"><p class="muted">Each check is one <code>Then(...)</code> from Softanza's narrated suites, run as the suite runs it: admitted into the live program as <code>func Run</code>, called, and released. Press Run.</p></div>
+</section>
+
+<section id="play">
+  <div class="card">
+    <p class="small muted" style="margin-top:0">The code is the body of a function: it runs inside the program that holds Softanza, then is released. End it with <code>return</code>; a list or an object is shown as Softanza shows it. Ctrl+Enter runs it.</p>
+    <textarea id="code" spellcheck="false">oText = Q("Softanza runs in the Atelier")
+return [ oText.Uppercased(), oText.NumberOfWords(), Q(oText.Words()).Reversed() ]</textarea>
+    <div class="row" style="margin-top:8px"><button class="act primary" id="runcode">Run</button><span class="small muted" id="playtime"></span></div>
+    <pre id="playout" class="muted">(the answer appears here)</pre>
+  </div>
+</section>
+</main>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ICON = {
+  pass: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+  fail: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+  err:  '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 4.5v4.5M8 11v.5" stroke="currentColor" stroke-width="1.8"/></svg>'
+};
+const LABEL = { pass: 'pass', fail: 'fail', err: 'error' };
+const badge = k => `<span class="st ${k}">${ICON[k]}${LABEL[k]}</span>`;
+
+// ---- tabs
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('nav button').forEach(x => x.setAttribute('aria-selected', x === b));
+  document.querySelectorAll('section').forEach(s => s.classList.toggle('on', s.id === b.dataset.tab));
+  try { localStorage.setItem('atelier.tab', b.dataset.tab); } catch (e) {}
+});
+try { const t = localStorage.getItem('atelier.tab'); if (t) document.querySelector(`nav button[data-tab="${t}"]`)?.click(); } catch (e) {}
+
+// ---- the server's state: where the library stands, and what judges a check
+let stzReady = false, STATE = null;
+async function status() {
+  try {
+    const s = await (await fetch('/atelier/state')).json();
+    STATE = s;
+    const st = s.library.state;
+    stzReady = st === 'admitted';
+    $('#stzdot').className = 'dot ' + (st === 'admitted' ? 'ok' : st === 'compiling' ? 'busy' : 'bad');
+    $('#stzstate').textContent = st === 'admitted' ? `admitted in ${s.library.seconds} s` : st === 'compiling' ? 'compiling in the background...' : 'refused: ' + s.library.why.slice(0, 120);
+    $('#served').textContent = Number(s.served).toLocaleString('en-US');
+    $('#funcs').textContent = Number(s.functions).toLocaleString('en-US');
+    $('#runs').textContent = Number(s.runs).toLocaleString('en-US');
+    $('#judged').textContent = `What judges a check: the library at ${s.library.commit} (${s.library.folder}); rnxc ${s.rnxc.build}; the engine: ${s.engine}.`;
+  } catch (e) { $('#stzstate').textContent = 'the server does not answer'; $('#stzdot').className = 'dot bad'; }
+}
+(async function poll() { await status(); setTimeout(poll, stzReady ? 5000 : 1000); })();
+
+async function run(code) {
+  const t0 = performance.now();
+  const r = await fetch('/atelier/run', { method: 'POST', body: code });
+  const text = await r.text();
+  return { status: r.status, text, ms: performance.now() - t0 };
+}
+
+// ---- the checks
+let CHECKS = [], LAST = {};
+try { LAST = JSON.parse(localStorage.getItem('atelier.last') || '{}'); } catch (e) {}
+const results = {};
+fetch('/atelier/checks').then(r => r.json()).then(d => {
+  CHECKS = d.checks;
+  const doms = {};
+  CHECKS.forEach(c => doms[c.domain] = (doms[c.domain] || 0) + 1);
+  $('#domain').innerHTML = `<option value="*">every domain (${CHECKS.length})</option>` +
+    Object.keys(doms).sort().map(k => `<option value="${esc(k)}">${esc(k)} (${doms[k]})</option>`).join('');
+  $('#chkinfo').textContent = `${CHECKS.length} checks from ${d.files.toLocaleString('en-US')} narrated suites (${d.thens.toLocaleString('en-US')} Then lines; the rest set up variables first, read the clock, a file or a device, or span lines). Harvested from ${d.source}.`;
+});
+
+function kindOf(r) { return r.status !== 200 ? 'err' : r.text.startsWith('PASS') ? 'pass' : 'fail'; }
+
+// Ring's answer to each check (verdicts.py, on the oracle): whose a failure is
+let VERD = null;
+fetch('/atelier/verdicts').then(r => r.json()).then(d => { VERD = d; if (shown.length) renderChecks(shown); }).catch(() => {});
+function ringOf(c) {
+  const v = VERD && VERD.verdicts && VERD.verdicts[c.id];
+  if (!v) return null;
+  const m = v.ring === 'err' && /without definition: (stzengine\w+)/i.exec(v.ring_said);
+  return { kind: m ? 'none' : v.ring, said: v.ring_said, lacks: m ? m[1] : '' };
+}
+function differs(c, r) {
+  const g = ringOf(c);
+  if (!g || g.kind === 'none') return false;
+  if (g.kind !== r.kind) return true;
+  if (r.kind === 'fail') return r.text.split('\n').slice(1).join('\n').trim() !== g.said.trim();
+  if (r.kind === 'err') return r.text.trim().split('\n')[0] !== g.said.trim().split('\n')[0];
+  return false;
+}
+function ringNote(c, r) {
+  const g = ringOf(c);
+  if (!g) return '';
+  if (g.kind === 'none') return `on Ring: not measured (the oracle's engine lacks ${esc(g.lacks)})`;
+  const d = differs(c, r);
+  const what = g.kind === 'pass' ? 'pass' : g.kind === 'fail' ? (d ? 'fails, with another answer' : 'the same failure') : (d ? 'error: ' + esc(g.said.split('\n')[0]) : 'the same error');
+  return `${d ? '<b>different from Ring</b> &middot; ' : ''}on Ring: ${what}`;
+}
+
+function renderChecks(list) {
+  const show = $('#show').value;
+  const byDom = {};
+  list.forEach(c => (byDom[c.domain] = byDom[c.domain] || []).push(c));
+  let html = '';
+  for (const dom of Object.keys(byDom).sort()) {
+    const cs = byDom[dom].filter(c => results[c.id]);
+    if (!cs.length) continue;
+    const n = { pass: 0, fail: 0, err: 0 };
+    cs.forEach(c => n[results[c.id].kind]++);
+    const rows = cs.filter(c => {
+      const r = results[c.id];
+      if (show === 'bad') return r.kind !== 'pass';
+      if (show === 'differs') return differs(c, r);
+      if (show === 'changed') return LAST[c.id] && LAST[c.id] !== r.kind;
+      return true;
+    }).map(c => {
+      const r = results[c.id];
+      const changed = LAST[c.id] && LAST[c.id] !== r.kind;
+      const note = r.kind !== 'pass' || differs(c, r) ? ringNote(c, r) : '';
+      let more = '';
+      if (r.kind === 'fail') {
+        const [, exp, got] = r.text.split('\n');
+        more = `<pre>expected: ${esc(exp ?? '')}\ngot:      ${esc(got ?? '')}</pre>`;
+      } else if (r.kind === 'err') more = `<pre>${esc(r.text)}</pre>`;
+      return `<div class="chk${changed ? ' changed' : ''}"><div>${badge(r.kind)}</div>
+        <div>${esc(c.desc)}<div class="meta">${esc(c.file)}:${c.line}${c.scenario ? ' &middot; ' + esc(c.scenario) : ''}${changed ? ' &middot; was ' + LABEL[LAST[c.id]] : ''}</div>${note ? `<div class="meta">${note}</div>` : ''}${more}
+        <details><summary class="small muted">the code</summary><pre>${esc(c.code)}</pre></details></div>
+        <div class="t small muted">${r.ms.toFixed(1)} ms</div></div>`;
+    }).join('');
+    const bad = n.fail + n.err;
+    html += `<details class="dom" ${bad ? 'open' : ''}><summary><b>${esc(dom)}</b><span class="small">${n.pass} pass${n.fail ? ', ' + n.fail + ' fail' : ''}${n.err ? ', ' + n.err + ' error' : ''}</span></summary>${rows || '<p class="small muted">nothing to show under this filter</p>'}</details>`;
+  }
+  $('#chklist').innerHTML = html || '<p class="muted">Nothing run yet.</p>';
+}
+
+function totals(list, ms) {
+  const n = { pass: 0, fail: 0, err: 0 }, times = [];
+  list.forEach(c => { const r = results[c.id]; if (r) { n[r.kind]++; times.push(r.ms); } });
+  times.sort((a, b) => a - b);
+  const med = times.length ? times[Math.floor(times.length / 2)] : 0;
+  // whose the failures are: the suite's own (Ring answers the same), Ring++'s (Ring answers otherwise), unmeasured
+  let own = 0, diff = 0, none = 0;
+  list.forEach(c => { const r = results[c.id]; if (!r || r.kind === 'pass') return;
+    const g = ringOf(c); if (!g || g.kind === 'none') none++; else if (differs(c, r)) diff++; else own++; });
+  list.forEach(c => { const r = results[c.id]; if (r && r.kind === 'pass' && differs(c, r)) diff++; });
+  $('#totals').innerHTML = [
+    [n.pass, badge('pass')], [n.fail, badge('fail')], [n.err, badge('err')],
+    ...(VERD && VERD.verdicts ? [[own, '<span class="small">not passing, as on Ring: the suite\'s own</span>'], [diff, '<span class="small">different from Ring</span>'], [none, '<span class="small">no answer from Ring to compare</span>']] : []),
+    [med.toFixed(1) + ' ms', '<span class="small">a check, median (admit, call, release, over HTTP)</span>'],
+    [(ms / 1000).toFixed(1) + ' s', '<span class="small">for the run</span>']
+  ].map(([v, l]) => `<div class="total"><div class="n">${v}</div><div class="l">${l}</div></div>`).join('');
+}
+
+let running = false;
+async function runChecks(list) {
+  if (running) return;
+  if (!stzReady) { $('#chkinfo').textContent = 'The library is still compiling; the checks run once it is admitted.'; return; }
+  running = true; $('#runchecks').disabled = true; $('#runfailed').disabled = true;
+  const t0 = performance.now();
+  for (let i = 0; i < list.length; i++) {
+    const c = list[i];
+    const r = await run(c.code);
+    results[c.id] = { kind: kindOf(r), text: r.text, ms: r.ms };
+    $('#prog').style.width = (100 * (i + 1) / list.length) + '%';
+    if (i % 25 === 24 || i === list.length - 1) { totals(list, performance.now() - t0); renderChecks(list); }
+  }
+  renderChecks(list);
+  const now = {};
+  CHECKS.forEach(c => { if (results[c.id]) now[c.id] = results[c.id].kind; });
+  try { localStorage.setItem('atelier.last', JSON.stringify(Object.assign({}, LAST, now))); } catch (e) {}
+  running = false; $('#runchecks').disabled = false;
+  $('#runfailed').disabled = !list.some(c => results[c.id] && results[c.id].kind !== 'pass');
+}
+let shown = [];
+$('#runchecks').onclick = () => { const d = $('#domain').value; shown = CHECKS.filter(c => d === '*' || c.domain === d); runChecks(shown); };
+$('#runfailed').onclick = () => runChecks(shown.filter(c => results[c.id] && results[c.id].kind !== 'pass'));
+$('#show').onchange = () => renderChecks(shown);
+
+// ---- the playground
+async function play() {
+  if (!stzReady) { $('#playout').textContent = 'The library is still compiling; try again in a moment.'; return; }
+  const body = $('#code').value;
+  const code = 'func Run cInput\n\treturn AtelierShow(AtelierBody())\n\nfunc AtelierBody\n' + body + '\n';
+  const r = await run(code);
+  $('#playout').className = r.status === 200 ? '' : 'muted';
+  $('#playout').textContent = (r.status === 200 ? '' : r.status + '  ') + r.text;
+  $('#playtime').textContent = `${r.ms.toFixed(1)} ms, admitted, called and released`;
+}
+$('#runcode').onclick = play;
+$('#code').addEventListener('keydown', e => { if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); play(); } });
+</script>
+</body>
+</html>
