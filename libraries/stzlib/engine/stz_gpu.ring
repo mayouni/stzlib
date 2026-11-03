@@ -32,6 +32,8 @@
 #   StzEngineGpuOpDot(hA, hB, n) -> [status, value]
 #   StzEngineGpuOpScan(hIn, hOut, n, nMode)          running total, 0 inclusive / 1 exclusive,
 #                                                    all on the device (GB0); ScanDispatches(n) = 2*levels - 1
+#   StzEngineGpuOpCompact(hIn, hMask, hOut, n) -> [status, count]       keep where the mask is not 0, packed in order (GB0)
+#   StzEngineGpuOpCompactWhere(hIn, hOut, n, nCmp, nThr) -> [status, count]   nCmp 0 gt 1 ge 2 lt 3 le 4 eq 5 ne
 # OUT buffers must be distinct from inputs (WebGPU aliasing validation).
 #
 # Kernel binding contract (every kernel compiled through this layer):

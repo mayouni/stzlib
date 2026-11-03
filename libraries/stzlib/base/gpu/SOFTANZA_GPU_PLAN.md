@@ -4276,6 +4276,66 @@ iGPU in the browser. **No person has worked it.**
 stream compaction and segmented reductions all stand on this op. Each is a rung
 of its own.
 
+## GB0 STATUS — stream compaction landed 2026-11-03 (the second op of the library layer)
+
+**What it is.** `StzEngineGpuOpCompact(hIn, hMask, hOut, n)` keeps `in[i]` where
+`mask[i]` is not 0; `StzEngineGpuOpCompactWhere(hIn, hOut, n, cmp, threshold)`
+keeps it where `in[i] cmp threshold` holds (gt ge lt le eq ne). The kept
+elements land packed at the front of `out`, in order, and the kept count comes
+back (`engine/src/gpu_compact.zig`). Three steps in ONE batch: flags, an
+exclusive scan of the flags (the op above: each kept element's scan value is
+its place), and a scatter that also writes the count. `2 + (2 * levels - 1)`
+dispatches; the count's read is the second queue submit.
+
+**Decisions taken** (each reversible): the scan is reused as it stands, split
+into plan, record and free so that compaction scans INSIDE its own batch
+(the plan's buffers are freed after the batch, not before: the lesson the fft
+op already paid for); the output is written only up to the count (a sentinel
+past it survives, guarded); the mask is a device buffer so a kernel can make
+it; **n is limited to 16,777,216 and refused by name above it (TOO_LARGE):
+the scan and the counts are f32, exact only below 2^24**; a NaN mask entry is
+not 0 and keeps its element, a NaN value passes only `ne`; the face is a
+one-shot over lists, and the RESIDENT use is what the op is for.
+
+**Criteria, one by one.**
+- *A CPU reference*: the plain loop, in the guard, list against list to the bit.
+- *A hidden shape*: exact at 1, 255, 256, 257, 65,537 and 1,000,003 elements
+  (every scan level), both extremes (everything kept, nothing kept), all six
+  comparisons over 100,000 whole numbers with ties, and the mask form with a
+  mask made apart from the values.
+- *A roof fraction*: 16,000,000 floats resident take **6.3 ms**, 5.2 scale
+  passes over the same vector. **The first version took 20.4 ms** (17 scale
+  passes): it made the two 64 MB vectors, and zeroed them, on every call. The
+  suspicion was the allocation, the scratch is now kept between calls
+  (`CompactRelease` gives it back), and the clock agreed: 3.2 times faster, no
+  other change. What remains is the bandwidth: the flags, the scan, a scatter
+  that reads three vectors, and the count's read.
+- *A route*: through the face the loop wins below about 10,000 elements and the
+  device by 1.3 from 20,000 on (ratios 0.19, 0.61, 1.35, 2.41, 3.42, 4.50 at 1k,
+  5k, 20k, 50k, 200k, 1M): a selection is a compare and an append per element
+  in the loop, so the device's margin is wider than the scan's. `CalibrateCompact`
+  stores the line per adapter; `CompactWhereRouted` follows it.
+
+**One thing found in my own guard.** The scene that checks "one queue submit"
+said 2, not 1: the batch, and the count's read, which is its own submit. The
+assertion was wrong and the op was right; it now says what is true.
+
+**The puzzle**: kp-21, *pack the large ones*, in the scan chapter: stream
+compaction inside a group, by RANK (the scan of puzzle 20 of 1s and 0s), with a
+kernel's one limitation made the lesson: it writes only its own place, so the
+slot LOOKS FOR its element rather than the element pushing itself. Two right
+answers (an inclusive rank read as `l + 1`, an exclusive rank read as `l`), four
+mistakes (masks and leaves holes, a rank one too high, at least 5, reads what
+it writes). The verdicts were worked out from the data first; **my first guess
+for one of them was wrong because I had the data wrong** (`mod13` is
+`(i * 7) % 13`, not `i % 13`), and the checker's answer, element 6, was
+right: the 5 joins the kept values after 7 8 9 10 11. I corrected the data
+description in this guard and in the kp-19 and kp-20 guards. Desktop and the
+Intel iGPU in the browser agree on all six answers. **No person has worked it.**
+
+**What this opens**: radix sort is a scan of bit flags per pass; segmented
+reductions are a scan with a reset. Each is a rung of its own.
+
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 
 **Where the plane stands.** The charge GK3 to KP3 is through. A kernel can

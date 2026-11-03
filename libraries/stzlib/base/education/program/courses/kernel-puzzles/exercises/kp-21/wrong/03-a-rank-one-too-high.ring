@@ -1,0 +1,10 @@
+# Reads the inclusive rank as if it were the slot: the first kept element has rank 1 and belongs in slot 0.
+k = StzKernelMakerQ()
+k.TakesVector(:a)
+k.ReturnsVector(:c)
+k.Shared(:t, 256)
+k.Shared(:r, 256)
+k.Stage('{ @t[@l] = @a }')
+k.Stage('{ @r[@l] = sum(j, 0, 256, when(j <= @l, when(@t[j] > 5, 1, 0), 0)) }')
+k.ForEachElement('{ @c = sum(j, 0, 256, when(@t[j] > 5 and @r[j] == @l, @t[j], 0)) }')
+? StzKernelPuzzleQ("kp-21").Grade(k)

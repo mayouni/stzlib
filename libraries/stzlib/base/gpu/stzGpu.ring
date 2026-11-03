@@ -1211,8 +1211,11 @@ class stzGpu from stzObject
 	#   returns    the hashlist CalibrateScan returns
 	#   see        CalibrateScan
 	def CalibrateScanWith(paCounts)
+		return This._CalibrateRoute("scan", paCounts)
+
+	def _CalibrateRoute(pcKey, paCounts)
 		This._RequireDevice()
-		_cKey_ = "scan"
+		_cKey_ = pcKey
 		_aCells_ = []
 		_nFlat_ = 0
 		_bBeyond_ = FALSE
@@ -1220,7 +1223,7 @@ class stzGpu from stzObject
 		_nRungs_ = ring_len(paCounts)
 		for _i_ = 1 to _nRungs_
 			_n_ = paCounts[_i_]
-			_aR_ = This._ScanRung(_n_)
+			_aR_ = This._RouteRung(_cKey_, _n_)
 			_nRatio_ = 0
 			if _aR_[2] > 0
 				_nRatio_ = _aR_[1] / _aR_[2]
@@ -1250,7 +1253,7 @@ class stzGpu from stzObject
 		_aCtrl_ = []
 		if ring_len(_aCells_) > 0
 			_c1_ = _aCells_[1]
-			_aAgain_ = This._ScanRung(_c1_[2])
+			_aAgain_ = This._RouteRung(_cKey_, _c1_[2])
 			_nG_ = 0
 			if _c1_[4] > 0
 				_nG_ = _aAgain_[2] / _c1_[4]
@@ -1278,7 +1281,7 @@ class stzGpu from stzObject
 		         :confounded = FALSE, :control = _aCtrl_, :adapter = This.DeviceName() ]
 
 	# one rung: the loop and the face on the same list, [ cpuMs, gpuMs ]
-	def _ScanRung(pnN)
+	def _RouteRung(pcKey, pnN)
 		_aIn_ = []
 		for _i_ = 1 to pnN
 			_aIn_ + ((_i_ * 5) % 7)
@@ -1287,14 +1290,14 @@ class stzGpu from stzObject
 		if _nReps_ < 3
 			_nReps_ = 3
 		ok
-		This.Scan(_aIn_)
+		This._RouteSide(pcKey, _aIn_, 1)
 		StzEngineGpuWake(400)
 		_nCpu_ = 999999999
 		_nGpu_ = 999999999
 		for _r_ = 1 to 7
 			_nT0_ = StzEngineWatchTimestampNs()
 			for _k_ = 1 to _nReps_
-				This._ScanCpu(_aIn_, 0)
+				This._RouteSide(pcKey, _aIn_, 0)
 			next
 			_nMs_ = (StzEngineWatchTimestampNs() - _nT0_) / 1000000 / _nReps_
 			if _nMs_ < _nCpu_
@@ -1302,7 +1305,7 @@ class stzGpu from stzObject
 			ok
 			_nT0_ = StzEngineWatchTimestampNs()
 			for _k_ = 1 to _nReps_
-				This.Scan(_aIn_)
+				This._RouteSide(pcKey, _aIn_, 1)
 			next
 			_nMs_ = (StzEngineWatchTimestampNs() - _nT0_) / 1000000 / _nReps_
 			if _nMs_ < _nGpu_
@@ -1310,6 +1313,160 @@ class stzGpu from stzObject
 			ok
 		next
 		return [ _nCpu_, _nGpu_ ]
+
+	# which side of a route a rung times: 0 the loop, 1 the device through the face
+	def _RouteSide(pcKey, paIn, nSide)
+		if pcKey = "scan"
+			if nSide = 0
+				return This._ScanCpu(paIn, 0)
+			ok
+			return This.Scan(paIn)
+		ok
+		if nSide = 0
+			return This._CompactWhereCpu(paIn, ">", 2.5)
+		ok
+		return This.CompactWhere(paIn, ">", 2.5)
+
+	# The elements of a list whose mask entry is not 0, in order, packed -- selected on the device (GB0).
+	#
+	#   paValues   a non-empty list of numbers
+	#   paMask     a list of the same length; an entry that is not 0 keeps its element
+	#   returns    a list of the kept elements, in their order (empty when none is kept)
+	#   note       a NaN mask entry is not 0 and keeps its element; at most 16,777,216 elements
+	#   warning    one-shot: it uploads, runs and downloads; raises an error when no GPU device is available
+	#   see        CompactWhere, Scan
+	# ---- GB0: stream compaction ----------------------------------------------
+	#@ aka  Flags, an exclusive scan of the flags (each kept element's scan value is its place), and a scatter, in ONE submit; the kept count comes back through a 4-byte buffer, the only read before the elements themselves. Built on the scan.
+	def Compact(paValues, paMask)
+		This._RequireDevice()
+		if NOT isList(paValues) or NOT isList(paMask) or ring_len(paValues) = 0 or ring_len(paValues) != ring_len(paMask)
+			StzRaise("Compact: give me a non-empty list of numbers and a mask of the same length.")
+		ok
+		_nN_ = ring_len(paValues)
+		_hI_ = StzEngineGpuBufferNew(_nN_ * 4)
+		_hM_ = StzEngineGpuBufferNew(_nN_ * 4)
+		_hO_ = StzEngineGpuBufferNew(_nN_ * 4)
+		if _hI_ = 0 or _hM_ = 0 or _hO_ = 0
+			_FreeIds([_hI_, _hM_, _hO_])
+			StzRaise("Compact: no device buffer (" + StzEngineGpuLastError() + ")")
+		ok
+		if StzEngineGpuBufferUploadList(_hI_, paValues) != 0 or StzEngineGpuBufferUploadList(_hM_, paMask) != 0
+			_FreeIds([_hI_, _hM_, _hO_])
+			StzRaise("Compact: upload refused (" + StzEngineGpuLastError() + ")")
+		ok
+		_aRes_ = StzEngineGpuOpCompact(_hI_, _hM_, _hO_, _nN_)
+		return This._CompactFinish(_aRes_, [_hI_, _hM_, _hO_], _hO_, "Compact")
+
+	# The elements of a list that pass a comparison with a threshold, in order, packed -- selected on the device (GB0).
+	#
+	#   paValues   a non-empty list of numbers
+	#   pcOp       ">", ">=", "<", "<=", "=" or "!="
+	#   pnThr      the number to compare each element with
+	#   returns    a list of the kept elements, in their order (empty when none is kept)
+	#   note       a NaN element passes only "!="; at most 16,777,216 elements
+	#   warning    one-shot: it uploads, runs and downloads; raises an error when no GPU device is available
+	#   see        Compact, CompactWhereRouted
+	def CompactWhere(paValues, pcOp, pnThr)
+		This._RequireDevice()
+		_nCmp_ = This._CompareCode(pcOp)
+		if NOT isList(paValues) or ring_len(paValues) = 0
+			StzRaise("CompactWhere: give me a non-empty list of numbers.")
+		ok
+		_nN_ = ring_len(paValues)
+		_hI_ = StzEngineGpuBufferNew(_nN_ * 4)
+		_hO_ = StzEngineGpuBufferNew(_nN_ * 4)
+		if _hI_ = 0 or _hO_ = 0
+			_FreeIds([_hI_, _hO_])
+			StzRaise("CompactWhere: no device buffer (" + StzEngineGpuLastError() + ")")
+		ok
+		if StzEngineGpuBufferUploadList(_hI_, paValues) != 0
+			_FreeIds([_hI_, _hO_])
+			StzRaise("CompactWhere: upload refused (" + StzEngineGpuLastError() + ")")
+		ok
+		_aRes_ = StzEngineGpuOpCompactWhere(_hI_, _hO_, _nN_, _nCmp_, pnThr)
+		return This._CompactFinish(_aRes_, [_hI_, _hO_], _hO_, "CompactWhere")
+
+	def _CompareCode(pcOp)
+		if pcOp = ">"
+			return 0
+		but pcOp = ">="
+			return 1
+		but pcOp = "<"
+			return 2
+		but pcOp = "<="
+			return 3
+		but pcOp = "=" or pcOp = "=="
+			return 4
+		but pcOp = "!=" or pcOp = "<>"
+			return 5
+		ok
+		StzRaise("CompactWhere: the comparison is one of > >= < <= = !=, not '" + pcOp + "'.")
+
+	def _CompactFinish(paRes, paIds, phOut, pcName)
+		if paRes[1] != 0
+			_FreeIds(paIds)
+			StzRaise(pcName + ": the op refused (status " + paRes[1] + ").")
+		ok
+		_nKept_ = floor(paRes[2])
+		_aOut_ = []
+		if _nKept_ > 0
+			_aOut_ = StzEngineGpuBufferDownloadList(phOut, _nKept_)
+		ok
+		_FreeIds(paIds)
+		return _aOut_
+
+	# The same selection, on the device only where this machine's measurement says the device wins, and in a plain loop everywhere else.
+	#
+	#   paValues   a non-empty list of numbers
+	#   pcOp       ">", ">=", "<", "<=", "=" or "!="
+	#   pnThr      the number to compare each element with
+	#   returns    a list of the kept elements, as CompactWhere returns it
+	#   note       with no calibration stored for "compact" (or no device) the answer comes from the loop;
+	#              CalibrateCompact stores the line this machine measures
+	#   see        CompactWhere, CalibrateCompact
+	def CompactWhereRouted(paValues, pcOp, pnThr)
+		if NOT isList(paValues) or ring_len(paValues) = 0
+			StzRaise("CompactWhereRouted: give me a non-empty list of numbers.")
+		ok
+		This._CompareCode(pcOp)
+		if StzEngineGpuIsAvailable() = 1 and StzEngineGpuCalibRouteShaped("compact", ring_len(paValues), 1) = 1
+			return This.CompactWhere(paValues, pcOp, pnThr)
+		ok
+		return This._CompactWhereCpu(paValues, pcOp, pnThr)
+
+	def _CompactWhereCpu(paValues, pcOp, pnThr)
+		_nCmp_ = This._CompareCode(pcOp)
+		_aOut_ = []
+		_nN_ = ring_len(paValues)
+		for _i_ = 1 to _nN_
+			_x_ = paValues[_i_]
+			_bKeep_ = FALSE
+			if _nCmp_ = 0
+				_bKeep_ = (_x_ > pnThr)
+			but _nCmp_ = 1
+				_bKeep_ = (_x_ >= pnThr)
+			but _nCmp_ = 2
+				_bKeep_ = (_x_ < pnThr)
+			but _nCmp_ = 3
+				_bKeep_ = (_x_ <= pnThr)
+			but _nCmp_ = 4
+				_bKeep_ = (_x_ = pnThr)
+			else
+				_bKeep_ = (_x_ != pnThr)
+			ok
+			if _bKeep_
+				_aOut_ + _x_
+			ok
+		next
+		return _aOut_
+
+	# Measures the loop against the device for lists of several sizes and stores, for this adapter, where the device wins at selecting.
+	#
+	#   returns    the hashlist CalibrateScan returns, for the key "compact" (rungs keep the elements above 2.5 of whole numbers 0 to 6)
+	#   warning    writes the calibration file; raises an error when no GPU device is available
+	#   see        CalibrateScan, CompactWhereRouted
+	def CalibrateCompact()
+		return This._CalibrateRoute("compact", [1000, 5000, 20000, 50000, 200000, 1000000])
 
 	# Lets the engine try the variants of the pairwise-distance kernel at a shape and record the winner if it beats the generic one by 1.3 times.
 	#

@@ -277,8 +277,8 @@ chk("the task reads in four languages and ends with what the GPU did differently
 	oQ.Task("en") != "" and oQ.Task("fr") != "" and oQ.Task("ar") != "" and oQ.Task("ha") != "" and StzFindFirst("differently from a loop", oQ.Task("en")) > 0 and StzFindFirst("block step of the library", oQ.Task("en")) > 0)
 cLoad = "in a" + NLc + "out c" + NLc + "shared t 256" + NLc + "stage { @t[@l] = @a }" + NLc
 cTwo = "in a" + NLc + "out c" + NLc + "shared t 256" + NLc + "shared u 256" + NLc + "stage { @t[@l] = @a }" + NLc + "tiles s { N }" + NLc + "stage { @u[@l] = @t[@l] + @t[@l - pow(2, s)] }" + NLc + "stage { @t[@l] = @u[@l] }" + NLc + "body { @c = @t[@l] }"
-# the verdicts were worked out from the data (a is i % 13, so a[0] = 0) before the first run:
-#   exclusive:   element 1 is 0 either way; element 2 owes a[0] + a[1] = 1 and gets a[0] = 0
+# the verdicts were worked out from the data (a is (i * 7) % 13: 0, 7, 1, 8, 2 ... so a[0] = 0) before the first run:
+#   exclusive:   element 1 is 0 either way; element 2 owes a[0] + a[1] = 7 and gets a[0] = 0
 #   no restart:  the second group starts at element 257, which owes a[256] alone
 #   7 steps:     reaches 128 places back; thread 128 owes 129 numbers and is missing a[0], which is 0,
 #                so element 129 coincides and element 130 is the first wrong one

@@ -1,0 +1,17 @@
+knowledge "kp-21"
+
+facts
+    kp-21 | is-a | exercise
+    kp-21 | in-course | kernel-puzzles
+    kp-21 | in-chapter | the-scan
+    kp-21 | puzzle-number | 21
+    kp-21 | teaches | packing-the-kept-elements-by-their-rank
+    kp-21 | starts | red
+
+    kp-21 | elements | 4000
+    kp-21 | input-a | mod13
+
+    kp-21 | has-mistake | 02-masks-and-leaves-holes
+    kp-21 | has-mistake | 03-a-rank-one-too-high
+    kp-21 | has-mistake | 04-at-least-five
+    kp-21 | has-mistake | 05-reads-what-it-writes

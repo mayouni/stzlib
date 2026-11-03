@@ -130,6 +130,76 @@ pub fn stz_gpu_scan_dispatches(nf: f64) callconv(.c) f64 {
     return @floatFromInt(2 * levelsFor(n) - 1);
 }
 
+/// The work a scan needs besides its input and output: the block totals of every level and the
+/// scanned totals of every level above the first. Owned by the caller, so an op that scans INSIDE
+/// its own batch (compaction) frees them after the batch has been submitted, not before.
+pub const Plan = struct {
+    lv: usize = 0,
+    sizes: [MAX_LEVELS]usize = undefined,
+    totals: [MAX_LEVELS]i64 = @splat(0),
+    scanned: [MAX_LEVELS]i64 = @splat(0),
+    k_blocks: i64 = 0,
+    k_add: i64 = 0,
+};
+
+pub fn planFree(pl: *Plan) void {
+    for (0..pl.lv) |l| {
+        if (pl.totals[l] != 0) _ = gpu.stz_gpu_buffer_free(pl.totals[l]);
+        if (pl.scanned[l] != 0) _ = gpu.stz_gpu_buffer_free(pl.scanned[l]);
+        pl.totals[l] = 0;
+        pl.scanned[l] = 0;
+    }
+}
+
+/// Compile the two kernels and allocate the work buffers of a scan of n elements. On any failure
+/// the buffers already made are freed and a status is returned.
+pub fn planNew(n: usize, pl: *Plan) i32 {
+    pl.* = .{};
+    pl.k_blocks = compile(WGSL_SCAN_BLOCKS);
+    pl.k_add = compile(WGSL_SCAN_ADD);
+    if (pl.k_blocks == 0 or pl.k_add == 0) return gpu.GPU_ERROR;
+    const lv = levelsFor(n);
+    if (lv > MAX_LEVELS) return gpu.TOO_LARGE;
+    var m = n;
+    for (0..lv) |l| {
+        pl.sizes[l] = m;
+        m = ceilDiv(m, WG);
+    }
+    pl.lv = lv;
+    for (0..lv) |l| {
+        pl.totals[l] = gpu.stz_gpu_buffer_new(@floatFromInt(ceilDiv(pl.sizes[l], WG) * 4));
+        if (pl.totals[l] != 0 and l > 0) pl.scanned[l] = gpu.stz_gpu_buffer_new(@floatFromInt(pl.sizes[l] * 4));
+        if (pl.totals[l] == 0 or (l > 0 and pl.scanned[l] == 0)) {
+            const dead = gpu.stz_gpu_is_available() == 0;
+            planFree(pl);
+            return if (dead) gpu.FALLBACK else gpu.TOO_LARGE;
+        }
+    }
+    return gpu.OK;
+}
+
+/// Record (dispatch) the scan of in into out. The caller owns the batch and the plan.
+pub fn record(pl: *const Plan, in: i64, out: i64, mode: u32) i32 {
+    const lv = pl.lv;
+    var st: i32 = gpu.OK;
+    // down: a block pass at every level, the totals of one level the input of the next
+    var l: usize = 0;
+    while (st == gpu.OK and l < lv) : (l += 1) {
+        const src = if (l == 0) in else pl.totals[l - 1];
+        const dst = if (l == 0) out else pl.scanned[l];
+        const md: u32 = if (l == 0) mode else 0;
+        st = dispatchP(pl.k_blocks, &ScanParams{ .n = @intCast(pl.sizes[l]), .mode = md, .p1 = 0, .p2 = 0 }, &.{ src, dst, pl.totals[l] }, ceilDiv(pl.sizes[l], WG));
+    }
+    // up: every level but the top adds the scanned totals of the blocks before each of its blocks
+    var u: usize = lv - 1;
+    while (st == gpu.OK and u > 0) {
+        u -= 1;
+        const dst = if (u == 0) out else pl.scanned[u];
+        st = dispatchP(pl.k_add, &ScanParams{ .n = @intCast(pl.sizes[u]), .mode = 0, .p1 = 0, .p2 = 0 }, &.{ dst, pl.scanned[u + 1] }, ceilDiv(pl.sizes[u], WG));
+    }
+    return st;
+}
+
 /// out = the running total of in over n f32s. mode 0 is inclusive, 1 exclusive. in and out are
 /// distinct buffers. OK / FALLBACK (no device) / STALE / BAD_ARG / TOO_LARGE / GPU_ERROR.
 pub fn stz_gpu_op_scan(in: i64, out: i64, nf: f64, modef: f64) callconv(.c) i32 {
@@ -146,60 +216,18 @@ pub fn stz_gpu_op_scan(in: i64, out: i64, nf: f64, modef: f64) callconv(.c) i32 
     if (sz_in < 0 or sz_out < 0) return gpu.STALE;
     if (@as(f64, @floatFromInt(n * 4)) > sz_in or @as(f64, @floatFromInt(n * 4)) > sz_out) return gpu.BAD_ARG;
 
-    const k_blocks = compile(WGSL_SCAN_BLOCKS);
-    const k_add = compile(WGSL_SCAN_ADD);
-    if (k_blocks == 0 or k_add == 0) return gpu.GPU_ERROR;
-
-    const lv = levelsFor(n);
-    if (lv > MAX_LEVELS) return gpu.TOO_LARGE;
-    // sizes[L] is the element count of level L; totals[L] holds level L's block totals (the
-    // input of level L + 1); scanned[L] (L >= 1) is level L's own inclusive scan
-    var sizes: [MAX_LEVELS]usize = undefined;
-    var totals: [MAX_LEVELS]i64 = @splat(0);
-    var scanned: [MAX_LEVELS]i64 = @splat(0);
-    var m = n;
-    for (0..lv) |l| {
-        sizes[l] = m;
-        m = ceilDiv(m, WG);
-    }
-    defer {
-        for (0..lv) |l| {
-            if (totals[l] != 0) _ = gpu.stz_gpu_buffer_free(totals[l]);
-            if (scanned[l] != 0) _ = gpu.stz_gpu_buffer_free(scanned[l]);
-        }
-    }
-    for (0..lv) |l| {
-        totals[l] = gpu.stz_gpu_buffer_new(@floatFromInt(ceilDiv(sizes[l], WG) * 4));
-        if (totals[l] == 0) return if (gpu.stz_gpu_is_available() == 0) gpu.FALLBACK else gpu.TOO_LARGE;
-        if (l > 0) {
-            scanned[l] = gpu.stz_gpu_buffer_new(@floatFromInt(sizes[l] * 4));
-            if (scanned[l] == 0) return if (gpu.stz_gpu_is_available() == 0) gpu.FALLBACK else gpu.TOO_LARGE;
-        }
-    }
+    var pl: Plan = .{};
+    const pst = planNew(n, &pl);
+    if (pst != gpu.OK) return pst;
+    // the work buffers are freed after the batch is submitted: the submitted pass holds its own
+    // references device-side (the same rule the fft op and the faces rely on)
+    defer planFree(&pl);
 
     _ = gpu.stz_gpu_batch_begin();
-    var st: i32 = gpu.OK;
-    // down: a block pass at every level, the totals of one level the input of the next
-    var l: usize = 0;
-    while (st == gpu.OK and l < lv) : (l += 1) {
-        const src = if (l == 0) in else totals[l - 1];
-        const dst = if (l == 0) out else scanned[l];
-        const mode: u32 = if (l == 0) @intFromFloat(modef) else 0;
-        st = dispatchP(k_blocks, &ScanParams{ .n = @intCast(sizes[l]), .mode = mode, .p1 = 0, .p2 = 0 }, &.{ src, dst, totals[l] }, ceilDiv(sizes[l], WG));
-    }
-    // up: every level but the top adds the scanned totals of the blocks before each of its blocks
-    var u: usize = lv - 1;
-    while (st == gpu.OK and u > 0) {
-        u -= 1;
-        const dst = if (u == 0) out else scanned[u];
-        st = dispatchP(k_add, &ScanParams{ .n = @intCast(sizes[u]), .mode = 0, .p1 = 0, .p2 = 0 }, &.{ dst, scanned[u + 1] }, ceilDiv(sizes[u], WG));
-    }
+    const st = record(&pl, in, out, @intFromFloat(modef));
     const st_end = gpu.stz_gpu_batch_end();
     if (st != gpu.OK) return st;
-    if (st_end != gpu.OK) return st_end;
-    // the work buffers are freed by the defer: the submitted pass holds its own
-    // references device-side (the same rule the fft op and the faces rely on)
-    return gpu.OK;
+    return st_end;
 }
 
 test "levels and dispatches of a scan" {

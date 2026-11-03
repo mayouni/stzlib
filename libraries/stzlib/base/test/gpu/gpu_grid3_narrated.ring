@@ -164,7 +164,7 @@ chk("the starter grades 'waiting for your implementation'", oQ.Grade(oQ.Starter(
 chk("the task reads in four languages and ends with what the GPU did differently from a triple loop",
 	oQ.Task("en") != "" and oQ.Task("fr") != "" and oQ.Task("ar") != "" and oQ.Task("ha") != "" and StzFindFirst("differently from a triple loop", oQ.Task("en")) > 0)
 cHead = "in a" + NLc + "scalar w" + NLc + "scalar d" + NLc + "scalar p" + NLc + "out c" + NLc + "width w" + NLc + "depth d" + NLc
-# the verdicts were worked out from the data (a is i % 13, so a[0] = 0, and the hidden volume is
+# the verdicts were worked out from the data (a is (i * 7) % 13, so a[0] = 0, and the hidden volume is
 # 3 slices of 16 x 32, its first cell also 0) before the first run:
 #   the row above:    element 33 (row 1, column 0) coincides, a[0] being 0; element 34 is the first wrong one
 #   a stride of 1024: right at the shape shown; in the hidden volume (512 a slice) element 513 coincides, 514 does not

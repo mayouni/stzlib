@@ -23,6 +23,7 @@ const foundry = @import("gpu_foundry.zig");
 const fuzz = @import("gpu_fuzz.zig");
 const gfft = @import("gpu_fft.zig");
 const gscan = @import("gpu_scan.zig");
+const gcompact = @import("gpu_compact.zig");
 const R = @import("ring_api.zig");
 
 const gn = R.ring_vm_api_getnumber;
@@ -1050,6 +1051,37 @@ fn ring_OpConvolveReal(p: *anyopaque) callconv(.c) void {
 // GB0 (scan): OpScan(hIn, hOut, n, nMode) -> status; mode 0 inclusive, 1 exclusive
 fn ring_OpScan(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(gscan.stz_gpu_op_scan(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2)), gn(p, 3), gn(p, 4))));
+}
+
+// GB0 (compaction): OpCompact(hIn, hMask, hOut, n) -> [status, count]; the kept elements, in order
+fn ring_OpCompact(p: *anyopaque) callconv(.c) void {
+    var cnt: f64 = 0;
+    const st = gcompact.stz_gpu_op_compact(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2)), @intFromFloat(gn(p, 3)), gn(p, 4), &cnt);
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    R.ring_list_adddouble(out, @floatFromInt(st));
+    R.ring_list_adddouble(out, cnt);
+    R.ring_vm_api_retlist(p, out);
+}
+
+// OpCompactWhere(hIn, hOut, n, nCmp, nThreshold) -> [status, count]; nCmp 0 gt, 1 ge, 2 lt, 3 le, 4 eq, 5 ne
+fn ring_OpCompactWhere(p: *anyopaque) callconv(.c) void {
+    var cnt: f64 = 0;
+    const st = gcompact.stz_gpu_op_compact_where(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2)), gn(p, 3), gn(p, 4), gn(p, 5), &cnt);
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    R.ring_list_adddouble(out, @floatFromInt(st));
+    R.ring_list_adddouble(out, cnt);
+    R.ring_vm_api_retlist(p, out);
+}
+
+// CompactRelease() -> frees the scratch a compaction keeps between calls
+fn ring_CompactRelease(p: *anyopaque) callconv(.c) void {
+    gcompact.stz_gpu_compact_release();
+    rn(p, 0);
+}
+
+// CompactDispatches(n) -> how many dispatches a compaction of n elements makes
+fn ring_CompactDispatches(p: *anyopaque) callconv(.c) void {
+    rn(p, gcompact.stz_gpu_compact_dispatches(gn(p, 1)));
 }
 
 // ScanDispatches(n) -> how many dispatches a scan of n elements makes
@@ -2533,6 +2565,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuconvolvesize", .func = &ring_ConvolveSize },
     .{ .name = "stzenginegpuopscan", .func = &ring_OpScan },
     .{ .name = "stzenginegpuscandispatches", .func = &ring_ScanDispatches },
+    .{ .name = "stzenginegpuopcompact", .func = &ring_OpCompact },
+    .{ .name = "stzenginegpuopcompactwhere", .func = &ring_OpCompactWhere },
+    .{ .name = "stzenginegpucompactdispatches", .func = &ring_CompactDispatches },
+    .{ .name = "stzenginegpucompactrelease", .func = &ring_CompactRelease },
     .{ .name = "stzenginegpubufferfilllcg", .func = &ring_BufferFillLcg },
     .{ .name = "stzenginegpufoundrypairdist", .func = &ring_FoundryPairdist },
     .{ .name = "stzenginegpufoundrymatmul", .func = &ring_FoundryMatmul },
