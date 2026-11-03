@@ -1,0 +1,5 @@
+<doctag><section_header_level_1><loc_47><loc_34><loc_181><loc_57>Notes on Municipal Water Storage</section_header_level_1>
+<text><loc_47><loc_61><loc_198><loc_166>The town of Brelland draws its water from two shallow reservoirs fed by seasonal streams. During the dry months the infrastructure struggles to keep pace with demand, and the administration has asked residents to observe conservation measures. A survey completed last spring documented the characteristics of every storage tank in the district.</text>
+<text><loc_47><loc_173><loc_198><loc_258>Engineers found that most tanks were built before 1970 and that their maintenance records were incomplete. The corresponding repair estimates vary widely between neighbourhoods. Several recommendations concern the distribution network rather than the tanks themselves.</text>
+<text><loc_47><loc_264><loc_198><loc_320>The council will publish an intermediate report in October. Responsible for environmental monitoring will remain with the regional office until a permanent arrangement is agreed.</text>
+</doctag>

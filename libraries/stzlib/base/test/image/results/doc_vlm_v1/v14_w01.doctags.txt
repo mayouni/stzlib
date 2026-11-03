@@ -1,0 +1,37 @@
+<doctag><picture><loc_43><loc_27><loc_247><loc_54><logo></picture>
+<section_header_level_1><loc_43><loc_71><loc_145><loc_89>Tax Invoice</section_header_level_1>
+<section_header_level_1><loc_53><loc_99><loc_89><loc_105>INVOICE TO</section_header_level_1>
+<text><loc_53><loc_109><loc_142><loc_139>Northgate Garden Supplies Ltd Purchase Ledger Department Unit 9, Brackley Trading Estate Westerby WB2 5QL</text>
+<text><loc_269><loc_102><loc_322><loc_108>Invoice number</text>
+<text><loc_344><loc_102><loc_394><loc_108>HFS-26-04418</text>
+<text><loc_269><loc_113><loc_310><loc_119>Invoice date</text>
+<text><loc_344><loc_113><loc_398><loc_119>9 October 2026</text>
+<text><loc_269><loc_123><loc_301><loc_129>Due date</text>
+<text><loc_344><loc_123><loc_406><loc_129>8 November 2026</text>
+<text><loc_269><loc_133><loc_331><loc_139>Customer account</text>
+<text><loc_344><loc_133><loc_359><loc_139>NGS-0193</text>
+<text><loc_269><loc_143><loc_310><loc_149>Our reference</text>
+<text><loc_344><loc_143><loc_407><loc_149>EXP/FXT/26/2207</text>
+<text><loc_43><loc_167><loc_437><loc_182>This invoice covers the export of two 40-foot high-cube containers of garden furniture from our Westerby depot to the consignee's terminal in Rotterdam. Vessel MV Calder Spirit, voyage 2641E, sailed from Felixstowe on 4 October 2026.</text>
+<otsl><loc_42><loc_188><loc_458><loc_318><fcel>Description<fcel>Qty<fcel>Unit<fcel>Rate (GBP)<fcel>Amount (GBP)<nl><fcel>Sea freight FCL 40' HC, Felixstowe to Rotterdam<fcel>2<fcel>container<fcel>1,180.00<fcel>2,360.00<nl><fcel>Terminal handling charge, origin<fcel>2<fcel>container<fcel>145.00<fcel>290.00<nl><fcel>Haulage, Westerby depot to Felixstowe<fcel>2<fcel>trip<fcel>410.00<fcel>820.00<nl><fcel>Customs export declaration<fcel>1<fcel>entry<fcel>65.00<fcel>65.00<nl><fcel>Cargo insurance, 0.35% of declared value<fcel>1<fcel>policy<fcel>192.50<fcel>192.50<nl><fcel>Documentation fee<fcel>1<fcel>set<fcel>35.00<fcel>35.00<nl><ecel><ecel><fcel>Subtotal<fcel>3,762.50<ecel><nl><ecel><ecel><fcel>VAT at 20% on 920.00<fcel>184.00<ecel><nl><ecel><ecel><ecel><fcel>Total due<fcel>3,946.50<nl></otsl>
+<text><loc_42><loc_327><loc_444><loc_340>VAT is charged only on the UK haulage, customs and documentation services; international sea freight and its origin charges are zerorated.</text>
+<section_header_level_1><loc_53><loc_355><loc_127><loc_361>PAYMENT DETAILS</section_header_level_1>
+<text><loc_53><loc_366><loc_218><loc_380>Please pay by bank transfer within 30 days of the invoice date.</text>
+<text><loc_53><loc_387><loc_70><loc_393>Bank</text>
+<text><loc_127><loc_387><loc_194><loc_393>Calder Mutual Bank</text>
+<text><loc_53><loc_398><loc_101><loc_404>Account name</text>
+<text><loc_127><loc_398><loc_223><loc_412>Harbourline Freight Services Ltd</text>
+<text><loc_53><loc_416><loc_85><loc_422>Sort code</text>
+<text><loc_127><loc_416><loc_160><loc_422>40-11-62</text>
+<text><loc_53><loc_426><loc_108><loc_432>Account number</text>
+<text><loc_127><loc_426><loc_164><loc_432>71839204</text>
+<text><loc_53><loc_437><loc_113><loc_443>Payment reference</text>
+<text><loc_127><loc_437><loc_178><loc_443>HFS-26-04418</text>
+<section_header_level_1><loc_269><loc_355><loc_310><loc_361>REMARKS</section_header_level_1>
+<text><loc_269><loc_366><loc_440><loc_380>Claims for loss or damage must be notified to us in writing within seven days of delivery.</text>
+<text><loc_269><loc_387><loc_436><loc_416>All business is transacted under our standard trading conditions, a copy of which is available on request. Interest may be charged on overdue accounts at 4% above the base rate.</text>
+<page_footer><loc_43><loc_478><loc_330><loc_483>Harbourline Freight Services Ltd · Registered in England and Wales No. 10457732 · VAT No. GB 318 2290 47</page_footer>
+<page_footer><loc_427><loc_478><loc_458><loc_483>Page 1 of 1</page_footer>
+<text><loc_318><loc_30><loc_458><loc_50>Unit 3, Quayside Business Park · Port Calder · PC4 7RT +44 1632 960 418 ·</text>
+<text><loc_368><loc_51><loc_458><loc_56>accounts@harbourline.example</text>
+</doctag>

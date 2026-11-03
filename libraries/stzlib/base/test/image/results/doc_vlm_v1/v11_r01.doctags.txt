@@ -1,0 +1,33 @@
+<doctag><picture><loc_47><loc_35><loc_83><loc_53><logo></picture>
+<section_header_level_1><loc_80><loc_34><loc_247><loc_43>Brackenridge Lumen Software Ltd</section_header_level_1>
+<text><loc_80><loc_43><loc_235><loc_57>14 Calder Wharf, Dunmarren DM4 7QT accounts@brackenridge-lumen.example · +44 131 555 0182</text>
+<section_header_level_1><loc_368><loc_35><loc_452><loc_54>INVOICE</section_header_level_1>
+<text><loc_310><loc_71><loc_348><loc_78>Invoice no.</text>
+<text><loc_310><loc_80><loc_352><loc_87>Invoice date</text>
+<text><loc_310><loc_89><loc_353><loc_96>Due date</text>
+<text><loc_310><loc_99><loc_379><loc_106>Customer reference</text>
+<text><loc_310><loc_108><loc_372><loc_115>Account manager</text>
+<text><loc_390><loc_71><loc_444><loc_78>INV-2026-0417</text>
+<text><loc_390><loc_80><loc_445><loc_87>2 October 2026</text>
+<text><loc_390><loc_89><loc_454><loc_96>1 November 2026</text>
+<text><loc_390><loc_99><loc_428><loc_106>PO 7781-B</text>
+<text><loc_390><loc_108><loc_427><loc_115>Ines Varga</text>
+<text><loc_266><loc_129><loc_299><loc_136>Deliver to</text>
+<text><loc_56><loc_137><loc_187><loc_171>Fernholt Cold Storage plc Accounts Payable Unit 3, Marsh Lane Industrial Estate Kelby KB2 9RS</text>
+<text><loc_266><loc_137><loc_361><loc_171>Fernholt Cold Storage plc Warehouse B, Gate 4 Dock Road Kelby KB2 9RW</text>
+<otsl><loc_47><loc_183><loc_454><loc_297><ched>Item<ched>Description<ched>Qty<ched>Unit price<ched>Amount<nl><fcel>SR-01<fcel>Support retainer, September 2026<fcel>1<fcel>2,400.00<fcel>2,400.00<nl><fcel>DV-14<fcel>Custom report module Development days, 14 to 21 September<fcel>6<fcel>640.00<fcel>3,840.00<nl><fcel>TR-02<fcel>On-site training for warehouse staff<fcel>2<fcel>550.00<fcel>1,100.00<nl><fcel>HW-88<fcel>Barcode scanner, model K3<fcel>4<fcel>189.50<fcel>758.00<nl><fcel>LC-05<fcel>Annual licence, routing add-on<fcel>1<fcel>1,250.00<fcel>1,250.00<nl><ecel><ecel><ecel><fcel>Subtotal<fcel>9,348.00<nl><ecel><ecel><ecel><fcel>VAT 20%<fcel>1,869.60<nl><ecel><ecel><ecel><fcel>Total due (EUR)<fcel>11,217.60<nl></otsl>
+<text><loc_309><loc_300><loc_376><loc_308>Total due (EUR)</text>
+<section_header_level_1><loc_57><loc_329><loc_144><loc_337>Payment instructions</section_header_level_1>
+<text><loc_56><loc_340><loc_226><loc_365>Please pay by bank transfer within 30 days of the invoice date. Quote the invoice number INV-2026-0417 as the payment reference.</text>
+<text><loc_56><loc_368><loc_225><loc_384>Account name: Brackenridge Lumen Software Ltd</text>
+<text><loc_56><loc_385><loc_201><loc_401>IBAN: DM21 LUMN 0042 7719 3305 18 BIC: LUMNDMX2</text>
+<text><loc_266><loc_340><loc_445><loc_373>The support retainer covers the period from 1 September to 30 September 2026. Hardware items remain our property until they are paid in full.</text>
+<text><loc_266><loc_377><loc_440><loc_393>Late payments may incur interest at 4% above the base rate.</text>
+<text><loc_47><loc_423><loc_165><loc_431>Thank you for your business.</text>
+<page_footer><loc_109><loc_478><loc_392><loc_483>Brackenridge Lumen Software Ltd · Registered in Dunmarren No. 08841273 · VAT No. DM 418 2290 61</page_footer>
+<text><loc_390><loc_71><loc_444><loc_78>INV-2026-0417</text>
+<text><loc_390><loc_80><loc_445><loc_87>2 October 2026</text>
+<text><loc_390><loc_89><loc_454><loc_96>1 November 2026</text>
+<text><loc_390><loc_99><loc_428><loc_106>PO 7781-B</text>
+<text><loc_390><loc_108><loc_427><loc_115>Ines Varga</text>
+</doctag>

@@ -1,0 +1,38 @@
+<doctag><section_header_level_1><loc_48><loc_34><loc_243><loc_47>Larkspur Print & Bindery Ltd.</section_header_level_1>
+<page_header><loc_349><loc_34><loc_453><loc_48>Unit 7, Kestrel Way Trading Estate Norwich NR6 4QT</page_header>
+<page_header><loc_286><loc_49><loc_453><loc_55>Tel. 01603 550 218 · accounts@larkspur-print.example</page_header>
+<section_header_level_1><loc_48><loc_69><loc_153><loc_88>Tax Invoice</section_header_level_1>
+<text><loc_54><loc_93><loc_122><loc_127>Invoice to Finance Office Halvergate Rowing Trust 3 Staithe Lane Reedham NR13 3TQ</text>
+<text><loc_189><loc_93><loc_222><loc_99>Deliver to</text>
+<text><loc_189><loc_101><loc_257><loc_127>The Boathouse Halvergate Rowing Trust Ferry Road Reedham NR13 3HA</text>
+<text><loc_324><loc_93><loc_376><loc_99>Invoice number</text>
+<text><loc_324><loc_102><loc_376><loc_108>Invoice date</text>
+<text><loc_324><loc_111><loc_359><loc_117>Your order</text>
+<text><loc_324><loc_120><loc_376><loc_126>Due date</text>
+<text><loc_387><loc_93><loc_439><loc_99>INV-2026-0418</text>
+<text><loc_387><loc_101><loc_439><loc_107>14 October 2026</text>
+<text><loc_387><loc_111><loc_419><loc_117>PO 55102</text>
+<text><loc_387><loc_120><loc_447><loc_126>13 November 2026</text>
+<otsl><loc_48><loc_146><loc_453><loc_270><fcel>Item<fcel>Description<fcel>Qty<fcel>Unit price<fcel>Amount<nl><fcel>1<fcel>Perfect-bound annual report<fcel>750<fcel>£4.12<fcel>£3,090.00<nl><fcel>2<fcel>Saddle-stitched regatta programme<fcel>2,000<fcel>£0.86<fcel>£1,720.00<nl><fcel>3<fcel>Colour proof<fcel>2<fcel>£65.00<fcel>£130.00<nl><fcel>4<fcel>Delivery<fcel>1<fcel>£148.00<fcel>£148.00<nl><fcel>4<fcel>Pallet service to two addresses<ecel><ecel><ecel><nl><ecel><ecel><fcel>Subtotal<fcel>£5,088.00<ecel><nl><ecel><ecel><fcel>VAT at 20%<fcel>£1,017.60<ecel><nl><ecel><ecel><fcel>Total due<fcel>£6,105.60<ecel><nl></otsl>
+<text><loc_342><loc_270><loc_380><loc_277>Total due</text>
+<text><loc_410><loc_270><loc_450><loc_277>£6,105.60</text>
+<text><loc_47><loc_287><loc_445><loc_310>Thank you for your order. The goods listed above were delivered on 9 October 2026 and signed for by your boathouse steward. Please quote the invoice number on every remittance so that we can match your payment quickly.</text>
+<section_header_level_1><loc_48><loc_318><loc_122><loc_327>Payment terms</section_header_level_1>
+<unordered_list><list_item><loc_48><loc_329><loc_243><loc_336>1) Payment is due within 30 days of the invoice date.</list_item>
+<list_item><loc_47><loc_338><loc_356><loc_345>2) Late payments attract interest at 8% above the base rate, as permitted by statute.</list_item>
+<list_item><loc_76><loc_347><loc_283><loc_354>a) A first reminder is sent seven days after the due date.</list_item>
+<list_item><loc_76><loc_356><loc_332><loc_363>b) A fixed recovery charge of £70 applies to debts of £10,000 or more.</list_item>
+<list_item><loc_47><loc_366><loc_388><loc_372>3) Title in the goods remains with Larkspur Print & Bindery Ltd. until the invoice is paid in full.</list_item>
+</unordered_list>
+<section_header_level_1><loc_48><loc_381><loc_103><loc_390>How to pay</section_header_level_1>
+<text><loc_47><loc_396><loc_446><loc_411>We prefer payment by bank transfer to the account below. Cheques are no longer accepted after the closure of our town-centre branch.</text>
+<text><loc_54><loc_420><loc_70><loc_426>Bank</text>
+<text><loc_120><loc_420><loc_220><loc_426>Wherry Valley Building Society</text>
+<text><loc_54><loc_429><loc_101><loc_435>Account name</text>
+<text><loc_120><loc_429><loc_214><loc_435>Larkspur Print & Bindery Ltd.</text>
+<text><loc_54><loc_438><loc_83><loc_444>Sort code</text>
+<text><loc_120><loc_438><loc_150><loc_444>40-12-76</text>
+<text><loc_54><loc_448><loc_109><loc_454>Account number</text>
+<text><loc_120><loc_448><loc_153><loc_454>31926604</text>
+<page_footer><loc_165><loc_478><loc_335><loc_483>Registered in England No. 08841270 · VAT No. GB 318 4471 26</page_footer>
+</doctag>

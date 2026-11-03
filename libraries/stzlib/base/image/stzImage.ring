@@ -1140,6 +1140,27 @@ class stzImage from stzObject
 	def Ask(pcQuestion)
 		return _StzVisionVlmSay(This, "" + pcQuestion + " Answer briefly.", 32, "describe")
 
+	#@ aka  -- 10f. A PAGE AS STRUCTURE (IM7: Granite-Docling, see stzVision.ring and stzDocTags.ring) ----
+
+	# Returns what Granite-Docling writes about the picture taken as a document page: DocTags, the page's
+	# structure as tags (<section_header_level_1>, <text>, <otsl> ...) with the words between them.
+	#
+	#   note       the page is resized to 2048 on its long side and cut into 512 x 512 tiles, with one more view
+	#              of the whole page; each view is 64 rows for the decoder, which writes greedily, so the same
+	#              page gets the same tags. An English model. About 1.4 s a view and 50 ms a token: 35 seconds
+	#              for a page of a few paragraphs and a table. The decoder takes the engine's model slot. Every
+	#              call is recorded in the security ledger
+	#   example    ? StzImageQ("page.png").DocTags()
+	#              #--> <doctag><section_header_level_1><loc_47><loc_36><loc_402><loc_49>Results</section_header_level_1> ...
+	def DocTags()
+		return _StzVisionDocSay(This, $nStzVisionDocMaxTokens)
+
+	# Returns the page's blocks, in reading order, in the shape StzPdf.Blocks() returns them.
+	#
+	#   returns    a list of [ :kind, :level, :text, :rows ]; a kind is heading, paragraph, list_item, code,
+	#              caption, table (its cells in :rows), page_header or page_footer
+	def DocBlocks()
+		return StzDocTagsBlocks(This.DocTags())
 	#@ aka  -- 11. DRAWING ON THE PICTURE (IM3) -----------------------------------------
 
 	# Changes the image by drawing a rectangle's outline: [ x, y, w, h ] 1-based, a colour, a thickness.

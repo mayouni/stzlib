@@ -1,0 +1,22 @@
+<doctag><section_header_level_1><loc_48><loc_25><loc_288><loc_41>Quillfeather Print & Stationery</section_header_level_1>
+<page_header><loc_296><loc_28><loc_453><loc_43>14 Tanner's Row, Wexcombe WX3 8LP Tel 01632 960417 · accounts@quillfeather.example</page_header>
+<section_header_level_1><loc_48><loc_55><loc_136><loc_73>INVOICE</section_header_level_1>
+<text><loc_54><loc_80><loc_165><loc_123>BILL TO Marlowe & Daughters Surveyors Accounts Payable 8 Mill Lane Hartsford HF2 5TQ</text>
+<text><loc_199><loc_80><loc_278><loc_123>SHIP TO Marlowe & Daughters Surveyors Goods Inward, Unit 3 Kiln Road Trading Estate Hartsford HF4 1BN</text>
+<text><loc_199><loc_80><loc_278><loc_123>SHIP TO Marlowe & Daughters Surveyors Goods Inward, Unit 3 Kiln Road Trading Estate Hartsford HF4 1BN</text>
+<otsl><loc_47><loc_131><loc_453><loc_347><fcel>Code<fcel>Description<fcel>Qty<fcel>Unit price<fcel>Amount<nl><fcel>Paper & Printing<ecel><ecel><ecel><ecel><nl><fcel>P-1001<fcel>A4 copy paper, 80 gsm<fcel>12<fcel>24.50<fcel>294.00<nl><fcel>P-1017<fcel>Business cards, matte<fcel>6<fcel>31.20<fcel>187.20<nl><fcel>P-1042<fcel>Letterhead paper, 100 gsm<fcel>4<fcel>48.75<fcel>195.00<nl><fcel>Ink & Toner<ecel><ecel><ecel><ecel><nl><fcel>T-2210<fcel>Toner cartridge, black<fcel>3<fcel>89.90<fcel>269.70<nl><fcel>T-2214<fcel>Toner cartridge, colour set<fcel>2<fcel>214.00<fcel>428.00<nl><fcel>Delivery<ecel><ecel><ecel><ecel><nl><fcel>D-0001<fcel>Courier, next working day<fcel>1<fcel>14.95<fcel>14.95<nl><ecel><fcel>Signed for<ecel><ecel><ecel><nl><ecel><ecel><fcel>Subtotal<fcel>1,388.85<ecel><nl><ecel><ecel><fcel>Trade discount (5% on goods)<fcel>-68.70<ecel><nl><ecel><ecel><fcel>VAT at 20%<fcel>264.03<ecel><nl><ecel><ecel><fcel>Total due<fcel>1,584.18<ecel><nl></otsl>
+<text><loc_47><loc_353><loc_432><loc_370>Thank you for your order. Please settle this invoice within 30 days of the invoice date to avoid late-payment charges.</text>
+<text><loc_47><loc_374><loc_440><loc_390>Prices include delivery within mainland England. Returns are accepted within 14 days if the goods are unused and in their original packaging.</text>
+<section_header_level_1><loc_47><loc_396><loc_93><loc_404>Ways to pay</section_header_level_1>
+<unordered_list><list_item><loc_53><loc_407><loc_226><loc_423>· Bank transfer to account 31887264, sort code 40-22-18</list_item>
+<list_item><loc_53><loc_424><loc_240><loc_440>· Cheque payable to Quillfeather Print & Stationery Ltd</list_item>
+<list_item><loc_53><loc_441><loc_217><loc_458>· Debit or credit card by telephone on 01632 960417</list_item>
+</unordered_list>
+<section_header_level_1><loc_259><loc_396><loc_281><loc_404>Notes</section_header_level_1>
+<unordered_list><list_item><loc_259><loc_406><loc_441><loc_413>1) Goods remain our property until paid for in full.</list_item>
+<list_item><loc_259><loc_415><loc_431><loc_431>2) Please quote the invoice number with every payment.</list_item>
+<list_item><loc_259><loc_433><loc_442><loc_440>3) Queries must reach us within 7 days of delivery.</list_item>
+</unordered_list>
+<page_footer><loc_108><loc_469><loc_392><loc_475>Quillfeather Print & Stationery Ltd · Registered in England No. 04418263 · VAT No. GB 233 4410 82</page_footer>
+<page_footer><loc_234><loc_477><loc_266><loc_483>Page 1 of 1</page_footer>
+</doctag>

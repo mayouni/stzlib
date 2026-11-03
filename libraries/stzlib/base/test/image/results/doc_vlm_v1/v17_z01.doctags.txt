@@ -1,0 +1,31 @@
+<doctag><section_header_level_1><loc_47><loc_29><loc_274><loc_60>Fernhollow Timber & Joinery Supplies</section_header_level_1>
+<section_header_level_1><loc_47><loc_79><loc_177><loc_96>TAX INVOICE</section_header_level_1>
+<text><loc_57><loc_105><loc_127><loc_115>Invoice to</text>
+<text><loc_57><loc_118><loc_142><loc_156>Hallowfield Kitchens & Interiors Attn: Accounts Payable 42 Tenter Street</text>
+<text><loc_57><loc_157><loc_133><loc_165>Hallowfield HF1 3QD</text>
+<text><loc_182><loc_105><loc_267><loc_174>Deliver to Site 3, Orchard Rise development Off Pennine Way Hallowfield HF6 9LB Site contact: 07700 900 512</text>
+<text><loc_301><loc_101><loc_358><loc_109>Invoice number</text>
+<text><loc_301><loc_112><loc_346><loc_120>Invoice date</text>
+<text><loc_301><loc_124><loc_384><loc_132>Customer account</text>
+<text><loc_301><loc_134><loc_361><loc_142>Order reference</text>
+<text><loc_301><loc_145><loc_335><loc_153>Due date</text>
+<text><loc_378><loc_101><loc_417><loc_110>INV-24117</text>
+<text><loc_378><loc_112><loc_440><loc_121>14 October 2026</text>
+<text><loc_378><loc_124><loc_416><loc_133>HAL-0392</text>
+<text><loc_378><loc_135><loc_432><loc_144>PO 7781-B</text>
+<text><loc_378><loc_147><loc_448><loc_155>13 November 2026</text>
+<otsl><loc_47><loc_188><loc_453><loc_305><fcel>Item code<fcel>Description<fcel>Qty<fcel>Unit price (£)<fcel>Amount (£)<nl><fcel>FT-OAK-2045<fcel>European oak board, planed, 20 × 145 mm, 2.4 m<fcel>36<fcel>length<fcel>18.40<nl><fcel>FT-PLY-1812<fcel>Birch plywood sheet, 18 mm, 2440 × 1220 mm<fcel>12<fcel>sheet<fcel>54.75<nl><fcel>HW-HNG-0075<fcel>Concealed cabinet hinge, soft close, 110°<fcel>48<fcel>each<fcel>3.15<nl><fcel>HW-SCR-4050<fcel>Wood screws 4.0 × 50 mm, box of 200<fcel>6<fcel>box<fcel>9.80<nl><fcel>FN-OIL-0001<fcel>Hardwax oil, satin, 2.5 litre<fcel>3<fcel>tin<fcel>46.90<nl><fcel>DL-STD-0001<fcel>Delivery, standard rigid vehicle<fcel>1<fcel>trip<fcel>65.00<nl><ecel><ecel><ecel><fcel>Subtotal<fcel>1,735.10<nl><ecel><ecel><ecel><fcel>VAT at 20%<fcel>347.02<nl></otsl>
+<text><loc_358><loc_309><loc_413><loc_318>Total due</text>
+<text><loc_406><loc_309><loc_442><loc_318>2,082.12</text>
+<section_header_level_1><loc_47><loc_331><loc_121><loc_340>Payment terms</section_header_level_1>
+<text><loc_47><loc_343><loc_447><loc_368>Payment is due within 30 days of the invoice date. Please quote the invoice number INV-24117 as the payment reference so that we can allocate your remittance correctly. Goods remain the property of Fernhollow Trading Ltd until this invoice has been paid in full.</text>
+<section_header_level_1><loc_47><loc_377><loc_75><loc_386>Notes</section_header_level_1>
+<unordered_list><list_item><loc_52><loc_389><loc_311><loc_397>· Timber lengths are cut to order and cannot be returned unless faulty.</list_item>
+<list_item><loc_52><loc_398><loc_305><loc_406>· Shortages or damage must be reported within 48 hours of delivery.</list_item>
+<list_item><loc_52><loc_407><loc_337><loc_415>· A late payment charge of 2% per month may be added to overdue balances.</list_item>
+</unordered_list>
+<text><loc_47><loc_424><loc_443><loc_440>Thank you for your custom. If you have any questions about this invoice, contact our accounts team on 01632 960 418.</text>
+<page_footer><loc_47><loc_463><loc_319><loc_469>Fernhollow Trading Ltd · Registered in England and Wales No. 0881 2457 · VAT Reg. GB 274 9183 06</page_footer>
+<page_footer><loc_422><loc_463><loc_453><loc_469>Page 1 of 1</page_footer>
+<text><loc_304><loc_31><loc_453><loc_53>Unit 7, Calder Mill Yard, Brackley Road, Hallowfield HF4 2TR Tel. 01632 960 418 · accounts@fernhollowtimber.example</text>
+</doctag>

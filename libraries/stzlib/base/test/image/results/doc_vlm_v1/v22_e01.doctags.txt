@@ -1,0 +1,62 @@
+<doctag><section_header_level_1><loc_43><loc_26><loc_239><loc_40>Harrow & Finch J oinery Ltd</section_header_level_1>
+<text><loc_43><loc_41><loc_156><loc_56>Unit 7, Millbrook Trading Estate Ashcombe, Wiltshire SN14 6QT</text>
+<text><loc_43><loc_57><loc_232><loc_63>Tel. 01249 550 318 · accounts@harrowfinch.example</text>
+<section_header_level_1><loc_43><loc_81><loc_117><loc_97>Invoice</section_header_level_1>
+<section_header_level_1><loc_49><loc_106><loc_68><loc_111>Bill to</section_header_level_1>
+<text><loc_49><loc_114><loc_154><loc_120>Orchard Lane Primary School</text>
+<text><loc_49><loc_122><loc_154><loc_128>Attn: Business Manager</text>
+<text><loc_49><loc_130><loc_109><loc_136>14 Orchard Lane</text>
+<text><loc_49><loc_138><loc_149><loc_144>Corsley, Wiltshire BA12 7QF</text>
+<text><loc_43><loc_155><loc_447><loc_179>Thank you for choosing us for the classroom storage project. This invoice covers the second and final stage of the works described in quotation Q-2026-112. The works were completed on 9 October 2026 and signed off by your site manager.</text>
+<otsl><loc_42><loc_182><loc_458><loc_321></otsl>
+<section_header_level_1><loc_43><loc_333><loc_115><loc_341>Payment details</section_header_level_1>
+<section_header_level_1><loc_223><loc_333><loc_250><loc_341>Terms</section_header_level_1>
+<otsl><loc_42><loc_344><loc_210><loc_413></otsl>
+<text><loc_43><loc_416><loc_444><loc_431>We guarantee all fitted furniture for five years from the date of installation. If you have any questions about this invoice, please contact our accounts team.</text>
+<text><loc_328><loc_28><loc_380><loc_33>Invoice number</text>
+<text><loc_389><loc_28><loc_436><loc_33>HF-2026-0418</text>
+<text><loc_328><loc_36><loc_365><loc_42>Invoice date</text>
+<text><loc_389><loc_36><loc_444><loc_42>12 October 2026</text>
+<text><loc_328><loc_45><loc_365><loc_51>Due date</text>
+<text><loc_389><loc_45><loc_452><loc_51>11 November 2026</text>
+<text><loc_328><loc_54><loc_365><loc_59>Your order</text>
+<text><loc_389><loc_54><loc_411><loc_59>PO 7731</text>
+<text><loc_328><loc_62><loc_355><loc_68>Account</text>
+<text><loc_389><loc_62><loc_424><loc_68>HF-C-0219</text>
+<text><loc_262><loc_106><loc_293><loc_111>Deliver to</text>
+<text><loc_262><loc_114><loc_406><loc_120>Orchard Lane Primary School, Site Office</text>
+<text><loc_262><loc_122><loc_359><loc_128>Bear gate, Back Lane</text>
+<text><loc_262><loc_130><loc_326><loc_136>Corsley BA12 7QH</text>
+<text><loc_262><loc_138><loc_398><loc_144>Access on weekdays 08:00-09:00 only</text>
+<text><loc_262><loc_155><loc_447><loc_179>The works were completed on 9 October 2026 and signed off by your site manager.</text>
+<text><loc_262><loc_181><loc_447><loc_196>The work was completed on 9 October 2026 and signed off by your site manager.</text>
+<text><loc_262><loc_197><loc_447><loc_212>The work was completed on 9 October 2026 and signed off by your site manager.</text>
+<text><loc_262><loc_213><loc_447><loc_228>The work was completed on 9 October 2026 and signed off by your site manager.</text>
+<text><loc_262><loc_230><loc_447><loc_245>The work was completed on 9 October 2026 and signed off by your site manager.</text>
+<text><loc_262><loc_247><loc_447><loc_262>The work was completed on 9 October 2026 and signed off by your site manager.</text>
+<text><loc_262><loc_264><loc_447><loc_278>The work was completed on 9 October 2026 and signed off by your site manager.</text>
+<text><loc_262><loc_280><loc_447><loc_295>The work was completed on 9 October 2026 and signed off by your site manager.</text>
+<text><loc_269><loc_298><loc_397><loc_304>VAT at 20%</text>
+<text><loc_269><loc_306><loc_397><loc_312>Total due</text>
+<text><loc_269><loc_314><loc_397><loc_320>Total due</text>
+<text><loc_269><loc_322><loc_397><loc_328>Total due</text>
+<text><loc_269><loc_330><loc_397><loc_336>Total due</text>
+<text><loc_269><loc_338><loc_397><loc_344>Total due</text>
+<text><loc_269><loc_346><loc_397><loc_352>Total due</text>
+<text><loc_269><loc_354><loc_397><loc_360>Total due</text>
+<text><loc_269><loc_362><loc_397><loc_368>Total due</text>
+<text><loc_269><loc_370><loc_397><loc_376>Total due</text>
+<text><loc_269><loc_378><loc_397><loc_384>Total due</text>
+<text><loc_269><loc_386><loc_397><loc_392>Total due</text>
+<text><loc_269><loc_394><loc_397><loc_400>Total due</text>
+<text><loc_269><loc_402><loc_397><loc_408>Total due</text>
+<text><loc_269><loc_410><loc_397><loc_416>Total due</text>
+<text><loc_269><loc_418><loc_397><loc_424>Total due</text>
+<text><loc_269><loc_426><loc_397><loc_432>Total due</text>
+<text><loc_269><loc_434><loc_397><loc_440>Total due</text>
+<text><loc_269><loc_442><loc_397><loc_448>Total due</text>
+<text><loc_269><loc_450><loc_397><loc_456>Total due</text>
+<text><loc_269><loc_458><loc_397><loc_464>Total due</text>
+<text><loc_269><loc_466><loc_397><loc_472>Total due</text>
+<page_footer><loc_117><loc_480><loc_383><loc_485>Harrow & Finch J oinery Ltd · Registered in England and Wales No. 09417263 · VAT GB 318 5520 47</page_footer>
+</doctag>

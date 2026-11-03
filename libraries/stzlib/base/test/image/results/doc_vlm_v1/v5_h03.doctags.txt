@@ -1,0 +1,23 @@
+<doctag><section_header_level_1><loc_40><loc_25><loc_216><loc_38>Brightline Office Supplies</section_header_level_1>
+<text><loc_40><loc_41><loc_162><loc_61>Unit 4, Canal Road Trading Estate Westbury WB3 7QT accounts@brightline-supplies.example</text>
+<section_header_level_1><loc_40><loc_105><loc_68><loc_111>BILL TO</section_header_level_1>
+<text><loc_40><loc_114><loc_126><loc_145>Hillcrest Primary School Business Office 22 Orchard Lane Westbury WB5 2HN</text>
+<section_header_level_1><loc_261><loc_105><loc_305><loc_111>DELIVER TO</section_header_level_1>
+<text><loc_261><loc_114><loc_352><loc_145>Hillcrest Primary School Caretaker's Lodge, Gate B Orchard Lane Westbury WB5 2HN</text>
+<otsl><loc_39><loc_156><loc_460><loc_336><fcel>No.<fcel>Description<fcel>Qty<fcel>Unit price (£)<fcel>Amount (£)<nl><fcel>1<fcel>A4 copier paper, 80 g/m$^{2}$, box of 5 reams<fcel>12<fcel>24.90<fcel>298.80<nl><fcel>2<fcel>Whiteboard markers, assorted colours, pack of 10<fcel>15<fcel>8.75<fcel>131.25<nl><fcel>3<fcel>Lever-arch files, blue<fcel>40<fcel>2.35<fcel>94.00<nl><fcel>4<fcel>Laminating pouches A4, pack of 100<fcel>6<fcel>11.40<fcel>68.40<nl><fcel>5<fcel>Desk organiser, recycled plastic<fcel>10<fcel>6.95<fcel>69.50<nl><fcel>6<fcel>Toner cartridge TX-410, black, high yield<fcel>4<fcel>89.00<fcel>356.00<nl><fcel>7<fcel>Stapler, heavy duty, 100 sheets<fcel>3<fcel>21.50<fcel>64.50<nl><ecel><ecel><ecel><fcel>Subtotal<fcel>1,082.45<nl><ecel><ecel><ecel><fcel>Education discount 5%<fcel>-54.12<nl><ecel><ecel><ecel><fcel>Net amount<fcel>1,028.33<nl><ecel><ecel><ecel><fcel>VAT 20%<fcel>205.67<nl><ecel><ecel><ecel><fcel>Total due<fcel>£1,234.00<nl></otsl>
+<section_header_level_1><loc_40><loc_367><loc_111><loc_374>PAYMENT TERMS</section_header_level_1>
+<section_header_level_1><loc_262><loc_367><loc_301><loc_374>RETURNS</section_header_level_1>
+<text><loc_40><loc_378><loc_239><loc_408>Payment is due within 30 days of the invoice date. Please quote the invoice number INV-2025-0457 with your payment. The education discount applies to orders placed by registered schools.</text>
+<text><loc_40><loc_430><loc_158><loc_439>Thank you for your order!</text>
+<page_footer><loc_40><loc_475><loc_297><loc_481>Brightline Office Supplies Ltd · Registered office: Unit 4, Canal Road Trading Estate, Westbury</page_footer>
+<page_footer><loc_429><loc_475><loc_460><loc_481>Page 1 of 1</page_footer>
+<text><loc_363><loc_26><loc_457><loc_47>INVOICE</text>
+<text><loc_347><loc_54><loc_384><loc_60>Invoice no.</text>
+<text><loc_396><loc_54><loc_448><loc_60>INV-2025-0457</text>
+<text><loc_337><loc_62><loc_384><loc_69>Invoice date</text>
+<text><loc_397><loc_62><loc_460><loc_69>12 November 2025</text>
+<text><loc_353><loc_71><loc_384><loc_77>Due date</text>
+<text><loc_396><loc_71><loc_460><loc_77>12 December 2025</text>
+<text><loc_338><loc_79><loc_384><loc_86>Customer ref.</text>
+<text><loc_396><loc_79><loc_440><loc_86>PO 7731/HPS</text>
+</doctag>

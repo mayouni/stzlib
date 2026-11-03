@@ -1,0 +1,44 @@
+<doctag><section_header_level_1><loc_48><loc_28><loc_231><loc_41>Harbourline Supplies Ltd.</section_header_level_1>
+<text><loc_48><loc_42><loc_339><loc_47>14 Quayside Road, Brightmouth BM4 2QT · +44 20 5550 0142 · accounts@harbourline.example</text>
+<section_header_level_1><loc_48><loc_59><loc_220><loc_73>Invoice INV-2026-0417</section_header_level_1>
+<text><loc_47><loc_79><loc_91><loc_86>Invoice date</text>
+<text><loc_123><loc_79><loc_177><loc_86>12 March 2026</text>
+<text><loc_47><loc_89><loc_80><loc_96>Due date</text>
+<text><loc_123><loc_89><loc_171><loc_96>11 April 2026</text>
+<text><loc_47><loc_99><loc_82><loc_105>Customer</text>
+<text><loc_47><loc_106><loc_82><loc_112>reference</text>
+<text><loc_47><loc_116><loc_80><loc_122>Currency</text>
+<text><loc_123><loc_116><loc_197><loc_122>Pound sterling (GBP)</text>
+<text><loc_54><loc_132><loc_76><loc_138>Bill to</text>
+<text><loc_55><loc_141><loc_161><loc_147>Northgate Community Bakery</text>
+<text><loc_55><loc_148><loc_94><loc_154>7 Mill Lane</text>
+<text><loc_54><loc_156><loc_136><loc_162>Brightmouth BM1 9AA</text>
+<text><loc_54><loc_132><loc_76><loc_138>Bill to</text>
+<text><loc_54><loc_141><loc_161><loc_147>Northgate Community Bakery</text>
+<text><loc_54><loc_148><loc_94><loc_154>7 Mill Lane</text>
+<text><loc_54><loc_156><loc_136><loc_162>Brightmouth BM1 9AA</text>
+<text><loc_54><loc_132><loc_76><loc_138>Bill to</text>
+<text><loc_54><loc_141><loc_161><loc_147>Northgate Community Bakery</text>
+<text><loc_54><loc_148><loc_94><loc_154>7 Mill Lane</text>
+<text><loc_54><loc_156><loc_136><loc_162>Brightmouth BM1 9AA</text>
+<section_header_level_1><loc_47><loc_174><loc_114><loc_182>Items supplied</section_header_level_1>
+<otsl><loc_47><loc_185><loc_453><loc_307><ched>Code<ched>Description<ched>Qty<ched>Unit price<ched>Amount<nl><srow>Dry goods<ecel><ecel><ecel><ecel><nl><fcel>FL-001<fcel>Strong white flour, 16 kg sack<fcel>12<fcel>14.50<fcel>174.00<nl><fcel>SG-014<fcel>Caster sugar, 25 kg sack<fcel>4<fcel>31.20<fcel>124.80<nl><fcel>YE-003<fcel>Fresh yeast, 500 g block<fcel>20<fcel>2.35<fcel>47.00<nl><srow>Packaging<ecel><ecel><ecel><ecel><nl><fcel>BX-210<fcel>Cake box, 10 in, pack of 50<fcel>6<fcel>18.90<fcel>113.40<nl><fcel>PB-007<fcel>Kraft paper bags, pack of 500<fcel>3<fcel>22.00<fcel>66.00<nl><ecel><ecel><ecel><fcel>Subtotal<fcel>525.20<nl><ecel><ecel><ecel><fcel>VAT at 20%<fcel>105.04<nl><ecel><ecel><ecel><fcel>Total due<fcel>630.24<nl></otsl>
+<section_header_level_1><loc_47><loc_317><loc_116><loc_325>Payment terms</section_header_level_1>
+<text><loc_47><loc_329><loc_438><loc_344>Payment is due within 30 days of the invoice date. Overdue balances carry interest at 4% above the base rate until they are settled. Please quote the invoice number with every transfer.</text>
+<text><loc_47><loc_350><loc_99><loc_357>Account name</text>
+<text><loc_123><loc_350><loc_213><loc_357>Harbourline Supplies Ltd.</text>
+<text><loc_47><loc_360><loc_82><loc_366>Sort code</text>
+<text><loc_123><loc_360><loc_155><loc_366>00-00-00</text>
+<text><loc_47><loc_369><loc_107><loc_375>Account number</text>
+<text><loc_123><loc_369><loc_159><loc_375>00000000</text>
+<section_header_level_1><loc_47><loc_384><loc_113><loc_392>Delivery notes</section_header_level_1>
+<unordered_list><list_item><loc_50><loc_396><loc_281><loc_403>· Deliveries are made every Tuesday and Friday before noon.</list_item>
+<list_item><loc_50><loc_405><loc_289><loc_412>· Damaged goods must be reported within 48 hours of receipt.</list_item>
+<list_item><loc_50><loc_414><loc_260><loc_421>· Returns are accepted only with a credit note number.</list_item>
+</unordered_list>
+<text><loc_47><loc_425><loc_348><loc_432>Goods remain the property of the supplier until the invoice has been paid in full.</text>
+<page_footer><loc_47><loc_476><loc_213><loc_482>Harbourline Supplies Ltd. - thank you for your custom</page_footer>
+<page_footer><loc_419><loc_476><loc_453><loc_482>Page 1 of 1</page_footer>
+<text><loc_262><loc_132><loc_318><loc_138>Ship to</text>
+<text><loc_262><loc_141><loc_394><loc_166>Northgate Community Bakery, Depot Unit 3, Canal Works Brightmouth BM2 3DL</text>
+</doctag>

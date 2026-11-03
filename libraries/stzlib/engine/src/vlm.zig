@@ -179,6 +179,105 @@ pub fn pixelsFor(p: *const Projector, px: []const u8, w: usize, h: usize, ch: us
     }
 }
 
+// ---- a PAGE: Idefics3's tiles (Granite-Docling) ---------------------------------------------------------------
+//
+// A page is too wide a view for one 512 x 512 square, so Idefics3ImageProcessor reads it as tiles: the page is
+// resized so its long side is `longest` (2048; the other side int(), made even), each side is then rounded UP to a
+// multiple of the tile (the other side recomputed from the new long side), the result is cut into rows x cols
+// tiles of tile x tile, row by row, and one more view follows them: the whole page squeezed to tile x tile. Each
+// view becomes 64 rows for the decoder, so a 150 dpi A4 page (4 x 3 tiles) is 13 views and 832 rows.
+
+pub const Grid = struct {
+    rows: usize, // 0 and 0 when the page is a single view
+    cols: usize,
+    w: usize, // the page after both resizes (the tiles' canvas)
+    h: usize,
+    mid_w: usize, // the page after the first resize
+    mid_h: usize,
+
+    /// views the page becomes: its tiles, then the whole page
+    pub fn views(g: Grid) usize {
+        return if (g.rows == 0) 1 else g.rows * g.cols + 1;
+    }
+};
+
+pub fn gridFor(w: usize, h: usize, longest: usize, tile: usize) Grid {
+    const fw: f64 = @floatFromInt(w);
+    const fh: f64 = @floatFromInt(h);
+    const aspect = fw / fh;
+    var mw: usize = longest;
+    var mh: usize = longest;
+    if (w >= h) {
+        mh = @intFromFloat(@floor(@as(f64, @floatFromInt(longest)) / aspect));
+        if (mh % 2 != 0) mh += 1;
+    } else {
+        mw = @intFromFloat(@floor(@as(f64, @floatFromInt(longest)) * aspect));
+        if (mw % 2 != 0) mw += 1;
+    }
+    mw = @max(mw, 1);
+    mh = @max(mh, 1);
+    // each side rounded up to a multiple of the tile, the aspect kept from the new long side
+    const ar = @as(f64, @floatFromInt(mw)) / @as(f64, @floatFromInt(mh));
+    var ow: usize = mw;
+    var oh: usize = mh;
+    if (mw >= mh) {
+        ow = (mw + tile - 1) / tile * tile;
+        oh = @intFromFloat(@floor(@as(f64, @floatFromInt(ow)) / ar));
+        oh = (oh + tile - 1) / tile * tile;
+    } else {
+        oh = (mh + tile - 1) / tile * tile;
+        ow = @intFromFloat(@floor(@as(f64, @floatFromInt(oh)) * ar));
+        ow = (ow + tile - 1) / tile * tile;
+    }
+    const split = oh > tile or ow > tile;
+    return .{ .rows = if (split) oh / tile else 0, .cols = if (split) ow / tile else 0, .w = ow, .h = oh, .mid_w = mw, .mid_h = mh };
+}
+
+fn normalizeInto(p: *const Projector, small: []const u8, out: []f32) void {
+    const n = p.image * p.image;
+    for (0..3) |k| {
+        for (0..n) |i| out[k * n + i] = (@as(f32, @floatFromInt(small[i * 3 + k])) / 255.0 - p.mean[k]) / p.sd[k];
+    }
+}
+
+/// The tower's inputs for a page: grid.views() x (3 x image x image), channel-major, the tiles row by row and the
+/// whole page last (the order Idefics3 prompts them in). `out` must hold grid.views() * 3 * image * image floats.
+pub fn pageViews(p: *const Projector, px: []const u8, w: usize, h: usize, ch: usize, longest: usize, out: []f32) !Grid {
+    const S = p.image;
+    const g = gridFor(w, h, longest, S);
+    if (out.len != g.views() * 3 * S * S) return error.SizeMismatch;
+    const rgb = try gpa.alloc(u8, w * h * 3);
+    defer gpa.free(rgb);
+    for (0..w * h) |i| {
+        for (0..3) |k| rgb[i * 3 + k] = px[i * ch + (if (ch >= 3) k else 0)];
+    }
+    const mid = try gpa.alloc(u8, g.mid_w * g.mid_h * 3);
+    defer gpa.free(mid);
+    try vision.resizePilXT(.lanczos, 3, rgb, w, h, g.mid_w, g.mid_h, mid);
+    const canvas = try gpa.alloc(u8, g.w * g.h * 3);
+    defer gpa.free(canvas);
+    try vision.resizePilXT(.lanczos, 3, mid, g.mid_w, g.mid_h, g.w, g.h, canvas);
+    const view = 3 * S * S;
+    const cut = try gpa.alloc(u8, S * S * 3);
+    defer gpa.free(cut);
+    if (g.rows == 0) {
+        normalizeInto(p, canvas, out[0..view]);
+        return g;
+    }
+    for (0..g.rows) |r| {
+        for (0..g.cols) |cc| {
+            for (0..S) |y| {
+                const src = ((r * S + y) * g.w + cc * S) * 3;
+                @memcpy(cut[y * S * 3 ..][0 .. S * 3], canvas[src..][0 .. S * 3]);
+            }
+            normalizeInto(p, cut, out[(r * g.cols + cc) * view ..][0..view]);
+        }
+    }
+    try vision.resizePilXT(.lanczos, 3, canvas, g.w, g.h, S, S, cut);
+    normalizeInto(p, cut, out[g.rows * g.cols * view ..][0..view]);
+    return g;
+}
+
 fn layerNorm(ctx: *c.ggml_context, x: *c.ggml_tensor, w: *c.ggml_tensor, b: *c.ggml_tensor, eps: f32) *c.ggml_tensor {
     return c.ggml_add(ctx, c.ggml_mul(ctx, c.ggml_norm(ctx, x, eps), w), b).?;
 }

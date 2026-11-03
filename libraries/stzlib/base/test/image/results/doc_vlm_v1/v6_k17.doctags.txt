@@ -1,0 +1,26 @@
+<doctag><page_header><loc_38><loc_25><loc_212><loc_38>Meridian Business Travel</page_header>
+<page_header><loc_321><loc_25><loc_462><loc_38>18 Adeola Hopewell Street, Victoria Island, Lagos +234 1 555 0140 · trips@meridian-bt.example</page_header>
+<section_header_level_1><loc_38><loc_48><loc_135><loc_59>Travel Itinerary</section_header_level_1>
+<text><loc_38><loc_64><loc_67><loc_70>Traveller</text>
+<text><loc_114><loc_64><loc_205><loc_70>Ms Nadia Rahmani-Okafor</text>
+<text><loc_38><loc_73><loc_69><loc_79>Company</text>
+<text><loc_114><loc_73><loc_223><loc_79>Halden Engineering Consultants</text>
+<text><loc_38><loc_82><loc_86><loc_88>Ticket number</text>
+<text><loc_114><loc_82><loc_171><loc_88>176-241209338</text>
+<text><loc_38><loc_97><loc_67><loc_104>Flights</text>
+<otsl><loc_37><loc_106><loc_462><loc_148></otsl>
+<text><loc_38><loc_150><loc_461><loc_165>All times shown are local times at each airport. Your return flight on 9 November is waitlisted, and we will confirm it or rebook you by 30 October.</text>
+<section_header_level_1><loc_38><loc_173><loc_66><loc_181>Hotels</section_header_level_1>
+<otsl><loc_37><loc_183><loc_462><loc_214></otsl>
+<text><loc_38><loc_217><loc_457><loc_232>Both hotels are booked on a bed-and-breakfast basis and charged to the company account; incidental charges are payable on departure.</text>
+<section_header_level_1><loc_38><loc_240><loc_115><loc_248>Ground transport</section_header_level_1>
+<text><loc_38><loc_250><loc_456><loc_265>A driver from Acacia Park Hotel will meet you in the arrivals hall at Nairobi and hold a sign with your name. Transfers in Kigali are not included and can be booked at the hotel reception.</text>
+<section_header_level_1><loc_38><loc_273><loc_113><loc_281>Before you travel</section_header_level_1>
+<text><loc_38><loc_284><loc_461><loc_290>Please check in online 24 hours before each flight and arrive at the airport at least three hours before international departures.</text>
+<unordered_list><list_item><loc_40><loc_294><loc_240><loc_300>□ Passport valid for at least six months after the return date</list_item>
+<list_item><loc_40><loc_303><loc_163><loc_309>□ Yellow fever vaccination certificate</list_item>
+<list_item><loc_40><loc_312><loc_187><loc_318>□ Printed or electronic copy of this itinerary</list_item>
+<list_item><loc_40><loc_321><loc_190><loc_327>□ Corporate card for incidental hotel charges</list_item>
+</unordered_list>
+<page_footer><loc_38><loc_471><loc_264><loc_483>Meridian Business Travel Ltd · RC 1184420 · 24-hour emergency line +234 1 555 0147 This itinerary is not a ticket. Fares and availability are subject to change until ticketed.</page_footer>
+</doctag>

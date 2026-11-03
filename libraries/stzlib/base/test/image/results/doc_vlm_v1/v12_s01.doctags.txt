@@ -1,0 +1,34 @@
+<doctag><section_header_level_1><loc_43><loc_28><loc_226><loc_40>Harbourline Office Supplies Ltd</section_header_level_1>
+<text><loc_43><loc_42><loc_215><loc_55>Unit 7, Kestrel Trading Estate, Portsmouth PO3 5LZ Tel. 023 9200 4471 · accounts@harbourline-supplies.example</text>
+<text><loc_48><loc_109><loc_79><loc_116>BILL TO</text>
+<text><loc_50><loc_118><loc_158><loc_135>Fenwick and Marsh Architects Attn: Finance Office</text>
+<text><loc_50><loc_137><loc_109><loc_144>14 Quayside Walk</text>
+<text><loc_50><loc_146><loc_106><loc_153>Bristol BS1 4QT</text>
+<text><loc_264><loc_109><loc_291><loc_116>SHIP TO</text>
+<text><loc_264><loc_118><loc_371><loc_135>Fenwick and Marsh Architects Studio 3, Ropewalk House</text>
+<text><loc_264><loc_137><loc_319><loc_144>22 Anchor Lane</text>
+<text><loc_264><loc_146><loc_318><loc_153>Bristol BS2 0RT</text>
+<otsl><loc_42><loc_160><loc_458><loc_312><fcel>Item code<fcel>Description<fcel>Qty<fcel>Unit price (£)<fcel>Amount (£)<nl><fcel>PAP-A4-80<fcel>Copier paper A4 80 g/m², box of 5 reams<fcel>12<fcel>21.50<fcel>258.00<nl><fcel>TON-HP-410<fcel>Toner cartridge, black, high yield<fcel>4<fcel>64.90<fcel>259.60<nl><fcel>FIL-LAT-4D<fcel>Lateral filing cabinet, 4 drawers, grey<fcel>1<fcel>312.00<fcel>312.00<nl><fcel>PEN-GEL-BL<fcel>Gel pens, blue, pack of 12<fcel>10<fcel>6.75<fcel>67.50<nl><fcel>NTB-A5-DOT<fcel>Dotted notebooks A5, pack of 6<fcel>5<fcel>14.20<fcel>71.00<nl><fcel>CHR-ERG-02<fcel>Ergonomic task chair with lumbar support Colour: graphite, assembled on site<fcel>3<fcel>189.00<fcel>567.00<nl><fcel>LBL-ADR-21<fcel>Address labels, 21 per sheet, 100 sheets<fcel>6<fcel>11.40<fcel>68.40<nl><fcel>DEL-STD<fcel>Delivery and installation, Zone 2<fcel>1<fcel>45.00<fcel>45.00<nl><ecel><ecel><fcel>Subtotal<fcel>1,648.50<fcel>-50.00<nl><ecel><ecel><fcel>Account discount<fcel>VAT at 20%<fcel>319.70<nl><ecel><ecel><fcel>Total due<fcel>1,918.20<ecel><nl></otsl>
+<section_header_level_1><loc_43><loc_321><loc_110><loc_329>Payment details</section_header_level_1>
+<text><loc_43><loc_331><loc_444><loc_356>Payment is due within 30 days of the invoice date. Please quote the invoice number INV-2026-04817 as the payment reference so that your remittance can be matched without delay. Bank transfers should be made to the account shown below; we do not accept cheques for amounts above £1,000.</text>
+<text><loc_43><loc_361><loc_94><loc_368>Account name</text>
+<text><loc_108><loc_361><loc_220><loc_368>Harbourline Office Supplies Ltd</text>
+<text><loc_43><loc_370><loc_77><loc_377>Sort code</text>
+<text><loc_108><loc_370><loc_141><loc_377>40-11-62</text>
+<text><loc_43><loc_380><loc_103><loc_387>Account number</text>
+<text><loc_108><loc_380><loc_144><loc_387>31926604</text>
+<section_header_level_1><loc_43><loc_393><loc_67><loc_401>Notes</section_header_level_1>
+<text><loc_43><loc_403><loc_456><loc_427>Goods remain the property of Harbourline Office Supplies Ltd until payment has been received in full. Any shortage or damage must be reported within five working days of delivery. Late payments may incur interest at 4% above the statutory base rate.</text>
+<page_footer><loc_143><loc_436><loc_357><loc_448>Registered in England and Wales No. 08814552 · VAT Reg. GB 291 4473 06 Thank you for your business.</page_footer>
+<section_header_level_1><loc_329><loc_30><loc_450><loc_44>INVOICE</section_header_level_1>
+<text><loc_326><loc_50><loc_380><loc_56>Invoice number</text>
+<text><loc_388><loc_50><loc_444><loc_56>INV-2026-04817</text>
+<text><loc_337><loc_59><loc_382><loc_65>Invoice date</text>
+<text><loc_388><loc_59><loc_444><loc_65>14 October 2026</text>
+<text><loc_350><loc_68><loc_382><loc_74>Due date</text>
+<text><loc_388><loc_68><loc_454><loc_74>13 November 2026</text>
+<text><loc_335><loc_77><loc_382><loc_83>Customer PO</text>
+<text><loc_388><loc_77><loc_432><loc_83>FM-PO-3391</text>
+<text><loc_352><loc_86><loc_382><loc_92>Account</text>
+<text><loc_388><loc_86><loc_421><loc_92>FEN-0042</text>
+</doctag>

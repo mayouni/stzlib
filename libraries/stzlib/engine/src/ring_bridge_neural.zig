@@ -1170,6 +1170,132 @@ fn ring_VlmDescribe(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retstring2(p, text.items.ptr, @intCast(text.items.len));
 }
 
+// ---- IM7 2 of 2: a PAGE (Granite-Docling) -- tiles, then the whole page, each view 64 rows ------------------
+
+// (nW, nH, nLongest, nTile) -> [ rows, cols, canvas w, canvas h, views ] of the tiling Idefics3 makes of a page
+// (rows and cols are 0 when the page is a single view)
+fn ring_VlmGrid(p: *anyopaque) callconv(.c) void {
+    const g = R.ring_vm_api_getnumber;
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    defer R.ring_vm_api_retlist(p, out);
+    const w: usize = @intFromFloat(g(p, 1));
+    const h: usize = @intFromFloat(g(p, 2));
+    const longest: usize = @intFromFloat(g(p, 3));
+    const tile: usize = @intFromFloat(g(p, 4));
+    if (w == 0 or h == 0 or longest == 0 or tile == 0) return;
+    const gr = vlm.gridFor(w, h, longest, tile);
+    for ([_]usize{ gr.rows, gr.cols, gr.w, gr.h, gr.views() }) |v| R.ring_list_adddouble(out, @floatFromInt(v));
+}
+
+// (cProjector, cPixels, nW, nH, nC, nLongest) -> the page's views for the tower, float32 bytes (views x 3 x S x S,
+// channel-major, the tiles row by row and the whole page last), "" on failure: parity with a reference's pixels
+fn ring_VlmPageViews(p: *anyopaque) callconv(.c) void {
+    const g = R.ring_vm_api_getnumber;
+    const A = std.heap.c_allocator;
+    const proj = vlm.load(ocrArg(p, 1)) orelse {
+        ocrg.setError("{s}", .{vlm.lastError()});
+        return R.ring_vm_api_retstring2(p, "", 0);
+    };
+    const w: usize = @intFromFloat(g(p, 3));
+    const h: usize = @intFromFloat(g(p, 4));
+    const ch: usize = @intFromFloat(g(p, 5));
+    const px = ocrArg(p, 2);
+    const longest: usize = @intFromFloat(g(p, 6));
+    if (w == 0 or h == 0 or ch == 0 or longest == 0 or px.len != w * h * ch) {
+        ocrg.setError("vlm: the pixels are not {d} x {d} x {d}", .{ w, h, ch });
+        return R.ring_vm_api_retstring2(p, "", 0);
+    }
+    const gr = vlm.gridFor(w, h, longest, proj.image);
+    const buf = A.alloc(f32, gr.views() * 3 * proj.image * proj.image) catch return R.ring_vm_api_retstring2(p, "", 0);
+    defer A.free(buf);
+    _ = vlm.pageViews(proj, px, w, h, ch, longest, buf) catch |e| {
+        ocrg.setError("vlm: {s}", .{@errorName(e)});
+        return R.ring_vm_api_retstring2(p, "", 0);
+    };
+    const b = std.mem.sliceAsBytes(buf);
+    R.ring_vm_api_retstring2(p, b.ptr, @intCast(b.len));
+}
+
+// (cProjector, cPixels, nW, nH, nC, nLongest, cTexts, nMaxNew, nThreads) -> what the loaded decoder says about the
+// page, greedy, until its end token or nMaxNew tokens ("" on failure, the error set). cTexts is the prompt's texts
+// joined by char(31): the text before the first view, between each two views, and after the last (one more than
+// the views). StzEngineNeuralVlmStats() then gives [ the views' ms, the words' ms, the tokens made ].
+// nMaxNew -1 only reads the prompt ("1"), -2 returns the views' rows instead of words: a guard's instruments
+fn ring_VlmPage(p: *anyopaque) callconv(.c) void {
+    const g = R.ring_vm_api_getnumber;
+    const A = std.heap.c_allocator;
+    const proj = vlm.load(ocrArg(p, 1)) orelse {
+        ocrg.setError("{s}", .{vlm.lastError()});
+        return R.ring_vm_api_retstring2(p, "", 0);
+    };
+    const w: usize = @intFromFloat(g(p, 3));
+    const h: usize = @intFromFloat(g(p, 4));
+    const ch: usize = @intFromFloat(g(p, 5));
+    const px = ocrArg(p, 2);
+    const longest: usize = @intFromFloat(g(p, 6));
+    const th0: c_int = @intFromFloat(g(p, 9));
+    const th: c_int = if (th0 < 1) 4 else th0;
+    if (w == 0 or h == 0 or ch == 0 or longest == 0 or px.len != w * h * ch) {
+        ocrg.setError("vlm: the pixels are not {d} x {d} x {d}", .{ w, h, ch });
+        return R.ring_vm_api_retstring2(p, "", 0);
+    }
+    if (gen.embdWidth() != proj.n_out) {
+        ocrg.setError("vlm: the loaded decoder reads rows of {d}, the projector makes {d}", .{ gen.embdWidth(), proj.n_out });
+        return R.ring_vm_api_retstring2(p, "", 0);
+    }
+    const gr = vlm.gridFor(w, h, longest, proj.image);
+    const nv = gr.views();
+    const view_n = 3 * proj.image * proj.image;
+    const per = proj.tokens() * proj.n_out;
+    const inputs = A.alloc(f32, nv * view_n) catch return R.ring_vm_api_retstring2(p, "", 0);
+    defer A.free(inputs);
+    const rows = A.alloc(f32, nv * per) catch return R.ring_vm_api_retstring2(p, "", 0);
+    defer A.free(rows);
+    const t0 = std.time.nanoTimestamp();
+    _ = vlm.pageViews(proj, px, w, h, ch, longest, inputs) catch |e| {
+        ocrg.setError("vlm: {s}", .{@errorName(e)});
+        return R.ring_vm_api_retstring2(p, "", 0);
+    };
+    for (0..nv) |v| {
+        vlm.encode(proj, inputs[v * view_n ..][0..view_n], th, rows[v * per ..][0..per]) catch |e| {
+            ocrg.setError("vlm: {s}", .{@errorName(e)});
+            return R.ring_vm_api_retstring2(p, "", 0);
+        };
+    }
+    const t1 = std.time.nanoTimestamp();
+    // nMaxNew -2: no words, the views' rows themselves (float32 bytes, views x 64 x width): a guard's parity
+    if (g(p, 8) == -2) {
+        const b = std.mem.sliceAsBytes(rows);
+        return R.ring_vm_api_retstring2(p, b.ptr, @intCast(b.len));
+    }
+    var texts: std.ArrayList([]const u8) = .{};
+    defer texts.deinit(A);
+    var it = std.mem.splitScalar(u8, ocrArg(p, 7), 31);
+    while (it.next()) |t| texts.append(A, t) catch return R.ring_vm_api_retstring2(p, "", 0);
+    if (texts.items.len != nv + 1) {
+        ocrg.setError("vlm: the page has {d} views, so the prompt needs {d} texts, not {d}", .{ nv, nv + 1, texts.items.len });
+        return R.ring_vm_api_retstring2(p, "", 0);
+    }
+    if (gen.startWithSegments(texts.items, rows, proj.tokens(), @intFromFloat(g(p, 8))) == 0) {
+        ocrg.setError("vlm: the decoder refused the prompt (error {d})", .{gen.neural_gen_last_error()});
+        return R.ring_vm_api_retstring2(p, "", 0);
+    }
+    // nMaxNew -1: the decoder has only read the prompt; "1" says so, and StzEngineNeuralVlmTop / Feed go on from
+    // there (a guard's teacher forcing)
+    if (g(p, 8) == -1) return R.ring_vm_api_retstring2(p, "1", 1);
+    var text: std.ArrayList(u8) = .{};
+    defer text.deinit(A);
+    var n: f64 = 0;
+    while (gen.neural_gen_next() == 1) {
+        n += 1;
+        text.appendSlice(A, std.mem.span(gen.neural_gen_chunk())) catch break;
+    }
+    vlm_ms = @as(f64, @floatFromInt(t1 - t0)) / 1e6;
+    vlm_stats = .{ vlm_ms, @as(f64, @floatFromInt(std.time.nanoTimestamp() - t1)) / 1e6, n };
+    vision_ms = vlm_stats[0] + vlm_stats[1];
+    R.ring_vm_api_retstring2(p, text.items.ptr, @intCast(text.items.len));
+}
+
 // () -> [ the picture's ms, the words' ms, tokens made ] of the last StzEngineNeuralVlmDescribe
 fn ring_VlmStats(p: *anyopaque) callconv(.c) void {
     const out = R.ring_vm_api_newlist(p) orelse return;
@@ -1251,6 +1377,9 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralvlmlastms", .func = &ring_VlmLastMs },
     .{ .name = "stzengineneuralvlmfeed", .func = &ring_VlmFeed },
     .{ .name = "stzengineneuralvlmdescribe", .func = &ring_VlmDescribe },
+    .{ .name = "stzengineneuralvlmgrid", .func = &ring_VlmGrid },
+    .{ .name = "stzengineneuralvlmpageviews", .func = &ring_VlmPageViews },
+    .{ .name = "stzengineneuralvlmpage", .func = &ring_VlmPage },
     .{ .name = "stzengineneuralvlmstats", .func = &ring_VlmStats },
     .{ .name = "stzengineneuralf32compare", .func = &ring_F32Compare },
     .{ .name = "stzengineneuralocrread", .func = &ring_OcrRead },

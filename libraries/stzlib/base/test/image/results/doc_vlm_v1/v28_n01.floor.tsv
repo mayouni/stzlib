@@ -1,0 +1,28 @@
+page_header	0	Halvorsen Marine Supply Ltd.
+page_header	0	Unit 7, Harbour Trade Park, Aberdeen AB11 5QT Tel. +44 1224 550 180·accounts@halvorsen-marine.example VAT Reg. No. GB 482 1937 55
+heading	1	INVOICE
+paragraph	0	Invoice no. Invoice date Customer ref.
+paragraph	0	Due date
+paragraph	0	INV-2026-0418 14 October 2026 PO 77-3150 13 November 2026
+list_item	0	BILL TO
+paragraph	0	Kittiwake Ferries Ltd. Accounts Payable
+paragraph	0	2 Quayside Road
+paragraph	0	Lerwick, Shetland ZE1 OLL
+heading	4	SHIP TO
+paragraph	0	MV Fair Isle Venture c/o Berth 4, Holmsgarth Terminal Lerwick, Shetland ZE1 OPR Attn. Chief Engineer
+table	0	Item HMS-2210 HMS-4031Description Stainless steel bow shackle, 12 mm Grade 316, working load limit 1.5 t Mooring line, 3-strand nylon, 24 mm Coil of 100 m, whiteQty 40 2Unit price (GBP) 6.85 418.00Amount (GBP) 274.00 836.00HMS-0877Cylindrical fender 300 × 1100 mm692.50555.00HMS-1502Galvanised thimble, 24 mm252.4060.00HMS-9100Rigging inspection on site, half day Report issued 9 October 20261380.00380.00SubtotalSubtotalSubtotalSubtotal2,105.00Delivery to LerwickDelivery to LerwickDelivery to LerwickDelivery to Lerwick45.00VAT at 20%VAT at 20%VAT at 20%VAT at 20%430.00Total due (GBP)Total due (GBP)Total due (GBP)Total due (GBP)2,580.00
+list_item	0	Payment instructions
+paragraph	0	Please pay the total due within 30 days of the invoice date. Quote the invoice number INV-2026-0418 as the payment reference so that we can match your transfer. Interest may be charged on overdue amounts at 4% above the Bank of England base rate.
+heading	3	Account name
+paragraph	0	Halvorsen Marine Supply Ltd.
+heading	4	Sort code
+paragraph	0	Account no.
+heading	3	IBAN
+paragraph	0	80-22-61 41930275 GB71 HMSB 8022 6141 9302 75
+list_item	0	Notes
+list_item	0	• Goods remain our property until the invoice has been paid in full.
+list_item	0	• Claims for short delivery must reach us within 7 days of receipt. 。Report damaged items with photographs of the packaging. 。 Keep the delivery note signed by the driver.
+list_item	0	• The inspection report for the MV Fair Isle Venture was sent to the chief engineer by e-mail.
+paragraph	0	Thank you for your continued business. For questions about this invoice, call our accounts team on extension
+paragraph	0	214.
+paragraph	0	Registered in Scotland No. SC481920 · Registered office as above

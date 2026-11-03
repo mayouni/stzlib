@@ -1,0 +1,8 @@
+<doctag><section_header_level_1><loc_47><loc_36><loc_402><loc_49>Field Trial Summary: Drought-Tolerant Millet</section_header_level_1>
+<text><loc_47><loc_58><loc_437><loc_74>This summary reports the second season of field trials at three experimental stations. Each plot was sown on the same day and received no irrigation after germination.</text>
+<section_header_level_1><loc_47><loc_84><loc_90><loc_93>Results</section_header_level_1>
+<otsl><loc_47><loc_108><loc_280><loc_174><fcel>Variety<fcel>Yield (kg/ha)<fcel>Days to maturity<nl><fcel>Sahel Gold<fcel>1,240<fcel>84<nl><fcel>Tillaberi 3<fcel>1,105<fcel>79<nl><fcel>Dune Runner<fcel>980<fcel>72<nl><fcel>Riverbank Early<fcel>1,310<fcel>91<nl><caption><loc_47><loc_101><loc_230><loc_108>Table 1. Average yield per hectare by variety</caption></otsl>
+<text><loc_47><loc_185><loc_446><loc_210>Sahel Gold and Riverbank Early produced the highest yields, but Riverbank Early needed almost three more weeks to mature. Dune Runner matured fastest and remains the safest choice where the rains end early.</text>
+<section_header_level_1><loc_47><loc_221><loc_109><loc_230>Next Steps</section_header_level_1>
+<text><loc_47><loc_236><loc_346><loc_243>A third season is planned before any variety is recommended to growers.</text>
+</doctag>

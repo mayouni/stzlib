@@ -428,7 +428,7 @@ fn decodeInto(ids: []const i32, out: *std.ArrayList(u8)) void {
         if (id < 0 or @as(usize, @intCast(id)) >= g_n_vocab) continue;
         var is_special = false;
         for (g_specials.items) |sp| {
-            if (sp.id == id and sp.hidden) {
+            if (sp.id == id and sp.hidden and !(g_show_controls and id != g_eos)) {
                 is_special = true;
                 break;
             }
@@ -1162,7 +1162,12 @@ fn resetTermination() void {
     g_line_prev.clearRetainingCapacity();
     g_line_run = 0;
     g_stopped_on_repeat = false;
+    g_show_controls = false;
 }
+
+// A document model writes its STRUCTURE as control tokens (<text>, <otsl>, <fcel>: Granite-Docling's DocTags),
+// so a stream started with startWithSegments gives them back as text; every other stream hides them.
+var g_show_controls: bool = false;
 
 fn applyRepeatPenalty() void {
     const n_vocab = g_logits.items.len;
@@ -1380,6 +1385,68 @@ pub fn startWithRows(before: []const u8, rows: []const f32, n_rows: usize, after
     g_stream_topp = 1.0;
     g_stream_topk = 0;
     g_prng = std.Random.DefaultPrng.init(0);
+    g_stream_active = true;
+    return 1;
+}
+
+// A PAGE in the prompt (Granite-Docling): texts[0], block 0's rows, texts[1], block 1's rows, ..., texts[n], every
+// block `per` rows of the decoder's width. The texts are encoded one by one, so text that must be ONE piece for the
+// tokenizer ("\n\n" between two views) is one entry. A fresh sequence; 1 when the stream is ready.
+pub fn startWithSegments(texts: []const []const u8, rows: []const f32, per: usize, max_new: c_int) c_int {
+    g_stream_active = false;
+    g_last_error = GEN_OK;
+    g_truncated = false;
+    g_last_prompt_tokens = 0;
+    resetTermination();
+    if (neural_model_has_generator() == 0 or !buildBpe()) {
+        g_last_error = GEN_NO_GENERATOR;
+        return 0;
+    }
+    const n_embd: usize = @intCast(kvArchInt(".embedding_length", 0));
+    if (per == 0 or n_embd == 0 or rows.len % (per * n_embd) != 0 or texts.len != rows.len / (per * n_embd) + 1) {
+        g_last_error = GEN_FORWARD_FAILED;
+        return 0;
+    }
+    const n_blocks = texts.len - 1;
+    resetKv();
+    const ids = gpa.alloc(std.ArrayList(i32), texts.len) catch return 0;
+    for (ids) |*l| l.* = .{};
+    defer {
+        for (ids) |*l| l.clearAndFree(gpa);
+        gpa.free(ids);
+    }
+    var total: usize = n_blocks * per;
+    for (texts, 0..) |t, k| {
+        encode(t, &ids[k]);
+        // the text after a picture continues the sequence: no second BOS
+        if (k > 0 and g_add_bos and ids[k].items.len > 0 and ids[k].items[0] == g_bos) _ = ids[k].orderedRemove(0);
+        total += ids[k].items.len;
+    }
+    g_last_prompt_tokens = total;
+    if (total >= contextWindow()) {
+        g_last_error = GEN_PROMPT_TOO_LONG;
+        return 0;
+    }
+    const zeros = gpa.alloc(i32, per) catch return 0;
+    defer gpa.free(zeros);
+    @memset(zeros, 0);
+    for (0..texts.len) |k| {
+        if (!prefillIds(ids[k].items)) {
+            g_last_error = GEN_FORWARD_FAILED;
+            return 0;
+        }
+        if (k < n_blocks and !forwardDecodeX(zeros, rows[k * per * n_embd ..][0 .. per * n_embd])) {
+            g_last_error = GEN_FORWARD_FAILED;
+            return 0;
+        }
+    }
+    g_stream_max = if (max_new > 0) @intCast(max_new) else 64;
+    g_stream_n = 0;
+    g_stream_temp = 0;
+    g_stream_topp = 1.0;
+    g_stream_topk = 0;
+    g_prng = std.Random.DefaultPrng.init(0);
+    g_show_controls = true;
     g_stream_active = true;
     return 1;
 }

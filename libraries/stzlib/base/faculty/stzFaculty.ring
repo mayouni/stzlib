@@ -347,6 +347,8 @@ func StzGoldenAgrees(pcChecker, pGot, pExpected)
 		return StzDepthAgree(pGot, pExpected)
 	but pcChecker = "names-main-object"
 		return StzDescribeAgree(pGot, pExpected)
+	but pcChecker = "doc-blocks"
+		return StzDocBlocksAgree(pGot, pExpected)
 	but pcChecker = "first"
 		# a ranking whose best item is the expected one
 		if NOT isList(pGot) or len(pGot) = 0 return 0 ok

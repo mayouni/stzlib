@@ -1,0 +1,16 @@
+<doctag><section_header_level_1><loc_48><loc_44><loc_227><loc_70>HALVORSEN PRECISION COMPONENTS</section_header_level_1>
+<section_header_level_1><loc_48><loc_84><loc_145><loc_100>Tax Invoice</section_header_level_1>
+<text><loc_48><loc_108><loc_153><loc_146>Invoice to Marlow & Teague Fabrication Accounts Payable 3 Fennick Row Ashcombe AC2 9LP</text>
+<otsl><loc_273><loc_105><loc_453><loc_159><fcel>Invoice number<fcel>HPC-2026-0917<nl><fcel>Invoice date<fcel>14 October 2026<nl><fcel>Customer account<fcel>C-0388<nl><fcel>Your order<fcel>PO 55120<nl><fcel>Payment due<fcel>13 November 2026<nl></otsl>
+<otsl><loc_47><loc_165><loc_453><loc_330><fcel>Item<fcel>Description<fcel>Qty<fcel>Unit price (£)<fcel>VAT<fcel>Amount (£)<nl><fcel>HPC-B204<fcel>Stainless hex bolt M8 × 40, A4-70, box of 100<fcel>12<fcel>18.40<fcel>20%<fcel>220.80<nl><fcel>HPC-W118<fcel>Spring washer M8, zinc plated, box of 250<fcel>6<fcel>7.95<fcel>20%<fcel>47.70<nl><fcel>HPC-S560<fcel>Linear guide rail 560 mm with two carriages and end  stops<fcel>4<fcel>86.25<fcel>20%<fcel>345.00<nl><fcel>HPC-C031<fcel>Flexible shaft coupling 8-10 mm, aluminium<fcel>10<fcel>14.60<fcel>20%<fcel>146.00<nl><fcel>HPC-K900<fcel>Calibration of torque wrench (customer's own),  including certificate<fcel>2<fcel>42.00<fcel>20%<fcel>84.00<nl><fcel>HPC-D001<fcel>Technical drawings, printed set<fcel>1<fcel>25.00<fcel>0%<fcel>25.00<nl><fcel>CAR-STD<fcel>Carriage, standard next-day delivery<fcel>1<fcel>12.50<fcel>20%<fcel>12.50<nl><fcel>Net total<lcel><lcel><lcel><lcel><fcel>881.00<nl><fcel>VAT at 20% on £856.00<lcel><lcel><lcel><lcel><fcel>171.20<nl><fcel>Invoice total<lcel><lcel><lcel><lcel><fcel>1,052.20<nl><fcel>Less deposit received 2 October 2026<lcel><lcel><lcel><lcel><fcel>-200.00<nl><fcel>Balance due<lcel><lcel><lcel><lcel><fcel>852.20<nl></otsl>
+<text><loc_48><loc_342><loc_247><loc_366>Thank you for your order of 2 October 2026. Items HPCK900 and HPC-D001 were delivered separately on 9 October 2026.</text>
+<text><loc_48><loc_373><loc_249><loc_396>Payment is due within 30 days of the invoice date. A late payment charge of 1.5% per month may be applied to overdue balances.</text>
+<unordered_list><list_item><loc_48><loc_404><loc_252><loc_411>· Please quote the invoice number with every payment.</list_item>
+<list_item><loc_48><loc_412><loc_249><loc_427>· Goods remain our property until they have been paid for in full.</list_item>
+<list_item><loc_48><loc_428><loc_242><loc_443>· Queries about this invoice must be raised within 14 days.</list_item>
+</unordered_list>
+<otsl><loc_273><loc_336><loc_453><loc_408><fcel>Bank details<fcel>Bank<fcel>Corran Mutual Bank<nl><fcel>Account name<fcel>Ltd<ecel><nl><fcel>Sort code<fcel>40-12-77<ecel><nl><fcel>Account<fcel>61203348<ecel><nl><fcel>Reference<fcel>HPC-2026-0917<ecel><nl></otsl>
+<page_footer><loc_148><loc_481><loc_352><loc_487>Registered in England and Wales No. 08816204 · Registered office as above</page_footer>
+<text><loc_324><loc_35><loc_453><loc_62>Unit 14, Brackwater Industrial Park Dunmere DN4 7QX Tel. 01632 960 418 · accounts@halvorsenpc.example</text>
+<text><loc_364><loc_63><loc_453><loc_69>VAT Reg. No. GB 418 2207 61</text>
+</doctag>

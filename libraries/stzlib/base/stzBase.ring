@@ -743,6 +743,7 @@ load "service/stzPispiQr.ring"    # the twin of the hub served over HTTP, with O
     load "image/stzImage.ring"
     load "image/stzImageGrid.ring"
     load "image/stzVision.ring"     # IM3: classify, faces, objects -- one governed door, every call in the ledger
+    load "image/stzDocTags.ring"    # IM7: Granite-Docling's DocTags read into blocks, and blocks judged against a golden document
     load "image/stzImageSearch.ring"  # IM5: SigLIP2 -- pictures and words in one space: ClassifyAs, Search
     load "ocr/stzOcr.ring"             # OCR as a faculty: the platform floor, a model only when measured better
     load "ocr/stzOcrInspect.ring"      # see what OCR read and where: the image and its reading, linked both ways

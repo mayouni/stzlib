@@ -15,3 +15,5 @@ depth|lower-is-nearer|diode-v1|0.308|78|1|02/11/2026 17:48:37|
 depth|depth-anything-v2-small|diode-v1|0.615|78|1|02/11/2026 17:50:01|
 describe|fixed|coco-describe-v1|0.444|99|1|03/11/2026 02:59:49|
 describe|smolvlm-256m|coco-describe-v1|0.828|99|1|03/11/2026 02:59:49|scored by the guard with names-main-object, one description per picture
+doc-vlm|native-reader|doc-vlm-v1|0.129032|31|1|03/11/2026 13:21:01|
+doc-vlm|granite-docling-258m|doc-vlm-v1|0.129032|31|1|03/11/2026 13:21:01|scored by the guard with doc-blocks on the predictions stored in results/doc_vlm_v1/

@@ -1,0 +1,73 @@
+heading	1	Meridian Business Travel
+page_header	0	18 Adeola Hopewell Street, Victoria Island, Lagos +234 1 555 0140· trips@meridian-bt.example
+heading	2	Travel Itinerary
+paragraph	0	Traveller
+heading	3	Company
+heading	6	Ticket number
+list_item	0	Ms Nadia Rahmani-Okafor
+list_item	0	Halden Engineering Consultants
+paragraph	0	176-2412093388
+paragraph	0	Booking reference Issued Travel consultant
+paragraph	0	QX7R2M
+heading	5	21 October 2026 Tunde Afolabi
+heading	5	Flights
+list_item	0	Date
+paragraph	0	XQ 214
+paragraph	0	Wed 4 Nov 2026
+paragraph	0	Fri 6 Nov 2026
+paragraph	0	XQ 731
+paragraph	0	XQ 590
+paragraph	0	Mon 9 Nov 2026
+list_item	0	Departs
+paragraph	0	08:45
+paragraph	0	11:20
+paragraph	0	13:05
+paragraph	0	Arrives
+paragraph	0	15:40
+paragraph	0	11:35
+paragraph	0	17:50
+paragraph	0	Status
+paragraph	0	Confirmed
+paragraph	0	Confirmed
+paragraph	0	Waitlisted
+paragraph	0	All times shown are local times at each airport. Your return flight on 9 November is waitlisted, and we will confirm it or rebook you by 30 October.
+heading	3	Hotels
+paragraph	0	Check-in
+paragraph	0	4 Nov 2026
+paragraph	0	6 Nov 2026
+paragraph	0	Check-out
+paragraph	0	6 Nov 2026
+paragraph	0	9 Nov 2026
+paragraph	0	Address
+paragraph	0	Waiyaki Way, Westlands, Nairobi
+paragraph	0	KN 3 Avenue, Kigali
+paragraph	0	Confirmation
+paragraph	0	ACP-55120
+paragraph	0	KH-80931
+list_item	0	Both hotels are booked on a bed-and-breakfast basis and charged to the company account; incidental charges are payable on departure.
+heading	3	Ground transport
+paragraph	0	A driver from Acacia Park Hotel will meet you in the arrivals hall at Nairobi and hold a sign with your name. Transfers in Kigali
+list_item	0	are not included and can be booked at the hotel reception.
+list_item	0	Before you travel
+paragraph	0	Please check in online 24 hours before each flight and arrive at the airport at least three hours before international departures.
+list_item	0	□ Passport valid for at least six months after the return date
+list_item	0	□Yellow fever vaccination certificate
+list_item	0	□ Printed or electronic copy of this itinerary
+list_item	0	□ Corporate card for incidental hotel charges
+paragraph	0	Meridian Business Travel Ltd · RC 1184420 · 24-hour emergency line +234 1 555 0147 This itinerary is not a ticket. Fares and availability are subject to change until ticketed.
+paragraph	0	Flight
+paragraph	0	From
+paragraph	0	Lagos (LOS)
+paragraph	0	Nairobi (NBO)
+paragraph	0	Kigali (KGL)
+paragraph	0	To
+list_item	0	Nairobi (NBO)
+paragraph	0	Kigali (KGL)
+paragraph	0	Lagos (LOS)
+paragraph	0	Class
+list_item	0	Business (J)
+list_item	0	Business (J)
+paragraph	0	Economy (Y)
+list_item	0	Hotel
+paragraph	0	Acacia Park Hotel
+paragraph	0	Hotel Kivu Heights

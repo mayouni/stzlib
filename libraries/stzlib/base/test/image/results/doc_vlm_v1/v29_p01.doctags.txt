@@ -1,0 +1,25 @@
+<doctag><section_header_level_1><loc_48><loc_41><loc_236><loc_54>Brackwater Signal Design Ltd</section_header_level_1>
+<section_header_level_1><loc_47><loc_68><loc_140><loc_83>Tax Invoice</section_header_level_1>
+<section_header_level_1><loc_54><loc_91><loc_80><loc_97>BILL TO</section_header_level_1>
+<text><loc_54><loc_100><loc_175><loc_123>Orchard Lane Physiotherapy Clinic Attn: Accounts Payable 14 Kestrel Row, Whitby YO21 3PQ</text>
+<section_header_level_1><loc_261><loc_91><loc_321><loc_97>INVOICE DETAILS</section_header_level_1>
+<text><loc_262><loc_101><loc_378><loc_108>Invoice number BSD-2026-0418</text>
+<text><loc_262><loc_111><loc_298><loc_118>Issue date</text>
+<text><loc_322><loc_111><loc_378><loc_118>3 October 2026</text>
+<text><loc_262><loc_121><loc_298><loc_128>Due date</text>
+<text><loc_322><loc_121><loc_386><loc_128>2 November 2026</text>
+<text><loc_262><loc_130><loc_316><loc_137>Purchase order</text>
+<text><loc_322><loc_130><loc_371><loc_137>OLP-PO-7731</text>
+<otsl><loc_47><loc_150><loc_454><loc_287><fcel>#<fcel>Description<fcel>Qty<fcel>Unit price<fcel>Amount<nl><fcel>1<fcel>Brand identity refresh<fcel>1<fcel>2,400.00<fcel>2,400.00<nl><fcel>2<fcel>Logo system<fcel>1<fcel>3,150.00<fcel>3,150.00<nl><fcel>3<fcel>Stationery set<fcel>3<fcel>280.00<fcel>840.00<nl><fcel>4<fcel>Letterhead, compliments slip, business card<fcel>12<fcel>85.00<fcel>1,020.00<nl><fcel>5<fcel>Print management<fcel>1<fcel>365.00<fcel>365.00<nl><fcel>500 cards on 400 gsm uncoated board<ecel><ecel><ecel><ecel><nl><ecel><ecel><fcel>Subtotal<fcel>7,775.00<ecel><nl><ecel><ecel><fcel>VAT at 20%<fcel>1,555.00<ecel><nl><ecel><ecel><fcel>Total due (GBP)<fcel>£9,330.00<ecel><nl></otsl>
+<section_header_level_1><loc_48><loc_302><loc_110><loc_310>Payment terms</section_header_level_1>
+<unordered_list><list_item><loc_48><loc_314><loc_228><loc_321>· Payment is due within 30 days of the issue date.</list_item>
+<list_item><loc_48><loc_323><loc_311><loc_330>· Pay by bank transfer to the account below, quoting the invoice number.</list_item>
+<list_item><loc_60><loc_332><loc_227><loc_339>· Account name: Brackwater Signal Design Ltd</list_item>
+<list_item><loc_60><loc_341><loc_207><loc_348>· Sort code 40-17-62, account 51148830</list_item>
+<list_item><loc_48><loc_350><loc_260><loc_357>· Late payments accrue interest at 4% above the base rate.</list_item>
+</unordered_list>
+<section_header_level_1><loc_48><loc_365><loc_73><loc_373>Notes</section_header_level_1>
+<text><loc_48><loc_379><loc_451><loc_393>Thank you for choosing us for the refresh of your clinic identity. The signage drawings will be issued to your fit-out contractor once this invoice is settled.</text>
+<page_footer><loc_134><loc_408><loc_366><loc_414>Registered in England and Wales, company no. 10583472 · VAT reg. GB 318 2207 54</page_footer>
+<text><loc_342><loc_34><loc_454><loc_53>Unit 7, Tannery Yard, York YO1 9WD accounts@brackwater-signal.example +44 1904 552 018</text>
+</doctag>

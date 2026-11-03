@@ -1,0 +1,34 @@
+<doctag><section_header_level_1><loc_48><loc_34><loc_258><loc_48>BRACKWATER OFFICE SUPPLY</section_header_level_1>
+<text><loc_48><loc_48><loc_174><loc_54>Furniture · Stationery · Workplace fit-out</text>
+<section_header_level_1><loc_47><loc_78><loc_180><loc_95>TAX INVOICE</section_header_level_1>
+<text><loc_47><loc_98><loc_103><loc_105>Invoice number</text>
+<text><loc_133><loc_98><loc_193><loc_105>BOS-2026-04417</text>
+<text><loc_47><loc_108><loc_90><loc_115>Invoice date</text>
+<text><loc_133><loc_108><loc_192><loc_115>14 October 2026</text>
+<text><loc_47><loc_118><loc_117><loc_124>Customer reference</text>
+<text><loc_133><loc_118><loc_175><loc_124>PO 88-1932</text>
+<text><loc_47><loc_127><loc_80><loc_133>Due date</text>
+<text><loc_133><loc_127><loc_201><loc_133>13 November 2026</text>
+<text><loc_56><loc_146><loc_86><loc_152>BILL TO</text>
+<text><loc_56><loc_154><loc_165><loc_170>Fenwick & Lowe Architects LLP Accounts Payable, 3rd Floor</text>
+<text><loc_56><loc_172><loc_167><loc_179>22 Tombland, Norwich NR3 1RF</text>
+<text><loc_264><loc_146><loc_296><loc_152>SHIP TO</text>
+<text><loc_264><loc_154><loc_401><loc_170>Fenwick & Lowe Architects LLP Site office, Riverside Wharf</text>
+<text><loc_264><loc_172><loc_400><loc_179>Delivery between 08:00 and 12:00 only</text>
+<otsl><loc_47><loc_190><loc_453><loc_317><fcel>Item<fcel>Description<fcel>Qty<fcel>Unit price<fcel>Amount<nl><fcel>DSK-1600-OAK<fcel>Sit-stand desk 1600 x 800, oak top,  electric dual motor<fcel>6<fcel>£412.00<fcel>£2,472.00<nl><fcel>CHR-ERG-22<fcel>Ergonomic task chair, mesh back, black<fcel>6<fcel>£189.50<fcel>£1,137.00<nl><fcel>PED-3D-WH<fcel>Mobile pedestal, three drawers, white<fcel>6<fcel>£96.00<fcel>£576.00<nl><fcel>LMP-LED-08<fcel>LED desk lamp with USB-C charging port<fcel>6<fcel>£38.75<fcel>£232.50<nl><fcel>SRV-INST<fcel>Delivery, assembly and packaging removal<fcel>1<fcel>£260.00<fcel>£260.00<nl><ecel><ecel><fcel>Subtotal<fcel>£4,677.50<ecel><nl><ecel><ecel><fcel>Trade discount 5%<fcel>-£233.88<ecel><nl><ecel><ecel><fcel>VAT at 20%<fcel>£888.72<ecel><nl><ecel><ecel><fcel>Total due<fcel>£5,332.34<ecel><nl></otsl>
+<text><loc_345><loc_318><loc_387><loc_326>Total due</text>
+<text><loc_406><loc_318><loc_448><loc_326>£5,332.34</text>
+<section_header_level_1><loc_47><loc_340><loc_136><loc_348>Payment instructions</section_header_level_1>
+<text><loc_47><loc_355><loc_448><loc_369>Please pay by bank transfer and quote the invoice number as the payment reference. Payments received after the due date may incur interest at 4% above the Bank of England base rate.</text>
+<text><loc_47><loc_376><loc_99><loc_383>Account name</text>
+<text><loc_117><loc_376><loc_218><loc_383>Brackwater Office Supply Ltd</text>
+<text><loc_47><loc_385><loc_80><loc_392>Sort code</text>
+<text><loc_117><loc_385><loc_149><loc_392>40-19-27</text>
+<text><loc_47><loc_395><loc_107><loc_402>Account number</text>
+<text><loc_117><loc_395><loc_158><loc_402>61 77 30 14</text>
+<section_header_level_1><loc_47><loc_413><loc_73><loc_421>Terms</section_header_level_1>
+<text><loc_47><loc_427><loc_452><loc_440>Goods remain the property of Brackwater Office Supply Ltd until this invoice has been paid in full. Any damage or shortfall must be reported within five working days of delivery. Chairs and desks carry a five-year warranty against manufacturing defects.</text>
+<text><loc_47><loc_445><loc_268><loc_452>Thank you for your order. We look forward to working with you again.</text>
+<page_footer><loc_114><loc_481><loc_387><loc_487>Brackwater Office Supply Ltd · Registered in England and Wales No. 10458822 · VAT No. GB 318 5527 46</page_footer>
+<text><loc_332><loc_34><loc_454><loc_61>Unit 7, Marlpit Trading Estate Halesworth Road, Norwich NR6 4TQ accounts@brackwater-supply.example +44 1632 960 218</text>
+</doctag>

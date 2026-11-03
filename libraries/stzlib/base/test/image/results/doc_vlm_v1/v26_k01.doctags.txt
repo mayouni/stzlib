@@ -1,0 +1,32 @@
+<doctag><section_header_level_1><loc_43><loc_25><loc_248><loc_43>Harrow & Lune Joinery Ltd</section_header_level_1>
+<section_header_level_1><loc_42><loc_59><loc_120><loc_80>Invoice</section_header_level_1>
+<section_header_level_1><loc_52><loc_88><loc_79><loc_94>BILL TO</section_header_level_1>
+<text><loc_52><loc_96><loc_127><loc_130>Mrs Ottilie Brandreth Fellside House 14 Quernmore Lane Caton LA2 9NN</text>
+<section_header_level_1><loc_182><loc_88><loc_224><loc_94>DELIVER TO</section_header_level_1>
+<text><loc_182><loc_96><loc_257><loc_130>The Reading Room CatonVillage Institute Brookhouse Road Caton LA2 9PJ</text>
+<otsl><loc_43><loc_146><loc_458><loc_297><ched>Item<ched>Description<ched>Qty<ched>Unit price (£)<ched>Amount (£)<nl><srow>Materials<ecel><ecel><ecel><ecel><nl><fcel>M-104<fcel>Solid oak shelving boards, 2400 × 280 × 22 mm<fcel>14<fcel>46.50<fcel>651.00<nl><fcel>M-221<fcel>Brass shelf studs, pack of 50<fcel>3<fcel>12.80<fcel>38.40<nl><fcel>M-318<fcel>Hardwax oil, satin finish, 2.5 litre tin<fcel>2<fcel>39.90<fcel>79.80<nl><srow>Labour<ecel><ecel><ecel><ecel><nl><fcel>L-010<fcel>Site survey and measured drawing<fcel>1<fcel>180.00<fcel>180.00<nl><fcel>L-020<fcel>Workshop fabrication, hours<fcel>22<fcel>38.00<fcel>836.00<nl><fcel>L-030<fcel>Installation on site, hours<fcel>9<fcel>42.00<fcel>378.00<nl><ecel><ecel><ecel><fcel>Subtotal<fcel>2,163.20<nl><ecel><ecel><ecel><fcel>VAT at 20%<fcel>432.64<nl><ecel><ecel><ecel><fcel>Total due<fcel>2,595.84<nl></otsl>
+<section_header_level_1><loc_43><loc_307><loc_118><loc_316>Payment terms</section_header_level_1>
+<unordered_list><list_item><loc_43><loc_319><loc_232><loc_326>1. Payment is due within 30 days of the invoice date.</list_item>
+<list_item><loc_43><loc_330><loc_454><loc_337>2. Please pay by bank transfer to sort code 30-96-41, account 20718834, quoting the invoice number as the reference.</list_item>
+<list_item><loc_43><loc_341><loc_365><loc_348>3. Interest may be charged on overdue amounts at 4% above the Bank of England base rate.</list_item>
+</unordered_list>
+<section_header_level_1><loc_43><loc_359><loc_133><loc_368>Notes on the work</section_header_level_1>
+<text><loc_43><loc_371><loc_450><loc_387>Thank you for asking us to fit out the reading room at the institute. The shelving was installed on 9 October and signed off by the building committee the same afternoon.</text>
+<unordered_list><list_item><loc_47><loc_391><loc_252><loc_398>· The oak has been finished with two coats of hardwax oil.</list_item>
+<list_item><loc_60><loc_401><loc_303><loc_408>· A third coat can be applied after six months if the surface looks dry.</list_item>
+<list_item><loc_60><loc_410><loc_246><loc_417>· Avoid silicone polish, which prevents later re-oiling.</list_item>
+<list_item><loc_47><loc_419><loc_313><loc_426>· Offcuts long enough for a small bookcase have been left in the store room.</list_item>
+<list_item><loc_47><loc_428><loc_318><loc_435>· Our workmanship guarantee runs for five years from the date of installation.</list_item>
+</unordered_list>
+<page_footer><loc_43><loc_477><loc_232><loc_483>Registered in England and Wales No. 08844120 · VAT No. GB 318 2290 47</page_footer>
+<page_footer><loc_429><loc_477><loc_457><loc_483>Page I of I</page_footer>
+<page_header><loc_284><loc_27><loc_458><loc_41>Unit 7,Tannery Yard, Kendal Road, Lancaster LA1 9QX Telephone 01524 600 418 · accounts@harrowlune.example</page_header>
+<text><loc_317><loc_85><loc_365><loc_91>Invoice number</text>
+<text><loc_381><loc_85><loc_427><loc_91>INV-2026-0418</text>
+<text><loc_317><loc_96><loc_338><loc_102>Invoice date</text>
+<text><loc_381><loc_96><loc_417><loc_102>14 October 2026</text>
+<text><loc_317><loc_107><loc_346><loc_113>Due date</text>
+<text><loc_381><loc_107><loc_439><loc_113>13 November 2026</text>
+<text><loc_317><loc_117><loc_346><loc_123>Your reference</text>
+<text><loc_381><loc_117><loc_436><loc_123>Reading room shelving</text>
+</doctag>

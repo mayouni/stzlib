@@ -1,6 +1,7 @@
 _image-out/
 _vision-out/
 _faculty-out/
-results/
+results/*
+!results/doc_vlm_v1/
 _search-out/
 _dense-out/

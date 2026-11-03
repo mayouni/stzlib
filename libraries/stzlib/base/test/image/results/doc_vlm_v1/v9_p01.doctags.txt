@@ -1,0 +1,29 @@
+<doctag><section_header_level_1><loc_43><loc_35><loc_292><loc_49>Kestrel Fasteners & Supply Ltd</section_header_level_1>
+<section_header_level_1><loc_43><loc_65><loc_126><loc_79>Tax Invoice</section_header_level_1>
+<text><loc_43><loc_85><loc_157><loc_125>Brayford Shopfitting Contractors Accounts Payable 22 Canal Wharf Road Bradford BD3 8NP</text>
+<text><loc_187><loc_85><loc_240><loc_92>DELIVER TO</text>
+<text><loc_187><loc_93><loc_301><loc_118>Brayford Shopfitting Contractors Site 4, Eastgate Retail Park Huddersfield HD1 6QX</text>
+<text><loc_330><loc_85><loc_384><loc_92>Invoice number</text>
+<text><loc_330><loc_93><loc_372><loc_100>Invoice date</text>
+<text><loc_330><loc_102><loc_362><loc_109>Due date</text>
+<text><loc_330><loc_110><loc_376><loc_117>Customer PO</text>
+<text><loc_330><loc_119><loc_359><loc_126>Account</text>
+<text><loc_392><loc_85><loc_425><loc_92>KF-24187</text>
+<text><loc_392><loc_93><loc_450><loc_100>12 October 2026</text>
+<text><loc_392><loc_102><loc_458><loc_109>11 November 2026</text>
+<text><loc_392><loc_110><loc_427><loc_117>PO-55102</text>
+<text><loc_392><loc_119><loc_432><loc_126>BRAD-0042</text>
+<otsl><loc_41><loc_135><loc_458><loc_289></otsl>
+<section_header_level_1><loc_43><loc_298><loc_108><loc_306>Payment terms</section_header_level_1>
+<text><loc_43><loc_309><loc_447><loc_325>Payment is due within 30 days of the invoice date. Please quote invoice number KF-24187 with your remittance. Goods remain the property of Kestrel Fasteners & Supply Ltd until payment has been received in full. Any</text>
+<text><loc_43><loc_327><loc_455><loc_342>shortage or damage must be reported within five working days of delivery. Late payments may attract interest and compensation under the Late Payment of Commercial Debts (Interest) Act</text>
+<text><loc_43><loc_343><loc_455><loc_350>1998. Thank you for your business.</text>
+<text><loc_43><loc_364><loc_319><loc_377>Payment by BACS to Northgate Commercial Bank, sort code 40-12-76, account 51963308 Kestrel Fasteners & Supply Ltd is registered in England and Wales. Registered office as above.</text>
+<text><loc_43><loc_379><loc_455><loc_394>Payment by BACS to Northgate Commercial Bank, sort code 40-12-76, account 51963308 Kestrel Fasteners & Supply Ltd is registered in England and Wales. Registered office as above.</text>
+<text><loc_330><loc_364><loc_365><loc_371>Subtotal</text>
+<text><loc_392><loc_364><loc_455><loc_371>£700.65</text>
+<text><loc_330><loc_379><loc_365><loc_386>VAT at 20%</text>
+<text><loc_392><loc_379><loc_455><loc_386>£147.13</text>
+<text><loc_330><loc_396><loc_365><loc_403>Total due</text>
+<text><loc_392><loc_396><loc_455><loc_403>£882.78</text>
+</doctag>

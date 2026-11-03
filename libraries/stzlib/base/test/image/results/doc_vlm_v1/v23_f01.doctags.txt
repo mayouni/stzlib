@@ -1,0 +1,39 @@
+<doctag><section_header_level_1><loc_48><loc_34><loc_271><loc_60>Brackenfield Structural Consultants Ltd</section_header_level_1>
+<section_header_level_1><loc_48><loc_72><loc_135><loc_89>Tax Invoice</section_header_level_1>
+<text><loc_47><loc_94><loc_70><loc_101>Bill to</text>
+<text><loc_47><loc_101><loc_168><loc_126>Orrin Valley Housing Co-operative Attn: Facilities Manager 2 Mill Lane, Easterby EB9 3RT</text>
+<text><loc_47><loc_126><loc_168><loc_142>Office of the Building Company</text>
+<text><loc_47><loc_142><loc_168><loc_158>Office of the Building Company</text>
+<text><loc_47><loc_158><loc_168><loc_175>Office of the Building Company</text>
+<text><loc_47><loc_175><loc_168><loc_192>Office of the Building Company</text>
+<text><loc_47><loc_192><loc_168><loc_208>Office of the Building Company</text>
+<text><loc_47><loc_208><loc_168><loc_225>Office of the Building Company</text>
+<text><loc_47><loc_225><loc_168><loc_242>Office of the Building Company</text>
+<text><loc_47><loc_242><loc_168><loc_258>Office of the Building Company</text>
+<text><loc_47><loc_258><loc_168><loc_275>Office of the Building Company</text>
+<text><loc_47><loc_275><loc_168><loc_292>Office of the Building Company</text>
+<text><loc_47><loc_292><loc_168><loc_308>Office of the Building Company</text>
+<text><loc_47><loc_308><loc_168><loc_325>Office of the Building Company</text>
+<text><loc_47><loc_325><loc_168><loc_342>Office of the Building Company</text>
+<text><loc_47><loc_342><loc_168><loc_358>Office of the Building Company</text>
+<text><loc_47><loc_358><loc_168><loc_375>Office of the Building Company</text>
+<text><loc_47><loc_375><loc_168><loc_392>Office of the Building Company</text>
+<text><loc_47><loc_392><loc_168><loc_408>Office of the Building Company</text>
+<text><loc_47><loc_408><loc_168><loc_425>Office of the Building Company</text>
+<text><loc_47><loc_425><loc_168><loc_442>Office of the Building Company</text>
+<text><loc_47><loc_442><loc_168><loc_458>Office of the Building Company</text>
+<text><loc_47><loc_458><loc_168><loc_475>Office of the Building Company</text>
+<text><loc_47><loc_475><loc_168><loc_492>Office of the Building Company</text>
+<text><loc_305><loc_38><loc_453><loc_59>14 Tannery Wharf, Lowmoor LM4 7QX accounts@brackenfield-sc.example · 01632 960 417</text>
+<otsl><loc_306><loc_92><loc_453><loc_162><fcel>Invoice no.<fcel>BSC-2026-0417<nl><fcel>Invoice date<fcel>12 October 2026<nl><fcel>Due date<fcel>11 November  2026<nl><fcel>Client ref.<fcel>PO 55-1903<nl><fcel>Project<fcel>Workshop  mezzanine<nl></otsl>
+<text><loc_47><loc_170><loc_449><loc_187>Thank you for instructing us on the mezzanine floor at your Easterby workshop. This invoice covers the survey and design stages completed in September 2026.</text>
+<otsl><loc_47><loc_190><loc_453><loc_323><fcel>Item<fcel>Description<fcel>Qty<fcel>Unit<fcel>Rate (GBP)<fcel>Amount (GBP)<nl><fcel>Phase 1 - Survey<ecel><ecel><ecel><ecel><ecel><nl><fcel>1.1<fcel>Site measurement survey<fcel>2 day<fcel>640.00<fcel>1,280.00<ecel><nl><fcel>1.2<fcel>Condition report for existing  steel frame and base plates<fcel>1 lump sum<fcel>950.00<fcel>950.00<ecel><nl><fcel>Phase 2 - Design<ecel><ecel><ecel><ecel><ecel><nl><fcel>2.1<fcel>Structural calculations, mezzanine floor<fcel>18 hour<fcel>85.00<fcel>1,530.00<ecel><nl><fcel>2.2<fcel>General arrangement drawings<fcel>6 sheet<fcel>120.00<fcel>720.00<ecel><nl><fcel>2.3<fcel>Building control liaison<fcel>4 hour<fcel>85.00<fcel>340.00<ecel><nl><ecel><ecel><ecel><fcel>Subtotal<fcel>4,820.00<ecel><nl><ecel><ecel><ecel><fcel>VAT at 20%<fcel>964.00<ecel><nl><ecel><ecel><ecel><fcel>Total due<fcel>5,784.00<ecel><nl></otsl>
+<section_header_level_1><loc_47><loc_331><loc_86><loc_341>Payment</section_header_level_1>
+<text><loc_47><loc_343><loc_452><loc_359>Payment is due within 30 days of the invoice date. Please quote the invoice number on every remittance so that we can allocate it promptly. Interest may be charged on balances that remain unpaid after the due date.</text>
+<section_header_level_1><loc_47><loc_367><loc_73><loc_376>Notes</section_header_level_1>
+<unordered_list><list_item><loc_47><loc_377><loc_269><loc_385>· Rates are those agreed in our fee proposal of 3 March 2026.</list_item>
+<list_item><loc_47><loc_385><loc_296><loc_394>· Drawings were issued as PDF and DWG files on 29 September 2026.</list_item>
+<list_item><loc_47><loc_394><loc_314><loc_402>· Phase 3 (site inspections during construction) will be invoiced separately.</list_item>
+</unordered_list>
+<page_footer><loc_149><loc_416><loc_352><loc_422>Registered in England and Wales No. 08814423 · VAT No. GB 318 4471 09</page_footer>
+</doctag>

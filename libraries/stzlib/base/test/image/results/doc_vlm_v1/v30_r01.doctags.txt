@@ -1,0 +1,25 @@
+<doctag><section_header_level_1><loc_48><loc_34><loc_267><loc_48>Harbourline Marine Supplies Ltd</section_header_level_1>
+<page_header><loc_349><loc_34><loc_453><loc_40>14 Quay Road, Eastport EP3 9QR</page_header>
+<page_header><loc_274><loc_42><loc_453><loc_49>Tel +44 20 7946 0000 · accounts@harbourline.example</page_header>
+<section_header_level_1><loc_48><loc_63><loc_187><loc_79>Invoice 2026-0417</section_header_level_1>
+<otsl><loc_47><loc_85><loc_453><loc_131><fcel>Invoice  number<fcel>2026-0417<fcel>Invoice date<fcel>12 March 2026<nl><fcel>Dunmore Boatyard Ltd<fcel>Due date<fcel>11 April 2026<fcel>Customer<nl><fcel>PO-55871<fcel>Currency<fcel>GBP<fcel>Customer ref.<nl></otsl>
+<otsl><loc_47><loc_138><loc_453><loc_278><fcel>No.<fcel>Description<fcel>Qty<fcel>Unit price (£)<fcel>Amount (£)<nl><fcel>1<fcel>Marine rope, 12 mm, 100 m coil<fcel>4<fcel>86.50<fcel>346.00<nl><fcel>2<fcel>Stainless steel shackle, 10 mm<fcel>24<fcel>7.25<fcel>174.00<nl><fcel>3<fcel>LED navigation light set<fcel>2<fcel>119.00<fcel>238.00<nl><fcel>4<fcel>Anti-fouling paint, 2.5 l<fcel>6<fcel>54.80<fcel>328.80<nl><fcel>5<fcel>Fender, 25 x 80 cm<fcel>8<fcel>31.40<fcel>251.20<nl><fcel>6<fcel>Delivery, pallet freight<fcel>1<fcel>45.00<fcel>45.00<nl><ecel><ecel><fcel>Subtotal<fcel>1,383.00<ecel><nl></otsl>
+<text><loc_47><loc_285><loc_442><loc_302>All goods were delivered to your yard at Dunmore on 5 March 2026. Payment is due within 30 days of the invoice date. Please quote the invoice number as the payment reference.</text>
+<section_header_level_1><loc_47><loc_311><loc_103><loc_320>Bank details</section_header_level_1>
+<text><loc_47><loc_324><loc_103><loc_332>Account name</text>
+<text><loc_126><loc_324><loc_248><loc_332>Harbourline Marine Supplies Ltd</text>
+<text><loc_47><loc_334><loc_84><loc_342>Sort code</text>
+<text><loc_126><loc_334><loc_161><loc_342>00-00-00</text>
+<text><loc_47><loc_344><loc_111><loc_352>Account number</text>
+<text><loc_126><loc_344><loc_164><loc_352>12345678</text>
+<text><loc_47><loc_354><loc_86><loc_362>Reference</text>
+<text><loc_126><loc_354><loc_182><loc_362>INV 2026-0417</text>
+<section_header_level_1><loc_47><loc_371><loc_74><loc_380>Terms</section_header_level_1>
+<unordered_list><list_item><loc_47><loc_383><loc_352><loc_391>- Goods remain the property of Harbourline Marine Supplies Ltd until paid in full.</list_item>
+<list_item><loc_47><loc_392><loc_327><loc_400>- Late payments carry interest at 4 % above the Bank of England base rate.</list_item>
+<list_item><loc_47><loc_401><loc_315><loc_409>- Damaged or missing items must be reported within 7 days of delivery.</list_item>
+</unordered_list>
+<text><loc_47><loc_415><loc_308><loc_423>We thank you for your order and look forward to supplying you again.</text>
+<page_footer><loc_48><loc_472><loc_223><loc_478>Registered in England and Wales, company no. 00000000</page_footer>
+<page_footer><loc_418><loc_472><loc_452><loc_479>Page 1 of 1</page_footer>
+</doctag>

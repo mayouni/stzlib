@@ -1,0 +1,7 @@
+<doctag><section_header_level_1><loc_48><loc_35><loc_312><loc_49>Regional Warehouse Inventory</section_header_level_1>
+<text><loc_47><loc_58><loc_449><loc_74>This summary lists the stock held at the northern warehouse at the close of March. Quantities are counted by hand on the last working day of each month.</text>
+<section_header_level_1><loc_47><loc_87><loc_133><loc_97>Stock on Hand</section_header_level_1>
+<otsl><loc_47><loc_103><loc_362><loc_188><ched>Item code<ched>Description<ched>Shelf<ched>Quantity<nl><fcel>NW-1102<fcel>Galvanised wall brackets<fcel>A3<fcel>240<nl><fcel>NW-1187<fcel>Ceramic floor tiles, grey<fcel>B1<fcel>1,150<nl><fcel>NW-1230<fcel>Copper pipe, 15 mm<fcel>C4<fcel>86<nl><fcel>NW-1314<fcel>Exterior wood stain<fcel>A7<fcel>32<nl><fcel>NW-1452<fcel>Cordless drill batteries<fcel>D2<fcel>118<nl></otsl>
+<section_header_level_1><loc_47><loc_203><loc_100><loc_213>Remarks</section_header_level_1>
+<text><loc_47><loc_220><loc_441><loc_237>Two items fell below their reorder level during the month. A replacement order for the wood stain was placed on 2 April. The next count is scheduled for the end of April.</text>
+</doctag>

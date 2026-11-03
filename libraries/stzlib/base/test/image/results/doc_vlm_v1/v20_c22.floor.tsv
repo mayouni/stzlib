@@ -1,0 +1,64 @@
+heading	1	HARBOURLINE FREIGHT FORWARDING LTD I N V O I C E
+paragraph	0	Unit 9, Quay Logistics Park, Felixmouth FX3 2LQ +44 1632 960 777· accounts@harbourline.example · VAT GB 000 0418 00
+paragraph	0	No. HFF-26-11873 Date 29 October 2026 Due 28 November 2026
+table	0	SHIPPERCONSIGNEENOTIFY PARTYCorvel Agricultural Machines LtdCorvel Agricultural Machines LtdTierra Alta Maquinaria S.A.C.Same as consigneeBrook Lane Industrial EstateAv. Los Fresnos 1418Attn: Import DepartmentKettering NN15 0AACallao 07021imports@tierra-alta.exampleUnited KingdomPeruB/L numberHFFX2611873Vessel / voyageNorthern Larch 047WPort of loadingFelixmouthPort of dischargeCallaoContainers2×40 ft HCGross weight31,420 kgIncotermFCA KetteringYour referencePO-TA-5520
+paragraph	0	Code
+list_item	0	Description
+heading	3	THC-O DOC HAUL
+paragraph	0	OF
+paragraph	0	BAF
+paragraph	0	Terminal handling, origin
+paragraph	0	Export documentation and customs filing
+paragraph	0	Road haulage, Kettering to Felixmouth
+paragraph	0	Ocean freight, 40 ft high cube
+paragraph	0	Bunker adjustment factor
+paragraph	0	THC-D
+paragraph	0	DEL
+paragraph	0	Terminal handling, destination
+paragraph	0	Delivery order fee
+list_item	0	Subtotal
+paragraph	0	VAT 0% (export services, zero-rated)
+heading	3	Total due
+list_item	0	Basis
+paragraph	0	per container
+paragraph	0	per shipment
+paragraph	0	per container
+paragraph	0	per container
+paragraph	0	per container
+paragraph	0	per container
+paragraph	0	per shipment
+list_item	0	Qty
+paragraph	0	2
+paragraph	0	1 2
+paragraph	0	2 2
+paragraph	0	2 1
+list_item	0	Rate (USD)
+paragraph	0	185.00 95.00
+paragraph	0	640.00
+paragraph	0	2,310.00
+paragraph	0	415.00
+paragraph	0	210.00 60.00
+paragraph	0	Amount (USD)
+paragraph	0	Origin charges
+paragraph	0	370.00 95.00
+paragraph	0	1,280.00
+paragraph	0	Freight
+paragraph	0	4,620.00
+list_item	1	830.00
+list_item	0	Destination charges
+paragraph	0	420.00
+paragraph	0	60.00
+paragraph	0	7,675.00
+paragraph	0	0.00
+heading	2	USD 7,675.00
+paragraph	0	Payment is due within 30 days of the invoice date, quoting the invoice number as the payment reference. Charges in currencies other than US dollars have been converted at the carrier's rate on the date of sailing.
+paragraph	0	All business is undertaken subject to our standard trading conditions, a copy of which is available on request. Please tell us about any query on this invoice within seven days of receiving it.
+heading	4	Bank details (USD account)
+paragraph	0	Bank
+paragraph	0	Account name Account number Sort code SWIFT
+paragraph	0	Felixmouth Merchant Bank
+paragraph	0	Harbourline Freight Forwarding Ltd
+paragraph	0	00-0418-1187
+paragraph	0	00-00-00 FXMBGB00
+page_footer	0	Registered in England and Wales · Company no. 00000418· Registered office as above
+page_footer	0	Page 1/1

@@ -1,0 +1,26 @@
+<doctag><section_header_level_1><loc_48><loc_36><loc_242><loc_49>Harbourline Print & Bind Ltd</section_header_level_1>
+<section_header_level_1><loc_48><loc_69><loc_129><loc_84>Tax Invoice</section_header_level_1>
+<section_header_level_1><loc_48><loc_93><loc_65><loc_99>Bill to</section_header_level_1>
+<text><loc_57><loc_103><loc_159><loc_138>Fenwick Valley Rowing Club Attn: Club Secretary The Boathouse, Mill Lane Ashcombe AC3 9RD</text>
+<text><loc_262><loc_93><loc_306><loc_99>Invoice details</text>
+<text><loc_262><loc_104><loc_317><loc_111>Invoice number</text>
+<text><loc_331><loc_104><loc_378><loc_111>HPB-26-0418</text>
+<text><loc_262><loc_115><loc_305><loc_122>Invoice date</text>
+<text><loc_331><loc_115><loc_379><loc_122>3 March 2026</text>
+<text><loc_262><loc_126><loc_295><loc_132>Due date</text>
+<text><loc_331><loc_126><loc_374><loc_132>2 April 2026</text>
+<text><loc_262><loc_137><loc_315><loc_143>Purchase order</text>
+<text><loc_331><loc_137><loc_366><loc_143>FVRC/114</text>
+<otsl><loc_47><loc_158><loc_454><loc_299><fcel>Description<fcel>Qty<fcel>Unit price<fcel>Amount<nl><fcel>Regatta programme, 24 pages, A5 saddle stitched<fcel>400<fcel>£1.85<fcel>£740.00<nl><fcel>Entry forms, A4 single sided<fcel>250<fcel>£0.12<fcel>£30.00<nl><fcel>Vinyl banner 3 m × 0.8 m with eyelets<fcel>2<fcel>£96.00<fcel>£192.00<nl><fcel>Correx course markers, numbered 1 to 12<fcel>12<fcel>£8.50<fcel>£102.00<nl><fcel>Artwork amendments (hourly)<fcel>1.5<fcel>£42.00<fcel>£63.00<nl><fcel>Delivery to Ashcombe<fcel>1<fcel>£18.00<fcel>£18.00<nl><ecel><fcel>Subtotal<fcel>£1,145.00<ecel><nl><ecel><fcel>VAT at 20%<fcel>£229.00<ecel><nl><ecel><fcel>Total due<fcel>£1,374.00<ecel><nl></otsl>
+<section_header_level_1><loc_48><loc_314><loc_111><loc_323>Payment terms</section_header_level_1>
+<text><loc_47><loc_327><loc_455><loc_343>Payment is due within 30 days of the invoice date. Please quote the invoice number as the reference on every payment so that we can match it to your account.</text>
+<text><loc_47><loc_349><loc_444><loc_365>We accept bank transfer and card payments by telephone. Accounts that remain unpaid after the due date may be charged interest at the statutory rate.</text>
+<section_header_level_1><loc_48><loc_374><loc_73><loc_382>Notes</section_header_level_1>
+<unordered_list><list_item><loc_52><loc_386><loc_301><loc_394>Programmes were delivered in two boxes of 200 on 27 February.</list_item>
+<list_item><loc_52><loc_395><loc_307><loc_403>The second banner was represented at no charge after a colour fault.</list_item>
+<list_item><loc_52><loc_404><loc_328><loc_412>Unused course markers can be stored by us until the autumn head race.</list_item>
+</unordered_list>
+<text><loc_47><loc_414><loc_444><loc_429>Thank you for choosing Harbourline again this season. If you have any questions about this invoice, please contact our accounts team.</text>
+<page_footer><loc_137><loc_459><loc_363><loc_465>Registered in England and Wales No. 08814426 · VAT registration GB 318 4420 61</page_footer>
+<page_header><loc_304><loc_35><loc_453><loc_48>Unit 7, Quayside Works, Port Elver PE4 2QT accounts@harbourline.example · 01632 960418</page_header>
+</doctag>

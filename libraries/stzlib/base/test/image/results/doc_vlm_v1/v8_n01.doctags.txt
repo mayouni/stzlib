@@ -1,0 +1,19 @@
+<doctag><section_header_level_1><loc_48><loc_54><loc_330><loc_71>Halvorsen Marine Supplies Ltd</section_header_level_1>
+<section_header_level_1><loc_47><loc_85><loc_119><loc_97>Tax Invoice</section_header_level_1>
+<text><loc_47><loc_102><loc_145><loc_133>Invoice to Northgate Island Ferries Ltd Harbour Office, Pier Road Saltholm SH2 4LB</text>
+<text><loc_179><loc_102><loc_242><loc_133>Deliver to MV Saltholm Spirit, Berth 3 Port Elden Harbour Attn: Chief Engineer</text>
+<text><loc_314><loc_102><loc_357><loc_133>Invoice no. Invoice date Date</text>
+<text><loc_375><loc_102><loc_434><loc_133>HMS-2026-0417 14 October 2026 PO 55102</text>
+<otsl><loc_47><loc_159><loc_454><loc_280><fcel>Item<fcel>Description<fcel>Qty<fcel>Unit price (£)<fcel>VAT %<fcel>Amount (£)<nl><fcel>MR-2210<fcel>Mooring rope, 16 mm polyester, 50 m coil<fcel>4<fcel>86.50<fcel>20<fcel>346.00<nl><fcel>FD-0445<fcel>Fender, cylindrical, 200 x 750 mm<fcel>6<fcel>41.20<fcel>20<fcel>247.20<nl><fcel>SH-1032<fcel>Stainless shackle, D-type, 10 mm<fcel>24<fcel>6.85<fcel>20<fcel>164.40<nl><fcel>LJ-3150<fcel>Lifejacket, 150 N, automatic inflation<fcel>10<fcel>72.00<fcel>20<fcel>720.00<nl><fcel>BP-0080<fcel>Bilge pump, 12 V, 2000 GPH<fcel>2<fcel>118.75<fcel>20<fcel>237.50<nl><fcel>CH-6006<fcel>Admiralty-style chart folio, North Sea East<fcel>1<fcel>64.00<fcel>0<fcel>64.00<nl><fcel>DL-0001<fcel>Delivery to vessel, Port Elden harbour<fcel>1<fcel>35.00<fcel>20<fcel>35.00<nl><ecel><ecel><ecel><fcel>Subtotal<fcel>1,814.10<ecel><nl><ecel><ecel><ecel><fcel>Total due (GBP)<fcel>350.02<ecel><nl></otsl>
+<text><loc_330><loc_282><loc_397><loc_290>Total due (GBP)</text>
+<text><loc_414><loc_282><loc_450><loc_290>2,164.12</text>
+<text><loc_47><loc_293><loc_435><loc_301>Two of the twelve lifejackets on your order are on back order and will be invoiced separately when dispatched.</text>
+<section_header_level_1><loc_47><loc_309><loc_113><loc_318>Payment terms</section_header_level_1>
+<text><loc_47><loc_319><loc_450><loc_343>Payment is due within 30 days of the invoice date. Please quote the invoice number as your payment reference. Goods remain the property of Halvorsen Marine Supplies Ltd until payment has been received in full. Interest may be charged on overdue accounts at 8% per year above the base rate.</text>
+<section_header_level_1><loc_48><loc_351><loc_101><loc_360>Bank details</section_header_level_1>
+<text><loc_47><loc_362><loc_238><loc_395>Account name: Halvorsen Marine Supplies Ltd Bank: Harbourline Bank, Port Elden branch Sort code: 20-49-77 · Account no.: 53018826 IBAN: GB12 HRBL 2049 7753 0188 26 · BIC: HRBLGB2P</text>
+<page_footer><loc_101><loc_460><loc_399><loc_467>Halvorsen Marine Supplies Ltd · Registered in England and Wales No. 08847215 · Registered office as above</page_footer>
+<text><loc_354><loc_34><loc_454><loc_58>Unit 4, Quayside Trading Estate Port Elden PE3 7QA Tel. 01632 960 418</text>
+<text><loc_335><loc_58><loc_454><loc_65>accounts@halvorsen-marine.example</text>
+<text><loc_376><loc_66><loc_454><loc_73>VAT No. GB 418 2290 63</text>
+</doctag>

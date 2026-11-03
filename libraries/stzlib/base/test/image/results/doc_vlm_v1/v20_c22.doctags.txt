@@ -1,0 +1,140 @@
+<doctag><section_header_level_1><loc_36><loc_22><loc_460><loc_34>HARBOURLINE FREIGHT FORWARDING LTD INVOICE</section_header_level_1>
+<text><loc_36><loc_37><loc_180><loc_42>Unit 9, Quay Logistics Park, Felixmouth FX3 2LQ</text>
+<text><loc_36><loc_44><loc_271><loc_49>+44 1632 960 777 · accounts@harbourline.example · VAT GB 000 0418 00</text>
+<text><loc_36><loc_73><loc_146><loc_97>SHIPPER Corvel Agricultural Machines Ltd Brook Lane Industrial Estate Kettering NN15 0AA</text>
+<text><loc_36><loc_100><loc_96><loc_105>United Kingdom</text>
+<text><loc_36><loc_116><loc_71><loc_122>B/L number</text>
+<text><loc_36><loc_127><loc_81><loc_133>Port of loading</text>
+<text><loc_36><loc_137><loc_66><loc_143>Containers</text>
+<text><loc_36><loc_148><loc_61><loc_153>Incoterm</text>
+<text><loc_36><loc_167><loc_54><loc_172>Code</text>
+<text><loc_36><loc_191><loc_61><loc_197>THC-O</text>
+<text><loc_36><loc_201><loc_49><loc_207>DOC</text>
+<text><loc_36><loc_212><loc_49><loc_218>HAUL</text>
+<text><loc_36><loc_235><loc_46><loc_240>OF</text>
+<text><loc_36><loc_246><loc_49><loc_251>BAF</text>
+<text><loc_36><loc_268><loc_61><loc_273>THC-D</text>
+<text><loc_36><loc_278><loc_46><loc_283>DEL</text>
+<text><loc_36><loc_289><loc_61><loc_294>Subtotal</text>
+<text><loc_36><loc_299><loc_163><loc_305>VAT 0% (export services, zero-rated)</text>
+<section_header_level_1><loc_40><loc_310><loc_78><loc_317>Total due</section_header_level_1>
+<section_header_level_1><loc_333><loc_73><loc_390><loc_79>NOTIFY PARTY</section_header_level_1>
+<text><loc_333><loc_81><loc_413><loc_87>Same as consignee</text>
+<text><loc_333><loc_89><loc_396><loc_94>Attn: Import Department</text>
+<text><loc_333><loc_96><loc_429><loc_102>imports@tierra-alta.example</text>
+<text><loc_333><loc_116><loc_380><loc_122>Northern Larch 047W</text>
+<text><loc_333><loc_127><loc_376><loc_133>Callao</text>
+<text><loc_333><loc_137><loc_376><loc_143>Gross weight</text>
+<text><loc_333><loc_147><loc_350><loc_153>PO-TA-5520</text>
+<text><loc_333><loc_167><loc_357><loc_173>Qty</text>
+<text><loc_333><loc_187><loc_357><loc_193>per container</text>
+<text><loc_333><loc_196><loc_357><loc_202>per shipment</text>
+<text><loc_333><loc_206><loc_357><loc_212>per container</text>
+<text><loc_333><loc_227><loc_357><loc_233>per container</text>
+<text><loc_333><loc_246><loc_357><loc_252>per container</text>
+<text><loc_333><loc_268><loc_357><loc_274>per container</text>
+<text><loc_333><loc_279><loc_357><loc_285>per shipment</text>
+<text><loc_333><loc_299><loc_357><loc_305>per shipment</text>
+<text><loc_333><loc_310><loc_357><loc_316>USD</text>
+<text><loc_333><loc_335><loc_357><loc_341>Bank details</text>
+<text><loc_333><loc_345><loc_345><loc_351>Bank</text>
+<text><loc_333><loc_354><loc_357><loc_360>Account name</text>
+<text><loc_333><loc_363><loc_357><loc_369>Account number</text>
+<text><loc_333><loc_372><loc_357><loc_378>Sort code</text>
+<text><loc_333><loc_381><loc_357><loc_387>SWIFT</text>
+<text><loc_333><loc_417><loc_357><loc_423>USD</text>
+<text><loc_333><loc_435><loc_357><loc_441>USD</text>
+<text><loc_333><loc_445><loc_357><loc_451>USD</text>
+<text><loc_333><loc_464><loc_357><loc_470>USD</text>
+<text><loc_333><loc_474><loc_357><loc_480>USD</text>
+<text><loc_333><loc_483><loc_357><loc_489>USD</text>
+<text><loc_333><loc_493><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499><loc_357><loc_499>USD</text>
+<text><loc_333><loc_499

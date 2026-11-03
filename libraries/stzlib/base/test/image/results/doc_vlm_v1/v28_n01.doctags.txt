@@ -1,0 +1,50 @@
+<doctag><section_header_level_1><loc_48><loc_34><loc_212><loc_45>Halvorsen Marine Supply Ltd.</section_header_level_1>
+<text><loc_48><loc_46><loc_236><loc_66>Unit 7, Harbour Trade Park, Aberdeen AB11 5QT Tel. +44 1224 550 180 · accounts@halvorsen-marine.example VAT Reg. No. GB 482 1937 55</text>
+<text><loc_53><loc_96><loc_93><loc_102>BILL TO</text>
+<text><loc_53><loc_104><loc_125><loc_110>Kittiwake Ferries Ltd.</text>
+<text><loc_53><loc_112><loc_114><loc_118>Accounts Payable</text>
+<text><loc_53><loc_120><loc_114><loc_126>2 Quayside Road</text>
+<text><loc_53><loc_128><loc_142><loc_134>Lerwick, Shetland ZE1 0LL</text>
+<text><loc_268><loc_96><loc_338><loc_102>SHIP TO</text>
+<text><loc_268><loc_104><loc_382><loc_110>MV Fair Isle Venture</text>
+<text><loc_268><loc_112><loc_382><loc_118>c/o Berth 4, Holmsgarth Terminal</text>
+<text><loc_268><loc_120><loc_358><loc_126>Lerwick, Shetland ZE1 0PR</text>
+<text><loc_268><loc_128><loc_337><loc_134>Attn. Chief Engineer</text>
+<otsl><loc_47><loc_143><loc_454><loc_227><fcel>Item<fcel>Description<fcel>Qty<fcel>Unit price (GBP)<fcel>Amount (GBP)<nl><fcel>HMS-2210<fcel>Stainless steel bow shackle, 12 mm Grade 316, working load limit 1.5 t<fcel>40<fcel>6.85<fcel>274.00<nl><fcel>HMS-4031<fcel>Mooring line, 3-strand nylon, 24 mm Coil of 100 m, white<fcel>2<fcel>418.00<fcel>836.00<nl><fcel>HMS-0877<fcel>Cylindrical fender 300 × 1100 mm<fcel>6<fcel>92.50<fcel>555.00<nl><fcel>HMS-1502<fcel>Galvanised thumbble, 24 mm<fcel>25<fcel>2.40<fcel>60.00<nl><fcel>HMS-9100<fcel>Rigging inspection on site, half day Report issued 9 October 2026<fcel>1<fcel>380.00<fcel>380.00<nl></otsl>
+<text><loc_315><loc_247><loc_375><loc_253>VAT at 20%</text>
+<text><loc_415><loc_247><loc_449><loc_253>430.00</text>
+<text><loc_316><loc_259><loc_375><loc_265>Total due (GBP)</text>
+<text><loc_415><loc_259><loc_449><loc_265>2,580.00</text>
+<section_header_level_1><loc_48><loc_274><loc_136><loc_282>Payment instructions</section_header_level_1>
+<text><loc_48><loc_286><loc_256><loc_328>Please pay the total due within 30 days of the invoice date. Quote the invoice number IVN-2026-0418 as the payment reference so that we can match your transfer. Interest may be charged on overdue amounts at 4% above the Bank of England base rate.</text>
+<section_header_level_1><loc_48><loc_338><loc_72><loc_346>Notes</section_header_level_1>
+<unordered_list><list_item><loc_48><loc_350><loc_292><loc_357>· Goods remain our property until the invoice has been paid in full.</list_item>
+<list_item><loc_48><loc_360><loc_286><loc_367>· Claims for short delivery must reach us within 7 days of receipt.</list_item>
+<list_item><loc_60><loc_369><loc_280><loc_376>Report damaged items with photographs of the packaging.</list_item>
+<list_item><loc_60><loc_379><loc_226><loc_386>Keep the delivery note signed by the driver.</list_item>
+<list_item><loc_48><loc_389><loc_384><loc_396>· The inspection report for the MV Fair Isle Venture was sent to the chief engineer by e-mail.</list_item>
+</unordered_list>
+<text><loc_48><loc_403><loc_437><loc_418>Thank you for your continued business. For questions about this invoice, call our accounts team on extension 214.</text>
+<page_footer><loc_162><loc_427><loc_338><loc_432>Registered in Scotland No. SC481920 · Registered office as above</page_footer>
+<text><loc_348><loc_53><loc_382><loc_59>Invoice no.</text>
+<text><loc_398><loc_53><loc_453><loc_59>INV-2026-0418</text>
+<text><loc_337><loc_61><loc_382><loc_67>Invoice date</text>
+<text><loc_401><loc_61><loc_453><loc_67>14 October 2026</text>
+<text><loc_338><loc_69><loc_382><loc_75>Customer ref.</text>
+<text><loc_401><loc_69><loc_453><loc_75>PO 77-3150</text>
+<text><loc_353><loc_77><loc_382><loc_83>Due date</text>
+<text><loc_390><loc_77><loc_453><loc_83>13 November 2026</text>
+<text><loc_416><loc_104><loc_453><loc_110>2,105.00</text>
+<text><loc_416><loc_112><loc_453><loc_118>45.00</text>
+<text><loc_416><loc_120><loc_453><loc_126>430.00</text>
+<text><loc_416><loc_128><loc_453><loc_134>2,580.00</text>
+<text><loc_416><loc_259><loc_449><loc_265>2,580.00</text>
+<text><loc_281><loc_287><loc_330><loc_293>Account name</text>
+<text><loc_341><loc_287><loc_437><loc_293>Halvorsen Marine Supply Ltd.</text>
+<text><loc_281><loc_297><loc_309><loc_302>Sort code</text>
+<text><loc_341><loc_297><loc_360><loc_302>80-22-61</text>
+<text><loc_281><loc_306><loc_315><loc_312>Account no.</text>
+<text><loc_341><loc_306><loc_360><loc_312>41930275</text>
+<text><loc_281><loc_315><loc_296><loc_321>IBAN</text>
+<text><loc_341><loc_315><loc_444><loc_321>GB71 HMSB 8022 6141 9302 75</text>
+</doctag>

@@ -1,0 +1,128 @@
+<doctag><section_header_level_1><loc_53><loc_33><loc_312><loc_44>NORTHMERE INDUSTRIAL SUPPLY CO.</section_header_level_1>
+<text><loc_53><loc_43><loc_219><loc_50>Fasteners · Bearings · Workshop consumables</text>
+<section_header_level_1><loc_53><loc_72><loc_137><loc_87>Tax Invoice</section_header_level_1>
+<text><loc_53><loc_89><loc_108><loc_96>Invoice number</text>
+<text><loc_131><loc_89><loc_191><loc_96>NIS-2026-04417</text>
+<text><loc_53><loc_96><loc_97><loc_103>Invoice date</text>
+<text><loc_131><loc_96><loc_187><loc_103>9 October 2026</text>
+<text><loc_53><loc_103><loc_81><loc_110>Due date</text>
+<text><loc_131><loc_103><loc_196><loc_110>8 November 2026</text>
+<text><loc_53><loc_110><loc_123><loc_117>Customer reference</text>
+<text><loc_131><loc_110><loc_172><loc_117>PO 7781-B</text>
+<text><loc_53><loc_117><loc_82><loc_124>Account</text>
+<text><loc_131><loc_117><loc_163><loc_124>C-01294</text>
+<text><loc_59><loc_132><loc_86><loc_139>BILL TO</text>
+<text><loc_59><loc_139><loc_124><loc_146>Accounts Payable</text>
+<text><loc_59><loc_146><loc_140><loc_154>Ravelstone Pumps Ltd</text>
+<text><loc_59><loc_154><loc_168><loc_161>2 Ferry Lane, Brackmoor BK4 9TT</text>
+<text><loc_59><loc_162><loc_203><loc_169>Invoices are processed by the central finance</text>
+<text><loc_59><loc_169><loc_128><loc_177>office in Brackmoor.</text>
+<text><loc_262><loc_132><loc_290><loc_139>SHIP TO</text>
+<text><loc_262><loc_139><loc_354><loc_146>Goods Inward, Building C</text>
+<text><loc_262><loc_146><loc_359><loc_154>Ravelstone Pumps Ltd</text>
+<text><loc_262><loc_154><loc_358><loc_161>Wharf Road, Lindale LN2 6AP</text>
+<text><loc_262><loc_162><loc_439><loc_178>Deliveries are accepted between 07:30 and 15:00 on weekdays.</text>
+<otsl><loc_53><loc_188><loc_449><loc_294><fcel>Item<fcel>Description<fcel>Qty<fcel>Unit<fcel>Unit price<fcel>Amount<nl><fcel>HX-M10-50<fcel>Hex bolt M10 x 50, zinc plated, grade 8.8<fcel>400<fcel>pcs<fcel>0.21<fcel>84.00<nl><fcel>NY-M10<fcel>Nylon insert lock nut M10<fcel>400<fcel>pcs<fcel>0.09<fcel>36.00<nl><fcel>BR-6204<fcel>Deep groove ball bearing 6204-2RS<fcel>24<fcel>pcs<fcel>3.85<fcel>92.40<nl><fcel>CT-115<fcel>Cutting disc 115 x 1.0 mm, stainless steel<fcel>50<fcel>pcs<fcel>0.96<fcel>48.00<nl><fcel>GL-NIT-L<fcel>Nitrile gloves, size L, box of 100<fcel>12<fcel>box<fcel>6.40<fcel>76.80<nl><fcel>TH-LOC-243<fcel>Threadlocker, medium strength, 50 ml<fcel>6 btl<fcel>9.75<fcel>58.50<fcel>Subtotal<nl><ecel><ecel><ecel><fcel>VAT at 20%<fcel>79.14<fcel>Carriage<nl><ecel><ecel><ecel><ecel><fcel>12.50<fcel>487.34<nl></otsl>
+<text><loc_336><loc_34><loc_449><loc_57>Unit 14, Calder Bank Trading Estate Halsworth HX7 2QD, United Kingdom Tel. +44 1632 960 418</text>
+<text><loc_356><loc_57><loc_449><loc_62>accounts@northmere.example</text>
+<text><loc_336><loc_34><loc_336><loc_57>T</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>n</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>t</text>
+<text><loc_336><loc_34><loc_336><loc_57>e</text>
+<text><loc_336><loc_34><loc_336><loc_57>

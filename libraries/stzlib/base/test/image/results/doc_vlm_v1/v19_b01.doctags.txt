@@ -1,0 +1,25 @@
+<doctag><section_header_level_1><loc_48><loc_28><loc_253><loc_40>Fernhollow Print & Bindery Ltd</section_header_level_1>
+<section_header_level_1><loc_47><loc_51><loc_149><loc_66>Tax Invoice</section_header_level_1>
+<text><loc_47><loc_72><loc_154><loc_111>Bill to Thornbury Community Choir c/o Rosalind Allsop, Treasurer 17 Wellgate Lane Kestwick KW1 4HD</text>
+<text><loc_264><loc_72><loc_320><loc_79>Invoice number</text>
+<text><loc_340><loc_72><loc_394><loc_79>INV-2025-0417</text>
+<text><loc_264><loc_82><loc_307><loc_89>Invoice date</text>
+<text><loc_340><loc_82><loc_395><loc_89>14 March 2025</text>
+<text><loc_264><loc_92><loc_317><loc_98>Your reference</text>
+<text><loc_340><loc_92><loc_375><loc_98>PO 88213</text>
+<text><loc_264><loc_101><loc_298><loc_108>Due date</text>
+<text><loc_340><loc_101><loc_388><loc_108>13 April 2025</text>
+<text><loc_264><loc_111><loc_294><loc_118>Account</text>
+<text><loc_340><loc_111><loc_377><loc_118>THO-0092</text>
+<otsl><loc_47><loc_127><loc_453><loc_235><fcel>Item<fcel>Description<fcel>Qty<fcel>Unit price<fcel>Amount<nl><fcel>1<fcel>Concert programmes, A5, 16 pages  full colour, saddle stitched<fcel>400<fcel>£1.85<fcel>£740.00<nl><fcel>2<fcel>Tickets, numbered, with perforated stub<fcel>600<fcel>£0.22<fcel>£132.00<nl><fcel>3<fcel>A2 posters, 170 gsm silk<fcel>35<fcel>£3.40<fcel>£119.00<nl><fcel>4<fcel>Design adjustments (hours)<fcel>2.5<fcel>£38.00<fcel>£95.00<nl><fcel>5<fcel>Delivery to St Aldhelm's Hall<fcel>1<fcel>£18.00<fcel>£18.00<nl><ecel><ecel><fcel>Subtotal<fcel>£1,104.00<ecel><nl><ecel><ecel><ecel><fcel>VAT at 20%<fcel>£220.80<nl><ecel><ecel><ecel><fcel>Total due<fcel>£1,324.80<nl></otsl>
+<text><loc_47><loc_242><loc_439><loc_257>Thank you for your order. Payment is due within 30 days of the invoice date. Please quote the invoice number INV-2025-0417 with your payment so that we can match it to your account.</text>
+<section_header_level_1><loc_47><loc_266><loc_103><loc_274>How to pay</section_header_level_1>
+<unordered_list><list_item><loc_47><loc_278><loc_379><loc_285>a) Bank transfer to Fernhollow Print & Bindery Ltd, sort code 20-19-74, account 41736025</list_item>
+<list_item><loc_47><loc_286><loc_299><loc_293>b) Card payment by telephone on 01632 960418, Monday to Friday</list_item>
+<list_item><loc_47><loc_295><loc_343><loc_302>c) Cheque payable to Fernhollow Print & Bindery Ltd, sent to the address above</list_item>
+</unordered_list>
+<section_header_level_1><loc_47><loc_310><loc_79><loc_319>Terms</section_header_level_1>
+<text><loc_47><loc_323><loc_448><loc_347>Goods remain our property until they have been paid for in full. Any shortage or damage must be reported to us within seven days of delivery. We may charge interest on overdue accounts at 4% above the Bank of England base rate.</text>
+<page_footer><loc_121><loc_477><loc_379><loc_483>Fernhollow Print & Bindery Ltd · Registered in England No. 08815237 · VAT No. GB 318 4402 17</page_footer>
+<page_header><loc_268><loc_28><loc_453><loc_40>Unit 4, Mardale Trading Estate, Kestwick KW3 9TP Telephone 01632 960418 · accounts@fernhollow-print.example</page_header>
+</doctag>

@@ -1,0 +1,18 @@
+<doctag><section_header_level_1><loc_48><loc_29><loc_193><loc_57>Brightwater Print & Signage Ltd</section_header_level_1>
+<section_header_level_1><loc_48><loc_65><loc_223><loc_81>Invoice INV-2026-0417</section_header_level_1>
+<otsl><loc_47><loc_86><loc_247><loc_132><fcel>Customer<fcel>Oakfield Community Centre<nl><fcel>Contact<fcel>Ms Imelda Varga<nl><fcel>Address<fcel>3 Orchard Row, Oakfield OF1  8TT<nl><fcel>Order ref.<fcel>PO-5581<nl></otsl>
+<otsl><loc_258><loc_86><loc_452><loc_126><fcel>Invoice date<fcel>14 March 2026<nl><fcel>Due date<fcel>13 April 2026<nl><fcel>Delivered<fcel>12 March 2026<nl><fcel>Currency<fcel>Pound sterling (GBP)<nl></otsl>
+<otsl><loc_47><loc_138><loc_453><loc_275><fcel>No.<fcel>Description<fcel>Qty<fcel>Unit price<fcel>Amount<nl><fcel>Printed goods<lcel><lcel><lcel><lcel><nl><fcel>1<fcel>Banner, 3 m × 1 m, 440 gsm PVC, eyelets every 50 cm<fcel>2<fcel>£48.00<fcel>£96.00<nl><fcel>2<fcel>A1 poster, satin paper (set of 10)<fcel>3<fcel>£62.50<fcel>£187.50<nl><fcel>Signage<lcel><lcel><lcel><lcel><nl><fcel>3<fcel>Window vinyl, cut lettering, 2 m run<fcel>1<fcel>£215.00<fcel>£215.00<nl><fcel>4<fcel>Directional signs, aluminium composite, 600 × 400 mm<fcel>8<fcel>£34.25<fcel>£274.00<nl><fcel>Services<lcel><lcel><lcel><lcel><nl><fcel>5<fcel>Installation, two fitters, half day<fcel>1<fcel>£320.00<fcel>£320.00<nl><ecel><ecel><fcel>Subtotal<fcel>£1,092.50<ecel><nl><ecel><ecel><ecel><fcel>VAT at 20%<fcel>£218.50<nl><ecel><ecel><ecel><fcel>Total due<fcel>£1,311.00<nl></otsl>
+<text><loc_47><loc_282><loc_437><loc_298>Thank you for your order, which was delivered and installed on 12 March 2026. Payment is due within 30 days of the invoice date. Late payments incur interest at 4% above the Bank of England base rate.</text>
+<section_header_level_1><loc_47><loc_304><loc_99><loc_313>How to pay</section_header_level_1>
+<unordered_list><list_item><loc_47><loc_315><loc_397><loc_322>- Bank transfer to sort code 20-45-17, account number 40817263, quoting the invoice number.</list_item>
+<list_item><loc_47><loc_324><loc_356><loc_331>- Cheque payable to Brightwater Print & Signage Ltd, posted to the address above.</list_item>
+<list_item><loc_47><loc_334><loc_228><loc_341>- Card payment by telephone on 01632 960 118:</list_item>
+<list_item><loc_58><loc_344><loc_278><loc_351>- Visa and Mastercard are accepted; there is no surcharge.</list_item>
+</unordered_list>
+<text><loc_47><loc_357><loc_443><loc_373>Goods remain the property of Brightwater Print & Signage Ltd until paid for in full. Please quote the invoice number with every payment.</text>
+<page_footer><loc_48><loc_476><loc_316><loc_482>Brightwater Print & Signage Ltd, registered in England and Wales, company no. 04418253</page_footer>
+<page_footer><loc_418><loc_476><loc_453><loc_482>Page 1 of 1</page_footer>
+<text><loc_253><loc_35><loc_453><loc_49>Unit 7, Kiln Lane Industrial Estate, Marlow Bridge MB4 2QT Tel 01632 960 118 · accounts@brightwater-print.example · VAT</text>
+<text><loc_386><loc_50><loc_453><loc_56>reg. GB 318 4402 77</text>
+</doctag>

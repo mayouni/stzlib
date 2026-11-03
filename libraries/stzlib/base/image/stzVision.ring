@@ -38,6 +38,19 @@ $cStzVisionVlmSlot = ""
 # the floor of :describe: a FIXED sentence naming the category that is the main object of the most COCO val2017
 # pictures outside the golden set (_rig/coco_describe.py prints it), so it is not tuned on what judges it
 $cStzVisionDescribeFloor = "A picture of a person."
+
+# IM7 2 of 2: a scanned PAGE as structure (:doc-vlm) -- Granite-Docling-258M, whose projector is the same
+# idefics3 tower as SmolVLM's. The page is read as Idefics3 reads it: resized to 2048 on its long side, cut into
+# 512 x 512 tiles, one more view of the whole page, 64 rows each; the model answers in DocTags (stzDocTags.ring)
+$cStzVisionDocDecoder = "granite_docling_258m.gguf"
+$cStzVisionDocProjector = "granite_docling_258m_mmproj.gguf"
+$cStzVisionDocDecoderSha256 = "b687245c212b59da938e411e2d4485596cbaeed1ae52706582ac38ed6a970f76"
+$nStzVisionDocLongest = 2048
+$nStzVisionDocTile = 512
+$nStzVisionDocMaxTokens = 3072
+$cStzVisionDocRequest = "Convert this page to docling."
+# the language the FLOOR reads the page's scan in: Granite-Docling is an English model
+$cStzVisionDocFloorLang = "en-US"
 $cStzVisionSamDecoder = "mobile_sam_decoder.gguf"
 
 # YuNet's score threshold. OpenCV's default is 0.9; 0.5 was CHOSEN ON A DEV SET kept apart from the
@@ -162,6 +175,14 @@ func StzVisionColor(pColor)
 	                                SmolVLM-256M; judged by whether it names
 	                                the main object COCO annotated
 	                                (coco-describe-v1)
+	:doc-vlm      image -> record   (IM7) a scanned page as structure: its
+	                                blocks (headings, paragraphs, lists,
+	                                tables, captions, furniture); floor: the
+	                                native PDF reader on the page as a scan
+	                                (OCR, then its own layout rules); model:
+	                                Granite-Docling-258M; judged on the
+	                                independent golden documents' expected
+	                                structure (doc-vlm-v1)
 
 	The golden sets come from COCO's own annotations (CC BY 4.0), never
 	from this code: base/test/image/_golden/coco_v1.ring, written by
@@ -230,6 +251,14 @@ func StzVisionDeclare(paGoldens)
 	if len(StzFind("smolvlm-256m", _oV_.ImplementationIds())) = 0
 		_oV_.AddImplementation([ :id = "smolvlm-256m", :kind = "graph", :fn = "_StzVisionDescribeSmolvlm",
 			:needle = "vision/" + $cStzVisionVlmDecoder, :licence = "apache-2.0", :memory = 700 ])
+	ok
+	# IM7 2 of 2: a scanned page as structure, judged against the golden documents' expected structure
+	_oX_ = StzFacultyQ("doc-vlm")
+	_oX_.SetInputTypeQ(:image).SetOutputTypeQ(:record).SetFloorQ("native-reader", "_StzVisionDocFloor").
+	     SetGoldenCheckerQ("doc-blocks").SetGoldenVersionQ("doc-vlm-v1")
+	if len(StzFind("granite-docling-258m", _oX_.ImplementationIds())) = 0
+		_oX_.AddImplementation([ :id = "granite-docling-258m", :kind = "graph", :fn = "_StzVisionDocGranite",
+			:needle = "vision/" + $cStzVisionDocDecoder, :licence = "apache-2.0", :memory = 900 ])
 	ok
 	if len(StzMeasurementOf("faces", "platform", "coco-v1")) = 0 and fexists(StzVisionMeasurementsFile())
 		StzLoadMeasurements(StzVisionMeasurementsFile())
@@ -349,6 +378,58 @@ func _StzVisionLabelPrior(pImage, paParams)
 func _StzVisionDescribeFixed(pImage, paParams)
 	return $cStzVisionDescribeFloor
 
+# IM7 2 of 2: the floor of :doc-vlm -- the native PDF reader on the page AS A SCAN. The image is wrapped in an
+# image-only PDF (no text layer, so the reader reads the page by OCR and lays it out by its own rules); the blocks
+# are the reader's, in the shape every document reader of the house returns.
+func _StzVisionDocFloor(pImage, paParams)
+	_o_ = StzImageQ("" + pImage)
+	_cPdf_ = sysget("TEMP") + "\stz_docfloor_" + random(999999) + ".pdf"
+	_StzVisionScanPdf(_o_, _cPdf_)
+	_o_.Release()
+	_oP_ = StzPdfQ(_cPdf_)
+	_oP_.ReadOcr($cStzVisionDocFloorLang)
+	_aB_ = _oP_.Blocks()
+	remove(_cPdf_)
+	return _aB_
+
+# an image-only PDF of one page, 150 dpi, the pixels raw (grey or RGB, 8 bits): what a scanner writes, without a filter
+func _StzVisionScanPdf(poImg, pcPath)
+	_nW_ = poImg.Width()
+	_nH_ = poImg.Height()
+	_nC_ = poImg.Channels()
+	if _nC_ != 1 and _nC_ != 3
+		stzraise("stzImage.doc-vlm: a page of " + _nC_ + " channels cannot be wrapped as a scan (1 or 3)")
+	ok
+	_cSpace_ = "DeviceGray"
+	if _nC_ = 3 _cSpace_ = "DeviceRGB" ok
+	_cData_ = poImg.Pixels()
+	_nPw_ = _nW_ * 72 / 150
+	_nPh_ = _nH_ * 72 / 150
+	_cOut_ = "%PDF-1.4" + char(10)
+	_aOff_ = []
+	_aObj_ = [ "<< /Type /Catalog /Pages 2 0 R >>", "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+		"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 " + _nPw_ + " " + _nPh_ + "] /Resources << /XObject << /Im1 4 0 R >> >> /Contents 5 0 R >>" ]
+	_cContent_ = "q " + _nPw_ + " 0 0 " + _nPh_ + " 0 0 cm /Im1 Do Q"
+	for _i_ = 1 to 5
+		_aOff_ + len(_cOut_)
+		_cOut_ += "" + _i_ + " 0 obj" + char(10)
+		if _i_ <= 3
+			_cOut_ += _aObj_[_i_]
+		but _i_ = 4
+			_cOut_ += "<< /Type /XObject /Subtype /Image /Width " + _nW_ + " /Height " + _nH_ + " /ColorSpace /" + _cSpace_ +
+				" /BitsPerComponent 8 /Length " + len(_cData_) + " >>" + char(10) + "stream" + char(10) + _cData_ + char(10) + "endstream"
+		else
+			_cOut_ += "<< /Length " + len(_cContent_) + " >>" + char(10) + "stream" + char(10) + _cContent_ + char(10) + "endstream"
+		ok
+		_cOut_ += char(10) + "endobj" + char(10)
+	next
+	_nXref_ = len(_cOut_)
+	_cOut_ += "xref" + char(10) + "0 6" + char(10) + "0000000000 65535 f " + char(10)
+	for _i_ = 1 to 5
+		_cOut_ += left("0000000000", 10 - len("" + _aOff_[_i_])) + _aOff_[_i_] + " 00000 n " + char(10)
+	next
+	_cOut_ += "trailer" + char(10) + "<< /Size 6 /Root 1 0 R >>" + char(10) + "startxref" + char(10) + _nXref_ + char(10) + "%%EOF" + char(10)
+	StzFileWrite(pcPath, _cOut_)
 # -- the models ---------------------------------------------------------
 
 func _StzVisionFacesYunet(pImage, paParams)
@@ -379,21 +460,75 @@ func _StzVisionDescribeSmolvlm(pImage, paParams)
 	_o_.Release()
 	return _c_
 
-# IM7: what SmolVLM says about a picture after a request -- the decoder put in the model slot (only with its
-# recorded digest, and only when the slot holds something else), the picture through the tower, greedy words
-# until the model ends its answer or pnMax tokens are made. Through the door.
-func _StzVisionVlmSay(poImg, pcRequest, pnMax, pcFaculty)
-	_cD_ = _StzVisionModelOrRaise($cStzVisionVlmDecoder, pcFaculty)
-	_cP_ = _StzVisionModelOrRaise($cStzVisionVlmProjector, pcFaculty)
+func _StzVisionDocGranite(pImage, paParams)
+	_o_ = StzImageQ("" + pImage)
+	_a_ = _o_.DocBlocks()
+	_o_.Release()
+	return _a_
+
+# IM7 2 of 2: what Granite-Docling writes about a page -- DocTags, the structure as tags in the model's own tokens.
+# The decoder put in the model slot, the page cut into tiles (the grid says how many), the prompt's texts written
+# around the tiles as the model's processor writes them, greedy tokens until the model ends or pnMax tokens. Through
+# the door.
+func _StzVisionDocSay(poImg, pnMax)
+	_cD_ = _StzVisionVlmLoad($cStzVisionDocDecoder, $cStzVisionDocDecoderSha256, "doc-vlm")
+	_cP_ = _StzVisionModelOrRaise($cStzVisionDocProjector, "doc-vlm")
+	_aG_ = StzEngineNeuralVlmGrid(poImg.Width(), poImg.Height(), $nStzVisionDocLongest, $nStzVisionDocTile)
+	_aT_ = _StzVisionDocTexts(_aG_[1], _aG_[2], $cStzVisionDocRequest)
+	_cJ_ = StzJoinWith(_aT_, char(31))
+	_c_ = StzEngineNeuralVlmPage(_cP_, poImg.Pixels(), poImg.Width(), poImg.Height(), poImg.Channels(),
+		$nStzVisionDocLongest, _cJ_, pnMax, 4)
+	_a_ = StzEngineNeuralVlmStats()
+	if _c_ = "" and _a_[3] = 0
+		_StzVisionFailed("doc-vlm", $cStzVisionDocDecoder)
+	ok
+	_StzVisionDoor("doc-vlm", $cStzVisionDocDecoder, "" + _a_[3] + " tokens, " + _aG_[5] + " views, the views " + floor(_a_[1]) + " ms")
+	return _c_
+
+# the prompt's texts around a page's views (one more than the views): the user's turn opens, each tile is tagged
+# with its row and column, a newline ends each row of tiles, the whole page follows, then the request and the
+# assistant's turn opens. Idefics3Processor.replace_image_token writes the same prompt; a text that must reach the
+# tokenizer in one piece (the newlines before the whole page) is one entry
+func _StzVisionDocTexts(pnRows, pnCols, pcRequest)
+	_cF_ = "<fake_token_around_image>"
+	_aT_ = []
+	_cCur_ = "<|start_of_role|>user<|end_of_role|>"
+	if pnRows = 0
+		_aT_ + (_cCur_ + _cF_ + "<global-img>")
+	else
+		for _r_ = 1 to pnRows
+			for _c_ = 1 to pnCols
+				_cCur_ += _cF_ + "<row_" + _r_ + "_col_" + _c_ + ">"
+				_aT_ + _cCur_
+				_cCur_ = ""
+			next
+			_cCur_ = char(10)
+		next
+		_cCur_ += char(10) + _cF_ + "<global-img>"
+		_aT_ + _cCur_
+	ok
+	_aT_ + (_cF_ + pcRequest + "<|end_of_text|>" + char(10) + "<|start_of_role|>assistant<|end_of_role|>")
+	return _aT_
+# the decoder of a vision-language model put in the engine's model slot -- only with its recorded digest, and only
+# when the slot holds something else (both of the house's decoders read rows of $nStzVisionVlmWidth)
+func _StzVisionVlmLoad(pcDecoder, pcSha, pcFaculty)
+	_cD_ = _StzVisionModelOrRaise(pcDecoder, pcFaculty)
 	if NOT ($cStzVisionVlmSlot = _cD_ and StzEngineNeuralModelLoaded() = 1 and
 	        StzEngineNeuralModelNEmbd() = $nStzVisionVlmWidth)
-		StzExpectModelDigest(_cD_, $cStzVisionVlmDecoderSha256)
+		StzExpectModelDigest(_cD_, pcSha)
 		if StzEngineNeuralModelLoad(_cD_) != 1
-			stzraise("stzImage." + pcFaculty + ": the decoder " + $cStzVisionVlmDecoder + " was refused (status " +
+			stzraise("stzImage." + pcFaculty + ": the decoder " + pcDecoder + " was refused (status " +
 				StzEngineNeuralModelLoadStatus() + "; -2 is a digest other than the one in models/MODELS.md)")
 		ok
 		$cStzVisionVlmSlot = _cD_
 	ok
+	return _cD_
+# IM7: what SmolVLM says about a picture after a request -- the decoder put in the model slot (only with its
+# recorded digest, and only when the slot holds something else), the picture through the tower, greedy words
+# until the model ends its answer or pnMax tokens are made. Through the door.
+func _StzVisionVlmSay(poImg, pcRequest, pnMax, pcFaculty)
+	_cD_ = _StzVisionVlmLoad($cStzVisionVlmDecoder, $cStzVisionVlmDecoderSha256, pcFaculty)
+	_cP_ = _StzVisionModelOrRaise($cStzVisionVlmProjector, pcFaculty)
 	_c_ = StzEngineNeuralVlmDescribe(_cP_, poImg.Pixels(), poImg.Width(), poImg.Height(), poImg.Channels(),
 		"<|im_start|>User:<fake_token_around_image><global-img>",
 		"<fake_token_around_image>" + pcRequest + "<end_of_utterance>" + char(10) + "Assistant:", pnMax, 4)
