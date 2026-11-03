@@ -5,6 +5,9 @@ and power in Softanza Intelligence regarding image processing", built on what th
 already offers, with the classical and the neural capabilities, wise native/vendored choices, and a
 selection of small models.*
 
+**Status 2026-11-03: IM0 to IM8 are done. The record of what was achieved, measured and left open is
+`SOFTANZA_IMAGE_INTELLIGENCE_ACHIEVED.md`; this plan keeps every number in full.**
+
 This plan **does not replace** `base/graphics/SOFTANZA_VISION_PLAN.md`. That plan is the graphics
 plane's doctrine and it governs here: **an analysis returns a GRID, never a picture**; the grid is
 named **`stzImageGrid`**; deterministic generation stays the default and neural generation is
