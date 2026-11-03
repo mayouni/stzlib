@@ -24,6 +24,9 @@ const stbi = @cImport({
     @cDefine("STBI_NO_STDIO", "1");
     @cInclude("stb_image.h");
 });
+const webp = @cImport({
+    @cInclude("src/webp/decode.h");
+});
 const stbw = @cImport({
     @cDefine("STBI_WRITE_NO_STDIO", "1");
     @cInclude("stb_image_write.h");
@@ -244,8 +247,30 @@ fn pngOrientation(b: []const u8) u8 {
     return 1;
 }
 
+fn isWebp(b: []const u8) bool {
+    return b.len >= 12 and std.mem.eql(u8, b[0..4], "RIFF") and std.mem.eql(u8, b[8..12], "WEBP");
+}
+
+/// A WebP carries its EXIF in an "EXIF" chunk of the RIFF container (some writers keep the "Exif" plus two zero bytes as a prefix).
+fn webpOrientation(b: []const u8) u8 {
+    var i: usize = 12;
+    while (i + 8 <= b.len) {
+        const sz: usize = std.mem.readInt(u32, b[i + 4 ..][0..4], .little);
+        const end = i + 8 + sz;
+        if (end > b.len) return 1;
+        if (std.mem.eql(u8, b[i..][0..4], "EXIF")) {
+            var d = b[i + 8 .. end];
+            if (d.len >= 6 and std.mem.eql(u8, d[0..6], "Exif\x00\x00")) d = d[6..];
+            return tiffOrientation(d);
+        }
+        i = end + (sz & 1);
+    }
+    return 1;
+}
+
 /// The EXIF orientation (1..8) a file's bytes carry; 1 when none.
 pub fn exifOrientation(b: []const u8) u8 {
+    if (isWebp(b)) return webpOrientation(b);
     if (b.len >= 4 and b[0] == 0xFF and b[1] == 0xD8) return jpegOrientation(b);
     if (b.len >= 8 and std.mem.eql(u8, b[0..8], "\x89PNG\r\n\x1a\n")) return pngOrientation(b);
     if (b.len >= 8 and ((b[0] == 'I' and b[1] == 'I' and b[2] == 42 and b[3] == 0) or
@@ -310,7 +335,7 @@ fn orientInPlace(im: *Image, o: u8) bool {
     return true;
 }
 
-/// PNG/JPEG/BMP/GIF/TGA/PSD/TIFF bytes -> an image with the file's own channels, the pixels as the file stores them and
+/// PNG/JPEG/BMP/GIF/TGA/PSD/TIFF/WebP bytes -> an image with the file's own channels, the pixels as the file stores them and
 /// the EXIF orientation it carried recorded (`stored`) and NOT applied. decode applies it.
 pub fn decodeKeep(bytes: []const u8) i64 {
     const id = decodeRaw(bytes);
@@ -334,7 +359,26 @@ pub fn decode(bytes: []const u8) i64 {
     return id;
 }
 
-/// PNG/JPEG/BMP/GIF/TGA/PSD/TIFF bytes -> an image with the file's own channels
+/// WebP (lossy, lossless, with or without alpha) through libwebp's decoder: RGB, or RGBA when the file has an alpha
+/// channel. An animated WebP is refused by name: its frames need the demux library, which is not vendored.
+fn decodeWebp(bytes: []const u8) i64 {
+    var feat: webp.WebPBitstreamFeatures = undefined;
+    const st = webp.WebPGetFeatures(bytes.ptr, bytes.len, &feat);
+    if (st != webp.VP8_STATUS_OK) return fail("image: webp: not readable (libwebp status {d})", .{st});
+    if (feat.has_animation != 0) return fail("image: webp: an animated WebP is not read (its frames need the demux library); convert one frame", .{});
+    var w: c_int = 0;
+    var h: c_int = 0;
+    const alpha = feat.has_alpha != 0;
+    const p = if (alpha) webp.WebPDecodeRGBA(bytes.ptr, bytes.len, &w, &h) else webp.WebPDecodeRGB(bytes.ptr, bytes.len, &w, &h);
+    if (p == null) return fail("image: webp: decode failed", .{});
+    defer webp.WebPFree(p);
+    const ch: usize = if (alpha) 4 else 3;
+    const n: usize = @as(usize, @intCast(w)) * @as(usize, @intCast(h)) * ch;
+    const px = alloc.dupe(u8, p[0..n]) catch return fail("image: out of memory", .{});
+    return adopt(@intCast(w), @intCast(h), @intCast(ch), px);
+}
+
+/// PNG/JPEG/BMP/GIF/TGA/PSD/TIFF/WebP bytes -> an image with the file's own channels
 /// (gray+alpha widens to RGBA: the type holds 1, 3 or 4).
 fn decodeRaw(bytes: []const u8) i64 {
     if (bytes.len == 0) return fail("image: nothing to decode", .{});
@@ -342,6 +386,7 @@ fn decodeRaw(bytes: []const u8) i64 {
         const d = tiff.decode(bytes) orelse return fail("image: {s}", .{tiff.lastError()});
         return adopt(d.w, d.h, d.c, d.px);
     }
+    if (isWebp(bytes)) return decodeWebp(bytes);
     var w: c_int = 0;
     var h: c_int = 0;
     var comp: c_int = 0;

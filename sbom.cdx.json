@@ -1,10 +1,10 @@
 {
   "bomFormat": "CycloneDX",
   "specVersion": "1.6",
-  "serialNumber": "urn:uuid:8782c4e4-2339-5c71-a9d8-1a3af1e7c924",
+  "serialNumber": "urn:uuid:2a5eb1b1-07d1-5ef8-947f-ab232404f503",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-09-29T23:00:50Z",
+    "timestamp": "2026-11-03T23:05:39Z",
     "tools": {
       "components": [
         {
@@ -20,7 +20,7 @@
       "properties": [
         {
           "name": "softanza:generated-from-commit",
-          "value": "13e6d53bebf5599d21792d68e6a84981f1054c5c"
+          "value": "05fcd970e9448a0c7eddd1d0a159811700a357c0"
         }
       ]
     }
@@ -117,7 +117,7 @@
         },
         {
           "name": "softanza:tree-digest",
-          "value": "a288e4362e0176d1155720ab3df7efb4db2ce714d7c8d13a2fa9cb8139431fc1"
+          "value": "41e7681348f67d1a53f53d80a20137382592a12d25a0f9179dbad10c4734911d"
         },
         {
           "name": "softanza:archive-sha-256",
@@ -224,6 +224,40 @@
         }
       ],
       "purl": "pkg:github/libuv/libuv@v1.52.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "vendor/libwebp",
+      "name": "libwebp",
+      "version": "1.5.0",
+      "licenses": [
+        {
+          "expression": "BSD-3-Clause"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/webmproject/libwebp/archive/refs/tags/v1.5.0.tar.gz"
+        }
+      ],
+      "properties": [
+        {
+          "name": "softanza:vendor-path",
+          "value": "libraries/stzlib/engine/vendor/libwebp"
+        },
+        {
+          "name": "softanza:tree-digest",
+          "value": "6ef323b095ff49c5968b7e4bd41bb412bedfb4535d01abbb127f070614497943"
+        }
+      ],
+      "purl": "pkg:github/webmproject/libwebp@v1.5.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "668c9aba45565e24c27e17f7aaf7060a399f7f31dba6c97a044e1feacb930f37"
+        }
+      ]
     },
     {
       "type": "library",
@@ -491,7 +525,7 @@
     {
       "type": "library",
       "bom-ref": "vendor/stb",
-      "name": "stb (stb_truetype, stb_image)",
+      "name": "stb (stb_truetype, stb_image, stb_image_write)",
       "version": "commit 2c980bb5",
       "licenses": [
         {
@@ -511,7 +545,7 @@
         },
         {
           "name": "softanza:tree-digest",
-          "value": "2aea7e2ad5a41bc2fa4c91c9c39263bb5ce640dd18f1c4734d06f48c84f4e856"
+          "value": "9c369a8b0d71a8cc9e936daeb571ae0dcf314d6752a29fc956aeb5f8ce393f53"
         },
         {
           "name": "softanza:archive-sha-256",
@@ -660,6 +694,7 @@
         "vendor/glfw",
         "vendor/harfbuzz",
         "vendor/libuv",
+        "vendor/libwebp",
         "vendor/mbedtls",
         "vendor/miniaudio",
         "vendor/nghttp2",

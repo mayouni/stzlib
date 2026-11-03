@@ -17,6 +17,7 @@ const Domain = struct {
     needs_wgpu: bool = false,
     needs_zlib: bool = false, // vendored zlib compiled in (GR1: the PNG encoder)
     needs_stb: bool = false, // vendored stb_truetype + stb_image (GR1 text/texture)
+    needs_webp: bool = false, // vendored libwebp, DECODER ONLY (IM9b) -- SEE addWebp
     needs_textshape: bool = false, // vendored HarfBuzz + SheenBidi (GR2 text pipeline)
     needs_glfw: bool = false, // vendored GLFW (GR5 windowing) -- SEE addGlfw
     needs_miniaudio_dec: bool = false, // miniaudio, decoders only (SN1 portable half)
@@ -74,7 +75,7 @@ const base_domains = [_]Domain{
     // WebSocket client (RFC 6455) over the engine socket; wss over mbedTLS, the engine's own TLS path
     .{ .name = "stz_ws", .entry = "src/stz_ws_entry.zig", .needs_ring = true, .needs_mbedtls = true, .needs_zlib = true },
     // the image plane (IM0): one image type, codecs, classical ops -- portable, no GPU (SOFTANZA_IMAGE_INTELLIGENCE.md)
-    .{ .name = "stz_image", .entry = "src/stz_image_entry.zig", .needs_ring = true, .needs_zlib = true, .needs_stb = true },
+    .{ .name = "stz_image", .entry = "src/stz_image_entry.zig", .needs_ring = true, .needs_zlib = true, .needs_stb = true, .needs_webp = true },
     .{ .name = "stz_fswatch", .entry = "src/stz_fswatch_entry.zig", .needs_ring = true },
     .{ .name = "stz_time", .entry = "src/stz_time_entry.zig", .needs_ring = true },
     .{ .name = "stz_pool", .entry = "src/stz_pool_entry.zig", .needs_ring = true },
@@ -606,6 +607,29 @@ fn addStb(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) v
     lib.addCSourceFiles(.{ .files = &.{"vendor/stb/stz_stb_impl.c"}, .flags = &.{} });
     // stb_image_write (IM1): its JPEG encoder shifts negative ints, so no UB sanitizer here
     lib.addCSourceFiles(.{ .files = &.{"vendor/stb/stz_stb_write_impl.c"}, .flags = &.{"-fno-sanitize=undefined"} });
+}
+
+// libwebp, DECODER ONLY (IM9b of SOFTANZA_IMAGE_INTELLIGENCE.md): src/dec, src/dsp and src/utils of vendor/libwebp,
+// listed from their folders (the zlib pattern). There is no config header, so no threads (WEBP_USE_THREAD is
+// undefined) and every SIMD variant is chosen by the compiler's own target macros and, at run time, by libwebp's CPU
+// probe; the encoder, the muxers and the mips/msa variants are not vendored (vendor/libwebp/VERSION.txt says which
+// files). -fno-sanitize=undefined: libwebp's bit readers shift by design, as stb's JPEG writer does.
+fn addWebp(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
+    mod.addIncludePath(b.path("vendor/libwebp"));
+    var wfiles: std.ArrayList([]const u8) = .{};
+    const dirs = [_][]const u8{ "vendor/libwebp/src/dec", "vendor/libwebp/src/dsp", "vendor/libwebp/src/utils" };
+    for (dirs) |wd| {
+        var dir = std.fs.cwd().openDir(wd, .{ .iterate = true }) catch |e|
+            std.debug.panic("libwebp: cannot open {s}: {s}", .{ wd, @errorName(e) });
+        defer dir.close();
+        var it = dir.iterate();
+        while (it.next() catch null) |entry| {
+            if (entry.kind != .file) continue;
+            if (!std.mem.endsWith(u8, entry.name, ".c")) continue;
+            wfiles.append(b.allocator, b.fmt("{s}/{s}", .{ wd, entry.name })) catch @panic("oom");
+        }
+    }
+    lib.addCSourceFiles(.{ .files = wfiles.items, .flags = &.{"-fno-sanitize=undefined"} });
 }
 
 // The GR2 text pipeline's two vendored stages: SheenBidi (UAX#9 reorder,
@@ -1224,6 +1248,7 @@ pub fn build(b: *std.Build) void {
         if (dom.needs_ggml) addGgml(mod, lib, b);
         if (dom.needs_zlib) addZlib(mod, lib, b);
         if (dom.needs_stb) addStb(mod, lib, b);
+        if (dom.needs_webp) addWebp(mod, lib, b);
         if (dom.needs_textshape) addTextShape(mod, lib, b);
         if (dom.needs_glfw) addGlfw(mod, lib, b, target.result.os.tag);
         if (dom.needs_rmlui) {
