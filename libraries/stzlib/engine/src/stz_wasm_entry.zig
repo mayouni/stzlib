@@ -42,6 +42,7 @@ const numtheory = if (want_numtheory) @import("numtheory.zig") else struct {};
 const pattern = if (want_pattern) @import("pattern.zig") else struct {};
 const graph = if (want_graph) @import("graph.zig") else struct {};
 const gpu_wgsl = if (want_gpu) @import("gpu_wgsl.zig") else struct {};
+const gpu_host = if (want_gpu) @import("gpu_host.zig") else struct {};
 const sw = if (want_sound) @import("soundwasm.zig") else struct {};
 const sdsp = if (want_sound) @import("sounddsp.zig") else struct {};
 const sins = if (want_sound) @import("soundinstr.zig") else struct {};
@@ -217,6 +218,45 @@ fn spec_out_width() callconv(.c) f64 {
 }
 fn spec_in_width(k: i32) callconv(.c) f64 {
     return gpu_wgsl.stz_gpu_spec_in_width(k);
+}
+// GL0 (host contract): the numbers every host asks the engine for
+fn host_version() callconv(.c) f64 {
+    return gpu_host.stz_gpu_host_version();
+}
+fn host_group() callconv(.c) f64 {
+    return gpu_host.stz_gpu_host_group();
+}
+fn host_margin() callconv(.c) f64 {
+    return gpu_host.stz_gpu_host_margin();
+}
+fn host_default_band() callconv(.c) f64 {
+    return gpu_host.stz_gpu_host_default_band();
+}
+fn host_default_reps() callconv(.c) f64 {
+    return gpu_host.stz_gpu_host_default_reps();
+}
+fn host_groups(n: f64) callconv(.c) f64 {
+    return gpu_host.stz_gpu_host_groups(n);
+}
+fn host_hidden_count(n: f64) callconv(.c) f64 {
+    return gpu_host.stz_gpu_host_hidden_count(n);
+}
+fn host_hidden_len(len: f64, n: f64, nb: f64) callconv(.c) f64 {
+    return gpu_host.stz_gpu_host_hidden_len(len, n, nb);
+}
+fn host_params_bytes(k: f64) callconv(.c) f64 {
+    return gpu_host.stz_gpu_host_params_bytes(k);
+}
+fn host_hidden_input(src_ptr: u32, len_floats: f64, w: f64, n: f64, nb: f64, dst_ptr: u32) callconv(.c) f64 {
+    const src: [*]const f32 = @ptrFromInt(@as(usize, src_ptr));
+    const dst: [*]f32 = @ptrFromInt(@as(usize, dst_ptr));
+    return gpu_host.stz_gpu_host_hidden_input(src, len_floats, w, n, nb, dst);
+}
+fn spec_in_len(k: i32, n: f64) callconv(.c) f64 {
+    return gpu_wgsl.stz_gpu_spec_in_len(k, n);
+}
+fn spec_out_len(n: f64) callconv(.c) f64 {
+    return gpu_wgsl.stz_gpu_spec_out_len(n);
 }
 // GL0 (atomics): an output of SIZE counters, and where they start
 fn spec_out_atomic() callconv(.c) f64 {
@@ -467,6 +507,18 @@ comptime {
         @export(&spec_eval_flops, .{ .name = "stz_gpu_spec_eval_flops" });
         @export(&spec_out_width, .{ .name = "stz_gpu_spec_out_width" });
         @export(&spec_in_width, .{ .name = "stz_gpu_spec_in_width" });
+        @export(&host_version, .{ .name = "stz_gpu_host_version" });
+        @export(&host_group, .{ .name = "stz_gpu_host_group" });
+        @export(&host_margin, .{ .name = "stz_gpu_host_margin" });
+        @export(&host_default_band, .{ .name = "stz_gpu_host_default_band" });
+        @export(&host_default_reps, .{ .name = "stz_gpu_host_default_reps" });
+        @export(&host_groups, .{ .name = "stz_gpu_host_groups" });
+        @export(&host_hidden_count, .{ .name = "stz_gpu_host_hidden_count" });
+        @export(&host_hidden_len, .{ .name = "stz_gpu_host_hidden_len" });
+        @export(&host_params_bytes, .{ .name = "stz_gpu_host_params_bytes" });
+        @export(&host_hidden_input, .{ .name = "stz_gpu_host_hidden_input" });
+        @export(&spec_in_len, .{ .name = "stz_gpu_spec_in_len" });
+        @export(&spec_out_len, .{ .name = "stz_gpu_spec_out_len" });
         @export(&spec_out_atomic, .{ .name = "stz_gpu_spec_out_atomic" });
         @export(&spec_out_size, .{ .name = "stz_gpu_spec_out_size" });
         @export(&spec_out_identity, .{ .name = "stz_gpu_spec_out_identity" });

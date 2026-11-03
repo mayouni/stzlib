@@ -271,7 +271,7 @@ class stzGpu from stzObject
 		_aIds_ + _nOut_
 
 		_nSt_ = StzEngineGpuDispatchParams(_nK_, _nElems_, _aScal_, _aIds_,
-			ceil(_nElems_ / 256.0))
+			StzEngineGpuHostGroups(_nElems_))
 		# the input temporaries go now -- the submitted work holds its own
 		# references device-side, so this is safe AND keeps VRAM honest
 		for _i_ = 1 to _nIn_
@@ -334,7 +334,7 @@ class stzGpu from stzObject
 		ok
 		_aIds_ + _nOut_
 		_nSt_ = StzEngineGpuDispatchParams(_nK_, _nElems_, _aScal_, _aIds_,
-			ceil(_nElems_ / 256.0))
+			StzEngineGpuHostGroups(_nElems_))
 		if _nSt_ != 0
 			StzEngineGpuBufferFree(_nOut_)
 			StzRaise("ApplyOnQ: dispatch refused (status " + _nSt_ + ").")
@@ -422,11 +422,11 @@ class stzGpu from stzObject
 		This._RequireDevice()
 		_nReps_ = _BindingValue(paOptions, "reps")
 		if NOT isNumber(_nReps_) or _nReps_ < 3
-			_nReps_ = 7
+			_nReps_ = StzEngineGpuHostDefaultReps()
 		ok
 		_nBand_ = _BindingValue(paOptions, "band")
 		if NOT isNumber(_nBand_)
-			_nBand_ = 0.000001
+			_nBand_ = StzEngineGpuHostDefaultBand()
 		ok
 		_aNames_ = poRef.InputNames()
 		_nIn_ = ring_len(_aNames_)
@@ -477,13 +477,7 @@ class stzGpu from stzObject
 		# vector, reversed. A permutation, so every value stays inside the
 		# kernel's domain; and a candidate that hard-coded the visible
 		# fixture (out[i] = f(i) instead of f(a[i])) answers wrong here.
-		_nB_ = floor(_nA_ * 5 / 7)
-		if _nB_ < 1
-			_nB_ = 1
-		ok
-		if _nB_ > 1 and _nB_ % 2 = 0
-			_nB_--
-		ok
+		_nB_ = StzEngineGpuHostHiddenCount(_nA_)
 		_aIdsA_ = []
 		_aIdsB_ = []
 		for _i_ = 1 to _nIn_
@@ -494,10 +488,7 @@ class stzGpu from stzObject
 				StzRaise("Verify: input upload refused (" + StzEngineGpuLastError() + ")")
 			ok
 			_aIdsA_ + _nId_
-			_aHid_ = []
-			for _j_ = _nA_ to (_nA_ - _nB_ + 1) step -1
-				_aHid_ + _aVecs_[_i_][_j_]
-			next
+			_aHid_ = _StzKernelHiddenTail(_aVecs_[_i_], _nA_, _nB_)
 			_nId_ = StzEngineGpuBufferNew(_nB_ * 4)
 			if _nId_ = 0 or StzEngineGpuBufferUploadList(_nId_, _aHid_) != 0
 				_FreeIds(_aIdsA_)
@@ -517,8 +508,8 @@ class stzGpu from stzObject
 		_aIdsB_ + _nOutB_
 
 		_nSt_ = StzEngineGpuVerify(_nKRef_, _nKCand_,
-			_nA_, _aScal_, _aIdsA_, ceil(_nA_ / 256.0), ceil(_nA_ / 256.0),
-			_nB_, _aIdsB_, ceil(_nB_ / 256.0), ceil(_nB_ / 256.0),
+			_nA_, _aScal_, _aIdsA_, StzEngineGpuHostGroups(_nA_), StzEngineGpuHostGroups(_nA_),
+			_nB_, _aIdsB_, StzEngineGpuHostGroups(_nB_), StzEngineGpuHostGroups(_nB_),
 			_nReps_, _nBand_)
 		_FreeIds(_aIdsA_)
 		_FreeIds(_aIdsB_)
@@ -597,11 +588,11 @@ class stzGpu from stzObject
 		This._RequireDevice()
 		_nReps_ = _BindingValue(paOptions, "reps")
 		if NOT isNumber(_nReps_) or _nReps_ < 3
-			_nReps_ = 7
+			_nReps_ = StzEngineGpuHostDefaultReps()
 		ok
 		_nBand_ = _BindingValue(paOptions, "band")
 		if NOT isNumber(_nBand_)
-			_nBand_ = 0.000001
+			_nBand_ = StzEngineGpuHostDefaultBand()
 		ok
 		_aNames_ = poRef.InputNames()
 		_nIn_ = ring_len(_aNames_)
@@ -668,17 +659,11 @@ class stzGpu from stzObject
 			StzRaise("VerifySpec: the candidate refused to compile: " + StzEngineGpuLastError())
 		ok
 		# the hidden set, as Verify builds it: odd, tile-uneven, the reversed tail
-		_nB_ = floor(_nA_ * 5 / 7)
-		if _nB_ < 1
-			_nB_ = 1
-		ok
-		if _nB_ > 1 and _nB_ % 2 = 0
-			_nB_--
-		ok
+		_nB_ = StzEngineGpuHostHiddenCount(_nA_)
 		if _nHidN_ > 0
 			_nB_ = _nHidN_
 		ok
-		_nMargin_ = 256
+		_nMargin_ = StzEngineGpuHostMargin()
 		_aIdsA_ = []
 		_aIdsB_ = []
 		for _i_ = 1 to _nIn_
@@ -696,14 +681,8 @@ class stzGpu from stzObject
 				_aHid_ = _aHidVecs_[_i_]
 				_nHidLen_ = ring_len(_aHid_)
 			else
-				_nHidLen_ = floor(_nLen_ * _nB_ / _nA_)
-				if _nHidLen_ < 1
-					_nHidLen_ = 1
-				ok
-				_aHid_ = []
-				for _j_ = _nLen_ to (_nLen_ - _nHidLen_ + 1) step -1
-					_aHid_ + _aVecs_[_i_][_j_]
-				next
+				_aHid_ = _StzKernelHiddenTail(_aVecs_[_i_], _nA_, _nB_)
+				_nHidLen_ = ring_len(_aHid_)
 			ok
 			_nId_ = StzEngineGpuBufferNew(_nHidLen_ * _nInW_ * 4)
 			if _nId_ = 0 or StzEngineGpuBufferUploadList(_nId_, _aHid_) != 0
@@ -725,8 +704,8 @@ class stzGpu from stzObject
 		_aIdsA_ + _nOutA_
 		_aIdsB_ + _nOutB_
 		_nSt_ = StzEngineGpuVerifySpec(poRef.Spec(), _nKCand_,
-			_nA_, _aScal_, _aIdsA_, ceil(_nA_ / 256.0),
-			_nB_, _aIdsB_, ceil(_nB_ / 256.0),
+			_nA_, _aScal_, _aIdsA_, StzEngineGpuHostGroups(_nA_),
+			_nB_, _aIdsB_, StzEngineGpuHostGroups(_nB_),
 			_nReps_, _nBand_, _aScalB_)
 		_FreeIds(_aIdsA_)
 		_FreeIds(_aIdsB_)

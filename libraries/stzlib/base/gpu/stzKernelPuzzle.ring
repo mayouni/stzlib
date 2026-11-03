@@ -69,6 +69,20 @@ func _StzKernelDecl(pcRest)
 	ok
 	return [ _c_, "float" ]
 
+# GL0 (host contract): the hidden shape's input -- the tail of the visible one,
+# reversed, one ELEMENT at a time (a row of a vecN input stays whole). How many
+# elements it keeps is the ENGINE's number (StzEngineGpuHostHiddenLen); the loop
+# is Ring's, over lists of doubles. gpu_host_narrated.ring ties it to the
+# engine's own StzEngineGpuHostHiddenInput.
+func _StzKernelHiddenTail(paV, nN, nB)
+	_nLen_ = len(paV)
+	_nKeep_ = StzEngineGpuHostHiddenLen(_nLen_, nN, nB)
+	_a_ = []
+	for _j_ = _nLen_ to (_nLen_ - _nKeep_ + 1) step -1
+		_a_ + paV[_j_]
+	next
+	return _a_
+
 # GL0 (typed buffers): rows of an input of vectors, flat -- a flat list is kept.
 func _StzKernelFlat(paV)
 	if len(paV) = 0 or NOT isList(paV[1])
@@ -342,7 +356,7 @@ class stzKernelPuzzle from stzObject
 	def Band()
 		_c_ = This._Fact("band")
 		if _c_ = ""
-			return 0.000001
+			return StzEngineGpuHostDefaultBand()
 		ok
 		return 0 + _c_
 
@@ -444,7 +458,7 @@ class stzKernelPuzzle from stzObject
 		_aScal_ = _OrderedScalars(_oRef_, This.Bindings())
 		_nBytes_ = (_nIn_ + 1) * _nN_ * 4
 		_nFlops_ = _oRef_.OperationsPerElement() * _nN_
-		_nSt_ = StzEngineGpuVerifyRoofline(_nKer_, _nN_, _aScal_, _aIds_, ceil(_nN_ / 256.0), _nBytes_, _nFlops_, 7)
+		_nSt_ = StzEngineGpuVerifyRoofline(_nKer_, _nN_, _aScal_, _aIds_, StzEngineGpuHostGroups(_nN_), _nBytes_, _nFlops_, 7)
 		_FreeIds(_aIds_)
 		if _nSt_ != 0
 			return "refused: the roofline could not run (" + StzEngineGpuLastError() + ")"
@@ -559,28 +573,12 @@ class stzKernelPuzzle from stzObject
 			return This._CompareOnCpu(poRef, poK, This.HiddenBindings(), This.HiddenElements(), "-hidden")
 		ok
 		# the hidden shape: odd, tile-uneven, the reversed tail of each input
-		_nB_ = floor(nN * 5 / 7)
-		if _nB_ < 1
-			_nB_ = 1
-		ok
-		if _nB_ > 1 and _nB_ % 2 = 0
-			_nB_--
-		ok
+		_nB_ = StzEngineGpuHostHiddenCount(nN)
 		_aHid_ = []
 		_nL_ = len(paB)
 		for _i_ = 1 to _nL_
 			if isList(paB[_i_][2])
-				_v_ = paB[_i_][2]
-				_nLen_ = len(_v_)
-				_nHL_ = floor(_nLen_ * _nB_ / nN)
-				if _nHL_ < 1
-					_nHL_ = 1
-				ok
-				_h_ = []
-				for _j_ = _nLen_ to (_nLen_ - _nHL_ + 1) step -1
-					_h_ + _v_[_j_]
-				next
-				_aHid_ + [ paB[_i_][1], _h_ ]
+				_aHid_ + [ paB[_i_][1], _StzKernelHiddenTail(paB[_i_][2], nN, _nB_) ]
 			else
 				_aHid_ + paB[_i_]
 			ok

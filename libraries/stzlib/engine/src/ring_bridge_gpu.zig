@@ -6,6 +6,7 @@ const std = @import("std");
 const gpu = @import("gpu.zig");
 const ops = @import("gpu_ops.zig");
 const wgsl = @import("gpu_wgsl.zig");
+const host_c = @import("gpu_host.zig");
 const render = @import("gpu_render.zig");
 // named gtext: these directories sit on C include paths, and a bare `text`
 // local already exists in older bridge fns
@@ -237,6 +238,86 @@ fn ring_BufferUploadListU32(p: *anyopaque) callconv(.c) void {
         staging[i] = @intFromFloat(R.ring_item_getnumber(item));
     }
     rn(p, @floatFromInt(gpu.stz_gpu_buffer_write(id, @ptrCast(staging.ptr), @floatFromInt(n * 4))));
+}
+
+// GL0 (host contract). The numbers every host asks the engine for, so none
+// derives its own: HostVersion() HostGroup() HostMargin() HostDefaultBand()
+// HostDefaultReps(), HostGroups(n) HostHiddenCount(n) HostHiddenLen(len, n, nb)
+// HostParamsBytes(nScalars), HostHiddenInput(aFloats, w, n, nb) -> a list, and
+// SpecInLen(cSpec, k, n) SpecOutLen(cSpec, n) of a description.
+fn ring_HostVersion(p: *anyopaque) callconv(.c) void {
+    rn(p, host_c.stz_gpu_host_version());
+}
+fn ring_HostGroup(p: *anyopaque) callconv(.c) void {
+    rn(p, host_c.stz_gpu_host_group());
+}
+fn ring_HostMargin(p: *anyopaque) callconv(.c) void {
+    rn(p, host_c.stz_gpu_host_margin());
+}
+fn ring_HostDefaultBand(p: *anyopaque) callconv(.c) void {
+    rn(p, host_c.stz_gpu_host_default_band());
+}
+fn ring_HostDefaultReps(p: *anyopaque) callconv(.c) void {
+    rn(p, host_c.stz_gpu_host_default_reps());
+}
+fn ring_HostGroups(p: *anyopaque) callconv(.c) void {
+    rn(p, host_c.stz_gpu_host_groups(gn(p, 1)));
+}
+fn ring_HostHiddenCount(p: *anyopaque) callconv(.c) void {
+    rn(p, host_c.stz_gpu_host_hidden_count(gn(p, 1)));
+}
+fn ring_HostHiddenLen(p: *anyopaque) callconv(.c) void {
+    rn(p, host_c.stz_gpu_host_hidden_len(gn(p, 1), gn(p, 2), gn(p, 3)));
+}
+fn ring_HostParamsBytes(p: *anyopaque) callconv(.c) void {
+    rn(p, host_c.stz_gpu_host_params_bytes(gn(p, 1)));
+}
+fn ring_HostHiddenInput(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const lst = R.gl(p, 1) orelse {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    const w = gn(p, 2);
+    const n = gn(p, 3);
+    const nb = gn(p, 4);
+    const len: usize = @intCast(R.ringListSize(lst));
+    if (len == 0 or w < 1) {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    }
+    const src = allocator.alloc(f32, len) catch {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    defer allocator.free(src);
+    for (0..len) |i| {
+        const item = R.ring_list_getitem_gc(null, lst, @intCast(i + 1)) orelse {
+            src[i] = 0;
+            continue;
+        };
+        src[i] = @floatCast(R.ring_item_getnumber(item));
+    }
+    const hl: usize = @intFromFloat(host_c.stz_gpu_host_hidden_len(@floatFromInt(len / @as(usize, @intFromFloat(w))), n, nb));
+    const wi: usize = @intFromFloat(w);
+    const dst = allocator.alloc(f32, hl * wi) catch {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    defer allocator.free(dst);
+    const got: usize = @intFromFloat(host_c.stz_gpu_host_hidden_input(src.ptr, @floatFromInt(len), w, n, nb, dst.ptr));
+    for (dst[0..got]) |v| R.ring_list_adddouble(out, @floatCast(v));
+    R.ring_vm_api_retlist(p, out);
+}
+fn ring_SpecInLen(p: *anyopaque) callconv(.c) void {
+    const spec = getStr(p, 1);
+    if (wgsl.stz_gpu_spec_compile(spec.ptr, @floatFromInt(spec.len)) != 0) return rn(p, 0);
+    rn(p, wgsl.stz_gpu_spec_in_len(@intFromFloat(gn(p, 2) - 1), gn(p, 3)));
+}
+fn ring_SpecOutLen(p: *anyopaque) callconv(.c) void {
+    const spec = getStr(p, 1);
+    if (wgsl.stz_gpu_spec_compile(spec.ptr, @floatFromInt(spec.len)) != 0) return rn(p, 0);
+    rn(p, wgsl.stz_gpu_spec_out_len(gn(p, 2)));
 }
 
 // GL0 (atomics). BufferFillI32(id, nValue, nCount) -> status: nCount i32s of
@@ -2357,6 +2438,18 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpubufferuploadlist", .func = &ring_BufferUploadList },
     .{ .name = "stzenginegpubufferuploadlistu32", .func = &ring_BufferUploadListU32 },
     .{ .name = "stzenginegpubufferdownloadlist", .func = &ring_BufferDownloadList },
+    .{ .name = "stzenginegpuhostversion", .func = &ring_HostVersion },
+    .{ .name = "stzenginegpuhostgroup", .func = &ring_HostGroup },
+    .{ .name = "stzenginegpuhostmargin", .func = &ring_HostMargin },
+    .{ .name = "stzenginegpuhostdefaultband", .func = &ring_HostDefaultBand },
+    .{ .name = "stzenginegpuhostdefaultreps", .func = &ring_HostDefaultReps },
+    .{ .name = "stzenginegpuhostgroups", .func = &ring_HostGroups },
+    .{ .name = "stzenginegpuhosthiddencount", .func = &ring_HostHiddenCount },
+    .{ .name = "stzenginegpuhosthiddenlen", .func = &ring_HostHiddenLen },
+    .{ .name = "stzenginegpuhostparamsbytes", .func = &ring_HostParamsBytes },
+    .{ .name = "stzenginegpuhosthiddeninput", .func = &ring_HostHiddenInput },
+    .{ .name = "stzenginegpuspecinlen", .func = &ring_SpecInLen },
+    .{ .name = "stzenginegpuspecoutlen", .func = &ring_SpecOutLen },
     .{ .name = "stzenginegpubufferfilli32", .func = &ring_BufferFillI32 },
     .{ .name = "stzenginegpubufferdownloadi32list", .func = &ring_BufferDownloadI32List },
     .{ .name = "stzenginegpuspecoutatomic", .func = &ring_SpecOutAtomic },

@@ -39,6 +39,7 @@
 const std = @import("std");
 const gpu = @import("gpu.zig");
 const wgsl = @import("gpu_wgsl.zig");
+const hostc = @import("gpu_host.zig");
 
 pub const K_MAP: u8 = 0; // an elementwise expression
 pub const K_GUARD: u8 = 1; // ... under a custom guard
@@ -82,7 +83,7 @@ pub const SWAP: u32 = 1 << 8;
 
 const SPEC_CAP = 4096;
 const WGSL_CAP = 65536;
-const MARGIN: usize = 256;
+const MARGIN: usize = hostc.MARGIN;
 const MAX_IN = 3;
 const MAX_SC = 4;
 

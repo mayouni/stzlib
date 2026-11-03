@@ -339,6 +339,13 @@ add the lines above. `Spec()` returns the description as text, and
 `StzKernelMakerFromSpec(text)` builds a maker from one. `ToWGSL()` needs
 no GPU, so a kernel can be written and read on a machine without one.
 
+**A host that is not the Ring face** -- the browser page is one, and a
+language written later (Haro's, in its own repository) will be another --
+runs a kernel by the host contract, `SOFTANZA_GPU_HOST_CONTRACT.md`. The
+engine answers every number a host would otherwise derive (the NaN margin,
+the workgroup count, the hidden shape, a buffer's floats per element); the
+host owns buffers and dispatch.
+
 ## 4. The two readers, and why there are two
 
 The transpiler turns a description into WGSL. The interpreter runs the
@@ -549,5 +556,6 @@ Run with Ring++ from `base/test/gpu/`: `rnxc <guard>.ring`.
 | `gpu_int_narrated.ring` | GL0's ints: declarations, typing, refusals in both readers' words, the device at every edge, the fuzz's int kind, puzzle 14 |
 | `gpu_vec_narrated.ring` | GL0's vectors: construction, swizzles, spreading, the vector functions, refusals, the device, the fuzz's vector kind, puzzle 15 |
 | `gpu_buffers_narrated.ring` | GL0's buffers of vectors: declarations, both readers, every host path that makes a buffer, the fuzz's typed-buffer kind, puzzle 16 |
+| `gpu_host_narrated.ring` | the host contract: the engine's numbers pinned, no host file spells one, and a host written from the document alone reaches the face's verdicts on 17 puzzle cases |
 | `gpu_atomic_narrated.ring` | GL0's atomics: add, max, min, identities, dropped indices, the device on every path, the fuzz's atomic kind and its rotated-operation control, puzzle 17 |
 | `edge_proof/edge_proof.html` | the browser and the desktop agree, case by case |

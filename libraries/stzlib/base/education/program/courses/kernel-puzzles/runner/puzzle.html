@@ -49,7 +49,6 @@
 const q = new URLSearchParams(location.search);
 const id = (q.get("p") || "kp-01").toLowerCase();
 const lang = (q.get("lang") || "en").toLowerCase();
-const MARGIN = 256;
 const el = (s) => document.getElementById(s);
 const exDir = `../exercises/${id}/`;
 
@@ -86,19 +85,21 @@ function specLines(spec, head) {
 }
 // a list as Ring's @@ writes it: [ "a", "b" ], and [ ] when empty -- the face's words
 function ringList(xs) { return xs.length ? `[ ${xs.map(x => `"${x}"`).join(", ")} ]` : "[ ]"; }
-function hiddenCount(n) { let b = Math.floor(n * 5 / 7); if (b < 1) b = 1; if (b > 1 && b % 2 === 0) b--; return b; }
-// the reversed tail, element by element: a vecN input keeps each element's N floats in order (GL0)
+// the hidden shape's size and data are the ENGINE's (the host contract, base/gpu/SOFTANZA_GPU_HOST_CONTRACT.md):
+// the page derives none of them, so it cannot drift from the desktop's checker
+function hiddenCount(n) { return E.stz_gpu_host_hidden_count(n); }
+// the reversed tail, element by element: a vecN input keeps each element's N floats in order
 function hiddenInput(v, n, nB, w = 1) {
-  const len = Math.floor(v.length / w);
-  let hl = Math.floor(len * nB / n); if (hl < 1) hl = 1;
-  const h = new Float32Array(hl * w);
-  for (let j = 0; j < hl; j++) for (let c = 0; c < w; c++) h[j * w + c] = v[(len - 1 - j) * w + c];
-  return h;
+  const hl = E.stz_gpu_host_hidden_len(Math.floor(v.length / w), n, nB);
+  const src = putF32(v), dst = alloc(hl * w * 4);
+  const got = E.stz_gpu_host_hidden_input(src, v.length, w, n, nB, dst);
+  return new Float32Array(memory.buffer, dst, got).slice();
 }
 
 const memory = new WebAssembly.Memory({ initial: 64 });
 const { instance } = await WebAssembly.instantiateStreaming(fetch("./stz.wasm", { cache: "no-store" }), { env: { memory } });
 const E = instance.exports;
+const MARGIN = E.stz_gpu_host_margin(); // floats of NaN after the output's region (the engine's number)
 const enc = new TextEncoder();
 // every allocation is checked: 0 is "no room", and writing there corrupts the module (it did, until 2026-10-27)
 function alloc(bytes) { const p = E.stz_alloc(bytes); if (!p) throw new Error(`the engine's memory refused ${bytes} bytes`); return p; }
@@ -198,7 +199,7 @@ async function runKernel(wgsl, inputs, scalars, n, w = 1, atom = null) {
   if (err) throw new Error("the kernel cannot be bound: " + err.message);
   const encdr = device.createCommandEncoder();
   const pass = encdr.beginComputePass();
-  pass.setPipeline(pipeline); pass.setBindGroup(0, bind); pass.dispatchWorkgroups(Math.ceil(n / 256)); pass.end();
+  pass.setPipeline(pipeline); pass.setBindGroup(0, bind); pass.dispatchWorkgroups(E.stz_gpu_host_groups(n)); pass.end();
   encdr.copyBufferToBuffer(out, 0, stage, 0, total * 4);
   const t0 = performance.now();
   device.queue.submit([encdr.finish()]);
@@ -311,7 +312,7 @@ function roofSentence(x) {
 }
 
 // the verdict words are the desktop face's, letter for letter; the band is the puzzle's
-function band() { const b = fact(puzzle.facts, "band"); return b ? parseFloat(b) : 1e-6; }
+function band() { const b = fact(puzzle.facts, "band"); return b ? parseFloat(b) : E.stz_gpu_host_default_band(); }
 // GL0 (typed buffers): w floats per element, one mask byte per element; a verdict names the element
 function judge(got, ref, mask, n, suffix, w = 1) {
   for (let k = n * w; k < n * w + MARGIN; k++) if (!Number.isNaN(got[k])) return `write-outside at element ${n + Math.floor((k - n * w) / w) + 1}`;

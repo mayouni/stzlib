@@ -32,6 +32,7 @@
 //! (Ring is case-insensitive; the kernel must agree with the face).
 
 const std = @import("std");
+const host = @import("gpu_host.zig");
 
 // ZERO-ALLOCATION by design: this module also compiles into stz.wasm
 // (freestanding wasm32, no libc, no allocator) -- the edge authors kernels
@@ -145,7 +146,7 @@ fn nameIn(list: []const Name, count: usize, s: []const u8) ?usize {
 pub const MAX_SHARED = 4;
 pub const MAX_SHARED_SIZE = 1024;
 pub const MAX_ITEMS = 12;
-pub const GROUP = 256;
+pub const GROUP = host.GROUP;
 pub const TILE = 16; // a `width` kernel's group is a TILE x TILE square of the output
 
 pub const ItemKind = enum(u8) { stage, reduce, accumulate };
@@ -3850,6 +3851,17 @@ pub fn atomIdentity(op: AtomOp) i32 {
         .max => std.math.minInt(i32),
         .min => std.math.maxInt(i32),
     };
+}
+/// GL0 (host contract): the floats an input must hold, at least, to be read
+/// for n elements -- n times its floats per element -- and the floats the
+/// output's REGION holds (its counters when atomic, else n times its width),
+/// before the margin. Of the description compiled last.
+pub fn stz_gpu_spec_in_len(k: i32, n: f64) callconv(.c) f64 {
+    return n * stz_gpu_spec_in_width(k);
+}
+pub fn stz_gpu_spec_out_len(n: f64) callconv(.c) f64 {
+    if (g_atomic) return @floatFromInt(g_atom_size);
+    return n * @as(f64, @floatFromInt(g_out_w));
 }
 pub fn stz_gpu_spec_out_atomic() callconv(.c) f64 {
     return if (g_atomic) 1 else 0;

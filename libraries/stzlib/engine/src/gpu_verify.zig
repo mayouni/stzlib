@@ -38,6 +38,7 @@
 const std = @import("std");
 const gpu = @import("gpu.zig");
 const wgsl = @import("gpu_wgsl.zig");
+const hostc = @import("gpu_host.zig");
 const c = gpu.c;
 
 pub const V_VERIFIED: i32 = 0;
@@ -92,7 +93,7 @@ pub const RESULT_SLOTS = 32;
 /// front margin would be unreachable for the same reason -- the binding is
 /// the kernel's whole world -- so there is one margin, at the end, INSIDE
 /// the binding, which is the only place a kernel can reach past its region.
-pub const MARGIN: usize = 256;
+pub const MARGIN: usize = hostc.MARGIN;
 
 // GK6: the checker's own error text, for the refusals that happen before a
 // dispatch (a spec that does not compile; a shape that disagrees with its
@@ -1053,7 +1054,7 @@ fn checkSpecShape(kcand: i64, params: []const u8, ids: []const i64, n: usize, wx
     const w: usize = @intFromFloat(wgsl.stz_gpu_spec_out_width());
     // GL0 (atomics): SIZE counters, compared all of them, whatever n is
     const atomic = wgsl.stz_gpu_spec_out_atomic() == 1;
-    const nout: usize = if (atomic) @intFromFloat(wgsl.stz_gpu_spec_out_size()) else n * w;
+    const nout: usize = @intFromFloat(wgsl.stz_gpu_spec_out_len(@floatFromInt(n)));
     const ref = alloc.alloc(f32, @max(nout, n * w)) catch return null;
     defer alloc.free(ref);
     const mask = alloc.alloc(u8, n) catch return null;
@@ -1164,8 +1165,10 @@ pub fn stz_gpu_verify_spec(
             // GL0: a vecN input or output holds N floats per element
             const out_w: usize = @intFromFloat(wgsl.stz_gpu_spec_out_width());
             const in_w: usize = @intFromFloat(wgsl.stz_gpu_spec_in_width(@intCast(k)));
-            const nout: usize = if (wgsl.stz_gpu_spec_out_atomic() == 1) @intFromFloat(wgsl.stz_gpu_spec_out_size()) else sh.n * out_w;
-            const need = if (k == sh.ids.len - 1) nout + MARGIN else sh.n * in_w;
+            _ = out_w;
+            _ = in_w;
+            const nout: usize = @intFromFloat(wgsl.stz_gpu_spec_out_len(@floatFromInt(sh.n)));
+            const need: usize = if (k == sh.ids.len - 1) nout + MARGIN else @intFromFloat(wgsl.stz_gpu_spec_in_len(@intCast(k), @floatFromInt(sh.n)));
             if (have < need) {
                 verr("shape: the {s} shape declares n = {d} but buffer {d} holds {d} floats and needs {d}{s}", .{ sh.name, sh.n, k, have, need, if (k == sh.ids.len - 1) " (n plus the NaN margin)" else "" });
                 return gpu.BAD_ARG;

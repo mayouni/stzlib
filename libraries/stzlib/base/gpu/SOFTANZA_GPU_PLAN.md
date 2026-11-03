@@ -4054,6 +4054,56 @@ lifecycle 62, seams 17, batch 13, declarative 20; Zig 32 (fuzz) and 35
 the privatized histogram the task names (shared-memory atomics) when a
 puzzle needs it.
 
+## GH0 STATUS — the host contract, landed 2026-11-03 (on the author's word, decisions taken for them)
+
+**Why.** Haro is now cut from Ring and Ring++ and lives in its own
+repository. The GPU plane's engine and kernel language were already
+independent of both, but its *hosts* were not: the Ring face and the browser
+page each derived, for themselves, the numbers a verdict rests on. A host
+written in Haro would have copied them a fifth time, and a copy that drifts
+is a verdict that differs between hosts.
+
+**What.** `engine/src/gpu_host.zig` is the one definition of the numbers: the
+NaN margin (256), the group (256) and the workgroup count, the default band
+and repetitions, the params uniform's size, the hidden shape's count (five
+sevenths, at least 1, odd above 1) and its data (the tail of each input,
+reversed, element by element). Two more answers depend on the compiled
+description and are in `gpu_wgsl.zig`: the floats an input must hold and the
+floats the output's region holds. All of it is exported to the Ring bridge
+and the wasm, `gpu_verify.zig` and `gpu_fuzz.zig` take their margin from it,
+and the document for a host's author is `SOFTANZA_GPU_HOST_CONTRACT.md`.
+
+**Duplication found and removed.** The hidden-count rule was written four
+times (the face's `Verify`, its `VerifySpecWith`, the puzzle grader, the
+page), the margin and the group count in five places, the default band in
+four, and the reversed-tail loop in three. The face and grader now ask the
+engine for every number and keep one list helper for the tail; the page asks
+the wasm for all of it. A source scan in the guard fails if one comes back.
+
+**Proved, not asserted.** `gpu_host_narrated.ring` holds a reference host of
+about a hundred and fifty lines, written from the document and calling only
+the engine's entry points, none of `stzGpu`, `stzKernelMaker` or
+`stzKernelPuzzle`. It reaches **the same verdict word as the face on all 17
+cases** from puzzles 5, 6, 10, 13, 14, 15, 16 and 17: the margin
+(`write-outside at element 4001`), a stencil, a declared hidden shape, ints,
+vectors, vector buffers and atomic counters. The engine's hidden count
+equals the old rule for every n from 1 to 6000. The 18,000-kernel WGSL
+corpus is untouched (no transpiler change). In the browser on the Intel
+iGPU, puzzles 5, 6, 10, 16 and 17 give their verdicts with the page taking
+every number from the wasm.
+
+**Decisions taken for the author**, each reversible, recorded in the
+contract's section 9: numbers in the engine and buffers in the host (not
+dispatch in the engine, which is the platform's); the hidden rule unchanged,
+only moved; the face keeps its own list loop, tied to the engine's by the
+guard; a version number so a host can refuse an engine that means something
+else; the reference host lives in a guard, not in the library.
+
+**Not done, named.** The reference host does not run the sanitizer or time
+the kernel, and cannot tell a body's NaN from an unwritten element (the
+checker keeps a mask). A Haro host will say whether it wants the mask
+exported, and the sanitizer step wrapped; until it asks, they are not.
+
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 
 **Where the plane stands.** The charge GK3 to KP3 is through. A kernel can

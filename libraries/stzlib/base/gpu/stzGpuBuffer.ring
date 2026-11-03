@@ -177,7 +177,7 @@ class stzGpuBuffer from stzObject
 				StzEngineGpuLastError() + ")")
 		ok
 		_nSt_ = StzEngineGpuDispatchParams(_nK_, _nE_, _aScal_,
-			[@nId, _nOut_], ceil(_nE_ / 256.0))
+			[@nId, _nOut_], StzEngineGpuHostGroups(_nE_))
 		if _nSt_ != 0
 			StzEngineGpuBufferFree(_nOut_)
 			StzRaise("ApplyQ: dispatch refused (status " + _nSt_ + ").")
