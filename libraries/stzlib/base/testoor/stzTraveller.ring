@@ -681,6 +681,34 @@ func _TravPromiseAt(pcRaw, pacNorm, pnFrom)
 	ok
 	return 0
 
+# what a walk SAID, in one line: the tour's state and every claim's state in
+# order. Two walks with one seed that say different things are weather.
+func _TravSignature(paRec)
+	_c_ = paRec[:run][:state] + "/" + paRec[:run][:end]
+	_nS_ = len(paRec[:run][:stops])
+	for _s_ = 1 to _nS_
+		_nC_ = len(paRec[:run][:stops][_s_][:claims])
+		for _k_ = 1 to _nC_
+			_c_ += "," + substr(paRec[:run][:stops][_s_][:claims][_k_][:state], 1, 3)
+		next
+	next
+	return _c_
+
+func _TravWeatherJson(pacW)
+	_c_ = ""
+	_n_ = len(pacW)
+	for _k_ = 1 to _n_
+		if _k_ > 1  _c_ += ","  ok
+		_c_ += _TourJsonStr(pacW[_k_])
+	next
+	return _c_
+
+func _TravSeedJson(paRun)
+	if isNumber(paRun[:seed]) and paRun[:seed] >= 0
+		return "" + paRun[:seed]
+	ok
+	return "null"
+
 #--- the run as JSON and prose --------------------------------------------
 
 func _TravRunJson(paRec)
@@ -690,7 +718,7 @@ func _TravRunJson(paRec)
 	      ',"state":' + _TourJsonStr(_aR_[:state]) +
 	      ',"end":' + _TourJsonStr(_aR_[:end]) +
 	      ',"exit":' + _aR_[:exit] + ',"wall_ms":' + _aR_[:wall_ms] +
-	      ',"seed":null,"kept":' + _aR_[:kept] + ',"diverged":' + _aR_[:diverged] +
+	      ',"seed":' + _TravSeedJson(_aR_) + ',"flaky":' + paRec[:flaky] + ',"weather":[' + _TravWeatherJson(paRec[:weather]) + '],"kept":' + _aR_[:kept] + ',"diverged":' + _aR_[:diverged] +
 	      ',"unreached":' + _aR_[:unreached] + ',"unjudged":' + _aR_[:unjudged] +
 	      ',"stops":['
 	_nS_ = len(_aR_[:stops])
@@ -699,7 +727,7 @@ func _TravRunJson(paRec)
 		_aS_ = _aR_[:stops][_s_]
 		_c_ += '{"title":' + _TourJsonStr(_aS_[:title]) + ',"line":' + _aS_[:line] +
 		       ',"state":' + _TourJsonStr(_aS_[:state]) + ',"wall_ms":' + _aS_[:wall_ms] +
-		       ',"seed":null,"claims":['
+		       ',"seed":' + _TravSeedJson(_aR_) + ',"claims":['
 		_nC_ = len(_aS_[:claims])
 		for _k_ = 1 to _nC_
 			if _k_ > 1  _c_ += ","  ok
@@ -724,6 +752,15 @@ func _TravRunProse(paRec)
 	if _aR_[:diverged] > 0   _c_ += ", " + _aR_[:diverged] + " diverged"  ok
 	if _aR_[:unreached] > 0  _c_ += ", " + _aR_[:unreached] + " unreached"  ok
 	if _aR_[:unjudged] > 0   _c_ += ", " + _aR_[:unjudged] + " unjudged"  ok
+	if paRec[:flaky]  _c_ += "  FLAKY"  ok
+	# the seed is printed when something FAILED -- a diverged or unreached
+	# claim, a tour that did not finish, or a flaky one -- because that is the
+	# run somebody will want to walk again. An unjudged claim is not a failure.
+	_bFailed_ = (_aR_[:diverged] > 0 or _aR_[:unreached] > 0 or paRec[:flaky] or
+	             (_aR_[:end] != "finished" and _aR_[:end] != "finished-timed"))
+	if _bFailed_ and isNumber(_aR_[:seed]) and _aR_[:seed] >= 0
+		_c_ += "  seed " + _aR_[:seed]
+	ok
 	_c_ += "  (" + (_aR_[:wall_ms] / 1000) + " s"
 	if _aR_[:end] = "finished-timed"  _c_ += ", finished, timed"  ok
 	_c_ += ")"
@@ -757,6 +794,8 @@ class stzTraveller from stzObject
 	@nWallMs = 0
 	@cRefusal = ""
 	@bWalked = 0
+	@nSeed = -1               # the seed every child is walked with; chosen once per run, REPORTED
+	@nRepeat = 1              # walks per tour; >1 turns on the flaky check
 
 	def init()
 		@aRecords = []
@@ -769,6 +808,26 @@ class stzTraveller from stzObject
 
 	def Timeout(pnMs)
 		@nTimeoutMs = 0 + pnMs
+		return This
+
+	# The seed every child is walked with (--testoor-seed). A tour that says
+	# Seed(:run) adopts it; one that says Seed(42) overrides it and its own
+	# seed is what the logbook records. Not given, one is drawn from the clock
+	# at the first walk and reported, so a failure found today can be walked
+	# again tomorrow with the same seed.
+	def Seed(pnSeed)
+		@nSeed = 0 + pnSeed
+		return This
+
+	def SeedUsed()
+		return @nSeed
+
+	# Walk each tour N times with ONE seed. When the verdicts differ the tour
+	# is FLAKY: a result the seed does not determine is weather nobody
+	# declared, and flaky is a latency defect.
+	def Repeat(pnTimes)
+		@nRepeat = 0 + pnTimes
+		if @nRepeat < 1  @nRepeat = 1  ok
 		return This
 
 	def Silent()
@@ -831,12 +890,33 @@ class stzTraveller from stzObject
 	def Walk(pcPath)
 		@bWalked = 1
 		@nOwned++
+		if @nSeed < 0
+			@nSeed = 1 + (floor(clock() * 1000 / clockspersecond()) % 90000)
+		ok
+		_aRec_ = This._WalkOnce("" + pcPath, @nSeed)
+		_k_ = 2
+		while _k_ <= @nRepeat and _aRec_[:readable] = 1
+			_aAgain_ = This._WalkOnce("" + pcPath, @nSeed)
+			if _TravSignature(_aAgain_) != _TravSignature(_aRec_)
+				_aRec_[:flaky] = 1
+				_aRec_[:flaky_why] = "walk 1 read " + _TravSignature(_aRec_) + " and walk " + _k_ + " read " + _TravSignature(_aAgain_) + ", both with seed " + @nSeed
+				exit
+			ok
+			_k_++
+		end
+		This._Keep(_aRec_)
+		return This
+
+	# ONE child, one walk, judged: the record, not yet kept
+	def _WalkOnce(pcPath, pnSeed)
 		_aRec_ = _TourRead("" + pcPath)
+		_aRec_[:flaky] = 0
+		_aRec_[:flaky_why] = ""
+		_aRec_[:weather] = []
 		if _aRec_[:readable] = 0
 			_aRec_[:run] = _TravJudge(_aRec_, [], "unreadable", -1, 0)
 			_aRec_[:run][:end] = "unreadable"
-			This._Keep(_aRec_)
-			return This
+			return _aRec_
 		ok
 		_aFD_ = _TravSplitPath("" + pcPath)
 		_cFolder_ = _TravHostPath(_aFD_[1])
@@ -847,7 +927,7 @@ class stzTraveller from stzObject
 		# one the RNXC variable names, else the rnxc running this runner, else
 		# `rnxc` on the path -- TestoorProgram()
 		_oP_ = new stzProcess()
-		_oP_.SpawnIn(_cFolder_, [ TestoorProgram(), _aFD_[2] ])
+		_oP_.SpawnIn(_cFolder_, [ TestoorProgram(), _aFD_[2], "--testoor-seed", "" + pnSeed ])
 		@nRun++
 		_nT0_ = clock()
 		_cBuf_ = ""
@@ -908,8 +988,19 @@ class stzTraveller from stzObject
 		_aRec_[:run] = _TravJudge(_aRec_, _aLines_, _cEnd_, _nExit_, _nWall_)
 		_aRec_[:output] = _aLines_
 		_aRec_[:stderr] = _cErr_
-		This._Keep(_aRec_)
-		return This
+		# the seed the child walked with: the runner's, unless the tour said
+		# Seed(n) itself and printed it; and the weather it declared
+		_aRec_[:run][:seed] = pnSeed
+		_nLn_ = len(_aLines_)
+		for _i_ = 1 to _nLn_
+			_t_ = trim(_aLines_[_i_][1])
+			if substr(_t_, "[testoor seed ") = 1
+				_aRec_[:run][:seed] = 0 + substr(_t_, 15, len(_t_) - 15)
+			but substr(_t_, "[testoor weather ") = 1 and substr(_t_, "[testoor weather fired ") != 1
+				_aRec_[:weather] + substr(_t_, 18, len(_t_) - 18)
+			ok
+		next
+		return _aRec_
 
 	def _Keep(paRec)
 		@aRecords + paRec
@@ -965,10 +1056,11 @@ class stzTraveller from stzObject
 	def Counts()
 		_aOut_ = [ :kept = 0, :diverged = 0, :unreached = 0, :unjudged = 0,
 		           :finished = 0, :finished_timed = 0, :not_started = 0,
-		           :broke = 0, :hung = 0, :unreadable = 0 ]
+		           :broke = 0, :hung = 0, :unreadable = 0, :flaky = 0 ]
 		_n_ = ring_len(@aRecords)
 		for _k_ = 1 to _n_
 			_aR_ = @aRecords[_k_][:run]
+			if @aRecords[_k_][:flaky]  _aOut_[:flaky]++  ok
 			_aOut_[:kept] += _aR_[:kept]
 			_aOut_[:diverged] += _aR_[:diverged]
 			_aOut_[:unreached] += _aR_[:unreached]
@@ -990,6 +1082,7 @@ class stzTraveller from stzObject
 		_n_ = ring_len(@aRecords)
 		for _k_ = 1 to _n_
 			_aR_ = @aRecords[_k_][:run]
+			if @aRecords[_k_][:flaky]  return 1  ok
 			if _aR_[:diverged] > 0  return 1  ok
 			if _aR_[:end] = "not-started" or _aR_[:end] = "broke" or
 			   _aR_[:end] = "hung" or _aR_[:end] = "unreadable"
@@ -997,6 +1090,22 @@ class stzTraveller from stzObject
 			ok
 		next
 		return 0
+
+	# the court's shape, for stzRuleReport.Ingest(): a flaky tour is an ERROR
+	def Findings()
+		_aOut_ = []
+		_n_ = ring_len(@aRecords)
+		for _k_ = 1 to _n_
+			if @aRecords[_k_][:flaky]
+				_cW_ = "undeclared weather"
+				if ring_len(@aRecords[_k_][:weather]) > 0  _cW_ = "declared weather did not pin it"  ok
+				_aOut_ + [ :rule = :tour_is_flaky, :subject = :tour, :where = @aRecords[_k_][:file],
+				           :severity = :error,
+				           :message = "walked " + @nRepeat + " times with one seed and the verdicts differ (" + _cW_ +
+				                      "): " + @aRecords[_k_][:flaky_why] + ". Flaky is a latency defect." ]
+			ok
+		next
+		return _aOut_
 
 	def Summary()
 		if @cRefusal != ""
@@ -1040,6 +1149,7 @@ class stzTraveller from stzObject
 		      ',"refusal":' + _TourJsonStr(@cRefusal) +
 		      ',"exit":' + This.ExitCode() + ',"owned":' + @nOwned + ',"run":' + @nRun +
 		      ',"wall_ms":' + @nWallMs + ',"timeout_ms":' + @nTimeoutMs +
+		      ',"seed":' + @nSeed + ',"repeat":' + @nRepeat + ',"flaky":' + _aC_[:flaky] +
 		      ',"claims":{"kept":' + _aC_[:kept] + ',"diverged":' + _aC_[:diverged] +
 		      ',"unreached":' + _aC_[:unreached] + ',"unjudged":' + _aC_[:unjudged] + "}" +
 		      ',"tours_by_end":{"finished":' + _aC_[:finished] + ',"finished-timed":' + _aC_[:finished_timed] +

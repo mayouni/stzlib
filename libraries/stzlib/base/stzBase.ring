@@ -236,6 +236,7 @@ ok
     load "testoor/stzTour.ring"
     load "testoor/stzTraveller.ring"
     load "testoor/stzRoute.ring"
+    load "testoor/stzClock.ring"
 
     load "string/stzWordStream.ring"
 

@@ -178,12 +178,51 @@ gate does, so route coverage starts low and the number is the finding.
 different things (declarations a Zin test mentions, plan items a tour declares) and no
 fixture both can read exists; see the TR3 memo.
 
-### TR4 -- The clock and the weather -- PLANNED
+### TR4 -- The clock and the weather -- DONE 2026-11-03
 
-In the engine: seed, frozen and stepped clocks, the tick loop driven by a tour. In
-Ring: `Clock()`, `Seed()`, `Weather()`. A tour seeded to fail at 42 fails
-identically twice and passes at 43; undeclared weather is reported flaky. Zin's
-SIMULATION_TEST is the shared grammar: adopt, do not fork.
+`base/testoor/stzClock.ring` (the tour's words) and the traveller (the runner's side).
+A failing tour PRINTS ITS SEED and the same seed walks the same path.
+
+- **Seed.** The runner chooses a seed once per run, passes it to every child as
+  `--testoor-seed N`, and reports it in the logbook (`"seed"` per tour and per stop, `seed N`
+  in the prose of anything that failed). `testoor.ring --seed 42` walks with 42. A tour says
+  `Seed(:run)` to adopt the runner's seed or `Seed(7)` to name its own, which then wins; either
+  way it seeds the engine's and Ring's generators together (`SeedRandom`) and prints
+  `[testoor seed N]`, the line the traveller reads back. Run by hand with no runner, `Seed(:run)`
+  draws one from the clock and reports it.
+- **Clock.** `ClockTo(:frozen, "2025-09-27 14:30:25")` is the existing `StzFreezeClock`;
+  `ClockTo(:stepped, [ startMs, stepMs ])` is a logical clock that moves only when the tour
+  moves it (`ClockTick()`, `ClockAdvance(ms)`, `ClockNow()`); `ClockTo(:live, "")` undoes both.
+  **The function is spelled `ClockTo`, not `Clock`, for a local fact:** Ring is
+  case-insensitive and `clock()` is a builtin the library calls hundreds of times, so a global
+  `Clock` shadows it and the library stops loading (R19 in `stzProfilingTimer`, measured). Seed
+  and Weather collide with nothing and keep their names. `ClockTick()` is the scheduler hook: the
+  tour is the loop, and each tick the clock says which declared weather is due.
+- **Weather.** `Weather(:child_killed, [ child ])` or `[ child, tick ]` (without a tick the
+  seeded generator picks one, so the same seed kills at the same tick) and
+  `Weather(:skew, [ ms ])`. Declared, never ambient; each prints `[testoor weather name@tick]`
+  and the traveller lists it per tour. **The one weather on the distribution plane is real:**
+  `WeatherKill(supervisor, fired)` calls the platform's own `stzNodeSupervisor.KillChild`, and
+  the guard watches the supervisor restart the worker and count it. No mock stands in.
+- **Flaky.** `testoor.ring --repeat N` walks each tour N times with ONE seed; when the verdicts
+  differ the tour is FLAKY: record flag, court rule `tour_is_flaky` (an error) naming whether
+  weather was declared, prose `FLAKY`, exit 1. One walk cannot see flakiness; undeclared weather
+  is found from outside, which is why the check is a repeat and not a claim.
+
+Guard `base/test/testoor/testoor_clock_narrated.ring`, 66 assertions in 29 s: the stepped clock
+replays identically and refuses a tick it was not given; a seed replays its draws and another
+seed does not; weather falls due once and an unknown weather is refused; **a tour seeded to fail
+at 42 fails identically twice (same signature, same draw) and passes at 43**; a tour naming its
+own seed overrides the runner's; a tour that leaves a marker file behind is flaky and a stable
+one is not; declared weather is named; and the real supervisor kills and restarts a real worker.
+The seed tour is VM-independent on purpose: it fails exactly when its draw equals the draw
+seed 42 produces, so it fails at 42 and passes at 43 under any VM's generator.
+
+**Limits, stated.** The stepped clock lives in Ring; the engine owns seeds already and takes the
+clock when a second consumer needs it (ruling 12). Zin's SIMULATION_TEST (`SEED 42`, `AT 2s:
+FAULT ...`) is the grammar this follows in spirit: a seed, a scenario of timed steps, declared
+faults. It is adopted as a vocabulary, not parsed; reading `.zst` SIMULATION_TEST files into the
+logbook and sending the Zin desk its memo are the next small step, not done here.
 
 ### TR5 to TR8 -- after the compass re-rates the plane on TR4 -- PLANNED
 

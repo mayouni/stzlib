@@ -58,7 +58,7 @@ Scenario("A kept tour: two stops, three claims, each stop timed")
 	Then("the stop opened after the tour started", aR[:stops][1][:opened] >= 0, TRUE)
 	Then("one tour owned, one run", "" + oT.Owned() + "/" + oT.Run(), "1/1")
 	Then("the runner's exit code is 0", oT.ExitCode(), 0)
-	Then("the seed is null until TR4", StzFindFirst('"seed":null', oT.Json()) > 0, TRUE)
+	Then("the seed is in the JSON, a number and no longer null", StzFindFirst('"seed":null', oT.Json()) = 0 and StzFindFirst('"seed":', oT.Json()) > 0, TRUE)
 	Then("the JSON is valid JSON", StzJsonIsValid(oT.Json()), TRUE)
 EndScenario()
 ? "        [section took " + ((clock() - nTrSec) / clockspersecond()) + "s]"

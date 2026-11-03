@@ -6,6 +6,9 @@
 #   rnxc testoor.ring --topic uuid --json          the logbook as JSON, for a pipe
 #   rnxc testoor.ring --file ../test/uuid/00_uuid_narrated.ring
 #   rnxc testoor.ring --all                        every topic (hours; the gate)
+#   rnxc testoor.ring --topic uuid --seed 42       walk every tour with seed 42 (a tour saying Seed(:run) adopts it);
+#                                                  a failing tour prints its seed, and the same seed walks the same path
+#   rnxc testoor.ring --topic uuid --repeat 2      walk each tour twice with ONE seed; verdicts that differ are FLAKY, exit 1
 #   rnxc testoor.ring --routes PLAN.md --topic graphics [--class FILE.ring] [--json]
 #                                                  ROUTE COVERAGE, read and not run: the plan's items
 #                                                  against the tours' discharges()/Route(); with --class,
@@ -36,6 +39,8 @@ bTrJson = 0
 nTrTimeout = 120000
 cTrBy = "shell"
 bTrUsage = 0
+nTrSeed = -1
+nTrRepeat = 1
 cTrPlan = ""
 cTrClass = ""
 
@@ -63,6 +68,12 @@ while nTrI <= nTrArgs
 		nTrI++
 	but cTrA = "--class" and nTrI < nTrArgs
 		cTrClass = sysargv[nTrI + 1]
+		nTrI++
+	but cTrA = "--seed" and nTrI < nTrArgs
+		nTrSeed = 0 + sysargv[nTrI + 1]
+		nTrI++
+	but cTrA = "--repeat" and nTrI < nTrArgs
+		nTrRepeat = 0 + sysargv[nTrI + 1]
 		nTrI++
 	but cTrA = "--all"
 		bTrAll = 1
@@ -111,6 +122,8 @@ if cTrPlan != ""
 ok
 
 oTr = TravellerQ().By(cTrBy).Timeout(nTrTimeout)
+if nTrSeed >= 0  oTr.Seed(nTrSeed)  ok
+oTr.Repeat(nTrRepeat)
 if bTrJson  oTr.Silent()  ok
 
 if bTrUsage or (cTrTopic = "" and cTrFile = "" and NOT bTrAll)
