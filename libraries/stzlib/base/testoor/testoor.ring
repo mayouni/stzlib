@@ -6,6 +6,12 @@
 #   rnxc testoor.ring --topic uuid --json          the logbook as JSON, for a pipe
 #   rnxc testoor.ring --file ../test/uuid/00_uuid_narrated.ring
 #   rnxc testoor.ring --all                        every topic (hours; the gate)
+#   rnxc testoor.ring --routes PLAN.md --topic graphics [--class FILE.ring] [--json]
+#                                                  ROUTE COVERAGE, read and not run: the plan's items
+#                                                  against the tours' discharges()/Route(); with --class,
+#                                                  the class's public methods no tour names. Exit 0, or 1
+#                                                  when a closed route has no tour or a tour names an unknown
+#                                                  one, or 2 when refused.
 #   rnxc testoor.ring --topic uuid --root D:\elsewhere\test --timeout 60000 --by "the author"
 #
 # rnxc is Ring++'s compiler and VM (Ring is retired, RING-RETIRED-01). Each
@@ -30,6 +36,8 @@ bTrJson = 0
 nTrTimeout = 120000
 cTrBy = "shell"
 bTrUsage = 0
+cTrPlan = ""
+cTrClass = ""
 
 nTrArgs = len(sysargv)
 nTrI = 3
@@ -50,6 +58,12 @@ while nTrI <= nTrArgs
 	but cTrA = "--by" and nTrI < nTrArgs
 		cTrBy = sysargv[nTrI + 1]
 		nTrI++
+	but cTrA = "--routes" and nTrI < nTrArgs
+		cTrPlan = sysargv[nTrI + 1]
+		nTrI++
+	but cTrA = "--class" and nTrI < nTrArgs
+		cTrClass = sysargv[nTrI + 1]
+		nTrI++
 	but cTrA = "--all"
 		bTrAll = 1
 	but cTrA = "--json"
@@ -59,6 +73,42 @@ while nTrI <= nTrArgs
 	ok
 	nTrI++
 end
+
+# ROUTE COVERAGE: read, not run. Owned and walked are two counts and there is
+# no percentage (ruling 8).
+if cTrPlan != ""
+	cTrDir = cTrRoot
+	if cTrTopic != ""  cTrDir = cTrRoot + "/" + cTrTopic  ok
+	cTrWhy = ""
+	if cTrTopic = "" and NOT bTrAll  cTrWhy = "no scope: give --topic NAME or --all with --routes"  ok
+	if cTrWhy = "" and NOT fexists(cTrPlan)  cTrWhy = "no such plan: " + cTrPlan  ok
+	if cTrWhy = ""
+		try
+			aTrProbe = dir(cTrDir)
+		catch
+			cTrWhy = "no such topic under " + cTrRoot + ": " + cTrTopic
+		done
+	ok
+	if cTrWhy != ""
+		if bTrJson
+			? '{"testoor":"logbook","kind":"routes","refusal":' + _TourJsonStr(cTrWhy) + ',"exit":2}'
+		else
+			? "REFUSED: " + cTrWhy
+			? "exit 2"
+		ok
+		shutdown(2)
+	ok
+	oTrMap = StzRouteMapQ().AddPlanFile(cTrPlan).AddToursUnder(cTrDir)
+	if cTrClass != ""
+		oTrMap.MapMethods(cTrClass, _TrFilesOf(cTrDir))
+	ok
+	if bTrJson
+		? oTrMap.Json()
+	else
+		? oTrMap.Prose()
+	ok
+	shutdown(oTrMap.NeedsAttention())
+ok
 
 oTr = TravellerQ().By(cTrBy).Timeout(nTrTimeout)
 if bTrJson  oTr.Silent()  ok
@@ -89,3 +139,7 @@ else
 	? oTr.Summary()
 ok
 shutdown(oTr.ExitCode())
+
+func _TrFilesOf(cDir)
+	aTwo = _TourFilesUnder(cDir, "")
+	return aTwo[1]

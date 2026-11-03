@@ -156,7 +156,7 @@ func _TourRead(pcPath)
 	# the file. A class body is not read either.
 	_cDia_ = _aRec_[:dialect]
 	_bBanners_ = (_cDia_ = "chk" or _cDia_ = "markers" or _cDia_ = "promises")
-	_acMute_ = [ "sec", "chk", "chkeq", "discharges", "class" ]
+	_acMute_ = [ "sec", "chk", "chkeq", "discharges", "route", "class" ]
 	_nH_ = len(_aHelpers_)
 	for _k_ = 1 to _nH_
 		_acMute_ + _aHelpers_[_k_]
@@ -192,7 +192,7 @@ func _TourRead(pcPath)
 			loop
 		ok
 		# a route
-		if substr(_lt_, "discharges(") = 1
+		if substr(_lt_, "discharges(") = 1 or substr(_lt_, "route(") = 1
 			_cAt_ = ""
 			if _nCur_ > 0  _cAt_ = _aStops_[_nCur_][:title]  ok
 			_aRoutes_ + [ :item = _TourFirstString(_t_), :stop = _cAt_, :line = _i_ ]

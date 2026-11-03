@@ -148,14 +148,35 @@ interim: the promises guard 52 assertions, 3 of which are the Ring++ expectation
 Atelier session moved, so they fail on Ring by design; it has not been re-run on rnxc, whose
 engine copy this worktree does not have.
 
-### TR3 -- Routes and the map -- PLANNED
+### TR3 -- Routes and the map -- DONE 2026-11-03
 
-`Route()` on tours; route coverage from the plan rules (`StzCheckPlanCoverage`,
-`StzSuiteDischargesOf`); untouched methods named from the code graph. A line or
-branch percentage is refused until route coverage exists, then printed beside it.
-Probed 2026-10-05: Ring's trace hook (`ringvm_settrace`) reports a NEWLINE event
-with file, line and function for every executed line, so a line map is possible
-from inside one process -- after routes, never instead of them.
+`base/testoor/stzRoute.ring`. A ROUTE is a plan item; a TOUR walks it by saying so, with
+`discharges("GG6")` (the gate's old form) or the new `Route("GG6")` (a harmless no-op
+function, read from the source by the tour reader in every dialect). `stzRouteMap` joins
+the plan's items (the court's own `StzPlanItemsOf`) with the tours' declarations and
+answers two counts, OWNED and WALKED, never summed and never a percentage (ruling 8).
+The court's plan rules run over the same two lists (`StzCheckPlanCoverage`), and one rule
+is new: `route_without_tour`, a WARNING when the plan reads the item closed (something is
+claimed done that nothing walks) and INFO when it reads open. `tour_walks_unknown_route`
+catches a typo. The MAP: `StzUntouchedMethods(classFile, tourFiles)` names, from the code
+graph, the public methods of a class that no tour NAMES -- a static name join, a proxy for
+a route and not execution coverage, said in every report that uses it; a definition is not
+a touch, `init` and `_private` methods are not listed. At the shell:
+`ring testoor.ring --routes PLAN.md --topic T [--class FILE] [--json]`, exit 0, 1 when a
+closed route has no tour or a tour names an unknown one, 2 when refused. All findings are in
+the court's shape and `stzRuleReport.Ingest()` takes them.
+
+Guard `base/test/testoor/testoor_routes_narrated.ring`, 44 assertions: one plan item with no
+tour is ONE route unwalked and adding the tour clears it; closed is a warning and open is
+information; an unknown route is a finding and a known one is not; and on the real gate the
+tour reader and the court's own `StzSuiteDischargesOf`, written apart, find the same 81
+routes in the same order. Measured on the real graphics plan: 36 routes owned, 9 walked,
+27 unwalked, 7 of them closed -- the library's tours almost never declare a route, only the
+gate does, so route coverage starts low and the number is the finding.
+
+**Not done:** the comparison with `zin test coverage` on a shared fixture. The two count
+different things (declarations a Zin test mentions, plan items a tour declares) and no
+fixture both can read exists; see the TR3 memo.
 
 ### TR4 -- The clock and the weather -- PLANNED
 
