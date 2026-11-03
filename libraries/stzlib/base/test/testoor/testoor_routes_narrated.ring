@@ -85,9 +85,9 @@ Scenario("A closed route nobody walks is a warning; an open one is information; 
 	oU = StzRouteMapQ().AddPlan("plan", cTrPlan2).AddTour(Tour(cTrPlant + "/tours/typo.ring"))
 	Then("the typo is one unknown walk", len(oU.UnknownWalks()), 1)
 	Then("named", oU.UnknownWalks()[1][1], "ZA9")
-	Then("the court says so", _TrCountRule(oU.Findings(), :tour_walks_unknown_route), 1)
+	Then("the court says so, under its own rule", _TrCountRule(oU.Findings(), :guard_discharges_unknown_item), 1)
 	Then("whereas a tour naming a known route says nothing of the kind",
-		_TrCountRule(StzRouteMapQ().AddPlan("plan", cTrPlan2).AddTour(Tour(cTrPlant + "/tours/one.ring")).Findings(), :tour_walks_unknown_route), 0)
+		_TrCountRule(StzRouteMapQ().AddPlan("plan", cTrPlan2).AddTour(Tour(cTrPlant + "/tours/one.ring")).Findings(), :guard_discharges_unknown_item), 0)
 EndScenario()
 ? "        [section took " + ((clock() - nTrSec) / clockspersecond()) + "s]"
 

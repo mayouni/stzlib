@@ -157,8 +157,8 @@ the plan's items (the court's own `StzPlanItemsOf`) with the tours' declarations
 answers two counts, OWNED and WALKED, never summed and never a percentage (ruling 8).
 The court's plan rules run over the same two lists (`StzCheckPlanCoverage`), and one rule
 is new: `route_without_tour`, a WARNING when the plan reads the item closed (something is
-claimed done that nothing walks) and INFO when it reads open. `tour_walks_unknown_route`
-catches a typo. The MAP: `StzUntouchedMethods(classFile, tourFiles)` names, from the code
+claimed done that nothing walks) and INFO when it reads open. A tour naming a route no plan
+defines is the court's own `guard_discharges_unknown_item`, not a second rule. The MAP: `StzUntouchedMethods(classFile, tourFiles)` names, from the code
 graph, the public methods of a class that no tour NAMES -- a static name join, a proxy for
 a route and not execution coverage, said in every report that uses it; a definition is not
 a touch, `init` and `_private` methods are not listed. At the shell:
@@ -171,8 +171,10 @@ tour is ONE route unwalked and adding the tour clears it; closed is a warning an
 information; an unknown route is a finding and a known one is not; and on the real gate the
 tour reader and the court's own `StzSuiteDischargesOf`, written apart, find the same 81
 routes in the same order. Measured on the real graphics plan: 36 routes owned, 9 walked,
-27 unwalked, 7 of them closed -- the library's tours almost never declare a route, only the
-gate does, so route coverage starts low and the number is the finding.
+27 unwalked, 26 of them read closed (so 26 warnings: closed and nothing walks it) and 1
+unstated. The library's tours almost never declare a route, only the gate does, so route
+coverage starts low and the number is the finding. Joined with that one plan alone, the gate's
+72 discharges of other plans' items are reported as unknown by the court, as they should be.
 
 **Not done:** the comparison with `zin test coverage` on a shared fixture. The two count
 different things (declarations a Zin test mentions, plan items a tour declares) and no
@@ -222,7 +224,8 @@ seed 42 produces, so it fails at 42 and passes at 43 under any VM's generator.
 clock when a second consumer needs it (ruling 12). Zin's SIMULATION_TEST (`SEED 42`, `AT 2s:
 FAULT ...`) is the grammar this follows in spirit: a seed, a scenario of timed steps, declared
 faults. It is adopted as a vocabulary, not parsed; reading `.zst` SIMULATION_TEST files into the
-logbook and sending the Zin desk its memo are the next small step, not done here.
+logbook is the next small step, not done here. The Zin desk's memo is filed in `memos/` and
+routed through CONCLUSIONS.
 
 ### TR5 to TR8 -- after the compass re-rates the plane on TR4 -- PLANNED
 

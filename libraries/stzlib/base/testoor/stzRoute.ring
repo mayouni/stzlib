@@ -308,14 +308,9 @@ class stzRouteMap from stzObject
 			           :where = _aU_[_k_][4] + ":" + _aU_[_k_][3], :severity = _cSev_,
 			           :message = "route " + _aU_[_k_][1] + " has no tour -- " + _cWhy_ ]
 		next
-		_aUk_ = This.UnknownWalks()
-		_nK_ = ring_len(_aUk_)
-		for _k_ = 1 to _nK_
-			_aOut_ + [ :rule = :tour_walks_unknown_route, :subject = :route,
-			           :where = _aUk_[_k_][2] + ":" + _aUk_[_k_][4], :severity = :warning,
-			           :message = "a tour declares it walks route " + _aUk_[_k_][1] +
-			                      ", which no plan in scope defines -- renamed, or a typo no run would notice" ]
-		next
+		# A walk naming a route no plan defines is the court's own finding,
+		# guard_discharges_unknown_item (StzCheckPlanCoverage above); a second
+		# rule for the same fact would count it twice.
 		_nM_ = ring_len(@aTouched)
 		for _k_ = 1 to _nM_
 			_aOut_ + [ :rule = :method_without_tour, :subject = @aTouched[_k_][1],
