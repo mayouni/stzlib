@@ -28,14 +28,15 @@ def lst(items):
 
 
 def main():
-    out = ["# doc_vlm_v1.ring -- the :doc-vlm golden set, version v1: one item per page, the page given as a PNG in the",
+    which = sys.argv[1] if len(sys.argv) > 1 else "v1"
+    out = ["# doc_vlm_%s.ring -- the :doc-vlm golden set, version %s: one item per page, the page given as a PNG in the" % (which, which),
            "# folder doc_vlm_render.py fills (<key>.png) and what a correct reader recovers from it. The expectations are",
            "# generated from the documents' expected.json (base/test/document/_data), whose authors never saw a reader;",
-           "# the 31 pages are the first one-page English document of each of golden_v2 ... golden_v33. Do not edit by hand.",
+           "# the pages are " + ("the first one-page English document of each of golden_v2 ... golden_v33 (31 pages)" if which == "v1" else "the second and, when there is one, the third one-page English document of each of golden_v2 ... golden_v33 (FRESH: no model had read one when the combination rule was written)") + ". Do not edit by hand.",
            "",
-           "func StzVisionGoldenDocV1(pcDir)",
+           "func StzVisionGoldenDoc%s(pcDir)" % which.upper(),
            "\t_a_ = []"]
-    for d, i, diff in selection():
+    for d, i, diff in selection(which):
         e = json.load(open(os.path.join(DOCS, d, i + ".expected.json"), encoding="utf-8"))
         key = "v%s_%s" % (d.replace("golden_v", ""), i)
         tables = "[ " + ", ".join("[ " + ", ".join(lst(r) for r in t["rows"]) + " ]" for t in e.get("tables", [])) + " ]"
@@ -44,9 +45,9 @@ def main():
             lst([x["text"] for x in e.get("list_items", [])]), lst(e.get("furniture", [])), lst(e.get("code", [])))
         out.append("\t_a_ + [ pcDir + \"%s.png\", %s ]" % (key, exp))
     out += ["\treturn _a_", ""]
-    p = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "_golden", "doc_vlm_v1.ring")
+    p = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "_golden", "doc_vlm_%s.ring" % which)
     open(p, "w", encoding="utf-8", newline="\n").write("\n".join(out))
-    print("wrote", os.path.normpath(p), len(selection()), "pages")
+    print("wrote", os.path.normpath(p), len(selection(which)), "pages")
 
 
 if __name__ == "__main__":

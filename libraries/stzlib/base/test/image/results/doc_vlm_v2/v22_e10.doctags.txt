@@ -1,0 +1,92 @@
+<doctag><section_header_level_1><loc_49><loc_32><loc_243><loc_43>NORTHSHORE LIBRARY NETWORK</section_header_level_1>
+<text><loc_49><loc_43><loc_290><loc_50>Annual Conference 2026 · Harbourside Civic Centre · 6-7 November</text>
+<section_header_level_1><loc_41><loc_61><loc_224><loc_77>Programme - Day One</section_header_level_1>
+<text><loc_40><loc_81><loc_283><loc_96>Welcome to the second annual conference of the Northshore Library Network. This year's theme is reading in a changing community.</text>
+<otsl><loc_40><loc_103><loc_310><loc_259></otsl>
+<section_header_level_1><loc_326><loc_69><loc_421><loc_78>Practical information</section_header_level_1>
+<unordered_list><list_item><loc_326><loc_81><loc_440><loc_96>· Lunch is served in the Atrium from 12:30.</list_item>
+<list_item><loc_326><loc_97><loc_446><loc_112>· Cloakroom on the ground floor, next to the lifts.</list_item>
+<list_item><loc_326><loc_113><loc_452><loc_129>· Quiet room: Room 1.02, open all day.</list_item>
+<list_item><loc_326><loc_130><loc_448><loc_146>· Step-free access from the Quay Street entrance.</list_item>
+</unordered_list>
+<text><loc_326><loc_150><loc_452><loc_166>Please wear your badge at all times while in the building.</text>
+<section_header_level_1><loc_326><loc_170><loc_367><loc_179>Contacts</section_header_level_1>
+<text><loc_326><loc_181><loc_418><loc_188>Registration desk ext. 210</text>
+<text><loc_326><loc_189><loc_418><loc_196>First aid ext. 222</text>
+<text><loc_326><loc_197><loc_418><loc_204>Lost property</text>
+<text><loc_326><loc_207><loc_349><loc_215>Atrium</text>
+<text><loc_392><loc_207><loc_431><loc_214>Atrium desk</text>
+<section_header_level_1><loc_326><loc_213><loc_349><loc_222>Wi-Fi</section_header_level_1>
+<text><loc_326><loc_223><loc_431><loc_247>Network: NLN-Guest Password on the back of your badge</text>
+<text><loc_326><loc_252><loc_320><loc_260>L</text>
+<text><loc_326><loc_252><loc_320><loc_260>e</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>e</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>e</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>e</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>e</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>e</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>e</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>e</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>e</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>e</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>e</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>e</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>e</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>e</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>e</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>e</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>e</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>e</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>e</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>e</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>e</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>e</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>e</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>e</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>e</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>e</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>e</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>e</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>t</text>
+<text><loc_326><loc_252><loc_320><loc_260>e</text>
+<text><loc_326><loc_252><loc

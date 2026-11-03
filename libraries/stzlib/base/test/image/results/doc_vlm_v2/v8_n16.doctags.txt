@@ -1,0 +1,31 @@
+<doctag><section_header_level_1><loc_57><loc_34><loc_375><loc_47>Kestrel Ridge Institute for Applied Microbiology</section_header_level_1>
+<text><loc_57><loc_46><loc_348><loc_52>Media Preparation Unit · Building C, 40 Larchmere Road, Kestrel Ridge KR7 2PD · Tel. 01632 960 733</text>
+<otsl><loc_47><loc_55><loc_453><loc_73><fcel>Document no.<fcel>Version<fcel>Effective date<fcel>Next review<fcel>Approved by<nl><fcel>SOP-MB-017<fcel>4.0<fcel>I September 2026<fcel>I September 2028<fcel>Head of Media Preparation<nl></otsl>
+<section_header_level_1><loc_48><loc_77><loc_319><loc_87>Preparation of Luria-Bertani (LB) Agar Plates</section_header_level_1>
+<section_header_level_1><loc_48><loc_91><loc_91><loc_99>1 Purpose</section_header_level_1>
+<text><loc_48><loc_100><loc_435><loc_107>This procedure describes the preparation, sterilisation and pouring of LB agar plates for routine bacterial culture.</text>
+<section_header_level_1><loc_48><loc_111><loc_82><loc_119>2 Scope</section_header_level_1>
+<text><loc_48><loc_120><loc_333><loc_127>It applies to all staff and students who prepare media in the Media Preparation Unit.</text>
+<section_header_level_1><loc_48><loc_131><loc_82><loc_139>3 Safety</section_header_level_1>
+<unordered_list><list_item><loc_52><loc_139><loc_365><loc_146>· Wear a laboratory coat, safety glasses and heat-resistant gloves when handling hot media.</list_item>
+<list_item><loc_52><loc_147><loc_319><loc_154>· Never open the autoclave until the chamber pressure has returned to zero.</list_item>
+<list_item><loc_52><loc_156><loc_276><loc_163>· Report any burn or spillage to the unit supervisor immediately.</list_item>
+</unordered_list>
+<section_header_level_1><loc_48><loc_167><loc_95><loc_175>4 Materials</section_header_level_1>
+<otsl><loc_47><loc_177><loc_453><loc_230><fcel>Component<fcel>Amount per litre<fcel>Grade<nl><fcel>Tryptone<fcel>10 g<fcel>Microbiology grade<nl><fcel>Yeast extract<fcel>5 g<fcel>Microbiology grade<nl><fcel>Sodium chloride<fcel>10 g<fcel>Analytical reagent<nl><fcel>Agar<fcel>15 g<fcel>Bacteriological<nl><fcel>Purified water<fcel>to 1000 mL<fcel>Type II<nl></otsl>
+<section_header_level_1><loc_48><loc_234><loc_100><loc_242>5 Procedure</section_header_level_1>
+<unordered_list><list_item><loc_55><loc_242><loc_233><loc_250>1. Weigh the dry components into a 2 L glass bottle.</list_item>
+<list_item><loc_54><loc_250><loc_323><loc_257>2. Add 900 mL of purified water and stir until the powders are fully suspended.</list_item>
+<list_item><loc_54><loc_259><loc_168><loc_266>3. Adjust the volume to 1000 mL.</list_item>
+<list_item><loc_54><loc_267><loc_140><loc_274>4. Sterilise by autoclaving:</list_item>
+<list_item><loc_68><loc_276><loc_219><loc_283>a. 121 °C for 15 minutes on the liquid cycle;</list_item>
+<list_item><loc_68><loc_284><loc_239><loc_291>b. loosen the cap by a quarter turn before loading.</list_item>
+<list_item><loc_54><loc_292><loc_231><loc_299>5. Cool the medium to about 50 °C in a water bath.</list_item>
+<list_item><loc_54><loc_301><loc_278><loc_308>6. If required, add the antibiotic asseptically and swirl gently to mix.</list_item>
+<list_item><loc_54><loc_309><loc_337><loc_316>7. Pour approximately 20 mL into each sterile Petri dish and allow the plates to set.</list_item>
+</unordered_list>
+<section_header_level_1><loc_48><loc_320><loc_143><loc_328>6 Storage and records</section_header_level_1>
+<text><loc_47><loc_329><loc_444><loc_345>Store the plates inverted at 2-8 °C and use them within four weeks. Record the batch number, date and preparer in the media log. Discard any plate that shows contamination, cracking or drying.</text>
+<page_footer><loc_48><loc_462><loc_122><loc_468>Uncontrolled when printed</page_footer>
+<page_footer><loc_367><loc_462><loc_452><loc_468>SOP-MB-017 v4.0 · Page I of I</page_footer>
+</doctag>

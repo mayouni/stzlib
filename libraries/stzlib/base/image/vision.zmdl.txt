@@ -17,3 +17,6 @@ describe|fixed|coco-describe-v1|0.444|99|1|03/11/2026 02:59:49|
 describe|smolvlm-256m|coco-describe-v1|0.828|99|1|03/11/2026 02:59:49|scored by the guard with names-main-object, one description per picture
 doc-vlm|native-reader|doc-vlm-v1|0.129032|31|1|03/11/2026 13:21:01|
 doc-vlm|granite-docling-258m|doc-vlm-v1|0.129032|31|1|03/11/2026 13:21:01|scored by the guard with doc-blocks on the predictions stored in results/doc_vlm_v1/
+doc-vlm|native-reader|doc-vlm-v2|0.222222|27|1|03/11/2026 14:37:57|
+doc-vlm|granite-docling-258m|doc-vlm-v2|0.444444|27|1|03/11/2026 14:37:57|scored by the guard with doc-blocks on the predictions stored in results/doc_vlm_v2/
+doc-vlm|native-plus-granite|doc-vlm-v2|0.370370|27|1|03/11/2026 14:37:57|scored by the guard with doc-blocks: StzDocBlocksCombine of the stored floor and model predictions of results/doc_vlm_v2/

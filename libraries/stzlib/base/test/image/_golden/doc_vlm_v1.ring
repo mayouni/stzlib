@@ -1,7 +1,7 @@
 # doc_vlm_v1.ring -- the :doc-vlm golden set, version v1: one item per page, the page given as a PNG in the
 # folder doc_vlm_render.py fills (<key>.png) and what a correct reader recovers from it. The expectations are
 # generated from the documents' expected.json (base/test/document/_data), whose authors never saw a reader;
-# the 31 pages are the first one-page English document of each of golden_v2 ... golden_v33. Do not edit by hand.
+# the pages are the first one-page English document of each of golden_v2 ... golden_v33 (31 pages). Do not edit by hand.
 
 func StzVisionGoldenDocV1(pcDir)
 	_a_ = []

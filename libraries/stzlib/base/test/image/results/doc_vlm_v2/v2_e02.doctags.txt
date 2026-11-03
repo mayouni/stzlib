@@ -1,0 +1,18 @@
+<doctag><section_header_level_1><loc_114><loc_37><loc_386><loc_54>The Harbour Lane Gazette</section_header_level_1>
+<section_header_level_1><loc_48><loc_68><loc_158><loc_88>New Bus Stop Opens on Quay Street</section_header_level_1>
+<text><loc_48><loc_93><loc_159><loc_128>The long-awaited bus stop on Quay Street opened to passengers on the first Monday of April.</text>
+<text><loc_48><loc_134><loc_160><loc_170>Route 14 now stops there every twenty minutes between six in the morning and ten at night.</text>
+<text><loc_48><loc_176><loc_170><loc_193>Residents asked for a shelter with a bench, and the council</text>
+<text><loc_190><loc_68><loc_310><loc_85>has promised one before the summer.</text>
+<section_header_level_1><loc_190><loc_90><loc_291><loc_112>Library Extends Its Opening Hours</section_header_level_1>
+<text><loc_190><loc_117><loc_311><loc_143>The Harbour Lane library will stay open until eight o'clock on Tuesdays and Thursdays.</text>
+<text><loc_190><loc_149><loc_303><loc_184>Volunteers will run a homework club for children aged eight to twelve during the extra hours.</text>
+<text><loc_190><loc_190><loc_304><loc_207>Anyone who wants to help can leave their name at the</text>
+<text><loc_190><loc_117><loc_311><loc_143>The Harbour Lane library will stay open until eight o'clock on Tuesdays and Thursdays.</text>
+<text><loc_190><loc_149><loc_303><loc_184>Volunteers will run a homework club for children aged eight to twelve during the extra hours.</text>
+<text><loc_190><loc_190><loc_304><loc_207>Anyone who wants to help can leave their name at the</text>
+<section_header_level_1><loc_332><loc_78><loc_441><loc_90>Spring Clean-Up Day</section_header_level_1>
+<text><loc_332><loc_93><loc_449><loc_130>Our yearly clean-up day takes place on Saturday the 16th of May, starting at nine o'clock.</text>
+<text><loc_332><loc_136><loc_450><loc_163>Gloves, bags and tea will be provided at the community hall.</text>
+<text><loc_332><loc_169><loc_453><loc_205>Last year forty-two neighbours collected more than ninety bags of rubbish from the beach and the park.</text>
+</doctag>

@@ -1,0 +1,51 @@
+page_header	0	Meridian Bioprocess Materials
+page_header	0	Quality Control Laboratory 4 Fenwick Science Park, Lowmoor LM7 3RT qc@meridian-bpm.example
+heading	1	Certificate of Analysis
+heading	2	Product
+table	0	Product nameSodium chloride, low endotoxinCatalogue numberMBM-SC-500GradePharmacopoeial, for bioprocessing
+heading	2	Lot
+table	0	Lot numberSC26-1043Date of manufacture06 October 2026Retest date05 October 2029
+table	0	ProductProduct nameSodium chloride, low endotoxinLot numberSC26-1043Catalogue numberMBM-SC-500Date of manufacture06 October 2026GradePharmacopeial, for bioprocessingRetest date05 October 2029Pack size25 kg drumBelow 30 °C, keep container closed
+paragraph	0	Storage
+list_item	0	Below 30 °C, keep container closed
+heading	7	Test results
+paragraph	0	The lot described above was tested against the current product specification, and the results are reported below.
+table	0	TestMethodSpecificationSpecificationResultStatusAnalystDateAssay (dried basis)Ph. Eur. 01993%99.0100.599.8PassR. FeldLoss on dryingPh. Eur. 2.2.32%-0.50.12PassR. FeldpH (5 % solution)USP-5.09.06.4PassT. AnsahBacterial endotoxinsPh. Eur. 2.6.14EU/g-0.5< 0.1PassM. KowalTotal aerobic microbial countPh. Eur. 2.6.12CFU/g-100< 10PassM. KowalSulfatesPh. Eur. 01993ppm-200< 50PassT. AnsahIronPh. Eur. 2.4.9ppm-2< 1PassR. FeldHeavy metals (as Pb)ICP-MS, QC-M-071ppm-50.3PassT. AnsahAppearanceVisual, QC-M-002-White crystalline powderConformsPassT. Ansah12 Oct 2026
+list_item	0	Method
+paragraph	0	Ph. Eur. 0193
+paragraph	0	USP<791>
+paragraph	0	Unit
+paragraph	0	Lower
+paragraph	0	% %
+list_item	0	Upper
+list_item	0	Result
+paragraph	0	99.8 Pass
+paragraph	0	0.12 Pass
+paragraph	0	6.4 Pass
+list_item	0	R. Feld
+list_item	0	R. Feld
+caption	0	T. Ansah
+table	0	Bacterial endotoxinsPh. Eur. 2.6.14EU/g-Pass14 0ct 2026Total aerobic microbial countPh. Eur. 2.6.12CFU/g-100<10 Pass19 Oct 2026SulfatesPh. Eur. 0193-200<50 PassT. Ansah13 Oct 2026
+paragraph	0	0.5 < 0.1
+heading	3	ppm ppm
+paragraph	0	<1
+list_item	0	- White crystalline powder
+heading	5	Conclusion
+paragraph	0	All results comply with the specification, and the lot is released for sale. This certificate was generated from the laboratory information system and is valid without a handwritten signature. Raw data are kept for at least ten years after the retest date.
+list_item	0	Reviewed by
+paragraph	0	Rosa Feld
+paragraph	0	Senior Analyst, Quality Control 20 October 2026
+heading	6	Approved by
+paragraph	0	Daniel Okafor Head of Quality Assurance 21 October 2026
+page_footer	0	Form QA-F-112 rev. 4 · This document may only be reproduced in full.
+page_footer	0	Page 1 of 1
+list_item	0	Date
+paragraph	0	12 0ct 2026
+paragraph	0	12 0ct 2026
+paragraph	0	13 0ct 2026
+list_item	0	M. Kowal
+list_item	0	M. Kowal
+paragraph	0	12 0ct 2026
+list_item	0	R. Feld
+paragraph	0	15 0ct 2026
+paragraph	0	12 0ct 2026

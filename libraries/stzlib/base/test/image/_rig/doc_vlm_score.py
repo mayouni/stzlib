@@ -22,12 +22,14 @@ SCORER = os.path.join(HERE, "..", "..", "document", "_doc_score.py")
 
 
 def main():
-    pdir, rdir = os.path.abspath(sys.argv[1]), os.path.abspath(sys.argv[2])
-    tools = sys.argv[3:] or ["floor", "granite"]
+    args = [a for a in sys.argv[1:] if not a.startswith("--set=")]
+    which = ([a[6:] for a in sys.argv[1:] if a.startswith("--set=")] or ["v1"])[0]
+    pdir, rdir = os.path.abspath(args[0]), os.path.abspath(args[1])
+    tools = args[2:] or ["floor", "granite"]
     with tempfile.TemporaryDirectory() as g:
-        gdir = os.path.join(g, "doc_vlm_v1")
+        gdir = os.path.join(g, "doc_vlm_" + which)
         os.makedirs(gdir)
-        for d, i, diff in selection():
+        for d, i, diff in selection(which):
             e = json.load(open(os.path.join(DOCS, d, i + ".expected.json"), encoding="utf-8"))
             e["id"] = "v%s_%s" % (d.replace("golden_v", ""), i)
             json.dump(e, open(os.path.join(gdir, e["id"] + ".expected.json"), "w", encoding="utf-8"), ensure_ascii=False)
@@ -37,9 +39,9 @@ def main():
     keys = ["text", "order", "headings", "tables", "lists", "furniture", "code"]
     lines = []
     for t in tools:
-        for r in json.load(open(os.path.join(rdir, t + "_doc_vlm_v1.json"), encoding="utf-8"))["documents"]:
+        for r in json.load(open(os.path.join(rdir, t + "_doc_vlm_" + which + ".json"), encoding="utf-8"))["documents"]:
             lines.append(chr(9).join([t, r["id"]] + ["-" if r[k] is None else repr(r[k]) for k in keys]))
-    open(os.path.join(rdir, "doc_vlm_v1_scores.tsv"), "w", encoding="utf-8", newline=chr(10)).write(chr(10).join(lines) + chr(10))
+    open(os.path.join(rdir, "doc_vlm_" + which + "_scores.tsv"), "w", encoding="utf-8", newline=chr(10)).write(chr(10).join(lines) + chr(10))
 
 
 if __name__ == "__main__":

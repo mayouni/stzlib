@@ -7,10 +7,13 @@
 # cells by U+001F):
 #   <key>.floor.tsv     the native PDF reader on the page as a scan (OCR, then its own layout rules)
 #   <key>.granite.tsv   Granite-Docling's blocks;   <key>.doctags.txt   what it wrote, tags and all
+#   <key>.combined.tsv  the two combined (StzDocBlocksCombine), derived from the two files above; mode "combine" makes
+#                       only these
 # and floor.times.tsv / granite.times.tsv (key, seconds). Run from base/test/image so the library loads.
 # A page already done is skipped, so a run that stopped is run again from where it stopped.
 
 load "../../stzBase.ring"
+load "_rig/doc_vlm_tsv.ring"
 
 cPages = sysargv[3]
 cOut = sysargv[4]
@@ -55,34 +58,16 @@ for i = 1 to len(aKeys)
 			? cKey + "  granite  " + len(aB) + " blocks  " + aS[3] + " tokens  " + nSec + " s"
 		ok
 	ok
+	# the combination is DERIVED from the two stored readings (no model runs): StzDocBlocksCombine
+	if cWhich = "both" or cWhich = "combine"
+		cF = cOut + "/" + cKey + ".floor.tsv"
+		cG = cOut + "/" + cKey + ".granite.tsv"
+		if fexists(cF) and fexists(cG)
+			write(cOut + "/" + cKey + ".combined.tsv", Tsv(StzDocBlocksCombine(BlocksFromTsv(cF), BlocksFromTsv(cG))))
+		ok
+	ok
 next
 
 func read2(cPath)
 	if fexists(cPath) return read(cPath) ok
 	return ""
-
-func Tsv(aB)
-	cTsv = ""
-	for j = 1 to len(aB)
-		if aB[j][:kind] = "table"
-			cRows = ""
-			for r = 1 to len(aB[j][:rows])
-				if r > 1 cRows += char(30) ok
-				aRow = aB[j][:rows][r]
-				for c = 1 to len(aRow)
-					if c > 1 cRows += char(31) ok
-					cRows += Esc(aRow[c])
-				next
-			next
-			cTsv += "table" + char(9) + "0" + char(9) + cRows + char(10)
-		else
-			cTsv += aB[j][:kind] + char(9) + aB[j][:level] + char(9) + Esc(aB[j][:text]) + char(10)
-		ok
-	next
-	return cTsv
-
-func Esc(c)
-	c = StzReplace(c, "\", "\\")
-	c = StzReplace(c, char(9), "\t")
-	c = StzReplace(c, char(10), "\n")
-	return c

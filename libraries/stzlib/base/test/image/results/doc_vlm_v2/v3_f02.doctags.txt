@@ -1,0 +1,6 @@
+<doctag><section_header_level_1><loc_47><loc_34><loc_286><loc_50>Volunteer Hours by Programme</section_header_level_1>
+<text><loc_47><loc_59><loc_442><loc_79>The volunteer office records every session in a shared logbook. Hours are rounded to the nearest half hour.</text>
+<otsl><loc_50><loc_102><loc_404><loc_212><caption><loc_47><loc_85><loc_253><loc_95>Table 1. Hours logged between January and June</caption></otsl>
+<section_header_level_1><loc_47><loc_223><loc_80><loc_235>Notes</section_header_level_1>
+<text><loc_47><loc_241><loc_451><loc_270>Meal delivery remains the programme with the largest commitment. The repair workshop doubled its sessions after moving to a larger room. Coordinators are asked to submit the July figures by the tenth of August.</text>
+</doctag>

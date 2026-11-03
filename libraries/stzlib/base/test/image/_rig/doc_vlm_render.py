@@ -14,7 +14,7 @@ For each document the page is rendered at 150 dpi, greyscale (what the OCR plane
   <key>.pdf    the same page as an image-only PDF, a scan: no text layer, so the native reader reads it by OCR
 and the folder gets golden.tsv: key, golden set, document id, difficulty.
 
-    <docling venv>/python -I -X utf8 doc_vlm_render.py <out dir>      (needs pypdfium2 and Pillow)
+    <docling venv>/python -I -X utf8 doc_vlm_render.py <out dir> [v1|v2]      (needs pypdfium2 and Pillow)
 """
 import glob
 import io
@@ -28,15 +28,22 @@ import pypdfium2 as pdfium
 DOCS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "document", "_data")
 
 
-def selection():
+# the golden sets of :doc-vlm, by which of each set's one-page English documents (by id) they take: v1 the first;
+# v2 the second and, when there is one, the third. v2 is FRESH: no model has read a page of it and the combination's rule
+# (stzDocTags.ring, StzDocBlocksCombine) was written down before any did. golden_v1 is the native reader's development set.
+SETS = {"v1": (0,), "v2": (1, 2)}
+
+
+def selection(which="v1"):
     out = []
     for n in range(2, 34):
         d = "golden_v%d" % n
+        ok = []
         for f in sorted(glob.glob(os.path.join(DOCS, d, "*.expected.json"))):
             e = json.load(open(f, encoding="utf-8"))
             if e.get("pages") == 1 and e.get("languages") == ["en"]:
-                out.append((d, e["id"], e.get("difficulty", "")))
-                break
+                ok.append((d, e["id"], e.get("difficulty", "")))
+        out += [ok[i] for i in SETS[which] if i < len(ok)]
     return out
 
 
@@ -68,9 +75,10 @@ def scan_pdf(path, im):
 
 def main():
     out = sys.argv[1]
+    which = sys.argv[2] if len(sys.argv) > 2 else "v1"
     os.makedirs(out, exist_ok=True)
     rows = []
-    for d, i, diff in selection():
+    for d, i, diff in selection(which):
         key = "v%s_%s" % (d.replace("golden_v", ""), i)
         pdf = pdfium.PdfDocument(os.path.join(DOCS, d, i + ".pdf"))
         im = pdf[0].render(scale=150 / 72).to_pil().convert("L")

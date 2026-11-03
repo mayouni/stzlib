@@ -1,0 +1,28 @@
+<doctag><section_header_level_1><loc_48><loc_34><loc_225><loc_48>Field Trip Preparation</section_header_level_1>
+<text><loc_48><loc_54><loc_436><loc_71>Pupils from Year 5 will visit the Dunmore Museum of Industry on 14 May. Teachers should work through the four lists below in the week before the trip.</text>
+<section_header_level_1><loc_48><loc_78><loc_142><loc_88>Before departure</section_header_level_1>
+<text><loc_48><loc_91><loc_227><loc_99>Complete these steps in the order shown.</text>
+<unordered_list><list_item><loc_51><loc_102><loc_233><loc_110>→ Confirm the bus booking with the depot</list_item>
+<list_item><loc_51><loc_112><loc_216><loc_120>→ Collect the signed permission forms</list_item>
+<list_item><loc_51><loc_122><loc_242><loc_130>→ Print the route map for each group leader</list_item>
+</unordered_list>
+<section_header_level_1><loc_48><loc_137><loc_124><loc_146>What to bring</section_header_level_1>
+<text><loc_48><loc_149><loc_233><loc_157>Each pupil should pack the following items.</text>
+<unordered_list><list_item><loc_51><loc_160><loc_205><loc_168>· A packed lunch and a water bottle</list_item>
+<list_item><loc_51><loc_170><loc_143><loc_178>· A waterproof jacket</list_item>
+<list_item><loc_51><loc_180><loc_177><loc_188>· A notebook and two pencils</list_item>
+</unordered_list>
+<section_header_level_1><loc_48><loc_196><loc_150><loc_205>Checked on arrival</section_header_level_1>
+<text><loc_48><loc_208><loc_284><loc_216>The group leader ticks each point at the museum gate.</text>
+<unordered_list><list_item><loc_51><loc_219><loc_201><loc_227>✓ Head count matches the register</list_item>
+<list_item><loc_51><loc_229><loc_154><loc_237>✓ First aid kit is present</list_item>
+<list_item><loc_51><loc_239><loc_209><loc_247>✓ Emergency contact sheet is signed</list_item>
+</unordered_list>
+<section_header_level_1><loc_48><loc_255><loc_113><loc_264>Not allowed</section_header_level_1>
+<text><loc_48><loc_267><loc_235><loc_275>The museum does not permit the following.</text>
+<unordered_list><list_item><loc_51><loc_278><loc_203><loc_286>- Flash photography in the galleries</list_item>
+<list_item><loc_51><loc_288><loc_178><loc_296>- Food outside the picnic area</list_item>
+<list_item><loc_51><loc_298><loc_200><loc_306>- Large bags in the exhibition halls</list_item>
+</unordered_list>
+<text><loc_48><loc_313><loc_327><loc_321>Buses leave the school gate at half past eight and return by four.</text>
+</doctag>

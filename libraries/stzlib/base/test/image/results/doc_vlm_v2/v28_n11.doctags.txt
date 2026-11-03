@@ -1,0 +1,27 @@
+<doctag><page_header><loc_48><loc_35><loc_218><loc_44>Brightwater County Library Service</page_header>
+<page_header><loc_296><loc_38><loc_453><loc_45>Human Resources · Confidential when completed</page_header>
+<section_header_level_1><loc_47><loc_53><loc_224><loc_65>Application for Employment</section_header_level_1>
+<text><loc_47><loc_69><loc_444><loc_84>Please complete every section of this form in black ink or electronically. We do not accept CVs in place of a completed application form.</text>
+<unordered_list><list_item><loc_52><loc_86><loc_298><loc_93>(i) Read the job description and person specification before you apply.</list_item>
+<list_item><loc_52><loc_93><loc_353><loc_100>(ii) Use the employment history section to explain any gaps of more than three months.</list_item>
+<list_item><loc_52><loc_101><loc_316><loc_108>(iii) Return the form to the address on the advertisement by the closing date.</list_item>
+</unordered_list>
+<section_header_level_1><loc_52><loc_113><loc_166><loc_120>Section A – Position applied for</section_header_level_1>
+<otsl><loc_47><loc_120><loc_453><loc_147></otsl>
+<section_header_level_1><loc_52><loc_148><loc_152><loc_155>Section B – Personal details</section_header_level_1>
+<otsl><loc_47><loc_155><loc_453><loc_205></otsl>
+<section_header_level_1><loc_52><loc_209><loc_199><loc_217>Section C – Education and qualifications</section_header_level_1>
+<otsl><loc_47><loc_217><loc_453><loc_275></otsl>
+<section_header_level_1><loc_52><loc_280><loc_234><loc_287>Section D – Employment history (most recent first)</section_header_level_1>
+<otsl><loc_47><loc_287><loc_453><loc_335></otsl>
+<section_header_level_1><loc_52><loc_340><loc_181><loc_347>Section E – Interview arrangements</section_header_level_1>
+<otsl><loc_47><loc_347><loc_453><loc_371></otsl>
+<section_header_level_1><loc_52><loc_375><loc_135><loc_382>Section F – Declaration</section_header_level_1>
+<text><loc_48><loc_385><loc_440><loc_399>I confirm that the information I have given on this form is true and complete. I understand that false information may lead to the withdrawal of an offer of employment or to dismissal.</text>
+<text><loc_52><loc_403><loc_76><loc_409>Signature</text>
+<text><loc_132><loc_403><loc_201><loc_409>A. R. Okonkwo-Hale</text>
+<text><loc_280><loc_403><loc_296><loc_409>Date</text>
+<text><loc_319><loc_403><loc_388><loc_409>19 October 2026</text>
+<text><loc_48><loc_418><loc_137><loc_423>Form HR/F03 · revised April 2026</text>
+<text><loc_422><loc_418><loc_453><loc_423>Page 1 of 1</text>
+</doctag>

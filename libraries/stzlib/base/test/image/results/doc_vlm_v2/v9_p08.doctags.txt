@@ -1,0 +1,58 @@
+<doctag><page_header><loc_40><loc_24><loc_216><loc_38>FreshWay Market</page_header>
+<page_header><loc_301><loc_24><loc_461><loc_38>Store #214 · Riverside Plaza Weekly ad · Rewards members save more</page_header>
+<section_header_level_1><loc_143><loc_48><loc_357><loc_62>This Week's Specials</section_header_level_1>
+<text><loc_77><loc_65><loc_423><loc_71>Prices are valid from Wednesday, November 4 through Tuesday, November 10, 2026.</text>
+<section_header_level_1><loc_39><loc_76><loc_113><loc_84>Fresh Produce</section_header_level_1>
+<text><loc_36><loc_90><loc_98><loc_96>Hass avocados</text>
+<text><loc_36><loc_97><loc_54><loc_102>each</text>
+<text><loc_36><loc_105><loc_79><loc_115>$0.99</text>
+<text><loc_36><loc_116><loc_79><loc_121>Save $0.50</text>
+<section_header_level_1><loc_39><loc_130><loc_120><loc_138>Meat & Seafood</section_header_level_1>
+<text><loc_36><loc_144><loc_108><loc_157>Boneless chicken thighs per lb</text>
+<text><loc_36><loc_158><loc_54><loc_163>per lb</text>
+<text><loc_36><loc_166><loc_79><loc_180>$2.79 Save $1.20</text>
+<section_header_level_1><loc_39><loc_190><loc_117><loc_198>Dairy & Bakery</section_header_level_1>
+<text><loc_36><loc_204><loc_112><loc_218>Large brown eggs dozen</text>
+<text><loc_36><loc_219><loc_79><loc_232>$2.49 Save $0.90</text>
+<section_header_level_1><loc_39><loc_243><loc_115><loc_251>Pantry Staples</section_header_level_1>
+<text><loc_36><loc_257><loc_99><loc_271>Long grain rice 5 lb bag</text>
+<text><loc_36><loc_272><loc_79><loc_287>$4.29 Save $1.10</text>
+<section_header_level_1><loc_39><loc_307><loc_143><loc_315>Rewards & Coupons</section_header_level_1>
+<text><loc_31><loc_320><loc_244><loc_347>Rewards members earn one point for every dollar spent. Digital coupons can be loaded to your rewards card in the FreshWay app. Items marked with a star are limited per household, while supplies last.</text>
+<text><loc_31><loc_349><loc_217><loc_362>We reserve the right to limit quantities. We are not responsible for typographical or pictorial errors.</text>
+<text><loc_146><loc_90><loc_196><loc_96>Gala apples</text>
+<text><loc_146><loc_97><loc_196><loc_102>per lb</text>
+<text><loc_146><loc_105><loc_187><loc_115>$1.29</text>
+<text><loc_146><loc_116><loc_187><loc_121>Save $0.70</text>
+<text><loc_146><loc_144><loc_239><loc_157>Atlantic salmon fillets per lb</text>
+<text><loc_146><loc_158><loc_196><loc_172>$8.99 Save $3.00</text>
+<text><loc_146><loc_204><loc_202><loc_218>Greek yogurt 32 oz</text>
+<text><loc_146><loc_219><loc_188><loc_232>$4.99 Save $1.50</text>
+<text><loc_146><loc_257><loc_232><loc_271>Extra virgin olive oil 1 L</text>
+<text><loc_146><loc_272><loc_188><loc_287>$8.49 Save $2.00</text>
+<section_header_level_1><loc_257><loc_90><loc_341><loc_96>Sweet mini peppers</section_header_level_1>
+<text><loc_257><loc_97><loc_278><loc_102>1 lb bag</text>
+<text><loc_257><loc_105><loc_300><loc_115>$2.99</text>
+<text><loc_257><loc_116><loc_300><loc_121>Save $1.00</text>
+<text><loc_257><loc_144><loc_353><loc_157>Ground beef 85% lean per lb</text>
+<text><loc_257><loc_158><loc_300><loc_172>$4.49 Save $1.00</text>
+<text><loc_257><loc_204><loc_322><loc_218>Sourdough loaf 24 oz</text>
+<text><loc_257><loc_219><loc_300><loc_232>$3.99</text>
+<text><loc_257><loc_234><loc_315><loc_238>Baked in store</text>
+<text><loc_257><loc_257><loc_308><loc_271>Black beans 15 oz can</text>
+<text><loc_257><loc_272><loc_292><loc_287>89¢ Save $40¢</text>
+<section_header_level_1><loc_263><loc_307><loc_357><loc_315>Store Information</section_header_level_1>
+<otsl><loc_253><loc_318><loc_470><loc_368><fcel>Day<fcel>Store hours<fcel>Pharmacy hours<nl><fcel>Monday –<fcel>7:00 am – 10:00<fcel>9:00 am – 8:00<nl><fcel>Friday<fcel>pm<fcel>pm<nl><fcel>Saturday<fcel>7:00 am – 10:00<fcel>9:00 am – 5:00<nl><fcel>Sunday<fcel>8:00 am – 9:00 pm<fcel>Closed<nl></otsl>
+<text><loc_96><loc_371><loc_404><loc_376>FreshWay Market · 1820 Riverside Plaza, Millbrook · (555) 014-2201 · Open 7 days a week</text>
+<text><loc_367><loc_90><loc_459><loc_96>Organic baby spinach</text>
+<text><loc_367><loc_97><loc_376><loc_102>5 oz</text>
+<text><loc_367><loc_105><loc_410><loc_115>$3.49 Save $0.80</text>
+<text><loc_367><loc_144><loc_452><loc_157>Pork shoulder roast per lb</text>
+<text><loc_367><loc_158><loc_407><loc_172>$1.99</text>
+<text><loc_367><loc_204><loc_455><loc_218>Sharp cheddar block 8 oz</text>
+<text><loc_367><loc_219><loc_424><loc_232>2 for $5</text>
+<text><loc_367><loc_234><loc_400><loc_238>Limit 4</text>
+<text><loc_367><loc_257><loc_432><loc_271>Ground coffee, medium roast</text>
+<text><loc_367><loc_272><loc_381><loc_287>$24 oz</text>
+<text><loc_367><loc_288><loc_409><loc_293>Save $3.50</text>
+</doctag>

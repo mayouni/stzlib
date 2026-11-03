@@ -1,0 +1,84 @@
+page_header	0	Meridian Bioprocess Materials
+page_header	0	Quality Control Laboratory 4 Fenwick Science Park, Lowmoor LM7 3RT qc@meridian-bpm.example
+heading	1	Certificate of Analysis
+heading	2	Product
+table	0	Product nameSodium chloride, low endotoxinCatalogue numberMBM-SC-500GradePharmacopoeial, for bioprocessing
+heading	2	Lot
+table	0	Lot numberSC26-1043Date of manufacture06 October 2026Retest date05 October 2029
+paragraph	0	Pack size
+paragraph	0	25 kg drum
+paragraph	0	Storage
+list_item	0	Below 30 °C, keep container closed
+heading	7	Test results
+paragraph	0	The lot described above was tested against the current product specification, and the results are reported below.
+paragraph	0	Test
+paragraph	0	Assay (dried basis)
+paragraph	0	Loss on drying
+paragraph	0	pH (5 % solution)
+list_item	0	Method
+paragraph	0	Ph. Eur. 0193
+paragraph	0	Ph. Eur. 2.2.32
+paragraph	0	USP<791>
+paragraph	0	Specification
+paragraph	0	Unit
+paragraph	0	Lower
+paragraph	0	% %
+paragraph	0	-
+paragraph	0	99.0
+paragraph	0	-
+paragraph	0	5.0
+list_item	0	Upper
+paragraph	0	100.5
+paragraph	0	0.5
+paragraph	0	9.0
+list_item	0	Result
+paragraph	0	Status
+paragraph	0	Analyst
+paragraph	0	99.8 Pass
+paragraph	0	0.12 Pass
+paragraph	0	6.4 Pass
+list_item	0	R. Feld
+list_item	0	R. Feld
+caption	0	T. Ansah
+table	0	Bacterial endotoxinsPh. Eur. 2.6.14EU/g-Pass14 0ct 2026Total aerobic microbial countPh. Eur. 2.6.12CFU/g-100<10 Pass19 Oct 2026SulfatesPh. Eur. 0193-200<50 PassT. Ansah13 Oct 2026
+paragraph	0	Iron
+paragraph	0	Heavy metals (as Pb)
+paragraph	0	Appearance
+paragraph	0	Ph. Eur. 2.4.9
+paragraph	0	ICP-MS, QC-M-071
+paragraph	0	Visual, QC-M-002
+paragraph	0	0.5 < 0.1
+heading	3	ppm ppm
+paragraph	0	-
+paragraph	0	2
+paragraph	0	<1
+paragraph	0	Pass
+paragraph	0	ppm
+paragraph	0	-
+paragraph	0	5
+paragraph	0	0.3
+paragraph	0	Pass
+list_item	0	- White crystalline powder
+paragraph	0	Conforms
+paragraph	0	Pass
+heading	5	Conclusion
+paragraph	0	All results comply with the specification, and the lot is released for sale. This certificate was generated from the laboratory information system and is valid without a handwritten signature. Raw data are kept for at least ten years after the retest date.
+list_item	0	Reviewed by
+paragraph	0	Rosa Feld
+paragraph	0	Senior Analyst, Quality Control 20 October 2026
+heading	6	Approved by
+paragraph	0	Daniel Okafor Head of Quality Assurance 21 October 2026
+page_footer	0	Form QA-F-112 rev. 4 · This document may only be reproduced in full.
+page_footer	0	Page 1 of 1
+list_item	0	Date
+paragraph	0	12 0ct 2026
+paragraph	0	12 0ct 2026
+paragraph	0	13 0ct 2026
+list_item	0	M. Kowal
+list_item	0	M. Kowal
+paragraph	0	12 0ct 2026
+list_item	0	R. Feld
+paragraph	0	15 0ct 2026
+paragraph	0	T. Ansah
+paragraph	0	12 0ct 2026
+paragraph	0	T. Ansah

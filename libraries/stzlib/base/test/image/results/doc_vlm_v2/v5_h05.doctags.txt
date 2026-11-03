@@ -1,0 +1,15 @@
+<doctag><section_header_level_1><loc_23><loc_29><loc_142><loc_46>Timetable - Form 8B</section_header_level_1>
+<text><loc_23><loc_46><loc_215><loc_56>Autumn term 2025 · Form tutor: Ms R. Adebayo · Base room F8</text>
+<text><loc_23><loc_68><loc_475><loc_86>This timetable applies from Monday 8 September 2025 until the October half-term. Lessons shaded green are double lessons and take place in the same room without a break.</text>
+<otsl><loc_23><loc_94><loc_476><loc_378></otsl>
+<section_header_level_1><loc_23><loc_388><loc_118><loc_398>Notes for pupils and parents</section_header_level_1>
+<unordered_list><list_item><loc_25><loc_400><loc_217><loc_409>· PE kit is needed on Monday afternoons, including trainers for indoor use.</list_item>
+<list_item><loc_25><loc_410><loc_223><loc_419>· Science on Wednesday morning takes place in Lab 2 while Lab 1 is refitted.</list_item>
+<list_item><loc_25><loc_420><loc_197><loc_429>· Music on Friday is in the main hall until the music block reopens.</list_item>
+<list_item><loc_25><loc_430><loc_223><loc_439>· Homework is set in the planner and checked during Friday form tutor time.</list_item>
+</unordered_list>
+<text><loc_258><loc_388><loc_273><loc_398>Key</text>
+<text><loc_258><loc_405><loc_273><loc_414>Double lesson</text>
+<text><loc_258><loc_421><loc_457><loc_438>Pupils who arrive after 08:50 must sign in at the main office. Changes to this timetable are announced in the weekly bulletin.</text>
+<page_footer><loc_384><loc_452><loc_477><loc_459>Timetable office · Printed 1 September 2025</page_footer>
+</doctag>

@@ -1,0 +1,42 @@
+<doctag><section_header_level_1><loc_47><loc_30><loc_187><loc_41>Halcyon Coast Airways</section_header_level_1>
+<section_header_level_1><loc_38><loc_55><loc_233><loc_66>Crew Briefing: Pairing HCA-4471</section_header_level_1>
+<section_header_level_1><loc_38><loc_72><loc_116><loc_80>DUTY SUMMARY</section_header_level_1>
+<text><loc_38><loc_84><loc_78><loc_91>Report time</text>
+<text><loc_121><loc_84><loc_159><loc_91>05:10 UTC</text>
+<text><loc_38><loc_94><loc_69><loc_101>Duty end</text>
+<text><loc_121><loc_94><loc_159><loc_101>14:25 UTC</text>
+<text><loc_38><loc_104><loc_61><loc_111>Aircraft</text>
+<text><loc_121><loc_104><loc_202><loc_111>A220-300, fleet no. 312</text>
+<text><loc_38><loc_113><loc_113><loc_120>Maximum duty period</text>
+<text><loc_121><loc_113><loc_140><loc_120>11:30</text>
+<section_header_level_1><loc_38><loc_127><loc_84><loc_136>SECTORS</section_header_level_1>
+<otsl><loc_38><loc_137><loc_462><loc_204><ched>Flight<ched>From<ched>To<ched>STD (UTC)<ched>STA (UTC)<ched>Block<ched>Fuel planned (kg)<ched>Alternate<nl><fcel>HC 401<fcel>Port Alder<fcel>Kestrel Bay<fcel>06:10<fcel>07:25<fcel>1:15<fcel>4,850<fcel>Mirren<nl><fcel>HC 402<fcel>Kestrel Bay<fcel>Port Alder<fcel>08:05<fcel>09:20<fcel>1:15<fcel>4,700<fcel>Ostrow<nl><fcel>HC 517<fcel>Port Alder<fcel>Mirren<fcel>10:15<fcel>11:50<fcel>1:35<fcel>5,600<fcel>Kestrel Bay<nl><fcel>HC 518<fcel>Mirren<fcel>Port Alder<fcel>12:35<fcel>14:05<fcel>1:30<fcel>5,450<fcel>Ostrow<nl></otsl>
+<section_header_level_1><loc_37><loc_209><loc_85><loc_218>WEATHER</section_header_level_1>
+<text><loc_37><loc_221><loc_426><loc_236>A cold front will cross Kestrel Bay between 07:00 and 09:00 UTC with gusts up to 35 knots. Expect moderate turbulence below 8,000 feet on the approach to Kestrel Bay.</text>
+<text><loc_38><loc_239><loc_458><loc_246>Conditions at Port Alder and Mirren remain good, with visibility above 10 km and no significant cloud below 4,000 feet.</text>
+<section_header_level_1><loc_38><loc_253><loc_124><loc_261>NOTAM SUMMARY</section_header_level_1>
+<code><loc_38><loc_263><loc_462><loc_305><_SQL_>A1182/26 KESTREL BAY RWY 09/27 CLSD 0600-0730 DUE WIP.
+            RWY 14/32 AVBL, LDA 2150M.
+A1190/26 PORT ALDER ILS RWY 22 GP U/S UNTIL 28 OCT 2026.
+            LOC/DME APCH AVBL.
+B0417/26 MIRREN TWY C BTN TWY C2 AND C4 CLSD.
+</code>
+<section_header_level_1><loc_38><loc_313><loc_143><loc_322>OPERATIONAL NOTES</section_header_level_1>
+<unordered_list><list_item><loc_37><loc_324><loc_290><loc_332>· Captain to brief the crosswind limits before departure from Port Alder.</list_item>
+<list_item><loc_37><loc_332><loc_335><loc_340>· Catering for HC 517 includes 4 special meals; confirm loading with the dispatcher.</list_item>
+<list_item><loc_37><loc_341><loc_327><loc_349>· Cabin crew to complete the security search of the aircraft before the first sector.</list_item>
+</unordered_list>
+<text><loc_38><loc_354><loc_454><loc_370>Report any fatigue concerns to crew control before signing on for duty. This briefing package is valid only for the duty date shown and must not be reused.</text>
+<page_footer><loc_38><loc_470><loc_141><loc_475>Valid for duty date 24 OCT 2026 only</page_footer>
+<page_footer><loc_428><loc_470><loc_462><loc_475>Sheet 1 of 1</page_footer>
+<page_header><loc_380><loc_29><loc_453><loc_42>Flight Operations Crew Briefing Package</page_header>
+<section_header_level_1><loc_257><loc_72><loc_286><loc_80>CREW</section_header_level_1>
+<text><loc_257><loc_84><loc_284><loc_91>Captain</text>
+<text><loc_320><loc_84><loc_359><loc_91>D. Moravec</text>
+<text><loc_257><loc_94><loc_296><loc_101>First Officer</text>
+<text><loc_320><loc_94><loc_376><loc_101>L. Adebayo-King</text>
+<text><loc_257><loc_104><loc_310><loc_111>Cabin manager</text>
+<text><loc_320><loc_104><loc_352><loc_111>S. Rautio</text>
+<text><loc_257><loc_113><loc_296><loc_120>Cabin crew</text>
+<text><loc_320><loc_113><loc_400><loc_120>P. Oyelowo, J. Brennan</text>
+</doctag>

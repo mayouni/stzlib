@@ -3,5 +3,6 @@ _vision-out/
 _faculty-out/
 results/*
 !results/doc_vlm_v1/
+!results/doc_vlm_v2/
 _search-out/
 _dense-out/

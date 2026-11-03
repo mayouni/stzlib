@@ -1,0 +1,23 @@
+<doctag><section_header_level_1><loc_37><loc_21><loc_187><loc_42>AquaSense 300</section_header_level_1>
+<text><loc_38><loc_46><loc_257><loc_56>Capacitive soil moisture and temperature sensor</text>
+<section_header_level_1><loc_38><loc_79><loc_83><loc_90>Overview</section_header_level_1>
+<text><loc_38><loc_97><loc_254><loc_136>The AquaSense 300 measures volumetric water content and soil temperature at the root zone of field crops, orchards and school gardens. Its sealed probe has no exposed metal electrodes, so readings stay stable for several seasons in acidic or saline soils.</text>
+<text><loc_38><loc_141><loc_250><loc_172>The sensor is installed by pushing it into a pilot hole made with the supplied auger. A single cable carries both power and data, which keeps installation simple for irrigation contractors and extension officers.</text>
+<section_header_level_1><loc_38><loc_177><loc_79><loc_187>Features</section_header_level_1>
+<unordered_list><list_item><loc_38><loc_193><loc_239><loc_201>Measures moisture at three depths along one probe</list_item>
+<list_item><loc_38><loc_204><loc_245><loc_212>Built-in temperature compensation from -10 to 55 °C</list_item>
+<list_item><loc_38><loc_214><loc_233><loc_222>SDI-12 and Modbus RTU outputs on the same cable</list_item>
+<list_item><loc_38><loc_224><loc_196><loc_232>IP68 housing rated for permanent burial</list_item>
+<list_item><loc_38><loc_235><loc_249><loc_251>Factory calibration for mineral soils, with a user table for peat</list_item>
+</unordered_list>
+<text><loc_47><loc_263><loc_243><loc_295>Tip: Install the probe at least 30 cm from the nearest drip emitter. Readings taken closer than this mostly show the wetting pattern of the emitter rather than the moisture of the field.</text>
+<section_header_level_1><loc_38><loc_308><loc_131><loc_318>Typical applications</section_header_level_1>
+<text><loc_38><loc_325><loc_253><loc_356>Scheduling irrigation for vegetables and fruit trees, research trials on water use, and teaching soil science with live data. Several sensors can share one logger, and the logger can send readings to a phone every fifteen minutes.</text>
+<page_footer><loc_38><loc_483><loc_187><loc_489>Fieldmark Instruments • Datasheet FM-AS300 • Rev. C</page_footer>
+<page_footer><loc_314><loc_483><loc_462><loc_489>Specifications are subject to change without notice.</page_footer>
+<section_header_level_1><loc_276><loc_79><loc_342><loc_90>Specifications</section_header_level_1>
+<otsl><loc_275><loc_94><loc_462><loc_295><fcel>Parameter<fcel>Value<nl><fcel>Measurement<ecel><nl><fcel>Moisture range<fcel>0 to 60% VWC<nl><fcel>Accuracy<fcel>±2% VWC after  calibration<nl><fcel>Depths<fcel>10, 20 and 30 cm<nl><fcel>Temperature accuracy<fcel>±0.5 °C<nl><srow>Electrical<ecel><nl><fcel>Supply voltage<fcel>6 to 16 V DC<nl><fcel>Current<fcel>12 mA active, 30 µA  sleep<nl><fcel>Outputs<fcel>SDI-12 v1.4, Modbus  RTU (RS-485)<nl><fcel>Mechanical<ecel><nl><fcel>Probe length<fcel>380 mm<nl><fcel>Housing<fcel>Glass-filled polyamide,  IP68<nl><fcel>Operating range<fcel>-20 to 60 °C<nl></otsl>
+<section_header_level_1><loc_276><loc_302><loc_376><loc_312>Ordering information</section_header_level_1>
+<otsl><loc_275><loc_316><loc_462><loc_364><fcel>Order code<fcel>Cable<fcel>Price (EUR)<nl><fcel>AS300-05<fcel>5 m<fcel>214.00<nl><fcel>AS300-10<fcel>10 m<fcel>229.00<nl><fcel>AS300-25<fcel>25 m<fcel>262.00<nl></otsl>
+<text><loc_276><loc_368><loc_440><loc_381>Prices exclude VAT and delivery. Volume discounts are available for orders of ten or more sensors.</text>
+</doctag>

@@ -1,0 +1,25 @@
+<doctag><picture><loc_47><loc_33><loc_356><loc_62></picture>
+<section_header_level_1><loc_47><loc_69><loc_416><loc_94>Vacancy Announcement: Monitoring, Evaluation and Learning Officer</section_header_level_1>
+<otsl><loc_47><loc_96><loc_453><loc_149><fcel>Reference<fcel>LARL/HR/2026/031<nl><fcel>Duty station<fcel>Mbale, with frequent travel to Bukedea and Kumi<nl><fcel>Contract<fcel>Two years, renewable subject to funding and performance<nl><fcel>Reporting to<fcel>Programme Manager<nl><fcel>Closing date<fcel>14 November 2026, 17:00 East Africa Time<nl></otsl>
+<section_header_level_1><loc_47><loc_153><loc_89><loc_161>About us</section_header_level_1>
+<text><loc_47><loc_163><loc_450><loc_179>LARL is a non-profit organisation that helps smallholder farmers around Lake Kyoga to raise their incomes and adapt to a changing climate. We currently work with 18,000 households in five districts.</text>
+<section_header_level_1><loc_47><loc_184><loc_139><loc_193>Key responsibilities</section_header_level_1>
+<unordered_list><list_item><loc_49><loc_194><loc_337><loc_202>Maintain the programme's results framework and indicator reference sheets.</list_item>
+<list_item><loc_49><loc_202><loc_267><loc_210>Plan and supervise baseline, midline and endline surveys.</list_item>
+<list_item><loc_49><loc_211><loc_278><loc_219>Train field officers in data collection and data quality checks.</list_item>
+<list_item><loc_49><loc_219><loc_336><loc_227>Prepare quarterly progress reports and dashboards for donors and partners.</list_item>
+<list_item><loc_49><loc_227><loc_300><loc_235>Organise learning reviews with farmer groups and district officials.</list_item>
+</unordered_list>
+<section_header_level_1><loc_47><loc_240><loc_187><loc_249>Qualifications and experience</section_header_level_1>
+<unordered_list><list_item><loc_49><loc_250><loc_322><loc_258>A bachelor's degree in statistics, economics, agriculture or a related field</list_item>
+<list_item><loc_49><loc_258><loc_327><loc_266>At least three years of experience in monitoring and evaluation, including:</list_item>
+<list_item><loc_62><loc_266><loc_251><loc_274>designing household surveys and sampling plans</list_item>
+<list_item><loc_62><loc_275><loc_270><loc_283>managing data collection on mobile phones or tablets</list_item>
+<list_item><loc_49><loc_283><loc_300><loc_291>Strong skills in spreadsheets and in at least one statistical package</list_item>
+<list_item><loc_49><loc_292><loc_298><loc_300>Fluency in English; knowledge of Ateso or Lusoga is an advantage</list_item>
+</unordered_list>
+<section_header_level_1><loc_47><loc_305><loc_109><loc_314>How to apply</section_header_level_1>
+<text><loc_47><loc_316><loc_449><loc_332>Send a cover letter and a CV of no more than three pages to jobs@larl.example, quoting the reference number in the subject line. Only shortlisted candidates will be contacted.</text>
+<text><loc_47><loc_335><loc_302><loc_343>LARL does not charge any fee at any stage of the recruitment process.</text>
+<page_footer><loc_103><loc_453><loc_396><loc_466>LARL is an equal opportunity employer. Women and people with disabilities are encouraged to apply. Registered NGO No. 0418/2014 · www.larl.example</page_footer>
+</doctag>

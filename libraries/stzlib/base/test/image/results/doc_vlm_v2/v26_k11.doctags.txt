@@ -1,0 +1,74 @@
+<doctag><page_header><loc_38><loc_20><loc_191><loc_31>Brookfield Family Practice</page_header>
+<page_header><loc_357><loc_19><loc_462><loc_25>22 Orchard Rise, Brookfield BF4 7TQ</page_header>
+<page_header><loc_302><loc_26><loc_462><loc_31>Reception 01632 960 412 · brookfield.practice.example</page_header>
+<section_header_level_1><loc_38><loc_43><loc_185><loc_56>New Patient Registration</section_header_level_1>
+<text><loc_38><loc_58><loc_453><loc_75>Please complete every section of this form and return it to reception with proof of address. We use the information you give us only to provide your care.</text>
+<unordered_list><list_item><loc_38><loc_77><loc_183><loc_85>· Write clearly and use black or blue ink.</list_item>
+<list_item><loc_38><loc_87><loc_266><loc_95>· Children under 16 must be registered by a parent or guardian.</list_item>
+<list_item><loc_38><loc_97><loc_312><loc_105>· Ask at reception if you need this form in another language or in large print.</list_item>
+</unordered_list>
+<section_header_level_1><loc_43><loc_114><loc_117><loc_122>1. Personal details</section_header_level_1>
+<text><loc_43><loc_127><loc_81><loc_133>Surname</text>
+<text><loc_43><loc_133><loc_97><loc_141>Okafor-Hale</text>
+<text><loc_203><loc_127><loc_234><loc_133>First names</text>
+<text><loc_203><loc_133><loc_259><loc_141>Daniel James</text>
+<text><loc_362><loc_127><loc_421><loc_133>Date of birth</text>
+<text><loc_362><loc_133><loc_421><loc_141>14/03/1988</text>
+<section_header_level_1><loc_37><loc_148><loc_52><loc_155>Sex</section_header_level_1>
+<text><loc_43><loc_158><loc_52><loc_165>X</text>
+<text><loc_67><loc_158><loc_93><loc_165>Male</text>
+<text><loc_99><loc_158><loc_125><loc_165>Female</text>
+<text><loc_138><loc_158><loc_231><loc_165>Prefer to self-describe</text>
+<checkbox_unselected><loc_246><loc_158><loc_318><loc_165>Prefer not to say</checkbox_unselected>
+<text><loc_43><loc_170><loc_85><loc_176>Previous practice</text>
+<text><loc_43><loc_176><loc_195><loc_184>Riverside Health Centre, Lowbridge</text>
+<text><loc_324><loc_170><loc_402><loc_176>Date you moved to this area</text>
+<text><loc_324><loc_176><loc_386><loc_183>01/09/2026</text>
+<section_header_level_1><loc_43><loc_195><loc_113><loc_203>2. Contact details</section_header_level_1>
+<text><loc_43><loc_208><loc_83><loc_214>Home address</text>
+<text><loc_353><loc_208><loc_379><loc_214>Postcode</text>
+<text><loc_43><loc_214><loc_154><loc_222>9 Linnet Close, Brookfield</text>
+<text><loc_353><loc_214><loc_393><loc_222>BF4 8LR</text>
+<text><loc_43><loc_230><loc_92><loc_236>Mobile telephone</text>
+<text><loc_43><loc_236><loc_117><loc_244>07700 900 318</text>
+<text><loc_227><loc_230><loc_264><loc_236>Email address</text>
+<text><loc_226><loc_236><loc_340><loc_244>d.okaforhale@mail.example</text>
+<section_header_level_1><loc_43><loc_255><loc_115><loc_263>3. Medical history</section_header_level_1>
+<text><loc_38><loc_267><loc_203><loc_274>Do you have any of the following conditions?</text>
+<text><loc_43><loc_276><loc_52><loc_283>X</text>
+<text><loc_67><loc_276><loc_93><loc_283>Asthma</text>
+<checkbox_unselected><loc_138><loc_276><loc_200><loc_283>Diabetes</checkbox_unselected>
+<checkbox_unselected><loc_246><loc_276><loc_288><loc_283>Epilepsy</checkbox_unselected>
+<checkbox_unselected><loc_304><loc_276><loc_373><loc_283>High blood pressure</checkbox_unselected>
+<checkbox_unselected><loc_402><loc_276><loc_431><loc_283>Allergies</checkbox_unselected>
+<text><loc_43><loc_288><loc_118><loc_295>If you have allergies, please give details</text>
+<text><loc_43><loc_295><loc_102><loc_303>Penicillin (rash)</text>
+<section_header_level_1><loc_38><loc_310><loc_144><loc_318>Medicines you take regularly</section_header_level_1>
+<text><loc_43><loc_321><loc_75><loc_328>Medicine</text>
+<text><loc_217><loc_321><loc_236><loc_328>Dose</text>
+<text><loc_355><loc_321><loc_392><loc_328>How often</text>
+<text><loc_43><loc_332><loc_124><loc_340>Salbutamol inhaler</text>
+<text><loc_217><loc_332><loc_291><loc_340>100 micrograms</text>
+<text><loc_355><loc_332><loc_393><loc_340>When needed</text>
+<text><loc_43><loc_344><loc_139><loc_352>Beclometasone inhaler</text>
+<text><loc_217><loc_344><loc_291><loc_352>200 micrograms</text>
+<text><loc_355><loc_344><loc_406><loc_352>Twice a day</text>
+<section_header_level_1><loc_38><loc_370><loc_94><loc_377>Do you smoke?</section_header_level_1>
+<text><loc_43><loc_379><loc_52><loc_387>X</text>
+<text><loc_67><loc_379><loc_93><loc_387>Never</text>
+<text><loc_99><loc_379><loc_138><loc_387>Former smoker</text>
+<text><loc_170><loc_379><loc_240><loc_387>Current smoker</text>
+<section_header_level_1><loc_43><loc_395><loc_153><loc_403>4. Consent to share records</section_header_level_1>
+<text><loc_38><loc_407><loc_323><loc_433>I agree that my records may be transferred from my previous practice to Brookfield Family Practice. I understand that I can withdraw this consent at any time by writing to the practice manager.</text>
+<text><loc_43><loc_436><loc_76><loc_444>I agree</text>
+<text><loc_43><loc_448><loc_67><loc_454>Signature</text>
+<text><loc_43><loc_454><loc_108><loc_462>D. Okafor-Hale</text>
+<text><loc_217><loc_448><loc_230><loc_454>Date</text>
+<text><loc_217><loc_454><loc_276><loc_462>02/10/2026</text>
+<page_footer><loc_38><loc_479><loc_169><loc_485>Form REG-01 · Version 4 · Reviewed March 2026</page_footer>
+<page_footer><loc_432><loc_479><loc_462><loc_485>Page 1 of 1</page_footer>
+<text><loc_347><loc_412><loc_407><loc_418>For practice use only</text>
+<text><loc_346><loc_422><loc_385><loc_428>Registered by</text>
+<text><loc_346><loc_439><loc_384><loc_445>Date entered</text>
+<text><loc_346><loc_457><loc_409><loc_463>Proof of address seen</text>
+</doctag>

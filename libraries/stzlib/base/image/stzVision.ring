@@ -47,7 +47,11 @@ $cStzVisionDocProjector = "granite_docling_258m_mmproj.gguf"
 $cStzVisionDocDecoderSha256 = "b687245c212b59da938e411e2d4485596cbaeed1ae52706582ac38ed6a970f76"
 $nStzVisionDocLongest = 2048
 $nStzVisionDocTile = 512
-$nStzVisionDocMaxTokens = 3072
+$nStzVisionDocMaxTokens = 2048
+# a greedy page can fall into a loop of one line over and over (3 of the first 31 golden pages did, to the old cap
+# of 3072 tokens, about 280 s each): the engine's own stop on an identical line N times in a row. The longest answer
+# a page needed was 934 tokens, so 2048 leaves more than double
+$nStzVisionDocStopRepeat = 3
 $cStzVisionDocRequest = "Convert this page to docling."
 # the language the FLOOR reads the page's scan in: Granite-Docling is an English model
 $cStzVisionDocFloorLang = "en-US"
@@ -180,9 +184,11 @@ func StzVisionColor(pColor)
 	                                tables, captions, furniture); floor: the
 	                                native PDF reader on the page as a scan
 	                                (OCR, then its own layout rules); model:
-	                                Granite-Docling-258M; judged on the
-	                                independent golden documents' expected
-	                                structure (doc-vlm-v1)
+	                                Granite-Docling-258M; and the two
+	                                combined (native-plus-granite); judged on
+	                                the independent golden documents'
+	                                expected structure (doc-vlm-v2, fresh; v1
+	                                was a tie of the first two)
 
 	The golden sets come from COCO's own annotations (CC BY 4.0), never
 	from this code: base/test/image/_golden/coco_v1.ring, written by
@@ -255,9 +261,15 @@ func StzVisionDeclare(paGoldens)
 	# IM7 2 of 2: a scanned page as structure, judged against the golden documents' expected structure
 	_oX_ = StzFacultyQ("doc-vlm")
 	_oX_.SetInputTypeQ(:image).SetOutputTypeQ(:record).SetFloorQ("native-reader", "_StzVisionDocFloor").
-	     SetGoldenCheckerQ("doc-blocks").SetGoldenVersionQ("doc-vlm-v1")
+	     SetGoldenCheckerQ("doc-blocks").SetGoldenVersionQ("doc-vlm-v2")
 	if len(StzFind("granite-docling-258m", _oX_.ImplementationIds())) = 0
 		_oX_.AddImplementation([ :id = "granite-docling-258m", :kind = "graph", :fn = "_StzVisionDocGranite",
+			:needle = "vision/" + $cStzVisionDocDecoder, :licence = "apache-2.0", :memory = 900 ])
+	ok
+	# the two readers err on different things: the combination takes the model's tables and headings and the native
+	# reader's text, lists and furniture (StzDocBlocksCombine, a rule written down before any golden-v2 page was read)
+	if len(StzFind("native-plus-granite", _oX_.ImplementationIds())) = 0
+		_oX_.AddImplementation([ :id = "native-plus-granite", :kind = "graph", :fn = "_StzVisionDocCombined",
 			:needle = "vision/" + $cStzVisionDocDecoder, :licence = "apache-2.0", :memory = 900 ])
 	ok
 	if len(StzMeasurementOf("faces", "platform", "coco-v1")) = 0 and fexists(StzVisionMeasurementsFile())
@@ -460,6 +472,9 @@ func _StzVisionDescribeSmolvlm(pImage, paParams)
 	_o_.Release()
 	return _c_
 
+func _StzVisionDocCombined(pImage, paParams)
+	return StzDocBlocksCombine(_StzVisionDocFloor(pImage, paParams), _StzVisionDocGranite(pImage, paParams))
+
 func _StzVisionDocGranite(pImage, paParams)
 	_o_ = StzImageQ("" + pImage)
 	_a_ = _o_.DocBlocks()
@@ -476,8 +491,10 @@ func _StzVisionDocSay(poImg, pnMax)
 	_aG_ = StzEngineNeuralVlmGrid(poImg.Width(), poImg.Height(), $nStzVisionDocLongest, $nStzVisionDocTile)
 	_aT_ = _StzVisionDocTexts(_aG_[1], _aG_[2], $cStzVisionDocRequest)
 	_cJ_ = StzJoinWith(_aT_, char(31))
+	StzEngineNeuralSetTermination(1.0, 64, $nStzVisionDocStopRepeat, 0.0)
 	_c_ = StzEngineNeuralVlmPage(_cP_, poImg.Pixels(), poImg.Width(), poImg.Height(), poImg.Channels(),
 		$nStzVisionDocLongest, _cJ_, pnMax, 4)
+	StzEngineNeuralSetTermination(1.0, 64, 0, 0.0)
 	_a_ = StzEngineNeuralVlmStats()
 	if _c_ = "" and _a_[3] = 0
 		_StzVisionFailed("doc-vlm", $cStzVisionDocDecoder)

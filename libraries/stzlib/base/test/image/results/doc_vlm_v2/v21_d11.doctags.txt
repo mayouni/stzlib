@@ -1,0 +1,21 @@
+<doctag><section_header_level_1><loc_67><loc_43><loc_243><loc_50>BRACKENFORD WATER FORUM 2026</section_header_level_1>
+<section_header_level_1><loc_67><loc_52><loc_253><loc_67>Programme: Day One</section_header_level_1>
+<text><loc_66><loc_68><loc_265><loc_75>Thursday 14 May 2026 · Brackenford Exchange Centre</text>
+<text><loc_47><loc_91><loc_453><loc_118>The forum brings together utilities, regulators and community groups to discuss how river catchments can be managed for both people and wildlife. Sessions in Hall A focus on policy and finance, while Hall B hosts practical case studies.</text>
+<section_header_level_1><loc_47><loc_127><loc_94><loc_136>Schedule</section_header_level_1>
+<otsl><loc_47><loc_140><loc_454><loc_253></otsl>
+<section_header_level_1><loc_48><loc_261><loc_136><loc_270>Keynote speakers</section_header_level_1>
+<section_header_level_1><loc_55><loc_282><loc_119><loc_289>Dr Helena Marsh</section_header_level_1>
+<text><loc_55><loc_291><loc_166><loc_337>Helena Marsh leads the catchment science group at the Brackenford Environment Trust. Her talk opens the forum with a view of rivers as infrastructure that serves every sector.</text>
+<section_header_level_1><loc_194><loc_282><loc_253><loc_289>Samuel Okonjo</section_header_level_1>
+<text><loc_194><loc_291><loc_308><loc_337>Samuel chairs the regional farmers network and has converted his own land to wetland grazing. He will speak about the costs and rewards of changing farm practice.</text>
+<section_header_level_1><loc_333><loc_282><loc_403><loc_289>Prof. Ana Lindqvist</section_header_level_1>
+<text><loc_333><loc_291><loc_447><loc_322>Ana studies public finance and has advised several water regulators. Her closing keynote asks who should pay for a healthy river.</text>
+<section_header_level_1><loc_48><loc_350><loc_149><loc_359>Practical information</section_header_level_1>
+<unordered_list><list_item><loc_49><loc_365><loc_249><loc_373>· Badges must be worn at all times inside the centre.</list_item>
+<list_item><loc_49><loc_375><loc_307><loc_383>· Wireless access is available in both halls and in the exhibition area.</list_item>
+<list_item><loc_49><loc_385><loc_361><loc_393>· Slides from each session will be shared with registered delegates after the forum.</list_item>
+</unordered_list>
+<page_footer><loc_48><loc_460><loc_226><loc_466>Brackenford Water Forum • Programme subject to change</page_footer>
+<page_footer><loc_343><loc_460><loc_453><loc_466>forum@brackenford-water.example</page_footer>
+</doctag>

@@ -1,0 +1,32 @@
+<doctag><picture><loc_39><loc_23><loc_246><loc_41></picture>
+<section_header_level_1><loc_43><loc_49><loc_201><loc_63>Your electricity bill</section_header_level_1>
+<text><loc_43><loc_66><loc_319><loc_72>Bill date 3 October 2026 · Account number 4410 2287 19 · Bill number 0098-77412</text>
+<text><loc_42><loc_79><loc_135><loc_101>Ms Priya Ramaswamy Flat 2, 18 Orchard Terrace Lowfield LF2 6PD</text>
+<section_header_level_1><loc_52><loc_115><loc_133><loc_122>Account summary</section_header_level_1>
+<text><loc_52><loc_127><loc_114><loc_134>Previous balance</text>
+<text><loc_205><loc_127><loc_234><loc_134>£112.40</text>
+<text><loc_52><loc_138><loc_182><loc_145>Payment received 18 July, thank you</text>
+<text><loc_52><loc_148><loc_122><loc_155>Charges this period</text>
+<text><loc_202><loc_148><loc_234><loc_155>£218.58</text>
+<text><loc_52><loc_160><loc_107><loc_167>Amount due</text>
+<text><loc_200><loc_160><loc_234><loc_167>£218.58</text>
+<section_header_level_1><loc_53><loc_187><loc_231><loc_195>Please pay £218.58 by 20 October 2026.</section_header_level_1>
+<text><loc_42><loc_203><loc_426><loc_210>We will collect this amount by Direct Debit on or after 20 October 2026, so you do not need to do anything.</text>
+<section_header_level_1><loc_43><loc_218><loc_216><loc_225>Charges for 1 July to 30 September 2026</section_header_level_1>
+<otsl><loc_42><loc_228><loc_458><loc_316><fcel>Description<fcel>Quantity<fcel>Rate<fcel>Amount<nl><fcel>Day units<fcel>519 kWh<fcel>27.40p per kWh<fcel>£142.21<nl><fcel>Night units<fcel>389 kWh<fcel>13.10p per kWh<fcel>£50.96<nl><fcel>Standing charge<fcel>92 days<fcel>51.20p per day<fcel>£47.10<nl><fcel>Smart export credit<fcel>214 kWh<fcel>15.00p per kWh<fcel>-£32.10<nl><ecel><ecel><fcel>Subtotal<fcel>£208.17<nl><ecel><ecel><fcel>VAT at 5%<fcel>£10.41<nl></otsl>
+<section_header_level_1><loc_328><loc_314><loc_379><loc_320>Total charges</section_header_level_1>
+<text><loc_424><loc_314><loc_453><loc_320>£218.58</text>
+<text><loc_42><loc_323><loc_438><loc_338>Your estimated annual consumption is 3,640 kWh, based on your readings over the last twelve months. If your night reading looks wrong, send us a photo of your meter within 14 days and we will reissue the bill.</text>
+<section_header_level_1><loc_42><loc_347><loc_100><loc_354>Ways to save</section_header_level_1>
+<unordered_list><list_item><loc_43><loc_358><loc_361><loc_365>· Run your washing machine and dishwasher after 22:00, when night units are cheaper.</list_item>
+<list_item><loc_43><loc_367><loc_303><loc_374>· Members can join the community solar share scheme from 1 January.</list_item>
+<list_item><loc_43><loc_376><loc_336><loc_383>· Ask us for a free home energy check if your usage has risen by more than 10%.</list_item>
+</unordered_list>
+<text><loc_42><loc_389><loc_440><loc_403>As a member-owned co-operative, any surplus we make is returned to members or invested in local renewable energy.</text>
+<page_footer><loc_85><loc_462><loc_309><loc_468>Brightwater Energy Co-operative Ltd is a registered society, number 31877R.</page_footer>
+<page_footer><loc_382><loc_462><loc_414><loc_468>Page 1 of 1</page_footer>
+<page_header><loc_341><loc_26><loc_458><loc_38>PO Box 2204, Lowfield LF3 9QA 0300 000 6612 · brightwater.example</page_header>
+<section_header_level_1><loc_267><loc_115><loc_334><loc_122>Meter readings</section_header_level_1>
+<otsl><loc_266><loc_124><loc_457><loc_157><fcel>Register<fcel>Previous<fcel>Current<fcel>Units<nl><fcel>Day<fcel>41 872 A<fcel>42 391 A<fcel>519<nl><fcel>Night<fcel>18 203 A<fcel>18 592 E<fcel>389<nl></otsl>
+<text><loc_265><loc_160><loc_391><loc_166>A = actual reading, E = estimated reading</text>
+</doctag>

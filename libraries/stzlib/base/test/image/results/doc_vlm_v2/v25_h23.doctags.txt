@@ -1,0 +1,16 @@
+<doctag><section_header_level_1><loc_31><loc_21><loc_180><loc_32>Meridian Bioprocess Materials</section_header_level_1>
+<section_header_level_1><loc_31><loc_48><loc_176><loc_61>Certificate of Analysis</section_header_level_1>
+<otsl><loc_30><loc_69><loc_243><loc_119><fcel>Product<ecel><ecel><ecel><nl><fcel>Product name<fcel>Sodium chloride, low endotoxin<fcel>Lot number<fcel>SC26-1043<nl><fcel>Catalogue number<fcel>MBM-SC-500<fcel>Date of manufacture<fcel>06 October 2026<nl><fcel>Grade<fcel>Pharmacopeial, for bioprocessing<fcel>Retest date<fcel>05 October 2029<nl><fcel>Pack size<fcel>25 kg drum<ecel><fcel>Below 30 °C, keep container closed<nl></otsl>
+<section_header_level_1><loc_30><loc_126><loc_73><loc_133>Test results</section_header_level_1>
+<text><loc_30><loc_136><loc_398><loc_142>The lot described above was tested against the current product specification, and the results are reported below.</text>
+<otsl><loc_30><loc_147><loc_470><loc_259><fcel>Test<fcel>Method<fcel>Specification<lcel><fcel>Result<fcel>Status<fcel>Analyst<fcel>Date<nl><fcel>Assay (dried basis)<fcel>Ph. Eur. 01993<fcel>%<fcel>99.0<fcel>100.5<fcel>99.8<fcel>Pass<fcel>R. Feld<nl><fcel>Loss on drying<fcel>Ph. Eur. 2.2.32<fcel>%<fcel>-<fcel>0.5<fcel>0.12<fcel>Pass<fcel>R. Feld<nl><fcel>pH (5 % solution)<fcel>USP<fcel>-<fcel>5.0<fcel>9.0<fcel>6.4<fcel>Pass<fcel>T. Ansah<nl><fcel>Bacterial endotoxins<fcel>Ph. Eur. 2.6.14<fcel>EU/g<fcel>-<fcel>0.5<fcel>< 0.1<fcel>Pass<fcel>M. Kowal<nl><fcel>Total aerobic microbial count<fcel>Ph. Eur. 2.6.12<fcel>CFU/g<fcel>-<fcel>100<fcel>< 10<fcel>Pass<fcel>M. Kowal<nl><fcel>Sulfates<fcel>Ph. Eur. 01993<fcel>ppm<fcel>-<fcel>200<fcel>< 50<fcel>Pass<fcel>T. Ansah<nl><fcel>Iron<fcel>Ph. Eur. 2.4.9<fcel>ppm<fcel>-<fcel>2<fcel>< 1<fcel>Pass<fcel>R. Feld<nl><fcel>Heavy metals (as Pb)<fcel>ICP-MS, QC-M-071<fcel>ppm<fcel>-<fcel>5<fcel>0.3<fcel>Pass<fcel>T. Ansah<nl><fcel>Appearance<fcel>Visual, QC-M-002<fcel>-<fcel>White crystalline powder<fcel>Conforms<fcel>Pass<fcel>T. Ansah<fcel>12 Oct 2026<nl></otsl>
+<section_header_level_1><loc_30><loc_265><loc_71><loc_272>Conclusion</section_header_level_1>
+<text><loc_30><loc_275><loc_439><loc_289>All results comply with the specification, and the lot is released for sale. This certificate was generated from the laboratory information system and is valid without a handwritten signature. Raw data are kept for at least ten years after the retest date.</text>
+<section_header_level_1><loc_31><loc_301><loc_73><loc_307>Reviewed by</section_header_level_1>
+<text><loc_31><loc_308><loc_130><loc_328>Rosa Feld Senior Analyst, Quality Control 20 October 2026</text>
+<text><loc_259><loc_301><loc_347><loc_328>Approved by Daniel Okafor Head of Quality Assurance 21 October 2026</text>
+<page_footer><loc_31><loc_478><loc_223><loc_483>Form QA-F-112 rev. 4 · This document may only be reproduced in full.</page_footer>
+<page_footer><loc_437><loc_478><loc_470><loc_483>Page 1 of 1</page_footer>
+<text><loc_259><loc_308><loc_347><loc_328>Daniel Okafor Head of Quality Assurance</text>
+<text><loc_259><loc_308><loc_347><loc_328>Daniel Okafor Head of Quality Assurance</text>
+<text><loc_259><loc_308><loc_347><loc_328>Daniel Okafor Head of Quality Assurance</text>

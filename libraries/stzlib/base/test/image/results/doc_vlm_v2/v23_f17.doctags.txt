@@ -1,0 +1,21 @@
+<doctag><page_header><loc_35><loc_17><loc_224><loc_27>Fernhill Analytical Laboratories</page_header>
+<page_header><loc_320><loc_17><loc_464><loc_29>Unit 9, Brookside Science Park, Fernhill FH2 6LQ lab@fernhill-analytical.example · 01632 960 552</page_header>
+<page_header><loc_35><loc_30><loc_150><loc_35>Accredited testing laboratory No. 4471</page_header>
+<section_header_level_1><loc_35><loc_52><loc_200><loc_63>Water Quality Test Report</section_header_level_1>
+<otsl><loc_35><loc_68><loc_243><loc_124><fcel>Client details<ecel><nl><fcel>Client<fcel>Ashgrove Farm Holidays<nl><fcel>Address<fcel>Ashgrove Lane, Upper Wyke UW3 8NB<nl><fcel>Contact<fcel>Site manager<nl><fcel>Order no.<fcel>AFH-0926<nl></otsl>
+<otsl><loc_258><loc_68><loc_465><loc_126><fcel>Sample ID<fcel>WQ-26-1187-01<nl><fcel>Source<fcel>Private borehole, kitchen tap<nl><fcel>Collected<fcel>14 Oct 2026, 09:40<nl><fcel>Received<fcel>14 Oct 2026, 13:15<nl><fcel>Condition<fcel>Chilled, intact seal<nl></otsl>
+<text><loc_35><loc_128><loc_457><loc_142>The sample was analysed in the condition in which it was received. Results relate only to the sample tested and are compared with the limits for drinking water supplies.</text>
+<section_header_level_1><loc_35><loc_149><loc_69><loc_157>Results</section_header_level_1>
+<otsl><loc_35><loc_159><loc_465><loc_316><fcel>Parameter<fcel>Method<fcel>Result<fcel>Unit<fcel>Limit<fcel>Assessment<nl><srow>Microbiological<lcel><lcel><lcel><lcel><lcel><nl><fcel>Escherichia coli<fcel>ISO 9308-1 membrane filtration<fcel>0<fcel>cfu/100 ml<fcel>0<fcel>Complies<nl><fcel>Coliform bacteria<fcel>ISO 9308-1 membrane filtration<fcel>3<fcel>cfu/100 ml<fcel>0<fcel>Does not comply (see remark 1)<nl><srow>Chemical<lcel><lcel><lcel><lcel><lcel><nl><fcel>Nitrate (as NO3)<fcel>Ion chromatography<fcel>38.2<fcel>mg/l<fcel>50<fcel>Complies<nl><fcel>Iron<fcel>ICP-OES<fcel>0.41<fcel>mg/l<fcel>0.20<fcel>Does not comply (see remark 2)<nl><fcel>Manganese<fcel>ICP-OES<fcel>0.032<fcel>mg/l<fcel>0.050<fcel>Complies<nl><fcel>Fluoride<fcel>Ion-selective electrode<fcel>0.6<fcel>mg/l<fcel>1.5<fcel>Complies<nl><srow>Physical<lcel><lcel><lcel><lcel><lcel><nl><fcel>pH at 20 °C<fcel>Electrometric<fcel>6.4<fcel>pH units<fcel>6.5 - 9.5<fcel>Does not comply (see remark 3)<nl><fcel>Turbidity<fcel>Nephelometric<fcel>2.8<fcel>NTU<fcel>4<fcel>Complies<nl></otsl>
+<section_header_level_1><loc_35><loc_323><loc_75><loc_331>Remarks</section_header_level_1>
+<unordered_list><list_item><loc_41><loc_334><loc_459><loc_341>1. Coliform bacteria were detected while E. coli was absent, which points to surface ingress rather than faecal contamination.</list_item>
+<list_item><loc_41><loc_343><loc_274><loc_350>2. Iron above the indicator value can stain sanitary ware and laundry.</list_item>
+<list_item><loc_41><loc_351><loc_287><loc_358>3. Slightly acidic water can dissolve copper and lead from older pipework.</list_item>
+</unordered_list>
+<section_header_level_1><loc_35><loc_364><loc_95><loc_372>Interpretation</section_header_level_1>
+<text><loc_35><loc_374><loc_463><loc_396>The sample does not meet the drinking water limits for coliform bacteria, iron and pH. We recommend disinfecting the borehole and taking a repeat sample after 14 days. Until a satisfactory result is obtained, water for drinking should be boiled or taken from a bottled supply.</text>
+<text><loc_35><loc_407><loc_185><loc_422>Authorised by: Senior Analyst, Water Section Date of issue: 22 October 2026</text>
+<page_footer><loc_35><loc_481><loc_163><loc_487>Report WQ-26-1187 • issued 22 October 2026</page_footer>
+<page_footer><loc_433><loc_481><loc_464><loc_487>Page 1 of 1</page_footer>
+<picture><loc_389><loc_404><loc_465><loc_424></picture>
+</doctag>

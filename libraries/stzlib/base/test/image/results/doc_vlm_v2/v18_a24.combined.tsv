@@ -1,0 +1,35 @@
+page_header	0	Brindle Valley Electric Cooperative
+page_header	0	410 Depot Road, Brindle Falls Member services (555) 014-2290
+heading	1	Schedule of Retail Electricity Rates
+paragraph	0	Effective for bills rendered on or after 1 January 2027
+paragraph	0	The rates below apply to all members served from the cooperative's distribution system. They were approved after a cost-of-service study that showed revenue from residential members falling short of the cost of serving them. Rates are shown before state and local taxes.
+list_item	0	Rate table
+heading	7	Rate class
+table	0	Energy charge (€/kWh)Energy charge (€/kWh)Energy charge (€/kWh)Demand charge ($/kW)Rate classCodeBasic charge ($/month)Summer (Jun- Sep)Winter (Oct- May)Demand charge ($/kW)ResidentialR-124.0011.4210.18-Residential time-of-use, on- peak hoursR-26.5019.8516.40-Residential time-of-use, off- peak hours7.967.12-Small commercial (up to 50 kW)C-138.0012.0510.77-Large power (over 50 kW)LP-2145.007.316.8814.25Irrigation pumpingIR-130.009.649.646.10Outdoor lighting, per fixtureOL11.75---
+paragraph	0	Residential time-of-use, onpeak hours
+paragraph	0	Residential time-of-use, offpeak hours Small commercial (up to 50 kW)
+heading	2	TOU
+heading	2	R-
+heading	2	OL
+paragraph	0	Energy charge (¢/kWh) Summer (Jun- Sep)
+paragraph	0	Winter (Oct-
+heading	4	May)
+heading	5	Demand charge
+heading	6	($/kW)
+paragraph	0	30.00 11.75
+heading	4	Other charges
+paragraph	0	Power cost adjustment Late payment charge
+list_item	0	Reconnection during business hours
+list_item	0	Reconnection after hours
+list_item	0	Returned payment
+paragraph	0	up to ±0.25 ¢/kWh, reviewed each quarter 1.5% of the overdue balance $65.00 $180.00 $25.00
+list_item	0	How to read your bill
+paragraph	0	The basic charge covers the cost of the meter, billing and the line that connects your premises, whatever the amount of energy you use. The energy charge is multiplied by the kilowatt-hours recorded during the billing period. Members on rate LP-2 or IR-1 also pay a demand charge based on the highest 15-minute load recorded in the month.
+list_item	1	Notes
+list_item	0	1. On-peak hours for rate R-TOu are 2 p.m. to 8 p.m. on weekdays, excluding public holidays.
+list_item	0	2. The summer energy charge applies to meter readings taken from 1 June to 30 September.
+list_item	0	3. Members whose demand exceeds 50 kW in three consecutive months are moved to rate LP-2.
+list_item	0	4. A copy of the full tariff, including terms of service, is available at the member services office.
+page_footer	0	Approved by the Board of Directors on 18 November 2026 · Tariff sheet No. 3, Revision 12
+paragraph	0	一
+table	0	Power cost adjustmentup to ±0.25 €/kWh, reviewed each quarterLate payment charge1.5% of the overdue balanceReconnection during business hours$65.00Reconnection after hours$180.00Returned payment$25.00

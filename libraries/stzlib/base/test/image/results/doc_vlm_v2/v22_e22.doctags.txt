@@ -1,0 +1,26 @@
+<doctag><page_header><loc_50><loc_30><loc_182><loc_42>HALVARD ELECTRIC</page_header>
+<page_header><loc_383><loc_34><loc_450><loc_41>Product data sheet</page_header>
+<section_header_level_1><loc_43><loc_51><loc_332><loc_65>PSU-450 Series DIN-Rail Power Supplies</section_header_level_1>
+<text><loc_42><loc_69><loc_443><loc_84>The PSU-450 series converts single-phase mains into a stable 24 V or 48 V supply for control cabinets. All models are cooled by natural convection and need no fan.</text>
+<section_header_level_1><loc_49><loc_91><loc_104><loc_99>Key features</section_header_level_1>
+<unordered_list><list_item><loc_49><loc_101><loc_216><loc_108>· Wide input range for use on any mains supply</list_item>
+<list_item><loc_49><loc_109><loc_190><loc_116>· Power reserve of 20% for five seconds</list_item>
+<list_item><loc_49><loc_118><loc_209><loc_125>· DC OK relay contact for remote monitoring</list_item>
+<list_item><loc_49><loc_126><loc_179><loc_133>· Tool-free mounting on 35 mm rails</list_item>
+</unordered_list>
+<section_header_level_1><loc_262><loc_91><loc_347><loc_99>Typical applications</section_header_level_1>
+<unordered_list><list_item><loc_262><loc_101><loc_358><loc_108>· Machine control cabinets</list_item>
+<list_item><loc_262><loc_109><loc_367><loc_116>· Building automation panels</list_item>
+<list_item><loc_262><loc_118><loc_374><loc_125>· Conveyor and packaging lines</list_item>
+<list_item><loc_262><loc_126><loc_353><loc_133>· Water treatment plants</list_item>
+</unordered_list>
+<section_header_level_1><loc_42><loc_142><loc_149><loc_148>Table 1. Output ratings by model</section_header_level_1>
+<otsl><loc_42><loc_149><loc_457><loc_217><ecel><ched>Output<lcel><ecel><ecel><ecel><nl><ched>Model<ched>Voltage<ched>Current<ched>Power<ched>Efficiency<ched>Width<ched>Weight<nl><fcel>PSU-450-24<fcel>24 V DC<fcel>10 A<fcel>240 W<fcel>93.5%<fcel>40 mm<fcel>0.62 kg<nl><fcel>PSU-450-24H<fcel>24 V DC<fcel>20 A<fcel>480 W<fcel>94.8%<fcel>60 mm<fcel>0.98 kg<nl><fcel>PSU-450-48<fcel>48 V DC<fcel>5 A<fcel>240 W<fcel>94.0%<fcel>40 mm<fcel>0.61 kg<nl><fcel>PSU-450-48H<fcel>48 V DC<fcel>10 A<fcel>480 W<fcel>95.2%<fcel>60 mm<fcel>0.97 kg<nl></otsl>
+<section_header_level_1><loc_43><loc_222><loc_151><loc_230>Derating and installation</section_header_level_1>
+<text><loc_42><loc_234><loc_261><loc_275>Above 60 °C the output power must be reduced by 2.5% per degree. Leave at least 25 mm of free space above and below each unit so that air can circulate. Two units of the same model can be connected in parallel for redundancy. In that case, fit a redundancy module to decouple the outputs.</text>
+<section_header_level_1><loc_277><loc_234><loc_321><loc_240>General data</section_header_level_1>
+<otsl><loc_276><loc_240><loc_457><loc_292><fcel>Input voltage<fcel>100-240 V AC<nl><fcel>Frequency<fcel>50/60 Hz<nl><fcel>Operating temperature<fcel>-25 to +70 °C<nl><fcel>Protection class<fcel>IP20<nl><fcel>MTBF<fcel>> 900,000 h<nl></otsl>
+<section_header_level_1><loc_43><loc_300><loc_135><loc_308>Ordering information</section_header_level_1>
+<otsl><loc_42><loc_311><loc_457><loc_374><fcel>Order code<fcel>Description<nl><fcel>HE-450-24<fcel>PSU-450-24 with screw terminals<nl><fcel>HE-450-24H<fcel>PSU-450-24H with screw terminals<nl><fcel>HE-450-48P<fcel>PSU-450-48 with push-in terminals<nl><fcel>HE-450-48HP<fcel>PSU-450-48H with push-in terminals<nl></otsl>
+<page_footer><loc_119><loc_483><loc_380><loc_488>Halvard Electric · DS-PSU-450 Rev. C · October 2026 · Specifications subject to change without notice</page_footer>
+</doctag>

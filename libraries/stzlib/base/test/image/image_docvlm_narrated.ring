@@ -4,22 +4,23 @@
 # is SmolVLM's (idefics3: SigLIP 512, pixel shuffle 4, 64 rows a view), so engine/src/vlm.zig carries it; what is new
 # is the PAGE: Idefics3's tiling (the page resized to 2048 on its long side, cut into 512 x 512 tiles, one more view
 # of the whole page), the decoder's entry that reads several pictures between texts (neural_gen.startWithSegments),
-# the model's own tags (DocTags, stzDocTags.ring) read into the blocks the native PDF reader returns, and the
-# judging of both by the house's one document scorer.
+# the model's own tags (DocTags, stzDocTags.ring) read into the blocks the native PDF reader returns, the judging of
+# both by the house's one document scorer, and the COMBINATION of the two readers (StzDocBlocksCombine).
 #
-#   Scene 1  DocTags -> blocks: the parser, on text written for it (no model)
+#   Scene 1  DocTags -> blocks, and the combination: the parser and the rule, on text written for them (no model)
 #   Scene 2  the scorer: StzDocBlocksScores against base/test/document/_doc_score.py, the independent scorer, on the
-#            31 pages' stored predictions of both readers (no model)
+#            stored predictions of golden v1 (2 readers, 31 pages) and v2 (3 readers, 27 pages) (no model)
 #   Scene 3  parity with Hugging Face's own Idefics3 code loaded with the same weights (_rig/granite_docling_reference.py):
 #            the page's pixels, the prompt's tokens, the views' rows, the next-token logits, the words token by token
-#   Scene 4  DocBlocks() on pages: the model's tags, the table as a grid, against the native reader on the same page
-#   Scene 5  :doc-vlm -- the native reader on a scan against Granite-Docling, judged on the 31 golden pages
+#   Scene 4  DocBlocks() on pages: the model's tags, the table as a grid, against the native reader on the same page;
+#            and the loop stop, on the page of golden v1 that used to run to the cap
+#   Scene 5  :doc-vlm judged on golden v2 (FRESH: no model had read a page when the combination's rule was written):
+#            the native reader on a scan, Granite-Docling, and the two combined; v1's tie is read from the record
 #
-# THE TIME, because a gate says what it costs: scenes 1 and 2 are seconds; scene 3 is about 40 s a page (the views
-# are made twice: once for the rows, once for the logits); scene 4 about 40 s a page and 5 s for the floor; scene 5
-# reads the stored predictions of both readers for the verdict and runs the FLOOR live on the 31 scans (2 min); the
-# model's 31 pages are not run again here (about 20 minutes): _rig/doc_vlm_run.ring makes them, results/doc_vlm_v1/
-# keeps them, and scene 5 says so.
+# THE TIME, because a gate says what it costs: scenes 1 and 2 are seconds; scene 3 is about 40 s a page (the views are
+# made twice: once for the rows, once for the logits); scene 4 about 40 s a page, 60 s for the loop page and 5 s for the
+# floor; scene 5 runs the FLOOR live on the 27 scans (3 min) and reads the stored predictions of the model (about 40
+# minutes for the 27 pages: _rig/doc_vlm_run.ring makes them, results/doc_vlm_v2/ keeps them, and scene 5 says so).
 #
 # NEEDS what the tree does not carry: models/vision/granite_docling_258m*.gguf, the rendered pages
 # (_rig/doc_vlm_render.py), the reference fixtures. When absent, a scene says which and is SKIPPED BY NAME.
@@ -27,25 +28,29 @@
 
 load "../../stzBase.ring"
 load "_golden/doc_vlm_v1.ring"
+load "_golden/doc_vlm_v2.ring"
+load "_rig/doc_vlm_tsv.ring"
 
 $nPass = 0
 $nFail = 0
 $nSec = clock()
 $cSrc = "D:/GitHub/_wti_models_src/"
-$cPages = $cSrc + "doc_vlm_v1/"
+$cPages1 = $cSrc + "doc_vlm_v1/"
+$cPages2 = $cSrc + "doc_vlm_v2/"
 $cPar = $cSrc + "parity/granite/"
-$cRes = "results/doc_vlm_v1/"
+$cRes1 = "results/doc_vlm_v1/"
+$cRes2 = "results/doc_vlm_v2/"
 
 pr()
 nl = char(10)
 aSkipped = []
 bModel = StzVisionHasModel($cStzVisionDocDecoder) and StzVisionHasModel($cStzVisionDocProjector)
-bPages = fexists($cPages + "v2_e01.png")
+bPages = fexists($cPages1 + "v2_e01.png") and fexists($cPages2 + "v2_e02.png")
 aKeys = [ "v2_e01", "v4_g01", "v5_h03" ]
 bPar = fexists($cPar + "v2_e01_ref.txt")
 
 #=====================================================================#
-? "-- Scene 1: DocTags -> blocks --"
+? "-- Scene 1: DocTags -> blocks, and the combination --"
 #=====================================================================#
 # written for the parser, not captured: a heading and a title, a paragraph with a "<" in it and a line break, a list
 # item, code, furniture, a picture whose words are not text, an empty block, and a table with every kind of cell
@@ -84,6 +89,38 @@ chk("five rows of three cells", len(aR) = 5 and len(aR[1]) = 3 and len(aR[5]) = 
 chk("a header cell and a plain cell are cells with their text", aR[1][2] = "Qty" and aR[2][3] = "1.50")
 chk("an lcel repeats the cell to its left, an ecel is empty", aR[3][2] = "Total" and aR[3][3] = "")
 chk("a ucel repeats the cell above it", aR[5][1] = "Group" and aR[5][2] = "Group" and aR[5][3] = "8")
+
+# the combination, on two readings of one page: the reader tore the table into paragraphs and read a heading as text
+aNat = [
+	[ :kind = "heading", :level = 1, :text = "Parts", :rows = [] ],
+	[ :kind = "paragraph", :level = 0, :text = "Overview", :rows = [] ],
+	[ :kind = "paragraph", :level = 0, :text = "Item", :rows = [] ],
+	[ :kind = "paragraph", :level = 0, :text = "Bolt", :rows = [] ],
+	[ :kind = "paragraph", :level = 0, :text = "Qty", :rows = [] ],
+	[ :kind = "paragraph", :level = 0, :text = "10", :rows = [] ],
+	[ :kind = "paragraph", :level = 0, :text = "Parts are counted by hand.", :rows = [] ],
+	[ :kind = "page_footer", :level = 0, :text = "Page 1", :rows = [] ] ]
+aGr = [
+	[ :kind = "heading", :level = 1, :text = "Parts", :rows = [] ],
+	[ :kind = "heading", :level = 2, :text = "Overview", :rows = [] ],
+	[ :kind = "table", :level = 0, :text = "", :rows = [ [ "Item", "Qty" ], [ "Bolt", "10" ] ] ],
+	[ :kind = "caption", :level = 0, :text = "Table 1", :rows = [] ],
+	[ :kind = "paragraph", :level = 0, :text = "Parts are counted by hand!", :rows = [] ] ]
+aC = StzDocBlocksCombine(aNat, aGr)
+cKinds = ""
+for i = 1 to len(aC)
+	cKinds += aC[i][:kind] + " "
+next
+? "  combined kinds: " + cKinds
+chk("the combination is the reader's blocks with the model's table at the first torn cell, its caption after it",
+	cKinds = "heading heading table caption paragraph page_footer ")
+chk("the reader's paragraph that is a heading of the model becomes that heading, at the model's level",
+	aC[2][:text] = "Overview" and aC[2][:level] = 2)
+chk("the torn cells are dropped, the table is the model's, and the text stays the reader's (the model's '!' is not taken)",
+	len(aC[3][:rows]) = 2 and aC[3][:rows][2][2] = "10" and aC[5][:text] = "Parts are counted by hand." and aC[6][:text] = "Page 1")
+aAlone = StzDocBlocksCombine([ [ :kind = "paragraph", :level = 0, :text = "Alone", :rows = [] ] ], aGr)
+chk("a table none of whose cells the reader found is appended after the last block", aAlone[len(aAlone) - 1][:kind] = "table")
+chk("with no model reading the combination is the reader's own", len(StzDocBlocksCombine(aNat, [])) = len(aNat))
 sec("scene 1")
 
 #=====================================================================#
@@ -112,36 +149,19 @@ chk("...and one whose table is not found scores 0, which is a number and counts 
 	StzDocBlocksMean([ 0, "", 1 ]) = 0.5)
 decimals(6)
 
-bStored = fexists($cRes + "doc_vlm_v1_scores.tsv") and fexists($cRes + "v2_e01.granite.tsv")
-if bStored
-	aPy = ReadScores($cRes + "doc_vlm_v1_scores.tsv")
-	aG = StzVisionGoldenDocV1($cPages)
-	nDiff = 0
-	nCmp = 0
-	nDocs = 0
-	aTools = [ "floor", "granite" ]
-	for t = 1 to 2
-		for i = 1 to len(aG)
-			cKey = KeyOf(aG[i][1])
-			aBk = BlocksFromTsv($cRes + cKey + "." + aTools[t] + ".tsv")
-			aMine = StzDocBlocksScores(aBk, aG[i][2])
-			aTheirs = ScoresOf(aPy, aTools[t] + "|" + cKey)
-			nDocs++
-			for m = 1 to 7
-				nCmp++
-				# a metric is a number or "" (none): compare the TYPE first, 0 = "" being TRUE in Ring
-				if isString(aMine[m]) and isString(aTheirs[m]) loop ok
-				if isString(aMine[m]) or isString(aTheirs[m]) or fabs(aMine[m] - aTheirs[m]) > 0.0000001
-					nDiff++
-					? "    differs: " + aTools[t] + " " + cKey + " metric " + m + ": " + aMine[m] + " vs " + aTheirs[m]
-				ok
-			next
-		next
-	next
-	chk("the Ring scorer and _doc_score.py agree on " + nCmp + " metrics of " + nDocs + " stored predictions", nDiff = 0)
+bStored1 = fexists($cRes1 + "doc_vlm_v1_scores.tsv") and fexists($cRes1 + "v2_e01.granite.tsv")
+bStored2 = fexists($cRes2 + "doc_vlm_v2_scores.tsv") and fexists($cRes2 + "v2_e02.combined.tsv")
+if bStored1
+	CompareStored("v1", $cRes1, StzVisionGoldenDocV1($cPages1), [ "floor", "granite" ])
 else
-	aSkipped + "scene 2 (the stored predictions in results/doc_vlm_v1/: _rig/doc_vlm_run.ring then doc_vlm_score.py)"
-	? "  SKIPPED: the stored predictions are not in " + $cRes
+	aSkipped + "scene 2, golden v1 (the stored predictions in results/doc_vlm_v1/: _rig/doc_vlm_run.ring then doc_vlm_score.py)"
+	? "  SKIPPED: the stored predictions of v1 are not in " + $cRes1
+ok
+if bStored2
+	CompareStored("v2", $cRes2, StzVisionGoldenDocV2($cPages2), [ "floor", "granite", "combined" ])
+else
+	aSkipped + "scene 2, golden v2 (the stored predictions in results/doc_vlm_v2/)"
+	? "  SKIPPED: the stored predictions of v2 are not in " + $cRes2
 ok
 sec("scene 2")
 
@@ -155,12 +175,11 @@ if bModel and bPages and bPar
 	StzExpectModelDigest(cDec, $cStzVisionDocDecoderSha256)
 	chk("the decoder loads with the digest recorded in models/MODELS.md", StzEngineNeuralModelLoad(cDec) = 1)
 	$cStzVisionVlmSlot = cDec
-	aPar = []
 	for k = 1 to len(aKeys)
 		cK = aKeys[k]
 		aRef = StzSplit(read($cPar + cK + "_ref.txt"), nl)
 		aGrid = StzSplit(StzReplace(aRef[1], "grid ", ""), " ")
-		o = StzImageQ($cPages + cK + ".png")
+		o = StzImageQ($cPages1 + cK + ".png")
 		aG2 = StzEngineNeuralVlmGrid(o.Width(), o.Height(), $nStzVisionDocLongest, $nStzVisionDocTile)
 		cPx = StzEngineNeuralVlmPageViews(cProj, o.Pixels(), o.Width(), o.Height(), o.Channels(), $nStzVisionDocLongest)
 		aPx = StzEngineNeuralF32Compare(cPx, read($cPar + cK + "_px.f32"))
@@ -203,9 +222,9 @@ if bModel and bPages and bPar
 		chk(cK + ": the page's pixels are the processor's (cosine >= 0.9999: the same PIL Lanczos resizes)", aPx[1] >= 0.9999)
 		chk(cK + ": the prompt's " + len(StzSplit(cIds, " ")) + " tokens are the independent tokenizer's", cIds = StzReplace(aRef[2], "ids ", ""))
 		chk(cK + ": the views' rows agree with HF's (cosine >= 0.9995: Q8 products)", aRw[1] >= 0.9995)
-		chk(cK + ": the two likeliest next tokens are HF's in HF's order; four of the five are the same tokens, logits within 2.0", nFirst = 1 and nSameTop >= 4 and nD < 2.0)
+		chk(cK + ": the two likeliest next tokens are HF's in HF's order; four of the five are the same tokens, logits within 2.0",
+			nFirst = 1 and nSameTop >= 4 and nD < 2.0)
 		chk(cK + ": fed HF's own words, the engine's next token is HF's at least " + (nGn - 3) + " times in " + nGn, nAgree >= nGn - 3)
-		aPar + [ cK, "" + aG2[1] + " x " + aG2[2], "" + aRw[1], nSameTop, nAgree, nGn ]
 		o.Release()
 	next
 else
@@ -215,12 +234,12 @@ ok
 sec("scene 3")
 
 #=====================================================================#
-? "-- Scene 4: DocBlocks() on pages --"
+? "-- Scene 4: DocBlocks() on pages, and the loop stop --"
 #=====================================================================#
 
 if bModel and bPages
 	nCalls0 = StzVisionCallsRecorded()
-	o = StzImageQ($cPages + "v2_e01.png")
+	o = StzImageQ($cPages1 + "v2_e01.png")
 	cTags = o.DocTags()
 	aS4 = StzEngineNeuralVlmStats()
 	? "  v2_e01: " + aS4[3] + " tokens, the views " + floor(aS4[1]) + " ms, the words " + floor(aS4[2]) + " ms"
@@ -238,13 +257,31 @@ if bModel and bPages
 	chk("each call went through the door: " + (StzVisionCallsRecorded() - nCalls0) + " records for 3 calls", StzVisionCallsRecorded() - nCalls0 = 3)
 	o.Release()
 	# the native reader on the same page as a scan: it has no table without ruling lines
-	aF = _StzVisionDocFloor($cPages + "v2_e01.png", [])
+	aF = _StzVisionDocFloor($cPages1 + "v2_e01.png", [])
 	nFT = 0
 	for i = 1 to len(aF)
 		if aF[i][:kind] = "table" nFT++ ok
 	next
 	? "  the native reader on v2_e01 as a scan: " + len(aF) + " blocks, " + nFT + " tables"
 	chk("the native reader finds no table in a table drawn without ruling lines", nFT = 0)
+	# the loop stop: v20_c22 of golden v1 fell into the same line over and over, 88 times, to the old cap of 3072 tokens
+	# and 275 s. The engine's own stop (an identical line 3 times in a row) ends it where it begins
+	o = StzImageQ($cPages1 + "v20_c22.png")
+	t0 = clock()
+	cLoop = o.DocTags()
+	nSecLoop = (clock() - t0) / clockspersecond()
+	aS4 = StzEngineNeuralVlmStats()
+	? "  v20_c22: " + aS4[3] + " tokens, " + floor(nSecLoop) + " s (it ran 3072 tokens and 275 s without the stop)"
+	aLines = StzSplit(cLoop, nl)
+	nLn = len(aLines)
+	# the stream may end on a part of a fourth line: look for the run of three among the last six lines
+	bRun = 0
+	for q = 3 to nLn
+		if q > nLn - 6 and aLines[q] = aLines[q - 1] and aLines[q - 1] = aLines[q - 2] bRun = 1 ok
+	next
+	chk("the page that looped now stops short of the cap, at an identical line three times in a row", aS4[3] < $nStzVisionDocMaxTokens and bRun = 1)
+	chk("...in under half the time it took (275 s)", nSecLoop < 140)
+	o.Release()
 else
 	aSkipped + "scene 4 (the Granite-Docling models and the rendered pages)"
 	? "  SKIPPED: the Granite-Docling models or the rendered pages are not installed"
@@ -252,39 +289,57 @@ ok
 sec("scene 4")
 
 #=====================================================================#
-? "-- Scene 5: :doc-vlm, judged on the 31 golden pages --"
+? "-- Scene 5: :doc-vlm, judged on golden v2 (fresh) --"
 #=====================================================================#
-# The golden set (_rig/doc_vlm_render.py and doc_vlm_golden.py; the rule fixed before any model read a page): the
-# first one-page English document of each of golden_v2 ... golden_v33. A page AGREES when the mean of the metrics
-# that apply to it reaches $nStzDocAgreeBar (0.9). The floor is the native PDF reader on the page as a scan.
+# The golden set (_rig/doc_vlm_render.py and doc_vlm_golden.py v2; the rule fixed before any model read a page): the
+# second and, when there is one, the third one-page English document of each of golden_v2 ... golden_v33. A page AGREES
+# when the mean of the metrics that apply to it reaches $nStzDocAgreeBar (0.9). The floor is the native PDF reader on the page
+# as a scan, run here; the model's and the combination's pages are read from the predictions stored by
+# _rig/doc_vlm_run.ring (the combination is derived from the two readings by StzDocBlocksCombine, here as well).
 
-if bStored and bPages
-	aG = StzVisionGoldenDocV1($cPages)
+if bStored2 and bPages
+	aG = StzVisionGoldenDocV2($cPages2)
 	StzVisionDeclare([ [ "doc-vlm", aG ] ])
-	chk("31 :doc-vlm items, every page on disk", len(StzFacultyQ("doc-vlm").Goldens()) = 31 and AllOnDisk(aG))
-	# the floor, live: the native reader on each scan
+	chk("27 :doc-vlm items, every page on disk", len(StzFacultyQ("doc-vlm").Goldens()) = 27 and AllOnDisk(aG))
+	chk("the faculty has three implementations (the floor, the model, the two combined)", len(StzFacultyQ("doc-vlm").Implementations()) = 3)
 	StzRunGoldensFor("doc-vlm", [ "none" ], [])
-	nFloor = ScoreOf("doc-vlm", "native-reader", "doc-vlm-v1")
-	# the model, from the predictions stored by _rig/doc_vlm_run.ring (each page about 35 s; not run again here)
-	nOk = 0
-	nMeanG = 0
+	nFloor = ScoreOf("doc-vlm", "native-reader", "doc-vlm-v2")
+	nOkG = 0
+	nOkC = 0
 	nMeanF = 0
+	nMeanG = 0
+	nMeanC = 0
+	nDiffC = 0
 	for i = 1 to len(aG)
 		cKey = KeyOf(aG[i][1])
-		aBk = BlocksFromTsv($cRes + cKey + ".granite.tsv")
-		if StzGoldenAgrees("doc-blocks", aBk, aG[i][2]) nOk++ ok
-		nMeanG += StzDocBlocksMean(StzDocBlocksScores(aBk, aG[i][2]))
-		nMeanF += StzDocBlocksMean(StzDocBlocksScores(BlocksFromTsv($cRes + cKey + ".floor.tsv"), aG[i][2]))
+		aBf = BlocksFromTsv($cRes2 + cKey + ".floor.tsv")
+		aBg = BlocksFromTsv($cRes2 + cKey + ".granite.tsv")
+		aBc = StzDocBlocksCombine(aBf, aBg)
+		if @@(aBc) != @@(BlocksFromTsv($cRes2 + cKey + ".combined.tsv")) nDiffC++ ok
+		if StzGoldenAgrees("doc-blocks", aBg, aG[i][2]) nOkG++ ok
+		if StzGoldenAgrees("doc-blocks", aBc, aG[i][2]) nOkC++ ok
+		nMeanF += StzDocBlocksMean(StzDocBlocksScores(aBf, aG[i][2]))
+		nMeanG += StzDocBlocksMean(StzDocBlocksScores(aBg, aG[i][2]))
+		nMeanC += StzDocBlocksMean(StzDocBlocksScores(aBc, aG[i][2]))
 	next
-	StzRecordMeasurement("doc-vlm", "granite-docling-258m", "doc-vlm-v1", nOk / len(aG), len(aG), 1,
-		"scored by the guard with doc-blocks on the predictions stored in results/doc_vlm_v1/")
-	nGran = ScoreOf("doc-vlm", "granite-docling-258m", "doc-vlm-v1")
-	? "    native reader on a scan " + nFloor + "   granite-docling-258m " + nGran + "   (share of pages whose metrics' mean reaches " + $nStzDocAgreeBar + ")"
-	? "    the mean of the pages' metric means: native reader " + (nMeanF / len(aG)) + "   granite-docling-258m " + (nMeanG / len(aG))
-	chk("Granite-Docling was measured on the same 31 pages (" + nGran + ")", nGran >= 0)
+	chk("the combination the library makes is the one the runner stored (" + nDiffC + " pages differ)", nDiffC = 0)
+	StzRecordMeasurement("doc-vlm", "granite-docling-258m", "doc-vlm-v2", nOkG / len(aG), len(aG), 1,
+		"scored by the guard with doc-blocks on the predictions stored in results/doc_vlm_v2/")
+	StzRecordMeasurement("doc-vlm", "native-plus-granite", "doc-vlm-v2", nOkC / len(aG), len(aG), 1,
+		"scored by the guard with doc-blocks: StzDocBlocksCombine of the stored floor and model predictions of results/doc_vlm_v2/")
+	nGran = ScoreOf("doc-vlm", "granite-docling-258m", "doc-vlm-v2")
+	nComb = ScoreOf("doc-vlm", "native-plus-granite", "doc-vlm-v2")
+	? "    native reader on a scan " + nFloor + "   granite-docling-258m " + nGran + "   native-plus-granite " + nComb +
+		"   (share of pages whose metrics' mean reaches " + $nStzDocAgreeBar + ")"
+	? "    the mean of the pages' metric means: native reader " + (nMeanF / len(aG)) + "   granite " + (nMeanG / len(aG)) + "   combined " + (nMeanC / len(aG))
+	chk("both models were measured on the same 27 pages (" + nGran + ", " + nComb + ")", nGran >= 0 and nComb >= 0)
 	cChosen = StzModelRegistryQ().ResolveQ("doc-vlm").Chosen()
-	chk("the registry chose '" + cChosen + "' -- the rule (strictly beat the floor) says '" + ByTheRule("doc-vlm", "doc-vlm-v1") + "'",
-		cChosen = ByTheRule("doc-vlm", "doc-vlm-v1"))
+	chk("the registry chose '" + cChosen + "' -- the rule (strictly beat the floor) says '" + ByTheRule("doc-vlm", "doc-vlm-v2") + "'",
+		cChosen = ByTheRule("doc-vlm", "doc-vlm-v2"))
+	? "    on the record, golden v1 (the first two readers): native reader " + ScoreOf("doc-vlm", "native-reader", "doc-vlm-v1") +
+		", granite-docling-258m " + ScoreOf("doc-vlm", "granite-docling-258m", "doc-vlm-v1") + " -- a tie"
+	chk("v1's tie is still on the record", ScoreOf("doc-vlm", "native-reader", "doc-vlm-v1") = ScoreOf("doc-vlm", "granite-docling-258m", "doc-vlm-v1") and
+		ScoreOf("doc-vlm", "native-reader", "doc-vlm-v1") > 0)
 	if NOT StzDirExists("results") StzDirCreatePath("results") ok
 	StzSaveMeasurements("results/vision_im7b.zmdl.txt")
 else
@@ -303,6 +358,32 @@ ok
 ? "ASSERTIONS: " + ($nPass + $nFail) + " -- " + $nPass + " passed, " + $nFail + " failed"
 pf()
 shutdown($nFail)
+
+# the independent scorer's numbers against the Ring scorer's, metric by metric, on a set's stored predictions
+func CompareStored(cSet, cRes, aG, aTools)
+	aPy = ReadScores(cRes + "doc_vlm_" + cSet + "_scores.tsv")
+	nDiff = 0
+	nCmp = 0
+	nDocs = 0
+	for t = 1 to len(aTools)
+		for i = 1 to len(aG)
+			cKey = KeyOf(aG[i][1])
+			aBk = BlocksFromTsv(cRes + cKey + "." + aTools[t] + ".tsv")
+			aMine = StzDocBlocksScores(aBk, aG[i][2])
+			aTheirs = ScoresOf(aPy, aTools[t] + "|" + cKey)
+			nDocs++
+			for m = 1 to 7
+				nCmp++
+				# a metric is a number or "" (none): compare the TYPE first, 0 = "" being TRUE in Ring
+				if isString(aMine[m]) and isString(aTheirs[m]) loop ok
+				if isString(aMine[m]) or isString(aTheirs[m]) or fabs(aMine[m] - aTheirs[m]) > 0.0000001
+					nDiff++
+					? "    differs: " + aTools[t] + " " + cKey + " metric " + m + ": " + aMine[m] + " vs " + aTheirs[m]
+				ok
+			next
+		next
+	next
+	chk("golden " + cSet + ": the Ring scorer and _doc_score.py agree on " + nCmp + " metrics of " + nDocs + " stored predictions", nDiff = 0)
 
 # the ids the engine gives the prompt's texts, the views' 64 rows each written as 64 <image> ids (100270)
 func PromptIds(aTexts)
@@ -366,50 +447,6 @@ func ByTheRule(cF, cVer)
 	next
 	if cBest != "" and nBest > ScoreOf(cF, cFloor, cVer) return cBest ok
 	return cFloor
-
-# a prediction file of _rig/doc_vlm_run.ring: kind, level, text per line (a table's rows by U+001E, cells by U+001F)
-func BlocksFromTsv(cPath)
-	aOut = []
-	aL = StzSplit(read(cPath), char(10))
-	for i = 1 to len(aL)
-		if aL[i] = "" loop ok
-		aF = StzSplit(aL[i], char(9))
-		if len(aF) < 3 loop ok
-		if aF[1] = "table"
-			aRows = []
-			aR = StzSplit(aF[3], char(30))
-			for r = 1 to len(aR)
-				aCells = StzSplit(aR[r], char(31))
-				for c = 1 to len(aCells)
-					aCells[c] = Unesc(aCells[c])
-				next
-				aRows + aCells
-			next
-			aOut + [ :kind = "table", :level = 0, :text = "", :rows = aRows ]
-		else
-			aOut + [ :kind = aF[1], :level = 0 + aF[2], :text = Unesc(aF[3]), :rows = [] ]
-		ok
-	next
-	return aOut
-
-func Unesc(c)
-	if len(StzFind("\", c)) = 0 return c ok
-	cOut = ""
-	n = len(c)
-	i = 1
-	while i <= n
-		if c[i] = "\" and i < n
-			cN = c[i + 1]
-			if cN = "t" cOut += char(9)
-			but cN = "n" cOut += char(10)
-			else cOut += cN ok
-			i += 2
-		else
-			cOut += c[i]
-			i++
-		ok
-	end
-	return cOut
 
 # the independent scorer's numbers: "<tool>|<key>" -> [ 7 metrics ] ("" for none), from doc_vlm_score.py
 func ReadScores(cPath)

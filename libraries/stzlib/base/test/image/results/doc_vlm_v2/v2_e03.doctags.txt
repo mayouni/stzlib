@@ -1,0 +1,11 @@
+<doctag><section_header_level_1><loc_48><loc_34><loc_269><loc_50>Restoring the Old Mill Pond</section_header_level_1>
+<section_header_level_1><loc_48><loc_59><loc_171><loc_70>Why the Pond Matters</section_header_level_1>
+<text><loc_48><loc_75><loc_273><loc_119>The old mill pond is the last open water in the eastern part of the town. For decades it was a resting place for herons, ducks and the occasional kingfisher. Since the sluice gate collapsed, the pond has slowly filled with silt and reeds.</text>
+<section_header_level_1><loc_48><loc_128><loc_180><loc_139>What the Work Involves</section_header_level_1>
+<text><loc_48><loc_144><loc_444><loc_171>Contractors will first remove about four thousand cubic metres of silt. The sluice gate will then be rebuilt in oak, following the original drawings kept in the town archive. Finally, a footpath with two viewing platforms will be laid along the southern bank.</text>
+<text><loc_48><loc_177><loc_454><loc_194>The restoration group meets on the first Thursday of every month in the parish hall, and its minutes are published on the notice board outside the library.</text>
+<section_header_level_1><loc_306><loc_61><loc_361><loc_71>At a Glance</section_header_level_1>
+<text><loc_306><loc_74><loc_443><loc_81>The pond covers about 1.8 hectares.</text>
+<text><loc_306><loc_87><loc_443><loc_103>Work began in September 2025 and should end in June 2026.</text>
+<text><loc_306><loc_109><loc_433><loc_116>The total budget is 214,000 euros.</text>
+</doctag>

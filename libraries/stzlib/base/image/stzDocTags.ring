@@ -395,3 +395,94 @@ func StzDocBlocksMean(paScores)
 func StzDocBlocksAgree(pBlocks, pExpected)
 	if NOT isList(pBlocks) or NOT isList(pExpected) return 0 ok
 	return StzDocBlocksMean(StzDocBlocksScores(pBlocks, pExpected)) >= $nStzDocAgreeBar
+
+  #-----------------------------------------------------------#
+ #  TWO READINGS OF ONE PAGE, COMBINED                        #
+#-----------------------------------------------------------#
+
+# The native PDF reader and Granite-Docling err on different things (measured on golden v1, 31 pages: the model
+# wins tables, 0.53 against 0.29 of cells, and headings, 0.86 against 0.72; the reader wins text, 0.96 against 0.87,
+# and page furniture, 0.74 against 0.50). The combination takes each one's strength. THE RULE, written down before any
+# page of golden v2 was read by either reader, and not changed after:
+#
+#   the reader's blocks are the base, in the reader's order, and
+#   1. a reader paragraph whose text is exactly a cell of one of the model's tables is DROPPED (the reader has torn the
+#      table into paragraphs), and the model's table (with the caption block the model wrote after it, if any) stands
+#      at the place of the first such paragraph; a table of which no cell was found is appended after the last block;
+#   2. a reader paragraph whose text is exactly a heading the model wrote becomes that heading, with the model's level
+#      (the reader's own headings stay: the headings are the union of the two);
+#   3. every other block, and all text, lists and page furniture, are the reader's.
+#
+# "Exactly" is the text with its whitespace collapsed (the scorer's own normalisation).
+#
+#   paNative   blocks of the native reader on the page as a scan ([ :kind, :level, :text, :rows ])
+#   paGranite  blocks of the model on the same page, as StzDocTagsBlocks gives them
+#   returns    blocks of the same shape
+func StzDocBlocksCombine(paNative, paGranite)
+	# the model's tables, each with the caption that follows it, and the owner of each cell text
+	_aTabs_ = []
+	_aOwn_ = []
+	_aHeads_ = []
+	_nG_ = ring_len(paGranite)
+	for _i_ = 1 to _nG_
+		_cK_ = paGranite[_i_][:kind]
+		if _cK_ = "table"
+			_aCap_ = []
+			if _i_ < _nG_ and paGranite[_i_ + 1][:kind] = "caption" _aCap_ = [ paGranite[_i_ + 1] ] ok
+			_aTabs_ + [ paGranite[_i_], _aCap_, 0 ]
+			_nT_ = ring_len(_aTabs_)
+			for _r_ = 1 to ring_len(paGranite[_i_][:rows])
+				for _c_ = 1 to ring_len(paGranite[_i_][:rows][_r_])
+					_cCell_ = _StzDocTagsTidy(paGranite[_i_][:rows][_r_][_c_])
+					if _cCell_ != "" and _StzDocCombineOwner(_aOwn_, _cCell_) = 0
+						_aOwn_ + [ _cCell_, _nT_ ]
+					ok
+				next
+			next
+		but _cK_ = "heading"
+			_aHeads_ + [ _StzDocTagsTidy(paGranite[_i_][:text]), paGranite[_i_][:level] ]
+		ok
+	next
+	_aRes_ = []
+	_nN_ = ring_len(paNative)
+	for _i_ = 1 to _nN_
+		_aB_ = paNative[_i_]
+		if _aB_[:kind] = "paragraph"
+			_cT_ = _StzDocTagsTidy(_aB_[:text])
+			_nIdx_ = _StzDocCombineOwner(_aOwn_, _cT_)
+			if _nIdx_ > 0
+				_nOwner_ = _aOwn_[_nIdx_][2]
+				if _aTabs_[_nOwner_][3] = 0
+					_aRes_ + _aTabs_[_nOwner_][1]
+					for _k_ = 1 to ring_len(_aTabs_[_nOwner_][2])
+						_aRes_ + _aTabs_[_nOwner_][2][_k_]
+					next
+					_aTabs_[_nOwner_][3] = 1
+				ok
+				loop
+			ok
+			_nHead_ = _StzDocCombineOwner(_aHeads_, _cT_)
+			if _nHead_ > 0
+				_aRes_ + [ :kind = "heading", :level = _aHeads_[_nHead_][2], :text = _aB_[:text], :rows = [] ]
+				loop
+			ok
+		ok
+		_aRes_ + _aB_
+	next
+	for _t_ = 1 to ring_len(_aTabs_)
+		if _aTabs_[_t_][3] = 0
+			_aRes_ + _aTabs_[_t_][1]
+			for _k_ = 1 to ring_len(_aTabs_[_t_][2])
+				_aRes_ + _aTabs_[_t_][2][_k_]
+			next
+		ok
+	next
+	return _aRes_
+
+# the position of the first entry [ text, x ] of a list whose text is pcText, 0 when none
+func _StzDocCombineOwner(paList, pcText)
+	_n_ = ring_len(paList)
+	for _i_ = 1 to _n_
+		if paList[_i_][1] = pcText return _i_ ok
+	next
+	return 0

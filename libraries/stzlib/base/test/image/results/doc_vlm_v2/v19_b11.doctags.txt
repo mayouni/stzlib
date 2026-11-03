@@ -1,0 +1,30 @@
+<doctag><page_header><loc_52><loc_17><loc_206><loc_23>Ravensmoor Housing Trust · Facilities Team</page_header>
+<section_header_level_1><loc_52><loc_41><loc_403><loc_53>Office Cleaning Contract: Comparison of Tenders</section_header_level_1>
+<text><loc_52><loc_58><loc_62><loc_65>To</text>
+<text><loc_52><loc_67><loc_76><loc_73>From</text>
+<text><loc_52><loc_76><loc_72><loc_82>Date</text>
+<text><loc_52><loc_85><loc_76><loc_91>Subject</text>
+<text><loc_88><loc_58><loc_210><loc_65>Property and Facilities Committee</text>
+<text><loc_88><loc_67><loc_143><loc_73>Facilities Team</text>
+<text><loc_88><loc_76><loc_148><loc_82>6 February 2026</text>
+<text><loc_52><loc_85><loc_316><loc_91>Award of the cleaning contract for Kingsgate House, 2026-2029</text>
+<text><loc_52><loc_96><loc_446><loc_110>Three compliant tenders were received by the closing date of 23 January. Each tender was scored against the criteria published in the invitation to tender, with price weighted at 40%.</text>
+<section_header_level_1><loc_52><loc_118><loc_145><loc_126>Scoring summary</section_header_level_1>
+<otsl><loc_52><loc_127><loc_449><loc_204><fcel>Criterion (weight)<fcel>Brightwell Services<fcel>Corran Clean Ltd<fcel>Silverbirch Facilities<nl><fcel>Price (40%)<fcel>35 £118,400 a year<fcel>40 £104,950 a year<fcel>32 £131,200 a year<nl><fcel>Method statement (25%)<fcel>21<fcel>17<fcel>22<nl><fcel>Staffing and supervision (15%)<fcel>12<fcel>10<fcel>12<nl><fcel>Environmental approach (10%)<fcel>8<fcel>6<fcel>9<nl><fcel>References (10%)<fcel>9<fcel>7<fcel>9<nl><fcel>Total (100%)<fcel>85<fcel>80<fcel>84<nl></otsl>
+<text><loc_52><loc_209><loc_442><loc_224>Prices were scored in proportion to the lowest compliant tender. Quality criteria were scored independently by two officers and the scores were then moderated.</text>
+<section_header_level_1><loc_60><loc_231><loc_84><loc_238>Risks</section_header_level_1>
+<unordered_list><list_item><loc_60><loc_241><loc_213><loc_256>· Corran Clean's price depends on a staff turnover rate that looks optimistic.</list_item>
+<list_item><loc_60><loc_258><loc_235><loc_272>· Silverbirch would need six weeks to mobilise, which would delay the start to May.</list_item>
+<list_item><loc_60><loc_274><loc_234><loc_288>· All three bidders assume the current opening hours of the building.</list_item>
+</unordered_list>
+<section_header_level_1><loc_52><loc_299><loc_106><loc_307>Next steps</section_header_level_1>
+<unordered_list><list_item><loc_52><loc_311><loc_254><loc_317>i. Committee decision at the meeting of 19 February.</list_item>
+<list_item><loc_52><loc_319><loc_263><loc_325>ii. Standstill period of ten days, then contract signature.</list_item>
+<list_item><loc_52><loc_327><loc_182><loc_334>iii. Contract start on 1 April 2026.</list_item>
+</unordered_list>
+<text><loc_52><loc_339><loc_403><loc_345>The current contract with the outgoing supplier ends on 31 March 2026 and cannot be extended.</text>
+<section_header_level_1><loc_267><loc_231><loc_348><loc_238>Recommendation</section_header_level_1>
+<text><loc_267><loc_241><loc_439><loc_281>We recommend that the contract is awarded to Brightwell Services, which achieved the highest overall score. Its price is £13,450 a year higher than the lowest tender, but its method statement is considerably stronger.</text>
+<section_header_level_1><loc_267><loc_299><loc_387><loc_307>Recommendation</section_header_level_1>
+<page_footer><loc_163><loc_477><loc_337><loc_483>Internal document - not for circulation outside the Trust</page_footer>
+</doctag>
