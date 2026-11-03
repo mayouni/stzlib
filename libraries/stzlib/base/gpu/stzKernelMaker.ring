@@ -23,6 +23,7 @@
 # declare buffers of them, N numbers per element. Atomics (GL0):
 # ReturnsAtomic(:h, 13) and a body '@h[index] += value' (or max=, min=).
 # Loops (GL0): iterate(k, from, to, s, init, step[, stop]) -- a state, at most 4096 passes.
+# 3-D grids (GL0): Width(w) then Depth(d) -- a stack of width grids; @slice, @row, @col.
 # The whole language, with the group lines (Shared, Stage, Reduce, Tiles,
 # Accumulate, Width), is in SOFTANZA_GPU_KERNELS.md beside this file.
 # Anything else REFUSES at ToWGSL() time with a message naming the offender.
@@ -69,6 +70,7 @@ class stzKernelMaker from stzObject
 	@cWgsl = ""
 	@cGuard = ""
 	@cWidth = ""
+	@cDepth = "" # GL0 (3-D grids): the slices of a width grid
 	@aShared = []
 	@aSchedule = []
 
@@ -290,7 +292,7 @@ class stzKernelMaker from stzObject
 	#
 	#   pcW        the write in braces, such as '{ @t[@l] = @a }' -- the slot, then the value
 	#   returns    the object itself
-	#   note       a stage may read the inputs, the group's names (@l, @g, @lx, @ly, @row, @col), the
+	#   note       a stage may read the inputs, the group's names (@l, @g, @lx, @ly, @row, @col, @slice), the
 	#              scalars and the OTHER shared arrays; reading the array it writes is refused, because
 	#              the threads would race
 	#   see        Shared, Reduce, Tiles
@@ -341,6 +343,17 @@ class stzKernelMaker from stzObject
 	#   see        Tiles
 	def Width(pW)
 		@cWidth = lower("" + pW)
+		@cWgsl = ""
+		return This
+
+	# Makes the output a stack of slices, each a width grid: the groups run slice by slice, and @slice names a thread's slice (@row and @col are the slice's own).
+	#
+	#   pD         a declared scalar's name or a number, 1 or more
+	#   returns    the object itself
+	#   note       needs Width; the element count must be a whole number of slices of whole 16-row tiles
+	#   see        Width
+	def Depth(pD)
+		@cDepth = lower("" + pD)
 		@cWgsl = ""
 		return This
 
@@ -552,6 +565,9 @@ class stzKernelMaker from stzObject
 		ok
 		if @cWidth != ""
 			_c_ += "width " + @cWidth + char(10)
+		ok
+		if @cDepth != ""
+			_c_ += "depth " + @cDepth + char(10)
 		ok
 		_nL_ = len(@aShared)
 		for _i_ = 1 to _nL_

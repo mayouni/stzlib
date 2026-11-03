@@ -1,0 +1,8 @@
+in a
+scalar w
+scalar d
+scalar p
+out c
+width w
+depth d
+body { @c = when(@slice > 0, @a - @a[@i - p], @a) }

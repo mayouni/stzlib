@@ -360,6 +360,7 @@ function specFromRing(src) {
     else if ((m = l.match(/^k\.ReturnsVectorOf\(:(\w+),\s*:(\w+)\)/))) out.push("out " + m[1] + (m[2] === "float" ? "" : " " + m[2]));
     else if ((m = l.match(/^k\.ReturnsAtomic\(:(\w+),\s*(\d+)\)/))) out.push("out " + m[1] + " atomic " + m[2]);
     else if ((m = l.match(/^k\.Width\(:?(\w+)\)/))) out.push("width " + m[1]);
+    else if ((m = l.match(/^k\.Depth\(:?(\w+)\)/))) out.push("depth " + m[1]);
     else if ((m = l.match(/^k\.Shared\(:(\w+),\s*(\d+)\)/))) out.push("shared " + m[1] + " " + m[2]);
     else if ((m = l.match(/^k\.Stage\('(.*)'\)/))) out.push("stage " + m[1]);
     else if ((m = l.match(/^k\.Reduce\(:(\w+),\s*:(\w+)\)/))) out.push("reduce " + m[1] + " " + m[2]);

@@ -1,0 +1,11 @@
+# Counts slices from 1 as if @slice did: the second slice is never compared with the first.
+k = StzKernelMakerQ()
+k.TakesVector(:a)
+k.TakesScalar(:w)
+k.TakesScalar(:d)
+k.TakesScalar(:p)
+k.ReturnsVector(:c)
+k.Width(:w)
+k.Depth(:d)
+k.ForEachElement('{ @c = when(@slice > 1, @a - @a[@i - p], @a) }')
+? StzKernelPuzzleQ("kp-19").Grade(k)

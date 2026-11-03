@@ -1,0 +1,11 @@
+# The slice size written as a number: right for the shape shown, wrong for a volume of another shape (p is the size of a slice).
+k = StzKernelMakerQ()
+k.TakesVector(:a)
+k.TakesScalar(:w)
+k.TakesScalar(:d)
+k.TakesScalar(:p)
+k.ReturnsVector(:c)
+k.Width(:w)
+k.Depth(:d)
+k.ForEachElement('{ @c = when(@slice > 0, @a - @a[@i - 1024], @a) }')
+? StzKernelPuzzleQ("kp-19").Grade(k)

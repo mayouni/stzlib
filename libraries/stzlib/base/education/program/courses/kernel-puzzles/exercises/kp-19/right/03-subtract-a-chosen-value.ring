@@ -1,0 +1,11 @@
+# The branch chooses what to subtract, not what to answer.
+k = StzKernelMakerQ()
+k.TakesVector(:a)
+k.TakesScalar(:w)
+k.TakesScalar(:d)
+k.TakesScalar(:p)
+k.ReturnsVector(:c)
+k.Width(:w)
+k.Depth(:d)
+k.ForEachElement('{ @c = @a - when(@slice > 0, @a[@i - p], 0) }')
+? StzKernelPuzzleQ("kp-19").Grade(k)

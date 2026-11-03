@@ -4163,7 +4163,64 @@ which runs the grammar's 34). Wall times ran about 1.7 times the previous
 gate run's on guards the loop does not touch: the machine was busier, and
 they are not a measurement.
 
-**What is left of GL0**: 3-D grids.
+**What is left of GL0**: 3-D grids (landed, the seventh admission, below).
+
+## GL0 STATUS — seventh admission landed 2026-11-03: the 3-D grid, `depth` and `@slice`
+
+**GL0's vocabulary is complete.** `width w` followed by `depth d` makes the
+output a stack of `d` slices, each a `width` grid worked in 16 x 16 tiles; a
+thread reads `@slice`, and `@row` and `@col` inside its slice; `@i` is its
+place in the volume.
+
+**Decisions taken** (each reversible): a **group is a 16 x 16 tile of one
+slice**, not an 8 x 8 x 4 block, so `@lx`, `@ly`, the shared arrays and the
+tiled product keep their meaning and the host contract does not move (a
+dispatch is still `ceil(n / 256)` groups in x, the groups running slice by
+slice, so a volume is no new shape for a host); the line is `depth`, the name
+`@slice` (`z` and `layer` were refused: a name says what the place IS); the
+element count stays `n` and **no height line exists**: a slice holds
+`n / depth` elements, and `n` must be whole slices of whole tiles, refused by
+name otherwise; depth is a number or a declared scalar, as width is; a depth
+of one is the 2-D grid it always was (the corpus is byte-identical, 18,000
+kernels, and the tiled product's 2-D path is untouched).
+
+**How.** The transpiler writes `per = p.n / depth`, `tps = per / 256`,
+`slc = g / tps`, `gs = g % tps`, then row and col from `gs`, and
+`i = slc * per + row * width + col`. The interpreter keeps the slice in the
+thread (one global, the depth, read by `threadAt`).
+
+**Measured on the RTX 3050 under `rnxc`, seed 20261028:** the fuzz's grid kind
+(kind 11, mask bit 14: literal and scalar width and depth, one to four slices,
+eight bodies reading the place, the slice before and after, and a sum over the
+depth) **300 of 300 agree bit for bit**, on the first run. Its control reads
+the slice stride as the tiles per slice and catches 256 of 300; **the 44
+escapes are exactly the 44 volumes of one slice**, where a stride has nothing
+to separate (counted, not sampled).
+
+**A device finding, and why it is not a mistake of the puzzle.** The first
+version of puzzle 19 told the learner `n / d` is the slice size, and its three
+right answers failed the hidden shape on the RTX 3050 while the interpreter
+verified them: the device compiles a float division to a multiplication by a
+reciprocal, and fused with `@i - n / d` it lands a hair under the element
+(1,536 / 3, index 0.99999, which truncates to 0). The checker found it, as it
+should. The fix was to give the size as a scalar `p`. A sixth mistake that
+showed it was **removed again**: the Intel iGPU in the browser divides
+exactly and verified it, and a wrong answer that is wrong on one vendor only
+is not a mistake a puzzle can teach. The fact is in KERNELS.md (3.1g and the
+choices table) and the guard records the device's verdict without asserting
+it.
+
+**The puzzle**: kp-19, *what changed since the slice before*, in a new chapter,
+*the volume*: a volume of 4 slices of 32 x 32, a hidden one of 3 slices of
+16 x 32, the same cell one slice back. Three right answers and four
+mistakes (the row above, a stride of one shape, from the third slice, no depth
+line). The verdicts were worked out from the data (`a[0]` is 0, so the first
+cells coincide) before the first run, and held on the desktop and on the
+Intel iGPU in the browser. **No person has worked it.**
+
+**What is left of GL0**: nothing in the vocabulary. The plan's next rung is
+after the charge (below); open items are LOOP-CAP (4096, unmeasured) and
+PERCEPTGATE-KP3.
 
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 

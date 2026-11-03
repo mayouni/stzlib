@@ -18,6 +18,7 @@ facts
     kernel-puzzles | has-chapter-09 | the-vector
     kernel-puzzles | has-chapter-10 | the-counter
     kernel-puzzles | has-chapter-11 | the-loop
+    kernel-puzzles | has-chapter-12 | the-volume
 
     the-elementwise-kernel | is-a | chapter
     the-elementwise-kernel | has-exercise | kp-01
@@ -48,6 +49,8 @@ facts
     the-counter | has-exercise | kp-17
     the-loop | is-a | chapter
     the-loop | has-exercise | kp-18
+    the-volume | is-a | chapter
+    the-volume | has-exercise | kp-19
 
     kernel-puzzles | has-exercise | kp-01
     kernel-puzzles | has-exercise | kp-02
@@ -67,3 +70,4 @@ facts
     kernel-puzzles | has-exercise | kp-16
     kernel-puzzles | has-exercise | kp-17
     kernel-puzzles | has-exercise | kp-18
+    kernel-puzzles | has-exercise | kp-19

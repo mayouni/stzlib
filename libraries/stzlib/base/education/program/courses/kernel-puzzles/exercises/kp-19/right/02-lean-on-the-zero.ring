@@ -1,0 +1,11 @@
+# No branch: a read before the first element is 0, so the first slice subtracts nothing.
+k = StzKernelMakerQ()
+k.TakesVector(:a)
+k.TakesScalar(:w)
+k.TakesScalar(:d)
+k.TakesScalar(:p)
+k.ReturnsVector(:c)
+k.Width(:w)
+k.Depth(:d)
+k.ForEachElement('{ @c = @a - @a[@i - p] }')
+? StzKernelPuzzleQ("kp-19").Grade(k)

@@ -1,0 +1,10 @@
+# Reads @slice but never declares the stack: there is no depth line, so there is no slice.
+k = StzKernelMakerQ()
+k.TakesVector(:a)
+k.TakesScalar(:w)
+k.TakesScalar(:d)
+k.TakesScalar(:p)
+k.ReturnsVector(:c)
+k.Width(:w)
+k.ForEachElement('{ @c = when(@slice > 0, @a - @a[@i - p], @a) }')
+? StzKernelPuzzleQ("kp-19").Grade(k)

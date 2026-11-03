@@ -1,0 +1,25 @@
+knowledge "kp-19"
+
+facts
+    kp-19 | is-a | exercise
+    kp-19 | in-course | kernel-puzzles
+    kp-19 | in-chapter | the-volume
+    kp-19 | puzzle-number | 19
+    kp-19 | teaches | a-stack-of-grids
+    kp-19 | starts | red
+
+    kp-19 | elements | 4096
+    kp-19 | input-a | mod13
+    kp-19 | scalar-w | 32
+    kp-19 | scalar-d | 4
+    kp-19 | scalar-p | 1024
+    kp-19 | hidden-elements | 1536
+    kp-19 | hidden-scalar-w | 16
+    kp-19 | hidden-scalar-d | 3
+    kp-19 | hidden-scalar-p | 512
+    kp-19 | hidden-input-length-a | 1600
+
+    kp-19 | has-mistake | 02-the-row-above
+    kp-19 | has-mistake | 03-a-stride-of-one-shape
+    kp-19 | has-mistake | 04-from-the-third-slice
+    kp-19 | has-mistake | 05-no-depth-line

@@ -279,6 +279,59 @@ accepts a data-dependent `break` there, verified). The interpreter keeps the
 counter, the passes left and up to four state words in a frame. Every
 thread runs its own copy: a group is held up by its slowest thread.
 
+### 3.1g The 3-D grid (GL0)
+
+```
+in a
+scalar w
+scalar d
+scalar p
+out c
+width w
+depth d
+body { @c = when(@slice > 0, @a - @a[@i - p], @a) }
+```
+
+A `depth` line after `width` (3.2) makes the output a **stack of slices**,
+each a `width` grid: a volume. A thread finds its place by three names:
+`@slice`, which grid it is in, and `@row` and `@col`, its row and column
+**inside that slice**. `@i` is still its place in the whole volume, and a slice
+holds `n / depth` elements, so the same cell one slice back is `@i - p` when
+`p` is that size.
+
+- **`depth` is a number of one or more, or a declared scalar** that holds a
+  whole number above 0, as `width` is. A depth of one is the 2-D grid it
+  always was.
+- **A group is a 16 x 16 tile of one slice**, never a tile straddling two.
+  The groups run slice by slice, so the dispatch is the same
+  `ceil(n / 256)` groups in x and **the host contract does not move**: the
+  numbers `gpu_host.zig` owns are untouched. The cost is one rule on shape:
+  `n` must be a whole number of slices of whole tiles, `n = width * rows *
+  depth` with `rows` a multiple of 16, and a run that is not is refused by
+  name (`'1536 elements are not 2 whole slices of 16-row tiles of width 32'`).
+- **`@slice` needs a `depth` line, and a `depth` line needs a `width` line**;
+  `slice` is a reserved name, as `row` and `col` are.
+- **The groups' own memory keeps its meaning**: `@lx`, `@ly`, shared arrays,
+  stages, reduces and tiles work in a volume as they do in a grid, one slice
+  at a time (the tiled product of 3.2 is a volume of depth one).
+- **A read outside an input is 0, as everywhere**, so `@a[@i - p]` in the
+  first slice reads nothing and `@a - @a[@i - p]` needs no branch.
+
+**Give an index its size exactly.** On the RTX 3050 a float division is a
+multiplication by a reciprocal, and fused with a subtraction it keeps the
+reciprocal's error: for 1,536 elements in 3 slices, `@a[@i - n / d]` reads
+`@a[0]` where `@a[1]` was meant (the index is 0.99999, and an index
+truncates). The Intel iGPU divides exactly, and the interpreter always does,
+so the interpreter cannot see it and the checker, which runs the device
+against it, can. Pass the size as a scalar, as puzzle 19 does, or divide ints
+(`int(n) / int(d)` is `stz_div`, exact).
+
+On the device the prologue is `per = p.n / depth`, `tps = per / 256`,
+`slc = g / tps`, then the tile's row and column inside the slice, and
+`i = slc * per + row * width + col`. The interpreter keeps the slice in the
+thread. The fuzz's grid kind (kind 11, mask bit 14) writes volumes of one to
+four slices and its control reads the slice stride as the tiles per slice.
+
 ### 3.2 The group's own memory
 
 A GPU runs threads in **groups** of 256 that share a small fast memory.
@@ -292,6 +345,7 @@ These lines describe it. They are what a tiled matrix product needs.
 | `tiles VAR { count }` | the group lines after it repeat `count` times, with `VAR` counting from 0 |
 | `accumulate { @acc = expression }` | a running value per thread, carried across the tiles |
 | `width w` | the output is a 2-D grid `w` wide, and each group is a 16 x 16 tile of it |
+| `depth d` | the output is `d` such grids, a volume; each group is a tile of one slice (3.1g) |
 
 At most 12 group lines in one description. The names they add:
 
@@ -300,7 +354,8 @@ At most 12 group lines in one description. The names they add:
 | `@l` | the thread's place in its group, 0 to 255 |
 | `@g` | the group's number |
 | `@lx`, `@ly` | `@l` as a column and a row inside a 16 x 16 tile |
-| `@row`, `@col` | the output element's row and column; needs a `width` line |
+| `@row`, `@col` | the output element's row and column (inside its slice, in a volume); needs a `width` line |
+| `@slice` | the slice of a volume the element is in; needs a `depth` line |
 | `@acc` | the accumulator; readable once an accumulate line exists |
 | `@t[index]` | one slot of a shared array |
 
@@ -334,8 +389,12 @@ because they share one parser.
 | a stage that reads the array it writes | the threads would race; stage into a second array |
 | a tiles count that could differ between threads | every thread must reach every barrier: scalars, `n` and numbers only |
 | `@row` or `@col` without a `width` line | they have no meaning in a 1-D kernel |
+| `@slice` without a `depth` line | there is one slice, and none is named |
+| a `depth` line without a `width` line | the slices are width grids |
+| `depth 0`, or a depth that is not a declared scalar or a number | a volume holds at least one slice |
+| elements that are not whole slices of whole tiles | `n = width * rows * depth`, `rows` a multiple of 16 |
 | a shared array read without an index | a slot is the unit, as in `@t[@l]` |
-| a reserved name used as a user name | `i n l g lx ly row col acc` belong to the language |
+| a reserved name used as a user name | `i n l g lx ly row col slice acc` belong to the language |
 | `and` beside `or` without parentheses | WGSL refuses it in a browser; write `(A and B) or C` |
 | an int and a float meeting, `@k + 0.5` | WGSL has no silent conversion; write `float(@k)` or `int(0.5)` |
 | a float function on an int, `sqrt(@k)` | write `sqrt(float(@k))` |
@@ -487,9 +546,9 @@ reported 174% of the copy roof, which is a clock artefact, not speed.
 
 ## 7. The puzzles
 
-Eighteen puzzles in eleven chapters teach the GPU from the map to the tiled
-product, then the branch, the whole number, the vector, the counter and the
-loop:
+Nineteen puzzles in twelve chapters teach the GPU from the map to the tiled
+product, then the branch, the whole number, the vector, the counter, the
+loop and the volume:
 
 | chapter | puzzles |
 |---|---|
@@ -504,6 +563,7 @@ loop:
 | the vector | 15 light on a surface (GL0: `vec3`, `dot`, `normalize`) · 16 turn the points (a buffer of `vec2`s in and out) |
 | the counter | 17 count the votes (GL0: an atomic output, many threads, one counter) |
 | the loop | 18 round up to a power of two (GL0: `iterate`, a state and a stop) |
+| the volume | 19 what changed since the slice before (GL0: `depth` and `@slice`) |
 
 An exercise is a folder in the Learning System's shape: `exercise.zknw`,
 `task.<lang>.md` in English, French, Arabic and Hausa, `promise.ring`, a
@@ -532,7 +592,7 @@ desktop produce identical results on every case it holds.
 
 The author worked puzzles 1 to 8. After the page gained a "Your move"
 block and buttons that load a known mistake, the author said those told
-them what to do. Puzzles 9 to 18 are built and checked by instruments;
+them what to do. Puzzles 9 to 19 are built and checked by instruments;
 **no person has worked one yet**.
 
 ## 8. Choices measured into the library
@@ -544,6 +604,7 @@ them what to do. Puzzles 9 to 18 are built and checked by instruments;
 | route a shape nobody measured | **interpolate** between measured shapes, log-log, never beyond them | a flat line sent a search the GPU runs 1.7 to 1.9 times faster to the CPU |
 | double precision on the GPU | **refused** at the start | WebGPU has no f64 |
 | WGSL's `%` on an int | **never written**: the transpiler writes `stz_rem(a, b)`, `a - (a / b) * b` | on the RTX 3050 (wgpu-native 29) the compiler took an i32 `%` as unsigned: `-7 % 4` was 1, where WGSL says -3; its `/`, its wrapping and its comparisons were WGSL's |
+| a float quotient that feeds an index | **give the size exactly**: a scalar, or an int division | on the RTX 3050 a float division is a multiplication by a reciprocal, and fused with the subtraction the index `@i - n / d` for 1,536 / 3 lands a hair under the element and reads the one before; the Intel iGPU divides exactly, and the interpreter always does (so only the checker, which runs the device, sees it) |
 | `int()` past the range, and of NaN | **the device's answer**: 2,147,483,520 at the top, -2,147,483,648 for NaN | measured on the RTX 3050; WGSL leaves NaN to the device, so another one may differ |
 
 Half precision is requested whenever the adapter offers it; both adapters
@@ -605,6 +666,7 @@ Run with Ring++ from `base/test/gpu/`: `rnxc <guard>.ring`.
 | `gpu_int_narrated.ring` | GL0's ints: declarations, typing, refusals in both readers' words, the device at every edge, the fuzz's int kind, puzzle 14 |
 | `gpu_vec_narrated.ring` | GL0's vectors: construction, swizzles, spreading, the vector functions, refusals, the device, the fuzz's vector kind, puzzle 15 |
 | `gpu_buffers_narrated.ring` | GL0's buffers of vectors: declarations, both readers, every host path that makes a buffer, the fuzz's typed-buffer kind, puzzle 16 |
+| `gpu_grid3_narrated.ring` | GL0's 3-D grid: depth and @slice in both readers, its refusals in their shared words, volumes on the device, the fuzz's grid kind and its stride control, puzzle 19 |
 | `gpu_loop_narrated.ring` | GL0's loop: a state, a stop, sum as a special case, the cap, refusals in both readers' words, the device (including a stage before a barrier), the fuzz's loop kind and its step-flip control, puzzle 18 |
 | `gpu_host_narrated.ring` | the host contract: the engine's numbers pinned, no host file spells one, and a host written from the document alone reaches the face's verdicts on 17 puzzle cases |
 | `gpu_atomic_narrated.ring` | GL0's atomics: add, max, min, identities, dropped indices, the device on every path, the fuzz's atomic kind and its rotated-operation control, puzzle 17 |

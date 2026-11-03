@@ -200,6 +200,7 @@ pub const Decl = struct {
     tiles: []const u8 = "", // the loop count expression (empty: no loop)
     tilevar: Name = .{},
     width: []const u8 = "", // a scalar name or a literal (empty: 1-D)
+    depth: []const u8 = "", // GL0 (3-D grids): the number of slices, a scalar name or a literal (empty: one slice)
     has_acc: bool = false,
     body_line: u16 = 0, // GZ0
     guard_line: u16 = 0,
@@ -219,6 +220,7 @@ fn reservedName(s: []const u8) ?[]const u8 {
     if (std.mem.eql(u8, s, "g")) return "'g' is the group's index (@g); it cannot be declared";
     if (std.mem.eql(u8, s, "lx") or std.mem.eql(u8, s, "ly") or std.mem.eql(u8, s, "row") or std.mem.eql(u8, s, "col"))
         return "'lx', 'ly', 'row' and 'col' are the tile's names (@row, @col); they cannot be declared";
+    if (std.mem.eql(u8, s, "slice")) return "'slice' is the slice of a 3-D grid (@slice); it cannot be declared";
     if (std.mem.eql(u8, s, "acc")) return "'acc' is the accumulator (@acc); it cannot be declared";
     return null;
 }
@@ -419,6 +421,11 @@ fn parseDecl(text: []const u8, d: *Decl) i32 {
             if (d.width.len != 0) return fail("only one width line", .{});
             d.width = std.mem.trim(u8, line[6..], " \t");
             if (d.width.len == 0) return fail("width needs a scalar or a number: 'width w'", .{});
+        } else if (std.mem.startsWith(u8, line, "depth ")) {
+            // GL0 (3-D grids): `depth d` -- the output is d slices, each a `width` grid of 16 x 16 tiles
+            if (d.depth.len != 0) return fail("only one depth line", .{});
+            d.depth = std.mem.trim(u8, line[6..], " \t");
+            if (d.depth.len == 0) return fail("depth needs a scalar or a number: 'depth d'", .{});
         } else if (std.mem.startsWith(u8, line, "tiles ")) {
             // KP3: `tiles t { count }` -- the items after this line repeat count times
             if (d.tiles.len != 0) return fail("only one tiles line", .{});
@@ -452,6 +459,16 @@ fn parseDecl(text: []const u8, d: *Decl) i32 {
             var lowered: Name = .{};
             if (!lowerInto(&lowered, d.width) or nameIn(d.scalars[0..], d.n_scalars, lowered.slice()) == null)
                 return fail("width must be a declared scalar or a number, not '{s}'", .{d.width});
+        }
+    }
+    if (d.depth.len != 0) {
+        if (d.width.len == 0) return fail(MSG_DEPTHWIDTH, .{});
+        if (parseSize(d.depth)) |v| {
+            if (v == 0) return fail("depth 0 holds no slice", .{});
+        } else {
+            var lowered: Name = .{};
+            if (!lowerInto(&lowered, d.depth) or nameIn(d.scalars[0..], d.n_scalars, lowered.slice()) == null)
+                return fail("depth must be a declared scalar or a number, not '{s}'", .{d.depth});
         }
     }
 
@@ -626,6 +643,13 @@ fn widthText(d: *const Decl, buf: []u8) ?[]const u8 {
     return std.fmt.bufPrint(buf, "u32(p.s_{s})", .{lowered.slice()}) catch null;
 }
 
+fn depthText(d: *const Decl, buf: []u8) ?[]const u8 {
+    if (parseSize(d.depth)) |v| return std.fmt.bufPrint(buf, "{d}u", .{v}) catch null;
+    var lowered: Name = .{};
+    if (!lowerInto(&lowered, d.depth)) return null;
+    return std.fmt.bufPrint(buf, "u32(p.s_{s})", .{lowered.slice()}) catch null;
+}
+
 /// KP3: the kernel of a spec that uses the group -- shared arrays, a schedule
 /// of stages, reduces and a tiles loop with an accumulator, or the group's own
 /// names. Every thread of a group reaches every barrier: the schedule runs
@@ -694,9 +718,21 @@ fn emitGroupKernel(w: *Cursor, d: *const Decl, rw: *const Rewriter, expr: []cons
         const wt = widthText(d, &wb) orelse return fail("bad width '{s}'", .{d.width});
         w.put("  let tpr = ");
         w.put(wt);
-        w.put(" / 16u;\n  let row = (g / tpr) * 16u + l / 16u;\n  let col = (g % tpr) * 16u + l % 16u;\n  let i = row * ");
-        w.put(wt);
-        w.put(" + col;\n");
+        if (d.depth.len == 0) {
+            w.put(" / 16u;\n  let row = (g / tpr) * 16u + l / 16u;\n  let col = (g % tpr) * 16u + l % 16u;\n  let i = row * ");
+            w.put(wt);
+            w.put(" + col;\n");
+        } else {
+            // GL0 (3-D grids): the groups run slice by slice; row and col are the slice's own
+            var db: [64]u8 = undefined;
+            const dt = depthText(d, &db) orelse return fail("bad depth '{s}'", .{d.depth});
+            w.put(" / 16u;\n  let per = p.n / ");
+            w.put(dt);
+            w.put(";\n  let tps = per / 256u;\n  let slc = g / tps;\n  let gs = g % tps;\n");
+            w.put("  let row = (gs / tpr) * 16u + l / 16u;\n  let col = (gs % tpr) * 16u + l % 16u;\n  let i = slc * per + row * ");
+            w.put(wt);
+            w.put(" + col;\n");
+        }
     }
     w.put("  _ = p.n;\n");
     for (0..d.n_ins) |s| {
@@ -1044,6 +1080,8 @@ pub const Where = enum { body, guard, stage, accumulate, count };
 const MSG_COUNT = "the tiles count must be the same for every thread: scalars, n and numbers only";
 const MSG_SUMCOUNT = "a sum is not admitted in the tiles count";
 const MSG_ROWCOL = "'@{s}' needs a width line (a 2-D output in 16 x 16 tiles)";
+const MSG_SLICE = "'@slice' needs a depth line (a 3-D output: depth slices, each a width grid)";
+const MSG_DEPTHWIDTH = "a depth line needs a width line: the slices are width grids";
 const MSG_ACC = "'@acc' is read in the accumulate line and the body, once an accumulate line exists";
 const MSG_SHNOIDX = "'@{s}' is a shared array: read one slot, as in '@{s}[@l]'";
 const MSG_RACE = "a stage cannot read the array it writes ('@{s}'): the threads would race; stage into a second array";
@@ -1643,6 +1681,7 @@ fn groupName(s: []const u8) ?[]const u8 {
     if (std.mem.eql(u8, s, "ly")) return "f32(l / 16u)";
     if (std.mem.eql(u8, s, "row")) return "f32(row)";
     if (std.mem.eql(u8, s, "col")) return "f32(col)";
+    if (std.mem.eql(u8, s, "slice")) return "f32(slc)";
     return null;
 }
 
@@ -1994,6 +2033,7 @@ const Rewriter = struct {
                 const sn = nm.slice();
                 if ((std.mem.eql(u8, sn, "row") or std.mem.eql(u8, sn, "col")) and self.d.width.len == 0)
                     return fail(MSG_ROWCOL, .{sn});
+                if (std.mem.eql(u8, sn, "slice") and self.d.depth.len == 0) return fail(MSG_SLICE, .{});
                 self.used_group = true;
                 self.i = j;
                 self.out.put(PH_TY3);
@@ -2612,7 +2652,7 @@ const Op = enum(u8) {
     k_index, k_n, k_var, rd, sum_begin, sum_end,
     c_lt, c_le, c_gt, c_ge, c_eq, c_ne, l_and, l_or,
     // KP3
-    k_local, k_group, k_lx, k_ly, k_row, k_col, k_acc, k_tile, sh_rd,
+    k_local, k_group, k_lx, k_ly, k_row, k_col, k_slice, k_acc, k_tile, sh_rd,
     f_abs, f_min, f_max, f_sqrt, f_exp, f_log, f_sin, f_cos, f_tan, f_floor, f_ceil,
     f_pow, f_clamp, f_sign, f_fract, f_round, f_mix, f_smoothstep, f_step, f_atan2,
     f_asin, f_acos, f_inversesqrt, f_length, f_distance,
@@ -2711,6 +2751,8 @@ const Kp3 = struct {
     has_acc: bool = false,
     width_lit: usize = 0, // a literal width, or 0
     width_scalar: ?usize = null, // a scalar width
+    depth_lit: usize = 0, // GL0 (3-D grids): a literal depth, or 0
+    depth_scalar: ?usize = null, // a scalar depth
     lines: [MAX_ITEMS]u16 = @splat(0), // GZ0
     body_line: u16 = 0,
     guard_line: u16 = 0,
@@ -2846,6 +2888,7 @@ const Thread = struct {
     g: usize = 0,
     row: usize = 0,
     col: usize = 0,
+    slice: usize = 0,
     acc: f32 = 0,
     tile: f32 = 0,
 };
@@ -2959,7 +3002,7 @@ const Parser = struct {
                     if (v > std.math.maxInt(i32)) return fail(MSG_BIGINT, .{txt});
                     self.p.consts[c] = ib(@intCast(v));
                 },
-                .k_index, .k_n, .k_local, .k_group, .k_lx, .k_ly, .k_row, .k_col, .k_var, .k_tile, .it_k => self.p.args[at] |= INT_VAL,
+                .k_index, .k_n, .k_local, .k_group, .k_lx, .k_ly, .k_row, .k_col, .k_slice, .k_var, .k_tile, .it_k => self.p.args[at] |= INT_VAL,
                 else => self.p.ops[at] = intForm(op),
             }
         }
@@ -3232,9 +3275,10 @@ const Parser = struct {
                 const s = nm.slice();
                 if ((std.mem.eql(u8, s, "row") or std.mem.eql(u8, s, "col")) and self.d.width.len == 0)
                     return fail(MSG_ROWCOL, .{s});
+                if (std.mem.eql(u8, s, "slice") and self.d.depth.len == 0) return fail(MSG_SLICE, .{});
                 self.used_group = true;
                 self.i = j;
-                const op: Op = if (std.mem.eql(u8, s, "l")) .k_local else if (std.mem.eql(u8, s, "g")) .k_group else if (std.mem.eql(u8, s, "lx")) .k_lx else if (std.mem.eql(u8, s, "ly")) .k_ly else if (std.mem.eql(u8, s, "row")) .k_row else .k_col;
+                const op: Op = if (std.mem.eql(u8, s, "l")) .k_local else if (std.mem.eql(u8, s, "g")) .k_group else if (std.mem.eql(u8, s, "lx")) .k_lx else if (std.mem.eql(u8, s, "ly")) .k_ly else if (std.mem.eql(u8, s, "row")) .k_row else if (std.mem.eql(u8, s, "slice")) .k_slice else .k_col;
                 if (self.emit(op, 0) < 0 or self.polyOp() < 0) return -1;
                 return tyR(.u);
             }
@@ -3689,6 +3733,15 @@ pub fn stz_gpu_spec_compile(spec: [*]const u8, spec_len: f64) callconv(.c) i32 {
             g_kp3.width_scalar = nameIn(d.scalars[0..], d.n_scalars, lowered.slice());
         }
     }
+    if (d.depth.len != 0) {
+        if (parseSize(d.depth)) |v| {
+            g_kp3.depth_lit = v;
+        } else {
+            var lowered: Name = .{};
+            _ = lowerInto(&lowered, d.depth);
+            g_kp3.depth_scalar = nameIn(d.scalars[0..], d.n_scalars, lowered.slice());
+        }
+    }
     g_kp3.on = d.n_shared > 0 or d.n_items > 0 or d.width.len > 0 or used_group;
     g_out_w = d.out_w;
     for (0..MAX_VECS) |k| g_in_w[k] = d.in_w[k];
@@ -3881,7 +3934,7 @@ fn runProgram(p: *const Program, th: *const Thread, ins: [*]const [*]const f32, 
                 st[sp] = if (int) ib(toI32(x)) else fb(x);
                 sp += 1;
             },
-            .k_index, .k_n, .k_local, .k_group, .k_lx, .k_ly, .k_row, .k_col => {
+            .k_index, .k_n, .k_local, .k_group, .k_lx, .k_ly, .k_row, .k_col, .k_slice => {
                 if (sp >= STACK) return null;
                 const w: usize = switch (p.ops[k]) {
                     .k_index => i,
@@ -3892,6 +3945,7 @@ fn runProgram(p: *const Program, th: *const Thread, ins: [*]const [*]const f32, 
                     .k_ly => th.l / TILE,
                     .k_row => th.row,
                     .k_col => th.col,
+                    .k_slice => th.slice,
                     else => unreachable,
                 };
                 st[sp] = if (int) ib(@truncate(@as(i64, @intCast(w)))) else fb(@floatFromInt(w));
@@ -4343,10 +4397,22 @@ pub fn stz_gpu_spec_eval_masked(ins: [*]const [*]const f32, n_ins: i32, lens: [*
 fn threadAt(g: usize, l: usize, n: usize, width: usize) Thread {
     if (width == 0) return .{ .i = g * GROUP + l, .n = n, .l = l, .g = g };
     const tpr = width / TILE;
+    if (g_depth > 1) {
+        // GL0 (3-D grids): the groups run slice by slice; row and col are the slice's own
+        const per = n / g_depth;
+        const tps = per / GROUP;
+        const slice = g / tps;
+        const gs = g % tps;
+        const row = (gs / tpr) * TILE + l / TILE;
+        const col = (gs % tpr) * TILE + l % TILE;
+        return .{ .i = slice * per + row * width + col, .n = n, .l = l, .g = g, .row = row, .col = col, .slice = slice };
+    }
     const row = (g / tpr) * TILE + l / TILE;
     const col = (g % tpr) * TILE + l % TILE;
     return .{ .i = row * width + col, .n = n, .l = l, .g = g, .row = row, .col = col };
 }
+
+var g_depth: usize = 0; // the slices of the grid being evaluated (0 or 1: a single one)
 
 fn runItem(k: usize, g: usize, n: usize, width: usize, tile: f32, ins: [*]const [*]const f32, lens: [*]const f64, scalars: [*]const f32) bool {
     switch (g_kp3.kinds[k]) {
@@ -4442,6 +4508,19 @@ fn evalGroups(ins: [*]const [*]const f32, lens: [*]const f64, scalars: [*]const 
             _ = fail("{d} elements are not whole 16-row tiles of width {d}", .{ n, width });
             return -1;
         }
+    }
+    g_depth = g_kp3.depth_lit;
+    if (g_kp3.depth_scalar) |si| {
+        const v = scalars[si];
+        if (!(v > 0 and v < 1048576.0) or @trunc(v) != v) {
+            _ = fail("the depth scalar must be a whole number above 0", .{});
+            return -1;
+        }
+        g_depth = @intFromFloat(v);
+    }
+    if (g_depth > 1 and n % (TILE * width * g_depth) != 0) {
+        _ = fail("{d} elements are not {d} whole slices of 16-row tiles of width {d}", .{ n, g_depth, width });
+        return -1;
     }
     const groups = (n + GROUP - 1) / GROUP;
     for (0..groups) |g| {
@@ -5951,6 +6030,47 @@ test "KP3: a stage and a read across the group -- each group reversed, in the WG
     try std.testing.expectEqual(@as(f32, 511), out[256]);
 }
 
+test "GL0 3-D grids: slices of width grids -- @slice, @row and @col mean the same in the WGSL and the interpreter" {
+    // three 16 x 16 slices: element i is slice i / 256, row (i % 256) / 16, column i % 16
+    const lit = "in a\nout c\nwidth 16\ndepth 3\nbody { @c = @slice * 1000 + @row * 16 + @col + @a * 0 }";
+    try wgslHas(lit, "let per = p.n / 3u;");
+    try wgslHas(lit, "let slc = g / tps;");
+    try wgslHas(lit, "let i = slc * per + row * 16u + col;");
+    try wgslHas(lit, "f32(slc)");
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_compile(lit.ptr, @floatFromInt(lit.len)));
+    var a: [2048]f32 = undefined;
+    for (&a, 0..) |*x, k| x.* = @floatFromInt(k);
+    const ins = [_][*]const f32{&a};
+    const lens = [_]f64{2048};
+    var out: [2048]f32 = undefined;
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_eval(&ins, 1, &lens, &a, 0, 768, &out));
+    for (0..768) |i| try std.testing.expectEqual(@as(f32, @floatFromInt((i / 256) * 1000 + i % 256)), out[i]);
+    // width and depth as scalars: two 32 x 32 slices, four tiles each
+    const sc = "in a\nscalar w\nscalar d\nout c\nwidth w\ndepth d\nbody { @c = @slice * 10000 + @row * 100 + @col + @a * 0 }";
+    try wgslHas(sc, "let per = p.n / u32(p.s_d);");
+    try wgslHas(sc, "let tpr = u32(p.s_w) / 16u;");
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_compile(sc.ptr, @floatFromInt(sc.len)));
+    const scal = [_]f32{ 32, 2 };
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_eval(&ins, 1, &lens, &scal, 2, 2048, &out));
+    for (0..2048) |i| {
+        const want = (i / 1024) * 10000 + ((i % 1024) / 32) * 100 + i % 32;
+        try std.testing.expectEqual(@as(f32, @floatFromInt(want)), out[i]);
+    }
+    // a depth of one is the 2-D grid it always was
+    const one = "in a\nscalar w\nscalar d\nout c\nwidth w\ndepth d\nbody { @c = @row * 100 + @col + @slice * 0 + @a * 0 }";
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_compile(one.ptr, @floatFromInt(one.len)));
+    const sc1 = [_]f32{ 32, 1 };
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_spec_eval(&ins, 1, &lens, &sc1, 2, 1024, &out));
+    for (0..1024) |i| try std.testing.expectEqual(@as(f32, @floatFromInt((i / 32) * 100 + i % 32)), out[i]);
+    // elements that are not whole slices of whole tiles are refused by name
+    try std.testing.expectEqual(@as(i32, -1), stz_gpu_spec_eval(&ins, 1, &lens, &scal, 2, 1536, &out));
+    var e: [256]u8 = undefined;
+    try std.testing.expect(std.mem.indexOf(u8, errText(&e), "whole slices") != null);
+    const bad = [_]f32{ 32, 0 };
+    try std.testing.expectEqual(@as(i32, -1), stz_gpu_spec_eval(&ins, 1, &lens, &bad, 2, 1024, &out));
+    try std.testing.expect(std.mem.indexOf(u8, errText(&e), "depth scalar") != null);
+}
+
 test "KP3: a reduce over a partial last group sums what is there and zero past the input" {
     const spec = "in a\nout c\nshared t 256\nstage { @t[@l] = @a }\nreduce t sum\nbody { @c = @t[0] }";
     var buf: [8192]u8 = undefined;
@@ -6041,6 +6161,12 @@ test "KP3: the refusals name the offender, and the two readers agree on them" {
         .{ .spec = "in a\nscalar k\nout c\nshared t 16\ntiles q { k }\nstage { @t[@l] = @a }\nbody { @c = @a + q }", .says = "unknown name 'q'" },
         .{ .spec = "in a\nout c\nwidth 24\nbody { @c = @a }", .says = "not a multiple of 16" },
         .{ .spec = "in a\nout c\nwidth w\nbody { @c = @a }", .says = "declared scalar or a number" },
+        .{ .spec = "in a\nout c\nwidth 16\nbody { @c = @a + @slice }", .says = "needs a depth line" },
+        .{ .spec = "in a\nout c\ndepth 2\nbody { @c = @a }", .says = "needs a width line" },
+        .{ .spec = "in a\nout c\nwidth 16\ndepth 0\nbody { @c = @a }", .says = "holds no slice" },
+        .{ .spec = "in a\nout c\nwidth 16\ndepth d\nbody { @c = @a }", .says = "depth must be a declared scalar or a number" },
+        .{ .spec = "in a\nout c\nwidth 16\ndepth 2\ndepth 3\nbody { @c = @a }", .says = "only one depth line" },
+        .{ .spec = "in a\nscalar slice\nout c\nwidth 16\nbody { @c = @a }", .says = "'slice' is the slice of a 3-D grid" },
     };
     var buf: [16384]u8 = undefined;
     var e1: [256]u8 = undefined;

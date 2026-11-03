@@ -1,0 +1,11 @@
+# Compares with the row above in the same slice, not with the slice before: the grid is read, the stack is not.
+k = StzKernelMakerQ()
+k.TakesVector(:a)
+k.TakesScalar(:w)
+k.TakesScalar(:d)
+k.TakesScalar(:p)
+k.ReturnsVector(:c)
+k.Width(:w)
+k.Depth(:d)
+k.ForEachElement('{ @c = when(@row > 0, @a - @a[@i - w], @a) }')
+? StzKernelPuzzleQ("kp-19").Grade(k)

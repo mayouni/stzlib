@@ -52,17 +52,18 @@ pub const K_VEC: u8 = 7; // GL0: vectors -- built, swizzled, spread, combined, r
 pub const K_VIO: u8 = 8; // GL0: typed buffers -- vector inputs and outputs, N floats per element
 pub const K_ATOM: u8 = 9; // GL0: atomics -- many threads adding, maxing or mining into SIZE counters
 pub const K_LOOP: u8 = 10; // GL0: loops -- iterate over exact state machines, with and without a stop
-pub const KINDS: usize = 11;
+pub const K_GRID3: u8 = 11; // GL0: 3-D grids -- a stack of width grids, each cell knowing its slice, row and column
+pub const KINDS: usize = 12;
 /// The mask bit of kind k. Bits 6 to 8 are the controls, so the int kind
 /// takes bit 9: a mask written before GL0 (63) asks for the six it always meant.
 pub fn kindBit(k: usize) u32 {
     return if (k < 6) @as(u32, 1) << @intCast(k) else @as(u32, 1) << @intCast(k + 3);
 }
 fn genSlot(k: usize) usize {
-    return if (k < 6) R_GEN_KIND + k else if (k == K_INT) R_GEN_INT else if (k == K_VEC) R_GEN_VEC else if (k == K_VIO) R_GEN_VIO else if (k == K_ATOM) R_GEN_ATOM else R_GEN_LOOP;
+    return if (k < 6) R_GEN_KIND + k else if (k == K_INT) R_GEN_INT else if (k == K_VEC) R_GEN_VEC else if (k == K_VIO) R_GEN_VIO else if (k == K_ATOM) R_GEN_ATOM else if (k == K_LOOP) R_GEN_LOOP else R_GEN_GRID3;
 }
 fn badSlot(k: usize) usize {
-    return if (k < 6) R_BAD_KIND + k else if (k == K_INT) R_BAD_INT else if (k == K_VEC) R_BAD_VEC else if (k == K_VIO) R_BAD_VIO else if (k == K_ATOM) R_BAD_ATOM else R_BAD_LOOP;
+    return if (k < 6) R_BAD_KIND + k else if (k == K_INT) R_BAD_INT else if (k == K_VEC) R_BAD_VEC else if (k == K_VIO) R_BAD_VIO else if (k == K_ATOM) R_BAD_ATOM else if (k == K_LOOP) R_BAD_LOOP else R_BAD_GRID3;
 }
 /// mask bit 6: MUTATE -- the run's own control. Each kernel's WGSL gets its
 /// first ' + ' in the stored expression turned into ' - ' (a kernel with none
@@ -125,7 +126,9 @@ pub const R_GEN_ATOM = 46; // GL0: atomic cases generated
 pub const R_BAD_ATOM = 47; // ... and defective
 pub const R_GEN_LOOP = 48; // GL0: loop cases generated
 pub const R_BAD_LOOP = 49; // ... and defective
-pub const R_SLOTS = 50;
+pub const R_GEN_GRID3 = 50; // GL0: 3-D grid cases generated
+pub const R_BAD_GRID3 = 51; // ... and defective
+pub const R_SLOTS = 52;
 
 var result: [R_SLOTS]f64 = @splat(0);
 var first_buf: [SPEC_CAP + 256]u8 = undefined;
@@ -1097,6 +1100,40 @@ pub fn generate(seed: u64, index: u64, kind: u8, c: *Case) void {
                 },
             }
         },
+        K_GRID3 => {
+            // GL0 (3-D grids): 'width' and 'depth' make the output a stack of grids; each cell
+            // reads its place (@slice, @row, @col) and its neighbours in depth. The data is
+            // dyadic, so the adds are exact on any device and the two readers must agree.
+            const tpr = g.int(1, 3);
+            const rows = g.int(1, 2);
+            const dd: usize = if (g.chance(15)) 1 else g.int(2, 4);
+            const wd = 16 * tpr;
+            const per = wd * 16 * rows;
+            c.n_ins = 1;
+            c.n = per * dd;
+            c.in_len[0] = c.n;
+            c.n_sc = 3;
+            c.sc[0] = @floatFromInt(wd);
+            c.sc[1] = @floatFromInt(dd);
+            c.sc[2] = @floatFromInt(per);
+            c.sc_name[0] = "w";
+            c.sc_name[1] = "d";
+            c.sc_name[2] = "p";
+            w.s("in a\nscalar w\nscalar d\nscalar p\nout res\n");
+            if (g.chance(50)) w.f("width {d}\n", .{wd}) else w.s("width w\n");
+            if (g.chance(50)) w.f("depth {d}\n", .{dd}) else w.s("depth d\n");
+            const B = [_][]const u8{
+                "@a + @slice",
+                "@a * (@slice + 1) + @row * 0.5",
+                "when(@slice > 0, @a - @a[@i - p], @a)",
+                "@a[@i + p] + @a",
+                "@slice * 1000 + @row * 16 + @col",
+                "max(@a, @col - @row) + @slice",
+                "sum(j, 0, d, @a[j * p + @row * w + @col])",
+                "sum(j, 0, d, @a[j * p + @row * w + @col] * (j + 1))",
+            };
+            w.f("body {{ @res = {s} }}\n", .{B[g.pick(B.len)]});
+        },
         K_ATOM => {
             // GL0 (atomics): '@res[index] op value' -- an index outside the
             // counters is dropped, and add, max and min agree in any order
@@ -1428,6 +1465,12 @@ fn storeAt(w: []const u8) ?usize {
 }
 
 fn mutateWgsl(w: []u8) bool {
+    // GL0 (3-D grids): a grid's one wrong operator is its slice stride -- the elements
+    // per slice read as the tiles per slice, in place (the two names are one length)
+    if (std.mem.indexOf(u8, w, "let i = slc * per + row")) |at| {
+        @memcpy(w[at + 14 .. at + 17], "tps");
+        return true;
+    }
     // GL0 (loops): a loop's one wrong operator is in its STEP -- the first '+' made '-',
     // else the first '-' made '+' -- since the store only reads the state
     if (std.mem.indexOf(u8, w, "        it0 = ")) |at| {

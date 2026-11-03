@@ -174,8 +174,10 @@ func StzKernelMakerFromSpec(pcSpec)
 			_oK_.Accumulate(ring_trim(StzRight(_cLine_, len(_cLine_) - 11)))
 		but StzLeft(_cLine_, 6) = "width "
 			_oK_.Width(ring_trim(StzRight(_cLine_, len(_cLine_) - 6)))
+		but StzLeft(_cLine_, 6) = "depth "
+			_oK_.Depth(ring_trim(StzRight(_cLine_, len(_cLine_) - 6)))
 		else
-			StzRaise("StzKernelMakerFromSpec: unknown line '" + _cLine_ + "' (in, scalar, out, width, shared, stage, reduce, tiles, accumulate, guard, body).")
+			StzRaise("StzKernelMakerFromSpec: unknown line '" + _cLine_ + "' (in, scalar, out, width, depth, shared, stage, reduce, tiles, accumulate, guard, body).")
 		ok
 	next
 	return _oK_

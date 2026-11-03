@@ -1,0 +1,11 @@
+# The cell minus the same cell one slice back, and the first slice keeps its own value. The scalar p is the cells in a slice.
+k = StzKernelMakerQ()
+k.TakesVector(:a)
+k.TakesScalar(:w)
+k.TakesScalar(:d)
+k.TakesScalar(:p)
+k.ReturnsVector(:c)
+k.Width(:w)
+k.Depth(:d)
+k.ForEachElement('{ @c = when(@slice > 0, @a - @a[@i - p], @a) }')
+? StzKernelPuzzleQ("kp-19").Grade(k)
