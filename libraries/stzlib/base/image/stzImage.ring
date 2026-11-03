@@ -44,9 +44,18 @@ func StzImageNew(pnWidth, pnHeight, pnChannels, pnFill)
 func StzImageFromPixels(pnWidth, pnHeight, pnChannels, pcBytes)
 	return new stzImage(_StzImageMust(StzEngineImageFromRaw(pnWidth, pnHeight, pnChannels, pcBytes)))
 
-# An image decoded from the bytes of a PNG, JPEG, BMP, GIF, TGA or PSD file.
+# An image decoded from the bytes of a PNG, JPEG, BMP, GIF, TGA or PSD file, turned upright by the EXIF
+# orientation the file carries (a phone's photo is stored as the sensor saw it, with a tag saying how to turn it).
 func StzImageFromBytes(pcBytes)
 	return new stzImage(_StzImageMust(StzEngineImageDecode(pcBytes)))
+
+# The same, with the pixels as the file stores them: the orientation is recorded (StoredOrientation) and NOT applied.
+func StzImageFromBytesRaw(pcBytes)
+	return new stzImage(_StzImageMust(StzEngineImageDecodeKeep(pcBytes)))
+
+# An image from a file path with the pixels as the file stores them (StzImageQ turns them upright by EXIF).
+func StzImageRawQ(pcPath)
+	return new stzImage(_StzImageMust(StzEngineImageLoadKeep("" + pcPath)))
 
 # How many images the engine holds; a guard reads it to prove nothing leaked.
 func StzImagesAlive()
@@ -228,6 +237,15 @@ class stzImage from stzObject
 	# TRUE when the object holds no live pixels.
 	def IsEmpty()
 		return StzEngineImageWidth(@nId) = 0
+
+	# The EXIF orientation the file carried, 1 to 8 (1 = upright, and also what a file with no tag says), even when
+	# it was applied on load; 0 when the object holds no pixels. 6 means the pixels are stored a quarter turn off.
+	def StoredOrientation()
+		return StzEngineImageOrientation(@nId)
+
+	# TRUE when the load turned the pixels upright by the stored orientation (StzImageQ does; StzImageRawQ does not).
+	def IsOrientationApplied()
+		return StzEngineImageOrientationApplied(@nId) = 1
 
 	#@ aka  -- 1. WHAT IT IS --------------------------------------------------------
 

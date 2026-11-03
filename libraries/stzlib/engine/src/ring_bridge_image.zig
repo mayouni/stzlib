@@ -87,6 +87,25 @@ fn ring_Load(p: *anyopaque) callconv(.c) void {
     retF(p, img.load(getStr(p, 1)));
 }
 
+// IM9b: the same two, with the pixels as the file stores them (the EXIF orientation recorded, not applied)
+fn ring_DecodeKeep(p: *anyopaque) callconv(.c) void {
+    retF(p, img.decodeKeep(getStr(p, 1)));
+}
+
+fn ring_LoadKeep(p: *anyopaque) callconv(.c) void {
+    retF(p, img.loadKeep(getStr(p, 1)));
+}
+
+// (image) -> the EXIF orientation 1..8 the file carried, 0 for a handle that is not an image
+fn ring_Orientation(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(img.storedOrientation(id(p, 1))));
+}
+
+// (image) -> 1 when the pixels were turned upright by it
+fn ring_OrientationApplied(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(img.orientationApplied(id(p, 1))));
+}
+
 fn ring_ToPng(p: *anyopaque) callconv(.c) void {
     const b = img.encodePng(id(p, 1)) orelse {
         retBytes(p, "");
@@ -635,6 +654,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineimagedot", .func = &ring_Dot },
     .{ .name = "stzengineimagedecode", .func = &ring_Decode },
     .{ .name = "stzengineimageload", .func = &ring_Load },
+    .{ .name = "stzengineimagedecodekeep", .func = &ring_DecodeKeep },
+    .{ .name = "stzengineimageloadkeep", .func = &ring_LoadKeep },
+    .{ .name = "stzengineimageorientation", .func = &ring_Orientation },
+    .{ .name = "stzengineimageorientationapplied", .func = &ring_OrientationApplied },
     .{ .name = "stzengineimagetopng", .func = &ring_ToPng },
     .{ .name = "stzengineimagesavepng", .func = &ring_SavePng },
     .{ .name = "stzengineimagesavebmp", .func = &ring_SaveBmp },

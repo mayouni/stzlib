@@ -35,6 +35,10 @@ pub const Image = struct {
     h: u32,
     c: u8,
     px: []u8,
+    /// IM9b: the EXIF orientation (1..8) the file carried, 1 when it carried none -- kept even when it was applied.
+    stored: u8 = 1,
+    /// IM9b: true when decode turned the pixels upright by `stored` (a raw load leaves them as the file stores them).
+    applied: bool = false,
 
     fn at(self: *const Image, x: usize, y: usize, ch: usize) u8 {
         return self.px[(y * self.w + x) * self.c + ch];
@@ -169,9 +173,169 @@ pub fn liveImages() usize {
 
 // ------------------------------------------------------------------ codecs
 
+// ---- IM9b: EXIF orientation. A phone stores the pixels as the sensor saw them and a tag says how to turn them;
+// a viewer turns them, so decode does too (decodeKeep and loadKeep do not). Read from a JPEG's APP1 segment, a PNG's
+// eXIf chunk, or a TIFF's own first directory; anything absent, malformed or out of 1..8 reads as 1 (upright).
+
+fn rd16(t: []const u8, o: usize, le: bool) u16 {
+    return std.mem.readInt(u16, t[o..][0..2], if (le) .little else .big);
+}
+
+fn rd32(t: []const u8, o: usize, le: bool) u32 {
+    return std.mem.readInt(u32, t[o..][0..4], if (le) .little else .big);
+}
+
+/// The Orientation tag (0x0112) of the first directory of a TIFF stream (the body of an Exif segment is one).
+fn tiffOrientation(t: []const u8) u8 {
+    if (t.len < 8) return 1;
+    const le = t[0] == 'I' and t[1] == 'I';
+    if (!le and !(t[0] == 'M' and t[1] == 'M')) return 1;
+    if (rd16(t, 2, le) != 42) return 1;
+    const ifd: usize = rd32(t, 4, le);
+    if (ifd + 2 > t.len) return 1;
+    const n: usize = rd16(t, ifd, le);
+    var k: usize = 0;
+    while (k < n) : (k += 1) {
+        const e = ifd + 2 + 12 * k;
+        if (e + 12 > t.len) return 1;
+        if (rd16(t, e, le) == 0x0112) {
+            const v = rd16(t, e + 8, le);
+            return if (v >= 1 and v <= 8) @intCast(v) else 1;
+        }
+    }
+    return 1;
+}
+
+fn jpegOrientation(b: []const u8) u8 {
+    var i: usize = 2;
+    while (i + 4 <= b.len) {
+        if (b[i] != 0xFF) return 1;
+        const m = b[i + 1];
+        if (m == 0xFF) {
+            i += 1;
+            continue;
+        }
+        if (m == 0xD9 or m == 0xDA) return 1;
+        if (m == 0x01 or (m >= 0xD0 and m <= 0xD7)) {
+            i += 2;
+            continue;
+        }
+        const len: usize = std.mem.readInt(u16, b[i + 2 ..][0..2], .big);
+        if (len < 2 or i + 2 + len > b.len) return 1;
+        if (m == 0xE1 and len >= 8 and std.mem.eql(u8, b[i + 4 ..][0..6], "Exif\x00\x00")) {
+            return tiffOrientation(b[i + 10 .. i + 2 + len]);
+        }
+        i += 2 + len;
+    }
+    return 1;
+}
+
+fn pngOrientation(b: []const u8) u8 {
+    var i: usize = 8;
+    while (i + 12 <= b.len) {
+        const len: usize = std.mem.readInt(u32, b[i..][0..4], .big);
+        if (i + 12 + len > b.len) return 1;
+        const typ = b[i + 4 ..][0..4];
+        if (std.mem.eql(u8, typ, "eXIf")) return tiffOrientation(b[i + 8 ..][0..len]);
+        if (std.mem.eql(u8, typ, "IEND")) return 1;
+        i += 12 + len;
+    }
+    return 1;
+}
+
+/// The EXIF orientation (1..8) a file's bytes carry; 1 when none.
+pub fn exifOrientation(b: []const u8) u8 {
+    if (b.len >= 4 and b[0] == 0xFF and b[1] == 0xD8) return jpegOrientation(b);
+    if (b.len >= 8 and std.mem.eql(u8, b[0..8], "\x89PNG\r\n\x1a\n")) return pngOrientation(b);
+    if (b.len >= 8 and ((b[0] == 'I' and b[1] == 'I' and b[2] == 42 and b[3] == 0) or
+        (b[0] == 'M' and b[1] == 'M' and b[2] == 0 and b[3] == 42))) return tiffOrientation(b);
+    return 1;
+}
+
+/// Turn the pixels upright by an EXIF orientation, in place. 2 mirror, 3 half turn, 4 flip, 5 transpose,
+/// 6 quarter turn clockwise, 7 transverse, 8 quarter turn counter-clockwise (5 to 8 swap width and height).
+fn orientInPlace(im: *Image, o: u8) bool {
+    if (o < 2 or o > 8) return true;
+    const w: usize = im.w;
+    const h: usize = im.h;
+    const c: usize = im.c;
+    const swap = o >= 5;
+    const dw: usize = if (swap) h else w;
+    const dh: usize = if (swap) w else h;
+    const out = alloc.alloc(u8, dw * dh * c) catch return false;
+    var y: usize = 0;
+    while (y < dh) : (y += 1) {
+        var x: usize = 0;
+        while (x < dw) : (x += 1) {
+            var sx: usize = 0;
+            var sy: usize = 0;
+            switch (o) {
+                2 => {
+                    sx = w - 1 - x;
+                    sy = y;
+                },
+                3 => {
+                    sx = w - 1 - x;
+                    sy = h - 1 - y;
+                },
+                4 => {
+                    sx = x;
+                    sy = h - 1 - y;
+                },
+                5 => {
+                    sx = y;
+                    sy = x;
+                },
+                6 => {
+                    sx = y;
+                    sy = h - 1 - x;
+                },
+                7 => {
+                    sx = w - 1 - y;
+                    sy = h - 1 - x;
+                },
+                else => {
+                    sx = w - 1 - y;
+                    sy = x;
+                },
+            }
+            @memcpy(out[(y * dw + x) * c ..][0..c], im.px[(sy * w + sx) * c ..][0..c]);
+        }
+    }
+    alloc.free(im.px);
+    im.px = out;
+    im.w = @intCast(dw);
+    im.h = @intCast(dh);
+    return true;
+}
+
+/// PNG/JPEG/BMP/GIF/TGA/PSD bytes -> an image with the file's own channels, the pixels as the file stores them and
+/// the EXIF orientation it carried recorded (`stored`) and NOT applied. decode applies it.
+pub fn decodeKeep(bytes: []const u8) i64 {
+    const id = decodeRaw(bytes);
+    if (id == 0) return 0;
+    if (images.get(id)) |im| im.stored = exifOrientation(bytes);
+    return id;
+}
+
+/// Like decodeKeep, then turned upright by the stored orientation: the picture as a viewer shows it.
+pub fn decode(bytes: []const u8) i64 {
+    const id = decodeKeep(bytes);
+    if (id == 0) return 0;
+    const im = images.get(id) orelse return id;
+    if (im.stored > 1) {
+        if (!orientInPlace(im, im.stored)) {
+            _ = free(id);
+            return fail("image: out of memory", .{});
+        }
+        im.applied = true;
+    }
+    return id;
+}
+
 /// PNG/JPEG/BMP/GIF/TGA/PSD bytes -> an image with the file's own channels
 /// (gray+alpha widens to RGBA: the type holds 1, 3 or 4).
-pub fn decode(bytes: []const u8) i64 {
+fn decodeRaw(bytes: []const u8) i64 {
     if (bytes.len == 0) return fail("image: nothing to decode", .{});
     var w: c_int = 0;
     var h: c_int = 0;
@@ -192,6 +356,26 @@ pub fn load(path: []const u8) i64 {
         return fail("image: cannot read '{s}'", .{path});
     defer alloc.free(bytes);
     return decode(bytes);
+}
+
+/// load, with the pixels as the file stores them (see decodeKeep).
+pub fn loadKeep(path: []const u8) i64 {
+    const bytes = std.fs.cwd().readFileAlloc(alloc, path, 1 << 30) catch
+        return fail("image: cannot read '{s}'", .{path});
+    defer alloc.free(bytes);
+    return decodeKeep(bytes);
+}
+
+/// The EXIF orientation (1..8) the file carried, 0 for a handle that is not an image.
+pub fn storedOrientation(id: i64) i64 {
+    const im = images.get(id) orelse return 0;
+    return im.stored;
+}
+
+/// 1 when decode turned the pixels upright by the stored orientation.
+pub fn orientationApplied(id: i64) i64 {
+    const im = images.get(id) orelse return 0;
+    return if (im.applied) 1 else 0;
 }
 
 fn toRgba(im: *const Image) ?[]u8 {
