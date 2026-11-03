@@ -103,8 +103,13 @@ func _StzVisionDoor(pcFaculty, pcFile, pcWhat)
 	if NOT StzSecurityLedgerIsOpen()
 		StzOpenSecurityLedger(4096)
 	ok
-	StzNoteFact("model.call", "stzImage", pcFile, pcFaculty + ": " + pcWhat + " in " +
-		StzEngineNeuralVisionMs() + " ms")
+	_cWhat_ = pcFaculty + ": " + pcWhat + " in " + StzEngineNeuralVisionMs() + " ms"
+	if $cStzCaller != ""
+		# IM9a: an agent is acting -- the record says which one (the origin field)
+		StzNoteFactFrom("model.call", "stzImage", pcFile, _cWhat_, "agent:" + $cStzCaller)
+		return
+	ok
+	StzNoteFact("model.call", "stzImage", pcFile, _cWhat_)
 
 # IM6: the id of a picture's MobileSAM embedding in the engine. The engine keys it by the pixels, so a picture
 # already encoded is not encoded again, and only an encoding that ran goes through the door.

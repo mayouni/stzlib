@@ -23,6 +23,8 @@
 $aStzFaculties = []
 $aStzParcelMemo = []        # content-key -> parcel, for deterministic implementations
 $aStzImplNote  = []          # the side channel an implementation uses to state its evidence / token counts
+$cStzCaller = ""             # who is acting: an agent sets its own name while its ring: function runs (IM9a); "" is anyone else
+$bStzMemoHit = 0             # 1 when the last StzRunImplementation answered from the memo, so nothing ran
 
 # The closed vocabulary of payload types (SOFTANZA_MODEL_FLOW.md 3.2). `record` is judged by C9, unchanged.
 func StzFlowTypes()
@@ -177,6 +179,7 @@ func _StzFlowFinding(pcRule, pcWhere, pcMessage)
 
 # ---- running ONE implementation of a faculty: a validated parcel, or a refusal -----------------------
 func StzRunImplementation(pcFaculty, pcImplId, pInput, paParams)
+	$bStzMemoHit = 0
 	_iF_ = _StzFacultyRow(pcFaculty)
 	if _iF_ = 0
 		return StzRefusalParcelQ(pcFaculty, "unknown-faculty", "no faculty is declared with the name '" + pcFaculty + "'")
@@ -202,6 +205,7 @@ func StzRunImplementation(pcFaculty, pcImplId, pInput, paParams)
 		_cMemo_ = StzEngineCryptoSha256(pcFaculty + "|" + pcImplId + "|" + _aImpl_[:version] + "|" + StzParcelCanonical(pInput) + "|" + @@(paParams))
 		_nM_ = _StzMemoRow(_cMemo_)
 		if _nM_ > 0
+			$bStzMemoHit = 1
 			return $aStzParcelMemo[_nM_][2]
 		ok
 	ok

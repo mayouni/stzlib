@@ -201,6 +201,10 @@ class stzPIAgent from stzObject
 		if @nWorkbench > 0
 			$nStzActiveAgentWorkbench = @nWorkbench
 		ok
+		# The AMBIENT caller (IM9a), restored the same way: while this agent's skills fire, a faculty it asks
+		# through the registry, and the model door under it, file their ledger records under this agent's name.
+		_cPrevCaller_ = $cStzCaller
+		$cStzCaller = @cName
 		_nActed_ = 0
 		_nS_ = len(@aSkills)
 		for _i_ = 1 to _nS_
@@ -230,6 +234,7 @@ class stzPIAgent from stzObject
 			ok
 		next
 		$nStzActiveAgentWorkbench = _nPrevWb_
+		$cStzCaller = _cPrevCaller_
 		return _nActed_
 
 	# Repeats Cycle until a cycle verifies nothing or 20 rounds are done.

@@ -747,6 +747,7 @@ load "service/stzPispiQr.ring"    # the twin of the hub served over HTTP, with O
     load "image/stzVision.ring"     # IM3: classify, faces, objects -- one governed door, every call in the ledger
     load "image/stzDocTags.ring"    # IM7: Granite-Docling's DocTags read into blocks, and blocks judged against a golden document
     load "image/stzImageSearch.ring"  # IM5: SigLIP2 -- pictures and words in one space: ClassifyAs, Search
+    StzVisionDeclare("")   # IM9a: the image faculties exist in every process, so an agent or the registry can reach them (before this only a guard declared them)
     load "ocr/stzOcr.ring"             # OCR as a faculty: the platform floor, a model only when measured better
     load "ocr/stzOcrInspect.ring"      # see what OCR read and where: the image and its reading, linked both ways
     load "ocr/stzScreenshotFacts.ring" # a screenshot reduced to the facts a legibility audit judges (zui-audit-facts 1.0)

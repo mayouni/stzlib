@@ -105,6 +105,7 @@ func StzSecurityEventKinds()
 		# plan is a warning; a payout that reached the port with no committed plan is the alarm.
 		[ "payout.committed",             "info",    "",          "a payout plan was committed by an actor who may, and released through the port" ],
 		[ "model.call",                   "info",    "",          "a model was run on data through a governed door (the image plane, COMPASS-KERN-05)" ],
+		[ "faculty.call",                 "info",    "",          "an agent asked a faculty through the registry: who asked, which implementation answered, and whether it ran or came from the memo (IM9a)" ],
 		[ "payout.refused",               "warning", "",          "a payout plan was refused: the policy, the actor, or the rehearsed document" ],
 		[ "payout.unplanned",             "error",   "T1657",     "money out was attempted at the port with no committed plan, or for an amount the plan did not authorise" ],
 		# Expiry is a detection the ledger raises (payments PY3): an mTLS certificate that lapses is

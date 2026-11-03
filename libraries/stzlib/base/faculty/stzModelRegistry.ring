@@ -355,12 +355,14 @@ func StzRunFaculty(pcFaculty, pInput, paParams, pReq, paPins, pbImplicit)
 	if _aPlan_[:refusal] = 1
 		_oR_ = new stzParcel("refusal", [])
 		_oR_._MakeRefusal(_aPlan_[:findings])
+		_StzNoteFacultyCall(pcFaculty, "", _oR_)
 		return _oR_
 	ok
 	_cErr_ = ""
 	if _cErr_ = ""
 		_oP_ = StzRunImplementation(pcFaculty, _aPlan_[:chosen], pInput, paParams)
 		if _oP_.IsRefusal() = 0 or _aPlan_[:pinned] = 1 or _aPlan_[:kind] = "floor"
+			_StzNoteFacultyCall(pcFaculty, _aPlan_[:chosen], _oP_)
 			return _oP_
 		ok
 		_cErr_ = "the implementation's answer was refused: " + _oP_.CiteFindings()
@@ -372,7 +374,29 @@ func StzRunFaculty(pcFaculty, pInput, paParams, pReq, paPins, pbImplicit)
 		_aProv_[1][:detail] = "fell back from '" + _aPlan_[:chosen] + "': " + _cErr_
 		_oF_._SetProvenance(_aProv_)
 	ok
+	_StzNoteFacultyCall(pcFaculty, _aPlan_[:floor], _oF_)
 	return _oF_
+
+# IM9a: a faculty asked by an AGENT is filed in the ledger under the agent's name -- who asked, which
+# implementation answered, and whether anything ran or the memo answered (a memo hit never reaches a model's
+# door, so without this line the agent's ask would leave no trace at all). Anyone else is not filed here: the
+# models' own doors already record every run.
+func _StzNoteFacultyCall(pcFaculty, pcImpl, poParcel)
+	if $cStzCaller = ""
+		return
+	ok
+	if NOT StzSecurityLedgerIsOpen()
+		StzOpenSecurityLedger(4096)
+	ok
+	_cHow_ = "answered"
+	if poParcel.IsRefusal() = 1
+		_cHow_ = "refused"
+	ok
+	_cRan_ = "it ran"
+	if $bStzMemoHit = 1
+		_cRan_ = "from the memo, nothing ran"
+	ok
+	StzNoteFact("faculty.call", $cStzCaller, pcFaculty + ":" + pcImpl, _cHow_ + ", " + _cRan_)
 
 func StzModelRegistryQ()
 	return new stzModelRegistry()
