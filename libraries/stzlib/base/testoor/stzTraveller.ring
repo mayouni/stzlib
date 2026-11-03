@@ -364,29 +364,155 @@ func _TravKeptAnErrorPromise(paStops)
 	return 0
 
 # how the child ended, from its output, its stderr and its exit code
-func _TravEndingOf(paLines, pcErr, pnExit, pbHung)
+# How a tour ENDED, from its output, its error stream and its exit code. What a
+# language's errors LOOK like is the FACE's business (paFace[:endings], tried in
+# order, TESTOOR_PROTOCOL.md section 5); the core knows only the neutral line
+# "[testoor end timed]", a non-zero exit as broke, and a zero exit as finished.
+func _TravEndingOf(paLines, pcErr, pnExit, pbHung, paFace)
 	if pbHung  return "hung"  ok
-	# a line Ring prefixes with "eval " is a W-condition that failed to
-	# parse INSIDE a running file (promises.py): a finding about that
-	# condition, never a file that did not run
+	_cIgnore_ = ""
+	if len(paFace) > 0  _cIgnore_ = paFace[:ignore]  ok
 	_cAll_ = pcErr
 	_nL_ = len(paLines)
 	for _i_ = 1 to _nL_
-		if substr(trim(paLines[_i_][1]), "eval ") = 1  loop  ok
+		if _cIgnore_ != "" and substr(trim(paLines[_i_][1]), _cIgnore_) = 1  loop  ok
 		_cAll_ += char(10) + paLines[_i_][1]
 	next
-	if substr(_cAll_, "STOPPED!") > 0  return "finished-timed"  ok
-	# compile (C), scanner (S) and open (E) errors: nothing ran
-	if substr(_cAll_, "Error (E") > 0 or substr(_cAll_, "Error (C") > 0 or
-	   substr(_cAll_, "Error (S") > 0 or substr(_cAll_, "Can't open file") > 0
-		return "not-started"
+	if substr(_cAll_, "[testoor end timed]") > 0  return "finished-timed"  ok
+	if len(paFace) > 0
+		_nR_ = len(paFace[:endings])
+		for _k_ = 1 to _nR_
+			if substr(_cAll_, paFace[:endings][_k_][1]) > 0  return paFace[:endings][_k_][2]  ok
+		next
 	ok
-	if substr(_cAll_, "Error (R") > 0  return "broke"  ok
-	# _expect.ring's own verdict raises after it prints: that is the
-	# assertion's ending, not a break
-	if substr(_cAll_, "DOES NOT MATCH") > 0  return "finished"  ok
 	if pnExit != 0  return "broke"  ok
 	return "finished"
+
+# the argv a face launches a tour with: {program} {file} {seed} filled in. A
+# program of "" is the VM running Testoor itself (TestoorProgram()).
+func _TravLaunchArgv(paFace, pcFile, pnSeed)
+	_cProg_ = paFace[:program]
+	if _cProg_ = ""  _cProg_ = TestoorProgram()  ok
+	_aOut_ = []
+	_n_ = len(paFace[:launch])
+	for _i_ = 1 to _n_
+		_c_ = paFace[:launch][_i_]
+		_c_ = substr(_c_, "{program}", _cProg_)
+		_c_ = substr(_c_, "{file}", pcFile)
+		_c_ = substr(_c_, "{seed}", "" + pnSeed)
+		_aOut_ + _c_
+	next
+	return _aOut_
+
+# does a child's output carry protocol verdicts (stop / ok / fail lines)?
+func _TravHasProtocolVerdicts(paLines)
+	_n_ = len(paLines)
+	for _i_ = 1 to _n_
+		_t_ = trim(paLines[_i_][1])
+		if substr(_t_, "[testoor ok ") = 1 or substr(_t_, "[testoor fail ") = 1 or substr(_t_, "[testoor stop ") = 1
+			return 1
+		ok
+	next
+	return 0
+
+# A SELF-DESCRIBING tour (TESTOOR_PROTOCOL.md section 3) is turned into the
+# record a reader would have made and the lines the judge already understands:
+# [testoor stop T] opens a stop titled T, [testoor ok X] and [testoor fail X]
+# are claims with their verdict, [testoor plan N] announces claims the tour owes
+# (those it never prints are unreached or unjudged by how it ended),
+# [testoor route ID] is a route. One judge, any language.
+func _TravAdoptProtocol(paRec, paLines)
+	_aStops_ = []
+	_aRoutes_ = []
+	_aOut_ = []
+	_nCur_ = 0
+	_nPrinted_ = 0
+	_nPlan_ = 0
+	_nL_ = len(paLines)
+	for _i_ = 1 to _nL_
+		_t_ = trim(paLines[_i_][1])
+		_nAt_ = paLines[_i_][2]
+		if substr(_t_, "[testoor stop ") = 1 and right(_t_, 1) = "]"
+			_cTitle_ = substr(_t_, 15, len(_t_) - 15)
+			_aStops_ + [ :title = _cTitle_, :line = _i_, :claims = [] ]
+			_nCur_ = len(_aStops_)
+			_aOut_ + [ _cTitle_, _nAt_ ]
+		but (substr(_t_, "[testoor ok ") = 1 or substr(_t_, "[testoor fail ") = 1) and right(_t_, 1) = "]"
+			_bOk_ = (substr(_t_, "[testoor ok ") = 1)
+			if _bOk_
+				_cText_ = substr(_t_, 13, len(_t_) - 13)
+			else
+				_cText_ = substr(_t_, 15, len(_t_) - 15)
+			ok
+			if _nCur_ = 0
+				_aStops_ + [ :title = "(the tour)", :line = 1, :claims = [] ]
+				_nCur_ = 1
+				_aOut_ + [ "(the tour)", _nAt_ ]
+			ok
+			_aStops_[_nCur_][:claims] + [ :line = _i_, :kind = "sees", :claim = _cText_, :want = "" ]
+			_nPrinted_++
+			if _bOk_
+				_aOut_ + [ "  [OK] " + _cText_, _nAt_ ]
+			else
+				_aOut_ + [ "  [FAIL] " + _cText_, _nAt_ ]
+			ok
+		but substr(_t_, "[testoor route ") = 1 and right(_t_, 1) = "]"
+			_cWhere_ = ""
+			if _nCur_ > 0  _cWhere_ = _aStops_[_nCur_][:title]  ok
+			_aRoutes_ + [ :item = substr(_t_, 16, len(_t_) - 16), :stop = _cWhere_, :line = _i_ ]
+		but substr(_t_, "[testoor plan ") = 1 and right(_t_, 1) = "]"
+			_nPlan_ = 0 + substr(_t_, 15, len(_t_) - 15)
+			_aOut_ + paLines[_i_]
+		else
+			_aOut_ + paLines[_i_]
+		ok
+	next
+	# the claims a tour announced and never printed
+	if _nPlan_ > _nPrinted_
+		if _nCur_ = 0
+			_aStops_ + [ :title = "(the tour)", :line = 1, :claims = [] ]
+			_nCur_ = 1
+		ok
+		for _k_ = _nPrinted_ + 1 to _nPlan_
+			_aStops_[_nCur_][:claims] + [ :line = 0, :kind = "sees", :claim = "(planned claim " + _k_ + ")", :want = "" ]
+		next
+	ok
+	if len(_aStops_) = 0
+		_aStops_ + [ :title = "(the tour)", :line = 1, :claims = [] ]
+	ok
+	paRec[:stops] = _aStops_
+	paRec[:routes] = _aRoutes_
+	paRec[:dialect] = "protocol"
+	paRec[:asserts] = 1
+	return _aOut_
+
+# the keys a logbook MUST carry, per level (TESTOOR_PROTOCOL.md section 7), for
+# any program to check a logbook against
+func TestoorLogbookKeys()
+	return [ :run = [ "testoor", "kind", "by", "root", "topic", "refusal", "exit", "owned", "run",
+	                  "wall_ms", "timeout_ms", "seed", "repeat", "flaky", "claims", "tours_by_end",
+	                  "skipped", "topics_skipped", "tours" ],
+	         :tour = [ "file", "dialect", "state", "end", "exit", "wall_ms", "seed", "flaky", "weather",
+	                   "kept", "diverged", "unreached", "unjudged", "stops" ],
+	         :stop = [ "title", "line", "state", "wall_ms", "seed", "claims" ],
+	         :claim = [ "claim", "kind", "line", "state" ] ]
+
+func TestoorLogbookKeysJson()
+	_aK_ = TestoorLogbookKeys()
+	_c_ = "{"
+	_acN_ = [ "run", "tour", "stop", "claim" ]
+	for _i_ = 1 to 4
+		if _i_ > 1  _c_ += ","  ok
+		_c_ += '"' + _acN_[_i_] + '":['
+		_aL_ = _aK_[_i_][2]
+		_nL_ = len(_aL_)
+		for _k_ = 1 to _nL_
+			if _k_ > 1  _c_ += ","  ok
+			_c_ += '"' + _aL_[_k_] + '"'
+		next
+		_c_ += "]"
+	next
+	return _c_ + "}"
 
 # the folder and the name of a path, split at its last separator
 func _TravSplitPath(pcPath)
@@ -913,6 +1039,17 @@ class stzTraveller from stzObject
 		_aRec_[:flaky] = 0
 		_aRec_[:flaky_why] = ""
 		_aRec_[:weather] = []
+		_aFace_ = TestoorFaceFor("" + pcPath)
+		if _aRec_[:readable] = 1 and len(_aFace_) = 0
+			# readable text but no face: named, not guessed, and not run
+			_aRec_[:readable] = 0
+		ok
+		if _aRec_[:readable] = 1
+			if len(_aFace_[:launch]) = 0
+				_aRec_[:readable] = 0
+				_aRec_[:why] = "the " + _aFace_[:name] + " face is read-only: it has no way to launch a tour"
+			ok
+		ok
 		if _aRec_[:readable] = 0
 			_aRec_[:run] = _TravJudge(_aRec_, [], "unreadable", -1, 0)
 			_aRec_[:run][:end] = "unreadable"
@@ -927,7 +1064,7 @@ class stzTraveller from stzObject
 		# one the RNXC variable names, else the rnxc running this runner, else
 		# `rnxc` on the path -- TestoorProgram()
 		_oP_ = new stzProcess()
-		_oP_.SpawnIn(_cFolder_, [ TestoorProgram(), _aFD_[2], "--testoor-seed", "" + pnSeed ])
+		_oP_.SpawnIn(_cFolder_, _TravLaunchArgv(_aFace_, _aFD_[2], pnSeed))
 		@nRun++
 		_nT0_ = clock()
 		_cBuf_ = ""
@@ -984,7 +1121,11 @@ class stzTraveller from stzObject
 		_nWall_ = floor((clock() - _nT0_) / clockspersecond() * 1000)
 		_oP_.Close()
 		@nWallMs += _nWall_
-		_cEnd_ = _TravEndingOf(_aLines_, _cErr_, _nExit_, _bHung_)
+		_cEnd_ = _TravEndingOf(_aLines_, _cErr_, _nExit_, _bHung_, _aFace_)
+		# a self-describing tour has no static record: build it from what it said
+		if _aRec_[:dialect] = "protocol" or (_aRec_[:asserts] = 0 and _TravHasProtocolVerdicts(_aLines_))
+			_aLines_ = _TravAdoptProtocol(_aRec_, _aLines_)
+		ok
 		_aRec_[:run] = _TravJudge(_aRec_, _aLines_, _cEnd_, _nExit_, _nWall_)
 		_aRec_[:output] = _aLines_
 		_aRec_[:stderr] = _cErr_

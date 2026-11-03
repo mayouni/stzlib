@@ -63,6 +63,11 @@
 # has no local of that name, and a test file loading this beside its own `n`
 # or `i` would have its loop counter reset by the reader.
 
+# Faces registered by someone else (a language that is not built in): see
+# TESTOOR_PROTOCOL.md section 5. Declared HERE, before the first func, because a
+# file's top-level code stops running at its first func.
+$aTestoorFacesExtra = []
+
 #--- Tour -------------------------------------------------------------------
 
 func Tour(pcPath)
@@ -73,6 +78,58 @@ func TourQ(pcPath)
 
 func StzLogbookQ()
 	return new stzLogbook()
+
+#--- faces: everything that is language-specific, as data ------------------------
+#
+# A face is a profile (TESTOOR_PROTOCOL.md section 5): the extension it owns, how
+# to read it (:reader), how to launch a tour (:launch, with {program} {file}
+# {seed}), how its errors read (:endings, tried in order) and a line prefix the
+# endings must not read (:ignore). Built in: Ring, the language this library is
+# written in, and Zin's .zst, which is read and never run. Anything else is
+# registered by whoever owns the language, so the core never learns one.
+
+func TestoorFaceRing()
+	return [ :name = "ring", :ext = ".ring", :reader = "ring", :program = "",
+	         :launch = [ "{program}", "{file}", "--testoor-seed", "{seed}" ],
+	         :ignore = "eval ",
+	         :endings = [ [ "STOPPED!", "finished-timed" ],
+	                      [ "Error (E", "not-started" ], [ "Error (C", "not-started" ],
+	                      [ "Error (S", "not-started" ], [ "Can't open file", "not-started" ],
+	                      [ "Error (R", "broke" ],
+	                      [ "DOES NOT MATCH", "finished" ] ] ]
+
+func TestoorFaceZst()
+	return [ :name = "zst", :ext = ".zst", :reader = "zst", :program = "", :launch = [],
+	         :ignore = "", :endings = [] ]
+
+func TestoorRegisterFace(paProfile)
+	$aTestoorFacesExtra + paProfile
+	return 1
+
+# forget every registered face (the built-in ones stay); for guards
+func TestoorUnregisterFaces()
+	$aTestoorFacesExtra = []
+	return 1
+
+func TestoorFaces()
+	_aOut_ = [ TestoorFaceRing(), TestoorFaceZst() ]
+	_n_ = len($aTestoorFacesExtra)
+	for _i_ = 1 to _n_
+		_aOut_ + $aTestoorFacesExtra[_i_]
+	next
+	return _aOut_
+
+# the profile that owns a path's extension, or [] -- an extension with no face is
+# NAMED by the reader, never guessed
+func TestoorFaceFor(pcPath)
+	_lp_ = lower("" + pcPath)
+	_aF_ = TestoorFaces()
+	_n_ = len(_aF_)
+	for _i_ = 1 to _n_
+		_e_ = lower(_aF_[_i_][:ext])
+		if len(_lp_) > len(_e_) and right(_lp_, len(_e_)) = _e_  return _aF_[_i_]  ok
+	next
+	return []
 
 #--- the read ---------------------------------------------------------------
 
@@ -92,8 +149,21 @@ func _TourRead(pcPath)
 	_acL_ = str2list(_cSrc_)
 	_nL_ = len(_acL_)
 	_aRec_[:lines] = _nL_
-	if lower(right(pcPath, 4)) = ".zst"
+	_aFace_ = TestoorFaceFor(pcPath)
+	if len(_aFace_) = 0
+		_aRec_[:why] = "no face is registered for this extension; a face reads one language into tours (TESTOOR_PROTOCOL.md section 5)"
+		return _aRec_
+	ok
+	if _aFace_[:reader] = "zst"
 		return _TourReadZst(_aRec_, _acL_)
+	ok
+	# a SELF-DESCRIBING tour (section 3): it prints its stops and claims as it runs,
+	# so there is nothing to read ahead of the run
+	if _aFace_[:reader] = "protocol"
+		_aRec_[:dialect] = "protocol"
+		_aRec_[:asserts] = 1
+		_aRec_[:stops] = [ [ :title = "(the tour)", :line = 1, :claims = [] ] ]
+		return _aRec_
 	ok
 
 	# ---- pass 1: what the file DEFINES and CALLS decides its face ----
@@ -632,7 +702,7 @@ func _TourFilesUnder(pcDir, pcSuffix)
 				loop
 			ok
 			_cLow_ = lower(_cN_)
-			if right(_cLow_, 5) != ".ring" and right(_cLow_, 4) != ".zst"  loop  ok
+			if len(TestoorFaceFor(_cN_)) = 0  loop  ok
 			if left(_cN_, 1) = "_"  _aSkipped_ + _cP_  loop  ok
 			if _cSuf_ != "" and right(_cLow_, len(_cSuf_)) != _cSuf_  loop  ok
 			_aFiles_ + _cP_

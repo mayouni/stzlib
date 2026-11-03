@@ -227,6 +227,39 @@ faults. It is adopted as a vocabulary, not parsed; reading `.zst` SIMULATION_TES
 logbook is the next small step, not done here. The Zin desk's memo is filed in `memos/` and
 routed through CONCLUSIONS.
 
+### The protocol -- DONE 2026-11-03, before TR5
+
+The author asked whether Testoor is tied to a language. It was: the contracts were
+language-neutral but the code was Ring. Official language of Softanza is moving from Ring to
+Haro, with Ring++ the bridge, so the contracts are now written down and the Ring code reads
+nothing else about a language. `base/testoor/TESTOOR_PROTOCOL.md` (version 1) holds three
+contracts: the **tour record** (face to core), the **child's output** (tour to core: stop, ok,
+fail, plan, route, seed, weather and end lines, plain text any language can print) and the
+**logbook** (core to anyone). A **face** is everything language-specific as DATA: a profile with
+the extension it owns, how to launch a tour, how its errors read and a reader (`ring`, `zst` or
+`protocol`), registered with `TestoorRegisterFace`. Built in: Ring, and Zin's `.zst` (read, never
+run). Anything else is registered by whoever owns the language; an extension with no face is
+named by the reader and not run, and a face with no launch is read-only.
+
+A tour that prints stop, ok and fail lines **describes itself** and needs no reader, so a new
+language at its cheapest is a six-line helper plus a ten-line profile. The judge is one judge:
+self-describing output is turned into the same record and lines the Ring reader produces.
+
+Guard `base/test/testoor/testoor_protocol_narrated.ring`, 55 assertions in about one second:
+tours written in **Python** (kept, failing, broken with claims owed, never started, ended early,
+seeded to fail at 42, naming their own seed, declaring a route) go through the same runner and
+get the same states; one runner walks a folder holding a Ring tour and a Python tour and
+answers one logbook, which **a program that is not Ring (python) checks against the key list the
+protocol publishes** and which it rejects when a key is missing; a language with no face is
+named; a face registered at run time works. All five earlier guards are unchanged and green.
+
+**What stays language-bound, said plainly:** the Ring reader and its six dialects, the Ring words
+`Seed`, `ClockTo`, `Weather`, the stepped clock, and the core's own code, which is Ring although
+ruling 12 puts counting, seeds, the clock and the logbook shape in the engine. A Haro face is
+not built and nothing here has been tried against Haro. The better reader for it, and for
+Ring++, is the parsed program (`rnxc dump --json`) in place of source-line matching; that is
+untested and is the first thing to try when Haro can be parsed.
+
 ### TR5 to TR8 -- after the compass re-rates the plane on TR4 -- PLANNED
 
 Excursions from the function forms as metamorphic relations; the perception
