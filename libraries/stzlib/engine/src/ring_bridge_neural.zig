@@ -13,6 +13,7 @@ const R = @import("ring_api.zig");
 const ocrg = @import("ocr_graph.zig"); // O3: PP-OCR graphs on ggml
 const ocrp = @import("ocr_pipeline.zig"); // O3b: an image file in, its text lines out
 const vlm = @import("vlm.zig"); // IM7: the vision half of a vision-language model
+const nvit = @import("neural_vit.zig"); // IM8a: that tower, resident on the GPU
 const vis = @import("vision.zig"); // IM3: the image plane's models (classify, faces, objects)
 const ocrw = @import("ocr_winrt.zig"); // O5: the platform engine called in process
 
@@ -1296,6 +1297,36 @@ fn ring_VlmPage(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retstring2(p, text.items.ptr, @intCast(text.items.len));
 }
 
+// IM8a: (nOn) the vision tower on the GPU (1) or on the CPU graph (0); the answer is the setting now
+fn ring_VisionGpu(p: *anyopaque) callconv(.c) void {
+    const a = R.ring_vm_api_getnumber(p, 1);
+    if (a >= 0) nvit.setEnabled(a >= 1);
+    R.ring_vm_api_retnumber(p, if (nvit.enabled()) 1 else 0);
+}
+
+// IM8a profiling: (nMask) leave out kernel families (1 attention, 2 LayerNorm, 4 GELU, 8 add, 16 matmul); 0 puts everything back
+fn ring_VisionGpuSkip(p: *anyopaque) callconv(.c) void {
+    nvit.setSkip(@intFromFloat(@max(0, R.ring_vm_api_getnumber(p, 1))));
+    R.ring_vm_api_retnumber(p, 0);
+}
+
+// () -> the GPU layer's first error of the last GPU tower call ("" when none)
+fn ring_VisionGpuMessage(p: *anyopaque) callconv(.c) void {
+    const m = nvit.message();
+    R.ring_vm_api_retstring2(p, m.ptr, @intCast(m.len));
+}
+
+// () -> [ views the GPU tower made, the milliseconds of the last one, the stage the last call reached (10 = done) ]
+fn ring_VisionGpuStats(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    R.ring_list_adddouble(out, nvit.viewsDone());
+    R.ring_list_adddouble(out, nvit.lastMs());
+    R.ring_list_adddouble(out, nvit.stage());
+    R.ring_list_adddouble(out, nvit.failedStep());
+    for (nvit.phases()) |v| R.ring_list_adddouble(out, v);
+    R.ring_vm_api_retlist(p, out);
+}
+
 // () -> [ the picture's ms, the words' ms, tokens made ] of the last StzEngineNeuralVlmDescribe
 fn ring_VlmStats(p: *anyopaque) callconv(.c) void {
     const out = R.ring_vm_api_newlist(p) orelse return;
@@ -1377,6 +1408,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralvlmlastms", .func = &ring_VlmLastMs },
     .{ .name = "stzengineneuralvlmfeed", .func = &ring_VlmFeed },
     .{ .name = "stzengineneuralvlmdescribe", .func = &ring_VlmDescribe },
+    .{ .name = "stzengineneuralvisiongpu", .func = &ring_VisionGpu },
+    .{ .name = "stzengineneuralvisiongpustats", .func = &ring_VisionGpuStats },
+    .{ .name = "stzengineneuralvisiongpumessage", .func = &ring_VisionGpuMessage },
+    .{ .name = "stzengineneuralvisiongpuskip", .func = &ring_VisionGpuSkip },
     .{ .name = "stzengineneuralvlmgrid", .func = &ring_VlmGrid },
     .{ .name = "stzengineneuralvlmpageviews", .func = &ring_VlmPageViews },
     .{ .name = "stzengineneuralvlmpage", .func = &ring_VlmPage },

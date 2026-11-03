@@ -49,7 +49,7 @@ const WG = 256;
 
 // ---------------------------------------------------------------- kernels
 
-const PRELUDE =
+pub const PRELUDE =
     \\struct StzTile { xoff : u32, p0 : u32, p1 : u32, p2 : u32 }
     \\@group(0) @binding(0) var<uniform> tile : StzTile;
     \\
@@ -97,7 +97,7 @@ const ATT_HEAD =
     \\
 ;
 
-const WGSL_ATTENTION = PRELUDE ++ ATT_HEAD ++
+pub const WGSL_ATTENTION = PRELUDE ++ ATT_HEAD ++
     \\@compute @workgroup_size(64)
     \\fn main(@builtin(workgroup_id) wid : vec3<u32>,
     \\        @builtin(local_invocation_id) lid : vec3<u32>) {
@@ -149,7 +149,7 @@ const WGSL_ATTENTION = PRELUDE ++ ATT_HEAD ++
 
 /// The RED family at workgroup width W: tree reductions for max and sum, the
 /// context's token range split W / head_dim ways.
-fn attRedSource(comptime W: u32, comptime broken: bool) []const u8 {
+pub fn attRedSource(comptime W: u32, comptime broken: bool) []const u8 {
     const ws = std.fmt.comptimePrint("{d}", .{W});
     return PRELUDE ++ ATT_HEAD ++
         "var<workgroup> red : array<f32, " ++ ws ++ ">;\n" ++
@@ -411,7 +411,7 @@ pub export fn neural_attention_foundry(ntf: f64, nef: f64, nhf: f64, reps: f64, 
 
 // out = LayerNorm(x + residual) * w + b, one workgroup per token row.
 // use_res == 0 skips the residual (the embedding LN).
-const WGSL_ADD_LN = PRELUDE ++
+pub const WGSL_ADD_LN = PRELUDE ++
     \\struct P { n_tok : u32, n_embd : u32, use_res : u32, pad : u32, eps : f32, pad1 : f32, pad2 : f32, pad3 : f32 }
     \\@group(0) @binding(1) var<uniform> p : P;
     \\@group(0) @binding(2) var<storage, read> x : array<f32>;
@@ -474,7 +474,7 @@ const WGSL_ADD_LN = PRELUDE ++
     \\}
 ;
 
-const WGSL_GELU = PRELUDE ++
+pub const WGSL_GELU = PRELUDE ++
     \\struct P { n : u32, p0 : u32, p1 : u32, p2 : u32 }
     \\@group(0) @binding(1) var<uniform> p : P;
     \\@group(0) @binding(2) var<storage, read_write> v : array<f32>;
@@ -536,12 +536,12 @@ const WGSL_POOL_L2 = PRELUDE ++
 // ---------------------------------------------------------------- params
 
 const MmParams = extern struct { m: u32, k: u32, n: u32, has_bias: u32 };
-const AttParams = extern struct { n_tok: u32, n_embd: u32, n_head: u32, head_dim: u32, scale: f32, p0: u32 = 0, p1: u32 = 0, p2: u32 = 0 };
+pub const AttParams = extern struct { n_tok: u32, n_embd: u32, n_head: u32, head_dim: u32, scale: f32, p0: u32 = 0, p1: u32 = 0, p2: u32 = 0 };
 const LnParams = extern struct { n_tok: u32, n_embd: u32, use_res: u32, pad: u32, eps: f32, p1: f32 = 0, p2: f32 = 0, p3: f32 = 0 };
-const GeluParams = extern struct { n: u32, p0: u32 = 0, p1: u32 = 0, p2: u32 = 0 };
+pub const GeluParams = extern struct { n: u32, p0: u32 = 0, p1: u32 = 0, p2: u32 = 0 };
 const PoolParams = extern struct { n_tok: u32, n_embd: u32, p0: u32 = 0, p1: u32 = 0 };
 
-fn dispatchP(kernel: i64, params: anytype, bufs: []const i64, wx: usize, wy: usize) bool {
+pub fn dispatchP(kernel: i64, params: anytype, bufs: []const i64, wx: usize, wy: usize) bool {
     const bytes = std.mem.asBytes(params);
     return gpu.stz_gpu_dispatch_params(
         kernel,
@@ -554,7 +554,7 @@ fn dispatchP(kernel: i64, params: anytype, bufs: []const i64, wx: usize, wy: usi
     ) == gpu.OK;
 }
 
-fn ceilDiv(a: usize, b: usize) usize {
+pub fn ceilDiv(a: usize, b: usize) usize {
     return (a + b - 1) / b;
 }
 
@@ -931,7 +931,7 @@ pub export fn neural_backbone_forward(ids_ptr: [*c]const i32, n_tok_in: c_int, o
     return 1;
 }
 
-fn mmBias(kern_generic: i64, a: i64, b: i64, bias: i64, out: i64, m: usize, k: usize, n: usize) bool {
+pub fn mmBias(kern_generic: i64, a: i64, b: i64, bias: i64, out: i64, m: usize, k: usize, n: usize) bool {
     if (b == 0 or out == 0) return false;
     // the table's variant for this shape class, compiled with the bias fused
     // (the compile cache answers by hash after the first time); the generic
@@ -961,7 +961,7 @@ fn mmBias(kern_generic: i64, a: i64, b: i64, bias: i64, out: i64, m: usize, k: u
     return dispatchP(kern, &p, &.{ a, b, bb, out }, g.wx, g.wy);
 }
 
-fn lnStep(kern: i64, x: i64, res: i64, w: i64, b: i64, out: i64, n_tok: usize, n_embd: usize, eps: f32, use_res: u32) bool {
+pub fn lnStep(kern: i64, x: i64, res: i64, w: i64, b: i64, out: i64, n_tok: usize, n_embd: usize, eps: f32, use_res: u32) bool {
     if (w == 0 or b == 0) return false;
     const p = LnParams{ .n_tok = @intCast(n_tok), .n_embd = @intCast(n_embd), .use_res = use_res, .pad = 0, .eps = eps };
     return dispatchP(kern, &p, &.{ x, res, w, b, out }, n_tok, 1);
@@ -992,4 +992,9 @@ fn gatherRow(t: *c.ggml_tensor, row: usize, out: []f32) bool {
 fn kvEps(ctx: *c.ggml_context) f32 {
     _ = ctx;
     return embed.neural_model_ln_eps();
+}
+
+// the vision tower (neural_vit.zig) keeps its weights at f32: mmBias reads this flag, which a BERT forward sets per call
+pub fn setHalf(v: bool) void {
+    g_half = v;
 }

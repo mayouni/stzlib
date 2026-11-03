@@ -16,6 +16,7 @@
 const std = @import("std");
 const og = @import("ocr_graph.zig");
 const vision = @import("vision.zig");
+const nvit = @import("neural_vit.zig");
 const c = og.c;
 
 const gpa = std.heap.c_allocator;
@@ -86,6 +87,7 @@ fn tensor(p: *const Projector, comptime fmt: []const u8, args: anytype) ?*c.ggml
 }
 
 pub fn free() void {
+    nvit.invalidate();
     if (g_proj) |*p| {
         c.ggml_free(p.ctx);
         c.gguf_free(p.gg);
@@ -292,6 +294,8 @@ pub fn encode(p: *const Projector, input: []const f32, n_threads: c_int, out: []
     const g = S / p.patch; // patches per side
     const n_pat = g * g;
     if (input.len != 3 * S * S or out.len != p.tokens() * p.n_out) return error.SizeMismatch;
+    // IM8a: the tower resident on the GPU when it is switched on (neural_vit.zig); anything it declines runs below
+    if (nvit.enabled() and nvit.forward(.{ .ctx = @ptrCast(p.ctx), .n_layer = p.n_layer, .hidden = p.hidden, .heads = p.heads, .image = p.image, .patch = p.patch, .scale = p.scale, .eps = p.eps, .n_out = p.n_out }, input, out)) return;
 
     const MAX_NODES = 4096;
     const meta = c.ggml_init(.{ .mem_size = c.ggml_tensor_overhead() * MAX_NODES + c.ggml_graph_overhead_custom(MAX_NODES, false) + (1 << 20), .mem_buffer = null, .no_alloc = true }) orelse return error.OutOfMemory;

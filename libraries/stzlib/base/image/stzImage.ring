@@ -1147,8 +1147,11 @@ class stzImage from stzObject
 	#
 	#   note       the page is resized to 2048 on its long side and cut into 512 x 512 tiles, with one more view
 	#              of the whole page; each view is 64 rows for the decoder, which writes greedily, so the same
-	#              page gets the same tags. An English model. About 1.4 s a view and 50 ms a token: 35 seconds
-	#              for a page of a few paragraphs and a table. The decoder takes the engine's model slot. Every
+	#              page gets the same tags. An English model. The views go through the vision tower on the GPU
+	#              (engine/src/neural_vit.zig, IM8a: about 0.5 s a view on a free GPU, 2.6 to 3.5 times the CPU
+	#              graph and closer to the reference; StzEngineNeuralVisionGpu(0) puts the CPU graph back) and
+	#              the words cost 17 to 65 ms a token, more the longer the page's prompt: 30 to 60 seconds for a
+	#              page of a few paragraphs and a table. The decoder takes the engine's model slot. Every
 	#              call is recorded in the security ledger
 	#   example    ? StzImageQ("page.png").DocTags()
 	#              #--> <doctag><section_header_level_1><loc_47><loc_36><loc_402><loc_49>Results</section_header_level_1> ...
