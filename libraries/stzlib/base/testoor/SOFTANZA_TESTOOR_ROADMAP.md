@@ -32,6 +32,21 @@ plan item a node implements, which tours walked it).
 | a **face** (per language) | reading source into a tour record, launching a tour, what its errors look like |
 | the **library** (Ring today, Haro later) | the code graph readers, the court, refinement, diagrams, the intelligence layer |
 
+## 2b. Consumers outside Testoor
+
+**The Atelier (commit 74757d462, plane A1)** already runs whole test files as tours on a resident Ring++
+host and judges them with Testoor's own judge: it calls `Tour(path)` for the record and
+`_TravJudge(record, lines, ending, exit, wall)` for the verdict, the same five arguments the runner uses, and
+reports 15,186 of 20,278 `Then` lines judged. Two consequences for this roadmap.
+
+- **The judge's interface is now a public contract**, not an internal detail. Phase P3 replaces its body with Zig
+  but keeps `Tour()` and the five-argument judge call answering what they answer today, so the Atelier needs no change.
+  The earlier signature change of `_TravEndingOf` (a fifth argument, protocol commit) is safe because nothing
+  outside Testoor calls it; that is why the judge is the part to freeze.
+- **A resident host is the fastest runner we have.** It removes the 4 to 5 s child start without a new engine
+  build. Phase P2a (the Ring++ engine copy) therefore matters for running Testoor's *own* guards under `rnxc`, and
+  matters less for speed; the runner should learn to use a resident host as one more way to walk a tour.
+
 ## 3. The phases
 
 Each rung is a guard that fails before and passes after, a commit pushed to both remotes, and one
@@ -171,7 +186,7 @@ impact 51, refine 33.
 
 ## 8. Decisions the author owes
 
-1. **P2a**, the Ring++ engine copy: a heavy build that writes outside this repository. Do it once, or not yet.
+1. **P2a**, the Ring++ engine copy: a heavy build that writes outside this repository. Do it once, or not yet; with the Atelier as a fast path (section 2b) it is no longer the only way to a cheap tour.
 2. **P3**, the Zig core: approve the order in section 3 and the goldens as the acceptance test.
 3. **P6**, the first two items can start now. Say whether they come before P2.
 4. **P7**, which intelligence feature to build first. The recommendation is *explain a red stop*, because it only
