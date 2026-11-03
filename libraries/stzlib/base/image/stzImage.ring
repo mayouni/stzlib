@@ -500,6 +500,34 @@ class stzImage from stzObject
 		return new stzImageGrid(_StzImageMust(StzEngineImageToGrid(@nId, pnChannel)),
 			"y", "x")
 
+	# Returns the luminance of the text and of its background inside a box -- what a contrast ratio is
+	# computed from. Measures, never judges. The box's gray levels are split by Otsu and the side with fewer
+	# pixels is the ink; the text is the median of the quarter of the ink farthest from the split, and the
+	# background the median of the pixels at least 3 pixels from any ink. Luminance is WCAG 2.x relative
+	# luminance (sRGB), 0 for black and 1 for white.
+	#
+	#   paBox      [ x0, y0, x1, y1 ] in pixels from 0, both ends inside the box -- the box StzOcrModelLinesXT gives
+	#   returns    [ :text, :background, :spread, :ink, :bgpixels ]; :spread is the 2nd to 98th percentile range
+	#              of the background, :ink and :bgpixels how many pixels each figure stands on. :background
+	#              and :spread are "" when no pixel is 3 pixels from ink; [] when the box has one gray level
+	#   example    o1 = StzImageNew(40, 20, 3, 255)
+	#              o1.ApplyBox([ 11, 6, 12, 6 ], [ 51, 51, 51 ], 3)
+	#              aLum = o1.TextLuminanceInBox([ 0, 0, 39, 19 ])
+	#              ? aLum[:ink]
+	#              #--> 72
+	#              ? aLum[:background]
+	#              #--> 1
+	def TextLuminanceInBox(paBox)
+		if NOT (isList(paBox) and len(paBox) = 4)
+			stzraise("TextLuminanceInBox: the box is [ x0, y0, x1, y1 ]")
+		ok
+		_a_ = StzEngineImageTextLuminance(@nId, paBox[1], paBox[2], paBox[3], paBox[4])
+		if len(_a_) = 0 return [] ok
+		if _a_[5] = 0
+			return [ :text = _a_[1], :background = "", :spread = "", :ink = _a_[4], :bgpixels = 0 ]
+		ok
+		return [ :text = _a_[1], :background = _a_[2], :spread = _a_[3], :ink = _a_[4], :bgpixels = _a_[5] ]
+
 	#@ aka  -- 7. MORPHOLOGY AND SMOOTHING (IM1) --------------------------------------
 
 	# Returns a copy after a morphological operation, as OpenCV's morphologyEx.

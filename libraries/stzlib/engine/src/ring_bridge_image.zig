@@ -249,6 +249,20 @@ fn ring_DepthScore(p: *anyopaque) callconv(.c) void {
     R.ring_list_adddouble(out, n);
 }
 
+// IM7 facts: (image, x0, y0, x1, y1) 0-based box, both ends included -> [ text luminance, background luminance,
+// background spread, ink pixels, background pixels, Otsu split ] (image.textLuminance); [] on a flat box
+fn ring_TextLuminance(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    defer R.ring_vm_api_retlist(p, out);
+    const r = img.textLuminance(id(p, 1), id(p, 2), id(p, 3), id(p, 4), id(p, 5)) orelse return;
+    R.ring_list_adddouble(out, r.fg);
+    R.ring_list_adddouble(out, r.bg);
+    R.ring_list_adddouble(out, r.spread);
+    R.ring_list_adddouble(out, @floatFromInt(r.n_ink));
+    R.ring_list_adddouble(out, @floatFromInt(r.n_bg));
+    R.ring_list_adddouble(out, @floatFromInt(r.t));
+}
+
 // IM6: (image, mask) -> an RGBA copy whose alpha is the mask's gray
 fn ring_WithMask(p: *anyopaque) callconv(.c) void {
     retF(p, img.withMask(id(p, 1), id(p, 2)));
@@ -669,6 +683,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineimagecomponents", .func = &ring_Components },
     .{ .name = "stzengineimagecomponentat", .func = &ring_ComponentAt },
     .{ .name = "stzengineimagedepthscore", .func = &ring_DepthScore },
+    .{ .name = "stzengineimagetextluminance", .func = &ring_TextLuminance },
     .{ .name = "stzengineimagefft2", .func = &ring_Fft2 },
     .{ .name = "stzengineimagegridargmax", .func = &ring_GridArgMax },
     .{ .name = "stzengineimagecompare", .func = &ring_Compare },

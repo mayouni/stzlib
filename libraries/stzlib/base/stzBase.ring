@@ -746,6 +746,7 @@ load "service/stzPispiQr.ring"    # the twin of the hub served over HTTP, with O
     load "image/stzImageSearch.ring"  # IM5: SigLIP2 -- pictures and words in one space: ClassifyAs, Search
     load "ocr/stzOcr.ring"             # OCR as a faculty: the platform floor, a model only when measured better
     load "ocr/stzOcrInspect.ring"      # see what OCR read and where: the image and its reading, linked both ways
+    load "ocr/stzScreenshotFacts.ring" # a screenshot reduced to the facts a legibility audit judges (zui-audit-facts 1.0)
 
     load "file/stzFolderWatcher.ring"  # Engine-backed folder watcher (Zig)
 

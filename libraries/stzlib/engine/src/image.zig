@@ -686,6 +686,160 @@ pub fn threshold(id: i64, t: i64) i64 {
     return adopt(im.w, im.h, 1, out);
 }
 
+// ------------------------------------------------------------------ text luminance
+
+/// WCAG 2.x relative luminance of one sRGB pixel, 0 (black) to 1 (white).
+fn wcagLuminance(im: *const Image, i: usize) f64 {
+    const s = im.px[i * im.c ..];
+    const r = srgbLinear(s[0]);
+    if (im.c == 1) return r;
+    return 0.2126 * r + 0.7152 * srgbLinear(s[1]) + 0.0722 * srgbLinear(s[2]);
+}
+
+fn srgbLinear(v: u8) f64 {
+    const x = @as(f64, @floatFromInt(v)) / 255.0;
+    return if (x <= 0.04045) x / 12.92 else std.math.pow(f64, (x + 0.055) / 1.055, 2.4);
+}
+
+fn quantile(sorted: []const f64, q: f64) f64 {
+    const pos = q * @as(f64, @floatFromInt(sorted.len - 1));
+    const lo: usize = @intFromFloat(@floor(pos));
+    const hi = @min(lo + 1, sorted.len - 1);
+    return sorted[lo] + (sorted[hi] - sorted[lo]) * (pos - @floor(pos));
+}
+
+pub const TextLuminance = struct {
+    fg: f64,
+    bg: f64,
+    spread: f64,
+    n_ink: usize,
+    n_bg: usize,
+    t: i64,
+};
+
+/// The text and background luminance inside the box x0..x1, y0..y1 (0-based, both ends included, clamped to
+/// the image) -- what a contrast ratio is computed from. MEASURES, never judges:
+///   - the box's gray levels are split by Otsu; the side with FEWER pixels is the ink
+///   - the text colour is the median luminance of the quarter of the ink pixels farthest from the split
+///     (antialiased edges lie near the split, so a median over all ink would lighten thin text)
+///   - the background is the median luminance of the other side's pixels at least 3 pixels from any ink pixel
+///     (Chebyshev distance), and its spread is their 2nd to 98th percentile range
+/// null when the box is flat (one gray level), and n_bg 0 when no background pixel is far enough from ink.
+pub fn textLuminance(id: i64, bx0: i64, by0: i64, bx1: i64, by1: i64) ?TextLuminance {
+    const im = images.get(id) orelse return null;
+    const W: i64 = im.w;
+    const H: i64 = im.h;
+    const x0: usize = @intCast(std.math.clamp(bx0, 0, W - 1));
+    const y0: usize = @intCast(std.math.clamp(by0, 0, H - 1));
+    const x1: usize = @intCast(std.math.clamp(bx1, 0, W - 1));
+    const y1: usize = @intCast(std.math.clamp(by1, 0, H - 1));
+    if (x1 < x0 or y1 < y0) return null;
+    const bw = x1 - x0 + 1;
+    const bh = y1 - y0 + 1;
+    const n = bw * bh;
+    // Otsu over the box's own histogram
+    var hist = [_]u64{0} ** 256;
+    for (0..bh) |yy| {
+        for (0..bw) |xx| hist[grayOf(im, (y0 + yy) * im.w + x0 + xx)] += 1;
+    }
+    const total: f64 = @floatFromInt(n);
+    var sum_all: f64 = 0;
+    for (hist, 0..) |c, v| sum_all += @as(f64, @floatFromInt(v)) * @as(f64, @floatFromInt(c));
+    var w0: f64 = 0;
+    var sum0: f64 = 0;
+    var best: f64 = -1;
+    var t: usize = 0;
+    for (hist, 0..) |c, v| {
+        w0 += @floatFromInt(c);
+        sum0 += @as(f64, @floatFromInt(v)) * @as(f64, @floatFromInt(c));
+        const w1 = total - w0;
+        if (w0 == 0 or w1 == 0) continue;
+        const m0 = sum0 / w0;
+        const m1 = (sum_all - sum0) / w1;
+        const between = w0 * w1 * (m0 - m1) * (m0 - m1);
+        if (between > best + 1e-9) {
+            best = between;
+            t = v;
+        }
+    }
+    if (best < 0) return null;
+    var n_dark: usize = 0;
+    for (hist[0 .. t + 1]) |c| n_dark += c;
+    const ink_dark = n_dark <= n - n_dark;
+    const ink = alloc.alloc(u8, n) catch return null;
+    defer alloc.free(ink);
+    var n_ink: usize = 0;
+    for (0..bh) |yy| {
+        for (0..bw) |xx| {
+            const g = grayOf(im, (y0 + yy) * im.w + x0 + xx);
+            const is_ink = if (ink_dark) g <= t else g > t;
+            ink[yy * bw + xx] = @intFromBool(is_ink);
+            n_ink += @intFromBool(is_ink);
+        }
+    }
+    // the ink pixels, farthest from the split first
+    const Far = struct { d: usize, l: f64 };
+    const inks = alloc.alloc(Far, n_ink) catch return null;
+    defer alloc.free(inks);
+    var k: usize = 0;
+    for (0..bh) |yy| {
+        for (0..bw) |xx| {
+            if (ink[yy * bw + xx] == 0) continue;
+            const i = (y0 + yy) * im.w + x0 + xx;
+            const g: usize = grayOf(im, i);
+            inks[k] = .{ .d = if (g > t) g - t else t - g, .l = wcagLuminance(im, i) };
+            k += 1;
+        }
+    }
+    std.sort.pdq(Far, inks, {}, struct {
+        fn gt(_: void, a: Far, b: Far) bool {
+            return a.d > b.d;
+        }
+    }.gt);
+    const n_core = @max(1, n_ink / 4);
+    const far = alloc.alloc(f64, n_core) catch return null;
+    defer alloc.free(far);
+    for (0..n_core) |j| far[j] = inks[j].l;
+    std.sort.pdq(f64, far, {}, std.sort.asc(f64));
+    // the background far from any ink: a 7x7 dilation of the ink (two passes of a running max)
+    const near = alloc.alloc(u8, n) catch return null;
+    defer alloc.free(near);
+    const R: usize = 3;
+    for (0..bh) |yy| {
+        for (0..bw) |xx| {
+            var v: u8 = 0;
+            const xa = if (xx >= R) xx - R else 0;
+            const xb = @min(bw - 1, xx + R);
+            for (xa..xb + 1) |q| v |= ink[yy * bw + q];
+            near[yy * bw + xx] = v;
+        }
+    }
+    const bgs = alloc.alloc(f64, n) catch return null;
+    defer alloc.free(bgs);
+    var n_bg: usize = 0;
+    for (0..bh) |yy| {
+        for (0..bw) |xx| {
+            const ya = if (yy >= R) yy - R else 0;
+            const yb = @min(bh - 1, yy + R);
+            var v: u8 = 0;
+            for (ya..yb + 1) |q| v |= near[q * bw + xx];
+            if (v != 0) continue;
+            bgs[n_bg] = wcagLuminance(im, (y0 + yy) * im.w + x0 + xx);
+            n_bg += 1;
+        }
+    }
+    const bg = bgs[0..n_bg];
+    std.sort.pdq(f64, bg, {}, std.sort.asc(f64));
+    return .{
+        .fg = quantile(far, 0.5),
+        .bg = if (n_bg > 0) quantile(bg, 0.5) else 0,
+        .spread = if (n_bg > 0) quantile(bg, 0.98) - quantile(bg, 0.02) else 0,
+        .n_ink = n_ink,
+        .n_bg = n_bg,
+        .t = @intCast(t),
+    };
+}
+
 // ------------------------------------------------------------------ grids
 
 pub fn adoptGrid(rows: usize, cols: usize, data: []f64) i64 {
