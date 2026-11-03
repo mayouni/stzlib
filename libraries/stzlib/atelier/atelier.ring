@@ -28,6 +28,17 @@
 #                            returned; 500 and its error; 422 when it could not be
 #                            admitted, or released (code that defines a class or a
 #                            lambda stays, and says so); 503 while the library compiles
+#   POST /atelier/tour       the body is a FOLDER on its first line and a whole narrated
+#                            test file after it (its loads of the library dropped by the
+#                            client, see atelierClient.ring): the Atelier moves to that
+#                            folder, admits the file whole -- its top level runs where
+#                            admitcode stands, its Scenario/Then calls land on the
+#                            recording verbs below -- releases it, moves back, and answers
+#                            200 with one header line
+#                              end<TAB>finished|broke|not-started<TAB>ms<TAB>released|kept: why<TAB>error
+#                            followed by the trail: the very lines base/test/_narrated.ring
+#                            would have printed, so testoor's judge reads them unchanged
+#   GET  /atelier/tours      tours.json, the last sweep of whole files (or null)
 #   POST /atelier/stop       answers, then the loop ends
 #
 # WHAT JUDGES A CHECK is named in /atelier/state and on the page: the library's
@@ -49,6 +60,17 @@ $nAtelierLibrarySeconds = 0
 $nAtelierServed = 0
 $nAtelierRuns = 0
 $nAtelierRefused = 0
+$nAtelierTours = 0
+
+# the trail of a whole file admitted as a tour, and the tallies the narrated
+# helper keeps under the names a test may read
+$cAtelierTrail = ""
+$_zst_total = 0
+$_zst_pass = 0
+$_zst_fail = 0
+$_zst_scen_pass = 0
+$_zst_scen_fail = 0
+$_zst_scen_title = ""
 
 if NOT fexists($cAtelierLibrary + "/stzLib.ring")
 	? "atelier: no stzLib.ring in " + $cAtelierLibrary + " -- set STZ_ATELIER_LIBRARY, or :library in a settings file"
@@ -101,12 +123,17 @@ func AtelierServe
 			rpp_http_reply(200, "application/json; charset=utf-8", AtelierJsonFile("results.json"))
 		but cMethod = "GET" and cPath = "/atelier/verdicts"
 			rpp_http_reply(200, "application/json; charset=utf-8", AtelierJsonFile("verdicts.json"))
+		but cMethod = "GET" and cPath = "/atelier/tours"
+			rpp_http_reply(200, "application/json; charset=utf-8", AtelierJsonFile("tours.json"))
+		but cMethod = "POST" and cPath = "/atelier/tour"
+			AtelierTourOnce(rpp_http_body())
 		but cMethod = "GET" and cPath = "/atelier/state"
 			rpp_http_reply(200, "application/json; charset=utf-8", AtelierStateJson())
 		but cMethod = "POST" and cPath = "/atelier/run"
 			AtelierRunOnce(rpp_http_body(), rpp_http_query())
 		but cMethod = "POST" and cPath = "/atelier/stop"
 			rpp_http_reply(200, "text/plain", "stopping")
+			AtelierRemovePid()
 			exit
 		else
 			rpp_http_reply(404, "text/plain", "no route for " + cMethod + " " + cPath)
@@ -124,6 +151,7 @@ func AtelierAdvance
 	try
 		admitfinish()
 		$cAtelierState = "admitted"
+		AtelierWritePid()
 	catch
 		$cAtelierState = "refused"
 		$cAtelierWhy = cCatchError
@@ -162,6 +190,110 @@ func AtelierRunOnce cSource, cInput
 	done
 	rpp_http_reply(nStatus, "text/plain; charset=utf-8", cOut)
 
+# a whole test file admitted as one tour: its top level runs inside admitcode,
+# in the file's own folder (a test reads its data relative to itself), and
+# what its Scenario/Then calls would have printed is the trail answered. A
+# runtime error stops the top level and is the tour's ending (broke); a file
+# that does not compile never started; a file that defines a class cannot be
+# released and stays (kept), so it runs once per server life
+func AtelierTourOnce cBody
+	if $cAtelierState != "admitted"
+		rpp_http_reply(503, "text/plain", "the library is " + $cAtelierState + " " + $cAtelierWhy)
+		return
+	ok
+	nNl = substr(cBody, char(10))
+	cFolder = ""
+	cSource = cBody
+	if nNl > 0
+		cFolder = trim(substr(left(cBody, nNl - 1), char(13), ""))
+		cSource = substr(cBody, nNl + 1)
+	ok
+	$cAtelierTrail = ""
+	$_zst_total = 0  $_zst_pass = 0  $_zst_fail = 0  $_zst_scen_pass = 0  $_zst_scen_fail = 0  $_zst_scen_title = ""
+	if cFolder != ""
+		chdir(cFolder)
+	ok
+	nT0 = clock()
+	cEnd = "finished"
+	cErr = ""
+	bAdmitted = 1
+	try
+		admitcode("tour", cSource)
+	catch
+		cErr = substr(substr(cCatchError, char(13), ""), char(10), " ")
+		if substr(cErr, "not admitted") > 0
+			cEnd = "not-started"
+			bAdmitted = 0
+		but substr(cErr, "STOPPED!") > 0
+			# pf() ends a test by raising its banner: the tour finished, timed
+			cEnd = "finished-timed"
+			cErr = ""
+		else
+			cEnd = "broke"
+		ok
+	done
+	nMs = floor((clock() - nT0) * 1000 / clockspersecond())
+	cRel = "released"
+	if bAdmitted
+		try
+			releasecode("tour")
+			$nAtelierTours++
+		catch
+			cRel = "kept: " + substr(substr(cCatchError, char(13), ""), char(10), " ")
+		done
+	else
+		cRel = "nothing to release"
+	ok
+	chdir($cAtelierLibrary)
+	cHead = "end" + char(9) + cEnd + char(9) + nMs + char(9) + cRel + char(9) + cErr
+	rpp_http_reply(200, "text/plain; charset=utf-8", cHead + char(10) + $cAtelierTrail)
+
+#--- the narrated verbs, recording what base/test/_narrated.ring prints -----
+# (same lines, same tallies, so a tour reads as the suite reads it and
+# testoor's judge pairs the trail with the reader's claims by text)
+
+func Scenario cTitle
+	$_zst_scen_title = cTitle
+	$_zst_scen_pass = 0
+	$_zst_scen_fail = 0
+	$cAtelierTrail += char(10) + "SCENARIO: " + cTitle + char(10)
+
+func Given cText
+	$cAtelierTrail += "  GIVEN " + cText + char(10)
+
+func When cText
+	$cAtelierTrail += "  WHEN  " + cText + char(10)
+
+func Then cText, xActual, xExpected
+	if xActual = xExpected
+		$cAtelierTrail += "  THEN  " + cText + "  [PASS]" + char(10)
+		$_zst_scen_pass++
+		$_zst_pass++
+	else
+		$cAtelierTrail += "  THEN  " + cText + "  [FAIL]" + char(10)
+		$cAtelierTrail += "    expected: " + @@(xExpected) + char(10)
+		$cAtelierTrail += "    got:      " + @@(xActual) + char(10)
+		$_zst_scen_fail++
+		$_zst_fail++
+	ok
+	$_zst_total++
+
+func EndScenario
+	$cAtelierTrail += "  -> " + $_zst_scen_pass + " pass, " + $_zst_scen_fail + " fail" + char(10)
+
+func Summary
+	$cAtelierTrail += char(10) + "TOTAL: " + $_zst_total + " assertions, " + $_zst_pass + " pass, " + $_zst_fail + " fail" + char(10)
+	if $_zst_fail > 0
+		$cAtelierTrail += "STATUS: FAILED" + char(10)
+	else
+		$cAtelierTrail += "STATUS: OK" + char(10)
+	ok
+
+# a tour's own `shutdown(n)` or `bye`, rewritten by the client to this: the
+# server is not the tour's to end, so the ask is recorded and the tour goes on
+func AtelierShutdown nCode
+	$cAtelierTrail += "  (shutdown " + nCode + " asked by the tour; the Atelier stays)" + char(10)
+
 #--- what a check and the playground answer with ---------------------------
 
 # a narrated assertion, decided as base/test/_narrated.ring decides it: `=`,
@@ -178,6 +310,21 @@ func AtelierShow vValue
 		return vValue
 	ok
 	return @@(vValue)
+
+# the process id, written beside atelier.ring once the library is admitted
+# (ProcessId() is the library's), so a client can end an Atelier that no
+# longer answers; removed on a stop
+func AtelierWritePid
+	try
+		write($cAtelierDir + "/_atelier_" + $nAtelierPort + ".pid", "" + ProcessId() + char(10))
+	catch
+	done
+
+func AtelierRemovePid
+	cPid = $cAtelierDir + "/_atelier_" + $nAtelierPort + ".pid"
+	if fexists(cPid)
+		remove(cPid)
+	ok
 
 #--- the state, as JSON written by hand (no library is needed for it) --------
 

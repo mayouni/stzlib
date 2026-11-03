@@ -82,6 +82,12 @@ details.dom summary { cursor: pointer; display: flex; justify-content: space-bet
 .chk { display: grid; grid-template-columns: 74px 1fr auto; gap: 8px; padding: 6px 0; border-top: 1px dashed var(--border); font-size: 14px; }
 .chk .meta { color: var(--text-muted); font-size: 12px; }
 .chk.changed { background: color-mix(in srgb, var(--warning) 12%, transparent); }
+table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
+th, td { text-align: right; padding: 5px 8px; border-bottom: 1px solid var(--border); }
+th:first-child, td:first-child { text-align: left; }
+th { color: var(--text-secondary); font-weight: 600; }
+.tablewrap { overflow-x: auto; }
+tr.total td { font-weight: 650; border-top: 2px solid var(--border); }
 @media (max-width: 600px) { .chk { grid-template-columns: 64px 1fr; } .chk .t { grid-column: 2; } }
 </style>
 </head>
@@ -102,6 +108,7 @@ details.dom summary { cursor: pointer; display: flex; justify-content: space-bet
 <nav role="tablist">
   <button role="tab" aria-selected="true" data-tab="checks">Checks</button>
   <button role="tab" aria-selected="false" data-tab="play">Playground</button>
+  <button role="tab" aria-selected="false" data-tab="cover">Coverage</button>
 </nav>
 
 <section id="checks" class="on">
@@ -117,6 +124,14 @@ details.dom summary { cursor: pointer; display: flex; justify-content: space-bet
     <p class="small muted" id="chkinfo"></p>
   </div>
   <div class="card" id="chklist"><p class="muted">Each check is one <code>Then(...)</code> from Softanza's narrated suites, run as the suite runs it: admitted into the live program as <code>func Run</code>, called, and released. Press Run.</p></div>
+</section>
+
+<section id="cover">
+  <div class="card">
+    <p class="small muted" style="margin-top:0">Whole test files run as one admission each on the resident Atelier (<code>tours.ring</code>, a maintainer's sweep), judged by testoor's judge. A Then line is <b>judged</b> when it is kept or diverged; <b>unreached</b> when its file broke or never started before it; <b>unjudged</b> when the file finished without walking it. The checks tab is the floor; this is the ceiling.</p>
+    <div id="coverhead" class="muted">No sweep recorded yet: run <code>rnxc tours.ring</code> from the Atelier's folder.</div>
+  </div>
+  <div class="card" id="covertable" style="display:none"></div>
 </section>
 
 <section id="play">
@@ -293,6 +308,20 @@ let shown = [];
 $('#runchecks').onclick = () => { const d = $('#domain').value; shown = CHECKS.filter(c => d === '*' || c.domain === d); runChecks(shown); };
 $('#runfailed').onclick = () => runChecks(shown.filter(c => results[c.id] && results[c.id].kind !== 'pass'));
 $('#show').onchange = () => renderChecks(shown);
+
+// ---- coverage: the last sweep of whole files
+fetch('/atelier/tours').then(r => r.json()).then(T => {
+  if (!T || !T.totals) return;
+  const pct = (a, b) => b ? (100 * a / b).toFixed(1) + '%' : '-';
+  const t = T.totals;
+  $('#coverhead').className = '';
+  $('#coverhead').innerHTML = `<b>${t.judged.toLocaleString('en-US')} of ${t.claims.toLocaleString('en-US')} Then lines judged (${pct(t.judged, t.claims)})</b> across ${t.files.toLocaleString('en-US')} narrated files: ${t.kept.toLocaleString('en-US')} kept, ${t.diverged} diverged, ${t.unreached.toLocaleString('en-US')} unreached, ${t.unjudged.toLocaleString('en-US')} unjudged${t.extra ? '; ' + t.extra.toLocaleString('en-US') + ' verdicts from Then calls the reader had no line for' : ''}. Files: ${t.finished} finished, ${t.broke} broke, ${t.not_started} never started, ${t.hung} hung, ${t.kept_code} kept their code. Taken ${esc(T.taken)}, judged by the library ${esc(T.library)}, rnxc ${esc(T.rnxc)}, the engine ${esc(T.engine)}; ${(t.ms / 1000).toFixed(0)} s of tours.`;
+  const row = (name, d, cls) => `<tr class="${cls}"><td>${esc(name)}</td><td>${d.files}</td><td>${d.finished}</td><td>${d.broke}</td><td>${d.not_started}</td><td>${d.hung}</td><td>${d.claims}</td><td>${d.judged}</td><td>${pct(d.judged, d.claims)}</td><td>${d.kept}</td><td>${d.diverged}</td><td>${d.unreached}</td><td>${d.unjudged}</td><td>${(d.ms / 1000).toFixed(1)}</td></tr>`;
+  let h = `<div class="tablewrap"><table><thead><tr><th>domain</th><th>files</th><th>finished</th><th>broke</th><th>never started</th><th>hung</th><th>Then lines</th><th>judged</th><th>judged %</th><th>kept</th><th>diverged</th><th>unreached</th><th>unjudged</th><th>s</th></tr></thead><tbody>`;
+  Object.keys(T.domains).sort().forEach(k => h += row(k, T.domains[k], ''));
+  h += row('every domain', t, 'total') + '</tbody></table></div>';
+  $('#covertable').innerHTML = h; $('#covertable').style.display = '';
+}).catch(() => {});
 
 // ---- the playground
 async function play() {

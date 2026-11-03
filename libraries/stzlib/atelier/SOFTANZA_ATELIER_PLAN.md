@@ -66,11 +66,13 @@ measured side by side.
 | `atelier.html` | the page: the checks by domain, the playground |
 | `atelierClient.ring` | functions a Ring program uses to boot an Atelier, run checks over HTTP, compare two recordings, write a results file (the guard and the recorder load it after the library) |
 | `record.ring` | maintainer: boots an Atelier, runs every check, writes `results.json`; `rnxc record.ring` from this folder |
+| `tours.ring` | maintainer (A1): boots an Atelier, runs every narrated file of `base/test` WHOLE as one tour each, judged by testoor's judge, writes `tours.json`; `rnxc tours.ring [--topic T]` from this folder |
 | `harvest.py` | maintainer: harvests `checks.json` from `../base/test` (or `--tests=`) |
 | `verdicts.py` | maintainer: Ring's verdicts, `RING` and `RING_TREE` from the environment |
 | `checks.json` | the checks: id, domain, file, line, scenario, description, code |
 | `results.json` | the last recording: what judged it, the counts, each check's state -- the guard's baseline |
 | `verdicts.json` | Ring's answers, and what they were taken on |
+| `tours.json` | the last sweep of whole files (A1): what judged them, the totals, every domain, every file |
 
 Settings, in this order: a config file admitted before the app
 (`rnxc resident my_settings.ring atelier.ring`, holding
@@ -83,7 +85,11 @@ Routes, all under `/atelier`: `GET /atelier` the page (`/` too), `GET /atelier/c
 library stands, what judged it, the counts), `POST /atelier/run` (the body defines
 `func Run cInput`; admitted, called, released: 200 and what Run returned, 500 and its
 error, 422 when it could not be admitted or released, 503 while the library compiles),
-`POST /atelier/stop`.
+`POST /atelier/tour` (A1: the body is a folder on its first line and a whole narrated test
+file after it; the Atelier moves to that folder, admits the file whole, releases it, moves
+back, and answers a header line -- `end`, finished | finished-timed | broke | not-started,
+the milliseconds, released or kept, the error -- followed by the trail, the very lines
+`base/test/_narrated.ring` would have printed), `GET /atelier/tours`, `POST /atelier/stop`.
 
 ## 4. The ladder
 
@@ -100,16 +106,32 @@ library commit, the tool as it stood and the Atelier side by side. Guard:
 `base/test/atelier/atelier_narrated.ring` -- boots an Atelier, runs every check over HTTP,
 and fails when a check's verdict moved against `results.json`.
 
-### A1 -- Coverage -- PLANNED
+### A1 -- Coverage -- DONE 2026-11-03 (journal below)
 
-13,092 `Then` lines wait on the variables their scenario set up. Run a WHOLE scenario as one
-admission on the resident server (admit, run, release: about a millisecond at Softanza's
-size, where a child process costs 4-5 s before its first line). Read the tests through
-testoor's reader (`Tour`, `stzLogbook` JSON), never a second harvester. Keep the five stop
-states apart -- kept, diverged, unreached, unjudged, unperceived -- and never fold them
-into pass and fail. Agree with testoor's runner on the files both judge: that agreement is
-the court. Coverage is `Then` lines judged over the 19,604, per domain; the harvested
-checks are the floor.
+13,727 of the 20,460 `Then` lines (at 90f2c01b0) wait on the variables their scenario set
+up. A WHOLE FILE runs as one admission on the resident Atelier: the client
+(`AtelierTourSource`) drops the file's loads of the library and of the narrated helper
+(the base holds both), rewrites a top-level `shutdown()` or `bye` to `AtelierShutdown()`
+(recorded, never obeyed), and posts the file with its folder; the Atelier moves to that
+folder (a test reads its data relative to itself), admits the file -- its top level runs
+inside `admitcode`, its `Scenario`/`Then` calls land on the Atelier's recording verbs,
+which write the very lines `_narrated.ring` prints -- releases it, and answers the trail.
+
+**The judge is testoor's, not a second one.** `AtelierRunTour` reads the file with
+testoor's reader (`Tour`), hands the trail to testoor's judge (`_TravJudge`) exactly as
+the traveller hands it a child's output, and the five states come out of the same
+function: kept, diverged, unreached (the file broke or never started before the claim),
+unjudged (the file finished without walking it), unperceived (TR6). A tour's ending is
+the server's header: finished, finished-timed (`pf()` ends a test by raising its banner),
+broke (a runtime error at the top level), not-started (the file does not compile or
+scan); hung is the client's (no answer in 60 s: the sweep kills and reboots the Atelier).
+
+**The court** is testoor's own runner -- a child rnxc per tour, since 7578805d4 -- walked
+on the same files and compared claim by claim (`AtelierDisagreements`); the guard names
+every disagreement. **Coverage** is the `Then` lines the reader read that were judged
+(kept or diverged) over all it read, per domain, in `tours.json` and on the page's
+Coverage tab; the harvested checks are the floor, this is the ceiling. A file that defines
+a class cannot be released and stays (kept code): it runs once per server life.
 
 ### A2 -- The experience -- PLANNED
 
@@ -126,6 +148,13 @@ their results and the page in read-only mode, built by one command -- for the si
 cannot run code, and the books, which pin a commit. (c) An embed contract: how a page or a
 book cites a check (an id at a commit) and shows it; handed to stzsite and ayouni through
 Central.
+
+### A4 -- Haro tours -- WAITS ON HARO
+
+Ring is retired and Haro is coming (its own repository, standing alone). A tour written
+as a `.haro` file is a new dialect for testoor's reader and a new child program for its
+runner, and a new admission for the Atelier; none of that exists before Haro's test form
+does. Named here so it is a rung and not a surprise.
 
 ## 5. Journal
 
@@ -192,3 +221,92 @@ judges its own on whatever engine rnxc finds -- and says which. The checks commi
 main's harvest (1,122), not the parity set (1,100): the Atelier's content is the tree's.
 The verdicts stay in the tree with what they were taken on, and the page's Ring column
 stays off every public edition until the author rules on it.
+
+### A1 -- 2026-11-03 -- coverage: whole files as tours
+
+**The court agrees.** Four real narrated files (adverb, uuid, common/slice_primitives,
+string/00_string) walked by testoor's own runner (a child rnxc each, since 7578805d4) and
+admitted whole on the Atelier: the same judge (`_TravJudge`) on both trails, 0
+disagreements on 101 claims, the four tours kept on both sides. The Atelier's admission
+of each took 0.03 to 0.10 s against 1.1 to 2.7 s for a warm child and 146 s for a child
+paying its tour's first compile.
+
+**Measured on the way, and each one changed the design:**
+
+- *A pipe nobody drains blocks the server.* The first boot of the Atelier from a Ring
+  client used the engine's argv spawn, whose stdout is a pipe; a tour that prints a few
+  kilobytes (every `?` of a test file lands on the server's stdout) filled it and the
+  server blocked on write, the client waited its 300 s deadline, and the guard stalled for
+  25 minutes. The client now boots the Atelier through the shell with its output to
+  `_atelier_<port>.log`; since the shell is then what `Kill()` reaches, the Atelier writes
+  `_atelier_<port>.pid` once its library is admitted and `AtelierKill()` ends it by that
+  pid. A path with a space is refused rather than mangled (the shell form dies silently on
+  a quote). The engine's argv spawn deserves a stdout-to-file variant; routed as a note,
+  not built here, because the Atelier must run on the engine the install carries.
+- *Ring++ runs a file up to the first statement it refuses.* A tour with a promise before
+  a syntax error starts, keeps the promise and breaks there (exit 1); under Ring it ran
+  nothing. The planted "not-started" tour is therefore a scanner error (an unclosed
+  literal), which no runtime starts. testoor's promises guard moved its expectation with
+  the same reason (7578805d4).
+- *`pf()` ends a test by raising its banner.* On the resident server that raise comes out
+  of `admitcode` as an error whose text is `STOPPED!`; the route reads it as
+  finished-timed, as testoor's ending classifier does on a child's output.
+- *A tour's `shutdown()` or `bye` would end the server.* The client rewrites a top-level
+  `shutdown(n)` or `bye` to `AtelierShutdown(n)`, which records the ask in the trail; the
+  tour goes on and the server stays. 41 narrated files carry one.
+- *A file that defines a class stays.* The resident VM cannot release a class whose objects
+  could outlive it; the sweep counts such files as kept code (24 narrated files define a
+  class) and the same file cannot be admitted twice in one server life.
+- *Constants cannot be clobbered through a Rule-A global under rnxc.* `$NL = 42` inside a
+  function leaves `NL` a newline, measured; so a hostile-globals tour does not poison the
+  resident program for the tours after it. The court keeps clear of that file all the same.
+- *The machine throttled mid-session.* The heartbeat fell from 160% to 53% (battery) for
+  about forty minutes: library compiles went 20 s to 110 s and a child's first compile 35 s
+  to 123 s. Figures taken in that window are named so and not quoted; the figures above
+  were taken fit to measure.
+- *A testoor child's first walk after a library change pays its compile.* rnxc keeps one
+  compiled image per main file; every tour's image is stale once the library changes.
+  Warm, a child walks a tour in 0.15 to 2 s. That is testoor's tax and the reason a sweep
+  of whole files belongs on the resident Atelier, where a tour's admission is a few
+  milliseconds and the library is compiled once.
+
+**The sweep** (`tours.ring`, every narrated file of `base/test` at this commit, one
+admission each, judged by testoor's judge, written to `tours.json` and shown on the page's
+Coverage tab), on the library at 7578805d4 with the package's engine (built for
+0950e246a), rnxc a8ad844:
+
+| | |
+|---|---|
+| narrated tours | 1,417 run, 4 skipped by name (the Atelier's and testoor's own guards boot programs of their own) |
+| how they ended | 1,322 finished, 32 broke, 55 never started, 8 hung (60 s deadline), 41 kept their class and cost a reboot |
+| Then lines read by the reader | **20,278** (the harvester's regex counted 20,460 at 90f2c01b0) |
+| judged | **15,186, 74.9 percent**: 15,050 kept, 136 diverged |
+| not judged | 4,941 unreached (behind a refusal, a break or a hang), 151 unjudged (a branch not taken) |
+| verdicts the reader had no line for | 1,857 (a Then in a loop, or built from a variable) |
+| domains | 98; 60 judged whole, 6 with nothing judged |
+| the tours' own time | 943 s of admissions and runs; the sweep 30 minutes with its 49 reboots, the CPU fit to measure (an earlier pass, throttled and beside two other desks' guards, took 43 minutes to the same counts within two tours) |
+
+The floor was 1,122 checks, 5.5 percent of the Then lines; the ceiling judged today is
+74.9 percent, and the page shows both. Where the rest is:
+
+- **54 of the 55 never started are one refusal**: `bare name is not a local (Rule A)` --
+  the file's function reads a top-level variable without `$`. Measured on the smallest
+  program (`c = "x"` at the top, `func F return c`): `rnxc file.ring` compiles the top
+  level, refuses the function and runs until the call; `admitcode` of the same text
+  refuses the whole admission. So as a child those tours break at the first such call
+  and as an admission they never start; either way the files are not Rule-A clean, and
+  they are named in `tours.json` for their owners. Whether an admission could be
+  statement-level like the whole compile is a question for Ring++, routed as one.
+- **32 broke**: 8 R3 (a function the library lacks on this engine, or a name the file
+  expects), 5 R2, 5 R24, 3 R41, 2 R35, 2 a test that reads `sysargv` as its own path
+  (the education course), 1 an OCR model not installed, 1 a vault that answered -1, 1 a
+  missing entry, and so on -- each named with its line in `tours.json`. A tour that
+  breaks or hangs never reaches its own clean-up: the sweep leaves their temporaries in
+  the test folders (named `_tmp`, `_gen`), to be removed by hand and never staged.
+- **8 hung**: six cluster tours, the appserver real-host tour, and one more that wait on
+  a socket or a node that never comes in a resident program; killed at 60 s, the
+  Atelier booted again, and their Then lines after the wait are unreached.
+- **The largest domains**: string 2,735 of 2,876 judged (95 percent), list 1,199 of
+  1,276 (94), system 1,363 of 1,612 (85), regex 402 of 497 (81), number 1,630 of 2,103
+  (78), graph 797 of 1,080 (74), natural 553 of 839 (66), cluster 315 of 493 (64),
+  stats 341 of 794 (43), datetime 217 of 582 (37), network 178 of 694 (26).

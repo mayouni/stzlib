@@ -490,6 +490,29 @@ twin guard judges three projections of a nine-line panel. Both are a PRE-COMMIT 
 `base/file/stzHtml.ring`, `base/meta/stzTwinCoverage.ring`, the JSON faces and the GUI
 projections; develop a new section as a standalone probe first.
 
+## The Atelier: the library's own assertions run live (A0 and A1, 2026-11-03)
+
+`libraries/stzlib/atelier/` runs the narrated suites' `Then` lines live on Ring++'s
+resident VM: `rnxc resident atelier.ring` from that folder, then http://127.0.0.1:8650/atelier.
+Plan, law and journal: `atelier/SOFTANZA_ATELIER_PLAN.md`. Never call it a lab.
+
+**FAST PATH: the two guards, one process each, from `base/test/atelier`:**
+```bash
+cd libraries/stzlib/base/test/atelier && rnxc atelier_narrated.ring && rnxc atelier_tours_narrated.ring
+```
+The checks guard is 36 assertions in about 50 s warm; the tours guard 42 in about 3 minutes
+warm, of which the court's four child rnxc tours pay their compile again after any library
+change (35 s each). Each boots its own Atelier (ports 8660 and 8661) and stops it. The two
+maintainer sweeps -- `rnxc record.ring` (every check, writes results.json) and `rnxc
+tours.ring` (every narrated file whole, writes tours.json) -- are ONE heavy job each, never
+beside another.
+
+Three facts the Atelier paid for, so nobody pays twice: a child's stdout pipe nobody drains
+BLOCKS the child after a few kilobytes (boot a server with its output to a file); Ring++ runs
+a file up to the first statement it refuses (a syntax error is "broke", not "not-started");
+and the heartbeat is checked before EVERY timing, since the machine throttled mid-session
+and a 20 s compile read 110 s.
+
 ## Background tasks: prefer direct grep over `run_in_background`
 
 For ring-test sweeps that take >5 minutes, **don't** use
