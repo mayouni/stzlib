@@ -26,7 +26,8 @@ load "../_narrated.ring"
 #   nonesuch -> the runner refuses, exit 2
 #
 # Every exit code is read TWICE: from the traveller in this process, and
-# from a CHILD `ring testoor.ring ...` through the OS -- the $? a shell sees.
+# from a CHILD `rnxc testoor.ring ...` through the OS -- the $? a shell sees.
+# Every child is rnxc (Ring++): TestoorProgram() names it, never `ring`.
 
 ? "TESTOOR TR1 -- the runner"
 nTrStart = clock()
@@ -182,7 +183,7 @@ EndScenario()
 ? "        [section took " + ((clock() - nTrSec) / clockspersecond()) + "s]"
 
 #============================================================================
-Scenario("The exit code reaches the shell: 0, 1 and 2 read from a child ring testoor.ring")
+Scenario("The exit code reaches the shell: 0, 1 and 2 read from a child rnxc testoor.ring")
 	nTrSec = clock()
 	Given("testoor.ring run as a child, from its own folder, on each planted topic")
 	aPass = _TrShell(cTrTestoor, [ "--root", cTrPlant, "--topic", "pass", "--json" ])
@@ -290,7 +291,7 @@ func _TrUnplantAll(cRoot)
 # included
 func _TrShell(cTestoorDir, acArgs)
 	_oP_ = new stzProcess()
-	_acArgv_ = [ "ring", "testoor.ring" ]
+	_acArgv_ = [ TestoorProgram(), "testoor.ring" ]
 	_n_ = len(acArgs)
 	for _k_ = 1 to _n_
 		_acArgv_ + acArgs[_k_]

@@ -65,7 +65,7 @@ after the read.
 ### TR1 -- The runner -- DONE 2026-10-05
 
 `base/testoor/stzTraveller.ring` and the entry `base/testoor/testoor.ring` (run from
-its folder: `ring testoor.ring --topic uuid [--json] [--file F] [--all] [--root D]
+its folder: `rnxc testoor.ring --topic uuid [--json] [--file F] [--all] [--root D]
 [--timeout MS] [--by WHO]`). One runner process per batch; one child Ring per tour,
 started BY ARGV in the tour's own folder (Ring resolves `load` against the working
 directory), read as it prints, held to a deadline, then judged by pairing the
@@ -131,7 +131,7 @@ same tree; a fresh checkout must `zig build -j2` in `libraries/stzlib/engine`
 gate: reader 74, runner 80, promises 46 assertions, all green on the last commit.
 
 **What TR2's comparison found, and what was fixed on it** (promises.py vs
-`ring testoor.ring --topic X --json`, outputs kept under `D:\GitHub\_wtt\.central\
+`rnxc testoor.ring --topic X --json`, outputs kept under `D:\GitHub\_wtt\.central\
 testoor-cmp-2026-10-05\`, ignored by git):
 
 | topic | Python read / kept / diverged | Ring read / kept / diverged | verdict |
@@ -150,7 +150,7 @@ char** (the author stopped the session at the start of that re-run). Python coun
 Ring's 28 "broke" files on char are the truer figure: each carries an `Error (R..)`
 (methods without definition: sizeinchars, reverted, stzcharerror ...).
 
-**Next move:** re-run `ring testoor.ring --topic locale --json` and `--topic char
+**Next move:** re-run `rnxc testoor.ring --topic locale --json` and `--topic char
 --json` from `base/testoor` (6 and 11 minutes, one at a time, foreground), compare
 with `cmp_promises.py` (a copy sits beside the outputs), file the TR2 memo in
 `softanza/memos/`, then TR3.

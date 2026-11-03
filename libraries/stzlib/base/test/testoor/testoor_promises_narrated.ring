@@ -21,7 +21,11 @@ load "../_narrated.ring"
 #             02 "#--> ERROR: boom" on a line that raises  -> kept, and the tour FINISHED as promised
 #             03 a label line before the real value      -> one promise, kept
 #   prose/    01 "#--> "C" but should be "sm_AS""        -> prose: unjudged, never diverged, exit 0
-#   nostart/  01 a syntax error (C)  02 an unclosed literal (S) -> not-started, promises unreached, 0 diverged
+#   nostart/  01 a statement that does not compile -> BROKE under rnxc: Ring++
+#                compiles a file statement by statement and runs it up to the
+#                one it refuses (measured 2026-11-03: the promise before it is
+#                kept, the file stops there, exit 1); Ring ran nothing (not-started)
+#             02 an unclosed literal (S) -> not-started, promises unreached, 0 diverged
 #   raised/   01 a promise, a division by zero, a promise -> 1 kept, 1 unreached, 0 diverged
 #   picture/  01 a Shows() that prints PICTURE DOES NOT MATCH and raises -> diverged, named with its row
 #             02 a Shows() that is silent                 -> kept
@@ -104,15 +108,20 @@ EndScenario()
 #============================================================================
 Scenario("Did-not-compile is not diverged; a raise part-way leaves the promises below it unreached")
 	nTpSec = clock()
-	Given("a planted tour with a promise and a syntax error")
+	Given("a planted tour with a promise and then a statement that does not compile")
 	oC = TravellerQ().Silent().Timeout(10000).Walk(cTpPlant + "/nostart/01_syntax.ring")
 	aC = oC.Records()[1][:run]
-	Then("the tour did not start", aC[:end], "not-started")
-	Then("its promise is unreached, not diverged", "" + aC[:unreached] + "/" + aC[:diverged], "1/0")
+	# Ring++ compiles statement by statement and runs the file up to the one it
+	# refuses: the promise before it printed and is kept, then the file broke
+	# there (exit 1, "Ring++ refused this statement"). Ring would have run
+	# nothing. The promises after the refusal are unreached, never diverged.
+	Then("the tour broke at the refused statement", aC[:end], "broke")
+	Then("the promise before it is kept, nothing diverged", "" + aC[:kept] + "/" + aC[:unreached] + "/" + aC[:diverged], "1/0/0")
+	Then("the child named the refusal", StzFindFirst("refused this statement", oC.Records()[1][:stderr] + _TpJoin(oC.Records()[1][:output])) > 0, TRUE)
 	Given("a planted tour with an unclosed string literal (a scanner error)")
 	oS = TravellerQ().Silent().Timeout(10000).Walk(cTpPlant + "/nostart/02_scanner.ring")
 	Then("it did not start either", oS.Records()[1][:run][:end], "not-started")
-	Then("both exit 1: a tour that did not start", "" + oC.ExitCode() + "/" + oS.ExitCode(), "1/1")
+	Then("both exit 1: a tour that broke, a tour that did not start", "" + oC.ExitCode() + "/" + oS.ExitCode(), "1/1")
 	Given("a planted tour: a true promise, a division by zero, a true promise")
 	oRz = TravellerQ().Silent().Timeout(10000).Walk(cTpPlant + "/raised/01_partway.ring")
 	aRr = oRz.Records()[1][:run]
@@ -233,3 +242,12 @@ func _TpFirstPictureTour(cDir)
 		next
 	next
 	return ""
+
+# the child's printed lines ([ text, seconds ] each) as one text
+func _TpJoin(paLines)
+	_c_ = ""
+	_n_ = len(paLines)
+	for _k_ = 1 to _n_
+		_c_ += paLines[_k_][1] + char(10)
+	next
+	return _c_

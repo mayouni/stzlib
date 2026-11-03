@@ -1,8 +1,9 @@
 # Testoor -- the traveller walks tours and keeps the logbook. TR1 of
 # SOFTANZA_TESTOOR_PLAN.md: ONE runner, one process per batch, many tours.
 #
-# WHAT A WALK IS. The traveller starts ONE child Ring per tour, from the
-# tour's own folder (Ring resolves `load` against the current directory, not
+# WHAT A WALK IS. The traveller starts ONE child rnxc per tour (Ring++'s
+# compiler and VM; Ring is retired, RING-RETIRED-01, 2026-10-23), from the
+# tour's own folder (the runtime resolves `load` against the current directory, not
 # the file -- measured 2026-10-05, and the reason `softanza test` failed every
 # file it ran), reads the child's output AS IT ARRIVES (the engine's
 # non-blocking read, stz_process_read_stdout_available), holds a deadline on
@@ -61,6 +62,28 @@
 # measured). Paths are passed bare; `cd /d D:\a b` is accepted by cmd as is.
 #
 # Locals are _underscored_ for the reason stzTour.ring gives.
+
+# the program a tour runs on: the RNXC environment variable, else the rnxc
+# running this process (sysargv[1] under rnxc), else `rnxc` on the path.
+# Never `ring`: the author retired it (2026-10-23), and a verdict taken on
+# it describes nothing that ships. Measured 2026-11-03: a child rnxc on a
+# tour loading stzBase starts in 0.44 to 0.60 s, its compiled image cached
+# (rnxc keeps .rnxi images under the user's local application data; the
+# first run after the library changes pays the compile, about 20 s) --
+# against the 4 to 5 s a child Ring cost in TR1
+func TestoorProgram()
+	_c_ = sysget("RNXC")
+	if _c_ != ""
+		return _c_
+	ok
+	if len(sysargv) >= 1
+		_c_ = "" + sysargv[1]
+		_lc_ = lower(_c_)
+		if right(_lc_, 4) = "rnxc" or right(_lc_, 8) = "rnxc.exe"
+			return _c_
+		ok
+	ok
+	return "rnxc"
 
 func TravellerQ()
 	return new stzTraveller()
@@ -808,11 +831,14 @@ class stzTraveller from stzObject
 		ok
 		_aFD_ = _TravSplitPath("" + pcPath)
 		_cFolder_ = _TravHostPath(_aFD_[1])
-		# by argv, in the tour's own folder, no shell between: Ring resolves
-		# `load` against the working directory, and Kill() must reach ring
-		# itself (through cmd.exe it reached only cmd.exe -- measured)
+		# by argv, in the tour's own folder, no shell between: the runtime
+		# resolves `load` against the working directory, and Kill() must reach
+		# the child itself (through cmd.exe it reached only cmd.exe -- measured).
+		# The child is Ring++'s rnxc (Ring is retired, RING-RETIRED-01): the
+		# one the RNXC variable names, else the rnxc running this runner, else
+		# `rnxc` on the path -- TestoorProgram()
 		_oP_ = new stzProcess()
-		_oP_.SpawnIn(_cFolder_, [ "ring", _aFD_[2] ])
+		_oP_.SpawnIn(_cFolder_, [ TestoorProgram(), _aFD_[2] ])
 		@nRun++
 		_nT0_ = clock()
 		_cBuf_ = ""

@@ -2,11 +2,17 @@
 #
 # Run it FROM THIS FOLDER (Ring resolves `load` against the current directory):
 #
-#   ring testoor.ring --topic uuid                 one topic under ../test
-#   ring testoor.ring --topic uuid --json          the logbook as JSON, for a pipe
-#   ring testoor.ring --file ../test/uuid/00_uuid_narrated.ring
-#   ring testoor.ring --all                        every topic (hours; the gate)
-#   ring testoor.ring --topic uuid --root D:\elsewhere\test --timeout 60000 --by "the author"
+#   rnxc testoor.ring --topic uuid                 one topic under ../test
+#   rnxc testoor.ring --topic uuid --json          the logbook as JSON, for a pipe
+#   rnxc testoor.ring --file ../test/uuid/00_uuid_narrated.ring
+#   rnxc testoor.ring --all                        every topic (hours; the gate)
+#   rnxc testoor.ring --topic uuid --root D:\elsewhere\test --timeout 60000 --by "the author"
+#
+# rnxc is Ring++'s compiler and VM (Ring is retired, RING-RETIRED-01). Each
+# tour runs as a child rnxc: the one RNXC names, else the one running this
+# runner, else `rnxc` on the path (TestoorProgram() in stzTraveller.ring).
+# Measured 2026-11-03: a child rnxc on a tour loading stzBase starts in
+# 0.44 to 0.60 s with its compiled image cached, against 4 to 5 s on Ring.
 #
 # Exit code (the runner's, never Ring's): 0 every stop kept or unperceived;
 # 1 a stop diverged or a tour did not start, broke or hung; 2 the runner

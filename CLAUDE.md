@@ -459,13 +459,13 @@ buffer byte by byte with `substr` pays the same tax.
 ## Testoor: the runner, and the plane's FAST PATH (TR1, 2026-10-05)
 
 `base/testoor/` reads every test file as a TOUR (`Tour(path)`, never edited) and
-runs tours from ONE runner: from `base/testoor/`, `ring testoor.ring --topic uuid`
+runs tours from ONE runner: from `base/testoor/`, `rnxc testoor.ring --topic uuid`
 (`--json` for a pipe, `--file F`, `--all` for the whole corpus). Exit 0 / 1 / 2 is the
 RUNNER's, never Ring's; a stop is kept, diverged, unreached, unjudged or
 unperceived; `pf()` is the state finished-timed, never a failure. Plan and law:
 `base/testoor/SOFTANZA_TESTOOR_PLAN.md`.
 
-**FAST PATH: `cd base/test/testoor && ring testoor_reader_narrated.ring` is 5 to 15 s
+**FAST PATH: `cd base/test/testoor && rnxc testoor_reader_narrated.ring` is 5 to 15 s
 for 74 assertions, including the read of every narrated file in the corpus.** The
 runner guard beside it is 69 s for 80, and 41 of those are nine uuid children each
 loading the library: **a child Ring costs 4 to 5 s before its first line**, so a
