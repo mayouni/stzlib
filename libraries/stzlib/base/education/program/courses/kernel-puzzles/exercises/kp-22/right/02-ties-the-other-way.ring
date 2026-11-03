@@ -1,0 +1,10 @@
+# Any consistent tie-break works: here the equal number that sits LATER goes first, and every rank is still different.
+k = StzKernelMakerQ()
+k.TakesVector(:a)
+k.ReturnsVector(:c)
+k.Shared(:t, 256)
+k.Shared(:r, 256)
+k.Stage('{ @t[@l] = @a }')
+k.Stage('{ @r[@l] = sum(j, 0, 256, when(@t[j] < @t[@l] or (@t[j] == @t[@l] and j > @l), 1, 0)) }')
+k.ForEachElement('{ @c = sum(j, 0, 256, when(@r[j] == @l, @t[j], 0)) }')
+? StzKernelPuzzleQ("kp-22").Grade(k)

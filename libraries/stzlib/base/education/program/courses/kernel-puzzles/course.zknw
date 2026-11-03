@@ -55,6 +55,7 @@ facts
     the-scan | is-a | chapter
     the-scan | has-exercise | kp-20
     the-scan | has-exercise | kp-21
+    the-scan | has-exercise | kp-22
 
     kernel-puzzles | has-exercise | kp-01
     kernel-puzzles | has-exercise | kp-02
@@ -77,3 +78,4 @@ facts
     kernel-puzzles | has-exercise | kp-19
     kernel-puzzles | has-exercise | kp-20
     kernel-puzzles | has-exercise | kp-21
+    kernel-puzzles | has-exercise | kp-22

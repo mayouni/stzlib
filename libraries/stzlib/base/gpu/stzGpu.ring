@@ -1284,7 +1284,11 @@ class stzGpu from stzObject
 	def _RouteRung(pcKey, pnN)
 		_aIn_ = []
 		for _i_ = 1 to pnN
-			_aIn_ + ((_i_ * 5) % 7)
+			if pcKey = "sort"
+				_aIn_ + (((_i_ * 7919) % 100003) / 7)
+			else
+				_aIn_ + ((_i_ * 5) % 7)
+			ok
 		next
 		_nReps_ = floor(400000 / pnN)
 		if _nReps_ < 3
@@ -1322,10 +1326,152 @@ class stzGpu from stzObject
 			ok
 			return This.Scan(paIn)
 		ok
+		if pcKey = "sort"
+			if nSide = 0
+				return ring_sort(paIn)
+			ok
+			return This.Sort(paIn)
+		ok
 		if nSide = 0
 			return This._CompactWhereCpu(paIn, ">", 2.5)
 		ok
 		return This.CompactWhere(paIn, ">", 2.5)
+
+	# The numbers of a list in ascending order, sorted on the device by a stable radix sort (GB0).
+	#
+	#   paValues   a non-empty list of numbers
+	#   returns    a new list of the same numbers, smallest first
+	#   note       the order is that of the float's bits turned into an integer: -0 sorts before +0, a positive NaN after +inf; at most 16,777,216 numbers
+	#   warning    one-shot: it uploads, runs and downloads; raises an error when no GPU device is available
+	#   see        SortDescending, SortPairs, ArgSort, SortRouted
+	# ---- GB0: the radix sort -------------------------------------------------
+	#@ aka  Least-significant-digit radix sort, four bits a digit, eight passes, all in ONE submit: each pass sorts every group of 256 by the digit in shared memory, scans the table of digit counts, and scatters every key to its place. Stable, so equal keys keep their order; built on the scan.
+	def Sort(paValues)
+		return This._SortMode(paValues, 0, "Sort")
+
+	# The numbers of a list in descending order, by the same stable radix sort.
+	#
+	#   paValues   a non-empty list of numbers
+	#   returns    a new list of the same numbers, largest first
+	#   see        Sort
+	def SortDescending(paValues)
+		return This._SortMode(paValues, 1, "SortDescending")
+
+	def _SortMode(paValues, nDesc, cName)
+		This._RequireDevice()
+		if NOT isList(paValues) or ring_len(paValues) = 0
+			StzRaise(cName + ": give me a non-empty list of numbers.")
+		ok
+		_nN_ = ring_len(paValues)
+		_hI_ = StzEngineGpuBufferNew(_nN_ * 4)
+		_hO_ = StzEngineGpuBufferNew(_nN_ * 4)
+		if _hI_ = 0 or _hO_ = 0
+			_FreeIds([_hI_, _hO_])
+			StzRaise(cName + ": no device buffer (" + StzEngineGpuLastError() + ")")
+		ok
+		if StzEngineGpuBufferUploadList(_hI_, paValues) != 0
+			_FreeIds([_hI_, _hO_])
+			StzRaise(cName + ": upload refused (" + StzEngineGpuLastError() + ")")
+		ok
+		_nSt_ = StzEngineGpuOpSort(_hI_, _hO_, _nN_, nDesc)
+		if _nSt_ != 0
+			_FreeIds([_hI_, _hO_])
+			StzRaise(cName + ": the op refused (status " + _nSt_ + ").")
+		ok
+		_aOut_ = StzEngineGpuBufferDownloadList(_hO_, _nN_)
+		_FreeIds([_hI_, _hO_])
+		return _aOut_
+
+	# The keys of a list sorted, and each value carried with its key.
+	#
+	#   paKeys     a non-empty list of numbers
+	#   paValues   a list of numbers of the same length
+	#   returns    [ the sorted keys, the values in the same order ]
+	#   note       stable: values of equal keys keep their order; the values are f32, whole numbers exact below 2^24
+	#   see        Sort, ArgSort
+	def SortPairs(paKeys, paValues)
+		This._RequireDevice()
+		if NOT isList(paKeys) or NOT isList(paValues) or ring_len(paKeys) = 0 or ring_len(paKeys) != ring_len(paValues)
+			StzRaise("SortPairs: give me a non-empty list of keys and a list of values of the same length.")
+		ok
+		_nN_ = ring_len(paKeys)
+		_hK_ = StzEngineGpuBufferNew(_nN_ * 4)
+		_hV_ = StzEngineGpuBufferNew(_nN_ * 4)
+		_hOK_ = StzEngineGpuBufferNew(_nN_ * 4)
+		_hOV_ = StzEngineGpuBufferNew(_nN_ * 4)
+		if _hK_ = 0 or _hV_ = 0 or _hOK_ = 0 or _hOV_ = 0
+			_FreeIds([_hK_, _hV_, _hOK_, _hOV_])
+			StzRaise("SortPairs: no device buffer (" + StzEngineGpuLastError() + ")")
+		ok
+		if StzEngineGpuBufferUploadList(_hK_, paKeys) != 0 or StzEngineGpuBufferUploadList(_hV_, paValues) != 0
+			_FreeIds([_hK_, _hV_, _hOK_, _hOV_])
+			StzRaise("SortPairs: upload refused (" + StzEngineGpuLastError() + ")")
+		ok
+		_nSt_ = StzEngineGpuOpSortPairs(_hK_, _hV_, _hOK_, _hOV_, _nN_, 0)
+		if _nSt_ != 0
+			_FreeIds([_hK_, _hV_, _hOK_, _hOV_])
+			StzRaise("SortPairs: the op refused (status " + _nSt_ + ").")
+		ok
+		_aRes_ = [ StzEngineGpuBufferDownloadList(_hOK_, _nN_), StzEngineGpuBufferDownloadList(_hOV_, _nN_) ]
+		_FreeIds([_hK_, _hV_, _hOK_, _hOV_])
+		return _aRes_
+
+	# The places, in a list of numbers, of its elements in ascending order: the permutation that sorts it.
+	#
+	#   paKeys     a non-empty list of numbers
+	#   returns    a list of 1-based places: element k is where the k-th smallest sits; equal keys keep their order
+	#   note       at most 16,777,216 numbers (the places are f32)
+	#   see        Sort, SortPairs
+	def ArgSort(paKeys)
+		This._RequireDevice()
+		if NOT isList(paKeys) or ring_len(paKeys) = 0
+			StzRaise("ArgSort: give me a non-empty list of numbers.")
+		ok
+		_nN_ = ring_len(paKeys)
+		_hK_ = StzEngineGpuBufferNew(_nN_ * 4)
+		_hO_ = StzEngineGpuBufferNew(_nN_ * 4)
+		if _hK_ = 0 or _hO_ = 0
+			_FreeIds([_hK_, _hO_])
+			StzRaise("ArgSort: no device buffer (" + StzEngineGpuLastError() + ")")
+		ok
+		if StzEngineGpuBufferUploadList(_hK_, paKeys) != 0
+			_FreeIds([_hK_, _hO_])
+			StzRaise("ArgSort: upload refused (" + StzEngineGpuLastError() + ")")
+		ok
+		_nSt_ = StzEngineGpuOpArgSort(_hK_, _hO_, _nN_, 0)
+		if _nSt_ != 0
+			_FreeIds([_hK_, _hO_])
+			StzRaise("ArgSort: the op refused (status " + _nSt_ + ").")
+		ok
+		_aIdx_ = StzEngineGpuBufferDownloadList(_hO_, _nN_)
+		_FreeIds([_hK_, _hO_])
+		for _i_ = 1 to _nN_
+			_aIdx_[_i_] = _aIdx_[_i_] + 1
+		next
+		return _aIdx_
+
+	# The list sorted on the device only where this machine's measurement says the device wins, and by Ring's own sort everywhere else.
+	#
+	#   paValues   a non-empty list of numbers
+	#   returns    a new list, smallest first
+	#   note       with no calibration stored for "sort" (or no device) the answer comes from Ring's sort; CalibrateSort stores the line this machine measures
+	#   see        Sort, CalibrateSort
+	def SortRouted(paValues)
+		if NOT isList(paValues) or ring_len(paValues) = 0
+			StzRaise("SortRouted: give me a non-empty list of numbers.")
+		ok
+		if StzEngineGpuIsAvailable() = 1 and StzEngineGpuCalibRouteShaped("sort", ring_len(paValues), 1) = 1
+			return This.Sort(paValues)
+		ok
+		return ring_sort(paValues)
+
+	# Measures Ring's sort against the device for lists of several sizes and stores, for this adapter, where the device wins at sorting.
+	#
+	#   returns    the hashlist CalibrateScan returns, for the key "sort"
+	#   warning    writes the calibration file; raises an error when no GPU device is available
+	#   see        CalibrateScan, SortRouted
+	def CalibrateSort()
+		return This._CalibrateRoute("sort", [1000, 5000, 20000, 50000, 200000, 1000000])
 
 	# The elements of a list whose mask entry is not 0, in order, packed -- selected on the device (GB0).
 	#

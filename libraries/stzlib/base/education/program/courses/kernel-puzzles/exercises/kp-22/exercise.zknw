@@ -1,0 +1,17 @@
+knowledge "kp-22"
+
+facts
+    kp-22 | is-a | exercise
+    kp-22 | in-course | kernel-puzzles
+    kp-22 | in-chapter | the-scan
+    kp-22 | puzzle-number | 22
+    kp-22 | teaches | sorting-by-counting-who-goes-before
+    kp-22 | starts | red
+
+    kp-22 | elements | 4096
+    kp-22 | input-a | mod13
+
+    kp-22 | has-mistake | 02-ties-share-a-rank
+    kp-22 | has-mistake | 03-ranks-by-the-larger
+    kp-22 | has-mistake | 04-counts-itself
+    kp-22 | has-mistake | 05-reads-what-it-writes

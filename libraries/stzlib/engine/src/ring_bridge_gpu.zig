@@ -24,6 +24,7 @@ const fuzz = @import("gpu_fuzz.zig");
 const gfft = @import("gpu_fft.zig");
 const gscan = @import("gpu_scan.zig");
 const gcompact = @import("gpu_compact.zig");
+const gsort = @import("gpu_sort.zig");
 const R = @import("ring_api.zig");
 
 const gn = R.ring_vm_api_getnumber;
@@ -1071,6 +1072,32 @@ fn ring_OpCompactWhere(p: *anyopaque) callconv(.c) void {
     R.ring_list_adddouble(out, @floatFromInt(st));
     R.ring_list_adddouble(out, cnt);
     R.ring_vm_api_retlist(p, out);
+}
+
+// GB0 (sort): OpSort(hIn, hOut, n, nDesc) -> status; stable, ascending or descending
+fn ring_OpSort(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gsort.stz_gpu_op_sort(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2)), gn(p, 3), gn(p, 4))));
+}
+
+// OpSortPairs(hKeys, hVals, hOutKeys, hOutVals, n, nDesc) -> status; the values follow their keys
+fn ring_OpSortPairs(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gsort.stz_gpu_op_sort_pairs(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2)), @intFromFloat(gn(p, 3)), @intFromFloat(gn(p, 4)), gn(p, 5), gn(p, 6))));
+}
+
+// OpArgSort(hKeys, hOutIdx, n, nDesc) -> status; out[k] = the 0-based place of the k-th key
+fn ring_OpArgSort(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gsort.stz_gpu_op_argsort(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2)), gn(p, 3), gn(p, 4))));
+}
+
+// SortDispatches(n) -> how many dispatches a sort of n elements makes
+fn ring_SortDispatches(p: *anyopaque) callconv(.c) void {
+    rn(p, gsort.stz_gpu_sort_dispatches(gn(p, 1)));
+}
+
+// SortRelease() -> frees the scratch a sort keeps between calls
+fn ring_SortRelease(p: *anyopaque) callconv(.c) void {
+    gsort.stz_gpu_sort_release();
+    rn(p, 0);
 }
 
 // CompactRelease() -> frees the scratch a compaction keeps between calls
@@ -2569,6 +2596,11 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuopcompactwhere", .func = &ring_OpCompactWhere },
     .{ .name = "stzenginegpucompactdispatches", .func = &ring_CompactDispatches },
     .{ .name = "stzenginegpucompactrelease", .func = &ring_CompactRelease },
+    .{ .name = "stzenginegpuopsort", .func = &ring_OpSort },
+    .{ .name = "stzenginegpuopsortpairs", .func = &ring_OpSortPairs },
+    .{ .name = "stzenginegpuopargsort", .func = &ring_OpArgSort },
+    .{ .name = "stzenginegpusortdispatches", .func = &ring_SortDispatches },
+    .{ .name = "stzenginegpusortrelease", .func = &ring_SortRelease },
     .{ .name = "stzenginegpubufferfilllcg", .func = &ring_BufferFillLcg },
     .{ .name = "stzenginegpufoundrypairdist", .func = &ring_FoundryPairdist },
     .{ .name = "stzenginegpufoundrymatmul", .func = &ring_FoundryMatmul },

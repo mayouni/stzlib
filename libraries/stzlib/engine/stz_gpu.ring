@@ -34,6 +34,9 @@
 #                                                    all on the device (GB0); ScanDispatches(n) = 2*levels - 1
 #   StzEngineGpuOpCompact(hIn, hMask, hOut, n) -> [status, count]       keep where the mask is not 0, packed in order (GB0)
 #   StzEngineGpuOpCompactWhere(hIn, hOut, n, nCmp, nThr) -> [status, count]   nCmp 0 gt 1 ge 2 lt 3 le 4 eq 5 ne
+#   StzEngineGpuOpSort(hIn, hOut, n, nDesc)          stable radix sort of f32 keys (GB0)
+#   StzEngineGpuOpSortPairs(hKeys, hVals, hOutK, hOutV, n, nDesc)   the values follow their keys
+#   StzEngineGpuOpArgSort(hKeys, hOutIdx, n, nDesc)  out[k] = the 0-based place of the k-th key
 # OUT buffers must be distinct from inputs (WebGPU aliasing validation).
 #
 # Kernel binding contract (every kernel compiled through this layer):

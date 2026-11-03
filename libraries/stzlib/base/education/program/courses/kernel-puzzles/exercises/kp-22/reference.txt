@@ -1,0 +1,7 @@
+in a
+out c
+shared t 256
+shared r 256
+stage { @t[@l] = @a }
+stage { @r[@l] = sum(j, 0, 256, when(@t[j] < @t[@l] or (@t[j] == @t[@l] and j < @l), 1, 0)) }
+body { @c = sum(j, 0, 256, when(@r[j] == @l, @t[j], 0)) }

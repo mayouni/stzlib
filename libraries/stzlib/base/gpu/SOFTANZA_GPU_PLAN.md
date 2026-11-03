@@ -4336,6 +4336,78 @@ Intel iGPU in the browser agree on all six answers. **No person has worked it.**
 **What this opens**: radix sort is a scan of bit flags per pass; segmented
 reductions are a scan with a reset. Each is a rung of its own.
 
+## GB0 STATUS — the radix sort landed 2026-11-03 (the third op of the library layer)
+
+**What it is.** `StzEngineGpuOpSort(hIn, hOut, n, desc)`, `OpSortPairs(hKeys,
+hVals, hOutKeys, hOutVals, n, desc)` and `OpArgSort(hKeys, hOutIdx, n, desc)`
+(`engine/src/gpu_sort.zig`): a STABLE least-significant-digit radix sort of f32
+keys, four bits a digit, eight passes, all in ONE submit and nothing read back.
+The key first becomes an unsigned integer that orders like the float (every bit
+flipped for a negative, the sign bit for a positive; descending flips them all
+once more) and is turned back at the end. A pass: every group of 256 sorts its
+keys by the digit in shared memory (four stable one-bit splits, each a scan)
+and counts the digits; a scan of the 16 x blocks table, digit-major, says where
+each group's run of each digit lands in the whole output; a scatter puts every
+key there. `2 + 8 * (2 + (2 * levels - 1))` dispatches for a table of
+16 * blocks entries. Face: `Sort`, `SortDescending`, `SortPairs`, `ArgSort`
+(1-based places), `SortRouted`, `CalibrateSort`.
+
+**Decisions taken** (each reversible): four bits a pass, not eight (a group can
+sort 256 keys by four one-bit splits in shared memory with the scan it already
+has; an eight-bit digit would need a stable 256-bin rank no WebGPU primitive
+gives); the sort is keys, key-value or arg through ONE set of kernels (a mode in
+the uniform, two 4-byte stand-ins bound where the values would go, never
+touched); the scan, the table and the ping-pong vectors are the scan's and the
+scratch's (kept between calls, `SortRelease` gives the seven back); n is limited
+to 16,777,216 and refused by name above it (TOO_LARGE): the table counts are
+f32; the order is that of the transformed bits, so **-0 sorts before +0, a
+positive NaN after +inf, a negative NaN before -inf**, and the guard does not
+claim otherwise.
+
+**Criteria, one by one.**
+- *A reference*: none was needed, which is the point. The guard proves a sort by
+  what a sort IS: the keys come out in order, the values come out as a
+  permutation of 0 .. n - 1 (each exactly once), each value sits beside ITS OWN
+  key, and equal keys keep their values in increasing order. Those four together
+  say the output is a stable sort of the input, whatever the tree. It holds at 1,
+  2, 255, 256, 257, 4,096, 4,352, 65,537 and 1,000,003 elements, ascending and
+  descending, and the argsort likewise; 100,000 floats from 1e-8 to 1e10 with
+  negatives also equal Ring's own sort of the same f32 values, element for
+  element, and 1,000,000 floats resident do too.
+- *A roof fraction*: 1,000,000 floats sort in **4 to 6 ms** resident (two runs,
+  4.1 and 6.0: other desks were using the machine), 170 to 240 million keys a
+  second, against 246 to 272 ms for Ring's own sort of the same list. The first
+  version was correct on every property on its first run and was not tuned.
+- *A route*: through the face the device wins by 1.3 from 20,000 on (ratios 0.08,
+  0.58, 2.0, 3.3, 5.1, 6.3 at 1k, 5k, 20k, 50k, 200k, 1M). The face is bound by
+  moving the list. `CalibrateSort` stores the line per adapter; `SortRouted`
+  follows it.
+
+**One trap, avoided on purpose.** The face's route calls Ring's own `sort`, and
+inside the class a bare `sort(...)` would resolve to the class's new `Sort`
+method (Ring is case-insensitive), sending the CPU side of the measurement to the
+GPU. It calls `ring_sort`, the escape the house keeps for exactly this.
+
+**One thing found in my own guard.** The first resident check compared the
+device's f32-rounded output to a sort of the unrounded doubles and failed; the
+op was right. It now sorts the downloaded f32 values, as the fractional scene
+already did.
+
+**The puzzle**: kp-22, *sort a group*, in the scan chapter: sorting by RANK, the
+count of numbers that go before mine, with a tie-break, the sequel of puzzle 21.
+Two right answers (ties in the order they sit, ties the other way), four
+mistakes (ties share a rank, ranks by the larger, counts itself, reads what it
+writes). The verdicts were worked out from the data first: the first group holds
+twenty 0s, so two of the mistakes coincide with the answer through slot 19 and
+differ first at element 21. Desktop and the Intel iGPU agree on all six. The task
+says why the library's `Sort` does not do this: 65,536 comparisons a group grow
+with the square, and eight passes of counting grow with the size. **No person
+has worked it.**
+
+**What this opens**: segmented reductions (a scan with a reset), top-k by
+selection, and a sorted index for the semantic and vector search. Each is a rung
+of its own.
+
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 
 **Where the plane stands.** The charge GK3 to KP3 is through. A kernel can
