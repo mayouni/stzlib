@@ -138,7 +138,7 @@ Scenario("The blind spot: a call by a name built at run time is an edge the grap
 			acT = _RouteCalledNames(read(acDyn[nT]))
 			bNaive = 0
 			for nN = 1 to len(aG[:names])
-				if binarysearch(acT, aG[:names][nN]) > 0  bNaive = 1  ok
+				if _RouteIndexOf(acT, aG[:names][nN]) > 0  bNaive = 1  ok
 			next
 			if NOT bNaive  nNaiveMiss++  ok
 			if ring_find(aSafe[:selected], acDyn[nT]) = 0  nSafeMiss++  ok
@@ -263,7 +263,7 @@ func _ImOccurrences(cText, cSub)
 # testoor.ring as a child: [ exit code, output ]
 func _ImShell(acArgs)
 	oP = new stzProcess()
-	acArgv = [ "ring", "testoor.ring" ]
+	acArgv = [ TestoorProgram(), "testoor.ring" ]
 	for i = 1 to len(acArgs)
 		acArgv + acArgs[i]
 	next

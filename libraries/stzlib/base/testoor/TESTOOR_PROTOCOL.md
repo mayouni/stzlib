@@ -31,6 +31,13 @@ written to a rehearsal path), the child's argv also carries `--testoor-subject P
 seed. A tour that wants to be walked against more than one version of its program reads the path
 back instead of hard-coding the file it loads; a tour that does not simply ignores the argument.
 
+**Portability note (measured 2026-11-04).** A virtual machine that compiles a program before it runs
+it, Ring++'s `rnxc` among them, cannot call a function that was defined at run time, so a tour there
+cannot load a subject from a path it was given. The portable form is for the runner to *install* the
+subject under a fixed name beside the tour for the length of the walk and remove it afterwards
+(`Subject(path)` with `SubjectAs(name)` on the Ring traveller), and for the tour to `load` that name
+in its own source. The argument still travels, so the logbook records what was tested.
+
 ## 3. What a tour prints
 
 Every line is optional, stands alone, and is read after trimming. Text after the keyword runs

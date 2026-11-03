@@ -9,7 +9,9 @@
 # section 2), and the tour reads it back with TestoorSubject().
 #
 # A subject written in refinement form carries tags such as
-#   $nVat = <R:PARAM name="vat" value="0.22" min="0" max="0.9">
+#   return <R:PARAM name="vat" value="0.22" min="0" max="0.9">
+# and keeps them INSIDE a function: Ring++'s eval refuses to create a new global
+# (E1), so a subject a tour loads by eval must introduce none at its top level.
 # which are not yet a program. TestoorResolveRefinements() turns each tag into
 # the value it carries, so the source can be run:  eval(read(TestoorSubject())).
 # It reads the value of the tag as the refinement library renders it (Rendered()

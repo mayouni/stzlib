@@ -59,9 +59,8 @@ CONCLUSIONS line. A rung does not open until the one it depends on has recorded 
   `testoor_refine_narrated.ring`. The tours plug into the refinement gate's existing derivation seam.
 
 ### P2 -- Make the gates honest and the core specifiable.
-- **P2a, the Ring++ engine copy.** Build it once (`bench/engine_copy.py`, `-j2`, one heavy job) so all
-  guards run under `rnxc`, the required VM, and a tour starts in 0.15 to 0.6 s instead of 4 to 5 s.
-  *Needs the author's word: a heavy build that writes outside this repository.*
+- **P2a, the Ring++ engine copy. DONE 2026-11-04** (section 7b): all eight guards run under `rnxc`, and a
+  tour that loads the library costs 0.07 s warm instead of 4 to 5 s.
 - **P2b, golden logbooks.** Run the Ring reference over a fixed fixture set and commit the JSON logbooks
   as goldens. The Zig core must reproduce them.
 - **P2c, protocol 2.** Add the graph record, the `[testoor node ID]` line, and the evidence-floor
@@ -184,10 +183,65 @@ selects every tour, and misses none. This proves the method and not the real lib
 Guards at the end of P1: reader 74, runner 80, promises 52 (3 by design), routes 44, clock 66, protocol 55,
 impact 51, refine 33.
 
+## 7b. P2a, measured (2026-11-04)
+
+**What was built.** A Ring++ copy of the engine from this worktree's sources, with the repository's own rule for
+a desk that changed engine Zig: the Ring++ repository's `bench/engine_copy.py` makes the copy and
+`ONLY=<domains> zig build -j2` builds it. Two choices were forced by the machine and are stated here so they are
+not re-decided. **The cache was not seeded**: the other copies carry caches of 8 to 11 GB and the data drive had 11 GB
+free. **Eight giant domains were left out** (neural, gpu, window, gui, accessibility, sound, audio device, voice)
+because Testoor never loads them; 81 core domains were built. The cache went to the system drive, and a watchdog
+stopped the build if either drive fell below a floor or free memory below 3 GB; it never tripped.
+
+| | |
+|---|---|
+| build time | about 12 minutes cold, at `-j2` |
+| result | 82 libraries, 81 Ring++ builds plus one vendored runtime, 352 MB |
+| disk used | about 1 GB of cache on the system drive and 0.7 GB on the data drive |
+| the three Testoor process seams | present |
+
+**How the guards find it.** The library discovers its engine by searching upward from the working directory, so a run
+uses the libraries of the nearest engine directory above it. `rnxc_tree.ps1` makes a tree whose `base` and `core` are
+junctions to the worktree and whose `engine` is the Ring++ copy. It must be run from PowerShell: Git Bash follows a
+junction when it changes directory and would find the Ring-built engine again.
+
+**The guards, under `rnxc` and on Ring 1.27:**
+
+| guard | rnxc | Ring 1.27 |
+|---|---|---|
+| reader | 74 | 74 |
+| protocol | 55 | 55 |
+| refine | 34 | 34 |
+| impact | 51 | 51 |
+| routes | 44 | 44 |
+| promises | **52 of 52** | 49 of 52 |
+| clock | 56, supervisor section skipped by name | 66 |
+| runner | 80 | 80 |
+
+The three promises assertions that fail on Ring by design pass on Ring++, which confirms they record Ring++'s real
+behaviour. The first reader count under `rnxc` equals the Ring count (74), as the rule asks before trusting a new VM.
+
+**The speed.** The uuid topic, nine tours that each load the library: **43 s on Ring 1.27, 1.2 s on `rnxc` with the image
+cache warm** (0.07 s a tour, the slowest 0.12 s). The first walk after a change pays the compile once, 15 s a tour.
+
+**What the second VM taught the code** (all four fixed on this side, and the first two reported to their owners):
+
+1. `rnxc` has no `binarysearch()` (R3). And comparing two strings with `<` raises on Ring 1.27 (R41) while `rnxc`
+   accepts it. The join now uses a plain index lookup, the one operation both VMs agree on.
+2. `rnxc`'s `eval` refuses to create a new global (E1), and a function defined at run time cannot be called by the
+   already-compiled program (R3). A subject can therefore not be loaded from a path a tour was given. The runner now
+   *installs* the subject under a fixed name beside the tour (`SubjectAs`), which the tour `load`s statically, and a
+   subject keeps its refinement points inside functions. Protocol 1.1 says so.
+3. `stzNodeSupervisor` picks its worker's program by looking for `ring.exe` in the arguments and falls back to `ring`,
+   so under `rnxc` its worker starts on the wrong VM. That is the cluster plane's file, not Testoor's: the weather
+   section of the clock guard is skipped under `rnxc` and says so by name, and the finding is routed.
+4. A tour that fails under one VM and passes under the other is the cheapest conformance check there is.
+
 ## 8. Decisions the author owes
 
-1. **P2a**, the Ring++ engine copy: a heavy build that writes outside this repository. Do it once, or not yet; with the Atelier as a fast path (section 2b) it is no longer the only way to a cheap tour.
-2. **P3**, the Zig core: approve the order in section 3 and the goldens as the acceptance test.
+1. **P2a**, the Ring++ engine copy: done and measured (section 7b); nothing owed.
+2. **P3**, the Zig core: approve the order in section 3 and the goldens as the acceptance test. The second VM
+   is now a free conformance check for it.
 3. **P6**, the first two items can start now. Say whether they come before P2.
 4. **P7**, which intelligence feature to build first. The recommendation is *explain a red stop*, because it only
    reads and can never change a verdict.

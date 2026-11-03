@@ -123,7 +123,7 @@ func StzImpactedTours(pcSubjectFile, pcMethod, pacTourFiles)
 		_bHit_ = 0
 		_nN_ = len(_acNames_)
 		for _k_ = 1 to _nN_
-			if binarysearch(_acC_, _acNames_[_k_]) > 0  _bHit_ = 1  exit  ok
+			if _RouteIndexOf(_acC_, _acNames_[_k_]) > 0  _bHit_ = 1  exit  ok
 		next
 		if _bHit_
 			_acSel_ + pacTourFiles[_i_]

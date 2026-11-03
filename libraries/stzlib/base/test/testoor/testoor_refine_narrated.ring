@@ -47,24 +47,25 @@ cRfSource = read($cRfSubject)
 Scenario("The runner hands a tour its subject, and a refined subject becomes a program")
 	nRfSec = clock()
 	Given("a source carrying a refinement point")
-	cTagged = '$nVat = <R:PARAM name="vat" value="0.22" min="0" max="0.9">'
-	Then("its tag is replaced by the value it carries", TestoorResolveRefinements(cTagged), '$nVat = 0.22')
+	cTagged = 'return <R:PARAM name="vat" value="0.22" min="0" max="0.9">'
+	Then("its tag is replaced by the value it carries", TestoorResolveRefinements(cTagged), 'return 0.22')
 	Then("two tags in one source are both replaced",
 		TestoorResolveRefinements('a = <R:PARAM name="x" value="1">' + char(10) + 'b = <R:PARAM name="y" value="2">'),
 		'a = 1' + char(10) + 'b = 2')
 	Then("a source with no tag is left alone", TestoorResolveRefinements("x = 1"), "x = 1")
 	Then("a tag that never closes is left as it was", TestoorResolveRefinements('a = <R:PARAM name="x"'), 'a = <R:PARAM name="x"')
 	Then("this process was handed no subject", TestoorSubject(), "")
-	Given("the pricing tour walked with no subject")
+	Given("the pricing tour walked with no subject installed")
 	oNo = TravellerQ().Silent().Timeout(30000).Seed(5).Walk($cRfTour)
-	Then("it does not pretend: the runner exits 1", oNo.ExitCode(), 1)
-	Then("and its claim says why", StzFindFirst("no subject", oNo.Records()[1][:run][:stops][1][:claims][1][:claim]) > 0, TRUE)
+	Then("it does not pretend: it cannot start", oNo.Records()[1][:run][:end], "not-started")
+	Then("and the runner exits 1", oNo.ExitCode(), 1)
 	Given("the same tour walked with the unrefined source as its subject, 0.20")
 	write($cRfRehearsal, TestoorResolveRefinements(cRfSource))
-	oOk = TravellerQ().Silent().Timeout(30000).Seed(5).Subject($cRfRehearsal).Walk($cRfTour)
+	oOk = TravellerQ().Silent().Timeout(30000).Seed(5).Subject($cRfRehearsal).SubjectAs("_subject.ring").Walk($cRfTour)
 	Then("all three promises are kept", oOk.Records()[1][:run][:kept], 3)
 	Then("the runner exits 0", oOk.ExitCode(), 0)
 	Then("and the logbook names the subject", StzFindFirst("_rehearsal.ring", oOk.Json()) > 0 and StzFindFirst('"subject":""', oOk.Json()) = 0, TRUE)
+	Then("the runner took the installed copy away again", fexists(cRfRoot + "/_subject.ring"), FALSE)
 EndScenario()
 ? "        [section took " + ((clock() - nRfSec) / clockspersecond()) + "s]"
 
@@ -77,7 +78,7 @@ Scenario("CONTROL: the bounds alone admit a value that breaks a promise")
 	rCtl = oCtl.Refine("vat").To("0.50")
 	Then("0.50 is inside [0, 0.9] and the gate ADMITS it", rCtl[:admitted], 1)
 	write($cRfRehearsal, TestoorResolveRefinements(oCtl.Rendered()))
-	oBad = TravellerQ().Silent().Timeout(30000).Seed(5).Subject($cRfRehearsal).Walk($cRfTour)
+	oBad = TravellerQ().Silent().Timeout(30000).Seed(5).Subject($cRfRehearsal).SubjectAs("_subject.ring").Walk($cRfTour)
 	Then("but the tours, walked against that very state, diverge", oBad.Records()[1][:run][:diverged], 1)
 	Then("on the promise the bounds could not express", oBad.Records()[1][:run][:stops][1][:claims][3][:claim], "vat never exceeds a quarter of the net")
 	Then("and the runner exits 1", oBad.ExitCode(), 1)
@@ -93,7 +94,7 @@ Scenario("The tours plugged in as the derivation rule: admitted, refused by evid
 		func oCode {
 			$nRfWalks++
 			write($cRfRehearsal, TestoorResolveRefinements(oCode.Rendered()))
-			oRf = TravellerQ().Silent().Timeout(30000).Seed(5).Subject($cRfRehearsal).Walk($cRfTour)
+			oRf = TravellerQ().Silent().Timeout(30000).Seed(5).Subject($cRfRehearsal).SubjectAs("_subject.ring").Walk($cRfTour)
 			$oRfLast = oRf
 			return oRf.ExitCode() = 0
 		},
@@ -141,21 +142,14 @@ func _RfPlantAll(cRoot)
 	_n_ = char(10)
 	_t_ = char(9)
 	write(cRoot + "/pricing.ring",
-		'$nVat = <R:PARAM name="vat" value="0.20" min="0" max="0.9">' + _n_ +
-		"func VatOf(nNet)" + _n_ + _t_ + "return nNet * $nVat" + _n_ +
+		"func VatRate()" + _n_ + _t_ + 'return <R:PARAM name="vat" value="0.20" min="0" max="0.9">' + _n_ +
+		"func VatOf(nNet)" + _n_ + _t_ + "return nNet * VatRate()" + _n_ +
 		"func GrossOf(nNet)" + _n_ + _t_ + "return nNet + VatOf(nNet)" + _n_)
 	# the tour takes its subject from the runner and prints protocol lines
 	write(cRoot + "/price_tour.ring",
-		'cSub = ""' + _n_ +
-		"nA = len(sysargv)" + _n_ +
-		"for i = 1 to nA - 1" + _n_ +
-		_t_ + 'if sysargv[i] = "--testoor-subject"  cSub = sysargv[i + 1]  ok' + _n_ +
-		"next" + _n_ +
+		'load "_subject.ring"' + _n_ +
 		'? "[testoor stop pricing]"' + _n_ +
-		'if cSub = ""' + _n_ +
-		_t_ + '? "[testoor fail no subject was handed to this tour]"' + _n_ +
-		"else" + _n_ +
-		_t_ + "eval(read(cSub))" + _n_ +
+		"if 1 = 1" + _n_ +
 		_t_ + "nDiff = GrossOf(100) - (100 + VatOf(100))" + _n_ +
 		_t_ + "if nDiff < 0.000001 and nDiff > -0.000001" + _n_ +
 		_t_ + _t_ + '? "[testoor ok gross is net plus vat]"' + _n_ +

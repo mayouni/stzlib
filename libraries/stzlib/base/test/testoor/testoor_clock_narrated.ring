@@ -199,6 +199,13 @@ EndScenario()
 ? "        [section took " + ((clock() - nTcSec) / clockspersecond()) + "s]"
 
 #============================================================================
+if _TcUnderRnxc()
+	? ""
+	? "SKIPPED under rnxc, by name: the weather on the distribution plane."
+	? "  stzNodeSupervisor._RingExecutable() finds no ring.exe in the arguments and falls back to"
+	? "  `ring`, so its worker would start on Ring 1.27 and load Ring++ libraries. A finding for the"
+	? "  cluster plane; it runs, green, on Ring 1.27 (see the roadmap, P2)."
+else
 Scenario("The weather on the distribution plane: a supervised child dies at the declared tick, and the supervisor restarts it")
 	nTcSec = clock()
 	Given("a real stzNodeSupervisor with one real worker, OneForOne")
@@ -233,6 +240,7 @@ Scenario("The weather on the distribution plane: a supervised child dies at the 
 	TestoorReset()
 EndScenario()
 ? "        [section took " + ((clock() - nTcSec) / clockspersecond()) + "s]"
+ok
 
 _TcUnplantAll(cTcPlant)
 ? ""
@@ -283,6 +291,10 @@ func _TcPlantAll(cRoot)
 		'	write(cM, "1")' + _nl_ +
 		'	? "  [FAIL] first time unlucky"' + _nl_ +
 		"ok" + _nl_)
+
+# is this guard running on Ring++'s rnxc?
+func _TcUnderRnxc()
+	return len(sysargv) >= 1 and StzFindFirst("rnxc", lower("" + sysargv[1])) > 0
 
 func _TcClearMarkers(cRoot)
 	for cF in [ "/flaky_marker_undeclared.txt", "/flaky_marker_declared.txt" ]

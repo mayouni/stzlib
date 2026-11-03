@@ -50,6 +50,14 @@ func StzRouteMapQ()
 
 #--- the name join ----------------------------------------------------------
 
+# The index of pcItem in a list of lower-case names, or 0. Not a binary search:
+# Ring has binarysearch() and Ring++ does not (R3 on rnxc), and comparing two
+# strings with < raises on Ring 1.27 (R41, invalid numeric string) while rnxc
+# accepts it, so the one operation both VMs agree on is a plain find. Callers
+# hand it de-duplicated lists, which keeps it fast.
+func _RouteIndexOf(paNames, pcItem)
+	return ring_find(paNames, pcItem)
+
 # every identifier a source CALLS, lowercased, sorted, unique:
 # `.Foo(`, `Foo(`, `Foo (` -- not definitions (`def Foo(`, `func Foo(`)
 func _RouteCalledNames(pcSource)
@@ -119,6 +127,17 @@ func StzUntouchedMethods(pcClassFile, pacTourFiles)
 		next
 	next
 	_acTours_ = sort(_acTours_)
+	# one entry per name: the lookups below are linear
+	_acUniq_ = []
+	_nTn_ = len(_acTours_)
+	for _i_ = 1 to _nTn_
+		if _i_ = 1
+			_acUniq_ + _acTours_[_i_]
+		but _acTours_[_i_] != _acTours_[_i_ - 1]
+			_acUniq_ + _acTours_[_i_]
+		ok
+	next
+	_acTours_ = _acUniq_
 	_oG_ = StzRingCodeGraphFromSource(_cSrc_)
 	_aML_ = _oG_.MethodsWithLines()
 	_nM_ = len(_aML_)
@@ -127,7 +146,7 @@ func StzUntouchedMethods(pcClassFile, pacTourFiles)
 		_cM_ = "" + _aML_[_i_][2]
 		_lm_ = lower(_cM_)
 		if left(_lm_, 1) = "_" or _lm_ = "init"  loop  ok
-		if binarysearch(_acTours_, _lm_) = 0
+		if _RouteIndexOf(_acTours_, _lm_) = 0
 			_aOut_ + [ "" + _aML_[_i_][1], _aML_[_i_][3], _cM_ ]
 		ok
 	next

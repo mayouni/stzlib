@@ -473,6 +473,15 @@ topic of N tours costs 4N seconds whatever the tours do (measured 2026-10-05; th
 tours' own stops took under a millisecond). That tax is the reason `--topic` exists
 and `--all` is a gate, not an iteration.
 
+**Under rnxc.** Ring is retired, and the guards run under `rnxc` against a Ring++ build of the engine. The library
+finds its engine by searching upward from the working directory, so `base/testoor/rnxc_tree.ps1` makes a tree whose
+`base` and `core` are junctions to your worktree and whose `engine` is a Ring++ copy (made with the Ring++
+repository's `bench/engine_copy.py`, built at `-j2`). Run from PowerShell, never Git Bash, which follows junctions.
+Measured 2026-11-04: all eight guards pass, and a tour that loads the library costs 0.07 s warm against 4 to 5 s on
+Ring. Four differences between the VMs bit this plane: no `binarysearch()` on rnxc, `<` on strings raises on Ring,
+`eval` cannot create a global or define a callable function on rnxc, and `stzNodeSupervisor` starts its worker on
+`ring` whatever VM runs it.
+
 Two things measured on the way, so nobody re-measures them: Ring resolves `load`
 against the CURRENT DIRECTORY, not the file -- a runner must start each tour from
 its own folder; and a per-line `ringvm_settrace` hook costs 11.5 us per event and

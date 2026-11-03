@@ -923,6 +923,7 @@ class stzTraveller from stzObject
 	@nSeed = -1               # the seed every child is walked with; chosen once per run, REPORTED
 	@nRepeat = 1              # walks per tour; >1 turns on the flaky check
 	@cSubject = ""            # the file under test, handed to every child as --testoor-subject
+	@cSubjectAs = ""          # ... and, when set, copied under this name beside each tour for the walk
 
 	def init()
 		@aRecords = []
@@ -962,6 +963,16 @@ class stzTraveller from stzObject
 	# section 2). The tour reads it back with TestoorSubject().
 	def Subject(pcPath)
 		@cSubject = "" + pcPath
+		return This
+
+	# Install the subject under a FIXED NAME beside each tour for the length of its
+	# walk, and remove it afterwards: the tour loads that name with a plain
+	# `load`. This is the portable way to hand a tour its subject, because a VM
+	# that cannot call a function defined at run time (Ring++'s rnxc, measured
+	# 2026-11-04) cannot load a subject from a path it was given, but can always
+	# load a file it names in its own source.
+	def SubjectAs(pcName)
+		@cSubjectAs = "" + pcName
 		return This
 
 	def Silent()
@@ -1072,6 +1083,11 @@ class stzTraveller from stzObject
 		# one the RNXC variable names, else the rnxc running this runner, else
 		# `rnxc` on the path -- TestoorProgram()
 		_oP_ = new stzProcess()
+		_cInstalled_ = ""
+		if @cSubject != "" and @cSubjectAs != ""
+			_cInstalled_ = _cFolder_ + "/" + @cSubjectAs
+			write(_cInstalled_, read(@cSubject))
+		ok
 		_aArgv_ = _TravLaunchArgv(_aFace_, _aFD_[2], pnSeed)
 		if @cSubject != ""
 			_aArgv_ + "--testoor-subject"
@@ -1133,6 +1149,7 @@ class stzTraveller from stzObject
 		ok
 		_nWall_ = floor((clock() - _nT0_) / clockspersecond() * 1000)
 		_oP_.Close()
+		if _cInstalled_ != "" and fexists(_cInstalled_)  remove(_cInstalled_)  ok
 		@nWallMs += _nWall_
 		_cEnd_ = _TravEndingOf(_aLines_, _cErr_, _nExit_, _bHung_, _aFace_)
 		# a self-describing tour has no static record: build it from what it said
