@@ -44,7 +44,7 @@ func StzImageNew(pnWidth, pnHeight, pnChannels, pnFill)
 func StzImageFromPixels(pnWidth, pnHeight, pnChannels, pcBytes)
 	return new stzImage(_StzImageMust(StzEngineImageFromRaw(pnWidth, pnHeight, pnChannels, pcBytes)))
 
-# An image decoded from the bytes of a PNG, JPEG, BMP, GIF, TGA or PSD file, turned upright by the EXIF
+# An image decoded from the bytes of a PNG, JPEG, BMP, GIF, TGA, PSD or baseline TIFF file, turned upright by the EXIF
 # orientation the file carries (a phone's photo is stored as the sensor saw it, with a tag saying how to turn it).
 func StzImageFromBytes(pcBytes)
 	return new stzImage(_StzImageMust(StzEngineImageDecode(pcBytes)))
@@ -212,7 +212,7 @@ class stzImage from stzObject
 
 	# Builds the image from a file path, or adopts an engine handle (a number).
 	#
-	#   pImage     a path to a PNG, JPEG, BMP, GIF, TGA or PSD file, or an engine image handle
+	#   pImage     a path to a PNG, JPEG, BMP, GIF, TGA, PSD or baseline TIFF file, or an engine image handle
 	#   returns    nothing; the object is built
 	#   warning    a file that cannot be read or decoded raises an error that says why
 	def init(pImage)

@@ -19,6 +19,7 @@
 const std = @import("std");
 const png = @import("png_encode.zig");
 const core = @import("image_core.zig");
+const tiff = @import("tiff_decode.zig");
 const stbi = @cImport({
     @cDefine("STBI_NO_STDIO", "1");
     @cInclude("stb_image.h");
@@ -309,7 +310,7 @@ fn orientInPlace(im: *Image, o: u8) bool {
     return true;
 }
 
-/// PNG/JPEG/BMP/GIF/TGA/PSD bytes -> an image with the file's own channels, the pixels as the file stores them and
+/// PNG/JPEG/BMP/GIF/TGA/PSD/TIFF bytes -> an image with the file's own channels, the pixels as the file stores them and
 /// the EXIF orientation it carried recorded (`stored`) and NOT applied. decode applies it.
 pub fn decodeKeep(bytes: []const u8) i64 {
     const id = decodeRaw(bytes);
@@ -333,10 +334,14 @@ pub fn decode(bytes: []const u8) i64 {
     return id;
 }
 
-/// PNG/JPEG/BMP/GIF/TGA/PSD bytes -> an image with the file's own channels
+/// PNG/JPEG/BMP/GIF/TGA/PSD/TIFF bytes -> an image with the file's own channels
 /// (gray+alpha widens to RGBA: the type holds 1, 3 or 4).
 fn decodeRaw(bytes: []const u8) i64 {
     if (bytes.len == 0) return fail("image: nothing to decode", .{});
+    if (tiff.isTiff(bytes)) {
+        const d = tiff.decode(bytes) orelse return fail("image: {s}", .{tiff.lastError()});
+        return adopt(d.w, d.h, d.c, d.px);
+    }
     var w: c_int = 0;
     var h: c_int = 0;
     var comp: c_int = 0;
