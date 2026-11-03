@@ -1,0 +1,17 @@
+knowledge "kp-20"
+
+facts
+    kp-20 | is-a | exercise
+    kp-20 | in-course | kernel-puzzles
+    kp-20 | in-chapter | the-scan
+    kp-20 | puzzle-number | 20
+    kp-20 | teaches | a-running-total-in-steps-of-doubling-reach
+    kp-20 | starts | red
+
+    kp-20 | elements | 4000
+    kp-20 | input-a | mod13
+
+    kp-20 | has-mistake | 02-leaves-out-itself
+    kp-20 | has-mistake | 03-does-not-start-over
+    kp-20 | has-mistake | 04-seven-steps
+    kp-20 | has-mistake | 05-reads-what-it-writes

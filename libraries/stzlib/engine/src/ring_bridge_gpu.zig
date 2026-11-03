@@ -22,6 +22,7 @@ const verify = @import("gpu_verify.zig");
 const foundry = @import("gpu_foundry.zig");
 const fuzz = @import("gpu_fuzz.zig");
 const gfft = @import("gpu_fft.zig");
+const gscan = @import("gpu_scan.zig");
 const R = @import("ring_api.zig");
 
 const gn = R.ring_vm_api_getnumber;
@@ -1044,6 +1045,16 @@ fn ring_VerifyPeakSet(p: *anyopaque) callconv(.c) void {
 // OpConvolveReal(hA, nA, hB, nB, hOut) -> status; out holds nA+nB-1 f32
 fn ring_OpConvolveReal(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(gfft.stz_gpu_op_convolve_real(@intFromFloat(gn(p, 1)), gn(p, 2), @intFromFloat(gn(p, 3)), gn(p, 4), @intFromFloat(gn(p, 5)))));
+}
+
+// GB0 (scan): OpScan(hIn, hOut, n, nMode) -> status; mode 0 inclusive, 1 exclusive
+fn ring_OpScan(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gscan.stz_gpu_op_scan(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2)), gn(p, 3), gn(p, 4))));
+}
+
+// ScanDispatches(n) -> how many dispatches a scan of n elements makes
+fn ring_ScanDispatches(p: *anyopaque) callconv(.c) void {
+    rn(p, gscan.stz_gpu_scan_dispatches(gn(p, 1)));
 }
 
 // ConvolveSize(nA, nB) -> the transform size the op will use
@@ -2520,6 +2531,8 @@ pub const regs = [_]R.Reg{
     // GS1 FFT convolution
     .{ .name = "stzenginegpuopconvolvereal", .func = &ring_OpConvolveReal },
     .{ .name = "stzenginegpuconvolvesize", .func = &ring_ConvolveSize },
+    .{ .name = "stzenginegpuopscan", .func = &ring_OpScan },
+    .{ .name = "stzenginegpuscandispatches", .func = &ring_ScanDispatches },
     .{ .name = "stzenginegpubufferfilllcg", .func = &ring_BufferFillLcg },
     .{ .name = "stzenginegpufoundrypairdist", .func = &ring_FoundryPairdist },
     .{ .name = "stzenginegpufoundrymatmul", .func = &ring_FoundryMatmul },

@@ -30,6 +30,8 @@
 #   StzEngineGpuOpSoftmax(hIn, hOut, n)              max-shifted, 3 passes
 #   StzEngineGpuOpSum(hA, n)  -> [status, value]     f64 fold of partials
 #   StzEngineGpuOpDot(hA, hB, n) -> [status, value]
+#   StzEngineGpuOpScan(hIn, hOut, n, nMode)          running total, 0 inclusive / 1 exclusive,
+#                                                    all on the device (GB0); ScanDispatches(n) = 2*levels - 1
 # OUT buffers must be distinct from inputs (WebGPU aliasing validation).
 #
 # Kernel binding contract (every kernel compiled through this layer):

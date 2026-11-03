@@ -4222,6 +4222,60 @@ Intel iGPU in the browser. **No person has worked it.**
 after the charge (below); open items are LOOP-CAP (4096, unmeasured) and
 PERCEPTGATE-KP3.
 
+## GB0 STATUS — the scan landed 2026-11-03 (the first op of the library layer)
+
+**What it is.** `StzEngineGpuOpScan(hIn, hOut, n, mode)`: the running total of n
+f32s, inclusive or exclusive, entirely on the device (`engine/src/gpu_scan.zig`).
+Every group of 256 scans its block in workgroup memory (Hillis-Steele, eight
+steps), the block totals are scanned one level up until one group holds them,
+and the scanned totals are added back down: `2 * levels - 1` dispatches in ONE
+submit, the data never read back. Face: `Scan`, `ScanExclusive`, and the routed
+`ScanRouted`, `ScanExclusiveRouted`; `CalibrateScan` stores the line.
+
+**Decisions taken** (each reversible): the exclusive form is the inclusive one
+shifted inside the group, so it never subtracts; in and out are distinct
+buffers (WebGPU aliasing validation, as every op here); upper levels are always
+inclusive; the face is a one-shot over a list, and the RESIDENT use (buffers
+already on the device) is what the op is for.
+
+**Criteria, one by one.**
+- *A CPU reference*: the sequential scan in the guard, in f64 for the band.
+- *A hidden shape*: the exact witnesses run at 1, 255, 256, 257, 65,536, 65,537
+  and 1,000,003 elements, which cross every level boundary; whole numbers below
+  2^24 make every partial exact, so the device equals the sequential scan **to
+  the bit**, inclusive and exclusive. Where partials round the measured error
+  is 2.0e-7 (inclusive and exclusive alike, 100,000 elements; the band is 1e-5),
+  and the shift is exact at every position inside a block.
+- *A roof fraction*: 16,000,000 floats scan in **2.6 ms**, ten to a sync. A
+  scale pass over the same 128 MB (read plus write, the minimum) takes 1.2 ms
+  (107 GB/s), so the scan reaches 0.46 of it on the minimum bytes, **0.92 on the
+  bytes it really moves**: the offsets pass reads and writes every element
+  again, so the scan moves twice the minimum. It sits at the bandwidth roof
+  for its design.
+- *A route*: through the face (upload, one submit, download) the loop wins
+  below about 10,000 elements (0.35 against 0.33 ms) and the device wins by 1.3
+  from 50,000 on: ratios 0.21 at 1,000, 0.67 at 5,000, 1.13 at 20,000, 1.49 at
+  50,000, 1.62 at 200,000, 2.02 at 1,000,000. The face is bound by marshalling
+  (a million floats: 5 ms up, 1 ms scanning, 11 ms down). `CalibrateScan` stores
+  the line per adapter with the control rung every route here keeps.
+
+**Open, named and not built (GB0-SCAN-V2).** A reduce-then-scan variant moves
+three vectors of n instead of four: reduce the blocks, scan the totals, then one
+pass that reads, scans and adds the offset in one go. About a quarter fewer
+bytes, so about 2.0 ms where this one takes 2.6. It is a foundry variant, to be
+kept only if it wins by the clock; the kill line is the usual one.
+
+**The puzzle**: kp-20, *the running total of a group*, in a new chapter, *the
+scan*: the slow answer (every thread adds its prefix) and the doubling answer
+(eight steps, `pow(2, s)`, a second array). Four mistakes (leaves out itself, does
+not start over, seven steps, reads what it writes); the verdicts were worked out
+from the data before the first run and held on the desktop and on the Intel
+iGPU in the browser. **No person has worked it.**
+
+**What this opens**: sort (radix passes are scans), selection by threshold,
+stream compaction and segmented reductions all stand on this op. Each is a rung
+of its own.
+
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 
 **Where the plane stands.** The charge GK3 to KP3 is through. A kernel can

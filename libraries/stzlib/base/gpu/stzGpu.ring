@@ -1100,6 +1100,217 @@ class stzGpu from stzObject
 		_FreeIds([_hA_, _hB_, _hO_])
 		return _aOut_
 
+	# The running total of a list of numbers, computed on the device (GB0): out[i] = in[1] + ... + in[i].
+	#
+	#   paValues   a non-empty list of numbers
+	#   returns    a list of the same length
+	#   note       the adds run in a fixed tree, not left to right: the answer is the sequential one on
+	#              whole numbers below 2^24, and within f32 rounding otherwise
+	#   warning    one-shot: it uploads, runs and downloads; raises an error when no GPU device is available
+	#   see        ScanExclusive, ConvolveReal
+	# ---- GB0: the scan -------------------------------------------------------
+	#@ aka  The prefix sum, the foundation of the library layer (sort, selection and segmented reductions are built on it): every group of 256 scans its block in workgroup memory, the block totals are scanned one level up until one group holds them, and the scanned totals are added back down -- 2 * levels - 1 dispatches in ONE submit, the data never read back in between.
+	def Scan(paValues)
+		return This._ScanMode(paValues, 0, "Scan")
+
+	# The running total of a list, shifted: out[1] = 0 and out[i] = in[1] + ... + in[i - 1].
+	#
+	#   paValues   a non-empty list of numbers
+	#   returns    a list of the same length
+	#   see        Scan
+	def ScanExclusive(paValues)
+		return This._ScanMode(paValues, 1, "ScanExclusive")
+
+	def _ScanMode(paValues, nMode, cName)
+		This._RequireDevice()
+		if NOT isList(paValues) or ring_len(paValues) = 0
+			StzRaise(cName + ": give me a non-empty list of numbers.")
+		ok
+		_nN_ = ring_len(paValues)
+		_hI_ = StzEngineGpuBufferNew(_nN_ * 4)
+		_hO_ = StzEngineGpuBufferNew(_nN_ * 4)
+		if _hI_ = 0 or _hO_ = 0
+			_FreeIds([_hI_, _hO_])
+			StzRaise(cName + ": no device buffer (" + StzEngineGpuLastError() + ")")
+		ok
+		if StzEngineGpuBufferUploadList(_hI_, paValues) != 0
+			_FreeIds([_hI_, _hO_])
+			StzRaise(cName + ": upload refused (" + StzEngineGpuLastError() + ")")
+		ok
+		_nSt_ = StzEngineGpuOpScan(_hI_, _hO_, _nN_, nMode)
+		if _nSt_ != 0
+			_FreeIds([_hI_, _hO_])
+			StzRaise(cName + ": the op refused (status " + _nSt_ + ").")
+		ok
+		_aOut_ = StzEngineGpuBufferDownloadList(_hO_, _nN_)
+		_FreeIds([_hI_, _hO_])
+		return _aOut_
+
+	# The running total of a list, on the device only where this machine's measurement says the device wins, and in a plain loop everywhere else.
+	#
+	#   paValues   a non-empty list of numbers
+	#   returns    a list of the same length, as Scan returns it
+	#   note       with no calibration stored for "scan" (or no device) the answer comes from the loop;
+	#              CalibrateScan stores the line this machine measures
+	#   see        Scan, CalibrateScan
+	def ScanRouted(paValues)
+		return This._ScanRoutedMode(paValues, 0)
+
+	# The shifted running total of a list, routed as ScanRouted routes.
+	#
+	#   paValues   a non-empty list of numbers
+	#   returns    a list of the same length: 0, then the sums before each element
+	#   see        ScanRouted, ScanExclusive
+	def ScanExclusiveRouted(paValues)
+		return This._ScanRoutedMode(paValues, 1)
+
+	def _ScanRoutedMode(paValues, nMode)
+		if NOT isList(paValues) or ring_len(paValues) = 0
+			StzRaise("ScanRouted: give me a non-empty list of numbers.")
+		ok
+		if StzEngineGpuIsAvailable() = 1 and StzEngineGpuCalibRouteShaped("scan", ring_len(paValues), 1) = 1
+			return This._ScanMode(paValues, nMode, "ScanRouted")
+		ok
+		return This._ScanCpu(paValues, nMode)
+
+	def _ScanCpu(paValues, nMode)
+		_aOut_ = []
+		_nRun_ = 0
+		_nN_ = ring_len(paValues)
+		for _i_ = 1 to _nN_
+			if nMode = 1
+				_aOut_ + _nRun_
+				_nRun_ += paValues[_i_]
+			else
+				_nRun_ += paValues[_i_]
+				_aOut_ + _nRun_
+			ok
+		next
+		return _aOut_
+
+	# Measures the loop against the device for lists of several sizes and stores, for this adapter, where the device wins.
+	#
+	#   returns    a hashlist with :cells (rows of [ 1, n, cpu ms, gpu ms, ratio ]), :flat, :flatwhy,
+	#              :confounded, :control and :adapter
+	#   warning    writes the calibration file; the first rung is measured again at the end as a control,
+	#              and a run whose control moved by more than 2x stores nothing; raises an error when no
+	#              GPU device is available
+	#   see        CalibrateScanWith, ScanRouted
+	# ---- GB0: the scan's route ------------------------------------------------
+	#@ aka  A rung is a list of that size scanned by the plain loop and by the device through the SAME face a caller uses (upload, one submit, download), the best of seven runs of each on the nanosecond clock; a size where the device is at least 1.3 times faster is stored as a win, the margin every route here keeps, so a size inside the noise stays on the loop.
+	def CalibrateScan()
+		# Measured 2026-11-03 on the RTX 3050 laptop: the loop beats the face below
+		# about 10,000 elements (0.35 against 0.33 ms there), and the device wins by
+		# 1.3 from about 30,000 on, up to 1.9x at a million -- the face is bound by
+		# marshalling the list both ways, not by the scan (1 ms of 23 at a million).
+		return This.CalibrateScanWith([1000, 5000, 20000, 50000, 200000, 1000000])
+
+	# Does the same as the call without arguments, for list sizes chosen by the caller.
+	#
+	#   paCounts   the list sizes to measure, as a list of numbers
+	#   returns    the hashlist CalibrateScan returns
+	#   see        CalibrateScan
+	def CalibrateScanWith(paCounts)
+		This._RequireDevice()
+		_cKey_ = "scan"
+		_aCells_ = []
+		_nFlat_ = 0
+		_bBeyond_ = FALSE
+		_nMax_ = 0
+		_nRungs_ = ring_len(paCounts)
+		for _i_ = 1 to _nRungs_
+			_n_ = paCounts[_i_]
+			_aR_ = This._ScanRung(_n_)
+			_nRatio_ = 0
+			if _aR_[2] > 0
+				_nRatio_ = _aR_[1] / _aR_[2]
+			ok
+			StzGpuCalibSetShaped(_cKey_, _n_, 1, _nRatio_)
+			StzGpuCalibAddLadderRow(_cKey_, _n_, 1, _aR_[1], _aR_[2])
+			_aCells_ + [ 1, _n_, _aR_[1], _aR_[2], _nRatio_ ]
+			if _n_ > _nMax_
+				_nMax_ = _n_
+			ok
+			if _nRatio_ >= 1.3
+				if _nFlat_ = 0
+					_nFlat_ = _n_
+				ok
+			else
+				if _nFlat_ > 0
+					_bBeyond_ = TRUE
+				ok
+			ok
+		next
+		_cWhy_ = "crossover"
+		if _nFlat_ = 0 or _bBeyond_
+			_nFlat_ = _nMax_ + 1
+			_cWhy_ = "beyond-ladder"
+		ok
+		_bConf_ = FALSE
+		_aCtrl_ = []
+		if ring_len(_aCells_) > 0
+			_c1_ = _aCells_[1]
+			_aAgain_ = This._ScanRung(_c1_[2])
+			_nG_ = 0
+			if _c1_[4] > 0
+				_nG_ = _aAgain_[2] / _c1_[4]
+			ok
+			_nC_ = 0
+			if _c1_[3] > 0
+				_nC_ = _aAgain_[1] / _c1_[3]
+			ok
+			_aCtrl_ = [ _c1_[1], _c1_[2], _c1_[3], _c1_[4], _aAgain_[1], _aAgain_[2], _nC_, _nG_ ]
+			if _nG_ > 2 or _nG_ < 0.5 or _nC_ > 2 or _nC_ < 0.5
+				_bConf_ = TRUE
+			ok
+		ok
+		if _bConf_
+			_nS_ = ring_len(_aCells_)
+			for _i_ = 1 to _nS_
+				StzEngineGpuCalibSetShaped(_cKey_, _aCells_[_i_][2], 1, 0)
+			next
+			return [ :cells = _aCells_, :flat = 0, :flatwhy = "confounded",
+			         :confounded = TRUE, :control = _aCtrl_, :adapter = This.DeviceName() ]
+		ok
+		StzEngineGpuCalibSet(_cKey_, _nFlat_)
+		StzGpuSaveCalibration([_cKey_])
+		return [ :cells = _aCells_, :flat = _nFlat_, :flatwhy = _cWhy_,
+		         :confounded = FALSE, :control = _aCtrl_, :adapter = This.DeviceName() ]
+
+	# one rung: the loop and the face on the same list, [ cpuMs, gpuMs ]
+	def _ScanRung(pnN)
+		_aIn_ = []
+		for _i_ = 1 to pnN
+			_aIn_ + ((_i_ * 5) % 7)
+		next
+		_nReps_ = floor(400000 / pnN)
+		if _nReps_ < 3
+			_nReps_ = 3
+		ok
+		This.Scan(_aIn_)
+		StzEngineGpuWake(400)
+		_nCpu_ = 999999999
+		_nGpu_ = 999999999
+		for _r_ = 1 to 7
+			_nT0_ = StzEngineWatchTimestampNs()
+			for _k_ = 1 to _nReps_
+				This._ScanCpu(_aIn_, 0)
+			next
+			_nMs_ = (StzEngineWatchTimestampNs() - _nT0_) / 1000000 / _nReps_
+			if _nMs_ < _nCpu_
+				_nCpu_ = _nMs_
+			ok
+			_nT0_ = StzEngineWatchTimestampNs()
+			for _k_ = 1 to _nReps_
+				This.Scan(_aIn_)
+			next
+			_nMs_ = (StzEngineWatchTimestampNs() - _nT0_) / 1000000 / _nReps_
+			if _nMs_ < _nGpu_
+				_nGpu_ = _nMs_
+			ok
+		next
+		return [ _nCpu_, _nGpu_ ]
+
 	# Lets the engine try the variants of the pairwise-distance kernel at a shape and record the winner if it beats the generic one by 1.3 times.
 	#
 	#   m          the number of queries, from 1 to 16

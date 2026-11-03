@@ -1,0 +1,12 @@
+# One step short: seven doublings reach 128 places back, and thread 128 needs 129 numbers.
+k = StzKernelMakerQ()
+k.TakesVector(:a)
+k.ReturnsVector(:c)
+k.Shared(:t, 256)
+k.Shared(:u, 256)
+k.Stage('{ @t[@l] = @a }')
+k.Tiles(:s, '{ 7 }')
+k.Stage('{ @u[@l] = @t[@l] + @t[@l - pow(2, s)] }')
+k.Stage('{ @t[@l] = @u[@l] }')
+k.ForEachElement('{ @c = @t[@l] }')
+? StzKernelPuzzleQ("kp-20").Grade(k)

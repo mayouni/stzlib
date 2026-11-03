@@ -1,0 +1,12 @@
+# Eight steps of doubling reach: in step s every thread adds the number 2^s places to its left, from one array into the other and back (a stage may not read the array it writes).
+k = StzKernelMakerQ()
+k.TakesVector(:a)
+k.ReturnsVector(:c)
+k.Shared(:t, 256)
+k.Shared(:u, 256)
+k.Stage('{ @t[@l] = @a }')
+k.Tiles(:s, '{ 8 }')
+k.Stage('{ @u[@l] = @t[@l] + @t[@l - pow(2, s)] }')
+k.Stage('{ @t[@l] = @u[@l] }')
+k.ForEachElement('{ @c = @t[@l] }')
+? StzKernelPuzzleQ("kp-20").Grade(k)

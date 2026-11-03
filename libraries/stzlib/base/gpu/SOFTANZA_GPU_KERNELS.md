@@ -44,6 +44,7 @@ including the one in a browser.
 | `engine/src/gpu_verify.zig` | the checker and its result slots |
 | `engine/src/gpu.zig` | the device, its features, calibration, GPU-or-CPU routing |
 | `engine/src/gpu_ops.zig`, `gpu_foundry.zig` | the op library, the matmul variants, the foundry that times them |
+| `engine/src/gpu_scan.zig` | GB0's prefix scan: blocks, scanned totals, offsets, in one submit |
 | `engine/src/neural_backbone.zig` | the resident MiniLM forward on the GPU, with f32 or f16 weights |
 | `engine/src/stz_wasm_entry.zig` | the same grammar compiled for the browser |
 | `base/gpu/stzKernelMaker.ring` | the Ring face over the grammar |
@@ -546,9 +547,9 @@ reported 174% of the copy roof, which is a clock artefact, not speed.
 
 ## 7. The puzzles
 
-Nineteen puzzles in twelve chapters teach the GPU from the map to the tiled
+Twenty puzzles in thirteen chapters teach the GPU from the map to the tiled
 product, then the branch, the whole number, the vector, the counter, the
-loop and the volume:
+loop, the volume and the running total:
 
 | chapter | puzzles |
 |---|---|
@@ -564,6 +565,7 @@ loop and the volume:
 | the counter | 17 count the votes (GL0: an atomic output, many threads, one counter) |
 | the loop | 18 round up to a power of two (GL0: `iterate`, a state and a stop) |
 | the volume | 19 what changed since the slice before (GL0: `depth` and `@slice`) |
+| the scan | 20 the running total of a group (GB0: the block step of `Scan`, slow and in doubling steps) |
 
 An exercise is a folder in the Learning System's shape: `exercise.zknw`,
 `task.<lang>.md` in English, French, Arabic and Hausa, `promise.ring`, a
@@ -592,7 +594,7 @@ desktop produce identical results on every case it holds.
 
 The author worked puzzles 1 to 8. After the page gained a "Your move"
 block and buttons that load a known mistake, the author said those told
-them what to do. Puzzles 9 to 19 are built and checked by instruments;
+them what to do. Puzzles 9 to 20 are built and checked by instruments;
 **no person has worked one yet**.
 
 ## 8. Choices measured into the library
@@ -601,6 +603,7 @@ them what to do. Puzzles 9 to 19 are built and checked by instruments;
 |---|---|---|
 | store the neural model's weights at half precision | kept, **off by default** | it halves the weight memory on the device and moves the forward by about 2%; the embedding stays as close to the CPU as f32 does |
 | merge GELU into the matrix product's store | **removed** | 62 to 56 dispatches per forward, and the clock moved within its own noise |
+| route a list scan | **stored per adapter**: the loop below about 50,000 elements on the RTX 3050, the device from there | the face costs about 0.15 ms of buffers and a submit before it scans, and is bound by marshalling the list both ways (1 ms of 23 at a million); the ratio runs 0.2 at 1,000, 1.1 at 20,000, 1.5 at 50,000 and 2.0 at a million |
 | route a shape nobody measured | **interpolate** between measured shapes, log-log, never beyond them | a flat line sent a search the GPU runs 1.7 to 1.9 times faster to the CPU |
 | double precision on the GPU | **refused** at the start | WebGPU has no f64 |
 | WGSL's `%` on an int | **never written**: the transpiler writes `stz_rem(a, b)`, `a - (a / b) * b` | on the RTX 3050 (wgpu-native 29) the compiler took an i32 `%` as unsigned: `-7 % 4` was 1, where WGSL says -3; its `/`, its wrapping and its comparisons were WGSL's |
@@ -666,6 +669,7 @@ Run with Ring++ from `base/test/gpu/`: `rnxc <guard>.ring`.
 | `gpu_int_narrated.ring` | GL0's ints: declarations, typing, refusals in both readers' words, the device at every edge, the fuzz's int kind, puzzle 14 |
 | `gpu_vec_narrated.ring` | GL0's vectors: construction, swizzles, spreading, the vector functions, refusals, the device, the fuzz's vector kind, puzzle 15 |
 | `gpu_buffers_narrated.ring` | GL0's buffers of vectors: declarations, both readers, every host path that makes a buffer, the fuzz's typed-buffer kind, puzzle 16 |
+| `gpu_scan_narrated.ring` | GB0's scan: exact witnesses across every level, the shift, the measured band, one submit, what it refuses, the face, the speed against a scale pass, the route, puzzle 20 |
 | `gpu_grid3_narrated.ring` | GL0's 3-D grid: depth and @slice in both readers, its refusals in their shared words, volumes on the device, the fuzz's grid kind and its stride control, puzzle 19 |
 | `gpu_loop_narrated.ring` | GL0's loop: a state, a stop, sum as a special case, the cap, refusals in both readers' words, the device (including a stage before a barrier), the fuzz's loop kind and its step-flip control, puzzle 18 |
 | `gpu_host_narrated.ring` | the host contract: the engine's numbers pinned, no host file spells one, and a host written from the document alone reaches the face's verdicts on 17 puzzle cases |

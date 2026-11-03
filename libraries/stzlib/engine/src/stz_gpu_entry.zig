@@ -5,6 +5,7 @@ pub const gpu_verify = @import("gpu_verify.zig");
 pub const gpu_foundry = @import("gpu_foundry.zig");
 pub const gpu_fuzz = @import("gpu_fuzz.zig");
 pub const gpu_fft = @import("gpu_fft.zig");
+pub const gpu_scan = @import("gpu_scan.zig");
 pub const gpu_surface = @import("gpu_surface.zig");
 pub const ring_bridge = @import("ring_bridge_gpu.zig");
 
@@ -22,5 +23,6 @@ test {
     _ = gpu_foundry;
     _ = gpu_fuzz;
     _ = gpu_fft;
+    _ = gpu_scan;
     _ = gpu_ops;
 }
